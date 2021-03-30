@@ -17,6 +17,7 @@ class Build : BuildGroup
     childrenScripts =
     [
       `haystack/build.fan`,
+      `auth/build.fan`,
       `def/build.fan`,
       `defc/build.fan`,
     ]
