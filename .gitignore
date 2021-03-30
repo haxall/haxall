@@ -3,6 +3,7 @@
 Thumbs.db
 .DS_Store
 *.log
+fan.props
 
 # lib/
 /lib/fan/*.pod
