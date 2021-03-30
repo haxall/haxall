@@ -368,7 +368,7 @@ class GridBuilder
 }
 
 @Js
-internal const class GbGrid : ConstGrid
+internal const class GbGrid : Grid
 {
   new make(Dict meta, GbCol[] cols, Str:GbCol colsByName, GbRow[] rows)
   {

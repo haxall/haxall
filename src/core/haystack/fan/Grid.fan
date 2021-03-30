@@ -12,7 +12,7 @@
 ** See [docSkyspark]`docSkySpark::Grids`
 **
 @Js
-mixin Grid
+const mixin Grid
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -140,12 +140,10 @@ mixin Grid
   abstract Dict meta()
 
   **
-  ** Get an immutable version of this grid.  Most grid implementations
-  ** are immutable and will return this. However some implementations may
-  ** require construction of a safe copy.
+  ** Legacy hook to force lazily loaded grids into memory.
   **
   @NoDoc
-  abstract ConstGrid toConst()
+  virtual Grid toConst() { this }
 
 //////////////////////////////////////////////////////////////////////////
 // Transformations
@@ -889,13 +887,3 @@ mixin Grid
   }
 }
 
-**************************************************************************
-** ConstGrid
-**************************************************************************
-
-@Js
-@NoDoc
-const mixin ConstGrid : Grid
-{
-  override final ConstGrid toConst() { this }
-}
