@@ -8,23 +8,28 @@
 
 using concurrent
 using web
+using haystack
 
 **
 ** AuthClientContext used to manage the process for authenticating
-** with HTTP/HTTPS server to open an `AuthClient`.
+** with HTTP/HTTPS server.  Once authenticated an instance of this
+** class is used to prepare to additional WebClient requests.
 **
-class AuthClientContext
+class AuthClientContext : HaystackClientAuth
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Constructor
+// Open
 //////////////////////////////////////////////////////////////////////////
 
-  ** Constructor. Must set `uri`, `user`, `pass`, and `log`
-  new make(|This| f)
+  ** Open an authenticated context which can be used to prepare additional requests
+  static AuthClientContext open(Uri uri, Str user, Str pass, Log log, Duration timeout := 1min)
   {
-    f(this)
+    make { it.uri = uri; it.user = user; it.pass = pass; it.log = log; it.timeout = timeout }.doOpen
   }
+
+  ** Private it-block constructor
+  private new make(|This| f) { f(this) }
 
 //////////////////////////////////////////////////////////////////////////
 // State
@@ -46,7 +51,7 @@ class AuthClientContext
   const Str? userAgent := "SkyArc/$typeof.pod.version"
 
   ** Timeout for WebClient sockets
-  @NoDoc const Duration timeout := 1min
+  const Duration timeout
 
   ** Headers we wish to use for AuthClient requests
   Str:Str headers := [:]
@@ -65,7 +70,7 @@ class AuthClientContext
   ** Open the authenticated session. On failure an exception will
   ** be raised.  If successful then return this and then use `prepare`
   ** to use authenticated WebClients to the server
-  This open()
+  private This doOpen()
   {
     try
     {
@@ -200,7 +205,7 @@ class AuthClientContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Prepare a WebClient instance with the auth cookies/headers
-  WebClient prepare(WebClient c)
+  override WebClient prepare(WebClient c)
   {
     c.followRedirects = false
     c.socketOptions.connectTimeout = this.timeout
@@ -305,8 +310,7 @@ class AuthClientContext
     if (args.size < 3) { echo("usage: <uri> <user> <pass>"); return }
     log := Log.get("auth")
     log.level = LogLevel.debug
-    cx := AuthClientContext { it.uri=args[0].toUri; it.user=args[1]; it.pass=args[2]; it.log=log }
-    cx.open
+    cx := AuthClientContext.open(args[0].toUri, args[1], args[2], log, 1min)
     echo("--- AuthContext.open success! ---\n")
 
     res := cx.get(cx.prepare(WebClient(cx.uri)))

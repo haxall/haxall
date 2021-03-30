@@ -27,7 +27,8 @@ class Build : BuildPod
                "vcs.uri":      "https://github.com/haxall/haxall"]
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
-               "web @{fan.depend}"]
+               "web @{fan.depend}",
+               "haystack @{hx.depend}"]
     srcDirs = [`fan/`,
                `fan/schemes/`,
                `test/`]

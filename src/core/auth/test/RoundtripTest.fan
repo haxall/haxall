@@ -43,7 +43,7 @@ class RoundtripTest : Test
     user := "auth-bearer-token"
     verifyGood(user, "tok-$user")
     verifyErr(IOErr#) {
-      cx := makeClientCx(user, "bad-$user").open
+      cx := openClient(user, "bad-$user")
       testBody := "test" + (0..100).random
       c := cx.prepare(WebClient(cx.uri+ `?${testBody}`))
       c.getStr
@@ -52,14 +52,15 @@ class RoundtripTest : Test
 
   Void verifyBad(Str user, Str pass)
   {
-    cx := makeClientCx(user, pass)
-    verifyErr(AuthErr#) { cx.open }
+    verifyErr(AuthErr#)
+    {
+      openClient(user, pass)
+    }
   }
 
   Void verifyGood(Str user, Str pass)
   {
-    cx := makeClientCx(user, pass)
-    cx.open
+    cx := openClient(user, pass)
     verify(cx.isAuthenticated)
     testBody := "test" + (0..100).random
     c := cx.prepare(WebClient(cx.uri+ `?${testBody}`))
@@ -82,15 +83,9 @@ class RoundtripTest : Test
     wisp.stop
   }
 
-  AuthClientContext makeClientCx(Str user, Str pass)
+  AuthClientContext openClient(Str user, Str pass)
   {
-    AuthClientContext
-    {
-      it.uri = `http://localhost:$port/`
-      it.user = user
-      it.pass = pass
-      it.log  = Log.get("client")  { level = clientLevel }
-    }
+    AuthClientContext.open(`http://localhost:$port/`, user, pass, Log.get("client")  { level = clientLevel })
   }
 }
 
