@@ -1,23 +1,23 @@
 #! /usr/bin/env fan
 //
-// Copyright (c) 2019, SkyFoundry LLC
+// Copyright (c) 2018, SkyFoundry LLC
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   16 Jan 2019  Matthew Giannini  Creation
+//   30 Nov 2018  Brian Frank  Creation
 //
 
 using build
 
 **
-** Build: rdf
+** Build: def
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName = "rdf"
-    summary = "Resource Description Framework (RDF)"
+    podName = "def"
+    summary = "Haystack def namespace implementation"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
@@ -26,10 +26,13 @@ class Build : BuildPod
                "vcs.name":     "Git",
                "vcs.uri":      "https://github.com/haxall/haxall"]
     depends = ["sys @{fan.depend}",
-              ]
+               "concurrent @{fan.depend}",
+               "compilerJs @{fan.depend}",
+               "web @{fan.depend}",
+               "rdf @{hx.depend}",
+               "haystack @{hx.depend}"]
     srcDirs = [`fan/`,
-               `fan/io/`,
-               `test/`,
+               `fan/rdf/`,
               ]
   }
 }

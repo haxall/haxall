@@ -20,10 +20,12 @@ class Build : BuildPod
     podName = "haystack"
     summary = "Haystack model and client API"
     meta    = ["org.name":     "SkyFoundry",
-               "org.uri":      "http://skyfoundry.com/",
-               "proj.name":    "SkySpark",
-               "license.name": "Commercial",
-               "skyspark.doc": "true"]
+               "org.uri":      "https://skyfoundry.com/",
+               "proj.name":    "Haxall",
+               "proj.uri":     "https://haxall.io/",
+               "license.name": "Academic Free License 3.0",
+               "vcs.name":     "Git",
+               "vcs.uri":      "https://github.com/haxall/haxall"]
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
                "util @{fan.depend}",
