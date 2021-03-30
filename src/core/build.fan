@@ -18,6 +18,7 @@ class Build : BuildGroup
     [
       `haystack/build.fan`,
       `def/build.fan`,
+      `defc/build.fan`,
     ]
   }
 }

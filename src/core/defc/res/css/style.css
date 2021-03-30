@@ -1,0 +1,295 @@
+/*
+// Copyright (c) 2017, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   27 Sep 2017  Brian Frank  Creation
+*/
+
+.defc {
+  font: 16px -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
+  line-height: 1.5em;
+  max-width: 960px;
+
+  --divider-border: 1px solid #eee;
+
+  --link-color:    #3e7cc4;  /* blue   - nav, links */
+  --title-color:   #d49011;  /* orange - top level headings */
+  --name-color:    #27ae60;  /* green  - defs, chapter, types, slots */
+  --sidebar-color: #a0a0a0;  /* gray   - left sidebar headings */
+}
+
+.defc img {
+  border:0;
+}
+
+.defc hr {
+  border: 0;
+  border-top: var(--divider-border);
+  height: 1px;
+}
+
+.defc a {
+  color: var(--link-color);
+}
+
+.defc code {
+  font: 14px Menlo, Consolas, Courier, monospace;
+  color: #777;
+}
+
+.defc pre {
+  font: 14px Menlo, Consolas, Courier, monospace;
+  background: #f7f7f9;
+  margin: 1em 0;
+  padding: 1.5em;
+  overflow: auto;
+}
+
+.defc h1 {
+  color: var(--title-color);
+  margin: 0 0 0.5em 0;
+  padding: 0;
+}
+
+.defc h2 {
+  color: var(--name-color);
+}
+
+.defc p > img {
+  display:block;
+  margin:0 auto;
+  max-width: 600px;
+}
+
+/*************************************************************************
+ * Navigation
+ ************************************************************************/
+
+.defc-nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.defc-nav ul li {
+  display: inline;
+  margin: 0 4px;
+  padding: 2px 0;
+  color: #aaa;
+}
+
+.defc-nav li.next {
+  text-align: right;
+}
+
+.defc-nav li + li.next {
+  float: right;
+}
+
+/*************************************************************************
+ * Main Two Column Grid
+ ************************************************************************/
+
+.defc-main  {
+  margin: 20px 0 0 0;
+  display: grid;
+  grid-template-columns: auto 850px;
+  grid-row-gap: 30px;
+  grid-column-gap: 20px;
+}
+
+h2.defc-main-heading  {
+  margin: 0;
+  padding: 5px 10px 0 0;
+  text-align: right;
+  font-size: 100%;
+  font-weight: normal;
+  color: var(--sidebar-color);
+}
+
+.defc-main-heading a {
+  color: var(--sidebar-color);
+  text-decoration: none;
+}
+
+.defc-main-heading a:hover {
+  color: var(--sidebar-color);
+  text-decoration: underline;
+}
+
+.defc-main-section {
+  margin: 0;
+  padding: 0;
+}
+
+.defc-chapter-title {
+  color: var(--title-color);
+  margin: 10px 0 20px 0;
+  padding: 0;
+}
+
+.defc-footer-ts  {
+  font-size: 60%;
+  color: #999;
+}
+
+.defc-main-section h2:first-child {
+  margin-top: 4px;
+}
+
+/*************************************************************************
+ * Props Table
+ ************************************************************************/
+
+.defc-props {
+  border-collapse: collapse;
+}
+
+.defc-props tr  {
+  border-top: var(--divider-border);
+}
+
+.defc-props th {
+  font-weight: bold;
+  text-align: left;
+  vertical-align: text-top;
+  padding: 4px 10px 4px 0px;
+  white-space: nowrap;
+}
+
+.defc-props .defc-prop-title {
+  font-weight: bold;
+  font-size: 130%;
+  text-align: left;
+  vertical-align: text-top;
+  padding: 30px 0 4px 0;
+  white-space: nowrap;
+  color: var(--title-color);
+}
+
+.defc-props tr:first-child .defc-prop-title {
+  padding-top: 4px;
+}
+
+.defc-props th a {
+  color: var(--name-color);
+  text-decoration: none;
+}
+
+.defc-props th a:hover {
+  color: var(--name-color);
+  text-decoration: underline;
+}
+
+.defc-props td {
+  padding: 4px 6px;
+}
+
+.defc-props td a {
+  text-decoration: none;
+}
+
+.defc-props td a:hover {
+  text-decoration: underline;
+}
+
+.defc-props td p {
+  margin: 0;
+}
+
+/*************************************************************************
+ * NavMenu
+ ************************************************************************/
+
+.defc-navMenu a {
+  padding: 2px;
+  display: block;
+  text-decoration: none;
+}
+
+.defc-navMenu a:hover {
+  text-decoration: underline;
+}
+
+/*************************************************************************
+ * Slide
+ ************************************************************************/
+
+.defc-slide li {
+  margin: 0.5em;
+  font-size: 1.8em;
+}
+
+/*************************************************************************
+ * Search
+ ************************************************************************/
+
+.defc-search h1 {
+  margin-top: 12px;
+}
+
+.defc-search form input[type=text] {
+  width: 600px;
+  border: 1px solid #bbb;
+  border-radius: 2px;
+  margin: 0;
+  padding: 6px;
+  font-size: 16px;
+}
+
+.defc-search-summary {
+  padding: 10px 0 0 0;
+  font-size: 12px;
+  font-weight: bold;
+  color: #aaa;
+}
+
+.defc-search ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.defc-search  li {
+  margin: 2em 0;
+}
+
+.defc-search li:first-child {
+  margin-top: 1em;
+}
+
+.defc-tag  {
+  padding: 2px 8px;
+  font-size: 75%;
+  color: #fff;
+  background: var(--name-color);
+  margin-right: 10px;
+  border: 0px solid #bbb;
+  border-radius: 10px;
+}
+
+.defc-search h3 {
+  margin: 0;
+}
+
+.defc-search-score {
+  font-size: 50%;
+  vertical-align: middle;
+  padding-left: 8px;
+  color: #aaa;
+  display: none;
+}
+
+.defc-search p {
+  margin: 0;
+}
+
+.defc-search a {
+  padding: 2px;
+  text-decoration: none;
+}
+
+.defc-search a:hover {
+  text-decoration: underline;
+}
