@@ -1,0 +1,16 @@
+# ignore files for git
+
+Thumbs.db
+.DS_Store
+*.log
+
+# lib/
+/lib/fan/*.pod
+/lib/tmp/
+
+# doc/
+/doc/
+
+# temp
+/tmp/
+/temp/

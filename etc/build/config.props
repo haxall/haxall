@@ -1,0 +1,11 @@
+//
+// Config: build
+//
+// History:
+//   26 Mar 2026  Brian Frank  Creation
+//
+
+buildVersion=3.0.28
+hx.depend=3.0.28
+fan.depend=1.0
+
