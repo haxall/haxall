@@ -1,0 +1,42 @@
+//
+// Copyright (c) 2016, Brian Frank and Andy Frank
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Feb 2016  Brian Frank  Creation
+//
+
+more=more
+
+lastMonth=Last Month
+lastQuarter=Last Quarter
+lastWeek=Last Week
+lastYear=Last Year
+quarter1=Q1
+quarter2=Q2
+quarter3=Q3
+quarter4=Q4
+thisMonth=This Month
+thisQuarter=This Quarter
+thisWeek=This Week
+thisYear=This Year
+span.dateTime=D-MMM-YYYY k:mmaa
+span.date=D-MMM-YYYY
+span.month=MMM-YYYY
+span.year=YYYY
+today=Today
+weekOf=Week of
+yesterday=Yesterday
+
+justNow=Just now
+daysAgo=days ago
+
+number.byte=B
+number.us_dollar=U#,##0.00
+number.euro=#,##0.00U
+number.pound_sterling=U#,##0.00
+number.japanese_yen=#,##0
+number.south_korean_won=#,##0
+
+
+
