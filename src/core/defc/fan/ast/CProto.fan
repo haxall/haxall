@@ -81,7 +81,6 @@ class CProto
   ** Encoded name for documentation file
   const Str docName
 
-
   ** Set loc field is not null
   internal This setLoc(CLoc? x) { if (x != null) loc = x; return this }
 

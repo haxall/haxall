@@ -18,8 +18,8 @@ internal class GenProtos : DefCompilerStep
 
   override Void run()
   {
-    // only run this if generating a DefDocEnv
-    if (!compiler.genDocEnv) return
+    // only run this if we really need to it because its expensive
+    if (!compiler.genProtos) return
 
     // direct subtypes of entity
     entities = index.subtypes(index.etc.entity)

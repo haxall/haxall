@@ -22,6 +22,9 @@ class Main : AbstractMain
   @Opt { help = "Comma separated outputs: html, csv, zinc, trio, json, turtle, dist" }
   Str output := "html"
 
+  @Opt { help = "Generate protos output file in addition to defs file" }
+  Bool protos
+
   @Arg { help = "List of input pod names or directories (defaults to ph pods)" }
   Str[]? inputs
 
@@ -50,7 +53,7 @@ class Main : AbstractMain
 
     try
     {
-      c.compileMain(output.split(','))
+      c.compileMain(output.split(','), protos)
       return 0
     }
     catch (CompilerErr e)

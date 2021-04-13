@@ -91,25 +91,22 @@ class DefCompiler
     run([GenDocEnv(this), GenDocs(this)])
   }
 
-  ** Compile all all dist formats and HTML
-  This compileAllFormats()
-  {
-    backend := DefCompilerStep[GenDocs(this)]
-    GenGrid.formats.each |format| { backend.add(GenGrid(this, format)) }
-    return run(backend)
-  }
-
   ** Compile into one or more formats from command line Main
-  This compileMain(Str[] formats)
+  This compileMain(Str[] formats, Bool protos)
   {
     if (formats.contains("dist")) return compileDist
     backend := DefCompilerStep[,]
     formats.each |format|
     {
       if (format == "html")
+      {
         backend.add(GenDocEnv(this)).add(GenDocs(this))
+      }
       else
-        backend.add(GenGrid(this, format))
+      {
+        backend.add(GenDefsGrid(this, format))
+        if (protos) backend.add(GenProtosGrid(this, format))
+      }
     }
     return run(backend)
   }
@@ -119,7 +116,11 @@ class DefCompiler
   {
     backend := DefCompilerStep[,]
     backend.add(GenDocEnv(this)).add(GenDocs(this))
-    GenGrid.formats.each |format| { backend.add(GenGrid(this, format)) }
+    GenGrid.formats.each |format|
+    {
+      backend.add(GenDefsGrid(this, format))
+      backend.add(GenProtosGrid(this, format))
+    }
     backend.add(GenDist(this))
     return run(backend)
   }
@@ -149,6 +150,7 @@ class DefCompiler
       t1 := Duration.now
       steps := frontend.addAll(backend)
       this.genDocEnv = steps.any |step| { step is GenDocEnv }
+      this.genProtos = genDocEnv || steps.any |step| { step is GenProtosGrid }
 
       steps.each |step|
       {
@@ -234,12 +236,14 @@ class DefCompiler
   internal InternFactory intern         // make
   internal CompilerErr[] errs := [,]    // err
   internal Bool genDocEnv               // DocGenEnv one of our steps?
+  internal Bool genProtos               // Do we need to genenerate protos
   internal CSymbolFactory symbols       // Scan, Parse
   internal CSymbol:CLib libs := [:]     // Scan
   internal Str:DocPod manuals := [:]    // Scan
   internal CIndex? index                // Index
   Namespace? ns                         // GenNamespace
-  internal Grid? grid                   // GenGrid
+  internal Grid? defsGrid               // GenDefsGrid
+  internal Grid? protosGrid             // GenProtosGrid
   internal DefDocEnv? docEnv            // GenDocEnv
 }
 
