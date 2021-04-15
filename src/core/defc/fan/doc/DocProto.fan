@@ -58,6 +58,7 @@ const class DocProto : Doc
   override const Str docName
   override Str title() { dis }
   const DocDef[] implements
+  Bool isSimple() { implements.size <= 1 } // just single tag such as 'equip'
   DocProto[] children() { childrenRef.val }
   internal const AtomicRef childrenRef := AtomicRef() // late bound
   override Type renderer() { DocProtoRenderer# }

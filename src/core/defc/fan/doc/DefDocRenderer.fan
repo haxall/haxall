@@ -107,6 +107,11 @@ abstract class DefDocRenderer : DocRenderer
   Void writeProtosSection(DocProto[] protos)
   {
     if (protos.isEmpty) return
+
+    // filter out point, equip when there are more specific children defined
+    nonSimple := protos.findAll |p| { !p.isSimple }
+    if (!nonSimple.isEmpty) protos = nonSimple
+
     out.defSection("children").props
     protos.each |proto| { out.propProto(proto) }
     out.propsEnd.defSectionEnd
