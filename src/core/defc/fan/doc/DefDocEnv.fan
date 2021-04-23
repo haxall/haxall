@@ -22,12 +22,12 @@ const class DefDocEnv : DocEnv
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(Namespace ns, Str:DocSpace spacesMap, Str:DocDef defsMap)
+  new make(DefDocEnvInit init)
   {
-    this.ns        = ns
+    this.ns        = init.ns
     this.ts        = DateTime.now
-    this.spacesMap = spacesMap
-    this.defsMap   = defsMap
+    this.spacesMap = init.spacesMap
+    this.defsMap   = init.defsMap
     this.libs      = spacesMap.vals.findAll |s| { s is DocLib }.sort
     this.libsMap   = Str:DocLib[:].addList(libs) { it.name }
   }
@@ -346,4 +346,16 @@ const class DefDocEnv : DocEnv
       h.children.each |kid| { doWalkChapterToc(from, target, kid, walkKids, f) }
   }
 
+}
+
+**************************************************************************
+** DefDocEnvInit
+**************************************************************************
+
+class DefDocEnvInit
+{
+  new make(|This| f) { f(this) }
+  Namespace ns
+  Str:DocSpace spacesMap
+  Str:DocDef defsMap
 }

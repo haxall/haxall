@@ -27,7 +27,16 @@ internal class GenDocEnv : DefCompilerStep
     addSpace(genProtos)
     addSpace(genAppendix)
     compiler.manuals.each |manual| { addSpace(manual) }
-    compiler.docEnv = DefDocEnv(ns, spacesMap, defsMap)
+
+    init := DefDocEnvInit
+    {
+      it.ns        = this.ns
+      it.spacesMap = this.spacesMap
+      it.defsMap   = this.defsMap
+    }
+
+    factory := compiler.docEnvFactory ?: |DefDocEnvInit x->DefDocEnv| { DefDocEnv(x) }
+    compiler.docEnv = factory(init)
   }
 
   private DocLib genLib(CLib lib)

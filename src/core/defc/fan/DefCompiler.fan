@@ -63,6 +63,9 @@ class DefCompiler
   ** Factory to use for building Namespace and Features
   DefFactory factory := DefFactory()
 
+  ** Factory to create DefDocEnv if generating documentation
+  |DefDocEnvInit->DefDocEnv|? docEnvFactory
+
 //////////////////////////////////////////////////////////////////////////
 // Compile
 //////////////////////////////////////////////////////////////////////////
@@ -111,16 +114,17 @@ class DefCompiler
     return run(backend)
   }
 
+  ** Compile all the formats and docs
+  This compileAll()
+  {
+    backend := backendAll
+    return run(backend)
+  }
+
   ** Compile into dist zip file
   This compileDist()
   {
-    backend := DefCompilerStep[,]
-    backend.add(GenDocEnv(this)).add(GenDocs(this))
-    GenGrid.formats.each |format|
-    {
-      backend.add(GenDefsGrid(this, format))
-      backend.add(GenProtosGrid(this, format))
-    }
+    backend := backendAll
     backend.add(GenDist(this))
     return run(backend)
   }
@@ -140,6 +144,20 @@ class DefCompiler
      Validate(this),
      GenNamespace(this),
      GenProtos(this)]
+  }
+
+  ** Backend steps for HTML docs and all formats (both defs/protos)
+  private DefCompilerStep[] backendAll()
+  {
+    acc := DefCompilerStep[,]
+    acc.add(GenDocEnv(this))
+    acc.add(GenDocs(this))
+    GenGrid.formats.each |format|
+    {
+      acc.add(GenDefsGrid(this, format))
+      acc.add(GenProtosGrid(this, format))
+    }
+    return acc
   }
 
   ** Run the pipeline of common frotend and given backend steps
