@@ -21,6 +21,7 @@ class Build : BuildGroup
       `def/build.fan`,
       `defc/build.fan`,
       `axon/build.fan`,
+      `hx/build.fan`,
     ]
   }
 }

@@ -17,7 +17,7 @@ class Main : AbstractMain
   Bool version
 
   @Opt { help = "Output directory" }
-  File dir := Env.cur.workDir + `doc-def/`
+  File outDir := Env.cur.workDir + `doc-def/`
 
   @Opt { help = "Comma separated outputs: html, csv, zinc, trio, json, turtle, dist" }
   Str output := "html"
@@ -33,7 +33,7 @@ class Main : AbstractMain
     if (version) return printVersion(Env.cur.out)
 
     c := DefCompiler()
-    c.outDir = dir
+    c.outDir = outDir
 
     if (inputs != null)
     {
