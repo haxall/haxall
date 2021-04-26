@@ -3,12 +3,12 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   26 Mar 2021  Brian Frank  Creation
+//   26 Apr 2021  Brian Frank  Creation
 
 using build
 
 **
-** Top level build script
+** Build script for test directory
 **
 class Build : BuildGroup
 {
@@ -16,9 +16,7 @@ class Build : BuildGroup
   {
     childrenScripts =
     [
-      `util/build.fan`,
-      `core/build.fan`,
-      `test/build.fan`,
+      `testHaystack/build.fan`,
     ]
   }
 }
