@@ -20,7 +20,7 @@ internal class ConvertCli : HxCli
   @Opt { help = "Output directory" }
   File outDir := File(`./`)
 
-  @Opt { help = "Comma separated output formats: zinc, json, trio" }
+  @Opt { help = "Comma separated output formats: zinc, json, trio, csv" }
   Str output := ""
 
   @Arg { help = "Input file(s) to convert" }
@@ -62,6 +62,7 @@ internal class ConvertCli : HxCli
       case "zinc": return ZincReader(file.in).readGrid
       case "json": return JsonReader(file.in).readGrid
       case "trio": return TrioReader(file.in).readGrid
+      case "csv":  return CsvReader(file.in).readGrid
       default:     throw Err("Unknown input file type: $file")
     }
   }
@@ -73,6 +74,7 @@ internal class ConvertCli : HxCli
       case "zinc":   return ZincWriter(out).writeGrid(grid)
       case "json":   return JsonWriter(out).writeGrid(grid)
       case "trio":   return TrioWriter(out).writeGrid(grid)
+      case "csv":    return CsvWriter(out).writeGrid(grid)
       case "jsonld": return JsonLdWriter(out, nsOpts).writeGrid(grid)
       case "turtle": return TurtleWriter(out, nsOpts).writeGrid(grid)
       default: throw Err("Unknown output format: $format")

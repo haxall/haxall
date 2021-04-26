@@ -12,7 +12,6 @@
 ** takes an OutStream.  Constructors may also declare a second parameter
 ** for a Dict opts.
 **
-**
 @NoDoc
 @Js
 mixin GridWriter
