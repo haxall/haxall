@@ -25,9 +25,9 @@ const class DefDocEnv : DocEnv
   new make(DefDocEnvInit init)
   {
     this.ns        = init.ns
-    this.ts        = DateTime.now
     this.spacesMap = init.spacesMap
     this.defsMap   = init.defsMap
+    this.ts        = DateTime.now
     this.libs      = spacesMap.vals.findAll |s| { s is DocLib }.sort
     this.libsMap   = Str:DocLib[:].addList(libs) { it.name }
   }

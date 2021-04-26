@@ -20,6 +20,7 @@ class Build : BuildGroup
       `auth/build.fan`,
       `def/build.fan`,
       `defc/build.fan`,
+      `axon/build.fan`,
     ]
   }
 }

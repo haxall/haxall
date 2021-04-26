@@ -1,0 +1,43 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   23 Jan 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^admin
+is: ^marker
+tagOn: ^func
+doc: "Requires admin permission"
+--------------------------------------------------------------------------
+def: ^disableOverridableChecks
+is: ^marker
+doc: Disables function `overridable` checking.
+--------------------------------------------------------------------------
+def: ^foldOn
+is: ^str
+doc: "Registers a function as folding a given value type"
+--------------------------------------------------------------------------
+def: ^func
+is: ^feature
+icon: "func"
+doc: "Axon function"
+--------------------------------------------------------------------------
+def: ^name
+is: ^str
+doc: "Name key"
+--------------------------------------------------------------------------
+def: ^overridable
+is: ^marker
+doc:
+  Applied to an ext function to enable [override]`docSkySpark::Axon#overrides`
+  by project record functions.
+--------------------------------------------------------------------------
+def: ^su
+is: ^marker
+tagOn: ^func
+doc: "Requires superuser permission"
+--------------------------------------------------------------------------
+
