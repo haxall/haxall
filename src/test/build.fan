@@ -17,6 +17,7 @@ class Build : BuildGroup
     childrenScripts =
     [
       `testHaystack/build.fan`,
+      `testAxon/build.fan`,
     ]
   }
 }
