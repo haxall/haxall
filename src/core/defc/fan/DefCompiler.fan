@@ -260,8 +260,8 @@ class DefCompiler
   internal Str:DocPod manuals := [:]    // Scan
   internal CIndex? index                // Index
   Namespace? ns                         // GenNamespace
+  DefDocEnv? docEnv                     // GenDocEnv
   internal Grid? defsGrid               // GenDefsGrid
   internal Grid? protosGrid             // GenProtosGrid
-  internal DefDocEnv? docEnv            // GenDocEnv
 }
 
