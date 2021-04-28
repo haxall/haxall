@@ -38,7 +38,7 @@ const mixin Filetype : Def
       case "json":   return JsonWriter#
       case "turtle": return Type.find("def::TurtleWriter")
       case "jsonld": return Type.find("def::JsonLdWriter")
-      case "csv":    return Type.find("view::CsvWriter")
+      case "csv":    return CsvWriter#
     }
     return null
   }
