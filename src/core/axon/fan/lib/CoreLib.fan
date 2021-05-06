@@ -1255,7 +1255,7 @@ const class CoreLib
   ** Return yesterday's Date according to context's time zone
   @Axon static Date yesterday() { Date.today - 1day}
 
-  ** Return current DateTime according to context's time zone
+  ** Return current DateTime according to context's time zone.
   @Axon static DateTime now() { DateTime.now }
 
   ** Return current time as nanosecond ticks since 1 Jan 2000 UTC.
