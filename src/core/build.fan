@@ -23,6 +23,7 @@ class Build : BuildGroup
       `axon/build.fan`,
       `folio/build.fan`,
       `hx/build.fan`,
+      `hxStore/build.fan`,
     ]
   }
 }

@@ -1,0 +1,214 @@
+//
+// Copyright (c) 2016, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   11 Feb 2016  Brian Frank  Creation
+//
+
+Overview
+--------
+The Folio storage system is implemented as flat namespace "mini file system".
+Unlike a traditional file system it is optimized to store millions of very
+small files for individual records.  We call these mini-files *blobs*.
+Principles of the store:
+
+  - flat address space using auto-generated 64-bit handles
+
+  - index is RAM based with backing random access file
+
+  - blobs provide up to 32 bytes of meta data available in RAM
+
+  - blob data stored in variable sized pages b/w 16 bytes and 1 MB
+
+  - blobs managed via simple CRUD API: create, read, write, and delete
+
+  - all changes increment a 64-bit journaling version
+
+This code is actually mostly written in Java to provide lower level
+handling of 32-bit integers and locking.
+
+Addressing
+----------
+The addressing design for blobs is based on a flat namespace of 64-bit
+integers which we call *handles*. This allows ids to be stored efficiently
+by a sys::Int without extra object and GC overhead.
+
+Handles are automatically assigned by the create operation.  The bottom 4
+bytes are assigned contiguously allowing lookup to be a direct array based
+index; this is extremely fast and extremely memory efficient - requiring
+no more than a single array and the Blob objects themselves.  The top 4
+bytes of the handle are assigned a randomized value to guarantee uniqueness
+as index slots are reused.  We resevere the value of zero in the top four
+bytes to indicate an index slot has been deleted and is free for reuse.
+
+Using a Java array to index blobs provides a max blob index of 0x7fff_ffff
+or around 2.1 billion blobs in a store.  But for practical consisderations
+of RAM we limit the number of blobs in a single store to 1,000,000,000.
+
+Blob Meta
+---------
+Many different applications require in-memory indexes for fast lookup
+of the data stored on disk.  To provide flexible in-memory indexing, each
+blob may store up to 32 bytes of indexing meta data in the RAM index we
+call *blob meta*.  The meta is optionally updated on every write call as
+part of the index update.
+
+Versioning
+----------
+A 64-bit journaling version is managed across the entire store for all its
+blobs.  This value is incremented on every create and write opteration.  Each
+blob maintains its own version.
+
+Deleting
+--------
+When we delete a blob, we free up a slot in the index.  But until the
+index slot is reused we maintain the deleted blob in our data structures so
+that replication can detect the delete.  Deleted blobs increment the
+version and are stored to the index file as all zereos with exception of
+the 8 byte version number.  Previous to 3.0.17 the entire entry was zeroed,
+so we must continue to consider this case in the code.
+
+In memory we detect a deleted blob by setting the size to -1.  When a blob
+is first deleted it will maintain its actual handle.  But since we zero
+out the top four bytes in the index entry, after restart its handle will be
+the index only (top four bytes will be zero).
+
+Page Files
+----------
+Blob data is stored in a series of *page files*.  Each page file is assigned a
+page size in multiples of 2: 16 bytes, 32 bytes, ... up to 1MB.  Each page
+file stores up to 65,535 (0xffff) pages.  Each page in the store is identified
+with a 32-bit fileId and a 16-bit pageId.  There can be a max of 999,999 page
+files (the store's practical limit is enforced by blob index limit).
+
+File ids are assigned sequentially and indexed using a simple array.  When a
+page is to be written, we look for a page file with the best fit size.  For example
+if writting a blob with 105 bytes, then we would assign it to a 128 byte page
+file as the best fit.  Once a page file fills up with 65,535 entries, then we
+generate new page files for the given size.
+
+Pages are stored to disk using the naming convention:
+
+  dataXXX/data-XXX-YYY.pZZ
+
+The page fileId is represented in decimal where XXX is the top three digits
+and YYY is the bottom three decimal digits.  This spreads out page files so
+that only 1000 are located in a single directory.  The page size for the
+file is encoded into ZZ as two decimal digits for its power of two.  For
+example a page size of 1KB is encoded to the extension "p10" since we raise
+two the tenth power to get 1024.
+
+Pages are stored sequentially to a random access file.  For example given a page
+file with a page size of 64 bytes, then page offsets are asssigned as follows:
+  page 0:  0 offset
+  page 1:  64 offset
+  page 2:  128 offset
+  page 3:  192 offset
+
+Each page file maintains a free map for the used/free state of its 65,535 pages
+via an in-memory 8KB byte array.  The free map is not persistent, but is reconstructed
+on bootup as the index is read off of disk.
+
+NOTE: most likely the first problem we will hit is the OS limit on open file
+handles.  This could be fixed a couple of ways: allow more pages to be stored
+per page file, or close/reopen the file pointer for each read/write operation (or
+using some LRU algorithm).  Although after five years of production experience
+with extremely large databases, this does not seem to be a problem.
+
+Index File
+----------
+The index file is used to store a 56 byte entry for each blob in a random access
+file.  The first 56 entry is used to the store the header, and then a sequential
+list of entries for each blob ordered by their handle's index (bottom 4 bytes).  For
+example blob with a handle index of 7 would be stored at offset 56*(7+1) = 448.
+
+Layout for the header
+  00: u8     magic 'folioSto'
+  08: u4     version 0x0003000
+  12: u8     hisPageSize in ns ticks
+
+Layout for a blob entry:
+  00: u4     handle top 4 bytes (low 4 bytes is implied zero based index)
+  04: u1     unused
+  05: u1     meta size
+  06: u1*32  meta bytes
+  38: u8     ver
+  46: u4     data size
+  50: u4     data fileId
+  54: u2     data pageId
+
+When the database is opened, we read the index into memory by iterating all the
+56 byte entries.  As we read each index we map it to a Blob instance and update
+the page file's free map to indicate which pages are used by active blobs.  When
+we delete a blob we zero out its handle to indicate that slot is free.
+
+Lock Analysis
+-------------
+We maintain an open random access file pointer for both the index and each page
+file.  These file pointers must be synchronized.
+
+The Blobs are stored in memory which means indexing and access to meta requires
+no locking or disk access.  But reading data pages from disk requires locking
+the page file.  This means only one thread can read the page file at at time.  But
+since read operations are very simple block reads into an in-memory buffer they
+should be fast.
+
+We use four different locks:
+
+  1. Index is lock for curVer, mutating Blob fields, BlobMap updates,
+     and writing to index file
+  2. Blob is lock for its own read, write, and delete operations
+  3. PageMgr is lock for allocating and freeing pages
+  4. PageFile is lock for read/write to the page file
+
+Lock flow for read:
+
+  Blob.read
+  {
+    PageFile.read
+  }
+
+Lock flow for create/write:
+
+  Index.create
+  {
+    Blob.write
+    {
+      PageMgr.alloc
+      PageFile.write
+      Index.write
+      PageMgr.free
+    }
+  }
+
+Lock flow for delete:
+
+  Blob.delete
+  {
+    Index.delete
+    PageMgr.free
+  }
+
+To avoid deadlocks locks must always be acquired in the same order.  The
+case of Index.create has an order that could potentially conflict
+with Blob.write/free.
+
+In the case of Index.create, the Blob reference isn't made available to
+external code until after create completes.
+
+We must ensure that Blob.write is never called by anyone other than
+Index (at least before trying to acquire Index's lock).  The way to
+force this to ensure that Store.ro is set to true.
+
+Backup
+------
+Backups are run on a background thread spawned within BackupMonitor.  The basic idea
+is to quickly make a safe cloned copy of the index Blobs (copy of their handle, fileId,
+pageId, and meta).  Once we have a safe copy of the index, we stream a clean copy
+of each page to a zip file using the on-disk file system structure.  During this process
+we need to make sure the original pages are locked down which we do by creating a "GC freeze"
+in which all calls to PageMgr.free are queued until the freeze is done.
+
+
+
