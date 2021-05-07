@@ -136,15 +136,16 @@ abstract const class FolioRes
 @NoDoc
 const final class ReadFolioRes : FolioRes
 {
-  new make(Str errMsg, Bool errs, Dict?[] dicts)
+  new make(Obj errMsgObj, Bool errs, Dict?[] dicts)
   {
-    this.errMsg = errMsg
+    this.errMsgObj = errMsgObj
     this.errs = errs
     this.dicts = dicts
   }
 
   override Obj? val()  { dicts }
-  const override Str errMsg
+  override Str errMsg() { errMsgObj.toStr }
+  const Obj errMsgObj
   const override Bool errs
   const override Dict?[] dicts
   override Int count() { dicts.size }

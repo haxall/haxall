@@ -4,20 +4,20 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   2 Nov 2015  Brian Frank  Creation
+//   28 Oct 2015   Brian Frank  Creation
 //
 
 using build
 
 **
-** Build: hxStore
+** Build: hxFolio
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName  = "hxStore"
-    summary  = "Haxall folio storage engine"
+    podName = "hxFolio"
+    summary = "Haxall folio database implementation"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
@@ -27,9 +27,11 @@ class Build : BuildPod
                "vcs.uri":      "https://github.com/haxall/haxall"
               ]
     depends = ["sys @{fan.depend}",
-               "concurrent @{fan.depend}"]
-    srcDirs  = [`fan/`, `test/`]
-    javaDirs = [`java/`]
-    docApi   = false
+               "concurrent @{fan.depend}",
+               "haystack @{hx.depend}",
+               "def @{hx.depend}",
+               "folio @{hx.depend}",
+               "hxStore @{hx.depend}"]
+   srcDirs = [`fan/`, `test/`]
   }
 }

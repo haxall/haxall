@@ -24,6 +24,7 @@ class Build : BuildGroup
       `folio/build.fan`,
       `hx/build.fan`,
       `hxStore/build.fan`,
+      `hxFolio/build.fan`,
     ]
   }
 }
