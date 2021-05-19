@@ -26,15 +26,19 @@ class Build : BuildPod
                "vcs.name":     "Git",
                "vcs.uri":      "https://github.com/haxall/haxall"]
     depends = ["sys @{fan.depend}",
+               "concurrent @{fan.depend}",
                "util @{fan.depend}",
                "haystack @{hx.depend}",
+               "auth @{hx.depend}",
                "def @{hx.depend}",
-               "hx @{hx.depend}"]
+               "folio @{hx.depend}",
+               "hx @{hx.depend}",
+               "hxFolio @{hx.depend}"]
     srcDirs = [`fan/`]
 
     index =
     [
-      "hx.cli": ["hxTools::ConvertCli"]
+      "hx.cli": ["hxTools::ConvertCli", "hxTools::InitCli"]
     ]
   }
 }
