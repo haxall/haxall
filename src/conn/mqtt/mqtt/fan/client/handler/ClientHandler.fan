@@ -41,14 +41,9 @@ internal abstract class ClientHandler
   ** Convenience to get the client MQTT version
   MqttVersion version() { clientConfig.version }
 
-  ** Get the resolved client identifier. If the connack has
-  ** been received and the server assigned a client id, use that.
-  ** Otherwise use the one from the client config.
-  Str clientId(ConnAck? ack := client.pendingConnect.connack(false))
-  {
-    if (ack == null) return clientConfig.clientId
-    return ack.props.get(Property.assignedClientId, clientConfig.clientId)
-  }
+  ** Convenience to get the client identifier for this session.
+  ** Should only be used *after* a CONNACK is received.
+  Str clientId() { client.clientId }
 
   ** Get the CONNACK properties for this connection
   Properties connackProps() { client.pendingConnect.connack.props }

@@ -74,6 +74,9 @@ const class MqttClient : Actor, MqttConst
   internal PendingConn pendingConnect() { pendingConnectRef.val }
   internal const AtomicRef pendingConnectRef := AtomicRef(notConnected)
 
+  internal Str clientId() { clientIdRef.val }
+  internal const AtomicRef clientIdRef := AtomicRef()
+
   private const ConcurrentMap pendingAcks := ConcurrentMap()
   private const AtomicInt lastPacketId := AtomicInt(maxPacketId)
 
@@ -129,7 +132,7 @@ const class MqttClient : Actor, MqttConst
     send(ActorMsg("connect", config)).get
   }
 
-  ** Publish a message to the given topic. Use `publishWith()` to user a "fluent"
+  ** Publish a message to the given topic. See `publishWith` to use a "fluent"
   ** API for publishing.
   **
   ** Returns a future that will be completed when the message is confirmed
@@ -144,7 +147,7 @@ const class MqttClient : Actor, MqttConst
   PubSend publishWith() { PubSend(this) }
 
   ** Subscribe to the given topic filter. You are responsible for setting the
-  ** option flags correctly. Usee `subscribeWith()` to use a "fluent" API for
+  ** option flags correctly. See `subscribeWith` to use a "fluent" API for
   ** subscribing.
   **
   ** Return a future that will be completed when the 'SUBACk' is received.
@@ -181,7 +184,7 @@ const class MqttClient : Actor, MqttConst
 // Actor
 //////////////////////////////////////////////////////////////////////////
 
-  protected override Obj? receive(Obj? obj)
+  @NoDoc protected override Obj? receive(Obj? obj)
   {
     msg := obj as ActorMsg
 
@@ -425,7 +428,7 @@ const class MqttClient : Actor, MqttConst
     subMgr.close
     if (pendingConnect.connect.cleanSession)
     {
-      config.persistence.clear
+      config.persistence.clear(this.clientId)
       subMgr.clear
     }
 

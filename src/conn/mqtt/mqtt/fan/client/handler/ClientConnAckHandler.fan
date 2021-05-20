@@ -65,8 +65,10 @@ internal class ClientConnAckHandler : ClientHandler
 
     debug("CONNACK: $ack.props")
 
+    // set the established client identifier for this connection
+    client.clientIdRef.val = ack.props.get(Property.assignedClientId, clientConfig.clientId)
+
     // open the db
-    clientId := this.clientId(ack)
     db.open(clientId)
 
     // handle resolution of clean session request vs. server session present response
@@ -75,7 +77,7 @@ internal class ClientConnAckHandler : ClientHandler
       if (!ack.isSessionPresent)
       {
         debug("Resume session for ${clientId} request, but server indicated no session present. Clearing persisted state.")
-        db.clear
+        db.clear(clientId)
       }
       else
       {
@@ -85,7 +87,7 @@ internal class ClientConnAckHandler : ClientHandler
     else
     {
       // this is a clean session, clear any persisted state
-      db.clear
+      db.clear(clientId)
     }
 
     // initialize the quota

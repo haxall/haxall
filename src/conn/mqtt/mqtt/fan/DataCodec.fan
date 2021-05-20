@@ -190,7 +190,7 @@ mixin DataCodec
     toOut(out).writeBuf(buf.flip)
   }
 
-  ** Read `Properties
+  ** Read `Properties`
   static Properties readProps(Obj in)
   {
     props := Properties()

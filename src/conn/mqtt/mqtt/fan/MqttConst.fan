@@ -6,6 +6,9 @@
 //  13 May 2021   Matthew Giannini  Creation
 //
 
+**
+** MQTT constants
+**
 mixin MqttConst
 {
   ** This session expiry interval indicates that the server should close the session

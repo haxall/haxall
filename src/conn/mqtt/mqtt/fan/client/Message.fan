@@ -22,7 +22,10 @@ const class Message
     this.retain  = retain
   }
 
-  ** The application payload
+  ** The application payload.
+  **
+  ** Since it is 'const' make sure you use [payload.in]`sys::Buf.in` to read
+  ** the contents of the payload.
   const Buf payload
 
   ** The requested [quality of service]`QoS`

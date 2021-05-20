@@ -51,7 +51,7 @@ final class SubSend
 //////////////////////////////////////////////////////////////////////////
 
   ** Set the topic filter to subscribe to. You must set a topic filter
-  ** before you call `send()`.
+  ** before you call `send`.
   This topicFilter(Str topicFilter)
   {
     this._topicFilter = Topic.validateFilter(topicFilter)

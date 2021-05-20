@@ -12,6 +12,9 @@ using concurrent
 ** ClientMemDb
 **************************************************************************
 
+**
+** Stores messages in-memory for Qos 1 and QoS 2 messages.
+**
 const class ClientMemDb : ClientPersistence
 {
   new make() { }
@@ -65,9 +68,9 @@ const class ClientMemDb : ClientPersistence
     sessionRef.val = null
   }
 
-  override Void clear()
+  override Void clear(Str clientId)
   {
-    session(false)?.clear
+    (sessions.get(clientId) as ClientMemSession)?.clear
   }
 
   override Str toStr()
