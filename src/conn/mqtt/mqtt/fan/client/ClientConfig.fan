@@ -9,7 +9,7 @@
 using concurrent
 
 **
-** Client configuration
+** The configuration to use when creating an `MqttClient`.
 **
 const class ClientConfig
 {

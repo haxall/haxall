@@ -207,11 +207,18 @@ internal class ClientSubMgr : ClientHandler
 ** SubscriptionListener
 **************************************************************************
 
+**
+** A subscription listener receives callbacks related to a topic subscription.
+**
 mixin SubscriptionListener
 {
+  ** Callback when the subscription is acknowledged. The `ReasonCode` indicates
+  ** if the subscription was a success or not.
   virtual Void onSubscribed(Str topic, ReasonCode reason, Properties props) { }
 
+  ** Callback when a message is received on the given topic.
   virtual Void onMessage(Str topic, Message msg) { }
 
+  ** Callback when the unsubscribe is acknowledged.
   virtual Void onUnsubscribed(Str topic, ReasonCode reason, Properties props) { }
 }
