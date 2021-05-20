@@ -158,6 +158,11 @@ internal class InitCli : HxCli
 
   private Void initLibs(Folio db)
   {
+    initLib(db, "ph")
+    initLib(db, "phScience")
+    initLib(db, "phIoT")
+    initLib(db, "phIct")
+    initLib(db, "hx")
     initLib(db, "hxdApi")
     initLib(db, "hxdHttp", ["httpPort":Number(httpPort)])
     initLib(db, "hxdUser")
