@@ -8,6 +8,7 @@
 
 using inet
 using web
+using [java] javax.net.ssl::SSLSocketFactory
 
 **************************************************************************
 ** MqttTransport
@@ -52,9 +53,17 @@ internal class TcpTransport : MqttTransport
   {
     uri := config.serverUri
 
-    this.socket = uri.scheme == "mqtts" ? TcpSocket.makeTls() : TcpSocket()
+    this.socket = uri.scheme == "mqtts" ? tlsSocket(config) : TcpSocket()
     socket.options.connectTimeout = config.tcpConnectTimeout
     socket.connect(IpAddr(uri.host), uri.port)
+  }
+
+  private static TcpSocket tlsSocket(ClientConfig config)
+  {
+    factory := config.sslSocketFactory?.val as SSLSocketFactory
+    return factory == null
+      ? TcpSocket.makeTls()
+      : TcpSocket.makeRaw(factory.createSocket)
   }
 
   private TcpSocket socket

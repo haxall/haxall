@@ -19,7 +19,7 @@ const class ClientConfig
 
     if (this.pool == null)
     {
-      this.pool = ClientConfig.defaultPool
+      this.pool = ActorPool { it.name = "${clientId}-MqttPool" }
     }
 
     if (this.persistence == null)
@@ -27,14 +27,9 @@ const class ClientConfig
       this.persistence = ClientMemDb()
     }
 
-    if (maxInFlight < 1 || maxInFlight > max_in_flight_limit)
+    if (maxInFlight < 1 || maxInFlight > MqttConst.maxPacketId)
       throw ArgErr("Invalid maxInFlight: ${maxInFlight}")
   }
-
-  private static const ActorPool defaultPool := ActorPool { it.name = "DefaultMqttClientPool" }
-
-  ** The maximum value the `maxInFlight` configuration parameter can be set to.
-  static const Int max_in_flight_limit := 65_535
 
   ** The MQTT protocol version to use
   const MqttVersion version := MqttVersion.v3_1_1
@@ -49,7 +44,6 @@ const class ClientConfig
   **
   ** To connect via a websocket use either the 'ws' (plain socket)
   ** or 'wss' (TLS socket) scheme.
-  **
   const Uri serverUri := `mqtt://localhost:1883`
 
   ** TCP socket connection timeout
@@ -58,32 +52,21 @@ const class ClientConfig
   ** How long to wait for CONNACK before timing out the connection
   const Duration mqttConnectTimeout := 10sec
 
+  ** Maximum number of messages requiring acknowledgement that can be in-flight.
+  const Int maxInFlight := 1000
+
   ** Actor pool for client actors
   const ActorPool pool
 
   ** The persistence layer to use for this client
   const ClientPersistence persistence
 
-  ** Maximum number of messages requiring acknowledgement that can be in-flight.
-  const Int maxInFlight := 1000
+  ** When connecting over TLS, you can set this to an Unsafe containing
+  ** a Java SSLSocketFactory to use for contructing the TLS socket. If not
+  ** set, the standard fantom TLS socket will be created.
+  @NoDoc const Unsafe? sslSocketFactory := null
 
   // ** Maximum number of QoS 1 and 2 messages that will be queued for sending
   // ** above those that are currently in-flight.
   // const Int maxQueued := 1000
-
-  ** Get the MQTT server URI
-  // Uri uri()
-  // {
-  //   if (websocketPath != null)
-  //   {
-  //     scheme := useTls ? "wss" : "ws"
-  //     path   := websocketPath.relTo(`/`)
-  //     return `${scheme}://${serverHost}:${serverPort}/${path}`
-  //   }
-  //   else
-  //   {
-  //     scheme := useTls ? "mqtts" : "mqtt"
-  //     return `${scheme}://${serverHost}:${serverPort}/`
-  //   }
-  // }
 }
