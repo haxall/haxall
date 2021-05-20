@@ -32,6 +32,7 @@ class Build : BuildPod
                "def @{hx.depend}",
                "folio @{hx.depend}",
                "hxStore @{hx.depend}"]
-   srcDirs = [`fan/`, `test/`]
+    srcDirs = [`fan/`, `test/`]
+    docApi   = false
   }
 }

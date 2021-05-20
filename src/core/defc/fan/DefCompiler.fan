@@ -167,6 +167,7 @@ class DefCompiler
     {
       t1 := Duration.now
       steps := frontend.addAll(backend)
+      onRun(steps)
       this.genDocEnv = steps.any |step| { step is GenDocEnv }
       this.genProtos = genDocEnv || steps.any |step| { step is GenProtosGrid }
 
@@ -187,6 +188,11 @@ class DefCompiler
     {
       throw err("Internal compiler error", CLoc.none, e)
     }
+  }
+
+  ** Subclass hook to insert steps into the pipeline
+  virtual Void onRun(DefCompilerStep[] steps)
+  {
   }
 
   private Str stats(Duration dur)

@@ -13,7 +13,7 @@ using def
 **
 ** Base class for DefCompiler steps
 **
-abstract internal class DefCompilerStep
+abstract class DefCompilerStep
 {
   new make(DefCompiler compiler) { this.compiler = compiler }
 
