@@ -103,7 +103,8 @@ abstract const class LibInput : CompilerInput
   ** Return location to use for library itself
   abstract CLoc loc()
 
-  ** Scan the lib def meta and return Dict or CompilerErr
+  ** Scan the lib def meta and return Dict or CompilerErr.
+  ** See parseLibMetaFile utility.
   abstract Obj scanMeta(DefCompiler c)
 
   ** Return trio files to scan
