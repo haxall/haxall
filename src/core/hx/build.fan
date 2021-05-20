@@ -10,7 +10,7 @@
 using build
 
 **
-** Build: def
+** Build: hx
 **
 class Build : BuildPod
 {
@@ -26,12 +26,16 @@ class Build : BuildPod
                "vcs.name":     "Git",
                "vcs.uri":      "https://github.com/haxall/haxall"]
     depends = ["sys @{fan.depend}",
+               "concurrent @{fan.depend}",
                "util @{fan.depend}",
-               "haystack @{hx.depend}"]
+               "haystack @{hx.depend}",
+               "folio @{hx.depend}"]
     srcDirs = [`fan/`]
+    resDirs = [`lib/`]
 
     index =
     [
+      "ph.lib": ["hx"],
       "hx.cli": ["hx::HelpCli", "hx::VersionCli"]
     ]
   }

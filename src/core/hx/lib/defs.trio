@@ -1,0 +1,14 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   19 May 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^typeName
+is: ^str
+doc: "Fantom type qname"
+--------------------------------------------------------------------------
+
