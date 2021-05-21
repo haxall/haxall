@@ -18,6 +18,7 @@ class Build : BuildGroup
     [
       `testHaystack/build.fan`,
       `testAxon/build.fan`,
+      `testHx/build.fan`,
     ]
   }
 }
