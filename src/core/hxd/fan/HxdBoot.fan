@@ -18,17 +18,46 @@ using hxFolio
 **
 class HxdBoot
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Configuration
+//////////////////////////////////////////////////////////////////////////
+
   ** Runtime version
   Version version := typeof.pod.version
 
   ** Runtime database dir (must set before booting)
   File? dir
 
+  ** Flag to create a new database if it doesn't already exist
+  Bool create := false
+
+  ** Logger to use for bootstrap
+  Log log := Log.get("hxd")
+
+  ** List of lib names which are required to be installed.
+  **
+  Str[] requiredLibs := [
+    "ph",
+    "phScience",
+    "phIoT",
+    "phIct",
+    "hx",
+    "hxdApi",
+    "hxdHttp",
+    "hxdUser"
+  ]
+
+//////////////////////////////////////////////////////////////////////////
+// Public
+//////////////////////////////////////////////////////////////////////////
+
   ** Initialize an instance of HxdRuntime but do not start it
   HxdRuntime init()
   {
     initArgs
-    initDatabase
+    openDatabase
+    initLibs
     rt = HxdRuntime(this)
     return rt
   }
@@ -48,17 +77,24 @@ class HxdBoot
     return 0
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Internals
+//////////////////////////////////////////////////////////////////////////
+
   private Void initArgs()
   {
     // validate and normalize dir
     if (dir == null) throw ArgErr("Must set 'dir' field")
     if (!dir.isDir) dir = dir.uri.plusSlash.toFile
     dir = dir.normalize
-    if (!dir.exists) throw ArgErr("Dir does not exist: $dir")
-    if (!dir.plus(`db/folio.index`).exists) throw ArgErr("Dir missing database files: $dir")
+    if (!create)
+    {
+      if (!dir.exists) throw ArgErr("Dir does not exist: $dir")
+      if (!dir.plus(`db/folio.index`).exists) throw ArgErr("Dir missing database files: $dir")
+    }
   }
 
-  private Void initDatabase()
+  private Void openDatabase()
   {
     config := FolioConfig
     {
@@ -69,7 +105,43 @@ class HxdBoot
     this.db = HxFolio.open(config)
   }
 
-  internal Log log := Log.get("hxd")
+  private Void initMeta()
+  {
+    tags := ["hxMeta":Marker.val,"projMeta": Marker.val]
+    initRec("hxMeta", db.read("hxMeta", false), tags)
+  }
+
+  private Void initLibs()
+  {
+    requiredLibs.each |libName| { initLib(libName) }
+  }
+
+  private Void initLib(Str name)
+  {
+    tags := ["hxLib":name, "dis":"lib:$name"]
+    initRec("lib [$name]", db.read("hxLib==$name.toCode", false), tags)
+  }
+
+  private Void initRec(Str summary, Dict? rec, Str:Obj changes := [:])
+  {
+    if (rec == null)
+    {
+      log.info("Create $summary")
+      db.commit(Diff.makeAdd(changes))
+    }
+    else
+    {
+      changes = changes.findAll |v, n| { rec[n] != v }
+      if (changes.isEmpty) return
+      log.info("Update $summary")
+      db.commit(Diff(rec, changes))
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Internal Fields
+//////////////////////////////////////////////////////////////////////////
+
   internal Folio? db
   internal HxdRuntime? rt
 }

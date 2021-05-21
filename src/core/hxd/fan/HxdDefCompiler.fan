@@ -16,7 +16,7 @@ using defc
 **
 class HxdDefCompiler : DefCompiler
 {
-  new make(Folio db) { this.db = db }
+  new make(Folio db, Log log) { this.db = db; this.log = log }
 
   const Folio db
 

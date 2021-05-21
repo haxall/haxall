@@ -9,9 +9,9 @@
 using concurrent
 using util
 using haystack
-using auth
 using folio
 using hx
+using hxd
 using hxFolio
 
 internal class InitCli : HxCli
@@ -39,12 +39,7 @@ internal class InitCli : HxCli
   {
     init
     gatherInputs
-
-    db := open
-    initMeta(db)
-    initLibs(db)
-    initSu(db)
-    close(db)
+    createDatabase
 
     printLine
     printLine("Success!")
@@ -145,87 +140,45 @@ internal class InitCli : HxCli
     throw Err()
   }
 
-  private Void initMeta(Folio db)
+  private Void createDatabase()
   {
-    rec := db.read("hxMeta", false)
-    if (rec == null)
+    boot := HxdBoot()
     {
-      printLine("Create hxMeta")
-      tags := ["hxMeta":Marker.val, "projMeta":Marker.val]
-      db.commit(Diff.make(null, tags, Diff.add.or(Diff.bypassRestricted)))
+      it.dir = this.dir
+      it.create = true
+      it.log = Log.get("init")
+    }
+
+    rt := boot.init
+    initHttpPort(rt)
+    initSu(rt)
+    rt.db.close
+  }
+
+  private Void initHttpPort(HxdRuntime rt)
+  {
+    rec := rt.db.read(Str<|hxLib=="hxdHttp"|>)
+    port := Number(httpPort)
+    if (rec["httpPort"] != port)
+    {
+      rt.log.info("Update httpPort [$port]")
+      rt.db.commit(Diff(rec, ["httpPort":port]))
     }
   }
 
-  private Void initLibs(Folio db)
+  private Void initSu(HxdRuntime rt)
   {
-    initLib(db, "ph")
-    initLib(db, "phScience")
-    initLib(db, "phIoT")
-    initLib(db, "phIct")
-    initLib(db, "hx")
-    initLib(db, "hxdApi")
-    initLib(db, "hxdHttp", ["httpPort":Number(httpPort)])
-    initLib(db, "hxdUser")
-  }
-
-  private Void initLib(Folio db, Str name, Str:Obj changes := [:])
-  {
-    rec := db.read("hxLib==$name.toCode", false)
+    rec := rt.db.read("username==$suUser.toCode", false)
     if (rec == null)
     {
-      printLine("Create lib [$name]")
-      db.commit(Diff.makeAdd(["hxLib":name].addAll(changes)))
+      rt.log.info("Create su [$suUser.toCode]")
+      HxdUserLib.addUser(rt.db, suUser, suPass, "su")
     }
     else
     {
-      changes = changes.findAll |v, n| { rec[n] != v }
-      if (changes.isEmpty) return
-      printLine("Update lib [$name]")
-      db.commit(Diff(rec, changes))
+      rt.log.info("Update su $suUser.toCode")
+      HxdUserLib.updatePassword(rt.db, rec, suPass)
     }
-  }
-
-  private Void initSu(Folio db)
-  {
-    scram := ScramKey.gen
-    userAuth := authMsgToDict(scram.toAuthMsg)
-    secret := scram.toSecret(suPass)
-
-    rec := db.read("username==$suUser.toCode", false)
-    if (rec == null)
-    {
-      printLine("Create su [$suUser.toCode]")
-      changes := [
-        "username":suUser,
-        "dis":suUser,
-        "user":Marker.val,
-        "userRole":"su",
-        "userAuth": userAuth,
-        "created": DateTime.now,
-        "tz": TimeZone.cur.toStr,
-        "disabled": Remove.val,
-      ]
-      db.commit(Diff.makeAdd(changes))
-      db.passwords.set(suUser, secret)
-    }
-    else
-    {
-      printLine("Update su $suUser.toCode")
-      changes := ["userAuth": userAuth]
-      db.commit(Diff(rec, changes))
-      db.passwords.set(suUser, secret)
-    }
-  }
-
-  private Dict authMsgToDict(AuthMsg msg)
-  {
-     userAuth := Str:Obj["scheme": msg.scheme]
-     msg.params.each |v, k|
-     {
-      if ("c" == k) userAuth[k] = Number(Int.fromStr(v, 10))
-      else userAuth[k] = v
-     }
-     return Etc.makeDict(userAuth)
   }
 }
 
