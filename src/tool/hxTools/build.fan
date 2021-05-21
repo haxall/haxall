@@ -29,10 +29,10 @@ class Build : BuildPod
                "concurrent @{fan.depend}",
                "util @{fan.depend}",
                "haystack @{hx.depend}",
-               "auth @{hx.depend}",
                "def @{hx.depend}",
                "folio @{hx.depend}",
                "hx @{hx.depend}",
+               "hxd @{hx.depend}",
                "hxFolio @{hx.depend}"]
     srcDirs = [`fan/`]
 

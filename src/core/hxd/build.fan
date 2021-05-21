@@ -29,6 +29,7 @@ class Build : BuildPod
                "concurrent @{fan.depend}",
                "util @{fan.depend}",
                "haystack @{hx.depend}",
+               "auth @{hx.depend}",
                "def @{hx.depend}",
                "defc @{hx.depend}",
                "folio @{hx.depend}",

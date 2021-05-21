@@ -16,9 +16,10 @@ using hx
 **
 internal const class HxdLibMgr : Actor
 {
-  new make(HxdRuntime rt) : super(rt.libActorPool)
+  new make(HxdRuntime rt, Str[] required) : super(rt.libActorPool)
   {
     this.rt = rt
+    this.required = required
 
     // init libs from database hxLib records
     map := Str:HxLib[:]
@@ -62,6 +63,8 @@ internal const class HxdLibMgr : Actor
   }
 
   const HxdRuntime rt
+
+  const Str[] required
 
   HxLib[] list() { listRef.val }
   private const AtomicRef listRef := AtomicRef(HxLib[,].toImmutable)

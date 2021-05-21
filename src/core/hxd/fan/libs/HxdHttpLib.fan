@@ -13,11 +13,6 @@ using hx
 **
 const class HxdHttpLib : HxdLib
 {
-  new make()
-  {
-    log.info("make")
-  }
-
   override Void onStart()
   {
     log.info("onStart")

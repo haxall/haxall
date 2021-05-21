@@ -27,9 +27,9 @@ const class HxdRuntime : HxRuntime
     this.version      = boot.version
     this.db           = boot.db
     this.log          = boot.log
-    this.nsRef.val    = HxdDefCompiler(db).compileNamespace
+    this.nsRef.val    = HxdDefCompiler(db, log).compileNamespace
     this.libActorPool = ActorPool { it.name = "Hxd-Lib" }
-    this.libMgr       = HxdLibMgr(this)
+    this.libMgr       = HxdLibMgr(this, boot.requiredLibs)
   }
 
 //////////////////////////////////////////////////////////////////////////

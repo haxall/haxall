@@ -11,6 +11,9 @@ using haystack
 using folio
 using hx
 
+**
+** Haxall daemon HxLib service provider implementation
+**
 const class HxdLibSpi : Actor, HxLibSpi
 {
 
