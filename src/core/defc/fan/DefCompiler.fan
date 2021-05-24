@@ -73,25 +73,25 @@ class DefCompiler
   ** Compile pods to an index
   CIndex compileIndex()
   {
-    run([,]).index
+    runBackend([,]).index
   }
 
   ** Compile to a Namespace instance
   Namespace compileNamespace()
   {
-    run(DefCompilerStep[,]).ns
+    runBackend(DefCompilerStep[,]).ns
   }
 
   ** Compile into DefDocEnv model (but don't generate HTML files)
   DefDocEnv compileDocEnv()
   {
-    run([GenDocEnv(this)]).docEnv
+    runBackend([GenDocEnv(this)]).docEnv
   }
 
   ** Compile into HTML documentation under outDir
   This compileDocs()
   {
-    run([GenDocEnv(this), GenDocs(this)])
+    runBackend([GenDocEnv(this), GenDocs(this)])
   }
 
   ** Compile into one or more formats from command line Main
@@ -111,14 +111,14 @@ class DefCompiler
         if (protos) backend.add(GenProtosGrid(this, format))
       }
     }
-    return run(backend)
+    return runBackend(backend)
   }
 
   ** Compile all the formats and docs
   This compileAll()
   {
     backend := backendAll
-    return run(backend)
+    return runBackend(backend)
   }
 
   ** Compile into dist zip file
@@ -126,11 +126,11 @@ class DefCompiler
   {
     backend := backendAll
     backend.add(GenDist(this))
-    return run(backend)
+    return runBackend(backend)
   }
 
   ** Common frontend steps
-  private DefCompilerStep[] frontend()
+  virtual DefCompilerStep[] frontend()
   {
     [Scan(this),
      Parse(this),
@@ -160,14 +160,18 @@ class DefCompiler
     return acc
   }
 
-  ** Run the pipeline of common frotend and given backend steps
-  private This run(DefCompilerStep[] backend)
+  ** Run the pipeline with common frotend and given backend steps
+  private This runBackend(DefCompilerStep[] backend)
+  {
+    run(frontend.addAll(backend))
+  }
+
+  ** Run the pipeline with the given steps
+  virtual This run(DefCompilerStep[] steps)
   {
     try
     {
       t1 := Duration.now
-      steps := frontend.addAll(backend)
-      onRun(steps)
       this.genDocEnv = steps.any |step| { step is GenDocEnv }
       this.genProtos = genDocEnv || steps.any |step| { step is GenProtosGrid }
 
@@ -190,17 +194,12 @@ class DefCompiler
     }
   }
 
-  ** Subclass hook to insert steps into the pipeline
-  virtual Void onRun(DefCompilerStep[] steps)
-  {
-  }
-
   private Str stats(Duration dur)
   {
     s := StrBuf()
     s.add(libs.size).add(" libs, ")
-    s.add(index.defs.size).add(" defs, ")
-    if (index.hasProtos) s.add(index.protos.size).add(" protos, ")
+    if (index != null) s.add(index.defs.size).add(" defs, ")
+    if (index != null && index.hasProtos) s.add(index.protos.size).add(" protos, ")
     s.add(dur.toLocale)
     return s.toStr
   }
