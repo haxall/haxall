@@ -22,9 +22,9 @@ const class HxdLibSpi : Actor, HxLibSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate the HxLib for given def and database rec
-  static HxLib instantiate(HxdRuntime rt, Lib def, Dict rec)
+  static HxLib instantiate(HxdRuntime rt, Str name, Dict def, Dict rec)
   {
-    spi := HxdLibSpi(rt, def.name, rec)
+    spi := HxdLibSpi(rt, name, rec)
     Actor.locals["hx.spi"]  = spi
     try
     {
@@ -38,7 +38,7 @@ const class HxdLibSpi : Actor, HxLibSpi
     }
   }
 
-  private static HxLib doInstantiate(Lib def)
+  private static HxLib doInstantiate(Dict def)
   {
     typeName := def["typeName"] as Str
     if (typeName == null) return ResHxLib()
