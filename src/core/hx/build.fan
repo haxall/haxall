@@ -28,6 +28,7 @@ class Build : BuildPod
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
                "util @{fan.depend}",
+               "web @{fan.depend}",
                "haystack @{hx.depend}",
                "folio @{hx.depend}"]
     srcDirs = [`fan/`]
