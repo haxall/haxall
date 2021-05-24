@@ -35,7 +35,7 @@ abstract const class HxRuntime
   abstract Bool hasLib(Str name)
 
   ** Enable a library in the runtime
-  abstract HxLib libAdd(Lib def, Dict tags := Etc.emptyDict)
+  abstract HxLib libAdd(Str name, Dict tags := Etc.emptyDict)
 
   ** Disable a library from the runtime.  The lib arg may
   ** be a HxLib instace, Lib definition, or Str name.

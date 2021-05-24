@@ -57,6 +57,7 @@ class HxdBoot
   {
     initArgs
     openDatabase
+    initMeta
     initLibs
     rt = HxdRuntime(this)
     return rt
@@ -127,7 +128,7 @@ class HxdBoot
     if (rec == null)
     {
       log.info("Create $summary")
-      db.commit(Diff.makeAdd(changes))
+      db.commit(Diff(null, changes, Diff.add.or(Diff.bypassRestricted)))
     }
     else
     {

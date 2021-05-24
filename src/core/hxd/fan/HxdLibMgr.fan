@@ -29,7 +29,7 @@ internal const class HxdLibMgr : Actor
       {
         // instantiate the HxLib
         name := (Str)rec->hxLib
-        lib := HxdLibSpi.instantiate(rt, rt.ns.lib(name), rec)
+        lib := HxdLibSpi.instantiate(rt, name, rt.ns.lib(name), rec)
         map.add(name, lib)
       }
       catch (Err e) rt.log.err("Cannot init lib: $rec.id.toCode [${rec->hxLib}]", e)
@@ -81,10 +81,13 @@ internal const class HxdLibMgr : Actor
   internal Str:HxLib map() { mapRef.val }
   private const AtomicRef mapRef := AtomicRef(Str:HxLib[:].toImmutable)
 
-  HxLib add(Lib def, Dict tags := Etc.emptyDict)
+  HxLib add(Str name, Dict tags := Etc.emptyDict)
   {
+    // lookup lib.trio meta Dict on callers thread
+    def := HxdDefCompiler(rt.db, rt.log).readLibMeta(name)
+
     // process on our background actor
-    send(HxMsg("add", def, tags)).get(null)
+    return send(HxMsg("add", name, def, tags)).get(null)
   }
 
   Void remove(Obj arg)
@@ -124,21 +127,21 @@ internal const class HxdLibMgr : Actor
     msg := (HxMsg)arg
     switch (msg.id)
     {
-      case "add":    return onAdd(msg.a, msg.b)
+      case "add":    return onAdd(msg.a, msg.b, msg.c)
       case "remove": return onRemove(msg.a)
       default:       throw ArgErr("Unsupported msg: $msg")
     }
   }
 
-  private HxLib onAdd(Lib def, Dict extraTags)
+  private HxLib onAdd(Str name, Dict def, Dict extraTags)
   {
     // check for dup
-    name := def.name
     dup := get(name, false)
     if (dup != null) throw Err("HxLib $name.toCode already exists")
 
     // check depends
-    def.depends.each |d|
+    depends := Symbol.toList(def["depends"])
+    depends.each |d|
     {
       if (get(d.name, false) == null) throw DependErr("HxLib $name.toCode missing dependency on $d.name.toCode")
     }
@@ -150,7 +153,7 @@ internal const class HxdLibMgr : Actor
     rec := rt.db.commit(Diff(null, tags, Diff.add.or(Diff.bypassRestricted))).newRec
 
     // instantiate the HxLib
-    lib := HxdLibSpi.instantiate(rt, def, rec)
+    lib := HxdLibSpi.instantiate(rt, name, def, rec)
 
     // register in lookup data structures
     listRef.val = list.dup.add(lib).sort(|x, y| { x.name <=> y.name }).toImmutable
@@ -202,7 +205,7 @@ internal const class HxdLibMgr : Actor
 
   private Void onModified()
   {
-    // need to rebuild namespace here...
+    rt.nsRecompile
   }
 
 }

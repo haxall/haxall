@@ -31,5 +31,7 @@ class Build : BuildPod
                "axon @{hx.depend}",
                "hx @{hx.depend}"]
     srcDirs = [`fan/`]
+    resDirs = [`lib/hxTestA/`, `lib/hxTestB/`]
+    index =   [ "ph.lib": ["hxTestA", "hxTestB"] ]
   }
 }

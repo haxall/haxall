@@ -1,0 +1,18 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   24 May 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:hxTestB
+depends: [^lib:ph, ^lib:hx, ^lib:hxTestA]
+typeName:"testHx::HxTestBLib"
+doc: "Testing lib"
+--------------------------------------------------------------------------
+
+
+
+

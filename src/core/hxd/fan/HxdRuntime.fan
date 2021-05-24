@@ -60,7 +60,7 @@ const class HxdRuntime : HxRuntime
   override Bool hasLib(Str name) { libMgr.hasLib(name) }
 
   ** Enable a library in the runtime
-  override HxLib libAdd(Lib def, Dict tags := Etc.emptyDict) { libMgr.add(def, tags) }
+  override HxLib libAdd(Str name, Dict tags := Etc.emptyDict) { libMgr.add(name, tags) }
 
   ** Disable a library from the runtime.
   ** The lib arg may be a HxLib instace, Lib definition, or Str name.
@@ -75,6 +75,12 @@ const class HxdRuntime : HxRuntime
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
+
+  ** Recompile the namespace
+  internal Void nsRecompile()
+  {
+    this.nsRef.val = HxdDefCompiler(db, log).compileNamespace
+  }
 
   ** Start runtime (blocks until all libs fully started)
   This start()
