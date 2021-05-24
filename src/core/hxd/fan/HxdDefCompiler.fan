@@ -20,15 +20,40 @@ class HxdDefCompiler : DefCompiler
 
   const Folio db
 
-  override Void onRun(DefCompilerStep[] steps)
+  ** Utility to read the lib.trio meta Dict for given name since
+  ** this runtime doesn't load it into the namespace if not enabled.
+  ** Note: this dict is not exactly the same as the namespace Lib dict
+  ** because no normalization is performed for baseUri, version, etc
+  Dict readLibMeta(Str libName)
   {
-    steps.insertAll(0, [
+    readStep := ReadLibMeta(this, libName)
+    run([InitLibNameToPod(this), readStep])
+    return readStep.libMeta
+  }
+
+  override DefCompilerStep[] frontend()
+  {
+    super.frontend.insertAll(0, [
       InitLibNameToPod(this),
       InitInputs(this)
     ])
   }
 
-  [Str:Pod]? libNameToPod     // InitLibNameToPod
+  internal Pod libNameToPod(Str name)
+  {
+    libNameToPodMap[name] ?: throw Err("No pod indexed for $name.toCode")
+  }
+
+  internal File libNameToMetaFile(Str name)
+  {
+    pod := libNameToPod(name)
+    file := pod.file(`/lib/lib.trio`, false)
+    if (file == null) file = pod.file(`/lib/${name}/lib.trio`, false)
+    if (file == null) throw Err("Pod missing /lib/lib.trio: $pod.name.toCode")
+    return file
+  }
+
+  internal [Str:Pod]? libNameToPodMap     // InitLibNameToPod
 }
 
 **************************************************************************
@@ -54,7 +79,7 @@ internal class InitLibNameToPod : DefCompilerStep
     }
 
     // init compiler field
-    c.libNameToPod = acc
+    c.libNameToPodMap = acc
   }
 
   private Void mapPod(Str:Pod acc, Str podName)
@@ -79,6 +104,27 @@ internal class InitLibNameToPod : DefCompilerStep
 }
 
 **************************************************************************
+** ReadLibMeta
+**************************************************************************
+
+internal class ReadLibMeta : DefCompilerStep
+{
+  new make(HxdDefCompiler c, Str libName) : super(c) { this.libName  = libName }
+
+  override Void run()
+  {
+    // note: this is just a straight read of the "lib.trio"; it does
+    // not perform any normalization such as baseUri, version, etc
+    c := (HxdDefCompiler)compiler
+    file := c.libNameToMetaFile(libName)
+    this.libMeta = TrioReader(file.in).readDict
+  }
+
+  const Str libName
+  Dict? libMeta
+}
+
+**************************************************************************
 ** InitInputs
 **************************************************************************
 
@@ -98,7 +144,7 @@ internal class InitInputs : DefCompilerStep
       if (name == null) return
 
       try
-        acc.add(initInput(name, rec))
+        acc.add(initInput(c, name, rec))
       catch (Err e)
         err("Cannot init hxLib", CLoc(name), e)
     }
@@ -106,17 +152,10 @@ internal class InitInputs : DefCompilerStep
     c.inputs = acc
   }
 
-  private LibInput initInput(Str name, Dict rec)
+  private LibInput initInput(HxdDefCompiler c, Str name, Dict rec)
   {
-    c := (HxdDefCompiler)compiler
-
-    pod := c.libNameToPod[name]
-    if (pod == null) throw Err("No pod indexed for $name.toCode")
-
-    libFile := pod.file(`/lib/lib.trio`, false)
-    if (libFile == null) libFile = pod.file(`/lib/${name}/lib.trio`, false)
-    if (libFile == null) throw Err("Pod missing /lib/lib.trio")
-
+    pod := c.libNameToPod(name)
+    libFile := c.libNameToMetaFile(name)
     return HxdLibInput(name, pod, libFile)
   }
 }
