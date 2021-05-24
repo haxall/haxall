@@ -61,6 +61,12 @@ abstract const class HxLib
   ** Logger to use for this library
   Log log() { spi.log }
 
+  ** Web service handling for this library
+  virtual HxLibWeb web() { UnsupportedHxLibWeb(this) }
+
+  ** Axon functions for this library
+  virtual HxLibFuncs funcs() { UnsupportedHxLibFuncs(this) }
+
   ** Service provider interface
   @NoDoc const HxLibSpi spi
 
