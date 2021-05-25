@@ -30,7 +30,6 @@ class Build : BuildPod
                "util @{fan.depend}",
                "web @{fan.depend}",
                "haystack @{hx.depend}",
-               "def @{hx.depend}",
                "axon @{hx.depend}",
                "folio @{hx.depend}"]
     srcDirs = [`fan/`]

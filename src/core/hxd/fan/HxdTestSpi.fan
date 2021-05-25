@@ -38,7 +38,7 @@ class HxdTestSpi : HxTestSpi
   override HxContext makeContext(HxUser? user)
   {
     if (user == null) user = HxdUser(Etc.makeDict1("username", "test"))
-    return HxContext(test.rt, user)
+    return HxdContext(test.rt, user)
   }
 }
 
