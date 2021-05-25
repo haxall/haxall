@@ -36,7 +36,15 @@ abstract class HaystackTest : Test
     ns := nsDefaultRef.val as Namespace
     if (ns == null)
     {
-      ns = Type.find("skyarcd::ProjTest").method("sysBoot").callOn(null, [this, null])->ns
+      // try as SkySpark environment first
+      try
+        ns = Type.find("skyarcd::ProjTest").method("sysBoot").callOn(null, [this, null])->ns
+      catch (Err e)
+        {}
+
+      // fallback to standard Haystack namespace
+      ns = Type.find("defc::DefCompiler").make->compileNamespace
+
       nsDefaultRef.val = ns
     }
     return ns

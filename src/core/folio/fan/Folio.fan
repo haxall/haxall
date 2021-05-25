@@ -276,7 +276,7 @@ abstract const class Folio
   ** Subclass implementation of commitAllAsync
   @NoDoc abstract protected FolioFuture doCommitAllAsync(Diff[] diffs, Obj? cxInfo)
 
-  ** Context commit info to pass back to FolioTracker
+  ** Context commit info to pass back to FolioHooks
   private Obj? cxCommitInfo() { FolioContext.curFolio(false)?.commitInfo }
 
 }

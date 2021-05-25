@@ -32,7 +32,7 @@ mixin FolioContext
   abstract Bool canWrite(Dict rec)
 
   ** Return an immutable thread safe object which will be passed thru
-  ** the commit process and available via the FolioTracker callbacks.
+  ** the commit process and available via the FolioHooks callbacks.
   ** This is typically the User instance.
   abstract Obj? commitInfo()
 }
