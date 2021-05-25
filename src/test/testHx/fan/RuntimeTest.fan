@@ -16,6 +16,11 @@ using hx
 **
 class RuntimeTest : HxTest
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Basics
+//////////////////////////////////////////////////////////////////////////
+
   @HxRuntimeTest
   Void testBasics()
   {
@@ -29,15 +34,19 @@ class RuntimeTest : HxTest
     verifyEq(rt.libs.containsSame(rt.lib("ph")), true)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// LibMgr
+//////////////////////////////////////////////////////////////////////////
+
   @HxRuntimeTest
   Void testLibMgr()
   {
     verifyLibEnabled("ph")
     verifyLibEnabled("phIoT")
     verifyLibEnabled("hx")
-    verifyLibEnabled("hxdHttp")
     verifyLibEnabled("hxdApi")
     verifyLibEnabled("hxdUser")
+    verifyLibDisabled("hxdHttp")  // not turned on by default
     verifyLibDisabled("hxTestA")
     verifyLibDisabled("hxTestB")
 
@@ -97,6 +106,17 @@ class RuntimeTest : HxTest
     verifyEq(rt.ns.lib(name, false), null)
     verifyErr(UnknownLibErr#) { rt.ns.lib(name) }
     verifyErr(UnknownLibErr#) { rt.ns.lib(name, true) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Axon
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testAxon()
+  {
+    cx := makeContext
+    verifyEq(cx.eval("today()"), Date.today)
   }
 
 }
