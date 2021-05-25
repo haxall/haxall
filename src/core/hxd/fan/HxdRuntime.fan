@@ -27,6 +27,7 @@ const class HxdRuntime : HxRuntime
     this.version      = boot.version
     this.db           = boot.db
     this.log          = boot.log
+    this.installedRef = AtomicRef(HxdInstalled.build)
     this.nsRef.val    = HxdDefCompiler(db, log).compileNamespace
     this.libActorPool = ActorPool { it.name = "Hxd-Lib" }
     this.libMgr       = HxdLibMgr(this, boot.requiredLibs)
@@ -65,6 +66,10 @@ const class HxdRuntime : HxRuntime
   ** Disable a library from the runtime.
   ** The lib arg may be a HxLib instace, Lib definition, or Str name.
   override Void libRemove(Obj lib) { libMgr.remove(lib) }
+
+  ** Installed lib pods on the host system
+  HxdInstalled installed() { installedRef.val }
+  private const AtomicRef installedRef
 
   ** Library registry manager
   internal const HxdLibMgr libMgr
