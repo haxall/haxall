@@ -6,9 +6,12 @@
 //   19 May 2021  Brian Frank  Creation
 //
 
+using concurrent
 using haystack
+using axon
 using folio
 using hx
+using def
 using defc
 
 **
@@ -16,7 +19,12 @@ using defc
 **
 class HxdDefCompiler : DefCompiler
 {
-  new make(Folio db, Log log) { this.db = db; this.log = log }
+  new make(Folio db, Log log)
+  {
+    this.db = db
+    this.log = log
+    this.factory = HxdDefFactory()
+  }
 
   const Folio db
 
@@ -54,6 +62,63 @@ class HxdDefCompiler : DefCompiler
   }
 
   internal [Str:Pod]? libNameToPodMap     // InitLibNameToPod
+}
+
+**************************************************************************
+** HxdDefFactory
+**************************************************************************
+
+internal const class HxdDefFactory : DefFactory
+{
+  override MFeature createFeature(BFeature b)
+  {
+    switch (b.name)
+    {
+      case "func": return FuncFeature(b)
+      default:     return super.createFeature(b)
+    }
+  }
+}
+
+**************************************************************************
+** FuncFeature
+**************************************************************************
+
+internal const class FuncFeature : MFeature
+{
+  new make(BFeature b) : super(b) {}
+
+  override Type defType() { FuncDef# }
+
+  override MDef createDef(BDef b) { FuncDef(b) }
+
+  override Err createUnknownErr(Str name) { UnknownFuncErr(name) }
+}
+
+**************************************************************************
+** FuncDef
+**************************************************************************
+
+const class FuncDef : MDef
+{
+  new make(BDef b) : super(b) { exprRef.val = b.aux }
+
+  Fn expr()
+  {
+    // Fantom funcs are passed in via BDef.aux, but Axon
+    // funcs are lazily parsed and cached
+    fn := exprRef.val
+    if (fn == null) exprRef.val = fn = parseExpr
+    return fn
+  }
+
+  private Fn parseExpr()
+  {
+    src := get("src") as Str ?: throw Err("Func missing src: $this")
+    return Parser(Loc(lib.name + "::" +  name), src.in).parseTop(name)
+  }
+
+  private const AtomicRef exprRef := AtomicRef()
 }
 
 **************************************************************************
@@ -178,6 +243,9 @@ internal const class HxdLibInput : LibInput
   const Pod pod
   const File libFile
 
+  Dict meta() { metaRef.val as Dict ?: throw Err("no meta") }
+  const AtomicRef metaRef := AtomicRef()  // after scanMeta
+
   const override CLoc loc
 
   override Obj scanMeta(DefCompiler c)
@@ -189,7 +257,8 @@ internal const class HxdLibInput : LibInput
       sym := acc["def"] as Symbol ?: throw c.err("Missing 'def' symbol", loc)
       if (sym.toStr != "lib:$name") throw c.err("Mismatched 'def' for lib.trio: $sym != lib:$name", loc)
       inferMeta(acc)
-      return Etc.makeDict(acc)
+      meta = Etc.makeDict(acc)
+      metaRef.val = meta
     }
     return meta
   }
@@ -213,6 +282,93 @@ internal const class HxdLibInput : LibInput
       file.ext == "trio" && file.name != "lib.trio" && file.pathStr.startsWith(libDir)
     }
   }
+
+  override ReflectInput[] scanReflects(DefCompiler c)
+  {
+    // check for FooLib.funcs override
+    typeName := meta["typeName"] as Str
+    if (typeName != null)
+    {
+      // we bind to the actual instance later once HxLibs are constructed
+      funcsSlot := Type.find(typeName).slot("funcs")
+      funcsType := funcsSlot is Field ? ((Field)funcsSlot).type : ((Method)funcsSlot).returns
+      if (funcsType != HxLibFuncs#)
+      {
+        // TODO
+        libRef := AtomicRef(null)
+        // ((HxdDefCompiler)c).funcLibRefs.add(name, libRef)
+        return [FuncMethodsReflectInput(funcsType, libRef)]
+      }
+    }
+
+    // axon uses CoreLib
+    if (name == "axon")
+    {
+      return [FuncMethodsReflectInput(pod.type("CoreLib"), null)]
+    }
+
+    // none
+    return ReflectInput#.emptyList
+  }
 }
+
+**************************************************************************
+** FuncReflectInput
+**************************************************************************
+
+internal abstract const class FuncReflectInput : ReflectInput
+{
+  new make(Type type, AtomicRef? instanceRef)
+  {
+    this.type = type
+    this.instanceRef = instanceRef
+  }
+
+  override const Type type
+
+  const AtomicRef? instanceRef
+
+  override Str toStr() { "$typeof $type" }
+
+  override Void addMeta(Symbol symbol, Str:Obj acc)
+  {
+    acc["func"] = Marker.val
+    acc["name"] = symbol.name
+  }
+}
+
+** FuncMethodsReflectInput reflects methods in FooFuncs class
+internal const class FuncMethodsReflectInput : FuncReflectInput
+{
+  new make(Type type, AtomicRef? instanceRef) : super(type, instanceRef) {}
+
+  override Type? methodFacet() { Axon# }
+
+  override Symbol toSymbol(Slot? slot) { Symbol("func:" + FantomFn.toName(slot)) }
+
+  override Void onDef(Slot? slot, CDef def)
+  {
+    def.aux = FantomFn.reflectMethod(slot, def.name, def.declared, instanceRef)
+  }
+}
+
+** FuncCompReflectInput reflects AbstractComp class to Axon component
+/* TODO
+internal const class FuncCompReflectInput : FuncReflectInput
+{
+  new make(Type type) : super(type, null) {}
+
+  override Type? typeFacet() { Axon# }
+
+  override Symbol toSymbol(Slot? slot) { Symbol("func:" + type.name.decapitalize) }
+
+  override Void onDef(Slot? slot, CDef def)
+  {
+    def.aux = AbstractComp.reflect(type)
+  }
+}
+*/
+
+
 
 

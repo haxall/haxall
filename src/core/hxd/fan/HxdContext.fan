@@ -98,7 +98,7 @@ class HxdContext : HxContext
   {
     def := ns.def("func:${name}", checked)
     if (def == null) return null
-    throw Err("TODO: map func def to Fn expr")
+    return ((FuncDef)def).expr
   }
 
   ** Resolve dict by id - used by trap on Ref
@@ -106,8 +106,6 @@ class HxdContext : HxContext
   {
     db.readById(id, checked)
   }
-
-
 }
 
 

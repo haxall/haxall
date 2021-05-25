@@ -64,7 +64,9 @@ abstract const class HxLib
   ** Web service handling for this library
   virtual HxLibWeb web() { UnsupportedHxLibWeb(this) }
 
-  ** Axon functions for this library
+  ** Axon functions implemented in Fantom.  This method must be
+  ** overridden with a covariant return type for the class which
+  ** declares the instance methods annotated with '@Axon' facet.
   virtual HxLibFuncs funcs() { UnsupportedHxLibFuncs(this) }
 
   ** Service provider interface
