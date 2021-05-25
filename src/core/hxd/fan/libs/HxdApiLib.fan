@@ -13,7 +13,7 @@ using hx
 **
 const class HxdApiLib : HxdLib
 {
-  override const HxdApiLibWeb web := HxdApiLibWeb(this)
+  override const HxdApiWeb web := HxdApiWeb(this)
 }
 
 **************************************************************************
@@ -23,7 +23,7 @@ const class HxdApiLib : HxdLib
 **
 ** HTTP API web service handling
 **
-const class HxdApiLibWeb : HxLibWeb
+const class HxdApiWeb : HxLibWeb
 {
   new make(HxdApiLib lib) : super(lib) { this.lib = lib }
 

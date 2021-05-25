@@ -116,7 +116,11 @@ class RuntimeTest : HxTest
   Void testAxon()
   {
     cx := makeContext
+    verifyEq(cx.ns.def("func:today").lib.name, "axon")
+    verifyEq(cx.ns.def("func:userTest").lib.name, "hxdUser")
     verifyEq(cx.eval("today()"), Date.today)
+    // TODO
+    //verifyEq(cx.eval("userTest()"), "It works?")
   }
 
 }

@@ -8,13 +8,16 @@
 
 using haystack
 using auth
+using axon
 using folio
+using hx
 
 **
 ** User athentication and session management
 **
 const class HxdUserLib : HxdLib
 {
+  override const HxdUserFuncs funcs := HxdUserFuncs(this)
 
   static Void addUser(Folio db, Str user, Str pass, Str role)
   {
@@ -60,5 +63,18 @@ const class HxdUserLib : HxdLib
 
 }
 
+**************************************************************************
+** HxdUserFuncs
+**************************************************************************
+
+const class HxdUserFuncs : HxLibFuncs
+{
+  new make(HxdUserLib lib) : super(lib) { this.lib = lib }
+
+  const override HxdUserLib lib
+
+  @Axon
+  Str userTest() { "it works!" }
+}
 
 
