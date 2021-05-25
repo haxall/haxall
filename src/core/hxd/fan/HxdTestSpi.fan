@@ -24,6 +24,8 @@ class HxdTestSpi : HxTestSpi
     {
       it.dir = test.tempDir
       it.create = true
+      it.requiredLibs.remove("hxdHttp")
+      it.log.level = LogLevel.warn
     }
     return boot.init.start
   }
@@ -31,6 +33,12 @@ class HxdTestSpi : HxTestSpi
   override Void stop(HxRuntime rt)
   {
     ((HxdRuntime)rt).stop
+  }
+
+  override HxContext makeContext(HxUser? user)
+  {
+    if (user == null) user = HxdUser(Etc.makeDict1("username", "test"))
+    return HxContext(test.rt, user)
   }
 }
 

@@ -38,7 +38,10 @@ class Build : BuildPod
                `fan/stream/`,
                ]
     resDirs = [`lib/`]
-    index = ["def.compDefLoader": "axon::FuncDefLoader"]
+    index = [
+      "ph.lib": "axon",
+      "def.compDefLoader": "axon::FuncDefLoader"
+    ]
   }
 
 }

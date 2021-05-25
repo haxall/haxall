@@ -118,6 +118,18 @@ abstract class HxTest : HaystackTest
       id = Ref.gen
     return rt.db.commit(Diff.makeAdd(tags, id)).newRec
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Axon
+//////////////////////////////////////////////////////////////////////////
+
+  ** Create a new context with the given user.  If user is null,
+  ** then use a default test user with superuser permissions.
+  HxContext makeContext(HxUser? user := null)
+  {
+    spi.makeContext(user)
+  }
+
 }
 
 **************************************************************************
@@ -143,6 +155,7 @@ abstract class HxTestSpi
   HxTest test { private set }
   abstract HxRuntime start()
   abstract Void stop(HxRuntime rt)
+  abstract HxContext makeContext(HxUser? user)
 }
 
 

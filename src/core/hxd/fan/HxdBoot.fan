@@ -43,6 +43,7 @@ class HxdBoot
     "phIoT",
     "phIct",
     "hx",
+    "axon",
     "hxdApi",
     "hxdHttp",
     "hxdUser"
