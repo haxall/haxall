@@ -43,7 +43,8 @@ internal const class HxdLibMgr : Actor
       try
       {
         // check if all the dependenices are met
-        unmet := lib.def.depends.findAll |d| { !map.containsKey(d.name) }
+        install := ((HxdLibSpi)lib.spi).install
+        unmet := install.depends.findAll |d| { !map.containsKey(d) }
         if (unmet.isEmpty) return
 
         // if not all met then put the lib into a fault condition
@@ -51,7 +52,7 @@ internal const class HxdLibMgr : Actor
         rt.log.info("Disabling lib with unmet depends: $lib.name", err)
         map.remove(lib.name)
       }
-      catch (Err e) rt.log.err("Depend check failed: $lib.name")
+      catch (Err e) rt.log.err("Depend check failed: $lib.name", e)
     }
 
     // build remaining lookup tables
