@@ -12,14 +12,15 @@ using folio
 using hx
 
 **
-** HxdLibMgr manages the runtime lib registry
+** HxdRuntimeLibs manages the runtime lib registry
 **
-internal const class HxdLibMgr : Actor
+internal const class HxdRuntimeLibs : Actor, HxRuntimeLibs
 {
-  new make(HxdRuntime rt, Str[] required) : super(rt.libActorPool)
+  new make(HxdRuntime rt, Str[] required) : super(rt.libsActorPool)
   {
     this.rt = rt
     this.required = required
+    this.actorPool = this.pool
 
     // init libs from database hxLib records
     map := Str:HxLib[:]
@@ -67,14 +68,16 @@ internal const class HxdLibMgr : Actor
 
   const HxdRuntime rt
 
+  override const ActorPool actorPool
+
   const Str[] required
 
-  HxLib[] list() { listRef.val }
+  override HxLib[] list() { listRef.val }
   private const AtomicRef listRef := AtomicRef(HxLib[,].toImmutable)
 
-  Bool hasLib(Str name) { map.containsKey(name) }
+  override  Bool has(Str name) { map.containsKey(name) }
 
-  HxLib? get(Str name, Bool checked := true)
+  override HxLib? get(Str name, Bool checked := true)
   {
     lib := map[name]
     if (lib != null) return lib
@@ -84,7 +87,7 @@ internal const class HxdLibMgr : Actor
   internal Str:HxLib map() { mapRef.val }
   private const AtomicRef mapRef := AtomicRef(Str:HxLib[:].toImmutable)
 
-  HxLib add(Str name, Dict tags := Etc.emptyDict)
+  override HxLib add(Str name, Dict tags := Etc.emptyDict)
   {
     // lookup installed lib callers thread
     install := rt.installed.lib(name)
@@ -93,7 +96,7 @@ internal const class HxdLibMgr : Actor
     return send(HxMsg("add", install, tags)).get(null)
   }
 
-  Void remove(Obj arg)
+  override Void remove(Obj arg)
   {
     // check argument on caller's thread
     HxLib? lib

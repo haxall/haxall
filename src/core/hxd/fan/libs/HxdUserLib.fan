@@ -6,6 +6,7 @@
 //   20 May 2021  Brian Frank  Creation
 //
 
+using web
 using haystack
 using auth
 using axon
@@ -15,9 +16,39 @@ using hx
 **
 ** User athentication and session management
 **
-const class HxdUserLib : HxdLib
+const class HxdUserLib : HxdLib, HxRuntimeUsers
 {
   override const HxdUserFuncs funcs := HxdUserFuncs(this)
+
+//////////////////////////////////////////////////////////////////////////
+// HxRuntimeUsers
+//////////////////////////////////////////////////////////////////////////
+
+  ** Lookup a user by username.  If not found then raise
+  ** exception or return null based on the checked flag.
+  override HxUser? read(Obj username, Bool checked := true)
+  {
+    user := null
+    if (checked) throw UnknownRecErr("User not found: $username")
+    return null
+  }
+
+  ** Construct a runtime specific context for the given user account
+  override HxContext makeContext(HxUser user)
+  {
+    HxdContext(rt, user)
+  }
+
+  ** Authenticate a web request.  If request is for an unauthenticated
+  ** user, then redirect to the login page and return null.
+  override HxContext? authenticate(WebReq req, WebRes res)
+  {
+    null
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
 
   static Void addUser(Folio db, Str user, Str pass, Str role)
   {

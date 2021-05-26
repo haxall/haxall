@@ -45,7 +45,7 @@ const class HxdLibSpi : Actor, HxLibSpi
     return Type.find(typeName).make
   }
 
-  private new make(HxdRuntime rt, HxdInstalledLib install, Dict rec) : super(rt.libActorPool)
+  private new make(HxdRuntime rt, HxdInstalledLib install, Dict rec) : super(rt.libsActorPool)
   {
     this.rt      = rt
     this.name    = install.name
