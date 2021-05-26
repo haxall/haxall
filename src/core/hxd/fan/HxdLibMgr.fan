@@ -23,13 +23,15 @@ internal const class HxdLibMgr : Actor
 
     // init libs from database hxLib records
     map := Str:HxLib[:]
+    installed := rt.installed
     rt.db.readAllList("hxLib").each |rec|
     {
       try
       {
         // instantiate the HxLib
         name := (Str)rec->hxLib
-        lib := HxdLibSpi.instantiate(rt, name, rt.ns.lib(name), rec)
+        install := installed.lib(name)
+        lib := HxdLibSpi.instantiate(rt, install, rec)
         map.add(name, lib)
       }
       catch (Err e) rt.log.err("Cannot init lib: $rec.id.toCode [${rec->hxLib}]", e)
@@ -83,11 +85,11 @@ internal const class HxdLibMgr : Actor
 
   HxLib add(Str name, Dict tags := Etc.emptyDict)
   {
-    // lookup lib.trio meta Dict on callers thread
-    def := HxdDefCompiler(rt.db, rt.log).readLibMeta(name)
+    // lookup installed lib callers thread
+    install := rt.installed.lib(name)
 
     // process on our background actor
-    return send(HxMsg("add", name, def, tags)).get(null)
+    return send(HxMsg("add", install, tags)).get(null)
   }
 
   Void remove(Obj arg)
@@ -127,23 +129,23 @@ internal const class HxdLibMgr : Actor
     msg := (HxMsg)arg
     switch (msg.id)
     {
-      case "add":    return onAdd(msg.a, msg.b, msg.c)
+      case "add":    return onAdd(msg.a, msg.b)
       case "remove": return onRemove(msg.a)
       default:       throw ArgErr("Unsupported msg: $msg")
     }
   }
 
-  private HxLib onAdd(Str name, Dict def, Dict extraTags)
+  private HxLib onAdd(HxdInstalledLib install, Dict extraTags)
   {
     // check for dup
+    name := install.name
     dup := get(name, false)
     if (dup != null) throw Err("HxLib $name.toCode already exists")
 
     // check depends
-    depends := Symbol.toList(def["depends"])
-    depends.each |d|
+    install.depends.each |d|
     {
-      if (get(d.name, false) == null) throw DependErr("HxLib $name.toCode missing dependency on $d.name.toCode")
+      if (get(d, false) == null) throw DependErr("HxLib $name.toCode missing dependency on $d.toCode")
     }
 
     // add to db
@@ -153,7 +155,7 @@ internal const class HxdLibMgr : Actor
     rec := rt.db.commit(Diff(null, tags, Diff.add.or(Diff.bypassRestricted))).newRec
 
     // instantiate the HxLib
-    lib := HxdLibSpi.instantiate(rt, name, def, rec)
+    lib := HxdLibSpi.instantiate(rt, install, rec)
 
     // register in lookup data structures
     listRef.val = list.dup.add(lib).sort(|x, y| { x.name <=> y.name }).toImmutable
