@@ -44,9 +44,6 @@ class RuntimeTest : HxTest
     verifyLibEnabled("ph")
     verifyLibEnabled("phIoT")
     verifyLibEnabled("hx")
-    verifyLibEnabled("hxdApi")
-    verifyLibEnabled("hxdUser")
-    verifyLibDisabled("hxdHttp")  // not turned on by default
     verifyLibDisabled("hxTestA")
     verifyLibDisabled("hxTestB")
 

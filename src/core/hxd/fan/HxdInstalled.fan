@@ -56,9 +56,9 @@ const class HxdInstalledLib
 {
   internal new make(Str name, Pod pod, Dict meta)
   {
-    this.name = name
-    this.pod = pod
-    this.meta = meta
+    this.name  = name
+    this.pod   = pod
+    this.meta  = meta
   }
 
   const Str name
@@ -72,6 +72,13 @@ const class HxdInstalledLib
       if (!x.toStr.startsWith("lib:")) throw Err("Invalid depend: $x")
       return x.name
     }
+  }
+
+  File metaFile()
+  {
+    file := pod.file(`/lib/lib.trio`, false)
+    if (file != null) return file
+    return pod.file(`/lib/${name}/lib.trio`)
   }
 
   override Str toStr() { name }

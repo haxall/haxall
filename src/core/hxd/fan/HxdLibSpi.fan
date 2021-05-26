@@ -24,7 +24,7 @@ const class HxdLibSpi : Actor, HxLibSpi
   ** Instantiate the HxLib for given def and database rec
   static HxLib instantiate(HxdRuntime rt, HxdInstalledLib install, Dict rec)
   {
-    spi := HxdLibSpi(rt, install.name, rec)
+    spi := HxdLibSpi(rt, install, rec)
     Actor.locals["hx.spi"]  = spi
     try
     {
@@ -45,12 +45,13 @@ const class HxdLibSpi : Actor, HxLibSpi
     return Type.find(typeName).make
   }
 
-  private new make(HxdRuntime rt, Str name, Dict rec) : super(rt.libActorPool)
+  private new make(HxdRuntime rt, HxdInstalledLib install, Dict rec) : super(rt.libActorPool)
   {
-    this.rt     = rt
-    this.name   = name
-    this.recRef = AtomicRef(rec)
-    this.log    = Log.get(name)
+    this.rt      = rt
+    this.name    = install.name
+    this.install = install
+    this.recRef  = AtomicRef(rec)
+    this.log     = Log.get(name)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -63,6 +64,8 @@ const class HxdLibSpi : Actor, HxLibSpi
   override const HxRuntime rt
 
   override const Str name
+
+  const HxdInstalledLib install
 
   override Lib def() { rt.ns.lib(name) }
 

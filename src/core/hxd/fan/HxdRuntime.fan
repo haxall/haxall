@@ -28,7 +28,6 @@ const class HxdRuntime : HxRuntime
     this.db           = boot.db
     this.log          = boot.log
     this.installedRef = AtomicRef(HxdInstalled.build)
-    this.nsRef.val    = HxdDefCompiler(db, log).compileNamespace
     this.libActorPool = ActorPool { it.name = "Hxd-Lib" }
     this.libMgr       = HxdLibMgr(this, boot.requiredLibs)
   }
@@ -41,7 +40,14 @@ const class HxdRuntime : HxRuntime
   override const Version version
 
   ** Namespace of definitions
-  override Namespace ns() { nsRef.val }
+  override Namespace ns()
+  {
+    // lazily compile as needed
+    ns := nsRef.val as Namespace
+    if (ns == null) nsRef.val = ns = HxdDefCompiler(this).compileNamespace
+    return ns
+  }
+  internal Void nsRecompile() { this.nsRef.val = null }
   private const AtomicRef nsRef := AtomicRef()
 
   ** Database for this runtime
@@ -80,12 +86,6 @@ const class HxdRuntime : HxRuntime
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
-
-  ** Recompile the namespace
-  internal Void nsRecompile()
-  {
-    this.nsRef.val = HxdDefCompiler(db, log).compileNamespace
-  }
 
   ** Start runtime (blocks until all libs fully started)
   This start()
