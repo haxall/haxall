@@ -24,7 +24,7 @@ class HxdDefCompiler : DefCompiler
     this.rt = rt
     this.log = rt.log
     this.factory = HxdDefFactory()
-    this.inputs = rt.libs.map |lib->HxdLibInput| { HxdLibInput(lib) }
+    this.inputs = rt.libs.list.map |lib->HxdLibInput| { HxdLibInput(lib) }
   }
 
   const HxdRuntime rt

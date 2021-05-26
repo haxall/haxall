@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using web
 using haystack
 using folio
 using hx
@@ -24,12 +25,13 @@ const class HxdRuntime : HxRuntime
   ** Boot constructor
   internal new make(HxdBoot boot)
   {
-    this.version      = boot.version
-    this.db           = boot.db
-    this.log          = boot.log
-    this.installedRef = AtomicRef(HxdInstalled.build)
-    this.libActorPool = ActorPool { it.name = "Hxd-Lib" }
-    this.libMgr       = HxdLibMgr(this, boot.requiredLibs)
+    this.version       = boot.version
+    this.db            = boot.db
+    this.log           = boot.log
+    this.installedRef  = AtomicRef(HxdInstalled.build)
+    this.libsActorPool = ActorPool { it.name = "Hxd-Lib" }
+    this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
+    this.users         = (HxdUserLib)lib("hxdUser")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -53,32 +55,21 @@ const class HxdRuntime : HxRuntime
   ** Database for this runtime
   override const Folio db
 
-  ** Actor thread pool for libraries
-  override const ActorPool libActorPool
+  ** Lookup a library by name
+  override HxLib? lib(Str name, Bool checked := true) { libs.get(name, checked) }
 
-  ** List of libs currently enabled
-  override HxLib[] libs() { libMgr.list }
+  ** Library managment
+  override const HxRuntimeLibs libs
 
-  ** Lookup an enabled lib by name.  If not found then
-  ** return null or raise UnknownLibErr based on checked flag.
-  override HxLib? lib(Str name, Bool checked := true) { libMgr.get(name, checked) }
+  ** Actor pool to use for HxRuntimeLibs.actorPool
+  const ActorPool libsActorPool
 
-  ** Check if there is an enabled lib with given name
-  override Bool hasLib(Str name) { libMgr.hasLib(name) }
-
-  ** Enable a library in the runtime
-  override HxLib libAdd(Str name, Dict tags := Etc.emptyDict) { libMgr.add(name, tags) }
-
-  ** Disable a library from the runtime.
-  ** The lib arg may be a HxLib instace, Lib definition, or Str name.
-  override Void libRemove(Obj lib) { libMgr.remove(lib) }
+  ** User and context managment
+  override const HxRuntimeUsers users
 
   ** Installed lib pods on the host system
   HxdInstalled installed() { installedRef.val }
   private const AtomicRef installedRef
-
-  ** Library registry manager
-  internal const HxdLibMgr libMgr
 
   ** Logging
   const Log log
@@ -94,12 +85,12 @@ const class HxdRuntime : HxRuntime
     if (isStarted.getAndSet(true)) return this
 
     // onStart callback
-    futures := libs.map |lib->Future| { ((HxdLibSpi)lib.spi).start }
+    futures := libs.list.map |lib->Future| { ((HxdLibSpi)lib.spi).start }
     Future.waitForAll(futures)
 
 
     // onReady callback
-    futures = libs.findAll { it is HxdLib }.map |lib->Future| { ((HxdLibSpi)lib.spi).ready }
+    futures = libs.list.findAll { it is HxdLib }.map |lib->Future| { ((HxdLibSpi)lib.spi).ready }
     Future.waitForAll(futures)
 
     return this
@@ -112,11 +103,11 @@ const class HxdRuntime : HxRuntime
     if (isStopped.getAndSet(true)) return this
 
     // onUnready callback
-    futures := libs.findAll { it is HxdLib }.map |lib->Future| { ((HxdLibSpi)lib.spi).unready }
+    futures := libs.list.findAll { it is HxdLib }.map |lib->Future| { ((HxdLibSpi)lib.spi).unready }
     Future.waitForAll(futures)
 
     // onStop callback
-    futures = libs.map |lib->Future| { ((HxdLibSpi)lib.spi).stop }
+    futures = libs.list.map |lib->Future| { ((HxdLibSpi)lib.spi).stop }
     Future.waitForAll(futures)
   }
 
