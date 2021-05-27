@@ -118,8 +118,7 @@ class RuntimeTest : HxTest
     verifyEq(cx.ns.def("func:today").lib.name, "axon")
     verifyEq(cx.ns.def("func:userTest").lib.name, "hxdUser")
     verifyEq(cx.eval("today()"), Date.today)
-    // TODO
-    //verifyEq(cx.eval("userTest()"), "It works?")
+    verifyEq(cx.eval("userTest()"), "it works!")
   }
 
 }
