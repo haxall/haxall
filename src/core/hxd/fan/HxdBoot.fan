@@ -46,6 +46,7 @@ class HxdBoot
     "axon",
     "hxdApi",
     "hxdHttp",
+    "hxdSession",
     "hxdUser"
   ]
 
