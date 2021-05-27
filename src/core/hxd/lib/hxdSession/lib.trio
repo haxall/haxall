@@ -1,0 +1,18 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   27 May 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:hxdSession
+depends: [^lib:ph, ^lib:hx]
+typeName:"hxd::HxdSessionLib"
+doc: "Client session management"
+--------------------------------------------------------------------------
+
+
+
+
