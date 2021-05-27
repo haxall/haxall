@@ -91,6 +91,13 @@ abstract const class HxLib
   ** Callback when associated database `rec` is modified.
   ** This is called on dedicated background actor.
   virtual Void onUpdate() {}
+
+  ** Callback made periodically to perform background tasks.
+  ** Override `houseKeepingFreq` to enable the frequency of this callback.
+  virtual Void onHouseKeeping() {}
+
+  ** Override to return non-null for onHouseKeeping callback
+  virtual Duration? houseKeepingFreq() { null }
 }
 
 **************************************************************************
