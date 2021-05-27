@@ -101,6 +101,7 @@ internal const class HxdLibInput : LibInput
     this.install  = spi.install
     this.metaFile = install.metaFile
     this.loc      = CLoc(spi.install.metaFile)
+    this.funcsRef = AtomicRef(lib.funcs)
   }
 
   const Str name
@@ -109,6 +110,7 @@ internal const class HxdLibInput : LibInput
   const override CLoc loc
   const HxdInstalledLib install
   const File metaFile
+  const AtomicRef funcsRef
   Pod pod() { install.pod }
 
   override Obj scanMeta(DefCompiler c)
@@ -136,10 +138,7 @@ internal const class HxdLibInput : LibInput
       funcsType := funcsSlot is Field ? ((Field)funcsSlot).type : ((Method)funcsSlot).returns
       if (funcsType != HxLibFuncs#)
       {
-        // TODO
-        libRef := AtomicRef(null)
-        // ((HxdDefCompiler)c).funcLibRefs.add(name, libRef)
-        return [FuncMethodsReflectInput(funcsType, libRef)]
+        return [FuncMethodsReflectInput(funcsType, funcsRef)]
       }
     }
 
