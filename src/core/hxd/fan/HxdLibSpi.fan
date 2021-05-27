@@ -98,6 +98,16 @@ const class HxdLibSpi : Actor, HxLibSpi
 
   override Obj? receive(Obj? msgObj)
   {
+    if (msgObj === houseKeepingMsg)
+    {
+      try
+        lib.onHouseKeeping
+      catch (Err e)
+        log.err("HxLib.onHouseKeeping", e)
+      if (isRunning) sendLater(lib.houseKeepingFreq, houseKeepingMsg)
+      return null
+    }
+
     try
     {
       msg := (HxMsg)msgObj
@@ -123,7 +133,13 @@ const class HxdLibSpi : Actor, HxLibSpi
 
   private Obj? onReady()
   {
+    // kick off house keeping
+    freq := lib.houseKeepingFreq
+    if (freq != null) sendLater(freq, houseKeepingMsg)
+
+    // onReady callback is hxd only
     if (lib is HxdLib) ((HxdLib)lib).onReady
+
     return null
   }
 
@@ -155,6 +171,7 @@ const class HxdLibSpi : Actor, HxLibSpi
   Bool isRunning() { isRunningRef.val }
   private const AtomicBool isRunningRef := AtomicBool(false)
 
+  private static const HxMsg houseKeepingMsg := HxMsg("houseKeeping")
 }
 
 **************************************************************************
