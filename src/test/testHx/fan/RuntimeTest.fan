@@ -116,7 +116,7 @@ class RuntimeTest : HxTest
   {
     cx := makeContext
     verifyEq(cx.ns.def("func:today").lib.name, "axon")
-    verifyEq(cx.ns.def("func:userTest").lib.name, "hxdUser")
+    verifyEq(cx.ns.def("func:userTest").lib.name, "hxUser")
     verifyEq(cx.eval("today()"), Date.today)
     verifyEq(cx.eval("userTest()"), "it works!")
   }

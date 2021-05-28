@@ -39,14 +39,9 @@ class Build : BuildPod
                "folio @{hx.depend}",
                "hx @{hx.depend}",
                "hxFolio @{hx.depend}"]
-    srcDirs = [`fan/`, `fan/libs/`]
-    resDirs = [`lib/hxdApi/`, `lib/hxdHttp/`, `lib/hxdSession/`, `lib/hxdUser/`]
+    srcDirs = [`fan/`]
     docApi  = false
 
-    index =
-    [
-      "ph.lib": ["hxdApi", "hxdHttp", "hxdSession", "hxdUser"],
-      "hx.cli": ["hxd::RunCli"]
-    ]
+    index = [ "hx.cli": "hxd::RunCli" ]
   }
 }

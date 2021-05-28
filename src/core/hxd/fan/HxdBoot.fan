@@ -44,10 +44,9 @@ class HxdBoot
     "phIct",
     "hx",
     "axon",
-    "hxdApi",
-    "hxdHttp",
-    "hxdSession",
-    "hxdUser"
+    "hxApi",
+    "hxHttp",
+    "hxUser"
   ]
 
 //////////////////////////////////////////////////////////////////////////

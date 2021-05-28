@@ -17,13 +17,21 @@ using hx
 **
 ** Authenticated user session management
 **
-const class HxdSessionLib : HxdLib
+const class HxUserSessions
 {
+  new make(HxUserLib lib) { this.lib = lib }
+
+  ** Parent library
+  const HxUserLib lib
+
+  ** Logger to use for session login/logout
+  Log log() { lib.log }
+
   ** List active sessions
-  HxdSession[] list() { byKey.vals(HxdSession#) }
+  HxSession[] list() { byKey.vals(HxSession#) }
 
   ** Lookup a session by its key
-  HxdSession? get(Str key, Bool checked := true)
+  HxSession? get(Str key, Bool checked := true)
   {
     s := byKey[key]
     if (s != null) return s
@@ -32,28 +40,25 @@ const class HxdSessionLib : HxdLib
   }
 
   ** Open new session
-  HxdSession open(WebReq req, HxUser user)
+  HxSession open(WebReq req, HxUser user)
   {
     log.info("Login: $user.username")
-    session := HxdSession(req, user)
+    session := HxSession(req, user)
     byKey.add(session.key, session)
     return session
   }
 
   ** Close session
-  Void close(HxdSession session)
+  Void close(HxSession session)
   {
     log.info("Logout: $session.user.username")
     byKey.remove(session.key)
   }
 
-  ** Run house keeping couple times a minute
-  override Duration? houseKeepingFreq() { 17sec }
-
   ** Cleanup expired sessions
-  override Void onHouseKeeping()
+  Void onHouseKeeping()
   {
-    lease := (rec["sessionTimeout"] as Number)?.toDuration(false) ?: 1hr
+    lease := (lib.rec["sessionTimeout"] as Number)?.toDuration(false) ?: 1hr
     now := Duration.now
     list.each |session|
     {
@@ -65,13 +70,13 @@ const class HxdSessionLib : HxdLib
 }
 
 **************************************************************************
-** HxdSession
+** HxSession
 **************************************************************************
 
 **
 ** Authenticated user session
 **
-const class HxdSession
+const class HxSession
 {
   ** Constructor
   new make(WebReq req, HxUser user)

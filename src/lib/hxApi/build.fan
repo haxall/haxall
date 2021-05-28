@@ -4,20 +4,20 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   26 Apr 2021  Brian Frank  Creation
+//   28 May 2021  Brian Frank  Creation
 //
 
 using build
 
 **
-** Build: hxTools
+** Build: hxApi
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName = "hxTools"
-    summary = "Haxall CLI tools"
+    podName = "hxApi"
+    summary = "Haxall Haystack HTTP API library"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
@@ -27,19 +27,13 @@ class Build : BuildPod
                "vcs.uri":      "https://github.com/haxall/haxall"]
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
-               "util @{fan.depend}",
+               "web @{fan.depend}",
                "haystack @{hx.depend}",
-               "def @{hx.depend}",
-               "folio @{hx.depend}",
-               "hx @{hx.depend}",
-               "hxd @{hx.depend}",
-               "hxFolio @{hx.depend}",
-               "hxUser @{hx.depend}"]
+               "axon @{hx.depend}",
+               "hx @{hx.depend}"]
     srcDirs = [`fan/`]
-
-    index =
-    [
-      "hx.cli": ["hxTools::ConvertCli", "hxTools::InitCli"]
-    ]
+    resDirs = [`lib/`]
+    docApi  = false
+    index   = ["ph.lib": "hxApi"]
   }
 }

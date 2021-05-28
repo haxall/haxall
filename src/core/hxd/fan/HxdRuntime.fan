@@ -31,8 +31,7 @@ const class HxdRuntime : HxRuntime
     this.installedRef  = AtomicRef(HxdInstalled.build)
     this.libsActorPool = ActorPool { it.name = "Hxd-Lib" }
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
-    this.users         = lib("hxdUser")
-    this.sessions      = lib("hxdSession")
+    this.users         = (HxRuntimeUsers)libs.getType(HxRuntimeUsers#)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,11 +64,11 @@ const class HxdRuntime : HxRuntime
   ** Actor pool to use for HxRuntimeLibs.actorPool
   const ActorPool libsActorPool
 
-  ** User and context managment
-  override const HxdUserLib users
+  ** User and authentication managment
+  override const HxRuntimeUsers users
 
-  ** Session management
-  const HxdSessionLib sessions
+  ** Construct a runtime specific context for the given user account
+  override HxContext makeContext(HxUser user) { HxdContext(this, user) }
 
   ** Installed lib pods on the host system
   HxdInstalled installed() { installedRef.val }
@@ -107,7 +106,7 @@ const class HxdRuntime : HxRuntime
     if (isStopped.getAndSet(true)) return this
 
     // onUnready callback
-    futures := libs.list.findAll { it is HxdLib }.map |lib->Future| { ((HxdLibSpi)lib.spi).unready }
+    futures := libs.list.map |lib->Future| { ((HxdLibSpi)lib.spi).unready }
     Future.waitForAll(futures)
 
     // onStop callback

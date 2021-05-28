@@ -31,8 +31,11 @@ const mixin HxRuntime
   ** Library managment
   abstract HxRuntimeLibs libs()
 
-  ** User and context managment
+  ** User and authentication managment
   abstract HxRuntimeUsers users()
+
+  ** Construct a runtime specific context for the given user account
+  abstract HxContext makeContext(HxUser user)
 }
 
 **************************************************************************
@@ -50,6 +53,9 @@ const mixin HxRuntimeLibs
   ** Lookup an enabled lib by name.  If not found then
   ** return null or raise UnknownLibErr based on checked flag.
   abstract HxLib? get(Str name, Bool checked := true)
+
+  ** Find the library which implements the given Fantom type
+  abstract HxLib? getType(Type type, Bool checked := true)
 
   ** Check if there is an enabled lib with given name
   abstract Bool has(Str name)
@@ -77,9 +83,6 @@ const mixin HxRuntimeUsers
   ** Lookup a user by username.  If not found then raise
   ** exception or return null based on the checked flag.
   abstract HxUser? read(Obj username, Bool checked := true)
-
-  ** Construct a runtime specific context for the given user account
-  abstract HxContext makeContext(HxUser user)
 
   ** Authenticate a web request.  If request is for an unauthenticated
   ** user, then redirect to the login page and return null.

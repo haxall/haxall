@@ -13,6 +13,7 @@ using folio
 using hx
 using hxd
 using hxFolio
+using hxUser
 
 internal class InitCli : HxCli
 {
@@ -157,7 +158,7 @@ internal class InitCli : HxCli
 
   private Void initHttpPort(HxdRuntime rt)
   {
-    rec := rt.db.read(Str<|hxLib=="hxdHttp"|>)
+    rec := rt.db.read(Str<|hxLib=="hxHttp"|>)
     port := Number(httpPort)
     if (rec["httpPort"] != port)
     {
@@ -172,12 +173,12 @@ internal class InitCli : HxCli
     if (rec == null)
     {
       rt.log.info("Create su [$suUser.toCode]")
-      HxdUserLib.addUser(rt.db, suUser, suPass, "su")
+      HxUserLib.addUser(rt.db, suUser, suPass, "su")
     }
     else
     {
       rt.log.info("Update su $suUser.toCode")
-      HxdUserLib.updatePassword(rt.db, rec, suPass)
+      HxUserLib.updatePassword(rt.db, rec, suPass)
     }
   }
 }
