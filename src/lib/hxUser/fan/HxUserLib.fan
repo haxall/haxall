@@ -19,7 +19,7 @@ using hx
 const class HxUserLib : HxLib, HxRuntimeUsers
 {
   ** Web servicing
-  //override const HxUserWeb web := HxUserWeb(this)
+  override const HxUserWeb web := HxUserWeb(this)
 
   ** Axon functions
   override const HxUserFuncs funcs := HxUserFuncs(this)
@@ -27,10 +27,11 @@ const class HxUserLib : HxLib, HxRuntimeUsers
   ** Session management
   const HxUserSessions sessions := HxUserSessions(this)
 
-  /*
+  ** URI for login page
   const Uri loginUri := web.uri + `login`
+
+  ** URI to force logout
   const Uri logoutUri := web.uri + `logout`
-  */
 
 //////////////////////////////////////////////////////////////////////////
 // HxRuntimeUsers

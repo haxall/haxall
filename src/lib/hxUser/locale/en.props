@@ -1,0 +1,6 @@
+login.username=Username
+login.password=Password
+login.invalidUsernamePassword=Invalid username or password
+login.login=Login
+login.loggingIn=Logging in
+
