@@ -36,7 +36,7 @@ class Build : BuildPod
                "folio @{hx.depend}",
                "hx @{hx.depend}"]
     srcDirs = [`fan/`]
-    resDirs = [`lib/`]
+    resDirs = [`lib/`, `locale/`, `res/`]
     docApi  = false
 
     index =
