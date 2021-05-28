@@ -7,10 +7,10 @@
 //
 
 --------------------------------------------------------------------------
-def: ^lib:hxdUser
+def: ^lib:hxUser
 depends: [^lib:ph, ^lib:axon, ^lib:hx]
-typeName:"hxd::HxdUserLib"
-doc: "Haxall user management"
+typeName:"hxUser::HxUserLib"
+doc: "Haxall auth and user management library"
 --------------------------------------------------------------------------
 
 

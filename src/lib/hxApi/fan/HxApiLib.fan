@@ -11,23 +11,23 @@ using hx
 **
 ** Haystack HTTP API service handling
 **
-const class HxdApiLib : HxdLib
+const class HxApiLib : HxLib
 {
-  override const HxdApiWeb web := HxdApiWeb(this)
+  override const HxApiWeb web := HxApiWeb(this)
 }
 
 **************************************************************************
-** HxdApiLibWeb
+** HxApiLibWeb
 **************************************************************************
 
 **
 ** HTTP API web service handling
 **
-const class HxdApiWeb : HxLibWeb
+const class HxApiWeb : HxLibWeb
 {
-  new make(HxdApiLib lib) : super(lib) { this.lib = lib }
+  new make(HxApiLib lib) : super(lib) { this.lib = lib }
 
-  override const HxdApiLib lib
+  override const HxApiLib lib
 
   override Void onService()
   {

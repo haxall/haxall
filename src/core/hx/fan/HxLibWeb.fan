@@ -24,6 +24,9 @@ abstract const class HxLibWeb : WebMod
   virtual HxLib lib() { libRef }
   private const HxLib libRef
 
+  ** Base uri for this library's endpoint such as "/myLib/"
+  Uri uri() { lib.spi.webUri }
+
   ** Is the unsupported no-up default instance
   @NoDoc virtual Bool isUnsupported() { false }
 

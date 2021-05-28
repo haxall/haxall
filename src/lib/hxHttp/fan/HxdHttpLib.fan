@@ -16,7 +16,7 @@ using hx
 **
 ** HTTP service handling
 **
-const class HxdHttpLib : HxdLib
+const class HxHttpLib : HxLib
 {
   WispService wisp() { wispRef.val }
   private const AtomicRef wispRef := AtomicRef(null)
@@ -30,8 +30,8 @@ const class HxdHttpLib : HxdLib
     {
       it.httpPort = port
       it.addr = addr == null ? null : IpAddr(addr)
-      it.root = HxdHttpRootMod(this)
-      it.errMod = HxdHttpErrMod(this)
+      it.root = HxHttpRootMod(this)
+      it.errMod = HxHttpErrMod(this)
     }
     wispRef.val = wisp
     wisp.start
@@ -44,16 +44,16 @@ const class HxdHttpLib : HxdLib
 }
 
 **************************************************************************
-** HxdHttpRootMod
+** HxHttpRootMod
 **************************************************************************
 
-internal const class HxdHttpRootMod : WebMod
+internal const class HxHttpRootMod : WebMod
 {
-  new make(HxdHttpLib lib) { this.rt = lib.rt; this.lib = lib }
+  new make(HxHttpLib lib) { this.rt = lib.rt; this.lib = lib }
 
-  const HxdRuntime rt
-  const HxdHttpLib lib
-  const Str:Str renames := ["api": "hxdApi"]
+  const HxRuntime rt
+  const HxHttpLib lib
+  const Str:Str renames := ["api": "hxdApi", "user": "hxdUser"]
 
   override Void onService()
   {
@@ -88,14 +88,14 @@ internal const class HxdHttpRootMod : WebMod
 }
 
 **************************************************************************
-** HxdHttpErrMod
+** HxHttpErrMod
 **************************************************************************
 
-internal const class HxdHttpErrMod : WebMod
+internal const class HxHttpErrMod : WebMod
 {
-  new make(HxdHttpLib lib) { this.lib = lib }
+  new make(HxHttpLib lib) { this.lib = lib }
 
-  const HxdHttpLib lib
+  const HxHttpLib lib
 
   override Void onService()
   {

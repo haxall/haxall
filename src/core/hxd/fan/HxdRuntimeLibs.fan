@@ -75,7 +75,7 @@ internal const class HxdRuntimeLibs : Actor, HxRuntimeLibs
   override HxLib[] list() { listRef.val }
   private const AtomicRef listRef := AtomicRef(HxLib[,].toImmutable)
 
-  override  Bool has(Str name) { map.containsKey(name) }
+  override Bool has(Str name) { map.containsKey(name) }
 
   override HxLib? get(Str name, Bool checked := true)
   {
@@ -86,6 +86,14 @@ internal const class HxdRuntimeLibs : Actor, HxRuntimeLibs
   }
   internal Str:HxLib map() { mapRef.val }
   private const AtomicRef mapRef := AtomicRef(Str:HxLib[:].toImmutable)
+
+  override HxLib? getType(Type type, Bool checked := true)
+  {
+    lib := list.find |lib| { lib.typeof.fits(type) }
+    if (lib != null) return lib
+    if (checked) throw UnknownLibErr(type.qname)
+    return null
+  }
 
   override HxLib add(Str name, Dict tags := Etc.emptyDict)
   {

@@ -16,9 +16,21 @@ using hx
 **
 ** User athentication and session management
 **
-const class HxdUserLib : HxdLib, HxRuntimeUsers
+const class HxUserLib : HxLib, HxRuntimeUsers
 {
-  override const HxdUserFuncs funcs := HxdUserFuncs(this)
+  ** Web servicing
+  //override const HxUserWeb web := HxUserWeb(this)
+
+  ** Axon functions
+  override const HxUserFuncs funcs := HxUserFuncs(this)
+
+  ** Session management
+  const HxUserSessions sessions := HxUserSessions(this)
+
+  /*
+  const Uri loginUri := web.uri + `login`
+  const Uri logoutUri := web.uri + `logout`
+  */
 
 //////////////////////////////////////////////////////////////////////////
 // HxRuntimeUsers
@@ -33,18 +45,22 @@ const class HxdUserLib : HxdLib, HxRuntimeUsers
     return null
   }
 
-  ** Construct a runtime specific context for the given user account
-  override HxContext makeContext(HxUser user)
-  {
-    HxdContext(rt, user)
-  }
-
   ** Authenticate a web request.  If request is for an unauthenticated
   ** user, then redirect to the login page and return null.
   override HxContext? authenticate(WebReq req, WebRes res)
   {
-    null
+     throw Err("TODO")
   }
+
+//////////////////////////////////////////////////////////////////////////
+// HxLib
+//////////////////////////////////////////////////////////////////////////
+
+  ** Run house keeping couple times a minute
+  override Duration? houseKeepingFreq() { 17sec }
+
+  ** Cleanup expired sessions
+  override Void onHouseKeeping() { sessions.onHouseKeeping }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
@@ -92,20 +108,25 @@ const class HxdUserLib : HxdLib, HxRuntimeUsers
     return Etc.makeDict(userAuth)
   }
 
+  internal static AuthMsg? dictToAuthMsg(Dict userAuth, Bool checked := true)
+  {
+    Str? scheme := null
+    params := Str:Str[:]
+    userAuth.each |v, k|
+    {
+      if ("scheme" == k) scheme = v
+      else params[k] = "$v"
+    }
+    try
+    {
+      return AuthMsg(scheme, params)
+    }
+    catch (Err e)
+    {
+      if (checked) throw e
+      return null
+    }
+  }
+
 }
-
-**************************************************************************
-** HxdUserFuncs
-**************************************************************************
-
-const class HxdUserFuncs : HxLibFuncs
-{
-  new make(HxdUserLib lib) : super(lib) { this.lib = lib }
-
-  const override HxdUserLib lib
-
-  @Axon
-  Str userTest() { "it works!" }
-}
-
 

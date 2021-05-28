@@ -52,6 +52,7 @@ const class HxdLibSpi : Actor, HxLibSpi
     this.install = install
     this.recRef  = AtomicRef(rec)
     this.log     = Log.get(name)
+    this.webUri  = `/${name}/`
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -73,6 +74,8 @@ const class HxdLibSpi : Actor, HxLibSpi
   private const AtomicRef recRef
 
   override const Log log
+
+  override const Uri webUri
 
 //////////////////////////////////////////////////////////////////////////
 // Background Processing
@@ -137,8 +140,8 @@ const class HxdLibSpi : Actor, HxLibSpi
     freq := lib.houseKeepingFreq
     if (freq != null) sendLater(freq, houseKeepingMsg)
 
-    // onReady callback is hxd only
-    if (lib is HxdLib) ((HxdLib)lib).onReady
+    // onReady callback
+    lib.onReady
 
     return null
   }
@@ -151,7 +154,7 @@ const class HxdLibSpi : Actor, HxLibSpi
 
   private Obj? onUnready()
   {
-    if (lib is HxdLib) ((HxdLib)lib).onUnready
+    lib.onUnready
     return null
   }
 

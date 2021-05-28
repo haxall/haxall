@@ -80,6 +80,14 @@ abstract const class HxLib
   ** This is called on dedicated background actor.
   virtual Void onStart() {}
 
+  ** Callback when all libs are fully started.
+  ** This is called on dedicated background actor.
+  virtual Void onReady() {}
+
+  ** Callback before we stop the runtime
+  ** This is called on dedicated background actor.
+  virtual Void onUnready() {}
+
   ** Callback when library is stopped.
   ** This is called on dedicated background actor.
   virtual Void onStop() {}
@@ -115,5 +123,6 @@ const mixin HxLibSpi
   abstract Lib def()
   abstract Dict rec()
   abstract Log log()
+  abstract Uri webUri()
 }
 

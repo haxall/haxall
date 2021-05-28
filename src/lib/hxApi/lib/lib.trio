@@ -7,10 +7,10 @@
 //
 
 --------------------------------------------------------------------------
-def: ^lib:hxdApi
+def: ^lib:hxApi
 depends: [^lib:ph, ^lib:hx]
-typeName:"hxd::HxdApiLib"
-doc: "Haxall Haystack HTTP API"
+typeName:"hxApi::HxApiLib"
+doc: "Haxall Haystack HTTP API library"
 --------------------------------------------------------------------------
 
 
