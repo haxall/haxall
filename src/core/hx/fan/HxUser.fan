@@ -15,6 +15,9 @@ using folio
 **
 const mixin HxUser
 {
+  ** Ref identifier
+  abstract Ref id()
+
   ** Username identifier
   abstract Str username()
 

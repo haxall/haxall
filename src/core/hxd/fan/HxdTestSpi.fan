@@ -24,7 +24,7 @@ class HxdTestSpi : HxTestSpi
     {
       it.dir = test.tempDir
       it.create = true
-      it.requiredLibs.remove("hxdHttp")
+      it.requiredLibs.remove("hxHttp")
       it.log.level = LogLevel.warn
     }
     return boot.init.start
@@ -37,7 +37,11 @@ class HxdTestSpi : HxTestSpi
 
   override HxContext makeContext(HxUser? user)
   {
-    if (user == null) user = HxdUser(Etc.makeDict1("username", "test"))
+    if (user == null)
+    {
+      tags := Etc.makeDict2("id", Ref("test-user"), "username", "test")
+      user = Type.find("hxUser::HxUserImpl").make([tags])
+    }
     return HxdContext(test.rt, user)
   }
 }

@@ -6,6 +6,7 @@
 //   20 May 2021  Brian Frank  Creation
 //
 
+using concurrent
 using web
 using haystack
 using auth
@@ -33,6 +34,10 @@ const class HxUserLib : HxLib, HxRuntimeUsers
   ** URI to force logout
   const Uri logoutUri := web.uri + `logout`
 
+  ** Session cookie name
+  Str cookieName() { cookieNameRef.val }
+  private const AtomicRef cookieNameRef := AtomicRef()
+
 //////////////////////////////////////////////////////////////////////////
 // HxRuntimeUsers
 //////////////////////////////////////////////////////////////////////////
@@ -41,93 +46,37 @@ const class HxUserLib : HxLib, HxRuntimeUsers
   ** exception or return null based on the checked flag.
   override HxUser? read(Obj username, Bool checked := true)
   {
-    user := null
+    rec := username is Ref ?
+           rt.db.readById(username, false) :
+           rt.db.read("username==$username.toStr.toCode", false)
+    if (rec != null) return HxUserImpl(rec)
     if (checked) throw UnknownRecErr("User not found: $username")
     return null
   }
 
-  ** Authenticate a web request.  If request is for an unauthenticated
-  ** user, then redirect to the login page and return null.
+  ** Authenticate a web request and return a context.  If request
+  ** is not authenticated then redirect to login page and return null.
   override HxContext? authenticate(WebReq req, WebRes res)
   {
-     throw Err("TODO")
+    HxUserAuth(this, req, res).authenticate
   }
 
 //////////////////////////////////////////////////////////////////////////
-// HxLib
+// HxLib Lifecycle
 //////////////////////////////////////////////////////////////////////////
+
+  ** Start callback - all libs are created and registered
+  override Void onStart()
+  {
+    // set cookie name so its unique per http port
+    cookieNameRef.val = "hx-session-" + (rt.httpUri.port ?: 80)
+  }
 
   ** Run house keeping couple times a minute
   override Duration? houseKeepingFreq() { 17sec }
 
   ** Cleanup expired sessions
   override Void onHouseKeeping() { sessions.onHouseKeeping }
-
-//////////////////////////////////////////////////////////////////////////
-// Utils
-//////////////////////////////////////////////////////////////////////////
-
-  static Void addUser(Folio db, Str user, Str pass, Str role)
-  {
-    scram := ScramKey.gen
-    userAuth := authMsgToDict(scram.toAuthMsg)
-    secret := scram.toSecret(pass)
-
-    changes := [
-      "username":user,
-      "dis":user,
-      "user":Marker.val,
-      "userRole": role,
-      "userAuth": userAuth,
-      "created": DateTime.now,
-      "tz": TimeZone.cur.toStr,
-      "disabled": Remove.val,
-    ]
-    rec := db.commit(Diff.makeAdd(changes)).newRec
-    db.passwords.set(rec.id.id, secret)
-  }
-
-  static Void updatePassword(Folio db, Dict rec, Str pass)
-  {
-    scram := ScramKey.gen
-    userAuth := authMsgToDict(scram.toAuthMsg)
-    secret := scram.toSecret(pass)
-
-    changes := ["userAuth": userAuth]
-    db.commit(Diff(rec, changes))
-    db.passwords.set(rec.id.id, secret)
-  }
-
-  private static Dict authMsgToDict(AuthMsg msg)
-  {
-    userAuth := Str:Obj["scheme": msg.scheme]
-    msg.params.each |v, k|
-    {
-     if ("c" == k) userAuth[k] = Number(Int.fromStr(v, 10))
-     else userAuth[k] = v
-    }
-    return Etc.makeDict(userAuth)
-  }
-
-  internal static AuthMsg? dictToAuthMsg(Dict userAuth, Bool checked := true)
-  {
-    Str? scheme := null
-    params := Str:Str[:]
-    userAuth.each |v, k|
-    {
-      if ("scheme" == k) scheme = v
-      else params[k] = "$v"
-    }
-    try
-    {
-      return AuthMsg(scheme, params)
-    }
-    catch (Err e)
-    {
-      if (checked) throw e
-      return null
-    }
-  }
 
 }
 

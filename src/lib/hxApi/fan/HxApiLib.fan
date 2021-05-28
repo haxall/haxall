@@ -32,12 +32,11 @@ const class HxApiWeb : HxLibWeb
   override Void onService()
   {
     cx := rt.users.authenticate(req, res)
-echo("-- authenticate cx=$cx")
     if (cx == null) return
 
     res.statusCode = 200
     res.headers["Content-Type"] = "text/plain"
-    res.out.print("API web handling is alive!")
+    res.out.print("API req: $req.modRel")
   }
 }
 

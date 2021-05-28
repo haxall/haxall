@@ -67,6 +67,9 @@ const class HxdRuntime : HxRuntime
   ** User and authentication managment
   override const HxRuntimeUsers users
 
+  ** Public HTTP or HTTPS URI of this host
+  override Uri httpUri() { `http://localhost:8080/` } // TODO
+
   ** Construct a runtime specific context for the given user account
   override HxContext makeContext(HxUser user) { HxdContext(this, user) }
 

@@ -109,8 +109,12 @@ const class HxSession
   Int touched() { touchedRef.val }
   private const AtomicInt touchedRef := AtomicInt(Duration.nowTicks)
 
-  ** Touch this session to indicate usage
-  Void touch() { touchedRef.val = Duration.nowTicks }
+  ** Touch this session to indicate usage and update user definition
+  Void touch(HxUser user)
+  {
+    userRef.val = user
+    touchedRef.val = Duration.nowTicks
+  }
 
   ** Check if time between now and last touch exceeds lease time
   Bool isExpired(Duration lease, Duration now) { now.ticks - touched > lease.ticks }

@@ -69,7 +69,7 @@ internal const class HxHttpRootMod : WebMod
     if (libName.isEmpty)
     {
       // don't know where to redirect just yet....
-      return res.sendErr(404)
+      return res.redirect(`/hxApi/about`)
     }
 
     // lookup lib
