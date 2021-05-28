@@ -31,6 +31,9 @@ const mixin HxRuntime
   ** Library managment
   abstract HxRuntimeLibs libs()
 
+  ** Public HTTP or HTTPS URI of this host
+  abstract Uri httpUri()
+
   ** User and authentication managment
   abstract HxRuntimeUsers users()
 
@@ -84,8 +87,8 @@ const mixin HxRuntimeUsers
   ** exception or return null based on the checked flag.
   abstract HxUser? read(Obj username, Bool checked := true)
 
-  ** Authenticate a web request.  If request is for an unauthenticated
-  ** user, then redirect to the login page and return null.
+  ** Authenticate a web request and return a context.  If request
+  ** is not authenticated then redirect to login page and return null.
   abstract HxContext? authenticate(WebReq req, WebRes res)
 }
 

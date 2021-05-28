@@ -102,10 +102,7 @@ const class HxUserWeb : HxLibWeb
 
   private Void onAuth()
   {
-    lib.log.info("TODO $req.method $req.uri")
-    req.headers.each |v, n| { lib.log.info("  $n: $v") }
-    Actor.sleep(2sec)
-    res.sendErr(500)
+    HxUserAuthServerContext(lib).onService(req, res)
   }
 
 //////////////////////////////////////////////////////////////////////////
