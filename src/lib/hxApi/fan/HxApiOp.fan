@@ -74,4 +74,85 @@ internal class HxAboutOp : HxApiOp
   }
 }
 
+**************************************************************************
+** HxDefsOp
+**************************************************************************
+
+internal class HxDefsOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    opts := req.first as Dict ?: Etc.emptyDict
+    limit := (opts["limit"] as Number)?.toInt ?: Int.maxVal
+    filter := Filter.fromStr(opts["filter"] as Str ?: "", false)
+    acc := Def[,]
+    incomplete := false
+    eachDef(cx) |def|
+    {
+      if (filter != null && !filter.matches(def, cx)) return
+      if (acc.size >= limit) { incomplete = true; return }
+      acc.add(def)
+    }
+    meta := incomplete ? Etc.makeDict2("incomplete", Marker.val, "limit", Number(limit)) : Etc.emptyDict
+    return Etc.makeDictsGrid(meta, acc)
+  }
+
+  virtual Void eachDef(HxContext cx, |Def| f) { cx.ns.eachDef(f) }
+}
+
+**************************************************************************
+** HxFiletypesOp
+**************************************************************************
+
+internal class HxFiletypesOp : HxDefsOp
+{
+  override Void eachDef(HxContext cx, |Def| f) { cx.ns.filetypes.each(f) }
+}
+
+**************************************************************************
+** HxLibsOp
+**************************************************************************
+
+internal class HxLibsOp : HxDefsOp
+{
+  override Void eachDef(HxContext cx, |Def| f) { cx.ns.libsList.each(f) }
+}
+
+**************************************************************************
+** HxOpsOp
+**************************************************************************
+
+internal class HxOpsOp : HxDefsOp
+{
+  override Void eachDef(HxContext cx, |Def| f) { cx.ns.feature("op").eachDef(f) }
+}
+
+**************************************************************************
+** HxReadOp
+**************************************************************************
+
+internal class HxReadOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    if (req.isEmpty) throw Err("Request grid is empty")
+
+    if (req.has("filter"))
+    {
+      reqRow := req.first
+      filter := (Str)reqRow->filter
+      opts   := reqRow
+      return cx.db.readAll(filter, opts)
+    }
+
+    if (req.has("id"))
+    {
+      return cx.db.readByIds(req.ids, false)
+    }
+
+    throw Err("Request grid missing id or filter col")
+  }
+}
+
+
 
