@@ -52,7 +52,7 @@ const class HxdLibSpi : Actor, HxLibSpi
     this.install = install
     this.recRef  = AtomicRef(rec)
     this.log     = Log.get(name)
-    this.webUri  = `/${name}/`
+    this.webUri  = ("/" + (name.startsWith("hx") ? name[2..-1].decapitalize : name) + "/").toUri
   }
 
 //////////////////////////////////////////////////////////////////////////
