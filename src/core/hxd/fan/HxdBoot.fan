@@ -35,6 +35,16 @@ class HxdBoot
   ** Logger to use for bootstrap
   Log log := Log.get("hxd")
 
+  ** Configuration tags:
+  **   - logoUri: URI to an SVG logo image
+  **   - productName: Str name for about op
+  **   - productVersion: Str version for about op
+  **   - productUri: Uri to product home page
+  **   - vendorName: Str name for about op
+  **   - vendorUri: Uri to vendor home page
+  Str:Obj? config := [:]
+
+  **
   ** List of lib names which are required to be installed.
   **
   Str[] requiredLibs := [
@@ -57,6 +67,7 @@ class HxdBoot
   HxdRuntime init()
   {
     initArgs
+    initConfig
     openDatabase
     initMeta
     initLibs
@@ -94,6 +105,22 @@ class HxdBoot
       if (!dir.exists) throw ArgErr("Dir does not exist: $dir")
       if (!dir.plus(`db/folio.index`).exists) throw ArgErr("Dir missing database files: $dir")
     }
+  }
+
+  private Void initConfig()
+  {
+    addConfig("logoUri",        `/hxUser/logo.svg`)
+    addConfig("productName",    "Haxall")
+    addConfig("productVersion", version.toStr)
+    addConfig("productUri",     `https://haxall.io/`)
+    addConfig("vendorName",     "SkyFoundry")
+    addConfig("vendorUri",      `https://skyfoundry.com/`)
+    configDict = Etc.makeDict(config.findNotNull)
+  }
+
+  private Void addConfig(Str name, Obj val)
+  {
+    config.addNotNull(name, val)
   }
 
   private Void openDatabase()
@@ -146,6 +173,7 @@ class HxdBoot
 
   internal Folio? db
   internal HxdRuntime? rt
+  internal Dict? configDict
 }
 
 **************************************************************************
