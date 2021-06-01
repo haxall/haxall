@@ -53,7 +53,6 @@ internal const class HxHttpRootMod : WebMod
 
   const HxRuntime rt
   const HxHttpLib lib
-  const Str:Str renames := ["api": "hxdApi", "user": "hxdUser"]
 
   override Void onService()
   {
@@ -63,17 +62,17 @@ internal const class HxHttpRootMod : WebMod
 
     // use first level of my path to lookup lib
     libName := req.modRel.path.first ?: ""
-    libName = renames.get(libName, libName)
 
     // if name is empty, redirect
     if (libName.isEmpty)
     {
       // don't know where to redirect just yet....
-      return res.redirect(`/hxApi/about`)
+      return res.redirect(`/api/about`)
     }
 
-    // lookup lib
-    lib := rt.lib(libName, false)
+    // lookup lib as hxFoo and foo
+    lib := rt.lib("hx"+libName.capitalize, false)
+    if (lib == null) lib = rt.lib(libName, false)
     if (lib == null) return res.sendErr(404)
 
     // check if it supports HxLibWeb
