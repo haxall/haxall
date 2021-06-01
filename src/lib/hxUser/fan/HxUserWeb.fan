@@ -53,7 +53,7 @@ const class HxUserWeb : HxLibWeb
     loginLabel     := "$<login.login>"
     loggingInLabel := "$<login.loggingIn>"
     badCredsLabel  := "$<login.invalidUsernamePassword>"
-    logoUri        := uri+`logo.svg`
+    logoUri        := rt.config["logoUri"] as Uri ?: uri+`logo.svg`
     loginUri       := uri+`auth`
     redirectUri    := `/`
 
