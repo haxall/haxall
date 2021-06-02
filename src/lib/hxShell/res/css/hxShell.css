@@ -18,4 +18,10 @@ body {
   color: #333;
 }
 
+.mono {
+  font: 14px monospace !important;
+  line-height: 18px !important;
+}
+
+
 

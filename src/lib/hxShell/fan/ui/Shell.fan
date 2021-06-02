@@ -22,6 +22,7 @@ class Shell : Box
   {
     sh := Shell()
     Win.cur.doc.body.add(sh)
+    sh.input.focus
   }
 
   ** Constructor
@@ -53,10 +54,7 @@ class Shell : Box
     inputBar := Box
     {
       it.style->padding = "8px"
-      TextField
-      {
-        it.style->width = "100%"
-      },
+      input,
     }
 
     // tool bar
@@ -79,11 +77,10 @@ class Shell : Box
     }
 
     // view box
-    textBox := TextArea {}
-    view := Box
+    viewBox := Box
     {
       it.style->padding = "8px"
-      textBox,
+      view,
     }
 
     // put it all together
@@ -96,16 +93,30 @@ class Shell : Box
       titleBar,
       inputBar,
       toolBar,
-      view,
+      viewBox,
     })
+  }
 
-    session.eval("id").onOk |grid|
+  ** Evaluate the given expression
+  Void eval(Str expr)
+  {
+    session.eval(expr).onOk |grid|
     {
-      textBox.val = ZincWriter.valToStr(grid)
+      this.cur = grid
+      view.update(grid)
     }
   }
 
-  ** Client session back to server
+  ** Client session to make HTTP API calls
   const Session session := Session()
+
+  ** Current grid result
+  internal Grid cur := Etc.emptyGrid
+
+  ** Input prompt
+  internal ShellInput input := ShellInput(this)
+
+  ** View box
+  internal ShellView view := ShellView()
 }
 
