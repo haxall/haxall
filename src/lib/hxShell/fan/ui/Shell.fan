@@ -15,7 +15,7 @@ using hx
 ** Shell top level page
 **
 @Js
-class Shell : Box
+internal class Shell : Box
 {
   ** Main entry point to mount shell into DOM
   static Void main()
@@ -57,23 +57,11 @@ class Shell : Box
       input,
     }
 
-    // tool bar
-    toolBar := FlexBox
+    // command bar
+    commandBar := Box
     {
-      it.flex = ["0 0 auto", "0 0 auto"]
       it.style->padding = "0 8px"
-      FlowBox
-      {
-        it.gaps = ["4px"]
-        Button { it.text = "New" },
-        Button { it.text = "Edit" },
-        Button { it.text = "Trash" },
-      },
-      Button
-      {
-        it.text = "Table"
-        it.style->marginLeft = "auto"  // flexbox parent will align right
-      },
+      commands,
     }
 
     // view box
@@ -92,7 +80,7 @@ class Shell : Box
       it.style->padding = "0"
       titleBar,
       inputBar,
-      toolBar,
+      commandBar,
       viewBox,
     })
   }
@@ -100,23 +88,35 @@ class Shell : Box
   ** Evaluate the given expression
   Void eval(Str expr)
   {
-    session.eval(expr).onOk |grid|
-    {
-      this.cur = grid
-      view.update(grid)
-    }
+    session.eval(expr).onOk |grid| { update(grid, ShellViewType.table) }
+  }
+
+  ** Update shell state
+  Void update(Grid grid, ShellViewType viewType)
+  {
+    this.grid = grid
+    this.viewType = viewType
+    view.update
+    commands.update
+    input.focus
   }
 
   ** Client session to make HTTP API calls
   const Session session := Session()
 
   ** Current grid result
-  internal Grid cur := Etc.emptyGrid
+  internal Grid grid := Etc.emptyGrid
+
+  ** Current grid view type
+  internal ShellViewType viewType := ShellViewType.table
 
   ** Input prompt
   internal ShellInput input := ShellInput(this)
 
+  ** Toolbar commands
+  internal ShellCommands commands := ShellCommands(this)
+
   ** View box
-  internal ShellView view := ShellView()
+  internal ShellView view := ShellView(this)
 }
 
