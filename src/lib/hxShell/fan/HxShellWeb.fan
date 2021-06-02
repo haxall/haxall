@@ -44,7 +44,8 @@ const class HxShellWeb : HxLibWeb
   private Void onHtml(HxContext cx)
   {
     env := Str:Str[:]
-    env["hxShell.attestKey"]  = "TODO"
+    env["hxShell.api"]        = "/api/"
+    env["hxShell.attestKey"]  = cx.stash.getChecked("attestKey")
 
     res.headers["Content-Type"] = "text/html; charset=utf-8"
     out := res.out
@@ -57,7 +58,7 @@ const class HxShellWeb : HxLibWeb
      .includeCss(this.uri+`shell.css`)
      .includeJs(this.uri+`shell.js`)
 
-    WebUtil.jsMain(out, "hxShell::HxShell.main", env)
+    WebUtil.jsMain(out, "hxShell::Shell.main", env)
 
     out.headEnd
     out.body.bodyEnd
