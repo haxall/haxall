@@ -37,6 +37,7 @@ class HxdBoot
 
   ** Configuration tags:
   **   - logoUri: URI to an SVG logo image
+  **   - noAuth: Marker to disable authentication and use superuser
   **   - productName: Str name for about op
   **   - productVersion: Str version for about op
   **   - productUri: Uri to product home page
@@ -105,6 +106,13 @@ class HxdBoot
     {
       if (!dir.exists) throw ArgErr("Dir does not exist: $dir")
       if (!dir.plus(`db/folio.index`).exists) throw ArgErr("Dir missing database files: $dir")
+    }
+
+    if (config.containsKey("noAuth"))
+    {
+      echo("##")
+      echo("## NO AUTH - authentication is disabled!!!!")
+      echo("##")
     }
   }
 
@@ -188,12 +196,16 @@ internal class RunCli : HxCli
 
   override Str summary() { "Run the daemon server" }
 
+  @Opt { help = "Disable authentication and use superuser for all access" }
+  Bool noAuth
+
   @Arg { help = "Runtime database directory" }
   File? dir
 
   override Int run()
   {
     boot := HxdBoot { it.dir = this.dir }
+    if (noAuth) boot.config["noAuth"] = Marker.val
     boot.run
     return 0
   }

@@ -101,9 +101,18 @@ internal class HxUserAuth
   ** Or if defined then peform standard Haystack auth pipeline.
   private HxSession? checkAuthorization()
   {
-    if (!req.headers.containsKey("Authorization")) return null
-    return HxUserAuthServerContext(lib).onService(req, res)
+    // if the Authorization header specified use standard auth pipeline
+    if (req.headers.containsKey("Authorization"))
+      return HxUserAuthServerContext(lib).onService(req, res)
+
+    // auto login superuser for testing
+    if (lib.noAuth)
+      return lib.login(req, res, HxUserImpl(rt.db.read("user and userRole==\"su\"")))
+
+    // redirect to login
+    return null
   }
+
 }
 
 **************************************************************************
@@ -142,28 +151,7 @@ internal class HxUserAuthServerContext : AuthServerContext
 
   override Str login()
   {
-    hxUser := lib.read(user.username)
-    session := lib.sessions.open(req, hxUser)
-    addSessionCookie(session)
-    return session.key
-  }
-
-  private Void addSessionCookie(HxSession session)
-  {
-    overrides := Field:Obj?[:]
-
-    // we use enough built in security checks with the attest key
-    // that we don't need to require the sameSite strict flag
-    overrides[Cookie#sameSite] = null
-
-    // if the public facing HTTP server is using HTTPS then force secure flag
-    if (rt.httpUri.scheme == "https") overrides[Cookie#secure] = true
-
-    // construct the session cookie
-    cookie := Cookie.makeSession(lib.cookieName, session.key, overrides)
-
-    res.cookies.clear
-    res.cookies.add(cookie)
+    lib.login(req, res, lib.read(user.username)).key
   }
 }
 
