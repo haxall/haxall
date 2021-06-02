@@ -56,7 +56,9 @@ internal class HxUserAuth
     // refresh session and construct context
     user := lib.read(session.user.id)
     session.touch(user)
-    return rt.makeContext(user)
+    cx := rt.makeContext(user)
+    cx.stash["attestKey"] = session.attestKey
+    return cx
   }
 
   ** Check if cookies provide an valid session token
