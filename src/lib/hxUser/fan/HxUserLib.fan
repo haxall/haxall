@@ -28,6 +28,9 @@ const class HxUserLib : HxLib, HxRuntimeUsers
   ** Session management
   const HxUserSessions sessions := HxUserSessions(this)
 
+  ** Auto login a configured superuser account for testing
+  const Bool noAuth := rt.config.has("noAuth")
+
   ** URI for login page
   const Uri loginUri := web.uri + `login`
 
@@ -59,6 +62,36 @@ const class HxUserLib : HxLib, HxRuntimeUsers
   override HxContext? authenticate(WebReq req, WebRes res)
   {
     HxUserAuth(this, req, res).authenticate
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Session
+//////////////////////////////////////////////////////////////////////////
+
+  ** Open a new session for given user account
+  internal HxSession login(WebReq req, WebRes res, HxUser user)
+  {
+    session := sessions.open(req, user)
+    addSessionCookie(req, res, session)
+    return session
+  }
+
+  private Void addSessionCookie(WebReq req, WebRes res, HxSession session)
+  {
+    overrides := Field:Obj?[:]
+
+    // we use enough built in security checks with the attest key
+    // that we don't need to require the sameSite strict flag
+    overrides[Cookie#sameSite] = null
+
+    // if the public facing HTTP server is using HTTPS then force secure flag
+    if (rt.httpUri.scheme == "https") overrides[Cookie#secure] = true
+
+    // construct the session cookie
+    cookie := Cookie.makeSession(cookieName, session.key, overrides)
+
+    res.cookies.clear
+    res.cookies.add(cookie)
   }
 
 //////////////////////////////////////////////////////////////////////////

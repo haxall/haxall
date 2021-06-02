@@ -28,16 +28,24 @@ class Shell : Box
   new make()
   {
     // title bar
-    titleBar := Box
+    titleBar := FlexBox
     {
+      it.flex = ["0 0 auto", "0 0 auto"]
       it.style->padding = "0 8px"
       it.style->background = "#798ba4"
       Label
       {
         it.text = Win.cur.doc.title
-        it.style->fontSize = "16pt"
+        it.style->fontSize = "20px"
         it.style->fontWeight = "bold"
         it.style->color = "white"
+      },
+      Label
+      {
+        it.text = session.user.dis
+        it.style->fontSize = "14px"
+        it.style->color = "white"
+        it.style->marginLeft = "auto"  // flexbox parent will align right
       },
     }
 

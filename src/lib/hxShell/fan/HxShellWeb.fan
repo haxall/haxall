@@ -44,8 +44,9 @@ const class HxShellWeb : HxLibWeb
   private Void onHtml(HxContext cx)
   {
     env := Str:Str[:]
-    env["hxShell.api"]        = "/api/"
-    env["hxShell.attestKey"]  = cx.stash.getChecked("attestKey")
+    env["hxShell.api"]       = "/api/"
+    env["hxShell.attestKey"] = cx.stash.getChecked("attestKey")
+    env["hxShell.user"]      = ZincWriter.valToStr(cx.user.meta)
 
     res.headers["Content-Type"] = "text/html; charset=utf-8"
     out := res.out

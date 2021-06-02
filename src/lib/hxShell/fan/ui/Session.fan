@@ -20,6 +20,7 @@ const class Session
   {
     this.uri       = Env.cur.vars.getChecked("hxShell.api").toUri
     this.attestKey = Env.cur.vars.getChecked("hxShell.attestKey")
+    this.user      = ZincReader(Env.cur.vars.getChecked("hxShell.user").in).readVal
   }
 
   ** Endpoint URI which is typically "/api/"
@@ -27,6 +28,9 @@ const class Session
 
   ** Attestation session key used as secondary verification of cookie key
   const Str attestKey
+
+  ** User record
+  const Dict user
 
   ** Convenience for `call` to the eval op
   ApiCallFuture eval(Str expr)
