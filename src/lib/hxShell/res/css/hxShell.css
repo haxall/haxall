@@ -1,0 +1,21 @@
+/*
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Jun 2021  Brian Frank  Creation
+*/
+
+html { height: 100%; }
+
+body {
+  height: 100%;
+  overflow: hidden;
+  font: 14px 'Helvetica Neue', Arial, sans-serif;
+  padding: 0;
+  margin: 0;
+  background: #f7f7f7;
+  color: #333;
+}
+
+

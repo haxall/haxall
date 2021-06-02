@@ -56,6 +56,7 @@ class HxdBoot
     "axon",
     "hxApi",
     "hxHttp",
+    "hxShell",
     "hxUser"
   ]
 

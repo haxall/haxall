@@ -66,8 +66,8 @@ internal const class HxHttpRootMod : WebMod
     // if name is empty, redirect
     if (libName.isEmpty)
     {
-      // don't know where to redirect just yet....
-      return res.redirect(`/api/about`)
+      // redirect to shell as the built-in UI
+      return res.redirect(`/shell`)
     }
 
     // lookup lib as hxFoo and foo
