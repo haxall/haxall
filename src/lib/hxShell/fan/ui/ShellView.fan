@@ -17,20 +17,61 @@ using hx
 @Js
 internal class ShellView : Box
 {
-  new make()
+  new make(Shell sh)
   {
-    dis = TextArea
+    this.sh = sh
+    updateText("Try out some Axon!")
+  }
+
+  Void update()
+  {
+    removeAll
+    switch (sh.viewType)
+    {
+      case ShellViewType.csv:   updateGridWriter(CsvWriter#)
+      case ShellViewType.json:  updateGridWriter(JsonWriter#)
+      case ShellViewType.trio:  updateGridWriter(TrioWriter#)
+      case ShellViewType.zinc:  updateGridWriter(ZincWriter#)
+      default: add(Label { it.text = "Unsupported: $sh.viewType" })
+    }
+  }
+
+  private Void updateGridWriter(Type type)
+  {
+    buf := StrBuf()
+    writer := (GridWriter)type.make([buf.out])
+    writer.writeGrid(sh.grid)
+    updateText(buf.toStr)
+  }
+
+  private Void updateText(Str val)
+  {
+    add(TextArea
     {
       it.style.addClass("mono")
       it.style->whiteSpace = "pre"
-    }
-    add(dis)
+      it.val = val
+    })
   }
 
-  Void update(Grid g)
-  {
-    dis.val = ZincWriter.gridToStr(g)
-  }
-
-  private TextArea dis
+  private Shell sh
 }
+
+**************************************************************************
+** ShellViewType
+**************************************************************************
+
+@Js
+internal enum class ShellViewType
+{
+  table("Table"),
+  csv("CSV"),
+  json("JSON"),
+  trio("Trio"),
+  zinc("Zinc")
+
+  private new make(Str dis) { this.dis = dis }
+
+  const Str dis
+}
+
