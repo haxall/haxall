@@ -8,18 +8,19 @@
 
 using dom
 using domkit
+using haystack
 using hx
 
 **
 ** Shell top level page
 **
 @Js
-class HxShell : Box
+class Shell : Box
 {
   ** Main entry point to mount shell into DOM
   static Void main()
   {
-    sh := HxShell()
+    sh := Shell()
     Win.cur.doc.body.add(sh)
   }
 
@@ -70,12 +71,11 @@ class HxShell : Box
     }
 
     // view box
+    textBox := TextArea {}
     view := Box
     {
       it.style->padding = "8px"
-      TextArea
-      {
-      },
+      textBox,
     }
 
     // put it all together
@@ -90,7 +90,14 @@ class HxShell : Box
       toolBar,
       view,
     })
-  }
-}
 
+    session.eval("id").onOk |grid|
+    {
+      textBox.val = ZincWriter.valToStr(grid)
+    }
+  }
+
+  ** Client session back to server
+  const Session session := Session()
+}
 
