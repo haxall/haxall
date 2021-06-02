@@ -1,0 +1,46 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Jun 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^reader
+is: ^str
+doc: "Fantom type qname for reader class"
+--------------------------------------------------------------------------
+def: ^writer
+is: ^str
+doc: "Fantom type qname for writer class"
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Defx
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+defx:   ^filetype:csv
+writer: "haystack::CsvWriter"
+reader: "haystack::CsvReader"
+--------------------------------------------------------------------------
+defx:   ^filetype:json
+writer: "haystack::JsonWriter"
+reader: "haystack::JsonReader"
+--------------------------------------------------------------------------
+defx:   ^filetype:jsonld
+writer: "def::JsonLdWriter"
+--------------------------------------------------------------------------
+defx:   ^filetype:trio
+writer: "haystack::TrioWriter"
+reader: "haystack::TrioReader"
+--------------------------------------------------------------------------
+defx:   ^filetype:turtle
+writer: "def::TurtleWriter"
+--------------------------------------------------------------------------
+defx:   ^filetype:zinc
+writer: "haystack::ZincWriter"
+reader: "haystack::ZincReader"
+--------------------------------------------------------------------------
+

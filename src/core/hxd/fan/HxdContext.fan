@@ -106,6 +106,15 @@ class HxdContext : HxContext
   {
     db.readById(id, checked)
   }
+
+  ** Evaluate an expression or if a filter then readAll convenience
+  @NoDoc override Obj? evalOrReadAll(Str src)
+  {
+    expr := parse(src)
+    filter := expr.evalToFilter(this, false)
+    if (filter != null) return rt.db.readAll(filter.toStr)
+    return expr.eval(this)
+  }
 }
 
 

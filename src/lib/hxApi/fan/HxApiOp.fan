@@ -154,5 +154,19 @@ internal class HxReadOp : HxApiOp
   }
 }
 
+**************************************************************************
+** HxEvalOp
+**************************************************************************
+
+internal class HxEvalOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    if (req.isEmpty) throw Err("Request grid is empty")
+    expr := (Str)req.first->expr
+    return Etc.toGrid(cx.evalOrReadAll(expr))
+  }
+}
+
 
 
