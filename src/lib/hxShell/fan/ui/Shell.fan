@@ -67,13 +67,14 @@ internal class Shell : Box
     viewBox := Box
     {
       it.style->padding = "8px"
+      this.style->height = "100%"
       view,
     }
 
     // put it all together
     add(FlexBox
     {
-      it.flex = ["0 0 auto", "0 0 auto", "0 0 auto",  "1 1 auto"]
+      it.flex = ["none", "none", "none",  "1 1 0"]
       it.dir = "column"
       it.style->width = "100%"
       it.style->padding = "0"

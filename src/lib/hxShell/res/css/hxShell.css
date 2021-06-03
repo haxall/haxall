@@ -29,7 +29,9 @@ textarea {
   line-height: 18px !important;
 }
 
-/* keep table fonts in sync with ShellTable font metrics */
+/********************************************************************
+ * Table - keep table fonts in sync with ShellTable font metrics
+ *******************************************************************/
 
 div.domkit-Table-header {
   font-size: 12px;
@@ -39,6 +41,23 @@ div.domkit-Table-header {
 div.domkit-Table-cell {
   font-size: 13px;
 }
+
+/********************************************************************
+ * Card
+ *******************************************************************/
+
+span.card-name {
+  font-size: 12px;
+  text-align: right;
+  font-weight: bold;
+  color: #666;
+}
+
+span.card-val {
+  font-size: 13px;
+}
+
+
 
 
 

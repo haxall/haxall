@@ -17,14 +17,11 @@ using haystack
 @Js
 internal class ShellTable : Table
 {
-  new make(Shell sh)
+  new make(Grid grid)
   {
-    this.sh = sh
-    this.model = ShellTableModel(sh.grid)
+    this.model = ShellTableModel(grid)
     rebuild
   }
-
-  private Shell sh
 
   // these must be kept in sync with hxShell.css
   static const Font headerFont := Font("bold 9pt Helvetica")  // 12px * 0.75
