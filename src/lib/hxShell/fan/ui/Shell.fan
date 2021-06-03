@@ -9,7 +9,6 @@
 using dom
 using domkit
 using haystack
-using hx
 
 **
 ** Shell top level page

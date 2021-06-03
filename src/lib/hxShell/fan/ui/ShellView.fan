@@ -9,7 +9,6 @@
 using dom
 using domkit
 using haystack
-using hx
 
 **
 ** ShellView is used to display the current grid
@@ -28,12 +27,18 @@ internal class ShellView : Box
     removeAll
     switch (sh.viewType)
     {
+      case ShellViewType.table: updateTable
       case ShellViewType.csv:   updateGridWriter(CsvWriter#)
       case ShellViewType.json:  updateGridWriter(JsonWriter#)
       case ShellViewType.trio:  updateGridWriter(TrioWriter#)
       case ShellViewType.zinc:  updateGridWriter(ZincWriter#)
       default: add(Label { it.text = "Unsupported: $sh.viewType" })
     }
+  }
+
+  private Void updateTable()
+  {
+    add(ShellTable(sh))
   }
 
   private Void updateGridWriter(Type type)
@@ -46,12 +51,7 @@ internal class ShellView : Box
 
   private Void updateText(Str val)
   {
-    add(TextArea
-    {
-      it.style.addClass("mono")
-      it.style->whiteSpace = "pre"
-      it.val = val
-    })
+    add(TextArea { it.val = val })
   }
 
   private Shell sh

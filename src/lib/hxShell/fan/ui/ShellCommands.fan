@@ -9,7 +9,6 @@
 using dom
 using domkit
 using haystack
-using hx
 
 **
 ** ShellCommands displays and processes the command buttons
