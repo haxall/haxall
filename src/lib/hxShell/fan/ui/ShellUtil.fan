@@ -10,15 +10,14 @@ using dom
 using domkit
 using haystack
 
+/* This is code is currently used
+
 **
 ** ShellView is used to display the current grid
 **
 @Js
 internal const class ShellUtil
 {
-  static Str valToDis(Obj? val)
-  {
-    if (val is Ref) return ((Ref)val).toZinc
-    return Etc.valToDis(val)
-  }
 }
+
+*/
