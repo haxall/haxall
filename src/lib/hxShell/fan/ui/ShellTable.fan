@@ -19,13 +19,42 @@ internal class ShellTable : Table
 {
   new make(Grid grid)
   {
+    this.sel.multi = true
     this.model = ShellTableModel(grid)
+    this.onTableEvent("mousedown") |e| { onMouseDown(e) }
     rebuild
+  }
+
+  private Void onMouseDown(TableEvent e)
+  {
+    if (e.col == 0 && e.cellPos.x <= 20f) onInfo(e)
+  }
+
+  private Void onInfo(TableEvent e)
+  {
+    model := (ShellTableModel)this.model
+    row := model.grid[e.row]
+    info := Elem("pre")
+    {
+      it.style.addClass("mono")
+      it.style->padding = "0 16px"
+      it.text = TrioWriter.dictToStr(row)
+    }
+    Popup
+    {
+      Box()
+      {
+        it.style->overflow = "auto"
+        info,
+      },
+    }.open(e.pagePos.x, e.pagePos.y)
   }
 
   // these must be kept in sync with hxShell.css
   static const Font headerFont := Font("bold 9pt Helvetica")  // 12px * 0.75
   static const Font cellFont   := Font("9.75pt Helvetica")    // 13px * 0.75
+
+  static const Str infoIcon := "\u24D8\u00A0\u00A0"
 }
 
 **************************************************************************
@@ -46,10 +75,10 @@ internal class ShellTableModel : TableModel
   {
     hm := ShellTable.headerFont.metrics
     cm := ShellTable.cellFont.metrics
-    return grid.cols.map |col->Int| { initColWidth(grid, col, hm, cm) }
+    return grid.cols.map |col, i->Int| { initColWidth(grid, col, i, hm, cm) }
   }
 
-  private static Int initColWidth(Grid grid, Col col, FontMetrics hm, FontMetrics cm)
+  private static Int initColWidth(Grid grid, Col col, Int index, FontMetrics hm, FontMetrics cm)
   {
     // just use first 100 rows
     maxRow := grid.size.min(100)
@@ -62,6 +91,7 @@ internal class ShellTableModel : TableModel
       prefw = prefw.max(textw)
     }
     prefw = prefw.min(200f)
+    if (index == 0) prefw += cm.width(ShellTable.infoIcon)
     return prefw.toInt + 12
   }
 
@@ -85,6 +115,8 @@ internal class ShellTableModel : TableModel
     val  := row.val(col)
     text := row.dis(col.name)
 
+    if (c == 0) text = ShellTable.infoIcon + text
+
     cell.text = text
   }
 
@@ -96,7 +128,7 @@ internal class ShellTableModel : TableModel
     return Etc.sortCompare(a, b)
   }
 
-  private Grid grid
+  const Grid grid
   private Col[] cols
   private Int[] colWidths
 }

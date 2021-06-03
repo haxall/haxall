@@ -28,7 +28,6 @@ internal class ShellView : Box
     switch (sh.viewType)
     {
       case ShellViewType.table: updateTable
-      case ShellViewType.card:  updateCard
       case ShellViewType.csv:   updateGridWriter(CsvWriter#)
       case ShellViewType.json:  updateGridWriter(JsonWriter#)
       case ShellViewType.trio:  updateGridWriter(TrioWriter#)
@@ -40,11 +39,6 @@ internal class ShellView : Box
   private Void updateTable()
   {
     add(ShellTable(sh.grid))
-  }
-
-  private Void updateCard()
-  {
-    add(ShellCardDeck(sh.grid))
   }
 
   private Void updateGridWriter(Type type)
@@ -71,7 +65,6 @@ internal class ShellView : Box
 internal enum class ShellViewType
 {
   table("Table"),
-  card("Card"),
   csv("CSV"),
   json("JSON"),
   trio("Trio"),
