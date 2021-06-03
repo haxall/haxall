@@ -11,17 +11,35 @@ html { height: 100%; }
 body {
   height: 100%;
   overflow: hidden;
-  font: 14px 'Helvetica Neue', Arial, sans-serif;
+  font: 14px Helvetica, Arial, sans-serif;
   padding: 0;
   margin: 0;
   background: #f7f7f7;
   color: #333;
 }
 
+textarea {
+  font: 14px monospace !important;
+  line-height: 18px !important;
+  white-space: pre;
+}
+
 .mono {
   font: 14px monospace !important;
   line-height: 18px !important;
 }
+
+/* keep table fonts in sync with ShellTable font metrics */
+
+div.domkit-Table-header {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+div.domkit-Table-cell {
+  font-size: 13px;
+}
+
 
 
 

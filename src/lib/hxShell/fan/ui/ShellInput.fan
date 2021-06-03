@@ -9,7 +9,6 @@
 using dom
 using domkit
 using haystack
-using hx
 
 **
 ** Axon expression input with MRU history
@@ -22,6 +21,7 @@ internal class ShellInput : Box
     this.sh = sh
     this.prompt = TextField
     {
+      it.style.addClass("mono")
       it.style->width = "100%"
       it.onEvent("keydown",  false) |e| { onKeyDown(e) }
     }
