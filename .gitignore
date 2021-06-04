@@ -12,6 +12,9 @@ fan.props
 # doc/
 /doc/
 
+# var/
+/var/
+
 # temp
 /tmp/
 /temp/

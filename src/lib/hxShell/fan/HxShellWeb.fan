@@ -43,6 +43,8 @@ const class HxShellWeb : HxLibWeb
 
   private Void onHtml(HxContext cx)
   {
+    if (req.method != "GET") { res.sendErr(501); return }
+
     env := Str:Str[:]
     env["hxShell.api"]       = "/api/"
     env["hxShell.attestKey"] = cx.stash.getChecked("attestKey")
