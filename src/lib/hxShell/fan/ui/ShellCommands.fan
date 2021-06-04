@@ -64,7 +64,16 @@ internal class ShellCommands : FlexBox
 
   private Void onMeta()
   {
-    echo("onMeta")
+    grid := sh.grid
+    s := StrBuf()
+    s.add("=== grid ===\n")
+    s.add(TrioWriter.dictToStr(grid.meta))
+    grid.cols.each |col|
+    {
+      s.add("\n=== col $col.name ===\n")
+      s.add(TrioWriter.dictToStr(col.meta))
+    }
+    ShellDialog.openText("Grid Meta", s.toStr)
   }
 
   private Popup onViews()
