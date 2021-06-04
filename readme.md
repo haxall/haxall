@@ -34,7 +34,7 @@ your Env Path is as follows: `haystack-defs (work), fantom (home)`
 
 ### Build Haxall  
 
-1. Pull from [this repo](https://github.com/haxall/haxalll)
+1. Pull from [this repo](https://github.com/haxall/haxall)
  
 2. Setup "fan.props" in repo root of Haxall with this line:
 
