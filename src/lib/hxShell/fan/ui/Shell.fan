@@ -88,7 +88,9 @@ internal class Shell : Box
   ** Evaluate the given expression
   Void eval(Str expr)
   {
-    session.eval(expr).onOk |grid| { update(grid, ShellViewType.table) }
+    session.eval(expr)
+      .onOk |grid| { update(grid, ShellViewType.table) }
+      .onErr |grid| { updateErr(grid) }
   }
 
   ** Update shell state
@@ -99,6 +101,12 @@ internal class Shell : Box
     view.update
     commands.update
     input.focus
+  }
+
+  ** Update shell state when an error is encountered
+  Void updateErr(Grid grid)
+  {
+    update(grid, ShellViewType.table)
   }
 
   ** Client session to make HTTP API calls

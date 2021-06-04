@@ -29,6 +29,20 @@ textarea {
   line-height: 18px !important;
 }
 
+span.err-icon {
+  font-size: 32px;
+  color: #f00;
+  padding-right: 10px;
+  vertical-align: middle;
+  height: 32px;
+}
+
+span.err-dis {
+  font-size: 24px;
+  vertical-align: middle;
+  height: 32px;
+}
+
 /********************************************************************
  * Table - keep table fonts in sync with ShellTable font metrics
  *******************************************************************/
