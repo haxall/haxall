@@ -36,8 +36,28 @@ internal class ShellView : Box
     }
   }
 
+  private Void updateErr()
+  {
+    meta := sh.grid.meta
+    add(Box {
+      it.style.addClass("domkit-border")
+      it.style->background = "#fff"
+      it.style->padding = "12px"
+      it.style->height = "calc(100% - 18px)"
+      it.style->overflow = "auto"
+      Elem("h1")
+      {
+        it.style->margin = "0"
+        Elem("span") { it.text = "\u2639"; it.style.addClass("err-icon") },
+        Elem("span") { it.text = meta.dis; it.style.addClass("err-dis")  },
+      },
+      Elem("pre") { it.text = meta["errTrace"] ?: "No trace" },
+    })
+  }
+
   private Void updateTable()
   {
+    if (sh.grid.isErr) return updateErr
     add(ShellTable(sh.grid))
   }
 
