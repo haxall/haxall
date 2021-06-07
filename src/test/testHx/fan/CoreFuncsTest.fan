@@ -370,17 +370,22 @@ class CoreFuncsTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Context
+// Misc
 //////////////////////////////////////////////////////////////////////////
 
   @HxRuntimeTest
-  Void testContext()
+  Void testMisc()
   {
     cx := makeContext
     verifyEq(cx.user.isSu, true)
     verifyEq(cx.user.isAdmin, true)
 
-    d := (Dict)cx.eval("context()")
+    d := (Dict)cx.eval("about()")
+    verifyEq(d->productName, rt.config->productName)
+    verifyEq(d->productUri, rt.config->productUri)
+    verifyEq(d->productVersion, rt.config->productVersion)
+
+    d = (Dict)cx.eval("context()")
     verifyEq(d->userRef, cx.user.id)
     verifyEq(d->username, cx.user.username)
     verifyEq(d->locale, Locale.cur.toStr)
