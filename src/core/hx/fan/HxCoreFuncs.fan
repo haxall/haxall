@@ -76,7 +76,7 @@ const class HxCoreFuncs : HxLibFuncs
 
   ** Read a list of record ids into a grid.  The rows in the
   ** result correspond by index to the ids list.  If checked is true,
-  ** then every id must be found in the project or UnknownRecErr
+  ** then every id must be found in the database or UnknownRecErr
   ** is thrown.  If checked is false, then an unknown record is
   ** returned as a row with every column set to null (including
   ** the 'id' tag).
@@ -201,6 +201,138 @@ const class HxCoreFuncs : HxLibFuncs
   **   - Grid return 'id' column
   @Axon
   virtual Ref[] toRecIdList(Obj? val) { HxUtil.toIds(val) }
+
+//////////////////////////////////////////////////////////////////////////
+// Folio Writes
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Construct a modification "diff" used by `commit`.  The orig should
+  ** be the instance which was read from the database, or it may be null
+  ** only if the add flag is passed.  Any tags to add/set/remove should
+  ** be included in the changes dict.
+  **
+  ** The following flags are supported:
+  **   - 'add': indicates diff is adding new record
+  **   - 'remove': indicates diff is removing record (in general you
+  **     should add `trash` tag instead of removing)
+  **   - 'transient': indicate that this diff should not be flushed
+  **     to persistent storage (it may or may not be persisted).
+  **   - 'force': indicating that changes should be applied regardless
+  **     of other concurrent changes which may be been applied after
+  **     the orig version was read (use with caution!)
+  **
+  ** Examples:
+  **    // create new record
+  **    diff(null, {dis:"New Rec", someMarker}, {add})
+  **
+  **    // create new record with explicit id like Diff.makeAdd
+  **    diff(null, {id:151bd3c5-6ce3cb21, dis:"New Rec"}, {add})
+  **
+  **    // set/add dis tag and remove oldTag
+  **    diff(orig, {dis:"New Dis", -oldTag})
+  **
+  **    // set/add val tag transiently
+  **    diff(orig, {val:123}, {transient})
+  **
+  @Axon
+  virtual Diff diff(Dict? orig, Dict? changes, Dict? flags := null)
+  {
+    // strip null values (occurs when grid rows are used)
+    if (changes == null) changes = Etc.emptyDict
+    changes = Etc.dictRemoveNulls(changes)
+
+    // flags
+    mask := 0
+    if (flags != null)
+    {
+      // handle add specially
+      if (flags.has("add"))
+      {
+        if (orig != null) throw ArgErr("orig must be null if using 'add' flag")
+        id := changes["id"] as Ref
+        if (id != null) changes = Etc.dictRemove(changes, "id")
+        else id = Ref.gen
+        return Diff.makeAdd(changes, id)
+      }
+
+      if (flags.has("add"))       mask = mask.or(Diff.add)
+      if (flags.has("remove"))    mask = mask.or(Diff.remove)
+      if (flags.has("transient")) mask = mask.or(Diff.transient)
+      if (flags.has("force"))     mask = mask.or(Diff.force)
+    }
+
+    return Diff(orig, changes, mask)
+  }
+
+  **
+  ** Commit one or more diffs to the folio database.
+  ** The argument may be one of the following:
+  **   - result of `diff()`
+  **   - list of `diff()` to commit multiple diffs at once
+  **   - stream of `diff()`; see `docSkySpark::Streams#commit`.
+  **
+  ** If one diff is passed, return the new record.  If a list
+  ** of diffs is passed return a list of new records.
+  **
+  ** This is a synchronous blocking call which will return
+  ** the new record or records as the result.
+  **
+  ** Examples:
+  **   // add new record
+  **   newRec: commit(diff(null, {dis:"New Rec!"}, {add}))
+  **
+  **   // add someTag to some group of records
+  **   readAll(filter).toRecList.map(r => diff(r, {someTag})).commit
+  **
+  @Axon { admin = true }
+  static Obj? commit(Obj diffs)
+  {
+    if (diffs is MStream) return CommitStream(diffs).run
+
+    cx := curContext
+
+    if (diffs is Diff)
+    {
+      return cx.db.commit(diffs).newRec
+    }
+
+    if (diffs is List && ((List)diffs).all { it is Diff })
+    {
+      return cx.db.commitAll(diffs).map |r| { r.newRec }
+    }
+
+    throw Err("Invalid diff arg: ${diffs.typeof}")
+  }
+
+  ** Store a password key/val pair into current project's password
+  ** store.  The key is typically a Ref of the associated record.
+  ** See `folio::Folio.passwords`.
+  @Axon { admin = true }
+  static Void passwordSet(Obj key, Str val)
+  {
+    // extra security check just to be sure!
+    cx := curContext
+    if (!cx.user.isAdmin) throw PermissionErr("passwordSet")
+    cx.db.passwords.set(key.toStr, val)
+  }
+
+  ** Strip any tags which cannot be persistently committed to Folio.
+  ** This includes special tags such as 'hisSize' and any transient tags
+  ** the record has defined.  If 'val' is Dict, then a single Dict is returned.
+  ** Otherwise 'val' must be Dict[] or Grid and Dict[] is returned.
+  ** The 'mod' tag is always stripped.  The 'id' tag is not stripped
+  ** for cases when adding records with swizzled ids; pass '{-id}' for
+  ** options to strip the 'id' tag also.
+  @Axon
+  static Obj stripUncommittable(Obj val, Obj? opts := null)
+  {
+    opts = Etc.makeDict(opts)
+    if (val is Dict) return FolioUtil.stripUncommittable(curContext.db, val, opts)
+    if (val is Grid) return ((Grid)val).mapToList |r->Dict| { stripUncommittable(r, opts) }
+    if (val is List) return ((List)val).map |r->Dict| { stripUncommittable(r, opts) }
+    throw ArgErr("Must be Dict, Dict[], or Grid: $val.typeof")
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils

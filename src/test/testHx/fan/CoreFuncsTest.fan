@@ -9,6 +9,7 @@
 using concurrent
 using haystack
 using axon
+using folio
 using hx
 
 **
@@ -204,6 +205,171 @@ class CoreFuncsTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Diff
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testDiff()
+  {
+    db := rt.db
+
+    // diff only - add
+    Diff? d
+    verifyEvalErr("""diff(null, {dis:"test", age:33})""", ArgErr#)
+    verifyEvalErr("""diff({}, {dis:"test", age:33}, {add})""", ArgErr#)
+    d = eval("""diff(null, {dis:"test", age:33}, {add})""")
+    verifyDictEq(d.changes, ["dis":"test", "age":n(33)])
+    verifyEq(d.flags, Diff.add)
+
+    // diff only - remove tag
+    d = eval("""diff({id:@14754350-63a873e5, mod:now()}, {-age}, {transient, force})""")
+    verifyDictEq(d.changes, ["age":Remove.val])
+    verifyEq(d.flags, Diff.transient.or(Diff.force))
+
+    // diff only - add with explicit id
+    d = eval("""diff(null, {id:@14754350-63a873ff, dis:"makeAdd"}, {add})""")
+    verifyDiffEq(d, Diff.makeAdd(["dis":"makeAdd"], Ref("14754350-63a873ff")))
+
+    // commit+diff - add
+    eval("""commit(diff(null, {dis:"diff-a", foo, i:123}, {add}))""")
+    r := db.read(Str<|dis=="diff-a"|>)
+    verifyDictEq(r, ["id":r.id, "mod":r->mod, "dis":"diff-a", "foo":Marker.val, "i":n(123)])
+
+    // commit+diff - change with tag remove, tag add, tag update
+    eval("""commit(diff(readById($r.id.toCode), {-foo, i:456, s:"!"}))""")
+    r = db.read(Str<|dis=="diff-a"|>)
+    verifyDictEq(r, ["id":r.id, "mod":r->mod, "dis":"diff-a", "i":n(456), "s":"!"])
+
+    // commit+diff - makeAdd with explicit id
+    xId := Ref.gen
+    eval("""commit(diff(null, {id:$xId.toCode, dis:"diff-b"}, {add}))""")
+    r = db.read(Str<|dis=="diff-b"|>)
+    verifyDictEq(r, ["id":Ref(r.id.id, "diff-b"), "mod":r->mod, "dis":"diff-b"])
+
+    // commit with sparse cols in grid
+    eval("""[{dis:"g1", a:10}, {dis:"g2", b:20}].toGrid
+            .each x => commit(diff(null, x, {add}))""")
+    r = db.read(Str<|dis=="g1"|>)
+    verifyDictEq(r, ["id":r.id, "mod":r->mod, "dis":"g1", "a":n(10)])
+    r = db.read(Str<|dis=="g2"|>)
+    verifyDictEq(r, ["id":r.id, "mod":r->mod, "dis":"g2", "b":n(20)])
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Commit
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testCommit()
+  {
+    db := rt.db
+
+    Dict a := eval("""commit(diff(null, {dis:"A", foo, count:10}, {add}))""")
+    verifyDictEq(db.readById(a.id), ["dis":"A", "foo":m, "count":n(10), "id":a.id, "mod":a->mod])
+
+    Dict b := eval("""commit(diff(null, {dis:"B", count:12}, {add}))""")
+    verifyDictEq(db.readById(b.id), ["dis":"B", "count":n(12), "id":b.id,  "mod":b->mod])
+
+    Dict[] x := eval(
+      """[diff(read(dis=="A"), {count:3, -foo}),
+          diff(read(dis=="B"), {count:4, bar})].commit""")
+    verifyEq(x.size, 2)
+    verifyDictEq(x[0], ["dis":"A", "count":n(3), "id":a.id, "mod":x[0]->mod])
+    verifyDictEq(x[1], ["dis":"B", "count":n(4), "bar":m, "id":b.id, "mod":x[1]->mod])
+
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Strip Uncommittable
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testStripUncommittable()
+  {
+    db := rt.db
+
+    r := addRec(["dis":"Test", "foo":m])
+    db.commit(Diff(r, ["bar":"what"], Diff.transient))
+
+    verifyDictEq(eval("stripUncommittable({foo, hisSize, curVal})"), ["foo":m])
+    verifyDictEq(eval("stripUncommittable({id:@bad, connErr, point})"), ["id":Ref("bad"), "point":m])
+    verifyDictEq(eval("stripUncommittable({id:@bad, connErr, point, bad:null})"), ["id":Ref("bad"), "point":m])
+    verifyDictEq(eval("readById($r.id.toCode).stripUncommittable"), ["id":r.id, "dis":"Test", "foo":m])
+
+    x := (Dict[])eval("readAll(foo).stripUncommittable")
+    verifyDictEq(x[0], ["id":r.id, "dis":"Test", "foo":m])
+
+    x = eval("readAllStream(foo).collect(toList).stripUncommittable")
+    verifyDictEq(x[0], ["id":r.id, "dis":"Test", "foo":m])
+
+    verifyDictEq(eval("stripUncommittable({id:@a, hisSize:123, foo, mod:now()})"),
+      ["id":Ref("a"), "foo":m])
+
+    verifyDictEq(eval("stripUncommittable({id:@a, hisSize:123, foo, mod:now()}, {-id})"),
+      ["foo":m])
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Streams
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testStreams()
+  {
+    db := rt.db
+
+    // create test database
+    a := addRec(["dis":"andy",    "age":n(10), "young":m])
+    b := addRec(["dis":"brian",   "age":n(20), "young":m])
+    c := addRec(["dis":"charlie", "age":n(30), "old":m])
+    d := addRec(["dis":"dan",     "age":n(30), "old":m, "smart":m])
+    badId := Ref.gen
+
+    // readAllStream
+    verifyStream("readAllStream(age).collect", [a, b, c, d])
+    verifyStream("readAllStream(age <= 20).collect", [a, b])
+    verifyStream("readAllStream(age).limit(3).collect", db.readAllList("age")[0..2])
+
+    // readByIdsStream
+    verifyStream("readByIdsStream([$a.id.toCode, $c.id.toCode, $b.id.toCode]).collect", [a, c, b])
+    verifyStream("readByIdsStream([$a.id.toCode, $c.id.toCode, $b.id.toCode]).limit(2).collect", [a, c])
+
+    // commit
+    verifyEq(eval("""(1..5).stream.map(n=>diff(null, {dis:"C-"+n, commitTest}, {add})).commit"""), n(5))
+    g := db.readAll("commitTest").sortCol("dis")
+    verifyEq(g.size, 5)
+    verifyEq(g[0].dis, "C-1")
+    verifyEq(g[4].dis, "C-5")
+  }
+
+  Obj? verifyStream(Str src, Obj? expected)
+  {
+    // verify normally
+    actual := eval(src)
+    verifyStreamEq(actual, expected)
+
+    // verify roundtrip encoded/decoded
+    actual = roundTripStream(makeContext, src)
+    verifyStreamEq(actual, expected)
+    return actual
+  }
+
+  private Void verifyStreamEq(Obj? actual, Obj? expected)
+  {
+    if (expected is Dict[])
+      verifyDictsEq(actual, expected, false)
+    else
+      verifyValEq(actual, expected)
+  }
+
+  ** Encode stream, decode it, and then re-evaluate it.
+  ** The terminal expr cannot have a dot
+  static Obj? roundTripStream(AxonContext cx, Str src)
+  {
+    Slot.findMethod("testAxon::StreamTest.roundTripStream").callOn(null, [cx, src])
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Context
 //////////////////////////////////////////////////////////////////////////
 
@@ -211,6 +377,9 @@ class CoreFuncsTest : HxTest
   Void testContext()
   {
     cx := makeContext
+    verifyEq(cx.user.isSu, true)
+    verifyEq(cx.user.isAdmin, true)
+
     d := (Dict)cx.eval("context()")
     verifyEq(d->userRef, cx.user.id)
     verifyEq(d->username, cx.user.username)
@@ -249,6 +418,18 @@ class CoreFuncsTest : HxTest
     {
       if (err.cause == null) fail("EvalErr.cause is null: $axon")
       ((Test)this).verifyErr(errType) { throw err.cause }
+    }
+  }
+
+  Void verifyDiffEq(Diff a, Diff b)
+  {
+    a.typeof.fields.each |f|
+    {
+      if (f.isStatic) return
+      av := f.get(a)
+      bv := f.get(b)
+      if (av is Dict) verifyDictEq(av, bv)
+      else verifyEq(av, bv)
     }
   }
 
