@@ -32,6 +32,7 @@ const class HxdRuntime : HxRuntime
     this.installedRef  = AtomicRef(HxdInstalled.build)
     this.libsActorPool = ActorPool { it.name = "Hxd-Lib" }
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
+    this.core          = libs.get("hx")
     this.users         = (HxRuntimeUsers)libs.getType(HxRuntimeUsers#)
   }
 
@@ -67,6 +68,9 @@ const class HxdRuntime : HxRuntime
 
   ** Actor pool to use for HxRuntimeLibs.actorPool
   const ActorPool libsActorPool
+
+  ** Core "hx" lib supported by all runtimes
+  override const HxCoreLib core
 
   ** User and authentication managment
   override const HxRuntimeUsers users

@@ -168,6 +168,10 @@ internal class HxdInstalledBuilder
     if (acc["baseUri"] == null)
       acc["baseUri"] = (pod.meta["proj.uri"] ?: "http://localhost/").toUri + `/def/${name}/`
 
+    // special handling for core lib
+    if (name == "hx")
+      acc["typeName"] = HxdCoreLib#.qname
+
     return Etc.makeDict(acc)
   }
 

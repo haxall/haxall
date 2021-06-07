@@ -47,6 +47,10 @@ class RuntimeTest : HxTest
     verifyLibDisabled("hxTestA")
     verifyLibDisabled("hxTestB")
 
+    // verify core lib
+    verifySame(rt.core, rt.lib("hx"))
+    verifySame(rt.ns.def("func:read").lib, rt.core.def)
+
     // cannot add hxTestB because it depends on hxTestA
     verifyErrMsg(DependErr#, "HxLib \"hxTestB\" missing dependency on \"hxTestA\"") { rt.libs.add("hxTestB") }
     verifyLibDisabled("hxTestB")

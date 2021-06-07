@@ -181,6 +181,15 @@ const class HxdLibSpi : Actor, HxLibSpi
 ** ResHxLib
 **************************************************************************
 
+internal const class HxdCoreLib : HxCoreLib
+{
+  override const HxCoreFuncs funcs := HxCoreFuncs(this)
+}
+
+**************************************************************************
+** ResHxLib
+**************************************************************************
+
 ** ResHxLib is a stub for libraries without a Fantom class
 const class ResHxLib : HxLib
 {
