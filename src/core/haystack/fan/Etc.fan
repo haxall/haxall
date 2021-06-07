@@ -287,6 +287,14 @@ const class Etc
   }
 
   **
+  ** Strip any tags which a null value from the given dict.
+  **
+  @NoDoc static Dict dictRemoveNulls(Dict d)
+  {
+    dictRemoveAllWithVal(d, null)
+  }
+
+  **
   ** Set a name/val pair in an existing dict or d is null then
   ** create a new dict with given name/val pair.
   **
