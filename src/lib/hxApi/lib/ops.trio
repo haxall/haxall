@@ -35,6 +35,10 @@ typeName:"hxApi::HxOpsOp"
 //////////////////////////////////////////////////////////////////////////
 
 --------------------------------------------------------------------------
+def: ^op:commit
+typeName:"hxApi::HxCommitOp"
+doc: "Commit one or more diffs to the Folio database"
+--------------------------------------------------------------------------
 def: ^op:eval
 typeName:"hxApi::HxEvalOp"
 doc: "Evaluate an Axon expression"

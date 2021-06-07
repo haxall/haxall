@@ -9,6 +9,7 @@
 using concurrent
 using web
 using haystack
+using folio
 using hx
 
 **
@@ -57,20 +58,7 @@ internal class HxAboutOp : HxApiOp
 {
   override Grid onRequest(Grid req, HxContext cx)
   {
-    config := cx.rt.config
-    tags := Str:Obj?[:] { ordered = true }
-    tags["haystackVersion"] = cx.ns.lib("ph").version.toStr
-    tags["serverName"]      = Env.cur.host
-    tags["serverBootTime"]  = DateTime.boot
-    tags["serverTime"]      = DateTime.now
-    tags["productName"]     = cx.rt.config["productName"]
-    tags["productUri"]      = cx.rt.config["productUri"]
-    tags["productVersion"]  = cx.rt.config["productVersion"]
-    tags["tz"]              = TimeZone.cur.name
-    tags["whoami"]          = cx.user.username
-    tags["vendorName"]      = cx.rt.config["vendorName"]
-    tags["vendorUri"]       = cx.rt.config["vendorUri"]
-    return Etc.makeMapGrid(null, tags)
+    Etc.makeDictGrid(null, cx.rt.core.funcs.about)
   }
 }
 
@@ -168,5 +156,76 @@ internal class HxEvalOp : HxApiOp
   }
 }
 
+**************************************************************************
+** HxCommitOp
+**************************************************************************
 
+internal class HxCommitOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    if (!cx.user.isAdmin) throw PermissionErr("Missing 'admin' permission: commit")
+    mode := req.meta->commit
+    switch (mode)
+    {
+      case "add":    return onAdd(req, cx)
+      case "update": return onUpdate(req, cx)
+      case "remove": return onRemove(req, cx)
+      default:       throw ArgErr("Unknown commit mode: $mode")
+    }
+  }
+
+  private Grid onAdd(Grid req, HxContext cx)
+  {
+    diffs := Diff[,]
+    req.each |row|
+    {
+      changes := Str:Obj?[:]
+      Ref? id := null
+      row.each |v, n|
+      {
+        if (v == null) return
+        if (n == "id") { id = v; return }
+        changes.add(n, v)
+      }
+      diffs.add(Diff.makeAdd(changes, id ?: Ref.gen))
+    }
+    newRecs := cx.db.commitAll(diffs).map |d->Dict| { d.newRec }
+    return Etc.makeDictsGrid(null, newRecs)
+  }
+
+  private Grid onUpdate(Grid req, HxContext cx)
+  {
+    flags := 0
+    if (req.meta.has("force"))     flags = flags.or(Diff.force)
+    if (req.meta.has("transient")) flags = flags.or(Diff.transient)
+
+    diffs := Diff[,]
+    req.each |row|
+    {
+      old := Etc.makeDict(["id":row.id, "mod":row->mod])
+      changes := Str:Obj?[:]
+      row.each |v, n|
+      {
+        if (v == null) return
+        if (n == "id" || n == "mod") return
+        changes.add(n, v)
+      }
+      diffs.add(Diff(old, changes, flags))
+    }
+    newRecs := cx.db.commitAll(diffs).map |d->Dict| { d.newRec }
+    return Etc.makeDictsGrid(null, newRecs)
+  }
+
+  private Grid onRemove(Grid req, HxContext cx)
+  {
+    flags := Diff.remove
+    if (req.meta.has("force")) flags = flags.or(Diff.force)
+
+    diffs := Diff[,]
+    req.each |row| { diffs.add(Diff(row, null, flags)) }
+    cx.db.commitAll(diffs)
+    return Etc.makeEmptyGrid
+  }
+}
 
