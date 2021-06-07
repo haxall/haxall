@@ -37,13 +37,14 @@ internal class HxUserAuth
   {
     // check for authenticated session in cookie
     s := checkCookie
-    if (res.isCommitted) return null
     if (s != null) return authenticated(s)
+    if (res.isCommitted) return null
 
     // check for authenticated session via Authorization bearer token
     // or perform standard Haystack authentication pipeline steps
     s = checkAuthorization
     if (s != null) return authenticated(s)
+    if (res.isCommitted) return null
 
     // not authenticated, redirect to login page
     res.redirect(lib.loginUri)

@@ -10,6 +10,7 @@ using web
 using haystack
 using auth
 using folio
+using hx
 
 **
 ** User library utilities
@@ -17,24 +18,32 @@ using folio
 const class HxUserUtil
 {
   ** Add a new user record and its password hash to database
-  static Void addUser(Folio db, Str user, Str pass, Str role)
+  static HxUser addUser(Folio db, Str user, Str pass, Str:Obj tags)
   {
     scram := ScramKey.gen
     userAuth := authMsgToDict(scram.toAuthMsg)
     secret := scram.toSecret(pass)
 
-    changes := [
-      "username":user,
-      "dis":user,
-      "user":Marker.val,
-      "userRole": role,
-      "userAuth": userAuth,
-      "created": DateTime.now,
-      "tz": TimeZone.cur.toStr,
-      "disabled": Remove.val,
-    ]
-    rec := db.commit(Diff.makeAdd(changes)).newRec
+    tags = tags.dup
+    tags["username"] = user
+    tags["user" ]    = Marker.val
+    tags["created"]  = DateTime.now
+    tags["userAuth"] = userAuth
+    tags["disabled"] = Remove.val
+    addUserSet(tags, "dis",      user)
+    addUserSet(tags, "tz",       TimeZone.cur.toStr)
+    addUserSet(tags, "userRole", "op")
+
+    rec := db.commit(Diff.makeAdd(tags)).newRec
     db.passwords.set(rec.id.id, secret)
+
+    return HxUserImpl(rec)
+  }
+
+  ** Set given name/val pair if not already defined
+  private static Void addUserSet(Str:Obj tags, Str name, Str val)
+  {
+    if (tags[name] == null) tags[name] = val
   }
 
   ** Update the password hash in the database
