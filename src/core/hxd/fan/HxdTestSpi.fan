@@ -39,7 +39,7 @@ class HxdTestSpi : HxTestSpi
   {
     if (user == null)
     {
-      tags := Etc.makeDict2("id", Ref("test-user"), "username", "test")
+      tags := Etc.makeDict3("id", Ref("test-user"), "username", "test", "userRole", "su")
       user = Type.find("hxUser::HxUserImpl").make([tags])
     }
     return HxdContext(test.rt, user)
