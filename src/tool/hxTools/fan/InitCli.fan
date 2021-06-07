@@ -173,7 +173,7 @@ internal class InitCli : HxCli
     if (rec == null)
     {
       rt.log.info("Create su [$suUser.toCode]")
-      HxUserUtil.addUser(rt.db, suUser, suPass, "su")
+      HxUserUtil.addUser(rt.db, suUser, suPass, ["userRole":"su"])
     }
     else
     {

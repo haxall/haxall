@@ -119,6 +119,13 @@ abstract class HxTest : HaystackTest
     return rt.db.commit(Diff.makeAdd(tags, id)).newRec
   }
 
+  ** Add user record to the user database.  If the user
+  ** already exists, it is removed
+  @NoDoc HxUser addUser(Str user, Str pass, Str:Obj? tags := Str:Obj?[:])
+  {
+    spi.addUser(user, pass, tags)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Axon
 //////////////////////////////////////////////////////////////////////////
@@ -155,6 +162,7 @@ abstract class HxTestSpi
   HxTest test { private set }
   abstract HxRuntime start()
   abstract Void stop(HxRuntime rt)
+  abstract HxUser addUser(Str user, Str pass, Str:Obj? tags)
   abstract HxContext makeContext(HxUser? user)
 }
 

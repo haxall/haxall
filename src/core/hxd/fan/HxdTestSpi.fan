@@ -35,6 +35,11 @@ class HxdTestSpi : HxTestSpi
     ((HxdRuntime)rt).stop
   }
 
+  override HxUser addUser(Str user, Str pass, Str:Obj? tags)
+  {
+    Slot.findMethod("hxUser::HxUserUtil.addUser").call(test.rt.db, user, pass, tags)
+  }
+
   override HxContext makeContext(HxUser? user)
   {
     if (user == null)
