@@ -22,7 +22,7 @@ mixin HaystackContext
   ** Return inference engine used for def aware filter queries
   @NoDoc abstract FilterInference inference()
 
-  ** Return contextual data as dict - see Context.toDis, context()
+  ** Return contextual data as dict - see context()
   @NoDoc abstract Dict toDict()
 }
 
