@@ -54,20 +54,28 @@ internal class ShellCommands : FlexBox
     ShellDialog.promptTrio("New", Str<|dis:"New Rec"|>) |recs|
     {
       req := Etc.makeDictsGrid(["commit":"add"], recs)
-      sh.session.call("commit", req).onOk |res|
-      {
-        ids := res.mapToList |r->Ref| { r.id }
-        if (ids.size == 1)
-          sh.eval("readById(" + Etc.toAxon(ids.first) + ")", true)
-        else
-          sh.eval("readByIds(" + Etc.toAxon(ids) + ")", true)
-      }
+      sh.session.call("commit", req).onOk |res| { gotoIds(res) }
     }
   }
 
   private Void onEdit()
   {
-    ShellDialog.openErr("Edit not done yet")
+    trio := StrBuf()
+    TrioWriter(trio.out).writeAllDicts(sh.state.selection)
+    ShellDialog.promptTrio("Edit", trio.toStr) |recs|
+    {
+      req := Etc.makeDictsGrid(["commit":"update"], recs)
+      sh.session.call("commit", req).onOk |res| { gotoIds(res) }
+    }
+  }
+
+  private Void gotoIds(Grid res)
+  {
+    ids := res.mapToList |r->Ref| { r.id }
+    if (ids.size == 1)
+      sh.eval("readById(" + Etc.toAxon(ids.first) + ")", true)
+    else
+      sh.eval("readByIds(" + Etc.toAxon(ids) + ")", true)
   }
 
   private Void onTrash()
