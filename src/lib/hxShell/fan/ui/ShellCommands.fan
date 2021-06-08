@@ -49,7 +49,18 @@ internal class ShellCommands : FlexBox
 
   private Void onNew()
   {
-    echo("onNew")
+    ShellDialog.promptTrio("New", Str<|dis:"New Rec"|>) |recs|
+    {
+      req := Etc.makeDictsGrid(["commit":"add"], recs)
+      sh.session.call("commit", req).onOk |res|
+      {
+        ids := res.mapToList |r->Ref| { r.id }
+        if (ids.size == 1)
+          sh.eval("readById(" + Etc.toAxon(ids.first) + ")", true)
+        else
+          sh.eval("readByIds(" + Etc.toAxon(ids) + ")", true)
+      }
+    }
   }
 
   private Void onEdit()

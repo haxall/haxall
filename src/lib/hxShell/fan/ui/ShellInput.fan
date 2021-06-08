@@ -43,6 +43,11 @@ internal class ShellInput : Box
     prompt.focus
   }
 
+  Void addToHis(Str expr)
+  {
+    his.push(expr)
+  }
+
   private Void update(Str expr)
   {
     prompt.val = expr
@@ -55,7 +60,7 @@ internal class ShellInput : Box
     if (expr.size == 0) return
     his.push(expr)
     update("")
-    sh.eval(expr)
+    sh.eval(expr, false)
   }
 
   private Void onArrowUp()

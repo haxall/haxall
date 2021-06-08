@@ -86,8 +86,9 @@ internal class Shell : Box
   }
 
   ** Evaluate the given expression
-  Void eval(Str expr)
+  Void eval(Str expr, Bool addToHis)
   {
+    if (addToHis) input.addToHis(expr)
     session.eval(expr)
       .onOk |grid| { update(grid, ShellViewType.table) }
       .onErr |grid| { updateErr(grid) }
