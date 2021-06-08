@@ -19,22 +19,32 @@ internal class ShellState
   ** Construct initial state
   static ShellState makeInit()
   {
-    make(Etc.emptyGrid, ShellViewType.table, Dict[,])
+    make("", Etc.emptyGrid, ShellViewType.table, Dict#.emptyList)
+  }
+
+  ** Construct state for a new server result
+  static ShellState makeEvalOk(Str expr, Grid grid)
+  {
+    make(expr, grid, ShellViewType.table, Dict#.emptyList)
   }
 
   ** Construct state for a server error
-  static ShellState makeErr(Grid errGrid)
+  static ShellState makeEvalErr(Str expr, Grid errGrid)
   {
-    make(errGrid, ShellViewType.table, Dict[,])
+    make(expr, errGrid, ShellViewType.table, Dict#.emptyList)
   }
 
   ** Constructor
-  new make(Grid grid, ShellViewType viewType, Dict[] selection)
+  new make(Str expr, Grid grid, ShellViewType viewType, Dict[] selection)
   {
+    this.expr      = expr
     this.grid      = grid
     this.viewType  = viewType
     this.selection = selection
   }
+
+  ** Current axon expression
+  const Str expr
 
   ** Current grid we are viewing
   const Grid grid
@@ -45,12 +55,10 @@ internal class ShellState
   ** Current selected rows from the grid
   const Dict[] selection
 
-  ** Update the grid and fallback to table view
-  This setGrid(Grid g) { make(g, ShellViewType.table, Dict[,]) }
-
   ** Update the view type
-  This setViewType(ShellViewType t) { make(grid, t, Dict[,]) }
+  This setViewType(ShellViewType t) { make(expr, grid, t, Dict#.emptyList) }
 
   ** Update the selection
-  This setSelection(Dict[] sel) { make(grid, viewType, sel) }
+  This setSelection(Dict[] sel) { make(expr, grid, viewType, sel) }
+
 }

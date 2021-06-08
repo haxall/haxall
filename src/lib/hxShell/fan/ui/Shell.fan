@@ -90,8 +90,8 @@ internal class Shell : Box
   {
     if (addToHis) input.addToHis(expr)
     session.eval(expr)
-      .onOk |grid| { update(state.setGrid(grid)) }
-      .onErr |grid| { update(ShellState.makeErr(grid)) }
+      .onOk |grid| { update(ShellState.makeEvalOk(expr, grid)) }
+      .onErr |grid| { update(ShellState.makeEvalErr(expr, grid)) }
   }
 
   ** Update shell state
@@ -103,6 +103,12 @@ internal class Shell : Box
     view.update(old, cur)
     commands.update(old, cur)
     input.focus
+  }
+
+  ** Update shell state
+  Void refresh()
+  {
+    eval(state.expr, false)
   }
 
   ** Client session to make HTTP API calls

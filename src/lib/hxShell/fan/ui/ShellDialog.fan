@@ -16,11 +16,39 @@ using haystack
 @Js
 internal class ShellDialog : Dialog
 {
-  ** Command key for "OK" button
-  static const Str ok := "OK"
 
-  ** Command key for "Cancel" button
-  static const Str cancel := "Cancel"
+//////////////////////////////////////////////////////////////////////////
+// Factories
+//////////////////////////////////////////////////////////////////////////
+
+  ** Convenience to open confirmation dialog
+  static Void confirm(Str msg, Str extra, |->| onOk)
+  {
+    content := FlexBox
+    {
+      it.style->minWidth  = "350px"
+      Label
+      {
+        it.text = "\u26A0"
+        it.style->fontSize = "48px"
+        it.style->padding = "0 16px 0 8px"
+        it.style->color = "#f39c12"
+      },
+      Box
+      {
+        Box { Label { it.text = msg; it.style->fontWeight = "bold" }, },
+        Box { Label { it.text = extra }, },
+      },
+    }
+
+    ShellDialog
+    {
+      it.title   = "Confirm"
+      it.buttons = [ok, cancel]
+      it.content = content
+      it.onOk |->Bool| { onOk(); return true }
+    }.open
+  }
 
   ** Convenience to open dialog to show monospaced text area
   static Void openText(Str title, Str text)
@@ -48,7 +76,7 @@ internal class ShellDialog : Dialog
       it.buttons = [ok]
       it.content = Box
       {
-        it.style->minWidth  = "300px"
+        it.style->minWidth  = "350px"
         it.add(ShellUtil.errElemSmall(dis))
         if (!trace.isEmpty) it.add(makeTextArea(trace))
       }
@@ -107,6 +135,20 @@ internal class ShellDialog : Dialog
     }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Button Constants
+//////////////////////////////////////////////////////////////////////////
+
+  ** Command key for "OK" button
+  static const Str ok := "OK"
+
+  ** Command key for "Cancel" button
+  static const Str cancel := "Cancel"
+
+//////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
   ** Construct dialog; must set title, command, buttons
   new make(|This| f) : super()
   {
@@ -156,6 +198,9 @@ internal class ShellDialog : Dialog
     })
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Instance Slots
+//////////////////////////////////////////////////////////////////////////
 
   ** Dialog content; must set in it-block constructor
   Elem content
