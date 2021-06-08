@@ -9,6 +9,7 @@
 using concurrent
 using haystack
 using axon
+using folio
 using hx
 
 **
@@ -55,6 +56,11 @@ class RuntimeTest : HxTest
     verifyErrMsg(DependErr#, "HxLib \"hxTestB\" missing dependency on \"hxTestA\"") { rt.libs.add("hxTestB") }
     verifyLibDisabled("hxTestB")
 
+    // verify can't add/update/remove hxLib directly
+    verifyErr(DiffErr#) { rt.db.commit(Diff.makeAdd(["hxLib":"hxTestA"])) }
+    verifyErr(DiffErr#) { rt.db.commit(Diff.make(rt.core.rec, ["hxLib":"renameMe"])) }
+    verifyErr(CommitErr#) { rt.db.commit(Diff.make(rt.core.rec, null, Diff.remove)) }
+
     // add hxTestA
     a := rt.libs.add("hxTestA") as HxTestALib
     verifyLibEnabled("hxTestA")
@@ -75,7 +81,6 @@ class RuntimeTest : HxTest
     rt.libs.remove("hxTestA")
     verifyLibDisabled("hxTestA")
     verifyEq(a.traces.val, "onStart\nonStop\n")
-
   }
 
   private HxLib verifyLibEnabled(Str name)
