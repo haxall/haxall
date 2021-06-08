@@ -20,8 +20,8 @@ internal class ShellCommands : FlexBox
   {
     this.sh = sh
     this.newRec = Button { it.text = "New";   it.onAction { onNew } }
-    this.edit   = Button { it.text = "Edit";  it.onAction { onEdit } }
-    this.trash  = Button { it.text = "Trash"; it.onAction { onTrash } }
+    this.edit   = Button { it.text = "Edit";  it.onAction { onEdit }; it.enabled = false }
+    this.trash  = Button { it.text = "Trash"; it.onAction { onTrash }; it.enabled = false }
     this.meta   = Button { it.text = "Meta";  it.onAction { onMeta } }
 
     this.views = Button {
@@ -42,9 +42,11 @@ internal class ShellCommands : FlexBox
     this.add(views)
   }
 
-  Void update()
+  Void update(ShellState old, ShellState cur)
   {
-    views.text = sh.viewType.dis
+    views.text = sh.state.viewType.dis
+    edit.enabled = !cur.selection.isEmpty
+    trash.enabled = !cur.selection.isEmpty
   }
 
   private Void onNew()
@@ -94,7 +96,7 @@ internal class ShellCommands : FlexBox
     {
       menu.add(MenuItem {
         it.text = v.dis
-        it.onAction { sh.update(sh.grid, v) }
+        it.onAction { sh.update(sh.state.setViewType(v)) }
       })
     }
     return menu

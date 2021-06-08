@@ -22,17 +22,20 @@ internal class ShellView : Box
     updateText("Try out some Axon!")
   }
 
-  Void update()
+  Void update(ShellState old, ShellState cur)
   {
+    // short circuit if no changes to grid or view type
+    if (old.grid === cur.grid && old.viewType === cur.viewType) return
+
     removeAll
-    switch (sh.viewType)
+    switch (cur.viewType)
     {
       case ShellViewType.table: updateTable
       case ShellViewType.csv:   updateGridWriter(CsvWriter#)
       case ShellViewType.json:  updateGridWriter(JsonWriter#)
       case ShellViewType.trio:  updateGridWriter(TrioWriter#)
       case ShellViewType.zinc:  updateGridWriter(ZincWriter#)
-      default: add(Label { it.text = "Unsupported: $sh.viewType" })
+      default: add(Label { it.text = "Unsupported: $cur.viewType" })
     }
   }
 
@@ -53,7 +56,11 @@ internal class ShellView : Box
   private Void updateTable()
   {
     if (sh.grid.isErr) return updateErr
-    add(ShellTable(sh.grid))
+    table := ShellTable(sh.grid)
+    {
+      it.onSelect { sh.update(sh.state.setSelection(it.sel.items)) }
+    }
+    add(table)
   }
 
   private Void updateGridWriter(Type type)
