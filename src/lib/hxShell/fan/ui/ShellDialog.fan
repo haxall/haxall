@@ -33,6 +33,28 @@ internal class ShellDialog : Dialog
     }.open
   }
 
+  ** Convenience to open error dialog
+  static Void openErrGrid(Grid g)
+  {
+    openErr(g.meta.dis, g.meta["errTrace"] as Str ?: "")
+  }
+
+  ** Convenience to open error dialog
+  static Void openErr(Str dis, Str trace := "")
+  {
+    ShellDialog
+    {
+      it.title   = "Error"
+      it.buttons = [ok]
+      it.content = Box
+      {
+        it.style->minWidth  = "300px"
+        it.add(ShellUtil.errElemSmall(dis))
+        if (!trace.isEmpty) it.add(makeTextArea(trace))
+      }
+    }.open
+  }
+
   ** Convenience to open a dialog to input Trio
   static Void promptTrio(Str title, Str trio, |Dict[]| onOk)
   {
