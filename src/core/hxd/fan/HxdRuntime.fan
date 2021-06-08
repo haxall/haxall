@@ -28,6 +28,7 @@ const class HxdRuntime : HxRuntime
     this.version       = boot.version
     this.config        = boot.configDict
     this.db            = boot.db
+    this.db.hooks      = HxdFolioHooks(this)
     this.log           = boot.log
     this.installedRef  = AtomicRef(HxdInstalled.build)
     this.libsActorPool = ActorPool { it.name = "Hxd-Lib" }
