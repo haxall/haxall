@@ -65,7 +65,7 @@ internal class ShellCommands : FlexBox
     ShellDialog.promptTrio("Edit", trio.toStr) |recs|
     {
       req := Etc.makeDictsGrid(["commit":"update"], recs)
-      sh.session.call("commit", req).onOk |res| { gotoIds(res) }
+      sh.session.call("commit", req).onOk |res| { sh.refresh }
     }
   }
 
@@ -80,7 +80,14 @@ internal class ShellCommands : FlexBox
 
   private Void onTrash()
   {
-    ShellDialog.openErr("Trash not done yet")
+    sel := sh.state.selection
+    aux := sel.size == 1 ? "Selection: " + sel[0].dis : "Selection: $sel.size records"
+    ShellDialog.confirm("Move recs to trash?", aux) |->|
+    {
+      rows := sel.map |r->Dict| { Etc.makeDict3("id", r.id, "mod", r->mod, "trash", Marker.val) }
+      req := Etc.makeDictsGrid(["commit":"update"], rows)
+      sh.session.call("commit", req).onOk |res| { sh.refresh }
+    }
   }
 
   private Void onMeta()
