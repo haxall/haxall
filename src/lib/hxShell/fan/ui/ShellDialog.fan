@@ -29,13 +29,60 @@ internal class ShellDialog : Dialog
     {
       it.title   = title
       it.buttons = [ok]
-      it.content = TextArea
+      it.content = makeTextArea(text)
+    }.open
+  }
+
+  ** Convenience to open a dialog to input Trio
+  static Void promptTrio(Str title, Str trio, |Dict[]| onOk)
+  {
+    textArea := makeTextArea(trio)
+    errBox := Box() { it.style->height = "32px" }
+    Int? timeoutId
+    ShellDialog
+    {
+      it.title   = title
+      it.buttons = [ok, cancel]
+      it.content = Box
       {
-        it.val = text
-        it.style->minWidth  = "500px"
-        it.style->minHeight = "300px"
+        textArea,
+        errBox,
+      }
+      it.onOk |->Bool|
+      {
+        // clear previous timeout
+        if (timeoutId != null)
+        {
+          Win.cur.clearTimeout(timeoutId)
+          timeoutId = null
+        }
+
+        try
+        {
+          // parse content as trio and invoke ok callback
+          onOk(TrioReader(textArea.val.in).readAllDicts)
+          return true
+        }
+        catch (Err e)
+        {
+          // flash error message
+          errBox.removeAll.add(ShellUtil.errElemSmall(e.toStr))
+          timeoutId = Win.cur.setTimeout(5sec) { timeoutId = null; errBox.removeAll }
+          return false
+        }
       }
     }.open
+  }
+
+  ** Standard monospaced text area
+  private static TextArea makeTextArea(Str text)
+  {
+    TextArea
+    {
+      it.val = text
+      it.style->minWidth  = "600px"
+      it.style->minHeight = "450px"
+    }
   }
 
   ** Construct dialog; must set title, command, buttons
@@ -52,11 +99,8 @@ internal class ShellDialog : Dialog
     // key handling
     this.onKeyDown |e|
     {
-      switch (e.key)
-      {
-        case Key.esc:   fire(cancel)
-        case Key.enter: fire(ok)
-      }
+      if (isDefaultAction(e)) fire(ok)
+      if (e.key == Key.esc) fire(cancel)
     }
 
     // style the content element
@@ -109,5 +153,24 @@ internal class ShellDialog : Dialog
       case ok:     if (cbOk(this)) close
       case cancel: close
     }
+  }
+
+  ** Return if given event should invoke a dialog's default button
+  internal static Bool isDefaultAction(Event e)
+  {
+    // must be Enter key
+    if (e.key != Key.enter) return false
+
+    // if not a text area, then its a match
+    if (!isTextArea(e.target)) return true
+
+    // otherwise must a Cmd+Enter or Ctrl+Enter
+    return e.ctrl || e.meta
+  }
+
+  ** Return if given focused element is a textarea
+  internal static Bool isTextArea(Elem? elem)
+  {
+    elem?.tagName == "textarea"
   }
 }

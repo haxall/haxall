@@ -29,7 +29,7 @@ textarea {
   line-height: 18px !important;
 }
 
-span.err-icon {
+span.err-icon-big {
   font-size: 32px;
   color: #f00;
   padding-right: 10px;
@@ -37,10 +37,24 @@ span.err-icon {
   height: 32px;
 }
 
-span.err-dis {
+span.err-dis-big {
   font-size: 24px;
   vertical-align: middle;
   height: 32px;
+}
+
+span.err-icon-small {
+  font-size: 18px;
+  color: #f00;
+  padding-right: 6px;
+  vertical-align: middle;
+  height: 18px;
+}
+
+span.err-dis-small {
+  font-size: 14px;
+  vertical-align: middle;
+  height: 18px;
 }
 
 /********************************************************************
