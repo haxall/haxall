@@ -65,12 +65,12 @@ internal class ShellCommands : FlexBox
 
   private Void onEdit()
   {
-    echo("onEdit")
+    ShellDialog.openErr("Edit not done yet")
   }
 
   private Void onTrash()
   {
-    echo("onTrash")
+    ShellDialog.openErr("Trash not done yet")
   }
 
   private Void onMeta()

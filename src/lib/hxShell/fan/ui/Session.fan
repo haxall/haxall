@@ -106,5 +106,5 @@ class ApiCallFuture
   This onErr(|Grid| f) { this.cbErr = f; return this }
 
   private Func? cbOk
-  private Func? cbErr := |Grid g| { g.dump }
+  private Func? cbErr := |Grid g| { ShellDialog.openErrGrid(g) }
 }
