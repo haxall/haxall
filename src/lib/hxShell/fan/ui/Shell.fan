@@ -90,34 +90,30 @@ internal class Shell : Box
   {
     if (addToHis) input.addToHis(expr)
     session.eval(expr)
-      .onOk |grid| { update(grid, ShellViewType.table) }
-      .onErr |grid| { updateErr(grid) }
+      .onOk |grid| { update(state.setGrid(grid)) }
+      .onErr |grid| { update(ShellState.makeErr(grid)) }
   }
 
   ** Update shell state
-  Void update(Grid grid, ShellViewType viewType)
+  Void update(ShellState state)
   {
-    this.grid = grid
-    this.viewType = viewType
-    view.update
-    commands.update
+    old := this.stateRef
+    cur := state
+    this.stateRef = cur
+    view.update(old, cur)
+    commands.update(old, cur)
     input.focus
-  }
-
-  ** Update shell state when an error is encountered
-  Void updateErr(Grid grid)
-  {
-    update(grid, ShellViewType.table)
   }
 
   ** Client session to make HTTP API calls
   const Session session := Session()
 
-  ** Current grid result
-  internal Grid grid := Etc.emptyGrid
+  ** Current state
+  ShellState state() { stateRef }
+  private ShellState stateRef := ShellState.makeInit
 
-  ** Current grid view type
-  internal ShellViewType viewType := ShellViewType.table
+  ** Current state grid
+  Grid grid() { state.grid }
 
   ** Input prompt
   internal ShellInput input := ShellInput(this)
