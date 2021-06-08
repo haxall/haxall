@@ -24,7 +24,8 @@ class HxdDefCompiler : DefCompiler
     this.rt = rt
     this.log = rt.log
     this.factory = HxdDefFactory()
-    this.inputs = rt.libs.list.map |lib->HxdLibInput| { HxdLibInput(lib) }
+    this.inputs = rt.libs.list.map |lib->LibInput| { HxdLibInput(lib) }
+    this.inputs.add(DbLibInput(rt))
   }
 
   const HxdRuntime rt
@@ -150,6 +151,40 @@ internal const class HxdLibInput : LibInput
 
     // none
     return ReflectInput#.emptyList
+  }
+}
+
+**************************************************************************
+** DbLibInput
+**************************************************************************
+
+internal const class DbLibInput : LibInput
+{
+  new make(HxdRuntime rt) { this.rt = rt; this.loc = CLoc("db") }
+
+  const HxdRuntime rt
+
+  const override CLoc loc
+
+  override Obj scanMeta(DefCompiler c)
+  {
+    symbol := Symbol("lib:hx_db")
+    acc := Str:Obj[:]
+    acc["def"] = symbol
+    acc["baseUri"] = rt.httpUri + `/def/hx_db/`
+    acc["version"] = rt.version.toStr
+    acc["depends"] = rt.libs.list.map |lib->Symbol| { Symbol("lib:$lib.name") }
+    return Etc.makeDict(acc)
+  }
+
+  override File[] scanFiles(DefCompiler c)
+  {
+    File[,]
+  }
+
+  override Dict[] scanExtra(DefCompiler c)
+  {
+    rt.db.readAllList("def")
   }
 }
 

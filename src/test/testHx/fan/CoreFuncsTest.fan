@@ -36,9 +36,9 @@ class CoreFuncsTest : HxTest
     // create test funcs
     five     := addFuncRec("five", "()=>5")
     addem    := addFuncRec("addem", "(a, b) => do x: a; y: b; x + y; end")
-    findFive := addFuncRec("findFive", "() => core::readByName(\"five\")")
-    findDan  := addFuncRec("findDan",  "() => core::read(smart)")
-    allOld   := addFuncRec("allOld",   "() => core::readAll(old)")
+    findFive := addFuncRec("findFive", "() => read(def==^func:five)")
+    findDan  := addFuncRec("findDan",  "() => read(smart)")
+    allOld   := addFuncRec("allOld",   "() => readAll(old).sort(\"n\")")
 
     // readById
     verifyEval("readById($c.id.toCode)", c)
@@ -100,14 +100,12 @@ class CoreFuncsTest : HxTest
     verifyEq(Etc.dictNames(dict), ["id", "age", "n", "old", "smart", "mod"])
 
     // rec functions
-    /* TODO
     verifyEval("five()", n(5))
     verifyEval("addem(3, 6)", n(9))
     verifyEval("addem(3, 6)", n(9))
-    verifyEval("findFive()", rt.db.read("name==\"five\""))
+    verifyEval("findFive()", rt.db.read("def==^func:five"))
     verifyEval("findDan()", d)
-    verifyEval("allOld()", [c, d])
-    */
+    verifyEval("allOld()", toGrid([c, d]))
   }
 
   Dict makeRec(Str name, Int age, Str[] markers)
@@ -119,7 +117,7 @@ class CoreFuncsTest : HxTest
 
   Dict addFuncRec(Str name, Str src, Str:Obj? tags := Str:Obj?[:])
   {
-    tags["def"] = "func:$name"
+    tags["def"] = Symbol("func:$name")
     tags["src"]  = src
     r := addRec(tags)
     return r
