@@ -20,21 +20,55 @@ class NamespaceTest : HxTest
   @HxRuntimeTest
   Void testBasics()
   {
-    verifyLib("ph",     Pod.find("ph"),    `https://project-haystack.org/def/ph/`)
+    // project haystack
+    ph := verifyLib("ph",     Pod.find("ph"),    `https://project-haystack.org/def/ph/`)
     verifyLib("phIoT",  Pod.find("phIoT"), `https://project-haystack.org/def/phIoT/`)
     verifyLib("hx",     Pod.find("hx"),    `https://haxall.io/def/hx/`)
+
+    // haxall libs
+    hx   := verifyLib("hx",   Pod.find("hx"),    `https://haxall.io/def/hx/`)
+    axon := verifyLib("axon", Pod.find("axon"),  `https://haxall.io/def/axon/`)
+
+    // overlay lib
+    ns1 := rt.ns
+    overlay1 := verifyLibDef("hx_db",  rt.version, `http://localhost:8080/def/hx_db/`)
+
+    // add def rec
+    verifyEq(rt.ns.def("customTag", false), null)
+    tagRec := addRec(["def":Symbol("customTag"), "is":Symbol("str"), "doc":"?"])
+
+    // verify base stayed the same, but overlayout updated
+    ns2 := rt.ns
+    overlay2 := verifyLibDef("hx_db",  rt.version, `http://localhost:8080/def/hx_db/`)
+    verifyNotSame(ns1, ns2)
+    verifyNotSame(overlay1, overlay2)
+    verifySame(ns1->base, ns2->base)
+    verifySame(rt.ns.lib("ph"), ph)
+    verifySame(rt.ns.lib("hx"), hx)
+
+    // verify our new tag def
+    tag := rt.ns.def("customTag")
+    verifyDictEq(tag, ["id":tagRec.id, "mod":tagRec->mod, "def":Symbol("customTag"),
+      "is":Symbol("str"), "lib":Symbol("lib:hx_db"), "doc":"?"])
+
   }
 
-  Void verifyLib(Str name, Pod pod, Uri baseUri)
+  Lib verifyLib(Str name, Pod pod, Uri baseUri)
+  {
+    def := verifyLibDef(name, pod.version, baseUri)
+    lib := rt.lib(name)
+    verifySame(lib.def, def)
+    return def
+  }
+
+  Def verifyLibDef(Str name, Version ver, Uri baseUri)
   {
     def := rt.ns.lib(name)
     verifyEq(def.name, name)
     verifyEq(def->def, Symbol("lib:$name"))
-    verifyEq(def.version, pod.version)
+    verifyEq(def.version, ver)
     verifyEq(def.baseUri, baseUri)
-
-    lib := rt.lib(name)
-    verifySame(lib.def, def)
+    return def
   }
 
 }

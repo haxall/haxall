@@ -51,12 +51,23 @@ const class HxdRuntime : HxRuntime
   override Namespace ns()
   {
     // lazily compile as needed
-    ns := nsRef.val as Namespace
-    if (ns == null) nsRef.val = ns = HxdDefCompiler(this).compileNamespace
-    return ns
+    overlay := nsOverlayRef.val as Namespace
+    if (overlay == null)
+    {
+      // lazily recompile base
+      base := nsBaseRef.val as Namespace
+      if (base == null)
+        nsBaseRef.val = base = HxdDefCompiler(this).compileNamespace
+
+      // compile overlay
+      nsOverlayRef.val = overlay = HxdOverlayCompiler(this, base).compileNamespace
+    }
+    return overlay
   }
-  internal Void nsRecompile() { this.nsRef.val = null }
-  private const AtomicRef nsRef := AtomicRef()
+  internal Void nsBaseRecompile() { this.nsBaseRef.val = null; this.nsOverlayRef.val = null }
+  internal Void nsOverlayRecompile() { this.nsOverlayRef.val = null }
+  private const AtomicRef nsBaseRef := AtomicRef()    // base from installed libs
+  private const AtomicRef nsOverlayRef := AtomicRef() // rec overlay
 
   ** Database for this runtime
   override const Folio db

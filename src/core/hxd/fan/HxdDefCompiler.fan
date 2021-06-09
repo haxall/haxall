@@ -24,8 +24,7 @@ class HxdDefCompiler : DefCompiler
     this.rt = rt
     this.log = rt.log
     this.factory = HxdDefFactory()
-    this.inputs = rt.libs.list.map |lib->LibInput| { HxdLibInput(lib) }
-    this.inputs.add(DbLibInput(rt))
+    this.inputs = rt.libs.list.map |lib->HxdLibInput| { HxdLibInput(lib) }
   }
 
   const HxdRuntime rt
@@ -155,40 +154,6 @@ internal const class HxdLibInput : LibInput
 }
 
 **************************************************************************
-** DbLibInput
-**************************************************************************
-
-internal const class DbLibInput : LibInput
-{
-  new make(HxdRuntime rt) { this.rt = rt; this.loc = CLoc("db") }
-
-  const HxdRuntime rt
-
-  const override CLoc loc
-
-  override Obj scanMeta(DefCompiler c)
-  {
-    symbol := Symbol("lib:hx_db")
-    acc := Str:Obj[:]
-    acc["def"] = symbol
-    acc["baseUri"] = rt.httpUri + `/def/hx_db/`
-    acc["version"] = rt.version.toStr
-    acc["depends"] = rt.libs.list.map |lib->Symbol| { Symbol("lib:$lib.name") }
-    return Etc.makeDict(acc)
-  }
-
-  override File[] scanFiles(DefCompiler c)
-  {
-    File[,]
-  }
-
-  override Dict[] scanExtra(DefCompiler c)
-  {
-    rt.db.readAllList("def")
-  }
-}
-
-**************************************************************************
 ** FuncReflectInput
 **************************************************************************
 
@@ -244,6 +209,86 @@ internal const class FuncCompReflectInput : FuncReflectInput
   }
 }
 */
+
+**************************************************************************
+** HxdOverlayLib
+**************************************************************************
+
+const class HxdOverlayCompiler
+{
+  new make(HxdRuntime rt, Namespace base)
+  {
+    this.rt = rt
+    this.base = base
+    this.log = rt.log
+    this.libSymbol = Symbol("lib:hx_db")
+  }
+
+  const HxdRuntime rt
+  const Namespace base
+  const Log log
+  const Symbol libSymbol
+
+  Namespace compileNamespace()
+  {
+    acc := Str:Obj[:]
+    acc["def"] = libSymbol
+    acc["baseUri"] = rt.httpUri + `/def/hx_db/`
+    acc["version"] = rt.version.toStr
+    meta := Etc.makeDict(acc)
+
+    b := BOverlayLib(base, meta)
+    rt.db.readAll("def").each |rec| { addRecDef(b, rec) }
+
+    return MOverlayNamespace(base, MOverlayLib(b), |Lib lib->Bool| { true })
+  }
+
+  private Void addRecDef(BOverlayLib b, Dict rec)
+  {
+    // parse symbol from def tag
+    symbol := rec["def"] as Symbol
+    if (symbol == null) return err("Invalid def symbol '${rec->def}'", rec)
+    try
+    {
+
+      // verif dups
+      if (b.isDup(symbol.toStr)) return err("Duplicate defs '$symbol.toCode'", rec)
+
+      // normalize rec with implied def tags
+      acc := Str:Obj[:]
+      rec.each |v, n| { acc[n] = v }
+      acc["def"] = symbol
+      acc["lib"] = libSymbol
+      norm := Etc.makeDict(acc)
+
+      // check override
+      if (checkOverrideErr(symbol.toStr, rec)) return
+
+      // add to overlay lib
+      b.addDef(norm)
+    }
+    catch (Err e) err("Invalid proj rec def '$symbol'", rec, e)
+  }
+
+  private Bool checkOverrideErr(Str symbol, Dict rec)
+  {
+    // lookup func from installed
+    x := base.def(symbol, false)
+    if (x == null) return false
+
+    // if function explicitly marked overridable its ok
+    if (x.has("overridable")) return false
+
+    // this is an error!
+    err("Cannot override ${symbol} from ${x.lib}", rec)
+    return true
+  }
+
+  private Void err(Str msg, Dict rec, Err? err := null)
+  {
+    log.err("$msg [$rec.id.toCode]", err)
+  }
+}
 
 
 
