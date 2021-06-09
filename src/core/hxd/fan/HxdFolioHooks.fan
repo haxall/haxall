@@ -46,7 +46,7 @@ const class HxdFolioHooks : FolioHooks
   {
     if (diff.getOld("def") != null || diff.getNew("def") != null)
     {
-      rt.nsRecompile
+      rt.nsOverlayRecompile
     }
   }
 }

@@ -219,7 +219,7 @@ internal const class HxdRuntimeLibs : Actor, HxRuntimeLibs
 
   private Void onModified()
   {
-    rt.nsRecompile
+    rt.nsBaseRecompile
   }
 
 }
