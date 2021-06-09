@@ -97,14 +97,6 @@ const class MBuiltNamespace : MNamespace
     return null
   }
 
-  override Obj? misc(Str name, Bool checked := true)
-  {
-    if (checked) throw UnknownNameErr(name)
-    return null
-  }
-
-  override Void eachMisc(|Obj,Str| f) {}
-
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////

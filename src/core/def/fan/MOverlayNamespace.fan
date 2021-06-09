@@ -32,7 +32,7 @@ using haystack
 ** from the base.
 **
 @NoDoc @Js
-abstract const class MOverlayNamespace : MNamespace
+const class MOverlayNamespace : MNamespace
 {
 
 //////////////////////////////////////////////////////////////////////////
