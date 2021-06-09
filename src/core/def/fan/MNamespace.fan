@@ -193,6 +193,14 @@ abstract const class MNamespace : Namespace
     MPrototyper(this, parent).generate(null)
   }
 
+  override Obj? misc(Str name, Bool checked := true)
+  {
+    if (checked) throw UnknownNameErr(name)
+    return null
+  }
+
+  override Void eachMisc(|Obj,Str| f) {}
+
 //////////////////////////////////////////////////////////////////////////
 // Symbol to Uri
 //////////////////////////////////////////////////////////////////////////
