@@ -14,7 +14,7 @@ using haystack
 ** AxonContext manages the environment of an Axon evaluation
 **
 @Js
-abstract class AxonContext
+abstract class AxonContext : HaystackContext
 {
 
 //////////////////////////////////////////////////////////////////////////
