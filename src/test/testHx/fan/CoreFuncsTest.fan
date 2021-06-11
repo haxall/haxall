@@ -278,6 +278,38 @@ class CoreFuncsTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// FilterToFunc
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testFilterToFunc()
+  {
+    a := addRec(["dis":"andy",    "x":n(10)])
+    b := addRec(["dis":"brian",   "x":n(20), "ref":a.id])
+    c := addRec(["dis":"charles", "x":n(30), "ref":a.id])
+    d := addRec(["dis":"dan",     "x":n(40), "ref":b.id])
+
+    Row row := eval(Str<|readAll(x).find(filterToFunc(x == 20))|>)
+    verifyEq(row->dis, "brian")
+
+    Grid grid := eval(Str<|readAll(x).sort("dis").findAll(filterToFunc(x >= 30))|>)
+    verifyEq(grid.size, 2)
+    verifyEq(grid[0]->dis, "charles")
+    verifyEq(grid[1]->dis, "dan")
+
+    grid = eval(Str<|readAll(x).sort("dis").findAll(filterToFunc(ref->dis == "andy"))|>)
+    verifyEq(grid.size, 2)
+    verifyEq(grid[0]->dis, "brian")
+    verifyEq(grid[1]->dis, "charles")
+
+    Dict[] list := eval(Str<|[{x:8},{x:9},{y:1}].findAll(filterToFunc(x))|>)
+    verifyEq(list.size, 2)
+    verifyEq(list[0]->x, n(8))
+    verifyEq(list[1]->x, n(9))
+  }
+
+
+//////////////////////////////////////////////////////////////////////////
 // Strip Uncommittable
 //////////////////////////////////////////////////////////////////////////
 

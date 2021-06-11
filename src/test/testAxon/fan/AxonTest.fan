@@ -85,6 +85,12 @@ internal class TestContext : AxonContext
 
   static const Str:Fn core := FantomFn.reflectType(CoreLib#)
 
+  override Dict? deref(Ref id) { null }
+
+  override FilterInference inference() { FilterInference.nil }
+
+  override Dict toDict() { Etc.emptyDict }
+
   override Namespace ns() { test.ns }
 
   override Fn? findTop(Str name, Bool checked := true)

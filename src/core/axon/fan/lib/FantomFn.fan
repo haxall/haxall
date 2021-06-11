@@ -203,4 +203,26 @@ const class FantomClosureFn : Fn
   const Unsafe f
 }
 
+**************************************************************************
+** FilterFn
+**************************************************************************
+
+@Js
+internal const class FilterFn : Fn
+{
+  new make(Filter filter) : super(Loc.unknown, "filterToFunc", [FnParam("dict")])
+  {
+    this.filter = filter
+  }
+
+  const Filter filter
+
+  override Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)
+  {
+    dict := args.first as Dict
+    if (dict == null) throw err("Invalid arg, expected (Dict) not (${args.first?.typeof})", cx)
+    return filter.matches(dict, cx)
+  }
+}
+
 

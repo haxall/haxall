@@ -2162,6 +2162,24 @@ const class CoreLib
     Filter.fromStr(val, checked)
   }
 
+  ** Convert a filter expression to a function which may
+  ** be used with `findAll` or `find`.  The returned function
+  ** accepts one Dict parameter and returns true/false if the
+  ** Dict is matched by the filter.  Also see `parseFilter`.
+  **
+  ** Examples:
+  **   // filter for dicts with 'equip' tag
+  **   list.findAll(filterToFunc(equip))
+  **
+  **   // filter rows with an 'area' tag over 10,000
+  **   grid.findAll(filterToFunc(area > 10_000))
+  @Axon static Fn filterToFunc(Expr filterExpr)
+  {
+    cx := AxonContext.curAxon
+    filter := filterExpr.evalToFilter(cx)
+    return FilterFn(filter)
+  }
+
   ** Parse a Str into a standardized unit name.  If the val is not
   ** a valid unit name from the standard database then return null
   ** or raise exception based on checked flag.
