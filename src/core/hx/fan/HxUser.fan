@@ -13,6 +13,7 @@ using folio
 **
 ** Haxall user account
 **
+@Js
 const mixin HxUser
 {
   ** Ref identifier
