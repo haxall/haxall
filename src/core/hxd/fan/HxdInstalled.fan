@@ -166,7 +166,12 @@ internal class HxdInstalledBuilder
 
     // infer baseUri tag
     if (acc["baseUri"] == null)
-      acc["baseUri"] = (pod.meta["proj.uri"] ?: "http://localhost/").toUri + `/def/${name}/`
+    {
+      domain := pod.meta["proj.uri"]
+      if (domain == null) domain = pod.meta["org.uri"]
+      if (domain == null) domain = "http://localhost/"
+      acc["baseUri"] = domain.toUri + `/def/${name}/`
+    }
 
     // special handling for core lib
     if (name == "hx")

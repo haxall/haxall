@@ -15,11 +15,6 @@ def: ^multiLine
 is: ^marker
 doc: "Indicates that a multi-line text input should be used"
 --------------------------------------------------------------------------
-def: ^src
-is: ^str
-multiLine
-doc: "Axon source code"
---------------------------------------------------------------------------
 def: ^typeName
 is: ^str
 doc: "Fantom type qname"
