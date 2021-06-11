@@ -35,6 +35,10 @@ doc:
   Applied to an ext function to enable [override]`docSkySpark::Axon#overrides`
   by project record functions.
 --------------------------------------------------------------------------
+def: ^src
+is: ^str
+doc: "Source code"
+--------------------------------------------------------------------------
 def: ^su
 is: ^marker
 tagOn: ^func

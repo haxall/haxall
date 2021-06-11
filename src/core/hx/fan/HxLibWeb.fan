@@ -10,7 +10,7 @@ using concurrent
 using web
 
 **
-** HxLib plugin to add web serviciingapability
+** HxLib plugin to add web servicing capability
 **
 abstract const class HxLibWeb : WebMod
 {

@@ -371,6 +371,8 @@ const class HxCoreFuncs : HxLibFuncs
   @Axon
   Dict context() { curContext.toDict }
 
+  //@Axon Str diagnostics() { ((Int)Env.cur.diagnostics["mem.heap"]).toLocale("B") }
+
   ** Get current context
   private static HxContext curContext() { HxContext.curHx }
 }
