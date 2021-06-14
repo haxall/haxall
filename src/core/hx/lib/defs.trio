@@ -7,6 +7,10 @@
 //
 
 --------------------------------------------------------------------------
+def: ^flags
+is: ^str
+doc: "Flags string"
+--------------------------------------------------------------------------
 def: ^mod
 is: ^dateTime
 doc: "Last modified time of record - see [docSkySpark]`docSkySpark::Folio#concurrency`."
