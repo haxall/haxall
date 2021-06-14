@@ -178,7 +178,7 @@ const class HxdLibSpi : Actor, HxLibSpi
 }
 
 **************************************************************************
-** ResHxLib
+** HxdCoreLib
 **************************************************************************
 
 internal const class HxdCoreLib : HxCoreLib
