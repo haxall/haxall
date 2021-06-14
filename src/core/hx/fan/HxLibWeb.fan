@@ -40,5 +40,6 @@ internal const class UnsupportedHxLibWeb : HxLibWeb
 {
   new make(HxLib lib) : super(lib) {}
   override Bool isUnsupported() { true }
+  override Void onService() { res.sendErr(404) }
 }
 
