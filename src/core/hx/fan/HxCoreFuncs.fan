@@ -342,18 +342,17 @@ const class HxCoreFuncs : HxLibFuncs
   @Axon
   Dict about()
   {
-    config := rt.config
     tags := Str:Obj?[:] { ordered = true }
     tags["haystackVersion"] = rt.ns.lib("ph").version.toStr
     tags["serverName"]      = Env.cur.host
     tags["serverBootTime"]  = DateTime.boot
     tags["serverTime"]      = DateTime.now
-    tags["productName"]     = rt.config["productName"]
-    tags["productUri"]      = rt.config["productUri"]
-    tags["productVersion"]  = rt.config["productVersion"]
+    tags["productName"]     = rt.platform.productName
+    tags["productUri"]      = rt.platform.productUri
+    tags["productVersion"]  = rt.platform.productVersion
     tags["tz"]              = TimeZone.cur.name
-    tags["vendorName"]      = rt.config["vendorName"]
-    tags["vendorUri"]       = rt.config["vendorUri"]
+    tags["vendorName"]      = rt.platform.vendorName
+    tags["vendorUri"]       = rt.platform.vendorUri
 
     cx := HxContext.curHx(false)
     if (cx != null)

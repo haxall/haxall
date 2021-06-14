@@ -35,7 +35,8 @@ class HxdBoot
   ** Logger to use for bootstrap
   Log log := Log.get("hxd")
 
-  ** Configuration tags:
+  **
+  ** Platform meta:
   **   - logoUri: URI to an SVG logo image
   **   - noAuth: Marker to disable authentication and use superuser
   **   - productName: Str name for about op
@@ -43,7 +44,8 @@ class HxdBoot
   **   - productUri: Uri to product home page
   **   - vendorName: Str name for about op
   **   - vendorUri: Uri to vendor home page
-  Str:Obj? config := [:]
+  **
+  Str:Obj? platform := [:]
 
   **
   ** List of lib names which are required to be installed.
@@ -69,7 +71,7 @@ class HxdBoot
   HxdRuntime init()
   {
     initArgs
-    initConfig
+    initPlatform
     openDatabase
     initMeta
     initLibs
@@ -108,7 +110,7 @@ class HxdBoot
       if (!dir.plus(`db/folio.index`).exists) throw ArgErr("Dir missing database files: $dir")
     }
 
-    if (config.containsKey("noAuth"))
+    if (platform.containsKey("noAuth"))
     {
       echo("##")
       echo("## NO AUTH - authentication is disabled!!!!")
@@ -116,20 +118,9 @@ class HxdBoot
     }
   }
 
-  private Void initConfig()
+  private Void initPlatform()
   {
-    addConfig("logoUri",        `/hxUser/logo.svg`)
-    addConfig("productName",    "Haxall")
-    addConfig("productVersion", version.toStr)
-    addConfig("productUri",     `https://haxall.io/`)
-    addConfig("vendorName",     "SkyFoundry")
-    addConfig("vendorUri",      `https://skyfoundry.com/`)
-    configDict = Etc.makeDict(config.findNotNull)
-  }
-
-  private Void addConfig(Str name, Obj val)
-  {
-    config.addNotNull(name, val)
+    platformRef = HxPlatform(Etc.makeDict(platform.findNotNull))
   }
 
   private Void openDatabase()
@@ -182,7 +173,7 @@ class HxdBoot
 
   internal Folio? db
   internal HxdRuntime? rt
-  internal Dict? configDict
+  internal HxPlatform? platformRef
 }
 
 **************************************************************************
@@ -205,7 +196,7 @@ internal class RunCli : HxCli
   override Int run()
   {
     boot := HxdBoot { it.dir = this.dir }
-    if (noAuth) boot.config["noAuth"] = Marker.val
+    if (noAuth) boot.platform["noAuth"] = Marker.val
     boot.run
     return 0
   }

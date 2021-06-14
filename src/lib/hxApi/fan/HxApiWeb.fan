@@ -42,7 +42,7 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
       if (opDef == null) return res.sendErr(404)
 
       // GET requests can only call ops with no side effects
-      if (req.isGet && opDef.missing("noSideEffectsX"))
+      if (req.isGet && opDef.missing("noSideEffects"))
         return res.sendErr(405, "GET not allowed for op '$opName'")
 
       // instantiate subclass of HxApiOp

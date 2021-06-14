@@ -26,7 +26,7 @@ const class HxdRuntime : HxRuntime
   internal new make(HxdBoot boot)
   {
     this.version       = boot.version
-    this.config        = boot.configDict
+    this.platform      = boot.platformRef
     this.db            = boot.db
     this.db.hooks      = HxdFolioHooks(this)
     this.log           = boot.log
@@ -44,8 +44,8 @@ const class HxdRuntime : HxRuntime
   ** Runtime version
   override const Version version
 
-  ** Dict which specifies bootstrap configuration of the runtime
-  override const Dict config
+  ** Platform hosting the runtime
+  override const HxPlatform platform
 
   ** Namespace of definitions
   override Namespace ns()

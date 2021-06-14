@@ -19,8 +19,8 @@ const mixin HxRuntime
   ** Runtime version
   abstract Version version()
 
-  ** Dict which specifies bootstrap configuration of the runtime
-  abstract Dict config()
+  ** Platform hosting the runtime
+  abstract HxPlatform platform()
 
   ** Namespace of definitions
   abstract Namespace ns()
