@@ -10,6 +10,7 @@
 def: ^lib:hxUser
 depends: [^lib:ph, ^lib:axon, ^lib:hx]
 typeName:"hxUser::HxUserLib"
+noSkyarc
 doc: "Haxall auth and user management library"
 --------------------------------------------------------------------------
 

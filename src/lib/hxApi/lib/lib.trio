@@ -10,6 +10,7 @@
 def: ^lib:hxApi
 depends: [^lib:ph, ^lib:hx]
 typeName:"hxApi::HxApiLib"
+noSkyarc
 doc: "Haxall Haystack HTTP API library"
 --------------------------------------------------------------------------
 
