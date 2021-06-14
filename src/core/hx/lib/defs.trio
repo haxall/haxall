@@ -19,6 +19,10 @@ def: ^multiLine
 is: ^marker
 doc: "Indicates that a multi-line text input should be used"
 --------------------------------------------------------------------------
+def: ^noSkyarc
+is: ^marker
+doc: "Marks a Haxall library as not runnable on SkySpark enabled products"
+--------------------------------------------------------------------------
 def: ^typeName
 is: ^str
 doc: "Fantom type qname"

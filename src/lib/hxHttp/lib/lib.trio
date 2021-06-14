@@ -10,6 +10,7 @@
 def: ^lib:hxHttp
 depends: [^lib:ph, ^lib:hx]
 typeName:"hxHttp::HxHttpLib"
+noSkyarc
 doc: "Haxall HTTP service handling library"
 --------------------------------------------------------------------------
 
