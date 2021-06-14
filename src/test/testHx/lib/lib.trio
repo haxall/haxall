@@ -12,7 +12,11 @@ depends: [^lib:ph, ^lib:hx]
 typeName:"testHx::HxTestALib"
 doc: "Testing lib"
 --------------------------------------------------------------------------
-
+def: ^lib:hxTestB
+depends: [^lib:ph, ^lib:hx, ^lib:hxTestA]
+typeName:"testHx::HxTestBLib"
+doc: "Testing lib"
+--------------------------------------------------------------------------
 
 
 

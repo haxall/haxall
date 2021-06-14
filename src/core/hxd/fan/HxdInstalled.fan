@@ -76,9 +76,7 @@ const class HxdInstalledLib
 
   File metaFile()
   {
-    file := pod.file(`/lib/lib.trio`, false)
-    if (file != null) return file
-    return pod.file(`/lib/${name}/lib.trio`)
+    pod.file(`/lib/lib.trio`)
   }
 
   override Str toStr() { name }
@@ -142,7 +140,12 @@ internal class HxdInstalledBuilder
     // parse lib.trio file
     file := toMetaFile(name, pod)
     dicts := TrioReader(file.in).readAllDicts
-    if (dicts.size != 1) throw Err("Must define exactly one dict [$file]")
+    if (dicts.size != 1)
+    {
+      defSymStr := "lib:${name}"
+      dicts = dicts.findAll |m| { m["def"]?.toStr == defSymStr }
+      if (dicts.size != 1) throw Err("Lib meta '$defSymStr' not found [$file]")
+    }
 
     // sanity check the meta
     meta := dicts[0]

@@ -33,7 +33,7 @@ class Build : BuildPod
                "folio @{hx.depend}",
                "hx @{hx.depend}"]
     srcDirs = [`fan/`]
-    resDirs = [`lib/hxTestA/`, `lib/hxTestB/`]
+    resDirs = [`lib/`]
     index =   [ "ph.lib": ["hxTestA", "hxTestB"] ]
   }
 }
