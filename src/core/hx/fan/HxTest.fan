@@ -6,6 +6,7 @@
 //   18 May 2021  Brian Frank  Creation
 //
 
+using concurrent
 using haystack
 using folio
 
@@ -39,6 +40,7 @@ abstract class HxTest : HaystackTest
   ** If '@HxRuntimeTest' configured then close down `rt`
   override Void teardown()
   {
+    Actor.locals.remove(Etc.cxActorLocalsKey)
     if (rtRef != null) rtStop
     tempDir.delete
   }
@@ -83,10 +85,13 @@ abstract class HxTest : HaystackTest
   ** Service provider interface
   @NoDoc virtual HxTestSpi spi() { spiDef }
 
+  ** Create service provider interface
   private once HxTestSpi spiDef()
   {
-    // use hxd implementation
-    Type.find("hxd::HxdTestSpi").make([this])
+    // check if running in a SkySpark environment,
+    // otherwise fallback to use hxd implemenntation
+    type := Type.find("skyarcd::ProjHxTestSpi", false) ?: Type.find("hxd::HxdTestSpi")
+    return type.make([this])
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -136,7 +141,6 @@ abstract class HxTest : HaystackTest
   {
     spi.makeContext(user)
   }
-
 }
 
 **************************************************************************
