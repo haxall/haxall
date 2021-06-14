@@ -411,9 +411,9 @@ class CoreFuncsTest : HxTest
     verifyEq(cx.user.isAdmin, true)
 
     d := (Dict)cx.eval("about()")
-    verifyEq(d->productName, rt.config->productName)
-    verifyEq(d->productUri, rt.config->productUri)
-    verifyEq(d->productVersion, rt.config->productVersion)
+    verifyEq(d->productName, rt.platform.productName)
+    verifyEq(d->productUri, rt.platform.productUri)
+    verifyEq(d->productVersion, rt.platform.productVersion)
 
     d = (Dict)cx.eval("context()")
     verifyEq(d->userRef, cx.user.id)

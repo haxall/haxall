@@ -19,7 +19,7 @@ const class HxShellWeb : HxLibWeb
   new make(HxShellLib lib) : super(lib)
   {
     this.lib   = lib
-    this.title = "" + rt.config["productName"] + " Shell"
+    this.title = "" + rt.platform.productName + " Shell"
   }
 
   override const HxShellLib lib

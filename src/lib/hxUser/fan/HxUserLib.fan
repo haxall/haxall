@@ -29,7 +29,7 @@ const class HxUserLib : HxLib, HxRuntimeUsers
   const HxUserSessions sessions := HxUserSessions(this)
 
   ** Auto login a configured superuser account for testing
-  const Bool noAuth := rt.config.has("noAuth")
+  const Bool noAuth := rt.platform.meta.has("noAuth")
 
   ** URI for login page
   const Uri loginUri := web.uri + `login`
