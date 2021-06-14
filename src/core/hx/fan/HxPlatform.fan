@@ -23,9 +23,6 @@ const class HxPlatform
   virtual Dict meta() { metaRef }
   private const Dict metaRef
 
-  ** Runtime version
-  virtual Version version() { typeof.pod.version }
-
   ** Operating system name - see `sys::Env.os`
   virtual Str os() { Env.cur.os }
 
@@ -39,7 +36,7 @@ const class HxPlatform
   virtual Str productName() { meta["productName"] as Str ?: "Haxall" }
 
   ** Product version for about op
-  virtual Str productVersion() { meta["productVersion"] as Str ?: this.version.toStr }
+  virtual Str productVersion() { meta["productVersion"] as Str ?: typeof.pod.version.toStr }
 
   ** Product home page for about op
   virtual Uri productUri() { meta["productUri"] as Uri ?: `https://haxall.io/` }
