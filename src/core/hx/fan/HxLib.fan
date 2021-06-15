@@ -30,7 +30,7 @@ abstract const class HxLib
   ** Framework use only. Subclasses must declare public no-arg constructor.
   new make()
   {
-    this.spi = Actor.locals["hx.spi"] as HxLibSpi ?: throw Err("Invalid make context")
+    this.spiRef = Actor.locals["hx.spi"] as HxLibSpi ?: throw Err("Invalid make context")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -70,7 +70,8 @@ abstract const class HxLib
   virtual HxLibFuncs funcs() { UnsupportedHxLibFuncs(this) }
 
   ** Service provider interface
-  @NoDoc const HxLibSpi spi
+  @NoDoc virtual HxLibSpi spi() { spiRef }
+  @NoDoc const HxLibSpi spiRef
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle Callbacks
