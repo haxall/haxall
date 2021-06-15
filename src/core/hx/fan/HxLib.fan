@@ -53,7 +53,7 @@ abstract const class HxLib
   Str name() { spi.name }
 
   ** Definition meta data
-  Lib def() { spi.def }
+  virtual Lib def() { spi.def }
 
   ** Database record which enables this library and stores settings
   Dict rec() { spi.rec}
@@ -98,7 +98,7 @@ abstract const class HxLib
 
   ** Callback when associated database `rec` is modified.
   ** This is called on dedicated background actor.
-  virtual Void onUpdate() {}
+  virtual Void onRecUpdate() {}
 
   ** Callback made periodically to perform background tasks.
   ** Override `houseKeepingFreq` to enable the frequency of this callback.

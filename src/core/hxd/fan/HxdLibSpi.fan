@@ -119,7 +119,7 @@ const class HxdLibSpi : Actor, HxLibSpi
       if (msg.id === "steadyState") return onSteadyState
       if (msg.id === "unready")     return onUnready
       if (msg.id === "stop")        return onStop
-      if (msg.id === "update")      return onUpdate
+      if (msg.id === "recUpdate")   return onRecUpdate
       if (msg.id === "sync")        return "synced"
       throw Err(msg.id)
     }
@@ -165,9 +165,9 @@ const class HxdLibSpi : Actor, HxLibSpi
     return null
   }
 
-  private Obj? onUpdate()
+  private Obj? onRecUpdate()
   {
-    lib.onUpdate
+    lib.onRecUpdate
     return null
   }
 
