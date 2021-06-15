@@ -82,8 +82,8 @@ const mixin Filetype : Def
       if (mime != null)
       {
         mimeVersion := mime.params["version"]
-        if (mimeVersion == "3") v3 = false
-        if (mimeVersion == "4") v3 = true
+        if (mimeVersion == "3") v3 = true
+        if (mimeVersion == "4") v3 = false
       }
       if (v3) return Etc.dictMerge(arg, Etc.makeDict2("ns", ns, "v3", Marker.val))
     }
