@@ -1470,7 +1470,7 @@ class CoreLibTest : HaystackTest
     verifyDefsInclude("terms()", ["elec", "elec-meter"], ["func:now"])
     verifyDefsInclude("tags()", ["elec"], ["elec-meter", "func:now"])
     verifyDefsInclude("conjuncts()", ["elec-meter"], ["elec", "func:now"])
-    verifyDefsInclude("libs()", ["lib:ph", "lib:ui"], ["elec", "elec-meter", "func:now"])
+    verifyDefsInclude("libs()", ["lib:ph", "lib:hx"], ["elec", "elec-meter", "func:now"])
 
     verifyDefsEq("supertypes(^site)", ["geoPlace", "entity"])
     verifyDefsEq("inheritance(^site)", ["geoPlace", "entity", "marker", "site"])

@@ -18,7 +18,7 @@ class HxdTestSpi : HxTestSpi
 {
   new make(HxTest test) : super(test) {}
 
-  override HxRuntime start()
+  static HxRuntime boot(Test test)
   {
     boot := HxdBoot
     {
@@ -27,7 +27,12 @@ class HxdTestSpi : HxTestSpi
       it.requiredLibs.remove("hxHttp")
       it.log.level = LogLevel.warn
     }
-    return boot.init.start
+    return  boot.init.start
+  }
+
+  override HxRuntime start()
+  {
+    boot(test)
   }
 
   override Void stop(HxRuntime rt)
