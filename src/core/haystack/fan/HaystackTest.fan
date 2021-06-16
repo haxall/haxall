@@ -38,12 +38,27 @@ abstract class HaystackTest : Test
     {
       // try as SkySpark environment first
       try
+      {
         ns = Type.find("skyarcd::ProjTest").method("sysBoot").callOn(null, [this, null])->ns
-      catch (Err e)
-        {}
+      }
+      catch (Err e) {}
+
+      // next try as Haxall environment
+      try
+      {
+        if (ns == null)
+        {
+          oldcx := Actor.locals[Etc.cxActorLocalsKey]
+          Actor.locals.remove(Etc.cxActorLocalsKey)
+          ns = Type.find("hxd::HxdTestSpi").method("boot").callOn(null, [this])->ns
+          Actor.locals.addNotNull(Etc.cxActorLocalsKey, oldcx)
+       }
+      }
+      catch (Err e) {}
 
       // fallback to standard Haystack namespace
-      ns = Type.find("defc::DefCompiler").make->compileNamespace
+      if (ns == null)
+        ns = Type.find("defc::DefCompiler").make->compileNamespace
 
       nsDefaultRef.val = ns
     }
