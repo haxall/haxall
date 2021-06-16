@@ -76,7 +76,7 @@ const class HxdRuntime : HxRuntime
   override HxLib? lib(Str name, Bool checked := true) { libs.get(name, checked) }
 
   ** Library managment
-  override const HxRuntimeLibs libs
+  override const HxdRuntimeLibs libs
 
   ** Actor pool to use for HxRuntimeLibs.actorPool
   const ActorPool libsActorPool

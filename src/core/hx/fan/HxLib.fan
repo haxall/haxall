@@ -49,7 +49,7 @@ abstract const class HxLib
   ** Runtime
   HxRuntime rt() { spi.rt }
 
-  ** Programmatic name key of the library
+  ** Programmatic name of the library
   Str name() { spi.name }
 
   ** Definition meta data

@@ -14,7 +14,7 @@ using hx
 **
 ** HxdRuntimeLibs manages the runtime lib registry
 **
-internal const class HxdRuntimeLibs : Actor, HxRuntimeLibs
+const class HxdRuntimeLibs : Actor, HxRuntimeLibs
 {
   new make(HxdRuntime rt, Str[] required) : super(rt.libsActorPool)
   {
@@ -87,7 +87,7 @@ internal const class HxdRuntimeLibs : Actor, HxRuntimeLibs
   internal Str:HxLib map() { mapRef.val }
   private const AtomicRef mapRef := AtomicRef(Str:HxLib[:].toImmutable)
 
-  override HxLib? getType(Type type, Bool checked := true)
+  HxLib? getType(Type type, Bool checked := true)
   {
     lib := list.find |lib| { lib.typeof.fits(type) }
     if (lib != null) return lib

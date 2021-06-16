@@ -63,9 +63,6 @@ const mixin HxRuntimeLibs
   ** return null or raise UnknownLibErr based on checked flag.
   abstract HxLib? get(Str name, Bool checked := true)
 
-  ** Find the library which implements the given Fantom type
-  abstract HxLib? getType(Type type, Bool checked := true)
-
   ** Check if there is an enabled lib with given name
   abstract Bool has(Str name)
 
