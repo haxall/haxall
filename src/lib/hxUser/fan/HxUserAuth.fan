@@ -74,13 +74,13 @@ internal class HxUserAuth
     if (session == null) return null
 
     // check if we have a attestation key
-    attestKey := req.headers["X-Attest-Key"]
+    attestKey := req.headers["Attest-Key"]
     if (attestKey != null)
     {
       // verify attestation key against session
       if (session.attestKey != attestKey)
       {
-        res.sendErr(400, "Invalid X-Attest-Key")
+        res.sendErr(400, "Invalid Attest-Key")
         return null
       }
     }
@@ -89,7 +89,7 @@ internal class HxUserAuth
       // if no attestation then don't trust anything but GET
       if (!req.isGet)
       {
-        res.sendErr(400, "X-Attest-Key required")
+        res.sendErr(400, "Attest-Key header required")
         return null
       }
     }
