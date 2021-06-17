@@ -33,6 +33,12 @@ class RuntimeTest : HxTest
     // test that required libs are enabled
     verifyEq(rt.lib("ph").name, "ph")
     verifyEq(rt.libs.list.containsSame(rt.lib("ph")), true)
+
+    // test some methods
+    verifyEq(rt.siteUri.isAbs, true)
+    verifyEq(rt.siteUri.scheme == "http" || rt.siteUri.scheme == "https", true)
+    verifyEq(rt.apiUri.isAbs, false)
+    verifyEq(rt.apiUri.isDir, true)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -91,11 +97,13 @@ class RuntimeTest : HxTest
     verifyEq(rt.libs.has(name), true)
 
     verifyEq(lib.name, name)
-    verifySame(lib.rt, rt)
     verifySame(lib.def, rt.ns.lib(name))
-    verifyDictEq(lib.rec, rt.db.read("hxLib==$name.toCode"))
     verifyEq(lib.def->def, Symbol("lib:$name"))
     verifySame(rt.ns.lib(name), lib.def)
+
+    // only in hxd environments
+    rec := rt.db.read("hxLib==$name.toCode", false)
+    if (rec != null) verifyDictEq(lib.rec, rec)
 
     return lib
   }

@@ -46,7 +46,7 @@ const class HxShellWeb : HxLibWeb
     if (req.method != "GET") { res.sendErr(501); return }
 
     env := Str:Str[:]
-    env["hxShell.api"]       = "/api/"
+    env["hxShell.api"]       = cx.rt.apiUri.toStr
     env["hxShell.attestKey"] = cx.stash.getChecked("attestKey")
     env["hxShell.user"]      = ZincWriter.valToStr(cx.user.meta)
 

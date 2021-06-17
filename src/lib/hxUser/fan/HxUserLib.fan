@@ -85,7 +85,7 @@ const class HxUserLib : HxLib, HxRuntimeUsers
     overrides[Cookie#sameSite] = null
 
     // if the public facing HTTP server is using HTTPS then force secure flag
-    if (rt.httpUri.scheme == "https") overrides[Cookie#secure] = true
+    if (rt.siteUri.scheme == "https") overrides[Cookie#secure] = true
 
     // construct the session cookie
     cookie := Cookie.makeSession(cookieName, session.key, overrides)
@@ -102,7 +102,7 @@ const class HxUserLib : HxLib, HxRuntimeUsers
   override Void onStart()
   {
     // set cookie name so its unique per http port
-    cookieNameRef.val = "hx-session-" + (rt.httpUri.port ?: 80)
+    cookieNameRef.val = "hx-session-" + (rt.siteUri.port ?: 80)
   }
 
   ** Run house keeping couple times a minute
