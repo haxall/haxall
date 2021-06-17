@@ -7,6 +7,14 @@
 //
 
 --------------------------------------------------------------------------
+def: ^disKey
+is: ^str
+doc: "Localized string key formatted as 'pod::key'"
+--------------------------------------------------------------------------
+def: ^disMacro
+is: ^str
+doc: "Display name using macro syntax.  See `haystack::Etc.dictToDis`"
+--------------------------------------------------------------------------
 def: ^flags
 is: ^str
 doc: "Flags string"
