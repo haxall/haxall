@@ -77,7 +77,7 @@ const class Session
     {
       it.uri = this.uri + `${op}`
       it.headers["Content-Type"] = "text/zinc; charset=utf-8"
-      it.headers["X-Attest-Key"] = attestKey
+      it.headers["Attest-Key"] = attestKey
     }
   }
 }
