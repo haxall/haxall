@@ -282,6 +282,30 @@ class CoreFuncsTest : HxTest
 //////////////////////////////////////////////////////////////////////////
 
   @HxRuntimeTest
+  Void testLibs()
+  {
+    // initial state
+    verifyEq(rt.lib("hxMath", false), null)
+
+    // add
+    rec := eval("libAdd(\"hxMath\")")
+    verifyEq(rt.lib("hxMath").rec, rec)
+
+    // remove
+    eval("libRemove(\"hxMath\")")
+    verifyEq(rt.lib("hxMath", false), null)
+
+    // add again
+    rec = eval("libAdd(\"hxMath\", {foo})")
+    verifyEq(rt.lib("hxMath").rec, rec)
+    verifyEq(rec->foo, Marker.val)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// FilterToFunc
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
   Void testFilterToFunc()
   {
     a := addRec(["dis":"andy",    "x":n(10)])
@@ -431,11 +455,6 @@ class CoreFuncsTest : HxTest
     // echo; echo("-- $src"); echo(actual)
     verifyValEq(actual, expected)
     return actual
-  }
-
-  Obj? eval(Str src)
-  {
-    makeContext.eval(src)
   }
 
   Void verifyEvalErr(Str axon, Type? errType)

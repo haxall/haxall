@@ -141,6 +141,12 @@ abstract class HxTest : HaystackTest
   {
     spi.makeContext(user)
   }
+
+  ** Evaluate an Axon expression using a super user context.
+  Obj? eval(Str axon)
+  {
+    makeContext(null).eval(axon)
+  }
 }
 
 **************************************************************************
