@@ -84,11 +84,16 @@ const class HxdRuntime : HxRuntime
   ** Core "hx" lib supported by all runtimes
   override const HxCoreLib core
 
+  ** Public HTTP or HTTPS URI of this host.  This is always
+  ** an absolute URI such 'https://acme.com/'
+  override Uri siteUri() { `http://localhost:8080/` } // TODO
+
+  ** URI on this host to the Haystack HTTP API.  This is always
+  ** a host relative URI which end withs a slash such '/api/'.
+  override Uri apiUri() { `/api/` }
+
   ** User and authentication managment
   override const HxRuntimeUsers users
-
-  ** Public HTTP or HTTPS URI of this host
-  override Uri httpUri() { `http://localhost:8080/` } // TODO
 
   ** Construct a runtime specific context for the given user account
   override HxContext makeContext(HxUser user) { HxdContext(this, user) }

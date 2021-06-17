@@ -37,8 +37,13 @@ const mixin HxRuntime
   ** Core "hx" lib supported by all runtimes
   abstract HxCoreLib core()
 
-  ** Public HTTP or HTTPS URI of this host
-  abstract Uri httpUri()
+  ** Public HTTP or HTTPS URI of this host.  This is always
+  ** an absolute URI such 'https://acme.com/'
+  abstract Uri siteUri()
+
+  ** URI on this host to the Haystack HTTP API.  This is always
+  ** a host relative URI which end withs a slash such '/api/'.
+  abstract Uri apiUri()
 
   ** User and authentication managment
   abstract HxRuntimeUsers users()

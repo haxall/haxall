@@ -233,7 +233,7 @@ const class HxdOverlayCompiler
   {
     acc := Str:Obj[:]
     acc["def"] = libSymbol
-    acc["baseUri"] = rt.httpUri + `/def/hx_db/`
+    acc["baseUri"] = rt.siteUri + `def/hx_db/`
     acc["version"] = rt.version.toStr
     meta := Etc.makeDict(acc)
 
