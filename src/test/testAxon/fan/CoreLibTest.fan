@@ -33,17 +33,19 @@ class CoreLibTest : HaystackTest
     verifyEval("core::yesterday()", today - 1day)
 
     verifyEval("thisWeek()", DateSpan.thisWeek)
-    verifyEval("core::thisMonth()", DateSpan.thisMonth)
+    verifyEval("thisMonth()", DateSpan.thisMonth)
+    verifyEval("thisQuarter()", DateSpan.thisQuarter)
     verifyEval("thisYear()", DateSpan.thisYear)
 
     verifyEval("pastWeek()", DateSpan.pastWeek)
     verifyEval("pastMonth()", DateSpan.pastMonth)
-    verifyEval("core::pastMonth().start.month", n(pastMon.ordinal + 1, "mo"))
-    verifyEval("core::pastMonth().end", today)
+    verifyEval("pastMonth().start.month", n(pastMon.ordinal + 1, "mo"))
+    verifyEval("pastMonth().end", today)
     verifyEval("pastYear()", DateSpan.pastYear)
 
     verifyEval("lastWeek()", DateSpan.lastWeek)
-    verifyEval("core::lastMonth()", DateSpan.lastMonth)
+    verifyEval("lastMonth()", DateSpan.lastMonth)
+    verifyEval("lastQuarter()", DateSpan.lastQuarter)
     verifyEval("lastYear()", DateSpan.lastYear)
 
     verifyEval("(${today}).occurred(today)", true)

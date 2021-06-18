@@ -241,10 +241,20 @@ class DateSpanTest : Test
     lastMonEnd := today.firstOfMonth-1day
     pastYear := Date(today.year-1, today.month, today.day)
 
-    // thisWeek, thisMonth, thisYear
+    // calculate quarter dates
+    qsm := today.month; while (qsm.ordinal % 3 != 0) qsm = qsm.decrement  // start month
+    qem := qsm.increment.increment // end month
+    qs := Date(year, qsm, 1) // this quarter start date
+    qe := Date(year, qem, qem.numDays(year)) // this quarter end date
+    lqs := qs.month == Month.jan ? Date(year-1, Month.oct, 1) : Date(year, qs.month.decrement.decrement.decrement, 1) // last quarter start date
+    lqem := lqs.month.increment.increment // last quarter end month
+    lqe := Date(lqs.year, lqem, lqem.numDays(lqs.year))  // last quarter end date
+
+    // thisWeek, thisMonth, thisQuarter, thisYear
     verifySpan(DateSpan.yesterday, yesterday, yesterday, "day", yesterday.toStr)
     verifySpan(DateSpan.thisWeek,  sun, sun+6day, "week", "${sun}..${sun+6day}")
     verifySpan(DateSpan.thisMonth, Date(year, month, 1),  Date(year, month, month.numDays(year)), "month", today.toLocale("YYYY-MM"))
+    verifySpan(DateSpan.thisQuarter, qs, qe, "quarter", "${qs}..${qe}")
     verifySpan(DateSpan.thisYear,  Date(year, Month.jan, 1), Date(today.year, Month.dec, 31), "year", today.toLocale("YYYY"))
 
     // pastWeek, pastMonth, pastYear
@@ -255,7 +265,9 @@ class DateSpanTest : Test
     // lastWeek, lastMonth, lastYear
     verifySpan(DateSpan.lastWeek, sun-7day, sun-1day, "week", "${sun-7day}..${sun-1day}")
     verifySpan(DateSpan.lastMonth, lastMonEnd.firstOfMonth, lastMonEnd, "month", lastMonEnd.toLocale("YYYY-MM"))
+    verifySpan(DateSpan.lastQuarter, lqs, lqe, "quarter", "${lqs}..${lqe}")
     verifySpan(DateSpan.lastYear, Date(year-1, Month.jan, 1), Date(today.year-1, Month.dec, 31), "year", (today.year-1).toStr)
+
 
     // weeks with mon start of week
     Locale("es").use

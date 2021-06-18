@@ -1309,6 +1309,9 @@ const class CoreLib
   ** DateSpan for this month as '1st..28-31'
   @Axon static DateSpan thisMonth() { DateSpan.thisMonth }
 
+  ** DateSpan for this 3 month quarter
+  @Axon static DateSpan thisQuarter() { DateSpan.thisQuarter }
+
   ** DateSpan for this year 'Jan-1..Dec-31'
   @Axon static DateSpan thisYear() { DateSpan.thisYear }
 
@@ -1326,6 +1329,9 @@ const class CoreLib
 
   ** DateSpan for month previous to this month '1..28-31'
   @Axon static DateSpan lastMonth() { DateSpan.lastMonth }
+
+  ** DateSpan for 3 month quarter previous to this quarter
+  @Axon static DateSpan lastQuarter() { DateSpan.lastQuarter }
 
   ** DateSpan for year previous to this year 'Jan-1..Dec-31'
   @Axon static DateSpan lastYear() { DateSpan.lastYear}

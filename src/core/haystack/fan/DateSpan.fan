@@ -40,6 +40,9 @@ const final class DateSpan
   ** Construct for this month as '1..28-31'
   static DateSpan thisMonth() { make(Date.today, month) }
 
+  ** DateSpan for this 3 month quarter
+  static DateSpan thisQuarter() { make(Date.today, quarter) }
+
   ** Construct for this year 'Jan-1..Dec-31'
   static DateSpan thisYear() { make(Date.today, year) }
 
@@ -77,6 +80,15 @@ const final class DateSpan
   static DateSpan lastMonth()
   {
     make(Date.today.firstOfMonth-1day, month)
+  }
+
+  ** DateSpan for 3 month quarter previous to this quarter
+  static DateSpan lastQuarter()
+  {
+    today := Date.today
+    q := (today.month.ordinal / 3) - 1
+    start := q < 0 ? Date(today.year-1, Month.oct, 1) : Date(today.year, Month.vals[q*3], 1)
+    return make(start, quarter)
   }
 
   ** Construct for year previous to this year 'Jan-1..Dec-31'
