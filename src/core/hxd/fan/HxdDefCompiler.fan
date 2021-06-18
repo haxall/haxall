@@ -137,8 +137,8 @@ internal const class HxdLibInput : LibInput
     }
 
     // specials
-    if (name == "hx") return [FuncMethodsReflectInput(HxCoreFuncs#, null)]
     if (name == "axon") return [FuncMethodsReflectInput(CoreLib#, null)]
+    if (name == "hx") return [FuncMethodsReflectInput(HxCoreFuncs#, null)]
 
     // none
     return ReflectInput#.emptyList

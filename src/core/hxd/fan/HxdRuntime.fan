@@ -33,7 +33,6 @@ const class HxdRuntime : HxRuntime
     this.installedRef  = AtomicRef(HxdInstalled.build)
     this.libsActorPool = ActorPool { it.name = "Hxd-Lib" }
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
-    this.core          = libs.get("hx")
     this.users         = (HxRuntimeUsers)libs.getType(HxRuntimeUsers#)
   }
 
@@ -80,9 +79,6 @@ const class HxdRuntime : HxRuntime
 
   ** Actor pool to use for HxRuntimeLibs.actorPool
   const ActorPool libsActorPool
-
-  ** Core "hx" lib supported by all runtimes
-  override const HxCoreLib core
 
   ** Public HTTP or HTTPS URI of this host.  This is always
   ** an absolute URI such 'https://acme.com/'

@@ -54,6 +54,23 @@ class HxdContext : HxContext
 
   override const HxUser user
 
+  override Dict about()
+  {
+    tags := Str:Obj?[:] { ordered = true }
+    tags["haystackVersion"] = ns.lib("ph").version.toStr
+    tags["serverName"]      = Env.cur.host
+    tags["serverBootTime"]  = DateTime.boot
+    tags["serverTime"]      = DateTime.now
+    tags["productName"]     = rt.platform.productName
+    tags["productUri"]      = rt.platform.productUri
+    tags["productVersion"]  = rt.platform.productVersion
+    tags["tz"]              = TimeZone.cur.name
+    tags["vendorName"]      = rt.platform.vendorName
+    tags["vendorUri"]       = rt.platform.vendorUri
+    tags["whoami"]          = user.username
+    return Etc.makeDict(tags)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // HaystackContext
 //////////////////////////////////////////////////////////////////////////

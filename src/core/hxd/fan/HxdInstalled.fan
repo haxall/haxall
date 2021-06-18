@@ -176,10 +176,6 @@ internal class HxdInstalledBuilder
       acc["baseUri"] = domain.toUri + `/def/${name}/`
     }
 
-    // special handling for core lib
-    if (name == "hx")
-      acc["typeName"] = HxdCoreLib#.qname
-
     return Etc.makeDict(acc)
   }
 

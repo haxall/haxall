@@ -34,9 +34,6 @@ const mixin HxRuntime
   ** Library managment
   abstract HxRuntimeLibs libs()
 
-  ** Core "hx" lib supported by all runtimes
-  abstract HxCoreLib core()
-
   ** Public HTTP or HTTPS URI of this host.  This is always
   ** an absolute URI such 'https://acme.com/'
   abstract Uri siteUri()

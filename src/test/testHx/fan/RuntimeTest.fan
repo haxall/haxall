@@ -55,8 +55,8 @@ class RuntimeTest : HxTest
     verifyLibDisabled("hxTestB")
 
     // verify core lib
-    verifySame(rt.core, rt.lib("hx"))
-    verifySame(rt.ns.def("func:read").lib, rt.core.def)
+    core := rt.lib("hx")
+    verifySame(rt.ns.def("func:read").lib, core.def)
 
     // cannot add hxTestB because it depends on hxTestA
     verifyErrMsg(DependErr#, "HxLib \"hxTestB\" missing dependency on \"hxTestA\"") { rt.libs.add("hxTestB") }
@@ -64,8 +64,8 @@ class RuntimeTest : HxTest
 
     // verify can't add/update/remove hxLib directly
     verifyErr(DiffErr#) { rt.db.commit(Diff.makeAdd(["hxLib":"hxTestA"])) }
-    verifyErr(DiffErr#) { rt.db.commit(Diff.make(rt.core.rec, ["hxLib":"renameMe"])) }
-    verifyErr(CommitErr#) { rt.db.commit(Diff.make(rt.core.rec, null, Diff.remove)) }
+    verifyErr(DiffErr#) { rt.db.commit(Diff.make(core.rec, ["hxLib":"renameMe"])) }
+    verifyErr(CommitErr#) { rt.db.commit(Diff.make(core.rec, null, Diff.remove)) }
 
     // add hxTestA
     a := rt.libs.add("hxTestA") as HxTestALib
