@@ -15,11 +15,8 @@ using hx
 **
 ** Axon functions for math
 **
-const class HxMathFuncs : HxLibFuncs
+const class HxMathFuncs
 {
-  new make(HxMathLib lib) : super(lib) { this.lib = lib }
-
-  const override HxMathLib lib
 
 //////////////////////////////////////////////////////////////////////////
 // Constants

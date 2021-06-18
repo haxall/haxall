@@ -13,10 +13,8 @@ using folio
 **
 ** Haxall core "hx" axon functions supported by all runtimes
 **
-const class HxCoreFuncs : HxLibFuncs
+const class HxCoreFuncs
 {
-  ** Constructor
-  new make(HxCoreLib lib) : super(lib) {}
 
 //////////////////////////////////////////////////////////////////////////
 // Folio Reads
@@ -26,7 +24,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** If no matches found throw UnknownRecErr or null based
   ** on checked flag.  See `readAll` for how filter works.
   @Axon
-  virtual Dict? read(Expr filterExpr, Expr checked := Literal.trueVal)
+  static Dict? read(Expr filterExpr, Expr checked := Literal.trueVal)
   {
     cx := curContext
     filter := filterExpr.evalToFilter(cx)
@@ -37,7 +35,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** Read a record from database by 'id'.  If not found
   ** throw UnknownRecErr or return null based on checked flag.
   @Axon
-  virtual Dict? readById(Ref? id, Bool checked := true)
+  static Dict? readById(Ref? id, Bool checked := true)
   {
     curContext.db.readById(id, checked)
   }
@@ -45,7 +43,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** Given record id, read only the persistent tags from Folio.
   ** Also see `readByIdTransientTags`.
   @Axon
-  virtual Dict? readByIdPersistentTags(Ref id, Bool checked := true)
+  static Dict? readByIdPersistentTags(Ref id, Bool checked := true)
   {
     curContext.db.readByIdPersistentTags(id, checked)
   }
@@ -53,7 +51,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** Given record id, read only the transient tags from Folio.
   ** Also see `readByIdPersistentTags`.
   @Axon
-  virtual Dict? readByIdTransientTags(Ref id, Bool checked := true)
+  static Dict? readByIdTransientTags(Ref id, Bool checked := true)
   {
     curContext.db.readByIdTransientTags(id, checked)
   }
@@ -62,7 +60,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** reads which return a Dict, this read returns the columns ordered in
   ** the same order as reads which return a Grid.
   @Axon
-  virtual Dict? readLink(Ref? id)
+  static Dict? readLink(Ref? id)
   {
     cx := curContext
     rec := cx.db.readById(id ?: Ref.nullRef, false)
@@ -81,7 +79,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** returned as a row with every column set to null (including
   ** the 'id' tag).
   @Axon
-  virtual Grid readByIds(Ref[] ids, Bool checked := true)
+  static Grid readByIds(Ref[] ids, Bool checked := true)
   {
     curContext.db.readByIds(ids, checked)
   }
@@ -90,7 +88,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** The filter must an expression which matches the filter structure.
   ** String values may parsed into a filter using `parseFilter` function.
   @Axon
-  virtual Grid readAll(Expr filterExpr, Expr? opts := null)
+  static Grid readAll(Expr filterExpr, Expr? opts := null)
   {
     cx := curContext
     filter := filterExpr.evalToFilter(cx)
@@ -111,7 +109,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** If checked if false, then records not found are skipped.
   ** See `docSkySpark::Streams#readByIdsStream`.
   @Axon
-  virtual Obj readByIdsStream(Ref[] ids, Bool checked := true)
+  static Obj readByIdsStream(Ref[] ids, Bool checked := true)
   {
     ReadByIdsStream(ids, checked)
   }
@@ -119,7 +117,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** Reall all records which match filter as stream of Dict records.
   ** See `docSkySpark::Streams#readAllStream`.
   @Axon
-  virtual Obj readAllStream(Expr filterExpr)
+  static Obj readAllStream(Expr filterExpr)
   {
     cx := curContext
     filter := filterExpr.evalToFilter(cx)
@@ -134,7 +132,7 @@ const class HxCoreFuncs : HxLibFuncs
   **   - 'count': total number of recs with the tag
   ** Also see `readAllTagVals` and `gridColKinds`.
   @Axon
-  virtual Grid readAllTagNames(Expr filterExpr)
+  static Grid readAllTagNames(Expr filterExpr)
   {
     cx := curContext
     filter := filterExpr.evalToFilter(cx)
@@ -147,7 +145,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** returned as a grid with a single 'val' column.
   ** Also see `readAllTagNames`.
   @Axon
-  virtual Grid readAllTagVals(Expr filterExpr, Expr tagName)
+  static Grid readAllTagVals(Expr filterExpr, Expr tagName)
   {
     cx := curContext
     filter := filterExpr.evalToFilter(cx)
@@ -158,7 +156,7 @@ const class HxCoreFuncs : HxLibFuncs
 
   ** Return the number of records which match the given filter expression.
   @Axon
-  virtual Number readCount(Expr filterExpr)
+  static Number readCount(Expr filterExpr)
   {
     cx := curContext
     filter := filterExpr.evalToFilter(cx)
@@ -170,7 +168,7 @@ const class HxCoreFuncs : HxLibFuncs
   **   - Row or Dict, return 'id' tag
   **   - Grid return first row id
   @Axon
-  virtual Ref toRecId(Obj? val) { HxUtil.toId(val) }
+  static Ref toRecId(Obj? val) { HxUtil.toId(val) }
 
   ** Coerce a value to a list of Ref identifiers:
   **   - Ref returns itself as list of one
@@ -179,7 +177,7 @@ const class HxCoreFuncs : HxLibFuncs
   **   - Dict[] return 'id' tags
   **   - Grid return 'id' column
   @Axon
-  virtual Ref[] toRecIdList(Obj? val) { HxUtil.toIds(val) }
+  static Ref[] toRecIdList(Obj? val) { HxUtil.toIds(val) }
 
 //////////////////////////////////////////////////////////////////////////
 // Folio Writes
@@ -215,7 +213,7 @@ const class HxCoreFuncs : HxLibFuncs
   **    diff(orig, {val:123}, {transient})
   **
   @Axon
-  virtual Diff diff(Dict? orig, Dict? changes, Dict? flags := null)
+  static Diff diff(Dict? orig, Dict? changes, Dict? flags := null)
   {
     // strip null values (occurs when grid rows are used)
     if (changes == null) changes = Etc.emptyDict
@@ -265,7 +263,7 @@ const class HxCoreFuncs : HxLibFuncs
   **   readAll(filter).toRecList.map(r => diff(r, {someTag})).commit
   **
   @Axon { admin = true }
-  virtual Obj? commit(Obj diffs)
+  static Obj? commit(Obj diffs)
   {
     if (diffs is MStream) return CommitStream(diffs).run
 
@@ -288,7 +286,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** store.  The key is typically a Ref of the associated record.
   ** See `folio::Folio.passwords`.
   @Axon { admin = true }
-  virtual Void passwordSet(Obj key, Str val)
+  static Void passwordSet(Obj key, Str val)
   {
     // extra security check just to be sure!
     cx := curContext
@@ -304,7 +302,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** for cases when adding records with swizzled ids; pass '{-id}' for
   ** options to strip the 'id' tag also.
   @Axon
-  virtual Obj stripUncommittable(Obj val, Obj? opts := null)
+  static Obj stripUncommittable(Obj val, Obj? opts := null)
   {
     opts = Etc.makeDict(opts)
     if (val is Dict) return FolioUtil.stripUncommittable(curContext.db, val, opts)
@@ -319,16 +317,16 @@ const class HxCoreFuncs : HxLibFuncs
 
   ** Enable a library by name in the runtime
   @Axon { admin = true }
-  virtual Dict libAdd(Str name, Dict? tags := null)
+  static Dict libAdd(Str name, Dict? tags := null)
   {
-    rt.libs.add(name, tags ?: Etc.emptyDict).rec
+    curContext.rt.libs.add(name, tags ?: Etc.emptyDict).rec
   }
 
   ** Disable a library by name in the runtime
   @Axon { admin = true }
-  virtual Obj? libRemove(Obj name)
+  static Obj? libRemove(Obj name)
   {
-    rt.libs.remove(name)
+    curContext.rt.libs.remove(name)
     return "removed"
   }
 
@@ -338,8 +336,9 @@ const class HxCoreFuncs : HxLibFuncs
 
   ** Return [about]`op:about` dict
   @Axon
-  virtual Dict about()
+  static Dict about()
   {
+    rt := curContext.rt
     tags := Str:Obj?[:] { ordered = true }
     tags["haystackVersion"] = rt.ns.lib("ph").version.toStr
     tags["serverName"]      = Env.cur.host
@@ -366,7 +365,7 @@ const class HxCoreFuncs : HxLibFuncs
   **   - 'userRef' id for current user
   **   - 'locale' current locale
   @Axon
-  virtual Dict context() { curContext.toDict }
+  static Dict context() { curContext.toDict }
 
   //@Axon Str diagnostics() { ((Int)Env.cur.diagnostics["mem.heap"]).toLocale("B") }
 

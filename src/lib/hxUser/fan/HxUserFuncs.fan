@@ -16,13 +16,7 @@ using hx
 **
 ** User library functions
 **
-const class HxUserFuncs : HxLibFuncs
+const class HxUserFuncs
 {
-  new make(HxUserLib lib) : super(lib) { this.lib = lib }
-
-  const override HxUserLib lib
-
-  @Axon
-  Str userTest() { "it works!" }
 }
 
