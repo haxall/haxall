@@ -183,7 +183,6 @@ const class HxdLibSpi : Actor, HxLibSpi
 
 internal const class HxdCoreLib : HxCoreLib
 {
-  override const HxCoreFuncs funcs := HxCoreFuncs(this)
 }
 
 **************************************************************************

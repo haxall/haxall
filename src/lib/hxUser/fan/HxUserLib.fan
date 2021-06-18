@@ -22,9 +22,6 @@ const class HxUserLib : HxLib, HxRuntimeUsers
   ** Web servicing
   override const HxUserWeb web := HxUserWeb(this)
 
-  ** Axon functions
-  override const HxUserFuncs funcs := HxUserFuncs(this)
-
   ** Session management
   const HxUserSessions sessions := HxUserSessions(this)
 

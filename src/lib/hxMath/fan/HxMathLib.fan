@@ -13,8 +13,6 @@ using hx
 **
 const class HxMathLib : HxLib
 {
-  ** Axon functions
-  override const HxMathFuncs funcs := HxMathFuncs(this)
 }
 
 

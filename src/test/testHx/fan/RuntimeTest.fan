@@ -145,9 +145,9 @@ class RuntimeTest : HxTest
     // verify funcs thru Fantom APIs
     Actor.locals[Etc.cxActorLocalsKey] = cx
     rec := addRec(["dis":"Test"])
-    verifySame(rt.core.funcs.readById(rec.id), rec)
-    rt.core.funcs.commit(Diff(rec, ["foo":m]))
-    verifyEq(rt.core.funcs.readById(rec.id)->foo, m)
+    verifySame(HxCoreFuncs.readById(rec.id), rec)
+    HxCoreFuncs.commit(Diff(rec, ["foo":m]))
+    verifyEq(HxCoreFuncs.readById(rec.id)->foo, m)
   }
 
 }

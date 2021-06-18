@@ -101,7 +101,6 @@ internal const class HxdLibInput : LibInput
     this.install  = spi.install
     this.metaFile = install.metaFile
     this.loc      = CLoc(spi.install.metaFile)
-    this.funcsRef = AtomicRef(lib.funcs)
   }
 
   const Str name
@@ -110,7 +109,6 @@ internal const class HxdLibInput : LibInput
   const override CLoc loc
   const HxdInstalledLib install
   const File metaFile
-  const AtomicRef funcsRef
   Pod pod() { install.pod }
 
   override Obj scanMeta(DefCompiler c)
@@ -129,24 +127,18 @@ internal const class HxdLibInput : LibInput
 
   override ReflectInput[] scanReflects(DefCompiler c)
   {
-    // check for FooLib.funcs override
+    // check for FooLib -> FooFuncs class
     typeName := install.meta["typeName"] as Str
     if (typeName != null)
     {
-      // we bind to the actual instance later once HxLibs are constructed
-      funcsSlot := Type.find(typeName).slot("funcs")
-      funcsType := funcsSlot is Field ? ((Field)funcsSlot).type : ((Method)funcsSlot).returns
-      if (funcsType != HxLibFuncs#)
-      {
-        return [FuncMethodsReflectInput(funcsType, funcsRef)]
-      }
+      funcsType := Type.find(typeName[0..-4]+"Funcs", false)
+      if (funcsType != null)
+        return [FuncMethodsReflectInput(funcsType, null)]
     }
 
-    // axon uses CoreLib
-    if (name == "axon")
-    {
-      return [FuncMethodsReflectInput(pod.type("CoreLib"), null)]
-    }
+    // specials
+    if (name == "hx") return [FuncMethodsReflectInput(HxCoreFuncs#, null)]
+    if (name == "axon") return [FuncMethodsReflectInput(CoreLib#, null)]
 
     // none
     return ReflectInput#.emptyList

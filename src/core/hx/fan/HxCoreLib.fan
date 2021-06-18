@@ -15,6 +15,4 @@ using folio
 **
 abstract const class HxCoreLib : HxLib
 {
-  ** Core axon functions supported by all runtimes
-  override abstract HxCoreFuncs funcs()
 }
