@@ -131,11 +131,23 @@ class RuntimeTest : HxTest
   @HxRuntimeTest
   Void testAxon()
   {
+    // verify via Axon eval
     cx := makeContext
     verifyEq(cx.ns.def("func:today").lib.name, "axon")
-    verifyEq(cx.ns.def("func:userTest").lib.name, "hxUser")
+    verifyEq(cx.ns.def("func:libAdd").lib.name, "hx")
     verifyEq(cx.eval("today()"), Date.today)
-    verifyEq(cx.eval("userTest()"), "it works!")
+
+    // add library
+    cx.eval("libAdd(\"hxMath\")")
+    verifyEq(cx.ns.def("func:sqrt").lib.name, "hxMath")
+    verifyEq(cx.eval("sqrt(16)"), n(4))
+
+    // verify funcs thru Fantom APIs
+    Actor.locals[Etc.cxActorLocalsKey] = cx
+    rec := addRec(["dis":"Test"])
+    verifySame(rt.core.funcs.readById(rec.id), rec)
+    rt.core.funcs.commit(Diff(rec, ["foo":m]))
+    verifyEq(rt.core.funcs.readById(rec.id)->foo, m)
   }
 
 }

@@ -165,27 +165,6 @@ const class HxCoreFuncs : HxLibFuncs
     return Number(cx.db.readCount(filter.toStr))
   }
 
-  /* TODO: move this code to axon pod
-  ** Convert a filter expression to a function which may
-  ** be used with `findAll` or `find`.  The returned function
-  ** accepts one parameter of Dicts and returns true/false if
-  ** the Dict is matched by the filter.  Also see `parseFilter`.
-  **
-  ** Examples:
-  **   // filter for dicts with 'equip' tag
-  **   list.findAll(filterToFunc(equip))
-  **
-  **   // filter rows with an 'area' tag over 10,000
-  **   grid.findAll(filterToFunc(area > 10_000))
-  @Axon
-  static Fn filterToFunc(Expr filterExpr)
-  {
-    cx := Context.cur
-    filter := filterExpr.evalToFilter(cx)
-    return FilterFn(filter)
-  }
-  */
-
   ** Coerce a value to a Ref identifier:
   **   - Ref returns itself
   **   - Row or Dict, return 'id' tag
@@ -286,7 +265,7 @@ const class HxCoreFuncs : HxLibFuncs
   **   readAll(filter).toRecList.map(r => diff(r, {someTag})).commit
   **
   @Axon { admin = true }
-  static Obj? commit(Obj diffs)
+  virtual Obj? commit(Obj diffs)
   {
     if (diffs is MStream) return CommitStream(diffs).run
 
@@ -309,7 +288,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** store.  The key is typically a Ref of the associated record.
   ** See `folio::Folio.passwords`.
   @Axon { admin = true }
-  static Void passwordSet(Obj key, Str val)
+  virtual Void passwordSet(Obj key, Str val)
   {
     // extra security check just to be sure!
     cx := curContext
@@ -325,7 +304,7 @@ const class HxCoreFuncs : HxLibFuncs
   ** for cases when adding records with swizzled ids; pass '{-id}' for
   ** options to strip the 'id' tag also.
   @Axon
-  static Obj stripUncommittable(Obj val, Obj? opts := null)
+  virtual Obj stripUncommittable(Obj val, Obj? opts := null)
   {
     opts = Etc.makeDict(opts)
     if (val is Dict) return FolioUtil.stripUncommittable(curContext.db, val, opts)
@@ -340,14 +319,14 @@ const class HxCoreFuncs : HxLibFuncs
 
   ** Enable a library by name in the runtime
   @Axon { admin = true }
-  Dict libAdd(Str name, Dict? tags := null)
+  virtual Dict libAdd(Str name, Dict? tags := null)
   {
     rt.libs.add(name, tags ?: Etc.emptyDict).rec
   }
 
   ** Disable a library by name in the runtime
   @Axon { admin = true }
-  Obj? libRemove(Obj name)
+  virtual Obj? libRemove(Obj name)
   {
     rt.libs.remove(name)
     return "removed"
@@ -359,7 +338,7 @@ const class HxCoreFuncs : HxLibFuncs
 
   ** Return [about]`op:about` dict
   @Axon
-  Dict about()
+  virtual Dict about()
   {
     tags := Str:Obj?[:] { ordered = true }
     tags["haystackVersion"] = rt.ns.lib("ph").version.toStr
@@ -387,7 +366,7 @@ const class HxCoreFuncs : HxLibFuncs
   **   - 'userRef' id for current user
   **   - 'locale' current locale
   @Axon
-  Dict context() { curContext.toDict }
+  virtual Dict context() { curContext.toDict }
 
   //@Axon Str diagnostics() { ((Int)Env.cur.diagnostics["mem.heap"]).toLocale("B") }
 
