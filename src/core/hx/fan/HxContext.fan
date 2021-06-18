@@ -43,5 +43,7 @@ abstract class HxContext : AxonContext, HaystackContext, FolioContext
   ** User account associated with this context
   abstract HxUser user()
 
+  ** About data to use for HTTP API
+  @NoDoc abstract Dict about()
 
 }

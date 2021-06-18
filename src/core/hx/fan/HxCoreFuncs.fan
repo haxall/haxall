@@ -336,29 +336,7 @@ const class HxCoreFuncs
 
   ** Return [about]`op:about` dict
   @Axon
-  static Dict about()
-  {
-    rt := curContext.rt
-    tags := Str:Obj?[:] { ordered = true }
-    tags["haystackVersion"] = rt.ns.lib("ph").version.toStr
-    tags["serverName"]      = Env.cur.host
-    tags["serverBootTime"]  = DateTime.boot
-    tags["serverTime"]      = DateTime.now
-    tags["productName"]     = rt.platform.productName
-    tags["productUri"]      = rt.platform.productUri
-    tags["productVersion"]  = rt.platform.productVersion
-    tags["tz"]              = TimeZone.cur.name
-    tags["vendorName"]      = rt.platform.vendorName
-    tags["vendorUri"]       = rt.platform.vendorUri
-
-    cx := HxContext.curHx(false)
-    if (cx != null)
-    {
-      tags["whoami"] = cx.user.username
-    }
-
-    return Etc.makeDict(tags)
-  }
+  static Dict about() { curContext.about }
 
   ** Get the current context as a Dict with the following tags:
   **   - 'username' for current user
