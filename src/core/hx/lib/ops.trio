@@ -12,22 +12,22 @@
 
 --------------------------------------------------------------------------
 defx: ^op:about
-typeName:"hxApi::HxAboutOp"
+typeName:"hx::HxAboutOp"
 --------------------------------------------------------------------------
 defx: ^op:defs
-typeName:"hxApi::HxDefsOp"
+typeName:"hx::HxDefsOp"
 --------------------------------------------------------------------------
 defx: ^op:filetypes
-typeName:"hxApi::HxFiletypesOp"
+typeName:"hx::HxFiletypesOp"
 --------------------------------------------------------------------------
 defx: ^op:libs
-typeName:"hxApi::HxLibsOp"
---------------------------------------------------------------------------
-defx: ^op:read
-typeName:"hxApi::HxReadOp"
+typeName:"hx::HxLibsOp"
 --------------------------------------------------------------------------
 defx: ^op:ops
-typeName:"hxApi::HxOpsOp"
+typeName:"hx::HxOpsOp"
+--------------------------------------------------------------------------
+defx: ^op:read
+typeName:"hx::HxReadOp"
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
@@ -36,13 +36,14 @@ typeName:"hxApi::HxOpsOp"
 
 --------------------------------------------------------------------------
 def: ^op:commit
-typeName:"hxApi::HxCommitOp"
+typeName:"hx::HxCommitOp"
 doc: "Commit one or more diffs to the Folio database"
 --------------------------------------------------------------------------
 def: ^op:eval
-typeName:"hxApi::HxEvalOp"
+typeName:"hx::HxEvalOp"
 doc: "Evaluate an Axon expression"
 --------------------------------------------------------------------------
+
 
 
 

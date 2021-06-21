@@ -24,6 +24,8 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
 
   override Void onService()
   {
+    req := this.req
+    res := this.res
     try
     {
       // first level of modRel is operation name
@@ -41,13 +43,12 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
       opDef := cx.ns.def("op:$opName", false)
       if (opDef == null) return res.sendErr(404)
 
-      // GET requests can only call ops with no side effects
-      if (req.isGet && opDef.missing("noSideEffects"))
-        return res.sendErr(405, "GET not allowed for op '$opName'")
-
       // instantiate subclass of HxApiOp
-      op := (HxApiOp)Type.find(opDef->typeName).make
-      op.support = this
+      Actor.locals["hxApiOp.spi"] = HxApiOpSpiImpl(ns, opDef)
+      typeName := opDef["typeName"] as Str ?: throw Err("Op missing typeName: $opName")
+      op := (HxApiOp)Type.find(typeName).make
+
+      // route to op for processing
       op.onService(req, res, cx)
     }
     catch (Err e)
@@ -60,6 +61,7 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
     finally
     {
       Actor.locals.remove(Etc.cxActorLocalsKey)
+      Actor.locals.remove("hxApiOp.spi")
     }
   }
 
@@ -87,3 +89,41 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
     return Etc.makeErrGrid(err, meta)
   }
 }
+
+**************************************************************************
+** HxApiOpSpiImpl
+**************************************************************************
+
+internal const class HxApiOpSpiImpl : WebOpUtil, HxApiOpSpi
+{
+  new make(Namespace ns, Def def)
+  {
+    this.ns  = ns
+    this.name = def.name
+    this.def  = def
+  }
+
+  override Grid? readReq(HxApiOp op, WebReq req, WebRes res)
+  {
+    // GET requests can only call ops with no side effects
+    if (req.isGet && !op.isGetAllowed)
+    {
+      res.sendErr(405, "GET not allowed for op '$name'")
+      return null
+    }
+
+    // WebOpUtil handling
+    return doReadReq(req, res)
+  }
+
+  override Void writeRes(HxApiOp op, WebReq req, WebRes res, Grid grid)
+  {
+    // WebOpUtil handling
+    doWriteRes(req, res, grid)
+  }
+
+  override const Namespace ns
+  override const Str name
+  override const Def def
+}
+
