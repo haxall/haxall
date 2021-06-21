@@ -35,6 +35,7 @@ class HttpApiTest : HxTest
     doAbout
     doRead
     doCommit
+    doGets
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -220,6 +221,37 @@ class HttpApiTest : HxTest
     // remove
     g = c.call("commit", Etc.makeMapGrid(["commit":"remove"], ["id":r.id, "mod":r->mod]))
     verifyEq(db.readById(r.id, false), null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Gets
+//////////////////////////////////////////////////////////////////////////
+
+  Void doGets()
+  {
+    // these ops are ok
+    verifyEq(callAsGet("about").first->productName, rt.platform.productName)
+    verifyEq(callAsGet("defs").size, c.call("defs").size)
+    verifyEq(callAsGet("read?filter=id").size, c.readAll("id").size)
+
+    // these ops are not
+    verifyGetNotAllowed("eval?expr=now()")
+    verifyGetNotAllowed("commit?id=@foo")
+  }
+
+  Grid callAsGet(Str path)
+  {
+    str := c.toWebClient(path.toUri).getStr
+    return ZincReader(str.in).readGrid
+  }
+
+  Void verifyGetNotAllowed(Str path)
+  {
+    wc := c.toWebClient(path.toUri)
+    wc.writeReq
+    wc.readRes
+    verifyEq(wc.resCode, 405)
+    verifyEq(wc.resPhrase.startsWith("GET not allowed for op"), true)
   }
 
 //////////////////////////////////////////////////////////////////////////

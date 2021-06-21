@@ -9,45 +9,70 @@
 using concurrent
 using web
 using haystack
+using axon
 using folio
-using hx
 
 **
 ** Base class for HTTP API operation processing
 **
 abstract class HxApiOp
 {
+  ** Subclasses must declare public no-arg constructor
+  new make()
+  {
+    this.spiRef = Actor.locals["hxApiOp.spi"] as HxApiOpSpi ?: throw Err("Invalid make context")
+  }
+
+  ** Programmatic name of the op
+  Str name() { spi.name }
+
+  ** Op definition
+  Def def() { spi.def }
+
+  ** Process an HTTP service call to this op
   virtual Void onService(WebReq req, WebRes res, HxContext cx)
   {
     // parse request grid; if readReq returns null
     // then an error has already been returned
-    reqGrid := readReq(req, res)
+    reqGrid := spi.readReq(this, req, res)
     if (reqGrid == null) return
 
-     // subclass hook
-     resGrid := onRequest(reqGrid, cx)
+    // subclass hook
+    resGrid := onRequest(reqGrid, cx)
 
-     // respond with resulting grid
-     writeRes(req, res, resGrid)
-   }
+    // respond with resulting grid
+    spi.writeRes(this, req, res, resGrid)
+  }
 
-  ** Process request
+  ** Process parsed request.  Default implentation
+  ** attempts to eval an Axon function of the same name.
   abstract Grid onRequest(Grid req, HxContext cx)
 
-  ** Read Haystack op request grid or null on error
-  Grid? readReq(WebReq req, WebRes res)
+  ** Return if this operation can be called with GET method.
+  @NoDoc virtual Bool isGetAllowed()
   {
-    support.doReadReq(req, res)
+    def.has("noSideEffects")
   }
 
-  ** Write Haystack op response grid
-  Void writeRes(WebReq req, WebRes res, Obj? result)
-  {
-    if (res.isCommitted) return
-    support.doWriteRes(req, res, Etc.toGrid(result))
-  }
+  ** Service provider interface
+  @NoDoc virtual HxApiOpSpi spi() { spiRef }
+  @NoDoc const HxApiOpSpi spiRef
+}
 
-  internal HxApiWeb? support  // set by HxApiWeb.onService
+**************************************************************************
+** HxApiOpSpi
+**************************************************************************
+
+**
+** HxApiOp service provider interface
+**
+@NoDoc
+const mixin HxApiOpSpi
+{
+  abstract Str name()
+  abstract Def def()
+  abstract Grid? readReq(HxApiOp op, WebReq req, WebRes res)
+  abstract Void writeRes(HxApiOp op, WebReq req, WebRes res, Grid result)
 }
 
 **************************************************************************
@@ -228,4 +253,5 @@ internal class HxCommitOp : HxApiOp
     return Etc.makeEmptyGrid
   }
 }
+
 
