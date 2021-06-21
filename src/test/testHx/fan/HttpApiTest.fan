@@ -44,10 +44,8 @@ class HttpApiTest : HxTest
 
   private Void init()
   {
-    // need to make this more general purpose, but this will work for now
-    port := 8080
-    rt.libs.add("hxHttp")
-    uri = `http://localhost:${port}/api`
+    try { rt.libs.add("hxHttp") } catch (Err e) {}
+    this.uri = rt.siteUri + rt.apiUri
 
     // setup user accounts
     addUser("alice",   "a-secret", ["userRole":"op"])
@@ -232,6 +230,9 @@ class HttpApiTest : HxTest
     // these ops are ok
     verifyEq(callAsGet("about").first->productName, rt.platform.productName)
     verifyEq(callAsGet("defs").size, c.call("defs").size)
+    verifyEq(callAsGet("libs").size, c.call("libs").size)
+    verifyEq(callAsGet("filetypes").size, c.call("filetypes").size)
+    verifyEq(callAsGet("ops").size, c.call("ops").size)
     verifyEq(callAsGet("read?filter=id").size, c.readAll("id").size)
 
     // these ops are not
