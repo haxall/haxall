@@ -92,6 +92,21 @@ const abstract class Filter
     logicFind(parts, op, x.argB)
   }
 
+  ** Create a search filter (not specified by Haystack):
+  **   - "re:xxx": search using regex
+  **   - "f:xxx": search as filter
+  **   - "xxx": case insensitive glob with ? and * wildcards
+  @NoDoc static Filter search(Str pattern)
+  {
+    try
+    {
+      if (pattern.startsWith("re:")) return RegexSearchFilter(pattern)
+      if (pattern.startsWith("f:"))  return FilterSearchFilter(pattern)
+    }
+    catch (Err e) {}
+    return GlobSearchFilter(pattern)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Parse
 //////////////////////////////////////////////////////////////////////////
@@ -216,6 +231,7 @@ const abstract class Filter
 **    and      a and b    argA=Filter, argB=Filter
 **    or       a or b     argA=Filter, argB=Filter
 **    isA      ^a         argA=Symbol
+**    search   special
 **
 @Js @NoDoc
 enum class FilterType
@@ -230,7 +246,8 @@ enum class FilterType
   le,
   and,
   or,
-  isA
+  isA,
+  search
 }
 
 **************************************************************************
@@ -736,5 +753,82 @@ internal class FilterParser : HaystackParser
   }
 
 }
+
+**************************************************************************
+** SearchFilters
+**************************************************************************
+
+@Js
+internal abstract const class SearchFilter : Filter
+{
+  new make(Str pattern) { this.pattern = pattern }
+
+  override Bool doMatches(Dict r, HaystackContext cx)
+  {
+    // check Dict.dis
+    if (includeVal(r.dis)) return true
+
+    // check id if its long enough to avoid false positivies
+    id := r["id"] as Ref
+    if (id != null && pattern.size >=8 && includeVal(id.id))  return true
+
+    return false
+  }
+
+  virtual Bool includeVal(Str dis) { false }
+
+  const override Str pattern
+
+  override Void eachTag(|Str tag| f) {}
+
+  override Void eachVal(|Obj? val| f) {}
+
+  override FilterType type() { FilterType.search }
+
+  override Str toStr() { pattern }
+}
+
+@Js
+internal const class GlobSearchFilter : SearchFilter
+{
+  new make(Str pattern) : super(pattern)
+  {
+    this.regex = Regex.glob("*" + pattern.lower + "*")
+  }
+
+  override Bool includeVal(Str s) { regex.matches(s.lower) }
+
+  const Regex regex
+}
+
+@Js
+internal const class RegexSearchFilter : SearchFilter
+{
+  new make(Str pattern) : super(pattern)
+  {
+    this.regex = Regex.fromStr(pattern[3..-1])
+  }
+
+  override Bool includeVal(Str s) { regex.matches(s) }
+
+  const Regex regex
+}
+
+@Js
+internal const class FilterSearchFilter : SearchFilter
+{
+  new make(Str pattern) : super(pattern)
+  {
+    this.filter = Filter.fromStr(pattern[2..-1])
+  }
+
+  override Bool doMatches(Dict r, HaystackContext cx)
+  {
+    filter.matches(r, cx)
+  }
+
+  const Filter filter
+}
+
 
 

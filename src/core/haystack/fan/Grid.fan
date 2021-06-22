@@ -275,13 +275,22 @@ const mixin Grid
   **
   ** Return a new grid which finds matching the rows in this
   ** grid.  The has the same meta and column definitions.
-  ** Also see `find`.
+  ** Also see `find` and `filter`.
   **
   Grid findAll(|Row, Int index->Bool| f)
   {
     gb := GridBuilder().copyMetaAndCols(this)
     rows := toRows.findAll(f)
     return gb.addDictRows(rows).toGrid
+  }
+
+  **
+  ** Return a new grid which finds matching rows based
+  ** on the given filter.  Also see `findAll`.
+  **
+  Grid filter(Filter filter, HaystackContext? cx := null)
+  {
+    findAll |row| { filter.matches(row, cx) }
   }
 
   **
