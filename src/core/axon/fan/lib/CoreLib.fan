@@ -2469,6 +2469,19 @@ const class CoreLib
     return x
   }
 
+  ** Evaluate an Axon string expression.  The evaluation happens in a new
+  ** scope and does not have access to the current scope of local variables.
+  ** Also see `call()` and `toAxonCode()`.
+  **
+  ** Examples:
+  **   eval("2 + 2")
+  **   eval("now()")
+  @Axon
+  static Obj? eval(Str expr)
+  {
+    AxonContext.curAxon.eval(expr)
+  }
+
   ** Reflectively call a function with the given arguments.  The func
   ** may be a Str name or an expression that evaluates to a function.
   ** Args is a positional list for each argument.  Examples:
