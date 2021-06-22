@@ -25,7 +25,7 @@ class Build : BuildPod
                "license.name": "Academic Free License 3.0",
                "vcs.name":     "Git",
                "vcs.uri":      "https://github.com/haxall/haxall",
-               "skyspark.doc": "true"
+               "hx.docFantom": "true",
                ]
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",

@@ -10,7 +10,7 @@
 using build
 
 **
-** Build: hxXml
+** Build: hxMath
 **
 class Build : BuildPod
 {
@@ -33,7 +33,6 @@ class Build : BuildPod
                 "hx @{hx.depend}"]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
-    docApi  = false
     index   = ["ph.lib": "hxMath"]
   }
 }
