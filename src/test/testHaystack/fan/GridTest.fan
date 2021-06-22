@@ -230,6 +230,15 @@ class GridTest : HaystackTest
            "a",  1,     N
            "c",  3,     N
            |>))
+
+    r = grid.filter(Filter("c >= 3"))
+
+    verifyGridEq(r, g(
+      Str<|ver:"2.0" foo:"bar"
+           a f,  c dis:"C", d
+           "b",  4,     N
+           "c",  3,     N
+           |>))
   }
 
 //////////////////////////////////////////////////////////////////////////

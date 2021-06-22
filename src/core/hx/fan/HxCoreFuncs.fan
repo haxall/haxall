@@ -98,7 +98,15 @@ const class HxCoreFuncs
       if (optsDict != null && !optsDict.isEmpty)
       {
         grid := cx.db.readAll(filter.toStr, optsDict)
-        if (optsDict.has("sort")) grid = grid.sortDis
+        if (optsDict.has("search"))
+        {
+          search := optsDict["search"].toStr.trimToNull
+          if (search != null) grid = grid.filter(Filter.search(search), cx)
+        }
+        if (optsDict.has("sort"))
+        {
+          grid = grid.sortDis
+        }
         return grid
       }
     }
@@ -342,6 +350,10 @@ const class HxCoreFuncs
   **   - 'username' for current user
   **   - 'userRef' id for current user
   **   - 'locale' current locale
+  ** SkySpark tags:
+  **   - 'projName' if evaluating in context of a project
+  **   - 'nodeId' local cluster node id
+  **   - 'ruleRef' if evaluating in context of a spark engine rule
   @Axon
   static Dict context() { curContext.toDict }
 

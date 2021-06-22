@@ -495,5 +495,48 @@ class FilterTest : HaystackTest
       verifyEq(noPath, actual)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Search
+//////////////////////////////////////////////////////////////////////////
+
+  Void testSearch()
+  {
+    id := Ref.gen
+    d := ["id": Ref("abcdefgh-12345678", "Foo Bar"), "siteRef":Ref("efa3", "UVa"),
+          "xyz":m, "geoCity":"Richmond"]
+
+    // id.id
+    verifySearch(d, "abcdefgh", true)
+    verifySearch(d, "abcdefghx", false)
+    verifySearch(d, "12345678", true)
+    verifySearch(d, "12345678x", false)
+
+    // id.dis
+    verifySearch(d, "foo", true)
+    verifySearch(d, "FOO", true)
+    verifySearch(d, "bar", true)
+    verifySearch(d, "baz", false)
+    verifySearch(d, "re:Foo.*", true)
+    verifySearch(d, "re:F...B..", true)
+    verifySearch(d, "re:F...X..", false)
+
+    // f:
+    verifySearch(d, "f:geoCity", true)
+    verifySearch(d, "f:geoCity==\"Boston\"", false)
+    verifySearch(d, "f:geoCity==\"Richmond\"", true)
+    verifySearch(d, "f:xyz", true)
+    verifySearch(d, "f:not xyz", false)
+   }
+
+  Void verifySearch(Str:Obj tags, Str pattern, Bool expected)
+  {
+    s := Filter.search(pattern)
+    verifyEq(s.type, FilterType.search)
+    d := Etc.makeDict(tags)
+    actual := s.matches(d, HaystackContext.nil)
+    // echo("$s [$s.typeof] $d   >>> $actual ?= $expected")
+    verifyEq(actual, expected)
+  }
+
 }
 
