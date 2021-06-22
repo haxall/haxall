@@ -88,6 +88,8 @@ hxLogin.loginAuth = function()
     {
       if ("scram" == scheme.name.toLowerCase())
         hxLogin.scram(username, password, scheme);
+      else if ("plaintext" == scheme.name.toLowerCase())
+        hxLogin.plaintext(username, password, scheme);
       else if ("x-plaintext" == scheme.name.toLowerCase())
         hxLogin.plaintext(username, password, scheme);
       else
