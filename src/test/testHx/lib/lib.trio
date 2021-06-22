@@ -10,11 +10,13 @@
 def: ^lib:hxTestA
 depends: [^lib:ph, ^lib:hx]
 typeName:"testHx::HxTestALib"
+nodoc
 doc: "Testing lib"
 --------------------------------------------------------------------------
 def: ^lib:hxTestB
 depends: [^lib:ph, ^lib:hx, ^lib:hxTestA]
 typeName:"testHx::HxTestBLib"
+nodoc
 doc: "Testing lib"
 --------------------------------------------------------------------------
 
