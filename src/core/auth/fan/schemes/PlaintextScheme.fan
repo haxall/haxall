@@ -12,7 +12,9 @@
 **
 const class PlaintextScheme : AuthScheme
 {
-  new make() : super("x-plaintext") {}
+  new make() : super("plaintext") {}
+
+  protected new makeScheme(Str name) : super.make(name) {}
 
   override AuthMsg onClient(AuthClientContext cx, AuthMsg msg)
   {
@@ -34,4 +36,17 @@ const class PlaintextScheme : AuthScheme
     authToken := cx.login
     return AuthMsg(name, ["authToken": authToken])
   }
+}
+
+**************************************************************************
+** X-Plaintext
+**************************************************************************
+
+**
+** XPlainText scheme supports unoffical x-plaintext auth scheme. It functions
+** exactly the same as 'plaintext' except for the scheme name.
+**
+@NoDoc const class XPlaintextScheme : PlaintextScheme
+{
+  new make() : super.makeScheme("x-plaintext") { }
 }

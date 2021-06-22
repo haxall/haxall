@@ -40,6 +40,7 @@ class Build : BuildPod
         "auth::HmacScheme",
         "auth::ScramScheme",
         "auth::PlaintextScheme",
+        "auth::XPlaintextScheme",
       ]
     ]
   }

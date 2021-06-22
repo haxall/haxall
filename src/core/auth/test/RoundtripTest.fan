@@ -27,6 +27,7 @@ class RoundtripTest : Test
     verifyAccount("sally")   // scram
     verifyAccount("holden")  // hmac
     verifyAccount("peter")   // plaintext
+    verifyAccount("xavier")  // x-plaintext
     verifyAuthBearer
 
     closeServer
@@ -151,6 +152,7 @@ internal class TestServerContext : AuthServerContext
       case 'h': return toHmacUser(username)
       case 'b': return toBasicUser(username)
       case 'p': return toPlaintextUser(username)
+      case 'x': return toPlaintextUser(username, "x-plaintext")
       default:  return null
     }
   }
@@ -180,10 +182,10 @@ internal class TestServerContext : AuthServerContext
     return TestAuthUser(user, "basic", [:], pass)
   }
 
-  private AuthUser toPlaintextUser(Str user)
+  private AuthUser toPlaintextUser(Str user, Str scheme := "plaintext")
   {
     secret := "pass-$user"
-    return TestAuthUser(user, "x-plaintext", [:], secret)
+    return TestAuthUser(user, scheme, [:], secret)
   }
 }
 
