@@ -2482,6 +2482,13 @@ const class CoreLib
     AxonContext.curAxon.eval(expr)
   }
 
+  ** Evaluate an expression as Axon or a readAll filter
+  @NoDoc @Axon
+  static Obj? evalOrReadAll(Str expr)
+  {
+    AxonContext.curAxon.evalOrReadAll(expr)
+  }
+
   ** Reflectively call a function with the given arguments.  The func
   ** may be a Str name or an expression that evaluates to a function.
   ** Args is a positional list for each argument.  Examples:

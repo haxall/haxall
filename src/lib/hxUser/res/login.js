@@ -90,8 +90,6 @@ hxLogin.loginAuth = function()
         hxLogin.scram(username, password, scheme);
       else if ("plaintext" == scheme.name.toLowerCase())
         hxLogin.plaintext(username, password, scheme);
-      else if ("x-plaintext" == scheme.name.toLowerCase())
-        hxLogin.plaintext(username, password, scheme);
       else
         throw "Unsupported auth scheme: " + scheme.name;
     }
