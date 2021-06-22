@@ -53,7 +53,7 @@ abstract const class HxLib
   Str name() { spi.name }
 
   ** Definition meta data
-  virtual Lib def() { spi.def }
+  @NoDoc virtual Lib def() { spi.def }
 
   ** Database record which enables this library and stores settings
   Dict rec() { spi.rec}
