@@ -1440,6 +1440,26 @@ class CoreLibTest : HaystackTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Eval
+//////////////////////////////////////////////////////////////////////////
+
+  Void testEval()
+  {
+    verifyEval("""eval("3 + 4")""", n(7))
+    verifyEval("""do x: eval("today"); x(); end""", Date.today)
+
+    verifyEval("""call("today")""", Date.today)
+    verifyEval("""call("today", null)""", Date.today)
+    verifyEval("""call("today", [])""", Date.today)
+    verifyEval("""call("today", ["ignore"])""", Date.today)
+
+    verifyEval("""call("parseDate", ["2021-03-15"])""", Date("2021-03-15"))
+    verifyEval("""call("parseDate", ["15-Mar-21", "DD-MMM-YY"])""", Date("2021-03-15"))
+    verifyEval("""call(parseDate, ["2021-03-15"])""", Date("2021-03-15"))
+    verifyEval("""call(parseDate(_, "DD-MMM-YY"), ["15-Mar-21"])""", Date("2021-03-15"))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // SwizzleRefs
 //////////////////////////////////////////////////////////////////////////
 
