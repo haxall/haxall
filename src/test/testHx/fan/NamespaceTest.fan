@@ -31,15 +31,17 @@ class NamespaceTest : HxTest
 
     // overlay lib
     ns1 := rt.ns
-    overlay1 := verifyLibDef("hx_db",  rt.version, `http://localhost:8080/def/hx_db/`)
+    overlayName := ns1.libsList.find { it.name.contains("_") }.name // proj_{name} or hx_db
+    overlay1 := verifyLibDef(overlayName,  rt.version, rt.siteUri+`/def/$overlayName/`)
 
     // add def rec
     verifyEq(rt.ns.def("customTag", false), null)
     tagRec := addRec(["def":Symbol("customTag"), "is":Symbol("str"), "doc":"?"])
+Actor.sleep(250ms) // TODO
 
     // verify base stayed the same, but overlayout updated
     ns2 := rt.ns
-    overlay2 := verifyLibDef("hx_db",  rt.version, `http://localhost:8080/def/hx_db/`)
+    overlay2 := verifyLibDef(overlayName,  rt.version, rt.siteUri+`/def/$overlayName/`)
     verifyNotSame(ns1, ns2)
     verifyNotSame(overlay1, overlay2)
     verifySame(ns1->base, ns2->base)
@@ -47,9 +49,10 @@ class NamespaceTest : HxTest
     verifySame(rt.ns.lib("hx"), hx)
 
     // verify our new tag def
-    tag := rt.ns.def("customTag")
+    tag := rt.ns.def("customTag") as Dict
+    tag = Etc.dictRemove(tag, "linter")
     verifyDictEq(tag, ["id":tagRec.id, "mod":tagRec->mod, "def":Symbol("customTag"),
-      "is":Symbol("str"), "lib":Symbol("lib:hx_db"), "doc":"?"])
+      "is":Symbol("str"), "lib":Symbol("lib:${overlayName}"), "doc":"?"])
 
   }
 
