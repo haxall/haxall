@@ -7,28 +7,42 @@
 //   22 Jun 2021  Brian Frank  Redesign for Haxall
 //
 
+using concurrent
 using haystack
 using axon
 using hx
+using hxConn
 
 **
 ** Haystack connector functions
 **
 const class HaystackFuncs
 {
-  **
-  ** Ping a `haystackConn` by asynchronously reading its 'about' URI
-  ** updating tags on the connector record.
-  **
-  ** Examples:
-  **   read(haystackConn).haystackPing
-  **   haystackPing(haystackConnId)
-  **
+  ** Convenience for `connPing()`
   @Axon { admin = true }
-  static Obj? haystackPing(Obj conn)
+  static Future haystackPing(Obj conn)
   {
-    "ping test"
-    //HaystackExt.cur.connActor(conn).ping
+    ConnFwFuncs.connPing(conn)
   }
 
+  ** Convenience for `connLearn()`
+  @Axon { admin = true }
+  static Obj? haystackLearn(Obj conn, Obj? arg := null)
+  {
+    ConnFwFuncs.connLearn(conn, arg)
+  }
+
+  ** Convenience for `connSyncCur()`
+  @Axon { admin = true }
+  static Future haystackSyncCur(Obj points)
+  {
+    ConnFwFuncs.connSyncCur(points)
+  }
+
+  ** Convenience for `connSyncHis()`
+  @Axon { admin = true }
+  static Obj? haystackSyncHis(Obj points, Obj? span := null)
+  {
+    ConnFwFuncs.connSyncHis(points, span)
+  }
 }

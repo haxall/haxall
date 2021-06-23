@@ -31,7 +31,8 @@ class Build : BuildPod
                "auth @{hx.depend}",
                "axon @{hx.depend}",
                "folio @{hx.depend}",
-               "hx @{hx.depend}"]
+               "hx @{hx.depend}",
+               "hxConn @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
     index =   [ "ph.lib": ["hxTestA", "hxTestB"] ]
