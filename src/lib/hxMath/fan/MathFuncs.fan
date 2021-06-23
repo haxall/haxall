@@ -15,7 +15,7 @@ using hx
 **
 ** Axon functions for math
 **
-const class HxMathFuncs
+const class MathFuncs
 {
 
 //////////////////////////////////////////////////////////////////////////
