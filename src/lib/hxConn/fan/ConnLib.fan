@@ -7,6 +7,7 @@
 //   22 Jun 2021  Brian Frank  Redesign for Haxall
 //
 
+using concurrent
 using hx
 
 **
@@ -14,6 +15,20 @@ using hx
 **
 abstract const class ConnLib : HxLib
 {
+  ** Model which defines tags and functions for this connector
+  ConnModel model() { modelRef.val ?: throw Err("Not avail until after start") }
+  private const AtomicRef modelRef := AtomicRef()
+
+  ** Start callback - if overwritten you *must* call super
+  override Void onStart()
+  {
+    this.modelRef.val = ConnModel(rt.ns, def)
+  }
+
+  ** Stop callback - if overwritten you *must* call super
+  override Void onStop()
+  {
+  }
 }
 
 
