@@ -1,0 +1,104 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//    1 Jul 2012  Brian Frank  Creation
+//   28 Feb 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^conn
+is: ^entity
+mandatory
+doc:
+ Connector for communication to a remote system.
+--------------------------------------------------------------------------
+defx: ^disabled
+tagOn: ^conn
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^actorTimeout
+is: ^duration
+tagOn: ^conn
+doc:
+  Timeout for messages send to the connector's actor thread.  It must
+  be a number with a duration unit.  If omitted a default of 1min is used.
+  This value effectively determines how long a blocking remote request should
+  take before raising a timeout error.  For protocols which communicate
+  via HTTP/TCP it is also used to configure the socket's receive
+  timeout (including Haystack and oBIX connectors).
+--------------------------------------------------------------------------
+def: ^actorPoolMaxThreads
+is: ^int
+doc:
+  Apply this tag to the connector extension record to tune the max number
+  of threads to allocate for connectors.  Adding more threads allows more
+  connectors to work concurrently processing their messages.  However more
+  threads will incur additional memory usage.  In general this value should
+  be somewhere between 50% and 75% of the total number of connectors in
+  the extension.  The default is 100.  Restart is required for a change
+  to take effect.
+--------------------------------------------------------------------------
+def: ^connErr
+is: ^str
+tagOn: ^conn
+transient
+doc:
+  Error message associated when `connStatus` indicates an error condition.
+  See `doc#conns`
+--------------------------------------------------------------------------
+def: ^connLinger
+is: ^duration
+tagOn: ^conn
+doc:
+  Linger timeout used to keep a connector open.
+  If not configured then a default of 30sec is used.
+--------------------------------------------------------------------------
+def: ^connPingFreq
+is: ^duration
+tagOn: ^conn
+doc:
+  Duration used to configure the auto-ping feature on a given connector.
+  When this tag is configured the connector will automatically attempt
+  a ping based on the configured frequency.  For connectors which might
+  not have watched points this ensures periodic checks of the connectivity
+  status.  If this tag is not defined on a connector then the feature is
+  disabled.
+--------------------------------------------------------------------------
+def: ^connState
+is: ^str
+tagOn: ^conn
+transient
+doc:
+  Current connection state of a connector as one of the predefined strings.
+  See `doc#conns`
+enum:
+  - closed: connection is closed
+  - closing: a connection is currently being closed
+  - open: connection is open
+  - opening: a connection is currently being opened
+--------------------------------------------------------------------------
+def: ^connStatus
+is: ^str
+tagOn: ^conn
+transient
+doc:
+  Current status of a connector as one of the predefined strings
+  See `lib-conn::doc#conns`
+enum: Trio:
+  ok:       {icon:"check"    iconColor:"#1ca355" doc:"All is okay"}
+  fault:    {icon:"err"      iconColor:"#db311f" doc:"Configuration problem"}
+  down:     {icon:"warn"     iconColor:"#e67e22" doc:"Communication or network problem"}
+  disabled: {icon:"disabled" iconColor:"#a4aeae" doc:"Manual disable"}
+  unknown:  {icon:"question" iconColor:"#a4aeae" doc:"Status not computed yet"}
+--------------------------------------------------------------------------
+
+
+
+

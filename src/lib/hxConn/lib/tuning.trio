@@ -1,0 +1,78 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//    1 Jul 2012  Brian Frank  Creation
+//   28 Feb 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^connTuning
+is: ^entity
+mandatory
+doc:
+  Marker applied to a rec which defines a tuning configuration.
+  See `doc#tuning`
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^connTuningRef
+is: ^ref
+of: ^connTuning
+tagOn: [^conn, ^connPoint]
+doc:
+  Reference to a tuning configuration defined by a `connTuning` rec.
+  See `doc#tuning`
+--------------------------------------------------------------------------
+def: ^pollTime
+is: ^duration
+tagOn: ^connTuning
+doc:
+  Frequency between polls of 'curVal'.
+  See `ext-conn::doc#pollTime`.
+--------------------------------------------------------------------------
+def: ^staleTime
+is: ^duration
+tagOn: ^connTuning
+doc:
+   Time before a point's curStatus marked from "ok" to "stale"
+  See `ext-conn::doc#staleTime`.
+--------------------------------------------------------------------------
+def: ^writeMaxTime
+is: ^duration
+tagOn: ^connTuning
+doc:
+  Maximum time between writes used to send perioid writes.
+  See `ext-conn::doc#writeMaxTime`.
+--------------------------------------------------------------------------
+def: ^writeMinTime
+is: ^duration
+tagOn: ^connTuning
+doc:
+  Minimum time between writes used to throttle the speed of writes.
+  See `ext-conn::doc#writeMinTime`.
+--------------------------------------------------------------------------
+def: ^writeOnOpen
+is: ^marker
+tagOn: ^connTuning
+doc:
+  Issue a write every time the connector transitions from open to closed.
+  See `ext-conn::doc#writeOnOpen`.
+--------------------------------------------------------------------------
+def: ^writeOnStart
+is: ^marker
+tagOn: ^connTuning
+doc:
+  Issue a write when the system first starts up.  If missing then
+  the first write is suppressed on startup.
+  See `ext-conn::doc#writeOnStart`.
+--------------------------------------------------------------------------
+
+
+
+
