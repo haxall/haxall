@@ -28,7 +28,7 @@ class Build : BuildPod
                "hx.docFantom": "true",
                ]
     depends  = ["sys @{fan.depend}",
-                "util @{fan.depend}",
+                "concurrent @{fan.depend}",
                 "haystack @{hx.depend}",
                 "axon @{hx.depend}",
                 "hx @{hx.depend}"]
