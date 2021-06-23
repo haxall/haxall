@@ -1,0 +1,45 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   10 Jan 2012  Brian Frank  Creation
+//   28 Feb 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^haystackConn
+is: ^conn
+icon: "haystack"
+doc:
+  Haystack connector to a Haystack REST API server.
+--------------------------------------------------------------------------
+defx: ^tz
+tagOn: ^haystackConn
+--------------------------------------------------------------------------
+defx: ^uri
+tagOn: ^haystackConn
+--------------------------------------------------------------------------
+defx: ^username
+tagOn: ^haystackConn
+--------------------------------------------------------------------------
+defx: ^password
+tagOn: ^haystackConn
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^haystackPollFreq
+is: ^duration
+tagOn: ^haystackConn
+doc:
+  Applied to 'haystackConn' to tune the duration between watch polls.
+  If not configured it defaults to 1sec.
+--------------------------------------------------------------------------
+
+
+
+
