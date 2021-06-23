@@ -9,7 +9,7 @@
 --------------------------------------------------------------------------
 def: ^lib:hxMath
 depends: [^lib:ph, ^lib:axon, ^lib:hx]
-typeName:"hxMath::HxMathLib"
+typeName:"hxMath::MathLib"
 doc: "Math function library"
 --------------------------------------------------------------------------
 
