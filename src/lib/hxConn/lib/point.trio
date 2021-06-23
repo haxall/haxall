@@ -1,0 +1,67 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//    1 Jul 2012  Brian Frank  Creation
+//   28 Feb 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^connPoint
+is: ^point
+doc:
+  Point associated with a connector for data synchronization with a remote system.
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^curCalibration
+is: ^number
+tagOn: ^connPoint
+doc:
+  Calibration value to apply to adjust the value read from the connector
+  before updating curVal.  The conversion is applied to the `connExt::ConnPoint.updateCurOk`
+  value after `curConvert` is applied and before writing `curVal` to the database.
+  See `doc#convert`
+--------------------------------------------------------------------------
+def: ^curConvert
+is: ^pointConvert
+tagOn: ^connPoint
+doc:
+  Conversion to apply when reading curVal from connector.
+  The conversion is applied to the `connExt::ConnPoint.updateCurOk` value
+  before applying `curCalibration` and writing `curVal` to the database.
+  See `doc#convert`
+--------------------------------------------------------------------------
+def: ^hisConvert
+is: ^pointConvert
+tagOn: ^connPoint
+doc:
+  Conversion to apply when reading history data from connector.
+  The conversion is applied to each item passed to `connExt::ConnPoint.updateHisOk`
+  before writing to the database.  This conversion happens *before* the
+  `hisOnWrite` conversion hooks.
+  See `doc#convert`
+--------------------------------------------------------------------------
+def: ^pointConvert
+is: ^str
+doc:
+  Point value conversion used to normalize data to/from a remote system.
+  See `doc#convert`
+--------------------------------------------------------------------------
+def: ^writeConvert
+is: ^pointConvert
+tagOn: ^connPoint
+doc:
+  Conversion to apply when writing writeVal to the connector.
+  The conversion is applied to `writeVal` before calling `connExt::Conn.onWrite`.
+  See `doc#convert`
+--------------------------------------------------------------------------
+
+
+
+
