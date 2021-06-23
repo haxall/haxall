@@ -15,6 +15,10 @@ def: ^disMacro
 is: ^str
 doc: "Display name using macro syntax.  See `haystack::Etc.dictToDis`"
 --------------------------------------------------------------------------
+def: ^disabled
+is: ^marker
+doc: "Indicates the entity is in a disabled state"
+--------------------------------------------------------------------------
 def: ^flags
 is: ^str
 doc: "Flags string"
@@ -31,8 +35,16 @@ def: ^noSkyarc
 is: ^marker
 doc: "Marks a Haxall library as not runnable on SkySpark enabled products"
 --------------------------------------------------------------------------
+def: ^password
+is: ^str
+doc: "Manages password which is hashed/stored to the password store."
+--------------------------------------------------------------------------
 def: ^typeName
 is: ^str
 doc: "Fantom type qname"
+--------------------------------------------------------------------------
+def: ^username
+is: ^str
+doc: "Username for an authentication account"
 --------------------------------------------------------------------------
 

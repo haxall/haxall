@@ -52,7 +52,7 @@ abstract const class HxLib
   ** Programmatic name of the library
   Str name() { spi.name }
 
-  ** Definition meta data
+  ** Definition meta data.  Not available in constructor.
   @NoDoc virtual Lib def() { spi.def }
 
   ** Database record which enables this library and stores settings
@@ -120,5 +120,6 @@ const mixin HxLibSpi
   abstract Dict rec()
   abstract Log log()
   abstract Uri webUri()
+  abstract Void sync(Duration? timeout := 30sec)
 }
 
