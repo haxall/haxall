@@ -1,0 +1,18 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   23 Jun 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:hxHaystack
+depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:hxConn]
+typeName:"hxHaystack::HaystackLib"
+doc: "Haystack HTTP API connector"
+--------------------------------------------------------------------------
+
+
+
+
