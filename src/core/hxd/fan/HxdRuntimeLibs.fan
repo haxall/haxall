@@ -180,6 +180,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     spi := (HxdLibSpi)lib.spi
     spi.start
     spi.ready
+    if (rt.isSteadyState) spi.steadyState
 
     // done!
     return lib

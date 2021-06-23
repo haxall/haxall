@@ -77,6 +77,10 @@ const class HxdRuntime : HxRuntime
   ** Library managment
   override const HxdRuntimeLibs libs
 
+  ** Has the runtime has reached steady state.
+  override Bool isSteadyState() { stateStateRef.val }
+  internal const AtomicBool stateStateRef := AtomicBool(true)
+
   ** Actor pool to use for HxRuntimeLibs.actorPool
   const ActorPool libsActorPool
 

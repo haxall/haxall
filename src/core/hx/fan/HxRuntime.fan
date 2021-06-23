@@ -34,6 +34,12 @@ const mixin HxRuntime
   ** Library managment
   abstract HxRuntimeLibs libs()
 
+  ** Has the runtime has reached steady state.  Steady state is reached
+  ** after a configurable wait period elapses after the runtime is
+  ** fully loaded.  This gives internal services time to spin up before
+  ** interacting with external systems.
+  abstract Bool isSteadyState()
+
   ** Public HTTP or HTTPS URI of this host.  This is always
   ** an absolute URI such 'https://acme.com/'
   abstract Uri siteUri()

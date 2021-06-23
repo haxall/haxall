@@ -59,7 +59,8 @@ class RuntimeTest : HxTest
     verifySame(rt.ns.def("func:read").lib, core.def)
 
     // cannot add hxTestB because it depends on hxTestA
-    verifyErrMsg(DependErr#, "HxLib \"hxTestB\" missing dependency on \"hxTestA\"") { rt.libs.add("hxTestB") }
+    errLibName := rt.typeof.pod.name == "hxd" ? "HxLib" : "Ext"
+    verifyErrMsg(DependErr#, "$errLibName \"hxTestB\" missing dependency on \"hxTestA\"") { rt.libs.add("hxTestB") }
     verifyLibDisabled("hxTestB")
 
     // verify can't add/update/remove hxLib directly
@@ -68,10 +69,11 @@ class RuntimeTest : HxTest
     verifyErr(CommitErr#) { rt.db.commit(Diff.make(core.rec, null, Diff.remove)) }
 
     // add hxTestA
+    verifyEq(rt.isSteadyState, true)
     a := rt.libs.add("hxTestA") as HxTestALib
     verifyLibEnabled("hxTestA")
     verifySame(rt.lib("hxTestA"), a)
-    verifyEq(a.traces.val, "onStart\n")
+    verifyEq(a.traces.val, "onStart\nonReady\nonSteadyState\n")
 
     // now add hxTestB
     b := rt.libs.add("hxTestB")
@@ -79,14 +81,15 @@ class RuntimeTest : HxTest
     verifySame(rt.lib("hxTestB"), b)
 
     // cannot remove hxTestA because hxTestB depends on it
-    verifyErrMsg(DependErr#, "HxLib \"hxTestB\" has dependency on \"hxTestA\"") { rt.libs.remove("hxTestA") }
+    verifyErrMsg(DependErr#, "$errLibName \"hxTestB\" has dependency on \"hxTestA\"") { rt.libs.remove("hxTestA") }
     rt.libs.remove("hxTestB")
     verifyLibDisabled("hxTestB")
 
     // now remove hxTestB
+    a.traces.val = ""
     rt.libs.remove("hxTestA")
     verifyLibDisabled("hxTestA")
-    verifyEq(a.traces.val, "onStart\nonStop\n")
+    verifyEq(a.traces.val, "onUnready\nonStop\n")
   }
 
   private HxLib verifyLibEnabled(Str name)
@@ -163,7 +166,9 @@ const class HxTestALib : HxLib
   Void trace(Str msg) { traces.val = traces.val.toStr + "$msg\n" }
 
   override Void onStart() { trace("onStart") }
+  override Void onReady() { trace("onReady") }
   override Void onSteadyState() { trace("onSteadyState") }
+  override Void onUnready() { trace("onUnready") }
   override Void onStop() { trace("onStop") }
 }
 
