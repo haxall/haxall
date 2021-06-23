@@ -1,0 +1,62 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// All Rights Reserved
+//
+// History:
+//   10 Jan 2012  Brian Frank  Creation
+//   28 Feb 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^haystackPoint
+is: ^connPoint
+doc:
+  Point which synchronizes data via a Haystack connector.
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^haystackConnRef
+is: ^ref
+of: ^haystackConn
+tagOn: ^haystackPoint
+doc:
+  Used on a proxy point to reference its parent `haystackConn`
+--------------------------------------------------------------------------
+def: ^haystackCur
+is: ^str
+tagOn: ^haystackPoint
+doc:
+  Used on a haystack proxy point to store the id of the entity in the
+  remote system used to read and watch `curVal`.
+--------------------------------------------------------------------------
+def: ^haystackHis
+is: ^str
+tagOn: ^haystackPoint
+doc:
+  Used on a haystack proxy point object to store the id of the historized
+  point in the remote system used to sync history data.
+--------------------------------------------------------------------------
+def: ^haystackWrite
+is: ^str
+tagOn: ^haystackPoint
+doc:
+  Used on a haystack proxy point to store the id of the entity in the
+  remote system used to write `writeVal`.
+--------------------------------------------------------------------------
+def: ^haystackWriteLevel
+is: ^int
+tagOn: ^haystackPoint
+minVal: 1
+maxVal: 16
+doc:
+  Number between 1 and 16 used with `haystackWrite` to determine which
+  priority level of the remote system is written to.
+--------------------------------------------------------------------------
+
+
+
+
