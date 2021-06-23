@@ -91,7 +91,7 @@ const class HxdLibSpi : Actor, HxLibSpi
 
   Future stop() { send(HxMsg("stop")) }
 
-  Void sync(Duration timeout := 30sec) { send((HxMsg("sync"))).get(timeout) }
+  override Void sync(Duration? timeout := 30sec) { send((HxMsg("sync"))).get(timeout) }
 
   Void update(Dict rec)
   {
