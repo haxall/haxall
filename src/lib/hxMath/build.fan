@@ -33,6 +33,6 @@ class Build : BuildPod
                 "hx @{hx.depend}"]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "hxMath"]
+    index   = ["ph.lib": "math"]
   }
 }

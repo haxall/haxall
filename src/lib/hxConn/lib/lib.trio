@@ -7,7 +7,7 @@
 //
 
 --------------------------------------------------------------------------
-def: ^lib:hxConn
+def: ^lib:conn
 depends: [^lib:ph, ^lib:phIoT, ^lib:axon, ^lib:hx]
 typeName:"hxConn::ConnFwLib"
 doc: "Connector framework"

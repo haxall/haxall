@@ -141,8 +141,8 @@ class RuntimeTest : HxTest
     verifyEq(cx.eval("today()"), Date.today)
 
     // add library
-    cx.eval("libAdd(\"hxMath\")")
-    verifyEq(cx.ns.def("func:sqrt").lib.name, "hxMath")
+    cx.eval("libAdd(\"math\")")
+    verifyEq(cx.ns.def("func:sqrt").lib.name, "math")
     verifyEq(cx.eval("sqrt(16)"), n(4))
 
     // verify funcs thru Fantom APIs

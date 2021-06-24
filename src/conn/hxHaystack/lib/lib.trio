@@ -7,8 +7,8 @@
 //
 
 --------------------------------------------------------------------------
-def: ^lib:hxHaystack
-depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:hxConn]
+def: ^lib:haystack
+depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn]
 typeName:"hxHaystack::HaystackLib"
 doc: "Haystack HTTP API connector"
 --------------------------------------------------------------------------

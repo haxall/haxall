@@ -18,7 +18,7 @@ const final class ConnModel
   @NoDoc new make(Namespace ns, Lib lib)
   {
     this.name = lib.name
-    prefix := name.startsWith("hx") ? name[2..-1].decapitalize : name
+    prefix := name
 
     // check tag/func defs
     this.connTag       = def(ns, lib, "${prefix}Conn")
