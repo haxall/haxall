@@ -26,8 +26,8 @@ class ConnTest : HxTest
   @HxRuntimeTest
   Void testModel()
   {
-    rt.libs.add("hxConn")
-    verifyModel("hxHaystack", "haystack", "lcwhx")
+    rt.libs.add("conn")
+    verifyModel("haystack", "haystack", "lcwhx")
   }
 
   Void verifyModel(Str libName, Str prefix, Str flags)

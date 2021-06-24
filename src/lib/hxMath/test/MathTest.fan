@@ -17,7 +17,7 @@ class MathTest : HxTest
   @HxRuntimeTest
   Void test()
   {
-    rt.libs.add("hxMath")
+    rt.libs.add("math")
 
     // constants
     verifyEq(eval("pi()"), Number(Float.pi))
@@ -79,7 +79,7 @@ class MathTest : HxTest
   @HxRuntimeTest
   Void testFolds()
   {
-    rt.libs.add("hxMath")
+    rt.libs.add("math")
 
     // Test cases for RMSE and MBE provided by PNL
 

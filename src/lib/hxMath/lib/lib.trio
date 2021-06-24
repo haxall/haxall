@@ -7,7 +7,7 @@
 //
 
 --------------------------------------------------------------------------
-def: ^lib:hxMath
+def: ^lib:math
 depends: [^lib:ph, ^lib:axon, ^lib:hx]
 typeName:"hxMath::MathLib"
 doc: "Math function library"

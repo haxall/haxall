@@ -124,7 +124,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
       lib = get(arg, false)
       if (lib == null)
       {
-        rec := rt.db.read("hxLib==$arg.toStr", false)
+        rec := rt.db.read("hxLib==$arg.toStr.toCode", false)
         if (rec == null) throw UnknownLibErr(arg.toStr)
         rt.db.commit(Diff(rec, null, Diff.remove.or(Diff.bypassRestricted)))
         return

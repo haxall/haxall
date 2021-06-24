@@ -285,19 +285,19 @@ class CoreFuncsTest : HxTest
   Void testLibs()
   {
     // initial state
-    verifyEq(rt.lib("hxMath", false), null)
+    verifyEq(rt.lib("math", false), null)
 
     // add
-    rec := eval("libAdd(\"hxMath\")")
-    verifyEq(rt.lib("hxMath").rec, rec)
+    rec := eval("libAdd(\"math\")")
+    verifyEq(rt.lib("math").rec, rec)
 
     // remove
-    eval("libRemove(\"hxMath\")")
-    verifyEq(rt.lib("hxMath", false), null)
+    eval("libRemove(\"math\")")
+    verifyEq(rt.lib("math", false), null)
 
     // add again
-    rec = eval("libAdd(\"hxMath\", {foo})")
-    verifyEq(rt.lib("hxMath").rec, rec)
+    rec = eval("libAdd(\"math\", {foo})")
+    verifyEq(rt.lib("math").rec, rec)
     verifyEq(rec->foo, Marker.val)
   }
 
