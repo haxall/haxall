@@ -339,6 +339,40 @@ const class HxCoreFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Observables
+//////////////////////////////////////////////////////////////////////////
+
+  @NoDoc @Axon { admin = true }
+  static Grid observables()
+  {
+    cx := curContext
+    gb := GridBuilder()
+    gb.addCol("observable").addCol("subscriptions").addCol("doc")
+    cx.rt.observables.each |o|
+    {
+      doc := cx.ns.def(o.name, false)?.get("doc") ?: ""
+      gb.addRow([o.name, Number(o.subscriptions.size), doc])
+    }
+    return gb.toGrid
+  }
+
+  @NoDoc @Axon { admin = true }
+  static Grid subscriptions()
+  {
+    cx := curContext
+    gb := GridBuilder()
+    gb.addCol("observable").addCol("observer").addCol("config")
+    cx.rt.observables.each |o|
+    {
+      o.subscriptions.each |s|
+      {
+        gb.addRow([o.name, s.observer.toStr, s.configDebug])
+      }
+    }
+    return gb.toGrid
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Misc
 //////////////////////////////////////////////////////////////////////////
 
