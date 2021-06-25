@@ -33,7 +33,9 @@ const class HxdRuntime : HxRuntime
     this.log           = boot.log
     this.installedRef  = AtomicRef(HxdInstalled.build)
     this.libsActorPool = ActorPool { it.name = "Hxd-Lib" }
+    this.hxdActorPool  = ActorPool { it.name = "Hxd-Runtime" }
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
+    this.backgroundMgr = HxdBackgroundMgr(this)
     this.observeMgr    = HxdObserveMgr(this)
     this.users         = (HxRuntimeUsers)libs.getType(HxRuntimeUsers#)
   }
@@ -86,6 +88,9 @@ const class HxdRuntime : HxRuntime
   ** Actor pool to use for HxRuntimeLibs.actorPool
   const ActorPool libsActorPool
 
+  ** Actor pool to use for core daemon functionality
+  const ActorPool hxdActorPool
+
   ** Lookup a observable for this runtime.
   override Observable? observable(Str name, Bool checked := true) { observeMgr.get(name, checked) }
 
@@ -99,6 +104,9 @@ const class HxdRuntime : HxRuntime
     observeMgr.sync(timeout)
     return this
   }
+
+  ** Background tasks
+  internal const HxdBackgroundMgr backgroundMgr
 
   ** Observation management
   internal const HxdObserveMgr observeMgr
@@ -128,20 +136,32 @@ const class HxdRuntime : HxRuntime
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
+  ** Cached DateTime in system timezone accurate within 100ms (background freq)
+  DateTime now() { nowRef.val }
+  internal const AtomicRef nowRef := AtomicRef(DateTime.now)
+
+  ** If the runtime currently running
+  Bool isRunning() { isRunningRef.val }
+
   ** Start runtime (blocks until all libs fully started)
   This start()
   {
     // this method can only be called once
     if (isStarted.getAndSet(true)) return this
 
+    // set running flag
+    isRunningRef.val = true
+
     // onStart callback
     futures := libs.list.map |lib->Future| { ((HxdLibSpi)lib.spi).start }
     Future.waitForAll(futures)
 
-
     // onReady callback
     futures = libs.list.map |lib->Future| { ((HxdLibSpi)lib.spi).ready }
     Future.waitForAll(futures)
+
+    // kick off background processing
+    backgroundMgr.start
 
     return this
   }
@@ -151,6 +171,9 @@ const class HxdRuntime : HxRuntime
   {
     // this method can only be called once
     if (isStopped.getAndSet(true)) return this
+
+    // clear running flag
+    isRunningRef.val = false
 
     // onUnready callback
     futures := libs.list.map |lib->Future| { ((HxdLibSpi)lib.spi).unready }
@@ -164,6 +187,7 @@ const class HxdRuntime : HxRuntime
   ** Function that calls stop
   const |->| shutdownHook := |->| { stop }
 
+  private const AtomicBool isRunningRef := AtomicBool()
   private const AtomicBool isStarted := AtomicBool()
   private const AtomicBool isStopped  := AtomicBool()
 

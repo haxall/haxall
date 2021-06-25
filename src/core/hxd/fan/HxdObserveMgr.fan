@@ -23,7 +23,7 @@ internal const class HxdObserveMgr : Actor
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxRuntime rt) : super(rt.libs.actorPool)
+  new make(HxdRuntime rt) : super(rt.hxdActorPool)
   {
     this.rt  = rt
     this.log = rt.db.log
@@ -46,7 +46,7 @@ internal const class HxdObserveMgr : Actor
 // Lookup Tables
 //////////////////////////////////////////////////////////////////////////
 
-  const HxRuntime rt
+  const HxdRuntime rt
 
   const Log log
 
@@ -187,8 +187,7 @@ internal const class HxdObserveMgr : Actor
 
   private Observation toObservation(CommitObservationAction action, Diff diff, Dict oldRec, Dict newRec, HxUser? user)
   {
-ts := DateTime.now // TODO
-    return CommitObservation.make(commits, action, ts, diff.id, oldRec, newRec, user?.meta)
+    CommitObservation.make(commits, action, rt.now, diff.id, oldRec, newRec, user?.meta)
   }
 
 //////////////////////////////////////////////////////////////////////////
