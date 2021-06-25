@@ -11,7 +11,8 @@ using haystack
 **
 ** Observation is base class for all observable data items
 **
-@NoDoc
+** NOTE: this API is subject to change
+**
 const mixin Observation : Dict
 {
   ** Type name which matches `Observable.name` and the def name

@@ -12,25 +12,80 @@ using haystack
 ** CommitObservation is an observation event for an 'obsCommit' stream.
 **
 @NoDoc
-const class CommitObservation
+const class CommitObservation : Observation
 {
-  // TODO
-  static Observation make(Observable observable, CommitObservationType type, DateTime ts, Ref id, Dict oldRec, Dict newRec, Dict? user)
+  new make(Observable observable, CommitObservationAction action, DateTime ts, Ref id, Dict oldRec, Dict newRec, Dict? user)
   {
-    body := user == null ?
-            Etc.makeDict4("subType", type.name, "id", id, "oldRec", oldRec, "newRec", newRec) :
-            Etc.makeDict5("subType", type.name, "id", id, "oldRec", oldRec, "newRec", newRec, "user", user)
-    return MObservation(observable, ts, body)
+    this.type    = observable.name
+    this.subType = action.name
+    this.ts      = ts
+    this.action  = action
+    this.id      = id
+    this.oldRec  = oldRec
+    this.newRec  = newRec
+    this.user    = user
   }
 
-  private new makeImpl() {}
+  const override Str type
+  const override Str? subType
+  const override DateTime ts
+  const override Ref id
+  const CommitObservationAction action
+  const Dict newRec
+  const Dict oldRec
+  const Dict? user
+
+  override Bool isEmpty() { false }
+
+  @Operator override Obj? get(Str name, Obj? def := null)
+  {
+    switch (name)
+    {
+      case "type":    return type
+      case "subType": return subType
+      case "ts":      return ts
+      case "id":      return id
+      case "newRec":  return newRec
+      case "oldRec":  return oldRec
+      case "user":    return user ?: def
+      default:        return def
+    }
+  }
+
+  override Bool has(Str name) { get(name) != null }
+
+  override Bool missing(Str name) { !has(name) }
+
+  override Obj? trap(Str name, Obj?[]? args := null)
+  {
+    get(name, true)
+  }
+
+  override Void each(|Obj?, Str| f)
+  {
+    eachWhile |v, n| { f(v, n); return null }
+  }
+
+  override Obj? eachWhile(|Obj?, Str->Obj?| f)
+  {
+    Obj? r
+    r = f(type,    "type");    if (r != null) return r
+    r = f(subType, "subType"); if (r != null) return r
+    r = f(ts,      "ts");      if (r != null) return r
+    r = f(id,      "id");      if (r != null) return r
+    r = f(newRec,  "newRec");  if (r != null) return r
+    r = f(oldRec,  "oldRec");  if (r != null) return r
+    if (user != null) r = f(user, "user"); if (r != null) return r
+    return null
+  }
 }
 
 **************************************************************************
-** CommitObservationType
+** CommitObservationAction
 **************************************************************************
 
-enum class CommitObservationType
+@NoDoc
+enum class CommitObservationAction
 {
   added,
   updated,

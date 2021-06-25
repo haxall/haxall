@@ -8,6 +8,7 @@
 
 using concurrent
 using haystack
+using obs
 
 **
 ** Base class for all Haxall library runtime instances.  All Haxall libs
@@ -69,6 +70,24 @@ abstract const class HxLib
   @NoDoc const HxLibSpi spiRef
 
 //////////////////////////////////////////////////////////////////////////
+// Observables
+//////////////////////////////////////////////////////////////////////////
+
+  ** Return list of observables this extension publishes.  This method
+  ** must be overridden as a const field and set in the constructor.
+  virtual Observable[] observables() { Observable#.emptyList }
+
+  ** Observable subscriptions for this extension
+  Subscription[] subscriptions() { spi.subscriptions }
+
+  ** Subscribe this library to an observable. The callback must be an
+  ** Actor instance or Method literal on this class.  If callback is a
+  ** method, then its called on a dedicated actor using runtime lib actor
+  ** pool. This method should be called in the `onStart` callback.
+  ** See `docSkySpark::Observables#extObserve`.
+  Subscription observe(Str name, Dict config, Obj callback) { spi.observe(name, config, callback) }
+
+//////////////////////////////////////////////////////////////////////////
 // Lifecycle Callbacks
 //////////////////////////////////////////////////////////////////////////
 
@@ -121,5 +140,7 @@ const mixin HxLibSpi
   abstract Log log()
   abstract Uri webUri()
   abstract Void sync(Duration? timeout := 30sec)
+  abstract Subscription[] subscriptions()
+  abstract Subscription observe(Str name, Dict config, Obj callback)
 }
 

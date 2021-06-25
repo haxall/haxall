@@ -12,7 +12,8 @@ using haystack
 **
 ** Subscription models an Observable to Observer binding
 **
-@NoDoc
+** NOTE: this API is subject to change
+**
 const class Subscription
 {
   ** Constructor

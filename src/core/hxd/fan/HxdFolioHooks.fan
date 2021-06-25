@@ -44,9 +44,13 @@ const class HxdFolioHooks : FolioHooks
   ** Pass through FolioContext.commitInfo if available.
   override Void postCommit(Diff diff, Obj? cxInfo)
   {
+    user := cxInfo as HxUser
+
     if (diff.getOld("def") != null || diff.getNew("def") != null)
     {
       rt.nsOverlayRecompile
     }
+
+    rt.observeMgr.commit(diff, user)
   }
 }

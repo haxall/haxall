@@ -176,6 +176,9 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     // common modification processing
     onModified
 
+    // register observables
+    rt.observeMgr.addLib(lib)
+
     // call onStart, onReady asynchronously
     spi := (HxdLibSpi)lib.spi
     spi.start
@@ -197,6 +200,9 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
       if (x.def.depends.any |symbol| { symbol.name == name })
         throw DependErr("HxLib $x.name.toCode has dependency on $name.toCode")
     }
+
+    // unregister observables
+    rt.observeMgr.removeLib(lib)
 
     // call onUnready, onStop asynchronously
     spi := (HxdLibSpi)lib.spi

@@ -30,6 +30,7 @@ class Build : BuildPod
                "haystack @{hx.depend}",
                "auth @{hx.depend}",
                "axon @{hx.depend}",
+               "obs @{hx.depend}",
                "folio @{hx.depend}",
                "hx @{hx.depend}",
                "hxConn @{hx.depend}"]

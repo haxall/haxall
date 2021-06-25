@@ -9,6 +9,7 @@
 using concurrent
 using web
 using haystack
+using obs
 using folio
 
 **
@@ -33,6 +34,15 @@ const mixin HxRuntime
 
   ** Library managment
   abstract HxRuntimeLibs libs()
+
+  ** Lookup a observable for this runtime.
+  abstract Observable? observable(Str name, Bool checked := true)
+
+  ** List the published observables for this runtime
+  abstract Observable[] observables()
+
+  ** Block until currently queued background processing completes
+  abstract This sync(Duration? timeout := 30sec)
 
   ** Has the runtime has reached steady state.  Steady state is reached
   ** after a configurable wait period elapses after the runtime is
