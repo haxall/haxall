@@ -10,6 +10,7 @@ using concurrent
 using web
 using haystack
 using folio
+using obs
 using hx
 
 **
@@ -33,6 +34,7 @@ const class HxdRuntime : HxRuntime
     this.installedRef  = AtomicRef(HxdInstalled.build)
     this.libsActorPool = ActorPool { it.name = "Hxd-Lib" }
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
+    this.observeMgr    = HxdObserveMgr(this)
     this.users         = (HxRuntimeUsers)libs.getType(HxRuntimeUsers#)
   }
 
@@ -83,6 +85,23 @@ const class HxdRuntime : HxRuntime
 
   ** Actor pool to use for HxRuntimeLibs.actorPool
   const ActorPool libsActorPool
+
+  ** Lookup a observable for this runtime.
+  override Observable? observable(Str name, Bool checked := true) { observeMgr.get(name, checked) }
+
+  ** List the published observables for this runtime
+  override Observable[] observables() { observeMgr.list }
+
+  ** Block until currently queued background processing completes
+  override This sync(Duration? timeout := 30sec)
+  {
+    db.sync(timeout)
+    observeMgr.sync(timeout)
+    return this
+  }
+
+  ** Observation management
+  internal const HxdObserveMgr observeMgr
 
   ** Public HTTP or HTTPS URI of this host.  This is always
   ** an absolute URI such 'https://acme.com/'

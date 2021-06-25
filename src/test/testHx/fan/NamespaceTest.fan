@@ -37,7 +37,7 @@ class NamespaceTest : HxTest
     // add def rec
     verifyEq(rt.ns.def("customTag", false), null)
     tagRec := addRec(["def":Symbol("customTag"), "is":Symbol("str"), "doc":"?"])
-Actor.sleep(250ms) // TODO
+    rt.sync
 
     // verify base stayed the same, but overlayout updated
     ns2 := rt.ns

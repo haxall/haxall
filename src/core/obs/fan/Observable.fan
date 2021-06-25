@@ -12,7 +12,8 @@ using haystack
 **
 ** Observable is the subject of an asynchronous data stream.
 **
-@NoDoc
+** NOTE: this API is subject to change
+**
 abstract const class Observable
 {
   ** Return the name of this observable.

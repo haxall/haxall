@@ -9,6 +9,7 @@
 using concurrent
 using haystack
 using axon
+using obs
 using folio
 using hx
 
@@ -164,6 +165,8 @@ const class HxTestALib : HxLib
   const AtomicRef traces := AtomicRef("")
 
   Void trace(Str msg) { traces.val = traces.val.toStr + "$msg\n" }
+
+  override const Observable[] observables := [TestObservable()]
 
   override Void onStart() { trace("onStart") }
   override Void onReady() { trace("onReady") }

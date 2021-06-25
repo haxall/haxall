@@ -8,6 +8,7 @@
 
 using concurrent
 using haystack
+using obs
 using folio
 using hx
 
@@ -76,6 +77,21 @@ const class HxdLibSpi : Actor, HxLibSpi
   override const Log log
 
   override const Uri webUri
+
+//////////////////////////////////////////////////////////////////////////
+// Observables
+//////////////////////////////////////////////////////////////////////////
+
+  override Subscription[] subscriptions() { subscriptionsRef.val }
+  private const AtomicRef subscriptionsRef := AtomicRef(Subscription#.emptyList)
+
+  override Subscription observe(Str name, Dict config, Obj callback)
+  {
+    observer := callback is Actor ? HxdLibActorObserver(lib, callback) : HxdLibMethodObserver(lib, callback)
+    sub := rt.observable(name).subscribe(observer, config)
+    subscriptionsRef.val = subscriptions.dup.add(sub).toImmutable
+    return sub
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Background Processing
@@ -191,3 +207,52 @@ const class HxdLibSpi : Actor, HxLibSpi
 const class ResHxLib : HxLib
 {
 }
+
+**************************************************************************
+** HxdLibActorObserver
+**************************************************************************
+
+internal const class HxdLibActorObserver : Observer
+{
+  new make(HxLib lib, Actor actor)
+  {
+    this.lib = lib
+    this.actor = actor
+    this.meta = Etc.emptyDict
+  }
+
+  const HxLib lib
+  override const Dict meta
+  override const Actor actor
+  override Str toStr() { "HxLib $lib.name" }
+}
+
+**************************************************************************
+** HxdLibMethodObserver
+**************************************************************************
+
+internal const class HxdLibMethodObserver : Actor, Observer
+{
+  new make(HxLib lib, Method method) : super(lib.rt.libs.actorPool)
+  {
+    this.lib = lib
+    this.method = method
+    this.meta = Etc.emptyDict
+  }
+
+  const HxLib lib
+  const Method method
+  override const Dict meta
+  override Actor actor() { this }
+  override Str toStr() { "HxLib $lib.name" }
+
+  override Obj? receive(Obj? msg)
+  {
+    try
+      method.callOn(lib, [msg])
+    catch (Err e)
+      lib.log.err("${lib.typeof}.observe", e)
+    return null
+  }
+}
+

@@ -12,7 +12,8 @@ using haystack
 **
 ** Observer is an actor which subscribes to an observable's data items
 **
-@NoDoc
+** NOTE: this API is subject to change
+**
 const mixin Observer
 {
   ** Meta data for observer
