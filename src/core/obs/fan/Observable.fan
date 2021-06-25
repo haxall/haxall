@@ -70,9 +70,9 @@ abstract const class Observable
   }
 
   ** Make the default implementation of an observation event
-  Observation makeObservation(Dict more := Etc.emptyDict)
+  Observation makeObservation(DateTime ts := DateTime.now, Dict more := Etc.emptyDict)
   {
-    MObservation(this, DateTime.now, more)
+    MObservation(this, ts, more)
   }
 }
 

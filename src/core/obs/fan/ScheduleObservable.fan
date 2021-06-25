@@ -86,7 +86,8 @@ const class ScheduleObservable : Observable
 ** ScheduleSubscription
 **************************************************************************
 
-internal const class ScheduleSubscription : Subscription
+@NoDoc
+const class ScheduleSubscription : Subscription
 {
   new make(ScheduleObservable observable, Observer observer, Dict config)
     : super(observable, observer, config)
