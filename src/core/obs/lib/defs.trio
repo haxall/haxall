@@ -1,0 +1,101 @@
+//
+// Copyright (c) 2020, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//    13 Apr 2020  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^observes
+is: ^choice
+of: ^observable
+doc: "Observable subscription - see [docs]`docSkySpark::Observables`"
+--------------------------------------------------------------------------
+def: ^observable
+is: ^marker
+doc: "Observable subscription - see [docs]`docSkySpark::Observables`"
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Commits
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^obsCommits
+is: ^observable
+doc: "Subscribe to record commits in Folio."
+--------------------------------------------------------------------------
+def: ^obsAdds
+is: ^marker
+tagOn: ^obsCommits
+doc: "Process when a new data item is added to the observed data set."
+--------------------------------------------------------------------------
+def: ^obsUpdates
+is: ^marker
+tagOn: ^obsCommits
+doc: "Process when an existing data item is updated in the observed data set."
+--------------------------------------------------------------------------
+def: ^obsRemoves
+is: ^marker
+tagOn: ^obsCommits
+doc: "Process when an existing data item is removed from the observed data set."
+--------------------------------------------------------------------------
+def: ^obsFilter
+is: ^filterStr
+tagOn: ^obsCommits
+doc: "Filter string to define the record data set observed."
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Schedule
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^obsSchedule
+is: ^observable
+doc: "Subscribe to scheduled timer events."
+linter: "LintObsSchedule"
+--------------------------------------------------------------------------
+def: ^obsScheduleFreq
+is: ^duration
+tagOn: ^obsSchedule
+linter: "LintObsScheduleFreq"
+minVal: 1sec
+doc: "Schedule events with given frequency"
+--------------------------------------------------------------------------
+def: ^obsScheduleTimes
+is: ^list
+of: ^time
+tagOn: ^obsSchedule
+linter: "LintObsScheduleTimes"
+uiInput: "ui::CompactListInput"
+doc: "Schedule events for given times of the day"
+--------------------------------------------------------------------------
+def: ^obsScheduleDaysOfMonth
+is: ^str
+tagOn: ^obsSchedule
+placeholder: "e.g. 1, 15"
+linter: "LintObsScheduleDaysOfMonth"
+doc:
+  Schedule events for given days of the month.  Encode as a comma separated
+  list for day of the month such as "1,15".  Negative values may be used
+  to represent days for end of the month.  For example "-1" represents
+  the last day of the month, "-2" the second to last, etc.
+--------------------------------------------------------------------------
+def: ^obsScheduleDaysOfWeek
+is: ^str
+tagOn: ^obsSchedule
+linter: "LintObsScheduleDaysOfWeek"
+uiInput: "uiMisc::WeekdayInput"
+doc:
+  Schedule events for given days of the week.  Encode as a comma separated
+  list of the three letter enums: sun, mon, tue, wed, thu, fri, or sat.
+--------------------------------------------------------------------------
+def: ^obsScheduleSpan
+is: ^span
+tagOn: ^obsSchedule
+doc:
+  Schedule events only during the configured span of time.
+--------------------------------------------------------------------------
+
