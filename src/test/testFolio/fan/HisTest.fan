@@ -162,21 +162,25 @@ class HisTest  : AbstractFolioTest
     // change tz
     tz = TimeZone("New_York")
     r = commit(r, ["tz":tz.name])
+    folio.sync
     items = items.map |item->HisItem| { HisItem(item.ts.toTimeZone(tz), item.val) }
     verifyRead(r, null, items)
 
     // add unit
     r = commit(r, ["unit":"%"])
+    folio.sync
     items = items.map |item->HisItem| { HisItem(item.ts, n(((Number)item.val).toFloat, "%")) }
     verifyRead(r, null, items)
 
     // change unit
     r = commit(r, ["unit":"kW"])
+    folio.sync
     items = items.map |item->HisItem| { HisItem(item.ts, n(((Number)item.val).toFloat, "kW")) }
     verifyRead(r, null, items)
 
     // remove unit
     r = commit(r, ["unit":Remove.val])
+    folio.sync
     items = items.map |item->HisItem| { HisItem(item.ts, n(((Number)item.val).toFloat, null)) }
     verifyRead(r, null, items)
   }
@@ -203,9 +207,12 @@ class HisTest  : AbstractFolioTest
     if (span == null)
     {
       r = folio.readById(r.id)
+      tz := TimeZone.fromStr(r->tz)
       verifyEq(r["hisSize"],  n(actual.size))
       verifyEq(r["hisStart"], actual.first.ts)
       verifyEq(r["hisEnd"],   actual.last.ts)
+      verifySame(r["hisStart"]->tz, tz)
+      verifySame(r["hisEnd"]->tz, tz)
     }
   }
 

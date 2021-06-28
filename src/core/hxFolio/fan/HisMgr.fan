@@ -70,34 +70,7 @@ const class HisMgr : HxFolioMgr, FolioHis
     cx := FolioContext.curFolio(false)
     if (cx != null && !cx.canWrite(rec.dict)) throw PermissionErr("Cannot write: $id.toCode")
 
-    // process on background thread for thread safety
-    return FolioFuture(send(Msg(MsgId.hisWrite, rec, Unsafe(items), opts)))
-  }
-
-  internal override Obj? onReceive(Msg msg)
-  {
-    switch (msg.id)
-    {
-      case MsgId.hisWrite:  return onWrite(msg.a, msg.b, msg.c)
-      default:              return super.onReceive(msg)
-    }
-  }
-
-  private HisWriteFolioRes onWrite(Rec rec, Unsafe toWriteUnsafe, Dict opts)
-  {
-    // merge current and toWrite items
-    toWrite := (HisItem[])toWriteUnsafe.val
-    curItems := rec.hisItems
-    newItems := FolioUtil.hisWriteMerge(curItems, toWrite)
-
-    // clip to buffer size
-maxItems := 1000  // TODO
-    if (newItems.size > maxItems) newItems = newItems[newItems.size-maxItems..-1]
-    newItems = newItems.toImmutable
-
-    // update on IndexMgr for thread safety
-    folio.index.hisUpdate(rec, newItems).get(null)
-
-    return HisWriteFolioRes(Etc.makeDict1("count", Number(toWrite.size)))
+    // process on IndexMgr thread for thread safety
+    return FolioFuture(folio.index.hisWrite(rec, items, opts))
   }
 }
