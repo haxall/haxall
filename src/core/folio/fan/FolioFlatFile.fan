@@ -138,6 +138,8 @@ const class FolioFlatFile : Folio
     return FolioFuture(actor.send(FolioFlatFileMsg("commit", diffs, cxInfo)))
   }
 
+  @NoDoc override FolioHis his() { throw UnsupportedErr() }
+
   @NoDoc override FolioBackup backup() { throw UnsupportedErr() }
 
 //////////////////////////////////////////////////////////////////////////
