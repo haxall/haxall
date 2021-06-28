@@ -110,6 +110,7 @@ internal class Commit
   {
     inDiff.changes.each |v, n|
     {
+      if (n == "tz" || n == "unit") hisTagsModified = true
       tags[n] = normVal(v)
     }
   }
@@ -190,6 +191,9 @@ internal class Commit
     // update index and Rec
     newRec = oldRec
     indexUpdate(index, newRec, oldDict, newPersistent, newTicks, tags)
+
+    // check for tags which might modify his items
+    if (hisTagsModified) index.hisTagsModified(newRec)
 
     // update blob asynchronously
     store.update(newRec)
@@ -283,6 +287,7 @@ internal class Commit
   const Obj? cxInfo             // make
   private [Ref:Ref]? newIds     // make
   private Str:Obj tags := [:]   // normTags
+  private Bool hisTagsModified  // normTags
   private Rec? newRec           // add/remove/updateX
   private Diff? outDiff         // apply
 }

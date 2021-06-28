@@ -66,14 +66,14 @@ internal const class IndexMgr : HxFolioMgr
 
   Future commit(Diff[] diffs) { send(Msg(MsgId.commit, diffs)) }
 
-  Future hisUpdate(Rec rec, HisItem[] items) { send(Msg(MsgId.updateHis, rec, items)) }
+  Future hisWrite(Rec rec, HisItem[] items, Dict? opts) { send(Msg(MsgId.hisWrite, rec, Unsafe(items), opts)) }
 
   override Obj? onReceive(Msg msg)
   {
     switch (msg.id)
     {
       case MsgId.commit:    return onCommit(msg.a, msg.b, msg.c)
-      case MsgId.updateHis: return onHisUpdate(msg.a, msg.b)
+      case MsgId.hisWrite:  return onHisWrite(msg.a, msg.b, msg.c)
       default:              return super.onReceive(msg)
     }
   }
@@ -121,6 +121,66 @@ internal const class IndexMgr : HxFolioMgr
     if (newIds != null && newIds.size > 1) folio.disMgr.updateAll
 
     return CommitFolioRes(diffs)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// His Write
+//////////////////////////////////////////////////////////////////////////
+
+  private HisWriteFolioRes onHisWrite(Rec rec, Unsafe toWriteUnsafe, Dict opts)
+  {
+    // merge current and toWrite items
+    toWrite := (HisItem[])toWriteUnsafe.val
+    curItems := rec.hisItems
+    newItems := FolioUtil.hisWriteMerge(curItems, toWrite)
+
+    // clip to buffer size
+maxItems := 1000  // TODO
+    if (newItems.size > maxItems) newItems = newItems[newItems.size-maxItems..-1]
+    newItems = newItems.toImmutable
+
+    // update hisSize, hisStart, hisEnd tags
+    rec.hisUpdate(newItems)
+
+    return HisWriteFolioRes(Etc.makeDict1("count", Number(toWrite.size)))
+  }
+
+  internal Void hisTagsModified(Rec rec)
+  {
+    try
+    {
+      // get current items
+      curItems := rec.hisItems
+      if (curItems.isEmpty) return
+
+      // gather new configuration
+      dict := rec.dict
+      tz := FolioUtil.hisTz(dict)
+      unit := FolioUtil.hisUnit(dict)
+      kind := FolioUtil.hisKind(dict)
+      isNum := kind.isNumber
+
+      // try to short circuit if nothing actually changed
+      sample := curItems.first
+      if (sample.ts.tz == tz && (sample.val as Number)?.unit == unit) return
+
+      // map items
+      newItems := curItems.map |item->HisItem|
+      {
+        ts := item.ts.toTimeZone(tz)
+        val := item.val
+        if (isNum) val = Number(((Number)val).toFloat, unit)
+        return HisItem(ts, val)
+      }
+
+      // update the record
+      newItems = newItems.toImmutable
+      rec.hisUpdate(newItems)
+    }
+    catch (Err e)
+    {
+      folio.log.err("HisMgr.onUpdate: $rec.id.toZinc", e)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
