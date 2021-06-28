@@ -66,13 +66,21 @@ internal const class IndexMgr : HxFolioMgr
 
   Future commit(Diff[] diffs) { send(Msg(MsgId.commit, diffs)) }
 
+  Future hisUpdate(Rec rec, HisItem[] items) { send(Msg(MsgId.updateHis, rec, items)) }
+
   override Obj? onReceive(Msg msg)
   {
     switch (msg.id)
     {
-      case MsgId.commit: return onCommit(msg.a, msg.b, msg.c)
-      default:           return super.onReceive(msg)
+      case MsgId.commit:    return onCommit(msg.a, msg.b, msg.c)
+      case MsgId.updateHis: return onHisUpdate(msg.a, msg.b)
+      default:              return super.onReceive(msg)
     }
+  }
+
+  private Rec onHisUpdate(Rec rec, HisItem[] items)
+  {
+    rec.hisUpdate(items)
   }
 
 //////////////////////////////////////////////////////////////////////////

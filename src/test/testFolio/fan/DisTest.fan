@@ -20,7 +20,7 @@ class DisTest : AbstractFolioTest
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
-  Void test() {  fullImpls }
+  Void test() { fullImpls }
   Void doTest()
   {
     f := open

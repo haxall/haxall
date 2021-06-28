@@ -21,7 +21,7 @@ class NsTest : AbstractFolioTest
 //////////////////////////////////////////////////////////////////////////
 
 
-  Void test() {  fullImpls }
+  Void test() { fullImpls }
   Void doTest()
   {
     verifyErr(ArgErr#) { open(toConfig("bad ns:")) }

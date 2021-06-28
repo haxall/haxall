@@ -283,7 +283,6 @@ internal class Commit
   const Obj? cxInfo             // make
   private [Ref:Ref]? newIds     // make
   private Str:Obj tags := [:]   // normTags
-  private Str[]? binsToRemove   // updatePersistent/remove
   private Rec? newRec           // add/remove/updateX
   private Diff? outDiff         // apply
 }
