@@ -83,6 +83,32 @@ const class Rec
   ** Used to do watch reference counting
   const AtomicInt numWatches := AtomicInt()
 
+  ** History data as HisItem[]
+  HisItem[] hisItems() { hisItemsRef.val }
+
+  ** Update history data [owned by IndexMgr]
+  internal This hisUpdate(HisItem[] items)
+  {
+    t := Etc.dictToMap(transient)
+    if (items.isEmpty)
+    {
+      t.remove("hisSize")
+      t.remove("hisStart")
+      t.remove("hisEnd")
+    }
+    else
+    {
+      t["hisSize"]  = Number(items.size)
+      t["hisStart"] = items.first.ts
+      t["hisEnd"]   = items.last.ts
+    }
+    newTransient := Etc.makeDict(t)
+    updateDict(persistent, newTransient, Duration.nowTicks)
+    hisItemsRef.val = items
+    return this
+  }
+  private const AtomicRef hisItemsRef := AtomicRef(HisItem#.emptyList)
+
   ** Iterate of all blobs including this rec blob + all dimensions
   Void eachBlob(|Blob b| f)
   {

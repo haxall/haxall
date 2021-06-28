@@ -281,6 +281,7 @@ const class FolioUtil
     // point checks
     if (rec["point"] !== Marker.val) throw HisConfigErr(rec, "Rec missing 'point' tag")
     if (rec["his"] !== Marker.val) throw HisConfigErr(rec, "Rec missing 'his' tag")
+    if (rec.has("aux")) throw HisConfigErr(rec, "Rec marked as 'aux'")
     if (rec.has("trash")) throw HisConfigErr(rec, "Rec marked as 'trash'")
 
     // configuration

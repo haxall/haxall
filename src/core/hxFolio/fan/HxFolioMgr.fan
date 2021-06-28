@@ -116,11 +116,13 @@ internal enum class MsgId
   testSleep,
   close,
   commit,
+  updateHis,
   storeAdd,
   storeUpdate(true),
   storeRemove,
   disUpdateAll(true),
-  disUpdate
+  disUpdate,
+  hisWrite
 
   private new make(Bool coalesce := false)
   {

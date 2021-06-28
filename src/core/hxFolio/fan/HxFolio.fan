@@ -42,6 +42,7 @@ const class HxFolio : Folio
     this.disMgr     = DisMgr(this)
     this.stats      = StatsMgr(this)
     this.backup     = BackupMgr(this)
+    this.his        = HisMgr(this)
     this.mgrsByName = initMgrsByName
     disMgr.updateAll.get(null)
   }
@@ -82,7 +83,7 @@ const class HxFolio : Folio
   override const BackupMgr backup
 
   ** History manager
-  override FolioHis his() { throw Err("TODO") }
+  override const HisMgr his
 
   ** Managers by name
   internal const Str:HxFolioMgr mgrsByName
