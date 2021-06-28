@@ -93,3 +93,17 @@ const class RecErr : Err
   }
 }
 
+** His configuration failure
+@NoDoc
+const class HisConfigErr : RecErr
+{
+  new make(Dict rec, Str msg, Err? cause := null) : super(rec, msg, cause) {}
+}
+
+** His write failure
+@NoDoc
+const class HisWriteErr : RecErr
+{
+  new make(Dict rec, Str msg, Err? cause := null) : super(rec, msg, cause) {}
+}
+

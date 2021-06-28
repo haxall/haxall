@@ -24,6 +24,11 @@ const class FolioUtil
   static const Int maxUriSize   := 1000     // max chars in URI tag value
   static const Int maxStrSize   := 32767    // max chars in string tag value
 
+  // earliest year supported by historian is 1950
+  static const Int hisMinYear    := 1950
+  static const Date hisMinDate   := Date(hisMinYear, Month.jan, 1)
+  static const DateTime hisMinTs := hisMinDate.midnight(TimeZone.utc)
+
 //////////////////////////////////////////////////////////////////////////
 // Validation
 //////////////////////////////////////////////////////////////////////////
@@ -136,6 +141,269 @@ const class FolioUtil
       acc[n] = v
     }
     return Etc.makeDict(acc)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// History Point Config
+//////////////////////////////////////////////////////////////////////////
+
+  ** Configured tz tag or raise HisConfigErr
+  static TimeZone? hisTz(Dict rec, Bool checked := true)
+  {
+    val := rec["tz"]
+    if (val == null)
+    {
+      if (checked) throw HisConfigErr(rec, "Missing 'tz' tag")
+      return null
+    }
+
+    str := val as Str
+    if (str == null)
+    {
+      if (checked) throw HisConfigErr(rec, "Invalid type for 'tz' tag: $val.typeof")
+      return null
+    }
+
+    tz := TimeZone.fromStr(str, false)
+    if (tz == null)
+    {
+      if (checked) throw HisConfigErr(rec, "Invalid 'tz' tag: $str")
+      return null
+    }
+
+    return tz
+  }
+
+  ** Configured kind or raise HisConfigErr
+  static Kind? hisKind(Dict rec, Bool checked := true)
+  {
+    val := rec["kind"]
+    if (val == null)
+    {
+      if (checked) throw HisConfigErr(rec, "Missing 'kind' tag")
+      return null
+    }
+
+    str := val as Str
+    if (str == null)
+    {
+      if (checked) throw HisConfigErr(rec, "Invalid type for 'kind' tag: $val.typeof")
+      return null
+    }
+
+    kind := Kind.fromStr(str, false)
+    if (kind == null)
+    {
+      if (checked) throw HisConfigErr(rec, "Invalid 'kind' tag: $str")
+      return null
+    }
+
+    if (!isHisKind(kind))
+    {
+      if (checked) throw HisConfigErr(rec, "Unsupported 'kind' for his: $kind")
+      return null
+    }
+
+    return kind
+  }
+
+  ** Configured unit tag or raise HisConfigErr
+  static Unit? hisUnit(Dict rec, Bool checked := true)
+  {
+    val := rec["unit"]
+    if (val == null) return null
+
+    str := val as Str
+    if (str == null)
+    {
+      if (checked) throw HisConfigErr(rec, "Invalid type for 'unit' tag: $val.typeof")
+      return null
+    }
+
+    unit := Number.loadUnit(str, false)
+    if (unit == null)
+    {
+      if (checked) throw HisConfigErr(rec, "Invalid 'unit' tag: $str")
+      return null
+    }
+
+    return unit
+  }
+
+
+  ** Return 1sec or 1ms for timestamp precision or raise HisConfigErr
+  static Duration? hisTsPrecision(Dict rec, Bool checked := true)
+  {
+    // get tag
+    val := rec["hisTsPrecision"]
+    if (val == null) return 1sec
+
+    // check that tag is number
+    num := val as Number
+    if (num == null)
+    {
+      if (checked) throw HisConfigErr(rec, "Invalid type for hisTsPrecision: $val.typeof.name")
+      return null
+    }
+
+    // check for 1sec or 1ms
+    dur := num.toDuration(false)
+    if (dur == 1ms) return 1ms
+    if (dur == 1sec) return 1sec
+
+    if (checked) throw HisConfigErr(rec, "Unsupported hisTsPrecision: $num")
+    return null
+  }
+
+  ** Is given kind supported for history items
+  static Bool isHisKind(Kind kind)
+  {
+    kind === Kind.number ||
+    kind === Kind.bool   ||
+    kind === Kind.str    ||
+    kind === Kind.coord
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// His Write
+//////////////////////////////////////////////////////////////////////////
+
+  ** Verify point rec and his items, return safe copy of normalized, sorted items.
+  ** Duplicate normalized timestamps are removed - for pre-sorted items then the
+  ** one latest in the list is used, for unsorted items then its indetermine
+  ** which one is kept.
+  static HisItem[] hisWriteCheck(Dict rec, HisItem[] items, Dict opts := Etc.emptyDict)
+  {
+    // options
+    forecast := opts.has("forecast")
+    clip := opts["clip"] as Span
+
+    // point checks
+    if (rec["point"] !== Marker.val) throw HisConfigErr(rec, "Rec missing 'point' tag")
+    if (rec["his"] !== Marker.val) throw HisConfigErr(rec, "Rec missing 'his' tag")
+    if (rec.has("trash")) throw HisConfigErr(rec, "Rec marked as 'trash'")
+
+    // configuration
+    kind        := hisKind(rec)
+    tz          := hisTz(rec)
+    unit        := hisUnit(rec)
+    tsPrecision := hisTsPrecision(rec)
+    isNumber    := kind === Kind.number
+
+    // first check if data is sorted (95% of the time is should be)
+    sorted := true
+    for (i:=1; i<items.size; ++i)
+      if (items[i-1].ts > items[i].ts) sorted = false
+    if (!sorted) items = items.dup.sort
+
+    // make normalized copy
+    acc := HisItem[,]
+    acc.capacity = items.size
+    for (i:=0; i<items.size; ++i)
+    {
+      item := items[i]
+
+      // check timezone
+      if (item.ts.tz !== tz)
+        throw HisWriteErr(rec, "Mismatched timezone, rec tz $tz.name.toCode != item tz $item.ts.tz.name.toCode")
+      if (item.ts.year < hisMinYear)
+        throw HisWriteErr(rec, "Timestamps before $hisMinYear not supported: $item")
+
+      // normalize timestamp
+      ts := item.ts.floor(tsPrecision)
+
+      // toss it out if outside of option clip span
+      if (clip != null && !clip.contains(ts)) continue
+
+      // check value
+      val := item.val
+      if (val == null)
+        throw HisWriteErr(rec, "Cannot write null val")
+      if (val.typeof !== kind.type && val !== NA.val && val !== Remove.val)
+        throw HisWriteErr(rec, "Mismatched value type, rec kind $kind.name.toCode != item type $val.typeof.qname.toCode")
+
+      // extra handling for Number values
+      if (isNumber && val is Number)
+      {
+        // check unit
+        num := (Number)val
+        if (num.unit != null && num.unit != unit)
+          throw HisWriteErr(rec, "Mismatched unit, rec unit '${unit}' != item unit '${num.unit}'")
+
+        // normalize non-integer values, and ensure we normalize -0.0
+        if (!num.isInt)
+        {
+          f1 := num.toFloat
+          f2 := Float.makeBits32(f1.bits32)
+          if (f1 != f2) val = Number(f2, num.unit)
+        }
+        else if (num.toFloat.isNegZero)
+        {
+          val = Number(num.toFloat.normNegZero, num.unit)
+        }
+
+        // if forecast ensure we have unit
+        if (forecast && num.unit != unit)
+          val = Number(num.toFloat, unit)
+      }
+
+      // replace if same as previous timestamp otherwise append
+      newItem := HisItem(ts, val)
+      if (!acc.isEmpty && acc.last.ts == ts)
+        acc[-1] = newItem
+      else
+        acc.add(newItem)
+    }
+
+    return acc
+  }
+
+  ** Apply a set of changes to history items and return the new updated
+  ** items to persist.  Both lists must already be normalized and
+  ** sorted (all changes should already be verified by 'hisWriteCheck').
+  ** Changes are applied as follows:
+  **   - new items are interleaved into temporal order
+  **   - if dup ts, then changes overwrites cur
+  **   - if changes is Remove.val it removed from cur
+  static HisItem[] hisWriteMerge(HisItem[] cur, HisItem[] changes)
+  {
+    // handle special cases
+    if (changes.isEmpty) return cur.dup
+    if (cur.isEmpty) return changes.findAll |item| { item.val != Remove.val }
+
+    acc := HisItem[,]
+    ax := cur;     a := cur.first;     ai := 0
+    bx := changes; b := changes.first; bi := 0
+    while (true)
+    {
+      if (a.ts < b.ts)
+      {
+        acc.add(a)
+        ai++
+        if (ai >= ax.size) break
+        a = ax[ai]
+      }
+      else if (a.ts > b.ts)
+      {
+        if (b.val != Remove.val) acc.add(b)
+        bi++
+        if (bi >= bx.size) break
+        b = bx[bi]
+      }
+      else // same ts
+      {
+        if (b.val != Remove.val) acc.add(b)
+        ai++
+        bi++
+        if (ai >= ax.size) break
+        a = ax[ai]
+        if (bi >= bx.size) break
+        b = bx[bi]
+      }
+    }
+    while (ai < ax.size) { a = ax[ai++]; acc.add(a) }
+    while (bi < bx.size) { b = bx[bi++]; if (b.val != Remove.val) acc.add(b) }
+    return acc
   }
 }
 
