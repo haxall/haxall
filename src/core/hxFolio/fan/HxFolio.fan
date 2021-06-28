@@ -81,6 +81,9 @@ const class HxFolio : Folio
   ** Backup manager
   override const BackupMgr backup
 
+  ** History manager
+  override FolioHis his() { throw Err("TODO") }
+
   ** Managers by name
   internal const Str:HxFolioMgr mgrsByName
 
