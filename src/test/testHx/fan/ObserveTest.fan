@@ -242,8 +242,27 @@ class ObserveTest : HxTest
     verifyCommit(all, ["subType": "removed", "id": a1.id, "oldRec":a5, "newRec":empty])
     verifyCommit(foo, null)
 
+    // add some bars and listen with obsAddOnInit
+    b1 := addRec(["dis":"B1", "bar":Marker.val])
+    b2 := addRec(["dis":"B2", "bar":Marker.val])
+    b3 := addRec(["dis":"B3", "bar":Marker.val])
+    rt.sync
+    bar := TestObserver()
+    commits(bar, ["obsAdds":m, "obsUpdates":m, "obsRemoves":m, "obsFilter":"bar", "obsAddOnInit":m])
+    rt.sync
+    bar.sync
+    msgs := (Dict[])bar.msgs.dup.sort |Dict a, Dict b->Int| { a.dis <=> b.dis }
+    verifyEq(msgs.size, 3)
+    verifyDictEq(msgs[0], commitExpected(msgs[0], ["subType": "added", "id": b1.id, "oldRec":empty, "newRec":b1]))
+    verifyDictEq(msgs[1], commitExpected(msgs[1], ["subType": "added", "id": b2.id, "oldRec":empty, "newRec":b2]))
+    verifyDictEq(msgs[2], commitExpected(msgs[2], ["subType": "added", "id": b3.id, "oldRec":empty, "newRec":b3]))
+    commit(b1, null, Diff.remove)
+    commit(b2, null, Diff.remove)
+    commit(b3, null, Diff.remove)
+
     // errors
     verifyCommitsErr([:], "Must must define at least one: obsAdds, obsUpdates, or obsRemoves")
+    verifyCommitsErr(["obsAdds":m, "obsAddOnInit":m], "Must define obsFilter if using obsAddOnInit")
     verifyCommitsErr(["obsFilter":n(123)], "obsFilter must be filter string")
     verifyCommitsErr(["obsFilter":"#foo"], "obsFilter invalid: sys::ParseErr: Unexpected symbol: '#' (0x23) [line 1]")
   }
@@ -259,9 +278,7 @@ class ObserveTest : HxTest
     }
     else
     {
-      expected = Etc.makeDict(expected)
-      expected = Etc.dictSet(expected, "type", "obsCommits")
-      expected = Etc.dictSet(expected, "ts", actual->ts)
+      expected = commitExpected(actual, expected)
 
       cx := HxContext.curHx(false)
       if (cx != null)
@@ -276,6 +293,14 @@ class ObserveTest : HxTest
       verifySame(c.action, CommitObservationAction.fromStr(c.subType))
     }
     o.clear
+  }
+
+  private Dict commitExpected(Dict actual, Obj? expected)
+  {
+    expected = Etc.makeDict(expected)
+    expected = Etc.dictSet(expected, "type", "obsCommits")
+    expected = Etc.dictSet(expected, "ts", actual->ts)
+    return expected
   }
 
   private Void verifyCommitsErr(Obj? config, Str msg)

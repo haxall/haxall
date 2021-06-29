@@ -187,7 +187,16 @@ internal const class HxdObserveMgr : Actor
 
   private Observation toObservation(CommitObservationAction action, Diff diff, Dict oldRec, Dict newRec, HxUser? user)
   {
-    CommitObservation.make(commits, action, rt.now, diff.id, oldRec, newRec, user?.meta)
+    CommitObservation(commits, action, rt.now, diff.id, oldRec, newRec, user?.meta)
+  }
+
+  internal Void sendAddOnInit(CommitsSubscription sub)
+  {
+    rt.db.readAllEach(sub.filter, Etc.emptyDict) |rec|
+    {
+      event := CommitObservation(commits, CommitObservationAction.added, rt.now, rec.id, Etc.emptyDict, rec, null)
+      sub.send(event)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -204,15 +213,17 @@ internal const class HxdObserveMgr : Actor
 
 internal const class CommitsObservable : Observable
 {
-  new make(HxRuntime rt) { this.rt  =rt }
+  new make(HxdRuntime rt) { this.rt = rt }
 
-  const HxRuntime rt
+  const HxdRuntime rt
 
   override Str name() { "obsCommits" }
 
   override Subscription onSubscribe(Observer observer, Dict config)
   {
-    CommitsSubscription(this, observer, config)
+    sub := CommitsSubscription(this, observer, config)
+    if (sub.addOnInit) rt.observeMgr.sendAddOnInit(sub)
+    return sub
   }
 }
 
@@ -225,12 +236,14 @@ internal const class CommitsSubscription : Subscription
   new make(CommitsObservable observable, Observer observer, Dict config)
     : super(observable, observer, config)
   {
-    adds    = config.has("obsAdds")
-    updates = config.has("obsUpdates")
-    removes = config.has("obsRemoves")
-    filter  = parseFilter(config["obsFilter"])
+    adds      = config.has("obsAdds")
+    updates   = config.has("obsUpdates")
+    removes   = config.has("obsRemoves")
+    addOnInit = config.has("obsAddOnInit")
+    filter    = parseFilter(config["obsFilter"])
 
     if (!adds && !updates && !removes) throw Err("Must must define at least one: obsAdds, obsUpdates, or obsRemoves")
+    if (addOnInit && filter == null) throw Err("Must define obsFilter if using obsAddOnInit")
   }
 
   private static Filter? parseFilter(Obj? val)
@@ -246,6 +259,7 @@ internal const class CommitsSubscription : Subscription
   const Bool adds
   const Bool updates
   const Bool removes
+  const Bool addOnInit
   const Filter? filter
 
   Bool include(Dict rec)

@@ -198,7 +198,13 @@ abstract const class Folio
     checkRead.doReadAll(filter, opts).dicts
   }
 
-  ** Read all records matching filtering until callback returns non-null.
+  ** Read all records matching filter.
+  @NoDoc Obj? readAllEach(Filter filter, Dict? opts, |Dict| f)
+  {
+    checkRead.doReadAllEachWhile(filter, opts) |x| { f(x); return null }
+  }
+
+  ** Read all records matching filter until callback returns non-null.
   @NoDoc Obj? readAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
   {
     checkRead.doReadAllEachWhile(filter, opts, f)
