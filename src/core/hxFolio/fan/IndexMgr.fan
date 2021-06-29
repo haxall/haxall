@@ -135,7 +135,7 @@ internal const class IndexMgr : HxFolioMgr
     newItems := FolioUtil.hisWriteMerge(curItems, toWrite)
 
     // clip to buffer size
-maxItems := 1000  // TODO
+    maxItems := hisMaxItems(rec.dict)
     if (newItems.size > maxItems) newItems = newItems[newItems.size-maxItems..-1]
     newItems = newItems.toImmutable
 
@@ -143,6 +143,11 @@ maxItems := 1000  // TODO
     rec.hisUpdate(newItems)
 
     return HisWriteFolioRes(Etc.makeDict1("count", Number(toWrite.size)))
+  }
+
+  private Int hisMaxItems(Dict rec)
+  {
+    Etc.dictGetInt(rec, "hisMaxItems", 1000)
   }
 
   internal Void hisTagsModified(Rec rec)

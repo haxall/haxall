@@ -29,6 +29,9 @@ const class HxPlatform
   ** Microprocessor architecture - see `sys::Env.arch`
   virtual Str arch() { Env.cur.arch }
 
+  ** Is this the full SkySpark runtime
+  virtual Bool isSkySpark() { false }
+
   ** Relative URI to the SVG logo
   virtual Uri logoUri() { meta["logoUri"] as Uri ?: `/hxUser/logo.svg` }
 
