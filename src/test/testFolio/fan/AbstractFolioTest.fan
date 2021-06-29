@@ -22,33 +22,39 @@ class AbstractFolioTest : HaystackTest
 // Test
 //////////////////////////////////////////////////////////////////////////
 
+  static const FolioTestImpl[] impls
+  static
+  {
+    list := [FolioFlatFileTestImpl(), HxFolioTestImpl()]
+    list.addNotNull(Type.find("testSkyarcd::Folio3TestImpl")?.make)
+    impls = list
+  }
+
   override Void teardown()
   {
     if (folio != null) close
+    tempDir.delete
   }
 
-  TestImpl? curImpl
+  FolioTestImpl? curImpl
 
   Void allImpls()
   {
-    runImpls(TestImpl.vals)
+    impls.each |impl| { runImpl(impl) }
   }
 
   Void fullImpls()
   {
-    runImpls(TestImpl.vals.findAll |i| { i.isFull })
+    impls.each |impl| { if (impl.isFull) runImpl(impl) }
   }
 
-  Void runImpls(TestImpl[] impls)
+  Void runImpl(FolioTestImpl impl)
   {
     doMethod := typeof.method("do" + curTestMethod.name.capitalize)
-    impls.each |impl|
-    {
-      echo("-- Run:  $doMethod($impl) ...")
-      curImpl = impl
-      doMethod.callOn(this, [,])
-      teardown
-    }
+    echo("-- Run:  $doMethod($impl.name) ...")
+    curImpl = impl
+    doMethod.callOn(this, [,])
+    teardown
     curImpl = null
   }
 
@@ -63,23 +69,8 @@ class AbstractFolioTest : HaystackTest
   {
     if (folio != null) throw Err("Folio is already open!")
     if (config == null) config = toConfig
-    switch (curImpl)
-    {
-      case TestImpl.flatFile: openFlatFile(config)
-      case TestImpl.hx:       openHx(config)
-      default: throw Err("No curImpl set!")
-    }
+    folioRef = curImpl.open(this, config)
     return folio
-  }
-
-  Folio openFlatFile(FolioConfig config)
-  {
-    folioRef = FolioFlatFile.open(config)
-  }
-
-  Folio openHx(FolioConfig config)
-  {
-    folioRef = HxFolio.open(config)
   }
 
   FolioConfig toConfig(Str? idPrefix := null)
@@ -137,13 +128,26 @@ class AbstractFolioTest : HaystackTest
 }
 
 **************************************************************************
-** TestImpl
+** FolioTestImpl
 **************************************************************************
 
-enum class TestImpl
+abstract const class FolioTestImpl
 {
-  flatFile,
-  hx
+  abstract Str name()
+  abstract Bool isFull()
+  abstract Folio open(AbstractFolioTest t, FolioConfig config)
+}
 
-  Bool isFull() { this !== flatFile }
+const class FolioFlatFileTestImpl : FolioTestImpl
+{
+  override Str name() { "flatfile" }
+  override Bool isFull() { false }
+  override Folio open(AbstractFolioTest t, FolioConfig c) { FolioFlatFile.open(c) }
+}
+
+const class HxFolioTestImpl : FolioTestImpl
+{
+  override Str name() { "hx" }
+  override Bool isFull() { true }
+  override Folio open(AbstractFolioTest t, FolioConfig c) { HxFolio.open(c) }
 }

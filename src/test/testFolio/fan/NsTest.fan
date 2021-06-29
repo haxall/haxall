@@ -74,7 +74,7 @@ class NsTest : AbstractFolioTest
       verifyRefEq(c->aRelRef, a.id)
       verifyRefEq(c->bAbsRef, b.id)
       verifyRefEq(c->bRelRef, b.id)
-      verifyRefEq(c->xRef, Ref("x:foo", null))
+      verifyEq(c->xRef.toStr, "x:foo")  // allow implementations to vary dis behavior
       verifyRefEq(c->nRef, Ref.nullRef)
     }
     checkTags(false)
