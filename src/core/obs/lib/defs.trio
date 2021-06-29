@@ -41,6 +41,11 @@ is: ^marker
 tagOn: ^obsCommits
 doc: "Process when an existing data item is removed from the observed data set."
 --------------------------------------------------------------------------
+def: ^obsAddOnInit
+is: ^marker
+tagOn: ^obsCommits
+doc: "Fire add event for all existing records in data set on initialization."
+--------------------------------------------------------------------------
 def: ^obsFilter
 is: ^filterStr
 tagOn: ^obsCommits
