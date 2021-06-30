@@ -26,7 +26,10 @@ class AbstractFolioTest : HaystackTest
   static
   {
     list := [FolioFlatFileTestImpl(), HxFolioTestImpl()]
-    list.addNotNull(Type.find("testSkyarcd::Folio3TestImpl")?.make)
+    try
+      list.addNotNull(Type.find("testSkyarcd::Folio3TestImpl", false)?.make)
+    catch (Err e)
+      e.trace
     impls = list
   }
 

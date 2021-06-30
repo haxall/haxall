@@ -26,6 +26,7 @@ const class HxdRuntime : HxRuntime
   ** Boot constructor
   internal new make(HxdBoot boot)
   {
+    this.name          = Etc.toTagName(boot.dir.name)
     this.version       = boot.version
     this.platform      = boot.platformRef
     this.db            = boot.db
@@ -43,6 +44,9 @@ const class HxdRuntime : HxRuntime
 //////////////////////////////////////////////////////////////////////////
 // HxRuntime
 //////////////////////////////////////////////////////////////////////////
+
+  ** Runtime version
+  override const Str name
 
   ** Runtime version
   override const Version version

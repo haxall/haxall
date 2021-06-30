@@ -17,6 +17,9 @@ using folio
 **
 const mixin HxRuntime
 {
+  ** Programatic name of the runtime. This string is always a valid tag name.
+  abstract Str name()
+
   ** Runtime version
   abstract Version version()
 

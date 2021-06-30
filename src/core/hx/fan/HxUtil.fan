@@ -6,6 +6,10 @@
 //   7 Jun 2021  Brian Frank  Creation
 //
 
+using [java]java.lang::Thread as JavaThread
+using [java]java.lang.management
+using [java]java.lang::StackTraceElement
+
 using haystack
 using axon
 using folio
@@ -103,8 +107,151 @@ const class HxUtil
     return acc.vals.sort
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Process & Threads
+//////////////////////////////////////////////////////////////////////////
+
+  ** Process id or null if cannot be determined
+  static Int? pid() { HxThreadDump.pid }
+
+  ** Current thread id
+  static Int threadId() { JavaThread.currentThread.getId }
+
+  ** Dump all threads
+  static Str threadDumpAll() { HxThreadDump().toAll }
+
+  ** Dump thread deadlocks if detected
+  static Str threadDumpDeadlocks()  { HxThreadDump().toDeadlocks }
+
+  ** Dump a specific thread by its id
+  static Str threadDump(Int id) { HxThreadDump().toThread(id) }
+
+//////////////////////////////////////////////////////////////////////////
+// Internal
+//////////////////////////////////////////////////////////////////////////
+
   ** Get current context
   private static HxContext curContext() { HxContext.curHx }
-
-
 }
+
+**************************************************************************
+** HxThreadDump
+**************************************************************************
+
+internal class HxThreadDump
+{
+  static Int? pid()
+  {
+    try
+    {
+      // use reflection to access Java 9 API so we can run in Java 8
+      // ProcessHandle.current().pid()
+      type := Type.find("[java]java.lang::ProcessHandle")
+      cur := type.method("current").callOn(null, null)
+      return type.method("pid").callOn(cur, null)
+    }
+    catch (Err e)
+    {
+      return null
+    }
+  }
+
+  Str? toDeadlocks() { dump(true) }
+
+  Str toAll() { dump(false) }
+
+  Str toThread(Int id)
+  {
+    ThreadInfo[] infos := bean.dumpAllThreads(true, true)
+    info := infos.find |info| { info.getThreadId == id }
+    if (info == null) return "ThreadDump: id not found: $id"
+    dumpStack(HxThread(bean, info))
+    return buf.toStr
+  }
+
+  private Str? dump(Bool deadlocksOnly)
+  {
+    // get all threads
+    ThreadInfo[] infos := bean.dumpAllThreads(true, true)
+    HxThread[] threads := infos.map |info->HxThread| { HxThread(bean, info) }
+    threads.each |t| { byId[t.id] = t }
+
+    // find deadlocks
+    buf.add("\n")
+    deadlocked := bean.findDeadlockedThreads
+    haveDeadlocks := deadlocked != null && deadlocked.size > 0
+    if (haveDeadlocks)
+    {
+      buf.add("  ### Deadlock Detected ###\n\n")
+      for (i := 0; i<deadlocked.size; ++i)
+      {
+        id := deadlocked[i]
+        t := byId[id]
+        if (t !=null) dumpStack(t)
+      }
+    }
+    if (deadlocksOnly) return haveDeadlocks ? buf.toStr : null
+
+    // dump by CPU
+    buf.add("  ### CPU Time ###\n\n")
+    threads.sortr |a, b| { a.cpu <=> b.cpu }
+    threads.each |t| { if (t.cpu > 1ms) buf.add("  $t.name [$t.cpu.toLocale]\n") }
+    buf.add("\n")
+
+    // stack trace
+    buf.add("  ### Stack Traces ###\n\n")
+    threads.sort |a, b| { a.name <=> b.name }
+    threads.each |t| { dumpStack(t) }
+    return buf.toStr
+  }
+
+  private Void dumpStack(HxThread t)
+  {
+    StackTraceElement[] elems := t.info.getStackTrace
+    if (elems.isEmpty) return
+
+    buf.add("  $t.name [$t.info.getThreadId: $t.info.getThreadState]\n")
+
+    lock := t.info.getLockInfo
+    owner := t.info.getLockOwnerName
+    if (lock != null)
+    {
+      buf.add("    - waiting to lock: $lock\n")
+      if (owner != null)
+        buf.add("    - lock held by: $owner\n")
+    }
+
+    MonitorInfo[] monitors := t.info.getLockedMonitors
+
+    elems.each |elem|
+    {
+      m := monitors.find |x| { x.getLockedStackFrame === elem }
+      buf.add("    $elem\n")
+      if (m != null) buf.add("    - locked: $m\n")
+    }
+    buf.add("\n")
+  }
+
+  private ThreadMXBean bean := ManagementFactory.getThreadMXBean
+  private StrBuf buf := StrBuf() { capacity = 4096 }
+  private Int:HxThread byId := [:]
+}
+
+
+internal class HxThread
+{
+  new make(ThreadMXBean bean, ThreadInfo info)
+  {
+    this.info = info
+    this.name = info.getThreadName
+    this.id   = info.getThreadId
+    this.cpu  = Duration(bean.getThreadCpuTime(info.getThreadId))
+  }
+
+  ThreadInfo info
+  const Int id
+  const Str name
+  const Duration cpu
+}
+
+
