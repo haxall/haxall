@@ -16,6 +16,10 @@ def: ^disableOverridableChecks
 is: ^marker
 doc: Disables function `overridable` checking.
 --------------------------------------------------------------------------
+def: ^expr
+is: ^str
+doc: "Axon expression string"
+--------------------------------------------------------------------------
 def: ^foldOn
 is: ^str
 doc: "Registers a function as folding a given value type"
