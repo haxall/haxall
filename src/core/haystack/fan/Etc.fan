@@ -750,10 +750,14 @@ const class Etc
   **
   ** Take an arbitrary string and convert into a safe tag name.
   ** Do not assume any specific conversion algorithm as it might
-  ** change in the future.
+  ** change in the future.  The empty string is not supported.
   **
   static Str toTagName(Str n)
   {
+    // if already valid, just return it
+    if (isTagName(n)) return n
+
+    // empty string not supported
     if (n.isEmpty) throw ArgErr("string is empty")
 
     // handle leading caps which isn't handled by Str.fromDisplayName

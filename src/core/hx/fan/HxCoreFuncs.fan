@@ -393,6 +393,10 @@ const class HxCoreFuncs
 
   //@Axon Str diagnostics() { ((Int)Env.cur.diagnostics["mem.heap"]).toLocale("B") }
 
+  ** Debug dump of all threads
+  @NoDoc @Axon { admin = true }
+  static Str threadDump() { HxUtil.threadDumpAll }
+
   ** Get current context
   private static HxContext curContext() { HxContext.curHx }
 }
