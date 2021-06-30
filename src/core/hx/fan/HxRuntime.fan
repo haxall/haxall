@@ -114,6 +114,9 @@ const mixin HxRuntimeUsers
   ** Authenticate a web request and return a context.  If request
   ** is not authenticated then redirect to login page and return null.
   abstract HxContext? authenticate(WebReq req, WebRes res)
+
+  ** Create synthetic user.  The tags arg may be a dict or a map.
+  abstract HxUser makeSyntheticUser(Str username, Obj? tags := null)
 }
 
 
