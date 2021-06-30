@@ -29,7 +29,7 @@ const class HxdLibSpi : Actor, HxLibSpi
     Actor.locals["hx.spi"]  = spi
     try
     {
-      lib := doInstantiate(install)
+      lib := doInstantiate(spi)
       spi.libRef.val = lib
       return lib
     }
@@ -39,11 +39,9 @@ const class HxdLibSpi : Actor, HxLibSpi
     }
   }
 
-  private static HxLib doInstantiate(HxdInstalledLib install)
+  private static HxLib doInstantiate(HxdLibSpi spi)
   {
-    typeName := install.meta["typeName"] as Str
-    if (typeName == null) return ResHxLib()
-    return Type.find(typeName).make
+    spi.type == null ? ResHxLib() : spi.type.make
   }
 
   private new make(HxdRuntime rt, HxdInstalledLib install, Dict rec) : super(rt.libsActorPool)
@@ -51,8 +49,9 @@ const class HxdLibSpi : Actor, HxLibSpi
     this.rt      = rt
     this.name    = install.name
     this.install = install
-    this.recRef  = AtomicRef(rec)
+    this.type    = install.type
     this.log     = Log.get(name)
+    this.recRef  = AtomicRef(typedRec(rec))
     this.webUri  = ("/" + (name.startsWith("hx") ? name[2..-1].decapitalize : name) + "/").toUri
   }
 
@@ -68,6 +67,8 @@ const class HxdLibSpi : Actor, HxLibSpi
   override const Str name
 
   const HxdInstalledLib install
+
+  const Type? type
 
   override Lib def() { rt.ns.lib(name) }
 
@@ -111,8 +112,16 @@ const class HxdLibSpi : Actor, HxLibSpi
 
   Void update(Dict rec)
   {
-    recRef.val = rec
-    send(HxMsg("update", null))
+    recRef.val = typedRec(rec)
+    send(HxMsg("recUpdate", null))
+  }
+
+  Dict typedRec(Dict dict)
+  {
+    if (type == null) return dict
+    recType := type.method("rec").returns
+    if (recType.name == "Dict") return dict
+    return FieldDict.create(recType, dict) |warn| { log.warn(warn) }
   }
 
   override Obj? receive(Obj? msgObj)

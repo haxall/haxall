@@ -101,6 +101,9 @@ const class Diff
   ** Flag bitmask for `force` and `transient`
   static const Int forceTransient := force.or(transient)
 
+  ** Update diff - not an add nor a remove
+  Bool isUpdate() { !isAdd && !isRemove }
+
   ** Flag indicating if adding a new record to the project
   Bool isAdd() { flags.and(add) != 0 }
 

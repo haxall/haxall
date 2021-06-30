@@ -35,6 +35,10 @@ const class CommitObservation : Observation
   const Dict oldRec
   const Dict? user
 
+  Bool isAdded() { action === CommitObservationAction.added }
+  Bool isUpdated() { action === CommitObservationAction.updated }
+  Bool isRemoved() { action === CommitObservationAction.removed }
+
   override Bool isEmpty() { false }
 
   @Operator override Obj? get(Str name, Obj? def := null)

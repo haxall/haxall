@@ -65,6 +65,13 @@ const class HxdInstalledLib
   const Pod pod
   const Dict meta
 
+  Type? type()
+  {
+    typeName := meta["typeName"] as Str
+    if (typeName == null) return null
+    return Type.find(typeName)
+  }
+
   Str[] depends()
   {
     Symbol.toList(meta["depends"]).map |x->Str|

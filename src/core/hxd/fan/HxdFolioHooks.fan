@@ -46,6 +46,17 @@ const class HxdFolioHooks : FolioHooks
   {
     user := cxInfo as HxUser
 
+    if (diff.isUpdate)
+    {
+      newRec := diff.newRec
+      hxLib := newRec["hxLib"] as Str
+      if (hxLib != null)
+      {
+        lib := rt.libs.get(hxLib, false)
+        if (lib != null) ((HxdLibSpi)lib.spi).update(newRec)
+      }
+    }
+
     if (diff.getOld("def") != null || diff.getNew("def") != null)
     {
       rt.nsOverlayRecompile
