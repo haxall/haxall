@@ -57,7 +57,7 @@ abstract const class HxLib
   @NoDoc virtual Lib def() { spi.def }
 
   ** Database record which enables this library and stores settings.
-  ** This field may be overridden with a `haystack::FieldDict` subclass.
+  ** This field may be overridden with a `haystack::TypedDict` subclass.
   virtual Dict rec() { spi.rec}
 
   ** Logger to use for this library

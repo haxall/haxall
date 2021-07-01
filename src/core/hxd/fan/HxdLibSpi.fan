@@ -121,7 +121,7 @@ const class HxdLibSpi : Actor, HxLibSpi
     if (type == null) return dict
     recType := type.method("rec").returns
     if (recType.name == "Dict") return dict
-    return FieldDict.create(recType, dict) |warn| { log.warn(warn) }
+    return TypedDict.create(recType, dict) |warn| { log.warn(warn) }
   }
 
   override Obj? receive(Obj? msgObj)
