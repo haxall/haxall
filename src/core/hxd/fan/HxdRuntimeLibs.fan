@@ -21,7 +21,10 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     this.rt = rt
     this.required = required
     this.actorPool = this.pool
+  }
 
+  Void init()
+  {
     // init libs from database hxLib records
     map := Str:HxLib[:]
     installed := rt.installed
@@ -62,8 +65,8 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     list.sort |a, b| { a.name <=> b.name }
 
     // save lookup tables
-    this.listRef = AtomicRef(list.toImmutable)
-    this.mapRef  = AtomicRef(map.toImmutable)
+    this.listRef.val = list.toImmutable
+    this.mapRef.val = map.toImmutable
   }
 
   const HxdRuntime rt
