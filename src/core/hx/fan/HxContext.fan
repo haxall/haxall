@@ -46,4 +46,19 @@ abstract class HxContext : AxonContext, HaystackContext, FolioContext
   ** About data to use for HTTP API
   @NoDoc abstract Dict about()
 
+//////////////////////////////////////////////////////////////////////////
+// Feed (SkySpark Only)
+//////////////////////////////////////////////////////////////////////////
+
+  @NoDoc virtual Bool feedIsEnabled() { false }
+
+  @NoDoc virtual Void feedAdd(HxFeed feed, [Str:Obj?]? meta := null) { throw UnsupportedErr() }
+
 }
+
+**************************************************************************
+** HxFeed  (SkySpark Only)
+**************************************************************************
+
+@NoDoc const mixin HxFeed { protected abstract Grid onPoll() }
+
