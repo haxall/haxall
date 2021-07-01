@@ -1,0 +1,42 @@
+//
+// Copyright (c) 2020, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Apr 2020  Brian Frank  COVID-19!
+//
+
+--------------------------------------------------------------------------
+def: ^task
+is: ^entity
+mandatory
+uiNewEntity
+linter: "LintTask"
+doc: "Dispatch task function"
+observes: ^observable
+--------------------------------------------------------------------------
+def: ^taskExpr
+is: ^expr
+multiLine
+uiInput: "ui::StrInput"
+tagOn: ^task
+doc: "Task messaging handling Axon expression"
+--------------------------------------------------------------------------
+defx: ^disabled
+tagOn: ^task
+--------------------------------------------------------------------------
+def: ^taskStatus
+is: ^str
+tagOn: ^task
+transient
+doc: "Current status of a task"
+enum: Trio:
+  fault:    {icon:"err"      iconColor:"#db311f" doc:"Configuration problem"}
+  disabled: {icon:"disabled" iconColor:"#a4aeae" doc:"Manual disable"}
+  idle:     {icon:"clock"    iconColor:"#1ca355" doc:"No messages queued, waiting for new messages"}
+  pending:  {icon:"clock"    iconColor:"#e67e22" doc:"Messages are queued, waiting for a thread to process"}
+  running:  {icon:"sync"     iconColor:"#1ca355" doc:"Actively processing messages on a background thread"}
+  killed:   {icon:"err"      iconColor:"#db311f" doc:"Shutting down and no longer processing messages"}
+--------------------------------------------------------------------------
+
+

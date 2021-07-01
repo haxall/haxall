@@ -1,0 +1,100 @@
+//
+// Copyright (c) 2020, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Apr 2020  Brian Frank  COVID-19!
+//
+
+//////////////////////////////////////////////////////////////////////////
+// Task App
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+app:    task
+disKey: ui::task
+icon:   thread
+doc:    Views used to configure and debug tasks
+--------------------------------------------------------------------------
+view: tasks
+appName: task
+disKey: ui::tasks
+defName: task
+order: 100
+admin
+doc: Configure task records
+src:
+  view:    { inherit:"table" }
+  search:  { input var kind:"Str" defVal:"" }
+  new:     { action:"recNew" }
+  edit:    { action:"recEdit" }
+  dup:     { action:"recDup" }
+  trash:   { action:"recTrash" }
+  enable:  { action:"recEnable" }
+  disable: { action:"recDisable" }
+  menu:    { action:"uiContextMenu" }
+  data:    { expr:"readAll(task, { sort, search:{{search}} })" }
+--------------------------------------------------------------------------
+view: taskDebug
+appName: task
+disKey: ui::debug
+order: 800
+admin
+doc: Task diagnostics and debugging tools
+src:
+  view:    { inherit:"table" }
+  search:  { input var kind:"Str" defVal:"" }
+  details: { disKey:"ui::details" action:"taskDebugDetails" select }
+  send:    { disKey:"ui::send" action:"taskSendAction" select multi }
+  restart: { disKey:"ui::restart" action:"taskRestart" select confirm:{dis:"Restart Task?" details:"This will discard all pending messages and reset statistics"}}
+  pool:    { disKey:"ui::actorPool" action:"taskDebugPool" }
+  menu:    { action:"uiContextMenu" }
+  data:    { expr:"tasks({ search:{{search}} })" }
+--------------------------------------------------------------------------
+view: taskSubscriptions
+appName: task
+disKey: ui::subscriptions
+admin
+doc: Debug observable subscriptions
+src:
+  view: { inherit:"table" }
+  data: { expr:"subscriptions()" }
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Settings App
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+view: taskSettings
+appName: settings
+disKey: ui::task
+admin
+doc: Settings for the task extension
+src:
+  view:   {inherit:"form"}
+  submit: {action:"extSettingsCommit"}
+  data:   {expr:"extSettings(\"task\")"}
+--------------------------------------------------------------------------
+
+
+//////////////////////////////////////////////////////////////////////////
+// Action Funcs
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+name: taskSendAction
+func
+admin
+select
+multi
+msg_multiLine
+msg_defVal:
+  // trio message
+  key: "val"
+
+src:
+  (taskIds, msg) => taskDoSendAction(taskIds, msg)
+-------------------------------------------------------------------------
+
+

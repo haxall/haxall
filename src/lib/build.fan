@@ -21,6 +21,7 @@ class Build : BuildGroup
       `hxUser/build.fan`,
       `hxShell/build.fan`,
       `hxMath/build.fan`,
+      `hxTask/build.fan`,
       `hxConn/build.fan`,
     ]
   }
