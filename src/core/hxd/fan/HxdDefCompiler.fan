@@ -121,7 +121,11 @@ internal const class HxdLibInput : LibInput
     libDir := "/" + install.metaFile.path[0..-2].join("/") + "/"
     return pod.files.findAll |file|
     {
-      file.ext == "trio" && file.name != "lib.trio" && file.pathStr.startsWith(libDir)
+      if (file.ext != "trio") return false
+      if (file.name == "lib.trio") return false
+      if (!file.pathStr.startsWith(libDir)) return false
+      if (file.name == "skyarc.trio" && name != "hx") return false
+      return true
     }
   }
 

@@ -1,0 +1,35 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   1 Jul 2021  Brian Frank  Creation
+//
+
+//
+// Defs designed for SkySpark to be used by libs which
+// target all runtimes
+//
+
+--------------------------------------------------------------------------
+def: ^linter
+is: ^list
+of: ^str
+accumulate
+doc: "Fantom qname of `skyarcd::Linter` class."
+--------------------------------------------------------------------------
+def: ^tagOnAny
+is: ^marker
+nodoc
+doc: "Apply to a def to use the tag on anything without a lint warning"
+--------------------------------------------------------------------------
+def: ^uiInput
+is: ^typeName
+doc: "Fantom type qname for `ui::Input` to use for a definition"
+--------------------------------------------------------------------------
+def: ^uiNewEntity
+is: ^marker
+nodoc
+doc: "Include an entity type in the New entity picker"
+---------------------------------------------------------------------------
+

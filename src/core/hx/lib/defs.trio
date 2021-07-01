@@ -9,10 +9,14 @@
 --------------------------------------------------------------------------
 def: ^disKey
 is: ^str
+tagOnAny
+linter: "LintDisKey"
 doc: "Localized string key formatted as 'pod::key'"
 --------------------------------------------------------------------------
 def: ^disMacro
 is: ^str
+tagOnAny
+linter: "LintDisMacro"
 doc: "Display name using macro syntax.  See `haystack::Etc.dictToDis`"
 --------------------------------------------------------------------------
 def: ^disabled
@@ -37,6 +41,7 @@ doc: "Marks a Haxall library as not runnable on SkySpark enabled products"
 --------------------------------------------------------------------------
 def: ^password
 is: ^str
+uiInput: "ui::PasswordInput"
 doc: "Manages password which is hashed/stored to the password store."
 --------------------------------------------------------------------------
 def: ^typeName
@@ -47,4 +52,3 @@ def: ^username
 is: ^str
 doc: "Username for an authentication account"
 --------------------------------------------------------------------------
-
