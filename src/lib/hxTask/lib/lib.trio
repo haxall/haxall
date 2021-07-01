@@ -1,0 +1,15 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   30 Jun 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:task
+depends: [^lib:ph, ^lib:obs, ^lib:axon, ^lib:hx, ^lib:skyarc]
+typeName:"hxTask::TaskLib"
+doc: "Async task engine"
+--------------------------------------------------------------------------
+
