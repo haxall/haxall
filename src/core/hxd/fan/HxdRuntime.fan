@@ -38,6 +38,7 @@ const class HxdRuntime : HxRuntime
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
     this.backgroundMgr = HxdBackgroundMgr(this)
     this.observeMgr    = HxdObserveMgr(this)
+    libs.init
     this.users         = (HxRuntimeUsers)libs.getType(HxRuntimeUsers#)
   }
 

@@ -183,6 +183,10 @@ internal class HxdInstalledBuilder
       acc["baseUri"] = domain.toUri + `/def/${name}/`
     }
 
+    // normalize depends
+    if (acc["depends"] is List)
+      acc["depends"] = normDepends(acc["depends"])
+
     return Etc.makeDict(acc)
   }
 
@@ -192,6 +196,12 @@ internal class HxdInstalledBuilder
     if (file == null) file = pod.file(`/lib/${name}/lib.trio`, false)
     if (file == null) throw Err("Pod missing /lib/lib.trio")
     return file
+  }
+
+  private Obj[] normDepends(Obj[] depends)
+  {
+    // exclude skyarc as optional dependency
+    depends.findAll |d| { d.toStr != "lib:skyarc" }
   }
 
   Log log := Log.get("hxd")
