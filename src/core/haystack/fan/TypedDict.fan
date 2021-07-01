@@ -9,10 +9,10 @@
 using concurrent
 
 **
-** FieldDict wraps a dict that maps tags to statically typed fields.
+** TypedDict wraps a dict that maps tags to statically typed fields.
 ** To use this API:
-**   1. Create subclass of FieldDict
-**   2. Annotate const instance fields with [@TagField]`TagField`
+**   1. Create subclass of TypedDict
+**   2. Annotate const instance fields with [@TypedTag]`TypedTag`
 **   3. Create constructor with Dict and it-block callback
 **   4. Optionally create convenience factory that calls `create`
 **
@@ -23,29 +23,29 @@ using concurrent
 **
 ** Example:
 **
-**    const class ExampleRec : FieldDict
+**    const class ExampleRec : TypedDict
 **    {
 **      static new wrap(Dict d, |Str|? onErr := null) { create(ExampleRec#, d, onErr) }
 **
 **      new make(Dict d, |This| f) : super(d) { f(this) }
 **
-**      @TagField const Int limit := 99
+**      @TypedTag const Int limit := 99
 **
-**      @TagField const Duration timeout := 3sec
+**      @TypedTag const Duration timeout := 3sec
 **    }
 **
 @Js
-const class FieldDict : Dict
+const class TypedDict : Dict
 {
   ** Factory to create for given type and dict to wrap.  Invalid
   ** tag values are logged to the given callback if provided.
-  static FieldDict create(Type type, Dict meta, |Str|? onErr := null)
+  static TypedDict create(Type type, Dict meta, |Str|? onErr := null)
   {
     sets := Field:Obj?[:]
     type.fields.each |field|
     {
       // skip if not annotated with facet
-      if (!field.hasFacet(TagField#)) return
+      if (!field.hasFacet(TypedTag#)) return
 
       // check if configured in wrapped dict
       val := meta[field.name]
@@ -98,14 +98,14 @@ const class FieldDict : Dict
 }
 
 **************************************************************************
-** TagField
+** TypedTag
 **************************************************************************
 
 **
-** Facet to annotate a `FieldDict` field.
+** Facet to annotate a `TypedDict` field.
 **
 @Js
-facet class TagField : Define
+facet class TypedTag : Define
 {
   ** Is restart required before a change takes effect
   @NoDoc const Bool restart

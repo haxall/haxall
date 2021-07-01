@@ -14,9 +14,9 @@ using haystack
 @Js
 class DictTest : HaystackTest
 {
-  Void testFieldDict()
+  Void testTypedDict()
   {
-    x := FieldDictTest(Etc.emptyDict)
+    x := TypedDictTest(Etc.emptyDict)
     verifyEq(x.int, 99)
     verifyEq(x.num, n(99))
     verifyEq(x.dur, 99sec)
@@ -27,7 +27,7 @@ class DictTest : HaystackTest
     verifyEq(x["int"], null)
     verifyErr(UnknownNameErr#) { x->int }
 
-    x = FieldDictTest(Etc.makeDict4("int", n(3), "num", n(4, "kW"), "dur", n(5, "hr"), "bool", m))
+    x = TypedDictTest(Etc.makeDict4("int", n(3), "num", n(4, "kW"), "dur", n(5, "hr"), "bool", m))
     verifyEq(x.int, 3)
     verifyEq(x.num, n(4, "kW"))
     verifyEq(x.dur, 5hr)
@@ -41,7 +41,7 @@ class DictTest : HaystackTest
 
     errs := Str[,]
     onErr := |Str e| { errs.add(e) }
-    x = FieldDictTest(Etc.makeDict4("int", "bad", "num", "bad", "dur", n(5), "bool", true), onErr)
+    x = TypedDictTest(Etc.makeDict4("int", "bad", "num", "bad", "dur", n(5), "bool", true), onErr)
     // echo(errs.join("\n"))
     verifyEq(errs.size, 3)
     verifyEq(x.int, 99)
@@ -58,12 +58,12 @@ class DictTest : HaystackTest
 }
 
 @Js
-internal const class FieldDictTest : FieldDict
+internal const class TypedDictTest : TypedDict
 {
-  static new wrap(Dict d, |Str|? onErr := null) { create(FieldDictTest#, d, onErr) }
+  static new wrap(Dict d, |Str|? onErr := null) { create(TypedDictTest#, d, onErr) }
   new make(Dict d, |This| f) : super(d) { f(this) }
-  @TagField const Int int := 99
-  @TagField const Number num := Number(99)
-  @TagField const Duration dur := 99sec
-  @TagField const Bool bool
+  @TypedTag const Int int := 99
+  @TypedTag const Number num := Number(99)
+  @TypedTag const Duration dur := 99sec
+  @TypedTag const Bool bool
 }
