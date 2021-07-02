@@ -46,6 +46,7 @@ const class HxShellWeb : HxLibWeb
     if (req.method != "GET") { res.sendErr(501); return }
 
     env := Str:Str[:]
+    env["main"]              = "hxShell::Shell.main"
     env["hxShell.api"]       = cx.rt.apiUri.toStr
     env["hxShell.attestKey"] = cx.stash.getChecked("attestKey")
     env["hxShell.user"]      = ZincWriter.valToStr(cx.user.meta)
@@ -59,9 +60,8 @@ const class HxShellWeb : HxLibWeb
      .tag("meta", "charset='UTF-8'", true).nl
      .tag("meta", "name='google' content='notranslate'", true).nl
      .includeCss(this.uri+`shell.css`)
+     .initJs(env)
      .includeJs(this.uri+`shell.js`)
-
-    WebUtil.jsMain(out, "hxShell::Shell.main", env)
 
     out.headEnd
     out.body.bodyEnd
