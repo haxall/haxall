@@ -151,6 +151,7 @@ class TaskTest : HxTest
 
     // stop lib and verify everything is cleaned up
     rt.libs.remove("task")
+    rt.sync
     verifyEq(lib.pool.isStopped, true)
     verifyKilled(aTask); verifyUnsubscribed(sched, aTask)
     verifyKilled(bTask); verifyUnsubscribed(sched, bTask)
@@ -195,6 +196,46 @@ class TaskTest : HxTest
      verifySend(t, "remove foo ignore", "one")
      verifySend(t, "get foo ???", "???")
      verifyErr(EvalErr#) { verifySend(t, "set bad-name two", "fail") }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Test Cancel
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testCancel()
+  {
+    lib := (TaskLib)rt.libs.add("task")
+
+    // setup a task that loops with sleep call
+    addFuncRec("testIt",
+      """(msg) => do
+           100.times(() => do
+              taskSleep(100ms)
+           end)
+         end
+         """)
+    t := addRec(["dis":"Cancel Test", "task":m, "taskExpr":"testIt"])
+
+    // send kick off message
+    Future future := eval("""taskSend($t.id.toCode, "kick it off!")""")
+
+    // cancel the task
+    Actor.sleep(50ms)
+    eval("taskCancel($t.id.toCode)")
+
+    // block until task raises CancelledErr
+    while (!future.state.isComplete)
+      Actor.sleep(100ms)
+
+    // verify future ended up in error state with CancelledErr
+    verifyEq(future.state, FutureState.err)
+    try { future.get; fail }
+    catch (EvalErr e) { verifyEq(e.cause.typeof, CancelledErr#) }
+
+    // debug check
+    debug := (Str)eval("taskDebugDetails($t.id.toCode)[0]->val")
+    verifyEq(debug.contains("sys::CancelledErr"), true)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -123,6 +123,20 @@ const class TaskFuncs
   }
 
   **
+  ** Set cancel flag for the given task.  Cancelling a task sets an
+  ** internal flag which is checked by the context's heartbeat on every
+  ** Axon call.  On the next Axon call the current message context
+  ** will raise a `sys::CancelledErr` which will be raised by the respective
+  ** future.  Cancelling a task does **not** interrupt any current operations,
+  ** so any blocking future or I/O calls should always use a timeout.
+  **
+  @Axon { admin = true }
+  static Void taskCancel(Obj task)
+  {
+    toTask(task).cancel
+  }
+
+  **
   ** Update the current running task's progress data with given dict.
   **
   ** Example:
