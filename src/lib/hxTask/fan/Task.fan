@@ -162,6 +162,9 @@ const class Task : Actor, Observer, Dict
     throw TaskKilledErr("Task is killed: $this")
   }
 
+  ** Set cancel flag to interrupt current evaluation
+  internal Void cancel() { isCancelled.val = true }
+
   ** Set killed flag to prevent further message processing
   internal Void kill() { isKilled.val = true }
 
@@ -312,11 +315,14 @@ const class Task : Actor, Observer, Dict
 
   private Obj? eval(Expr expr, Obj? msg)
   {
+    // reset cancel flag for this evaluation
+    isCancelled.val = false
+
     // create context which checks cancel flag during heartbeat callback
     cx := lib.rt.makeContext(lib.user)
     cx.heartbeatFunc = |->|
     {
-      if (isKilled.val) throw CancelledErr()
+      if (isCancelled.val || isKilled.val) throw CancelledErr()
     }
 
     // execute expr within our job context
@@ -383,6 +389,7 @@ const class Task : Actor, Observer, Dict
 //////////////////////////////////////////////////////////////////////////
 
   private const AtomicBool isKilled       := AtomicBool()
+  private const AtomicBool isCancelled    := AtomicBool()
   private const AtomicInt ticksRef        := AtomicInt(Duration.nowTicks)
   private const AtomicInt evalTicksRef    := AtomicInt()
   private const AtomicInt threadIdRef     := AtomicInt(-1)

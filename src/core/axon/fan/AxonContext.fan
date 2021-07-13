@@ -117,7 +117,7 @@ abstract class AxonContext : HaystackContext
   ** Default timeout to use across VM
   @NoDoc static const Duration timeoutDef := 1min
 
-  ** Check job cancel/timeout state
+  ** Check background cancel/timeout state
   @NoDoc Void heartbeat(Loc loc)
   {
     // heartbeat callback for job cancel
