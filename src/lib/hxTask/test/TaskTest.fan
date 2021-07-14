@@ -355,10 +355,7 @@ class TaskTest : HxTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  Void sync()
-  {
-    ((TaskLib)rt.lib("task")).sync
-  }
+  Void sync() { rt.sync }
 
   Dict addFuncRec(Str name, Str src, Str:Obj? tags := Str:Obj?[:])
   {

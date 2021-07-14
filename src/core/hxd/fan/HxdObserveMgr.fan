@@ -112,7 +112,8 @@ internal const class HxdObserveMgr : Actor
 
   Void sync(Duration? timeout)
   {
-    send(HxMsg("sync")).get(timeout)
+    Future[] futures := send(HxMsg("sync")).get(timeout)
+    Future.waitForAll(futures, timeout)
   }
 
   Void commit(Diff diff, HxUser? user)
@@ -129,6 +130,7 @@ internal const class HxdObserveMgr : Actor
       switch (msg.id)
       {
         case "diff": return onDiff(msg.a, msg.b)
+        case "sync": return onSync
         default:     return null
       }
     }
@@ -197,6 +199,22 @@ internal const class HxdObserveMgr : Actor
       event := CommitObservation(commits, CommitObservationAction.added, rt.now, rec.id, Etc.emptyDict, rec, null)
       sub.send(event)
     }
+  }
+
+  private Obj? onSync()
+  {
+    // any subscriber which uses the marker tag "syncable" in its config
+    // will be included in a runtime sync by sending it a null msg
+    Subscription[] syncables := list.flatMap |obs->Subscription[]|
+    {
+      obs.subscriptions.findAll |sub| { sub.config.has("syncable") }
+    }
+
+    // short circuit if no syncables
+    if (syncables.isEmpty) return Future#.emptyList
+
+    // send null message to all syncable observers and return Future[]
+    return syncables.map |sub->Future| { sub.observer.actor.send(null) }
   }
 
 //////////////////////////////////////////////////////////////////////////
