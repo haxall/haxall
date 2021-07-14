@@ -300,6 +300,13 @@ class ObserveTest : HxTest
     expected = Etc.makeDict(expected)
     expected = Etc.dictSet(expected, "type", "obsCommits")
     expected = Etc.dictSet(expected, "ts", actual->ts)
+
+    verifyEq(actual.get("type"), expected->type)
+    verifyEq(actual.get("subType"), expected->subType)
+    verifyEq(actual.get("foo"), null)
+    verifyEq(actual.get("foo", "-"), "-")
+    verifyErr(UnknownNameErr#) { actual->foo }
+
     return expected
   }
 
