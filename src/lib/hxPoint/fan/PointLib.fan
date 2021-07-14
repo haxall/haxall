@@ -16,18 +16,50 @@ using hx
 **
 const class PointLib : HxLib
 {
-  Void refreshEnumDefs()
+  ** Start callback
+  override Void onStart()
   {
-    Dict? enumMeta := null
-    enumMetaId := enums.meta["id"] as Ref
-    if (enumMetaId != null) enumMeta = rt.db.readById(enumMetaId, false)
-    if (enumMeta != null && enumMeta.missing("enumMeta")) enumMeta = null
-    if (enumMeta != null && enumMeta.has("trash")) enumMeta = null
-    if (enumMeta == null) enumMeta = rt.db.read("enumMeta", false)
-    if (enumMeta == null) enumMeta = Etc.emptyDict
-    enums.updateMeta(enumMeta)
+    // subscribe to point commits
+    observe("obsCommits",
+      Etc.makeDict([
+        "obsAdds":      Marker.val,
+        "obsUpdates":   Marker.val,
+        "obsRemoves":   Marker.val,
+        "obsAddOnInit": Marker.val,
+        "syncable":     Marker.val,
+        "obsFilter":   "point"
+      ]), #onPointEvent)
+
+    // subscribe to enumMeta commits
+    observe("obsCommits",
+      Etc.makeDict([
+        "obsAdds":      Marker.val,
+        "obsUpdates":   Marker.val,
+        "obsRemoves":   Marker.val,
+        "obsAddOnInit": Marker.val,
+        "syncable":     Marker.val,
+        "obsFilter":   "enumMeta"
+      ]), #onEnumMetaEvent)
   }
 
-  internal const EnumDefs enums := EnumDefs(log)
+  ** Event when 'enumMeta' record is modified
+  internal Void onEnumMetaEvent(CommitObservation? e)
+  {
+    // null is sync message
+    if (e == null) return
+
+    newRec := e.newRec
+    if (newRec.has("trash")) newRec = Etc.emptyDict
+    enums.updateMeta(newRec, log)
+  }
+
+  ** Event when 'point' record is modified
+  internal Void onPointEvent(CommitObservation? e)
+  {
+    // null is sync message
+    if (e == null) return
+  }
+
+  internal const EnumDefs enums := EnumDefs()
 }
 

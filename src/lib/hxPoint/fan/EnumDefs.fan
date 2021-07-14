@@ -15,12 +15,6 @@ using haystack
 @NoDoc
 const class EnumDefs
 {
-  ** Construction
-  new make(Log log) { this.log = log }
-
-  ** Logging
-  const Log log
-
   ** List currently defined enums
   EnumDef[] list()
   {
@@ -40,7 +34,7 @@ const class EnumDefs
   Dict meta() { metaRef.val }
 
   ** Callback from house keeping
-  @NoDoc Void updateMeta(Dict cur)
+  @NoDoc Void updateMeta(Dict cur, Log log)
   {
     // short circuit if same rec instance
     old := meta
