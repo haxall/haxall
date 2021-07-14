@@ -323,6 +323,13 @@ const class HxCoreFuncs
 // Runtime
 //////////////////////////////////////////////////////////////////////////
 
+  ** Return `HxRuntime.isSteadyState`
+  @Axon
+  static Bool isSteadyState()
+  {
+    curContext.rt.isSteadyState
+  }
+
   ** Enable a library by name in the runtime
   @Axon { admin = true }
   static Dict libAdd(Str name, Dict? tags := null)

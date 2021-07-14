@@ -39,6 +39,9 @@ const class CommitObservation : Observation
   Bool isUpdated() { action === CommitObservationAction.updated }
   Bool isRemoved() { action === CommitObservationAction.removed }
 
+  ** Return if either new or old includes given tag
+  Bool recHas(Str tag) { oldRec.has(tag) || newRec.has(tag) }
+
   override Bool isEmpty() { false }
 
   @Operator override Obj? get(Str name, Obj? def := null)
