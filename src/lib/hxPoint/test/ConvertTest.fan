@@ -75,7 +75,7 @@ class ConvertTest : HxTest
                     "b",9
                     "b",10|>.in).readGrid]))
 
-     lib.refreshEnumDefs
+     rt.sync
 
      list := lib.enums.list
      verifyEq(list.size, 3)
