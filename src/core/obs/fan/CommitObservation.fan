@@ -65,7 +65,7 @@ const class CommitObservation : Observation
 
   override Obj? trap(Str name, Obj?[]? args := null)
   {
-    get(name, true)
+    get(name, null) ?: throw UnknownNameErr(name)
   }
 
   override Void each(|Obj?, Str| f)
