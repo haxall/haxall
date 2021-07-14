@@ -22,6 +22,7 @@ class Build : BuildGroup
       `hxShell/build.fan`,
       `hxMath/build.fan`,
       `hxTask/build.fan`,
+      `hxPoint/build.fan`,
       `hxConn/build.fan`,
     ]
   }

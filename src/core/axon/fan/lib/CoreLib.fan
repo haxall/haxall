@@ -1256,11 +1256,14 @@ const class CoreLib
   @Axon static Date yesterday() { Date.today - 1day}
 
   ** Return current DateTime according to context's time zone.
+  ** This function will use a cached version which is only
+  ** accurate to within 250ms (see `sys::DateTime.now` for details).
+  ** Also see `nowTicks()`.
   @Axon static DateTime now() { DateTime.now }
 
   ** Return current time as nanosecond ticks since 1 Jan 2000 UTC.
   ** Note that the 64-bit floating point representations of nanosecond
-  ** ticks will loose accuracy below the microsecond.
+  ** ticks will lose accuracy below the microsecond.  Also see `now()`.
   @Axon static Number nowTicks() { Number(DateTime.nowTicks, Number.ns) }
 
   ** Return if a timestamp is contained within a Date range.
