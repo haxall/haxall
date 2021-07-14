@@ -12,6 +12,7 @@ using [java]java.lang::StackTraceElement
 
 using haystack
 using axon
+using def
 using folio
 
 **
@@ -153,6 +154,38 @@ const class HxUtil
       return acc.size > 200 ? "break" : null
     }
     return acc.vals.sort
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Enum
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Convenience for parseEnum which returns only a list of
+  ** string names.  Using this method is more efficient than
+  ** calling parseEnums and then mapping the keys.
+  **
+  static Str[] parseEnumNames(Obj? enum)
+  {
+    DefUtil.parseEnumNames(enum)
+  }
+
+  **
+  ** Parse enum as ordered map of Str:Dict keyed by name.  Dict tags:
+  **   - name: str key
+  **   - doc: fandoc string if available
+  **
+  ** Supported inputs:
+  **   - null returns empty list
+  **   - Dict of Dicts
+  **   - Str[] names
+  **   - Str newline separated names
+  **   - Str comma separated names
+  **   - Str fandoc list as - name: fandoc lines
+  **
+  static Str:Dict parseEnum(Obj? enum)
+  {
+    DefUtil.parseEnum(enum)
   }
 
 //////////////////////////////////////////////////////////////////////////
