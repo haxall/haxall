@@ -1,0 +1,15 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   13 Jul 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:point
+depends: [^lib:ph, ^lib:obs, ^lib:axon, ^lib:hx]
+typeName:"hxPoint::PointLib"
+doc: "Point historization and writable support"
+--------------------------------------------------------------------------
+

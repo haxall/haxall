@@ -1,0 +1,19 @@
+//
+// Copyright (c) 2020, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   6 Aug 2020  Brian Frank  Creation
+//
+
+
+--------------------------------------------------------------------------
+def: ^command:pointDetails
+disMacro: "$<ui::point> $<ui::details>"
+icon: "debug"
+expr: "pointDetails({{id}})"
+--------------------------------------------------------------------------
+def: ^command:pointOverride
+icon: "settings"
+typeName: "uiMisc::PointOverrideCommand"
+--------------------------------------------------------------------------

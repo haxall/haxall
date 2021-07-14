@@ -1,0 +1,78 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   18 Jul 2012  Brian Frank  Creation
+//   11 Jun 2019  Brian Frank  Port to Haytack 4.0 defs
+//
+
+
+--------------------------------------------------------------------------
+def: ^curTracksWrite
+is: ^marker
+tagOn: ^cur-point
+doc:
+  When configured `curVal` automatically tracks changes to `writeVal`
+  and `curStatus` is set to "ok".  This tag is ignored if the current
+  value is bound to connector.
+--------------------------------------------------------------------------
+def: ^enumMeta
+is: ^marker
+doc:
+  Project singleton record with enumeration name/code definitions.
+  See `doc#enumMeta`.
+--------------------------------------------------------------------------
+def: ^hisCollectCov
+is: [^marker, ^number]
+tagOn: ^his-point
+linter: LintMultiKind
+doc:
+  Enables COV history collection of the `curVal`.  The tag value must
+  be Marker to collect on any change.  Or if the point is Numeric,
+  then the value may be a Number which indicates the tolerance a point
+  must change before logged.
+
+  COV collection is rate throttled using a limit determined as follows:
+  - use `hisCollectCovRateLimit` if configured
+  - if a numeric with `hisCollectInterval`, then never collect faster
+    than 1/10 of the interval or 1min (whichever is lower)
+  - if a numeric without `hisCollectInterval` then use 1min as rate limit
+  - fallback to 1sec rate limit for non-numerics
+
+  Also see `doc#hisCollect`.
+--------------------------------------------------------------------------
+def: ^hisCollectCovRateLimit
+tagOn: ^his-point
+is: ^duration
+doc:
+  Rate limits the frequency for `hisCollectCov`.  When configured COV
+  logging will never log any faster than this frequency.  For example
+  if set to 10sec, then the historian will log no faster than every 10sec
+  even if the underlying data is changing every second.
+--------------------------------------------------------------------------
+def: ^hisCollectInterval
+is: ^duration
+tagOn: ^his-point
+doc:
+  Enables interval history collection of the `curVal`.  The value must
+  be a duration Number with a "sec", "min," or "hr" unit:
+   - if secondly, then must be divisible evenly into a 60sec minute
+   - if minutely, then must be evenly divisible into a 60min hour
+   - if hourly, then must be evenly divisible into a 24hr day
+
+  Also see `doc#hisCollect`.
+--------------------------------------------------------------------------
+def: ^hisCollectWriteFreq
+is: ^duration
+tagOn: ^his-point
+doc:
+  This tag configures how long to buffer collected history items in
+  memory before flushing them to the historian.  If this tag is missing, then
+  collected items are immediately flushed to the historian and to disk.  But
+  when this tag is configured with a duration number, items are be buffered
+  in memory and then written to the historian in batch.  Batch writes enable
+  more efficient compression of the history data and allows you to tune
+  how often data is fsync'ed to disk.
+--------------------------------------------------------------------------
+
