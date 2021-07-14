@@ -143,5 +143,6 @@ const mixin HxLibSpi
   abstract Void sync(Duration? timeout := 30sec)
   abstract Subscription[] subscriptions()
   abstract Subscription observe(Str name, Dict config, Obj callback)
+  abstract Bool isFault()
 }
 

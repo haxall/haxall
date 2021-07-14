@@ -443,6 +443,8 @@ class CoreFuncsTest : HxTest
     verifyEq(d->userRef, cx.user.id)
     verifyEq(d->username, cx.user.username)
     verifyEq(d->locale, Locale.cur.toStr)
+
+    verifyEq(cx.eval("isSteadyState()"), rt.isSteadyState)
   }
 
 //////////////////////////////////////////////////////////////////////////

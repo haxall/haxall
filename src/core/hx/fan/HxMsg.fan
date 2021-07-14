@@ -94,7 +94,7 @@ const class HxMsg
   ** Return debug string representation
   override Str toStr()
   {
-    Etc.debugMsg("ConnMsg", id, a, b, c, d)
+    Etc.debugMsg("HxMsg", id, a, b, c, d)
   }
 }
 

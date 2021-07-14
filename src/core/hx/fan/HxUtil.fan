@@ -71,6 +71,54 @@ const class HxUtil
     throw Err("Cannot convert to ids: ${val?.typeof}")
   }
 
+  ** Coerce a value to a record Dict:
+  **   - Row or Dict returns itself
+  **   - Grid returns first row
+  **   - Ref will make a call to read database
+  static Dict toRec(HxRuntime rt, Obj? val)
+  {
+    if (val is Dict) return val
+    if (val is Grid) return ((Grid)val).first
+    if (val is List) return toRec(rt, ((List)val).first)
+    if (val is Ref)  return rt.db.readById(val)
+    throw Err("Cannot convert toRec: ${val?.typeof}")
+  }
+
+  ** Coerce a value to a list of record Dicts:
+  **   - null return empty list
+  **   - Ref or Ref[] (will make a call to read database)
+  **   - Row or Row[] returns itself
+  **   - Dict or Dict[] returns itself
+  **   - Grid is mapped to list of rows
+  static Dict[] toRecs(HxRuntime rt, Obj? val)
+  {
+    if (val == null) return Dict[,]
+
+    if (val is Dict) return Dict[val]
+
+    if (val is Ref) return Dict[rt.db.readById(val)]
+
+    if (val is Grid)
+    {
+      grid := (Grid)val
+      if (grid.meta.has("navFilter"))
+        return Slot.findMethod("legacy::NavFuncs.toNavFilterRecList").call(grid)
+      return grid.toRows
+    }
+
+    if (val is List)
+    {
+      list := (List)val
+      if (list.isEmpty) return Dict[,]
+      if (list.of.fits(Dict#)) return list
+      if (list.all |x| { x is Dict }) return Dict[,].addAll(list)
+      if (list.all |x| { x is Ref }) return rt.db.readByIdsList(list, true)
+      throw Err("Cannot convert toRecs: List of ${list.first?.typeof}")
+    }
+
+    throw Err("Cannot convert toRecs: ${val?.typeof}")
+  }
+
   ** Implementation for readAllTagNames function
   internal static Grid readAllTagNames(Folio db, Filter filter)
   {
