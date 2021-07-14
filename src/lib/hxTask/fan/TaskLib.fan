@@ -21,7 +21,6 @@ const class TaskLib : HxLib
   {
     this.pool = ActorPool { it.name = "${rt.name}-Task"; it.maxThreads = rec.maxThreads }
     this.tasksById = ConcurrentMap()
-    this.actor = TaskLibActor(this)
   }
 
   ** Settings record
@@ -39,13 +38,6 @@ const class TaskLib : HxLib
   ** List the current tasks
   internal Task[] tasks() { tasksById.vals(Task#) }
 
-  ** Sync until all commits have been reflected in task roster
-  Void sync(Duration? timeout := 30sec)
-  {
-    rt.sync(timeout)
-    actor.send(null).get(timeout)
-  }
-
   ** Start callback
   override Void onStart()
   {
@@ -57,8 +49,9 @@ const class TaskLib : HxLib
         "obsUpdates":   Marker.val,
         "obsRemoves":   Marker.val,
         "obsAddOnInit": Marker.val,
+        "syncable":     Marker.val,
         "obsFilter":   "task"
-      ]), actor)
+      ]), #onTaskEvent)
   }
 
   ** Subscribe tasks on steady state
@@ -77,6 +70,9 @@ const class TaskLib : HxLib
   ** Event when 'task' records are modified
   internal Void onTaskEvent(CommitObservation? e)
   {
+    // null is sync message
+    if (e == null) return
+
     // on update or remove, then kill existing task
     if (e.isUpdated || e.isRemoved)
     {
@@ -145,24 +141,7 @@ const class TaskLib : HxLib
   }
 
   const ActorPool pool
-  const TaskLibActor actor
   private const ConcurrentMap tasksById
-}
-
-**************************************************************************
-** TaskLibActor
-**************************************************************************
-
-const class TaskLibActor : Actor
-{
-  new make(TaskLib lib) : super(lib.rt.libs.actorPool) { this.lib = lib }
-  const TaskLib lib
-  override Obj? receive(Obj? msg)
-  {
-    e := msg as CommitObservation
-    if (e != null) lib.onTaskEvent(e)
-    return null
-  }
 }
 
 **************************************************************************
