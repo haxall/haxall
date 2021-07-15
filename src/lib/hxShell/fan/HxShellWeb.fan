@@ -60,8 +60,12 @@ const class HxShellWeb : HxLibWeb
      .tag("meta", "charset='UTF-8'", true).nl
      .tag("meta", "name='google' content='notranslate'", true).nl
      .includeCss(this.uri+`shell.css`)
-     .initJs(env)
+// TODO: once we publish Fantom build 1.0.77
+//     .initJs(env)
      .includeJs(this.uri+`shell.js`)
+
+// TODO: once we publish Fantom build 1.0.77
+    WebUtil.jsMain(out, "hxShell::Shell.main", env)
 
     out.headEnd
     out.body.bodyEnd
