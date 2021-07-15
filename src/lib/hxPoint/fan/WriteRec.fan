@@ -50,11 +50,13 @@ internal class WriteRec
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
+  ** Update rec after a commit has been detected by observation framework
   Void updateRec(Dict rec)
   {
     this.rec = rec
   }
 
+  ** Check periodically if our timed override has expired
   Void check(WriteMgr mgr, Duration now)
   {
     if (overrideExpire != 0 && overrideExpire < now.ticks)
@@ -65,6 +67,7 @@ internal class WriteRec
 // Writes
 //////////////////////////////////////////////////////////////////////////
 
+  ** Write the given value and level
   Obj? write(WriteMgr mgr, Obj? val, Int level, Obj who)
   {
     // for timed override val is wrapped as TimedOverride
@@ -83,6 +86,13 @@ internal class WriteRec
     // update our level data structure
     lvl := levels[level-1]
     if (lvl == null) levels[level-1] = lvl = WriteLevel()
+
+    // short circuit rest of logic if there is no change because
+    // its very common for control applications to rewrite
+    // the same value+level at a high frequency in control loops
+    if (lvl.val == val && whoIsEqual(lvl.who, who)) return val
+
+    // update level val and who
     lvl.val = val
     lvl.who = who
 
@@ -98,16 +108,41 @@ internal class WriteRec
     }
 
     // update output
-    return update(mgr)
+    effectiveChange := update(mgr)
+
+    // fire observations
+    mgr.fireObservation(this, val, levelNums[level-1], who, effectiveChange)
+
+    return val
   }
 
+  ** Check if previous who is equal to new who
+  private static Bool whoIsEqual(Obj? a, Obj? b)
+  {
+    // evaluate if we still need this...
+
+    // schedules pass a grid with future data one week into
+    // the future; so check the meta.mod to see if anything
+    // has actually changed
+    aGrid := a as Grid; if (aGrid == null) return a == b
+    bGrid := b as Grid; if (bGrid == null) return false
+
+    // check meta 'mod' tag
+    aMod := aGrid.meta["mod"]
+    bMod := bGrid.meta["mod"]
+    return aMod == bMod
+  }
+
+  ** Make persistent Folio commit to level1, level8, or levelDef
   private Void persist(WriteMgr mgr, Str tag, Obj? val)
   {
     if (rec[tag] == val) return
     rec = mgr.rt.db.commit(Diff(rec, Etc.makeDict1(tag, val ?: Remove.val), Diff.force)).newRec
   }
 
-  private Obj? update(WriteMgr mgr)
+  ** Update effective value and level.  Return true if there is an effective
+  ** change and sink it to Folio as a transient commit via WriteMgr.sink
+  private Bool update(WriteMgr mgr)
   {
     // compute new write val/level
     level := levelNums.last
@@ -123,31 +158,17 @@ internal class WriteRec
       break
     }
 
-    // we only write if value has changed
-    if (val != lastVal || level != lastLevel || whoModified(lastWho, who))
-    {
-      lastVal = val
-      lastLevel = level
-      lastWho = who
-      try
-        mgr.sink(this, val, level, who)
-      catch (Err e)
-        mgr.lib.log.err("writeSink", e)
-    }
+    // if not an effective change, then short circuit and return false
+    if (val == lastVal && level == lastLevel) return false
 
-    return val
-  }
-
-  private static Bool whoModified(Obj? a, Obj? b)
-  {
-    // we only care about this check for schedule grids
-    aGrid := a as Grid; if (aGrid == null) return false
-    bGrid := b as Grid; if (bGrid == null) return false
-
-    // check meta 'mod' tag
-    aMod := aGrid.meta["mod"]
-    bMod := bGrid.meta["mod"]
-    return aMod != bMod
+    // sink effective change to folio and return true
+    lastVal = val
+    lastLevel = level
+    try
+      mgr.sink(this, val, level, who)
+    catch (Err e)
+      mgr.lib.log.err("writeSink", e)
+    return true
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -257,7 +278,6 @@ internal class WriteRec
   private WriteLevel?[] levels      // index 0 => level 1, index 17 -> def
   private Obj? lastVal              // last value written
   private Number? lastLevel         // last level written
-  private Obj? lastWho              // last who written
   private Int overrideExpire        // Duration ticks to send 8 back to auto or zero
 }
 

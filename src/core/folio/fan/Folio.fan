@@ -48,10 +48,10 @@ abstract const class Folio
   ** Ref prefix to make internal refs absolute (includes trailing colon)
   @NoDoc const Str? idPrefix
 
-  ** Block until all pending writes have processed been written to disk
+  ** Block until all pending writes have been processed and written to disk
   @NoDoc virtual This sync(Duration? timeout := null, Str? mgr := null) { this }
 
-  ** Get storage for passwords and other secrets.
+  ** Get storage for passwords and other secrets
   abstract PasswordStore passwords()
 
   ** Current persistent version as incrementing counter
