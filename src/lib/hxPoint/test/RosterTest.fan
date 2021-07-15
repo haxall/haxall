@@ -28,15 +28,22 @@ class RosterTest : HxTest
                           "off"
                           "slow"
                           "fast"|>])
+    addRec(["dis":"A", "point":m])
+    addRec(["dis":"W", "point":m, "writable":m, "writeDef":n(123)])
 
     // now add library
     this.lib = rt.libs.add("point")
     this.lib.spi.sync
-    rt.sync
+    sync
 
     // run tests
     verifyEnumMeta
+    verifyWritables
   }
+
+//////////////////////////////////////////////////////////////////////////
+// EnumMeta
+//////////////////////////////////////////////////////////////////////////
 
   Void verifyEnumMeta()
   {
@@ -58,7 +65,7 @@ class RosterTest : HxTest
                      name,code
                      "one",1
                      "two",2|>])
-    rt.sync
+    sync
 
     verifyEq(lib.enums.list.size, 2)
     e = lib.enums.get("alpha")
@@ -81,5 +88,73 @@ class RosterTest : HxTest
     verifyEq(e.nameToCode(name), n(code))
     verifyEq(e.codeToName(n(code)), name)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Writables
+//////////////////////////////////////////////////////////////////////////
+
+  Void verifyWritables()
+  {
+    a := rt.db.read("dis==\"A\"")
+    w := rt.db.read("dis==\"W\"")
+
+    // initial writable point
+    array := verifyWritable(w.id, n(123), 17)
+    verifyEq(array[16]->val, n(123))
+
+    // add writable tag to normal point
+    a = commit(a, ["writable":m])
+    sync
+    verifyWritable(a.id, null, 17)
+
+    // remove writable tag
+    a = commit(a, ["writable":Remove.val])
+    sync
+    verifyNotWritable(a.id)
+
+    // create new record
+    x := addRec(["dis":"New", "point":m, "writable":m])
+    sync
+    verifyWritable(x.id, null, 17)
+
+    // trash rec
+    commit(x, ["trash":m])
+    sync
+    verifyNotWritable(x.id)
+
+    // remove rec
+    verifyWritable(w.id, n(123), 17)
+    commit(w, null, Diff.remove)
+    sync
+    verifyNotWritable(w.id)
+  }
+
+  Grid verifyWritable(Ref id, Obj? val, Int level)
+  {
+    rec := rt.db.readById(id)
+    if (rec.missing("writeLevel"))
+    {
+      rt.db.sync
+      rec = rt.db.readById(id)
+    }
+    verifyEq(rec["writeVal"], val)
+    verifyEq(rec["writeLevel"], n(level))
+    array := writeArray(id)
+    verifyEq(array.size, 17)
+    return array
+  }
+
+  Void verifyNotWritable(Ref id)
+  {
+    verifyErrMsg(Err#, "Not writable point: $id.toZinc") { writeArray(id) }
+  }
+
+  Grid writeArray(Ref id) { lib.writeMgr.array(id) }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  private Void sync() { rt.sync }
 
 }
