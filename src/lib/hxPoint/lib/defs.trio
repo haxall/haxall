@@ -79,8 +79,6 @@ def: ^obsPointWrite
 is: ^observable
 doc: "Subscribe to writable point priority array updates"
 --------------------------------------------------------------------------
-def: ^obsIncludeArray
-is: ^marker
+defx: ^obsFilter
 tagOn: ^obsPointWrite
-doc: "Include the entire writable point array in observation events"
 --------------------------------------------------------------------------

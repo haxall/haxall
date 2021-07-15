@@ -132,30 +132,6 @@ internal class WriteMgr : PointMgr
     changes := sinkChanges(rec, val, level)
     rt.db.commitAsync(Diff(rec, changes, Diff.forceTransient))
 
-    // short circuit if observable has no subscriptions
-    observable := lib.writeMgr.observable
-    if (!observable.hasSubscriptions) return
-
-    // fire event to subscribed observers
-    ts := DateTime.now
-    stdEvent := WriteObservation(observable, ts, writeRec.id, rec, val, level, who, null)
-    WriteObservation? arrayEvent := null
-    observable.subscriptions.each |WriteSubscription sub|
-    {
-      // short circuit if subscription filter doesn't match
-      if (!sub.include(rec)) return
-
-      // lazily create array only when needed and fire appropriate event instance
-      if (sub.includeArray)
-      {
-        if (arrayEvent == null) arrayEvent = WriteObservation(observable, ts, writeRec.id, rec, val, level, who, writeRec.toGrid)
-        sub.send(arrayEvent)
-      }
-      else
-      {
-        sub.send(stdEvent)
-      }
-    }
   }
 
   private Dict sinkChanges(Dict rec, Obj? val, Number level)
@@ -171,6 +147,30 @@ internal class WriteMgr : PointMgr
        return Etc.makeDict2(
                     "writeVal", val,
                     "writeLevel", level)
+  }
+
+  ** Called by WriteRec on all writes
+  internal Void fireObservation(WriteRec writeRec, Obj? val, Number level, Obj? who, Bool effectiveChange)
+  {
+    // short circuit if observable has no subscriptions
+    observable := lib.writeMgr.observable
+    if (!observable.hasSubscriptions) return
+
+    // fire event to subscribed observers
+    ts := DateTime.now
+    rec := writeRec.rec
+    event := WriteObservation(observable, ts, writeRec.id, rec, val, level, who)
+    observable.subscriptions.each |WriteSubscription sub|
+    {
+      // short circuit if not an effective change and not subscribed to all changes
+      if (!effectiveChange && !sub.isAllWrites) return
+
+      // short circuit if subscription filter doesn't match
+      if (!sub.include(rec)) return
+
+      // fire event to this subscriber
+      sub.send(event)
+    }
   }
 
   override Str? onDetails(Ref id)

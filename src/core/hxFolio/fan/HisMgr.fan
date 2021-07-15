@@ -13,7 +13,7 @@ using hxStore
 
 **
 ** HisMgr is the HxFolio implementation of FolioHis.  It uses a
-** simple design to store history data in-memory as HisItem list.
+** simple design to store history data in-memory as a HisItem list.
 **
 @NoDoc
 const class HisMgr : HxFolioMgr, FolioHis

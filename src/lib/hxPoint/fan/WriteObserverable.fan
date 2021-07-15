@@ -12,7 +12,7 @@ using folio
 using obs
 
 **
-** WriteObservable
+** WriteObservable observes effective changes to a writable point's output
 **
 internal const class WriteObservable : Observable
 {
@@ -33,8 +33,12 @@ internal const class WriteSubscription : Subscription
   new make(WriteObservable observable, Observer observer, Dict config)
     : super(observable, observer, config)
   {
-    includeArray = config.has("obsIncludeArray")
-    filter       = parseFilter(config["obsFilter"])
+    filter  = parseFilter(config["obsFilter"])
+
+    // this is undocumented backdoor hook - it observes all writes,
+    // not just the effective level changes.  Don't use it unless
+    // you have to because it will fire a lot more events
+    isAllWrites = config.has("obsAllWrites")
   }
 
   private static Filter? parseFilter(Obj? val)
@@ -47,7 +51,7 @@ internal const class WriteSubscription : Subscription
       throw Err("obsFilter invalid: $e")
   }
 
-  const Bool includeArray
+  const Bool isAllWrites
   const Filter? filter
 
   Bool include(Dict rec)
@@ -65,7 +69,7 @@ internal const class WriteSubscription : Subscription
 @NoDoc
 const class WriteObservation : Observation
 {
-  new make(Observable observable, DateTime ts, Ref id, Dict rec, Obj? val, Number level, Obj? who, Grid? array)
+  new make(Observable observable, DateTime ts, Ref id, Dict rec, Obj? val, Number level, Obj? who)
   {
     this.type  = observable.name
     this.ts    = ts
@@ -74,7 +78,6 @@ const class WriteObservation : Observation
     this.val   = val
     this.level = level
     this.who   = who
-    this.array = array
   }
 
   const override Str type
@@ -85,7 +88,6 @@ const class WriteObservation : Observation
   const Obj? val
   const Number level
   const Obj? who
-  const Grid? array
 
   override Bool isEmpty() { false }
 
@@ -101,7 +103,6 @@ const class WriteObservation : Observation
       case "val":     return val
       case "level":   return level
       case "who":     return who ?: def
-      case "array":   return array ?: def
       default:        return def
     }
   }
@@ -130,7 +131,6 @@ const class WriteObservation : Observation
     r = f(val,   "val");   if (r != null) return r
     r = f(level, "level"); if (r != null) return r
     if (who != null)   r = f(who,   "who");   if (r != null) return r
-    if (array != null) r = f(array, "array"); if (r != null) return r
     return null
   }
 }

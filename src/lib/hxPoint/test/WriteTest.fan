@@ -6,8 +6,9 @@
 //   21 Jul 2012  Brian Frank  Creation
 //
 
-using haystack
 using concurrent
+using haystack
+using obs
 using folio
 using hx
 
@@ -77,7 +78,7 @@ class WriteTest : HxTest
       pt = rt.db.readById(pt.id)
     }
 
-    //echo("==> $val @ $level  ?=  " + pt["writeVal"] + " @ " + pt["writeLevel"] + " | " + pt["curVal"] + " @ " + pt["curStatus"])
+    // echo("==> $val @ $level  ?=  " + pt["writeVal"] + " @ " + pt["writeLevel"] + " | " + pt["curVal"] + " @ " + pt["curStatus"])
 
     verifyEq(pt["writeVal"], val)
     verifyEq(pt["writeStatus"], null) // used by connectors
@@ -116,5 +117,147 @@ class WriteTest : HxTest
     }
     return g
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Observable
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testObservable()
+  {
+    PointLib lib := rt.libs.add("point")
+
+    x := addRec(["dis":"X", "point":m, "writable":m, "kind":"Number"])
+    y := addRec(["dis":"Y", "point":m, "writable":m, "kind":"Number"])
+
+    obsA := TestObserver()
+    obsB := TestObserver()
+    obsX := TestObserver()
+    obsY := TestObserver()
+
+    rt.observable("obsPointWrite").subscribe(obsA, Etc.makeDict([:]))
+    rt.observable("obsPointWrite").subscribe(obsB, Etc.makeDict(["obsAllWrites":m]))
+    rt.observable("obsPointWrite").subscribe(obsX, Etc.makeDict(["obsFilter":"dis==\"X\""]))
+    rt.observable("obsPointWrite").subscribe(obsY, Etc.makeDict(["obsFilter":"dis==\"Y\""]))
+
+    reset := |->|
+    {
+      rt.sync
+      obsA.clear
+      obsB.clear
+      obsX.clear
+      obsY.clear
+    }
+
+    // set level 123 @ 16
+    reset()
+    eval("pointWrite($x.id.toCode, 123, 16, \"test-16\")")
+    verifyWrite(lib, x, n(123), 16, [16: n(123)])
+    verifyObs(obsA, x, n(123), 16, "test-16")
+    verifyObs(obsB, x, n(123), 16, "test-16")
+    verifyObs(obsX, x, n(123), 16, "test-16")
+    verifyObs(obsY, x, null, -1, "")
+
+    // set level 456 @ 14
+    reset()
+    eval("pointWrite($x.id.toCode, 456, 14, \"test-14\")")
+    verifyWrite(lib, x, n(456), 14, [14:n(456), 16: n(123)])
+    verifyObs(obsA, x, n(456), 14, "test-14")
+    verifyObs(obsB, x, n(456), 14, "test-14")
+    verifyObs(obsX, x, n(456), 14, "test-14")
+    verifyObs(obsY, x, null, -1, "")
+
+    // change level 789 @ 14
+    reset()
+    eval("pointWrite($x.id.toCode, 789, 14, \"test-14\")")
+    verifyWrite(lib, x, n(789), 14, [14:n(789), 16: n(123)])
+    verifyObs(obsA, x, n(789), 14, "test-14")
+    verifyObs(obsB, x, n(789), 14, "test-14")
+    verifyObs(obsX, x, n(789), 14, "test-14")
+    verifyObs(obsY, x, null, -1, "")
+
+    // keep level 789 @ 14 (no events fired)
+    reset()
+    eval("pointWrite($x.id.toCode, 789, 14, \"test-14\")")
+    verifyWrite(lib, x, n(789), 14, [14:n(789), 16: n(123)])
+    verifyObs(obsA, x, null, -1, "")
+    verifyObs(obsB, x, null, -1, "")
+    verifyObs(obsX, x, null, -1, "")
+    verifyObs(obsY, x, null, -1, "")
+
+    // change level 150 @ 15 (only allWrites obs receives event)
+    reset()
+    eval("pointWrite($x.id.toCode, 150, 15, \"test-15\")")
+    verifyWrite(lib, x, n(789), 14, [14:n(789), 15:n(150), 16: n(123)])
+    verifyObs(obsA, x, null, -1, "")
+    verifyObs(obsB, x, n(150), 15, "test-15")
+    verifyObs(obsX, x, null, -1, "")
+    verifyObs(obsY, x, null, -1, "")
+
+    // null level 15 (only allWrites obs receives event)
+    reset()
+    eval("pointWrite($x.id.toCode, null, 15, \"test-15\")")
+    verifyWrite(lib, x, n(789), 14, [14:n(789), 16: n(123)])
+    verifyObs(obsA, x, null, -1, "")
+    verifyObs(obsB, x, null, 15, "test-15")
+    verifyObs(obsX, x, null, -1, "")
+    verifyObs(obsY, x, null, -1, "")
+
+    // null level 16 (only allWrites obs receives event)
+    eval("pointWrite($x.id.toCode, null, 16, \"test-16\")")
+    verifyWrite(lib, x, n(789), 14, [14:n(789)])
+    verifyObs(obsA, x, null, -1, "")
+    verifyObs(obsB, x, null, 16, "test-16")
+    verifyObs(obsX, x, null, -1, "")
+    verifyObs(obsY, x, null, -1, "")
+
+    // null level 14 (all receive auto event)
+    eval("pointWrite($x.id.toCode, null, 14, \"test-14\")")
+    verifyWrite(lib, x, null, 17, [:])
+    verifyObs(obsA, x, null, 14, "test-14")
+    verifyObs(obsB, x, null, 14, "test-14")
+    verifyObs(obsX, x, null, 14, "test-14")
+    verifyObs(obsY, x, null, -1, "")
+  }
+
+  private Void verifyObs(TestObserver obs, Dict pt, Obj? val, Int level, Str who)
+  {
+    e := obs.sync as Dict
+    if (level == -1)
+    {
+      verifyNull(e, null)
+      return
+    }
+    else
+    {
+      if (e == null) fail("no event received")
+    }
+    verifyEq(e->type, "obsPointWrite")
+    verifyEq(e->id, pt.id)
+    verifyDictEq(e->rec, pt)
+    verifyEq(e["val"], val)
+    verifyEq(e->level, n(level))
+    verifyEq(e->who, who)
+  }
 }
 
+**************************************************************************
+** TestObserver
+**************************************************************************
+
+internal const class TestObserver : Actor, Observer
+{
+  new make() : super(ActorPool()) {}
+  override Dict meta() { Etc.emptyDict }
+  override Actor actor() { this }
+  override Obj? receive(Obj? msg)
+  {
+    if (msg == "_sync_") return msgs.last
+    msgsRef.val = msgs.dup.add(msg).toImmutable
+    return null
+  }
+  Obj? sync() { send("_sync_").get }
+  Obj[] msgs() { msgsRef.val }
+  Void clear() { sync; msgsRef.val = Obj#.emptyList }
+  const AtomicRef msgsRef := AtomicRef(Obj#.emptyList)
+}
