@@ -30,6 +30,7 @@ class ConvertTest : HxTest
     doBool
     doTypeConverts
     doThermistor
+    doFunc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -519,6 +520,44 @@ class ConvertTest : HxTest
     rec = Etc.makeDict(["unit": "celsius"])
     verifyEq(c.convert(lib, rec, n(ohms))->toLocale("#.000"), n(degC, Number.C).toLocale("#.000"))
     verifyConvert(c, rec, null, null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Func
+//////////////////////////////////////////////////////////////////////////
+
+  Void doFunc()
+  {
+    pt := addRec(["dis":"Dummy point", "point":m])
+
+    // pointConvert
+    verifyFuncConvert(null, "+3", n(3), n(6))
+    verifyFuncConvert(Etc.emptyDict, "*3", n(3), n(9))
+    verifyFuncConvert(pt, "*3 -1", n(3), n(8))
+    verifyFuncConvert(pt.id, "numberToStr()", n(3), "3")
+
+    // enumDefs
+    g := (Grid)eval("enumDefs()")
+    verifyEq(g.size, 3)
+    verifyDictEq(g[0], ["id":"alpha", "size":n(3)])
+    verifyDictEq(g[1], ["id":"beta",  "size":n(4)])
+    verifyDictEq(g[2], ["id":"gamma", "size":n(4)])
+
+    // enumDef(name)
+    g = (Grid)eval("enumDef(\"beta\")")
+    verifyEq(g.size, 4)
+    verifyDictEq(g[0], ["name":"negOne", "code":n(-1)])
+    verifyDictEq(g[1], ["name":"seven",  "code":n(7)])
+    verifyDictEq(g[2], ["name":"five",   "code":n(5)])
+    verifyDictEq(g[3], ["name":"nine",   "code":n(9)])
+  }
+
+  Void verifyFuncConvert(Obj? rec, Str pattern, Obj? from, Obj? expected)
+  {
+    axon := "pointConvert(" + Etc.toAxon(rec) + ", " + pattern.toCode + ", " + Etc.toAxon(from) + ")"
+    actual := eval(axon)
+    //echo("-- $axon | $actual ?= $expected")
+    verifyEq(actual, expected)
   }
 
 //////////////////////////////////////////////////////////////////////////

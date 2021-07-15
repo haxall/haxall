@@ -4,11 +4,13 @@
 //
 // History:
 //   18 Jul 2012  Brian Frank  Creation
+//   14 Jul 2021  Brian Frank  Refactor for Haxall
 //
 
 using concurrent
 using haystack
 using obs
+using folio
 using hx
 
 **
@@ -16,9 +18,23 @@ using hx
 **
 const class PointLib : HxLib
 {
+  new make()
+  {
+    enums = EnumDefs()
+    writeMgr = WriteMgrActor(this)
+    observables = [writeMgr.observable]
+  }
+
+  ** Return list of observables this library publishes
+  override const Observable[] observables
+
   ** Start callback
   override Void onStart()
   {
+    if (rec.missing("disableWritables"))  writeMgr.onStart
+    //if (rec.missing("disableHisCollect")) hisCollects.onStart
+    //if (rec.has("demoMode")) demo.onStart
+
     // subscribe to point commits
     observe("obsCommits",
       Etc.makeDict([
@@ -40,6 +56,7 @@ const class PointLib : HxLib
         "syncable":     Marker.val,
         "obsFilter":   "enumMeta"
       ]), #onEnumMetaEvent)
+
   }
 
   ** Event when 'enumMeta' record is modified
@@ -57,9 +74,18 @@ const class PointLib : HxLib
   internal Void onPointEvent(CommitObservation? e)
   {
     // null is sync message
-    if (e == null) return
+    if (e == null)
+    {
+      writeMgr.sync
+      return
+    }
+
+    // check for writable changes
+    if (e.recHas("writable")) writeMgr.send(HxMsg("obs", e))
   }
 
-  internal const EnumDefs enums := EnumDefs()
+  internal const EnumDefs enums
+  internal const WriteMgrActor writeMgr
 }
+
 
