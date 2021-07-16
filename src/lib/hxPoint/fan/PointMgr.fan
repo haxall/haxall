@@ -36,10 +36,13 @@ internal abstract class PointMgr
 
   abstract Str? onDetails(Ref id)
 
+  abstract Obj? onObs(CommitObservation e)
+
   virtual Obj? onReceive(HxMsg msg)
   {
-    if (msg.id == "details") return onDetails(msg.a)
-    if (msg.id == "sync")    return null
+    if (msg.id === "obs")     return onObs(msg.a)
+    if (msg.id === "details") return onDetails(msg.a)
+    if (msg.id === "sync")    return null
     throw Err("Unknown msg: $msg.id")
   }
 }
@@ -65,6 +68,10 @@ internal const class PointMgrActor : Actor
   const Duration checkFreq
   const Type mgrType
   const Log log
+
+  Void obs(CommitObservation e) { send(HxMsg("obs", e)) } // async
+
+  Str? details(Ref id) { send(HxMsg("details", id)).get(timeout) }
 
   Void sync(Duration? timeout := 30sec) { send(HxMsg("sync")).get(timeout) }
 

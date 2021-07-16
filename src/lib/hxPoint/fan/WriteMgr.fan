@@ -54,27 +54,9 @@ internal const class WriteMgrActor : PointMgrActor
     }
 
     // add/check unit if Number
-    val = applyUnit(point, val, "write")
+    val = PointUtil.applyUnit(point, val, "write")
 
     return send(HxMsg("write", point.id, valRef, level, who))
-  }
-
-  private static Obj? applyUnit(Dict point, Obj? val, Str action)
-  {
-    // if not number, nothing to do
-    num := val as Number
-    if (num == null) return val
-
-    // safely get unit from point's unit tag
-    unit := Number.loadUnit(point["unit"] as Str ?: "", false)
-    if (unit == null) return val
-
-    // if number provided is unitless, then use point's unit
-    if (num.unit == null) return Number(num.toFloat, unit)
-
-    // sanity check mismatched units
-    if (num.unit !== unit) throw Err("point unit != $action unit: $unit != $num.unit")
-    return val
   }
 }
 
@@ -93,7 +75,6 @@ internal class WriteMgr : PointMgr
   {
     if (msg.id === "write") return get(msg.a).write(this, msg.b, msg.c, msg.d)
     if (msg.id === "array") return get(msg.a).toGrid
-    if (msg.id === "obs")   return onObs(msg.a)
     return super.onReceive(msg)
   }
 
@@ -109,7 +90,7 @@ internal class WriteMgr : PointMgr
     points[id] ?: throw Err("Not writable point: $id.toZinc")
   }
 
-  private Obj? onObs(CommitObservation e)
+  override Obj? onObs(CommitObservation e)
   {
     if (e.newRec.has("writable"))
     {

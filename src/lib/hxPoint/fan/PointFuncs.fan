@@ -177,17 +177,13 @@ const class PointFuncs
   }
 
   ** Get debug string for writables, his collections
-/* TODO
   @NoDoc @Axon
   static Str pointDetails(Obj point)
   {
-    cx  := Context.cur
-    rec := SysLib.toRec(point)
-    ext := cx.pim.conns.byPoint(rec, false)
-    if (ext != null) return Slot.findMethod("connExt::ConnLib.connDebugDetails").callOn(null, [ext.name, rec])
-    return PointExt.cur.pointDetails(rec.id, true)
+    cx  := curContext
+    rec := HxUtil.toRec(cx.rt, point)
+    return PointUtil.pointDetails(lib(cx), rec, true)
   }
-*/
 
   ** Return grid of thermistor table names as grid with one 'name' column
   @Axon
