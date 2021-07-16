@@ -20,10 +20,11 @@ const class PointLib : HxLib
 {
   new make()
   {
-    enums = EnumDefs()
+    enums         = EnumDefs()
     hisCollectMgr = HisCollectMgrActor(this)
-    writeMgr = WriteMgrActor(this)
-    observables = [writeMgr.observable]
+    writeMgr      = WriteMgrActor(this)
+    demoMgr       = DemoMgrActor(this)
+    observables   = [writeMgr.observable]
   }
 
   ** Return list of observables this library publishes
@@ -37,7 +38,7 @@ const class PointLib : HxLib
   {
     if (rec.missing("disableWritables"))  writeMgr.onStart
     if (rec.missing("disableHisCollect")) hisCollectMgr.onStart
-    //if (rec.has("demoMode")) demo.onStart
+    if (rec.has("demoMode")) demoMgr.onStart
 
     // subscribe to point commits
     observe("obsCommits",
@@ -97,6 +98,7 @@ const class PointLib : HxLib
   internal const EnumDefs enums
   internal const HisCollectMgrActor hisCollectMgr
   internal const WriteMgrActor writeMgr
+  internal const DemoMgrActor demoMgr
 }
 
 

@@ -34,9 +34,9 @@ internal abstract class PointMgr
 
   abstract Void onCheck()
 
-  abstract Str? onDetails(Ref id)
+  virtual Str? onDetails(Ref id) { null }
 
-  abstract Obj? onObs(CommitObservation e)
+  virtual Obj? onObs(CommitObservation e) { null }
 
   virtual Obj? onReceive(HxMsg msg)
   {
