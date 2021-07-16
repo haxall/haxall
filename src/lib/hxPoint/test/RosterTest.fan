@@ -28,8 +28,10 @@ class RosterTest : HxTest
                           "off"
                           "slow"
                           "fast"|>])
-    addRec(["dis":"A", "point":m])
-    addRec(["dis":"W", "point":m, "writable":m, "writeDef":n(123)])
+    addRec(["dis":"A", "point":m, "his":m, "tz":"New_York"])
+    addRec(["dis":"W", "point":m, "his":m, "tz":"New_York", "writable":m, "writeDef":n(123)])
+    addRec(["dis":"Int", "point":m, "his":m, "tz":"New_York", "hisCollectInterval":n(10, "sec")])
+    addRec(["dis":"Cov", "point":m, "his":m, "tz":"New_York", "hisCollectCov":m])
 
     // now add library
     this.lib = rt.libs.add("point")
@@ -39,6 +41,7 @@ class RosterTest : HxTest
     // run tests
     verifyEnumMeta
     verifyWritables
+    verifyHisCollects
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -150,6 +153,75 @@ class RosterTest : HxTest
   }
 
   Grid writeArray(Ref id) { lib.writeMgr.array(id) }
+
+//////////////////////////////////////////////////////////////////////////
+// HisCollect
+//////////////////////////////////////////////////////////////////////////
+
+  Void verifyHisCollects()
+  {
+    int := rt.db.read("dis==\"Int\"")
+    cov := rt.db.read("dis==\"Cov\"")
+    a := rt.db.read("dis==\"A\"")
+
+    verifyHisCollect(int.id, 10sec, false)
+    verifyHisCollect(cov.id, null, true)
+    verifyNotHisCollect(a.id)
+
+    // add collect to non-collect point
+    a = commit(a, ["hisCollectInterval":n(5, "min"), "hisCollectCov":m])
+    sync
+    verifyHisCollect(a.id, 5min, true)
+
+    // remove hisCollectCov tag
+    a = commit(a, ["hisCollectCov":Remove.val])
+    sync
+    verifyHisCollect(a.id, 5min, false)
+
+    // change hisCollectInterval tag
+    a = commit(a, ["hisCollectInterval":n(1, "hr")])
+    sync
+    verifyHisCollect(a.id, 1hr, false)
+
+    // remove hisCollectInterval tag
+    a = commit(a, ["hisCollectInterval":Remove.val])
+    sync
+    verifyNotHisCollect(a.id)
+
+    // create new record
+    x := addRec(["dis":"New", "point":m, "his":m, "tz":"New_York", "hisCollectInterval":n(30, "sec")])
+    sync
+    verifyHisCollect(x.id, 30sec, false)
+
+    // trash rec
+    commit(x, ["trash":m])
+    sync
+    verifyNotHisCollect(x.id)
+
+    // remove rec
+    verifyHisCollect(cov.id, null, true)
+    commit(cov, null, Diff.remove)
+    sync
+    verifyNotWritable(cov.id)
+  }
+
+  Void verifyHisCollect(Ref id, Duration? interval, Bool cov)
+  {
+    details := lib.hisCollectMgr.details(id)
+    // echo("\n----$details")
+    verifyNotNull(details)
+    lines := details.splitLines
+    intLine := lines.find { it.startsWith("interval:") }
+    covLine := lines.find { it.startsWith("cov:")  }
+    verifyEq(intLine.contains(interval?.toStr ?: "_x_"), interval != null)
+    verifyEq(covLine.contains("marker"), cov)
+  }
+
+  Void verifyNotHisCollect(Ref id)
+  {
+    details := lib.hisCollectMgr.details(id)
+    verifyNull(details)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils

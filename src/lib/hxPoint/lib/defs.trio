@@ -54,6 +54,8 @@ doc:
 def: ^hisCollectInterval
 is: ^duration
 tagOn: ^his-point
+minVal: 1sec
+maxVal: 1day
 doc:
   Enables interval history collection of the `curVal`.  The value must
   be a duration Number with a "sec", "min," or "hr" unit:
@@ -62,6 +64,15 @@ doc:
    - if hourly, then must be evenly divisible into a 24hr day
 
   Also see `doc#hisCollect`.
+--------------------------------------------------------------------------
+def: ^hisCollectNA
+is: ^marker
+tagOn: ^his-point
+doc:
+  Historize the NA value whenever the `curVal` is null or `curStatus` is
+  not equal to "ok".  If this marker is omitted, then no value is logged
+  in this sitaution.  This behavior may be changed on for the entire
+  project by adding this tag as a point setting.
 --------------------------------------------------------------------------
 def: ^hisCollectWriteFreq
 is: ^duration
