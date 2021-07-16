@@ -21,6 +21,7 @@ const class PointLib : HxLib
   new make()
   {
     enums = EnumDefs()
+    hisCollectMgr = HisCollectMgrActor(this)
     writeMgr = WriteMgrActor(this)
     observables = [writeMgr.observable]
   }
@@ -28,11 +29,14 @@ const class PointLib : HxLib
   ** Return list of observables this library publishes
   override const Observable[] observables
 
+  ** Should we collect bad data as NA or just omit it
+  Bool hisCollectNA() { rec.has("hisCollectNA") }
+
   ** Start callback
   override Void onStart()
   {
     if (rec.missing("disableWritables"))  writeMgr.onStart
-    //if (rec.missing("disableHisCollect")) hisCollects.onStart
+    if (rec.missing("disableHisCollect")) hisCollectMgr.onStart
     //if (rec.has("demoMode")) demo.onStart
 
     // subscribe to point commits
@@ -77,14 +81,21 @@ const class PointLib : HxLib
     if (e == null)
     {
       writeMgr.sync
+      hisCollectMgr.sync
       return
     }
 
     // check for writable changes
-    if (e.recHas("writable")) writeMgr.send(HxMsg("obs", e))
+    if (e.recHas("writable"))
+      writeMgr.send(HxMsg("obs", e))
+
+    // check for hisCollect changes
+    if (PointUtil.isHisCollect(e.oldRec) || PointUtil.isHisCollect(e.newRec))
+      hisCollectMgr.send(HxMsg("obs", e))
   }
 
   internal const EnumDefs enums
+  internal const HisCollectMgrActor hisCollectMgr
   internal const WriteMgrActor writeMgr
 }
 
