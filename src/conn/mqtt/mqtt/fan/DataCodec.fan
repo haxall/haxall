@@ -12,7 +12,7 @@
 mixin DataCodec
 {
   private static const Int uint8_max  := 255
-  private static const Int uint16_max := 64_535
+  private static const Int uint16_max := 65_535
   private static const Int uint32_max := 4_294_967_295
   private static const Int vbi_max    := 268_435_455
   private static const Int maxStr     := uint16_max
