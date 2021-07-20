@@ -36,16 +36,27 @@ class BrioTest : HaystackTest
     verifyConsts(cp, "accept", 872)
     verifyConsts(cp, "ver", 945)
 
+    // 3.0.27 (Nov 2020)
+    verifyConsts(cp, "airRef", 970, null, false)
+
     // max safe code
     verifyIO("what", 7)    // inline
     verifyIO("knot", 3)    // safe
     verifyIO("post", 3)    // safe
     verifyIO("node", 3)    // safe
+
+    // maxStrCode option using: 26 New_York
+    verifyIO("New_York", 2)
+    verifyIO("New_York", 11) { it.maxStrCode = -1 }
+    verifyIO("New_York", 11) { it.maxStrCode = 25 }
+    verifyIO("New_York", 2)  { it.maxStrCode = 26 }
+    verifyIO("New_York", 2)  { it.maxStrCode = 27 }
   }
 
-  Void verifyConsts(BrioConsts cp, Str val, Int code, Bool safe := true)
+
+  Void verifyConsts(BrioConsts cp, Str val, Int code, Int? max := null, Bool safe := true)
   {
-    verifyEq(cp.encode(val), safe ? code : null)
+    verifyEq(cp.encode(val, max ?: cp.maxSafeCode) , safe ? code : null)
     verifyEq(cp.decode(code), val)
   }
 
@@ -146,7 +157,7 @@ class BrioTest : HaystackTest
     verifyIO(Ref("1debX1b8-7508b187"), 21)
     verifyIO(Ref("1deb31b8.7508b187"), 21)
     verifyIO(Ref("1deb31b8-7508b187", "hi!"), 13)
-    verifyIO(Ref("1deb31b8-7508b187", "hi!"), 10, false)
+    verifyIO(Ref("1deb31b8-7508b187", "hi!"), 10) { it.encodeRefDis = false }
     verifyIO(Symbol("coolingTower"), 3)
     verifyIO(Symbol("foo-bar"), 3+7)
     verifyIO(DateTime("2015-11-30T12:02:33.378-05:00 New_York"), 10)
@@ -250,20 +261,20 @@ class BrioTest : HaystackTest
      verifyIO(big)
   }
 
-  internal Obj? verifyIO(Obj? x, Int? size := null, Bool encodeRefDis := true)
+  internal Obj? verifyIO(Obj? x, Int? size := null, |BrioWriter|? f := null)
   {
     if (x is Map) x = Etc.makeDict(x)
 
     buf := Buf()
     writer := BrioWriter(buf.out)
-    writer.encodeRefDis = encodeRefDis
+    if (f != null) f(writer)
     writer.writeVal(x)
     buf.flip
 
     if (size != null) verifyEq(buf.size, size)
 
     y := BrioReader(buf.in).readVal
-    if (encodeRefDis)
+    if (writer.encodeRefDis)
       verifyValEq(x, y)
     else
       verifyValEq(Ref(x.toStr), y)
