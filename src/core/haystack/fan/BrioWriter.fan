@@ -23,6 +23,7 @@ class BrioWriter : GridWriter, BrioCtrl
   {
     this.out = out
     this.cp = BrioConsts.cur
+    this.maxStrCode = cp.maxSafeCode
   }
 
   Bool close() { out.close }
@@ -304,7 +305,7 @@ class BrioWriter : GridWriter, BrioCtrl
   ** Write string value as encoded var int constant code or inline string.
   private Void encodeStr(Str val)
   {
-    code := cp.encode(val)
+    code := cp.encode(val, maxStrCode)
     if (code != null)
     {
       encodeVarInt(code)
@@ -343,6 +344,7 @@ class BrioWriter : GridWriter, BrioCtrl
 
   @NoDoc Str? encodeRefToRel
   @NoDoc Bool encodeRefDis := true
+  @NoDoc Int maxStrCode
   private const BrioConsts cp
   private OutStream out
 }

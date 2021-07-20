@@ -114,10 +114,10 @@ const class BrioConsts
   // Last safe code is 945 (last 3.0.17 code)
   const Int maxSafeCode := 945
 
-  Int? encode(Str val)
+  Int? encode(Str val, Int maxStrCode)
   {
     code := byVal[val]
-    if (code != null && code <= maxSafeCode) return code
+    if (code != null && code <= maxStrCode) return code
     return null
   }
 
