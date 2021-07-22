@@ -180,7 +180,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     onModified
 
     // register observables
-    rt.observeMgr.addLib(lib)
+    rt.observables.addLib(lib)
 
     // call onStart, onReady asynchronously
     spi := (HxdLibSpi)lib.spi
@@ -205,7 +205,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     }
 
     // unregister observables
-    rt.observeMgr.removeLib(lib)
+    rt.observables.removeLib(lib)
 
     // call onUnready, onStop asynchronously
     spi := (HxdLibSpi)lib.spi

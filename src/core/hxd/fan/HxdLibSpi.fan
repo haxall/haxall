@@ -91,7 +91,7 @@ const class HxdLibSpi : Actor, HxLibSpi
   override Subscription observe(Str name, Dict config, Obj callback)
   {
     observer := callback is Actor ? HxdLibActorObserver(lib, callback) : HxdLibMethodObserver(lib, callback)
-    sub := rt.observable(name).subscribe(observer, config)
+    sub := rt.observables.get(name).subscribe(observer, config)
     subscriptionsRef.val = subscriptions.dup.add(sub).toImmutable
     return sub
   }

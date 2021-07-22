@@ -55,18 +55,18 @@ class ObserveTest : HxTest
 
   private Observable verifyObservable(Str name)
   {
-    o := rt.observable(name)
+    o := rt.observables.get(name)
     verifyEq(o.name, name)
-    verifyEq(rt.observables.containsSame(o), true)
+    verifyEq(rt.observables.list.containsSame(o), true)
     return o
   }
 
   private Void verifyNotObservable(Str name)
   {
-    verifyEq(rt.observable(name, false), null)
-    verifyErr(UnknownObservableErr#) { rt.observable(name) }
-    verifyErr(UnknownObservableErr#) { rt.observable(name, true) }
-    verifyEq(rt.observables.find |o| { o.name == name }, null)
+    verifyEq(rt.observables.get(name, false), null)
+    verifyErr(UnknownObservableErr#) { rt.observables.get(name) }
+    verifyErr(UnknownObservableErr#) { rt.observables.get(name, true) }
+    verifyEq(rt.observables.list.find |o| { o.name == name }, null)
   }
 
   private Subscription subscribe(Observable o, Obj? configObj)
@@ -317,7 +317,7 @@ class ObserveTest : HxTest
 
   private Subscription commits(TestObserver o, Obj? config)
   {
-    rt.observable("obsCommits").subscribe(o, Etc.makeDict(config))
+    rt.observables.get("obsCommits").subscribe(o, Etc.makeDict(config))
   }
 
 }
