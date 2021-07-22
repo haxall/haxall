@@ -38,7 +38,7 @@ const class HxdRuntime : HxRuntime
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
     this.backgroundMgr = HxdBackgroundMgr(this)
     this.observables   = HxdObserveMgr(this)
-//    this.watches       = HxdWatchMgr(this)
+    this.watches       = HxdWatchMgr(this)
     libs.init
     this.users         = (HxRuntimeUsers)libs.getType(HxRuntimeUsers#)
   }
@@ -101,7 +101,7 @@ const class HxdRuntime : HxRuntime
   override const HxdObserveMgr observables
 
   ** Watch subscription APIs
-//  override const HxRuntimeWatches watches
+  override const HxRuntimeWatches watches
 
   ** Block until currently queued background processing completes
   override This sync(Duration? timeout := 30sec)
