@@ -143,6 +143,9 @@ const mixin HxRuntimeWatches
   ** Return if given record id is under at least one watch
   abstract Bool isWatched(Ref id)
 
+  ** Close expired watches
+  @NoDoc abstract Void checkExpires()
+
   ** Return debug grid.  Columns:
   **   - watchId: watch id
   **   - dis: watch dis
