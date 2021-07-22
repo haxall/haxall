@@ -32,7 +32,7 @@ const mixin HxRuntime
   ** Folio database for this runtime
   abstract Folio db()
 
-  ** Lookup a library by name
+  ** Lookup a library by name.  Convenience for 'libs.get'.
   abstract HxLib? lib(Str name, Bool checked := true)
 
   ** Library managment APIs
@@ -40,6 +40,9 @@ const mixin HxRuntime
 
   ** Observable APIs
   abstract HxRuntimeObservables observables()
+
+  ** Watch subscription APIs
+  abstract HxRuntimeWatches watches()
 
   ** Block until currently queued background processing completes
   abstract This sync(Duration? timeout := 30sec)
@@ -100,17 +103,55 @@ const mixin HxRuntimeLibs
 **************************************************************************
 
 **
-** Haxall observable APIs
+** Haxall runtime observable APIs
 **
 const mixin HxRuntimeObservables
 {
-  ** Lookup a observable for the runtime by name.
-  abstract Observable? get(Str name, Bool checked := true)
-
   ** List the published observables for the runtime
   abstract Observable[] list()
+
+  ** Lookup a observable for the runtime by name.
+  abstract Observable? get(Str name, Bool checked := true)
 }
 
+**************************************************************************
+** HxRuntimeWatches
+**************************************************************************
+
+**
+** Haxall runtime watch subscription APIs
+**
+const mixin HxRuntimeWatches
+{
+  ** List the watches currently open for this runtime.
+  ** Also see `docSkySpark::Watches#fantom`.
+  abstract HxWatch[] list()
+
+  ** Return list of watches currently subscribed to the given id,
+  ** or return empty list if the given id is not in any watches.
+  abstract HxWatch[] listOn(Ref id)
+
+  ** Find an open watch by its identifier.  If  not found
+  ** then throw Err or return null based on checked flag.
+  ** Also see `docSkySpark::Watches#fantom`.
+  abstract HxWatch? get(Str id, Bool checked := true)
+
+  ** Open a new watch with given display string for debugging.
+  ** Also see `docSkySpark::Watches#fantom`.
+  abstract HxWatch open(Str dis)
+
+  ** Return if given record id is under at least one watch
+  abstract Bool isWatched(Ref id)
+
+  ** Return debug grid.  Columns:
+  **   - watchId: watch id
+  **   - dis: watch dis
+  **   - created: timestamp when watch was created
+  **   - lastRenew: timestamp of last lease renewal
+  **   - lastPoll: timestamp of last poll
+  **   - size: number of records in watch
+  @NoDoc abstract Grid debugGrid()
+}
 
 **************************************************************************
 ** HxRuntimeUsers

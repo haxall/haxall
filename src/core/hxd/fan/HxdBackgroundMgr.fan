@@ -44,6 +44,10 @@ internal const class HxdBackgroundMgr : Actor
 
     // check schedules
     rt.observables.schedule.check(now)
+
+    // check watches
+    ((HxdWatchMgr)rt.watches).checkExpires
+
     return null
   }
 
