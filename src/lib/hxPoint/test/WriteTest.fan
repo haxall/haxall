@@ -135,10 +135,10 @@ class WriteTest : HxTest
     obsX := TestObserver()
     obsY := TestObserver()
 
-    rt.observable("obsPointWrite").subscribe(obsA, Etc.makeDict([:]))
-    rt.observable("obsPointWrite").subscribe(obsB, Etc.makeDict(["obsAllWrites":m]))
-    rt.observable("obsPointWrite").subscribe(obsX, Etc.makeDict(["obsFilter":"dis==\"X\""]))
-    rt.observable("obsPointWrite").subscribe(obsY, Etc.makeDict(["obsFilter":"dis==\"Y\""]))
+    rt.observables.get("obsPointWrite").subscribe(obsA, Etc.makeDict([:]))
+    rt.observables.get("obsPointWrite").subscribe(obsB, Etc.makeDict(["obsAllWrites":m]))
+    rt.observables.get("obsPointWrite").subscribe(obsX, Etc.makeDict(["obsFilter":"dis==\"X\""]))
+    rt.observables.get("obsPointWrite").subscribe(obsY, Etc.makeDict(["obsFilter":"dis==\"Y\""]))
 
     reset := |->|
     {

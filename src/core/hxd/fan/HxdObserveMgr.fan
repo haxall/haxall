@@ -16,7 +16,7 @@ using hx
 **
 ** HxdObserveMgr
 **
-internal const class HxdObserveMgr : Actor
+const class HxdObserveMgr : Actor, HxRuntimeObservables
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -50,9 +50,9 @@ internal const class HxdObserveMgr : Actor
 
   const Log log
 
-  Observable[] list() { listRef.val }
+  override Observable[] list() { listRef.val }
 
-  Observable? get(Str name, Bool checked := true)
+  override Observable? get(Str name, Bool checked := true)
   {
     o := byName.get(name)
     if (o != null) return o
@@ -102,13 +102,13 @@ internal const class HxdObserveMgr : Actor
 // Schedule
 //////////////////////////////////////////////////////////////////////////
 
-  const ScheduleObservable schedule
+  internal const ScheduleObservable schedule
 
 //////////////////////////////////////////////////////////////////////////
 // Commits
 //////////////////////////////////////////////////////////////////////////
 
-  const CommitsObservable commits
+  internal const CommitsObservable commits
 
   Void sync(Duration? timeout)
   {
@@ -240,7 +240,7 @@ internal const class CommitsObservable : Observable
   override Subscription onSubscribe(Observer observer, Dict config)
   {
     sub := CommitsSubscription(this, observer, config)
-    if (sub.addOnInit) rt.observeMgr.sendAddOnInit(sub)
+    if (sub.addOnInit) rt.observables.sendAddOnInit(sub)
     return sub
   }
 }

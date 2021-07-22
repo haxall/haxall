@@ -35,14 +35,11 @@ const mixin HxRuntime
   ** Lookup a library by name
   abstract HxLib? lib(Str name, Bool checked := true)
 
-  ** Library managment
+  ** Library managment APIs
   abstract HxRuntimeLibs libs()
 
-  ** Lookup a observable for this runtime.
-  abstract Observable? observable(Str name, Bool checked := true)
-
-  ** List the published observables for this runtime
-  abstract Observable[] observables()
+  ** Observable APIs
+  abstract HxRuntimeObservables observables()
 
   ** Block until currently queued background processing completes
   abstract This sync(Duration? timeout := 30sec)
@@ -97,6 +94,23 @@ const mixin HxRuntimeLibs
   ** Actor thread pool to use for libraries
   abstract ActorPool actorPool()
 }
+
+**************************************************************************
+** HxRuntimeObservables
+**************************************************************************
+
+**
+** Haxall observable APIs
+**
+const mixin HxRuntimeObservables
+{
+  ** Lookup a observable for the runtime by name.
+  abstract Observable? get(Str name, Bool checked := true)
+
+  ** List the published observables for the runtime
+  abstract Observable[] list()
+}
+
 
 **************************************************************************
 ** HxRuntimeUsers

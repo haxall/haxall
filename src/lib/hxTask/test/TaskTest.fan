@@ -88,7 +88,7 @@ class TaskTest : HxTest
 
     // verify subscriptions
     verifyEq(rt.isSteadyState, true)
-    sched := rt.observable("obsSchedule")
+    sched := rt.observables.get("obsSchedule")
     verifyEq(sched.subscriptions.size, 6)
     verifySubscribed(sched, aTask)
     verifySubscribed(sched, bTask)

@@ -37,7 +37,8 @@ const class HxdRuntime : HxRuntime
     this.hxdActorPool  = ActorPool { it.name = "Hxd-Runtime" }
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
     this.backgroundMgr = HxdBackgroundMgr(this)
-    this.observeMgr    = HxdObserveMgr(this)
+    this.observables   = HxdObserveMgr(this)
+//    this.watches       = HxdWatchMgr(this)
     libs.init
     this.users         = (HxRuntimeUsers)libs.getType(HxRuntimeUsers#)
   }
@@ -96,25 +97,22 @@ const class HxdRuntime : HxRuntime
   ** Actor pool to use for core daemon functionality
   const ActorPool hxdActorPool
 
-  ** Lookup a observable for this runtime.
-  override Observable? observable(Str name, Bool checked := true) { observeMgr.get(name, checked) }
-
   ** List the published observables for this runtime
-  override Observable[] observables() { observeMgr.list }
+  override const HxdObserveMgr observables
+
+  ** Watch subscription APIs
+//  override const HxRuntimeWatches watches
 
   ** Block until currently queued background processing completes
   override This sync(Duration? timeout := 30sec)
   {
     db.sync(timeout)
-    observeMgr.sync(timeout)
+    observables.sync(timeout)
     return this
   }
 
   ** Background tasks
   internal const HxdBackgroundMgr backgroundMgr
-
-  ** Observation management
-  internal const HxdObserveMgr observeMgr
 
   ** Public HTTP or HTTPS URI of this host.  This is always
   ** an absolute URI such 'https://acme.com/'
