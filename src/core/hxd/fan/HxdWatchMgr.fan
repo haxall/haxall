@@ -74,7 +74,7 @@ internal const class HxdWatchMgr : HxRuntimeWatches
     return rec != null && rec.numWatches.val > 0
   }
 
-  Void checkExpires()
+  override Void checkExpires()
   {
     toExpire := HxdWatch[,]
     now := Duration.now
