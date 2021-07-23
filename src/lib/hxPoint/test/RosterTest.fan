@@ -58,7 +58,7 @@ class RosterTest : HxTest
     verifyEnumDef(e, "fast", 2)
 
     // make a change to alpha and add beta
-    commit(rt.db.read("enumMeta"), [
+    commit(rt.db.read(Filter("enumMeta")), [
        "alpha": Str<|ver:"3.0"
                      name
                      "xoff"
@@ -81,7 +81,7 @@ class RosterTest : HxTest
     verifyEnumDef(e, "two", 2)
 
     // trash the enumMeta record
-    commit(rt.db.read("enumMeta"), ["trash":m])
+    commit(rt.db.read(Filter("enumMeta")), ["trash":m])
     rt.sync
     verifyEq(lib.enums.list.size, 0)
   }
@@ -98,8 +98,8 @@ class RosterTest : HxTest
 
   Void verifyWritables()
   {
-    a := rt.db.read("dis==\"A\"")
-    w := rt.db.read("dis==\"W\"")
+    a := rt.db.read(Filter("dis==\"A\""))
+    w := rt.db.read(Filter("dis==\"W\""))
 
     // initial writable point
     array := verifyWritable(w.id, n(123), 17)
@@ -160,9 +160,9 @@ class RosterTest : HxTest
 
   Void verifyHisCollects()
   {
-    int := rt.db.read("dis==\"Int\"")
-    cov := rt.db.read("dis==\"Cov\"")
-    a := rt.db.read("dis==\"A\"")
+    int := rt.db.read(Filter("dis==\"Int\""))
+    cov := rt.db.read(Filter("dis==\"Cov\""))
+    a := rt.db.read(Filter("dis==\"A\""))
 
     verifyHisCollect(int.id, 10sec, false)
     verifyHisCollect(cov.id, null, true)

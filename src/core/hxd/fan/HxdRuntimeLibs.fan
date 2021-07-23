@@ -28,7 +28,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     // init libs from database hxLib records
     map := Str:HxLib[:]
     installed := rt.installed
-    rt.db.readAllList("hxLib").each |rec|
+    rt.db.readAllList(Filter.has("hxLib")).each |rec|
     {
       try
       {
@@ -127,7 +127,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
       lib = get(arg, false)
       if (lib == null)
       {
-        rec := rt.db.read("hxLib==$arg.toStr.toCode", false)
+        rec := rt.db.read(Filter.eq("hxLib", arg.toStr), false)
         if (rec == null) throw UnknownLibErr(arg.toStr)
         rt.db.commit(Diff(rec, null, Diff.remove.or(Diff.bypassRestricted)))
         return

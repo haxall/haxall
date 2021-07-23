@@ -48,7 +48,7 @@ const class HxUserLib : HxLib, HxRuntimeUsers
   {
     rec := username is Ref ?
            rt.db.readById(username, false) :
-           rt.db.read("username==$username.toStr.toCode", false)
+           rt.db.read(Filter.eq("username", username.toStr), false)
     if (rec != null) return HxUserImpl(rec)
     if (checked) throw UnknownRecErr("User not found: $username")
     return null

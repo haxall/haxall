@@ -60,19 +60,19 @@ class BasicTest : AbstractFolioTest
     verifyErr(UnknownRecErr#) { f.readByIds([a.id, Ref.gen, b.id], true) }
 
     // read bad
-    verifyEq(f.read("bad", false), null)
-    verifyErr(UnknownRecErr#) { f.read("bad") }
-    verifyErr(UnknownRecErr#) { f.read("bad", true) }
+    verifyEq(f.read(Filter("bad"), false), null)
+    verifyErr(UnknownRecErr#) { f.read(Filter("bad")) }
+    verifyErr(UnknownRecErr#) { f.read(Filter("bad"), true) }
 
     // read good
-    verifySame(f.read("size==20"), b)
-    verifyDictEq(f.read("id == $b.id.toCode"), b)
-    verifyDictEq(f.read("id == $b.id.toCode and size == 20"), b)
-    verifyEq(f.read("id == $b.id.toCode and size == 10", false), null)
-    verifyEq(f.read("size == 10 and id == $b.id.toCode", false), null)
+    verifySame(f.read(Filter("size==20")), b)
+    verifyDictEq(f.read(Filter("id == $b.id.toCode")), b)
+    verifyDictEq(f.read(Filter("id == $b.id.toCode and size == 20")), b)
+    verifyEq(f.read(Filter("id == $b.id.toCode and size == 10"), false), null)
+    verifyEq(f.read(Filter("size == 10 and id == $b.id.toCode"), false), null)
 
     // readAllList
-    list = f.readAllList("size >= 20")
+    list = f.readAllList(Filter("size >= 20"))
     verifyEq(list.size, 2)
     if (list[0].id == b.id)
     {
@@ -86,7 +86,7 @@ class BasicTest : AbstractFolioTest
     }
 
     // readAll
-    grid = f.readAll("size >= 20")
+    grid = f.readAll(Filter("size >= 20"))
     verifyEq(grid.size, 2)
     if (list[0].id == b.id)
     {
@@ -113,7 +113,7 @@ class BasicTest : AbstractFolioTest
     verifyDictsEq(acc2, acc[0..0], false)
 
     // readCount
-    verifyEq(f.readCount("size >= 20"), 2)
+    verifyEq(f.readCount(Filter("size >= 20")), 2)
     ver = verifyCurVerNoChange(f, ver)
 
     // reopen
@@ -228,13 +228,11 @@ class BasicTest : AbstractFolioTest
     verifyErr(ShutdownErr#) { f.readById(a.id) }
     verifyErr(ShutdownErr#) { f.readByIds([a.id]) }
     verifyErr(ShutdownErr#) { f.readByIdsList([a.id]) }
-    verifyErr(ShutdownErr#) { f.readCount("foo") }
-    verifyErr(ShutdownErr#) { f.read("foo") }
-    verifyErr(ShutdownErr#) { f.readAll("foo") }
-    verifyErr(ShutdownErr#) { f.readAllList("foo") }
+    verifyErr(ShutdownErr#) { f.readCount(Filter("foo")) }
+    verifyErr(ShutdownErr#) { f.read(Filter("foo")) }
+    verifyErr(ShutdownErr#) { f.readAll(Filter("foo")) }
+    verifyErr(ShutdownErr#) { f.readAllList(Filter("foo")) }
     verifyErr(ShutdownErr#) { f.readByIdsList([a.id]) }
-    verifyErr(ShutdownErr#) { f.readFilter(Filter("foo")) }
-    verifyErr(ShutdownErr#) { f.readAllListFilter(Filter("foo")) }
     verifyErr(ShutdownErr#) { f.commit(Diff(a, ["foo":m])) }
     verifyErr(ShutdownErr#) { f.commitAll([Diff(a, ["foo":m])]) }
     verifyErr(ShutdownErr#) { f.commitAsync(Diff(a, ["foo":m])) }
@@ -395,7 +393,7 @@ class BasicTest : AbstractFolioTest
 
   Void verifyFilter(Str filter, Dict[] expected)
   {
-    actual := folio.readAll(filter).sortDis
+    actual := folio.readAll(Filter(filter)).sortDis
     a := actual.toRows.join(",") { it.dis }
     e := expected.join(",") { it.dis }
     //echo("-- $filter | $a ?= $e")
@@ -468,13 +466,13 @@ class BasicTest : AbstractFolioTest
     opts := Etc.makeDict(optsMap)
     filter := Filter(filterStr)
 
-    list := folio.readAllList(filterStr, opts)
+    list := folio.readAllList(filter, opts)
     verifyDictsEq(list, expected, false)
 
-    grid := folio.readAll(filterStr, opts)
+    grid := folio.readAll(filter, opts)
     verifyDictsEq(grid.toRows, expected, false)
 
-    count := folio.readCount(filterStr, opts)
+    count := folio.readCount(filter, opts)
     verifyEq(count, expected.size)
 
     return list
@@ -495,10 +493,10 @@ class BasicTest : AbstractFolioTest
     d := addRec(["num": n(4), "d":n(4), "trash": Marker.val]); Ref? dId := d.id
 
     // query filters out trash by default
-    set := folio.readAll("num")
+    set := folio.readAll(Filter("num"))
     verifyRecIds(set, [aId, bId, cId])
-    verifyEq(folio.readCount("num"), 3)
-    set = folio.readAll("num >= 3")
+    verifyEq(folio.readCount(Filter("num")), 3)
+    set = folio.readAll(Filter("num >= 3"))
     verifyRecIds(set, [cId])
 
     // get all tags/vals (trash should be filtered out)
@@ -515,12 +513,12 @@ class BasicTest : AbstractFolioTest
 
     // with trash option
     optsTrash := Etc.makeDict(["trash":m])
-    set = folio.readAll("num", optsTrash)
+    set = folio.readAll(Filter("num"), optsTrash)
     verifyRecIds(set, [aId, bId, cId, dId])
-    set = folio.readAll("num and trash", optsTrash)
+    set = folio.readAll(Filter("num and trash"), optsTrash)
     verifyRecIds(set, [dId])
-    verifyEq(folio.readCount("num", optsTrash), 4)
-    set = folio.readAll("num >= 3", optsTrash)
+    verifyEq(folio.readCount(Filter("num"), optsTrash), 4)
+    set = folio.readAll(Filter("num >= 3"), optsTrash)
     verifyRecIds(set, [cId, dId])
 
     // make b and c trash, and remove d from trash
@@ -530,11 +528,11 @@ class BasicTest : AbstractFolioTest
       Diff(d, ["trash":Remove.val])])
 
     // trash filtered
-    set = folio.readAll("num")
+    set = folio.readAll(Filter("num"))
     verifyRecIds(set, [aId, dId])
-    set = folio.readAll("num >= 3")
+    set = folio.readAll(Filter("num >= 3"))
     verifyRecIds(set, [dId])
-    set = folio.readAll("trash", optsTrash)
+    set = folio.readAll(Filter("trash"), optsTrash)
     verifyRecIds(set, [bId, cId])
 
     // get all tags/vals (trash should be filtered out)
@@ -549,12 +547,12 @@ class BasicTest : AbstractFolioTest
     */
 
     // get everything
-    set = folio.readAll("num", optsTrash).sortCol("num")
+    set = folio.readAll(Filter("num"), optsTrash).sortCol("num")
     verifyRecIds(set, [aId, bId, cId, dId])
 
     // empty trash
     verifyEq(folio.commitRemoveTrashAsync.count, 2)
-    set = folio.readAll("num", optsTrash).sortCol("num")
+    set = folio.readAll(Filter("num"), optsTrash).sortCol("num")
     verifyRecIds(set, [aId, dId])
 
     close
@@ -597,8 +595,8 @@ class BasicTest : AbstractFolioTest
     yPre := Diff.makeAdd(["dis":"y", "throw":m])
     verifyErr(IOErr#) { folio.commitAll([xPre, yPre]) }
     verifyTracker(t, cx, [aPre, bPre, cPre, dPre, ePre, xPre, yPre], [aPost, bPost, cPost, dPost, ePost])
-    verifyEq(folio.readCount("dis==\"x\""), 0)
-    verifyEq(folio.readCount("dis==\"y\""), 0)
+    verifyEq(folio.readCount(Filter("dis==\"x\"")), 0)
+    verifyEq(folio.readCount(Filter("dis==\"y\"")), 0)
 
     Actor.locals.remove(Etc.cxActorLocalsKey)
   }

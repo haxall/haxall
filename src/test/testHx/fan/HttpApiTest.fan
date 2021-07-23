@@ -194,11 +194,11 @@ class HttpApiTest : HxTest
   {
     // add
     db := rt.db
-    verifyEq(db.readCount("foo"), 0)
+    verifyEq(db.readCount(Filter("foo")), 0)
     Grid g := c.call("commit", Etc.makeMapGrid(["commit":"add"], ["dis":"Commit Test", "foo":m]))
     r := g.first as Dict
-    verifyEq(db.readCount("foo"), 1)
-    verifyDictEq(db.read("foo"), r)
+    verifyEq(db.readCount(Filter("foo")), 1)
+    verifyDictEq(db.read(Filter("foo")), r)
 
     // update
     g = c.call("commit", Etc.makeMapGrid(["commit":"update"], ["id":r.id, "mod":r->mod, "bar":"baz"]))

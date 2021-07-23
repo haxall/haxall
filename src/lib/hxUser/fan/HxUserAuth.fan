@@ -8,6 +8,7 @@
 
 using web
 using auth
+using haystack
 using hx
 
 **
@@ -108,7 +109,7 @@ internal class HxUserAuth
 
     // auto login superuser for testing
     if (lib.noAuth)
-      return lib.login(req, res, HxUserImpl(rt.db.read("user and userRole==\"su\"")))
+      return lib.login(req, res, HxUserImpl(rt.db.read(Filter("user and userRole==\"su\""))))
 
     // redirect to login
     return null

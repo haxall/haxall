@@ -98,6 +98,12 @@ abstract class HxTest : HaystackTest
 // Folio Conveniences
 //////////////////////////////////////////////////////////////////////////
 
+  ** Convenience for 'read' on `rt`
+  Dict? read(Str filter, Bool checked := true)
+  {
+    rt.db.read(Filter(filter), checked)
+  }
+
   ** Convenience for 'readById' on `rt`
   Dict? readById(Ref id, Bool checked := true)
   {

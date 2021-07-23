@@ -43,7 +43,7 @@ internal class DemoMgr : PointMgr
 
     // process all the points not associated with connector
     now := Duration.now
-    recs := db.readAll("point")
+    recs := db.readAll(Filter.has("point"))
     recs.each |rec|
     {
       // if noDemoMode, schedule/calendar, or associated with a connector skip it

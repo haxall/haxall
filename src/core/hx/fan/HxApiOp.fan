@@ -153,7 +153,7 @@ internal class HxReadOp : HxApiOp
     if (req.has("filter"))
     {
       reqRow := req.first
-      filter := (Str)reqRow->filter
+      filter := Filter.fromStr(reqRow->filter)
       opts   := reqRow
       return cx.db.readAll(filter, opts)
     }
