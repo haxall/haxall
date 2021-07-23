@@ -28,38 +28,18 @@ internal const class WriteObservable : Observable
 ** WriteSubscription
 **************************************************************************
 
-internal const class WriteSubscription : Subscription
+internal const class WriteSubscription : FilterSubscription
 {
   new make(WriteObservable observable, Observer observer, Dict config)
     : super(observable, observer, config)
   {
-    filter  = parseFilter(config["obsFilter"])
-
     // this is undocumented backdoor hook - it observes all writes,
     // not just the effective level changes.  Don't use it unless
     // you have to because it will fire a lot more events
     isAllWrites = config.has("obsAllWrites")
   }
 
-  private static Filter? parseFilter(Obj? val)
-  {
-    if (val == null) return null
-    if (val isnot Str) throw Err("obsFilter must be filter string")
-    try
-      return Filter.fromStr(val)
-    catch (Err e)
-      throw Err("obsFilter invalid: $e")
-  }
-
   const Bool isAllWrites
-  const Filter? filter
-
-  Bool include(Dict rec)
-  {
-    if (rec.isEmpty) return false
-    if (filter == null) return true
-    return filter.matches(rec)
-  }
 }
 
 **************************************************************************

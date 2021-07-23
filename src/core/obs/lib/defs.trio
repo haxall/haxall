@@ -18,41 +18,6 @@ doc: "Observable subscription - see [docs]`docSkySpark::Observables`"
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
-// Commits
-//////////////////////////////////////////////////////////////////////////
-
---------------------------------------------------------------------------
-def: ^obsCommits
-is: ^observable
-doc: "Subscribe to record commits in Folio."
---------------------------------------------------------------------------
-def: ^obsAdds
-is: ^marker
-tagOn: ^obsCommits
-doc: "Process when a new data item is added to the observed data set."
---------------------------------------------------------------------------
-def: ^obsUpdates
-is: ^marker
-tagOn: ^obsCommits
-doc: "Process when an existing data item is updated in the observed data set."
---------------------------------------------------------------------------
-def: ^obsRemoves
-is: ^marker
-tagOn: ^obsCommits
-doc: "Process when an existing data item is removed from the observed data set."
---------------------------------------------------------------------------
-def: ^obsAddOnInit
-is: ^marker
-tagOn: ^obsCommits
-doc: "Fire add event for all existing records in data set on initialization."
---------------------------------------------------------------------------
-def: ^obsFilter
-is: ^filterStr
-tagOn: ^obsCommits
-doc: "Filter string to define the record data set observed."
---------------------------------------------------------------------------
-
-//////////////////////////////////////////////////////////////////////////
 // Schedule
 //////////////////////////////////////////////////////////////////////////
 
@@ -95,4 +60,50 @@ tagOn: ^obsSchedule
 doc:
   Schedule events only during the configured span of time.
 --------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Commits
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^obsCommits
+is: ^observable
+doc: "Subscribe to record commits in Folio."
+--------------------------------------------------------------------------
+def: ^obsAdds
+is: ^marker
+tagOn: ^obsCommits
+doc: "Process when a new data item is added to the observed data set."
+--------------------------------------------------------------------------
+def: ^obsUpdates
+is: ^marker
+tagOn: ^obsCommits
+doc: "Process when an existing data item is updated in the observed data set."
+--------------------------------------------------------------------------
+def: ^obsRemoves
+is: ^marker
+tagOn: ^obsCommits
+doc: "Process when an existing data item is removed from the observed data set."
+--------------------------------------------------------------------------
+def: ^obsAddOnInit
+is: ^marker
+tagOn: ^obsCommits
+doc: "Fire add event for all existing records in data set on initialization."
+--------------------------------------------------------------------------
+def: ^obsFilter
+is: ^filterStr
+tagOn: [^obsCommits,^obsWatch]
+doc: "Filter string to define the record data set observed."
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Watches
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^obsWatch
+is: ^observable
+doc: "Subscribe to watch and unwatch."
+--------------------------------------------------------------------------
+
 

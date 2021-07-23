@@ -31,8 +31,9 @@ const class HxdObserveMgr : Actor, HxRuntimeObservables
     this.listRef = AtomicRef(null)
 
     // built-ins
-    schedule = ScheduleObservable(); byName.add(schedule.name, schedule)
-    commits = CommitsObservable(rt); byName.add(commits.name, commits)
+    schedule = ScheduleObservable();  byName.add(schedule.name, schedule)
+    commits  = CommitsObservable(rt); byName.add(commits.name, commits)
+    watch    = WatchObservable(rt);   byName.add(watch.name, watch)
 
     // runtine lib observables
     rt.libs.list.each |lib| { addLib(lib) }
@@ -99,16 +100,8 @@ const class HxdObserveMgr : Actor, HxRuntimeObservables
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Schedule
-//////////////////////////////////////////////////////////////////////////
-
-  internal const ScheduleObservable schedule
-
-//////////////////////////////////////////////////////////////////////////
 // Commits
 //////////////////////////////////////////////////////////////////////////
-
-  internal const CommitsObservable commits
 
   Void sync(Duration? timeout)
   {
@@ -221,6 +214,10 @@ const class HxdObserveMgr : Actor, HxRuntimeObservables
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  internal const ScheduleObservable schedule
+  internal const CommitsObservable commits
+  internal const WatchObservable watch
+
   private const AtomicRef listRef
   private const ConcurrentMap byName  // Str:Observable
 }
@@ -249,7 +246,7 @@ internal const class CommitsObservable : Observable
 ** CommitsSubscription
 **************************************************************************
 
-internal const class CommitsSubscription : Subscription
+internal const class CommitsSubscription : FilterSubscription
 {
   new make(CommitsObservable observable, Observer observer, Dict config)
     : super(observable, observer, config)
@@ -258,32 +255,60 @@ internal const class CommitsSubscription : Subscription
     updates   = config.has("obsUpdates")
     removes   = config.has("obsRemoves")
     addOnInit = config.has("obsAddOnInit")
-    filter    = parseFilter(config["obsFilter"])
 
     if (!adds && !updates && !removes) throw Err("Must must define at least one: obsAdds, obsUpdates, or obsRemoves")
     if (addOnInit && filter == null) throw Err("Must define obsFilter if using obsAddOnInit")
-  }
-
-  private static Filter? parseFilter(Obj? val)
-  {
-    if (val == null) return null
-    if (val isnot Str) throw Err("obsFilter must be filter string")
-    try
-      return Filter.fromStr(val)
-    catch (Err e)
-      throw Err("obsFilter invalid: $e")
   }
 
   const Bool adds
   const Bool updates
   const Bool removes
   const Bool addOnInit
-  const Filter? filter
+}
 
-  Bool include(Dict rec)
+**************************************************************************
+** WatchObservable
+**************************************************************************
+
+internal const class WatchObservable : Observable
+{
+  new make(HxdRuntime rt) { this.rt = rt }
+
+  const HxdRuntime rt
+
+  override Str name() { "obsWatch" }
+
+  override Subscription onSubscribe(Observer observer, Dict config)
   {
-    if (rec.isEmpty) return false
-    if (filter == null) return true
-    return filter.matches(rec)
+    WatchSubscription(this, observer, config)
+  }
+
+  Void fireWatch(Dict[] recs) { fire("watch", recs) }
+
+  Void fireUnwatch(Dict[] recs) { fire("unwatch", recs) }
+
+  private Void fire(Str subType, Dict[] recs)
+  {
+    ts := DateTime.now
+    subscriptions.each |WatchSubscription sub|
+    {
+      matches := sub.filter == null ? recs : recs.findAll |rec| { sub.include(rec) }
+      if (matches.isEmpty) return
+      obs := makeObservation(ts, Etc.makeDict2("subType", subType, "recs", matches))
+      sub.send(obs)
+    }
+    return null
+  }
+}
+
+**************************************************************************
+** WatchSubscription
+**************************************************************************
+
+internal const class WatchSubscription : FilterSubscription
+{
+  new make(WatchObservable observable, Observer observer, Dict config)
+    : super(observable, observer, config)
+  {
   }
 }
