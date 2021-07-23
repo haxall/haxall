@@ -29,7 +29,7 @@ const class HxCoreFuncs
     cx := curContext
     filter := filterExpr.evalToFilter(cx)
     check := checked.eval(cx)
-    return cx.db.read(filter.toStr, check)
+    return cx.db.read(filter, check)
   }
 
   ** Read a record from database by 'id'.  If not found
@@ -97,7 +97,7 @@ const class HxCoreFuncs
       optsDict := (Dict?)opts.eval(cx)
       if (optsDict != null && !optsDict.isEmpty)
       {
-        grid := cx.db.readAll(filter.toStr, optsDict)
+        grid := cx.db.readAll(filter, optsDict)
         if (optsDict.has("search"))
         {
           search := optsDict["search"].toStr.trimToNull
@@ -110,7 +110,7 @@ const class HxCoreFuncs
         return grid
       }
     }
-    return cx.db.readAll(filter.toStr)
+    return cx.db.readAll(filter)
   }
 
   ** Read a list of ids as a stream of Dict records.
@@ -168,7 +168,7 @@ const class HxCoreFuncs
   {
     cx := curContext
     filter := filterExpr.evalToFilter(cx)
-    return Number(cx.db.readCount(filter.toStr))
+    return Number(cx.db.readCount(filter))
   }
 
   ** Coerce a value to a Ref identifier:

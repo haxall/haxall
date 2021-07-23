@@ -58,7 +58,7 @@ class MiscTest : WhiteboxTest
   {
     // setup
     counter++
-    pt := folio.read("point")
+    pt := folio.read(Filter("point"))
     t1 := Duration.now
     index := folio.dir+`folio.index`
     crc1 := index.readAllBuf.crc("CRC-32")

@@ -154,16 +154,16 @@ abstract const class Folio
 
   ** Return the number of records which match given [filter]`docHaystack::Filters`.
   ** This method supports the same options as `readAll`.
-  Int readCount(Str filter, Dict? opts := null)
+  Int readCount(Filter filter, Dict? opts := null)
   {
-    checkRead.doReadCount(Filter(filter), opts)
+    checkRead.doReadCount(filter, opts)
   }
 
   ** Find the first record which matches the given [filter]`docHaystack::Filters`.
   ** Throw UnknownRecErr or return null based on checked flag.
-  Dict? read(Str filter, Bool checked := true)
+  Dict? read(Filter filter, Bool checked := true)
   {
-    checkRead.doReadAll(Filter(filter), optsLimit1).dict(checked)
+    checkRead.doReadAll(filter, optsLimit1).dict(checked)
   }
 
   ** Match all the records against a [filter]`docHaystack::Filters` and
@@ -173,27 +173,15 @@ abstract const class Folio
   **   - limit: max number of recs to read
   **   - trash: marker tag to include recs with trash tag
   **   - gridMeta: Dict to use for grid meta
-  Grid readAll(Str filter, Dict? opts := null)
+  Grid readAll(Filter filter, Dict? opts := null)
   {
     Etc.makeDictsGrid(opts?.get("gridMeta"),
-      checkRead.doReadAll(Filter(filter), opts).dicts(false))
+      checkRead.doReadAll(filter, opts).dicts(false))
   }
 
   ** Match all the records against a [filter]`docHaystack::Filters` and return
   ** as list.  This method uses same semantics and options as `readAll`.
-  Dict[] readAllList(Str filter, Dict? opts := null)
-  {
-    checkRead.doReadAll(Filter(filter), opts).dicts
-  }
-
-  ** Read with pre-parsed filter.
-  @NoDoc Dict? readFilter(Filter filter, Bool checked := true)
-  {
-    checkRead.doReadAll(filter, optsLimit1).dict(checked)
-  }
-
-  ** Read all as list with pre-parsed filter.
-  @NoDoc Dict[] readAllListFilter(Filter filter, Dict? opts := null)
+  Dict[] readAllList(Filter filter, Dict? opts := null)
   {
     checkRead.doReadAll(filter, opts).dicts
   }
@@ -277,7 +265,7 @@ abstract const class Folio
   ** Remove all records with the trash tag
   @NoDoc FolioFuture commitRemoveTrashAsync()
   {
-    recs := readAllList("trash", Etc.makeDict(["trash":Marker.val]))
+    recs := readAllList(Filter.has("trash"), Etc.makeDict1("trash", Marker.val))
     diffs := recs.map |rec->Diff| { Diff(rec, null, Diff.remove.or(Diff.force)) }
     return commitAllAsync(diffs)
   }

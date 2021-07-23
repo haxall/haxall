@@ -130,7 +130,7 @@ class HxdContext : HxContext
   {
     expr := parse(src)
     filter := expr.evalToFilter(this, false)
-    if (filter != null) return rt.db.readAll(filter.toStr)
+    if (filter != null) return rt.db.readAll(filter)
     return expr.eval(this)
   }
 }

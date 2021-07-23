@@ -106,7 +106,7 @@ class RuntimeTest : HxTest
     verifySame(rt.ns.lib(name), lib.def)
 
     // only in hxd environments
-    rec := rt.db.read("hxLib==$name.toCode", false)
+    rec := read("hxLib==$name.toCode", false)
     if (rec != null) verifyDictEq(lib.rec, rec)
 
     return lib
@@ -121,7 +121,7 @@ class RuntimeTest : HxTest
     verifyEq(rt.libs.list.find { it.name == name }, null)
     verifyEq(rt.libs.has(name), false)
 
-    verifyEq(rt.db.read("hxLib==$name.toCode", false), null)
+    verifyEq(read("hxLib==$name.toCode", false), null)
 
     verifyEq(rt.ns.lib(name, false), null)
     verifyErr(UnknownLibErr#) { rt.ns.lib(name) }

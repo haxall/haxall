@@ -48,21 +48,21 @@ using haystack
 
   Dict? read(Str filter, Bool checked := true)
   {
-    r := folio.read(filter, checked)
+    r := folio.read(Filter(filter), checked)
     if (r != null) add(r)
     return r
   }
 
   Grid readAll(Str filter)
   {
-    r := folio.readAll(filter)
+    r := folio.readAll(Filter(filter))
     r.each { add(it) }
     return r
   }
 
   Int readCount(Str filter)
   {
-    folio.readCount(filter)
+    folio.readCount(Filter(filter))
   }
 
   @NoDoc Void add(Dict? rec)

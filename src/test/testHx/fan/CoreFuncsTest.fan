@@ -103,7 +103,7 @@ class CoreFuncsTest : HxTest
     verifyEval("five()", n(5))
     verifyEval("addem(3, 6)", n(9))
     verifyEval("addem(3, 6)", n(9))
-    verifyEval("findFive()", rt.db.read("def==^func:five"))
+    verifyEval("findFive()", read("def==^func:five"))
     verifyEval("findDan()", d)
     verifyEval("allOld()", toGrid([c, d]))
   }
@@ -230,26 +230,26 @@ class CoreFuncsTest : HxTest
 
     // commit+diff - add
     eval("""commit(diff(null, {dis:"diff-a", foo, i:123}, {add}))""")
-    r := db.read(Str<|dis=="diff-a"|>)
+    r := db.read(Filter(Str<|dis=="diff-a"|>))
     verifyDictEq(r, ["id":r.id, "mod":r->mod, "dis":"diff-a", "foo":Marker.val, "i":n(123)])
 
     // commit+diff - change with tag remove, tag add, tag update
     eval("""commit(diff(readById($r.id.toCode), {-foo, i:456, s:"!"}))""")
-    r = db.read(Str<|dis=="diff-a"|>)
+    r = db.read(Filter(Str<|dis=="diff-a"|>))
     verifyDictEq(r, ["id":r.id, "mod":r->mod, "dis":"diff-a", "i":n(456), "s":"!"])
 
     // commit+diff - makeAdd with explicit id
     xId := Ref.gen
     eval("""commit(diff(null, {id:$xId.toCode, dis:"diff-b"}, {add}))""")
-    r = db.read(Str<|dis=="diff-b"|>)
+    r = db.read(Filter(Str<|dis=="diff-b"|>))
     verifyDictEq(r, ["id":Ref(r.id.id, "diff-b"), "mod":r->mod, "dis":"diff-b"])
 
     // commit with sparse cols in grid
     eval("""[{dis:"g1", a:10}, {dis:"g2", b:20}].toGrid
             .each x => commit(diff(null, x, {add}))""")
-    r = db.read(Str<|dis=="g1"|>)
+    r = db.read(Filter(Str<|dis=="g1"|>))
     verifyDictEq(r, ["id":r.id, "mod":r->mod, "dis":"g1", "a":n(10)])
-    r = db.read(Str<|dis=="g2"|>)
+    r = db.read(Filter(Str<|dis=="g2"|>))
     verifyDictEq(r, ["id":r.id, "mod":r->mod, "dis":"g2", "b":n(20)])
   }
 
@@ -382,7 +382,7 @@ class CoreFuncsTest : HxTest
     // readAllStream
     verifyStream("readAllStream(age).collect", [a, b, c, d])
     verifyStream("readAllStream(age <= 20).collect", [a, b])
-    verifyStream("readAllStream(age).limit(3).collect", db.readAllList("age")[0..2])
+    verifyStream("readAllStream(age).limit(3).collect", db.readAllList(Filter("age"))[0..2])
 
     // readByIdsStream
     verifyStream("readByIdsStream([$a.id.toCode, $c.id.toCode, $b.id.toCode]).collect", [a, c, b])
@@ -390,7 +390,7 @@ class CoreFuncsTest : HxTest
 
     // commit
     verifyEq(eval("""(1..5).stream.map(n=>diff(null, {dis:"C-"+n, commitTest}, {add})).commit"""), n(5))
-    g := db.readAll("commitTest").sortCol("dis")
+    g := db.readAll(Filter("commitTest")).sortCol("dis")
     verifyEq(g.size, 5)
     verifyEq(g[0].dis, "C-1")
     verifyEq(g[4].dis, "C-5")

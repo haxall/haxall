@@ -158,7 +158,7 @@ internal class InitCli : HxCli
 
   private Void initHttpPort(HxdRuntime rt)
   {
-    rec := rt.db.read(Str<|hxLib=="hxHttp"|>)
+    rec := rt.db.read(Filter(Str<|hxLib=="hxHttp"|>))
     port := Number(httpPort)
     if (rec["httpPort"] != port)
     {
@@ -169,7 +169,7 @@ internal class InitCli : HxCli
 
   private Void initSu(HxdRuntime rt)
   {
-    rec := rt.db.read("username==$suUser.toCode", false)
+    rec := rt.db.read(Filter("username==$suUser.toCode"), false)
     if (rec == null)
     {
       rt.log.info("Create su [$suUser.toCode]")

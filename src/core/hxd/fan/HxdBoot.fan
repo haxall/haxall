@@ -138,7 +138,7 @@ class HxdBoot
   private Void initMeta()
   {
     tags := ["hxMeta":Marker.val,"projMeta": Marker.val]
-    initRec("hxMeta", db.read("hxMeta", false), tags)
+    initRec("hxMeta", db.read(Filter.has("hxMeta"), false), tags)
   }
 
   private Void initLibs()
@@ -149,7 +149,7 @@ class HxdBoot
   private Void initLib(Str name)
   {
     tags := ["hxLib":name, "dis":"lib:$name"]
-    initRec("lib [$name]", db.read("hxLib==$name.toCode", false), tags)
+    initRec("lib [$name]", db.read(Filter.eq("hxLib", name), false), tags)
   }
 
   private Void initRec(Str summary, Dict? rec, Str:Obj changes := [:])

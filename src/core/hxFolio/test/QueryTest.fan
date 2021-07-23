@@ -126,13 +126,14 @@ class QueryTest : WhiteboxTest
     verifyQuery("num >= 8 and fooRef",   [x1, x2, x3], "fullScan", true)
   }
 
-  Void verifyQuery(Str filter, Dict[] expected, Str plan, Bool trash := false)
+  Void verifyQuery(Str filterStr, Dict[] expected, Str plan, Bool trash := false)
   {
     folio.stats.clear
     statsA := folio.stats.reads.count
 
     // readAllList
     opts := trash ? Etc.makeDict1("trash", m) : null
+    filter := Filter(filterStr)
     list := folio.readAllList(filter, opts)
     // echo(">> $filter $list.size ?= $expected.size")
     verifyDictsEq(list, expected, false)
@@ -154,7 +155,7 @@ class QueryTest : WhiteboxTest
 
     // readAllEachWhile
     acc := Dict[,]
-    ew := folio.readAllEachWhile(Filter(filter), opts) |rec| { acc.add(rec); return null }
+    ew := folio.readAllEachWhile(filter, opts) |rec| { acc.add(rec); return null }
     verifyEq(ew, null)
     verifyDictsEq(acc, expected, false)
     verifyPlanStats(plan)

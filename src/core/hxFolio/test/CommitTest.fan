@@ -168,25 +168,26 @@ class CommitTest : WhiteboxTest
     verifyEq(folio.index.rec(r.id).isTrash, isTrash)
 
     // non-option reads
+    f :=  Filter("foo==${r->foo}")
     if (isTrash)
     {
-      verifyEq(folio.readAll("foo==${r->foo}").size, 0)
-      verifyEq(folio.readCount("foo==${r->foo}"), 0)
-      verifyEq(folio.read("foo==${r->foo}", false), null)
+      verifyEq(folio.readAll(f).size, 0)
+      verifyEq(folio.readCount(f), 0)
+      verifyEq(folio.read(f, false), null)
     }
     else
     {
-      verifyEq(folio.readAll("foo==${r->foo}").size, 1)
-      verifyEq(folio.readAll("foo==${r->foo}")[0]->id, r.id)
-      verifyEq(folio.readCount("foo==${r->foo}"), 1)
-      verifyDictEq(folio.read("foo==${r->foo}", false), r)
+      verifyEq(folio.readAll(f).size, 1)
+      verifyEq(folio.readAll(f)[0]->id, r.id)
+      verifyEq(folio.readCount(f), 1)
+      verifyDictEq(folio.read(f, false), r)
     }
 
     // with opts
     opts := Etc.makeDict(["trash":m])
-    verifyEq(folio.readAll("foo==${r->foo}", opts).size, 1)
-    verifyEq(folio.readAll("foo==${r->foo}", opts)[0]->id, r.id)
-    verifyEq(folio.readCount("foo==${r->foo}", opts), 1)
+    verifyEq(folio.readAll(f, opts).size, 1)
+    verifyEq(folio.readAll(f, opts)[0]->id, r.id)
+    verifyEq(folio.readCount(f, opts), 1)
   }
 
 

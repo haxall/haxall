@@ -234,7 +234,7 @@ const class HxdOverlayCompiler
     meta := Etc.makeDict(acc)
 
     b := BOverlayLib(base, meta)
-    rt.db.readAll("def").each |rec| { addRecDef(b, rec) }
+    rt.db.readAll(Filter.has("def")).each |rec| { addRecDef(b, rec) }
 
     return MOverlayNamespace(base, MOverlayLib(b), |Lib lib->Bool| { true })
   }
