@@ -62,6 +62,6 @@ const class HxdFolioHooks : FolioHooks
       rt.nsOverlayRecompile
     }
 
-    rt.observables.commit(diff, user)
+    rt.obs.commit(diff, user)
   }
 }

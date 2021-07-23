@@ -362,7 +362,7 @@ const class Task : Actor, Observer, Dict
       if (!type.isRec) return
 
       // check if the rec has any of the observeFoo tags
-      observable := lib.rt.observables.list.find |o| { rec.has(o.name) }
+      observable := lib.rt.obs.list.find |o| { rec.has(o.name) }
       if (observable == null) return
 
       // create subscription using rec itself as the config

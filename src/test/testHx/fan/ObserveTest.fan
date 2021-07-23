@@ -55,18 +55,18 @@ class ObserveTest : HxTest
 
   private Observable verifyObservable(Str name)
   {
-    o := rt.observables.get(name)
+    o := rt.obs.get(name)
     verifyEq(o.name, name)
-    verifyEq(rt.observables.list.containsSame(o), true)
+    verifyEq(rt.obs.list.containsSame(o), true)
     return o
   }
 
   private Void verifyNotObservable(Str name)
   {
-    verifyEq(rt.observables.get(name, false), null)
-    verifyErr(UnknownObservableErr#) { rt.observables.get(name) }
-    verifyErr(UnknownObservableErr#) { rt.observables.get(name, true) }
-    verifyEq(rt.observables.list.find |o| { o.name == name }, null)
+    verifyEq(rt.obs.get(name, false), null)
+    verifyErr(UnknownObservableErr#) { rt.obs.get(name) }
+    verifyErr(UnknownObservableErr#) { rt.obs.get(name, true) }
+    verifyEq(rt.obs.list.find |o| { o.name == name }, null)
   }
 
   private Subscription subscribe(Observable o, Obj? configObj)
@@ -317,7 +317,7 @@ class ObserveTest : HxTest
 
   private Subscription commits(TestObserver o, Obj? config)
   {
-    rt.observables.get("obsCommits").subscribe(o, Etc.makeDict(config))
+    rt.obs.get("obsCommits").subscribe(o, Etc.makeDict(config))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -334,9 +334,9 @@ class ObserveTest : HxTest
     e := addRec(["dis":"E", "bar":m])
     f := addRec(["dis":"F", "bar":m])
 
-    x := TestObserver(); xs := rt.observables.get("obsWatch").subscribe(x, Etc.emptyDict)
-    y := TestObserver(); ys := rt.observables.get("obsWatch").subscribe(y, Etc.makeDict1("obsFilter", "foo"))
-    z := TestObserver(); zs := rt.observables.get("obsWatch").subscribe(z, Etc.makeDict1("obsFilter", "bar"))
+    x := TestObserver(); xs := rt.obs.get("obsWatch").subscribe(x, Etc.emptyDict)
+    y := TestObserver(); ys := rt.obs.get("obsWatch").subscribe(y, Etc.makeDict1("obsFilter", "foo"))
+    z := TestObserver(); zs := rt.obs.get("obsWatch").subscribe(z, Etc.makeDict1("obsFilter", "bar"))
     clear := |->| { x.clear; y.clear; z.clear }
 
     verifyWatch(x, null, null)

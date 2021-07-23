@@ -200,7 +200,7 @@ internal const class HxdWatch : HxWatch
         }
       }
     }
-    if (firstRecs != null) mgr.rt.observables.watch.fireWatch(firstRecs)
+    if (firstRecs != null) mgr.rt.obs.watch.fireWatch(firstRecs)
   }
 
   override Void removeAll(Ref[] ids)
@@ -222,7 +222,7 @@ internal const class HxdWatch : HxWatch
         }
       }
     }
-    if (lastRecs != null) mgr.rt.observables.watch.fireUnwatch(lastRecs)
+    if (lastRecs != null) mgr.rt.obs.watch.fireUnwatch(lastRecs)
   }
 
   override Void set(Ref[] ids)

@@ -355,7 +355,7 @@ const class HxCoreFuncs
     cx := curContext
     gb := GridBuilder()
     gb.addCol("observable").addCol("subscriptions").addCol("doc")
-    cx.rt.observables.list.each |o|
+    cx.rt.obs.list.each |o|
     {
       doc := cx.ns.def(o.name, false)?.get("doc") ?: ""
       gb.addRow([o.name, Number(o.subscriptions.size), doc])
@@ -369,7 +369,7 @@ const class HxCoreFuncs
     cx := curContext
     gb := GridBuilder()
     gb.addCol("observable").addCol("observer").addCol("config")
-    cx.rt.observables.list.each |o|
+    cx.rt.obs.list.each |o|
     {
       o.subscriptions.each |s|
       {

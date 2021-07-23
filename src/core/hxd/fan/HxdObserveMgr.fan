@@ -16,7 +16,7 @@ using hx
 **
 ** HxdObserveMgr
 **
-const class HxdObserveMgr : Actor, HxRuntimeObservables
+const class HxdObserveMgr : Actor, HxRuntimeObs
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -237,7 +237,7 @@ internal const class CommitsObservable : Observable
   override Subscription onSubscribe(Observer observer, Dict config)
   {
     sub := CommitsSubscription(this, observer, config)
-    if (sub.addOnInit) rt.observables.sendAddOnInit(sub)
+    if (sub.addOnInit) rt.obs.sendAddOnInit(sub)
     return sub
   }
 }
