@@ -320,6 +320,90 @@ class ObserveTest : HxTest
     rt.observables.get("obsCommits").subscribe(o, Etc.makeDict(config))
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Watch
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testWatch()
+  {
+    a := addRec(["dis":"A", "foo":m])
+    b := addRec(["dis":"B", "foo":m])
+    c := addRec(["dis":"C", "foo":m, "bar":m])
+    d := addRec(["dis":"D", "foo":m, "bar":m])
+    e := addRec(["dis":"E", "bar":m])
+    f := addRec(["dis":"F", "bar":m])
+
+    x := TestObserver(); xs := rt.observables.get("obsWatch").subscribe(x, Etc.emptyDict)
+    y := TestObserver(); ys := rt.observables.get("obsWatch").subscribe(y, Etc.makeDict1("obsFilter", "foo"))
+    z := TestObserver(); zs := rt.observables.get("obsWatch").subscribe(z, Etc.makeDict1("obsFilter", "bar"))
+    clear := |->| { x.clear; y.clear; z.clear }
+
+    verifyWatch(x, null, null)
+    verifyWatch(y, null, null)
+    verifyWatch(z, null, null)
+
+    w1 := rt.watches.open("w1")
+    w2 := rt.watches.open("w2")
+
+    // b, c, d, e into watch
+    w1.addAll([b.id, c.id, d.id, e.id])
+    verifyWatch(x, "watch", [b, c, d, e])
+    verifyWatch(y, "watch", [b, c, d])
+    verifyWatch(z, "watch", [c, d, e])
+
+    // b, c, d, e watch num 2
+    clear()
+    w2.addAll([b.id, c.id, d.id, e.id])
+    verifyWatch(x, null, null)
+    verifyWatch(y, null, null)
+    verifyWatch(z, null, null)
+
+    // a into watch
+    w2.add(a.id)
+    verifyWatch(x, "watch", [a])
+    verifyWatch(y, "watch", [a])
+    verifyWatch(z, null, null)
+
+    // a out of watch
+    clear()
+    w2.remove(a.id)
+    verifyWatch(x, "unwatch", [a])
+    verifyWatch(y, "unwatch", [a])
+    verifyWatch(z, null, null)
+
+    // close w1 (no changes)
+    clear()
+    w1.close
+    verifyWatch(x, null, null)
+    verifyWatch(y, null, null)
+    verifyWatch(z, null, null)
+
+    // close w2, b/c/d/e unwatch
+    clear()
+    w2.close
+    verifyWatch(x, "unwatch", [b, c, d, e])
+    verifyWatch(y, "unwatch", [b, c, d])
+    verifyWatch(z, "unwatch", [c, d, e])
+  }
+
+  private Void verifyWatch(TestObserver o, Str? subType, Dict[]? expected)
+  {
+    rt.sync
+    Dict? actual := o.sync
+    // echo("\n-- verifyWatch")
+    // if (actual != null) { Etc.dictDump(actual); echo(((Dict[])actual->recs).map |r| { r.dis }) }
+    if (expected == null)
+    {
+      verifyNull(actual)
+      return
+    }
+
+    verifyEq(actual->type, "obsWatch")
+    verifyEq(actual->subType, subType)
+    verifyDictsEq(actual->recs, expected, false)
+  }
+
 }
 
 **************************************************************************

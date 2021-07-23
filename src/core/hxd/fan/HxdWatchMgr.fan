@@ -178,7 +178,7 @@ internal const class HxdWatch : HxWatch
   {
     renew
     cx := FolioContext.curFolio(false)
-    Rec[]? firstRecs
+    Dict[]? firstRecs
     ids.each |id|
     {
       // if already added, skip it
@@ -195,19 +195,18 @@ internal const class HxdWatch : HxWatch
         firstWatch := rec.numWatches.getAndIncrement == 0
         if (firstWatch)
         {
-          if (firstRecs == null) firstRecs = Rec[,]
-          firstRecs.add(rec)
+          if (firstRecs == null) firstRecs = Dict[,]
+          firstRecs.add(rec.dict)
         }
       }
     }
-// TODO
-//    if (firstRecs != null) proj.concernMgr.watch(firstRecs)
+    if (firstRecs != null) mgr.rt.observables.watch.fireWatch(firstRecs)
   }
 
   override Void removeAll(Ref[] ids)
   {
     renew
-    Rec[]? lastRecs
+    Dict[]? lastRecs
     ids.each |id|
     {
       wr := refs.remove(id) as HxdWatchRef
@@ -218,13 +217,12 @@ internal const class HxdWatch : HxWatch
         lastWatch := rec.numWatches.decrementAndGet == 0
         if (lastWatch)
         {
-          if (lastRecs == null) lastRecs = Rec[,]
-          lastRecs.add(rec)
+          if (lastRecs == null) lastRecs = Dict[,]
+          lastRecs.add(rec.dict)
         }
       }
     }
-// TODO
-//    if (lastRecs != null) proj.concernMgr.unwatch(lastRecs)
+    if (lastRecs != null) mgr.rt.observables.watch.fireUnwatch(lastRecs)
   }
 
   override Void set(Ref[] ids)
@@ -271,4 +269,7 @@ internal const class HxdWatchRef
   const Ref id
   const Bool ok
 }
+
+
+
 
