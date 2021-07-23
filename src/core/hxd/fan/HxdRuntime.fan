@@ -37,7 +37,7 @@ const class HxdRuntime : HxRuntime
     this.hxdActorPool  = ActorPool { it.name = "Hxd-Runtime" }
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
     this.backgroundMgr = HxdBackgroundMgr(this)
-    this.observables   = HxdObserveMgr(this)
+    this.obs           = HxdObserveMgr(this)
     this.watches       = HxdWatchMgr(this)
     libs.init
     this.users         = (HxRuntimeUsers)libs.getType(HxRuntimeUsers#)
@@ -97,8 +97,8 @@ const class HxdRuntime : HxRuntime
   ** Actor pool to use for core daemon functionality
   const ActorPool hxdActorPool
 
-  ** List the published observables for this runtime
-  override const HxdObserveMgr observables
+  ** Observable APIs
+  override const HxdObserveMgr obs
 
   ** Watch subscription APIs
   override const HxRuntimeWatches watches
@@ -107,7 +107,7 @@ const class HxdRuntime : HxRuntime
   override This sync(Duration? timeout := 30sec)
   {
     db.sync(timeout)
-    observables.sync(timeout)
+    obs.sync(timeout)
     return this
   }
 

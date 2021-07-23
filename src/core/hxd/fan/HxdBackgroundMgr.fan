@@ -43,7 +43,7 @@ internal const class HxdBackgroundMgr : Actor
     rt.nowRef.val = now
 
     // check schedules
-    rt.observables.schedule.check(now)
+    rt.obs.schedule.check(now)
 
     // check watches
     rt.watches.checkExpires

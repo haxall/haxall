@@ -39,7 +39,7 @@ const mixin HxRuntime
   abstract HxRuntimeLibs libs()
 
   ** Observable APIs
-  abstract HxRuntimeObservables observables()
+  abstract HxRuntimeObs obs()
 
   ** Watch subscription APIs
   abstract HxRuntimeWatches watches()
@@ -105,7 +105,7 @@ const mixin HxRuntimeLibs
 **
 ** Haxall runtime observable APIs
 **
-const mixin HxRuntimeObservables
+const mixin HxRuntimeObs
 {
   ** List the published observables for the runtime
   abstract Observable[] list()
