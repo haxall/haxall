@@ -48,17 +48,31 @@ internal class HisCollectMgr : PointMgr
   {
     // if trashing/removing point
     id := e.id
-    if (e.isRemoved) { points.remove(id); return null }
+    if (e.isRemoved) { remove(id); return null }
 
     // map point to a HisCollectRec record and refresh
     rec := points[id]
-    if (rec == null) points[id] = rec = HisCollectRec(id, e.newRec)
+    if (rec == null) rec = add(id, e.newRec)
     rec.onRefresh(this, e.newRec)
 
     // if the point is no longer configured for collection, remove it
-    if (!rec.isHisCollect) points.remove(id)
+    if (!rec.isHisCollect) remove(id)
 
     return null
+  }
+
+  private HisCollectRec add(Ref id, Dict rec)
+  {
+    x := HisCollectRec(id, rec)
+    points[id] = x
+    if (watch != null) watch.add(id)
+    return x
+  }
+
+  private Void remove(Ref id)
+  {
+    points.remove(id)
+    if (watch != null) watch.remove(id)
   }
 
   override Void onCheck()
@@ -73,8 +87,16 @@ internal class HisCollectMgr : PointMgr
     }
 
     // short circuits
-    if (ids.isEmpty) return
+    if (points.isEmpty) return
     if (!lib.rt.isSteadyState) return
+
+    // create/recreate watch if necessary
+    if (watch == null || watch.isClosed)
+    {
+      watch = rt.watches.open("HisCollect")
+      watch.lease = 1hr
+      watch.addAll(points.keys)
+    }
 
     // read current state of all our points
     Dict?[]? recs := null
@@ -95,42 +117,6 @@ internal class HisCollectMgr : PointMgr
       catch (Err e) log.err("onCheck: $rec.dis", e)
     }
   }
-
-  /* TODO
-  private Void onRefresh()
-  {
-    this.ids = newPoints.keys.toImmutable
-
-    // update watch if needed
-    if (ids.size > 0)
-    {
-      // open watch if needed
-      if (watch == null) watch = openWatch(proj)
-
-      try
-      {
-        // add the ids (this also serves as poll renew)
-        watch.addAll(ids)
-      }
-      catch (Err e)
-      {
-        // if something goes wrong, then re-open watch
-        log.err("onRefresh Watch.addAll", e)
-        try { watch.close } catch (Err e2) {}
-        watch = openWatch(proj)
-        watch.addAll(ids)
-      }
-    }
-  }
-
-  static Watch openWatch(HxRuntime rt)
-  {
-    watch := rt.watchOpen("HisCollect")
-    watch.lease = 1hr
-    return watch
-    return Watch()
-  }
-  */
 
   override Str? onDetails(Ref id)
   {
@@ -156,7 +142,6 @@ internal class HisCollectMgr : PointMgr
   }
 
   private Ref:HisCollectRec points := [:]   // points tagged for hisCollect
-  private Ref[] ids := Ref#.emptyList       // flattened list of ids for points
   private Int refreshVer                    // folio.curVer of last refresh
   private Int refreshTicks                  // ticks for last refresh
   private DateTime nextTopOfMin             // next top-of-minute

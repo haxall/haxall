@@ -34,15 +34,18 @@ internal abstract class PointMgr
 
   abstract Void onCheck()
 
+  virtual Obj? onForceCheck() { onCheck; return null }
+
   virtual Str? onDetails(Ref id) { null }
 
   virtual Obj? onObs(CommitObservation e) { null }
 
   virtual Obj? onReceive(HxMsg msg)
   {
-    if (msg.id === "obs")     return onObs(msg.a)
-    if (msg.id === "details") return onDetails(msg.a)
-    if (msg.id === "sync")    return null
+    if (msg.id === "obs")        return onObs(msg.a)
+    if (msg.id === "details")    return onDetails(msg.a)
+    if (msg.id === "forceCheck") return onForceCheck
+    if (msg.id === "sync")       return null
     throw Err("Unknown msg: $msg.id")
   }
 }
@@ -74,6 +77,8 @@ internal const class PointMgrActor : Actor
   Str? details(Ref id) { send(HxMsg("details", id)).get(timeout) }
 
   Void sync(Duration? timeout := 30sec) { send(HxMsg("sync")).get(timeout) }
+
+  Void forceCheck() { send(HxMsg("forceCheck")).get(timeout) }
 
   Void onStart() { send(startMsg) }
 

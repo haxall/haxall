@@ -167,42 +167,50 @@ class RosterTest : HxTest
     verifyHisCollect(int.id, 10sec, false)
     verifyHisCollect(cov.id, null, true)
     verifyNotHisCollect(a.id)
+    verifyHisCollectWatch([int, cov])
 
     // add collect to non-collect point
     a = commit(a, ["hisCollectInterval":n(5, "min"), "hisCollectCov":m])
     sync
     verifyHisCollect(a.id, 5min, true)
+    verifyHisCollectWatch([int, cov, a])
 
     // remove hisCollectCov tag
     a = commit(a, ["hisCollectCov":Remove.val])
     sync
     verifyHisCollect(a.id, 5min, false)
+    verifyHisCollectWatch([int, cov, a])
 
     // change hisCollectInterval tag
     a = commit(a, ["hisCollectInterval":n(1, "hr")])
     sync
     verifyHisCollect(a.id, 1hr, false)
+    verifyHisCollectWatch([int, cov, a])
 
     // remove hisCollectInterval tag
     a = commit(a, ["hisCollectInterval":Remove.val])
     sync
     verifyNotHisCollect(a.id)
+    verifyHisCollectWatch([int, cov])
 
     // create new record
     x := addRec(["dis":"New", "point":m, "his":m, "tz":"New_York", "hisCollectInterval":n(30, "sec")])
     sync
     verifyHisCollect(x.id, 30sec, false)
+    verifyHisCollectWatch([int, cov, x])
 
     // trash rec
     commit(x, ["trash":m])
     sync
     verifyNotHisCollect(x.id)
+    verifyHisCollectWatch([int, cov])
 
     // remove rec
     verifyHisCollect(cov.id, null, true)
     commit(cov, null, Diff.remove)
     sync
     verifyNotWritable(cov.id)
+    verifyHisCollectWatch([int])
   }
 
   Void verifyHisCollect(Ref id, Duration? interval, Bool cov)
@@ -215,18 +223,31 @@ class RosterTest : HxTest
     covLine := lines.find { it.startsWith("cov:")  }
     verifyEq(intLine.contains(interval?.toStr ?: "_x_"), interval != null)
     verifyEq(covLine.contains("marker"), cov)
+    verifyEq(rt.watches.isWatched(id), true)
   }
 
   Void verifyNotHisCollect(Ref id)
   {
     details := lib.hisCollectMgr.details(id)
     verifyNull(details)
+    verifyEq(rt.watches.isWatched(id), false)
+  }
+
+  Void verifyHisCollectWatch(Dict[] recs)
+  {
+    watch := rt.watches.list.first ?: throw Err("no watch")
+    verifyEq(watch.dis, "HisCollect")
+    verifyEq(recs.map |r->Ref| { r.id }.sort, watch.list.dup.sort)
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  private Void sync() { rt.sync }
+  private Void sync()
+  {
+    rt.sync
+    lib.hisCollectMgr.forceCheck
+  }
 
 }

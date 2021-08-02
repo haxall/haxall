@@ -47,7 +47,7 @@ class HisCollectTest : HxTest
       "20sec (0hr, 0min, 20sec)", "1kW", "2sec", "null")
   }
 
-  Void verifyConfig(PointLib ext, Str:Obj ptTags, Str interval, Str cov, Str rateLimit, Str writeFreq)
+  Void verifyConfig(PointLib lib, Str:Obj ptTags, Str interval, Str cov, Str rateLimit, Str writeFreq)
   {
     pt := addRec(ptTags.dup.addAll(["dis":"Point", "point":m, "his":m, "tz":"Chicago"]))
 
@@ -67,6 +67,11 @@ class HisCollectTest : HxTest
     verifyEq(findLine("cov"),  cov)
     verifyEq(findLine("covRateLimit"), rateLimit)
     verifyEq(findLine("writeFreq"), writeFreq)
+
+    lib.hisCollectMgr.forceCheck
+    watch := rt.watches.list.first ?: throw Err("no watch!")
+    verifyEq(watch.dis, "HisCollect")
+    verifyEq(watch.list.contains(pt.id), true)
   }
 
 }
