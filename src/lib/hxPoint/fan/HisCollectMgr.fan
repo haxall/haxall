@@ -19,6 +19,8 @@ using hx
 internal const class HisCollectMgrActor : PointMgrActor
 {
   new make(PointLib lib) : super(lib, 100ms, HisCollectMgr#) {}
+
+  Future writeAll() { send(HxMsg("writeAll")) }
 }
 
 **************************************************************************
@@ -158,8 +160,6 @@ internal class HisCollectMgr : PointMgr
   private Int refreshVer                    // folio.curVer of last refresh
   private Int refreshTicks                  // ticks for last refresh
   private DateTime nextTopOfMin             // next top-of-minute
-  private Watch? watch                      // watch
+  private HxWatch? watch                    // watch
 }
 
-** TODO
-internal class Watch { Dict[] poll(Duration dur) { Dict[,] } }

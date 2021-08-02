@@ -88,10 +88,10 @@ const class PointFuncs
   }
 
   **
-  ** Used by the pointOverride command to issue an override using the
-  ** current users access control permissions via pointOverrideAccess tag.
+  ** Issue a point override command based on current user's access
+  ** control permissions
   **
-  @NoDoc @Axon
+  @Axon
   static Obj? pointOverrideCommand(Obj point, Obj? val, Number level, Number? duration := null)
   {
     // echo("--  pointOverrideCommand $point = $val @ $level [$duration]")
@@ -102,10 +102,8 @@ const class PointFuncs
     rec := cx.db.readById(HxUtil.toId(point))
 
     // now check access permissions
-/* TODO
-    if (!cx.user.access.pointOverride.canOverrideLevel(level.toInt))
+    if (!cx.user.access.canPointWriteAtLevel(level.toInt))
       throw PermissionErr("Cannot override level: $level")
-*/
 
     // wrap val for overrides with a duration
     if (level.toInt == 8 && val != null && duration != null)
@@ -217,13 +215,11 @@ const class PointFuncs
 
   ** Write all hisCollect items buffered in memory to the historian.
   ** Block until complete or until timeout exceeded.
-/* TODO
   @Axon { admin = true }
   static Obj? hisCollectWriteAll(Number? timeout := null)
   {
-    lib(curContext).hisMgr.hisCollectWriteAll.get(timeout?.toDuration)
+    lib(curContext).hisCollectMgr.writeAll.get(timeout?.toDuration)
   }
-*/
 
   ** Legacy support
   @Deprecated @NoDoc @Axon { admin = true }
