@@ -46,18 +46,21 @@ internal class HisCollectMgr : PointMgr
 
   override Obj? onObs(CommitObservation e)
   {
-    // if trashing/removing point
-    id := e.id
-    if (e.isRemoved) { remove(id); return null }
+    try
+    {
+      // if trashing/removing point
+      id := e.id
+      if (e.isRemoved) { remove(id); return null }
 
-    // map point to a HisCollectRec record and refresh
-    rec := points[id]
-    if (rec == null) rec = add(id, e.newRec)
-    rec.onRefresh(this, e.newRec)
+      // map point to a HisCollectRec record and refresh
+      rec := points[id]
+      if (rec == null) rec = add(id, e.newRec)
+      rec.onRefresh(this, e.newRec)
 
-    // if the point is no longer configured for collection, remove it
-    if (!rec.isHisCollect) remove(id)
-
+      // if the point is no longer configured for collection, remove it
+      if (!rec.isHisCollect) remove(id)
+    }
+    catch (Err err) log.err("HisCollectMgr.onObs", err)
     return null
   }
 

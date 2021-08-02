@@ -36,11 +36,9 @@ const class PointLib : HxLib
   ** Start callback
   override Void onStart()
   {
-    if (rec.missing("disableWritables"))  writeMgr.onStart
-    if (rec.missing("disableHisCollect")) hisCollectMgr.onStart
-    if (rec.has("demoMode")) demoMgr.onStart
-
-    // subscribe to point commits
+    // subscribe to point commits (do this before we start
+    // the managers so that all the init observations are received
+    // before the first onCheck)
     observe("obsCommits",
       Etc.makeDict([
         "obsAdds":      Marker.val,
@@ -62,6 +60,10 @@ const class PointLib : HxLib
         "obsFilter":   "enumMeta"
       ]), #onEnumMetaEvent)
 
+    // start up manager checks
+    if (rec.missing("disableWritables"))  writeMgr.start
+    if (rec.missing("disableHisCollect")) hisCollectMgr.start
+    if (rec.has("demoMode")) demoMgr.start
   }
 
   ** Event when 'enumMeta' record is modified

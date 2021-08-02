@@ -92,16 +92,20 @@ internal class WriteMgr : PointMgr
 
   override Obj? onObs(CommitObservation e)
   {
-    if (e.newRec.has("writable"))
+    try
     {
-      pt := points[e.id]
-      if (pt == null) points[e.id] = pt = WriteRec(this, e.id, e.newRec)
-      pt.updateRec(e.newRec)
+      if (e.newRec.has("writable"))
+      {
+        pt := points[e.id]
+        if (pt == null) points[e.id] = pt = WriteRec(this, e.id, e.newRec)
+        pt.updateRec(e.newRec)
+      }
+      else
+      {
+        points.remove(e.id)
+      }
     }
-    else
-    {
-      points.remove(e.id)
-    }
+    catch (Err err) log.err("WriteMgr.onObs", err)
     return null
   }
 
@@ -112,7 +116,6 @@ internal class WriteMgr : PointMgr
     rec := writeRec.rec
     changes := sinkChanges(rec, val, level)
     rt.db.commitAsync(Diff(rec, changes, Diff.forceTransient))
-
   }
 
   private Dict sinkChanges(Dict rec, Obj? val, Number level)
