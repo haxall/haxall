@@ -72,6 +72,8 @@ internal const class PointMgrActor : Actor
   const Type mgrType
   const Log log
 
+  Void start() {  sendLater(checkFreq, checkMsg) }
+
   Void obs(CommitObservation e) { send(HxMsg("obs", e)) } // async
 
   Str? details(Ref id) { send(HxMsg("details", id)).get(timeout) }
@@ -80,48 +82,35 @@ internal const class PointMgrActor : Actor
 
   Void forceCheck() { send(HxMsg("forceCheck")).get(timeout) }
 
-  Void onStart() { send(startMsg) }
-
   override Obj? receive(Obj? msg)
   {
     //  fault
     if (lib.spi.isFault) return null
 
+    // init manager on first message
+    mgr := Actor.locals["pm"] as PointMgr
+    if (mgr == null)
+    {
+      try
+        Actor.locals["pm"] = mgr = this.mgrType.make([lib])
+      catch (Err e)
+        log.err("Init manager $mgrType", e)
+    }
+
     // house keeping
     if (msg === checkMsg)
     {
-      try
-      {
-        PointMgr manager := Actor.locals["pm"]
-        manager.onCheck
-      }
+      try mgr.onCheck
       catch (ShutdownErr e) {}
       catch (Err e) log.err("onCheck", e)
       sendLater(checkFreq, checkMsg)
       return null
     }
 
-    // start
-    if (msg === startMsg)
-    {
-      try
-      {
-        PointMgr mgr := this.mgrType.make([lib])
-        Actor.locals["pm"] = mgr
-        sendLater(checkFreq, checkMsg)
-      }
-      catch (ShutdownErr e) {}
-      catch (Err e) log.err("onStart", e)
-      return null
-    }
-
     // normal routing
-    mgr := Actor.locals["pm"] as PointMgr
-    if (mgr == null) throw DisabledErr("$this.mgrType.name disabled: $msg")
     return mgr.onReceive(msg)
   }
 
-  private const static HxMsg startMsg := HxMsg("start")
   private const static HxMsg checkMsg := HxMsg("check")
   internal const static Duration timeout := 30sec
 }

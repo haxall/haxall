@@ -16,7 +16,6 @@ using hx
 **
 class PointUtil
 {
-
   ** Is given point tagged for history collection
   static Bool isHisCollect(Dict pt)
   {
@@ -75,5 +74,17 @@ class PointUtil
          """
     }
 
+  /* Debug support
+  static Str[] debugs() { debugActor.send("_list").get(null) }
+  static Void debug(Str msg) { debugActor.send(msg) }
+  static const Actor debugActor := Actor(ActorPool()) |msg|
+  {
+    list := Actor.locals["x"] as Str[]
+    if (list == null) Actor.locals["x"] = list = Str[,]
+    if (msg.toStr == "_list") return list.dup.toImmutable
+    list.add(msg)
+    return null
+  }
+  */
 
 }

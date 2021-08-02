@@ -216,7 +216,7 @@ class RosterTest : HxTest
   Void verifyHisCollect(Ref id, Duration? interval, Bool cov)
   {
     details := lib.hisCollectMgr.details(id)
-    // echo("\n----$details")
+    // echo("\n----$id.dis | $details")
     verifyNotNull(details)
     lines := details.splitLines
     intLine := lines.find { it.startsWith("interval:") }
