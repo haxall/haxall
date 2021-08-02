@@ -36,4 +36,19 @@ const mixin HxUser
 
   ** Email address if configured
   abstract Str? email()
+
+  ** Access control APIs
+  @NoDoc abstract HxUserAccess access()
 }
+
+**************************************************************************
+** HxUserAccess
+**************************************************************************
+
+@Js @NoDoc
+const mixin HxUserAccess
+{
+  ** Can the given user override level 1, 8, or 17 (relinquish default)
+  abstract Bool canPointWriteAtLevel(Int level)
+}
+

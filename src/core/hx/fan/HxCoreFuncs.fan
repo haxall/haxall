@@ -323,7 +323,7 @@ const class HxCoreFuncs
 // Runtime
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return `HxRuntime.isSteadyState`
+  ** Return `hx::HxRuntime.isSteadyState`
   @Axon
   static Bool isSteadyState()
   {

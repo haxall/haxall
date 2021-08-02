@@ -21,6 +21,7 @@ const class HxUserImpl : HxUser
     this.username = meta->username
     this.dis      = meta["dis"] ?: username
     this.email    = meta["email"] as Str
+    this.access   = HxUserAccessImpl(this)
 
     switch (meta["userRole"])
     {
@@ -36,7 +37,20 @@ const class HxUserImpl : HxUser
   override const Bool isSu
   override const Bool isAdmin
   override const Str? email
+  override const HxUserAccess access
 
   override Str toStr() { username }
 }
+
+**************************************************************************
+** HxUserAccessImpl
+**************************************************************************
+
+internal const class HxUserAccessImpl : HxUserAccess
+{
+  new make(HxUser user) { this.user = user }
+  const HxUser user
+  override Bool canPointWriteAtLevel(Int level) { user.isAdmin }
+}
+
 
