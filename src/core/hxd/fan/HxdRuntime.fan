@@ -81,6 +81,11 @@ const class HxdRuntime : HxRuntime
   ** Database for this runtime
   override const Folio db
 
+  ** Service registry
+  override HxServiceRegistry services() { servicesRef.val }
+  internal Void servicesRebuild() { servicesRef.val = HxdServiceRegistry(libs.list) }
+  private const AtomicRef servicesRef := AtomicRef(HxdServiceRegistry(HxLib[,]))
+
   ** Lookup a library by name
   override HxLib? lib(Str name, Bool checked := true) { libs.get(name, checked) }
 
