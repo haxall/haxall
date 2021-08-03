@@ -27,13 +27,13 @@ class WatchTest : HxTest
     c := addRec(["dis":"c"]); cId := c.id
 
     // not found
-    verifyEq(rt.watches.list.size, 0)
-    verifyNull(rt.watches.get("bad one", false), null)
-    verifyErr(UnknownWatchErr#) { x := rt.watches.get("bad one") }
-    verifyErr(UnknownWatchErr#) { x := rt.watches.get("bad one", true) }
+    verifyEq(rt.watch.list.size, 0)
+    verifyNull(rt.watch.get("bad one", false), null)
+    verifyErr(UnknownWatchErr#) { x := rt.watch.get("bad one") }
+    verifyErr(UnknownWatchErr#) { x := rt.watch.get("bad one", true) }
 
     // open
-    w := rt.watches.open("foobar")
+    w := rt.watch.open("foobar")
     verifyEq(w.dis, "foobar")
     verifyEq(w.lastPoll, 0ms); verify(w.lastPoll < Duration.now)
     verify(w.lastRenew > t-200ms); verify(w.lastRenew < Duration.now)
@@ -41,8 +41,8 @@ class WatchTest : HxTest
     verify(w.lastPoll > t-200ms); verify(w.lastPoll < Duration.now)
     verify(w.lastRenew > t-200ms); verify(w.lastRenew < Duration.now)
     verifyEq(w.isClosed, false)
-    verifyEq(HxWatch[,].addAll(rt.watches.list),[w])
-    verifySame(rt.watches.get(w.id), w)
+    verifyEq(HxWatch[,].addAll(rt.watch.list),[w])
+    verifySame(rt.watch.get(w.id), w)
     verifyEq(w.list, Ref[,])
 
     // add/remove some ids
@@ -129,8 +129,8 @@ class WatchTest : HxTest
 
     // close
     w.close
-    verifyEq(rt.watches.list.size, 0)
-    verifyNull(rt.watches.get(w.id, false), null)
+    verifyEq(rt.watch.list.size, 0)
+    verifyNull(rt.watch.get(w.id, false), null)
     verifyEq(w.isClosed, true)
     verifyErr(WatchClosedErr#) { w.list }
     verifyErr(WatchClosedErr#) { w.add(aId) }
@@ -143,16 +143,16 @@ class WatchTest : HxTest
     verifyWatches(cId, none)
 
     // multiple watches
-    w1 := rt.watches.open("w1"); w1.add(bId); verifyWatches(bId, [w1])
-    w2 := rt.watches.open("w2"); w2.add(bId); verifyWatches(bId, [w1, w2])
-    w3 := rt.watches.open("w3"); w3.add(bId); verifyWatches(bId, [w1, w2, w3])
+    w1 := rt.watch.open("w1"); w1.add(bId); verifyWatches(bId, [w1])
+    w2 := rt.watch.open("w2"); w2.add(bId); verifyWatches(bId, [w1, w2])
+    w3 := rt.watch.open("w3"); w3.add(bId); verifyWatches(bId, [w1, w2, w3])
 
     // re-add b to watch2
     w3.add(bId)
     verifyWatches(bId, [w1, w2, w3])
 
     // one more
-    w4 := rt.watches.open("w4")
+    w4 := rt.watch.open("w4")
     w4.add(aId)
     verifyWatches(aId, [w4])
     verifyWatches(bId, [w1, w2, w3])
@@ -165,26 +165,26 @@ class WatchTest : HxTest
 
     // sleep a bit and force expires check
     Actor.sleep(200ms)
-    rt.watches.checkExpires
+    rt.watch.checkExpires
 
     // verify w1 and w4 were expired
     verifyEq(w1.isClosed, true)
     verifyEq(w2.isClosed, false)
     verifyEq(w3.isClosed, false)
     verifyEq(w4.isClosed, true)
-    verifyEq(rt.watches.isWatched(aId), false)
+    verifyEq(rt.watch.isWatched(aId), false)
     verifyWatches(aId, none)
-    verifySame(rt.watches.get(w1.id, false), null)
-    verifySame(rt.watches.get(w2.id, false), w2)
-    verifySame(rt.watches.get(w3.id, false), w3)
-    verifySame(rt.watches.get(w4.id, false), null)
+    verifySame(rt.watch.get(w1.id, false), null)
+    verifySame(rt.watch.get(w2.id, false), w2)
+    verifySame(rt.watch.get(w3.id, false), w3)
+    verifySame(rt.watch.get(w4.id, false), null)
   }
 
   Void verifyWatches(Ref id, HxWatch[] expected)
   {
-    verifyEq(rt.watches.isWatched(id), !expected.isEmpty)
+    verifyEq(rt.watch.isWatched(id), !expected.isEmpty)
 
-    actual := rt.watches.listOn(id).dup
+    actual := rt.watch.listOn(id).dup
     actual.sort |a, b| { a.dis <=> b.dis }
     verifyEq(actual.size, expected.size)
     actual.each |a, i| { verifySame(a, expected[i]) }

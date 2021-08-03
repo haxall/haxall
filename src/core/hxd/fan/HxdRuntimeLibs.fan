@@ -68,7 +68,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     this.listRef.val = list.toImmutable
     this.mapRef.val = map.toImmutable
 
-    // update service registry for initial libs
+    // initialize services registry now that we know initial libs
     rt.servicesRebuild
   }
 

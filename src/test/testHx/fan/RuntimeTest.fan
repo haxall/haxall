@@ -36,10 +36,10 @@ class RuntimeTest : HxTest
     verifyEq(rt.libs.list.containsSame(rt.lib("ph")), true)
 
     // test some methods
-    verifyEq(rt.siteUri.isAbs, true)
-    verifyEq(rt.siteUri.scheme == "http" || rt.siteUri.scheme == "https", true)
-    verifyEq(rt.apiUri.isAbs, false)
-    verifyEq(rt.apiUri.isDir, true)
+    verifyEq(rt.http.siteUri.isAbs, true)
+    verifyEq(rt.http.siteUri.scheme == "http" || rt.http.siteUri.scheme == "https", true)
+    verifyEq(rt.http.apiUri.isAbs, false)
+    verifyEq(rt.http.apiUri.isDir, true)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -161,17 +161,32 @@ class RuntimeTest : HxTest
   @HxRuntimeTest
   Void testServices()
   {
+    // not found stuff
     verifyServiceNotFound(Str#)
-    verifyServiceNotFound(HxPointWriteService#)
-    verifyEq(rt.services.pointWrite.typeof, NilPointWriteService#)
 
+    // verify HxStdServices
+    verifySame(rt.obs,   rt.services.obs);   verifySame(verifyService(HxObsService#), rt.obs)
+    verifySame(rt.watch, rt.services.watch); verifySame(verifyService(HxWatchService#), rt.watch)
+    verifySame(rt.user,  rt.services.user);  verifySame(verifyService(HxUserService#), rt.user)
+
+    // pointWrite defaults to nil implementation
+    verifySame(rt.pointWrite.typeof, NilPointWriteService#)
+    verifySame(rt.pointWrite, rt.services.pointWrite)
+    verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
+
+    // add point lib and ensure it becomes implementation
     rt.libs.add("point")
-    verifySame(verifyService(HxPointWriteService#), rt.services.pointWrite)
+    verifySame(rt.pointWrite, rt.lib("point"))
+    verifySame(rt.pointWrite, rt.services.pointWrite)
+    verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
 
+    // remove point lib and pointWrite falls back to nil implementation
     rt.libs.remove("point")
-    verifyServiceNotFound(HxPointWriteService#)
-    verifyEq(rt.services.pointWrite.typeof, NilPointWriteService#)
+    verifySame(rt.pointWrite.typeof, NilPointWriteService#)
+    verifySame(rt.pointWrite, rt.services.pointWrite)
+    verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
   }
+
 
   Obj verifyService(Type t)
   {

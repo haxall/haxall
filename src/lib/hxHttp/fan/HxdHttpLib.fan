@@ -16,10 +16,14 @@ using hx
 **
 ** HTTP service handling
 **
-const class HxHttpLib : HxLib
+const class HxHttpLib : HxLib, HxHttpService
 {
   WispService wisp() { wispRef.val }
   private const AtomicRef wispRef := AtomicRef(null)
+
+  override Uri siteUri() { `http://localhost:8080/` } // TODO
+
+  override Uri apiUri() { `/api/` }
 
   override Void onReady()
   {

@@ -343,8 +343,8 @@ class ObserveTest : HxTest
     verifyWatch(y, null, null)
     verifyWatch(z, null, null)
 
-    w1 := rt.watches.open("w1")
-    w2 := rt.watches.open("w2")
+    w1 := rt.watch.open("w1")
+    w2 := rt.watch.open("w2")
 
     // b, c, d, e into watch
     w1.addAll([b.id, c.id, d.id, e.id])
