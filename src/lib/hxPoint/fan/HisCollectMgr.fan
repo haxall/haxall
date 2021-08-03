@@ -96,7 +96,7 @@ internal class HisCollectMgr : PointMgr
     // create/recreate watch if necessary
     if (watch == null || watch.isClosed)
     {
-      watch = rt.watches.open("HisCollect")
+      watch = rt.watch.open("HisCollect")
       watch.lease = 1hr
       watch.addAll(points.keys)
     }

@@ -16,10 +16,9 @@ using hx
 const class HxdServiceRegistry : HxServiceRegistry
 {
   ** Construct for list of enabled libs
-  new make(HxLib[] libs)
+  new make(HxdRuntime rt, HxLib[] libs)
   {
-    list := Type[,]
-    map := Str:HxService[][:]
+    map := Type:HxService[][:]
     serviceType := HxService#
 
     libs.each |lib|
@@ -28,30 +27,52 @@ const class HxdServiceRegistry : HxServiceRegistry
       {
         if (t.mixins.containsSame(serviceType))
         {
-          bucket := map[t.qname]
-          if (bucket == null)
-          {
-            list.add(t)
-            map[t.qname] = bucket = HxService[,]
-          }
+          bucket := map[t]
+          if (bucket == null) map[t] = bucket = HxService[,]
           bucket.add((HxService)lib)
         }
       }
     }
 
+    // these are built-in without using a lib
+    map[HxObsService#] = HxService[rt.obs]
+    map[HxWatchService#] = HxService[rt.watch]
 
-    this.list = list.sort
-    this.map = map
-    this.pointWrite = get(HxPointWriteService#, false) ?: NilPointWriteService()
+    // we might need to stub http since its not added by default in tests
+    if (map[HxHttpService#] == null)
+      map[HxHttpService#] = HxService[NilHttpService()]
+
+    // ensure pointWrite service is defined
+    if (map[HxPointWriteService#] == null)
+      map[HxPointWriteService#] = HxService[NilPointWriteService()]
+
+
+    this.list = map.keys.sort
+    this.map  = map
+
+    this.obs        = get(HxObsService#)
+    this.watch      = get(HxWatchService#)
+    this.httpRef    = get(HxHttpService#, false)
+    this.user       = get(HxUserService#)
+    this.pointWrite = get(HxPointWriteService#)
   }
 
-  const override Type[] list
+  override const Type[] list
 
-  const override HxPointWriteService pointWrite
+  override const HxdObsService obs
+
+  override const HxWatchService watch
+
+  override HxHttpService http() { httpRef ?: throw UnknownServiceErr("HxHttpService") }
+  private const HxHttpService? httpRef
+
+  override const HxUserService user
+
+  override const HxPointWriteService pointWrite
 
   override HxService? get(Type type, Bool checked := true)
   {
-    x := map[type.qname]
+    x := map[type]
     if (x != null) return x.first
     if (checked) throw UnknownServiceErr(type.qname)
     return null
@@ -59,8 +80,10 @@ const class HxdServiceRegistry : HxServiceRegistry
 
   override HxService[] getAll(Type type)
   {
-    map[type.qname] ?: HxService#.emptyList
+    map[type] ?: HxService#.emptyList
   }
 
-  private const Str:HxService[] map
+  private const Type:HxService[] map
 }
+
+

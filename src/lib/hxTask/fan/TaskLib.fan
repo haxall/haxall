@@ -124,8 +124,8 @@ const class TaskLib : HxLib
 
   internal Void refreshUser()
   {
-    user := rt.users.read("task-${rt.name}", false)
-    if (user == null) user = rt.users.read("task", false)
+    user := rt.user.read("task-${rt.name}", false)
+    if (user == null) user = rt.user.read("task", false)
     if (user == null) user = userFallback
     if (user.isSu)
     {
@@ -137,7 +137,7 @@ const class TaskLib : HxLib
 
   once HxUser userFallback()
   {
-    rt.users.makeSyntheticUser("task", ["projAccessFilter":"name==${rt.name.toCode}"])
+    rt.user.makeSyntheticUser("task", ["projAccessFilter":"name==${rt.name.toCode}"])
   }
 
   const ActorPool pool

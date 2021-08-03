@@ -14,9 +14,9 @@ using hx
 using hxFolio
 
 **
-** HxdWatchMgr manages the watches in the daemon runtime
+** HxdWatchService manages the watches in the daemon runtime
 **
-internal const class HxdWatchMgr : HxRuntimeWatches
+internal const class HxdWatchService : HxWatchService
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -112,22 +112,22 @@ internal const class HxdWatchMgr : HxRuntimeWatches
 
 internal const class HxdWatch : HxWatch
 {
-  new make(HxdWatchMgr mgr, Str dis)
+  new make(HxdWatchService service, Str dis)
   {
-    this.mgr     = mgr
+    this.service = service
     this.dis     = dis
     this.id      = "w-"+ Ref.gen.id
     this.created = Duration.nowTicks
     this.refs    = ConcurrentMap()
   }
 
-  const HxdWatchMgr mgr
+  const HxdWatchService service
   const override Str dis
   const override Str id
   const Int created
   const ConcurrentMap refs  // Ref:HxdWatchRef
 
-  override HxRuntime rt() { mgr.rt }
+  override HxdRuntime rt() { service.rt }
 
   override Ref[] list()
   {
@@ -159,7 +159,7 @@ internal const class HxdWatch : HxWatch
     refs.each |HxdWatchRef r|
     {
       if (!r.ok) return
-      rec := mgr.db.rec(r.id, false)
+      rec := service.db.rec(r.id, false)
       if (rec != null && rec.ticks > t.ticks)
       {
         acc.add(rec.dict)
@@ -185,7 +185,7 @@ internal const class HxdWatch : HxWatch
       if (refs[id] != null) return
 
       // lookup rec and verify ok = found and canRead
-      rec := mgr.db.rec(id, false)
+      rec := service.db.rec(id, false)
       ok := rec != null && (cx == null || cx.canRead(rec.dict))
       refs[id] = HxdWatchRef(id, ok)
 
@@ -200,7 +200,7 @@ internal const class HxdWatch : HxWatch
         }
       }
     }
-    if (firstRecs != null) mgr.rt.obs.watch.fireWatch(firstRecs)
+    if (firstRecs != null) rt.obs.watch.fireWatch(firstRecs)
   }
 
   override Void removeAll(Ref[] ids)
@@ -211,7 +211,7 @@ internal const class HxdWatch : HxWatch
     {
       wr := refs.remove(id) as HxdWatchRef
       if (wr == null || !wr.ok) return
-      rec := mgr.db.rec(id, false)
+      rec := service.db.rec(id, false)
       if (rec != null)
       {
         lastWatch := rec.numWatches.decrementAndGet == 0
@@ -222,7 +222,7 @@ internal const class HxdWatch : HxWatch
         }
       }
     }
-    if (lastRecs != null) mgr.rt.obs.watch.fireUnwatch(lastRecs)
+    if (lastRecs != null) rt.obs.watch.fireUnwatch(lastRecs)
   }
 
   override Void set(Ref[] ids)
@@ -255,7 +255,7 @@ internal const class HxdWatch : HxWatch
   {
     removeAll(list)
     closedRef.val = true
-    mgr.byId.remove(id)
+    service.byId.remove(id)
   }
 }
 

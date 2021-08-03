@@ -69,7 +69,7 @@ class HisCollectTest : HxTest
     verifyEq(findLine("writeFreq"), writeFreq)
 
     lib.hisCollectMgr.forceCheck
-    watch := rt.watches.list.first ?: throw Err("no watch!")
+    watch := rt.watch.list.first ?: throw Err("no watch!")
     verifyEq(watch.dis, "HisCollect")
     verifyEq(watch.list.contains(pt.id), true)
   }

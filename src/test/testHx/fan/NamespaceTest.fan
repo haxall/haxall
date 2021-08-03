@@ -32,7 +32,7 @@ class NamespaceTest : HxTest
     // overlay lib
     ns1 := rt.ns
     overlayName := ns1.libsList.find { it.name.contains("_") }.name // proj_{name} or hx_db
-    overlay1 := verifyLibDef(overlayName,  rt.version, rt.siteUri+`/def/$overlayName/`)
+    overlay1 := verifyLibDef(overlayName,  rt.version, rt.http.siteUri+`/def/$overlayName/`)
 
     // add def rec
     verifyEq(rt.ns.def("customTag", false), null)
@@ -41,7 +41,7 @@ class NamespaceTest : HxTest
 
     // verify base stayed the same, but overlayout updated
     ns2 := rt.ns
-    overlay2 := verifyLibDef(overlayName,  rt.version, rt.siteUri+`/def/$overlayName/`)
+    overlay2 := verifyLibDef(overlayName,  rt.version, rt.http.siteUri+`/def/$overlayName/`)
     verifyNotSame(ns1, ns2)
     verifyNotSame(overlay1, overlay2)
     verifySame(ns1->base, ns2->base)

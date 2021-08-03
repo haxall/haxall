@@ -223,19 +223,19 @@ class RosterTest : HxTest
     covLine := lines.find { it.startsWith("cov:")  }
     verifyEq(intLine.contains(interval?.toStr ?: "_x_"), interval != null)
     verifyEq(covLine.contains("marker"), cov)
-    verifyEq(rt.watches.isWatched(id), true)
+    verifyEq(rt.watch.isWatched(id), true)
   }
 
   Void verifyNotHisCollect(Ref id)
   {
     details := lib.hisCollectMgr.details(id)
     verifyNull(details)
-    verifyEq(rt.watches.isWatched(id), false)
+    verifyEq(rt.watch.isWatched(id), false)
   }
 
   Void verifyHisCollectWatch(Dict[] recs)
   {
-    watch := rt.watches.list.first ?: throw Err("no watch")
+    watch := rt.watch.list.first ?: throw Err("no watch")
     verifyEq(watch.dis, "HisCollect")
     verifyEq(recs.map |r->Ref| { r.id }.sort, watch.list.dup.sort)
   }

@@ -37,10 +37,9 @@ const class HxdRuntime : HxRuntime
     this.hxdActorPool  = ActorPool { it.name = "Hxd-Runtime" }
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
     this.backgroundMgr = HxdBackgroundMgr(this)
-    this.obs           = HxdObserveMgr(this)
-    this.watches       = HxdWatchMgr(this)
+    this.obs           = HxdObsService(this)
+    this.watch         = HxdWatchService(this)
     libs.init
-    this.users         = (HxRuntimeUsers)libs.getType(HxRuntimeUsers#)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -82,9 +81,16 @@ const class HxdRuntime : HxRuntime
   override const Folio db
 
   ** Service registry
-  override HxServiceRegistry services() { servicesRef.val }
-  internal Void servicesRebuild() { servicesRef.val = HxdServiceRegistry(libs.list) }
-  private const AtomicRef servicesRef := AtomicRef(HxdServiceRegistry(HxLib[,]))
+  override HxdServiceRegistry services() { servicesRef.val ?: throw Err("Services not avail yet") }
+  internal Void servicesRebuild() { servicesRef.val = HxdServiceRegistry(this, libs.list) }
+  private const AtomicRef servicesRef := AtomicRef(null)
+
+  // HxStdServices conveniences
+  override const HxdObsService obs
+  override const HxWatchService watch
+  override HxHttpService http() { services.http }
+  override HxUserService user() { services.user }
+  override HxPointWriteService pointWrite() { services.pointWrite }
 
   ** Lookup a library by name
   override HxLib? lib(Str name, Bool checked := true) { libs.get(name, checked) }
@@ -102,12 +108,6 @@ const class HxdRuntime : HxRuntime
   ** Actor pool to use for core daemon functionality
   const ActorPool hxdActorPool
 
-  ** Observable APIs
-  override const HxdObserveMgr obs
-
-  ** Watch subscription APIs
-  override const HxRuntimeWatches watches
-
   ** Block until currently queued background processing completes
   override This sync(Duration? timeout := 30sec)
   {
@@ -118,17 +118,6 @@ const class HxdRuntime : HxRuntime
 
   ** Background tasks
   internal const HxdBackgroundMgr backgroundMgr
-
-  ** Public HTTP or HTTPS URI of this host.  This is always
-  ** an absolute URI such 'https://acme.com/'
-  override Uri siteUri() { `http://localhost:8080/` } // TODO
-
-  ** URI on this host to the Haystack HTTP API.  This is always
-  ** a host relative URI which end withs a slash such '/api/'.
-  override Uri apiUri() { `/api/` }
-
-  ** User and authentication managment
-  override const HxRuntimeUsers users
 
   ** Construct a runtime specific context for the given user account
   override HxContext makeContext(HxUser user) { HxdContext(this, user) }

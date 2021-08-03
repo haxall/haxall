@@ -45,7 +45,7 @@ class HttpApiTest : HxTest
   private Void init()
   {
     try { rt.libs.add("hxHttp") } catch (Err e) {}
-    this.uri = rt.siteUri + rt.apiUri
+    this.uri = rt.http.siteUri + rt.http.apiUri
 
     // setup user accounts
     addUser("alice",   "a-secret", ["userRole":"op"])

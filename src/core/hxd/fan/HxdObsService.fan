@@ -16,7 +16,7 @@ using hx
 **
 ** HxdObserveMgr
 **
-const class HxdObserveMgr : Actor, HxRuntimeObs
+const class HxdObsService : Actor, HxObsService
 {
 
 //////////////////////////////////////////////////////////////////////////

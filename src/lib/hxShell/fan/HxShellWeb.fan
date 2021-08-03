@@ -28,7 +28,7 @@ const class HxShellWeb : HxLibWeb
 
   override Void onService()
   {
-    cx := rt.users.authenticate(req, res)
+    cx := rt.user.authenticate(req, res)
     if (cx == null) return
 
     route := req.modRel.path.getSafe(0)
@@ -47,7 +47,7 @@ const class HxShellWeb : HxLibWeb
 
     env := Str:Str[:]
     env["main"]              = "hxShell::Shell.main"
-    env["hxShell.api"]       = cx.rt.apiUri.toStr
+    env["hxShell.api"]       = cx.rt.http.apiUri.toStr
     env["hxShell.attestKey"] = cx.stash.getChecked("attestKey")
     env["hxShell.user"]      = ZincWriter.valToStr(cx.user.meta)
 

@@ -34,7 +34,7 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
       opName := path[0]
 
       // authenticate user
-      cx := rt.users.authenticate(req, res)
+      cx := rt.user.authenticate(req, res)
       if (cx == null) return
       cx.timeout = HxContext.timeoutDef
       Actor.locals[Etc.cxActorLocalsKey] = cx

@@ -34,7 +34,7 @@ const class PointLib : HxLib, HxPointWriteService
   Bool hisCollectNA() { rec.has("hisCollectNA") }
 
   ** HxPointWriteService
-  override Void write(Dict point, Obj? val, Int level, Obj who, Dict? opts := null)
+  override Future write(Dict point, Obj? val, Int level, Obj who, Dict? opts := null)
   {
     writeMgr.write(point, val, level, who, opts ?: Etc.emptyDict)
   }
