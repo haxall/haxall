@@ -53,6 +53,17 @@ const class HxMsg
     this.d  = d
   }
 
+  ** Constructor with five arguments
+  new make5(Str id, Obj? a, Obj? b, Obj? c, Obj? d, Obj? e)
+  {
+    this.id = id
+    this.a  = a
+    this.b  = b
+    this.c  = c
+    this.d  = d
+    this.e  = e
+  }
+
   ** Message identifier type
   const Str id
 
@@ -68,6 +79,9 @@ const class HxMsg
   ** Argument d
   const Obj? d
 
+  ** Argument e
+  const Obj? e
+
   ** Hash is based on id and arguments
   override Int hash()
   {
@@ -76,6 +90,7 @@ const class HxMsg
     if (b != null) hash = hash.xor(b.hash)
     if (c != null) hash = hash.xor(c.hash)
     if (d != null) hash = hash.xor(d.hash)
+    if (e != null) hash = hash.xor(e.hash)
     return hash
   }
 
@@ -87,14 +102,15 @@ const class HxMsg
     return id == m.id &&
             a == m.a  &&
             b == m.b  &&
+            c == m.c  &&
             d == m.d  &&
-            d == m.d
+            e == m.e
   }
 
   ** Return debug string representation
   override Str toStr()
   {
-    Etc.debugMsg("HxMsg", id, a, b, c, d)
+    Etc.debugMsg("HxMsg", id, a, b, c, d, e)
   }
 }
 

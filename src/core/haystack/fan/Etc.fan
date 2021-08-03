@@ -1255,7 +1255,7 @@ const class Etc
   }
 
   ** Format actor msg tuple as "type(id, a=a, b=b, ...)"
-  @NoDoc static Str debugMsg(Str type, Obj? id, Obj? a, Obj? b := null, Obj? c := null, Obj? d := null)
+  @NoDoc static Str debugMsg(Str type, Obj? id, Obj? a, Obj? b := null, Obj? c := null, Obj? d := null, Obj? e := null)
   {
     s := StrBuf()
     s.add(type).add("(").add(id)
@@ -1263,6 +1263,7 @@ const class Etc
     debugMsgArg(s, "b", b)
     debugMsgArg(s, "c", c)
     debugMsgArg(s, "d", d)
+    debugMsgArg(s, "e", e)
     return s.add(")").toStr
   }
 
