@@ -16,7 +16,7 @@ using hx
 **
 ** Point historization and writable support
 **
-const class PointLib : HxLib
+const class PointLib : HxLib, HxPointWriteService
 {
   new make()
   {
@@ -32,6 +32,12 @@ const class PointLib : HxLib
 
   ** Should we collect bad data as NA or just omit it
   Bool hisCollectNA() { rec.has("hisCollectNA") }
+
+  ** HxPointWriteService
+  override Void write(Dict point, Obj? val, Int level, Obj who, Dict? opts := null)
+  {
+    writeMgr.write(point, val, level, who, opts ?: Etc.emptyDict)
+  }
 
   ** Start callback
   override Void onStart()

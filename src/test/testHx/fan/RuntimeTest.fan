@@ -154,6 +154,48 @@ class RuntimeTest : HxTest
     verifyEq(HxCoreFuncs.readById(rec.id)->foo, m)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Services
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testServices()
+  {
+    verifyServiceNotFound(Str#)
+    verifyServiceNotFound(HxPointWriteService#)
+    verifyEq(rt.services.pointWrite.typeof, NilPointWriteService#)
+
+    rt.libs.add("point")
+    verifySame(verifyService(HxPointWriteService#), rt.services.pointWrite)
+
+    rt.libs.remove("point")
+    verifyServiceNotFound(HxPointWriteService#)
+    verifyEq(rt.services.pointWrite.typeof, NilPointWriteService#)
+  }
+
+  Obj verifyService(Type t)
+  {
+    service := rt.services.get(t)
+    verifyEq(rt.services.getAll(t).containsSame(service), true)
+    verifyEq(rt.services.list.containsSame(t), true)
+
+    grid := (Grid)eval("services()")
+    verifyNotNull(grid.find |r| { r->type == t.qname })
+
+    return service
+  }
+
+  Void verifyServiceNotFound(Type t)
+  {
+    verifyEq(rt.services.get(t, false), null)
+    verifyEq(rt.services.getAll(t), HxService[,])
+    verifyErr(UnknownServiceErr#) { rt.services.get(t) }
+    verifyErr(UnknownServiceErr#) { rt.services.get(t, true) }
+
+    grid := (Grid)eval("services()")
+    verifyNull(grid.find |r| { r->type == t.qname })
+  }
+
 }
 
 **************************************************************************

@@ -345,6 +345,25 @@ const class HxCoreFuncs
     return "removed"
   }
 
+  ** Grid of installed services.  Format of the grid is subject to change.
+  @Axon { admin = true }
+  static Grid services()
+  {
+    services := curContext.rt.services
+    gb := GridBuilder()
+    gb.addCol("type").addCol("lib")
+    services.list.each |type|
+    {
+      services.getAll(type).each |service|
+      {
+        libStr := (service as HxLib)?.name ?: service.typeof.qname
+        gb.addRow2(type.qname, libStr)
+      }
+    }
+    return gb.toGrid
+  }
+
+
 //////////////////////////////////////////////////////////////////////////
 // Observables
 //////////////////////////////////////////////////////////////////////////

@@ -79,12 +79,13 @@ const class PointFuncs
   ** If who is omitted, then the current user's display string is used
   **
   @Axon { admin = true }
-  static Obj? pointWrite(Obj point, Obj? val, Number? level, Obj? who := null)
+  static Obj? pointWrite(Obj point, Obj? val, Number? level, Obj? who := null, Dict? opts := null)
   {
     cx := curContext
     if (level == null) throw ArgErr("level arg is null")
     if (who == null) who = cx.user.dis
-    return lib(cx).writeMgr.write(HxUtil.toRec(cx.rt, point), val, level.toInt, who).get(timeout)
+    if (opts == null) opts = Etc.emptyDict
+    return lib(cx).writeMgr.write(HxUtil.toRec(cx.rt, point), val, level.toInt, who, opts).get(timeout)
   }
 
   **
@@ -109,7 +110,7 @@ const class PointFuncs
     if (level.toInt == 8 && val != null && duration != null)
       val = TimedOverride(val, duration.toDuration)
 
-    return lib.writeMgr.write(rec, val, level.toInt, cx.user.dis).get(timeout)
+    return lib.writeMgr.write(rec, val, level.toInt, cx.user.dis, Etc.emptyDict).get(timeout)
   }
 
   ** Handle pointWrite as Haystack API operation

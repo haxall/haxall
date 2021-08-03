@@ -24,7 +24,7 @@ internal const class WriteMgrActor : PointMgrActor
 
   Grid array(Ref id) { send(HxMsg("array", id)).get(timeout) }
 
-  Future write(Dict point, Obj? val, Int level, Obj who)
+  Future write(Dict point, Obj? val, Int level, Obj who, Dict opts)
   {
     // level check
     if (level < 1 || level > 17) throw Err("Invalid level: $level")
@@ -56,7 +56,7 @@ internal const class WriteMgrActor : PointMgrActor
     // add/check unit if Number
     val = PointUtil.applyUnit(point, val, "write")
 
-    return send(HxMsg("write", point.id, valRef, level, who))
+    return send(HxMsg("write", point.id, valRef, level, who, opts))
   }
 }
 

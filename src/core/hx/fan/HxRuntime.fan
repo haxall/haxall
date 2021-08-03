@@ -32,6 +32,9 @@ const mixin HxRuntime
   ** Folio database for this runtime
   abstract Folio db()
 
+  ** Service registry
+  abstract HxServiceRegistry services()
+
   ** Lookup a library by name.  Convenience for 'libs.get'.
   abstract HxLib? lib(Str name, Bool checked := true)
 
