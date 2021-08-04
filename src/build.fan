@@ -23,6 +23,7 @@ class Build : BuildGroup
       `conn/build.fan`,
       `tool/build.fan`,
       `test/build.fan`,
+      `doc/build.fan`,
     ]
   }
 

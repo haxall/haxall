@@ -1,0 +1,16 @@
+**************************************************************************
+** title:      Index
+** author:     Brian Frank
+** created:    4 Aug 2021
+** copyright:  Copyright (c) 2021, SkyFoundry LLC
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+[
+"Getting Started",
+  [`Setup`,      "Help on getting Haxall up and running"],
+"Architecture",
+  [`Runtime`,    "Runtime lifecycle"],
+"Appendix",
+  [`ChangeLog`,  "List of changes in each build"]
+]

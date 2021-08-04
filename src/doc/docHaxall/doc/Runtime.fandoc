@@ -1,0 +1,39 @@
+**************************************************************************
+** title:      Runtime
+** author:     Brian Frank
+** created:    4 Aug 2021
+** copyright:  Copyright (c) 2021, SkyFoundry LLC
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+TODO
+
+Steady State [#steadyState]
+****************************
+Steady state is a configurable delay after bootstrap used to give the
+system time to reach equilibrium.  This gives internal services time to
+spin up before interacting with external systems. By default the steady
+state delay is 10sec.  It may be tuned by applying the `steadyState` tag
+to the `projMeta` record.
+
+The configured delay starts after the database is loaded and all libraries
+have completed their [onStart]`hx::HxLib.onStart` and [onReady]`hx::HxLib.onReady`
+callbacks.  Once the delay expires, the [steady state]`isSteadyState()`
+flag transitions to true and libraries receive the [onSteadyState]`hx::HxLib.onSteadyState`
+callback.
+
+Activities which occur *before* steady state:
+  - Applications which require current point values should initialize their
+    watches
+  - Connectors should begin polling/subscribing to watched points to ensure
+    data is up-to-date once steady state is reached
+
+Activities which occur *after* steady state:
+  - Local history collection is suppressed until steady state
+  - Connector writes are suppressed until steady state, then the current
+    write level of all writable points is broadcast to connectors which
+    may issue a remote write if the `writeOnStart` tuning policy is configured
+  - Rule engine (SkySpark only) does not begin to compute rules until after
+    steady state
