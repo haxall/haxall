@@ -8,7 +8,7 @@
 
 --------------------------------------------------------------------------
 def: ^lib:point
-depends: [^lib:ph, ^lib:phIoT, ^lib:obs, ^lib:axon, ^lib:hx]
+depends: [^lib:ph, ^lib:phIoT, ^lib:obs, ^lib:axon, ^lib:hx, ^lib:skyarc]
 typeName:"hxPoint::PointLib"
 doc: "Point historization and writable support"
 --------------------------------------------------------------------------

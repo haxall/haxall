@@ -166,6 +166,8 @@ internal class WriteRec
     lastLevel = level
     try
       mgr.sink(this, val, level, who)
+    catch (ShutdownErr e)
+      { /* ignore */ }
     catch (Err e)
       mgr.lib.log.err("writeSink", e)
     return true
