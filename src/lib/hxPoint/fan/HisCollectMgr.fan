@@ -89,9 +89,8 @@ internal class HisCollectMgr : PointMgr
       topOfMin = true
     }
 
-    // short circuits
+    // short circuit if no points
     if (points.isEmpty) return
-    if (!lib.rt.isSteadyState) return
 
     // create/recreate watch if necessary
     if (watch == null || watch.isClosed)
@@ -107,6 +106,13 @@ internal class HisCollectMgr : PointMgr
       recs = watch.poll(0ms)
     catch (ShutdownErr e)
       return
+
+    // at this point short circuit logging if not steady state;
+    // however its important that we setup the watch **before** steady
+    // state so that connectors have a chance to initiate their
+    // polling/subscriptions so the data is ready to begin logging
+    // once steady state is reached
+    if (!lib.rt.isSteadyState) return
 
     // iterate all our points
     recs.each |rec|
