@@ -32,6 +32,9 @@ const mixin HxRuntime : HxStdServices
   ** Folio database for this runtime
   abstract Folio db()
 
+  ** Runtime level meta data stored in the `projMeta` database record
+  abstract Dict meta()
+
   ** Lookup a library by name.  Convenience for 'libs.get'.
   abstract HxLib? lib(Str name, Bool checked := true)
 
@@ -47,7 +50,7 @@ const mixin HxRuntime : HxStdServices
   ** Has the runtime has reached steady state.  Steady state is reached
   ** after a configurable wait period elapses after the runtime is
   ** fully loaded.  This gives internal services time to spin up before
-  ** interacting with external systems.
+  ** interacting with external systems.  See `docHaxall::Runtime#steadyState`.
   abstract Bool isSteadyState()
 
   ** Construct a runtime specific context for the given user account

@@ -33,10 +33,20 @@ const class HxdFolioHooks : FolioHooks
   ** Pass through FolioContext.commitInfo if available.
   override Void preCommit(Diff diff, Obj? cxInfo)
   {
-    if (diff.isRemove && !diff.isBypassRestricted)
+    if (diff.isUpdate)
+    {
+      // cannot trash projMeta
+      if (diff.id == rt.meta.id && diff.changes.has("trash")) throw CommitErr("Cannot trash projMeta rec")
+    }
+    else if (diff.isRemove)
     {
       rec := db.readById(diff.id, false) ?: Etc.emptyDict
-      if (rec.has("hxLib")) throw CommitErr("Must use libRemove to remove hxLib rec")
+
+      // cannot directly remove a library
+      if (rec.has("hxLib") && !diff.isBypassRestricted) throw CommitErr("Must use libRemove to remove hxLib rec")
+
+      // cannot remove projMeta ever
+      if (diff.id == rt.meta.id) throw CommitErr("Cannot remove projMeta rec")
     }
   }
 
@@ -44,6 +54,9 @@ const class HxdFolioHooks : FolioHooks
   ** Pass through FolioContext.commitInfo if available.
   override Void postCommit(Diff diff, Obj? cxInfo)
   {
+    // short circuit for all transient changes immediately
+    if (diff.isTransient) return
+
     user := cxInfo as HxUser
 
     if (diff.isUpdate)
@@ -54,6 +67,11 @@ const class HxdFolioHooks : FolioHooks
       {
         lib := rt.libs.get(hxLib, false)
         if (lib != null) ((HxdLibSpi)lib.spi).update(newRec)
+      }
+
+      if (diff.id == rt.meta.id)
+      {
+        rt.metaRef.val = diff.newRec
       }
     }
 

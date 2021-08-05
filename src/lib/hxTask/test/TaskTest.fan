@@ -56,10 +56,12 @@ class TaskTest : HxTest
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxRuntimeTest { meta = "steadyState: 0s" }
   Void testBasics()
   {
     lib := (TaskLib)rt.libs.add("task")
+    sync
+    lib.spi.sync
 
     func := addFuncRec("topFunc", """(msg) => "top " + msg""")
 

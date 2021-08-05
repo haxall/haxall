@@ -1,0 +1,32 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   4 Aug 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^projMeta
+is: ^entity
+doc: "Singleton record for project meta data"
+--------------------------------------------------------------------------
+defx: ^doc
+tagOn: ^projMeta
+--------------------------------------------------------------------------
+defx: ^version
+tagOn: ^projMeta
+--------------------------------------------------------------------------
+defx: ^created
+tagOn: ^projMeta
+--------------------------------------------------------------------------
+def: ^steadyState
+is: ^duration
+minVal: 0ms
+maxVal: 1hr
+tagOn: ^projMeta
+doc:
+  The delay before transitioning to the steady state.
+  See `docHaxall::Runtime#steadyState`
+--------------------------------------------------------------------------
+
