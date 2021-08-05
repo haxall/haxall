@@ -49,7 +49,7 @@ internal const class WriteSubscription : FilterSubscription
 @NoDoc
 const class WriteObservation : Observation
 {
-  new make(Observable observable, DateTime ts, Ref id, Dict rec, Obj? val, Number level, Obj? who)
+  new make(Observable observable, DateTime ts, Ref id, Dict rec, Obj? val, Number level, Obj who, Bool first)
   {
     this.type  = observable.name
     this.ts    = ts
@@ -58,6 +58,7 @@ const class WriteObservation : Observation
     this.val   = val
     this.level = level
     this.who   = who
+    this.first = Marker.fromBool(first)
   }
 
   const override Str type
@@ -67,7 +68,8 @@ const class WriteObservation : Observation
   const Dict rec
   const Obj? val
   const Number level
-  const Obj? who
+  const Obj who
+  const Marker? first
 
   override Bool isEmpty() { false }
 
@@ -82,7 +84,8 @@ const class WriteObservation : Observation
       case "rec":     return rec
       case "val":     return val
       case "level":   return level
-      case "who":     return who ?: def
+      case "who":     return who
+      case "first":   return first
       default:        return def
     }
   }
@@ -110,7 +113,8 @@ const class WriteObservation : Observation
     r = f(rec,   "rec");   if (r != null) return r
     r = f(val,   "val");   if (r != null) return r
     r = f(level, "level"); if (r != null) return r
-    if (who != null)   r = f(who,   "who");   if (r != null) return r
+    r = f(who,   "who");   if (r != null) return r
+    if (first != null) r = f(first, "first"); if (r != null) return r
     return null
   }
 }

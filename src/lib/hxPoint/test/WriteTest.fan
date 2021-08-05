@@ -22,6 +22,7 @@ class WriteTest : HxTest
   Void testWrites()
   {
     PointLib lib := rt.libs.add("point")
+    lib.spi.sync
 
     pt := addRec(["dis":"P", "point":m, "writable":m, "kind":"Number"])
     ptId := pt.id.toCode
@@ -122,7 +123,7 @@ class WriteTest : HxTest
 // Observable
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxRuntimeTest { meta = "steadyState: 500ms" }
   Void testObservable()
   {
     PointLib lib := rt.libs.add("point")
@@ -149,6 +150,31 @@ class WriteTest : HxTest
       obsY.clear
     }
 
+    // verify no events received before steady state
+    verifyEq(rt.isSteadyState, false)
+    eval("pointWrite($x.id.toCode, 987, 16, \"test-16\")")
+    try
+    {
+      verifyObs(obsA, x, null, -1, "")
+      verifyObs(obsB, x, null, -1, "")
+      verifyObs(obsX, x, null, -1, "")
+      verifyObs(obsY, y, null, -1, "")
+    }
+    catch (TestErr e)
+    {
+      if (rt.isSteadyState) echo("***WARN*** reached steady state before expected")
+      else throw e
+    }
+
+    while (!rt.isSteadyState) Actor.sleep(10ms)
+    rt.sync
+    lib.writeMgr.forceCheck
+
+    // verify first event
+    // Note: its indeterminate whether obsA/obsB received x or y last
+    verifyObs(obsX, x, n(987), 16, "first")
+    verifyObs(obsY, y, null, 17, "first")
+
     // set level 123 @ 16
     reset()
     eval("pointWrite($x.id.toCode, 123, 16, \"test-16\")")
@@ -156,7 +182,7 @@ class WriteTest : HxTest
     verifyObs(obsA, x, n(123), 16, "test-16")
     verifyObs(obsB, x, n(123), 16, "test-16")
     verifyObs(obsX, x, n(123), 16, "test-16")
-    verifyObs(obsY, x, null, -1, "")
+    verifyObs(obsY, y, null, -1, "")
 
     // set level 456 @ 14
     reset()
@@ -165,7 +191,7 @@ class WriteTest : HxTest
     verifyObs(obsA, x, n(456), 14, "test-14")
     verifyObs(obsB, x, n(456), 14, "test-14")
     verifyObs(obsX, x, n(456), 14, "test-14")
-    verifyObs(obsY, x, null, -1, "")
+    verifyObs(obsY, y, null, -1, "")
 
     // change level 789 @ 14
     reset()
@@ -174,7 +200,7 @@ class WriteTest : HxTest
     verifyObs(obsA, x, n(789), 14, "test-14")
     verifyObs(obsB, x, n(789), 14, "test-14")
     verifyObs(obsX, x, n(789), 14, "test-14")
-    verifyObs(obsY, x, null, -1, "")
+    verifyObs(obsY, y, null, -1, "")
 
     // keep level 789 @ 14 (no events fired)
     reset()
@@ -183,7 +209,7 @@ class WriteTest : HxTest
     verifyObs(obsA, x, null, -1, "")
     verifyObs(obsB, x, null, -1, "")
     verifyObs(obsX, x, null, -1, "")
-    verifyObs(obsY, x, null, -1, "")
+    verifyObs(obsY, y, null, -1, "")
 
     // change level 150 @ 15 (only allWrites obs receives event)
     reset()
@@ -192,7 +218,7 @@ class WriteTest : HxTest
     verifyObs(obsA, x, null, -1, "")
     verifyObs(obsB, x, n(150), 15, "test-15")
     verifyObs(obsX, x, null, -1, "")
-    verifyObs(obsY, x, null, -1, "")
+    verifyObs(obsY, y, null, -1, "")
 
     // null level 15 (only allWrites obs receives event)
     reset()
@@ -201,7 +227,7 @@ class WriteTest : HxTest
     verifyObs(obsA, x, null, -1, "")
     verifyObs(obsB, x, null, 15, "test-15")
     verifyObs(obsX, x, null, -1, "")
-    verifyObs(obsY, x, null, -1, "")
+    verifyObs(obsY, y, null, -1, "")
 
     // null level 16 (only allWrites obs receives event)
     eval("pointWrite($x.id.toCode, null, 16, \"test-16\")")
@@ -209,7 +235,7 @@ class WriteTest : HxTest
     verifyObs(obsA, x, null, -1, "")
     verifyObs(obsB, x, null, 16, "test-16")
     verifyObs(obsX, x, null, -1, "")
-    verifyObs(obsY, x, null, -1, "")
+    verifyObs(obsY, y, null, -1, "")
 
     // null level 14 (all receive auto event)
     eval("pointWrite($x.id.toCode, null, 14, \"test-14\")")
@@ -217,12 +243,13 @@ class WriteTest : HxTest
     verifyObs(obsA, x, null, 14, "test-14")
     verifyObs(obsB, x, null, 14, "test-14")
     verifyObs(obsX, x, null, 14, "test-14")
-    verifyObs(obsY, x, null, -1, "")
+    verifyObs(obsY, y, null, -1, "")
   }
 
   private Void verifyObs(TestObserver obs, Dict pt, Obj? val, Int level, Str who)
   {
     e := obs.sync as Dict
+    // echo("  verifyObj $obs | $e")
     if (level == -1)
     {
       verifyNull(e, null)
@@ -238,6 +265,17 @@ class WriteTest : HxTest
     verifyEq(e["val"], val)
     verifyEq(e->level, n(level))
     verifyEq(e->who, who)
+
+    if (who == "first")
+    {
+      verifyEq(e->first, m)
+      verifyEq(e.has("first"), true)
+    }
+    else
+    {
+      verifyEq(e["first"], null)
+      verifyEq(e.has("first"), false)
+    }
   }
 }
 
