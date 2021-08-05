@@ -13,6 +13,7 @@ using hx
 
 **
 ** WriteRec models state for a single writable point rec.
+** This object is always mutated and manipulated inside the WriteMgr thread.
 **
 internal class WriteRec
 {
@@ -110,8 +111,10 @@ internal class WriteRec
     // update output
     effectiveChange := update(mgr)
 
-    // fire observations
-    mgr.fireObservation(this, val, levelNums[level-1], who, effectiveChange)
+    // fire observations only after steady state is reached;
+    // steady state is when we uniformly fire off all initial writes
+    if (mgr.rt.isSteadyState)
+      mgr.fireObservation(this, val, levelNums[level-1], who, effectiveChange, false)
 
     return val
   }
@@ -277,9 +280,9 @@ internal class WriteRec
 
   const Ref id                      // record id
   Dict rec { private set }          // current state of record
+  Obj? lastVal { private set }      // last value written
+  Number? lastLevel { private set } // last level written
   private WriteLevel?[] levels      // index 0 => level 1, index 17 -> def
-  private Obj? lastVal              // last value written
-  private Number? lastLevel         // last level written
   private Int overrideExpire        // Duration ticks to send 8 back to auto or zero
 }
 

@@ -80,6 +80,13 @@ internal class WriteMgr : PointMgr
 
   override Void onCheck()
   {
+    // check if we need to issue the first write observations
+    if (needFirstFire && rt.isSteadyState)
+    {
+      needFirstFire = false
+      fireFirstObservations
+    }
+
     // iterate all the writable points to check for expired timed override
     now := Duration.now
     points.each |pt| { pt.check(this, now) }
@@ -133,8 +140,18 @@ internal class WriteMgr : PointMgr
                     "writeLevel", level)
   }
 
+  ** Called exactly once after we detect the system has entered steady state.
+  ** This is when we fire off the first pointWrite observations.
+  private Void fireFirstObservations()
+  {
+    points.each |pt|
+    {
+      fireObservation(pt, pt.lastVal, pt.lastLevel, "first", true, true)
+    }
+  }
+
   ** Called by WriteRec on all writes
-  internal Void fireObservation(WriteRec writeRec, Obj? val, Number level, Obj? who, Bool effectiveChange)
+  internal Void fireObservation(WriteRec writeRec, Obj? val, Number level, Obj? who, Bool effectiveChange, Bool first)
   {
     // short circuit if observable has no subscriptions
     observable := lib.writeMgr.observable
@@ -143,7 +160,7 @@ internal class WriteMgr : PointMgr
     // fire event to subscribed observers
     ts := DateTime.now
     rec := writeRec.rec
-    event := WriteObservation(observable, ts, writeRec.id, rec, val, level, who)
+    event := WriteObservation(observable, ts, writeRec.id, rec, val, level, who, first)
     observable.subscriptions.each |WriteSubscription sub|
     {
       // short circuit if not an effective change and not subscribed to all changes
@@ -164,5 +181,6 @@ internal class WriteMgr : PointMgr
     return pt.toDetails
   }
 
+  private Bool needFirstFire := true
   private Ref:WriteRec points := [:]
 }
