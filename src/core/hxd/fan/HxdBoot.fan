@@ -48,6 +48,11 @@ class HxdBoot
   Str:Obj? platform := [:]
 
   **
+  ** Tags define in the projMeta singleton record
+  **
+  Dict projMeta := Etc.emptyDict
+
+  **
   ** List of lib names which are required to be installed.
   **
   Str[] requiredLibs := [
@@ -137,8 +142,12 @@ class HxdBoot
 
   private Void initMeta()
   {
-    tags := ["hxMeta":Marker.val,"projMeta": Marker.val]
-    initRec("hxMeta", db.read(Filter.has("hxMeta"), false), tags)
+    // setup the tags we want for projMeta
+    tags := ["projMeta": Marker.val, "version": version.toStr]
+    projMeta.each |v, n| { tags[n] = v }
+
+    // update rec and set back to projMeta field so HxdRuntime can init itself
+    projMeta = initRec("projMeta", db.read(Filter.has("projMeta"), false), tags)
   }
 
   private Void initLibs()
@@ -152,19 +161,19 @@ class HxdBoot
     initRec("lib [$name]", db.read(Filter.eq("hxLib", name), false), tags)
   }
 
-  private Void initRec(Str summary, Dict? rec, Str:Obj changes := [:])
+  private Dict initRec(Str summary, Dict? rec, Str:Obj changes := [:])
   {
     if (rec == null)
     {
       log.info("Create $summary")
-      db.commit(Diff(null, changes, Diff.add.or(Diff.bypassRestricted)))
+      return db.commit(Diff(null, changes, Diff.add.or(Diff.bypassRestricted))).newRec
     }
     else
     {
       changes = changes.findAll |v, n| { rec[n] != v }
-      if (changes.isEmpty) return
+      if (changes.isEmpty) return rec
       log.info("Update $summary")
-      db.commit(Diff(rec, changes))
+      return db.commit(Diff(rec, changes)).newRec
     }
   }
 

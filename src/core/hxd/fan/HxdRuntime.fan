@@ -32,6 +32,7 @@ const class HxdRuntime : HxRuntime
     this.db            = boot.db
     this.db.hooks      = HxdFolioHooks(this)
     this.log           = boot.log
+    this.metaRef       = AtomicRef(boot.projMeta)
     this.installedRef  = AtomicRef(HxdInstalled.build)
     this.libsActorPool = ActorPool { it.name = "Hxd-Lib" }
     this.hxdActorPool  = ActorPool { it.name = "Hxd-Runtime" }
@@ -80,6 +81,10 @@ const class HxdRuntime : HxRuntime
   ** Database for this runtime
   override const Folio db
 
+  ** Runtime level meta data stored in the `projMeta` database record
+  override Dict meta() { metaRef.val }
+  internal const AtomicRef metaRef
+
   ** Service registry
   override HxdServiceRegistry services() { servicesRef.val ?: throw Err("Services not avail yet") }
   internal Void servicesRebuild() { servicesRef.val = HxdServiceRegistry(this, libs.list) }
@@ -100,7 +105,7 @@ const class HxdRuntime : HxRuntime
 
   ** Has the runtime has reached steady state.
   override Bool isSteadyState() { stateStateRef.val }
-  internal const AtomicBool stateStateRef := AtomicBool(true)
+  internal const AtomicBool stateStateRef := AtomicBool(false)
 
   ** Actor pool to use for HxRuntimeLibs.actorPool
   const ActorPool libsActorPool

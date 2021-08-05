@@ -18,21 +18,22 @@ class HxdTestSpi : HxTestSpi
 {
   new make(HxTest test) : super(test) {}
 
-  static HxRuntime boot(Test test)
+  static HxRuntime boot(Test test, Dict projMeta)
   {
     boot := HxdBoot
     {
       it.dir = test.tempDir
+      it.projMeta = projMeta
       it.create = true
       it.requiredLibs.remove("hxHttp")
       it.log.level = LogLevel.warn
     }
-    return  boot.init.start
+    return boot.init.start
   }
 
-  override HxRuntime start()
+  override HxRuntime start(Dict projMeta)
   {
-    boot(test)
+    boot(test, projMeta)
   }
 
   override Void stop(HxRuntime rt)

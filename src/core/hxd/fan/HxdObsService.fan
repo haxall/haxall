@@ -111,7 +111,6 @@ const class HxdObsService : Actor, HxObsService
 
   Void commit(Diff diff, HxUser? user)
   {
-    if (diff.isTransient) return
     if (commits.hasSubscriptions) send(HxMsg("diff", diff, user))
   }
 

@@ -27,7 +27,9 @@ internal const class HxdBackgroundMgr : Actor
 
   Void start()
   {
-    sendLater(freq, "bg")
+    // this must be called after libs are started/readied
+    startTicks.val = Duration.nowTicks
+    send("bg")
   }
 
   override Obj? receive(Obj? msg)
@@ -37,6 +39,9 @@ internal const class HxdBackgroundMgr : Actor
 
     // schedule next background housekeeping
     sendLater(freq, "bg")
+
+    // check for steady state transitions
+    checkSteadyState
 
     // update now cached DateTime
     now := DateTime.now(null)
@@ -51,6 +56,32 @@ internal const class HxdBackgroundMgr : Actor
     return null
   }
 
-  const Duration freq := 100ms
+  private Void checkSteadyState()
+  {
+    if (rt.isSteadyState) return
 
+    config := steadyStateConfig
+    elapsed := Duration.nowTicks - startTicks.val
+    if (elapsed >= config.ticks)
+    {
+      rt.log.info("Steady state")
+      rt.stateStateRef.val = true
+      rt.libs.list.each |lib| { ((HxdLibSpi)lib.spi).steadyState }
+    }
+  }
+
+  private Duration steadyStateConfig()
+  {
+    Duration? x
+    try
+      x = (rt.meta["steadyState"] as Number)?.toDuration
+    catch (Err e)
+      {}
+    if (x == null) x = 10sec
+    if (x > 1hr)   x = 1hr
+    return x
+  }
+
+  const Duration freq := 100ms
+  const AtomicInt startTicks := AtomicInt(0)
 }

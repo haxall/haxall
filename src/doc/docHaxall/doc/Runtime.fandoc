@@ -31,6 +31,8 @@ Activities which occur *before* steady state:
     data is up-to-date once steady state is reached
 
 Activities which occur *after* steady state:
+  - Tasks do not subscribe to their observables until steady state (including
+    scheduled tasks)
   - Local history collection is suppressed until steady state
   - Connector writes are suppressed until steady state, then the current
     write level of all writable points is broadcast to connectors which

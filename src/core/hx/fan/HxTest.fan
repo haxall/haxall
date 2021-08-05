@@ -63,8 +63,16 @@ abstract class HxTest : HaystackTest
   @NoDoc virtual Void rtStart()
   {
     if (rtRef != null) throw Err("Runtime already started!")
+    projMeta := Etc.emptyDict
     facet := curTestMethod.facet(HxRuntimeTest#, false) as HxRuntimeTest
-    rtRef = spi.start
+    if (facet != null && facet.meta != null)
+    {
+      if (facet.meta is Str)
+        projMeta = TrioReader(facet.meta.toStr.in).readDict
+      else
+        projMeta = Etc.makeDict((Str:Obj)facet.meta)
+    }
+    rtRef = spi.start(projMeta)
   }
 
   ** Stop test runtime
@@ -162,7 +170,11 @@ abstract class HxTest : HaystackTest
 **
 ** Annotates a `HxTest` method to setup a test runtime instance
 **
-facet class HxRuntimeTest {}
+facet class HxRuntimeTest
+{
+  ** Database meta data encoded as a Trio string
+  const Obj? meta
+}
 
 **************************************************************************
 ** HxTestSpi
@@ -176,7 +188,7 @@ abstract class HxTestSpi
 {
   new make(HxTest test) { this.test = test }
   HxTest test { private set }
-  abstract HxRuntime start()
+  abstract HxRuntime start(Dict projMeta)
   abstract Void stop(HxRuntime rt)
   abstract HxUser addUser(Str user, Str pass, Str:Obj? tags)
   abstract HxContext makeContext(HxUser? user)

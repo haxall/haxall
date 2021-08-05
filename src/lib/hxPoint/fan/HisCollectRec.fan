@@ -13,6 +13,7 @@ using folio
 
 **
 ** HisCollectRec models state for a single point with his collection enabled.
+** This object is always mutated and manipulated inside the HisCollectMgr thread.
 **
 @NoDoc
 internal class HisCollectRec
