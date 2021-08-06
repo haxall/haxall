@@ -151,6 +151,7 @@ class CoreFuncsTest : HxTest
     g1 := Etc.makeDictGrid(null, d1)
 
     verifyToId(null,        null)
+    verifyToId(Ref[,],      null)
     verifyToId(Ref("null"), Ref.nullRef)
     verifyToId(Ref("a"),    Ref("a"))
     verifyToId(d1,          Ref("d1"))
@@ -163,6 +164,8 @@ class CoreFuncsTest : HxTest
     verifyToIds(d1,                   Ref[Ref("d1")])
     verifyToIds([d1],                 Ref[Ref("d1")])
     verifyToIds([d1, d2],             Ref[Ref("d1"), Ref("d2")])
+
+    // TODO: add toRec/toRecs and toRec() and toRecList() tests
   }
 
   Void verifyToId(Obj? val, Obj? expected)
@@ -179,9 +182,17 @@ class CoreFuncsTest : HxTest
     else
     {
       verifyErr(Err#) { HxUtil.toId(val) }
-      verifyErr(Err#) { HxUtil.toIds(val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toRecId").call(cx, [val]) }
-      verifyErr(EvalErr#) { cx.evalToFunc("toRecIds").call(cx, [val]) }
+      if (val is Ref[])
+      {
+        verifyEq(HxUtil.toIds(val), val)
+        verifyEq(cx.evalToFunc("toRecIdList").call(cx, [val]), val)
+      }
+      else
+      {
+        verifyErr(EvalErr#) { cx.evalToFunc("toRecIdList").call(cx, [val]) }
+        verifyErr(Err#) { HxUtil.toIds(val) }
+      }
     }
   }
 
