@@ -75,12 +75,13 @@ const class HxUtil
   ** Coerce a value to a record Dict:
   **   - Row or Dict returns itself
   **   - Grid returns first row
+  **   - List returns first row (can be either Ref or Dict)
   **   - Ref will make a call to read database
   static Dict toRec(HxRuntime rt, Obj? val)
   {
     if (val is Dict) return val
-    if (val is Grid) return ((Grid)val).first
-    if (val is List) return toRec(rt, ((List)val).first)
+    if (val is Grid) return ((Grid)val).first ?: throw Err("Grid is empty")
+    if (val is List) return toRec(rt, ((List)val).first ?: throw Err("List is empty"))
     if (val is Ref)  return rt.db.readById(val)
     throw Err("Cannot convert toRec: ${val?.typeof}")
   }
