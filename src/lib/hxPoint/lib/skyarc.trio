@@ -7,6 +7,10 @@
 //
 
 
+//////////////////////////////////////////////////////////////////////////
+// Commands
+//////////////////////////////////////////////////////////////////////////
+
 --------------------------------------------------------------------------
 def: ^command:pointDetails
 disMacro: "$<ui::point> $<ui::details>"
@@ -16,4 +20,32 @@ expr: "pointDetails({{id}})"
 def: ^command:pointOverride
 icon: "settings"
 typeName: "uiMisc::PointOverrideCommand"
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Views
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+view: monitorEquips
+appName: monitor
+disKey: "ui::equips"
+order:100
+doc: "Monitor the current value of points for selected equipment"
+src:
+  view:      { inherit:"table" }
+  equips:    { var input kind:"Ref<equip>[]" navSelAny share }
+  equipType: { var input kind:"Symbol" share uiInput:"ui::ChoiceInput" of:^equip defVal:^equip }
+  menu:      { action:"uiContextMenu" }
+  data:      { expr:"monitorEquips({{equips}}, {{equipType}})" }
+--------------------------------------------------------------------------
+view: monitorPoints
+appName: monitor
+disKey: ui::points
+doc: "Monitor the current value of selected points"
+src:
+  view:   { inherit:"table" }
+  points: { var input kind:"Ref<anyPoint>[]" navSelAny share }
+  menu:   { action:"uiContextMenu" }
+  data:   { expr:"monitorPoints({{points}})" }
 --------------------------------------------------------------------------
