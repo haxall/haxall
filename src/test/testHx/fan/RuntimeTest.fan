@@ -217,12 +217,14 @@ class RuntimeTest : HxTest
 
     // add point lib and ensure it becomes implementation
     rt.libs.add("point")
-    verifySame(rt.pointWrite, rt.lib("point"))
+    verifyNotNull(rt.lib("point", false))
+    verifySame(rt.pointWrite.typeof.name, "WriteMgrActor")
     verifySame(rt.pointWrite, rt.services.pointWrite)
     verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
 
     // remove point lib and pointWrite falls back to nil implementation
     rt.libs.remove("point")
+    verifyNull(rt.lib("point", false))
     verifySame(rt.pointWrite.typeof, NilPointWriteService#)
     verifySame(rt.pointWrite, rt.services.pointWrite)
     verifySame(verifyService(HxPointWriteService#), rt.pointWrite)

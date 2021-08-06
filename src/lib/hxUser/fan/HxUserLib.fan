@@ -38,6 +38,9 @@ const class HxUserLib : HxLib, HxUserService
   Str cookieName() { cookieNameRef.val }
   private const AtomicRef cookieNameRef := AtomicRef()
 
+  ** Publish myself as the HxUserService
+  override HxService[] services() { [this] }
+
 //////////////////////////////////////////////////////////////////////////
 // HxRuntimeUsers
 //////////////////////////////////////////////////////////////////////////

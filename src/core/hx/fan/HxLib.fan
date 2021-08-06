@@ -66,6 +66,11 @@ abstract const class HxLib
   ** Web service handling for this library
   virtual HxLibWeb web() { UnsupportedHxLibWeb(this) }
 
+  ** Return list of services this library publishes.  This callback
+  ** is made during initialization and each time a lib is added/removed
+  ** from the runtime.
+  virtual HxService[] services() { HxService#.emptyList }
+
   ** Service provider interface
   @NoDoc virtual HxLibSpi spi() { spiRef }
   @NoDoc const HxLibSpi spiRef

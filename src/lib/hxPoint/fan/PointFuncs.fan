@@ -154,7 +154,7 @@ const class PointFuncs
   @Axon
   static Grid pointWriteArray(Obj point)
   {
-    lib(curContext).writeMgr.array(HxUtil.toId(point))
+    lib(curContext).writeMgr.arrayById(HxUtil.toId(point))
   }
 
   **

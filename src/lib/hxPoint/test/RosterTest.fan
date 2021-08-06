@@ -152,7 +152,7 @@ class RosterTest : HxTest
     verifyErrMsg(Err#, "Not writable point: $id.toZinc") { writeArray(id) }
   }
 
-  Grid writeArray(Ref id) { lib.writeMgr.array(id) }
+  Grid writeArray(Ref id) { lib.writeMgr.arrayById(id) }
 
 //////////////////////////////////////////////////////////////////////////
 // HisCollect

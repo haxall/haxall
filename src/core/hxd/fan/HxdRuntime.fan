@@ -96,6 +96,7 @@ const class HxdRuntime : HxRuntime
   override HxHttpService http() { services.http }
   override HxUserService user() { services.user }
   override HxPointWriteService pointWrite() { services.pointWrite }
+  override HxConnRegistryService conns() { services.conns }
 
   ** Lookup a library by name
   override HxLib? lib(Str name, Bool checked := true) { libs.get(name, checked) }
