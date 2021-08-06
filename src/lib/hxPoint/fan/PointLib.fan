@@ -39,6 +39,12 @@ const class PointLib : HxLib, HxPointWriteService
     writeMgr.write(point, val, level, who, opts ?: Etc.emptyDict)
   }
 
+  ** HxPointWriteService
+  override Grid array(Dict point)
+  {
+    writeMgr.array(point.id)
+  }
+
   ** Start callback
   override Void onStart()
   {

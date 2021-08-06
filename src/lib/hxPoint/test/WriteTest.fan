@@ -116,6 +116,9 @@ class WriteTest : HxTest
           verifyEq(row["who"], "test-$lvl")
       }
     }
+
+    verifyGridEq(g, rt.pointWrite.array(pt))
+
     return g
   }
 
