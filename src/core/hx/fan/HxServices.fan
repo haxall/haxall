@@ -190,6 +190,12 @@ const mixin HxPointWriteService : HxService
   ** priorirty array level.
   **
   abstract Future write(Dict point, Obj? val, Int level, Obj who, Dict? opts := null)
+
+  **
+  ** Get current state of a writable points priority array.  The result
+  ** is a grid with 17 rows including a 'level' and 'val' column.
+  **
+  abstract Grid array(Dict point)
 }
 
 @NoDoc
@@ -198,6 +204,11 @@ const class NilPointWriteService : HxPointWriteService
   override Future write(Dict point, Obj? val, Int level, Obj who, Dict? opts := null)
   {
     Future.makeCompletable.complete(null)
+  }
+
+  override Grid array(Dict point)
+  {
+    Etc.emptyGrid
   }
 
 }
