@@ -23,13 +23,16 @@ const class HxdServiceRegistry : HxServiceRegistry
 
     libs.each |lib|
     {
-      lib.typeof.inheritance.each |t|
+      lib.services.each |service|
       {
-        if (t.mixins.containsSame(serviceType))
+        service.typeof.inheritance.each |t|
         {
-          bucket := map[t]
-          if (bucket == null) map[t] = bucket = HxService[,]
-          bucket.add((HxService)lib)
+          if (t.mixins.containsSame(serviceType))
+          {
+            bucket := map[t]
+            if (bucket == null) map[t] = bucket = HxService[,]
+            bucket.add(service)
+          }
         }
       }
     }
@@ -46,6 +49,9 @@ const class HxdServiceRegistry : HxServiceRegistry
     if (map[HxPointWriteService#] == null)
       map[HxPointWriteService#] = HxService[NilPointWriteService()]
 
+    // ensure conns service is defined
+    if (map[HxConnRegistryService#] == null)
+      map[HxConnRegistryService#] = HxService[NilConnRegistryService()]
 
     this.list = map.keys.sort
     this.map  = map
@@ -55,6 +61,7 @@ const class HxdServiceRegistry : HxServiceRegistry
     this.httpRef    = get(HxHttpService#, false)
     this.user       = get(HxUserService#)
     this.pointWrite = get(HxPointWriteService#)
+    this.conns      = get(HxConnRegistryService#)
   }
 
   override const Type[] list
@@ -69,6 +76,8 @@ const class HxdServiceRegistry : HxServiceRegistry
   override const HxUserService user
 
   override const HxPointWriteService pointWrite
+
+  override const HxConnRegistryService conns
 
   override HxService? get(Type type, Bool checked := true)
   {

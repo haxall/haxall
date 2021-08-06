@@ -16,15 +16,17 @@ using hx
 **
 ** WriteMgrActor wraps the WriteMgr
 **
-internal const class WriteMgrActor : PointMgrActor
+internal const class WriteMgrActor : PointMgrActor, HxPointWriteService
 {
   new make(PointLib lib) : super(lib, 4sec, WriteMgr#) {}
 
   const WriteObservable observable := WriteObservable()
 
-  Grid array(Ref id) { send(HxMsg("array", id)).get(timeout) }
+  override Grid array(Dict point) { arrayById(point.id) }
 
-  Future write(Dict point, Obj? val, Int level, Obj who, Dict opts)
+  Grid arrayById(Ref id) { send(HxMsg("array", id)).get(timeout) }
+
+  override Future write(Dict point, Obj? val, Int level, Obj who, Dict? opts := null)
   {
     // level check
     if (level < 1 || level > 17) throw Err("Invalid level: $level")
@@ -56,7 +58,7 @@ internal const class WriteMgrActor : PointMgrActor
     // add/check unit if Number
     val = PointUtil.applyUnit(point, val, "write")
 
-    return send(HxMsg("write", point.id, valRef, level, who, opts))
+    return send(HxMsg("write", point.id, valRef, level, who, opts ?: Etc.emptyDict))
   }
 }
 

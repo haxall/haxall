@@ -13,8 +13,8 @@ using obs
 
 **
 ** Registry for service APIs by type.  Service APIs implement
-** the `HxService` mixin and are implemented by libraries enabled
-** in the runtime.
+** the `HxService` mixin and are published by libraries enabled
+** in the runtime using `HxLib.services`.
 **
 const mixin HxServiceRegistry : HxStdServices
 {
@@ -57,6 +57,9 @@ const mixin HxStdServices
 
   ** Point write service or no-op if point library is not enabled
   @NoDoc abstract HxPointWriteService pointWrite()
+
+  ** Connector registry service or no-op if connector framework not installed
+  @NoDoc abstract HxConnRegistryService conns()
 }
 
 **************************************************************************
@@ -212,4 +215,105 @@ const class NilPointWriteService : HxPointWriteService
   }
 
 }
+
+**************************************************************************
+** HxConnRegistryService
+**************************************************************************
+
+**
+** HxConnRegistryService manages the list of enabled connectors.
+**
+@NoDoc
+const mixin HxConnRegistryService : HxService
+{
+  ** List of installed connectors
+  abstract HxConnService[] list()
+
+  ** List of connector ref tags for enabled connectors
+  abstract Str[] connRefTags()
+
+  ** Lookup enabled connector by its library name
+  abstract HxConnService? byName(Str name, Bool checked := true)
+
+  ** Lookup connector for given conn record
+  abstract HxConnService? byConn(Dict conn, Bool checked := true)
+
+  ** Lookup connector for given point record
+  abstract HxConnService? byPoint(Dict point, Bool checked := true)
+
+  ** Lookup connector for set of points which must all have same connector ref
+  abstract HxConnService? byPoints(Dict[] points, Bool checked := true)
+
+  ** Find primary connector ref for given point
+  abstract Ref? connRef(Dict point, Bool checked := true)
+}
+
+@NoDoc
+const class NilConnRegistryService : HxConnRegistryService
+{
+  override HxConnService[] list() { HxConnService#.emptyList }
+  override Str[] connRefTags() { Str#.emptyList }
+  override HxConnService? byName(Str name, Bool checked := true) { get(checked) }
+  override HxConnService? byConn(Dict conn, Bool checked := true) { get(checked) }
+  override HxConnService? byPoint(Dict point, Bool checked := true) { get(checked) }
+  override HxConnService? byPoints(Dict[] points, Bool checked := true) { get(checked) }
+  override Ref? connRef(Dict point, Bool checked := true) { get(checked) }
+
+  private Obj? get(Bool checked)
+  {
+    if (checked) throw Err("no connectors installed")
+    return null
+  }
+}
+
+**************************************************************************
+** HxConnService
+**************************************************************************
+
+**
+** HxConnService models a protocol specific connector library
+**
+@NoDoc
+const mixin HxConnService : HxService
+{
+  ** Connector library name such as "bacnet"
+  abstract Str name()
+
+  ** Connector marker tag such as "bacnetConn"
+  abstract Str connTag()
+
+  ** Connector reference tag such as "bacnetConnRef"
+  abstract Str connRefTag()
+
+  ** Point marker tag such as "bacnetPoint"
+  abstract Str pointTag()
+
+  ** Does connector support current value subscription
+  abstract Bool isCurSupported()
+
+  ** Does connector support history synchronization
+  abstract Bool isHisSupported()
+
+  ** Does connector support writable points
+  abstract Bool isWriteSupported()
+
+  ** Point current address tag name such as "bacnetCur"
+  abstract Str? curTag()
+
+  ** Point history sync address tag name such as "bacnetHis"
+  abstract Str? hisTag()
+
+  ** Point write address tag name such as "bacnetWrite"
+  abstract Str? writeTag()
+
+  ** Does connector support learn
+  abstract Bool isLearnSupported()
+
+  ** Return if given record matches this connector type
+  abstract Bool isConn(Dict rec)
+
+  ** Return if given record is a point under this connector type
+  abstract Bool isPoint(Dict rec)
+}
+
 

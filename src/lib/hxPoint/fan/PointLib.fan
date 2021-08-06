@@ -16,7 +16,7 @@ using hx
 **
 ** Point historization and writable support
 **
-const class PointLib : HxLib, HxPointWriteService
+const class PointLib : HxLib
 {
   new make()
   {
@@ -30,20 +30,12 @@ const class PointLib : HxLib, HxPointWriteService
   ** Return list of observables this library publishes
   override const Observable[] observables
 
+  ** Publish the HxPointWriteService
+  override HxService[] services() { [writeMgr] }
+
   ** Should we collect bad data as NA or just omit it
   Bool hisCollectNA() { rec.has("hisCollectNA") }
 
-  ** HxPointWriteService
-  override Future write(Dict point, Obj? val, Int level, Obj who, Dict? opts := null)
-  {
-    writeMgr.write(point, val, level, who, opts ?: Etc.emptyDict)
-  }
-
-  ** HxPointWriteService
-  override Grid array(Dict point)
-  {
-    writeMgr.array(point.id)
-  }
 
   ** Start callback
   override Void onStart()

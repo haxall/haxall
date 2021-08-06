@@ -18,7 +18,7 @@ class HxdTestSpi : HxTestSpi
 {
   new make(HxTest test) : super(test) {}
 
-  static HxRuntime boot(Test test, Dict projMeta)
+  static HxRuntime boot(Test test, Dict projMeta := Etc.emptyDict)
   {
     boot := HxdBoot
     {
