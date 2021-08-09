@@ -42,17 +42,24 @@ class PointUtil
   }
 
   ** Get the standard point details string
-  static Str pointDetails(PointLib lib, Dict pt, Bool includeSummary)
+  static Str pointDetails(PointLib lib, Dict pt, Bool isTop)
   {
+    // connector details
+    if (isTop)
+    {
+      // for 3.1.0 we are using old connector framework so a result
+      // from this will include the summary, his collect, and write info
+      conn := lib.rt.conns.byPoint(pt, false)
+      if (conn != null) return conn.pointDetails(pt)
+    }
+
     // send messages to managers
     ws := lib.writeMgr.details(pt.id)
     hs := lib.hisCollectMgr.details(pt.id)
 
-    // TODO: connector details....
-
     // format as string
     s := StrBuf()
-    if (includeSummary) s.add(toSummary(pt))
+    if (isTop) s.add(toSummary(pt))
     if (hs != null) s.add("\n").add(hs)
     if (ws != null) s.add("\n").add(ws)
     return s.toStr
@@ -67,7 +74,6 @@ class PointUtil
     return
       """id:    $pt.id.toCode
          dis:   $pt.dis
-         conn:  No Connector
          kind:  $kind
          unit:  $unit
          tz:    $tz
