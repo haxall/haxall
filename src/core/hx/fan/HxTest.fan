@@ -138,6 +138,12 @@ abstract class HxTest : HaystackTest
     return rt.db.commit(Diff.makeAdd(tags, id)).newRec
   }
 
+  ** Add a library and all its depdenencies to the runtime.
+  HxLib addLib(Str libName, Str:Obj? tags := Str:Obj?[:])
+  {
+    spi.addLib(libName, tags)
+  }
+
   ** Add user record to the user database.  If the user
   ** already exists, it is removed
   @NoDoc HxUser addUser(Str user, Str pass, Str:Obj? tags := Str:Obj?[:])
@@ -191,6 +197,7 @@ abstract class HxTestSpi
   abstract HxRuntime start(Dict projMeta)
   abstract Void stop(HxRuntime rt)
   abstract HxUser addUser(Str user, Str pass, Str:Obj? tags)
+  abstract HxLib addLib(Str libName, Str:Obj? tags)
   abstract HxContext makeContext(HxUser? user)
 }
 
