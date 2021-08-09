@@ -314,6 +314,12 @@ const mixin HxConnService : HxService
 
   ** Return if given record is a point under this connector type
   abstract Bool isPoint(Dict rec)
+
+  ** Return debug details for connector
+  abstract Str connDetails(Dict rec)
+
+  ** Return debug details for point
+  abstract Str pointDetails(Dict rec)
 }
 
 

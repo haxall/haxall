@@ -38,8 +38,7 @@ internal class DemoMgr : PointMgr
     cycle++
 
     // find all installed connector exts to get their connector tags
-    // TODO
-    connTags := Str[,]
+    connTags := lib.rt.conns.connRefTags
 
     // process all the points not associated with connector
     now := Duration.now
