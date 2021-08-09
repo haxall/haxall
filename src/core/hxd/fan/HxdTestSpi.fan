@@ -41,6 +41,15 @@ class HxdTestSpi : HxTestSpi
     ((HxdRuntime)rt).stop
   }
 
+  override HxLib addLib(Str libName, Str:Obj? tags)
+  {
+    rt := (HxdRuntime)test.rt
+    if (rt.lib(libName, false) != null) return rt.lib(libName)
+    lib := rt.installed.lib(libName)
+    lib.depends.each |d| { addLib(d, Str:Obj[:]) }
+    return rt.libs.add(libName, Etc.makeDict(tags))
+  }
+
   override HxUser addUser(Str user, Str pass, Str:Obj? tags)
   {
     Slot.findMethod("hxUser::HxUserUtil.addUser").call(test.rt.db, user, pass, tags)
