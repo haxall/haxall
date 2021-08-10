@@ -20,7 +20,7 @@ class HisCollectTest : HxTest
   @HxRuntimeTest
   Void testConfig()
   {
-    PointLib lib := rt.libs.add("point")
+    PointLib lib := addLib("point")
 
     verifyConfig(lib, ["hisCollectInterval":n(20, "min"), "kind":"Number"],
       "20min (0hr, 20min, 0sec)", "null", "1min", "null")

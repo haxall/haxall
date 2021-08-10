@@ -471,7 +471,6 @@ const class FolioUtil
     "projMeta":    restricted,
     "uiMeta":      restricted,
     "ext":         restricted,
-    "hxLib":       restricted,
 
     "conn":        persistentOnly,
     "dis":         persistentOnly,

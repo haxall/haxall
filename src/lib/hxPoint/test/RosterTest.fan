@@ -34,7 +34,7 @@ class RosterTest : HxTest
     addRec(["dis":"Cov", "point":m, "his":m, "tz":"New_York", "hisCollectCov":m])
 
     // now add library
-    this.lib = rt.libs.add("point")
+    this.lib = addLib("point")
     this.lib.spi.sync
     sync
 

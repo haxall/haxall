@@ -158,7 +158,7 @@ internal class InitCli : HxCli
 
   private Void initHttpPort(HxdRuntime rt)
   {
-    rec := rt.db.read(Filter(Str<|hxLib=="hxHttp"|>))
+    rec := rt.db.read(Filter(Str<|ext=="hxHttp"|>))
     port := Number(httpPort)
     if (rec["httpPort"] != port)
     {

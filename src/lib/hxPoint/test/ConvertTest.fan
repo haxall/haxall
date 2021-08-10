@@ -21,7 +21,7 @@ class ConvertTest : HxTest
   @HxRuntimeTest
   Void test()
   {
-    this.lib = rt.libs.add("point")
+    this.lib = addLib("point")
     doCache
     doEnums
     doParse

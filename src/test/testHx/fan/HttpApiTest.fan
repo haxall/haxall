@@ -46,6 +46,7 @@ class HttpApiTest : HxTest
 
   private Void init()
   {
+    if (rt.platform.isSkySpark) addLib("his")
     addLib("point")
 
     try { rt.libs.add("hxHttp") } catch (Err e) {}
@@ -280,6 +281,7 @@ class HttpApiTest : HxTest
     req := Etc.makeDictsGrid(["id":pt.id], items)
     res := c.call("hisWrite", req)
 
+    rt.sync
     pt = rt.db.readById(pt.id)
     verifyEq(pt["hisSize"], n(6))
 

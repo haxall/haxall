@@ -35,12 +35,15 @@ const class HxdObsService : Actor, HxObsService
     commits  = CommitsObservable(rt); byName.add(commits.name, commits)
     watch    = WatchObservable(rt);   byName.add(watch.name, watch)
 
-    // runtine lib observables
-    rt.libs.list.each |lib| { addLib(lib) }
-
     // finalize list for fast access
     listRef.val = Observable#.emptyList
     updateList
+  }
+
+  internal Void init()
+  {
+    // runtine lib observables
+    rt.libs.list.each |lib| { addLib(lib) }
   }
 
 //////////////////////////////////////////////////////////////////////////

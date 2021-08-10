@@ -25,20 +25,20 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
 
   Void init()
   {
-    // init libs from database hxLib records
+    // init libs from database ext records
     map := Str:HxLib[:]
     installed := rt.installed
-    rt.db.readAllList(Filter.has("hxLib")).each |rec|
+    rt.db.readAllList(Filter.has("ext")).each |rec|
     {
       try
       {
         // instantiate the HxLib
-        name := (Str)rec->hxLib
+        name := (Str)rec->ext
         install := installed.lib(name)
         lib := HxdLibSpi.instantiate(rt, install, rec)
         map.add(name, lib)
       }
-      catch (Err e) rt.log.err("Cannot init lib: $rec.id.toCode [${rec->hxLib}]", e)
+      catch (Err e) rt.log.err("Cannot init lib: $rec.id.toCode [${rec->ext}]", e)
     }
 
     // check dependencies
@@ -130,7 +130,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
       lib = get(arg, false)
       if (lib == null)
       {
-        rec := rt.db.read(Filter.eq("hxLib", arg.toStr), false)
+        rec := rt.db.read(Filter.eq("ext", arg.toStr), false)
         if (rec == null) throw UnknownLibErr(arg.toStr)
         rt.db.commit(Diff(rec, null, Diff.remove.or(Diff.bypassRestricted)))
         return
@@ -169,7 +169,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     // add to db
     rt.log.info("Add lib: $name")
     tags := Etc.dictToMap(extraTags)
-    tags["hxLib"] = name
+    tags["ext"] = name
     rec := rt.db.commit(Diff(null, tags, Diff.add.or(Diff.bypassRestricted))).newRec
 
     // instantiate the HxLib

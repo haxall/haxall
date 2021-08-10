@@ -63,6 +63,7 @@ class HxdBoot
     "hx",
     "obs",
     "axon",
+    "point",
     "hxApi",
     "hxHttp",
     "hxShell",
@@ -157,8 +158,8 @@ class HxdBoot
 
   private Void initLib(Str name)
   {
-    tags := ["hxLib":name, "dis":"lib:$name"]
-    initRec("lib [$name]", db.read(Filter.eq("hxLib", name), false), tags)
+    tags := ["ext":name, "dis":"lib:$name"]
+    initRec("lib [$name]", db.read(Filter.eq("ext", name), false), tags)
   }
 
   private Dict initRec(Str summary, Dict? rec, Str:Obj changes := [:])
