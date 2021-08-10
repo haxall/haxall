@@ -8,7 +8,7 @@
 
 --------------------------------------------------------------------------
 def: ^lib:hx
-depends: [^lib:ph, ^lib:axon]
+depends: [^lib:ph, ^lib:phIoT, ^lib:axon]
 doc: "Haxall framework definitions"
 --------------------------------------------------------------------------
 
