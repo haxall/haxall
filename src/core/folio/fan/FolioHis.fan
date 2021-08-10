@@ -9,7 +9,9 @@
 using haystack
 
 **
-** FolioHis provides APIs associated with reading/writing history data
+** FolioHis provides APIs associated with reading/writing history data.
+** NOTE: these are undocumented APIs for the storage layer only.
+** Applications should use the HxHisService API
 **
 @NoDoc
 const mixin FolioHis
