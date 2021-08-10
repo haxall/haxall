@@ -197,10 +197,7 @@ internal class HisCollectRec
     // write to historian; checks are sync, write to disk is async
     try
     {
-      // TODO: previously we routed to allow hisOnWrite, but calling
-      // user code on this thread is not a good idea so might need a
-      // new plan here; for now just sink directly to Folio
-      mgr.lib.rt.db.his.write(rec.id, toWrite, Etc.emptyDict)
+      mgr.lib.rt.his.write(rec, toWrite, Etc.emptyDict)
       writeErr = null
     }
     catch (Err e)

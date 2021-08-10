@@ -55,6 +55,9 @@ const mixin HxStdServices
   ** User management APIs
   abstract HxUserService user()
 
+  ** Point historization service or no-op if not supported
+  @NoDoc abstract HxHisService his()
+
   ** Point write service or no-op if point library is not enabled
   @NoDoc abstract HxPointWriteService pointWrite()
 
@@ -176,6 +179,47 @@ const mixin HxUserService : HxService
 }
 
 **************************************************************************
+** HxHisService
+**************************************************************************
+
+**
+** Point historization APIs
+**
+const mixin HxHisService : HxService
+{
+  **
+  ** Read the history items stored for given point.  If span is
+  ** null then all items are read, otherwise the span's inclusive
+  ** start/exclusive end are used.  Leading and trailing items
+  ** may be included.
+  **
+  abstract Void read(Dict pt, Span? span, Dict? opts, |HisItem| f)
+
+  **
+  ** Write history items to the given point.  The items must have
+  ** have a matching timezone, value kind, and unit (or be unitless).
+  ** Before writing the timestamps are normalized to 1sec or 1ms precision;
+  ** items with duplicate normalized timestamps are removed.  If there is
+  ** existing history data with a given timestamp then the new data overwrites
+  ** the current value, or if the new item's value is `haystack::Remove.val`
+  ** then that item is removed.
+  **
+  abstract Future write(Dict pt, HisItem[] items, Dict? opts := null)
+}
+
+@NoDoc const class NilHisService : HxHisService
+{
+  override Void read(Dict pt, Span? span, Dict? opts, |HisItem| f)
+  {
+  }
+
+  override Future write(Dict pt, HisItem[] items, Dict? opts := null)
+  {
+    Future.makeCompletable.complete(null)
+  }
+}
+
+**************************************************************************
 ** HxPointWriteService
 **************************************************************************
 
@@ -213,7 +257,6 @@ const class NilPointWriteService : HxPointWriteService
   {
     Etc.emptyGrid
   }
-
 }
 
 **************************************************************************

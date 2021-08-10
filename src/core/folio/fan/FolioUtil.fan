@@ -137,7 +137,7 @@ const class FolioUtil
       if (v == null) return
       if (transients.has(n)) return
       if (DiffTagRule.isUncommittable(n)) return
-      if (n == "id" && opts["id"] == Remove.val) return
+      if (n == "id" && opts["id"] === Remove.val) return
       acc[n] = v
     }
     return Etc.makeDict(acc)
@@ -370,7 +370,7 @@ const class FolioUtil
   {
     // handle special cases
     if (changes.isEmpty) return cur.dup
-    if (cur.isEmpty) return changes.findAll |item| { item.val != Remove.val }
+    if (cur.isEmpty) return changes.findAll |item| { item.val !== Remove.val }
 
     acc := HisItem[,]
     ax := cur;     a := cur.first;     ai := 0
@@ -386,14 +386,14 @@ const class FolioUtil
       }
       else if (a.ts > b.ts)
       {
-        if (b.val != Remove.val) acc.add(b)
+        if (b.val !== Remove.val) acc.add(b)
         bi++
         if (bi >= bx.size) break
         b = bx[bi]
       }
       else // same ts
       {
-        if (b.val != Remove.val) acc.add(b)
+        if (b.val !== Remove.val) acc.add(b)
         ai++
         bi++
         if (ai >= ax.size) break
@@ -403,7 +403,7 @@ const class FolioUtil
       }
     }
     while (ai < ax.size) { a = ax[ai++]; acc.add(a) }
-    while (bi < bx.size) { b = bx[bi++]; if (b.val != Remove.val) acc.add(b) }
+    while (bi < bx.size) { b = bx[bi++]; if (b.val !== Remove.val) acc.add(b) }
     return acc
   }
 }
@@ -458,7 +458,7 @@ const class FolioUtil
     if (diff.isBypassRestricted) return
 
     if (diff.isAdd) throw DiffErr("Cannot add rec with restricted tag: $name.toCode")
-    if (val == Remove.val) throw DiffErr("Cannot remove restricted tag: $name.toCode")
+    if (val === Remove.val) throw DiffErr("Cannot remove restricted tag: $name.toCode")
     throw DiffErr("Cannot set restricted tag: $name.toCode")
   }
 

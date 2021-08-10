@@ -72,8 +72,8 @@ abstract const class Folio
   ** Backup APIs
   abstract FolioBackup backup()
 
-  ** History data APIs
-  abstract FolioHis his()
+  ** History storage APIs
+  @NoDoc abstract FolioHis his()
 
 //////////////////////////////////////////////////////////////////////////
 // Modes (Flush, Close)

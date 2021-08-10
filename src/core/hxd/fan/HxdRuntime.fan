@@ -40,6 +40,7 @@ const class HxdRuntime : HxRuntime
     this.backgroundMgr = HxdBackgroundMgr(this)
     this.obs           = HxdObsService(this)
     this.watch         = HxdWatchService(this)
+    this.his           = HxdHisService(this)
     libs.init
   }
 
@@ -93,6 +94,7 @@ const class HxdRuntime : HxRuntime
   // HxStdServices conveniences
   override const HxdObsService obs
   override const HxWatchService watch
+  override const HxHisService his
   override HxHttpService http() { services.http }
   override HxUserService user() { services.user }
   override HxPointWriteService pointWrite() { services.pointWrite }

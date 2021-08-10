@@ -351,13 +351,12 @@ const class HxCoreFuncs
   {
     services := curContext.rt.services
     gb := GridBuilder()
-    gb.addCol("type").addCol("lib")
+    gb.addCol("type").addCol("qname")
     services.list.each |type|
     {
       services.getAll(type).each |service|
       {
-        libStr := (service as HxLib)?.name ?: service.typeof.qname
-        gb.addRow2(type.qname, libStr)
+        gb.addRow2(type.qname, service.typeof.qname)
       }
     }
     return gb.toGrid
