@@ -36,6 +36,8 @@ class HttpApiTest : HxTest
     doRead
     doCommit
     doGets
+    doHis
+    doPointWrite
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -44,6 +46,8 @@ class HttpApiTest : HxTest
 
   private Void init()
   {
+    addLib("point")
+
     try { rt.libs.add("hxHttp") } catch (Err e) {}
     this.uri = rt.http.siteUri + rt.http.apiUri
 
@@ -253,6 +257,69 @@ class HttpApiTest : HxTest
     wc.readRes
     verifyEq(wc.resCode, 405)
     verifyEq(wc.resPhrase.startsWith("GET not allowed for op"), true)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// His
+//////////////////////////////////////////////////////////////////////////
+
+  Void doHis()
+  {
+    tz := TimeZone("New_York")
+    today := DateTime.now.toTimeZone(tz).midnight
+    yesterday := today.date.minus(1day).toDateTime(Time.defVal, tz)
+    pt := addRec(["dis":"HisPoint", "point":m, "his":m, "kind":"Number", "tz":tz.name])
+
+    items := HisItem[,]
+    items.add(HisItem(yesterday + 1hr, n(1)))
+    items.add(HisItem(yesterday + 2hr, n(2)))
+    items.add(HisItem(yesterday + 3hr, n(3)))
+    items.add(HisItem(today + 1hr, n(10)))
+    items.add(HisItem(today + 2hr, n(20)))
+    items.add(HisItem(today + 3hr, n(30)))
+    req := Etc.makeDictsGrid(["id":pt.id], items)
+    res := c.call("hisWrite", req)
+
+    pt = rt.db.readById(pt.id)
+    verifyEq(pt["hisSize"], n(6))
+
+    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":pt.id, "range":"yesterday"]))
+    verifyEq(res.size, 3)
+    verifyDictEq(res[0], items[0])
+    verifyDictEq(res[1], items[1])
+    verifyDictEq(res[2], items[2])
+
+    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":pt.id, "range":"today"]))
+    verifyEq(res.size, 3)
+    verifyDictEq(res[0], items[3])
+    verifyDictEq(res[1], items[4])
+    verifyDictEq(res[2], items[5])
+
+    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":pt.id, "range":items[4].ts.toStr]))
+    verifyEq(res.size, 2)
+    verifyDictEq(res[0], items[-2])
+    verifyDictEq(res[1], items[-1])
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// PointWrite
+//////////////////////////////////////////////////////////////////////////
+
+  Void doPointWrite()
+  {
+    pt := addRec(["dis":"WritePoint", "point":m, "writable":m, "kind":"Number"])
+
+    res := c.call("pointWrite", Etc.makeMapGrid(null, ["id":pt.id, "level":n(16), "val":n(160)]))
+    res = c.call("pointWrite", Etc.makeMapGrid(null, ["id":pt.id, "level":n(8), "val":n(80), "duration":n(1, "hr")]))
+    res = c.call("pointWrite", Etc.makeMapGrid(null, ["id":pt.id]))
+
+    verifyEq(res.size, 17)
+    verifyEq(res[7]->level, n(8))
+    verifyEq(res[7]->val, n(80))
+    verifyEq(res[7].has("expires"), true)
+
+    verifyEq(res[15]->level, n(16))
+    verifyEq(res[15]->val, n(160))
   }
 
 //////////////////////////////////////////////////////////////////////////

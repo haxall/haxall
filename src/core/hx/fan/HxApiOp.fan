@@ -255,6 +255,112 @@ internal class HxCommitOp : HxApiOp
 }
 
 **************************************************************************
+** HxHisReadOp
+**************************************************************************
+
+internal class HxHisReadOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    // parse request
+    if (req.isEmpty) throw Err("Request grid is empty")
+    reqRow := req.first
+    rec := cx.db.readById(reqRow.id)
+    tz := FolioUtil.hisTz(rec)
+    span := parseRange(tz, reqRow->range)
+
+    // convert timezones if needed so that clients are
+    // free to request/convert the timezone as they see fit
+    span = span.toTimeZone(tz)
+
+    // query items
+    meta := [
+      "id": rec.id,
+      "hisStart": span.start,
+      "hisEnd": span.end
+    ]
+
+    gb := GridBuilder().setMeta(meta).addCol("ts").addCol("val")
+    cx.rt.his.read(rec, span, req.meta) |item|
+    {
+      if (item.ts < span.start) return
+      if (item.ts >= span.end) return
+      gb.addRow2(item.ts, item.val)
+    }
+    return gb.toGrid
+  }
+
+  static Span? parseRange(TimeZone tz, Str q)
+  {
+    try
+    {
+      if (q == "today")     return DateSpan.today.toSpan(tz)
+      if (q == "yesterday") return DateSpan.yesterday.toSpan(tz)
+
+      Obj? start := null
+      Obj? end := null
+      comma := q.index(",")
+      if (comma == null)
+      {
+        start = ZincReader(q.in).readVal
+      }
+      else
+      {
+        start = ZincReader(q[0..<comma].trim.in).readVal
+        end   = ZincReader(q[comma+1..-1].trim.in).readVal
+      }
+
+      if (start is Date)
+      {
+        if (end == null) return DateSpan.make(start).toSpan(tz)
+        if (end is Date) return DateSpan.make(start, end).toSpan(tz)
+      }
+      else if (start is DateTime)
+      {
+        if (end == null) return Span.makeAbs(start, DateTime.now.toTimeZone(((DateTime)start).tz))
+        if (end is DateTime) return Span.makeAbs(start, end)
+      }
+      return null
+    }
+    catch (Err e) throw ParseErr("Invalid history range: $q", e)
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+// HisWrite
+//////////////////////////////////////////////////////////////////////////
+
+internal class HxHisWriteOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    // check security
+    cx.checkAdmin("hisWrite op")
+
+    // lookup history record
+    rec := cx.db.readById(req.meta.id)
+
+    // map request grid to HisItem
+    items := HisItem[,] { capacity = req.size }
+    tsCol := req.col("ts")
+    valCol := req.col("val")
+    req.each |row|
+    {
+      tsRaw := row.val(tsCol)
+      ts := tsRaw as DateTime ?: throw Err("Timestamp value is not DateTime: $tsRaw [${tsRaw?.typeof}]")
+      val := row.val(valCol)
+      items.add(HisItem(ts, val))
+    }
+
+    // perform write
+    opts := req.meta
+    cx.rt.his.write(rec, items, opts)
+
+    return Etc.makeEmptyGrid(Etc.makeDict1("ok", Marker.val))
+  }
+}
+
+**************************************************************************
 ** HxPointWriteOp
 **************************************************************************
 
@@ -283,7 +389,8 @@ internal class HxPointWriteOp : HxApiOp
     if (val != null && level.toInt == 8 && dur != null)
       val = Etc.makeDict2("val", val, "duration", dur.toDuration)
 
-    return cx.rt.pointWrite.write(rec, val, level.toInt, who).get(30sec)
+    cx.rt.pointWrite.write(rec, val, level.toInt, who).get(30sec)
+    return Etc.makeEmptyGrid(Etc.makeDict1("ok", Marker.val))
   }
 }
 
