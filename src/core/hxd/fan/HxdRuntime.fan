@@ -38,10 +38,11 @@ const class HxdRuntime : HxRuntime
     this.hxdActorPool  = ActorPool { it.name = "Hxd-Runtime" }
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
     this.backgroundMgr = HxdBackgroundMgr(this)
-    this.obs           = HxdObsService(this)
     this.watch         = HxdWatchService(this)
     this.his           = HxdHisService(this)
+    this.obs           = HxdObsService(this)
     libs.init
+    obs.init
   }
 
 //////////////////////////////////////////////////////////////////////////

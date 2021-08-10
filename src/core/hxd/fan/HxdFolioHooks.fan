@@ -43,7 +43,7 @@ const class HxdFolioHooks : FolioHooks
       rec := db.readById(diff.id, false) ?: Etc.emptyDict
 
       // cannot directly remove a library
-      if (rec.has("hxLib") && !diff.isBypassRestricted) throw CommitErr("Must use libRemove to remove hxLib rec")
+      if (rec.has("ext") && !diff.isBypassRestricted) throw CommitErr("Must use libRemove to remove lib rec")
 
       // cannot remove projMeta ever
       if (diff.id == rt.meta.id) throw CommitErr("Cannot remove projMeta rec")
@@ -62,10 +62,10 @@ const class HxdFolioHooks : FolioHooks
     if (diff.isUpdate)
     {
       newRec := diff.newRec
-      hxLib := newRec["hxLib"] as Str
-      if (hxLib != null)
+      libName := newRec["ext"] as Str
+      if (libName != null)
       {
-        lib := rt.libs.get(hxLib, false)
+        lib := rt.libs.get(libName, false)
         if (lib != null) ((HxdLibSpi)lib.spi).update(newRec)
       }
 

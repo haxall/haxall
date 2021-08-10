@@ -75,7 +75,11 @@ class RuntimeTest : HxTest
     verifyErr(CommitErr#) { commit(rec, ["trash":m]) }
 
     // verify steady state timer
-    verifyEq(rt.isSteadyState, false)
+    if (rt.isSteadyState)
+    {
+      // this happens in SkySpark sometimes with slower boot
+      echo("WARN: steady state reached earlier than expected")
+    }
     Actor.sleep(150ms)
     verifyEq(rt.isSteadyState, true)
   }
@@ -87,8 +91,6 @@ class RuntimeTest : HxTest
   @HxRuntimeTest { meta = "steadyState:100ms" }
   Void testLibMgr()
   {
-    verifyEq(rt.isSteadyState, false)
-
     verifyLibEnabled("ph")
     verifyLibEnabled("phIoT")
     verifyLibEnabled("hx")
@@ -104,9 +106,9 @@ class RuntimeTest : HxTest
     verifyErrMsg(DependErr#, "$errLibName \"hxTestB\" missing dependency on \"hxTestA\"") { rt.libs.add("hxTestB") }
     verifyLibDisabled("hxTestB")
 
-    // verify can't add/update/remove hxLib directly
-    verifyErr(DiffErr#) { rt.db.commit(Diff.makeAdd(["hxLib":"hxTestA"])) }
-    verifyErr(DiffErr#) { rt.db.commit(Diff.make(core.rec, ["hxLib":"renameMe"])) }
+    // verify can't add/update/remove lib directly
+    verifyErr(DiffErr#) { rt.db.commit(Diff.makeAdd(["ext":"hxTestA"])) }
+    verifyErr(DiffErr#) { rt.db.commit(Diff.make(core.rec, ["ext":"renameMe"])) }
     verifyErr(CommitErr#) { rt.db.commit(Diff.make(core.rec, null, Diff.remove)) }
 
     // add hxTestA
@@ -147,7 +149,7 @@ class RuntimeTest : HxTest
     verifySame(rt.ns.lib(name), lib.def)
 
     // only in hxd environments
-    rec := read("hxLib==$name.toCode", false)
+    rec := read("ext==$name.toCode", false)
     if (rec != null) verifyDictEq(lib.rec, rec)
 
     return lib
@@ -162,7 +164,7 @@ class RuntimeTest : HxTest
     verifyEq(rt.libs.list.find { it.name == name }, null)
     verifyEq(rt.libs.has(name), false)
 
-    verifyEq(read("hxLib==$name.toCode", false), null)
+    verifyEq(read("ext==$name.toCode", false), null)
 
     verifyEq(rt.ns.lib(name, false), null)
     verifyErr(UnknownLibErr#) { rt.ns.lib(name) }
@@ -211,6 +213,7 @@ class RuntimeTest : HxTest
     verifySame(rt.user,  rt.services.user);  verifySame(verifyService(HxUserService#), rt.user)
 
     // pointWrite defaults to nil implementation
+    if (rt.lib("point", false) != null) rt.libs.remove("point")
     verifySame(rt.pointWrite.typeof, NilPointWriteService#)
     verifySame(rt.pointWrite, rt.services.pointWrite)
     verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
@@ -229,7 +232,6 @@ class RuntimeTest : HxTest
     verifySame(rt.pointWrite, rt.services.pointWrite)
     verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
   }
-
 
   Obj verifyService(Type t)
   {
