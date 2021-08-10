@@ -63,7 +63,6 @@ class HxdBoot
     "hx",
     "obs",
     "axon",
-    "point",
     "hxApi",
     "hxHttp",
     "hxShell",
