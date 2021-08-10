@@ -46,7 +46,7 @@ const class PointFuncs
   static Obj? pointOverride(Obj point, Obj? val, Number? duration := null)
   {
     if (val != null && duration != null)
-      val = TimedOverride(val, duration.toDuration)
+      val = Etc.makeDict2("val", val, "duration", duration.toDuration)
     return pointWrite(point, val, level8, null)
   }
 
@@ -108,39 +108,10 @@ const class PointFuncs
 
     // wrap val for overrides with a duration
     if (level.toInt == 8 && val != null && duration != null)
-      val = TimedOverride(val, duration.toDuration)
+      val = Etc.makeDict2("val", val, "duration", duration.toDuration)
 
     return lib.writeMgr.write(rec, val, level.toInt, cx.user.dis, Etc.emptyDict).get(timeout)
   }
-
-  ** Handle pointWrite as Haystack API operation
-/* TODO
-  private static Obj? pointWriteOp(HxContext cx, Grid req)
-  {
-    // parse request
-    if (req.size != 1) throw Err("Request grid must have 1 row")
-    reqRow := req.first
-    rec := cx.readById(reqRow.id)
-
-    // if reading level will be null
-    level := reqRow["level"] as Number
-    if (level == null) return pointWriteArray(rec)
-
-    // handlw write
-    cx.checkAdmin("pointWrite op")
-    val := reqRow["val"]
-    who := reqRow["who"]?.toStr ?: cx.user.dis
-    dur := reqRow["duration"] as Number
-
-    who = "Haystack.pointWrite | $who"
-
-    // if have timed override
-    if (val != null && level.toInt == 8 && dur != null)
-      val = TimedOverride(val, dur.toDuration)
-
-    return PointExt.cur.write(rec, val, level.toInt, who).get(timeout)
-  }
-*/
 
   **
   ** Return the current priority array state of a writable point.

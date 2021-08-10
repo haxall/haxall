@@ -254,4 +254,37 @@ internal class HxCommitOp : HxApiOp
   }
 }
 
+**************************************************************************
+** HxPointWriteOp
+**************************************************************************
+
+internal class HxPointWriteOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    // parse request
+    if (req.size != 1) throw Err("Request grid must have 1 row")
+    reqRow := req.first
+    rec := cx.db.readById(reqRow.id)
+
+    // if reading level will be null
+    level := reqRow["level"] as Number
+    if (level == null) return cx.rt.pointWrite.array(rec)
+
+    // handlw write
+    cx.checkAdmin("pointWrite op")
+    val := reqRow["val"]
+    who := reqRow["who"]?.toStr ?: cx.user.dis
+    dur := reqRow["duration"] as Number
+
+    who = "Haystack.pointWrite | $who"
+
+    // if have timed override
+    if (val != null && level.toInt == 8 && dur != null)
+      val = Etc.makeDict2("val", val, "duration", dur.toDuration)
+
+    return cx.rt.pointWrite.write(rec, val, level.toInt, who).get(30sec)
+  }
+}
+
 

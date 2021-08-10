@@ -39,9 +39,9 @@ internal const class WriteMgrActor : PointMgrActor, HxPointWriteService
     if (point.missing("writable")) throw Err("Missing writable tag: $point.dis")
     kind := point["kind"] as Str ?: throw Err("Missing kind tag: $point.dis")
 
-    // get actual value (if wrapped a TimedOverride)
+    // get actual value if wrapped as Dict { val, duration }
     valRef := val
-    if (valRef is TimedOverride) val = ((TimedOverride)val).val
+    if (valRef is Dict) val = valRef->val
 
     // value check
     if (val != null)

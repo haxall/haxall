@@ -71,15 +71,19 @@ internal class WriteRec
   ** Write the given value and level
   Obj? write(WriteMgr mgr, Obj? val, Int level, Obj who)
   {
-    // for timed override val is wrapped as TimedOverride
-    timed := val as TimedOverride
-    if (timed != null) val = timed.val
+    // for timed override val is wrapped as Dict{val,duration}
+    Duration? duration := null
+    if (val is Dict)
+    {
+      duration = (Duration)val->duration
+      val = val->val
+    }
 
     // if level 8 check for timed or permanent override
     if (level == 8)
     {
-      if (timed != null)
-        overrideExpire = Duration.nowTicks + timed.dur.ticks
+      if (duration != null)
+        overrideExpire = Duration.nowTicks + duration.ticks
       else
         overrideExpire = 0
     }
@@ -98,7 +102,7 @@ internal class WriteRec
     lvl.who = who
 
     // determine if we need to persist this write (1, 8, and def)
-    if (timed == null)
+    if (duration == null)
     {
       switch (level)
       {
@@ -284,17 +288,6 @@ internal class WriteRec
   Number? lastLevel { private set } // last level written
   private WriteLevel?[] levels      // index 0 => level 1, index 17 -> def
   private Int overrideExpire        // Duration ticks to send 8 back to auto or zero
-}
-
-**************************************************************************
-** TimedOverride
-**************************************************************************
-
-internal const class TimedOverride
-{
-  new make(Obj? val, Duration dur) { this.val = val; this.dur = dur }
-  const Obj? val
-  const Duration dur
 }
 
 **************************************************************************

@@ -47,6 +47,24 @@ abstract class HxContext : AxonContext, HaystackContext, FolioContext
   @NoDoc abstract Dict about()
 
 //////////////////////////////////////////////////////////////////////////
+// Security
+//////////////////////////////////////////////////////////////////////////
+
+  ** If missing superuser permission, throw PermissionErr
+  virtual Void checkSu(Str action)
+  {
+    if (!user.isSu)
+      throw PermissionErr("Missing 'su' permission: $action")
+  }
+
+  ** If missing admin permission, throw PermissionErr
+  virtual Void checkAdmin(Str action)
+  {
+    if (!user.isAdmin)
+      throw PermissionErr("Missing 'admin' permission: $action")
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Feed (SkySpark Only)
 //////////////////////////////////////////////////////////////////////////
 
