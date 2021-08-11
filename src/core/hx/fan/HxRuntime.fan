@@ -26,6 +26,11 @@ const mixin HxRuntime : HxStdServices
   ** Platform hosting the runtime
   abstract HxPlatform platform()
 
+  ** Runtime project directory.  It the root directory of all project
+  ** oriented operational files.  The folio database is stored under
+  ** this directory in a sub-directory named 'db/'.
+  abstract File dir()
+
   ** Namespace of definitions
   abstract Namespace ns()
 

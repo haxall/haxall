@@ -29,6 +29,7 @@ const class HxdRuntime : HxRuntime
     this.name          = Etc.toTagName(boot.dir.name)
     this.version       = boot.version
     this.platform      = boot.platformRef
+    this.dir           = boot.dir
     this.db            = boot.db
     this.db.hooks      = HxdFolioHooks(this)
     this.log           = boot.log
@@ -57,6 +58,11 @@ const class HxdRuntime : HxRuntime
 
   ** Platform hosting the runtime
   override const HxPlatform platform
+
+  ** Runtime project directory.  It the root directory of all project
+  ** oriented operational files.  The folio database is stored under
+  ** this directory in a sub-directory named 'db/'.
+  override const File dir
 
   ** Namespace of definitions
   override Namespace ns()
