@@ -16,6 +16,7 @@ class Build : BuildGroup
   {
     childrenScripts =
     [
+      `ftp/build.fan`,
       `obix/build.fan`,
       `rdf/build.fan`,
     ]
