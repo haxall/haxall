@@ -71,6 +71,24 @@ class HxdContext : HxContext
     return Etc.makeDict(tags)
   }
 
+  override File fileResolve(Uri uri)
+  {
+    // pathing check
+    if (uri.toStr.contains(".."))
+      throw ArgErr("Uri must not contain '..' path: $uri")
+
+    // we only support {dir}/io/xxxxx paths right now
+    if (!uri.toStr.startsWith("io/"))
+      throw ArgErr("Only io/ paths supportted")
+
+    // extra directory check to ensure we don't escape out of safe io/ directory
+    file := rt.dir + uri
+    if (!file.normalize.pathStr.startsWith(rt.dir.normalize.pathStr))
+      throw ArgErr("Uri not under ${rt.dir} dir: $uri")
+
+    return file
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // HaystackContext
 //////////////////////////////////////////////////////////////////////////
