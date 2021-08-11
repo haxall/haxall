@@ -26,6 +26,10 @@ class RuntimeTest : HxTest
   @HxRuntimeTest
   Void testBasics()
   {
+    // name
+    verifyEq(rt.dir, rt.dir.normalize)
+    verifyEq(rt.dir.name, rt.name)
+
     // test that we can add a record
     x := addRec(["dis":"It works!"])
     y := rt.db.readById(x.id)
