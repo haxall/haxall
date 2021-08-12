@@ -22,25 +22,53 @@ doc: "Fantom type qname for writer class"
 
 --------------------------------------------------------------------------
 defx:   ^filetype:csv
+icon:   "table"
 writer: "haystack::CsvWriter"
 reader: "haystack::CsvReader"
 --------------------------------------------------------------------------
 defx:   ^filetype:json
+icon:   "page"
 writer: "haystack::JsonWriter"
 reader: "haystack::JsonReader"
 --------------------------------------------------------------------------
 defx:   ^filetype:jsonld
+icon:   "rdf"
 writer: "def::JsonLdWriter"
 --------------------------------------------------------------------------
 defx:   ^filetype:trio
+icon:   "page"
 writer: "haystack::TrioWriter"
 reader: "haystack::TrioReader"
 --------------------------------------------------------------------------
 defx:   ^filetype:turtle
+icon:   "rdf"
 writer: "def::TurtleWriter"
 --------------------------------------------------------------------------
 defx:   ^filetype:zinc
+icon:   "page"
 writer: "haystack::ZincWriter"
 reader: "haystack::ZincReader"
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Haxall Filetypes
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def:     ^filetype:excel
+dis:     "Excel"
+doc:     "Excel 2003 XML spreadsheet"
+mime:    "application/vnd.ms-excel"
+icon:    "table"
+writer:  "hxUtil::ExcelWriter"
+fileExt: "xls"
+--------------------------------------------------------------------------
+def:     ^filetype:xml
+dis:     "XML"
+doc:     "EXtensible Markup Language"
+mime:    "text/xml"
+icon:    "page"
+writer:  "hxUtil::XmlWriter"
+fileExt: "xml"
 --------------------------------------------------------------------------
 
