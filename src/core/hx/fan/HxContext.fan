@@ -68,17 +68,20 @@ abstract class HxContext : AxonContext, HaystackContext, FolioContext
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
+  ** In context a SkySpark feed
+  @NoDoc virtual Bool feedIsEnabled() { false }
+
+  ** Setup a SkySpark feed
+  @NoDoc virtual Void feedAdd(HxFeed feed, [Str:Obj?]? meta := null) { unsupportedErr }
+
   ** Resolve a normalized virtual file system URI.
   ** Apply security checks using this context's user.
   @NoDoc abstract File fileResolve(Uri uri)
 
-//////////////////////////////////////////////////////////////////
-// Feed (SkySpark Only)
-//////////////////////////////////////////////////////////////////////////
+  ** Export to outpout stream - SkySpark only
+  @NoDoc virtual Obj export(Dict req, OutStream out) { unsupportedErr }
 
-  @NoDoc virtual Bool feedIsEnabled() { false }
-
-  @NoDoc virtual Void feedAdd(HxFeed feed, [Str:Obj?]? meta := null) { throw UnsupportedErr() }
+  private Err unsupportedErr() { UnsupportedErr("SkySpark only") }
 
 }
 
