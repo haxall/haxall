@@ -825,6 +825,29 @@ const class Etc
     return name.startsWith(prefix) && name[prefix.size].isUpper
   }
 
+  ** File name is the valid characters in Uri.isName plus space.
+  @NoDoc static Bool isFileName(Str name)
+  {
+    if (name.isEmpty) return false
+    if (name[0] == ' ' || name[-1] == ' ') return false
+    return name.all |ch| { isFileNameChar(ch) }
+  }
+
+  ** Convert to safe file name using characters safe in Uri name
+  @NoDoc static Str toFileName(Str n)
+  {
+    s := StrBuf()
+    n = n.trim
+    n.each |ch| { s.addChar(isFileNameChar(ch) ? ch : '-') }
+    if (s.isEmpty) s.add("x")
+    return s.toStr
+  }
+
+  private static Bool isFileNameChar(Int ch)
+  {
+    ch.isAlphaNum || ch == ' '|| ch == '-' || ch == '.' || ch == '_' || ch == '~'
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Axon
 //////////////////////////////////////////////////////////////////////////

@@ -89,6 +89,25 @@ class EtcTest : HaystackTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// File Name
+//////////////////////////////////////////////////////////////////////////
+
+  Void testToFileName()
+  {
+    verifyFileName("", "x")
+    verifyFileName(" ", "x")
+    verifyFileName(" foo ", "foo")
+    verifyFileName(".a-b~c d", ".a-b~c d")
+    verifyFileName("^Alpha|Bar&c", "-Alpha-Bar-c")
+  }
+
+  Void verifyFileName(Str n, Str expected)
+  {
+    verifyEq(Etc.isFileName(n), n == expected)
+    verifyEq(Etc.toFileName(n), expected)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Name Starts With
 //////////////////////////////////////////////////////////////////////////
 
