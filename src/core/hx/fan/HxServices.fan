@@ -55,6 +55,9 @@ const mixin HxStdServices
   ** User management APIs
   abstract HxUserService user()
 
+  ** I/O APIs
+  @NoDoc abstract HxIOService io()
+
   ** Point historization service or no-op if not supported
   @NoDoc abstract HxHisService his()
 
@@ -176,6 +179,31 @@ const mixin HxUserService : HxService
 
   ** Create synthetic user.  The tags arg may be a dict or a map.
   abstract HxUser makeSyntheticUser(Str username, Obj? tags := null)
+}
+
+**************************************************************************
+** HxIOService
+**************************************************************************
+
+**
+** I/O APIs
+**
+const mixin HxIOService : HxService
+{
+  **
+  ** Read from an I/O handle.  The callback is invoked with the input stream
+  ** and the callback's result is returned.  The input stream is guaranteed
+  ** to be closed.  Raise an exception if the handle cannot be accessed
+  ** as an input stream.
+  **
+  abstract Obj? read(Obj? handle, |InStream->Obj?| f)
+
+  **
+  ** Write to an I/O handle.  The callback is invoked with the output stream.
+  ** The output stream is guaranteed to be closed.  Raise an exception if the
+  ** handle cannot be accessed as an output stream.
+  **
+  abstract Obj? write(Obj? handle, |OutStream| f)
 }
 
 **************************************************************************
