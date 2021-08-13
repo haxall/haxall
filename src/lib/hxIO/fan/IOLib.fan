@@ -17,12 +17,12 @@ const class IOLib : HxLib, HxIOService
 
   override Obj? read(Obj? handle, |InStream->Obj?| f)
   {
-    IOHandle.fromObj(handle).withIn(f)
+    IOHandle.fromObj(rt, handle).withIn(f)
   }
 
   override Obj? write(Obj? handle, |OutStream| f)
   {
-    IOHandle.fromObj(handle).withOut(f)
+    IOHandle.fromObj(rt, handle).withOut(f)
   }
 
 }

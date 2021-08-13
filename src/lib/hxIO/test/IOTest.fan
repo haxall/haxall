@@ -404,14 +404,15 @@ class IOTest : HxTest
     verifyEq(eval("ioReadStr(ioCharset(`io/charset.txt`, $charset.toCode))"), unicode)
   }
 
+  @HxRuntimeTest
   Void testBufHandle()
   {
     buf := Buf()
-    h := IOHandle.fromObj(buf)
+    h := IOHandle.fromObj(rt, buf)
     verify(h is BufHandle)
     res := h.withOut |out| { out.writeChars("Foo") }
     verifyEq(res->size, n(3))
-    h = IOHandle.fromObj(buf.flip)
+    h = IOHandle.fromObj(rt, buf.flip)
     s := h.withIn |in| { in.readAllStr }
     verifyEq(s, "Foo")
   }

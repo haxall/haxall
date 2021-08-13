@@ -7,6 +7,7 @@
 //
 
 using haystack
+using hx
 using axon
 
 **************************************************************************
@@ -23,7 +24,7 @@ internal class IOStreamLinesStream : SourceStream
 
   override Void onStart(Signal sig)
   {
-    IOHandle.fromObj(handle).withIn |in|
+    IOHandle.fromObj(rt, handle).withIn |in|
     {
       while (true)
       {
@@ -35,6 +36,8 @@ internal class IOStreamLinesStream : SourceStream
       return null
     }
   }
+
+  HxRuntime rt() { ((HxContext)cx).rt }
 
   private Obj? handle
 }
@@ -53,7 +56,7 @@ internal class IOStreamCsvStream : SourceStream
 
   override Void onStart(Signal sig)
   {
-    IOCsvReader(handle, opts).stream(this)
+    IOCsvReader(cx, handle, opts).stream(this)
   }
 
   private Obj? handle
