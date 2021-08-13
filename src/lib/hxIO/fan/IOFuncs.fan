@@ -81,7 +81,7 @@ const class IOFuncs
   static Obj ioBin(Obj rec, Str tag)
   {
     cx := curContext
-    return IOHandle.fromDict(HxUtil.toRec(cx.rt, rec), tag, cx)
+    return IOHandle.fromDict(cx.rt, HxUtil.toRec(cx.rt, rec), tag)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -388,7 +388,7 @@ const class IOFuncs
   @Axon { admin = true }
   static Grid ioReadCsv(Obj? handle, Dict? opts := null)
   {
-    IOCsvReader(handle, opts).read
+    IOCsvReader(curContext, handle, opts).read
   }
 
   **
@@ -416,7 +416,7 @@ const class IOFuncs
   @Axon { admin = true }
   static Obj? ioEachCsv(Obj? handle, Dict? opts, Fn fn)
   {
-    IOCsvReader(handle, opts).each(fn)
+    IOCsvReader(curContext, handle, opts).each(fn)
   }
 
   **
@@ -933,7 +933,7 @@ const class IOFuncs
   ** Coerce to IOHandle
   internal static IOHandle toHandle(Obj? handle)
   {
-    IOHandle.fromObj(handle)
+    IOHandle.fromObj(curContext.rt, handle)
   }
 
   ** Current context

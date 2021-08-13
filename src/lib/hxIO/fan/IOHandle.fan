@@ -28,39 +28,37 @@ abstract class IOHandle
   **   - sys::Dict
   **   - sys::Buf
   **
-  static IOHandle fromObj(Obj? h)
+  static IOHandle fromObj(HxRuntime rt, Obj? h)
   {
     if (h is IOHandle) return h
     if (h is Str)      return StrHandle(h)
-    if (h is Uri)      return fromUri(h, curContext)
-    if (h is Dict)     return fromDict(h, "file", curContext)
+    if (h is Uri)      return fromUri(rt, h)
+    if (h is Dict)     return fromDict(rt, h, "file")
     if (h is Buf)      return BufHandle(h)
     throw ArgErr("Cannot obtain IO handle from ${h?.typeof}")
   }
 
-  internal static IOHandle fromUri(Uri uri, HxContext cx)
+  internal static IOHandle fromUri(HxRuntime rt, Uri uri)
   {
     if (uri.scheme == "http")  return HttpHandle(uri)
     if (uri.scheme == "https") return HttpHandle(uri)
-    if (uri.scheme == "ftp")   return FtpHandle(uri)
-    if (uri.scheme == "ftps")  return FtpHandle(uri)
+    if (uri.scheme == "ftp")   return FtpHandle(rt, uri)
+    if (uri.scheme == "ftps")  return FtpHandle(rt, uri)
     if (uri.scheme == "fan")   return FanHandle(uri)
-    return FileHandle(uri ,cx)
+    return FileHandle(rt.file.resolve(uri))
   }
 
-  internal static IOHandle fromDict(Dict rec, Str tag, HxContext cx)
+  internal static IOHandle fromDict(HxRuntime rt, Dict rec, Str tag)
   {
     // if {zipEntry, file: <ioHandle>, path: <Uri>}
     if (rec.has("zipEntry"))
-      return ZipEntryHandle(cx, fromObj(rec->file).toFile("ioZipEntry"), rec->path)
+      return ZipEntryHandle(fromObj(rt, rec->file).toFile("ioZipEntry"), rec->path)
 
     id  := rec["id"] as Ref
     bin := rec[tag] as Bin
     if (id ==  null || bin == null) throw ArgErr("Dict has missing/incorrect 'id' and '$tag' tags")
-    return BinHandle(rec, tag, cx)
+    return BinHandle(rt, rec, tag)
   }
-
-  internal static HxContext curContext() { HxContext.curHx }
 
 //////////////////////////////////////////////////////////////////////////
 // I/O
@@ -251,22 +249,20 @@ internal class BufHandle : IOHandle
 
 internal class FileHandle : IOHandle
 {
-  new make(Uri uri, HxContext cx)
+  new make(File file)
   {
-    this.projDir = cx.rt.dir
-    this.file    = cx.fileResolve(uri)
+    this.file = file
   }
 
-  private new makeAppend(File projDir, File file)
+  private new makeAppend(File file)
   {
-    this.projDir = projDir; this.file = file; this.append = true
+    this.file = file; this.append = true
   }
 
-  const File projDir
   const File file
   const Bool append
   override File toFile(Str func) { file }
-  override IOHandle toAppend() { makeAppend(projDir, file) }
+  override IOHandle toAppend() { makeAppend(file) }
   override InStream in() { file.in }
   override OutStream out() { file.out(append) }
   override Obj? withOutResult() { Etc.makeDict(["size":Number.makeInt(file.size ?: 0)]) }
@@ -291,11 +287,11 @@ internal class FileHandle : IOHandle
 
 internal class BinHandle : IOHandle
 {
-  new make(Dict rec, Str tag, HxContext cx)
+  new make(HxRuntime rt, Dict rec, Str tag)
   {
     try
     {
-      this.proj = cx->proj
+      this.proj = rt->proj
       this.rec  = rec
       this.tag  = tag
     }
@@ -314,7 +310,7 @@ internal class BinHandle : IOHandle
 
 internal class ZipEntryHandle : IOHandle
 {
-  new make(HxContext cx, File file, Uri path)
+  new make(File file, Uri path)
   {
     this.file = file
     this.path = path
@@ -397,14 +393,15 @@ internal class HttpHandle : IOHandle
 
 internal class FtpHandle : IOHandle
 {
-  new make(Uri uri) { this.uri = uri }
+  new make(HxRuntime rt, Uri uri) { this.rt = rt; this.uri = uri }
+  const HxRuntime rt
   const Uri uri
   override Void delete()
   {
     if (uri.isDir)
     {
       // recursively delete the directory
-      dir().each |item| { FtpHandle(item.uri).delete }
+      dir().each |item| { FtpHandle(rt, item.uri).delete }
       open(uri).rmdir(uri)
     }
     else open(uri).delete(uri)
@@ -422,9 +419,8 @@ internal class FtpHandle : IOHandle
   FtpClient open(Uri uri)
   {
     key := uri.plus(`/`).toStr
-    cx := curContext
-    log := cx.rt.lib("io").log
-    cred := cx.db.passwords.get(key) ?: "anonymous:"
+    log := rt.lib("io").log
+    cred := rt.db.passwords.get(key) ?: "anonymous:"
     colon := cred.index(":")
     if (colon == null) throw Err("ftp credentials not 'user:pass' - $cred.toCode")
     user := cred[0..<colon]

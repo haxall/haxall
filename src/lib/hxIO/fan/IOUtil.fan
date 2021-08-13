@@ -20,7 +20,7 @@ const class IOUtil
   ** Convert I/O handle to a file
   static File toFile(HxContext cx, Obj obj, Str debugAction)
   {
-    return IOHandle.fromObj(obj).toFile(debugAction)
+    return IOHandle.fromObj(cx.rt, obj).toFile(debugAction)
   }
 
   ** Open file as a Zip
@@ -38,8 +38,9 @@ const class IOUtil
 
 internal class IOCsvReader
 {
-  new make(Obj handle, Dict? opts)
+  new make(HxContext cx, Obj handle, Dict? opts)
   {
+    this.cx        = cx
     this.handle    = handle
     this.opts      = opts ?: Etc.emptyDict
     this.delimiter = this.opts["delimiter"] as Str ?: ","
@@ -48,7 +49,7 @@ internal class IOCsvReader
 
   Grid read()
   {
-    return IOHandle.fromObj(handle).withIn |in|
+    return toHandle(handle).withIn |in|
     {
       // parse rows
       rows := makeCsvInStream(in).readAllRows
@@ -74,9 +75,8 @@ internal class IOCsvReader
 
   Obj? each(Fn fn)
   {
-    return IOHandle.fromObj(handle).withIn |in|
+    return toHandle(handle).withIn |in|
     {
-      cx := HxContext.curHx
       args := [null, null]
       num := 0
       makeCsvInStream(in).eachRow |row|
@@ -90,7 +90,7 @@ internal class IOCsvReader
 
   Void stream(IOStreamCsvStream stream)
   {
-    IOHandle.fromObj(handle).withIn |inRaw|
+    toHandle(handle).withIn |inRaw|
     {
       // create stream
       in := makeCsvInStream(inRaw)
@@ -150,6 +150,12 @@ internal class IOCsvReader
     cell.isEmpty ? null : cell
   }
 
+  private IOHandle toHandle(Obj val)
+  {
+    IOHandle.fromObj(cx.rt, handle)
+  }
+
+  private HxContext cx
   private Obj handle
   private const Dict opts
   private const Bool noHeader
