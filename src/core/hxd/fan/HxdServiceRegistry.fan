@@ -61,6 +61,7 @@ const class HxdServiceRegistry : HxServiceRegistry
     this.watch      = get(HxWatchService#)
     this.httpRef    = get(HxHttpService#, false)
     this.user       = get(HxUserService#)
+    this.ioRef      = get(HxIOService#, false)
     this.his        = get(HxHisService#)
     this.pointWrite = get(HxPointWriteService#)
     this.conns      = get(HxConnRegistryService#)
@@ -78,6 +79,9 @@ const class HxdServiceRegistry : HxServiceRegistry
   private const HxHttpService? httpRef
 
   override const HxUserService user
+
+  override HxIOService io() { ioRef ?: throw UnknownServiceErr("HxIOService") }
+  private const HxIOService? ioRef
 
   override const HxPointWriteService pointWrite
 

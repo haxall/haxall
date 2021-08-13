@@ -104,6 +104,7 @@ const class HxdRuntime : HxRuntime
   override const HxHisService his
   override HxHttpService http() { services.http }
   override HxUserService user() { services.user }
+  override HxIOService io() { services.io }
   override HxPointWriteService pointWrite() { services.pointWrite }
   override HxConnRegistryService conns() { services.conns }
 
