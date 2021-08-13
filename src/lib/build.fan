@@ -19,11 +19,12 @@ class Build : BuildGroup
       `hxApi/build.fan`,
       `hxHttp/build.fan`,
       `hxUser/build.fan`,
-      `hxShell/build.fan`,
       `hxMath/build.fan`,
+      `hxIO/build.fan`,
       `hxTask/build.fan`,
       `hxPoint/build.fan`,
       `hxConn/build.fan`,
+      `hxShell/build.fan`,
     ]
   }
 }
