@@ -1,0 +1,18 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   11 Aug 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:io
+depends: [^lib:ph, ^lib:axon, ^lib:hx]
+typeName:"hxIO::IOLib"
+doc: "I/O function library"
+--------------------------------------------------------------------------
+
+
+
+
