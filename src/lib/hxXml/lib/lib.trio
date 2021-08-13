@@ -1,0 +1,18 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   13 Aug 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:xml
+depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:io]
+typeName:"hxXml::XmlLib"
+doc: "XML function library"
+--------------------------------------------------------------------------
+
+
+
+

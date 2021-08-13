@@ -25,6 +25,7 @@ class Build : BuildGroup
       `hxPoint/build.fan`,
       `hxConn/build.fan`,
       `hxShell/build.fan`,
+      `hxXml/build.fan`,
     ]
   }
 }
