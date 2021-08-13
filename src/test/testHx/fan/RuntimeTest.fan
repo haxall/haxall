@@ -200,66 +200,6 @@ class RuntimeTest : HxTest
     HxCoreFuncs.commit(Diff(rec, ["foo":m]))
     verifyEq(HxCoreFuncs.readById(rec.id)->foo, m)
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Services
-//////////////////////////////////////////////////////////////////////////
-
-  @HxRuntimeTest
-  Void testServices()
-  {
-    // not found stuff
-    verifyServiceNotFound(Str#)
-
-    // verify HxStdServices
-    verifySame(rt.obs,   rt.services.obs);   verifySame(verifyService(HxObsService#), rt.obs)
-    verifySame(rt.watch, rt.services.watch); verifySame(verifyService(HxWatchService#), rt.watch)
-    verifySame(rt.user,  rt.services.user);  verifySame(verifyService(HxUserService#), rt.user)
-
-    // pointWrite defaults to nil implementation
-    if (rt.lib("point", false) != null) rt.libs.remove("point")
-    verifySame(rt.pointWrite.typeof, NilPointWriteService#)
-    verifySame(rt.pointWrite, rt.services.pointWrite)
-    verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
-
-    // add point lib and ensure it becomes implementation
-    rt.libs.add("point")
-    verifyNotNull(rt.lib("point", false))
-    verifySame(rt.pointWrite.typeof.name, "WriteMgrActor")
-    verifySame(rt.pointWrite, rt.services.pointWrite)
-    verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
-
-    // remove point lib and pointWrite falls back to nil implementation
-    rt.libs.remove("point")
-    verifyNull(rt.lib("point", false))
-    verifySame(rt.pointWrite.typeof, NilPointWriteService#)
-    verifySame(rt.pointWrite, rt.services.pointWrite)
-    verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
-  }
-
-  Obj verifyService(Type t)
-  {
-    service := rt.services.get(t)
-    verifyEq(rt.services.getAll(t).containsSame(service), true)
-    verifyEq(rt.services.list.containsSame(t), true)
-
-    grid := (Grid)eval("services()")
-    verifyNotNull(grid.find |r| { r->type == t.qname })
-
-    return service
-  }
-
-  Void verifyServiceNotFound(Type t)
-  {
-    verifyEq(rt.services.get(t, false), null)
-    verifyEq(rt.services.getAll(t), HxService[,])
-    verifyErr(UnknownServiceErr#) { rt.services.get(t) }
-    verifyErr(UnknownServiceErr#) { rt.services.get(t, true) }
-
-    grid := (Grid)eval("services()")
-    verifyNull(grid.find |r| { r->type == t.qname })
-  }
-
 }
 
 **************************************************************************
