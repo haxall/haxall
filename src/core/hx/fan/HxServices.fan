@@ -55,6 +55,9 @@ const mixin HxStdServices
   ** User management APIs
   abstract HxUserService user()
 
+  ** File resolution APIs
+  @NoDoc abstract HxFileService file()
+
   ** I/O APIs
   @NoDoc abstract HxIOService io()
 
@@ -178,7 +181,27 @@ const mixin HxUserService : HxService
   abstract HxContext? authenticate(WebReq req, WebRes res)
 
   ** Create synthetic user.  The tags arg may be a dict or a map.
-  abstract HxUser makeSyntheticUser(Str username, Obj? tags := null)
+  @NoDoc abstract HxUser makeSyntheticUser(Str username, Obj? tags := null)
+}
+
+**************************************************************************
+** HxIOService
+**************************************************************************
+
+**
+** File APIs
+**
+@NoDoc
+const mixin HxFileService : HxService
+{
+  **
+  ** Resolve a virtual file system URI.  If the uri does not resolve
+  ** to a file, then return a File instance where exists returns false.
+  ** All runtimes must support a sandboxed directory accessed via the
+  ** relative path "io/".  The current context is used for permission
+  ** checking.
+  **
+  abstract File resolve(Uri uri)
 }
 
 **************************************************************************
@@ -188,6 +211,7 @@ const mixin HxUserService : HxService
 **
 ** I/O APIs
 **
+@NoDoc
 const mixin HxIOService : HxService
 {
   **
