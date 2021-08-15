@@ -149,7 +149,9 @@ class CoreFuncsTest : HxTest
     d1 := Etc.makeDict1("id", Ref("d1"))
     d2 := Etc.makeDict1("id", Ref("d2"))
     g1 := Etc.makeDictGrid(null, d1)
+    r  := addRec(["dis":"rec in db"])
 
+    // HxUtil.toId, toRecId
     verifyToId(null,        null)
     verifyToId(Ref[,],      null)
     verifyToId(Ref("null"), Ref.nullRef)
@@ -157,6 +159,7 @@ class CoreFuncsTest : HxTest
     verifyToId(d1,          Ref("d1"))
     verifyToId(g1,          Ref("d1"))
 
+    // HxUtil.toIds, toRecIdList
     verifyToIds(null,                 null)
     verifyToIds(Ref("null"),          Ref[Ref.nullRef])
     verifyToIds(Ref("a"),             Ref[Ref("a")])
@@ -165,7 +168,33 @@ class CoreFuncsTest : HxTest
     verifyToIds([d1],                 Ref[Ref("d1")])
     verifyToIds([d1, d2],             Ref[Ref("d1"), Ref("d2")])
 
-    // TODO: add toRec/toRecs and toRec() and toRecList() tests
+    // HxUtil.toRec, toRec
+    verifyToRec(null,    null)
+    verifyToRec(this,    null)
+    verifyToRec(Ref[,],  null)
+    verifyToRec(Dict[,], null)
+    verifyToRec(d1.id,   null)
+    verifyToRec(d1,      d1)
+    verifyToRec(r.id,    r)
+    verifyToRec(r,       r)
+    verifyToRec([d1.id], null)
+    verifyToRec([r.id],  r)
+    verifyToRec([d1],    d1)
+    verifyToRec([r],     r)
+    verifyToRec(Etc.makeDictGrid(null, d1), d1)
+
+    // HxUtil.toRecs, toRecList
+    verifyToRecs(this,     null)
+    verifyToRecs(null,     Dict[,])
+    verifyToRecs(d1,       [d1])
+    verifyToRecs([d1],     [d1])
+    verifyToRecs([d1, d2], [d1, d2])
+    verifyToRecs(d1.id,    null)
+    verifyToRecs([d1.id],  null)
+    verifyToRecs(r.id,     [r])
+    verifyToRecs([r.id],   [r])
+    verifyToRecs([r.id, d1.id],  null)
+    verifyToRecs(Etc.makeDictsGrid(null, [r, d1]),  [r, d1])
   }
 
   Void verifyToId(Obj? val, Obj? expected)
@@ -210,6 +239,44 @@ class CoreFuncsTest : HxTest
     {
       verifyErr(Err#) { HxUtil.toIds(val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toRecIds").call(cx, [val]) }
+    }
+  }
+
+  Void verifyToRec(Obj? val, Dict? expected)
+  {
+    cx := makeContext
+    if (expected != null)
+    {
+      actual := HxUtil.toRec(rt, val)
+      verifyDictEq(actual, expected)
+      verifyDictEq(cx.evalToFunc("toRec").call(cx, [val]), expected)
+    }
+    else
+    {
+      if (val is Ref || (val as List)?.first is Ref)
+        verifyErr(UnknownRecErr#) { HxUtil.toRec(rt, val) }
+      else
+        verifyErr(Err#) { HxUtil.toRec(rt, val) }
+      verifyErr(EvalErr#) { cx.evalToFunc("toRec").call(cx, [val]) }
+    }
+  }
+
+  Void verifyToRecs(Obj? val, Dict[]? expected)
+  {
+    cx := makeContext
+    if (expected != null)
+    {
+      actual := HxUtil.toRecs(rt, val)
+      verifyDictsEq(actual, expected)
+      verifyDictsEq(cx.evalToFunc("toRecList").call(cx, [val]), expected)
+    }
+    else
+    {
+      if (val is Ref || (val as List)?.first is Ref)
+        verifyErr(UnknownRecErr#) { HxUtil.toRecs(rt, val) }
+      else
+        verifyErr(Err#) { HxUtil.toRecs(rt, val) }
+      verifyErr(EvalErr#) { cx.evalToFunc("toRecList").call(cx, [val]) }
     }
   }
 
