@@ -89,6 +89,11 @@ class FtpClient
           m   := Regex.fromStr(Str<|"(.*).*"|>).matcher(res.text)
           created = m.matches ? m.group(1).toUri : path.toUri
         }
+        catch (FtpErr err)
+        {
+          if (checked) throw err
+          return uri
+        }
         finally close
       }
       return created
