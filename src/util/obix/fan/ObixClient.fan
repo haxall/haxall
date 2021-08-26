@@ -8,6 +8,7 @@
 
 using web
 using concurrent
+using inet
 
 **
 ** ObixClient implements the client side of the oBIX
@@ -172,7 +173,7 @@ class ObixClient
     c := WebClient(uri)
     c.reqMethod = method
     c.followRedirects = false
-    c.socketOptions.receiveTimeout = this.receiveTimeout
+    c.socketConfig = this.socketConfig
     c.reqHeaders.setAll(authHeaders)
     c.cookies = cookies
     if (in != null) c.reqHeaders["Content-Type"]  = "text/xml; charset=utf-8"
@@ -277,7 +278,7 @@ class ObixClient
   private static const AtomicInt debugCounter := AtomicInt()
 
   @NoDoc Log log := Log.get("obix")
-  @NoDoc Duration receiveTimeout := 1min
+  @NoDoc SocketConfig socketConfig := SocketConfig.cur
 
   private Str:Str authHeaders
   private Uri? watchServiceMakeUri
