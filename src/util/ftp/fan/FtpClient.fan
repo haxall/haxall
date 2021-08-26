@@ -151,7 +151,7 @@ class FtpClient
       writeReq("AUTH TLS")
       res = readRes
       if (res.code != 234) throw FtpErr(res.code, "Cannot set auth mechanism to TLS: $res")
-      cmdSocket = TcpSocket.makeTls(cmdSocket)
+      cmdSocket = cmdSocket.upgradeTls
 
       writeReq("PBSZ 0")
       res = readRes
@@ -237,8 +237,7 @@ class FtpClient
   ** Open a socket
   private TcpSocket connect(IpAddr host, Int port)
   {
-    socket := TcpSocket()
-    socket.options.receiveTimeout = 1min
+    socket := TcpSocket(socketConfig)
     return socket.connect(host, port)
   }
 
@@ -303,6 +302,7 @@ class FtpClient
 
   private const Str username
   private const Str password
+  private const SocketConfig socketConfig := SocketConfig.cur
 
   private TcpSocket? cmdSocket
   private TcpSocket? pasvSocket

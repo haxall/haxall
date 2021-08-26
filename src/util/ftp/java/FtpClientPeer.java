@@ -35,14 +35,8 @@ public class FtpClientPeer
   {
     try
     {
-      final SSLSocketFactory factory = cmd.peer.getSslContext().getSocketFactory();
-
-      // upgrade data socket to TLS
-      final SSLSocket socket = (SSLSocket)factory.createSocket(
-        data.peer.socket(),
-        data.peer.socket().getInetAddress().getHostAddress(),
-        data.peer.socket().getPort(),
-        false);
+      data = data.upgradeTls();
+      final SSLSocket socket = (SSLSocket)data.peer.socket();
 
       // Force data socket to reuse TLS session from cmd socket, even though
       // they aren't on the same port. This is truly horrific.
@@ -71,10 +65,9 @@ public class FtpClientPeer
 
       // initialize socket
       socket.setUseClientMode(true);
-      socket.startHandshake();
 
       // return secure data channel
-      return TcpSocket.makeRaw(socket);
+      return data;
     }
     catch (Exception e)
     {

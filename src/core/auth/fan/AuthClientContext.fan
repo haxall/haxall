@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using inet
 using web
 using haystack
 
@@ -23,9 +24,9 @@ class AuthClientContext : HaystackClientAuth
 //////////////////////////////////////////////////////////////////////////
 
   ** Open an authenticated context which can be used to prepare additional requests
-  static AuthClientContext open(Uri uri, Str user, Str pass, Log log, Duration timeout := 1min)
+  static AuthClientContext open(Uri uri, Str user, Str pass, Log log, SocketConfig socketConfig := SocketConfig.cur)
   {
-    make { it.uri = uri; it.user = user; it.pass = pass; it.log = log; it.timeout = timeout }.doOpen
+    make { it.uri = uri; it.user = user; it.pass = pass; it.log = log; it.socketConfig = socketConfig }.doOpen
   }
 
   ** Private it-block constructor
@@ -50,8 +51,8 @@ class AuthClientContext : HaystackClientAuth
   ** User agent string
   const Str? userAgent := "SkyArc/$typeof.pod.version"
 
-  ** Timeout for WebClient sockets
-  const Duration timeout
+  ** SocketConfig for WebClient sockets
+  const SocketConfig socketConfig
 
   ** Headers we wish to use for AuthClient requests
   Str:Str headers := [:]
@@ -208,8 +209,7 @@ class AuthClientContext : HaystackClientAuth
   override WebClient prepare(WebClient c)
   {
     c.followRedirects = false
-    c.socketOptions.connectTimeout = this.timeout
-    c.socketOptions.receiveTimeout = this.timeout
+    c.socketConfig = this.socketConfig
     c.reqHeaders.setAll(this.headers)
     if (userAgent != null) c.reqHeaders["User-Agent"] = userAgent
     return c
@@ -310,7 +310,7 @@ class AuthClientContext : HaystackClientAuth
     if (args.size < 3) { echo("usage: <uri> <user> <pass>"); return }
     log := Log.get("auth")
     log.level = LogLevel.debug
-    cx := AuthClientContext.open(args[0].toUri, args[1], args[2], log, 1min)
+    cx := AuthClientContext.open(args[0].toUri, args[1], args[2], log)
     echo("--- AuthContext.open success! ---\n")
 
     res := cx.get(cx.prepare(WebClient(cx.uri)))
