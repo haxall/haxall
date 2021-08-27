@@ -217,6 +217,11 @@ class ObserveTest : HxTest
     verifyCommit(all, ["subType": "added", "id": a1.id, "oldRec":empty, "newRec":a1])
     verifyCommit(foo, null)
 
+    // update a transiently
+    a1 = commit(a1, ["curVal":n(123)], Diff.transient)
+    verifyCommit(all, null)
+    verifyCommit(foo, null)
+
     // add foo the existing record
     a2 := commit(a1, ["foo":m])
     verifyCommit(all, ["subType": "updated", "id": a1.id, "oldRec":a1, "newRec":a2])
