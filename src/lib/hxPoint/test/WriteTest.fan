@@ -139,10 +139,10 @@ class WriteTest : HxTest
     obsX := TestObserver()
     obsY := TestObserver()
 
-    rt.obs.get("obsPointWrite").subscribe(obsA, Etc.makeDict([:]))
-    rt.obs.get("obsPointWrite").subscribe(obsB, Etc.makeDict(["obsAllWrites":m]))
-    rt.obs.get("obsPointWrite").subscribe(obsX, Etc.makeDict(["obsFilter":"dis==\"X\""]))
-    rt.obs.get("obsPointWrite").subscribe(obsY, Etc.makeDict(["obsFilter":"dis==\"Y\""]))
+    rt.obs.get("obsPointWrites").subscribe(obsA, Etc.makeDict([:]))
+    rt.obs.get("obsPointWrites").subscribe(obsB, Etc.makeDict(["obsAllWrites":m]))
+    rt.obs.get("obsPointWrites").subscribe(obsX, Etc.makeDict(["obsFilter":"dis==\"X\""]))
+    rt.obs.get("obsPointWrites").subscribe(obsY, Etc.makeDict(["obsFilter":"dis==\"Y\""]))
 
     reset := |->|
     {
@@ -262,7 +262,7 @@ class WriteTest : HxTest
     {
       if (e == null) fail("no event received")
     }
-    verifyEq(e->type, "obsPointWrite")
+    verifyEq(e->type, "obsPointWrites")
     verifyEq(e->id, pt.id)
     verifyDictEq(e->rec, pt)
     verifyEq(e["val"], val)

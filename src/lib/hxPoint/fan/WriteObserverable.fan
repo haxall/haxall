@@ -16,7 +16,7 @@ using obs
 **
 internal const class WriteObservable : Observable
 {
-  override Str name() { "obsPointWrite" }
+  override Str name() { "obsPointWrites" }
 
   override Subscription onSubscribe(Observer observer, Dict config)
   {
@@ -28,7 +28,7 @@ internal const class WriteObservable : Observable
 ** WriteSubscription
 **************************************************************************
 
-internal const class WriteSubscription : FilterSubscription
+internal const class WriteSubscription : RecSubscription
 {
   new make(WriteObservable observable, Observer observer, Dict config)
     : super(observable, observer, config)

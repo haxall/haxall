@@ -10,11 +10,11 @@ using concurrent
 using haystack
 
 **
-** FilterSubscription use obsFilter in their configuration.
+** RecSubscription is used for 'obsRecs' to handle filtering
 **
 ** NOTE: this API is subject to change
 **
-const class FilterSubscription : Subscription
+const class RecSubscription : Subscription
 {
   ** Constructor
   new make(Observable observable, Observer observer, Dict config)

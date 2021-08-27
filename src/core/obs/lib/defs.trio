@@ -14,7 +14,23 @@ doc: "Observable subscription - see [docs]`docSkySpark::Observables`"
 --------------------------------------------------------------------------
 def: ^observable
 is: ^marker
+docTaxonomy
 doc: "Observable subscription - see [docs]`docSkySpark::Observables`"
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Recs (base class)
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^obsRecs
+is: ^observable
+doc: "Base class for observables on database records"
+--------------------------------------------------------------------------
+def: ^obsFilter
+is: ^filterStr
+tagOn: ^obsRecs
+doc: "Filter string to define the record data set observed."
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
@@ -67,7 +83,7 @@ doc:
 
 --------------------------------------------------------------------------
 def: ^obsCommits
-is: ^observable
+is: ^obsRecs
 doc: "Subscribe to record commits in Folio."
 --------------------------------------------------------------------------
 def: ^obsAdds
@@ -90,20 +106,16 @@ is: ^marker
 tagOn: ^obsCommits
 doc: "Fire add event for all existing records in data set on initialization."
 --------------------------------------------------------------------------
-def: ^obsFilter
-is: ^filterStr
-tagOn: [^obsCommits,^obsWatch]
-doc: "Filter string to define the record data set observed."
---------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
 // Watches
 //////////////////////////////////////////////////////////////////////////
 
 --------------------------------------------------------------------------
-def: ^obsWatch
-is: ^observable
-doc: "Subscribe to watch and unwatch."
+def: ^obsWatches
+is: ^obsRecs
+doc: "Subscribe to watch and unwatch events."
 --------------------------------------------------------------------------
+
 
 
