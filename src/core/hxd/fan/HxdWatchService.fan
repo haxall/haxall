@@ -200,7 +200,7 @@ internal const class HxdWatch : HxWatch
         }
       }
     }
-    if (firstRecs != null) rt.obs.watch.fireWatch(firstRecs)
+    if (firstRecs != null) rt.obs.watches.fireWatch(firstRecs)
   }
 
   override Void removeAll(Ref[] ids)
@@ -222,7 +222,7 @@ internal const class HxdWatch : HxWatch
         }
       }
     }
-    if (lastRecs != null) rt.obs.watch.fireUnwatch(lastRecs)
+    if (lastRecs != null) rt.obs.watches.fireUnwatch(lastRecs)
   }
 
   override Void set(Ref[] ids)

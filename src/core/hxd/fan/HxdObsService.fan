@@ -31,9 +31,11 @@ const class HxdObsService : Actor, HxObsService
     this.listRef = AtomicRef(null)
 
     // built-ins
-    schedule = ScheduleObservable();  byName.add(schedule.name, schedule)
-    commits  = CommitsObservable(rt); byName.add(commits.name, commits)
-    watch    = WatchObservable(rt);   byName.add(watch.name, watch)
+    schedule  = ScheduleObservable();    byName.add(schedule.name,  schedule)
+    commits   = CommitsObservable(rt);   byName.add(commits.name,   commits)
+    watches   = WatchesObservable(rt);   byName.add(watches.name,   watches)
+    curVals   = CurValsObservable(rt);   byName.add(curVals.name,   curVals)
+    hisWrites = HisWritesObservable(rt); byName.add(hisWrites.name, hisWrites)
 
     // finalize list for fast access
     listRef.val = Observable#.emptyList
@@ -218,7 +220,9 @@ const class HxdObsService : Actor, HxObsService
 
   internal const ScheduleObservable schedule
   internal const CommitsObservable commits
-  internal const WatchObservable watch
+  internal const WatchesObservable watches
+  internal const CurValsObservable curVals
+  internal const HisWritesObservable hisWrites
 
   private const AtomicRef listRef
   private const ConcurrentMap byName  // Str:Observable
@@ -269,10 +273,10 @@ internal const class CommitsSubscription : RecSubscription
 }
 
 **************************************************************************
-** WatchObservable
+** WatchesObservable
 **************************************************************************
 
-internal const class WatchObservable : Observable
+internal const class WatchesObservable : Observable
 {
   new make(HxdRuntime rt) { this.rt = rt }
 
@@ -282,7 +286,7 @@ internal const class WatchObservable : Observable
 
   override Subscription onSubscribe(Observer observer, Dict config)
   {
-    WatchSubscription(this, observer, config)
+    WatchesSubscription(this, observer, config)
   }
 
   Void fireWatch(Dict[] recs) { fire("watch", recs) }
@@ -292,7 +296,7 @@ internal const class WatchObservable : Observable
   private Void fire(Str subType, Dict[] recs)
   {
     ts := DateTime.now
-    subscriptions.each |WatchSubscription sub|
+    subscriptions.each |WatchesSubscription sub|
     {
       matches := sub.filter == null ? recs : recs.findAll |rec| { sub.include(rec) }
       if (matches.isEmpty) return
@@ -304,13 +308,74 @@ internal const class WatchObservable : Observable
 }
 
 **************************************************************************
-** WatchSubscription
+** WatchesSubscription
 **************************************************************************
 
-internal const class WatchSubscription : RecSubscription
+internal const class WatchesSubscription : RecSubscription
 {
-  new make(WatchObservable observable, Observer observer, Dict config)
+  new make(WatchesObservable observable, Observer observer, Dict config)
     : super(observable, observer, config)
   {
   }
 }
+
+**************************************************************************
+** CurValsObservable
+**************************************************************************
+
+internal const class CurValsObservable : Observable
+{
+  new make(HxdRuntime rt) { this.rt = rt }
+
+  const HxdRuntime rt
+
+  override Str name() { "obsCurVals" }
+
+  override Subscription onSubscribe(Observer observer, Dict config)
+  {
+    CurValsSubscription(this, observer, config)
+  }
+}
+
+**************************************************************************
+** CurValsSubscription
+**************************************************************************
+
+internal const class CurValsSubscription : RecSubscription
+{
+  new make(CurValsObservable observable, Observer observer, Dict config)
+    : super(observable, observer, config)
+  {
+  }
+}
+
+**************************************************************************
+** HisWritesObservable
+**************************************************************************
+
+internal const class HisWritesObservable : Observable
+{
+  new make(HxdRuntime rt) { this.rt = rt }
+
+  const HxdRuntime rt
+
+  override Str name() { "obsHisWrites" }
+
+  override Subscription onSubscribe(Observer observer, Dict config)
+  {
+    HisWritesSubscription(this, observer, config)
+  }
+}
+
+**************************************************************************
+** HisWritesSubscription
+**************************************************************************
+
+internal const class HisWritesSubscription : RecSubscription
+{
+  new make(HisWritesObservable observable, Observer observer, Dict config)
+    : super(observable, observer, config)
+  {
+  }
+}
+
