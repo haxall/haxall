@@ -86,10 +86,7 @@ doc:
   more efficient compression of the history data and allows you to tune
   how often data is fsync'ed to disk.
 --------------------------------------------------------------------------
-def: ^obsPointWrite
-is: ^observable
+def: ^obsPointWrites
+is: ^obsRecs
 doc: "Subscribe to writable point priority array updates"
---------------------------------------------------------------------------
-defx: ^obsFilter
-tagOn: ^obsPointWrite
 --------------------------------------------------------------------------

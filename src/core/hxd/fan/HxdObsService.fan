@@ -248,7 +248,7 @@ internal const class CommitsObservable : Observable
 ** CommitsSubscription
 **************************************************************************
 
-internal const class CommitsSubscription : FilterSubscription
+internal const class CommitsSubscription : RecSubscription
 {
   new make(CommitsObservable observable, Observer observer, Dict config)
     : super(observable, observer, config)
@@ -278,7 +278,7 @@ internal const class WatchObservable : Observable
 
   const HxdRuntime rt
 
-  override Str name() { "obsWatch" }
+  override Str name() { "obsWatches" }
 
   override Subscription onSubscribe(Observer observer, Dict config)
   {
@@ -307,7 +307,7 @@ internal const class WatchObservable : Observable
 ** WatchSubscription
 **************************************************************************
 
-internal const class WatchSubscription : FilterSubscription
+internal const class WatchSubscription : RecSubscription
 {
   new make(WatchObservable observable, Observer observer, Dict config)
     : super(observable, observer, config)
