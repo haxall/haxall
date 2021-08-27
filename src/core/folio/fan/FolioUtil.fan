@@ -30,7 +30,7 @@ const class FolioUtil
   static const DateTime hisMinTs := hisMinDate.midnight(TimeZone.utc)
 
 //////////////////////////////////////////////////////////////////////////
-// Validation
+// Diffs
 //////////////////////////////////////////////////////////////////////////
 
   ** Throw InvalidRecIdErr if not a valid record id
@@ -118,6 +118,20 @@ const class FolioUtil
       acc[n] = v
     }
     return Etc.makeDict(acc)
+  }
+
+  ** Compute a map of tag names which should never be index
+  static Str:Str tagsToNeverIndex()
+  {
+    acc := Str:Str[:]
+    acc.addList(["id", "mod", "trash"])
+    DiffTagRule.rules.each |r, n|
+    {
+      if (r.type === DiffTagRuleType.transientOnly ||
+          r.type === DiffTagRuleType.never)
+        acc[n] = n
+    }
+    return acc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -389,40 +403,54 @@ const class FolioUtil
 ** DiffTagRule
 **************************************************************************
 
-@NoDoc enum class DiffTagRule
+**
+** DiffTagRule provides hardcoded checks for specific tags
+**
+internal const class DiffTagRule
 {
-  never,
-  restricted,
-  persistentOnly,
-  transientOnly
+  new make(DiffTagRuleType type, Int diffFlags)
+  {
+    this.type = type
+    this.diffFlags = diffFlags
+  }
 
-  static Void check(Diff diff, Str name, Kind kind, Obj val)
+  ** Type: never, restricted, persistentOnly, transientOnly
+  const DiffTagRuleType type
+
+  ** Flags to mix into
+  const Int diffFlags
+
+  ** Check one name/value pair of a Diff's changes.
+  ** Return Diff bitmask flags to mix into final flags
+  static Int check(Diff diff, Str name, Kind kind, Obj val)
   {
     // value rules
-    if (kind == Kind.bin && diff.isTransient) throw DiffErr("Bin tag cannot be transient")
+    if (kind === Kind.bin && diff.isTransient) throw DiffErr("Bin tag cannot be transient")
 
     // tag name rules
     rule := rules[name]
-    if (rule == null) return
-    switch (rule)
+    if (rule == null) return 0
+    switch (rule.type)
     {
-      case never:
+      case DiffTagRuleType.never:
         throw DiffErr("Cannot set tag: $name.toCode")
-      case restricted:
+      case DiffTagRuleType.restricted:
         checkRestricted(diff, name, kind, val)
-      case transientOnly:
+      case DiffTagRuleType.transientOnly:
         if (!diff.isTransient) throw DiffErr("Cannot set tag persistently: $name.toCode")
-      case persistentOnly:
+      case DiffTagRuleType.persistentOnly:
         if (diff.isTransient) throw DiffErr("Cannot set tag transiently: $name.toCode")
     }
+
+    return rule.diffFlags
   }
 
   static Bool isUncommittable(Str name)
   {
     rule := rules[name]
     if (rule == null) return false
-    if (rule == transientOnly) return true
-    if (rule == never)
+    if (rule.type === DiffTagRuleType.transientOnly) return true
+    if (rule.type === DiffTagRuleType.never)
     {
       if (name == "id") return false
       return true
@@ -439,49 +467,66 @@ const class FolioUtil
     throw DiffErr("Cannot set restricted tag: $name.toCode")
   }
 
-  static const Str:DiffTagRule rules :=
-  [
-    "id":          never,
-    "mod":         never,
-    "transient":   never,
+  static const Str:DiffTagRule rules
+  static
+  {
+    never          := DiffTagRule(DiffTagRuleType.never, 0)
+    restricted     := DiffTagRule(DiffTagRuleType.restricted, 0)
+    persistentOnly := DiffTagRule(DiffTagRuleType.persistentOnly, 0)
+    transientOnly  := DiffTagRule(DiffTagRuleType.transientOnly, 0)
+    curVal         := DiffTagRule(DiffTagRuleType.transientOnly, Diff.curVal)
 
-    "projMeta":    restricted,
-    "uiMeta":      restricted,
-    "ext":         restricted,
+    rules = [
+      "id":          never,
+      "mod":         never,
+      "transient":   never,
 
-    "conn":        persistentOnly,
-    "dis":         persistentOnly,
-    "disMacro":    persistentOnly,
-    "equip":       persistentOnly,
-    "navName":     persistentOnly,
-    "point":       persistentOnly,
-    "site":        persistentOnly,
-    "trash":       persistentOnly,
+      "projMeta":    restricted,
+      "uiMeta":      restricted,
+      "ext":         restricted,
 
-    "connState":   transientOnly,
-    "connStatus":  transientOnly,
-    "connErr":     transientOnly,
+      "conn":        persistentOnly,
+      "dis":         persistentOnly,
+      "disMacro":    persistentOnly,
+      "equip":       persistentOnly,
+      "navName":     persistentOnly,
+      "point":       persistentOnly,
+      "site":        persistentOnly,
+      "trash":       persistentOnly,
 
-    "curVal":      transientOnly,
-    "curStatus":   transientOnly,
-    "curErr":      transientOnly,
+      "connState":   transientOnly,
+      "connStatus":  transientOnly,
+      "connErr":     transientOnly,
 
-    "writeVal":    transientOnly,
-    "writeLevel":  transientOnly,
-    "writeStatus": transientOnly,
-    "writeErr":    transientOnly,
+      "curVal":      curVal,
+      "curStatus":   curVal,
+      "curErr":      transientOnly,
 
-    "nextTime":    transientOnly,
-    "nextVal":     transientOnly,
+      "writeVal":    transientOnly,
+      "writeLevel":  transientOnly,
+      "writeStatus": transientOnly,
+      "writeErr":    transientOnly,
 
-    "hisStatus":   transientOnly,
-    "hisErr":      transientOnly,
+      "nextTime":    transientOnly,
+      "nextVal":     transientOnly,
 
-    "hisId":       never,
-    "hisSize":     never,
-    "hisStart":    never,
-    "hisStartVal": never,
-    "hisEnd":      never,
-    "hisEndVal":   never,
-  ]
+      "hisStatus":   transientOnly,
+      "hisErr":      transientOnly,
+
+      "hisId":       never,
+      "hisSize":     never,
+      "hisStart":    never,
+      "hisStartVal": never,
+      "hisEnd":      never,
+      "hisEndVal":   never,
+    ]
+  }
+}
+
+internal enum class DiffTagRuleType
+{
+  never,
+  restricted,
+  persistentOnly,
+  transientOnly
 }
