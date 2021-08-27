@@ -31,6 +31,7 @@ class Build : BuildPod
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
                "util @{fan.depend}",
+               "inet @{fan.depend}",
                "web @{fan.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`res/`, `locale/`]
