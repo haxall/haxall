@@ -92,6 +92,11 @@ class FolioUtilTest : HaystackTest
     verifyDiffErr(rec1, ["site":Marker.val], Diff.transient)
     verifyDiffErr(rec1, ["ext":"foo"], Diff.transient)
     verifyDiffErr(rec1, ["foobar":Bin("text/plain")], Diff.transient)
+
+    // diff with curVal
+    verifyEq(Diff(rec1, ["curVal":n(123)], Diff.transient).flags, Diff.transient.or(Diff.curVal))
+    verifyEq(Diff(rec1, ["curStatus":"ok"], Diff.transient).flags, Diff.transient.or(Diff.curVal))
+    verifyEq(Diff(rec1, ["curErr":"foo"], Diff.transient).flags, Diff.transient)
   }
 
   Void verifyDiffErr(Dict? rec, Obj? changes, Int flags := 0)

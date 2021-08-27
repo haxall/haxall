@@ -76,7 +76,7 @@ const class Diff
     {
       FolioUtil.checkTagName(name)
       kind := FolioUtil.checkTagVal(name, val)
-      DiffTagRule.check(this, name, kind, val)
+      newFlags = newFlags.or(DiffTagRule.check(this, name, kind, val))
     }
 
     return newFlags
@@ -125,6 +125,9 @@ const class Diff
 
   ** Flag bitmask for `isBypassRestricted`
   @NoDoc static const Int bypassRestricted := 0x10
+
+  ** Flag bitmask add in ctor if curVal or curStatus in changes
+  @NoDoc static const Int curVal := 0x20
 
   ** Flag bitmask for `force` and `transient`
   static const Int forceTransient := force.or(transient)
