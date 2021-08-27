@@ -44,7 +44,7 @@ const class ReadonlyReplicaErr : Err
 }
 
 ** Improperly constructured diff
-@Js @NoDoc
+@NoDoc
 const class DiffErr : Err
 {
   new make(Str? msg, Err? cause := null) : super(msg, cause) {}
