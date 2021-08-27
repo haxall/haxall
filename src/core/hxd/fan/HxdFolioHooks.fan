@@ -54,8 +54,13 @@ const class HxdFolioHooks : FolioHooks
   ** Pass through FolioContext.commitInfo if available.
   override Void postCommit(Diff diff, Obj? cxInfo)
   {
-    // short circuit for all transient changes immediately
-    if (diff.isTransient) return
+    // the only transient hook might be to fire a curVal
+    // observation; otherwise short circut all other code
+    if (diff.isTransient)
+    {
+      if (diff.isCurVal) rt.obs.curVal(diff)
+      return
+    }
 
     user := cxInfo as HxUser
 
