@@ -51,47 +51,52 @@ class FolioUtilTest : HaystackTest
     FolioUtil.checkTagVal("foo", Uri(s1000))
     FolioUtil.checkTagVal("foo", s32K)
 
-    // diffs
+    // diff make
     rec1 := Etc.makeDict(["id":Ref.gen, "mod":DateTime.nowUtc])
     rec2 := Etc.makeDict(["id":Ref.gen, "mod":DateTime.nowUtc])
     diff1 := Diff(rec1, ["change":"!"])
-    FolioUtil.checkDiff(diff1)
-    verifyErr(InvalidTagNameErr#) { FolioUtil.checkDiff(Diff(rec1, ["!bad":"x"])) }
-    verifyErr(InvalidTagValErr#) { FolioUtil.checkDiff(Diff(rec1, ["bad":Env.cur])) }
+    verifyErr(InvalidTagNameErr#) { x := Diff(rec1, ["!bad":"x"]) }
+    verifyErr(InvalidTagValErr#) { x := Diff(rec1, ["bad":Env.cur]) }
+
+    // diffs
     verifyErr(DiffErr#) { FolioUtil.checkDiffs(Diff[,]) }
     verifyErr(DiffErr#) { FolioUtil.checkDiffs([diff1, Diff(rec1, ["foo":"%"])]) }
     verifyErr(DiffErr#) { FolioUtil.checkDiffs([diff1, Diff(rec2, ["foo":"%"], Diff.transient)]) }
 
+    // old/new handling
+    verifyErr(DiffErr#) { x := Diff.makeAdd(["id":Ref.gen]) }
+    verifyErr(DiffErr#) { x := Diff(null, ["id":Ref.gen], Diff.add) }
+    verifyErr(DiffErr#) { x := Diff(Etc.emptyDict, ["foo":m], Diff.add) }
+    verifyErr(DiffErr#) { x := Diff(null, ["id":Ref.gen]) }
+
     // diff flags
-    verifyDiffErr(Diff(null, ["foo":"bar"], Diff.add.or(Diff.transient)))
-    verifyDiffErr(Diff(rec1, ["foo":"bar"], Diff.remove.or(Diff.transient)))
+    verifyDiffErr(null, ["foo":"bar"], Diff.add.or(Diff.transient))
+    verifyDiffErr(rec1, ["foo":"bar"], Diff.remove.or(Diff.transient))
 
     // diff tag rule: never
-    verifyDiffErr(Diff(rec1, ["id":Ref.gen]))
-    verifyDiffErr(Diff(rec1, ["id":Ref.gen], Diff.transient))
-    verifyDiffErr(Diff(rec1, ["mod":DateTime.now]))
-    verifyDiffErr(Diff(rec1, ["mod":DateTime.now], Diff.transient))
-    verifyDiffErr(Diff(rec1, ["transient":Marker.val]))
-    verifyDiffErr(Diff(rec1, ["transient":Marker.val], Diff.transient))
-    verifyDiffErr(Diff(rec1, ["hisSize":Number(3)]))
-    verifyDiffErr(Diff(rec1, ["hisSize":Number(3)], Diff.transient))
+    verifyDiffErr(rec1, ["id":Ref.gen])
+    verifyDiffErr(rec1, ["id":Ref.gen], Diff.transient)
+    verifyDiffErr(rec1, ["mod":DateTime.now])
+    verifyDiffErr(rec1, ["mod":DateTime.now], Diff.transient)
+    verifyDiffErr(rec1, ["transient":Marker.val])
+    verifyDiffErr(rec1, ["transient":Marker.val], Diff.transient)
+    verifyDiffErr(rec1, ["hisSize":Number(3)])
+    verifyDiffErr(rec1, ["hisSize":Number(3)], Diff.transient)
 
     // diff tag rule: transient only
-    verifyDiffErr(Diff(rec1, ["curVal":Number(3)]))
-    verifyDiffErr(Diff(rec1, ["writeLevel":Number(3)]))
-    verifyDiffErr(Diff(rec1, ["hisStatus":"ok"]))
+    verifyDiffErr(rec1, ["curVal":Number(3)])
+    verifyDiffErr(rec1, ["writeLevel":Number(3)])
+    verifyDiffErr(rec1, ["hisStatus":"ok"])
 
     // diff tag rule: persitent  only
-    verifyDiffErr(Diff(rec1, ["site":Marker.val], Diff.transient))
-    verifyDiffErr(Diff(rec1, ["ext":"foo"], Diff.transient))
-    verifyDiffErr(Diff(rec1, ["foobar":Bin("text/plain")], Diff.transient))
+    verifyDiffErr(rec1, ["site":Marker.val], Diff.transient)
+    verifyDiffErr(rec1, ["ext":"foo"], Diff.transient)
+    verifyDiffErr(rec1, ["foobar":Bin("text/plain")], Diff.transient)
   }
 
-  Void verifyDiffErr(Diff bad)
+  Void verifyDiffErr(Dict? rec, Obj? changes, Int flags := 0)
   {
-    ok := Diff(Etc.makeDict(["id":Ref.gen, "mod":DateTime.nowUtc]), ["change":"ok"])
-    verifyErr(DiffErr#) { FolioUtil.checkDiff(bad) }
-    verifyErr(DiffErr#) { FolioUtil.checkDiffs([ok, bad]) }
+    verifyErr(DiffErr#) { x := Diff(rec, changes, flags) }
   }
 
 //////////////////////////////////////////////////////////////////////////

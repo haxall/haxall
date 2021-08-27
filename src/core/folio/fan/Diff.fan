@@ -12,7 +12,6 @@ using haystack
 **
 ** Diff encapsulates a set of changes to apply to a record.
 **
-@Js
 const class Diff
 {
 
@@ -31,16 +30,18 @@ const class Diff
     this.flags = flags
     if (oldRec == null)
     {
-      if (flags.and(add) == 0) throw ArgErr("Must pass 'add' flag if oldRec is null")
-      if (this.changes.has("id")) throw ArgErr("Cannot specify 'id' tag if using 'add' flag")
+      if (flags.and(add) == 0) throw DiffErr("Must pass 'add' flag if oldRec is null")
+      if (this.changes.has("id")) throw DiffErr("Cannot specify 'id' tag if using 'add' flag")
       this.id = Ref.gen
     }
     else
     {
-      if (flags.and(add) != 0) throw ArgErr("Cannot pass oldRec if using 'add' flag")
+      if (flags.and(add) != 0) throw DiffErr("Cannot pass oldRec if using 'add' flag")
       this.id      = oldRec->id
       this.oldMod  = oldRec->mod
     }
+
+    this.flags = check
   }
 
   ** Make a Diff to add a new record into the database.
@@ -51,7 +52,34 @@ const class Diff
     this.flags = add
 
     if (this.changes.has("id"))
-      throw ArgErr("makeAdd cannot specify 'id' tag")
+      throw DiffErr("makeAdd cannot specify 'id' tag")
+
+    this.flags = check
+  }
+
+  ** Throw an exception such as InvalidTagValErr if the diff doesn't declare valid tags
+  private Int check()
+  {
+    // check that add/remove aren't transient
+    if (isTransient)
+    {
+      if (isAdd) throw DiffErr("Invalid diff flags: transient + add")
+      if (isRemove) throw DiffErr("Invalid diff flags: transient + remove")
+    }
+
+    // check for valid add id
+    if (isAdd) FolioUtil.checkRecId(id)
+
+    // check tag name and values to insert
+    newFlags := flags
+    changes.each |Obj? val, Str name|
+    {
+      FolioUtil.checkTagName(name)
+      kind := FolioUtil.checkTagVal(name, val)
+      DiffTagRule.check(this, name, kind, val)
+    }
+
+    return newFlags
   }
 
 //////////////////////////////////////////////////////////////////////////

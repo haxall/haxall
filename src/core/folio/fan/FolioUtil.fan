@@ -81,39 +81,16 @@ const class FolioUtil
     return kind
   }
 
-  ** Throw an exception such as InvalidTagValErr if the diff doesn't declare valid tags
-  static Void checkDiff(Diff diff)
-  {
-    // check that add/remove aren't transient
-    if (diff.isTransient)
-    {
-      if (diff.isAdd) throw DiffErr("Invalid diff flags: transient + add")
-      if (diff.isRemove) throw DiffErr("Invalid diff flags: transient + remove")
-    }
-
-    // check for valid add id
-    if (diff.isAdd) checkRecId(diff.id)
-
-    // check tag name and values to insert
-    diff.changes.each |Obj? val, Str name|
-    {
-      checkTagName(name)
-      kind := checkTagVal(name, val)
-      DiffTagRule.check(diff, name, kind, val)
-    }
-  }
-
   ** Check a list of diffs
   static Void checkDiffs(Diff[] diffs)
   {
     if (diffs.size == 0) throw DiffErr("No diffs to commit")
-    if (diffs.size == 1) return checkDiff(diffs.first)
+    if (diffs.size == 1) return
 
     dups := Ref:Diff[:]
     transient := diffs.first.isTransient
     diffs.each |diff|
     {
-      checkDiff(diff)
       if (diff.isTransient != transient) throw DiffErr("Cannot mix transient and persistent diffs")
       if (dups[diff.id] != null) throw DiffErr("Duplicate diffs for $diff.id")
       dups[diff.id] = diff
@@ -412,7 +389,7 @@ const class FolioUtil
 ** DiffTagRule
 **************************************************************************
 
-@NoDoc @Js enum class DiffTagRule
+@NoDoc enum class DiffTagRule
 {
   never,
   restricted,
