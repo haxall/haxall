@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using inet
 using web
 
 **
@@ -34,7 +35,8 @@ class Client
     timeout := opts?.get("timeout", opts?.get("receiveTimeout")) as Duration ?: 1min
 
     // use reflection to delegate to auth::AuthClientContext
-    auth := Slot.findMethod("auth::AuthClientContext.open").call(uri+`about`, username, password, log, timeout)
+    socketConfig := SocketConfig.cur.setTimeouts(timeout)
+    auth := Slot.findMethod("auth::AuthClientContext.open").call(uri+`about`, username, password, log, socketConfig)
 
     return make(uri, log, auth)
   }
