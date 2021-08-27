@@ -31,11 +31,11 @@ const class HxdObsService : Actor, HxObsService
     this.listRef = AtomicRef(null)
 
     // built-ins
-    schedule  = ScheduleObservable();    byName.add(schedule.name,  schedule)
-    commits   = CommitsObservable(rt);   byName.add(commits.name,   commits)
-    watches   = WatchesObservable(rt);   byName.add(watches.name,   watches)
-    curVals   = CurValsObservable(rt);   byName.add(curVals.name,   curVals)
-    hisWrites = HisWritesObservable(rt); byName.add(hisWrites.name, hisWrites)
+    schedule  = ScheduleObservable();  byName.add(schedule.name,  schedule)
+    commits   = CommitsObservable(rt); byName.add(commits.name,   commits)
+    watches   = WatchesObservable();   byName.add(watches.name,   watches)
+    curVals   = CurValsObservable();   byName.add(curVals.name,   curVals)
+    hisWrites = HisWritesObservable(); byName.add(hisWrites.name, hisWrites)
 
     // finalize list for fast access
     listRef.val = Observable#.emptyList
@@ -296,10 +296,6 @@ internal const class CommitsSubscription : RecSubscription
 
 internal const class WatchesObservable : Observable
 {
-  new make(HxdRuntime rt) { this.rt = rt }
-
-  const HxdRuntime rt
-
   override Str name() { "obsWatches" }
 
   override Subscription onSubscribe(Observer observer, Dict config)
@@ -343,10 +339,6 @@ internal const class WatchesSubscription : RecSubscription
 
 internal const class CurValsObservable : Observable
 {
-  new make(HxdRuntime rt) { this.rt = rt }
-
-  const HxdRuntime rt
-
   override Str name() { "obsCurVals" }
 
   override Subscription onSubscribe(Observer observer, Dict config)
@@ -373,10 +365,6 @@ internal const class CurValsSubscription : RecSubscription
 
 internal const class HisWritesObservable : Observable
 {
-  new make(HxdRuntime rt) { this.rt = rt }
-
-  const HxdRuntime rt
-
   override Str name() { "obsHisWrites" }
 
   override Subscription onSubscribe(Observer observer, Dict config)
