@@ -404,6 +404,66 @@ class ObserveTest : HxTest
     verifyDictsEq(actual->recs, expected, false)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// CurVals
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testCurVals()
+  {
+    a1 := addRec(["dis":"A", "foo":m])
+    b1 := addRec(["dis":"B", "bar":m])
+
+    x := TestObserver(); xs := rt.obs.get("obsCurVals").subscribe(x, Etc.emptyDict)
+    y := TestObserver(); ys := rt.obs.get("obsCurVals").subscribe(y, Etc.makeDict1("obsFilter", "foo"))
+    clear := |->| { x.clear; y.clear }
+
+    verifyCurVals(x, a1, null)
+    verifyCurVals(y, a1, null)
+
+    // set curVal on foo (both x and y receive)
+    a2 := commit(a1, ["curVal":n(123)], Diff.transient)
+    verifyCurVals(x, a1, a2)
+    verifyCurVals(y, a1, a2)
+
+    // set curStatus on bar (only x receives)
+    clear()
+    b2 := commit(b1, ["curStatus":"ok"], Diff.transient)
+    verifyCurVals(x, b1, b2)
+    verifyCurVals(y, b1, null)
+
+    // set non curVal tag on foo (nothing received)
+    clear()
+    a3 := commit(a2, ["curFoo":"!"], Diff.transient)
+    verifyCurVals(x, a2, null)
+    verifyCurVals(y, a2, null)
+
+    // set both curVal and curStatus on foo (both x and y receive)
+    clear()
+    a4 := commit(a3, ["curFoo":"again!", "curVal":n(123), "curStatus":"ok"], Diff.transient)
+    verifyCurVals(x, a3, a4)
+    verifyCurVals(y, a3, a4)
+  }
+
+  private Void verifyCurVals(TestObserver o, Dict oldRec, Dict? newRec)
+  {
+    rt.sync
+    Dict? actual := o.sync
+    // echo("\n-- verifyCurVals")
+    // if (actual != null) Etc.dictDump(actual)
+    if (newRec == null)
+    {
+      verifyNull(actual)
+      return
+    }
+
+    verifyEq(actual->type, "obsCurVals")
+    verifyEq(actual->subType, "updated")
+    verifyRefEq(actual.id, oldRec.id)
+    verifyDictEq(actual->oldRec, oldRec)
+    verifyDictEq(actual->newRec, newRec)
+  }
+
 }
 
 **************************************************************************

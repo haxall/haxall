@@ -116,7 +116,12 @@ const class HxdObsService : Actor, HxObsService
 
   Void commit(Diff diff, HxUser? user)
   {
-    if (commits.hasSubscriptions) send(HxMsg("diff", diff, user))
+    if (commits.hasSubscriptions) send(HxMsg("commit", diff, user))
+  }
+
+  Void curVal(Diff diff)
+  {
+    if (curVals.hasSubscriptions) send(HxMsg("curVal", diff))
   }
 
   override Obj? receive(Obj? msgObj)
@@ -126,9 +131,10 @@ const class HxdObsService : Actor, HxObsService
       msg := (HxMsg)msgObj
       switch (msg.id)
       {
-        case "diff": return onDiff(msg.a, msg.b)
-        case "sync": return onSync
-        default:     return null
+        case "commit": return onCommit(msg.a, msg.b)
+        case "curVal": return onCurVal(msg.a)
+        case "sync":   return onSync
+        default:       return null
       }
     }
     catch (Err e)
@@ -138,7 +144,7 @@ const class HxdObsService : Actor, HxObsService
     }
   }
 
-  private Obj? onDiff(Diff diff, HxUser? user)
+  private Obj? onCommit(Diff diff, HxUser? user)
   {
     oldRec := toDiffRec(diff.oldRec)
     newRec := toDiffRec(diff.newRec)
@@ -157,6 +163,18 @@ const class HxdObsService : Actor, HxObsService
       {
         sendAdded(sub, diff, oldRec, newRec, user)
       }
+    }
+    return null
+  }
+
+  private Obj? onCurVal(Diff diff)
+  {
+    oldRec := toDiffRec(diff.oldRec)
+    newRec := toDiffRec(diff.newRec)
+    event  := CommitObservation(curVals, CommitObservationAction.updated, rt.now, diff.id, oldRec, newRec, null)
+    curVals.subscriptions.each |CurValsSubscription sub|
+    {
+      if (sub.include(newRec)) sub.send(event)
     }
     return null
   }

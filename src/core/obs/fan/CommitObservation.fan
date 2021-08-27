@@ -9,7 +9,8 @@
 using haystack
 
 **
-** CommitObservation is an observation event for an 'obsCommit' stream.
+** CommitObservation is an observation event for an 'obsCommits' stream.
+** We also use for an 'obsCurVals' obserservation events.
 **
 @NoDoc
 const class CommitObservation : Observation

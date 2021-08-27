@@ -154,6 +154,9 @@ const class Diff
   ** level records such as projMeta, uiMeta, or ext records
   @NoDoc Bool isBypassRestricted() { flags.and(bypassRestricted) != 0 }
 
+  ** Flag indicating curVal or curStatus is in changed tags
+  @NoDoc Bool isCurVal() { flags.and(curVal) != 0 }
+
 //////////////////////////////////////////////////////////////////////////
 // Methods
 //////////////////////////////////////////////////////////////////////////
