@@ -193,7 +193,7 @@ const class HxCoreFuncs
   **   - List returns first row (can be either Ref or Dict)
   **   - Ref will make a call to read database
   @Axon
-  static Dict toRec(Obj? val) { HxUtil.toRec(curContext.rt, val) }
+  static Dict toRec(Obj? val) { HxUtil.toRec(curContext.db, val) }
 
   ** Coerce a value to a list of record Dicts:
   **   - null return empty list
@@ -202,7 +202,7 @@ const class HxCoreFuncs
   **   - Dict or Dict[] returns itself
   **   - Grid is mapped to list of rows
   @Axon
-  static Dict[] toRecList(Obj? val) { HxUtil.toRecs(curContext.rt, val) }
+  static Dict[] toRecList(Obj? val) { HxUtil.toRecs(curContext.db, val) }
 
 //////////////////////////////////////////////////////////////////////////
 // Folio Writes

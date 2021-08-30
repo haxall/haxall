@@ -74,31 +74,31 @@ const class HxUtil
 
   ** Coerce a value to a record Dict:
   **   - Row or Dict returns itself
-  **   - Grid returns first row
-  **   - List returns first row (can be either Ref or Dict)
-  **   - Ref will make a call to read database
-  static Dict toRec(HxRuntime rt, Obj? val)
+  **   - Grid returns first row (must have at least one row)
+  **   - List returns first item (must have at least one item which is Ref or Dict)
+  **   - Ref will make a call to read database (must pass db)
+  static Dict toRec(Folio? db, Obj? val)
   {
     if (val is Dict) return val
     if (val is Grid) return ((Grid)val).first ?: throw Err("Grid is empty")
-    if (val is List) return toRec(rt, ((List)val).first ?: throw Err("List is empty"))
-    if (val is Ref)  return rt.db.readById(val)
-    throw Err("Cannot convert toRec: ${val?.typeof}")
+    if (val is List) return toRec(db, ((List)val).first ?: throw Err("List is empty"))
+    if (val is Ref)  return refToRec(db, val)
+    throw Err("Cannot coerce toRec: ${val?.typeof}")
   }
 
   ** Coerce a value to a list of record Dicts:
   **   - null return empty list
-  **   - Ref or Ref[] (will make a call to read database)
+  **   - Ref or Ref[] will read database (must pass db)
   **   - Row or Row[] returns itself
   **   - Dict or Dict[] returns itself
   **   - Grid is mapped to list of rows
-  static Dict[] toRecs(HxRuntime rt, Obj? val)
+  static Dict[] toRecs(Folio? db, Obj? val)
   {
     if (val == null) return Dict[,]
 
     if (val is Dict) return Dict[val]
 
-    if (val is Ref) return Dict[rt.db.readById(val)]
+    if (val is Ref) return Dict[refToRec(db, val)]
 
     if (val is Grid)
     {
@@ -114,11 +114,25 @@ const class HxUtil
       if (list.isEmpty) return Dict[,]
       if (list.of.fits(Dict#)) return list
       if (list.all |x| { x is Dict }) return Dict[,].addAll(list)
-      if (list.all |x| { x is Ref }) return rt.db.readByIdsList(list, true)
+      if (list.all |x| { x is Ref }) return refsToRecs(db, list)
       throw Err("Cannot convert toRecs: List of ${list.first?.typeof}")
     }
 
-    throw Err("Cannot convert toRecs: ${val?.typeof}")
+    throw Err("Cannot coerce toRecs: ${val?.typeof}")
+  }
+
+  ** Coerce a ref to a rec dict
+  private static Dict refToRec(Folio? db, Ref id)
+  {
+    if (db == null) throw Err("No database available to read ref: $id.toCode")
+    return db.readById(id)
+  }
+
+  ** Coerce a list of ref to a list of rec dicts
+  private static Dict[] refsToRecs(Folio? db, Ref[] ids)
+  {
+    if (db == null) throw Err("No database available to read refs")
+    return db.readByIdsList(ids, true)
   }
 
   ** Implementation for readAllTagNames function

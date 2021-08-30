@@ -81,7 +81,7 @@ const class IOFuncs
   static Obj ioBin(Obj rec, Str tag)
   {
     cx := curContext
-    return IOHandle.fromDict(cx.rt, HxUtil.toRec(cx.rt, rec), tag)
+    return IOHandle.fromDict(cx.rt, HxUtil.toRec(cx.db, rec), tag)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -329,7 +329,7 @@ const class IOFuncs
   @Axon { admin = true }
   static Obj? ioWriteTrio(Obj? val, Obj? handle)
   {
-    dicts := HxUtil.toRecs(curContext.rt, val)
+    dicts := HxUtil.toRecs(curContext.db, val)
     return toHandle(handle).withOut |out|
     {
       TrioWriter(out).writeAllDicts(dicts)
