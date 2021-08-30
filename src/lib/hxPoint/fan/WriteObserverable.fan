@@ -71,6 +71,8 @@ const class WriteObservation : Observation
   const Obj who
   const Marker? first
 
+  Bool isFirst() { first != null }
+
   override Bool isEmpty() { false }
 
   @Operator override Obj? get(Str name, Obj? def := null)
