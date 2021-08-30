@@ -85,7 +85,7 @@ const class PointFuncs
     if (level == null) throw ArgErr("level arg is null")
     if (who == null) who = cx.user.dis
     if (opts == null) opts = Etc.emptyDict
-    return lib(cx).writeMgr.write(HxUtil.toRec(cx.db, point), val, level.toInt, who, opts).get(timeout)
+    return lib(cx).writeMgr.write(Etc.toRec(point), val, level.toInt, who, opts).get(timeout)
   }
 
   **
@@ -100,7 +100,7 @@ const class PointFuncs
     // first make sure user can read this point
     cx := curContext
     lib := lib(cx)
-    rec := cx.db.readById(HxUtil.toId(point))
+    rec := cx.db.readById(Etc.toId(point))
 
     // now check access permissions
     if (!cx.user.access.canPointWriteAtLevel(level.toInt))
@@ -125,7 +125,7 @@ const class PointFuncs
   @Axon
   static Grid pointWriteArray(Obj point)
   {
-    lib(curContext).writeMgr.arrayById(HxUtil.toId(point))
+    lib(curContext).writeMgr.arrayById(Etc.toId(point))
   }
 
   **
@@ -142,7 +142,7 @@ const class PointFuncs
   {
     cx := curContext
     lib := lib(cx)
-    rec := pt == null ? Etc.emptyDict : HxUtil.toRec(cx.db, pt)
+    rec := pt == null ? Etc.emptyDict : Etc.toRec(pt)
     return PointConvert.fromStr(convert).convert(lib, rec, val)
   }
 
@@ -151,7 +151,7 @@ const class PointFuncs
   static Str pointDetails(Obj point)
   {
     cx  := curContext
-    rec := HxUtil.toRec(cx.db, point)
+    rec := Etc.toRec(point)
     return PointUtil.pointDetails(lib(cx), rec, true)
   }
 

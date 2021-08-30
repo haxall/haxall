@@ -962,62 +962,6 @@ const class Etc
   private static const AtomicRef emptyGridRef := AtomicRef(null)
 
   **
-  ** Given an arbitrary object, translate it to a Grid suitable
-  ** for serizliation with Zinc:
-  **   - if grid just return it
-  **   - if row in grid of size, return row.grid
-  **   - if scalar return 1x1 grid
-  **   - if dict return grid where dict is only
-  **   - if list of dict return grid where each dict is row
-  **   - if list of non-dicts, return one col grid with rows for each item
-  **   - if non-zinc type return grid with cols val, type
-  **
-  static Grid toGrid(Obj? val, Dict? meta := null)
-  {
-    // if already a Grid
-    if (val is Grid) return (Grid)val
-
-    // if a Row in a single row Grid
-    if (val is Row)
-    {
-      grid := ((Row)val).grid
-      try
-        if (grid.size == 1) return grid
-      catch {}
-    }
-
-    // if value is a Dict map to a 1 row grid
-    if (val is Dict) return makeDictGrid(meta, val)
-
-    // if value is a list
-    if (val is List)
-    {
-      // if list is all dicts, turn into real NxN grid
-      list := (List)val
-      if (list.all { it is Dict }) return makeDictsGrid(meta, val)
-
-      // otherwise just turn it into a 1 column grid
-      gb := GridBuilder().addCol("val")
-      list.each |v| { gb.addRow1(toCell(v)) }
-      return gb.toGrid
-    }
-
-    // scalar translate to 1x1 Grid
-    return GridBuilder().setMeta(meta).addCol("val").addRow1(toCell(val)).toGrid
-  }
-
-  **
-  ** Get value as a grid cell
-  **
-  @NoDoc static Obj? toCell(Obj? val)
-  {
-    if (val is Grid) return ((Grid)val).toConst
-    if (val == null) return null
-    if (Kind.fromVal(val, false) != null) return val
-    return XStr.encode(val)
-  }
-
-  **
   ** Return first cell as string or the default value.
   **
   @NoDoc static Str? gridToStrVal(Grid? grid, Str? def := "")
@@ -1230,6 +1174,185 @@ const class Etc
       g.each |row| { gb.addDictRow(row) }
     }
     return gb.toGrid
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Coercion
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Coerce a value to a Ref identifier:
+  **   - Ref returns itself
+  **   - Row or Dict, return 'id' tag
+  **   - Grid return first row id
+  **
+  static Ref toId(Obj? val)
+  {
+    if (val is Ref) return val
+    if (val is Dict) return ((Dict)val).id
+    if (val is Grid) return ((Grid)val).first.id
+    throw CoerceErr("Cannot coerce to id: ${val?.typeof}")
+  }
+
+  **
+  ** Coerce a value to a list of Ref identifiers:
+  **   - Ref returns itself as list of one
+  **   - Ref[] returns itself
+  **   - Dict return 'id' tag
+  **   - Dict[] return 'id' tags
+  **   - Grid return 'id' column
+  **
+  static Ref[] toIds(Obj? val)
+  {
+    if (val is Ref) return Ref[val]
+    if (val is Dict) return Ref[((Dict)val).id]
+    if (val is List)
+    {
+      list := (List)val
+      if (list.isEmpty) return Ref[,]
+      if (list.of.fits(Ref#)) return list
+      if (list.all |x| { x is Ref }) return Ref[,].addAll(list)
+      if (list.all |x| { x is Dict }) return list.map |Dict d->Ref| { d.id }
+    }
+    if (val is Grid)
+    {
+      grid := (Grid)val
+      if (grid.meta.has("navFilter"))
+        return Slot.findMethod("legacy::NavFuncs.toNavFilterRecIdList").call(grid)
+      ids := Ref[,]
+      idCol := grid.col("id")
+      grid.each |row|
+      {
+        id := row.val(idCol) as Ref ?: throw CoerceErr("Row missing id tag")
+        ids.add(id)
+      }
+      return ids
+    }
+    throw CoerceErr("Cannot convert to ids: ${val?.typeof}")
+  }
+
+  **
+  ** Coerce a value to a record Dict:
+  **   - Row or Dict returns itself
+  **   - Grid returns first row (must have at least one row)
+  **   - List returns first item (must have at least one item which is Ref or Dict)
+  **   - Ref will make a call to read database (must be run in a context)
+  **
+  static Dict toRec(Obj? val)
+  {
+    if (val is Dict) return val
+    if (val is Grid) return ((Grid)val).first ?: throw CoerceErr("Grid is empty")
+    if (val is List) return toRec(((List)val).first ?: throw CoerceErr("List is empty"))
+    if (val is Ref)  return refToRec(val)
+    throw CoerceErr("Cannot coerce toRec: ${val?.typeof}")
+  }
+
+  **
+  ** Coerce a value to a list of record Dicts:
+  **   - null return empty list
+  **   - Ref or Ref[] will read database (must be run in a context)
+  **   - Row or Row[] returns itself
+  **   - Dict or Dict[] returns itself
+  **   - Grid is mapped to list of rows
+  **
+  static Dict[] toRecs(Obj? val)
+  {
+    if (val == null) return Dict[,]
+
+    if (val is Dict) return Dict[val]
+
+    if (val is Ref) return Dict[refToRec(val)]
+
+    if (val is Grid)
+    {
+      grid := (Grid)val
+      if (grid.meta.has("navFilter"))
+        return Slot.findMethod("legacy::NavFuncs.toNavFilterRecList").call(grid)
+      return grid.toRows
+    }
+
+    if (val is List)
+    {
+      list := (List)val
+      if (list.isEmpty) return Dict[,]
+      if (list.of.fits(Dict#)) return list
+      if (list.all |x| { x is Dict }) return Dict[,].addAll(list)
+      if (list.all |x| { x is Ref }) return refsToRecs(list)
+      throw CoerceErr("Cannot convert toRecs: List of ${list.first?.typeof}")
+    }
+
+    throw CoerceErr("Cannot coerce toRecs: ${val?.typeof}")
+  }
+
+  ** Coerce a ref to a rec dict
+  private static Dict refToRec(Ref id)
+  {
+    cx := Actor.locals[cxActorLocalsKey] as HaystackContext
+    if (cx == null) throw CoerceErr("No context available to read id: $id.toCode")
+    return cx.deref(id) ?: throw UnknownRecErr("Cannot read id: $id.toCode")
+  }
+
+  ** Coerce a list of refs to a list of recs dict
+  private static Dict[] refsToRecs(Ref[] ids)
+  {
+    cx := Actor.locals[cxActorLocalsKey] as HaystackContext
+    if (cx == null) throw Err("No context available to read id")
+    return ids.map |id->Dict| { cx.deref(id) ?: throw UnknownRecErr("Cannot read id: $id.toCode") }
+  }
+
+  **
+  ** Coerce a value to a Grid:
+  **   - if grid just return it
+  **   - if row in grid of size, return row.grid
+  **   - if scalar return 1x1 grid
+  **   - if dict return grid where dict is only
+  **   - if list of dict return grid where each dict is row
+  **   - if list of non-dicts, return one col grid with rows for each item
+  **   - if non-zinc type return grid with cols val, type
+  **
+  static Grid toGrid(Obj? val, Dict? meta := null)
+  {
+    // if already a Grid
+    if (val is Grid) return (Grid)val
+
+    // if a Row in a single row Grid
+    if (val is Row)
+    {
+      grid := ((Row)val).grid
+      try
+        if (grid.size == 1) return grid
+      catch {}
+    }
+
+    // if value is a Dict map to a 1 row grid
+    if (val is Dict) return makeDictGrid(meta, val)
+
+    // if value is a list
+    if (val is List)
+    {
+      // if list is all dicts, turn into real NxN grid
+      list := (List)val
+      if (list.all { it is Dict }) return makeDictsGrid(meta, val)
+
+      // otherwise just turn it into a 1 column grid
+      gb := GridBuilder().addCol("val")
+      list.each |v| { gb.addRow1(toCell(v)) }
+      return gb.toGrid
+    }
+
+    // scalar translate to 1x1 Grid
+    return GridBuilder().setMeta(meta).addCol("val").addRow1(toCell(val)).toGrid
+  }
+
+  **
+  ** Get value as a grid cell
+  **
+  @NoDoc static Obj? toCell(Obj? val)
+  {
+    if (val is Grid) return ((Grid)val).toConst
+    if (val == null) return null
+    if (Kind.fromVal(val, false) != null) return val
+    return XStr.encode(val)
   }
 
 //////////////////////////////////////////////////////////////////////////

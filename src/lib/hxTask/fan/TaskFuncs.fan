@@ -26,7 +26,7 @@ const class TaskFuncs
   static Task? task(Obj? id, Bool checked := true)
   {
     if (id is Task) return (Task)id
-    return lib(curContext).task(HxUtil.toId(id), checked)
+    return lib(curContext).task(Etc.toId(id), checked)
   }
 
   ** List the current tasks as a grid.
@@ -320,7 +320,7 @@ const class TaskFuncs
   static Obj? taskDoSendAction(Obj taskIds, Str msg)
   {
     msgDict := TrioReader(msg.in).readDict(false) ?: Etc.emptyDict
-    tasks := (Task[])HxUtil.toIds(taskIds).map |id->Task| { toTask(id) }
+    tasks := (Task[])Etc.toIds(taskIds).map |id->Task| { toTask(id) }
     futures := (Future[])tasks.map |task| { taskSend(task, msgDict) }
     return "Sent to $tasks.size tasks"
   }

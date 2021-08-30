@@ -202,25 +202,25 @@ class CoreFuncsTest : HxTest
     cx := makeContext
     if (expected != null)
     {
-      actual := HxUtil.toId(val)
+      actual := Etc.toId(val)
       verifyEq(actual, expected)
-      verifyEq(HxUtil.toIds(val), Ref[expected])
+      verifyEq(Etc.toIds(val), Ref[expected])
       verifyEq(cx.evalToFunc("toRecId").call(cx, [val]), expected)
       verifyEq(cx.evalToFunc("toRecIdList").call(cx, [val]), Ref[expected])
     }
     else
     {
-      verifyErr(Err#) { HxUtil.toId(val) }
+      verifyErr(CoerceErr#) { Etc.toId(val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toRecId").call(cx, [val]) }
       if (val is Ref[])
       {
-        verifyEq(HxUtil.toIds(val), val)
+        verifyEq(Etc.toIds(val), val)
         verifyEq(cx.evalToFunc("toRecIdList").call(cx, [val]), val)
       }
       else
       {
         verifyErr(EvalErr#) { cx.evalToFunc("toRecIdList").call(cx, [val]) }
-        verifyErr(Err#) { HxUtil.toIds(val) }
+        verifyErr(CoerceErr#) { Etc.toIds(val) }
       }
     }
   }
@@ -230,14 +230,14 @@ class CoreFuncsTest : HxTest
     cx := makeContext
     if (expected != null)
     {
-      actual := HxUtil.toIds(val)
+      actual := Etc.toIds(val)
       verifyEq(actual, expected)
-      verifyEq(HxUtil.toIds(val), expected)
+      verifyEq(Etc.toIds(val), expected)
       verifyEq(cx.evalToFunc("toRecIdList").call(cx, [val]), expected)
     }
     else
     {
-      verifyErr(Err#) { HxUtil.toIds(val) }
+      verifyErr(CoerceErr#) { Etc.toIds(val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toRecIds").call(cx, [val]) }
     }
   }
@@ -245,41 +245,43 @@ class CoreFuncsTest : HxTest
   Void verifyToRec(Obj? val, Dict? expected)
   {
     cx := makeContext
-    db := cx.db
+    Actor.locals[Etc.cxActorLocalsKey] = cx
     if (expected != null)
     {
-      actual := HxUtil.toRec(db, val)
+      actual := Etc.toRec(val)
       verifyDictEq(actual, expected)
       verifyDictEq(cx.evalToFunc("toRec").call(cx, [val]), expected)
     }
     else
     {
       if (val is Ref || (val as List)?.first is Ref)
-        verifyErr(UnknownRecErr#) { HxUtil.toRec(db, val) }
+        verifyErr(UnknownRecErr#) { Etc.toRec(val) }
       else
-        verifyErr(Err#) { HxUtil.toRec(db, val) }
+        verifyErr(CoerceErr#) { Etc.toRec(val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toRec").call(cx, [val]) }
     }
+    Actor.locals.remove(Etc.cxActorLocalsKey)
   }
 
   Void verifyToRecs(Obj? val, Dict[]? expected)
   {
     cx := makeContext
-    db := cx.db
+    Actor.locals[Etc.cxActorLocalsKey] = cx
     if (expected != null)
     {
-      actual := HxUtil.toRecs(db, val)
+      actual := Etc.toRecs(val)
       verifyDictsEq(actual, expected)
       verifyDictsEq(cx.evalToFunc("toRecList").call(cx, [val]), expected)
     }
     else
     {
       if (val is Ref || (val as List)?.first is Ref)
-        verifyErr(UnknownRecErr#) { HxUtil.toRecs(db, val) }
+        verifyErr(UnknownRecErr#) { Etc.toRecs(val) }
       else
-        verifyErr(Err#) { HxUtil.toRecs(db, val) }
+        verifyErr(CoerceErr#) { Etc.toRecs(val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toRecList").call(cx, [val]) }
     }
+    Actor.locals.remove(Etc.cxActorLocalsKey)
   }
 
 //////////////////////////////////////////////////////////////////////////
