@@ -245,18 +245,19 @@ class CoreFuncsTest : HxTest
   Void verifyToRec(Obj? val, Dict? expected)
   {
     cx := makeContext
+    db := cx.db
     if (expected != null)
     {
-      actual := HxUtil.toRec(rt, val)
+      actual := HxUtil.toRec(db, val)
       verifyDictEq(actual, expected)
       verifyDictEq(cx.evalToFunc("toRec").call(cx, [val]), expected)
     }
     else
     {
       if (val is Ref || (val as List)?.first is Ref)
-        verifyErr(UnknownRecErr#) { HxUtil.toRec(rt, val) }
+        verifyErr(UnknownRecErr#) { HxUtil.toRec(db, val) }
       else
-        verifyErr(Err#) { HxUtil.toRec(rt, val) }
+        verifyErr(Err#) { HxUtil.toRec(db, val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toRec").call(cx, [val]) }
     }
   }
@@ -264,18 +265,19 @@ class CoreFuncsTest : HxTest
   Void verifyToRecs(Obj? val, Dict[]? expected)
   {
     cx := makeContext
+    db := cx.db
     if (expected != null)
     {
-      actual := HxUtil.toRecs(rt, val)
+      actual := HxUtil.toRecs(db, val)
       verifyDictsEq(actual, expected)
       verifyDictsEq(cx.evalToFunc("toRecList").call(cx, [val]), expected)
     }
     else
     {
       if (val is Ref || (val as List)?.first is Ref)
-        verifyErr(UnknownRecErr#) { HxUtil.toRecs(rt, val) }
+        verifyErr(UnknownRecErr#) { HxUtil.toRecs(db, val) }
       else
-        verifyErr(Err#) { HxUtil.toRecs(rt, val) }
+        verifyErr(Err#) { HxUtil.toRecs(db, val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toRecList").call(cx, [val]) }
     }
   }
@@ -291,7 +293,7 @@ class CoreFuncsTest : HxTest
 
     // diff only - add
     Diff? d
-    verifyEvalErr("""diff(null, {dis:"test", age:33})""", ArgErr#)
+    verifyEvalErr("""diff(null, {dis:"test", age:33})""", DiffErr#)
     verifyEvalErr("""diff({}, {dis:"test", age:33}, {add})""", ArgErr#)
     d = eval("""diff(null, {dis:"test", age:33}, {add})""")
     verifyDictEq(d.changes, ["dis":"test", "age":n(33)])

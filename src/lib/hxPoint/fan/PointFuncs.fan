@@ -85,7 +85,7 @@ const class PointFuncs
     if (level == null) throw ArgErr("level arg is null")
     if (who == null) who = cx.user.dis
     if (opts == null) opts = Etc.emptyDict
-    return lib(cx).writeMgr.write(HxUtil.toRec(cx.rt, point), val, level.toInt, who, opts).get(timeout)
+    return lib(cx).writeMgr.write(HxUtil.toRec(cx.db, point), val, level.toInt, who, opts).get(timeout)
   }
 
   **
@@ -142,7 +142,7 @@ const class PointFuncs
   {
     cx := curContext
     lib := lib(cx)
-    rec := pt == null ? Etc.emptyDict : HxUtil.toRec(cx.rt, pt)
+    rec := pt == null ? Etc.emptyDict : HxUtil.toRec(cx.db, pt)
     return PointConvert.fromStr(convert).convert(lib, rec, val)
   }
 
@@ -151,7 +151,7 @@ const class PointFuncs
   static Str pointDetails(Obj point)
   {
     cx  := curContext
-    rec := HxUtil.toRec(cx.rt, point)
+    rec := HxUtil.toRec(cx.db, point)
     return PointUtil.pointDetails(lib(cx), rec, true)
   }
 
