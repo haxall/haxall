@@ -154,10 +154,11 @@ class WriteTest : HxTest
     }
 
     // verify no events received before steady state
-    verifyEq(rt.isSteadyState, false)
-    eval("pointWrite($x.id.toCode, 987, 16, \"test-16\")")
     try
     {
+      verifyEq(rt.isSteadyState, false)
+      eval("pointWrite($x.id.toCode, 987, 16, \"test-16\")")
+
       verifyObs(obsA, x, null, -1, "")
       verifyObs(obsB, x, null, -1, "")
       verifyObs(obsX, x, null, -1, "")
@@ -165,8 +166,12 @@ class WriteTest : HxTest
     }
     catch (TestErr e)
     {
-      if (rt.isSteadyState) echo("***WARN*** reached steady state before expected")
-      else throw e
+      if (rt.isSteadyState)
+      {
+        echo("***WARN*** reached steady state before expected")
+        return null
+      }
+      throw e
     }
 
     while (!rt.isSteadyState) Actor.sleep(10ms)
