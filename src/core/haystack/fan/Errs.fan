@@ -10,8 +10,7 @@
 ** UnknownNameErr is thrown when `Dict.trap` or `Grid.col` fails
 ** to resolve a name.
 **
-@Js
-const class UnknownNameErr : Err
+@Js const class UnknownNameErr : Err
 {
   ** Construct with message and optional cause.
   new make(Str? msg, Err? cause := null) : super(msg, cause) {}
@@ -48,8 +47,7 @@ const class UnknownNameErr : Err
 **
 ** UnknownKindErr when a Kind cannot be resolved or parsed
 **
-@Js
-const class UnknownRecErr : Err
+@Js const class UnknownRecErr : Err
 {
   ** Construct with message and optional cause.
   new make(Str? msg, Err? cause := null) : super(msg, cause) {}
@@ -58,8 +56,7 @@ const class UnknownRecErr : Err
 **
 ** Invalid lookup for kind
 **
-@Js @NoDoc
-const class UnknownKindErr : Err
+@Js @NoDoc const class UnknownKindErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
@@ -67,8 +64,7 @@ const class UnknownKindErr : Err
 **
 ** Invalid lookup for tag definition
 **
-@Js @NoDoc
-const class UnknownTagErr : Err
+@Js @NoDoc const class UnknownTagErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
@@ -104,8 +100,7 @@ const class UnknownTagErr : Err
 **
 ** UnitErr indicates an operation between two incompatible units
 **
-@Js
-const class UnitErr : Err
+@Js const class UnitErr : Err
 {
   ** Construct with message and optional cause.
   new make(Str? msg, Err? cause := null) : super(msg, cause) {}
@@ -114,8 +109,7 @@ const class UnitErr : Err
 **
 ** DependErr indicates a missing dependency
 **
-@Js
-const class DependErr : Err
+@Js const class DependErr : Err
 {
   ** Construct with message and optional cause.
   new make(Str? msg, Err? cause := null) : super(msg, cause) {}
@@ -125,8 +119,7 @@ const class DependErr : Err
 ** CallErr is raised when a server returns an error grid from
 ** a client call to a REST operation.
 **
-@Js
-const class CallErr : Err
+@Js const class CallErr : Err
 {
   @NoDoc new make(Grid errGrid) : super(errGrid.meta.dis)
   {
@@ -158,8 +151,7 @@ const class DisabledErr : Err
 **
 ** FaultErr indicates a software or configuration problem
 **
-@Js
-const class FaultErr : Err
+@Js const class FaultErr : Err
 {
   ** Construct with message and optional cause
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
@@ -168,10 +160,17 @@ const class FaultErr : Err
 **
 ** DownErr indicates a communications or networking problem
 **
-@Js
-const class DownErr : Err
+@Js const class DownErr : Err
 {
   ** Construct with message and optional cause
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+
+**
+** CoerceErr indicates an invalid argument type to a type coercion
+**
+@Js @NoDoc const class CoerceErr : Err
+{
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
@@ -188,8 +187,7 @@ const class DownErr : Err
 ** ValidateErr when a validation fails.  The msg should
 ** be localized for display to users.
 **
-@Js
-const class ValidateErr : Err
+@Js const class ValidateErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
