@@ -31,11 +31,17 @@ class Client
     uri = uri.plusSlash
 
     // init options
-    log     := opts?.get("log") as Log ?: Log.get("client")
-    timeout := opts?.get("timeout", opts?.get("receiveTimeout")) as Duration ?: 1min
+    log  := opts?.get("log") as Log ?: Log.get("client")
+
+    // check for socket config option, otherwise fallback to setting timeouts
+    SocketConfig? socketConfig := opts?.get("socketConfig") as SocketConfig
+    if (socketConfig == null)
+    {
+      timeout := opts?.get("timeout", opts?.get("receiveTimeout")) as Duration ?: 1min
+      socketConfig = SocketConfig.cur.setTimeouts(timeout)
+    }
 
     // use reflection to delegate to auth::AuthClientContext
-    socketConfig := SocketConfig.cur.setTimeouts(timeout)
     auth := Slot.findMethod("auth::AuthClientContext.open").call(uri+`about`, username, password, log, socketConfig)
 
     return make(uri, log, auth)
