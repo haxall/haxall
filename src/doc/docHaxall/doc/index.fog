@@ -10,7 +10,8 @@
 "Getting Started",
   [`Setup`,      "Help on getting Haxall up and running"],
 "Architecture",
-  [`Runtime`,    "Runtime lifecycle"],
+  [`Architecture`,  "Overview of the software architecture"],
+  [`Runtime`,       "Runtime lifecycle"],
 "Appendix",
   [`ChangeLog`,  "List of changes in each build"]
 ]

@@ -1,0 +1,19 @@
+**************************************************************************
+** title:      Architecture
+** author:     Brian Frank
+** created:    31 Aug 2021
+** copyright:  Copyright (c) 2021, SkyFoundry LLC
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+Haxall is an open source software framework for the [Internet of Things]`http://en.wikipedia.org/wiki/Internet_of_Things`.
+It includes an extensive toolkit for working with [Project Haystack]`https://project-haystack.org`
+data. Use it right out of the box as a flexible IoT data gateway which runs
+at the edge. Haxall is written in [Fantom]`https://fantom.org` with runtime
+support for both the Java VM and JavaScript environments.
+
+Software Stack [#stack]
+****************************
+![haystack stack]`haxall-stack.svg`
