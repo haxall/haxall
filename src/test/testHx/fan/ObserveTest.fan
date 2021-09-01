@@ -421,6 +421,7 @@ class ObserveTest : HxTest
 
     x := TestObserver(); xs := rt.obs.get("obsCurVals").subscribe(x, Etc.emptyDict)
     y := TestObserver(); ys := rt.obs.get("obsCurVals").subscribe(y, Etc.makeDict1("obsFilter", "foo"))
+    verifyEq(xs.observable.name, "obsCurVals")
     clear := |->| { x.clear; y.clear }
 
     verifyCurVals(x, a1, null)
@@ -469,6 +470,62 @@ class ObserveTest : HxTest
     verifyDictEq(actual->newRec, newRec)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// HisWrites
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testHisWrites()
+  {
+    tz := TimeZone("New_York")
+    a := addRec(["dis":"A", "foo":m, "point":m, "his":m, "kind":"Number", "tz":tz.name])
+    b := addRec(["dis":"B", "bar":m, "point":m, "his":m, "kind":"Number", "tz":tz.name])
+
+    x := TestObserver(); xs := rt.obs.get("obsHisWrites").subscribe(x, Etc.emptyDict)
+    y := TestObserver(); ys := rt.obs.get("obsHisWrites").subscribe(y, Etc.makeDict1("obsFilter", "foo"))
+    verifyEq(xs.observable.name, "obsHisWrites")
+    clear := |->| { x.clear; y.clear }
+
+    verifyHisWrites(x, a, -1, null, null)
+    verifyHisWrites(y, a, -1, null, null)
+
+    date := Date("2021-08-30")
+    ts1 := date.toDateTime(Time("00:01:00"), tz)
+    items := [HisItem(ts1, n(1))]
+    rt.db.his.write(a.id, items)
+
+    verifyHisWrites(x, a, 1, ts1, ts1)
+    verifyHisWrites(y, a, 1, ts1, ts1)
+
+    clear()
+    ts2 := date.toDateTime(Time("00:02:00"), tz)
+    ts3 := date.toDateTime(Time("00:03:00"), tz)
+    items = [HisItem(ts1, n(1)), HisItem(ts2, n(2)), HisItem(ts3, n(3)), HisItem(ts3, n(4))] // dup ts3
+    rt.db.his.write(b.id, items)
+
+    verifyHisWrites(x, b, 3, ts1, ts3)
+    verifyHisWrites(y, b, -1, null, null)
+  }
+
+  private Void verifyHisWrites(TestObserver o, Dict rec, Int count, DateTime? start, DateTime? end)
+  {
+    rt.sync
+    Dict? actual := o.sync
+    rec = rt.db.readById(rec.id)
+    // echo("\n-- verifyHisWrites")
+    // if (actual != null) Etc.dictDump(actual)
+    if (start == null)
+    {
+      verifyNull(actual)
+      return
+    }
+
+    verifyEq(actual->type, "obsHisWrites")
+    verifyRefEq(actual.id, rec.id)
+    verifyDictEq(actual->rec, rec)
+    verifyEq(actual->count, n(count))
+    verifyEq(actual->span, Span(start, end))
+  }
 }
 
 **************************************************************************

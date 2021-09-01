@@ -147,7 +147,7 @@ internal const class IndexMgr : HxFolioMgr
     result := Etc.makeDict2("count", Number(toWrite.size), "span", span)
 
     // fire hooks event
-    folio.hooks.postHisWrite(result)
+    folio.hooks.postHisWrite(rec.dict, result)
 
     return HisWriteFolioRes(result)
 
