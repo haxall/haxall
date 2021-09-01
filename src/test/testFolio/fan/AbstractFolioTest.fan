@@ -99,6 +99,19 @@ class AbstractFolioTest : HaystackTest
     return open(config)
   }
 
+  Bool isHisSupported()
+  {
+    try
+    {
+      folio.his
+      return true
+    }
+    catch (UnsupportedErr e)
+    {
+      return false
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Folio Utils
 //////////////////////////////////////////////////////////////////////////

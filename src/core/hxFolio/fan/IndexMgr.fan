@@ -142,7 +142,15 @@ internal const class IndexMgr : HxFolioMgr
     // update hisSize, hisStart, hisEnd tags
     rec.hisUpdate(newItems)
 
-    return HisWriteFolioRes(Etc.makeDict1("count", Number(toWrite.size)))
+    // compute result
+    span := Span(toWrite.first.ts, toWrite.last.ts)
+    result := Etc.makeDict2("count", Number(toWrite.size), "span", span)
+
+    // fire hooks event
+    folio.hooks.postHisWrite(result)
+
+    return HisWriteFolioRes(result)
+
   }
 
   private Int hisMaxItems(Dict rec)
