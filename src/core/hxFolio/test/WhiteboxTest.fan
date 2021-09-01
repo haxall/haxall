@@ -113,35 +113,3 @@ abstract class WhiteboxTest : HaystackTest
 
 }
 
-**************************************************************************
-** TestHooks
-**************************************************************************
-
-internal const class TestHooks : FolioHooks
-{
-  Diff[] pres() { presRef.val }
-  const AtomicRef presRef := AtomicRef(Diff#.emptyList)
-
-  Diff[] posts() { postsRef.val }
-  const AtomicRef postsRef := AtomicRef(Diff#.emptyList)
-
-  const AtomicRef cxInfoRef := AtomicRef()
-
-  Void clear() { presRef.val = postsRef.val = Diff#.emptyList }
-
-  override Namespace? ns(Bool checked := true) { throw UnsupportedErr() }
-
-  override Void preCommit(Diff diff, Obj? cxInfo)
-  {
-    cxInfoRef.val = cxInfo
-    presRef.val = pres.dup.add(diff).toImmutable
-    if (diff.changes.has("throw")) throw IOErr()
-  }
-
-  override Void postCommit(Diff diff, Obj? cxInfo)
-  {
-    cxInfoRef.val = cxInfo
-    postsRef.val = posts.dup.add(diff).toImmutable
-  }
-
-}

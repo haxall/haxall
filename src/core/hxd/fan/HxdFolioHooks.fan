@@ -87,4 +87,9 @@ const class HxdFolioHooks : FolioHooks
 
     rt.obs.commit(diff, user)
   }
+
+  ** Callback after his write.  Result is same dict returned from future.
+  override Void postHisWrite(Dict result)
+  {
+  }
 }

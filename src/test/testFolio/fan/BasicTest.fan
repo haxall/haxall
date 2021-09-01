@@ -559,11 +559,11 @@ class BasicTest : AbstractFolioTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Tracker
+// Hooks
 //////////////////////////////////////////////////////////////////////////
 
-  Void testTracker() { allImpls }
-  Void doTestTracker()
+  Void testHooks() { allImpls }
+  Void doTestHooks()
   {
     open
     cx := TestContext("user")
@@ -577,31 +577,49 @@ class BasicTest : AbstractFolioTest
     diffs := folio.commitAll([aPre, bPre])
     aPost := diffs[0]
     bPost := diffs[1]
-    verifyTracker(t, cx, [aPre, bPre], [aPost, bPost])
+    verifyHooks(t, cx, [aPre, bPre], [aPost, bPost])
 
     cPre := Diff(aPost.newRec, ["change":"!"])
     cPost := folio.commit(cPre)
-    verifyTracker(t, cx, [aPre, bPre, cPre], [aPost, bPost, cPost])
+    verifyHooks(t, cx, [aPre, bPre, cPre], [aPost, bPost, cPost])
 
     dPre := Diff(bPost.newRec, null, Diff.remove)
     dPost := folio.commit(dPre)
-    verifyTracker(t, cx, [aPre, bPre, cPre, dPre], [aPost, bPost, cPost, dPost])
+    verifyHooks(t, cx, [aPre, bPre, cPre, dPre], [aPost, bPost, cPost, dPost])
 
     ePre := Diff(cPost.newRec, ["another":"!"], Diff.transient)
     ePost := folio.commit(ePre)
-    verifyTracker(t, cx, [aPre, bPre, cPre, dPre, ePre], [aPost, bPost, cPost, dPost, ePost])
+    verifyHooks(t, cx, [aPre, bPre, cPre, dPre, ePre], [aPost, bPost, cPost, dPost, ePost])
 
     xPre := Diff.makeAdd(["dis":"x"])
     yPre := Diff.makeAdd(["dis":"y", "throw":m])
     verifyErr(IOErr#) { folio.commitAll([xPre, yPre]) }
-    verifyTracker(t, cx, [aPre, bPre, cPre, dPre, ePre, xPre, yPre], [aPost, bPost, cPost, dPost, ePost])
+    verifyHooks(t, cx, [aPre, bPre, cPre, dPre, ePre, xPre, yPre], [aPost, bPost, cPost, dPost, ePost])
     verifyEq(folio.readCount(Filter("dis==\"x\"")), 0)
     verifyEq(folio.readCount(Filter("dis==\"y\"")), 0)
+
+    if (isHisSupported)
+    {
+      tz := TimeZone("New_York")
+      pt := folio.commit(Diff.makeAdd(["dis":"pt", "his":m, "point":m, "tz":tz.name, "kind":"Number"])).newRec
+      date := Date("2021-08-30")
+      ts1 := date.toDateTime(Time("00:00:00"), tz)
+      ts2 := date.toDateTime(Time("01:00:00"), tz)
+      items := [HisItem(ts1, n(1)), HisItem(ts2, n(2))]
+
+      verifyEq(t.hisWrites.size, 0)
+      Dict res := folio.his.write(pt.id, items).get
+      verifyEq(t.hisWrites.size, 1)
+      verifyEq(res["count"], n(2))
+      verifyEq(res["span"], Span(ts1, ts2))
+      verifySame(t.hisWrites[0], res)
+      verifySame(t.cxInfoRef.val, cx.commitInfo)
+    }
 
     Actor.locals.remove(Etc.cxActorLocalsKey)
   }
 
-  internal Void verifyTracker(TestHooks t, FolioContext cx, Diff[] preExpected, Diff[] postExpected)
+  internal Void verifyHooks(TestHooks t, FolioContext cx, Diff[] preExpected, Diff[] postExpected)
   {
     verifySame(t.cxInfoRef.val, cx.commitInfo)
 
@@ -643,6 +661,9 @@ internal const class TestHooks : FolioHooks
   Diff[] posts() { postsRef.val }
   const AtomicRef postsRef := AtomicRef(Diff#.emptyList)
 
+  Dict[] hisWrites() { hisWritesRef.val }
+  const AtomicRef hisWritesRef := AtomicRef(Dict#.emptyList)
+
   const AtomicRef cxInfoRef := AtomicRef()
 
   override Namespace? ns(Bool checked := true) { throw UnsupportedErr() }
@@ -658,6 +679,11 @@ internal const class TestHooks : FolioHooks
   {
     cxInfoRef.val = cxInfo
     postsRef.val = posts.dup.add(diff).toImmutable
+  }
+
+  override Void postHisWrite(Dict result)
+  {
+    hisWritesRef.val = hisWrites.dup.add(result).toImmutable
   }
 }
 

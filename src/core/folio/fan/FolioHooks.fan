@@ -28,6 +28,10 @@ const mixin FolioHooks
   ** Callback after diff has been committed.
   ** Pass through FolioContext.commitInfo if available.
   abstract Void postCommit(Diff diff, Obj? cxInfo)
+
+  ** Callback after his write.  Result is same dict returned from future.
+  ** There is no cxInfo since his writes may be coalesced.
+  abstract Void postHisWrite(Dict result)
 }
 
 **************************************************************************
@@ -42,6 +46,7 @@ internal const class NilHooks : FolioHooks
   override Namespace? ns(Bool checked := true) { if (checked) throw UnsupportedErr("Namespace not availble"); return null }
   override Void preCommit(Diff d, Obj? cxInfo) {}
   override Void postCommit(Diff d, Obj? cxInfo) {}
+  override Void postHisWrite(Dict result) {}
 }
 
 
