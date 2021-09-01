@@ -124,6 +124,11 @@ const class HxdObsService : Actor, HxObsService
     if (curVals.hasSubscriptions) send(HxMsg("curVal", diff))
   }
 
+  Void hisWrite(Dict rec, Dict result)
+  {
+    if (hisWrites.hasSubscriptions) send(HxMsg("hisWrite", rec, result))
+  }
+
   override Obj? receive(Obj? msgObj)
   {
     try
@@ -131,10 +136,11 @@ const class HxdObsService : Actor, HxObsService
       msg := (HxMsg)msgObj
       switch (msg.id)
       {
-        case "commit": return onCommit(msg.a, msg.b)
-        case "curVal": return onCurVal(msg.a)
-        case "sync":   return onSync
-        default:       return null
+        case "commit":   return onCommit(msg.a, msg.b)
+        case "curVal":   return onCurVal(msg.a)
+        case "hisWrite": return onHisWrite(msg.a, msg.b)
+        case "sync":     return onSync
+        default:         return null
       }
     }
     catch (Err e)
@@ -163,18 +169,6 @@ const class HxdObsService : Actor, HxObsService
       {
         sendAdded(sub, diff, oldRec, newRec, user)
       }
-    }
-    return null
-  }
-
-  private Obj? onCurVal(Diff diff)
-  {
-    oldRec := toDiffRec(diff.oldRec)
-    newRec := toDiffRec(diff.newRec)
-    event  := CommitObservation(curVals, CommitObservationAction.updated, rt.now, diff.id, oldRec, newRec, null)
-    curVals.subscriptions.each |CurValsSubscription sub|
-    {
-      if (sub.include(newRec)) sub.send(event)
     }
     return null
   }
@@ -214,6 +208,35 @@ const class HxdObsService : Actor, HxObsService
       event := CommitObservation(commits, CommitObservationAction.added, rt.now, rec.id, Etc.emptyDict, rec, null)
       sub.send(event)
     }
+  }
+
+  private Obj? onCurVal(Diff diff)
+  {
+    oldRec := toDiffRec(diff.oldRec)
+    newRec := toDiffRec(diff.newRec)
+    event  := CommitObservation(curVals, CommitObservationAction.updated, rt.now, diff.id, oldRec, newRec, null)
+    curVals.subscriptions.each |CurValsSubscription sub|
+    {
+      if (sub.include(newRec)) sub.send(event)
+    }
+    return null
+  }
+
+  private Obj? onHisWrite(Dict rec, Dict result)
+  {
+    count := result["count"] as Number
+    span  := result["span"] as Span
+    if (count == null || span == null)
+    {
+      log.warn("HxdObsService.onHisWrite invalid result: $result")
+      return null
+    }
+    event := HisWriteObservation(hisWrites, rt.now, rec.id, rec, count, span)
+    hisWrites.subscriptions.each |HisWritesSubscription sub|
+    {
+      if (sub.include(rec)) sub.send(event)
+    }
+    return null
   }
 
   private Obj? onSync()

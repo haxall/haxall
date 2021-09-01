@@ -681,7 +681,7 @@ internal const class TestHooks : FolioHooks
     postsRef.val = posts.dup.add(diff).toImmutable
   }
 
-  override Void postHisWrite(Dict result)
+  override Void postHisWrite(Dict rec, Dict result)
   {
     hisWritesRef.val = hisWrites.dup.add(result).toImmutable
   }
