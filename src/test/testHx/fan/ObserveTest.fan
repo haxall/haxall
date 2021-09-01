@@ -513,7 +513,7 @@ class ObserveTest : HxTest
     Dict? actual := o.sync
     rec = rt.db.readById(rec.id)
     // echo("\n-- verifyHisWrites")
-    // if (actual != null) Etc.dictDump(actual)
+    // if (actual != null) Etc.dictDump(actual->rec)
     if (start == null)
     {
       verifyNull(actual)
@@ -522,7 +522,7 @@ class ObserveTest : HxTest
 
     verifyEq(actual->type, "obsHisWrites")
     verifyRefEq(actual.id, rec.id)
-    verifyDictEq(actual->rec, rec)
+    verifyEq(actual->rec->dis, rec.dis) // no guarantee hisStart, etc synced
     verifyEq(actual->count, n(count))
     verifyEq(actual->span, Span(start, end))
   }
