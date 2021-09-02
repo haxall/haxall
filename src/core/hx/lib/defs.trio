@@ -33,7 +33,7 @@ doc: "Flags string"
 --------------------------------------------------------------------------
 def: ^mod
 is: ^dateTime
-doc: "Last modified time of record - see [docSkySpark]`docSkySpark::Folio#concurrency`."
+doc: "Last modified time of record - see [docSkySpark]`docHaxall::Folio#concurrency`."
 --------------------------------------------------------------------------
 def: ^multiLine
 is: ^marker

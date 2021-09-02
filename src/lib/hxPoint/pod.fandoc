@@ -38,7 +38,7 @@ its error state for 'curStatus'.
 Because the current value might be changing several times a second, the tags
 above are managed transiently.  This means they are not written to disk,
 nor persisted between server restarts.  Changes to these tags are written
-to Folio using [transient diffs]`docSkySpark::Folio#transientDiffs`.
+to Folio using [transient diffs]`docHaxall::Folio#transientDiffs`.
 
 The current value of points are synchronized one of two ways:
   - one-time synchronization is made using the connectors 'fooSyncCur()' function
@@ -94,7 +94,7 @@ following tags are transiently updated:
 Because the write value might be changing several times a second, the tags
 above are managed transiently.  This means they are not written to disk,
 nor persisted between server restarts.  Changes to these tags are written
-to Folio using [transient diffs]`docSkySpark::Folio#transientDiffs`.  They
+to Folio using [transient diffs]`docHaxall::Folio#transientDiffs`.  They
 are recalculated on reboot.
 
 Level 1, level 8, and default are special in that they are persistent.
