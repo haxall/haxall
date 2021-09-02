@@ -10,12 +10,12 @@
 def: ^observes
 is: ^choice
 of: ^observable
-doc: "Observable subscription - see [docs]`docSkySpark::Observables`"
+doc: "Observable subscription - see [docs]`docHaxall::Observables`"
 --------------------------------------------------------------------------
 def: ^observable
 is: ^marker
 docTaxonomy
-doc: "Observable subscription - see [docs]`docSkySpark::Observables`"
+doc: "Observable subscription - see [docs]`docHaxall::Observables`"
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////

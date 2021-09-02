@@ -109,13 +109,13 @@ to force an immediate cache refresh.
 
 Subscriptions [#subscriptions]
 ******************************
-Tasks may subscribe to an [observable]`docSkySpark::Observables`.  Subscribed
+Tasks may subscribe to an [observable]`docHaxall::Observables`.  Subscribed
 tasks receive observations from the observable as their messages to process.
 
 Tasks subscribe to an observable by applying one of the following marker tags:
-  - [obsSchedule]`docSkySpark::Observables#obsSchedule`: schedule task execution
-  - [obsCommits]`docSkySpark::Observables#obsCommits`: listen for Folio record commits
-  - [obsSparks]`docSkySpark::Observables#obsSparks`: listen for new sparks
+  - [obsSchedule]`docHaxall::Observables#obsSchedule`: schedule task execution
+  - [obsCommits]`docHaxall::Observables#obsCommits`: listen for Folio record commits
+  - [obsSparks]`docHaxall::Observables#obsSparks`: listen for new sparks
 
 Additional observable configuration tags are configured as tags on the task
 itself.  Use the Task|Debug view to check the current status of your
