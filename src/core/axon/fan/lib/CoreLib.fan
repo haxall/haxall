@@ -54,7 +54,7 @@ const class CoreLib
   ** The get function maybe be accessed using the '[]' shortcut operator:
   **    list[3]  >>  list.get(3)
   **
-  ** See `docSkySpark::AxonLang#getAndTrap`.
+  ** See `docHaxall::AxonLang#getAndTrap`.
   @Axon static Obj? get(Obj? val, Obj? key)
   {
     if (val is Dict) return ((Dict)val).get(key)
@@ -116,7 +116,7 @@ const class CoreLib
   ** if the collection is empty:
   **   - list: item at index 0
   **   - grid: first frow
-  **   - stream: first item; see `docSkySpark::Streams#first`
+  **   - stream: first item; see `docHaxall::Streams#first`
   @Axon static Obj? first(Obj? val)
   {
     if (val is MStream) return FirstStream(val).run
@@ -127,7 +127,7 @@ const class CoreLib
   ** if the collection is empty:
   **   - list: item at index -1
   **   - grid: item at index -1
-  **   - stream: last item; see `docSkySpark::Streams#last`
+  **   - stream: last item; see `docHaxall::Streams#last`
   @Axon static Obj? last(Obj? val)
   {
     if (val is MStream) return LastStream(val).run
@@ -251,7 +251,7 @@ const class CoreLib
   **   - Grid: stream the rows
   **   - List: stream the items
   **   - Range: stream inclusive range of integers
-  ** See `docSkySpark::Streams#stream`.
+  ** See `docHaxall::Streams#stream`.
   @Axon static Obj stream(Obj? val)
   {
     if (val is Grid) return GridStream(val)
@@ -261,21 +261,21 @@ const class CoreLib
   }
 
   ** Collect stream into a in-memory list or grid.
-  ** See `docSkySpark::Streams#collect`.
+  ** See `docHaxall::Streams#collect`.
   @Axon static Obj collect(Obj? stream, Fn? to := null)
   {
     CollectStream(stream, to).run
   }
 
   ** Truncate stream after given limit is reached.
-  ** See `docSkySpark::Streams#limit`.
+  ** See `docHaxall::Streams#limit`.
   @Axon static Obj limit(Obj? stream, Number limit)
   {
     LimitStream(stream, limit.toInt)
   }
 
   ** Skip the given number of items in a stream.
-  ** See `docSkySpark::Streams#skip`.
+  ** See `docHaxall::Streams#skip`.
   @Axon static Obj skip(Obj? stream, Number count)
   {
     c := count.toInt
@@ -313,7 +313,7 @@ const class CoreLib
   **   - List: iterate the items as (value, index)
   **   - Dict: iterate the name/value pairs (value, name)
   **   - Range: iterate the integer range (integer)
-  **   - Stream: iterate items as (val); see `docSkySpark::Streams#each`
+  **   - Stream: iterate items as (val); see `docHaxall::Streams#each`
   @Axon static Obj? each(Obj val, Fn fn)
   {
     if (val is MStream) return EachStream(val, fn).run
@@ -332,7 +332,7 @@ const class CoreLib
   **   - List: iterate the items as (val, index)
   **   - Dict: iterate the name/value pairs (val, name)
   **   - Range: iterate the integer range (integer)
-  **   - Stream: iterate items as (val); see `docSkySpark::Streams#eachWhile`
+  **   - Stream: iterate items as (val); see `docHaxall::Streams#eachWhile`
   @Axon static Obj? eachWhile(Obj val, Fn fn)
   {
     if (val is MStream) return EachWhileStream(val, fn).run
@@ -364,7 +364,7 @@ const class CoreLib
   ** returns a list for each mapped integer inte the range.
   **
   ** If mapping a stream, the mapping functions takes '(val)'.
-  ** See `docSkySpark::Streams#map`.
+  ** See `docHaxall::Streams#map`.
   @Axon static Obj? map(Obj val, Fn fn)
   {
     if (val is MStream) return MapStream(val, fn)
@@ -388,7 +388,7 @@ const class CoreLib
   ** See `haystack::Grid.flatMap`.
   **
   ** If mapping a stream, the mapping functions takes '(val)'.
-  ** See `docSkySpark::Streams#flatMap`.
+  ** See `docHaxall::Streams#flatMap`.
   @Axon static Obj? flatMap(Obj val, Fn fn)
   {
     if (val is MStream) return FlatMapStream(val, fn)
@@ -413,7 +413,7 @@ const class CoreLib
   ** or '(row, index)' and returns true to match and return the row.
   **
   ** If working with a stream, the filter takes '(val)' and returns
-  ** true to match.  See `docSkySpark::Streams#find`.
+  ** true to match.  See `docHaxall::Streams#find`.
   @Axon static Obj? find(Obj val, Fn fn)
   {
     if (val is MStream) return FindStream(val, fn).run
@@ -439,7 +439,7 @@ const class CoreLib
   ** resulting grid shares the original's grid meta and columns.
   **
   ** If working with a stream, the filter takes '(val)' and returns
-  ** true to match.  See `docSkySpark::Streams#findAll`.
+  ** true to match.  See `docHaxall::Streams#findAll`.
   @Axon static Obj? findAll(Obj val, Fn fn)
   {
     if (val is MStream) return FindAllStream(val, fn)
@@ -463,7 +463,7 @@ const class CoreLib
   ** or '(row, index)' and returns true or false.
   **
   ** If working with a stream, then function takes '(val)'
-  ** and returns true or false.  See `docSkySpark::Streams#all`.
+  ** and returns true or false.  See `docHaxall::Streams#all`.
   **
   ** Examples:
   **   [1, 3, 5].all v => v.isOdd  >>  true
@@ -491,7 +491,7 @@ const class CoreLib
   ** or '(row, index)' and returns true or false.
   **
   ** If working with a stream, then function takes '(val)'
-  ** and returns true or false.  See `docSkySpark::Streams#any`.
+  ** and returns true or false.  See `docHaxall::Streams#any`.
   **
   ** Examples:
   **   [1, 3, 5].any v => v.isOdd  >>  true
@@ -520,7 +520,7 @@ const class CoreLib
   ** and returns accumulation value
   **
   ** If working with a stream, then function takes '(acc, val)'
-  ** and returns accumulation value  See `docSkySpark::Streams#reduce`.
+  ** and returns accumulation value  See `docHaxall::Streams#reduce`.
   **
   ** Examples:
   **   [2, 5, 3].reduce(0, (acc, val)=>acc+val)  >> 10
@@ -678,7 +678,7 @@ const class CoreLib
   **   2. Call 'fn(item, acc)' for every item, return new accumulator state
   **   3. Call 'fn(foldEnd, acc)' return final result
   **
-  ** See `docSkySpark::Streams#fold` for streaming details.
+  ** See `docHaxall::Streams#fold` for streaming details.
   **
   ** The fold will short-circuit and halt immediately if the folding
   ** function returns `na()` for the accumulator state. The result of
@@ -964,7 +964,7 @@ const class CoreLib
   ** The trap function maybe be accessed using the '->' shortcut operator:
   **    dict->foo  >>>  dict.trap("foo")
   **
-  ** See `docSkySpark::AxonLang#getAndTrap`.
+  ** See `docHaxall::AxonLang#getAndTrap`.
   @Axon static Obj? _trap(Obj? val, Str name)
   {
     if (val is Dict)  return ((Dict)val).trap(name, null)
@@ -1001,7 +1001,7 @@ const class CoreLib
   }
 
   ** Return new grid with grid level meta-data replaced by given
-  ** meta Dict.  Also see `addMeta` and `docSkySpark::Streams#setMeta`.
+  ** meta Dict.  Also see `addMeta` and `docHaxall::Streams#setMeta`.
   @Axon static Obj setMeta(Obj grid, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).setMeta(meta)
@@ -1011,7 +1011,7 @@ const class CoreLib
 
   ** Return new grid with additional grid level meta-data tags.
   ** Tags are added using `merge` conventions.  Also see `setMeta`
-  ** and `docSkySpark::Streams#addMeta`.
+  ** and `docHaxall::Streams#addMeta`.
   @Axon static Obj addMeta(Obj grid, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).addMeta(meta)
@@ -1079,7 +1079,7 @@ const class CoreLib
   ** Return a new grid with the columns reordered.  The given list
   ** of names represents the new order and must contain the same current
   ** column names.  Any columns not specified are removed.  Also
-  ** see `colNames`, `moveTo`, and `docSkySpark::Streams#reorderCols`.
+  ** see `colNames`, `moveTo`, and `docHaxall::Streams#reorderCols`.
   **
   ** Example:
   **   // move name to first col, and foo to last col
@@ -1093,7 +1093,7 @@ const class CoreLib
   }
 
   ** Return a new grid with column meta-data replaced by given meta dict.
-  ** Also see `addColMeta` and `docSkySpark::Streams#setColMeta`.
+  ** Also see `addColMeta` and `docHaxall::Streams#setColMeta`.
   @Axon static Obj setColMeta(Obj grid, Str name, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).setColMeta(name, meta)
@@ -1103,7 +1103,7 @@ const class CoreLib
 
   ** Return a new grid with additional column meta-data.
   ** Column meta is added using `merge` conventions.  Also
-  ** see `setColMeta` and `docSkySpark::Streams#addColMeta`.
+  ** see `setColMeta` and `docHaxall::Streams#addColMeta`.
   @Axon static Obj addColMeta(Obj grid, Str name, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).addColMeta(name, meta)
@@ -1113,7 +1113,7 @@ const class CoreLib
 
   ** Return a new grid with the given column removed.
   ** If the column doesn't exist, then return given grid.
-  ** Also see `docSkySpark::Streams#removeCol`.
+  ** Also see `docHaxall::Streams#removeCol`.
   @Axon static Obj removeCol(Obj grid, Obj col)
   {
     if (grid is Grid) return ((Grid)grid).removeCol(col)
@@ -1123,7 +1123,7 @@ const class CoreLib
 
   ** Return a new grid with all the given columns removed.
   ** Columns can be Str names or Col instances.
-  ** Also see `docSkySpark::Streams#removeCols`.
+  ** Also see `docHaxall::Streams#removeCols`.
   @Axon static Obj removeCols(Obj grid, Obj[] cols)
   {
     if (grid is Grid) return ((Grid)grid).removeCols(cols)
@@ -1133,7 +1133,7 @@ const class CoreLib
 
   ** Return a new grid with keeps the given columns, but removes
   ** all the others.  Columns can be Str names or Col instances.
-  ** Also see `docSkySpark::Streams#keepCols`.
+  ** Also see `docHaxall::Streams#keepCols`.
   @Axon static Obj keepCols(Obj grid, Obj[] cols)
   {
     if (grid is Grid) return ((Grid)grid).keepCols(cols)
@@ -2318,7 +2318,7 @@ const class CoreLib
 //////////////////////////////////////////////////////////////////////////
 
   ** Return if regular expression matches entire region of 's'.
-  ** See [AxonUsage]`docSkySpark::AxonUsage#regex`.
+  ** See [AxonUsage]`docHaxall::AxonUsage#regex`.
   **
   ** Examples:
   **   reMatches(r"\d+", "x123y")  >>  false
@@ -2330,7 +2330,7 @@ const class CoreLib
 
   ** Find the first match of regular expression in 's'
   ** or return null if no matches.
-  ** See [AxonUsage]`docSkySpark::AxonUsage#regex`.
+  ** See [AxonUsage]`docHaxall::AxonUsage#regex`.
   **
   ** Examples:
   **   reFind(r"\d+", "x123y")  >>  "123"
@@ -2346,7 +2346,7 @@ const class CoreLib
   ** regular operation against 's'.  Return null if no matches.  The
   ** first item in the list is the entire match, and each additional
   ** item is matched to '()' arguments in the regex pattern.
-  ** See [AxonUsage]`docSkySpark::AxonUsage#regex`.
+  ** See [AxonUsage]`docHaxall::AxonUsage#regex`.
   **
   ** Examples:
   **   re: r"(RTU|AHU)-(\d+)"

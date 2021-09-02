@@ -36,7 +36,7 @@ doc: "Name key"
 def: ^overridable
 is: ^marker
 doc:
-  Applied to an ext function to enable [override]`docSkySpark::Axon#overrides`
+  Applied to an ext function to enable [override]`docHaxall::Axon#overrides`
   by project record functions.
 --------------------------------------------------------------------------
 def: ^src

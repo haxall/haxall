@@ -115,7 +115,7 @@ const class HxCoreFuncs
 
   ** Read a list of ids as a stream of Dict records.
   ** If checked if false, then records not found are skipped.
-  ** See `docSkySpark::Streams#readByIdsStream`.
+  ** See `docHaxall::Streams#readByIdsStream`.
   @Axon
   static Obj readByIdsStream(Ref[] ids, Bool checked := true)
   {
@@ -123,7 +123,7 @@ const class HxCoreFuncs
   }
 
   ** Reall all records which match filter as stream of Dict records.
-  ** See `docSkySpark::Streams#readAllStream`.
+  ** See `docHaxall::Streams#readAllStream`.
   @Axon
   static Obj readAllStream(Expr filterExpr)
   {
@@ -272,7 +272,7 @@ const class HxCoreFuncs
   ** The argument may be one of the following:
   **   - result of `diff()`
   **   - list of `diff()` to commit multiple diffs at once
-  **   - stream of `diff()`; see `docSkySpark::Streams#commit`.
+  **   - stream of `diff()`; see `docHaxall::Streams#commit`.
   **
   ** If one diff is passed, return the new record.  If a list
   ** of diffs is passed return a list of new records.

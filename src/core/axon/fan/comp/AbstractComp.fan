@@ -8,7 +8,7 @@
 
 **
 ** AbstractComp is base class for Fantom components.
-** See `docSkySpark::Comps#fantom`.
+** See `docHaxall::Comps#fantom`.
 **
 @Js
 abstract class AbstractComp : Comp
