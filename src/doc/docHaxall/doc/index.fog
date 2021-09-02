@@ -21,6 +21,8 @@
   [`Comps`,         "Axon components"],
   [`AxonUsage`,     "Example snippets of Axon code"],
   [`Units`,         "Units of measurement"],
+"Formats and Protocols",
+  [`Xml`,           "Extensible markup language"],
 "Appendix",
   [`AxonGrammar`,   "Formal BNF syntax grammar"],
   [`ChangeLog`,     "List of changes in each build"]

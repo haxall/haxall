@@ -585,7 +585,7 @@ const class IOFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Write a grid to an [XML]`docSkySpark::Xml` file.
+  ** Write a grid to an [XML]`docHaxall::Xml` file.
   **
   @Axon { admin = true }
   static Obj? ioWriteXml(Obj? val, Obj? handle)
