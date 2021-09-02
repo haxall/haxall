@@ -1,0 +1,124 @@
+**************************************************************************
+** title:      Axon Grammar
+** author:     Brian Frank
+** created:    04 Sep 2009
+** copyright:  Copyright (c) 2009, SkyFoundry LLC
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Legend [#legend]
+****************
+Legend for BNF Grammar:
+
+  :=      is defined as
+  <x>     non-terminal
+  "x"     literal
+  'x'     char literal
+  [x]     optional
+  (x)     grouping
+  s-e     inclusive char range
+  x*      zero or more times
+  x|x     or
+
+
+Productions [#productions]
+**************************
+
+  <topFunc>      :=  <lambda-n> | <defcomp>
+  <defcomp>      := "defcomp" <cells> [<do>] "end"
+  <cells>        := [<cell> <nl>]*
+  <cell>         := <id> <dict>
+
+  <expr>         :=  <lambda> | <def> | <if> | <list> | <dict> | <do> |
+                     <return> | <throw> | <tryCatch> | <defcomp> | <assignExpr>
+  <do>           := "do" <exprs> "end"
+  <exprs>        :=  <expr> (<exprSep> <expr>)*
+  <exprSep>      := ";" | <nl>
+
+  <var>          :=  <qname>
+  <qname>        :=  [<id> "::" ] <id>
+
+  <list>         := "[" <listItems> "]"
+  <listItems>    := [ <expr> ("," <expr>)* [","] ]
+
+  <dict>         := "{" <dictItems> "}"
+  <dictItems>    := [ <dictItem> ("," <dictItem>)* [","] ]
+  <dictItem>     := <dictVal> | <dictMarker> | <dictRemove>
+  <dictVal>      := <idOrKeyword> ":" <expr>
+  <dictMarker>   := <idOrKeyword>
+  <dictRemove>   := "-" <idOrKeyword>
+
+  <lambda>       :=  <lambda-1> | <lambda-n>
+  <lambda-1>     :=  <id> "=>" <expr>
+  <lambda-n>     :=  "(" <params> ")" "=>" <expr>
+  <params>       :=  [<param> ("," <param>)*]
+  <param>        :=  <id> [":" <expr>]
+
+  <def>          :=  <id> ":" <expr>
+
+  <if>           :=  "if" "(" <expr> ")" <expr> ["else" <expr>]
+
+  <return>       :=  "return" <expr>
+
+  <throw>        :=  "throw" <expr>
+  <tryCatch>     :=  "try" <expr> "catch" ["(" <id> ")"] <expr>
+
+  <defcomp>      := "compdef [<compcell>] [<do>] "end"
+  <compcell>     := <id> ":" <dict>
+
+  <assignExpr>   :=  <condOrExpr> ("=" <assignExpr>)
+  <condOrExpr>   :=  <condAndExpr> ("and" <condAndExpr>)*
+  <condAndExpr>  :=  <compareExpr> ("or" <compareExpr>)*
+  <compareExpr>  :=  <rangeExpr> (("==" | "!=" | "<" | "<=" |
+                     ">=" | ">" | "<=>") <rangeExpr>)*
+  <rangeExpr>    :=  <addExpr> ".." <addExpr>
+  <addExpr>      :=  <multExpr> (("+" | "-") <multExpr>)*
+  <multExpr>     :=  <unaryExpr> (("*" | "/") <unaryExpr>)*
+  <unaryExpr>    :=  ("-" | "not") <termExpr>
+  <termExpr>     :=  <termBase> <termChain>*
+  <termBase>     :=  <var> | <groupedExpr> | <literal>
+  <groupedExpr>  :=  "(" <expr> ")"
+
+  <termChain>    :=  <call> | <dotCall> | <index> | <trapCall>
+  <call>         :=  "(" [<callArg> ("," <callArg>)*] [<lambda>]
+  <callArg>      :=  <expr> | "_"
+  <dotCall>      :=  "." [<nl>] <qname> [<call> | <lamdba-1>]
+  <index>        := "[" <expr> "]"
+  <trapCall>     := "->" <id>
+
+  <literal>      :=  <null> | <bool> | <number> | <str> | <date> |
+                     <time> | <month> | <recId>
+
+  <idOrKeyword>  := <id> | <keyword>
+
+  <keyword>      := "and" | "catch" | "defcomp" | "deflinks" | "do" | "else" |
+                    "end" | "false" | "if" | "not" | "null" | "or" | "return" |
+                    "throw" | "true" | "try"
+
+Tokens [#tokens]
+****************
+  <bool>      := "true" | "false"
+  <null>      := "null"
+  <id>        := <idFirst> (<idRest>)*
+  <idFirst>   := alphaLo
+  <idRest>    := alphaLo | alphaHi | digit | '_'
+  <alphaLo>   := ('a' - 'z')
+  <alphaHi>   := ('Z' - 'Z')
+  <digit>     := ('0' - '9')
+  <digits>    := <digit> (<digit> | "_")*
+  <number>    := <hex> | <decimal>
+  <hex>       := "0x" <hexDigit> (<hexDigit> | "_")*
+  <hexDigit>  := ('a'-'f') | ('A'-'F') | digit
+  <decimal>   := ["-"] <digits> ["." <digits>] [<exp>] [<unit>]
+  <exp>       := "e"|"E" ["+"|"-"] <digits>
+  <unit>      := <unitChar>*
+  <unitChar>  := <alpha> | "%" | "_" | "/" | "$" | any char > 128  // see sys::Unit
+  <str>       := see Fantom grammar (single line single quote, and multi-line triple quote)
+  <date>      := yyyy-mm-dd
+  <time>      := [h]h:mm[:ss[.fff]]  // hour and secs optional
+  <month>     := yyyy-mm
+  <ref>       := "@" refChar (refChar)*
+  <symbol>    := "^" refChar (refChar)*
+  <refChar>   := <alpha> | <digit> | '_' | ':' | '.' | '~' | '-'
+  <nl>        := newline "\n"
+

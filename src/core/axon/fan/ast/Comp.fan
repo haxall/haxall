@@ -7,7 +7,7 @@
 //
 
 **
-** Comp is an instance of CompDef. See `docSkySpark::Comps`.
+** Comp is an instance of CompDef. See `docHaxall::Comps`.
 **
 @Js
 mixin Comp

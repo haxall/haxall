@@ -287,7 +287,7 @@ const class IOFuncs
   }
 
   ** Read a stream of lines.  Lines are processed according to
-  ** `sys::InStream.eachLine`.  See `docSkySpark::Streams#ioStreamLines`.
+  ** `sys::InStream.eachLine`.  See `docHaxall::Streams#ioStreamLines`.
   @Axon { admin = true }
   static Obj ioStreamLines(Obj? handle)
   {
@@ -395,7 +395,7 @@ const class IOFuncs
   ** Read a stream of dicts from a comma separated value file.  This
   ** function uses the same options and semantics as `ioReadCsv` except
   ** it streams the rows as dicts instead of reading to an in-memory grid.
-  ** See `docSkySpark::Streams#ioStreamCsv`.
+  ** See `docHaxall::Streams#ioStreamCsv`.
   **
   @Axon { admin = true }
   static Obj? ioStreamCsv(Obj? handle, Dict? opts := null)

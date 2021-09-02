@@ -8,12 +8,20 @@
 
 [
 "Getting Started",
-  [`Setup`,      "Help on getting Haxall up and running"],
+  [`Setup`,         "Help on getting Haxall up and running"],
 "Architecture",
   [`Architecture`,  "Overview of the software architecture"],
   [`Runtime`,       "Runtime lifecycle"],
   [`Folio`,         "Tag database"],
+  [`Axon`,          "Axon scripting language"],
   [`Observables`,   "Observable subscription subsystem"],
+"Programming Axon",
+  [`AxonLang`,      "Features of Axon programming language"],
+  [`Streams`,       "Asynchronous streams"],
+  [`Comps`,         "Axon components"],
+  [`AxonUsage`,     "Example snippets of Axon code"],
+  [`Units`,         "Units of measurement"],
 "Appendix",
-  [`ChangeLog`,  "List of changes in each build"]
+  [`AxonGrammar`,   "Formal BNF syntax grammar"],
+  [`ChangeLog`,     "List of changes in each build"]
 ]
