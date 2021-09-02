@@ -1,0 +1,221 @@
+**************************************************************************
+** title:      Observables
+** author:     Brian Frank
+** created:    17 Apr 2020
+** copyright:  Copyright (c) 2020, SkyFoundry LLC, All Rights Reserved
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+The observable subsystem provides a framework for processing
+asynchronous data streams.  An *observable* is a named data source which
+produces an unbounded stream of Dict data items called *observations*.
+An *observer* is a data consumer which subscribes to an observable's data
+stream.  A *subscription* is the binding between an observable and an
+observer.  All observers process their data items asynchronously on a background
+thread using an [Actor]`docLang::Actors`.
+
+All observers are named with a marker def.  The following are
+the built-in observables:
+  - [obsSchedule]`#obsSchedule`: observe scheduled events
+  - [obsCommits]`#obsCommits`: observe commits to the Folio database
+  - [obsArcs]`#obsArcs`: observe when arc documents are created or modified
+  - [obsSparks]`#obsSparks`: observe when new sparks are detected
+
+There are two mechanisms to setup observers:
+  - [Tasks]`#taskObserve`: Axon observers use the task extension
+  - [Exts]`#extObserve`: Fantom observers use the `hx::HxLib.observe` method
+
+Observations [#observations]
+****************************
+The data items produced by an observable are called *observations*.  All
+the built-in observables model their observations as a Dict.  The tags
+used in the observations are specific to the observable.  However all
+observations have the following standard tags:
+  - 'type': Str name of the observable
+  - 'ts': DateTime in the host's timezone when observation generated
+
+Task Observe [#taskObserve]
+***************************
+A tasks managed by the [task ext]`ext-task::doc#subscriptions` can
+subscribe to an observable using tags.  Tasks subscribe to a specific
+observable by applying the appropiate marker tag and its associated
+configuration tags.
+
+Ext Observe [#extObserve]
+*************************
+Exts written in Fantom may use the `hx::HxLib.observe` method to subscribe
+to an observable.  The subscription should happen in the 'onStart' callback.
+The system will automatically handle the unsubscribe if the extension is removed.
+Callbacks are made to a method on the Ext using a dedicated actor within
+the `skyarcd::Proj.extActorPool`.
+
+Example code:
+
+  @ExtMeta { name = "acme" }
+  const class AcmeExt : Ext
+  {
+    override Void onStart()
+    {
+      config := Etc.makeDict1("obsScheduleFreq", Number(5, Unit("sec")))
+      observe("obsSchedule", config, #onSchedule)
+    }
+
+    Void onSchedule(Dict msg)
+    {
+      log.info("onSchedule: $msg")
+    }
+  }
+
+Observables [#observables]
+**************************
+The following sections detail the built-in observables.  Each observable
+defines a custom set of tags used in its observation dicts.  Each observable
+also defines a set of configuration tags used to tune subscriptions.
+
+Schedule [#obsSchedule]
+=======================
+The schedule observable fires an event periodically based on a configurable
+schedule.
+
+Schedule observations (events) include only the standard tags:
+  - 'type': "obsSchedule"
+  - 'ts': DateTime when schedule event generated
+
+These are the time oriented config tags (use only one):
+  - 'obsScheduleFreq': duration number to generate events at a fixed frequency.
+    This configures a frequency between event generation which is
+    independent of the observer's execution time.  For example a frequency
+    of 10sec which takes 3sec to process each event will run every 10sec,
+    not every 13sec.
+  - 'obsScheduleTimes': a list of one or more Time values to generate events
+    at a time of the day based on the host's default timezone.
+
+These are the date oriented config tags:
+  - 'obsScheduleSpan': a Span XStr which defines the inclusive date range
+  - 'obsScheduleDaysOfWeek': a Str formatted as a comma separated list of
+    weekdays: sun, mon, tue, wed, thu, fri, sat
+  - 'obsScheduleDaysOfMonth': a Str formatted as a comma separated list of
+    integer days of the month.  Negative days are used to index from the
+    last day of the month.  For example -1 indicates last day of the month, -2
+    the second to last day, etc.
+
+You must define exactly one of the time oriented tags: 'obsScheduleFreq' or 'obsScheduleTimes';
+they cannot be used together.  The dates oriented config tags may be used
+together as a logical AND.
+
+Example configurations:
+
+  // run every 5min every day
+  obsScheduleFreq: 5min
+
+  // run at midnight and at 2pm every day
+  obsScheduleTimes: [00:00, 14:00]
+
+  // run at 2am on weekdays only
+  obsScheduleTimes: [02:00]
+  obsScheduleDaysOfWeekdays: "mon,tue,wed,thu,fri"
+
+  // run at 2am on 1st and 15th of the month
+  obsScheduleTimes: [02:00]
+  obsScheduleDaysOfMonth: "1, 15"
+
+  // run at 2am on last day of the month
+  obsScheduleTimes: [02:00]
+  obsScheduleDaysOfMonth: "-1"
+
+  // run at 2am on first Monday of the month
+  obsScheduleTimes: [02:00]
+  obsScheduleDaysOfWeekdays: "mon"
+  obsScheduleDaysOfMonth: "1,2,3,4,5,6,7"
+
+Schedule observations are suppressed if the observer actor already has
+messages in its queue.  This prevents scheduled events from queuing up
+if the observer is not processing its messages fast enough.
+
+Commits [#obsCommits]
+=====================
+The commits observable is used to monitor changes to a set of records
+in the [Folio]`Folio` database.
+
+Commit observations include the following tags:
+  - 'type': "obsCommits"
+  - 'ts': DateTime when commit finishes (not the same as the records mod tag)
+  - 'subType': "added, "updated", "removed"
+  - 'id': identifier Ref of record
+  - 'oldRec': old version of record dict or empty dict if added
+  - 'newRec': new version of record dict or empty dict if removed
+  - 'user': user dict for commit context or null if outside of a context
+
+These are the config tags:
+  - 'obsAdds': marker to listen for added events
+  - 'obsUpdates': marker to listen for updated events
+  - 'obsRemoves': marker to listen for removes events
+  - 'obsFilter': filter string for record set to observer or if null all
+    records (may not use '->' pathing)
+
+You must specify at least one of 'obsAdds', 'obsUpdates', or 'obsRemoves' (typically
+you will use all three).  The observations are fired based on records entering
+and exiting the configured filter set.  Adding the 'trash' tag is treated the
+same as removing the entire record.
+
+Here is an example configuration which observes changes to records marked
+with the 'conn' tag:
+
+  obsAdds
+  obsUpdates
+  obsRemoves
+  obsFilter: "conn"
+
+In the observer above, if we add the 'conn' tag to an exisiting record
+it will receive an "added" event (the same as if adding a new record with that
+tag).  Likewise removing the 'conn' tag or adding the 'trash' tag will fire
+the "removed" event.  Any non-transient diffs to a record with the 'conn' tag
+will fire an "updated" event.
+
+Arcs [#obsArcs]
+===================
+The arcs observable listens for document changes managed by
+the [arc ext]`ext-arc::doc`.
+
+Sparks observations include the following tags:
+  - 'type': "obsArcs"
+  - 'ts': DateTime of the event
+  - 'arc': Grid with the document - see `arcRead()` for format
+
+Sparks [#obsSparks]
+===================
+The sparks observable listens for new sparks generated today by
+the [rule engine]`ext-rule::doc`.  It is designed to allow an immediate
+notification as soon as a new spark is detected.
+
+Sparks observations include the following tags:
+  - 'type': "obsSparks"
+  - 'ts': DateTime when spark detected
+  - 'spark': Dict of spark
+
+These are the config tags:
+  - 'obsRuleFilter': filter string for rule records (may not use '->' pathing)
+  - 'obsTargetFilter': filter string for target records (may not use '->' pathing)
+
+Only sparks detected *today* are observed (based on host's timezone). A spark
+for a given target and rule is only observed once per day.  However if the
+system restarts, then sparks will be re-observed when the rule engine runs again.
+You can force re-observation via the `ruleReobserve()` function.
+
+You can use the `ruleSparksToHtml()` function to setup a task which sends
+an email when a spark is detected as follows:
+
+  dis: "Email Spark Observer"
+  task
+  obsSparks
+  taskExpr:
+    (event) => do
+      spark: event->spark
+      emailSend("john@acme.com", "Spark Detected", spark.ruleSparksToHtml)
+    end
+
+
+
+

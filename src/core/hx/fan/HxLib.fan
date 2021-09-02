@@ -90,7 +90,7 @@ abstract const class HxLib
   ** Actor instance or Method literal on this class.  If callback is a
   ** method, then its called on a dedicated actor using runtime lib actor
   ** pool. This method should be called in the `onStart` callback.
-  ** See `docSkySpark::Observables#extObserve`.
+  ** See `docHaxall::Observables#extObserve`.
   Subscription observe(Str name, Dict config, Obj callback) { spi.observe(name, config, callback) }
 
 //////////////////////////////////////////////////////////////////////////

@@ -12,6 +12,7 @@
 "Architecture",
   [`Architecture`,  "Overview of the software architecture"],
   [`Runtime`,       "Runtime lifecycle"],
+  [`Observables`,   "Observable subscription subsystem"],
 "Appendix",
   [`ChangeLog`,  "List of changes in each build"]
 ]
