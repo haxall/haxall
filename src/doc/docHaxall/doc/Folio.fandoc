@@ -1,0 +1,283 @@
+**************************************************************************
+** title:      Folio
+** author:     Brian Frank
+** created:    6 Jul 2010
+** copyright:  Copyright (c) 2010, SkyFoundry LLC
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+Folio is the tag database used by SkySpark to store and organize
+your data.  The tagging model allows you to easily design free-form,
+dynamic models of your data.
+
+Folio organizes data into a three level hierarchy:
+
+  - [Projects]`#projs`: or "projs" are the top level unit of organization
+    used to group records together (typically corresponds to a real-life
+    project).  Projects encapsulate a flat list of records, there are no
+    pre-defined tree structures or tables in Folio.
+
+  - [Records]`#recs`: or "recs" are the basic unit of data modeling.  Records
+    are essentially associative arrays defined by a flat map of tags
+
+  - [Tags]`#tags`: tags are the leaf level of the model.  A tag
+    is a name/value pair
+
+Projects [#projs]
+*****************
+A given SkySpark server hosts one or more projects.  Projects are used
+to group records together into a single "database".  The following features
+operate at the project level:
+  - Database security (although the user database is shared between projects)
+  - Backup
+  - Queries and filter pathing
+
+Projects must be named using a legal [programmatic name]`#naming` and must
+be four chars or longer.  Projects of three letters or less are reserved
+for SkyFoundry, as well as names such as "skyspark", "folio", etc.  To
+take advantage of cloud/clustering support, it is highly recommended to use a
+unique project name for all your projects.
+
+Projects are physically stored on the file system and structured as follows:
+
+  {skyspark-home}/
+    var/
+      proj/
+        projA/
+          db/          // database files
+          io/          // Axon I/O scratch directory
+          backup/      // backup zip files
+        projB/
+          ...
+
+Records [#recs]
+***************
+A *record* or *rec* is the basic unit of modeling in the Folio database.
+Records are defined as a map of tags (name/value pairs).  The tags assigned
+to a record are free-form; you may add, update, or remove tags at anytime.
+Different extensions define tag libraries for modeling data using standard
+conventions.
+
+There are a couple tags which have special meaning:
+  - `id`: all records have a required id tag with a Ref value which
+    uniquely identifies the record
+  - `mod`: a DateTime timestamp indicating the last time the record
+    was modified; this value is used for [concurrency control]`#concurrency`
+  - `dis`: display name is an optional tag which should be used on any record
+    that models data an end-user would see; this is the default tag used as
+    the "title" of the record and links to the record; also see `haystack::Etc.dictToDis`
+
+Tags [#tags]
+************
+Tags are the name/value pairs stored in a record.  The name of a tag must
+follow the standard rules for [Naming]`#naming`.  The value of the tag is
+one of the following scalar types:
+  - [Marker]`haystack::Marker`: indicates the tag is used solely to mark
+    the record; markers are typically used to assign the record into a "type"
+  - [NA]`haystack::NA`: indicates not available
+  - [Ref]`haystack::Ref`: identifier for Folio records
+  - [Bool]`sys::Bool`: true of false
+  - [Number]`haystack::Number`: 64-bit floating point number with optional `Units`
+  - [Str]`sys::Str`: unicode string
+  - [Uri]`sys::Uri`: universal resource identifier per RFC 3986
+  - [Date]`sys::Date`: standard Fantom date class
+  - [Time]`sys::Time`: standard Fantom hour of day class
+  - [DateTime]`sys::DateTime`: standard Fantom timestamp with timezone
+  - [Bin]`haystack::Bin`: binary streamed data stored on file system
+  - [Coord]`haystack::Coord`: geographic coordinate in latitude/longitude
+  - [XStr]`haystack::XStr`: extended type string
+
+Note that although Bool is supported, convention is to use presence of
+a marker tag.
+
+Storage [#storage]
+******************
+Folio persists data to disk, but operates as an in-memory based database.
+Most records and tags are read from disk on startup and stored in RAM for fast
+access.  This is required to support the real-time nature of sensor data.
+But it also imposes limits on Folio since most hardware tend to have
+less RAM than disk space.
+
+Folio records are stored in RAM for fast access.  As you design your data models
+for the tag database, you should take care to limit what is stored in memory.
+
+Naming [#naming]
+****************
+*Programmatic names* are used by Folio for features such as:
+  - as tag names
+  - as Grid column names
+  - as project names
+  - as value of the `name` tag
+
+Programmatic names use 'camelCaseNaming' as follows:
+ - first char must be ASCII lower case letter: 'a' - 'z'
+ - rest of chars must be ASCII letter or digit: 'a' - 'z',
+   'A' - 'Z', '0' - '9', or '_'
+
+The 'name' tag may be used to assign a well-known name to records.  A given
+project has one namespace, so it is illegal to create multiple records
+with the same 'name' tag value.  Named records may be easily accessed
+by name in addition to their id.  [Funcs]`Axon#funcRecs` are uniquely
+named via the 'name' tag.
+
+Queries [#queries]
+******************
+The APIs for querying a Folio database are based on [filters]`docHaystack::Filters`.
+Filters allow you to construct predicates using basic boolean logic and comparison
+operators.  Filters support pathing: any tag with a Ref value may be traversed
+using the '->' operator during the query operation.
+
+The following types of queries are supported:
+  - `readAll`: query all the records which match a filter
+  - `read`: query a single record which matches a filter
+  - `readById`: convenience for 'id == xxx'
+
+Indexing [#indexing]
+********************
+All queries to a Folio project take the form of a predicate `docHaystack::Filters`
+which is used to match a set of records.  In the simplest case, each
+record in a project is scanned and checked against the filter for a
+match.  Because the records are stored in RAM this operation is
+very fast; a run-of-the-mill server and can roughly scan 10K records
+every millisecond.  This time will scale up linearly with your database.
+
+Query Optimizer [#queryOptimizer]
+================================
+To optimize performance as the number of records grow, Folio will
+build and maintain a memory based index for "hot" tags.  The query
+optimizer uses these indexes to avoid scanning every record.  Lets
+take an example query:
+
+  site and equipRef==xxxxx
+
+This query has two tags which are used: 'site' and 'equipRef'.  In the
+case of 'site' we only care if a rec has the tag (we don't care about
+its value).  In the case of 'equipRef' we care if a rec has the
+tag *and* it has a specific Ref value.  Folio indexing handles
+both cases: it indexes which records have a tag, but it also
+sub-indexes the tag values.
+
+The query optimizer will select the best index to use for the scan. If
+we have 300 recs with the tag 'site' (whatever the value might be) and
+we have 15 recs with the tag/value pair 'equipRef==xxxx', then the
+query optimizer will chose the smallest index.  In this case it will
+chose the 'equipRef==xxxx' bucket and we only have to scan 15 items
+before determining the result.
+
+Auto Indexing [#autoIndexing]
+=============================
+You do not need to configure anything special to use indexing.  Folio
+always keeps track of what tags are being used by queries.  As soon as it
+detects a "hot" tag, it will automatically build an index for that tag.
+The current algorithm indexes a tag once it has been used in 100 queries.
+
+Query Tuning [#queryTuning]
+===========================
+A full scan of a large database with millions of recs might take 100s of
+milliseconds.  This might be fast enough for populating user interface
+screens, but when distributed across multiple functions it can add up
+quickly.  So if working with large databases it is important to ensure that
+hot queries are utilizing the index.
+
+The best way to analyze queries is with the Debug tab in the Folio
+app.  This tab provides a wealth of statistics on tag indexes
+and the queries being run.
+
+The Reads by Tag section lists statistics on all tags which have been
+analyzed for optimization:
+  - **tag**: name of the tag used by a query filter
+  - **numReads**: number of times this tag has been used in a query
+    where the tag was eligible for index optimization
+  - **indexed**: if indexed, the number of recs which
+    have this tag
+
+The Reads by Plan lists statistics on all the query plans chosen
+by the query optimizer:
+  - **plan**: type of plan and tag name
+  - **numReads**: number of reads against using the plan
+  - **totalTime**: total time running numReads with the plabn
+  - **avgTime**: average time it takes to run this query plan
+
+Note that the current query optimizer cannot use the index for
+NOT filters and OR filters.  Examples:
+
+   ahu and not rooftop        // can use ahu index, but not rooftop index
+   ahu or chiller             // will be unoptimized
+   equip and (ahu or chiller) // will use equip index
+
+Diffs [#diffs]
+**************
+Modifications to a Folio database are encapsulated as *diffs*.  Diffs
+are a set of changes to apply to a record.  Diffs work just like a patch
+file in a version control system.  Diffs include the ability:
+  - add or remove a record
+  - update/add a set of tags on an existing record
+  - remove a set of tags on an existing record (using the special
+    [remove]`haystack::Remove` value)
+
+Transient Diffs [#transientDiffs]
+=================================
+In general when a diff is committed, it is written to the file system
+for durability.  However, if your application has rapidly changing real-time
+data this can cause serious performance issues.  To support real-time
+data, Folio supports the concepts of *transient diffs*.  Transient diffs
+are applied only to the [in-memory]`#storage` representation of the records,
+but are not serialized to the file system.  Transient diffs do **not**
+update the `mod` tag of the record.
+
+Trash [#trash]
+**************
+Records are moved into the *trash bin* by adding the `trash` marker
+tag.  Trash recs continue to operate in the database just like any other
+record except they are not included in any filtered queries unless
+an explicit '{trash}' option is used. Note that funcs that work with
+id refs like `readById()` and `readLink()` will return trashed recs. Also,
+Haystack filters that filter only by 'id' (e.g. 'id == @ref') are optimized to use
+`readById()` and will also return trashed recs.
+
+Concurrency Control [#concurrency]
+**********************************
+All records support the required `mod` tag indicating the timestamp of their
+last persistent modification.  This timestamp is used to implement optimistic
+concurrency control.  This model allows queries and diffs to operate without
+explicit locking.  When constructing diffs, they are passed the version
+of the rec which was read.  If during the diff commit the database detects
+that the record has been modified since the last read, then the
+commit fails with a 'ConcurrentChangeErr'.
+
+Diffs support the ability to *force* a commit to by-pass concurrency
+control.  This is typically used when updating status tags under complete
+control of a given application.  Transient diffs to not update the `mod` tag,
+however unless the the force flag is used they are still checked for
+concurrent change.
+
+Backups [#backups]
+**********************
+Folio supports the ability to take a *backup* of a project during runtime.
+A backup is a zip file which includes an atomic copy of the records, tags,
+and history data.
+
+  - Fantom API: `skyarcd::Proj.backup`
+  - Axon API: `folioBackup()`
+
+Proj Meta [#projMeta]
+*********************
+Every folio project should have exactly one rec with the `projMeta`
+tag.  This record is used to store project wide settings.  The
+following tags may be configured on the projMeta rec:
+  - 'dis': display name for the project if you wish to use
+    a string other than the project's programmatic name
+  - 'doc': summary string for the project
+  - 'dateSpanDefault': string encoding of `haystack::DateSpan`
+    used to configure the default date span used by Fresco apps
+
+Many of these tags can be configured in the SettingApp.  Although
+some may be require manual editing using the FolioApp.
+
+In addition to the tags above the system automatically maintains
+a 'version' tag on the projMeta record (do not modify this tag).  The
+projMeta rec is also used to configure [tuning parameters]`docSkySpark::Tuning#folio`
+for the folio database.
+
