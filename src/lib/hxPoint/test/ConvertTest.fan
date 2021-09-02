@@ -187,6 +187,12 @@ class ConvertTest : HxTest
     verifyConvert(c, rec, false, "off")
     verifyConvert(c, rec, true,  "slow")
 
+    c = PointConvert("enumBoolToStr(self)")
+    verifyEq(c.toStr, "enumBoolToStr(self)")
+    verifyConvert(c, rec, null,  null)
+    verifyConvert(c, rec, false, "x")
+    verifyConvert(c, rec, true,  "y")
+
     c = PointConvert("enumNumberToStr(self,false)")
     verifyEq(c.toStr, "enumNumberToStr(self,false)")
     verifyConvert(c, rec, n(0), "x")
