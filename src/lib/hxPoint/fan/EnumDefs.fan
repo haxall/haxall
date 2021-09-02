@@ -104,17 +104,23 @@ const class EnumDef
 
   internal new makeEnumTag(Str enums)
   {
+    trueName := null
+    falseName := null
     nameToCodeMap := Str:Number[:]
     codeToNameMap := Number:Str[:]
     enums.split(',').each |name, index|
     {
       code := Number(index)
+      if (trueName == null && code.toInt != 0) trueName = name
+      if (falseName == null && code.toInt == 0) falseName = name
       if (nameToCodeMap[name] == null) nameToCodeMap.add(name, code)
       if (codeToNameMap[code] == null) codeToNameMap.add(code, name)
     }
     this.id = "self"
     this.nameToCodeMap = nameToCodeMap
     this.codeToNameMap = codeToNameMap
+    this.trueName = trueName
+    this.falseName = falseName
   }
 
   public Int size() { grid.size }
