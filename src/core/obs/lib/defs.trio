@@ -30,7 +30,10 @@ doc: "Base class for observables on database records"
 def: ^obsFilter
 is: ^filterStr
 tagOn: ^obsRecs
-doc: "Filter string to define the record data set observed."
+doc:
+  Filter string to define the record data set observed.  If omitted
+  then all records in the database are observed.  Note that obsFilter
+  may **not** use the '->' pathing operator.
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
@@ -40,7 +43,8 @@ doc: "Filter string to define the record data set observed."
 --------------------------------------------------------------------------
 def: ^obsSchedule
 is: ^observable
-doc: "Subscribe to scheduled timer events."
+doc:
+  Subscribe to scheduled timer event - see [docs]`docHaxall::Observables#obsSchedule`
 --------------------------------------------------------------------------
 def: ^obsScheduleFreq
 is: ^duration
@@ -84,7 +88,8 @@ doc:
 --------------------------------------------------------------------------
 def: ^obsCommits
 is: ^obsRecs
-doc: "Subscribe to record commits in Folio."
+doc:
+  Subscribe to record commits in Folio - - see [docs]`docHaxall::Observables#obsCommits`
 --------------------------------------------------------------------------
 def: ^obsAdds
 is: ^marker
@@ -114,7 +119,8 @@ doc: "Fire add event for all existing records in data set on initialization."
 --------------------------------------------------------------------------
 def: ^obsWatches
 is: ^obsRecs
-doc: "Subscribe to watch and unwatch events."
+doc:
+  Subscribe to watch and unwatch events - see [docs]`docHaxall::Observables#obsWatches`
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
@@ -124,7 +130,9 @@ doc: "Subscribe to watch and unwatch events."
 --------------------------------------------------------------------------
 def: ^obsCurVals
 is: ^obsRecs
-doc: "Subscribe to transient commits of curVal or curStatus"
+doc:
+  Subscribe to transient commits of curVal or curStatus -
+  see [docs]`docHaxall::Observables#obsCurVals`
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
@@ -134,7 +142,8 @@ doc: "Subscribe to transient commits of curVal or curStatus"
 --------------------------------------------------------------------------
 def: ^obsHisWrites
 is: ^obsRecs
-doc: "Subscribe to history data updates"
+doc:
+  Subscribe to history data updates- see [docs]`docHaxall::Observables#obsHisWrites`
 --------------------------------------------------------------------------
 
 

@@ -17,15 +17,21 @@ observer.  All observers process their data items asynchronously on a background
 thread using an [Actor]`docLang::Actors`.
 
 All observers are named with a marker def.  The following are
-the built-in observables:
+the built-in [observables]`observable`:
   - [obsSchedule]`#obsSchedule`: observe scheduled events
   - [obsCommits]`#obsCommits`: observe commits to the Folio database
+  - [obsWatches]`#obsWatches`: observe watch status of records
+  - [obsCurVals]`#obsCurVals`: observe transient commits to curVal and curStatus
+  - [obsHisWrites]`#obsHisWrites`: observe writes to the historian
+  - [obsPointWrites]`#obsPointWrites`: observe updates to a writable point
+
+The following are SkySpark only observables:
   - [obsArcs]`#obsArcs`: observe when arc documents are created or modified
   - [obsSparks]`#obsSparks`: observe when new sparks are detected
 
 There are two mechanisms to setup observers:
   - [Tasks]`#taskObserve`: Axon observers use the task extension
-  - [Exts]`#extObserve`: Fantom observers use the `hx::HxLib.observe` method
+  - [Fantom]`#fantomObserve`: Fantom observers use the `hx::HxLib.observe` method
 
 Observations [#observations]
 ****************************
@@ -43,18 +49,15 @@ subscribe to an observable using tags.  Tasks subscribe to a specific
 observable by applying the appropiate marker tag and its associated
 configuration tags.
 
-Ext Observe [#extObserve]
-*************************
-Exts written in Fantom may use the `hx::HxLib.observe` method to subscribe
+Fantom Observe [#fantomObserve]
+*******************************
+HxLibs written in Fantom may use the `hx::HxLib.observe` method to subscribe
 to an observable.  The subscription should happen in the 'onStart' callback.
-The system will automatically handle the unsubscribe if the extension is removed.
-Callbacks are made to a method on the Ext using a dedicated actor within
-the `skyarcd::Proj.extActorPool`.
+The system will automatically handle the unsubscribe if the lib is uninstalled.
 
 Example code:
 
-  @ExtMeta { name = "acme" }
-  const class AcmeExt : Ext
+  const class AcmeLib : HxLib
   {
     override Void onStart()
     {
@@ -76,7 +79,7 @@ also defines a set of configuration tags used to tune subscriptions.
 
 Schedule [#obsSchedule]
 =======================
-The schedule observable fires an event periodically based on a configurable
+The `obsSchedule` observable fires an event periodically based on a configurable
 schedule.
 
 Schedule observations (events) include only the standard tags:
@@ -84,19 +87,19 @@ Schedule observations (events) include only the standard tags:
   - 'ts': DateTime when schedule event generated
 
 These are the time oriented config tags (use only one):
-  - 'obsScheduleFreq': duration number to generate events at a fixed frequency.
+  - `obsScheduleFreq`: duration number to generate events at a fixed frequency.
     This configures a frequency between event generation which is
     independent of the observer's execution time.  For example a frequency
     of 10sec which takes 3sec to process each event will run every 10sec,
     not every 13sec.
-  - 'obsScheduleTimes': a list of one or more Time values to generate events
+  - `obsScheduleTimes`: a list of one or more Time values to generate events
     at a time of the day based on the host's default timezone.
 
 These are the date oriented config tags:
-  - 'obsScheduleSpan': a Span XStr which defines the inclusive date range
-  - 'obsScheduleDaysOfWeek': a Str formatted as a comma separated list of
+  - `obsScheduleSpan`: a Span XStr which defines the inclusive date range
+  - `obsScheduleDaysOfWeek`: a Str formatted as a comma separated list of
     weekdays: sun, mon, tue, wed, thu, fri, sat
-  - 'obsScheduleDaysOfMonth': a Str formatted as a comma separated list of
+  - `obsScheduleDaysOfMonth`: a Str formatted as a comma separated list of
     integer days of the month.  Negative days are used to index from the
     last day of the month.  For example -1 indicates last day of the month, -2
     the second to last day, etc.
@@ -136,24 +139,25 @@ if the observer is not processing its messages fast enough.
 
 Commits [#obsCommits]
 =====================
-The commits observable is used to monitor changes to a set of records
+The `obsCommits` observable is used to monitor changes to a set of records
 in the [Folio]`Folio` database.
 
 Commit observations include the following tags:
   - 'type': "obsCommits"
   - 'ts': DateTime when commit finishes (not the same as the records mod tag)
   - 'subType': "added, "updated", "removed"
-  - 'id': identifier Ref of record
+  - 'id': identifier ref of record
   - 'oldRec': old version of record dict or empty dict if added
   - 'newRec': new version of record dict or empty dict if removed
   - 'user': user dict for commit context or null if outside of a context
 
 These are the config tags:
-  - 'obsAdds': marker to listen for added events
-  - 'obsUpdates': marker to listen for updated events
-  - 'obsRemoves': marker to listen for removes events
-  - 'obsFilter': filter string for record set to observer or if null all
-    records (may not use '->' pathing)
+  - `obsFilter`: filter string for rec set to observe or omit for all recs
+  - `obsAdds`: marker to listen for added events
+  - `obsUpdates`: marker to listen for updated events
+  - `obsRemoves`: marker to listen for removes events
+  - `obsAddOnInit`: fires an add for observed record set on startup; must be
+    used in conjunction with the obsFilter
 
 You must specify at least one of 'obsAdds', 'obsUpdates', or 'obsRemoves' (typically
 you will use all three).  The observations are fired based on records entering
@@ -168,15 +172,88 @@ with the 'conn' tag:
   obsRemoves
   obsFilter: "conn"
 
-In the observer above, if we add the 'conn' tag to an exisiting record
+In the observer above, if we add the 'conn' tag to an existing record
 it will receive an "added" event (the same as if adding a new record with that
 tag).  Likewise removing the 'conn' tag or adding the 'trash' tag will fire
 the "removed" event.  Any non-transient diffs to a record with the 'conn' tag
 will fire an "updated" event.
 
+Watches [#obsWatches]
+=====================
+The `obsWatches` observable is used to listen for when records go into
+and out of [watch]`docSkySpark::Watches`.  The "watch" event provides a
+list of recs that are entering the watched state (transition from zero
+to at least one watch).  The "unwatch" event provides a list of recs that are
+exiting the watched state (transition to zero watchers).
+
+Watch observations include the following tags:
+  - 'type': "obsWatches"
+  - 'ts': DateTime for transition
+  - 'subType': "watch or "unwatch"
+  - 'recs': list of dict records entering or exiting the watched state
+
+These are the config tags:
+  - `obsFilter`: filter string for rec set to observe or omit for all recs
+
+Cur Vals [#obsCurVals]
+======================
+The `obsCurVals` observable monitors transient commits to the `curVal` or
+`curStatus` tag.  It enables creation of event based logic for [cur points]`cur-point`.
+
+Observation events include the following tags (follows the exact same
+pattern as obsCommit events):
+  - 'type': "obsCurVals"
+  - 'ts': DateTime for transient commit
+  - 'subType': "updated"
+  - 'id': identifier ref of record
+  - 'oldRec': old version of record dict
+  - 'newRec': new version of record dict
+
+These are the config tags:
+  - `obsFilter`: filter string for rec set to observe or omit for all recs
+
+His Writes [#obsHisWrites]
+==========================
+The `obsHisWrites` observable listens for history data writes to
+a [historized point]`his-point`.
+
+Observation events include the following tags:
+  - 'type': "obsHisWrites"
+  - 'ts': DateTime of the history write
+  - 'id': identifier ref of record
+  - 'rec': history rec dict
+  - 'count': number of history items written
+  - 'span': start and end timestamps of the items written as `haystack::Span`
+
+These are the config tags:
+  - `obsFilter`: filter string for rec set to observe or omit for all recs
+
+Note: only standard history writes with a defined span will trigger this
+event.  Specialized updates such as `hisClear()` will not necessarily result
+observations.
+
+Point Writes [#obsPointWrites]
+==============================
+The `obsPointWrites` observable monitors updates to the priority array
+of [writable points]`writable-point`.  An event is fired only when the *effective*
+write value is modified (at the winning level).
+
+Observation events include the following tags:
+  - 'type': "obsPointWrites"
+  - 'ts': DateTime of the point write
+  - 'id': identifier ref of record
+  - 'rec': point rec dict
+  - 'val': effective write value
+  - 'level': effective write level
+  - 'who': string for user or application which issued the write
+  - 'first': marker tag if this is the initial steady state write
+
+These are the config tags:
+  - `obsFilter`: filter string for rec set to observe or omit for all recs
+
 Arcs [#obsArcs]
 ===================
-The arcs observable listens for document changes managed by
+The `obsArcs` observable listens for document changes managed by
 the [arc ext]`ext-arc::doc`.
 
 Sparks observations include the following tags:
@@ -184,9 +261,12 @@ Sparks observations include the following tags:
   - 'ts': DateTime of the event
   - 'arc': Grid with the document - see `arcRead()` for format
 
+These are the config tags:
+  - `obsFilter`: filter string for rec set to observe or omit for all recs
+
 Sparks [#obsSparks]
 ===================
-The sparks observable listens for new sparks generated today by
+The `obsSparks` observable listens for new sparks generated today by
 the [rule engine]`ext-rule::doc`.  It is designed to allow an immediate
 notification as soon as a new spark is detected.
 
@@ -196,8 +276,8 @@ Sparks observations include the following tags:
   - 'spark': Dict of spark
 
 These are the config tags:
-  - 'obsRuleFilter': filter string for rule records (may not use '->' pathing)
-  - 'obsTargetFilter': filter string for target records (may not use '->' pathing)
+  - `obsRuleFilter`: filter string for rule records
+  - `obsTargetFilter`: filter string for target records
 
 Only sparks detected *today* are observed (based on host's timezone). A spark
 for a given target and rule is only observed once per day.  However if the
