@@ -112,10 +112,15 @@ Subscriptions [#subscriptions]
 Tasks may subscribe to an [observable]`docHaxall::Observables`.  Subscribed
 tasks receive observations from the observable as their messages to process.
 
-Tasks subscribe to an observable by applying one of the following marker tags:
-  - [obsSchedule]`docHaxall::Observables#obsSchedule`: schedule task execution
-  - [obsCommits]`docHaxall::Observables#obsCommits`: listen for Folio record commits
-  - [obsSparks]`docHaxall::Observables#obsSparks`: listen for new sparks
+Tasks subscribe to an `observable` by applying one of the following marker tags:
+  - [obsSchedule]`docHaxall::Observables#obsSchedule`: observe scheduled events
+  - [obsCommits]`docHaxall::Observables#obsCommits`: observe commits to the Folio database
+  - [obsWatches]`docHaxall::Observables#obsWatches`: observe watch status of records
+  - [obsCurVals]`docHaxall::Observables#obsCurVals`: observe transient commits to curVal and curStatus
+  - [obsHisWrites]`docHaxall::Observables#obsHisWrites`: observe writes to the historian
+  - [obsPointWrites]`docHaxall::Observables#obsPointWrites`: observe updates to a writable point
+  - [obsArcs]`docHaxall::Observables#obsArcs`: observe when arc documents are created or modified
+  - [obsSparks]`docHaxall::Observables#obsSparks`: observe when new sparks are detected
 
 Additional observable configuration tags are configured as tags on the task
 itself.  Use the Task|Debug view to check the current status of your

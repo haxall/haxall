@@ -88,5 +88,7 @@ doc:
 --------------------------------------------------------------------------
 def: ^obsPointWrites
 is: ^obsRecs
-doc: "Subscribe to writable point priority array updates"
+doc:
+  Subscribe to writable point priority array updates -
+  see [docs]`docHaxall::Observables#obsPointWrites`
 --------------------------------------------------------------------------
