@@ -17,7 +17,7 @@ class Build : BuildPod
   new make()
   {
     podName = "obix"
-    summary = "oBIX XML modeling and client and server REST"
+    summary = "oBIX XML model and client/server REST handling"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
