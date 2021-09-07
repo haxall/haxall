@@ -10,6 +10,7 @@
 def: ^lib:hxShell
 depends: [^lib:ph, ^lib:hx]
 typeName:"hxShell::HxShellLib"
+nodoc
 doc: "Axon shell user interface"
 --------------------------------------------------------------------------
 
