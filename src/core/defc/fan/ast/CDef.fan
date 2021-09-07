@@ -75,6 +75,9 @@ class CDef
   ** Does this def have the given tag
   Bool has(Str name) { meta[name] != null }
 
+  ** Get meta CPair value
+  Obj? get(Str name) { meta[name]?.val }
+
   ** Set meta CPair
   Void set(CDef tag, Obj val) { meta[tag.name] = CPair(tag.name, tag, val) }
 
