@@ -1,0 +1,18 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Sep 2021  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:crypto
+depends: [^lib:ph, ^lib:axon, ^lib:hx]
+typeName:"hxCrypto::CryptoLib"
+doc: "Cryptographic certificate and key pair management"
+--------------------------------------------------------------------------
+
+
+
+
