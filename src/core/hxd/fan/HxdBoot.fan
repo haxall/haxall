@@ -26,6 +26,9 @@ class HxdBoot
   ** Runtime version
   Version version := typeof.pod.version
 
+  ** Name of the runtime, if omitted it defaults to dir.name
+  Str? name
+
   ** Runtime database dir (must set before booting)
   File? dir
 
@@ -76,6 +79,7 @@ class HxdBoot
   ** Initialize an instance of HxdRuntime but do not start it
   HxdRuntime init()
   {
+    if (rt != null) return rt
     initArgs
     initPlatform
     openDatabase
@@ -207,8 +211,7 @@ internal class RunCli : HxCli
   {
     boot := HxdBoot { it.dir = this.dir }
     if (noAuth) boot.platform["noAuth"] = Marker.val
-    boot.run
-    return 0
+    return boot.run
   }
 }
 
