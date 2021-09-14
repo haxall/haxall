@@ -58,6 +58,10 @@ internal class InitCli : HxCli
     // headless requires suPass
     if (headless && suUser == null) throw Err("suUser option is required for headless mode")
     if (headless && suPass == null) throw Err("suPass option is required for headless mode")
+
+    printLine
+    printLine("hx init [$dir.normalize.osPath]")
+    printLine
   }
 
   private Folio open()
