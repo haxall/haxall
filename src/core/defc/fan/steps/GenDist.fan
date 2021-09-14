@@ -35,8 +35,11 @@ internal class GenDist : DefCompilerStep
       // skip zip itself
       if (file.ext == "zip") return
 
-      // put defs.xxx in defs directory, everything else in docs
-      dir := file.basename == "defs" ? "defs" : "doc"
+      // put defs.xxx in defs/, protos.xxx in protos/, everything else in docs
+      dir := "doc"
+      if (file.basename == "defs" || file.basename == "protos")
+        dir = file.basename
+
       addToZip(zip, dir, file)
     }
   }
