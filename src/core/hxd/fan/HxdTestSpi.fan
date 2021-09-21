@@ -25,6 +25,7 @@ class HxdTestSpi : HxTestSpi
       it.dir = test.tempDir
       it.projMeta = projMeta
       it.create = true
+      it.platform["test"] = Marker.val
       it.requiredLibs.remove("hxHttp")
       it.log.level = LogLevel.warn
     }

@@ -36,7 +36,6 @@ const class PointLib : HxLib
   ** Should we collect bad data as NA or just omit it
   Bool hisCollectNA() { rec.has("hisCollectNA") }
 
-
   ** Start callback
   override Void onStart()
   {

@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using crypto
 using haystack
 using web
 using obs
@@ -48,6 +49,9 @@ const mixin HxStdServices
 
   ** Watch subscription APIs
   abstract HxWatchService watch()
+
+  ** Cryptographic certificate and key pair management APIs
+  abstract HxCryptoService crypto()
 
   ** HTTP APIs
   abstract HxHttpService http()
@@ -136,6 +140,28 @@ const mixin HxWatchService : HxService
   **   - lastPoll: timestamp of last poll
   **   - size: number of records in watch
   @NoDoc abstract Grid debugGrid()
+}
+
+**************************************************************************
+** HxCryptoService
+**************************************************************************
+
+**
+** Cryptographic certificate and key pair management
+**
+const mixin HxCryptoService : HxService
+{
+  ** The keystore to store all trusted keys and certificates
+  abstract KeyStore keystore()
+
+  ** Get a keystore containing only the key aliased as "https".
+  abstract KeyStore? httpsKey(Bool checked := true)
+
+  ** The host specific public/private key pair
+  abstract KeyPair hostKeyPair()
+
+  ** The host specific private key and certificate
+  abstract PrivKeyEntry hostKey()
 }
 
 **************************************************************************

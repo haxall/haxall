@@ -42,6 +42,7 @@ class HxdBoot
   ** Platform meta:
   **   - logoUri: URI to an SVG logo image
   **   - noAuth: Marker to disable authentication and use superuser
+  **   - test: Marker for HxTest runtime
   **   - productName: Str name for about op
   **   - productVersion: Str version for about op
   **   - productUri: Uri to product home page
@@ -66,6 +67,7 @@ class HxdBoot
     "hx",
     "obs",
     "axon",
+    "crypto",
     "hxApi",
     "hxHttp",
     "hxShell",

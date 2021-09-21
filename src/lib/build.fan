@@ -17,6 +17,7 @@ class Build : BuildGroup
     childrenScripts =
     [
       `hxApi/build.fan`,
+      `hxCrypto/build.fan`,
       `hxHttp/build.fan`,
       `hxUser/build.fan`,
       `hxMath/build.fan`,
