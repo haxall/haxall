@@ -60,6 +60,7 @@ const class HxdServiceRegistry : HxServiceRegistry
 
     this.obs        = get(HxObsService#)
     this.watch      = get(HxWatchService#)
+    this.crypto     = get(HxCryptoService#)
     this.httpRef    = get(HxHttpService#, false)
     this.user       = get(HxUserService#)
     this.ioRef      = get(HxIOService#, false)
@@ -78,6 +79,8 @@ const class HxdServiceRegistry : HxServiceRegistry
   override const HxFileService file
 
   override const HxHisService his
+
+  override const HxCryptoService crypto
 
   override HxHttpService http() { httpRef ?: throw UnknownServiceErr("HxHttpService") }
   private const HxHttpService? httpRef

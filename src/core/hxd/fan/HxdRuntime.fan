@@ -104,6 +104,7 @@ const class HxdRuntime : HxRuntime
   override const HxWatchService watch
   override const HxFileService file
   override const HxHisService his
+  override HxCryptoService crypto() { services.crypto }
   override HxHttpService http() { services.http }
   override HxUserService user() { services.user }
   override HxIOService io() { services.io }

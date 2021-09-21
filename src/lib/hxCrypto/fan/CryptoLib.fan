@@ -12,25 +12,6 @@ using crypto
 using inet
 using hx
 
-// TODO: move this into hx
-**
-** Cryptographic certificate and key pair management
-**
-const mixin HxCryptoService : HxService
-{
-  ** The keystore to store all trusted keys and certificates
-  abstract KeyStore keystore()
-
-  ** Get a keystore containing only the key aliased as "https".
-  abstract KeyStore? httpsKey(Bool checked := true)
-
-  ** The host specific public/private key pair
-  abstract KeyPair hostKeyPair()
-
-  ** The host specific private key and certificate
-  abstract PrivKeyEntry hostKey()
-}
-
 **
 ** Cryptographic certificate and key pair management
 **
@@ -43,13 +24,16 @@ const class CryptoLib : HxLib, HxCryptoService
   new make()
   {
     this.dir      = rt.dir.plus(`crypto/`).create
-//  this.isTest   = TODO
+    this.isTest   = rt.platform.isTest
     this.keystore = CryptoKeyStore(rt.libs.actorPool, dir+`keystore.p12`, log)
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
+
+  ** Publish the HxCryptoService
+  override HxService[] services() { [this] }
 
   ** Directory for crypto keystore file
   const File dir
