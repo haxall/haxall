@@ -10,7 +10,6 @@
 def: ^lib:crypto
 depends: [^lib:ph, ^lib:axon, ^lib:hx]
 typeName:"hxCrypto::CryptoLib"
-sysMod
 doc: "Cryptographic certificate and key pair management"
 --------------------------------------------------------------------------
 
