@@ -7,11 +7,11 @@
 //
 
 --------------------------------------------------------------------------
-def: ^lib:hxHttp
-depends: [^lib:ph, ^lib:hx]
-typeName:"hxHttp::HxHttpLib"
+def: ^lib:http
+depends: [^lib:ph, ^lib:axon, ^lib:hx]
+typeName:"hxHttp::HttpLib"
 noSkyarc
-doc: "Haxall HTTP service handling library"
+doc: "HTTP service handling library"
 --------------------------------------------------------------------------
 
 
