@@ -98,6 +98,7 @@ class RuntimeTest : HxTest
     verifyLibEnabled("ph")
     verifyLibEnabled("phIoT")
     verifyLibEnabled("hx")
+    verifyLibEnabled("crypto")
     verifyLibDisabled("hxTestA")
     verifyLibDisabled("hxTestB")
 
@@ -187,6 +188,9 @@ class RuntimeTest : HxTest
     verifyEq(cx.ns.def("func:today").lib.name, "axon")
     verifyEq(cx.ns.def("func:libAdd").lib.name, "hx")
     verifyEq(cx.eval("today()"), Date.today)
+
+    // sysmod functions
+    verifyEq(cx.eval("cryptoReadAllKeys().col(\"alias\").name"), "alias")
 
     // add library
     cx.eval("libAdd(\"math\")")
