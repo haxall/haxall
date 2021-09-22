@@ -60,6 +60,9 @@ const mixin HxRuntime : HxStdServices
 
   ** Construct a runtime specific context for the given user account
   abstract HxContext makeContext(HxUser user)
+
+  ** Configuration options defined at bootstrap
+  @NoDoc abstract Dict bootConfig()
 }
 
 **************************************************************************
