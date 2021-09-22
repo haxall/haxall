@@ -27,6 +27,9 @@ internal class InitCli : HxCli
   @Opt { help = "HTTP port" }
   Int httpPort := 8080
 
+  @Opt { help = "Disable HTTPS if configured" }
+  Bool httpsDisable := false
+
   @Opt { help = "The su username. Required for headless mode." }
   Str? suUser
 
@@ -168,6 +171,11 @@ internal class InitCli : HxCli
     {
       rt.log.info("Update httpPort [$port]")
       rt.db.commit(Diff(rec, ["httpPort":port]))
+    }
+    if (httpsDisable && rec["httpsPort"] != null)
+    {
+      rt.log.info("Disable httpsPort")
+      rt.db.commit(Diff(rec, ["httpsPort":Remove.val]))
     }
   }
 
