@@ -172,10 +172,10 @@ internal class InitCli : HxCli
       rt.log.info("Update httpPort [$port]")
       rt.db.commit(Diff(rec, ["httpPort":port]))
     }
-    if (httpsDisable && rec["httpsPort"] != null)
+    if (httpsDisable && rec["httpsEnabled"] == true)
     {
-      rt.log.info("Disable httpsPort")
-      rt.db.commit(Diff(rec, ["httpsPort":Remove.val]))
+      rt.log.info("Disable https")
+      rt.db.commit(Diff(rec, ["httpsEnabled":Remove.val]))
     }
   }
 
