@@ -143,7 +143,6 @@ const class CryptoFuncs
   ** Convenience to get keystore from context
   private static KeyStore ks()
   {
-    // TODO: switch to service
-    ((CryptoLib)HxContext.curHx.rt.lib("crypto")).keystore
+    HxContext.curHx.rt.services.crypto.keystore
   }
 }
