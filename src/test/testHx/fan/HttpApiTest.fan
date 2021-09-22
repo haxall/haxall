@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using inet
 using haystack
 using auth
 using axon
@@ -31,6 +32,7 @@ class HttpApiTest : HxTest
   Void test()
   {
     init
+    doSettings
     doAuth
     doAbout
     doRead
@@ -49,8 +51,9 @@ class HttpApiTest : HxTest
     if (rt.platform.isSkySpark) addLib("his")
     addLib("point")
 
-    try { rt.libs.add("hxHttp") } catch (Err e) {}
+    try { rt.libs.add("http") } catch (Err e) {}
     this.uri = rt.http.siteUri + rt.http.apiUri
+    verifyNotEq(rt.http.typeof, NilHttpService#)
 
     // setup user accounts
     addUser("alice",   "a-secret", ["userRole":"op"])
@@ -62,6 +65,35 @@ class HttpApiTest : HxTest
     siteB = addRec(["dis":"B", "site":m, "geoCity":"Norfolk",  "area":n(20_000)])
     siteC = addRec(["dis":"C", "site":m, "geoCity":"Roanoke",  "area":n(10_000)])
 
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Settings
+//////////////////////////////////////////////////////////////////////////
+
+  private Void doSettings()
+  {
+    rec := rt.db.read(Filter("ext==\"http\""))
+    host := IpAddr.local.hostname
+    port := rec.has("httpPort") ? ((Number)rec->httpPort).toInt : 8080
+    defSiteUri := `http://${host}:${port}/`
+
+    // default on initialization
+    verifySiteUri(defSiteUri)
+
+    // set siteUri in settings
+    rec = commit(rec, ["siteUri":`http://test-it/`])
+    verifySiteUri(`http://test-it/`)
+
+    // clear siteUri in settings, fallback to default
+    rec = commit(rec, ["siteUri":Remove.val])
+    verifySiteUri(defSiteUri)
+  }
+
+  Void verifySiteUri(Uri expected)
+  {
+    verifyEq(rt.http.siteUri, expected)
+    verifyEq(eval("httpSiteUri()"), expected)
   }
 
 //////////////////////////////////////////////////////////////////////////

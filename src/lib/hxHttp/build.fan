@@ -17,7 +17,7 @@ class Build : BuildPod
   new make()
   {
     podName = "hxHttp"
-    summary = "Haxall HTTP service handling library"
+    summary = "HTTP service handling library"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
@@ -31,10 +31,11 @@ class Build : BuildPod
                "web @{fan.depend}",
                "wisp @{fan.depend}",
                "haystack @{hx.depend}",
+               "axon @{hx.depend}",
                "hx @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
     docApi  = false
-    index   = ["ph.lib": "hxHttp"]
+    index   = ["ph.lib": "http"]
   }
 }

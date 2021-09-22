@@ -68,8 +68,8 @@ class HxdBoot
     "obs",
     "axon",
     "crypto",
+    "http",
     "hxApi",
-    "hxHttp",
     "hxShell",
     "hxUser"
   ]
