@@ -18,6 +18,44 @@ using hx
 **
 const class CryptoFuncs
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Public
+//////////////////////////////////////////////////////////////////////////
+
+  ** Generate a self-signed certificate and store it in the keystore with
+  ** the given alias. A new 2048-bit RSA key will be generated and
+  ** then self-signed for the given subject DN. The following options
+  ** are supported for configuring the signing:
+  **   - 'notBefore' (Date): the start date for certificate validity period (default=today)
+  **   - 'notAfter' (Date): the end date for the certificate validity period (default=today+365day)
+  **
+  ** This func will throw an error if an entry with the given alias already exists.
+  @Axon { su = true }
+  static Obj? cryptoGenSelfSignedCert(Str alias, Str subjectDn, Dict opts := Etc.emptyDict)
+  {
+    if (ks.containsAlias(alias)) throw ArgErr("An entry already exists with alias ${alias.toCode}")
+
+    // generate self-signed certificate
+    crypto := Crypto.cur
+    keys   := crypto.genKeyPair("RSA", 2048)
+    csr    := crypto.genCsr(keys, subjectDn)
+    cert   := crypto.certSigner(csr)
+      .notBefore(opts["notBefore"] ?: Date.today)
+      .notAfter(opts["notAfter"] ?: Date.today + 365day)
+      .basicConstraints
+      .sign
+
+    // store in keystore
+    ks.setPrivKey(alias, keys.priv, [cert])
+
+    return alias
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Internal
+//////////////////////////////////////////////////////////////////////////
+
   ** Read keystore as a grid
   @NoDoc @Axon { su = true }
   static Grid cryptoReadAllKeys()
