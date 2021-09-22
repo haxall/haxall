@@ -52,6 +52,14 @@ class HxdBoot
   Str:Obj? platform := [:]
 
   **
+  ** Misc configuration tags used to customize the system.
+  ** This dict is available via HxRuntime.bootConfig.
+  ** Standard keys:
+  **   - httpRootMod: type qname for http root WebMod
+  **
+  Str:Obj? config := [:]
+
+  **
   ** Tags define in the projMeta singleton record
   **
   Dict projMeta := Etc.emptyDict
