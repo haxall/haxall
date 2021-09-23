@@ -35,7 +35,6 @@ class Build : BuildPod
                "hx @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
-    docApi  = false
     index   = ["ph.lib": "http"]
   }
 }

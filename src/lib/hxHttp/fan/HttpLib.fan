@@ -28,6 +28,9 @@ const class HttpLib : HxLib, HxHttpService
   ** Settings record
   override HttpSettings rec() { super.rec }
 
+  ** Root WebMod instance to use when Wisp is launched
+  const AtomicRef rootMod := AtomicRef(HttpRootMod(this))
+
   ** Public HTTP or HTTPS URI of this host.  This is always
   ** an absolute URI such 'https://acme.com/'
   override Uri siteUri()
@@ -67,7 +70,7 @@ const class HttpLib : HxLib, HxHttpService
       it.httpPort     = settings.httpPort
       it.httpsPort    = httpsEnabled ? settings.httpsPort : null
       it.addr         = addr
-      it.root         = HttpRootMod(this)
+      it.root         = rootMod.val
       it.errMod       = it.errMod is WispDefaultErrMod ? HttpErrMod(this) : it.errMod
       it.socketConfig = socketConfig
     }
