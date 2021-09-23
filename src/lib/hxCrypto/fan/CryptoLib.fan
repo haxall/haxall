@@ -24,7 +24,6 @@ const class CryptoLib : HxLib, HxCryptoService
   new make()
   {
     this.dir      = rt.dir.plus(`crypto/`).create
-    this.isTest   = rt.platform.isTest
     this.keystore = CryptoKeyStore(rt.libs.actorPool, dir+`keystore.p12`, log)
   }
 
@@ -37,9 +36,6 @@ const class CryptoLib : HxLib, HxCryptoService
 
   ** Directory for crypto keystore file
   const File dir
-
-  ** Are we running in test mode
-  const Bool isTest
 
 //////////////////////////////////////////////////////////////////////////
 // HxCryptoService
@@ -86,7 +82,7 @@ const class CryptoLib : HxLib, HxCryptoService
   override Void onStart()
   {
     // crypto dir gets deleted in test mode, so use jvm truststore for tests
-    if (isTest) return
+    if (rt.config.isTest) return
 
     // set the default truststore to use for all sockets
     SocketConfig.setCur(SocketConfig {

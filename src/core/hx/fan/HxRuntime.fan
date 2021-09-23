@@ -62,7 +62,7 @@ const mixin HxRuntime : HxStdServices
   abstract HxContext makeContext(HxUser user)
 
   ** Configuration options defined at bootstrap
-  @NoDoc abstract Dict bootConfig()
+  @NoDoc abstract HxConfig config()
 }
 
 **************************************************************************
