@@ -50,8 +50,5 @@ const class HxPlatform
   ** Vendor home page for about op
   virtual Uri vendorUri() { meta["vendorUri"] as Uri ?: `https://skyfoundry.com/` }
 
-  ** Is this a test runtime?
-  @NoDoc virtual Bool isTest() { meta.has("test") }
-
 }
 

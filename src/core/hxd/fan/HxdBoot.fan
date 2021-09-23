@@ -41,8 +41,6 @@ class HxdBoot
   **
   ** Platform meta:
   **   - logoUri: URI to an SVG logo image
-  **   - noAuth: Marker to disable authentication and use superuser
-  **   - test: Marker for HxTest runtime
   **   - productName: Str name for about op
   **   - productVersion: Str version for about op
   **   - productUri: Uri to product home page
@@ -53,9 +51,10 @@ class HxdBoot
 
   **
   ** Misc configuration tags used to customize the system.
-  ** This dict is available via HxRuntime.bootConfig.
+  ** This dict is available via HxRuntime.config.
   ** Standard keys:
-  **   - httpRootMod: type qname for http root WebMod
+  **   - noAuth: Marker to disable authentication and use superuser
+  **   - test: Marker for HxTest runtime
   **
   Str:Obj? config := [:]
 
@@ -130,7 +129,7 @@ class HxdBoot
       if (!dir.plus(`db/folio.index`).exists) throw ArgErr("Dir missing database files: $dir")
     }
 
-    if (platform.containsKey("noAuth"))
+    if (config.containsKey("noAuth"))
     {
       echo("##")
       echo("## NO AUTH - authentication is disabled!!!!")
@@ -220,7 +219,7 @@ internal class RunCli : HxCli
   override Int run()
   {
     boot := HxdBoot { it.dir = this.dir }
-    if (noAuth) boot.platform["noAuth"] = Marker.val
+    if (noAuth) boot.config["noAuth"] = Marker.val
     return boot.run
   }
 }
