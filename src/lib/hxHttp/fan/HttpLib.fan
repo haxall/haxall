@@ -29,7 +29,7 @@ const class HttpLib : HxLib, HxHttpService
   override HttpSettings rec() { super.rec }
 
   ** Root WebMod instance
-  override WebMod root() { rootRef.val }
+  override WebMod? root(Bool checked := true) { rootRef.val }
 
   ** Root WebMod instance to use when Wisp is launched
   const AtomicRef rootRef := AtomicRef(HttpRootMod(this))

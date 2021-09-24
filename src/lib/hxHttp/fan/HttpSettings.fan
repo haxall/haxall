@@ -9,6 +9,9 @@
 
 using haystack
 
+**
+** Settings record
+**
 const class HttpSettings : TypedDict
 {
   ** Constructor

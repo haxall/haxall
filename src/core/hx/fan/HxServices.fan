@@ -160,7 +160,7 @@ const mixin HxHttpService : HxService
   abstract Uri apiUri()
 
   ** Root web module
-  @NoDoc abstract WebMod root()
+  @NoDoc abstract WebMod? root(Bool checked := true)
 }
 
 @NoDoc
@@ -168,7 +168,7 @@ const class NilHttpService : HxHttpService
 {
   override Uri siteUri() { `http://localhost:8080/` }
   override Uri apiUri() { `/api/` }
-  override WebMod root() { throw UnsupportedErr() }
+  override WebMod? root(Bool checked := true) { if (checked) throw UnsupportedErr(); return null }
 }
 
 **************************************************************************
