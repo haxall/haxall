@@ -50,5 +50,11 @@ const class HxPlatform
   ** Vendor home page for about op
   virtual Uri vendorUri() { meta["vendorUri"] as Uri ?: `https://skyfoundry.com/` }
 
+  ** Host operating system platform and version
+  virtual Str hostOs() { meta["hostOs"] as Str ?: "$os $arch " + Env.cur.vars["os.version"] }
+
+  ** Host model
+  virtual Str hostModel() { meta["hostModel"] as Str ?: hostOs }
+
 }
 
