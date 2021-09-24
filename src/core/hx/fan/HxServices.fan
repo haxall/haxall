@@ -158,6 +158,9 @@ const mixin HxHttpService : HxService
   ** URI on this host to the Haystack HTTP API.  This is always
   ** a host relative URI which end withs a slash such '/api/'.
   abstract Uri apiUri()
+
+  ** Root web module
+  @NoDoc abstract WebMod root()
 }
 
 @NoDoc
@@ -165,6 +168,7 @@ const class NilHttpService : HxHttpService
 {
   override Uri siteUri() { `http://localhost:8080/` }
   override Uri apiUri() { `/api/` }
+  override WebMod root() { throw UnsupportedErr() }
 }
 
 **************************************************************************
