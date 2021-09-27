@@ -28,10 +28,10 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
     res := this.res
     try
     {
-      // first level of modRel is operation name
+      // map the relative path to an opName
       path := req.modRel.path
-      if (path.size != 1) return res.sendErr(404)
-      opName := path[0]
+      opName := pathToOpName(path)
+      if (opName == null) return res.sendErr(404)
 
       // authenticate user
       cx := rt.user.authenticate(req, res)
@@ -63,6 +63,22 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
       Actor.locals.remove(Etc.cxActorLocalsKey)
       Actor.locals.remove("hxApiOp.spi")
     }
+  }
+
+  ** Map mod rel path to an op name or return null for 404
+  ** We allow the following paths:
+  **   - /api/op
+  **   - /api/{cluster-node-id}/op   (to support tunneling)
+  private Str? pathToOpName(Str[] path)
+  {
+    if (path.size == 1) return path[0]
+    if (path.size == 2)
+    {
+      cluster := lib.rt.services.get(HxClusterService#, false) as HxClusterService
+      if (cluster != null && path[0] == cluster.nodeId.segs[0].body)
+        return path[1]
+    }
+    return null
   }
 
   ** Read Haystack op request grid
