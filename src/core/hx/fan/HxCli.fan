@@ -142,6 +142,10 @@ internal class VersionCli : HxCli
   override Str summary() { "Print version info" }
   override Int run()
   {
+    env := Env.cur
+    envPath := [env.workDir]
+    if (env is PathEnv) envPath = ((PathEnv)env).path
+
     printLine
     printLine("Haxall CLI")
     printLine("Copyright (c) 2009-${Date.today.year}, SkyFoundry LLC")
@@ -155,6 +159,7 @@ internal class VersionCli : HxCli
     printLine("java.home:        " + Env.cur.vars["java.home"])
     printLine("fan.version:      " + Pod.find("sys").version)
     printLine("fan.platform:     " + Env.cur.platform)
+    printLine("fan.env.path:     " + envPath.join(", ") { it.osPath })
     printLine
     return 0
   }
