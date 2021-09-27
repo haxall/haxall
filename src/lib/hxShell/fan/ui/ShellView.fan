@@ -19,7 +19,7 @@ internal class ShellView : Box
   new make(Shell sh)
   {
     this.sh = sh
-    updateText("Try out some Axon!")
+    updateTextArea("Try out some Axon!")
   }
 
   Void update(ShellState old, ShellState cur)
@@ -31,6 +31,7 @@ internal class ShellView : Box
     switch (cur.viewType)
     {
       case ShellViewType.table: updateTable
+      case ShellViewType.text:  updateText
       case ShellViewType.csv:   updateGridWriter(CsvWriter#)
       case ShellViewType.json:  updateGridWriter(JsonWriter#)
       case ShellViewType.trio:  updateGridWriter(TrioWriter#)
@@ -63,15 +64,28 @@ internal class ShellView : Box
     add(table)
   }
 
+  private Void updateText()
+  {
+    if (sh.grid.isErr) return updateErr
+    str := Etc.gridToStrVal(sh.grid, null)
+    if (str == null)
+    {
+      buf := StrBuf()
+      sh.grid.dump(buf.out, ["noClip":true])
+      str = buf.toStr
+    }
+    updateTextArea(str)
+  }
+
   private Void updateGridWriter(Type type)
   {
     buf := StrBuf()
     writer := (GridWriter)type.make([buf.out])
     writer.writeGrid(sh.grid)
-    updateText(buf.toStr)
+    updateTextArea(buf.toStr)
   }
 
-  private Void updateText(Str val)
+  private Void updateTextArea(Str val)
   {
     add(TextArea { it.val = val })
   }
@@ -87,6 +101,7 @@ internal class ShellView : Box
 internal enum class ShellViewType
 {
   table("Table"),
+  text("Text"),
   csv("CSV"),
   json("JSON"),
   trio("Trio"),
@@ -95,5 +110,12 @@ internal enum class ShellViewType
   private new make(Str dis) { this.dis = dis }
 
   const Str dis
+
+  static ShellViewType toBest(Grid grid)
+  {
+    view := grid.meta["view"] as Str
+    if (view == "text") return text
+    return table
+  }
 }
 

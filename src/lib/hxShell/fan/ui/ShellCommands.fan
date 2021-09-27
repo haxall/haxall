@@ -60,8 +60,7 @@ internal class ShellCommands : FlexBox
 
   private Void onEdit()
   {
-    trio := StrBuf()
-    TrioWriter(trio.out).writeAllDicts(sh.state.selection)
+    trio := ShellUtil.recsToEditTrio(sh.state.selection)
     ShellDialog.promptTrio("Edit", trio.toStr) |recs|
     {
       req := Etc.makeDictsGrid(["commit":"update"], recs)

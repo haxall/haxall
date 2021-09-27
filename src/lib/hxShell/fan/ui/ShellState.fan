@@ -25,7 +25,7 @@ internal class ShellState
   ** Construct state for a new server result
   static ShellState makeEvalOk(Str expr, Grid grid)
   {
-    make(expr, grid, ShellViewType.table, Dict#.emptyList)
+    make(expr, grid, ShellViewType.toBest(grid), Dict#.emptyList)
   }
 
   ** Construct state for a server error
