@@ -1783,7 +1783,7 @@ const class CoreLib
   ** List the lib definitions in the context namespace as Def[].
   @NoDoc @Axon static Def[] libs()
   {
-    AxonContext.curAxon.ns.feature("lib").defs
+    AxonContext.curAxon.ns.feature("lib").defs.sort
   }
 
   ** Return declared supertypes of the given def.  The result
