@@ -325,6 +325,20 @@ const class Etc
   }
 
   **
+  ** Remove all names from the given dict.
+  ** Ignore any name not defined as a tag.
+  **
+  static Dict dictRemoveAll(Dict d, Str[] names)
+  {
+    if (names.isEmpty) return d
+    if (names.size == 1) return dictRemove(d, names[0])
+    map := Str:Obj?[:]
+    d.each |v, n| { map[n] = v }
+    names.each |n| { map.remove(n) }
+    return makeDict(map)
+  }
+
+  **
   ** Rename given name if its defined in the dict, otherwise return original.
   **
   static Dict dictRename(Dict d, Str oldName, Str newName)

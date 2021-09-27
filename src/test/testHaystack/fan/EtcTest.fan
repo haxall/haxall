@@ -237,6 +237,12 @@ class EtcTest : HaystackTest
     verifySame(d, Etc.dictRemoveNulls(d))
     d = Etc.makeDict(["a":n(1), "x":null, "b":n(2)])
     verifyDictEq(Etc.dictRemoveNulls(d), ["a":n(1), "b":n(2)])
+
+    d = Etc.dictSet(d, "c", n(3))
+    verifySame(Etc.dictRemoveAll(d, Str[,]), d)
+    verifySame(Etc.dictRemoveAll(d, Str["foo"]), d)
+    d = Etc.dictRemoveAll(d, Str["a", "c", "x"])
+    verifyDictEq(d, ["b":n(2)])
   }
 
 //////////////////////////////////////////////////////////////////////////
