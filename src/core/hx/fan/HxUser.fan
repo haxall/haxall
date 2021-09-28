@@ -37,6 +37,9 @@ const mixin HxUser
   ** Email address if configured
   abstract Str? email()
 
+  ** User record modified time
+   @NoDoc abstract DateTime mod()
+
   ** Access control APIs
   @NoDoc abstract HxUserAccess access()
 }

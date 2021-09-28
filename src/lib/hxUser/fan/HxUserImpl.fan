@@ -21,6 +21,7 @@ const class HxUserImpl : HxUser
     this.username = meta->username
     this.dis      = meta["dis"] ?: username
     this.email    = meta["email"] as Str
+    this.mod      = meta->mod
     this.access   = HxUserAccessImpl(this)
 
     switch (meta["userRole"])
@@ -37,6 +38,7 @@ const class HxUserImpl : HxUser
   override const Bool isSu
   override const Bool isAdmin
   override const Str? email
+  override const DateTime mod
   override const HxUserAccess access
 
   override Str toStr() { username }

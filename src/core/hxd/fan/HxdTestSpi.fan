@@ -59,10 +59,7 @@ class HxdTestSpi : HxTestSpi
   override HxContext makeContext(HxUser? user)
   {
     if (user == null)
-    {
-      tags := Etc.makeDict3("id", Ref("test-user"), "username", "test", "userRole", "su")
-      user = Type.find("hxUser::HxUserImpl").make([tags])
-    }
+      user = test.rt.user.makeSyntheticUser("test", ["userRole":"su"])
     return HxdContext(test.rt, user)
   }
 }
