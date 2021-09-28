@@ -247,6 +247,9 @@ const mixin HxClusterService : HxService
 {
   ** Local node id
   abstract Ref nodeId()
+
+  ** Lookup stashed user for given node and username or raise StashSyncErr
+  abstract HxUser stashedUser(Obj node, Str username)
 }
 
 **************************************************************************

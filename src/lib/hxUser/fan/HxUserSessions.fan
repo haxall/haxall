@@ -43,7 +43,18 @@ const class HxUserSessions
   HxSession open(WebReq req, HxUser user)
   {
     log.info("Login: $user.username")
-    session := HxSession(req, user)
+    key := HxSession.genKey("s-")
+    attestKey := HxSession.genKey("a-")
+    session := HxSession(req, key, attestKey, user)
+    byKey.add(session.key, session)
+    return session
+  }
+
+  ** Open cluster session
+  HxSession openCluster(WebReq req, Str key, Str attestKey, HxUser user)
+  {
+    log.info("Login cluster: $user.username")
+    session := HxSession(req, key, attestKey, user) { it.isCluster = true }
     byKey.add(session.key, session)
     return session
   }
@@ -79,8 +90,11 @@ const class HxUserSessions
 const class HxSession
 {
   ** Constructor
-  new make(WebReq req, HxUser user)
+  internal new make(WebReq req, Str key, Str attestKey, HxUser user, |This|? f := null)
   {
+    if (f != null) f(this)
+    this.key = key
+    this.attestKey = attestKey
     this.remoteAddr = toRemoteAddr(req)
     this.userAgent  = req.headers["User-Agent"] ?: ""
     this.userRef = AtomicRef(user)
@@ -105,6 +119,9 @@ const class HxSession
   ** Created timestamp
   const DateTime created := DateTime.now
 
+  ** Is this a session tunnelled thru a cluster
+  const Bool isCluster
+
   ** Ticks last time this session was "touched"
   Int touched() { touchedRef.val }
   private const AtomicInt touchedRef := AtomicInt(Duration.nowTicks)
@@ -125,6 +142,8 @@ const class HxSession
   ** Get the best remote address to use for request
   private static Str toRemoteAddr(WebReq req)
   {
+    node := req.stash["clusterNode"]
+    if (node != null) return node.toStr
     addr := req.headers["X-Real-IP"]
     if (addr == null) addr = req.headers["X-Forwarded-For"]
     if (addr == null) addr = req.remoteAddr.toStr
@@ -132,7 +151,7 @@ const class HxSession
   }
 
   ** Util to generate a random key
-  private static Str genKey(Str prefix) { prefix + Buf.random(32).toBase64Uri + "-" + keyCounter.incrementAndGet.toHex }
+  static Str genKey(Str prefix) { prefix + Buf.random(32).toBase64Uri + "-" + keyCounter.incrementAndGet.toHex }
   private static const AtomicInt keyCounter := AtomicInt()
 }
 
