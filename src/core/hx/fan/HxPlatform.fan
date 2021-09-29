@@ -54,7 +54,7 @@ const class HxPlatform
   virtual Str hostOs() { meta["hostOs"] as Str ?: "$os $arch " + Env.cur.vars["os.version"] }
 
   ** Host model
-  virtual Str hostModel() { meta["hostModel"] as Str ?: hostOs }
+  virtual Str hostModel() { meta["hostModel"] as Str ?: productName + " (" + Env.cur.vars["os.name"] + ")" }
 
 }
 
