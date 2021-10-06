@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://haxall.io/" target="_blank" rel="noopener noreferrer">
-    <img src="https://haxall.io/logo.png">
+    <img src="https://haxall.io/res/haxall-logo.svg" width="550" height="128">
   </a>
 </p> 
 
