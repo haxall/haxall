@@ -94,6 +94,63 @@ const class HxUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Axon Support
+//////////////////////////////////////////////////////////////////////////
+
+  ** List pods as grid
+  static Grid pods()
+  {
+    gb := GridBuilder()
+    gb.addCol("name").addCol("version")
+      .addCol("buildTime").addCol("buildHost")
+      .addCol("org").addCol("project")
+      .addCol("summary")
+    Pod.list.each |p|
+    {
+      m := p.meta
+      DateTime? ts
+      try
+        ts = DateTime.fromStr(m["build.ts"]).toTimeZone(TimeZone.cur)
+      catch {}
+      gb.addRow([p.name, p.version.toStr,
+                ts, m["build.host"],
+                m["org.name"], m["proj.name"],
+                m["pod.summary"]])
+    }
+    return gb.toGrid
+  }
+
+  ** List timezones as grid
+  static Grid tzdb()
+  {
+    gb := GridBuilder()
+    gb.setMeta(["cur":TimeZone.cur.name])
+    gb.addCol("name").addCol("fullName")
+    TimeZone.listFullNames.each |fn|
+    {
+      slash := fn.indexr("/")
+      n := slash == null ? fn : fn[slash+1..-1]
+      gb.addRow2(n, fn)
+    }
+    return gb.toGrid
+  }
+
+  ** List units as grid
+  static Grid unitdb()
+  {
+    gb := GridBuilder()
+    gb.addCol("quantity").addCol("name").addCol("symbol")
+    Unit.quantities.each |q|
+    {
+      Unit.quantity(q).each |u|
+      {
+        gb.addRow([q, u.name, u.symbol])
+      }
+    }
+    return gb.toGrid
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Process & Threads
 //////////////////////////////////////////////////////////////////////////
 

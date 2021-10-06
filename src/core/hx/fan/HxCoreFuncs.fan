@@ -433,6 +433,23 @@ const class HxCoreFuncs
   @Axon
   static Dict context() { curContext.toDict }
 
+  ** Return list of installed Fantom pods
+  @Axon { admin = true }
+  static Grid pods() { HxUtil.pods }
+
+  ** Return the installed timezone database as Grid with following columns:
+  **   - name: name of the timezone
+  **   - fullName: qualified name used by Olson database
+  @Axon
+  static Grid tzdb() { HxUtil.tzdb }
+
+  ** Return the installed unit database as Grid with following columns:
+  **   - quantity: dimension of the unit
+  **   - name: full name of the unit
+  **   - symbol: the abbreviated Unicode name of the unit
+  @Axon
+  static Grid unitdb() { HxUtil.unitdb }
+
   //@Axon Str diagnostics() { ((Int)Env.cur.diagnostics["mem.heap"]).toLocale("B") }
 
   ** Debug dump of all threads
