@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using inet
 
 **
 ** The configuration to use when creating an `MqttClient`.
@@ -46,8 +47,8 @@ const class ClientConfig
   ** or 'wss' (TLS socket) scheme.
   const Uri serverUri := `mqtt://localhost:1883`
 
-  ** TCP socket connection timeout
-  const Duration tcpConnectTimeout := 10sec
+  ** The socket configuration to use
+  const SocketConfig socketConfig := SocketConfig.cur.setTimeouts(10sec)
 
   ** How long to wait for CONNACK before timing out the connection
   const Duration mqttConnectTimeout := 10sec
