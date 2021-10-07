@@ -53,17 +53,21 @@ internal class TcpTransport : MqttTransport
   {
     uri := config.serverUri
 
-    this.socket = uri.scheme == "mqtts" ? tlsSocket(config) : TcpSocket()
-    socket.options.connectTimeout = config.tcpConnectTimeout
+    this.socket = uri.scheme == "mqtts"
+      ? tlsSocket(config)
+      : TcpSocket(config.socketConfig)
     socket.connect(IpAddr(uri.host), uri.port)
   }
 
   private static TcpSocket tlsSocket(ClientConfig config)
   {
-    factory := config.sslSocketFactory?.val as SSLSocketFactory
-    return factory == null
-      ? TcpSocket.makeTls()
-      : TcpSocket.makeRaw(factory.createSocket)
+    // TODO:FIXIT - TcpSocket not longer provides a way to make a TLS
+    // socket from an existing SSLSocketFactory.
+    // factory := config.sslSocketFactory?.val as SSLSocketFactory
+    // return factory == null
+    //   ? TcpSocket.makeTls()
+    //   : TcpSocket.makeRaw(factory.createSocket)
+    return TcpSocket(config.socketConfig).upgradeTls
   }
 
   private TcpSocket socket
