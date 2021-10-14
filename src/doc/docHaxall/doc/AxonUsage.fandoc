@@ -9,7 +9,7 @@
 Str Examples [#str]
 *******************
 Common functions for working with strings: `capitalize`, `contains`, `decapitalize`,
-`endsWith`, `get`, `index`, `indexr`, `isEmpty`, `isTagName`, `lower`, `replace`,
+`endsWith`, `get`, `index()`, `indexr`, `isEmpty`, `isTagName`, `lower`, `replace`,
 `size`, `startsWith`, `toTagName`, `trim`, `trimStart`, `trimEnd`, `upper`.
 
   123.toStr                      >>  "123"    // convert any object to string
