@@ -2136,13 +2136,14 @@ const class CoreLib
   }
 
   ** Parse a Str into a Ref.  If the string is not a valid Ref identifier
-  ** then raise ParseErr or return null based on checked flag.  The string
-  ** must *not* include a leading "@".
+  ** then raise ParseErr or return null based on checked flag.  If the
+  ** string has a leading "@", then it is stripped off before parsing.
   @Axon static Ref? parseRef(Str val, Obj? dis := null, Bool checked := true)
   {
     if (dis is Bool) return Ref.fromStr(val, dis) // signature for 3.0.13 and earlier
     try
     {
+      if (val[0] == '@') val = val[1..-1]
       return Ref.make(val, dis)
     }
     catch (Err e)

@@ -628,9 +628,15 @@ class CoreLibTest : HaystackTest
     ref = verifyEval("""parseRef("a.b.c", "A B C", true)""", Ref("a.b.c", "A B C"))
     verifyRefEq(ref, Ref("a.b.c", "A B C"))
 
+    ref = verifyEval("""parseRef("@xyx-123")""", Ref("xyx-123"))
+    verifyRefEq(ref, Ref("xyx-123"))
+
     verifyEval("""parseRef("a/b/c", "Dis", false)""", null)
     verifyErr(EvalErr#) { eval("""parseRef("!foo")""") }
     verifyErr(EvalErr#) { eval("""parseRef("bad!", "Dis", true)""") }
+
+    verifyEval("""parseRef("@", "x", false)""", null)
+    verifyErr(EvalErr#) { eval("""parseRef("@")""") }
 
     // signature 3.0.13 and earlier was parseRef(val, checked)
     verifyEval("""parseRef("a/b/c", false)""", null)
