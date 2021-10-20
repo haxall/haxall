@@ -32,4 +32,9 @@ is: ^marker
 nodoc
 doc: "Include an entity type in the New entity picker"
 ---------------------------------------------------------------------------
+def: ^extTypeName
+is: ^str
+nodoc
+doc: "Subclass of HxExt used to wrap an HxLib in SkySpark"
+--------------------------------------------------------------------------
 
