@@ -47,8 +47,11 @@ const class ClientConfig
   ** or 'wss' (TLS socket) scheme.
   const Uri serverUri := `mqtt://localhost:1883`
 
-  ** The socket configuration to use
-  const SocketConfig socketConfig := SocketConfig.cur.setTimeouts(10sec)
+  ** The socket configuration to use.
+  const SocketConfig socketConfig := SocketConfig.cur.copy {
+    it.connectTimeout = 10sec
+    it.receiveTimeout = null
+  }
 
   ** How long to wait for CONNACK before timing out the connection
   const Duration mqttConnectTimeout := 10sec
