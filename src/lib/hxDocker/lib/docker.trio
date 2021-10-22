@@ -1,0 +1,48 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//    21 Oct 2021  Matthew Giannini Creation
+//
+
+//////////////////////////////////////////////////////////////////////////
+// Image
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^dockerImage
+is: ^entity
+mandatory
+doc: "Docker image"
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Container
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^dockerContainer
+is: ^entity
+mandatory
+doc: "Docker container"
+--------------------------------------------------------------------------
+def: ^dockerState
+is: ^str
+tagOn: ^dockerContainer
+transient
+doc: "Current status of a Docker container"
+enum: Trio:
+  created:    {icon:"check", iconColor:"#a4aeae"}
+  restarting: {icon:"clock", iconColor:"#e67e22"}
+  running:    {icon:"sync",  iconColor:"#1ca355"}
+  removing:   {icon:"trash", iconColor:"#e67e22"}
+  paused:     {icon:"na",    iconColor:"1ca355"}
+  exited:     {icon:"check", iconColor:"#1ca355"}
+  dead:       {icon:"err",   iconColor:"#db311f"}
+--------------------------------------------------------------------------
+def: ^dockerStatus
+is: ^str
+tagOn: ^dockerContainer
+doc: "Additional human-readable status of the container"
+--------------------------------------------------------------------------
