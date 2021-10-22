@@ -465,4 +465,25 @@ const mixin HxConnService : HxService
   abstract Str pointDetails(Dict rec)
 }
 
+**************************************************************************
+** HxDockerService
+**************************************************************************
+
+**
+** HxDockerService manages Docker containers
+**
+@NoDoc
+const mixin HxDockerService : HxService
+{
+  ** Run a Docker image using the given container configuration.
+  ** Returns the container id.
+  Str run(Str image, Obj config) { runAsync(image, config).get }
+
+  ** Async version of `run`. Returns a Future that is completed
+  ** with the container id once it is started.
+  abstract Future runAsync(Str image, Obj config)
+
+  ** Kill the container with the given id, and then remove it
+  abstract Dict deleteContainer(Str id)
+}
 

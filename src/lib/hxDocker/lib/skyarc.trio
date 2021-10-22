@@ -1,0 +1,34 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   15 Oct 2021  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+app: docker
+dis: Docker
+doc: Views used to manage Docker images
+--------------------------------------------------------------------------
+view: dockerImages
+appName: docker
+dis: Images
+order: 100
+su
+doc: Mange Docker images
+src:
+  view: { inherit:"table" }
+  data: { expr:"dockerListImages()" }
+--------------------------------------------------------------------------
+view: dockerContainers
+appName: docker
+dis: Containers
+order: 101
+admin
+doc: Manage Docker containers
+src:
+  view:   { inherit:"table" }
+  delete: { action:"dockerDeleteContainer", select, disKey:"ui::delete" }
+  data:   { expr:"dockerListContainers()" }
+--------------------------------------------------------------------------
