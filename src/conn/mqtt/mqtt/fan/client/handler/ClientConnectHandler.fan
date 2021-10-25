@@ -22,11 +22,11 @@ internal class ClientConnectHandler : ClientHandler
 
   Future run()
   {
-    // disconnected => connecting
-    client.transition(ClientState.disconnected, ClientState.connecting)
-
     // establish network connection
     openTransport
+
+    // disconnected => connecting (logical MQTT connection)
+    client.transition(ClientState.disconnected, ClientState.connecting)
 
     // Update connect packet based on client configuration
     // - set the version
@@ -54,7 +54,6 @@ internal class ClientConnectHandler : ClientHandler
 
   private Void openTransport()
   {
-    // TODO: websocket support
     client.transportRef.val = Unsafe(MqttTransport.open(clientConfig))
   }
 }

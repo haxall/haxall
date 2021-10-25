@@ -24,5 +24,26 @@ internal const class ActorMsg
   const Obj? b
   const Obj? c
 
+  ** Hash is based on id and arguments
+  override Int hash()
+  {
+    hash := id.hash
+    if (a != null) hash = hash.xor(a.hash)
+    if (b != null) hash = hash.xor(b.hash)
+    if (c != null) hash = hash.xor(c.hash)
+    return hash
+  }
+
+  ** Equality is based on id and arguments
+  override Bool equals(Obj? that)
+  {
+    m := that as ActorMsg
+    if (m == null) return false
+    return id == m.id &&
+            a == m.a  &&
+            b == m.b  &&
+            c == m.c
+  }
+
   override Str toStr() { "ActorMsg($id, $a, $b, $c)" }
 }
