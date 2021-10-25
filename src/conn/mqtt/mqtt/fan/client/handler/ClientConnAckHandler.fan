@@ -96,6 +96,9 @@ internal class ClientConnAckHandler : ClientHandler
     // complete the connect
     pendingConnect.resp.complete(ack)
 
+    // notify listeners
+    client.listeners.fireConnected
+
     debug("Connected to ${clientConfig.serverUri} as ${clientId}")
 
     return state

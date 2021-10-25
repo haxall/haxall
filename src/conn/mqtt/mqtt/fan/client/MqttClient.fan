@@ -23,8 +23,9 @@ const class MqttClient : Actor, MqttConst
     this.config = config
     this.log    = Log.get(config.pool.name)
 
-    this.packetReader = PacketReaderActor(this)
-    this.packetWriter = PacketWriterActor(this)
+    this.packetReader  = PacketReaderActor(this)
+    this.packetWriter  = PacketWriterActor(this)
+    this.listeners     = ClientListeners(this)
   }
 
   ** Client configuration
@@ -64,6 +65,9 @@ const class MqttClient : Actor, MqttConst
   ** Subscription manager
   internal ClientSubMgr subMgr() { subMgrRef.val }
   private const Unsafe subMgrRef := Unsafe(ClientSubMgr(this))
+
+  ** Client listeners
+  internal const ClientListeners listeners
 
 //////////////////////////////////////////////////////////////////////////
 // Internal Pending Ack State and Utils
@@ -120,6 +124,22 @@ const class MqttClient : Actor, MqttConst
 //////////////////////////////////////////////////////////////////////////
 // Client
 //////////////////////////////////////////////////////////////////////////
+
+  ** Configure the client to auto-reconnect and return this
+  This enableAutoReconnect(Duration initialDelay := 1sec, Duration maxDelay := 2min)
+  {
+    addListener(DefaultAutoReconnect(this) {
+      it.initialDelay = initialDelay.max(500ms)
+      it.maxDelay = maxDelay.max(1sec)
+    })
+  }
+
+  ** Add a `ClientListener` and return this
+  This addListener(ClientListener listener)
+  {
+    listeners.addListener(listener)
+    return this
+  }
 
   ** Open a connection to the server using the given configuration.
   **
@@ -441,6 +461,9 @@ const class MqttClient : Actor, MqttConst
     // switch to disconnected error state
     if (!pendingConnect.isComplete) pendingConnect.resp.completeErr(err ?: MqttErr("Client disconnected"))
     pendingConnectRef.val = notConnected
+
+    // notify listeners
+    listeners.fireDisconnected
 
     return err
   }
