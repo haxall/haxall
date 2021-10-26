@@ -41,6 +41,10 @@ class DockerHttpClient
       case "npipe":
       case "unix":
         return "localhost:2375"
+      case "tcp":
+        h := config.daemonHost.toUri.host
+        p := config.daemonHost.toUri.port
+        return p == null ? h : "${h}:${p}"
       default:
         throw ArgErr("Unsupported host scheme: ${config.daemonHost}")
     }

@@ -37,7 +37,6 @@ class Build : BuildPod
                `fan/model/`,
                `fan/orm/`,
                `fan/transport/`,
-               `test/`,
               ]
     javaDirs = [`java/`]
   }

@@ -18,10 +18,14 @@ internal class TcpTransport : DockerTransport
   new make(DockerConfig config)
   {
     this.config = config
-    uri := config.daemonHost.toUri
+    uri  := config.daemonHost.toUri
+    addr := IpAddr(uri.host)
+    port := uri.port ?: 2375
+    this.socket = TcpSocket(config.socketConfig).connect(addr, port)
   }
 
   private const DockerConfig config
+  private TcpSocket socket
 
 //////////////////////////////////////////////////////////////////////////
 // DockerTransport
@@ -29,16 +33,16 @@ internal class TcpTransport : DockerTransport
 
   override OutStream out()
   {
-    throw IOErr("TODO")
+    socket.out
   }
 
   override InStream in()
   {
-    throw IOErr("TODO")
+    socket.in
   }
 
   override Void close()
   {
-    throw IOErr("TODO")
+    socket.close
   }
 }
