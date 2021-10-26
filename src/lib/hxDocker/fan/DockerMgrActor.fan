@@ -165,12 +165,19 @@ internal const class DockerMgrActor : Actor, HxDockerService
         "repoTags":     image.repoTags,
         "created":      image.createdAt,
         "size":         Number(image.size, Unit("byte")),
-        "labels":       Etc.makeDict(image.labels),
-        "json":         image.rawJson,
+        "labels":       labelsToDict(image.labels),
+        "json":         JsonOutStream.writeJsonToStr(image.rawJson),
       ]))
     }
 
     return gb.toGrid
+  }
+
+  private static Dict labelsToDict(Str:Str labels)
+  {
+    acc := Str:Str[:]
+    labels.each |v, k| { acc[Etc.toTagName(k)] = v }
+    return Etc.makeDict(acc)
   }
 
 //////////////////////////////////////////////////////////////////////////
