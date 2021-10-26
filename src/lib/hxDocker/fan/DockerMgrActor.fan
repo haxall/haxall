@@ -217,20 +217,24 @@ internal const class DockerMgrActor : Actor, HxDockerService
     //   }
     //   return tsCompare
     // }
-    arr.each |c|
-    {
-      gb.addDictRow(Etc.makeDict([
-        "id":              Ref(c.id, idDis(c.id)),
-        "dockerContainer": Marker.val,
-        "dockerState":     c.state,
-        "dockerStatus":    c.status,
-        "names":           c.names,
-        "image":           c.image,
-        "command":         c.command,
-        "created":         c.createdAt,
-        "json":            JsonOutStream.writeJsonToStr(c.rawJson),
-      ]))
-    }
+
+    // only show containers that the mgr started
+    arr
+      .findAll |c| { containers.containsKey(c.id) }
+      .each |c|
+      {
+        gb.addDictRow(Etc.makeDict([
+          "id":              Ref(c.id, idDis(c.id)),
+          "dockerContainer": Marker.val,
+          "dockerState":     c.state,
+          "dockerStatus":    c.status,
+          "names":           c.names,
+          "image":           c.image,
+          "command":         c.command,
+          "created":         c.createdAt,
+          "json":            JsonOutStream.writeJsonToStr(c.rawJson),
+        ]))
+      }
 
     return gb.toGrid
   }
