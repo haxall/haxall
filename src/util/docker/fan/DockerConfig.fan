@@ -6,6 +6,8 @@
 //   06 Oct 2021  Matthew Giannini  Creation
 //
 
+using inet
+
 const class DockerConfig
 {
 
@@ -27,13 +29,20 @@ const class DockerConfig
 // Config
 //////////////////////////////////////////////////////////////////////////
 
+  ** The docker daemon Uri
   const Str daemonHost := isWin ? defWinDaemonHost : defUnixDaemonHost
 
+  ** Version of the docker API to use
   const Version apiVer := Version("1.41")
 
+  ** Registry username
   const Str? registryUsername
 
+  ** Registry password
   const Str? registryPassword
+
+  ** TCP socket configuration
+  const SocketConfig socketConfig := SocketConfig.cur
 
 //////////////////////////////////////////////////////////////////////////
 // Util
