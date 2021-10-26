@@ -39,6 +39,7 @@ class DockerHttpClient
     switch (config.hostScheme)
     {
       case "npipe":
+      case "unix":
         return "localhost:2375"
       default:
         throw ArgErr("Unsupported host scheme: ${config.daemonHost}")

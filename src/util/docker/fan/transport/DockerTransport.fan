@@ -14,6 +14,10 @@ internal mixin DockerTransport
     {
       case "npipe":
         return WinTransport(config)
+      case "unix":
+        return UnixTransport(config)
+      case "tcp":
+        return TcpTransport(config)
       default:
         throw IOErr("Unsupported URI: ${config.daemonHost}")
     }
