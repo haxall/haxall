@@ -71,9 +71,9 @@ internal const class ClientListeners : Actor
     send(ActorMsg("connected"))
   }
 
-  Future fireDisconnected()
+  Future fireDisconnected(Bool isClientDisconnect := false)
   {
-    send(ActorMsg("disconnected"))
+    send(ActorMsg("disconnected", isClientDisconnect))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ internal const class ClientListeners : Actor
     {
       case "add":          return onAddListener(msg.a->val)
       case "connected":    return onConnected
-      case "disconnected": return onDisconnected
+      case "disconnected": return onDisconnected(msg.a)
       default: throw ArgErr("Unexpected msg: $msg")
     }
   }
@@ -110,10 +110,13 @@ internal const class ClientListeners : Actor
     return null
   }
 
-  private Obj? onDisconnected()
+  private Obj? onDisconnected(Bool isClientDisconnect)
   {
     listeners.each |listener|
     {
+      // do not auto-reconnect if client initiated the disconnect
+      if (isClientDisconnect && listener is ClientAutoReconnect) return
+
       try
         listener.onDisconnected
       catch (Err err)
