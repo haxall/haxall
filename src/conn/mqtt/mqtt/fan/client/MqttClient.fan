@@ -268,6 +268,7 @@ const class MqttClient : Actor, MqttConst
     try
     {
       // block a little to give a chance for the packet to get sent
+      transition(ClientState.connected, ClientState.disconnecting)
       packetWriter.send(disconnect).get(10sec)
     }
     catch (Err ignore) {}
@@ -433,6 +434,9 @@ const class MqttClient : Actor, MqttConst
   {
     if (state === ClientState.disconnected) return err
 
+    // remember if this was client inititiated disconnect
+    isClientDisconnect := state === ClientState.disconnecting
+
     // immediately force state to disconnected
     stateRef.val = ClientState.disconnected
 
@@ -463,7 +467,7 @@ const class MqttClient : Actor, MqttConst
     pendingConnectRef.val = notConnected
 
     // notify listeners
-    listeners.fireDisconnected
+    listeners.fireDisconnected(isClientDisconnect)
 
     return err
   }
@@ -496,5 +500,6 @@ enum class ClientState
 {
   disconnected,
   connecting,
-  connected
+  connected,
+  disconnecting
 }
