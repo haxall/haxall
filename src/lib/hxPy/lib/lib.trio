@@ -1,0 +1,14 @@
+//
+// Copyright (c) 2021, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   15 Jul 2021  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:py
+depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc, ^lib:docker]
+typeName:"hxPy::PyLib"
+doc: "Python inter-process communication"
+--------------------------------------------------------------------------
