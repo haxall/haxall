@@ -18,3 +18,11 @@ fan.props
 # temp
 /tmp/
 /temp/
+
+# intellij
+.idea/
+*.iml
+
+# python
+venv/
+__pycache__/

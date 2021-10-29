@@ -1,0 +1,9 @@
+numpy
+pandas
+scipy
+scikit-learn
+python-dateutil
+pytz
+tzdata
+#Bottleneck
+numexpr
