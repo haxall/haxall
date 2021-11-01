@@ -45,5 +45,5 @@ class ListContainersCmd : DockerJsonCmd
 
   protected override DockerHttpReqBuilder httpReq() { super.httpReq.withMethod("GET") }
 
-  override Container[] exec() { super.exec }
+  override DockerContainer[] exec() { super.exec }
 }

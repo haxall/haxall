@@ -93,7 +93,7 @@ abstract class DockerJsonCmd : DockerHttpCmd
   private Buf toJsonContent()
   {
     buf := Buf()
-    JsonOutStream(buf.out).writeJson(JsonEncoder.encode(this))
+    JsonOutStream(buf.out).writeJson(DockerJsonEncoder.encode(this))
     buf.seek(0)
 // echo(buf.readAllStr)
     return buf.seek(0)
@@ -103,7 +103,7 @@ abstract class DockerJsonCmd : DockerHttpCmd
   {
     send |DockerHttpRes res->Obj|
     {
-      JsonDecoder().decodeVal(checkRes(res).readJson, resType)
+      DockerJsonDecoder().decodeVal(checkRes(res).readJson, resType)
     }
   }
 
