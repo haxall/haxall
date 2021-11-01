@@ -58,14 +58,12 @@ internal const class DockerMgrActor : Actor, HxDockerService
 
   Grid listImages()
   {
-    // This doesn't need to be an actor message
     onListImages
   }
+
   Grid listContainers()
   {
-    // This doesn't need to be an actor messsage
     onListContainers
-    // send(HxMsg("listContainers")).get
   }
 
   StatusRes stopContainer(Str id)
@@ -84,8 +82,6 @@ internal const class DockerMgrActor : Actor, HxDockerService
     switch (msg.id)
     {
       case "run":              return onRun(msg.a, msg.b)
-      case "listImages":       return onListImages
-      case "listContainers":   return onListContainers
       case "stopContainer":    return onStopContainer(msg.a)
       case "deleteContainer":  return onDeleteContainer(msg.a)
       case "shutdown":         return onShutdown

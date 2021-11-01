@@ -28,11 +28,6 @@ abstract class DockerHttpCmd
 
   ** Sends the command to the docker daemon and handles the response.
   **
-  // ** If the response is successful, the callback is invoked with the response and this
-  // ** method returns the value returned by the callback.
-  // **
-  // ** Throws an IOErr if the response indicates an error.
-  **
   ** The `HttpRes` is guaranteed to be closed when this method completes.
   Obj? send(|HttpRes res->Obj?| f)
   {
