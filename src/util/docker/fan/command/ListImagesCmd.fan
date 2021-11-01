@@ -52,5 +52,5 @@ class ListImagesCmd : DockerJsonCmd
 
   protected override DockerHttpReqBuilder httpReq() { super.httpReq.withMethod("GET") }
 
-  override Image[] exec() { super.exec }
+  override DockerImage[] exec() { super.exec }
 }

@@ -9,7 +9,7 @@
 **
 ** A Docker container
 **
-const class Container : DockerObj
+const class DockerContainer : DockerObj
 {
   new make(|This| f) : super(f)
   {

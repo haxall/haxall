@@ -348,7 +348,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
       else if (obj is Str)  json = (Map)JsonInStream(((Str)obj).in).readJson
       else if (obj is Dict) json = dictToMap(obj)
       else throw ArgErr("Cannot decode $obj.typeof as $type: $obj")
-      cmd = JsonDecoder().decodeVal(json, type) as DockerHttpCmd
+      cmd = DockerJsonDecoder().decodeVal(json, type) as DockerHttpCmd
     }
     return cmd.withClient(this.client)
   }

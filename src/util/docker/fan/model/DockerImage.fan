@@ -9,7 +9,7 @@
 **
 ** A Docker image.
 **
-const class Image : DockerObj
+const class DockerImage : DockerObj
 {
   new make(|This| f) : super(f)
   {

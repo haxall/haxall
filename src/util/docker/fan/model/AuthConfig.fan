@@ -30,7 +30,7 @@ class AuthConfig
 
   Str encode()
   {
-    json    := JsonEncoder.encode(this)
+    json    := DockerJsonEncoder.encode(this)
     jsonStr := JsonOutStream.writeJsonToStr(json)
     return jsonStr.toBuf.toBase64Uri
   }

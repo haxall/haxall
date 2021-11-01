@@ -8,7 +8,10 @@
 
 using util
 
-class JsonDecoder
+**
+** Decodes JSON objects into Docker objects
+**
+@NoDoc class DockerJsonDecoder
 {
   new make() { }
 

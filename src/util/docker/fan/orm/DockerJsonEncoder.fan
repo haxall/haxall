@@ -6,11 +6,14 @@
 //   12 Oct 2021  Matthew Giannini  Creation
 //
 
-class JsonEncoder
+**
+** Encodes Docker objects to JSON
+**
+@NoDoc class DockerJsonEncoder
 {
   static Map encode(Obj? val)
   {
-    JsonEncoder().encodeVal(val)
+    DockerJsonEncoder().encodeVal(val)
   }
 
   private new make()
