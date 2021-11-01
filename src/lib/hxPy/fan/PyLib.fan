@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using haystack
 using hx
 
 **
@@ -28,6 +29,9 @@ const class PyLib : HxLib
 
   ** Process manager
   internal const PyMgr mgr
+
+  ** Open a new python session
+  @NoDoc PySession openSession(Dict? opts := null) { mgr.open(opts) }
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle Callbacks
