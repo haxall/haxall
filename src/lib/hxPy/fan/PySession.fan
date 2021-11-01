@@ -25,8 +25,11 @@ mixin PySession
   ** Execute the given code block, and return this
   abstract This exec(Str code)
 
+  ** Set the timeout for evaluating python expressions and return this
+  abstract This timeout(Duration? dur)
+
   ** Evaluate the expression and return the result.
-  abstract Obj? eval(Str expr, Duration? timeout := null)
+  abstract Obj? eval(Str expr)
 
   ** Close the session, and return this
   virtual This close() { return this }
@@ -88,13 +91,12 @@ mixin PySession
 
   ** Instructions to run on the python service
   private Instr[] instrs := Instr[,]
-  // private Instr[] instrs() { instrsRef.val }
-  // private const Unsafe instrsRef := Unsafe(Instr[,])
 
   ** Socket to python server
   private TcpSocket? socket
-  // private TcpSocket? socket() { socketRef.val }
-  // private const Unsafe socketRef
+
+  ** Eval timeout
+  private Duration? evalTimeout := null
 
   ** Is the session closed
   private const AtomicBool closed := AtomicBool(false)
@@ -103,7 +105,6 @@ mixin PySession
 // PySession
 //////////////////////////////////////////////////////////////////////////
 
-  ** Define a variable in local scope
   override This define(Str name, Obj? val)
   {
     // TODO: type checking on val?
@@ -111,7 +112,6 @@ mixin PySession
     return this
   }
 
-  ** Execute the given code block
   override This exec(Str code)
   {
     // Just buffer the exec instruction until an eval is requested
@@ -119,8 +119,13 @@ mixin PySession
     return this
   }
 
-  ** Evaluate the expression and return the result
-  override Obj? eval(Str expr, Duration? timeout := null)
+  override This timeout(Duration? dur)
+  {
+    this.evalTimeout = dur
+    return this
+  }
+
+  override Obj? eval(Str expr)
   {
     checkClosed
 
@@ -129,7 +134,7 @@ mixin PySession
     this.instrs = Instr[,]
 
     // evaluate
-    return EvalActor(this, evalPool).send(toEval).get(timeout)
+    return EvalActor(this, evalPool).send(toEval).get(this.evalTimeout)
   }
 
   override This close()
