@@ -17,11 +17,7 @@ class RemoveContainerCmd : DockerHttpCmd
   {
   }
 
-  new makeId(Str id) : this.makeConfig(null, id)
-  {
-  }
-
-  new makeConfig(DockerConfig? config, Str id) : super(config)
+  new makeId(Str id) : super.make(null)
   {
     this.id = id
   }
@@ -59,7 +55,7 @@ class RemoveContainerCmd : DockerHttpCmd
     return `/containers/${id}`.plusQuery(query)
   }
 
-  protected override HttpReqBuilder httpReq()
+  protected override DockerHttpReqBuilder httpReq()
   {
     super.httpReq.withMethod("DELETE")
   }

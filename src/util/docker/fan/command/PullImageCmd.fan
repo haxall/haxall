@@ -19,11 +19,7 @@ class PullImageCmd : DockerHttpCmd
   {
   }
 
-  new makeRepo(Str repository) : this.makeConfig(null, repository)
-  {
-  }
-
-  new makeConfig(DockerConfig? config, Str repository) : super(config)
+  new makeRepo(Str repository) : super.make(null)
   {
     this.repository = repository
   }
@@ -44,14 +40,14 @@ class PullImageCmd : DockerHttpCmd
     return `/images/create`.plusQuery(query)
   }
 
-  protected override HttpReqBuilder httpReq()
+  protected override DockerHttpReqBuilder httpReq()
   {
     super.httpReq.withHeader("X-Registry-Auth", dockerConfig.authConfig.encode)
   }
 
-  override HttpRes exec()
+  override DockerHttpRes exec()
   {
-    send |res->HttpRes|
+    send |res->DockerHttpRes|
     {
       while (true)
       {

@@ -11,13 +11,11 @@
 **
 internal class PingCmd : DockerHttpCmd
 {
-  new makeConfig(DockerConfig config) : super(config)
-  {
-  }
+  new make() : super.make(null) { }
 
   protected override Uri apiPath() { `/_ping` }
 
-  protected override HttpReqBuilder httpReq() { super.httpReq.withMethod("GET") }
+  protected override DockerHttpReqBuilder httpReq() { super.httpReq.withMethod("GET") }
 
-  override HttpRes exec() { super.exec }
+  override DockerHttpRes exec() { super.exec }
 }

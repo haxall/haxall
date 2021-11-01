@@ -16,23 +16,20 @@ abstract class DockerHttpCmd
 {
   new make(|This|? f := null) { f?.call(this) }
 
-  new makeConfig(DockerConfig? dockerConfig)
-  {
-    this.dockerConfig = dockerConfig
-  }
-
-  ** Docker config
+  ** The `DockerClient` to use for sending requests to the Docker daemon
   @JsonIgnore
-  protected DockerConfig? dockerConfig { internal set }
-  This withDockerConfig(DockerConfig dockerConfig) { this.dockerConfig = dockerConfig; return this }
+  protected DockerClient? client { internal set }
+  This withClient(DockerClient client) { this.client = client; return this }
+
+  protected DockerConfig? dockerConfig() { client?.config }
 
   ** Sends the command to the docker daemon and handles the response.
   **
-  ** The `HttpRes` is guaranteed to be closed when this method completes.
-  Obj? send(|HttpRes res->Obj?| f)
+  ** The `DockerHttpRes` is guaranteed to be closed when this method completes.
+  Obj? send(|DockerHttpRes res->Obj?| f)
   {
-    if (dockerConfig == null) throw DockerErr("DockerConfig not set")
-    res := DockerHttpClient(dockerConfig).write(httpReq.build)
+    if (client == null) throw DockerErr("DockerClient not set")
+    res := client.write(httpReq.build)
     try
     {
       return f(res)
@@ -45,9 +42,9 @@ abstract class DockerHttpCmd
 
   ** Get the HTTP request builder for this command. By default, the builder
   ** is initialized to do a 'POST' for the command `apiPath`.
-  protected virtual HttpReqBuilder httpReq()
+  protected virtual DockerHttpReqBuilder httpReq()
   {
-    HttpReq.builder.withMethod("POST").withPath(verApiPath)
+    DockerHttpReq.builder.withMethod("POST").withPath(verApiPath)
   }
 
   ** Get the unversioned URI for this command.
@@ -62,17 +59,17 @@ abstract class DockerHttpCmd
     `/v${dockerConfig.apiVer}/`.plus(apiPath.relTo(`/`))
   }
 
-  protected static HttpRes checkRes(HttpRes res)
+  protected static DockerHttpRes checkRes(DockerHttpRes res)
   {
     if (res.isErr) throw DockerResErr(res)
     return res
   }
 
   ** Execute the command. By default, the request is sent to Docker
-  ** and the *closed* `HttpRes` is returned.
+  ** and the *closed* `DockerHttpRes` is returned.
   virtual Obj exec()
   {
-    send |HttpRes res->HttpRes| { res }
+    send |DockerHttpRes res->DockerHttpRes| { res }
   }
 }
 
@@ -86,11 +83,7 @@ abstract class DockerJsonCmd : DockerHttpCmd
   {
   }
 
-  new makeConfig(DockerConfig dockerConfig) : super(dockerConfig)
-  {
-  }
-
-  protected override HttpReqBuilder httpReq()
+  protected override DockerHttpReqBuilder httpReq()
   {
     super.httpReq
       .withHeader("Content-Type", "application/json")
@@ -108,7 +101,7 @@ abstract class DockerJsonCmd : DockerHttpCmd
 
   override Obj exec()
   {
-    send |HttpRes res->Obj|
+    send |DockerHttpRes res->Obj|
     {
       JsonDecoder().decodeVal(checkRes(res).readJson, resType)
     }

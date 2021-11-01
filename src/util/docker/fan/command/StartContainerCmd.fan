@@ -17,11 +17,7 @@ class StartContainerCmd : DockerHttpCmd
   {
   }
 
-  new makeId(Str id) : this.makeConfig(null, id)
-  {
-  }
-
-  new makeConfig(DockerConfig? config, Str id) : super(config)
+  new makeId(Str id) : super.make(null)
   {
     this.id = id
   }

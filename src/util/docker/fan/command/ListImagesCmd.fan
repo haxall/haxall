@@ -17,10 +17,6 @@ class ListImagesCmd : DockerJsonCmd
   {
   }
 
-  new makeConfig(DockerConfig config) : super(config)
-  {
-  }
-
   ** Show all images. Only images from a final layer (no childern)
   ** are shown by default.
   @JsonIgnore
@@ -54,7 +50,7 @@ class ListImagesCmd : DockerJsonCmd
     return `/images/json`.plusQuery(query)
   }
 
-  protected override HttpReqBuilder httpReq() { super.httpReq.withMethod("GET") }
+  protected override DockerHttpReqBuilder httpReq() { super.httpReq.withMethod("GET") }
 
   override Image[] exec() { super.exec }
 }
