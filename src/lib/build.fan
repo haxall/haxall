@@ -27,6 +27,8 @@ class Build : BuildGroup
       `hxConn/build.fan`,
       `hxShell/build.fan`,
       `hxXml/build.fan`,
+      `hxDocker/build.fan`,
+      `hxPy/build.fan`,
     ]
   }
 }
