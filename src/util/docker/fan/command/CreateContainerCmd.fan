@@ -21,10 +21,6 @@ class CreateContainerCmd : DockerJsonCmd
   {
   }
 
-  new makeConfig(DockerConfig config) : super(config)
-  {
-  }
-
   ** Pattern for valid container names
   private static const Regex nameRegex := Regex <|/?[a-zA-Z0-9][a-zA-Z0-9_.-]+|>
 

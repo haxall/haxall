@@ -17,10 +17,6 @@ class ListContainersCmd : DockerJsonCmd
   {
   }
 
-  new makeConfig(DockerConfig config) : super(config)
-  {
-  }
-
   ** Show all containers. By default, only running containers are shown
   @JsonIgnore
   Bool showAll := false { private set }
@@ -47,7 +43,7 @@ class ListContainersCmd : DockerJsonCmd
     return `/containers/json`.plusQuery(query)
   }
 
-  protected override HttpReqBuilder httpReq() { super.httpReq.withMethod("GET") }
+  protected override DockerHttpReqBuilder httpReq() { super.httpReq.withMethod("GET") }
 
   override Container[] exec() { super.exec }
 }

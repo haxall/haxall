@@ -20,7 +20,7 @@ const class StatusRes
 {
   static const StatusRes noErr := StatusRes(204, "no error")
 
-  internal new makeHttpRes(HttpRes res, Str? msg := null)
+  internal new makeHttpRes(DockerHttpRes res, Str? msg := null)
     : this.make(res.statusCode, msg ?: res.statusMsg)
   {
   }

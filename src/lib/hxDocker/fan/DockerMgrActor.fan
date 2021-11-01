@@ -350,7 +350,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
       else throw ArgErr("Cannot decode $obj.typeof as $type: $obj")
       cmd = JsonDecoder().decodeVal(json, type) as DockerHttpCmd
     }
-    return cmd.withDockerConfig(this.dockerConfig)
+    return cmd.withClient(this.client)
   }
 
   ** Deeply convert a Dict to a Map. Unlike Etc.dictToMap, this handles

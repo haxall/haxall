@@ -29,7 +29,7 @@ const class DockerErr : Err
 **
 const class DockerResErr : DockerErr
 {
-  new make(HttpRes res)
+  new make(DockerHttpRes res)
     : super(((Map)res.readJson)["message"] ?: "${res.statusCode}: ${res.statusMsg}")
   {
     this.res = StatusRes(res)
