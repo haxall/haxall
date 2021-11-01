@@ -11,12 +11,10 @@
 **
 const mixin DockerUtil
 {
-  static const DateTime unixEpoch := DateTime.fromIso("1970-01-01T00:00:00Z")
-
   ** Given the number of seconds since the UNIX epoch, get the corresponding
   ** timestamp in the given time zone.
   static DateTime unixSecToTs(Int seconds, TimeZone tz := TimeZone.cur)
   {
-    (unixEpoch + Duration.fromStr("${seconds}sec")).toTimeZone(tz)
+    DateTime.fromJava(seconds * 1000, tz)
   }
 }
