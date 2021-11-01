@@ -143,6 +143,10 @@ internal class PyDockerSession : PySession
 
     // now connect the HxpySession
     this.session = HxpySession.open(`tcp://localhost:${port}?key=${key}`)
+
+    // configure timeout
+    t := opts.get("timeout") as Number
+    if (t != null) session.timeout(t.toDuration)
   }
 
   ** This assume the docker daemon is running on the localhost. If we remove
@@ -198,11 +202,17 @@ internal class PyDockerSession : PySession
     return this
   }
 
-  override Obj? eval(Str code, Duration? timeout := null)
+  override This timeout(Duration? dur)
+  {
+    session.timeout(dur)
+    return this
+  }
+
+  override Obj? eval(Str code)
   {
     try
     {
-      return session.eval(code, timeout)
+      return session.eval(code)
     }
     catch (TimeoutErr err)
     {

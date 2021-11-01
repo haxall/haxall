@@ -18,19 +18,29 @@ const class PyFuncs
 
   static private PyLib lib() { HxContext.curHx.rt.lib("py") }
 
-  @Axon static PySession py(Dict? opts := null) { lib.mgr.open(opts) }
+  @Axon
+  static PySession py(Dict? opts := null) { lib.mgr.open(opts) }
 
-  // // @Axon static PyIPc pyTimeout(PyIpc py, Number val) { py.timeout(val.toDuration) }
+  @Axon
+  static PySession pyTimeout(PySession py, Number? val) { py.timeout(val?.toDuration) }
 
-  @Axon static PySession pyDefine(PySession py, Str name, Obj? val) { py.define(name, val) }
+  @Axon
+  static PySession pyDefine(PySession py, Str name, Obj? val) { py.define(name, val) }
 
-  @Axon static PySession pyExec(PySession py, Str code) { py.exec(code) }
+  @Axon
+  static PySession pyExec(PySession py, Str code) { py.exec(code) }
 
-  @Axon static Obj? pyEval(PySession py, Str stmt, Number? timeout := null)
+  @Axon
+  static Obj? pyEval(PySession py, Str stmt, Bool close := true)
   {
-    val := py.eval(stmt, timeout?.toDuration)
-    try { py.close } catch (Err ignore) { }
-    return val
+    try
+    {
+      return py.eval(stmt)
+    }
+    finally
+    {
+      if (close) try { py.close } catch (Err ignore) { }
+    }
   }
 
 }
