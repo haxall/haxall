@@ -8,11 +8,12 @@
 
 using haystack
 using math
+using hxMath
 
 @NoDoc class NDArray
 {
 //numpy.ndarray((3,2), numpy.dtype(">d"), numpy.array([1,2,3,4,5,6], dtype=">d"))
-  static Dict encode(Grid g)
+  static Dict encode(MatrixGrid g)
   {
     rows := g.size
     cols := g.cols.size
@@ -24,14 +25,11 @@ using math
 
     Float? f := null
     buf := Buf(rows * cols * 8)
-    g.each |row, i|
+    for (i := 0; i < g.numRows; ++i)
     {
-      row.each |val, name|
+      for (j := 0; j < g.numCols; ++j)
       {
-        if (val is Number)    f = ((Number)val).toFloat
-        else if (val is Bool) f = ((Bool)val) ? 1f : 0f
-        else throw Err("Cannot encode $val [type=${val?.typeof}]. (row=$i, col=$name)")
-        buf.writeF8(f)
+        buf.writeF8(g.float(i, j))
       }
     }
     nd["bytes"] = buf.flip

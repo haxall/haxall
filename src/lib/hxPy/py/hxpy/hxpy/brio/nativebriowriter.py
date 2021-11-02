@@ -16,6 +16,7 @@ from functools import reduce
 
 from .control import BrioControl
 from ..haystack import Marker
+from ..haystack import Grid
 
 
 class NativeBrioWriter:
@@ -58,6 +59,8 @@ class NativeBrioWriter:
             return self._write_dict(val)
         elif t is list:
             return self._write_list(val)
+        elif t is Grid:
+            return self._write_grid(val)
         elif t is numpy.ndarray:
             return self._write_ndarray(val)
         else:
@@ -151,6 +154,23 @@ class NativeBrioWriter:
         for item in val:
             self.write_val(item)
         return self._u1(ord(']'))
+
+    def _write_grid(self, grid):
+        self._u1(BrioControl.ctrlGrid)
+        self._u1(ord('<'))
+        cols = grid.cols()
+        self._encode_varint(len(cols))
+        self._encode_varint(grid.size())
+
+        self._write_dict(grid.meta())
+        for col in cols:
+            self._encode_str(col.name())
+            self._write_dict(col.meta())
+        for row in grid.rows():
+            for col in cols:
+                self.write_val(row.val(col))
+        self._u1(ord('>'))
+        return self
 
     def _write_ndarray(self, val):
         # special support for writing an ndarray as a special dict

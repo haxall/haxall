@@ -16,6 +16,7 @@ import zoneinfo
 from zoneinfo import ZoneInfo
 from .control import BrioControl
 from ..haystack import Marker
+from ..haystack import GridBuilder
 
 
 # >>> numpy.ndarray((2,2), numpy.dtype(">d"), data)
@@ -35,6 +36,13 @@ class NativeBrioReader:
     def avail(self):
         size = len(self._data)
         return size - self._pos if (self._pos <= size) else 0
+
+    def read_dict(self):
+        v = self.read_val()
+        if type(v) is dict:
+            return v
+        else:
+            raise IOError(f'Expected Dict, not {type(v)}')
 
     def read_val(self):
         ctrl = self._u1()
@@ -74,6 +82,8 @@ class NativeBrioReader:
             return []
         elif ctrl == BrioControl.ctrlList:
             return self._consume_list()
+        elif ctrl == BrioControl.ctrlGrid:
+            return self._consume_grid()
         else:
             raise NotImplementedError(f'Unsupported data type: {hex(ctrl)} pos={self._pos}')
 
@@ -184,6 +194,25 @@ class NativeBrioReader:
             acc[i] = val
         self._u1(']')
         return acc
+
+    def _consume_grid(self):
+        self._u1('<')
+        numCols = self._decode_varint()
+        numRows = self._decode_varint()
+
+        gb = GridBuilder()
+        gb.set_meta(self.read_dict())
+        for c in range(0, numCols):
+            gb.add_col(self._decode_str(True), self.read_dict())
+
+        for r in range(0, numRows):
+            cells = []
+            for c in range(0, numCols):
+                cells.append(self.read_val())
+            gb.add_row(cells)
+
+        self._u1('>')
+        return gb.to_grid()
 
     def _consume(self, n):
         if self._pos + n > len(self._data):
