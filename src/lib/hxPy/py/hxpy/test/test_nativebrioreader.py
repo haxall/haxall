@@ -182,6 +182,20 @@ class TestNativeBrioReader(unittest.TestCase):
         brio = NativeBrioReader(data)
         self.assertDictEqual(brio.read_val(), {"a": 1, "nested": {"b": "B"}})
 
+    def test_grid(self):
+        # empty grid
+        data = bytes.fromhex("183c0000143e")
+        brio = NativeBrioReader(data)
+        self.assertTrue(brio.read_val().is_empty())
+
+        # [[1, 2, 3], [4, 5, 6]]
+        data = bytes.fromhex("183c030214ff02763014ff02763114ff02763214060001ff00060002ff00060003ff00060004ff00060005ff00060006ff003e")
+        brio = NativeBrioReader(data)
+        g = brio.read_val()
+        self.assertEqual(2, g.size())
+        self.assertEqual(1, g.val(0,0))
+        self.assertEqual(6, g.val(1,2))
+
     def test_ndarray(self):
         # [[1, 2, 3], [4, 5, 6]]
         # test round-tripping an ndarray

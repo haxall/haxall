@@ -16,6 +16,8 @@ import numpy
 from hxpy.brio import NativeBrioWriter
 from hxpy.brio import NativeBrioReader
 from hxpy.haystack import Marker
+from hxpy.haystack import Grid
+from hxpy.haystack import GridBuilder
 
 
 class TestNativeBrioWriter(unittest.TestCase):
@@ -161,6 +163,23 @@ class TestNativeBrioWriter(unittest.TestCase):
             brio.write_val([{"a": 1}, {"b": 2}])
             self.assertEqual(bytes.fromhex("175b02157b01ff0161060001ff007d157b01ff0162060002ff007d5d"), bytes(f.getbuffer()))
 
+    def test_grid(self):
+        with io.BytesIO() as f:
+            # empty grid
+            brio = NativeBrioWriter(f).write_val(Grid.empty_grid())
+            self.assertEqual(bytes.fromhex("183c0000143e"), bytes(f.getbuffer()))
+
+            # v0  v1  v2
+            #  1   2   3
+            #  4   5   6
+            f.seek(0)
+            gb = GridBuilder()
+            gb.add_col_names(["v0", "v1", "v2"])
+            gb.add_row([1,2,3])
+            gb.add_row([4,5,6])
+            g = gb.to_grid()
+            brio.write_val(g)
+            self.assertEqual(bytes.fromhex("183c030214ff02763014ff02763114ff02763214060001ff00060002ff00060003ff00060004ff00060005ff00060006ff003e"), bytes(f.getbuffer()))
 
 
 # TestNativeBrioWriter

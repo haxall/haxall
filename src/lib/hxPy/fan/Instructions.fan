@@ -7,6 +7,7 @@
 //
 
 using haystack
+using hxMath
 
 **************************************************************************
 ** Instr
@@ -36,7 +37,7 @@ internal abstract const class Instr
 
     private static Obj? toVal(Obj? val)
     {
-      val is Grid ? NDArray.encode(val) : val
+      val is MatrixGrid ? NDArray.encode(val) : val
     }
   }
 

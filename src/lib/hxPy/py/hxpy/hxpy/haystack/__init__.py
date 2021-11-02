@@ -8,5 +8,7 @@
 #
 
 from .marker import Marker
+from .grid import Grid
+from .grid import GridBuilder
 
 # __init__

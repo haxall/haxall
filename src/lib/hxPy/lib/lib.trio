@@ -8,7 +8,7 @@
 
 --------------------------------------------------------------------------
 def: ^lib:py
-depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc, ^lib:docker]
+depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc, ^lib:math, ^lib:docker]
 typeName:"hxPy::PyLib"
 doc: "Python inter-process communication"
 --------------------------------------------------------------------------
