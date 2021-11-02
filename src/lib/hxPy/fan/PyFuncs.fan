@@ -33,14 +33,9 @@ const class PyFuncs
   @Axon
   static Obj? pyEval(PySession py, Str stmt, Bool close := true)
   {
-    try
-    {
-      return py.eval(stmt)
-    }
-    finally
-    {
-      if (close) try { py.close } catch (Err ignore) { }
-    }
+    val := py.eval(stmt)
+    if (close) try { py.close } catch (Err ignore) { lib.log.debug("Failed to close", ignore) }
+    return val
   }
 
 }
