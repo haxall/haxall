@@ -46,8 +46,10 @@ class HxPy:
         # handle auth packet
         auth = self._recv_brio()
         log.debug(f'Auth {auth}')
+        if auth["ver"] != "0":
+            raise self._failAuth(f'Unsupported version {auth["ver"]}')
         if auth["key"] != self._api_key:
-            raise IOError("Invalid api key")
+            raise self._failAuth(f'Invalid api key')
         self._send_brio({"ok": Marker()})
 
         # handle instructions
@@ -67,6 +69,10 @@ class HxPy:
             # for
             instrs = self._recv_brio()
         # while
+
+    def _failAuth(self, msg):
+       self._send_brio({"err": Marker(), "errMsg": msg})
+       return IOError(msg)
 
     ##########################################################
     # Instructions
