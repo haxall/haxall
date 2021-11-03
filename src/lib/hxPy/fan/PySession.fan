@@ -73,8 +73,9 @@ mixin PySession
 
     // authenticate with key
     key  := serverUri.query["key"]
-    auth := Etc.makeDict(["key": key])
-    resp := sendBrio(auth)
+    auth := Etc.makeDict(["key": key, "ver": "0"])
+    resp := (Dict)sendBrio(auth)
+    if (resp.has("err")) throw IOErr("Auth failed: ${resp->errMsg}")
   }
 
   ** The python service uri

@@ -142,7 +142,15 @@ internal class PyDockerSession : PySession
     this.cid = dockerService.run(image, config)
 
     // now connect the HxpySession
-    this.session = HxpySession.open(`tcp://localhost:${port}?key=${key}`)
+    try
+    {
+      this.session = HxpySession.open(`tcp://localhost:${port}?key=${key}`)
+    }
+    catch (Err err)
+    {
+      this.close
+      throw err
+    }
 
     // configure timeout
     t := opts.get("timeout") as Number
@@ -184,7 +192,7 @@ internal class PyDockerSession : PySession
   internal const Str cid
 
   ** HxpySession
-  private HxpySession session
+  private HxpySession? session
 
 //////////////////////////////////////////////////////////////////////////
 // PySession
@@ -234,7 +242,7 @@ internal class PyDockerSession : PySession
     }
 
     // close the session
-    session.close
+    session?.close
 
     return this
   }
