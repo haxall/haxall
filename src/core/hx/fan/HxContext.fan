@@ -74,6 +74,9 @@ abstract class HxContext : AxonContext, HaystackContext, FolioContext
   ** Setup a SkySpark feed
   @NoDoc virtual Void feedAdd(HxFeed feed, [Str:Obj?]? meta := null) { unsupportedErr }
 
+  ** Clear read cache for subclasses
+  @NoDoc virtual Void readCacheClear() {}
+
   ** Export to outpout stream - SkySpark only
   @NoDoc virtual Obj export(Dict req, OutStream out) { unsupportedErr }
 

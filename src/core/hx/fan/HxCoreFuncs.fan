@@ -293,6 +293,7 @@ const class HxCoreFuncs
     if (diffs is MStream) return CommitStream(diffs).run
 
     cx := curContext
+    cx.readCacheClear
 
     if (diffs is Diff)
     {
