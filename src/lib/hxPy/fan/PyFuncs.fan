@@ -18,19 +18,19 @@ const class PyFuncs
 
   static private PyLib lib() { HxContext.curHx.rt.lib("py") }
 
-  @Axon
+  @Axon{ admin=true }
   static PySession py(Dict? opts := null) { lib.mgr.open(opts) }
 
-  @Axon
+  @Axon{ admin=true }
   static PySession pyTimeout(PySession py, Number? val) { py.timeout(val?.toDuration) }
 
-  @Axon
+  @Axon{ admin=true }
   static PySession pyDefine(PySession py, Str name, Obj? val) { py.define(name, val) }
 
-  @Axon
+  @Axon{ admin=true }
   static PySession pyExec(PySession py, Str code) { py.exec(code) }
 
-  @Axon
+  @Axon{ admin=true }
   static Obj? pyEval(PySession py, Str stmt, Bool close := true)
   {
     val := py.eval(stmt)
