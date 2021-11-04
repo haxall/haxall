@@ -36,17 +36,19 @@ using hxMath
     return Etc.makeDict(nd)
   }
 
-  static Grid decode(Dict spec)
+  static MatrixGrid decode(Dict spec)
   {
     rows := ((Number)spec["r"]).toInt
     cols := ((Number)spec["c"]).toInt
     buf  := ((Buf)spec["bytes"])
+    // must use buf.in because buf is immutable
+    in    := buf.in
     matrix := MMatrix(rows, cols)
     rows.times |i|
     {
       cols.times |j|
       {
-        matrix.set(i, j, buf.readF8)
+        matrix.set(i, j, in.readF8)
       }
     }
     return Type.find("hxMath::MatrixGrid").method("makeMatrix").call(Etc.emptyDict, matrix)
