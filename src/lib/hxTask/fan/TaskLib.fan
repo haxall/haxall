@@ -49,6 +49,16 @@ const class TaskLib : HxLib, HxTaskService
     Task.makeEphemeral(this, expr).send(msg)
   }
 
+  ** Get or create an adjunct within the context of the current
+  ** task.  If an adjunct is already attached to the task then return
+  ** it, otherwise invoke the given function to create it.  Raise an
+  ** exception if not running with the context of a task.
+  override HxTaskAdjunct adjunct(|->HxTaskAdjunct| onInit)
+  {
+    task := Task.cur ?: throw NotTaskContextErr("Not running in task context")
+    return task.adjunct(onInit)
+  }
+
   ** Start callback
   override Void onStart()
   {
@@ -120,6 +130,7 @@ const class TaskLib : HxLib, HxTaskService
   {
     task.kill
     task.unsubscribe
+    task.adjunctOnKill
     tasksById.remove(task.id)
   }
 

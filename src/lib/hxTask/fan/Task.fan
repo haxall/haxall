@@ -385,6 +385,29 @@ const class Task : Actor, Observer, Dict
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Adjunct
+//////////////////////////////////////////////////////////////////////////
+
+  ** Get or create the adjunct
+  internal HxTaskAdjunct adjunct(|->HxTaskAdjunct| onInit)
+  {
+    adjunct := adjunctRef.val
+    if (adjunct == null) adjunctRef.val = adjunct = onInit()
+    return adjunct
+  }
+
+  ** Invoke onKill callback for adjunct
+  internal Void adjunctOnKill()
+  {
+    adjunct := adjunctRef.val as HxTaskAdjunct
+    if (adjunct == null) return
+    try
+      adjunct.onKill
+    catch (Err e)
+      lib.log.err("Task.adjunctOnKill: $dis", e)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
@@ -396,6 +419,7 @@ const class Task : Actor, Observer, Dict
   private const AtomicInt errNumRef       := AtomicInt()
   private const AtomicRef errLastRef      := AtomicRef() // Err
   private const AtomicRef subscriptionRef := AtomicRef() // Err or Subscription
+  private const AtomicRef adjunctRef      := AtomicRef() // HxTaskAdjunct
   private const AtomicRef progressRef     := AtomicRef(Etc.emptyDict) // Dict
 }
 

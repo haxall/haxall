@@ -295,6 +295,26 @@ const mixin HxTaskService : HxService
   ** Run the given expression asynchronously in an ephemeral task.
   ** Return a future to track the asynchronous result.
   abstract Future run(Expr expr, Obj? msg := null)
+
+  ** Get or create an adjunct within the context of the current
+  ** task.  If an adjunct is already attached to the task then return
+  ** it, otherwise invoke the given function to create it.  Raise an
+  ** exception if not running with the context of a task.
+  abstract HxTaskAdjunct adjunct(|->HxTaskAdjunct| onInit)
+}
+
+**
+** HxTaskAdjunct is used to bind a Fantom object as a dependency
+** within the current task.  Adjuncts are initialized once on the
+** first call to adjunct and receive a callback when the task is killed.
+**
+@NoDoc
+const mixin HxTaskAdjunct
+{
+  ** Callback when task is killed.  There is no guarantee which thread is
+  ** used to make this callback, so implementations must ensure that
+  ** any processing is thread-safe and non-blocking.
+  virtual Void onKill() {}
 }
 
 **************************************************************************
