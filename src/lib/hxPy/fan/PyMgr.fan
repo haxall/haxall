@@ -84,12 +84,15 @@ internal const class PyMgr : Actor
 // Close
 //////////////////////////////////////////////////////////////////////////
 
-  internal Obj? onClose(Str id)
+  internal Obj? onForceClose(Str id)
   {
-    session := lookup(id)
-    session?.close
-    sessions.remove(id)
+    lookup(id)?.close
     return id
+  }
+
+  internal Void removePySession(Str id)
+  {
+    sessions.remove(id)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -102,7 +105,7 @@ internal const class PyMgr : Actor
     sessions.each |Unsafe ref, Str id|
     {
       log.info("Killing python session: $id")
-      onClose(id)
+      onForceClose(id)
     }
     return null
   }
@@ -224,7 +227,7 @@ internal class PyDockerSession : PySession
     }
     catch (TimeoutErr err)
     {
-      mgr.onClose(cid)
+      this.close
       throw err
     }
   }
@@ -243,6 +246,10 @@ internal class PyDockerSession : PySession
 
     // close the session
     session?.close
+    session = null
+
+    // deallocate session from mgr
+    mgr.removePySession(this.cid)
 
     return this
   }
