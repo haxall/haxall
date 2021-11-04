@@ -18,11 +18,11 @@ class HxdTestSpi : HxTestSpi
 {
   new make(HxTest test) : super(test) {}
 
-  static HxRuntime boot(Test test, Dict projMeta := Etc.emptyDict)
+  static HxRuntime boot(File dir, Dict projMeta := Etc.emptyDict)
   {
     boot := HxdBoot
     {
-      it.dir = test.tempDir
+      it.dir = dir
       it.projMeta = projMeta
       it.create = true
       it.config["test"] = Marker.val
@@ -34,7 +34,7 @@ class HxdTestSpi : HxTestSpi
 
   override HxRuntime start(Dict projMeta)
   {
-    boot(test, projMeta)
+    boot(test.tempDir, projMeta)
   }
 
   override Void stop(HxRuntime rt)
