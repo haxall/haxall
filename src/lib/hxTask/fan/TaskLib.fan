@@ -9,12 +9,13 @@
 using concurrent
 using haystack
 using obs
+using axon
 using hx
 
 **
 ** Async task engine library
 **
-const class TaskLib : HxLib
+const class TaskLib : HxLib, HxTaskService
 {
   ** Construction
   new make()
@@ -22,6 +23,9 @@ const class TaskLib : HxLib
     this.pool = ActorPool { it.name = "${rt.name}-Task"; it.maxThreads = rec.maxThreads }
     this.tasksById = ConcurrentMap()
   }
+
+  ** Publish HxTaskService
+  override HxService[] services() { [this] }
 
   ** Settings record
   override TaskSettings rec() { super.rec }
@@ -37,6 +41,13 @@ const class TaskLib : HxLib
 
   ** List the current tasks
   internal Task[] tasks() { tasksById.vals(Task#) }
+
+  ** Run the given expression asynchronously in an ephemeral task.
+  ** Return a future to track the asynchronous result.
+  override Future run(Expr expr, Obj? msg := null)
+  {
+    Task.makeEphemeral(this, expr).send(msg)
+  }
 
   ** Start callback
   override Void onStart()
@@ -113,7 +124,7 @@ const class TaskLib : HxLib
   }
 
   HxUser user() { userRef.val }
-  private const AtomicRef userRef := AtomicRef() // (HxUser.task)
+  private const AtomicRef userRef := AtomicRef()
 
   override Duration? houseKeepingFreq() { 3min }
 

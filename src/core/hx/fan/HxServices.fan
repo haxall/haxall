@@ -9,6 +9,7 @@
 using concurrent
 using crypto
 using haystack
+using axon
 using web
 using obs
 
@@ -64,6 +65,9 @@ const mixin HxStdServices
 
   ** I/O APIs
   @NoDoc abstract HxIOService io()
+
+  ** Task APIs to run Axon in the background
+  @NoDoc abstract HxTaskService task()
 
   ** Point historization service or no-op if not supported
   @NoDoc abstract HxHisService his()
@@ -279,12 +283,28 @@ const mixin HxIOService : HxService
 }
 
 **************************************************************************
+** HxTaskService
+**************************************************************************
+
+**
+** Task APIs to run Axon in the background
+**
+@NoDoc
+const mixin HxTaskService : HxService
+{
+  ** Run the given expression asynchronously in an ephemeral task.
+  ** Return a future to track the asynchronous result.
+  abstract Future run(Expr expr, Obj? msg := null)
+}
+
+**************************************************************************
 ** HxHisService
 **************************************************************************
 
 **
 ** Point historization APIs
 **
+@NoDoc
 const mixin HxHisService : HxService
 {
   **

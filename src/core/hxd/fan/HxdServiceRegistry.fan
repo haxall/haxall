@@ -65,6 +65,7 @@ const class HxdServiceRegistry : HxServiceRegistry
     this.user       = get(HxUserService#)
     this.ioRef      = get(HxIOService#, false)
     this.file       = get(HxFileService#)
+    this.taskRef    = get(HxTaskService#, false)
     this.his        = get(HxHisService#)
     this.pointWrite = get(HxPointWriteService#)
     this.conns      = get(HxConnRegistryService#)
@@ -89,6 +90,9 @@ const class HxdServiceRegistry : HxServiceRegistry
 
   override HxIOService io() { ioRef ?: throw UnknownServiceErr("HxIOService") }
   private const HxIOService? ioRef
+
+  override HxTaskService task() { taskRef ?: throw UnknownServiceErr("HxTaskService") }
+  private const HxTaskService? taskRef
 
   override const HxPointWriteService pointWrite
 
