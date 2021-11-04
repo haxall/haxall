@@ -164,7 +164,12 @@ mixin PySession
     buf := Buf()
     brio := BrioWriter(buf.out) { it.maxStrCode = -1 }
     brio.writeVal(obj).close
-    return sendFrame(buf.flip).recvVal
+    val := sendFrame(buf.flip).recvVal
+
+    // decode ndarray
+    if (val is Dict && ((Dict)val).has("ndarray")) val = NDArray.decode(val)
+
+    return val
   }
 
   private This sendFrame(Buf buf)
