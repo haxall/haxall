@@ -247,6 +247,43 @@ class TaskTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Adjuncts
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testAdjuncts()
+  {
+    lib := (TaskLib)addLib("task")
+
+    t := addTaskRec("T1",
+      """ (msg) => do
+            taskTestAdjunct()
+          end
+          """)
+
+    // verify adjunct initialization
+    verifyEq(eval("taskSend($t.id.toCode, null).futureGet"), n(1))
+    TestTaskAdjunct a := lib.task(t.id).adjunct |->HxTaskAdjunct| { throw Err() }
+    verifyEq(a.counter.val, 1)
+    verifyEq(a.onKillFlag.val, false)
+
+    // verify adjunct is reused on subsequent calls to task
+    verifyEq(eval("taskSend($t.id.toCode, null).futureGet"), n(2))
+    verifyEq(eval("taskSend($t.id.toCode, null).futureGet"), n(3))
+    verifySame(a, lib.task(t.id).adjunct |->HxTaskAdjunct| { throw Err() })
+    verifyEq(a.counter.val, 3)
+    verifyEq(a.onKillFlag.val, false)
+
+    // make a change to the task to force restart
+    commit(t, ["foo":m])
+    sync
+    verifyEq(eval("taskSend($t.id.toCode, null).futureGet"), n(1))
+    verifyNotSame(a, lib.task(t.id).adjunct |->HxTaskAdjunct| { throw Err() })
+    verifyEq(a.counter.val, 3)
+    verifyEq(a.onKillFlag.val, true)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // User
 //////////////////////////////////////////////////////////////////////////
 

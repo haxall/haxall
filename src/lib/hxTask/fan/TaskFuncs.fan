@@ -361,6 +361,15 @@ const class TaskFuncs
     lib(curContext).refreshUser
   }
 
+  ** White-box testing for adjunct
+  @NoDoc @Axon
+  static Number taskTestAdjunct()
+  {
+    TestTaskAdjunct a := curContext.rt.task.adjunct |->TestTaskAdjunct| { TestTaskAdjunct() }
+    a.counter.increment
+    return Number(a.counter.val)
+  }
+
   ** Verify running in a task context
   private static Void checkTaskIsRunning()
   {
@@ -382,6 +391,17 @@ const class TaskFuncs
 
   ** Lookup TaskLib for context
   private static TaskLib lib(HxContext cx) { cx.rt.lib("task") }
+}
+
+**************************************************************************
+** TestTaskAdjunct (whitebox testing)
+**************************************************************************
+
+internal const class TestTaskAdjunct : HxTaskAdjunct
+{
+  override Void onKill() { onKillFlag.val = true }
+  const AtomicBool onKillFlag := AtomicBool()
+  const AtomicInt counter := AtomicInt()
 }
 
 **************************************************************************
