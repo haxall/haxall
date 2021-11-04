@@ -26,7 +26,7 @@ class TaskTest : HxTest
   @HxRuntimeTest
   Void testSettings()
   {
-    lib := (TaskLib)rt.libs.add("task")
+    lib := (TaskLib)addLib("task")
     verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
     verifyEq(lib.rec.maxThreads, 50)
     verifyEq(lib.rec["maxThreads"], null)
@@ -59,7 +59,7 @@ class TaskTest : HxTest
   @HxRuntimeTest { meta = "steadyState: 0s" }
   Void testBasics()
   {
-    lib := (TaskLib)rt.libs.add("task")
+    lib := (TaskLib)addLib("task")
     sync
     lib.spi.sync
 
@@ -151,6 +151,9 @@ class TaskTest : HxTest
     verifyEq(eval("""taskSend($d.id.toCode, 100ms).futureCancel.futureState"""), "cancelled")
     verifyEq(eval("""taskSend($d.id.toCode, 100ms).futureCancel.futureIsComplete"""), true)
 
+    // test service
+    verifyEq(rt.task.run(Parser(Loc.eval, "(msg)=>msg+100".in).parse, n(7)).get, n(107))
+
     // stop lib and verify everything is cleaned up
     rt.libs.remove("task")
     rt.sync
@@ -165,6 +168,9 @@ class TaskTest : HxTest
     verifyKilled(bad2Task)
     verifyKilled(bad3Task)
     verifyEq(sched.subscriptions.size, 0)
+
+    // test service
+    verifyErr(UnknownServiceErr#) { rt.task }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -174,7 +180,7 @@ class TaskTest : HxTest
   @HxRuntimeTest
   Void testLocals()
   {
-    lib := (TaskLib)rt.libs.add("task")
+    lib := (TaskLib)addLib("task")
 
     t := addTaskRec("T",
       """ (msg) => do
@@ -207,7 +213,7 @@ class TaskTest : HxTest
   @HxRuntimeTest
   Void testCancel()
   {
-    lib := (TaskLib)rt.libs.add("task")
+    lib := (TaskLib)addLib("task")
 
     // setup a task that loops with sleep call
     addFuncRec("testIt",
@@ -257,7 +263,7 @@ class TaskTest : HxTest
       return
     }
 
-    lib := (TaskLib)rt.libs.add("task")
+    lib := (TaskLib)addLib("task")
 
     a := addRec(["dis":"A", "site":m, "foo":m])
     b := addRec(["dis":"B", "site":m])
