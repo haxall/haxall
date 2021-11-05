@@ -311,7 +311,7 @@ const mixin HxTaskService : HxService
 @NoDoc
 const mixin HxTaskAdjunct
 {
-  ** Callback when task is killed.  There is no guarantee which thread is
+  ** Callback when task is killed. There is no guarantee which thread is
   ** used to make this callback, so implementations must ensure that
   ** any processing is thread-safe and non-blocking.
   virtual Void onKill() {}

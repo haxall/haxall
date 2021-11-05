@@ -26,8 +26,16 @@ const class PyFuncs
   **   - 'image': name of the Docker image to run. (default='hxpy:latest')
   **   - 'logLevel': log level of the hxpy python process in Docker. Valid values
   **   are 'WARN', 'INFO', 'DEBUG', (default='WARN')
+  **
+  ** Sessions created in the context of a task are persistent, meaning they will
+  ** not be closed until the task is killed.
   @Axon{ admin=true }
-  static PySession py(Dict? opts := null) { lib.mgr.open(opts) }
+  static PySession py(Dict? opts := null)
+  {
+    // get the persistent session if running in a task, otherwise create
+    // a non-persistent session.
+    task(opts)?.session ?: openSession(opts)
+  }
 
   ** Set the timeout for `pyEval()`.
   @Axon{ admin=true }
@@ -45,6 +53,7 @@ const class PyFuncs
   static PySession pyExec(PySession py, Str code) { py.exec(code) }
 
   ** Evalue the given python statement in the session, and return the result.
+  ** The session will be closed unless it is running in a task.
   @Axon{ admin=true }
   static Obj? pyEval(PySession py, Str stmt)
   {
@@ -54,7 +63,49 @@ const class PyFuncs
     }
     finally
     {
-      try { py.close } catch (Err ignore) { lib.log.debug("Failed to close", ignore) }
+      try
+      {
+        // close the session if not running in a task
+        if (task == null) py.close
+      }
+      catch (Err ignore) { lib.log.debug("Failed to close", ignore) }
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Util
+//////////////////////////////////////////////////////////////////////////
+
+  ** Open a new Python session
+  static private PySession openSession(Dict? opts) { lib.mgr.open(opts) }
+
+  ** Get the python task adjunct if running in a task; otherwise return null
+  static private PyAdjunct? task(Dict? opts := null)
+  {
+    try
+    {
+      tasks := (HxTaskService)HxContext.curHx.rt.services.get(HxTaskService#)
+      return tasks.adjunct |->HxTaskAdjunct| { PyAdjunct(openSession(opts)) }
+    }
+    catch (Err err)
+    {
+      return null
     }
   }
 }
+
+**************************************************************************
+** PyAdjunct
+**************************************************************************
+
+internal const class PyAdjunct : HxTaskAdjunct
+{
+  new make(PySession session) { this.sessionRef = Unsafe(session) }
+
+  PySession session() { sessionRef.val }
+  private const Unsafe sessionRef
+
+  override Void onKill() { session.close }
+}
+
+
