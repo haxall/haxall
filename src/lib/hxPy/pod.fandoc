@@ -1,0 +1,84 @@
+**************************************************************************
+** title:      PyLib
+** author:     Matthew Giannini
+** created:    04 Nov 2021
+** copyright:  Copyright (c) 2021, SkyFoundry LLC
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+The Python library is used to execute Python code in a sandboxed Docker container.
+The default Docker image running in this container is configured to provide
+access to a number of Python libraries to facilitate scientific computing
+and machine learning.
+
+Prerequisites [#prereqs]
+************************
+The Python library requires access to a Docker instance through use of the 'docker' extension.
+Docker must have the 'hxpy' image installed in order to execute Python code.
+(TODO: how to get the image).
+
+Axon [#axon]
+************
+To run Python code, you must first open a session. Opening a session causes
+a new Docker container to be created and started. This container is running
+the 'hxpy' Python module which is responsible for handling the various
+commands you can issues on a session. Use the `py()` Axon function to create a session.
+
+The general pattern for using a python session is:
+
+1. Create a session using `py()`
+1. Configure the session using funcs like `pyDefine()`, `pyExec()`, and `pyTimeout()`
+1. Evaluate an expression using `pyEval()` to get a result and close the session.
+
+The following is a simple example demonstrating this pattern. In this example
+we create a session, define some variables, and evaluate an expression. After this
+code executes, the 'val' variable will have the value '200'.
+
+pre>
+  val: py()
+    .pyTimeout(10sec)
+    .pyDefine("a", 100)
+    .pyDefine("b", 2)
+    .pyExec("def mult(x, y): return x * y\n")
+    .pyEval("mult(a, b)")
+<pre
+
+Data Marshalling [#marshalling]
+*******************************
+You can use the `pyDefine()` function to pass variables to the remote the Python
+instance for use in your code. The Python library will convert Haystack types to
+Python types as defined in the table below. Only the marked data types can
+be returned using `pyEval()`.
+
+pre>
+Haystack    Python        pyEval()   Notes
+--------    ------        --------   -----
+null        None          ✓
+Marker      Marker        ✓          hxpy.haystack.marker.Marker
+Bool        bool          ✓
+Number      int/float     ✓          Units not marshalled
+Str         str           ✓
+Uri         str
+Time        datetime.time ✓
+DateTime    datetime.date ✓
+Buf         bytes         ✓
+Dict        dict          ✓
+List        list          ✓
+Grid        Grid          ✓          hxpy.haystack.grid.Grid
+MatrixGrid  numpy.ndarray ✓          see below
+<pre
+
+Grid Marshalling [#gridMarshalling]
+===================================
+The Python library has built-in support for marshalling Grids to Python types
+that are optimized and suitable for machine learning.
+
+Any Grid that is converted to a matrix using `toMatrix()` will be converted
+to a 'numpy.ndarray' for use in your Python code.
+
+  py().pyDefine("data", toMatrix(g)).pyEval("type(data)")
+
+
+
