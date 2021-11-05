@@ -45,6 +45,12 @@ pre>
     .pyEval("mult(a, b)")
 <pre
 
+Persistent Sessions [#persistent]
+=================================
+By default, a Python session is closed after a call to `pyEval()`. However, if you
+create a Python session in a [task]`ext-task::doc`, then the session will remain
+opened until the task is killed/removed.
+
 Data Marshalling [#marshalling]
 *******************************
 You can use the `pyDefine()` function to pass variables to the remote the Python
@@ -80,5 +86,10 @@ to a 'numpy.ndarray' for use in your Python code.
 
   py().pyDefine("data", toMatrix(g)).pyEval("type(data)")
 
-
-
+Python Environment [#env]
+*************************
+The Docker container running Python will launch the [hxpy]`https://github.com/haxall/haxall/tree/main/src/lib/hxPy/py/hxpy`
+module. Python code executed in this container has access to several common Python libraries that
+are useful for scientific computing and machine learning. The full list of
+available Python libraries is available
+[here]`https://github.com/haxall/haxall/blob/main/src/lib/hxPy/py/hxpy/requirements.txt`
