@@ -8,6 +8,7 @@
 
 --------------------------------------------------------------------------
 def: ^lib:py
+icon: "python"
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc, ^lib:math, ^lib:docker]
 typeName:"hxPy::PyLib"
 doc: "Python inter-process communication"

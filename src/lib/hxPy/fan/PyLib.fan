@@ -11,7 +11,7 @@ using haystack
 using hx
 
 **
-** Python inter-process communication library
+** Python library.
 **
 const class PyLib : HxLib
 {
