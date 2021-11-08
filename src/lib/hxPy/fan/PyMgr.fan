@@ -41,14 +41,32 @@ internal const class PyMgr : Actor
 // PyMgr
 //////////////////////////////////////////////////////////////////////////
 
-  PySession open(Dict? opts := null, Duration? timeout := PyMgr.timeout)
+  PySession openSession(Dict? opts := null)
   {
-    send(HxMsg("open", opts)).get(timeout)->val
+    taskSession(opts) ?: createSession(opts)
   }
 
   Void shutdown(Duration? timeout := PyMgr.timeout)
   {
     send(HxMsg("shutdown")).get(timeout)
+  }
+
+  internal PyMgrSession? taskSession(Dict? opts := null)
+  {
+    try
+    {
+      tasks := (HxTaskService?)lib.rt.services.get(HxTaskService#)
+      return tasks.adjunct |->HxTaskAdjunct| { createSession(opts) }
+    }
+    catch (Err err)
+    {
+      return null
+    }
+  }
+
+  private PyMgrSession createSession(Dict? opts)
+  {
+    send(HxMsg("open", PyMgrSession(this, opts ?: Etc.emptyDict).open)).get(timeout)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -70,29 +88,22 @@ internal const class PyMgr : Actor
 // Open
 //////////////////////////////////////////////////////////////////////////
 
-  private Unsafe onOpen(Dict? opts)
+  private PyMgrSession onOpen(PyMgrSession session)
   {
     if (!running.val) throw Err("Not running")
 
-    session := PyDockerSession(this, opts ?: Etc.emptyDict)
-    ref := Unsafe(session)
-    sessions.add(session.cid, ref)
-    return ref
+    sessions.add(session.id, session)
+    return session
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Close
 //////////////////////////////////////////////////////////////////////////
 
-  internal Obj? onForceClose(Str id)
+  // deallocates (does not close) the session
+  internal Void removeSession(PyMgrSession session)
   {
-    lookup(id)?.close
-    return id
-  }
-
-  internal Void removePySession(Str id)
-  {
-    sessions.remove(id)
+    sessions.remove(session.id)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -102,13 +113,147 @@ internal const class PyMgr : Actor
   private Obj? onShutdown()
   {
     running.val = false
-    sessions.each |Unsafe ref, Str id|
+    sessions.each |PyMgrSession session, Uuid id|
     {
       log.info("Killing python session: $id")
-      onForceClose(id)
+      session.onKill
     }
     return null
   }
+}
+
+**************************************************************************
+** PyMgrSession
+**************************************************************************
+
+internal const class PyMgrSession : PySession, HxTaskAdjunct
+{
+  new make(PyMgr mgr, Dict opts)
+  {
+    this.id   = Uuid()
+    this.mgr  = mgr
+    this.opts = opts
+  }
+
+  const Uuid id
+  const PyMgr mgr
+  const Dict opts
+  PySession session() { ((Unsafe)sessionRef.val).val }
+  private const AtomicRef sessionRef := AtomicRef()
+
+  private Log log() { mgr.lib.log }
+
+  private Bool isClosed() { sessionRef.val == null }
+
+//////////////////////////////////////////////////////////////////////////
+// Open
+//////////////////////////////////////////////////////////////////////////
+
+  This open()
+  {
+    if (!isClosed) throw Err("Already open")
+
+    docker := mgr.lib.rt.services.get(HxDockerService#)
+    s := PyDockerSession(docker, opts)
+    sessionRef.val = Unsafe(s)
+    return this
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// PySession
+//////////////////////////////////////////////////////////////////////////
+
+  override This define(Str name, Obj? val)
+  {
+    session.define(name, val)
+    return this
+  }
+
+  override This exec(Str code)
+  {
+    session.exec(code)
+    return this
+  }
+
+  override This timeout(Duration? dur)
+  {
+    session.timeout(dur)
+    return this
+  }
+
+  override Obj? eval(Str code)
+  {
+    try
+    {
+      return session.eval(code)
+    }
+    catch (TimeoutErr err)
+    {
+      this.close
+      if (inTask) this.restart
+      throw err
+    }
+    catch (Err err)
+    {
+      if (inTask) this.restart
+      throw err
+    }
+  }
+
+  override This close()
+  {
+    // kill the session if not running in a task
+    if (!inTask) onKill
+    return this
+  }
+
+  ** Restart the session, but only if running in a task
+  private Void restart()
+  {
+    if (!inTask) return
+    try
+    {
+      onClose
+      this.open
+    }
+    catch (Err err)
+    {
+      onRemoveSession
+      log.err("Could not restart persistent session. Killing it.", err)
+      throw err
+    }
+  }
+
+  private Void onClose()
+  {
+    if (isClosed) return
+    try { session.close } catch (Err err) { log.err("Failed to close session", err) }
+    sessionRef.val = null
+  }
+
+  private Void onRemoveSession()
+  {
+    mgr.removeSession(this)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// HxTaskAdjunct
+//////////////////////////////////////////////////////////////////////////
+
+  override Void onKill()
+  {
+    // close the session
+    onClose
+
+    // deallocate python mgr session
+    onRemoveSession
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Util
+//////////////////////////////////////////////////////////////////////////
+
+  private Bool inTask() { mgr.taskSession != null }
 }
 
 **************************************************************************
@@ -122,9 +267,9 @@ internal class PyDockerSession : PySession
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new open(PyMgr mgr, Dict opts)
+  new open(HxDockerService dockerService, Dict opts)
   {
-    this.mgr  = mgr
+    this.dockerService = dockerService
     this.opts = opts
 
     // run docker container
@@ -163,7 +308,7 @@ internal class PyDockerSession : PySession
   ** This assume the docker daemon is running on the localhost. If we remove
   ** that assumption then we need to configure a port range for hxPy and
   ** explicitly cycle through that port range instead of finding random port.
-  private static Int findOpenPort(Range range := Range.makeInclusive(49152, 65532))
+  private static Int findOpenPort(Range range := Range.makeInclusive(10000, 30000))
   {
     attempts := 100
     i := 1
@@ -184,9 +329,7 @@ internal class PyDockerSession : PySession
     throw IOErr("Cannot find free port in $range after $attempts attempts")
   }
 
-  private const PyMgr mgr
-  private Log log() { mgr.lib.log }
-  private HxDockerService dockerService() { mgr.lib.rt.services.get(HxDockerService#) }
+  private HxDockerService dockerService
 
   ** Session options
   private const Dict opts
@@ -225,6 +368,7 @@ internal class PyDockerSession : PySession
     {
       return session.eval(code)
     }
+    // only catch timeout errors so we can keep around exited containers for inspection
     catch (TimeoutErr err)
     {
       this.close
@@ -239,17 +383,14 @@ internal class PyDockerSession : PySession
     {
       dockerService.deleteContainer(this.cid)
     }
-    catch (Err err)
+    catch (Err ignore)
     {
-      log.err("Failed to delete container $cid", err)
+      // log.err("Failed to delete container $cid", err)
     }
 
     // close the session
     session?.close
     session = null
-
-    // deallocate session from mgr
-    mgr.removePySession(this.cid)
 
     return this
   }
