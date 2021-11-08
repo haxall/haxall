@@ -309,11 +309,11 @@ internal const class DockerMgrActor : Actor, HxDockerService
     if (!running.val) throw Err("The Docker service is stopped")
 
     // check if docker daemon is specified in the settings
-    host := lib.rec.dockerDaemon
+    host := lib.rec.dockerDaemon?.trimToNull
 
     return DockerConfig
     {
-      if (host != null && !host.isEmpty) it.daemonHost = host
+      if (host != null) it.daemonHost = host
     }
   }
 
