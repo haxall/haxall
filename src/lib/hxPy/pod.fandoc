@@ -93,3 +93,22 @@ module. Python code executed in this container has access to several common Pyth
 are useful for scientific computing and machine learning. The full list of
 available Python libraries is available
 [here]`https://github.com/haxall/haxall/blob/main/src/lib/hxPy/py/hxpy/requirements.txt`
+
+IO [#io]
+========
+When the 'hxpy' container is started, the current runtime project's 'io/' directory will
+be mounted into the container at '/io/'. This allows you to create/read files between
+the Haxall environment and the Python container.
+
+pre>
+// Write a simple text file to the mounted io/ directory
+py()
+  .pyExec("""def ioTest():
+               with open("/io/example.txt", "w") as f:
+                 f.write("Testing IO Example")
+             """)
+  .pyEval("ioTest()")
+
+// read in Axon the contents of the file we just created in Python
+s: ioReadStr(`io/example.txt`)
+<pre
