@@ -30,8 +30,12 @@ const class PyLib : HxLib
   ** Process manager
   internal const PyMgr mgr
 
-  ** Open a new python session
-  @NoDoc PySession openSession(Dict? opts := null) { mgr.open(opts) }
+  ** Open a new python session or return an existing one if running in the
+  ** context of a task
+  @NoDoc PySession openSession(Dict? opts := null)
+  {
+    mgr.openSession(opts)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle Callbacks
@@ -41,4 +45,5 @@ const class PyLib : HxLib
   {
     mgr.shutdown
   }
+
 }
