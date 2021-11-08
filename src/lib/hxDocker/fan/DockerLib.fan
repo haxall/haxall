@@ -19,6 +19,9 @@ const class DockerLib : HxLib
     dockerMgr = DockerMgrActor(this)
   }
 
+  ** Settings record
+  override DockerSettings rec() { super.rec }
+
   internal const DockerMgrActor dockerMgr
 
   ** Publish the HxDockerService
@@ -29,4 +32,25 @@ const class DockerLib : HxLib
   {
     dockerMgr.shutdown
   }
+}
+
+**************************************************************************
+** DockerSettings
+**************************************************************************
+
+const class DockerSettings : TypedDict
+{
+  ** Constructor
+  new make(Dict d, |This|f) : super(d) { f(this) }
+
+  ** Docker daemon URI to connect to. If unspecified, then the host default will be
+  ** used.
+  ** - 'npipe:////./pipe/docker_engine' (Windows named pipe)
+  ** - 'unix:///var/run/docker.sock' (Unix domain socket)
+  ** - 'tcp://localhost:2375' (TCP/HTTP access)
+  @TypedTag { meta =
+    Str<|placeholder: "<host default>"
+        |>
+  }
+  const Str? dockerDaemon := null
 }

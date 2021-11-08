@@ -33,3 +33,20 @@ src:
   delete: { action:"dockerDeleteContainer", select, disKey:"ui::delete" }
   data:   { expr:"dockerListContainers()" }
 --------------------------------------------------------------------------
+
+
+//////////////////////////////////////////////////////////////////////////
+// Settings App
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+view: dockerSettings
+appName: settings
+disKey: "Docker"
+admin
+doc: Settings for the Docker extension
+src:
+  view:   {inherit:"form"}
+  submit: {action:"extSettingsCommit"}
+  data:   {expr:"extSettings(\"docker\")"}
+--------------------------------------------------------------------------
