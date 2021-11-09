@@ -14,7 +14,7 @@ using haystack
 ** ShellState models the variable UI state
 **
 @Js
-internal class ShellState
+internal const class ShellState
 {
   ** Construct initial state
   static ShellState makeInit()

@@ -27,7 +27,11 @@ const class RecSubscription : Subscription
   private static Filter? parseFilter(Obj? val)
   {
     if (val == null) return null
-    if (val isnot Str) throw Err("obsFilter must be filter string")
+    if (val isnot Str)
+    {
+      if (val is Filter) return val
+      throw Err("obsFilter must be filter string")
+    }
     try
       return Filter.fromStr(val)
     catch (Err e)
