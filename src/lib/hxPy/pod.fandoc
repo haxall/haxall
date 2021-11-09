@@ -16,8 +16,19 @@ and machine learning.
 Prerequisites [#prereqs]
 ************************
 The Python library requires access to a Docker instance through use of the 'docker' extension.
-Docker must have the 'hxpy' image installed in order to execute Python code.
-(TODO: how to get the image).
+Docker must have the 'hxpy' image installed in order to execute Python code. The 'hxpy'
+image can be pulled from the Haxall GitHub package repository:
+
+pre>
+  > docker pull ghcr.io/haxall/hxpy:latest
+<pre
+
+If you are running SkySpark on a linux-based OS, then you **must** run SkySpark with
+Java 16+ in order to connect to the default docker daemon (this is becase the default
+daemon must be accessed using a
+[Unix Domain Socket]`https://en.wikipedia.org/wiki/Unix_domain_socket`, and Java didn't
+add support for that until Java 16).
+
 
 Axon [#axon]
 ************
