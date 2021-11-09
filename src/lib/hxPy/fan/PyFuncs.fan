@@ -24,7 +24,11 @@ const class PyFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Create a new `hxPy::PySession` instance. Options:
-  **   - 'image': name of the Docker image to run. (default='hxpy:latest')
+  **   - 'image': name of the Docker image to run. By default, the lib will
+  **   try to run the following images in this order:
+  **     1. 'ghcr.io/haxall/hxpy:<ver>' (where ver = current library Haxall version)
+  **     1. 'ghcr.io/haxall/hxpy:latest'
+  **     1. 'ghcr.io/haxall/hxpy:main'
   **   - 'logLevel': log level of the hxpy python process in Docker. Valid values
   **   are 'WARN', 'INFO', 'DEBUG', (default='WARN')
   **
