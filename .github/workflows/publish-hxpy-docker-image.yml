@@ -10,7 +10,7 @@ on:
     tags:
       - '*'
     paths:
-      - 'hxpy/**'
+      - 'src/lib/hxpy/py/**'
 
 env:
   REGISTRY: ghcr.io
