@@ -273,7 +273,6 @@ internal class PyDockerSession : PySession
     this.opts = opts
 
     // run docker container
-    image  := opts.get("image", "hxpy:latest")
     key    := Uuid()
     level  := ((Str)opts.get("logLevel", "WARN" )).upper
     port   := findOpenPort
@@ -287,7 +286,14 @@ internal class PyDockerSession : PySession
       ],
     ]
 
-    this.cid = dockerService.run(image, config)
+    this.cid = priorityImageNames(opts).eachWhile |image->Str?|
+    {
+      try
+      {
+        return dockerService.run(image, config)
+      }
+      catch (Err ignore) { return null }
+    } ?: throw Err("Could not find any matching docker image: ${priorityImageNames(opts)}")
 
     // now connect the HxpySession
     try
@@ -303,6 +309,21 @@ internal class PyDockerSession : PySession
     // configure timeout
     t := opts.get("timeout") as Number
     if (t != null) session.timeout(t.toDuration)
+  }
+
+  private static Str[] priorityImageNames(Dict opts)
+  {
+    // check if image name is explicitly specified
+    x := opts.get("image") as Str
+    if (x != null) return [x]
+
+    // otherwise, try in this order
+    ver := PyMgr#.pod.version
+    return [
+      "ghcr.io/haxall/hxpy:${ver}",
+      "ghcr.io/haxall/hxpy:latest",
+      "ghcr.io/haxall/hxpy:main",
+    ]
   }
 
   ** This assume the docker daemon is running on the localhost. If we remove
