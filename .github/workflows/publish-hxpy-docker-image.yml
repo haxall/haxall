@@ -11,7 +11,7 @@ on:
       - '*'
     paths:
       - 'src/lib/hxpy/py/**'
-    workflow_dispatch:
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
