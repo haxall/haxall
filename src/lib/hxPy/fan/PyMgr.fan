@@ -275,7 +275,7 @@ internal class PyDockerSession : PySession
     // run docker container
     key    := Uuid()
     level  := ((Str)opts.get("logLevel", "WARN" )).upper
-    port   := findOpenPort
+    port   := (opts.get("port") as Number)?.toInt ?: findOpenPort
     config := Str:Obj?[
       "cmd": ["-m", "hxpy", "--key", "$key", "--level", level],
       "exposedPorts": ["8888/tcp": [:]],
@@ -295,15 +295,28 @@ internal class PyDockerSession : PySession
       catch (Err ignore) { return null }
     } ?: throw Err("Could not find any matching docker image: ${priorityImageNames(opts)}")
 
-    // now connect the HxpySession
-    try
+    // now connect the HxpySession with retries. retry is necessary because the
+    // container might have started, but the python hxpy server might not yet
+    // have opened the port for accepting connections
+    retry := (opts.get("maxRetry") as Number)?.toInt ?: 5
+    uri   := `tcp://localhost:${port}?key=${key}`
+    while (true)
     {
-      this.session = HxpySession.open(`tcp://localhost:${port}?key=${key}`)
-    }
-    catch (Err err)
-    {
-      this.close
-      throw err
+      try
+      {
+        this.session = HxpySession.open(uri)
+        break
+      }
+      catch (Err err)
+      {
+        if (--retry < 0)
+        {
+          this.close
+          throw IOErr("Failed to connect to $uri", err)
+        }
+      }
+      // sleep 1sec before retry
+      Actor.sleep(1sec)
     }
 
     // configure timeout
