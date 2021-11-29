@@ -44,6 +44,7 @@ internal class Commit
       this.id      = oldRec.id
       this.oldDict = oldRec.dict
     }
+    this.event = CommitEvent(diff, oldDict, cxInfo)
   }
 
   Void verify()
@@ -80,7 +81,7 @@ internal class Commit
     }
 
     // pre-commit hook
-    folio.hooks.preCommit(inDiff, cxInfo)
+    folio.hooks.preCommit(event)
   }
 
   Diff apply()
@@ -94,7 +95,8 @@ internal class Commit
 
     this.outDiff = Diff(id, oldMod, oldDict, newMod, newRec?.dict, inDiff.changes, inDiff.flags)
 
-    folio.hooks.postCommit(outDiff, cxInfo)
+    event.diff = outDiff
+    folio.hooks.postCommit(event)
 
     stats := isTransient ? folio.stats.commitsTransient : folio.stats.commitsPersistent
     stats.add(Duration.nowTicks - newTicks)
@@ -285,9 +287,28 @@ internal class Commit
   const DateTime newMod         // make
   const Int newTicks            // make
   const Obj? cxInfo             // make
+  private CommitEvent event     // make
   private [Ref:Ref]? newIds     // make
   private Str:Obj tags := [:]   // normTags
   private Bool hisTagsModified  // normTags
   private Rec? newRec           // add/remove/updateX
   private Diff? outDiff         // apply
+}
+
+**************************************************************************
+** CommitEvent
+**************************************************************************
+
+internal class CommitEvent : FolioCommitEvent
+{
+  new make(Diff diff, Dict? oldRec, Obj? cxInfo)
+  {
+    this.diff   = diff
+    this.oldRec = oldRec
+    this.cxInfo = cxInfo
+  }
+
+  override Diff diff
+  override Dict? oldRec
+  override Obj? cxInfo
 }
