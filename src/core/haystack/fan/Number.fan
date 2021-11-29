@@ -140,6 +140,7 @@ const final class Number
     if (unit === week) return 7day
     if (unit === year) return 365day
     if (unit === ms)   return 1ms
+    if (unit === us)   return 1000ns
     if (unit === ns)   return 1ns
     return null
   }
@@ -484,6 +485,7 @@ const final class Number
   @NoDoc const static Unit FdegDay := constUnit("degree_days_fahrenheit")
   @NoDoc const static Unit CdegDay := constUnit("degree_days_celsius")
   @NoDoc const static Unit ns      := constUnit("ns")
+  @NoDoc const static Unit us      := constUnit("µs")
   @NoDoc const static Unit ms      := constUnit("ms")
   @NoDoc const static Unit sec     := constUnit("s")
   @NoDoc const static Unit mins    := constUnit("min")
