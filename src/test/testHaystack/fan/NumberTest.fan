@@ -160,6 +160,7 @@ class NumberTest : HaystackTest
 
     verifyEq(n(123,  "ns").toDuration, 123ns)
     verifyEq(n(123,  "ms").toDuration, 123ms)
+    verifyEq(n(123,  "µs").toDuration, 123_000ns)
     verifyEq(n(0.5f, "h").toDuration, 30min)
     verifyEq(n(123, "sec").toDuration, 123sec)
     verifyEq(n(123,   "h").toDuration, 123hr)
