@@ -31,8 +31,10 @@ const class HxdFolioHooks : FolioHooks
   ** Callback before diff is committed during verify
   ** phase. An exception will cancel entire commit.
   ** Pass through FolioContext.commitInfo if available.
-  override Void preCommit(Diff diff, Obj? cxInfo)
+  override Void preCommit(FolioCommitEvent e)
   {
+    diff := e.diff
+
     if (diff.isUpdate)
     {
       // cannot trash projMeta
@@ -52,8 +54,10 @@ const class HxdFolioHooks : FolioHooks
 
   ** Callback after diff has been committed.
   ** Pass through FolioContext.commitInfo if available.
-  override Void postCommit(Diff diff, Obj? cxInfo)
+  override Void postCommit(FolioCommitEvent e)
   {
+    diff := e.diff
+
     // the only transient hook might be to fire a curVal
     // observation; otherwise short circut all other code
     if (diff.isTransient)
@@ -62,7 +66,7 @@ const class HxdFolioHooks : FolioHooks
       return
     }
 
-    user := cxInfo as HxUser
+    user := e.cxInfo as HxUser
 
     if (diff.isUpdate)
     {

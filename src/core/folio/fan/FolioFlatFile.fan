@@ -167,17 +167,19 @@ const class FolioFlatFile : Folio
 
   private CommitFolioRes onCommit(Diff[] diffs, Obj? cxInfo)
   {
-    // pre commit
-    hooks := this.hooks
-    diffs.each |diff| { hooks.preCommit(diff, cxInfo) }
 
     // map diffs to commit handlers
     newMod := DateTime.nowUtc(null)
     commits := FolioFlatFileCommit[,]
-    diffs.each |diff| { commits.add(FolioFlatFileCommit(this, diff, newMod)) }
+    diffs.each |diff| { commits.add(FolioFlatFileCommit(this, diff, newMod, cxInfo)) }
 
-    // verify all commits upfront
-    commits.each |c| { c.verify }
+    // verify all commits upfront and call pre-commit
+    hooks := this.hooks
+    commits.each |c|
+    {
+      c.verify
+      hooks.preCommit(c.event)
+    }
 
     // apply to compute new record Dict
     diffs = commits.map |c->Diff| { c.apply }
@@ -193,7 +195,10 @@ const class FolioFlatFile : Folio
     }
 
     // post commit
-    diffs.each |diff| { hooks.postCommit(diff, cxInfo) }
+    commits.each |c|
+    {
+      hooks.postCommit(c.event)
+    }
 
     // save to file
     if (!diffs.first.isTransient)
@@ -348,7 +353,7 @@ internal class FolioFlatFileWriter : TrioWriter
 
 internal class FolioFlatFileCommit
 {
-  new make(FolioFlatFile folio, Diff diff, DateTime newMod)
+  new make(FolioFlatFile folio, Diff diff, DateTime newMod, Obj? cxInfo)
   {
     this.folio  = folio
     this.id     = normRef(diff.id)
@@ -356,6 +361,7 @@ internal class FolioFlatFileCommit
     this.newMod = newMod
     this.oldRec = folio.map.get(this.id)
     this.oldMod = inDiff.oldMod
+    this.event  = FolioFlatFileCommitEvent(diff, oldRec, cxInfo)
   }
 
   const FolioFlatFile folio
@@ -364,6 +370,7 @@ internal class FolioFlatFileCommit
   const DateTime newMod
   const Dict? oldRec
   const DateTime? oldMod
+  FolioFlatFileCommitEvent event
 
   Void verify()
   {
@@ -381,6 +388,7 @@ internal class FolioFlatFileCommit
       if (!inDiff.isForce && oldRec->mod != oldMod)
         throw ConcurrentChangeErr("$id: ${oldRec->mod} != $oldMod")
     }
+
     return this
   }
 
@@ -400,7 +408,9 @@ internal class FolioFlatFileCommit
     newRec.id.disVal = newRec.dis
 
     // return applied Diff
-    return Diff.makeAll(id, oldMod, oldRec, newMod, newRec, inDiff.changes, inDiff.flags)
+    outDiff := Diff.makeAll(id, oldMod, oldRec, newMod, newRec, inDiff.changes, inDiff.flags)
+    event.diff = outDiff
+    return outDiff
   }
 
   private Obj norm(Obj val)
@@ -419,4 +429,21 @@ internal class FolioFlatFileCommit
   }
 }
 
+**************************************************************************
+** FolioFlatFileCommitEvent
+**************************************************************************
+
+internal class FolioFlatFileCommitEvent : FolioCommitEvent
+{
+  new make(Diff diff, Dict? oldRec, Obj? cxInfo)
+  {
+    this.diff   = diff
+    this.oldRec = oldRec
+    this.cxInfo = cxInfo
+  }
+
+  override Diff diff
+  override Dict? oldRec
+  override Obj? cxInfo
+}
 

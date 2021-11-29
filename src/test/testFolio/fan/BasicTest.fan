@@ -668,17 +668,17 @@ internal const class TestHooks : FolioHooks
 
   override Namespace? ns(Bool checked := true) { throw UnsupportedErr() }
 
-  override Void preCommit(Diff diff, Obj? cxInfo)
+  override Void preCommit(FolioCommitEvent e)
   {
-    cxInfoRef.val = cxInfo
-    presRef.val = pres.dup.add(diff).toImmutable
-    if (diff.changes.has("throw")) throw IOErr()
+    cxInfoRef.val = e.cxInfo
+    presRef.val = pres.dup.add(e.diff).toImmutable
+    if (e.diff.changes.has("throw")) throw IOErr()
   }
 
-  override Void postCommit(Diff diff, Obj? cxInfo)
+  override Void postCommit(FolioCommitEvent e)
   {
-    cxInfoRef.val = cxInfo
-    postsRef.val = posts.dup.add(diff).toImmutable
+    cxInfoRef.val = e.cxInfo
+    postsRef.val = posts.dup.add(e.diff).toImmutable
   }
 
   override Void postHisWrite(Dict rec, Dict result)
