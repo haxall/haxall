@@ -12,6 +12,8 @@ using crypto
 using inet
 using hx
 
+using [java] java.lang::System
+
 **
 ** Cryptographic certificate and key pair management
 **
@@ -24,7 +26,7 @@ const class CryptoLib : HxLib, HxCryptoService
   new make()
   {
     this.dir      = rt.dir.plus(`crypto/`).create
-    this.keystore = CryptoKeyStore(rt.libs.actorPool, dir+`keystore.p12`, log)
+    this.keystore = CryptoKeyStore(rt.libs.actorPool, keystoreFile, log)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -36,6 +38,9 @@ const class CryptoLib : HxLib, HxCryptoService
 
   ** Directory for crypto keystore file
   const File dir
+
+  ** The keystore file to load
+  private File keystoreFile() { dir.plus(`keystore.p12`) }
 
 //////////////////////////////////////////////////////////////////////////
 // HxCryptoService
@@ -88,6 +93,11 @@ const class CryptoLib : HxLib, HxCryptoService
     SocketConfig.setCur(SocketConfig {
       it.truststore = this.keystore
     })
+
+    // Set default trust store for native java apis (e.g. ldap)
+    System.setProperty("javax.net.ssl.trustStoreType", "pkcs12")
+    System.setProperty("javax.net.ssl.trustStore", keystoreFile.osPath)
+    System.setProperty("javax.net.ssl.trustStorePassword", "changeit")
   }
 
   override Void onStop()
