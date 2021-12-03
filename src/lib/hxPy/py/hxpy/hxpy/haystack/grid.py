@@ -13,6 +13,15 @@ class Grid:
     def empty_grid():
         return Grid()
 
+    @staticmethod
+    def from_dataframe(frame):
+        cols = frame.columns
+        gb = GridBuilder()
+        gb.add_col_names(cols.tolist())
+        for idx, row in frame.iterrows():
+            gb.add_row(row.tolist())
+        return gb.to_grid()
+
     def __init__(self, meta=None, cols=None, cols_by_name=None, rows=None):
         if meta is None:
             meta = {}
@@ -33,6 +42,9 @@ class Grid:
 
     def cols(self):
         return self._cols
+
+    def col_names(self):
+        return list(map(lambda col: col.name(), self.cols()))
 
     def col(self, name, checked=True):
         c = self._cols_by_name.get(name)
@@ -63,6 +75,10 @@ class Grid:
     def val(self, row, col):
         return self.get(row).val(self._cols[col])
 
+    def to_dataframe(self):
+        import pandas
+        rows = list(map(lambda row: row.cells(), self._rows))
+        return pandas.DataFrame(data=rows, columns=self.col_names())
 
 # Grid
 
@@ -99,6 +115,7 @@ class GridBuilder:
         if len(cells) != len(self._cols):
             raise Exception(f'Num cells {len(cells)} != Num cols {len(self._cols)}')
         self._rows.append(GridRow(self._grid, cells))
+        return self
 
     def to_grid(self):
         if not self._cols_by_name:

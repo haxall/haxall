@@ -12,6 +12,7 @@ import io
 import datetime
 import struct
 import numpy
+import pandas
 
 from hxpy.brio import NativeBrioWriter
 from hxpy.brio import NativeBrioReader
@@ -169,6 +170,12 @@ class TestNativeBrioWriter(unittest.TestCase):
             brio = NativeBrioWriter(f).write_val(Grid.empty_grid())
             self.assertEqual(bytes.fromhex("183c0000143e"), bytes(f.getbuffer()))
 
+            # test empty panda DataFrame
+            f.seek(0)
+            frame = pandas.DataFrame()
+            brio.write_val(frame)
+            self.assertEqual(bytes.fromhex("183c0000143e"), bytes(f.getbuffer()))
+
             # v0  v1  v2
             #  1   2   3
             #  4   5   6
@@ -179,6 +186,12 @@ class TestNativeBrioWriter(unittest.TestCase):
             gb.add_row([4,5,6])
             g = gb.to_grid()
             brio.write_val(g)
+            self.assertEqual(bytes.fromhex("183c030214ff02763014ff02763114ff02763214060001ff00060002ff00060003ff00060004ff00060005ff00060006ff003e"), bytes(f.getbuffer()))
+
+            # test panda DataFrame equivalent to above
+            f.seek(0)
+            frame = pandas.DataFrame(data=[[1,2,3], [4,5,6]], columns=["v0","v1","v2"])
+            brio.write_val(frame)
             self.assertEqual(bytes.fromhex("183c030214ff02763014ff02763114ff02763214060001ff00060002ff00060003ff00060004ff00060005ff00060006ff003e"), bytes(f.getbuffer()))
 
 

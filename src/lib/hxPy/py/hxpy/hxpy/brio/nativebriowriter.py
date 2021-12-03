@@ -14,6 +14,8 @@ import numpy
 
 from functools import reduce
 
+import pandas.core.frame
+
 from .control import BrioControl
 from ..haystack import Marker
 from ..haystack import Grid
@@ -43,9 +45,9 @@ class NativeBrioWriter:
             return self._write_marker()
         elif t is bool:
             return self._write_bool(val)
-        elif t is int:
+        elif isinstance(val, (int, numpy.integer)):
             return self._write_int(val)
-        elif t is float:
+        elif isinstance(val, float):
             return self._write_float(val)
         elif t is str:
             return self._write_str(val)
@@ -63,6 +65,8 @@ class NativeBrioWriter:
             return self._write_grid(val)
         elif t is numpy.ndarray:
             return self._write_ndarray(val)
+        elif t is pandas.core.frame.DataFrame:
+            return self._write_dataframe(val)
         else:
             if self.strict:
                 raise IOError(f'Cannot encode {val} [{t}]')
@@ -186,6 +190,25 @@ class NativeBrioWriter:
             "bytes": val.astype(numpy.dtype(">d")).ravel().tobytes()
         }
         return self._write_dict(spec)
+
+    def _write_dataframe(self, frame):
+        self._u1(BrioControl.ctrlGrid)
+        self._u1(ord('<'))
+        cols = frame.columns
+        self._encode_varint(len(cols))
+        self._encode_varint(len(frame.index))
+
+        self._write_dict({})
+        for col in cols:
+            self._encode_str(col)
+            self._write_dict({})
+        for idx, row in frame.iterrows():
+            for col in cols:
+                v = row[col]
+                self.write_val(row[col])
+
+        self._u1(ord('>'))
+        return self
 
     def _u1(self, byte):
         self._file.write(bytes([byte]))

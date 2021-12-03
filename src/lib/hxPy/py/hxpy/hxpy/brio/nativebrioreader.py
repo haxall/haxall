@@ -197,17 +197,17 @@ class NativeBrioReader:
 
     def _consume_grid(self):
         self._u1('<')
-        numCols = self._decode_varint()
-        numRows = self._decode_varint()
+        num_cols = self._decode_varint()
+        num_rows = self._decode_varint()
 
         gb = GridBuilder()
         gb.set_meta(self.read_dict())
-        for c in range(0, numCols):
+        for c in range(0, num_cols):
             gb.add_col(self._decode_str(True), self.read_dict())
 
-        for r in range(0, numRows):
+        for r in range(0, num_rows):
             cells = []
-            for c in range(0, numCols):
+            for c in range(0, num_cols):
                 cells.append(self.read_val())
             gb.add_row(cells)
 
