@@ -56,7 +56,13 @@ internal const class FuncFeature : MFeature
 
   override Type defType() { FuncDef# }
 
-  override MDef createDef(BDef b) { FuncDef(b) }
+  override MDef createDef(BDef b)
+  {
+    src := b.meta["src"] as Str
+    if (src != null && b.meta.has("nosrc"))
+      b = BDef(b.symbol, b.libRef, Etc.dictRemove(b.meta, "src"), b.aux)
+    return FuncDef(b, src)
+  }
 
   override Err createUnknownErr(Str name) { UnknownFuncErr(name) }
 }
@@ -67,7 +73,11 @@ internal const class FuncFeature : MFeature
 
 const class FuncDef : MDef
 {
-  new make(BDef b) : super(b) { exprRef.val = b.aux }
+  new make(BDef b, Str? src) : super(b)
+  {
+    this.src = src
+    this.exprRef.val = b.aux
+  }
 
   Fn expr()
   {
@@ -80,10 +90,11 @@ const class FuncDef : MDef
 
   private Fn parseExpr()
   {
-    src := get("src") as Str ?: throw Err("Func missing src: $this")
+    if (src == null) throw Err("Func missing src: $this")
     return Parser(Loc(lib.name + "::" +  name), src.in).parseTop(name)
   }
 
+  private const Str? src
   private const AtomicRef exprRef := AtomicRef()
 }
 
