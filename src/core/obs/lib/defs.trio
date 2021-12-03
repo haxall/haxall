@@ -89,7 +89,7 @@ doc:
 def: ^obsCommits
 is: ^obsRecs
 doc:
-  Subscribe to record commits in Folio - - see [docs]`docHaxall::Observables#obsCommits`
+  Subscribe to record commits in Folio - see [docs]`docHaxall::Observables#obsCommits`
 --------------------------------------------------------------------------
 def: ^obsAdds
 is: ^marker
