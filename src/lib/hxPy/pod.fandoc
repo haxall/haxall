@@ -83,7 +83,7 @@ DateTime    datetime.date ✓
 Buf         bytes         ✓
 Dict        dict          ✓
 List        list          ✓
-Grid        Grid          ✓          hxpy.haystack.grid.Grid
+Grid        Grid          ✓          hxpy.haystack.grid.Grid (see below)
 MatrixGrid  numpy.ndarray ✓          see below
 <pre
 
@@ -91,6 +91,16 @@ Grid Marshalling [#gridMarshalling]
 ===================================
 The Python library has built-in support for marshalling Grids to Python types
 that are optimized and suitable for machine learning.
+
+By default, a Grid is marshalled to an 'hxpy.haystack.grid.Grid' type in Python.
+It is very common in data science applications to work with tabluar data using the
+'pandas.DataFrame' type. You can get a DataFrame from a Grid in your Python code
+by using 'grid.to_dataframe()'. You can return a 'pandas.DataFrame' as the result
+of an 'pyEval()' expression and it will automatically be converted to a Grid. You
+can also convert a DataFrame to a Grid using the 'Grid.from_dataframe(frame)' static
+method.
+
+  py().pyDefine("grid", grid).pyEval("str(grid.to_dataframe())")
 
 Any Grid that is converted to a matrix using `toMatrix()` will be converted
 to a 'numpy.ndarray' for use in your Python code.
