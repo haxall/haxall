@@ -36,12 +36,12 @@ class Parser
 
   Expr parse()
   {
-    r := cur === Token.defcompKeyword ? defcomp("top") : expr
+    r := cur === Token.defcompKeyword ? defcomp("top", Etc.emptyDict) : expr
     if (cur !== Token.eof) throw err("Expecting end of file, not $cur ($curVal)")
     return r
   }
 
-  Fn parseTop(Str name)
+  TopFn parseTop(Str name, Dict meta := Etc.emptyDict)
   {
     loc := curLoc
     curName = name
@@ -49,7 +49,7 @@ class Parser
 
     if (cur === Token.defcompKeyword)
     {
-      fn = defcomp(name)
+      fn = defcomp(name, meta)
     }
     else
     {
@@ -57,7 +57,7 @@ class Parser
       consume(Token.lparen)
       params := params()
       if (cur !== Token.fnEq) throw err("Expecting '(...) =>' top-level function")
-      fn = lamdbaBody(loc, params)
+      fn = lamdbaBody(loc, params, meta)
     }
 
     if (cur !== Token.eof) throw err("Expecting end of file, not $cur ($curVal)")
@@ -125,7 +125,7 @@ class Parser
 // CompDef
 //////////////////////////////////////////////////////////////////////////
 
-  private Fn defcomp(Str name)
+  private Fn defcomp(Str name, Dict meta)
   {
     // defcomp keyword
     compLoc := curLoc
@@ -152,7 +152,7 @@ class Parser
     consume(Token.endKeyword)
 
     // create CompDef implementation
-    def := MCompDef(compLoc, name, body, cells, cellsMap)
+    def := MCompDef(compLoc, name, meta, body, cells, cellsMap)
     compRef.val = def
 
     // update inner closures with reference to outer scope
@@ -717,7 +717,7 @@ class Parser
   ** This is a single point where we handle naming
   ** and lexically scoping all our functions.
   **
-  private Fn lamdbaBody(Loc loc, FnParam[] params)
+  private Fn lamdbaBody(Loc loc, FnParam[] params, Dict? topMeta := null)
   {
     // create new scope of inner functions
     oldInners := inners
@@ -737,7 +737,9 @@ class Parser
     body = optimizeLastReturn(body)
 
     // create fn
-    fn := Fn(loc, curFuncName, params, body)
+    fn := topMeta != null ?
+          TopFn(loc, curFuncName, topMeta, params, body) :
+          Fn(loc, curFuncName, params, body)
 
     // update any closures with a reference to outer scope
     bindInnersToOuter(fn)

@@ -91,7 +91,7 @@ const class FuncDef : MDef
   private Fn parseExpr()
   {
     if (src == null) throw Err("Func missing src: $this")
-    return Parser(Loc(lib.name + "::" +  name), src.in).parseTop(name)
+    return Parser(Loc(lib.name + "::" +  name), src.in).parseTop(name, this)
   }
 
   private const Str? src

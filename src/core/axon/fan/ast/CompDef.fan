@@ -13,7 +13,7 @@ using haystack
 ** CompDef data flow component definition
 **
 @Js
-const abstract class CompDef : Fn
+const abstract class CompDef : TopFn
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ const abstract class CompDef : Fn
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  @NoDoc new make(Loc loc, Str name, Expr body) : super(loc, name, FnParam.cells, body) {}
+  @NoDoc new make(Loc loc, Str name, Dict meta, Expr body) : super(loc, name, meta, FnParam.cells, body) {}
 
 //////////////////////////////////////////////////////////////////////////
 // Abstract methods

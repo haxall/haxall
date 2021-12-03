@@ -6,6 +6,8 @@
 //   26 Jul 2019  Brian Frank  Creation
 //
 
+using haystack
+
 **
 ** AbstractComp is base class for Fantom components.
 ** See `docHaxall::Comps#fantom`.
@@ -14,9 +16,9 @@
 abstract class AbstractComp : Comp
 {
   ** Reflect the given type
-  static CompDef reflect(Type type)
+  static CompDef reflect(Type type, Dict meta)
   {
-    return FCompDef(type, type.name.decapitalize)
+    return FCompDef(type, type.name.decapitalize, meta)
   }
 
   ** All components must implement single arg constructor

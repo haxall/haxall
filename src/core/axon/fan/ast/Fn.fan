@@ -30,6 +30,10 @@ const class Fn : Expr
   ** Top-level name or debug name if closure
   const Str name
 
+  virtual Dict meta() { Etc.emptyDict }
+
+  virtual Bool isTop() { false }
+
   ** Parent lexically scoped function
   @NoDoc Fn? outer() { outerRef.val }
   internal const AtomicRef outerRef := AtomicRef(null)
@@ -155,6 +159,41 @@ const class Fn : Expr
       default: throw Err("Too many params to map to sys::Func $loc")
     }
   }
+}
+
+**************************************************************************
+** TopFn
+**************************************************************************
+
+**
+** Top level function in the namespace
+**
+@Js
+const class TopFn : Fn
+{
+  new make(Loc loc, Str name, Dict meta, FnParam[] params, Expr body := Literal.nullVal)
+    : super(loc, name, params, body)
+  {
+    this.meta = meta
+    this.isSu         = meta.has("su")
+    this.isAdmin      = this.isSu || meta.has("admin")
+    this.isDeprecated = meta.has("deprecated")
+  }
+
+  ** Func def metadata
+  override const Dict meta
+
+  ** Return true
+  override Bool isTop() { true }
+
+  ** Is this function tagged as admin-only
+  const override Bool isAdmin
+
+  ** Is this function tagged as superuser-only
+  const override Bool isSu
+
+  ** Return if this function has been deprecated
+  const override Bool isDeprecated
 }
 
 **************************************************************************
