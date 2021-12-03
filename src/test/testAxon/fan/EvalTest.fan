@@ -897,7 +897,9 @@ class EvalTest : AxonTest
     def := (CompDef)Parser(Loc("foo"), src.in).parseTop("foo")
 
     // verify print round trips correctly
-    src = def.toStr
+    p := Printer()
+    def.print(p)
+    src = p.toStr
     def = (CompDef)Parser(Loc("foo"), src.in).parseTop("foo")
 
     // test basics
