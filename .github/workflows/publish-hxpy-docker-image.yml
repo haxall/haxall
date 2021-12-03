@@ -10,7 +10,7 @@ on:
     tags:
       - '*'
     paths:
-      - 'src/lib/hxpy/py/**'
+      - 'src/lib/hxPy/py/**'
   workflow_dispatch:
 
 env:
