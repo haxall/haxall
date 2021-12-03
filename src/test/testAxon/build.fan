@@ -29,6 +29,7 @@ class Build : BuildPod
                "concurrent @{fan.depend}",
                "haystack @{hx.depend}",
                "axon @{hx.depend}",
+               "hx @{hx.depend}",
                "testHaystack @{hx.depend}"]
     srcDirs = [`fan/`]
   }
