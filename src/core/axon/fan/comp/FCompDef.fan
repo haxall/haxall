@@ -15,8 +15,8 @@ using haystack
 @Js
 internal const class FCompDef : CompDef
 {
-  new make(Type type, Str name)
-    : super(Loc(type.qname), name, Literal.nullVal)
+  new make(Type type, Str name, Dict meta)
+    : super(Loc(type.qname), name, meta, Literal.nullVal)
   {
     list := FCellDef[,]
     map := Str:FCellDef[:]

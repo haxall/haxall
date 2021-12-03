@@ -15,8 +15,8 @@ using haystack
 @Js
 internal const class MCompDef : CompDef
 {
-  new make(Loc loc, Str name, Expr body, CellDef[] cells, Str:CellDef cellsMap)
-    : super(loc, name, body)
+  new make(Loc loc, Str name, Dict meta, Expr body, CellDef[] cells, Str:CellDef cellsMap)
+    : super(loc, name, meta, body)
   {
     this.cells = cells
     this.cellsMap = cellsMap

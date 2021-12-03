@@ -13,7 +13,7 @@ using concurrent
 ** FantomFn is an Axon function backed by a Fantom method
 **
 @Js @NoDoc
-const class FantomFn : Fn
+const class FantomFn : TopFn
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,9 +65,9 @@ const class FantomFn : Fn
     }
 
     if (lazy)
-      return LazyFantomFn(name, params, m, meta, instanceRef)
+      return LazyFantomFn(name, meta, params, m, instanceRef)
     else
-      return FantomFn(name, params, m, meta, instanceRef)
+      return FantomFn(name, meta, params, m, instanceRef)
   }
 
   ** Method to name
@@ -78,12 +78,11 @@ const class FantomFn : Fn
     return name
   }
 
-  internal new make(Str name, FnParam[] params, Method method, Dict meta, AtomicRef? instanceRef)
-    : super(Loc(name), name, params, Literal.nullVal)
+  internal new make(Str name, Dict meta, FnParam[] params, Method method, AtomicRef? instanceRef)
+    : super(Loc(name), name, meta, params, Literal.nullVal)
   {
     this.method       = method
     this.instanceRef  = instanceRef
-    this.meta         = meta
     this.isSu         = meta.has("su")
     this.isAdmin      = this.isSu || meta.has("admin")
     this.isDeprecated = meta.has("deprecated")
@@ -98,18 +97,6 @@ const class FantomFn : Fn
 
   ** Instance to call method on if not static
   const AtomicRef? instanceRef
-
-  ** Meta data tags
-  const Dict meta
-
-  ** Is this function tagged as admin-only
-  const override Bool isAdmin
-
-  ** Is this function tagged as superuser-only
-  const override Bool isSu
-
-  ** Return if this function has been deprecated
-  const override Bool isDeprecated
 
 //////////////////////////////////////////////////////////////////////////
 // Fn
@@ -171,7 +158,7 @@ const class FantomFn : Fn
 @Js @NoDoc
 internal const class LazyFantomFn : FantomFn
 {
-  new make(Str n, FnParam[] p, Method m, Dict d, Obj? i) : super(n, p, m, d, i) {}
+  new make(Str n, Dict d, FnParam[] p, Method m, Obj? i) : super(n, d, p, m, i) {}
   override Obj? callLazy(AxonContext cx, Expr[] args, Loc callLoc)
   {
     super.callx(cx, args, callLoc)
