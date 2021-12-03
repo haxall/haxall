@@ -15,12 +15,7 @@ class Grid:
 
     @staticmethod
     def from_dataframe(frame):
-        cols = frame.columns
-        gb = GridBuilder()
-        gb.add_col_names(cols.tolist())
-        for idx, row in frame.iterrows():
-            gb.add_row(row.tolist())
-        return gb.to_grid()
+        return GridBuilder.from_dataframe(frame).to_grid()
 
     def __init__(self, meta=None, cols=None, cols_by_name=None, rows=None):
         if meta is None:
@@ -84,6 +79,16 @@ class Grid:
 
 
 class GridBuilder:
+
+    @staticmethod
+    def from_dataframe(frame):
+        cols = frame.columns
+        gb = GridBuilder()
+        gb.add_col_names(cols.tolist())
+        for idx, row in frame.iterrows():
+            gb.add_row(row.tolist())
+        return gb
+
     def __init__(self):
         self._grid = Grid()
         self._cols_by_name = None
@@ -107,6 +112,16 @@ class GridBuilder:
     def add_col_names(self, names):
         for name in names:
             self.add_col(name)
+        return self
+
+    def set_col_meta(self, col_name, meta):
+        c = next((col for col in self._cols if col.name() == col_name), None)
+        if not c:
+            raise Exception(f'Column not found: {col_name}')
+        c = GridCol(c.index(), col_name, meta)
+        self._cols[c.index()] = c
+        if self._cols_by_name:
+            self._cols_by_name[col_name] = c
         return self
 
     def add_row(self, cells):
