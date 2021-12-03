@@ -102,6 +102,10 @@ method.
 
   py().pyDefine("grid", grid).pyEval("str(grid.to_dataframe())")
 
+You can also convert a DataFrame to a Grid or GridBuilder using
+'Grid.from_dataframe(frame)' or 'GridBuilder.from_dataframe(frame)' respectively. Use
+the latter when you need to add grid or column meta before creating the Grid.
+
 Any Grid that is converted to a matrix using `toMatrix()` will be converted
 to a 'numpy.ndarray' for use in your Python code.
 

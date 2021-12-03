@@ -25,5 +25,17 @@ class TestGrid(unittest.TestCase):
         self.assertEqual(g2.col_names(), ["a","b","c"])
         self.assertEqual(g2.rows()[0].cells(), [1, 2, 3])
 
+    def test_add_col_meta(self):
+        gb = GridBuilder().add_col_names(["a", "b", "c"])
+        self.assertEqual(gb.to_grid().col("a").meta(), {})
+
+        gb.set_col_meta("a", {"foo":"bar"})
+        self.assertEqual(gb.to_grid().col("a").meta(), {"foo":"bar"})
+
+        gb.add_row([1,2,3])
+        gb.set_col_meta("b", {"on":True})
+        self.assertEqual(gb.to_grid().col("a").meta(), {"foo":"bar"})
+        self.assertEqual(gb.to_grid().col("b").meta(), {"on":True})
+
 
 # TestGrid
