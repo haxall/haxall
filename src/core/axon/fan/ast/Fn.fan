@@ -194,6 +194,12 @@ const class TopFn : Fn
 
   ** Return if this function has been deprecated
   const override Bool isDeprecated
+
+  override Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)
+  {
+    cx.checkCall(this)
+    return super.callx(cx, args, callLoc)
+  }
 }
 
 **************************************************************************

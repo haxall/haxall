@@ -83,9 +83,6 @@ const class FantomFn : TopFn
   {
     this.method       = method
     this.instanceRef  = instanceRef
-    this.isSu         = meta.has("su")
-    this.isAdmin      = this.isSu || meta.has("admin")
-    this.isDeprecated = meta.has("deprecated")
   }
 
 //////////////////////////////////////////////////////////////////////////
