@@ -9,8 +9,10 @@
 
 import socket
 import struct
+import traceback
 from . import brio
 from .haystack import Marker
+from .haystack import GridBuilder
 
 
 class HxPy:
@@ -47,32 +49,37 @@ class HxPy:
         auth = self._recv_brio()
         log.debug(f'Auth {auth}')
         if auth["ver"] != "0":
-            raise self._failAuth(f'Unsupported version {auth["ver"]}')
+            raise self._fail_auth(f'Unsupported version {auth["ver"]}')
         if auth["key"] != self._api_key:
-            raise self._failAuth(f'Invalid api key')
+            raise self._fail_auth(f'Invalid api key')
         self._send_brio({"ok": Marker()})
 
         # handle instructions
         local_vars = {}
-        instrs = self._recv_brio()
-        while instrs:
-            for instr in instrs:
-                log.debug(f'process {instr}')
-                if "def" in instr:
-                    self._define(instr, local_vars)
-                if "exec" in instr:
-                    self._exec(instr, local_vars)
-                elif "eval" in instr:
-                    result = self._eval(instr, local_vars)
-                    self._send_brio(result)
-                    log.debug(f'eval => {result}')
-            # for
+        try:
             instrs = self._recv_brio()
-        # while
+            while instrs:
+                for instr in instrs:
+                    log.debug(f'process {instr}')
+                    if "def" in instr:
+                        self._define(instr, local_vars)
+                    if "exec" in instr:
+                        self._exec(instr, local_vars)
+                    elif "eval" in instr:
+                        result = self._eval(instr, local_vars)
+                        self._send_brio(result)
+                        log.debug(f'eval => {result}')
+                # for
+                instrs = self._recv_brio()
+            # while
+        except Exception as e:
+            g = GridBuilder().set_meta({'err': Marker(), 'errMsg': str(e), 'errTrace': traceback.format_exc()}).to_grid()
+            self._send_brio(g)
+            raise e
 
-    def _failAuth(self, msg):
-       self._send_brio({"err": Marker(), "errMsg": msg})
-       return IOError(msg)
+    def _fail_auth(self, msg):
+        self._send_brio({"err": Marker(), "errMsg": msg})
+        return IOError(msg)
 
     ##########################################################
     # Instructions
