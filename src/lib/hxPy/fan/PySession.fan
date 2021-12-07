@@ -166,6 +166,13 @@ mixin PySession
     brio.writeVal(obj).close
     val := sendFrame(buf.flip).recvVal
 
+    // check for err grid
+    if (val is Grid)
+    {
+      g := (Grid)val
+      if (g.meta.has("err")) throw IOErr("Python failed: ${g.meta->errMsg}\n${g.meta->errTrace}")
+    }
+
     // decode ndarray
     if (val is Dict && ((Dict)val).has("ndarray")) val = NDArray.decode(val)
 
