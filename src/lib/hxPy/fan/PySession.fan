@@ -49,37 +49,56 @@ mixin PySession
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new open(Uri serverUri, |This|? f := null)
+  ** Make an unconnected session. Must call `connect()` before invoking
+  ** any `eval()` calls.
+  new make(|This|? f := null) : this.make_priv(null, f) { }
+
+  ** Connect the session running on the given server uri.
+  new open(Uri serverUri, |This|? f := null) : this.make_priv(serverUri, f) { }
+
+  private new make_priv(Uri? serverUri, |This|? f:= null)
   {
     f?.call(this)
-    this.serverUri = serverUri
-
-    if ("tcp" != serverUri.scheme) throw ArgErr("Invalid scheme: $serverUri")
-    if (serverUri.query["key"] == null) throw ArgErr("Missing key: $serverUri")
 
     if (evalPool == null)
     {
       evalPool = ActorPool() { it.name = "DefHxpySessionEvalPool" }
     }
 
-    openSession
+    if (serverUri != null) connect(serverUri)
   }
 
-  private Void openSession()
+  ** Connect to the hxpy server running at the given uri.
+  This connect(Uri serverUri)
   {
-    // this.socketRef = Unsafe(TcpSocket.make(socketConfig))
+    if (isConnected) throw IOErr("Already connected to ${this.serverUri}")
+
+    if ("tcp" != serverUri.scheme) throw ArgErr("Invalid scheme: $serverUri")
+    if (serverUri.query["key"] == null) throw ArgErr("Missing key: $serverUri")
+    this.serverUri = serverUri
+
     this.socket = TcpSocket.make(socketConfig)
     socket.connect(IpAddr(serverUri.host), serverUri.port ?: 8888)
 
     // authenticate with key
-    key  := serverUri.query["key"]
-    auth := Etc.makeDict(["key": key, "ver": "0"])
-    resp := (Dict)sendBrio(auth)
-    if (resp.has("err")) throw IOErr("Auth failed: ${resp->errMsg}")
+    try
+    {
+      key  := serverUri.query["key"]
+      auth := Etc.makeDict(["key": key, "ver": "0"])
+      resp := (Dict)sendBrio(auth)
+      if (resp.has("err")) throw IOErr("Auth failed: ${resp->errMsg}")
+    }
+    catch (Err err)
+    {
+      this.close
+      throw err
+    }
+
+    return this
   }
 
   ** The python service uri
-  const Uri serverUri
+  Uri? serverUri { private set }
 
   ** Socket config
   const SocketConfig socketConfig := SocketConfig.cur
@@ -99,8 +118,8 @@ mixin PySession
   ** Eval timeout
   private Duration? evalTimeout := null
 
-  ** Is the session closed
-  private const AtomicBool closed := AtomicBool(false)
+  ** Is the session connected
+  Bool isConnected() { this.socket != null }
 
 //////////////////////////////////////////////////////////////////////////
 // PySession
@@ -140,9 +159,6 @@ mixin PySession
 
   override This close()
   {
-    // transition to closed
-    this.closed.val = true
-
     // close the socket
     socket?.close
     socket = null
@@ -150,10 +166,7 @@ mixin PySession
     return this
   }
 
-  private Void checkClosed()
-  {
-    if (closed.val) throw IOErr("Session is closed")
-  }
+  private Void checkClosed() { if (!isConnected) throw IOErr("${typeof.name} is closed") }
 
 //////////////////////////////////////////////////////////////////////////
 // Util
