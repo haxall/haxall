@@ -15,8 +15,7 @@ import zoneinfo
 
 from zoneinfo import ZoneInfo
 from .control import BrioControl
-from ..haystack import Marker
-from ..haystack import GridBuilder
+from ..haystack import *
 
 
 # >>> numpy.ndarray((2,2), numpy.dtype(">d"), data)
@@ -50,6 +49,10 @@ class NativeBrioReader:
             return None
         elif ctrl == BrioControl.ctrlMarker:
             return Marker()
+        elif ctrl == BrioControl.ctrlNA:
+            return NA()
+        elif ctrl == BrioControl.ctrlRemove:
+            return Remove()
         elif ctrl == BrioControl.ctrlFalse:
             return False
         elif ctrl == BrioControl.ctrlTrue:
@@ -60,6 +63,10 @@ class NativeBrioReader:
             return self._consume_numi4()[0]
         elif ctrl == BrioControl.ctrlNumF8:
             return self._consume_numf8()[0]
+        elif ctrl == BrioControl.ctrlRefStr:
+            return self._consume_ref_str()
+        elif ctrl == BrioControl.ctrlRefI8:
+            return self._consume_refi8()
         elif ctrl == BrioControl.ctrlStr:
             return self._consume_str()
         elif ctrl == BrioControl.ctrlUri:
@@ -110,6 +117,16 @@ class NativeBrioReader:
         val, = struct.unpack("!i", self._consume(4))
         unit = self._consume_unit()
         return val, unit
+
+    def _consume_ref_str(self):
+        id = self._decode_str(False)
+        dis = self._decode_str_chars(False)
+        return Ref(id, dis)
+
+    def _consume_refi8(self):
+        handle, = struct.unpack("!q", self._consume(8))
+        dis = self._decode_str_chars(False)
+        return Ref(Ref.make_handle(handle).id(), dis)
 
     def _consume_numf8(self):
         val, = struct.unpack("!d", self._consume(8))

@@ -16,9 +16,7 @@ import pandas
 
 from hxpy.brio import NativeBrioWriter
 from hxpy.brio import NativeBrioReader
-from hxpy.haystack import Marker
-from hxpy.haystack import Grid
-from hxpy.haystack import GridBuilder
+from hxpy.haystack import *
 
 
 class TestNativeBrioWriter(unittest.TestCase):
@@ -32,6 +30,16 @@ class TestNativeBrioWriter(unittest.TestCase):
         with io.BytesIO() as f:
             NativeBrioWriter(f).write_val(Marker())
             self.assertEqual(bytes(f.getbuffer()), bytes([0x01]))
+
+    def test_na(self):
+        with io.BytesIO() as f:
+            NativeBrioWriter(f).write_val(NA())
+            self.assertEqual(bytes(f.getbuffer()), bytes([0x02]))
+
+    def test_remove(self):
+        with io.BytesIO() as f:
+            NativeBrioWriter(f).write_val(Remove())
+            self.assertEqual(bytes(f.getbuffer()), bytes([0x03]))
 
     def test_bool(self):
         with io.BytesIO() as f:
@@ -104,6 +112,14 @@ class TestNativeBrioWriter(unittest.TestCase):
             f.seek(0)
             brio.write_val("λόγος")
             self.assertEqual(bytes.fromhex("09ff05cebbe1bdb9ceb3cebfcf82"), bytes(f.getbuffer()))
+
+    def test_ref(self):
+        with io.BytesIO() as f:
+            brio = NativeBrioWriter(f).write_val(Ref("foo", "Foo"))
+            self.assertEqual(bytes.fromhex("0aff03666f6f03466f6f"), bytes(f.getbuffer()))
+        with io.BytesIO() as f:
+            brio = NativeBrioWriter(f).write_val(Ref("1deb31b8-7508b187"))
+            self.assertEqual(bytes.fromhex("0b1deb31b87508b18700"), bytes(f.getbuffer()))
 
     def test_date(self):
         with io.BytesIO() as f:

@@ -17,7 +17,7 @@ from zoneinfo import ZoneInfo
 
 from hxpy.brio import NativeBrioReader
 from hxpy.brio import NativeBrioWriter
-from hxpy.haystack import Marker
+from hxpy.haystack import *
 
 
 class TestNativeBrioReader(unittest.TestCase):
@@ -29,6 +29,14 @@ class TestNativeBrioReader(unittest.TestCase):
     def test_marker(self):
         data = bytes([0x01])
         self.assertEqual(NativeBrioReader(data).read_val(), Marker())
+
+    def test_na(self):
+        data = bytes([0x02])
+        self.assertEqual(NativeBrioReader(data).read_val(), NA())
+
+    def test_remove(self):
+        data = bytes([0x03])
+        self.assertEqual(NativeBrioReader(data).read_val(), Remove())
 
     def test_bool(self):
         data = bytes([0x04, 0x05])
@@ -94,6 +102,17 @@ class TestNativeBrioReader(unittest.TestCase):
         self.assertIsNone(brio.read_val())
         self.assertEqual(brio.read_val(), "λόγος")
         self.assertIsNone(brio.read_val())
+
+    def test_ref(self):
+        # string id Ref("foo", "Foo")
+        data = bytes.fromhex("0aff03666f6f03466f6f")
+        brio = NativeBrioReader(data)
+        self.assertEqual(brio.read_val(), Ref("foo", "Foo"))
+
+        # i8 ref Ref("1deb31b8-7508b187")
+        data = bytes.fromhex("0b1deb31b87508b18700")
+        brio = NativeBrioReader(data)
+        self.assertEqual(brio.read_val(), Ref("1deb31b8-7508b187"))
 
     def test_date(self):
         data = struct.pack("!b h b b", 0x0d, 2021, 7, 21)

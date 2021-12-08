@@ -17,8 +17,7 @@ from functools import reduce
 import pandas.core.frame
 
 from .control import BrioControl
-from ..haystack import Marker
-from ..haystack import Grid
+from ..haystack import *
 
 
 class NativeBrioWriter:
@@ -43,6 +42,10 @@ class NativeBrioWriter:
         t = type(val)
         if t is Marker:
             return self._write_marker()
+        elif t is NA:
+            return self._write_na()
+        elif t is Remove:
+            return self._write_remove()
         elif t is bool:
             return self._write_bool(val)
         elif isinstance(val, (int, numpy.integer)):
@@ -51,6 +54,8 @@ class NativeBrioWriter:
             return self._write_float(val)
         elif t is str:
             return self._write_str(val)
+        elif t is Ref:
+            return self._write_ref(val)
         elif t is datetime.date:
             return self._write_date(val)
         elif t is datetime.time:
@@ -84,6 +89,14 @@ class NativeBrioWriter:
         self._file.write(bytes([BrioControl.ctrlMarker]))
         return self
 
+    def _write_na(self):
+        self._file.write(bytes([BrioControl.ctrlNA]))
+        return self
+
+    def _write_remove(self):
+        self._file.write(bytes([BrioControl.ctrlRemove]))
+        return self
+
     def _write_bool(self, val):
         ctrl = BrioControl.ctrlTrue if val else BrioControl.ctrlFalse
         return self._u1(ctrl)
@@ -110,6 +123,38 @@ class NativeBrioWriter:
     def _write_str(self, val):
         self._u1(BrioControl.ctrlStr)
         return self._encode_str(val)
+
+    def _write_ref(self, val):
+        # encode id
+        i8 = self._ref_to_i8(val)
+        if i8 >= 0:
+            self._u1(BrioControl.ctrlRefI8)
+            self._file.write(struct.pack("!q", i8))
+        else:
+            self._u1(BrioControl.ctrlRefStr)
+            self._encode_str(val.id())
+
+        # dis
+        dis = val.dis()
+        if not dis:
+            dis = ""
+        self._encode_str_chars(dis)
+        return self
+
+    def _ref_to_i8(self, val):
+        try:
+            # 1deb31b8-7508b187
+            id = val.id()
+            if len(id) != 17 or id[8] != '-':
+                return -1
+            i8 = 0
+            for i in range(17):
+                if i == 8:
+                    continue
+                i8 = (i8 << 4) | (int(id[i], 16))
+            return i8
+        except:
+            return -1
 
     def _write_date(self, val):
         self._u1(BrioControl.ctrlDate)
