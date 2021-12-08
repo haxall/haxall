@@ -74,8 +74,11 @@ Haystack    Python        pyEval()   Notes
 --------    ------        --------   -----
 null        None          ✓
 Marker      Marker        ✓          hxpy.haystack.marker.Marker
+NA          NA            ✓          hxpy.haystack.na.NA
+Remove      Remove        ✓          hxpy.haystack.remove.Remove
 Bool        bool          ✓
 Number      int/float     ✓          Units not marshalled
+Ref         Ref           ✓          hxpy.haystack.ref.Ref
 Str         str           ✓
 Uri         str
 Time        datetime.time ✓
