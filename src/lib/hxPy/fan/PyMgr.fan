@@ -267,10 +267,38 @@ internal class PyDockerSession : PySession
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new open(HxDockerService dockerService, Dict opts)
+  new make(HxDockerService dockerService, Dict opts)
   {
     this.dockerService = dockerService
     this.opts = opts
+
+    // Create an un-opened HxpySession. It will be lazily opened on the first eval()
+    this.session = HxpySession()
+
+    // configure timeout
+    t := opts.get("timeout") as Number
+    if (t != null) session.timeout(t.toDuration)
+  }
+
+  ** The Docker service
+  private const HxDockerService dockerService
+
+  ** Session options
+  private const Dict opts
+
+  ** HxpySession
+  private HxpySession session
+
+  ** Docker container id spawned by this session
+  internal Str? cid := null
+
+//////////////////////////////////////////////////////////////////////////
+// Open
+//////////////////////////////////////////////////////////////////////////
+
+  private HxpySession openSession()
+  {
+    if (this.session.isConnected) return this.session
 
     // run docker container
     key    := Uuid()
@@ -304,7 +332,7 @@ internal class PyDockerSession : PySession
     {
       try
       {
-        this.session = HxpySession.open(uri)
+        this.session.connect(uri)
         break
       }
       catch (Err err)
@@ -319,9 +347,7 @@ internal class PyDockerSession : PySession
       Actor.sleep(1sec)
     }
 
-    // configure timeout
-    t := opts.get("timeout") as Number
-    if (t != null) session.timeout(t.toDuration)
+    return this.session
   }
 
   private static Str[] priorityImageNames(Dict opts)
@@ -363,17 +389,6 @@ internal class PyDockerSession : PySession
     throw IOErr("Cannot find free port in $range after $attempts attempts")
   }
 
-  private HxDockerService dockerService
-
-  ** Session options
-  private const Dict opts
-
-  ** Docker container id spawned by this session
-  internal const Str cid
-
-  ** HxpySession
-  private HxpySession? session
-
 //////////////////////////////////////////////////////////////////////////
 // PySession
 //////////////////////////////////////////////////////////////////////////
@@ -400,7 +415,8 @@ internal class PyDockerSession : PySession
   {
     try
     {
-      return session.eval(code)
+      // lazily open the session and then eval the code
+      return openSession.eval(code)
     }
     // only catch timeout errors so we can keep around exited containers for inspection
     catch (TimeoutErr err)
@@ -415,7 +431,11 @@ internal class PyDockerSession : PySession
     // delete the container
     try
     {
-      dockerService.deleteContainer(this.cid)
+      if (this.cid != null)
+      {
+        dockerService.deleteContainer(this.cid)
+        this.cid = null
+      }
     }
     catch (Err ignore)
     {
@@ -423,8 +443,7 @@ internal class PyDockerSession : PySession
     }
 
     // close the session
-    session?.close
-    session = null
+    session.close
 
     return this
   }
