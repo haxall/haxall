@@ -119,7 +119,7 @@ mixin PySession
   private Duration? evalTimeout := null
 
   ** Is the session connected
-  Bool isConnected() { this.socket != null }
+  Bool isConnected() { this.socket != null && !socket.isClosed }
 
 //////////////////////////////////////////////////////////////////////////
 // PySession
@@ -201,7 +201,10 @@ mixin PySession
 
   private Obj? recvVal()
   {
-    BrioReader(socket.in).readVal
+    try
+      return BrioReader(socket.in).readVal
+    catch (IOErr err)
+      throw IOErr("Unable to read from hxpy server. It is probably not running anymore", err)
   }
 
   private static const Int maxPacketSize := 2.pow(31) - 1
