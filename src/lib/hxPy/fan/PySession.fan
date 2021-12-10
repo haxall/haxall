@@ -77,12 +77,13 @@ mixin PySession
     if (serverUri.query["key"] == null) throw ArgErr("Missing key: $serverUri")
     this.serverUri = serverUri
 
-    this.socket = TcpSocket.make(socketConfig)
-    socket.connect(IpAddr(serverUri.host), serverUri.port ?: 8888)
-
-    // authenticate with key
     try
     {
+      // connect
+      this.socket = TcpSocket.make(socketConfig)
+      socket.connect(IpAddr(serverUri.host), serverUri.port ?: 8888)
+
+      // authenticate with key
       key  := serverUri.query["key"]
       auth := Etc.makeDict(["key": key, "ver": "0"])
       resp := (Dict)sendBrio(auth)
