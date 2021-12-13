@@ -17,6 +17,7 @@ from functools import reduce
 import pandas.core.frame
 
 from .control import BrioControl
+from ..brio import NativeBrioReader
 from ..haystack import *
 
 
@@ -60,6 +61,8 @@ class NativeBrioWriter:
             return self._write_date(val)
         elif t is datetime.time:
             return self._write_time(val)
+        elif t is datetime.datetime:
+            return self._write_datetime(val)
         elif t is bytes:
             return self._write_bytes(val)
         elif t is dict:
@@ -166,7 +169,28 @@ class NativeBrioWriter:
         m = val.minute * (1000 * 60)
         s = val.second * 1000
         millis = val.microsecond / 1000
-        return self._file.write(struct.pack("!I", int(h + m + s + millis)))
+        self._file.write(struct.pack("!I", int(h + m + s + millis)))
+        return self
+
+    def _write_datetime(self, val):
+        sec = 1000000000
+        ticks = ((val - NativeBrioReader.epoch) / datetime.timedelta(microseconds=1)) * 1000
+
+        # get timezone name
+        tzname = val.tzinfo.zone # e.g. America/New_York
+        idx = tzname.find("/")
+        if idx != -1:
+            tzname = tzname[idx+1:]
+
+        if ticks % sec == 0:
+            self._u1(BrioControl.ctrlDateTimeI4)
+            self._file.write(struct.pack("!l", int(ticks / sec)))
+            self._encode_str(tzname)
+        else:
+            self._u1(BrioControl.ctrlDateTimeI8)
+            self._file.write(struct.pack("!q", int(ticks)))
+            self._encode_str(tzname)
+        return self
 
     def _write_bytes(self, val):
         self._u1(BrioControl.ctrlBuf)

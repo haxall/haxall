@@ -13,6 +13,7 @@ import datetime
 import struct
 import numpy
 import pandas
+import pytz
 
 from hxpy.brio import NativeBrioWriter
 from hxpy.brio import NativeBrioReader
@@ -138,6 +139,16 @@ class TestNativeBrioWriter(unittest.TestCase):
             f.seek(0)
             NativeBrioWriter(f).write_val(datetime.time(23, 59, 59, 999000))
             self.assertEqual(bytes.fromhex("0e05265bff"), bytes(f.getbuffer()))
+
+    def test_datetime(self):
+        new_york = pytz.timezone("America/New_York")
+        with io.BytesIO() as f:
+            NativeBrioWriter(f).write_val(datetime.datetime(2015, 11, 30 , 12, 3, 57).astimezone(new_york))
+            self.assertEqual(bytes.fromhex("0f1def3dfdff084e65775f596f726b"), bytes(f.getbuffer()))
+
+        with io.BytesIO() as f:
+            NativeBrioWriter(f).write_val(datetime.datetime(2015, 11, 30, 12, 2, 33 , 378_000).astimezone(new_york))
+            self.assertEqual(bytes.fromhex("1006f83cbfe7d92c80ff084e65775f596f726b"), f.getbuffer())
 
     def test_dict(self):
         with io.BytesIO() as f:

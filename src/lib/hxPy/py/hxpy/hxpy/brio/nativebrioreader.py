@@ -12,6 +12,7 @@ import struct
 import io
 import codecs
 import zoneinfo
+import pytz
 
 from zoneinfo import ZoneInfo
 from .control import BrioControl
@@ -24,7 +25,7 @@ class NativeBrioReader:
     """Read BRIO to native Python types (not Haystack)"""
 
     """Haystack epoch is midnight on 2000-01-01 UTC"""
-    _epoch = datetime.datetime(2000, 1, 1, tzinfo=ZoneInfo("UTC"))
+    epoch = datetime.datetime(2000, 1, 1, tzinfo=ZoneInfo("UTC"))
 
     def __init__(self, data):
         self._data = data
@@ -160,13 +161,13 @@ class NativeBrioReader:
         secs, = struct.unpack("!l", self._consume(4))
         tz = self._consume_timezone()
         delta = datetime.timedelta(seconds=secs)
-        return (NativeBrioReader._epoch + delta).astimezone(tz)
+        return (NativeBrioReader.epoch + delta).astimezone(tz)
 
     def _consume_datetimei8(self):
         nanos, = struct.unpack("!q", self._consume(8))
         tz = self._consume_timezone()
         delta = datetime.timedelta(microseconds=nanos/1000)
-        return (NativeBrioReader._epoch + delta).astimezone(tz)
+        return (NativeBrioReader.epoch + delta).astimezone(tz)
 
     def _consume_timezone(self):
         name = self._decode_str(False)
@@ -176,7 +177,7 @@ class NativeBrioReader:
             # and find it
             for avail in zoneinfo.available_timezones():
                 if avail == name or avail.endswith(f'/{name}'):
-                    self._intern_tzs[name] = tz = ZoneInfo(avail)
+                    self._intern_tzs[name] = tz = pytz.timezone(avail)
                     break
         if not tz:
             raise RuntimeError(f'Timezone not found: {name}')
