@@ -25,7 +25,7 @@ class NativeBrioReader:
     """Read BRIO to native Python types (not Haystack)"""
 
     """Haystack epoch is midnight on 2000-01-01 UTC"""
-    epoch = datetime.datetime(2000, 1, 1, tzinfo=ZoneInfo("UTC"))
+    epoch = datetime.datetime(2000, 1, 1, tzinfo=pytz.timezone("UTC"))
 
     def __init__(self, data):
         self._data = data
