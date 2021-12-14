@@ -35,9 +35,9 @@ final public class UnixTransport extends FanObj implements DockerTransport
 
   public static UnixTransport make(final DockerConfig config)
   {
-    if (Env.cur().javaVersion() < 16)
+    if (Env.cur().javaVersion() < 17)
     {
-      throw IOErr.make("Java 16+ is required to create unix domain sockets: java.version=" + Env.cur().vars().get("java.version"));
+      throw IOErr.make("Java 17+ is required to create unix domain sockets: java.version=" + Env.cur().vars().get("java.version"));
     }
 
     try
