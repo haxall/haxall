@@ -24,7 +24,7 @@ pre>
 <pre
 
 If you are running SkySpark on a linux-based OS, then you **must** run SkySpark with
-Java 16+ in order to connect to the default docker daemon (this is becase the default
+Java 17+ in order to connect to the default docker daemon (this is because the default
 daemon must be accessed using a
 [Unix Domain Socket]`https://en.wikipedia.org/wiki/Unix_domain_socket`, and Java didn't
 add support for that until Java 16).
@@ -111,7 +111,7 @@ The Python library has built-in support for marshalling Grids to Python types
 that are optimized and suitable for machine learning.
 
 By default, a Grid is marshalled to an 'hxpy.haystack.grid.Grid' type in Python.
-It is very common in data science applications to work with tabluar data using the
+It is very common in data science applications to work with tabular data using the
 'pandas.DataFrame' type. You can get a DataFrame from a Grid in your Python code
 by using 'grid.to_dataframe()'. You can return a 'pandas.DataFrame' as the result
 of an 'pyEval()' expression and it will automatically be converted to a Grid. You
