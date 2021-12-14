@@ -44,6 +44,16 @@ const class PyFuncs
   @Axon{ admin=true }
   static PySession pyTimeout(PySession py, Number? val) { py.timeout(val?.toDuration) }
 
+  ** Initialize the python session by calling the given func to do any one-time
+  ** setup of the python session. If 'pyInit()' has already been called on this
+  ** session, then the callback is not invoked.
+  **
+  ** Typically, this func is used in the context of a task since the python
+  ** session in a task is persistent. This allows to do any one-time `pyExec()`
+  ** or `pyDefine()` when the task is first creatd.
+  @Axon { admin=true }
+  static PySession pyInit(PySession py, Fn fn) { py.init(fn.toFunc) }
+
   ** Define a variable to be available to python code running in the session.
   @Axon{ admin=true }
   static PySession pyDefine(PySession py, Str name, Obj? val) { py.define(name, val) }

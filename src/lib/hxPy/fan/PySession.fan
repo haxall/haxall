@@ -22,6 +22,10 @@ mixin PySession
   ** Define a variable in local scope, and return this
   abstract This define(Str name, Obj? val)
 
+  ** If the session has not been initialized yet, invoke the callback
+  ** with this session to allow it to do one-time setup.
+  abstract This init(|PySession session| fn)
+
   ** Execute the given code block, and return this
   abstract This exec(Str code)
 
@@ -119,12 +123,25 @@ mixin PySession
   ** Eval timeout
   private Duration? evalTimeout := null
 
+  ** Have we initialized
+  Bool isInitialized := false
+
   ** Is the session connected
   Bool isConnected() { this.socket != null && !socket.isClosed }
 
 //////////////////////////////////////////////////////////////////////////
 // PySession
 //////////////////////////////////////////////////////////////////////////
+
+  override This init(|PySession| fn)
+  {
+    if (!isInitialized)
+    {
+      fn.call(this)
+      this.isInitialized = true
+    }
+    return this
+  }
 
   override This define(Str name, Obj? val)
   {
@@ -163,6 +180,9 @@ mixin PySession
     // close the socket
     socket?.close
     socket = null
+
+    // reset to not initialized
+    this.isInitialized = false
 
     return this
   }

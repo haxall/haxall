@@ -57,13 +57,14 @@ pre>
 <pre
 
 Persistent Sessions [#persistent]
-=================================
+*********************************
 By default, a Python session is closed after a call to `pyEval()`. However, if you
 create a Python session in a [task]`ext-task::doc`, then the session will remain
 opened until the task is killed/removed. There is no need to call `taskLocalSet()`
 to save the Python session returned by `py()`. The first call to `py()` in your task
 will create a new Python session. Subsequent message processed by your task will
-re-use the same session.
+re-use the same session. You will typically want to use `pyInit()` to do any one-time
+configuration of your python session in your task:
 
 pre>
 // Example task
@@ -71,8 +72,12 @@ pre>
   v: msg["v"]
   // This py() session will be remembered between task invocations
   r: py()
+      .pyInit((session) => do
+         // this code will only be invoked once for the session
+         session.pyExec("def sq(x): return x * x\n")
+       end)
       .pyDefine("v", v)
-      .pyEval("v * v")
+      .pyEval("sq(v)")
   echo("Got: " + r)
 end
 <pre
