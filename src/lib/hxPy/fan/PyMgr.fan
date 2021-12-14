@@ -163,6 +163,12 @@ internal const class PyMgrSession : PySession, HxTaskAdjunct
 // PySession
 //////////////////////////////////////////////////////////////////////////
 
+  override This init(|PySession session| fn)
+  {
+    session.init(fn)
+    return this
+  }
+
   override This define(Str name, Obj? val)
   {
     session.define(name, val)
@@ -392,6 +398,14 @@ internal class PyDockerSession : PySession
 //////////////////////////////////////////////////////////////////////////
 // PySession
 //////////////////////////////////////////////////////////////////////////
+
+  override This init(|PySession| fn)
+  {
+    // want to call with *this* as the session
+    // cb := |PySession py| { fn.call(this) }
+    session.init { fn.call(this) }
+    return this
+  }
 
   override This define(Str name, Obj? val)
   {
