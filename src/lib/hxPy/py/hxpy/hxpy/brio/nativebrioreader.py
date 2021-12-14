@@ -14,7 +14,6 @@ import codecs
 import zoneinfo
 import pytz
 
-from zoneinfo import ZoneInfo
 from .control import BrioControl
 from ..haystack import *
 

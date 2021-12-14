@@ -63,6 +63,8 @@ class NativeBrioWriter:
             return self._write_time(val)
         elif t is datetime.datetime:
             return self._write_datetime(val)
+        elif t is pandas.Timestamp:
+            return self._write_pandas_timestamp(val)
         elif t is bytes:
             return self._write_bytes(val)
         elif t is dict:
@@ -191,6 +193,10 @@ class NativeBrioWriter:
             self._file.write(struct.pack("!q", int(ticks)))
             self._encode_str(tzname)
         return self
+
+    def _write_pandas_timestamp(self, val):
+        val = val.to_pydatetime()
+        return self._write_datetime(val)
 
     def _write_bytes(self, val):
         self._u1(BrioControl.ctrlBuf)
