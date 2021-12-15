@@ -42,7 +42,9 @@ internal class Query : HaystackContext
     acc := QueryCollect(cx, limit)
     plan.query(this, acc)
     updateStats(plan)
-    return acc.list
+    list := acc.list
+    if (opts.has("sort")) list = Etc.sortDictsByDis(list)
+    return list
   }
 
   Obj? eachWhile(FolioContext? cx, |Dict->Obj?| cb)
