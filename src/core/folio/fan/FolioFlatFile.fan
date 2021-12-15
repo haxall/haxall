@@ -97,6 +97,7 @@ const class FolioFlatFile : Folio
     errMsg := filter.toStr
     acc := Dict[,]
     doReadAllEachWhile(filter, opts) |rec| { acc.add(rec); return null }
+    if (opts != null && opts.has("sort")) acc = Etc.sortDictsByDis(acc)
     return FolioFuture(ReadFolioRes(errMsg, false, acc))
   }
 
