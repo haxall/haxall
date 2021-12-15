@@ -103,10 +103,6 @@ const class HxCoreFuncs
           search := optsDict["search"].toStr.trimToNull
           if (search != null) grid = grid.filter(Filter.search(search), cx)
         }
-        if (optsDict.has("sort"))
-        {
-          grid = grid.sortDis
-        }
         return grid
       }
     }

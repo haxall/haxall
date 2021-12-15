@@ -433,15 +433,17 @@ class BasicTest : AbstractFolioTest
   {
     open
 
-    a := addRec(["num": n(1), "a":n(1)])
-    b := addRec(["num": n(2), "b":n(2)])
-    c := addRec(["num": n(3), "c":n(3)])
-    d := addRec(["num": n(4), "d":n(4)])
-    e := addRec(["num": n(5), "e":n(5), "trash": Marker.val])
-    f := addRec(["num": n(6), "f":n(6), "trash": Marker.val])
+    a := addRec(["dis":"A", "num": n(1), "a":n(1)])
+    b := addRec(["dis":"B", "num": n(2), "b":n(2)])
+    c := addRec(["dis":"C", "num": n(3), "c":n(3)])
+    d := addRec(["dis":"D", "num": n(4), "d":n(4)])
+    e := addRec(["dis":"E", "num": n(5), "e":n(5), "trash": Marker.val])
+    f := addRec(["dis":"F", "num": n(6), "f":n(6), "trash": Marker.val])
 
     all := verifyReadOpts("num", [:], [a, b, c, d])
     verifyReadOpts("num >= 3", [:], [c, d])
+
+    verifyReadOpts("num", ["sort":m], [a, b, c, d], true)
 
     allTrash := verifyReadOpts("num", ["trash":m], [a, b, c, d, e, f])
     verifyReadOpts("num >= 3", ["trash":m], [c, d, e, f])
@@ -461,16 +463,16 @@ class BasicTest : AbstractFolioTest
     close
   }
 
-  Dict[] verifyReadOpts(Str filterStr, Str:Obj optsMap, Dict[] expected)
+  Dict[] verifyReadOpts(Str filterStr, Str:Obj optsMap, Dict[] expected, Bool verifyOrder := false)
   {
     opts := Etc.makeDict(optsMap)
     filter := Filter(filterStr)
 
     list := folio.readAllList(filter, opts)
-    verifyDictsEq(list, expected, false)
+    verifyDictsEq(list, expected, verifyOrder)
 
     grid := folio.readAll(filter, opts)
-    verifyDictsEq(grid.toRows, expected, false)
+    verifyDictsEq(grid.toRows, expected, verifyOrder)
 
     count := folio.readCount(filter, opts)
     verifyEq(count, expected.size)
