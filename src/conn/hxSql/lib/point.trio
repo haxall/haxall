@@ -1,0 +1,32 @@
+//
+// Copyright (c) 2010, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   16 Mar 2010  Brian Frank  Creation
+//    3 Jul 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^sqlPoint
+is: ^connPoint
+doc:
+  Point which synchronizes data via a SQL connector.
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^sqlConnRef
+is: ^ref
+of: ^sqlConn
+tagOn: ^sqlPoint
+doc:
+  Used on a proxy point to reference its parent `sqlConn`
+--------------------------------------------------------------------------
+
+
+
+

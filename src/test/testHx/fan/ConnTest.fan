@@ -58,8 +58,6 @@ class ConnTest : HxTest
     verifyNilService
     verifyEq(rt.conns.list.size, 0)
 
-    if (!rt.platform.isSkySpark) { echo("TODO: need hxConn implementation"); return }
-
     addLib("haystack")
     verifyEq(rt.conns.list.size, 1)
     verifyConnService("haystack", "chwl")
