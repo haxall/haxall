@@ -141,7 +141,10 @@ abstract class HxTest : HaystackTest
   ** Add a library and all its depdenencies to the runtime.
   HxLib addLib(Str libName, Str:Obj? tags := Str:Obj?[:])
   {
-    spi.addLib(libName, tags)
+    lib := spi.addLib(libName, tags)
+    rt.sync
+    lib.spi.sync
+    return lib
   }
 
   ** Add user record to the user database.  If the user

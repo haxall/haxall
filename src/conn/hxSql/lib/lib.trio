@@ -9,7 +9,7 @@
 --------------------------------------------------------------------------
 def: ^lib:sql
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn]
-typeName:"hxSql::Sqlib"
+typeName:"hxSql::SqlLib"
 doc: "SQL connector"
 --------------------------------------------------------------------------
 
