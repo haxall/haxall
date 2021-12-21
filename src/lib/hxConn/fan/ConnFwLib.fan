@@ -15,6 +15,6 @@ using hx
 @NoDoc
 const class ConnFwLib : HxLib
 {
+  override HxService[] services() { [ConnRegistry(rt)] }
 }
-
 

@@ -10,10 +10,9 @@
 using haystack
 using hx
 
-@Js
+@NoDoc @Js
 const final class ConnModel
 {
-
   ** Construct with extension pod
   @NoDoc new make(Namespace ns, Lib lib)
   {
@@ -26,6 +25,7 @@ const final class ConnModel
     // check tag/func defs
     this.connTag       = connDef.name
     this.connRefTag    = def(ns, lib, "${prefix}ConnRef").name
+    this.pointTag      = def(ns, lib, "${prefix}Point").name
     this.curTag        = def(ns, lib, "${prefix}Cur", false)?.name
     this.writeTag      = def(ns, lib, "${prefix}Write", false)?.name
     this.writeLevelTag = def(ns, lib, "${prefix}WriteLevel", false)?.name
@@ -72,6 +72,9 @@ const final class ConnModel
   ** Tag name of the connector reference such as "fooConnRef"
   const Str connRefTag
 
+  ** Tag name for points such as "fooPoint"
+  const Str pointTag
+
   ** Tag name of point's current address such as "fooCur".
   ** This field is null if current values are not supported.
   const Str? curTag
@@ -98,7 +101,7 @@ const final class ConnModel
 // Support
 //////////////////////////////////////////////////////////////////////////
 
-  ** Does this connector support learn such as "fooLearn"
+  ** Does this connector support learning to walk remote "tree"
   const Bool hasLearn
 
   ** Does this connector support current value subscription
