@@ -11,6 +11,7 @@
 def: ^haystackConn
 is: ^conn
 icon: "haystack"
+connFeatures: {learn}
 doc:
   Haystack connector to a Haystack REST API server.
 --------------------------------------------------------------------------

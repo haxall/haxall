@@ -39,9 +39,7 @@ class ConnTest : HxTest
     verifyEq(m.name, libName)
     verifyEq(m.connTag, prefix+"Conn")
     verifyEq(m.connRefTag, prefix+"ConnRef")
-    verifyEq(m.pingFunc, prefix+"Ping")
 
-    verifyEq(m.hasDiscover, flags.contains("d"), "$libName discover")
     verifyEq(m.hasLearn,    flags.contains("l"), "$libName learn")
     verifyEq(m.hasCur,      flags.contains("c"), "$libName cur")
     verifyEq(m.hasWrite,    flags.contains("w"), "$libName write")

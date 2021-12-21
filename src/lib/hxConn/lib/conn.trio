@@ -12,10 +12,18 @@ def: ^conn
 is: ^entity
 mandatory
 doc:
- Connector for communication to a remote system.
+  Connector for communication to a remote system.
 --------------------------------------------------------------------------
 defx: ^disabled
 tagOn: ^conn
+--------------------------------------------------------------------------
+def: ^connFeatures
+is: ^dict
+doc:
+  Defines the features supported by a given connector.  This is
+  a tag added to the 'conn' def itself.  The value is a dict with the
+  following standardized keys:
+  - learn: marker tag if point learn is supported
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////

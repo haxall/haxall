@@ -15,7 +15,8 @@ using hx
 **
 abstract const class ConnLib : HxLib
 {
-  ** Model which defines tags and functions for this connector
+  ** Model which defines tags and functions for this connector.
+  ** The model is not available until after the library has started.
   ConnModel model() { modelRef.val ?: throw Err("Not avail until after start") }
   private const AtomicRef modelRef := AtomicRef()
 

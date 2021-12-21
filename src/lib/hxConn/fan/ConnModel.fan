@@ -20,18 +20,22 @@ const final class ConnModel
     this.name = lib.name
     prefix := name
 
+    connDef := def(ns, lib, "${prefix}Conn")
+    features := connDef["connFeatures"] as Dict ?: Etc.emptyDict
+
     // check tag/func defs
-    this.connTag       = def(ns, lib, "${prefix}Conn")
-    this.connRefTag    = def(ns, lib, "${prefix}ConnRef")
-    this.curTag        = def(ns, lib, "${prefix}Cur", false)
-    this.writeTag      = def(ns, lib, "${prefix}Write", false)
-    this.writeLevelTag = def(ns, lib, "${prefix}WriteLevel", false)
-    this.hisTag        = def(ns, lib, "${prefix}His", false)
-    this.pingFunc      = def(ns, lib, "func:${prefix}Ping")
-    this.discoverFunc  = def(ns, lib, "func:${prefix}Discover", false)
-    this.learnFunc     = def(ns, lib, "func:${prefix}Learn", false)
-    this.syncCurFunc   = def(ns, lib, "func:${prefix}SyncCur", false)
-    this.syncHisFunc   = def(ns, lib, "func:${prefix}SyncHis", false)
+    this.connTag       = connDef.name
+    this.connRefTag    = def(ns, lib, "${prefix}ConnRef").name
+    this.curTag        = def(ns, lib, "${prefix}Cur", false)?.name
+    this.writeTag      = def(ns, lib, "${prefix}Write", false)?.name
+    this.writeLevelTag = def(ns, lib, "${prefix}WriteLevel", false)?.name
+    this.hisTag        = def(ns, lib, "${prefix}His", false)?.name
+
+    // features
+    this.hasLearn  = features.has("learn")
+    this.hasCur    = curTag != null
+    this.hasWrite  = writeTag != null
+    this.hasHis    = hisTag != null
 
     // dict for misc
     misc := Str:Obj[:]
@@ -43,7 +47,7 @@ const final class ConnModel
     this.misc = Etc.makeDict(misc)
   }
 
-  private static Str? def(Namespace ns, Lib lib, Str symbol, Bool checked := true)
+  private static Def? def(Namespace ns, Lib lib, Str symbol, Bool checked := true)
   {
     def := ns.def(symbol, false)
     if (def == null)
@@ -52,7 +56,7 @@ const final class ConnModel
       return null
     }
     if (def.lib !== lib) throw Err("Def in wrong lib: $symbol [$def.lib != $lib]")
-    return def.name
+    return def
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -68,34 +72,23 @@ const final class ConnModel
   ** Tag name of the connector reference such as "fooConnRef"
   const Str connRefTag
 
-  ** Tag name of point's current address such as "fooCur"
+  ** Tag name of point's current address such as "fooCur".
+  ** This field is null if current values are not supported.
   const Str? curTag
 
-  ** Tag name of point's write address such as "fooWrite"
+  ** Tag name of point's write address such as "fooWrite".
+  ** This field is null if writes are not supported.
   const Str? writeTag
 
   ** Tag name if connector requires level for pushing write to remote system (bacnet, haystack)
+  ** This field is null if writes are not supported or write level is not applicable.
   const Str? writeLevelTag
 
   ** Tag name of point's history address such as "fooHis"
+  ** This field is null if history syncs are not supported.
   const Str? hisTag
 
-  ** Func name of ping such as "fooPing"
-  const Str pingFunc
-
-  ** Func name of connecotry discovery such as "fooDiscover"
-  const Str? discoverFunc
-
-  ** Func name of point learn such as "fooLearn"
-  const Str? learnFunc
-
-  ** Func name to perform one-time current sync
-  const Str? syncCurFunc
-
-  ** Func name to perform history sync
-  const Str? syncHisFunc
-
-  ** Polling strategy to use
+  ** Polling strategy to use for connector
   const PollingMode pollingMode := PollingMode.disabled
 
   ** Encoding for SysNamespace misc entry
@@ -105,20 +98,17 @@ const final class ConnModel
 // Support
 //////////////////////////////////////////////////////////////////////////
 
-  ** Does this connector support connector/device discovery such as "fooDiscover"
-  Bool hasDiscover() { discoverFunc != null }
-
   ** Does this connector support learn such as "fooLearn"
-  Bool hasLearn() { learnFunc != null }
+  const Bool hasLearn
 
   ** Does this connector support current value subscription
-  Bool hasCur() { curTag != null }
+  const Bool hasCur
 
   ** Does this connector support writable points
-  Bool hasWrite() { writeTag != null }
+  const Bool hasWrite
 
   ** Does this connector support history synchronization
-  Bool hasHis() { hisTag != null }
+  const Bool hasHis
 }
 
 **************************************************************************
@@ -134,7 +124,7 @@ enum class PollingMode
   ** Disable polling
   disabled,
 
-  ** The connector implementation must handle all polling logic
+  ** The connector implementation handles all polling logic
   manual,
 
   ** The connector framework handles the polling logic and utilizes
