@@ -35,6 +35,7 @@ const class ConnFwFuncs
   ** The future result is the learn grid.  The 'conn' parameter may
   ** be anything acceptable by `toRecId()`.  The 'arg' is an opaque
   ** identifier used to walk the learn tree via the 'learn' column.
+  ** Pass null for 'arg' to return the root of the learn tree.
   **
   ** Examples:
   **   connLearn(connId, learnArg)
@@ -42,6 +43,7 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Future connLearn(Obj conn, Obj? arg := null) { throw Err("TODO") }
 
+  **
   ** Perform a remote sync of current values for the given points.
   ** The 'points' parameter may be anything acceptable by `toRecIdList()`.
   ** Return a future which completes when the sync has completed.
@@ -53,6 +55,7 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Future connSyncCur(Obj points) { throw Err("TODO") }
 
+  **
   ** Perform a remote sync of history data for the given points.
   ** The 'points' parameter may be anything acceptable by `toRecIdList()`.
   ** The 'span' parameter is anything acceptable by `toSpan()`; or use 'null'

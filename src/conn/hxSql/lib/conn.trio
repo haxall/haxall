@@ -3,29 +3,25 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   10 Jan 2012  Brian Frank  Creation
+//   16 Mar 2010  Brian Frank  Creation
 //   28 Feb 2019  Brian Frank  Refactor for new def design
 //
 
 --------------------------------------------------------------------------
-def: ^haystackConn
+def: ^sqlConn
 is: ^conn
-icon: "haystack"
-connFeatures: {learn}
+icon: "sql"
 doc:
-  Haystack connector to a Haystack REST API server.
---------------------------------------------------------------------------
-defx: ^tz
-tagOn: ^haystackConn
+  SQL connector to a relational database using JDBC.
 --------------------------------------------------------------------------
 defx: ^uri
-tagOn: ^haystackConn
+tagOn: ^sqlConn
 --------------------------------------------------------------------------
 defx: ^username
-tagOn: ^haystackConn
+tagOn: ^sqlConn
 --------------------------------------------------------------------------
 defx: ^password
-tagOn: ^haystackConn
+tagOn: ^sqlConn
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
@@ -33,12 +29,22 @@ tagOn: ^haystackConn
 //////////////////////////////////////////////////////////////////////////
 
 --------------------------------------------------------------------------
-def: ^haystackPollFreq
-is: ^duration
-tagOn: ^haystackConn
+def: ^sqlSyncHisExpr
+tagOn: ^sqlConn
+is: ^str
 doc:
-  Applied to 'haystackConn' to tune the duration between watch polls.
-  If not configured it defaults to 1sec.
+  This is a tag which must be configured on each `sqlConn`
+  record used by the `sqlSyncHis()` function.  The value must
+  be an Axon expression must evaluate to a function with three
+  parameters:
+    - sqlConn: the `sqlConn` record
+    - his: the `his` record being synced
+    - dateTimeRange: a range of two DateTime values
+  The result of the function must be return a grid with at
+  exactly two columns for the history data to sync.  The first
+  column must be a timestamp in the correct timezone.  The
+  second column must be the value.
+  See `doc#syncHis`.
 --------------------------------------------------------------------------
 
 

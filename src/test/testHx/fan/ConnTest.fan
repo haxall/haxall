@@ -39,9 +39,7 @@ class ConnTest : HxTest
     verifyEq(m.name, libName)
     verifyEq(m.connTag, prefix+"Conn")
     verifyEq(m.connRefTag, prefix+"ConnRef")
-    verifyEq(m.pingFunc, prefix+"Ping")
 
-    verifyEq(m.hasDiscover, flags.contains("d"), "$libName discover")
     verifyEq(m.hasLearn,    flags.contains("l"), "$libName learn")
     verifyEq(m.hasCur,      flags.contains("c"), "$libName cur")
     verifyEq(m.hasWrite,    flags.contains("w"), "$libName write")
@@ -59,8 +57,6 @@ class ConnTest : HxTest
   {
     verifyNilService
     verifyEq(rt.conns.list.size, 0)
-
-    if (!rt.platform.isSkySpark) { echo("TODO: need hxConn implementation"); return }
 
     addLib("haystack")
     verifyEq(rt.conns.list.size, 1)
@@ -99,6 +95,7 @@ class ConnTest : HxTest
     c := rt.conns
     x := c.byName(name)
     verify(c.list.containsSame(x))
+    verify(rt.services.getAll(HxConnService#).contains(x))
 
     verifyEq(x.name, name)
     verifyEq(x.connTag,    "${name}Conn")
@@ -107,10 +104,10 @@ class ConnTest : HxTest
     verifyEq(x.curTag,     flags.contains("c") ? "${name}Cur" : null)
     verifyEq(x.hisTag,     flags.contains("h") ? "${name}His" : null)
     verifyEq(x.writeTag,   flags.contains("w") ? "${name}Write" : null)
-    verifyEq(x.isCurSupported,   flags.contains("c"))
-    verifyEq(x.isHisSupported,   flags.contains("h"))
-    verifyEq(x.isWriteSupported, flags.contains("w"))
-    verifyEq(x.isLearnSupported, flags.contains("l"))
+    verifyEq(x.hasCur,     flags.contains("c"))
+    verifyEq(x.hasHis,     flags.contains("h"))
+    verifyEq(x.hasWrite,   flags.contains("w"))
+    verifyEq(x.hasLearn,   flags.contains("l"))
 
     conn := Etc.makeDict(["id":Ref.gen, "${name}Conn":m])
     verifySame(c.byConn(conn), x)

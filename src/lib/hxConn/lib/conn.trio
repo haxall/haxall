@@ -12,10 +12,18 @@ def: ^conn
 is: ^entity
 mandatory
 doc:
- Connector for communication to a remote system.
+  Connector for communication to a remote system.
 --------------------------------------------------------------------------
 defx: ^disabled
 tagOn: ^conn
+--------------------------------------------------------------------------
+def: ^connFeatures
+is: ^dict
+doc:
+  Defines the features supported by a given connector.  This is
+  a tag added to the 'conn' def itself.  The value is a dict with the
+  following standardized keys:
+  - learn: marker tag if point learn is supported
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
@@ -33,17 +41,6 @@ doc:
   take before raising a timeout error.  For protocols which communicate
   via HTTP/TCP it is also used to configure the socket's receive
   timeout (including Haystack and oBIX connectors).
---------------------------------------------------------------------------
-def: ^actorPoolMaxThreads
-is: ^int
-doc:
-  Apply this tag to the connector extension record to tune the max number
-  of threads to allocate for connectors.  Adding more threads allows more
-  connectors to work concurrently processing their messages.  However more
-  threads will incur additional memory usage.  In general this value should
-  be somewhere between 50% and 75% of the total number of connectors in
-  the extension.  The default is 100.  Restart is required for a change
-  to take effect.
 --------------------------------------------------------------------------
 def: ^connErr
 is: ^str

@@ -76,7 +76,7 @@ const mixin HxStdServices
   @NoDoc abstract HxPointWriteService pointWrite()
 
   ** Connector registry service or no-op if connector framework not installed
-  @NoDoc abstract HxConnRegistryService conns()
+  abstract HxConnRegistryService conns()
 }
 
 **************************************************************************
@@ -406,7 +406,6 @@ const class NilPointWriteService : HxPointWriteService
 **
 ** HxConnRegistryService manages the list of enabled connectors.
 **
-@NoDoc
 const mixin HxConnRegistryService : HxService
 {
   ** List of installed connectors
@@ -424,7 +423,7 @@ const mixin HxConnRegistryService : HxService
   ** Lookup connector for given point record
   abstract HxConnService? byPoint(Dict point, Bool checked := true)
 
-  ** Lookup connector for set of points which must all have same connector ref
+  ** Lookup connector for set of points which must all have same connector ref.
   abstract HxConnService? byPoints(Dict[] points, Bool checked := true)
 
   ** Find primary connector ref for given point
@@ -456,7 +455,6 @@ const class NilConnRegistryService : HxConnRegistryService
 **
 ** HxConnService models a protocol specific connector library
 **
-@NoDoc
 const mixin HxConnService : HxService
 {
   ** Connector library name such as "bacnet"
@@ -472,13 +470,13 @@ const mixin HxConnService : HxService
   abstract Str pointTag()
 
   ** Does connector support current value subscription
-  abstract Bool isCurSupported()
-
-  ** Does connector support history synchronization
-  abstract Bool isHisSupported()
+  abstract Bool hasCur()
 
   ** Does connector support writable points
-  abstract Bool isWriteSupported()
+  abstract Bool hasWrite()
+
+  ** Does connector support history synchronization
+  abstract Bool hasHis()
 
   ** Point current address tag name such as "bacnetCur"
   abstract Str? curTag()
@@ -490,7 +488,7 @@ const mixin HxConnService : HxService
   abstract Str? writeTag()
 
   ** Does connector support learn
-  abstract Bool isLearnSupported()
+  abstract Bool hasLearn()
 
   ** Return if given record matches this connector type
   abstract Bool isConn(Dict rec)

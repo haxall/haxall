@@ -3,16 +3,18 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   23 Jun 2021  Brian Frank  Creation
+//   22 Dec 2021  Brian Frank  Creation
 //
 
 --------------------------------------------------------------------------
-def: ^lib:haystack
-depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
-typeName:"hxHaystack::HaystackLib"
-doc: "Haystack HTTP API connector"
+view: haystackSettings
+appName: settings
+disKey: Haystack
+admin
+doc: Settings for the haystack connector
+src:
+  view:   {inherit:"form"}
+  submit: {action:"extSettingsCommit"}
+  data:   {expr:"extSettings(\"haystack\")"}
 --------------------------------------------------------------------------
-
-
-
 

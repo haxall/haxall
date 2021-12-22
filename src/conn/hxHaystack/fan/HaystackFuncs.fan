@@ -18,30 +18,30 @@ using hxConn
 **
 const class HaystackFuncs
 {
-  ** Convenience for `connPing()`
-  @Axon { admin = true }
+  ** Deprecated - use `connPing()`
+  @Deprecated @Axon { admin = true }
   static Future haystackPing(Obj conn)
   {
     ConnFwFuncs.connPing(conn)
   }
 
-  ** Convenience for `connLearn()`
-  @Axon { admin = true }
+  ** Deprecated - use `connLearn()`
+  @Deprecated @Axon { admin = true }
   static Obj? haystackLearn(Obj conn, Obj? arg := null)
   {
     ConnFwFuncs.connLearn(conn, arg)
   }
 
-  ** Convenience for `connSyncCur()`
-  @Axon { admin = true }
+  ** Deprecated - use `connSyncCur()`
+  @Deprecated @Axon { admin = true }
   static Future haystackSyncCur(Obj points)
   {
     ConnFwFuncs.connSyncCur(points)
   }
 
-  ** Convenience for `connSyncHis()`
-  @Axon { admin = true }
-  static Obj? haystackSyncHis(Obj points, Obj? span := null)
+  ** Deprecated - use `connSyncHis()`
+  @Deprecated @Axon { admin = true }
+  static Future haystackSyncHis(Obj points, Obj? span := null)
   {
     ConnFwFuncs.connSyncHis(points, span)
   }
