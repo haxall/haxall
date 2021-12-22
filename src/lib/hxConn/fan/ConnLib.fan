@@ -22,10 +22,12 @@ abstract const class ConnLib : HxLib, HxConnService
     this.connActorPool = ActorPool
     {
       it.name = "$rt.name-$this.name.capitalize"
-      // TODO: turn into settings
-      it.maxThreads = (rec["actorPoolMaxThreads"] as Number ?: Number(100)).toInt.clamp(1, 5000)
+      it.maxThreads = rec.effectiveMaxThreads
     }
   }
+
+  ** Settings record
+  override ConnSettings rec() { super.rec }
 
   ** Return this instance as HxConnService implementation.
   ** If overridden you *must* call super.
@@ -99,6 +101,38 @@ abstract const class ConnLib : HxLib, HxConnService
 //////////////////////////////////////////////////////////////////////////
 
   internal const ActorPool connActorPool
+}
+
+**************************************************************************
+** ConnSettings
+**************************************************************************
+
+**
+** ConnSettings is the base class for connector library settings.
+**
+const class ConnSettings : TypedDict
+{
+  ** Constructor
+  new make(Dict d, |This| f) : super(d) { f(this) }
+
+  ** Max threads for the connector's actor pool.  Adding more threads allows
+  ** more connectors to work concurrently processing their messages. However
+  ** more threads will incur additional memory usage. In general this value
+  ** should be somewhere between 50% and 75% of the total number of connectors
+  ** in the extension.  A restart is required for a change to take effect.
+  @TypedTag { restart=true
+    meta= Str<|minVal: 1
+               maxVal: 5000|> }
+  const Int maxThreads:= 100
+
+  ** Get the effective max threads setting to use taking into
+  ** consideration the legacy actorPoolMaxThreads tag
+  @NoDoc Int effectiveMaxThreads()
+  {
+    x := get("actorPoolMaxThreads") as Number
+    if (x != null) return x.toInt.clamp(1, 5000)
+    return maxThreads.clamp(1, 5000)
+  }
 }
 
 
