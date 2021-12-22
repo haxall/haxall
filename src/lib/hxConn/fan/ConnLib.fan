@@ -16,6 +16,17 @@ using hx
 **
 abstract const class ConnLib : HxLib, HxConnService
 {
+  ** Constructor
+  new make()
+  {
+    this.connActorPool = ActorPool
+    {
+      it.name = "$rt.name-$this.name.capitalize"
+      // TODO: turn into settings
+      it.maxThreads = (rec["actorPoolMaxThreads"] as Number ?: Number(100)).toInt.clamp(1, 5000)
+    }
+  }
+
   ** Return this instance as HxConnService implementation.
   ** If overridden you *must* call super.
   override HxService[] services() { [this] }
@@ -28,7 +39,8 @@ abstract const class ConnLib : HxLib, HxConnService
   ** Start callback - if overridden you *must* call super
   override Void onStart()
   {
-    this.modelRef.val = ConnModel(rt.ns, def)
+    model := ConnModel(rt.ns, def)
+    this.modelRef.val = model
   }
 
   ** Stop callback - if overridden you *must* call super
@@ -82,6 +94,11 @@ abstract const class ConnLib : HxLib, HxConnService
   ** Return debug details for point
   override final Str pointDetails(Dict rec) { throw Err("TODO") }
 
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
+
+  internal const ActorPool connActorPool
 }
 
 
