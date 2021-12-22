@@ -108,13 +108,18 @@ const class Topic
       fpart := fparts.getSafe(i)
       ++i
 
+      // check parts match
       if (tpart == fpart) continue
 
+      // check single-level match
       if (fpart == single.toChar) continue
 
+      // check multi-level match
       if (fpart == multi.toChar) return true
-    }
 
+      // parts do not match
+      return false
+    }
 
     // check for topic shorter than filter, but next part of filter is mult-level wildcard
     // a/b/c matches a/b/c/#

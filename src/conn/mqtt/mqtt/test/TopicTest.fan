@@ -58,5 +58,7 @@ class TopicTest : Test
     verifyFalse(Topic.matches("a/", "a"))
     verifyFalse(Topic.matches("sport/tennis/player1/ranking", "sport/tennis/+"))
     verifyFalse(Topic.matches("sport", "sport/+"))
+    verifyFalse(Topic.matches("/test1/foo", "/test2/#"))
+    verifyFalse(Topic.matches("/test1", "/test2"))
   }
 }
