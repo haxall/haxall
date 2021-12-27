@@ -14,8 +14,13 @@ using hx
 **
 ** Conn models a connection to a single endpoint.
 **
-const class Conn : Actor
+const final class Conn : Actor
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
   ** Constructor
   new make(ConnLib lib, Dict rec) : super(lib.connActorPool)
   {
@@ -23,6 +28,10 @@ const class Conn : Actor
     this.id     = rec.id
     this.recRef = AtomicRef(rec)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Identity
+//////////////////////////////////////////////////////////////////////////
 
   ** Runtime
   HxRuntime rt() { lib.rt }
@@ -33,12 +42,19 @@ const class Conn : Actor
   ** Record id
   const Ref id
 
+  ** Display name
+  Str dis() { rec.dis }
+
   ** Current version of the record
   Dict rec() { recRef.val }
   private const AtomicRef recRef
 
   ** Log for this connector
   Log log() { lib.log }
+
+//////////////////////////////////////////////////////////////////////////
+// Points
+//////////////////////////////////////////////////////////////////////////
 
   ** Get list of all points managed by this connector.
   ConnPoint[] points() { pointsList.val }
@@ -51,6 +67,19 @@ const class Conn : Actor
     if (checked) throw Err("ConnPoint not found: $id")
     return null
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Lifecycle
+//////////////////////////////////////////////////////////////////////////
+
+  Void onUpdated(Dict newRec)
+  {
+    recRef.val = newRec
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
 
   private const ConcurrentMap pointsById := ConcurrentMap()
   private const AtomicRef pointsList := AtomicRef(ConnPoint#.emptyList)

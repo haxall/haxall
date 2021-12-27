@@ -9,6 +9,7 @@
 
 using concurrent
 using haystack
+using obs
 using hx
 
 **
@@ -38,16 +39,49 @@ abstract const class ConnLib : HxLib, HxConnService
   @NoDoc ConnModel model() { modelRef.val ?: throw Err("Not avail until after start") }
   private const AtomicRef modelRef := AtomicRef()
 
+//////////////////////////////////////////////////////////////////////////
+// Roster
+//////////////////////////////////////////////////////////////////////////
+
+  ** List the connectors
+  Conn[] conns() { roster.conns }
+
+  ** Lookup a connector by its record id
+  Conn? conn(Ref id, Bool checked := true) { roster.conn(id, checked) }
+
+  ** Roster of connectors and points
+  internal const ConnRoster roster := ConnRoster(this)
+
+//////////////////////////////////////////////////////////////////////////
+// Lifecycle
+//////////////////////////////////////////////////////////////////////////
+
   ** Start callback - if overridden you *must* call super
   override Void onStart()
   {
+    // build def model
     model := ConnModel(rt.ns, def)
     this.modelRef.val = model
+
+    // load roster
+    roster.start
   }
 
   ** Stop callback - if overridden you *must* call super
   override Void onStop()
   {
+  }
+
+  ** Connector rec event - route to roster
+  internal Void onConnEvent(CommitObservation? e)
+  {
+    if (e != null) roster.onConnEvent(e)
+  }
+
+  ** Point rec event - route to roster
+  internal Void onPointEvent(CommitObservation? e)
+  {
+    if (e != null) roster.onConnEvent(e)
   }
 
 //////////////////////////////////////////////////////////////////////////

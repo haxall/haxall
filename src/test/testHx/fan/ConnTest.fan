@@ -118,4 +118,102 @@ class ConnTest : HxTest
 
     return x
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Roster
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testRoster()
+  {
+    // empty roster
+    lib := (ConnLib)addLib("haystack")
+    verifyRoster(lib, [,])
+
+    // add connector
+    c1 := addRec(["dis":"C1", "haystackConn":m])
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1],
+      ])
+
+    // add two more
+    c2 := addRec(["dis":"C2", "haystackConn":m])
+    c3 := addRec(["dis":"C3", "haystackConn":m])
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1],
+       [c2],
+       [c3],
+      ])
+
+    // modify c2
+    c2 = commit(c2, ["change":m, "dis":"C2x"])
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1],
+       [c2],
+       [c3],
+      ])
+
+    // remove c2 and c3
+    c2 = commit(c2, ["haystackConn":Remove.val])
+    c3 = commit(c3, ["trash":m])
+    rt.sync
+    verifyErr(UnknownConnErr#) { lib.conn(c2.id) }
+    verifyErr(UnknownConnErr#) { lib.conn(c3.id, true) }
+    verifyRoster(lib,
+      [
+       [c1],
+      ])
+
+    // add back c2 and c3
+    c2 = commit(c2, ["haystackConn":m])
+    c3 = commit(c3, ["trash":Remove.val])
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1],
+       [c2],
+       [c3],
+      ])
+
+    // now restart lib
+    rt.libs.remove(lib)
+    lib = addLib("haystack")
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1],
+       [c2],
+       [c3],
+      ])
+  }
+
+  Void verifyRoster(ConnLib lib, Dict[][] expected)
+  {
+    // echo; lib->roster->dump
+    conns := lib.conns.dup.sort |a, b| { a.dis <=> b.dis }
+    verifyEq(conns.size, expected.size)
+    conns.each |c, i|
+    {
+      ex    := expected[i]
+      exRec := ex[0]
+      exPts := ex[1..-1]
+
+      verifySame(c.lib, lib)
+      verifySame(c.rec, exRec)
+      verifyEq(c.id, exRec.id)
+      verifyEq(c.dis, exRec.dis)
+      verifySame(lib.conn(exRec.id), c)
+    }
+
+    // bad conn ids
+    verifyEq(lib.conn(Ref.gen, false), null)
+    verifyErr(UnknownConnErr#) { lib.conn(Ref.gen) }
+    verifyErr(UnknownConnErr#) { lib.conn(Ref.gen, true) }
+  }
 }
