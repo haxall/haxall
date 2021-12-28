@@ -12,3 +12,8 @@ const class UnknownConnErr : Err
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
+@NoDoc
+const class UnknownConnPointErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}

@@ -43,11 +43,17 @@ abstract const class ConnLib : HxLib, HxConnService
 // Roster
 //////////////////////////////////////////////////////////////////////////
 
-  ** List the connectors
+  ** List all the connectors
   Conn[] conns() { roster.conns }
 
   ** Lookup a connector by its record id
   Conn? conn(Ref id, Bool checked := true) { roster.conn(id, checked) }
+
+  ** List all the points across all connectors
+  ConnPoint[] points() { roster.points }
+
+  ** Lookup a point by its record id
+  ConnPoint? point(Ref id, Bool checked := true) { roster.point(id, checked) }
 
   ** Roster of connectors and points
   internal const ConnRoster roster := ConnRoster(this)
@@ -81,7 +87,7 @@ abstract const class ConnLib : HxLib, HxConnService
   ** Point rec event - route to roster
   internal Void onPointEvent(CommitObservation? e)
   {
-    if (e != null) roster.onConnEvent(e)
+    if (e != null) roster.onPointEvent(e)
   }
 
 //////////////////////////////////////////////////////////////////////////

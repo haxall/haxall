@@ -21,8 +21,8 @@ const final class Conn : Actor
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  ** Constructor
-  new make(ConnLib lib, Dict rec) : super(lib.connActorPool)
+  ** Internal constructor
+  internal new make(ConnLib lib, Dict rec) : super(lib.connActorPool)
   {
     this.lib    = lib
     this.id     = rec.id
@@ -62,9 +62,9 @@ const final class Conn : Actor
   ** Get the point managed by this connector via its point rec id.
   ConnPoint? point(Ref id, Bool checked := true)
   {
-    pt := pointsById.get(id)
-    if (pt != null) return pt
-    if (checked) throw Err("ConnPoint not found: $id")
+    pt := lib.roster.point(id, false) as ConnPoint
+    if (pt != null && pt.conn === this) return pt
+    if (checked) throw UnknownConnPointErr("Connector point not found: $id.toZinc")
     return null
   }
 
@@ -72,15 +72,22 @@ const final class Conn : Actor
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
-  Void onUpdated(Dict newRec)
+  ** Called when record is modified
+  internal Void updateRec(Dict newRec)
   {
     recRef.val = newRec
+  }
+
+  ** Update the points list.
+  ** Must pass mutable list which is sorted by this method.
+  internal Void updatePointsList(ConnPoint[] pts)
+  {
+    pointsList.val = pts.sort |a, b| { a.dis <=> b.dis }.toImmutable
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const ConcurrentMap pointsById := ConcurrentMap()
   private const AtomicRef pointsList := AtomicRef(ConnPoint#.emptyList)
 }

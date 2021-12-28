@@ -159,6 +159,98 @@ class ConnTest : HxTest
        [c3],
       ])
 
+    // add some points
+    p1a := addRec(["dis":"1A", "point":m, "haystackConnRef":c1.id])
+    p1b := addRec(["dis":"1B", "point":m, "haystackConnRef":c1.id])
+    p1c := addRec(["dis":"1C", "point":m, "haystackConnRef":c1.id])
+    p2a := addRec(["dis":"2A", "point":m, "haystackConnRef":c2.id])
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1, p1a, p1b, p1c],
+       [c2, p2a],
+       [c3],
+      ])
+
+    // update pt
+    p1b = commit(p1b, ["dis":"1Bx", "change":"it"])
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1, p1a, p1b, p1c],
+       [c2, p2a],
+       [c3],
+      ])
+
+    // move pt to new connector
+    p1b = commit(p1b, ["dis":"3A", "haystackConnRef":c3.id])
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1, p1a, p1c],
+       [c2, p2a],
+       [c3, p1b],
+      ])
+
+    // create some points which don't map to connectors yet
+    c4id := Ref("c4")
+    p4a := addRec(["dis":"4A", "point":m, "haystackConnRef":c4id])
+    p4b := addRec(["dis":"4B", "point":m, "haystackConnRef":"bad ref"])
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1, p1a, p1c],
+       [c2, p2a],
+       [c3, p1b],
+      ])
+
+    // now add c4
+    c4 := addRec(["id":c4id, "dis":"C4", "haystackConn":m])
+    verifyEq(c4.id, c4id)
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1, p1a, p1c],
+       [c2, p2a],
+       [c3, p1b],
+       [c4, p4a],
+      ])
+
+    // fix p4b which had bad ref
+    p4b = commit(p4b, ["haystackConnRef":c4.id])
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1, p1a, p1c],
+       [c2, p2a],
+       [c3, p1b],
+       [c4, p4a, p4b],
+      ])
+
+    // remove points
+    p4a = commit(p4a, ["point":Remove.val])
+    p4b = commit(p4b, ["trash":m])
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1, p1a, p1c],
+       [c2, p2a],
+       [c3, p1b],
+       [c4],
+      ])
+
+    // add them back
+    p4a = commit(p4a, ["point":m])
+    p4b = commit(p4b, ["trash":Remove.val])
+    rt.sync
+    verifyRoster(lib,
+      [
+       [c1, p1a, p1c],
+       [c2, p2a],
+       [c3, p1b],
+       [c4, p4a, p4b],
+      ])
+
     // remove c2 and c3
     c2 = commit(c2, ["haystackConn":Remove.val])
     c3 = commit(c3, ["trash":m])
@@ -167,7 +259,8 @@ class ConnTest : HxTest
     verifyErr(UnknownConnErr#) { lib.conn(c3.id, true) }
     verifyRoster(lib,
       [
-       [c1],
+       [c1, p1a, p1c],
+       [c4, p4a, p4b],
       ])
 
     // add back c2 and c3
@@ -176,9 +269,10 @@ class ConnTest : HxTest
     rt.sync
     verifyRoster(lib,
       [
-       [c1],
-       [c2],
-       [c3],
+       [c1, p1a, p1c],
+       [c2, p2a],
+       [c3, p1b],
+       [c4, p4a, p4b],
       ])
 
     // now restart lib
@@ -187,9 +281,10 @@ class ConnTest : HxTest
     rt.sync
     verifyRoster(lib,
       [
-       [c1],
-       [c2],
-       [c3],
+       [c1, p1a, p1c],
+       [c2, p2a],
+       [c3, p1b],
+       [c4, p4a, p4b],
       ])
   }
 
@@ -198,22 +293,70 @@ class ConnTest : HxTest
     // echo; lib->roster->dump
     conns := lib.conns.dup.sort |a, b| { a.dis <=> b.dis }
     verifyEq(conns.size, expected.size)
+    exAllPoints := Dict[,]
+
+    // each connector
     conns.each |c, i|
     {
+      // expected rows are a list where first item is connector rec
+      // and rest of list is the expected points under that connector
       ex    := expected[i]
       exRec := ex[0]
       exPts := ex[1..-1]
+      exAllPoints.addAll(exPts)
 
+      // connector
       verifySame(c.lib, lib)
       verifySame(c.rec, exRec)
       verifyEq(c.id, exRec.id)
       verifyEq(c.dis, exRec.dis)
       verifySame(lib.conn(exRec.id), c)
+
+      // points
+      verifyPoints(lib, c.points, exPts, false)
+      c.points.each |pt| { verifySame(pt.conn, c) }
+
+      // bad points
+      verifyEq(c.point(Ref.gen, false), null)
+      verifyErr(UnknownConnPointErr#) { c.point(Ref.gen) }
+      verifyErr(UnknownConnPointErr#) { c.point(Ref.gen, true) }
     }
+
+    // all points
+    verifyPoints(lib, lib.points, exAllPoints, true)
 
     // bad conn ids
     verifyEq(lib.conn(Ref.gen, false), null)
     verifyErr(UnknownConnErr#) { lib.conn(Ref.gen) }
     verifyErr(UnknownConnErr#) { lib.conn(Ref.gen, true) }
   }
+
+  Void verifyPoints(ConnLib lib, ConnPoint[] actual, Dict[] expected, Bool sort)
+  {
+    if (sort) actual = actual.dup.sort |a, b| { a.dis <=> b.dis }
+    verifyEq(actual.size, expected.size)
+    actual.each |a, i|
+    {
+      e := expected[i]
+      id := e.id
+      connRef := (Ref)e["haystackConnRef"]
+      verifyEq(a.conn.id, connRef)
+      verifySame(a.conn, lib.conn(connRef))
+      verifySame(a.rec, e)
+      verifyEq(a.id, id)
+      verifyEq(a.dis, e.dis)
+      verifySame(lib.point(id), a)
+      verifySame(a.conn.point(id), a)
+
+      // verify Conn.point wrong connector
+      lib.conns.each |c|
+      {
+        if (a.conn === c) return
+        verifyEq(c.point(id, false), null)
+        verifyErr(UnknownConnPointErr#) { c.point(id) }
+        verifyErr(UnknownConnPointErr#) { c.point(id, true) }
+      }
+    }
+  }
+
 }
