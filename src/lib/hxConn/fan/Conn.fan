@@ -69,6 +69,29 @@ const final class Conn : Actor
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Actor
+//////////////////////////////////////////////////////////////////////////
+
+  ** Actor messages are routed to `ConnDispatch`
+  override Obj? receive(Obj? msg)
+  {
+    dispatch := Actor.locals["d"] as ConnDispatch
+    if (dispatch == null)
+    {
+      try
+      {
+        Actor.locals["d"] = lib.model.dispatchType.make([this])
+      }
+      catch (Err e)
+      {
+        log.err("Cannot initialize dispatch ${lib.model.dispatchType}", e)
+        throw e
+      }
+    }
+    return dispatch.onReceive(msg)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 

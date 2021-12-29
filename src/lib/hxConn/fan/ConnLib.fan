@@ -31,7 +31,7 @@ abstract const class ConnLib : HxLib, HxConnService
   override ConnSettings rec() { super.rec }
 
   ** Return this instance as HxConnService implementation.
-  ** If overridden you *must* call super.
+  ** Overrides must call super.
   override HxService[] services() { [this] }
 
   ** Model which defines tags and functions for this connector.
@@ -66,7 +66,7 @@ abstract const class ConnLib : HxLib, HxConnService
   override Void onStart()
   {
     // build def model
-    model := ConnModel(rt.ns, def)
+    model := ConnModel(this)
     this.modelRef.val = model
 
     // load roster

@@ -10,15 +10,17 @@
 using haystack
 using hx
 
-@NoDoc @Js
+@NoDoc
 const final class ConnModel
 {
-  ** Construct with extension pod
-  @NoDoc new make(Namespace ns, Lib lib)
+  ** Construct for given lib
+  @NoDoc new make(ConnLib lib)
   {
     this.name = lib.name
     prefix := name
 
+    ns := lib.rt.ns
+    libDef := lib.def
     connDef := def(ns, lib, "${prefix}Conn")
     features := connDef["connFeatures"] as Dict ?: Etc.emptyDict
 
@@ -37,6 +39,9 @@ const final class ConnModel
     this.hasWrite  = writeTag != null
     this.hasHis    = hisTag != null
 
+    // helper classes
+    this.dispatchType = lib.typeof.pod.type(name.capitalize + "Dispatch")
+
     // dict for misc
     misc := Str:Obj[:]
     misc["name"] = name
@@ -47,7 +52,7 @@ const final class ConnModel
     this.misc = Etc.makeDict(misc)
   }
 
-  private static Def? def(Namespace ns, Lib lib, Str symbol, Bool checked := true)
+  private static Def? def(Namespace ns, ConnLib lib, Str symbol, Bool checked := true)
   {
     def := ns.def(symbol, false)
     if (def == null)
@@ -55,7 +60,7 @@ const final class ConnModel
       if (checked) throw Err("Missing required def: $symbol")
       return null
     }
-    if (def.lib !== lib) throw Err("Def in wrong lib: $symbol [$def.lib != $lib]")
+    if (def.lib !== lib.def) throw Err("Def in wrong lib: $symbol [$def.lib != $lib]")
     return def
   }
 
@@ -93,6 +98,9 @@ const final class ConnModel
 
   ** Polling strategy to use for connector
   const PollingMode pollingMode := PollingMode.disabled
+
+  ** Dispatch subclass
+  const Type dispatchType
 
   ** Encoding for SysNamespace misc entry
   @NoDoc const Dict misc
