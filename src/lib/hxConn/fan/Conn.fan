@@ -27,6 +27,7 @@ const final class Conn : Actor
     this.lib    = lib
     this.id     = rec.id
     this.recRef = AtomicRef(rec)
+    this.trace  = ConnTrace(lib.rt.libs.actorPool)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -48,6 +49,9 @@ const final class Conn : Actor
   ** Current version of the record
   Dict rec() { recRef.val }
   private const AtomicRef recRef
+
+  ** Debug tracing for this connector
+  const ConnTrace trace
 
   ** Log for this connector
   Log log() { lib.log }
@@ -73,8 +77,9 @@ const final class Conn : Actor
 //////////////////////////////////////////////////////////////////////////
 
   ** Actor messages are routed to `ConnDispatch`
-  override Obj? receive(Obj? msg)
+  override Obj? receive(Obj? m)
   {
+    msg := (HxMsg)m
     dispatch := Actor.locals["d"] as ConnDispatch
     if (dispatch == null)
     {
@@ -88,6 +93,7 @@ const final class Conn : Actor
         throw e
       }
     }
+    trace.dispatch(msg)
     return dispatch.onReceive(msg)
   }
 

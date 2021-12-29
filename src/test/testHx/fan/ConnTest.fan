@@ -120,6 +120,90 @@ class ConnTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Trace
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testTrace()
+  {
+    // empty roster
+    lib := (ConnLib)addLib("haystack")
+    rec := addRec(["dis":"Test Conn", "haystackConn":m])
+    rt.sync
+    c := lib.conn(rec.id)
+
+    // start off empty
+    verifyEq(c.trace.isEnabled, false)
+    verifyTrace(c, [,])
+
+    // write a trace while disalbed
+    c.trace.write("foo", "msg", null)
+    verifyTrace(c, [,])
+
+    // now enable it
+    c.trace.enable
+    verifyEq(c.trace.isEnabled, true)
+    c.trace.write("foo", "msg", null)
+    verifyTrace(c, [
+      ["foo", "msg", null],
+      ])
+
+    // write some other traces
+    c.trace.dispatch(HxMsg("x"))
+    c.trace.req("req test", "req body")
+    c.trace.res("res test", "res body")
+    c.trace.event("event test", "event body")
+    verifyTrace(c, [
+      ["foo",      "msg",        null],
+      ["dispatch", "x",          HxMsg("x")],
+      ["req",      "req test",   "req body"],
+      ["res",      "res test",   "res body"],
+      ["event",    "event test", "event body"],
+      ])
+
+    // verify re-enable doesn't change anything
+    c.trace.enable
+    verifyEq(c.trace.isEnabled, true)
+    verifyTrace(c, [
+      ["foo",      "msg",        null],
+      ["dispatch", "x",          HxMsg("x")],
+      ["req",      "req test",   "req body"],
+      ["res",      "res test",   "res body"],
+      ["event",    "event test", "event body"],
+      ])
+
+    // disable
+    c.trace.disable
+    verifyEq(c.trace.isEnabled, false)
+    verifyTrace(c, [,])
+    c.trace.write("ignore", "ignore")
+    verifyTrace(c, [,])
+
+    // buf test
+    c.trace.enable
+    buf := "buf test".toBuf
+    verifyErr(NotImmutableErr#) { c.trace.req("bad", buf) }
+    buf = buf.toImmutable
+    c.trace.req("req test", buf)
+    verify(buf.bytesEqual("buf test".toBuf))
+  }
+
+  Void verifyTrace(Conn c, Obj[] expected)
+  {
+    actual := c.trace.read
+    // echo("\n --- trace ---"); echo(actual.join("\n"))
+    verifyEq(actual.size, expected.size)
+    actual.each |a, i|
+    {
+      e := (Obj?[]) expected[i]
+      verifyEq(a.ts.date, Date.today)
+      verifyEq(a.type, e[0])
+      verifyEq(a.msg,  e[1])
+      verifyEq(a.arg,  e[2])
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Roster
 //////////////////////////////////////////////////////////////////////////
 

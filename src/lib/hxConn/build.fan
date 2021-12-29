@@ -32,7 +32,8 @@ class Build : BuildPod
                 "haystack @{hx.depend}",
                 "axon @{hx.depend}",
                 "obs @{hx.depend}",
-                "hx @{hx.depend}"]
+                "hx @{hx.depend}",
+                "hxUtil @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
     index   = ["ph.lib": "conn"]
