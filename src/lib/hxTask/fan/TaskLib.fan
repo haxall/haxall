@@ -89,11 +89,8 @@ const class TaskLib : HxLib, HxTaskService
   }
 
   ** Event when 'task' records are modified
-  internal Void onTaskEvent(CommitObservation? e)
+  internal Void onTaskEvent(CommitObservation e)
   {
-    // null is sync message
-    if (e == null) return
-
     // on update or remove, then kill existing task
     if (e.isUpdated || e.isRemoved)
     {

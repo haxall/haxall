@@ -88,7 +88,7 @@ abstract const class HxLib
 
   ** Subscribe this library to an observable. The callback must be an
   ** Actor instance or Method literal on this class.  If callback is a
-  ** method, then its called on a dedicated actor using runtime lib actor
+  ** method, then its called on the lib's dedicated background actor.
   ** pool. This method should be called in the `onStart` callback.
   ** The observation is automatically unsubscribed on stop.
   ** See `docHaxall::Observables#fantomObserve`.

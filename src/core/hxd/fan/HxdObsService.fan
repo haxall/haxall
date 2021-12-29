@@ -251,8 +251,8 @@ const class HxdObsService : Actor, HxObsService
     // short circuit if no syncables
     if (syncables.isEmpty) return Future#.emptyList
 
-    // send null message to all syncable observers and return Future[]
-    return syncables.map |sub->Future| { sub.observer.actor.send(null) }
+    // send sync message to all syncable observers and return Future[]
+    return syncables.map |sub->Future| { sub.sync }
   }
 
 //////////////////////////////////////////////////////////////////////////

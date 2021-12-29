@@ -142,13 +142,14 @@ const class HxdLibSpi : Actor, HxLibSpi
     try
     {
       msg := (HxMsg)msgObj
+      if (msg.id === "obs")         return onObs(msg)
+      if (msg.id === "sync")        return "synced"
+      if (msg.id === "recUpdate")   return onRecUpdate
       if (msg.id === "start")       return onStart
       if (msg.id === "ready")       return onReady
       if (msg.id === "steadyState") return onSteadyState
       if (msg.id === "unready")     return onUnready
       if (msg.id === "stop")        return onStop
-      if (msg.id === "recUpdate")   return onRecUpdate
-      if (msg.id === "sync")        return "synced"
       throw Err(msg.id)
     }
     catch (Err e) log.err("HxLib callback", e)
@@ -198,6 +199,11 @@ const class HxdLibSpi : Actor, HxLibSpi
     return null
   }
 
+  private Obj? onObs(HxMsg msg)
+  {
+    ((HxdLibMethodObserver)msg.a).call(msg.b)
+  }
+
   Bool isRunning() { isRunningRef.val }
   private const AtomicBool isRunningRef := AtomicBool(false)
 
@@ -242,11 +248,12 @@ internal const class HxdLibActorObserver : Observer
 ** HxdLibMethodObserver
 **************************************************************************
 
-internal const class HxdLibMethodObserver : Actor, Observer
+internal const class HxdLibMethodObserver : Observer
 {
-  new make(HxLib lib, Method method) : super(lib.rt.libs.actorPool)
+  new make(HxLib lib, Method method)
   {
     this.lib = lib
+    this.actor = (HxdLibSpi)lib.spi
     this.method = method
     this.meta = Etc.emptyDict
   }
@@ -254,10 +261,12 @@ internal const class HxdLibMethodObserver : Actor, Observer
   const HxLib lib
   const Method method
   override const Dict meta
-  override Actor actor() { this }
+  override const Actor actor
+  override Obj toActorMsg(Observation msg) { HxMsg("obs", this, msg) }
+  override Obj? toSyncMsg() { HxMsg("sync") }
   override Str toStr() { "HxLib $lib.name" }
 
-  override Obj? receive(Obj? msg)
+  Obj? call(Obj? msg)
   {
     try
       method.callOn(lib, [msg])

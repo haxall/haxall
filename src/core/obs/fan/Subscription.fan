@@ -60,7 +60,16 @@ const class Subscription
   Void unsubscribe() { observable.unsubscribe(this) }
 
   ** Send observation message to observer actor
-  Future send(Observation msg) { observer.actor.send(msg) }
+  Future send(Observation msg)
+  {
+    observer.actor.send(observer.toActorMsg(msg))
+  }
+
+  ** Send sync message to observer actor
+  Future sync()
+  {
+    observer.actor.send(observer.toSyncMsg)
+  }
 
   ** Debug string
   override final Str toStr()
