@@ -19,16 +19,34 @@ using hx
 const class ConnFwFuncs
 {
   **
-  ** Perform a ping on the given connector and return a future.  The future
-  ** result is a dict for the connector record.  The 'conn' parameter may
-  ** be anything acceptable by `toRecId()`.
+  ** Perform a ping on the given connector and return a future.
+  ** The future result is the connector rec dict.  The 'conn' parameter
+  ** may be anything accepted by `toRecId()`.
   **
   ** Examples:
   **   read(conn).connPing
   **   connPing(connId)
   **
   @Axon { admin = true }
-  static Future connPing(Obj conn) { throw Err("TODO") }
+  static Future connPing(Obj conn)
+  {
+    toConn(conn).ping
+  }
+
+  **
+  ** Force the given connector closed and return a future.
+  ** The future result is the connector rec dict.  The 'conn'
+  ** parameter may be anything accepted by `toRecId()`.
+  **
+  ** Examples:
+  **   read(conn).connClose
+  **   connClose(connId)
+  **
+  @Axon { admin = true }
+  static Future connClose(Obj conn)
+  {
+    toConn(conn).close
+  }
 
   **
   ** Perform a learn on the given connector and return a future.
@@ -68,4 +86,16 @@ const class ConnFwFuncs
   **
   @Axon { admin = true }
   static Future connSyncHis(Obj points, Obj? span) { throw Err("TODO") }
+
+  ** Coerce conn to a Conn instance
+  private static Conn toConn(Obj conn)
+  {
+    // TODO: temp code
+    id := Etc.toId(conn)
+    c := HxContext.curHx.rt.libs.list.eachWhile |lib->Conn?|
+    {
+      (lib as ConnLib)?.conn(id, false)
+    }
+    return c ?: throw UnknownConnErr("Cannot map to connector [$id.toZinc]")
+  }
 }

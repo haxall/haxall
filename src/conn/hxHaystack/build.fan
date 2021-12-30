@@ -30,9 +30,10 @@ class Build : BuildPod
                 "concurrent @{fan.depend}",
                 "haystack @{hx.depend}",
                 "axon @{hx.depend}",
+                "folio @{hx.depend}",
                 "hx @{hx.depend}",
                 "hxConn @{hx.depend}"]
-    srcDirs = [`fan/`,]
+    srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
     index   = ["ph.lib": "haystack"]
   }

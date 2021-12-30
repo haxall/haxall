@@ -99,6 +99,12 @@ const final class Conn : Actor
 // Actor
 //////////////////////////////////////////////////////////////////////////
 
+  ** Invoke ping request
+  Future ping() { send(HxMsg("ping")) }
+
+  ** Force close of connection if open
+  Future close() { send(HxMsg("close")) }
+
   ** Block until this conn processes its current actor queue
   This sync(Duration? timeout := null)
   {
