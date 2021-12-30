@@ -17,8 +17,53 @@ using hxConn
 **
 class HaystackDispatch : ConnDispatch
 {
-  ** Constructor with parent connector
   new make(Conn conn)  : super(conn) {}
+
+  override Void onOpen()
+  {
+    // gather configuration
+    uriVal := rec["uri"] ?: throw FaultErr("Missing 'uri' tag")
+    uri    := uriVal as Uri ?: throw FaultErr("Type of 'uri' must be Uri, not $uriVal.typeof.name")
+    user   := rec["username"] as Str ?: ""
+    pass   := db.passwords.get(id.toStr) ?: ""
+
+    // open client
+    opts := ["log":this.log, "timeout":conn.timeout]
+    client = Client.open(uri, user, pass, opts)
+  }
+
+  override Void onClose()
+  {
+    client = null
+    // TODO
+    //watchClear
+  }
+
+  override Dict onPing()
+  {
+    // call "about" operation
+    about := client.about
+
+    // update tags
+    tags := Str:Obj[:]
+    if (about["productName"]    is Str) tags["productName"]    = about->productName
+    if (about["productVersion"] is Str) tags["productVersion"] = about->productVersion
+    if (about["moduleName"]     is Str) tags["moduleName"]     = about->moduleName
+    if (about["moduleVersion"]  is Str) tags["moduleVersion"]  = about->moduleVersion
+    about.each |v, n| { if (n.startsWith("host")) tags[n] = v }
+
+    // update tz
+    tzStr := about["tz"] as Str
+    if (tzStr != null)
+    {
+      tz := TimeZone.fromStr(tzStr, false)
+      if (tz != null) tags["tz"] = tz.name
+    }
+
+    return Etc.makeDict(tags)
+  }
+
+  private Client? client
 }
 
 

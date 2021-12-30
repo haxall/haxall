@@ -9,6 +9,7 @@
 
 using concurrent
 using haystack
+using folio
 using hx
 
 **
@@ -34,8 +35,11 @@ const final class Conn : Actor
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** Runtime
+  ** Runtime system
   HxRuntime rt() { libRef.rt }
+
+  ** Runtime database
+  Folio db() { libRef.rt.db }
 
   ** Parent connector library
   ConnLib lib() { libRef }
@@ -60,6 +64,9 @@ const final class Conn : Actor
 
   ** Current version of the record
   Dict rec() { config.rec }
+
+  ** Timeout to use for I/O and actor messaging - see `actorTimeout`.
+  Duration timeout() { config.timeout }
 
   ** Configured ping frequency to test connection or
   ** null if feature is disabled - see `connPingFreq`
@@ -164,12 +171,16 @@ internal const class ConnConfig
   {
     this.rec      = rec
     this.dis      = rec.dis
+    this.disabled = rec.has("disabled")
+    this.timeout  = Etc.dictGetDuration(rec, "actorTimeout", 1min).max(1sec)
     this.pingFreq = Etc.dictGetDuration(rec, "connPingFreq")?.max(1sec)
     this.linger   = Etc.dictGetDuration(rec, "connLinger", 30sec).max(0sec)
   }
 
   const Dict rec
   const Str dis
+  const Bool disabled
+  const Duration timeout
   const Duration? pingFreq
   const Duration linger
 }

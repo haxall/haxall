@@ -80,16 +80,16 @@ const final class ConnPoint
   Unit? unit() { config.unit }
 
   ** Current value conversion if defined by rec 'curConvert' tag
-  internal PointConvert? curConvert() { config.curConvert }
+  @NoDoc PointConvert? curConvert() { config.curConvert }
 
   ** Write value conversion if defined by rec 'writeTag' tag
-  internal PointConvert? writeConvert() { config.writeConvert }
+  @NoDoc PointConvert? writeConvert() { config.writeConvert }
 
   ** History value conversion if defined by rec 'hisConvert' tag
-  internal PointConvert? hisConvert() { config.hisConvert }
+  @NoDoc PointConvert? hisConvert() { config.hisConvert }
 
   ** Fault message if the record has configuration errors
-  internal Str? fault() { config.fault }
+  @NoDoc Str? fault() { config.fault }
 
   ** Conn rec configuration
   internal ConnPointConfig config() { configRef.val }
