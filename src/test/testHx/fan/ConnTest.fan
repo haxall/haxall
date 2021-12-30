@@ -146,7 +146,7 @@ class ConnTest : HxTest
     c.trace.write("foo", "msg", null)
     verifyTrace(c, [
       ["foo", "msg", null],
-      ])
+      ], false)
 
     // write some other traces
     c.trace.dispatch(HxMsg("x"))
@@ -159,7 +159,7 @@ class ConnTest : HxTest
       ["req",      "req test",   "req body"],
       ["res",      "res test",   "res body"],
       ["event",    "event test", "event body"],
-      ])
+      ], false)
 
     // verify re-enable doesn't change anything
     c.trace.enable
@@ -170,14 +170,14 @@ class ConnTest : HxTest
       ["req",      "req test",   "req body"],
       ["res",      "res test",   "res body"],
       ["event",    "event test", "event body"],
-      ])
+      ], false)
 
     // disable
     c.trace.disable
     verifyEq(c.trace.isEnabled, false)
-    verifyTrace(c, [,])
+    verifyTrace(c, [,], false)
     c.trace.write("ignore", "ignore")
-    verifyTrace(c, [,])
+    verifyTrace(c, [,], false)
 
     // buf test
     c.trace.enable
@@ -188,9 +188,11 @@ class ConnTest : HxTest
     verify(buf.bytesEqual("buf test".toBuf))
   }
 
-  Void verifyTrace(Conn c, Obj[] expected)
+  Void verifyTrace(Conn c, Obj[] expected, Bool sync := true)
   {
+    if (sync) c.sync
     actual := c.trace.read
+    if (sync && c.trace.isEnabled) actual = actual[0..-2] // strip trailing sync
     // echo("\n --- trace ---"); echo(actual.join("\n"))
     verifyEq(actual.size, expected.size)
     actual.each |a, i|
@@ -243,6 +245,12 @@ class ConnTest : HxTest
        [c3],
       ])
 
+    // lookup conns and turn turn on tracing
+    conn1 := lib.conn(c1.id)
+    conn2 := lib.conn(c2.id)
+    conn3 := lib.conn(c3.id)
+    lib.conns.each |c| { c.trace.enable }
+
     // add some points
     p1a := addRec(["dis":"1A", "point":m, "haystackConnRef":c1.id])
     p1b := addRec(["dis":"1B", "point":m, "haystackConnRef":c1.id])
@@ -255,8 +263,14 @@ class ConnTest : HxTest
        [c2, p2a],
        [c3],
       ])
+    verifyTrace(conn1, [
+      ["dispatch", "pointAdded", HxMsg("pointAdded", conn1.point(p1a.id))],
+      ["dispatch", "pointAdded", HxMsg("pointAdded", conn1.point(p1b.id))],
+      ["dispatch", "pointAdded", HxMsg("pointAdded", conn1.point(p1c.id))],
+      ])
 
     // update pt
+    conn1.trace.clear
     p1b = commit(p1b, ["dis":"1Bx", "change":"it"])
     rt.sync
     verifyRoster(lib,
@@ -265,8 +279,14 @@ class ConnTest : HxTest
        [c2, p2a],
        [c3],
       ])
+    verifyTrace(conn1, [
+      ["dispatch", "pointUpdated", HxMsg("pointUpdated", conn1.point(p1b.id))],
+      ])
 
     // move pt to new connector
+    conn1.trace.clear
+    conn3.trace.clear
+    p1bOld := conn1.point(p1b.id)
     p1b = commit(p1b, ["dis":"3A", "haystackConnRef":c3.id])
     rt.sync
     verifyRoster(lib,
@@ -274,6 +294,12 @@ class ConnTest : HxTest
        [c1, p1a, p1c],
        [c2, p2a],
        [c3, p1b],
+      ])
+    verifyTrace(conn1, [
+      ["dispatch", "pointRemoved", HxMsg("pointRemoved", p1bOld)],
+      ])
+    verifyTrace(conn3, [
+      ["dispatch", "pointAdded", HxMsg("pointAdded", conn3.point(p1b.id))],
       ])
 
     // create some points which don't map to connectors yet
@@ -292,6 +318,8 @@ class ConnTest : HxTest
     c4 := addRec(["id":c4id, "dis":"C4", "haystackConn":m])
     verifyEq(c4.id, c4id)
     rt.sync
+    conn4 := lib.conn(c4.id)
+    conn4.trace.enable
     verifyRoster(lib,
       [
        [c1, p1a, p1c],
@@ -310,8 +338,14 @@ class ConnTest : HxTest
        [c3, p1b],
        [c4, p4a, p4b],
       ])
+    verifyTrace(conn4, [
+      ["dispatch", "pointAdded", HxMsg("pointAdded", conn4.point(p4b.id))],
+      ])
 
     // remove points
+    p4aOld := conn4.point(p4a.id)
+    p4bOld := conn4.point(p4b.id)
+    conn4.trace.clear
     p4a = commit(p4a, ["point":Remove.val])
     p4b = commit(p4b, ["trash":m])
     rt.sync
@@ -322,8 +356,13 @@ class ConnTest : HxTest
        [c3, p1b],
        [c4],
       ])
+    verifyTrace(conn4, [
+      ["dispatch", "pointRemoved", HxMsg("pointRemoved", p4aOld)],
+      ["dispatch", "pointRemoved", HxMsg("pointRemoved", p4bOld)],
+      ])
 
     // add them back
+    conn4.trace.clear
     p4a = commit(p4a, ["point":m])
     p4b = commit(p4b, ["trash":Remove.val])
     rt.sync
@@ -333,6 +372,10 @@ class ConnTest : HxTest
        [c2, p2a],
        [c3, p1b],
        [c4, p4a, p4b],
+      ])
+    verifyTrace(conn4, [
+      ["dispatch", "pointAdded", HxMsg("pointAdded", conn4.point(p4a.id))],
+      ["dispatch", "pointAdded", HxMsg("pointAdded", conn4.point(p4b.id))],
       ])
 
     // remove c2 and c3

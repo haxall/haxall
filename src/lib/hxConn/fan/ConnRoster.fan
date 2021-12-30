@@ -180,6 +180,7 @@ internal const final class ConnRoster
     // add to lookup tables
     pointsById.add(point.id, point)
     updateConnPoints(conn)
+    conn.send(HxMsg("pointAdded", point))
   }
 
   private Void onPointUpdated(Ref id, Dict rec)
@@ -206,6 +207,7 @@ internal const final class ConnRoster
 
     // normal update
     point.onUpdated(rec)
+    point.conn.send(HxMsg("pointUpdated", point))
   }
 
   private Void onPointRemoved(Ref id)
@@ -217,6 +219,7 @@ internal const final class ConnRoster
     // remove from lookup tables
     pointsById.remove(id)
     updateConnPoints(point.conn)
+    point.conn.send(HxMsg("pointRemoved", point))
   }
 
   private Void updateConnPoints(Conn conn)

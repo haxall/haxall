@@ -40,6 +40,12 @@ const class ConnTrace : Actor
     if (enabled.compareAndSet(true, false)) actor.send("disable")
   }
 
+  ** Clear the trace log
+  Void clear()
+  {
+    actor.send("clear")
+  }
+
   ** Get the current trace messages or empty list if not enabled.
   ** Messages are ordered from oldest to newest.
   ConnTraceMsg[] read()
@@ -175,6 +181,7 @@ internal const class ConnTraceActor : Actor
         case "read":    return onRead
         case "enable":  return onEnable
         case "disable": return onDisable
+        case "clear":   return onClear
         default:        throw Err("Unknown msg type: $msg")
       }
     }
@@ -202,6 +209,13 @@ internal const class ConnTraceActor : Actor
   {
     Actor.locals.remove("b")
     return "disabled"
+  }
+
+  private Obj? onClear()
+  {
+    buf := Actor.locals["b"] as CircularBuf
+    if (buf != null) buf.clear
+    return "enabled"
   }
 
   private const ConnTrace trace

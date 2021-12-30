@@ -76,6 +76,13 @@ const final class Conn : Actor
 // Actor
 //////////////////////////////////////////////////////////////////////////
 
+  ** Block until this conn processes its current actor queue
+  This sync(Duration? timeout := null)
+  {
+    send(HxMsg("sync")).get(timeout)
+    return this
+  }
+
   ** Actor messages are routed to `ConnDispatch`
   override Obj? receive(Obj? m)
   {
@@ -85,7 +92,7 @@ const final class Conn : Actor
     {
       try
       {
-        Actor.locals["d"] = lib.model.dispatchType.make([this])
+        Actor.locals["d"] = dispatch = lib.model.dispatchType.make([this])
       }
       catch (Err e)
       {
@@ -93,8 +100,17 @@ const final class Conn : Actor
         throw e
       }
     }
-    trace.dispatch(msg)
-    return dispatch.onReceive(msg)
+
+    try
+    {
+      trace.dispatch(msg)
+      return dispatch.onReceive(msg)
+    }
+    catch (Err e)
+    {
+      log.err("Conn.receive $msg.id", e)
+      throw e
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

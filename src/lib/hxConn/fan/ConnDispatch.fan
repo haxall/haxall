@@ -29,6 +29,22 @@ abstract class ConnDispatch
   ** Overrides must call super.
   virtual Obj? onReceive(HxMsg msg)
   {
-    throw Err("Unknown msg type $msg")
+    switch (msg.id)
+    {
+      case "sync":         return null
+      case "pointAdded":   onPointAdded(msg.a); return null
+      case "pointUpdated": onPointUpdated(msg.a); return null
+      case "pointRemoved": onPointRemoved(msg.a); return null
+      default:             throw Err("Unknown msg type $msg")
+    }
   }
+
+  ** Callback when point is added to this connector
+  virtual Void onPointAdded(ConnPoint pt) {}
+
+  ** Callback when point record is updated
+  virtual Void onPointUpdated(ConnPoint pt) {}
+
+  ** Callback when point is removed from this connector
+  virtual Void onPointRemoved(ConnPoint pt) {}
 }
