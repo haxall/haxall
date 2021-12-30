@@ -56,6 +56,7 @@ abstract class ConnDispatch
     switch (msg.id)
     {
       case "sync":         return null
+      case "connUpdated":  onConnUpdated; return null
       case "pointAdded":   onPointAdded(msg.a); return null
       case "pointUpdated": onPointUpdated(msg.a); return null
       case "pointRemoved": onPointRemoved(msg.a); return null
@@ -80,6 +81,9 @@ abstract class ConnDispatch
 
   ** Callback made periodically every few seconds to handle background tasks.
   virtual Void onHouseKeeping() {}
+
+  ** Callback when conn record is updated
+  virtual Void onConnUpdated() {}
 
   ** Callback when point is added to this connector
   virtual Void onPointAdded(ConnPoint pt) {}

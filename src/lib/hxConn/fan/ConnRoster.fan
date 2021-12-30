@@ -136,6 +136,7 @@ internal const final class ConnRoster
   private Void onConnUpdated(Conn conn, Dict rec)
   {
     conn.updateRec(rec)
+    conn.send(HxMsg("connUpdated"))
   }
 
   private Void onConnRemoved(Conn conn)

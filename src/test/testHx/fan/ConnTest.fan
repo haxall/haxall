@@ -235,6 +235,12 @@ class ConnTest : HxTest
        [c3],
       ])
 
+    // lookup conns and turn turn on tracing
+    conn1 := lib.conn(c1.id)
+    conn2 := lib.conn(c2.id)
+    conn3 := lib.conn(c3.id)
+    lib.conns.each |c| { c.trace.enable }
+
     // modify c2
     c2 = commit(c2, ["change":m, "dis":"C2x"])
     rt.sync
@@ -244,12 +250,9 @@ class ConnTest : HxTest
        [c2],
        [c3],
       ])
-
-    // lookup conns and turn turn on tracing
-    conn1 := lib.conn(c1.id)
-    conn2 := lib.conn(c2.id)
-    conn3 := lib.conn(c3.id)
-    lib.conns.each |c| { c.trace.enable }
+    verifyTrace(conn2, [
+      ["dispatch", "connUpdated", HxMsg("connUpdated")],
+      ])
 
     // add some points
     p1a := addRec(["dis":"1A", "point":m, "haystackConnRef":c1.id])
