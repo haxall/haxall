@@ -62,7 +62,9 @@ const final class Conn : Actor
   ** Display name
   Str dis() { config.dis }
 
-  ** Current version of the record
+  ** Current version of the record.
+  ** This dict only represents the current persistent tags.
+  ** It does not track transient changes such as 'connStatus'.
   Dict rec() { config.rec }
 
   ** Timeout to use for I/O and actor messaging - see `actorTimeout`.
@@ -116,16 +118,17 @@ const final class Conn : Actor
   override Obj? receive(Obj? m)
   {
     msg := (HxMsg)m
-    dispatch := Actor.locals["d"] as ConnDispatch
-    if (dispatch == null)
+    state := Actor.locals["s"] as ConnState
+    if (state == null)
     {
       try
       {
-        Actor.locals["d"] = dispatch = lib.model.dispatchType.make([this])
+        dispatch := lib.model.dispatchType.make([this])
+        Actor.locals["s"] = state = ConnState(dispatch)
       }
       catch (Err e)
       {
-        log.err("Cannot initialize dispatch ${lib.model.dispatchType}", e)
+        log.err("Cannot initialize  ${lib.model.dispatchType}", e)
         throw e
       }
     }
@@ -133,7 +136,7 @@ const final class Conn : Actor
     try
     {
       trace.dispatch(msg)
-      return dispatch.onReceive(msg)
+      return state.onReceive(msg)
     }
     catch (Err e)
     {

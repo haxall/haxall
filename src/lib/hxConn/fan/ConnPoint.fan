@@ -49,7 +49,9 @@ const final class ConnPoint
   ** Display name
   Str dis() { config.dis}
 
-  ** Current version of the record
+  ** Current version of the record.
+  ** This dict only represents the current persistent tags.
+  ** It does not track transient changes such as 'curVal' and 'curStatus'.
   Dict rec() { config.rec }
 
   ** Current address tag value if configured on the point

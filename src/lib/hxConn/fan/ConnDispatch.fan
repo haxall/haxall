@@ -46,23 +46,13 @@ abstract class ConnDispatch
   ** Display name
   Str dis() { conn.dis }
 
-  ** Current version of the record
+  ** Current version of the record.
+  ** This dict only represents the current persistent tags.
+  ** It does not track transient changes such as 'connStatus'.
   Dict rec() { conn.rec }
 
-  ** Handle actor message.
-  ** Overrides must call super.
-  virtual Obj? onReceive(HxMsg msg)
-  {
-    switch (msg.id)
-    {
-      case "sync":         return null
-      case "connUpdated":  onConnUpdated; return null
-      case "pointAdded":   onPointAdded(msg.a); return null
-      case "pointUpdated": onPointUpdated(msg.a); return null
-      case "pointRemoved": onPointRemoved(msg.a); return null
-      default:             throw Err("Unknown msg type $msg")
-    }
-  }
+  ** Callback to handle custom actor messages
+  virtual Obj? onReceive(HxMsg msg) { throw Err("Unknown msg: $msg") }
 
   ** Callback to handle opening the connection.  Raise DownErr or FaultErr
   ** if the connection failed.  This callback is always called before
