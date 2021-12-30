@@ -25,13 +25,34 @@ const final class ConnModel
     features := connDef["connFeatures"] as Dict ?: Etc.emptyDict
 
     // check tag/func defs
-    this.connTag       = connDef.name
-    this.connRefTag    = def(ns, lib, "${prefix}ConnRef").name
-    this.pointTag      = def(ns, lib, "${prefix}Point").name
-    this.curTag        = def(ns, lib, "${prefix}Cur", false)?.name
-    this.writeTag      = def(ns, lib, "${prefix}Write", false)?.name
-    this.writeLevelTag = def(ns, lib, "${prefix}WriteLevel", false)?.name
-    this.hisTag        = def(ns, lib, "${prefix}His", false)?.name
+    this.connTag    = connDef.name
+    this.connRefTag = def(ns, lib, "${prefix}ConnRef").name
+    this.pointTag   = def(ns, lib, "${prefix}Point").name
+
+    // cur tags
+    curTagDef := def(ns, lib, "${prefix}Cur", false)
+    if (curTagDef != null)
+    {
+      this.curTag     = curTagDef.name
+      this.curTagType = toAddrType(curTagDef)
+    }
+
+    // write addr
+    writeTagDef := def(ns, lib, "${prefix}Write", false)
+    if (writeTagDef != null)
+    {
+      this.writeTag      = writeTagDef.name
+      this.writeTagType  = toAddrType(writeTagDef)
+      this.writeLevelTag = def(ns, lib, "${prefix}WriteLevel", false)?.name
+    }
+
+    // his addr
+    hisTagDef := def(ns, lib, "${prefix}His", false)
+    if (hisTagDef != null)
+    {
+      this.hisTag     = hisTagDef.name
+      this.hisTagType = toAddrType(hisTagDef)
+    }
 
     // features
     this.hasLearn  = features.has("learn")
@@ -62,6 +83,14 @@ const final class ConnModel
     }
     if (def.lib !== lib.def) throw Err("Def in wrong lib: $symbol [$def.lib != $lib]")
     return def
+  }
+
+  private static Type toAddrType(Def def)
+  {
+    symbol := ((Symbol[])def["is"])[0].name
+    if (symbol == "str") return Str#
+    if (symbol == "uri") return Uri#
+    throw Err("Unsupported point address type: $symbol")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -95,6 +124,15 @@ const final class ConnModel
   ** Tag name of point's history address such as "fooHis"
   ** This field is null if history syncs are not supported.
   const Str? hisTag
+
+  ** Expected cur tag type
+  const Type? curTagType
+
+  ** Expected write tag type
+  const Type? writeTagType
+
+  ** Expected history tag type
+  const Type? hisTagType
 
   ** Polling strategy to use for connector
   const PollingMode pollingMode := PollingMode.disabled

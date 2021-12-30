@@ -486,4 +486,90 @@ class ConnTest : HxTest
     }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Config
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testConfig()
+  {
+    lib := (ConnLib)addLib("haystack")
+
+    // conn with defaults
+    cr := addRec(["dis":"TestConn", "haystackConn":m])
+    rt.sync
+    c := lib.conn(cr.id)
+    verifyEq(c.id, cr.id)
+    verifyEq(c.dis, "TestConn")
+    verifySame(c.rec, cr)
+    verifyEq(c.linger, 30sec)
+    verifyEq(c.pingFreq, null)
+
+    // update config
+    cr = commit(cr, ["connLinger":n(5, "sec"), "connPingFreq":n(1, "min")])
+    rt.sync
+    verifySame(lib.conn(cr.id), c)
+    verifyEq(c.id, cr.id)
+    verifyEq(c.dis, "TestConn")
+    verifySame(c.rec, cr)
+    verifyEq(c.linger, 5sec)
+    verifyEq(c.pingFreq, 1min)
+
+    // update config with invalid values
+    cr = commit(cr, ["connLinger":"bad", "connPingFreq":"bad"])
+    rt.sync
+    verifySame(lib.conn(cr.id), c)
+    verifyEq(c.id, cr.id)
+    verifyEq(c.dis, "TestConn")
+    verifySame(c.rec, cr)
+    verifyEq(c.linger, 30sec)
+    verifyEq(c.pingFreq, null)
+
+    // point with all tags
+    pr := addRec(["dis":"Pt", "haystackConnRef":c.id, "point":m,
+       "tz":"Chicago", "kind":"Number", "unit":"kW",
+       "haystackCur":"c", "haystackHis":"h", "haystackWrite":"w",
+       "curConvert":"*7", "writeConvert":"*8", "hisConvert":"*9"])
+    rt.sync
+    p := c.point(pr.id)
+    verifyEq(p.id, pr.id)
+    verifyEq(p.dis, "Pt")
+    verifySame(p.rec, pr)
+    verifyEq(p.tz, TimeZone("Chicago"))
+    verifyEq(p.unit, Unit("kW"))
+    verifyEq(p.kind, Kind.number)
+    verifyEq(p.hasCur, true);   verifyEq(p.curAddr,   "c")
+    verifyEq(p.hasWrite, true); verifyEq(p.writeAddr, "w")
+    verifyEq(p.hasHis, true);   verifyEq(p.hisAddr,   "h")
+    verifyEq(p.curConvert.toStr,   "* 7.0")
+    verifyEq(p.writeConvert.toStr, "* 8.0")
+    verifyEq(p.hisConvert.toStr,   "* 9.0")
+
+    // start from bottom up and check faults
+    verifyPtFault(p, "hisConvert", n(3),   "Point convert not string: 'hisConvert'")
+    verifyPtFault(p, "writeConvert", "%^", "Point convert invalid: 'writeConvert'")
+    verifyPtFault(p, "curConvert", "kW=>", "Point convert invalid: 'curConvert'")
+    verifyPtFault(p, "haystackHis", Ref("foo"), "Invalid type for 'haystackHis' [Ref != Str]")
+    verifyPtFault(p, "haystackWrite", `foo`, "Invalid type for 'haystackWrite' [Uri != Str]")
+    verifyPtFault(p, "haystackCur", n(2), "Invalid type for 'haystackCur' [Number != Str]")
+    verifyPtFault(p, "kind", "Bad", "Invalid 'kind' tag: Bad [$p.id.toZinc]")
+    verifyPtFault(p, "kind", n(3), "Invalid type for 'kind' tag: haystack::Number [$p.id.toZinc]")
+    verifyPtFault(p, "kind", null, "Missing 'kind' tag [$p.id.toZinc]")
+    verifyPtFault(p, "unit", "blah", "Invalid 'unit' tag: blah [$p.id.toZinc]")
+    verifyPtFault(p, "unit", n(2), "Invalid type for 'unit' tag: haystack::Number [$p.id.toZinc]")
+    verifyPtFault(p, "tz", "Wrong", "Invalid 'tz' tag: Wrong [$p.id.toZinc]")
+    verifyPtFault(p, "tz", n(1), "Invalid type for 'tz' tag: haystack::Number [$p.id.toZinc]")
+    verifyPtFault(p, "tz", null, "Missing 'tz' tag [$p.id.toZinc]")
+  }
+
+  Void verifyPtFault(ConnPoint p, Str tag, Obj? val, Str msg)
+  {
+    rec := commit(readById(p.id), [tag: val ?: Remove.val])
+    rt.sync
+    verifyEq(p.id, rec.id)
+    verifyEq(p.dis, rec.dis)
+    verifySame(p.rec, rec)
+    // echo("-- $tag = $val $p.fault")
+    verifyEq(p.fault, msg)
+  }
 }

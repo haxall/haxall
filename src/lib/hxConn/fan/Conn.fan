@@ -24,10 +24,10 @@ const final class Conn : Actor
   ** Internal constructor
   internal new make(ConnLib lib, Dict rec) : super(lib.connActorPool)
   {
-    this.lib    = lib
-    this.id     = rec.id
-    this.recRef = AtomicRef(rec)
-    this.trace  = ConnTrace(lib.rt.libs.actorPool)
+    this.libRef    = lib
+    this.idRef     = rec.id
+    this.configRef = AtomicRef(ConnConfig(rec))
+    this.traceRef  = ConnTrace(lib.rt.libs.actorPool)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -35,26 +35,42 @@ const final class Conn : Actor
 //////////////////////////////////////////////////////////////////////////
 
   ** Runtime
-  HxRuntime rt() { lib.rt }
+  HxRuntime rt() { libRef.rt }
 
   ** Parent connector library
-  const ConnLib lib
+  ConnLib lib() { libRef }
+  private const ConnLib libRef
 
   ** Record id
-  const Ref id
-
-  ** Display name
-  Str dis() { rec.dis }
-
-  ** Current version of the record
-  Dict rec() { recRef.val }
-  private const AtomicRef recRef
+  Ref id() { idRef }
+  private const Ref idRef
 
   ** Debug tracing for this connector
-  const ConnTrace trace
+  ConnTrace trace() { traceRef }
+  private const ConnTrace traceRef
 
   ** Log for this connector
-  Log log() { lib.log }
+  Log log() { libRef.log }
+
+  ** Debug string
+  override Str toStr() { "Conn [$id.toZinc]" }
+
+  ** Display name
+  Str dis() { config.dis }
+
+  ** Current version of the record
+  Dict rec() { config.rec }
+
+  ** Configured ping frequency to test connection or
+  ** null if feature is disabled - see `connPingFreq`
+  Duration? pingFreq() { config.pingFreq }
+
+  ** Configured linger timeout - see `connLinger`
+  Duration linger() { config.linger }
+
+  ** Conn rec configuration
+  internal ConnConfig config() { configRef.val }
+  private const AtomicRef configRef
 
 //////////////////////////////////////////////////////////////////////////
 // Points
@@ -120,7 +136,7 @@ const final class Conn : Actor
   ** Called when record is modified
   internal Void updateRec(Dict newRec)
   {
-    recRef.val = newRec
+    configRef.val = ConnConfig(newRec)
   }
 
   ** Update the points list.
@@ -136,3 +152,25 @@ const final class Conn : Actor
 
   private const AtomicRef pointsList := AtomicRef(ConnPoint#.emptyList)
 }
+
+**************************************************************************
+** ConnConfig
+**************************************************************************
+
+** ConnConfig models current state of rec dict
+internal const class ConnConfig
+{
+  new make(Dict rec)
+  {
+    this.rec      = rec
+    this.dis      = rec.dis
+    this.pingFreq = Etc.dictGetDuration(rec, "connPingFreq")?.max(1sec)
+    this.linger   = Etc.dictGetDuration(rec, "connLinger", 30sec).max(0sec)
+  }
+
+  const Dict rec
+  const Str dis
+  const Duration? pingFreq
+  const Duration linger
+}
+

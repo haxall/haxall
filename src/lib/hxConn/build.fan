@@ -29,11 +29,14 @@ class Build : BuildPod
                ]
     depends  = ["sys @{fan.depend}",
                 "concurrent @{fan.depend}",
+                "inet @{fan.depend}",
                 "haystack @{hx.depend}",
                 "axon @{hx.depend}",
                 "obs @{hx.depend}",
+                "folio @{hx.depend}",
                 "hx @{hx.depend}",
-                "hxUtil @{hx.depend}"]
+                "hxUtil @{hx.depend}",
+                "hxPoint @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
     index   = ["ph.lib": "conn"]

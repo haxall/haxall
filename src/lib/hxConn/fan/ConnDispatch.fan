@@ -17,13 +17,17 @@ using hx
 abstract class ConnDispatch
 {
   ** Constructor with parent connector
-  new make(Conn conn) { this.conn = conn }
+  new make(Conn conn) { this.connRef = conn }
 
-  ** Parent connector
-  const Conn conn
+  ** Runtime
+  HxRuntime rt() { connRef.rt }
 
   ** Parent library
-  virtual ConnLib lib() { conn.lib }
+  virtual ConnLib lib() { connRef.lib }
+
+  ** Parent connector
+  Conn conn() { connRef }
+  private const Conn connRef
 
   ** Handle actor message.
   ** Overrides must call super.
