@@ -34,6 +34,10 @@ abstract const class ConnLib : HxLib, HxConnService
   ** Overrides must call super.
   override HxService[] services() { [this] }
 
+  ** ConnFwLib instance
+  @NoDoc ConnFwLib fw() { fwRef.val }
+  private const AtomicRef fwRef := AtomicRef()
+
   ** Model which defines tags and functions for this connector.
   ** The model is not available until after the library has started.
   @NoDoc ConnModel model() { modelRef.val ?: throw Err("Not avail until after start") }
@@ -65,6 +69,9 @@ abstract const class ConnLib : HxLib, HxConnService
   ** Start callback - if overridden you *must* call super
   override Void onStart()
   {
+    // must have ConnFwLib installed
+    fwRef.val = (ConnFwLib)rt.lib("conn")
+
     // build def model
     model := ConnModel(this)
     this.modelRef.val = model

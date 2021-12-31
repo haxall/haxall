@@ -7,7 +7,9 @@
 //   22 Jun 2021  Brian Frank  Redesign for Haxall
 //
 
+using concurrent
 using haystack
+using obs
 using hx
 
 **
@@ -16,7 +18,48 @@ using hx
 @NoDoc
 const class ConnFwLib : HxLib
 {
+  ** Publish HxConnRegistryService
   override HxService[] services() { [ConnRegistryService(rt)] }
+
+  ** List the configured connTuning records
+  ConnTuning[] tunings()
+  {
+    tuningsById.vals(ConnTuning#)
+  }
+
+  ** Lookup a connTuning record by its id
+  ConnTuning? tuning(Ref id, Bool checked := true)
+  {
+    t := tuningsById.get(id)
+    if (t != null) return t
+    if (checked) throw UnknownConnTuningErr("Tuning rec not found: $id.toZinc")
+    return null
+  }
+
+  ** Start callback
+  override Void onStart()
+  {
+    observe("obsCommits",
+        Etc.makeDict([
+          "obsAdds":      Marker.val,
+          "obsUpdates":   Marker.val,
+          "obsRemoves":   Marker.val,
+          "obsAddOnInit": Marker.val,
+          "syncable":     Marker.val,
+          "obsFilter":   "connTuning"
+        ]), #onConnTuningEvent)
+  }
+
+  ** Handle commit event on a connTuning rec
+  internal Void onConnTuningEvent(CommitObservation e)
+  {
+    if (e.isRemoved)
+      tuningsById.remove(e.id)
+    else
+      tuningsById.set(e.id, ConnTuning(e.newRec))
+  }
+
+  private const ConcurrentMap tuningsById := ConcurrentMap()
 }
 
 **************************************************************************

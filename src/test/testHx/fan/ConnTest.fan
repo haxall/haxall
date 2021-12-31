@@ -578,4 +578,89 @@ class ConnTest : HxTest
     // echo("-- $tag = $val $p.fault")
     verifyEq(p.fault, msg)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Test Tuning
+//////////////////////////////////////////////////////////////////////////
+
+  Void testTuningParse()
+  {
+    r := Etc.makeDict([
+        "id": Ref("a", "Test"),
+        "pollTime": n(30, "ms"),
+        "staleTime": n(1, "hour"),
+        "writeMinTime": n(2, "sec"),
+        "writeMaxTime": n(3, "sec"),
+        "writeOnStart":m,
+        "writeOnOpen":m,
+        ])
+
+    t := ConnTuning(r)
+    verifyEq(t.id, r.id)
+    verifyEq(t.dis, "Test")
+    verifyEq(t.pollTime, 30ms)
+    verifyEq(t.staleTime, 1hr)
+    verifyEq(t.writeMinTime, 2sec)
+    verifyEq(t.writeOnStart, true)
+    verifyEq(t.writeOnOpen, true)
+  }
+
+  @HxRuntimeTest
+  Void testTuning()
+  {
+    // initial setup
+    t1  := addRec(["connTuning":m, "dis":"T-1", "staleTime":n(1, "sec")])
+    t2  := addRec(["connTuning":m, "dis":"T-2", "staleTime":n(2, "sec")])
+    t3  := addRec(["connTuning":m, "dis":"T-3", "staleTime":n(3, "sec")])
+    c   := addRec(["dis":"C", "haystackConn":m])
+    pt  := addRec(["dis":"Pt", "point":m, "haystackConnRef":c.id])
+    fw  := (ConnFwLib)addLib("conn")
+    lib := (ConnLib)addLib("haystack")
+
+    // verify tuning registry in ConnFwLib
+    verifyTunings(fw, [t1, t2, t3])
+    t4 := addRec(["connTuning":m, "dis":"T-4", "staleTime":n(4, "sec")])
+    verifyTunings(fw, [t1, t2, t3, t4])
+    t4 = commit(t4, ["dis":"T-4 New", "staleTime":n(44, "sec")])
+    verifyTunings(fw, [t1, t2, t3, t4])
+    t4 = commit(t4, ["connTuning":Remove.val])
+    verifyTunings(fw, [t1, t2, t3])
+
+    // verify point bindings
+    verifyTuning(fw, lib, pt, null, 5min)
+    commit(lib.rec, ["connTuningRef":t1.id])
+    verifyTuning(fw, lib, pt, t1, 1sec)
+    commit(c, ["connTuningRef":t2.id])
+    verifyTuning(fw, lib, pt, t2, 2sec)
+    commit(pt, ["connTuningRef":t3.id])
+    verifyTuning(fw, lib, pt, t3, 3sec)
+  }
+
+  Void verifyTunings(ConnFwLib fw, Dict[] expected)
+  {
+    rt.sync
+    actual := fw.tunings.dup.sort |a, b| { a.dis <=> b.dis }
+    verifyEq(actual.size, expected.size)
+    actual.each |a, i|
+    {
+      e := expected[i]
+      verifySame(a.rec, e)
+      verifyEq(a.id, e.id)
+      verifyEq(a.dis, e.dis)
+      verifySame(fw.tuning(e.id), a)
+    }
+  }
+
+  Void verifyTuning(ConnFwLib fw, ConnLib lib, Dict ptRec, Dict? tuningRec, Duration staleTime)
+  {
+    rt.sync
+    pt := lib.point(ptRec.id)
+    t  := tuningRec == null ? ConnTuning.defVal : fw.tuning(tuningRec.id)
+echo
+echo("-- $pt")
+echo("   $t")
+echo("   $pt.tuning")
+    verifySame(pt.tuning, t)
+    verifyEq(pt.tuning.staleTime, staleTime)
+  }
 }

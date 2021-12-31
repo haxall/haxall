@@ -81,6 +81,9 @@ const final class ConnPoint
   ** Unit defined by rec 'unit' tag or null
   Unit? unit() { config.unit }
 
+  ** Conn tuning configuration to use for this point
+  ConnTuning tuning() { ConnTuning.defVal }
+
   ** Current value conversion if defined by rec 'curConvert' tag
   @NoDoc PointConvert? curConvert() { config.curConvert }
 
