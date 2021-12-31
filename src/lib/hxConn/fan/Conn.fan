@@ -174,7 +174,7 @@ const final class Conn : Actor
 **************************************************************************
 
 ** ConnConfig models current state of rec dict
-internal const class ConnConfig
+internal const final class ConnConfig
 {
   new make(Dict rec)
   {

@@ -117,7 +117,7 @@ const final class ConnPoint
 **************************************************************************
 
 ** ConnPointConfig models current state of rec dict
-internal const class ConnPointConfig
+internal const final class ConnPointConfig
 {
   new make(ConnModel model, Dict rec)
   {

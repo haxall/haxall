@@ -54,9 +54,17 @@ const class ConnFwLib : HxLib
   internal Void onConnTuningEvent(CommitObservation e)
   {
     if (e.isRemoved)
+    {
       tuningsById.remove(e.id)
+    }
     else
-      tuningsById.set(e.id, ConnTuning(e.newRec))
+    {
+      cur := tuningsById.get(e.id) as ConnTuning
+      if (cur == null)
+        tuningsById.set(e.id, ConnTuning(e.newRec))
+      else
+        cur.updateRec(e.newRec)
+    }
   }
 
   private const ConcurrentMap tuningsById := ConcurrentMap()

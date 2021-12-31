@@ -621,8 +621,10 @@ class ConnTest : HxTest
     verifyTunings(fw, [t1, t2, t3])
     t4 := addRec(["connTuning":m, "dis":"T-4", "staleTime":n(4, "sec")])
     verifyTunings(fw, [t1, t2, t3, t4])
+    t4Old := fw.tuning(t4.id)
     t4 = commit(t4, ["dis":"T-4 New", "staleTime":n(44, "sec")])
     verifyTunings(fw, [t1, t2, t3, t4])
+    verifySame(fw.tuning(t4.id), t4Old)
     t4 = commit(t4, ["connTuning":Remove.val])
     verifyTunings(fw, [t1, t2, t3])
 
