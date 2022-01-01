@@ -22,19 +22,7 @@ const class ConnFwLib : HxLib
   override HxService[] services() { [ConnRegistryService(rt)] }
 
   ** List the configured connTuning records
-  ConnTuning[] tunings()
-  {
-    tuningsById.vals(ConnTuning#)
-  }
-
-  ** Lookup a connTuning record by its id
-  ConnTuning? tuning(Ref id, Bool checked := true)
-  {
-    t := tuningsById.get(id)
-    if (t != null) return t
-    if (checked) throw UnknownConnTuningErr("Tuning rec not found: $id.toZinc")
-    return null
-  }
+  const ConnTuningRoster tunings := ConnTuningRoster()
 
   ** Start callback
   override Void onStart()
@@ -53,21 +41,9 @@ const class ConnFwLib : HxLib
   ** Handle commit event on a connTuning rec
   internal Void onConnTuningEvent(CommitObservation e)
   {
-    if (e.isRemoved)
-    {
-      tuningsById.remove(e.id)
-    }
-    else
-    {
-      cur := tuningsById.get(e.id) as ConnTuning
-      if (cur == null)
-        tuningsById.set(e.id, ConnTuning(e.newRec))
-      else
-        cur.updateRec(e.newRec)
-    }
+    tunings.onEvent(e)
   }
 
-  private const ConcurrentMap tuningsById := ConcurrentMap()
 }
 
 **************************************************************************

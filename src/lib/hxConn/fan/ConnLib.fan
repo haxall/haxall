@@ -62,6 +62,13 @@ abstract const class ConnLib : HxLib, HxConnService
   ** Roster of connectors and points
   internal const ConnRoster roster := ConnRoster(this)
 
+  ** ConnTuning roster
+  @NoDoc ConnTuningRoster tunings() { fw.tunings }
+
+  ** Default tuning to use for this connector
+  @NoDoc ConnTuning tuning() { tuningRef.val }
+  private const AtomicRef tuningRef := AtomicRef()
+
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
@@ -71,6 +78,9 @@ abstract const class ConnLib : HxLib, HxConnService
   {
     // must have ConnFwLib installed
     fwRef.val = (ConnFwLib)rt.lib("conn")
+
+    // update library level tuning default
+    tuningRef.val = tunings.forLib(this)
 
     // build def model
     model := ConnModel(this)
@@ -83,6 +93,12 @@ abstract const class ConnLib : HxLib, HxConnService
   ** Stop callback - if overridden you *must* call super
   override Void onStop()
   {
+  }
+
+  ** Record update - if overridden you *must* call super
+  override Void onRecUpdate()
+  {
+    tuningRef.val = tunings.forLib(this)
   }
 
   ** Connector rec event - route to roster
@@ -161,6 +177,11 @@ const class ConnSettings : TypedDict
 {
   ** Constructor
   new make(Dict d, |This| f) : super(d) { f(this) }
+
+  ** Default tuning to use when connTuningRef is not explicitly
+  ** configured on the connector or point record.
+  @TypedTag
+  const Ref? connTuningRef
 
   ** Max threads for the connector's actor pool.  Adding more threads allows
   ** more connectors to work concurrently processing their messages. However

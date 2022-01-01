@@ -9,6 +9,81 @@
 
 using concurrent
 using haystack
+using obs
+
+**
+** ConnTuningRoster manages the configured ConnTuning instances.
+**
+@NoDoc
+const final class ConnTuningRoster
+{
+  ** List the configured connTuning records
+  ConnTuning[] list()
+  {
+    byId.vals(ConnTuning#)
+  }
+
+  ** Lookup a connTuning record by its id
+  ConnTuning? get(Ref id, Bool checked := true)
+  {
+    t := byId.get(id)
+    if (t != null) return t
+    if (checked) throw UnknownConnTuningErr("Tuning rec not found: $id.toZinc")
+    return null
+  }
+
+  ** Get tuning for library level or fallback to library specific default
+  internal ConnTuning forLib(ConnLib lib)
+  {
+    forRec(lib.rec) ?: ConnTuning(Etc.makeDict1("id", Ref("${lib.name}-default")))
+  }
+
+  ** Get or stub a ConnTuning instance to use for the given
+  ** lib, conn, or point record if connTuningRef is configured.
+  internal ConnTuning? forRec(Dict rec)
+  {
+    ref := rec["connTuningRef"] as Ref
+    if (ref == null) return null
+    return getOrStub(ref)
+  }
+
+  ** Get a tuning instance by id.  If not found, then stub a default
+  ** version to use for the given id which we might backpatch later.
+  ** This design allows us to build out Conn/ConnPoint roster even if this
+  ** tuning roster isn't fully loaded yet.  Plus it allows resolution of
+  ** ConnTuning instances which might not exist yet (if using cloning)
+  private ConnTuning getOrStub(Ref id)
+  {
+    t := byId.get(id)
+    if (t != null) return t
+    t = ConnTuning(Etc.makeDict1("id", id))
+    t = byId.getOrAdd(id, t)
+    return t
+  }
+
+  ** Handle commit event on a connTuning rec
+  internal Void onEvent(CommitObservation e)
+  {
+    if (e.isRemoved)
+    {
+      byId.remove(e.id)
+    }
+    else
+    {
+      cur := byId.get(e.id) as ConnTuning
+      if (cur == null)
+        byId.getOrAdd(e.id, ConnTuning(e.newRec))
+      else
+        cur.updateRec(e.newRec)
+    }
+  }
+
+  private const ConcurrentMap byId := ConcurrentMap()
+}
+
+**************************************************************************
+** ConnTuning
+**************************************************************************
 
 **
 ** ConnTuning models a `connTuning` rec.
@@ -16,9 +91,6 @@ using haystack
 **
 const final class ConnTuning
 {
-  ** Default empty tuning configuration
-  static const ConnTuning defVal := make(Etc.makeDict1("id", Ref("default", "Default")))
-
   ** Construct with current record
   new make(Dict rec)
   {

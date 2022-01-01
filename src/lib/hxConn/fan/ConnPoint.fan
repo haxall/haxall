@@ -28,7 +28,7 @@ const final class ConnPoint
   {
     this.connRef   = conn
     this.idRef     = rec.id
-    this.configRef = AtomicRef(ConnPointConfig(conn.lib.model, rec))
+    this.configRef = AtomicRef(ConnPointConfig(conn.lib, rec))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ const final class ConnPoint
   Unit? unit() { config.unit }
 
   ** Conn tuning configuration to use for this point
-  ConnTuning tuning() { ConnTuning.defVal }
+  ConnTuning tuning() { config.tuning ?: conn.tuning }
 
   ** Current value conversion if defined by rec 'curConvert' tag
   @NoDoc PointConvert? curConvert() { config.curConvert }
@@ -107,7 +107,7 @@ const final class ConnPoint
   ** Called then record is modified
   internal Void onUpdated(Dict newRec)
   {
-    configRef.val = ConnPointConfig(conn.lib.model, newRec)
+    configRef.val = ConnPointConfig(conn.lib, newRec)
   }
 
 }
@@ -119,17 +119,20 @@ const final class ConnPoint
 ** ConnPointConfig models current state of rec dict
 internal const final class ConnPointConfig
 {
-  new make(ConnModel model, Dict rec)
+  new make(ConnLib lib, Dict rec)
   {
+    model := lib.model
+
     this.rec  = rec
     this.dis  = rec.dis
     this.tz   = TimeZone.cur
     this.kind = Kind.obj
     try
     {
-      this.tz           = FolioUtil.hisTz(rec)
+      this.tz           = rec.has("tz") ? FolioUtil.hisTz(rec) : TimeZone.cur
       this.unit         = FolioUtil.hisUnit(rec)
       this.kind         = FolioUtil.hisKind(rec)
+      this.tuning       = lib.tunings.forRec(rec)
       this.curAddr      = toAddr(model, rec, model.curTag,   model.curTagType)
       this.writeAddr    = toAddr(model, rec, model.writeTag, model.writeTagType)
       this.hisAddr      = toAddr(model, rec, model.hisTag,   model.hisTagType)
@@ -166,6 +169,7 @@ internal const final class ConnPointConfig
   const TimeZone tz
   const Unit? unit
   const Kind? kind
+  const ConnTuning? tuning
   const Obj? curAddr
   const Obj? writeAddr
   const Obj? hisAddr

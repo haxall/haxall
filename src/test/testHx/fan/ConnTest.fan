@@ -565,7 +565,6 @@ class ConnTest : HxTest
     verifyPtFault(p, "unit", n(2), "Invalid type for 'unit' tag: haystack::Number [$p.id.toZinc]")
     verifyPtFault(p, "tz", "Wrong", "Invalid 'tz' tag: Wrong [$p.id.toZinc]")
     verifyPtFault(p, "tz", n(1), "Invalid type for 'tz' tag: haystack::Number [$p.id.toZinc]")
-    verifyPtFault(p, "tz", null, "Missing 'tz' tag [$p.id.toZinc]")
   }
 
   Void verifyPtFault(ConnPoint p, Str tag, Obj? val, Str msg)
@@ -613,7 +612,7 @@ class ConnTest : HxTest
     t2  := addRec(["connTuning":m, "dis":"T-2", "staleTime":n(2, "sec")])
     t3  := addRec(["connTuning":m, "dis":"T-3", "staleTime":n(3, "sec")])
     c   := addRec(["dis":"C", "haystackConn":m])
-    pt  := addRec(["dis":"Pt", "point":m, "haystackConnRef":c.id])
+    pt  := addRec(["dis":"Pt", "point":m, "haystackConnRef":c.id, "kind":"Number"])
     fw  := (ConnFwLib)addLib("conn")
     lib := (ConnLib)addLib("haystack")
 
@@ -621,27 +620,86 @@ class ConnTest : HxTest
     verifyTunings(fw, [t1, t2, t3])
     t4 := addRec(["connTuning":m, "dis":"T-4", "staleTime":n(4, "sec")])
     verifyTunings(fw, [t1, t2, t3, t4])
-    t4Old := fw.tuning(t4.id)
+    t4Old := fw.tunings.get(t4.id)
     t4 = commit(t4, ["dis":"T-4 New", "staleTime":n(44, "sec")])
     verifyTunings(fw, [t1, t2, t3, t4])
-    verifySame(fw.tuning(t4.id), t4Old)
+    verifySame(fw.tunings.get(t4.id), t4Old)
     t4 = commit(t4, ["connTuning":Remove.val])
     verifyTunings(fw, [t1, t2, t3])
 
-    // verify point bindings
-    verifyTuning(fw, lib, pt, null, 5min)
+    // verify ConnLib, Conn, ConnPoint tuning....
+
+    // starting off we are using lib defaults
+    verifyEq(lib.tuning.id.toStr, "haystack-default")
+    verifyEq(lib.tuning.staleTime, 5min)
+    verifySame(lib.tuning, lib.conn(c.id).tuning)
+    verifySame(lib.tuning, lib.point(pt.id).tuning)
+
+    // add tuning for librry
     commit(lib.rec, ["connTuningRef":t1.id])
+    rt.sync
+    verifyEq(lib.tuning.id, t1.id)
+    verifyEq(lib.conn(c.id).tuning.id, t1.id)
+    verifyEq(lib.point(pt.id).tuning.id, t1.id)
+    verifyEq(lib.tuning.staleTime, 1sec)
+    verifySame(lib.tuning, lib.conn(c.id).tuning)
+    verifySame(lib.tuning, lib.point(pt.id).tuning)
     verifyTuning(fw, lib, pt, t1, 1sec)
+
+    // add tuning for conn
     commit(c, ["connTuningRef":t2.id])
+    rt.sync
+    verifyEq(lib.tuning.id, t1.id)
+    verifyEq(lib.conn(c.id).tuning.id, t2.id)
+    verifyEq(lib.point(pt.id).tuning.id, t2.id)
+    verifyNotSame(lib.tuning, lib.conn(c.id).tuning)
+    verifySame(lib.conn(c.id).tuning, lib.point(pt.id).tuning)
     verifyTuning(fw, lib, pt, t2, 2sec)
-    commit(pt, ["connTuningRef":t3.id])
+
+    // add tuning on point
+    pt = commit(pt, ["connTuningRef":t3.id])
+    rt.sync
+    verifyEq(lib.tuning.id, t1.id)
+    verifyEq(lib.conn(c.id).tuning.id, t2.id)
+    verifyEq(lib.point(pt.id).tuning.id, t3.id)
+    verifyNotSame(lib.tuning, lib.conn(c.id).tuning)
+    verifyNotSame(lib.conn(c.id).tuning, lib.point(pt.id).tuning)
     verifyTuning(fw, lib, pt, t3, 3sec)
+
+    // restart and verify everything gets wired up correctly
+    rt.libs.remove("haystack")
+    rt.libs.remove("conn")
+    fw = addLib("conn")
+    lib = addLib("haystack", ["connTuningRef":t1.id])
+    rt.sync
+    verifyEq(lib.tuning.id, t1.id)
+    verifyEq(lib.conn(c.id).tuning.id, t2.id)
+    verifyEq(lib.point(pt.id).tuning.id, t3.id)
+    verifyNotSame(lib.tuning, lib.conn(c.id).tuning)
+    verifyNotSame(lib.conn(c.id).tuning, lib.point(pt.id).tuning)
+    verifyTuning(fw, lib, pt, t3, 3sec)
+
+    // map pt to tuning which doesn't exist yet
+    t5id := Ref("t5")
+    pt = commit(pt, ["connTuningRef":t5id])
+    rt.sync
+    verifyEq(lib.point(pt.id).tuning.id, t5id)
+    verifyEq(lib.point(pt.id).tuning.staleTime, 5min)
+    verifyDictEq(lib.point(pt.id).tuning.rec, Etc.makeDict1("id", t5id))
+
+    // now fill in t5
+    t5 := addRec(["id":t5id, "dis":"T-5", "connTuning":m, "staleTime":n(123, "sec")])
+    rt.sync
+    verifyEq(fw.tunings.get(t5id).staleTime, 123sec)
+    verifyEq(lib.point(pt.id).tuning.id, t5.id)
+    verifyEq(lib.point(pt.id).tuning.staleTime, 123sec)
+    verifySame(lib.point(pt.id).tuning.rec, t5)
   }
 
   Void verifyTunings(ConnFwLib fw, Dict[] expected)
   {
     rt.sync
-    actual := fw.tunings.dup.sort |a, b| { a.dis <=> b.dis }
+    actual := fw.tunings.list.dup.sort |a, b| { a.dis <=> b.dis }
     verifyEq(actual.size, expected.size)
     actual.each |a, i|
     {
@@ -649,19 +707,14 @@ class ConnTest : HxTest
       verifySame(a.rec, e)
       verifyEq(a.id, e.id)
       verifyEq(a.dis, e.dis)
-      verifySame(fw.tuning(e.id), a)
+      verifySame(fw.tunings.get(e.id), a)
     }
   }
 
-  Void verifyTuning(ConnFwLib fw, ConnLib lib, Dict ptRec, Dict? tuningRec, Duration staleTime)
+  Void verifyTuning(ConnFwLib fw, ConnLib lib, Dict ptRec, Dict tuningRec, Duration staleTime)
   {
-    rt.sync
     pt := lib.point(ptRec.id)
-    t  := tuningRec == null ? ConnTuning.defVal : fw.tuning(tuningRec.id)
-echo
-echo("-- $pt")
-echo("   $t")
-echo("   $pt.tuning")
+    t  := fw.tunings.get(tuningRec.id)
     verifySame(pt.tuning, t)
     verifyEq(pt.tuning.staleTime, staleTime)
   }

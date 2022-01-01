@@ -27,7 +27,7 @@ const final class Conn : Actor
   {
     this.libRef    = lib
     this.idRef     = rec.id
-    this.configRef = AtomicRef(ConnConfig(rec))
+    this.configRef = AtomicRef(ConnConfig(lib, rec))
     this.traceRef  = ConnTrace(lib.rt.libs.actorPool)
   }
 
@@ -76,6 +76,9 @@ const final class Conn : Actor
 
   ** Configured linger timeout - see `connLinger`
   Duration linger() { config.linger }
+
+  ** Conn tuning configuration to use for this connector.
+  ConnTuning tuning() { config.tuning ?: lib.tuning }
 
   ** Conn rec configuration
   internal ConnConfig config() { configRef.val }
@@ -152,7 +155,7 @@ const final class Conn : Actor
   ** Called when record is modified
   internal Void updateRec(Dict newRec)
   {
-    configRef.val = ConnConfig(newRec)
+    configRef.val = ConnConfig(lib, newRec)
   }
 
   ** Update the points list.
@@ -176,7 +179,7 @@ const final class Conn : Actor
 ** ConnConfig models current state of rec dict
 internal const final class ConnConfig
 {
-  new make(Dict rec)
+  new make(ConnLib lib, Dict rec)
   {
     this.rec      = rec
     this.dis      = rec.dis
@@ -184,6 +187,7 @@ internal const final class ConnConfig
     this.timeout  = Etc.dictGetDuration(rec, "actorTimeout", 1min).max(1sec)
     this.pingFreq = Etc.dictGetDuration(rec, "connPingFreq")?.max(1sec)
     this.linger   = Etc.dictGetDuration(rec, "connLinger", 30sec).max(0sec)
+    this.tuning   = lib.tunings.forRec(rec)
   }
 
   const Dict rec
@@ -192,5 +196,6 @@ internal const final class ConnConfig
   const Duration timeout
   const Duration? pingFreq
   const Duration linger
+  const ConnTuning? tuning
 }
 
