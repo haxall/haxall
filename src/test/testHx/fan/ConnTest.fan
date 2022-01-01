@@ -382,11 +382,17 @@ class ConnTest : HxTest
       ])
 
     // remove c2 and c3
+    c2Old := lib.conn(c2.id)
+    c3Old := lib.conn(c2.id)
+    verifyEq(c2Old.isAlive, true)
+    verifyEq(c3Old.isAlive, true)
     c2 = commit(c2, ["haystackConn":Remove.val])
     c3 = commit(c3, ["trash":m])
     rt.sync
     verifyErr(UnknownConnErr#) { lib.conn(c2.id) }
     verifyErr(UnknownConnErr#) { lib.conn(c3.id, true) }
+    verifyEq(c2Old.isAlive, false)
+    verifyEq(c3Old.isAlive, false)
     verifyRoster(lib,
       [
        [c1, p1a, p1c],

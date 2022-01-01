@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2014, SkyFoundry LLC
-// All Rights Reserved
+// Licensed under the Academic Free License version 3.0
 //
 // History:
 //   18 Aug 2014  Brian Frank  Creation

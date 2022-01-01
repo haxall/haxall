@@ -152,6 +152,12 @@ const final class Conn : Actor
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
+  ** Return true is connector active or false is it has been removed.
+  @NoDoc Bool isAlive() { aliveRef.val }
+
+  ** Set alive state to false
+  internal Void kill() { aliveRef.val = false }
+
   ** Called when record is modified
   internal Void updateRec(Dict newRec)
   {
@@ -169,6 +175,7 @@ const final class Conn : Actor
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private const AtomicBool aliveRef := AtomicBool(true)
   private const AtomicRef pointsList := AtomicRef(ConnPoint#.emptyList)
 }
 

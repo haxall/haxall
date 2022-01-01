@@ -141,6 +141,9 @@ internal const final class ConnRoster
 
   private Void onConnRemoved(Conn conn)
   {
+    // mark this connector as not alive anymore
+    conn.kill
+
     // remove all its points from lookup tables
     conn.points.each |pt| { pointsById.remove(pt.id) }
 
