@@ -48,8 +48,7 @@ class HaystackDispatch : ConnDispatch
     tags := Str:Obj[:]
     if (about["productName"]    is Str) tags["productName"]    = about->productName
     if (about["productVersion"] is Str) tags["productVersion"] = about->productVersion
-    if (about["moduleName"]     is Str) tags["moduleName"]     = about->moduleName
-    if (about["moduleVersion"]  is Str) tags["moduleVersion"]  = about->moduleVersion
+    if (about["vendorName"]     is Str) tags["vendorName"]     = about->vendorName
     about.each |v, n| { if (n.startsWith("host")) tags[n] = v }
 
     // update tz

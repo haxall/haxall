@@ -33,7 +33,7 @@ class HaystackConnTest : HxTest
   @HxRuntimeTest
   Void test()
   {
-    buildProj
+    init
     verifyConn
 return
     verifyCall
@@ -50,10 +50,10 @@ return
 // Initialization
 //////////////////////////////////////////////////////////////////////////
 
-  Void buildProj()
+  Void init()
   {
-    // ext
-    m := Marker.val
+    // libs
+    addLib("http")
     addLib("haystack")
 
     // user
@@ -114,20 +114,20 @@ return
   Void verifyConn()
   {
     // create connector
-    uri := rt.http.apiUri
+    uri := rt.http.siteUri + rt.http.apiUri
     conn = addRec(["haystackConn":Marker.val, "uri":uri, "username":"hay", "haystackPollFreq":n(10, "ms")])
     rt.db.passwords.set(conn.id.toStr, "foo")
     rt.sync
 
-    // verify ping
-    r := eval("read(haystackConn).haystackPing.futureGet")
+    // verify ping (returns rec)
+    r := eval("read(haystackConn).haystackPing.futureGet") as Dict
+    verifyEq(r.id, conn.id)
+    verifyEq(r->productName, rt.platform.productName)
     conn = readById(conn.id)
-    verifySame(r, conn)
     verifyEq(conn->connStatus,     "ok")
     verifyEq(conn->productName,    rt.platform.productName)
     verifyEq(conn->productVersion, rt.version.toStr)
-    verifyEq(conn->moduleName,     makeContext.about->moduleName)
-    verifyEq(conn->moduleVersion,  makeContext.about->moduleVersion)
+    verifyEq(conn->vendorName,     rt.platform.vendorName)
     verifyEq(conn->tz,             TimeZone.cur.name)
 
     // with conn id
