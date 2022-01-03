@@ -306,7 +306,7 @@ class ConnTest : HxTest
       ])
 
     // create some points which don't map to connectors yet
-    c4id := Ref("c4")
+    c4id := genRef("c4")
     p4a := addRec(["dis":"4A", "point":m, "haystackConnRef":c4id])
     p4b := addRec(["dis":"4B", "point":m, "haystackConnRef":"bad ref"])
     rt.sync
@@ -641,7 +641,7 @@ class ConnTest : HxTest
     verifySame(lib.tuning, lib.conn(c.id).tuning)
     verifySame(lib.tuning, lib.point(pt.id).tuning)
 
-    // add tuning for librry
+    // add tuning for library
     commit(lib.rec, ["connTuningRef":t1.id])
     rt.sync
     verifyEq(lib.tuning.id, t1.id)
@@ -686,7 +686,7 @@ class ConnTest : HxTest
     verifyTuning(fw, lib, pt, t3, 3sec)
 
     // map pt to tuning which doesn't exist yet
-    t5id := Ref("t5")
+    t5id := genRef("t5")
     pt = commit(pt, ["connTuningRef":t5id])
     rt.sync
     verifyEq(lib.point(pt.id).tuning.id, t5id)

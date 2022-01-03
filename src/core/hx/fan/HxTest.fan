@@ -130,11 +130,16 @@ abstract class HxTest : HaystackTest
     // strip out null
     tags = tags.findAll |v, n| { v != null }
 
-    id := tags["id"]
+    id := tags["id"] as Ref
     if (id != null)
+    {
+      if (id.isProjRec) id = id.toProjRel
       tags.remove("id")
+    }
     else
+    {
       id = Ref.gen
+    }
     return rt.db.commit(Diff.makeAdd(tags, id)).newRec
   }
 
@@ -152,6 +157,13 @@ abstract class HxTest : HaystackTest
   @NoDoc HxUser addUser(Str user, Str pass, Str:Obj? tags := Str:Obj?[:])
   {
     spi.addUser(user, pass, tags)
+  }
+
+  ** Generate a ref to for the runtime database with proper prefix
+  @NoDoc Ref genRef(Str id := Ref.gen.id)
+  {
+    if (rt.db.idPrefix != null) id = rt.db.idPrefix + id
+    return Ref(id)
   }
 
 //////////////////////////////////////////////////////////////////////////
