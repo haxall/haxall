@@ -18,7 +18,7 @@ class Build : BuildGroup
     [
       `hxHaystack/build.fan`,
       `hxSql/build.fan`,
-      `mqtt/mqtt/build.fan`,
+      `mqtt/build.fan`,
     ]
   }
 }
