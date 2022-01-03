@@ -1,0 +1,51 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//    3 Jan 2022  Brian Frank  Creation
+//
+
+//////////////////////////////////////////////////////////////////////////
+// Views
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+view: conns
+appName: conn
+disKey: ui::connector
+admin
+doc: "Manage connectors in the local project database"
+src:
+  view: { uiType:"uiBuilder::ConnBuilder" }
+  menu: { action:"uiContextMenu" }
+--------------------------------------------------------------------------
+view: connTuning
+appName: conn
+disKey: ui::tuning
+defName: connTuning
+admin
+doc: "Manage connector tuning records in the local project database"
+src:
+  view:    { inherit:"table" }
+  search:  { input var kind:"Str" defVal:"" }
+  new:     { action:"recNew" }
+  edit:    { action:"recEdit" }
+  trash:   { action:"recTrash" }
+  data:    { expr:"readAll(connTuning, { sort, search:{{search}} })" }
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Commands
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^command:syncHis
+icon: "sync"
+admin
+typeName: "uiMisc::SyncHisCommand"
+--------------------------------------------------------------------------
+
+
+
+
