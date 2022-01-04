@@ -144,6 +144,12 @@ class ConnTest : HxTest
   private Void verifyService(Str[] libs, Dict[] conns, Dict[] points)
   {
     c := rt.sync.conn
+    /*
+    echo("--- Service ---")
+    echo("  libs:   " + c.libs.join(","))
+    echo("  conns:  " + c.conns.join(",") { it.rec.dis })
+    echo("  points: " + c.points.join(",") { it.rec.dis })
+    */
     verifyEq(c.libs.map |x->Str| { x.name }, libs)
     verifyEq(c.conns.map {it.rec.dis} .sort, conns.map {it.dis})
     verifyEq(c.points.map {it.rec.dis} .sort, points.map {it.dis})
