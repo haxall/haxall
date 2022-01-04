@@ -105,10 +105,13 @@ const final class Conn : Actor, HxConn
 //////////////////////////////////////////////////////////////////////////
 
   ** Invoke ping request
-  Future ping() { send(HxMsg("ping")) }
+  override Future ping() { send(HxMsg("ping")) }
 
   ** Force close of connection if open
-  Future close() { send(HxMsg("close")) }
+  override Future close() { send(HxMsg("close")) }
+
+  ** Invoke the learn request
+  override Future learn(Obj? arg := null) { send(HxMsg("learn", arg)) }
 
   ** Block until this conn processes its current actor queue
   This sync(Duration? timeout := null)

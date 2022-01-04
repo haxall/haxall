@@ -462,6 +462,15 @@ const mixin HxConn
   ** It does not track transient changes such as 'connStatus'.
   abstract Dict rec()
 
+  ** Ping the connector
+  abstract Future ping()
+
+  ** Force connector closed
+  abstract Future close()
+
+  ** Make a learn request to the connector
+  abstract Future learn(Obj? arg := null)
+
   ** Debug details
   abstract Str details()
 }

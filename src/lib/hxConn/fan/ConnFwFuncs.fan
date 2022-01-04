@@ -59,7 +59,10 @@ const class ConnFwFuncs
   **   connLearn(connId, learnArg)
   **
   @Axon { admin = true }
-  static Future connLearn(Obj conn, Obj? arg := null) { throw Err("TODO") }
+  static Future connLearn(Obj conn, Obj? arg := null)
+  {
+    toConn(conn).learn(arg)
+  }
 
   **
   ** Perform a remote sync of current values for the given points.
@@ -88,14 +91,8 @@ const class ConnFwFuncs
   static Future connSyncHis(Obj points, Obj? span) { throw Err("TODO") }
 
   ** Coerce conn to a Conn instance
-  private static Conn toConn(Obj conn)
+  private static HxConn toConn(Obj conn)
   {
-    // TODO: temp code
-    id := Etc.toId(conn)
-    c := HxContext.curHx.rt.libs.list.eachWhile |lib->Conn?|
-    {
-      (lib as ConnLib)?.conn(id, false)
-    }
-    return c ?: throw UnknownConnErr("Cannot map to connector [$id.toZinc]")
+    HxContext.curHx.rt.conn.conn(Etc.toId(conn))
   }
 }
