@@ -443,6 +443,15 @@ const mixin HxConnLib
 {
   ** Library name
   abstract Str name()
+
+  ** Tag name for the connector records such as 'bacnetConn'
+  abstract Str connTag()
+
+  ** Tag name for the connector records such as 'bacnetConnRef'
+  abstract Str connRefTag()
+
+  ** Number of configured connectors
+  abstract Int numConns()
 }
 
 **
@@ -452,7 +461,7 @@ const mixin HxConnLib
 const mixin HxConn
 {
   ** Parent connector library
-  abstract HxLib lib()
+  abstract HxConnLib lib()
 
   ** Record id
   abstract Ref id()

@@ -19,7 +19,11 @@ using hx
 abstract class ConnDispatch
 {
   ** Constructor with parent connector
-  new make(Conn conn) { this.connRef = conn }
+  new make(Conn conn)
+  {
+    if ((Obj?)conn == null) throw Err("Null conn passed to constructor")
+    this.connRef = conn
+  }
 
   ** Runtime system
   HxRuntime rt() { connRef.rt }

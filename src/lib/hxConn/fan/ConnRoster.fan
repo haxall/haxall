@@ -28,6 +28,11 @@ internal const final class ConnRoster
 // Lookups
 //////////////////////////////////////////////////////////////////////////
 
+  Int numConns()
+  {
+    connsById.size
+  }
+
   Conn[] conns()
   {
     connsById.vals(Conn#)

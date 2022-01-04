@@ -91,12 +91,22 @@ const class ConnService : HxConnService
 
   Void addLib(HxConnLib lib)
   {
-    libDataRef.val = libData.add(lib)
+    while (true)
+    {
+      oldData := libData
+      newData := oldData.add(lib)
+      if (libDataRef.compareAndSet(oldData, newData)) break
+    }
   }
 
   Void removeLib(HxConnLib lib)
   {
-    libDataRef.val = libData.remove(lib)
+    while (true)
+    {
+      oldData := libData
+      newData := oldData.remove(lib)
+      if (libDataRef.compareAndSet(oldData, newData)) break
+    }
   }
 
   Void addConn(HxConn conn)

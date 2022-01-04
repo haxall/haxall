@@ -10,6 +10,7 @@
 def: ^lib:haystack
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
 typeName:"hxHaystack::HaystackLib"
+icon: "haystack"
 doc: "Haystack HTTP API connector"
 --------------------------------------------------------------------------
 
