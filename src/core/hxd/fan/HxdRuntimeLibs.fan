@@ -106,6 +106,9 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     // lookup installed lib callers thread
     install := rt.installed.lib(name)
 
+    // add dis name if not defined
+    if (tags.missing("dis")) tags = Etc.dictSet(tags, "dis", "lib:$name")
+
     // process on our background actor
     return send(HxMsg("add", install, tags)).get(null)
   }
