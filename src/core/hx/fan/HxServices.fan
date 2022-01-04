@@ -469,7 +469,7 @@ const mixin HxConn
   abstract Future close()
 
   ** Make a learn request to the connector
-  abstract Future learn(Obj? arg := null)
+  abstract Future learnAsync(Obj? arg := null)
 
   ** Debug details
   abstract Str details()

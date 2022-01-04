@@ -61,7 +61,7 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Future connLearn(Obj conn, Obj? arg := null)
   {
-    toConn(conn).learn(arg)
+    toConn(conn).learnAsync(arg)
   }
 
   **

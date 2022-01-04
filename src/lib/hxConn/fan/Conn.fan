@@ -110,15 +110,15 @@ const final class Conn : Actor, HxConn
   ** Force close of connection if open
   override Future close() { send(HxMsg("close")) }
 
-  ** Invoke the learn request
-  override Future learn(Obj? arg := null) { send(HxMsg("learn", arg)) }
-
   ** Block until this conn processes its current actor queue
   This sync(Duration? timeout := null)
   {
     send(HxMsg("sync")).get(timeout)
     return this
   }
+
+  ** Invoke the learn request
+  @NoDoc override Future learnAsync(Obj? arg := null) { send(HxMsg("learn", arg)) }
 
   ** Actor messages are routed to `ConnDispatch`
   override Obj? receive(Obj? m)
