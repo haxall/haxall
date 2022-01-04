@@ -162,7 +162,7 @@ const class HxdRuntime : HxRuntime
   internal const AtomicRef nowRef := AtomicRef(DateTime.now)
 
   ** If the runtime currently running
-  Bool isRunning() { isRunningRef.val }
+  override Bool isRunning() { isRunningRef.val }
 
   ** Start runtime (blocks until all libs fully started)
   This start()

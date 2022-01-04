@@ -23,6 +23,11 @@ const mixin HxRuntime : HxStdServices
   ** Runtime version
   abstract Version version()
 
+  ** Running flag.  On startup this flag transitions to true before calling
+  ** ready and start on all the libraries.  On shutdown this flag transitions
+  ** to false before calling unready and stop on all the libraries.
+  abstract Bool isRunning()
+
   ** Platform hosting the runtime
   abstract HxPlatform platform()
 

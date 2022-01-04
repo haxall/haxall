@@ -91,8 +91,13 @@ abstract const class ConnLib : HxLib, HxConnLib
   ** Stop callback - if overridden you *must* call super
   override Void onStop()
   {
-    roster.removeAll // TODO
-    fw.service.removeLib(this)
+    // unregister the lib and all its conns and points,
+    // but only if this a remove and not a shutdown
+    if (rt.isRunning)
+    {
+      roster.removeAll
+      fw.service.removeLib(this)
+    }
   }
 
   ** Record update - if overridden you *must* call super
