@@ -55,68 +55,98 @@ class ConnTest : HxTest
   @HxRuntimeTest
   Void testService()
   {
-    verifyNilService
-    verifyEq(rt.conns.list.size, 0)
+    // empty
+    verifyService(
+      Str[,],
+      [,],
+      [,])
 
+    // add haystack lib
     addLib("haystack")
-    verifyEq(rt.conns.list.size, 1)
-    verifyConnService("haystack", "chwl")
+    verifyService(
+      ["haystack"],
+      [,],
+      [,])
 
+    // add conns
+    c1 := addRec(["dis":"C1", "haystackConn":m])
+    c2 := addRec(["dis":"C2", "haystackConn":m])
+    c3 := addRec(["dis":"C3", "haystackConn":m])
+    c4 := addRec(["dis":"C3", "sqlConn":m])
+    verifyService(
+      ["haystack"],
+      [c1, c2, c3],
+      [,])
+
+    // add points
+    p1 := addRec(["dis":"P1", "haystackConnRef":c1.id, "point":m])
+    p2 := addRec(["dis":"P2", "haystackConnRef":c2.id, "point":m])
+    p3 := addRec(["dis":"P3", "haystackConnRef":c3.id, "point":m])
+    p4 := addRec(["dis":"P4", "sqlConnRef":c4.id, "point":m])
+    verifyService(
+      ["haystack"],
+      [c1, c2, c3],
+      [p1, p2, p3])
+
+    // remove points
+    p2 = commit(p2, ["point":Remove.val])
+    commit(p3, null, Diff.remove)
+    verifyService(
+      ["haystack"],
+      [c1, c2, c3],
+      [p1])
+
+    // add them back
+    p2 = commit(p2, ["point":m])
+    p3 = addRec(["dis":"P3", "haystackConnRef":c3.id, "point":m])
+
+    // add sql lib
     addLib("sql")
-    verifyEq(rt.conns.list.size, 2)
-    verifyConnService("haystack", "chwl")
-    verifyConnService("sql", "h")
+    verifyService(
+      ["haystack", "sql"],
+      [c1, c2, c3, c4],
+      [p1, p2, p3, p4])
+
+    // remove connector
+    c3 = commit(c3, ["trash":m])
+    verifyService(
+      ["haystack", "sql"],
+      [c1, c2, c4],
+      [p1, p2, p4])
+
+    // remove sql lib
+    rt.libs.remove("sql")
+    verifyService(
+      ["haystack"],
+      [c1, c2],
+      [p1, p2])
+
+    // remove haystack lib
+    rt.libs.remove("haystack")
+    verifyService(
+      Str[,],
+      [,],
+      [,])
+
+    // verify bad
+    c := rt.conn
+    verifyEq(c.lib("bad", false), null)
+    verifyErr(UnknownConnLibErr#) { c.lib("bad") }
+    verifyErr(UnknownConnLibErr#) { c.lib("bad", true) }
+    verifyEq(c.conn(Ref.gen, false), null)
+    verifyErr(UnknownConnErr#) { c.conn(Ref.gen) }
+    verifyErr(UnknownConnErr#) { c.conn(Ref.gen, true) }
+    verifyEq(c.point(Ref.gen, false), null)
+    verifyErr(UnknownConnPointErr#) { c.point(Ref.gen) }
+    verifyErr(UnknownConnPointErr#) { c.point(Ref.gen, true) }
   }
 
-  private Void verifyNilService()
+  private Void verifyService(Str[] libs, Dict[] conns, Dict[] points)
   {
-    c := rt.conns
-    verifyEq(c.typeof.name, "NilConnRegistryService")
-    verifyEq(c.list.size, 0)
-
-    name := "haystack"
-    verifyEq(c.byName(name, false), null)
-    verifyErr(Err#) { c.byName(name) }
-    verifyErr(Err#) { c.byName(name, true) }
-
-    conn := Etc.emptyDict
-    verifyEq(c.byConn(conn, false), null)
-    verifyErr(Err#) { c.byConn(conn) }
-    verifyErr(Err#) { c.byConn(conn, true) }
-
-    pt := Etc.emptyDict
-    verifyEq(c.byPoint(pt, false), null)
-    verifyErr(Err#) { c.byPoint(pt) }
-    verifyErr(Err#) { c.byPoint(pt, true) }
-  }
-
-  private HxConnService verifyConnService(Str name, Str flags)
-  {
-    c := rt.conns
-    x := c.byName(name)
-    verify(c.list.containsSame(x))
-    verify(rt.services.getAll(HxConnService#).contains(x))
-
-    verifyEq(x.name, name)
-    verifyEq(x.connTag,    "${name}Conn")
-    verifyEq(x.connRefTag, "${name}ConnRef")
-    verifyEq(x.pointTag,   "${name}Point")
-    verifyEq(x.curTag,     flags.contains("c") ? "${name}Cur" : null)
-    verifyEq(x.hisTag,     flags.contains("h") ? "${name}His" : null)
-    verifyEq(x.writeTag,   flags.contains("w") ? "${name}Write" : null)
-    verifyEq(x.hasCur,     flags.contains("c"))
-    verifyEq(x.hasHis,     flags.contains("h"))
-    verifyEq(x.hasWrite,   flags.contains("w"))
-    verifyEq(x.hasLearn,   flags.contains("l"))
-
-    conn := Etc.makeDict(["id":Ref.gen, "${name}Conn":m])
-    verifySame(c.byConn(conn), x)
-
-    pt := Etc.makeDict(["${name}ConnRef":conn.id])
-    verifySame(c.byPoint(pt), x)
-    verifySame(c.byPoints([pt]), x)
-
-    return x
+    c := rt.sync.conn
+    verifyEq(c.libs.map |x->Str| { x.name }, libs)
+    verifyEq(c.conns.map {it.rec.dis} .sort, conns.map {it.dis})
+    verifyEq(c.points.map {it.rec.dis} .sort, points.map {it.dis})
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -447,10 +477,15 @@ class ConnTest : HxTest
       verifyEq(c.id, exRec.id)
       verifyEq(c.dis, exRec.dis)
       verifySame(lib.conn(exRec.id), c)
+      verifySame(rt.conn.conn(c.id), c)
 
       // points
       verifyPoints(lib, c.points, exPts, false)
-      c.points.each |pt| { verifySame(pt.conn, c) }
+      c.points.each |pt|
+      {
+        verifySame(pt.conn, c)
+        verifySame(rt.conn.point(pt.id), pt)
+      }
 
       // bad points
       verifyEq(c.point(Ref.gen, false), null)
@@ -483,6 +518,7 @@ class ConnTest : HxTest
       verifyEq(a.dis, e.dis)
       verifySame(lib.point(id), a)
       verifySame(a.conn.point(id), a)
+      verifySame(rt.conn.point(id), a)
 
       // verify Conn.point wrong connector
       lib.conns.each |c|

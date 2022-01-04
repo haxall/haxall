@@ -15,7 +15,7 @@ using hx
 **
 ** Conn models a connection to a single endpoint.
 **
-const final class Conn : Actor
+const final class Conn : Actor, HxConn
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,11 +42,11 @@ const final class Conn : Actor
   Folio db() { libRef.rt.db }
 
   ** Parent connector library
-  ConnLib lib() { libRef }
+  override ConnLib lib() { libRef }
   private const ConnLib libRef
 
   ** Record id
-  Ref id() { idRef }
+  override Ref id() { idRef }
   private const Ref idRef
 
   ** Debug tracing for this connector
@@ -65,7 +65,7 @@ const final class Conn : Actor
   ** Current version of the record.
   ** This dict only represents the current persistent tags.
   ** It does not track transient changes such as 'connStatus'.
-  Dict rec() { config.rec }
+  override Dict rec() { config.rec }
 
   ** Timeout to use for I/O and actor messaging - see `actorTimeout`.
   Duration timeout() { config.timeout }
@@ -170,6 +170,9 @@ const final class Conn : Actor
   {
     pointsList.val = pts.sort |a, b| { a.dis <=> b.dis }.toImmutable
   }
+
+  ** Debug details
+  @NoDoc override Str details() { throw Err("TODO") }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

@@ -51,9 +51,9 @@ const class HxdServiceRegistry : HxServiceRegistry
     if (map[HxPointWriteService#] == null)
       map[HxPointWriteService#] = HxService[NilPointWriteService()]
 
-    // ensure conns service is defined
-    if (map[HxConnRegistryService#] == null)
-      map[HxConnRegistryService#] = HxService[NilConnRegistryService()]
+    // ensure conn service is defined
+    if (map[HxConnService#] == null)
+      map[HxConnService#] = HxService[NilConnService()]
 
     this.list = map.keys.sort
     this.map  = map
@@ -68,7 +68,7 @@ const class HxdServiceRegistry : HxServiceRegistry
     this.taskRef    = get(HxTaskService#, false)
     this.his        = get(HxHisService#)
     this.pointWrite = get(HxPointWriteService#)
-    this.conns      = get(HxConnRegistryService#)
+    this.conn       = get(HxConnService#)
   }
 
   override const Type[] list
@@ -96,7 +96,7 @@ const class HxdServiceRegistry : HxServiceRegistry
 
   override const HxPointWriteService pointWrite
 
-  override const HxConnRegistryService conns
+  override const HxConnService conn
 
   override HxService? get(Type type, Bool checked := true)
   {

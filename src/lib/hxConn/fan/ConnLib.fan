@@ -15,7 +15,7 @@ using hx
 **
 ** Connector library base class
 **
-abstract const class ConnLib : HxLib, HxConnService
+abstract const class ConnLib : HxLib, HxConnLib
 {
   ** Constructor
   new make()
@@ -29,10 +29,6 @@ abstract const class ConnLib : HxLib, HxConnService
 
   ** Settings record
   override ConnSettings rec() { super.rec }
-
-  ** Return this instance as HxConnService implementation.
-  ** Overrides must call super.
-  override HxService[] services() { [this] }
 
   ** ConnFwLib instance
   @NoDoc ConnFwLib fw() { fwRef.val }
@@ -77,7 +73,9 @@ abstract const class ConnLib : HxLib, HxConnService
   override Void onStart()
   {
     // must have ConnFwLib installed
-    fwRef.val = (ConnFwLib)rt.lib("conn")
+    fw :=  (ConnFwLib)rt.lib("conn")
+    fwRef.val = fw
+    fw.service.addLib(this)
 
     // update library level tuning default
     tuningRef.val = tunings.forLib(this)
@@ -93,6 +91,8 @@ abstract const class ConnLib : HxLib, HxConnService
   ** Stop callback - if overridden you *must* call super
   override Void onStop()
   {
+    roster.removeAll // TODO
+    fw.service.removeLib(this)
   }
 
   ** Record update - if overridden you *must* call super
@@ -112,52 +112,6 @@ abstract const class ConnLib : HxLib, HxConnService
   {
     if (e != null) roster.onPointEvent(e)
   }
-
-//////////////////////////////////////////////////////////////////////////
-// HxConnService
-//////////////////////////////////////////////////////////////////////////
-
-  ** Connector marker tag such as "bacnetConn"
-  override final Str connTag() { model.connTag }
-
-  ** Connector reference tag such as "bacnetConnRef"
-  override final Str connRefTag() { model.connRefTag }
-
-  ** Point marker tag such as "bacnetPoint"
-  override final Str pointTag() { model.pointTag }
-
-  ** Does connector support current value subscription
-  override final Bool hasCur() { model.hasCur }
-
-  ** Does connector support writable points
-  override final Bool hasWrite() { model.hasWrite }
-
-  ** Does connector support history synchronization
-  override final Bool hasHis() { model.hasHis }
-
-  ** Point current address tag name such as "bacnetCur"
-  override final Str? curTag() { model.curTag }
-
-  ** Point history sync address tag name such as "bacnetHis"
-  override final Str? hisTag() { model.hisTag }
-
-  ** Point write address tag name such as "bacnetWrite"
-  override final Str? writeTag() { model.writeTag }
-
-  ** Does connector support learn
-  override final Bool hasLearn() { model.hasLearn }
-
-  ** Return if given record matches this connector type
-  override final Bool isConn(Dict rec) { rec.has(connTag) }
-
-  ** Return if given record is a point under this connector type
-  override final Bool isPoint(Dict rec) { rec.has(connRefTag) }
-
-  ** Return debug details for connector
-  override final Str connDetails(Dict rec) { throw Err("TODO") }
-
-  ** Return debug details for point
-  override final Str pointDetails(Dict rec) { throw Err("TODO") }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

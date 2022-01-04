@@ -75,8 +75,8 @@ const mixin HxStdServices
   ** Point write service or no-op if point library is not enabled
   @NoDoc abstract HxPointWriteService pointWrite()
 
-  ** Connector registry service or no-op if connector framework not installed
-  abstract HxConnRegistryService conns()
+  ** Connector service or no-op if connector framework not installed
+  @NoDoc abstract HxConnService conn()
 }
 
 **************************************************************************
@@ -400,107 +400,113 @@ const class NilPointWriteService : HxPointWriteService
 }
 
 **************************************************************************
-** HxConnRegistryService
+** HxConnService
 **************************************************************************
 
 **
-** HxConnRegistryService manages the list of enabled connectors.
+** HxConnService manages the roster of enabled connector libraries,
+** connectors, and points.
 **
-const mixin HxConnRegistryService : HxService
+@NoDoc
+const mixin HxConnService : HxService
 {
-  ** List of installed connectors
-  abstract HxConnService[] list()
+  ** List of installed connector libraries
+  abstract HxConnLib[] libs()
 
-  ** List of connector ref tags for enabled connectors
-  abstract Str[] connRefTags()
+  ** Lookup of installed connector library by name
+  abstract HxConnLib? lib(Str name, Bool checked := true)
 
-  ** Lookup enabled connector by its library name
-  abstract HxConnService? byName(Str name, Bool checked := true)
+  ** List of connectors across all installed libraries
+  abstract HxConn[] conns()
 
-  ** Lookup connector for given conn record
-  abstract HxConnService? byConn(Dict conn, Bool checked := true)
+  ** Lookup of connector from any installed library
+  abstract HxConn? conn(Ref id, Bool checked := true)
 
-  ** Lookup connector for given point record
-  abstract HxConnService? byPoint(Dict point, Bool checked := true)
+  ** Return if given id maps to a connector record
+  abstract Bool isConn(Ref id)
 
-  ** Lookup connector for set of points which must all have same connector ref.
-  abstract HxConnService? byPoints(Dict[] points, Bool checked := true)
+  ** List of connector points across all installed libraries
+  abstract HxConnPoint[] points()
 
-  ** Find primary connector ref for given point
-  abstract Ref? connRef(Dict point, Bool checked := true)
+  ** Lookup of connector point from any installed library
+  abstract HxConnPoint? point(Ref id, Bool checked := true)
+
+  ** Return if given id maps to a connector point record
+  abstract Bool isPoint(Ref id)
+}
+
+**
+** HxConnLib models a subtype of ConnLib which models a specific protocol
+**
+@NoDoc
+const mixin HxConnLib
+{
+  ** Library name
+  abstract Str name()
+}
+
+**
+** HxConn models a connector record
+**
+@NoDoc
+const mixin HxConn
+{
+  ** Parent connector library
+  abstract HxLib lib()
+
+  ** Record id
+  abstract Ref id()
+
+  ** Current version of the record.
+  ** This dict only represents the current persistent tags.
+  ** It does not track transient changes such as 'connStatus'.
+  abstract Dict rec()
+
+  ** Debug details
+  abstract Str details()
+}
+
+**
+** HxConnPoint models a connector point record
+**
+@NoDoc
+const mixin HxConnPoint
+{
+  ** Parent connector library
+  abstract HxLib lib()
+
+  ** Parent connector
+  abstract HxConn conn()
+
+  ** Record id
+  abstract Ref id()
+
+  ** Current version of the record.
+  ** This dict only represents the current persistent tags.
+  ** It does not track transient changes such as 'connStatus'.
+  abstract Dict rec()
+
+  ** Debug details
+  abstract Str details()
 }
 
 @NoDoc
-const class NilConnRegistryService : HxConnRegistryService
+const class NilConnService : HxConnService
 {
-  override HxConnService[] list() { HxConnService#.emptyList }
-  override Str[] connRefTags() { Str#.emptyList }
-  override HxConnService? byName(Str name, Bool checked := true) { get(checked) }
-  override HxConnService? byConn(Dict conn, Bool checked := true) { get(checked) }
-  override HxConnService? byPoint(Dict point, Bool checked := true) { get(checked) }
-  override HxConnService? byPoints(Dict[] points, Bool checked := true) { get(checked) }
-  override Ref? connRef(Dict point, Bool checked := true) { get(checked) }
+  override HxConnLib[] libs() { HxConnLib#.emptyList }
+  override HxConnLib? lib(Str name, Bool checked := true) { get(checked) }
+  override HxConn[] conns() { HxConn#.emptyList }
+  override HxConn? conn(Ref id, Bool checked := true) { get(checked) }
+  override Bool isConn(Ref id) { false }
+  override HxConnPoint[] points() { HxConnPoint#.emptyList }
+  override HxConnPoint? point(Ref id, Bool checked := true) { get(checked) }
+  override Bool isPoint(Ref id) { false }
 
   private Obj? get(Bool checked)
   {
     if (checked) throw Err("no connectors installed")
     return null
   }
-}
-
-**************************************************************************
-** HxConnService
-**************************************************************************
-
-**
-** HxConnService models a protocol specific connector library
-**
-const mixin HxConnService : HxService
-{
-  ** Connector library name such as "bacnet"
-  abstract Str name()
-
-  ** Connector marker tag such as "bacnetConn"
-  abstract Str connTag()
-
-  ** Connector reference tag such as "bacnetConnRef"
-  abstract Str connRefTag()
-
-  ** Point marker tag such as "bacnetPoint"
-  abstract Str pointTag()
-
-  ** Does connector support current value subscription
-  abstract Bool hasCur()
-
-  ** Does connector support writable points
-  abstract Bool hasWrite()
-
-  ** Does connector support history synchronization
-  abstract Bool hasHis()
-
-  ** Point current address tag name such as "bacnetCur"
-  abstract Str? curTag()
-
-  ** Point history sync address tag name such as "bacnetHis"
-  abstract Str? hisTag()
-
-  ** Point write address tag name such as "bacnetWrite"
-  abstract Str? writeTag()
-
-  ** Does connector support learn
-  abstract Bool hasLearn()
-
-  ** Return if given record matches this connector type
-  abstract Bool isConn(Dict rec)
-
-  ** Return if given record is a point under this connector type
-  abstract Bool isPoint(Dict rec)
-
-  ** Return debug details for connector
-  abstract Str connDetails(Dict rec)
-
-  ** Return debug details for point
-  abstract Str pointDetails(Dict rec)
 }
 
 **************************************************************************

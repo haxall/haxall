@@ -37,9 +37,6 @@ internal class DemoMgr : PointMgr
     // update cycle count
     cycle++
 
-    // find all installed connector exts to get their connector tags
-    connTags := lib.rt.conns.connRefTags
-
     // process all the points not associated with connector
     now := Duration.now
     recs := db.readAll(Filter.has("point"))
@@ -51,7 +48,7 @@ internal class DemoMgr : PointMgr
       if (rec.has("curSource")) return
       if (rec.has("point") && rec["weatherStationRef"] is Ref) return
       if (rec.has("schedule") || rec.has("calendar")) return
-      if (connTags.any |tag| { rec.has(tag) }) return
+      if (lib.rt.conn.isPoint(rec.id)) return
 
       // process the point
       try

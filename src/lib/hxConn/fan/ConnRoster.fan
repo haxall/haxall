@@ -119,7 +119,9 @@ internal const final class ConnRoster
     conn := Conn(lib, rec)
 
     // add it to my lookup tables
+    service := lib.fw.service
     connsById.add(conn.id, conn)
+    service.addConn(conn)
 
     // find any points already created bound to this connector
     filter := Filter.has("point").and(Filter.eq(lib.model.connRefTag, conn.id))
@@ -129,6 +131,7 @@ internal const final class ConnRoster
       point := ConnPoint(conn, pointRec)
       pointsList.add(point)
       pointsById.add(point.id, point)
+      service.addPoint(point)
     }
     conn.updatePointsList(pointsList)
   }
@@ -145,9 +148,15 @@ internal const final class ConnRoster
     conn.kill
 
     // remove all its points from lookup tables
-    conn.points.each |pt| { pointsById.remove(pt.id) }
+    service := lib.fw.service
+    conn.points.each |pt|
+    {
+      service.removePoint(pt)
+      pointsById.remove(pt.id)
+    }
 
     // remove conn from lookup tables
+    service.removeConn(conn)
     connsById.remove(conn.id)
   }
 
@@ -184,6 +193,7 @@ internal const final class ConnRoster
     // add to lookup tables
     pointsById.add(point.id, point)
     updateConnPoints(conn)
+    lib.fw.service.addPoint(point)
     conn.send(HxMsg("pointAdded", point))
   }
 
@@ -223,6 +233,7 @@ internal const final class ConnRoster
     // remove from lookup tables
     pointsById.remove(id)
     updateConnPoints(point.conn)
+    lib.fw.service.removePoint(point)
     point.conn.send(HxMsg("pointRemoved", point))
   }
 
@@ -243,8 +254,15 @@ internal const final class ConnRoster
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Debug
+// Utiils
 //////////////////////////////////////////////////////////////////////////
+
+  Void removeAll()
+  {
+    service := lib.fw.service
+    pointsById.each |pt| { service.removePoint(pt) }
+    connsById.each |c| { service.removeConn(c) }
+  }
 
   Void dump()
   {

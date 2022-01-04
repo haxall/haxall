@@ -49,8 +49,8 @@ class PointUtil
     {
       // for 3.1.0 we are using old connector framework so a result
       // from this will include the summary, his collect, and write info
-      conn := lib.rt.conns.byPoint(pt, false)
-      if (conn != null) return conn.pointDetails(pt)
+      cp := lib.rt.conn.point(pt.id, false)
+      if (cp != null) return cp.details
     }
 
     // send messages to managers

@@ -16,7 +16,7 @@ using hxPoint
 **
 ** ConnPoint models a point within a connector.
 **
-const final class ConnPoint
+const final class ConnPoint : HxConnPoint
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -35,12 +35,15 @@ const final class ConnPoint
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
+  ** Parent connector library
+  override ConnLib lib() { connRef.lib }
+
   ** Parent connector
-  Conn conn() { connRef }
+  override Conn conn() { connRef }
   private const Conn connRef
 
   ** Record id
-  Ref id() { idRef }
+  override Ref id() { idRef }
   private const Ref idRef
 
   ** Debug string
@@ -52,7 +55,7 @@ const final class ConnPoint
   ** Current version of the record.
   ** This dict only represents the current persistent tags.
   ** It does not track transient changes such as 'curVal' and 'curStatus'.
-  Dict rec() { config.rec }
+  override Dict rec() { config.rec }
 
   ** Current address tag value if configured on the point
   Obj? curAddr() { config.curAddr }
@@ -99,6 +102,9 @@ const final class ConnPoint
   ** Conn rec configuration
   internal ConnPointConfig config() { configRef.val }
   private const AtomicRef configRef
+
+  ** Debug details
+  @NoDoc override Str details() { throw Err("TODO") }
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle

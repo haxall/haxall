@@ -18,5 +18,6 @@ The following is summary of key classes:
 - ConnDispatch: base class for message handling; implementations subclass this
 - ConnTrace: actor which stores circular buffer of trace debug messages
 - ConnModel: quick access to implementation tag defs
+- ConnService: lookup table for all libs, conns, and points (both old and new)
 
 
