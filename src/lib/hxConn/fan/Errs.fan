@@ -44,3 +44,9 @@ const class UnknownConnTuningErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
+
+@NoDoc
+const class UnknownNotOpenLibErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}

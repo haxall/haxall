@@ -18,12 +18,17 @@ using hx
 **
 abstract class ConnDispatch
 {
-  ** Constructor with parent connector
-  new make(Conn conn)
+  ** Constructor with framework specific argument
+  new make(Obj arg)
   {
-    if ((Obj?)conn == null) throw Err("Null conn passed to constructor")
-    this.connRef = conn
+    state := arg as ConnState ?: throw Err("Invalid constructor arg: $arg")
+    this.state = state
+    this.connRef = state.conn
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Identity
+//////////////////////////////////////////////////////////////////////////
 
   ** Runtime system
   HxRuntime rt() { connRef.rt }
@@ -54,6 +59,33 @@ abstract class ConnDispatch
   ** This dict only represents the current persistent tags.
   ** It does not track transient changes such as 'connStatus'.
   Dict rec() { conn.rec }
+
+  ** ConnState wrapper which handles implementation logic
+  private ConnState state
+
+//////////////////////////////////////////////////////////////////////////
+// Lifecycle
+//////////////////////////////////////////////////////////////////////////
+
+  ** Open the connector.  The connection will linger open based
+  ** on the configured linger timeout, then automatically close.
+  ** If the connector fails to open, then raise an exception.
+  This open()
+  {
+     state.openLinger.checkOpen
+     return this
+  }
+
+  ** Force this connector closed
+  This close(Err? cause)
+  {
+    state.close(cause)
+    return this
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Callbacks
+//////////////////////////////////////////////////////////////////////////
 
   ** Callback to handle custom actor messages
   virtual Obj? onReceive(HxMsg msg) { throw Err("Unknown msg: $msg") }

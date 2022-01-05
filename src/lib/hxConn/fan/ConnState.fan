@@ -15,13 +15,13 @@ using hx
 ** ConnState manages the mutable state and logic for a connector.
 ** It routes to ConnDispatch for connector specific behavior.
 **
-internal class ConnState
+internal final class ConnState
 {
   ** Constructor with parent connector
-  new make(ConnDispatch dispatch)
+  new make(Conn conn, Type dispatchType)
   {
-    this.conn = dispatch.conn
-    this.dispatch = dispatch
+    this.conn = conn
+    this.dispatch = dispatchType.make([this])
   }
 
   const Conn conn
@@ -58,11 +58,19 @@ internal class ConnState
   ** Is the connection currently closed
   Bool isClosed() { !isOpen }
 
+  ** Raise exception if not open
+  This checkOpen()
+  {
+    if (!isOpen) throw UnknownNotOpenLibErr("Connector open failed", curErr)
+    return this
+  }
+
   ** Open connection and then auto-close after a linger timeout.
-  Void openLinger(Duration linger := conn.linger)
+  This openLinger(Duration linger := conn.linger)
   {
     open("")
     setLinger(linger)
+    return this
   }
 
   private Void setLinger(Duration linger)

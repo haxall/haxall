@@ -129,8 +129,7 @@ const final class Conn : Actor, HxConn
     {
       try
       {
-        dispatch := lib.model.dispatchType.make([this])
-        Actor.locals["s"] = state = ConnState(dispatch)
+        Actor.locals["s"] = state = ConnState(this, lib.model.dispatchType)
       }
       catch (Err e)
       {

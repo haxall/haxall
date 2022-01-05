@@ -18,7 +18,7 @@ using sql::SqlErr
 **
 class SqlDispatch : ConnDispatch
 {
-  new make(Conn conn) : super(conn) {}
+  new make(Obj arg) : super(arg) {}
 
   static SqlClient doOpen(Conn c)
   {

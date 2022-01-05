@@ -17,7 +17,7 @@ using hxConn
 **
 class HaystackDispatch : ConnDispatch
 {
-  new make(Conn conn)  : super(conn) {}
+  new make(Obj arg)  : super(arg) {}
 
   override Void onOpen()
   {
