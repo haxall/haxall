@@ -40,8 +40,9 @@ disKey: ui::trace
 admin
 doc: "View debug connector tracing"
 src:
-  view: { inherit:"table" }
+  view: { uiType:"uiBuilder::ConnTraceView" }
   conn: { input var kind:"Ref<conn>" }
+  menu: { action:"uiContextMenu" selInput:"conn" }
   data: { expr:"connTrace({{conn}})" }
 --------------------------------------------------------------------------
 

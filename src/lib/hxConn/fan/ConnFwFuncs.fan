@@ -103,7 +103,9 @@ const class ConnFwFuncs
   static Grid connTrace(Obj conn)
   {
     cx := HxContext.curHx
-    hx := cx.rt.conn.conn(Etc.toId(conn))
+    id := Etc.toId(conn)
+    if (id.isNull) return Etc.emptyGrid
+    hx := cx.rt.conn.conn(id)
     c  := hx as hxConn::Conn ?: throw Err("$hx.lib.name connectors do not support tracing [$hx.rec.dis]")
     list := c.trace.read
     meta := Str:Obj?[:]
