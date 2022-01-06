@@ -28,7 +28,7 @@ class HaystackDispatch : ConnDispatch
     pass   := db.passwords.get(id.toStr) ?: ""
 
     // open client
-    opts := ["log":this.log, "timeout":conn.timeout]
+    opts := ["log":trace.asLog, "timeout":conn.timeout]
     client = Client.open(uri, user, pass, opts)
   }
 
@@ -64,5 +64,4 @@ class HaystackDispatch : ConnDispatch
 
   private Client? client
 }
-
 

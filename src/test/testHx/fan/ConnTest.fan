@@ -170,6 +170,7 @@ class ConnTest : HxTest
 
     // start off empty
     verifyEq(c.trace.isEnabled, false)
+    verifyEq(c.trace.asLog.level, LogLevel.silent)
     verifyTrace(c, [,])
 
     // write a trace while disalbed
@@ -179,6 +180,7 @@ class ConnTest : HxTest
     // now enable it
     c.trace.enable
     verifyEq(c.trace.isEnabled, true)
+    verifyEq(c.trace.asLog.level, LogLevel.debug)
     c.trace.write("foo", "msg", null)
     verifyTrace(c, [
       ["foo", "msg", null],
@@ -200,6 +202,7 @@ class ConnTest : HxTest
     // verify re-enable doesn't change anything
     c.trace.enable
     verifyEq(c.trace.isEnabled, true)
+    verifyEq(c.trace.asLog.level, LogLevel.debug)
     verifyTrace(c, [
       ["foo",      "msg",        null],
       ["dispatch", "x",          HxMsg("x")],
@@ -211,6 +214,7 @@ class ConnTest : HxTest
     // disable
     c.trace.disable
     verifyEq(c.trace.isEnabled, false)
+    verifyEq(c.trace.asLog.level, LogLevel.silent)
     verifyTrace(c, [,], false)
     c.trace.write("ignore", "ignore")
     verifyTrace(c, [,], false)

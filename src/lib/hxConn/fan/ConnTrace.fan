@@ -32,13 +32,15 @@ enable
   ** Enable tracing the connector
   Void enable()
   {
-    if (enabled.compareAndSet(false, true)) actor.send("enable")
+    if (enabled.compareAndSet(false, true))
+      actor.send("enable").get(null)
   }
 
   ** Disable tracing for the connector
   Void disable()
   {
-    if (enabled.compareAndSet(true, false)) actor.send("disable")
+    if (enabled.compareAndSet(true, false))
+      actor.send("disable").get(null)
   }
 
   ** Clear the trace log
@@ -94,6 +96,20 @@ enable
     write("event", msg, arg)
   }
 
+  ** Expose the trace as a standard system log.  Messages sent to
+  ** the log instance are traced as follows:
+  **   - if message starts with ">" it is logged as "req" type
+  **   - if message starts with "<" it is logged as "res" type
+  **   - otherwise it is logged as "log" type
+  **
+  ** When logging as a request/response the 2nd line is used as summary
+  ** with the expectation that log format is patterned as follows:
+  **    < message-id
+  **    Summary line
+  **    ... more details ...
+  Log asLog() { log }
+  internal const Log log := ConnTraceLog(this)
+
   ** Actor which implements the trace APIs
   private const ConnTraceActor actor
 
@@ -127,6 +143,7 @@ const final class ConnTraceMsg
   **  - "req": protocol specific request message
   **  - "res": protocol specific response message
   **  - "event": protocol specific unsolicited event message
+  **  - "log": when using the trace as a system log
   const Str type
 
   ** Description of the trace message
@@ -137,6 +154,7 @@ const final class ConnTraceMsg
   **  - "req": message as Str or Buf
   **  - "res": message as Str or Buf
   **  - "event": message as Str or Buf
+  **  - "log": LogRec instance
   const Obj? arg
 
   ** String representation (subject to change)
@@ -159,6 +177,41 @@ const final class ConnTraceMsg
     if (arg == null) return null
     if (arg is Buf) return ((Buf)arg).toHex
     return arg.toStr
+  }
+}
+
+**************************************************************************
+** ConnTraceLog
+**************************************************************************
+
+**
+** ConnTraceLog exposes the trace as a standard system log
+**
+internal const class ConnTraceLog : Log
+{
+  new make(ConnTrace trace) : super("connTrace", false)
+  {
+    this.trace = trace
+    this.level = LogLevel.silent
+  }
+
+  const ConnTrace trace
+
+  override Void log(LogRec rec)
+  {
+    msg := rec.msg
+    if (msg.startsWith(">")) trace.req(summaryLine(msg), msg)
+    else if (msg.startsWith("<")) trace.res(summaryLine(msg), msg)
+    else trace.write("log", msg, rec)
+  }
+
+  private static Str summaryLine(Str msg)
+  {
+    i := msg.index("\n")
+    if (i == null) return msg
+    j := msg.index("\n", i+1)
+    if (j == null) return msg[0..<i]
+    return msg[i+1..<j]
   }
 }
 
@@ -210,12 +263,14 @@ internal const class ConnTraceActor : Actor
 
   private Obj? onEnable()
   {
+    trace.log.level = LogLevel.debug
     Actor.locals["b"] = CircularBuf(trace.max)
     return "enabled"
   }
 
   private Obj? onDisable()
   {
+    trace.log.level = LogLevel.silent
     Actor.locals.remove("b")
     return "disabled"
   }
