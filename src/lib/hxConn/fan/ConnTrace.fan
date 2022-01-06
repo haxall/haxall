@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using haystack
 using hx
 using hxUtil
 
@@ -20,7 +21,6 @@ const class ConnTrace : Actor
   internal new make(ActorPool pool) : super(pool)
   {
     this.actor = ConnTraceActor(this, pool)
-enable
   }
 
   ** Max number of trace messages to store in RAM
@@ -33,27 +33,35 @@ enable
   Void enable()
   {
     if (enabled.compareAndSet(false, true))
-      actor.send("enable").get(null)
+      actor.send(HxMsg("enable")).get(null)
   }
 
   ** Disable tracing for the connector
   Void disable()
   {
     if (enabled.compareAndSet(true, false))
-      actor.send("disable").get(null)
+      actor.send(HxMsg("disable")).get(null)
   }
 
   ** Clear the trace log
   Void clear()
   {
-    actor.send("clear")
+    actor.send(HxMsg("clear"))
   }
 
   ** Get the current trace messages or empty list if not enabled.
   ** Messages are ordered from oldest to newest.
   ConnTraceMsg[] read()
   {
-    ((Unsafe)actor.send("read").get).val
+    readSince(null)
+  }
+
+  ** Read all trace messages since the given timestamp.  If the
+  ** timestamp is null, then read all messages in the buffer.
+  ** Messages are ordered from oldest to newest.
+  ConnTraceMsg[] readSince(DateTime? since)
+  {
+    ((Unsafe)actor.send(HxMsg("read", since)).get).val
   }
 
   ** Write a trace message
@@ -126,6 +134,19 @@ enable
 **
 const final class ConnTraceMsg
 {
+  ** Convert list of trace messages to a grid
+  static Grid toGrid(ConnTraceMsg[] list, Obj? meta := null)
+  {
+    gb := GridBuilder()
+    gb.setMeta(meta)
+    gb.addCol("ts").addCol("type").addCol("msg").addCol("arg")
+    list.each |x|
+    {
+      gb.addRow([x.ts, x.type, x.msg, x.argToStr])
+    }
+    return gb.toGrid
+  }
+
   ** Constructor
   internal new make(Str type, Str msg, Obj? arg)
   {
@@ -216,6 +237,23 @@ internal const class ConnTraceLog : Log
 }
 
 **************************************************************************
+** ConnTraceFeed
+**************************************************************************
+
+internal const class ConnTraceFeed : HxFeed
+{
+  new make(ConnTrace trace, DateTime ts) { this.trace = trace; this.ts = AtomicRef(ts) }
+  const ConnTrace trace
+  const AtomicRef ts
+  override Grid onPoll()
+  {
+    list := trace.readSince(ts.val)
+    if (!list.isEmpty) ts.val = list.last.ts
+    return ConnTraceMsg.toGrid(list)
+  }
+}
+
+**************************************************************************
 ** ConnTraceActor
 **************************************************************************
 
@@ -238,25 +276,30 @@ internal const class ConnTraceActor : Actor
     }
     else
     {
-      switch (msg)
+      m := (HxMsg)msg
+      switch (m.id)
       {
-        case "read":    return onRead
+        case "read":    return onRead(m.a)
         case "enable":  return onEnable
         case "disable": return onDisable
         case "clear":   return onClear
-        default:        throw Err("Unknown msg type: $msg")
+        default:        throw Err("Unknown msg type: $m")
       }
     }
   }
 
-  private Unsafe onRead()
+  private Unsafe onRead(DateTime? since)
   {
     acc := ConnTraceMsg[,]
     buf := Actor.locals["b"] as CircularBuf
+    sinceTicks := since == null ? 0 : since.ticks
     if (buf != null)
     {
       acc.capacity = buf.size
-      buf.eachr |item| { acc.add(item) }
+      buf.eachr |ConnTraceMsg item|
+      {
+        if (item.ts.ticks > sinceTicks) acc.add(item)
+      }
     }
     return Unsafe(acc)
   }

@@ -189,6 +189,7 @@ class ConnTest : HxTest
     // write some other traces
     c.trace.dispatch(HxMsg("x"))
     c.trace.req("req test", "req body")
+    Actor.sleep(10ms)
     c.trace.res("res test", "res body")
     c.trace.event("event test", "event body")
     verifyTrace(c, [
@@ -211,6 +212,12 @@ class ConnTest : HxTest
       ["event",    "event test", "event body"],
       ], false)
 
+    // readSince
+    verifyTrace(c, [
+      ["res",      "res test",   "res body"],
+      ["event",    "event test", "event body"],
+      ], false, c.trace.read[2].ts)
+
     // disable
     c.trace.disable
     verifyEq(c.trace.isEnabled, false)
@@ -228,12 +235,12 @@ class ConnTest : HxTest
     verify(buf.bytesEqual("buf test".toBuf))
   }
 
-  Void verifyTrace(Conn c, Obj[] expected, Bool sync := true)
+  Void verifyTrace(Conn c, Obj[] expected, Bool sync := true, DateTime? since := null)
   {
     if (sync) c.sync
-    actual := c.trace.read
+    actual := c.trace.readSince(since)
     if (sync && c.trace.isEnabled) actual = actual[0..-2] // strip trailing sync
-    // echo("\n --- trace ---"); echo(actual.join("\n"))
+    // echo("\n --- trace $since ---"); echo(actual.join("\n"))
     verifyEq(actual.size, expected.size)
     actual.each |a, i|
     {

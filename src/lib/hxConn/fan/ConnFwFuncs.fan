@@ -102,15 +102,17 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Grid connTrace(Obj conn)
   {
-    hx := HxContext.curHx.rt.conn.conn(Etc.toId(conn))
+    cx := HxContext.curHx
+    hx := cx.rt.conn.conn(Etc.toId(conn))
     c  := hx as hxConn::Conn ?: throw Err("$hx.lib.name connectors do not support tracing [$hx.rec.dis]")
-    gb := GridBuilder()
-    gb.addCol("ts").addCol("type").addCol("msg").addCol("arg")
-    c.trace.read.each |x|
+    list := c.trace.read
+    meta := Str:Obj?[:]
+    if (cx.feedIsEnabled)
     {
-      gb.addRow([x.ts, x.type, x.msg, x.argToStr])
+      ts := list.last?.ts ?: DateTime.now
+      cx.feedAdd(ConnTraceFeed(c.trace, ts), meta)
     }
-    return gb.toGrid
+    return ConnTraceMsg.toGrid(list, meta)
   }
 
   ** Coerce conn to a Conn instance
@@ -119,3 +121,5 @@ const class ConnFwFuncs
     HxContext.curHx.rt.conn.conn(Etc.toId(conn))
   }
 }
+
+
