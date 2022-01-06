@@ -90,6 +90,29 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Future connSyncHis(Obj points, Obj? span) { throw Err("TODO") }
 
+  **
+  ** Read a connector trace log as a grid.  If tracing is not enabled
+  ** for the given connector, then an empty grid is returned.  The 'conn'
+  ** parameter may be anything acceptable by `toRecId()`.
+  **
+  ** Examples:
+  **   read(conn).connTrace
+  **   connTrace(connId)
+  **
+  @Axon { admin = true }
+  static Grid connTrace(Obj conn)
+  {
+    hx := HxContext.curHx.rt.conn.conn(Etc.toId(conn))
+    c  := hx as hxConn::Conn ?: throw Err("$hx.lib.name connectors do not support tracing [$hx.rec.dis]")
+    gb := GridBuilder()
+    gb.addCol("ts").addCol("type").addCol("msg").addCol("arg")
+    c.trace.read.each |x|
+    {
+      gb.addRow([x.ts, x.type, x.msg, x.argToStr])
+    }
+    return gb.toGrid
+  }
+
   ** Coerce conn to a Conn instance
   private static HxConn toConn(Obj conn)
   {

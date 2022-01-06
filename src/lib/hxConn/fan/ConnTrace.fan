@@ -20,6 +20,7 @@ const class ConnTrace : Actor
   internal new make(ActorPool pool) : super(pool)
   {
     this.actor = ConnTraceActor(this, pool)
+enable
   }
 
   ** Max number of trace messages to store in RAM
@@ -150,6 +151,14 @@ const final class ConnTraceMsg
       s.add(" ").add(arg)
     }
     return s.toStr
+  }
+
+  ** Argument to debug string
+  Str? argToStr()
+  {
+    if (arg == null) return null
+    if (arg is Buf) return ((Buf)arg).toHex
+    return arg.toStr
   }
 }
 

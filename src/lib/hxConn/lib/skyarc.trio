@@ -34,6 +34,16 @@ src:
   trash:   { action:"recTrash" }
   data:    { expr:"readAll(connTuning, { sort, search:{{search}} })" }
 --------------------------------------------------------------------------
+view: connTrace
+appName: conn
+disKey: ui::trace
+admin
+doc: "View debug connector tracing"
+src:
+  view: { inherit:"table" }
+  conn: { input var kind:"Ref<conn>" }
+  data: { expr:"connTrace({{conn}})" }
+--------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
 // Commands
