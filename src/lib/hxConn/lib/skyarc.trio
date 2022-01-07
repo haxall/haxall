@@ -40,10 +40,12 @@ disKey: ui::trace
 admin
 doc: "View debug connector tracing"
 src:
-  view: { uiType:"uiBuilder::ConnTraceView" }
-  conn: { input var kind:"Ref<conn>" }
-  menu: { action:"uiContextMenu" selInput:"conn" }
-  data: { expr:"connTrace({{conn}})" }
+  view:    { uiType:"uiBuilder::ConnTraceView" }
+  conn:    { input var kind:"Ref<conn>" }
+  enable:  { action:"connTraceEnable" select noFlash }
+  disable: { action:"connTraceDisable" select noFlash }
+  menu:    { action:"uiContextMenu" selInput:"conn"}
+  data:    { expr:"connTrace({{conn}})" }
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////

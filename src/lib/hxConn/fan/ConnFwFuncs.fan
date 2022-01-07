@@ -30,7 +30,7 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Future connPing(Obj conn)
   {
-    toConn(conn).ping
+    toHxConn(conn).ping
   }
 
   **
@@ -45,7 +45,7 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Future connClose(Obj conn)
   {
-    toConn(conn).close
+    toHxConn(conn).close
   }
 
   **
@@ -61,7 +61,7 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Future connLearn(Obj conn, Obj? arg := null)
   {
-    toConn(conn).learnAsync(arg)
+    toHxConn(conn).learnAsync(arg)
   }
 
   **
@@ -90,6 +90,53 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Future connSyncHis(Obj points, Obj? span) { throw Err("TODO") }
 
+//////////////////////////////////////////////////////////////////////////
+// Tracing
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Return true or false if given connector has its tracing enabled.
+  ** The 'conn' parameter can be anything acceptable by `toRecId()`.
+  **
+  @Axon { admin = true }
+  static Bool connTraceIsEnabled(Obj conn)
+  {
+    toConn(conn).trace.isEnabled
+  }
+
+  **
+  ** Enable tracing on the given connector.
+  ** The 'conn' parameter can be anything acceptable by `toRecId()`.
+  **
+  @Axon { admin = true }
+  static Void connTraceEnable(Obj conn)
+  {
+    toConn(conn).trace.enable
+  }
+
+  **
+  ** Disable tracing on the given connector.
+  ** The 'conn' parameter can be anything acceptable by `toRecId()`.
+  **
+  @Axon { admin = true }
+  static Void connTraceDisable(Obj conn)
+  {
+    toConn(conn).trace.disable
+  }
+
+  **
+  ** Disable tracing on every connector in the database.
+  **
+  @Axon { admin = true }
+  static Void connTraceDisableAll()
+  {
+    curContext.rt.conn.conns.each |hx|
+    {
+      c := hx as Conn
+      if (c != null) c.trace.disable
+    }
+  }
+
   **
   ** Read a connector trace log as a grid.  If tracing is not enabled
   ** for the given connector, then an empty grid is returned.  The 'conn'
@@ -102,13 +149,21 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Grid connTrace(Obj conn)
   {
+    // map arg to connector
     cx := HxContext.curHx
     id := Etc.toId(conn)
     if (id.isNull) return Etc.emptyGrid
-    hx := cx.rt.conn.conn(id)
-    c  := hx as hxConn::Conn ?: throw Err("$hx.lib.name connectors do not support tracing [$hx.rec.dis]")
+    c  := toConn(id)
+
+    // meta data used by trace view
+    meta := Str:Obj[
+      "conn": c.rec,
+      "enabled": c.trace.isEnabled,
+      "icon": c.lib.icon,
+      ]
+
+    // read the trace, setup feed, and map to grid
     list := c.trace.read
-    meta := Str:Obj?[:]
     if (cx.feedIsEnabled)
     {
       ts := list.last?.ts ?: DateTime.now
@@ -117,10 +172,20 @@ const class ConnFwFuncs
     return ConnTraceMsg.toGrid(list, meta)
   }
 
-  ** Coerce conn to a Conn instance
-  private static HxConn toConn(Obj conn)
+  ** Current context
+  private static HxContext curContext() { HxContext.curHx }
+
+  ** Coerce conn to a HxConn instance (new or old framework)
+  private static HxConn toHxConn(Obj conn)
   {
-    HxContext.curHx.rt.conn.conn(Etc.toId(conn))
+    curContext.rt.conn.conn(Etc.toId(conn))
+  }
+
+  ** Coerce conn to a Conn instance (new framework only)
+  private static Conn toConn(Obj conn)
+  {
+    hx := toHxConn(conn)
+    return hx as Conn ?: throw Err("$hx.lib.name connector uses classic framework [$hx.rec.dis]")
   }
 }
 

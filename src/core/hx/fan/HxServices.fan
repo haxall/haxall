@@ -444,6 +444,9 @@ const mixin HxConnLib
   ** Library name
   abstract Str name()
 
+  ** Icon logical name to use for this connector type library
+  abstract Str icon()
+
   ** Tag name for the connector records such as 'bacnetConn'
   abstract Str connTag()
 

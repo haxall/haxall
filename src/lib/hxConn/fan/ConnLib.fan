@@ -43,6 +43,8 @@ abstract const class ConnLib : HxLib, HxConnLib
 // HxConnLib
 //////////////////////////////////////////////////////////////////////////
 
+  @NoDoc override Str icon() { def.get("icon", "conn") }
+
   @NoDoc override const Str connTag := this.name + "Conn"
 
   @NoDoc override const Str connRefTag := this.name + "ConnRef"
