@@ -95,6 +95,18 @@ enum: Trio:
   disabled: {icon:"disabled" iconColor:"#a4aeae" doc:"Manual disable"}
   unknown:  {icon:"question" iconColor:"#a4aeae" doc:"Status not computed yet"}
 --------------------------------------------------------------------------
+def: ^connTraceType
+nodoc
+is: ^str
+doc:
+  Standardized conn trace type enumeration
+enum: Trio:
+  dispatch: {dis:"dispatch", icon:"mail"      iconColor:"#16a085" doc:"Dispatch message"}
+  req:      {dis:"req",      icon:"navRight"  iconColor:"#8e44ad" doc:"Outgoing protocol request"}
+  res:      {dis:"res",      icon:"navLeft"   iconColor:"#8e44ad" doc:"Incoming protocol response"}
+  event:    {dis:"event",    icon:"chevronUp" iconColor:"#8e44ad" doc:"Unsolicited protocol event"}
+  log:      {dis:"log",      icon:"info"      iconColor:"#2980b9" doc:"System log tracing"}
+--------------------------------------------------------------------------
 
 
 

@@ -42,6 +42,8 @@ doc: "View debug connector tracing"
 src:
   view:    { uiType:"uiBuilder::ConnTraceView" }
   conn:    { input var kind:"Ref<conn>" }
+  ping:    { action:"connPing" select noFlash }
+  close:   { action:"connClose" select noFlash }
   enable:  { action:"connTraceEnable" select noFlash }
   disable: { action:"connTraceDisable" select noFlash }
   menu:    { action:"uiContextMenu" selInput:"conn"}
