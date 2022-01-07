@@ -125,6 +125,16 @@ const class ConnFwFuncs
   }
 
   **
+  ** Clear the trace log for the given connector.
+  ** The 'conn' parameter can be anything acceptable by `toRecId()`.
+  **
+  @Axon { admin = true }
+  static Void connTraceClear(Obj conn)
+  {
+    toConn(conn).trace.clear
+  }
+
+  **
   ** Disable tracing on every connector in the database.
   **
   @Axon { admin = true }
