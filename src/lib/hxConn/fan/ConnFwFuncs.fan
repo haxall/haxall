@@ -90,6 +90,19 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Future connSyncHis(Obj points, Obj? span) { throw Err("TODO") }
 
+  **
+  ** Return debug details for a connector or a connector point.
+  ** The value is anything acceptable by `toRecId()`.  The result
+  ** is returned as a plain text string.
+  **
+  @NoDoc @Axon { admin = true }
+  static Obj connDetails(Obj obj)
+  {
+    cx := curContext
+    id := Etc.toId(obj)
+    return cx.rt.conn.point(id, false)?.details ?: cx.rt.conn.conn(id).details
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Tracing
 //////////////////////////////////////////////////////////////////////////

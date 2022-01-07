@@ -49,6 +49,7 @@ src:
   disable: { action:"connTraceDisable" select noFlash }
   clear:   { action:"connTraceClear" select noFlash }
   menu:    { action:"uiContextMenu" selInput:"conn"}
+  details: { action:"connBuilderDetails" select }
   data:    { expr:"connTrace({{conn}}, {types:{{types}}})" }
 --------------------------------------------------------------------------
 

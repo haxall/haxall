@@ -174,7 +174,7 @@ const final class Conn : Actor, HxConn
   }
 
   ** Debug details
-  @NoDoc override Str details() { throw Err("TODO") }
+  @NoDoc override Str details() { "TODO Conn details $id.toZinc" }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

@@ -104,7 +104,7 @@ const final class ConnPoint : HxConnPoint
   private const AtomicRef configRef
 
   ** Debug details
-  @NoDoc override Str details() { throw Err("TODO") }
+  @NoDoc override Str details() { "TODO Point details $id.toZinc" }
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
