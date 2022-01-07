@@ -65,11 +65,6 @@ const class ClientConfig
   ** The persistence layer to use for this client
   const ClientPersistence persistence
 
-  // ** When connecting over TLS, you can set this to an Unsafe containing
-  // ** a Java SSLSocketFactory to use for contructing the TLS socket. If not
-  // ** set, the standard fantom TLS socket will be created.
-  // @NoDoc const Unsafe? sslSocketFactory := null
-
   // ** Maximum number of QoS 1 and 2 messages that will be queued for sending
   // ** above those that are currently in-flight.
   // const Int maxQueued := 1000

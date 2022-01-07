@@ -16,7 +16,8 @@ const class ConnectConfig
   new make(|This|? f := null) { f?.call(this) }
 
   ** The MQTT protocol revision to use
-  const MqttVersion version := MqttVersion.v3_1_1
+  internal MqttVersion version() { versionRef.val }
+  internal const AtomicRef versionRef := AtomicRef(MqttVersion.v3_1_1)
 
   ** The keep-alive time interval (which will be converted to seconds)
   const Duration keepAlive := 60sec
@@ -35,7 +36,7 @@ const class ConnectConfig
 
   ** The session expiry interval (in seconds).
   ** If set to '0', the session ends when the network connection is closed.
-  ** If sset to '0xFFFF_FFFF' the session does not expire.
+  ** If set to '0xFFFF_FFFF' the session does not expire.
   **
   ** This setting only applies to clients with version >= 5
   const Duration sessionExpiryInterval := MqttConst.sessionExpiresOnClose

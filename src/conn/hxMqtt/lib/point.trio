@@ -1,0 +1,27 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   03 Jan 2022  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^mqttPoint
+is: ^connPoint
+doc:
+  Point which synchronizes data via a MQTT connector.
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^mqttConnRef
+is: ^ref
+of: ^mqttConn
+tagOn: ^mqttPoint
+doc:
+  Used on a proxy point to reference its parent `mqttConn`
+--------------------------------------------------------------------------

@@ -1,0 +1,176 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   03 Jan 2022  Matthew Giannini  Creation
+//
+
+using inet
+using mqtt
+using haystack
+using hx
+using hxConn
+using folio
+
+**
+** Dispatch callbacks for the MQTT connector
+**
+class MqttDispatch : ConnDispatch
+{
+
+//////////////////////////////////////////////////////////////////////////
+// Constructor
+//////////////////////////////////////////////////////////////////////////
+
+  new make(Obj arg) : super(arg) {}
+
+  private static const HxMsg resubMsg := HxMsg("mqtt.resub")
+
+  private MqttClient? client
+
+  private MqttLib mqttLib() { lib }
+
+//////////////////////////////////////////////////////////////////////////
+// Open/Ping/Close
+//////////////////////////////////////////////////////////////////////////
+
+  override Void onOpen()
+  {
+    // configure client
+    uriVal := rec["uri"] ?: throw FaultErr("Missing 'uri' tag")
+    verVal := MqttVersion.fromStr(rec["mqttVersion"] ?: "v3_1_1")
+    config := ClientConfig
+    {
+      it.serverUri    = uriVal
+      it.version      = verVal
+      it.clientId     = toClientId
+      it.socketConfig = SocketConfig.cur.copy {
+        it.connectTimeout = 10sec
+        it.receiveTimeout = null
+      }
+    }
+    this.client = MqttClient(config)
+
+    // connect
+    resume := ConnectConfig {
+      it.cleanSession = false
+
+      // optional username and password
+      it.username = rec["username"] as Str
+      it.password = db.passwords.get(id.toStr)?.toBuf
+
+      // MQTT 5 only
+      it.sessionExpiryInterval = MqttConst.sessionNeverExpires
+    }
+
+    client.connect(resume).get
+
+    // schedule a resubscribe of all topics
+    conn.send(resubMsg)
+  }
+
+  override Void onClose()
+  {
+    try
+      client.disconnect.get
+    finally
+      client = null
+  }
+
+  override Dict onPing()
+  {
+    return Etc.emptyDict
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Dispatch
+//////////////////////////////////////////////////////////////////////////
+
+  override Obj? onReceive(HxMsg msg)
+  {
+    switch (msg.id)
+    {
+      case "mqtt.pub":   return onPub(msg.a, msg.b, msg.c)
+      case "mqtt.sub":   return onSub(msg.a)
+      case "mqtt.resub": return onResub
+      case "mqtt.unsub": return onUnsub(msg.a)
+    }
+    return super.onReceive(msg)
+  }
+
+  private Obj? onPub(Str topic, Buf payload, Dict cfg)
+  {
+    open.client.publishWith
+      .topic(topic)
+      .payload(payload)
+      .qos((cfg["qos"] as Number)?.toInt ?: 0)
+      .send
+      .get
+  }
+
+  private Obj? onSub(Dict cfg)
+  {
+    // get the topic filter
+    filter := cfg["obsMqttTopic"] as Str ?: throw Err("obsMqttTopic no configured")
+
+    // subscribe
+    openPin("mqtt.sub")
+    ack := client.subscribeWith
+      .topicFilter(filter)
+      .qos((cfg["mqttQos"] as Number)?.toInt ?: 0)
+      .onMessage(this.onMessage)
+      .send
+      .get
+
+    return ack
+  }
+
+  private Obj? onResub()
+  {
+    mqttLib.mqtt.subscriptions.each |MqttSubscription sub|
+    {
+      // only re-subscribe subscriptions for this connector
+      if (sub.connRef == conn.id) onSub(sub.config)
+    }
+    return null
+  }
+
+  ** All subscriptions share this onMessage handler which routes all published
+  ** messages to the observable to deliver them to the appropriate task subscriptions
+  private |Str, Message| onMessage := |topic, msg| { mqttLib.mqtt.deliver(id, topic, msg) }
+
+  private Obj? onUnsub(MqttSubscription sub)
+  {
+    try
+    {
+      return open.client.unsubscribe(sub.filter).get
+    }
+    finally
+    {
+      // if there are no more subscriptiosn for this connector
+      // then close the subscription pin
+      if (!mqttLib.mqtt.connHasSubscriptions(id))
+      {
+        closePin("mqtt.sub")
+      }
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Util
+//////////////////////////////////////////////////////////////////////////
+
+  ** Check the connector req for the client id. If one is not specified,
+  ** generate one and commit it to the rec.
+  private Str toClientId()
+  {
+    id := rec["mqttClientId"] as Str
+    if (id == null)
+    {
+      id = ClientId.gen
+      db.commit(Diff(rec, ["mqttClientId": id]))
+    }
+    return id
+  }
+}

@@ -1,0 +1,27 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   06 Jan 2022  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^obsMqtt
+is: ^observable
+doc:
+  Subscribe to MQTT connector published messages
+--------------------------------------------------------------------------
+def: ^obsMqttConnRef
+is: ^ref
+of: ^mqttConn
+tagOn: ^obsMqtt
+doc:
+  Subscribe to the topic on this MQTT connector
+--------------------------------------------------------------------------
+def: ^obsMqttTopic
+is: ^str
+tagOn: ^obsMqtt
+doc:
+  Receive published messages that match this filter
+--------------------------------------------------------------------------

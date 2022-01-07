@@ -61,12 +61,6 @@ internal class TcpTransport : MqttTransport
 
   private static TcpSocket tlsSocket(ClientConfig config)
   {
-    // TODO:FIXIT - TcpSocket not longer provides a way to make a TLS
-    // socket from an existing SSLSocketFactory.
-    // factory := config.sslSocketFactory?.val as SSLSocketFactory
-    // return factory == null
-    //   ? TcpSocket.makeTls()
-    //   : TcpSocket.makeRaw(factory.createSocket)
     return TcpSocket(config.socketConfig).upgradeTls
   }
 

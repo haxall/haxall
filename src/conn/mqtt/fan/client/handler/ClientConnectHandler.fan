@@ -28,6 +28,9 @@ internal class ClientConnectHandler : ClientHandler
     // disconnected => connecting (logical MQTT connection)
     client.transition(ClientState.disconnected, ClientState.connecting)
 
+    // force config version to match client
+    config.versionRef.val = clientConfig.version
+
     // Update connect packet based on client configuration
     // - set the version
     // - set the client identifier

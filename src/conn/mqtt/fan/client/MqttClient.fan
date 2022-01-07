@@ -103,7 +103,7 @@ const class MqttClient : Actor, MqttConst
     throw MqttErr("No available packet identifiers: ${pendingAcks.size}")
   }
 
-  ** Choke-point to send a packet the we expect to receive an ack for.
+  ** Choke-point to send a packet that we expect to receive an ack for.
   internal PendingAck? sendPacket(ControlPacket packet, PendingAck pending)
   {
     // send (non-blocking)
@@ -170,7 +170,7 @@ const class MqttClient : Actor, MqttConst
   ** option flags correctly. See `subscribeWith` to use a "fluent" API for
   ** subscribing.
   **
-  ** Return a future that will be completed when the 'SUBACk' is received.
+  ** Return a future that will be completed when the 'SUBACK' is received.
   Future subscribe(Str filter, Int opts, SubscriptionListener listener)
   {
     sub := Subscribe([filter], [opts])
@@ -184,9 +184,9 @@ const class MqttClient : Actor, MqttConst
   ** Unsubscribe from the given topic filter.
   **
   ** Returns a future that will be completed when the 'UNSUBACK' is received.
-  Future unsubscribe(Str topic)
+  Future unsubscribe(Str topicFilter)
   {
-    unsub := Unsubscribe([topic])
+    unsub := Unsubscribe([topicFilter])
     msg   := ActorMsg("unsubscribe", unsub)
     return sendWhenComplete(pendingConnect.resp, msg).get
   }

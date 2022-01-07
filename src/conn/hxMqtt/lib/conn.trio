@@ -1,0 +1,41 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   03 Jan 2022  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^mqttConn
+is: ^conn
+icon: "mqtt"
+connFeatures: {}
+doc:
+  MQTT connector to an MQTT Broker.
+--------------------------------------------------------------------------
+def: ^mqttVersion
+is: ^str
+tagOn: ^mqttConn
+doc: "MQTT protocol version"
+enum: Trio:
+  v3_1_1: {dis:"3.1.1"}
+  v5:     {dis:"5.0"}
+--------------------------------------------------------------------------
+def: ^mqttQos
+is: ^number
+doc:
+  MQTT Quality of Service (QoS)
+  - '0' - At most once (fire-and-forget)
+  - '1' - At least once
+  - '2' - Exactly once
+--------------------------------------------------------------------------
+defx: ^uri
+tagOn: ^mqttConn
+--------------------------------------------------------------------------
+defx: ^username
+tagOn: ^mqttConn
+--------------------------------------------------------------------------
+defx: ^password
+tagOn: ^mqttConn
+--------------------------------------------------------------------------

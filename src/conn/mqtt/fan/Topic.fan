@@ -31,17 +31,6 @@ const class Topic
   {
     validateNameOrFilter(topic)
 
-    // // multi-level wildcard checks
-    // if (topic == "#") return
-    // idx := topic.index(multi.toChar)
-    // if (idx != null)
-    // {
-    //   if (idx != topic.size - 1)
-    //     throw MqttErr("The multi-level wildcard must be the last character: $topic")
-    //   if (topic.getSafe(idx - 1) != sep)
-    //     throw MqttErr("A multi-level wildcard not specified on its own must follow a topic level separator: $topic")
-    // }
-
     pos       := -1
     Int? prev := null
     Int? cur  := null

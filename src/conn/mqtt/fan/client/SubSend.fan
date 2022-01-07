@@ -30,6 +30,8 @@ final class SubSend
   internal new make(MqttClient client)
   {
     this.client = client
+    this.callbacks = CallbackListener()
+    this._listener = this.callbacks
   }
 
   private const MqttClient client
@@ -44,7 +46,9 @@ final class SubSend
 
   private RetainHandling _retainHandling := RetainHandling.send
 
-  private CallbackListener callbacks := CallbackListener()
+  private CallbackListener callbacks
+
+  private SubscriptionListener _listener
 
 //////////////////////////////////////////////////////////////////////////
 // Builder
@@ -68,8 +72,11 @@ final class SubSend
   This qos2() { qos(QoS.two) }
 
   ** Request maximum QoS
-  This qos(QoS qos)
+  ** 'qos' may be either `QoS` or an Int.
+  This qos(Obj qos)
   {
+    if (qos is Int) qos = QoS.vals[(Int)qos]
+    else if (qos isnot QoS) throw ArgErr("Cannot set QoS from ${qos} ($qos.typeof)")
     this._qos = qos
     return this
   }
@@ -124,6 +131,15 @@ final class SubSend
     return this
   }
 
+  ** Set the explicit subscription listener to use for this subscription.
+  ** This will permanently invalidate any calls to the convenience
+  ** methods `onSubscribe`, `onMessage`, and `onUnsubscribe`.
+  This listener(SubscriptionListener listener)
+  {
+    this._listener = listener
+    return this
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Send
 //////////////////////////////////////////////////////////////////////////
@@ -133,7 +149,7 @@ final class SubSend
   Future send()
   {
     if (_topicFilter == null) throw ArgErr("Topic filter not set")
-    return client.subscribe(_topicFilter, buildOpts, callbacks)
+    return client.subscribe(_topicFilter, buildOpts, _listener)
   }
 
   private Int buildOpts()
