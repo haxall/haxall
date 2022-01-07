@@ -147,7 +147,7 @@ const class ConnFwFuncs
   **   connTrace(connId)
   **
   @Axon { admin = true }
-  static Grid connTrace(Obj conn)
+  static Grid connTrace(Obj conn, Dict? opts := null)
   {
     // map arg to connector
     cx := HxContext.curHx
@@ -167,8 +167,9 @@ const class ConnFwFuncs
     if (cx.feedIsEnabled)
     {
       ts := list.last?.ts ?: DateTime.now
-      cx.feedAdd(ConnTraceFeed(c.trace, ts), meta)
+      cx.feedAdd(ConnTraceFeed(c.trace, ts, opts), meta)
     }
+    list = ConnTraceMsg.applyOpts(list, opts)
     return ConnTraceMsg.toGrid(list, meta)
   }
 

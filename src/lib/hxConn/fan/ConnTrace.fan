@@ -150,6 +150,16 @@ const final class ConnTraceMsg
     return gb.toGrid
   }
 
+  ** Apply standard filtering options for view/func
+  internal static ConnTraceMsg[] applyOpts(ConnTraceMsg[] list, Dict? opts)
+  {
+    if (opts == null || opts.isEmpty) return list
+    types := (opts["types"] as Str)?.trimToNull
+    if (types == null || types == "*") return list
+    typesMap := Str:Str[:].setList(types.split(','))
+    return list.findAll |x| { typesMap.containsKey(x.type) }
+  }
+
   ** Constructor
   internal new make(Str type, Str msg, Obj? arg)
   {
@@ -245,13 +255,23 @@ internal const class ConnTraceLog : Log
 
 internal const class ConnTraceFeed : HxFeed
 {
-  new make(ConnTrace trace, DateTime ts) { this.trace = trace; this.ts = AtomicRef(ts) }
+  new make(ConnTrace trace, DateTime ts, Dict? opts)
+  {
+    this.trace = trace
+    this.ts = AtomicRef(ts)
+    this.opts = opts
+  }
   const ConnTrace trace
   const AtomicRef ts
+  const Dict? opts
   override Grid onPoll()
   {
     list := trace.readSince(ts.val)
-    if (!list.isEmpty) ts.val = list.last.ts
+    if (!list.isEmpty)
+    {
+      ts.val = list.last.ts
+      list = ConnTraceMsg.applyOpts(list, opts)
+    }
     return ConnTraceMsg.toGrid(list)
   }
 }
