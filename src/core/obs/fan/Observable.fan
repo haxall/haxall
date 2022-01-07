@@ -54,6 +54,7 @@ abstract const class Observable
       if (subscriptionsRef.compareAndSet(oldList, newList)) break
     }
     s.activeRef.val = false
+    onUnsubscribe(s)
   }
 
   ** Unsubscribe all subscriptions
@@ -65,9 +66,16 @@ abstract const class Observable
 
   ** Callback when new observer is subscribing.  Subclasses can
   ** check the config and return their own subscription subclass.
+  ** This callback can be from any thread, so must be thread safe.
   protected virtual Subscription onSubscribe(Observer observer, Dict config)
   {
     Subscription(this, observer, config)
+  }
+
+  ** Callback after an observer is unsubscribed.  This
+  ** callback can be from any thread, so must be thread safe.
+  protected virtual Void onUnsubscribe(Subscription s)
+  {
   }
 
   ** Make the default implementation of an observation event
