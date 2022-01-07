@@ -76,10 +76,26 @@ abstract class ConnDispatch
      return this
   }
 
-  ** Force this connector closed
+  ** Force this connector closed.
   This close(Err? cause)
   {
     state.close(cause)
+    return this
+  }
+
+  ** Open the connection for a specific application and pin
+  ** it until that application specifically closes it.  The
+  ** app name is a unique key used for reference counting.
+  @NoDoc This openPin(Str app)
+  {
+    state.openPin(app)
+    return this
+  }
+
+  ** Close a pinned application opened by `openPin`.
+  @NoDoc Void closePin(Str app)
+  {
+    state.closePin(app)
     return this
   }
 
