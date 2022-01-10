@@ -6,6 +6,7 @@
 //   03 Jan 2022  Matthew Giannini  Creation
 //
 
+using crypto
 using inet
 using mqtt
 using haystack
@@ -46,8 +47,10 @@ class MqttDispatch : ConnDispatch
       it.version      = verVal
       it.clientId     = toClientId
       it.socketConfig = SocketConfig.cur.copy {
+        it.keystore = this.mqttKey
         it.connectTimeout = 10sec
         it.receiveTimeout = null
+        it.tlsParams = ["appProtocols": this.appProtocols]
       }
     }
     this.client = MqttClient(config)
@@ -59,9 +62,6 @@ class MqttDispatch : ConnDispatch
       // optional username and password
       it.username = rec["username"] as Str
       it.password = db.passwords.get(id.toStr)?.toBuf
-
-      // MQTT 5 only
-      it.sessionExpiryInterval = MqttConst.sessionNeverExpires
     }
 
     client.connect(resume).get
@@ -161,7 +161,7 @@ class MqttDispatch : ConnDispatch
 // Util
 //////////////////////////////////////////////////////////////////////////
 
-  ** Check the connector req for the client id. If one is not specified,
+  ** Check the connector rec for the client id. If one is not specified,
   ** generate one and commit it to the rec.
   private Str toClientId()
   {
@@ -172,5 +172,25 @@ class MqttDispatch : ConnDispatch
       db.commit(Diff(rec, ["mqttClientId": id]))
     }
     return id
+  }
+
+  ** Get a keystore containing the client certificate for this connection
+  ** to the broker.
+  private KeyStore? mqttKey()
+  {
+    alias := rec["mqttCertAlias"] as Str
+    if (alias == null) return null
+    entry := rt.services.crypto.keystore.get(alias) as PrivKeyEntry
+    return Crypto.cur.loadKeyStore.set("mqtt", entry)
+  }
+
+  ** Get the app protocol(s) to use for this connection to the broker.
+  private Str[]? appProtocols()
+  {
+    protos := rec["mqttAppProtocols"]
+    if (protos is Str) return [protos]
+    if (protos is Str[]) return protos
+    return null
+
   }
 }

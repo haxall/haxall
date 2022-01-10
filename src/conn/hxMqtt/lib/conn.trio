@@ -22,6 +22,11 @@ enum: Trio:
   v3_1_1: {dis:"3.1.1"}
   v5:     {dis:"5.0"}
 --------------------------------------------------------------------------
+def: ^mqttClientId
+is: ^str
+tagOn: ^mqttConn
+doc: "The client identifier to use when connecting to the broker"
+--------------------------------------------------------------------------
 def: ^mqttQos
 is: ^number
 doc:
@@ -29,6 +34,13 @@ doc:
   - '0' - At most once (fire-and-forget)
   - '1' - At least once
   - '2' - Exactly once
+--------------------------------------------------------------------------
+def: ^mqttCertAlias
+is: ^str
+tagOn: ^mqttConn
+doc:
+  Used on an `mqttConn` to indicate which certificate and key pair to use
+  for client authentication to the broker.
 --------------------------------------------------------------------------
 defx: ^uri
 tagOn: ^mqttConn
