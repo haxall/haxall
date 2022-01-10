@@ -25,6 +25,7 @@ internal final class ConnState
   }
 
   const Conn conn
+  HxRuntime rt() { conn.rt }
   Folio db() { conn.db }
   Ref id() { conn.id }
   Dict rec() { conn.rec }
@@ -82,14 +83,14 @@ internal final class ConnState
 
   ** Open the connection for a specific application and pin it
   ** until that application specifically closes it
-  @NoDoc Void openPin(Str app)
+  Void openPin(Str app)
   {
     openPins[app] = app
     open(app)
   }
 
   ** Close a pinned application opened by `openPin`.
-  @NoDoc Void closePin(Str app)
+  Void closePin(Str app)
   {
     openPins.remove(app)
     if (openPins.isEmpty) setLinger(5sec)
@@ -190,6 +191,99 @@ internal final class ConnState
       result = commit(Diff(rec, changes, Diff.force)).waitFor(timeout).dict
 
     return result
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// House Keeping
+//////////////////////////////////////////////////////////////////////////
+
+  internal Void onHouseKeeping()
+  {
+    // update poll frequence
+    /*
+    refreshPollFreq
+    */
+
+    // check if we need should perform a re-open attempt
+    checkReopen
+
+    // check for auto-ping
+    checkAutoPing
+
+    // if have a linger open, then close connector
+    if (lingerClose != null && Duration.now > lingerClose && openPins.isEmpty)
+       close(null)
+
+    // check points
+    /*
+    now := Duration.now
+    newPollBuckets := model.pollingMode.isPollingEnabled ? Ref:PollBucket[:] : null
+    toStale := ConnPoint[,]
+    points.each |pt|
+    {
+      try
+        doPointHouseKeeping(now, newPollBuckets, toStale, pt)
+      catch (Err e)
+        log.err("doPointHouseKeeping($pt.dis)", e)
+    }
+
+    // copy old bucket state to new buckets
+    oldPollBuckets := this.pollBuckets
+    if (oldPollBuckets != null && newPollBuckets != null)
+    {
+      oldPollBuckets.each |oldBucket|
+      {
+        newBucket := newPollBuckets[oldBucket.id]
+        if (newBucket != null) newBucket.copyOld(oldBucket)
+      }
+    }
+
+    // ready buckets and sort by poll time
+    if (newPollBuckets != null)
+    {
+      newPollBuckets.each |b| { b.ready }
+      this.pollBuckets = newPollBuckets.vals.sort
+    }
+
+    // stale transition
+    if (!toStale.isEmpty)
+    {
+      toStale.each |pt|
+      {
+        try
+          pt.updateCurStale
+        catch (Err e)
+          log.err("doHouseKeeping updateCurStale: $pt.dis", e)
+      }
+    }
+    */
+
+    dispatch.onHouseKeeping
+  }
+
+  private Void checkAutoPing()
+  {
+    pingFreq := conn.pingFreq
+    if (pingFreq == null) return
+    now := Duration.nowTicks
+    if (now - lastPing <= pingFreq.ticks) return
+    if (now - lastConnAttempt <= pingFreq.ticks) return
+    if (!rt.isSteadyState) return
+    ping
+  }
+
+  private Void checkReopen()
+  {
+    // if already open, disabled, or no pinned apps in watch bail
+    if (isOpen || status.isDisabled || openPins.isEmpty) return
+
+    try
+    {
+      // try ping every 10sec which forces watch
+      // subscription on a new connection
+      if (Duration.nowTicks - lastConnFail > conn.openRetryFreq.ticks) ping
+    }
+    catch (Err e) log.err("checkReopenWatch", e)
   }
 
 //////////////////////////////////////////////////////////////////////////

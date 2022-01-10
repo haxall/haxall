@@ -29,6 +29,7 @@ const final class Conn : Actor, HxConn
     this.idRef     = rec.id
     this.configRef = AtomicRef(ConnConfig(lib, rec))
     this.traceRef  = ConnTrace(lib.rt.libs.actorPool)
+    sendLater(houseKeepingFreq, houseKeepingMsg)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,6 +70,9 @@ const final class Conn : Actor, HxConn
 
   ** Timeout to use for I/O and actor messaging - see `actorTimeout`.
   Duration timeout() { config.timeout }
+
+  ** Frequency to retry opens. See `connOpenRetryFreq`.
+  Duration openRetryFreq() { config.openRetryFreq }
 
   ** Configured ping frequency to test connection or
   ** null if feature is disabled - see `connPingFreq`
@@ -138,6 +142,18 @@ const final class Conn : Actor, HxConn
       }
     }
 
+    if (msg === houseKeepingMsg)
+    {
+      trace.write("hk", "houseKeeping", msg)
+      try
+        state.onHouseKeeping
+      catch (Err e)
+        log.err("Conn.receive", e)
+      if (isAlive)
+        sendLater(houseKeepingFreq, houseKeepingMsg)
+      return null
+    }
+
     try
     {
       trace.dispatch(msg)
@@ -174,11 +190,27 @@ const final class Conn : Actor, HxConn
   }
 
   ** Debug details
-  @NoDoc override Str details() { "TODO Conn details $id.toZinc" }
+  @NoDoc override Str details()
+  {
+    s := StrBuf()
+    s.add("""id:            $id
+             dis:           $dis
+             timeout:       $timeout
+             openRetryFreq: $openRetryFreq
+             pingFreq:      $pingFreq
+             linger:        $linger
+             tuning:        $tuning.rec.id.toZinc
+             tracing:       $trace.isEnabled
+             """)
+      return s.toStr
+    }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
+
+  private const static Duration houseKeepingFreq := 3sec
+  private const static HxMsg houseKeepingMsg := HxMsg("houseKeeping")
 
   private const AtomicBool aliveRef := AtomicBool(true)
   private const AtomicRef pointsList := AtomicRef(ConnPoint#.emptyList)
@@ -193,19 +225,21 @@ internal const final class ConnConfig
 {
   new make(ConnLib lib, Dict rec)
   {
-    this.rec      = rec
-    this.dis      = rec.dis
-    this.disabled = rec.has("disabled")
-    this.timeout  = Etc.dictGetDuration(rec, "actorTimeout", 1min).max(1sec)
-    this.pingFreq = Etc.dictGetDuration(rec, "connPingFreq")?.max(1sec)
-    this.linger   = Etc.dictGetDuration(rec, "connLinger", 30sec).max(0sec)
-    this.tuning   = lib.tunings.forRec(rec)
+    this.rec           = rec
+    this.dis           = rec.dis
+    this.disabled      = rec.has("disabled")
+    this.timeout       = Etc.dictGetDuration(rec, "actorTimeout", 1min).max(1sec)
+    this.openRetryFreq = Etc.dictGetDuration(rec, "connOpenRetryFreq", 10sec).max(1sec)
+    this.pingFreq      = Etc.dictGetDuration(rec, "connPingFreq")?.max(1sec)
+    this.linger        = Etc.dictGetDuration(rec, "connLinger", 30sec).max(0sec)
+    this.tuning        = lib.tunings.forRec(rec)
   }
 
   const Dict rec
   const Str dis
   const Bool disabled
   const Duration timeout
+  const Duration openRetryFreq
   const Duration? pingFreq
   const Duration linger
   const ConnTuning? tuning

@@ -57,6 +57,16 @@ doc:
   Linger timeout used to keep a connector open.
   If not configured then a default of 30sec is used.
 --------------------------------------------------------------------------
+def: ^connOpenRetryFreq
+is: ^duration
+tagOn: ^conn
+doc:
+  Duration used for connector open retries.  When a connector should be
+  pinned opened for application use, then this frequency is used to periodically
+  attempt retries.  For example if a down connector has watched points, then
+  this frequency is used to determine how often we retry to reopen the
+  connection. The default is 10sec if not specified.
+--------------------------------------------------------------------------
 def: ^connPingFreq
 is: ^duration
 tagOn: ^conn
@@ -102,6 +112,7 @@ doc:
   Standardized conn trace type enumeration
 enum: Trio:
   dispatch: {dis:"dispatch", icon:"mail"      iconColor:"#16a085" doc:"Dispatch message"}
+  hk:       {dis:"hk",       icon:"clock"     iconColor:"#16a085" doc:"House keeping"}
   req:      {dis:"req",      icon:"navRight"  iconColor:"#8e44ad" doc:"Outgoing protocol request"}
   res:      {dis:"res",      icon:"navLeft"   iconColor:"#8e44ad" doc:"Incoming protocol response"}
   event:    {dis:"event",    icon:"chevronUp" iconColor:"#8e44ad" doc:"Unsolicited protocol event"}

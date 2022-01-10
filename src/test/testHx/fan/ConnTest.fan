@@ -567,9 +567,10 @@ class ConnTest : HxTest
     verifyEq(c.timeout, 1min)
     verifyEq(c.linger, 30sec)
     verifyEq(c.pingFreq, null)
+    verifyEq(c.openRetryFreq, 10sec)
 
     // update config
-    cr = commit(cr, ["actorTimeout":n(27, "sec"), "connLinger":n(5, "sec"), "connPingFreq":n(1, "min")])
+    cr = commit(cr, ["actorTimeout":n(27, "sec"), "connLinger":n(5, "sec"), "connPingFreq":n(1, "min"), "connOpenRetryFreq":n(7, "sec")])
     rt.sync
     verifySame(lib.conn(cr.id), c)
     verifyEq(c.id, cr.id)
@@ -578,6 +579,7 @@ class ConnTest : HxTest
     verifyEq(c.timeout, 27sec)
     verifyEq(c.linger, 5sec)
     verifyEq(c.pingFreq, 1min)
+    verifyEq(c.openRetryFreq, 7sec)
 
     // update config with invalid values
     cr = commit(cr, ["actorTimeout":"bad", "connLinger":"bad", "connPingFreq":"bad"])
