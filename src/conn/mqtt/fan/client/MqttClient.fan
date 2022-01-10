@@ -18,10 +18,10 @@ const class MqttClient : Actor, MqttConst
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(ClientConfig config) : super(config.pool)
+  new make(ClientConfig config, Log log := Log.get(config.pool.name)) : super(config.pool)
   {
     this.config = config
-    this.log    = Log.get(config.pool.name)
+    this.log    = log
 
     this.packetReader  = PacketReaderActor(this)
     this.packetWriter  = PacketWriterActor(this)

@@ -80,9 +80,28 @@ internal const class PacketReaderActor : Actor, DataCodec
     // decode the control packet
     packet := ControlPacket.readPacket(buf.in, client.config.version)
 
+    // trace
+    trace(packet, buf)
+
     // dispatch
     client.packetReceived(packet)
 
     return true
+  }
+
+  private Void trace(ControlPacket packet, Buf buf)
+  {
+    if (!client.log.isDebug) return
+
+    s := StrBuf().add("< $packet.pid\n")
+    s.add("Packet Type: $packet.type")
+    switch (packet.type)
+    {
+      case PacketType.publish:
+        s.add(" ${packet->topicName} qos=${packet->qos}")
+    }
+    s.addChar('\n')
+    s.add(buf.toHex)
+    client.log.debug(s.toStr)
   }
 }

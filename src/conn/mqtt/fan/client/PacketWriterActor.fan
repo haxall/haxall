@@ -57,6 +57,9 @@ internal const class PacketWriterActor : Actor, DataCodec
       transport.send(buf.flip)
 
       client.lastPacketSent.val = Duration.nowTicks
+
+      // trace
+      trace(packet, buf)
     }
     catch (Err err)
     {
@@ -64,5 +67,24 @@ internal const class PacketWriterActor : Actor, DataCodec
     }
 
     return packet
+  }
+
+  private Void trace(ControlPacket packet, Buf buf)
+  {
+    if (!client.log.isDebug) return
+
+    s := StrBuf().add("> $packet.pid\n")
+    s.add("Packet Type: $packet.type")
+    switch (packet.type)
+    {
+      case PacketType.publish:
+        s.add(" ${packet->topicName} qos=${packet->qos}")
+      case PacketType.subscribe:
+        opts := ((Int[])packet->opts).map |i->Str| { i.toRadix(2, 8) }
+        s.add(" ${packet->topics} ${opts}")
+    }
+    s.addChar('\n')
+    s.add(buf.toHex)
+    client.log.debug(s.toStr)
   }
 }

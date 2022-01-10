@@ -53,7 +53,7 @@ class MqttDispatch : ConnDispatch
         it.tlsParams = ["appProtocols": this.appProtocols]
       }
     }
-    this.client = MqttClient(config)
+    this.client = MqttClient(config, trace.asLog)
 
     // connect
     resume := ConnectConfig {
