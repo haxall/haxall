@@ -37,7 +37,7 @@ const class HxCoreFuncs
   @Axon
   static Dict? readById(Ref? id, Bool checked := true)
   {
-    curContext.db.readById(id, checked)
+    curContext.db.readById(id ?: Ref.nullRef, checked)
   }
 
   ** Given record id, read only the persistent tags from Folio.
