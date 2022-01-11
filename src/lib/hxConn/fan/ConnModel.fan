@@ -63,14 +63,14 @@ const final class ConnModel
     // helper classes
     this.dispatchType = lib.typeof.pod.type(name.capitalize + "Dispatch")
 
-    // dict for misc
-    misc := Str:Obj[:]
-    misc["name"] = name
-    if (hasCur)   misc["cur"]   = Marker.val
-    if (hasHis)   misc["his"]   = Marker.val
-    if (hasWrite) misc["write"] = Marker.val
-    if (hasLearn) misc["learn"] = Marker.val
-    this.misc = Etc.makeDict(misc)
+    // dict for features
+    f := Str:Obj[:]
+    f["name"] = name
+    if (hasCur)   f["cur"]   = Marker.val
+    if (hasHis)   f["his"]   = Marker.val
+    if (hasWrite) f["write"] = Marker.val
+    if (hasLearn) f["learn"] = Marker.val
+    this.features = Etc.makeDict(f)
   }
 
   private static Def? def(Namespace ns, ConnLib lib, Str symbol, Bool checked := true)
@@ -140,8 +140,8 @@ const final class ConnModel
   ** Dispatch subclass
   const Type dispatchType
 
-  ** Encoding for SysNamespace misc entry
-  @NoDoc const Dict misc
+  ** Dict encoding for HxConn.connFeature
+  const Dict features
 
 //////////////////////////////////////////////////////////////////////////
 // Support

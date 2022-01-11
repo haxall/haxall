@@ -455,6 +455,9 @@ const mixin HxConnLib
 
   ** Number of configured connectors
   abstract Int numConns()
+
+  ** Dict with markers for supported features: learn, cur, write, his
+  abstract Dict connFeatures()
 }
 
 **
