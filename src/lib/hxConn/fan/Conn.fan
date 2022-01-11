@@ -11,6 +11,7 @@ using concurrent
 using haystack
 using folio
 using hx
+using hxPoint
 
 **
 ** Conn models a connection to a single endpoint.
@@ -45,6 +46,9 @@ const final class Conn : Actor, HxConn
   ** Parent connector library
   override ConnLib lib() { libRef }
   private const ConnLib libRef
+
+  ** PointLib library
+  @NoDoc PointLib pointLib() { libRef.pointLib }
 
   ** Record id
   override Ref id() { idRef }

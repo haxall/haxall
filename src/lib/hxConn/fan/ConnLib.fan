@@ -11,6 +11,7 @@ using concurrent
 using haystack
 using obs
 using hx
+using hxPoint
 
 **
 ** Connector library base class
@@ -33,6 +34,10 @@ abstract const class ConnLib : HxLib, HxConnLib
   ** ConnFwLib instance
   @NoDoc ConnFwLib fw() { fwRef.val }
   private const AtomicRef fwRef := AtomicRef()
+
+  ** PointLib instance
+  @NoDoc PointLib pointLib() { pointLibRef.val }
+  private const AtomicRef pointLibRef := AtomicRef()
 
   ** Model which defines tags and functions for this connector.
   ** The model is not available until after the library has started.
@@ -84,6 +89,9 @@ abstract const class ConnLib : HxLib, HxConnLib
   ** Start callback - if overridden you *must* call super
   override Void onStart()
   {
+    // must have PointLib installed
+    pointLibRef.val = (PointLib)rt.lib("point")
+
     // must have ConnFwLib installed
     fw :=  (ConnFwLib)rt.lib("conn")
     fwRef.val = fw
