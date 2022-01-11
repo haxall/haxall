@@ -35,14 +35,15 @@ class HaystackConnTest : HxTest
   {
     init
     verifyConn
-return
     verifyCall
     verifyReads
+/*
     verifyWatches
     verifyPointWrite
     verifyReadHis
     verifySyncHis
     verifyInvokeAction
+*/
     verifyHaystackEval
   }
 
@@ -80,7 +81,6 @@ return
     pt3 = commit(pt3, ["curVal":n(30, "%")], Diff.transient)
 
     // float his
-    /*
     tz := TimeZone("Chicago")
     h := addRec(["his":m, "point":m, "kind":"Number", "tz":tz.name, "dis":"Num His", "foo":"bar", "unit":"fahrenheit"])
     hisF = readById(h.id)
@@ -89,7 +89,7 @@ return
     {
       (1..28).each |day| { items.add(item(dt(2010, mon, day, 12, 0, tz), (mon * day).toFloat)) }
     }
-    HisLib.write(proj, h, items)
+    rt.his.write(h, items)
 
     // bool his
     tz = TimeZone("Denver")
@@ -100,8 +100,7 @@ return
     {
       (1..28).each |day| { items.add(item(dt(2010, mon, day, 12, 0, tz), (mon * day).isOdd)) }
     }
-    HisLib.write(proj, h, items)
-    */
+    rt.his.write(h, items)
 
     // writable point
     ptw = addRec(["dis":"Point-W", "name":"ptw", "point":m, "writable":m, "kind":"Number", "unit":"%"])
@@ -624,6 +623,17 @@ return
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  static HisItem item(DateTime ts, Obj? val)
+  {
+    if (val is Num) val = Number.makeNum(val)
+    return HisItem(ts, val)
+  }
+
+  static DateTime dt(Int y, Int m, Int d, Int h, Int min, TimeZone tz := TimeZone.utc)
+  {
+    DateTime(y, Month.vals[m-1], d, h, min, 0, 0, tz)
+  }
 
   Grid evalToGrid(Str axon) { eval(axon) }
 

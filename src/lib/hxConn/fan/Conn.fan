@@ -108,6 +108,10 @@ const final class Conn : Actor, HxConn
 // Actor
 //////////////////////////////////////////////////////////////////////////
 
+  ** Sync a synchronous message to the actor, and block
+  ** based on the configurable timeout.
+  Obj? sendSync(HxMsg msg) { send(msg).get(timeout) }
+
   ** Invoke ping request
   override Future ping() { send(HxMsg("ping")) }
 
