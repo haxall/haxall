@@ -68,7 +68,7 @@ internal const final class ConnRoster
     // initialize conns (which in turn initializes points)
     initConns
 
-    // subscribe to connector recs
+    // subscribe to connector rec commits
     lib.observe("obsCommits",
       Etc.makeDict([
         "obsAdds":    Marker.val,
@@ -78,7 +78,7 @@ internal const final class ConnRoster
         "obsFilter":  lib.model.connTag
       ]), ConnLib#onConnEvent)
 
-    // subscribe to connector points
+    // subscribe to connector point commits
     lib.observe("obsCommits",
       Etc.makeDict([
         "obsAdds":    Marker.val,
@@ -87,6 +87,12 @@ internal const final class ConnRoster
         "syncable":   Marker.val,
         "obsFilter":  "point and $lib.model.connRefTag"
       ]), ConnLib#onPointEvent)
+
+    // subscribe to connector point watches
+    lib.observe("obsWatches",
+      Etc.makeDict([
+        "obsFilter":  "point and $lib.model.connRefTag"
+      ]), ConnLib#onPointWatch)
   }
 
   private Void initConns()
@@ -256,6 +262,53 @@ internal const final class ConnRoster
   private Ref pointConnRef(Dict rec)
   {
     rec[lib.model.connRefTag] as Ref ?: Ref.nullRef
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Watch Events
+//////////////////////////////////////////////////////////////////////////
+
+  internal Void onPointWatch(Observation e)
+  {
+    // parse event
+    isWatch := e.subType == "watch"
+    type := isWatch ? "watch" : "unwatch"
+    recs := (Dict[])e["recs"]
+
+    // walk thru the records setting the isWatched
+    // flag and grouping the points by connector
+    groupsByConn := Ref:ConnPoint[][:]
+    recs.each |rec|
+    {
+      // lookup point
+      pt := point(rec.id, false)
+      if (pt == null) return
+
+      // set isWatched flag
+      fireToConn := isWatch ? onWatch(pt) : onUnwatch(pt)
+      if (!fireToConn) return
+
+      // add to groups keyed by connector id
+      group := groupsByConn[pt.conn.id]
+      if (group == null) groupsByConn[pt.conn.id] = group = ConnPoint[,] { it.capacity = recs.size }
+      group.add(pt)
+    }
+
+    // fire msg to connectors
+    groupsByConn.each |group|
+    {
+      group.first.conn.send(HxMsg(type, group))
+    }
+  }
+
+  private Bool onWatch(ConnPoint pt)
+  {
+    pt.isWatchedRef.compareAndSet(false, true)
+  }
+
+  private Bool onUnwatch(ConnPoint pt)
+  {
+    pt.isWatchedRef.compareAndSet(true, false)
   }
 
 //////////////////////////////////////////////////////////////////////////

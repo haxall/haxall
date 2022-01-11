@@ -99,12 +99,13 @@ const final class ConnPoint : HxConnPoint
   ** Fault message if the record has configuration errors
   @NoDoc Str? fault() { config.fault }
 
+  ** Is this point currently in one or more watches
+  Bool isWatched() { isWatchedRef.val }
+  internal const AtomicBool isWatchedRef := AtomicBool(false)
+
   ** Conn rec configuration
   internal ConnPointConfig config() { configRef.val }
   private const AtomicRef configRef
-
-  ** Debug details
-  @NoDoc override Str details() { "TODO Point details $id.toZinc" }
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
@@ -116,6 +117,24 @@ const final class ConnPoint : HxConnPoint
     configRef.val = ConnPointConfig(conn.lib, newRec)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Debug
+//////////////////////////////////////////////////////////////////////////
+
+  ** Debug details
+  @NoDoc override Str details()
+  {
+    s := StrBuf()
+    s.add("""id:        $id
+             dis:       $dis
+             tz:        $tz
+             kind:      $kind
+             unit:      $unit
+             tuning:    $tuning.rec.id.toZinc
+             isWatched: $isWatched
+             """)
+      return s.toStr
+    }
 }
 
 **************************************************************************

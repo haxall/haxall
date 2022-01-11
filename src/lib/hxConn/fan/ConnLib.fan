@@ -128,16 +128,22 @@ abstract const class ConnLib : HxLib, HxConnLib
     tuningRef.val = tunings.forLib(this)
   }
 
-  ** Connector rec event - route to roster
+  ** Connector rec commit event - route to roster
   internal Void onConnEvent(CommitObservation? e)
   {
     if (e != null) roster.onConnEvent(e)
   }
 
-  ** Point rec event - route to roster
+  ** Point rec commit event - route to roster
   internal Void onPointEvent(CommitObservation? e)
   {
     if (e != null) roster.onPointEvent(e)
+  }
+
+  ** Point rec watch event - route to roster
+  internal Void onPointWatch(Observation? e)
+  {
+    if (e != null) roster.onPointWatch(e)
   }
 
 //////////////////////////////////////////////////////////////////////////

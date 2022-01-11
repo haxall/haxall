@@ -41,6 +41,8 @@ internal final class ConnState
       case "ping":         return ping
       case "close":        return close(null)
       case "sync":         return null
+      case "watch":        return onWatch(msg.a)
+      case "unwatch":      return onUnwatch(msg.a)
       case "learn":        return onLearn(msg.a)
       case "connUpdated":  dispatch.onConnUpdated; return null
       case "pointAdded":   dispatch.onPointAdded(msg.a); return null
@@ -198,6 +200,22 @@ internal final class ConnState
   {
     openLinger
     return dispatch.onLearn(arg)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Watch
+//////////////////////////////////////////////////////////////////////////
+
+  private Obj? onWatch(ConnPoint[] points)
+  {
+    log.info("onWatch: " + points.join(", ") { it.dis })
+    return null
+  }
+
+  private Obj? onUnwatch(ConnPoint[] points)
+  {
+    log.info("onUnwatch: " + points.join(", ") { it.dis })
+    return null
   }
 
 //////////////////////////////////////////////////////////////////////////
