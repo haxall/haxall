@@ -9,7 +9,9 @@
 //   29 Dec 2021  Brian Frank  Redesign for Haxall
 //
 
+using concurrent
 using haystack
+using folio
 using hx
 using hxConn
 
@@ -159,6 +161,71 @@ class HaystackDispatch : ConnDispatch
     catch (Err err)
       return err
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Learn
+//////////////////////////////////////////////////////////////////////////
+
+  override Grid onLearn(Obj? arg)
+  {
+    // lazily build and cache noLearnTags using FolioUtil
+    noLearnTags := noLearnTagsRef.val as Dict
+    if (noLearnTags == null)
+    {
+      noLearnTagsRef.val = noLearnTags = Etc.makeDict(FolioUtil.tagsToNeverLearn)
+    }
+
+    client := openClient
+    req := arg == null ? Etc.makeEmptyGrid : Etc.makeListGrid(null, "navId", null, [arg])
+    res := client.call("nav", req)
+
+    learnRows := Str:Obj?[,]
+    res.each |row|
+    {
+      // map tags
+      map := Str:Obj[:]
+      row.each |val, name|
+      {
+        if (val == null) return
+        if (val is Bin) return
+        if (val is Ref) return
+        if (noLearnTags.has(name)) return
+        map[name] = val
+      }
+
+      // make sure we have dis column
+      id := row["id"] as Ref
+      if (map["dis"] == null)
+      {
+        if (row.has("navName"))
+          map["dis"] = row["navName"].toStr
+        else if (id != null)
+          map["dis"] = id.dis
+      }
+
+      // map addresses as either point leaf or nav node
+      if (row.has("point"))
+      {
+        if (id != null)
+        {
+          if (row.has("cur"))      map["haystackCur"]   = id.toStr
+          if (row.has("writable")) map["haystackWrite"] = id.toStr
+          if (row.has("his"))      map["haystackHis"]   = id.toStr
+        }
+      }
+      else
+      {
+        navId := row["navId"]
+        if (navId != null) map["learn"] = navId
+      }
+
+      // learn row
+      learnRows.add(map)
+    }
+    return Etc.makeMapsGrid(null, learnRows)
+  }
+
+  private static const AtomicRef noLearnTagsRef := AtomicRef()
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

@@ -121,6 +121,25 @@ abstract class ConnDispatch
   ** raise DownErr or FaultErr.
   abstract Dict onPing()
 
+  ** Callback to handle learn tree navigation.  This method should
+  ** return a grid where the rows are either navigation elements
+  ** to traverse or points to map.  The 'learn' tag is used to indicate
+  ** a row which may be "dived into" to navigate the remote system's tree.
+  ** The 'learn' value is passed back to this function to get the next
+  ** level of the tree.  A null arg should return the root of the learn tree.
+  ** The following tags should be used to indicate points to map:
+  **   - dis: display name for navigation (required for all rows)
+  **   - point: marker indicating point (1 or more fooCur/His/Write)
+  **   - fooCur: address if object can be mapped for cur real-time sync
+  **   - fooWrite: address if object can be mapped for writing
+  **   - fooHis: address if object can be mapped for history sync
+  **   - kind: point kind type if known
+  **   - unit: point unit if known
+  **   - hisInterpolate: if point is known to be collected as COV
+  **   - enum: if range of bool or multi-state is known
+  **   - any other known tags to map to the learned points
+  virtual Grid onLearn(Obj? arg) { throw UnsupportedErr() }
+
   ** Callback made periodically every few seconds to handle background tasks.
   virtual Void onHouseKeeping() {}
 

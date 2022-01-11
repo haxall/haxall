@@ -41,6 +41,7 @@ internal final class ConnState
       case "ping":         return ping
       case "close":        return close(null)
       case "sync":         return null
+      case "learn":        return onLearn(msg.a)
       case "connUpdated":  dispatch.onConnUpdated; return null
       case "pointAdded":   dispatch.onPointAdded(msg.a); return null
       case "pointUpdated": dispatch.onPointUpdated(msg.a); return null
@@ -191,6 +192,12 @@ internal final class ConnState
       result = commit(Diff(rec, changes, Diff.force)).waitFor(timeout).dict
 
     return result
+  }
+
+  Grid onLearn(Obj? arg)
+  {
+    openLinger
+    return dispatch.onLearn(arg)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -134,6 +134,24 @@ const class FolioUtil
     return acc
   }
 
+  ** Tags we never want to include in Haystack learn
+  static Str:Str tagsToNeverLearn()
+  {
+    acc := Str:Str[:]
+    acc.addList([
+      "navId", "disMacro", "navName",
+      "cur", "his", "writable",
+      "hisCollectInterval", "hisCollectCov"
+    ])
+    DiffTagRule.rules.each |r, n|
+    {
+      if (r.type === DiffTagRuleType.transientOnly ||
+          r.type === DiffTagRuleType.never)
+        acc[n] = n
+    }
+    return acc
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // History Point Config
 //////////////////////////////////////////////////////////////////////////

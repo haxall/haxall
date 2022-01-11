@@ -483,7 +483,7 @@ const mixin HxConn
   ** Force connector closed
   abstract Future close()
 
-  ** Make a learn request to the connector
+  ** Make a learn request to the connector.  Future result is learn grid.
   abstract Future learnAsync(Obj? arg := null)
 
   ** Debug details
