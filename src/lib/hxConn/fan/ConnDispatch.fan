@@ -63,6 +63,12 @@ abstract class ConnDispatch
   ** ConnState wrapper which handles implementation logic
   private ConnState state
 
+  ** Get list of points which are currently in watch.
+  ConnPoint[] pointsWatched() { state.pointsInWatch.ro }
+
+  ** Return if there is one or more points currently in watch.
+  Bool hasPointsWatched() { state.pointsInWatch.size > 0 }
+
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
@@ -139,6 +145,12 @@ abstract class ConnDispatch
   **   - enum: if range of bool or multi-state is known
   **   - any other known tags to map to the learned points
   virtual Grid onLearn(Obj? arg) { throw UnsupportedErr() }
+
+  ** Callback when one or more points are put into watch mode.
+  virtual Void onWatch(ConnPoint[] points) {}
+
+  ** Callback when one or more points are taken out of watch mode.
+  virtual Void onUnwatch(ConnPoint[] points) {}
 
   ** Callback made periodically every few seconds to handle background tasks.
   virtual Void onHouseKeeping() {}

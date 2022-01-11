@@ -275,18 +275,13 @@ internal const final class ConnRoster
     type := isWatch ? "watch" : "unwatch"
     recs := (Dict[])e["recs"]
 
-    // walk thru the records setting the isWatched
-    // flag and grouping the points by connector
+    // walk thru the records grouping the points by connector
     groupsByConn := Ref:ConnPoint[][:]
     recs.each |rec|
     {
       // lookup point
       pt := point(rec.id, false)
       if (pt == null) return
-
-      // set isWatched flag
-      fireToConn := isWatch ? onWatch(pt) : onUnwatch(pt)
-      if (!fireToConn) return
 
       // add to groups keyed by connector id
       group := groupsByConn[pt.conn.id]
@@ -299,16 +294,6 @@ internal const final class ConnRoster
     {
       group.first.conn.send(HxMsg(type, group))
     }
-  }
-
-  private Bool onWatch(ConnPoint pt)
-  {
-    pt.isWatchedRef.compareAndSet(false, true)
-  }
-
-  private Bool onUnwatch(ConnPoint pt)
-  {
-    pt.isWatchedRef.compareAndSet(true, false)
   }
 
 //////////////////////////////////////////////////////////////////////////

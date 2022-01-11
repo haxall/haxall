@@ -41,8 +41,8 @@ internal final class ConnState
       case "ping":         return ping
       case "close":        return close(null)
       case "sync":         return null
-      case "watch":        return onWatch(msg.a)
-      case "unwatch":      return onUnwatch(msg.a)
+      case "watch":        onWatch(msg.a); return null
+      case "unwatch":      onUnwatch(msg.a); return null
       case "learn":        return onLearn(msg.a)
       case "connUpdated":  dispatch.onConnUpdated; return null
       case "pointAdded":   dispatch.onPointAdded(msg.a); return null
@@ -203,19 +203,50 @@ internal final class ConnState
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Watch
+// Watches
 //////////////////////////////////////////////////////////////////////////
 
-  private Obj? onWatch(ConnPoint[] points)
+  private Void onWatch(ConnPoint[] points)
   {
-    log.info("onWatch: " + points.join(", ") { it.dis })
+    if (points.isEmpty) return
+    nowTicks := Duration.nowTicks
+    points.each |pt|
+    {
+      pt.isWatchedRef.val = true
+      /* TODO
+      if (isQuickPoll(nowTicks, pt))
+        pt.curQuickPoll = true
+      */
+    }
+    updatePointsInWatch
+    if (!pointsInWatch.isEmpty) openPin("watch")
+    if (isOpen) dispatch.onWatch(points)
     return null
   }
 
-  private Obj? onUnwatch(ConnPoint[] points)
+/* TODO
+  private Bool isQuickPoll(Int nowTicks, ConnPoint pt)
   {
-    log.info("onUnwatch: " + points.join(", ") { it.dis })
-    return null
+    if (!rt.isSteadyState) return false
+    if (pt.curLastOk == 0) return true
+    return nowTicks - pt.curLastOk > pt.tuning.pollTime.ticks
+  }
+*/
+
+  private Void onUnwatch(ConnPoint[] points)
+  {
+    if (points.isEmpty) return
+    points.each |pt| { pt.isWatchedRef.val = false }
+    updatePointsInWatch
+    onUnwatch(points)
+    if (pointsInWatch.isEmpty) closePin("watch")
+  }
+
+  private Void updatePointsInWatch()
+  {
+    acc := ConnPoint[,]
+    conn.points.each |pt| { if (pt.isWatched) acc.add(pt) }
+    this.pointsInWatch = acc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -225,7 +256,7 @@ internal final class ConnState
   internal Void onHouseKeeping()
   {
     // update poll frequence
-    /*
+    /* TODO
     refreshPollFreq
     */
 
@@ -409,8 +440,7 @@ internal final class ConnState
   private Int lastConnAttempt() { lastConnFail.max(lastConnOk) }
   private Err? curErr
   private Duration? lingerClose
-  private Ref:ConnPoint pointsById := [:]
-  private ConnPoint[] pointsInWatch := [,]
+  internal ConnPoint[] pointsInWatch := [,]
   //private PollBucket[]? pollBuckets
   private Str:Str openPins := [:]
   private Int lastPoll := 0
