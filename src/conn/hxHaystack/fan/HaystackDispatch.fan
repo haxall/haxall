@@ -318,7 +318,7 @@ class HaystackDispatch : ConnDispatch
     if (subIds.isEmpty) return
 
     // ask for a lease period at least 2 times longer than poll freq
-    leaseReq := pollFreq * 2
+    leaseReq := conn.pollFreq * 2
     if (leaseReq < 1min) leaseReq = 1min
 
     // make request for subscription
@@ -413,8 +413,7 @@ class HaystackDispatch : ConnDispatch
     if (close) watchClear
   }
 
-// TODO
-  Void onPoll()
+  override Void onPoll()
   {
     if (watchId == null) return
     try
@@ -437,18 +436,6 @@ class HaystackDispatch : ConnDispatch
       }
     }
     catch (Err e) onWatchErr(e)
-  }
-
-// TODO
-  Duration? pollFreq()
-  {
-    try
-    {
-      tag := rec["haystackPollFreq"] as Number
-      if (tag != null) return tag.toDuration
-    }
-    catch (Err e) {}
-    return 1sec
   }
 
   private Void onWatchErr(Err err)

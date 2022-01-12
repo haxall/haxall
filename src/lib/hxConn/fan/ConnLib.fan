@@ -26,6 +26,7 @@ abstract const class ConnLib : HxLib, HxConnLib
       it.name = "$rt.name-$this.name.capitalize"
       it.maxThreads = rec.effectiveMaxThreads
     }
+    this.poller = ConnPoller(this)
   }
 
   ** Settings record
@@ -108,6 +109,9 @@ abstract const class ConnLib : HxLib, HxConnLib
 
     // load roster
     roster.start
+
+    // kick off polling if enabled
+    if (model.pollMode.isEnabled) poller.onStart
   }
 
   ** Stop callback - if overridden you *must* call super
@@ -151,6 +155,7 @@ abstract const class ConnLib : HxLib, HxConnLib
 //////////////////////////////////////////////////////////////////////////
 
   internal const ActorPool connActorPool
+  internal const ConnPoller poller
 }
 
 **************************************************************************

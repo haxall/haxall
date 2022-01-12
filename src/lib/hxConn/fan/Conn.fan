@@ -26,10 +26,11 @@ const final class Conn : Actor, HxConn
   ** Internal constructor
   internal new make(ConnLib lib, Dict rec) : super(lib.connActorPool)
   {
-    this.libRef    = lib
-    this.idRef     = rec.id
-    this.configRef = AtomicRef(ConnConfig(lib, rec))
-    this.traceRef  = ConnTrace(lib.rt.libs.actorPool)
+    this.libRef      = lib
+    this.idRef       = rec.id
+    this.configRef   = AtomicRef(ConnConfig(lib, rec))
+    this.traceRef    = ConnTrace(lib.rt.libs.actorPool)
+    this.pollModeRef = lib.model.pollMode
     sendLater(houseKeepingFreq, houseKeepingMsg)
   }
 
@@ -72,6 +73,9 @@ const final class Conn : Actor, HxConn
   ** It does not track transient changes such as 'connStatus'.
   override Dict rec() { config.rec }
 
+  ** Does the record have the 'disabled' marker configured
+  Bool isDisabled() { config.isDisabled }
+
   ** Timeout to use for I/O and actor messaging - see `actorTimeout`.
   Duration timeout() { config.timeout }
 
@@ -107,6 +111,41 @@ const final class Conn : Actor, HxConn
     if (checked) throw UnknownConnPointErr("Connector point not found: $id.toZinc")
     return null
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Polling
+//////////////////////////////////////////////////////////////////////////
+
+  ** Poll strategy for connector
+  ConnPollMode pollMode() { pollModeRef }
+  private const ConnPollMode pollModeRef
+
+  ** Configured poll frequency if connector uses manual polling
+  Duration? pollFreq() { config.pollFreq }
+
+  ** Effective frequency for ConnPoller based on pollMode and pollFreq
+  internal Int pollFreqEffective()
+  {
+    if (isDisabled) return 0
+    if (pollMode === ConnPollMode.buckets) return 100ms.ticks
+    if (pollMode === ConnPollMode.manual && pollFreq != null) return pollFreq.ticks
+    return 0
+  }
+
+  ** Compute the initial poll stagger freq.  We attempt to stagger
+  ** initial polls to prevent every connector polling at the same time
+  ** which can spike the CPU and flood the network
+  internal Int pollInitStagger()
+  {
+    range := pollFreq ?: 1min
+    return range.ticks * (0..100).random / 100
+  }
+
+  ** Singleton message for poll dispatch
+  internal const static HxMsg pollMsg := HxMsg("poll")
+
+  ** Next poll deadline in duration ticks - managed by ConnPoller
+  internal const AtomicInt pollNext := AtomicInt(0)
 
 //////////////////////////////////////////////////////////////////////////
 // Actor
@@ -150,13 +189,23 @@ const final class Conn : Actor, HxConn
       }
     }
 
+    if (msg === pollMsg)
+    {
+      trace.write("poll", "poll", msg)
+      try
+        state.onPoll
+      catch (Err e)
+        log.err("Conn.receive poll", e)
+      return null
+    }
+
     if (msg === houseKeepingMsg)
     {
       trace.write("hk", "houseKeeping", msg)
       try
         state.onHouseKeeping
       catch (Err e)
-        log.err("Conn.receive", e)
+        log.err("Conn.receive houseKeeping", e)
       if (isAlive)
         sendLater(houseKeepingFreq, houseKeepingMsg)
       return null
@@ -212,6 +261,8 @@ const final class Conn : Actor, HxConn
              pingFreq:      $pingFreq
              linger:        $linger
              tuning:        $tuning.rec.id.toZinc
+             pollMode:      $pollMode
+             pollFreq:      $pollFreq
              tracing:       $trace.isEnabled
              """)
       return s.toStr
@@ -237,23 +288,28 @@ internal const final class ConnConfig
 {
   new make(ConnLib lib, Dict rec)
   {
+    model := lib.model
+
     this.rec           = rec
     this.dis           = rec.dis
-    this.disabled      = rec.has("disabled")
+    this.isDisabled    = rec.has("disabled")
     this.timeout       = Etc.dictGetDuration(rec, "actorTimeout", 1min).max(1sec)
     this.openRetryFreq = Etc.dictGetDuration(rec, "connOpenRetryFreq", 10sec).max(1sec)
-    this.pingFreq      = Etc.dictGetDuration(rec, "connPingFreq")?.max(1sec)
+    this.pingFreq      = Etc.dictGetDuration(rec, "connPingFreq", null)?.max(1sec)
     this.linger        = Etc.dictGetDuration(rec, "connLinger", 30sec).max(0sec)
     this.tuning        = lib.tunings.forRec(rec)
+    if (model.pollFreqTag != null)
+      this.pollFreq = Etc.dictGetDuration(rec, model.pollFreqTag, model.pollFreqDefault).max(100ms)
   }
 
   const Dict rec
   const Str dis
-  const Bool disabled
+  const Bool isDisabled
   const Duration timeout
   const Duration openRetryFreq
   const Duration? pingFreq
   const Duration linger
+  const Duration? pollFreq
   const ConnTuning? tuning
 }
 

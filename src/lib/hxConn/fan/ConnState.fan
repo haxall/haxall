@@ -238,7 +238,7 @@ internal final class ConnState
     if (points.isEmpty) return
     points.each |pt| { pt.isWatchedRef.val = false }
     updatePointsInWatch
-    onUnwatch(points)
+    dispatch.onUnwatch(points)
     if (pointsInWatch.isEmpty) closePin("watch")
   }
 
@@ -250,16 +250,30 @@ internal final class ConnState
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Polling
+//////////////////////////////////////////////////////////////////////////
+
+  internal Void onPoll()
+  {
+    if (isClosed) return
+    switch (conn.pollMode)
+    {
+      case ConnPollMode.manual:  dispatch.onPoll
+      case ConnPollMode.buckets: onPollBuckets
+    }
+  }
+
+  private Void onPollBuckets()
+  {
+    log.err("TODO onPollBuckets $dis")
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // House Keeping
 //////////////////////////////////////////////////////////////////////////
 
   internal Void onHouseKeeping()
   {
-    // update poll frequence
-    /* TODO
-    refreshPollFreq
-    */
-
     // check if we need should perform a re-open attempt
     checkReopen
 
@@ -441,7 +455,6 @@ internal final class ConnState
   private Err? curErr
   private Duration? lingerClose
   internal ConnPoint[] pointsInWatch := [,]
-  //private PollBucket[]? pollBuckets
   private Str:Str openPins := [:]
   private Int lastPoll := 0
 }

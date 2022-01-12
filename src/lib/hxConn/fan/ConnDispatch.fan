@@ -146,6 +146,12 @@ abstract class ConnDispatch
   **   - any other known tags to map to the learned points
   virtual Grid onLearn(Obj? arg) { throw UnsupportedErr() }
 
+  ** Callback made periodically for manual polling.  This callback
+  ** is only invoked if `Conn.pollMode` is configured as "manual".
+  ** The frequency of the callback is determined by `Conn.pollFreq`.
+  ** Use `pointsWatched` to list of points currently being watched.
+  virtual Void onPoll() { }
+
   ** Callback when one or more points are put into watch mode.
   virtual Void onWatch(ConnPoint[] points) {}
 

@@ -10,6 +10,10 @@
 using haystack
 using hx
 
+**
+** ConnModel reflects defs to cache the features and tags supported
+** for a specific connector type.
+**
 @NoDoc
 const final class ConnModel
 {
@@ -59,6 +63,15 @@ const final class ConnModel
     this.hasCur    = curTag != null
     this.hasWrite  = writeTag != null
     this.hasHis    = hisTag != null
+    this.pollMode  = ConnPollMode.fromStr(features["pollMode"] ?: "disabled")
+
+    // polling tags
+    if (pollMode === ConnPollMode.manual)
+    {
+      pollFreqTagDef := def(ns, lib, "${prefix}PollFreq")
+      this.pollFreqTag     = pollFreqTagDef.name
+      this.pollFreqDefault = (pollFreqTagDef["val"] as Number)?.toDuration ?: 10sec
+    }
 
     // helper classes
     this.dispatchType = lib.typeof.pod.type(name.capitalize + "Dispatch")
@@ -135,7 +148,13 @@ const final class ConnModel
   const Type? hisTagType
 
   ** Polling strategy to use for connector
-  const PollingMode pollingMode := PollingMode.disabled
+  const ConnPollMode pollMode
+
+  ** Tag to use for manual poll frequency
+  const Str? pollFreqTag
+
+  ** Default poll frequency for manual polling
+  const Duration? pollFreqDefault
 
   ** Dispatch subclass
   const Type dispatchType
@@ -160,28 +179,5 @@ const final class ConnModel
   const Bool hasHis
 }
 
-**************************************************************************
-** PollingMode
-**************************************************************************
-
-**
-** The polling modes supported by the connector framework
-**
-@Js
-enum class PollingMode
-{
-  ** Disable polling
-  disabled,
-
-  ** The connector implementation handles all polling logic
-  manual,
-
-  ** The connector framework handles the polling logic and utilizes
-  ** a "poll buckets" strategy.
-  buckets
-
-  ** Return 'true' if the mode is not `disabled`.
-  Bool isPollingEnabled() { this !== disabled }
-}
 
 

@@ -11,7 +11,7 @@
 def: ^haystackConn
 is: ^conn
 icon: "haystack"
-connFeatures: {learn}
+connFeatures: {learn, pollMode:"manual"}
 doc:
   Haystack connector to a Haystack REST API server.
 --------------------------------------------------------------------------
@@ -36,6 +36,7 @@ tagOn: ^haystackConn
 def: ^haystackPollFreq
 is: ^duration
 tagOn: ^haystackConn
+val: 1sec
 doc:
   Applied to 'haystackConn' to tune the duration between watch polls.
   If not configured it defaults to 1sec.
