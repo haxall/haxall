@@ -807,17 +807,17 @@ class ConnTest : HxTest
     rt.sync
     c1 := lib.conn(c1rec.id)
     c2 := lib.conn(c2rec.id)
-    verifyBuckets(c1, [,])
-    verifyBuckets(c2, [,])
+    c1b := verifyBuckets(c1, null, [,])
+    c2b := verifyBuckets(c2, null, [,])
 
     // add some points with no tuning recs
     p1 := addRec(["dis":"P1", "point":m, connTagRef:c1.id, "kind":"Number"])
     p2 := addRec(["dis":"P2", "point":m, connTagRef:c1.id, "kind":"Number"])
     p3 := addRec(["dis":"P3", "point":m, connTagRef:c2.id, "kind":"Number"])
-    verifyBuckets(c1, [
+    c1b = verifyBuckets(c1, c1b, [
       ["$name-default", 10sec, p1, p2],
       ])
-    verifyBuckets(c2, [
+    c2b = verifyBuckets(c2, c2b, [
       ["$name-default", 10sec, p3],
       ])
 
@@ -829,85 +829,85 @@ class ConnTest : HxTest
     verifyEq(lib.fw.tunings.get(tx.id).dis, "TX")
     verifyEq(lib.fw.tunings.get(tx.id).pollTime, 30sec)
     verifySame(lib.fw.tunings.get(tx.id), lib.point(p4.id).tuning) // verify ConnPoint hasn't failed before tuning lookup
-    verifyBuckets(c1, [
+    c1b = verifyBuckets(c1, c1b, [
       ["$name-default", 10sec, p1, p2],
       ["TX",            30sec, p4],
       ])
-    verifyBuckets(c2, [
+    c2b = verifyBuckets(c2, c2b, [
       ["$name-default", 10sec, p3],
       ])
 
     // assign tuning record to connector
     ty := addRec(["dis":"TY", "connTuning":m, "pollTime":n(7, "sec")])
     c1rec = commit(c1rec, ["connTuningRef":ty.id])
-    verifyBuckets(c1, [
+    c1b = verifyBuckets(c1, c1b, [
       ["TY",  7sec, p1, p2],
       ["TX", 30sec, p4],
       ])
-    verifyBuckets(c2, [
+    c2b = verifyBuckets(c2, c2b, [
       ["$name-default", 10sec, p3],
       ])
 
     // move point
     p2 = commit(p2, [connTagRef:c2.id])
-    verifyBuckets(c1, [
+    c1b = verifyBuckets(c1, c1b, [
       ["TY",  7sec, p1],
       ["TX", 30sec, p4],
       ])
-    verifyBuckets(c2, [
+    c2b = verifyBuckets(c2, c2b, [
       ["$name-default", 10sec, p2, p3],
       ])
 
     // update connTuningRef on a point
     p1 = commit(p1, ["connTuningRef":tx.id])
-    verifyBuckets(c1, [
+    c1b = verifyBuckets(c1, c1b, [
       ["TX", 30sec, p1, p4],
       ])
-    verifyBuckets(c2, [
+    c2b = verifyBuckets(c2, c2b, [
       ["$name-default", 10sec, p2, p3],
       ])
 
     // remove connTuningRef on point
     p1 = commit(p1, ["connTuningRef":Remove.val])
-    verifyBuckets(c1, [
+    c1b = verifyBuckets(c1, c1b, [
       ["TY",  7sec, p1],
       ["TX", 30sec, p4],
       ])
-    verifyBuckets(c2, [
+    c2b = verifyBuckets(c2, c2b, [
       ["$name-default", 10sec, p2, p3],
       ])
 
     // add point
     p5 := addRec(["dis":"P5", "point":m, connTagRef:c1.id, "kind":"Number"])
-    verifyBuckets(c1, [
+    c1b = verifyBuckets(c1, c1b, [
       ["TY",  7sec, p1, p5],
       ["TX", 30sec, p4],
       ])
-    verifyBuckets(c2, [
+    c2b = verifyBuckets(c2, c2b, [
       ["$name-default", 10sec, p2, p3],
       ])
 
     // change connTuningRef on conn
     c1rec = commit(c1rec, ["connTuningRef":tx.id])
-    verifyBuckets(c1, [
+    c1b = verifyBuckets(c1, c1b, [
       ["TX", 30sec, p1, p4, p5],
       ])
-    verifyBuckets(c2, [
+    c2b = verifyBuckets(c2, c2b, [
       ["$name-default", 10sec, p2, p3],
       ])
 
     // remove connTuningRef on conn
     c1rec = commit(c1rec, ["connTuningRef":Remove.val])
-    verifyBuckets(c1, [
+    c1b = verifyBuckets(c1, c1b, [
       ["$name-default", 10sec, p1, p5],
       ["TX",            30sec, p4],
       ])
-    verifyBuckets(c2, [
+    c2b = verifyBuckets(c2, c2b, [
       ["$name-default", 10sec, p2, p3],
       ])
   }
 
-  Void verifyBuckets(Conn c, Obj[][] expected)
+  ConnPollBucket[] verifyBuckets(Conn c, ConnPollBucket[]? old, Obj[][] expected)
   {
     rt.sync
     c.lib.spi.sync
@@ -929,5 +929,17 @@ class ConnTest : HxTest
       verifyEq(b.pollTime,   e[1])
       verifyEq(ptsStr,       e[2..-1].join(", ") { it->dis })
     }
+
+    if (old != null)
+    {
+      c.pollBuckets.each |b|
+      {
+        oldMatch := old.find { it.tuning.id == b.tuning.id }
+        if (oldMatch != null)
+          verifySame(oldMatch.state, b.state)
+      }
+    }
+
+    return c.pollBuckets
   }
 }

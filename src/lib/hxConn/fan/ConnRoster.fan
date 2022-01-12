@@ -322,6 +322,10 @@ internal const final class ConnRoster
   {
     if (!hasBuckets.val) return
 
+    // save olds buckets by tuning id so we can reuse state
+    oldBuckets := Ref:ConnPollBucket[:]
+    oldBuckets.setList(conn.pollBuckets) |b| { b.tuning.id }
+
     // group by tuning id
     byTuningId := Ref:ConnPoint[][:]
     conn.points.each |pt|
@@ -337,7 +341,8 @@ internal const final class ConnRoster
     byTuningId.each |points|
     {
       tuning := points.first.tuning
-      acc.add(ConnPollBucket(conn, tuning, points))
+      state := oldBuckets[tuning.id]?.state ?: ConnPollBucketState()
+      acc.add(ConnPollBucket(conn, tuning, state, points))
     }
 
     // sort by poll time; this could potentially get out of

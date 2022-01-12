@@ -101,15 +101,17 @@ enum class ConnPollMode
 @NoDoc
 const class ConnPollBucket
 {
-  new make(Conn conn, ConnTuning tuning, ConnPoint[] points)
+  new make(Conn conn, ConnTuning tuning, ConnPollBucketState state, ConnPoint[] points)
   {
     this.conn   = conn
     this.tuning = tuning
+    this.state  = state
     this.points = points
   }
 
   const Conn conn
   const ConnTuning tuning
+  const ConnPollBucketState state
   const ConnPoint[] points
   Duration pollTime() { tuning.pollTime }
   override Int compare(Obj that)
@@ -118,4 +120,8 @@ const class ConnPollBucket
   }
 }
 
+@NoDoc
+const class ConnPollBucketState
+{
+}
 
