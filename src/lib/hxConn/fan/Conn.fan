@@ -147,6 +147,12 @@ const final class Conn : Actor, HxConn
   ** Next poll deadline in duration ticks - managed by ConnPoller
   internal const AtomicInt pollNext := AtomicInt(0)
 
+  ** Configured polling buckets if pollMode is buckets
+  @NoDoc ConnPollBucket[] pollBuckets() { pollBucketsRef.val }
+
+  ** Current configuration of buckets - managed by ConnRoster
+  internal const AtomicRef pollBucketsRef := AtomicRef(ConnPollBucket#.emptyList)
+
 //////////////////////////////////////////////////////////////////////////
 // Actor
 //////////////////////////////////////////////////////////////////////////

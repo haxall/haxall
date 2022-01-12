@@ -108,7 +108,7 @@ abstract const class ConnLib : HxLib, HxConnLib
     this.modelRef.val = model
 
     // load roster
-    roster.start
+    roster.start(model)
 
     // kick off polling if enabled
     if (model.pollMode.isEnabled) poller.onStart

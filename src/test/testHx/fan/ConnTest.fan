@@ -782,4 +782,150 @@ class ConnTest : HxTest
     verifySame(pt.tuning, t)
     verifyEq(pt.tuning.staleTime, staleTime)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Test Poll Buckets
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testBuckets()
+  {
+    echo("TODO: enable once hxModbus stubbed out")
+    return
+
+    // TODO: once we have modbus, we can use that
+    name := "haystack"
+    connTag := name + "Conn"
+    connTagRef := name + "ConnRef"
+    lib := (ConnLib)addLib(name)
+
+    // setup connectors
+    c1rec := addRec(["dis":"C1", connTag:m])
+    c2rec := addRec(["dis":"C2", connTag:m])
+    rt.sync
+    c1 := lib.conn(c1rec.id)
+    c2 := lib.conn(c2rec.id)
+    verifyBuckets(c1, [,])
+    verifyBuckets(c2, [,])
+
+    // add some points with no tuning recs
+    p1 := addRec(["dis":"P1", "point":m, connTagRef:c1.id, "kind":"Number"])
+    p2 := addRec(["dis":"P2", "point":m, connTagRef:c1.id, "kind":"Number"])
+    p3 := addRec(["dis":"P3", "point":m, connTagRef:c2.id, "kind":"Number"])
+    verifyBuckets(c1, [
+      ["$name-default", 10sec, p1, p2],
+      ])
+    verifyBuckets(c2, [
+      ["$name-default", 10sec, p3],
+      ])
+
+    // add tuning rec
+    tx := addRec(["dis":"TX", "connTuning":m, "pollTime":n(30, "sec")])
+    p4 := addRec(["dis":"P4", "point":m, connTagRef:c1.id, "connTuningRef":tx.id, "kind":"Number"])
+    rt.sync
+    lib.fw.spi.sync
+    verifyEq(lib.fw.tunings.get(tx.id).dis, "TX")
+    verifyEq(lib.fw.tunings.get(tx.id).pollTime, 30sec)
+    verifySame(lib.fw.tunings.get(tx.id), lib.point(p4.id).tuning) // verify ConnPoint hasn't failed before tuning lookup
+    verifyBuckets(c1, [
+      ["$name-default", 10sec, p1, p2],
+      ["TX",            30sec, p4],
+      ])
+    verifyBuckets(c2, [
+      ["$name-default", 10sec, p3],
+      ])
+
+    // assign tuning record to connector
+    ty := addRec(["dis":"TY", "connTuning":m, "pollTime":n(7, "sec")])
+    c1rec = commit(c1rec, ["connTuningRef":ty.id])
+    verifyBuckets(c1, [
+      ["TY",  7sec, p1, p2],
+      ["TX", 30sec, p4],
+      ])
+    verifyBuckets(c2, [
+      ["$name-default", 10sec, p3],
+      ])
+
+    // move point
+    p2 = commit(p2, [connTagRef:c2.id])
+    verifyBuckets(c1, [
+      ["TY",  7sec, p1],
+      ["TX", 30sec, p4],
+      ])
+    verifyBuckets(c2, [
+      ["$name-default", 10sec, p2, p3],
+      ])
+
+    // update connTuningRef on a point
+    p1 = commit(p1, ["connTuningRef":tx.id])
+    verifyBuckets(c1, [
+      ["TX", 30sec, p1, p4],
+      ])
+    verifyBuckets(c2, [
+      ["$name-default", 10sec, p2, p3],
+      ])
+
+    // remove connTuningRef on point
+    p1 = commit(p1, ["connTuningRef":Remove.val])
+    verifyBuckets(c1, [
+      ["TY",  7sec, p1],
+      ["TX", 30sec, p4],
+      ])
+    verifyBuckets(c2, [
+      ["$name-default", 10sec, p2, p3],
+      ])
+
+    // add point
+    p5 := addRec(["dis":"P5", "point":m, connTagRef:c1.id, "kind":"Number"])
+    verifyBuckets(c1, [
+      ["TY",  7sec, p1, p5],
+      ["TX", 30sec, p4],
+      ])
+    verifyBuckets(c2, [
+      ["$name-default", 10sec, p2, p3],
+      ])
+
+    // change connTuningRef on conn
+    c1rec = commit(c1rec, ["connTuningRef":tx.id])
+    verifyBuckets(c1, [
+      ["TX", 30sec, p1, p4, p5],
+      ])
+    verifyBuckets(c2, [
+      ["$name-default", 10sec, p2, p3],
+      ])
+
+    // remove connTuningRef on conn
+    c1rec = commit(c1rec, ["connTuningRef":Remove.val])
+    verifyBuckets(c1, [
+      ["$name-default", 10sec, p1, p5],
+      ["TX",            30sec, p4],
+      ])
+    verifyBuckets(c2, [
+      ["$name-default", 10sec, p2, p3],
+      ])
+  }
+
+  Void verifyBuckets(Conn c, Obj[][] expected)
+  {
+    rt.sync
+    c.lib.spi.sync
+    c.sync
+
+    if (false)
+    {
+      echo
+      echo("-- verifyBuckets $c [$c.pollBuckets.size]")
+      c.pollBuckets.each |b| { echo("  $b.tuning.dis $b.pollTime => " + b.points.join(", ") { it.dis }) }
+    }
+
+    verifyEq(c.pollBuckets.size, expected.size)
+    c.pollBuckets.each |b, i|
+    {
+      e := expected[i]
+      ptsStr := b.points.dup.sort(|x, y| { x.dis <=> y.dis }).join(", ") { it.dis }
+      verifyEq(b.tuning.dis, e[0])
+      verifyEq(b.pollTime,   e[1])
+      verifyEq(ptsStr,       e[2..-1].join(", ") { it->dis })
+    }
+  }
 }

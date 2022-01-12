@@ -43,6 +43,9 @@ const class CommitObservation : Observation
   ** Return if either new or old includes given tag
   Bool recHas(Str tag) { oldRec.has(tag) || newRec.has(tag) }
 
+  ** Did the given tag name change between old and new recs
+  Bool tagUpdated(Str tag) { oldRec[tag] != newRec[tag] }
+
   override Bool isEmpty() { false }
 
   @Operator override Obj? get(Str name, Obj? def := null)

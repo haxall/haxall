@@ -91,3 +91,31 @@ enum class ConnPollMode
   Bool isEnabled() { this !== disabled }
 }
 
+**************************************************************************
+** ConnPollBucket
+**************************************************************************
+
+**
+** Bucket of points for connectors using the bucket strategy
+**
+@NoDoc
+const class ConnPollBucket
+{
+  new make(Conn conn, ConnTuning tuning, ConnPoint[] points)
+  {
+    this.conn   = conn
+    this.tuning = tuning
+    this.points = points
+  }
+
+  const Conn conn
+  const ConnTuning tuning
+  const ConnPoint[] points
+  Duration pollTime() { tuning.pollTime }
+  override Int compare(Obj that)
+  {
+    tuning.pollTime <=> ((ConnPollBucket)that).tuning.pollTime
+  }
+}
+
+

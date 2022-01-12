@@ -63,8 +63,11 @@ internal const final class ConnRoster
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
-  Void start()
+  Void start(ConnModel model)
   {
+    // model init
+    hasBuckets.val = model.pollMode === ConnPollMode.buckets
+
     // initialize conns (which in turn initializes points)
     initConns
 
@@ -116,7 +119,7 @@ internal const final class ConnRoster
     }
     else if (e.isUpdated)
     {
-      onConnUpdated(conn(e.id), e.newRec)
+      onConnUpdated(conn(e.id), e)
     }
     else if (e.isRemoved)
     {
@@ -147,9 +150,10 @@ internal const final class ConnRoster
     conn.updatePointsList(pointsList)
   }
 
-  private Void onConnUpdated(Conn conn, Dict rec)
+  private Void onConnUpdated(Conn conn, CommitObservation e)
   {
-    conn.updateRec(rec)
+    conn.updateRec(e.newRec)
+    if (e.tagUpdated("connTuningRef")) updateBuckets(conn)
     conn.send(HxMsg("connUpdated"))
   }
 
@@ -183,7 +187,7 @@ internal const final class ConnRoster
     }
     else if (e.isUpdated)
     {
-      onPointUpdated(e.id, e.newRec)
+      onPointUpdated(e)
     }
     else if (e.isRemoved)
     {
@@ -208,8 +212,11 @@ internal const final class ConnRoster
     conn.send(HxMsg("pointAdded", point))
   }
 
-  private Void onPointUpdated(Ref id, Dict rec)
+  private Void onPointUpdated(CommitObservation e)
   {
+    id := e.id
+    rec := e.newRec
+
     // lookup existing point
     point := point(id, false)
 
@@ -232,6 +239,7 @@ internal const final class ConnRoster
 
     // normal update
     point.onUpdated(rec)
+    if (e.tagUpdated("connTuningRef")) updateBuckets(point.conn)
     point.conn.send(HxMsg("pointUpdated", point))
   }
 
@@ -257,6 +265,7 @@ internal const final class ConnRoster
       if (pt.conn === conn) acc.add(pt)
     }
     conn.updatePointsList(acc)
+    updateBuckets(conn)
   }
 
   private Ref pointConnRef(Dict rec)
@@ -297,6 +306,38 @@ internal const final class ConnRoster
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Buckets
+//////////////////////////////////////////////////////////////////////////
+
+  private Void updateBuckets(Conn conn)
+  {
+    if (!hasBuckets.val) return
+
+    // group by tuning id
+    byTuningId := Ref:ConnPoint[][:]
+    conn.points.each |pt|
+    {
+      tuningId := pt.tuning.id
+      bucket := byTuningId[tuningId]
+      if (bucket == null) byTuningId[tuningId] = bucket = ConnPoint[,]
+      bucket.add(pt)
+    }
+
+    // flatten to list
+    acc := ConnPollBucket[,]
+    byTuningId.each |points|
+    {
+      tuning := points.first.tuning
+      acc.add(ConnPollBucket(conn, tuning, points))
+    }
+
+    // sort by poll time; this could potentially get out of
+    // order if ConnTuning have their pollTime changed - but
+    // that is ok because sort order is for display, not logic
+    conn.pollBucketsRef.val = acc.sort.toImmutable
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utiils
 //////////////////////////////////////////////////////////////////////////
 
@@ -323,6 +364,7 @@ internal const final class ConnRoster
 //////////////////////////////////////////////////////////////////////////
 
   private const ConnLib lib
+  private const AtomicBool hasBuckets := AtomicBool()
   private const ConcurrentMap connsById := ConcurrentMap()
   private const ConcurrentMap pointsById := ConcurrentMap()
 
