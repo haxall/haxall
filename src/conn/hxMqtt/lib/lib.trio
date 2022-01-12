@@ -10,5 +10,6 @@
 def: ^lib:mqtt
 depends: [^lib:ph, ^lib:obs, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
 typeName:"hxMqtt::MqttLib"
+icon: "mqtt"
 doc: "MQTT connector"
 --------------------------------------------------------------------------
