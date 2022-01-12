@@ -474,7 +474,9 @@ class ConnTest : HxTest
   Void verifyRoster(ConnLib lib, Dict[][] expected)
   {
     // echo; lib->roster->dump
-    conns := lib.conns.dup.sort |a, b| { a.dis <=> b.dis }
+    conns := lib.conns
+    verifySame(lib.conns, conns)
+    verifyEq(lib.conns, conns.dup.sort |a, b| { a.dis <=> b.dis })
     verifyEq(conns.size, expected.size)
     exAllPoints := Dict[,]
 
@@ -922,7 +924,7 @@ class ConnTest : HxTest
     c.pollBuckets.each |b, i|
     {
       e := expected[i]
-      ptsStr := b.points.dup.sort(|x, y| { x.dis <=> y.dis }).join(", ") { it.dis }
+      ptsStr := b.points.join(", ") { it.dis }
       verifyEq(b.tuning.dis, e[0])
       verifyEq(b.pollTime,   e[1])
       verifyEq(ptsStr,       e[2..-1].join(", ") { it->dis })

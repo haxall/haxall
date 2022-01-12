@@ -35,7 +35,7 @@ internal const final class ConnRoster
 
   Conn[] conns()
   {
-    connsById.vals(Conn#)
+    connsList.val
   }
 
   Conn? conn(Ref id, Bool checked := true)
@@ -135,6 +135,7 @@ internal const final class ConnRoster
     // add it to my lookup tables
     service := lib.fw.service
     connsById.add(conn.id, conn)
+    updateConnsList
     service.addConn(conn)
 
     // find any points already created bound to this connector
@@ -173,6 +174,14 @@ internal const final class ConnRoster
     // remove conn from lookup tables
     service.removeConn(conn)
     connsById.remove(conn.id)
+    updateConnsList
+  }
+
+  private Void updateConnsList()
+  {
+    list := connsById.vals(Conn#)
+    if (list.size > 1) Etc.sortDis(list) |Conn c->Str| { c.dis }
+    connsList.val = list.toImmutable
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -346,6 +355,7 @@ internal const final class ConnRoster
     service := lib.fw.service
     pointsById.each |pt| { service.removePoint(pt) }
     connsById.each |c| { service.removeConn(c) }
+    updateConnsList
   }
 
   Void dump()
@@ -365,6 +375,7 @@ internal const final class ConnRoster
 
   private const ConnLib lib
   private const AtomicBool hasBuckets := AtomicBool()
+  private const AtomicRef connsList := AtomicRef(Conn#.emptyList)
   private const ConcurrentMap connsById := ConcurrentMap()
   private const ConcurrentMap pointsById := ConcurrentMap()
 
