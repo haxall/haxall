@@ -123,6 +123,14 @@ const final class ConnPoint : HxConnPoint
     lib.log.info("updateCurErr $dis = $err")
   }
 
+  ** Transition point to stale status
+  internal Void updateCurStale()
+  {
+    lib.log.info("updateCurStale $dis")
+  }
+
+  internal Bool curQuickPoll { get { false } set {} }
+
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////

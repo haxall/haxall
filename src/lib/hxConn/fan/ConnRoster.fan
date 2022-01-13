@@ -149,6 +149,7 @@ internal const final class ConnRoster
       service.addPoint(point)
     }
     conn.updatePointsList(pointsList)
+    updateBuckets(conn)
   }
 
   private Void onConnUpdated(Conn conn, CommitObservation e)
@@ -341,7 +342,7 @@ internal const final class ConnRoster
     byTuningId.each |points|
     {
       tuning := points.first.tuning
-      state := oldBuckets[tuning.id]?.state ?: ConnPollBucketState()
+      state := oldBuckets[tuning.id]?.state ?: ConnPollBucketState(tuning)
       acc.add(ConnPollBucket(conn, tuning, state, points))
     }
 

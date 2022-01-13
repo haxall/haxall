@@ -38,6 +38,7 @@ internal const class ConnPoller : Actor
     return null
   }
 
+  ** Check all the connectors for poll callback
   private Void check()
   {
     now := Duration.nowTicks
@@ -54,7 +55,7 @@ internal const class ConnPoller : Actor
       // randomize first poll time to stagger across connectors
       if (pollNext == 0)
       {
-        conn.pollNext.val = now + conn.pollInitStagger
+        conn.pollNext.val = now + pollInitStaggerConn(conn)
         return
       }
 
@@ -63,6 +64,30 @@ internal const class ConnPoller : Actor
       conn.pollNext.val = now + freq
       conn.send(Conn.pollMsg)
     }
+  }
+
+  ** Connector level stagger is for sending the Conn its first poll message.
+  ** For manual polling this is the initial onPollManual callback.  For buckets,
+  ** its just the first time we scan the buckets.
+  static Int pollInitStaggerConn(Conn conn)
+  {
+    pollInitStagger(conn.pingFreq ?: 10sec)
+  }
+
+  ** Bucket level stagger is within buckets of a given tuning config.
+  ** For example if we have multiple buckets of 10sec, then the stagger
+  ** those buckets so they aren't all polled simultaneously
+  static Int pollInitStaggerBucket(ConnTuning tuning)
+  {
+    pollInitStagger(tuning.pollTime)
+  }
+
+  ** Compute the initial poll stagger freq.  We attempt to stagger
+  ** initial polls to prevent every connector polling at the same time
+  ** which can spike the CPU and flood the network.  This method
+  private static Int pollInitStagger(Duration pollTime)
+  {
+    return pollTime.ticks * (0..100).random / 100
   }
 
   private const static Duration checkFreq := 10ms
@@ -111,17 +136,60 @@ const class ConnPollBucket
 
   const Conn conn
   const ConnTuning tuning
+
   const ConnPollBucketState state
+
   const ConnPoint[] points
+
   Duration pollTime() { tuning.pollTime }
+
+  Int nextPoll() { state.nextPoll.val }
+
+  internal Void updateNextPoll(Int startTicks)
+  {
+    lastPoll := Duration.nowTicks
+    lastDur := lastPoll - startTicks
+
+    state.lastPoll.val = lastPoll
+    state.lastDur.val  = lastDur
+    state.nextPoll.val = lastPoll + pollTime.ticks
+    state.numPolls.increment
+    state.totalDur.add(lastDur)
+  }
+
   override Int compare(Obj that)
   {
     tuning.pollTime <=> ((ConnPollBucket)that).tuning.pollTime
   }
+
+  override Str toStr()
+  {
+    "$tuning.dis [$tuning.pollTime, $points.size points] $state"
+  }
 }
 
+** ConnPollBucketState only updated by Conn actor thread
 @NoDoc
 const class ConnPollBucketState
 {
+  new make(ConnTuning tuning)
+  {
+    nextPoll.val = Duration.nowTicks + ConnPoller.pollInitStaggerBucket(tuning)
+  }
+
+  const AtomicInt nextPoll := AtomicInt()
+  const AtomicInt lastPoll := AtomicInt()
+  const AtomicInt numPolls := AtomicInt()
+  const AtomicInt lastDur  := AtomicInt()
+  const AtomicInt totalDur := AtomicInt()
+
+  override Str toStr()
+  {
+    "nextPoll: " + Etc.debugDur(nextPoll.val) +
+    ", lastPoll: " + Etc.debugDur(lastPoll.val) +
+    ", lastDur: " + Duration(lastDur.val).toLocale +
+    ", # polls: " + numPolls.val +
+    ", avgPoll: " + (numPolls.val == 0 ? "n/a" : Duration(totalDur.val/numPolls.val).toLocale)
+  }
 }
 

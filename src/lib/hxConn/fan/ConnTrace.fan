@@ -80,6 +80,12 @@ const class ConnTrace : Actor
     write("dispatch", msg.id, msg)
   }
 
+  ** Trace a poll message
+  Void poll(Str msg, Obj? arg := null)
+  {
+    write("poll", msg, arg)
+  }
+
   ** Trace a protocol specific request message.
   ** The arg must be a Str or Buf.  If arg is a Buf then you must
   ** call 'toImmutable' on it first to ensure backing array is not cleared.
@@ -108,6 +114,7 @@ const class ConnTrace : Actor
   ** the log instance are traced as follows:
   **   - if message starts with ">" it is logged as "req" type
   **   - if message starts with "<" it is logged as "res" type
+  **   - if message starts with "^" it is logged as "event" type
   **   - otherwise it is logged as "log" type
   **
   ** When logging as a request/response the 2nd line is used as summary
@@ -177,6 +184,8 @@ const final class ConnTraceMsg
   **  - "req": protocol specific request message
   **  - "res": protocol specific response message
   **  - "event": protocol specific unsolicited event message
+  **  - "poll": polling callback
+  **  - "hk": house keeping callback
   **  - "log": when using the trace as a system log
   const Str type
 
@@ -210,6 +219,7 @@ const final class ConnTraceMsg
   {
     if (arg == null) return null
     if (arg is Buf) return ((Buf)arg).toHex
+    if (arg is Err) return ((Err)arg).traceToStr
     return arg.toStr
   }
 }
@@ -234,9 +244,14 @@ internal const class ConnTraceLog : Log
   override Void log(LogRec rec)
   {
     msg := rec.msg
-    if (msg.startsWith(">")) trace.req(summaryLine(msg), msg)
-    else if (msg.startsWith("<")) trace.res(summaryLine(msg), msg)
-    else trace.write("log", msg, rec)
+    char := msg.isEmpty ? 'x' : msg[0]
+    switch (char)
+    {
+      case '>': trace.req(summaryLine(msg), msg)
+      case '<': trace.req(summaryLine(msg), msg)
+      case '^': trace.event(summaryLine(msg), msg)
+      default:  trace.write("log", msg, rec)
+    }
   }
 
   private static Str summaryLine(Str msg)

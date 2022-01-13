@@ -132,15 +132,6 @@ const final class Conn : Actor, HxConn
     return 0
   }
 
-  ** Compute the initial poll stagger freq.  We attempt to stagger
-  ** initial polls to prevent every connector polling at the same time
-  ** which can spike the CPU and flood the network
-  internal Int pollInitStagger()
-  {
-    range := pollFreq ?: 1min
-    return range.ticks * (0..100).random / 100
-  }
-
   ** Singleton message for poll dispatch
   internal const static HxMsg pollMsg := HxMsg("poll")
 
@@ -197,7 +188,6 @@ const final class Conn : Actor, HxConn
 
     if (msg === pollMsg)
     {
-      trace.write("poll", "poll", msg)
       try
         state.onPoll
       catch (Err e)
@@ -267,12 +257,29 @@ const final class Conn : Actor, HxConn
              pingFreq:      $pingFreq
              linger:        $linger
              tuning:        $tuning.rec.id.toZinc
+             numPoints:     $points.size
              pollMode:      $pollMode
-             pollFreq:      $pollFreq
-             tracing:       $trace.isEnabled
              """)
-      return s.toStr
-    }
+
+     switch (pollMode)
+     {
+       case ConnPollMode.manual:  detailsPollManual(s)
+       case ConnPollMode.buckets: detailsPollBuckets(s)
+     }
+
+     return s.toStr
+  }
+
+  private Void detailsPollManual(StrBuf s)
+  {
+    s.add("pollFreq:      $pollFreq")
+  }
+
+  private Void detailsPollBuckets(StrBuf s)
+  {
+    s.add("pollBuckets:\n")
+    pollBuckets.each |b| { s.add("  ").add(b).add("\n") }
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

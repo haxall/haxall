@@ -231,7 +231,7 @@ class HaystackDispatch : ConnDispatch
 // Sync Cur
 //////////////////////////////////////////////////////////////////////////
 
-  Void onSyncCur(ConnPoint[] points)
+  override Void onSyncCur(ConnPoint[] points)
   {
     // map to batch read
     ids := Obj[,]
@@ -318,7 +318,7 @@ class HaystackDispatch : ConnDispatch
     if (subIds.isEmpty) return
 
     // ask for a lease period at least 2 times longer than poll freq
-    leaseReq := conn.pollFreq * 2
+    leaseReq := (conn.pollFreq ?: 10sec) * 2
     if (leaseReq < 1min) leaseReq = 1min
 
     // make request for subscription
@@ -413,7 +413,7 @@ class HaystackDispatch : ConnDispatch
     if (close) watchClear
   }
 
-  override Void onPoll()
+  override Void onPollManual()
   {
     if (watchId == null) return
     try

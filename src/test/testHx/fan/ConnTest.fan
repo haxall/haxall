@@ -905,6 +905,20 @@ class ConnTest : HxTest
     c2b = verifyBuckets(c2, c2b, [
       ["$name-default", 10sec, p2, p3],
       ])
+
+    // restart
+    rt.libs.remove(lib)
+    lib = addLib(name)
+    rt.sync
+    c1 = lib.conn(c1rec.id)
+    c2 = lib.conn(c2rec.id)
+    c1b = verifyBuckets(c1, null, [
+      ["$name-default", 10sec, p1, p5],
+      ["TX",            30sec, p4],
+      ])
+    c2b = verifyBuckets(c2, null, [
+      ["$name-default", 10sec, p2, p3],
+      ])
   }
 
   ConnPollBucket[] verifyBuckets(Conn c, ConnPollBucket[]? old, Obj[][] expected)

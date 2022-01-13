@@ -67,7 +67,7 @@ abstract class ConnDispatch
   ConnPoint[] pointsWatched() { state.pointsInWatch.ro }
 
   ** Return if there is one or more points currently in watch.
-  Bool hasPointsWatched() { state.pointsInWatch.size > 0 }
+  Bool hasPointsWatched() { state.hasPointsWatched }
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
@@ -150,7 +150,17 @@ abstract class ConnDispatch
   ** is only invoked if `Conn.pollMode` is configured as "manual".
   ** The frequency of the callback is determined by `Conn.pollFreq`.
   ** Use `pointsWatched` to list of points currently being watched.
-  virtual Void onPoll() { }
+  virtual Void onPollManual() { }
+
+  ** Callback to poll a bucket of points with the same tuning config.
+  ** Default implementation calls `onSyncCur`.  This callback is only
+  ** used if the `Conn.pollMode` is configured as "buckets".
+  virtual Void onPollBucket(ConnPoint[] points) { onSyncCur(points) }
+
+  ** Callback to synchronize the given list of points.  The result
+  ** of this call should be to invoke `ConnPoint.updateCurOk` or
+  ** `ConnPoint.updateCurErr` on each point.
+  virtual Void onSyncCur(ConnPoint[] points) {}
 
   ** Callback when one or more points are put into watch mode.
   virtual Void onWatch(ConnPoint[] points) {}

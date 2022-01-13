@@ -31,7 +31,9 @@ internal final class ConnState
   Dict rec() { conn.rec }
   Str dis() { conn.dis }
   Log log() { conn.log }
+  ConnTrace trace() { conn.trace }
   Duration timeout() { conn.timeout }
+  Bool hasPointsWatched() { pointsInWatch.size > 0 }
 
   ** Handle actor message
   Obj? onReceive(HxMsg msg)
@@ -132,6 +134,7 @@ internal final class ConnState
   Dict close(Err? cause)
   {
     if (isClosed) return rec
+trace.poll("TODO close", cause)
     updateConnState("closing")
     try
       dispatch.onClose
@@ -258,14 +261,60 @@ internal final class ConnState
     if (isClosed) return
     switch (conn.pollMode)
     {
-      case ConnPollMode.manual:  dispatch.onPoll
+      case ConnPollMode.manual:  onPollManual
       case ConnPollMode.buckets: onPollBuckets
     }
   }
 
+  private Void onPollManual()
+  {
+    trace.poll("poll manual", null)
+    dispatch.onPollManual
+  }
+
   private Void onPollBuckets()
   {
-    log.err("TODO onPollBuckets $dis")
+    // short circuit common cases
+    pollBuckets := conn.pollBuckets
+    if (pollBuckets.isEmpty || !hasPointsWatched || isClosed) return
+
+    // check if its time to poll any buckets
+    pollBuckets.each |bucket|
+    {
+      now := Duration.nowTicks
+      if (now >= bucket.nextPoll) pollBucket(now, bucket)
+    }
+
+    // check for quick polls which didn't get handled by their bucket
+    quicks := pointsInWatch.findAll |pt| { pt.curQuickPoll }
+    if (!quicks.isEmpty)
+    {
+      trace.poll("Poll quick")
+      pollBucketPoints(quicks)
+    }
+  }
+
+  private Void pollBucket(Int startTicks, ConnPollBucket bucket)
+  {
+    // we only want to poll watched points
+    points := bucket.points.findAll |pt| { pt.isWatched }
+    if (points.isEmpty) return
+
+    try
+    {
+      trace.poll("Poll bucket", bucket.tuning.dis)
+      pollBucketPoints(points)
+    }
+    finally
+    {
+      bucket.updateNextPoll(startTicks)
+    }
+  }
+
+  private Void pollBucketPoints(ConnPoint[] points)
+  {
+    points.each |pt| { pt.curQuickPoll = false }
+    dispatch.onPollBucket(points)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -285,34 +334,14 @@ internal final class ConnState
        close(null)
 
     // check points
-    /*
     now := Duration.now
-    newPollBuckets := model.pollingMode.isPollingEnabled ? Ref:PollBucket[:] : null
     toStale := ConnPoint[,]
-    points.each |pt|
+    conn.points.each |pt|
     {
       try
-        doPointHouseKeeping(now, newPollBuckets, toStale, pt)
+        doPointHouseKeeping(now, toStale, pt)
       catch (Err e)
         log.err("doPointHouseKeeping($pt.dis)", e)
-    }
-
-    // copy old bucket state to new buckets
-    oldPollBuckets := this.pollBuckets
-    if (oldPollBuckets != null && newPollBuckets != null)
-    {
-      oldPollBuckets.each |oldBucket|
-      {
-        newBucket := newPollBuckets[oldBucket.id]
-        if (newBucket != null) newBucket.copyOld(oldBucket)
-      }
-    }
-
-    // ready buckets and sort by poll time
-    if (newPollBuckets != null)
-    {
-      newPollBuckets.each |b| { b.ready }
-      this.pollBuckets = newPollBuckets.vals.sort
     }
 
     // stale transition
@@ -326,9 +355,16 @@ internal final class ConnState
           log.err("doHouseKeeping updateCurStale: $pt.dis", e)
       }
     }
-    */
 
+    // dispatch callback
     dispatch.onHouseKeeping
+  }
+
+  private Void doPointHouseKeeping(Duration now, ConnPoint[] toStale, ConnPoint pt)
+  {
+    tuning := pt.tuning
+    // onCurHouseKeeping(now, toStale, pt, tuning)
+    // onWriteHouseKeeping(now, pt, tuning)
   }
 
   private Void checkAutoPing()
