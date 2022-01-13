@@ -122,7 +122,8 @@ class RuntimeTest : HxTest
     a := rt.libs.add("hxTestA") as HxTestALib
     verifyLibEnabled("hxTestA")
     verifySame(rt.lib("hxTestA"), a)
-    verifyEq(a.traces.val, "onStart\nonReady\nonSteadyState\n")
+    verifyEq(a.traces.val, "onStart[true]\nonReady[true]\nonSteadyState\n")
+    verifyEq(a.isRunning, true)
 
     // now add hxTestB
     b := rt.libs.add("hxTestB")
@@ -138,7 +139,8 @@ class RuntimeTest : HxTest
     a.traces.val = ""
     rt.libs.remove("hxTestA")
     verifyLibDisabled("hxTestA")
-    verifyEq(a.traces.val, "onUnready\nonStop\n")
+    verifyEq(a.traces.val, "onUnready[false]\nonStop[false]\n")
+    verifyEq(a.isRunning, false)
   }
 
   private HxLib verifyLibEnabled(Str name)
@@ -218,11 +220,11 @@ const class HxTestALib : HxLib
 
   override const Observable[] observables := [TestObservable()]
 
-  override Void onStart() { trace("onStart") }
-  override Void onReady() { trace("onReady") }
+  override Void onStart() { trace("onStart[$isRunning]") }
+  override Void onReady() { trace("onReady[$isRunning]") }
   override Void onSteadyState() { trace("onSteadyState") }
-  override Void onUnready() { trace("onUnready") }
-  override Void onStop() { trace("onStop") }
+  override Void onUnready() { trace("onUnready[$isRunning]") }
+  override Void onStop() { trace("onStop[$isRunning]") }
 }
 
 **************************************************************************

@@ -98,6 +98,11 @@ abstract const class HxLib
 // Lifecycle Callbacks
 //////////////////////////////////////////////////////////////////////////
 
+  ** Running flag.  On startup this flag transitions to true before calling
+  ** ready and start on the library.  On shutdown this flag transitions
+  ** to false before calling unready and stop on the library.
+  Bool isRunning() { spi.isRunning }
+
   ** Callback when library is started.
   ** This is called on dedicated background actor.
   virtual Void onStart() {}
@@ -146,6 +151,7 @@ const mixin HxLibSpi
   abstract Dict rec()
   abstract Log log()
   abstract Uri webUri()
+  abstract Bool isRunning()
   abstract Void sync(Duration? timeout := 30sec)
   abstract Subscription[] subscriptions()
   abstract Subscription observe(Str name, Dict config, Obj callback)

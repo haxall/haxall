@@ -182,6 +182,7 @@ const class HxdLibSpi : Actor, HxLibSpi
 
   private Obj? onUnready()
   {
+    isRunningRef.val = false
     lib.onUnready
     return null
   }
@@ -189,7 +190,6 @@ const class HxdLibSpi : Actor, HxLibSpi
   private Obj? onStop()
   {
     lib.onStop
-    isRunningRef.val = false
     return null
   }
 
@@ -204,7 +204,7 @@ const class HxdLibSpi : Actor, HxLibSpi
     ((HxdLibMethodObserver)msg.a).call(msg.b)
   }
 
-  Bool isRunning() { isRunningRef.val }
+  override Bool isRunning() { isRunningRef.val }
   private const AtomicBool isRunningRef := AtomicBool(false)
 
   private Void scheduleHouseKeeping()
