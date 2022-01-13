@@ -111,13 +111,14 @@ is: ^str
 doc:
   Standardized conn trace type enumeration
 enum: Trio:
+  phase:    {dis:"phase",    icon:"gear"      iconColor:"#e74c3c" doc:"Lifecycle phase event"}
   dispatch: {dis:"dispatch", icon:"mail"      iconColor:"#16a085" doc:"Dispatch message"}
-  hk:       {dis:"hk",       icon:"clock"     iconColor:"#16a085" doc:"House keeping"}
-  poll:     {dis:"poll",     icon:"recent"    iconColor:"#16a085" doc:"Poll check"}
   req:      {dis:"req",      icon:"navRight"  iconColor:"#8e44ad" doc:"Outgoing protocol request"}
   res:      {dis:"res",      icon:"navLeft"   iconColor:"#8e44ad" doc:"Incoming protocol response"}
   event:    {dis:"event",    icon:"chevronUp" iconColor:"#8e44ad" doc:"Unsolicited protocol event"}
   log:      {dis:"log",      icon:"info"      iconColor:"#2980b9" doc:"System log tracing"}
+  poll:     {dis:"poll",     icon:"recent"    iconColor:"#16a085" doc:"Poll check"}
+  hk:       {dis:"hk",       icon:"clock"     iconColor:"#16a085" doc:"House keeping"}
 --------------------------------------------------------------------------
 
 

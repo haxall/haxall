@@ -41,7 +41,7 @@ internal final class ConnState
     switch (msg.id)
     {
       case "ping":         return ping
-      case "close":        return close(null)
+      case "close":        return close("force close")
       case "sync":         return null
       case "watch":        onWatch(msg.a); return null
       case "unwatch":      onUnwatch(msg.a); return null
@@ -74,7 +74,7 @@ internal final class ConnState
   ** Open connection and then auto-close after a linger timeout.
   This openLinger(Duration linger := conn.linger)
   {
-    open("")
+    open("linger")
     setLinger(linger)
     return this
   }
@@ -90,6 +90,8 @@ internal final class ConnState
   ** until that application specifically closes it
   Void openPin(Str app)
   {
+    if (openPins.containsKey(app)) return
+    trace.phase("openPin", app)
     openPins[app] = app
     open(app)
   }
@@ -97,6 +99,8 @@ internal final class ConnState
   ** Close a pinned application opened by `openPin`.
   Void closePin(Str app)
   {
+    if (!openPins.containsKey(app)) return
+    trace.phase("closePin", app)
     openPins.remove(app)
     if (openPins.isEmpty) setLinger(5sec)
   }
@@ -107,34 +111,42 @@ internal final class ConnState
     if (status.isDisabled) return
     if (isOpen) return
 
+    trace.phase("opening...", app)
     updateConnState("opening")
     try
+    {
       dispatch.onOpen
+    }
     catch (Err e)
-      { updateConnErr(e); return }
+    {
+      trace.phase("open err", e)
+      updateConnErr(e)
+      return
+    }
     isOpen = true
     updateConnOk
+    trace.phase("open ok")
 
     // re-ping every 1hr to keep metadata fresh
     if (!openForPing && lastPing < Duration.nowTicks - 1hr.ticks) ping
 
     // if we have points currently in watch, we need to re-subscribe them
-    /*
     try
-      { if (hasPointsWatched && app != "watch") doWatch(pointsInWatch) }
+      { if (hasPointsWatched && app != "watch") onWatch(pointsInWatch) }
     catch (Err e)
       { close(e); return }
 
     // check for points to writeOnOpen
-    checkWriteOnOpen
-    */
+// TODO
+//    checkWriteOnOpen
   }
 
   ** Force this connector closed and call `onClose`.
-  Dict close(Err? cause)
+  ** Reason is a string message or Err exception
+  Dict close(Obj cause)
   {
     if (isClosed) return rec
-trace.poll("TODO close", cause)
+    trace.phase("close", cause)
     updateConnState("closing")
     try
       dispatch.onClose
@@ -143,7 +155,7 @@ trace.poll("TODO close", cause)
     lingerClose = null
     openPins.clear
     isOpen = false
-    if (cause != null)
+    if (cause is Err)
       updateConnErr(cause)
     else
       updateConnState("closed")
@@ -177,6 +189,7 @@ trace.poll("TODO close", cause)
     if (!isOpen) return result
 
     // perform onPing calback
+    trace.phase("ping")
     Dict? r
     try
     r = dispatch.onPing
@@ -331,7 +344,7 @@ trace.poll("TODO close", cause)
 
     // if have a linger open, then close connector
     if (lingerClose != null && Duration.now > lingerClose && openPins.isEmpty)
-       close(null)
+       close("linger expired")
 
     // check points
     now := Duration.now

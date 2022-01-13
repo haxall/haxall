@@ -74,6 +74,12 @@ const class ConnTrace : Actor
     }
   }
 
+  ** Trace a phase message
+  Void phase(Str msg, Obj? arg := null)
+  {
+    write("phase", msg, arg)
+  }
+
   ** Trace a dispatch message
   Void dispatch(HxMsg msg)
   {
@@ -248,7 +254,7 @@ internal const class ConnTraceLog : Log
     switch (char)
     {
       case '>': trace.req(summaryLine(msg), msg)
-      case '<': trace.req(summaryLine(msg), msg)
+      case '<': trace.res(summaryLine(msg), msg)
       case '^': trace.event(summaryLine(msg), msg)
       default:  trace.write("log", msg, rec)
     }
