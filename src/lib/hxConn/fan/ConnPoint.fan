@@ -75,17 +75,20 @@ const final class ConnPoint : HxConnPoint
   ** Is history address supported on this point
   Bool hasHis() { config.hisAddr != null }
 
-  ** Timezone defined by rec 'tz' tag
-  TimeZone tz() { config.tz }
-
   ** Point kind defined by rec 'kind' tag
   Kind kind() { config.kind }
+
+  ** Timezone defined by rec 'tz' tag
+  TimeZone tz() { config.tz }
 
   ** Unit defined by rec 'unit' tag or null
   Unit? unit() { config.unit }
 
   ** Conn tuning configuration to use for this point
   ConnTuning tuning() { config.tuning ?: conn.tuning }
+
+  ** Current value adjustment defined by rec 'curCalibration' tag
+  @NoDoc Number? curCalibration() { config.curCalibration }
 
   ** Current value conversion if defined by rec 'curConvert' tag
   @NoDoc PointConvert? curConvert() { config.curConvert }
@@ -114,20 +117,24 @@ const final class ConnPoint : HxConnPoint
   ** Update current value and status
   Void updateCurOk(Obj? val)
   {
-    lib.log.info("updateCurOk $dis = $val")
+    curStateRef.val = ConnPointCurState.updateOk(this, val)
   }
 
   ** Put point into down/fault/remoteErr with given error.
   Void updateCurErr(Err err)
   {
-    lib.log.info("updateCurErr $dis = $err")
+    curStateRef.val = ConnPointCurState.updateErr(this, err)
   }
 
   ** Transition point to stale status
   internal Void updateCurStale()
   {
-    lib.log.info("updateCurStale $dis")
+    curStateRef.val = ConnPointCurState.updateStale(this)
   }
+
+  ** Cur value state storage and handling
+  internal ConnPointCurState curState() { curStateRef.val }
+  private const AtomicRef curStateRef := AtomicRef(ConnPointCurState.nil)
 
   internal Bool curQuickPoll { get { false } set {} }
 
@@ -148,17 +155,53 @@ const final class ConnPoint : HxConnPoint
   ** Debug details
   @NoDoc override Str details()
   {
+    model := lib.model
     s := StrBuf()
-    s.add("""id:        $id
-             dis:       $dis
-             tz:        $tz
-             kind:      $kind
-             unit:      $unit
-             tuning:    $tuning.rec.id.toZinc
-             isWatched: $isWatched
+    s.add("""id:             $id
+             dis:            $dis
+             rt:             $lib.rt.platform.hostModel [$lib.rt.version]
+             lib:            $lib.typeof [$lib.typeof.pod.version]
+             conn:           $conn.dis [$conn.id]
+             kind:           $kind
+             tz:             $tz
+             unit:           $unit
+             tuning:         $tuning.rec.id.toZinc
+             isWatched:      $isWatched
+
              """)
-      return s.toStr
+
+    detailsAddr(s, model.curTag,   curAddr)
+    detailsAddr(s, model.writeTag, writeAddr)
+    detailsAddr(s, model.hisTag,   hisAddr)
+
+    watches := lib.rt.watch.listOn(id)
+    s.add("""
+             Watches ($watches.size)
+             =============================
+             """)
+    if (watches.isEmpty) s.add("none\n")
+    else watches.each |w|
+    {
+      s.add(w.dis).add(" (lastRenew: ").add(Etc.debugDur(w.lastRenew.ticks)).add(", lease: ").add(w.lease).add(")\n")
     }
+
+    if (hasCur)
+    {
+      s.add("""
+               Conn Cur
+               =============================
+               """)
+      curState.details(s, this)
+    }
+
+    return s.toStr
+  }
+
+  private static Void detailsAddr(StrBuf s, Str? tag, Obj? val)
+  {
+    if (tag == null) return
+    s.add("$tag:".padr(16)).add(val == null ? "-" : ZincWriter.valToStr(val)).add("\n")
+  }
 }
 
 **************************************************************************
@@ -178,16 +221,17 @@ internal const final class ConnPointConfig
     this.kind = Kind.obj
     try
     {
-      this.tz           = rec.has("tz") ? FolioUtil.hisTz(rec) : TimeZone.cur
-      this.unit         = FolioUtil.hisUnit(rec)
-      this.kind         = FolioUtil.hisKind(rec)
-      this.tuning       = lib.tunings.forRec(rec)
-      this.curAddr      = toAddr(model, rec, model.curTag,   model.curTagType)
-      this.writeAddr    = toAddr(model, rec, model.writeTag, model.writeTagType)
-      this.hisAddr      = toAddr(model, rec, model.hisTag,   model.hisTagType)
-      this.curConvert   = toConvert(rec, "curConvert")
-      this.writeConvert = toConvert(rec, "writeConvert")
-      this.hisConvert   = toConvert(rec, "hisConvert")
+      this.tz             = rec.has("tz") ? FolioUtil.hisTz(rec) : TimeZone.cur
+      this.unit           = FolioUtil.hisUnit(rec)
+      this.kind           = FolioUtil.hisKind(rec)
+      this.tuning         = lib.tunings.forRec(rec)
+      this.curAddr        = toAddr(model, rec, model.curTag,   model.curTagType)
+      this.writeAddr      = toAddr(model, rec, model.writeTag, model.writeTagType)
+      this.hisAddr        = toAddr(model, rec, model.hisTag,   model.hisTagType)
+      this.curCalibration = rec["curCalibration"] as Number
+      this.curConvert     = toConvert(rec, "curConvert")
+      this.writeConvert   = toConvert(rec, "writeConvert")
+      this.hisConvert     = toConvert(rec, "hisConvert")
     }
     catch (Err e)
     {
@@ -222,6 +266,7 @@ internal const final class ConnPointConfig
   const Obj? curAddr
   const Obj? writeAddr
   const Obj? hisAddr
+  const Number? curCalibration
   const PointConvert? curConvert
   const PointConvert? writeConvert
   const PointConvert? hisConvert

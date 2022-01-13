@@ -252,6 +252,8 @@ const final class Conn : Actor, HxConn
     s := StrBuf()
     s.add("""id:            $id
              dis:           $dis
+             rt:            $rt.platform.hostModel [$rt.version]
+             lib:           $lib.typeof [$lib.typeof.pod.version]
              timeout:       $timeout
              openRetryFreq: $openRetryFreq
              pingFreq:      $pingFreq
