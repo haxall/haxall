@@ -27,6 +27,7 @@ internal final class ConnState
   const Conn conn
   HxRuntime rt() { conn.rt }
   Folio db() { conn.db }
+  ConnLib lib() { conn.lib }
   Ref id() { conn.id }
   Dict rec() { conn.rec }
   Str dis() { conn.dis }
@@ -167,7 +168,7 @@ internal final class ConnState
   {
     try
     {
-      commit(Diff(rec, Etc.makeDict1("connState", state), Diff.forceTransient))
+      conn.committer.commit1(lib, rec, "connState", state)
     }
     catch (ShutdownErr e) {}
     catch (Err e)
@@ -443,7 +444,7 @@ internal final class ConnState
     if (rec.has("disabled"))
     {
       status = ConnStatus.disabled
-      errStr = Remove.val
+      errStr = null
     }
     else if (curErr != null)
     {
@@ -453,19 +454,19 @@ internal final class ConnState
     else if (lastConnOk != 0)
     {
       status = ConnStatus.ok
-      errStr = Remove.val
+      errStr = null
     }
     else
     {
       status = ConnStatus.unknown
-      errStr = Remove.val
+      errStr = null
     }
 
     // update my status
     this.status = status
-    changes := Etc.makeDict3("connStatus", status.name, "connState", state, "connErr", errStr)
-    commit(Diff(rec, changes, Diff.forceTransient))
-    /*
+    conn.committer.commit3(lib, rec, "connStatus", status.name, "connState", state, "connErr", errStr)
+
+    /* TODO
     diffs := Diff[,]
     diffs.capacity = 1 + points.size
     tags := Etc.makeDict3("connStatus", status.name, "connState", state, "connErr", errStr)

@@ -96,6 +96,9 @@ const final class Conn : Actor, HxConn
   internal ConnConfig config() { configRef.val }
   private const AtomicRef configRef
 
+  ** Manages all status commits to this record
+  internal const ConnCommitter committer := ConnCommitter()
+
 //////////////////////////////////////////////////////////////////////////
 // Points
 //////////////////////////////////////////////////////////////////////////
@@ -253,17 +256,17 @@ const final class Conn : Actor, HxConn
   @NoDoc override Str details()
   {
     s := StrBuf()
-    s.add("""id:            $id
-             dis:           $dis
-             rt:            $rt.platform.hostModel [$rt.version]
-             lib:           $lib.typeof [$lib.typeof.pod.version]
-             timeout:       $timeout
-             openRetryFreq: $openRetryFreq
-             pingFreq:      $pingFreq
-             linger:        $linger
-             tuning:        $tuning.rec.id.toZinc
-             numPoints:     $points.size
-             pollMode:      $pollMode
+    s.add("""id:             $id
+             dis:            $dis
+             rt:             $rt.platform.hostModel [$rt.version]
+             lib:            $lib.typeof [$lib.typeof.pod.version]
+             timeout:        $timeout
+             openRetryFreq:  $openRetryFreq
+             pingFreq:       $pingFreq
+             linger:         $linger
+             tuning:         $tuning.rec.id.toZinc
+             numPoints:      $points.size
+             pollMode:       $pollMode
              """)
 
      switch (pollMode)
@@ -272,12 +275,15 @@ const final class Conn : Actor, HxConn
        case ConnPollMode.buckets: detailsPollBuckets(s)
      }
 
-     return s.toStr
+    s.add("\n")
+    committer.details(s)
+
+    return s.toStr
   }
 
   private Void detailsPollManual(StrBuf s)
   {
-    s.add("pollFreq:      $pollFreq")
+    s.add("pollFreq:       $pollFreq\n")
   }
 
   private Void detailsPollBuckets(StrBuf s)

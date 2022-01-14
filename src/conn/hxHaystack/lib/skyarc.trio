@@ -17,4 +17,16 @@ src:
   submit: {action:"extSettingsCommit"}
   data:   {expr:"extSettings(\"haystack\")"}
 --------------------------------------------------------------------------
+template: haystackConn
+tags:
+ hostId:         {hidden}
+ hostDis:        {hidden}
+ hostModel:      {hidden}
+ moduleName:     {hidden}
+ moduleVersion:  {hidden}
+ productName:    {hidden}
+ productVersion: {hidden}
+ vendorName:     {hidden}
+ tz:             {hidden}
+--------------------------------------------------------------------------
 

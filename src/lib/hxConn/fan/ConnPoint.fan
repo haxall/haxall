@@ -29,6 +29,10 @@ const final class ConnPoint : HxConnPoint
     this.connRef   = conn
     this.idRef     = rec.id
     this.configRef = AtomicRef(ConnPointConfig(conn.lib, rec))
+
+// TODO: need to design startup status, fault handling, and conn status merge
+    if (fault != null)
+      committer.commit3(lib, rec, "curStatus", "fault", "curVal", null, "curErr", fault)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -110,6 +114,9 @@ const final class ConnPoint : HxConnPoint
   internal ConnPointConfig config() { configRef.val }
   private const AtomicRef configRef
 
+  ** Manages all status commits to this record
+  private const ConnCommitter committer := ConnCommitter()
+
 //////////////////////////////////////////////////////////////////////////
 // Current Value
 //////////////////////////////////////////////////////////////////////////
@@ -117,19 +124,25 @@ const final class ConnPoint : HxConnPoint
   ** Update current value and status
   Void updateCurOk(Obj? val)
   {
-    curStateRef.val = ConnPointCurState.updateOk(this, val)
+    s := ConnPointCurState.updateOk(this, val)
+    curStateRef.val = s
+    committer.commit3(lib, rec, "curStatus", s.status.name, "curVal", s.val, "curErr", ConnStatus.toErrStr(s.err))
   }
 
   ** Put point into down/fault/remoteErr with given error.
   Void updateCurErr(Err err)
   {
-    curStateRef.val = ConnPointCurState.updateErr(this, err)
+    s := ConnPointCurState.updateErr(this, err)
+    curStateRef.val = s
+    committer.commit3(lib, rec, "curStatus", s.status.name, "curVal", s.val, "curErr", ConnStatus.toErrStr(s.err))
   }
 
   ** Transition point to stale status
   internal Void updateCurStale()
   {
-    curStateRef.val = ConnPointCurState.updateStale(this)
+    s := ConnPointCurState.updateStale(this)
+    curStateRef.val = s
+    committer.commit1(lib, rec, "curStatus", s.status.name)
   }
 
   ** Cur value state storage and handling
@@ -173,6 +186,9 @@ const final class ConnPoint : HxConnPoint
     detailsAddr(s, model.curTag,   curAddr)
     detailsAddr(s, model.writeTag, writeAddr)
     detailsAddr(s, model.hisTag,   hisAddr)
+
+    s.add("\n")
+    committer.details(s)
 
     watches := lib.rt.watch.listOn(id)
     s.add("""

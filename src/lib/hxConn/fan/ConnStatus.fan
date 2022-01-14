@@ -85,8 +85,9 @@ enum class ConnStatus
     return e is DownErr ? down : fault
   }
 
-  internal static Str toErrStr(Err err)
+  internal static Str? toErrStr(Err? err)
   {
+    if (err == null) return null
     if (err is FaultErr) return err.msg
     if (err is DownErr) return err.msg
     if (err is RemoteStatusErr) return "Remote status err: $err.msg"

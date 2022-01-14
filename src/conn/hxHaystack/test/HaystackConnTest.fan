@@ -237,6 +237,7 @@ class HaystackConnTest : HxTest
                        "point": Marker.val, "unit":"kW", "kind":"Number"])
 
     // sync
+    rt.sync
     eval("readAll(haystackCur).haystackSyncCur")
     syncConn
     verifyCur(proxy1,  false)
@@ -244,7 +245,7 @@ class HaystackConnTest : HxTest
     verifyCur(proxy3,  n(30f, "%"))
     verifyCur(proxy3dup, n(30f, "%"))
     verifyCur(proxy3dup2, n(30f, "%"))
-    verifyCur(proxyE1, null, "fault", "haystackCur must be Str: Ref")
+    verifyCur(proxyE1, null, "fault", "Invalid type for 'haystackCur' [Ref != Str]")
     verifyCur(proxyE2, null ,"fault", "haystack::UnknownRecErr")
     verifyCur(proxyE3, null ,"fault", "sys::Err: point unit != updateCurOk unit: kW != \u00B0F")
 
@@ -299,12 +300,12 @@ class HaystackConnTest : HxTest
     pt3 = commit(pt3, ["curVal":n(40f, "%")], Diff.transient)
 
     // test that proxies updated
-    Actor.sleep(100ms)
+ Actor.sleep(3sec)
     verifyCur(proxy1, true)
     verifyCur(proxy2, n(99f, "fahrenheit"))
     verifyCur(proxy3, n(40f, "%"))
     verifyCur(proxy3dup, n(40f, "%"))
-    verifyCur(proxyE1, null, "fault", "haystackCur must be Str: Ref")
+    verifyCur(proxyE1, null, "fault", "Invalid type for 'haystackCur' [Ref != Str]")
     verifyCur(proxyE2, null ,"fault", "haystack::UnknownRecErr")
 
     // now add triple dup
@@ -354,7 +355,7 @@ class HaystackConnTest : HxTest
   Void verifyCur(Dict r, Obj? val, Str status := "ok", Str? err := null)
   {
     r = readById(r.id)
-    // echo("--> verifyCur " + r.dis + " " + r["curVal"] + " @ " + r["curStatus"])
+echo("--> verifyCur " + r.dis + " " + r["curVal"] + " @ " + r["curStatus"] + " err=" +  r["curErr"])
     verifyEq(r["curVal"], val)
     verifyEq(r["curStatus"], status)
     verifyEq(r["curErr"], err)
@@ -362,8 +363,8 @@ class HaystackConnTest : HxTest
 
   Void resetCur(Dict r)
   {
-    HaystackLib lib := rt.lib("haystack")
-    lib.conn(r->haystackConnRef).send(HxMsg("testReset", r.id)).get
+    // TODO: not sure we need nor want this
+    //commit(r, ["curVal":Remove.val, "curStatus":Remove.val, "curErr":Remove.val], Diff.forceTransient)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -570,7 +571,9 @@ class HaystackConnTest : HxTest
 
   Void syncConn()
   {
+Actor.sleep(400ms)
     lib := (HaystackLib)rt.lib("haystack")
+    rt.sync
     lib.conn(conn.id).sync
   }
 
