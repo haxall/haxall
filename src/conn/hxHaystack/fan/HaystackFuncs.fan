@@ -34,14 +34,14 @@ const class HaystackFuncs
 
   ** Deprecated - use `connSyncCur()`
   @Deprecated @Axon { admin = true }
-  static Future haystackSyncCur(Obj points)
+  static Future[] haystackSyncCur(Obj points)
   {
     ConnFwFuncs.connSyncCur(points)
   }
 
   ** Deprecated - use `connSyncHis()`
   @Deprecated @Axon { admin = true }
-  static Future haystackSyncHis(Obj points, Obj? span := null)
+  static Future[] haystackSyncHis(Obj points, Obj? span := null)
   {
     ConnFwFuncs.connSyncHis(points, span)
   }

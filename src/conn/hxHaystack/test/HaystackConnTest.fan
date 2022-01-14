@@ -37,8 +37,8 @@ class HaystackConnTest : HxTest
     verifyConn
     verifyCall
     verifyReads
-/*
     verifyWatches
+/*
     verifyPointWrite
     verifyReadHis
     verifySyncHis
@@ -210,7 +210,7 @@ class HaystackConnTest : HxTest
   Void verifyWatches()
   {
      // create proxy rec
-     badRef := Ref.gen.toAbs(rt.db.idPrefix)
+     badRef := genRef
      proxy1 := addRec(["dis":"Proxy-1", "haystackConnRef":conn.id,
                        "haystackCur":pt1.id.toStr, "his":Marker.val,
                        "point": Marker.val, "unit":"fahrenheit", "kind":"Bool"])
@@ -571,7 +571,7 @@ class HaystackConnTest : HxTest
   Void syncConn()
   {
     lib := (HaystackLib)rt.lib("haystack")
-    str := lib.conn(conn.id).send(HxMsg("connDetails")).get
+    lib.conn(conn.id).sync
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -67,28 +67,39 @@ const class ConnFwFuncs
   **
   ** Perform a remote sync of current values for the given points.
   ** The 'points' parameter may be anything acceptable by `toRecIdList()`.
-  ** Return a future which completes when the sync has completed.
-  ** The future result is a list of dicts for the updated point records.
+  ** Return a list of futures for each unique connector.  The result
+  ** of each future is unspecified.
   **
   ** Examples:
   **   readAll(bacnetCur).connSyncCur
   **
   @Axon { admin = true }
-  static Future connSyncCur(Obj points) { throw Err("TODO") }
+  static Future[] connSyncCur(Obj points)
+  {
+    cx := curContext
+    futures := Future[,]
+    ConnUtil.eachConnInPointIds(cx.rt, Etc.toIds(points)) |c, pts|
+    {
+      futures.add(c.syncCur(pts))
+    }
+    return futures
+  }
 
   **
   ** Perform a remote sync of history data for the given points.
   ** The 'points' parameter may be anything acceptable by `toRecIdList()`.
   ** The 'span' parameter is anything acceptable by `toSpan()`; or use 'null'
-  ** to sync from each point's `hisEnd` tag.  Return a future which
-  ** completes when the sync has completed.  The future result is a list
-  ** of dicts for the updated point records.
+  ** Return a list of futures for each point.  The result of each future
+  ** is unspecified.
   **
   ** Examples:
   **   readAll(haystackHis).connSyncHis(null)
   **
   @Axon { admin = true }
-  static Future connSyncHis(Obj points, Obj? span) { throw Err("TODO") }
+  static Future[] connSyncHis(Obj points, Obj? span)
+  {
+    throw Err("TODO")
+  }
 
   **
   ** Return debug details for a connector or a connector point.

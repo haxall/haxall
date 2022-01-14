@@ -158,6 +158,9 @@ const final class Conn : Actor, HxConn
   ** Force close of connection if open
   override Future close() { send(HxMsg("close")) }
 
+  ** Synchronize the current values for the given points
+  Future syncCur(ConnPoint[] points) { send(HxMsg("syncCur", points)) }
+
   ** Block until this conn processes its current actor queue
   This sync(Duration? timeout := null)
   {

@@ -27,7 +27,7 @@ const class SqlFuncs
 
   ** Deprecated - use `connSyncHis()`
   @Deprecated @Axon { admin = true }
-  static Future sqlSyncHis(Obj points, Obj? span := null)
+  static Future[] sqlSyncHis(Obj points, Obj? span := null)
   {
     ConnFwFuncs.connSyncHis(points, span)
   }

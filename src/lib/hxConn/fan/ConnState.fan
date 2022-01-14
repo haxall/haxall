@@ -45,6 +45,7 @@ internal final class ConnState
       case "sync":         return null
       case "watch":        onWatch(msg.a); return null
       case "unwatch":      onUnwatch(msg.a); return null
+      case "syncCur":      return onSyncCur(msg.a)
       case "learn":        return onLearn(msg.a)
       case "connUpdated":  dispatch.onConnUpdated; return null
       case "pointAdded":   dispatch.onPointAdded(msg.a); return null
@@ -219,8 +220,15 @@ internal final class ConnState
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Watches
+// Cur/Watches
 //////////////////////////////////////////////////////////////////////////
+
+  private Obj? onSyncCur(ConnPoint[] points)
+  {
+    openLinger.checkOpen
+    dispatch.onSyncCur(points)
+    return "syncCur [$points.size points]"
+  }
 
   private Void onWatch(ConnPoint[] points)
   {
