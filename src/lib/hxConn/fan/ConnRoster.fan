@@ -208,12 +208,19 @@ internal const final class ConnRoster
   private Void onPointAdded(Dict rec)
   {
     // lookup conn, if not found ignore it
+    id := rec.id
     connRef := pointConnRef(rec)
     conn := conn(connRef, false)
     if (conn == null) return
 
+    // check if point already exists (which might happen
+    // during startup if we receive are receiving both
+    // an onConnAdded and onPointAdded events)
+    point := conn.point(id, false)
+    if (point != null) return
+
     // create instance
-    point := ConnPoint(conn, rec)
+    point = ConnPoint(conn, rec)
 
     // add to lookup tables
     pointsById.add(point.id, point)
