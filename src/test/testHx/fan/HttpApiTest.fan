@@ -27,6 +27,7 @@ class HttpApiTest : HxTest
   Dict? siteA
   Dict? siteB
   Dict? siteC
+  Dict? eqA1
 
   @HxRuntimeTest
   Void test()
@@ -38,6 +39,8 @@ class HttpApiTest : HxTest
     doRead
     doCommit
     doGets
+    doNav
+    doWatches
     doHis
     doPointWrite
   }
@@ -65,6 +68,12 @@ class HttpApiTest : HxTest
     siteB = addRec(["dis":"B", "site":m, "geoCity":"Norfolk",  "area":n(20_000)])
     siteC = addRec(["dis":"C", "site":m, "geoCity":"Roanoke",  "area":n(10_000)])
 
+    // equip
+    eqA1 = addRec(["dis":"A1", "equip":m, "siteRef":siteA.id])
+
+    // points
+    ptX := addRec(["dis":"A1X", "point":m, "siteRef":siteA.id, "equipRef":eqA1.id])
+    ptY := addRec(["dis":"A1Y", "point":m, "siteRef":siteA.id, "equipRef":eqA1.id])
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -290,6 +299,70 @@ class HttpApiTest : HxTest
     wc.readRes
     verifyEq(wc.resCode, 405)
     verifyEq(wc.resPhrase.startsWith("GET not allowed for op"), true)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Nav
+//////////////////////////////////////////////////////////////////////////
+
+  Void doNav()
+  {
+    Grid g := c.call("nav", Etc.makeMapGrid(null, Str:Obj[:]))
+    verifyEq(g.size, 3)
+    verifyEq(g[0].dis, "A")
+    verifyEq(g[0].id, g[0]["navId"])
+
+    g = c.call("nav", Etc.makeMapGrid(null, Str:Obj["navId":g[0].id]))
+    verifyEq(g.size, 1)
+    verifyEq(g[0].dis, "A1")
+    verifyEq(g[0].id, g[0]["navId"])
+
+    g = c.call("nav", Etc.makeMapGrid(null, Str:Obj["navId":g[0].id]))
+    verifyEq(g.size, 2)
+    verifyEq(g[0].dis, "A1X")
+    verifyEq(g[0]["navId"], null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Watches (watchSub, watchPoll, watchUnsub)
+//////////////////////////////////////////////////////////////////////////
+
+  private Void doWatches()
+  {
+    // haystack: watchSub
+    w := rt.watch
+    verifyEq(w.isWatched(siteA.id), false)
+    verifyEq(w.isWatched(eqA1.id), false)
+    res := c.call("watchSub", Etc.makeListGrid(["watchDis":"test", "lease":n(17, "min")], "id", null, [siteA.id, eqA1.id]))
+    watchId := res.meta->watchId
+    verifyEq(res.meta->lease, n(17, "min"))
+    verifyEq(res.size, 2)
+    verifyDictEq(res[0], siteA)
+    verifyDictEq(res[1], eqA1)
+    verifyEq(w.list.size, 1)
+    verifyEq(w.isWatched(siteA.id), true)
+    verifyEq(w.isWatched(eqA1.id), true)
+    verifyEq(w.list.first.dis, "test")
+    verifyEq(w.list.first.lease, 17min)
+    res = c.call("watchPoll", Etc.makeEmptyGrid(["watchId": watchId]))
+
+    // haystack: watchPoll
+    eqA1 = commit(eqA1, ["foo":n(123)])
+    res = c.call("watchPoll", Etc.makeEmptyGrid(["watchId": watchId]))
+    verifyEq(res.size, 1)
+    verifyEq(res[0].id, eqA1.id)
+    verifyEq(res[0]->foo, n(123))
+
+    // haystack: watchUnsub
+    res = c.call("watchUnsub", Etc.makeListGrid(["watchId": watchId], "id", null, [eqA1.id]))
+    verifyEq(w.isWatched(siteA.id), true)
+    verifyEq(w.isWatched(eqA1.id), false)
+
+    // haystack: watchUnsub
+    res = c.call("watchUnsub", Etc.makeEmptyGrid(["watchId": watchId, "close":true]))
+    verifyEq(w.list.size, 0)
+    verifyEq(w.isWatched(siteA.id), false)
+    verifyEq(w.isWatched(eqA1.id), false)
   }
 
 //////////////////////////////////////////////////////////////////////////

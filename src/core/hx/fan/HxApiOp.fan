@@ -255,6 +255,128 @@ internal class HxCommitOp : HxApiOp
 }
 
 **************************************************************************
+** HxNavOp
+**************************************************************************
+
+internal class HxNavOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    // use simple site/equip/point navigation
+    navId := req.first?.get("navId") as Ref
+    if (navId == null)
+    {
+      // if querying root, try sites first
+      sites := cx.db.readAllList(Filter("site"))
+      if (!sites.isEmpty) return respond(sites)
+
+      // if no sites, then try equip
+      equips := cx.db.readAllList(Filter("equip"))
+      if (!equips.isEmpty) return respond(equips)
+
+      // if no equip, then return points
+      return respond(cx.db.readAllList(Filter("point")))
+    }
+
+    // try to navigate site/equip or equip/point
+    rec := cx.db.readById(navId)
+    if (rec.has("site"))
+      return respond(cx.db.readAllList(Filter("equip and siteRef==$rec.id.toCode")))
+    else if (rec.has("equip"))
+      return respond(cx.db.readAllList(Filter("point and equipRef==$rec.id.toCode")))
+    else
+      return Etc.emptyGrid
+  }
+
+  private Grid respond(Dict[] recs)
+  {
+    if (recs.isEmpty) return Etc.emptyGrid
+    recs = recs.map |rec->Dict|
+    {
+      if (rec.has("point")) return rec
+      return Etc.dictSet(rec, "navId", rec.id)
+    }
+    Etc.sortDictsByDis(recs)
+    return Etc.makeDictsGrid(null, recs)
+  }
+}
+
+**************************************************************************
+** HxWatchSubOp
+**************************************************************************
+
+internal class HxWatchSubOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    // lookup or create watch
+    watchId := req.meta["watchId"] as Str
+    watch := watchId == null ?
+             cx.rt.watch.open(req.meta->watchDis) :
+             cx.rt.watch.get(watchId)
+
+    // map rows to Refs
+    ids := req.ids
+
+    // set lease if specified
+    lease := req.meta["lease"] as Number
+    if (lease != null) watch.lease = lease.toDuration
+
+    // add the ids
+    watch.addAll(ids)
+
+    // return current state
+    resMeta := Etc.makeDict2("watchId", watch.id, "lease", Number.makeDuration(watch.lease, null))
+    return Etc.makeDictsGrid(resMeta, cx.rt.db.readByIdsList(ids, false))
+  }
+}
+
+**************************************************************************
+** HxWatchUnsubOp
+**************************************************************************
+
+internal class HxWatchUnsubOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    // parse reqeust
+    watchId := req.meta["watchId"] as Str ?: throw Err("Missing meta.watchId")
+    close := req.meta.has("close")
+
+    // lookup watch
+    watch := cx.rt.watch.get(watchId, false)
+    if (watch == null) return Etc.emptyGrid
+
+    // if no rows then close, otherwise remove
+    if (close)
+      watch.close
+    else
+      watch.removeGrid(req)
+    return Etc.emptyGrid
+  }
+}
+
+**************************************************************************
+** HxWatchPollOp
+**************************************************************************
+
+internal class HxWatchPollOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    // parse reqeust
+    watchId := req.meta["watchId"] as Str ?: throw Err("Missing meta.watchId")
+    refresh := req.meta.has("refresh")
+
+    // poll as refresh or cov
+    watch := cx.rt.watch.get(watchId)
+    recs := refresh ? watch.poll(Duration.defVal) : watch.poll
+    resMeta := Etc.makeDict1("watchId", watchId)
+    return Etc.makeDictsGrid(resMeta, recs)
+  }
+}
+
+**************************************************************************
 ** HxHisReadOp
 **************************************************************************
 
