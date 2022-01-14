@@ -156,6 +156,44 @@ class ConnTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Util
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testUtil()
+  {
+    lib := (ConnLib)addLib("haystack")
+    c1 := addRec(["dis":"C1", "haystackConn":m])
+    c2 := addRec(["dis":"C2", "haystackConn":m])
+    c3 := addRec(["dis":"C3", "haystackConn":m])
+    p1 := addRec(["dis":"P1", "haystackConnRef":c1.id, "point":m])
+    p2 := addRec(["dis":"P2", "haystackConnRef":c1.id, "point":m])
+    p3 := addRec(["dis":"P3", "haystackConnRef":c2.id, "point":m])
+    p4 := addRec(["dis":"P4", "haystackConnRef":c2.id, "point":m])
+    p5 := addRec(["dis":"P5", "haystackConnRef":c3.id, "point":m])
+    p6 := addRec(["dis":"P6", "haystackConnRef":c3.id, "point":m])
+    rt.sync
+
+    verifyPointsToConn([,], Str[,])
+    verifyPointsToConn([p2], ["C1: P2"])
+    verifyPointsToConn([p1, p2], ["C1: P1,P2"])
+    verifyPointsToConn([p3, p4], ["C2: P3,P4"])
+    verifyPointsToConn([p1, p2, p3, p4], ["C1: P1,P2", "C2: P3,P4"])
+    verifyPointsToConn([p1, p5, p3, p2, p6, p4], ["C1: P1,P2", "C2: P3,P4", "C3: P5,P6"])
+  }
+
+  Void verifyPointsToConn(Dict[] points, Str[] expected)
+  {
+    actual := Str[,]
+    ConnUtil.eachConnInPointIds(rt, Etc.toIds(points)) |c, pts|
+    {
+      actual.add("$c.dis: " + pts.join(",") { it.dis })
+    }
+    actual.sort
+    verifyEq(actual, expected)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Trace
 //////////////////////////////////////////////////////////////////////////
 
