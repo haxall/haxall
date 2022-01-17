@@ -99,6 +99,10 @@ const final class Conn : Actor, HxConn
   ** Manages all status commits to this record
   internal const ConnCommitter committer := ConnCommitter()
 
+  ** Current connector status
+  ConnStatus status() { statusRef.val }
+  internal const AtomicRef statusRef := AtomicRef(ConnStatus.unknown)
+
 //////////////////////////////////////////////////////////////////////////
 // Points
 //////////////////////////////////////////////////////////////////////////
@@ -260,6 +264,7 @@ const final class Conn : Actor, HxConn
              dis:            $dis
              rt:             $rt.platform.hostModel [$rt.version]
              lib:            $lib.typeof [$lib.typeof.pod.version]
+             status:         $status
              timeout:        $timeout
              openRetryFreq:  $openRetryFreq
              pingFreq:       $pingFreq

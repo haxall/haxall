@@ -32,6 +32,7 @@ internal final class ConnState
   Dict rec() { conn.rec }
   Str dis() { conn.dis }
   Log log() { conn.log }
+  Bool isDisabled() { conn.isDisabled }
   ConnTrace trace() { conn.trace }
   Duration timeout() { conn.timeout }
   Bool hasPointsWatched() { pointsInWatch.size > 0 }
@@ -110,7 +111,7 @@ internal final class ConnState
   ** Open this connector and call `onOpen`.
   private Void open(Str app)
   {
-    if (status.isDisabled) return
+    if (isDisabled) return
     if (isOpen) return
 
     trace.phase("opening...", app)
@@ -403,7 +404,7 @@ internal final class ConnState
   private Void checkReopen()
   {
     // if already open, disabled, or no pinned apps in watch bail
-    if (isOpen || status.isDisabled || openPins.isEmpty) return
+    if (isOpen || isDisabled || openPins.isEmpty) return
 
     try
     {
@@ -417,9 +418,6 @@ internal final class ConnState
 //////////////////////////////////////////////////////////////////////////
 // Status
 //////////////////////////////////////////////////////////////////////////
-
-  ** Current connection status.
-  ConnStatus status := ConnStatus.unknown { private set  }
 
   private Void updateConnOk()
   {
@@ -463,32 +461,13 @@ internal final class ConnState
     }
 
     // update my status
-    this.status = status
+    statusModified := conn.status !== status
+    conn.statusRef.val = status
     conn.committer.commit3(lib, rec, "connStatus", status.name, "connState", state, "connErr", errStr)
 
-    /* TODO
-    diffs := Diff[,]
-    diffs.capacity = 1 + points.size
-    tags := Etc.makeDict3("connStatus", status.name, "connState", state, "connErr", errStr)
-    diffs.add(Diff(rec, tags, Diff.forceTransient))
-
-    // update my points status
-    points.each |pt| { diffs.add(Diff(pt.rec, pt.updateStatus, Diff.forceTransient)) }
-
-    // commit everything
-    try
-    {
-      proj.commitAll(diffs).each |diff, i|
-      {
-        if (i == 0)
-          actor.recRef.val = diff.newRec
-        else
-          point(diff.id).rec = diff.newRec
-      }
-    }
-    catch (ShutdownErr e) {}
-    catch (Err e) log.err("Conn.updateStatus($status): $dis", e)
-    */
+    // if we changed the status, then update points
+    if (statusModified)
+      conn.points.each |pt| { pt.onConnStatus }
   }
 
 //////////////////////////////////////////////////////////////////////////

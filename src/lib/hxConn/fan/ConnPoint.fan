@@ -103,6 +103,9 @@ const final class ConnPoint : HxConnPoint
   ** History value conversion if defined by rec 'hisConvert' tag
   @NoDoc PointConvert? hisConvert() { config.hisConvert }
 
+  ** Does the record have the 'disabled' marker configured
+  Bool isDisabled() { config.isDisabled }
+
   ** Fault message if the record has configuration errors
   @NoDoc Str? fault() { config.fault }
 
@@ -126,7 +129,7 @@ const final class ConnPoint : HxConnPoint
   {
     s := ConnPointCurState.updateOk(this, val)
     curStateRef.val = s
-    committer.commit3(lib, rec, "curStatus", s.status.name, "curVal", s.val, "curErr", ConnStatus.toErrStr(s.err))
+    updateCurTags(s)
   }
 
   ** Put point into down/fault/remoteErr with given error.
@@ -134,7 +137,7 @@ const final class ConnPoint : HxConnPoint
   {
     s := ConnPointCurState.updateErr(this, err)
     curStateRef.val = s
-    committer.commit3(lib, rec, "curStatus", s.status.name, "curVal", s.val, "curErr", ConnStatus.toErrStr(s.err))
+    updateCurTags(s)
   }
 
   ** Transition point to stale status
@@ -145,11 +148,48 @@ const final class ConnPoint : HxConnPoint
     committer.commit1(lib, rec, "curStatus", s.status.name)
   }
 
+  private Void updateCurTags(ConnPointCurState s)
+  {
+    status := s.status
+    val    := null
+    err    := null
+    config := config
+    if (!conn.status.isOk)
+    {
+      status = conn.status
+      err = "conn $status"
+    }
+    else if (config.isDisabled)
+    {
+      status = ConnStatus.disabled
+      err = "Point is disabled"
+    }
+    else if (config.fault != null)
+    {
+      status = ConnStatus.fault
+      err = config.fault
+    }
+    else if (status.isOk)
+    {
+      val = s.val
+    }
+    else
+    {
+      err = ConnStatus.toErrStr(s.err)
+    }
+    committer.commit3(lib, rec, "curStatus", status.name, "curVal", val, "curErr", err)
+  }
+
+  internal Void onConnStatus()
+  {
+    updateCurTags(curState)
+  }
+
   ** Cur value state storage and handling
   internal ConnPointCurState curState() { curStateRef.val }
   private const AtomicRef curStateRef := AtomicRef(ConnPointCurState.nil)
 
-  internal Bool curQuickPoll { get { false } set {} }
+  internal Bool curQuickPoll { get { false } set {} }  // TODO
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
@@ -237,6 +277,7 @@ internal const final class ConnPointConfig
     this.kind = Kind.obj
     try
     {
+      this.isDisabled     = rec.has("disabled")
       this.tz             = rec.has("tz") ? FolioUtil.hisTz(rec) : TimeZone.cur
       this.unit           = FolioUtil.hisUnit(rec)
       this.kind           = FolioUtil.hisKind(rec)
@@ -286,5 +327,6 @@ internal const final class ConnPointConfig
   const PointConvert? curConvert
   const PointConvert? writeConvert
   const PointConvert? hisConvert
+  const Bool isDisabled
   const Str? fault
 }
