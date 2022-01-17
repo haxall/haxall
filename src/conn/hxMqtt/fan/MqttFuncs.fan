@@ -17,6 +17,16 @@ using hxConn
 **
 const class MqttFuncs
 {
+  ** Publish an MQTT message to the given topic on the broker. Currently, the payload
+  ** of the message must be a Str.
+  **
+  ** The following configuration options are supported:
+  ** - 'mqttQos': The quality-of-service to use for publishing the message. If not
+  ** specified, then QoS '0' is used. See `mqttQos` for more details.
+  **
+  ** pre>
+  ** read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2})
+  ** <pre
   @Axon { admin = true }
   static Obj? mqttPublish(Obj conn, Str topic, Obj payload, Dict cfg := Etc.emptyDict)
   {

@@ -1,0 +1,116 @@
+
+**************************************************************************
+** title:      MqttLib
+** author:     Matthew Giannini
+** created:    17 Jan 2022
+** copyright:  Copyright (c) 2022, SkyFoundry LLC - Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+The MQTT library implements basic connector support to an MQTT broker. You can publish
+messages to a broker, and subscribe to messages from a broker by using the
+`obsMqtt` observable.
+
+Broker Connectivity [#broker]
+****************************
+The MQTT library supports connections to a broker using either the '3.1.1' or '5.0'
+version of the protocol. The protocol version to use can be configured on the
+connector rec using the `mqttVersion` tag.
+
+You can specify the client identifier for the connector to use when connecting to the
+broker by setting the `mqttClientId` tag on the connector rec. If one is not specified,
+the connector will auto-generate one the first time it connects and save it on the rec.
+
+TCP/IP [#tcpip]
+===============
+To connect to an MQTT broker over TCP/IP, use the 'mqtt' scheme for a plaintext
+connection, or 'mqtts' for a TLS connection to the broker. If you don't specify a port,
+then '1883' will be used for 'mqtt' and '8883' will be used for 'mqtts'.
+
+pre>
+mqttConn
+uri: `mqtt://192.168.10.1/`
+mqttVersion: "v3.1.1"
+mqttClientId: "MqttTestClient"
+<pre
+
+Web Sockets [#websockets]
+=========================
+To connect to an MQTT broker using web sockets, use the 'ws' scheme for plaintext
+connections, and 'wss' for secure web sockets.
+
+pre>
+mqttConn
+uri: `ws://192.168.10.2/`
+mqttVersion: "v5"
+mqttClientId: "MqttWebSocketTest"
+<pre
+
+Authentication [#auth]
+======================
+By default, the connector will attempt to connect to the MQTT broker anonymously.
+
+If the broker requires a username and password, you can set the `username` and
+`password` tags on the conn rec.
+
+Some MQTT brokers require client authentication over TLS. To configure client
+authentication, set the `mqttCertAlias` tag to the alias in the crypto manager
+that contains your client's private key and certificate.
+You can add your private key and certificates to the crypto store for SkySpark using the
+[KeyMgr]`docSkySpark::Crypto` tool.
+
+Some brokers also allow you to connect to the broker over the HTTPS port using
+Application-Layer Protocol Negotiation (ALPN). If your broker requires this
+type of connectivity, you must set the application protocol on the conn rec using the
+'mqttAppProtocols' tag. For example. to connect to an AWS IoT broker on the HTTPS port
+using ALPN you might set up a connector like this
+
+pre>
+mqttConn
+uri: `mqtts://foo-ats.iot.eu-west-1.amazonaws.com:443`
+mqttVersion: "v3.1.1"
+mqttClientId: "MyAwsThing"
+mqttAppProtocols: "x-amzn-mqtt-ca"
+<pre
+
+Publish [#publish]
+******************
+To publish a message to the broker use the `mqttPublish()` func.
+
+pre>
+read(@myMqttConn).mqttPublish("/testTopic", "Hello, MQTT!", {mqttQos: 2})
+<pre
+
+Subscribe [#subscribe]
+**********************
+MQTT topic subscription is handled using the task framework. Create a task
+that subscribes to the `obsMqtt` observable. The `obsMqtt` observable fires an event
+whenever a message is received that matches configured topic filter.
+
+MQTT observations include the following tags:
+- 'type': "obsMqtt"
+- 'ts': DateTime when the observation was fired
+- 'topic': the name of the topic that the message was published to.
+- 'payload': the payload of the published message. This will be a Fantom `sys::Buf`
+object. But you can use the various 'io'  functions to read/parse the payload.
+
+These are the config tags:
+
+- `mqttQos`: The maximum quality-of-service guarantee you are willing to accept
+for published messages.
+- `obsMqttConnRef`: Which connector to subscribe to the topic on
+- `obsMqttTopic`: the topic filter to subscribe with. This may be a specific topic,
+or a valid MQTT topic filter. If it is a filter, then your task will receive
+messages for potentially multiple topics.
+
+pre>
+obsMqtt
+obsMqttConnRef: @myMqttConn
+obsMqttTopic: "/test/#"
+mqttQos: 2
+taskExpr:
+(obs) => do
+  logInfo("mqttTask", ioReadStr(obs->payload))
+end
+<pre

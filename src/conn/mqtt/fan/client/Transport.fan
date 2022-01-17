@@ -51,12 +51,18 @@ internal class TcpTransport : MqttTransport
 {
   new make(ClientConfig config)
   {
-    uri := config.serverUri
-
-    this.socket = uri.scheme == "mqtts"
-      ? tlsSocket(config)
-      : TcpSocket(config.socketConfig)
-    socket.connect(IpAddr(uri.host), uri.port)
+    uri  := config.serverUri
+    Int? port := null
+    switch (uri.scheme)
+    {
+      case "mqtt":
+        this.socket = TcpSocket(config.socketConfig)
+        port = uri.port ?: 1883
+      case "mqtts":
+        this.socket = tlsSocket(config)
+        port = uri.port ?: 8883
+    }
+    socket.connect(IpAddr(uri.host), port)
   }
 
   private static TcpSocket tlsSocket(ClientConfig config)
@@ -64,7 +70,7 @@ internal class TcpTransport : MqttTransport
     return TcpSocket(config.socketConfig).upgradeTls
   }
 
-  private TcpSocket socket
+  private TcpSocket? socket
 
   override Void send(Buf msg) { socket.out.writeBuf(msg).flush }
 

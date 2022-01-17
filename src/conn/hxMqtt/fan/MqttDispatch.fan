@@ -91,8 +91,8 @@ class MqttDispatch : ConnDispatch
   {
     switch (msg.id)
     {
-      case "mqtt.pub":   return onPub(msg.a, msg.b, msg.c)
-      case "mqtt.sub":   return onSub(msg.a)
+      case "mqtt.pub":   return onPub(msg.a, msg.b, toConfig(msg.c))
+      case "mqtt.sub":   return onSub(toConfig(msg.a))
       case "mqtt.resub": return onResub
       case "mqtt.unsub": return onUnsub(msg.a)
     }
@@ -104,7 +104,7 @@ class MqttDispatch : ConnDispatch
     open.client.publishWith
       .topic(topic)
       .payload(payload)
-      .qos((cfg["qos"] as Number)?.toInt ?: 0)
+      .qos((cfg["mqttQos"] as Number).toInt)
       .send
       .get
   }
@@ -118,7 +118,7 @@ class MqttDispatch : ConnDispatch
     openPin("mqtt.sub")
     ack := client.subscribeWith
       .topicFilter(filter)
-      .qos((cfg["mqttQos"] as Number)?.toInt ?: 0)
+      .qos((cfg["mqttQos"] as Number).toInt)
       .onMessage(this.onMessage)
       .send
       .get
@@ -172,6 +172,16 @@ class MqttDispatch : ConnDispatch
       db.commit(Diff(rec, ["mqttClientId": id]))
     }
     return id
+  }
+
+  ** Create a set of default values for certain config parameters, and then
+  ** merge in the given options to override the defaults.
+  private Dict toConfig(Dict opts)
+  {
+    defs := [
+      "mqttQos": rec["mqttQos"] ?: Number.zero,
+    ]
+    return Etc.dictMerge(Etc.makeDict(defs), opts)
   }
 
   ** Get a keystore containing the client certificate for this connection
