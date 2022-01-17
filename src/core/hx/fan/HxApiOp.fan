@@ -325,9 +325,25 @@ internal class HxWatchSubOp : HxApiOp
     // add the ids
     watch.addAll(ids)
 
-    // return current state
+    // return recs - must return row for each requested id (so don't use Etc)
     resMeta := Etc.makeDict2("watchId", watch.id, "lease", Number.makeDuration(watch.lease, null))
-    return Etc.makeDictsGrid(resMeta, cx.rt.db.readByIdsList(ids, false))
+    recs := cx.rt.db.readByIdsList(ids, false)
+    colNames := Etc.dictsNames(recs)
+    gb := GridBuilder()
+    gb.setMeta(resMeta)
+    if (colNames.isEmpty)
+    {
+      // this is what happens when we have zero matches from request
+      gb.addCol("id")
+      recs.each { gb.addRow1(null) }
+    }
+    else
+    {
+      // at least one rec was found
+      colNames.each |colName| { gb.addCol(colName) }
+      gb.addDictRows(recs)
+    }
+    return gb.toGrid
   }
 }
 
