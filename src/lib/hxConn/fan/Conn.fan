@@ -92,16 +92,18 @@ const final class Conn : Actor, HxConn
   ** Conn tuning configuration to use for this connector.
   ConnTuning tuning() { config.tuning ?: lib.tuning }
 
+  ** Current status of the connector
+  ConnStatus status() { vars.status }
+
   ** Conn rec configuration
   internal ConnConfig config() { configRef.val }
   private const AtomicRef configRef
 
+  ** Mutable variables managed by ConnMgr within actor thread
+  internal const ConnVars vars := ConnVars()
+
   ** Manages all status commits to this record
   internal const ConnCommitter committer := ConnCommitter()
-
-  ** Current connector status
-  ConnStatus status() { statusRef.val }
-  internal const AtomicRef statusRef := AtomicRef(ConnStatus.unknown)
 
 //////////////////////////////////////////////////////////////////////////
 // Points
@@ -264,7 +266,6 @@ const final class Conn : Actor, HxConn
              dis:            $dis
              rt:             $rt.platform.hostModel [$rt.version]
              lib:            $lib.typeof [$lib.typeof.pod.version]
-             status:         $status
              timeout:        $timeout
              openRetryFreq:  $openRetryFreq
              pingFreq:       $pingFreq
@@ -274,11 +275,14 @@ const final class Conn : Actor, HxConn
              pollMode:       $pollMode
              """)
 
-     switch (pollMode)
-     {
-       case ConnPollMode.manual:  detailsPollManual(s)
-       case ConnPollMode.buckets: detailsPollBuckets(s)
-     }
+    switch (pollMode)
+    {
+      case ConnPollMode.manual:  detailsPollManual(s)
+      case ConnPollMode.buckets: detailsPollBuckets(s)
+    }
+
+    s.add("\n")
+    vars.details(s)
 
     s.add("\n")
     committer.details(s)

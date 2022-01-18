@@ -98,3 +98,18 @@ enum class ConnStatus
 
 }
 
+**************************************************************************
+** ConnState
+**************************************************************************
+
+**
+** ConnState enum models the 'connState' status tag for open/close state
+**
+@NoDoc
+enum class ConnState
+{
+  closed,
+  closing,
+  open,
+  opening
+}

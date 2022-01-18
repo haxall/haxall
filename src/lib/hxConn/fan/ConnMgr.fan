@@ -21,10 +21,12 @@ internal final class ConnMgr
   new make(Conn conn, Type dispatchType)
   {
     this.conn = conn
+    this.vars = conn.vars
     this.dispatch = dispatchType.make([this])
   }
 
   const Conn conn
+  const ConnVars vars
   HxRuntime rt() { conn.rt }
   Folio db() { conn.db }
   ConnLib lib() { conn.lib }
@@ -70,7 +72,7 @@ internal final class ConnMgr
   ** Raise exception if not open
   This checkOpen()
   {
-    if (!isOpen) throw UnknownNotOpenLibErr("Connector open failed", curErr)
+    if (!isOpen) throw UnknownNotOpenLibErr("Connector open failed", vars.err)
     return this
   }
 
@@ -84,28 +86,28 @@ internal final class ConnMgr
 
   private Void setLinger(Duration linger)
   {
-    x := Duration.now + linger
-    if (lingerClose != null) x = x.max(lingerClose)
-    lingerClose = x
+    vars.setLinger(linger)
   }
 
   ** Open the connection for a specific application and pin it
   ** until that application specifically closes it
   Void openPin(Str app)
   {
-    if (openPins.containsKey(app)) return
-    trace.phase("openPin", app)
-    openPins[app] = app
-    open(app)
+    if (vars.openPin(app))
+    {
+      trace.phase("openPin", app)
+      open(app)
+    }
   }
 
   ** Close a pinned application opened by `openPin`.
   Void closePin(Str app)
   {
-    if (!openPins.containsKey(app)) return
-    trace.phase("closePin", app)
-    openPins.remove(app)
-    if (openPins.isEmpty) setLinger(5sec)
+    if (vars.closePin(app))
+    {
+      trace.phase("closePin", app)
+      if (vars.openPins.isEmpty) setLinger(5sec)
+    }
   }
 
   ** Open this connector and call `onOpen`.
@@ -115,7 +117,7 @@ internal final class ConnMgr
     if (isOpen) return
 
     trace.phase("opening...", app)
-    updateConnState("opening")
+    updateConnState(ConnState.opening)
     try
     {
       dispatch.onOpen
@@ -131,7 +133,7 @@ internal final class ConnMgr
     trace.phase("open ok")
 
     // re-ping every 1hr to keep metadata fresh
-    if (!openForPing && lastPing < Duration.nowTicks - 1hr.ticks) ping
+    if (!openForPing && vars.lastPing < Duration.nowTicks - 1hr.ticks) ping
 
     // if we have points currently in watch, we need to re-subscribe them
     try
@@ -150,26 +152,27 @@ internal final class ConnMgr
   {
     if (isClosed) return rec
     trace.phase("close", cause)
-    updateConnState("closing")
+    updateConnState(ConnState.closing)
     try
       dispatch.onClose
     catch (Err e)
       log.err("onClose", e)
-    lingerClose = null
-    openPins.clear
+    vars.clearLinger
+    vars.clearPins
     isOpen = false
     if (cause is Err)
       updateConnErr(cause)
     else
-      updateConnState("closed")
+      updateConnState(ConnState.closed)
     return rec
   }
 
-  private Void updateConnState(Str state)
+  private Void updateConnState(ConnState state)
   {
     try
     {
-      conn.committer.commit1(lib, rec, "connState", state)
+      vars.updateState(state)
+      conn.committer.commit1(lib, rec, "connState", state.name)
     }
     catch (ShutdownErr e) {}
     catch (Err e)
@@ -198,8 +201,8 @@ internal final class ConnMgr
     r = dispatch.onPing
     catch (Err e)
       { updateConnErr(e); return result }
-    lastPing = Duration.nowTicks
-    updateConnOk
+    vars.pinged
+    updateConnOk  // TODO: should not need this
 
     // update ping/version tags only if stuff has changed
     changes := Str:Obj[:]
@@ -282,6 +285,7 @@ internal final class ConnMgr
   internal Void onPoll()
   {
     if (isClosed) return
+    vars.polled
     switch (conn.pollMode)
     {
       case ConnPollMode.manual:  onPollManual
@@ -353,7 +357,7 @@ internal final class ConnMgr
     checkAutoPing
 
     // if have a linger open, then close connector
-    if (lingerClose != null && Duration.now > lingerClose && openPins.isEmpty)
+    if (vars.lingerExpired && vars.openPins.isEmpty)
        close("linger expired")
 
     // check points
@@ -395,8 +399,8 @@ internal final class ConnMgr
     pingFreq := conn.pingFreq
     if (pingFreq == null) return
     now := Duration.nowTicks
-    if (now - lastPing <= pingFreq.ticks) return
-    if (now - lastConnAttempt <= pingFreq.ticks) return
+    if (now - vars.lastPing <= pingFreq.ticks) return
+    if (now - vars.lastAttempt <= pingFreq.ticks) return
     if (!rt.isSteadyState) return
     ping
   }
@@ -404,13 +408,13 @@ internal final class ConnMgr
   private Void checkReopen()
   {
     // if already open, disabled, or no pinned apps in watch bail
-    if (isOpen || isDisabled || openPins.isEmpty) return
+    if (isOpen || isDisabled || vars.openPins.isEmpty) return
 
     try
     {
       // try ping every 10sec which forces watch
       // subscription on a new connection
-      if (Duration.nowTicks - lastConnFail > conn.openRetryFreq.ticks) ping
+      if (Duration.nowTicks - vars.lastErr > conn.openRetryFreq.ticks) ping
     }
     catch (Err e) log.err("checkReopenWatch", e)
   }
@@ -421,15 +425,13 @@ internal final class ConnMgr
 
   private Void updateConnOk()
   {
-    this.lastConnOk = Duration.nowTicks
-    this.curErr = null
+    vars.updateOk
     updateStatus
   }
 
   private Void updateConnErr(Err err)
   {
-    this.lastConnFail = Duration.nowTicks
-    this.curErr = err
+    vars.updateErr(err)
     updateStatus
   }
 
@@ -437,8 +439,9 @@ internal final class ConnMgr
   {
     // compute status and error message
     ConnStatus? status
+    curErr := vars.err
     Obj? errStr
-    state := isOpen ? "open" : "closed"
+    state := isOpen ? ConnState.open : ConnState.closed
     if (rec.has("disabled"))
     {
       status = ConnStatus.disabled
@@ -449,7 +452,7 @@ internal final class ConnMgr
       status = ConnStatus.fromErr(curErr)
       errStr = ConnStatus.toErrStr(curErr)
     }
-    else if (lastConnOk != 0)
+    else if (vars.lastOk != 0)
     {
       status = ConnStatus.ok
       errStr = null
@@ -461,9 +464,9 @@ internal final class ConnMgr
     }
 
     // update my status
-    statusModified := conn.status !== status
-    conn.statusRef.val = status
-    conn.committer.commit3(lib, rec, "connStatus", status.name, "connState", state, "connErr", errStr)
+    statusModified := vars.status !== status
+    vars.updateStatus(status, state)
+    conn.committer.commit3(lib, rec, "connStatus", status.name, "connState", state.name, "connErr", errStr)
 
     // if we changed the status, then update points
     if (statusModified)
@@ -485,13 +488,5 @@ internal final class ConnMgr
 
   private ConnDispatch dispatch
   private Bool openForPing
-  private Int lastPing
-  private Int lastConnFail
-  private Int lastConnOk
-  private Int lastConnAttempt() { lastConnFail.max(lastConnOk) }
-  private Err? curErr
-  private Duration? lingerClose
   internal ConnPoint[] pointsInWatch := [,]
-  private Str:Str openPins := [:]
-  private Int lastPoll := 0
 }
