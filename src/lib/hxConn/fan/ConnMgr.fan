@@ -12,10 +12,10 @@ using folio
 using hx
 
 **
-** ConnState manages the mutable state and logic for a connector.
+** ConnMgr manages the mutable state and logic for a connector.
 ** It routes to ConnDispatch for connector specific behavior.
 **
-internal final class ConnState
+internal final class ConnMgr
 {
   ** Constructor with parent connector
   new make(Conn conn, Type dispatchType)

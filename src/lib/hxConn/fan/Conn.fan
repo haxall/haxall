@@ -182,12 +182,12 @@ const final class Conn : Actor, HxConn
   override Obj? receive(Obj? m)
   {
     msg := (HxMsg)m
-    state := Actor.locals["s"] as ConnState
-    if (state == null)
+    mgr := Actor.locals["mgr"] as ConnMgr
+    if (mgr == null)
     {
       try
       {
-        Actor.locals["s"] = state = ConnState(this, lib.model.dispatchType)
+        Actor.locals["mgr"] = mgr = ConnMgr(this, lib.model.dispatchType)
       }
       catch (Err e)
       {
@@ -199,7 +199,7 @@ const final class Conn : Actor, HxConn
     if (msg === pollMsg)
     {
       try
-        state.onPoll
+        mgr.onPoll
       catch (Err e)
         log.err("Conn.receive poll", e)
       return null
@@ -209,7 +209,7 @@ const final class Conn : Actor, HxConn
     {
       trace.write("hk", "houseKeeping", msg)
       try
-        state.onHouseKeeping
+        mgr.onHouseKeeping
       catch (Err e)
         log.err("Conn.receive houseKeeping", e)
       if (isAlive)
@@ -220,7 +220,7 @@ const final class Conn : Actor, HxConn
     try
     {
       trace.dispatch(msg)
-      return state.onReceive(msg)
+      return mgr.onReceive(msg)
     }
     catch (Err e)
     {

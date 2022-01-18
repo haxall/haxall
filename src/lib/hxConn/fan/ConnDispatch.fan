@@ -21,9 +21,9 @@ abstract class ConnDispatch
   ** Constructor with framework specific argument
   new make(Obj arg)
   {
-    state := arg as ConnState ?: throw Err("Invalid constructor arg: $arg")
-    this.state = state
-    this.connRef = state.conn
+    mgr := arg as ConnMgr ?: throw Err("Invalid constructor arg: $arg")
+    this.mgr = mgr
+    this.connRef = mgr.conn
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -60,14 +60,14 @@ abstract class ConnDispatch
   ** It does not track transient changes such as 'connStatus'.
   Dict rec() { conn.rec }
 
-  ** ConnState wrapper which handles implementation logic
-  private ConnState state
+  ** ConnMgr wrapper which handles implementation logic
+  private ConnMgr mgr
 
   ** Get list of points which are currently in watch.
-  ConnPoint[] pointsWatched() { state.pointsInWatch.ro }
+  ConnPoint[] pointsWatched() { mgr.pointsInWatch.ro }
 
   ** Return if there is one or more points currently in watch.
-  Bool hasPointsWatched() { state.hasPointsWatched }
+  Bool hasPointsWatched() { mgr.hasPointsWatched }
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
@@ -78,14 +78,14 @@ abstract class ConnDispatch
   ** If the connector fails to open, then raise an exception.
   This open()
   {
-     state.openLinger.checkOpen
+     mgr.openLinger.checkOpen
      return this
   }
 
   ** Force this connector closed.
   This close(Err? cause)
   {
-    state.close(cause)
+    mgr.close(cause)
     return this
   }
 
@@ -94,14 +94,14 @@ abstract class ConnDispatch
   ** app name is a unique key used for reference counting.
   @NoDoc This openPin(Str app)
   {
-    state.openPin(app)
+    mgr.openPin(app)
     return this
   }
 
   ** Close a pinned application opened by `openPin`.
   @NoDoc Void closePin(Str app)
   {
-    state.closePin(app)
+    mgr.closePin(app)
     return this
   }
 
