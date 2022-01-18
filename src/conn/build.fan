@@ -19,6 +19,7 @@ class Build : BuildGroup
       `mqtt/build.fan`,
       `hxHaystack/build.fan`,
       `hxSql/build.fan`,
+      `hxModbus/build.fan`,
       `hxMqtt/build.fan`,
     ]
   }

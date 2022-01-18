@@ -1,0 +1,19 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   12 Jan 2022  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:modbus
+depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
+typeName:"hxModbus::ModbusLib"
+extTypeName: "modbusExt::ModbusExt"
+icon: "modbus"
+doc: "Modbus connector"
+--------------------------------------------------------------------------
+
+
+

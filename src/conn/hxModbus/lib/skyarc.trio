@@ -1,0 +1,18 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   1 Jul 2019  Andy Frank  Creation
+//
+
+--------------------------------------------------------------------------
+view: modbusRegMap
+appName: conn
+disKey: ui::regMap
+admin
+doc: "Manage Modbus register map files"
+src:
+  view: { uiType:"modbusExt::RegMapView" }
+  data: { expr:"modbusRegMapList()" }
+--------------------------------------------------------------------------

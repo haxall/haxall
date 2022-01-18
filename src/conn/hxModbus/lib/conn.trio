@@ -1,0 +1,68 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Jul 2012  Andy Frank   Creation
+//   3 Jul 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^modbusConn
+is: ^conn
+icon: "modbus"
+connFeatures: {learn, pollMode:"buckets"}
+doc: "Modbus connector"
+linter: "modbusExt::LintModbus"
+--------------------------------------------------------------------------
+defx: ^uri
+tagOn: ^modbusConn
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^modbusBlockGap
+is: ^int
+tagOn: ^modbusConn
+doc:
+  Applied to 'modbusConn' to allow for gaps in block reads. See
+  `ext-modbus::doc#blockReads` for more information.
+--------------------------------------------------------------------------
+def: ^modbusBlockMax
+is: ^int
+tagOn: ^modbusConn
+doc:
+  Applied to 'modbusConn' to limit the maximum number of registers to read in a
+  block read. See `ext-modbus::doc#blockReads` for more information.
+--------------------------------------------------------------------------
+def: ^modbusRegMapUri
+is: ^uri
+tagOn: ^modbusConn
+uiInput: "modbusExt::ModbusRegMapInput"
+doc:
+  Applied to 'modbusConn' to define the register map CSV file.
+  This URI must be a path relative to the project's home directory
+  or can be a "fan://" URI to a CSV file bundled in a pod.
+--------------------------------------------------------------------------
+def: ^modbusSlave
+is: ^int
+tagOn: ^modbusConn
+doc:
+  Applied to 'modbusConn' to identify the slave address on this
+  modbus network.
+--------------------------------------------------------------------------
+def: ^modbusReadTimeout
+is: ^duration
+tagOn: ^modbusConn
+doc:
+  How long to wait before timing out on a modbus read.
+--------------------------------------------------------------------------
+def: ^modbusWriteTimeout
+is: ^duration
+tagOn: ^modbusConn
+doc:
+  How long to wait before timing out on a modbus write.
+--------------------------------------------------------------------------

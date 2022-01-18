@@ -1,0 +1,45 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 Jul 2012  Andy Frank   Creation
+//   3 Jul 2019  Brian Frank  Refactor for new def design
+//
+
+
+--------------------------------------------------------------------------
+def: ^modbusPoint
+is: ^connPoint
+doc:
+  Point which synchronizes data via a Haystack connector.
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^modbusConnRef
+is: ^ref
+of: ^modbusConn
+tagOn: ^modbusPoint
+doc:
+  Used on a proxy point to reference its parent `modbusConn`
+--------------------------------------------------------------------------
+def: ^modbusCur
+is: ^str
+tagOn: ^modbusPoint
+doc:
+  Modbus address to use for current value subscriptions. See
+  `ext-modbus::doc#cur` for format.
+--------------------------------------------------------------------------
+def: ^modbusWrite
+is: ^str
+tagOn: ^modbusPoint
+doc:
+  Used on a modbus proxy point to store the id of the entity in the
+  remote system used to write `writeVal`.  See `ext-modbus::doc#write`
+  for format.
+--------------------------------------------------------------------------
+
