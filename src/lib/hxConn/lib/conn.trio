@@ -85,11 +85,11 @@ transient
 doc:
   Current connection state of a connector as one of the predefined strings.
   See `doc#conns`
-enum:
-  - closed: connection is closed
-  - closing: a connection is currently being closed
-  - open: connection is open
-  - opening: a connection is currently being opened
+enum: Trio:
+  closed:  {icon:"warn"    iconColor:"#e67e22", doc:"Connection is closed"}
+  closing: {icon:"spinner" iconColor:"#8e44ad", doc:"Connection is currently being closed"}
+  open:    {icon:"check"   iconColor:"#1ca355", doc:"Connection is open"}
+  opening: {icon:"spinner" iconColor:"#8e44ad", doc:"Connection is currently being opened"}
 --------------------------------------------------------------------------
 def: ^connStatus
 is: ^str
