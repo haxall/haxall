@@ -118,7 +118,6 @@ using hx
 
         default: throw FaultErr("Invalid scheme: $uri.scheme")
       }
-      tx.logPrefix = uri.toStr
       tx.log = lib.log
       Actor.locals["m"] = master = ModbusMaster(tx)
     }

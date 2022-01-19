@@ -143,12 +143,12 @@ internal class ModbusTestTransport : ModbusTransport
   override Void close() { _open=false }
   override Bool useCrc() { crc }
 
-  override InStream req(Buf msg)
+  override ModbusInStream req(Buf msg)
   {
     // echo("TestTransport.req [crc=$crc]:
     //         req: $msg.toHex [$msg.size]
     //         res: $test.toHex [$test.size]")
-    return toRes(test).in
+    return ModbusInStream(toRes(test).in, Log.get("modbustest"))
   }
 
   private Buf toRes(Buf buf)

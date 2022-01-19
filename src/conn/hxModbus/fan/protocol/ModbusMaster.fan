@@ -159,29 +159,36 @@ class ModbusMaster
     addCrc(msg)
 
     // req response
-    in := BufInStream(transport.req(msg))
-
-    // verify slave
-    rslave := in.readU1
-    if (slave != rslave) throw Err("Slave mismatch $slave != $rslave")
-
-    // verify func
-    fc := in.readU1
-    if (isErr(fc)) throw err(in)
-    if (fc != func) throw Err("Function code mismatch $func != $fc")
-
-    // parse response
-    list := Bool[,]
-    cur  := 0
-    len  := in.readU1  // not used
-    count.times |i|
+    in := transport.req(msg)
+    try
     {
-      if (i == 0 || i % 8 == 0) cur = in.readU1
-      list.add(cur.and(0x01) == 1)
-      cur = cur.shiftr(1)
+      // verify slave
+      rslave := in.readU1
+      if (slave != rslave) throw Err("Slave mismatch $slave != $rslave")
+
+      // verify func
+      fc := in.readU1
+      if (isErr(fc)) throw err(in)
+      if (fc != func) throw Err("Function code mismatch $func != $fc")
+
+      // parse response
+      list := Bool[,]
+      cur  := 0
+      len  := in.readU1  // not used
+      count.times |i|
+      {
+        if (i == 0 || i % 8 == 0) cur = in.readU1
+        list.add(cur.and(0x01) == 1)
+        cur = cur.shiftr(1)
+      }
+      verifyCrc(in)
+      return list
     }
-    verifyCrc(in)
-    return list
+    finally
+    {
+      // flush trace
+      in.close
+    }
   }
 
   ** Write binary data.
@@ -197,21 +204,28 @@ class ModbusMaster
     addCrc(msg)
 
     // req response
-    in := BufInStream(transport.req(msg))
+    in := transport.req(msg)
+    try
+    {
+      // verify slave
+      rslave := in.readU1
+      if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
 
-    // verify slave
-    rslave := in.readU1
-    if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
+      // verify func
+      fc := in.readU1
+      if (isErr(fc)) throw err(in)
+      if (fc != func) throw Err("Function code mismatch $func != $fc")
 
-    // verify func
-    fc := in.readU1
-    if (isErr(fc)) throw err(in)
-    if (fc != func) throw Err("Function code mismatch $func != $fc")
-
-    // parse response
-    raddr := in.readU2  // echo write addr
-    rval  := in.readU2  // echo write val or count
-    verifyCrc(in)
+      // parse response
+      raddr := in.readU2  // echo write addr
+      rval  := in.readU2  // echo write val or count
+      verifyCrc(in)
+    }
+    finally
+    {
+      // flush trace
+      in.close
+    }
   }
 
   ** Read 16-bit data from given slave device. Returns map
@@ -228,34 +242,31 @@ class ModbusMaster
     addCrc(msg)
 
     // req response
-    in := BufInStream(transport.req(msg))
-
-    // verify slave
-    rslave := in.readU1
-    if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
-
-    // verify func
-    fc := in.readU1
-    if (isErr(fc)) throw err(in)
-    if (fc != func) throw Err("Function code mismatch $func != $fc")
-
-    // parse response
-    list := Int[,]
-    len  := in.readU1 / 2
-    len.times |i| { list.add(in.readU2) }
-    verifyCrc(in)
-
-    if ((transport as ModbusTcpTransport)?.log?.isDebug == true)
+    in := transport.req(msg)
+    try
     {
-      s := StrBuf()
-        .add(rslave.toHex(2)).add(" ")
-        .add(fc.toHex(2)).add(" ")
-        .add((len * 2).toHex(2)).add(" ")
-      list.each |v| { s.add(v.toHex(4)) }
-      transport.log.debug("# [${transport.logPrefix}] <- [${s}]")
-    }
+      // verify slave
+      rslave := in.readU1
+      if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
 
-    return list
+      // verify func
+      fc := in.readU1
+      if (isErr(fc)) throw err(in)
+      if (fc != func) throw Err("Function code mismatch $func != $fc")
+
+      // parse response
+      list := Int[,]
+      len  := in.readU1 / 2
+      len.times |i| { list.add(in.readU2) }
+      verifyCrc(in)
+
+      return list
+    }
+    finally
+    {
+      // flush trace
+      in.close
+    }
   }
 
   ** Write 16-bit data.
@@ -277,31 +288,38 @@ class ModbusMaster
     addCrc(msg)
 
     // req response
-    in := BufInStream(transport.req(msg))
+    in := transport.req(msg)
+    try
+    {
+      // verify slave
+      rslave := in.readU1
+      if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
 
-    // verify slave
-    rslave := in.readU1
-    if (slave != rslave) throw Err("Slave mismtach $slave != $rslave")
+      // verify func
+      fc := in.readU1
+      if (isErr(fc)) throw err(in)
+      if (fc != func) throw Err("Function code mismatch $func != $fc")
 
-    // verify func
-    fc := in.readU1
-    if (isErr(fc)) throw err(in)
-    if (fc != func) throw Err("Function code mismatch $func != $fc")
+      // verify addr
+      raddr := in.readU2
+      if (addr != raddr) throw Err("Address mismatch $addr != $raddr")
 
-    // verify addr
-    raddr := in.readU2
-    if (addr != raddr) throw Err("Address mismatch $addr != $raddr")
-
-    // parse remaining response
-    rval := in.readU2  // echo write val or count
-    verifyCrc(in)
+      // parse remaining response
+      rval := in.readU2  // echo write val or count
+      verifyCrc(in)
+    }
+    finally
+    {
+      // flush trace
+      in.close
+    }
   }
 
   ** Check for error condition.
   private Bool isErr(Int code) { code.and(0x80) != 0 }
 
   ** Make error for expection code.
-  private Err err(BufInStream in)
+  private Err err(ModbusInStream in)
   {
     code := in.readU1
     msg  := ""
@@ -332,11 +350,11 @@ class ModbusMaster
   }
 
   ** Verify CRC if supported.
-  private Void verifyCrc(BufInStream msg)
+  private Void verifyCrc(ModbusInStream msg)
   {
     if (!transport.useCrc) return
-    computed := msg.buf.crc("CRC-16")
-    expected := msg.in.readU1.or(msg.in.readU1.shiftl(8))  // read lower CRC byte first
+    computed := msg.data.crc("CRC-16")
+    expected := msg.readU1.or(msg.readU1.shiftl(8))  // read lower CRC byte first
     if (computed != expected) throw Err("Invalid CRC $computed.toHex != $expected.toHex")
   }
 
@@ -345,30 +363,4 @@ class ModbusMaster
 //////////////////////////////////////////////////////////////////////////
 
   private ModbusTransport transport
-}
-
-**************************************************************************
-** BufInStream
-**************************************************************************
-
-internal class BufInStream
-{
-  new make(InStream in) { this.in=in }
-
-  Int readU1()
-  {
-    b := in.readU1
-    buf.write(b)
-    return b
-  }
-
-  Int readU2()
-  {
-    b := in.readU2
-    buf.writeI2(b)
-    return b
-  }
-
-  InStream in { private set }
-  Buf buf := Buf() { private set }
 }

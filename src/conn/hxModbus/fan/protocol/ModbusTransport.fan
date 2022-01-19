@@ -26,14 +26,11 @@ abstract class ModbusTransport
   ** Close transport, or do nothing if already closed.
   abstract Void close()
 
-  ** Send a request to a slave device and return InStream for response.
-  abstract InStream req(Buf msg)
+  ** Send a request to a slave device and return a ModbusInStream for response.
+  abstract ModbusInStream req(Buf msg)
 
   // ** Respond to a master request.
   // abstract Buf res(...)
-
-  ** Log prefix for this instance.
-  internal Str logPrefix := ""
 
   ** Log for this instance.
   internal Log? log := null
@@ -78,7 +75,7 @@ class ModbusTcpTransport : ModbusTransport
     socket = null
   }
 
-  override InStream req(Buf msg)
+  override ModbusInStream req(Buf msg)
   {
     if (socket == null || !socket.isConnected)
       throw IOErr("Socket not open")
@@ -91,7 +88,7 @@ class ModbusTcpTransport : ModbusTransport
     {
       s := StrBuf()
         .add("> $reqTxId\n")
-        .add("Modbus TCP Req\n")
+        .add("Modbus Req\n")
         .add(reqTxId.toHex(4)).add(" ")
         .add(0.toHex(4)).add(" ")
         .add(msg.size.toHex(4)).add(" ")
@@ -108,31 +105,13 @@ class ModbusTcpTransport : ModbusTransport
     out.flush
 
     // verify transactionIds
-    in := socket.in
+    in := ModbusInStream(socket.in, log, "$reqTxId")
     resTxId := in.readU2
     if (reqTxId != resTxId) throw IOErr("Transaction ID mistmatch $reqTxId != $resTxId")
 
     // read framing off
     in.readU2         // always 0x0000
     len := in.readU2  // res len
-
-    if (log?.isDebug == true)
-    {
-      // read the whole PDU into a Buf so we can log it
-      buf := Buf()
-      in.pipe(buf.out, len, false) // do not close the input stream!!!
-      s := StrBuf()
-        .add("< $reqTxId\n")
-        .add("Modbus TCP Res\n")
-        .add(resTxId.toHex(4)).add(" ")
-        .add(0.toHex(4)).add(" ")
-        .add(len.toHex(4)).add(" ")
-        .add(buf.toHex)
-      log.debug(s.toStr)
-
-      // set in to the Buf input stream and return that
-      in = buf.seek(0).in
-    }
 
     return in
   }
@@ -181,7 +160,7 @@ class ModbusRtuTcpTransport : ModbusTransport
     socket = null
   }
 
-  override InStream req(Buf msg)
+  override ModbusInStream req(Buf msg)
   {
     if (socket == null || !socket.isConnected) throw IOErr("Socket not open")
     socket.out.writeBuf(msg.flip).flush
@@ -259,3 +238,54 @@ class ModbusRtuTcpTransport : ModbusTransport
 //   private const Duration frameDelay
 //   private const Duration timeout := 1sec
 // }
+
+// **************************************************************************
+// ** ModbusInStream
+// **************************************************************************
+
+@NoDoc
+class ModbusInStream : InStream
+{
+  new make(InStream? in, Log? log, Str label := "") : super(in)
+  {
+    this.log     = log
+    this.label   = label
+  }
+
+  private Log? log
+  private const Str label
+  Buf data := Buf() { private set }
+
+  override Int? read()
+  {
+    b := super.read
+    if (b != null) data.write(b)
+    return b
+  }
+
+  override Int? readBuf(Buf buf, Int n)
+  {
+    p := buf.pos
+    c := super.readBuf(buf, n)
+    if (c != null) data.writeBuf(buf[p..<(p+c)])
+    return c
+  }
+
+  override This unread(Int b) { throw IOErr("unread not supported") }
+
+  // Do not close underlying InStream since it is the actual socket or port to the device
+  override Bool close()
+  {
+    if (log?.isDebug ?: false)
+    {
+      s := StrBuf()
+        .add("< $label\n")
+        .add("Modbus Res\n")
+        .add(data.toHex)
+      log.debug(s.toStr())
+      data.clear
+    }
+    return true
+  }
+
+}
