@@ -86,10 +86,10 @@ doc:
   Current connection state of a connector as one of the predefined strings.
   See `doc#conns`
 enum: Trio:
-  closed:  {icon:"warn"    iconColor:"#e67e22", doc:"Connection is closed"}
-  closing: {icon:"spinner" iconColor:"#8e44ad", doc:"Connection is currently being closed"}
-  open:    {icon:"check"   iconColor:"#1ca355", doc:"Connection is open"}
-  opening: {icon:"spinner" iconColor:"#8e44ad", doc:"Connection is currently being opened"}
+  closed:  {icon:"status"  iconColor:"#e67e22", doc:"Connection is closed"}
+  closing: {icon:"spinner" iconColor:"#e67e22", doc:"Connection is currently being closed"}
+  open:    {icon:"status"  iconColor:"#1ca355", doc:"Connection is open"}
+  opening: {icon:"spinner" iconColor:"#1ca355", doc:"Connection is currently being opened"}
 --------------------------------------------------------------------------
 def: ^connStatus
 is: ^str

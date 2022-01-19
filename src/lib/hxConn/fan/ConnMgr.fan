@@ -47,14 +47,14 @@ internal final class ConnMgr
       case "ping":         return ping
       case "close":        return close("force close")
       case "sync":         return null
-      case "watch":        onWatch(msg.a); return null
-      case "unwatch":      onUnwatch(msg.a); return null
+      case "watch":        return onWatch(msg.a)
+      case "unwatch":      return onUnwatch(msg.a)
       case "syncCur":      return onSyncCur(msg.a)
       case "learn":        return onLearn(msg.a)
-      case "connUpdated":  dispatch.onConnUpdated; return null
-      case "pointAdded":   dispatch.onPointAdded(msg.a); return null
-      case "pointUpdated": dispatch.onPointUpdated(msg.a); return null
-      case "pointRemoved": dispatch.onPointRemoved(msg.a); return null
+      case "connUpdated":  return onConnUpdated(msg.a, msg.b)
+      case "pointAdded":   return onPointAdded(msg.a)
+      case "pointUpdated": return onPointUpdated(msg.a)
+      case "pointRemoved": return onPointRemoved(msg.a)
       default:             return dispatch.onReceive(msg)
     }
   }
@@ -225,6 +225,53 @@ internal final class ConnMgr
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Updates
+//////////////////////////////////////////////////////////////////////////
+
+  Void onInit()
+  {
+    updateStatus
+  }
+
+  private Obj? onConnUpdated(ConnConfig oldConfig, ConnConfig newConfig)
+  {
+    // handle disable transition
+    if (oldConfig.isDisabled != newConfig.isDisabled)
+    {
+      // if transitioning to disalbed, close
+      if (newConfig.isDisabled) close("disabled")
+
+      // update status
+      this.vars.resetStats
+      updateStatus
+
+      // if transitioning to enable check if we should re-open
+      if (!newConfig.isDisabled) checkReopen
+    }
+
+    dispatch.onConnUpdated
+    return null
+  }
+
+  private Obj? onPointAdded(ConnPoint pt)
+  {
+    dispatch.onPointAdded(pt)
+    return null
+  }
+
+  private Obj? onPointUpdated(ConnPoint pt)
+  {
+    dispatch.onPointUpdated(pt)
+    return null
+  }
+
+  private Obj? onPointRemoved(ConnPoint pt)
+  {
+    dispatch.onPointRemoved(pt)
+    return null
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Cur/Watches
 //////////////////////////////////////////////////////////////////////////
 
@@ -235,9 +282,9 @@ internal final class ConnMgr
     return "syncCur [$points.size points]"
   }
 
-  private Void onWatch(ConnPoint[] points)
+  private Obj? onWatch(ConnPoint[] points)
   {
-    if (points.isEmpty) return
+    if (points.isEmpty) return null
     nowTicks := Duration.nowTicks
     points.each |pt|
     {
@@ -262,13 +309,14 @@ internal final class ConnMgr
   }
 */
 
-  private Void onUnwatch(ConnPoint[] points)
+  private Obj? onUnwatch(ConnPoint[] points)
   {
-    if (points.isEmpty) return
+    if (points.isEmpty) return null
     points.each |pt| { pt.isWatchedRef.val = false }
     updatePointsInWatch
     dispatch.onUnwatch(points)
     if (pointsInWatch.isEmpty) closePin("watch")
+    return null
   }
 
   private Void updatePointsInWatch()

@@ -190,6 +190,7 @@ const final class Conn : Actor, HxConn
       try
       {
         Actor.locals["mgr"] = mgr = ConnMgr(this, lib.model.dispatchType)
+        mgr.onInit
       }
       catch (Err e)
       {

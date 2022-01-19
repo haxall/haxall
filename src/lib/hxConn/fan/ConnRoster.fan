@@ -154,9 +154,11 @@ internal const final class ConnRoster
 
   private Void onConnUpdated(Conn conn, CommitObservation e)
   {
+    oldConfig := conn.config
     conn.updateRec(e.newRec)
+    newConfig := conn.config
     if (e.tagUpdated("connTuningRef")) updateBuckets(conn)
-    conn.send(HxMsg("connUpdated"))
+    conn.send(HxMsg("connUpdated", oldConfig, newConfig))
   }
 
   private Void onConnRemoved(Conn conn)

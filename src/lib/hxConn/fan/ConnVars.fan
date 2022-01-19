@@ -96,6 +96,15 @@ internal const final class ConnVars
 
   internal Void pinged() { lastPingRef.val = Duration.nowTicks }
 
+  internal Void resetStats()
+  {
+    lingerUntilRef.val = 0
+    lastPollRef.val = 0
+    lastPingRef.val = 0
+    lastOkRef.val = 0
+    lastErrRef.val = 0
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // State/Status Transitions
 //////////////////////////////////////////////////////////////////////////
