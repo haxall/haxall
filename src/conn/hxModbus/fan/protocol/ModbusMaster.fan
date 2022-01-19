@@ -36,6 +36,20 @@ class ModbusMaster
     return this
   }
 
+  Void withTrace(Log log, |This| f)
+  {
+    curLog := transport.log
+    try
+    {
+      transport.log = log
+      f(this)
+    }
+    finally
+    {
+      transport.log = curLog
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Coils
 //////////////////////////////////////////////////////////////////////////

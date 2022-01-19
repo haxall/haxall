@@ -9,6 +9,7 @@
 
 using haystack
 using hx
+using hxConn
 
 **
 ** ModbusDev models a modbus device.
@@ -36,9 +37,13 @@ using hx
   ** Timeout for register writes
   const Duration writeTimeout
 
+  ** Log for this device
+  const Log? log
+
   ** Create a new ModbusDev instance from a ModbusConn rec.
-  static new fromConn(HxRuntime rt, Dict rec)
+  static new fromConn(Conn conn)
   {
+    rec := conn.rec
     uri := rec["uri"]
     if (uri == null) throw FaultErr("Missing 'uri' tag")
     if (uri isnot Uri) throw FaultErr("Invalid 'uri' tag - must be an Uri")
@@ -57,10 +62,11 @@ using hx
     {
       it.uri    = uri
       it.slave  = slave->toInt
-      it.regMap = loadRegMap(rt, regUri)
+      it.regMap = loadRegMap(conn.rt, regUri)
       it.forceWriteMultiple = fwm
       it.readTimeout  = toDuration(rec, "modbusReadTimeout", 15sec)
       it.writeTimeout = toDuration(rec, "modbusWriteTimeout", 15sec)
+      it.log = conn.trace.asLog
     }
   }
 

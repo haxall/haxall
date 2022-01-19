@@ -90,11 +90,13 @@ class ModbusTcpTransport : ModbusTransport
     if (log?.isDebug == true)
     {
       s := StrBuf()
+        .add("> $reqTxId\n")
+        .add("Modbus TCP Req\n")
         .add(reqTxId.toHex(4)).add(" ")
         .add(0.toHex(4)).add(" ")
         .add(msg.size.toHex(4)).add(" ")
         .add(msg.toHex)
-      log.debug("# [$logPrefix] -> [${s}]")
+      log.debug(s.toStr)
     }
 
     // send req
@@ -116,11 +118,20 @@ class ModbusTcpTransport : ModbusTransport
 
     if (log?.isDebug == true)
     {
+      // read the whole PDU into a Buf so we can log it
+      buf := Buf()
+      in.pipe(buf.out, len, false) // do not close the input stream!!!
       s := StrBuf()
+        .add("< $reqTxId\n")
+        .add("Modbus TCP Res\n")
         .add(resTxId.toHex(4)).add(" ")
         .add(0.toHex(4)).add(" ")
         .add(len.toHex(4)).add(" ")
-      log.debug("# [$logPrefix] <- [${s}]")
+        .add(buf.toHex)
+      log.debug(s.toStr)
+
+      // set in to the Buf input stream and return that
+      in = buf.seek(0).in
     }
 
     return in

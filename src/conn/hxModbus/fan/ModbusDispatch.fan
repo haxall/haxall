@@ -48,7 +48,7 @@ class ModbusDispatch : ConnDispatch
 
   override Void onOpen()
   {
-    this.dev  = ModbusDev.fromConn(rt, rec)
+    this.dev  = ModbusDev.fromConn(conn)
     this.link = ModbusLink.get(dev.uri)
   }
 

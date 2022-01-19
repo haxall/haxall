@@ -139,23 +139,26 @@ using hx
   {
     try
     {
-      start := block.start - 1
-      size  := block.size
-
-// echo("# [$Time.now] link.read ? $start-${start+size} [$size]")
-
-      Obj? raw
-      switch (block.type)
+      master.withTrace(dev.log)
       {
-        case ModbusAddrType.coil:          raw = master.readCoils(dev.slave, start, size)
-        case ModbusAddrType.discreteInput: raw = master.readDiscreteInputs(dev.slave, start, size)
-        case ModbusAddrType.inputReg:      raw = master.readInputRegs(dev.slave, start, size)
-        case ModbusAddrType.holdingReg:    raw = master.readHoldingRegs(dev.slave, start, size)
+        start := block.start - 1
+        size  := block.size
+
+  // echo("# [$Time.now] link.read ? $start-${start+size} [$size]")
+
+        Obj? raw
+        switch (block.type)
+        {
+          case ModbusAddrType.coil:          raw = master.readCoils(dev.slave, start, size)
+          case ModbusAddrType.discreteInput: raw = master.readDiscreteInputs(dev.slave, start, size)
+          case ModbusAddrType.inputReg:      raw = master.readInputRegs(dev.slave, start, size)
+          case ModbusAddrType.holdingReg:    raw = master.readHoldingRegs(dev.slave, start, size)
+        }
+
+  // echo("# [$Time.now] link.read @ $start-${start+size} [$size] == $raw")
+
+        block.resolve(raw)
       }
-
-// echo("# [$Time.now] link.read @ $start-${start+size} [$size] == $raw")
-
-      block.resolve(raw)
     }
     catch (IOErr err)
     {
@@ -183,27 +186,30 @@ using hx
     type := reg.addr.type
     addr := reg.addr.num - 1
 
-    if (type == ModbusAddrType.coil)
+    master.withTrace(dev.log)
     {
-      master.writeCoil(dev.slave, addr, val)
-    }
-    else
-    {
-      sf := reg.scale?.factor
-      if (sf != null) val = reg.scale.inverse(val, sf)
-      regs := reg.data.toRegs(val)
-
-      if (reg.data is ModbusBitData)
+      if (type == ModbusAddrType.coil)
       {
-        bit := (ModbusBitData)reg.data
-        cur := master.readHoldingRegs(dev.slave, addr, reg.data.size).first
-        regs[0] = val==true ? cur.or(bit.mask) : cur.and(bit.mask.not)
+        master.writeCoil(dev.slave, addr, val)
       }
-
-      if (dev.forceWriteMultiple)
-        master._writeHoldingRegs(dev.slave, addr, regs)
       else
-        master.writeHoldingRegs(dev.slave, addr, regs)
+      {
+        sf := reg.scale?.factor
+        if (sf != null) val = reg.scale.inverse(val, sf)
+        regs := reg.data.toRegs(val)
+
+        if (reg.data is ModbusBitData)
+        {
+          bit := (ModbusBitData)reg.data
+          cur := master.readHoldingRegs(dev.slave, addr, reg.data.size).first
+          regs[0] = val==true ? cur.or(bit.mask) : cur.and(bit.mask.not)
+        }
+
+        if (dev.forceWriteMultiple)
+          master._writeHoldingRegs(dev.slave, addr, regs)
+        else
+          master.writeHoldingRegs(dev.slave, addr, regs)
+      }
     }
 
     return null
