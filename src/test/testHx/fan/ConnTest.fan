@@ -222,7 +222,7 @@ class ConnTest : HxTest
     c.trace.write("foo", "msg", null)
     verifyTrace(c, [
       ["foo", "msg", null],
-      ], false)
+      ])
 
     // write some other traces
     c.trace.dispatch(HxMsg("x"))
@@ -236,7 +236,7 @@ class ConnTest : HxTest
       ["req",      "req test",   "req body"],
       ["res",      "res test",   "res body"],
       ["event",    "event test", "event body"],
-      ], false)
+      ])
 
     // verify re-enable doesn't change anything
     c.trace.enable
@@ -248,21 +248,21 @@ class ConnTest : HxTest
       ["req",      "req test",   "req body"],
       ["res",      "res test",   "res body"],
       ["event",    "event test", "event body"],
-      ], false)
+      ])
 
     // readSince
     verifyTrace(c, [
       ["res",      "res test",   "res body"],
       ["event",    "event test", "event body"],
-      ], false, c.trace.read[2].ts)
+      ], c.trace.read[2].ts)
 
     // disable
     c.trace.disable
     verifyEq(c.trace.isEnabled, false)
     verifyEq(c.trace.asLog.level, LogLevel.silent)
-    verifyTrace(c, [,], false)
+    verifyTrace(c, [,])
     c.trace.write("ignore", "ignore")
-    verifyTrace(c, [,], false)
+    verifyTrace(c, [,])
 
     // buf test
     c.trace.enable
@@ -273,12 +273,12 @@ class ConnTest : HxTest
     verify(buf.bytesEqual("buf test".toBuf))
   }
 
-  Void verifyTrace(Conn c, Obj[] expected, Bool sync := true, DateTime? since := null)
+  Void verifyTrace(Conn c, Obj[] expected, DateTime? since := null)
   {
-    if (sync) c.sync
+    c.sync
     actual := c.trace.readSince(since)
-    if (sync && c.trace.isEnabled) actual = actual[0..-2] // strip trailing sync
-    // echo("\n --- trace $since ---"); echo(actual.join("\n"))
+    actual = actual.findAll |a| { a.msg != "sync" }
+    //echo("\n --- trace $since ---"); echo(actual.join("\n"))
     verifyEq(actual.size, expected.size)
     actual.each |a, i|
     {
@@ -328,7 +328,6 @@ class ConnTest : HxTest
 
     // modify c2
     c2 = commit(c2, ["change":m, "dis":"C2x"])
-    oldConfig := conn2->config
     rt.sync
     verifyRoster(lib,
       [
@@ -337,7 +336,7 @@ class ConnTest : HxTest
        [c3],
       ])
     verifyTrace(conn2, [
-      ["dispatch", "connUpdated", HxMsg("connUpdated", oldConfig, conn2->config)],
+      ["dispatch", "connUpdated", HxMsg("connUpdated", c2)],
       ])
 
     // add some points
@@ -369,7 +368,7 @@ class ConnTest : HxTest
        [c3],
       ])
     verifyTrace(conn1, [
-      ["dispatch", "pointUpdated", HxMsg("pointUpdated", conn1.point(p1b.id))],
+      ["dispatch", "pointUpdated", HxMsg("pointUpdated", conn1.point(p1b.id), p1b)],
       ])
 
     // move pt to new connector
@@ -522,6 +521,7 @@ class ConnTest : HxTest
     // each connector
     conns.each |c, i|
     {
+      c.sync
       // expected rows are a list where first item is connector rec
       // and rest of list is the expected points under that connector
       ex    := expected[i]
@@ -621,7 +621,7 @@ class ConnTest : HxTest
 
     // update config
     cr = commit(cr, ["actorTimeout":n(27, "sec"), "connLinger":n(5, "sec"), "connPingFreq":n(1, "min"), "haystackPollFreq":n(5, "sec"), "connOpenRetryFreq":n(7, "sec")])
-    rt.sync
+    sync(c)
     verifySame(lib.conn(cr.id), c)
     verifyEq(c.id, cr.id)
     verifyEq(c.dis, "TestConn")
@@ -634,7 +634,7 @@ class ConnTest : HxTest
 
     // update config with invalid values
     cr = commit(cr, ["actorTimeout":"bad", "connLinger":"bad", "connPingFreq":"bad", "haystackPollFreq":"bad"])
-    rt.sync
+    sync(c)
     verifySame(lib.conn(cr.id), c)
     verifyEq(c.id, cr.id)
     verifyEq(c.dis, "TestConn")
@@ -649,7 +649,7 @@ class ConnTest : HxTest
        "tz":"Chicago", "kind":"Number", "unit":"kW",
        "haystackCur":"c", "haystackHis":"h", "haystackWrite":"w",
        "curConvert":"*7", "writeConvert":"*8", "hisConvert":"*9"])
-    rt.sync
+    sync(c)
     p := c.point(pr.id)
     verifyEq(p.id, pr.id)
     verifyEq(p.dis, "Pt")
@@ -684,10 +684,11 @@ class ConnTest : HxTest
   {
     rec := commit(readById(p.id), [tag: val ?: Remove.val])
     rt.sync
+    p.conn.sync
+    //echo("-- $tag = $val $p.fault")
     verifyEq(p.id, rec.id)
     verifyEq(p.dis, rec.dis)
     verifySame(p.rec, rec)
-    // echo("-- $tag = $val $p.fault")
     verifyEq(p.fault, msg)
   }
 
@@ -761,7 +762,7 @@ class ConnTest : HxTest
 
     // add tuning for conn
     commit(c, ["connTuningRef":t2.id])
-    rt.sync
+    sync(c)
     verifyEq(lib.tuning.id, t1.id)
     verifyEq(lib.conn(c.id).tuning.id, t2.id)
     verifyEq(lib.point(pt.id).tuning.id, t2.id)
@@ -771,7 +772,7 @@ class ConnTest : HxTest
 
     // add tuning on point
     pt = commit(pt, ["connTuningRef":t3.id])
-    rt.sync
+    sync(c)
     verifyEq(lib.tuning.id, t1.id)
     verifyEq(lib.conn(c.id).tuning.id, t2.id)
     verifyEq(lib.point(pt.id).tuning.id, t3.id)
@@ -784,7 +785,7 @@ class ConnTest : HxTest
     rt.libs.remove("conn")
     fw = addLib("conn")
     lib = addLib("haystack", ["connTuningRef":t1.id])
-    rt.sync
+    sync(c)
     verifyEq(lib.tuning.id, t1.id)
     verifyEq(lib.conn(c.id).tuning.id, t2.id)
     verifyEq(lib.point(pt.id).tuning.id, t3.id)
@@ -795,14 +796,14 @@ class ConnTest : HxTest
     // map pt to tuning which doesn't exist yet
     t5id := genRef("t5")
     pt = commit(pt, ["connTuningRef":t5id])
-    rt.sync
+    sync(c)
     verifyEq(lib.point(pt.id).tuning.id, t5id)
     verifyEq(lib.point(pt.id).tuning.staleTime, 5min)
     verifyDictEq(lib.point(pt.id).tuning.rec, Etc.makeDict1("id", t5id))
 
     // now fill in t5
     t5 := addRec(["id":t5id, "dis":"T-5", "connTuning":m, "staleTime":n(123, "sec")])
-    rt.sync
+    sync(c)
     verifyEq(fw.tunings.get(t5id).staleTime, 123sec)
     verifyEq(lib.point(pt.id).tuning.id, t5.id)
     verifyEq(lib.point(pt.id).tuning.staleTime, 123sec)
@@ -999,4 +1000,89 @@ class ConnTest : HxTest
 
     return c.pollBuckets
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Test Status
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testStatus()
+  {
+    lib := (ConnLib)addLib("haystack")
+    c1rec := addRec(["dis":"C1", "haystackConn":m])
+    c2rec := addRec(["dis":"C2", "haystackConn":m, "disabled":m])
+    rt.sync
+    c1 := lib.conn(c1rec.id)
+    c2 := lib.conn(c2rec.id)
+
+    // initial state
+    verifyConnStatus(c1, "unknown", "closed")
+    verifyConnStatus(c2, "disabled", "closed")
+
+    // disabled/enable transitions
+    c1rec = commit(c1rec, ["disabled":m])
+    c2rec = commit(c2rec, ["disabled":Remove.val])
+    verifyConnStatus(c1, "disabled", "closed")
+    verifyConnStatus(c2, "unknown", "closed")
+
+    // add some points
+    /* TODO
+    tz := "New_York"
+    p1 := addRec(["dis":"P1", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x"])
+    p2 := addRec(["dis":"P2", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x", "haystackWrite":"x"])
+    p3 := addRec(["dis":"P3", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x"])
+    p4 := addRec(["dis":"P4", "point":m, "haystackConnRef":c1.id, "haystackCur":"x"])
+    p5 := addRec(["dis":"P5", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x"])
+    p6 := addRec(["dis":"P6", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x", "haystackWrite":"x"])
+    p7 := addRec(["dis":"P7", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x"])
+    p8 := addRec(["dis":"P8", "point":m, "haystackConnRef":c2.id, "haystackCur":"x"])
+
+    verifyPointStatus(p1, "disabled")
+    verifyPointStatus(p2, "disabled")
+    verifyPointStatus(p3, "disabled")
+    verifyPointStatus(p4, "disabled")
+    verifyPointStatus(p5, "unknown")
+    verifyPointStatus(p6, "unknown")
+    verifyPointStatus(p7, "unknown")
+    verifyPointStatus(p8, "unknown")
+    */
+  }
+
+  Void verifyConnStatus(Conn c, Str status, Str state)
+  {
+    rt.sync
+    c.sync
+    r := rt.db.readById(c.id)
+    verifyEq(c.status.name, status)
+    verifyEq(c.state.name, state)
+    verifyEq(r["connStatus"], status)
+    verifyEq(r["connState"], state)
+  }
+
+  Void verifyPointStatus(Dict rec, Str status)
+  {
+    rt.sync
+    pt := rt.conn.point(rec.id)
+    ((Conn)pt.conn).sync
+    rec = rt.db.readById(rec.id)
+    // echo("-- $pt.rec.dis $rec")
+    verifyEq(rec["curStatus"],   rec.has("haystackCur")   ? status : null)
+    verifyEq(rec["writeStatus"], rec.has("haystackWrite") ? status : null)
+    verifyEq(rec["hisStatus"],   rec.has("haystackHis")   ? status : null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  Void sync(Obj? c)
+  {
+    rt.sync
+    if (c == null) return
+    if (c is Conn)
+      ((Conn)c).sync
+    else
+      ((Conn)rt.conn.conn(Etc.toId(c))).sync
+  }
+
 }

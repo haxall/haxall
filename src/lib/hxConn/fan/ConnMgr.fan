@@ -51,10 +51,11 @@ internal final class ConnMgr
       case "unwatch":      return onUnwatch(msg.a)
       case "syncCur":      return onSyncCur(msg.a)
       case "learn":        return onLearn(msg.a)
-      case "connUpdated":  return onConnUpdated(msg.a, msg.b)
+      case "connUpdated":  return onConnUpdated(msg.a)
       case "pointAdded":   return onPointAdded(msg.a)
-      case "pointUpdated": return onPointUpdated(msg.a)
+      case "pointUpdated": return onPointUpdated(msg.a, msg.b)
       case "pointRemoved": return onPointRemoved(msg.a)
+      case "init":         return onInit
       default:             return dispatch.onReceive(msg)
     }
   }
@@ -228,13 +229,20 @@ internal final class ConnMgr
 // Updates
 //////////////////////////////////////////////////////////////////////////
 
-  Void onInit()
+  private Obj? onInit()
   {
     updateStatus
+    updateBuckets
+    return null
   }
 
-  private Obj? onConnUpdated(ConnConfig oldConfig, ConnConfig newConfig)
+  private Obj? onConnUpdated(Dict newRec)
   {
+    // update config
+    oldConfig := conn.config
+    newConfig := ConnConfig(lib, newRec)
+    conn.setConfig(this, newConfig)
+
     // handle disable transition
     if (oldConfig.isDisabled != newConfig.isDisabled)
     {
@@ -249,24 +257,38 @@ internal final class ConnMgr
       if (!newConfig.isDisabled) checkReopen
     }
 
+    // handle tuning change
+    if (oldConfig.tuning !== newConfig.tuning)
+      updateBuckets
+
     dispatch.onConnUpdated
     return null
   }
 
   private Obj? onPointAdded(ConnPoint pt)
   {
+    updateBuckets
     dispatch.onPointAdded(pt)
     return null
   }
 
-  private Obj? onPointUpdated(ConnPoint pt)
+  private Obj? onPointUpdated(ConnPoint pt, Dict newRec)
   {
+    oldConfig := pt.config
+    newConfig := ConnPointConfig(lib, newRec)
+    pt.setConfig(this, newConfig)
+
+    // handle tuning change
+    if (oldConfig.tuning !== newConfig.tuning)
+      updateBuckets
+
     dispatch.onPointUpdated(pt)
     return null
   }
 
   private Obj? onPointRemoved(ConnPoint pt)
   {
+    updateBuckets
     dispatch.onPointRemoved(pt)
     return null
   }
@@ -390,6 +412,40 @@ internal final class ConnMgr
   {
     points.each |pt| { pt.curQuickPoll = false }
     dispatch.onPollBucket(points)
+  }
+
+  private Void updateBuckets()
+  {
+    // short circuit if not using buckets mode
+    if (conn.pollMode !== ConnPollMode.buckets) return
+
+    // save olds buckets by tuning id so we can reuse state
+    oldBuckets := Ref:ConnPollBucket[:]
+    oldBuckets.setList(conn.pollBuckets) |b| { b.tuning.id }
+
+    // group by tuning id
+    byTuningId := Ref:ConnPoint[][:]
+    conn.points.each |pt|
+    {
+      tuningId := pt.tuning.id
+      bucket := byTuningId[tuningId]
+      if (bucket == null) byTuningId[tuningId] = bucket = ConnPoint[,]
+      bucket.add(pt)
+    }
+
+    // flatten to list
+    acc := ConnPollBucket[,]
+    byTuningId.each |points|
+    {
+      tuning := points.first.tuning
+      state := oldBuckets[tuning.id]?.state ?: ConnPollBucketState(tuning)
+      acc.add(ConnPollBucket(conn, tuning, state, points))
+    }
+
+    // sort by poll time; this could potentially get out of
+    // order if ConnTuning have their pollTime changed - but
+    // that is ok because sort order is for display, not logic
+    conn.setPollBuckets(this, acc.sort.toImmutable)
   }
 
 //////////////////////////////////////////////////////////////////////////

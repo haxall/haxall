@@ -65,9 +65,6 @@ internal const final class ConnRoster
 
   Void start(ConnModel model)
   {
-    // model init
-    hasBuckets.val = model.pollMode === ConnPollMode.buckets
-
     // initialize conns (which in turn initializes points)
     initConns
 
@@ -149,16 +146,15 @@ internal const final class ConnRoster
       service.addPoint(point)
     }
     conn.updatePointsList(pointsList)
-    updateBuckets(conn)
+
+    // now that all the points are setup, we can safely
+    // initialize and start the connector
+    conn.start
   }
 
   private Void onConnUpdated(Conn conn, CommitObservation e)
   {
-    oldConfig := conn.config
-    conn.updateRec(e.newRec)
-    newConfig := conn.config
-    if (e.tagUpdated("connTuningRef")) updateBuckets(conn)
-    conn.send(HxMsg("connUpdated", oldConfig, newConfig))
+    conn.send(HxMsg("connUpdated", e.newRec))
   }
 
   private Void onConnRemoved(Conn conn)
@@ -257,9 +253,7 @@ internal const final class ConnRoster
     }
 
     // normal update
-    point.onUpdated(rec)
-    if (e.tagUpdated("connTuningRef")) updateBuckets(point.conn)
-    point.conn.send(HxMsg("pointUpdated", point))
+    point.conn.send(HxMsg("pointUpdated", point, rec))
   }
 
   private Void onPointRemoved(Ref id)
@@ -284,7 +278,6 @@ internal const final class ConnRoster
       if (pt.conn === conn) acc.add(pt)
     }
     conn.updatePointsList(acc)
-    updateBuckets(conn)
   }
 
   private Ref pointConnRef(Dict rec)
@@ -325,43 +318,6 @@ internal const final class ConnRoster
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Buckets
-//////////////////////////////////////////////////////////////////////////
-
-  private Void updateBuckets(Conn conn)
-  {
-    if (!hasBuckets.val) return
-
-    // save olds buckets by tuning id so we can reuse state
-    oldBuckets := Ref:ConnPollBucket[:]
-    oldBuckets.setList(conn.pollBuckets) |b| { b.tuning.id }
-
-    // group by tuning id
-    byTuningId := Ref:ConnPoint[][:]
-    conn.points.each |pt|
-    {
-      tuningId := pt.tuning.id
-      bucket := byTuningId[tuningId]
-      if (bucket == null) byTuningId[tuningId] = bucket = ConnPoint[,]
-      bucket.add(pt)
-    }
-
-    // flatten to list
-    acc := ConnPollBucket[,]
-    byTuningId.each |points|
-    {
-      tuning := points.first.tuning
-      state := oldBuckets[tuning.id]?.state ?: ConnPollBucketState(tuning)
-      acc.add(ConnPollBucket(conn, tuning, state, points))
-    }
-
-    // sort by poll time; this could potentially get out of
-    // order if ConnTuning have their pollTime changed - but
-    // that is ok because sort order is for display, not logic
-    conn.pollBucketsRef.val = acc.sort.toImmutable
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Utiils
 //////////////////////////////////////////////////////////////////////////
 
@@ -389,7 +345,6 @@ internal const final class ConnRoster
 //////////////////////////////////////////////////////////////////////////
 
   private const ConnLib lib
-  private const AtomicBool hasBuckets := AtomicBool()
   private const AtomicRef connsList := AtomicRef(Conn#.emptyList)
   private const ConcurrentMap connsById := ConcurrentMap()
   private const ConcurrentMap pointsById := ConcurrentMap()

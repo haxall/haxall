@@ -116,6 +116,7 @@ const final class ConnPoint : HxConnPoint
   ** Conn rec configuration
   internal ConnPointConfig config() { configRef.val }
   private const AtomicRef configRef
+  internal Void setConfig(ConnMgr mgr, ConnPointConfig c) { configRef.val = c }
 
   ** Manages all status commits to this record
   private const ConnCommitter committer := ConnCommitter()
@@ -190,16 +191,6 @@ const final class ConnPoint : HxConnPoint
   private const AtomicRef curStateRef := AtomicRef(ConnPointCurState.nil)
 
   internal Bool curQuickPoll { get { false } set {} }  // TODO
-
-//////////////////////////////////////////////////////////////////////////
-// Lifecycle
-//////////////////////////////////////////////////////////////////////////
-
-  ** Called then record is modified
-  internal Void onUpdated(Dict newRec)
-  {
-    configRef.val = ConnPointConfig(conn.lib, newRec)
-  }
 
 //////////////////////////////////////////////////////////////////////////
 // Debug

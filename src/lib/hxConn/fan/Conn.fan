@@ -31,7 +31,12 @@ const final class Conn : Actor, HxConn
     this.configRef   = AtomicRef(ConnConfig(lib, rec))
     this.traceRef    = ConnTrace(lib.rt.libs.actorPool)
     this.pollModeRef = lib.model.pollMode
-    sendLater(houseKeepingFreq, houseKeepingMsg)
+  }
+
+  internal Void start()
+  {
+    send(HxMsg("init"))
+    sendLater(Conn.houseKeepingFreq, Conn.houseKeepingMsg)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -95,9 +100,13 @@ const final class Conn : Actor, HxConn
   ** Current status of the connector
   ConnStatus status() { vars.status }
 
+  ** Current connection open/close state
+  @NoDoc ConnState state() { vars.state }
+
   ** Conn rec configuration
   internal ConnConfig config() { configRef.val }
   private const AtomicRef configRef
+  internal Void setConfig(ConnMgr mgr, ConnConfig c) { configRef.val = c }
 
   ** Mutable variables managed by ConnMgr within actor thread
   internal const ConnVars vars := ConnVars()
@@ -149,9 +158,8 @@ const final class Conn : Actor, HxConn
 
   ** Configured polling buckets if pollMode is buckets
   @NoDoc ConnPollBucket[] pollBuckets() { pollBucketsRef.val }
-
-  ** Current configuration of buckets - managed by ConnRoster
-  internal const AtomicRef pollBucketsRef := AtomicRef(ConnPollBucket#.emptyList)
+  private const AtomicRef pollBucketsRef := AtomicRef(ConnPollBucket#.emptyList)
+  internal Void setPollBuckets(ConnMgr mgr, ConnPollBucket[] b) { pollBucketsRef.val = b }
 
 //////////////////////////////////////////////////////////////////////////
 // Actor
@@ -190,7 +198,6 @@ const final class Conn : Actor, HxConn
       try
       {
         Actor.locals["mgr"] = mgr = ConnMgr(this, lib.model.dispatchType)
-        mgr.onInit
       }
       catch (Err e)
       {
@@ -242,13 +249,7 @@ const final class Conn : Actor, HxConn
   ** Set alive state to false
   internal Void kill() { aliveRef.val = false }
 
-  ** Called when record is modified
-  internal Void updateRec(Dict newRec)
-  {
-    configRef.val = ConnConfig(lib, newRec)
-  }
-
-  ** Update the points list.
+  ** Update the points list (called on roster threads) .
   ** Must pass mutable list which is sorted by this method.
   internal Void updatePointsList(ConnPoint[] pts)
   {
