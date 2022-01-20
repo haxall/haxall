@@ -1016,6 +1016,7 @@ class CoreLibTest : HaystackTest
     verifyEval("""equals($x, $x)""", true)
     verifyEval("""equals($x, ${x}.addMeta({newMeta}))""", false)
     verifyEval("""equals($x, ${x}.addColMeta("age", {newMeta}))""", false)
+    verifyEval("""equals([].toGrid.map(r => r), [].toGrid)""", true)
     verifyEval("""equals($x, ${x}.reorderCols(["age", "foo", "name"]))""", false)
     verifyEval("""equals($x, ${x}.removeCol("age"))""", false)
     verifyEval("""equals($x, ${x}[0..1])""", false)

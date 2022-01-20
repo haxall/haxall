@@ -319,9 +319,11 @@ const mixin Grid
     newRows := Dict[,]
     colNames := Str[,]
     colNamesMap := Str:Str[:]
+    numRows := 0
     each |row, i|
     {
       // call func
+      numRows++
       newVal := f(row, i)
 
       // null skips/removes row
@@ -337,6 +339,9 @@ const mixin Grid
         if (colNamesMap[n] == null) { colNames.add(n); colNamesMap[n] = n }
       }
     }
+
+    // short circuit if this grid was empty
+    if (numRows == 0) return this
 
     // build new grid
     gb := GridBuilder().setMeta(meta)
@@ -359,9 +364,11 @@ const mixin Grid
     newRows := Dict[,]
     colNames := Str[,]
     colNamesMap := Str:Str[:]
+    numRows := 0
     each |row, i|
     {
       // call func
+      numRows++
       mapVals := f(row, i)
 
       // null skips/removes row
@@ -384,6 +391,9 @@ const mixin Grid
         }
       }
     }
+
+    // short circuit if this grid was empty
+    if (numRows == 0) return this
 
     // build new grid
     gb := GridBuilder().setMeta(meta)

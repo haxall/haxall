@@ -294,6 +294,11 @@ class GridTest : HaystackTest
            104, "B",  "b"
            103, "C",  "c"
            102, "D",  "d"|>))
+
+     // verify empty grid maps to itself
+     empty := GridBuilder().setMeta(["foo":m]).addCol("bar", ["baz":m]).toGrid
+     verifySame(empty.map |r| { Etc.makeDict1("wrong", m) }, empty)
+     verifySame(empty.flatMap |r| { Dict[,] }, empty)
   }
 
 //////////////////////////////////////////////////////////////////////////
