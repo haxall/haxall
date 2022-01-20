@@ -328,6 +328,7 @@ class ConnTest : HxTest
 
     // modify c2
     c2 = commit(c2, ["change":m, "dis":"C2x"])
+    oldConfig := conn2->config
     rt.sync
     verifyRoster(lib,
       [
@@ -336,7 +337,7 @@ class ConnTest : HxTest
        [c3],
       ])
     verifyTrace(conn2, [
-      ["dispatch", "connUpdated", HxMsg("connUpdated")],
+      ["dispatch", "connUpdated", HxMsg("connUpdated", oldConfig, conn2->config)],
       ])
 
     // add some points
@@ -530,7 +531,7 @@ class ConnTest : HxTest
 
       // connector
       verifySame(c.lib, lib)
-      verifySame(c.rec, exRec)
+      verifyRecEq(c.rec, exRec)
       verifyEq(c.id, exRec.id)
       verifyEq(c.dis, exRec.dis)
       verifySame(lib.conn(exRec.id), c)
@@ -570,7 +571,7 @@ class ConnTest : HxTest
       connRef := (Ref)e["haystackConnRef"]
       verifyEq(a.conn.id, connRef)
       verifySame(a.conn, lib.conn(connRef))
-      verifySame(a.rec, e)
+      verifyRecEq(a.rec, e)
       verifyEq(a.id, id)
       verifyEq(a.dis, e.dis)
       verifySame(lib.point(id), a)
@@ -586,6 +587,14 @@ class ConnTest : HxTest
         verifyErr(UnknownConnPointErr#) { c.point(id, true) }
       }
     }
+  }
+
+  Void verifyRecEq(Dict a, Dict b)
+  {
+    // we don't expect transient tags to be same
+    verifySame(a.id, b.id)
+    verifySame(a.dis, b.dis)
+    verifySame(a->mod, b->mod)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -830,11 +839,7 @@ class ConnTest : HxTest
   @HxRuntimeTest
   Void testBuckets()
   {
-    echo("TODO: enable once hxModbus stubbed out")
-    return
-
-    // TODO: once we have modbus, we can use that
-    name := "haystack"
+    name := "modbus"
     connTag := name + "Conn"
     connTagRef := name + "ConnRef"
     lib := (ConnLib)addLib(name)
