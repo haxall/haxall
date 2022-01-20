@@ -74,7 +74,17 @@ internal const final class ConnCommitter
 
     // use blocking commit so we have back pressure if folio queues
     // back up; maybe eventually do something more sophisticated
-    lib.rt.db.commit(Diff(rec, changes, Diff.forceTransient))
+    try
+    {
+      lib.rt.db.commit(Diff(rec, changes, Diff.forceTransient))
+    }
+    catch (Err e)
+    {
+      // don't report if record has been removed
+      newRec := lib.rt.db.readById(rec.id, false)
+      if (newRec == null || newRec.has("trash")) return
+      throw e
+    }
   }
 
   ** Debug details

@@ -231,7 +231,7 @@ internal final class ConnMgr
 
   private Obj? onInit()
   {
-    updateStatus
+    updateStatus(true)
     updateBuckets
     return null
   }
@@ -268,6 +268,7 @@ internal final class ConnMgr
   private Obj? onPointAdded(ConnPoint pt)
   {
     updateBuckets
+    pt.updateStatus
     dispatch.onPointAdded(pt)
     return null
   }
@@ -277,6 +278,10 @@ internal final class ConnMgr
     oldConfig := pt.config
     newConfig := ConnPointConfig(lib, newRec)
     pt.setConfig(this, newConfig)
+
+    // handle transitions which require status update
+    if (oldConfig.isStatusUpdate(newConfig))
+      pt.updateStatus
 
     // handle tuning change
     if (oldConfig.tuning !== newConfig.tuning)
@@ -539,7 +544,7 @@ internal final class ConnMgr
     updateStatus
   }
 
-  private Void updateStatus()
+  private Void updateStatus(Bool forcePoints := false)
   {
     // compute status and error message
     ConnStatus? status
@@ -573,7 +578,7 @@ internal final class ConnMgr
     conn.committer.commit3(lib, rec, "connStatus", status.name, "connState", state.name, "connErr", errStr)
 
     // if we changed the status, then update points
-    if (statusModified)
+    if (statusModified || forcePoints)
       conn.points.each |pt| { pt.onConnStatus }
   }
 

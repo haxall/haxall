@@ -29,10 +29,6 @@ const final class ConnPoint : HxConnPoint
     this.connRef   = conn
     this.idRef     = rec.id
     this.configRef = AtomicRef(ConnPointConfig(conn.lib, rec))
-
-// TODO: need to design startup status, fault handling, and conn status merge
-    if (fault != null)
-      committer.commit3(lib, rec, "curStatus", "fault", "curVal", null, "curErr", fault)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -71,13 +67,13 @@ const final class ConnPoint : HxConnPoint
   Obj? hisAddr() { config.hisAddr }
 
   ** Is current address supported on this point
-  Bool hasCur() { config.curAddr != null }
+  Bool hasCur() { config.curAddr != null && isEnabled }
 
   ** Is write address supported on this point
-  Bool hasWrite() { config.writeAddr != null }
+  Bool hasWrite() { config.writeAddr != null && isEnabled }
 
   ** Is history address supported on this point
-  Bool hasHis() { config.hisAddr != null }
+  Bool hasHis() { config.hisAddr != null && isEnabled }
 
   ** Point kind defined by rec 'kind' tag
   Kind kind() { config.kind }
@@ -102,6 +98,9 @@ const final class ConnPoint : HxConnPoint
 
   ** History value conversion if defined by rec 'hisConvert' tag
   @NoDoc PointConvert? hisConvert() { config.hisConvert }
+
+  ** Is the record missing 'disabled' marker configured
+  Bool isEnabled() { !config.isDisabled }
 
   ** Does the record have the 'disabled' marker configured
   Bool isDisabled() { config.isDisabled }
@@ -155,20 +154,20 @@ const final class ConnPoint : HxConnPoint
     val    := null
     err    := null
     config := config
-    if (!conn.status.isOk)
+    if (config.fault != null)
     {
-      status = conn.status
-      err = "conn $status"
+      status = ConnStatus.fault
+      err = config.fault
     }
     else if (config.isDisabled)
     {
       status = ConnStatus.disabled
       err = "Point is disabled"
     }
-    else if (config.fault != null)
+    else if (!status.isOk)
     {
-      status = ConnStatus.fault
-      err = config.fault
+      status = conn.status
+      err = "conn $status"
     }
     else if (status.isOk)
     {
@@ -191,6 +190,11 @@ const final class ConnPoint : HxConnPoint
   private const AtomicRef curStateRef := AtomicRef(ConnPointCurState.nil)
 
   internal Bool curQuickPoll { get { false } set {} }  // TODO
+
+  internal Void updateStatus()
+  {
+    updateCurTags(curState)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Debug
@@ -320,4 +324,13 @@ internal const final class ConnPointConfig
   const PointConvert? hisConvert
   const Bool isDisabled
   const Str? fault
+
+  Bool isStatusUpdate(ConnPointConfig b)
+  {
+    a := this
+    if (a.isDisabled != b.isDisabled) return true
+    if (a.fault != b.fault) return true
+    return false
+  }
+
 }

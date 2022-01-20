@@ -278,7 +278,10 @@ class ConnTest : HxTest
     c.sync
     actual := c.trace.readSince(since)
     actual = actual.findAll |a| { a.msg != "sync" }
-    //echo("\n --- trace $since ---"); echo(actual.join("\n"))
+    if (actual.size != expected.size)
+    {
+      echo("\n --- trace $since ---"); echo(actual.join("\n"))
+    }
     verifyEq(actual.size, expected.size)
     actual.each |a, i|
     {
@@ -1026,26 +1029,62 @@ class ConnTest : HxTest
     verifyConnStatus(c2, "unknown", "closed")
 
     // add some points
-    /* TODO
-    tz := "New_York"
-    p1 := addRec(["dis":"P1", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x"])
-    p2 := addRec(["dis":"P2", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x", "haystackWrite":"x"])
-    p3 := addRec(["dis":"P3", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x"])
-    p4 := addRec(["dis":"P4", "point":m, "haystackConnRef":c1.id, "haystackCur":"x"])
-    p5 := addRec(["dis":"P5", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x"])
-    p6 := addRec(["dis":"P6", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x", "haystackWrite":"x"])
-    p7 := addRec(["dis":"P7", "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x"])
-    p8 := addRec(["dis":"P8", "point":m, "haystackConnRef":c2.id, "haystackCur":"x"])
+    tz  := "New_York"
+    p1  := addRec(["dis":"P1",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x"])
+    p2  := addRec(["dis":"P2",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x", "disabled":m])
+    p3  := addRec(["dis":"P3",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x", "haystackWrite":"x"])
+    p4  := addRec(["dis":"P4",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x"])
+    p5  := addRec(["dis":"P5",  "point":m, "haystackConnRef":c1.id, "haystackCur":"x"])
+    p6  := addRec(["dis":"P6",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x"])
+    p7  := addRec(["dis":"P7",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x", "disabled":m])
+    p8  := addRec(["dis":"P8",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x", "haystackWrite":"x"])
+    p9  := addRec(["dis":"P9",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x"])
+    p10 := addRec(["dis":"P10", "point":m, "haystackConnRef":c2.id, "haystackCur":"x"])
 
+    verifyPointStatus(p1,  "disabled")
+    verifyPointStatus(p2,  "disabled")
+    verifyPointStatus(p3,  "disabled")
+    verifyPointStatus(p4,  "disabled")
+    verifyPointStatus(p5,  "fault")
+    verifyPointStatus(p6,  "unknown")
+    verifyPointStatus(p7,  "disabled")
+    verifyPointStatus(p8,  "unknown")
+    verifyPointStatus(p9,  "unknown")
+    verifyPointStatus(p10, "fault")
+
+    // disable/enable conn transition again with points
+    c1rec = commit(c1rec, ["disabled":Remove.val])
+    c2rec = commit(c2rec, ["disabled":m])
+    verifyConnStatus(c1, "unknown", "closed")
+    verifyConnStatus(c2, "disabled", "closed")
+    verifyPointStatus(p1,  "unknown")
+    verifyPointStatus(p2,  "disabled")
+    verifyPointStatus(p3,  "unknown")
+    verifyPointStatus(p4,  "unknown")
+    verifyPointStatus(p5,  "fault")
+    verifyPointStatus(p6,  "disabled")
+    verifyPointStatus(p7,  "disabled")
+    verifyPointStatus(p8,  "disabled")
+    verifyPointStatus(p9,  "disabled")
+    verifyPointStatus(p10, "fault")
+
+    // disable/enable points
+    p1 = commit(p1, ["disabled":m])
+    p2 = commit(p2, ["disabled":Remove.val])
     verifyPointStatus(p1, "disabled")
-    verifyPointStatus(p2, "disabled")
-    verifyPointStatus(p3, "disabled")
-    verifyPointStatus(p4, "disabled")
-    verifyPointStatus(p5, "unknown")
-    verifyPointStatus(p6, "unknown")
-    verifyPointStatus(p7, "unknown")
-    verifyPointStatus(p8, "unknown")
-    */
+    verifyPointStatus(p2, "unknown")
+
+    // update fault condition
+    p1 = commit(p1, ["kind":Remove.val])
+    p2 = commit(p2, ["kind":Remove.val])
+    verifyPointStatus(p1, "fault")
+    verifyPointStatus(p2, "fault")
+
+    // revert fault condition
+    p1 = commit(p1, ["kind":"Number"])
+    p2 = commit(p2, ["kind":"Number"])
+    verifyPointStatus(p1, "disabled")
+    verifyPointStatus(p2, "unknown")
   }
 
   Void verifyConnStatus(Conn c, Str status, Str state)
@@ -1062,13 +1101,18 @@ class ConnTest : HxTest
   Void verifyPointStatus(Dict rec, Str status)
   {
     rt.sync
-    pt := rt.conn.point(rec.id)
-    ((Conn)pt.conn).sync
+    ConnPoint pt := rt.conn.point(rec.id)
+    pt.conn.sync
     rec = rt.db.readById(rec.id)
-    // echo("-- $pt.rec.dis $rec")
+    //echo("-- $pt.rec.dis curStatus=" + rec["curStatus"])
+
     verifyEq(rec["curStatus"],   rec.has("haystackCur")   ? status : null)
-    verifyEq(rec["writeStatus"], rec.has("haystackWrite") ? status : null)
-    verifyEq(rec["hisStatus"],   rec.has("haystackHis")   ? status : null)
+    //verifyEq(rec["writeStatus"], rec.has("haystackWrite") ? status : null)
+    //verifyEq(rec["hisStatus"],   rec.has("haystackHis")   ? status : null)
+
+    verifyEq(pt.hasCur,   rec.has("haystackCur")   && pt.isEnabled && pt.fault == null)
+    verifyEq(pt.hasWrite, rec.has("haystackWrite") && pt.isEnabled && pt.fault == null)
+    verifyEq(pt.hasHis,   rec.has("haystackHis")   && pt.isEnabled && pt.fault == null)
   }
 
 //////////////////////////////////////////////////////////////////////////
