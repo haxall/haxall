@@ -159,10 +159,12 @@ abstract class ConnDispatch
 
   ** Callback to synchronize the given list of points.  The result
   ** of this call should be to invoke `ConnPoint.updateCurOk` or
-  ** `ConnPoint.updateCurErr` on each point.
+  ** `ConnPoint.updateCurErr` on each point.  All the points
+  ** are guaranteed to return true for [isCurEnabled]`ConnPoint.isCurEnabled`
   virtual Void onSyncCur(ConnPoint[] points) {}
 
-  ** Callback when one or more points are put into watch mode.
+  ** Callback when one or more points are put into watch mode.  All the
+  ** points are guaranteed to return true for [isCurEnabled]`ConnPoint.isCurEnabled`
   virtual Void onWatch(ConnPoint[] points) {}
 
   ** Callback when one or more points are taken out of watch mode.

@@ -303,6 +303,9 @@ internal final class ConnMgr
 
   private Obj? onSyncCur(ConnPoint[] points)
   {
+    points = points.findAll |pt| { pt.isCurEnabled }
+    if (points.isEmpty) return "syncCur [no cur points]"
+
     openLinger.checkOpen
     dispatch.onSyncCur(points)
     return "syncCur [$points.size points]"
@@ -310,7 +313,9 @@ internal final class ConnMgr
 
   private Obj? onWatch(ConnPoint[] points)
   {
-    if (points.isEmpty) return null
+    points = points.findAll |pt| { pt.isCurEnabled }
+    if (points.isEmpty) return "watch [no cur points]"
+
     nowTicks := Duration.nowTicks
     points.each |pt|
     {
@@ -321,7 +326,7 @@ internal final class ConnMgr
     updatePointsInWatch
     if (!pointsInWatch.isEmpty) openPin("watch")
     if (isOpen) dispatch.onWatch(points)
-    return null
+    return "watch [$points.size points]"
   }
 
   private Bool isQuickPoll(Int nowTicks, ConnPoint pt)

@@ -238,7 +238,6 @@ class HaystackDispatch : ConnDispatch
     pointsByIndex := ConnPoint[,]
     points.each |pt|
     {
-      if (!pt.hasCur) return
       try
       {
         id := toCurId(pt)
@@ -304,7 +303,6 @@ class HaystackDispatch : ConnDispatch
     subPoints := ConnPoint[,]; subPoints.capacity = points.size
     points.each |pt|
     {
-      if (!pt.hasCur) return
       try
       {
         id := toCurId(pt)

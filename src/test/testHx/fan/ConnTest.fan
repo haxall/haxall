@@ -277,7 +277,7 @@ class ConnTest : HxTest
   {
     c.sync
     actual := c.trace.readSince(since)
-    actual = actual.findAll |a| { a.msg != "sync" }
+    actual = actual.findAll |a| { a.msg != "sync" && a.msg != "init" }
     if (actual.size != expected.size)
     {
       echo("\n --- trace $since ---"); echo(actual.join("\n"))
@@ -660,9 +660,9 @@ class ConnTest : HxTest
     verifyEq(p.tz, TimeZone("Chicago"))
     verifyEq(p.unit, Unit("kW"))
     verifyEq(p.kind, Kind.number)
-    verifyEq(p.hasCur, true);   verifyEq(p.curAddr,   "c")
-    verifyEq(p.hasWrite, true); verifyEq(p.writeAddr, "w")
-    verifyEq(p.hasHis, true);   verifyEq(p.hisAddr,   "h")
+    verifyEq(p.isCurEnabled, true);   verifyEq(p.curAddr,   "c")
+    verifyEq(p.isWriteEnabled, true); verifyEq(p.writeAddr, "w")
+    verifyEq(p.isHisEnabled, true);   verifyEq(p.hisAddr,   "h")
     verifyEq(p.curConvert.toStr,   "* 7.0")
     verifyEq(p.writeConvert.toStr, "* 8.0")
     verifyEq(p.hisConvert.toStr,   "* 9.0")
@@ -678,9 +678,9 @@ class ConnTest : HxTest
     verifyPtFault(p, "unit", n(2), "Invalid type for 'unit' tag: haystack::Number [$p.id.toZinc]")
     verifyPtFault(p, "tz", "Wrong", "Invalid 'tz' tag: Wrong [$p.id.toZinc]")
     verifyPtFault(p, "tz", n(1), "Invalid type for 'tz' tag: haystack::Number [$p.id.toZinc]")
+    verifyPtFault(p, "haystackCur", n(2), "Invalid type for 'haystackCur' [Number != Str]")
     verifyPtFault(p, "haystackHis", Ref("foo"), "Invalid type for 'haystackHis' [Ref != Str]")
     verifyPtFault(p, "haystackWrite", `foo`, "Invalid type for 'haystackWrite' [Uri != Str]")
-    verifyPtFault(p, "haystackCur", n(2), "Invalid type for 'haystackCur' [Number != Str]")
   }
 
   Void verifyPtFault(ConnPoint p, Str tag, Obj? val, Str msg)
@@ -692,7 +692,12 @@ class ConnTest : HxTest
     verifyEq(p.id, rec.id)
     verifyEq(p.dis, rec.dis)
     verifySame(p.rec, rec)
-    verifyEq(p.fault, msg)
+    switch (tag)
+    {
+      case "haystackWrite": verifyEq(p->config->writeFault, msg)
+      case "haystackHis":   verifyEq(p->config->hisFault, msg)
+      default:              verifyEq(p->config->curFault, msg)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1104,15 +1109,15 @@ class ConnTest : HxTest
     ConnPoint pt := rt.conn.point(rec.id)
     pt.conn.sync
     rec = rt.db.readById(rec.id)
-    //echo("-- $pt.rec.dis curStatus=" + rec["curStatus"] + " writeStatus=" + rec["writeStatus"])
+    // echo("-- $pt.rec.dis curStatus=" + rec["curStatus"] + " writeStatus=" + rec["writeStatus"])
 
     verifyEq(rec["curStatus"],   rec.has("haystackCur")   ? status : null)
     verifyEq(rec["writeStatus"], rec.has("haystackWrite") ? status : null)
     //verifyEq(rec["hisStatus"],   rec.has("haystackHis")   ? status : null)
 
-    verifyEq(pt.hasCur,   rec.has("haystackCur")   && pt.isEnabled)
-    verifyEq(pt.hasWrite, rec.has("haystackWrite") && pt.isEnabled)
-    verifyEq(pt.hasHis,   rec.has("haystackHis")   && pt.isEnabled)
+    verifyEq(pt.isCurEnabled,   rec.has("haystackCur")   && pt.isEnabled && status != "fault")
+    verifyEq(pt.isWriteEnabled, rec.has("haystackWrite") && pt.isEnabled && status != "fault")
+    verifyEq(pt.isHisEnabled,   rec.has("haystackHis")   && pt.isEnabled && status != "fault")
   }
 
 //////////////////////////////////////////////////////////////////////////

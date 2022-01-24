@@ -66,14 +66,29 @@ const final class ConnPoint : HxConnPoint
   ** History address tag value if configured on the point
   Obj? hisAddr() { config.hisAddr }
 
-  ** Is current address supported on this point
-  Bool hasCur() { config.curAddr != null && isEnabled }
+  ** Is current address enabled on this point.
+  ** This returns true only when all the of following conditions are met:
+  ** - the connector supports current values
+  ** - this point has a cur address tag configured
+  ** - the address tag value is of the proper type
+  ** - the point is not disabled
+  Bool isCurEnabled() { config.isCurEnabled }
 
-  ** Is write address supported on this point
-  Bool hasWrite() { config.writeAddr != null && isEnabled }
+  ** Is write address enabled on this point
+  ** This returns true only when all the of following conditions are met:
+  ** - the connector supports writable points
+  ** - this point has a write address tag configured
+  ** - the address tag value is of the proper type
+  ** - the point is not disabled
+  Bool isWriteEnabled() { config.isWriteEnabled }
 
   ** Is history address supported on this point
-  Bool hasHis() { config.hisAddr != null && isEnabled }
+  ** This returns true only when all the of following conditions are met:
+  ** - the connector supports history synchronization
+  ** - this point has a his address tag configured
+  ** - the address tag value is of the proper type
+  ** - the point is not disabled
+  Bool isHisEnabled() { config.isHisEnabled }
 
   ** Point kind defined by rec 'kind' tag
   Kind kind() { config.kind }
@@ -104,9 +119,6 @@ const final class ConnPoint : HxConnPoint
 
   ** Does the record have the 'disabled' marker configured
   Bool isDisabled() { config.isDisabled }
-
-  ** Fault message if the record has configuration errors
-  @NoDoc Str? fault() { config.fault }
 
   ** Is this point currently in one or more watches
   Bool isWatched() { isWatchedRef.val }
@@ -155,10 +167,10 @@ const final class ConnPoint : HxConnPoint
     val    := null
     err    := null
     config := config
-    if (config.fault != null)
+    if (config.curFault != null)
     {
       status = ConnStatus.fault
-      err = config.fault
+      err = config.curFault
     }
     else if (config.isDisabled)
     {
@@ -225,10 +237,10 @@ const final class ConnPoint : HxConnPoint
     err    := null
     level  := null
     config := config
-    if (config.fault != null)
+    if (config.writeFault != null)
     {
       status = ConnStatus.fault
-      err = config.fault
+      err = config.writeFault
     }
     else if (config.isDisabled)
     {
@@ -358,9 +370,12 @@ internal const final class ConnPointConfig
     try
     {
       this.isDisabled     = rec.has("disabled")
-      this.curAddr        = toAddr(model, rec, model.curTag,   model.curTagType)
-      this.writeAddr      = toAddr(model, rec, model.writeTag, model.writeTagType)
-      this.hisAddr        = toAddr(model, rec, model.hisTag,   model.hisTagType)
+      this.curAddr        = toAddr(model, rec, model.curTag)
+      this.writeAddr      = toAddr(model, rec, model.writeTag)
+      this.hisAddr        = toAddr(model, rec, model.hisTag)
+      this.curFault       = toAddrFault(model.curTag,   this.curAddr,   model.curTagType)
+      this.writeFault     = toAddrFault(model.writeTag, this.writeAddr, model.writeTagType)
+      this.hisFault       = toAddrFault(model.hisTag,   this.hisAddr,   model.hisTagType)
       this.tz             = rec.has("tz") ? FolioUtil.hisTz(rec) : TimeZone.cur
       this.unit           = FolioUtil.hisUnit(rec)
       this.kind           = FolioUtil.hisKind(rec)
@@ -372,17 +387,26 @@ internal const final class ConnPointConfig
     }
     catch (Err e)
     {
-      this.fault = e.msg
+      fault := e.msg
+      if (curAddr   != null) this.curFault   = this.curFault   ?: fault
+      if (writeAddr != null) this.writeFault = this.writeFault ?: fault
+      if (hisAddr   != null) this.hisFault   = this.hisFault   ?: fault
     }
   }
 
-  private static Obj? toAddr(ConnModel model, Dict rec, Str? tag, Type? type)
+  private static Obj? toAddr(ConnModel model, Dict rec, Str? tag)
   {
     if (tag == null) return null
     val := rec[tag]
     if (val == null) return null
-    if (val.typeof !== type) throw Err("Invalid type for '$tag' [$val.typeof.name != $type.name]")
     return val
+  }
+
+  private static Str? toAddrFault(Str? tag, Obj? val, Type? type)
+  {
+    if (val == null) return null
+    if (val.typeof !== type) return "Invalid type for '$tag' [$val.typeof.name != $type.name]"
+    return null
   }
 
   private static PointConvert? toConvert(Dict rec, Str tag)
@@ -403,18 +427,30 @@ internal const final class ConnPointConfig
   const Obj? curAddr
   const Obj? writeAddr
   const Obj? hisAddr
+  const Bool isDisabled
+  const Str? curFault
+  const Str? writeFault
+  const Str? hisFault
   const Number? curCalibration
   const PointConvert? curConvert
   const PointConvert? writeConvert
   const PointConvert? hisConvert
-  const Bool isDisabled
-  const Str? fault
+
+  Bool isEnabled() { !isDisabled }
+
+  Bool isCurEnabled() { curAddr != null && curFault == null && isEnabled }
+
+  Bool isWriteEnabled() { writeAddr != null && writeFault == null && isEnabled }
+
+  Bool isHisEnabled() { hisAddr != null && hisFault == null && isEnabled }
 
   Bool isStatusUpdate(ConnPointConfig b)
   {
     a := this
     if (a.isDisabled != b.isDisabled) return true
-    if (a.fault != b.fault) return true
+    if (a.curFault   != b.curFault) return true
+    if (a.writeFault != b.writeFault) return true
+    if (a.hisFault   != b.hisFault) return true
     return false
   }
 
