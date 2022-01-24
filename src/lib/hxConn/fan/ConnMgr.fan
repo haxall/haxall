@@ -203,7 +203,6 @@ internal final class ConnMgr
     catch (Err e)
       { updateConnErr(e); return result }
     vars.pinged
-    updateConnOk  // TODO: should not need this
 
     // update ping/version tags only if stuff has changed
     changes := Str:Obj[:]
@@ -316,10 +315,8 @@ internal final class ConnMgr
     points.each |pt|
     {
       pt.isWatchedRef.val = true
-      /* TODO
       if (isQuickPoll(nowTicks, pt))
         pt.curQuickPoll = true
-      */
     }
     updatePointsInWatch
     if (!pointsInWatch.isEmpty) openPin("watch")
@@ -327,14 +324,13 @@ internal final class ConnMgr
     return null
   }
 
-/* TODO
   private Bool isQuickPoll(Int nowTicks, ConnPoint pt)
   {
     if (!rt.isSteadyState) return false
-    if (pt.curLastOk == 0) return true
-    return nowTicks - pt.curLastOk > pt.tuning.pollTime.ticks
+    curState := pt.curState
+    if (curState.lastUpdate <= 0) return true
+    return nowTicks - curState.lastUpdate > pt.tuning.pollTime.ticks
   }
-*/
 
   private Obj? onUnwatch(ConnPoint[] points)
   {

@@ -189,7 +189,13 @@ const final class ConnPoint : HxConnPoint
   internal ConnPointCurState curState() { curStateRef.val }
   private const AtomicRef curStateRef := AtomicRef(ConnPointCurState.nil)
 
-  internal Bool curQuickPoll { get { false } set {} }  // TODO
+  ** Quick poll flag
+  internal Bool curQuickPoll
+  {
+    get { curQuickPollRef.val }
+    set { curQuickPollRef.val = it }
+  }
+  private const AtomicBool curQuickPollRef := AtomicBool()
 
   internal Void updateStatus()
   {
@@ -215,6 +221,7 @@ const final class ConnPoint : HxConnPoint
              unit:           $unit
              tuning:         $tuning.rec.id.toZinc
              isWatched:      $isWatched
+             curQuickPoll:   $curQuickPoll
 
              """)
 
