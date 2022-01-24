@@ -164,7 +164,7 @@ const final class ConnPoint : HxConnPoint
       status = ConnStatus.disabled
       err = "Point is disabled"
     }
-    else if (!status.isOk)
+    else if (!conn.status.isOk)
     {
       status = conn.status
       err = "conn $status"

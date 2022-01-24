@@ -300,7 +300,8 @@ class HaystackConnTest : HxTest
     pt3 = commit(pt3, ["curVal":n(40f, "%")], Diff.transient)
 
     // test that proxies updated
- Actor.sleep(3sec)
+    Actor.sleep(100ms)
+    syncConn
     verifyCur(proxy1, true)
     verifyCur(proxy2, n(99f, "fahrenheit"))
     verifyCur(proxy3, n(40f, "%"))
@@ -355,7 +356,8 @@ class HaystackConnTest : HxTest
   Void verifyCur(Dict r, Obj? val, Str status := "ok", Str? err := null)
   {
     r = readById(r.id)
-echo("--> verifyCur " + r.dis + " " + r["curVal"] + " @ " + r["curStatus"] + " err=" +  r["curErr"])
+    //echo("--> verifyCur " + r.dis + " " + r["curVal"] + " @ " + r["curStatus"] + " err=" +  r["curErr"])
+    //echo(rt.conn.point(r.id).details)
     verifyEq(r["curVal"], val)
     verifyEq(r["curStatus"], status)
     verifyEq(r["curErr"], err)

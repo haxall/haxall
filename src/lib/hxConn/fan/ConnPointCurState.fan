@@ -71,7 +71,7 @@ internal const final class ConnPointCurState
   Void details(StrBuf s, ConnPoint pt)
   {
     s.add("""curAddr:        $pt.curAddr
-             curStatus:      $status TODO
+             curStatus:      $status
              curVal:         $val [${val?.typeof}]
              curRaw:         $raw [${raw?.typeof}]
              curConvert:     $pt.curConvert

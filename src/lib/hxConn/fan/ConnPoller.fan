@@ -71,7 +71,7 @@ internal const class ConnPoller : Actor
   ** its just the first time we scan the buckets.
   static Int pollInitStaggerConn(Conn conn)
   {
-    pollInitStagger(conn.pingFreq ?: 10sec)
+    pollInitStagger(conn.pollFreq ?: 10sec)
   }
 
   ** Bucket level stagger is within buckets of a given tuning config.
