@@ -15,6 +15,16 @@ using hx
 @NoDoc
 const final class ConnUtil
 {
+  ** Fast intern level integer to number
+  static Number levelToNumber(Int level) { levels[level] }
+  private static const Number[] levels
+  static
+  {
+    acc := Number[,]
+    17.times |i| { acc.add(Number(i)) }
+    levels = acc
+  }
+
   ** Given list of point ids, group them by conn invoke callback function.
   ** Note this method does not filter out duplictes if the same id is passed.
   static Void eachConnInPointIds(HxRuntime rt, Ref[] pointIds, |Conn, ConnPoint[]| f)

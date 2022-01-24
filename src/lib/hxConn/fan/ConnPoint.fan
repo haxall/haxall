@@ -148,6 +148,7 @@ const final class ConnPoint : HxConnPoint
     committer.commit1(lib, rec, "curStatus", s.status.name)
   }
 
+  ** Update curStatus, curVal, curErr
   private Void updateCurTags(ConnPointCurState s)
   {
     status := s.status
@@ -180,11 +181,6 @@ const final class ConnPoint : HxConnPoint
     committer.commit3(lib, rec, "curStatus", status.name, "curVal", val, "curErr", err)
   }
 
-  internal Void onConnStatus()
-  {
-    updateCurTags(curState)
-  }
-
   ** Cur value state storage and handling
   internal ConnPointCurState curState() { curStateRef.val }
   private const AtomicRef curStateRef := AtomicRef(ConnPointCurState.nil)
@@ -197,9 +193,82 @@ const final class ConnPoint : HxConnPoint
   }
   private const AtomicBool curQuickPollRef := AtomicBool()
 
+//////////////////////////////////////////////////////////////////////////
+// Write Value
+//////////////////////////////////////////////////////////////////////////
+
+  ** Update write value and status
+  Void updateWriteOk(Obj? val, Int level)
+  {
+    s := ConnPointWriteState.updateOk(this, val, level)
+    writeStateRef.val = s
+    updateWriteTags(s)
+  }
+
+  ** Update write status down/fault with given error
+  Void updateWriteErr(Obj? val, Int level, Err err)
+  {
+    s := ConnPointWriteState.updateErr(this, val, level, err)
+    writeStateRef.val = s
+    updateWriteTags(s)
+  }
+
+  ** Write value state storage and handling
+  internal ConnPointWriteState writeState() { writeStateRef.val }
+  private const AtomicRef writeStateRef := AtomicRef(ConnPointWriteState.nil)
+
+  ** Update writeStatus, writeVal, writeLevel, writeErr
+  private Void updateWriteTags(ConnPointWriteState s)
+  {
+    status := s.status
+    val    := null
+    err    := null
+    level  := null
+    config := config
+    if (config.fault != null)
+    {
+      status = ConnStatus.fault
+      err = config.fault
+    }
+    else if (config.isDisabled)
+    {
+      status = ConnStatus.disabled
+      err = "Point is disabled"
+    }
+    else if (!conn.status.isOk)
+    {
+      status = conn.status
+      err = "conn $status"
+    }
+    else if (status.isOk)
+    {
+      val = s.val
+      level = ConnUtil.levelToNumber(s.level)
+    }
+    else
+    {
+      err = ConnStatus.toErrStr(s.err)
+      level = ConnUtil.levelToNumber(s.level)
+    }
+    committer.commit4(lib, rec, "writeStatus", status.name, "writeVal", val, "writeLevel", level, "writeErr", err)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Status
+//////////////////////////////////////////////////////////////////////////
+
+  ** Transition when conn status updates
+  internal Void onConnStatus()
+  {
+    updateStatus
+  }
+
+  ** Update all the status tags
   internal Void updateStatus()
   {
-    updateCurTags(curState)
+    c := config
+    if (c.curAddr != null)   updateCurTags(curState)
+    if (c.writeAddr != null) updateWriteTags(writeState)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -243,13 +312,22 @@ const final class ConnPoint : HxConnPoint
       s.add(w.dis).add(" (lastRenew: ").add(Etc.debugDur(w.lastRenew.ticks)).add(", lease: ").add(w.lease).add(")\n")
     }
 
-    if (hasCur)
+    if (curAddr != null)
     {
       s.add("""
                Conn Cur
                =============================
                """)
       curState.details(s, this)
+    }
+
+    if (writeAddr != null)
+    {
+      s.add("""
+               Conn Write
+               =============================
+               """)
+      writeState.details(s, this)
     }
 
     return s.toStr
@@ -280,13 +358,13 @@ internal const final class ConnPointConfig
     try
     {
       this.isDisabled     = rec.has("disabled")
+      this.curAddr        = toAddr(model, rec, model.curTag,   model.curTagType)
+      this.writeAddr      = toAddr(model, rec, model.writeTag, model.writeTagType)
+      this.hisAddr        = toAddr(model, rec, model.hisTag,   model.hisTagType)
       this.tz             = rec.has("tz") ? FolioUtil.hisTz(rec) : TimeZone.cur
       this.unit           = FolioUtil.hisUnit(rec)
       this.kind           = FolioUtil.hisKind(rec)
       this.tuning         = lib.tunings.forRec(rec)
-      this.curAddr        = toAddr(model, rec, model.curTag,   model.curTagType)
-      this.writeAddr      = toAddr(model, rec, model.writeTag, model.writeTagType)
-      this.hisAddr        = toAddr(model, rec, model.hisTag,   model.hisTagType)
       this.curCalibration = rec["curCalibration"] as Number
       this.curConvert     = toConvert(rec, "curConvert")
       this.writeConvert   = toConvert(rec, "writeConvert")

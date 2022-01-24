@@ -671,9 +671,6 @@ class ConnTest : HxTest
     verifyPtFault(p, "hisConvert", n(3),   "Point convert not string: 'hisConvert'")
     verifyPtFault(p, "writeConvert", "%^", "Point convert invalid: 'writeConvert'")
     verifyPtFault(p, "curConvert", "kW=>", "Point convert invalid: 'curConvert'")
-    verifyPtFault(p, "haystackHis", Ref("foo"), "Invalid type for 'haystackHis' [Ref != Str]")
-    verifyPtFault(p, "haystackWrite", `foo`, "Invalid type for 'haystackWrite' [Uri != Str]")
-    verifyPtFault(p, "haystackCur", n(2), "Invalid type for 'haystackCur' [Number != Str]")
     verifyPtFault(p, "kind", "Bad", "Invalid 'kind' tag: Bad [$p.id.toZinc]")
     verifyPtFault(p, "kind", n(3), "Invalid type for 'kind' tag: haystack::Number [$p.id.toZinc]")
     verifyPtFault(p, "kind", null, "Missing 'kind' tag [$p.id.toZinc]")
@@ -681,6 +678,9 @@ class ConnTest : HxTest
     verifyPtFault(p, "unit", n(2), "Invalid type for 'unit' tag: haystack::Number [$p.id.toZinc]")
     verifyPtFault(p, "tz", "Wrong", "Invalid 'tz' tag: Wrong [$p.id.toZinc]")
     verifyPtFault(p, "tz", n(1), "Invalid type for 'tz' tag: haystack::Number [$p.id.toZinc]")
+    verifyPtFault(p, "haystackHis", Ref("foo"), "Invalid type for 'haystackHis' [Ref != Str]")
+    verifyPtFault(p, "haystackWrite", `foo`, "Invalid type for 'haystackWrite' [Uri != Str]")
+    verifyPtFault(p, "haystackCur", n(2), "Invalid type for 'haystackCur' [Number != Str]")
   }
 
   Void verifyPtFault(ConnPoint p, Str tag, Obj? val, Str msg)
@@ -1104,15 +1104,15 @@ class ConnTest : HxTest
     ConnPoint pt := rt.conn.point(rec.id)
     pt.conn.sync
     rec = rt.db.readById(rec.id)
-    //echo("-- $pt.rec.dis curStatus=" + rec["curStatus"])
+    //echo("-- $pt.rec.dis curStatus=" + rec["curStatus"] + " writeStatus=" + rec["writeStatus"])
 
     verifyEq(rec["curStatus"],   rec.has("haystackCur")   ? status : null)
-    //verifyEq(rec["writeStatus"], rec.has("haystackWrite") ? status : null)
+    verifyEq(rec["writeStatus"], rec.has("haystackWrite") ? status : null)
     //verifyEq(rec["hisStatus"],   rec.has("haystackHis")   ? status : null)
 
-    verifyEq(pt.hasCur,   rec.has("haystackCur")   && pt.isEnabled && pt.fault == null)
-    verifyEq(pt.hasWrite, rec.has("haystackWrite") && pt.isEnabled && pt.fault == null)
-    verifyEq(pt.hasHis,   rec.has("haystackHis")   && pt.isEnabled && pt.fault == null)
+    verifyEq(pt.hasCur,   rec.has("haystackCur")   && pt.isEnabled)
+    verifyEq(pt.hasWrite, rec.has("haystackWrite") && pt.isEnabled)
+    verifyEq(pt.hasHis,   rec.has("haystackHis")   && pt.isEnabled)
   }
 
 //////////////////////////////////////////////////////////////////////////

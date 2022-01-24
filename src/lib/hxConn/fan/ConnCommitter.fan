@@ -60,6 +60,21 @@ internal const final class ConnCommitter
     commit(lib, rec, changes)
   }
 
+  ** Make a forced transient commit for four tags
+  Void commit4(ConnLib lib, Dict rec, Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3)
+  {
+    m := managed
+    if (m[n0] == v0 && m[n1] == v1 && m[n2] == v2 && m[n3] == v3) return
+
+    changes := Etc.makeDict4(
+      n0, v0 ?: Remove.val,
+      n1, v1 ?: Remove.val,
+      n2, v2 ?: Remove.val,
+      n3, v3 ?: Remove.val)
+
+    commit(lib, rec, changes)
+  }
+
   ** Choke point for folio commit
   private Void commit(ConnLib lib, Dict rec, Dict changes)
   {
