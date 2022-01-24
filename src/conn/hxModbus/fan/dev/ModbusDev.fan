@@ -3,7 +3,7 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   8 Dec 2016  Andy Frank  Creation
+//   8 Dec 2016  Andy Frank       Creation
 //  14 Jan 2022  Matthew Giannini Redesign for Haxall
 //
 

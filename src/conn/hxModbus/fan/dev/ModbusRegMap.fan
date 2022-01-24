@@ -3,7 +3,7 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   22 Oct 2013  Brian Frank  Creation
+//   22 Oct 2013  Brian Frank       Creation
 //   14 Jan 2022  Matthew Giannini  Redesign for Haxall
 //
 

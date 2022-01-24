@@ -4,8 +4,8 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   9 Jul 2012  Andy Frank  Creation
-//  12 Jan 2022  Matthew Giannini - Refactor for Haxall
+//   9 Jul 2012  Andy Frank        Creation
+//  12 Jan 2022  Matthew Giannini  Redesign for Haxall
 //
 
 using build
