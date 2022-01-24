@@ -133,6 +133,12 @@ abstract const class HxLib
 
   ** Override to return non-null for onHouseKeeping callback
   virtual Duration? houseKeepingFreq() { null }
+
+  ** Callback to handle a non-standard actor message to this library.
+  @NoDoc virtual Obj? onReceive(HxMsg msg)
+  {
+    throw UnsupportedErr("Unknown msg: $msg")
+  }
 }
 
 **************************************************************************
@@ -152,6 +158,7 @@ const mixin HxLibSpi
   abstract Log log()
   abstract Uri webUri()
   abstract Bool isRunning()
+  abstract Actor actor()
   abstract Void sync(Duration? timeout := 30sec)
   abstract Subscription[] subscriptions()
   abstract Subscription observe(Str name, Dict config, Obj callback)

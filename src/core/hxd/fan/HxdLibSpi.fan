@@ -81,6 +81,8 @@ const class HxdLibSpi : Actor, HxLibSpi
 
   override Bool isFault() { false }
 
+  override Actor actor() { this }
+
 //////////////////////////////////////////////////////////////////////////
 // Observables
 //////////////////////////////////////////////////////////////////////////
@@ -139,9 +141,9 @@ const class HxdLibSpi : Actor, HxLibSpi
       return null
     }
 
+    msg := msgObj as HxMsg ?: throw ArgErr("Invalid msg type: ${msgObj?.typeof}")
     try
     {
-      msg := (HxMsg)msgObj
       if (msg.id === "obs")         return onObs(msg)
       if (msg.id === "sync")        return "synced"
       if (msg.id === "recUpdate")   return onRecUpdate
@@ -150,10 +152,14 @@ const class HxdLibSpi : Actor, HxLibSpi
       if (msg.id === "steadyState") return onSteadyState
       if (msg.id === "unready")     return onUnready
       if (msg.id === "stop")        return onStop
-      throw Err(msg.id)
     }
-    catch (Err e) log.err("HxLib callback", e)
-    return null
+    catch (Err e)
+    {
+      log.err("HxLib callback", e)
+      throw e
+    }
+
+    return lib.onReceive(msg)
   }
 
   private Obj? onStart()
