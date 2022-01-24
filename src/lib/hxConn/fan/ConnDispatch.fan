@@ -168,6 +168,13 @@ abstract class ConnDispatch
   ** Callback when one or more points are taken out of watch mode.
   virtual Void onUnwatch(ConnPoint[] points) {}
 
+  ** Callback to write a point.  The connector should write 'info.val'
+  ** to the remote system.  If successful then call `ConnPoint.updateWriteOk`.
+  ** If there is an error then invoke `ConnPoint.updateWriteErr` or raise
+  ** an exception.  Note the value  may have been convered from `writeVal`
+  ** if `writeConvert` is configured.
+  virtual Void onWrite(ConnPoint point, ConnWriteInfo event) {}
+
   ** Callback made periodically every few seconds to handle background tasks.
   virtual Void onHouseKeeping() {}
 

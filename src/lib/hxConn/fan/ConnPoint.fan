@@ -198,17 +198,17 @@ const final class ConnPoint : HxConnPoint
 //////////////////////////////////////////////////////////////////////////
 
   ** Update write value and status
-  Void updateWriteOk(Obj? val, Int level)
+  Void updateWriteOk(ConnWriteInfo info)
   {
-    s := ConnPointWriteState.updateOk(this, val, level)
+    s := ConnPointWriteState.updateOk(this, info)
     writeStateRef.val = s
     updateWriteTags(s)
   }
 
   ** Update write status down/fault with given error
-  Void updateWriteErr(Obj? val, Int level, Err err)
+  Void updateWriteErr(ConnWriteInfo info, Err err)
   {
-    s := ConnPointWriteState.updateErr(this, val, level, err)
+    s := ConnPointWriteState.updateErr(this, info, err)
     writeStateRef.val = s
     updateWriteTags(s)
   }

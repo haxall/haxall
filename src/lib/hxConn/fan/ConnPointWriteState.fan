@@ -21,14 +21,14 @@ internal const final class ConnPointWriteState
 // Transitions
 //////////////////////////////////////////////////////////////////////////
 
-  static new updateOk(ConnPoint pt, Obj? val, Int level)
+  static new updateOk(ConnPoint pt, ConnWriteInfo info)
   {
-    makeOk(val, level)
+    makeOk(info)
   }
 
-  static new updateErr(ConnPoint pt, Obj? val, Int level, Err err)
+  static new updateErr(ConnPoint pt, ConnWriteInfo info, Err err)
   {
-    makeErr(val, level, err)
+    makeErr(info, err)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ internal const final class ConnPointWriteState
     s.add("""writeAddr:        $pt.writeAddr
              writeStatus:      $status
              writeVal:         $val [${val?.typeof}]
-             writeRaw:         TODO
+             writeRaw:         $raw [${raw?.typeof}]
              writeConvert:     $pt.writeConvert
              writeLastUpdate:  ${Etc.debugDur(lastUpdate)}
              writeErr:         ${Etc.debugErr(err)}
@@ -54,20 +54,22 @@ internal const final class ConnPointWriteState
   static const ConnPointWriteState nil := makeNil()
   private new makeNil() { status = ConnStatus.unknown }
 
-  private new makeOk(Obj? val, Int level)
+  private new makeOk(ConnWriteInfo info)
   {
     this.status     = ConnStatus.ok
     this.lastUpdate = Duration.nowTicks
-    this.val        = val
-    this.level      = level
+    this.val        = info.val
+    this.raw        = info.raw
+    this.level      = info.level
   }
 
-  private new makeErr(Obj? val, Int level, Err err)
+  private new makeErr(ConnWriteInfo info, Err err)
   {
     this.status     = ConnStatus.fromErr(err)
     this.lastUpdate = Duration.nowTicks
-    this.val        = val
-    this.level      = level
+    this.val        = info.val
+    this.raw        = info.raw
+    this.level      = info.level
     this.err        = err
   }
 
@@ -77,7 +79,41 @@ internal const final class ConnPointWriteState
 
   const ConnStatus status
   const Obj? val
+  const Obj? raw
   const Int level
   const Err? err
   const Int lastUpdate
 }
+
+
+**************************************************************************
+** ConnWriteInfo
+**************************************************************************
+
+**
+** ConnWriteInfo wraps the value to write to the remote system.
+** It carries information used to update local transient tags.
+**
+const class ConnWriteInfo
+{
+  ** Constructor
+  internal new make(Obj? val, Obj? raw, Int level)
+  {
+    this.val   = val
+    this.raw   = raw
+    this.level = level
+  }
+
+  ** Value to write to the remote system; might be converted from writeVal
+  const Obj? val
+
+  ** Local effective value; used to update writeVal
+  @NoDoc const Obj? raw
+
+  ** Local effective level; used to update writeLevel
+  @NoDoc const Int level
+
+  ** Debug string representation
+  override Str toStr() { "$val | $raw @ $level" }
+}
+
