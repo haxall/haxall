@@ -9,6 +9,7 @@
 
 using concurrent
 using inet
+using hxSerial
 
 **************************************************************************
 ** ModbusTransport provides a transport protocol for Modbus messaging.
@@ -163,85 +164,89 @@ class ModbusRtuTcpTransport : ModbusTransport
   override ModbusInStream req(Buf msg)
   {
     if (socket == null || !socket.isConnected) throw IOErr("Socket not open")
+    if (log?.isDebug == true)
+    {
+      log.debug("> RTU-TCP\nModbus Req\n${msg.toHex}")
+    }
     socket.out.writeBuf(msg.flip).flush
-    return socket.in
+    return ModbusInStream(socket.in, log, "RTU-TCP")
   }
 
   private TcpSocket? socket
 }
 
-// **************************************************************************
-// ** ModbusRtuTransport
-// **************************************************************************
+**************************************************************************
+** ModbusRtuTransport
+**************************************************************************
 
-// @NoDoc
-// class ModbusRtuTransport : ModbusTransport
-// {
-//   ** Construct a new RTU transport.
-//   new make(SerialPort port, Duration frameDelay := 50ms)
-//   {
-//     if (frameDelay < 2ms)
-//       throw IOErr("frameDelay out of bounds $frameDelay < 2ms")
+@NoDoc
+class ModbusRtuTransport : ModbusTransport
+{
+  ** Construct a new RTU transport.
+  new make(SerialSocket port, Duration frameDelay := 50ms)
+  {
+    if (frameDelay < 2ms)
+      throw IOErr("frameDelay out of bounds $frameDelay < 2ms")
 
-//     this.port = port
-//     this.port.timeout = null
-//     this.frameDelay = frameDelay
-//   }
+    this.port = port
+    this.port.timeout = null
+    this.frameDelay = frameDelay
+  }
 
-//   override Void open() {}    // SerialMx handles open/close
+  override Void open() {}    // SerialMx handles open/close
 
-//   override Void close()
-//   {
-//     port.close
-//   }
+  override Void close()
+  {
+    port.close
+  }
 
-//   override InStream req(Buf msg)
-//   {
-//     // dump outgoing msg
-//     log?.debug("# [$logPrefix] -> [0x$msg.dup.toHex]")
+  override ModbusInStream req(Buf msg)
+  {
+    // trace outgoing message
+    if (log?.isDebug == true)
+    {
+      log.debug("> RTU\nModbus Req\n$msg.toHex")
+    }
 
-//     // write msg
-//     port.out.writeBuf(msg.flip).flush
-//     Actor.sleep(frameDelay)
+    // write msg
+    port.out.writeBuf(msg.flip).flush
+    Actor.sleep(frameDelay)
 
-//     // read frame
-//     try
-//     {
-//       start := Duration.now
-//       buf   := Buf()
-//       while (true)
-//       {
-//         now := Duration.now
-//         if (port.in.avail == 0)
-//         {
-//           if (buf.size > 0 && now - start > frameDelay) break
-//           if (now - start > timeout) throw IOErr("Response timeout")
-//           Actor.sleep(1ms)
-//           continue
-//         }
+    // read frame
+    try
+    {
+      start := Duration.now
+      buf   := Buf()
+      while (true)
+      {
+        now := Duration.now
+        if (port.in.avail == 0)
+        {
+          if (buf.size > 0 && now - start > frameDelay) break
+          if (now - start > timeout) throw IOErr("Response timeout")
+          Actor.sleep(1ms)
+          continue
+        }
 
-//         byte := port.in.read
-//         if (byte != null) buf.write(byte)
-//         start = now
-//       }
+        byte := port.in.read
+        if (byte != null) buf.write(byte)
+        start = now
+      }
 
-//       // dump incoming msg
-//       log?.debug("# [$logPrefix] <- [0x$buf.dup.toHex]")
+      // return resp
+      return ModbusInStream(buf.flip.in, log, "RTU")
+    }
+    finally { Actor.sleep(frameDelay) }
+  }
 
-//       // return resp
-//       return buf.flip.in
-//     }
-//     finally { Actor.sleep(frameDelay) }
-//   }
+  private SerialSocket port
+  private const Duration frameDelay
+  private const Duration timeout := 1sec
+}
 
-//   private SerialPort port
-//   private const Duration frameDelay
-//   private const Duration timeout := 1sec
-// }
-
-// **************************************************************************
-// ** ModbusInStream
-// **************************************************************************
+**************************************************************************
+** ModbusInStream
+**************************************************************************
 
 @NoDoc
 class ModbusInStream : InStream

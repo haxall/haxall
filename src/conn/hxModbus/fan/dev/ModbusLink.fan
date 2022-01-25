@@ -11,6 +11,7 @@ using concurrent
 using inet
 using haystack
 using hx
+using hxSerial
 
 **************************************************************************
 ** ModbusLink
@@ -109,12 +110,11 @@ using hx
       {
         case "modbus-tcp":    tx = ModbusTcpTransport(IpAddr(uri.host),    uri.port, txTimeout)
         case "modbus-rtutcp": tx = ModbusRtuTcpTransport(IpAddr(uri.host), uri.port, txTimeout)
-        // TODO: serial support
-        // case "modbus-rtu":
-        //   mod := ext.sys.mod("serial") as SerialMod
-        //   if (mod == null) throw FaultErr("RTU not supported")
-        //   config := SerialConfig.fromStr(uri.host)
-        //   tx = ModbusRtuTransport(mod.open(ext.proj, ext.rec, config))
+        case "modbus-rtu":
+          serial := lib.rt.lib("serial") as SerialLib
+          if (serial == null) throw FaultErr("RTU not supported")
+          config := SerialConfig.fromStr(uri.host)
+          tx = ModbusRtuTransport(serial.open(lib.rt, lib.rec, config))
 
         default: throw FaultErr("Invalid scheme: $uri.scheme")
       }
