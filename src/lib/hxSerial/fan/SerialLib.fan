@@ -23,7 +23,8 @@ const class SerialLib : HxLib
   new make()
   {
     this.serialSpi = rt.config.makeSpi("serialSpi")
-    this.portsMap  = Str:SerialPort[:] { ordered = true }.addList(this.ports) { it.name }
+    // learn ports once and cache them for quick lookup
+    this.portsMap  = Str:SerialPort[:] { ordered = true }.addList(serialSpi.ports) { it.name }
   }
 
   private const Duration timeout := 1min
