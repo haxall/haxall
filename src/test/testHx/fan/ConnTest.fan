@@ -1018,7 +1018,7 @@ class ConnTest : HxTest
 // Test Status
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxRuntimeTest { meta = "steadyState: 10ms" }
   Void testStatus()
   {
     lib := (ConnTestLib)addLib("connTest")
@@ -1040,9 +1040,9 @@ class ConnTest : HxTest
 
     // add some points
     tz  := "New_York"
-    p1  := addRec(["dis":"P1",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c1.id, "connTestCur":"x", "connTestWrite":"x", "connTestHis":"x"])
-    p2  := addRec(["dis":"P2",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c1.id, "connTestCur":"x", "connTestWrite":"x", "connTestHis":"x", "disabled":m])
-    p3  := addRec(["dis":"P3",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c1.id, "connTestCur":"down", "connTestWrite":"x"])
+    p1  := addRec(["dis":"P1",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c1.id, "connTestCur":"x", "connTestWrite":"x", "connTestHis":"x", "writable":m])
+    p2  := addRec(["dis":"P2",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c1.id, "connTestCur":"x", "connTestWrite":"x", "connTestHis":"x", "writable":m, "disabled":m])
+    p3  := addRec(["dis":"P3",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c1.id, "connTestCur":"down", "connTestWrite":"x", "writable":m])
     p4  := addRec(["dis":"P4",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c1.id, "connTestCur":"x"])
     p5  := addRec(["dis":"P5",  "point":m, "connTestConnRef":c1.id, "haystackCur":"x"])
     p6  := addRec(["dis":"P6",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c2.id, "connTestCur":"x", "connTestWrite":"x", "connTestHis":"x"])
@@ -1113,6 +1113,19 @@ class ConnTest : HxTest
     verifyPointStatus(p1, "disabled")
     verifyPointStatus(p2, "ok",   "unknown")
     verifyPointStatus(p3, "down", "unknown")
+    verifyPointStatus(p4, "ok",   "unknown")
+    verifyPointStatus(p5, "fault")
+
+    // issue point write
+    while (!rt.isSteadyState) Actor.sleep(10ms)
+    rt.pointWrite.write(p1, n(123), 13, "test").get
+    rt.pointWrite.write(p2, n(123), 14, "test").get
+    rt.pointWrite.write(p3, n(-123), 15, "test").get
+    sync(c1)
+    verifyConnStatus(c1, "ok", "open")
+    verifyPointStatus(p1, "disabled")
+    verifyPointStatus(p2, "ok",   "ok")
+    verifyPointStatus(p3, "down", "down")
     verifyPointStatus(p4, "ok",   "unknown")
     verifyPointStatus(p5, "fault")
   }

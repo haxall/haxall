@@ -10,6 +10,7 @@ using concurrent
 using haystack
 using folio
 using hx
+using hxPoint
 
 **
 ** ConnMgr manages the mutable state and logic for a connector.
@@ -47,6 +48,7 @@ internal final class ConnMgr
       case "ping":         return ping
       case "close":        return close("force close")
       case "sync":         return null
+      case "write":        return onWrite(msg.a, msg.b)
       case "watch":        return onWatch(msg.a)
       case "unwatch":      return onUnwatch(msg.a)
       case "syncCur":      return onSyncCur(msg.a)
@@ -452,6 +454,18 @@ internal final class ConnMgr
     // order if ConnTuning have their pollTime changed - but
     // that is ok because sort order is for display, not logic
     conn.setPollBuckets(this, acc.sort.toImmutable)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Writes
+//////////////////////////////////////////////////////////////////////////
+
+  internal Obj? onWrite(ConnPoint pt, WriteObservation event)
+  {
+    // TODO
+    info := ConnWriteInfo(event.val, event.val, event.level.toInt)
+    dispatch.onWrite(pt, info)
+    return null
   }
 
 //////////////////////////////////////////////////////////////////////////

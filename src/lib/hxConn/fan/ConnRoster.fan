@@ -10,6 +10,7 @@ using concurrent
 using haystack
 using obs
 using hx
+using hxPoint
 
 **
 ** ConnRoster manages the data structures for conn and point lookups
@@ -75,7 +76,7 @@ internal const final class ConnRoster
         "obsUpdates": Marker.val,
         "obsRemoves": Marker.val,
         "syncable":   Marker.val,
-        "obsFilter":  lib.model.connTag
+        "obsFilter":  model.connTag
       ]), ConnLib#onConnEvent)
 
     // subscribe to connector point commits
@@ -85,14 +86,25 @@ internal const final class ConnRoster
         "obsUpdates": Marker.val,
         "obsRemoves": Marker.val,
         "syncable":   Marker.val,
-        "obsFilter":  "point and $lib.model.connRefTag"
+        "obsFilter":  "point and $model.connRefTag"
       ]), ConnLib#onPointEvent)
 
     // subscribe to connector point watches
-    lib.observe("obsWatches",
-      Etc.makeDict([
-        "obsFilter":  "point and $lib.model.connRefTag"
-      ]), ConnLib#onPointWatch)
+    if (model.hasCur)
+    {
+      lib.observe("obsWatches",
+        Etc.makeDict([
+          "obsFilter": "point and $model.connRefTag"
+        ]), ConnLib#onPointWatch)
+    }
+
+    // subscribe to point writes
+    if (model.hasWrite)
+    {
+      lib.observe("obsPointWrites",
+        Etc.makeDict1("obsFilter", model.connRefTag),
+        ConnLib#onPointWrite)
+    }
   }
 
   private Void initConns()
@@ -315,6 +327,21 @@ internal const final class ConnRoster
     {
       group.first.conn.send(HxMsg(type, group))
     }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Point Write Events
+//////////////////////////////////////////////////////////////////////////
+
+  internal Void onPointWrite(WriteObservation e)
+  {
+    // lookup point
+    point := point(e.id, false)
+    if (point == null) return
+
+    // if point has a writable address, send conn message
+    if (point.isWriteEnabled)
+      point.conn.send(HxMsg("write", point, e))
   }
 
 //////////////////////////////////////////////////////////////////////////

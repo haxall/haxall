@@ -28,6 +28,11 @@ class ConnTestDispatch : ConnDispatch
   {
   }
 
+  override Dict onPing()
+  {
+    Etc.makeDict(["pingTime":DateTime.now])
+  }
+
   override Void onSyncCur(ConnPoint[] points)
   {
     points.each |pt, i|
@@ -39,8 +44,12 @@ class ConnTestDispatch : ConnDispatch
     }
   }
 
-  override Dict onPing()
+  override Void onWrite(ConnPoint point, ConnWriteInfo info)
   {
-    Etc.makeDict(["pingTime":DateTime.now])
+    val := (Number)info.val
+    if (val >= Number.zero)
+      point.updateWriteOk(info)
+    else
+      point.updateWriteErr(info, DownErr("neg value"))
   }
 }

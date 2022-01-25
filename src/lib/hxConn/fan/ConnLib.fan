@@ -150,6 +150,12 @@ abstract const class ConnLib : HxLib, HxConnLib
     if (e != null) roster.onPointWatch(e)
   }
 
+  ** Point write event - route to roster
+  internal Void onPointWrite(WriteObservation? e)
+  {
+    if (e != null) roster.onPointWrite(e)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
