@@ -11,6 +11,6 @@ def: ^lib:serial
 icon: "serial"
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc]
 typeName:"hxSerial::SerialLib"
-noSkyArc
+noSkyarc
 doc: "Serial port subsystem"
 --------------------------------------------------------------------------
