@@ -1,0 +1,42 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   10 Jan 2012  Brian Frank  Creation
+//   28 Feb 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^connTestConn
+is: ^conn
+connFeatures: {learn, pollMode:"manual"}
+--------------------------------------------------------------------------
+def: ^connTestPollFreq
+is: ^duration
+tagOn: ^connTestConn
+val: 1sec
+--------------------------------------------------------------------------
+def: ^connTestPoint
+is: ^connPoint
+--------------------------------------------------------------------------
+def: ^connTestConnRef
+is: ^ref
+of: ^connTestConn
+tagOn: ^connTestPoint
+--------------------------------------------------------------------------
+def: ^connTestCur
+is: ^str
+tagOn: ^connTestPoint
+--------------------------------------------------------------------------
+def: ^connTestHis
+is: ^str
+tagOn: ^connTestPoint
+--------------------------------------------------------------------------
+def: ^connTestWrite
+is: ^str
+tagOn: ^connTestPoint
+--------------------------------------------------------------------------
+
+
+

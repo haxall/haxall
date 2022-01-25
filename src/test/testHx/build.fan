@@ -36,7 +36,7 @@ class Build : BuildPod
                "hx @{hx.depend}",
                "hxConn @{hx.depend}"]
     srcDirs = [`fan/`]
-    resDirs = [`lib/`]
-    index =   [ "ph.lib": ["hxTestA", "hxTestB"] ]
+    resDirs = [`lib/`, `lib/connTest/`]
+    index =   [ "ph.lib": ["connTest", "hxTestA", "hxTestB"] ]
   }
 }

@@ -19,6 +19,12 @@ typeName:"testHx::HxTestBLib"
 nodoc
 doc: "Testing lib"
 --------------------------------------------------------------------------
+def: ^lib:connTest
+depends: [^lib:ph, ^lib:hx, ^lib:conn]
+typeName:"testHx::ConnTestLib"
+nodoc
+doc: "Test connector"
+--------------------------------------------------------------------------
 
 
 

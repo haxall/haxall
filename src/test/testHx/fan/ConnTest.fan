@@ -27,11 +27,16 @@ class ConnTest : HxTest
   Void testModel()
   {
     addLib("conn")
-    verifyModel("haystack", "haystack", "lcwhx")
+
+    verifyModel("haystack", "lcwhx")
+    verifyModel("modbus",   "lcw")
+    verifyModel("mqtt",     "")
+    verifyModel("connTest", "lcwh")
   }
 
-  Void verifyModel(Str libName, Str prefix, Str flags)
+  Void verifyModel(Str libName, Str flags)
   {
+    prefix := libName
     lib := (ConnLib)rt.libs.add(libName)
     lib.spi.sync
 
@@ -1016,9 +1021,9 @@ class ConnTest : HxTest
   @HxRuntimeTest
   Void testStatus()
   {
-    lib := (ConnLib)addLib("haystack")
-    c1rec := addRec(["dis":"C1", "haystackConn":m])
-    c2rec := addRec(["dis":"C2", "haystackConn":m, "disabled":m])
+    lib := (ConnTestLib)addLib("connTest")
+    c1rec := addRec(["dis":"C1", "connTestConn":m])
+    c2rec := addRec(["dis":"C2", "connTestConn":m, "disabled":m])
     rt.sync
     c1 := lib.conn(c1rec.id)
     c2 := lib.conn(c2rec.id)
@@ -1035,16 +1040,16 @@ class ConnTest : HxTest
 
     // add some points
     tz  := "New_York"
-    p1  := addRec(["dis":"P1",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x"])
-    p2  := addRec(["dis":"P2",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x", "disabled":m])
-    p3  := addRec(["dis":"P3",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x", "haystackWrite":"x"])
-    p4  := addRec(["dis":"P4",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c1.id, "haystackCur":"x"])
-    p5  := addRec(["dis":"P5",  "point":m, "haystackConnRef":c1.id, "haystackCur":"x"])
-    p6  := addRec(["dis":"P6",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x"])
-    p7  := addRec(["dis":"P7",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x", "haystackWrite":"x", "haysatckHis":"x", "disabled":m])
-    p8  := addRec(["dis":"P8",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x", "haystackWrite":"x"])
-    p9  := addRec(["dis":"P9",  "point":m, "kind":"Number", "tz":tz, "haystackConnRef":c2.id, "haystackCur":"x"])
-    p10 := addRec(["dis":"P10", "point":m, "haystackConnRef":c2.id, "haystackCur":"x"])
+    p1  := addRec(["dis":"P1",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c1.id, "connTestCur":"x", "connTestWrite":"x", "connTestHis":"x"])
+    p2  := addRec(["dis":"P2",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c1.id, "connTestCur":"x", "connTestWrite":"x", "connTestHis":"x", "disabled":m])
+    p3  := addRec(["dis":"P3",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c1.id, "connTestCur":"down", "connTestWrite":"x"])
+    p4  := addRec(["dis":"P4",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c1.id, "connTestCur":"x"])
+    p5  := addRec(["dis":"P5",  "point":m, "connTestConnRef":c1.id, "haystackCur":"x"])
+    p6  := addRec(["dis":"P6",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c2.id, "connTestCur":"x", "connTestWrite":"x", "connTestHis":"x"])
+    p7  := addRec(["dis":"P7",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c2.id, "connTestCur":"x", "connTestWrite":"x", "connTestHis":"x", "disabled":m])
+    p8  := addRec(["dis":"P8",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c2.id, "connTestCur":"x", "connTestWrite":"x"])
+    p9  := addRec(["dis":"P9",  "point":m, "kind":"Number", "tz":tz, "connTestConnRef":c2.id, "connTestCur":"x"])
+    p10 := addRec(["dis":"P10", "point":m, "connTestConnRef":c2.id, "connTestCur":"x"])
 
     verifyPointStatus(p1,  "disabled")
     verifyPointStatus(p2,  "disabled")
@@ -1090,6 +1095,26 @@ class ConnTest : HxTest
     p2 = commit(p2, ["kind":"Number"])
     verifyPointStatus(p1, "disabled")
     verifyPointStatus(p2, "unknown")
+
+    // now open
+    c1.ping.get
+    sync(c1)
+    verifyConnStatus(c1, "ok", "open")
+    verifyPointStatus(p1,  "disabled")
+    verifyPointStatus(p2,  "unknown")
+    verifyPointStatus(p3,  "unknown")
+    verifyPointStatus(p4,  "unknown")
+    verifyPointStatus(p5,  "fault")
+
+    // now sync cur
+    c1.syncCur(c1.points).get
+    sync(c1)
+    verifyConnStatus(c1, "ok", "open")
+    verifyPointStatus(p1, "disabled")
+    verifyPointStatus(p2, "ok",   "unknown")
+    verifyPointStatus(p3, "down", "unknown")
+    verifyPointStatus(p4, "ok",   "unknown")
+    verifyPointStatus(p5, "fault")
   }
 
   Void verifyConnStatus(Conn c, Str status, Str state)
@@ -1103,7 +1128,7 @@ class ConnTest : HxTest
     verifyEq(r["connState"], state)
   }
 
-  Void verifyPointStatus(Dict rec, Str status)
+  Void verifyPointStatus(Dict rec, Str curStatus, Str writeStatus := curStatus, Str hisStatus := curStatus)
   {
     rt.sync
     ConnPoint pt := rt.conn.point(rec.id)
@@ -1111,13 +1136,13 @@ class ConnTest : HxTest
     rec = rt.db.readById(rec.id)
     // echo("-- $pt.rec.dis curStatus=" + rec["curStatus"] + " writeStatus=" + rec["writeStatus"])
 
-    verifyEq(rec["curStatus"],   rec.has("haystackCur")   ? status : null)
-    verifyEq(rec["writeStatus"], rec.has("haystackWrite") ? status : null)
-    //verifyEq(rec["hisStatus"],   rec.has("haystackHis")   ? status : null)
+    verifyEq(rec["curStatus"],   rec.has("connTestCur")   ? curStatus : null)
+    verifyEq(rec["writeStatus"], rec.has("connTestWrite") ? writeStatus : null)
+    //verifyEq(rec["hisStatus"],   rec.has("connTestHis")   ? status : null)
 
-    verifyEq(pt.isCurEnabled,   rec.has("haystackCur")   && pt.isEnabled && status != "fault")
-    verifyEq(pt.isWriteEnabled, rec.has("haystackWrite") && pt.isEnabled && status != "fault")
-    verifyEq(pt.isHisEnabled,   rec.has("haystackHis")   && pt.isEnabled && status != "fault")
+    verifyEq(pt.isCurEnabled,   rec.has("connTestCur")   && pt.isEnabled && curStatus != "fault")
+    verifyEq(pt.isWriteEnabled, rec.has("connTestWrite") && pt.isEnabled && writeStatus != "fault")
+    verifyEq(pt.isHisEnabled,   rec.has("connTestHis")   && pt.isEnabled && hisStatus != "fault")
   }
 
 //////////////////////////////////////////////////////////////////////////
