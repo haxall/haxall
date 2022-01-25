@@ -84,8 +84,9 @@ const class SerialLib : HxLib
     serialPort := port(config.name)
     if (serialPort.isOpen) throw SerialPortAlreadyOpenErr("Owner: $serialPort.owner.id.toZinc")
 
-    // open the serial port
+    // open the serial port and install onClose callback
     socket := serialSpi.open(serialPort, config)
+    socket.onClose = |SerialSocket s| { this.close(s) }
 
     // update internal state
     serialPort.rtRef.val = rt

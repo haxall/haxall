@@ -16,9 +16,8 @@ using concurrent
 abstract class SerialSocket
 {
   ** Constructor
-  protected new make(SerialLib lib, SerialPort port, SerialConfig config)
+  protected new make(SerialPort port, SerialConfig config)
   {
-    this.lib = lib
     this.port = port
     this.config = config
   }
@@ -26,14 +25,14 @@ abstract class SerialSocket
   ** The serial port definition
   const SerialPort port
 
-  ** Serial system module
-  const SerialLib lib
+  ** Port configuration
+  const SerialConfig config
+
+  ** Callback to handle closing the socket
+  internal |SerialSocket| onClose := |->| { throw Err("onClose not installed") }
 
   ** Logical name of port
   Str name() { config.name }
-
-  ** Port configuration
-  const SerialConfig config
 
   ** Timeout for reads, or null for no timeout.
   Duration? timeout := 5sec
@@ -55,7 +54,7 @@ abstract class SerialSocket
   Void close()
   {
     if (isClosed) return
-    lib.close(this)
+    onClose(this)
   }
 
   ** Debug string
