@@ -32,6 +32,13 @@ const class HxConfig
   ** Convenience for 'meta.get'
   Obj? get(Str name, Obj? def := null) { meta.get(name, def) }
 
+  ** Construct an service provider interface instance from given key
+  Obj makeSpi(Str key)
+  {
+    qname := get(key) ?: throw Err("Boot config missing key: $key")
+    return Type.find(qname).make
+  }
+
   ** Is this a test runtime?
   virtual Bool isTest() { meta.has("test") }
 }
