@@ -16,8 +16,8 @@ using hx
 **
 const class SerialPort
 {
-  ** Cosntructor
-  internal new make(Dict meta)
+  ** Constructor.  The meta must have a 'name' and 'device' tag.
+  new make(Dict meta)
   {
     this.meta   = meta
     this.name   = meta->name
@@ -39,7 +39,7 @@ const class SerialPort
   ** Is this serial port current closed and unused
   Bool isClosed() { owner == null }
 
-   ** HxRuntime of the  `owner` if port is open or null if closed
+   ** HxRuntime of the `owner` if port is open or null if closed
   HxRuntime? rt() { rtRef.val }
 
   ** Current record which opened and owns the port or null if closed.
