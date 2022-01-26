@@ -1226,10 +1226,10 @@ class ConnTest : HxTest
 
   Void verifyWriteMsg(HxMsg msg, Dict pt, Obj val)
   {
+    info := (ConnWriteInfo)msg.b
     verifyEq(msg.id, "write")
     verifyEq(msg.a, rt.conn.point(pt.id))
-    verifyEq(msg.b->type, "obsPointWrites")
-    verifyEq(msg.b->val, val)
+    verifyEq(info.val, val)
   }
 
 //////////////////////////////////////////////////////////////////////////

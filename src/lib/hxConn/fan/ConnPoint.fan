@@ -229,6 +229,29 @@ const final class ConnPoint : HxConnPoint
   internal ConnPointWriteState writeState() { writeStateRef.val }
   private const AtomicRef writeStateRef := AtomicRef(ConnPointWriteState.nil)
 
+  internal ConnWriteInfo? writeLastInfo
+  {
+    get { writeLastInfoRef.val }
+    set { writeLastInfoRef.val = it }
+  }
+  private const AtomicRef writeLastInfoRef := AtomicRef()
+
+  ** Write pending flag
+  internal Bool writePending
+  {
+    get { writePendingRef.val }
+    set { writePendingRef.val = it }
+  }
+  private const AtomicBool writePendingRef := AtomicBool()
+
+  ** Write queued flag
+  internal Bool writeQueued
+  {
+    get { writeQueuedRef.val }
+    set { writeQueuedRef.val = it }
+  }
+  private const AtomicBool writeQueuedRef := AtomicBool()
+
   ** Update writeStatus, writeVal, writeLevel, writeErr
   private Void updateWriteTags(ConnPointWriteState s)
   {

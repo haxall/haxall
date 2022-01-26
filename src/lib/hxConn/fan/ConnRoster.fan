@@ -341,7 +341,7 @@ internal const final class ConnRoster
 
     // if point has a writable address, send conn message
     if (point.isWriteEnabled)
-      point.conn.send(HxMsg("write", point, e))
+      point.conn.send(HxMsg("write", point, ConnWriteInfo(e)))
   }
 
 //////////////////////////////////////////////////////////////////////////

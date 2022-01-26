@@ -97,11 +97,34 @@ internal const final class ConnPointWriteState
 const class ConnWriteInfo
 {
   ** Constructor
-  internal new make(Obj? val, Obj? raw, Int level)
+  internal new make(WriteObservation obs)
   {
-    this.val   = val
-    this.raw   = raw
-    this.level = level
+    this.raw     = obs.val
+    this.val     = obs.val
+    this.level   = obs.level.toInt
+    this.isFirst = obs.isFirst
+    this.who     = obs.who
+  }
+
+  ** Conversion constructor
+  internal new convert(ConnWriteInfo orig, ConnPoint pt)
+  {
+    this.raw     = orig.val
+    this.val     = pt.writeConvert.convert(pt.lib.pointLib, pt.rec, orig.val)
+    this.level   = orig.val
+    this.isFirst = orig.isFirst
+    this.who     = orig.who
+  }
+
+  ** Copy with extra message
+  internal new makeExtra(ConnWriteInfo orig, Str extra)
+  {
+    this.raw     = orig.raw
+    this.val     = orig.val
+    this.level   = orig.val
+    this.isFirst = orig.isFirst
+    this.who     = orig.who
+    this.extra   = extra
   }
 
   ** Value to write to the remote system; might be converted from writeVal
@@ -113,7 +136,21 @@ const class ConnWriteInfo
   ** Local effective level; used to update writeLevel
   @NoDoc const Int level
 
+  ** Is the the first write since we booted up
+  @NoDoc const Bool isFirst
+
+  ** Who made the write
+  @NoDoc const Obj? who
+
+  ** Extra info indicating a special write transition
+  @NoDoc const Str? extra
+
   ** Debug string representation
-  override Str toStr() { "$val | $raw @ $level" }
+  override Str toStr() { "$val @ $level [$who] $extra" }
+
+  This asMinTime() { makeExtra(this, "minTime") }
+  This asMaxTime() { makeExtra(this, "maxTime") }
+  This asOnOpen()  { makeExtra(this, "onOpen") }
+
 }
 
