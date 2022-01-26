@@ -55,7 +55,7 @@ class SerialSpiTest : HxTest
   @HxRuntimeTest
   Void testSpi()
   {
-    SerialLib lib := rt.lib("serial")
+    SerialLib lib := rt.libs.add("serial")
 
     // initial state
     s := lib.port("test")
@@ -92,7 +92,7 @@ class SerialSpiTest : HxTest
     verifyEq(p.rt,     owner == null ? null : lib.rt)
     verifyValEq(p.owner, owner)
 
-    Grid grid := makeContext.eval("serialPorts()")
+    Grid grid := eval("serialPorts()")
     // grid.dump
 
     verifyEq(grid.size, lib.ports.size)
