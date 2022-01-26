@@ -191,7 +191,7 @@ class ConnTuningTest : HxTest
   Void verifyWriteMinTime(Conn c, Dict t, Dict pt)
   {
     // initial state (first write short circuited without writeOnStart)
-    verifyWrite(pt, "unknown", null, null, null, null)
+    verifyWrite(pt, "unknown", null, 17, null, null)
 
     // verify two immediate writes with no min time
     write(c, pt, n(1), 16)

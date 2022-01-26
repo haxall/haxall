@@ -291,8 +291,7 @@ const final class ConnPoint : HxConnPoint
       err = ConnStatus.toErrStr(s.err)
       level = ConnUtil.levelToNumber(s.level)
     }
-    // TODO: we don't need to update value/level anymore
-    committer.commit4(lib, rec, "writeStatus", status.name, "writeVal", val, "writeLevel", level, "writeErr", err)
+    committer.commit2(lib, rec, "writeStatus", status.name, "writeErr", err)
   }
 
 //////////////////////////////////////////////////////////////////////////
