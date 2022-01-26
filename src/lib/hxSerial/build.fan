@@ -33,7 +33,7 @@ class Build : BuildPod
                "axon @{hx.depend}",
                "hx @{hx.depend}",
               ]
-    srcDirs = [`fan/`]
+    srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
     index   = ["ph.lib": "serial"]
   }
