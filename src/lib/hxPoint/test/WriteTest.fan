@@ -219,6 +219,24 @@ class WriteTest : HxTest
     verifyObs(obsX, x, null, -1, "")
     verifyObs(obsY, y, null, -1, "")
 
+    // set 69 @ 13
+    reset()
+    eval("pointWrite($x.id.toCode, 69, 13, \"test-13\")")
+    verifyWrite(lib, x, n(69), 13, [13: n(69), 14:n(789), 16: n(123)])
+    verifyObs(obsA, x, n(69), 13, "test-13")
+    verifyObs(obsB, x, n(69), 13, "test-13")
+    verifyObs(obsX, x, n(69), 13, "test-13")
+    verifyObs(obsY, y, null, -1, "")
+
+    // now clear 13 (standard subs see effective change, obsAllWrites see 13 nulled out)
+    reset()
+    eval("pointWrite($x.id.toCode, null, 13, \"test-13\")")
+    verifyWrite(lib, x, n(789), 14, [14:n(789), 16: n(123)])
+    verifyObs(obsA, x, n(789), 14, "test-13")
+    verifyObs(obsB, x, null,   13, "test-13")
+    verifyObs(obsX, x, n(789), 14, "test-13")
+    verifyObs(obsY, y, null, -1, "")
+
     // change level 150 @ 15 (only allWrites obs receives event)
     reset()
     eval("pointWrite($x.id.toCode, 150, 15, \"test-15\")")
@@ -248,9 +266,9 @@ class WriteTest : HxTest
     // null level 14 (all receive auto event)
     eval("pointWrite($x.id.toCode, null, 14, \"test-14\")")
     verifyWrite(lib, x, null, 17, [:])
-    verifyObs(obsA, x, null, 14, "test-14")
+    verifyObs(obsA, x, null, 17, "test-14")
     verifyObs(obsB, x, null, 14, "test-14")
-    verifyObs(obsX, x, null, 14, "test-14")
+    verifyObs(obsX, x, null, 17, "test-14")
     verifyObs(obsY, y, null, -1, "")
   }
 
