@@ -18,6 +18,11 @@ using hxPoint
 **
 internal final class ConnMgr
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
   ** Constructor with parent connector
   new make(Conn conn, Type dispatchType)
   {
@@ -25,6 +30,10 @@ internal final class ConnMgr
     this.vars = conn.vars
     this.dispatch = dispatchType.make([this])
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Identity/Conveniences
+//////////////////////////////////////////////////////////////////////////
 
   const Conn conn
   const ConnVars vars
@@ -39,6 +48,10 @@ internal final class ConnMgr
   ConnTrace trace() { conn.trace }
   Duration timeout() { conn.timeout }
   Bool hasPointsWatched() { pointsInWatch.size > 0 }
+
+//////////////////////////////////////////////////////////////////////////
+// Receive
+//////////////////////////////////////////////////////////////////////////
 
   ** Handle actor message
   Obj? onReceive(HxMsg msg)
@@ -156,8 +169,7 @@ internal final class ConnMgr
       { close(e); return }
 
     // check for points to writeOnOpen
-// TODO
-//    checkWriteOnOpen
+    checkWriteOnOpen
   }
 
   ** Force this connector closed and call `onClose`.
@@ -383,110 +395,10 @@ internal final class ConnMgr
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Polling
-//////////////////////////////////////////////////////////////////////////
-
-  internal Void onPoll()
-  {
-    if (isClosed) return
-    vars.polled
-    switch (conn.pollMode)
-    {
-      case ConnPollMode.manual:  onPollManual
-      case ConnPollMode.buckets: onPollBuckets
-    }
-  }
-
-  private Void onPollManual()
-  {
-    trace.poll("poll manual", null)
-    dispatch.onPollManual
-  }
-
-  private Void onPollBuckets()
-  {
-    // short circuit common cases
-    pollBuckets := conn.pollBuckets
-    if (pollBuckets.isEmpty || !hasPointsWatched || isClosed) return
-
-    // check if its time to poll any buckets
-    pollBuckets.each |bucket|
-    {
-      now := Duration.nowTicks
-      if (now >= bucket.nextPoll) pollBucket(now, bucket)
-    }
-
-    // check for quick polls which didn't get handled by their bucket
-    quicks := pointsInWatch.findAll |pt| { pt.curQuickPoll }
-    if (!quicks.isEmpty)
-    {
-      trace.poll("Poll quick")
-      pollBucketPoints(quicks)
-    }
-  }
-
-  private Void pollBucket(Int startTicks, ConnPollBucket bucket)
-  {
-    // we only want to poll watched points
-    points := bucket.points.findAll |pt| { pt.isWatched }
-    if (points.isEmpty) return
-
-    try
-    {
-      trace.poll("Poll bucket", bucket.tuning.dis)
-      pollBucketPoints(points)
-    }
-    finally
-    {
-      bucket.updateNextPoll(startTicks)
-    }
-  }
-
-  private Void pollBucketPoints(ConnPoint[] points)
-  {
-    points.each |pt| { pt.curQuickPoll = false }
-    dispatch.onPollBucket(points)
-  }
-
-  private Void updateBuckets()
-  {
-    // short circuit if not using buckets mode
-    if (conn.pollMode !== ConnPollMode.buckets) return
-
-    // save olds buckets by tuning id so we can reuse state
-    oldBuckets := Ref:ConnPollBucket[:]
-    oldBuckets.setList(conn.pollBuckets) |b| { b.tuning.id }
-
-    // group by tuning id
-    byTuningId := Ref:ConnPoint[][:]
-    conn.points.each |pt|
-    {
-      tuningId := pt.tuning.id
-      bucket := byTuningId[tuningId]
-      if (bucket == null) byTuningId[tuningId] = bucket = ConnPoint[,]
-      bucket.add(pt)
-    }
-
-    // flatten to list
-    acc := ConnPollBucket[,]
-    byTuningId.each |points|
-    {
-      tuning := points.first.tuning
-      state := oldBuckets[tuning.id]?.state ?: ConnPollBucketState(tuning)
-      acc.add(ConnPollBucket(conn, tuning, state, points))
-    }
-
-    // sort by poll time; this could potentially get out of
-    // order if ConnTuning have their pollTime changed - but
-    // that is ok because sort order is for display, not logic
-    conn.setPollBuckets(this, acc.sort.toImmutable)
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Writes
 //////////////////////////////////////////////////////////////////////////
 
-  internal Obj? onWrite(ConnPoint pt, ConnWriteInfo info)
+  private Obj? onWrite(ConnPoint pt, ConnWriteInfo info)
   {
     // if first write, then check for writeOnStart
     if (info.isFirst)
@@ -610,6 +522,106 @@ internal final class ConnMgr
         return
       }
     }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Polling
+//////////////////////////////////////////////////////////////////////////
+
+  internal Void onPoll()
+  {
+    if (isClosed) return
+    vars.polled
+    switch (conn.pollMode)
+    {
+      case ConnPollMode.manual:  onPollManual
+      case ConnPollMode.buckets: onPollBuckets
+    }
+  }
+
+  private Void onPollManual()
+  {
+    trace.poll("poll manual", null)
+    dispatch.onPollManual
+  }
+
+  private Void onPollBuckets()
+  {
+    // short circuit common cases
+    pollBuckets := conn.pollBuckets
+    if (pollBuckets.isEmpty || !hasPointsWatched || isClosed) return
+
+    // check if its time to poll any buckets
+    pollBuckets.each |bucket|
+    {
+      now := Duration.nowTicks
+      if (now >= bucket.nextPoll) pollBucket(now, bucket)
+    }
+
+    // check for quick polls which didn't get handled by their bucket
+    quicks := pointsInWatch.findAll |pt| { pt.curQuickPoll }
+    if (!quicks.isEmpty)
+    {
+      trace.poll("Poll quick")
+      pollBucketPoints(quicks)
+    }
+  }
+
+  private Void pollBucket(Int startTicks, ConnPollBucket bucket)
+  {
+    // we only want to poll watched points
+    points := bucket.points.findAll |pt| { pt.isWatched }
+    if (points.isEmpty) return
+
+    try
+    {
+      trace.poll("Poll bucket", bucket.tuning.dis)
+      pollBucketPoints(points)
+    }
+    finally
+    {
+      bucket.updateNextPoll(startTicks)
+    }
+  }
+
+  private Void pollBucketPoints(ConnPoint[] points)
+  {
+    points.each |pt| { pt.curQuickPoll = false }
+    dispatch.onPollBucket(points)
+  }
+
+  private Void updateBuckets()
+  {
+    // short circuit if not using buckets mode
+    if (conn.pollMode !== ConnPollMode.buckets) return
+
+    // save olds buckets by tuning id so we can reuse state
+    oldBuckets := Ref:ConnPollBucket[:]
+    oldBuckets.setList(conn.pollBuckets) |b| { b.tuning.id }
+
+    // group by tuning id
+    byTuningId := Ref:ConnPoint[][:]
+    conn.points.each |pt|
+    {
+      tuningId := pt.tuning.id
+      bucket := byTuningId[tuningId]
+      if (bucket == null) byTuningId[tuningId] = bucket = ConnPoint[,]
+      bucket.add(pt)
+    }
+
+    // flatten to list
+    acc := ConnPollBucket[,]
+    byTuningId.each |points|
+    {
+      tuning := points.first.tuning
+      state := oldBuckets[tuning.id]?.state ?: ConnPollBucketState(tuning)
+      acc.add(ConnPollBucket(conn, tuning, state, points))
+    }
+
+    // sort by poll time; this could potentially get out of
+    // order if ConnTuning have their pollTime changed - but
+    // that is ok because sort order is for display, not logic
+    conn.setPollBuckets(this, acc.sort.toImmutable)
   }
 
 //////////////////////////////////////////////////////////////////////////
