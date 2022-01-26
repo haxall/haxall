@@ -248,16 +248,8 @@ const final class Conn : Actor, HxConn
       return null
     }
 
-    try
-    {
-      trace.dispatch(msg)
-      return mgr.onReceive(msg)
-    }
-    catch (Err e)
-    {
-      log.err("Conn.receive $msg.id", e)
-      throw e
-    }
+    trace.dispatch(msg)
+    return mgr.onReceive(msg)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -43,24 +43,34 @@ internal final class ConnMgr
   ** Handle actor message
   Obj? onReceive(HxMsg msg)
   {
-    switch (msg.id)
+    try
     {
-      case "ping":         return ping
-      case "close":        return close("force close")
-      case "sync":         return null
-      case "write":        return onWrite(msg.a, msg.b)
-      case "watch":        return onWatch(msg.a)
-      case "unwatch":      return onUnwatch(msg.a)
-      case "syncCur":      return onSyncCur(msg.a)
-      case "learn":        return onLearn(msg.a)
-      case "connUpdated":  return onConnUpdated(msg.a)
-      case "pointAdded":   return onPointAdded(msg.a)
-      case "pointUpdated": return onPointUpdated(msg.a, msg.b)
-      case "pointRemoved": return onPointRemoved(msg.a)
-      case "init":         return onInit
-      case "forcehk":      return onHouseKeeping
-      default:             return dispatch.onReceive(msg)
+      switch (msg.id)
+      {
+        case "ping":         return ping
+        case "close":        return close("force close")
+        case "sync":         return null
+        case "write":        return onWrite(msg.a, msg.b)
+        case "watch":        return onWatch(msg.a)
+        case "unwatch":      return onUnwatch(msg.a)
+        case "syncCur":      return onSyncCur(msg.a)
+        case "learn":        return onLearn(msg.a)
+        case "connUpdated":  return onConnUpdated(msg.a)
+        case "pointAdded":   return onPointAdded(msg.a)
+        case "pointUpdated": return onPointUpdated(msg.a, msg.b)
+        case "pointRemoved": return onPointRemoved(msg.a)
+        case "init":         return onInit
+        case "forcehk":      return onHouseKeeping
+      }
     }
+    catch (Err e)
+    {
+      log.err("Conn.receive $msg.id", e)
+      throw e
+    }
+
+    // let custom dispatch messages raise exception to caller
+    return dispatch.onReceive(msg)
   }
 
 //////////////////////////////////////////////////////////////////////////

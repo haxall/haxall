@@ -215,7 +215,6 @@ const class HaystackFuncs
   {
     lib := (HaystackLib)cx.rt.lib("haystack")
     r := lib.conn(Etc.toId(conn)).sendSync(msg)
-    if (r is Err) throw (Err)r
     if (r is Unsafe) return ((Unsafe)r).val
     return r
   }

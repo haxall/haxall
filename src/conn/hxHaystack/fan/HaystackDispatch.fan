@@ -113,53 +113,34 @@ class HaystackDispatch : ConnDispatch
 
   Obj? onReadById(Obj id, Bool checked)
   {
-    try
-      return openClient.readById(id, checked)
-    catch (Err err)
-      return err
+    openClient.readById(id, checked)
   }
 
   Obj? onReadByIds(Obj[] ids, Bool checked)
   {
-    try
-      return Unsafe(openClient.readByIds(ids, checked))
-    catch (Err err)
-      return err
+    Unsafe(openClient.readByIds(ids, checked))
   }
 
   Obj? onRead(Str filter, Bool checked)
   {
-    try
-      return openClient.read(filter, checked)
-    catch (Err err)
-      return err
+    openClient.read(filter, checked)
   }
 
   Obj? onReadAll(Str filter)
   {
-    try
-      return Unsafe(openClient.readAll(filter))
-    catch (Err err)
-      return err
+    Unsafe(openClient.readAll(filter))
   }
 
   Obj? onEval(Str expr, Dict opts)
   {
-    try
-    {
-      req := Etc.makeListGrid(opts, "expr", null, [expr])
-      return Unsafe(openClient.call("eval", req))
-    }
-    catch (Err err) return err
+    req := Etc.makeListGrid(opts, "expr", null, [expr])
+    return Unsafe(openClient.call("eval", req))
   }
 
   Obj? onInvokeAction(Obj id, Str action, Dict args)
   {
     req := Etc.makeDictGrid(["id":id, "action":action], args)
-    try
-      return Unsafe(openClient.call("invokeAction", req))
-    catch (Err err)
-      return err
+    return Unsafe(openClient.call("invokeAction", req))
   }
 
 //////////////////////////////////////////////////////////////////////////
