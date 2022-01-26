@@ -183,6 +183,12 @@ class ConnTuningTest : HxTest
     sync(c)
     waitForSteadyState
 
+    verifyWriteMinTime(c, t, pt)
+    verifyWriteMaxTime(c, t, pt)
+  }
+
+  Void verifyWriteMinTime(Conn c, Dict t, Dict pt)
+  {
     // initial state (first write short circuited without writeOnStart)
     verifyWrite(pt, "unknown", null, null, null, null)
 
@@ -238,10 +244,48 @@ class ConnTuningTest : HxTest
     sync(c)
   }
 
-  Void write(Conn c, Dict rec, Obj? val, Int level)
+  Void verifyWriteMaxTime(Conn c, Dict t, Dict pt)
   {
-    rt.pointWrite.write(rec, val, level, "test").get
-    sync(c)
+    t = commit(readById(t.id), ["writeMaxTime":n(100, "ms")])
+
+    // first write
+    write(c, pt, n(77), 16)
+    pt = verifyWrite(pt, "ok", n(77), 16, n(77*10), 16)
+    num := numWrites(c)
+
+    // wait and check before/after 100ms
+    left := 100ms - (Duration.now - lastWriteTime(pt))
+    wait(left - 20ms)
+    verifyEq(numWrites(c), num)
+    wait(80ms)
+    forceHouseKeeping(c)
+    verifyEq(numWrites(c), num+1)
+    pt = verifyWrite(pt, "ok", n(77), 16, n(77*10), 16)
+
+    // again: wait and check before/after 100ms
+    left = 100ms - (Duration.now - lastWriteTime(pt))
+    wait(left - 20ms)
+    verifyEq(numWrites(c), num+1)
+    wait(80ms)
+    forceHouseKeeping(c)
+    verifyEq(numWrites(c), num+2)
+    pt = verifyWrite(pt, "ok", n(77), 16, n(77*10), 16)
+
+    // immediate write
+    write(c, pt, n(88), 15)
+    pt = verifyWrite(pt, "ok", n(88), 15, n(88*10), 15)
+    verifyEq(numWrites(c), num+3)
+    verifyWriteDebug(pt, false, "88 @ 15 [test]")
+
+    // wait and check before/after 100ms
+    left = 100ms - (Duration.now - lastWriteTime(pt))
+    wait(left - 20ms)
+    verifyEq(numWrites(c), num+3)
+    wait(80ms)
+    forceHouseKeeping(c)
+    verifyEq(numWrites(c), num+4)
+    pt = verifyWrite(pt, "ok", n(88), 15, n(88*10), 15)
+    verifyWriteDebug(pt, false, "88 @ 15 [test] maxTime")
   }
 
   Dict verifyWrite(Dict rec, Str status, Obj? tagVal, Int? tagLevel, Obj? lastVal, Int? lastLevel)
@@ -270,6 +314,23 @@ class ConnTuningTest : HxTest
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+
+  Duration lastWriteTime(Dict pt)
+  {
+    Duration.make(rt.conn.point(pt.id)->writeState->lastUpdate)
+  }
+
+  Int numWrites(Conn c)
+  {
+    c.send(HxMsg("numWrites")).get(1sec)
+  }
+
+  Void write(Conn c, Dict rec, Obj? val, Int level)
+  {
+    rt.pointWrite.write(rec, val, level, "test").get
+    sync(c)
+  }
 
   Void waitForSteadyState()
   {

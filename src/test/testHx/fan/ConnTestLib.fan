@@ -25,6 +25,7 @@ class ConnTestDispatch : ConnDispatch
     switch (msg.id)
     {
       case "lastWrite": return lastWrite
+      case "numWrites": return numWrites
       case "sleep":     Actor.sleep(msg.a); return null
       default:         return super.onReceive(msg)
     }
@@ -56,6 +57,8 @@ class ConnTestDispatch : ConnDispatch
 
   override Void onWrite(ConnPoint point, ConnWriteInfo info)
   {
+    // log.info("onWrite $point.dis | $info")
+
     val := info.val as Number
     level := info.level
 
