@@ -24,8 +24,9 @@ class ConnTestDispatch : ConnDispatch
   {
     switch (msg.id)
     {
-      case "sleep": Actor.sleep(msg.a); return null
-      default:      return super.onReceive(msg)
+      case "lastWrite": return lastWrite
+      case "sleep":     Actor.sleep(msg.a); return null
+      default:         return super.onReceive(msg)
     }
   }
 
@@ -55,10 +56,18 @@ class ConnTestDispatch : ConnDispatch
 
   override Void onWrite(ConnPoint point, ConnWriteInfo info)
   {
-    val := (Number)info.val
-    if (val >= Number.zero)
+    val := info.val as Number
+    level := info.level
+
+    this.lastWrite = "$val @ $level"
+    this.numWrites++
+
+    if (val == null || val >= Number.zero)
       point.updateWriteOk(info)
     else
       point.updateWriteErr(info, DownErr("neg value"))
   }
+
+  Str? lastWrite
+  Int numWrites
 }

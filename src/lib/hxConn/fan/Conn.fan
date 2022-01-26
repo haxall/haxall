@@ -199,6 +199,13 @@ const final class Conn : Actor, HxConn
     return this
   }
 
+  ** Force a house keeping cycle
+  @NoDoc Future forceHouseKeeping()
+  {
+    // don't use houseKeepingMsg which will renew timer
+    send(HxMsg("forcehk"))
+  }
+
   ** Invoke the learn request
   @NoDoc override Future learnAsync(Obj? arg := null) { send(HxMsg("learn", arg)) }
 

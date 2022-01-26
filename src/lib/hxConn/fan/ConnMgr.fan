@@ -58,6 +58,7 @@ internal final class ConnMgr
       case "pointUpdated": return onPointUpdated(msg.a, msg.b)
       case "pointRemoved": return onPointRemoved(msg.a)
       case "init":         return onInit
+      case "forcehk":      return onHouseKeeping
       default:             return dispatch.onReceive(msg)
     }
   }
@@ -540,7 +541,7 @@ internal final class ConnMgr
     }
   }
 
-  private Void doWriteHouseKeeping(Duration now, ConnPoint pt, ConnTuning tuning)
+  private Void onWriteHouseKeeping(Duration now, ConnPoint pt, ConnTuning tuning)
   {
     // if we have already queued a write during house keeping then
     // don't do any additional work until that message gets processed
@@ -590,7 +591,7 @@ internal final class ConnMgr
 // House Keeping
 //////////////////////////////////////////////////////////////////////////
 
-  internal Void onHouseKeeping()
+  internal Obj? onHouseKeeping()
   {
     // check if we need should perform a re-open attempt
     checkReopen
@@ -627,13 +628,15 @@ internal final class ConnMgr
 
     // dispatch callback
     dispatch.onHouseKeeping
+    return null
   }
 
   private Void doPointHouseKeeping(Duration now, ConnPoint[] toStale, ConnPoint pt)
   {
     tuning := pt.tuning
+// TODO
     // onCurHouseKeeping(now, toStale, pt, tuning)
-    // onWriteHouseKeeping(now, pt, tuning)
+    onWriteHouseKeeping(now, pt, tuning)
   }
 
   private Void checkAutoPing()

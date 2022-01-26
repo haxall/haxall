@@ -165,9 +165,122 @@ class ConnTuningTest : HxTest
     verifyEq(pt.tuning.staleTime, staleTime)
   }
 
+
+//////////////////////////////////////////////////////////////////////////
+// Times
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest { meta = "steadyState: 10ms" }
+  Void testTimes()
+  {
+    lib := (ConnTestLib)addLib("connTest")
+    t := addRec(["connTuning":m, "dis":"T"])
+    cr := addRec(["dis":"C1", "connTestConn":m])
+    pt := addRec(["dis":"Pt", "point":m, "writable":m, "connTestWrite":"a", "connTestConnRef":cr.id, "connTuningRef":t.id, "kind":"Number", "writeConvert":"*10"])
+
+    rt.sync
+    c  := lib.conn(cr.id)
+    sync(c)
+    waitForSteadyState
+
+    // initial state (first write short circuited without writeOnStart)
+    verifyWrite(pt, "unknown", null, null, null, null)
+
+    // verify two immediate writes with no min time
+    write(c, pt, n(1), 16)
+    pt = verifyWrite(pt, "ok", n(1), 16, n(1*10), 16)
+    write(c, pt, n(2), 16)
+    pt = verifyWrite(pt, "ok", n(2), 16, n(2*10), 16)
+    verifyWriteDebug(pt, false, "2 @ 16 [test]")
+
+    // now add a minWriteTime
+    verifyEq(c.point(pt.id).tuning.writeMinTime, null)
+    t = commit(t, ["writeMinTime":n(100, "ms")])
+    sync(c)
+    verifyEq(c.point(pt.id).tuning.writeMinTime, 100ms)
+    write(c, pt, n(3), 15)
+    pt = verifyWrite(pt, "ok", n(3), 15, n(2*10), 16)  // no change
+    write(c, pt, n(4), 14)
+    pt = verifyWrite(pt, "ok", n(4), 14, n(2*10), 16)  // no change
+    wait(80ms)
+    pt = verifyWrite(pt, "ok", n(4), 14, n(2*10), 16)  // no change
+
+    // last write wins after minWriteTime expires
+    verifyWriteDebug(pt, true, "4 @ 14 [test]")
+    wait(80ms)
+    forceHouseKeeping(c)
+    pt = verifyWrite(pt, "ok", n(4), 14, n(4*10), 14)
+    verifyWriteDebug(pt, false, "4 @ 14 [test] minTime")
+
+    // now wait until min write time has passed
+    wait(120ms)
+    write(c, pt, n(5), 16)
+    write(c, pt, null, 15)
+    write(c, pt, null, 14)
+    pt = verifyWrite(pt, "ok", n(5), 16, n(5*10), 16)  // immediate write
+
+    // another write
+    write(c, pt, n(6), 12)
+    pt = verifyWrite(pt, "ok", n(6), 12, n(5*10), 16)  // no change
+    wait(80ms)
+    pt = verifyWrite(pt, "ok", n(6), 12, n(5*10), 16)  // no change
+
+    // last write wins after minWriteTime expires
+    verifyWriteDebug(pt, true, "6 @ 12 [test]")
+    wait(80ms)
+    forceHouseKeeping(c)
+    pt = verifyWrite(pt, "ok", n(6), 12, n(6*10), 12)
+    verifyWriteDebug(pt, false, "6 @ 12 [test] minTime")
+
+    // cleanup
+    write(c, pt, null, 12)
+    t = commit(t, ["writeMinTime":Remove.val])
+    sync(c)
+  }
+
+  Void write(Conn c, Dict rec, Obj? val, Int level)
+  {
+    rt.pointWrite.write(rec, val, level, "test").get
+    sync(c)
+  }
+
+  Dict verifyWrite(Dict rec, Str status, Obj? tagVal, Int? tagLevel, Obj? lastVal, Int? lastLevel)
+  {
+    Conn c := rt.conn.point(rec.id).conn
+    rec = readById(rec.id)
+    last := c.send(HxMsg("lastWrite")).get(1sec)
+    // echo("-- $rec.dis " + rec["writeStatus"] + " " + rec["writeVal"] + " @ " + rec["writeLevel"] + " | last=$last | " + rec["writeErr"])
+    verifyEq(rec["writeStatus"], status)
+    verifyEq(rec["writeVal"],    tagVal)
+    verifyEq(rec["writeLevel"], n(tagLevel))
+    if (lastVal != null) verifyEq(last, "$lastVal @ $lastLevel")
+    return rec
+  }
+
+  Void verifyWriteDebug(Dict rec, Bool writePending, Str writeLastInfo)
+  {
+    lines       := rt.conn.point(rec.id).details.splitLines
+    linePending := lines.find |x| { x.contains("writePending:") }
+    lineLastInfo:= lines.find |x| { x.contains("writeLastInfo:") }
+    // echo("-- $rec.dis $linePending | $lineLastInfo")
+    verifyEq(linePending.split(':').last, writePending.toStr)
+    verifyEq(lineLastInfo.split(':').last, writeLastInfo)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  Void waitForSteadyState()
+  {
+    while (!rt.isSteadyState) Actor.sleep(10ms)
+  }
+
+  Void wait(Duration dur)
+  {
+    echo("   Waiting $dur.toLocale ...")
+    Actor.sleep(dur)
+  }
 
   Void sync(Obj? c)
   {
@@ -177,5 +290,11 @@ class ConnTuningTest : HxTest
       ((Conn)c).sync
     else
       ((Conn)rt.conn.conn(Etc.toId(c))).sync
+  }
+
+  Void forceHouseKeeping(Conn c)
+  {
+    c.forceHouseKeeping.get(1sec)
+    rt.sync
   }
 }

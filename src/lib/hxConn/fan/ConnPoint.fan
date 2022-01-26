@@ -283,7 +283,7 @@ const final class ConnPoint : HxConnPoint
     }
     else if (status.isOk)
     {
-      val = s.val
+      val = s.raw
       level = ConnUtil.levelToNumber(s.level)
     }
     else
@@ -291,6 +291,7 @@ const final class ConnPoint : HxConnPoint
       err = ConnStatus.toErrStr(s.err)
       level = ConnUtil.levelToNumber(s.level)
     }
+    // TODO: we don't need to update value/level anymore
     committer.commit4(lib, rec, "writeStatus", status.name, "writeVal", val, "writeLevel", level, "writeErr", err)
   }
 

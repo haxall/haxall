@@ -42,6 +42,9 @@ internal const final class ConnPointWriteState
              writeVal:         $val [${val?.typeof}]
              writeRaw:         $raw [${raw?.typeof}]
              writeConvert:     $pt.writeConvert
+             writeLastInfo:    $pt.writeLastInfo
+             writePending:     $pt.writePending
+             writeQueued:      $pt.writeQueued
              writeLastUpdate:  ${Etc.debugDur(lastUpdate)}
              writeErr:         ${Etc.debugErr(err)}
              """)
@@ -104,6 +107,7 @@ const class ConnWriteInfo
     this.level   = obs.level.toInt
     this.isFirst = obs.isFirst
     this.who     = obs.who
+    this.extra   = ""
   }
 
   ** Conversion constructor
@@ -111,9 +115,10 @@ const class ConnWriteInfo
   {
     this.raw     = orig.val
     this.val     = pt.writeConvert.convert(pt.lib.pointLib, pt.rec, orig.val)
-    this.level   = orig.val
+    this.level   = orig.level
     this.isFirst = orig.isFirst
     this.who     = orig.who
+    this.extra   = orig.extra
   }
 
   ** Copy with extra message
@@ -121,7 +126,7 @@ const class ConnWriteInfo
   {
     this.raw     = orig.raw
     this.val     = orig.val
-    this.level   = orig.val
+    this.level   = orig.level
     this.isFirst = orig.isFirst
     this.who     = orig.who
     this.extra   = extra
@@ -143,7 +148,7 @@ const class ConnWriteInfo
   @NoDoc const Obj? who
 
   ** Extra info indicating a special write transition
-  @NoDoc const Str? extra
+  @NoDoc const Str extra
 
   ** Debug string representation
   override Str toStr() { "$val @ $level [$who] $extra" }
