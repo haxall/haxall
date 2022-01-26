@@ -44,15 +44,36 @@ class ConnTestDispatch : ConnDispatch
     Etc.makeDict(["pingTime":DateTime.now])
   }
 
+  override Void onWatch(ConnPoint[] points)
+  {
+    // log.info("onWatch $points.size")
+    points.each |pt| { syncCur(pt) }
+  }
+
   override Void onSyncCur(ConnPoint[] points)
   {
-    points.each |pt, i|
+    // log.info("onSyncCur $points.size")
+    points.each |pt| { syncCur(pt) }
+  }
+
+  private Void syncCur(ConnPoint pt)
+  {
+    val := pt.rec["testCurVal"] ?: Number((0..1000).random)
+    // log.info("onSyncCur $pt.dis $val")
+
+    if (pt.curAddr == "down")
     {
-      if (pt.curAddr == "down")
-        pt.updateCurErr(DownErr("down"))
-      else
-        pt.updateCurOk(Number(i))
+      pt.updateCurErr(DownErr("down"))
+      return
     }
+
+    if (pt.rec.has("testCurStatus"))
+    {
+      pt.updateCurErr(RemoteStatusErr(ConnStatus.fromStr(pt.rec->testCurStatus)))
+      return
+    }
+
+    pt.updateCurOk(val)
   }
 
   override Void onWrite(ConnPoint point, ConnWriteInfo info)
@@ -69,6 +90,11 @@ class ConnTestDispatch : ConnDispatch
       point.updateWriteOk(info)
     else
       point.updateWriteErr(info, DownErr("neg value"))
+  }
+
+  override Void onHouseKeeping()
+  {
+    // log.info("onHouseKeeping")
   }
 
   Str? lastWrite

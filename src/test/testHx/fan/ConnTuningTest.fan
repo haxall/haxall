@@ -185,6 +185,7 @@ class ConnTuningTest : HxTest
 
     verifyWriteMinTime(c, t, pt)
     verifyWriteMaxTime(c, t, pt)
+    verifyStaleTime(c, t)
   }
 
   Void verifyWriteMinTime(Conn c, Dict t, Dict pt)
@@ -286,6 +287,74 @@ class ConnTuningTest : HxTest
     verifyEq(numWrites(c), num+4)
     pt = verifyWrite(pt, "ok", n(88), 15, n(88*10), 15)
     verifyWriteDebug(pt, false, "88 @ 15 [test] maxTime")
+
+    // cleanup
+    write(c, pt, null, 12)
+    t = commit(t, ["writeMaxTime":Remove.val])
+    sync(c)
+  }
+
+  Void verifyStaleTime(Conn c, Dict t)
+  {
+    // setup point with staleTime of 200ms
+    t = commit(readById(t.id), ["staleTime":n(100, "ms")])
+    pt := addRec(["dis":"Stale", "point":m, "connTestCur":"x", "connTestConnRef":c.id, "testCurVal":n(31), "kind":"Number", "connTuningRef":t.id])
+    sync(c)
+    verifyEq(c.point(pt.id).tuning.staleTime, 100ms)
+
+    // do read and verify
+    c.syncCur([c.point(pt.id)])
+    verifyCurVal(pt, n(31), "ok")
+
+    // wait and verify transition to stale
+    left := 100ms - (Duration.now - lastCurTime(pt))
+    Actor.sleep(left - 20ms)
+    forceHouseKeeping(c)
+    verifyCurVal(pt, n(31), "ok")
+    Actor.sleep(80ms)
+    forceHouseKeeping(c)
+    verifyCurVal(pt, n(31), "stale")
+
+    // make change
+    pt = commit(pt, ["testCurVal":n(1977)], Diff.force)
+    forceHouseKeeping(c)
+    verifyCurVal(pt, n(31), "stale")
+    verify(Duration.now - lastCurTime(pt) > 100ms)
+
+    // put into a watch and verify read
+    w := rt.watch.open("verifyStaleTime")
+    w.add(pt.id)
+    sync(c)
+    verifyEq(rt.watch.isWatched(pt.id), true)
+    verifyEq(c.point(pt.id).isWatched, true)
+    verifyCurVal(pt, n(1977), "ok")
+    verify(Duration.now - lastCurTime(pt) < 30ms)
+
+    // wait for while and verify we don't transition to stale while watched
+    left = 100ms - (Duration.now - lastCurTime(pt))
+    wait(left + 70ms)
+    forceHouseKeeping(c)
+    verifyCurVal(pt, n(1977), "ok")
+
+    // now unwatch the point
+    w.remove(pt.id)
+    verifyEq(rt.watch.isWatched(pt.id), false)
+
+    // next house keeping should transition to stale
+    wait(60ms)
+    forceHouseKeeping(c)
+    verifyCurVal(pt, n(1977), "stale")
+
+    // force read of bad status
+    pt = commit(pt, ["testCurVal":n(1988), "testCurStatus":"fault"], Diff.force)
+    sync(c)
+    c.syncCur([c.point(pt.id)])
+    verifyCurVal(pt, null, "remoteFault")
+
+    // wait and verify we stay in error state, no transition to stale
+    wait(170ms)
+    forceHouseKeeping(c)
+    verifyCurVal(pt, null, "remoteFault")
   }
 
   Dict verifyWrite(Dict rec, Str status, Obj? tagVal, Int? tagLevel, Obj? lastVal, Int? lastLevel)
@@ -311,10 +380,26 @@ class ConnTuningTest : HxTest
     verifyEq(lineLastInfo.split(':').last, writeLastInfo)
   }
 
+  Dict verifyCurVal(Dict rec, Obj? val, Str status)
+  {
+    Conn c := rt.conn.point(rec.id).conn
+    c.sync
+
+    rec = readById(rec.id)
+    // echo("-- $rec.dis " + rec["curVal"] + " @ " + rec["curStatus"])
+    verifyEq(rec["curVal"], val)
+    verifyEq(rec["curStatus"], status)
+    return rec
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
+  Duration lastCurTime(Dict pt)
+  {
+    Duration.make(rt.conn.point(pt.id)->curState->lastUpdate)
+  }
 
   Duration lastWriteTime(Dict pt)
   {

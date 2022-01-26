@@ -367,6 +367,21 @@ internal final class ConnMgr
     this.pointsInWatch = acc
   }
 
+  private Void onCurHouseKeeping(Duration now, ConnPoint pt, ConnTuning tuning)
+  {
+    // if current not enabled, then skip this point
+    if (!pt.isCurEnabled) return
+
+    // check stale time and if time to transition from ok
+    // to stale, then add it to the toStale list
+    if (pt.curState.status === ConnStatus.ok &&
+        !pt.isWatched &&
+        now.ticks - pt.curState.lastUpdate >= tuning.staleTime.ticks)
+    {
+      pt.updateCurStale
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Polling
 //////////////////////////////////////////////////////////////////////////
@@ -644,8 +659,7 @@ internal final class ConnMgr
   private Void doPointHouseKeeping(Duration now, ConnPoint[] toStale, ConnPoint pt)
   {
     tuning := pt.tuning
-// TODO
-    // onCurHouseKeeping(now, toStale, pt, tuning)
+    onCurHouseKeeping(now, pt, tuning)
     onWriteHouseKeeping(now, pt, tuning)
   }
 
