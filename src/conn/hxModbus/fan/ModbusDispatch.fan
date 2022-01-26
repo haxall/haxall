@@ -37,8 +37,9 @@ class ModbusDispatch : ConnDispatch
   {
     switch (msg.id)
     {
-      case "modbus.read": return mread(msg.a)
-      default:            return super.onReceive(msg)
+      case "modbus.read":  return mread(msg.a)
+      case "modbus.write": return mwrite(msg.a, msg.b)
+      default:             return super.onReceive(msg)
     }
   }
 
@@ -175,6 +176,46 @@ class ModbusDispatch : ConnDispatch
         if (val is Err) p.updateCurErr(val)
         else p.updateCurOk(val)
       }
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Write
+//////////////////////////////////////////////////////////////////////////
+
+  private Obj? mwrite(Str regName, Obj val)
+  {
+    open
+    try
+    {
+      reg := dev.regMap.reg(regName)
+      link.write(dev, reg, val)
+      return null
+    }
+    catch (Err err)
+    {
+      close(err)
+      throw err
+    }
+  }
+
+
+  override Void onWrite(ConnPoint point, ConnWriteInfo event)
+  {
+    try
+    {
+      if (event.val != null)
+      {
+        write := point.rec["modbusWrite"] ?: throw FaultErr("Missing modbusWrite")
+        reg   := dev.regMap.reg(write)
+        link.write(dev, reg, event.val)
+      }
+      point.updateWriteOk(event)
+    }
+    catch (Err err)
+    {
+      point.updateWriteErr(event, err)
+      close(err)
     }
   }
 }

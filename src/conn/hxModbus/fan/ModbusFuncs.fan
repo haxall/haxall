@@ -56,7 +56,15 @@ const class ModbusFuncs
     return ModbusLib.cur.read(conn, list)
   }
 
-  // TODO: modbusWrite
+  **
+  ** Write a value to given register name on connecter instance.
+  **
+  @Axon { admin = true }
+  static Void modbusWrite(Obj conn, Str reg, Obj val)
+  {
+    ModbusLib.cur.write(conn, reg, val)
+  }
+
 
   ** Return given register map contents. Do not include the file extension in the name.
   **
