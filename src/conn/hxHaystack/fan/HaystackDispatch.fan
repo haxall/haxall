@@ -463,6 +463,84 @@ class HaystackDispatch : ConnDispatch
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Writes
+//////////////////////////////////////////////////////////////////////////
+
+  override Void onWrite(ConnPoint point, ConnWriteInfo info)
+  {
+    val   := info.val
+    level := info.level
+    who   := info.who
+
+    try
+    {
+      // get haystackWrite address
+      id := toWriteId(point)
+
+      // get write level
+      writeLevel := toHaystackWriteLevel(point, info)
+      if (writeLevel == null) return
+
+      // check if we've changed the write level and if so, then
+      // write null to the old level
+      lastWriteLevel := point.data as Number
+      if (lastWriteLevel != null && lastWriteLevel != writeLevel)
+        callPointWrite(point, id, lastWriteLevel, null, null)
+
+      // if tuning has writeSchedule and who is a schedule grid
+      Str? schedule
+      if (who is Grid && ((Grid)who).meta.has("schedule") && point.tuning.rec.has("writeSchedule"))
+        schedule = ZincWriter.gridToStr(who)
+
+      // make REST call
+      callPointWrite(point, id, writeLevel, val, schedule)
+      setPointData(point, writeLevel)
+      point.updateWriteOk(info)
+    }
+    catch (Err e)
+    {
+      point.updateWriteErr(info, e)
+    }
+  }
+
+  private Grid callPointWrite(ConnPoint point, Obj id, Number writeLevel, Obj? val, Str? schedule)
+  {
+    reqWho := "$rt.name :: $point.dis"
+    map := ["id":id, "level":writeLevel, "who":reqWho]
+    if (val != null) map["val"] = val
+    if (schedule != null) map["schedule"] = schedule
+    req := Etc.makeMapGrid(null, map)
+    return call("pointWrite", req)
+  }
+
+  private Number? toHaystackWriteLevel(ConnPoint pt, ConnWriteInfo info)
+  {
+    // if no level
+    x := pt.rec["haystackWriteLevel"]
+    if (x == null)
+    {
+      pt.updateWriteErr(info, FaultErr("missing haystackWriteLevel"));
+      return null
+    }
+
+    // sanity on value
+    num := x as Number
+    if (num == null)
+    {
+      pt.updateWriteErr(info, FaultErr("haystackWriteLevel is $x.typeof.name not Number"));
+      return null
+    }
+
+    if (num.toInt < 1 || num.toInt > 17)
+    {
+      pt.updateWriteErr(info, FaultErr("haystackWriteLevel is not 1-17: $num"));
+      return null
+    }
+
+    return num
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Addressing
 //////////////////////////////////////////////////////////////////////////
 

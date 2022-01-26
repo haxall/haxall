@@ -30,7 +30,7 @@ class HaystackConnTest : HxTest
   Dict? conn
   Dict? hisSyncF
 
-  @HxRuntimeTest
+  @HxRuntimeTest { meta = "steadyState: 10ms" }
   Void test()
   {
     init
@@ -38,8 +38,8 @@ class HaystackConnTest : HxTest
     verifyCall
     verifyReads
     verifyWatches
-/*
     verifyPointWrite
+/*
     verifyReadHis
     verifySyncHis
     verifyInvokeAction
@@ -375,7 +375,7 @@ class HaystackConnTest : HxTest
 
   Void verifyPointWrite()
   {
-    // bad proxies
+     // bad proxies
      bad1 := addRec(["dis":"ProxyW", "haystackConnRef":conn.id,
                      "haystackCur":ptw.id.toStr, "haystackWrite":ptw.id, "writable":Marker.val,
                      "point": Marker.val, "unit":"%", "kind":"Number"])
@@ -394,19 +394,21 @@ class HaystackConnTest : HxTest
                        "haystackCur":ptw.id.toStr, "haystackWrite":ptw.id.toStr, "haystackWriteLevel":n(15),
                        "writable":Marker.val, "point": Marker.val, "unit":"%", "kind":"Number"])
 
+     // make sure we are at steady state
+     while (!rt.isSteadyState) Actor.sleep(10ms)
+
      // get stuff setup
-     syncWritables
      eval("pointOverride($bad1.id.toCode,  1)")
      eval("pointOverride($bad2.id.toCode,  2)")
      eval("pointOverride($bad3.id.toCode,  3)")
      eval("pointOverride($bad4.id.toCode,  3)")
      eval("pointOverride($proxy.id.toCode, 99)")
-     syncWritables
+     syncConn
 
      // bad1: wrong type for haystackWrite
      bad1 = readById(bad1.id)
      verifyEq(bad1["writeStatus"], "fault")
-     verifyEq(bad1["writeErr"], "haystackWrite must be Str: Ref")
+     verifyEq(bad1["writeErr"], "Invalid type for 'haystackWrite' [Ref != Str]")
 
      // bad2: missing haystackWriteLevel
      bad2 = readById(bad2.id)
@@ -443,7 +445,7 @@ class HaystackConnTest : HxTest
      // change haystackWriteLevel and verify that old levels gets nulled out
      proxy = commit(proxy, ["haystackWriteLevel":n(16)])
      eval("pointOverride($proxy.id.toCode, 321)")
-     syncWritables
+     syncConn
 
      // proxy
      proxy = readById(proxy.id)
@@ -460,12 +462,6 @@ class HaystackConnTest : HxTest
      array = evalToGrid("pointWriteArray($ptw.id.toCode)")
      verifyEq(array[15-1]["level"], n(15)); verifyEq(array[15-1]["val"], null)
      verifyEq(array[16-1]["level"], n(16)); verifyEq(array[16-1]["val"], n(321))
-  }
-
-  private Void syncWritables()
-  {
-    rt.sync
-    Actor.sleep(100ms)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -573,7 +569,6 @@ class HaystackConnTest : HxTest
 
   Void syncConn()
   {
-Actor.sleep(400ms)
     lib := (HaystackLib)rt.lib("haystack")
     rt.sync
     lib.conn(conn.id).sync
