@@ -462,8 +462,18 @@ internal final class ConnMgr
 
   internal Obj? onWrite(ConnPoint pt, WriteObservation event)
   {
-    // TODO
+    // convert event to an info for callbacks
     info := ConnWriteInfo(event.val, event.val, event.level.toInt)
+
+    // open and verify conn was successfully opened
+    openLinger
+    if (isClosed)
+    {
+      pt.updateWriteErr(info, DownErr("closed"))
+      return null
+    }
+
+    // TODO
     dispatch.onWrite(pt, info)
     return null
   }

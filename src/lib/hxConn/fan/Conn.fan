@@ -24,7 +24,8 @@ const final class Conn : Actor, HxConn
 //////////////////////////////////////////////////////////////////////////
 
   ** Internal constructor
-  internal new make(ConnLib lib, Dict rec) : super(lib.connActorPool)
+  internal new make(ConnLib lib, Dict rec)
+    : super.makeCoalescing(lib.connActorPool, toCoalesceKey, toCoalesce)
   {
     this.libRef      = lib
     this.idRef       = rec.id
@@ -37,6 +38,19 @@ const final class Conn : Actor, HxConn
   {
     send(HxMsg("init"))
     sendLater(Conn.houseKeepingFreq, Conn.houseKeepingMsg)
+  }
+
+  private const static |HxMsg msg->Obj?| toCoalesceKey := |HxMsg msg->Obj?|
+  {
+    // we coalesce write messages per point id
+    if (msg.id === "write") return ((ConnPoint)msg.a).id
+    return null
+  }
+
+  private const static |HxMsg a, HxMsg b->HxMsg| toCoalesce := |HxMsg a, HxMsg b->HxMsg|
+  {
+    // last write wins, previous queued up writes are discarded
+    return b
   }
 
 //////////////////////////////////////////////////////////////////////////

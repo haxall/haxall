@@ -20,6 +20,15 @@ class ConnTestDispatch : ConnDispatch
 {
   new make(Obj arg) : super(arg) {}
 
+  override Obj? onReceive(HxMsg msg)
+  {
+    switch (msg.id)
+    {
+      case "sleep": Actor.sleep(msg.a); return null
+      default:      return super.onReceive(msg)
+    }
+  }
+
   override Void onOpen()
   {
   }

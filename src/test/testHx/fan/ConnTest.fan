@@ -294,7 +294,10 @@ class ConnTest : HxTest
       verifyEq(a.ts.date, Date.today)
       verifyEq(a.type, e[0])
       verifyEq(a.msg,  e[1])
-      verifyEq(a.arg,  e[2])
+      if (e[2] is Func)
+        ((Func)e[2])(a.arg)
+      else
+        verifyEq(a.arg,  e[2])
     }
   }
 
@@ -1117,7 +1120,7 @@ class ConnTest : HxTest
     verifyPointStatus(p5, "fault")
 
     // issue point write
-    while (!rt.isSteadyState) Actor.sleep(10ms)
+    waitForSteadyState
     rt.pointWrite.write(p1, n(123), 13, "test").get
     rt.pointWrite.write(p2, n(123), 14, "test").get
     rt.pointWrite.write(p3, n(-123), 15, "test").get
@@ -1159,8 +1162,84 @@ class ConnTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Writes
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest { meta = "steadyState: 10ms" }
+  Void testWrites()
+  {
+    lib := (ConnTestLib)addLib("connTest")
+    cr := addRec(["dis":"C1", "connTestConn":m])
+    p1 := addRec(["dis":"P1", "point":m, "writable":m, "connTestWrite":"1", "connTestConnRef":cr.id, "kind":"Number"])
+    p2 := addRec(["dis":"P2", "point":m, "writable":m, "connTestWrite":"2", "connTestConnRef":cr.id, "kind":"Number"])
+    p3 := addRec(["dis":"P3", "point":m, "writable":m, "connTestWrite":"3", "connTestConnRef":cr.id, "kind":"Number"])
+    rt.sync
+    c := lib.conn(cr.id)
+    waitForSteadyState
+
+    // force open before enabling trace
+    c.ping.get
+    sync(c)
+    c.trace.enable
+
+    // send couple of sync writes
+    3.times |i|
+    {
+      c.trace.clear
+      rt.pointWrite.write(p1, n(i), 16, "test").get
+      sync(c)
+      verifyWrite(p1, "ok", n(i), 16)
+      verifyTrace(c, [
+        ["dispatch", "write", |x| { verifyWriteMsg(x, p1, n(i)) }],
+        ])
+    }
+
+    // now verify coalescing of write messages
+    c.trace.clear
+    c.send(HxMsg("sleep", 100ms))
+    10.times |i|
+    {
+      rt.pointWrite.write(p1, n(100+i), 16, "test").get
+      rt.pointWrite.write(p2, n(200+i), 16, "test").get
+      rt.pointWrite.write(p3, n(300+i), 16, "test").get
+    }
+    c.sync
+    rt.pointWrite.write(p1, n(109), 16, "test").get
+    rt.pointWrite.write(p2, n(209), 16, "test").get
+    rt.pointWrite.write(p3, n(309), 16, "test").get
+    verifyTrace(c, [
+      ["dispatch", "sleep", HxMsg("sleep", 100ms)],
+      ["dispatch", "write", |x| { verifyWriteMsg(x, p1, n(109)) }],
+      ["dispatch", "write", |x| { verifyWriteMsg(x, p2, n(209)) }],
+      ["dispatch", "write", |x| { verifyWriteMsg(x, p3, n(309)) }],
+    ])
+  }
+
+  Void verifyWrite(Dict rec, Str status, Obj? val, Int level)
+  {
+    rec = readById(rec.id)
+    // echo("-- $rec.dis " + rec["writeStatus"] + " " + rec["writeVal"] + " @ " + rec["writeLevel"])
+    verifyEq(rec["writeStatus"], status)
+    verifyEq(rec["writeVal"],    val)
+    verifyEq(rec["writeLevel"],  n(level))
+  }
+
+  Void verifyWriteMsg(HxMsg msg, Dict pt, Obj val)
+  {
+    verifyEq(msg.id, "write")
+    verifyEq(msg.a, rt.conn.point(pt.id))
+    verifyEq(msg.b->type, "obsPointWrites")
+    verifyEq(msg.b->val, val)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  Void waitForSteadyState()
+  {
+    while (!rt.isSteadyState) Actor.sleep(10ms)
+  }
 
   Void sync(Obj? c)
   {
