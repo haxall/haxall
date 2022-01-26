@@ -77,6 +77,14 @@ class SerialSpiTest : HxTest
     verifyErr(SerialPortAlreadyOpenErr#) { lib.open(rt, conn, SerialConfig { it.name = "test" } ) }
     verifyErr(UnknownSerialPortErr#) { lib.open(rt, conn, SerialConfig { it.name = "foobar" } ) }
 
+    // verify serialPorts()
+    grid := (Grid)eval("serialPorts()")
+    verifyEq(grid.size, 1)
+    verifyEq(grid[0]["name"],   "test")
+    verifyEq(grid[0]["device"], "/test")
+    verifyEq(grid[0]["status"], "open")
+    verifyEq(grid[0]["owner"],  conn.id)
+
     // close the port
     p.close
     verifyPort(p, cfg, true)
@@ -89,8 +97,7 @@ class SerialSpiTest : HxTest
     verifyEq(p.device,   d)
     verifyEq(p.isOpen,   owner != null)
     verifyEq(p.isClosed, owner == null)
-    verifyEq(p.rt,     owner == null ? null : lib.rt)
-    verifyEq(p.rt,     owner == null ? null : lib.rt)
+    verifyEq(p.rt,       owner == null ? null : this.rt)
     verifyValEq(p.owner, owner)
 
     Grid grid := eval("serialPorts()")
