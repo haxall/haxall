@@ -124,6 +124,12 @@ const final class ConnPoint : HxConnPoint
   Bool isWatched() { isWatchedRef.val }
   internal const AtomicBool isWatchedRef := AtomicBool(false)
 
+  ** Library specific point data.  This value is managed by the
+  ** connector actor via `ConnDispatch.setPointData`.
+  Obj? data() { dataRef.val }
+  private const AtomicRef dataRef := AtomicRef()
+  internal Void setData(ConnMgr mgr, Obj? val) {dataRef.val = val }
+
   ** Conn rec configuration
   internal ConnPointConfig config() { configRef.val }
   private const AtomicRef configRef

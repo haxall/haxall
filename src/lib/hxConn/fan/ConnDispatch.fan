@@ -69,6 +69,9 @@ abstract class ConnDispatch
   ** Return if there is one or more points currently in watch.
   Bool hasPointsWatched() { mgr.hasPointsWatched }
 
+  ** Set the `ConnPoint.data` value.  The value must be immutable.
+  Void setPointData(ConnPoint pt, Obj? val) { pt.setData(mgr, val) }
+
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
