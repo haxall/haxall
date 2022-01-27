@@ -24,10 +24,11 @@ class ConnTestDispatch : ConnDispatch
   {
     switch (msg.id)
     {
-      case "lastWrite": return lastWrites[msg.a]
-      case "numWrites": return numWrites
-      case "sleep":     Actor.sleep(msg.a); return null
-      default:         return super.onReceive(msg)
+      case "lastWrite":   return lastWrites[msg.a]
+      case "numWrites":   return numWrites
+      case "sleep":       Actor.sleep(msg.a); return null
+      case "clearTests":  clear; return null
+      default:            return super.onReceive(msg)
     }
   }
 
@@ -95,6 +96,12 @@ class ConnTestDispatch : ConnDispatch
   override Void onHouseKeeping()
   {
     // log.info("onHouseKeeping")
+  }
+
+  Void clear()
+  {
+    numWrites = 0
+    lastWrites.clear
   }
 
   Ref:Str lastWrites := [:]

@@ -181,16 +181,16 @@ class ConnTuningTest : HxTest
     rt.sync
     c  := lib.conn(cr.id)
 
-    verifyWriteOnStart(c)
+    verifyWriteOnStartAndOnOpen(c)
     verifyWriteMinTime(c, t, pt)
     verifyWriteMaxTime(c, t, pt)
     verifyStaleTime(c, t)
   }
 
-  Void verifyWriteOnStart(Conn c)
+  Void verifyWriteOnStartAndOnOpen(Conn c)
   {
     // create point for y)es, x) no, d)efault
-    ty := addRec(["dis":"Y", "connTuning":m, "writeOnStart":m])
+    ty := addRec(["dis":"Y", "connTuning":m, "writeOnStart":m, "writeOnOpen":m])
     tx := addRec(["dis":"Y", "connTuning":m])
     y := addRec(["dis":"Y", "point":m, "writable":m, "connTestWrite":"y", "connTestConnRef":c.id, "connTuningRef":ty.id, "kind":"Number"])
     x := addRec(["dis":"X", "point":m, "writable":m, "connTestWrite":"x", "connTestConnRef":c.id, "connTuningRef":tx.id, "kind":"Number"])
@@ -244,6 +244,22 @@ class ConnTuningTest : HxTest
     verifyWrite(x, "ok", n(200), 16, n(200), 16)
     verifyWrite(d, "ok", n(300), 16, n(300), 16)
     verifyWrite(q, "ok", n(400), 16, n(400), 16)
+
+    // clear stats
+    c.send(HxMsg("clearTests")).get
+    verifyWrite(y, "ok", n(100), 16, null, null)
+    verifyWrite(x, "ok", n(200), 16, null, null)
+    verifyWrite(d, "ok", n(300), 16, null, null)
+    verifyEq(numWrites(c), 0)
+
+    // force close and reopen - only yes should has onOpen write
+    c.close.get
+    c.ping.get
+    verifyWrite(y, "ok", n(100), 16, n(100), 16)
+    verifyWrite(x, "ok", n(200), 16, null, null)
+    verifyWrite(d, "ok", n(300), 16, null, null)
+    verifyWriteDebug(y, false, "100 @ 16 [test] onOpen")
+    verifyEq(numWrites(c), 1)
   }
 
   Void verifyWriteMinTime(Conn c, Dict t, Dict pt)
