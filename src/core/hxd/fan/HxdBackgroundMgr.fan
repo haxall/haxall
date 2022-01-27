@@ -29,7 +29,12 @@ internal const class HxdBackgroundMgr : Actor
   {
     // this must be called after libs are started/readied
     startTicks.val = Duration.nowTicks
-    send("bg")
+    send(checkMsg)
+  }
+
+  Void forceSteadyState()
+  {
+    send(forceSteadyStateMsg).get(1sec)
   }
 
   override Obj? receive(Obj? msg)
@@ -37,8 +42,16 @@ internal const class HxdBackgroundMgr : Actor
     // if daemon shutdown we are all done
     if (!rt.isRunning) return null
 
+    // dispatch message
+    if (msg === checkMsg) return onCheck
+    if (msg === forceSteadyStateMsg) return onForceSteadyState
+    throw Err("Unknown msg: $msg")
+  }
+
+  private Obj? onCheck()
+  {
     // schedule next background housekeeping
-    sendLater(freq, "bg")
+    sendLater(freq, checkMsg)
 
     // check for steady state transitions
     checkSteadyState
@@ -56,6 +69,12 @@ internal const class HxdBackgroundMgr : Actor
     return null
   }
 
+  private Obj? onForceSteadyState()
+  {
+    transitionToSteadyState
+    return null
+  }
+
   private Void checkSteadyState()
   {
     if (rt.isSteadyState) return
@@ -63,11 +82,14 @@ internal const class HxdBackgroundMgr : Actor
     config := steadyStateConfig
     elapsed := Duration.nowTicks - startTicks.val
     if (elapsed >= config.ticks)
-    {
-      rt.log.info("Steady state")
-      rt.stateStateRef.val = true
-      rt.libs.list.each |lib| { ((HxdLibSpi)lib.spi).steadyState }
-    }
+      transitionToSteadyState
+  }
+
+  private Void transitionToSteadyState()
+  {
+    rt.log.info("Steady state")
+    rt.stateStateRef.val = true
+    rt.libs.list.each |lib| { ((HxdLibSpi)lib.spi).steadyState }
   }
 
   private Duration steadyStateConfig()
@@ -82,6 +104,8 @@ internal const class HxdBackgroundMgr : Actor
     return x
   }
 
+  const HxMsg checkMsg := HxMsg("check")
+  const HxMsg forceSteadyStateMsg := HxMsg("forceSteadyState")
   const Duration freq := 100ms
   const AtomicInt startTicks := AtomicInt(0)
 }

@@ -170,7 +170,7 @@ class ConnTuningTest : HxTest
 // Times
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest { meta = "steadyState: 1sec" }
+  @HxRuntimeTest
   Void testTimes()
   {
     lib := (ConnTestLib)addLib("connTest")
@@ -221,8 +221,11 @@ class ConnTuningTest : HxTest
     verifyWrite(d, "unknown", n(30), 16, null, null)
     verifyWrite(q, "unknown",  null, 17, null, null)
 
-    // now wait for steady state
-    while (!rt.isSteadyState) wait(50ms)
+    // now wait for steady state, then give time for hxPoint
+    // msgs to propogate thru to the connector framework
+    forceSteadyState
+    verifyEq(rt.isSteadyState, true)
+    rt.sync
     rt.sync
     c.sync
 

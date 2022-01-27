@@ -63,5 +63,10 @@ class HxdTestSpi : HxTestSpi
       user = test.rt.user.makeSyntheticUser("test", ["userRole":"su"])
     return HxdContext(test.rt, user)
   }
+
+  override Void forceSteadyState(HxRuntime rt)
+  {
+    ((HxdRuntime)test.rt).backgroundMgr.forceSteadyState
+  }
 }
 

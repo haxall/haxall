@@ -79,11 +79,7 @@ class RuntimeTest : HxTest
     verifyErr(CommitErr#) { commit(rec, ["trash":m]) }
 
     // verify steady state timer
-    if (rt.isSteadyState)
-    {
-      // this happens in SkySpark sometimes with slower boot
-      echo("WARN: steady state reached earlier than expected")
-    }
+    verifyEq(rt.isSteadyState, false)
     Actor.sleep(150ms)
     verifyEq(rt.isSteadyState, true)
   }
@@ -92,7 +88,7 @@ class RuntimeTest : HxTest
 // LibMgr
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest { meta = "steadyState:100ms" }
+  @HxRuntimeTest
   Void testLibMgr()
   {
     verifyLibEnabled("ph")
@@ -117,7 +113,7 @@ class RuntimeTest : HxTest
     verifyErr(CommitErr#) { rt.db.commit(Diff.make(core.rec, null, Diff.remove)) }
 
     // add hxTestA
-    Actor.sleep(150ms)
+    forceSteadyState
     verifyEq(rt.isSteadyState, true)
     a := rt.libs.add("hxTestA") as HxTestALib
     verifyLibEnabled("hxTestA")

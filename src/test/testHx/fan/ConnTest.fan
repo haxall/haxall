@@ -880,12 +880,13 @@ class ConnTest : HxTest
 // Test Status
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest { meta = "steadyState: 10ms" }
+  @HxRuntimeTest
   Void testStatus()
   {
     lib := (ConnTestLib)addLib("connTest")
     c1rec := addRec(["dis":"C1", "connTestConn":m])
     c2rec := addRec(["dis":"C2", "connTestConn":m, "disabled":m])
+    forceSteadyState
     rt.sync
     c1 := lib.conn(c1rec.id)
     c2 := lib.conn(c2rec.id)
@@ -1024,7 +1025,7 @@ class ConnTest : HxTest
 // Writes
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest { meta = "steadyState: 10ms" }
+  @HxRuntimeTest
   Void testWrites()
   {
     lib := (ConnTestLib)addLib("connTest")
@@ -1032,9 +1033,9 @@ class ConnTest : HxTest
     p1 := addRec(["dis":"P1", "point":m, "writable":m, "connTestWrite":"1", "connTestConnRef":cr.id, "kind":"Number"])
     p2 := addRec(["dis":"P2", "point":m, "writable":m, "connTestWrite":"2", "connTestConnRef":cr.id, "kind":"Number"])
     p3 := addRec(["dis":"P3", "point":m, "writable":m, "connTestWrite":"3", "connTestConnRef":cr.id, "kind":"Number"])
+    forceSteadyState
     rt.sync
     c := lib.conn(cr.id)
-    waitForSteadyState
 
     // force open before enabling trace
     c.ping.get

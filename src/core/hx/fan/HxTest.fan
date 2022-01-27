@@ -166,6 +166,12 @@ abstract class HxTest : HaystackTest
     return Ref(id)
   }
 
+  ** Force transition to steady state
+  @NoDoc Void forceSteadyState()
+  {
+    spi.forceSteadyState(rt)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Axon
 //////////////////////////////////////////////////////////////////////////
@@ -214,6 +220,7 @@ abstract class HxTestSpi
   abstract HxUser addUser(Str user, Str pass, Str:Obj? tags)
   abstract HxLib addLib(Str libName, Str:Obj? tags)
   abstract HxContext makeContext(HxUser? user)
+  abstract Void forceSteadyState(HxRuntime rt)
 }
 
 
