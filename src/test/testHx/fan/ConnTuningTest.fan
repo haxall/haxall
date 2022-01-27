@@ -170,7 +170,7 @@ class ConnTuningTest : HxTest
 // Times
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest { meta = "steadyState: 10ms" }
+  @HxRuntimeTest { meta = "steadyState: 1sec" }
   Void testTimes()
   {
     lib := (ConnTestLib)addLib("connTest")
@@ -180,12 +180,67 @@ class ConnTuningTest : HxTest
 
     rt.sync
     c  := lib.conn(cr.id)
-    sync(c)
-    waitForSteadyState
 
+    verifyWriteOnStart(c)
     verifyWriteMinTime(c, t, pt)
     verifyWriteMaxTime(c, t, pt)
     verifyStaleTime(c, t)
+  }
+
+  Void verifyWriteOnStart(Conn c)
+  {
+    // create point for y)es, x) no, d)efault
+    ty := addRec(["dis":"Y", "connTuning":m, "writeOnStart":m])
+    tx := addRec(["dis":"Y", "connTuning":m])
+    y := addRec(["dis":"Y", "point":m, "writable":m, "connTestWrite":"y", "connTestConnRef":c.id, "connTuningRef":ty.id, "kind":"Number"])
+    x := addRec(["dis":"X", "point":m, "writable":m, "connTestWrite":"x", "connTestConnRef":c.id, "connTuningRef":tx.id, "kind":"Number"])
+    d := addRec(["dis":"D", "point":m, "writable":m, "connTestWrite":"d", "connTestConnRef":c.id, "kind":"Number"])
+    q := addRec(["dis":"Q", "point":m, "writable":m, "connTestWrite":"x", "connTestConnRef":c.id, "kind":"Number"])
+
+    // verify tuning is setup correctly
+    sync(c)
+    verifyEq(c.point(y.id).tuning.writeOnStart, true)
+    verifyEq(c.point(x.id).tuning.writeOnStart, false)
+    verifyEq(c.point(d.id).tuning.writeOnStart, false)
+    verifyEq(c.point(q.id).tuning.writeOnStart, false)
+
+    // initial state
+    verifyEq(rt.isSteadyState, false)
+    verifyWrite(y, "unknown", null, 17, null, null)
+    verifyWrite(x, "unknown", null, 17, null, null)
+    verifyWrite(d, "unknown", null, 17, null, null)
+    verifyWrite(q, "unknown", null, 17, null, null)
+
+    // write observations suppressed until steady state
+    write(c, y, n(10), 16)
+    write(c, x, n(20), 16)
+    write(c, d, n(30), 16)
+    verifyEq(rt.isSteadyState, false)
+    verifyWrite(y, "unknown", n(10), 16, null, null)
+    verifyWrite(x, "unknown", n(20), 16, null, null)
+    verifyWrite(d, "unknown", n(30), 16, null, null)
+    verifyWrite(q, "unknown",  null, 17, null, null)
+
+    // now wait for steady state
+    while (!rt.isSteadyState) wait(50ms)
+    rt.sync
+    c.sync
+
+    // we should have seen the isFirst applied for yes, but not no/default
+    verifyWrite(y, "ok",      n(10), 16, n(10), 16)
+    verifyWrite(x, "unknown", n(20), 16, null, null)
+    verifyWrite(d, "unknown", n(30), 16, null, null)
+    verifyWrite(q, "unknown", null, 17, null, null)
+
+    // now after the first one all writes are published
+    write(c, y, n(100), 16)
+    write(c, x, n(200), 16)
+    write(c, d, n(300), 16)
+    write(c, q, n(400), 16)
+    verifyWrite(y, "ok", n(100), 16, n(100), 16)
+    verifyWrite(x, "ok", n(200), 16, n(200), 16)
+    verifyWrite(d, "ok", n(300), 16, n(300), 16)
+    verifyWrite(q, "ok", n(400), 16, n(400), 16)
   }
 
   Void verifyWriteMinTime(Conn c, Dict t, Dict pt)
@@ -361,12 +416,15 @@ class ConnTuningTest : HxTest
   {
     Conn c := rt.conn.point(rec.id).conn
     rec = readById(rec.id)
-    last := c.send(HxMsg("lastWrite")).get(1sec)
+    last := c.send(HxMsg("lastWrite", rec.id)).get(1sec)
     // echo("-- $rec.dis " + rec["writeStatus"] + " " + rec["writeVal"] + " @ " + rec["writeLevel"] + " | last=$last | " + rec["writeErr"])
     verifyEq(rec["writeStatus"], status)
     verifyEq(rec["writeVal"],    tagVal)
     verifyEq(rec["writeLevel"], n(tagLevel))
-    if (lastVal != null) verifyEq(last, "$lastVal @ $lastLevel")
+    if (lastVal == null)
+      verifyEq(last, null)
+    else
+      verifyEq(last, "$lastVal @ $lastLevel")
     return rec
   }
 
@@ -415,11 +473,6 @@ class ConnTuningTest : HxTest
   {
     rt.pointWrite.write(rec, val, level, "test").get
     sync(c)
-  }
-
-  Void waitForSteadyState()
-  {
-    while (!rt.isSteadyState) Actor.sleep(10ms)
   }
 
   Void wait(Duration dur)

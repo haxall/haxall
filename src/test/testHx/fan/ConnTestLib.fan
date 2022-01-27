@@ -24,7 +24,7 @@ class ConnTestDispatch : ConnDispatch
   {
     switch (msg.id)
     {
-      case "lastWrite": return lastWrite
+      case "lastWrite": return lastWrites[msg.a]
       case "numWrites": return numWrites
       case "sleep":     Actor.sleep(msg.a); return null
       default:         return super.onReceive(msg)
@@ -83,7 +83,7 @@ class ConnTestDispatch : ConnDispatch
     val := info.val as Number
     level := info.level
 
-    this.lastWrite = "$val @ $level"
+    this.lastWrites[point.id] = "$val @ $level"
     this.numWrites++
 
     if (val == null || val >= Number.zero)
@@ -97,6 +97,6 @@ class ConnTestDispatch : ConnDispatch
     // log.info("onHouseKeeping")
   }
 
-  Str? lastWrite
+  Ref:Str lastWrites := [:]
   Int numWrites
 }
