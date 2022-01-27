@@ -44,15 +44,8 @@ internal const class MqttObservable : Observable
   {
     connRef := config["obsMqttConnRef"] as Ref ?: throw Err("obsMqttConnRef not configured")
     conn    := lib.conn(connRef)
-    try
-    {
-      msg := HxMsg("mqtt.sub", config)
-      ack := conn.send(msg).get
-    }
-    catch (Err err)
-    {
-      conn.trace.asLog.err("Failed to subscribe to observable ${config}", err)
-    }
+    // subscribe async
+    conn.send(HxMsg("mqtt.sub", config))
     return MqttSubscription(this, observer, config)
   }
 
@@ -61,15 +54,8 @@ internal const class MqttObservable : Observable
     sub  := (MqttSubscription)s
     conn := lib.conn(sub.connRef, false)
     if (conn == null) return
-    try
-    {
-      msg := HxMsg("mqtt.unsub", sub)
-      ack := conn.send(msg).get
-    }
-    catch (Err err)
-    {
-      conn.trace.asLog.err("Failed to unsubscribe ${sub.config}", err)
-    }
+    // unsubscribe async
+    conn.send(HxMsg("mqtt.unsub", sub))
   }
 
   ** Deliver the message on the given topic to all matching subscribers

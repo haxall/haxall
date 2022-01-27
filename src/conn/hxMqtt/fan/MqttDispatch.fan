@@ -116,14 +116,22 @@ class MqttDispatch : ConnDispatch
 
     // subscribe
     openPin("mqtt.sub")
-    ack := client.subscribeWith
-      .topicFilter(filter)
-      .qos((cfg["mqttQos"] as Number).toInt)
-      .onMessage(this.onMessage)
-      .send
-      .get
+    try
+    {
+      ack := client.subscribeWith
+        .topicFilter(filter)
+        .qos((cfg["mqttQos"] as Number).toInt)
+        .onMessage(this.onMessage)
+        .send
+        .get
 
-    return ack
+      return ack
+    }
+    catch (Err err)
+    {
+      trace.asLog.err("Failed to subscribe to ${cfg}", err)
+      throw err
+    }
   }
 
   private Obj? onResub()
@@ -145,6 +153,11 @@ class MqttDispatch : ConnDispatch
     try
     {
       return open.client.unsubscribe(sub.filter).get
+    }
+    catch (Err err)
+    {
+      trace.asLog.err("Failed to unsubscribe filter: $sub.filter", err)
+      throw err
     }
     finally
     {
