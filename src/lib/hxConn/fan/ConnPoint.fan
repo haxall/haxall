@@ -367,6 +367,13 @@ const final class ConnPoint : HxConnPoint
       writeState.details(s, this)
     }
 
+    try
+    {
+      more := PointUtil.pointDetails(conn.pointLib, rec, false)
+      s.add(more)
+    }
+    catch (Err e) conn.log.err("pointDetails", e)
+
     return s.toStr
   }
 
