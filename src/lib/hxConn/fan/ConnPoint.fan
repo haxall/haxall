@@ -166,6 +166,12 @@ const final class ConnPoint : HxConnPoint
     committer.commit1(lib, rec, "curStatus", s.status.name)
   }
 
+  ** Set or clear the quick poll flag
+  internal Void updateCurQuickPoll(Bool quickPoll)
+  {
+    curStateRef.val = ConnPointCurState.updateQuickPoll(this, quickPoll)
+  }
+
   ** Update curStatus, curVal, curErr
   private Void updateCurTags(ConnPointCurState s)
   {
@@ -202,14 +208,6 @@ const final class ConnPoint : HxConnPoint
   ** Cur value state storage and handling
   internal ConnPointCurState curState() { curStateRef.val }
   private const AtomicRef curStateRef := AtomicRef(ConnPointCurState.nil)
-
-  ** Quick poll flag
-  internal Bool curQuickPoll
-  {
-    get { curQuickPollRef.val }
-    set { curQuickPollRef.val = it }
-  }
-  private const AtomicBool curQuickPollRef := AtomicBool()
 
 //////////////////////////////////////////////////////////////////////////
 // Write Value
@@ -331,7 +329,6 @@ const final class ConnPoint : HxConnPoint
              unit:           $unit
              tuning:         $tuning.rec.id.toZinc
              isWatched:      $isWatched
-             curQuickPoll:   $curQuickPoll
 
              """)
 

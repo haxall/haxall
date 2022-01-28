@@ -346,7 +346,7 @@ internal final class ConnMgr
     {
       pt.isWatchedRef.val = true
       if (isQuickPoll(nowTicks, pt))
-        pt.curQuickPoll = true
+        pt.updateCurQuickPoll(true)
     }
     updatePointsInWatch
     if (!pointsInWatch.isEmpty) openPin("watch")
@@ -356,6 +356,7 @@ internal final class ConnMgr
 
   private Bool isQuickPoll(Int nowTicks, ConnPoint pt)
   {
+    if (conn.pollMode !== ConnPollMode.buckets) return false
     if (!rt.isSteadyState) return false
     curState := pt.curState
     if (curState.lastUpdate <= 0) return true
@@ -559,7 +560,7 @@ internal final class ConnMgr
     }
 
     // check for quick polls which didn't get handled by their bucket
-    quicks := pointsInWatch.findAll |pt| { pt.curQuickPoll }
+    quicks := pointsInWatch.findAll |pt| { pt.curState.quickPoll }
     if (!quicks.isEmpty)
     {
       trace.poll("Poll quick")
@@ -586,7 +587,7 @@ internal final class ConnMgr
 
   private Void pollBucketPoints(ConnPoint[] points)
   {
-    points.each |pt| { pt.curQuickPoll = false }
+    points.each |pt| { pt.updateCurQuickPoll(false) }
     dispatch.onPollBucket(points)
   }
 

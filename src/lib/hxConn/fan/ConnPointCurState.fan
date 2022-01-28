@@ -24,8 +24,10 @@ internal const final class ConnPointCurState
   static new updateOk(ConnPoint pt, Obj? val)
   {
     raw := val
+    old := pt.curState
     try
     {
+
       // check if we have a conversions
       if (pt.curConvert != null)
         val = pt.curConvert.convert(pt.lib.pointLib, pt.rec, raw)
@@ -46,22 +48,29 @@ internal const final class ConnPointCurState
           throw FaultErr("curVal kind != configured kind: $valKind != $pt.kind")
       }
 
-      return makeOk(raw, val)
+      return makeOk(old, raw, val)
     }
     catch (Err e)
     {
-      return makeErr(e, raw)
+      return makeErr(old, e, raw)
     }
   }
 
   static new updateErr(ConnPoint pt, Err err)
   {
-    makeErr(err, null)
+    makeErr(pt.curState, err, null)
   }
 
   static new updateStale(ConnPoint pt)
   {
     makeStale(pt.curState)
+  }
+
+  static new updateQuickPoll(ConnPoint pt, Bool quickPoll)
+  {
+    old := pt.curState
+    if (old.quickPoll == quickPoll) return old
+    return makeQuickPoll(old, quickPoll)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -77,6 +86,7 @@ internal const final class ConnPointCurState
              curConvert:     $pt.curConvert
              curCalibration: $pt.curCalibration
              curLastUpdate:  ${Etc.debugDur(lastUpdate)}
+             curQuickPoll:   $quickPoll
              curErr:         ${Etc.debugErr(err)}
              """)
   }
@@ -88,12 +98,22 @@ internal const final class ConnPointCurState
   static const ConnPointCurState nil := makeNil()
   private new makeNil() { status = ConnStatus.unknown }
 
-  private new makeOk(Obj? val, Obj? raw)
+  private new makeOk(ConnPointCurState old, Obj? val, Obj? raw)
   {
     this.status     = ConnStatus.ok
     this.lastUpdate = Duration.nowTicks
     this.val        = val
     this.raw        = raw
+    this.quickPoll  = old.quickPoll
+  }
+
+  private new makeErr(ConnPointCurState old, Err err, Obj? raw)
+  {
+    this.status     = ConnStatus.fromErr(err)
+    this.err        = err
+    this.lastUpdate = Duration.nowTicks
+    this.raw        = raw
+    this.quickPoll  = old.quickPoll
   }
 
   private new makeStale(ConnPointCurState old)
@@ -102,14 +122,16 @@ internal const final class ConnPointCurState
     this.lastUpdate = old.lastUpdate
     this.val        = old.val
     this.raw        = old.raw
+    this.quickPoll  = old.quickPoll
   }
 
-  private new makeErr(Err err, Obj? raw)
+  private new makeQuickPoll(ConnPointCurState old, Bool quickPoll)
   {
-    this.status     = ConnStatus.fromErr(err)
-    this.err        = err
-    this.lastUpdate = Duration.nowTicks
-    this.raw        = raw
+    this.status     = old.status
+    this.lastUpdate = old.lastUpdate
+    this.val        = old.val
+    this.raw        = old.raw
+    this.quickPoll  = quickPoll
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -121,4 +143,5 @@ internal const final class ConnPointCurState
   const Obj? raw
   const Err? err
   const Int lastUpdate
+  const Bool quickPoll
 }
