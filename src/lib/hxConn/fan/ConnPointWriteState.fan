@@ -23,12 +23,31 @@ internal const final class ConnPointWriteState
 
   static new updateOk(ConnPoint pt, ConnWriteInfo info)
   {
-    makeOk(info)
+    makeOk(pt.writeState, info)
   }
 
   static new updateErr(ConnPoint pt, ConnWriteInfo info, Err err)
   {
-    makeErr(info, err)
+    makeErr(pt.writeState, info, err)
+  }
+
+  static new updateReceived(ConnPoint pt, ConnWriteInfo lastInfo)
+  {
+    makeReceived(pt.writeState, lastInfo)
+  }
+
+  static new updatePending(ConnPoint pt, Bool pending)
+  {
+    old := pt.writeState
+    if (old.pending == pending) return old
+    return makePending(old, pending)
+  }
+
+  static new updateQueued(ConnPoint pt, Bool queued)
+  {
+    old := pt.writeState
+    if (old.queued == queued) return old
+    return makeQueued(old, queued)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,9 +61,9 @@ internal const final class ConnPointWriteState
              writeVal:         $val [${val?.typeof}]
              writeRaw:         $raw [${raw?.typeof}]
              writeConvert:     $pt.writeConvert
-             writeLastInfo:    $pt.writeLastInfo
-             writePending:     $pt.writePending
-             writeQueued:      $pt.writeQueued
+             writeLastInfo:    $lastInfo
+             writePending:     $pending
+             writeQueued:      $queued
              writeLastUpdate:  ${Etc.debugDur(lastUpdate)}
              writeErr:         ${Etc.debugErr(err)}
              """)
@@ -57,16 +76,19 @@ internal const final class ConnPointWriteState
   static const ConnPointWriteState nil := makeNil()
   private new makeNil() { status = ConnStatus.unknown }
 
-  private new makeOk(ConnWriteInfo info)
+  private new makeOk(ConnPointWriteState old, ConnWriteInfo info)
   {
     this.status     = ConnStatus.ok
     this.lastUpdate = Duration.nowTicks
     this.val        = info.val
     this.raw        = info.raw
     this.level      = info.level
+    this.lastInfo   = old.lastInfo
+    this.pending    = old.pending
+    this.queued     = old.queued
   }
 
-  private new makeErr(ConnWriteInfo info, Err err)
+  private new makeErr(ConnPointWriteState old, ConnWriteInfo info, Err err)
   {
     this.status     = ConnStatus.fromErr(err)
     this.lastUpdate = Duration.nowTicks
@@ -74,6 +96,48 @@ internal const final class ConnPointWriteState
     this.raw        = info.raw
     this.level      = info.level
     this.err        = err
+    this.lastInfo   = old.lastInfo
+    this.pending    = old.pending
+    this.queued     = old.queued
+  }
+
+  private new makeReceived(ConnPointWriteState old, ConnWriteInfo lastInfo)
+  {
+    this.status     = old.status
+    this.lastUpdate = old.lastUpdate
+    this.val        = old.val
+    this.raw        = old.raw
+    this.level      = old.level
+    this.err        = old.err
+    this.lastInfo   = lastInfo
+    this.pending    = old.pending
+    this.queued     = false
+  }
+
+  private new makePending(ConnPointWriteState old, Bool pending)
+  {
+    this.status     = old.status
+    this.lastUpdate = old.lastUpdate
+    this.val        = old.val
+    this.raw        = old.raw
+    this.level      = old.level
+    this.err        = old.err
+    this.lastInfo   = old.lastInfo
+    this.pending    = pending
+    this.queued     = old.queued
+  }
+
+  private new makeQueued(ConnPointWriteState old, Bool queued)
+  {
+    this.status     = old.status
+    this.lastUpdate = old.lastUpdate
+    this.val        = old.val
+    this.raw        = old.raw
+    this.level      = old.level
+    this.err        = old.err
+    this.lastInfo   = old.lastInfo
+    this.pending    = old.pending
+    this.queued     = queued
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,6 +150,9 @@ internal const final class ConnPointWriteState
   const Int level
   const Err? err
   const Int lastUpdate
+  const ConnWriteInfo? lastInfo
+  const Bool pending
+  const Bool queued
 }
 
 

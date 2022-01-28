@@ -407,14 +407,10 @@ internal final class ConnMgr
       if (!pt.tuning.writeOnStart) return null
     }
 
-    // save as writeLastInfo - we always want to keep track of last
-    // write issued by system/priority array independently of
-    // writeVal which is last value handled by onWrite and updated
-    // on updateWriteOk/updateWriteErr
-    pt.writeLastInfo = info
-
-    // clear writeQueued flag to re-enable house keeping
-    pt.writeQueued = false
+    // save the received write info and clear the queued flag; we
+    // always want to keep track of last write issued by system/priority
+    // array independently of writeVal which is managed by hxPoint
+    pt.updateWriteReceived(info)
 
     // check for writeMinTime to delay this write as pending
     tuning := pt.tuning
@@ -423,7 +419,7 @@ internal final class ConnMgr
       lastWrite := Duration.nowTicks - pt.writeState.lastUpdate
       if (lastWrite < tuning.writeMinTime.ticks)
       {
-        pt.writePending = true
+        pt.updateWritePending(true)
         return null
       }
     }
@@ -464,51 +460,54 @@ internal final class ConnMgr
       if (!pt.isWriteEnabled) return
 
       // skip if write already queued
-      if (pt.writeQueued) return
+      writeState := pt.writeState
+      if (writeState.queued) return
 
       // get last write request, skip if never written
-      last := pt.writeLastInfo
+      last := writeState.lastInfo
       if (last == null) return
 
       // skip if tuning not configured for writeOnOpen
       if (!pt.tuning.writeOnOpen) return
 
       // issue write request
-      conn.send(HxMsg("write", pt, last.asOnOpen))
-      pt.writeQueued = true
+      sendWrite(pt, last.asOnOpen)
     }
   }
 
   private Void onWriteHouseKeeping(Duration now, ConnPoint pt, ConnTuning tuning)
   {
+    // if write not enabled, then skip this point
+    if (!pt.isWriteEnabled) return
+
     // if we have already queued a write during house keeping then
     // don't do any additional work until that message gets processed
-    if (pt.writeQueued) return
+    state := pt.writeState
+    if (state.queued) return
 
     // sanity check that writeLastArg is not null
-    last := pt.writeLastInfo
+    last := state.lastInfo
     if (last == null)
     {
-      pt.writeQueued = false
-      pt.writePending = false
+      pt.updateWriteQueued(false)
+      pt.updateWritePending(false)
       return
     }
 
     // writeMinTime - check for pending write
-    if (pt.writePending)
+    if (state.pending)
     {
       // clear pending write
       if (tuning.writeMinTime == null)
       {
         // if writeMinTime cleared then cancel pending writes
-        pt.writePending = false
+        pt.updateWritePending(false)
       }
       else if (now.ticks - pt.writeState.lastUpdate >= tuning.writeMinTime.ticks)
       {
         // minWriteTime has elapsed to write our pending value
-        conn.send(HxMsg("write", pt, last.asMinTime))
-        pt.writeQueued = true
-        pt.writePending = false
+        sendWrite(pt, last.asMinTime)
+        pt.updateWritePending(false)
         return
       }
     }
@@ -518,11 +517,16 @@ internal final class ConnMgr
     {
       if (now.ticks - pt.writeState.lastUpdate >= tuning.writeMaxTime.ticks && rt.isSteadyState)
       {
-        conn.send(HxMsg("write", pt, last.asMaxTime))
-        pt.writeQueued = true
+        sendWrite(pt, last.asMaxTime)
         return
       }
     }
+  }
+
+  private Void sendWrite(ConnPoint pt, ConnWriteInfo info)
+  {
+    conn.send(HxMsg("write", pt, info))
+    pt.updateWriteQueued(true)
   }
 
 //////////////////////////////////////////////////////////////////////////
