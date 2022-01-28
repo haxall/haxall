@@ -20,4 +20,25 @@ The following is summary of key classes:
 - ConnModel: quick access to implementation tag defs
 - ConnService: lookup table for all libs, conns, and points (both old and new)
 
+Threading and Concurrency
+=========================
+The framework utilizes a suite of const data structures which can be accessed
+by any thread.  But these data structures are owned and mutated soley by one actor.
+
+ConnRoster is responsible for the data structures used to index Conn and ConnPoint
+instances.  It provides hashmaps to lookup conns and points by id and flattened
+lists.  ConnRoster monitors the database for its conns and points using obsCommits.
+These observation events are managed on the ConnLib actor itself.  We also
+use the ConnRoster and ConnLib actor for the obsWatches and obsPointWrite eventing.
+
+Each connector rec is mapped to a Conn instance which is itself an actor used
+to manage all internal state.  ConnRoster strictly manages create/adds for the
+conn/point mappings.  But all record updates and state changes are managed
+with the Conn actor itself.  The roster will send the Conn actor messages for
+connUpdated, pointAdded, pointUpdated, and pointRemoved.
+
+The data structures for tuning recs are managed by ConnTuningRoster.  There
+is only one instance of this class which is owned by ConnFwLib.  The tuning
+roster monitors the database using obsCommits on the ConnFwLib actor.
+
 
