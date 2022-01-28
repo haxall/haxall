@@ -60,8 +60,7 @@ class HaystackDispatch : ConnDispatch
   override Void onClose()
   {
     client = null
-    // TODO
-    //watchClear
+    watchClear
   }
 
   override Dict onPing()
@@ -73,6 +72,8 @@ class HaystackDispatch : ConnDispatch
     tags := Str:Obj[:]
     if (about["productName"]    is Str) tags["productName"]    = about->productName
     if (about["productVersion"] is Str) tags["productVersion"] = about->productVersion
+    if (about["moduleName"]     is Str) tags["moduleName"]     = about->moduleName
+    if (about["moduleVersion"]  is Str) tags["moduleVersion"]  = about->moduleVersion
     if (about["vendorName"]     is Str) tags["vendorName"]     = about->vendorName
     about.each |v, n| { if (n.startsWith("host")) tags[n] = v }
 
@@ -312,12 +313,15 @@ class HaystackDispatch : ConnDispatch
     res := call("watchSub", req)
 
     // save away my watchId
-    this.watchId = res.meta->watchId
-    this.watchLeaseReq = leaseReq
+    watchId := res.meta->watchId
+    watchLeaseReq := leaseReq
+    watchLeaseRes := null
     try
-      this.watchLeaseRes = ((Number)res.meta->lease).toDuration
+      watchLeaseRes = ((Number)res.meta->lease).toDuration
     catch (Err e)
-      this.watchLeaseRes = e.toStr
+      watchLeaseRes = e.toStr
+    watchInfo = WatchInfo(watchId, watchLeaseReq, watchLeaseRes)
+    setConnData(watchInfo)
 
     // now match up response
     res.each |resRow, i|
@@ -435,11 +439,11 @@ class HaystackDispatch : ConnDispatch
     close(err)
   }
 
+  private Str? watchId () { watchInfo?.id }
+
   private Void watchClear()
   {
-    this.watchId = null
-    this.watchLeaseReq = null
-    this.watchLeaseRes = null
+    this.watchInfo = null
     this.watchedIds.clear
   }
 
@@ -539,8 +543,26 @@ class HaystackDispatch : ConnDispatch
 
   private Client? client
   private Obj:Obj watchedIds := [:]  // ConnPoint or ConnPoint[]
-  private Str? watchId               // if we have watch open
-  private Duration? watchLeaseReq    //  request lease time
-  private Obj? watchLeaseRes         // response lease time as Duration or Err str
+  private WatchInfo? watchInfo
+}
+
+**************************************************************************
+** WatchInfo
+**************************************************************************
+
+internal const class WatchInfo
+{
+  new make(Str id, Duration leaseReq, Obj leaseRes)
+  {
+    this.id       = id
+    this.leaseReq = leaseReq
+    this.leaseRes = leaseRes
+  }
+
+  const Str id               // if we have watch open
+  const Duration leaseReq    // requested lease time
+  const Obj leaseRes         // response lease time as Duration or Err str
+
+  override Str toStr() { "WatchInfo $id" }
 }
 

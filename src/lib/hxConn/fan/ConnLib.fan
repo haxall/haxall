@@ -157,6 +157,22 @@ abstract const class ConnLib : HxLib, HxConnLib
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Callbacks
+//////////////////////////////////////////////////////////////////////////
+
+  ** Return connector specific details to insert into debug report.
+  ** Connectors should avoid requiring a message to the Conn actor
+  ** so that debug can proceed even if the actor is blocked on I/O.
+  ** Utilize `Conn.data` to cache debug information.
+  virtual Str onConnDetails(Conn conn) { "" }
+
+  ** Return connector specific details to insert into debug report.
+  ** Connectors should avoid requiring a message to the Conn actor
+  ** so that debug can proceed even if the actor is blocked on I/O.
+  ** Utilize `ConnPoint.data` to cache debug information.
+  virtual Str onPointDetails(ConnPoint point) { "" }
+
+//////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 

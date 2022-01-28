@@ -15,6 +15,28 @@ using hxConn
 **
 const class HaystackLib : ConnLib
 {
+  override Str onConnDetails(Conn c)
+  {
+    rec     := c.rec
+    uri     := rec["uri"]
+    product := "" + rec["productName"] + " " + rec["productVersion"]
+    module  := "" + rec["moduleName"]  + " " + rec["moduleVersion"]
+    vendor  := "" + rec["vendorName"]
+    watch   := c.data as WatchInfo
+
+    s := StrBuf()
+    s.add("""uri:           $uri
+             product:       $product
+             module:        $module
+             vendor:        $vendor
+             watchId:       ${watch?.id}
+             """)
+    if (watch != null)
+    s.add("""watchLeaseReq: ${watch?.leaseReq}
+             watchLeaseRes: ${watch?.leaseRes}
+             """)
+    return s.toStr
+  }
 }
 
 

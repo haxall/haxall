@@ -111,6 +111,12 @@ const final class Conn : Actor, HxConn
   ** Conn tuning configuration to use for this connector.
   ConnTuning tuning() { config.tuning ?: lib.tuning }
 
+  ** Library specific connector data.  This value is managed by the
+  ** connector actor via `ConnDispatch.setConnData`.
+  Obj? data() { dataRef.val }
+  private const AtomicRef dataRef := AtomicRef()
+  internal Void setData(ConnMgr mgr, Obj? val) { dataRef.val = val }
+
   ** Current status of the connector
   ConnStatus status() { vars.status }
 
@@ -308,6 +314,7 @@ const final class Conn : Actor, HxConn
              linger:         $linger
              tuning:         $tuning.rec.id.toZinc
              numPoints:      $points.size
+             data:           $data
              pollMode:       $pollMode
              """)
 
@@ -322,6 +329,9 @@ const final class Conn : Actor, HxConn
 
     s.add("\n")
     committer.details(s)
+
+    extra := lib.onConnDetails(this).trim
+    if (!extra.isEmpty) s.add("\n").add(extra).add("\n")
 
     s.add("\n")
     detailsThreadDebug(s, threadDebugRef.val)
