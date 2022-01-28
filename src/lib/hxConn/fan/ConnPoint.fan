@@ -323,6 +323,7 @@ const final class ConnPoint : HxConnPoint
              tz:             $tz
              unit:           $unit
              tuning:         $tuning.rec.id.toZinc
+             data:           $data
              isWatched:      $isWatched
 
              """)

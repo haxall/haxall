@@ -229,10 +229,13 @@ const final class Conn : Actor, HxConn
 
     if (msg === pollMsg)
     {
+      onReceiveEnter(msg)
       try
         mgr.onPoll
       catch (Err e)
         log.err("Conn.receive poll", e)
+      finally
+        onReceiveExit
       return null
     }
 
@@ -248,8 +251,26 @@ const final class Conn : Actor, HxConn
       return null
     }
 
-    trace.dispatch(msg)
-    return mgr.onReceive(msg)
+    try
+    {
+      onReceiveEnter(msg)
+      trace.dispatch(msg)
+      return mgr.onReceive(msg)
+    }
+    finally
+    {
+      onReceiveExit
+    }
+  }
+
+  private Void onReceiveEnter(HxMsg msg)
+  {
+    threadDebugRef.val = ConnThreadDebug(msg)
+  }
+
+  private Void onReceiveExit()
+  {
+    threadDebugRef.val = null
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -302,7 +323,40 @@ const final class Conn : Actor, HxConn
     s.add("\n")
     committer.details(s)
 
+    s.add("\n")
+    detailsThreadDebug(s, threadDebugRef.val)
+
     return s.toStr
+  }
+
+  private StrBuf detailsThreadDebug(StrBuf s, ConnThreadDebug? x)
+  {
+    if (x == null) return s.add("currentMessage: none\n")
+
+    s.add("currentMessage:\n")
+    s.add("  id:        $x.msg.id\n")
+    detailsMsgArg(s, "arg-a", x.msg.a)
+    detailsMsgArg(s, "arg-b", x.msg.b)
+    detailsMsgArg(s, "arg-c", x.msg.c)
+    detailsMsgArg(s, "arg-d", x.msg.d)
+    s.add("  dur:       $x.dur\n")
+    s.add("  threadId:  $x.threadId\n")
+    stackTrace := HxUtil.threadDump(x.threadId)
+    s.add(stackTrace)
+    while (s[-1] == '\n') s.remove(-1)
+    return s.add("\n")
+  }
+
+  private Void detailsMsgArg(StrBuf s, Str name, Obj? arg)
+  {
+    if (arg == null) return
+    str := ""
+    try
+      str = arg.toStr
+    catch (Err e)
+      str = e.toStr
+    if (str.size > 100) str = str[0..<99] + "..."
+    s.add("  ").add(name).add(":     ").add(str).add("\n")
   }
 
   private Void detailsPollManual(StrBuf s)
@@ -325,6 +379,27 @@ const final class Conn : Actor, HxConn
 
   private const AtomicBool aliveRef := AtomicBool(true)
   private const AtomicRef pointsList := AtomicRef(ConnPoint#.emptyList)
+  private const AtomicRef threadDebugRef := AtomicRef(null)
+}
+
+**************************************************************************
+** ConnThreadDebug
+**************************************************************************
+
+internal const class ConnThreadDebug
+{
+  new make(HxMsg msg)
+  {
+    this.msg = msg
+    this.ticks = Duration.nowTicks
+    this.threadId = HxUtil.threadId
+  }
+
+  const Int ticks       // starting ticks
+  const Int threadId    // name of thread
+  const HxMsg msg       // messaging being processed
+
+  Str dur()  { (Duration.now - Duration(ticks)).toLocale }
 }
 
 **************************************************************************
