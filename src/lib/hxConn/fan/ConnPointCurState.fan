@@ -7,7 +7,6 @@
 //   13 Jan 2022  Brian Frank  Redesign for Haxall
 //
 
-using concurrent
 using haystack
 using hxPoint
 
@@ -86,6 +85,7 @@ internal const final class ConnPointCurState
              curConvert:     $pt.curConvert
              curCalibration: $pt.curCalibration
              curLastUpdate:  ${Etc.debugDur(lastUpdate)}
+             curNumUpdate:   $numUpdates
              curQuickPoll:   $quickPoll
              curErr:         ${Etc.debugErr(err)}
              """)
@@ -102,6 +102,7 @@ internal const final class ConnPointCurState
   {
     this.status     = ConnStatus.ok
     this.lastUpdate = Duration.nowTicks
+    this.numUpdates = old.numUpdates + 1
     this.val        = val
     this.raw        = raw
     this.quickPoll  = old.quickPoll
@@ -112,6 +113,7 @@ internal const final class ConnPointCurState
     this.status     = ConnStatus.fromErr(err)
     this.err        = err
     this.lastUpdate = Duration.nowTicks
+    this.numUpdates = old.numUpdates + 1
     this.raw        = raw
     this.quickPoll  = old.quickPoll
   }
@@ -120,6 +122,7 @@ internal const final class ConnPointCurState
   {
     this.status     = ConnStatus.stale
     this.lastUpdate = old.lastUpdate
+    this.numUpdates = old.numUpdates
     this.val        = old.val
     this.raw        = old.raw
     this.quickPoll  = old.quickPoll
@@ -129,6 +132,7 @@ internal const final class ConnPointCurState
   {
     this.status     = old.status
     this.lastUpdate = old.lastUpdate
+    this.numUpdates = old.numUpdates
     this.val        = old.val
     this.raw        = old.raw
     this.quickPoll  = quickPoll
@@ -143,5 +147,6 @@ internal const final class ConnPointCurState
   const Obj? raw
   const Err? err
   const Int lastUpdate
+  const Int numUpdates
   const Bool quickPoll
 }

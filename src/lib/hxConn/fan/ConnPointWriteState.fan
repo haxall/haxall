@@ -7,7 +7,6 @@
 //   24 Jan 2022  Brian Frank  Redesign for Haxall
 //
 
-using concurrent
 using haystack
 using hxPoint
 
@@ -65,6 +64,7 @@ internal const final class ConnPointWriteState
              writePending:     $pending
              writeQueued:      $queued
              writeLastUpdate:  ${Etc.debugDur(lastUpdate)}
+             writeNumUpdate:   $numUpdates
              writeErr:         ${Etc.debugErr(err)}
              """)
   }
@@ -80,6 +80,7 @@ internal const final class ConnPointWriteState
   {
     this.status     = ConnStatus.ok
     this.lastUpdate = Duration.nowTicks
+    this.numUpdates = old.numUpdates + 1
     this.val        = info.val
     this.raw        = info.raw
     this.level      = info.level
@@ -92,6 +93,7 @@ internal const final class ConnPointWriteState
   {
     this.status     = ConnStatus.fromErr(err)
     this.lastUpdate = Duration.nowTicks
+    this.numUpdates = old.numUpdates + 1
     this.val        = info.val
     this.raw        = info.raw
     this.level      = info.level
@@ -105,6 +107,7 @@ internal const final class ConnPointWriteState
   {
     this.status     = old.status
     this.lastUpdate = old.lastUpdate
+    this.numUpdates = old.numUpdates
     this.val        = old.val
     this.raw        = old.raw
     this.level      = old.level
@@ -118,6 +121,7 @@ internal const final class ConnPointWriteState
   {
     this.status     = old.status
     this.lastUpdate = old.lastUpdate
+    this.numUpdates = old.numUpdates
     this.val        = old.val
     this.raw        = old.raw
     this.level      = old.level
@@ -131,6 +135,7 @@ internal const final class ConnPointWriteState
   {
     this.status     = old.status
     this.lastUpdate = old.lastUpdate
+    this.numUpdates = old.numUpdates
     this.val        = old.val
     this.raw        = old.raw
     this.level      = old.level
@@ -150,6 +155,7 @@ internal const final class ConnPointWriteState
   const Int level
   const Err? err
   const Int lastUpdate
+  const Int numUpdates
   const ConnWriteInfo? lastInfo
   const Bool pending
   const Bool queued
