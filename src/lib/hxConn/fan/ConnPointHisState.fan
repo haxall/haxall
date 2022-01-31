@@ -1,0 +1,101 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   21 May 2012  Brian Frank  Creation
+//   31 Jan 2022  Brian Frank  Redesign for Haxall
+//
+
+using haystack
+
+**
+** ConnPointHisState stores and handles all history sink state
+**
+internal const final class ConnPointHisState
+{
+
+//////////////////////////////////////////////////////////////////////////
+// Transitions
+//////////////////////////////////////////////////////////////////////////
+
+  static new updateOk(ConnPoint pt, HisItem[] items, Span span)
+  {
+    old := pt.hisState
+    try
+    {
+      // convert if configured
+      rec := pt.rec
+      convert := pt.hisConvert
+      if (convert != null)
+      {
+        for (i := 0; i<items.size; ++i)
+        {
+          oldItem := items[i]
+          items[i] = HisItem(oldItem.ts, convert.convert(pt.lib.pointLib, rec, oldItem.val))
+        }
+      }
+
+      // write history items with clip span option
+      pt.lib.rt.his.write(rec, items, Etc.makeDict1("clip", span))
+
+      return makeOk(old)
+    }
+    catch (Err e)
+    {
+      return makeErr(old, e)
+    }
+  }
+
+  static new updateErr(ConnPoint pt, Err err)
+  {
+    makeErr(pt.hisState, err)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Debug
+//////////////////////////////////////////////////////////////////////////
+
+  Void details(StrBuf s, ConnPoint pt)
+  {
+    s.add("""hisAddr:        $pt.writeAddr
+             hisStatus:      $status
+             hisConvert:     $pt.hisConvert
+             hisLastUpdate:  ${Etc.debugDur(lastUpdate)}
+             hisNumUpdate:   $numUpdates
+             hisErr:         ${Etc.debugErr(err)}
+             """)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Constructors
+//////////////////////////////////////////////////////////////////////////
+
+  static const ConnPointHisState nil := makeNil()
+  private new makeNil() { status = ConnStatus.unknown }
+
+  private new makeOk(ConnPointHisState old)
+  {
+    this.status     = ConnStatus.ok
+    this.lastUpdate = Duration.nowTicks
+    this.numUpdates = old.numUpdates + 1
+  }
+
+  private new makeErr(ConnPointHisState old, Err err)
+  {
+    this.status     = ConnStatus.fromErr(err)
+    this.lastUpdate = Duration.nowTicks
+    this.numUpdates = old.numUpdates + 1
+    this.err        = err
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
+
+  const ConnStatus status
+  const Err? err
+  const Int lastUpdate
+  const Int numUpdates
+}
+

@@ -183,6 +183,12 @@ abstract class ConnDispatch
   ** if `writeConvert` is configured.
   virtual Void onWrite(ConnPoint point, ConnWriteInfo event) {}
 
+  ** Callback to synchronize the a point's history data from the
+  ** connector.  The result of this callback must be to invoke
+  ** `ConnPoint.updateHisOk` or `ConnPoint.updateHisErr` (or just
+  ** raise exception).
+  virtual Void onSyncHis(ConnPoint point, Span span) {}
+
   ** Callback made periodically every few seconds to handle background tasks.
   virtual Void onHouseKeeping() {}
 

@@ -139,7 +139,7 @@ const final class ConnPoint : HxConnPoint
   private const ConnCommitter committer := ConnCommitter()
 
 //////////////////////////////////////////////////////////////////////////
-// Current Value
+// Current Value State
 //////////////////////////////////////////////////////////////////////////
 
   ** Update current value and status
@@ -210,7 +210,7 @@ const final class ConnPoint : HxConnPoint
   private const AtomicRef curStateRef := AtomicRef(ConnPointCurState.nil)
 
 //////////////////////////////////////////////////////////////////////////
-// Write Value
+// Write State
 //////////////////////////////////////////////////////////////////////////
 
   ** Update write value and status
@@ -288,6 +288,62 @@ const final class ConnPoint : HxConnPoint
   }
 
 //////////////////////////////////////////////////////////////////////////
+// History State
+//////////////////////////////////////////////////////////////////////////
+
+  ** Write new history items and update status.  Span should be same value
+  ** passed to 'onSyncHis'.  The items will be normalized, clipped by span,
+  ** converted by `hisConvert` if configured, and then and written to historian.
+  ** Also see `Conn.onSyncHis`.
+  Void updateHisOk(HisItem[] items, Span span)
+  {
+    s := ConnPointHisState.updateOk(this, items, span)
+    hisStateRef.val = s
+    updateHisTags(s)
+  }
+
+  ** Put point into down/fault with given error.
+  ** Also see `Conn.onSyncHis`.
+  Void updateHisErr(Err err)
+  {
+    s := ConnPointHisState.updateErr(this, err)
+    hisStateRef.val = s
+    updateHisTags(s)
+  }
+
+  ** History sync state
+  internal ConnPointHisState hisState() { hisStateRef.val }
+  private const AtomicRef hisStateRef := AtomicRef(ConnPointHisState.nil)
+
+  ** Update hisStatus, hisErr
+  private Void updateHisTags(ConnPointHisState s)
+  {
+    status := s.status
+    err    := null
+    config := config
+    if (config.writeFault != null)
+    {
+      status = ConnStatus.fault
+      err = config.writeFault
+    }
+    else if (config.isDisabled)
+    {
+      status = ConnStatus.disabled
+      err = "Point is disabled"
+    }
+    else if (!conn.status.isOk)
+    {
+      status = conn.status
+      err = "conn $status"
+    }
+    else if (!status.isOk)
+    {
+      err = ConnStatus.toErrStr(s.err)
+    }
+    committer.commit2(lib, rec, "hisStatus", status.name, "hisErr", err)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Status
 //////////////////////////////////////////////////////////////////////////
 
@@ -300,9 +356,11 @@ const final class ConnPoint : HxConnPoint
   ** Update all the status tags
   internal Void updateStatus()
   {
+    // TODO: join together commits
     c := config
-    if (c.curAddr != null)   updateCurTags(curState)
+    if (c.curAddr   != null) updateCurTags(curState)
     if (c.writeAddr != null) updateWriteTags(writeState)
+    if (c.hisAddr   != null) updateHisTags(hisState)
   }
 
 //////////////////////////////////////////////////////////////////////////
