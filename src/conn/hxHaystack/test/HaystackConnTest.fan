@@ -39,9 +39,9 @@ class HaystackConnTest : HxTest
     verifyReads
     verifyWatches
     verifyPointWrite
-/*
     verifyReadHis
     verifySyncHis
+/*
     verifyInvokeAction
 */
     verifyHaystackEval
@@ -480,7 +480,7 @@ class HaystackConnTest : HxTest
     Grid actual := eval("read(haystackConn).haystackHisRead($rec.id.toCode, $range)")
 
     // run query locally
-    Grid expected := eval("hisRead($rec.id.toCode, $range).hisClip")
+    Grid expected := readHisToGrid(rec, range)
 
     verifyEq(actual.size, expected.size)
     verifyEq(actual.meta["hisStart"], expected.meta["hisStart"])
@@ -489,8 +489,27 @@ class HaystackConnTest : HxTest
     {
       a := actual[i]
       verifyEq(e->ts, a->ts)
-      verifyEq(e->v0, a->val)
+      verifyEq(e->val, a->val)
     }
+  }
+
+  private Grid readHisToGrid(Dict rec, Str range)
+  {
+    span := rangeToSpan(rec, range)
+    items := HisItem[,]
+    rt.his.read(rec, span, null) |item| { items.add(item) }
+    grid := Etc.makeDictsGrid(["hisStart":span.start, "hisEnd":span.end], items)
+    return grid
+  }
+
+  private Span rangeToSpan(Dict rec, Str range)
+  {
+    tz := TimeZone(rec->tz.toStr)
+    dots := range.index("..")
+    if (dots == null)
+      return DateSpan(Date(range)).toSpan(tz)
+    else
+      return DateSpan(Date(range[0..<dots]), Date(range[dots+2..-1])).toSpan(tz)
   }
 
   Void verifySyncHis()

@@ -29,13 +29,13 @@ class HaystackDispatch : ConnDispatch
   override Obj? onReceive(HxMsg msg)
   {
     msgId := msg.id
-    if (msgId === "call")         return onCall(msg.a, ((Unsafe)msg.b).val, msg.c)
+    if (msgId === "call")         return onCall(msg.a, msg.b, msg.c)
     if (msgId === "readById")     return onReadById(msg.a, msg.b)
     if (msgId === "readByIds")    return onReadByIds(msg.a, msg.b)
     if (msgId === "read")         return onRead(msg.a, msg.b)
     if (msgId === "readAll")      return onReadAll(msg.a)
     if (msgId === "eval")         return onEval(msg.a, msg.b)
-//    if (msgId === "hisRead")      return onHisRead(msg.a, msg.b)
+    if (msgId === "hisRead")      return onHisRead(msg.a, msg.b)
     if (msgId === "invokeAction") return onInvokeAction(msg.a, msg.b, msg.c)
     return super.onReceive(msg)
   }
@@ -92,9 +92,9 @@ class HaystackDispatch : ConnDispatch
 // Call
 //////////////////////////////////////////////////////////////////////////
 
-  Unsafe onCall(Str op, Grid req, Bool checked)
+  Grid onCall(Str op, Grid req, Bool checked)
   {
-    Unsafe(call(op, req, checked))
+    call(op, req, checked)
   }
 
   Grid call(Str op, Grid req, Bool checked := true)
@@ -119,7 +119,7 @@ class HaystackDispatch : ConnDispatch
 
   Obj? onReadByIds(Obj[] ids, Bool checked)
   {
-    Unsafe(openClient.readByIds(ids, checked))
+    openClient.readByIds(ids, checked)
   }
 
   Obj? onRead(Str filter, Bool checked)
@@ -129,19 +129,19 @@ class HaystackDispatch : ConnDispatch
 
   Obj? onReadAll(Str filter)
   {
-    Unsafe(openClient.readAll(filter))
+    openClient.readAll(filter)
   }
 
   Obj? onEval(Str expr, Dict opts)
   {
     req := Etc.makeListGrid(opts, "expr", null, [expr])
-    return Unsafe(openClient.call("eval", req))
+    return openClient.call("eval", req)
   }
 
   Obj? onInvokeAction(Obj id, Str action, Dict args)
   {
     req := Etc.makeDictGrid(["id":id, "action":action], args)
-    return Unsafe(openClient.call("invokeAction", req))
+    return openClient.call("invokeAction", req)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -523,6 +523,47 @@ class HaystackDispatch : ConnDispatch
     }
 
     return num
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// History
+//////////////////////////////////////////////////////////////////////////
+
+  Grid onHisRead(Ref id, Str range)
+  {
+    req := GridBuilder().addCol("id").addCol("range").addRow2(id, range).toGrid
+    return openClient.call("hisRead", req)
+  }
+
+  override Void onSyncHis(ConnPoint point, Span span)
+  {
+    try
+    {
+      // serialize range into REST Str format
+      tz := point.tz
+      range := "$span.start,$span.end"
+
+      // build request grid
+      hisId := toHisId(point)
+      req := GridBuilder().addCol("id").addCol("range").addRow2(id, range).toGrid
+
+      // make REST call
+      res := openClient.call("hisRead", req)
+
+      // turn into his items
+      items := HisItem[,]
+      items.capacity = res.size
+      ts  := res.col("ts")
+      val := res.col("val")
+      res.each |row| { items.add(HisItem(row.val(ts), row.val(val))) }
+
+      // we are good!
+      point.updateHisOk(items, span)
+    }
+    catch (Err e)
+    {
+      point.updateHisErr(e)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

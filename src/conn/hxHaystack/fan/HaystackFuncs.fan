@@ -54,7 +54,7 @@ const class HaystackFuncs
   @Axon { admin = true }
   static Grid haystackCall(Obj conn, Str op, Obj? req := null, Bool checked := true)
   {
-    dispatch(curContext, conn, HxMsg("call", op, Unsafe(Etc.toGrid(req)), checked))
+    dispatch(curContext, conn, HxMsg("call", op, Etc.toGrid(req).toConst, checked))
   }
 
   ** Perform Haystack HTTP API call to read a record by its unique
@@ -103,6 +103,17 @@ const class HaystackFuncs
     c  := conn.eval(cx)
     filter := filterExpr.evalToFilter(cx)
     return dispatch(cx, c, HxMsg("readAll", filter.toStr))
+  }
+
+  ** Perform Haystack REST API "hisRead" call to read history
+  ** data for the record identified by the id (must be Ref).
+  ** The range is any string encoding supported by the REST API
+  ** or any value supported by `toDateSpan`.  Return results
+  ** as grid with "ts" and "val" column.
+  @Axon { admin = true }
+  static Grid haystackHisRead(Obj conn, Obj id, Obj? range)
+  {
+    dispatch(curContext, conn, HxMsg("hisRead", Etc.toId(id), toHisRange(range)))
   }
 
   ** Invoke a remote action on the given Haystack connector
@@ -210,12 +221,20 @@ const class HaystackFuncs
 
   private static const Str cannotSerialze := "_no_ser_"
 
+  private static Str toHisRange(Obj? range)
+  {
+    if (range == null) return "today"
+    if (range is Str)  return range
+    dates := CoreLib.toDateSpan(range)
+    if (dates.numDays == 1) return dates.start.toStr
+    return "$dates.start,$dates.end"
+  }
+
   ** Dispatch a message to the given connector and return result
   private static Obj? dispatch(HxContext cx, Obj conn, HxMsg msg)
   {
     lib := (HaystackLib)cx.rt.lib("haystack")
     r := lib.conn(Etc.toId(conn)).sendSync(msg)
-    if (r is Unsafe) return ((Unsafe)r).val
     return r
   }
 
