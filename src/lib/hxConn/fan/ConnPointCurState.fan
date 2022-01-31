@@ -47,7 +47,7 @@ internal const final class ConnPointCurState
           throw FaultErr("curVal kind != configured kind: $valKind != $pt.kind")
       }
 
-      return makeOk(old, raw, val)
+      return makeOk(old, val, raw)
     }
     catch (Err e)
     {
