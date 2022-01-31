@@ -49,6 +49,13 @@ const class TaskLib : HxLib, HxTaskService
     Task.makeEphemeral(this, expr).send(msg)
   }
 
+  ** Update current task's progress info for debugging.  If not
+  ** running in the context of a task, then this is a no op.
+  override Void progress(Dict progress)
+  {
+    Task.cur?.progressUpdate(progress)
+  }
+
   ** Get or create an adjunct within the context of the current
   ** task.  If an adjunct is already attached to the task then return
   ** it, otherwise invoke the given function to create it.  Raise an

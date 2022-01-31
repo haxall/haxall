@@ -78,7 +78,7 @@ class HaystackConnTest : HxTest
     // init curVal
     pt1 = commit(pt1, ["curVal":false], Diff.transient)
     pt2 = commit(pt2, ["curVal":n(75f, "fahrenheit")], Diff.transient)
-    pt3 = commit(pt3, ["curVal":n(30, "%")], Diff.transient)
+    pt3 = commit(pt3, ["curVal":n(30, "kW")], Diff.transient)
 
     // float his
     tz := TimeZone("Chicago")
@@ -218,14 +218,14 @@ class HaystackConnTest : HxTest
                        "haystackCur":pt2.id.toStr, "his":Marker.val,
                        "point": Marker.val, "unit":"fahrenheit", "kind":"Number"])
      proxy3 := addRec(["dis":"Proxy-3", "haystackConnRef":conn.id,
-                       "haystackCur":pt3.id.toStr, "his":Marker.val,
-                       "point": Marker.val, "unit":"%", "kind":"Number"])
+                       "haystackCur":pt3.id.toStr, "his":Marker.val, "curConvert":"kW=>W",
+                       "point": Marker.val, "unit":"W", "kind":"Number"])
      proxy3dup := addRec(["dis":"Proxy-3-Dup", "haystackConnRef":conn.id,
                        "haystackCur":pt3.id.toStr, "his":Marker.val,
-                       "point": Marker.val, "unit":"%", "kind":"Number"])
+                       "point": Marker.val, "unit":"kW", "kind":"Number"])
      proxy3dup2 := addRec(["dis":"Proxy-3-Dup2", "haystackConnRef":conn.id,
                        "haystackCur":pt3.id.toStr, "his":Marker.val,
-                       "point": Marker.val, "unit":"%", "kind":"Number"])
+                       "point": Marker.val, "unit":"kW", "kind":"Number"])
      proxyE1 := addRec(["dis":"Proxy-E1", "haystackConnRef":conn.id,
                        "haystackCur":Ref("bad"), "his":Marker.val,
                        "point": Marker.val, "unit":"fahrenheit", "kind":"Number"])
@@ -242,9 +242,9 @@ class HaystackConnTest : HxTest
     syncConn
     verifyCur(proxy1,  false)
     verifyCur(proxy2,  n(75f, "fahrenheit"))
-    verifyCur(proxy3,  n(30f, "%"))
-    verifyCur(proxy3dup, n(30f, "%"))
-    verifyCur(proxy3dup2, n(30f, "%"))
+    verifyCur(proxy3,  n(30_000, "W"))
+    verifyCur(proxy3dup, n(30, "kW"))
+    verifyCur(proxy3dup2, n(30, "kW"))
     verifyCur(proxyE1, null, "fault", "Invalid type for 'haystackCur' [Ref != Str]")
     verifyCur(proxyE2, null ,"fault", "haystack::UnknownRecErr")
     verifyCur(proxyE3, null ,"fault", "sys::Err: point unit != updateCurOk unit: kW != \u00B0F")
@@ -297,15 +297,15 @@ class HaystackConnTest : HxTest
     // make some server side changes
     pt1 = commit(pt1, ["curVal":true], Diff.transient)
     pt2 = commit(pt2, ["curVal":n(99f, "fahrenheit")], Diff.transient)
-    pt3 = commit(pt3, ["curVal":n(40f, "%")], Diff.transient)
+    pt3 = commit(pt3, ["curVal":n(40f, "kW")], Diff.transient)
 
     // test that proxies updated
     Actor.sleep(100ms)
     syncConn
     verifyCur(proxy1, true)
     verifyCur(proxy2, n(99f, "fahrenheit"))
-    verifyCur(proxy3, n(40f, "%"))
-    verifyCur(proxy3dup, n(40f, "%"))
+    verifyCur(proxy3, n(40_000, "W"))
+    verifyCur(proxy3dup, n(40, "kW"))
     verifyCur(proxyE1, null, "fault", "Invalid type for 'haystackCur' [Ref != Str]")
     verifyCur(proxyE2, null ,"fault", "haystack::UnknownRecErr")
 
@@ -317,16 +317,16 @@ class HaystackConnTest : HxTest
     // more server side changes
     pt1 = commit(pt1, ["curVal":false], Diff.transient)
     pt2 = commit(pt2, ["curVal":n(1972f, "fahrenheit")], Diff.transient)
-    pt3 = commit(pt3, ["curVal":n(50f, "%")], Diff.transient)
+    pt3 = commit(pt3, ["curVal":n(50, "kW")], Diff.transient)
 
     // test that proxies updated
     Actor.sleep(150ms)
     syncConn
     verifyCur(proxy1, false)
     verifyCur(proxy2, n(1972, "fahrenheit"))
-    verifyCur(proxy3, n(50f, "%"))
-    verifyCur(proxy3dup, n(50f, "%"))
-    verifyCur(proxy3dup2, n(50f, "%"))
+    verifyCur(proxy3, n(50_000, "W"))
+    verifyCur(proxy3dup, n(50, "kW"))
+    verifyCur(proxy3dup2, n(50, "kW"))
 
     // put server side into error conditions
     pt1 = commit(pt1, ["curStatus":"ok", "curVal":true], Diff.transient)
@@ -357,8 +357,8 @@ class HaystackConnTest : HxTest
   Void verifyCur(Dict r, Obj? val, Str status := "ok", Str? err := null)
   {
     r = readById(r.id)
-    //echo("--> verifyCur " + r.dis + " " + r["curVal"] + " @ " + r["curStatus"] + " err=" +  r["curErr"])
-    //echo(rt.conn.point(r.id).details)
+    // echo("--> verifyCur " + r.dis + " " + r["curVal"] + " @ " + r["curStatus"] + " err=" +  r["curErr"])
+    // echo(rt.conn.point(r.id).details)
     verifyEq(r["curVal"], val)
     verifyEq(r["curStatus"], status)
     verifyEq(r["curErr"], err)

@@ -22,6 +22,7 @@ internal class ConnSyncHis
   new make(HxContext cx, HxConnPoint[] points, Obj? span)
   {
     this.cx     = cx
+    this.task   = cx.rt.services.get(HxTaskService#, false)
     this.points = points
     this.num    = points.size
     this.span   = span
@@ -30,7 +31,7 @@ internal class ConnSyncHis
   Dict[] run()
   {
     if (points.isEmpty) return Dict#.emptyList
-    trace("Sync $num points...")
+    trace("Sync $num points...",  0)
     commitPending
     points.each |pt, i|
     {
@@ -40,16 +41,16 @@ internal class ConnSyncHis
       if (r.has("err")) ++numErr; else ++numOk
       results.add(r)
     }
-    trace("Complete: $numOk ok; $numErr errors")
+    trace("Complete: $numOk ok; $numErr errors", 100)
     return results
   }
 
   private Void commitPending()
   {
-    diffs := Diff[,]
-    diffs.capacity = num
-    points.each |pt| { diffs.add(Diff(pt.rec, Etc.makeDict1("hisStatus", "pending"), Diff.forceTransient)) }
-    cx.db.commitAllAsync(diffs)
+    points.each |pt|
+    {
+      pt.conn.send(HxMsg("hisPending", pt))
+    }
   }
 
   private Dict sync(ConnPoint pt)
@@ -85,14 +86,15 @@ internal class ConnSyncHis
     return x
   }
 
-  private Void trace(Str msg, Int? progress := null)
+  private Void trace(Str msg, Int progress)
   {
-    // echo("TRACE $msg [$progress %]")
-    // TODO
+    if (task == null) return
+    task.progress(Etc.makeDict2("msg", msg, "progress", Number(progress, Number.percent)))
   }
 
   private HxContext cx
   private ConnPoint[] points
+  private HxTaskService? task
   private Obj? span
   private const Int num
   private Int numOk

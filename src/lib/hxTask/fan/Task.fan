@@ -199,7 +199,7 @@ const class Task : Actor, Observer, Dict
   internal Dict progress() { progressRef.val }
 
   ** Update latest progress dict
-  internal This progessUpdate(Dict d)
+  internal This progressUpdate(Dict d)
   {
     progressRef.val = d
     ticksRef.val = Duration.nowTicks

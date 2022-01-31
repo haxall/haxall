@@ -68,6 +68,7 @@ internal final class ConnMgr
         case "unwatch":      return onUnwatch(msg.a)
         case "syncCur":      return onSyncCur(msg.a)
         case "syncHis":      return onSyncHis(msg.a, msg.b)
+        case "hisPending":   return onHisPending(msg.a)
         case "learn":        return onLearn(msg.a)
         case "connUpdated":  return onConnUpdated(msg.a)
         case "pointAdded":   return onPointAdded(msg.a)
@@ -544,6 +545,12 @@ internal final class ConnMgr
       return dispatch.onSyncHis(point, span)
     catch (Err e)
       return point.updateHisErr(e)
+  }
+
+  private Obj? onHisPending(ConnPoint point)
+  {
+    point.updateHisPending
+    return null
   }
 
 //////////////////////////////////////////////////////////////////////////

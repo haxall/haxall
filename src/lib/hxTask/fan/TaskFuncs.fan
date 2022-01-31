@@ -150,7 +150,7 @@ const class TaskFuncs
   @Axon { admin = true }
   static Obj? taskProgress(Obj? progress)
   {
-    taskCur.progessUpdate(Etc.makeDict(progress))
+    taskCur.progressUpdate(Etc.makeDict(progress))
   }
 
   **

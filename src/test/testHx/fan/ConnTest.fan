@@ -282,7 +282,7 @@ class ConnTest : HxTest
   {
     c.sync
     actual := c.trace.readSince(since)
-    actual = actual.findAll |a| { a.msg != "sync" && a.msg != "init" }
+    actual = actual.findAll |a| { a.msg != "sync" && a.msg != "init" && a.msg != "poll" }
     if (actual.size != expected.size)
     {
       echo("\n --- trace $since ---"); echo(actual.join("\n"))

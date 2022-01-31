@@ -296,6 +296,10 @@ const mixin HxTaskService : HxService
   ** Return a future to track the asynchronous result.
   abstract Future run(Expr expr, Obj? msg := null)
 
+  ** Update current task's progress info for debugging.  If not
+  ** running in the context of a task, then this is a no op.
+  abstract Void progress(Dict progress)
+
   ** Get or create an adjunct within the context of the current
   ** task.  If an adjunct is already attached to the task then return
   ** it, otherwise invoke the given function to create it.  Raise an
@@ -443,6 +447,9 @@ const mixin HxConnLib
 {
   ** Library name
   abstract Str name()
+
+  ** Display name to use for connector library
+  abstract Str libDis()
 
   ** Icon logical name to use for this connector type library
   abstract Str icon()

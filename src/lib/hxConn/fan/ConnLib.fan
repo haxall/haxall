@@ -51,6 +51,8 @@ abstract const class ConnLib : HxLib, HxConnLib
 
   @NoDoc override Str icon() { def.get("icon", "conn") }
 
+  @NoDoc override Str libDis() { def.get("dis") ?: (Pod.find("ui", false)?.locale(name, null) ?: name.capitalize) }
+
   @NoDoc override const Str connTag := this.name + "Conn"
 
   @NoDoc override const Str connRefTag := this.name + "ConnRef"

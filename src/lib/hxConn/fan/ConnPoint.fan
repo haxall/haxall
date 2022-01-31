@@ -311,6 +311,12 @@ const final class ConnPoint : HxConnPoint
     return Etc.makeDict2("id", id, "err", err.toStr)
   }
 
+  ** Update hisState to pending (just transient tag, not state)
+  internal Void updateHisPending()
+  {
+    committer.commit1(lib, rec, "hisStatus", "pending")
+  }
+
   ** History sync state
   internal ConnPointHisState hisState() { hisStateRef.val }
   private const AtomicRef hisStateRef := AtomicRef(ConnPointHisState.nil)
