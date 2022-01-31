@@ -88,17 +88,21 @@ const class ConnFwFuncs
   **
   ** Perform a remote sync of history data for the given points.
   ** The 'points' parameter may be anything acceptable by `toRecIdList()`.
-  ** The 'span' parameter is anything acceptable by `toSpan()`; or use 'null'
-  ** Return a list of futures for each point.  The result of each future
-  ** is unspecified.
+  ** The 'span' parameter is anything acceptable by `toSpan()`.  Or pass
+  ** null for span to perform a sync for items after the point's `hisEnd`.
+  ** This blocks the calling thread until each point is synchronized one
+  ** by one.  Normally it should only be called within a task.  The result
+  ** from this function is undefined.
   **
   ** Examples:
   **   readAll(haystackHis).connSyncHis(null)
   **
   @Axon { admin = true }
-  static Future[] connSyncHis(Obj points, Obj? span)
+  static Obj? connSyncHis(Obj points, Obj? span)
   {
-    throw Err("TODO")
+    cx := curContext
+    connPoints := Etc.toIds(points).map |id->ConnPoint| { cx.rt.conn.point(id) }
+    return ConnSyncHis(cx, connPoints, span).run
   }
 
   **

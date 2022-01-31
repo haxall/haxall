@@ -186,8 +186,9 @@ abstract class ConnDispatch
   ** Callback to synchronize the a point's history data from the
   ** connector.  The result of this callback must be to invoke
   ** `ConnPoint.updateHisOk` or `ConnPoint.updateHisErr` (or just
-  ** raise exception).
-  virtual Void onSyncHis(ConnPoint point, Span span) {}
+  ** raise exception).  The return of this method should be
+  ** whatever 'updateHisXXX' returns.
+  virtual Obj onSyncHis(ConnPoint point, Span span) { throw UnsupportedErr() }
 
   ** Callback made periodically every few seconds to handle background tasks.
   virtual Void onHouseKeeping() {}

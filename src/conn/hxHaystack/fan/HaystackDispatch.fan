@@ -535,7 +535,7 @@ class HaystackDispatch : ConnDispatch
     return openClient.call("hisRead", req)
   }
 
-  override Void onSyncHis(ConnPoint point, Span span)
+  override Obj onSyncHis(ConnPoint point, Span span)
   {
     try
     {
@@ -545,7 +545,7 @@ class HaystackDispatch : ConnDispatch
 
       // build request grid
       hisId := toHisId(point)
-      req := GridBuilder().addCol("id").addCol("range").addRow2(id, range).toGrid
+      req := GridBuilder().addCol("id").addCol("range").addRow2(hisId, range).toGrid
 
       // make REST call
       res := openClient.call("hisRead", req)
@@ -558,11 +558,11 @@ class HaystackDispatch : ConnDispatch
       res.each |row| { items.add(HisItem(row.val(ts), row.val(val))) }
 
       // we are good!
-      point.updateHisOk(items, span)
+      return point.updateHisOk(items, span)
     }
     catch (Err e)
     {
-      point.updateHisErr(e)
+      return point.updateHisErr(e)
     }
   }
 

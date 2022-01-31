@@ -320,7 +320,8 @@ class HaystackConnTest : HxTest
     pt3 = commit(pt3, ["curVal":n(50f, "%")], Diff.transient)
 
     // test that proxies updated
-    Actor.sleep(100ms)
+    Actor.sleep(150ms)
+    syncConn
     verifyCur(proxy1, false)
     verifyCur(proxy2, n(1972, "fahrenheit"))
     verifyCur(proxy3, n(50f, "%"))
@@ -514,9 +515,6 @@ class HaystackConnTest : HxTest
 
   Void verifySyncHis()
   {
-    /* TODO
-    cx := HxContext.curHx
-
     // create proxy rec
     hisSyncF = addRec(["dis":"Test Proxy", "haystackConnRef":conn.id,
                        "haystackHis":hisF.id.toStr, "his":Marker.val,
@@ -525,7 +523,7 @@ class HaystackConnTest : HxTest
 
     // sync
     eval("readById($hisSyncF.id.toCode).haystackSyncHis(2010)")
-    Actor.sleep(100ms)
+    syncConn
 
     // verify history was synced
     hisSyncF = readById(hisSyncF.id)
@@ -535,16 +533,16 @@ class HaystackConnTest : HxTest
     verifyEq(hisSyncF->hisEnd,   hisF->hisEnd)
     verifyEq(hisSyncF["hisStatus"], "ok")
     verifyEq(hisSyncF["hisErr"], null)
-    a := HisItem[,]; HisLib.read(cx, hisF, null, null) |item| { a.add(item) }
-    b := HisItem[,]; HisLib.read(cx, hisSyncF, null, null) |item| { b.add(item) }
+    a := HisItem[,]; rt.his.read(hisF, null, null) |item| { a.add(item) }
+    b := HisItem[,]; rt.his.read(hisSyncF, null, null) |item| { b.add(item) }
     verifyEq(a, b)
-    verifyEq(a.first.val->unit, Unit("fahrenheit"))
-    verifyEq(b.first.val->unit, Unit("fahrenheit"))
+//     verifyEq(a.first.val->unit, Unit("fahrenheit"))
+//     verifyEq(b.first.val->unit, Unit("fahrenheit"))
 
 
     // add new items to hisF
     tz := TimeZone("Chicago")
-    HisLib.write(proj, hisF,
+    rt.his.write(hisF,
       [
         item(dt(2010, 5, 1, 1, 0, tz), 110f),
         item(dt(2010, 5, 1, 2, 0, tz), 120f),
@@ -554,36 +552,36 @@ class HaystackConnTest : HxTest
         item(dt(2010, 5, 2, 1, 0, tz), 210f),
         item(dt(2010, 5, 2, 2, 0, tz), 220f),
         item(dt(2010, 5, 2, 3, 0, tz), 230f),
-      ])
+      ]).get
 
-    // sync with range
+    // sync with span
     eval("readById($hisSyncF.id.toCode).haystackSyncHis(2010-05-01)")
-    Actor.sleep(100ms)
+    syncConn
 
     // verify history was synced
-    hisSyncF = proj.readById(hisSyncF.id)
-    hisF = proj.readById(hisF.id)
+    hisSyncF = readById(hisSyncF.id)
+    hisF = readById(hisF.id)
     verifyEq(hisSyncF->hisSize,  n(-3) + hisF->hisSize) // don't have May 2nd yet
     verifyEq(hisSyncF->hisStart, hisF->hisStart)
     verifyEq(hisSyncF->hisEnd,   dt(2010, 5, 1, 5, 0, tz))
-    a.clear; HisLib.read(cx, hisF, null, null) |item| { a.add(item) }
-    b.clear; HisLib.read(cx, hisSyncF, null, null) |item| { b.add(item) }
+    a.clear; rt.his.read(hisF, null, null) |item| { a.add(item) }
+    b.clear; rt.his.read(hisSyncF, null, null) |item| { b.add(item) }
     verifyEq(a.size - 3, b.size)
     verifyEq(a[0..-4], b)
 
-    // sync with no range
+    // sync with no span
     eval("readById($hisSyncF.id.toCode).haystackSyncHis")
-    Actor.sleep(100ms)
+    syncConn
 
     // verify completly in sync
-    hisSyncF = proj.readById(hisSyncF.id)
+    hisSyncF = readById(hisSyncF.id)
     verifyEq(hisSyncF->hisSize,  hisF->hisSize)
     verifyEq(hisSyncF->hisStart, hisF->hisStart)
     verifyEq(hisSyncF->hisEnd,   hisF->hisEnd)
-    a.clear; HisLib.read(cx, hisF, null, null) |item| { a.add(item) }
-    b.clear; HisLib.read(cx, hisSyncF, null, null) |item| { b.add(item) }
+    a.clear; rt.his.read(hisF, null, null) |item| { a.add(item) }
+    b.clear; rt.his.read(hisSyncF, null, null) |item| { b.add(item) }
+    verifyEq(a.size, b.size)
     verifyEq(a, b)
-    */
   }
 
   Void syncConn()

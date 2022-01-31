@@ -24,6 +24,11 @@ internal const final class ConnPointHisState
     old := pt.hisState
     try
     {
+      // debug string for items
+      lastItems := StrBuf()
+      lastItems.add(items.size.toStr).add(" items")
+      if (items.size > 0) lastItems.add(", ").add(items.last)
+
       // convert if configured
       rec := pt.rec
       convert := pt.hisConvert
@@ -39,7 +44,7 @@ internal const final class ConnPointHisState
       // write history items with clip span option
       pt.lib.rt.his.write(rec, items, Etc.makeDict1("clip", span))
 
-      return makeOk(old)
+      return makeOk(old, lastItems.toStr)
     }
     catch (Err e)
     {
@@ -62,6 +67,7 @@ internal const final class ConnPointHisState
              hisStatus:      $status
              hisConvert:     $pt.hisConvert
              hisLastUpdate:  ${Etc.debugDur(lastUpdate)}
+             hisLastItems    $lastItems
              hisNumUpdate:   $numUpdates
              hisErr:         ${Etc.debugErr(err)}
              """)
@@ -72,12 +78,13 @@ internal const final class ConnPointHisState
 //////////////////////////////////////////////////////////////////////////
 
   static const ConnPointHisState nil := makeNil()
-  private new makeNil() { status = ConnStatus.unknown }
+  private new makeNil() { status = ConnStatus.unknown; lastItems = "" }
 
-  private new makeOk(ConnPointHisState old)
+  private new makeOk(ConnPointHisState old, Str lastItems)
   {
     this.status     = ConnStatus.ok
     this.lastUpdate = Duration.nowTicks
+    this.lastItems  = lastItems
     this.numUpdates = old.numUpdates + 1
   }
 
@@ -85,6 +92,7 @@ internal const final class ConnPointHisState
   {
     this.status     = ConnStatus.fromErr(err)
     this.lastUpdate = Duration.nowTicks
+    this.lastItems  = ""
     this.numUpdates = old.numUpdates + 1
     this.err        = err
   }
@@ -96,6 +104,7 @@ internal const final class ConnPointHisState
   const ConnStatus status
   const Err? err
   const Int lastUpdate
+  const Str lastItems
   const Int numUpdates
 }
 

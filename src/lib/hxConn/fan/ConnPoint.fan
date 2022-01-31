@@ -294,21 +294,21 @@ const final class ConnPoint : HxConnPoint
   ** Write new history items and update status.  Span should be same value
   ** passed to 'onSyncHis'.  The items will be normalized, clipped by span,
   ** converted by `hisConvert` if configured, and then and written to historian.
-  ** Also see `Conn.onSyncHis`.
-  Void updateHisOk(HisItem[] items, Span span)
+  Obj updateHisOk(HisItem[] items, Span span)
   {
     s := ConnPointHisState.updateOk(this, items, span)
     hisStateRef.val = s
     updateHisTags(s)
+    return Etc.makeDict2("id", id, "num", Number(items.size))
   }
 
-  ** Put point into down/fault with given error.
-  ** Also see `Conn.onSyncHis`.
-  Void updateHisErr(Err err)
+  ** Update his sync with given error
+  Obj updateHisErr(Err err)
   {
     s := ConnPointHisState.updateErr(this, err)
     hisStateRef.val = s
     updateHisTags(s)
+    return Etc.makeDict2("id", id, "err", err.toStr)
   }
 
   ** History sync state
@@ -423,6 +423,15 @@ const final class ConnPoint : HxConnPoint
                =============================
                """)
       writeState.details(s, this)
+    }
+
+    if (hisAddr != null)
+    {
+      s.add("""
+               Conn His Sync
+               =============================
+               """)
+      hisState.details(s, this)
     }
 
     try

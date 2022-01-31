@@ -67,6 +67,7 @@ internal final class ConnMgr
         case "watch":        return onWatch(msg.a)
         case "unwatch":      return onUnwatch(msg.a)
         case "syncCur":      return onSyncCur(msg.a)
+        case "syncHis":      return onSyncHis(msg.a, msg.b)
         case "learn":        return onLearn(msg.a)
         case "connUpdated":  return onConnUpdated(msg.a)
         case "pointAdded":   return onPointAdded(msg.a)
@@ -527,6 +528,22 @@ internal final class ConnMgr
   {
     conn.send(HxMsg("write", pt, info))
     pt.updateWriteQueued(true)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// His
+//////////////////////////////////////////////////////////////////////////
+
+  private Obj? onSyncHis(ConnPoint point, Span span)
+  {
+    openLinger
+    if (isClosed)
+      return point.updateHisErr(DownErr("closed"))
+
+    try
+      return dispatch.onSyncHis(point, span)
+    catch (Err e)
+      return point.updateHisErr(e)
   }
 
 //////////////////////////////////////////////////////////////////////////
