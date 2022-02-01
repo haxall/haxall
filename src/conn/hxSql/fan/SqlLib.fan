@@ -36,6 +36,21 @@ const class SqlLib : ConnLib
       throw e
     }
   }
+
+  override Str onConnDetails(Conn c)
+  {
+    rec     := c.rec
+    uri     := rec["uri"]
+    product := "" + rec["productName"] + " " + rec["productVersion"]
+    driver  := "" + rec["driverName"]  + " " + rec["driverVersion"]
+
+    s := StrBuf()
+    s.add("""uri:           $uri
+             product:       $product
+             driver:        $driver
+             """)
+    return s.toStr
+  }
 }
 
 
