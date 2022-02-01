@@ -1,0 +1,14 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   28 Jan 2022  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:nest
+depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
+typeName:"hxNest::NestLib"
+doc: "Google Nest Connector"
+--------------------------------------------------------------------------

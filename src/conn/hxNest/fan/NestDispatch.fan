@@ -1,0 +1,68 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   28 Jan 2022  Matthew Giannini  Creation
+//
+
+using haystack
+using hx
+using hxConn
+
+class NestDispatch : ConnDispatch
+{
+
+//////////////////////////////////////////////////////////////////////////
+// Constructor
+//////////////////////////////////////////////////////////////////////////
+
+  new make(Obj arg) : super(arg) {}
+
+  private NestLib nestLib() { lib }
+
+  internal Nest? client
+
+//////////////////////////////////////////////////////////////////////////
+//  Open/Ping/Close
+//////////////////////////////////////////////////////////////////////////
+
+  override Void onOpen()
+  {
+    this.client = Nest(
+      rec["nestProjectId"],
+      rec["nestClientId"],
+      rec["nestClientSecret"],
+      rec["nestRefreshToken"]
+    )
+  }
+
+  override Void onClose()
+  {
+    this.client = null
+  }
+
+  override Dict onPing()
+  {
+    structures := client.structures.list
+    return Etc.emptyDict()
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Points
+//////////////////////////////////////////////////////////////////////////
+
+  override Void onSyncCur(ConnPoint[] points)
+  {
+    NestSyncCur(this, points).run
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Learn
+//////////////////////////////////////////////////////////////////////////
+
+  override Grid onLearn(Obj? arg)
+  {
+    NestLearn(this, arg).run
+  }
+}

@@ -1,0 +1,32 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   28 Jan 2022  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^nestConn
+is: ^conn
+connFeatures: {learn, pollMode:"buckets"}
+doc:
+  Google Nest connector
+--------------------------------------------------------------------------
+def: ^nestProjectId
+is: ^str
+tagOn: ^nestConn
+doc:
+--------------------------------------------------------------------------
+def: ^nestClientId
+is: ^str
+tagOn: ^nestConn
+--------------------------------------------------------------------------
+def: ^nestClientSecret
+is: ^str
+tagOn: ^nestConn
+--------------------------------------------------------------------------
+def: ^nestRefreshToken
+is: ^str
+tagOn: ^nestConn
+--------------------------------------------------------------------------

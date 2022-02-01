@@ -1,0 +1,33 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   28 Jan 2022  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^nestPoint
+is: ^connPoint
+doc:
+  Point which synchronizes data via a Nest connector.
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^nestConnRef
+is: ^ref
+of: ^nestConn
+tagOn: ^nestPoint
+doc:
+  Used on a proxy point to reference its parent `nestConn`
+--------------------------------------------------------------------------
+def: ^nestCur
+is: ^str
+tagOn: ^nestPoint
+doc:
+  Nest value to use to get the current value.
+--------------------------------------------------------------------------
