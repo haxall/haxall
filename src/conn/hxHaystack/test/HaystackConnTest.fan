@@ -41,9 +41,7 @@ class HaystackConnTest : HxTest
     verifyPointWrite
     verifyReadHis
     verifySyncHis
-/*
     verifyInvokeAction
-*/
     verifyHaystackEval
   }
 
@@ -54,7 +52,11 @@ class HaystackConnTest : HxTest
   Void init()
   {
     // libs
-    addLib("http")
+    if (rt.platform.isSkySpark)
+      addLib("his")
+    else
+      addLib("http")
+    addLib("task")
     addLib("haystack")
 
     // user
@@ -366,7 +368,7 @@ class HaystackConnTest : HxTest
 
   Void resetCur(Dict r)
   {
-    // TODO: not sure we need nor want this
+    // not sure we need nor want this
     //commit(r, ["curVal":Remove.val, "curStatus":Remove.val, "curErr":Remove.val], Diff.forceTransient)
   }
 
@@ -498,7 +500,10 @@ class HaystackConnTest : HxTest
   {
     span := rangeToSpan(rec, range)
     items := HisItem[,]
-    rt.his.read(rec, span, null) |item| { items.add(item) }
+    rt.his.read(rec, span, null) |item|
+    {
+      if (span.contains(item.ts)) items.add(item)
+    }
     grid := Etc.makeDictsGrid(["hisStart":span.start, "hisEnd":span.end], items)
     return grid
   }
@@ -536,8 +541,8 @@ class HaystackConnTest : HxTest
     a := HisItem[,]; rt.his.read(hisF, null, null) |item| { a.add(item) }
     b := HisItem[,]; rt.his.read(hisSyncF, null, null) |item| { b.add(item) }
     verifyEq(a, b)
-//     verifyEq(a.first.val->unit, Unit("fahrenheit"))
-//     verifyEq(b.first.val->unit, Unit("fahrenheit"))
+    verifyEq(a.first.val->unit, Unit("fahrenheit"))
+    verifyEq(b.first.val->unit, Unit("fahrenheit"))
 
 
     // add new items to hisF
@@ -597,6 +602,9 @@ class HaystackConnTest : HxTest
 
   Void verifyInvokeAction()
   {
+    // we don't have invokeAction in Haxall right now
+    if (!rt.platform.isSkySpark) return
+
     // create rec with action
     r := addRec(["dis":"Action", "count":n(1), "msg1": "", "msg2":"", "actions":
       Str<|ver: "2.0"
