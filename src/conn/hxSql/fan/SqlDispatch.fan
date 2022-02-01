@@ -7,7 +7,9 @@
 //   29 Dec 2021  Brian Frank  Redesign for Haxall
 //
 
+using concurrent
 using haystack
+using axon
 using hx
 using hxConn
 using sql::SqlConn as SqlClient
@@ -20,28 +22,9 @@ class SqlDispatch : ConnDispatch
 {
   new make(Obj arg) : super(arg) {}
 
-  static SqlClient doOpen(Conn c)
-  {
-    // gather configuration
-    uriVal := c.rec["uri"] ?: throw FaultErr("Missing 'uri' tag")
-    uri    := uriVal as Uri ?: throw FaultErr("Type of 'uri' must be Uri, not $uriVal.typeof.name")
-    user   := c.rec["username"] as Str ?: ""
-    pass   := c.db.passwords.get(c.id.toStr) ?: ""
-
-    try
-    {
-      return SqlClient.open(uri.toStr, user, pass)
-    }
-    catch (SqlErr e)
-    {
-      if (e.msg.contains("Communications link failure")) throw DownErr(e.msg, e)
-      throw e
-    }
-  }
-
   override Void onOpen()
   {
-    this.client = doOpen(conn)
+    this.client = SqlLib.doOpen(conn)
   }
 
   override Void onClose()
@@ -61,7 +44,57 @@ class SqlDispatch : ConnDispatch
     return Etc.makeDict(tags)
   }
 
+  override Obj? onSyncHis(ConnPoint point, Span span)
+  {
+    try
+    {
+      // get connections axon expression
+      exprStr := rec["sqlSyncHisExpr"] as Str
+      if (exprStr == null) throw FaultErr("'sqlConn' rec must define 'sqlSyncHisExpr': $point.dis")
+
+      // execute expr
+      result := evalSyncHisExpr(point, exprStr, span.start, span.end)
+
+      // map results to HisItems
+      items := HisItem[,]
+      if (!result.isEmpty)
+      {
+        // check columns
+        cols := result.cols
+        if (cols.size != 2) throw Err("sqlSyncHisExpr result must have two columns")
+
+        items.capacity = result.size
+        result.each |row| { items.add(HisItem(row.val(cols[0]), row.val(cols[1]))) }
+      }
+
+      // success!
+      return point.updateHisOk(items, span)
+    }
+    catch (Err e) return point.updateHisErr(e)
+  }
+
+  private Grid evalSyncHisExpr(ConnPoint point, Str exprStr, DateTime start, DateTime end)
+  {
+    cx := rt.makeContext(evalUser)
+    Actor.locals[Etc.cxActorLocalsKey] = cx
+    try
+    {
+      // get expr as 3 parameter function
+      fn := cx.evalToFunc(exprStr)
+
+      // execute expr
+      result := fn.call(cx, [rec, point.rec, ObjRange(start, end)])
+      if (result isnot Grid) throw Err("sqlSyncHisExpr returned invalid result type: ${result?.typeof}")
+      return result
+    }
+    finally Actor.locals.remove(Etc.cxActorLocalsKey)
+  }
+
+  once HxUser evalUser()
+  {
+    rt.user.makeSyntheticUser("sqlHisSync", ["projAccessFilter":"name==${rt.name.toCode}"])
+  }
+
   private SqlClient? client
 }
-
 

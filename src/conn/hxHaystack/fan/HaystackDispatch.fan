@@ -535,7 +535,7 @@ class HaystackDispatch : ConnDispatch
     return openClient.call("hisRead", req)
   }
 
-  override Obj onSyncHis(ConnPoint point, Span span)
+  override Obj? onSyncHis(ConnPoint point, Span span)
   {
     try
     {
