@@ -56,7 +56,9 @@ const class HisMgr : HxFolioMgr, FolioHis
   override FolioFuture write(Ref id, HisItem[] items, Dict? opts := null)
   {
     folio.checkWrite
-    if (opts == null) opts = Etc.emptyDict
+
+    // force unitSet opt to ensure we always store items with unit
+    opts = Etc.dictSet(opts, "unitSet", Marker.val)
 
     // short circuit if no items and special opts
     if (items.isEmpty) return FolioFuture(HisWriteFolioRes.empty)

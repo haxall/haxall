@@ -286,6 +286,7 @@ const class FolioUtil
     // options
     forecast := opts.has("forecast")
     clip := opts["clip"] as Span
+    unitSet := opts.has("unitSet")
 
     // point checks
     if (rec["point"] !== Marker.val) throw HisConfigErr(rec, "Rec missing 'point' tag")
@@ -337,8 +338,16 @@ const class FolioUtil
       {
         // check unit
         num := (Number)val
-        if (num.unit != null && num.unit != unit)
-          throw HisWriteErr(rec, "Mismatched unit, rec unit '${unit}' != item unit '${num.unit}'")
+        if (num.unit == null)
+        {
+          if (unitSet && unit != null)
+            val = num = Number(num.toFloat, unit)
+        }
+        else
+        {
+          if (num.unit != unit)
+            throw HisWriteErr(rec, "Mismatched unit, rec unit '${unit}' != item unit '${num.unit}'")
+        }
 
         // normalize non-integer values, and ensure we normalize -0.0
         if (!num.isInt)
