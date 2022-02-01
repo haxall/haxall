@@ -1,0 +1,77 @@
+
+**************************************************************************
+** title:      NestLib
+** author:     Matthew Giannini
+** created:    01 Feb 2022
+** copyright:  Copyright (c) 2022, SkyFoundry LLC - Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+The Nest library implements connector support for the Google Smart Device Management (SDM)
+API. The SDM API allows you to retrieve sensor data from Google Nest devices.
+
+Prerequisites [#prereqs]
+************************
+Before your can use the nest connector, you must complete the steps in the
+Google Device Acces [Quick Start Guide]`https://developers.google.com/nest/device-access/get-started`.
+After completing this guide you should have obtained the following information:
+
+1. A 'project id' from the Device Access project you created
+1. The following OAuth settings:
+  1. 'client_id'
+  1. 'client_secret'
+  1. 'refresh_token'
+
+Make a note of the those values since you will need them to setup the connector.
+
+Connectivity [#connect]
+***********************
+The SDM API is a RESTful API over HTTPS. You can connect to devices in your
+device access project by creating a `nestConn` rec (the values in '<>' are obtained
+by completing the prerequisites):
+
+pre>
+nestConn
+nestProjectId: "<project-id>"
+nestClientId: "<oauth-client-id>"
+nestClientSecret: "<oauth-client-secret>"
+nestRefreshToken: "<oauth-refresh-token>"
+<pre
+
+Supported Points [#points]
+**************************
+The nest connector used the `nestCur` tag to get the current value of a particular
+device "trait". This value is specified as:
+
+pre>
+  <point-address> := <device-id>:<trait>
+  <trait> := <trait-name>.<trait-field>
+  <device-id>, <trait-name>, <trait-field> := Str
+<pre
+
+For example, if you have a thermostat with device id 'THERM-123', you can obtain the
+current room temperature by setting `nestCur` to 'THERM-123:Temperature.ambientTemperatureCelsius'
+
+The following section detail the supported devices and traits that can be mapped to points.
+Note: the nest connector currently supports only 'Thermostat' devices.
+
+Thermostat [#thermostat]
+========================
+The following trait's are supported for Nest Thermostats:
+
+- 'Humidity.ambientHumidityPercent' - the humidity measured at the device
+- 'Temperature.ambientTermperatureCelsius' - the temperature, measured in degrees
+  Celsius, measured at the device
+- 'ThermostatMode.mode' - the current thermostat mode (e.g. HEAT)
+- 'ThermostatHavac.status' - the current HVAC status of the thermostat (e.g. HEATING)
+- 'ThermostatTemperatureSetpoint.heatCelsius' - the target temperature when the
+thermostat is in HEAT or HEATCOOL mode
+- 'ThermostatTemperatureSetpoint.coolCelsius' - the target temperature when the
+thermostat is in COOL or HEATCOOL mode
+
+Learn [#learn]
+**************
+The nest connector supports `connLearn()` to learn points from your devices. This is
+the easiest way to discover and add points to your project.
+
