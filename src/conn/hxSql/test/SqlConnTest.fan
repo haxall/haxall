@@ -10,6 +10,7 @@
 using haystack
 using concurrent
 using hx
+using hxConn
 
 **
 ** SqlTest
@@ -25,6 +26,7 @@ class SqlConnTest : HxTest
   Dict? sqlTestInit()
   {
     addLib("sql")
+    if (rt.platform.isSkySpark) addLib("his")
 
     // configure one
     sqlPod := Pod.find("sql")
@@ -161,7 +163,7 @@ class SqlConnTest : HxTest
           {timestamp: dateTime(2010-04-26, 4:00, "New_York"), value: 2604}],
           ${conn.id.toCode},
           "sqlext_test_sync_his_a")""")
-    // evalToGrid("""sqlQuery("select * from sqlext_test_sync_his_a")""").dump
+    // eval("""read(sqlConn).sqlQuery("select * from sqlext_test_sync_his_a")""")->dump
 
     // test empty sync for just 2010-04-25
     tz := TimeZone("New_York")
@@ -170,8 +172,7 @@ class SqlConnTest : HxTest
     hisA = readById(hisA.id)
     verifySyncStatus(hisA, 2)
     sync(conn)
-    h := (Grid)eval("hisRead($hisA.id.toCode, null)")
-    verifyRows(h,
+    verifyHis(hisA,
       [[dt(2010, 4, 25, 1, 0, tz), n(2501)],
        [dt(2010, 4, 25, 5, 0, tz), n(2505)]])
 
@@ -182,8 +183,7 @@ class SqlConnTest : HxTest
     hisA = readById(hisA.id)
     verifySyncStatus(hisA, 2)
     sync(conn)
-    h = eval("hisRead($hisA.id.toCode, null)")
-    verifyRows(h,
+    verifyHis(hisA,
       [[dt(2010, 4, 25, 1, 0, tz), n(2501)],
        [dt(2010, 4, 25, 5, 0, tz), n(2505)],
        [dt(2010, 4, 26, 3, 0, tz), n(2603)],
@@ -206,18 +206,18 @@ class SqlConnTest : HxTest
     return r
   }
 
-
-  Void verifyRows(Grid g, Obj?[][] expected)
+  Void verifyHis(Dict pt, Obj?[][] expected)
   {
-    verifyEq(g.size, expected.size)
-    i := 0
-    g.each |row|
+    items := HisItem[,]
+    rt.his.read(pt, null, null) |item| { items.add(item) }
+
+    verifyEq(items.size, expected.size)
+    items.each |item, i|
     {
       e := expected[i++]
-      verifyEq(row->ts,  e[0])
-      verifyEq(row->val, e[1])
+      verifyEq(item.ts,  e[0])
+      verifyEq(item.val, e[1])
     }
-    verifyEq(i, expected.size)
   }
 
   Void verifySyncStatus(Dict rec, Int count)

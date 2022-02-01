@@ -359,7 +359,7 @@ const mixin HxHisService : HxService
 
   override Future write(Dict pt, HisItem[] items, Dict? opts := null)
   {
-    Future.makeCompletable.complete(null)
+    throw UnsupportedErr("Using NilHisService")
   }
 }
 

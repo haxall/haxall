@@ -431,7 +431,7 @@ const final class ConnPoint : HxConnPoint
       writeState.details(s, this)
     }
 
-    if (hisAddr != null)
+    if (hisAddr != null || hisState !== ConnPointHisState.nil)
     {
       s.add("""
                Conn His Sync
