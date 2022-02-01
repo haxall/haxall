@@ -56,7 +56,7 @@ class TaskTest : HxTest
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest { meta = "steadyState: 0s" }
+  @HxRuntimeTest
   Void testBasics()
   {
     lib := (TaskLib)addLib("task")
@@ -89,7 +89,9 @@ class TaskTest : HxTest
     bad3Task := verifyTask(lib.task(bad3.id), "fault",    "fault", "Invalid expr: axon::SyntaxErr: Unexpected symbol: # (0x23) [taskExpr:1]")
 
     // verify subscriptions
+    forceSteadyState
     verifyEq(rt.isSteadyState, true)
+    sync
     sched := rt.obs.get("obsSchedule")
     verifyEq(sched.subscriptions.size, 6)
     verifySubscribed(sched, aTask)

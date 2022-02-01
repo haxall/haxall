@@ -82,6 +82,8 @@ class HttpApiTest : HxTest
 
   private Void doSettings()
   {
+    if (rt.platform.isSkySpark) return
+
     rec := rt.db.read(Filter("ext==\"http\""))
     host := IpAddr.local.hostname
     port := rec.has("httpPort") ? ((Number)rec->httpPort).toInt : 8080
@@ -307,6 +309,8 @@ class HttpApiTest : HxTest
 
   Void doNav()
   {
+    if (rt.platform.isSkySpark) return
+
     Grid g := c.call("nav", Etc.makeMapGrid(null, Str:Obj[:]))
     verifyEq(g.size, 3)
     verifyEq(g[0].dis, "A")
