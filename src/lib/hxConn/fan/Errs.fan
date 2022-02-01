@@ -46,7 +46,7 @@ const class UnknownConnTuningErr : Err
 }
 
 @NoDoc
-const class UnknownNotOpenLibErr : Err
+const class NotOpenLibErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }

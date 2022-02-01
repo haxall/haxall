@@ -17,7 +17,7 @@ class Build : BuildPod
   new make()
   {
     podName = "hxDocker"
-    summary = "Docker"
+    summary = "Docker management"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",

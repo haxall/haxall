@@ -101,7 +101,7 @@ internal final class ConnMgr
   ** Raise exception if not open
   This checkOpen()
   {
-    if (!isOpen) throw UnknownNotOpenLibErr("Connector open failed", vars.err)
+    if (!isOpen) throw NotOpenLibErr("Connector open failed", vars.err)
     return this
   }
 

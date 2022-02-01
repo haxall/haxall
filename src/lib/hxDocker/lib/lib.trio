@@ -11,5 +11,5 @@ def: ^lib:docker
 icon: "docker"
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc]
 typeName:"hxDocker::DockerLib"
-doc: "Docker"
+doc: "Docker management"
 --------------------------------------------------------------------------
