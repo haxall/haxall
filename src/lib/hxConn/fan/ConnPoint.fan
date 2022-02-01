@@ -294,7 +294,7 @@ const final class ConnPoint : HxConnPoint
   ** Write new history items and update status.  Span should be same value
   ** passed to 'onSyncHis'.  The items will be normalized, clipped by span,
   ** converted by `hisConvert` if configured, and then and written to historian.
-  Obj updateHisOk(HisItem[] items, Span span)
+  Obj? updateHisOk(HisItem[] items, Span span)
   {
     s := ConnPointHisState.updateOk(this, items, span)
     hisStateRef.val = s
@@ -303,7 +303,7 @@ const final class ConnPoint : HxConnPoint
   }
 
   ** Update his sync with given error
-  Obj updateHisErr(Err err)
+  Obj? updateHisErr(Err err)
   {
     s := ConnPointHisState.updateErr(this, err)
     hisStateRef.val = s

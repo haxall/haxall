@@ -188,7 +188,7 @@ abstract class ConnDispatch
   ** `ConnPoint.updateHisOk` or `ConnPoint.updateHisErr` (or just
   ** raise exception).  The return of this method should be
   ** whatever 'updateHisXXX' returns.
-  virtual Obj onSyncHis(ConnPoint point, Span span) { throw UnsupportedErr() }
+  virtual Obj? onSyncHis(ConnPoint point, Span span) { throw UnsupportedErr() }
 
   ** Callback made periodically every few seconds to handle background tasks.
   virtual Void onHouseKeeping() {}
