@@ -16,11 +16,12 @@ class Build : BuildGroup
   {
     childrenScripts =
     [
-      `mqtt/build.fan`,
       `hxHaystack/build.fan`,
       `hxSql/build.fan`,
       `hxModbus/build.fan`,
+      `mqtt/build.fan`,
       `hxMqtt/build.fan`,
+      `obix/build.fan`,
     ]
   }
 }

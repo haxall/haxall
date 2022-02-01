@@ -18,7 +18,6 @@ class Build : BuildGroup
     [
       `oauth2/build.fan`,
       `ftp/build.fan`,
-      `obix/build.fan`,
       `rdf/build.fan`,
       `docker/build.fan`,
     ]
