@@ -27,9 +27,9 @@ const class HaystackFuncs
 
   ** Deprecated - use `connLearn()`
   @Deprecated @Axon { admin = true }
-  static Obj? haystackLearn(Obj conn, Obj? arg := null)
+  static Grid haystackLearn(Obj conn, Obj? arg := null)
   {
-    ConnFwFuncs.connLearn(conn, arg)
+    ConnFwFuncs.connLearn(conn, arg).get(1min)
   }
 
   ** Deprecated - use `connSyncCur()`

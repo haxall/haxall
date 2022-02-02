@@ -63,6 +63,12 @@ abstract class ConnDispatch
   ** ConnMgr wrapper which handles implementation logic
   private ConnMgr mgr
 
+  ** Get the point managed by this connector via its point rec id.
+  ConnPoint? point(Ref id, Bool checked := true) { conn.point(id, checked) }
+
+  ** Get list of all points managed by this connector.
+  ConnPoint[] points() { conn.points }
+
   ** Get list of points which are currently in watch.
   ConnPoint[] pointsWatched() { mgr.pointsInWatch.ro }
 
