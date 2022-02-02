@@ -13,6 +13,7 @@ is: ^entity
 mandatory
 doc:
   Connector for communication to a remote system.
+  See `docHaxall::Conns`
 --------------------------------------------------------------------------
 defx: ^disabled
 tagOn: ^conn
@@ -48,7 +49,7 @@ tagOn: ^conn
 transient
 doc:
   Error message associated when `connStatus` indicates an error condition.
-  See `doc#conns`
+  See `docHaxall::Conns#connStatus`
 --------------------------------------------------------------------------
 def: ^connLinger
 is: ^duration
@@ -84,7 +85,7 @@ tagOn: ^conn
 transient
 doc:
   Current connection state of a connector as one of the predefined strings.
-  See `doc#conns`
+  See `docHaxall::Conns#connState`
 enum: Trio:
   closed:  {icon:"status"  iconColor:"#e67e22", doc:"Connection is closed"}
   closing: {icon:"spinner" iconColor:"#e67e22", doc:"Connection is currently being closed"}
@@ -97,7 +98,7 @@ tagOn: ^conn
 transient
 doc:
   Current status of a connector as one of the predefined strings
-  See `lib-conn::doc#conns`
+  See `docHaxall::Conns#connStatus`
 enum: Trio:
   ok:       {icon:"check"    iconColor:"#1ca355" doc:"All is okay"}
   fault:    {icon:"err"      iconColor:"#db311f" doc:"Configuration problem"}

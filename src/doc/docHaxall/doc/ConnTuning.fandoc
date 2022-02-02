@@ -1,0 +1,78 @@
+**************************************************************************
+** title:      Connector Tuning
+** author:     Brian Frank
+** created:    4 Jul 2012
+** copyright:  Copyright (c) 2012, SkyFoundry LLC
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+TODO
+
+ConnTuning [#connTuning]
+*************************
+TODO
+
+pollTime [#pollTime]
+====================
+The `pollTime` tag specifies a duration Number which is the frequency used
+to poll a point for `curVal`.  This tag is only used for connectors which
+use the buckets polling mode.  Connectors which use a COV subscription model
+will ignore this value.  If unspecified the default is 10sec.
+
+staleTime [#staleTime]
+======================
+The `staleTime` tag specifies a duration Number used to transition a
+point's `curStatus` tag from "ok" to "stale".  It ensures that users and applications
+are aware that data might not be fresh.  The transition to stale occurs
+when all the following conditions are met:
+  1.  the point's 'curStatus' is currently "ok"
+  2.  the point is **not** in a watch
+  3.  the last successful read exceeds the stale time
+
+Note that we assume points in a watch are currently up-to-date even if their
+last read time exceeds the stale time.  This is because change of value
+subscriptions might not be calling 'updateCurOk' continuously if no changes
+are received.  If unspecified the default is 5min.
+
+writeMinTime [#writeMinTime]
+============================
+The `writeMinTime` tag specifies a duration Number used to throttle
+the frequency of writes to the remote device.  For example if configured
+to 5sec, then writes will be issued no faster than 5sec.  After a successful
+write occurs, if any writes are attempted within that 5sec window then they
+are queued as a pending write.  After 5sec has elapsed the last pending
+write is issued to the connector's 'onWrite' callback.  Note that
+writeMinTime is only enforced after successful writes.  If the connector
+reports a write failure, then writeMinTime is not enforced on subsequent
+attempts.
+
+writeMaxTime [#writeMaxTime]
+============================
+The `writeMaxTime` tag specifies a duration Number used to issue
+periodic rewrites to the remote device.  For example if configured
+to 10min, then if no successful writes have been issued after 10min
+then a write is automatically scheduled to the connector's 'onWrite'
+callback.  The writeMaxTime does not go into effect until after
+the project reaches [steady state]`Runtime#steadyState`.
+
+writeOnOpen [#writeOnOpen]
+==========================
+The `writeOnOpen` marker tag is applied to issue a write whenever
+the connector transitions from closed to open.  This policy is typically
+used when the remote device stores writes in RAM only and needs to be
+re-written after reboots.
+
+writeOnStart [#writeOnStart]
+============================
+The `writeOnStart` marker tag is applied to issue a write when the
+system starts up.  If omitted then the system suppresses the initial
+priority array evaluation.
+
+Details [#details]
+******************
+
+
+
+

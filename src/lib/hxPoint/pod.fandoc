@@ -125,7 +125,7 @@ Point His [#his]
 ****************
 Points which are historized are annotated with the `his` marker tag.
 Any point may be historized in one of two ways:
-  - [conn sync]`lib-conn::doc#implConnPointHis`: if the remote system supports its
+  - [conn sync]`docHaxall::Conns#hisSync`: if the remote system supports its
     own data logging facilities, then the point's connector should implement
     history synchronization
   - [collect]`ext-point::doc#hisCollect`: the point history may be be collected
@@ -258,7 +258,7 @@ Point Conversion [#convert]
 ***************************
 Point conversions are used to convert between the representations
 of external systems and the normalized local representations.  They
-are used by the [connector framework]`lib-conn::doc#convert` with
+are used by the [connector framework]`docHaxall::Conns#convert` with
 the `curConvert`, `writeConvert`, and `hisConvert` tags.  Use
 cases include:
   - mathematical conversions of raw modbus registers

@@ -1,0 +1,103 @@
+**************************************************************************
+** title:      Connectors
+** author:     Brian Frank
+** created:    4 Jul 2012
+** copyright:  Copyright (c) 2012, SkyFoundry LLC
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+The connector framework provides a standardized model for integrating
+to external systems.  It is based upon the following key features:
+  - **Connector**: a record which represents a connection to an external
+    system or device
+  - **Connector Point**: proxy point bound to a connector used to
+    synchronize current value, writable value, or history
+  - **Tuning**: a broad set of configuration options to fine tune
+    connector behavior and performance
+  - **Learning**: many connectors provide a mechanism to "walk" the
+    external system for point-and-click UI tools
+  - **Diagnostics**: the framework includes detailed debugging and
+    network tracing tools
+  - **Axon API**: a suite of Axon functions to access protocol specific functionality
+  - **Fantom API**: a suite of Fantom APIs make it easy to create your
+    own custom connectors
+
+Haxall provides a rich library of ready to use connectors:
+  - [Haystack]`lib-haystack::doc`: provides client connectivity via the
+    Haystack HTTP API (used for Niagara)
+  - [MQTT]`lib-mqtt::doc`: connects to a broker to publish and subscribe to topics
+  - [SQL]`lib-sql::doc`: connect to relational databases using JDBC
+  - [Modbus]`lib-modbus::doc`: client support for TCP and RTU modbus protocols
+  - [oBIX]`lib-obix::doc`: client and server support for oBIX XML protocol
+  - [Sedona]`lib-sedona::doc`: client support for the Sedona Sox protocol
+  - [Nest]`lib-nest::doc`: connect to Google smart device management including Nest thermostats
+
+SkySpark includes the following additional connectors:
+  - [BACnet]`lib-bacnet::doc`: client support for BACnet IP
+  - [OPC]`lib-opc::doc`: client support for OPC UA
+  - [EnergyStar]`lib-energyStar::doc`: integration with Energy Star Portfolio Manager
+  - [SNMP]`lib-snmp::doc`: client support for SNMP typically used with IT equipment
+
+Many third party connectors are also available on [StackHub]`https://stackhub.org`.
+
+Naming Conventions [#naming]
+****************************
+The connector framework relies heavily on naming conventions to promote consistency.
+Everything is based on the library name. Let's look at the 'haystack' connector
+as an example:
+
+  - `haystackConn`: marker tag for the connector rec
+  - `haystackPoint`: marker tag for the associated points
+  - `haystackConnRef`: reference on each point to its parent connector
+  - `haystackCur`: address for curVal subscription
+  - `haystackWrite`: address for writable points
+  - `haystackHis`: address for history data synchronization
+
+If you know the library name, then you can infer all the other names.
+
+Connectors [#conns]
+*******************
+Each connector instance is a record in the `Folio` database that models a logical
+connection to a remote system.  A connector might model an external device,
+server, or database.  Each connector has some unique address and communication
+protocol to integrate with the external entity.
+
+The following tags are typically used to configure a connector:
+  - 'fooConn': required marker tag for specific connector type
+  - `conn`: required marker tag
+  - `uri`: most connectors use this tag for the address of remote system
+  - `username`: when authentication is required to remote system
+  - `password`: when authentication is required, then password should be stored
+    in [password db]`docSkySpark::Security#passwords` by connector's record id
+  - `disabled`: marker tag which disables the connector
+
+The following transient status tags are managed by the framework itself:
+  - `connStatus`: ok, down, fault or disabled
+  - `connState`: close, opening, open, or closing
+  - `connErr`: error message if connStatus indicates error condition
+  - additional debugging details are available via the [details]`ConnTuning#details`
+
+In addition to the tags above, each connector defines its own tags for
+meta data about the remote system/device.  This data is queried from the
+remote system during [ping]`connPing()` and typically includes:
+  - make and model of remote device or software
+  - hardware/software version of remote system
+
+Connectors [#connState]
+***********************
+TODO
+
+Conn Status [#connStatus]
+*************************
+TODO
+
+History Sync [#hisSync]
+***********************
+TODO
+
+Point Conversions [#convert]
+****************************
+TODO
+

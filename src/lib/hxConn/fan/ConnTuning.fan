@@ -87,7 +87,7 @@ const final class ConnTuningRoster
 
 **
 ** ConnTuning models a `connTuning` rec.
-** See `lib-conn::doc#tuning`
+** See `docHaxall::ConnTuning`
 **
 const final class ConnTuning
 {
@@ -109,27 +109,29 @@ const final class ConnTuning
   ** Debug string
   override Str toStr() { "ConnTuning [$rec.id.toZinc]" }
 
-  ** Frequency between polls of 'curVal' (default is 10sec).
-  ** See `lib-conn::doc#pollTime`.
+  ** Frequency between polls of 'curVal'.
+  ** See See `docHaxall::ConnTuning#pollTime`.
   Duration pollTime() { config.pollTime }
 
-  ** Time before a point's curStatus marked from "ok" to "stale" (default is 5min)
-  ** See `lib-conn::doc#staleTime`.
+  ** Time before a point's curStatus marked from "ok" to "stale".
+  ** See See `docHaxall::ConnTuning#staleTime`.
   Duration staleTime() { config.staleTime }
 
-  ** Minimum time between writes used to throttle the speed of writes
-  ** See `lib-conn::doc#writeMinTime`.
+  ** Minimum time between writes used to throttle the speed of writes.
+  ** See See `docHaxall::ConnTuning#writeMinTime`.
   Duration? writeMinTime() { config.writeMinTime }
 
-  ** Maximum time between writes used to send periodic writes
-  ** See `lib-conn::doc#writeMaxTime`.
+  ** Maximum time between writes used to send periodic writes.
+  ** See See `docHaxall::ConnTuning#writeMaxTime`.
   Duration? writeMaxTime() { config.writeMaxTime }
 
-  ** Rewrite the point everytime time the connector transitions to open
-  @NoDoc Bool writeOnOpen() { config.writeOnOpen }
+  ** Rewrite the point everytime time the connector transitions to open.
+  ** See See `docHaxall::ConnTuning#writeOnOpen`.
+  Bool writeOnOpen() { config.writeOnOpen }
 
-  ** Issue a write when system starts up, otherwise suppress it
-  @NoDoc Bool writeOnStart() { config.writeOnStart }
+  ** Issue a write when system starts up, otherwise suppress it.
+  ** See `docHaxall::ConnTuning#writeOnStart`.
+  Bool writeOnStart() { config.writeOnStart }
 
   ** Rec configuration
   internal ConnTuningConfig config() { configRef.val }

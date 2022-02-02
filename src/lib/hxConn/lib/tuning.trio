@@ -13,7 +13,7 @@ is: ^entity
 mandatory
 doc:
   Marker applied to a rec which defines a tuning configuration.
-  See `doc#tuning`
+  See `docHaxall::ConnTuning#connTuning`
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
@@ -27,42 +27,42 @@ of: ^connTuning
 tagOn: [^conn, ^connPoint]
 doc:
   Reference to a tuning configuration defined by a `connTuning` rec.
-  See `doc#tuning`
+  See `docHaxall::ConnTuning#connTuning`
 --------------------------------------------------------------------------
 def: ^pollTime
 is: ^duration
 tagOn: ^connTuning
 doc:
   Frequency between polls of 'curVal'.
-  See `ext-conn::doc#pollTime`.
+  See `docHaxall::ConnTuning#pollTime`.
 --------------------------------------------------------------------------
 def: ^staleTime
 is: ^duration
 tagOn: ^connTuning
 doc:
    Time before a point's curStatus marked from "ok" to "stale"
-  See `ext-conn::doc#staleTime`.
+   See `docHaxall::ConnTuning#staleTime`.
 --------------------------------------------------------------------------
 def: ^writeMaxTime
 is: ^duration
 tagOn: ^connTuning
 doc:
   Maximum time between writes used to send perioid writes.
-  See `ext-conn::doc#writeMaxTime`.
+  See `docHaxall::ConnTuning#writeMaxTime`.
 --------------------------------------------------------------------------
 def: ^writeMinTime
 is: ^duration
 tagOn: ^connTuning
 doc:
   Minimum time between writes used to throttle the speed of writes.
-  See `ext-conn::doc#writeMinTime`.
+  See `docHaxall::ConnTuning#writeMinTime`.
 --------------------------------------------------------------------------
 def: ^writeOnOpen
 is: ^marker
 tagOn: ^connTuning
 doc:
   Issue a write every time the connector transitions from open to closed.
-  See `ext-conn::doc#writeOnOpen`.
+  See `docHaxall::ConnTuning#writeOnOpen`.
 --------------------------------------------------------------------------
 def: ^writeOnStart
 is: ^marker
@@ -70,7 +70,7 @@ tagOn: ^connTuning
 doc:
   Issue a write when the system first starts up.  If missing then
   the first write is suppressed on startup.
-  See `ext-conn::doc#writeOnStart`.
+  See `docHaxall::ConnTuning#writeOnStart`.
 --------------------------------------------------------------------------
 
 

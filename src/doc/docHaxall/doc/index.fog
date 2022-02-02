@@ -23,6 +23,10 @@
   [`Units`,         "Units of measurement"],
 "Formats and Protocols",
   [`Xml`,           "Extensible markup language"],
+"Connectors",
+  [`Conns`,         "Overview to using connectors"],
+  [`ConnTuning`,    "Guide to tuning connector performance"],
+  [`CustomConns`,   "Creating your own custom connector"],
 "Appendix",
   [`AxonGrammar`,   "Formal BNF syntax grammar"],
   [`ChangeLog`,     "List of changes in each build"]
