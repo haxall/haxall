@@ -18,7 +18,7 @@ const class Nest
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(Str projectId, Str clientId, Str clientSecret, Str? refreshToken := null)
+  new make(Str projectId, Str clientId, Str clientSecret, Str refreshToken)
   {
     this.projectId = projectId
     token  := RawAccessToken("ForceRefreshAuthToken") { it.refreshToken = refreshToken }
