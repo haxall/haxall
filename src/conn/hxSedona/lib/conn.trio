@@ -1,0 +1,44 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   14 May 2012  Brian Frank  Creation
+//   19 Jan 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^sedonaConn
+is: ^conn
+icon: "sedona"
+connFeatures: {learn}
+doc:
+  Sedona Sox connector to a remote device.
+--------------------------------------------------------------------------
+defx: ^uri
+tagOn: ^sedonaConn
+--------------------------------------------------------------------------
+defx: ^username
+tagOn: ^sedonaConn
+--------------------------------------------------------------------------
+defx: ^password
+tagOn: ^sedonaConn
+--------------------------------------------------------------------------
+
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+// --------------------------------------------------------------------------
+// def: ^sedonaPlatform
+// is: ^str
+// tagOn: ^sedonaConn
+// doc: "Platform identifiers of the device"
+// --------------------------------------------------------------------------
+// def: ^sedonaVersion
+// is: ^str
+// tagOn: ^sedonaConn
+// doc: "Version of the sys kit"
+// --------------------------------------------------------------------------
+

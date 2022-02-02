@@ -1,0 +1,43 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   14 May 2012  Brian Frank  Creation
+//   19 Jan 2019  Brian Frank  Refactor for new def design
+//
+
+
+--------------------------------------------------------------------------
+def: ^sedonaPoint
+is: ^connPoint
+doc:
+  Point which synchronizes data via a Sedona connector.
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^sedonaConnRef
+is: ^ref
+of: ^sedonaConn
+tagOn: ^sedonaPoint
+doc:
+  Used on a proxy point to reference its parent `sedonaConn`
+--------------------------------------------------------------------------
+def: ^sedonaCur
+is: ^str
+tagOn: ^sedonaPoint
+doc:
+  Sedona address to use for current value subscritions.
+  Formatted as "compId.slot".
+--------------------------------------------------------------------------
+def: ^sedonaWrite
+is: ^str
+tagOn: ^sedonaPoint
+doc:
+  Sedona address to use for writing.  Formatted as "compId.slot".
+--------------------------------------------------------------------------
+

@@ -1,0 +1,21 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   14 May 2020  Brian Frank  Creation
+//
+
+---------------------------------------------------------------------------
+view: sedonaManifests
+appName: conn
+dis: "Sedona Manifests"
+admin
+doc: "Manage the local database of Sedona manifest files"
+src:
+  view:   { inherit:"table" }
+  upload: { disKey:"ui::upload" upload multi action:"sedonaKitManifestUpload" }
+  debug:  { disKey:"ui::view" action:"sedonaKitManifestView"  select }
+  delete: { disKey:"ui::delete" action:"sedonaDeleteKitManifests" select multi confirm:{dis:"Delete manifests?" details:"This will permanently delete the files from manifest directory."}}
+  data:   { expr:"sedonaKitManifests()" }
+--------------------------------------------------------------------------

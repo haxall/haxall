@@ -247,7 +247,7 @@ internal final class ConnMgr
 
   Grid onLearn(Obj? arg)
   {
-    openLinger
+    openLinger.checkOpen
     return dispatch.onLearn(arg)
   }
 
