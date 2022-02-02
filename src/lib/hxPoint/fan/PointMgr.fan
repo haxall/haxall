@@ -72,7 +72,12 @@ internal const class PointMgrActor : Actor
   const Type mgrType
   const Log log
 
-  Void start() {  sendLater(checkFreq, checkMsg) }
+  Bool isRunning() { isRunningRef.val }
+  private const AtomicBool isRunningRef := AtomicBool()
+
+  Void start() { isRunningRef.val = true; sendLater(checkFreq, checkMsg) }
+
+  Void stop() { isRunningRef.val = false }
 
   Void obs(CommitObservation e) { send(HxMsg("obs", e)) } // async
 
@@ -84,13 +89,14 @@ internal const class PointMgrActor : Actor
 
   override Obj? receive(Obj? msg)
   {
-    //  fault
+    // fault
     if (lib.spi.isFault) return null
 
     // init manager on first message
     mgr := Actor.locals["pm"] as PointMgr
     if (mgr == null)
     {
+      if (!isRunning) return null
       try
         Actor.locals["pm"] = mgr = this.mgrType.make([lib])
       catch (Err e)
@@ -103,7 +109,7 @@ internal const class PointMgrActor : Actor
       try mgr.onCheck
       catch (ShutdownErr e) {}
       catch (Err e) log.err("onCheck", e)
-      sendLater(checkFreq, checkMsg)
+      if (isRunning) sendLater(checkFreq, checkMsg)
       return null
     }
 

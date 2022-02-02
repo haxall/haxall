@@ -69,6 +69,20 @@ const class PointLib : HxLib
     if (rec.has("demoMode")) demoMgr.start
   }
 
+  ** Stop callback
+  override Void onStop()
+  {
+    writeMgr.stop
+    hisCollectMgr.stop
+    demoMgr.stop
+  }
+
+  ** Steady state callback
+  override Void onSteadyState()
+  {
+    if (writeMgr.isRunning) writeMgr.forceCheck
+  }
+
   ** Event when 'enumMeta' record is modified
   internal Void onEnumMetaEvent(CommitObservation? e)
   {

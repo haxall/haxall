@@ -159,10 +159,16 @@ internal class WriteMgr : PointMgr
     observable := lib.writeMgr.observable
     if (!observable.hasSubscriptions) return
 
-    // fire event to subscribed observers
+    // we have two potential events; for normal subscribers we are sending an
+    // event only on a new effective value+level.  But for the subscribers with
+    // the 'obsAllWrites' flag we are firing event for each specific level change.
+    // We lazily create these events in the loop below
     ts := DateTime.now
     rec := writeRec.rec
-    event := WriteObservation(observable, ts, writeRec.id, rec, val, level, who, first)
+    WriteObservation? eventEff := null
+    WriteObservation? eventAll := null
+
+    // fire event to subscribed observers
     observable.subscriptions.each |WriteSubscription sub|
     {
       // short circuit if not an effective change and not subscribed to all changes
@@ -172,7 +178,20 @@ internal class WriteMgr : PointMgr
       if (!sub.include(rec)) return
 
       // fire event to this subscriber
-      sub.send(event)
+      if (sub.isAllWrites)
+      {
+        // this subscriber has the 'obsAllWrites' flag, so we fire
+        // event for the specific level which has been modified
+        if (eventAll == null) eventAll = WriteObservation(observable, ts, writeRec.id, rec, val, level, who, first)
+        sub.send(eventAll)
+      }
+      else
+      {
+        // normal subscriber, so we fire an event for
+        // the new effective level cached by lastVal, lastLevel
+        if (eventEff == null) eventEff = WriteObservation(observable, ts, writeRec.id, rec, writeRec.lastVal, writeRec.lastLevel, who, first)
+        sub.send(eventEff)
+      }
     }
   }
 
