@@ -31,6 +31,7 @@ class Build : BuildPod
                 "inet @{fan.depend}",
                 "web @{fan.depend}",
                 "xml @{fan.depend}",
+                "auth @{hx.depend}",
                 "obix @{hx.depend}",
                 "haystack @{hx.depend}",
                 "axon @{hx.depend}",

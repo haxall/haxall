@@ -42,7 +42,7 @@ doc: "View debug connector tracing"
 src:
   view:    { uiType:"uiBuilder::ConnTraceView" }
   conn:    { input var kind:"Ref<conn>" }
-  types:   { input var kind:"Str" defVal:"*" uiInput:"uiBuilder::ConnTraceTypesInput" }
+  types:   { input var kind:"Str" defVal:"phase,dispatch,req,res,event,log" uiInput:"uiBuilder::ConnTraceTypesInput" }
   ping:    { action:"connPing" select noFlash }
   close:   { action:"connClose" select noFlash }
   enable:  { action:"connTraceEnable" select noFlash }

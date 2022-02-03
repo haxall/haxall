@@ -10,6 +10,7 @@
 
 using inet
 using obix
+using auth
 using haystack
 using hx
 using hxConn
@@ -42,15 +43,30 @@ class ObixDispatch : ConnDispatch
   override Void onOpen()
   {
     // gather configuration
-    lobbyVal := rec["obixLobby"] ?: throw FaultErr("Missing 'obixLobby' tag")
-    lobbyUri := lobbyVal as Uri ?: throw FaultErr("Type of 'obixLobby' must be Uri, not $lobbyVal.typeof.name")
-    user     := rec["username"] ?: ""
-    pass     := db.passwords.get(id.toStr) ?: ""
+    lobbyVal   := rec["obixLobby"] ?: throw FaultErr("Missing 'obixLobby' tag")
+    lobbyUri   := lobbyVal as Uri ?: throw FaultErr("Type of 'obixLobby' must be Uri, not $lobbyVal.typeof.name")
+    user       := rec["username"] ?: ""
+    pass       := db.passwords.get(id.toStr) ?: ""
+    log        := trace.asLog
+    sockConfig := SocketConfig.cur.setTimeouts(conn.timeout)
+
+    // authentication
+    if (rec.has("obixBasicAuth"))
+    {
+      trace.phase("Authenticate using Basic")
+      client = ObixClient(lobbyUri, user, pass)
+    }
+    else
+    {
+      trace.phase("Authenticate using Haystack")
+      auth := AuthClientContext.open(lobbyUri, user, pass, log, sockConfig)
+      trace.phase("AuthClientContext", auth.headers.toStr)
+      client = ObixClient(lobbyUri, auth.headers)
+    }
 
     // open the client
-    client = ObixClient(lobbyUri, user, pass)
-    client.log = trace.asLog
-    client.socketConfig = SocketConfig.cur.setTimeouts(conn.timeout)
+    client.log = log
+    client.socketConfig = sockConfig
     client.readLobby
     isNiagara = rec.get("productName", "").toStr.contains("Niagara")
   }

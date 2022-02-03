@@ -306,8 +306,8 @@ class ObixTest : HxTest
   Void verifyConn()
   {
     // create connector
-    conn = addRec(["obixConn":Marker.val, "obixLobby":lobbyUri, "username":"", "obixPollFreq":n(10, "ms")])
-    rt.db.passwords.set(conn.id.toStr, "")
+    conn = addRec(["obixConn":Marker.val, "obixLobby":lobbyUri, "username":"alice", "obixPollFreq":n(10, "ms")])
+    rt.db.passwords.set(conn.id.toStr, "secret")
 
     // verify ping
     r := eval("read(obixConn).obixPing.futureGet")
@@ -376,9 +376,9 @@ class ObixTest : HxTest
     // verify history was synced
     hisSyncF = readById(hisSyncF.id)
     hisF = readById(hisF.id)
-    verifyEq(hisSyncF->hisSize,  n(-3) + hisF->hisSize) // don't have May 2nd yet
     verifyEq(hisSyncF->hisStart, hisF->hisStart)
     verifyEq(hisSyncF->hisEnd,   dt(2010, 5, 1, 5, 0, tz))
+    verifyEq(hisSyncF->hisSize,  n(-3) + hisF->hisSize) // don't have May 2nd yet
     a.clear; rt.his.read(hisF, null, null) |item| { a.add(item) }
     b.clear; rt.his.read(hisSyncF, null, null) |item| { b.add(item) }
     verifyEq(a.size - 3, b.size)
