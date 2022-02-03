@@ -401,7 +401,7 @@ class HaystackDispatch : ConnDispatch
     if (watchId == null) return
     try
     {
-      req := Etc.makeEmptyGrid(["watchId": watchId])
+      req := Etc.makeEmptyGrid(Etc.makeDict2("watchId", watchId, "curValSub", Marker.val))
       res := call("watchPoll", req)
       res.each |rec|
       {

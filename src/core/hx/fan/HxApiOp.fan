@@ -387,12 +387,25 @@ internal class HxWatchPollOp : HxApiOp
     // parse reqeust
     watchId := req.meta["watchId"] as Str ?: throw Err("Missing meta.watchId")
     refresh := req.meta.has("refresh")
+    curValSub := req.meta.has("curValSub")
 
     // poll as refresh or cov
     watch := cx.rt.watch.get(watchId)
     recs := refresh ? watch.poll(Duration.defVal) : watch.poll
     resMeta := Etc.makeDict1("watchId", watchId)
-    return Etc.makeDictsGrid(resMeta, recs)
+    if (curValSub)
+    {
+      return GridBuilder()
+        .setMeta(resMeta)
+        .addCol("id")
+        .addCol("curVal")
+        .addCol("curStatus")
+        .addDictRows(recs).toGrid
+    }
+    else
+    {
+      return Etc.makeDictsGrid(resMeta, recs)
+    }
   }
 }
 
