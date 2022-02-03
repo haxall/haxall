@@ -131,8 +131,8 @@ class ObixDispatch : ConnDispatch
     pointsByIndex := ConnPoint[,]
     points.each |pt|
     {
-      uri := toObixCur(pt)
-      if (uri == null) return
+      if (!pt.isCurEnabled) return
+      uri := (Uri)pt.curAddr
       uris.add(uri)
       pointsByIndex.add(pt)
     }
@@ -147,23 +147,6 @@ class ObixDispatch : ConnDispatch
     }
   }
 
-  private Uri? toObixCur(ConnPoint pt)
-  {
-    // skip if no current address
-    uriVal := pt.rec["obixCur"]
-    if (uriVal == null) return null
-
-    // sanity on uri value
-    uri := uriVal as Uri
-    if (uri == null)
-    {
-      pt.updateCurErr(Err("obixCur is $uriVal.typeof.name not Uri"));
-      return null
-    }
-
-    return uri
-  }
-
   ** Callback for watch, do subscription on comp
   override Void onWatch(ConnPoint[] points)
   {
@@ -171,8 +154,8 @@ class ObixDispatch : ConnDispatch
     uris := Uri[,]
     points.each |pt|
     {
-      uri := toObixCur(pt)
-      if (uri == null) return
+      if (!pt.isCurEnabled) return
+      uri := (Uri)pt.curAddr
       uris.add(uri)
       watchUris[uri] = pt
     }
@@ -297,7 +280,7 @@ class ObixDispatch : ConnDispatch
 
   override Void onWrite(ConnPoint pt, ConnWriteInfo info)
   {
-    uri := pt.rec["obixWrite"] as Uri ?: throw FaultErr("Missing obixWrite Uri")
+    uri := pt.writeAddr as Uri ?: throw FaultErr("Missing obixWrite Uri")
 
     // build <obj is='obix:WritePointIn'><obj name='value'/></obj>
     valObj := ObixUtil.toObix(info.val)
@@ -318,23 +301,30 @@ class ObixDispatch : ConnDispatch
   override Obj? onSyncHis(ConnPoint point, Span span)
   {
     try
-      return point.updateHisOk(onReadHis(point.rec->obixHis, span), span)
+    {
+      items := readHisUri(point.hisAddr, span.start, span.end, span.tz)
+      return point.updateHisOk(items, span)
+    }
     catch (Err e)
+    {
       return point.updateHisErr(e)
+    }
   }
 
-  private Obj? onReadHis(Uri uri, Span span)
+  private Grid onReadHis(Uri uri, Span span)
   {
-    try
-      return readHisUri(uri, span.start, span.end)
-    catch (Err err)
-      return err
+    open
+    items := readHisUri(uri, span.start, span.end)
+
+    gb := GridBuilder().addCol("ts").addCol("val")
+    gb.capacity = items.size
+    items.each |item| { gb.addRow2(item.ts, item.val) }
+    return gb.toGrid
   }
 
   private HisItem[] readHisUri(Uri uri, DateTime? start, DateTime? end, TimeZone? tz := null)
   {
-    open
-    return readHis(client.read(uri), start, end, tz)
+    readHis(client.read(uri), start, end, tz)
   }
 
   private HisItem[] readHis(ObixObj hisObj, DateTime? start, DateTime? end, TimeZone? tz := null)

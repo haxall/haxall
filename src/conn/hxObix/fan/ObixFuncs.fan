@@ -87,15 +87,8 @@ const class ObixFuncs
     tz := TimeZone.fromStr(rec->tz)
     r := CoreLib.toDateSpan(range).toSpan(tz)
 
-    // delegate read to connector
-    msg := HxMsg("readHis", uri, r)
-    HisItem[] items := dispatch(cx, rec, msg)
-
-    // turn into grid
-    rows := Obj[][,]
-    rows.capacity = items.size
-    items.each |item| { rows.add([item.ts, item.val]) }
-    return Etc.makeListsGrid(null, ["ts", "val"], null, rows)
+    // delegate hisRead call to connector
+    return dispatch(cx, rec, HxMsg("readHis", uri, r))
   }
 
   **
