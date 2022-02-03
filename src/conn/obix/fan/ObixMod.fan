@@ -355,8 +355,7 @@ const abstract class ObixMod : WebMod
 
     res.headers["Content-Type"] = "text/xml"
     res.headers["Content-Length"] = buf.size.toStr
-    res.out.writeBuf(buf)
-    res.out.close
+    res.out.writeBuf(buf).flush
   }
 
   private Void writeResErr(Str msg, Err? cause := null)

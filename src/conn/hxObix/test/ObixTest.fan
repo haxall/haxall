@@ -453,7 +453,10 @@ class ObixTest : HxTest
     verifyWatchUnresolvedErr(vals[1], href(`rec/badone/`))
     verifyWatchIds(w, [recA, recB, pt2])
 
-    // poll for changes - there should be none
+    // poll for changes - first there should be 4, then none
+    res = client.invoke(w.get("pollChanges").normalizedHref, ObixObj {})
+    vals = res.get("values").list
+    verifyEq(vals.size, 3)
     res = client.invoke(w.get("pollChanges").normalizedHref, ObixObj {})
     vals = res.get("values").list
     verifyEq(vals.size, 0)
@@ -463,7 +466,7 @@ class ObixTest : HxTest
     res = client.invoke(w.get("pollChanges").normalizedHref, ObixObj {})
     vals = res.get("values").list
     verifyEq(vals.size, 1)
-    verifyEq(vals[0].href, `/test/ext/obix/rec/${pt2.id}/`)
+    verifyEq(vals[0].href, href(`rec/${pt2.id}/`))
     verifyEq(vals[0].normalizedHref, lobbyUri + `rec/${pt2.id}/`)
     verifyEq(vals[0].displayName, "Point #2")
     verifyEq(vals[0].val, 90f)
