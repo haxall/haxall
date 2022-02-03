@@ -30,11 +30,16 @@ class NestDispatch : ConnDispatch
   override Void onOpen()
   {
     this.client = Nest(
-      rec["nestProjectId"],
-      rec["nestClientId"],
-      rec["nestClientSecret"],
-      rec["nestRefreshToken"]
+      rec->nestProjectId,
+      password("nestClientId"),
+      password("nestClientSecret"),
+      password("nestRefreshToken")
     )
+  }
+
+  private Str password(Str name)
+  {
+    db.passwords.get("$id $name") ?: throw FaultErr("Missing password for $name")
   }
 
   override Void onClose()

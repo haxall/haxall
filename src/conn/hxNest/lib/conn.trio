@@ -19,14 +19,14 @@ tagOn: ^nestConn
 doc:
 --------------------------------------------------------------------------
 def: ^nestClientId
-is: ^str
+is: ^password
 tagOn: ^nestConn
 --------------------------------------------------------------------------
 def: ^nestClientSecret
-is: ^str
+is: ^password
 tagOn: ^nestConn
 --------------------------------------------------------------------------
 def: ^nestRefreshToken
-is: ^str
+is: ^password
 tagOn: ^nestConn
 --------------------------------------------------------------------------
