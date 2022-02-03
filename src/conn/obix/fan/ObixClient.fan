@@ -180,7 +180,7 @@ class ObixClient
 
     if (log.isDebug)
     {
-      Str? req := null
+      req := ""
       if (in != null)
       {
         reqBuf := StrBuf()
@@ -190,10 +190,10 @@ class ObixClient
       debugId := debugReq(c, req)
 
       c.writeReq
-      if (req != null) c.reqOut.print(req).close
+      if (!req.isEmpty) c.reqOut.print(req).close
       c.readRes
       if (c.resCode == 100) c.readRes
-      res := c.resCode == 200 ? c.resIn.readAllStr : null
+      res := c.resCode == 200 ? c.resIn.readAllStr : ""
       debugRes(debugId, c, res)
 
       return readResObj(c, res.in)
@@ -225,7 +225,7 @@ class ObixClient
 // Debug
 //////////////////////////////////////////////////////////////////////////
 
-  private Int debugReq(WebClient c, Str? req)
+  private Int debugReq(WebClient c, Str req)
   {
     if (!log.isDebug) return 0
     debugId := debugCounter.getAndIncrement
@@ -233,19 +233,19 @@ class ObixClient
     s.add("> [$debugId]\n")
     s.add("$c.reqMethod $c.reqUri\n")
     c.reqHeaders.each |v, n| { s.add("$n: $v\n") }
-    if (req != null) s.add(req.trimEnd).add("\n")
+    s.add(req.trimEnd).add("\n")
     log.debug(s.toStr)
     return debugId
   }
 
-  private Void debugRes(Int debugId, WebClient c, Str? res)
+  private Void debugRes(Int debugId, WebClient c, Str res)
   {
     if (!log.isDebug) return
     s := StrBuf()
     s.add("< [$debugId]\n")
     s.add("$c.resCode $c.resPhrase\n")
     c.resHeaders.each |v, n| { s.add("$n: $v\n") }
-    if (res != null) s.add(res.trimEnd).add("\n")
+    s.add(res.trimEnd).add("\n")
     log.debug(s.toStr)
   }
 

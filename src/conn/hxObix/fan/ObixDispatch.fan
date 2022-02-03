@@ -49,7 +49,7 @@ class ObixDispatch : ConnDispatch
 
     // open the client
     client = ObixClient(lobbyUri, user, pass)
-    client.log = this.log
+    client.log = trace.asLog
     client.socketConfig = SocketConfig.cur.setTimeouts(conn.timeout)
     client.readLobby
     isNiagara = rec.get("productName", "").toStr.contains("Niagara")
