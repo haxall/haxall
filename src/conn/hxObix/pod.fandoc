@@ -8,17 +8,17 @@
 
 Overview [#overview]
 ********************
-The Obix extension implements both client and server side of
-the Obix protocol which is XML over HTTP.  The following features
-are supported:
+The [Obix]`https://en.wikipedia.org/wiki/OBIX` protocol is a REST protocol
+which uses an XML encoding.  The Obix connector implements both the client and
+server side of the protocol.  The following features are supported:
 
 **Obix Server**
   - reads of any record
   - history queries (any record tagged as `his` maps to 'obix:History')
-  - writable points are supported (if annotated correctl)
+  - writable points are supported (if annotated correctly)
   - batch operations are supported
   - watches on records are supported
-  - alarming **not** supported
+  - alarming is **not** supported
 
 **Obix Client **
   - Obix connectors
@@ -26,27 +26,26 @@ are supported:
   - proxy writable points supported
   - proxy histories and synchronization supported
   - reads, writes, invokes all supported
-  - alarming **not** supported
+  - alarming is **not** supported
 
 Server URIs [#uris]
 *******************
 The following table summarizes the URIs of the Obix server API:
 
-  Uri                                       Object
-  -------------------------------           -------------
-  /api/{proj}/ext/obix/                     lobby
-  /api/{proj}/ext/obix/about/               about
-  /api/{proj}/ext/obix/batch/               batch op
-  /api/{proj}/ext/obix/watchService/        watch service
-  /api/{proj}/ext/obix/watch/{id}/          watch operations
-  /api/{proj}/ext/obix/query/{filter}       query recs using filter
-  /api/{proj}/ext/obix/rec/{id|name}/       record
-  /api/{proj}/ext/obix/rec/{id|name}/{tag}  tag
-  /api/{proj}/ext/obix/icon/{id}/{uri}      icon tunnelling
+  Uri                              Object
+  ------------------------         -------------
+  {base}/obix/                     lobby
+  {base}/obix/about/               about
+  {base}/obix/batch/               batch op
+  {base}/obix/watchService/        watch service
+  {base}/obix/watch/{id}/          watch operations
+  {base}/obix/query/{filter}       query recs using filter
+  {base}/obix/rec/{id|name}/       record
+  {base}/obix/rec/{id|name}/{tag}  tag
+  {base}/obix/icon/{id}/{uri}      icon tunnelling
 
-The URIs above assume that the ApiMod is mounted under '/api'
-which is the default for SkySpark.  But the API may be mounted
-under any URI.
+On Haxall nodes '{base}' will be '/api' and on SkySpark it will
+be '/api/{proj}/ext'.
 
 Server Rec to Obix Mapping [#mapping]
 *************************************
@@ -113,11 +112,11 @@ Server Watches [#serverWatches]
 The Obix server allows watches at the record level.  Watch URIs must
 be formatted exactly as follows:
 
-  /api/{proj}/ext/obix/rec/{id}/
+  {base}/obix/rec/{id}/
 
 Any attempt to use a URI which doesn't match that format exactly or
 is missing a trailing slash will result in a 'BadUriErr' for the
-subscription.  Obix server watches map directly to a `skyarcd::Watch`.
+subscription.  Obix server watches map directly to a `hx::HxWatch`.
 
 On the initial poll, reference tags of type Ref will have their
 'display' attribute available for the record reference.  But all polls
@@ -139,7 +138,9 @@ settings to communicate with a remote Obix server using these tags:
 Obix connectors are built with the [connector framework]`docHaxall::Conns`
 and follow all the standard conventions.
 
-Only HTTP Basic authentication is supported by Obix connectors.
+Obix connectors will use [Haystack authentication]`docHaystack::Auth` to connect
+to the remote system.  You can force HTTP basic authentication by adding the
+marker tag 'obixBasicAuth' to your connector record.
 
 After the first read operation with the connector (see `obixPing`)
 the following tags are available on the connector:
@@ -183,10 +184,10 @@ Obix His [#obixHis]
 ==================
 A proxy point with the `obixHis` tag is used to pull historical data
 from an Obix connector into the local historian.  The Axon function
-`obixSyncHis` is used pull the latest history data over the Obix connector
+`connSyncHis` is used pull the latest history data over the Obix connector
 into the local historian.  You can use these functions to write
 your own customized synchronization scripts.  The general convention
-is to schedule history sync via `ext-job::doc`.
+is to schedule history sync via [tasks]`ext-task::doc`.
 
 Also see `ext-point::doc#his`.
 

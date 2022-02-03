@@ -373,7 +373,7 @@ class ObixTest : HxTest
 
     // sync with range
     eval("readById($hisSyncF.id.toCode).obixSyncHis(2010-05-01)")
-    Actor.sleep(100ms)
+    sync
 
     // verify history was synced
     hisSyncF = readById(hisSyncF.id)
