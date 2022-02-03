@@ -2,7 +2,8 @@
 ** title:      ModbusExt
 ** author:     Andy Frank
 ** created:    19 Apr 2013
-** copyright:  Copyright (c) 2022, SkyFoundry LLC - Licensed under the Academic Free License version 3.0
+** copyright:  Copyright (c) 2022, SkyFoundry LLC
+** license:    Licensed under the AFL v3.0
 **************************************************************************
 
 Overview [#overview]
@@ -18,6 +19,8 @@ TCP/IP [#tcpIp]
 To setup a connector to access a Modbus slave over TCP/IP, we use the
 'modbus-tcp' URI scheme:
 
+  dis: "Modbus TCP/IP Connector"
+  conn
   modbusConn
   uri: `modbus-tcp://host/`
   modbusSlave: 1
@@ -28,6 +31,8 @@ RTU over TCP/IP [#rtuOverTcp]
 To access the slave using serial RTU over a TCP connection, use the
 'modbus-rtutcp' scheme:
 
+  dis: "Modbus RTU over TCP/IP Connector"
+  conn
   modbusConn
   uri: `modbus-rtutcp://host/`
   modbusSlave: 1

@@ -2,7 +2,8 @@
 ** title:      SqlExt
 ** author:     Brian Frank
 ** created:    14 Jun 2010
-** copyright:  Copyright (c) 2010, SkyFoundry LLC, Licensed under the AFL v3.0
+** copyright:  Copyright (c) 2010, SkyFoundry LLC
+** license:    Licensed under the AFL v3.0
 **************************************************************************
 
 Overview [#overview]
@@ -41,13 +42,14 @@ Connectors [#conns]
 *******************
 Each database you communicate with needs to have a sqlConn record
 defined with the following tags:
-  - 'sqlConn': marker tag
-  - 'uri': JDBC URI such as "jdbc:mysql://localhost:3306/mytestdb"; review
+  - `conn`: required marker tag
+  - `sqlConn`: required marker tag
+  - `uri`: JDBC URI such as "jdbc:mysql://localhost:3306/mytestdb"; review
     database  JDBC documentation to verify the format of the JDBC URI
-  - 'username': username to use for database login
-  - 'password': must have password stored in [password db]`folio::PasswordStore`
+  - `username`: username to use for database login
+  - `password`: must have password stored in [password db]`folio::PasswordStore`
     for connector's record id
-  - 'sqlSyncHisExpr': this tag is required if using the `connSyncHis()`
+  - `sqlSyncHisExpr`: this tag is required if using the `connSyncHis()`
     function which is discussed later
 
 You can test our your connector using the `connPing()` function:

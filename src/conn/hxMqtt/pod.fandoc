@@ -1,9 +1,9 @@
-
 **************************************************************************
 ** title:      MqttLib
 ** author:     Matthew Giannini
 ** created:    17 Jan 2022
-** copyright:  Copyright (c) 2022, SkyFoundry LLC - Licensed under the Academic Free License version 3.0
+** copyright:  Copyright (c) 2022, SkyFoundry LLC
+** license:    Licensed under the AFL v3.0
 **************************************************************************
 
 Overview [#overview]
@@ -29,6 +29,8 @@ connection, or 'mqtts' for a TLS connection to the broker. If you don't specify 
 then '1883' will be used for 'mqtt' and '8883' will be used for 'mqtts'.
 
 pre>
+dis: "MQTT Connector"
+conn
 mqttConn
 uri: `mqtt://192.168.10.1/`
 mqttVersion: "v3.1.1"
@@ -41,6 +43,8 @@ To connect to an MQTT broker using web sockets, use the 'ws' scheme for plaintex
 connections, and 'wss' for secure web sockets.
 
 pre>
+dis: "MQTT Connector"
+conn
 mqttConn
 uri: `ws://192.168.10.2/`
 mqttVersion: "v5"
