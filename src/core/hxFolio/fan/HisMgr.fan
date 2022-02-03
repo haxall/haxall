@@ -45,11 +45,34 @@ const class HisMgr : HxFolioMgr, FolioHis
     // iterate the items
     if (span == null)
     {
+      // iterate all the items we have
       items.each(f)
     }
     else
     {
-      items.each |item| { if (span.contains(item.ts)) f(item) }
+      // implement SkySpark's behavior to always provide the previous and next two items
+      HisItem? prev := null
+      next := 0
+      items.each |item|
+      {
+        if (item.ts < span.start)
+        {
+          prev = item
+        }
+        else if (item.ts >= span.end)
+        {
+          if (next < 2)
+          {
+            f(item)
+            next++
+          }
+        }
+        else
+        {
+          if (prev != null) { f(prev); prev = null }
+          f(item)
+        }
+      }
     }
   }
 

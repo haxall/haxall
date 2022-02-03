@@ -327,8 +327,10 @@ class ObixTest : HxTest
   Void verifyReadHis()
   {
     Grid grid := eval("obixReadHis(${conn.id.toCode}, `rec/${hisF.id}`, 2010-04-01)")
-    verifyEq(grid.size, 1)
-    verifyEq(grid[0]->ts->date, Date(2010, Month.apr, 1))
+    verifyEq(grid.size, 4)
+    verifyEq(grid[0]->ts->date, Date(2010, Month.mar, 28))
+    verifyEq(grid[1]->ts->date, Date(2010, Month.apr, 1))
+    verifyEq(grid[2]->ts->date, Date(2010, Month.apr, 2))
   }
 
   Void verifyHisSync()
