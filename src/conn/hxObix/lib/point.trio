@@ -1,0 +1,72 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   21 Aug 2009  Brian Frank  Creation
+//   23 Sep 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^obixPoint
+is: ^connPoint
+doc:
+  Point which synchronizes data via a oBIX connector
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^obixConnRef
+is: ^ref
+of: ^obixConn
+tagOn: ^obixPoint
+doc:
+  Used on a proxy point to reference its parent `obixConn`
+--------------------------------------------------------------------------
+def: ^obixCur
+is: ^uri
+tagOn: ^obixPoint
+doc:
+  Used on a oBIX proxy point to store the URI of the entity in the
+  remote system used to read and watch `curVal`.
+--------------------------------------------------------------------------
+def: ^obixHis
+is: ^uri
+tagOn: ^obixPoint
+doc:
+  URI of the 'obix:History' to synchronized history data.
+--------------------------------------------------------------------------
+def: ^obixWrite
+is: ^uri
+tagOn: ^obixPoint
+doc:
+  URI of the 'obix:WritablePoint' to write `writeVal`.
+--------------------------------------------------------------------------
+def: ^obixWriteLevel
+is: ^int
+tagOn: ^obixPoint
+minVal: 1
+maxVal: 16
+doc:
+  Number between 1 and 16 used with `obixWrite` to determine which
+  priority level of the remote system is written to.
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Misc
+//////////////////////////////////////////////////////////////////////////
+
+
+--------------------------------------------------------------------------
+def: ^obixWritable
+is: ^int
+doc:
+  Server export of a [writable point]`ext-point::doc#write` as an
+  'obix:Writable:Point'.  The value must be a level between 1 and 17
+  which determines which level is written by the 'writePoint' operation.
+--------------------------------------------------------------------------
+
+

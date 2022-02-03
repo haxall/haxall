@@ -23,6 +23,7 @@ class Build : BuildGroup
       `hxMqtt/build.fan`,
       `hxNest/build.fan`,
       `obix/build.fan`,
+      `hxObix/build.fan`,
       `sedona/build.fan`,
       `hxSedona/build.fan`,
     ]

@@ -1,0 +1,17 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Feb 2022  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:obix
+depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
+typeName:"hxObix::ObixLib"
+icon: "obix"
+doc: "oBIX connector"
+--------------------------------------------------------------------------
+
+

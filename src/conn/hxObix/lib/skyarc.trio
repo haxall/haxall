@@ -1,0 +1,18 @@
+//
+// Copyright (c) 2019, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   23 Sep 2019  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+template: obixConn
+tags:
+ productName:    {hidden}
+ productVersion: {hidden}
+ vendorName:     {hidden}
+ tz:             {hidden}
+--------------------------------------------------------------------------
+
+

@@ -1,0 +1,44 @@
+//
+// Copyright (c) 2012, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   21 Aug 2009  Brian Frank  Creation
+//   23 Sep 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^obixConn
+is: ^conn
+connFeatures: {learn, pollMode:"manual"}
+icon: "obix"
+doc: "Connector to an oBIX HTTP server."
+--------------------------------------------------------------------------
+defx: ^username
+tagOn: ^obixConn
+--------------------------------------------------------------------------
+defx: ^password
+tagOn: ^obixConn
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^obixLobby
+is: ^uri
+tagOn: ^obixConn
+doc:
+  The lobby URI is used to address an `obixConn` API endpoint.
+--------------------------------------------------------------------------
+def: ^obixPollFreq
+is: ^duration
+tagOn: ^obixConn
+val: 1sec
+doc:
+  Duration between obixConn watch polls.
+  If not configured it defaults to 1sec.
+--------------------------------------------------------------------------
+
+
