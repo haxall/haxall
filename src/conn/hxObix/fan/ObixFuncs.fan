@@ -36,7 +36,7 @@ const class ObixFuncs
 
   ** Deprecated - use `connSyncHis()`
   @Deprecated @Axon { admin = true }
-  static Future[] obixSyncHis(Obj points, Obj? span := null)
+  static Obj? obixSyncHis(Obj points, Obj? span := null)
   {
     ConnFwFuncs.connSyncHis(points, span)
   }

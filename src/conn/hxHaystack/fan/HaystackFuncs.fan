@@ -41,7 +41,7 @@ const class HaystackFuncs
 
   ** Deprecated - use `connSyncHis()`
   @Deprecated @Axon { admin = true }
-  static Future[] haystackSyncHis(Obj points, Obj? span := null)
+  static Obj? haystackSyncHis(Obj points, Obj? span := null)
   {
     ConnFwFuncs.connSyncHis(points, span)
   }
