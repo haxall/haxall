@@ -234,15 +234,15 @@ const final class Span
     catch (Err e) return toStr
   }
 
-  ** Convert to alternate timezone
-  @NoDoc Span toTimeZone(TimeZone tz)
+  ** Convert to timezone using `sys::DateTime.toTimeZone` on both start, end
+  Span toTimeZone(TimeZone tz)
   {
     if (this.tz === tz) return this
     return makeAbs(start.toTimeZone(tz), end.toTimeZone(tz))
   }
 
-  ** Convert this span to a DateSpan
-  @NoDoc DateSpan toDateSpan()
+  ** Convert this span to a DateSpan attempting to use aligned dates
+  DateSpan toDateSpan()
   {
     if (!alignsToDates) return DateSpan(start.date, end.date)
     if (alignsToDay)    return DateSpan(start.date, DateSpan.day)

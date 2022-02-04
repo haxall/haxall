@@ -1341,10 +1341,10 @@ const class CoreLib
 
   **
   ** Convert the following objects into a `haystack::DateSpan`:
-  **   - 'Func': function which evaluates to date range (must be run in a context)
+  **   - 'Func': function which evaluates to date range
   **   - 'DateSpan': return itself
   **   - 'Date': one day range
-  **   - 'Span': return `Span.toDateSpan`
+  **   - 'Span': return `haystack::Span.toDateSpan`
   **   - 'Str': evaluates to `haystack::DateSpan.fromStr`
   **   - 'Date..Date': starting and ending date (inclusive)
   **   - 'Date..Number': starting date and num of days (day unit required)
@@ -1369,12 +1369,15 @@ const class CoreLib
   **
   ** Convert the following objects into a `haystack::Span`:
   **   - 'Span': return itself
-  **   - 'Span + tz': return `Span.toTimeZone` only if it aligns to midnight
-  **   - 'Str': return `Span.fromStr` using current timezone
-  **   - 'Str + tz': return `Span.fromStr` using given timezone
+  **   - 'Span+tz': update timezone using same dates only if aligned to midnight
+  **   - 'Str': return `haystack::Span.fromStr` using current timezone
+  **   - 'Str+tz': return `haystack::Span.fromStr` using given timezone
   **   - 'DateTime..DateTime': range of two DateTimes
+  **   - 'Date..DateTime': start day for date until the end timestamp
+  **   - 'DateTime..Date': start timestamp to end of day for end date
+  **   - 'DateTime': span of a single timestamp
   **   - 'DateSpan': anything accepted by `toDateSpan` in current timezone
-  **   - 'DateSpan + tz': anything accepted by `toDateSpan` using given timezone
+  **   - 'DateSpan+tz': anything accepted by `toDateSpan` using given timezone
   **
   @Axon static Span toSpan(Obj? a, Str? tz := null)
   {
@@ -2483,7 +2486,8 @@ const class CoreLib
     return fn.callx(cx, args, Loc("call"))
   }
 
-  ** Convert a scalar, list, or dict value to its Axon code representation
+  ** Convert a scalar, list, or dict value to its Axon code representation.
+  ** Examples:
   **
   **   toAxonCode(123)        =>   "123"
   **   toAxonCode([1, 2, 3])  =>   "[1, 2, 3]"

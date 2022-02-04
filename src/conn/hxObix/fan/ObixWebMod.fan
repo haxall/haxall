@@ -100,7 +100,6 @@ const class ObixWebMod : ObixMod
   ** Tunnel thru to get icon file:
   **   {base}/icon/{connId}/{uri}
   **
-// TODO
   private Void icon(HxRuntime proj)
   {
     // only support GET
@@ -113,6 +112,7 @@ const class ObixWebMod : ObixMod
     if (rec == null) { blankIcon; return }
 
     // gather required obix fields
+    // TODO: this doesn't use latest authentication strategy
     Uri obixLobby := rec->obixLobby
     Str username  := rec->username
     Str password  := rt.db.passwords.get(rec.id.toStr) ?: ""

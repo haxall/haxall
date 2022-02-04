@@ -77,18 +77,17 @@ const class ObixFuncs
   ** Synchronously query a 'obix::History' for its timestamp/value pairs.
   ** Range may be any valid object used with 'his' queries.
   @Axon { admin = true }
-  static Grid obixReadHis(Obj conn, Uri uri, Obj? range)
+  static Grid obixReadHis(Obj conn, Uri uri, Obj? span)
   {
-    // map to DateTime range based on timezone of connector
+    // map to Span based on timezone of connector
     cx := curContext
     rec := Etc.toRec(conn)
     if (rec.missing("tz")) throw Err("obixConn missing 'tz' tag")
-// TODO - was using HisLib.toSpan
     tz := TimeZone.fromStr(rec->tz)
-    r := CoreLib.toDateSpan(range).toSpan(tz)
+    s := Etc.toSpan(span, tz, cx)
 
     // delegate hisRead call to connector
-    return dispatch(cx, rec, HxMsg("readHis", uri, r))
+    return dispatch(cx, rec, HxMsg("readHis", uri, s))
   }
 
   **

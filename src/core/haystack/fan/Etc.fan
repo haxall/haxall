@@ -1372,7 +1372,7 @@ const class Etc
   **   - 'Func': function which evaluates to date range (must be run in a context)
   **   - 'DateSpan': return itself
   **   - 'Date': one day range
-  **   - 'Span': return `Span.toDateSpan`
+  **   - 'Span': return `haystack::Span.toDateSpan`
   **   - 'Str': evaluates to `haystack::DateSpan.fromStr`
   **   - 'Date..Date': starting and ending date (inclusive)
   **   - 'Date..Number': starting date and num of days (day unit required)
@@ -1406,38 +1406,52 @@ const class Etc
       year := ((Number)val).toInt
       if (1900 < year && year < 2100) return DateSpan.makeYear(year)
     }
-    throw CoerceErr("Cannot coerce toDateSpan: ${val?.typeof}")
+    throw CoerceErr("Cannot coerce toDateSpan: $val [${val?.typeof}]")
   }
 
   **
   ** Coerce an object to a `Span` with optional timezone:
   **   - 'Span': return itself
-  **   - 'Span + tz': update timezone using same dates only if aligned to midnight
-  **   - 'Str': return `Span.fromStr` using current timezone
-  **   - 'Str + tz': return `Span.fromStr` using given timezone
+  **   - 'Span+tz': update timezone using same dates only if aligned to midnight
+  **   - 'Str': return `haystack::Span.fromStr` using current timezone
+  **   - 'Str+tz': return `haystack::Span.fromStr` using given timezone
   **   - 'DateTime..DateTime': range of two DateTimes
+  **   - 'Date..DateTime': start day for date until the end timestamp
+  **   - 'DateTime..Date': start timestamp to end of day for end date
+  **   - 'DateTime': span of a single timestamp
   **   - 'DateSpan': anything accepted by `toDateSpan` in current timezone
-  **   - 'DateSpan + tz': anything accepted by `toDateSpan` using given timezone
+  **   - 'DateSpan+tz': anything accepted by `toDateSpan` using given timezone
   **
-  static Span toSpan(Obj? x, TimeZone? tz := null, HaystackContext? cx := null)
+  static Span toSpan(Obj? val, TimeZone? tz := null, HaystackContext? cx := null)
   {
-    if (x is Span)
+    if (val is Span)
     {
-      span := (Span)x
+      span := (Span)val
       if (tz != null && span.alignsToDates) return span.toDateSpan.toSpan(tz)
       return span
     }
-    if (x is Str)
+    if (val is Str)
     {
-      return Span.fromStr(x, tz ?: TimeZone.cur)
+      return Span.fromStr(val, tz ?: TimeZone.cur)
     }
-    if (x is ObjRange)
+    if (val is ObjRange)
     {
-      or := (ObjRange)x
-      if (or.start is DateTime && or.end is DateTime)
-        return toSpan(Span.makeAbs(or.start, or.end), tz, cx)
+      r := (ObjRange)val
+      s := r.start as DateTime
+      e := r.end as DateTime
+      if (s != null || e != null)
+      {
+        if (s == null && r.start is Date) s = ((Date)r.start).midnight(e.tz)
+        if (e == null && r.end is Date)   e = ((Date)r.end + 1day).midnight(s.tz)
+        if (s != null && e != null) return toSpan(Span(s, e), tz)
+      }
     }
-    return toDateSpan(x, cx).toSpan(tz ?: TimeZone.cur)
+    if (val is DateTime)
+    {
+      ts := (DateTime)val
+      return Span(ts, ts)
+    }
+    return toDateSpan(val, cx).toSpan(tz ?: TimeZone.cur)
   }
 
   ** If explicit context not passed then resolve from actor local

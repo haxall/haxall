@@ -210,7 +210,7 @@ class CoreFuncsTest : HxTest
     // Etc.toSpan
     now := DateTime.now
     s1 := Span(now-2hr, now-1hr)  // not aligned
-    s2 := Span(Date.today.minus(2day).midnight, Date.today.minus(2day).midnight) // aligned
+    s2 := Span(Date.today.minus(3day).midnight, Date.today.minus(1day).midnight) // aligned
     london := TimeZone("London")
     verifyToSpan(s1, null, s1)
     verifyToSpan(s1, s1.tz, s1)
@@ -223,7 +223,13 @@ class CoreFuncsTest : HxTest
     verifyToSpan(ObjRange(s1.start, s1.end), null, s1)
     verifyToSpan(ObjRange(s1.start, s1.end), london, s1)
     verifyToSpan(ObjRange(s2.start, s2.end), null, s2)
+    verifyToSpan(ObjRange(s2.start.date, s2.end), null, s2)
+    verifyToSpan(ObjRange(s2.start, s2.end.date-1day), null, s2)
     verifyToSpan(ObjRange(s2.start, s2.end), london, s2.toDateSpan.toSpan(london))
+    verifyToSpan(ObjRange(s2.start.date, s2.end), london, s2.toDateSpan.toSpan(london))
+    verifyToSpan(ObjRange(s2.start, s2.end.date-1day), london, s2.toDateSpan.toSpan(london))
+    verifyToSpan(now, null, Span(now, now))
+    verifyToSpan(now, london, Span(now, now))
     verifyToSpan(makeContext.findTop("today"), null, Span.today)
     verifyToSpan(Date.today, null, Span.today)
     verifyToSpan(Date.today, london, Span.today(london))
