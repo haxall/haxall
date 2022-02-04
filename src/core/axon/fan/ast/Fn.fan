@@ -13,7 +13,7 @@ using haystack
 ** Fn is a function definition
 **
 @Js
-const class Fn : Expr
+const class Fn : Expr, HaystackFunc
 {
   @NoDoc new make(Loc loc, Str name, FnParam[] params, Expr body := Literal.nullVal)
   {
@@ -73,6 +73,11 @@ const class Fn : Expr
   ** Invoke this function with the given arguments.
   ** Note: the 'args' parameter must be mutable and may be modified
   Obj? call(AxonContext cx, Obj?[] args) { callx(cx, args, Loc.unknown) }
+
+  @NoDoc final override Obj? haystackCall(HaystackContext cx, Obj?[] args)
+  {
+    call(cx, args)
+  }
 
   @NoDoc virtual Obj? callLazy(AxonContext cx, Expr[] args, Loc callLoc)
   {

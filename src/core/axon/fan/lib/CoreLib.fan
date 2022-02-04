@@ -1339,81 +1339,52 @@ const class CoreLib
   ** DateSpan for year previous to this year 'Jan-1..Dec-31'
   @Axon static DateSpan lastYear() { DateSpan.lastYear}
 
+  **
   ** Convert the following objects into a `haystack::DateSpan`:
-  **   - 'Date..Date': starting and ending date
-  **   - 'Date..Number': starting date and num of days (day unit required)
+  **   - 'Func': function which evaluates to date range (must be run in a context)
+  **   - 'DateSpan': return itself
   **   - 'Date': one day range
-  **   - 'Number': convert as year
-  **   - 'Func': function which evaluates to date range
+  **   - 'Span': return `Span.toDateSpan`
+  **   - 'Str': evaluates to `haystack::DateSpan.fromStr`
+  **   - 'Date..Date': starting and ending date (inclusive)
+  **   - 'Date..Number': starting date and num of days (day unit required)
   **   - 'DateTime..DateTime': use starting/ending dates; if end is midnight,
   **     then use previous date
-  **   - 'Str': evaluates to `haystack::DateSpan.fromStr`
-  **   - null: use projMeta dateSpanDefault or default to today
+  **   - 'Number': convert as year
+  **   - null: use projMeta dateSpanDefault or default to today (deprecated)
   **
   ** Examples:
   **   toDateSpan(2010-07-01..2010-07-03)  >>  01-Jul-2010..03-Jul-2010
-  **   toDateSpan(2010-07-01..4)           >>  01-Jul-2010..04-Jul-2010
   **   toDateSpan(2010-07-01..60day)       >>  01-Jul-2010..29-Aug-2010
   **   toDateSpan(2010-07)                 >>  01-Jul-2010..31-Jul-2010
   **   toDateSpan(2010)                    >>  01-Jan-2010..31-Dec-2010
   **   toDateSpan(pastWeek) // on 9 Aug    >>  02-Aug-2010..09-Aug-2010
-  @Axon static DateSpan toDateSpan(Obj? r)
+  **
+  @Axon static DateSpan toDateSpan(Obj? x)
   {
-    if (r == null) return AxonContext.curAxon.toDateSpanDef
-    if (r is Fn) r = ((Fn)r).call(AxonContext.curAxon, Obj#.emptyList)
-    if (r is DateSpan) return r
-    if (r is Date) return DateSpan(r, DateSpan.day)
-    if (r is Span) return ((Span)r).toDateSpan
-    if (r is Str) return DateSpan.fromStr(r)
-    if (r is ObjRange)
-    {
-      or := (ObjRange)r
-      s := or.start
-      e := or.end
-      if (s is Date) return DateSpan.make(s, e)
-      if (s is DateTime && e is DateTime)
-      {
-        st := (DateTime)s; sd := st.date
-        et := (DateTime)e; ed := et.date
-        if (et.isMidnight) ed = ed - 1day
-        return DateSpan(sd, ed)
-      }
-    }
-    if (r is Number)
-    {
-      year := ((Number)r).toInt
-      if (1900 < year && year < 2100) return DateSpan.makeYear(year)
-    }
-    throw ArgErr("Cannot convert toDateSpan: $r  $r.typeof")
+    if (x == null) return AxonContext.curAxon.toDateSpanDef
+    return Etc.toDateSpan(x)
+  }
+
+  **
+  ** Convert the following objects into a `haystack::Span`:
+  **   - 'Span': return itself
+  **   - 'Span + tz': return `Span.toTimeZone` only if it aligns to midnight
+  **   - 'Str': return `Span.fromStr` using current timezone
+  **   - 'Str + tz': return `Span.fromStr` using given timezone
+  **   - 'DateTime..DateTime': range of two DateTimes
+  **   - 'DateSpan': anything accepted by `toDateSpan` in current timezone
+  **   - 'DateSpan + tz': anything accepted by `toDateSpan` using given timezone
+  **
+  @Axon static Span toSpan(Obj? a, Str? tz := null)
+  {
+    Etc.toSpan(a, tz != null ? TimeZone.fromStr(tz) : null)
   }
 
   ** Use `toSpan`
-  @Deprecated { msg = "Use toSpan" }
+  @NoDoc @Deprecated { msg = "Use toSpan" }
   @Axon static Span toDateTimeSpan(Obj? a, Obj? b := null) { toSpan(a, b) }
 
-  ** Convert the following objects into a `haystack::Span`:
-  **   - 'DateSpan,tz': anything accepted by `toDateSpan` plus a Timezone string
-  **   - 'DateTime..DateTime': range of two DateTimes
-  @Axon static Span toSpan(Obj? a, Obj? b := null)
-  {
-    if (a is Span) return a
-    if (a is Str) return Span.fromStr(a)
-    if (b is Str)
-    {
-      tz := TimeZone.fromStr(b)
-      return toDateSpan(a).toSpan(tz)
-    }
-    else if (a is ObjRange)
-    {
-      or := (ObjRange)a
-      if (or.start is DateTime && or.end is DateTime) return Span.makeAbs(or.start, or.end)
-    }
-    else if (b == null)
-    {
-      return toDateSpan(a).toSpan(TimeZone.cur)
-    }
-    throw ArgErr("Cannot convert toSpan: $a , $b")
-  }
 
   ** Number of whole days in a span
   @Axon static Number numDays(Obj? span)

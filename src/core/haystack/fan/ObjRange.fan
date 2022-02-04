@@ -5,12 +5,11 @@
 // History:
 //   11 Jan 2010  Brian Frank  Creation
 //   05 Feb 2012  Brian Frank  Refactor for new DateSpan design
+//   04 Feb 2022  Brian Frank  Move from axon into haystack
 //
 
-using haystack
-
 **
-** ObjRange models ".." range literals in Axon.
+** ObjRange models ".." range literal.
 **
 @Js @NoDoc
 const final class ObjRange
@@ -59,4 +58,3 @@ const final class ObjRange
     catch (CastErr e) throw CastErr("Cannot convert to int range: $this")
   }
 }
-

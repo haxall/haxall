@@ -151,7 +151,7 @@ class CoreFuncsTest : HxTest
     g1 := Etc.makeDictGrid(null, d1)
     r  := addRec(["dis":"rec in db"])
 
-    // HxUtil.toId, toRecId
+    // Etc.toId, toRecId
     verifyToId(null,        null)
     verifyToId(Ref[,],      null)
     verifyToId(Ref("null"), Ref.nullRef)
@@ -159,7 +159,7 @@ class CoreFuncsTest : HxTest
     verifyToId(d1,          Ref("d1"))
     verifyToId(g1,          Ref("d1"))
 
-    // HxUtil.toIds, toRecIdList
+    // Etc.toIds, toRecIdList
     verifyToIds(null,                 null)
     verifyToIds(Ref("null"),          Ref[Ref.nullRef])
     verifyToIds(Ref("a"),             Ref[Ref("a")])
@@ -168,7 +168,7 @@ class CoreFuncsTest : HxTest
     verifyToIds([d1],                 Ref[Ref("d1")])
     verifyToIds([d1, d2],             Ref[Ref("d1"), Ref("d2")])
 
-    // HxUtil.toRec, toRec
+    // Etc.toRec, toRec
     verifyToRec(null,    null)
     verifyToRec(this,    null)
     verifyToRec(Ref[,],  null)
@@ -183,7 +183,7 @@ class CoreFuncsTest : HxTest
     verifyToRec([r],     r)
     verifyToRec(Etc.makeDictGrid(null, d1), d1)
 
-    // HxUtil.toRecs, toRecList
+    // Etc.toRecs, toRecList
     verifyToRecs(this,     null)
     verifyToRecs(null,     Dict[,])
     verifyToRecs(d1,       [d1])
@@ -195,6 +195,38 @@ class CoreFuncsTest : HxTest
     verifyToRecs([r.id],   [r])
     verifyToRecs([r.id, d1.id],  null)
     verifyToRecs(Etc.makeDictsGrid(null, [r, d1]),  [r, d1])
+
+    // Etc.toDateSpan (each one also is tested as toSpan)
+    verifyToDateSpan(makeContext.findTop("today"), DateSpan.today)
+    verifyToDateSpan(makeContext.findTop("lastWeek"), DateSpan.lastWeek)
+    verifyToDateSpan(DateSpan.thisMonth, DateSpan.thisMonth)
+    verifyToDateSpan(Date("2022-02-04"), DateSpan("2022-02-04,day"))
+    verifyToDateSpan(Span(SpanMode.thisYear), DateSpan.thisYear)
+    verifyToDateSpan(eval("2022-01-29..2022-02-04"), DateSpan(Date("2022-01-29"), Date("2022-02-04")))
+    verifyToDateSpan(eval("2022-01-01..14day"), DateSpan(Date("2022-01-01"), Date("2022-01-14")))
+    verifyToDateSpan(ObjRange(Date.yesterday.minus(1day).midnight, Date.today.midnight), DateSpan(Date.yesterday-1day, Date.yesterday))
+    verifyToDateSpan(Number(2009), DateSpan.makeYear(2009))
+
+    // Etc.toSpan
+    now := DateTime.now
+    s1 := Span(now-2hr, now-1hr)  // not aligned
+    s2 := Span(Date.today.minus(2day).midnight, Date.today.minus(2day).midnight) // aligned
+    london := TimeZone("London")
+    verifyToSpan(s1, null, s1)
+    verifyToSpan(s1, s1.tz, s1)
+    verifyToSpan(s1, TimeZone("London"), s1)
+    verifyToSpan(s2, null, s2)
+    verifyToSpan(s2, s2.tz, s2)
+    verifyToSpan(s2, TimeZone("London"), s2.toDateSpan.toSpan(london))
+    verifyToSpan("2022-01-03,2022-02-03", null, Span.fromStr("2022-01-03,2022-02-03"))
+    verifyToSpan("2022-01-03,2022-02-03", london, Span.fromStr("2022-01-03,2022-02-03", london))
+    verifyToSpan(ObjRange(s1.start, s1.end), null, s1)
+    verifyToSpan(ObjRange(s1.start, s1.end), london, s1)
+    verifyToSpan(ObjRange(s2.start, s2.end), null, s2)
+    verifyToSpan(ObjRange(s2.start, s2.end), london, s2.toDateSpan.toSpan(london))
+    verifyToSpan(makeContext.findTop("today"), null, Span.today)
+    verifyToSpan(Date.today, null, Span.today)
+    verifyToSpan(Date.today, london, Span.today(london))
   }
 
   Void verifyToId(Obj? val, Obj? expected)
@@ -280,6 +312,50 @@ class CoreFuncsTest : HxTest
       else
         verifyErr(CoerceErr#) { Etc.toRecs(val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toRecList").call(cx, [val]) }
+    }
+    Actor.locals.remove(Etc.cxActorLocalsKey)
+  }
+
+  Void verifyToDateSpan(Obj? val, DateSpan? expected)
+  {
+    cx := makeContext
+    Actor.locals[Etc.cxActorLocalsKey] = cx
+    if (expected != null)
+    {
+      actual := Etc.toDateSpan(val)
+      verifyEq(actual, expected)
+      verifyEq(cx.evalToFunc("toDateSpan").call(cx, [val]), expected)
+    }
+    else
+    {
+      verifyErr(CoerceErr#) { Etc.toDateSpan(val) }
+      verifyErr(EvalErr#) { cx.evalToFunc("toDateSpan").call(cx, [val]) }
+    }
+    Actor.locals.remove(Etc.cxActorLocalsKey)
+    verifyToSpan(val, null, expected?.toSpan(TimeZone.cur))
+    verifyToSpan(val, TimeZone("London"), expected?.toSpan(TimeZone("London")))
+  }
+
+  Void verifyToSpan(Obj? val, TimeZone? tz, Span? expected)
+  {
+    cx := makeContext
+    Actor.locals[Etc.cxActorLocalsKey] = cx
+    if (expected != null)
+    {
+      actual := Etc.toSpan(val, tz)
+      verifyEq(actual.start, expected.start)
+      verifyEq(actual.end, expected.end)
+      verifyEq(actual.tz, expected.tz)
+
+      actual = cx.evalToFunc("toSpan").call(cx, [val, tz?.name])
+      verifyEq(actual.start, expected.start)
+      verifyEq(actual.end, expected.end)
+      verifyEq(actual.tz, expected.tz)
+    }
+    else
+    {
+      verifyErr(CoerceErr#) { Etc.toSpan(val) }
+      verifyErr(EvalErr#) { cx.evalToFunc("toSpan").call(cx, [val]) }
     }
     Actor.locals.remove(Etc.cxActorLocalsKey)
   }

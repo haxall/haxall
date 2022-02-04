@@ -53,3 +53,16 @@ class PatherContext : HaystackContext
   override Dict toDict() { Etc.emptyDict }
 }
 
+**************************************************************************
+** HaystackFunc
+**************************************************************************
+
+** Mixin for Axon functions
+@NoDoc @Js
+mixin HaystackFunc
+{
+  ** Call the function
+  abstract Obj? haystackCall(HaystackContext cx, Obj?[] args)
+}
+
+

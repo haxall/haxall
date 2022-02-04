@@ -1252,12 +1252,12 @@ const class Etc
   **   - List returns first item (must have at least one item which is Ref or Dict)
   **   - Ref will make a call to read database (must be run in a context)
   **
-  static Dict toRec(Obj? val)
+  static Dict toRec(Obj? val, HaystackContext? cx := null)
   {
     if (val is Dict) return val
     if (val is Grid) return ((Grid)val).first ?: throw CoerceErr("Grid is empty")
     if (val is List) return toRec(((List)val).first ?: throw CoerceErr("List is empty"))
-    if (val is Ref)  return refToRec(val)
+    if (val is Ref)  return refToRec(val, cx)
     throw CoerceErr("Cannot coerce toRec: ${val?.typeof}")
   }
 
@@ -1269,13 +1269,13 @@ const class Etc
   **   - Dict or Dict[] returns itself
   **   - Grid is mapped to list of rows
   **
-  static Dict[] toRecs(Obj? val)
+  static Dict[] toRecs(Obj? val, HaystackContext? cx := null)
   {
     if (val == null) return Dict[,]
 
     if (val is Dict) return Dict[val]
 
-    if (val is Ref) return Dict[refToRec(val)]
+    if (val is Ref) return Dict[refToRec(val, cx)]
 
     if (val is Grid)
     {
@@ -1291,7 +1291,7 @@ const class Etc
       if (list.isEmpty) return Dict[,]
       if (list.of.fits(Dict#)) return list
       if (list.all |x| { x is Dict }) return Dict[,].addAll(list)
-      if (list.all |x| { x is Ref }) return refsToRecs(list)
+      if (list.all |x| { x is Ref }) return refsToRecs(list, cx)
       throw CoerceErr("Cannot convert toRecs: List of ${list.first?.typeof}")
     }
 
@@ -1299,18 +1299,16 @@ const class Etc
   }
 
   ** Coerce a ref to a rec dict
-  private static Dict refToRec(Ref id)
+  private static Dict refToRec(Ref id, HaystackContext? cx)
   {
-    cx := Actor.locals[cxActorLocalsKey] as HaystackContext
-    if (cx == null) throw CoerceErr("No context available to read id: $id.toCode")
+    cx = curContext(cx)
     return cx.deref(id) ?: throw UnknownRecErr("Cannot read id: $id.toCode")
   }
 
   ** Coerce a list of refs to a list of recs dict
-  private static Dict[] refsToRecs(Ref[] ids)
+  private static Dict[] refsToRecs(Ref[] ids, HaystackContext? cx)
   {
-    cx := Actor.locals[cxActorLocalsKey] as HaystackContext
-    if (cx == null) throw Err("No context available to read id")
+    cx = curContext(cx)
     return ids.map |id->Dict| { cx.deref(id) ?: throw UnknownRecErr("Cannot read id: $id.toCode") }
   }
 
@@ -1367,6 +1365,87 @@ const class Etc
     if (val == null) return null
     if (Kind.fromVal(val, false) != null) return val
     return XStr.encode(val)
+  }
+
+  **
+  ** Coerce an object to a DateSpan:
+  **   - 'Func': function which evaluates to date range (must be run in a context)
+  **   - 'DateSpan': return itself
+  **   - 'Date': one day range
+  **   - 'Span': return `Span.toDateSpan`
+  **   - 'Str': evaluates to `haystack::DateSpan.fromStr`
+  **   - 'Date..Date': starting and ending date (inclusive)
+  **   - 'Date..Number': starting date and num of days (day unit required)
+  **   - 'DateTime..DateTime': use starting/ending dates; if end is midnight,
+  **     then use previous date
+  **   - 'Number': convert as year
+  **
+  static DateSpan toDateSpan(Obj? val, HaystackContext? cx := null)
+  {
+    if (val is HaystackFunc) val = ((HaystackFunc)val).haystackCall(curContext(cx), Obj#.emptyList)
+    if (val is DateSpan) return val
+    if (val is Date) return DateSpan(val, DateSpan.day)
+    if (val is Span) return ((Span)val).toDateSpan
+    if (val is Str) return DateSpan.fromStr(val)
+    if (val is ObjRange)
+    {
+      or := (ObjRange)val
+      s := or.start
+      e := or.end
+      if (s is Date) return DateSpan.make(s, e)
+      if (s is DateTime && e is DateTime)
+      {
+        st := (DateTime)s; sd := st.date
+        et := (DateTime)e; ed := et.date
+        if (et.isMidnight) ed = ed - 1day
+        return DateSpan(sd, ed)
+      }
+    }
+    if (val is Number)
+    {
+      year := ((Number)val).toInt
+      if (1900 < year && year < 2100) return DateSpan.makeYear(year)
+    }
+    throw CoerceErr("Cannot coerce toDateSpan: ${val?.typeof}")
+  }
+
+  **
+  ** Coerce an object to a `Span` with optional timezone:
+  **   - 'Span': return itself
+  **   - 'Span + tz': update timezone using same dates only if aligned to midnight
+  **   - 'Str': return `Span.fromStr` using current timezone
+  **   - 'Str + tz': return `Span.fromStr` using given timezone
+  **   - 'DateTime..DateTime': range of two DateTimes
+  **   - 'DateSpan': anything accepted by `toDateSpan` in current timezone
+  **   - 'DateSpan + tz': anything accepted by `toDateSpan` using given timezone
+  **
+  static Span toSpan(Obj? x, TimeZone? tz := null, HaystackContext? cx := null)
+  {
+    if (x is Span)
+    {
+      span := (Span)x
+      if (tz != null && span.alignsToDates) return span.toDateSpan.toSpan(tz)
+      return span
+    }
+    if (x is Str)
+    {
+      return Span.fromStr(x, tz ?: TimeZone.cur)
+    }
+    if (x is ObjRange)
+    {
+      or := (ObjRange)x
+      if (or.start is DateTime && or.end is DateTime)
+        return toSpan(Span.makeAbs(or.start, or.end), tz, cx)
+    }
+    return toDateSpan(x, cx).toSpan(tz ?: TimeZone.cur)
+  }
+
+  ** If explicit context not passed then resolve from actor local
+  private static HaystackContext curContext(HaystackContext? cx)
+  {
+    if (cx == null) cx = Actor.locals[cxActorLocalsKey] as HaystackContext
+    if (cx == null) throw Err("No context available")
+    return cx
   }
 
 //////////////////////////////////////////////////////////////////////////

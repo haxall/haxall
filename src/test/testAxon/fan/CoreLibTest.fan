@@ -120,19 +120,19 @@ class CoreLibTest : HaystackTest
     m := Time(0, 0)
     tz := TimeZone("Chicago")
 
-    verifySpan("""toDateTimeSpan(today, "Chicago")""",
+    verifySpan("""toSpan(today, "Chicago")""",
       today.midnight(tz),
       today.plus(1day).midnight(tz))
 
-    verifySpan("""toDateTimeSpan(today(), "Chicago")""",
+    verifySpan("""toSpan(today(), "Chicago")""",
       today.midnight(tz),
       today.plus(1day).midnight(tz))
 
-    verifySpan("""toDateTimeSpan(dateTime(today(), 2:00, "Chicago") .. dateTime(today(), 3:15, "Chicago"))""",
+    verifySpan("""toSpan(dateTime(today(), 2:00, "Chicago") .. dateTime(today(), 3:15, "Chicago"))""",
       today.toDateTime(Time(2, 0), tz),
       today.toDateTime(Time(3, 15), tz))
 
-    verifySpan("""toDateTimeSpan(today(), "Chicago").toTimeZone("Denver")""",
+    verifySpan("""toSpan(today(), "Chicago").toTimeZone("Denver")""",
       today.midnight(tz).toTimeZone(TimeZone("Denver")),
       today.plus(1day).midnight(tz).toTimeZone(TimeZone("Denver")))
   }
