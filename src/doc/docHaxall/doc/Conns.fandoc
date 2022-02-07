@@ -228,5 +228,33 @@ current value subscription and use local [history collection]`lib-point::doc#his
 
 Point Conversions [#convert]
 ****************************
-TODO
+The following tags are used to configure conversions between the normalized
+data stored in Folio and the connector's remote device:
+  - `curConvert`: converts from raw read value to curVal
+  - `curCalibration`: adjusts read value before updating curVal
+  - `writeConvert`: converts local writeVal to raw value to write to remote system
+  - `hisConvert`: converts history items read from remote system before storing locally
+
+The conversion is specified as a string using the [point convert syntax]`ext-point::doc#convert`.
+
+For example, if a connector provides temperature data in Celsius which we
+wish to convert to Fahrenheit, then we can add this tag to our point:
+
+   curConvert: "°C => °F"
+
+If the sensor needs calibration, we might further decide to adjust plus or
+minus a few degrees.  If for example we wanted to add 2°F to the value being
+read from the sensor then:
+
+   curConvert: "°C => °F"
+   curCalibration: 2°F
+
+If we were also writing a value for the same point, then we would need to
+reverse the conversion for the write direction:
+
+   curConvert: "°C => °F"
+   curCalibration: 2°F
+   writeConvert: "°F => °C"
+
+Use the [details]`ConnTuning#details` to debug the raw and converted values.
 

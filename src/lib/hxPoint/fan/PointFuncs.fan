@@ -136,6 +136,7 @@ const class PointFuncs
   ** Examples:
   **   pointConvert(null, "+ 2 * 10", 3)
   **   pointConvert(null, "hexToNumber()", "ff")
+  **   pointConvert(null, "°C => °F", 20°C)
   **
   @Axon
   static Obj? pointConvert(Obj? pt, Str convert, Obj? val)
