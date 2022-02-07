@@ -107,13 +107,13 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
   {
     points := Dict[,]
 
-    points.add(PointBuilder(t).dis("Actual Temperature").kind("Number").unit(fahr)
+    points.add(PointBuilder(t).dis("Reported Temp").kind("Number").unit(fahr)
       .markers("zone,air,temp,sensor").cur("runtime/actualTemperature", "/ 10").finish)
 
     points.add(PointBuilder(t).dis("Actual Humidity").kind("Number").unit(relHum)
       .markers("zone,air,humidity,sensor").cur("runtime/actualHumidity").finish)
 
-    points.add(PointBuilder(t).dis("Raw Temperature").kind("Number").unit(fahr)
+    points.add(PointBuilder(t).dis("Dry-Bulb Temp").kind("Number").unit(fahr)
       .markers("zone,air,temp,sensor").cur("runtime/rawTemperature", "/ 10").finish)
 
     points.add(PointBuilder(t).dis("Desired Heat").kind("Number").unit(fahr)
@@ -124,6 +124,9 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
 
     points.add(PointBuilder(t).dis("Desired Humidity").kind("Number").unit(relHum)
       .markers("zone,air,humidity,sp").cur("runtime/desiredHumidity").finish)
+
+    points.add(PointBuilder(t).dis("Equip Status").kind("Str")
+      .markers("zone,air,hvacMode,sensor").cur("equipmentStatus").finish)
 
     // TODO: actualVOC???
 
@@ -154,11 +157,11 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
       points.add(PointBuilder(t).dis("Temp").kind("Number").unit(fahr)
         .markers("zone,air,temp,sensor").cur(capProp(s, "temperature"), "strToNumber / 10").finish)
     }
-    // if (s.hasCapability("occupancy"))
-    // {
-    //   points.add(PointBuilder(t).dis("Occupancy").kind("Bool")
-    //     .markers("zone,occupied,sensor").cur(capProp(s, "occupancy"), "strToBool").finish)
-    // }
+    if (s.hasCapability("occupancy"))
+    {
+      points.add(PointBuilder(t).dis("Occupancy").kind("Bool")
+        .markers("zone,occupied,sensor").cur(capProp(s, "occupancy")).finish)
+    }
     return points
   }
 

@@ -56,7 +56,7 @@ const class EcobeeThermostat : EcobeeObj
 
   ** The status of all equipment controlled by this Thermostat.
   ** Only running equipment is listed in the CSV String.
-  const Str? equipmentStats
+  const Str? equipmentStatus
 
   // TODO: notificationSettings, privacy,
 

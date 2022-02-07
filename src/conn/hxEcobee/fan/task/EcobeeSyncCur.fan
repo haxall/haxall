@@ -87,10 +87,11 @@ internal class EcobeeSyncCur : EcobeeConnTask
     if (stalePoints.isEmpty) return
 
     selection := EcobeeSelection {
-      it.selectionType  = SelectionType.thermostats
-      it.selectionMatch = staleThermostats.keys.join(",")
-      it.includeRuntime = true
-      it.includeSensors = true
+      it.selectionType   = SelectionType.thermostats
+      it.selectionMatch  = staleThermostats.keys.join(",")
+      it.includeRuntime  = true
+      it.includeSensors  = true
+      it.includeEquipmentStatus = true
     }
     thermostats := [Str:EcobeeThermostat][:]
       .setList(client.thermostat.get(selection)) { it.identifier }
@@ -105,7 +106,9 @@ internal class EcobeeSyncCur : EcobeeConnTask
         if (thermostat == null)
           throw FaultErr("Thermostat not returned by Ecobee server for: $propId")
 
-        point.updateCurOk(resolveVal(propId, thermostat))
+        val := resolveVal(propId, thermostat)
+        val = coerce(val, point, propId)
+        point.updateCurOk(val)
 
         // update point data with latest revision
         data := Etc.dictMerge(pointData(point), ["runtimeRev": thermostat.runtime.runtimeRev])
@@ -160,5 +163,12 @@ internal class EcobeeSyncCur : EcobeeConnTask
     }
 
     return EcobeeUtil.toHay(obj)
+  }
+
+  private Obj? coerce(Obj? val, ConnPoint point, EcobeePropId propId)
+  {
+    if (val == null) return null
+    if (point.kind.name == "Bool" && val is Str) return Bool.fromStr(val)
+    return val
   }
 }
