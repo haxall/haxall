@@ -134,7 +134,7 @@ internal class NestLearn : NestConnTask, NestUtil
     points.add(PointBuilder(t).dis("Thermostat Mode").kind("Str").enums("HEAT,COOL,HEATCOOL,OFF")
       .cur("ThermostatMode.mode").finish)
     points.add(PointBuilder(t).dis("Thermostat Status").kind("Str").enums("OFF,HEATING,COOLING")
-      .cur("ThermostatHvac.status").markers("zone,air,hvacMode,sp").finish)
+      .cur("ThermostatHvac.status").markers("zone,air,hvacMode,sensor").finish)
 
     points.add(PointBuilder(t).dis("Heating Setpoint").kind("Number").unit(celsius)
       .cur("ThermostatTemperatureSetpoint.heatCelsius").markers("zone,air,temp,heating,sp").finish)
