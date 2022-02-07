@@ -9,6 +9,7 @@
 --------------------------------------------------------------------------
 def: ^nestConn
 is: ^conn
+icon: "nest"
 connFeatures: {learn, pollMode:"buckets"}
 doc:
   Google Nest connector

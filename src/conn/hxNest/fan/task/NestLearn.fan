@@ -120,29 +120,61 @@ internal class NestLearn : NestConnTask, NestUtil
     throw Err("Unsupported device: ${device.type}")
   }
 
-  private Dict[] learnThermostat(Dict arg, NestThermostat device)
+  private Dict[] learnThermostat(Dict arg, NestThermostat t)
   {
-    points    := Dict[,]
-    points.add(toPoint(device, "Humidity.ambientHumidityPercent", "Humidity", relHum))
-    points.add(toPoint(device, "Temperature.ambientTemperatureCelsius", "Temp", celsius))
-    points.add(toPoint(device, "ThermostatMode.mode", "Thermostat Mode", null, ["enum":"HEAT,COOL,HEATCOOL,OFF"]))
-    points.add(toPoint(device, "ThermostatHvac.status", "Thermostat Status", null, ["enum":"OFF,HEATING,COOLING"]))
-    points.add(toPoint(device, "ThermostatTemperatureSetpoint.heatCelsius", "Heating Setpoint", celsius))
-    points.add(toPoint(device, "ThermostatTemperatureSetpoint.coolCelsius", "Cooling Setpoint", celsius))
+    points := Dict[,]
+
+    points.add(PointBuilder(t).dis("Humidity").kind("Number").unit(celsius)
+      .cur("Humidity.ambientHumidityPercent").markers("zone,air,humidity,sensor").finish)
+
+    points.add(PointBuilder(t).dis("Temp").kind("Number").unit(celsius)
+      .cur("Temperature.ambientTemperatureCelsius").markers("zone,air,temp,sensor").finish)
+
+    // TODO: not sure how to tag this
+    points.add(PointBuilder(t).dis("Thermostat Mode").kind("Str").enums("HEAT,COOL,HEATCOOL,OFF")
+      .cur("ThermostatMode.mode").finish)
+    points.add(PointBuilder(t).dis("Thermostat Status").kind("Str").enums("OFF,HEATING,COOLING")
+      .cur("ThermostatHvac.status").markers("zone,air,hvacMode,sp").finish)
+
+    points.add(PointBuilder(t).dis("Heating Setpoint").kind("Number").unit(celsius)
+      .cur("ThermostatTemperatureSetpoint.heatCelsius").markers("zone,air,temp,heating,sp").finish)
+    points.add(PointBuilder(t).dis("Cooling Setpoint").kind("Number").unit(celsius)
+      .cur("ThermostatTemperatureSetpoint.coolCelsius").markers("zone,air,temp,heating,sp").finish)
+
     return points
   }
+}
 
-  private Dict toPoint(NestDevice device, Str trait, Str dis, Unit? unit := null, Str:Obj? tags := [:])
+**************************************************************************
+** PointBuilder
+**************************************************************************
+
+internal class PointBuilder
+{
+  new make(NestDevice device)
   {
-    tags["point"]     = Marker.val
-    tags["nestPoint"] = Marker.val
-    tags["nestCur"]   = "${device.id}:${trait}"
-    tags["dis"]       = dis
-    tags["unit"]      = unit?.toStr
-
-    if (tags["kind"] == null)
-      tags["kind"] = unit == null ? "Str" : "Number"
-
-    return Etc.makeDict(tags)
+    this.device = device
+    this.tags = Str:Obj?[
+      "point": Marker.val,
+      "nestPoint": Marker.val,
+    ]
   }
+
+  private NestDevice device
+  private Str:Obj tags
+
+  private This set(Str tag, Obj? val) { tags[tag] = val; return this }
+
+  This dis(Str dis) { set("dis", dis) }
+  This kind(Str kind) { set("kind", kind) }
+  This unit(Unit unit) { set("unit", unit.toStr) }
+  This cur(Str trait) { set("nestCur", "${device.id}:${trait}") }
+  This enums(Str enums) { set("enum", enums) }
+  This markers(Str markers)
+  {
+    markers.split(',').each |marker| { tags[marker] = Marker.val }
+    return this
+  }
+
+  Dict finish() { Etc.makeDict(tags) }
 }
