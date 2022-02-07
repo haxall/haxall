@@ -10,6 +10,7 @@ Overview [#overview]
 ********************
 TODO
 
+
 ConnTuning [#connTuning]
 *************************
 TODO
@@ -69,6 +70,9 @@ writeOnStart [#writeOnStart]
 The `writeOnStart` marker tag is applied to issue a write when the
 system starts up.  If omitted then the system suppresses the initial
 priority array evaluation.
+
+Poll Buckets [#pollBuckets]
+***************************
 
 Details [#details]
 ******************

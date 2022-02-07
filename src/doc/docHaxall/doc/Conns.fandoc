@@ -24,6 +24,8 @@ to external systems.  It is based upon the following key features:
   - **Fantom API**: a suite of Fantom APIs make it easy to create your
     own custom connectors
 
+Included Connectors [#included]
+*******************************
 Haxall provides a rich library of ready to use connectors:
   - [Haystack]`lib-haystack::doc`: provides client connectivity via the
     Haystack HTTP API (used for Niagara)
@@ -41,6 +43,8 @@ SkySpark includes the following additional connectors:
   - [SNMP]`lib-snmp::doc`: client support for SNMP typically used with IT equipment
 
 Many third party connectors are also available on [StackHub]`https://stackhub.org`.
+Or you can build your own [custom connector]`CustomConns` with the connector
+framework APIs.
 
 Naming Conventions [#naming]
 ****************************
@@ -55,13 +59,14 @@ as an example:
   - `haystackWrite`: address for writable points
   - `haystackHis`: address for history data synchronization
 
-If you know the library name, then you can infer all the other names.
+This same pattern is enforced by the connector framework across all connector
+types.  If you know the library name, then you can infer all the other names.
 
 Connectors [#conns]
 *******************
 Each connector instance is a record in the `Folio` database that models a logical
 connection to a remote system.  A connector might model an external device,
-server, or database.  Each connector has some unique address and communication
+server, or database.  Each connector has a unique address and communication
 protocol to integrate with the external entity.
 
 The following tags are typically used to configure a connector:
@@ -85,17 +90,141 @@ remote system during [ping]`connPing()` and typically includes:
   - make and model of remote device or software
   - hardware/software version of remote system
 
-Connectors [#connState]
-***********************
-TODO
+Connector State [#connState]
+****************************
+Every connector maintains an open/close state available via the `connState` tag:
+  - 'closed': connector is closed
+  - 'closing': connector is currently inside its [onClose]`hxConn::ConnDispatch.onClose` callback
+  - 'open': connector is open
+  - 'opening': connector is currently inside its [onOpen]`hxConn::ConnDispatch.onOpen` callback
 
-Conn Status [#connStatus]
-*************************
-TODO
+The framework manages the state, however the semantics of open will vary based
+on the connector type.  For session based HTTP connectors open means that a
+session has been obtained to reuse between calls.  For TCP connectors it means
+that a socket has been open to the remote system.  For UDP protocols it might
+mean only that a ping request has been successful.
 
-History Sync [#hisSync]
-***********************
-TODO
+Separately every connector maintains a status via the `connStatus` tag:
+  - 'ok': connectivity is normal
+  - 'fault': configuration problem
+  - 'down': communication or network problem
+  - 'disabled': manual disable using the `disabled` tag
+  - 'unknown': status not computed yet (boot state)
+
+The status is managed by the framework; typically it is transitioned after
+the [onOpen]`hxConn::ConnDispatch.onOpen`  callback either succeeds or fails.
+Note that is common for the state to be both 'ok' and 'closed' - a connector is
+not kept open unless an application has a current need for it to be open.
+
+Connector Points [#points]
+**************************
+Most connectors support synchronization of [point]`docHaystack::Points` data:
+  - [cur]`#cur`: subscription/polling of current, real-time value
+  - [writes]`#writes`: writing to an output
+  - [history sync]`#hisSync`: synchronization of time-series history data
+
+Connector points are modeled as follows:
+  - Must be adhere to standard [point ontology]`docHaystack::Points`
+  - 'fooPoint': annotates the point as a specific connector type
+  - 'fooConnRef': associates the point with a specific connector
+  - 'fooCur': remote system address to synchronize real-time current value
+  - 'fooWrite': remote system address used to write to an output
+  - 'fooHis': remote system address to synchronize historical time-series data
+
+Not every connector supports all three features, in which case only the
+applicable tags are used.  Each of these point features is described in more
+detail below.
+
+Point Cur [#cur]
+****************
+Points which support [current value]`docHaystack::Points#cur` are modeled
+with the `cur` tag.  Connectors can be used to automatically synchronize
+a point's current value using the `curVal` tag.  Current value synchronize
+occurs one of two ways:
+  1.  Manual synchronization via the `connSyncCur()` function
+  2.  Automatically when the point is put into a [watch]`docSkySpark::Watches`
+
+The mechanism for current value synchronization is specific to each connector
+type and protocol.  However most connectors use one of the following strategies:
+  - periodical polling of points in a watch - tunable by
+    the [pollTime]`ConnTuning#pollTime` configuration option
+  - change-of-value (COV) subscription for protocols which support it
+
+Connector points, which are using current value subscription will maintain
+their status via the `curStatus` tag:
+  - 'ok': all is okay
+  - 'stale': the point's curVal is not fresh data
+  - 'fault': a configuration or hardware problem - see `curErr`
+  - 'down': a communication or network problem - see `curErr`
+  - 'disabled': manual disable of the point or connector
+  - 'unknown': we don't know anything (boot state)
+  - 'remoteFault': point in remote system is fault
+  - 'remoteDown': point in remote system is down
+  - 'remoteDisabled': point in remote system is disabled
+  - 'remoteUnknown': point in remote system is unknown
+
+If the parent connector is in an error/disable state, then all child points
+automically inherit the connector status.
+
+The framework will automatically transition the status from "ok" to "stale" after 5min.
+This time can be tuned via the [staleTime]`ConnTuning#staleTime` option.
+
+Point Writes [#writes]
+**********************
+Haystack models [writable points]`docHaystack::Points#writable` with the `writable`
+marker tag.  Writable points maintain an internal 16 level priority array
+by the [point library]`lib-point::doc#write`.  The effective value of the priority
+array is available via the `writeVal` and `writeLevel` transient tags.  The
+effective level may be written to a remote system by connector.  By default
+writes are issued whenever the local array's effective value is modified.
+However there are many tuning options to control write timing:
+  - [writeMinTime]`ConnTuning#writeMinTime`: throttles writes
+  - [writeMaxTime]`ConnTuning#writeMaxTime`: periodically re-issues writes
+  - [writeOnStart]`ConnTuning#writeOnStart`: force write on startup
+  - [writeOnOpen]`ConnTuning#writeOnOpen`: force write when connector transitions to open
+
+Connector points configured to write will maintain their status via
+the `writeStatus` tag:
+  - 'ok': last write was successful
+  - 'down': connectivity/networking problem - see `writeErr`
+  - 'fault': configuration or hardware error  - see `writeErr`
+  - 'disabled': manual disable of the point or connector
+  - 'unknown': we don't know anything (boot state)
+
+If the parent connector is in an error/disable state, then all child points
+automically inherit the connector status.
+
+Point History Sync [#hisSync]
+*****************************
+Some connectors support history data synchronization when the underlying
+protocol provides the respective feature.  History syncs must be scheduled with
+the [task library]`lib-task::doc` and the `connSyncHis()` function.  After
+the initial history sync, then this function is scheduled using a 'null' span
+to sync history items after the last sync.
+
+Here is an example task that synchronizes all haystack history points every 1hr:
+
+  dis:"Sync Haystack Histories"
+  obsSchedule
+  obsScheduleFreq:1h
+  task
+  taskExpr: "readAll(haystackHis).connSyncHis(null)"
+
+Connector points configured to sync history maintain their status via
+the `hisStatus` tag:
+  - 'ok': last sync attempt was successful
+  - 'fault': a configuration problem - see `hisErr`
+  - 'down': a communication or network problem - see `hisErr`
+  - 'disabled': manual disable of the point or parent connector
+  - 'unknown': we don't know anything (boot state)
+  - 'pending': sync has been scheduled and is waiting to running
+  - 'syncing': not used by connector framework
+
+If the parent connector is in an error/disable state, then all child points
+automically inherit the connector status.
+
+For connectors which do not provide history synchronization, you can setup
+current value subscription and use local [history collection]`lib-point::doc#hisCollect`
 
 Point Conversions [#convert]
 ****************************

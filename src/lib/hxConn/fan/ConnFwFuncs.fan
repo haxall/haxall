@@ -68,7 +68,7 @@ const class ConnFwFuncs
   ** Perform a remote sync of current values for the given points.
   ** The 'points' parameter may be anything acceptable by `toRecIdList()`.
   ** Return a list of futures for each unique connector.  The result
-  ** of each future is unspecified.
+  ** of each future is unspecified.  Also see `docHaxall::Conns#cur`.
   **
   ** Examples:
   **   readAll(bacnetCur).connSyncCur
@@ -92,7 +92,7 @@ const class ConnFwFuncs
   ** null for span to perform a sync for items after the point's `hisEnd`.
   ** This blocks the calling thread until each point is synchronized one
   ** by one.  Normally it should only be called within a task.  The result
-  ** from this function is undefined.
+  ** from this function is undefined.  Also see `docHaxall::Conns#hisSync`.
   **
   ** Examples:
   **   readAll(haystackHis).connSyncHis(null)
