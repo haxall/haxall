@@ -1,0 +1,24 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   02 Feb 2022  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^ecobeeConn
+is: ^conn
+icon: "ecobee"
+connFeatures: {learn, pollMode:"buckets"}
+doc:
+  Ecobee connector
+--------------------------------------------------------------------------
+def: ^ecobeeClientId
+is: ^password
+tagOn: ^ecobeeConn
+--------------------------------------------------------------------------
+def: ^ecobeeRefreshToken
+is: ^password
+tagOn: ^ecobeeConn
+--------------------------------------------------------------------------

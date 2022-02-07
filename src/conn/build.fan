@@ -21,6 +21,7 @@ class Build : BuildGroup
       `hxModbus/build.fan`,
       `mqtt/build.fan`,
       `hxMqtt/build.fan`,
+      `hxEcobee/build.fan`,
       `hxNest/build.fan`,
       `obix/build.fan`,
       `hxObix/build.fan`,

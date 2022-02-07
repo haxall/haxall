@@ -1,0 +1,15 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   02 Feb 2022  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:ecobee
+icon: "ecobee"
+depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
+typeName:"hxEcobee::EcobeeLib"
+doc: "Ecobee Connector"
+--------------------------------------------------------------------------

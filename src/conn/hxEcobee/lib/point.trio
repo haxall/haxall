@@ -1,0 +1,33 @@
+//
+// Copyright (c) 2022, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   02 Feb 2022  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+def: ^ecobeePoint
+is: ^connPoint
+doc:
+  Point which synchronizes data via an Ecobee connector.
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^ecobeeConnRef
+is: ^ref
+of: ^ecobeeConn
+tagOn: ^ecobeePoint
+doc:
+  Used on a proxy point to reference its parent `ecobeeConn`
+--------------------------------------------------------------------------
+def: ^ecobeeCur
+is: ^str
+tagOn: ^ecobeePoint
+doc:
+  Ecobee value to use to get the current value.
+--------------------------------------------------------------------------
