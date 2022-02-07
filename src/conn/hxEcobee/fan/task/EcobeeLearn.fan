@@ -62,8 +62,8 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
     thermostats.each |thermostat|
     {
       tags := Str:Obj?[
-        "id": Ref(thermostat.id),
         "dis": thermostat.name,
+        "ecobeeId": thermostat.id,
         "ecobeeModelNumber": thermostat.modelNumber,
         "equip": Marker.val,
         "thermostat": Marker.val,
@@ -86,8 +86,8 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
     thermostat.remoteSensors.each |sensor|
     {
       tags := Str:Obj?[
-        "id": Ref(sensor.id),
         "dis": "• ${sensor.name} (Remote Sensor)",
+        "ecobeeId": sensor.id,
         "ecobeeSensorType": sensor.type,
         "equip": Marker.val,
         "thermostat": Marker.val,
@@ -107,6 +107,11 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
   {
     points := Dict[,]
 
+    // Thermostat object points
+    points.add(PointBuilder(t).dis("Equip Status").kind("Str")
+      .markers("zone,air,hvacMode,sensor").cur("equipmentStatus").finish)
+
+    // Runtime object points
     points.add(PointBuilder(t).dis("Reported Temp").kind("Number").unit(fahr)
       .markers("zone,air,temp,sensor").cur("runtime/actualTemperature", "/ 10").finish)
 
@@ -125,15 +130,17 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
     points.add(PointBuilder(t).dis("Desired Humidity").kind("Number").unit(relHum)
       .markers("zone,air,humidity,sp").cur("runtime/desiredHumidity").finish)
 
-    points.add(PointBuilder(t).dis("Equip Status").kind("Str")
-      .markers("zone,air,hvacMode,sensor").cur("equipmentStatus").finish)
-
     // TODO: actualVOC???
 
     points.add(PointBuilder(t).dis("Actual CO2").kind("Number")
       .markers("zone,air,co2,sensor").cur("runtime/actualCO2").finish)
 
     // TODO: AQAccuracy/Score???
+
+    // Settings object points
+    points.add(PointBuilder(t).dis("HVAC mode").kind("Str").enums("auto,auxHeatOnly,cool,heat,off")
+      .markers("zone,air,hvacMode,sp").cur("settings/hvacMode").finish)
+
     return points
   }
 

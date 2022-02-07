@@ -33,7 +33,7 @@ const class EcobeeRemoteSensor : EcobeeObj
 
   ** This flag indicates whether the remote sensor is currently
   ** in use by a comfort setting
-  const Bool inUse
+  const Bool? inUse
 
   ** The list of remote sensor capability objects for the remote sensor
   const EcobeeRemoteSensorCapability[] capability := [,]

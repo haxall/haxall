@@ -30,7 +30,7 @@ const class EcobeeThermostat : EcobeeObj
   const Str? thermostatRev
 
   ** Whether the user registered the thermostat
-  const Bool isRegistered
+  const Bool? isRegistered
 
   ** The thermostat model number
   const Str? modelNumber
@@ -47,8 +47,12 @@ const class EcobeeThermostat : EcobeeObj
 
   const DateTime? utcTime
 
-  // TODO: audio, alerts, reminders, settings
+  // TODO: audio, alerts, reminders
 
+  ** The thermostat settings object
+  const EcobeeSettings? settings
+
+  ** The runtime state object
   const EcobeeRuntime? runtime
 
   // TODO: extendedRuntime, devices, location, technician, utility, management, weather

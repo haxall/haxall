@@ -23,7 +23,7 @@ const class EcobeeRuntime : EcobeeObj
   const Str? runtimeRev
 
   ** Whether the thermostat is currently connected to the server
-  const Bool connected
+  const Bool? connected
 
   ** The UTC dat/time stamp of when the thermostat first connected to the server
   const DateTime? firstConnected

@@ -91,6 +91,7 @@ internal class EcobeeSyncCur : EcobeeConnTask
       it.selectionMatch  = staleThermostats.keys.join(",")
       it.includeRuntime  = true
       it.includeSensors  = true
+      it.includeSettings = true
       it.includeEquipmentStatus = true
     }
     thermostats := [Str:EcobeeThermostat][:]
