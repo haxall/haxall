@@ -24,7 +24,10 @@ doc:
   Defines the features supported by a given connector.  This is
   a tag added to the 'conn' def itself.  The value is a dict with the
   following standardized keys:
-  - learn: marker tag if point learn is supported
+  - 'learn': marker tag if point learn is supported
+  - 'pollMode': manual or buckets
+
+  Also see `docHaxall::CustomConns#defs`
 --------------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////

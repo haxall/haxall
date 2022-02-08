@@ -14,7 +14,8 @@ using hx
 using hxPoint
 
 **
-** Connector library base class
+** Connector library base class.
+** See `docHaxall::CustomConns#connLib`.
 **
 abstract const class ConnLib : HxLib, HxConnLib
 {

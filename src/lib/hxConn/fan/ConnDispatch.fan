@@ -11,10 +11,10 @@ using folio
 using hx
 
 **
-** ConnDispatch provides an implementation for all callbacks.
-** A subclass is created by each connector to implement the various
-** callbacks and store mutable state.  All dispatch callbacks
-** are executed within the parent Conn actor.
+** ConnDispatch provides an implementation for all callbacks.  A subclass
+** is created by each connector to implement the various callbacks and
+** store mutable state.  All dispatch callbacks are executed within the
+** parent Conn actor.  See `docHaxall::CustomConns#connDispatch`.
 **
 abstract class ConnDispatch
 {
@@ -148,6 +148,7 @@ abstract class ConnDispatch
   ** The following tags should be used to indicate points to map:
   **   - dis: display name for navigation (required for all rows)
   **   - point: marker indicating point (1 or more fooCur/His/Write)
+  **   - fooPoint: marker
   **   - fooCur: address if object can be mapped for cur real-time sync
   **   - fooWrite: address if object can be mapped for writing
   **   - fooHis: address if object can be mapped for history sync

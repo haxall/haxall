@@ -1,0 +1,27 @@
+**************************************************************************
+** title:      HxLib
+** author:     Brian Frank
+** created:    8 Feb 2022
+** copyright:  Copyright (c) 2022, SkyFoundry LLC
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+TODO
+
+Build File [#build]
+********************
+Make sure your [build file]`docTools::Build#buildPod` registers the class
+as a Hasytack lib with the following line:
+
+  index = ["ph.lib": "foo"]
+
+Lib Def [#libDef]
+*****************
+TODO
+
+Axon Funcs [#funcs]
+*******************
+TODO
+
