@@ -40,8 +40,8 @@ doc:
   be a number with a duration unit.  If omitted a default of 1min is used.
   This value effectively determines how long a blocking remote request should
   take before raising a timeout error.  For protocols which communicate
-  via HTTP/TCP it is also used to configure the socket's receive
-  timeout (including Haystack and oBIX connectors).
+  via HTTP/TCP it is also used to configure the socket's receive timeout.
+  See `docHaxall::ConnTuning#actorTimeout`
 --------------------------------------------------------------------------
 def: ^connErr
 is: ^str
@@ -57,6 +57,7 @@ tagOn: ^conn
 doc:
   Linger timeout used to keep a connector open.
   If not configured then a default of 30sec is used.
+  See `docHaxall::ConnTuning#connLinger`
 --------------------------------------------------------------------------
 def: ^connOpenRetryFreq
 is: ^duration
@@ -67,6 +68,7 @@ doc:
   attempt retries.  For example if a down connector has watched points, then
   this frequency is used to determine how often we retry to reopen the
   connection. The default is 10sec if not specified.
+  See `docHaxall::ConnTuning#connOpenRetryFreq`
 --------------------------------------------------------------------------
 def: ^connPingFreq
 is: ^duration
@@ -77,7 +79,7 @@ doc:
   a ping based on the configured frequency.  For connectors which might
   not have watched points this ensures periodic checks of the connectivity
   status.  If this tag is not defined on a connector then the feature is
-  disabled.
+  disabled.  See `docHaxall::ConnTuning#connPingFreq`
 --------------------------------------------------------------------------
 def: ^connState
 is: ^str

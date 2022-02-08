@@ -110,7 +110,7 @@ const class ConnFwFuncs
   ** The value is anything acceptable by `toRecId()`.  The result
   ** is returned as a plain text string.
   **
-  @NoDoc @Axon { admin = true }
+  @Axon { admin = true }
   static Obj connDetails(Obj obj)
   {
     cx := curContext
