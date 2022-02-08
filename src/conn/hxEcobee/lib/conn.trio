@@ -17,8 +17,12 @@ doc:
 def: ^ecobeeClientId
 is: ^password
 tagOn: ^ecobeeConn
+doc:
+  Your Ecobee API Key
 --------------------------------------------------------------------------
 def: ^ecobeeRefreshToken
 is: ^password
 tagOn: ^ecobeeConn
+doc:
+  The refresh token you obtained for your API key
 --------------------------------------------------------------------------

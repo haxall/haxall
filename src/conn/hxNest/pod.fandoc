@@ -44,7 +44,7 @@ nestRefreshToken: "<oauth-refresh-token>"
 
 Supported Points [#points]
 **************************
-The nest connector used the `nestCur` tag to get the current value of a particular
+The nest connector uses the `nestCur` tag to get the current value of a particular
 device "trait". This value is specified as:
 
 pre>
