@@ -139,7 +139,7 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
 
     // Settings object points
     points.add(PointBuilder(t).dis("HVAC mode").kind("Str").enums("auto,auxHeatOnly,cool,heat,off")
-      .markers("zone,air,hvacMode,sp").cur("settings/hvacMode").finish)
+      .markers("zone,air,hvacMode,sp").curAndWrite("settings/hvacMode").finish)
 
     return points
   }
@@ -211,7 +211,11 @@ internal class PointBuilder
   This write(Str path, Str? convert := null)
   {
     set("ecobeeWrite", "${thermostat.id}/${path}")
-    if (convert != null) set("writeConvert", convert)
+    if (convert != null)
+    {
+      set("writeConvert", convert)
+      markers("writable")
+    }
     return this
   }
   This curAndWrite(Str path) { cur(path).write(path) }

@@ -29,5 +29,11 @@ def: ^ecobeeCur
 is: ^str
 tagOn: ^ecobeePoint
 doc:
-  Ecobee value to use to get the current value.
+  Ecobee address to use to get the current value.
+--------------------------------------------------------------------------
+def: ^ecobeeWrite
+is: ^str
+tagOn: ^ecobeePoint
+doc:
+  Ecobee address to use to write a point value.
 --------------------------------------------------------------------------

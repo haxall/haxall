@@ -19,7 +19,7 @@ const class EcobeeThermostat : EcobeeObj
   new make(|This| f) { f(this) }
 
   ** The unique thermostat serial number
-  const Str identifier
+  const Str? identifier
 
   override Str? id() { identifier }
 
@@ -70,7 +70,7 @@ const class EcobeeThermostat : EcobeeObj
   // TODO: securitySettings, filterSubscription
 
   ** The list of remote sensor objects for this thermostat
-  const EcobeeRemoteSensor[] remoteSensors := [,]
+  const EcobeeRemoteSensor[]? remoteSensors
 
   // TODO: capabilities
 

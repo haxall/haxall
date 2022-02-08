@@ -24,4 +24,11 @@ internal mixin EcobeeUtil
     // I give up
     return val.toStr
   }
+
+  ** Convert a Haystack value to Ecobee field type
+  static Obj? toEcobee(Obj? val, Field field)
+  {
+    if (val == null) return null
+    return val.toStr
+  }
 }

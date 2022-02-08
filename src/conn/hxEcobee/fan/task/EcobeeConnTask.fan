@@ -27,7 +27,7 @@ internal abstract class EcobeeConnTask
   EcobeeDispatch dispatch { private set }
   Ecobee client() { dispatch.client }
   Conn conn() { dispatch.conn }
-  virtual Log log() { dispatch.log }
+  Log log() { dispatch.trace.asLog }
 
 //////////////////////////////////////////////////////////////////////////
 // ConnTask
@@ -44,6 +44,8 @@ internal abstract class EcobeeConnTask
 //////////////////////////////////////////////////////////////////////////
 
   internal static EcobeePropId toCurId(ConnPoint pt) { toRemoteId(pt.rec, "ecobeeCur") }
+
+  internal static EcobeePropId toWriteId(ConnPoint pt) { toRemoteId(pt.rec, "ecobeeWrite") }
 
   internal static EcobeePropId toRemoteId(Dict rec, Str tag)
   {
@@ -73,12 +75,17 @@ internal abstract class EcobeeConnTask
     if (propSpecs.last.isObjectSelect) throw ArgErr("Property id must not end with a selector: $uri")
   }
 
+  ** Full URI of the property
   const Uri uri
 
   ** The thermostat id
   const Str thermostatId
 
+  ** Path of property specs
   const EcobeePropSpec[] propSpecs
+
+  ** Is this a Settings object property
+  Bool isSettings() { propSpecs.first.prop == "settings" }
 
   override Str toStr() { uri.toStr }
 }

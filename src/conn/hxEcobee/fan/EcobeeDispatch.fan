@@ -33,7 +33,7 @@ class EcobeeDispatch : ConnDispatch
 
   override Void onOpen()
   {
-    this.client = Ecobee(password("ecobeeClientId"), password("ecobeeRefreshToken"))
+    this.client = Ecobee(password("ecobeeClientId"), password("ecobeeRefreshToken"), trace.asLog)
     pollSummary
   }
 
@@ -81,6 +81,11 @@ class EcobeeDispatch : ConnDispatch
   override Void onSyncCur(ConnPoint[] points)
   {
     EcobeeSyncCur(this, points).run
+  }
+
+  override Void onWrite(ConnPoint point, ConnWriteInfo event)
+  {
+    EcobeeWrite(this, point, event).run
   }
 
 //////////////////////////////////////////////////////////////////////////

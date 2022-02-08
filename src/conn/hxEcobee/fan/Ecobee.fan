@@ -18,11 +18,12 @@ const class Ecobee
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(Str clientId, Str refreshToken)
+  new make(Str clientId, Str refreshToken, Log log := Log.get("ecobee"))
   {
     token  := RawAccessToken("ForceRefreshAuthToken") { it.refreshToken = refreshToken }
     params := ["client_id": clientId]
     this.client = OAuthClient(token, tokenUri, params)
+    this.log = log
   }
 
   ** Token refresh uri
@@ -30,6 +31,8 @@ const class Ecobee
 
   ** OAuth webclient
   internal const OAuthClient client
+
+  internal const Log log
 
 //////////////////////////////////////////////////////////////////////////
 // API

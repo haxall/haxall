@@ -6,6 +6,7 @@
 //   02 Feb 2022  Matthew Giannini  Creation
 //
 
+using concurrent
 using web
 using util
 using oauth2
@@ -20,14 +21,21 @@ class ApiReq
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(OAuthClient client)
+  new make(OAuthClient client, Log? log := null)
   {
     this.client = client
+    this.log = log
   }
 
-  private static const Uri baseUri := `https://api.ecobee.com/1/`
+  internal static const Uri baseUri := `https://api.ecobee.com/1/`
 
   protected const OAuthClient client
+
+  protected const Log? log
+
+  private Bool isDebug() { log?.isDebug ?: false }
+
+  private static const AtomicInt debugCounter := AtomicInt()
 
 //////////////////////////////////////////////////////////////////////////
 // Invoke
@@ -62,6 +70,18 @@ class ApiReq
     attempt := 0
     while (true)
     {
+      // debug
+      count := debugCounter.getAndIncrement
+      if (isDebug)
+      {
+        s := StrBuf().add("> [$count]\n")
+          .add("$method $uri\n")
+        headers.each |v, n| { s.add("$n: $v\n") }
+        if (req is Str) s.add(((Str)req).trimEnd).add("\n")
+        if (req is File) s.add(((File)req).readAllStr.trimEnd).add("\n")
+        log.debug(s.toStr)
+      }
+
       ++attempt
       c := client.call(method, uri, req, headers)
 
@@ -76,7 +96,7 @@ class ApiReq
         if (c.resCode != 500) throw IOErr("Unexpected response [$c.resCode] ${c.resPhrase}")
 
         // need to get error from response Status object
-        json := readJson(c)
+        json := readJson(c, count)
         EcobeeResp resp := EcobeeDecoder().decode(json, EcobeeResp#)
 
         // if the token is expired and we haven't retried yet,
@@ -103,10 +123,20 @@ class ApiReq
 // Util
 //////////////////////////////////////////////////////////////////////////
 
-  internal static Map readJson(WebClient c)
+  private Map readJson(WebClient c, Int count := debugCounter.val - 1)
   {
     jstr := c.resStr
-// echo(jstr)
+
+    // debug
+    if (isDebug)
+    {
+      s := StrBuf().add("< [$count]\n")
+        .add("$c.resCode $c.resPhrase\n")
+      c.resHeaders.each |v, n| { s.add("$n: $v\n") }
+      s.add("${jstr.trimEnd}\n")
+      log.debug(s.toStr)
+    }
+
     return JsonInStream(jstr.in).readJson
   }
 }

@@ -18,7 +18,7 @@ class ThermostatReq : ApiReq
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  internal new make(Ecobee ecobee) : super(ecobee.client)
+  internal new make(Ecobee ecobee) : super(ecobee.client, ecobee.log)
   {
   }
 
@@ -32,6 +32,7 @@ class ThermostatReq : ApiReq
     invokeGet(`thermostatSummary`, selection)
   }
 
+  ** Get all thermostats matching the selection
   EcobeeThermostat[] get(EcobeeSelection selection)
   {
     acc  := EcobeeThermostat[,]
@@ -46,6 +47,14 @@ class ThermostatReq : ApiReq
       ++page
     }
     return acc
+  }
+
+  Void update(EcobeeSelection selection, EcobeeThermostat thermostat)
+  {
+    uri := baseUri.plus(`thermostat`).plusQuery(["format":"json"])
+    bodyJson := [selection.jsonKey: selection, thermostat.jsonKey: thermostat]
+    body := EcobeeEncoder.jsonStr(bodyJson).toBuf.toFile(`update.json`)
+    resp := invoke("POST", uri, body)
   }
 
 }
