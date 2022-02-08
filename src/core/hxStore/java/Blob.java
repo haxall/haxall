@@ -129,8 +129,8 @@ public final class Blob extends FanObj
 
   void doWrite(Buf meta, Buf data, long newVer)
   {
-    if (meta != null) Store.checkMeta(meta);
-    if (data != null) Store.checkDataSize(data.sz());
+    if (meta != null) Store.checkMeta(this, meta);
+    if (data != null) Store.checkDataSize(this, data.sz());
     try
     {
       int oldFileId = this.fileId;
@@ -188,8 +188,8 @@ public final class Blob extends FanObj
 
     // otherwise we can write it in-place
     checkWrite();
-    if (meta != null) Store.checkMeta(meta);
-    Store.checkDataSize(newSize);
+    if (meta != null) Store.checkMeta(this, meta);
+    Store.checkDataSize(this, newSize);
     try
     {
       // append data into existing page block
