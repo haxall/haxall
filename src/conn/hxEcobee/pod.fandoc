@@ -42,7 +42,7 @@ conn
 ecobeeConn
 ecobeeClientId: "<API key>"
 ecobeeRefreshToken: "<refresh token>"
-pre>
+<pre
 
 Supported Points [#points]
 **************************
@@ -57,7 +57,7 @@ pre>
 <value> := Str
 
 NOTE: for the property-selector syntax you can omit the property-name if the value
-corresponds to an objects unique id.
+corresponds to an object's unique id.
 <pre
 
 Ecobee thermostats are represented in JSON format. This syntax is basically a way
@@ -97,10 +97,12 @@ ecobeeCur: "/12345/remoteSensors[rs:100]/capability[type=temperature]/value"
 // Thermostat JSON
 {
   "identifier": "12345",
+  ...
   "remoteSensors": [
     {
       "id": "rs:100",
       "name": "Game Room",
+      ...
       "capability": [
         {
           "id": "1",
@@ -117,6 +119,7 @@ ecobeeCur: "/12345/remoteSensors[rs:100]/capability[type=temperature]/value"
     {
       "id": "ei:0",
       "name": "Upstairs Thermostat",
+      ...
       "capability": [
         {
           "id": "1",
@@ -141,7 +144,7 @@ ecobeeCur: "/12345/remoteSensors[rs:100]/capability[type=temperature]/value"
 
 Learn [#learn]
 **************
-The Ecobee connector supports `connLearn() to learn the most common points
+The Ecobee connector supports `connLearn()` to learn the most common points
 from your Thermostat. It will not show you all properties that can be learned
 about a thermostat - just the most common. You can always manually create a point
 and specify the `ecobeeCur` using the syntax outlined above.
