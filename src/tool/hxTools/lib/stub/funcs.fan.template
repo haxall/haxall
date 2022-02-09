@@ -1,0 +1,21 @@
+{{header}}
+
+using haystack
+using hx
+using axon
+
+class {{typePrefix}}Funcs
+{
+  ** Convenience to get the current `HxContext`
+  private static HxContext curHx() { HxContext.curHx }
+
+  ** Convenience to lookup {{typePrefix}}Lib in the given `HxContext`
+  private static {{typePrefix}}Lib lib(HxContext cx := curHx) { cx.rt.lib("{{defName}}") }
+
+  ** Fandoc is used for reference docs
+  @Axon
+  static Str {{defName}}Fantom()
+  {
+    "Hello world in Fantom!"
+  }
+}

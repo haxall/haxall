@@ -1,0 +1,20 @@
+{{header}}
+
+using hx
+
+const class {{typePrefix}}Lib : HxLib
+{
+  ** Convenience to get the library from the current `HxContext`.
+  static {{typePrefix}}Lib cur(Bool checked := true)
+  {
+    HxContext.curHx.rt.lib("{{defName}}", checked)
+  }
+
+  override Void onStart()
+  {
+  }
+
+  override Void onStop()
+  {
+  }
+}

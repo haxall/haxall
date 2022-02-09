@@ -1,0 +1,18 @@
+{{header}}
+
+--------------------------------------------------------------------------
+def: ^{{defName}}Point
+is: ^connPoint
+doc: "Point which synchronizes data via the {{typePrefix}} connector."
+--------------------------------------------------------------------------
+def: ^{{defName}}ConnRef
+is: ^ref
+of: ^{{defName}}Conn
+tagOn: ^{{defName}}Point
+doc: "Associate a point to its parent {{typePrefix}} connector."
+--------------------------------------------------------------------------
+def: ^{{defName}}Cur
+is: ^str
+tagOn: ^{{defName}}Point
+doc: "Current value address for the {{typePrefix}} connector."
+--------------------------------------------------------------------------

@@ -1,0 +1,34 @@
+{{header}}
+
+--------------------------------------------------------------------------
+// See https://skyfoundry.com/doc/docFresco/Apps
+// Remove leading '--' to enable
+-- app: {{defName}}
+-- dis: {{typePrefix}}
+--------------------------------------------------------------------------
+// See https://skyfoundry.com/doc/docFresco/Views
+// Remove leading '--' to enable
+-- view: "{{defName}}TestView"
+-- dis: "{{typePrefix}} Test View"
+-- appName: "{{defName}}"
+-- src:
+--   view: {inherit: "table"}
+--   data: {expr:"readAll(site)"}
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Settings App
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+// Remove leading '--' to enable
+-- view: {{defName}}Settings
+-- appName: settings
+-- dis: "{{typePrefix}}"
+-- admin
+-- doc: Settings for the {{libName}} library
+-- src:
+--   view:   {inherit:"form"}
+--   submit: {action:"extSettingsCommit"}
+--   data:   {expr:"extSettings(\"{{defName}}\")"}
+--------------------------------------------------------------------------

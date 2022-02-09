@@ -1,0 +1,33 @@
+#! /usr/bin/env fan
+{{header}}
+
+using build
+
+**
+** Build: {{libName}}
+**
+class Build : BuildPod
+{
+  new make()
+  {
+    podName = "{{libName}}"
+    summary = "{{podSummary}}"
+    // version = Version("1.0")
+    meta    = ["org.name":     "{{org}}",
+               "org.uri":      "{{orgUri}}",
+               "proj.name":    "{{projName}}",
+               "proj.uri":     "{{projUri}}",
+               "license.name": "{{licenseName}}",
+               "vcs.name":     "{{vcsName}}",
+               "vcs.uri":      "{{vcsUri}}",
+              ]
+    depends = [
+{{depends}}
+    ]
+    srcDirs = [
+{{srcDirs}}
+    ]
+    resDirs = [`lib/`]
+    index   = ["ph.lib": "{{defName}}"]
+  }
+}

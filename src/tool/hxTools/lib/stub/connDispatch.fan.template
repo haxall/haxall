@@ -1,0 +1,40 @@
+{{header}}
+
+using haystack
+using hx
+using hxConn
+
+class {{typePrefix}}Dispatch : ConnDispatch
+{
+
+//////////////////////////////////////////////////////////////////////////
+// Constructor
+//////////////////////////////////////////////////////////////////////////
+
+  new make(Obj arg) : super(arg) {}
+
+  ** Convenience to get a strongly typed reference to your lib
+  private {{typePrefix}}Lib {{defName}}Lib() { lib }
+
+//////////////////////////////////////////////////////////////////////////
+// Open/Ping/Close
+//////////////////////////////////////////////////////////////////////////
+
+  override Void onOpen()
+  {
+    // open your connector here, raise an exception if open fails
+    throw Err("TODO: onOpen")
+  }
+
+  override Void onClose()
+  {
+    // close and cleanup goes here
+    throw Err("TODO: onClose")
+  }
+
+  override Dict onPing()
+  {
+    // ping the device and return a Dict with meata data for the conn rec
+    return Etc.emptyDict
+  }
+}

@@ -1,0 +1,25 @@
+{{header}}
+
+using hx
+using hxConn
+
+const class {{typePrefix}}Lib : ConnLib
+{
+  ** Convenience to get the library from the current `HxContext`.
+  static {{typePrefix}}Lib cur(Bool checked := true)
+  {
+    HxContext.curHx.rt.lib("{{defName}}", checked)
+  }
+
+  override Void onStart()
+  {
+    // You *must* call super
+    super.onStart
+  }
+
+  override Void onStop()
+  {
+    // You *must call super
+    super.onStop
+  }
+}
