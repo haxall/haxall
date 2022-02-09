@@ -142,7 +142,7 @@ with the `cur` tag.  Connectors can be used to automatically synchronize
 a point's current value using the `curVal` tag.  Current value synchronize
 occurs one of two ways:
   1.  Manual synchronization via the `connSyncCur()` function
-  2.  Automatically when the point is put into a [watch]`docSkySpark::Watches`
+  2.  Automatically when the point is put into a [watch]`docHaxall::Watches`
 
 The mechanism for current value synchronization is specific to each connector
 type and protocol.  However most connectors use one of the following strategies:

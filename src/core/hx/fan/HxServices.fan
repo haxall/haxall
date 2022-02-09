@@ -114,7 +114,7 @@ const mixin HxObsService : HxService
 const mixin HxWatchService : HxService
 {
   ** List the watches currently open for this runtime.
-  ** Also see `docSkySpark::Watches#fantom`.
+  ** Also see `docHaxall::Watches#fantom`.
   abstract HxWatch[] list()
 
   ** Return list of watches currently subscribed to the given id,
@@ -123,11 +123,11 @@ const mixin HxWatchService : HxService
 
   ** Find an open watch by its identifier.  If  not found
   ** then throw Err or return null based on checked flag.
-  ** Also see `docSkySpark::Watches#fantom`.
+  ** Also see `docHaxall::Watches#fantom`.
   abstract HxWatch? get(Str id, Bool checked := true)
 
   ** Open a new watch with given display string for debugging.
-  ** Also see `docSkySpark::Watches#fantom`.
+  ** Also see `docHaxall::Watches#fantom`.
   abstract HxWatch open(Str dis)
 
   ** Return if given record id is under at least one watch

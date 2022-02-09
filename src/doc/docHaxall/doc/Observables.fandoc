@@ -181,7 +181,7 @@ will fire an "updated" event.
 Watches [#obsWatches]
 =====================
 The `obsWatches` observable is used to listen for when records go into
-and out of [watch]`docSkySpark::Watches`.  The "watch" event provides a
+and out of [watch]`docHaxall::Watches`.  The "watch" event provides a
 list of recs that are entering the watched state (transition from zero
 to at least one watch).  The "unwatch" event provides a list of recs that are
 exiting the watched state (transition to zero watchers).

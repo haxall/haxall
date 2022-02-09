@@ -42,7 +42,7 @@ to Folio using [transient diffs]`docHaxall::Folio#transientDiffs`.
 
 The current value of points are synchronized one of two ways:
   - one-time synchronization is made using the connectors 'fooSyncCur()' function
-  - the point is added to a [watch]`docSkySpark::Watches`
+  - the point is added to a [watch]`docHaxall::Watches`
 
 Watches indicate an ongoing, live subscription of the point.  Depending
 on the remote system this might involve an actual subscription over

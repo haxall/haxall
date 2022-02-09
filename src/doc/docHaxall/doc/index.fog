@@ -16,6 +16,7 @@
   [`Axon`,          "Axon scripting language"],
   [`Libs`,          "Library modules"],
   [`Observables`,   "Observable subscription subsystem"],
+  [`Watches`,       "Subscription to record changes"],
 "Axon",
   [`AxonLang`,      "Features of Axon programming language"],
   [`Streams`,       "Asynchronous streams"],

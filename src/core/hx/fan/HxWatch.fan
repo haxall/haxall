@@ -14,7 +14,7 @@ using haystack
 **
 ** HxWatch is a subscription to a set of records in a project database.
 ** It provides an efficient mechanism to poll for changes.
-** Also see `docSkySpark::Watches#fantom`.
+** Also see `docHaxall::Watches#fantom`.
 **
 const abstract class HxWatch
 {
@@ -48,7 +48,7 @@ const abstract class HxWatch
   ** An empty list is returned if no changes have been made to the watched
   ** records since ticks.  There is no ordering to the resulting list.
   ** This method automatically renews the lease and keeps track of the
-  ** last poll ticks.  Also see `docSkySpark::Watches#fantom`.
+  ** last poll ticks.  Also see `docHaxall::Watches#fantom`.
   abstract Dict[] poll(Duration ticks := lastPoll)
 
   ** Update `lastRenew` just to maintain the lease, but don't

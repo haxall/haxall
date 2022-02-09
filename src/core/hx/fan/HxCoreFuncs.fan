@@ -416,8 +416,8 @@ const class HxCoreFuncs
 
   ** Open a new watch on a grid of records.  The 'dis' parameter
   ** is used for the watch's debug display string.  Update and return
-  ** the grid with a meta 'watchId' tag.  Also see `hx:HxService.open`
-  ** and `docSkySpark::Watches#axon`.
+  ** the grid with a meta 'watchId' tag.  Also see `hx::HxWatchService.open`
+  ** and `docHaxall::Watches#axon`.
   **
   ** Example:
   **   readAll(myPoints).watchOpen("MyApp|Points")
@@ -432,8 +432,7 @@ const class HxCoreFuncs
 
   ** Poll an open watch and return all the records which have changed
   ** since the last poll.  Raise exception if watchId doesn't exist
-  ** or has expired.  Also see `hx::HxWatch.poll` and
-  ** `docSkySpark::Watches#axon`.
+  ** or has expired.  Also see `hx::HxWatch.poll` and `docHaxall::Watches#axon`.
   @Axon
   static Grid watchPoll(Obj watchId)
   {
@@ -475,7 +474,7 @@ const class HxCoreFuncs
 
   ** Close an open watch by id.  If the watch does not exist or
   ** has expired then this is a no op.  Also see `hx::HxWatch.close`
-  ** and `docSkySpark::Watches#axon`.
+  ** and `docHaxall::Watches#axon`.
   @Axon
   static Obj? watchClose(Str watchId)
   {

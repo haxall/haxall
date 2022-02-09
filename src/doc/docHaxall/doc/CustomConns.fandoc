@@ -225,7 +225,7 @@ callback works with a batch of points.  If your protocol supports batch reads,
 then typically it most efficient to sync the entire batch.
 
 Continuous synchronization of current value is managed when the point is put
-into a [watch]`docSkySpark::Watches`.  Watch state is managed by the callbacks
+into a [watch]`docHaxall::Watches`.  Watch state is managed by the callbacks
 [onWatch]`hxConn::ConnDispatch.onWatch` and [onUnwatch]`hxConn::ConnDispatch.onUnwatch`.
 Both callbacks work with a batch of points. Typically there are two
 watch strategies:

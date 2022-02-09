@@ -17,7 +17,7 @@ and [nhaystackAx]`https://stackhub.org/package/nHaystackAx` modules.
 The haystack connector provides full support for the following
 connector features:
   - Learn tree via the [nav]`op:nav` op
-  - Current value subscription using [watches]`docSkySpark::Watches`
+  - Current value subscription using [watches]`docHaxall::Watches`
   - Writable point support using [pointWrite]`op:pointWrite` op
   - History sync using the [hisRead]`op:hisRead`  op
 
@@ -28,7 +28,7 @@ from being confused as internal references.
 Current Points [#cur]
 *********************
 Haystack proxy points are configured with `haystackCur` tag.  Subscription
-uses [Haystack watches]`docSkySpark::Watches` to subscribe to the remote
+uses [Haystack watches]`docHaxall::Watches` to subscribe to the remote
 points current value.  Watches use a poll for change design; you can tune
 the poll frequency via the `haystackPollFreq` connector tag.
 
