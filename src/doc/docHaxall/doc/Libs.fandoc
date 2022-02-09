@@ -30,7 +30,7 @@ All libs must be packaged into a Fantom [pod]`docLang::Pods`.  Pods are just a
 zip that contains a "meta.props" file for essential metadata.  Any zip
 file can be made a Fantom pod by adding the following "meta.props" file:
 
-  pod.name=hxAcmeFoo
+  pod.name=acmeFoo
   pod.version=1.0.9
   pod.summary=Summary of pod
   pod.depends=
@@ -42,7 +42,7 @@ above are the required fields.
 Most of the time you will build your pod using Fantom's [build]`docTools::Build`
 system.  Your source directory will be structured as follows:
 
-  hxAcmeFoo/
+  acmeFoo/
     build.fan
     pod.fandoc
     fan/
@@ -70,7 +70,7 @@ your source into a pod file.  Here is a sample build file:
   {
     new make()
     {
-      podName = "hxAcmeFoo"
+      podName = "acmeFoo"
       summary = "Foo is something awesome"
       meta    = ["org.name":     "Acme",
                  "org.uri":      "https://acme.com/",
@@ -96,7 +96,7 @@ Resource libs should omit the 'depends' and 'srcDirs' fields.
 
 Its important that all libs register the Haystack library name with
 the indexed prop "ph.lib".  By convention a library named "acmeFoo" is packaged
-into a pod named "hxAcmeFoo".  Your library name should be globally unique - we
+into a pod named "acmeFoo".  Your library name should be globally unique - we
 recommend prefixing your library names with your company name.
 
 Defs [#defs]
@@ -107,7 +107,7 @@ a Haystack 4 lib:
   // lib.trio
   def: ^lib:acmeFoo
   depends: [^lib:ph, ^lib:axon, ^lib:hx]
-  typeName:"hxAcmeFoo::AcmeFooLib"
+  typeName:"acmeFoo::AcmeFooLib"
   doc: "Foo is something awesome"
 
 Fantom libs must register the class qname using 'typeName'; resource libs
@@ -120,7 +120,7 @@ is used to register SkySpark only defs - it is ignored in non-SkySpark runtimes.
 HxLib [#hxLib]
 **************
 Libs which use Fantom must create a subclass of `hx::HxLib`.  An instance
-of this class is created by the runtime to receive [lifecycle]`Runtime#lifecycle`
+of this class is created by the runtime to receive [lifecycle]`#lifecycle`
 callbacks to perform background processing.
 
 Here is a simple example:
@@ -132,6 +132,26 @@ Here is a simple example:
 
     override Void onStop() { log.info("$typeof stopped!") }
   }
+
+Lifecycle [#lifecycle]
+**********************
+The bootstrap lib life cycle is:
+  1. Instantiation (constructor)
+  2. `hx::HxLib.onStart`
+  3. `hx::HxLib.onReady`
+  4. `hx::HxLib.onSteadyState` (see `Runtime#steadyState`)
+
+The shutdown lib life cycle is:
+  1. `hx::HxLib.onUnready`
+  2. `hx::HxLib.onStop`
+
+In the instantiation phase, only basic information from the runtime
+is available.  You must wait until onStart to access services and lookup
+other libs.
+
+While your lib is running, you can schedule periodic house keeping.
+To use this feature override the `hx::HxLib.houseKeepingFreq` which
+causes periodic callbacks to to `hx::HxLib.onHouseKeeping`.
 
 Axon Funcs [#axonFuncs]
 *******************
@@ -195,6 +215,9 @@ Here is an example:
     @TypedTag { restart=true }
     const Int maxThreads:= 50
   }
+
+The `hx::HxLib.onRecUpdate` callback is invoked whenever the settings rec
+is modified.
 
 Stub [#stub]
 ************

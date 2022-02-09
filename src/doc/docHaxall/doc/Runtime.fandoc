@@ -10,12 +10,8 @@ Overview [#overview]
 ********************
 TODO
 
-Lifecycle [#lifecycle]
-**********************
-TODO
-
 Steady State [#steadyState]
-****************************
+***************************
 Steady state is a configurable delay after bootstrap used to give the
 system time to reach equilibrium.  This gives internal services time to
 spin up before interacting with external systems. By default the steady
