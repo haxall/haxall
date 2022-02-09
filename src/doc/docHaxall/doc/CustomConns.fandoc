@@ -85,7 +85,7 @@ Define your connector rec defs as follows:
   // conn.trio
   def: ^fooConn
   is: ^conn
-  connFeatures: {learn, pollMode:"bucket"}
+  connFeatures: {learn, pollMode:"buckets"}
   doc: "My custom foo connector"
   ---
   defx: ^uri
