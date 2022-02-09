@@ -309,7 +309,7 @@ internal class HxNavOp : HxApiOp
 ** HxWatchSubOp
 **************************************************************************
 
-internal class HxWatchSubOp : HxApiOp
+@NoDoc class HxWatchSubOp : HxApiOp
 {
   override Grid onRequest(Grid req, HxContext cx)
   {
@@ -355,7 +355,7 @@ internal class HxWatchSubOp : HxApiOp
 ** HxWatchUnsubOp
 **************************************************************************
 
-internal class HxWatchUnsubOp : HxApiOp
+@NoDoc class HxWatchUnsubOp : HxApiOp
 {
   override Grid onRequest(Grid req, HxContext cx)
   {

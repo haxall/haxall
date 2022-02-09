@@ -588,6 +588,68 @@ class CoreFuncsTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Watches
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testWatches()
+  {
+    // create test database
+    a := addRec(["dis":"a", "test":m, "foo":m])
+    b := addRec(["dis":"b", "test":m, "foo":m, "bar":m])
+    c := addRec(["dis":"c", "test":m, "bar":m])
+
+    // open watch
+    verifyEq(rt.watch.list.size, 0)
+    Grid grid := eval("""readAll(test).watchOpen("!").sort("dis")""")
+    Str watchId := grid.meta->watchId
+    watch := rt.watch.get(watchId)
+    watch.poll
+    verifyEq(rt.watch.list.size, 1)
+    verifyEq(watch.dis, "!")
+    verifyEq(watch.list.size, 3)
+    verifyEq(grid.size, 3)
+    verifyEq(grid[0]->dis, "a")
+    verifyEq(grid[1]->dis, "b")
+    verifyEq(grid[2]->dis, "c")
+
+    // verify empty poll
+    grid = eval("""watchPoll($watchId.toCode)""")
+    verifyEq(grid.size, 0)
+
+    // make some changes
+    a = commit(a, ["new":m])
+    c = commit(c, ["new":m], Diff.transient)
+    grid = eval("""watchPoll($watchId.toCode).sort("dis")""")
+    verifyEq(grid.size, 2)
+    verifyEq(grid[0]->dis, "a")
+    verifyEq(grid[1]->dis, "c")
+
+    // watchRemove
+    verifyEq(watch.list.size, 3)
+    grid = eval("""watchRemove($watchId.toCode, readAll(bar))""")
+    verifyEq(watch.list.size, 1)
+    a = commit(a, ["new":n(2)])
+    c = commit(c, ["new":n(2)], Diff.transient)
+    grid = eval("""watchPoll($watchId.toCode).sort("dis")""")
+    verifyEq(grid.size, 1)
+    verifyEq(grid[0]->dis, "a")
+    watch = rt.watch.get(watchId)
+    verifyEq(watch.list, [a.id])
+
+    // watchAdd
+    grid = eval("""watchAdd($watchId.toCode, readAll(dis=="c"))""")
+    verifyEq(grid.size, 1)
+    watch = rt.watch.get(watchId)
+    verifyEq(watch.list.sort, [a.id, c.id].sort)
+
+    // close watch
+    eval("""watchClose($watchId.toCode)""")
+    verifyEq(rt.watch.list.size, 0)
+    verifyEq(watch.isClosed, true)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Misc
 //////////////////////////////////////////////////////////////////////////
 

@@ -376,7 +376,6 @@ const class HxCoreFuncs
     return gb.toGrid
   }
 
-
 //////////////////////////////////////////////////////////////////////////
 // Observables
 //////////////////////////////////////////////////////////////////////////
@@ -409,6 +408,79 @@ const class HxCoreFuncs
       }
     }
     return gb.toGrid
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Watches
+//////////////////////////////////////////////////////////////////////////
+
+  ** Open a new watch on a grid of records.  The 'dis' parameter
+  ** is used for the watch's debug display string.  Update and return
+  ** the grid with a meta 'watchId' tag.  Also see `hx:HxService.open`
+  ** and `docSkySpark::Watches#axon`.
+  **
+  ** Example:
+  **   readAll(myPoints).watchOpen("MyApp|Points")
+  @Axon
+  static Grid watchOpen(Grid grid, Str dis)
+  {
+    cx := curContext
+    watch := cx.rt.watch.open(dis)
+    watch.addGrid(grid)
+    return grid.addMeta(["watchId":watch.id])
+  }
+
+  ** Poll an open watch and return all the records which have changed
+  ** since the last poll.  Raise exception if watchId doesn't exist
+  ** or has expired.  Also see `hx::HxWatch.poll` and
+  ** `docSkySpark::Watches#axon`.
+  @Axon
+  static Grid watchPoll(Obj watchId)
+  {
+    // if Haystack API, extract args
+    cx := curContext
+    refresh := false
+    if (watchId is Grid)
+    {
+      grid := (Grid)watchId
+      watchId = grid.meta["watchId"] as Str ?: throw Err("Missing meta.watchId")
+      refresh = grid.meta.has("refresh")
+    }
+
+    // poll refresh or cov
+    watch := cx.rt.watch.get(watchId)
+    recs := refresh ? watch.poll(Duration.defVal) : watch.poll
+    return Etc.makeDictsGrid(["watchId":watchId], recs)
+  }
+
+  ** Add a grid of recs to an existing watch and return the grid passed in.
+  @Axon
+  static Grid watchAdd(Str watchId, Grid grid)
+  {
+    cx := curContext
+    watch := cx.rt.watch.get(watchId)
+    watch.addGrid(grid)
+    return grid
+  }
+
+  ** Remove a grid of recs from an existing watch and return grid passed in.
+  @Axon
+  static Grid watchRemove(Str watchId, Grid grid)
+  {
+    cx := curContext
+    watch := cx.rt.watch.get(watchId)
+    watch.removeGrid(grid)
+    return grid
+  }
+
+  ** Close an open watch by id.  If the watch does not exist or
+  ** has expired then this is a no op.  Also see `hx::HxWatch.close`
+  ** and `docSkySpark::Watches#axon`.
+  @Axon
+  static Obj? watchClose(Str watchId)
+  {
+    curContext.rt.watch.get(watchId, false)?.close
+    return null
   }
 
 //////////////////////////////////////////////////////////////////////////
