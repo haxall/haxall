@@ -1,0 +1,205 @@
+**************************************************************************
+** title:      Libs
+** author:     Brian Frank
+** created:    8 Feb 2022
+** copyright:  Copyright (c) 2022, SkyFoundry LLC
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+Libraries or *libs* are the fundamental unit of modularity in the
+Haxall architecture.  All Haxall libs are proper [Haystack libs]`docHaystack::Namespaces#libs`
+packaged as Fantom [pods]`docLang::Pods`.
+
+Libs package one or more of the following features into a named, versioned module:
+  - Haystack defs for tags
+  - SkySpark defs for apps, views
+  - Fantom HxLib class to perform background processing
+  - Axon functions
+
+Libs which only publish declarative data such as defs and functions are
+called *resource libs*.  Resource libs cannot contain any Fantom code, but
+have the ability to be hot reloaded at runtime.  Pods which contain one
+or more Fantom classes are called *fantom libs*.  All Fantom libs must
+define a `hx::HxLib` subclass.
+
+Pod [#pod]
+**********
+All libs must be packaged into a Fantom [pod]`docLang::Pods`.  Pods are just a
+zip that contains a "meta.props" file for essential metadata.  Any zip
+file can be made a Fantom pod by adding the following "meta.props" file:
+
+  pod.name=hxAcmeFoo
+  pod.version=1.0.9
+  pod.summary=Summary of pod
+  pod.depends=
+  pod.fcode=false
+
+There are dozens of standardized fields used by "meta.props", but the ones
+above are the required fields.
+
+Most of the time you will build your pod using Fantom's [build]`docTools::Build`
+system.  Your source directory will be structured as follows:
+
+  hxAcmeFoo/
+    build.fan
+    pod.fandoc
+    fan/
+      AcmeFooLib.fan
+      AcmeFooFuncs.fan
+    lib/
+      lib.trio
+      other-defs.trio
+    test/
+      AcmeFooLibTest.fan
+
+Resource pods will only contain the "lib/" directory with the definitions.
+
+It is recommended to use the [stub]`#stub` tool to generate the source
+directory for a new library.
+
+Build File [#build]
+*******************
+The [build file]`docTools::Build#buildPod` is a Fantom script used to compile
+your source into a pod file.  Here is a sample build file:
+
+  #! /usr/bin/env fan
+  using build
+  class Build : BuildPod
+  {
+    new make()
+    {
+      podName = "hxAcmeFoo"
+      summary = "Foo is something awesome"
+      meta    = ["org.name":     "Acme",
+                 "org.uri":      "https://acme.com/",
+                 "proj.name":    "Cool Libs",
+                 "proj.uri":     "https://acme.com/cool-libs",
+                 "license.name": "MIT",
+                 "vcs.name":     "Git",
+                 "vcs.uri":      "https://github.com/acme/cool-libs",
+                 ]
+      depends  = ["sys 1.0",
+                  "concurrent 1.0",
+                  "haystack 3.1",
+                  "axon 3.1",
+                  "hx 3.1"
+                  ]
+      srcDirs = [`fan/`, `test/`]
+      resDirs = [`lib/`]
+      index   = ["ph.lib": "acmeFoo"]
+    }
+  }
+
+Resource libs should omit the 'depends' and 'srcDirs' fields.
+
+Its important that all libs register the Haystack library name with
+the indexed prop "ph.lib".  By convention a library named "acmeFoo" is packaged
+into a pod named "hxAcmeFoo".  Your library name should be globally unique - we
+recommend prefixing your library names with your company name.
+
+Defs [#defs]
+************
+All libs must define a "lib/lib.trio" file that registers the library as
+a Haystack 4 lib:
+
+  // lib.trio
+  def: ^lib:acmeFoo
+  depends: [^lib:ph, ^lib:axon, ^lib:hx]
+  typeName:"hxAcmeFoo::AcmeFooLib"
+  doc: "Foo is something awesome"
+
+Fantom libs must register the class qname using 'typeName'; resource libs
+should omit this line.
+
+You can package additional [defs]`docHaystack::Defs` under the "lib/" directory
+using whatever naming convention you prefer.  The special file "lib/skyarc.trio"
+is used to register SkySpark only defs - it is ignored in non-SkySpark runtimes.
+
+HxLib [#hxLib]
+**************
+Libs which use Fantom must create a subclass of `hx::HxLib`.  An instance
+of this class is created by the runtime to receive [lifecycle]`Runtime#lifecycle`
+callbacks to perform background processing.
+
+Here is a simple example:
+
+  using hx
+  const class AcmeFooLib : HxLib
+  {
+    override Void onStart() { log.info("$typeof started!") }
+
+    override Void onStop() { log.info("$typeof stopped!") }
+  }
+
+Axon Funcs [#axonFuncs]
+*******************
+Axon functions may be bundled as a trio file under the "lib/" directory:
+
+  // funcs.trio
+  def: ^func:acmeFooAxon
+  src:
+    () => "hello world in Axon!"
+
+In Haxall, your function must use the 'def=^func:name' syntax shown above.
+The 'name' plus 'func' marker tag pattern used by SkySpark is not
+supported.
+
+Fantom Funcs [#fantomFuncs]
+***************************
+You can also implement your Axon functions in Fantom by creating a class
+named "<libName>Funcs".  Axon functions are implemented as public, static
+methods annotated with the `axon::Axon` facet:
+
+  using haystack
+  using axon
+  class AcmeFooFuncs
+  {
+    ** Fandoc is used for reference docs
+    @Axon
+    static Str fooAcmeFantom()
+    {
+      "hello world in Fantom!"
+    }
+  }
+
+It is critical to consider security when implementing functions in Fantom.
+Fantom funcs run outside of the Axon security sandbox, so its up your code
+to enforce any security constraints.  Never create functions which would allow
+unconstrained access to the underlying OS.
+
+Settings [#settings]
+********************
+Libs are enabled in a runtime database with a record via the 'ext' tag.  This
+record can store settings data that is accessible via the `hx::HxLib.rec`
+method.  You can create a statically typed class for your setting that is
+also used by UI tools:
+  1. Create a subclass of `haystack::TypedDict`
+  2. Override `hx::HxLib.rec` to covariantly return your type
+
+Here is an example:
+
+  const class TaskLib : HxLib
+  {
+    ** Settings record
+    override TaskSettings rec() { super.rec }
+  }
+
+  const class TaskSettings : TypedDict
+  {
+    ** Constructor
+    new make(Dict d, |This| f) : super(d) { f(this) }
+
+    ** Max threads for the task actor pool
+    @TypedTag { restart=true }
+    const Int maxThreads:= 50
+  }
+
+Stub [#stub]
+************
+The 'hx stub' tool will generate all the boiler plate code and structure for
+a new library.  Run the following on the command line to see options:
+
+  hx help stub
+

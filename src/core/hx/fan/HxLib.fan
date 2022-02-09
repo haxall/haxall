@@ -21,6 +21,8 @@ using obs
 **   3. Create subclass of HxLib
 **   4. Ensure your lib definition has 'typeName' tag for subclass qname
 **
+** Also see `docHaxall::Libs`.
+**
 abstract const class HxLib
 {
 
@@ -58,6 +60,7 @@ abstract const class HxLib
 
   ** Database record which enables this library and stores settings.
   ** This field may be overridden with a `haystack::TypedDict` subclass.
+  ** Also see `docHaxall::Libs#settings`.
   virtual Dict rec() { spi.rec}
 
   ** Logger to use for this library
