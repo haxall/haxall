@@ -52,13 +52,7 @@ class DefCompiler
   |CDef->Bool| includeInDocs := |CDef def->Bool| { !def.isNoDoc }
 
   ** Default input libraries
-  CompilerInput[] inputs := [
-    CompilerInput.makePodName("ph"),
-    CompilerInput.makePodName("phScience"),
-    CompilerInput.makePodName("phIoT"),
-    CompilerInput.makePodName("phIct"),
-    CompilerInput.makePodName("docHaystack"),
-  ]
+  CompilerInput[] inputs := CompilerInput.makeDefaults
 
   ** Factory to use for building Namespace and Features
   DefFactory factory := DefFactory()

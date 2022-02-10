@@ -13,10 +13,23 @@ using haystack
 **
 abstract const class CompilerInput
 {
-  ** Convenience for 'makePod(Pod.find(podName))'
-  static new makePodName(Str podName)
+  ** Make list of defaults
+  @NoDoc static CompilerInput[] makeDefaults()
   {
-    makePod(Pod.find(podName))
+    [makePodName("ph"),
+     makePodName("phScience", false),
+     makePodName("phIoT", false),
+     makePodName("phIct", false),
+     makePodName("docHaystack", false),
+    ].findNotNull
+  }
+
+  ** Convenience for 'makePod(Pod.find(podName))'
+  static new makePodName(Str podName, Bool checked := true)
+  {
+    pod := Pod.find(podName, false)
+    if (pod == null) return null
+    return makePod(pod)
   }
 
   ** Construct input for a pod with lib/*.trio files
