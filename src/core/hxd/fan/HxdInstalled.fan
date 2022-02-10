@@ -192,10 +192,7 @@ internal class HxdInstalledBuilder
 
   private File toMetaFile(Str name, Pod pod)
   {
-    file := pod.file(`/lib/lib.trio`, false)
-    if (file == null) file = pod.file(`/lib/${name}/lib.trio`, false)
-    if (file == null) throw Err("Pod missing /lib/lib.trio")
-    return file
+    pod.file(`/lib/lib.trio`, false) ?: throw Err("Pod missing /lib/lib.trio")
   }
 
   private Obj[] normDepends(Obj[] depends)

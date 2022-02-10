@@ -129,15 +129,24 @@ internal const class HxdLibInput : LibInput
 
   override File[] scanFiles(DefCompiler c)
   {
-    libDir := "/" + install.metaFile.path[0..-2].join("/") + "/"
     return pod.files.findAll |file|
     {
       if (file.ext != "trio") return false
       if (file.name == "lib.trio") return false
-      if (!file.pathStr.startsWith(libDir)) return false
+      if (!isUnderLibDir(file)) return false
       if (file.name == "skyarc.trio" && name != "hx") return false
       return true
     }
+  }
+
+  private Bool isUnderLibDir(File file)
+  {
+    // allow lib/xxx.trio or lib/{name}/xxx.trio
+    path := file.uri.path
+    if (path.size != 2 && path.size != 3) return false
+    if (path[0] != "lib") return false
+    if (path.size == 3 && path[1] != name) return false
+    return true
   }
 
   override ReflectInput[] scanReflects(DefCompiler c)
