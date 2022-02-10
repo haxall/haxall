@@ -23,7 +23,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     this.actorPool = this.pool
   }
 
-  Void init()
+  Void init(Bool removeUnknown)
   {
     // init libs from database ext records
     map := Str:HxLib[:]
@@ -38,7 +38,25 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
         lib := HxdLibSpi.instantiate(rt, install, rec)
         map.add(name, lib)
       }
-      catch (Err e) rt.log.err("Cannot init lib: $rec.id.toCode [${rec->ext}]", e)
+      catch (UnknownLibErr e)
+      {
+        if (removeUnknown)
+        {
+          rt.log.err("Removing unknown lib: $rec.id.toCode [${rec->ext}]")
+          try
+            rt.db.commit(Diff(rec, null, Diff.remove.or(Diff.bypassRestricted)))
+          catch (Err e2)
+            rt.log.err("Remove failed", e)
+        }
+        else
+        {
+          rt.log.err("Lib not installed: $rec.id.toCode [${rec->ext}]")
+        }
+      }
+      catch (Err e)
+      {
+        rt.log.err("Cannot init lib: $rec.id.toCode [${rec->ext}]", e)
+      }
     }
 
     // check dependencies

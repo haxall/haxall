@@ -44,7 +44,7 @@ const class HxdRuntime : HxRuntime
     this.obs           = HxdObsService(this)
     this.file          = HxdFileService(this)
     this.his           = HxdHisService(this)
-    libs.init
+    libs.init(boot.removeUnknownLibs)
     obs.init
   }
 
