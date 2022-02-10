@@ -11,6 +11,11 @@ using hxConn
 
 internal class EcobeeWrite : EcobeeConnTask
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
   new make(EcobeeDispatch dispatch, ConnPoint point, ConnWriteInfo event)
     : super(dispatch)
   {
@@ -21,23 +26,28 @@ internal class EcobeeWrite : EcobeeConnTask
   private const ConnPoint point
   private const ConnWriteInfo event
 
+  private EcobeePropId? propId
+  private EcobeeSelection? selection
+
+//////////////////////////////////////////////////////////////////////////
+// Conn Task
+//////////////////////////////////////////////////////////////////////////
+
   override Obj? run()
   {
     try
     {
-      propId := toWriteId(point)
+      this.propId = toWriteId(point)
       log.debug("onWrite: $point $propId $event")
-      if (!propId.isSettings) throw FaultErr("Only settings properties may be written: $propId")
 
-      selection := EcobeeSelection {
+      this.selection = EcobeeSelection {
         it.selectionType  = SelectionType.thermostats
         it.selectionMatch = propId.thermostatId
       }
-      thermostat := EcobeeThermostat {
-        it.settings = toSettings(propId)
-      }
 
-      client.thermostat.update(selection, thermostat)
+      if (propId.isSettings) writeSettings
+      else invokeFunc
+
       point.updateWriteOk(event)
     }
     catch (Err err)
@@ -47,6 +57,18 @@ internal class EcobeeWrite : EcobeeConnTask
     return null
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Write Settings
+//////////////////////////////////////////////////////////////////////////
+
+  private Void writeSettings()
+  {
+    thermostat := EcobeeThermostat {
+      it.settings = toSettings(propId)
+    }
+    client.thermostat.update(selection, thermostat)
+  }
+
   private EcobeeSettings toSettings(EcobeePropId propId)
   {
     setter := Field:Obj?[:]
@@ -54,5 +76,26 @@ internal class EcobeeWrite : EcobeeConnTask
     field  := type.field(propId.propSpecs[1].prop)
     setter[field] = EcobeeUtil.toEcobee(event.val, field)
     return type.make([Field.makeSetFunc(setter)])
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Invoke Function
+//////////////////////////////////////////////////////////////////////////
+
+  private Void invokeFunc()
+  {
+    if (propId.propUri == `runtime/desiredHeat` || propId.propUri == `runtime/desiredCool`)
+    {
+      func := EcobeeFunction("setHold", [
+        "holdType":     "indefinite",
+        "heatHoldTemp": ((Number)event.val).toInt,
+        "coolHoldTemp": ((Number)event.val).toInt,
+      ])
+      client.thermostat.callFunc(selection, func)
+    }
+    else
+    {
+      throw FaultErr("Property not supported for write: $propId")
+    }
   }
 }

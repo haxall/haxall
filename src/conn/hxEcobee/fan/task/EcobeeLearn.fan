@@ -122,10 +122,14 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
       .markers("zone,air,temp,sensor").cur("runtime/rawTemperature", "/ 10").finish)
 
     points.add(PointBuilder(t).dis("Desired Heat").kind("Number").unit(fahr)
-      .markers("zone,air,temp,heating,sp").cur("runtime/desiredHeat", "/ 10").finish)
+      .markers("zone,air,temp,heating,sp")
+      .cur("runtime/desiredHeat", "/ 10")
+      .write("runtime/desiredHeat", "* 10").finish)
 
     points.add(PointBuilder(t).dis("Desired Cool").kind("Number").unit(fahr)
-      .markers("zone,air,temp,cooling,sp").cur("runtime/desiredCool", "/ 10").finish)
+      .markers("zone,air,temp,cooling,sp")
+      .cur("runtime/desiredCool", "/ 10")
+      .write("runtime/desiredCool", "* 10").finish)
 
     points.add(PointBuilder(t).dis("Desired Humidity").kind("Number").unit(relHum)
       .markers("zone,air,humidity,sp").cur("runtime/desiredHumidity").finish)

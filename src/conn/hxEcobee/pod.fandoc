@@ -44,8 +44,8 @@ ecobeeClientId: "<API key>"
 ecobeeRefreshToken: "<refresh token>"
 <pre
 
-Supported Points [#points]
-**************************
+Current Values [#curVal]
+************************
 The Ecobee connector uses the `ecobeeCur` tag on a point to get the current value
 of a particular device property. The value of this tag is specified as:
 
@@ -142,11 +142,23 @@ ecobeeCur: "/12345/remoteSensors[rs:100]/capability[type=temperature]/value"
 }
 <pre
 
+Writable Points[#writable]
+**************************
+The connector supports writing values to an Ecobee thermostat. Use the
+`ecobeeWrite` tag to configure the address for the point to write. It uses
+the same syntax defined above for `ecobeeCur`.
+
 Learn [#learn]
 **************
 The Ecobee connector supports `connLearn()` to learn the most common points
 from your Thermostat. It will not show you all properties that can be learned
 about a thermostat - just the most common. You can always manually create a point
-and specify the `ecobeeCur` using the syntax outlined above.
+and specify the `ecobeeCur` and `ecobeeWrite` using the syntax outlined above.
 
-
+API Rate Limiting [#apiLimits]
+******************************
+As detailed in the [Ecobee API Docs]`https://www.ecobee.com/home/developer/api/documentation/v1/operations/get-thermostat-summary.shtml`,
+polling for API changes should be limited to once every 3 minutes. The connector handles
+this for your. Even if your connector is configured with a `pollTime` of less than
+3 minutes, the connector will only attempt to sync current data values at 3 minute
+intervals.

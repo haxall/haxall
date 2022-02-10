@@ -32,7 +32,8 @@ const class Ecobee
   ** OAuth webclient
   internal const OAuthClient client
 
-  internal const Log log
+  ** Log
+  const Log log
 
 //////////////////////////////////////////////////////////////////////////
 // API

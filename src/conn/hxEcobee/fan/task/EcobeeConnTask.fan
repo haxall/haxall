@@ -84,8 +84,14 @@ internal abstract class EcobeeConnTask
   ** Path of property specs
   const EcobeePropSpec[] propSpecs
 
+  ** Get the thermostat relative uri of the property
+  Uri propUri() { propSpecs.join("/").toUri }
+
   ** Is this a Settings object property
   Bool isSettings() { propSpecs.first.prop == "settings" }
+
+  ** Is this a Runtime object property
+  Bool isRuntime() { propSpecs.first.prop == "runtime" }
 
   override Str toStr() { uri.toStr }
 }

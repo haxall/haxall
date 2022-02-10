@@ -49,6 +49,7 @@ class ThermostatReq : ApiReq
     return acc
   }
 
+  ** Write an update to the thermostat to change a setting or other value
   Void update(EcobeeSelection selection, EcobeeThermostat thermostat)
   {
     uri := baseUri.plus(`thermostat`).plusQuery(["format":"json"])
@@ -57,6 +58,14 @@ class ThermostatReq : ApiReq
     resp := invoke("POST", uri, body)
   }
 
+  ** Invoke an ecobee function
+  Void callFunc(EcobeeSelection selection, EcobeeFunction func)
+  {
+    uri := baseUri.plus(`thermostat`).plusQuery(["format":"json"])
+    bodyJson := [selection.jsonKey: selection, "functions": [func]]
+    body := EcobeeEncoder.jsonStr(bodyJson).toBuf.toFile(`event.json`)
+    resp := invoke("POST", uri, body)
+  }
 }
 
 **************************************************************************
