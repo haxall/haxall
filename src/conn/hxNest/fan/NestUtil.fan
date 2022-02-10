@@ -11,6 +11,7 @@ using haystack
 internal mixin NestUtil
 {
   static const Unit celsius := Unit.fromStr("celsius")
+  static const Unit fahr    := Unit.fromStr("fahrenheit")
   static const Unit relHum  := Unit.fromStr("%RH")
 
   static Obj? nestToHay(Obj? val, Unit? unit := null)

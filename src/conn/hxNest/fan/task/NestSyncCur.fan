@@ -34,19 +34,11 @@ internal class NestSyncCur : NestConnTask
   override Obj? run()
   {
     init
-    openPin
-    try
+    byDevice.each |points, deviceId|
     {
-      byDevice.each |points, deviceId|
-      {
-        syncDevice(deviceId, points)
-      }
-      return points
+      syncDevice(deviceId, points)
     }
-    finally
-    {
-      closePin
-    }
+    return points
   }
 
   private Void init()

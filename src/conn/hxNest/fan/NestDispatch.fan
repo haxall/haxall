@@ -33,7 +33,8 @@ class NestDispatch : ConnDispatch
       rec->nestProjectId,
       password("nestClientId"),
       password("nestClientSecret"),
-      password("nestRefreshToken")
+      password("nestRefreshToken"),
+      trace.asLog
     )
   }
 
@@ -60,6 +61,11 @@ class NestDispatch : ConnDispatch
   override Void onSyncCur(ConnPoint[] points)
   {
     NestSyncCur(this, points).run
+  }
+
+  override Void onWrite(ConnPoint point, ConnWriteInfo event)
+  {
+    NestWrite(this, point, event).run
   }
 
 //////////////////////////////////////////////////////////////////////////

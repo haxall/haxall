@@ -29,5 +29,11 @@ def: ^nestCur
 is: ^str
 tagOn: ^nestPoint
 doc:
-  Nest value to use to get the current value.
+  Nest address to use to get the current value.
+--------------------------------------------------------------------------
+def: ^nestWrite
+is: ^str
+tagOn: ^nestPoint
+doc:
+  Nest address to use to write a point value.
 --------------------------------------------------------------------------

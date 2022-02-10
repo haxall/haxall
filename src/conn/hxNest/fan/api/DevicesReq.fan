@@ -6,6 +6,8 @@
 //   31 Jan 2022  Matthew Giannini  Creation
 //
 
+using util
+
 class DevicesReq : ApiReq
 {
 
@@ -13,7 +15,7 @@ class DevicesReq : ApiReq
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  internal new make(Nest nest) : super(nest.projectId, nest.client)
+  internal new make(Nest nest) : super(nest.projectId, nest.client, nest.log)
   {
   }
 
@@ -30,5 +32,11 @@ class DevicesReq : ApiReq
   NestDevice get(Str deviceId)
   {
     NestDevice.fromJson(invoke("GET", projectUri.plus(`devices/${deviceId}`)))
+  }
+
+  Void exec(Str deviceId, Str command, Map params)
+  {
+    body := JsonOutStream.writeJsonToStr(["command": command, "params": params]).toBuf.toFile(`command.json`)
+    json := invoke("POST", projectUri.plus(`devices/${deviceId}:executeCommand`), body)
   }
 }

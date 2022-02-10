@@ -73,6 +73,10 @@ thermostat is in HEAT or HEATCOOL mode
 - 'ThermostatTemperatureSetpoint.coolCelsius' - the target temperature when the
 thermostat is in COOL or HEATCOOL mode
 
+The thermostat mode, aand heating/cooling setpoints can be written if the
+`nestWrite` tag is configured for those points. If you use `connLearn()`, then
+these tags will be automatically applied for you.
+
 Learn [#learn]
 **************
 The nest connector supports `connLearn()` to learn points from your devices. This is

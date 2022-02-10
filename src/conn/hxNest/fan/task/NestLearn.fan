@@ -36,7 +36,6 @@ internal class NestLearn : NestConnTask, NestUtil
     t1 := Duration.now
     try
     {
-      openPin
       meta := ["nestConnRef": conn.id]
       rows := Dict[,]
       spec := arg as Dict
@@ -49,7 +48,6 @@ internal class NestLearn : NestConnTask, NestUtil
     }
     finally
     {
-      closePin
       t2 := Duration.now
       log.info("${conn.dis} Learn ${arg} [${(t2-t1).toLocale}]")
     }
@@ -132,14 +130,14 @@ internal class NestLearn : NestConnTask, NestUtil
 
     // TODO: not sure how to tag this
     points.add(PointBuilder(t).dis("Thermostat Mode").kind("Str").enums("HEAT,COOL,HEATCOOL,OFF")
-      .cur("ThermostatMode.mode").finish)
+      .curAndWrite("ThermostatMode.mode").finish)
     points.add(PointBuilder(t).dis("Thermostat Status").kind("Str").enums("OFF,HEATING,COOLING")
       .cur("ThermostatHvac.status").markers("zone,air,hvacMode,sensor").finish)
 
     points.add(PointBuilder(t).dis("Heating Setpoint").kind("Number").unit(celsius)
-      .cur("ThermostatTemperatureSetpoint.heatCelsius").markers("zone,air,temp,heating,sp").finish)
+      .curAndWrite("ThermostatTemperatureSetpoint.heatCelsius").markers("zone,air,temp,heating,sp").finish)
     points.add(PointBuilder(t).dis("Cooling Setpoint").kind("Number").unit(celsius)
-      .cur("ThermostatTemperatureSetpoint.coolCelsius").markers("zone,air,temp,heating,sp").finish)
+      .curAndWrite("ThermostatTemperatureSetpoint.coolCelsius").markers("zone,air,temp,heating,sp").finish)
 
     return points
   }
@@ -169,6 +167,11 @@ internal class PointBuilder
   This kind(Str kind) { set("kind", kind) }
   This unit(Unit unit) { set("unit", unit.toStr) }
   This cur(Str trait) { set("nestCur", "${device.id}:${trait}") }
+  This write(Str trait)
+  {
+    set("nestWrite", "${device.id}:${trait}").markers("writable")
+  }
+  This curAndWrite(Str trait) { cur(trait).write(trait) }
   This enums(Str enums) { set("enum", enums) }
   This markers(Str markers)
   {

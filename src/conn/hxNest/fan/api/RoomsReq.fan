@@ -13,7 +13,7 @@ class RoomsReq : ApiReq
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  internal new make(Nest nest) : super(nest.projectId, nest.client)
+  internal new make(Nest nest) : super(nest.projectId, nest.client, nest.log)
   {
   }
 

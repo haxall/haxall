@@ -44,6 +44,7 @@ internal abstract class NestConnTask
 //////////////////////////////////////////////////////////////////////////
 
   internal static NestTraitRef toCurId(ConnPoint pt) { toRemoteId(pt.rec, "nestCur") }
+  internal static NestTraitRef toWriteId(ConnPoint pt) { toRemoteId(pt.rec, "nestWrite") }
 
   internal static NestTraitRef toRemoteId(Dict rec, Str tag)
   {

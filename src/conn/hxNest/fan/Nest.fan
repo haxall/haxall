@@ -18,12 +18,13 @@ const class Nest
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(Str projectId, Str clientId, Str clientSecret, Str refreshToken)
+  new make(Str projectId, Str clientId, Str clientSecret, Str refreshToken, Log log := Log.get("nest"))
   {
     this.projectId = projectId
     token  := RawAccessToken("ForceRefreshAuthToken") { it.refreshToken = refreshToken }
     params := ["client_id": clientId, "client_secret": clientSecret]
     this.client = OAuthClient(token, tokenUri, params)
+    this.log = log
   }
 
   ** Token refresh uri
@@ -34,6 +35,9 @@ const class Nest
 
   ** OAuth webclient
   internal const OAuthClient client
+
+  ** Log
+  const Log log
 
 //////////////////////////////////////////////////////////////////////////
 // API
