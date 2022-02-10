@@ -41,17 +41,9 @@ internal class EcobeeSyncCur : EcobeeConnTask
 
   override Obj? run()
   {
-    openPin
-    try
-    {
-      init
-      sync
-      return null
-    }
-    finally
-    {
-      closePin
-    }
+    init
+    sync
+    return null
   }
 
   private Void init()

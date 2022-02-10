@@ -34,7 +34,6 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
     t1 := Duration.now
     try
     {
-      openPin
       meta := ["ecobeeConnRef": conn.id]
       rows := Dict[,]
       if (arg == null) rows = learnRoot
@@ -43,7 +42,6 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
     }
     finally
     {
-      closePin
       t2 := Duration.now
       if (arg == null) log.info("${conn.dis} Learn ${arg} [${(t2-t1).toLocale}]")
     }
