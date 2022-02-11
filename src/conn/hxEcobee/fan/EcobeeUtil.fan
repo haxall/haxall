@@ -12,6 +12,7 @@ internal mixin EcobeeUtil
 {
   static const Unit fahr    := Unit.fromStr("fahrenheit")
   static const Unit relHum  := Unit.fromStr("%RH")
+  static const Unit sec     := Unit.fromStr("second")
 
   ** Convert an Ecobee object field to Haystack point type
   static Obj? toHay(Obj? val, Unit? unit := null)

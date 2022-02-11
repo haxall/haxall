@@ -18,6 +18,12 @@ const class EcobeeSelection : EcobeeObj
 
   new make(|This| f) { f(this) }
 
+  new makeThermostats(Str match)
+  {
+    this.selectionType  = SelectionType.thermostats
+    this.selectionMatch = match
+  }
+
   ** The type of match data supplied
   const SelectionType selectionType
 

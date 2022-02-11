@@ -41,4 +41,7 @@ const class Ecobee
 
   ** Get the thermostat api endpoint
   ThermostatReq thermostat() { ThermostatReq(this) }
+
+  ** Get the report api endpoint
+  ReportReq report() { ReportReq(this) }
 }

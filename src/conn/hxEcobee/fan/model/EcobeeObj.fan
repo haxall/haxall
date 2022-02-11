@@ -221,6 +221,7 @@ class EcobeeEncoder
     if (val is Str)  return val
     if (val is Bool) return val
     if (val is Num)  return val
+    if (val is Date) return val.toStr
     if (val is Enum) return encodeEnum(val)
     if (val is List) return encodeList(val)
     if (val is Map)  return encodeMap(val)

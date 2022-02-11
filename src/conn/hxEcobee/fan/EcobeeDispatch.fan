@@ -100,6 +100,11 @@ class EcobeeDispatch : ConnDispatch
     EcobeeWrite(this, point, event).run
   }
 
+  override Obj? onSyncHis(ConnPoint point, Span span)
+  {
+    EcobeeSyncHis(this, point, span).run
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Learn
 //////////////////////////////////////////////////////////////////////////

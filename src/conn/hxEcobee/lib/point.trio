@@ -37,3 +37,9 @@ tagOn: ^ecobeePoint
 doc:
   Ecobee address to use to write a point value.
 --------------------------------------------------------------------------
+def: ^ecobeeHis
+is: ^str
+tagOn: ^ecobeePoint
+doc:
+  Ecobee address to use to sync point history.
+--------------------------------------------------------------------------

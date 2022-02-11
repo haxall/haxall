@@ -111,10 +111,14 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
 
     // Runtime object points
     points.add(PointBuilder(t).dis("Reported Temp").kind("Number").unit(fahr)
-      .markers("zone,air,temp,sensor").cur("runtime/actualTemperature", "/ 10").finish)
+      .markers("zone,air,temp,sensor")
+      .cur("runtime/actualTemperature", "/ 10")
+      .his("runtime/zoneAveTemp").finish)
 
     points.add(PointBuilder(t).dis("Actual Humidity").kind("Number").unit(relHum)
-      .markers("zone,air,humidity,sensor").cur("runtime/actualHumidity").finish)
+      .markers("zone,air,humidity,sensor")
+      .cur("runtime/actualHumidity")
+      .his("runtime/zoneHumidity").finish)
 
     points.add(PointBuilder(t).dis("Dry-Bulb Temp").kind("Number").unit(fahr)
       .markers("zone,air,temp,sensor").cur("runtime/rawTemperature", "/ 10").finish)
@@ -122,15 +126,17 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
     points.add(PointBuilder(t).dis("Desired Heat").kind("Number").unit(fahr)
       .markers("zone,air,temp,heating,sp")
       .cur("runtime/desiredHeat", "/ 10")
-      .write("runtime/desiredHeat", "* 10").finish)
+      .write("runtime/desiredHeat", "* 10")
+      .his("runtime/zoneHeatTemp").finish)
 
     points.add(PointBuilder(t).dis("Desired Cool").kind("Number").unit(fahr)
       .markers("zone,air,temp,cooling,sp")
       .cur("runtime/desiredCool", "/ 10")
-      .write("runtime/desiredCool", "* 10").finish)
+      .write("runtime/desiredCool", "* 10")
+      .his("runtime/zoneCoolTemp").finish)
 
-    points.add(PointBuilder(t).dis("Desired Humidity").kind("Number").unit(relHum)
-      .markers("zone,air,humidity,sp").cur("runtime/desiredHumidity").finish)
+    // points.add(PointBuilder(t).dis("Desired Humidity").kind("Number").unit(relHum)
+    //   .markers("zone,air,humidity,sp").cur("runtime/desiredHumidity").finish)
 
     // TODO: actualVOC???
 
@@ -141,7 +147,16 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
 
     // Settings object points
     points.add(PointBuilder(t).dis("HVAC mode").kind("Str").enums("auto,auxHeatOnly,cool,heat,off")
-      .markers("zone,air,hvacMode,sp").curAndWrite("settings/hvacMode").finish)
+      .markers("zone,air,hvacMode,sp")
+      .curAndWrite("settings/hvacMode")
+      .his("runtime/hvacMode").finish)
+
+    // Runtime report history-only points
+    // TODO: how to tag these?
+    points.add(PointBuilder(t).dis("Aux. Heat Runtime").kind("Number").unit(sec)
+      .markers("").his("runtime/auxHeat1").finish)
+    points.add(PointBuilder(t).dis("Compressor Cool Runtime").kind("Number").unit(sec)
+      .markers("").his("runtime/compCool1").finish)
 
     return points
   }
@@ -212,12 +227,18 @@ internal class PointBuilder
   }
   This write(Str path, Str? convert := null)
   {
-    set("ecobeeWrite", "${thermostat.id}/${path}")
+    set("ecobeeWrite", "${thermostat.id}/${path}").markers("writable")
     if (convert != null)
     {
       set("writeConvert", convert)
-      markers("writable")
     }
+    return this
+  }
+  This his(Str path, Str? hisMode := null, Str? convert := null)
+  {
+    set("ecobeeHis", "${thermostat.id}/${path}").markers("his")
+    if (hisMode != null) set("hisMode", hisMode)
+    if (convert != null) set("hisConvert", convert)
     return this
   }
   This curAndWrite(Str path) { cur(path).write(path) }

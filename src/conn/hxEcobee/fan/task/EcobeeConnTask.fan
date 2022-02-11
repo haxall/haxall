@@ -35,10 +35,6 @@ internal abstract class EcobeeConnTask
 
   abstract Obj? run()
 
-  protected Void openPin() { dispatch.openPin("$typeof") }
-
-  protected Void closePin() { dispatch.closePin("$typeof") }
-
 //////////////////////////////////////////////////////////////////////////
 // PointUtils
 //////////////////////////////////////////////////////////////////////////
@@ -46,6 +42,8 @@ internal abstract class EcobeeConnTask
   internal static EcobeePropId toCurId(ConnPoint pt) { toRemoteId(pt.rec, "ecobeeCur") }
 
   internal static EcobeePropId toWriteId(ConnPoint pt) { toRemoteId(pt.rec, "ecobeeWrite") }
+
+  internal static EcobeePropId toHisId(ConnPoint pt) { toRemoteId(pt.rec, "ecobeeHis") }
 
   internal static EcobeePropId toRemoteId(Dict rec, Str tag)
   {
