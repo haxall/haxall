@@ -18,7 +18,7 @@ abstract const class HxLibWeb : WebMod
   protected new make(HxLib lib) { this.libRef = lib }
 
   ** Runtime for parent library
-  HxRuntime rt() { libRef.rt }
+  virtual HxRuntime rt() { libRef.rt }
 
   ** Parent library.  Subclasses can override this method to be covariant.
   virtual HxLib lib() { libRef }

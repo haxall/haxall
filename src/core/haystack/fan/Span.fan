@@ -171,10 +171,10 @@ const final class Span
   ** Absolute or relative mode
   const SpanMode mode
 
-  ** Inclusive starting time always in Rel timezone
+  ** Inclusive starting timestamp
   const DateTime start
 
-  ** Exclusive ending time in Rel timezone
+  ** Exclusive ending timestamp
   const DateTime end
 
   ** Timezone for this span
