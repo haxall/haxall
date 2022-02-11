@@ -11,14 +11,14 @@ class Build : BuildPod
   new make()
   {
     podName = "{{libName}}"
-    summary = "{{podSummary}}"
+    summary = "{{desc}}"
     // version = Version("1.0")
     meta    = ["org.name":     "{{org}}",
                "org.uri":      "{{orgUri}}",
-               "proj.name":    "{{projName}}",
+               "proj.name":    "{{proj}}",
                "proj.uri":     "{{projUri}}",
-               "license.name": "{{licenseName}}",
-               "vcs.name":     "{{vcsName}}",
+               "license.name": "{{lic}}",
+               "vcs.name":     "{{vcs}}",
                "vcs.uri":      "{{vcsUri}}",
               ]
     depends = [

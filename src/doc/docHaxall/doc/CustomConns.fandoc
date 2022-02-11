@@ -30,6 +30,10 @@ To create a custom connector requires the following steps:
   3. Create your [ConnLib]`#connLib` subclass
   4. Create your [ConnDispatch]`#connDispatch` subclass to handle callbacks
 
+Tip: Use the [hx stub tool]`Libs#stub` to stub out the code needed for a custom connector:
+
+  hx stub -type conn acmeFoo
+
 There are several additional, optional steps depending on the features
 you wish to support:
 
@@ -153,7 +157,7 @@ Here is an example:
   const class FooLib : ConnLib
   {
   }
-
+
 In most cases, this will just be empty stub code.  But there are some features
 which require overrides.  For example, if you want to add extra debugging into
 details, then you will override the [onConnDetails]`hxConn::ConnLib.onConnDetails`

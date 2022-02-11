@@ -17,6 +17,19 @@ class {{typePrefix}}Dispatch : ConnDispatch
   private {{typePrefix}}Lib {{defName}}Lib() { lib }
 
 //////////////////////////////////////////////////////////////////////////
+// Actor Receive
+//////////////////////////////////////////////////////////////////////////
+
+  override Obj? onReceive(HxMsg msg)
+  {
+    switch (msg.id)
+    {
+      // must delegate to super if the msg isn't handled
+      default: return super.onReceive(msg)
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Open/Ping/Close
 //////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +47,7 @@ class {{typePrefix}}Dispatch : ConnDispatch
 
   override Dict onPing()
   {
-    // ping the device and return a Dict with meata data for the conn rec
+    // ping the device and return a Dict with meta data for the conn rec
     return Etc.emptyDict
   }
 }

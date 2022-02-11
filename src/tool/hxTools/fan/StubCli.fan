@@ -23,14 +23,35 @@ internal class StubCli : HxCli
   @Opt { help = "target base directory" }
   File out := File(`./`)
 
-  // @Opt { help = "organization name for header" }
-  // Str? org
+  @Opt { help = "description of the pod"}
+  Str? desc
 
-  @Opt { help = "author name to use for header" }
+  @Opt { help = "author name" }
   Str? author
 
-  @Opt { help = "generate skyarc.trio" }
-  Bool skyarc := false
+  @Opt { help = "organization name" }
+  Str? org
+
+  @Opt { help = "organization website" }
+  Str? orgUri
+
+  @Opt { help = "project name" }
+  Str? proj
+
+  @Opt { help = "project website" }
+  Str? projUri
+
+  @Opt { help = "source code license" }
+  Str? lic
+
+  @Opt { help = "version control name (e.g. Git, Mercurial)" }
+  Str? vcs
+
+  @Opt { help = "URL where the source code is hosted" }
+  Str? vcsUri
+
+  @Opt { help = "generate skyarc.trio (default = false)" }
+  Bool skyarc
 
   @Opt { help = "copy build.fan metadata from the given pod" }
   Str? meta
@@ -39,18 +60,18 @@ internal class StubCli : HxCli
   Str? libName
 
 //////////////////////////////////////////////////////////////////////////
-// Prompts
+// Usage
 //////////////////////////////////////////////////////////////////////////
 
-  // build.fan
-  private Str? podSummary
-  private Str? org
-  private Str? orgUri
-  private Str? projName
-  private Str? projUri
-  private Str? licName
-  private Str? vcsName
-  private Str? vcsUri
+  override Int usage(OutStream out := Env.cur.out)
+  {
+    c := super.usage(out)
+    out.printLine
+    out.printLine(
+      """Notes: You will be prompted for any unspecified options that don't have default values.
+         """)
+    return c
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
@@ -124,10 +145,10 @@ internal class StubCli : HxCli
     pod := Pod.find(meta)
     if (org == null) this.org = pod.meta["org.name"]
     this.orgUri   = pod.meta["org.uri"]
-    this.projName = pod.meta["proj.name"]
+    this.proj     = pod.meta["proj.name"]
     this.projUri  = pod.meta["proj.uri"]
-    this.licName  = pod.meta["license.name"]
-    this.vcsName  = pod.meta["vcs.name"]
+    this.lic      = pod.meta["license.name"]
+    this.vcs      = pod.meta["vcs.name"]
     this.vcsUri   = pod.meta["vcs.uri"]
   }
 
@@ -146,9 +167,9 @@ internal class StubCli : HxCli
     {
       this.author = promptDef("Author", Env.cur.user)
     }
-    if (podSummary == null)
+    if (desc == null)
     {
-      this.podSummary = prompt("Pod summary")
+      this.desc = prompt("Pod summary")
     }
 
     // build.fan
@@ -156,25 +177,25 @@ internal class StubCli : HxCli
     {
       this.orgUri = prompt("Organization URL")
     }
-    if (projName == null)
+    if (proj == null)
     {
-      this.projName = promptDef("Project Name", "Haxall")
+      this.proj = promptDef("Project Name", "Haxall")
     }
     if (projUri == null)
     {
-      def := projName == "Haxall" ? "https://haxall.io" : ""
+      def := proj== "Haxall" ? "https://haxall.io" : ""
       this.projUri = promptDef("Project URL", def)
     }
-    isHaxall := projName == "Haxall"
-    if (licName == null)
+    isHaxall := proj == "Haxall"
+    if (lic == null)
     {
-      this.licName = promptDef("License Name", "Academic Free License 3.0")
+      this.lic = promptDef("License Name", "Academic Free License 3.0")
     }
-    if (vcsName == null)
+    if (vcs == null)
     {
       def := isHaxall ? "Git" : ""
-      this.vcsName = promptDef("VCS Name", def)
-      if (vcsName.isEmpty) vcsUri = ""
+      this.vcs = promptDef("VCS Name", def)
+      if (vcs.isEmpty) vcsUri = ""
     }
     if (vcsUri == null)
     {
@@ -258,7 +279,7 @@ internal class StubCli : HxCli
       case "author":  return this.author
       case "license": return isHx
         ? "Licensed under the Academic Free License version 3.0"
-        : this.licName
+        : this.lic
       default: return null
     }
   }
@@ -295,17 +316,17 @@ internal class StubCli : HxCli
     printLine("=== Stub $libName.toCode ${type} ===")
     printLine("Org:     $org")
     printLine("Author:  $author")
-    printLine("Summary: $podSummary")
+    printLine("Summary: $desc")
     printLine
 
     printLine("Pod Meta")
     printLine("  org.uri:".padr(22) + this.orgUri)
-    printLine("  proj.name:".padr(22) + this.projName)
+    printLine("  proj.name:".padr(22) + this.proj)
     printLine("  proj.uri:".padr(22) + this.projUri)
-    printLine("  license.name:".padr(22) + this.licName)
-    if (vcsName != null)
+    printLine("  license.name:".padr(22) + this.lic)
+    if (vcs != null)
     {
-      printLine("  vcs.name:".padr(22) + this.vcsName)
+      printLine("  vcs.name:".padr(22) + this.vcs)
       printLine("  vcs.uri:".padr(22) + this.vcsUri)
     }
     printLine
@@ -378,12 +399,12 @@ internal class StubCli : HxCli
     {
       switch (key)
       {
-        case "podSummary":  return this.podSummary
+        case "desc":        return this.desc
         case "orgUri":      return this.orgUri
-        case "projName":    return this.projName
+        case "proj":        return this.proj
         case "projUri":     return this.projUri
-        case "licenseName": return this.licName
-        case "vcsName":     return this.vcsName
+        case "lic":         return this.lic
+        case "vcs":         return this.vcs
         case "vcsUri":      return this.vcsUri
         case "depends":     return buildList(depends)
         case "srcDirs":     return buildList(srcDirs)
