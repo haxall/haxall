@@ -50,7 +50,7 @@ abstract const class HxLib
   override final Str toStr() { name }
 
   ** Runtime
-  HxRuntime rt() { spi.rt }
+  virtual HxRuntime rt() { spi.rt }
 
   ** Programmatic name of the library
   Str name() { spi.name }

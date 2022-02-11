@@ -104,7 +104,7 @@ class HxdBoot
     openDatabase
     initMeta
     initLibs
-    rt = HxdRuntime(this)
+    rt = initRuntime
     return rt
   }
 
@@ -198,6 +198,11 @@ class HxdBoot
       log.info("Update $summary")
       return db.commit(Diff(rec, changes)).newRec
     }
+  }
+
+  virtual HxdRuntime initRuntime()
+  {
+    HxdRuntime(this)
   }
 
 //////////////////////////////////////////////////////////////////////////

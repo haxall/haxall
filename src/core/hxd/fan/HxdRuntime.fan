@@ -24,7 +24,7 @@ const class HxdRuntime : HxRuntime
 //////////////////////////////////////////////////////////////////////////
 
   ** Boot constructor
-  internal new make(HxdBoot boot)
+  new make(HxdBoot boot)
   {
     this.name          = Etc.toTagName(boot.name ?: boot.dir.name)
     this.version       = boot.version
