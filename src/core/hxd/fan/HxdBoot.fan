@@ -202,7 +202,7 @@ class HxdBoot
 
   virtual HxdRuntime initRuntime()
   {
-    HxdRuntime(this)
+    HxdRuntime(this).init(this)
   }
 
 //////////////////////////////////////////////////////////////////////////
