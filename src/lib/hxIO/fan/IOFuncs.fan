@@ -908,7 +908,8 @@ const class IOFuncs
   }
 
   **
-  ** Export a view to the given file handle - see `docFresco::Export`
+  ** Export a view to the given file handle - see `docFresco::Export`.
+  **
   ** Note: this feature is available in SkySpark only
   **
   @Axon { admin = true }

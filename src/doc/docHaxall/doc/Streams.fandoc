@@ -211,7 +211,7 @@ is iterated and null is returned.
 feed [#feed]
 ============
 The `feed()` function terminates a stream and creates a live data feed
-for view consumption:
+for view consumption (SkySpark only):
 
   readAllStream(point).limit(5).feed
 

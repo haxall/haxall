@@ -259,7 +259,7 @@ These are the config tags:
 Arcs [#obsArcs]
 ===================
 The `obsArcs` observable listens for document changes managed by
-the [arc ext]`ext-arc::doc`.
+the [arc lib]`lib-arc::doc`.
 
 Sparks observations include the following tags:
   - 'type': "obsArcs"
@@ -289,17 +289,6 @@ for a given target and rule is only observed once per day.  However if the
 system restarts, then sparks will be re-observed when the rule engine runs again.
 You can force re-observation via the `ruleReobserve()` function.
 
-You can use the `ruleSparksToHtml()` function to setup a task which sends
-an email when a spark is detected as follows:
-
-  dis: "Email Spark Observer"
-  task
-  obsSparks
-  taskExpr:
-    (event) => do
-      spark: event->spark
-      emailSend("john@acme.com", "Spark Detected", spark.ruleSparksToHtml)
-    end
 
 
 
