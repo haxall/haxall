@@ -82,7 +82,7 @@ class Client
   ** Call "read" operation to read a record by its identifier.  If the
   ** record is not found then return null or raise UnknownRecException
   ** based on checked flag.  Raise `haystack::CallErr` if server returns error grid.
-  ** Also see [Rest API]`docSkySpark::Ops#read`.
+  ** Also see [Rest API]`docHaystack::Ops#read`.
   **
   Dict? readById(Obj id, Bool checked := true)
   {
@@ -100,7 +100,7 @@ class Client
   ** ids cannot be resolved then raise UnknownRecErr for first id not
   ** resolved.  If checked is false, then each id not found has a row
   ** where every cell is null.  Raise `haystack::CallErr` if server returns error
-  ** grid.  Also see [Rest API]`docSkySpark::Ops#read`.
+  ** grid.  Also see [Rest API]`docHaystack::Ops#read`.
   **
   Grid readByIds(Obj[] ids, Bool checked := true)
   {
@@ -115,7 +115,7 @@ class Client
   ** If there is more than one record, then it is undefined which one is
   ** returned.  If there are no matches then return null or raise
   ** UnknownRecException based on checked flag.  Raise `haystack::CallErr` if server
-  ** returns error grid.  Also see [Rest API]`docSkySpark::Ops#read`.
+  ** returns error grid.  Also see [Rest API]`docHaystack::Ops#read`.
   **
   Dict? read(Str filter, Bool checked := true)
   {
@@ -129,7 +129,7 @@ class Client
   **
   ** Call "read" operation to read a record all recs which match the
   ** given filter.  Raise `haystack::CallErr` if server returns error grid.
-  ** Also see [Rest API]`docSkySpark::Ops#read`.
+  ** Also see [Rest API]`docHaystack::Ops#read`.
   **
   Grid readAll(Str filter)
   {
@@ -158,11 +158,9 @@ class Client
   ** failures using `haystack::Grid.isErr`.  If checked is true and one of the
   ** requests failed, then raise `haystack::CallErr` for first failure.
   **
-  ** Also see [Rest API]`docSkySpark::Ops#evalAll`.
+  ** NOTE: this method is deprecated and should be used anymore
   **
-  ** NOTE: this should be used anymore
-  **
-  @NoDoc Grid[] evalAll(Obj req, Bool checked := true)
+  @Deprecated @NoDoc Grid[] evalAll(Obj req, Bool checked := true)
   {
     // construct grid request
     reqGrid := req as Grid
