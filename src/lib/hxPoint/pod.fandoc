@@ -138,9 +138,9 @@ The following tags are used to model the current value and status:
     etc are available in the connector app via the "Details" command
 
 If the point's connector is not in the "ok" state, then it inherits
-its error state for 'hisStatus'.  History synchronization is typically performed
-using the connector's 'fooSyncHis' function.  History synchronization is
-scheduled manually using the `ext-job::doc`.
+its error state for 'hisStatus'.  History synchronization is performed
+using the `connSyncHis()` function which must be manually scheduled
+using the [task lib]`lib-task::doc`.
 
 His Collect [#hisCollect]
 *************************

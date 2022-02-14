@@ -48,6 +48,10 @@ is: ^str
 uiInput: "ui::PasswordInput"
 doc: "Manages password which is hashed/stored to the password store."
 --------------------------------------------------------------------------
+def: ^trash
+is: ^marker
+doc: "Marks a record for deletion"
+--------------------------------------------------------------------------
 def: ^typeName
 is: ^str
 doc: "Fantom type qname"

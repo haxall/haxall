@@ -7,8 +7,8 @@
 //
 
 //
-// Defs designed for SkySpark to be used by libs which
-// target all runtimes
+// Defs designed for SkySpark to be used by libs which target all runtimes;
+// The documented tags should be added to docgen includeDefInDocs
 //
 
 --------------------------------------------------------------------------
