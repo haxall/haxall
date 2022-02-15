@@ -44,8 +44,7 @@ doc:
   Conversion to apply when reading history data from connector.
   The conversion is applied to each item passed to `hxConn::ConnPoint.updateHisOk`
   before writing to the database.  This conversion happens *before* the
-  `hisOnWrite` conversion hooks.
-  See `docHaxall::Conns#convert`
+  `hisOnWrite` conversion hooks.  See `docHaxall::Conns#convert`
 --------------------------------------------------------------------------
 def: ^pointConvert
 is: ^str

@@ -24,7 +24,7 @@ Axon APIs:
   - `ioWriteXml` to encode Grids
 
 REST APIs:
-  - [content negotiation]`docSkySpark::Rest#contentNegotiation` for "text/xml" MIME type
+  - [content negotiation]`docHaystack::HttpApi#contentNegotiation` for "text/xml" MIME type
 
 Grid Format [#grid]
 *******************

@@ -23,14 +23,14 @@ metric or US customary.
 
 If you need to define a default constant in an function library designed
 to be used globally, then the convention is to create function which
-takes a site record.  A good example is `degreeDaysBase` which defines
+takes a site record.  A good example is 'degreeDaysBase()' which defines
 a default degree-day balance point:
 
   (site) => do
     if (isMetric(site)) 18°C else 65°F
   end
 
-Also see the `isMetric` function in the core library.
+Also see the `isMetric()` function in the core library.
 
 Database [#database]
 ********************
