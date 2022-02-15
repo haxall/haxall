@@ -43,7 +43,7 @@ FTP Handles [#ftp]
 You may read and write files to a FTP server via a 'ftp://' or 'ftps://' Uri.  Using `ioDir`
 is supported if Uri ends with a slash, but returns name only (not dir, size, or mod).
 By default the "anonymous" user account is used.  But you can customize this by
-creating a key/value the [password manager]`docSkySpark::Security#passwords` where
+creating a key/value the [password manager]`docHaxall::Folio#passwords` where
 the key is the base URI and the value is a string formatted as "user:pass".
 For example given:
 

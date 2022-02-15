@@ -269,6 +269,29 @@ control of a given application.  Transient diffs to not update the `mod` tag,
 however unless the the force flag is used they are still checked for
 concurrent change.
 
+Passwords [#passwords]
+**********************
+There are two types of passwords stored in a project:
+
+  - **one-way**: user accounts store a salted one-way hash of
+    password typically using a SCRAM cryptographic hash
+
+  - **two-way**: many [connectors]`Conns` require passwords to establish
+    their connections.  These passwords must be two-way in that they must
+    be written, but also read back in plaintext form
+
+In both cases, the hash or the password is a secret to be protected.  The
+hash is safer in that if compromised it is difficult to compute the
+original password.  These secrets are stored outside of the core folio
+database in a file called "passwords.props". Pulling them out of the folio
+database makes them easier to secure.
+
+The basic philosophy used to protect the passwords file is that only write
+access is granted external to the VM process (via Axon and REST API).  Reads of
+the passwords must be done within process.  External apps may store passwords
+using the `passwordSet()` function.  Internal code only may access the password
+database using [Folio.passwords]`folio::Folio.passwords` method.
+
 Backups [#backups]
 **********************
 Folio supports the ability to take a *backup* of a project during runtime.

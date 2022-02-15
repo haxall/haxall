@@ -306,7 +306,7 @@ const class HxCoreFuncs
 
   ** Store a password key/val pair into current project's password
   ** store.  The key is typically a Ref of the associated record.
-  ** See `folio::Folio.passwords`.
+  ** See `docHaxall::Folio#passwords`.
   @Axon { admin = true }
   static Void passwordSet(Obj key, Str val)
   {

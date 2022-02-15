@@ -133,7 +133,7 @@ settings to communicate with a remote Obix server using these tags:
   - `obixLobby`: the absolute URI of the server's lobby (should end
     in a trailing slash)
   - `username`: user name for authentication
-  - `password`: must have password stored in [password db]`docSkySpark::Security#passwords`
+  - `password`: must have password stored in [password db]`docHaxall::Folio#passwords`
     for connector's record id
 
 Obix connectors are built with the [connector framework]`docHaxall::Conns`
