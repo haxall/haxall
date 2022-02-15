@@ -72,6 +72,7 @@ class Client
 
   **
   ** Call "about" operation to query server summary info.
+  ** Also see [HTTP API]`docHaystack::Ops#about`.
   **
   Dict about()
   {
@@ -82,7 +83,7 @@ class Client
   ** Call "read" operation to read a record by its identifier.  If the
   ** record is not found then return null or raise UnknownRecException
   ** based on checked flag.  Raise `haystack::CallErr` if server returns error grid.
-  ** Also see [Rest API]`docHaystack::Ops#read`.
+  ** Also see [HTTP API]`docHaystack::Ops#read`.
   **
   Dict? readById(Obj id, Bool checked := true)
   {
@@ -100,7 +101,7 @@ class Client
   ** ids cannot be resolved then raise UnknownRecErr for first id not
   ** resolved.  If checked is false, then each id not found has a row
   ** where every cell is null.  Raise `haystack::CallErr` if server returns error
-  ** grid.  Also see [Rest API]`docHaystack::Ops#read`.
+  ** grid.  Also see [HTTP API]`docHaystack::Ops#read`.
   **
   Grid readByIds(Obj[] ids, Bool checked := true)
   {
@@ -115,7 +116,7 @@ class Client
   ** If there is more than one record, then it is undefined which one is
   ** returned.  If there are no matches then return null or raise
   ** UnknownRecException based on checked flag.  Raise `haystack::CallErr` if server
-  ** returns error grid.  Also see [Rest API]`docHaystack::Ops#read`.
+  ** returns error grid.  Also see [HTTP API]`docHaystack::Ops#read`.
   **
   Dict? read(Str filter, Bool checked := true)
   {
@@ -129,7 +130,7 @@ class Client
   **
   ** Call "read" operation to read a record all recs which match the
   ** given filter.  Raise `haystack::CallErr` if server returns error grid.
-  ** Also see [Rest API]`docHaystack::Ops#read`.
+  ** Also see [HTTP API]`docHaystack::Ops#read`.
   **
   Grid readAll(Str filter)
   {
@@ -140,7 +141,7 @@ class Client
   **
   ** Evaluate an Axon expression and return results as Grid.
   ** Raise `haystack::CallErr` if server returns error grid.
-  ** Also see [Rest API]`docSkySpark::Ops#eval`.
+  ** Also see [HTTP API]`docSkySpark::Ops#eval`.
   **
   Grid eval(Str expr)
   {
@@ -186,7 +187,7 @@ class Client
   ** items to commit.  Return result as Grid or or raise `haystack::CallErr`
   ** if server returns error grid.
   **
-  ** Also see [Rest API]`docSkySpark::Ops#commit`.
+  ** Also see [HTTP API]`docSkySpark::Ops#commit`.
   **
   ** Examples:
   **   // add new record

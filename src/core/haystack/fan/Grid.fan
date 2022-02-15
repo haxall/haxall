@@ -9,7 +9,7 @@
 **
 ** Two dimensional tabular data structure composed of Cols and Rows.
 ** Grids may be created by factory methods on `Etc` or using `GridBuilder`.
-** See [docSkyspark]`docSkySpark::Grids`
+** See [docHaystack]`docHaystack::Kinds#grid`.
 **
 @Js
 const mixin Grid
