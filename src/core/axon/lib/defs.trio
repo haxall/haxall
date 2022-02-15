@@ -16,6 +16,16 @@ def: ^disableOverridableChecks
 is: ^marker
 doc: Disables function `overridable` checking.
 --------------------------------------------------------------------------
+def: ^err
+is: ^marker
+doc:
+  Indicates an error condition, `dis` should contain display message.
+  Also see `errTrace`
+--------------------------------------------------------------------------
+def: ^errTrace
+is: ^str
+doc: Exception stack trace
+--------------------------------------------------------------------------
 def: ^expr
 is: ^str
 doc: "Axon expression string"
