@@ -8,9 +8,10 @@
 
 Overview [#overview]
 ********************
-Folio is the tag database used by SkySpark to store and organize
-your data.  The tagging model allows you to easily design free-form,
-dynamic models of your data.
+Folio is the tag database used by to store and organize your data.  The
+tagging model allows you to easily design free-form, dynamic models of your
+data.  But it also provides first class support for the [Haysatck ontology]`docHaystack::Ontology`
+so that you can model your data in a standardized and reusable manner.
 
 Folio organizes data into a three level hierarchy:
 
@@ -27,21 +28,28 @@ Folio organizes data into a three level hierarchy:
 
 Projects [#projs]
 *****************
-A given SkySpark server hosts one or more projects.  Projects are used
-to group records together into a single "database".  The following features
+In Haxall a node hosts exactly one project (we just call it the *database*).
+SkySpark servers may host multiple projects.  Projects are used to group
+records together into a single "database".  The following features
 operate at the project level:
   - Database security (although the user database is shared between projects)
   - Backup
   - Queries and filter pathing
 
 Projects must be named using a legal [programmatic name]`#naming` and must
-be four chars or longer.  Projects of three letters or less are reserved
-for SkyFoundry, as well as names such as "skyspark", "folio", etc.  To
-take advantage of cloud/clustering support, it is highly recommended to use a
-unique project name for all your projects.
+be four chars or longer.  Projects of three letters or less are reserved, as
+well as some special names.  To take advantage of cloud/clustering support,
+it is highly recommended to use a unique project name for all your projects.
 
 Projects are physically stored on the file system and structured as follows:
 
+  // haxall hosts one database under the "db" directory
+  {haxall-dir}/
+    db/          // database files
+    io/          // Axon I/O scratch directory
+    backup/      // backup zip files
+
+  // skyspark hosts multiple databases under the "proj" directory
   {skyspark-home}/
     var/
       proj/
@@ -52,13 +60,17 @@ Projects are physically stored on the file system and structured as follows:
         projB/
           ...
 
+In SkySpark the project name is strictly defined by the the directory
+name under the "var/proj/" directory.  While the system is shutdown this
+directory can be renamed or copied to a new name.
+
 Records [#recs]
 ***************
 A *record* or *rec* is the basic unit of modeling in the Folio database.
-Records are defined as a map of tags (name/value pairs).  The tags assigned
-to a record are free-form; you may add, update, or remove tags at anytime.
-Different extensions define tag libraries for modeling data using standard
-conventions.
+All records are a Haystack [dict]`docHaystack::Kinds#dict` - a map of
+name/value pairs.  The tags assigned to a record are free-form; you may add,
+update, or remove tags at anytime.  For IoT data you should model your
+dicts according to the standardized [ontology]`docHaystack::Ontology`.
 
 There are a couple tags which have special meaning:
   - `id`: all records have a required id tag with a Ref value which
@@ -73,10 +85,10 @@ Tags [#tags]
 ************
 Tags are the name/value pairs stored in a record.  The name of a tag must
 follow the standard rules for [Naming]`#naming`.  The value of the tag is
+any of the Haystack [kinds]`docHaystack::Kinds`:
 one of the following scalar types:
   - [Marker]`haystack::Marker`: indicates the tag is used solely to mark
     the record; markers are typically used to assign the record into a "type"
-  - [NA]`haystack::NA`: indicates not available
   - [Ref]`haystack::Ref`: identifier for Folio records
   - [Bool]`sys::Bool`: true of false
   - [Number]`haystack::Number`: 64-bit floating point number with optional `Units`
@@ -88,6 +100,9 @@ one of the following scalar types:
   - [Bin]`haystack::Bin`: binary streamed data stored on file system
   - [Coord]`haystack::Coord`: geographic coordinate in latitude/longitude
   - [XStr]`haystack::XStr`: extended type string
+  - [List]`sys::List`: linear sequence of zero or more items
+  - [Dict]`haystack::Dict`: nested dict of name/value pairs
+  - [Grid]`haystack::Grid`: nested two dimensional grid
 
 Note that although Bool is supported, convention is to use presence of
 a marker tag.
@@ -95,13 +110,9 @@ a marker tag.
 Storage [#storage]
 ******************
 Folio persists data to disk, but operates as an in-memory based database.
-Most records and tags are read from disk on startup and stored in RAM for fast
-access.  This is required to support the real-time nature of sensor data.
-But it also imposes limits on Folio since most hardware tend to have
-less RAM than disk space.
-
-Folio records are stored in RAM for fast access.  As you design your data models
-for the tag database, you should take care to limit what is stored in memory.
+Records are read from disk on startup and stored in RAM for fast access.  This
+design supports the real-time nature of sensor data.  But it also imposes
+limits on Folio since most hardware tend to have less RAM than disk space.
 
 Naming [#naming]
 ****************
@@ -111,16 +122,11 @@ Naming [#naming]
   - as project names
   - as value of the `name` tag
 
-Programmatic names use 'camelCaseNaming' as follows:
+[Programmatic names]`docHaystack::Kinds#names` use 'camelCaseNaming' as
+follows:
  - first char must be ASCII lower case letter: 'a' - 'z'
  - rest of chars must be ASCII letter or digit: 'a' - 'z',
    'A' - 'Z', '0' - '9', or '_'
-
-The 'name' tag may be used to assign a well-known name to records.  A given
-project has one namespace, so it is illegal to create multiple records
-with the same 'name' tag value.  Named records may be easily accessed
-by name in addition to their id.  [Funcs]`Axon#funcRecs` are uniquely
-named via the 'name' tag.
 
 Queries [#queries]
 ******************
@@ -132,7 +138,7 @@ using the '->' operator during the query operation.
 The following types of queries are supported:
   - `readAll`: query all the records which match a filter
   - `read`: query a single record which matches a filter
-  - `readById`: convenience for 'id == xxx'
+  - `readById`: optimized lookup by id
 
 Indexing [#indexing]
 ********************
@@ -142,6 +148,9 @@ record in a project is scanned and checked against the filter for a
 match.  Because the records are stored in RAM this operation is
 very fast; a run-of-the-mill server and can roughly scan 10K records
 every millisecond.  This time will scale up linearly with your database.
+
+The following sections describe the query optimization in SkySpark.  Query
+optimization is not available in Haxall.
 
 Query Optimizer [#queryOptimizer]
 ================================
@@ -175,15 +184,14 @@ The current algorithm indexes a tag once it has been used in 100 queries.
 
 Query Tuning [#queryTuning]
 ===========================
-A full scan of a large database with millions of recs might take 100s of
+A full scan of a large database with millions of recs might take 10s of
 milliseconds.  This might be fast enough for populating user interface
 screens, but when distributed across multiple functions it can add up
 quickly.  So if working with large databases it is important to ensure that
 hot queries are utilizing the index.
 
-The best way to analyze queries is with the Debug tab in the Folio
-app.  This tab provides a wealth of statistics on tag indexes
-and the queries being run.
+The best way to analyze queries is with the Debug | Folio view, which
+provides a wealth of statistics on tag indexes and the queries run.
 
 The Reads by Tag section lists statistics on all tags which have been
 analyzed for optimization:
@@ -216,6 +224,14 @@ file in a version control system.  Diffs include the ability:
   - update/add a set of tags on an existing record
   - remove a set of tags on an existing record (using the special
     [remove]`haystack::Remove` value)
+
+In Fantom diffs are committed with the `folio::Folio.commit` method:
+
+  db.commit(Diff(rec, Etc.makeDict1("change", "new-val")))
+
+In Axon diffs are committed using the `diff()` and `commit()` function:
+
+  commit(diff(rec, {change:"new-val"}))
 
 Transient Diffs [#transientDiffs]
 =================================
@@ -259,7 +275,7 @@ Folio supports the ability to take a *backup* of a project during runtime.
 A backup is a zip file which includes an atomic copy of the records, tags,
 and history data.
 
-  - Fantom API: `skyarcd::Proj.backup`
+  - Fantom API: `folio::Folio.backup`
   - Axon API: `folioBackup()`
 
 Proj Meta [#projMeta]
@@ -270,14 +286,8 @@ following tags may be configured on the projMeta rec:
   - 'dis': display name for the project if you wish to use
     a string other than the project's programmatic name
   - 'doc': summary string for the project
-  - 'dateSpanDefault': string encoding of `haystack::DateSpan`
-    used to configure the default date span used by Fresco apps
-
-Many of these tags can be configured in the SettingApp.  Although
-some may be require manual editing using the FolioApp.
+  - [steadyState]`Runtime#steadyState`: delay for steady state transition
 
 In addition to the tags above the system automatically maintains
-a 'version' tag on the projMeta record (do not modify this tag).  The
-projMeta rec is also used to configure [tuning parameters]`docSkySpark::Tuning#folio`
-for the folio database.
+a 'version' tag on the projMeta record (do not modify this tag).
 
