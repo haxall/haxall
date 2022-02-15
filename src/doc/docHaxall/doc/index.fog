@@ -9,6 +9,7 @@
 [
 "Getting Started",
   [`Setup`,         "Help on getting Haxall up and running"],
+  [`Crypto`,        "Help on managing keys and trusted certificates"],
 "Architecture",
   [`Architecture`,  "Overview of the software architecture"],
   [`Runtime`,       "Runtime overview"],

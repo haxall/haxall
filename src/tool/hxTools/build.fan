@@ -27,6 +27,7 @@ class Build : BuildPod
                "vcs.uri":      "https://github.com/haxall/haxall"]
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
+               "crypto @{fan.depend}",
                "util @{fan.depend}",
                "haystack @{hx.depend}",
                "def @{hx.depend}",
@@ -41,6 +42,7 @@ class Build : BuildPod
     [
       "hx.cli": [
         "hxTools::ConvertCli",
+        "hxTools::CryptoCli",
         "hxTools::InitCli",
         "hxTools::StubCli",
       ]

@@ -62,7 +62,7 @@ Some MQTT brokers require client authentication over TLS. To configure client
 authentication, set the `mqttCertAlias` tag to the alias in the crypto manager
 that contains your client's private key and certificate.
 You can add your private key and certificates to the crypto store for SkySpark using the
-[KeyMgr]`docSkySpark::Crypto` tool.
+[crypto tool]`docHaxall::Crypto`.
 
 Some brokers also allow you to connect to the broker over the HTTPS port using
 Application-Layer Protocol Negotiation (ALPN). If your broker requires this
