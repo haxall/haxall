@@ -1823,6 +1823,66 @@ const class CoreLib
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Func Reflection
+//////////////////////////////////////////////////////////////////////////
+
+  ** Given a function name reflect its parameters as rows
+  **
+  ** Examples:
+  **   params(hisRead)
+  **   toRadix.params
+  @NoDoc @Axon
+  static Grid params(Fn fn)
+  {
+    CoreLibUtil.params(AxonContext.curAxon, fn)
+  }
+
+  ** Find a top-level function by name or by reference and return its tags.
+  ** If not found throw exception or return null based on checked flag.
+  **
+  ** Example:
+  **   func("readAll")
+  **   func(readAll)
+  @Axon
+  static Dict? func(Obj name, Bool checked := true)
+  {
+    CoreLibUtil.func(AxonContext.curAxon, name, checked)
+  }
+
+  ** Find all the top-levels functions in the current project
+  ** which match the given filter. If the filter is omitted then
+  ** return all the functions declared in the current project.
+  ** The function tags are returned.
+  **
+  ** Examples:
+  **   funcs()              // all functions
+  **   funcs(sparkRule)     // match filter
+  @Axon
+  static Grid funcs(Expr filterExpr := Literal.nullVal)
+  {
+    CoreLibUtil.funcs(AxonContext.curAxon, filterExpr)
+  }
+
+  ** Return component definition.  The result is a grid where each row
+  ** corresponds to a cell and its associated meta data.  The grid
+  ** meta is the function level meta data.
+  **
+  ** Example:
+  **   compDef("compName")
+  @Axon
+  static Grid? compDef(Obj name, Bool checked := true)
+  {
+    CoreLibUtil.compDef(AxonContext.curAxon, name, checked)
+  }
+
+  ** Get the current top-level function's tags.
+  @Axon
+  static Dict curFunc()
+  {
+    CoreLibUtil.curFunc(AxonContext.curAxon)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Typing
 //////////////////////////////////////////////////////////////////////////
 

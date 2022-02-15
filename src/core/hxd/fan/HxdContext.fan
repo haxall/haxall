@@ -114,8 +114,12 @@ class HxdContext : HxContext
   ** Find top-level function by qname or name
   @NoDoc override Fn? findTop(Str name, Bool checked := true)
   {
-    def := ns.def("func:${name}", checked)
-    if (def == null) return null
+    def := ns.def("func:${name}", false)
+    if (def == null)
+    {
+      if (checked) throw UnknownFuncErr(name)
+      return null
+    }
     return ((FuncDef)def).expr
   }
 

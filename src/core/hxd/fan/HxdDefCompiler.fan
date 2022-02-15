@@ -271,8 +271,8 @@ const class HxdOverlayCompiler
       if (b.isDup(symbol.toStr)) return err("Duplicate defs '$symbol.toCode'", rec)
 
       // normalize rec with implied def tags
-      acc := Str:Obj[:]
-      rec.each |v, n| { acc[n] = v }
+      acc := Str:Obj?[:]
+      rec.each |v, n| { if (v != null) acc[n] = v }
       acc["def"] = symbol
       acc["lib"] = libSymbol
       norm := Etc.makeDict(acc)

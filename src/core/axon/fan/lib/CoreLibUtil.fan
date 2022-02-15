@@ -54,6 +54,120 @@ internal const class CoreLibUtil
     }
     return gb.toGrid
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Func Reflection
+//////////////////////////////////////////////////////////////////////////
+
+  ** Find all the top-levels functions in the current project
+  static Grid funcs(AxonContext cx, Expr filterExpr := Literal.nullVal)
+  {
+    Filter? filter := null
+    if (filterExpr !== Literal.nullVal)
+      filter = filterExpr.evalToFilter(cx)
+
+    // iterate the namespace: skip nodoc and filter mismatches
+    acc := Dict[,]
+    cx.ns.feature("func").eachDef |def|
+    {
+      if (def.has("nodoc")) return
+      if (filter != null && !filter.matches(def, cx)) return
+      acc.add(def)
+    }
+
+    // strip src for security
+    names := Etc.dictsNames(acc)
+    names.remove("src")
+    return GridBuilder().addColNames(names).addDictRows(acc).toGrid
+  }
+
+  ** Find a top-level function by name and return its tags.
+  static Dict? func(AxonContext cx, Obj name, Bool checked)
+  {
+    fn := coerceToFn(cx, name, checked)
+    if (fn == null) return null
+    return fnToDict(cx, fn)
+  }
+
+  ** Find a top-level function by name and return its tags.
+  static Grid? compDef(AxonContext cx, Obj name, Bool checked)
+  {
+    fn := coerceToFn(cx, name, checked)
+    if (fn == null) return null
+    comp := fn as CompDef ?: throw Err("Func is not a comp: $fn.name")
+
+    cols := Etc.dictsNames(comp.cells)
+    cols.remove("name")
+
+    gb := GridBuilder().addCol("name").addColNames(cols)
+    gb.setMeta(fnToDict(cx, fn))
+    comp.cells.each |cell|
+    {
+      row := Obj?[,]
+      row.capacity = 1 + cols.size
+      row.add(cell.name)
+      cols.each |n| { row.add(cell[n]) }
+      gb.addRow(row)
+    }
+    return gb.toGrid
+  }
+
+  ** Get the current top-level function's tags.
+  static Dict curFunc(AxonContext cx)
+  {
+    def := coerceToFn(cx, cx.curFunc, false)
+    if (def == null) throw Err("No top-level func active")
+    return fnToDict(cx, def)
+  }
+
+  ** Reflect parameters for given function
+  static Grid params(AxonContext cx, Fn fn)
+  {
+    rows := Obj[,]
+    fn.params.each |p|
+    {
+      def :=  p.def?.eval(cx)
+      rows.add([p.name, def])
+    }
+    return Etc.makeListsGrid(null, ["name", "def"], null, rows)
+  }
+
+  ** Coerce object to Fn instance
+  private static TopFn? coerceToFn(AxonContext cx, Obj x, Bool checked)
+  {
+    if (x is Str) return cx.findTop(x, checked)
+    if (x is Fn)
+    {
+      // if closure then its named {top}.{closure}
+      name := ((Fn)x).name
+      dot := name.index(".")
+      if (dot != null) name = name[0..<dot]
+      return cx.findTop(name, checked)
+    }
+    if (x is Dict && ((Dict)x).has("id")) x = x->id
+    if (x is Ref)
+    {
+      rec := cx.deref(x)
+      if (rec == null)
+      {
+        if (checked) throw UnknownFuncErr(x.toStr)
+        return null
+      }
+      name := rec["name"] as Str ?: ((Symbol)rec->def).name
+      return cx.findTop(name)
+    }
+    throw ArgErr("Invalid func name argument [$x.typeof]")
+  }
+
+  ** Remove 'src' tag whenever returning funcs for security
+  ** NOTE: for reflected Fantom funcs, the TopFn.meta is the
+  ** declared meta and does not contain lib
+  private static Dict fnToDict(AxonContext cx, TopFn fn)
+  {
+    dict := fn.meta
+    if (dict.missing("lib")) dict = cx.ns.def("func:${fn.name}")
+    return Etc.dictRemove(dict, "src")
+  }
 }
 
 **************************************************************************
