@@ -1755,7 +1755,7 @@ const class CoreLib
   }
 
   ** List the lib definitions in the context namespace as Def[].
-  @NoDoc @Axon static Def[] libs()
+  @Axon static Def[] libs()
   {
     AxonContext.curAxon.ns.feature("lib").defs.sort
   }

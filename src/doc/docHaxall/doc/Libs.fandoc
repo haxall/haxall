@@ -219,6 +219,56 @@ Here is an example:
 The `hx::HxLib.onRecUpdate` callback is invoked whenever the settings rec
 is modified.
 
+Web [#web]
+**********
+To add HTTP handling to your lib:
+
+  1. Create a subclass of `hx::HxLibWeb`
+  2. Override `hx::HxLib.web` with an instance of your subclass
+
+Here is a very simple example:
+
+  const class FooLib : HxLib
+  {
+    override const FooWeb web := FooWeb(this)
+  }
+
+  const class FooWeb : HxLibWeb
+  {
+    new make(FooLib lib) : super(lib) {}
+
+    override Void onGet()
+    {
+      res.headers["Content-Type"] = "text/plain; charset=utf-8"
+      res.out.printLine("Foo hello world: $req.modRel")
+    }
+  }
+
+Libs plug into the URI namespace as follows:
+  - Haxall: '/{libName}'
+  - SkySpark: '/api/{projName}/ext/{libName}'
+
+Management [#management]
+************************
+Libs can be enabled/disabled at runtime.  The enabled libs are stored
+as records in the runtime database with the 'ext' tag.  You cannot directly
+add nor remove an ext record, but rather must instead use dedicated APIs.
+
+Lib management in Fantom:
+  - `hx::HxRuntime.libs`: access to `hx::HxRuntimeLibs`
+  - `hx::HxRuntimeLibs.list`: list the enabled libs
+  - `hx::HxRuntimeLibs.get`: lookup a lib by name
+  - `hx::HxRuntimeLibs.add`: enable an lib by name
+  - `hx::HxRuntimeLibs.remove`: disable an lib
+
+Lib management in Axon:
+  - `libs()`: list enabled libs in namespace
+  - `libAdd()`: enable a lib by name
+  - `libRemove()`: disable a lib by name
+
+Note that adding/remove libs must be done in the correct order to ensure
+lib dependencies are met.
+
 Stub [#stub]
 ************
 The 'hx stub' tool will generate all the boiler plate code and structure for

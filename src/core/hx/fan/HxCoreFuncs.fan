@@ -344,14 +344,16 @@ const class HxCoreFuncs
     curContext.rt.isSteadyState
   }
 
-  ** Enable a library by name in the runtime
+  ** Enable a library by name in the runtime:
+  **   libAdd("mqtt")
   @Axon { admin = true }
   static Dict libAdd(Str name, Dict? tags := null)
   {
     curContext.rt.libs.add(name, tags ?: Etc.emptyDict).rec
   }
 
-  ** Disable a library by name in the runtime
+  ** Disable a library by name in the runtime:
+  **   libRemove("mqtt")
   @Axon { admin = true }
   static Obj? libRemove(Obj name)
   {
