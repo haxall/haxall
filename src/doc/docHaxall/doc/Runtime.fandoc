@@ -8,7 +8,66 @@
 
 Overview [#overview]
 ********************
-TODO
+All system components are packaged into a single top-level object called
+the *runtime*.  The runtime is accessed via the `hx::HxRuntime` API.  It
+is possible to run multiple runtimes within a single JVM.
+
+Daemon [#daemon]
+****************
+The *Haxall daemon* is the default implementation of the runtime.  A daemon
+is created via the 'hx init' command, and executed via 'hx run'.  These
+commands are covered in the `Setup` chapter.
+
+You can customize the bootstrap of a deamon using the Fantom class 'hxd::HxdBoot'.
+Here is an example to illustrate using custom config and required libs:
+
+  boot := HxdBoot
+  {
+    it.dir = myDatabaseDir
+    it.config["serialSpi"] = "myPod::SerialSpiImpl"
+    it.requiredLibs.add("myCustomLib")
+  }
+  boot.run
+
+Default behavior of the the daemon:
+  - creates an instance of HxFolio for the database
+  - simple user manager which stores users in the runtime database
+  - HTTP API with all the standard ops
+  - simple Axon shell as the UI
+  - provides basic in-memory historian using circular buffers
+
+SkySpark [#skyspark]
+********************
+SkySpark is multi-tenant and supports multiple project runtimes.  SkySpark
+implements one runtime for the host via `skyarcd::Sys.rt`.  Each project is
+also a full runtime via `skyarcd::Proj.rt`.
+
+SkySpark runs some low-level libs at the host level as *SysMods*.  For
+example, there is only one instane of the 'http', 'api', and 'user' libs (shared
+by all projects as SysMods).  Then each run project runs its own instance
+of *Exts* which includes libs like 'point', 'task', 'conn', etc.  The Haxall
+documentation will often use the term library/lib and extension/ext
+interchangeability for this reason.
+
+Lifecycle [#lifecycle]
+**********************
+The runtime lifecycle defines a multi-stage series of phases for startup
+and shutdown.  Startup phases are:
+
+  1. Instantiation: libs are created, but only basic info is available
+  2. Start: libs can lookup services and other libs, kick off background processing
+  3. Ready: all libs have completed their onStart callback, HTTP port is opened
+  4. Steady state: delay after ready to given apps and connectors time to spin up
+
+The shutdown phases are:
+  1. Unready: shutdown external ports
+  2. Stop: cease all background processing
+
+Shutdown happens automatically when the runtime process is killed via
+`sys::Env.addShutdownHook`.
+
+See the [lib chapter]`Libs#lifecycle` for how these phases map to the
+`hx::HxLib` callbacks.
 
 Steady State [#steadyState]
 ***************************

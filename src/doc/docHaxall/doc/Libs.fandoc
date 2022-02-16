@@ -135,7 +135,7 @@ Here is a simple example:
 
 Lifecycle [#lifecycle]
 **********************
-The bootstrap lib life cycle is:
+The lifecycle of a lib follows the overall [runtime lifecycle]`Runtime#lifecycle`:
   1. Instantiation (constructor)
   2. `hx::HxLib.onStart`
   3. `hx::HxLib.onReady`
