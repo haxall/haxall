@@ -8,8 +8,7 @@
 
 [
 "Getting Started",
-  [`Setup`,         "Help on getting Haxall up and running"],
-  [`Crypto`,        "Help on managing keys and trusted certificates"],
+  [`Setup`,         "Getting Haxall installed and running"],
 "Architecture",
   [`Architecture`,  "Overview of the software architecture"],
   [`Runtime`,       "Runtime overview"],
@@ -18,6 +17,7 @@
   [`Libs`,          "Library modules"],
   [`Observables`,   "Observable subscription subsystem"],
   [`Watches`,       "Subscription to record changes"],
+  [`Crypto`,        "Help on managing keys and trusted certificates"],
 "Axon",
   [`AxonLang`,      "Features of Axon programming language"],
   [`Streams`,       "Asynchronous streams"],
