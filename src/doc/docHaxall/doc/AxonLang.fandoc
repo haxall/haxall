@@ -10,7 +10,7 @@ Overview [#overview]
 ********************
 This chapter fully covers the the syntax constructs of the Axon
 programming language.  See `Axon` chapter for an overview of
-how Axon is used in the SkySpark.
+how Axon is used.
 
 Scalars [#scalars]
 ********************
@@ -69,7 +69,7 @@ escapes making them useful for regular expressions:
 Note that the "$" character is reserved for future interpolation support
 and cannot be used in a string literal unless you backslash escape it:
 
-  // backslash escape dolloar signe
+  // backslash escape dolloar sign
   "\$100"
 
 Lists [#lists]
@@ -102,12 +102,12 @@ Also see `AxonUsage#dict`.
 Operators [#operators]
 **********************
 Operators in order of precedence:
-  - Primary: '(x) x.y x.y() x->y x[y]'
-  - Unary: 'not x' '-x'
-  - Multiplicative: '* /'
-  - Additive: '+ -'
-  - Equality: '== !='
-  - Comparison: '< <= >= > <=>'
+  - Primary: '(x)  x.y  x.y()  x->y  x[y]'
+  - Unary: 'not x  -x'
+  - Multiplicative: '*  /'
+  - Additive: '+  -'
+  - Equality: '==  !='
+  - Comparison: '<  <=  >=  >  <=>'
   - Conditional And: 'and'
   - Conditional Or: 'or'
   - Assignment: '='

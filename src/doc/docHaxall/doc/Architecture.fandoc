@@ -14,6 +14,53 @@ data. Use it right out of the box as a flexible IoT data gateway which runs
 at the edge. Haxall is written in [Fantom]`https://fantom.org` with runtime
 support for both the Java VM and JavaScript environments.
 
+Concepts [#concepts]
+********************
+Haxall is composed of the following key concepts and subsystems:
+
+  - [Ontology]`docHaystack::Ontology`: we standardize the modeling of the
+    built environment using Project Haystack
+  - [Folio]`Folio`: database optimized for the real-time nature of IoT data
+  - [Axon]`Axon`: functional scripting language for onboarding and transforming IoT data
+  - [HTTP API]`docHaystack::HttpApi`: all functionality is accessible over the Haystack HTTP API
+  - [Connectors]`Conns`: framework for connectivity to IoT devices and protocols
+  - [Libs]`Libs`: pluggable modules for functionality
+  - [Runtime]`Runtime`: top-level API for working with a project
+  - [Daemon]`Runtime#daemon`: complete runtime server with batteries included
+
+Libs [#libs]
+************
+Functionality is packaged into *libs* that are reusable modules you can
+enable/disable at runtime.  The most important libraries include:
+  - [axon]`lib:axon`: core functions for Haystack data values
+  - [hx]`lib-hx::index`: core runtime functions
+  - [math]`lib:math`: mathematical functions
+  - [io]`lib:io`: functions to read/write data in a variety of formats
+  - [conn]`lib:conn`: work with connectors
+  - [task]`lib:task`: schedule background work using actor framework
+  - [point]`lib:point`: support for writable points and history collection
+
 Software Stack [#stack]
-****************************
+***********************
+The following diagram illustrates how the system fits together:
+
 ![haystack stack]`haxall-stack.svg`
+
+SkySpark [#skyspark]
+********************
+Haxall is developed by [SkyFoundry]`https://skyfoundry.com`.  It the
+foundational layer of our commercial product [SkySpark]`https://skyfoundry.com/product`
+that we have opened sourced to the community.  As such, the documentation
+contains many notes related to the features which work differently or are only
+available in SkySpark.
+
+Libraries developed for Haxall will run seamlessly in SkySpark.  For example
+if you develop a connector or Axon function library as a Haxall [lib]`Libs`,
+then you can drop that same pod into a SkySpark runtime and it will be available
+as a normal extension.
+
+Haxall databases are also binary compatible with SkySpark.  So you can open
+and run a Haxall database in SkySpark and vice versa.  Note that not all
+extensions will run in Haxall - only the core open source libs such as the
+ones [listed above]`#libs`.
+

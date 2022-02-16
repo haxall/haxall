@@ -8,18 +8,18 @@
 
 Overview [#overview]
 ********************
-Axon is a programming language used for scripting within SkySpark.
+Axon is a programming language used for scripting within Haxall and SkySpark.
 Most functionality can be accessed through Axon:
   - query `Folio` tag database
   - perform data transformations such as rollups and normalizations
   - creating your own function libraries
   - computations for the [rule engine]`ext-rule::doc` are written in Axon
-  - create custom reports for Report App
-  - create scripts for data import
-  - create background jobs for data synchronization and maintenance
+  - create custom reports
+  - scripts for data import
+  - background tasks for data synchronization and maintenance
 
-One of the pivotal features of SkySpark is that all queries to the
-database/analytics engine are full Axon expressions:
+One of the pivotal features is that all queries to the database/analytics
+engine are full Axon expressions:
 
   // find all the records with power tag
   power
@@ -69,16 +69,29 @@ Func Recs [#funcRecs]
 *********************
 Function records define new top-level functions with the following
 tags:
-  - `name`: programmatic name of the function
-  - `func`: marker tag to indicate function
+  - `def`: programmatic name of the function as symbol "func:{name}"
   - `src`: Axon source code for function as string tag
+
+Here is a simple add function:
+
+  def: ^func:myAdd
+  src:
+    (a, b) => a + b
+
+In SkySpark only, an older style of function definitions may use
+the 'func' and 'name' tag:
+
+  name: "myAdd"
+  func
+  src:
+    (a, b) => a + b
 
 Top-Level Namespace [#top]
 **************************
-The top-level namespace of a project is defined by:
+The top-level namespace of a runtime project is defined by:
   1. core functions
   2. named [func records]`#funcRecs`
-  3. extensions installed by the project
+  3. libs enabled by the runtime
 
 The following functions are useful for working with the top-level
 function namespace:
@@ -97,11 +110,11 @@ Unqualified function names are resolved by the implicit namespace
 which is searched in this order:
   1. local namespace of function (parameter/variable names)
   2. [func records]`#funcRecs`
-  3. extensions installed by project
+  3. runtime libs
 
 Function Overrides [#overrides]
 ===============================
-If an ext function is tagged as `overridable`, then you can *override*
+If an lib function is tagged as `overridable`, then you can *override*
 it by declaring a function record with the same name.  Functions resolved
 as a project rec take priority over the function defined by the extension.
 
