@@ -61,7 +61,7 @@ internal class WriteRec
   Void check(WriteMgr mgr, Duration now)
   {
     if (overrideExpire != 0 && overrideExpire < now.ticks)
-      write(mgr, null, 8, levels[7].who)
+      write(mgr, null, 8, levels[7].who, null)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ internal class WriteRec
 //////////////////////////////////////////////////////////////////////////
 
   ** Write the given value and level
-  Obj? write(WriteMgr mgr, Obj? val, Int level, Obj who)
+  Obj? write(WriteMgr mgr, Obj? val, Int level, Obj who, Dict? opts)
   {
     // for timed override val is wrapped as Dict{val,duration}
     Duration? duration := null
@@ -118,7 +118,7 @@ internal class WriteRec
     // fire observations only after steady state is reached;
     // steady state is when we uniformly fire off all initial writes
     if (mgr.rt.isSteadyState)
-      mgr.fireObservation(this, val, levelNums[level-1], who, effectiveChange, false)
+      mgr.fireObservation(this, val, levelNums[level-1], who, opts, effectiveChange, false)
 
     return val
   }

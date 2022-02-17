@@ -180,6 +180,7 @@ const class ConnWriteInfo
     this.level   = obs.level.toInt
     this.isFirst = obs.isFirst
     this.who     = obs.who
+    this.opts    = obs.opts ?: Etc.emptyDict
     this.extra   = ""
   }
 
@@ -191,6 +192,7 @@ const class ConnWriteInfo
     this.level   = orig.level
     this.isFirst = orig.isFirst
     this.who     = orig.who
+    this.opts    = orig.opts
     this.extra   = orig.extra
   }
 
@@ -202,6 +204,7 @@ const class ConnWriteInfo
     this.level   = orig.level
     this.isFirst = orig.isFirst
     this.who     = orig.who
+    this.opts    = orig.opts
     this.extra   = extra
   }
 
@@ -219,6 +222,9 @@ const class ConnWriteInfo
 
   ** Who made the write
   @NoDoc const Obj? who
+
+  ** Options passed to point write
+  @NoDoc const Dict opts
 
   ** Extra info indicating a special write transition
   @NoDoc const Str extra

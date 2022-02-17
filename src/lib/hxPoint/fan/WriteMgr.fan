@@ -58,7 +58,7 @@ internal const class WriteMgrActor : PointMgrActor, HxPointWriteService
     // add/check unit if Number
     val = PointUtil.applyUnit(point, val, "write")
 
-    return send(HxMsg("write", point.id, valRef, level, who, opts ?: Etc.emptyDict))
+    return send(HxMsg("write", point.id, valRef, level, who, opts))
   }
 }
 
@@ -75,7 +75,7 @@ internal class WriteMgr : PointMgr
 
   override Obj? onReceive(HxMsg msg)
   {
-    if (msg.id === "write") return get(msg.a).write(this, msg.b, msg.c, msg.d)
+    if (msg.id === "write") return get(msg.a).write(this, msg.b, msg.c, msg.d, msg.e)
     if (msg.id === "array") return get(msg.a).toGrid
     return super.onReceive(msg)
   }
@@ -148,12 +148,12 @@ internal class WriteMgr : PointMgr
   {
     points.each |pt|
     {
-      fireObservation(pt, pt.lastVal, pt.lastLevel, "first", true, true)
+      fireObservation(pt, pt.lastVal, pt.lastLevel, "first", null, true, true)
     }
   }
 
   ** Called by WriteRec on all writes
-  internal Void fireObservation(WriteRec writeRec, Obj? val, Number level, Obj? who, Bool effectiveChange, Bool first)
+  internal Void fireObservation(WriteRec writeRec, Obj? val, Number level, Obj? who, Dict? opts, Bool effectiveChange, Bool first)
   {
     // short circuit if observable has no subscriptions
     observable := lib.writeMgr.observable
@@ -182,14 +182,14 @@ internal class WriteMgr : PointMgr
       {
         // this subscriber has the 'obsAllWrites' flag, so we fire
         // event for the specific level which has been modified
-        if (eventAll == null) eventAll = WriteObservation(observable, ts, writeRec.id, rec, val, level, who, first)
+        if (eventAll == null) eventAll = WriteObservation(observable, ts, writeRec.id, rec, val, level, who, opts, first)
         sub.send(eventAll)
       }
       else
       {
         // normal subscriber, so we fire an event for
         // the new effective level cached by lastVal, lastLevel
-        if (eventEff == null) eventEff = WriteObservation(observable, ts, writeRec.id, rec, writeRec.lastVal, writeRec.lastLevel, who, first)
+        if (eventEff == null) eventEff = WriteObservation(observable, ts, writeRec.id, rec, writeRec.lastVal, writeRec.lastLevel, who, opts, first)
         sub.send(eventEff)
       }
     }

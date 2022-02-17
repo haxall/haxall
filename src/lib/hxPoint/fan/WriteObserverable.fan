@@ -49,7 +49,7 @@ internal const class WriteSubscription : RecSubscription
 @NoDoc
 const class WriteObservation : Observation
 {
-  new make(Observable observable, DateTime ts, Ref id, Dict rec, Obj? val, Number level, Obj who, Bool first)
+  new make(Observable observable, DateTime ts, Ref id, Dict rec, Obj? val, Number level, Obj who, Dict? opts, Bool first)
   {
     this.type  = observable.name
     this.ts    = ts
@@ -58,6 +58,7 @@ const class WriteObservation : Observation
     this.val   = val
     this.level = level
     this.who   = who
+    this.opts  = opts
     this.first = Marker.fromBool(first)
   }
 
@@ -69,6 +70,7 @@ const class WriteObservation : Observation
   const Obj? val
   const Number level
   const Obj who
+  const Dict? opts
   const Marker? first
 
   Bool isFirst() { first != null }
@@ -87,6 +89,7 @@ const class WriteObservation : Observation
       case "val":     return val
       case "level":   return level
       case "who":     return who
+      case "opts":    return opts
       case "first":   return first
       default:        return def
     }
@@ -116,6 +119,7 @@ const class WriteObservation : Observation
     r = f(val,   "val");   if (r != null) return r
     r = f(level, "level"); if (r != null) return r
     r = f(who,   "who");   if (r != null) return r
+    if (opts != null)  r = f(who,   "opts");  if (r != null) return r
     if (first != null) r = f(first, "first"); if (r != null) return r
     return null
   }
