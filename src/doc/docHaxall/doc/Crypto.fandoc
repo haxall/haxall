@@ -44,13 +44,17 @@ pre>
   hx crypto add -alias https -import keystore.p12
 
   // If the store is password protected, use the -pass option to specify the password
+  // NOTE: the terminal/command prompt may interpret certain special characters in your
+  // password in a way that the import will fail indicating an incorrect password
+  // was entered. If this happens, change the password on the p12 file to something
+  // containing only alpha-numeric characters and try again.
   hx crypto add -alias https -import keystore.p12 -pass "password"
 
   // Option 2) Import the private key and certificate chain explicitly
   hx crypto add -alias https -priv private_key.pem -certs publicCertChain.pem
 <pre
 
-NOTE: if you need to update your https certificate you can run the command again
+If you need to update your https certificate you can run the command again
 and it will overwrite the entry with alias 'https' in the keystore.
 
 After adding the https entry to the keystore, you need to enable https for
