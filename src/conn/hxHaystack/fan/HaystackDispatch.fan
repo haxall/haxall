@@ -474,8 +474,9 @@ class HaystackDispatch : ConnDispatch
 
       // if tuning has writeSchedule and who is a schedule grid
       Str? schedule
-      if (who is Grid && ((Grid)who).meta.has("schedule") && point.tuning.rec.has("writeSchedule"))
-        schedule = ZincWriter.gridToStr(who)
+      timeline := info.opts["schedule"]
+      if (timeline is Grid && point.tuning.rec.has("writeSchedule"))
+        schedule = ZincWriter.gridToStr(timeline)
 
       // make REST call
       callPointWrite(point, id, writeLevel, val, schedule)
