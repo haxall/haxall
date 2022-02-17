@@ -1902,6 +1902,12 @@ const class CoreLib
     return val.typeof.qname
   }
 
+  ** Return if an object is null
+  @Axon static Bool isNull(Obj? val) { val == null }
+
+  ** Return if an object is not null
+  @Axon static Bool isNonNull(Obj? val) { val != null }
+
   ** Return if an object is a list type
   @Axon static Bool isList(Obj? val) { val is List }
 

@@ -1355,6 +1355,8 @@ class CoreLibTest : HaystackTest
   {
     verifyEval("debugType(null)", "null")
     verifyEval("debugType(4)",    "haystack::Number")
+    verifyEval("isNull(null)", true);      verifyEval("3.isNull", false)
+    verifyEval("isNonNull(null)", false);   verifyEval("3.isNonNull", true)
     verifyEval("true.isBool", true);       verifyEval("3.isBool", false)
     verifyEval("4.isNumber", true);        verifyEval("true.isNumber", false)
     verifyEval("\"foo\".isStr", true);     verifyEval("true.isStr", false)
