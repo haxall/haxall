@@ -41,7 +41,7 @@ const class PyLib : HxLib
 // Lifecycle Callbacks
 //////////////////////////////////////////////////////////////////////////
 
-  override Void onStop()
+  @NoDoc override Void onStop()
   {
     mgr.shutdown
   }

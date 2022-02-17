@@ -260,6 +260,13 @@ const class CoreLib
     throw argErr("stream", val)
   }
 
+  ** Create a new stream for the cell values of the given column.
+  ** See `docHaxall::Streams#streamCol`.
+  @Axon static Obj streamCol(Grid grid, Obj col)
+  {
+    GridColStream(grid, col as Col ?: grid.col(col.toStr))
+  }
+
   ** Collect stream into a in-memory list or grid.
   ** See `docHaxall::Streams#collect`.
   @Axon static Obj collect(Obj? stream, Fn? to := null)

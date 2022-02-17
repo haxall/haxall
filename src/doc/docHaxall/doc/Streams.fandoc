@@ -81,6 +81,7 @@ Function Index [#index]
 ***********************
 Stream creation functions:
   - [stream]`#stream`: create stream from in-memory collection
+  - [streamCol]`#streamCol`: stream the cells of a grid column
   - [readAllStream]`#readAllStream`: stream records from Folio with filter
   - [readByIdsStream]`#readByIdsStream`: stream records from Folio by id
   - [ioStreamLines]`#ioStreamLines`: read a stream of Str lines
@@ -373,4 +374,13 @@ Examples:
 
   ["a", "b", "c"].stream.collect
   (3..7).stream.collect
+
+streamCol [#streamCol]
+======================
+The `streamCol()` function creates a new stream from a grid and column.
+It turns the column's cell into a sequence of the cells.
+
+Examples:
+
+  readAll(site).streamCol("area").fold(sum)
 

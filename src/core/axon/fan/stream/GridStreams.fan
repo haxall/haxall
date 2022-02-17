@@ -33,6 +33,32 @@ internal class GridStream : SourceStream
 }
 
 **************************************************************************
+** GridColStream
+**************************************************************************
+
+@Js
+internal class GridColStream : SourceStream
+{
+  new make(Grid grid, Col col) { this.grid = grid; this.col = col }
+
+  override Str funcName() { "streamCol" }
+
+  override Obj?[] funcArgs() { [grid, col.name] }
+
+  override Void onStart(Signal sig)
+  {
+    grid.eachWhile |row|
+    {
+      submit(row.val(col))
+      return isComplete ? "break" : null
+    }
+  }
+
+  internal Grid grid
+  internal Col col
+}
+
+**************************************************************************
 ** GridTransformStream
 **************************************************************************
 

@@ -108,6 +108,9 @@ class StreamTest : AxonTest
     verifyStream("[1, 2, na(), 3, 4].stream.fold(min)", NA.val)
     verifyStream("[1, 2, na(), 3, 4].stream.fold(max)", NA.val)
 
+    // streamCol
+    verifyStream("[{v:1}, {v:2}, {v:3}].toGrid.streamCol(\"v\").fold(sum)", n(6))
+
     // complex
     verifyStream("[1, 2, 3, 4].stream.map(v=>v*2).limit(3).collect", Obj?[n(2), n(4), n(6)])
   }
@@ -165,6 +168,10 @@ class StreamTest : AxonTest
     verifyGridEq(eval("""[1, 2, 3].stream.removeCols(["foo"]).collect"""), Etc.makeListGrid(null, "val", null, [n(1), n(2), n(3)]))
     verifyGridEq(eval("""[1, 2, 3].stream.keepCols(["val", "x"]).collect"""), Etc.makeListGrid(null, "val", null, [n(1), n(2), n(3)]))
     verifyGridEq(eval("""[1, 2, 3].stream.reorderCols(["val", "x"]).collect"""), Etc.makeListGrid(null, "val", null, [n(1), n(2), n(3)]))
+
+    // streamCol
+    verifyStreamCol(orig, """.streamCol("id").collect""", Obj?[orig[0].id, orig[1].id])
+    verifyStreamCol(orig, """.streamCol("dis").collect""", Obj?["X", "Y"])
   }
 
   Void verifyGridStream(Grid input, Str tail, Grid expected)
@@ -186,6 +193,14 @@ class StreamTest : AxonTest
   Void verifyGridMetaSame(Dict a, Dict b)
   {
     if (Etc.dictEq(a, b)) verifySame(a, b)
+  }
+
+  Void verifyStreamCol(Grid input, Str tail, Obj expected)
+  {
+    src := "(g) => g" + tail
+    cx := makeContext
+    actual := cx.evalToFunc(src).call(cx, [input])
+    verifyValEq(actual, expected)
   }
 
 //////////////////////////////////////////////////////////////////////////
