@@ -7,16 +7,6 @@
 //
 
 --------------------------------------------------------------------------
-view: haystackSettings
-appName: settings
-disKey: Haystack
-admin
-doc: Settings for the haystack connector
-src:
-  view:   {inherit:"form"}
-  submit: {action:"extSettingsCommit"}
-  data:   {expr:"extSettings(\"haystack\")"}
---------------------------------------------------------------------------
 template: haystackConn
 tags:
  hostId:         {hidden}
