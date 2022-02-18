@@ -1830,6 +1830,12 @@ const class CoreLib
     AxonContext.curAxon.ns.protos(parent)
   }
 
+  ** Return timestamp of the current namespace
+  @NoDoc @Axon static DateTime nsTimestamp()
+  {
+    AxonContext.curAxon.ns.ts
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Func Reflection
 //////////////////////////////////////////////////////////////////////////
