@@ -20,7 +20,33 @@ class CsvWriter : GridWriter
 //////////////////////////////////////////////////////////////////////////
 
   ** Wrap output stream
-  new make(OutStream out) { this.out = CsvOutStream(out) }
+  new make(OutStream out, Dict? opts := null)
+  {
+    this.out = CsvOutStream(out)
+    if (opts != null)
+    {
+      this.delimiter  = toDelimiter(opts)
+      this.showHeader = toShowHeader(opts)
+    }
+  }
+
+  private Int toDelimiter(Dict opts)
+  {
+    x := opts["delimiter"] as Str
+    if (x != null && !x.isEmpty) return x[0]
+    return this.delimiter
+  }
+
+  private Bool toShowHeader(Dict opts)
+  {
+    x := opts["showHeader"]
+    if (x != null)
+    {
+      if (x == true || x == "true") return true
+      if (x == false || x == "false") return false
+    }
+    return this.showHeader
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Configuration
