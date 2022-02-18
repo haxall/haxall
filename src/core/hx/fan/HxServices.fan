@@ -45,6 +45,9 @@ const mixin HxServiceRegistry : HxStdServices
 **
 const mixin HxStdServices
 {
+  ** Context factory service
+  abstract HxContextService context()
+
   ** Observable APIs
   abstract HxObsService obs()
 
@@ -87,6 +90,22 @@ const mixin HxStdServices
 ** HxService is a marker interface used to indicate a service API.
 **
 const mixin HxService {}
+
+**************************************************************************
+** HxContextService
+**************************************************************************
+
+**
+** Context factory service
+**
+const mixin HxContextService : HxService
+{
+  ** Create new context for given user
+  abstract HxContext create(HxUser user)
+
+  ** Create new context for given session
+  @NoDoc abstract HxContext createSession(HxSession session)
+}
 
 **************************************************************************
 ** HxObsService
@@ -190,10 +209,30 @@ const mixin HxUserService : HxService
 
   ** Authenticate a web request and return a context.  If request
   ** is not authenticated then redirect to login page and return null.
+  ** Session information is available via `hx::HxContext.session`.
   abstract HxContext? authenticate(WebReq req, WebRes res)
+
+  ** Close the given authentication session
+  @NoDoc abstract Void closeSession(HxSession session)
 
   ** Create synthetic user.  The tags arg may be a dict or a map.
   @NoDoc abstract HxUser makeSyntheticUser(Str username, Obj? tags := null)
+}
+
+**
+** User authentication session
+**
+@Js
+const mixin HxSession
+{
+  ** Unique identifier for session
+  abstract Str key()
+
+  ** Attestation session key used as secondary verification of cookie key
+  abstract Str attestKey()
+
+  ** Authenticated user associated with the sesssion
+  abstract HxUser user()
 }
 
 **************************************************************************

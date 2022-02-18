@@ -40,6 +40,7 @@ const class HxdRuntime : HxRuntime
     this.hxdActorPool  = ActorPool { it.name = "Hxd-Runtime" }
     this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
     this.backgroundMgr = HxdBackgroundMgr(this)
+    this.context       = HxdContextService(this)
     this.watch         = HxdWatchService(this)
     this.obs           = HxdObsService(this)
     this.file          = HxdFileService(this)
@@ -110,6 +111,7 @@ const class HxdRuntime : HxRuntime
   private const AtomicRef servicesRef := AtomicRef(null)
 
   // HxStdServices conveniences
+  override const HxdContextService context
   override const HxdObsService obs
   override const HxWatchService watch
   override const HxFileService file
@@ -148,9 +150,6 @@ const class HxdRuntime : HxRuntime
 
   ** Background tasks
   internal const HxdBackgroundMgr backgroundMgr
-
-  ** Construct a runtime specific context for the given user account
-  override HxContext makeContext(HxUser user) { HxdContext(this, user) }
 
   ** Installed lib pods on the host system
   HxdInstalled installed() { installedRef.val }

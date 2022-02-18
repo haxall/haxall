@@ -442,7 +442,7 @@ class HttpApiTest : HxTest
   {
     c.close
 
-    verifyErr(CallErr#) { c.about }
+    verifyErrMsg(IOErr#, "Bad HTTP response 403 Invalid or expired authToken") { c.about }
   }
 
 //////////////////////////////////////////////////////////////////////////

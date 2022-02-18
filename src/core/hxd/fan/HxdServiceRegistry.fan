@@ -38,10 +38,11 @@ const class HxdServiceRegistry : HxServiceRegistry
     }
 
     // these are built-in without using a lib
-    map[HxObsService#]   = HxService[rt.obs]
-    map[HxWatchService#] = HxService[rt.watch]
-    map[HxFileService#]  = HxService[rt.file]
-    map[HxHisService#]   = HxService[rt.his]
+    map[HxContextService#] = HxService[rt.context]
+    map[HxObsService#]     = HxService[rt.obs]
+    map[HxWatchService#]   = HxService[rt.watch]
+    map[HxFileService#]    = HxService[rt.file]
+    map[HxHisService#]     = HxService[rt.his]
 
     // we might need to stub http since its not added by default in tests
     if (map[HxHttpService#] == null)
@@ -58,6 +59,7 @@ const class HxdServiceRegistry : HxServiceRegistry
     this.list = map.keys.sort
     this.map  = map
 
+    this.context    = get(HxContextService#)
     this.obs        = get(HxObsService#)
     this.watch      = get(HxWatchService#)
     this.crypto     = get(HxCryptoService#)
@@ -72,6 +74,8 @@ const class HxdServiceRegistry : HxServiceRegistry
   }
 
   override const Type[] list
+
+  override const HxdContextService context
 
   override const HxdObsService obs
 

@@ -28,10 +28,10 @@ const class HxUserSessions
   Log log() { lib.log }
 
   ** List active sessions
-  HxSession[] list() { byKey.vals(HxSession#) }
+  HxUserSession[] list() { byKey.vals(HxUserSession#) }
 
   ** Lookup a session by its key
-  HxSession? get(Str key, Bool checked := true)
+  HxUserSession? get(Str key, Bool checked := true)
   {
     s := byKey[key]
     if (s != null) return s
@@ -40,27 +40,27 @@ const class HxUserSessions
   }
 
   ** Open new session
-  HxSession open(WebReq req, HxUser user)
+  HxUserSession open(WebReq req, HxUser user)
   {
     log.info("Login: $user.username")
-    key := HxSession.genKey("s-")
-    attestKey := HxSession.genKey("a-")
-    session := HxSession(req, key, attestKey, user)
+    key := HxUserSession.genKey("s-")
+    attestKey := HxUserSession.genKey("a-")
+    session := HxUserSession(req, key, attestKey, user)
     byKey.add(session.key, session)
     return session
   }
 
   ** Open cluster session
-  HxSession openCluster(WebReq req, Str key, Str attestKey, HxUser user)
+  HxUserSession openCluster(WebReq req, Str key, Str attestKey, HxUser user)
   {
     log.info("Login cluster: $user.username")
-    session := HxSession(req, key, attestKey, user) { it.isCluster = true }
+    session := HxUserSession(req, key, attestKey, user) { it.isCluster = true }
     byKey.add(session.key, session)
     return session
   }
 
   ** Close session
-  Void close(HxSession session)
+  Void close(HxUserSession session)
   {
     log.info("Logout: $session.user.username")
     byKey.remove(session.key)
@@ -81,13 +81,13 @@ const class HxUserSessions
 }
 
 **************************************************************************
-** HxSession
+** HxUserSession
 **************************************************************************
 
 **
 ** Authenticated user session
 **
-const class HxSession
+const class HxUserSession : HxSession
 {
   ** Constructor
   internal new make(WebReq req, Str key, Str attestKey, HxUser user, |This|? f := null)
@@ -101,13 +101,13 @@ const class HxSession
   }
 
   ** Primary session key
-  const Str key := genKey("s-")
+  const override Str key := genKey("s-")
 
   ** Secondary attest key to provide addtional security for Cookie non-GET requests
-  const Str attestKey := genKey("a-")
+  const override Str attestKey := genKey("a-")
 
   ** User account authenticated with this session
-  HxUser user() { userRef.val }
+  override HxUser user() { userRef.val }
   private const AtomicRef userRef
 
   ** Remote address of client

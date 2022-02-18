@@ -26,7 +26,7 @@ abstract class HxContext : AxonContext, HaystackContext, FolioContext
   {
     cx := Actor.locals[Etc.cxActorLocalsKey]
     if (cx != null) return cx
-    if (checked) throw Err("No HxContext available")
+    if (checked) throw ContextUnavailableErr("No HxContext available")
     return null
   }
 
@@ -42,6 +42,9 @@ abstract class HxContext : AxonContext, HaystackContext, FolioContext
 
   ** User account associated with this context
   abstract HxUser user()
+
+  ** Authentication session associated with this context if applicable
+  abstract HxSession? session(Bool checked := true)
 
   ** About data to use for HTTP API
   @NoDoc abstract Dict about()

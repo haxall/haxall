@@ -58,18 +58,18 @@ internal class HxUserAuth
   }
 
   ** Called when request maps to an authenticated session
-  private HxContext authenticated(HxSession session)
+  private HxContext authenticated(HxUserSession session)
   {
     // refresh session and construct context
-     user := session.isCluster ? session.user : lib.read(session.user.id)
-     session.touch(user)
-    cx := rt.makeContext(user)
+    user := session.isCluster ? session.user : lib.read(session.user.id)
+    session.touch(user)
+    cx := rt.context.createSession(session)
     cx.stash["attestKey"] = session.attestKey
     return cx
   }
 
   ** Check if cookies provide an valid session token
-  private HxSession? checkCookie()
+  private HxUserSession? checkCookie()
   {
     // check if session cookie was passed in request
     key := req.cookies[lib.cookieName]
@@ -106,7 +106,7 @@ internal class HxUserAuth
 
   ** Check if Authorization header provides an valid session token.
   ** Or if defined then peform standard Haystack auth pipeline.
-  private HxSession? checkAuthorization()
+  private HxUserSession? checkAuthorization()
   {
     // if the Authorization header specified use standard auth pipeline
     if (req.headers.containsKey("Authorization"))
@@ -120,7 +120,7 @@ internal class HxUserAuth
     return null
   }
 
-  private HxSession? checkCluster()
+  private HxUserSession? checkCluster()
   {
     // if this is a cluster tunneled request then the stash defines
     // the node, username, session key, and attest key

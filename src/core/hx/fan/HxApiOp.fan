@@ -95,7 +95,8 @@ internal class HxCloseOp : HxApiOp
 {
   override Grid onRequest(Grid req, HxContext cx)
   {
-    throw UnsupportedErr("not implemented yet")
+    cx.rt.user.closeSession(cx.session)
+    return Etc.emptyGrid
   }
 }
 

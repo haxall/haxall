@@ -50,7 +50,7 @@ const class HxShellWeb : HxLibWeb
     env := Str:Str[:]
     env["main"]              = "hxShell::Shell.main"
     env["hxShell.api"]       = cx.rt.http.apiUri.toStr
-    env["hxShell.attestKey"] = cx.stash.getChecked("attestKey")
+    env["hxShell.attestKey"] = cx.session.attestKey
     env["hxShell.user"]      = ZincWriter.valToStr(cx.user.meta)
 
     res.headers["Content-Type"] = "text/html; charset=utf-8"

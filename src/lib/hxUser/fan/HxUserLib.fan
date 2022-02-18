@@ -42,7 +42,7 @@ const class HxUserLib : HxLib, HxUserService
   override HxService[] services() { [this] }
 
 //////////////////////////////////////////////////////////////////////////
-// HxRuntimeUsers
+// HxUserService
 //////////////////////////////////////////////////////////////////////////
 
   ** Lookup a user by username.  If not found then raise
@@ -64,6 +64,12 @@ const class HxUserLib : HxLib, HxUserService
     HxUserAuth(this, req, res).authenticate
   }
 
+  ** Close the given authentication session
+  override Void closeSession(HxSession session)
+  {
+    sessions.close(session)
+  }
+
   ** Create synthetic user.  The tags arg may be a dict or a map.
   override HxUser makeSyntheticUser(Str username, Obj? extra := null)
   {
@@ -79,14 +85,14 @@ const class HxUserLib : HxLib, HxUserService
 //////////////////////////////////////////////////////////////////////////
 
   ** Open a new session for given user account
-  internal HxSession login(WebReq req, WebRes res, HxUser user)
+  internal HxUserSession login(WebReq req, WebRes res, HxUser user)
   {
     session := sessions.open(req, user)
     addSessionCookie(req, res, session)
     return session
   }
 
-  private Void addSessionCookie(WebReq req, WebRes res, HxSession session)
+  private Void addSessionCookie(WebReq req, WebRes res, HxUserSession session)
   {
     overrides := Field:Obj?[:]
 

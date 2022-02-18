@@ -63,9 +63,6 @@ const mixin HxRuntime : HxStdServices
   ** interacting with external systems.  See `docHaxall::Runtime#steadyState`.
   abstract Bool isSteadyState()
 
-  ** Construct a runtime specific context for the given user account
-  abstract HxContext makeContext(HxUser user)
-
   ** Configuration options defined at bootstrap
   @NoDoc abstract HxConfig config()
 }

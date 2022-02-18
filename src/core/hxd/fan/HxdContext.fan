@@ -14,6 +14,24 @@ using folio
 using hx
 
 **
+** Haxall daemon implementation of HxContextService
+**
+const class HxdContextService : HxContextService
+{
+  new make(HxdRuntime rt) { this.rt = rt }
+
+  const HxdRuntime rt
+
+  override HxContext create(HxUser user) { HxdContext(rt, user, null) }
+
+  override HxContext createSession(HxSession session) { HxdContext(rt, session.user, session) }
+}
+
+**************************************************************************
+** HxdContext
+**************************************************************************
+
+**
 ** Haxall daemon implementation of HxContext
 **
 class HxdContext : HxContext
@@ -27,7 +45,7 @@ class HxdContext : HxContext
   {
     cx := Actor.locals[Etc.cxActorLocalsKey]
     if (cx != null) return cx
-    if (checked) throw Err("No HxContext available")
+    if (checked) throw ContextUnavailableErr("No HxContext available")
     return null
   }
 
@@ -36,10 +54,11 @@ class HxdContext : HxContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  @NoDoc new make(HxdRuntime rt, HxUser user)
+  @NoDoc new make(HxdRuntime rt, HxUser user, HxSession? session)
   {
     this.rt = rt
     this.user = user
+    this.sessionRef = session
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -53,6 +72,14 @@ class HxdContext : HxContext
   override Folio db() { rt.db }
 
   override const HxUser user
+
+  override HxSession? session(Bool checked := true)
+  {
+    if (sessionRef != null) return sessionRef
+    if (checked) throw SessionUnavailableErr("Context not associated with a session")
+    return null
+  }
+  const HxSession? sessionRef
 
   override Dict about()
   {

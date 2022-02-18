@@ -319,7 +319,7 @@ const class Task : Actor, Observer, Dict
     isCancelled.val = false
 
     // create context which checks cancel flag during heartbeat callback
-    cx := lib.rt.makeContext(lib.user)
+    cx := lib.rt.context.create(lib.user)
     cx.heartbeatFunc = |->|
     {
       if (isCancelled.val || isKilled.val) throw CancelledErr()
