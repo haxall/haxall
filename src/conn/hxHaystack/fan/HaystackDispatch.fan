@@ -59,8 +59,10 @@ class HaystackDispatch : ConnDispatch
 
   override Void onClose()
   {
+    old := client
     client = null
     watchClear
+    if (old != null && rec.missing("haystackCloseUnsupported")) old.close
   }
 
   override Dict onPing()

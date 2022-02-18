@@ -71,6 +71,14 @@ class Client
 //////////////////////////////////////////////////////////////////////////
 
   **
+  ** Close the session by sending the 'close' op.
+  **
+  Void close()
+  {
+    call("close", Etc.emptyGrid)
+  }
+
+  **
   ** Call "about" operation to query server summary info.
   ** Also see [HTTP API]`docHaystack::Ops#about`.
   **

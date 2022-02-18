@@ -88,6 +88,18 @@ internal class HxAboutOp : HxApiOp
 }
 
 **************************************************************************
+** HxCloseOp
+**************************************************************************
+
+internal class HxCloseOp : HxApiOp
+{
+  override Grid onRequest(Grid req, HxContext cx)
+  {
+    throw UnsupportedErr("not implemented yet")
+  }
+}
+
+**************************************************************************
 ** HxDefsOp
 **************************************************************************
 
