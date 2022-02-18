@@ -17,7 +17,7 @@ class Build : BuildPod
   new make()
   {
     podName = "hxEcobee"
-    summary = "Ecobee Connector"
+    summary = "Ecobee connector"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",

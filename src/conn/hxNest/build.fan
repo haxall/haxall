@@ -17,7 +17,7 @@ class Build : BuildPod
   new make()
   {
     podName = "hxNest"
-    summary = "Google Nest Connector"
+    summary = "Google Nest connector"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",

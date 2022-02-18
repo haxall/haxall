@@ -24,10 +24,10 @@ const mixin Observer
 
   ** Callback to translate an observation to an actor message.
   ** Default behavior is to pass the observation itself as the message.
-  virtual Obj toActorMsg(Observation obs) { obs }
+  @NoDoc virtual Obj toActorMsg(Observation obs) { obs }
 
   ** Callback to get sync message.  Default uses null for sync message.
-  virtual Obj? toSyncMsg() { null }
+  @NoDoc virtual Obj? toSyncMsg() { null }
 
 }
 

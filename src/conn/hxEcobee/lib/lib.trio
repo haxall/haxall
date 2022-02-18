@@ -11,5 +11,5 @@ def: ^lib:ecobee
 icon: "ecobee"
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
 typeName:"hxEcobee::EcobeeLib"
-doc: "Ecobee Connector"
+doc: "Ecobee connector"
 --------------------------------------------------------------------------

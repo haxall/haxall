@@ -34,7 +34,7 @@ const class Subscription
   const Dict config
 
   ** Debug string for config
-  Str configDebug()
+  @NoDoc Str configDebug()
   {
     s := StrBuf().add("{")
     Etc.dictNames(config).each |n|
