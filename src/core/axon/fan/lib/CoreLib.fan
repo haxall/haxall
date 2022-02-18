@@ -1386,9 +1386,10 @@ const class CoreLib
   **   - 'DateSpan': anything accepted by `toDateSpan` in current timezone
   **   - 'DateSpan+tz': anything accepted by `toDateSpan` using given timezone
   **
-  @Axon static Span toSpan(Obj? a, Str? tz := null)
+  @Axon static Span toSpan(Obj? x, Str? tz := null)
   {
-    Etc.toSpan(a, tz != null ? TimeZone.fromStr(tz) : null)
+    if (x == null) x = AxonContext.curAxon.toDateSpanDef
+    return Etc.toSpan(x, tz != null ? TimeZone.fromStr(tz) : null)
   }
 
   ** Use `toSpan`
