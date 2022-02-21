@@ -26,8 +26,8 @@ to acquire an API key and OAuth tokens for communicating with the API
   1. './bin/fan hxEcobee::EcobeeAuthorization -scope smartRead'
     - To enable read/write to your thermostat, use '-scope smartWrite' instead.
     - Follow the instructions to obtain a PIN and authorize your application. After
-    completing the steps the program will provide you with a 'Refresh Token'. Make
-    note of this value for setting up the connector below.
+    completing the steps the program will provide you with the set of tags that must
+    be set on your connector as describe below.
 
 
 Connectivity [#connect]

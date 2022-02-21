@@ -36,10 +36,13 @@ using concurrent
 
     Env.cur.out.printLine(
       """
-         Go to your portal and 'My Apps' and select 'Add Application'.
+         On the Ecobee Portal go to 'My Apps' and select 'Add Application'.
          Validate your application with this PIN:
 
              ${pin}
+
+         After entering the PIN on the portal, check back here to see your generated
+         refresh token.
          """)
 
     params = Str:Str[
@@ -59,8 +62,13 @@ using concurrent
       if (DateTime.now - start > 2min) throw Err("Took too long to validate pin")
     }
 
-    Env.cur.out.printLine("Ecobee API Key: $apiKey")
-    Env.cur.out.printLine("Ecobee Refresh Token: " + json["refresh_token"])
+    refreshToken := json["refresh_token"]
+    Env.cur.out.printLine(
+      """You will need to set these tags on your Ecobee connector:
+
+         ecobeeClientId: $apiKey
+         ecobeeRefreshToken: $refreshToken
+         """)
     return 0
   }
 }

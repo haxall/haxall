@@ -147,7 +147,7 @@ internal class EcobeeLearn : EcobeeConnTask, EcobeeUtil
 
     // Settings object points
     points.add(PointBuilder(t).dis("HVAC mode").kind("Str").enums("auto,auxHeatOnly,cool,heat,off")
-      .markers("zone,air,hvacMode,sp")
+      .markers("zone,air,hvacMode,cmd")
       .curAndWrite("settings/hvacMode")
       .his("runtime/hvacMode").finish)
 
