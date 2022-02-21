@@ -62,7 +62,13 @@ class HaystackDispatch : ConnDispatch
     old := client
     client = null
     watchClear
-    if (old != null && rec.missing("haystackCloseUnsupported")) old.close
+    if (old != null && rec.missing("haystackCloseUnsupported"))
+    {
+      try
+        old.close
+      catch (Err e)
+        {} // ignore for now since the close op is new
+    }
   }
 
   override Dict onPing()
