@@ -6,7 +6,14 @@
 //   14 May 2020  Brian Frank  Creation
 //
 
----------------------------------------------------------------------------
+--------------------------------------------------------------------------
+template: sedonaConn
+tags:
+  dis:      {defVal:"Sedona Conn"}
+  uri:      {defVal:`sox://host/`}
+  username: {defVal:""}
+  password: {defVal:""}
+--------------------------------------------------------------------------
 view: sedonaManifests
 appName: conn
 dis: "Sedona Manifests"

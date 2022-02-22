@@ -9,14 +9,18 @@
 --------------------------------------------------------------------------
 template: haystackConn
 tags:
- hostId:         {hidden}
- hostDis:        {hidden}
- hostModel:      {hidden}
- moduleName:     {hidden}
- moduleVersion:  {hidden}
- productName:    {hidden}
- productVersion: {hidden}
- vendorName:     {hidden}
- tz:             {hidden}
+  dis:            {defVal:"Haystack Conn"}
+  uri:            {defVal:`http://host/haystack`}
+  username:       {defVal:""}
+  password:       {defVal:""}
+  hostId:         {hidden}
+  hostDis:        {hidden}
+  hostModel:      {hidden}
+  moduleName:     {hidden}
+  moduleVersion:  {hidden}
+  productName:    {hidden}
+  productVersion: {hidden}
+  vendorName:     {hidden}
+  tz:             {hidden}
 --------------------------------------------------------------------------
 

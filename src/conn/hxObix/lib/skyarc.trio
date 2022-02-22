@@ -9,10 +9,12 @@
 --------------------------------------------------------------------------
 template: obixConn
 tags:
- productName:    {hidden}
- productVersion: {hidden}
- vendorName:     {hidden}
- tz:             {hidden}
+  dis:            {defVal:"oBIX Conn"}
+  obixLobby:      {defVal:`http://host/obix/`}
+  username:       {defVal:""}
+  password:       {defVal:""}
+  productName:    {hidden}
+  productVersion: {hidden}
+  vendorName:     {hidden}
+  tz:             {hidden}
 --------------------------------------------------------------------------
-
-

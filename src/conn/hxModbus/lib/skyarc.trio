@@ -7,6 +7,13 @@
 //
 
 --------------------------------------------------------------------------
+template: modbusConn
+tags:
+  dis:             {defVal:"Modbus Conn"}
+  uri:             {defVal:`modbus-tcp://host/`}
+  modbusRegMapUri: {defVal:``}
+  modbusSlave:     {defVal:1}
+--------------------------------------------------------------------------
 view: modbusRegMap
 appName: conn
 disKey: ui::regMap
