@@ -18,16 +18,27 @@ def: ^nestProjectId
 is: ^str
 tagOn: ^nestConn
 doc:
+  The project identifier from your Google Device Access project.
+  Follow the [prerequisites]`doc#prereqs` to obtain this value.
 --------------------------------------------------------------------------
 def: ^nestClientId
 is: ^password
 tagOn: ^nestConn
+doc:
+  The OAuth client_id for your application.
+  Follow the [prerequisites]`doc#prereqs` to obtain this value.
 --------------------------------------------------------------------------
 def: ^nestClientSecret
 is: ^password
 tagOn: ^nestConn
+doc:
+  The OAuth client_secret for your application.
+  Follow the [prerequisites]`doc#prereqs` to obtain this value.
 --------------------------------------------------------------------------
 def: ^nestRefreshToken
 is: ^password
 tagOn: ^nestConn
+doc:
+  The OAuth refresh_token for your application.
+  Follow the [prerequisites]`doc#prereqs` to obtain this value.
 --------------------------------------------------------------------------
