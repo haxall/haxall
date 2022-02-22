@@ -15,6 +15,7 @@ view: conns
 appName: conn
 disKey: ui::connector
 admin
+order: 100
 doc: "Manage connectors in the local project database"
 src:
   view: { uiType:"uiBuilder::ConnBuilder" }
@@ -25,6 +26,7 @@ appName: conn
 disKey: ui::tuning
 defName: connTuning
 admin
+order: 105
 doc: "Manage connector tuning records in the local project database"
 src:
   view:    { inherit:"table" }
@@ -38,6 +40,7 @@ view: connTrace
 appName: conn
 disKey: ui::trace
 admin
+order: 110
 doc: "View debug connector tracing"
 src:
   view:    { uiType:"uiBuilder::ConnTraceView" }
