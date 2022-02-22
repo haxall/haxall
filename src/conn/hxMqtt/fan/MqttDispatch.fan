@@ -28,9 +28,9 @@ class MqttDispatch : ConnDispatch
 
   private static const HxMsg resubMsg := HxMsg("mqtt.resub")
 
-  private MqttClient? client
+  protected MqttClient? client
 
-  private MqttLib mqttLib() { lib }
+  protected MqttLib mqttLib() { lib }
 
 //////////////////////////////////////////////////////////////////////////
 // Open/Ping/Close
