@@ -152,6 +152,12 @@ const class CryptoFuncs
     tags["subject"]  = cert.subject
     tags["issuer"]   = cert.issuer
     tags["certType"] = cert.certType
+    try
+    {
+      tags["notBefore"] = cert->notBefore
+      tags["notAfter"]  = cert->notAfter
+    }
+    catch (Err ignore) { }
 
     return Etc.makeDict(tags)
   }
