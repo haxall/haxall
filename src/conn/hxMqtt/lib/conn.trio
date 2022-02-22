@@ -29,6 +29,7 @@ doc: "The client identifier to use when connecting to the broker"
 --------------------------------------------------------------------------
 def: ^mqttQos
 is: ^number
+tagOn: ^obsMqtt
 doc:
   MQTT Quality of Service (QoS)
   - '0' - At most once (fire-and-forget)

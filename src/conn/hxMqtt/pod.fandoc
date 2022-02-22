@@ -58,8 +58,8 @@ By default, the connector will attempt to connect to the MQTT broker anonymously
 If the broker requires a username and password, you can set the `username` and
 `password` tags on the conn rec.
 
-Some MQTT brokers require client authentication over TLS. To configure client
-authentication, set the `mqttCertAlias` tag to the alias in the crypto manager
+Some MQTT brokers require client certificate authentication over TLS. To configure client
+certificate authentication, set the `mqttCertAlias` tag to the alias in the crypto manager
 that contains your client's private key and certificate.
 You can add your private key and certificates to the crypto store for SkySpark using the
 [crypto tool]`docHaxall::Crypto`.
