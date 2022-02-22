@@ -15,7 +15,7 @@ API. The SDM API allows you to retrieve sensor data from Google Nest devices.
 Prerequisites [#prereqs]
 ************************
 Before your can use the nest connector, you must complete the steps in the
-Google Device Acces [Quick Start Guide]`https://developers.google.com/nest/device-access/get-started`.
+Google Device Access [Quick Start Guide]`https://developers.google.com/nest/device-access/get-started`.
 After completing this guide you should have obtained the following information:
 
 1. A 'project id' from the Device Access project you created
