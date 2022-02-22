@@ -42,6 +42,7 @@ internal class CryptoCli : HxCli
     {
       case "add":    doAddKey
       case "trust":  doTrust
+      case "export": doExport
       case "list":   doList
       case "remove": doRemove
       case "rename": doRename
@@ -158,6 +159,40 @@ internal class CryptoCli : HxCli
       }
       info("Trusting ${cert.subject} as ${entryAlias}\n")
       ks.setTrust(entryAlias, cert)
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Export
+//////////////////////////////////////////////////////////////////////////
+
+  private Void doExport()
+  {
+    if (helpRequested) return usageExport
+    if (!hasArg("alias")) usageExport("-alias option is required")
+
+    alias := argsMap["alias"]
+    entry := keystore.get(alias)
+
+    if (entry is TrustEntry)
+    {
+      trust := (TrustEntry)entry
+      f := File(`${alias}-trusted.cert`)
+      f.out.writeChars(trust.cert.toStr).close
+      printLine("Exported ${alias} to: ${f.normalize.osPath}")
+    }
+    else
+    {
+      key := (PrivKeyEntry)entry
+      f := File(`${alias}-priv.key`)
+      f.out.writeChars(key.priv.toStr).close
+      printLine("Exported ${alias} private key to: ${f.normalize.osPath}")
+
+      f   = File(`${alias}-cert.crt`)
+      out := f.out
+      key.certChain.each |cert| { out.writeChars(cert.toStr) }
+      out.close
+      printLine("Exported ${alias} certificate chain to: ${f.normalize.osPath}")
     }
   }
 
@@ -305,6 +340,7 @@ internal class CryptoCli : HxCli
        Actions:
          add     Adds a private key + certificate chain entry to the keystore
          trust   Adds a trusted certificate to the keystore
+         export  Export an entry from the keystore
          remove  Removes an entry from the keystore
          list    List summary information about entries in the keystore
          rename  Rename an entry's alias in the keystore
@@ -354,6 +390,19 @@ internal class CryptoCli : HxCli
          -alias  <alias> Add the trusted certificate with this alias.
                          (default: subject's CN)
          -force, -f      Add the certficiate even if the alias already exists
+       ")
+    Env.cur.exit(1)
+  }
+
+  private Void usageExport(Str? err := null, OutStream out := Env.cur.out)
+  {
+    if (err != null) this.err(err)
+    out.printLine(
+      "Export:
+         hx crypto export -alias <alias>
+
+       Options:
+         -alias <alias> the alias of the entry to export
        ")
     Env.cur.exit(1)
   }
