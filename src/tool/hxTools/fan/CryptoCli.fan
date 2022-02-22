@@ -184,11 +184,16 @@ internal class CryptoCli : HxCli
     else
     {
       key := (PrivKeyEntry)entry
-      f := File(`${alias}-priv.key`)
-      f.out.writeChars(key.priv.toStr).close
-      printLine("Exported ${alias} private key to: ${f.normalize.osPath}")
 
-      f   = File(`${alias}-cert.crt`)
+      // @NoDoc support to also export the private key
+      if (hasArg("priv"))
+      {
+        f := File(`${alias}-priv.key`)
+        f.out.writeChars(key.priv.toStr).close
+        printLine("Exported ${alias} private key to: ${f.normalize.osPath}")
+      }
+
+      f   := File(`${alias}-cert.crt`)
       out := f.out
       key.certChain.each |cert| { out.writeChars(cert.toStr) }
       out.close
