@@ -83,7 +83,7 @@ Publish [#publish]
 To publish a message to the broker use the `mqttPublish()` func.
 
 pre>
-read(@myMqttConn).mqttPublish("/testTopic", "Hello, MQTT!", {mqttQos: 2})
+read(@myMqttConn).mqttPublish("testTopic", "Hello, MQTT!", {mqttQos: 2})
 <pre
 
 Subscribe [#subscribe]
@@ -111,7 +111,7 @@ messages for potentially multiple topics.
 pre>
 obsMqtt
 obsMqttConnRef: @myMqttConn
-obsMqttTopic: "/test/#"
+obsMqttTopic: "test/#"
 mqttQos: 2
 taskExpr:
 (obs) => do
