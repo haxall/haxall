@@ -6,7 +6,22 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
-*Build 3.1.3 (working)*
+*Build 3.1.3 (24-Feb-2022)*
+- New hxConn connector framework
+- New MQTT connector
+- New Nest connector
+- New Ecobee connector
+- Open source Haystack connector
+- Open source SQL connector
+- Open source Modbus connector
+- Open source oBIX connector
+- Open source Sedona connector
+- Redesigned hxSerial library replaces serialMod
+- New connector documentation in docHaxall
+- Refactor dateSpan, span coercion in Axon
+- New hx stub command line tool
+- New hx crypto command line tool (replaces tools::KeyMgr)
+- New funcs: streamCol, isNull, isNonNull
 
 *Build 3.1.2 (17-Dec-2021)*
 - New hxCrypto lib for arcbeam integration
