@@ -20,8 +20,6 @@ internal class CryptoCli : HxCli
 //////////////////////////////////////////////////////////////////////////
 
   private File dir := Env.cur.workDir + `var/`
-  private File? keystoreFile
-  private KeyStore? keystore
 
   private const Str[] args := Env.cur.args
   private [Str:Str]? argsMap
@@ -37,7 +35,6 @@ internal class CryptoCli : HxCli
 
   override Int run()
   {
-    if (!init) return 2
     switch (action)
     {
       case "add":    doAddKey
@@ -53,18 +50,18 @@ internal class CryptoCli : HxCli
     return 0
   }
 
-  private Bool init()
+  private once KeyStore keystore()
   {
     cryptoDir := dir.plus(`crypto/`).normalize
-    if (!cryptoDir.exists) { err("crypto directory does not exist: $cryptoDir"); return false }
+    if (!cryptoDir.exists) { exitErr("crypto directory does not exist: $cryptoDir") }
 
-    this.keystoreFile = cryptoDir.plus(`keystore.p12`)
-    if (!keystoreFile.exists) { err("keystore not found: $keystoreFile"); return false }
+    keystoreFile := cryptoDir.plus(`keystore.p12`)
+    if (!keystoreFile.exists) { exitErr("keystore not found: $keystoreFile") }
 
     pool := ActorPool { it.name = "CryptoCli" }
-    this.keystore = Type.find("hxCrypto::CryptoKeyStore").make([pool, keystoreFile, log])
+    keystore := Type.find("hxCrypto::CryptoKeyStore").make([pool, keystoreFile, log])
 
-    return true
+    return keystore
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -299,6 +296,8 @@ internal class CryptoCli : HxCli
         val = envArgs[i+1]
       this.argsMap[name] = val
     }
+
+    if (hasArg("d")) this.dir = parseArgToDir(argsMap["d"])
 
     return true
   }
