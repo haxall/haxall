@@ -195,6 +195,9 @@ Watch observations include the following tags:
 These are the config tags:
   - `obsFilter`: filter string for rec set to observe or omit for all recs
 
+If an 'obsFilter' is specified, then the initial list of matched recs which
+are currently in watch is fired upon subscription.
+
 Cur Vals [#obsCurVals]
 ======================
 The `obsCurVals` observable monitors transient commits to the `curVal` or

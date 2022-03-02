@@ -33,7 +33,7 @@ const class HxdObsService : Actor, HxObsService
     // built-ins
     schedule  = ScheduleObservable();  byName.add(schedule.name,  schedule)
     commits   = CommitsObservable(rt); byName.add(commits.name,   commits)
-    watches   = WatchesObservable();   byName.add(watches.name,   watches)
+    watches   = WatchesObservable(rt); byName.add(watches.name,   watches)
     curVals   = CurValsObservable();   byName.add(curVals.name,   curVals)
     hisWrites = HisWritesObservable(); byName.add(hisWrites.name, hisWrites)
 
@@ -319,11 +319,23 @@ internal const class CommitsSubscription : RecSubscription
 
 internal const class WatchesObservable : Observable
 {
+  new make(HxdRuntime rt) { this.rt = rt }
+
+  const HxdRuntime rt
+
   override Str name() { "obsWatches" }
 
   override Subscription onSubscribe(Observer observer, Dict config)
   {
-    WatchesSubscription(this, observer, config)
+    sub := WatchesSubscription(this, observer, config)
+    if (sub.filter != null)
+    {
+      // fire event for currently watched recs
+      recs := rt.db.readAllList(sub.filter).findAll |rec| { rt.watch.isWatched(rec.id) }
+      if (!recs.isEmpty)
+        sub.send(makeObservation(DateTime.now, Etc.makeDict2("subType", "watch", "recs", recs)))
+    }
+    return sub
   }
 
   Void fireWatch(Dict[] recs) { fire("watch", recs) }

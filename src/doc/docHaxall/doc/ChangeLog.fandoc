@@ -20,7 +20,7 @@
 - New connector documentation in docHaxall
 - Refactor dateSpan, span coercion in Axon
 - New hx stub command line tool
-- New hx crypto command line tool (replaces tools::KeyMgr)
+- New hx crypto command line tool
 - New funcs: streamCol, isNull, isNonNull
 
 *Build 3.1.2 (17-Dec-2021)*
