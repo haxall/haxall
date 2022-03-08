@@ -70,7 +70,7 @@ const class DocDef : Doc
 
   override Int compare(Obj that) { toStr <=> that.toStr }
 
-  DocProto[] children() { childrenRef.val }
+  DocProto[] children() { childrenRef.val ?: DocProto#.emptyList }
   internal const AtomicRef childrenRef := AtomicRef() // late bound
 }
 
