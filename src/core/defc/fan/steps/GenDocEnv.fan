@@ -152,7 +152,7 @@ internal class GenDocEnv : DefCompilerStep
 
   private DocDef addDefDoc(DocDef def)
   {
-    defsMap.add(def.symbol.toStr, def)
+    defsMap.set(def.symbol.toStr, def)
     return def
   }
 

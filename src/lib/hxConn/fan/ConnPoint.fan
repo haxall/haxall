@@ -382,7 +382,7 @@ const final class ConnPoint : HxConnPoint
              dis:            $dis
              rt:             $lib.rt.platform.hostModel [$lib.rt.version]
              lib:            $lib.typeof [$lib.typeof.pod.version]
-             conn:           $conn.dis [$conn.id]
+             conn:           $conn.dis [$conn.id] $conn.status
              kind:           $kind
              tz:             $tz
              unit:           $unit
