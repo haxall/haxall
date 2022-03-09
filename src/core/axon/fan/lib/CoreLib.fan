@@ -2397,6 +2397,22 @@ const class CoreLib
     return m.group
   }
 
+  ** Find all matches of the regular expression in 's'.
+  ** Returns an empty list of there are no matches.
+  **
+  ** Examples:
+  **   reFindAll(r"-?\d+\.?\d*", "foo, 123, bar, 456.78, -9, baz")
+  **     >> ["123", "456.78", "-9"]
+  **   reFindAll(r"\d+", "foo, bar, baz")
+  **     >> [,]
+  @Axon static Str[] reFindAll(Obj regex, Str s)
+  {
+    m   := AxonContext.curAxon.toRegex(regex).matcher(s)
+    acc := Str[,]
+    while (m.find) acc.add(m.group)
+    return acc
+  }
+
   ** Return a list of the substrings captured by matching the given
   ** regular operation against 's'.  Return null if no matches.  The
   ** first item in the list is the entire match, and each additional

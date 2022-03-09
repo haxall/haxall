@@ -1422,6 +1422,11 @@ class CoreLibTest : HaystackTest
     verifyEval(Str<|reFind(r"\d+", "x123y")|>, "123")
     verifyEval(Str<|reFind(r"\d\d\d", "34 456")|>, "456")
 
+    // findAll
+    verifyEval(Str<|reFindAll(r"-?\d+\.?\d*", "foo, 123, bar, 456.78, -9, baz")|>,
+      ["123", "456.78", "-9"])
+    verifyEval(Str<|reFindAll(r"-?\d+\.?\d*", "foo,  bar, baz")|>, Str[,])
+
     // groups
     verifyEval(Str<|reGroups(r"(Cool|Heat)-(\d+)", "xxx")|>, null)
     verifyEval(Str<|reGroups(r"(Cool|Heat)-(\d+)", "Cool")|>, null)
