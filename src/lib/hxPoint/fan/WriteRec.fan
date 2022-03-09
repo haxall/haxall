@@ -216,8 +216,8 @@ internal class WriteRec
   {
     // writeVal, writeLevel meta
     meta := Str:Obj[:]
-    meta.addNotNull("writeVal", rec["writeVal"])
-    meta.addNotNull("writeLevel", rec["writeLevel"])
+    meta.addNotNull("writeVal", lastVal)
+    meta.addNotNull("writeLevel", lastLevel)
 
     // parse enum
     Str[] enum := Str#.emptyList
