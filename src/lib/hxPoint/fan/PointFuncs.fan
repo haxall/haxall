@@ -194,6 +194,13 @@ const class PointFuncs
     lib(curContext).hisCollectMgr.writeAll.get(timeout?.toDuration)
   }
 
+  ** Force history collector to recreate its watch
+  @NoDoc @Axon { su = true }
+  static Obj? hisCollectReset(Number? timeout := null)
+  {
+    lib(curContext).hisCollectMgr.reset.get(timeout?.toDuration)
+  }
+
   ** Legacy support
   @Deprecated @NoDoc @Axon { admin = true }
   static Obj? pointExtSync() { curContext.rt.sync; return null }

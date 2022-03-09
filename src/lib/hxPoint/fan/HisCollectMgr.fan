@@ -21,6 +21,8 @@ internal const class HisCollectMgrActor : PointMgrActor
   new make(PointLib lib) : super(lib, 100ms, HisCollectMgr#) {}
 
   Future writeAll() { send(HxMsg("writeAll")) }
+
+  Future reset() { send(HxMsg("reset")) }
 }
 
 **************************************************************************
@@ -41,6 +43,7 @@ internal class HisCollectMgr : PointMgr
   override Obj? onReceive(HxMsg msg)
   {
     if (msg.id == "writeAll") return onWriteAll
+    if (msg.id == "reset") return onReset
     return super.onReceive(msg)
   }
 
@@ -94,11 +97,7 @@ internal class HisCollectMgr : PointMgr
 
     // create/recreate watch if necessary
     if (watch == null || watch.isClosed)
-    {
-      watch = rt.watch.open("HisCollect")
-      watch.lease = 1hr
-      watch.addAll(points.keys)
-    }
+      openWatch
 
     // read current state of all our points
     Dict?[]? recs := null
@@ -148,6 +147,22 @@ internal class HisCollectMgr : PointMgr
     }
     if (num > 0) log.info("hisCollectWriteAll [flushed $num points]")
     return Number(num)
+  }
+
+  private Obj? onReset()
+  {
+    log.info("hisCollectReset")
+    oldId := watch?.id
+    if (watch != null) watch.close
+    openWatch
+    return "Old: $oldId; New: $watch.id"
+  }
+
+  private Void openWatch()
+  {
+    watch = rt.watch.open("HisCollect")
+    watch.lease = 1hr
+    watch.addAll(points.keys)
   }
 
   private Ref:HisCollectRec points := [:]   // points tagged for hisCollect
