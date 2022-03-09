@@ -175,8 +175,19 @@ class DefChapterRenderer : DefDocRenderer
   {
     vimeo := chapter.meta["vimeo"]
     if (vimeo == null) return
-    uri := "https://player.vimeo.com/video/${vimeo}?title=0&amp;byline=0&amp;portrait=0"
-    out.w("<iframe style='border:1px solid #9f9f9f; margin: 1em 0;' src='").w(uri).w("'")
+    if (!vimeo.startsWith("https"))
+    {
+      // backwards compatibility for vimeo video id
+      vimeo = "https://player.vimeo.com/video/${vimeo}"
+    }
+
+    uri := vimeo.toUri.plusQuery([
+      "title":    "0",
+      "byline":   "0",
+      "portrait": "0",
+    ])
+
+    out.w("<iframe style='border:1px solid #9f9f9f; margin: 1em 0;' src='").w(uri.toStr).w("'")
        .w(" width='960' height='540' frameborder='0'")
        .w(" webkitAllowFullScreen mozallowfullscreen allowFullScreen>")
        .w("</iframe>\n")
