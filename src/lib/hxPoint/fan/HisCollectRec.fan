@@ -127,7 +127,7 @@ internal class HisCollectRec
     // only collect if curVal is more than tolerance
     lastNum := lastItem.curVal as Number
     curNum := curVal as Number
-    if (lastNum == null || curNum == null) return false
+    if (lastNum == null || curNum == null) return true
     return (lastNum.toFloat - curNum.toFloat).abs >= ((Number)cov).toFloat
   }
 

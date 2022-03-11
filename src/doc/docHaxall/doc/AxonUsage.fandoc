@@ -205,8 +205,8 @@ Joins between two grids may be done by column name using `join` or `joinAll`:
 
 Regex Examples [#regex]
 ***********************
-Regular expressions can be used via the `reMatches`, `reFind`, and
-`reGroups` functions.  Typically you will want to use raw string
+Regular expressions can be used via the `reMatches`, `reFind`, `reFindAll`,
+and `reGroups` functions.  Typically you will want to use raw string
 literals 'r""' to avoid escaping the backslash:
 
   // check match for entire string

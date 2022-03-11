@@ -46,6 +46,7 @@ internal class DemoMgr : PointMgr
       if (rec.missing("cur")) return
       if (rec.has("noDemoMode")) return
       if (rec.has("curSource")) return
+      if (rec.has("curTracksWrite")) return
       if (rec.has("point") && rec["weatherStationRef"] is Ref) return
       if (rec.has("schedule") || rec.has("calendar")) return
       if (lib.rt.conn.isPoint(rec.id)) return
