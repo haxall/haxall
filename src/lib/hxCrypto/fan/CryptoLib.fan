@@ -99,12 +99,6 @@ const class CryptoLib : HxLib, HxCryptoService
     System.setProperty("javax.net.ssl.trustStore", keystoreFile.osPath)
     System.setProperty("javax.net.ssl.trustStorePassword", "changeit")
   }
-
-  override Void onStop()
-  {
-    ((CryptoKeyStore)keystore).autosave
-  }
-
 }
 
 

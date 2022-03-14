@@ -32,6 +32,14 @@ internal const class CryptoKeyStore : KeyStore
     }
     this.keystore = Crypto.cur.loadKeyStore(file.exists ? file : null)
     loadJvm
+    backup
+  }
+
+  ** Backup the keystore file
+  private Void backup()
+  {
+    backupFile := file.plus(`${file.basename}-bkup.${file.ext}`)
+    file.copyTo(backupFile, ["overwrite":true])
   }
 
   private Void loadJvm()
