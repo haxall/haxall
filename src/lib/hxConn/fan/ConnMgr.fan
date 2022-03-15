@@ -186,7 +186,6 @@ internal final class ConnMgr
     catch (Err e)
       log.err("onClose", e)
     vars.clearLinger
-    vars.clearPins
     isOpen = false
     if (cause is Err)
       updateConnErr(cause)
