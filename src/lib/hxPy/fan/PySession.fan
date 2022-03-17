@@ -106,7 +106,7 @@ mixin PySession
   Uri? serverUri { private set }
 
   ** Socket config
-  const SocketConfig socketConfig := SocketConfig.cur
+  const SocketConfig socketConfig := SocketConfig.cur.copy { it.receiveTimeout = null }
 
   ** Session log
   const Log log := Log.get("py")
