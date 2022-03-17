@@ -32,6 +32,8 @@ const class PyFuncs
   **   - 'logLevel': log level of the hxpy python process in Docker. Valid values
   **   are 'WARN', 'INFO', 'DEBUG', (default='WARN')
   **
+  ** The default timeout for `pyEval()` is 5min. Use `pyTimeout()` to change this timeout.
+  **
   ** Sessions created in the context of a task are persistent, meaning they will
   ** not be closed until the task is killed.
   @Axon{ admin=true }

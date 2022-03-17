@@ -121,7 +121,7 @@ mixin PySession
   private TcpSocket? socket
 
   ** Eval timeout
-  private Duration? evalTimeout := null
+  private Duration? evalTimeout := 5min
 
   ** Have we initialized
   Bool isInitialized := false
