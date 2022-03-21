@@ -100,7 +100,7 @@ const class DockerFuncs
   @Axon { admin=true }
   static Str dockerRun(Str image, Obj config := Etc.emptyDict)
   {
-    lib.dockerMgr.run(image, config)
+    lib.dockerMgr.run(image, config).id
   }
 
 //////////////////////////////////////////////////////////////////////////

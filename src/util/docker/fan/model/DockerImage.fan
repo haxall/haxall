@@ -13,6 +13,7 @@ const class DockerImage : DockerObj
 {
   new make(|This| f) : super(f)
   {
+    f(this)
   }
 
   const Str id

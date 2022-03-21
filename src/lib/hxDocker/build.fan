@@ -28,13 +28,14 @@ class Build : BuildPod
                ]
     depends  = ["sys @{fan.depend}",
                 "concurrent @{fan.depend}",
+                "inet @{fan.depend}",
                 "util @{fan.depend}",
                 "haystack @{hx.depend}",
                 "hx @{hx.depend}",
                 "axon @{hx.depend}",
                 "docker @{hx.depend}",
                ]
-    srcDirs = [`fan/`]
+    srcDirs = [`fan/`, `fan/model/`]
     resDirs = [`lib/`]
     index   = ["ph.lib": "docker"]
   }

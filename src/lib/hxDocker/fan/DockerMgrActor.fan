@@ -82,6 +82,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
     switch (msg.id)
     {
       case "run":              return onRun(msg.a, msg.b)
+      case "endpointSettings": return onEndpointSettings(msg.a, msg.b)
       case "stopContainer":    return onStopContainer(msg.a)
       case "deleteContainer":  return onDeleteContainer(msg.a)
       case "shutdown":         return onShutdown
@@ -93,7 +94,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
 // Run
 //////////////////////////////////////////////////////////////////////////
 
-  private Str onRun(Str image, Obj config)
+  private HxDockerContainer onRun(Str image, Obj config)
   {
     // TODO:SECURITY: check image is accessible
 
@@ -114,8 +115,12 @@ internal const class DockerMgrActor : Actor, HxDockerService
       throw Err("Failed to start container for image ${image}", err)
     }
 
-    // return the container id
-    return id
+    // return the container
+    container := client.listContainers
+      .withFilters(Filters().withFilter("id", [id]).build)
+      .exec.first
+
+    return MHxDockerContainer(container)
   }
 
   ** Decodes json into CreateContainerCmd. It overwrites any volume binds
@@ -134,6 +139,24 @@ internal const class DockerMgrActor : Actor, HxDockerService
     ])
 
     return cmd
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Endpoint Settings
+//////////////////////////////////////////////////////////////////////////
+
+  private HxDockerEndpoint? onEndpointSettings(Str id, Str network)
+  {
+    containers := client.listContainers
+      .withFilters(Filters().withFilter("id", [checkManaged(id)]).build)
+      .exec
+    if (containers.isEmpty) throw Err("No container with id $id")
+    if (containers.size > 1) throw Err("Multiple containers with id $id: ${containers.size}")
+
+    endpoint := containers.first.network(network)
+    if (endpoint == null) return null
+
+    return MHxDockerEndpoint(endpoint)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -241,10 +264,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
 
   StatusRes onStopContainer(Str id)
   {
-    obj := containers.get(id)
-    if (obj == null) throw ArgErr("No managed container with id: $id")
-
-    return client.stopContainer(id).withWait(1sec).exec
+    client.stopContainer(checkManaged(id)).withWait(1sec).exec
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -253,11 +273,8 @@ internal const class DockerMgrActor : Actor, HxDockerService
 
   private StatusRes onDeleteContainer(Str id)
   {
-    obj := containers.get(id)
-    if (obj == null) throw ArgErr("No managed container with id: $id")
-
     // forcefully kill the container and remove it
-    res := client.removeContainer(id).withForce(true).exec
+    res := client.removeContainer(checkManaged(id)).withForce(true).exec
 
     // remove from managed containers
     // 404 - no such container
@@ -315,6 +332,13 @@ internal const class DockerMgrActor : Actor, HxDockerService
     {
       if (host != null) it.daemonHost = host
     }
+  }
+
+  private Str checkManaged(Str id)
+  {
+    obj := containers.get(id)
+    if (obj == null) throw ArgErr("No managed container with id: $id")
+    return id
   }
 
   private static Dict resToDict(Ref id, StatusRes res)

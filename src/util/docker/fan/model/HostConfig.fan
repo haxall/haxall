@@ -48,4 +48,11 @@ class HostConfig
     portBindings.getOrAdd(container) |->PortBinding[]| { PortBinding[,] }.add(host)
     return this
   }
+
+  ** Network mode to use for this container. Supported standard values are:
+  ** 'bridge', 'host', 'none', and 'container:<name|id>'. Any other value is taken
+  ** as a custom network's name to which this container should connect to.
+  Str? networkMode { private set }
+  ** Set the `networkMode` and return this
+  This withNetworkMode(Str networkMode) { this.networkMode = networkMode; return this }
 }

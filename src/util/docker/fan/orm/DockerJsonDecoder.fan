@@ -63,7 +63,7 @@ using util
 
     keyType := mapType.params["K"]
     valType := mapType.params["V"]
-    map := Map(mapType)
+    map := (Obj:Obj?)Map(mapType)
     v.each |val, key|
     {
       map[decodeVal(key, keyType)] = decodeVal(val, valType)
@@ -86,7 +86,7 @@ using util
     fromJson := type.method("fromJson", false)
     if (fromJson != null) return fromJson.call(json)
 
-    fields := Field:Obj[:]
+    fields := Field:Obj?[:]
 
     // map json properties to fields
     json.each |val, propName|

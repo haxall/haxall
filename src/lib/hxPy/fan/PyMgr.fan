@@ -295,8 +295,8 @@ internal class PyDockerSession : PySession
   ** HxpySession
   private HxpySession session
 
-  ** Docker container id spawned by this session
-  internal Str? cid := null
+  ** Docker container spawned by this session
+  internal HxDockerContainer? container := null
 
 //////////////////////////////////////////////////////////////////////////
 // Open
@@ -309,31 +309,50 @@ internal class PyDockerSession : PySession
     // run docker container
     key    := Uuid()
     level  := ((Str)opts.get("logLevel", "WARN" )).upper
-    port   := (opts.get("port") as Number)?.toInt ?: findOpenPort
+    net    := opts.get("network")
+    port   := 8888
+    if (net == null)
+    {
+      // if no docker network is specified, then check the options
+      // or find an open port
+      port = (opts.get("port") as Number)?.toInt ?: findOpenPort
+    }
+    hostConfig := Str:Obj?[
+      "portBindings": [
+          "8888/tcp": [ ["hostPort": "$port"] ],
+      ],
+      "networkMode": net,
+    ]
     config := Str:Obj?[
       "cmd": ["-m", "hxpy", "--key", "$key", "--level", level],
       "exposedPorts": ["8888/tcp": [:]],
-      "hostConfig": Str:Obj?[
-        "portBindings": [
-          "8888/tcp": [ ["hostPort": "$port"] ],
-        ],
-      ],
+      "hostConfig": hostConfig,
     ]
 
-    this.cid = priorityImageNames(opts).eachWhile |image->Str?|
+    this.container = priorityImageNames(opts).eachWhile |image->HxDockerContainer?|
     {
       try
       {
         return dockerService.run(image, config)
       }
-      catch (Err ignore) { return null }
+      catch (Err ignore)
+      {
+        // ignore.trace
+        return null
+      }
     } ?: throw Err("Could not find any matching docker image: ${priorityImageNames(opts)}")
+
+    // determine the host address to connect to. if a docker network
+    // was specified (for docker within docker use case), then use the ip address
+    // of the container that was created
+    host := "localhost"
+    if (net != null) host = container.network(net).ip.toStr
 
     // now connect the HxpySession with retries. retry is necessary because the
     // container might have started, but the python hxpy server might not yet
     // have opened the port for accepting connections
     retry := (opts.get("maxRetry") as Number)?.toInt ?: 5
-    uri   := `tcp://localhost:${port}?key=${key}`
+    uri   := `tcp://${host}:${port}?key=${key}`
     while (true)
     {
       try
@@ -445,10 +464,10 @@ internal class PyDockerSession : PySession
     // delete the container
     try
     {
-      if (this.cid != null)
+      if (this.container != null)
       {
-        dockerService.deleteContainer(this.cid)
-        this.cid = null
+        dockerService.deleteContainer(container.id)
+        this.container = null
       }
     }
     catch (Err ignore)

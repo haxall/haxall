@@ -8,6 +8,7 @@
 
 using concurrent
 using crypto
+using inet
 using haystack
 using axon
 using web
@@ -590,8 +591,8 @@ const class NilConnService : HxConnService
 const mixin HxDockerService : HxService
 {
   ** Run a Docker image using the given container configuration.
-  ** Returns the container id.
-  Str run(Str image, Obj config) { runAsync(image, config).get }
+  ** Returns the `HxDockerContainer` that was created.
+  HxDockerContainer run(Str image, Obj config) { runAsync(image, config).get }
 
   ** Async version of `run`. Returns a Future that is completed
   ** with the container id once it is started.
@@ -599,5 +600,50 @@ const mixin HxDockerService : HxService
 
   ** Kill the container with the given id, and then remove it
   abstract Dict deleteContainer(Str id)
+}
+
+**
+** Models a Docker container
+**
+@NoDoc
+const mixin HxDockerContainer
+{
+  ** The id of the container
+  abstract Str id()
+
+  ** The names that this container has been given
+  abstract Str[] names()
+
+  ** The name of the image used when creating the container
+  abstract Str image()
+
+  ** The timestamp when the container was created
+  abstract DateTime created()
+
+  ** Addtional human-readable status of this container
+  abstract Str state()
+
+  ** Get the network endpoint settings for the docker network with the given name
+  abstract HxDockerEndpoint? network(Str name)
+}
+
+
+**
+** Models a Docker container network endpoint
+**
+@NoDoc
+const mixin HxDockerEndpoint
+{
+  ** The IPv4 network gateway
+  abstract IpAddr? gateway()
+
+  ** The IPv4 address
+  abstract IpAddr? ip()
+
+  ** The IPv6 network gateway
+  abstract IpAddr? gateway6()
+
+  ** The IPv6 address
+  abstract IpAddr? ip6()
 }
 

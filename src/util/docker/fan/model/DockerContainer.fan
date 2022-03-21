@@ -13,6 +13,7 @@ const class DockerContainer : DockerObj
 {
   new make(|This| f) : super(f)
   {
+    f(this)
   }
 
   ** The ID of this container
@@ -50,8 +51,16 @@ const class DockerContainer : DockerObj
   ** Additional human-readable status of this container (e.g. 'Exit 0')
   const Str status
 
+  ** Network settings. Use `network()` to get the endpoint configuration for
+  ** a specific network
+  const [Str:[Str:EndpointSettings]] networkSettings := [:]
+
+  EndpointSettings? network(Str name)
+  {
+    networkSettings["Networks"]?.get(name)
+  }
+
   // TODO: HostConfig
-  // TODO: NetworkSettings
   // TODO: Mounts
 
   ** Get the timestamp the container was created at
