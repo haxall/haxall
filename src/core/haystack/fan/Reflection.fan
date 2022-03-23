@@ -31,10 +31,6 @@ const mixin Reflection
   ** Does any of the subject's tags fit the given base def
   abstract Bool fits(Def base)
 
-  ** Find most narrow choice 'of' based on current subject.  For example
-  ** if subject fits 'pipe' and choice is 'conveys' then return 'fluid'.
-  abstract Def narrowChoice(Def choice)
-
   ** Return best fit, most specific entity marker(s) for the subject.
   ** This function automatically removes supertype tags.  For example if
   ** the subject is '{rtu, ahu, equip}', then just '[rtu]' is returned.

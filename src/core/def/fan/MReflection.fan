@@ -109,27 +109,6 @@ internal const class MReflection : Reflection
     return acc
   }
 
-  override Def narrowChoice(Def choice)
-  {
-    // verify choice
-    if (!ns.fitsChoice(choice)) throw Err("Not choice def: $choice")
-
-    // walk every def our subject implements and collect all
-    // unique matches of this choice declared in the def itself
-    matches := Def[,]
-    defs.each |x|
-    {
-      def := DefUtil.resolve(ns, x[choice.name] as Symbol)
-      if (def == null) return
-      if (matches.size == 1 && matches[0] === def) return
-      matches.add(def)
-    }
-    if (matches.size == 1) return matches[0]
-
-    // fallback to the choice's 'of' tag
-    return DefUtil.resolve(ns, choice["of"]) ?: ns.quick.marker
-  }
-
   override Grid toGrid()
   {
     Etc.makeDictsGrid(null, defs)

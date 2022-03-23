@@ -13,7 +13,9 @@ mandatory
 uiNewEntity
 linter: "LintTask"
 doc: "Dispatch task function"
-observes: ^observable
+--------------------------------------------------------------------------
+defx: ^observes
+tagOn: ^task
 --------------------------------------------------------------------------
 def: ^taskExpr
 is: ^expr

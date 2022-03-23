@@ -71,6 +71,9 @@ internal class Validate : DefCompilerStep
     if (name == "of")
       verifyOfTag(def, pair)
 
+    if (tag.isChoice && pair.val !== Marker.val)
+      err("Choice tag '$name' must use tagOn", def.loc)
+
     if (tag.isRelationship && !def.isRef)
       err("Cannot apply relationship tag '$name' to non-ref '$def'", def.loc)
   }

@@ -43,7 +43,7 @@ implements one runtime for the host via `skyarcd::Sys.rt`.  Each project is
 also a full runtime via `skyarcd::Proj.rt`.
 
 SkySpark runs some low-level libs at the host level as *SysMods*.  For
-example, there is only one instane of the 'http', 'api', and 'user' libs (shared
+example, there is only one instance of the 'http', 'api', and 'user' libs (shared
 by all projects as SysMods).  Then each run project runs its own instance
 of *Exts* which includes libs like 'point', 'task', 'conn', etc.  The Haxall
 documentation will often use the term library/lib and extension/ext

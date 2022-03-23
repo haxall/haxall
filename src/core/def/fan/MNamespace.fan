@@ -156,8 +156,6 @@ abstract const class MNamespace : Namespace
 
   override Def[] associations(Def parent, Def assoc) { lazy.associations(parent, assoc) }
 
-  override Def[] choices(Def def) { lazy.choices(def) }
-
   override final Def? kindDef(Obj? val, Bool checked := true)
   {
     if (val != null)

@@ -88,47 +88,6 @@ const class MLazy
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Choices
-//////////////////////////////////////////////////////////////////////////
-
-  Def[] choices(Def def)
-  {
-    key := def.symbol.toStr
-    r := choicesCache[key]
-    if (r == null) choicesCache[key] = r = doChoices(def)
-    return r
-  }
-
-  private Def[] doChoices(Def def)
-  {
-    // iterate the tags on the def itself
-    acc := Def[,]
-    def.each |v, n|
-    {
-      // choices must have Symbol values
-      symbol := v as Symbol
-      if (symbol == null || !symbol.type.isTerm) return
-
-      // resolve symbol value
-      val := ns.def(symbol.toStr, false)
-      if (val == null) return
-
-      // resolve tag definition and check if choice subtype
-      tag := ns.def(n, false)
-      if (tag == null) return
-      if (!ns.fits(tag, ns.quick.choice)) return
-
-      // check if value has subtype
-      if (!ns.hasSubtypes(val)) return
-
-      // match!
-      acc.add(tag)
-    }
-    if (acc.isEmpty) return Def#.emptyList
-    return acc.toImmutable
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // ContainedByRefs
 //////////////////////////////////////////////////////////////////////////
 

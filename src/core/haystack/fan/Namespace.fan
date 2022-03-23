@@ -130,11 +130,6 @@ const mixin Namespace
   ** Convenience for 'associations(parent, ^tags)'
   @NoDoc abstract Def[] tags(Def parent)
 
-  ** Return all choices on the given def.  These are any tags
-  ** on the def itself which a) subtype from 'choice' and b) have
-  ** a value with subtypes
-  @NoDoc abstract Def[] choices(Def def)
-
   ** Match the value to one of the core kind defs
   @NoDoc abstract Def? kindDef(Obj? val, Bool checked := true)
 
