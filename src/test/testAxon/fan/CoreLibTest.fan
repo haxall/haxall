@@ -707,6 +707,11 @@ class CoreLibTest : HaystackTest
 
     verifyEq(makeContext.call("refDis", [Ref("x", "Dis!")]), "Dis!")
     verifyEval(Str<|format(@foo)|>, "foo")
+
+    verifyEval("refProjName(@p:demo:r:xxx)", "demo")
+    verifyEval("refProjName(@r:xxx, false)",  null)
+    verifyErr(EvalErr#) { eval("refProjName(@r:xxx)") }
+    verifyErr(EvalErr#) { eval("refProjName(@r:xxx, true)") }
   }
 
 //////////////////////////////////////////////////////////////////////////

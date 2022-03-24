@@ -2566,6 +2566,21 @@ const class CoreLib
   ** Given a ref return `haystack::Ref.dis`
   @Axon static Str refDis(Ref ref) { ref.dis }
 
+  ** Given an absolute ref, return its project name.  If the ref
+  ** is not formatted as "p:proj:r:xxx", then raise an exception or
+  ** return null based on the checked flag:
+  **
+  ** Examples:
+  **    refProjName(@p:demo:r:xxx)   >>  "demo"
+  **    refProjName(@r:xxx)          >>  raises exception
+  **    refProjName(@r:xxx, false)   >>  null
+  @Axon static Str? refProjName(Ref ref, Bool checked := true)
+  {
+    if (ref.isProjRec) return ref.segs[0].body
+    if (checked) throw ArgErr("Ref is not project record: $ref.toCode")
+    return null
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Coord
 //////////////////////////////////////////////////////////////////////////
