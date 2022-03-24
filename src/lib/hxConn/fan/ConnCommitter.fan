@@ -78,6 +78,10 @@ internal const final class ConnCommitter
     {
       lib.rt.db.commit(Diff(rec, changes, Diff.forceTransient))
     }
+    catch (ShutdownErr e)
+    {
+      // ignore
+    }
     catch (Err e)
     {
       // don't report if record has been removed

@@ -455,6 +455,68 @@ class CoreLibTest : HaystackTest
     verifyEval(Str<|"abc".getSafe(-4..-1)|>, "abc")
     verifyEval(Str<|"abc".getSafe(-5..-3)|>, "a")
     verifyEval(Str<|"abc".getSafe(-5..-4)|>, "")
+
+    verifyBlock(
+      """acc: []
+         each("abcd") (ch) => acc = acc.add(ch)
+         acc""",
+         Obj?[n('a'), n('b'), n('c'), n('d')])
+
+    verifyBlock(
+      """acc: []
+         each("abcd") (ch, i) => acc = acc.add(ch).add(i)
+         acc""",
+         Obj?[n('a'), n(0), n('b'), n(1), n('c'), n(2), n('d'), n(3)])
+
+    verifyBlock(
+      """acc: []
+         r: eachWhile("abcd") (ch) => do
+           acc = acc.add(ch)
+           if (ch.toChar == "c") "break"
+         end
+         acc.add(r)""",
+         Obj?[n('a'), n('b'), n('c'), "break"])
+
+    verifyBlock(
+      """acc: []
+         r: eachWhile("abcd") (ch, i) => do
+           acc = acc.add(ch).add(i)
+           if (i == 1) "break"
+         end
+         acc.add(r)""",
+         Obj?[n('a'), n(0), n('b'), n(1), "break"])
+
+    verifyBlock(
+      """acc: []
+         r: eachWhile("abcd") (ch, i) => do
+           acc = acc.add(ch).add(i)
+           null
+         end
+         acc.add(r)""",
+         Obj?[n('a'), n(0), n('b'), n(1), n('c'), n(2), n('d'), n(3), null])
+
+    verifyEval(Str<|"abc".any(ch=>ch.isUpper)|>, false)
+    verifyEval(Str<|"aBc".any(ch=>ch.isUpper)|>, true)
+    verifyEval(Str<|"aBc".all(ch=>ch.isUpper)|>, false)
+    verifyEval(Str<|"ABC".all(ch=>ch.isUpper)|>, true)
+
+    verifyBlock(
+      """acc: []
+         r: "abc".any((ch, i) => do
+           acc = acc.add(ch).add(i)
+           false
+         end)
+         acc.add(r)""",
+         Obj?[n('a'), n(0), n('b'), n(1), n('c'), n(2), false])
+
+    verifyBlock(
+      """acc: []
+         r: "abc".all((ch, i) => do
+           acc = acc.add(ch).add(i)
+           true
+         end)
+         acc.add(r)""",
+         Obj?[n('a'), n(0), n('b'), n(1), n('c'), n(2), true])
   }
 
 //////////////////////////////////////////////////////////////////////////

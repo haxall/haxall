@@ -319,6 +319,7 @@ const class CoreLib
   **   - Grid: iterate the rows as (row, index)
   **   - List: iterate the items as (value, index)
   **   - Dict: iterate the name/value pairs (value, name)
+  **   - Str: iterate the characters as numbers (char, index)
   **   - Range: iterate the integer range (integer)
   **   - Stream: iterate items as (val); see `docHaxall::Streams#each`
   @Axon static Obj? each(Obj val, Fn fn)
@@ -327,6 +328,7 @@ const class CoreLib
     if (val is Grid) { ((Grid)val).each(toGridIterator(fn)); return null }
     if (val is Dict) { ((Dict)val).each(toDictIterator(fn)); return null }
     if (val is List) { ((List)val).each(toListIterator(fn)); return null }
+    if (val is Str)  { ((Str)val).each(toStrIterator(fn)); return null }
     if (val is ObjRange) { ((ObjRange)val).toIntRange.each(toRangeIterator(fn)); return null }
     throw argErr("each", val)
   }
@@ -338,6 +340,7 @@ const class CoreLib
   **   - Grid: iterate the rows as (row, index)
   **   - List: iterate the items as (val, index)
   **   - Dict: iterate the name/value pairs (val, name)
+  **   - Str: iterate the characters as numbers (char, index)
   **   - Range: iterate the integer range (integer)
   **   - Stream: iterate items as (val); see `docHaxall::Streams#eachWhile`
   @Axon static Obj? eachWhile(Obj val, Fn fn)
@@ -346,6 +349,7 @@ const class CoreLib
     if (val is Grid) return ((Grid)val).eachWhile(toGridIterator(fn))
     if (val is Dict) return ((Dict)val).eachWhile(toDictIterator(fn))
     if (val is List) return ((List)val).eachWhile(toListIterator(fn))
+    if (val is Str)  return ((Str)val).eachWhile(toStrIterator(fn))
     if (val is ObjRange) return ((ObjRange)val).toIntRange.eachWhile(toRangeIterator(fn))
     throw argErr("eachWhile", val)
   }
@@ -469,6 +473,9 @@ const class CoreLib
   ** If working with a grid, the function takes '(row)'
   ** or '(row, index)' and returns true or false.
   **
+  ** If working with a string, the function takes '(char)'
+  ** or '(char, index)' and returns true or false.
+  **
   ** If working with a stream, then function takes '(val)'
   ** and returns true or false.  See `docHaxall::Streams#all`.
   **
@@ -481,6 +488,7 @@ const class CoreLib
     if (val is Grid) return ((Grid)val).all(toGridIterator(fn))
     if (val is List) return ((List)val).all(toListIterator(fn))
     if (val is Dict) return Etc.dictAll(val, toDictIterator(fn))
+    if (val is Str) return ((Str)val).all(toStrIterator(fn))
     throw argErr("any", val)
   }
 
@@ -497,6 +505,9 @@ const class CoreLib
   ** If working with a grid, the function takes '(row)'
   ** or '(row, index)' and returns true or false.
   **
+  ** If working with a string, the function takes '(char)'
+  ** or '(char, index)' and returns true or false.
+  **
   ** If working with a stream, then function takes '(val)'
   ** and returns true or false.  See `docHaxall::Streams#any`.
   **
@@ -509,6 +520,7 @@ const class CoreLib
     if (val is Grid) return ((Grid)val).any(toGridIterator(fn))
     if (val is List) return ((List)val).any(toListIterator(fn))
     if (val is Dict) return Etc.dictAny(val, toDictIterator(fn))
+    if (val is Str) return ((Str)val).any(toStrIterator(fn))
     throw argErr("any", val)
   }
 
@@ -660,6 +672,16 @@ const class CoreLib
     return |Obj? v, Int i->Obj?|
     {
       fn.call(cx, args.set(0, v).set(1, Number.makeInt(i)))
+    }
+  }
+
+  private static Func toStrIterator(Fn fn)
+  {
+    cx := AxonContext.curAxon
+    args := [null, null]
+    return |Int ch, Int i->Obj?|
+    {
+      fn.call(cx, args.set(0, Number.makeInt(ch)).set(1, Number.makeInt(i)))
     }
   }
 
