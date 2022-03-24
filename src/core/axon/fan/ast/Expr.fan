@@ -183,14 +183,20 @@ const abstract class Expr
   ** Is this the marker literal
   @NoDoc Bool isMarker() { type === ExprType.literal && ((Literal)this).val === Marker.val }
 
-  ** If this expr is a call return the func name being called, otherwise null
+  ** If this expr is a call return the unqualified func name being called, otherwise null
   @NoDoc Str? asCallFuncName()
   {
     if (type === ExprType.dotCall) return ((DotCall)this).funcName
     if (type === ExprType.call)
     {
       target := ((Call)this).target as Var
-      if (target != null) return target.name
+      if (target != null)
+      {
+        name := target.name
+        colon := name.indexr(":")
+        if (colon != null) name = name[colon+1..-1]
+        return name
+      }
     }
     return null
   }

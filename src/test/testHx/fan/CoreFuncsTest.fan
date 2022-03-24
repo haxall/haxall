@@ -38,7 +38,7 @@ class CoreFuncsTest : HxTest
     addem    := addFuncRec("addem", "(a, b) => do x: a; y: b; x + y; end")
     findFive := addFuncRec("findFive", "() => read(def==^func:five)")
     findDan  := addFuncRec("findDan",  "() => read(smart)")
-    allOld   := addFuncRec("allOld",   "() => readAll(old).sort(\"n\")")
+    allOld   := addFuncRec("allOld",   "() => readAll(old).sort(\"dis\")")
 
     // readById
     verifyEval("readById($c.id.toCode)", c)
@@ -58,15 +58,19 @@ class CoreFuncsTest : HxTest
     verifyDictEq(eval("readByIds([$a.id.toCode, @badId], false)")->get(1), Etc.emptyDict)
 
     // trap on id
-    verifyEq(eval("(${a.id.toCode})->n"), "andy")
+    verifyEq(eval("(${a.id.toCode})->dis"), "andy")
     verifyEq(eval("readById($a.id.toCode)->age"), n(10))
 
     // read
     verifyEval("read(smart)", d)
     verifyEval("do f: \"smart\".parseFilter; read(f); end", d)
+    verifyEval("do f: \"ndy\".parseSearch; read(f); end", a)
     verifyEval("read(\"smart\".parseFilter)", d)
+    verifyEval("read(\"bri\".parseSearch)", b)
     verifyEval("read(parseFilter(\"smart\"))", d)
+    verifyEval("read(parseSearch(\"charlie\"))", c)
     verifyEval("parseFilter(\"smart\").read", d)
+    verifyEval("parseSearch(\"charlie\").read", c)
     verifyEval("read(fooBar, false)", null)
     verifyEvalErr("read(fooBar)", UnknownRecErr#)
     verifyEvalErr("read(fooBar, true)", UnknownRecErr#)
@@ -97,7 +101,7 @@ class CoreFuncsTest : HxTest
     verifyGridList("readAllTagVals(age < 20, \"id\")", "val", [a.id])
 
     dict := (Dict)eval("readLink($d.id.toCode)")
-    verifyEq(Etc.dictNames(dict), ["id", "age", "n", "old", "smart", "mod"])
+    verifyEq(Etc.dictNames(dict), ["id", "age", "dis", "old", "smart", "mod"])
 
     // rec functions
     verifyEval("five()", n(5))
@@ -110,7 +114,7 @@ class CoreFuncsTest : HxTest
 
   Dict makeRec(Str name, Int age, Str[] markers)
   {
-    tags := Str:Obj?["n":name, "age":n(age)]
+    tags := Str:Obj?["dis":name, "age":n(age)]
     markers.each |marker| { tags.add(marker, Marker.val) }
     return addRec(tags)
   }
@@ -518,6 +522,15 @@ class CoreFuncsTest : HxTest
     verifyEq(cols.size, 2)
     verifyEq(cols[0].name, "dis")
     verifyEq(cols[1].name, "x")
+
+    grid = eval(Str<|readAll(x).sort("dis").filter(parseFilter("x > 20"))|>) // filter + parseFilter
+    verifyEq(grid.size, 2)
+    verifyEq(grid[0]->dis, "charles")
+    verifyEq(grid[1]->dis, "dan")
+
+    list = eval(Str<|readAll(x).sort("dis").toRecList.filter(parseSearch("bri"))|>) // filter + parseSearch
+    verifyEq(list.size, 1)
+    verifyEq(list[0]->dis, "brian")
   }
 
 

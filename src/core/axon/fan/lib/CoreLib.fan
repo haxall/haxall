@@ -467,6 +467,11 @@ const class CoreLib
   **  - Col[]: returns list of columns filtered by their meta
   **  - Stream: filters stream of Dicts - see `docHaxall::Streams#filter`
   **
+  ** The filter parameter may one fo the following:
+  **   - Axon expression which maps to a filter
+  **   - Filter from `parseFilter()`
+  **   - Filter from `parseSearch()`
+  **
   ** Examples:
   **   // apply to a list of dicts
   **   [{v:1}, {v:2}, {v:3}, {v:4}].filter(v >= 3)
@@ -479,6 +484,9 @@ const class CoreLib
   **
   **   // apply to a stream of dicts
   **   readAllStream(equip).filter(siteMeter and elec and meter).collect
+  **
+  **   // apply search filter
+  **   readAll(equip).filter(parseSearch("RTU-1"))
   **
   @Axon static Obj filter(Expr val, Expr filterExpr)
   {
@@ -2277,8 +2285,9 @@ const class CoreLib
     Symbol.fromStr(val, checked)
   }
 
-  ** Parse a string into a [Filter]`haystack::Filter` which may be used with
-  ** the `read` or `readAll` function.  Also see `filter()` and `filterToFunc()`.
+  ** Parse a filter string into a [Filter]`haystack::Filter` instance.
+  ** The resulting filter can then be used with `read()`, `readAll()`,
+  ** `filter()`, or `filterToFunc()`.
   **
   ** Example:
   **   str: "point and kw"
@@ -2286,6 +2295,25 @@ const class CoreLib
   @Axon static Obj? parseFilter(Str val, Bool checked := true)
   {
     Filter.fromStr(val, checked)
+  }
+
+  ** Parse a search string into a [Filter]`haystack::Filter` instance.
+  ** The resulting filter can then be used with `read()`, `readAll()`,
+  ** `filter()`, or `filterToFunc()`.
+  **
+  ** The search string is one of the following free patterns:
+  **  - '*<glob>*' case insensitive glob with ? and * wildcards (default)
+  **  - 're:<regex>' regular expression
+  **  - 'f:<filter>' haystack filter
+  **
+  ** See `docFresco::Nav#searching` for additional details on search syntax.
+  **
+  ** Examples:
+  **   readAll(parseSearch("RTU-1"))
+  **   readAll(point).filter(parseSearch("RTU* Fan"))
+  @Axon static Filter parseSearch(Str val)
+  {
+    Filter.search(val)
   }
 
   ** Convert a [filter]`docHaystack::Filters` expression to a function

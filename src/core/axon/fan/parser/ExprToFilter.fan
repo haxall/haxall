@@ -52,11 +52,9 @@ internal class ExprToFilter
       if (var is Filter) return var
     }
 
-    // check if this is call to to parseFilter
+    // check if this is call to to parseFilter or parseSearch
     callName := expr.asCallFuncName
-    if (callName == "parseFilter" ||
-        callName == "axon::parseFilter" ||
-        callName == "core::parseFilter")
+    if (callName == "parseFilter" || callName == "parseSearch")
       return expr.eval(cx)
 
     // isA symbol
