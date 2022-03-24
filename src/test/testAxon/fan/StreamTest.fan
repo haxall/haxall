@@ -43,6 +43,9 @@ class StreamTest : AxonTest
     verifyStream("[1, 2, 3, 4].stream.findAll(v=>v.isEven).collect", Obj?[n(2), n(4)])
     verifyStream("[1, 2, 3, 4].stream.findAll(v=>v.isEven).map(v=>v*2).collect", Obj?[n(4), n(8)])
 
+    // filter
+    verifyStream("[{v:1}, null, {v:2}, {v:3}].stream.filter(v <= 2).collect", Obj?[Etc.makeDict1("v", n(1)), Etc.makeDict1("v", n(2))])
+
     // limit
     verifyStream("[1, 2, 3, 4].stream.limit(10).collect", Obj?[n(1), n(2), n(3), n(4)])
     verifyStream("[1, 2, 3, 4].stream.limit(4).collect", Obj?[n(1), n(2), n(3), n(4)])
@@ -210,14 +213,15 @@ class StreamTest : AxonTest
   Void verifyStream(Str src, Obj? expected)
   {
     // verify normally
-    verifyEval(src, expected)
+    actual1 := eval(src)
+    verifyValEq(actual1, expected)
 
     // don't try to round trip blocks
     if (src.endsWith("end")) return null
 
     // round trip encoding/decode and verify again
-    actual := roundTripStream(makeContext, src)
-    verifyEq(actual, expected)
+    actual2 := roundTripStream(makeContext, src)
+    verifyValEq(actual2, expected)
   }
 
   ** Encode stream, decode it, and then re-evaluate it.

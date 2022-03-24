@@ -205,11 +205,16 @@ abstract class MStream
       func := cx.findTop(row.val(nameCol))
       args := Obj?[,]
       args.capacity = 1 + argsCols.size
-      if (stream != null) args.add(stream)
+      if (stream != null) args.add(streamToArg(func, stream))
       argsCols.each |argCol| { args.add(decodeArg(cx, row.val(argCol))) }
       stream = func.call(cx, args)
     }
     return stream
+  }
+
+  private static Obj? streamToArg(TopFn fn, MStream stream)
+  {
+    fn.isLazy ? UnsafeLiteral(stream) : stream
   }
 
   private static Obj? decodeArg(AxonContext cx, Obj? val)

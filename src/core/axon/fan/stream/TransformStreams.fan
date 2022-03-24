@@ -145,6 +145,33 @@ internal class FindAllStream : TransformStream
   private const Fn func
 }
 
+**************************************************************************
+** FilterStream
+**************************************************************************
+
+@Js
+internal class FilterStream : TransformStream
+{
+  new make(MStream prev, Filter filter) : super(prev) { this.filter = filter }
+
+  override Str funcName() { "filter" }
+
+  override Obj?[] funcArgs() { [filter] }
+
+  override Void onData(Obj? data)
+  {
+    if (data == null) return
+    dict := data as Dict ?: throw Err("filter data not Dict [$data.typeof]")
+    if (filter.matches(dict, cx)) submit(data)
+  }
+
+  private const Filter filter
+}
+
+
+
+
+
 
 
 

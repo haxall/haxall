@@ -92,6 +92,7 @@ Stream transformation functions:
   - [skip]`#skip`: skip number of data items in stream
   - [map]`#map`: map each item to new item
   - [flatMap]`#flatMap`: map each item to zero or more new items
+  - [filter]`#filter`: filter dicts using Haystack filter expression
   - [findAll]`#findAll`: filter items with predicate function
   - [addMeta]`#addMeta`: add grid level meta
   - [setMeta]`#setMeta`: set grid level meta
@@ -215,6 +216,13 @@ The `feed()` function terminates a stream and creates a live data feed
 for view consumption (SkySpark only):
 
   readAllStream(point).limit(5).feed
+
+filter [#filter]
+==================
+The `filter()` function transforms a stream by filtering items
+using a [filter]`docHaystack::Filters` expression:
+
+  readAllStream(equip).filter(siteMeter and elec and meter).collect
 
 find [#find]
 ============

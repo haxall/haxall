@@ -200,6 +200,9 @@ const class TopFn : Fn
   ** Return if this function has been deprecated
   const override Bool isDeprecated
 
+  ** Is this a lazy function that accepts un-evaluated arguments
+  virtual Bool isLazy() { false }
+
   ** Return only name
   override Str toStr() { name }
 

@@ -460,6 +460,46 @@ const class CoreLib
     throw argErr("findAll", val)
   }
 
+  ** Apply a [filter]`docHaystack::Filters` expression to a collection
+  ** of dicts.  The collection value may be any of the following:
+  **  - Grid: returns new grid with filtered rows
+  **  - Dict[]: returns list of filtered dicts (nulls are filtered out)
+  **  - Col[]: returns list of columns filtered by their meta
+  **  - Stream: filters stream of Dicts - see `docHaxall::Streams#filter`
+  **
+  ** Examples:
+  **   // apply to a list of dicts
+  **   [{v:1}, {v:2}, {v:3}, {v:4}].filter(v >= 3)
+  **
+  **   // apply to a grid and return new grid with matching rows
+  **   readAll(equip).filter(meter)
+  **
+  **   // apply to a list of columns
+  **   read(ahu).toPoints.hisRead(yesterday).cols.filter(kind=="Bool")
+  **
+  **   // apply to a stream of dicts
+  **   readAllStream(equip).filter(siteMeter and elec and meter).collect
+  **
+  @Axon static Obj filter(Expr val, Expr filterExpr)
+  {
+    cx := AxonContext.curAxon
+    v := val.eval(cx)
+    filter := filterExpr.evalToFilter(cx)
+
+    if (v is Grid) return ((Grid)v).filter(filter, cx)
+
+    if (v is MStream) return FilterStream(v, filter)
+
+    list := v as Obj?[] ?: throw argErr("filter val", v)
+    return list.findAll |item|
+    {
+      if (item == null) return false
+      if (item is Dict) return filter.matches(item, cx)
+      if (item is Col) return filter.matches(((Col)item).meta, cx)
+      throw argErr("filter item", item)
+    }
+  }
+
   ** Return if all the items in a list, dict, or grid match the
   ** given test function.  If the collection is empty, then return
   ** true.
@@ -2237,8 +2277,8 @@ const class CoreLib
     Symbol.fromStr(val, checked)
   }
 
-  ** Parse a string into a Filter expr which may be used
-  ** with the `read` or `readAll` function.  Also see `filterToFunc`.
+  ** Parse a string into a [Filter]`haystack::Filter` which may be used with
+  ** the `read` or `readAll` function.  Also see `filter()` and `filterToFunc()`.
   **
   ** Example:
   **   str: "point and kw"
@@ -2248,10 +2288,10 @@ const class CoreLib
     Filter.fromStr(val, checked)
   }
 
-  ** Convert a filter expression to a function which may
-  ** be used with `findAll` or `find`.  The returned function
+  ** Convert a [filter]`docHaystack::Filters` expression to a function
+  ** which maybe used with `findAll` or `find`.  The returned function
   ** accepts one Dict parameter and returns true/false if the
-  ** Dict is matched by the filter.  Also see `parseFilter`.
+  ** Dict is matched by the filter.  Also see `filter()` and `parseFilter()`.
   **
   ** Examples:
   **   // filter for dicts with 'equip' tag

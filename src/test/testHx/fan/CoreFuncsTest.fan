@@ -442,7 +442,7 @@ class CoreFuncsTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// FilterToFunc
+// Libs
 //////////////////////////////////////////////////////////////////////////
 
   @HxRuntimeTest
@@ -466,16 +466,18 @@ class CoreFuncsTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// FilterToFunc
+// Filters
 //////////////////////////////////////////////////////////////////////////
 
   @HxRuntimeTest
-  Void testFilterToFunc()
+  Void testFilters()
   {
     a := addRec(["dis":"andy",    "x":n(10)])
     b := addRec(["dis":"brian",   "x":n(20), "ref":a.id])
     c := addRec(["dis":"charles", "x":n(30), "ref":a.id])
     d := addRec(["dis":"dan",     "x":n(40), "ref":b.id])
+
+    // filterToFunc
 
     Row row := eval(Str<|readAll(x).find(filterToFunc(x == 20))|>)
     verifyEq(row->dis, "brian")
@@ -494,6 +496,28 @@ class CoreFuncsTest : HxTest
     verifyEq(list.size, 2)
     verifyEq(list[0]->x, n(8))
     verifyEq(list[1]->x, n(9))
+
+    // filter
+
+    grid = eval(Str<|readAll(x).sort("dis").filter(x >= 30)|>)  // Grid
+    verifyEq(grid.size, 2)
+    verifyEq(grid[0]->dis, "charles")
+    verifyEq(grid[1]->dis, "dan")
+
+    list = eval(Str<|readAll(x).sort("dis").toRecList.filter(x >= 30)|>) // Dict[]
+    verifyEq(list.size, 2)
+    verifyEq(list[0]->dis, "charles")
+    verifyEq(list[1]->dis, "dan")
+
+    list = eval(Str<|[{v:1}, null, {v:2}, {v:3}, null, {v:4}].filter(v >= 3)|>) // Dict[]
+    verifyEq(list.size, 2)
+    verifyDictEq(list[0], ["v":n(3)])
+    verifyDictEq(list[1], ["v":n(4)])
+
+    Col[] cols := eval(Str<|readAll(x).setColMeta("dis", {foo}).setColMeta("x", {foo}).cols.filter(foo)|>) // Col[]
+    verifyEq(cols.size, 2)
+    verifyEq(cols[0].name, "dis")
+    verifyEq(cols[1].name, "x")
   }
 
 

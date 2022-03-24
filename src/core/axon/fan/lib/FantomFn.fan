@@ -156,6 +156,9 @@ const class FantomFn : TopFn
 internal const class LazyFantomFn : FantomFn
 {
   new make(Str n, Dict d, FnParam[] p, Method m, Obj? i) : super(n, d, p, m, i) {}
+
+  override Bool isLazy() { true }
+
   override Obj? callLazy(AxonContext cx, Expr[] args, Loc callLoc)
   {
     super.callx(cx, args, callLoc)
