@@ -18,13 +18,28 @@ const final class Number
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
+  ** Default value is zero with no unit
   static const Number defVal := Number(0f)
+
+  ** Constant for -1 with no unit
   static const Number negOne := Number(-1f)
+
+  ** Constant for 0 with no unit
   static const Number zero   := Number(0f)
+
+  ** Constant for 1 with no unit
   static const Number one    := Number(1f)
+
+  ** Constant for 10 with no unit
   static const Number ten    := Number(10f)
+
+  ** Constant for not-a-number
   static const Number nan    := Number(Float.nan)
+
+  ** Constant for positive infinity
   static const Number posInf := Number(Float.posInf)
+
+  ** Constant for negative infinity
   static const Number negInf := Number(Float.negInf)
 
   ** Parse from a string according to zinc syntax
@@ -416,6 +431,33 @@ const final class Number
   {
     // using <=> to ensure correct behavior with NaN
     (float <=> that.float) >= 0 ? this : that
+  }
+
+  **
+  ** Clamp this number between the min and max.  If its less than min then
+  ** return min, if its greater than max return max, otherwise return this
+  ** number itself.  The min and max must have matching units or be unitless.
+  ** The result is always in the same unit as this instance.
+  **
+  Number clamp(Number min, Number max)
+  {
+    if ((this.unit !== min.unit && min.unit != null) ||
+        (this.unit !== max.unit && max.unit != null))
+      throw UnitErr("clamp($this, $min, $max)")
+
+    if ((this.float <=> min.float) < 0)
+    {
+      if (this.unit === min.unit) return min
+      return Number(min.float, this.unit)
+    }
+
+    if ((this.float <=> max.float) > 0)
+    {
+      if (this.unit === max.unit) return max
+      return Number(max.float, this.unit)
+    }
+
+    return this
   }
 
   **

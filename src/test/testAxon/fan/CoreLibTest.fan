@@ -263,6 +263,17 @@ class CoreLibTest : HaystackTest
     verifyEval(Str<|(10..20).contains(21)|>, false)
     verifyEval(Str<|not (10..20).contains(21)|>, true)
 
+    // clamp
+    verifyEval(Str<|clamp(3, 0, 10)|>,  n(3))
+    verifyEval(Str<|clamp(-3, 0, 10)|>, n(0))
+    verifyEval(Str<|clamp(13, 0, 10)|>, n(10))
+    verifyEval(Str<|clamp(3ft, 0ft, 10ft)|>, n(3, "ft"))
+    verifyEval(Str<|clamp(-3ft, 0ft, 10ft)|>, n(0, "ft"))
+    verifyEval(Str<|clamp(-3ft, 0, 10)|>, n(0, "ft"))
+    verifyEval(Str<|clamp(34ft, 0, 10)|>, n(10, "ft"))
+    verifyEvalErr(Str<|clamp(65min, 1hr, 100min)|>, UnitErr#)
+    verifyEvalErr(Str<|clamp(17min, 0min, 2hr)|>, UnitErr#)
+
     // times
     verifyBlock("x: []; 3.times(i => x = x.add(i)); x", Obj?[n(0), n(1), n(2)])
   }

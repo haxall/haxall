@@ -202,8 +202,8 @@ class NumberTest : HaystackTest
 
   Void testUtils()
   {
-    x   := n(45)
-    y   := n(-33)
+    x := n(45)
+    y := n(-33)
     nan := Number.nan
 
     // abs
@@ -221,6 +221,20 @@ class NumberTest : HaystackTest
     verifySame(x.min(nan), nan)
     verifySame(nan.min(x), nan)
     verifySame(nan.min(nan), nan)
+
+    // clamp
+    cMin := n(0); cMax := n(100)
+    verifySame(n(-3f).clamp(cMin, cMax), cMin)
+    verifySame(x.clamp(cMin, cMax), x)
+    verifySame(n(101).clamp(cMin, cMax), cMax)
+    verifyEq(n(-3f, "sec").clamp(cMin, cMax),  n(0, "sec"))
+    verifyEq(n(3f, "sec").clamp(cMin, cMax),   n(3, "sec"))
+    verifyEq(n(103f, "sec").clamp(cMin, cMax), n(100, "sec"))
+    cMin = n(0, "sec"); cMax = n(100, "sec")
+    verifySame(n(-3f, "sec").clamp(cMin, cMax), cMin)
+    verifySame(n(103f, "sec").clamp(cMin, cMax), cMax)
+    verifyErr(UnitErr#) { n(3).clamp(cMin, cMax) }
+    verifyErr(UnitErr#) { n(3, "hr").clamp(cMin, cMax) }
 
     // upper, lower
     eLo := n('e'); eUp := n('E'); dot := n('.')

@@ -923,7 +923,8 @@ const class CoreLib
 
   ** Compare two numbers and return the smaller one.  This function
   ** may also be used with `fold` to return the smallest number (or
-  ** null if no values).
+  ** null if no values).  Note number units are **not** checked nor
+  ** considered for this comparison.
   **
   ** Examples:
   **   min(7, 4)            >>  4
@@ -941,7 +942,8 @@ const class CoreLib
 
   ** Compare two numbers and return the larger one.  This function
   ** may also be used with `fold` to return the largest number (or
-  ** null if no values).
+  ** null if no values).  Note number units are **not** checked nor
+  ** considered for the comparison.
   **
   ** Examples:
   **   max(7, 4)            >>  7
@@ -1321,6 +1323,18 @@ const class CoreLib
 
   ** Return the Number representation negative infinity
   @Axon static Number negInf() { Number.negInf }
+
+  ** Clamp the number val between the min and max.  If its less than min
+  ** then return min, if its greater than max return max, otherwise return
+  ** val itself.  The min and max must have matching units or be unitless.
+  ** The result is always in the same unit as val.
+  **
+  ** Examples:
+  **   14.clamp(10, 20)     >>   14    // is between 10 and 20
+  **   3.clamp(10, 20)      >>   10    // clamps to min 10
+  **   73.clamp(10, 20)     >>   20    // clamps to max 20
+  **   45°F.clamp(60, 80)   >>   60°F  // min/max can be unitless
+  @Axon static Number clamp(Number val, Number min, Number max) { val.clamp(min, max) }
 
 //////////////////////////////////////////////////////////////////////////
 // General Time Stuff
