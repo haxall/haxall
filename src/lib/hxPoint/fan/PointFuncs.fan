@@ -313,6 +313,65 @@ const class PointFuncs
     return lib.enums.get(id, checked)?.grid
   }
 
+  **
+  ** Return if a point value matches a given critera:
+  **   - match any values which are equal via '==' operator
+  **   - zero matches false (0% ==> false)
+  **   - non-zero matches true (not 0% ==> true)
+  **   - numerics can be matches with range
+  **   - match can be a function which takes the value
+  **
+  ** Examples:
+  **   matchPointVal(false, false)     >>  true
+  **   matchPointVal(0, false)         >>  true
+  **   matchPointVal(33, false)        >>  false
+  **   matchPointVal(33, true)         >>  true
+  **   matchPointVal(33, 0..40)        >>  true
+  **   matchPointVal(90, 0..40)        >>  false
+  **   matchPointVal(4) x => x.isEven  >>  true
+  **
+  @Axon static Bool matchPointVal(Obj? val, Obj? match)
+  {
+    // exact match
+    if (val == match) return true
+
+    // zero matches false
+    if (match == false)
+    {
+      if (val is Number && ((Number)val).toFloat == 0f) return true
+      return false
+    }
+
+    // non-zero matches true
+    if (match == true)
+    {
+      if (val is Number && ((Number)val).toFloat != 0f) return true
+      return false
+    }
+
+    // range
+    if (match is ObjRange && val is Number)
+    {
+      r := (ObjRange)match
+      s := r.start as Number
+      e := r.end as Number
+      if (s == null || e == null) return false
+      sf := s.toFloat
+      ef := e.toFloat
+      if (ef == 100f) ef = 100.9f  // fuzzy match 100%
+      vf := ((Number)val).toFloat
+      return sf <= vf && vf <= ef
+    }
+
+    // function
+    if (match is Fn)
+    {
+      return (((Fn)match).call(curContext, [val]))
+    }
+
+    return false
+  }
+
   ** Write all hisCollect items buffered in memory to the historian.
   ** Block until complete or until timeout exceeded.
   @Axon { admin = true }

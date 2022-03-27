@@ -19,7 +19,7 @@ class PointRecSetTest : HxTest
 {
 
   @HxRuntimeTest
-  Void test()
+  Void testSets()
   {
     // ext
     addLib("point")
@@ -144,6 +144,53 @@ class PointRecSetTest : HxTest
   {
     Grid grid := eval(axon)
     verifyRecIds(grid, recs.map |rec -> Ref?| { rec.id })
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// MatchPointVal
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testMatchPointVal()
+  {
+    verifyMatchPointVal("(true, true)",   true)
+    verifyMatchPointVal("(true, false)",  false)
+    verifyMatchPointVal("(false, false)", true)
+    verifyMatchPointVal("(false, true)",  false)
+
+    verifyMatchPointVal("(0,    false)", true)
+    verifyMatchPointVal("(0.0,  false)", true)
+    verifyMatchPointVal("(0,    true)",  false)
+    verifyMatchPointVal("(0.0,  true)",  false)
+    verifyMatchPointVal("(44,   false)", false)
+    verifyMatchPointVal("(44.0, false)", false)
+    verifyMatchPointVal("(44,   true)",  true)
+    verifyMatchPointVal("(44.0, true)",  true)
+
+    verifyMatchPointVal("(-1,    0..10)",   false)
+    verifyMatchPointVal("(0,     0..10)",   true)
+    verifyMatchPointVal("(4,     0..10)",   true)
+    verifyMatchPointVal("(4,     0.0 .. 10.0)", true)
+    verifyMatchPointVal("(4.0,   0..10)",   true)
+    verifyMatchPointVal("(10,    0..10)",   true)
+    verifyMatchPointVal("(11,    0..10)",   false)
+    verifyMatchPointVal("(11.0,  0..10)",   false)
+    verifyMatchPointVal("(true,  0..10)",   false)
+    verifyMatchPointVal("(88,    2009-10)", false)
+
+    verifyMatchPointVal("(30) x => x.isEven", true)
+    verifyMatchPointVal("(31) x => x.isEven", false)
+
+    // fuzzy 100%
+    verifyMatchPointVal("(29.9,  30..100)",  false)
+    verifyMatchPointVal("(30.2,  30..100)",  true)
+    verifyMatchPointVal("(100.2, 30..100)",  true)
+    verifyMatchPointVal("(101,   30..100)",  false)
+  }
+
+  private Void verifyMatchPointVal(Str params, Bool expected)
+  {
+    verifyEq(eval("matchPointVal$params"), expected)
   }
 
 }
