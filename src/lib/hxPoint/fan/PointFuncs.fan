@@ -16,6 +16,129 @@ using hx
 const class PointFuncs
 {
   **
+  ** Map a set of recs to to a grid of [sites]`site`.  The 'recs'
+  ** parameter may be any value accepted by `toRecList()`.  Return empty
+  ** grid if no mapping is found.  The following mappings are supported:
+  **  - recs with 'site' tag are mapped as themselves
+  **  - recs with 'siteRef' tag are mapped to their parent site
+  **
+  ** Examples:
+  **   read(site).toSites     // return site itself
+  **   read(space).toSites    // return space's parent site
+  **   read(equip).toSites    // return equip's parent site
+  **   read(point).toSites    // return point's parent site
+  **
+  @Axon
+  static Grid toSites(Obj? recs)
+  {
+    PointRecSet(recs).toSites
+  }
+
+  **
+  ** Map a set of recs to to a grid of [spaces]`space`.  The 'recs'
+  ** parameter may be any value accepted by `toRecList()`.  Return empty
+  ** grid if no mapping is found.  The following mappings are supported:
+  **  - recs with 'space' tag are mapped as themselves
+  **  - recs with 'spaceRef' tag are mapped to their parent space
+  **  - recs with 'site' are mapped to spaces with parent 'siteRef'
+  **
+  ** Examples:
+  **   read(site).toSpaces      // return children spaces within site
+  **   read(equip).toSpaces     // return equip's parent space
+  **   read(point).toSpaces     // return point's parent space
+  **   read(space).toSpaces     // return space itself
+  **
+  @Axon
+  static Grid toSpaces(Obj? recs)
+  {
+    PointRecSet(recs).toSpaces
+  }
+
+  **
+  ** Map a set of recs to to a grid of [equips]`equip`.  The 'recs'
+  ** parameter may be any value accepted by `toRecList()`.  Return empty
+  ** grid if no mapping is found.  The following mappings are supported:
+  **  - recs with 'equip' tag are mapped as themselves
+  **  - recs with 'equipRef' tag are mapped to their parent equip
+  **  - recs with 'site' are mapped to equip with parent 'siteRef'
+  **  - recs with 'space' are mapped to equip with parent 'spaceRef'
+  **
+  ** Examples:
+  **   read(site).toEquips      // return children equip within site
+  **   read(space).toEquips     // return children equip within space
+  **   read(equip).toEquips     // return equip itself
+  **   read(point).toEquips     // return point's parent equip
+  **
+  @Axon
+  static Grid toEquips(Obj? recs)
+  {
+    PointRecSet(recs).toEquips
+  }
+
+  **
+  ** Map a set of recs to to a grid of [devices]`device`.  The 'recs'
+  ** parameter may be any value accepted by `toRecList()`.  Return empty
+  ** grid if no mapping is found.  The following mappings are supported:
+  **  - recs with 'device' tag are mapped as themselves
+  **  - recs with 'deviceRef' tag are mapped to their parent device
+  **  - recs with 'site' are mapped to devices with parent 'siteRef'
+  **  - recs with 'space' are mapped to devices with parent 'spaceRef'
+  **  - recs with 'equip' are mapped to devices with parent 'equipRef'
+  **
+  ** Examples:
+  **   read(site).toDevices      // return children devices within site
+  **   read(space).toDevices     // return children devices within space
+  **   read(equip).toDevices     // return children devices within equip
+  **   read(point).toDevices     // return point's parent device
+  **
+  @Axon
+  static Grid toDevices(Obj? recs)
+  {
+    PointRecSet(recs).toDevices
+  }
+
+  **
+  ** Map a set of recs to to a grid of [points]`point`.  The 'recs'
+  ** parameter may be any value accepted by `toRecList()`.  Return empty
+  ** grid if no mapping is found.  The following mappings are supported:
+  **  - recs with 'point' tag are mapped as themselves
+  **  - recs with 'site' are mapped to points with parent 'siteRef'
+  **  - recs with 'space' are mapped to points with parent 'spaceRef'
+  **  - recs with 'equip' are mapped to points with parent 'equipRef'
+  **  - recs with 'device' are mapped to points with parent 'deviceRef'
+  **
+  ** Examples:
+  **   read(site).toPoints      // return children points within site
+  **   read(space).toPoints     // return children points within space
+  **   read(equip).toPoints     // return children points within equip
+  **   read(device).toPoints    // return children points within device
+  **
+  @Axon
+  static Grid toPoints(Obj? recs)
+  {
+    PointRecSet(recs).toPoints
+  }
+
+  **
+  ** Given a 'equip' record Dict, return a grid of its points.
+  ** If this function is overridden you MUST NOT use an XQuery to
+  ** resolve points; this function must return local only points.
+  **
+  @Axon { meta = ["overridable":Marker("")] }
+  static Grid equipToPoints(Obj equip)
+  {
+    cx := curContext
+    rec := Etc.toRec(equip, cx)
+    id := rec.id
+    if (rec["equip"] !== Marker.val) throw Err("Not equip: $id")
+    return cx.db.readAll(Filter.has("point").and(Filter.eq("equipRef", id)))
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Point Writes
+//////////////////////////////////////////////////////////////////////////
+
+  **
   ** User level-1 manual override of writable point.
   ** See `pointWrite`.
   **
@@ -127,6 +250,10 @@ const class PointFuncs
   {
     lib(curContext).writeMgr.arrayById(Etc.toId(point))
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
 
   **
   ** Evaluate a [point conversion]`ext-point::doc#convert`. First
