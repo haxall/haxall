@@ -78,7 +78,82 @@ class PointUtil
          unit:  $unit
          tz:    $tz
          """
+  }
+
+  ** Implementation for the toOccupied function
+  static Dict? toOccupied(Dict r, Bool checked, HxContext cx)
+  {
+    occupied := Filter("occupied")
+
+    // if equip then lookup up equip hierarchy for match
+    if (r.has("equip"))
+    {
+      // try to find match on this equip
+      occ := cx.db.read(occupied.and(Filter.eq("equipRef", r.id)), false)
+      if (occ != null) return occ
+
+      // find on parent equip
+      occ = toParentEquipOccupied(r, cx)
+      if (occ != null) return occ
+
+      // find on parent space
+      occ = toParentSpaceOccupied(r, cx)
+      if (occ != null) return occ
     }
+
+    // if space then lookup up space hierarchy for match
+    if (r.has("space"))
+    {
+      // try to find match on this space
+      occ := cx.db.read(occupied.and(Filter.eq("spaceRef", r.id)), false)
+      if (occ != null) return occ
+
+      // find on parent parent
+      occ = toParentSpaceOccupied(r, cx)
+      if (occ != null) return occ
+    }
+
+    // if point, try parent equip then try parent space
+    if (r.has("point"))
+    {
+      // find on parent equip
+      occ := toParentEquipOccupied(r, cx)
+      if (occ != null) return occ
+
+      // find on parent space
+      occ = toParentSpaceOccupied(r, cx)
+      if (occ != null) return occ
+    }
+
+    // get all site level occupied points
+    Ref siteId := r.has("site") ? r.id : r->siteRef
+    recs := cx.db.readAll(occupied.and(Filter.eq("siteRef", siteId)).and(Filter.has("sitePoint")))
+    if (recs.size == 1) return recs.first
+    if (checked)
+    {
+      if (recs.size == 0)
+        throw Err("No 'occupied' point found for $r.id.toZinc")
+      else
+        throw Err("Multiple 'sitePoint occupied' matches")
+    }
+    return null
+  }
+
+  ** Check for occupied point in parent spaceRef or return null
+  private static Dict? toParentSpaceOccupied(Dict r, HxContext cx)
+  {
+    spaceRef := r["spaceRef"] as Ref
+    if (spaceRef == null) return null
+    return toOccupied(cx.db.readById(spaceRef), false, cx)
+  }
+
+  ** Check for occupied point in parent equipRef or return null
+  private static Dict? toParentEquipOccupied(Dict r, HxContext cx)
+  {
+    equipRef := r["equipRef"] as Ref
+    if (equipRef == null) return null
+    return toOccupied(cx.db.readById(equipRef), false, cx)
+  }
 
   /* Debug support
   static Str[] debugs() { debugActor.send("_list").get(null) }
@@ -92,5 +167,4 @@ class PointUtil
     return null
   }
   */
-
 }

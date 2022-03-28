@@ -92,3 +92,11 @@ doc:
   Subscribe to writable point priority array updates -
   see [docs]`docHaxall::Observables#obsPointWrites`
 --------------------------------------------------------------------------
+def: ^sitePoint
+is: ^marker
+doc:
+  Marker tag applied to a `point` to indicate the point is site-wide.
+  For example an `occupied` point that models the occupancy of the
+  entire building should be tagged as a 'sitePoint'.
+--------------------------------------------------------------------------
+

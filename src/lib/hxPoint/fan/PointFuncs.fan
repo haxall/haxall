@@ -51,7 +51,7 @@ const class PointFuncs
   @Axon
   static Grid toSpaces(Obj? recs)
   {
-    PointRecSet(recs).toSpaces
+    PointRecSet(recs, curContext).toSpaces
   }
 
   **
@@ -72,7 +72,7 @@ const class PointFuncs
   @Axon
   static Grid toEquips(Obj? recs)
   {
-    PointRecSet(recs).toEquips
+    PointRecSet(recs, curContext).toEquips
   }
 
   **
@@ -94,7 +94,7 @@ const class PointFuncs
   @Axon
   static Grid toDevices(Obj? recs)
   {
-    PointRecSet(recs).toDevices
+    PointRecSet(recs, curContext).toDevices
   }
 
   **
@@ -116,7 +116,23 @@ const class PointFuncs
   @Axon
   static Grid toPoints(Obj? recs)
   {
-    PointRecSet(recs).toPoints
+    PointRecSet(recs, curContext).toPoints
+  }
+
+  **
+  ** Given a `site`, `space`, `equip`, or `point` rec, get its `occupied`
+  ** point.  The following algorithm is used to lookup the occupied point:
+  **   1. Try to find in equip or parent of nested equip
+  **   2. Try to find in space or parent of nested spaces
+  **   3. Try to find in site if site if tagged as `sitePoint`
+  **
+  ** If there are no matches or multiple ambiguous matches, then return
+  ** null or raise an exception based on checked flag.
+  **
+  @Axon
+  static Dict? toOccupied(Obj? rec, Bool checked := true)
+  {
+    PointUtil.toOccupied(Etc.toRec(rec), checked, curContext)
   }
 
   **

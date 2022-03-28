@@ -8,7 +8,7 @@
 
 using concurrent
 using haystack
-using obs
+using axon
 using folio
 using hx
 
@@ -147,12 +147,129 @@ class PointRecSetTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// ToOccupied
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  virtual Void testToOccupied()
+  {
+    addLib("point")
+
+    s := addRec(["dis":"S","site":m])
+
+    fA  := addRec(["dis":"Floor-A", "space":m, "siteRef":s.id])
+    fB  := addRec(["dis":"Floor-B", "space":m, "siteRef":s.id])
+    rB  := addRec(["dis":"Room-B", "space":m, "siteRef":s.id, "spaceRef":fB.id])
+
+    // verify no match error
+    verifytoOccupied(s, null)
+
+    eA := addRec(["dis":"EA", "equip":m, "siteRef":s.id, "spaceRef":fA.id])
+      pA   := addRec(["dis":"P-EA", "point":m, "siteRef":s.id, "spaceRef":fA.id, "equipRef":eA.id])
+      occA := addRec(["dis":"Occ-A","occupied":m, "point":m, "siteRef":s.id, "equipRef":eA.id])
+      eAx := addRec(["dis":"EAx", "equip":m, "siteRef":s.id, "spaceRef":fA.id, "equipRef": eA.id])
+        pAx := addRec(["dis":"P-EAx", "point":m, "siteRef":s.id, "spaceRef":fA.id, "equipRef":eAx.id])
+        eAxy := addRec(["dis":"EAxy", "equip":m, "siteRef":s.id, "spaceRef":fA.id, "equipRef": eAx.id])
+        pAxy := addRec(["dis":"P-EAxy", "point":m, "siteRef":s.id, "spaceRef":fA.id, "equipRef":eAxy.id])
+    eB := addRec(["dis":"EB", "equip":m, "siteRef":s.id, "spaceRef":rB.id])
+      pB   := addRec(["dis":"P-EB", "point":m, "siteRef":s.id, "equipRef":eB.id, "spaceRef":rB.id])
+    eS := addRec(["dis":"ES", "equip":m, "siteRef":s.id])
+      occS := addRec(["dis":"Occ-S","occupied":m, "point":m, "siteRef":s.id, "equipRef":eS.id])
+
+    // multiple matches
+    verifytoOccupied(s, null)
+
+    // site
+    occS = commit(occS, ["sitePoint":m])
+    rt.sync
+    verifytoOccupied(s, occS)
+
+    // equip-A
+    verifytoOccupied(eA, occA)
+    verifytoOccupied(pA, occA)
+    verifytoOccupied(eAx, occA)
+    verifytoOccupied(pAx, occA)
+    verifytoOccupied(eAxy, occA)
+    verifytoOccupied(pAxy, occA)
+
+    // now add occupied to eAx
+    occAx := addRec(["dis":"Occ-Ax","occupied":m, "point":m, "siteRef":s.id, "equipRef":eAx.id])
+    verifytoOccupied(eA,   occA)
+    verifytoOccupied(pA,   occA)
+    verifytoOccupied(eAx,  occAx)
+    verifytoOccupied(pAx,  occAx)
+    verifytoOccupied(eAxy, occAx)
+    verifytoOccupied(pAxy, occAx)
+
+    // now add occupied to eAxy
+    occAxy := addRec(["dis":"Occ-Axy","occupied":m, "point":m, "siteRef":s.id, "equipRef":eAxy.id])
+    verifytoOccupied(eA,   occA)
+    verifytoOccupied(pA,   occA)
+    verifytoOccupied(eAx,  occAx)
+    verifytoOccupied(pAx,  occAx)
+    verifytoOccupied(eAxy, occAxy)
+    verifytoOccupied(pAxy, occAxy)
+
+    // spaces (and contained equip, points)
+    verifytoOccupied(fA, occS)
+    verifytoOccupied(fB, occS)
+    verifytoOccupied(rB, occS)
+    verifytoOccupied(eB, occS)
+    verifytoOccupied(pB, occS)
+
+    // now add occupied for floor A + B
+    occFa := addRec(["dis":"Occ-FA","occupied":m, "point":m, "siteRef":s.id, "spaceRef":fA.id])
+    occFb := addRec(["dis":"Occ-FB","occupied":m, "point":m, "siteRef":s.id, "spaceRef":fB.id])
+    verifytoOccupied(fA, occFa)
+    verifytoOccupied(fB, occFb)
+    verifytoOccupied(rB, occFb)
+    verifytoOccupied(eB, occFb)
+    verifytoOccupied(pB, occFb)
+
+    // add occupied for room B
+    occRb := addRec(["dis":"Occ-FB","occupied":m, "point":m, "siteRef":s.id, "spaceRef":rB.id])
+    verifytoOccupied(fA, occFa)
+    verifytoOccupied(fB, occFb)
+    verifytoOccupied(rB, occRb)
+    verifytoOccupied(eB, occRb)
+    verifytoOccupied(pB, occRb)
+
+    // remove occA
+    commit(occA, null, Diff.remove)
+    verifytoOccupied(eA,   occFa)
+    verifytoOccupied(pA,   occFa)
+    verifytoOccupied(eAx,  occAx)
+    verifytoOccupied(pAx,  occAx)
+    verifytoOccupied(eAxy, occAxy)
+    verifytoOccupied(pAxy, occAxy)
+  }
+
+  private Void verifytoOccupied(Dict r, Dict? expected)
+  {
+    if (expected != null)
+    {
+      expected = readById(expected.id)
+      // echo("-- $r.dis => " + eval("toOccupied($r.id.toCode)->dis") + " ?= " + expected.dis)
+      verifySame(eval("toOccupied($r.id.toCode)->id"), expected.id)
+      verifySame(eval("readById($r.id.toCode).toOccupied->id"), expected.id)
+    }
+    else
+    {
+      verifyNull(eval("toOccupied($r.id.toCode, false)"))
+      verifyErr(EvalErr#) { eval("toOccupied($r.id.toCode)") }
+      verifyErr(EvalErr#) { eval("toOccupied($r.id.toCode, true)") }
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // MatchPointVal
 //////////////////////////////////////////////////////////////////////////
 
   @HxRuntimeTest
   Void testMatchPointVal()
   {
+    addLib("point")
+
     verifyMatchPointVal("(true, true)",   true)
     verifyMatchPointVal("(true, false)",  false)
     verifyMatchPointVal("(false, false)", true)
