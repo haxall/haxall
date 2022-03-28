@@ -18,6 +18,29 @@ using hx
 @NoDoc
 const class ConnFwFuncs
 {
+  ** Return the points for a connector as list of dicts.  The 'conn'
+  ** parameter may be anything accepted by `toRecId()`.  If 'conn' cannot be
+  ** be mapped to an active connector then raise an exception or return an
+  ** empty list based on checked flag.
+  **
+  ** Examples:
+  **   read(haystackConn).connPoints
+  **   connPoints(@my-conn-id)
+  @Axon
+  static Dict[] connPoints(Obj conn, Bool checked := true)
+  {
+    cx := curContext
+    id := Etc.toId(conn)
+    c := cx.rt.conn.conn(id, false)
+    if (c isnot Conn)
+    {
+      if (!checked) return Dict#.emptyList
+      if (c == null) throw UnknownConnErr(id.toZinc)
+      throw classicConnErr(c)
+    }
+    return cx.db.readByIdsList(((Conn)c).pointIds)
+  }
+
   **
   ** Perform a ping on the given connector and return a future.
   ** The future result is the connector rec dict.  The 'conn' parameter
@@ -217,14 +240,20 @@ const class ConnFwFuncs
   ** Coerce conn to a HxConn instance (new or old framework)
   private static HxConn toHxConn(Obj conn)
   {
-    curContext.rt.conn.conn(Etc.toId(conn))
+    curContext.rt.conn.conn(Etc.toId(conn), true)
   }
 
   ** Coerce conn to a Conn instance (new framework only)
   private static Conn toConn(Obj conn)
   {
     hx := toHxConn(conn)
-    return hx as Conn ?: throw Err("$hx.lib.name connector uses classic framework [$hx.rec.dis]")
+    return hx as Conn ?: classicConnErr(hx)
+  }
+
+  ** Return exception to use for using classic connector
+  private static Err classicConnErr(HxConn c)
+  {
+    Err("$c.lib.name connector uses classic framework [$c.rec.dis]")
   }
 }
 

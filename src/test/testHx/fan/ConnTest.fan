@@ -556,6 +556,11 @@ class ConnTest : HxTest
         verifySame(rt.conn.point(pt.id), pt)
       }
 
+      // connPoints axon func
+      Dict[] ptRecs := eval("connPoints($c.id.toCode)")
+      verifyEq(ptRecs.size, c.points.size)
+      verifyDictsEq(ptRecs, rt.db.readByIdsList(c.pointIds))
+
       // bad points
       verifyEq(c.point(Ref.gen, false), null)
       verifyErr(UnknownConnPointErr#) { c.point(Ref.gen) }
