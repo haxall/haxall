@@ -112,7 +112,8 @@ class MqttDispatch : ConnDispatch
   private Obj? onSub(Dict cfg)
   {
     // get the topic filter
-    filter := cfg["obsMqttTopic"] as Str ?: throw Err("obsMqttTopic no configured")
+    filter := cfg["obsMqttTopic"] as Str ?: throw Err("obsMqttTopic not configured")
+    qos := cfg["mqttQos"] as Number ?: throw Err("mqttQos not configured")
 
     // subscribe
     openPin("mqtt.sub")
@@ -120,7 +121,7 @@ class MqttDispatch : ConnDispatch
     {
       ack := client.subscribeWith
         .topicFilter(filter)
-        .qos((cfg["mqttQos"] as Number).toInt)
+        .qos(qos.toInt)
         .onMessage(this.onMessage)
         .send
         .get
