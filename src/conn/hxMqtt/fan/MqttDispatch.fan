@@ -129,7 +129,7 @@ class MqttDispatch : ConnDispatch
     }
     catch (Err err)
     {
-      trace.asLog.err("Failed to subscribe to ${cfg}", err)
+      trace.asLog.err("Failed to subscribe to ${cfg}\n${err.traceToStr}", err)
       throw err
     }
   }
