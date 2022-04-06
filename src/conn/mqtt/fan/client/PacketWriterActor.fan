@@ -12,21 +12,23 @@ using concurrent
 ** Reads incoming packets from the transport layer and dispatches
 ** them back to the client.
 **
-internal const class PacketWriterActor : Actor, DataCodec
+internal const class PacketWriterActor : DataCodec
 {
 
 //////////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(MqttClient client) : super(client.pool)
+  new make(MqttClient client)
   {
     this.client  = client
     this.version = client.config.version
+    this.actor   = Actor(client.pool) |msg->Obj?| { onSend(msg) }
   }
 
   private const MqttClient client
   private const MqttVersion version
+  private const Actor actor
   private MqttTransport transport() { client.transport }
 
   ** Blocking send. Do not return until this packet has been sent over the network.
@@ -37,24 +39,28 @@ internal const class PacketWriterActor : Actor, DataCodec
     return f
   }
 
+  ** Send the packet async.
+  Future send(ControlPacket packet)
+  {
+    // encode before sending to actor so that calling thread immediately
+    // gets notified of an encoding error
+    buf := Buf(4096)
+    packet.encode(buf.out, version)
+    return actor.send(ActorMsg("send", packet, buf.flip.toImmutable))
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Actor
 //////////////////////////////////////////////////////////////////////////
 
-  protected override Obj? receive(Obj? obj)
+  private Obj? onSend(ActorMsg msg)
   {
-    packet := obj as ControlPacket
-    if (packet == null) throw MqttErr("Not a control packet: $obj (${obj?.typeof})")
-
-    // allocate reusable buf
-    buf := Actor.locals["buf"] as Buf
-    if (buf == null) Actor.locals["buf"] = buf = Buf(4096)
-    buf.clear
+    packet := msg.a as ControlPacket
+    buf    := msg.b as Buf
 
     try
     {
-      packet.encode(buf.out, version)
-      transport.send(buf.flip)
+      transport.send(buf)
 
       client.lastPacketSent.val = Duration.nowTicks
 
