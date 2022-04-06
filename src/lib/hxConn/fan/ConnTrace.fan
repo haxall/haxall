@@ -226,6 +226,12 @@ const final class ConnTraceMsg
     if (arg == null) return null
     if (arg is Buf) return ((Buf)arg).toHex
     if (arg is Err) return ((Err)arg).traceToStr
+    if (arg is LogRec)
+    {
+      b := Buf()
+      ((LogRec)arg).print(b.out)
+      return b.flip.readAllStr
+    }
     return arg.toStr
   }
 }
