@@ -22,7 +22,7 @@ const class ConnFwLib : HxLib
   override HxService[] services() { [service] }
 
   ** Lookup tables for all conn libs, connectors, and points
-  const ConnService service := ConnService()
+  const ConnService service := ConnService(this)
 
   ** List the configured connTuning records
   const ConnTuningRoster tunings := ConnTuningRoster()

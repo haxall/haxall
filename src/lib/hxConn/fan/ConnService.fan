@@ -23,6 +23,12 @@ const class ConnService : HxConnService
 {
 
 //////////////////////////////////////////////////////////////////////////
+// Constructor
+//////////////////////////////////////////////////////////////////////////
+
+  internal new make(ConnFwLib fw) { this.fw = fw }
+
+//////////////////////////////////////////////////////////////////////////
 // HxConnService - Libs
 //////////////////////////////////////////////////////////////////////////
 
@@ -121,7 +127,9 @@ const class ConnService : HxConnService
 
   Void addPoint(HxConnPoint pt)
   {
-    pointsById.set(pt.id, pt)
+    dup := pointsById.getAndSet(pt.id, pt) as HxConnPoint
+    if (dup != null && dup.lib !== pt.lib)
+      fw.log.warn("Duplicate conn refs: $dup.lib.name + $pt.lib.name [$pt.id.toZinc]")
   }
 
   Void removePoint(HxConnPoint pt)
@@ -133,6 +141,7 @@ const class ConnService : HxConnService
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private const ConnFwLib fw
   private const AtomicRef libDataRef := AtomicRef(ConnServiceLibData.makeEmpty)
   private const ConcurrentMap connsById := ConcurrentMap()
   private const ConcurrentMap pointsById := ConcurrentMap()
