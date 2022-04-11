@@ -47,9 +47,9 @@ internal const class DefaultAutoReconnect : Actor, ClientAutoReconnect
 
   private static const ActorMsg reconnectMsg := ActorMsg("reconnect")
 
-  override Void onDisconnected()
+  override Void onDisconnected(Err? err)
   {
-    send(ActorMsg("disconnect"))
+    send(ActorMsg("disconnect", err))
   }
 
   protected override Obj? receive(Obj? obj)

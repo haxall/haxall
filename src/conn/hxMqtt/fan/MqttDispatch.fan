@@ -17,7 +17,7 @@ using folio
 **
 ** Dispatch callbacks for the MQTT connector
 **
-class MqttDispatch : ConnDispatch
+class MqttDispatch : ConnDispatch, ClientListener
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -54,6 +54,7 @@ class MqttDispatch : ConnDispatch
       }
     }
     this.client = MqttClient(config, trace.asLog)
+    client.addListener(this)
 
     // connect
     resume := ConnectConfig {
@@ -68,6 +69,12 @@ class MqttDispatch : ConnDispatch
 
     // schedule a resubscribe of all topics
     conn.send(resubMsg)
+  }
+
+  // MqttClient callback
+  override Void onDisconnected(Err? err)
+  {
+    this.close(err)
   }
 
   override Void onClose()

@@ -467,7 +467,7 @@ const class MqttClient : Actor, MqttConst
     pendingConnectRef.val = notConnected
 
     // notify listeners
-    listeners.fireDisconnected(isClientDisconnect)
+    listeners.fireDisconnected(err, isClientDisconnect)
 
     return err
   }
