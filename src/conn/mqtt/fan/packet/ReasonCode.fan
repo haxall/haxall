@@ -20,6 +20,7 @@ enum class ReasonCode
   granted_qos1(1, [PT.suback]),
   granted_qos2(2, [PT.suback]),
   disconnect_with_will_message(4, [PT.disconnect]),
+  not_authorized_v3(5, [PT.connack]),
   no_matching_subscribers(16, [PT.puback, PT.pubrec]),
   no_subscription_existed(17, [PT.unsuback]),
   continue_auth(24, [PT.auth]),
@@ -86,6 +87,7 @@ enum class ReasonCode
       case client_identifier_not_valid:  return 2
       case server_unavailable:           return 3
       case bad_username_or_password:     return 4
+      case not_authorized_v3:            return 5
       case not_authorized:               return 5
 
       // SUBACK
