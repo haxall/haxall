@@ -80,9 +80,11 @@ internal class ConnSyncHis
     }
     else
     {
+      // note that the span might have a timezone different than the
+      // point's timezone, but we actually allow that in situations where
+      // we must query the remote system in a different timezone
       x = CoreLib.toSpan(this.span, tz.name)
     }
-    if (x.tz != tz) throw ArgErr("Span tz $x.tz != Point tz $tz")
     return x
   }
 
