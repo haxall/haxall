@@ -1204,7 +1204,7 @@ const class Etc
   {
     if (val is Ref) return val
     if (val is Dict) return ((Dict)val).id
-    if (val is Grid) return ((Grid)val).first.id
+    if (val is Grid) return ((Grid)val).first?.id ?: throw CoerceErr("Grid is empty")
     throw CoerceErr("Cannot coerce to id: ${val?.typeof}")
   }
 
@@ -1231,6 +1231,7 @@ const class Etc
     if (val is Grid)
     {
       grid := (Grid)val
+      if (grid.isEmpty) return Ref[,]
       if (grid.meta.has("navFilter"))
         return Slot.findMethod("legacy::NavFuncs.toNavFilterRecIdList").call(grid)
       ids := Ref[,]

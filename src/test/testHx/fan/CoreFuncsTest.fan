@@ -152,12 +152,14 @@ class CoreFuncsTest : HxTest
   {
     d1 := Etc.makeDict1("id", Ref("d1"))
     d2 := Etc.makeDict1("id", Ref("d2"))
+    g0 := Etc.emptyGrid
     g1 := Etc.makeDictGrid(null, d1)
     r  := addRec(["dis":"rec in db"])
 
     // Etc.toId, toRecId
     verifyToId(null,        null)
     verifyToId(Ref[,],      null)
+    verifyToId(g0,          null)
     verifyToId(Ref("null"), Ref.nullRef)
     verifyToId(Ref("a"),    Ref("a"))
     verifyToId(d1,          Ref("d1"))
@@ -171,6 +173,8 @@ class CoreFuncsTest : HxTest
     verifyToIds(d1,                   Ref[Ref("d1")])
     verifyToIds([d1],                 Ref[Ref("d1")])
     verifyToIds([d1, d2],             Ref[Ref("d1"), Ref("d2")])
+    verifyToIds([,],                  Ref[,])
+    verifyToIds(g0,                   Ref[,])
 
     // Etc.toRec, toRec
     verifyToRec(null,    null)
@@ -258,6 +262,11 @@ class CoreFuncsTest : HxTest
       {
         verifyEq(Etc.toIds(val), val)
         verifyEq(cx.evalToFunc("toRecIdList").call(cx, [val]), val)
+      }
+      else if (val is Grid && ((Grid)val).isEmpty)
+      {
+        verifyEq(Etc.toIds(val), Ref[,])
+        verifyEq(cx.evalToFunc("toRecIdList").call(cx, [val]), Ref[,])
       }
       else
       {
