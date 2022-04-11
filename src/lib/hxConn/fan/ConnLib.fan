@@ -60,7 +60,10 @@ abstract const class ConnLib : HxLib, HxConnLib
 
   @NoDoc override Int numConns() { roster.numConns }
 
-  @NoDoc override Dict connFeatures() { model.features }
+  @NoDoc override Dict connFeatures()
+  {
+    (modelRef.val as ConnModel)?.features ?: Etc.makeDict1("name", name)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Roster
