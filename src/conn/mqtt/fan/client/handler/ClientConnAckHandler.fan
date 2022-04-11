@@ -37,7 +37,8 @@ internal class ClientConnAckHandler : ClientHandler
     // handle rejected connection
     if (!ack.isSuccess)
     {
-      pendingConnect.resp.completeErr(client.shutdown(MqttErr(ack.reason)))
+      // note - this will complete the pendingConnect future
+      client.shutdown(MqttErr(ack.reason))
       if (ack.props.reasonStr != null)
         log.err("CONNECT rejected by server: ${ack.props.reasonStr}")
       return state
@@ -59,7 +60,8 @@ internal class ClientConnAckHandler : ClientHandler
     catch (Err err)
     {
       log.err("CONNACK processing failed", err)
-      pendingConnect.resp.completeErr(client.shutdown(err))
+      // note - this will complete the pendingConnect future
+      client.shutdown(err)
       return state
     }
 
