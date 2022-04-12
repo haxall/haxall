@@ -94,8 +94,9 @@ const class MatrixGrid : Grid
   override const Col[] cols
   override Col? col(Str name, Bool checked := true)
   {
-    i := name[1..-1].toInt
-    col := cols.getSafe(i)
+    i   := name[1..-1].toInt(10, false)
+    col := null
+    if (i != null) col = cols.getSafe(i)
     if (col != null) return col
     if (checked) throw UnknownNameErr(name)
     return null
