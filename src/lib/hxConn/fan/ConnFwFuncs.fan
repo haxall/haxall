@@ -234,6 +234,13 @@ const class ConnFwFuncs
     return ConnTraceMsg.toGrid(list, meta)
   }
 
+  ** Get the internal list of pointsInWatch for debugging
+  @NoDoc @Axon { admin = true }
+  static Dict[] connPointsInWatch(Obj conn)
+  {
+    ((ConnPoint[])toConn(conn).send(HxMsg("inWatch")).get(null)).map |pt->Dict| { pt.rec }
+  }
+
   ** Current context
   private static HxContext curContext() { HxContext.curHx }
 

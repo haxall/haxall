@@ -311,6 +311,10 @@ internal final class ConnMgr
     if (oldConfig.isStatusUpdate(newConfig))
       pt.updateStatus
 
+    // handle watch changes
+    if (oldConfig.isCurEnabled != newConfig.isCurEnabled)
+      updatePointsInWatch
+
     // handle tuning change
     if (oldConfig.tuning !== newConfig.tuning)
       updateBuckets

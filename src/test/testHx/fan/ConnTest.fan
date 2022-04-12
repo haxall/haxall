@@ -540,6 +540,13 @@ class ConnTest : HxTest
     verifyWatched(conn1, [p1a])
     verifyWatched(conn3, [p1b])
     verifyWatched(conn4, [p4a, p4b])
+
+    // now change isCurEnabled and check watch updates
+    p4b = commit(p4b, ["haystackCur":Remove.val])
+    verifyWatched(conn4, [p4a, p4b], [p4a])
+    p4a = commit(p4a, ["haystackCur":n(123)])
+    p4b = commit(p4b, ["haystackCur":"back"])
+    verifyWatched(conn4, [p4a, p4b], [p4b])
   }
 
   Void verifyRoster(ConnLib lib, Dict[][] expected)
@@ -635,11 +642,11 @@ class ConnTest : HxTest
     verifySame(a->mod, b->mod)
   }
 
-  Void verifyWatched(Conn c, Dict[] points)
+  Void verifyWatched(Conn c, Dict[] points, Dict[]? expectedInWatch := points)
   {
     rt.sync
     c.sync
-    // echo("-- verifyWatched $c.dis " + points.join(",") { it.dis })
+    //echo("-- verifyWatched $c.dis " + points.join(",") { it.dis })
 
     // walk thru points and check isWatched flag
     c.points.each |pt|
@@ -649,10 +656,10 @@ class ConnTest : HxTest
     }
 
     // also verify the pointsInWatch list
-    inWatch := (ConnPoint[])c.send(HxMsg("inWatch")).get(null)
-    inWatch = inWatch.dup.sort |a, b| { a.dis <=> b.dis }
-    // echo("   inWatch = '" + inWatch.join(",") { it.dis } + "'")
-    verifyEq(points.join(",") { it.dis }, inWatch.join(",") { it.dis })
+    actualInWatch := (Dict[])eval("connPointsInWatch($c.id.toCode)")
+    actualInWatch = actualInWatch.dup.sort |a, b| { a.dis <=> b.dis }
+    //echo("   inWatch = '" + actualInWatch.join(",") { it.dis } + "'")
+    verifyEq(expectedInWatch.join(",") { it.dis }, actualInWatch.join(",") { it.dis })
 
     c.trace.clear
   }
