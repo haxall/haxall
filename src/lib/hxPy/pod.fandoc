@@ -160,3 +160,13 @@ py()
 // read in Axon the contents of the file we just created in Python
 s: ioReadStr(`io/example.txt`)
 <pre
+
+Docker in Docker [#dockerInDocker]
+**********************************
+In some deployments, the Haxall runtime itself is running in a Docker container. To use
+the Python lib in this case it becomes necessary to run Docker within Docker. The Haxall
+Docker instance needs to create a Python Docker instance and connect to it.
+
+You will need to create a Docker network for for your containers to run in. The Haxall
+runtime must be run in this network and you must use the 'network' option of the `py()`
+func to have the python Docker instance also run in that network.

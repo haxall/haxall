@@ -29,6 +29,7 @@ const class PyFuncs
   **     1. 'ghcr.io/haxall/hxpy:<ver>' (where ver = current library Haxall version)
   **     1. 'ghcr.io/haxall/hxpy:latest'
   **     1. 'ghcr.io/haxall/hxpy:main'
+  **   - 'network':  the name of the Docker network you want the container to join.
   **   - 'logLevel': log level of the hxpy python process in Docker. Valid values
   **   are 'WARN', 'INFO', 'DEBUG', (default='WARN')
   **
