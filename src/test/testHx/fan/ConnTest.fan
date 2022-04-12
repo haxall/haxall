@@ -351,10 +351,10 @@ class ConnTest : HxTest
       ])
 
     // add some points
-    p1a := addRec(["dis":"1A", "point":m, "haystackConnRef":c1.id])
-    p1b := addRec(["dis":"1B", "point":m, "haystackConnRef":c1.id])
-    p1c := addRec(["dis":"1C", "point":m, "haystackConnRef":c1.id])
-    p2a := addRec(["dis":"2A", "point":m, "haystackConnRef":c2.id])
+    p1a := addRec(["dis":"1A", "point":m, "haystackConnRef":c1.id, "haystackCur":"1", "kind":"Number"])
+    p1b := addRec(["dis":"1B", "point":m, "haystackConnRef":c1.id, "haystackCur":"2", "kind":"Number"])
+    p1c := addRec(["dis":"1C", "point":m, "haystackConnRef":c1.id, "haystackCur":"3", "kind":"Number"])
+    p2a := addRec(["dis":"2A", "point":m, "haystackConnRef":c2.id, "haystackCur":"4", "kind":"Number"])
     rt.sync
     verifyRoster(lib,
       [
@@ -382,6 +382,13 @@ class ConnTest : HxTest
       ["dispatch", "pointUpdated", HxMsg("pointUpdated", conn1.point(p1b.id), p1b)],
       ])
 
+    // setup points in watch
+    watch := rt.watch.open("test")
+    watch.addAll([p1a.id, p1b.id, p1c.id])
+    verifyWatched(conn1, [p1a, p1b, p1c])
+    watch.remove(p1c.id)
+    verifyWatched(conn1, [p1a, p1b])
+
     // move pt to new connector
     conn1.trace.clear
     conn3.trace.clear
@@ -400,11 +407,14 @@ class ConnTest : HxTest
     verifyTrace(conn3, [
       ["dispatch", "pointAdded", HxMsg("pointAdded", conn3.point(p1b.id))],
       ])
+    verifyWatched(conn1, [p1a])
+    verifyWatched(conn3, [p1b])
 
     // create some points which don't map to connectors yet
     c4id := genRef("c4")
-    p4a := addRec(["dis":"4A", "point":m, "haystackConnRef":c4id])
-    p4b := addRec(["dis":"4B", "point":m, "haystackConnRef":"bad ref"])
+    p4a := addRec(["dis":"4A", "point":m, "haystackConnRef":c4id, "haystackCur":"4a", "kind":"Number"])
+    p4b := addRec(["dis":"4B", "point":m, "haystackConnRef":"bad ref", "haystackCur":"4b", "kind":"Number"])
+    watch.addAll([p4a.id, p4b.id])
     rt.sync
     verifyRoster(lib,
       [
@@ -426,6 +436,9 @@ class ConnTest : HxTest
        [c3, p1b],
        [c4, p4a],
       ])
+    verifyWatched(conn1, [p1a])
+    verifyWatched(conn3, [p1b])
+    verifyWatched(conn4, [p4a])
 
     // fix p4b which had bad ref
     p4b = commit(p4b, ["haystackConnRef":c4.id])
@@ -440,6 +453,7 @@ class ConnTest : HxTest
     verifyTrace(conn4, [
       ["dispatch", "pointAdded", HxMsg("pointAdded", conn4.point(p4b.id))],
       ])
+    verifyWatched(conn4, [p4a, p4b])
 
     // remove points
     p4aOld := conn4.point(p4a.id)
@@ -459,6 +473,7 @@ class ConnTest : HxTest
       ["dispatch", "pointRemoved", HxMsg("pointRemoved", p4aOld)],
       ["dispatch", "pointRemoved", HxMsg("pointRemoved", p4bOld)],
       ])
+    verifyWatched(conn4, [,])
 
     // add them back
     conn4.trace.clear
@@ -476,6 +491,7 @@ class ConnTest : HxTest
       ["dispatch", "pointAdded", HxMsg("pointAdded", conn4.point(p4a.id))],
       ["dispatch", "pointAdded", HxMsg("pointAdded", conn4.point(p4b.id))],
       ])
+    verifyWatched(conn4, [p4a, p4b])
 
     // remove c2 and c3
     c2Old := lib.conn(c2.id)
@@ -506,6 +522,9 @@ class ConnTest : HxTest
        [c3, p1b],
        [c4, p4a, p4b],
       ])
+    verifyWatched(conn1, [p1a])
+    verifyWatched(conn3, [p1b])
+    verifyWatched(conn4, [p4a, p4b])
 
     // now restart lib
     rt.libs.remove(lib)
@@ -518,6 +537,9 @@ class ConnTest : HxTest
        [c3, p1b],
        [c4, p4a, p4b],
       ])
+    verifyWatched(conn1, [p1a])
+    verifyWatched(conn3, [p1b])
+    verifyWatched(conn4, [p4a, p4b])
   }
 
   Void verifyRoster(ConnLib lib, Dict[][] expected)
@@ -611,6 +633,28 @@ class ConnTest : HxTest
     verifySame(a.id, b.id)
     verifySame(a.dis, b.dis)
     verifySame(a->mod, b->mod)
+  }
+
+  Void verifyWatched(Conn c, Dict[] points)
+  {
+    rt.sync
+    c.sync
+    // echo("-- verifyWatched $c.dis " + points.join(",") { it.dis })
+
+    // walk thru points and check isWatched flag
+    c.points.each |pt|
+    {
+      isWatched := points.any { it.id == pt.id }
+      verifyEq(pt.isWatched, isWatched, pt.dis)
+    }
+
+    // also verify the pointsInWatch list
+    inWatch := (ConnPoint[])c.send(HxMsg("inWatch")).get(null)
+    inWatch = inWatch.dup.sort |a, b| { a.dis <=> b.dis }
+    // echo("   inWatch = '" + inWatch.join(",") { it.dis } + "'")
+    verifyEq(points.join(",") { it.dis }, inWatch.join(",") { it.dis })
+
+    c.trace.clear
   }
 
 //////////////////////////////////////////////////////////////////////////

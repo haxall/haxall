@@ -29,6 +29,7 @@ const final class ConnPoint : HxConnPoint
     this.connRef   = conn
     this.idRef     = rec.id
     this.configRef = AtomicRef(ConnPointConfig(conn.lib, rec))
+    this.isWatchedRef.val = conn.rt.watch.isWatched(id)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -76,6 +76,7 @@ internal final class ConnMgr
         case "pointRemoved": return onPointRemoved(msg.a)
         case "init":         return onInit
         case "forcehk":      return onHouseKeeping
+        case "inWatch":      return pointsInWatch.toImmutable
       }
     }
     catch (Err e)
@@ -257,6 +258,7 @@ internal final class ConnMgr
   private Obj? onInit()
   {
     updateStatus(true)
+    updatePointsInWatch
     updateBuckets
     return null
   }
@@ -292,6 +294,7 @@ internal final class ConnMgr
 
   private Obj? onPointAdded(ConnPoint pt)
   {
+    updatePointsInWatch
     updateBuckets
     pt.updateStatus
     dispatch.onPointAdded(pt)
@@ -318,6 +321,7 @@ internal final class ConnMgr
 
   private Obj? onPointRemoved(ConnPoint pt)
   {
+    updatePointsInWatch
     updateBuckets
     dispatch.onPointRemoved(pt)
     return null
@@ -339,16 +343,22 @@ internal final class ConnMgr
 
   private Obj? onWatch(ConnPoint[] points)
   {
+    // set isWatched flag regardless of cur enable status
+    points.each |pt| { pt.isWatchedRef.val = true }
+
+    // filter for cur enabled points for rest of logic
     points = points.findAll |pt| { pt.isCurEnabled }
     if (points.isEmpty) return "watch [no cur points]"
 
+    // check for quick polls
     nowTicks := Duration.nowTicks
     points.each |pt|
     {
-      pt.isWatchedRef.val = true
       if (isQuickPoll(nowTicks, pt))
         pt.updateCurQuickPoll(true)
     }
+
+    // update internal tables and handle watch lifecycle
     updatePointsInWatch
     if (!pointsInWatch.isEmpty) openPin("watch")
     if (isOpen) dispatch.onWatch(points)
@@ -377,7 +387,11 @@ internal final class ConnMgr
   private Void updatePointsInWatch()
   {
     acc := ConnPoint[,]
-    conn.points.each |pt| { if (pt.isWatched) acc.add(pt) }
+    acc.capacity = conn.points.size
+    conn.points.each |pt|
+    {
+      if (pt.isWatched && pt.isCurEnabled) acc.add(pt)
+    }
     this.pointsInWatch = acc
   }
 
