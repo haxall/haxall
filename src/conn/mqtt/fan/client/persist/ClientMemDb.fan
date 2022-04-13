@@ -90,7 +90,7 @@ const class ClientMemDb : ClientPersistence
 ** ClientMemSession
 **************************************************************************
 
-internal class ClientMemSession
+internal const class ClientMemSession
 {
   new make(Str clientId) { this.clientId = clientId }
 
@@ -98,23 +98,20 @@ internal class ClientMemSession
 
   Void put(Str key, PersistablePacket packet)
   {
-    keys.add(key)
     packets[key] = packet
   }
 
   Void remove(Str key)
   {
-    keys.remove(key)
     packets.remove(key)
   }
 
   Void clear()
   {
-    keys.clear
     packets.clear
   }
 
-  Str[] keys := Str[,]
-  [Str:PersistablePacket] packets := [:]
+  Str[] keys() { packets.keys(Str#) }
+  const ConcurrentMap packets := ConcurrentMap()
 }
 
