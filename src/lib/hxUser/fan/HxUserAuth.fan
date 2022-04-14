@@ -181,5 +181,10 @@ internal class HxUserAuthServerContext : AuthServerContext
   {
     lib.login(req, res, lib.read(user.username)).key
   }
+
+  override Void onAuthErr(AuthErr err)
+  {
+    res.headers["x-hx-login-err"] = err.resMsg
+  }
 }
 

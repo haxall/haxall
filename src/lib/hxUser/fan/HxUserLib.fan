@@ -25,6 +25,9 @@ const class HxUserLib : HxLib, HxUserService
   ** Session management
   const HxUserSessions sessions := HxUserSessions(this)
 
+  ** Settings record
+  override HxUserSettings rec() { super.rec }
+
   ** Auto login a configured superuser account for testing
   const Bool noAuth := rt.config.has("noAuth")
 

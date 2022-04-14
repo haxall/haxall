@@ -46,8 +46,7 @@ const class HxUserSessions
     key := HxUserSession.genKey("s-")
     attestKey := HxUserSession.genKey("a-")
     session := HxUserSession(req, key, attestKey, user)
-    byKey.add(session.key, session)
-    return session
+    return doOpen(session)
   }
 
   ** Open cluster session
@@ -55,6 +54,14 @@ const class HxUserSessions
   {
     log.info("Login cluster: $user.username")
     session := HxUserSession(req, key, attestKey, user) { it.isCluster = true }
+    return doOpen(session)
+  }
+
+  ** Choke point for opening a session
+  private HxUserSession doOpen(HxUserSession session)
+  {
+    if (byKey.size >= lib.rec.maxSessions && !session.user.isSu)
+      throw AuthErr("Max sessions exceeded", "Max sessions exceeded", 503)
     byKey.add(session.key, session)
     return session
   }

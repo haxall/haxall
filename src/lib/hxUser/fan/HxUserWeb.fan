@@ -111,8 +111,10 @@ const class HxUserWeb : HxLibWeb
 
   private Void onLogout()
   {
-    lib.log.info("TODO $req.method $req.uri")
-    res.sendErr(500)
+    cx := lib.authenticate(req, res)
+    if (cx == null) return
+    lib.sessions.close(cx.session)
+    res.redirect(lib.loginUri)
   }
 
 //////////////////////////////////////////////////////////////////////////
