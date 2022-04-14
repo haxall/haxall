@@ -33,7 +33,7 @@ abstract class AuthServerContext
   ** of authentication.
   **
   ** If the user doesn't exist, but you want a "fake" haystack authentication
-  ** to occur, then return AuthUser.getFake.
+  ** to occur, then return AuthUser.genFake.
   abstract AuthUser? userByUsername(Str username)
 
   ** Lookup user session by authToken or return null if invalid token

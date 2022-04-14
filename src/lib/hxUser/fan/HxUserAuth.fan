@@ -160,7 +160,7 @@ internal class HxUserAuthServerContext : AuthServerContext
   override AuthUser? userByUsername(Str username)
   {
     user := lib.read(username, false)
-    if (user == null) return null
+    if (user == null) return AuthUser.genFake(username)
 
     msg := HxUserUtil.dictToAuthMsg(user.meta->userAuth)
     return AuthUser(user.username, msg)
@@ -173,7 +173,8 @@ internal class HxUserAuthServerContext : AuthServerContext
 
   override Str? userSecret()
   {
-    hxUser := lib.read(user.username)
+    hxUser := lib.read(user.username, false)
+    if (hxUser == null) return null
     return rt.db.passwords.get(hxUser.id.id)
   }
 
