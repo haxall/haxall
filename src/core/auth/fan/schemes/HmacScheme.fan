@@ -68,7 +68,7 @@ const class HmacScheme : AuthScheme
       cx.debug("hmac.expected: $expected")
     }
 
-    if (expected != digest) throw AuthErr("Invalid password")
+    if (expected != digest) throw AuthErr.makeInvalidPassword
 
     authToken := cx.login
     return AuthMsg("hmac", ["authToken":authToken])

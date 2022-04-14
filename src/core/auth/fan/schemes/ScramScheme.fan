@@ -26,7 +26,7 @@ const class ScramScheme : AuthScheme
 
     // verify server signature
     if (cx.stash["serverSignature"] != data["v"])
-      throw AuthErr("invalid server signature")
+      throw AuthErr("Invalid server signature")
   }
 
   override AuthMsg onClient(AuthClientContext cx, AuthMsg msg)
@@ -130,7 +130,7 @@ const class ScramScheme : AuthScheme
     // construct server-first-message
     c_nonce := data["r"]
     if (c_nonce == null || c_nonce.isEmpty)
-      throw AuthErr("bad client nonce: '${c_nonce}'")
+      throw AuthErr("Bad client nonce: '${c_nonce}'")
     s_nonce := AuthUtil.genNonce
     nonce   := "${c_nonce}${s_nonce}"
     s1_msg  := "r=${nonce},s=${salt},i=${i}"
@@ -148,7 +148,7 @@ const class ScramScheme : AuthScheme
     // on order to support login by email instead of actual username
     user   := cx.user
     username := AuthUtil.fromBase64(msg.param("handshakeToken"))
-    secret := cx.userSecret ?: throw AuthErr("unknown user: '${username}'")
+    secret := cx.userSecret ?: throw AuthErr.makeUnknownUser(username)
 
     // auth params
     hash := user.param("hash")
@@ -165,7 +165,7 @@ const class ScramScheme : AuthScheme
     // extract and verify server nonce
     nonce   := data["r"]
     s_nonce := nonce[-(AuthUtil.genNonce.size)..-1]
-    if (!AuthUtil.verifyNonce(s_nonce)) throw AuthErr("invalid nonce")
+    if (!AuthUtil.verifyNonce(s_nonce)) throw AuthErr("Invalid nonce")
 
     // reconstruct auth message
     c_nonce     := nonce[0..<(-s_nonce.size)]
@@ -197,7 +197,7 @@ const class ScramScheme : AuthScheme
     // verify
     computedSecret := clientKey.toDigest(hash)
     if (computedSecret.toBase64 != scramKey.storedKey.toBase64)
-      throw AuthErr("invalid password")
+      throw AuthErr.makeInvalidPassword
 
     // compute server-final-message
     serverSig := authMsg.toBuf.hmac(hash, scramKey.serverKey)

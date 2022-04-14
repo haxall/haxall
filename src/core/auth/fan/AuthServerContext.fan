@@ -152,7 +152,7 @@ abstract class AuthServerContext
       if (log.isDebug) log.debug(msg, e)
       else log.info(msg)
       onAuthErr(e)
-      return sendRes(res, 403, "Auth failed")
+      return sendRes(res, e.resCode, "Auth failed: $e.resMsg")
     }
   }
 

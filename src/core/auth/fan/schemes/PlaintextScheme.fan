@@ -31,7 +31,7 @@ const class PlaintextScheme : AuthScheme
 
     // authenticate
     given := AuthUtil.fromBase64(msg.param("password"))
-    if (!cx.authSecret(given)) throw AuthErr("Invalid password")
+    if (!cx.authSecret(given)) throw AuthErr.makeInvalidPassword
 
     authToken := cx.login
     return AuthMsg(name, ["authToken": authToken])
