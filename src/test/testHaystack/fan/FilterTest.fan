@@ -203,6 +203,13 @@ class FilterTest : HaystackTest
     verifyEach("foo == @x or bar == @y",  ["bar", "foo"], Obj[y, x])
 
     verifyEach("(foo == @x and bar == @y) or (baz == @z)",  ["baz", "bar", "foo"], Obj[z, y, x])
+
+    acc := Obj[,]
+    f := Filter("bar->foo->baz == 123 or equipRef->siteRef == @x")
+    acc.clear; f.eachTag |t| { acc.add(t) }
+    verifyEq(acc, Obj["bar", "equipRef"])
+    acc.clear; f.eachVal |v, p| { acc.add(p).add(v) }
+    verifyEq(acc, Obj[FilterPath("bar->foo->baz"), n(123), FilterPath("equipRef->siteRef"), Ref("x")])
   }
 
   Void verifyEach(Str s, Str[] expectedTags, Obj[] expectedVals)
@@ -214,6 +221,16 @@ class FilterTest : HaystackTest
     f.eachVal |x| { actualVals.add(x) }
     verifyEq(expectedTags, actualTags)
     verifyEq(expectedVals, actualVals)
+
+    if (expectedTags.size == expectedVals.size)
+    {
+      actualTags.clear
+      actualVals.clear
+      f.eachVal |x, p| {
+      actualVals.add(x); actualTags.add(p.toStr) }
+      verifyEq(expectedTags, actualTags)
+      verifyEq(expectedVals, actualVals)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

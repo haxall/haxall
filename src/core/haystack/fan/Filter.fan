@@ -166,7 +166,7 @@ const abstract class Filter
 
   ** Iterate each literal value used by the filter.  No guarantee is
   ** made that the function isn't called with same value multiple times.
-  @NoDoc abstract Void eachVal(|Obj? val| f)
+  @NoDoc abstract Void eachVal(|Obj? val, FilterPath path| f)
 
 //////////////////////////////////////////////////////////////////////////
 // AST
@@ -261,7 +261,7 @@ internal const abstract class SimpleFilter : Filter
 
   override final Void eachTag(|Str| f) { f(path.get(0)) }
 
-  override Void eachVal(|Obj?| f) {}
+  override Void eachVal(|Obj?,FilterPath| f) {}
 
   override final Obj? argA() { path }
 
@@ -358,7 +358,7 @@ internal const final class FilterEq : SimpleFilter
 {
   new make(FilterPath p, Obj v) : super(p) { val = v; toStr = "$p == ${Kind.fromVal(v).valToStr(v)}" }
   override Bool doMatchesVal(Obj? v) { v == val }
-  override Void eachVal(|Obj?| f) { f(val) }
+  override Void eachVal(|Obj?,FilterPath| f) { f(val, path) }
   override Str pattern() { "$path == ?" }
   override FilterType type() { FilterType.eq }
   override Obj? argB() { val }
@@ -375,7 +375,7 @@ internal const final class FilterNe : SimpleFilter
 {
   new make(FilterPath p, Obj v) : super(p) { val = v; toStr = "$p != ${Kind.fromVal(v).valToStr(v)}" }
   override Bool doMatchesVal(Obj? v) { v != null && v != val }
-  override Void eachVal(|Obj?| f) { f(val) }
+  override Void eachVal(|Obj?, FilterPath| f) { f(val, path) }
   override Str pattern() { "$path != ?" }
   override FilterType type() { FilterType.ne }
   override Obj? argB() { val }
@@ -400,7 +400,7 @@ internal abstract const class FilterCmp : SimpleFilter
     if (v == null || v.typeof !== valType) return false
     return cmp(v, val)
   }
-  override Void eachVal(|Obj?| f) { f(val) }
+  override Void eachVal(|Obj?, FilterPath| f) { f(val, path) }
   override Str pattern() { "$path $op ?" }
   abstract Str op()
   abstract Bool cmp(Obj x, Obj val)
@@ -461,7 +461,7 @@ internal const final class FilterAnd : Filter
             (b.isCompound && b.type !== FilterType.and ? "($b)" : b.toStr)
   }
   override Bool doMatches(Dict r, HaystackContext cx) { a.doMatches(r, cx) && b.doMatches(r, cx) }
-  override Void eachVal(|Obj?| f) { a.eachVal(f); b.eachVal(f) }
+  override Void eachVal(|Obj?,FilterPath| f) { a.eachVal(f); b.eachVal(f) }
   override Void eachTag(|Str| f) { a.eachTag(f); b.eachTag(f) }
   override Str pattern() { "($a.pattern) and ($b.pattern)" }
   override FilterType type() { FilterType.and }
@@ -489,7 +489,7 @@ internal const final class FilterOr : Filter
   }
   override Bool doMatches(Dict r, HaystackContext cx) { a.doMatches(r, cx) || b.doMatches(r, cx) }
   override Str pattern() { "($a.pattern) or ($b.pattern)" }
-  override Void eachVal(|Obj?| f) { a.eachVal(f); b.eachVal(f) }
+  override Void eachVal(|Obj?,FilterPath| f) { a.eachVal(f); b.eachVal(f) }
   override Void eachTag(|Str| f) { a.eachTag(f); b.eachTag(f) }
   override FilterType type() { FilterType.or }
   override Obj? argA() { a }
@@ -510,7 +510,7 @@ internal const final class FilterIsA : Filter
   new make(Symbol symbol) { this.symbol = symbol; this.toStr = symbol.toCode }
   override Bool doMatches(Dict r, HaystackContext cx) { cx.inference.isA(r, symbol) }
   override Str pattern() { symbol.toCode }
-  override Void eachVal(|Obj?| f) {}
+  override Void eachVal(|Obj?,FilterPath| f) {}
   override Void eachTag(|Str| f) {}
   override FilterType type() { FilterType.isA }
   override Obj? argA() { symbol }
@@ -781,7 +781,7 @@ internal abstract const class SearchFilter : Filter
 
   override Void eachTag(|Str tag| f) {}
 
-  override Void eachVal(|Obj? val| f) {}
+  override Void eachVal(|Obj? val, FilterPath| f) {}
 
   override FilterType type() { FilterType.search }
 
