@@ -587,26 +587,31 @@ internal const final class FilterIsA : Filter
   ** Equality based on string encoding
   override Bool equals(Obj? that) { that is FilterPath && toStr == that.toStr }
 
+  ** Return if this path contains the given tag name
+  abstract Bool contains(Str n)
+
   ** Get list of tag names separated by "->"
   abstract override Str toStr()
 }
 
 @Js
-internal const class FilterPath1 : FilterPath
+internal const final class FilterPath1 : FilterPath
 {
   new make(Str n) { this.name = n }
   override Int size() { 1 }
   override Str get(Int i) { if (i == 0) return name; throw IndexErr(i.toStr) }
   override Str toStr() { name }
+  override Bool contains(Str n) { name == n }
   const Str name
 }
 
 @Js
-internal const class FilterPathN : FilterPath
+internal const final class FilterPathN : FilterPath
 {
   new make(Str[] n) { this.names = n; this.toStr = n.join("->") }
   override Int size() { names.size }
   override Str get(Int i) { names[i] }
+  override Bool contains(Str n) { names.contains(n) }
   override const Str toStr
   const Str[] names
 }

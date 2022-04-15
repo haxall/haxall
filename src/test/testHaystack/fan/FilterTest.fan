@@ -44,6 +44,8 @@ class FilterTest : HaystackTest
     verifyErr(IndexErr#) { p.get(names.size) }
     verifyEq(p.toStr, names.join("->"))
     verifyEq(FilterPath.fromStr(p.toStr), p)
+    names.each |n| { verifyEq(p.contains(n), true) }
+    verifyEq(p.contains("notThere"), false)
     if (names.size == 1)
       verifyEq(p.typeof.qname, "haystack::FilterPath1")
     else
