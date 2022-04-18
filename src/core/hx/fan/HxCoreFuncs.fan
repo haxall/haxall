@@ -88,25 +88,12 @@ const class HxCoreFuncs
   ** The filter must an expression which matches the filter structure.
   ** String values may parsed into a filter using `parseFilter` function.
   @Axon
-  static Grid readAll(Expr filterExpr, Expr? opts := null)
+  static Grid readAll(Expr filterExpr, Expr? optsExpr := null)
   {
     cx := curContext
     filter := filterExpr.evalToFilter(cx)
-    if (opts != null)
-    {
-      optsDict := (Dict?)opts.eval(cx)
-      if (optsDict != null && !optsDict.isEmpty)
-      {
-        grid := cx.db.readAll(filter, optsDict)
-        if (optsDict.has("search"))
-        {
-          search := optsDict["search"].toStr.trimToNull
-          if (search != null) grid = grid.filter(Filter.search(search), cx)
-        }
-        return grid
-      }
-    }
-    return cx.db.readAll(filter)
+    opts := optsExpr == null ? Etc.emptyDict : (Dict?)optsExpr.eval(cx)
+    return cx.db.readAll(filter, opts)
   }
 
   ** Read a list of ids as a stream of Dict records.

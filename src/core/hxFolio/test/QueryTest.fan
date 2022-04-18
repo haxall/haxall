@@ -257,25 +257,26 @@ class QueryTest : WhiteboxTest
   Void verifyQueryAcc(FolioContext? cx, Int limit, Dict[] x, Dict[] expected)
   {
     // collect
-    collect := QueryCollect(cx, limit)
+    opts := QueryOpts(limit)
+    collect := QueryCollect(cx, opts)
     x.each |r, i| { verifyEq(collect.add(r), collect.list.size < limit) }
     verifyDictsEq(collect.list, expected)
 
     // count
-    count := QueryCounter(cx, limit)
+    count := QueryCounter(cx, opts)
     x.each |r, i| { verifyEq(count.add(r), count.count < limit) }
     verifyEq(count.count, expected.size)
 
     // each while
     eAcc := Dict[,]
-    e := QueryEachWhile(cx, limit) |rec->Obj?| { eAcc.add(rec); return null }
+    e := QueryEachWhile(cx, opts) |rec->Obj?| { eAcc.add(rec); return null }
     x.each |r, i| { verifyEq(e.add(r), eAcc.size < limit) }
     verifyDictsEq(eAcc, expected)
 
     // each while using early break instead of limit
     eAcc = Dict[,]
     broke := false
-    e = QueryEachWhile(cx, Int.maxVal) |rec->Obj?|
+    e = QueryEachWhile(cx, QueryOpts(Int.maxVal)) |rec->Obj?|
     {
       if (eAcc.size < limit) eAcc.add(rec)
       broke = eAcc.size >= limit

@@ -171,6 +171,7 @@ abstract const class Folio
   **
   ** Options:
   **   - limit: max number of recs to read
+  **   - search: search string to apply in addition to filter
   **   - sort: marker tag to sort recs by dis string
   **   - trash: marker tag to include recs with trash tag
   **   - gridMeta: Dict to use for grid meta

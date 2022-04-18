@@ -21,36 +21,25 @@ internal class Query : HaystackContext
     this.folio      = folio
     this.index      = folio.index
     this.filter     = filter
-    this.opts       = opts
-    this.limit      = toLimit(opts)
-    this.skipTrash  = opts.missing("trash")
+    this.opts       = QueryOpts(opts)
     this.startTicks = Duration.nowTicks
-  }
-
-  private static Int toLimit(Dict opts)
-  {
-    optLimit := opts.get("limit", "not-found")
-    if (optLimit is Number)
-      return ((Number)optLimit).toInt
-    else
-      return Int.maxVal
   }
 
   Dict[] collect(FolioContext? cx)
   {
     plan := makePlan
-    acc := QueryCollect(cx, limit)
+    acc := QueryCollect(cx, opts)
     plan.query(this, acc)
     updateStats(plan)
     list := acc.list
-    if (opts.has("sort")) list = Etc.sortDictsByDis(list)
+    if (opts.sort) list = Etc.sortDictsByDis(list)
     return list
   }
 
   Obj? eachWhile(FolioContext? cx, |Dict->Obj?| cb)
   {
     plan := makePlan
-    acc := QueryEachWhile(cx, limit, cb)
+    acc := QueryEachWhile(cx, opts, cb)
     plan.query(this, acc)
     updateStats(plan)
     return acc.result
@@ -59,7 +48,7 @@ internal class Query : HaystackContext
   Int count(FolioContext? cx)
   {
     plan := makePlan
-    acc := QueryCounter(cx, limit)
+    acc := QueryCounter(cx, opts)
     plan.query(this, acc)
     updateStats(plan)
     return acc.count
@@ -67,7 +56,7 @@ internal class Query : HaystackContext
 
   QueryPlan makePlan()
   {
-    if (!skipTrash) return FullScanPlan()
+    if (!opts.skipTrash) return FullScanPlan()
     return doMakePlan(index, filter, false)
   }
 
@@ -123,10 +112,54 @@ internal class Query : HaystackContext
   const HxFolio folio
   const IndexMgr index
   const Filter filter
+  const QueryOpts opts
+  const Int startTicks
+}
+
+**************************************************************************
+** QueryOpts
+**************************************************************************
+
+internal const class QueryOpts
+{
+  new make(Dict opts)
+  {
+    this.opts      = opts
+    this.limit     = toLimit(opts)
+    this.search    = toSearch(opts)
+    this.skipTrash = opts.missing("trash")
+    this.sort      = opts.has("sort")
+  }
+
+  new makeLimit(Int limit)
+  {
+    this.opts  = Etc.emptyDict
+    this.limit = limit
+  }
+
+  private static Int toLimit(Dict opts)
+  {
+    optLimit := opts.get("limit", "not-found")
+    if (optLimit is Number)
+      return ((Number)optLimit).toInt
+    else
+      return Int.maxVal
+  }
+
+  private static Filter? toSearch(Dict opts)
+  {
+    search := opts["search"] as Str
+    if (search == null) return null
+    search = search.trimToNull
+    if (search == null) return null
+    return Filter.search(search)
+  }
+
   const Dict opts
   const Int limit
+  const Filter? search
   const Bool skipTrash
-  const Int startTicks
+  const Bool sort
 }
 
 **************************************************************************
@@ -137,10 +170,11 @@ internal class Query : HaystackContext
 internal abstract class QueryAcc
 {
   ** Constructor
-  new make(FolioContext? cx, Int limit)
+  new make(FolioContext? cx, QueryOpts opts)
   {
-    this.cx    = cx
-    this.limit = limit
+    this.cx     = cx
+    this.limit  = opts.limit
+    this.search = opts.search
   }
 
   ** Prepare internal capacity on accumulator list
@@ -151,6 +185,7 @@ internal abstract class QueryAcc
   {
     if (count >= limit) return false
     if (cx != null && !cx.canRead(rec)) return true
+    if (search != null && !search.matches(rec, HaystackContext.nil)) return true
     count++
     if (!onAdd(rec)) return false
     return count < limit
@@ -161,6 +196,7 @@ internal abstract class QueryAcc
 
   FolioContext? cx
   const Int limit
+  Filter? search
   Int count
 }
 
@@ -172,7 +208,7 @@ internal abstract class QueryAcc
 internal class QueryCollect : QueryAcc
 {
   ** Constructor
-  new make(FolioContext? cx, Int limit) : super(cx, limit) {}
+  new make(FolioContext? cx, QueryOpts opts) : super(cx, opts) {}
 
   ** Prepare internal capacity on accumulator list
   override Void prepCapacity(Int addingSize)
@@ -200,7 +236,7 @@ internal class QueryCollect : QueryAcc
 internal class QueryEachWhile : QueryAcc
 {
   ** Constructor
-  new make(FolioContext? cx, Int limit, |Dict->Obj?| cb) : super(cx, limit)
+  new make(FolioContext? cx, QueryOpts opts, |Dict->Obj?| cb) : super(cx, opts)
   {
     this.cb = cb
   }
@@ -223,7 +259,7 @@ internal class QueryEachWhile : QueryAcc
 ** QueryCounter just iterates to increment base class counter
 internal class QueryCounter : QueryAcc
 {
-  new make(FolioContext? cx, Int limit) : super(cx, limit) {}
+  new make(FolioContext? cx, QueryOpts opts) : super(cx, opts) {}
   override Bool onAdd(Dict rec) { true }
 }
 
@@ -298,7 +334,7 @@ internal final class FullScanPlan : QueryPlan
     {
       dict := rec.dict
       if (!q.filter.matches(dict, q)) return null
-      if (rec.isTrash && q.skipTrash) return null
+      if (rec.isTrash && q.opts.skipTrash) return null
       return acc.add(dict) ? null : "break"
     }
   }
