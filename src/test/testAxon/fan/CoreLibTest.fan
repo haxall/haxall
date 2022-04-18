@@ -1122,6 +1122,7 @@ class CoreLibTest : HaystackTest
     verifyEq(grid.get(0)->name, "andy")
     verifyEq(grid.get(1)->name, "charles")
     verifyEq(grid.get(2)->name, "brian")
+    verifyGridEq(eval(x + """.sort("unknownCol")"""), eval(x))
 
     // sort(f)
     grid = eval(x + """.sort((a, b) => a->name.size <=> b->name.size)""")
@@ -1136,6 +1137,7 @@ class CoreLibTest : HaystackTest
     verifyEq(grid.get(0)->name, "brian")
     verifyEq(grid.get(1)->name, "charles")
     verifyEq(grid.get(2)->name, "andy")
+    verifyGridEq(eval(x + """.sortr("unknownCol")"""), eval(x))
 
     // sortr(f)
     grid = eval(x + """.sortr((a, b) => a->name.size <=> b->name.size)""")
@@ -1288,9 +1290,17 @@ class CoreLibTest : HaystackTest
       """do
           g: $x
           cols: g.colNames.moveTo("name", 0).moveTo("not there!", 1).moveTo("age", -1)
-          g.reorderCols(cols)
+          g.reorderCols(cols.add("unknownCol"))
          end""")
     verifyEq(grid.colNames, ["name", "bar", "foo", "age"])
+
+    // keepCols
+    grid = eval(
+      """do
+          g: $x
+          g.keepCols(["name", "age", "unknownCols"])
+         end""")
+    verifyEq(grid.colNames, ["name", "age"])
 
     // removeCol
     grid = eval(x + """.removeCol("age")""")

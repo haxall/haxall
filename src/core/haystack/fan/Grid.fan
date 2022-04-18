@@ -203,12 +203,14 @@ const mixin Grid
   ** Convenience for `sort` which sorts the given column.
   ** The 'col' parameter can be a `Col` or a str name.  The sorting
   ** algorithm used is the same one used by the table UI based on
-  ** the localized display string.
+  ** the localized display string.  If column is not found then
+  ** return this.
   **
   Grid sortCol(Obj col)
   {
     if (isEmpty) return this
-    c := toCol(col)
+    c := toCol(col, false)
+    if (c == null) return this
     return sort |a, b| { Etc.sortCompare(a.val(c), b.val(c)) }
   }
 
@@ -218,7 +220,8 @@ const mixin Grid
   Grid sortColr(Obj col)
   {
     if (isEmpty) return this
-    c := toCol(col)
+    c := toCol(col, false)
+    if (c == null) return this
     return sortr |a, b| { Etc.sortCompare(a.val(c), b.val(c)) }
   }
 
@@ -616,14 +619,17 @@ const mixin Grid
   ** Return a new grid with the columns reordered.  The
   ** given list of names represents the new order and must
   ** contain the same current `Col` instances or column names.
+  ** Any column names not found are ignored.
   **
   Grid reorderCols(Obj[] cols)
   {
     gb := GridBuilder().setMeta(this.meta)
     newOrder := Col[,]
+    newOrder.capacity = cols.size
     cols.each |col|
     {
-      c := toCol(col)
+      c := toCol(col, false)
+      if (c == null) return
       newOrder.add(c)
       gb.addCol(c.name, c.meta)
     }
