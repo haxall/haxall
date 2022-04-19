@@ -94,7 +94,7 @@ const final class ConnModel
       if (checked) throw Err("Missing required def: $symbol")
       return null
     }
-    if (def.lib !== lib.def) throw Err("Def in wrong lib: $symbol [$def.lib != $lib]")
+    if (def.lib !== ns.lib(lib.name)) throw Err("Def in wrong lib: $symbol [$def.lib != $lib.def]")
     return def
   }
 
