@@ -232,6 +232,7 @@ Observation events include the following tags:
   - 'rec': history rec dict
   - 'count': number of history items written
   - 'span': start and end timestamps of the items written as `haystack::Span`
+  - 'user': user dict for commit context or null if outside of a context
 
 These are the config tags:
   - `obsFilter`: filter string for rec set to observe or omit for all recs

@@ -124,9 +124,9 @@ const class HxdObsService : Actor, HxObsService
     if (curVals.hasSubscriptions) send(HxMsg("curVal", diff))
   }
 
-  Void hisWrite(Dict rec, Dict result)
+  Void hisWrite(Dict rec, Dict result, HxUser? user)
   {
-    if (hisWrites.hasSubscriptions) send(HxMsg("hisWrite", rec, result))
+    if (hisWrites.hasSubscriptions) send(HxMsg("hisWrite", rec, result, user))
   }
 
   override Obj? receive(Obj? msgObj)
@@ -138,7 +138,7 @@ const class HxdObsService : Actor, HxObsService
       {
         case "commit":   return onCommit(msg.a, msg.b)
         case "curVal":   return onCurVal(msg.a)
-        case "hisWrite": return onHisWrite(msg.a, msg.b)
+        case "hisWrite": return onHisWrite(msg.a, msg.b, msg.c)
         case "sync":     return onSync
         default:         return null
       }
@@ -222,7 +222,7 @@ const class HxdObsService : Actor, HxObsService
     return null
   }
 
-  private Obj? onHisWrite(Dict rec, Dict result)
+  private Obj? onHisWrite(Dict rec, Dict result, HxUser? user)
   {
     count := result["count"] as Number
     span  := result["span"] as Span
@@ -231,7 +231,7 @@ const class HxdObsService : Actor, HxObsService
       log.warn("HxdObsService.onHisWrite invalid result: $result")
       return null
     }
-    event := HisWriteObservation(hisWrites, rt.now, rec.id, rec, count, span)
+    event := HisWriteObservation(hisWrites, rt.now, rec.id, rec, count, span, user?.meta)
     hisWrites.subscriptions.each |HisWritesSubscription sub|
     {
       if (sub.include(rec)) sub.send(event)

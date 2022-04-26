@@ -14,7 +14,7 @@ using haystack
 @NoDoc
 const class HisWriteObservation : Observation
 {
-  new make(Observable observable, DateTime ts, Ref id, Dict rec, Number count, Span span)
+  new make(Observable observable, DateTime ts, Ref id, Dict rec, Number count, Span span, Dict? user)
   {
     this.type  = observable.name
     this.ts    = ts
@@ -22,6 +22,7 @@ const class HisWriteObservation : Observation
     this.rec   = rec
     this.count = count
     this.span  = span
+    this.user  = user
   }
 
   const override Str type
@@ -30,6 +31,7 @@ const class HisWriteObservation : Observation
   const Dict rec
   const Number count
   const Span span
+  const Dict? user
 
   override Str? subType() { null }
 
@@ -45,6 +47,7 @@ const class HisWriteObservation : Observation
       case "rec":   return rec
       case "count": return count
       case "span":  return span
+      case "user":  return user ?: def
       default:      return def
     }
   }
@@ -72,6 +75,7 @@ const class HisWriteObservation : Observation
     r = f(rec,   "rec");   if (r != null) return r
     r = f(count, "count"); if (r != null) return r
     r = f(span,  "span");  if (r != null) return r
+    if (user != null) r = f(user, "user"); if (r != null) return r
     return null
   }
 }

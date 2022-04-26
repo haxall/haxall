@@ -93,8 +93,8 @@ const class HxdFolioHooks : FolioHooks
   }
 
   ** Callback after his write.  Result is same dict returned from future.
-  override Void postHisWrite(Dict rec, Dict result)
+  override Void postHisWrite(FolioHisEvent e)
   {
-    rt.obs.hisWrite(rec, result)
+    rt.obs.hisWrite(e.rec, e.result, e.cxInfo as HxUser)
   }
 }

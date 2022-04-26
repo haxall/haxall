@@ -66,14 +66,14 @@ internal const class IndexMgr : HxFolioMgr
 
   Future commit(Diff[] diffs) { send(Msg(MsgId.commit, diffs)) }
 
-  Future hisWrite(Rec rec, HisItem[] items, Dict? opts) { send(Msg(MsgId.hisWrite, rec, Unsafe(items), opts)) }
+  Future hisWrite(Rec rec, HisItem[] items, Dict? opts, Obj? cxInfo) { send(Msg(MsgId.hisWrite, rec, Unsafe(items), opts, cxInfo)) }
 
   override Obj? onReceive(Msg msg)
   {
     switch (msg.id)
     {
       case MsgId.commit:    return onCommit(msg.a, msg.b, msg.c)
-      case MsgId.hisWrite:  return onHisWrite(msg.a, msg.b, msg.c)
+      case MsgId.hisWrite:  return onHisWrite(msg.a, msg.b, msg.c, msg.d)
       default:              return super.onReceive(msg)
     }
   }
@@ -127,7 +127,7 @@ internal const class IndexMgr : HxFolioMgr
 // His Write
 //////////////////////////////////////////////////////////////////////////
 
-  private HisWriteFolioRes onHisWrite(Rec rec, Unsafe toWriteUnsafe, Dict opts)
+  private HisWriteFolioRes onHisWrite(Rec rec, Unsafe toWriteUnsafe, Dict opts, Obj? cxInfo)
   {
     // merge current and toWrite items
     toWrite := (HisItem[])toWriteUnsafe.val
@@ -147,7 +147,7 @@ internal const class IndexMgr : HxFolioMgr
     result := Etc.makeDict2("count", Number(toWrite.size), "span", span)
 
     // fire hooks event
-    folio.hooks.postHisWrite(rec.dict, result)
+    folio.hooks.postHisWrite(HisEvent(rec.dict, result, cxInfo))
 
     return HisWriteFolioRes(result)
 

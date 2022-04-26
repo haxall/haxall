@@ -609,6 +609,7 @@ class BasicTest : AbstractFolioTest
       ts2 := date.toDateTime(Time("01:00:00"), tz)
       items := [HisItem(ts1, n(1)), HisItem(ts2, n(2))]
 
+      t.clear
       verifyEq(t.hisWrites.size, 0)
       Dict res := folio.his.write(pt.id, items).get
       verifyEq(t.hisWrites.size, 1)
@@ -657,6 +658,14 @@ internal class TestContext : FolioContext
 
 internal const class TestHooks : FolioHooks
 {
+  Void clear()
+  {
+    cxInfoRef.val = null
+    presRef.val = Diff#.emptyList
+    postsRef.val = Diff#.emptyList
+    hisWritesRef.val = Dict#.emptyList
+  }
+
   Diff[] pres() { presRef.val }
   const AtomicRef presRef := AtomicRef(Diff#.emptyList)
 
@@ -683,9 +692,10 @@ internal const class TestHooks : FolioHooks
     postsRef.val = posts.dup.add(e.diff).toImmutable
   }
 
-  override Void postHisWrite(Dict rec, Dict result)
+  override Void postHisWrite(FolioHisEvent e)
   {
-    hisWritesRef.val = hisWrites.dup.add(result).toImmutable
+    cxInfoRef.val = e.cxInfo
+    hisWritesRef.val = hisWrites.dup.add(e.result).toImmutable
   }
 }
 

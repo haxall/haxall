@@ -96,6 +96,24 @@ const class HisMgr : HxFolioMgr, FolioHis
     if (cx != null && !cx.canWrite(rec.dict)) throw PermissionErr("Cannot write: $id.toCode")
 
     // process on IndexMgr thread for thread safety
-    return FolioFuture(folio.index.hisWrite(rec, items, opts))
+    return FolioFuture(folio.index.hisWrite(rec, items, opts, cx?.commitInfo))
   }
+}
+
+**************************************************************************
+** HisEvent
+**************************************************************************
+
+internal class HisEvent : FolioHisEvent
+{
+  new make(Dict rec, Dict result, Obj? cxInfo)
+  {
+    this.rec = rec
+    this.result = result
+    this.cxInfo = cxInfo
+  }
+
+  override const Dict rec
+  override const Dict result
+  override const Obj? cxInfo
 }

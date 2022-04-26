@@ -31,7 +31,7 @@ const mixin FolioHooks
 
   ** Callback after his write.  Result is same dict returned from future.
   ** There is no cxInfo since his writes may be coalesced.
-  abstract Void postHisWrite(Dict rec, Dict result)
+  abstract Void postHisWrite(FolioHisEvent event)
 }
 
 **************************************************************************
@@ -58,6 +58,26 @@ abstract class FolioCommitEvent
 }
 
 **************************************************************************
+** FolioHisEvent
+**************************************************************************
+
+**
+** FolioHisEvent is used for history hooks
+**
+@NoDoc
+abstract class FolioHisEvent
+{
+  ** History point record
+  abstract Dict rec()
+
+  ** History write result info
+  abstract Dict result()
+
+  ** FolioContext.commitInfo if available
+  abstract Obj? cxInfo()
+}
+
+**************************************************************************
 ** NilTracker
 **************************************************************************
 
@@ -69,7 +89,7 @@ internal const class NilHooks : FolioHooks
   override Namespace? ns(Bool checked := true) { if (checked) throw UnsupportedErr("Namespace not availble"); return null }
   override Void preCommit(FolioCommitEvent event) {}
   override Void postCommit(FolioCommitEvent event) {}
-  override Void postHisWrite(Dict rec, Dict result) {}
+  override Void postHisWrite(FolioHisEvent event) {}
 }
 
 

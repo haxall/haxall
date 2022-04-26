@@ -486,7 +486,8 @@ const class HxCoreFuncs
   ** SkySpark tags:
   **   - 'projName' if evaluating in context of a project
   **   - 'nodeId' local cluster node id
-  **   - 'ruleRef' if evaluating in context of a spark engine rule
+  **   - 'ruleRef' if evaluating in context of a rule engine
+  **   - 'ruleTuning' if evaluating in context of rule engine
   @Axon
   static Dict context() { curContext.toDict }
 
