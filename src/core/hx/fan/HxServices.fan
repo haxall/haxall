@@ -332,6 +332,9 @@ const mixin HxIOService : HxService
 @NoDoc
 const mixin HxTaskService : HxService
 {
+  ** Get the currently running task
+  abstract HxTask? cur(Bool checked := true)
+
   ** Run the given expression asynchronously in an ephemeral task.
   ** Return a future to track the asynchronous result.
   abstract Future run(Expr expr, Obj? msg := null)
@@ -346,6 +349,12 @@ const mixin HxTaskService : HxService
   ** exception if not running with the context of a task.
   abstract HxTaskAdjunct adjunct(|->HxTaskAdjunct| onInit)
 }
+
+**
+** HxTask interface models the task record
+**
+@NoDoc
+const mixin HxTask : Dict {}
 
 **
 ** HxTaskAdjunct is used to bind a Fantom object as a dependency

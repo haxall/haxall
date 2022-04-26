@@ -42,6 +42,15 @@ const class TaskLib : HxLib, HxTaskService
   ** List the current tasks
   internal Task[] tasks() { tasksById.vals(Task#) }
 
+  ** Get the currently running task
+  override HxTask? cur(Bool checked := true)
+  {
+    t := Task.cur
+    if (t != null) return t
+    if (checked) throw NotTaskContextErr("Not running in task context")
+    return null
+  }
+
   ** Run the given expression asynchronously in an ephemeral task.
   ** Return a future to track the asynchronous result.
   override Future run(Expr expr, Obj? msg := null)

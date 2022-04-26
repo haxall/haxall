@@ -15,7 +15,7 @@ using hx
 **
 ** Task manages running an Axon expression in a background actor
 **
-const class Task : Actor, Observer, Dict
+const class Task : Actor, Observer, HxTask
 {
 
 //////////////////////////////////////////////////////////////////////////

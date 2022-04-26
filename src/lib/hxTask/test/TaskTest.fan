@@ -155,6 +155,8 @@ class TaskTest : HxTest
 
     // test service
     verifyEq(rt.task.run(Parser(Loc.eval, "(msg)=>msg+100".in).parse, n(7)).get, n(107))
+    verifyEq(rt.task.cur(false), null)
+    verifyErr(NotTaskContextErr#) { rt.task.cur(true) }
 
     // stop lib and verify everything is cleaned up
     rt.libs.remove("task")
