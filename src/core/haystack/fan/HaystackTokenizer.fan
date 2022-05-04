@@ -36,8 +36,9 @@ class HaystackTokenizer
 
   ** Current token value based on type:
   **  - id: identifier string
-  **  - literls: the literal value
+  **  - literals: the literal value
   **  - keyword: value mapped by `keywords`
+  **  - comment: comment line if keepComments set
   **  - ParseErr: the error message
   Obj? val
 
