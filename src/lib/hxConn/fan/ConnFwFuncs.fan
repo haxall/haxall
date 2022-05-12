@@ -121,7 +121,7 @@ const class ConnFwFuncs
   **   readAll(haystackHis).connSyncHis(null)
   **
   @Axon { admin = true }
-  static Obj? connSyncHis(Obj points, Obj? span)
+  static Obj? connSyncHis(Obj points, Obj? span := null)
   {
     cx := curContext
     connPoints := Etc.toIds(points).map |id->ConnPoint| { cx.rt.conn.point(id) }
