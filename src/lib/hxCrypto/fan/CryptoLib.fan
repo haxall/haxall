@@ -26,7 +26,7 @@ const class CryptoLib : HxLib, HxCryptoService
   new make()
   {
     this.dir      = rt.dir.plus(`crypto/`).create
-    this.keystore = CryptoKeyStore(rt.libs.actorPool, keystoreFile, log)
+    this.keystore = CryptoKeyStore(rt.libs.actorPool, dir, log)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -39,15 +39,12 @@ const class CryptoLib : HxLib, HxCryptoService
   ** Directory for crypto keystore file
   const File dir
 
-  ** The keystore file to load
-  private File keystoreFile() { dir.plus(`keystore.p12`) }
-
 //////////////////////////////////////////////////////////////////////////
 // HxCryptoService
 //////////////////////////////////////////////////////////////////////////
 
   ** The keystore to store all trusted keys and certificates
-  override const KeyStore keystore
+  override const CryptoKeyStore keystore
 
   ** Get a keystore containing only the key aliased as "https".
   override KeyStore? httpsKey(Bool checked := true)
@@ -66,19 +63,7 @@ const class CryptoLib : HxLib, HxCryptoService
   override KeyPair hostKeyPair() { hostKey.keyPair }
 
   ** The host specific private key and certificate
-  override PrivKeyEntry hostKey()
-  {
-    entry := keystore.get("host", false) as PrivKeyEntry
-    if (entry == null)
-    {
-      // generate host key self-signed certificate
-      pair := Crypto.cur.genKeyPair("RSA", 2048)
-      csr  := Crypto.cur.genCsr(pair, "cn=skyarc.host")
-      cert := Crypto.cur.certSigner(csr).sign
-      entry = keystore.setPrivKey("host", pair.priv, [cert]).getPrivKey("host")
-    }
-    return entry
-  }
+  override PrivKeyEntry hostKey() { keystore.hostKey }
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
@@ -96,7 +81,7 @@ const class CryptoLib : HxLib, HxCryptoService
 
     // Set default trust store for native java apis (e.g. ldap)
     System.setProperty("javax.net.ssl.trustStoreType", "pkcs12")
-    System.setProperty("javax.net.ssl.trustStore", keystoreFile.osPath)
+    System.setProperty("javax.net.ssl.trustStore", keystore.file.osPath)
     System.setProperty("javax.net.ssl.trustStorePassword", "changeit")
   }
 }

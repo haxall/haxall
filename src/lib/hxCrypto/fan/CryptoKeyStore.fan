@@ -12,16 +12,16 @@ using crypto
 **
 ** CryptoKeyStore saves itself to file after every modification
 **
-internal const class CryptoKeyStore : KeyStore
+const class CryptoKeyStore : KeyStore
 {
 
 //////////////////////////////////////////////////////////////////////////
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(ActorPool pool, File file, Log log)
+  new make(ActorPool pool, File dir, Log log)
   {
-    this.file = file
+    this.file = toFile(dir)
     this.log = log
     this.actor = Actor.makeCoalescing(pool, null, null) |Obj? msg->Obj?|
     {
@@ -31,9 +31,19 @@ internal const class CryptoKeyStore : KeyStore
       return file
     }
     this.keystore = Crypto.cur.loadKeyStore(file.exists ? file : null)
-    loadJvm
+
+    // initialize
+    updatedJvm  := initJvm
+    updatedHost := initHostKey
+    updated := updatedJvm || updatedHost
+
+    // save and backup
+    if (updated) autosave
     backup
   }
+
+  ** Backing file for the keystore
+  const File file
 
   ** Backup the keystore file
   private Void backup()
@@ -42,14 +52,16 @@ internal const class CryptoKeyStore : KeyStore
     file.copyTo(backupFile, ["overwrite":true])
   }
 
-  private Void loadJvm()
+  ** Map current JVM keys into my trust store
+  ** Return if keystore updated
+  private Bool initJvm()
   {
     // load any new system JVM certs into the keystore
     jvmFile := findJvmCerts
     if (!jvmFile.exists)
     {
       log.warn("Could not find JVM trusted certs file")
-      return
+      return false
     }
 
     // In Java 9+ the trusted certs file is in p12 format; prior to that it was jks.
@@ -96,8 +108,7 @@ internal const class CryptoKeyStore : KeyStore
       updated = true
     }
 
-    // autosave if any changes were made
-    if (updated) this.autosave
+    return updated
   }
 
   ** Find the JVM trusted certificates file
@@ -108,6 +119,21 @@ internal const class CryptoKeyStore : KeyStore
     if (!f.exists)
       f = securityDir + `cacerts`
     return f
+  }
+
+  ** Create the "host" key pair if not defined
+  ** Return if keystore updated
+  private Bool initHostKey()
+  {
+    entry := keystore.get("host", false) as PrivKeyEntry
+    if (entry != null) return false
+
+    // generate host key self-signed certificate
+    pair := Crypto.cur.genKeyPair("RSA", 2048)
+    csr  := Crypto.cur.genCsr(pair, "cn=skyarc.host")
+    cert := Crypto.cur.certSigner(csr).sign
+    entry = keystore.setPrivKey("host", pair.priv, [cert]).getPrivKey("host")
+    return true
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -148,6 +174,11 @@ internal const class CryptoKeyStore : KeyStore
     autosave
   }
 
+  PrivKeyEntry hostKey()
+  {
+    keystore.get("host", true)
+  }
+
   This autosave()
   {
     try
@@ -161,12 +192,16 @@ internal const class CryptoKeyStore : KeyStore
     return this
   }
 
+  static File toFile(File dir)
+  {
+    dir.plus(`keystore.p12`)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
   private static const Str Jvm := "jvm\$"
-  private const File file
   private const Log log
   private const Actor actor
   private const KeyStore keystore
