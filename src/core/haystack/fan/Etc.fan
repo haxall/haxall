@@ -1547,6 +1547,23 @@ const class Etc
     catch (Err e) b.add(e.toStr)
   }
 
+  ** Given command line args, turn into a map:
+  **   -foo -bar baz         // input
+  **   [foo:true, bar:baz]   // output
+  @NoDoc static Str:Str toCliArgsMap(Str[] args)
+  {
+    acc := Str:Str[:]
+    args.each |s, i|
+    {
+      if (!s.startsWith("-") || s.size < 2) return
+      name := s[1..-1]
+      val  := "true"
+      if (i+1 < args.size && !args[i+1].startsWith("-"))
+        val = args[i+1]
+     acc[name] = val
+    }
+    return acc
+  }
 
   ** Format long a long string as a series of lines
   @NoDoc static Str[] formatMultiLine(Str str, Int lineLength := 60)
