@@ -8,6 +8,8 @@
 
 using concurrent
 using crypto
+using haystack
+using hx
 
 **
 ** CryptoKeyStore saves itself to file after every modification
@@ -21,15 +23,9 @@ const class CryptoKeyStore : KeyStore
 
   new make(ActorPool pool, File dir, Log log)
   {
-    this.file = toFile(dir)
-    this.log = log
-    this.actor = Actor.makeCoalescing(pool, null, null) |Obj? msg->Obj?|
-    {
-      // this actor just handles autosave
-      out := file.out
-      try { save(out) } finally { out.close }
-      return file
-    }
+    this.file     = toFile(dir)
+    this.log      = log
+    this.actor    = Actor(pool) |Obj? msg->Obj?| { onReceive(msg) }
     this.keystore = Crypto.cur.loadKeyStore(file.exists ? file : null)
 
     // initialize
@@ -45,12 +41,15 @@ const class CryptoKeyStore : KeyStore
   ** Backing file for the keystore
   const File file
 
-  ** Backup the keystore file
-  private Void backup()
-  {
-    backupFile := file.plus(`${file.basename}-bkup.${file.ext}`)
-    file.copyTo(backupFile, ["overwrite":true])
-  }
+  private static const Duration timeout := 10sec
+  private static const Str Jvm := "jvm\$"
+  private const Log log
+  private const Actor actor
+  private const KeyStore keystore
+
+//////////////////////////////////////////////////////////////////////////
+// Init
+//////////////////////////////////////////////////////////////////////////
 
   ** Map current JVM keys into my trust store
   ** Return if keystore updated
@@ -136,6 +135,39 @@ const class CryptoKeyStore : KeyStore
     return true
   }
 
+  static File toFile(File dir)
+  {
+    dir.plus(`keystore.p12`)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// CryptoKeyStore
+//////////////////////////////////////////////////////////////////////////
+
+  ** Backup the keystore file
+  @NoDoc File backup()
+  {
+    actor.send(HxMsg("backup")).get(timeout)
+  }
+
+  ** Get the Host key pair
+  PrivKeyEntry hostKey()
+  {
+    keystore.get("host", true)
+  }
+
+  ** Read the keystore into a Buf.
+  Buf readBuf()
+  {
+    actor.send(HxMsg("readBuf")).get(timeout)
+  }
+
+  ** Overwrite the contents of the keystore on disk with the contents of this Buf.
+  This writeBuf(Buf buf)
+  {
+    actor.send(HxMsg("writeBuf", buf)).get(timeout)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // KeyStore
 //////////////////////////////////////////////////////////////////////////
@@ -146,65 +178,94 @@ const class CryptoKeyStore : KeyStore
 
   override Int size() { keystore.size }
 
-  override Void save(OutStream out, Str:Obj options := [:]) { keystore.save(out, options) }
-
   override KeyStoreEntry? get(Str alias, Bool checked := true) { keystore.get(alias, checked) }
+
+  override Void save(OutStream out, Str:Obj options := [:])
+  {
+    actor.send(HxMsg("save", Unsafe(out), options)).get(timeout)
+  }
 
   override This setPrivKey(Str alias, PrivKey priv, Cert[] chain)
   {
-    keystore.setPrivKey(alias, priv, chain)
-    return autosave
+    actor.send(HxMsg("set", alias, priv, chain)).get(timeout)
   }
 
   override This setTrust(Str alias, Cert cert)
   {
-    keystore.setTrust(alias, cert)
-    return autosave
+    actor.send(HxMsg("set", alias, cert)).get(timeout)
   }
 
   override This set(Str alias, KeyStoreEntry entry)
   {
-    keystore.set(alias, entry)
-    return autosave
+    actor.send(HxMsg("set", alias, entry)).get(timeout)
   }
 
   override Void remove(Str alias)
   {
-    keystore.remove(alias)
-    autosave
+    actor.send(HxMsg("set", alias)).get(timeout)
   }
 
-  PrivKeyEntry hostKey()
+//////////////////////////////////////////////////////////////////////////
+// Actor
+//////////////////////////////////////////////////////////////////////////
+
+  private Obj? onReceive(Obj? obj)
   {
-    keystore.get("host", true)
+    msg := obj as HxMsg
+    switch (msg?.id)
+    {
+      case "backup":   return onBackup
+      case "readBuf":  return file.readAllBuf
+      case "writeBuf": return onWriteBuf(msg.a)
+      case "save":     return onSave(((Unsafe)msg.a).val, msg.b)
+      case "set":      return onSet(msg)
+    }
+    throw ArgErr("Unexpected message: $obj")
   }
 
-  This autosave()
+  private File onBackup()
   {
+    backupFile := file.plus(`${file.basename}-bkup.${file.ext}`)
+    file.copyTo(backupFile, ["overwrite":true])
+    return backupFile
+  }
+
+  private This onSave(OutStream out, Str:Obj options)
+  {
+    keystore.save(out, options)
+    return this
+  }
+
+  private This onWriteBuf(Buf buf)
+  {
+    out := file.out
     try
     {
-      actor.send("autosave").get(5sec)
+      out.writeBuf(buf)
     }
-    catch (Err err)
+    finally
     {
-      log.err("Failed to save $file", err)
+      out.close
     }
     return this
   }
 
-  static File toFile(File dir)
+  private This onSet(HxMsg msg)
   {
-    dir.plus(`keystore.p12`)
+    alias := (Str)msg.a
+    if (msg.b == null) keystore.remove(alias)
+    else if (msg.b is PrivKey) keystore.setPrivKey(alias, msg.b, msg.c)
+    else if (msg.b is Cert) keystore.setTrust(alias, msg.b)
+    else if (msg.b is KeyStoreEntry) keystore.set(alias, msg.b)
+    else throw ArgErr("$msg")
+
+    return autosave
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Fields
-//////////////////////////////////////////////////////////////////////////
-
-  private static const Str Jvm := "jvm\$"
-  private const Log log
-  private const Actor actor
-  private const KeyStore keystore
+  ** Save the in-memory keystore back to disk
+  private This autosave()
+  {
+    out := file.out
+    try { return onSave(out, [:]) } finally { out.close }
+  }
 }
-
-
