@@ -60,6 +60,7 @@ internal class PointRecSet
     if (rec.has("site"))   return children(markerTag, "siteRef",   rec.id)
     if (rec.has("space"))  return children(markerTag, "spaceRef",  rec.id)
     if (rec.has("device")) return children(markerTag, "deviceRef", rec.id)
+    if (rec.has("weatherStation")) return children(markerTag, "weatherStationRef", rec.id)
 
     return Dict#.emptyList
   }
