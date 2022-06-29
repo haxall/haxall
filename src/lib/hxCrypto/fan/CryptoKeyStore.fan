@@ -236,17 +236,25 @@ const class CryptoKeyStore : KeyStore
     return this
   }
 
+  ** Load the keystore directly into memory and save it to disk
   private This onWriteBuf(Buf buf)
   {
+    // load keystore from buf
+    bufKeyStore := Crypto.cur.loadKeyStore(buf.toFile(`onWrite.p12`))
+
+    // clear contents of current keystore
+    keystore.aliases.each |alias| { keystore.remove(alias) }
+
+    // copy buf keystore into our keystore
+    bufKeyStore.aliases.each |alias| { keystore.set(alias, bufKeyStore.get(alias)) }
+
+    // ensure the buf keystore is also written to disk
+    // (do not use autosave because it will cause different bytes to be written,
+    //  instead we use the bytes directly as given to us)
     out := file.out
-    try
-    {
-      out.writeBuf(buf)
-    }
-    finally
-    {
-      out.close
-    }
+    try { out.writeBuf(buf) }
+    finally { out.close }
+
     return this
   }
 
