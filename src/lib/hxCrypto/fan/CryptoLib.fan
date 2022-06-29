@@ -65,6 +65,12 @@ const class CryptoLib : HxLib, HxCryptoService
   ** The host specific private key and certificate
   override PrivKeyEntry hostKey() { keystore.hostKey }
 
+  ** Read the keystore into a Buf.
+  override Buf readBuf() { keystore.readBuf }
+
+  ** Overwrite the contents of the keystore on disk with the contents of this Buf.
+  override Void writeBuf(Buf buf) { keystore.writeBuf(buf) }
+
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////

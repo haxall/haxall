@@ -257,6 +257,12 @@ const mixin HxCryptoService : HxService
 
   ** The host specific private key and certificate
   abstract PrivKeyEntry hostKey()
+
+  ** The host specific public/private key pair
+  abstract Buf readBuf()
+
+  ** Overwrite the contents of the keystore on disk with the contents of this Buf.
+  abstract Void writeBuf(Buf buf)
 }
 
 **************************************************************************
