@@ -254,7 +254,7 @@ const class ConnFwFuncs
   private static Conn toConn(Obj conn)
   {
     hx := toHxConn(conn)
-    return hx as Conn ?: classicConnErr(hx)
+    return hx as Conn ?: throw classicConnErr(hx)
   }
 
   ** Return exception to use for using classic connector
