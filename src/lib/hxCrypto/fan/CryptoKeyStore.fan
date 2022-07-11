@@ -21,10 +21,11 @@ const class CryptoKeyStore : KeyStore
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(ActorPool pool, File dir, Log log)
+  new make(ActorPool pool, File dir, Log log, Duration timeout := 10sec)
   {
     this.file     = toFile(dir)
     this.log      = log
+    this.timeout  = timeout
     this.actor    = Actor(pool) |Obj? msg->Obj?| { onReceive(msg) }
     this.keystore = Crypto.cur.loadKeyStore(file.exists ? file : null)
 
@@ -41,9 +42,9 @@ const class CryptoKeyStore : KeyStore
   ** Backing file for the keystore
   const File file
 
-  private static const Duration timeout := 10sec
   private static const Str Jvm := "jvm\$"
   private const Log log
+  private const Duration timeout
   private const Actor actor
   private const KeyStore keystore
 

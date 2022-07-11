@@ -10,6 +10,7 @@
 
 using crypto
 using inet
+using haystack
 using hx
 
 using [java] java.lang::System
@@ -26,7 +27,14 @@ const class CryptoLib : HxLib, HxCryptoService
   new make()
   {
     this.dir      = rt.dir.plus(`crypto/`).create
-    this.keystore = CryptoKeyStore(rt.libs.actorPool, dir, log)
+    this.keystore = CryptoKeyStore(rt.libs.actorPool, dir, log, actorTimeout)
+  }
+
+  private Duration actorTimeout()
+  {
+    val := rec.get("actorTimeout") as Number
+    if (val != null && val.isDuration) return val.toDuration
+    return 10sec
   }
 
 //////////////////////////////////////////////////////////////////////////
