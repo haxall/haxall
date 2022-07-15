@@ -777,6 +777,10 @@ internal abstract const class SearchFilter : Filter
     id := r["id"] as Ref
     if (id != null && pattern.size >=8 && includeVal(id.id))  return true
 
+    // check name tag
+    name := r["name"] as Str
+    if (name != null && includeVal(name)) return true
+
     return false
   }
 
