@@ -39,18 +39,22 @@ internal abstract class EcobeeConnTask
 // PointUtils
 //////////////////////////////////////////////////////////////////////////
 
-  internal static EcobeePropId toCurId(ConnPoint pt) { toRemoteId(pt.rec, "ecobeeCur") }
+  internal static EcobeePropId? toCurId(ConnPoint pt, Bool checked := true) { toRemoteId(pt.rec, "ecobeeCur", checked) }
 
-  internal static EcobeePropId toWriteId(ConnPoint pt) { toRemoteId(pt.rec, "ecobeeWrite") }
+  internal static EcobeePropId? toWriteId(ConnPoint pt, Bool checked := true) { toRemoteId(pt.rec, "ecobeeWrite", checked) }
 
-  internal static EcobeePropId toHisId(ConnPoint pt) { toRemoteId(pt.rec, "ecobeeHis") }
+  internal static EcobeePropId? toHisId(ConnPoint pt, Bool checked := true) { toRemoteId(pt.rec, "ecobeeHis", checked) }
 
-  internal static EcobeePropId toRemoteId(Dict rec, Str tag)
+  internal static EcobeePropId? toRemoteId(Dict rec, Str tag, Bool checked)
   {
     val := rec[tag]
-    if (val == null)   throw FaultErr("$tag not defined")
-    if (val isnot Str) throw FaultErr("$tag must be a Str: $val.typeof.name")
-    return EcobeePropId.fromStr(val)
+    if (val != null)
+    {
+      if (val isnot Str) throw FaultErr("$tag must be a Str: $val.typeof.name")
+      return EcobeePropId.fromStr(val)
+    }
+    if (checked) throw FaultErr("$tag not defined")
+    return null
   }
 
   Dict pointData(ConnPoint pt) { pt.data as Dict ?: Etc.emptyDict }
