@@ -55,9 +55,7 @@ internal class EcobeeSyncCur : EcobeeConnTask
     points.each |point|
     {
       // resolve the point to a thermostat known by the ecobee server
-      propId := toCurId(point, false)
-      if (propId == null) return
-
+      propId := toCurId(point)
       rev := revisions[propId.thermostatId]
       if (rev == null)
       {
@@ -93,11 +91,11 @@ internal class EcobeeSyncCur : EcobeeConnTask
 
     stalePoints.each |point|
     {
+      propId := toCurId(point)
+      thermostat := thermostats[propId.thermostatId]
+
       try
       {
-        propId := toCurId(point)
-        thermostat := thermostats[propId.thermostatId]
-
         if (thermostat == null)
           throw FaultErr("Thermostat not returned by Ecobee server for: $propId")
 
