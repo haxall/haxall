@@ -615,8 +615,8 @@ internal final class ConnMgr
 
   private Void pollBucket(Int startTicks, ConnPollBucket bucket)
   {
-    // we only want to poll watched points
-    points := bucket.points.findAll |pt| { pt.isWatched }
+    // we only want to poll watched points that have cur enabled
+    points := bucket.points.findAll |pt| { pt.isWatched && pt.isCurEnabled }
     if (points.isEmpty) return
 
     try
