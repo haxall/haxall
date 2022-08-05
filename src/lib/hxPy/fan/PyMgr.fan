@@ -310,43 +310,47 @@ internal class PyDockerSession : PySession
     key    := Uuid()
     level  := ((Str)opts.get("logLevel", "WARN" )).upper
     net    := opts.get("network")
-    port   := 8888
-    if (net == null)
-    {
-      // if no docker network is specified, then check the options
-      // or find an open port
-      port = (opts.get("port") as Number)?.toInt ?: findOpenPort
-    }
+    port   := (opts.get("port") as Number)?.toInt ?: findOpenPort
     hostConfig := Str:Obj?[
       "portBindings": [
-          "8888/tcp": [ ["hostPort": "$port"] ],
+          "${port}/tcp": [ ["hostPort": "$port"] ],
       ],
       "networkMode": net,
     ]
     config := Str:Obj?[
-      "cmd": ["-m", "hxpy", "--key", "$key", "--level", level],
-      "exposedPorts": ["8888/tcp": [:]],
+      "cmd": ["-m", "hxpy", "--key", "$key", "--port", "${port}", "--level", level],
+      "exposedPorts": ["${port}/tcp": [:]],
       "hostConfig": hostConfig,
     ]
 
+    // find the image to run and start it
+    errs := Err[,]
     this.container = priorityImageNames(opts).eachWhile |image->HxDockerContainer?|
     {
       try
       {
         return dockerService.run(image, config)
       }
-      catch (Err ignore)
+      catch (Err err)
       {
-        // ignore.trace
+        errs.add(err)
         return null
       }
-    } ?: throw Err("Could not find any matching docker image: ${priorityImageNames(opts)}")
+    }
+    if (container == null)
+    {
+      errs.each { it.trace }
+      throw Err("Could not run any of these docker images: ${priorityImageNames(opts)}.\nSee the stack trace above for reasons.")
+    }
 
     // determine the host address to connect to. if a docker network
     // was specified (for docker within docker use case), then use the ip address
     // of the container that was created
     host := "localhost"
-    if (net != null) host = container.network(net).ip.toStr
+    if (net != null)
+    {
+      host = container.network(net).ip.toStr
+    }
 
     // now connect the HxpySession with retries. retry is necessary because the
     // container might have started, but the python hxpy server might not yet

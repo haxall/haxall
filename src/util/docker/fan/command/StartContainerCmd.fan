@@ -44,7 +44,7 @@ class StartContainerCmd : DockerHttpCmd
         case 204: return StatusRes.noErr
         case 304: return StatusRes(res, "container already started")
         case 404: return StatusRes(res, "no such container")
-        case 500: return StatusRes(res, "server error")
+        case 500: return StatusRes(res, "server error: ${res.readStr}")
         default:  return StatusRes(res)
       }
     }
