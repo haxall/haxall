@@ -44,6 +44,8 @@ const final class Conn : Actor, HxConn
   {
     // we coalesce write messages per point id
     if (msg.id === "write") return ((ConnPoint)msg.a).id
+    // we coalesce poll messages
+    if (msg.id === "poll")  return msg.id
     return null
   }
 
