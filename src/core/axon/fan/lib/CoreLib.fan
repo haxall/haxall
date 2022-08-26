@@ -300,12 +300,26 @@ const class CoreLib
   ** If sorting a grid, the sorter can be a column name
   ** or a function.  If a function, it should take two rows
   ** and return -1, 0, or 1.
+  **
+  ** Examples:
+  **   // sort string list
+  **   ["bear", "cat", "apple"].sort
+  **
+  **   // sort string list by string size
+  **   ["bear", "cat", "apple"].sort((a,b) => a.size <=> b.size)
+  **
+  **   // sort sites by area
+  **   readAll(site).sort((a, b) => a->area <=> b->area)
   @Axon static Obj? sort(Obj val, Obj? sorter := null)
   {
     CoreLibUtil.sort(val, sorter, true)
   }
 
   ** Sort a grid by row display name - see `haystack::Grid.sortDis`
+  **
+  ** Examples:
+  **   // read all sites and sort by display name
+  **   readAll(site).sortDis
   @Axon static Obj? sortDis(Grid val) { val.sortDis }
 
   ** Reverse sort a list or grid.  This function works just
@@ -376,6 +390,19 @@ const class CoreLib
   **
   ** If mapping a stream, the mapping functions takes '(val)'.
   ** See `docHaxall::Streams#map`.
+  **
+  **  Examples:
+  **    // create list adding ten to each number
+  **    [1, 2, 3].map(v => v+10)   >>   [11, 12, 13]
+  **
+  **    // create new list that turns strings into uppercase
+  **    ["ape", "bee", "cat"].map(upper)    // ["APE, "BEE", "CAT"]
+  **
+  **    // create dict adding ten to each value
+  **    {a:1, b:2, c:3}.map(v => v+10)   >>   {a:11, b:12, c:13}
+  **
+  **    // create grid with just dis, area column
+  **    readAll(site).map(s => {dis:s->dis, area:s->area})
   @Axon static Obj? map(Obj val, Fn fn)
   {
     if (val is MStream) return MapStream(val, fn)
@@ -400,6 +427,9 @@ const class CoreLib
   **
   ** If mapping a stream, the mapping functions takes '(val)'.
   ** See `docHaxall::Streams#flatMap`.
+  **
+  ** Examples:
+  **   [1, 2, 3].flatMap(v => [v, v+10])   >>  [1, 11, 2, 12, 3, 13]
   @Axon static Obj? flatMap(Obj val, Fn fn)
   {
     if (val is MStream) return FlatMapStream(val, fn)
@@ -425,6 +455,13 @@ const class CoreLib
   **
   ** If working with a stream, the filter takes '(val)' and returns
   ** true to match.  See `docHaxall::Streams#find`.
+  **
+  ** Examples:
+  **   // find first string longer than 3 chars
+  **   ["ape", "bat", "charlie", "dingo"].find(x => x.size > 3)
+  **
+  **   // find first odd number
+  **   [10, 4, 3, 7].find(isOdd)
   @Axon static Obj? find(Obj val, Fn fn)
   {
     if (val is MStream) return FindStream(val, fn).run
@@ -451,6 +488,16 @@ const class CoreLib
   **
   ** If working with a stream, the filter takes '(val)' and returns
   ** true to match.  See `docHaxall::Streams#findAll`.
+  **
+  ** Examples:
+  **   // find all the strings longer than 3 chars
+  **   ["ape", "bat", "charlie", "dingo"].findAll(x => x.size > 3)
+  **
+  **   // find even numbers
+  **   [0, 1, 2, 3, 4].findAll(isEven)
+  **
+  **   // find all the sites greater than 10,000ft from grid
+  **   readAll(site).findAll(s => s->area > 10_000ft²)
   @Axon static Obj? findAll(Obj val, Fn fn)
   {
     if (val is MStream) return FindAllStream(val, fn)
@@ -487,7 +534,6 @@ const class CoreLib
   **
   **   // apply search filter
   **   readAll(equip).filter(parseSearch("RTU-1"))
-  **
   @Axon static Obj filter(Expr val, Expr filterExpr)
   {
     cx := AxonContext.curAxon
@@ -652,6 +698,10 @@ const class CoreLib
   ** Convert grid rows into a dict of name/val pairs.  The name/value
   ** pairs are derived from each row using the given functions.  The
   ** functions take '(row, index)'
+  **
+  ** Example:
+  **   // create dict of sites with dis:area pairs
+  **   readAll(site).gridRowsToDict(s=>s.dis.toTagName, s=>s->area)
   @Axon static Dict gridRowsToDict(Grid grid, Fn rowToKey, Fn rowToVal)
   {
     cx := AxonContext.curAxon
@@ -670,6 +720,10 @@ const class CoreLib
   ** Convert grid columns into a dict of name/val pairs.  The name/val
   ** paris are derived from each column using the given functions.  The
   ** functions take '(col, index)'
+  **
+  ** Example:
+  **   // create dict of column name to column dis
+  **   read(temp).hisRead(today).gridColsToDict(c=>c.name, c=>c.meta.dis)
   @Axon static Dict gridColsToDict(Grid grid, Fn colToKey, Fn colToVal)
   {
     cx := AxonContext.curAxon
@@ -691,6 +745,9 @@ const class CoreLib
   **   - 'kind': all the different value kinds in the column separated by "|"
   **   - 'count': total number of rows with column with a non-null value
   ** Also see `readAllTagNames`.
+  **
+  ** Example:
+  **   readAll(site).gridColKinds
   @Axon static Grid gridColKinds(Grid grid) { CoreLibUtil.gridColKinds(grid) }
 
   private static Func toGridIterator(Fn fn)
@@ -774,7 +831,7 @@ const class CoreLib
   **   - `meanBiasErr()`
   **   - `standardDeviation()`
   **
-  ** Example:
+  ** Examples:
   **   [1, 2, 3, 4].fold(max)  // fold list into its max value
   **   [1, 2, 3, 4].fold(avg)  // fold list into its average value
   **   [1, 2, na(), 3].fold(sum) // => na()
@@ -1055,6 +1112,10 @@ const class CoreLib
 //////////////////////////////////////////////////////////////////////////
 
   ** Get the meta-data from a grid or col as a dict.
+  **
+  ** Examples:
+  **   read(temp).hisRead(today).meta             // grid meta
+  **   read(temp).hisRead(today).col("ts").meta   // column meta
   @Axon static Dict meta(Obj? val)
   {
     if (val is Grid) return ((Grid)val).meta
@@ -1063,16 +1124,31 @@ const class CoreLib
   }
 
   ** Get the columns from a grid as a list.
+  **
+  ** Example:
+  **   // get name of first column
+  **   readAll(site).cols.first.name
   @Axon static Col[] cols(Grid grid) { grid.cols }
 
   ** Get a column by its name.  If not resolved then
   ** return null or throw UnknownNameErr based on checked flag.
+  **
+  ** Example:
+  **   // get meta data for given columm
+  **   read(temp).hisRead(today).col("ts").meta
   @Axon static Col? col(Grid grid, Str name, Bool checked := true) { grid.col(name, checked) }
 
   ** Get the column names a list of strings.
+  **
+  ** Example:
+  **   readAll(site).colNames
   @Axon static Str[] colNames(Grid grid) { grid.colNames}
 
   ** If val is a Col, get the column name.
+  **
+  ** Example:
+  **   // get name of first column
+  **   readAll(site).cols.first.name
   @Axon static Str name(Obj? val)
   {
     if (val is Col)  return ((Col)val).name
@@ -1081,6 +1157,9 @@ const class CoreLib
 
   ** Return new grid with grid level meta-data replaced by given
   ** meta Dict.  Also see `addMeta` and `docHaxall::Streams#setMeta`.
+  **
+  ** Example:
+  **   read(temp).hisRead(today).setMeta({view:"table"})
   @Axon static Obj setMeta(Obj grid, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).setMeta(meta)
@@ -1091,6 +1170,9 @@ const class CoreLib
   ** Return new grid with additional grid level meta-data tags.
   ** Tags are added using `merge` conventions.  Also see `setMeta`
   ** and `docHaxall::Streams#addMeta`.
+  **
+  ** Example:
+  **   read(temp).hisRead(today).addMeta({view:"table"})
   @Axon static Obj addMeta(Obj grid, Dict meta)
   {
     if (grid is Grid) return ((Grid)grid).addMeta(meta)
@@ -1123,6 +1205,13 @@ const class CoreLib
   ** dictionary which must have a "name" tag (any other
   ** tags become column meta-data).  The mapping function takes
   ** '(row)' and returns the new cell values for the column.
+  **
+  ** Examples:
+  **   // add new column named areaMeter
+  **   readAll(site).addCol("areaMeters") s => s->area.to(1m²)
+  **
+  **   // add new column named areaMeter with dis meta
+  **   readAll(site).addCol({name:"areaMeters", dis:"Area Meters"}) s => s->area.to(1m²)
   @Axon static Grid addCol(Grid grid, Obj? col, Fn fn)
   {
     Str? name := col as Str
@@ -1213,6 +1302,9 @@ const class CoreLib
   ** Return a new grid with keeps the given columns, but removes
   ** all the others.  Columns can be Str names or Col instances.
   ** Also see `docHaxall::Streams#keepCols`.
+  **
+  ** Example:
+  **   readAll(site).keepCols(["id", "area"])
   @Axon static Obj keepCols(Obj grid, Obj[] cols)
   {
     if (grid is Grid) return ((Grid)grid).keepCols(cols)
@@ -1221,10 +1313,16 @@ const class CoreLib
   }
 
   ** Add an additional Dict row to the end of a grid.
+  **
+  ** Example:
+  **   readAll(site).addRow({dis:"New Row"})
   @Axon static Grid addRow(Grid grid, Dict newRow) { addRows(grid, [newRow]) }
 
   ** Add an list of rows to the end of a grid.
   ** The newRows may be expressed as list of Dict or a Grid.
+  **
+  ** Example:
+  **   readAll(site).addRows(readAll(equip))
   @Axon static Grid addRows(Grid grid, Obj newRows)
   {
     // if no new rows return original grid
@@ -1256,11 +1354,17 @@ const class CoreLib
   }
 
   ** Get a column as a list of the cell values ordered by row.
+  **
+  ** Example:
+  **   readAll(site).colToList("dis")
   @Axon static Obj?[] colToList(Grid grid, Obj col) { grid.colToList(col) }
 
   ** Perform a matrix transpose on the grid.  The cells of the
   ** first column because the display names for the new columns.
   ** Columns 1..n become the new rows.
+  **
+  ** Example:
+  **   readAll(site).transpose
   @NoDoc @Axon static Grid transpose(Grid grid) { grid.transpose }
 
   ** Given a grid of records, assign new ids and swizzle all internal
