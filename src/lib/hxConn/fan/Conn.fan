@@ -341,6 +341,10 @@ const final class Conn : Actor, HxConn
     s.add("\n")
     detailsThreadDebug(s, threadDebugRef.val)
 
+    s.add("\n")
+    s.add(lib.typeof.name+".")
+    lib.connActorPool->dump(s.out)
+
     return s.toStr
   }
 
