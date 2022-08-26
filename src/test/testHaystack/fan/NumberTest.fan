@@ -256,6 +256,8 @@ class NumberTest : HaystackTest
     verifyEq(n(-3456789).toLocale, "-3,456,789")
     verifyEq(n(3456789, "square_meter").toLocale, "3,456,789m\u00b2")
 
+    verifyEq(n(1024).toLocale("B"), "1KB")
+
     verifyEq(n(3456789).toLocale("###.00"), "3456789.00")
     verifyEq(n(3456789, "square_meter").toLocale("###.00"), "3456789.00m\u00b2")
 
@@ -292,9 +294,13 @@ class NumberTest : HaystackTest
     verifyEq(n(123, "£").toLocale("<<U>> #.000"), "<<£>> 123.000")
     verifyEq(n(-123, "£").toLocale("#.000U"), "-123.000£")
     verifyEq(n(-123, "£").toLocale("U #.000"), "-£ 123.000")
-    verifyEq(n(-123, "£").toLocale("U #.000;(#)"), "(£ 123.000)")
-    verifyEq(n(123, "£").toLocale("[U] #.000; (#)"), "[£] 123.000")
-    verifyEq(n(-123, "£").toLocale("[U] #.000; -(#)/"), "-([£] 123.000)/")
+    verifyEq(n(-123, "£").toLocale("U #.000;(U #)"), "(£ 123.000)")
+    verifyEq(n(45, "%").toLocale("+#.0;-#"), "+45.0")
+    verifyEq(n(-45, "%").toLocale("+#.0;-#"), "-45.0")
+    verifyEq(n(45, "%").toLocale("+#.0U;-#U"), "+45.0%")
+    verifyEq(n(-45, "%").toLocale("+#.0U;-#U"), "-45.0%")
+    verifyEq(n(123, "£").toLocale("+[U] #.000; (U#)"), "+[£] 123.000")
+    verifyEq(n(-123, "£").toLocale("+[U] #.000; -([U] #)/"), "-([£] 123.000)/")
 
     verifyEq(n(120, "min").toLocale, "2hr")
     verifyEq(n(60, "sec").toLocale, "1min")

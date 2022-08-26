@@ -490,8 +490,13 @@ const final class Number
   **   0        required digit
   **   .        decimal point
   **   ,        grouping separator (only last one before decimal matters)
-  **   pos;neg  separate negative format
-  **   U        position of unit (defaults to suffix if omitted)
+  **   U        position of unit (default to suffix)
+  **   pos;neg  separate negative format (must specify U position)
+  **
+  ** When using the 'pos;neg' pattern, the "U" position must be specified in both
+  ** pos and neg patterns, otherwise the unit is omitted. Note that the negative
+  ** pattern always uses mimics the positive pattern for the actual digit
+  ** formatting (#, 0, decimal, and grouping).
   **
   ** The special "B" pattern is used to format bytes; see `sys::Int.toLocale`.
   **
@@ -503,13 +508,14 @@ const final class Number
   **   4. Return `sys::Float.toLocale` using sys locale default
   **
   ** Examples:
-  **   Number   Pattern       Result    Notes
-  **   ------   -------       -------   ------
-  **   12.34    "#.####"      12.34     Optional fractional digits
-  **   12.34    "#.0000"      12.3400   Required fractional digits
-  **   12.34$   null          $12.34    Haystack locale default
-  **   12$      "U 0.00"      $ 12.00   Explicit unit placement
-  **   -12$     "U0.##;(#)"   ($12)     Alternative negative format
+  **   Number   Pattern        Result    Notes
+  **   ------   -------        -------   ------
+  **   12.34    "#.####"       12.34     Optional fractional digits
+  **   12.34    "#.0000"       12.3400   Required fractional digits
+  **   12.34$   null           $12.34    Haystack locale default
+  **   12$      "U 0.00"       $ 12.00   Explicit unit placement
+  **   -12$     "U0.##;(U#)"   ($12)     Alternative negative format
+  **   45%      "+0.0U;-0.0U"  +45%      Use leading positive sign
   **
   Str toLocale(Str? pattern := null)
   {

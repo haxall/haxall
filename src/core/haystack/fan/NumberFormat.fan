@@ -30,7 +30,7 @@ const class NumberFormat
   static
   {
     acc := Str:NumberFormat[:]
-    ["U#,###.00", "U#,###.00;(#)", "#,##0"].each |p|
+    ["U#,###.00", "U#,###.00;(U#)", "#,##0"].each |p|
     {
       acc[p] = makePattern(p)
     }
@@ -43,75 +43,63 @@ const class NumberFormat
 
   private new makeEmpty()
   {
-    this.srcPattern = null
-    this.floatPattern = null
-    this.isBytes = false
-    this.negPrefix = "-"
-    this.negSuffix = ""
-    this.unitPattern = "U"
-    this.unitIsPrefix = false
   }
 
   private new makePattern(Str srcPattern)
   {
-    p := srcPattern
-    negPrefix := "-"
-    negSuffix := ""
-    unitPattern := "U"
-    unitIsPrefix := false
+    this.srcPattern   = srcPattern
+    this.floatPattern = toFloatPattern(srcPattern)
+    this.isBytes      = srcPattern == "B"
 
-    semi := p.index(";")
-    if (semi != null)
+    semicolon := srcPattern.index(";")
+    if (semicolon == null)
     {
-      neg := p[semi+1..-1].trim
-      p = p[0..<semi].trim
-      negPrefix = prefix(neg, true)
-      negSuffix = suffix(neg, true)
-    }
+      this.posPrefix = toPrefix(srcPattern)
+      this.posSuffix = toSuffix(srcPattern)
 
-    if (p.contains("U"))
+      if (!posPrefix.contains("U") && !posSuffix.contains("U"))
+        posSuffix = posSuffix + "U"
+
+      this.negPrefix = "-" + posPrefix
+      this.negSuffix = posSuffix
+    }
+    else
     {
-      unitPattern = prefix(p, false)
-      if (!unitPattern.isEmpty)
-      {
-        p = p[unitPattern.size+1..-1]
-        unitIsPrefix = true
-      }
-      else
-      {
-        unitPattern = suffix(p, false)
-        p = p[0..p.size-unitPattern.size-1]
-        unitIsPrefix = false
-      }
+      posPattern := srcPattern[0 ..< semicolon].trim
+      negPattern := srcPattern[semicolon+1 .. -1].trim
+      this.posPrefix = toPrefix(posPattern)
+      this.posSuffix = toSuffix(posPattern)
+      this.negPrefix = toPrefix(negPattern)
+      this.negSuffix = toSuffix(negPattern)
     }
-
-    this.srcPattern = srcPattern
-    this.floatPattern = p
-    this.isBytes = p == "B"
-    this.negPrefix = negPrefix
-    this.negSuffix = negSuffix
-    this.unitIsPrefix = unitIsPrefix
-    this.unitPattern = unitPattern
   }
 
-  private static Str prefix(Str s, Bool includeU)
+  private static Str toFloatPattern(Str s)
+  {
+    a := 0
+    while (a < s.size && !isPatternChar(s[a])) a++
+    b := a
+    while (b < s.size && isPatternChar(s[b])) b++
+    return s[a..<b]
+  }
+
+  private static Str toPrefix(Str s)
   {
     c := 0
-    while (c < s.size && !isPatternChar(s[c], includeU)) c++
+    while (c < s.size && !isPatternChar(s[c])) c++
     return s[0..<c]
   }
 
-  private static Str suffix(Str s, Bool includeU)
+  private static Str toSuffix(Str s)
   {
     c := s.size-1
-    while (c >= 0 && !isPatternChar(s[c], includeU)) c--
+    while (c >= 0 && !isPatternChar(s[c])) c--
     return s[c+1..-1]
   }
 
-  private static Bool isPatternChar(Int ch, Bool includeU)
+  private static Bool isPatternChar(Int ch)
   {
-    if (ch == 'U') return includeU
-    return ch == '#' || ch == '0' || ch == '.' || ch == ',' || ch > 128
+    return ch == '#' || ch == '0' || ch == '.' || ch == ','
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -143,17 +131,11 @@ const class NumberFormat
       float.toInt.toLocale(pattern) :
       float.toLocale(pattern)
 
-    // if unit is null and not negative we are done
-    if (unit == null && !neg) return str
-
-    // build up string with negative and unit formatting
-    hasUnit := unit != null
+    // build up string with prefix / suffix pattern
     buf := StrBuf(str.size + 8)
-    if (neg) buf.add(negPrefix)
-    if (hasUnit && unitIsPrefix) addUnit(buf, unit)
+    add(buf, neg ? negPrefix : posPrefix, unit)
     buf.add(str)
-    if (hasUnit && !unitIsPrefix) addUnit(buf, unit)
-    if (neg) buf.add(negSuffix)
+    add(buf, neg ? negSuffix : posSuffix, unit)
     return buf.toStr
   }
 
@@ -183,23 +165,17 @@ const class NumberFormat
     return (ticks/1day.ticks.toFloat).toLocale(pattern)+"$<sys::dayAbbr>"
   }
 
-  private Void addUnit(StrBuf buf, Unit? unit)
+  private Void add(StrBuf buf, Str pattern, Unit? unit)
   {
-    if (unit == null) return
-
-    symbol := unit.symbol
-    if (symbol[0] == '_') symbol = symbol[1..-1]
-
-    if (unitPattern=="U")
+    pattern.each |ch|
     {
-      buf.add(symbol)
-    }
-    else
-    {
-      unitPattern.each |ch|
+      if (ch == 'U')
       {
-        if (ch == 'U') buf.add(symbol)
-        else buf.addChar(ch)
+        if (unit != null) buf.add(unit.symbol)
+      }
+      else
+      {
+        buf.addChar(ch)
       }
     }
   }
@@ -213,10 +189,10 @@ const class NumberFormat
   private const Str? srcPattern
   private const Str? floatPattern
   private const Bool isBytes
+  private const Str posPrefix := ""
+  private const Str posSuffix := "U"
   private const Str negPrefix := "-"
-  private const Str negSuffix := ""
-  private const Str unitPattern
-  private const Bool unitIsPrefix
+  private const Str negSuffix := "U"
 
 }
 
