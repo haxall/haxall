@@ -56,6 +56,7 @@ class HxdBoot
   **   - noAuth: Marker to disable authentication and use superuser
   **   - test: Marker for HxTest runtime
   **   - serialSpi: Str qname for hxSerial::SerialSpi class
+  **   - hxLic: license Str or load from lic/xxx.trio
   **
   Str:Obj? config := [:]
 
@@ -101,6 +102,7 @@ class HxdBoot
     if (rt != null) return rt
     initArgs
     initPlatform
+    initLic
     openDatabase
     initMeta
     initLibs
@@ -150,6 +152,14 @@ class HxdBoot
   private Void initPlatform()
   {
     platformRef = HxPlatform(Etc.makeDict(platform.findNotNull))
+  }
+
+  private Void initLic()
+  {
+    // try to load license file from lic/ if not explicitly configured
+    if (config["hxLic"] != null) return
+    file := dir.plus(`lic/`).listFiles.find |x| { x.ext == "trio" }
+    if (file != null) config["hxLic"] = file.readAllStr
   }
 
   private Void openDatabase()
