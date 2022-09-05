@@ -6,6 +6,7 @@
 //   15 Nov 2010  Brian Frank  Refactor out of obix
 //    2 Jul 2012  Brian Frank  Redesign for conn framework
 //   31 Jan 2022  Brian Frank  Redesign for Haxall
+//    5 Sep 2022  Brian Frank  Break out core logic into AbstractSyncHis
 //
 
 using haystack
@@ -14,20 +15,21 @@ using hx
 using folio
 
 **
-** Implementation for the connSyncHis function
+** Base class to handle history syncs
 **
-internal class ConnSyncHis
+@NoDoc abstract class AbstractSyncHis
 {
-
-  new make(HxContext cx, HxConnPoint[] points, Obj? span)
+  ** Constructor
+  new make(HxContext cx, Obj[] points, Obj? span)
   {
-    this.cx     = cx
-    this.task   = cx.rt.services.get(HxTaskService#, false)
-    this.points = points
-    this.num    = points.size
-    this.span   = span
+    this.cxRef     = cx
+    this.task      = cx.rt.services.get(HxTaskService#, false)
+    this.num       = points.size
+    this.pointsRef = points
+    this.span      = span
   }
 
+  ** Execute sync and return result dict for each point
   Dict[] run()
   {
     if (points.isEmpty) return Dict#.emptyList
@@ -36,7 +38,7 @@ internal class ConnSyncHis
     points.each |pt, i|
     {
       cx.heartbeat(Loc("connHisSync"))
-      trace("Syncing $pt.dis.toCode (${i+1} of $num)...", i*100/num)
+      trace("Syncing " + dis(pt).toCode + " (${i+1} of $num)...", i*100/num)
       r := sync(pt)
       if (r.has("err")) ++numErr; else ++numOk
       results.add(r)
@@ -45,30 +47,24 @@ internal class ConnSyncHis
     return results
   }
 
-  private Void commitPending()
-  {
-    points.each |pt|
-    {
-      pt.conn.send(HxMsg("hisPending", pt))
-    }
-  }
+  ** Context for sync
+  virtual HxContext cx() { cxRef }
 
-  private Dict sync(ConnPoint pt)
-  {
-    // do fresh read of the point's record to get latest hisEnd
-    // because ConnPoint.rec doesn't get transient changes
-    rec := cx.db.readById(pt.id)
+  ** Points to sync
+  virtual Obj[] points() { pointsRef }
 
-    // get span to use based on this point's timezone
-    span := toPointSpan(rec, pt.tz)
+  ** Display name for given point
+  abstract Str dis(Obj pt)
 
-    // route to connector actor; block forever here and rely on each
-    // connector to not lock up its queue for too long; we check for
-    // task cancellation using context heartbeat
-    return pt.conn.send(HxMsg("syncHis", pt, span)).get(null)
-  }
+  ** Hook to set point hisStatus to the pending state
+  abstract Void commitPending()
 
-  private Span toPointSpan(Dict rec, TimeZone tz)
+  ** Sync the point and return result dict.
+  ** The dict must have an 'err' tag if there was an error.
+  abstract Dict sync(Obj point)
+
+  ** Get span to use for given point
+  Span toPointSpan(Dict rec, TimeZone tz)
   {
     Span? x
     if (this.span == null)
@@ -88,14 +84,15 @@ internal class ConnSyncHis
     return x
   }
 
+  ** Trace progress message
   private Void trace(Str msg, Int progress)
   {
     if (task == null) return
     task.progress(Etc.makeDict2("msg", msg, "progress", Number(progress, Number.percent)))
   }
 
-  private HxContext cx
-  private ConnPoint[] points
+  private HxContext cxRef
+  private ConnPoint[] pointsRef
   private HxTaskService? task
   private Obj? span
   private const Int num
@@ -103,3 +100,50 @@ internal class ConnSyncHis
   private Int numErr
   private Dict[] results := [,]
 }
+
+**************************************************************************
+** ConnSyncHis
+**************************************************************************
+
+**
+** Implementation for the connSyncHis function
+**
+internal class ConnSyncHis : AbstractSyncHis
+{
+  new make(HxContext cx, ConnPoint[] points, Obj? span)
+    : super(cx, points, span)
+  {
+  }
+
+  override Str dis(Obj pt) { ((ConnPoint)pt).dis }
+
+  override ConnPoint[] points() { super.points }
+
+  override Void commitPending()
+  {
+    points.each |pt|
+    {
+      pt.conn.send(HxMsg("hisPending", pt))
+    }
+  }
+
+  override Dict sync(Obj point)
+  {
+    pt := (ConnPoint)point
+
+    // do fresh read of the point's record to get latest hisEnd
+    // because ConnPoint.rec doesn't get transient changes
+    rec := cx.db.readById(pt.id)
+
+    // get span to use based on this point's timezone
+    span := toPointSpan(rec, pt.tz)
+
+    // route to connector actor; block forever here and rely on each
+    // connector to not lock up its queue for too long; we check for
+    // task cancellation using context heartbeat
+    return pt.conn.send(HxMsg("syncHis", pt, span)).get(null)
+  }
+
+}
+
+
