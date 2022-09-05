@@ -120,6 +120,12 @@ const class FolioUtil
     return Etc.makeDict(acc)
   }
 
+  ** Return if the given tag name should never be persistently committed to Folio
+  static Bool isUncommittable(Str name)
+  {
+    DiffTagRule.isUncommittable(name)
+  }
+
   ** Compute a map of tag names which should never be index
   static Str:Str tagsToNeverIndex()
   {
