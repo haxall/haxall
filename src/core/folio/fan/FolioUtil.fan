@@ -508,6 +508,7 @@ internal const class DiffTagRule
     persistentOnly := DiffTagRule(DiffTagRuleType.persistentOnly, 0)
     transientOnly  := DiffTagRule(DiffTagRuleType.transientOnly, 0)
     curVal         := DiffTagRule(DiffTagRuleType.transientOnly, Diff.curVal)
+    point          := DiffTagRule(DiffTagRuleType.persistentOnly, Diff.point)
 
     rules = [
       "id":          never,
@@ -523,7 +524,7 @@ internal const class DiffTagRule
       "disMacro":    persistentOnly,
       "equip":       persistentOnly,
       "navName":     persistentOnly,
-      "point":       persistentOnly,
+      "point":       point,
       "site":        persistentOnly,
       "trash":       persistentOnly,
 

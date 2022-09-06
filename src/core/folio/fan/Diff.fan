@@ -129,6 +129,9 @@ const class Diff
   ** Flag bitmask add in ctor if curVal or curStatus in changes
   @NoDoc static const Int curVal := 0x20
 
+  ** Flag bitmask indicating changes dict has point tag
+  @NoDoc static const Int point := 0x40
+
   ** Flag bitmask for `force` and `transient`
   static const Int forceTransient := force.or(transient)
 
@@ -156,6 +159,9 @@ const class Diff
 
   ** Flag indicating curVal or curStatus is in changed tags
   @NoDoc Bool isCurVal() { flags.and(curVal) != 0 }
+
+  ** Flag indicating we are adding new point
+  @NoDoc Bool isAddPoint() { isAdd && flags.and(point) != 0 }
 
 //////////////////////////////////////////////////////////////////////////
 // Methods

@@ -93,6 +93,12 @@ class FolioUtilTest : HaystackTest
     verifyDiffErr(rec1, ["ext":"foo"], Diff.transient)
     verifyDiffErr(rec1, ["foobar":Bin("text/plain")], Diff.transient)
 
+    // diff with point
+    verifyEq(Diff(rec1, ["point":m]).flags, Diff.point)
+    verifyEq(Diff(rec1, ["point":m]).isAddPoint, false)
+    verifyEq(Diff.makeAdd(["point":m]).flags, Diff.add.or(Diff.point))
+    verifyEq(Diff.makeAdd(["point":m]).isAddPoint, true)
+
     // diff with curVal
     verifyEq(Diff(rec1, ["curVal":n(123)], Diff.transient).flags, Diff.transient.or(Diff.curVal))
     verifyEq(Diff(rec1, ["curStatus":"ok"], Diff.transient).flags, Diff.transient.or(Diff.curVal))
