@@ -205,13 +205,13 @@ class BrioTest : HaystackTest
 
      // grids
      verifyIO(ZincReader(
-       """ver:"2.0"
+       """ver:"3.0"
           a,b,c,d
           @foo-bar,43,T,NA
           """.in).readGrid)
      // grids
      verifyIO(ZincReader(
-       """ver:"2.0" foo bar n:3
+       """ver:"3.0" foo bar n:3
           a dis:"A" metaFoo
           @foo-bar
           N

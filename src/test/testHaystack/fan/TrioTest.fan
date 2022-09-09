@@ -199,7 +199,7 @@ class TrioTest : HaystackTest
            list1:[@a, @b]
            dict1:{a:"Alpha" b}
            grid1:Zinc:
-             ver:"2.0"
+             ver:"3.0"
              a,b
              1,2
              3,4

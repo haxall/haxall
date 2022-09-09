@@ -18,7 +18,7 @@ class ZincTest : HaystackTest
   {
     // 1x0
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            fooBar33
            |>,
       Str:Obj?[:],
@@ -27,7 +27,7 @@ class ZincTest : HaystackTest
 
     // 1x1
     verifyGrid(
-      Str<|ver:"2.0" tag foo:"bar"
+      Str<|ver:"3.0" tag foo:"bar"
            xyz
            "val"
            |>,
@@ -37,7 +37,7 @@ class ZincTest : HaystackTest
 
     // 1x1 null
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            val
            N
            |>,
@@ -47,7 +47,7 @@ class ZincTest : HaystackTest
 
     // 2x2
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            a,b
            1,2
            3,4
@@ -72,13 +72,13 @@ class ZincTest : HaystackTest
 
     // all scalars
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            a,    b,      c,      d
            T,    F,      N,   -99
            2.3,  -5e-10, 2.4e20, 123e-10
            "",   "a",   "\" \\ \t \n \r", "\uabcd"
            `path`, @12cbb082-0c02ae73, 4s, -2.5min
-           M,R,Bin(image/png),Bin(image/png)
+           M,R,Bin("image/png"),Bin("image/png")
            2009-12-31, 23:59:01, 01:02:03.123, 2009-02-03T04:05:06Z
            INF, -INF, "", NaN
            C(12,-34),C(0.123,-0.789),C(84.5,-77.45),C(-90,180)
@@ -98,7 +98,7 @@ class ZincTest : HaystackTest
 
     // specials
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            foo
            `foo$20bar`
            `foo\`bar`
@@ -113,7 +113,7 @@ class ZincTest : HaystackTest
 
     // units
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            a, b
            -3.1kg,4kg
            5%,3.2%
@@ -128,7 +128,7 @@ class ZincTest : HaystackTest
 
     // xstr
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            a,b
            Foo("foo"),C("")
            Bin("image/svg"),B("b\n)!")
@@ -142,7 +142,7 @@ class ZincTest : HaystackTest
 
     // sparse
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            a, b, c
            , 1, 2
            3, , 5
@@ -162,7 +162,7 @@ class ZincTest : HaystackTest
 
     // sparse
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            a,b
            2010-03-01T23:55:00.013-05:00 GMT+5,2010-03-01T23:55:00.013+10:00 GMT-10|>,
       Str:Obj?[:],
@@ -172,7 +172,7 @@ class ZincTest : HaystackTest
 
     // timezones and regression bugs
     verifyGrid(
-      Str<|ver:"2.0" a: 2009-02-03T04:05:06Z foo b: 2010-02-03T04:05:06Z UTC bar c: 2009-12-03T04:05:06Z London baz
+      Str<|ver:"3.0" a: 2009-02-03T04:05:06Z foo b: 2010-02-03T04:05:06Z UTC bar c: 2009-12-03T04:05:06Z London baz
            a
            3.814697265625E-6
            2010-12-18T14:11:30.924Z
@@ -208,10 +208,10 @@ class ZincTest : HaystackTest
   {
     // simple one grid
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            val
            <<
-           ver:"2.0"
+           ver:"3.0"
            x,y
            4,6
 
@@ -226,16 +226,16 @@ class ZincTest : HaystackTest
 
     // one col, two rows of grids
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            val
            <<
-           ver:"2.0"
+           ver:"3.0"
            x,y
            4,6
 
            >>
            <<
-           ver:"2.0" foo
+           ver:"3.0" foo
            z
            1
            2
@@ -250,15 +250,15 @@ class ZincTest : HaystackTest
 
     // two cols of grids
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            col1,col2
            <<
-           ver:"2.0"
+           ver:"3.0"
            x,y
            4,6
 
            >>,<<
-           ver:"2.0" foo
+           ver:"3.0" foo
            z
            1
            2
@@ -272,36 +272,36 @@ class ZincTest : HaystackTest
 
     // 3x2 of grids
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            col1,col2,col3
            <<
-           ver:"2.0"
+           ver:"3.0"
            a
            1
 
            >>,<<
-           ver:"2.0"
+           ver:"3.0"
            b
            1
 
            >>,<<
-           ver:"2.0"
+           ver:"3.0"
            c
            1
 
            >>
            <<
-           ver:"2.0"
+           ver:"3.0"
            a
            2
 
            >>,<<
-           ver:"2.0"
+           ver:"3.0"
            b
            2
 
            >>,<<
-           ver:"2.0"
+           ver:"3.0"
            c
            2
 
@@ -315,19 +315,19 @@ class ZincTest : HaystackTest
 
     // double nesting
     verifyGrid(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            outer
            <<
-           ver:"2.0"
+           ver:"3.0"
            inner
            <<
-           ver:"2.0"
+           ver:"3.0"
            x
            1
 
            >>
            <<
-           ver:"2.0"
+           ver:"3.0"
            y
            2
 
@@ -353,13 +353,13 @@ class ZincTest : HaystackTest
   Void testErrs()
   {
     verifyZincErr("sys::ParseErr: Invalid empty Ref [line 3]",
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            foo
            @
            |>)
 
     verifyZincErr("sys::ParseErr: Invalid empty Ref [line 3]",
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            foo
            @@
            |>)
@@ -401,7 +401,7 @@ class ZincTest : HaystackTest
 
     // bins 3.0
     verifyGrid(
-      Str<|ver:"3.0" bg: Bin("image/jpeg") mark
+      Str<|ver:"2.0" bg: Bin("image/jpeg") mark
            file1 dis:"F1" icon: Bin("image/gif"),file2 icon: Bin("image/jpg")
            Bin("text/plain"),N
            4,Bin("image/png")
@@ -450,7 +450,7 @@ class ZincTest : HaystackTest
     verifyErr(Err#)
     {
       ZincReader(
-        Str<|ver:"2.0"
+        Str<|ver:"3.0"
              id
              17eb1385-bffd1862
              |>.in).readGrid
@@ -494,7 +494,7 @@ class ZincTest : HaystackTest
     verifyErr(Err#)
     {
       ZincReader(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            id "dis",price "Price" unit:"$"
            "foo",40$
            |>.in).readGrid

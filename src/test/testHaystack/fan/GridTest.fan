@@ -22,7 +22,7 @@ class GridTest : HaystackTest
   Void testBasics()
   {
     g := g(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            id, dis dis:"Display", num
            @a, "a", 1
            @b, "b", 2
@@ -53,7 +53,7 @@ class GridTest : HaystackTest
   Void testFormatting()
   {
     g := g(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            num format:"#.00", date format:"DD/MM/YYYY",time format:"hhmm",bool enum:"off,on"
            3,2013-09-03,13:45,T
            |>)
@@ -72,7 +72,7 @@ class GridTest : HaystackTest
   {
     // original
     grid := g(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            a,   b
            "a", 0
            "b", 1
@@ -108,7 +108,7 @@ class GridTest : HaystackTest
   {
     // original
     grid := g(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            a,   b
            "a", 10
            "b", 20
@@ -171,7 +171,7 @@ class GridTest : HaystackTest
   Void testSort()
   {
     grid := g(
-      Str<|ver:"2.0" foo:"bar"
+      Str<|ver:"3.0" foo:"bar"
            name,   b
            "a",    10
            "b",    4
@@ -208,7 +208,7 @@ class GridTest : HaystackTest
   {
     // original
     grid := g(
-      Str<|ver:"2.0" foo:"bar"
+      Str<|ver:"3.0" foo:"bar"
            a f,  c dis:"C", d
            "a",  1,     N
            "b",  4,     N
@@ -225,7 +225,7 @@ class GridTest : HaystackTest
     r := grid.findAll |row| { row->c->toInt->isOdd }
 
     verifyGridEq(r, g(
-      Str<|ver:"2.0" foo:"bar"
+      Str<|ver:"3.0" foo:"bar"
            a f,  c dis:"C", d
            "a",  1,     N
            "c",  3,     N
@@ -234,7 +234,7 @@ class GridTest : HaystackTest
     r = grid.filter(Filter("c >= 3"))
 
     verifyGridEq(r, g(
-      Str<|ver:"2.0" foo:"bar"
+      Str<|ver:"3.0" foo:"bar"
            a f,  c dis:"C", d
            "b",  4,     N
            "c",  3,     N
@@ -249,7 +249,7 @@ class GridTest : HaystackTest
   {
     // original
     grid := g(
-      Str<|ver:"2.0" foo:"bar"
+      Str<|ver:"3.0" foo:"bar"
            a f,  c dis:"C", d
            "a",  1,     N
            "b",  4,     N
@@ -275,7 +275,7 @@ class GridTest : HaystackTest
     verifyEq(list, Obj?[n(1), null, n(3), null])
 
     verifyGridEq(map, g(
-      Str<|ver:"2.0" foo:"bar"
+      Str<|ver:"3.0" foo:"bar"
            a f,  b,    c dis:"C"
            "a",  "A",  101
            "b",  "B",  104
@@ -288,7 +288,7 @@ class GridTest : HaystackTest
     map.each |row| { gb.addDictRow(row) }
     x := gb.toGrid
     verifyGridEq(x, g(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            c,   b,    a
            101, "A",  "a"
            104, "B",  "b"
@@ -309,7 +309,7 @@ class GridTest : HaystackTest
   {
     // original
     grid := g(
-      Str<|ver:"2.0" foo:"bar"
+      Str<|ver:"3.0" foo:"bar"
            a foo,  b
            "a",    1
            "b",    4
@@ -334,7 +334,7 @@ class GridTest : HaystackTest
     }
 
     verifyGridEq(map, g(
-      Str<|ver:"2.0" foo:"bar"
+      Str<|ver:"3.0" foo:"bar"
            a foo,  au,   c,   d
            "a",    "A",  101, N
            "_a",     N,    N, 1
@@ -351,35 +351,35 @@ class GridTest : HaystackTest
   {
     // original
     grid := g(
-      Str<|ver:"2.0" foo
+      Str<|ver:"3.0" foo
            a dis:"A", b bar
            1, 2
            3, 4|>)
 
     // set b; add c,d
     grid = grid.commit(g(
-      Str<|ver:"2.0" commit:"update"
+      Str<|ver:"3.0" commit:"update"
            b, c, d
            20, 1min, "1"
            40, 2min, "2"|>))
 
     // verify
     verifyGridEq(grid, g(
-      Str<|ver:"2.0" foo
+      Str<|ver:"3.0" foo
            a dis:"A", b bar, c, d
            1, 20, 1min, "1"
            3, 40, 2min, "2"|>))
 
     // set b partial; set/remove c; remove d; add e
     grid = grid.commit(g(
-      Str<|ver:"2.0" commit:"update"
+      Str<|ver:"3.0" commit:"update"
            b,   c,      d,      e
            200, 10min,  R, -1
            ,    R,      R, -2|>))
 
     // verify
     verifyGridEq(grid, g(
-      Str<|ver:"2.0" foo
+      Str<|ver:"3.0" foo
            a dis:"A", b bar,  c,     e
            1,     200,    10min, -1
            3,     40,     ,      -2|>))
@@ -392,7 +392,7 @@ class GridTest : HaystackTest
   Void testJoin()
   {
     g1 := g(
-      Str<|ver:"2.0" m1:1 m2:2
+      Str<|ver:"3.0" m1:1 m2:2
            a,   b dis:"B" mb1, c mc
            "a", 1,         10
            "c", 3,         30
@@ -400,7 +400,7 @@ class GridTest : HaystackTest
            |>)
 
     g2 := g(
-      Str<|ver:"2.0" m2:20 m3:3
+      Str<|ver:"3.0" m2:20 m3:3
            d md, b mb2, e dis:"E"
            "A",  1,     1ms
            "B",  2,     2ms
@@ -409,7 +409,7 @@ class GridTest : HaystackTest
            |>)
 
     byB := g(
-      Str<|ver:"2.0" m1:1 m2:20 m3:3
+      Str<|ver:"3.0" m1:1 m2:20 m3:3
            a,    b dis:"B" mb1 mb2, c mc, d md, e dis:"E"
            "a",  1,  10,  "A",  1ms
            "c",  3,  30,  "C",  3ms
@@ -422,7 +422,7 @@ class GridTest : HaystackTest
     verifyGridEq(g1.join(g2, g2.col("b")), byB)
 
     g3 := g(
-      Str<|ver:"2.0"
+      Str<|ver:"3.0"
            b, f
            1, 100
            2, 200
@@ -431,7 +431,7 @@ class GridTest : HaystackTest
 
     r = r.join(g3, "b")
     verifyGridEq(r, g(
-      Str<|ver:"2.0" m1:1 m2:20 m3:3
+      Str<|ver:"3.0" m1:1 m2:20 m3:3
            a,    b dis:"B" mb1 mb2, c mc, d md, e dis:"E", f
            "a",  1,  10,  "A",  1ms, 100
            "c",  3,  30,  "C",  3ms, 300
@@ -448,7 +448,7 @@ class GridTest : HaystackTest
   Void testViews()
   {
     x := g(
-      Str<|ver:"2.0" m1:1 m2:2
+      Str<|ver:"3.0" m1:1 m2:2
            a,   b dis:"B" mb,  c mc
            "a", @1 "_1", 10ms
            "b", @2 "_2", 20ms
@@ -457,7 +457,7 @@ class GridTest : HaystackTest
     // Grid.addMeta
     x = x.addMeta(Etc.makeDict(["m2":n(20), "m3":n(30)]))
     verifyGridEq(x, g(
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            a,   b dis:"B" mb,  c mc
            "a", @1 "_1", 10ms
            "b", @2 "_2", 20ms
@@ -466,7 +466,7 @@ class GridTest : HaystackTest
     // Grid.setMeta
     x = x.setMeta(Etc.makeDict(["m2":n(20), "m3":n(30), "m4":n(40)]))
     verifyGridEq(x, g(
-      Str<|ver:"2.0" m2:20 m3:30 m4:40
+      Str<|ver:"3.0" m2:20 m3:30 m4:40
            a,   b dis:"B" mb,  c mc
            "a", @1 "_1", 10ms
            "b", @2 "_2", 20ms
@@ -475,7 +475,7 @@ class GridTest : HaystackTest
     // Grid.addMeta again with remove
     x = x.addMeta(Etc.makeDict(["m1":n(1), "m4":Remove.val]))
     verifyGridEq(x, g(
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            a,   b dis:"B" mb,  c mc
            "a", @1 "_1", 10ms
            "b", @2 "_2", 20ms
@@ -485,7 +485,7 @@ class GridTest : HaystackTest
     x = verifyView(x,
       |Grid g->Grid| { g.addColMeta("c", Etc.makeDict(["foo":Marker.val])) },
       |Grid g->Grid| { g.addColMeta(g.col("c"), Etc.makeDict(["foo":Marker.val])) },
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            a,   b dis:"B" mb, c mc foo
            "a", @1 "_1", 10ms
            "b", @2 "_2", 20ms
@@ -495,7 +495,7 @@ class GridTest : HaystackTest
     x = verifyView(x,
       |Grid g->Grid| { g.setColMeta("c", Etc.makeDict(["bar":Marker.val])) },
       |Grid g->Grid| { g.setColMeta(g.col("c"), Etc.makeDict(["bar":Marker.val])) },
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            a,   b dis:"B" mb, c bar
            "a", @1 "_1", 10ms
            "b", @2 "_2", 20ms
@@ -505,7 +505,7 @@ class GridTest : HaystackTest
     x = verifyView(x,
       |Grid g->Grid| { g.addColMeta("c", Etc.makeDict(["mc":Marker.val, "foo":Marker.val, "bar":Remove.val])) },
       |Grid g->Grid| { g.addColMeta(g.col("c"), Etc.makeDict(["mc":Marker.val, "foo":Marker.val, "bar":Remove.val])) },
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            a,   b dis:"B" mb, c mc foo
            "a", @1 "_1", 10ms
            "b", @2 "_2", 20ms
@@ -515,7 +515,7 @@ class GridTest : HaystackTest
     x = verifyView(x,
       |Grid g->Grid| { g.renameCol("b", "boo") },
       |Grid g->Grid| { g.renameCol(g.col("b"), "boo") },
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            a,   boo dis:"B" mb,  c mc foo
            "a", @1 "_1", 10ms
            "b", @2 "_2", 20ms
@@ -525,7 +525,7 @@ class GridTest : HaystackTest
     x = verifyView(x,
       |Grid g->Grid| { g.renameCols(["a":"ax", "boo":"bx", "notThere":"xxx"]) },
       |Grid g->Grid| { g.renameCols([g.col("a"):"ax", g.col("boo"):"bx", "notThere":"xxx"]) },
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            ax,  bx dis:"B" mb,  c mc foo
            "a", @1 "_1", 10ms
            "b", @2 "_2", 20ms
@@ -535,7 +535,7 @@ class GridTest : HaystackTest
     x = x.addCol("d",
       Etc.makeDict(["dis":"D", "md":Marker.val])) { n(100f, Unit("kg")) + n(it->c->toFloat) }
     verifyGridEq(x, g(
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            ax,  bx dis:"B" mb,  c mc foo, d dis:"D" md
            "a", @1 "_1", 10ms, 110kg
            "b", @2 "_2", 20ms, 120kg
@@ -545,7 +545,7 @@ class GridTest : HaystackTest
     x = verifyView(x,
       |Grid g->Grid| { g.reorderCols(["bx", "ax", "d", "c"]) },
       |Grid g->Grid| { g.reorderCols([g.col("bx"), g.col("ax"), g.col("d"), g.col("c")]) },
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            bx dis:"B" mb, ax, d dis:"D" md, c mc foo
            @1 "_1", "a", 110kg, 10ms
            @2 "_2", "b", 120kg, 20ms
@@ -556,7 +556,7 @@ class GridTest : HaystackTest
     x = verifyView(x,
       |Grid g->Grid| { g.removeCol("d") },
       |Grid g->Grid| { g.removeCol(g.col("d")) },
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            ax,  bx dis:"B" mb,  c mc foo
            "a", @1 "_1", 10ms
            "b", @2 "_2", 20ms
@@ -566,7 +566,7 @@ class GridTest : HaystackTest
     x = verifyView(x,
       |Grid g->Grid| { g.removeCols(["ax", "c", "notThere"]) },
       |Grid g->Grid| { g.removeCols([g.col("ax"), g.col("c")]) },
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            bx dis:"B" mb
            @1 "_1"
            @2 "_2"
@@ -576,7 +576,7 @@ class GridTest : HaystackTest
     x = verifyView(x,
       |Grid g->Grid| { g.keepCols(["bx", "notThere"]) },
       |Grid g->Grid| { g.keepCols([g.col("bx")]) },
-      Str<|ver:"2.0" m1:1 m2:20 m3:30
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
            bx dis:"B" mb
            @1 "_1"
            @2 "_2"
@@ -600,7 +600,7 @@ class GridTest : HaystackTest
   Void testSlice()
   {
     x := g(
-      Str<|ver:"2.0" m1:1 m2:2
+      Str<|ver:"3.0" m1:1 m2:2
            a,   b dis:"B" mb,  c mc
            "a", @1 "_1", 10ms
            "b", @2 "_2", 20ms
@@ -610,13 +610,13 @@ class GridTest : HaystackTest
 
     // Grid.getRange
     verifyGridEq(x[0..0], g(
-      Str<|ver:"2.0" m1:1 m2:2
+      Str<|ver:"3.0" m1:1 m2:2
            a,   b dis:"B" mb,  c mc
            "a", @1 "_1", 10ms
            |>))
 
     verifyGridEq(x[2..-1], g(
-      Str<|ver:"2.0" m1:1 m2:2
+      Str<|ver:"3.0" m1:1 m2:2
            a,   b dis:"B" mb,  c mc
            "c", @3 "_3", 30ms
            "d", @4 "_4", 40ms
@@ -630,7 +630,7 @@ class GridTest : HaystackTest
   Void testTranspose()
   {
     Grid src := g(
-      Str<|ver:"2.0" m:"!"
+      Str<|ver:"3.0" m:"!"
            dis dis:"Display",x dis:"Beta",y
            "foo","Foo",12
            "bar",N,M
@@ -639,7 +639,7 @@ class GridTest : HaystackTest
     r := src.transpose
 
     verifyGridEq(r, g(
-      Str<|ver:"2.0" m:"!"
+      Str<|ver:"3.0" m:"!"
            dis transposedDis:"Display", v0 dis:"foo",v1 dis:"bar"
            "Beta","Foo",N
            "y",12,M
