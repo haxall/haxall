@@ -300,19 +300,42 @@ class Client
 // Main
 //////////////////////////////////////////////////////////////////////////
 
-  // set ApiAuth.debug = true to dump authentication cycle
-  @NoDoc static Void main(Str[] args)
+  @NoDoc static Int main(Str[] args)
   {
-    if (args.size < 3) { echo("usage: <uri> <user> <pass>"); return }
+    if (args.size < 3) { echo("usage: <uri> <user> <pass>"); return 1 }
     uri  := args[0].toUri.plusSlash
     user := args[1]
     pass := args[2]
-    log  :=  Log.get("haystackClient") { level = LogLevel.debug }
-    c := Client.open(uri, user, pass, ["log":log])
-    a := c.about
-    echo("\nPing successful: $c.uri\n")
-    a.each |v, k| { echo("$k: $v") }
-    echo
+    isToken := args.any |arg| { arg == "-token" }
+    log := Log.get("haystackClient")
+    if (isToken)
+    {
+      // report only the authorization header to stdout and return 0 ok, 3 error
+      try
+      {
+        c := Client.open(uri, user, pass, ["log":log])
+        a := c.about
+        token := c.toWebClient(`about`).reqHeaders["Authorization"] ?: "err"
+        echo(token)
+        return 0
+      }
+      catch (Err e)
+      {
+        echo(e)
+        return 3
+      }
+    }
+    else
+    {
+      // authenticate with full debug turned on
+      log.level = LogLevel.debug
+      c := Client.open(uri, user, pass, ["log":log])
+      a := c.about
+      echo("\nPing successful: $c.uri\n")
+      a.each |v, k| { echo("$k: $v") }
+      echo
+      return 0
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
