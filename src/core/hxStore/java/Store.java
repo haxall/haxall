@@ -91,6 +91,8 @@ public final class Store extends FanObj
 
   public final Blob create(Buf meta, Buf data)
   {
+    if (meta != null) Store.checkMetaSize(meta);
+    if (data != null) Store.checkDataSize(data.sz());
     try
     {
       return index.create(meta, data);
@@ -202,16 +204,16 @@ public final class Store extends FanObj
     if (!ro) throw err("Store must be readonly to push");
   }
 
-  static void checkMeta(Blob blob, Buf buf)
+  static void checkMetaSize(Buf buf)
   {
     if (buf.sz() > maxMetaSize)
-      throw err("Meta size exceeds limit: " + buf.sz() + " > 32 bytes [" + blobToDebugStr(blob) + "]");
+      throw err("Meta size exceeds limit: " + buf.sz() + " > 32 bytes");
   }
 
-  static void checkDataSize(Blob blob, int size)
+  static void checkDataSize(int size)
   {
     if (size > maxPageSize)
-      throw err("Data size exceeds limit: " + size + " > 1MB [" + blobToDebugStr(blob) + "]");
+      throw err("Data size exceeds limit: " + size + " > 1MB]");
   }
 
   static String blobToDebugStr(Blob b)
