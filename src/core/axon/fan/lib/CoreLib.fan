@@ -1224,6 +1224,19 @@ const class CoreLib
     return grid.addCol(name, meta, toGridIterator(fn))
   }
 
+  ** Add grid b as a new set of columns to grid a.  If b contains
+  ** duplicate column names, then they are given auto-generated
+  ** unique names.  If b contains fewer rows then a, then the missing
+  ** cells are filled with null.
+  **
+  ** Examples:
+  **   [{a:0, b:2}, {a:1, b:3}].toGrid.addCols({c:4}.toGrid)
+  **   readAll(rtu).addCols(readAll(meter))
+  @Axon static Grid addCols(Grid a, Grid b)
+  {
+    a.addCols(b)
+  }
+
   ** Return a new grid with the given column renamed.
   **
   ** Example:

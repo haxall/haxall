@@ -446,7 +446,6 @@ const mixin Grid
   **  - grid level meta is merged
   **  - join column meta is merged
   **
-  **
   Grid join(Grid that, Obj joinCol)
   {
     // get col references
@@ -555,6 +554,44 @@ const mixin Grid
       cells.add(f(r, i))
       gb.addRow(cells)
     }
+    return gb.toGrid
+  }
+
+  **
+  ** Return a new grid by adding the given grid as a new set of columns
+  ** to this grid.  If the given grid contains duplicate column names, then
+  ** they are given auto-generated unique names.  If the given grid contains
+  ** fewer rows then this grid, then the missing cells are filled with null.
+  **
+  Grid addCols(Grid x)
+  {
+    a := this; aCols := a.cols
+    b := x;    bCols := b.cols
+
+    newCols := GridBuilder.normColNames(a.colNames.dup.addAll(b.colNames))
+    newRows := Obj?[][,]
+    try { newRows.capacity = a.size } catch (Err e) {}
+
+    a.each |aRow, i|
+    {
+      newRow := Obj?[,]
+      newRow.size = newCols.size
+      aCols.each |c, j| { newRow[j] = aRow.val(c) }
+      newRows.add(newRow)
+    }
+
+    b.each |bRow, i|
+    {
+      newRow := newRows.getSafe(i)
+      if (newRow == null) return
+      bCols.each |c, j| { newRow[aCols.size+j] = bRow.val(c) }
+    }
+
+    gb := GridBuilder().setMeta(a.meta)
+    gb.capacity = newRows.size
+    aCols.each |c, j| { gb.addCol(c.name, c.meta) }
+    bCols.each |c, j| { gb.addCol(newCols[aCols.size+j], c.meta) }
+    newRows.each |row| { gb.addRow(row) }
     return gb.toGrid
   }
 

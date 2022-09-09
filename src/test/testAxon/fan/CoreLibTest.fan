@@ -241,7 +241,8 @@ class CoreLibTest : HaystackTest
     verifyEval(Str<|12$.format|>, "\$12.00")
     verifyEval(Str<|(-12$).format|>, "-\$12.00")
     verifyEval(Str<|12$.format("U#.#")|>, "\$12")
-    verifyEval(Str<|(-12$).format("U#.#;(#)")|>, "(\$12)")
+    verifyEval(Str<|(12$).format("+U#.#;(U#)")|>, "+\$12")
+    verifyEval(Str<|(-12$).format("U#.#;(U#)")|>, "(\$12)")
 
     // parseNumber
     verifyEval(Str<|"5min".parseNumber|>, n(5, "min"))
@@ -1258,6 +1259,12 @@ class CoreLibTest : HaystackTest
     verifyEq(grid.get(0)->age, n(10)); verifyEq(grid.get(0)->agex, n(110))
     verifyEq(grid.get(1)->age, n(30)); verifyEq(grid.get(1)->agex, n(130))
     verifyEq(grid.get(2)->age, n(20)); verifyEq(grid.get(2)->agex, n(120))
+
+    // addCols
+    grid = eval(x + """.addCols({a:1,b:2}.toGrid)""")
+    verifyEq(grid.colNames.join(","), "name,age,bar,foo,a,b")
+    verifyDictEq(grid[0], ["name":"andy", "age":n(10), "foo":m, "a":n(1), "b":n(2)])
+    verifyDictEq(grid[1], ["name":"brian", "age":n(30), "foo":m])
 
     // addColMeta
     grid = eval(x + """.addColMeta("age", {foo, bar:"baz"})""")

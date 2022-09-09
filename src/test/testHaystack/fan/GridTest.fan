@@ -581,6 +581,22 @@ class GridTest : HaystackTest
            @1 "_1"
            @2 "_2"
            |>)
+
+    // Grid.addCols
+    verifyGridEq(x.addCols(x), g(
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
+           bx dis:"B" mb, bx_1 dis:"B" mb,
+           @1 "_1",@1 "_1"
+           @2 "_2",@2 "_2"
+           |>))
+
+    // Grid.addCols w/ sparse cells
+    verifyGridEq(x.addCols(Etc.makeMapGrid(Etc.makeDict1("foo", Marker.val), ["x":n(1), "y":n(2)])), g(
+      Str<|ver:"3.0" m1:1 m2:20 m3:30
+           bx mb dis:"B",x,y
+           @1 "_1",1,2
+           @2 "_2",,
+           |>))
   }
 
   Grid verifyView(Grid x, |Grid g->Grid| a, |Grid->Grid| b, Str expected)
