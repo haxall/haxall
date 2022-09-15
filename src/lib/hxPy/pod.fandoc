@@ -27,7 +27,14 @@ If you are running SkySpark on a linux-based OS, then you **must** run SkySpark 
 Java 17+ in order to connect to the default docker daemon (this is because the default
 daemon must be accessed using a
 [Unix Domain Socket]`https://en.wikipedia.org/wiki/Unix_domain_socket`, and Java didn't
-add support for that until Java 16).
+add support for that until Java 16).  Note also that this Unix domain socket is typically
+owned by 'root:docker' and you may need to add your user to the 'docker' group in order
+to connect to the socket. If your user does not have access to the domain socket you
+will likely see an error like this:
+
+pre>
+  sys::IOErr: java.net.BindException: Permission denied
+<pre
 
 
 Axon [#axon]
