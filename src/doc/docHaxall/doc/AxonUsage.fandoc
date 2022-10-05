@@ -57,7 +57,7 @@ List Examples [#list]
 Common functions for working with lists: `add`, `addAll`, `all`, `any`,
 `concat`, `contains`, `get`, `each`, `find`, `findAll`, `first`, `flatMap`,
 `fold`, `index`, `indexr`, `insert`, `insertAll`, `isEmpty`, `last`, `map`,
-`moveTo`, `remove`, `set`, `size`, `sort`, `sortr`.
+`moveTo`, `remove`, `set`, `size`, `sort`, `sortr`, `unique`.
 
   x: [10, 20, 30]
   y: ["chat", "apple", "bee"]
@@ -92,6 +92,7 @@ is immutable):
   y.find s => s.size == 3        >>  "bee"
   y.findAll s => s.size <= 4     >>  ["chat", "bee"]
   y.moveTo("chat", -1)           >>  ["apple", "bee", "chat"]
+  [1,1,1,2].unique               >>  [1,2]
 
 Dict Examples [#dict]
 *********************
@@ -131,11 +132,11 @@ original is immutable):
 Grid Examples [#grid]
 *********************
 Common functions for working with grids: `addCol`, `addColMeta`, `addMeta`,
-`addRow`, `addRows`, `all`, `any`, `col`, `cols`, `colNames`, `each`, `find`,
-`findAll`, `first`, `flatMap`, `foldCol`, `foldCols`, `get`, `gridRowsToDict`,
+`addRow`, `addRows`, `all`, `any`, `col`, `cols`, `colNames`, `colToList`, `each`,
+`find`, `findAll`, `first`, `flatMap`, `foldCol`, `foldCols`, `get`, `gridRowsToDict`,
 `gridColsToDict`, `has`, `isEmpty`, `join`, `joinAll`, `keepCols`, `last`,
 `map`, `meta`, `missing`, `removeCol`, `removeCols`, `renameCol`,
-`reorderCols`, `size`, `sort`, `sortr`, `toGrid`.
+`reorderCols`, `size`, `sort`, `sortr`, `toGrid`, `unique`.
 
   // create grid from list of dicts
   g: [{dis:"Site-A", area:2300ft²},
@@ -153,6 +154,7 @@ Common functions for working with grids: `addCol`, `addColMeta`, `addMeta`,
   g.col("dis").meta             >>  meta data for column "dis"
   g.col("foo")                  >>  throws UnknownNameErr
   g.col("foo", false)           >>  null
+  g.colToList("area")           >>  [2300ft², 3100ft², 1950ft²]
   g.first                       >>  {dis:"Site-A", area:2300ft²}
   g.last                        >>  {dis:"Site-C", area:1950ft²}
   g[1]                          >>  {dis:"Site-B", area:3100²}
@@ -160,8 +162,8 @@ Common functions for working with grids: `addCol`, `addColMeta`, `addMeta`,
   g[0..1]                       >>  slice to new grid of Site-A, Site-B
   g.each(row=>...)              >>  iterate each row as a dict
   g.foldCol("area", sum)        >>  7350ft²
-  g.any r => r->area > 2000ft²  >> true
-  g.all r => r->area > 2000ft²  >> false
+  g.any r => r->area > 2000ft²  >>  true
+  g.all r => r->area > 2000ft²  >>  false
 
 Functions which modify a grid always return a new grid (the
 original is immutable):
@@ -185,6 +187,7 @@ original is immutable):
   g.keepCols(["dis"])                        >> remove all cols except given list
   g.addRow({dis:"Site-D", area: 4000ft²})    >> add new row to end of grid
   g.addRows([{dis:"Site-D"},{dis:"Site-E"}]) >> add list of new rows to grid
+  g.unique("dis")                            >> grid with rows with unique values in dis col
 
 Joins between two grids may be done by column name using `join` or `joinAll`:
 
