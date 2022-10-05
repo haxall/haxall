@@ -2150,7 +2150,10 @@ const class CoreLib
   @Axon static Bool isDateTime(Obj? val) { val is DateTime }
 
   ** Return if an object is a function type
-  @Axon static Bool isFunc(Obj? val) { val is Fn}
+  @Axon static Bool isFunc(Obj? val) { val is Fn }
+
+  ** Return if an object is a span
+  @Axon static Bool isSpan(Obj? val) { val is Span }
 
   ** Return if given string is an Axon keyword
   @Axon static Bool isKeyword(Str val) { Token.isKeyword(val) }
