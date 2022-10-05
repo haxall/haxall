@@ -6,7 +6,12 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
-*Build 3.1.5 (working)*
+*Build 3.1.5 (5 Oct 2022)*
+- Support for Haxall developer program licensing
+- Cloning support for cloneSyncHis
+- New funcs: addCols
+- More Axon examples in core functions
+- Rework Number.toLocale pos;neg pattern behavior
 
 *Build 3.1.4 (4 May 2022)*
 - New design for choice defs
