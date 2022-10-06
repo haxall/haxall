@@ -125,6 +125,26 @@ const class CryptoFuncs
     return alias
   }
 
+  ** Add a private key and cert chain entry
+  @NoDoc @Axon { su = true }
+  static Obj? cryptoAddCert(Obj dict)
+  {
+    crypto := Crypto.cur
+    rec    := Etc.toRec(dict)
+    alias  := toAlias(rec->alias)
+    priv   := crypto.loadPem(rec->privKeyPem->in)
+    chain  := Cert[,]
+    in     := rec->certChainPem->in
+    while (true)
+    {
+      cert := crypto.loadPem(in)
+      if (cert == null) break
+      chain.add(cert)
+    }
+    ks.setPrivKey(alias, priv, chain)
+    return alias
+  }
+
   private static Dict? entryToRow(KeyStoreEntry entry, Str? alias := null)
   {
     tags := Str:Obj["cryptoEntry": Marker.val]
