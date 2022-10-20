@@ -295,6 +295,9 @@ internal class PyDockerSession : PySession
   ** HxpySession
   private HxpySession session
 
+  ** Has the init() callback been called on the underlying session
+  private Bool isInitialized := false
+
   ** Docker container spawned by this session
   internal HxDockerContainer? container := null
 
@@ -426,7 +429,8 @@ internal class PyDockerSession : PySession
   {
     // want to call with *this* as the session
     // cb := |PySession py| { fn.call(this) }
-    session.init { fn.call(this) }
+    if (!isInitialized)
+      session.init { fn.call(this); this.isInitialized = true }
     return this
   }
 
