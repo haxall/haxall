@@ -1471,7 +1471,7 @@ const class Etc
   **   - null or zero: "never"
   **   - positive is ticks in future: "3min"
   **   - negative is ticks in past: "3min ago"
-  **   - over 3hr ago: "4hr ago [22:14 2014-09-05 EDT ]"
+  **   - over 3hr ago: "4hr ago [22:14 2014-09-05 EDT]"
   @NoDoc static Str debugDur(Obj? dur)
   {
     if (dur == null || dur == 0) return "never"

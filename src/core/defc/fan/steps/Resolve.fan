@@ -160,6 +160,7 @@ internal class Resolve : DefCompilerStep
     // allow these tags to be used for ph* libs
     if (name == "icon") return false
     if (name == "sysMod") return false
+    if (name == "defVal") return false
 
     return true
   }

@@ -98,7 +98,7 @@ be configured with the "su" role or it will not be used.
 
 If no user is defined by the username "task", then an inferred synthetic
 user with the "admin" role is used for all evaluations.  The synthetic
-user has its `projAccessFilter` set restrict access to the local project
+user has its `projAccessFilter` set to restrict access to the local project
 only.  XQuery to other projects is not available.
 
 Remember that by default all admin users can create/edit tasks.  So it is
