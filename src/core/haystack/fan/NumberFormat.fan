@@ -171,7 +171,12 @@ const class NumberFormat
     {
       if (ch == 'U')
       {
-        if (unit != null) buf.add(unit.symbol)
+        if (unit != null)
+        {
+          symbol := unit.symbol
+          if (symbol[0] == '_') symbol = symbol[1..-1]
+          buf.add(symbol)
+        }
       }
       else
       {

@@ -255,6 +255,7 @@ class NumberTest : HaystackTest
     verifyEq(n(3456).toLocale, "3,456")
     verifyEq(n(-3456789).toLocale, "-3,456,789")
     verifyEq(n(3456789, "square_meter").toLocale, "3,456,789m\u00b2")
+    verifyEq(n(3456789, "_count").toLocale, "3,456,789count")
 
     verifyEq(n(1024).toLocale("B"), "1KB")
 
