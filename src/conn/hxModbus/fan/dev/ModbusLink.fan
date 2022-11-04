@@ -166,7 +166,18 @@ using hxSerial
       // forces a close and reopen.  Make sure not to throw an
       // IOErr for application errors, so we can localize errs
       // to just the requesting block
-      throw err
+      sb := StrBuf().add("Low-level IO error\n")
+        .add("Device: ${dev.uri} [slave=${dev.slave}]\n")
+        .add("Block: [type=${block.type}]\n")
+        .add("Registers:\n")
+      block.regs.each |reg|
+      {
+        rw := reg.readable ? "r" : ""
+        if (reg.writable) rw = rw + "w"
+        sb.add("  ${reg.name} ${reg.dis} [addr=${reg.addr}] [data=${reg.data}] [size=${reg.size}] [${rw}]\n")
+      }
+      dev.log.err(sb.toStr, err)
+      throw IOErr(sb.toStr, err)
     }
     catch (Err err)
     {
