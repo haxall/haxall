@@ -27,7 +27,7 @@ const class PasswordStore
   @NoDoc static PasswordStore open(File file, FolioConfig config)
   {
     ps := make(file, config)
-    ps.actor.send(ps).get(timeout) // load message
+    ps.actor.send(msg(PasswordStoreMsgType.init)).get(timeout)
     return ps
   }
 
@@ -69,43 +69,78 @@ const class PasswordStore
     if (idPrefix != null && key.startsWith(idPrefix))
       key = key[idPrefix.size..-1]
 
-    actor.send([key, encode(val)].toImmutable).get(timeout)
+    actor.send(msg(PasswordStoreMsgType.set, key, encode(val))).get(timeout)
   }
 
   ** Remove a password by its key.
   Void remove(Str key)
   {
     if (cache[key] != null)
-      actor.send(key).get(timeout)
+      actor.send(msg(PasswordStoreMsgType.remove, key)).get(timeout)
+  }
+
+  ** Read the password props file into an in-memory buffer
+  @NoDoc Buf readBuf()
+  {
+    buf := Buf()
+    buf.out.writeProps(cache)
+    return buf.toImmutable
+  }
+
+  ** Overwrite the contents of the password database on disk with given buf
+  @NoDoc Void writeBuf(Buf buf)
+  {
+    actor.send(msg(PasswordStoreMsgType.writeBuf, buf.toImmutable)).get(timeout)
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Messaging
 //////////////////////////////////////////////////////////////////////////
 
-  private Void receive(Obj? msg)
+  private Obj? receive(PasswordStoreMsg msg)
   {
-    // null if sync for testing only
-    if (msg == null) return
-
-    // if this, its startup load message
-    if (msg === this)
+    switch (msg.type)
     {
-      try
-        if (file.exists) cacheRef.val = file.readProps.toImmutable
-      catch (Err e)
-        log.err("Failed to load $file", e)
-      return
+      case PasswordStoreMsgType.init:     return onInit
+      case PasswordStoreMsgType.sync:     return onSync
+      case PasswordStoreMsgType.set:      return onSet(msg.a, msg.b)
+      case PasswordStoreMsgType.remove:   return onSet(msg.a, null)
+      case PasswordStoreMsgType.writeBuf: return onWriteBuf(msg.a)
+      default: throw Err(msg.type.toStr)
     }
+  }
 
-    // set or remove
+  private Obj? onSync()
+  {
+    return "sync"
+  }
+
+  private Obj? onInit()
+  {
+    try
+      if (file.exists) cacheRef.val = file.readProps.toImmutable
+    catch (Err e)
+      log.err("Failed to load $file", e)
+    return "init"
+  }
+
+  private Obj? onSet(Str key, Obj? val)
+  {
     newCache := cache.dup
-    set := msg as List
-    if (set != null)
-      newCache[set[0]] = set[1]
+    if (val != null)
+      newCache[key] = val
     else
-      newCache.remove((Str)msg)
+      newCache.remove(key)
+    return update(newCache)
+  }
 
+  private Obj? onWriteBuf(Buf buf)
+  {
+    update(buf.in.readProps)
+  }
+
+  private Obj? update(Str:Str newCache)
+  {
     // update cache
     cacheRef.val = newCache.toImmutable
 
@@ -117,6 +152,13 @@ const class PasswordStore
       log.err("Failed to save $file", e)
     finally
       out.close
+
+    return "updated"
+  }
+
+  internal static PasswordStoreMsg msg(PasswordStoreMsgType type, Obj? a := null, Obj? b := null)
+  {
+    PasswordStoreMsg(type, a, b)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -207,4 +249,22 @@ const class PasswordStore
   private const AtomicRef cacheRef := AtomicRef(Str:Str[:].toImmutable)
   private const Actor actor
 }
+
+**************************************************************************
+** PasswordStoreMsg
+**************************************************************************
+
+internal enum class PasswordStoreMsgType
+{
+  init, sync, set, remove, writeBuf
+}
+
+internal const class PasswordStoreMsg
+{
+  new make(PasswordStoreMsgType type, Obj? a, Obj? b) { this.type = type; this.a = a; this.b = b }
+  const PasswordStoreMsgType type
+  const Obj? a
+  const Obj? b
+}
+
 

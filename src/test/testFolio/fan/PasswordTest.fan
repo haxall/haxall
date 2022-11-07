@@ -89,6 +89,18 @@ class PasswordTest : Test
     verifyEq(ps.get("p:site:r:foo-bar"), null)
     verifyEq(ps.get("p:new-ns:r:foo-bar"), "secret!")
     verifyEq(ps.get("abs:baz"), "boo!")
+
+    // save it to buf, create new empty file, and thren restore
+    buf := ps.readBuf
+    file.delete
+    ps = PasswordStore.open(file, config)
+    verifyEq(ps.get("a"), null)
+    verifyEq(ps.get("f"), null)
+    verifyEq(ps.get("foo-bar"), null)
+    ps.writeBuf(buf)
+    verifyEq(ps.get("a"), "alpha2")
+    verifyEq(ps.get("foo-bar"), "secret!")
+    verifyEq(ps.get("f"), "Δ°F m² °daysF inH₂O")
   }
 
 //////////////////////////////////////////////////////////////////////////
