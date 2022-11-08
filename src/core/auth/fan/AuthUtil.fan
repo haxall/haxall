@@ -96,9 +96,13 @@ const class AuthUtil
   **
   ** 1. Check the request headers for 'X-Real-IP'. This is the convention
   ** that NGINX uses for passing through the remote address.
-  ** 2. Fallback to the 'req.remoteAddr'
+  ** 1. Then check for X-Forwarded-For
+  ** 1. Fallback to the 'req.remoteAddr'
   static Str realIp(WebReq req)
   {
-     req.headers["X-Real-IP"] ?: req.remoteAddr.numeric
+     addr := req.headers["X-Real-IP"]
+     if (addr == null) addr = req.headers["X-Forwarded-For"]
+     if (addr == null) addr = req.remoteAddr.numeric
+     return addr
   }
 }
