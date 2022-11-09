@@ -31,7 +31,7 @@ class ZincWriter : GridWriter
   **
   ** Get a value as a zinc string.
   **
-  @NoDoc static Str valToStr(Obj? val)
+  static Str valToStr(Obj? val)
   {
     buf := StrBuf()
     ZincWriter(buf.out).writeVal(val)
