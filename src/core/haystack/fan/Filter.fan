@@ -775,13 +775,21 @@ internal abstract const class SearchFilter : Filter
 
     // check id if its long enough to avoid false positivies
     id := r["id"] as Ref
-    if (id != null && pattern.size >=8 && includeVal(id.id))  return true
+    if (id != null && pattern.size >= 8 && includeVal(id.id))  return true
 
-    // check name tag
-    name := r["name"] as Str
-    if (name != null && includeVal(name)) return true
+    // check other key identifier tags
+    if (checkTag(r, "name")) return true
+    if (checkTag(r, "def"))  return true
+    if (checkTag(r, "view")) return true
+    if (checkTag(r, "app"))  return true
 
     return false
+  }
+
+  private Bool checkTag(Dict r, Str name)
+  {
+    val := r[name]
+    return val != null && includeVal(val.toStr)
   }
 
   virtual Bool includeVal(Str dis) { false }
