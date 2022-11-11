@@ -20,9 +20,17 @@ const class HxCoreFuncs
 // Folio Reads
 //////////////////////////////////////////////////////////////////////////
 
-  ** Read from database the first record which matches filter.
+  **
+  ** Read from database the first record which matches [filter]`docHaystack::Filters`.
   ** If no matches found throw UnknownRecErr or null based
   ** on checked flag.  See `readAll` for how filter works.
+  **
+  ** Examples:
+  **   read(site)                 // read any site rec
+  **   read(site and dis=="HQ")   // read site rec with specific dis tag
+  **   read(chiller)              // raise exception if no recs with chiller tag
+  **   read(chiller, false)       // return null if no recs with chiller tag
+  **
   @Axon
   static Dict? read(Expr filterExpr, Expr checked := Literal.trueVal)
   {
@@ -32,8 +40,19 @@ const class HxCoreFuncs
     return cx.db.read(filter, check)
   }
 
+  **
   ** Read a record from database by 'id'.  If not found
   ** throw UnknownRecErr or return null based on checked flag.
+  ** In Haxall all refs are relative, but in SkySpark refs may
+  ** be prefixed with something like "p:projName:r:".  This function
+  ** will accept both relative and absolute refs.
+  **
+  ** Examples:
+  **    readById(@2b00f9dc-82690ed6)          // relative ref literal
+  **    readById(@:demo:r:2b00f9dc-82690ed6)  // project absolute literal
+  **    readById(id)                          // read using variable
+  **    readById(equip->siteRef)              // read from ref tag
+  **
   @Axon
   static Dict? readById(Ref? id, Bool checked := true)
   {
@@ -41,7 +60,7 @@ const class HxCoreFuncs
   }
 
   ** Given record id, read only the persistent tags from Folio.
-  ** Also see `readByIdTransientTags`.
+  ** Also see `readByIdTransientTags` and `readById`.
   @Axon
   static Dict? readByIdPersistentTags(Ref id, Bool checked := true)
   {
@@ -49,7 +68,7 @@ const class HxCoreFuncs
   }
 
   ** Given record id, read only the transient tags from Folio.
-  ** Also see `readByIdPersistentTags`.
+  ** Also see `readByIdPersistentTags` and `readById`.
   @Axon
   static Dict? readByIdTransientTags(Ref id, Bool checked := true)
   {
@@ -72,21 +91,46 @@ const class HxCoreFuncs
     return gb.toGrid.first
   }
 
+  **
   ** Read a list of record ids into a grid.  The rows in the
   ** result correspond by index to the ids list.  If checked is true,
   ** then every id must be found in the database or UnknownRecErr
   ** is thrown.  If checked is false, then an unknown record is
   ** returned as a row with every column set to null (including
-  ** the 'id' tag).
+  ** the 'id' tag).  Either relative or project absolute refs may
+  ** be used.
+  **
+  ** Examples:
+  **   // read two relative refs
+  **   readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a])
+  **
+  **   // read two project absolute refs
+  **   readByIds([@p:demo:r:2af6f9ce-6ddc5075, @p:demo:r:2af6f9ce-2d56b43a])
+  **
+  **   // return null for a given id if it does not exist
+  **   readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a], false)
+  **
   @Axon
   static Grid readByIds(Ref[] ids, Bool checked := true)
   {
     curContext.db.readByIds(ids, checked)
   }
 
-  ** Reall all records from the database which match the filter.
+  **
+  ** Reall all records from the database which match the [filter]`docHaystack::Filters`.
   ** The filter must an expression which matches the filter structure.
   ** String values may parsed into a filter using `parseFilter` function.
+  **
+  ** Options:
+  **   - 'limit': max number of recs to return
+  **   - 'sort': sort by display name
+  **
+  ** Examples:
+  **   readAll(site)                      // read all site recs
+  **   readAll(equip and siteRef==@xyz)   // read all equip in a given site
+  **   readAll(equip, {limit:10})         // read up to ten equips
+  **   readAll(equip, {sort})             // read all equip sorted by dis
+  **
   @Axon
   static Grid readAll(Expr filterExpr, Expr? optsExpr := null)
   {
@@ -115,6 +159,7 @@ const class HxCoreFuncs
     return ReadAllStream(filter)
   }
 
+  **
   ** Return the intersection of all tag names used by all the records
   ** matching the given filter.  The results are returned as a grid
   ** with following columns:
@@ -122,6 +167,11 @@ const class HxCoreFuncs
   **   - 'kind': all the different value kinds separated by "|"
   **   - 'count': total number of recs with the tag
   ** Also see `readAllTagVals` and `gridColKinds`.
+  **
+  ** Examples:
+  **   // read statistics on all tags used by equip recs
+  **   readAllTagNames(equip)
+  **
   @Axon
   static Grid readAllTagNames(Expr filterExpr)
   {
@@ -130,11 +180,17 @@ const class HxCoreFuncs
     return HxUtil.readAllTagNames(cx.db, filter)
   }
 
+  **
   ** Return the range of all the values mapped to a given
   ** tag name used by all the records matching the given filter.
   ** This method is capped to 200 results.  The results are
   ** returned as a grid with a single 'val' column.
   ** Also see `readAllTagNames`.
+  **
+  ** Examples:
+  **   // read grid of all unique point unit tags
+  **   readAllTagVals(point, "unit")
+  **
   @Axon
   static Grid readAllTagVals(Expr filterExpr, Expr tagName)
   {
@@ -145,7 +201,12 @@ const class HxCoreFuncs
     return Etc.makeListGrid(null, "val", null, vals)
   }
 
+  **
   ** Return the number of records which match the given filter expression.
+  **
+  ** Examples:
+  **   readCount(point)    // return number of recs with point tag
+  **
   @Axon
   static Number readCount(Expr filterExpr)
   {
