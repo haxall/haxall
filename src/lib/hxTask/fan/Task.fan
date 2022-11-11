@@ -183,11 +183,14 @@ const class Task : Actor, Observer, HxTask
   ** Total number of messages processed
   internal Int evalNum() { receiveCount }
 
+  ** Duration ticks of the last time the task was evaluated
+  internal Int evalLastTime() { evalLastTimeRef.val }
+
   ** Total time processing messages
-  internal Int evalTotalTicks() { evalTicksRef.val }
+  internal Int evalTotalTicks() { evalTotalTicksRef.val }
 
   ** Average time processing each message
-  internal Int evalAvgTicks() { num := evalNum; return num <= 0 ? 0 : evalTicksRef.val/num }
+  internal Int evalAvgTicks() { num := evalNum; return num <= 0 ? 0 : evalTotalTicksRef.val/num }
 
   ** Number of messages procesed which raised an error
   internal Int errNum() { errNumRef.val }
@@ -219,22 +222,23 @@ const class Task : Actor, Observer, HxTask
   {
     // dump summary
     buf := StrBuf()
-    buf.add("id:          ").add(id.id).add("\n")
-    buf.add("dis:         ").add(dis).add("\n")
-    buf.add("type:        ").add(type).add("\n")
-    buf.add("status:      ").add(status).add("\n")
-    buf.add("fault:       ").add(fault).add("\n")
-    buf.add("updated:     ").add(Etc.debugDur(ticks)).add("\n")
-    buf.add("evalNum:     ").add(evalNum).add("\n")
-    buf.add("evalTotal:   ").add(Duration(evalTotalTicks).toLocale).add("\n")
-    buf.add("evalAvg:     ").add(Duration(evalAvgTicks).toLocale).add("\n")
+    buf.add("id:           ").add(id.id).add("\n")
+    buf.add("dis:          ").add(dis).add("\n")
+    buf.add("type:         ").add(type).add("\n")
+    buf.add("status:       ").add(status).add("\n")
+    buf.add("fault:        ").add(fault).add("\n")
+    buf.add("updated:      ").add(Etc.debugDur(ticks)).add("\n")
+    buf.add("evalNum:      ").add(evalNum).add("\n")
+    buf.add("evalLastTime: ").add(Etc.debugDur(evalLastTime)).add("\n")
+    buf.add("evalTotal:    ").add(Duration(evalTotalTicks).toLocale).add("\n")
+    buf.add("evalAvg:      ").add(Duration(evalAvgTicks).toLocale).add("\n")
     if (subscriptionErr != null)
-      buf.add("subscripton: ").add(Etc.debugErr(subscriptionErr, "x<")).add("\n")
+      buf.add("subscripton:  ").add(Etc.debugErr(subscriptionErr, "x<")).add("\n")
     else
-      buf.add("subscripton: ").add(subscriptionDebug).add("\n")
-    buf.add("errNum:      ").add(errNum).add("\n")
-    buf.add("errLast:     ").add(Etc.debugErr(errLast, "x<")).add("\n")
-    buf.add("progress:    ").add(progressDebug).add("\n")
+      buf.add("subscripton:  ").add(subscriptionDebug).add("\n")
+    buf.add("errNum:       ").add(errNum).add("\n")
+    buf.add("errLast:      ").add(Etc.debugErr(errLast, "x<")).add("\n")
+    buf.add("progress:     ").add(progressDebug).add("\n")
     buf.add("\n")
     buf.add("expr:\n").add(Etc.indent(expr.toStr)).add("\n")
 
@@ -297,7 +301,8 @@ const class Task : Actor, Observer, HxTask
     // exit running status
     end := Duration.nowTicks
     ticksRef.val = end
-    evalTicksRef.add(end-start)
+    evalLastTimeRef.val = end
+    evalTotalTicksRef.add(end-start)
     threadIdRef.val = -1
 
     // if ephemeral then cleanup
@@ -411,16 +416,17 @@ const class Task : Actor, Observer, HxTask
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const AtomicBool isKilled       := AtomicBool()
-  private const AtomicBool isCancelled    := AtomicBool()
-  private const AtomicInt ticksRef        := AtomicInt(Duration.nowTicks)
-  private const AtomicInt evalTicksRef    := AtomicInt()
-  private const AtomicInt threadIdRef     := AtomicInt(-1)
-  private const AtomicInt errNumRef       := AtomicInt()
-  private const AtomicRef errLastRef      := AtomicRef() // Err
-  private const AtomicRef subscriptionRef := AtomicRef() // Err or Subscription
-  private const AtomicRef adjunctRef      := AtomicRef() // HxTaskAdjunct
-  private const AtomicRef progressRef     := AtomicRef(Etc.emptyDict) // Dict
+  private const AtomicBool isKilled         := AtomicBool()
+  private const AtomicBool isCancelled      := AtomicBool()
+  private const AtomicInt ticksRef          := AtomicInt(Duration.nowTicks)
+  private const AtomicInt evalLastTimeRef   := AtomicInt()
+  private const AtomicInt evalTotalTicksRef := AtomicInt()
+  private const AtomicInt threadIdRef       := AtomicInt(-1)
+  private const AtomicInt errNumRef         := AtomicInt()
+  private const AtomicRef errLastRef        := AtomicRef() // Err
+  private const AtomicRef subscriptionRef   := AtomicRef() // Err or Subscription
+  private const AtomicRef adjunctRef        := AtomicRef() // HxTaskAdjunct
+  private const AtomicRef progressRef       := AtomicRef(Etc.emptyDict) // Dict
 }
 
 **************************************************************************

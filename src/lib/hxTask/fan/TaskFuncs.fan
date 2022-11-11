@@ -61,6 +61,7 @@ const class TaskFuncs
       .addCol("evalNum")
       .addCol("evalTotalTime")
       .addCol("evalAvglTime")
+      .addCol("evalLastTime")
       .addCol("fault")
     lib.tasks.each |t|
     {
@@ -77,6 +78,7 @@ const class TaskFuncs
         Number(t.evalNum),
         Number.makeDuration(Duration(t.evalTotalTicks)),
         Number.makeDuration(Duration(t.evalAvgTicks)),
+        t.evalNum == 0 ? null : DateTime.now(null) - Duration(Duration.nowTicks - t.evalLastTime),
         t.fault
       ])
     }
