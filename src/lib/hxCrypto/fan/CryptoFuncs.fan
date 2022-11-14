@@ -127,21 +127,22 @@ const class CryptoFuncs
 
   ** Add a private key and cert chain entry
   @NoDoc @Axon { su = true }
-  static Obj? cryptoAddCert(Obj dict)
+  static Obj? cryptoAddCert(Str alias, Str pem)
   {
     crypto := Crypto.cur
-    rec    := Etc.toRec(dict)
-    alias  := toAlias(rec->alias)
-    priv   := crypto.loadPem(rec->privKeyPem->in)
-    chain  := Cert[,]
-    in     := rec->certChainPem->in
+    PrivKey? privKey := null
+    Cert[] chain := [,]
+    in := pem.in
     while (true)
     {
-      cert := crypto.loadPem(in)
-      if (cert == null) break
-      chain.add(cert)
+      entry := crypto.loadPem(in)
+      if (entry == null) break
+      else if (entry is PrivKey) privKey = entry
+      else chain.add(entry)
     }
-    ks.setPrivKey(alias, priv, chain)
+    if (privKey == null) throw Err("No private key in ${alias} PEM file")
+    if (chain.isEmpty) throw Err("No certificate chain in ${alias} PEM file")
+    ks.setPrivKey(alias, privKey, chain)
     return alias
   }
 
