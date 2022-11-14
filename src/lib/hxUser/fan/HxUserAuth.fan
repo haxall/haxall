@@ -36,19 +36,19 @@ internal class HxUserAuth
   ** is not authenticated then redirect to login and return null.
   HxContext? authenticate()
   {
+    // check for tunnel cluster authentication
+    s := checkCluster
+    if (s != null) return authenticated(s)
+    if (res.isCommitted) return null
+
     // check for authenticated session in cookie
-    s := checkCookie
+    s = checkCookie
     if (s != null) return authenticated(s)
     if (res.isCommitted) return null
 
     // check for authenticated session via Authorization bearer token
     // or perform standard Haystack authentication pipeline steps
     s = checkAuthorization
-    if (s != null) return authenticated(s)
-    if (res.isCommitted) return null
-
-    // check for tunnel cluster authentication
-    s = checkCluster
     if (s != null) return authenticated(s)
     if (res.isCommitted) return null
 
@@ -124,21 +124,40 @@ internal class HxUserAuth
   {
     // if this is a cluster tunneled request then the stash defines
     // the node, username, session key, and attest key
+    sessionKey := req.stash["clusterSessionKey"] as Str
+    if (sessionKey == null) return null
+
+    // get username - used by both code paths below
     username := req.stash["clusterUsername"] as Str
     if (username == null) return null
-    node := req.stash["clusterNode"]
-    sessionKey := req.stash["clusterSessionKey"] as Str
-    attestKey := req.stash["clusterAttestKey"] as Str
-    if (node == null || sessionKey == null || attestKey == null) return null
 
-    // get user which cached using cluster stashing
-    cluster := rt.services.get(HxClusterService#, false) as HxClusterService
-    if (cluster == null) return null
-    user := cluster.stashedUser(node, username)
+    // lookup session
+    session := lib.sessions.get(sessionKey, false)
+    if (session != null)
+    {
+      // verify username matches this session
+      if (session.user.username != username)
+        throw Err("Session user mismatch $session.user != $username")
+      return session
+    }
 
-    // create cluster session
-    session := lib.sessions.openCluster(req, sessionKey, attestKey, user)
-    return session
+    // need to create new session for this cluster user
+    else
+    {
+      // get rest of stashed cluster data
+      node := req.stash["clusterNode"]
+      attestKey := req.stash["clusterAttestKey"] as Str
+      if (node == null || attestKey == null) return null
+
+      // get user which cached using cluster stashing
+      cluster := rt.services.get(HxClusterService#, false) as HxClusterService
+      if (cluster == null) return null
+      user := cluster.stashedUser(node, username)
+
+      // create cluster session
+      session = lib.sessions.openCluster(req, sessionKey, attestKey, user)
+      return session
+    }
   }
 
 }
