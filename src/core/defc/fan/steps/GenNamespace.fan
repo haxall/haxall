@@ -34,12 +34,19 @@ internal class GenNamespace : DefCompilerStep
       v := genVal(pair.val)
 
       // strip doc tag if def marked nodoc
-      if (n == "doc" && c.meta["nodoc"] != null) return
+      if (n == "doc" && stripDoc(c)) return
 
       // add to accumulator
       acc[n] = v
     }
     return Etc.makeDict(acc)
+  }
+
+  private Bool stripDoc(CDef c)
+  {
+    if (c.meta["nodoc"] == null) return false
+    if (c.isLib) return false
+    return true
   }
 
   private Obj? genVal(Obj? c)
