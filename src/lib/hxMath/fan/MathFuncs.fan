@@ -303,14 +303,22 @@ const class MathFuncs
   ** Grid meta is preserved, but not column meta.  Numbers in the resulting
   ** matrix are unitless; any units passed in are stripped.
   **
+  ** The following options are supported:
+  ** - nullVal (Number): replace null values in the grid with this value
+  ** - naVal (Number): replace NA values in the grid with this value
+  **
+  ** pre>
+  **   toMatrix(grid, {nullVal: 0, naVal: 0})
+  ** <pre
+  **
   ** To create a sparse or initialized matrix you can pass a Dict with the
   ** the following tags (all required)
   **   {rows:10, cols: 1000, init: 0}
   **
-  @Axon static MatrixGrid toMatrix(Obj obj)
+  @Axon static MatrixGrid toMatrix(Obj obj, Dict opts := Etc.emptyDict)
   {
     if (obj is MatrixGrid) return obj
-    if (obj is Grid) return MatrixGrid.makeGrid(obj)
+    if (obj is Grid) return MatrixGrid.makeGrid(obj, opts)
     if (obj is Dict)
     {
       nrows  := (((Dict)obj)["rows"] as Number)?.toInt ?: throw ArgErr("Invalid rows: $obj")

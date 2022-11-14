@@ -18,7 +18,7 @@ const class MatrixGrid : Grid
 {
   ** Construct from a grid of Numbers.  Columns are named
   ** "v0", "v1", etc.  We maintain grid meta, but not column meta.
-  new makeGrid(Grid grid)
+  new makeGrid(Grid grid, Dict opts := Etc.emptyDict)
   {
     this.meta = grid.meta
 
@@ -29,6 +29,8 @@ const class MatrixGrid : Grid
       cols.each |col,coli|
       {
         val := row.val(col)
+        if (val == null) val = opts.get("nullVal")
+        else if (val === NA.val) val = opts.get("naVal")
         num := val as Number
         if (num == null) throw Err("Grid cell ($rowi, $col.name) not a number: ${val?.typeof}")
         m.set(rowi, coli, num.toFloat)

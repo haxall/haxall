@@ -89,6 +89,16 @@ class MatrixTest : HaystackTest
          9m,10m
          11m,12m""")
 
+    // toMatrix
+    d := toMatrix(
+      """ver:"2.0"
+         v0,v1
+         1,2
+         3,4
+         N,NA""", Etc.makeDict(["nullVal": n(0), "naVal": n(1)]))
+    verifyEq(n(0), d.get(2).get("v0"))
+    verifyEq(n(1), d.get(2).get("v1"))
+
     // transpose
 
     verifyMatrixEq(a.transpose,
@@ -253,10 +263,10 @@ class MatrixTest : HaystackTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  MatrixGrid  toMatrix(Str zinc)
+  MatrixGrid toMatrix(Str zinc, Dict opts := Etc.emptyDict)
   {
     grid := ZincReader(zinc.in).readGrid
-    return MatrixGrid(grid)
+    return MatrixGrid(grid, opts)
   }
 
   Void verifyMatrixEq(MatrixGrid a, Obj b)
