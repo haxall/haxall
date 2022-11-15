@@ -313,7 +313,7 @@ const class MathFuncs
   **
   ** To create a sparse or initialized matrix you can pass a Dict with the
   ** the following tags (all required)
-  **   {rows:10, cols: 1000, init: 0}
+  **   toMatrix({rows:10, cols: 1000, init: 0})
   **
   @Axon static MatrixGrid toMatrix(Obj obj, Dict opts := Etc.emptyDict)
   {
