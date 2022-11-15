@@ -82,10 +82,13 @@ class MqttDispatch : ConnDispatch, ClientListener
   override Void onClose()
   {
     try
-      client.disconnect.get
+    {
+      client?.disconnect?.get
+    }
+    catch (Err ignore) { }
     finally
     {
-      client.terminate
+      client?.terminate
       client = null
     }
   }
