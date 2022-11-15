@@ -6,6 +6,7 @@
 //   03 Jan 2022  Matthew Giannini  Creation
 //
 
+using concurrent
 using crypto
 using inet
 using mqtt
@@ -39,13 +40,15 @@ class MqttDispatch : ConnDispatch, ClientListener
   override Void onOpen()
   {
     // configure client
-    uriVal := rec["uri"] ?: throw FaultErr("Missing 'uri' tag")
-    verVal := MqttVersion.fromStr(rec["mqttVersion"] ?: "v3_1_1")
+    uriVal   := rec["uri"] ?: throw FaultErr("Missing 'uri' tag")
+    verVal   := MqttVersion.fromStr(rec["mqttVersion"] ?: "v3_1_1")
+    clientId := toClientId
     config := ClientConfig
     {
       it.serverUri    = uriVal
       it.version      = verVal
-      it.clientId     = toClientId
+      it.clientId     = clientId
+      it.pool         = ActorPool { it.name = "${clientId}-MqttDispatch" }
       it.socketConfig = SocketConfig.cur.copy {
         it.keystore = this.mqttKey
         it.connectTimeout = 10sec
@@ -82,7 +85,10 @@ class MqttDispatch : ConnDispatch, ClientListener
     try
       client.disconnect.get
     finally
+    {
+      client.config.pool.kill
       client = null
+    }
   }
 
   override Dict onPing()
