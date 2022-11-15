@@ -48,7 +48,6 @@ class MqttDispatch : ConnDispatch, ClientListener
       it.serverUri    = uriVal
       it.version      = verVal
       it.clientId     = clientId
-      it.pool         = ActorPool { it.name = "${clientId}-MqttDispatch" }
       it.socketConfig = SocketConfig.cur.copy {
         it.keystore = this.mqttKey
         it.connectTimeout = 10sec
@@ -86,7 +85,7 @@ class MqttDispatch : ConnDispatch, ClientListener
       client.disconnect.get
     finally
     {
-      client.config.pool.kill
+      client.terminate
       client = null
     }
   }

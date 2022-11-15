@@ -69,6 +69,10 @@ const class MqttClient : Actor, MqttConst
   ** Client listeners
   internal const ClientListeners listeners
 
+  ** Is the client terminated
+  Bool isTerminated() { terminated.val }
+  private const AtomicBool terminated := AtomicBool(false)
+
 //////////////////////////////////////////////////////////////////////////
 // Internal Pending Ack State and Utils
 //////////////////////////////////////////////////////////////////////////
@@ -198,6 +202,23 @@ const class MqttClient : Actor, MqttConst
   Future disconnect()
   {
     sendWhenComplete(pendingConnect.resp, ActorMsg("disconnect", Disconnect()))
+  }
+
+  ** Disconnect and terminate all resources used by the client. After this method
+  ** is called the client can no longer be used. When you are done with the
+  ** client it is strongly recommended to call this method to clean up all resources.
+  This terminate()
+  {
+    this.terminated.val = true
+    try
+    {
+      this.shutdown
+    }
+    finally
+    {
+      config.pool.stop
+    }
+    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -422,11 +443,11 @@ const class MqttClient : Actor, MqttConst
   }
 
   ** Is the client in a state where it can still send/receive messages
-  internal Bool canMessage() { state !== ClientState.disconnected }
+  internal Bool canMessage() { !isTerminated && state !== ClientState.disconnected }
 
   internal Void checkCanMessage()
   {
-    if (!canMessage) throw MqttErr("Cannot send packets: $state")
+    if (!canMessage) throw MqttErr("Cannot send packets: $state [terminated=${isTerminated}]")
   }
 
   ** Force a shutdown of the client and return to a disconnected state.
