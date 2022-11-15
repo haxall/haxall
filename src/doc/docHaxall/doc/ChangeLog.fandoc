@@ -6,6 +6,8 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
+*Build 3.1.7 (working)*
+
 *Build 3.1.6 (15 Nov 2022)*
 - Maintenance build
 - Add opts to toMatrix()
