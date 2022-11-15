@@ -177,7 +177,7 @@ internal final class ConnMgr
 
   ** Force this connector closed and call `onClose`.
   ** Reason is a string message or Err exception
-  Dict close(Obj cause)
+  Dict close(Obj? cause)
   {
     if (isClosed) return rec
     trace.phase("close", cause)
