@@ -857,6 +857,16 @@ const class Etc
     return s.toStr
   }
 
+  ** Return true if Str or Uri is safe to use as a relative path
+  ** without ".." or starting in a slash.
+  @NoDoc static Bool isSafeRelDir(Obj uri)
+  {
+    str := uri.toStr
+    if (str.contains("..")) return false
+    if (str.startsWith("/")) return false
+    return true
+  }
+
   private static Bool isFileNameChar(Int ch)
   {
     ch.isAlphaNum || ch == ' '|| ch == '-' || ch == '.' || ch == '_' || ch == '~'
