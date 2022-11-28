@@ -354,14 +354,22 @@ const class HxCoreFuncs
 
   ** Store a password key/val pair into current project's password
   ** store.  The key is typically a Ref of the associated record.
+  ** If the 'val' is null, then the password will be removed.
   ** See `docHaxall::Folio#passwords`.
+  **
+  ** pre>
+  ** passwordSet(@abc-123, "password")
+  ** passwordSet(@abc-123, null)
+  ** <pre
   @Axon { admin = true }
-  static Void passwordSet(Obj key, Str val)
+  static Void passwordSet(Obj key, Str? val)
   {
     // extra security check just to be sure!
     cx := curContext
     if (!cx.user.isAdmin) throw PermissionErr("passwordSet")
-    cx.db.passwords.set(key.toStr, val)
+
+    if (val == null) cx.db.passwords.remove(key.toStr)
+    else cx.db.passwords.set(key.toStr, val)
   }
 
   ** Strip any tags which cannot be persistently committed to Folio.
