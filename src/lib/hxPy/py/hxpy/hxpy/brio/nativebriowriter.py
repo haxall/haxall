@@ -274,7 +274,9 @@ class NativeBrioWriter:
         self._encode_varint(len(frame.index))
 
         self._write_dict({})
-        for col in cols:
+        for idx, col in enumerate(cols):
+            if type(col) != str:
+                col = f"v{col}"
             self._encode_str(col)
             self._write_dict({})
         for idx, row in frame.iterrows():

@@ -217,7 +217,8 @@ class TestNativeBrioWriter(unittest.TestCase):
 
             # test panda DataFrame equivalent to above
             f.seek(0)
-            frame = pandas.DataFrame(data=[[1,2,3], [4,5,6]], columns=["v0","v1","v2"])
+            # frame = pandas.DataFrame(data=[[1,2,3], [4,5,6]], columns=["v0","v1","v2"])
+            frame = pandas.DataFrame(data=[[1,2,3], [4,5,6]])
             brio.write_val(frame)
             self.assertEqual(bytes.fromhex("183c030214ff02763014ff02763114ff02763214060001ff00060002ff00060003ff00060004ff00060005ff00060006ff003e"), bytes(f.getbuffer()))
 
