@@ -60,7 +60,7 @@ class MqttDispatch : ConnDispatch, ClientListener
 
     // connect
     resume := ConnectConfig {
-      it.cleanSession = false
+      it.cleanSession = rec["mqttCleanSession"] == true
 
       // optional username and password
       it.username = rec["username"] as Str

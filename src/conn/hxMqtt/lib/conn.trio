@@ -27,6 +27,12 @@ is: ^str
 tagOn: ^mqttConn
 doc: "The client identifier to use when connecting to the broker"
 --------------------------------------------------------------------------
+def: ^mqttCleanSession
+is: ^bool
+tagOn: ^mqttConn
+doc:
+  Whether to set the clean session flag on the connect request to the broker.
+--------------------------------------------------------------------------
 def: ^mqttQos
 is: ^number
 tagOn: ^obsMqtt
