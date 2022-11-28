@@ -481,6 +481,20 @@ class ConvertTest : HxTest
     verifyConvert(c, rec, null, null)
     verifyConvert(c, rec, n(99), true)
     verifyConvert(c, rec, n(0), false)
+
+    c = PointConvert("boolToNumber()")
+    verifyEq(c.toStr, "boolToNumber(0,1)")
+    verifyConvert(c, rec, null, null)
+    verifyConvert(c, rec, true, n(1))
+    verifyConvert(c, rec, false, n(0))
+    verifyConvert(c, rec, "not bool", n(0))
+
+    c = PointConvert("boolToNumber(-10kW, 20kW)")
+    verifyEq(c.toStr, "boolToNumber(-10kW,20kW)")
+    verifyConvert(c, rec, null, null)
+    verifyConvert(c, rec, true, n(20, "kW"))
+    verifyConvert(c, rec, false, n(-10, "kW"))
+    verifyConvert(c, rec, "not bool", n(-10, "kW"))
   }
 
 //////////////////////////////////////////////////////////////////////////
