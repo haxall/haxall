@@ -22,7 +22,9 @@ const class MqttFuncs
   **
   ** The following configuration options are supported:
   ** - 'mqttQos': The quality-of-service to use for publishing the message. If not
-  ** specified, then QoS '0' is used. See `mqttQos` for more details.
+  ** specified, then QoS '0' is used. See `mqttQos`.
+  ** - 'mqttRetain': Should the message be retained on the broker ('true' | 'false').
+  ** If not specified, then 'false' is used. See `mqttRetain`.
   **
   ** pre>
   ** read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2})

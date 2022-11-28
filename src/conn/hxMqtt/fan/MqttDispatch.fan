@@ -119,7 +119,8 @@ class MqttDispatch : ConnDispatch, ClientListener
     open.client.publishWith
       .topic(topic)
       .payload(payload)
-      .qos((cfg["mqttQos"] as Number).toInt)
+      .qos((cfg["mqttQos"] as Number)?.toInt ?: Number.zero)
+      .retain((cfg["mqttRetain"] as Bool) == true)
       .send
       .get
   }

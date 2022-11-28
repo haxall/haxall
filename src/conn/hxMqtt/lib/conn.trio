@@ -36,6 +36,11 @@ doc:
   - '1' - At least once
   - '2' - Exactly once
 --------------------------------------------------------------------------
+def: ^mqttRetain
+is: ^bool
+doc:
+  Set the retention flag on a published message.
+--------------------------------------------------------------------------
 def: ^mqttCertAlias
 is: ^str
 tagOn: ^mqttConn
