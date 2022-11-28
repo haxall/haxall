@@ -168,6 +168,7 @@ internal class ConvertParser
       case "numberToBool":    return NumberToBoolConvert(args)
       case "numberToStr":     return NumberToStrConvert(args)
       case "numberToHex":     return NumberToHexConvert(args)
+      case "boolToNumber":    return BoolToNumberConvert(args)
       case "strToBool":       return StrToBoolConvert(args)
       case "strToNumber":     return StrToNumberConvert(args)
       case "hexToNumber":     return HexToNumberConvert(args)
@@ -786,6 +787,43 @@ internal const class NumberToStrConvert : PointConvert
     if (ord < 0 || ord >= enum.size) return null
     return enum[ord]
   }
+}
+
+**************************************************************************
+** BoolToNumberConvert
+**************************************************************************
+
+internal const class BoolToNumberConvert : PointConvert
+{
+  new make(Str[] args)
+  {
+    if (args.size == 0)
+    {
+      falseVal = Number.zero
+      trueVal = Number.one
+    }
+    else if (args.size == 2)
+    {
+      falseVal = Number.fromStr(args[0])
+      trueVal = Number.fromStr(args[1])
+    }
+    else
+    {
+      throw ParseErr("Invalid num args $args.size, expected 0 or 2")
+    }
+  }
+
+  override Str toStr() { "boolToNumber($falseVal,$trueVal)" }
+
+  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  {
+    if (val == null) return null
+    if (val == true) return trueVal
+    return falseVal
+  }
+
+  const Number falseVal
+  const Number trueVal
 }
 
 **************************************************************************

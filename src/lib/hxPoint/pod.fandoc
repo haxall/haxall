@@ -313,6 +313,10 @@ Examples:
   numberToStr()              // convert number to a string
   numberToHex()              // convert number to a hex string
 
+  // bool functions
+  boolToNumber()            // convert false to 0 and true to 1
+  boolToNumber(2, 4)        // convert false to 2 and true to 4
+
   // string functions
   lower()                    // convert string to lowercase (ASCII only)
   upper()                    // convert string to uppercsae (ASCII only)
