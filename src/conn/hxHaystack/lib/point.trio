@@ -52,6 +52,7 @@ is: ^int
 tagOn: ^haystackPoint
 minVal: 1
 maxVal: 16
+defVal: 16
 doc:
   Number between 1 and 16 used with `haystackWrite` to determine which
   priority level of the remote system is written to.
