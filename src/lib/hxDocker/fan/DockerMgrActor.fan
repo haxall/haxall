@@ -129,11 +129,18 @@ internal const class DockerMgrActor : Actor, HxDockerService
   {
     CreateContainerCmd cmd := decodeCmd(config, CreateContainerCmd#)
 
+    // force single bind for io/ directory
+    ioDir := lib.rt.dir.plus(`io/`)
+    if (lib.rec.ioDirMount?.trimToNull != null)
+    {
+      // handle custom configuration
+      ioDir = lib.rec.ioDirMount.toUri.plusSlash.toFile
+    }
     // overwrite any binds (noughty-noughty) and only expose io/
     cmd.hostConfig.withBinds([
       Bind
       {
-        it.src  = lib.rt.dir.plus(`io/`).normalize.osPath
+        it.src  = ioDir.normalize.osPath
         it.dest = "/io"
       }
     ])

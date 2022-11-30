@@ -53,4 +53,13 @@ const class DockerSettings : TypedDict
         |>
   }
   const Str? dockerDaemon := null
+
+  ** Experimental.
+  **
+  ** Explicitly indicate the io/ directory to mount for this project.
+  @NoDoc @TypedTag { meta =
+    Str<|placeholder: "<project default>"
+        |>
+  }
+  const Str? ioDirMount := null
 }
