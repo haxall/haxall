@@ -281,6 +281,9 @@ const abstract class Kind
   }
   private const AtomicRef listOfRef := AtomicRef()
 
+  ** Return if this an atomic (not collection) kind
+  @NoDoc Bool isScalar() { !isCollection }
+
   ** Return if this List, Dict, or Grid kind
   @NoDoc virtual Bool isCollection() { false }
 
