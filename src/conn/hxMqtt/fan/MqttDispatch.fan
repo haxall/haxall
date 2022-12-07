@@ -58,16 +58,24 @@ class MqttDispatch : ConnDispatch, ClientListener
     this.client = MqttClient(config, trace.asLog)
     client.addListener(this)
 
-    // connect
-    resume := ConnectConfig {
-      it.cleanSession = rec["mqttCleanSession"] == true
+    try
+    {
+      // connect
+      resume := ConnectConfig {
+        it.cleanSession = rec["mqttCleanSession"] == true
 
-      // optional username and password
-      it.username = rec["username"] as Str
-      it.password = db.passwords.get(id.toStr)?.toBuf
+        // optional username and password
+        it.username = rec["username"] as Str
+        it.password = db.passwords.get(id.toStr)?.toBuf
+      }
+
+      client.connect(resume).get
     }
-
-    client.connect(resume).get
+    catch (Err err)
+    {
+      this.terminate
+      throw FaultErr("Failed to open MQTT connection", err)
+    }
 
     // schedule a resubscribe of all topics
     conn.send(resubMsg)
@@ -88,9 +96,14 @@ class MqttDispatch : ConnDispatch, ClientListener
     catch (Err ignore) { }
     finally
     {
-      client?.terminate
-      client = null
+      this.terminate
     }
+  }
+
+  private Void terminate()
+  {
+    client?.terminate
+    client = null
   }
 
   override Dict onPing()
