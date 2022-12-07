@@ -156,7 +156,13 @@ class MqttDispatch : ConnDispatch, ClientListener
     mqttLib.mqtt.subscriptions.each |MqttSubscription sub|
     {
       // only re-subscribe subscriptions for this connector
-      if (sub.connRef == conn.id) onSub(sub.config)
+      if (sub.connRef == conn.id)
+      {
+        try
+          onSub(toConfig(sub.config))
+        catch (Err err)
+          trace.asLog.err("Failed to subscribe to ${sub.config}", err)
+      }
     }
     return null
   }
@@ -209,7 +215,7 @@ class MqttDispatch : ConnDispatch, ClientListener
   private Dict toConfig(Dict opts)
   {
     defs := [
-      "mqttQos": rec["mqttQos"] ?: Number.zero,
+      "mqttQos": Number.zero,
     ]
     return Etc.dictMerge(Etc.makeDict(defs), opts)
   }
