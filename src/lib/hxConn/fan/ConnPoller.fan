@@ -106,7 +106,7 @@ enum class ConnPollMode
   ** Polling not supported
   disabled,
 
-  ** Cnnector implementation handles all polling logic
+  ** Connector implementation handles all polling logic
   manual,
 
   ** Connector framework handles the polling logic using buckets strategy

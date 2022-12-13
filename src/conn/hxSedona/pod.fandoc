@@ -19,7 +19,7 @@ The sedona connector provides the following features:
 
 Connectors [#conns]
 *******************
-Sedona client connecotrs are configured with the following tags:
+Sedona client connectors are configured with the following tags:
 
  - `conn`: required marker tag
  - `sedonaConn`: required marker tag

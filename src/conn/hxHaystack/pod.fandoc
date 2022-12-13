@@ -43,7 +43,7 @@ would write its computed `writeVal` to level 14 of "remote-point":
   writable
   haystackConnRef: @conn
   haystackWrite: "remote-point"
-  haystckWriteLevel: 14
+  haystackWriteLevel: 14
 
 His Sync [#hisSync]
 *******************
