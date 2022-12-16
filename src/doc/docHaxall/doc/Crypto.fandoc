@@ -80,6 +80,15 @@ private key and certificate chain with alias 'https'.
 
 NOTE: when running https, all http traffic is redirected to https.
 
+In SkySpark you can upload your private key and certificate through the UI using this
+procedure:
+
+  1. Go to the 'Host' app
+  1. Select the 'Crypto' view
+  1. Click the 'Add Cert' button
+  1. In the dialog specify the alias for the key/cert bundle (e.g. 'https')
+  1. Then paste in the PEM encoding of your private key and certificate chain
+
 Trusted Certificates [#trustedCerts]
 ************************************
 Haxall maintains its own trust store for trusted certificates. By default,
@@ -110,7 +119,7 @@ Note: Haxall must be stopped before using the 'crypto' tool.
 
 In SkySpark, you can also use the following procedure:
 
-  1. Go the 'Host' app in SkySpark
+  1. Go to the 'Host' app
   1. Select the 'Crypto' view
   1. Click the 'Trust Uri' action button
   1. In the dialog enter the uri of the SSl/TLS endpoint for which you want
