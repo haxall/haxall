@@ -263,43 +263,38 @@ abstract class AxonContext : HaystackContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Dump call stack trace to a string
-  @NoDoc Str traceToStr(Loc errLoc)
+  @NoDoc Str traceToStr(Loc errLoc, Dict? opts := null)
   {
     s := StrBuf()
-    trace(errLoc, s.out)
+    trace(errLoc, s.out, opts)
     return s.toStr
   }
 
   ** Dump call stack trace to output stream
-  @NoDoc Void trace(Loc errLoc, OutStream out := Env.cur.out)
+  @NoDoc Void trace(Loc errLoc, OutStream out := Env.cur.out, Dict? opts := null)
   {
+    traceVars := opts != null && opts.has("vars")
+
     for (i:= stack.size-1; i>=1; --i)
     {
-      func := stack[i].func
-      name := func.name
-      loc  := stack.getSafe(i+1)?.callLoc ?: errLoc
+      frame := stack[i]
+      func  := frame.func
+      name  := func.name
+      loc   := stack.getSafe(i+1)?.callLoc ?: errLoc
 
       if (loc === Loc.unknown)
         out.printLine("  $name")
       else
         out.printLine("  $name ($loc)")
-    }
 
-    /*
-    out.printLine()
-    out.printLine("Scope Trace:")
-    for (i:= stack.size-1; i>=1; --i)
-    {
-      f := stack[i]
-      g := stack[i-1]
-      if (f.isEmpty) continue
-      out.printLine("  $f.func.name ($g.callLoc)")
-      f.each |v, n|
+      if (traceVars)
       {
-        out.print("    $n: ").print(Expr.summary(v)).printLine
+        frame.each |v, n|
+        {
+          out.print("    $n: ").print(Expr.summary(v)).printLine
+        }
       }
     }
-    */
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -2844,12 +2844,13 @@ const class CoreLib
     AxonContext.curAxon.parse(src).encode
   }
 
-  ** Dump current context stack to standard out
+  ** Dump current context stack to standard out.
+  ** Pass '{vars}' for options to include variables in scope.
   @NoDoc @Axon { admin = true }
-  static Obj? trace()
+  static Obj? trace(Dict? opts := null)
   {
     cx := AxonContext.curAxon
-    str := cx.traceToStr(cx.curFunc?.loc ?: Loc.unknown)
+    str := cx.traceToStr(cx.curFunc?.loc ?: Loc.unknown, opts)
     echo(str)
     return str
   }
