@@ -275,8 +275,8 @@ abstract class AxonContext : HaystackContext
       loc      := stack.getSafe(i+1)?.callLoc ?: errLoc
 
       stackMap["name"] = frame.func.name;
-      stackMap["file"]  = loc.file;
-      stackMap["line"]  = Number.makeNum(loc.line);
+      stackMap["file"] = loc.file;
+      stackMap["line"] = Number.makeNum(loc.line);
 
       if (traceVars)
       {
