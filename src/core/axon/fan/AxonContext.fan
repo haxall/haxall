@@ -262,6 +262,35 @@ abstract class AxonContext : HaystackContext
 // Trace
 //////////////////////////////////////////////////////////////////////////
 
+  ** Dump call stack trace to a Grid
+  @NoDoc Grid traceToGrid(Loc errLoc, Dict? opts := null)
+  {
+    traceVars := opts != null && opts.has("vars")
+    stackMaps := Str:Obj?[,]
+
+    for (i:= stack.size-1; i>=1; --i)
+    {
+      stackMap := Str:Obj?[:]
+      frame    := stack[i]
+      loc      := stack.getSafe(i+1)?.callLoc ?: errLoc
+
+      stackMap["name"] = frame.func.name;
+      stackMap["file"]  = loc.file;
+      stackMap["line"]  = Number.makeNum(loc.line);
+
+      if (traceVars)
+      {
+        varsMap := Str:Obj?[:]
+        frame.each |v, n| { varsMap[n] = v }
+        stackMap["vars"] = Etc.makeDict(varsMap)
+      }
+
+      stackMaps.add(stackMap)
+    }
+
+    return Etc.makeMapsGrid(null, stackMaps)
+  }
+
   ** Dump call stack trace to a string
   @NoDoc Str traceToStr(Loc errLoc, Dict? opts := null)
   {

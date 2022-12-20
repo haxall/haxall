@@ -2855,6 +2855,16 @@ const class CoreLib
     return str
   }
 
+  ** Dump current context stack to Grid.
+  ** Pass '{vars}' for options to include variables in scope.
+  @NoDoc @Axon { admin = true }
+  static Grid traceToGrid(Dict? opts := null)
+  {
+    cx := AxonContext.curAxon
+    grid := cx.traceToGrid(cx.curFunc?.loc ?: Loc.unknown, opts)
+    return grid
+  }
+
   ** Given an axon expression, validate the syntax.  If there are no errors
   ** then return an empty grid.  If there are errors then return a grid
   ** with the "err" tag and a "line" and "dis" column for each error found.
