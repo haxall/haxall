@@ -284,6 +284,12 @@ const abstract class Kind
   ** Return if this an atomic (not collection) kind
   @NoDoc Bool isScalar() { !isCollection }
 
+  ** Return if this an singleton type (marker, NA, remove)
+  @NoDoc virtual Bool isSingleton() { false }
+
+  ** Return if this kind is encoded as XStr
+  @NoDoc virtual Bool isXStr() { false }
+
   ** Return if this List, Dict, or Grid kind
   @NoDoc virtual Bool isCollection() { false }
 
@@ -345,6 +351,7 @@ internal const final class ObjKind : Kind
 internal const final class MarkerKind : Kind
 {
   new make() : super("Marker", Marker#) {}
+  override Bool isSingleton() { true }
   override Str valToZinc(Obj val) { "M" }
   override Str valToJson(Obj val) { "m:" }
   override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { "\u2713" }
@@ -356,6 +363,7 @@ internal const final class MarkerKind : Kind
 internal const final class NAKind : Kind
 {
   new make() : super("NA", NA#) {}
+  override Bool isSingleton() { true }
   override Str valToZinc(Obj val) { "NA" }
   override Str valToJson(Obj val) { "z:" }
   override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { "NA" }
@@ -367,6 +375,7 @@ internal const final class NAKind : Kind
 internal const final class RemoveKind : Kind
 {
   new make() : super("Remove", Remove#) {}
+  override Bool isSingleton() { true }
   override Str valToZinc(Obj val) { "R" }
   override Str valToJson(Obj val) { "-:" }
   override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { "\u2716" }
@@ -519,6 +528,7 @@ internal const final class CoordKind : Kind
 internal const final class XStrKind : Kind
 {
   new make() : super("XStr", XStr#) {}
+  override Bool isXStr() { true }
   override Str valToJson(Obj val) { x := (XStr)val; return "x:$x.type:$x.val" }
   override Str valToAxon(Obj val) { x := (XStr)val; return "xstr($x.type.toCode, $x.val.toCode)" }
 }
@@ -527,6 +537,7 @@ internal const final class XStrKind : Kind
 internal const final class BinKind : Kind
 {
   new make() : super("Bin", Bin#) {}
+  override Bool isXStr() { true }
   override Str valToZinc(Obj val) { "Bin(" + ((Bin)val).mime.toStr.toCode + ")" } // 3.0 version
   override Str valToJson(Obj val) { "b:" + ((Bin)val).mime.toStr }
   override Str valToAxon(Obj val) { Str<|xstr("Bin",|> + ((Bin)val).mime.toStr.toCode + ")" }
@@ -536,6 +547,7 @@ internal const final class BinKind : Kind
 internal const final class SpanKind : Kind
 {
   new make() : super("Span", Span#) {}
+  override Bool isXStr() { true }
   override Str valToZinc(Obj val) { "Span($val.toStr.toCode)" }
   override Str valToJson(Obj val) { "x:Span:$val" }
   override Str valToAxon(Obj val) { ((Span)val).toCode }
