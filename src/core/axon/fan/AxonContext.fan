@@ -270,30 +270,43 @@ abstract class AxonContext : HaystackContext
     return s.toStr
   }
 
+  ** Dump call stack trace to a grid
+  @NoDoc Grid traceToGrid(Loc errLoc, Dict? opts := null)
+  {
+    gb := GridBuilder().addCol("name").addCol("file").addCol("line").addCol("vars")
+    traceWalk(errLoc, opts) |name, loc, vars|
+    {
+      gb.addRow([name, loc.file, Number(loc.line), vars])
+    }
+    return gb.toGrid
+  }
+
   ** Dump call stack trace to output stream
   @NoDoc Void trace(Loc errLoc, OutStream out := Env.cur.out, Dict? opts := null)
   {
     traceVars := opts != null && opts.has("vars")
-
-    for (i:= stack.size-1; i>=1; --i)
+    traceWalk(errLoc, opts) |name, loc, vars|
     {
-      frame := stack[i]
-      func  := frame.func
-      name  := func.name
-      loc   := stack.getSafe(i+1)?.callLoc ?: errLoc
-
       if (loc === Loc.unknown)
         out.printLine("  $name")
       else
         out.printLine("  $name ($loc)")
 
       if (traceVars)
-      {
-        frame.each |v, n|
-        {
-          out.print("    $n: ").print(Expr.summary(v)).printLine
-        }
-      }
+        vars.each |v, n| { out.print("    $n: ").print(Expr.summary(v)).printLine }
+    }
+  }
+
+  ** Walk the trace call stack
+  @NoDoc Void traceWalk(Loc errLoc, Dict? opts, |Str name, Loc loc, Dict vars| f)
+  {
+    for (i:= stack.size-1; i>=1; --i)
+    {
+      frame := stack[i]
+      func  := frame.func
+      name  := func.name
+      loc   := stack.getSafe(i+1)?.callLoc ?: errLoc
+      f(name, loc, frame.toDict)
     }
   }
 
