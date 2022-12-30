@@ -75,6 +75,20 @@ the task extension's thread pool:
   // parse a CSV file asynchronously on background thread
   future: taskRun(ioReadCsv(`io/import-sites.csv`))
 
+Note that the expr passed to taskRun will be executed on a different thread
+with a different Axon context.  It will not have access to the local varaibles
+in scope when calling taskRun.  So you cannot use any local variables in the
+taskRun expression.  If you need to pass a variable to a task, then you can
+send it via the message parameter:
+
+  // this will not work - the variable str is not accessible
+  str: "hello"
+  taskRun(echo(str)).futureGet
+
+  // this will work because we pass str as the message
+  str: "hello"
+  taskRun((msg)=>echo(msg), str).futureGet
+
 Lifecycle  [#lifecycle]
 ***********************
 Task records are mapped one-to-one to an [actor]`concurrent::Actor` by

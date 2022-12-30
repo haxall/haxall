@@ -105,7 +105,8 @@ const class TaskFuncs
   }
 
   ** Run the given expression asynchronously in an ephemeral task.
-  ** Return a future to track the asynchronous result.
+  ** Return a future to track the asynchronous result.  Note the
+  ** expr passed cannot use any variables from the current scope.
   ** See `lib-task::doc#ephemeralTasks`.
   @Axon { admin = true }
   static Future taskRun(Expr expr, Expr msg := Literal.nullVal)
