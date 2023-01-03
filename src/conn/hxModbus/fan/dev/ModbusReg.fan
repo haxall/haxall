@@ -53,6 +53,11 @@ using haystack
 
   ** Additional tags used for modeling the register as a point
   const Dict tags
+
+  override Str toStr()
+  {
+    "$name [$dis] $addr $data"
+  }
 }
 
 **************************************************************************

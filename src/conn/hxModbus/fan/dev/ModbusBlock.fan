@@ -89,6 +89,12 @@ using haystack
     return (regs.last.addr.num + regs.last.data.size) - start
   }
 
+  override Str toStr()
+  {
+    regs := regs.join("\n")
+    return  "block: $type start=$start size=$size\n$regs"
+  }
+
   ** Block values for each register. Throws Err
   ** if this block has not yet been resolved.
   Obj[] vals() { valsRef.val ?: throw Err("Block not resolved") }
@@ -99,7 +105,13 @@ using haystack
   {
     if (type.isBool)
     {
-      this.valsRef.val = raw.toImmutable
+      vals := Bool[,]
+      regs.each |r|
+      {
+        off := r.addr.num - start
+        vals.add(raw[off])
+      }
+      this.valsRef.val = vals.toImmutable
       return
     }
     else
