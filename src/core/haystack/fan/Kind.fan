@@ -302,6 +302,9 @@ const abstract class Kind
   ** Return if this a Ref[] or Ref<foo>[]
   @NoDoc virtual Bool isListOfRef() { isListOf(ref) }
 
+  ** Return if this is Grid
+  @NoDoc virtual Bool isGrid() { false }
+
   ** Return this kind parameterized with given tag
   @NoDoc virtual Kind toTagOf(Str tag)
   {
@@ -631,6 +634,7 @@ internal const final class GridKind : Kind
   override const Str? tag
   override Kind toTagOf(Str tag) { makeTag(tag) }
   override Bool isCollection() { true }
+  override Bool isGrid() { true }
   override Obj defVal() { Etc.makeEmptyGrid }
   override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { "<<Nested Grid>>" }
   override Str valToAxon(Obj val) { throw UnsupportedErr("Cannot format grid to Axon") }
