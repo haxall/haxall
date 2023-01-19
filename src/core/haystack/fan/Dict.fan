@@ -25,7 +25,7 @@ const mixin Dict
   abstract Bool isEmpty()
 
   **
-  ** Get the value for the given name or 'def' is not mapped
+  ** Get the value for the given name or 'def' if name not mapped
   **
   @Operator
   abstract Obj? get(Str name, Obj? def := null)

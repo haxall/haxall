@@ -65,6 +65,14 @@ class CsvWriter : GridWriter
 // Public
 //////////////////////////////////////////////////////////////////////////
 
+  ** Format a grid to a string in memory.
+  @NoDoc static Str gridToStr(Grid grid)
+  {
+    buf := StrBuf()
+    CsvWriter(buf.out).writeGrid(grid)
+    return buf.toStr
+  }
+
   ** Flush the underlying output stream and return this
   This flush() { out.flush; return this }
 

@@ -38,6 +38,16 @@ class TrioWriter : GridWriter
   }
 
   **
+  ** Format a grid to a string in memory.
+  **
+  @NoDoc static Str gridToStr(Grid grid)
+  {
+    buf := StrBuf()
+    TrioWriter(buf.out).writeGrid(grid)
+    return buf.toStr
+  }
+
+  **
   ** Write the grid rows (no support for meta)
   **
   override This writeGrid(Grid grid)
