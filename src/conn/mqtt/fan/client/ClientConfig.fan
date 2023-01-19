@@ -68,4 +68,13 @@ const class ClientConfig
   // ** Maximum number of QoS 1 and 2 messages that will be queued for sending
   // ** above those that are currently in-flight.
   // const Int maxQueued := 1000
+
+  ** How many times to retry messages that require acknowledgement
+  const Int maxRetry := 0
+
+  ** How long to wait between retries for messages that require acknowledgement
+  const Duration retryInterval := 10sec
+
+  ** How long until unacknowledged messages timeout
+  Duration timeout() { (retryInterval * maxRetry) + retryInterval }
 }

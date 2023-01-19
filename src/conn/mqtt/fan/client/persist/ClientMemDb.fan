@@ -37,6 +37,11 @@ const class ClientMemDb : ClientPersistence
     isOpened.val = true
   }
 
+  override PersistablePacket? get(Str key)
+  {
+    session.get(key)
+  }
+
   override Void put(Str key, PersistablePacket packet)
   {
     session.put(key, packet)
@@ -95,6 +100,11 @@ internal const class ClientMemSession
   new make(Str clientId) { this.clientId = clientId }
 
   const Str clientId
+
+  PersistablePacket? get(Str key)
+  {
+    packets.get(key)
+  }
 
   Void put(Str key, PersistablePacket packet)
   {

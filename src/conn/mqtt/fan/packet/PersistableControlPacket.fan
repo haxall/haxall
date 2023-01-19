@@ -24,4 +24,9 @@ internal const abstract class PersistableControlPacket : ControlPacket, Persista
     encode(buf.out, packetVersion)
     return buf.flip.in
   }
+
+  static PersistableControlPacket fromPersistablePacket(PersistablePacket p)
+  {
+    ControlPacket.readPacket(p.in, p.packetVersion)
+  }
 }

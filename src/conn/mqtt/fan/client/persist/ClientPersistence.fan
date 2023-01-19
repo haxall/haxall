@@ -16,6 +16,8 @@ const mixin ClientPersistence
   ** client with the given client identifier.
   abstract Void open(Str clientId)
 
+  @NoDoc virtual PersistablePacket? get(Str key) { throw UnsupportedErr() }
+
   ** Store a packet associated with the given key.
   abstract Void put(Str key, PersistablePacket packet)
 

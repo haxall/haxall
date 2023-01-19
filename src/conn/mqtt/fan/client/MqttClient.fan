@@ -60,6 +60,10 @@ const class MqttClient : Actor, MqttConst
   ** Ticks when the last packet was received
   internal const AtomicInt lastPacketReceived := AtomicInt(0)
 
+  ** Number of qos 1 or qos 2 message the server is willing
+  ** to allow to be outstanding. This value starts out at the max
+  ** and is decremented each time we send a packet requiring acks.
+  ** The quota is then increased when we receive the ack.
   internal const AtomicInt quota := AtomicInt(Int.maxVal)
 
   ** Subscription manager
@@ -114,15 +118,31 @@ const class MqttClient : Actor, MqttConst
     packetWriter.send(packet)
 
     // consume the packet identifier by adding to pending acks map
-    pendingAcks[packet.pid] = pending
+    pendingAcks[packet.pid] = pending.touch
     return pending
   }
 
   ** Free the packet identifier associated with this packet by removing
-  ** it from the pending acks map.
-  internal PendingAck? freePending(ControlPacket packet)
+  ** it from the pending acks map and returning the pending ack associated with
+  ** that pid.
+  internal PendingAck? freePending(Obj arg)
   {
-    pendingAcks.remove(packet.pid)
+    Int? pid := arg as Int
+    if (pid == null) pid = ((ControlPacket)arg).pid
+    return pendingAcks.remove(pid)
+  }
+
+  ** Do all required actions to update state when a pending ack is finished
+  internal Void finishPending(PendingAck pending)
+  {
+    // ensure it is freed
+    freePending(pending.packetId)
+
+    // discard state
+    config.persistence.remove(pending.persistKey)
+
+    // update quoata
+    quota.increment
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -334,6 +354,9 @@ const class MqttClient : Actor, MqttConst
       return null
     }
 
+// log.err("TODO:FIXIT - don't handle acks")
+// return null
+
     // we expect a pending ack for the remaining received messages
     pending := this.freePending(packet)
     if (pending == null) { debug("Unexpected: $packet.type"); return null }
@@ -387,6 +410,7 @@ const class MqttClient : Actor, MqttConst
       if (checkConnackReceived)
       {
         checkKeepAlive
+        checkPending
       }
     }
     catch (Err err)
@@ -425,6 +449,33 @@ const class MqttClient : Actor, MqttConst
     // send a ping if we haven't sent a message within keepalive interval
     if ((Duration.nowTicks - lastPacketSent.val) > ticks)
       onPingReq(PingReq.defVal)
+  }
+
+  private Void checkPending()
+  {
+    if (pendingAcks.isEmpty) return
+
+    pendingAcks.each |PendingAck pending| {
+      if (pending.age > config.timeout)
+      {
+        // handle packet timeout
+        log.debug("Packet ${pending.packetId} timed out after ${config.timeout.toLocale}")
+
+        freePending(pending.packetId)
+        pending.resp.completeErr(TimeoutErr("No acknowledgement received for packet ${pending.packetId} after ${config.timeout.toLocale}"))
+      }
+      else if (config.maxRetry > 0 && pending.isRetryNeeded(config.retryInterval))
+      {
+        // handle packet retry
+        log.debug("Retry packet ${pending.packetId}")
+
+        p      := config.persistence.get(pending.persistKey)
+        packet := PersistableControlPacket.fromPersistablePacket(p)
+
+        packet.markDup
+        sendPacket(packet, pending)
+      }
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -143,11 +143,8 @@ internal class ClientPublishHandler : ClientHandler
 
   private Void onFinalAck(PubFlowPacket packet, PendingAck pending)
   {
-    // discard state
-    db.remove(pending.persistKey)
-
-    // update quota
-    client.quota.increment
+    // free the pending packet
+    client.freePending(packet)
 
     // check for an error code
     if (packet.isErr) pending.resp.completeErr(toErr(packet))
@@ -221,7 +218,7 @@ internal class ClientPublishHandler : ClientHandler
       {
         try
         {
-          packet := (PersistableControlPacket)ControlPacket.readPacket(p.in, p.packetVersion)
+          packet := PersistableControlPacket.fromPersistablePacket(p)
           // log.info("Resend unacknowledged packet: $packet [$key]")
 
           // mark that we are sending a duplicate packet

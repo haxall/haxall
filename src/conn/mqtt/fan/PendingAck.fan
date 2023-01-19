@@ -19,6 +19,7 @@ internal const class PendingAck
 {
   new make(ControlPacket packet, Str? persistKey := null)
   {
+    this.created    = Duration.nowTicks
     this.packetId   = packet.pid
     this.persistKey = persistKey
 
@@ -43,7 +44,20 @@ internal const class PendingAck
   const Str? persistKey := null
 
   ** Ticks when this request was created
-  const Int created := Duration.nowTicks
+  const Int created
+
+  ** Get the age of this pending packet
+  Duration age() { Duration(Duration.nowTicks - created) }
+
+  ** Ticks when this request was last sent to the broker
+  private const AtomicInt lastSent := AtomicInt(0)
+
+  ** Update the last sent timestamp and return this
+  This touch()
+  {
+    lastSent.val = Duration.nowTicks
+    return this
+  }
 
   ** Future that will be completed when the response arrives
   ** or housekeeping determines an error/timeout
@@ -51,6 +65,13 @@ internal const class PendingAck
 
   ** Have we received the connack response
   Bool isComplete() { resp.state.isComplete }
+
+  ** Return if this packet needs a retry based on the timeout threshold
+  Bool isRetryNeeded(Duration threshold)
+  {
+    if (isComplete) return false
+    return (Duration(Duration.nowTicks - lastSent.val) > threshold)
+  }
 
   ControlPacket? get(Bool checked := true)
   {

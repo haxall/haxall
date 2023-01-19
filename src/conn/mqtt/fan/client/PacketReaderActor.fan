@@ -95,13 +95,24 @@ internal const class PacketReaderActor : Actor, DataCodec
 
     s := StrBuf().add("< $packet.pid\n")
     s.add("Packet Type: $packet.type")
+    payload := false
     switch (packet.type)
     {
       case PacketType.publish:
         s.add(" ${packet->topicName} qos=${packet->qos}")
+        payload = true
     }
     s.addChar('\n')
     s.add(buf.toHex)
+    if (payload)
+    {
+      try
+      {
+        payloadStr := packet->payload->in->readAllStr
+        s.add("\n\nPayload:\n$payloadStr")
+      }
+      catch (Err ignore) { /* not utf-8 encoded string */ }
+    }
     client.log.debug(s.toStr)
   }
 }

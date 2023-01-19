@@ -81,16 +81,28 @@ internal const class PacketWriterActor : DataCodec
 
     s := StrBuf().add("> $packet.pid\n")
     s.add("Packet Type: $packet.type")
+    payload := false
     switch (packet.type)
     {
       case PacketType.publish:
-        s.add(" ${packet->topicName} qos=${packet->qos}")
+        s.add(" topic=${packet->topicName} qos=${packet->qos}")
+        payload = true
       case PacketType.subscribe:
         opts := ((Int[])packet->opts).map |i->Str| { i.toRadix(2, 8) }
-        s.add(" ${packet->topics} ${opts}")
+        s.add(" topics=${packet->topics} ${opts}")
+        payload = true
     }
     s.addChar('\n')
     s.add(buf.toHex)
+    if (payload)
+    {
+      try
+      {
+        payloadStr := packet->payload->in->readAllStr
+        s.add("\n\nPayload:\n$payloadStr")
+      }
+      catch (Err ignore) { /* not utf-8 encoded string */ }
+    }
     client.log.debug(s.toStr)
   }
 }
