@@ -67,6 +67,10 @@ internal const class PacketWriterActor : DataCodec
       // trace
       trace(packet, buf)
     }
+    catch (IOErr err)
+    {
+      throw client.shutdown(err)
+    }
     catch (Err err)
     {
       client.log.err("Failed to write packet $packet.type", err)
