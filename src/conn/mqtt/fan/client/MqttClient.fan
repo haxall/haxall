@@ -18,7 +18,11 @@ const class MqttClient : Actor, MqttConst
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(ClientConfig config, Log log := Log.get(config.pool.name)) : super(config.pool)
+  new make(ClientConfig config, Log log := Log.get(config.pool.name))
+    : super.makeCoalescing(config.pool, |Obj? msg->Obj?| {
+        if (msg isnot ActorMsg) return null
+        return ((ActorMsg)msg).id == "shutdown" ? "shutdown" : null
+      }, null, null)
   {
     this.config = config
     this.log    = log
@@ -232,7 +236,7 @@ const class MqttClient : Actor, MqttConst
     this.terminated.val = true
     try
     {
-      this.shutdown
+      this.onShutdown
     }
     finally
     {
@@ -261,6 +265,7 @@ const class MqttClient : Actor, MqttConst
         case "unsubscribe": return onUnsubscribe(msg.a)
         case "disconnect":  return onDisconnect(msg.a)
         case "recv":        return onRecv(msg.a)
+        case "shutdown":    return onShutdown(msg.a)
       }
     }
     catch (Err err)
@@ -313,7 +318,7 @@ const class MqttClient : Actor, MqttConst
       packetWriter.send(disconnect).get(10sec)
     }
     catch (Err ignore) {}
-    finally this.shutdown
+    finally this.onShutdown
     return null
   }
 
@@ -392,7 +397,7 @@ const class MqttClient : Actor, MqttConst
   private Obj? onReceiveDisconnect(Disconnect disconnect)
   {
     log.info("Server requested DISCONNECT: ${disconnect.reason}")
-    this.shutdown
+    this.onShutdown
     return null
   }
 
@@ -430,7 +435,7 @@ const class MqttClient : Actor, MqttConst
     {
       // timeout
       req.resp.completeErr(
-        this.shutdown(TimeoutErr("CONNACK not received within ${config.mqttConnectTimeout.toLocale}"))
+        this.onShutdown(TimeoutErr("CONNACK not received within ${config.mqttConnectTimeout.toLocale}"))
       )
     }
     return false
@@ -501,8 +506,15 @@ const class MqttClient : Actor, MqttConst
     if (!canMessage) throw MqttErr("Cannot send packets: $state [terminated=${isTerminated}]")
   }
 
+
   ** Force a shutdown of the client and return to a disconnected state.
-  internal Err? shutdown(Err? err := null)
+  internal Future shutdown(Err? err := null)
+  {
+    send(ActorMsg("shutdown", err))
+  }
+
+  ** Should only be called inside actor (or on terminate)
+  internal Err? onShutdown(Err? err := null)
   {
     if (state === ClientState.disconnected) return err
 

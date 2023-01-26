@@ -74,7 +74,8 @@ internal const class PacketReaderActor : Actor, DataCodec
     catch (Err err)
     {
       if (transport?.isClosed ?: true) return false
-      throw client.shutdown(err)
+      client.shutdown(err)
+      throw err
     }
 
     // decode the control packet

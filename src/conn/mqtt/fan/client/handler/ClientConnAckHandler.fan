@@ -32,7 +32,7 @@ internal class ClientConnAckHandler : ClientHandler
   {
     // should never receive a connack after we get connected
     if (state === ClientState.connected)
-      throw client.shutdown(MqttErr("Server sent CONNACK, but already connected"))
+      throw client.onShutdown(MqttErr("Server sent CONNACK, but already connected"))
 
     // handle rejected connection
     if (!ack.isSuccess)

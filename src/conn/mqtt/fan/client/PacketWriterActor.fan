@@ -69,7 +69,8 @@ internal const class PacketWriterActor : DataCodec
     }
     catch (IOErr err)
     {
-      throw client.shutdown(err)
+      client.shutdown(err)
+      throw err
     }
     catch (Err err)
     {
