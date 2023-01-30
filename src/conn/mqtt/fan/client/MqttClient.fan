@@ -118,11 +118,12 @@ const class MqttClient : Actor, MqttConst
   ** Choke-point to send a packet that we expect to receive an ack for.
   internal PendingAck? sendPacket(ControlPacket packet, PendingAck pending)
   {
+    // consume the packet identifier by adding to pending acks map
+    pendingAcks[packet.pid] = pending.touch
+
     // send (non-blocking)
     packetWriter.send(packet)
 
-    // consume the packet identifier by adding to pending acks map
-    pendingAcks[packet.pid] = pending.touch
     return pending
   }
 
@@ -505,7 +506,6 @@ const class MqttClient : Actor, MqttConst
   {
     if (!canMessage) throw MqttErr("Cannot send packets: $state [terminated=${isTerminated}]")
   }
-
 
   ** Force a shutdown of the client and return to a disconnected state.
   internal Future shutdown(Err? err := null)
