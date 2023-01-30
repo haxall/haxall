@@ -69,12 +69,12 @@ class MqttDispatch : ConnDispatch, ClientListener
         it.password = db.passwords.get(id.toStr)?.toBuf
       }
 
-      client.connect(resume).get
+      client.connect(resume).get(10sec)
     }
     catch (Err err)
     {
       this.terminate
-      throw FaultErr("Failed to open MQTT connection", err)
+      throw err
     }
 
     // schedule a resubscribe of all topics
@@ -129,7 +129,8 @@ class MqttDispatch : ConnDispatch, ClientListener
 
   private Obj? onPub(Str topic, Buf payload, Dict cfg)
   {
-    open.client.publishWith
+    open
+    return client.publishWith
       .topic(topic)
       .payload(payload)
       .qos((cfg["mqttQos"] as Number)?.toInt ?: Number.zero)
