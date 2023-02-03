@@ -144,7 +144,7 @@ internal class ClientPublishHandler : ClientHandler
   private Void onFinalAck(PubFlowPacket packet, PendingAck pending)
   {
     // free the pending packet
-    client.freePending(packet)
+    client.finishPending(pending)
 
     // check for an error code
     if (packet.isErr) pending.resp.completeErr(toErr(packet))

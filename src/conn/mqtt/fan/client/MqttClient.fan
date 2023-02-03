@@ -130,7 +130,7 @@ const class MqttClient : Actor, MqttConst
   ** Free the packet identifier associated with this packet by removing
   ** it from the pending acks map and returning the pending ack associated with
   ** that pid.
-  internal PendingAck? freePending(Obj arg)
+  private PendingAck? freePending(Obj arg)
   {
     Int? pid := arg as Int
     if (pid == null) pid = ((ControlPacket)arg).pid
@@ -143,11 +143,15 @@ const class MqttClient : Actor, MqttConst
     // ensure it is freed
     freePending(pending.packetId)
 
-    // discard state
-    config.persistence.remove(pending.persistKey)
+    // only need this cleanup if the packet was persisted (publish)
+    if(pending.persistKey != null)
+    {
+      // discard state
+      config.persistence.remove(pending.persistKey)
 
-    // update quoata
-    quota.increment
+      // update quoata
+      quota.increment
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -467,7 +471,7 @@ const class MqttClient : Actor, MqttConst
         // handle packet timeout
         log.debug("Packet ${pending.packetId} timed out after ${config.timeout.toLocale}")
 
-        freePending(pending.packetId)
+        finishPending(pending)
         pending.resp.completeErr(TimeoutErr("No acknowledgement received for packet ${pending.packetId} after ${config.timeout.toLocale}"))
       }
       else if (config.maxRetry > 0 && pending.isRetryNeeded(config.retryInterval))
@@ -570,6 +574,24 @@ const class MqttClient : Actor, MqttConst
     p := PendingConn(ConnectConfig().packet("not-connected"))
     p.resp.completeErr(MqttErr("Disconnected"))
     return p
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Debug
+//////////////////////////////////////////////////////////////////////////
+
+  @NoDoc
+  Str debugClient()
+  {
+    s := StrBuf()
+    s.add("Mqtt Client\n")
+     .add("-----------\n")
+     .add("At: ${DateTime.now.toLocale}\n")
+     .add("State: $stateRef.val [canMessage=${canMessage}]\n")
+     .add("ConnAck Properties: ${pendingConnect.connack.props}\n")
+     .add("Quota: ${quota}\n")
+     .add("Pending Acks: ${pendingAcks.size}")
+    return s.toStr
   }
 }
 

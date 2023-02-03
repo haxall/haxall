@@ -26,6 +26,11 @@ const class MqttLib : ConnLib
   internal const MqttObservable mqtt := MqttObservable(this)
 
   const override Observable[] observables := [mqtt]
+
+  override Str onConnDetails(Conn conn)
+  {
+    conn.data ?: "<no additional details>"
+  }
 }
 
 **************************************************************************
