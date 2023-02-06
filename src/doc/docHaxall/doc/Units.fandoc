@@ -94,11 +94,6 @@ Arithmetic with units is handled as follows:
   a / null   >>  a
   null / b   >>  throws UnitErr
 
-  // modulo (remainder)
-  a % null   >>  a
-  a % b      >>  throws UnitErr
-  null % b   >>  throws UnitErr
-
 As a general rule, if one of the numbers has a null unit, then the
 other operand's unit is carried through.  Adding or subtracing two numbers
 with different units will raise an exception - automatic unit conversion
