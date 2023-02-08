@@ -1547,6 +1547,22 @@ const class CoreLib
   ** DateSpan for year previous to this year 'Jan-1..Dec-31'
   @Axon static DateSpan lastYear() { DateSpan.lastYear}
 
+  ** Get the first day of given date's month.
+  ** Also see `lastOfMonth()`.
+  **
+  ** Example:
+  **   2009-10-28.firstOfMonth  >>  2009-10-01
+  **
+  @Axon static Date firstOfMonth(Date date) { date.firstOfMonth }
+
+  ** Get the last day of the date's month.
+  ** Also see `firstOfMonth()`.
+  **
+  ** Example:
+  **   2009-10-28.lastOfMonth  >>  2009-10-31
+  **
+  @Axon static Date lastOfMonth(Date date) { date.lastOfMonth }
+
   **
   ** Convert the following objects into a `haystack::DateSpan`:
   **   - 'Func': function which evaluates to date range

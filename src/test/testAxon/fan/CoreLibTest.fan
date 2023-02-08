@@ -578,6 +578,10 @@ class CoreLibTest : HaystackTest
     verifyEval("2010-01-11.isWeekend", false)
     verifyEval("2010-01-11.isWeekday", true)
 
+    verifyEval("2023-02-07.firstOfMonth", Date("2023-02-01"))
+    verifyEval("2023-02-07.lastOfMonth", Date("2023-02-28"))
+    verifyEval("2024-02-07.lastOfMonth", Date("2024-02-29"))
+
     verifyEval("date(2010, 12, 3)", Date("2010-12-03"))
     verifyEval("date(1972, 6,  7)",  Date("1972-06-07"))
 
