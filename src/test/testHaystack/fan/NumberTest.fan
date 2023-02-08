@@ -257,6 +257,13 @@ class NumberTest : HaystackTest
     verifyEq(n(3456789, "square_meter").toLocale, "3,456,789m\u00b2")
     verifyEq(n(3456789, "_count").toLocale, "3,456,789count")
 
+    verifyEq(n(Float.nan).toLocale, "\uFFFD")
+    verifyEq(n(Float.posInf).toLocale, "\u221E")
+    verifyEq(n(Float.negInf).toLocale, "-\u221E")
+    verifyEq(n(Float.nan).toLocale("0.0"), "\uFFFD")
+    verifyEq(n(Float.posInf).toLocale("0.0"), "\u221E")
+    verifyEq(n(Float.negInf).toLocale("0.0"), "-\u221E")
+
     verifyEq(n(1024).toLocale("B"), "1KB")
 
     verifyEq(n(3456789).toLocale("###.00"), "3456789.00")

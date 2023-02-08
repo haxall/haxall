@@ -2268,6 +2268,14 @@ const class CoreLib
   **   - `sys::Time.toLocale`
   **   - `sys::DateTime.toLocale`
   ** If 'toLocale' method is found, then return 'val.toStr'
+  **
+  ** Examples:
+  **    123.456kW.format                 >>  123kW
+  **    123.456kW.format("#.0")          >>  123.5kW
+  **    today().format("D-MMM-YYYY")     >>  8-Feb-2023
+  **    today().format("DDD MMMM YYYY")  >>  8th February 2023
+  **    now().format("D-MMM hh:mm")      >>  08-Feb 14:50
+  **    now().format("DD/MM/YY k:mmaa")  >>  08/02/23 2:50pm
   @Axon static Str format(Obj? val, Str? pattern := null)
   {
     if (val == null) return "null"
@@ -2278,12 +2286,21 @@ const class CoreLib
 
   ** Parse a Str into a Bool, legal formats are "true" or "false.  If invalid
   ** format and checked is false return null, otherwise throw ParseErr.
+  **
+  ** Examples:
+  **   parseBool("true")
+  **   parseBool("bad", false)
   @Axon static Bool? parseBool(Str val, Bool checked := true) { Bool.fromStr(val, checked) }
 
   ** Parse a Str into a integer number using the specified radix.
   ** If invalid format and checked is false return null, otherwise
   ** throw ParseErr. This string value *cannot* include a unit (see
   ** parseNumber).
+  **
+  ** Examples:
+  **   parseInt("123")
+  **   parseInt("afe8", 16)
+  **   parseInt("10010", 2)
   @Axon static Number? parseInt(Str val, Number radix := Number.ten, Bool checked := true)
   {
     i := Int.fromStr(val, radix.toInt, checked)
@@ -2295,6 +2312,11 @@ const class CoreLib
   ** not-a-number are "-INF", "INF", "NaN".  If invalid format
   ** and checked is false return null, otherwise throw ParseErr.
   ** This string value *cannot* include a unit (see parseNumber).
+  **
+  ** Examples:
+  **   parseFloat("123.456").format("0.000")
+  **   parseFloat("NaN")
+  **   parseFloat("INF")
   @Axon static Number? parseFloat(Str val, Bool checked := true)
   {
     f := Float.fromStr(val, checked)
@@ -2306,6 +2328,11 @@ const class CoreLib
   ** format and checked is false return null, otherwise throw ParseErr.
   ** Also see `parseInt` and `parseFloat` to parse basic integers and
   ** floating point numbers without a unit.
+  **
+  ** Examples:
+  **    parseNumber("123")
+  **    parseNumber("123kW")
+  **    parseNumber("123.567").format("#.000")
   @Axon static Number? parseNumber(Str val, Bool checked := true)
   {
     ch := val.isEmpty ? 0 : val[0]
@@ -2336,6 +2363,12 @@ const class CoreLib
   ** Parse a Str into a Date.  If the string cannot be parsed into a valid
   ** Date and checked is false then return null, otherwise throw ParseErr.
   ** See `sys::Date.toLocale` for pattern.
+  **
+  ** Examples:
+  **   parseDate("7-Feb-23", "D-MMM-YY")
+  **   parseDate("07/02/23", "DD/MM/YY")
+  **   parseDate("7 february 2023", "D MMMM YYYY")
+  **   parseDate("230207", "YYMMDD")
   @Axon static Date? parseDate(Str val, Str pattern := "YYYY-MM-DD", Bool checked := true)
   {
     Date.fromLocale(val, pattern, checked)
@@ -2344,6 +2377,11 @@ const class CoreLib
   ** Parse a Str into a Time.  If the string cannot be parsed into a valid
   ** Time and checked is false then return null, otherwise throw ParseErr.
   ** See `sys::Time.toLocale` for pattern.
+  **
+  ** Examples:
+  **   parseTime("14:30", "h:mm")
+  **   parseTime("2:30pm", "k:mma")
+  **   parseTime("2:30:00pm", "k:mm:ssa")
   @Axon static Time? parseTime(Str val, Str pattern := "hh:mm:SS", Bool checked := true)
   {
     Time.fromLocale(val, pattern, checked)
@@ -2388,6 +2426,11 @@ const class CoreLib
   **   'xyz'  Literal characters
   **   ''     Single quote literal
   **
+  ** Examples:
+  **   parseDateTime("2023-02-07 14:30", "YYYY-MM-DD hh:mm")
+  **   parseDateTime("2023-02-07 14:30", "YYYY-MM-DD hh:mm", "Paris")
+  **   parseDateTime("7/2/23 2:30pm", "D/M/YY k:mma")
+  **   parseDateTime("2023-02-07T14:30:00", "YYYY-MM-DD'T'hh:mm:ss")
   @Axon static DateTime? parseDateTime(Str val, Str pattern := "YYYY-MM-DD'T'hh:mm:SS.FFFFFFFFFz zzzz", Str tz := TimeZone.cur.name, Bool checked := true)
   {
     DateTime.fromLocale(val, pattern, TimeZone.fromStr(tz), checked)
@@ -2396,6 +2439,10 @@ const class CoreLib
   ** Parse a Str into a Ref.  If the string is not a valid Ref identifier
   ** then raise ParseErr or return null based on checked flag.  If the
   ** string has a leading "@", then it is stripped off before parsing.
+  **
+  ** Examples:
+  **   parseRef("abc-123")
+  **   parseRef("@abc-123")
   @Axon static Ref? parseRef(Str val, Obj? dis := null, Bool checked := true)
   {
     if (dis is Bool) return Ref.fromStr(val, dis) // signature for 3.0.13 and earlier
@@ -2414,6 +2461,9 @@ const class CoreLib
   ** Parse a Str into a Symbol.  If the string is not a valid Symbol
   ** identifier then raise ParseErr or return null based on checked flag.
   ** The string must *not* include a leading "^".
+  **
+  ** Examples:
+  **   parseSymbol("func:now")
   @Axon static Symbol? parseSymbol(Str val, Bool checked := true)
   {
     Symbol.fromStr(val, checked)
@@ -2471,6 +2521,10 @@ const class CoreLib
   ** Parse a Str into a standardized unit name.  If the val is not
   ** a valid unit name from the standard database then return null
   ** or raise exception based on checked flag.
+  **
+  ** Examples:
+  **   parseUnit("%")
+  **   parseUnit("percent")
   @Axon static Str? parseUnit(Str val, Bool checked := true)
   {
     return Unit.fromStr(val, checked)?.symbol
@@ -2483,33 +2537,83 @@ const class CoreLib
 // Case Conversion / Character stuff
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convert a char number or str to upper case
+  ** Convert a char number or str to ASCII upper case.
+  ** Also see `lower()` and `capitalize()`.
+  **
+  ** Examples:
+  **   upper("cat")      >> "CAT"
+  **   upper("Cat")      >> "CAT"
+  **   upper(97).toChar  >> "A"
+  **
   @Axon static Obj? upper(Obj val) { val->upper }
 
-  ** Convert a char number or str to lower case
+  ** Convert a char number or str to ASCII lower case.
+  ** Also see `upper()` and `decapitalize()`.
+  **
+  ** Examples:
+  **   lower("CAT")      >>  "cat"
+  **   lower("Cat")      >>  "cat"
+  **   lower(65).toChar  >>  "a"
   @Axon static Obj? lower(Obj val) { val->lower }
 
   ** Is number is whitespace char: space \t \n \r \f
+  **
+  ** Examples:
+  **   isSpace("x".get(0))   >>  false
+  **   isSpace(" ".get(0))   >>  true
+  **   isSpace("\n".get(0))  >>  true
   @Axon static Bool isSpace(Number num) { num.toInt.isSpace }
 
   ** Is number an ASCII alpha char: isUpper||isLower
+  **
+  ** Examples:
+  **   isAlpha("A".get(0))  >>  true
+  **   isAlpha("a".get(0))  >>  true
+  **   isAlpha("8".get(0))  >>  false
+  **   isAlpha(" ".get(0))  >>  false
+  **   isAlpha("Ã".get(0))  >>  false
   @Axon static Bool isAlpha(Number num) { num.toInt.isAlpha }
 
   ** Is number an ASCII alpha-numeric char: isAlpha||isDigit
+  **
+  ** Examples:
+  **   isAlphaNum("A".get(0))  >>  true
+  **   isAlphaNum("a".get(0))  >>  true
+  **   isAlphaNum("8".get(0))  >>  true
+  **   isAlphaNum(" ".get(0))  >>  false
+  **   isAlphaNum("Ã".get(0))  >>  false
   @Axon static Bool isAlphaNum(Number num) { num.toInt.isAlphaNum }
 
   ** Is number an ASCII uppercase alphabetic char: A-Z
+  **
+  ** Examples:
+  **   isUpper("A".get(0))  >>  true
+  **   isUpper("a".get(0))  >>  false
+  **   isUpper("5".get(0))  >>  false
   @Axon static Bool isUpper(Number num) { num.toInt.isUpper }
 
   ** Is number an ASCII lowercase alphabetic char: a-z
+  **
+  ** Examples:
+  **   isUpper("a".get(0))  >>  true
+  **   isUpper("A".get(0))  >>  false
+  **   isUpper("5".get(0))  >>  false
   @Axon static Bool isLower(Number num) { num.toInt.isLower }
 
   ** Is number a digit in the specified radix.  A decimal radix of
   ** ten returns true for 0-9.  A radix of 16 also returns true
   ** for a-f and A-F.
+  **
+  ** Examples:
+  **   isDigit("5".get(0))      >>  true
+  **   isDigit("A".get(0))      >>  false
+  **   isDigit("A".get(0), 16)  >>  true
   @Axon static Bool isDigit(Number num, Number radix := Number.ten) { num.toInt.isDigit(radix.toInt) }
 
   ** Convert a unicode char number into a single char string
+  **
+  ** Examples:
+  **   toChar(65)   >>  "A"
   @Axon static Str toChar(Number num) { num.toInt.toChar }
 
 //////////////////////////////////////////////////////////////////////////
@@ -2523,6 +2627,12 @@ const class CoreLib
   **
   ** Options:
   **   - noTrim: disable auto-trim of whitespace from start and end of tokens
+  **
+  ** Examples:
+  **   "a b c".split                   >>  ["a", "b", "c"]
+  **   "a,b,c".split(",")              >>  ["a", "b", "c"]
+  **   "a, b, c".split(",")            >>  ["a", "b", "c"]
+  **   "a, b, c".split(",", {noTrim})  >>  ["a", " b", " c"]
   @Axon static Obj? split(Str val, Str? sep := null, Dict? opts := null)
   {
     if (sep == null) return val.split
@@ -2534,29 +2644,57 @@ const class CoreLib
 
   ** Return this string with the first character converted to
   ** uppercase.  The case conversion is for ASCII only.
+  ** Also see `decapitalize()` and `upper()`.
+  **
+  ** Examples:
+  **   capitalize("apple")  >>  "Apple"
   @Axon static Str capitalize(Str val) { val.capitalize }
 
   ** Return this string with the first character converted to
   ** lowercase.  The case conversion is for ASCII only.
+  ** Also see `capitalize()` and `lower()`.
+  **
+  ** Examples:
+  **   decapitalize("Apple") >> "apple"
   @Axon static Str decapitalize(Str val) { val.decapitalize }
 
   ** Trim whitespace from the beginning and end of the string.  For the purposes
   ** of this function, whitespace is defined as any character equal to or less
   ** than the 0x20 space character (including ' ', '\r', '\n', and '\t').
+  **
+  ** Examples:
+  **   " abc ".trim   >>  "abc"
+  **   "abc".trim     >>  "abc"
   @Axon static Str trim(Str val) { val.trim }
 
   ** Trim whitespace only from the beginning of the string.
   ** See `trim` for definition of whitespace.
+  **
+  ** Examples:
+  **   " abc ".trimStart  >>  "abc "
+  **   "abc".trimStart    >>  "abc"
   @Axon static Str trimStart(Str val) { val.trimStart }
 
   ** Trim whitespace only from the end of the string.
   ** See `trim` for definition of whitespace.
+  **
+  ** Examples:
+  **   " abc ".trimEnd  >>  " abc"
+  **   "abc".trimEnd    >>  "abc"
   @Axon static Str trimEnd(Str val)  { val.trimEnd }
 
   ** Return if Str starts with the specified Str.
+  **
+  ** Examples:
+  **   "hi there".startsWith("hi")   >>  true
+  **   "hi there".startsWith("foo")  >>  false
   @Axon static Bool startsWith(Str val, Str sub) { val.startsWith(sub) }
 
   ** Return if Str ends with the specified Str.
+  **
+  ** Examples:
+  **   "hi there".endsWith("there")   >>  true
+  **   "hi there".endsWith("hi")      >>  false
   @Axon static Bool endsWith(Str val, Str sub) { val.endsWith(sub) }
 
   ** String replace of all occurrences of 'from' with 'to'.
@@ -2575,14 +2713,12 @@ const class CoreLib
   **   "123".padl(2, "0")  >>  "123"
   @Axon static Str padl(Str val, Number width, Str char := " ") { val.padl(width.toInt, char[0]) }
 
-  **
   ** Pad string to the right.  If size is less than width, then add
   ** the given char to the left to acheive the specified with.
   **
   ** Examples:
   **   "xyz".padr(2, ".")  >>  "xyz"
   **   "xyz".padr(5, "-")  >>  "xyz--"
-  **
   @Axon static Str padr(Str val, Number width, Str char := " ") { val.padr(width.toInt, char[0]) }
 
   ** Concatenate a list of items into a string.
