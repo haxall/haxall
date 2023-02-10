@@ -561,7 +561,7 @@ class ZincTest : HaystackTest
       verifyEq(tr.size, grid.cols.size)
 
       // verify iteration with Row.each
-      rowEach := Str:Obj?[:]
+      rowEach := Str:Obj[:]
       rowEachNames := Str:Str[:]
       sr.each |xv, xn| { rowEach[xn] = xv; rowEachNames[xn] = xn  }
 
@@ -611,7 +611,6 @@ class ZincTest : HaystackTest
         verifyEq(sr.dis("badBad"), "")
         verifyEq(sr.dis("badBad", "na"), "na")
         verifyEq(sr.dis("badBad", null), null)
-        verifyNotNull(rowEachNames[col.name])
 
         // has/missing
         if (tv != null)
@@ -619,12 +618,16 @@ class ZincTest : HaystackTest
           verifyEq(sr.has(col.name), true)
           verifyEq(sr.missing(col.name), false)
           if (!isNaN && tv isnot Grid) verifyEq(sr.trap(col.name, null), tv)
+          verifyNotNull(rowEach[col.name])
+          verifyNotNull(rowEachNames[col.name])
         }
         else
         {
           verifyEq(sr.has(col.name), false)
           verifyEq(sr.missing(col.name), true)
           verifyErr(UnknownNameErr#) { sr.trap(col.name, null) }
+          verifyNull(rowEach[col.name])
+          verifyNull(rowEachNames[col.name])
         }
       }
 

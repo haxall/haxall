@@ -263,7 +263,7 @@ class IOTest : HxTest
     // ioWriteJson (v3)
     eval("""ioWriteJson([{n:"Brian", age:30yr}, {n:"Andy", bday:1980-01-31, nil: null}], `io/json.txt`, {v3})""")
     verifyEq(projDir.plus(`io/json.txt`).readAllStr,
-      """[{"n":"Brian", "age":"n:30 yr"}, {"n":"Andy", "bday":"d:1980-01-31", "nil":null}]""")
+      """[{"n":"Brian", "age":"n:30 yr"}, {"n":"Andy", "bday":"d:1980-01-31"}]""") // nil:null stripped
     verifyEq(eval(Str<|ioWriteJson("75°F", "")|>), Str<|"75\u00b0F"|>)
     verifyEq(eval(Str<|ioWriteJson("75°F", "", {noEscapeUnicode})|>), Str<|"75°F"|>)
 

@@ -182,7 +182,6 @@ class JsonWriter : GridWriter
   {
     dict.each |val, name|
     {
-      if (val == null && dict is Row) return
       if (first) first = false; else out.print(", ")
       out.print(name.toCode).print(":")
       writeVal(val)
@@ -370,7 +369,6 @@ class JsonWriter : GridWriter
   {
     dict.each |val, name|
     {
-      if (val == null && dict is Row) return
       if (first) first = false; else out.print(", ")
       out.print(name.toCode).print(":")
       writeVal(val)

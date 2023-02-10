@@ -247,13 +247,12 @@ class BrioWriter : GridWriter, BrioCtrl
 
     // first loop is to count non-null tags
     count := 0
-    dict.each |val, name| { if (val != null) count++ }
+    dict.each |val, name| { count++ }
     encodeVarInt(count)
 
     // write tag name/value pairs
     dict.each |val, name|
     {
-      if (val == null) return
       encodeStr(name)
       writeVal(val)
     }

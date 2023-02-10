@@ -761,9 +761,12 @@ class GridTest : HaystackTest
     verifyEq(g.size, expected.size)
     g.each |row, i|
     {
-      expectedRow := expected[i]
+      expectedRow := expected[i].findNotNull
       j := 0
-      row.each |val| { verifyEq(val, expectedRow[j++]) }
+      row.each |val|
+      {
+        verifyEq(val, expectedRow[j++])
+      }
     }
   }
 

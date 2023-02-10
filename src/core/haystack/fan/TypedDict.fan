@@ -88,10 +88,10 @@ const class TypedDict : Dict
   override Bool missing(Str n) { meta.missing(n) }
 
   ** Iterate the wrapped dict tags
-  override Void each(|Obj?, Str| f) { meta.each(f) }
+  override Void each(|Obj, Str| f) { meta.each(f) }
 
   ** Iterate the wrapped dict tags until callback returns non-null
-  override Obj? eachWhile(|Obj?, Str->Obj?| f) { meta.eachWhile(f) }
+  override Obj? eachWhile(|Obj, Str->Obj?| f) { meta.eachWhile(f) }
 
   ** Trap on the wrapped dict
   override Obj? trap(Str n, Obj?[]? a := null) { meta.trap(n, a) }

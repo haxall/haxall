@@ -104,21 +104,29 @@ abstract const class Row : Dict
   }
 
   **
-  ** Iterate through all the columns (both null and non-null).
+  ** Iterate through all the columns.
   **
-  override Void each(|Obj? val, Str name| f)
+  override Void each(|Obj val, Str name| f)
   {
-    grid.cols.each |col| { f(val(col), col.name) }
+    grid.cols.each |col|
+    {
+      val := val(col)
+      if (val != null) f(val, col.name)
+    }
   }
 
   **
-  ** Iterate through all the columns (both null and non-null)
-  ** until function returns null, then break iteration and
-  ** return the result.
+  ** Iterate through all the columns  until function returns null,
+  ** then break iteration and return the result.
   **
-  override Obj? eachWhile(|Obj? val, Str name->Obj?| f)
+  override Obj? eachWhile(|Obj val, Str name->Obj?| f)
   {
-    grid.cols.eachWhile |col| { f(val(col), col.name) }
+    grid.cols.eachWhile |col|
+    {
+      val := val(col)
+      if (val == null) return null
+      return f(val, col.name)
+    }
   }
 
   **

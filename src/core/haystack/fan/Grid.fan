@@ -432,8 +432,8 @@ const mixin Grid
       diff := diffs[i++]
       x := Str:Obj?[:]
       x.ordered = true
-      old.each |v, n| { if (v != null) x[n] = v }
-      diff.each |v, n| { if (v == Remove.val) x.remove(n); else if (v != null) x[n] = v }
+      old.each |v, n| { x[n] = v }
+      diff.each |v, n| { if (v == Remove.val) x.remove(n); else x[n] = v }
       return Etc.makeDict(x)
     }
   }

@@ -43,7 +43,7 @@ const mixin Dict
   **
   ** Iterate through the name/value pairs
   **
-  abstract Void each(|Obj? val, Str name| f)
+  abstract Void each(|Obj val, Str name| f)
 
   **
   ** Iterate through the name/value pairs until the given
@@ -51,7 +51,7 @@ const mixin Dict
   ** return resulting object.  Return null if function returns
   ** null for every name/value pair.
   **
-  abstract Obj? eachWhile(|Obj? val, Str name->Obj?| f)
+  abstract Obj? eachWhile(|Obj val, Str name->Obj?| f)
 
   **
   ** Get the value mapped by the given name.  If it is not
