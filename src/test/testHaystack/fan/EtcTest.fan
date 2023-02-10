@@ -133,6 +133,7 @@ class EtcTest : HaystackTest
     verifyDict(Str:Obj?[:])
     verifyEq(Etc.makeDict(null).typeof.qname, "haystack::EmptyDict")
 
+    // test different sizes
     (1..10).each  |i| { verifyDictSize(i) }
   }
 
@@ -150,6 +151,7 @@ class EtcTest : HaystackTest
     if (size <= maxFixed)
       verifyEq(dict.typeof.qname, "haystack::Dict${size}")
     else
+      verifyEq(dict.typeof.qname, "haystack::MapDict")
 
     switch (size)
     {
@@ -158,7 +160,7 @@ class EtcTest : HaystackTest
       case 3:   verifyFixedDict(3, Etc.makeDict3("a", n(0), "b", n(1), "c", n(2)), dict)
       case 4:   verifyFixedDict(4, Etc.makeDict4("a", n(0), "b", n(1), "c", n(2), "d", n(3)), dict)
       case 5:   verifyFixedDict(5, Etc.makeDict5("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4)), dict)
-      case 6:   verifyFixedDict(5, Etc.makeDict6("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4), "f", n(5)), dict)
+      case 6:   verifyFixedDict(6, Etc.makeDict6("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4), "f", n(5)), dict)
       default:  verifyEq(dict.typeof.qname, "haystack::MapDict")
     }
   }
@@ -192,6 +194,92 @@ class EtcTest : HaystackTest
     verifyEq(d.has("fooBar"), false)
     verifyEq(d.missing("fooBar"), true)
     verifyErr(UnknownNameErr#) { d->fooBar }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Dict Nulls
+//////////////////////////////////////////////////////////////////////////
+
+  Void testDictNulls()
+  {
+    verifyDictNull(Etc.makeDict1("a", null), Str:Obj[:])
+
+    verifyDictNull(Etc.makeDict2("a", "A",  "b", "B"),  Str:Obj["a":"A", "b":"B"])
+    verifyDictNull(Etc.makeDict2("a", null, "b", "B"),  Str:Obj["b":"B"])
+    verifyDictNull(Etc.makeDict2("a", "A",  "b", null), Str:Obj["a":"A"])
+
+    verifyDictNull(Etc.makeDict3("a", "A",  "b", "B",  "c", "C"),   Str:Obj["a":"A", "b":"B", "c":"C"])
+    verifyDictNull(Etc.makeDict3("a", null, "b", "B",  "c", "C"),   Str:Obj["b":"B", "c":"C"])
+    verifyDictNull(Etc.makeDict3("a", "A",  "b", null, "c", "C"),   Str:Obj["a":"A", "c":"C"])
+    verifyDictNull(Etc.makeDict3("a", "A",  "b", "B",  "c", null),  Str:Obj["a":"A", "b":"B"])
+    verifyDictNull(Etc.makeDict3("a", null,  "b", null, "c", "C"),  Str:Obj["c":"C"])
+    verifyDictNull(Etc.makeDict3("a", null,  "b", null, "c", null), Str:Obj[:])
+
+    verifyDictNull(Etc.makeDict4("a", "A",  "b", "B",  "c", "C",  "d", "D"),  Str:Obj["a":"A", "b":"B", "c":"C", "d":"D"])
+    verifyDictNull(Etc.makeDict4("a", null, "b", "B",  "c", "C",  "d", "D"),  Str:Obj["b":"B", "c":"C", "d":"D"])
+    verifyDictNull(Etc.makeDict4("a", "A",  "b", null, "c", "C",  "d", "D"),  Str:Obj["a":"A", "c":"C", "d":"D"])
+    verifyDictNull(Etc.makeDict4("a", "A",  "b", "B",  "c", null, "d", "D"),  Str:Obj["a":"A", "b":"B", "d":"D"])
+    verifyDictNull(Etc.makeDict4("a", "A",  "b", "B",  "c", "C",  "d", null), Str:Obj["a":"A", "b":"B", "c":"C"])
+
+    verifyDictNull(Etc.makeDict5("a", "A",  "b", "B",  "c", "C",  "d", "D",  "e", "E"),  Str:Obj["a":"A", "b":"B", "c":"C", "d":"D", "e":"E"])
+    verifyDictNull(Etc.makeDict5("a", null, "b", "B",  "c", "C",  "d", "D",  "e", "E"),  Str:Obj["b":"B", "c":"C", "d":"D", "e":"E"])
+    verifyDictNull(Etc.makeDict5("a", "A",  "b", null, "c", "C",  "d", "D",  "e", "E"),  Str:Obj["a":"A", "c":"C", "d":"D", "e":"E"])
+    verifyDictNull(Etc.makeDict5("a", "A",  "b", "B",  "c", null, "d", "D",  "e", "E"),  Str:Obj["a":"A", "b":"B", "d":"D", "e":"E"])
+    verifyDictNull(Etc.makeDict5("a", "A",  "b", "B",  "c", "C",  "d", null, "e", "E"),  Str:Obj["a":"A", "b":"B", "c":"C", "e":"E"])
+    verifyDictNull(Etc.makeDict5("a", "A",  "b", "B",  "c", "C",  "d", "D",  "e", null), Str:Obj["a":"A", "b":"B", "c":"C", "d":"D"])
+
+    verifyDictNull(Etc.makeDict6("a", "A",  "b", "B",  "c", "C",  "d", "D",  "e", "E",  "f", "F"),  Str:Obj["a":"A", "b":"B", "c":"C", "d":"D", "e":"E", "f":"F"])
+    verifyDictNull(Etc.makeDict6("a", null, "b", "B",  "c", "C",  "d", "D",  "e", "E",  "f", "F"),  Str:Obj["b":"B", "c":"C", "d":"D", "e":"E", "f":"F"])
+    verifyDictNull(Etc.makeDict6("a", "A",  "b", null, "c", "C",  "d", "D",  "e", "E",  "f", "F"),  Str:Obj["a":"A", "c":"C", "d":"D", "e":"E", "f":"F"])
+    verifyDictNull(Etc.makeDict6("a", "A",  "b", "B",  "c", null, "d", "D",  "e", "E",  "f", "F"),  Str:Obj["a":"A", "b":"B", "d":"D", "e":"E", "f":"F"])
+    verifyDictNull(Etc.makeDict6("a", "A",  "b", "B",  "c", "C",  "d", null, "e", "E",  "f", "F"),  Str:Obj["a":"A", "b":"B", "c":"C", "e":"E", "f":"F"])
+    verifyDictNull(Etc.makeDict6("a", "A",  "b", "B",  "c", "C",  "d", "D",  "e", null, "f", "F"),  Str:Obj["a":"A", "b":"B", "c":"C", "d":"D", "f":"F"])
+    verifyDictNull(Etc.makeDict6("a", "A",  "b", "B",  "c", "C",  "d", "D",  "e", "E",  "f", null), Str:Obj["a":"A", "b":"B", "c":"C", "d":"D", "e":"E"])
+    verifyDictNull(Etc.makeDict6("a", null,  "b", "B",  "c", "C",  "d", "D",  "e", "E",  "f", null), Str:Obj["b":"B", "c":"C", "d":"D", "e":"E"])
+    verifyDictNull(Etc.makeDict6("a", null,  "b", "B",  "c", null,  "d", "D",  "e", "E",  "f", null), Str:Obj["b":"B", "d":"D", "e":"E"])
+    verifyDictNull(Etc.makeDict6("a", null,  "b", "B",  "c", null,  "d", "D",  "e", null,  "f", null), Str:Obj["b":"B", "d":"D"])
+    verifyDictNull(Etc.makeDict6("a", null,  "b", null,  "c", null,  "d", "D",  "e", null,  "f", null), Str:Obj["d":"D"])
+    verifyDictNull(Etc.makeDict6("a", null,  "b", null,  "c", null,  "d", null,  "e", null,  "f", null), Str:Obj[:])
+
+    // map 1 - 6
+    verifyDictNull(Etc.makeDict(["a":"A",  "b":"B",  "c":"C",  "d":"D",  "e":"E",  "f":"F"]),  Str:Obj["a":"A", "b":"B", "c":"C", "d":"D", "e":"E", "f":"F"])
+    verifyDictNull(Etc.makeDict(["a":null, "b":"B",  "c":"C",  "d":"D",  "e":"E",  "f":"F"]),  Str:Obj["b":"B", "c":"C", "d":"D", "e":"E", "f":"F"])
+    verifyDictNull(Etc.makeDict(["a":"A",  "b":null, "c":"C",  "d":"D",  "e":"E",  "f":"F"]),  Str:Obj["a":"A", "c":"C", "d":"D", "e":"E", "f":"F"])
+    verifyDictNull(Etc.makeDict(["a":"A",  "b":"B",  "c":null, "d":"D",  "e":"E",  "f":"F"]),  Str:Obj["a":"A", "b":"B", "d":"D", "e":"E", "f":"F"])
+    verifyDictNull(Etc.makeDict(["a":"A",  "b":"B",  "c":"C",  "d":null, "e":"E",  "f":"F"]),  Str:Obj["a":"A", "b":"B", "c":"C", "e":"E", "f":"F"])
+    verifyDictNull(Etc.makeDict(["a":"A",  "b":"B",  "c":"C",  "d":"D",  "e":null, "f":"F"]),  Str:Obj["a":"A", "b":"B", "c":"C", "d":"D", "f":"F"])
+    verifyDictNull(Etc.makeDict(["a":"A",  "b":"B",  "c":"C",  "d":"D",  "e":"E",  "f":null]), Str:Obj["a":"A", "b":"B", "c":"C", "d":"D", "e":"E"])
+
+    // over six
+    verifyDictNull(Etc.makeDict(["a":"A", "b":"B", "c":"C", "d":"D", "e":"E", "f":"F", "g":"G"]), Str:Obj["a":"A", "b":"B", "c":"C", "d":"D", "e":"E", "f":"F", "g":"G"])
+    verifyDictNull(Etc.makeDict(["a":"A", "b":"B", "c":null, "d":"D", "e":"E", "f":"F", "g":"G"]), Str:Obj["a":"A", "b":"B", "d":"D", "e":"E", "f":"F", "g":"G"], false)
+    verifyDictNull(Etc.makeDict(["a":null, "b":"B", "c":null, "d":"D", "e":"E", "f":"F", "g":"G"]), Str:Obj["b":"B", "d":"D", "e":"E", "f":"F", "g":"G"], false)
+    verifyDictNull(Etc.makeDict(["a":null, "b":"B", "c":null, "d":"D", "e":"E", "f":"F", "g":null]), Str:Obj["b":"B", "d":"D", "e":"E", "f":"F"], false)
+
+    // his item
+    ts := DateTime.now
+    verifyDictNull(HisItem(ts, "x"), Str:Obj["ts":ts, "val":"x"])
+    verifyDictNull(HisItem(ts, null), Str:Obj["ts":ts])
+  }
+
+  Void verifyDictNull(Dict d, Str:Obj expected, Bool fixed := true)
+  {
+    actual := Str:Obj[:]
+    d.each |v, n| { actual[n] = v }
+    verifyEq(actual, expected)
+
+    actualWhile := Str:Obj[:]
+    d.eachWhile |v, n| { actualWhile[n] = v; return null }
+    verifyEq(actualWhile, expected)
+
+    if (d is HisItem) return
+
+    if (expected.size == 0)
+      verifySame(d, Etc.emptyDict)
+    else if (expected.size <= 6 && fixed)
+      verifyEq(d.typeof.qname, "haystack::Dict${expected.size}")
+    else
+      verifyEq(d.typeof.qname, "haystack::MapDict")
   }
 
 //////////////////////////////////////////////////////////////////////////

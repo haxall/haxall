@@ -65,10 +65,10 @@ const final class HisItem : Dict
     if (val != null) f(val, "val")
   }
 
-  override Obj? eachWhile(|Obj, Str->Obj?| f)
+  override Obj? eachWhile(|Obj,Str->Obj?| f)
   {
     r := f(ts, "ts");
-    if (r == null) return r
+    if (r != null) return r
     if (val != null) return f(val, "val")
     return null
   }
