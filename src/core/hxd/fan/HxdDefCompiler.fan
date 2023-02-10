@@ -272,7 +272,7 @@ const class HxdOverlayCompiler
 
       // normalize rec with implied def tags
       acc := Str:Obj?[:]
-      rec.each |v, n| { if (v != null) acc[n] = v }
+      rec.each |v, n| { acc[n] = v }
       acc["def"] = symbol
       acc["lib"] = libSymbol
       norm := Etc.makeDict(acc)

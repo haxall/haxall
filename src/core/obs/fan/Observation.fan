@@ -69,9 +69,9 @@ internal const class MObservation : Observation
 
   override Bool missing(Str name) { !has(name) }
 
-  override Void each(|Obj?, Str| f)  { f(ts, "ts"); f(type, "type"); more.each(f) }
+  override Void each(|Obj, Str| f)  { f(ts, "ts"); f(type, "type"); more.each(f) }
 
-  override Obj? eachWhile(|Obj?, Str->Obj?| f)
+  override Obj? eachWhile(|Obj, Str->Obj?| f)
   {
     Obj? r
     r = f(type, "type"); if (r != null) return r

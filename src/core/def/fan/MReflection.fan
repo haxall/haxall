@@ -32,7 +32,6 @@ internal const class MReflection : Reflection
     // single tags
     subject.each |v, n|
     {
-      if (v == null) return
       def := ns.def(n, false)
       if (def != null) defs.add(def)
     }

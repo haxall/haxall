@@ -154,7 +154,7 @@ internal class MPrototyper
     flattenTagNames.each |tagName| { acc[tagName] = Marker.val }
 
     // add declare tags
-    declared.each |v,n| { if (v != null) acc[n] = v }
+    declared.each |v,n| { acc[n] = v }
 
     // default dis/navName
     addDis(acc)

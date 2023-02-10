@@ -278,9 +278,6 @@ using haystack
     writeStmt(subj, rdfsLabel, dict.dis)
     dict.each |val, tagName|
     {
-      // don't write null values
-      if (val == null) return
-
       // don't write marker values for instances
       if (isInst && val === Marker.val) return
 

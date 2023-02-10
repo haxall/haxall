@@ -222,7 +222,6 @@ internal class HxCommitOp : HxApiOp
       Ref? id := null
       row.each |v, n|
       {
-        if (v == null) return
         if (n == "id") { id = v; return }
         changes.add(n, v)
       }
@@ -245,7 +244,6 @@ internal class HxCommitOp : HxApiOp
       changes := Str:Obj?[:]
       row.each |v, n|
       {
-        if (v == null) return
         if (n == "id" || n == "mod") return
         changes.add(n, v)
       }

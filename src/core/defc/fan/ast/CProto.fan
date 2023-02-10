@@ -49,7 +49,6 @@ class CProto
     first := true
     d.each |v, n|
     {
-      if (v == null) return
       if (first) first = false; else s.addChar('-')
       s.add(n)
       if (v != Marker.val) s.addChar('~').add(ZincWriter.valToStr(v).toBuf.toHex)

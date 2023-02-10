@@ -58,7 +58,6 @@ internal const class ShellUtil
     bad := Str:Obj[:] { ordered = true }
     rec.each |v, n|
     {
-      if (v == null) return
       if (nonEditableTags.contains(n))
         bad[n] = v
       else

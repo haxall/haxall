@@ -111,7 +111,6 @@ const class FolioUtil
     acc := Str:Obj[:]
     d.each |v, n|
     {
-      if (v == null) return
       if (transients.has(n)) return
       if (DiffTagRule.isUncommittable(n)) return
       if (n == "id" && opts["id"] === Remove.val) return

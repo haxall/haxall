@@ -57,12 +57,12 @@ const class MqttObservation : Observation
     get(name, null) ?: throw UnknownNameErr(name)
   }
 
-  override Void each(|Obj?, Str| f)
+  override Void each(|Obj, Str| f)
   {
     eachWhile |v, n| { f(v, n); return null }
   }
 
-  override Obj? eachWhile(|Obj?, Str->Obj?| f)
+  override Obj? eachWhile(|Obj, Str->Obj?| f)
   {
     Obj? r
     r = f(type, "type");           if (r != null) return r

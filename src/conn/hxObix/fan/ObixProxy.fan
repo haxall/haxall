@@ -263,7 +263,6 @@ class ObixRec : ObixProxy
     // with a child added by one of the aspects
     rec.each |v, n|
     {
-      if (v == null) return
       if (v === Marker.val) { contracts.add(`tag:$n`); return }
       if (n == "id") return
       if (n == "dis") { obj.displayName = v }

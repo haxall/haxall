@@ -104,21 +104,21 @@ const class WriteObservation : Observation
     get(name, null) ?: throw UnknownNameErr(name)
   }
 
-  override Void each(|Obj?, Str| f)
+  override Void each(|Obj, Str| f)
   {
     eachWhile |v, n| { f(v, n); return null }
   }
 
-  override Obj? eachWhile(|Obj?, Str->Obj?| f)
+  override Obj? eachWhile(|Obj, Str->Obj?| f)
   {
     Obj? r
     r = f(type,  "type");  if (r != null) return r
     r = f(ts,    "ts");    if (r != null) return r
     r = f(id,    "id");    if (r != null) return r
     r = f(rec,   "rec");   if (r != null) return r
-    r = f(val,   "val");   if (r != null) return r
     r = f(level, "level"); if (r != null) return r
     r = f(who,   "who");   if (r != null) return r
+    if (val != null)   r = f(val,   "val");   if (r != null) return r
     if (opts != null)  r = f(who,   "opts");  if (r != null) return r
     if (first != null) r = f(first, "first"); if (r != null) return r
     return null

@@ -136,9 +136,9 @@ const class Task : Actor, Observer, HxTask
 
   override Bool missing(Str name) { rec.missing(name) }
 
-  override Void each(|Obj? val, Str name| f) { rec.each(f) }
+  override Void each(|Obj val, Str name| f) { rec.each(f) }
 
-  override Obj? eachWhile(|Obj? val, Str name->Obj?| f) { rec.eachWhile(f) }
+  override Obj? eachWhile(|Obj val, Str name->Obj?| f) { rec.eachWhile(f) }
 
   override Obj? trap(Str name, Obj?[]? args := null)
   {

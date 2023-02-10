@@ -177,7 +177,6 @@ class HaystackDispatch : ConnDispatch
       map := Str:Obj[:]
       row.each |val, name|
       {
-        if (val == null) return
         if (val is Bin) return
         if (val is Ref) return
         if (noLearnTags.has(name)) return

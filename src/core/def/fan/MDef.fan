@@ -59,8 +59,8 @@ const class MDef : Def
   override Bool isEmpty() { false }
   override Bool has(Str n) { meta.has(n) }
   override Bool missing(Str n) { meta.missing(n) }
-  override Void each(|Obj?, Str| f) { meta.each(f) }
-  override Obj? eachWhile(|Obj?, Str->Obj?| f) { meta.eachWhile(f) }
+  override Void each(|Obj, Str| f) { meta.each(f) }
+  override Obj? eachWhile(|Obj, Str->Obj?| f) { meta.eachWhile(f) }
   override Obj? trap(Str n, Obj?[]? a := null) { meta.trap(n, a) }
 
 //////////////////////////////////////////////////////////////////////////
