@@ -1150,6 +1150,65 @@ class ConnTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Dup Conns
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testDupConns()
+  {
+    addLib("conn")
+    addLib("haystack")
+    addLib("obix")
+
+    chId := addRec(["dis":"HC", "haystackConn":m]).id
+    coId := addRec(["dis":"OC", "obixConn":m]).id
+
+    ptags := ["point":m, "haystackPoint":m, "haystackConnRef":chId, "obixPoint":m, "obixConnRef":coId]
+    p1Id := addRec(ptags.dup.addAll(["dis":"P1", "connDupPref":"haystack"])).id
+    p2Id := addRec(ptags.dup.addAll(["dis":"P2", "connDupPref":"obix"])).id
+
+    forceSteadyState
+    rt.sync
+
+    // lookup connectors
+    Conn ch := rt.conn.conn(chId); verifyEq(ch.lib.name, "haystack")
+    Conn co := rt.conn.conn(coId); verifyEq(co.lib.name, "obix")
+
+    // lookup haystack version of points
+    p1h := ch.point(p1Id); verifySame(p1h.conn, ch)
+    p2h := ch.point(p2Id); verifySame(p2h.conn, ch)
+
+    // lookup obix version of points
+    p1o := co.point(p1Id); verifySame(p1o.conn, co)
+    p2o := co.point(p2Id); verifySame(p1o.conn, co)
+
+    // verify proj wide lookup based on pref
+    verifyEq(rt.conn.point(p1Id).lib.name, "haystack")
+    verifyEq(rt.conn.point(p2Id).lib.name, "obix")
+    verifySame(rt.conn.point(p1Id), p1h)
+    verifySame(rt.conn.point(p2Id), p2o)
+
+    // verify details
+    verifyDupDetails("""connDetails($p1Id.toCode)""", "HaystackLib")
+    verifyDupDetails("""connDetails($p2Id.toCode)""", "ObixLib")
+    verifyDupDetails("""connPointsVia($p1Id.toCode, "haystack").connDetails""", "HaystackLib")
+    verifyDupDetails("""connPointsVia($p2Id.toCode, "haystack").connDetails""", "HaystackLib")
+    verifyDupDetails("""connPointsVia($p1Id.toCode, "obix").connDetails""", "ObixLib")
+    verifyDupDetails("""connPointsVia($p2Id.toCode, "obix").connDetails""", "ObixLib")
+    verifyDupDetails("""readById($p1Id.toCode).connPointsVia($chId.toCode).connDetails""", "HaystackLib")
+    verifyDupDetails("""readById($p2Id.toCode).connPointsVia($chId.toCode).connDetails""", "HaystackLib")
+    verifyDupDetails("""readByIds([$p1Id.toCode]).connPointsVia($coId.toCode).connDetails""", "ObixLib")
+    verifyDupDetails("""readByIds([$p2Id.toCode]).connPointsVia($coId.toCode).connDetails""", "ObixLib")
+  }
+
+  private Void verifyDupDetails(Str expr, Str contains)
+  {
+    details := makeContext.eval(expr).toStr
+    // echo("--- $expr"); echo(details)
+    verify(details.contains(contains))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 

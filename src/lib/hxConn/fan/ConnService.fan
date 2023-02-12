@@ -134,8 +134,8 @@ const class ConnService : HxConnService
       if (pref != null)
       {
         // select preferred connector for the project wide lookup table
-        if (dup.lib.name == pref) { return }
-        if (pt.lib.name == pref) { pointsById.set(pt.id, pt); return null }
+        if (pt.lib.name == pref) { return }
+        if (dup.lib.name == pref) { pointsById.set(dup.id, dup); return null }
       }
       fw.log.warn("Duplicate conn refs: $dup.lib.name + $pt.lib.name [$pt.id.toZinc]")
     }
