@@ -179,11 +179,18 @@ const class ConnFwFuncs
   ** To list of connector points as id or result of connPointsVia
   private static ConnPoint[] toPoints(Obj points, HxContext cx)
   {
-    if (points isnot List) return toPoints(Obj[points], cx)
-    return ((List)points).map |x->ConnPoint|
+    if (points is ConnPoint) return ConnPoint[points]
+    if (points is List)
     {
-      if (x is ConnPoint) return x
-      return cx.rt.conn.point(Etc.toId(x))
+      return ((List)points).map |x->ConnPoint|
+      {
+        if (x is ConnPoint) return x
+        return cx.rt.conn.point(Etc.toId(x))
+      }
+    }
+    return Etc.toIds(points).map |id->ConnPoint|
+    {
+      return cx.rt.conn.point(id)
     }
   }
 
