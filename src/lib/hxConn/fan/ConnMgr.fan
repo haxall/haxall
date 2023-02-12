@@ -226,9 +226,14 @@ internal final class ConnMgr
     trace.phase("ping")
     Dict? r
     try
-    r = dispatch.onPing
+    {
+      r = dispatch.onPing
+    }
     catch (Err e)
-      { updateConnErr(e); return result }
+    {
+      close(e)
+      return result
+    }
     vars.pinged
 
     // update ping/version tags only if stuff has changed

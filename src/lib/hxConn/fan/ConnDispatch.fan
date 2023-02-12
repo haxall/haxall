@@ -136,7 +136,7 @@ abstract class ConnDispatch
   ** status tags such as device version, etc to store on the connector
   ** record persistently.  If there are version tags which should be
   ** removed then map those tags to Remove.val.  If ping fails then
-  ** raise DownErr or FaultErr.
+  ** raise exception and the connector will be automatically closed.
   abstract Dict onPing()
 
   ** Callback to handle learn tree navigation.  This method should
