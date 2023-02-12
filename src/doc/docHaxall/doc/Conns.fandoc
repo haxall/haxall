@@ -258,3 +258,31 @@ reverse the conversion for the write direction:
 
 Use the [details]`ConnTuning#details` to debug the raw and converted values.
 
+Multiple Connectors [#multipleConns]
+************************************
+Standard practice is to associate a given point to one connector.  However, it
+is possible to assign a point to multiple connectors for different protocols.
+For example, a point can have both a 'bacnetConnRef' and a 'sqlConnRef'.  When
+you configure a point this way, the default behavior is to log a warning:
+
+  Duplicate conn refs: bacnet + sql [@xyz]
+
+If you truly wish to use multiple connectors, then you must apply
+the 'connDupPref' tag with the connector name that should take precedence.
+This is the protocol that will be used by default for operations such as
+auto-subscription of watches and history syncs:
+
+  dis: "Dual Conn Point"
+  point
+  bacnetPoint
+  sqlPoint
+  bacnetConnRef: @bacnet-conn
+  sqlConnRef: @sql-conn
+  connDupPref: "bacnet"
+
+You can explicitly determine which connector is used for the `connSyncCur()`
+and `connSyncHis()` functions by using the `connPointsVia()` function.
+
+Note: the system cannot update its lookup tables on the fly when adding/changing
+the 'connDupPref' tag.  You will need a restart for it to take effect.
+

@@ -149,7 +149,7 @@ const class ConnFwFuncs
   ** or connector.  This function is required when points are associated
   ** with multiple connectors.  Pass a connector library name to select
   ** for a protocol.  Or pass a connector id/rec to select via a specific
-  ** connector.
+  ** connector.  Also see `docHaxall::Conns#multipleConns`.
   **
   ** Examples:
   **    // explicitly sync via the SQL connector library

@@ -129,7 +129,16 @@ const class ConnService : HxConnService
   {
     dup := pointsById.getAndSet(pt.id, pt) as HxConnPoint
     if (dup != null && dup.lib !== pt.lib)
+    {
+      pref := pt.rec["connDupPref"] as Str
+      if (pref != null)
+      {
+        // select preferred connector for the project wide lookup table
+        if (dup.lib.name == pref) { return }
+        if (pt.lib.name == pref) { pointsById.set(pt.id, pt); return null }
+      }
       fw.log.warn("Duplicate conn refs: $dup.lib.name + $pt.lib.name [$pt.id.toZinc]")
+    }
   }
 
   Void removePoint(HxConnPoint pt)
