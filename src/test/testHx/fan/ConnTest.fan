@@ -187,10 +187,11 @@ class ConnTest : HxTest
     verifyPointsToConn([p1, p5, p3, p2, p6, p4], ["C1: P1,P2", "C2: P3,P4", "C3: P5,P6"])
   }
 
-  Void verifyPointsToConn(Dict[] points, Str[] expected)
+  Void verifyPointsToConn(Dict[] pointRecs, Str[] expected)
   {
     actual := Str[,]
-    ConnUtil.eachConnInPointIds(rt, Etc.toIds(points)) |c, pts|
+    points := pointRecs.map |rec->ConnPoint| { rt.conn.point(rec.id) }
+    ConnUtil.eachConnInPointIds(rt, points) |c, pts|
     {
       actual.add("$c.dis: " + pts.join(",") { it.dis })
     }

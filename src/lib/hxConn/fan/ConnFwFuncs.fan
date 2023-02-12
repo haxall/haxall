@@ -101,7 +101,8 @@ const class ConnFwFuncs
   {
     cx := curContext
     futures := Future[,]
-    ConnUtil.eachConnInPointIds(cx.rt, Etc.toIds(points)) |c, pts|
+    connPoints := toPoints(points, cx)
+    ConnUtil.eachConnInPointIds(cx.rt, connPoints) |c, pts|
     {
       futures.add(c.syncCur(pts))
     }
@@ -124,7 +125,7 @@ const class ConnFwFuncs
   static Obj? connSyncHis(Obj points, Obj? span := null)
   {
     cx := curContext
-    connPoints := Etc.toIds(points).map |id->ConnPoint| { cx.rt.conn.point(id) }
+    connPoints := toPoints(points, cx)
     return ConnSyncHis(cx, connPoints, span).run
   }
 
@@ -136,9 +137,54 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Obj connDetails(Obj obj)
   {
+    if (obj is List) return connDetails(((List)obj)[0])
+    if (obj is ConnPoint) return ((ConnPoint)obj).details
     cx := curContext
     id := Etc.toId(obj)
     return cx.rt.conn.point(id, false)?.details ?: cx.rt.conn.conn(id).details
+  }
+
+  **
+  ** Select a group of points explicitly via specific connector library
+  ** or connector.  This function is required when points are associated
+  ** with multiple connectors.  Pass a connector library name to select
+  ** for a protocol.  Or pass a connector id/rec to select via a specific
+  ** connector.
+  **
+  ** Examples:
+  **    // explicitly sync via the SQL connector library
+  **    readAll(sqlConnRef).connPointsVia("sql").connSyncHis
+  **
+  **    // get debug details for specific connector
+  **    connPointsVia(pt, pt->bacnetConnRef).connDetails
+  **
+  @Axon { admin = true }
+  static Obj connPointsVia(Obj points, Obj libOrConn)
+  {
+    cx := curContext
+    pointIds := Etc.toIds(points)
+
+    // string is library name
+    if (libOrConn is Str)
+    {
+      lib := (ConnLib)cx.rt.lib(libOrConn)
+      return pointIds.map |id->ConnPoint| { lib.point(id) }
+    }
+
+    // must be connector
+    conn := toConn(libOrConn)
+    return pointIds.map |id->ConnPoint| { conn.point(id) }
+  }
+
+  ** To list of connector points as id or result of connPointsVia
+  private static ConnPoint[] toPoints(Obj points, HxContext cx)
+  {
+    if (points isnot List) return toPoints(Obj[points], cx)
+    return ((List)points).map |x->ConnPoint|
+    {
+      if (x is ConnPoint) return x
+      return cx.rt.conn.point(Etc.toId(x))
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
