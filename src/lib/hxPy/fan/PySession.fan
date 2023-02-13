@@ -184,6 +184,9 @@ mixin PySession
     // reset to not initialized
     this.isInitialized = false
 
+    // stop the actor pool
+    this.evalPool.kill
+
     return this
   }
 

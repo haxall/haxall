@@ -266,6 +266,17 @@ using hxSerial
   ** Open a ModbusLink for given uri.
   ModbusLink open(Uri uri) { actor.send(HxMsg("open", uri)).get(5sec)  }
 
+  ** Stop the link manager. It can no longer be used after this
+  ** and must be re-inited
+  Void stop()
+  {
+    // clear the curRef
+    curRef.val = null
+
+    // kill the actor pool
+    this.pool.kill
+  }
+
   ** Actor callback.
   private Obj? actorReceive(HxMsg m)
   {

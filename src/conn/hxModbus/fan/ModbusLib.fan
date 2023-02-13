@@ -27,6 +27,12 @@ const class ModbusLib : ConnLib
     ModbusLinkMgr.init(this)
   }
 
+  override Void onStop()
+  {
+    super.onStop
+    ModbusLinkMgr.cur.stop
+  }
+
   internal Grid read(Obj conn, Str[] regs)
   {
     this.conn(Etc.toId(conn)).send(HxMsg("modbus.read", regs.toImmutable)).get
