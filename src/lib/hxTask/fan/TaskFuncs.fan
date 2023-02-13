@@ -112,9 +112,7 @@ const class TaskFuncs
   static Future taskRun(Expr expr, Expr msg := Literal.nullVal)
   {
     cx := curContext
-    lib := lib(cx)
-    task := Task.makeEphemeral(lib, expr)
-    return task.send(msg.eval(cx))
+    return lib(cx).run(expr, msg)
   }
 
   ** Restart a task.  This kills the tasks and discards any

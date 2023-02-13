@@ -31,6 +31,12 @@ const class TaskDisabledErr : Err
 }
 
 @NoDoc
+const class TaskEphemeralErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+
+@NoDoc
 const class TaskKilledErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}

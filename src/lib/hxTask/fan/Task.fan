@@ -84,7 +84,7 @@ const class Task : Actor, Observer, HxTask
     : super.make(lib.pool)
   {
     this.lib  = lib
-    this.id   = Ref("ephemeral-$ephemeralCounter.getAndIncrement")
+    this.id   = Ref("ephemeral-$ephemeralCounter.getAndIncrement", expr.toStr)
     this.rec  = Etc.emptyDict
     this.type = TaskType.ephemeral
     this.expr = expr
@@ -156,6 +156,7 @@ const class Task : Actor, Observer, HxTask
   ** Raise exception if this task cannot process messages
   internal This checkAlive()
   {
+    if (type.isEphemeral) throw TaskEphemeralErr("Cannot send additional messages to ephemeral task: $this")
     if (isAlive) return this
     if (type === TaskType.fault) throw TaskFaultErr("Task is in fault: $this")
     if (type === TaskType.disabled) throw TaskDisabledErr("Task is disabled: $this")
@@ -173,6 +174,7 @@ const class Task : Actor, Observer, HxTask
   {
     if (type === TaskType.fault) return TaskStatus.fault
     if (type === TaskType.disabled) return TaskStatus.disabled
+    if (isEphemeralDone) return errLast != null ? TaskStatus.doneErr : TaskStatus.doneOk
     if (isKilled.val) return TaskStatus.killed
     return TaskStatus.fromStr(threadState)
   }
@@ -182,6 +184,9 @@ const class Task : Actor, Observer, HxTask
 
   ** Total number of messages processed
   internal Int evalNum() { receiveCount }
+
+  ** Return if this an ephemeral task that has completeed
+  internal Bool isEphemeralDone() { type.isEphemeral && evalLastTime > 0 }
 
   ** Duration ticks of the last time the task was evaluated
   internal Int evalLastTime() { evalLastTimeRef.val }
@@ -305,9 +310,6 @@ const class Task : Actor, Observer, HxTask
     evalTotalTicksRef.add(end-start)
     threadIdRef.val = -1
 
-    // if ephemeral then cleanup
-    if (type.isEphemeral) lib.kill(this)
-
     // re-raise error or return result
     if (err != null)
     {
@@ -315,6 +317,7 @@ const class Task : Actor, Observer, HxTask
       errLastRef.val = err
       throw err
     }
+
     return result
   }
 
@@ -456,7 +459,9 @@ internal enum class TaskStatus
   idle,
   pending,
   running,
-  killed
+  killed,
+  doneOk,
+  doneErr
 }
 
 

@@ -55,7 +55,7 @@ const class TaskLib : HxLib, HxTaskService
   ** Return a future to track the asynchronous result.
   override Future run(Expr expr, Obj? msg := null)
   {
-    Task.makeEphemeral(this, expr).send(msg)
+    spawnEphemeral(expr).send(msg)
   }
 
   ** Update current task's progress info for debugging.  If not
@@ -138,6 +138,14 @@ const class TaskLib : HxLib, HxTaskService
     return task
   }
 
+  ** Spawn ephemeral task with short linger for debugging
+  internal Task spawnEphemeral(Expr expr)
+  {
+    task := Task.makeEphemeral(this, expr)
+    tasksById.add(task.id, task)
+    return task
+  }
+
   ** Kill a task off and unmount it from the registry
   internal Void kill(Task task)
   {
@@ -150,11 +158,12 @@ const class TaskLib : HxLib, HxTaskService
   HxUser user() { userRef.val }
   private const AtomicRef userRef := AtomicRef()
 
-  override Duration? houseKeepingFreq() { 3min }
+  override Duration? houseKeepingFreq() { 17sec }
 
   override Void onHouseKeeping()
   {
     refreshUser
+    cleanupEphemerals
   }
 
   internal Void refreshUser()
@@ -175,6 +184,17 @@ const class TaskLib : HxLib, HxTaskService
     rt.user.makeSyntheticUser("task", ["projAccessFilter":"name==${rt.name.toCode}"])
   }
 
+  private Void cleanupEphemerals()
+  {
+    now := Duration.nowTicks
+    linger := rec.ephemeralLinger.ticks
+    tasks.each |task|
+    {
+      if (task.isEphemeralDone && now - task.evalLastTime > linger)
+        kill(task)
+    }
+  }
+
   const ActorPool pool
   private const ConcurrentMap tasksById
 }
@@ -191,6 +211,10 @@ const class TaskSettings : TypedDict
   ** Max threads for the task actor pool
   @TypedTag { restart=true }
   const Int maxThreads:= 50
+
+  ** Linger time for an ephemeral task before it is removed from debug
+  @TypedTag
+  const Duration ephemeralLinger := 10min
 
 }
 

@@ -39,6 +39,8 @@ enum: Trio:
   pending:  {icon:"clock"    iconColor:"#e67e22" doc:"Messages are queued, waiting for a thread to process"}
   running:  {icon:"sync"     iconColor:"#1ca355" doc:"Actively processing messages on a background thread"}
   killed:   {icon:"err"      iconColor:"#db311f" doc:"Shutting down and no longer processing messages"}
+  doneOk:   {icon:"ok"       iconColor:"#1ca355" doc:"Ephemeral task completed successfully"}
+  doneErr:  {icon:"err"      iconColor:"#db311f" doc:"Ephemeral task raised exception"}
 --------------------------------------------------------------------------
 
 
