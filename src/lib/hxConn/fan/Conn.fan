@@ -190,6 +190,9 @@ const final class Conn : Actor, HxConn
 // Actor
 //////////////////////////////////////////////////////////////////////////
 
+  ** Has this actor's pool been stopped
+  @NoDoc Bool isStopped() { pool.isStopped }
+
   ** Sync a synchronous message to the actor, and block
   ** based on the configurable timeout.
   Obj? sendSync(HxMsg msg) { send(msg).get(timeout) }
@@ -206,6 +209,7 @@ const final class Conn : Actor, HxConn
   ** Block until this conn processes its current actor queue
   This sync(Duration? timeout := null)
   {
+    if (isStopped) return this
     send(HxMsg("sync")).get(timeout)
     return this
   }

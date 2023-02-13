@@ -130,6 +130,9 @@ abstract const class ConnLib : HxLib, HxConnLib
       roster.removeAll
       fw.service.removeLib(this)
     }
+
+    // shutdown actor pool
+    connActorPool.kill
   }
 
   ** Record update - if overridden you *must* call super

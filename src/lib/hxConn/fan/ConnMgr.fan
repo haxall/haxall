@@ -81,7 +81,7 @@ internal final class ConnMgr
     }
     catch (Err e)
     {
-      log.err("Conn.receive $msg.id", e)
+      if (!conn.isStopped) log.err("Conn.receive $msg.id", e)
       throw e
     }
 
