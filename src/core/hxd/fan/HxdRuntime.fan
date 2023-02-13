@@ -208,6 +208,10 @@ const class HxdRuntime : HxRuntime
     // onStop callback
     futures = libs.list.map |lib->Future| { ((HxdLibSpi)lib.spi).stop }
     Future.waitForAll(futures)
+
+    // kill actor pools
+    libsActorPool.kill
+    hxdActorPool.kill
   }
 
   ** Function that calls stop
