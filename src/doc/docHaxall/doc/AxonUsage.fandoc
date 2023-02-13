@@ -33,6 +33,78 @@ Common functions for working with strings: `capitalize`, `contains`, `decapitali
   "foo bar".toTagName            >>  "fooBar"
   "root toot".replace("oo", "a") >> "rat tat"
 
+Date/Time Examples [#dateTime]
+******************************
+Common functions for working with Dates, Times, and DateTimes: `date()`,
+`dateTime()`, `day()`, `dayOfYear()`, `dst()`, `firstOfMonth()`,
+`fromJavaMillis()`,  `hour()`, `isLeapYear()`, `isWeekday()`, `isWeekend()`,
+`lastOfMonth()`, `minute()`, `month()`, `now()`, `nowTicks()`, `numDaysInMonth()`,
+`second()`, `startOfWeek()`, `time()`, `toJavaMillis()`, `toTimeZone()`,
+`today()`, `tz()`, `weekOfYear()`, `weekday()`, `year()`, `yesterday()`.
+
+  now()                                   >>  current DateTime in local timezone
+  today()                                 >>  today's Date in local timezone
+  yesterday()                             >>  yesterday's Date in local timezone
+  today() + 1day                          >>  tomorrow
+  today() + 7day                          >>  next week
+  now() + 1hr                             >>  one hour from now
+  dateTime(2023-03-14, 0:00, "New_York")  >>  create DateTime from Date, Time, and timezone
+  now().date                              >>  Date portion of DateTime
+  now().time                              >>  Time portion of DateTime
+  now().tz                                >>  timezone string name of DateTime
+  today().year                            >>  four digit year
+  today().month                           >>  month as number between 1 and 12
+  today().day                             >>  day of month as number between 1 and 31
+  now().hour                              >>  hour as number between 0 and 23
+  now().minute                            >>  minutes as number between 0 and 59
+  now().second                            >>  seconds as number between 0 and 59
+  today().weekday                         >>  day of week as number between 0 and 6
+  today().isWeekend                       >>  true if Sunday/Saturday
+  today().isWeekday                       >>  true if Monday - Friday
+  today().firstOfMonth                    >>  first Date of the month
+  today().lastOfMonth                     >>  last Date of the month
+  now().toTimeZone("UTC")                 >>  convert DateTime to different timezone
+  today().numDaysInMonth                  >>  number of days in Date's month
+  isLeapYear(2024)                        >>  is a leap year
+  now().dst                               >>  is DateTime in daylight saving time
+  today().dayOfYear                       >>  number 1 to 366
+  today().weekOfYear                      >>  number 1 to 53
+  startOfWeek()                           >>  0 for Sun or 1 for Mon based on locale
+  now().toJavaMillis                      >>  milliseconds since Unix epoch of 1970
+  now().toJavaMillis.fromJavaMillis       >>  convert back to DateTime
+
+Date Spans [#spans]
+*******************
+Common functions for working with Spans and DateSpans: `eachDay()`,
+`eachMonth()`, `end()`, `lastMonth()`, `lastQuarter()`, `lastWeek()`,
+`lastYear()`, `numDays()`, `pastMonth()`, `pastWeek()`, `pastYear()`,
+`start()`, `thisMonth()`, `thisQuarter()`, `thisWeek()`, `thisYear()`,
+`toDateSpan()`, `toSpan()`, `today()`, `yesterday()`.
+
+  today()                             >>  any Date value may be used span
+  thisWeek()                          >>  DateSpan for current week (locale based start of week)
+  thisMonth()                         >>  DateSpan for current month
+  thisQuarter()                       >>  DateSpan for current quarter
+  thisYear()                          >>  DateSpan for current year
+  pastWeek()                          >>  DateSpan for previous 7 days
+  pastMonth()                         >>  DateSpan for previous 30 days
+  pastYear()                          >>  DateSpan for previous 365 days
+  lastWeek()                          >>  DateSpan for last week (locale based start of week)
+  lastMonth()                         >>  DateSpan for last month
+  lastQuarter()                       >>  DateSpan for last quarter
+  lastYear()                          >>  DateSpan for last year
+  toDateSpan(2023-01-01..2023-02-28)  >>  DateSpan with two explicit dates
+  toDateSpan(2023-02-14)              >>  DateSpan for a day
+  toDateSpan(2023-02)                 >>  DateSpan for a month
+  toDateSpan(2023)                    >>  DateSpan for a year
+  toDateSpan(2023-02).toSpan          >>  Convert DateSpan to Span
+  toDateSpan(2024-02).start           >>  First day of DateSpan
+  toDateSpan(2024-02).end             >>  Last day of DateSpan
+  toDateSpan(2024-02).numDays         >>  Number of days in DateSpan
+  eachDay(2024-02) (d) => echo(d)     >>  Iterate the Dates in a DateSpans
+  eachMonth(2024) (d) => echo(d)      >>  Iterate the months in a DateSpan
+
+
 Uri Examples [#uri]
 *******************
 Common functions for working with URIs: `uriBasename`, `uriDecode`, `uriEncode`,
