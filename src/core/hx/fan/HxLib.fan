@@ -166,5 +166,6 @@ const mixin HxLibSpi
   abstract Subscription[] subscriptions()
   abstract Subscription observe(Str name, Dict config, Obj callback)
   abstract Bool isFault()
+  abstract Void toStatus(Str status, Str msg)
 }
 

@@ -163,6 +163,18 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     send(HxMsg("remove", lib.name)).get(null)
   }
 
+  override Grid status()
+  {
+    gb := GridBuilder()
+    gb.addCol("name").addCol("libStatus").addCol("statusMsg")
+    list.each |lib|
+    {
+      spi := (HxdLibSpi)lib.spi
+      gb.addRow([lib.name, spi.status, spi.statusMsg])
+    }
+    return gb.toGrid
+  }
+
   override Obj? receive(Obj? arg)
   {
     msg := (HxMsg)arg

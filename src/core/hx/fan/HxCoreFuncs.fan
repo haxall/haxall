@@ -417,6 +417,16 @@ const class HxCoreFuncs
     return "removed"
   }
 
+  ** Return grid of enabled libs and their current status.  Columns:
+  **  - name: library name string
+  **  - libStatus: status enumeration string
+  **  - statusMsg: additional message string or null
+  @Axon { admin = true }
+  static Grid libStatus()
+  {
+    curContext.rt.libs.status
+  }
+
   ** Grid of installed services.  Format of the grid is subject to change.
   @Axon { admin = true }
   static Grid services()

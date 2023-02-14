@@ -79,9 +79,23 @@ const class HxdLibSpi : Actor, HxLibSpi
 
   override const Uri webUri
 
-  override Bool isFault() { false }
-
   override Actor actor() { this }
+
+  override Bool isFault() { status == "fault" }
+
+  override Void toStatus(Str status, Str msg)
+  {
+    if (status != "fault") throw ArgErr("unsupported status")
+    statusRef.val = "fault"
+    statusMsgRef.val = msg
+  }
+
+  Str status() { statusRef.val }
+
+  Str? statusMsg() { statusMsgRef.val }
+
+  private const AtomicRef statusRef := AtomicRef("ok")
+  private const AtomicRef statusMsgRef := AtomicRef(null)
 
 //////////////////////////////////////////////////////////////////////////
 // Observables
@@ -165,7 +179,15 @@ const class HxdLibSpi : Actor, HxLibSpi
   private Obj? onStart()
   {
     isRunningRef.val = true
-    lib.onStart
+    try
+    {
+      lib.onStart
+    }
+    catch (Err e)
+    {
+      log.err("HxLib.onStart", e)
+      toStatus("fault", e.toStr)
+    }
     return null
   }
 
