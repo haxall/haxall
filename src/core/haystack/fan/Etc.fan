@@ -1530,7 +1530,7 @@ const class Etc
     if (now < d) return (d - Duration.now).toLocale
     ago := now - d
     if (ago < 3hr) return "$ago.toLocale ago"
-    ts := (DateTime.now - d).toLocale("hh:mm:ss DD-MMM-YYYY zzz")
+    ts := (DateTime.now - ago).toLocale("hh:mm:ss DD-MMM-YYYY zzz")
     return "$ago.toLocale ago [$ts]"
   }
 

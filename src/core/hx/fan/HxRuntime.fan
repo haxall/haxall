@@ -95,6 +95,9 @@ const mixin HxRuntimeLibs
 
   ** Actor thread pool to use for libraries
   abstract ActorPool actorPool()
+
+  ** Return status grid of enabled libs
+  @NoDoc abstract Grid status()
 }
 
 
