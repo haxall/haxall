@@ -60,7 +60,12 @@ internal const class MqttObservable : Observable
     conn := lib.conn(sub.connRef, false)
     if (conn == null) return
     // unsubscribe async
-    conn.send(HxMsg("mqtt.unsub", sub))
+    try
+      conn.send(HxMsg("mqtt.unsub", sub))
+    catch (Err err)
+    {
+      if (lib.isRunning) throw err
+    }
   }
 
   ** Deliver the message on the given topic to all matching subscribers
