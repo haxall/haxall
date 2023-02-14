@@ -75,6 +75,7 @@ pre>
 mqttConn
 uri: `mqtts://foo-ats.iot.eu-west-1.amazonaws.com:443`
 mqttVersion: "v3.1.1"
+mqttCertAlias: "myMqttClient"
 mqttClientId: "MyAwsThing"
 mqttAppProtocols: "x-amzn-mqtt-ca"
 <pre
