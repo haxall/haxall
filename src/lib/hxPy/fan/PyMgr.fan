@@ -248,6 +248,9 @@ internal const class PyMgrSession : PySession, HxTaskAdjunct
 
   override Void onKill()
   {
+    // kill the session
+    session.kill
+
     // close the session
     onClose
 

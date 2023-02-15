@@ -37,6 +37,9 @@ mixin PySession
 
   ** Close the session, and return this
   virtual This close() { return this }
+
+  ** Kill the session - it can no longer be used again
+  virtual This kill() { return this }
 }
 
 **************************************************************************
@@ -184,9 +187,13 @@ mixin PySession
     // reset to not initialized
     this.isInitialized = false
 
-    // stop the actor pool
-    this.evalPool.kill
+    return this
+  }
 
+  override This kill()
+  {
+    this.close
+    evalPool.kill
     return this
   }
 
