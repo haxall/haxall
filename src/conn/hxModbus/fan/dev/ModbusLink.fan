@@ -245,9 +245,22 @@ using hxSerial
 @NoDoc internal const class ModbusLinkMgr
 {
   ** Init ModbusLinkMgr if needed.
-  internal static Void init(ModbusLib lib)
+  static Void init(ModbusLib lib)
   {
     if (curRef.val == null) curRef.val = ModbusLinkMgr(lib)
+  }
+
+  ** Stop the link manager. It can no longer be used after this
+  ** and must be re-inited
+  static Void stop()
+  {
+    // if never initialized, then nothing to do
+    mgr := curRef.val as ModbusLinkMgr
+    if (mgr == null) return
+
+    // clear the curRef and kill actor pool
+    mgr.pool.kill
+    curRef.val = null
   }
 
   ** ModbusLinkMgr instance for this VM.
@@ -265,20 +278,6 @@ using hxSerial
 
   ** Open a ModbusLink for given uri.
   ModbusLink open(Uri uri) { actor.send(HxMsg("open", uri)).get(5sec)  }
-
-  ** Stop the link manager. It can no longer be used after this
-  ** and must be re-inited
-  static Void stop()
-  {
-    mgr := curRef.val as ModbusLinkMgr
-    if (mgr == null) return
-
-    // clear the curRef
-    curRef.val = null
-
-    // kill the actor pool
-    mgr.pool.kill
-  }
 
   ** Actor callback.
   private Obj? actorReceive(HxMsg m)
