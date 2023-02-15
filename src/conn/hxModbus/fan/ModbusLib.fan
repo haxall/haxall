@@ -30,7 +30,7 @@ const class ModbusLib : ConnLib
   override Void onStop()
   {
     super.onStop
-    ModbusLinkMgr.cur.stop
+    ModbusLinkMgr.stop
   }
 
   internal Grid read(Obj conn, Str[] regs)

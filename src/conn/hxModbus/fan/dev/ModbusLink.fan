@@ -268,13 +268,16 @@ using hxSerial
 
   ** Stop the link manager. It can no longer be used after this
   ** and must be re-inited
-  Void stop()
+  static Void stop()
   {
+    mgr := curRef.val as ModbusLinkMgr
+    if (mgr == null) return
+
     // clear the curRef
     curRef.val = null
 
     // kill the actor pool
-    this.pool.kill
+    mgr.pool.kill
   }
 
   ** Actor callback.
