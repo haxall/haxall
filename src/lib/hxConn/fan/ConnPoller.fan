@@ -32,7 +32,7 @@ internal const class ConnPoller : Actor
     try
       check
     catch (Err e)
-      lib.log.err("ConnPoller.receive", e)
+      if (lib.isRunning) lib.log.err("ConnPoller.receive", e)
 
     if (lib.isRunning) sendLater(checkFreq, checkMsg)
     return null
