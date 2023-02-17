@@ -6,7 +6,20 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
-*Build 3.1.7 (working)*
+*Build 3.1.7 (17 Feb 2023)*
+- Add point conversion: boolToNumber
+- Haystack 3.9.13
+- New funcs: firstOfMonth, lastOfMonth
+- More axon code examples in function docs
+- Add session setting for maxSessionsPerUser
+- Conn framework closed connector is onPing raises exception
+- Conn support for multiple connectors per point with connPointsVia
+- Date format support for quarter pattern
+- Ephemeral tasks now linger for debugging
+- Axon Usage more examples
+- MQTT several bug fixes
+- Ensure actor pools are always stopped on exit
+- Dict each iteration is now always non-nullable
 
 *Build 3.1.6 (15 Nov 2022)*
 - Maintenance build
