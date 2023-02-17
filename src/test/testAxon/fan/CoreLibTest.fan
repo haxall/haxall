@@ -1372,6 +1372,11 @@ class CoreLibTest : HaystackTest
     // colToList
     verifyEq(eval(x+""".sort("name").colToList("name")"""), Obj?["andy", "brian", "charles"])
     verifyEq(eval(x+""".sort("name").colToList("foo")"""), Obj?[Marker.val, Marker.val, null])
+
+    // rowToList
+    verifyEq(eval(x+""".get(0).rowToList"""), Obj?["andy",    n(10), null, m])
+    verifyEq(eval(x+""".get(1).rowToList"""), Obj?["brian",   n(30), null, m])
+    verifyEq(eval(x+""".get(2).rowToList"""), Obj?["charles", n(20), m,    null])
   }
 
   Void testColKinds()

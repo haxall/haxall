@@ -208,7 +208,7 @@ Common functions for working with grids: `addCol`, `addColMeta`, `addMeta`,
 `find`, `findAll`, `first`, `flatMap`, `foldCol`, `foldCols`, `get`, `gridRowsToDict`,
 `gridColsToDict`, `has`, `isEmpty`, `join`, `joinAll`, `keepCols`, `last`,
 `map`, `meta`, `missing`, `removeCol`, `removeCols`, `renameCol`,
-`reorderCols`, `size`, `sort`, `sortr`, `toGrid`, `unique`.
+`reorderCols`, `rowToList()`, `size`, `sort`, `sortr`, `toGrid`, `unique`.
 
   // create grid from list of dicts
   g: [{dis:"Site-A", area:2300ft²},

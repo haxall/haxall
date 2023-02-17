@@ -1366,7 +1366,18 @@ const class CoreLib
     return gb.toGrid
   }
 
+  ** Get a grid row as a list of cells.  Sparse cells are included as null.
+  ** Also see `colToList()`.
+  **
+  ** Example:
+  **   readAll(equip).first.rowToList
+  @Axon static Obj?[] rowToList(Row row)
+  {
+    row.cells ?: row.grid.cols.map |c->Obj?| { row.val(c) }
+  }
+
   ** Get a column as a list of the cell values ordered by row.
+  ** Also see `rowToList()`.
   **
   ** Example:
   **   readAll(site).colToList("dis")
