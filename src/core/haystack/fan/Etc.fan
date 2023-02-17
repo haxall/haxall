@@ -226,15 +226,69 @@ const class Etc
     return map
   }
 
-  **
-  ** Apply the given map function to each name/value pair
-  ** to construct a new Dict.
-  **
-  static Dict dictMap(Dict d, |Obj? v, Str n->Obj?| f)
+  ** Flag to have Axon iterate Dict null values.  Starting in 3.1.7 we
+  ** made semantic change to not iterate nulls, but this is backdoor
+  ** hook to keep old behavior for grid rows just in case.
+  @NoDoc static const Bool dictIterateNulls := false
+  static
   {
-    map := Str:Obj?[:]
-    d.each |v, n| { map[n] = f(v, n) }
-    return makeDict(map)
+    try
+    {
+      dictIterateNulls = Etc#.pod.config("dictIterateNulls") == "true"
+      if (dictIterateNulls)
+      {
+        echo("~~")
+        echo("~~ Haystack dict iterate null turned on!!!")
+        echo("~~")
+      }
+    }
+    catch (Err e) e.trace
+  }
+
+  **
+  ** Iterate dict name/value pairs
+  **
+  @NoDoc static Void dictEach(Dict d, |Obj? v, Str n| f)
+  {
+    if (dictIterateNulls)
+    {
+      if (d is Row) return rowEach(d, f, false)
+    }
+    d.each(f)
+  }
+
+  **
+  ** Iterate dict name/value pairs until f returns non-null
+  **
+  @NoDoc static Obj? dictEachWhile(Dict d, |Obj? v, Str n->Obj?| f)
+  {
+    if (dictIterateNulls)
+    {
+      if (d is Row) return rowEach(d, f, true)
+    }
+    return d.eachWhile(f)
+  }
+
+  ** Iterate all row cells including null
+  private static Obj? rowEach(Row r, |Obj? v, Str n->Obj?| f, Bool isWhile)
+  {
+    r.grid.cols.eachWhile |col|
+    {
+      x := f(r.val(col), col.name)
+      return isWhile ? x : null
+    }
+  }
+
+  **
+  ** Find value for which f returns true.  Return null
+  ** if f is false every pair.
+  **
+  @NoDoc static Obj? dictFind(Dict d, |Obj? v, Str n->Bool| f)
+  {
+    dictEachWhile(d) |v, n|
+    {
+      f(v, n) ? v : null
+    }
   }
 
   **
@@ -245,7 +299,18 @@ const class Etc
   static Dict dictFindAll(Dict d, |Obj? v, Str n->Bool| f)
   {
     map := Str:Obj?[:]
-    d.each |v, n| { if (f(v, n)) map[n] = v }
+    dictEach(d) |v, n| { if (f(v, n)) map[n] = v }
+    return makeDict(map)
+  }
+
+  **
+  ** Apply the given map function to each name/value pair
+  ** to construct a new Dict.
+  **
+  static Dict dictMap(Dict d, |Obj? v, Str n->Obj?| f)
+  {
+    map := Str:Obj?[:]
+    dictEach(d) |v, n| { map[n] = f(v, n) }
     return makeDict(map)
   }
 
@@ -256,7 +321,7 @@ const class Etc
   static Bool dictAny(Dict d, |Obj? v, Str n->Bool| f)
   {
     r := false
-    d.each |v, n| { if (!r) r = f(v, n) }
+    dictEach(d) |v, n| { if (!r) r = f(v, n) }
     return r
   }
 
@@ -267,7 +332,7 @@ const class Etc
   static Bool dictAll(Dict d, |Obj? v, Str n->Bool| f)
   {
     r := true
-    d.each |v, n| { if (r) r = f(v, n) }
+    dictEach(d) |v, n| { if (r) r = f(v, n) }
     return r
   }
 

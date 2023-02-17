@@ -340,7 +340,7 @@ const class CoreLib
   {
     if (val is MStream) return EachStream(val, fn).run
     if (val is Grid) { ((Grid)val).each(toGridIterator(fn)); return null }
-    if (val is Dict) { ((Dict)val).each(toDictIterator(fn)); return null }
+    if (val is Dict) { Etc.dictEach(val, toDictIterator(fn)); return null }
     if (val is List) { ((List)val).each(toListIterator(fn)); return null }
     if (val is Str)  { ((Str)val).each(toStrIterator(fn)); return null }
     if (val is ObjRange) { ((ObjRange)val).toIntRange.each(toRangeIterator(fn)); return null }
@@ -361,7 +361,7 @@ const class CoreLib
   {
     if (val is MStream) return EachWhileStream(val, fn).run
     if (val is Grid) return ((Grid)val).eachWhile(toGridIterator(fn))
-    if (val is Dict) return ((Dict)val).eachWhile(toDictIterator(fn))
+    if (val is Dict) return Etc.dictEachWhile(val, toDictIterator(fn))
     if (val is List) return ((List)val).eachWhile(toListIterator(fn))
     if (val is Str)  return ((Str)val).eachWhile(toStrIterator(fn))
     if (val is ObjRange) return ((ObjRange)val).toIntRange.eachWhile(toRangeIterator(fn))
@@ -466,7 +466,7 @@ const class CoreLib
   {
     if (val is MStream) return FindStream(val, fn).run
     if (val is Grid) return ((Grid)val).find(toGridIterator(fn))
-    if (val is Dict) return Etc.dictToMap(val).find(toDictIterator(fn))
+    if (val is Dict) return Etc.dictFind(val, toDictIterator(fn))
     if (val is List) return ((List)val).find(toListIterator(fn))
     throw argErr("findAll", val)
   }
