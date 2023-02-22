@@ -337,7 +337,7 @@ const mixin Grid
       if (newRow == null) throw Err("Grid.map expects Dict, not $newVal.typeof.name")
 
       newRows.add(newRow)
-      newRow.each |v, n|
+      Etc.dictEach(newRow) |v, n|
       {
         if (colNamesMap[n] == null) { colNames.add(n); colNamesMap[n] = n }
       }

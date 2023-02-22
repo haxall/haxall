@@ -52,7 +52,7 @@ const class Etc
 
   private static Dict mapToDict(Str:Obj? map)
   {
-    if (map.size > 6) return MapDict(map)
+    if (map.size > 6 || dictIterateNulls) return MapDict(map)
 
     i := 0
     Str? n0; Str? n1; Str? n2; Str? n3; Str? n4; Str? n5
@@ -253,6 +253,7 @@ const class Etc
     if (dictIterateNulls)
     {
       if (d is Row) return rowEach(d, f, false)
+      if (d is MapDict) return ((MapDict)d).map.each(f)
     }
     d.each(f)
   }
@@ -265,6 +266,7 @@ const class Etc
     if (dictIterateNulls)
     {
       if (d is Row) return rowEach(d, f, true)
+      if (d is MapDict) return ((MapDict)d).map.eachWhile(f)
     }
     return d.eachWhile(f)
   }
@@ -405,7 +407,7 @@ const class Etc
   **
   static Dict dictSet(Dict? d, Str name, Obj? val)
   {
-    if (d == null || d.isEmpty) return makeDict1(name, val)
+    if ((d == null || d.isEmpty) && !dictIterateNulls) return makeDict1(name, val)
     map := Str:Obj?[:]
     if (d != null)
     {
