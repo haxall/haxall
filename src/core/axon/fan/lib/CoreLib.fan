@@ -1355,13 +1355,18 @@ const class CoreLib
     else if (newRows is Grid) ((Grid)newRows).each |row| { rows.add(row) }
     else throw ArgErr("Invalid newRows type: $newRows.typeof")
 
-    // first pass finds all the unique columns, but keep meta
-    colNames := Etc.dictsNames(rows)
-    if (colNames.isEmpty) throw ArgErr("cols are empty")
+    // find all unique column names with existing meta
+    cols := Str:Dict[:]
+    cols.ordered = true
+    grid.cols.each |col| { cols[col.name] = col.meta }
+    rows.each |r|
+    {
+       Etc.dictEach(r) |v, n| { if (cols[n] == null) cols[n] = Etc.emptyDict }
+    }
 
     gb := GridBuilder()
     gb.setMeta(grid.meta)
-    colNames.each |n, i|  { gb.addCol(n, grid.col(n, false)?.meta) }
+    cols.each |meta, name|  { gb.addCol(name, meta) }
     gb.addDictRows(rows)
     return gb.toGrid
   }

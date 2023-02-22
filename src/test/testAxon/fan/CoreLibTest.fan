@@ -1354,6 +1354,12 @@ class CoreLibTest : HaystackTest
     verifyEq(grid.get(3)->age, n(40))
     verifyEq(grid.get(3)->phone, "call me")
 
+    // addRow to all nulls
+    grid = eval("[].toGrid.addRow({})")
+    verifyEq(grid.size, 1)
+    verifyEq(grid.colNames, ["empty"])
+    verifyEq(grid.get(0)["empty"], null)
+
     // addRows w/ Grid
     grid = eval("""${baseAddExpr}.addRows( $baseAddExpr )""")
     verifyEq(grid.size, 6)
@@ -1450,6 +1456,83 @@ class CoreLibTest : HaystackTest
     verifyEq(grid[1]->sum, n(330))
     verifyEq(grid[2]->sum, n(220))
   }
+
+  Void testGridAddRows()
+  {
+    // two columns, but no rows
+    gb := GridBuilder()
+    gb.setMeta(["foo":"bar"])
+    gb.addCol("a", ["am":m]).addCol("b", ["bm":m])
+    grid := gb.toGrid
+
+    verifyGridEq(CoreLib.addRows(grid, [Etc.emptyDict]),
+      g(Str<|ver:"3.0" foo:"bar"
+             a am,  b bm
+             N,    N
+             |>))
+
+    verifyGridEq(CoreLib.addRows(grid, [Etc.makeDict2("a", "x", "c", "y")]),
+      g(Str<|ver:"3.0" foo:"bar"
+             a am,  b bm, c
+             "x",  N,     "y"
+             |>))
+
+
+    // two columns, but one cell is null
+    gb = GridBuilder()
+    gb.setMeta(["foo":"bar"])
+    gb.addCol("a", ["am":m]).addCol("b", ["bm":m])
+    gb.addRow([null, "b0"])
+    grid = gb.toGrid
+
+    verifyGridEq(CoreLib.addRows(grid, [Etc.emptyDict]),
+      g(Str<|ver:"3.0" foo:"bar"
+             a am,  b bm
+             N,     "b0"
+             N,     N
+             |>))
+
+    verifyGridEq(CoreLib.addRows(grid, [Etc.makeDict2("a", "x", "b", "y"), Etc.emptyDict, Etc.makeDict1("c", "z")]),
+      g(Str<|ver:"3.0" foo:"bar"
+             a am,  b bm,  c
+             N,     "b0",  N
+             "x",   "y",   N
+             N,     N,     N
+             N,     N,    "z"
+             |>))
+
+    // now start off with one row, no null cells
+    gb = GridBuilder()
+    gb.setMeta(["foo":"bar"])
+    gb.addCol("a", ["am":m]).addCol("b", ["bm":m])
+    gb.addRow(["a0", "b0"])
+    grid = gb.toGrid
+
+    verifyGridEq(CoreLib.addRows(grid, [Etc.emptyDict]),
+      g(Str<|ver:"3.0" foo:"bar"
+             a am,  b bm
+             "a0", "b0"
+             N,    N
+             |>))
+
+    verifyGridEq(CoreLib.addRows(grid, [Etc.emptyDict, Etc.makeDict1("a", "x")]),
+      g(Str<|ver:"3.0" foo:"bar"
+             a am,  b bm
+             "a0", "b0"
+             N,    N
+             "x",  N
+             |>))
+
+    verifyGridEq(CoreLib.addRows(grid, [Etc.makeDict2("b", "x", "c", "y"), Etc.emptyDict, Etc.makeDict1("a", "z")]),
+      g(Str<|ver:"3.0" foo:"bar"
+             a am,  b bm, c
+             "a0", "b0", N
+             N,    "x",  "y"
+             N,    N,    N
+             "z",  N,    N
+             |>))
+  }
+
 
 //////////////////////////////////////////////////////////////////////////
 // Typing
@@ -1720,4 +1803,11 @@ class CoreLibTest : HaystackTest
     }
   }
 
+  Grid g(Str str)
+  {
+    g := ZincReader(str.in).readGrid
+    verifySame(g.toConst, g)
+    verifyEq(g.isImmutable, true)
+    return g
+  }
 }
