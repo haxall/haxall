@@ -52,6 +52,8 @@ const class Etc
 
   private static Dict mapToDict(Str:Obj? map)
   {
+    if (map.isEmpty) return emptyDict
+
     if (map.size > 6 || dictIterateNulls) return MapDict(map)
 
     i := 0
@@ -169,7 +171,7 @@ const class Etc
   static Str[] dictNames(Dict d)
   {
     names := Str[,]
-    d.each |v, n| { names.add(n) }
+    dictEach(d) |v, n| { names.add(n) }
     return names
   }
 
@@ -188,7 +190,7 @@ const class Etc
     dicts.each |dict|
     {
       if (dict == null) return
-      dict.each |v, n|
+      dictEach(dict) |v, n|
       {
         if (n == "id")   { hasId   = true; return }
         if (n == "def")  { hasDef  = true; return }
@@ -222,7 +224,7 @@ const class Etc
   static Str:Obj? dictToMap(Dict? d)
   {
     map := Str:Obj?[:]
-    if (d != null) d.each |v, n| { map[n] = v }
+    if (d != null) dictEach(d) |v, n| { map[n] = v }
     return map
   }
 
@@ -354,7 +356,7 @@ const class Etc
       if (bd.isEmpty) return a
 
       tags := dictToMap(a)
-      bd.each |v, n|
+      dictEach(bd) |v, n|
       {
         if (v === Remove.val) tags.remove(n)
         else tags[n] = v
@@ -383,7 +385,7 @@ const class Etc
   {
     if (d.isEmpty) return d
     [Str:Obj?]? map := null
-    d.each |v, n|
+    dictEach(d) |v, n|
     {
       if (v != val) return
       if (map == null) map = dictToMap(d)
@@ -412,7 +414,7 @@ const class Etc
     if (d != null)
     {
       if (d is Row) map.ordered = true
-      d.each |v, n| { map[n] = v }
+      dictEach(d) |v, n| { map[n] = v }
     }
     map[name] = val
     return makeDict(map)
@@ -426,7 +428,7 @@ const class Etc
   {
     if (d.missing(name)) return d
     map := Str:Obj?[:]
-    d.each |v, n| { map[n] = v }
+    dictEach(d) |v, n| { map[n] = v }
     map.remove(name)
     return makeDict(map)
   }
@@ -440,7 +442,7 @@ const class Etc
     if (names.isEmpty) return d
     if (names.size == 1) return dictRemove(d, names[0])
     map := Str:Obj?[:]
-    d.each |v, n| { map[n] = v }
+    dictEach(d) |v, n| { map[n] = v }
     names.each |n| { map.remove(n) }
     return makeDict(map)
   }
@@ -453,7 +455,7 @@ const class Etc
     val := d[oldName]
     if (val == null) return d
     map := Str:Obj?[:]
-    d.each |v, n| { map[n] = v }
+    dictEach(d) |v, n| { map[n] = v }
     map.remove(oldName)
     map[newName] = val
     return makeDict(map)
@@ -508,7 +510,7 @@ const class Etc
   {
     s := StrBuf()
     s.add("{")
-    d.each |v, n|
+    dictEach(d) |v, n|
     {
       if (s.size > 1) s.add(", ")
       s.add(n)
@@ -1217,7 +1219,7 @@ const class Etc
     gb.setMeta(meta)
     cells := Obj?[,]
     if (row.has("id")) { gb.addCol("id"); cells.add(row["id"]) }
-    row.each |v, n|
+    Etc.dictEach(row) |v, n|
     {
       if (n == "id" || n == "mod") return
       gb.addCol(n)
