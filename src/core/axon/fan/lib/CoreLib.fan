@@ -1361,8 +1361,13 @@ const class CoreLib
     grid.cols.each |col| { cols[col.name] = col.meta }
     rows.each |r|
     {
-       Etc.dictEach(r) |v, n| { if (cols[n] == null) cols[n] = Etc.emptyDict }
+      Etc.dictEach(r) |v, n| { if (cols[n] == null) cols[n] = Etc.emptyDict }
     }
+
+    // if we have a column called empty with all nulls, then strip it;
+    // this is the degenerate case of starting off with an empty grid
+    if (cols.size > 1 && cols["empty"] != null && rows.all { it.missing("empty") })
+      cols.remove("empty")
 
     gb := GridBuilder()
     gb.setMeta(grid.meta)

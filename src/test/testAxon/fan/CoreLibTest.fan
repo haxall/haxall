@@ -1531,6 +1531,36 @@ class CoreLibTest : HaystackTest
              N,    N,    N
              "z",  N,    N
              |>))
+
+    // start off with empty grid to ensure 'empty' col is stripped
+    grid = Etc.makeEmptyGrid(["foo":"bar"])
+
+    verifyGridEq(CoreLib.addRows(grid, [Etc.emptyDict]),
+      g(Str<|ver:"3.0" foo:"bar"
+             empty
+             N
+             |>))
+
+    verifyGridEq(CoreLib.addRows(grid, [Etc.makeDict1("a", "x")]),
+      g(Str<|ver:"3.0" foo:"bar"
+             a
+             "x"
+             |>))
+
+    verifyGridEq(CoreLib.addRows(CoreLib.addRows(grid, [Etc.emptyDict]), [Etc.makeDict1("a", "x")]),
+      g(Str<|ver:"3.0" foo:"bar"
+             a
+             N
+             "x"
+             |>))
+
+    // don't strip empty if it has non-null cells
+    verifyGridEq(CoreLib.addRows(grid, [Etc.makeDict2("empty", "x", "foo", "bar")]),
+      g(Str<|ver:"3.0" foo:"bar"
+             empty, foo
+             "x",   "bar"
+             |>))
+
   }
 
 
