@@ -62,7 +62,7 @@ const abstract class CompDef : TopFn
     if (args.size > 0)
     {
       arg := args[0] as Dict ?: throw ArgErr("Must call comp with Dict arg")
-      arg.each |v, n|
+      Etc.dictEach(arg) |v, n|
       {
         cell := cell(n, false)
         if (cell != null) comp.setCell(cell, v)
