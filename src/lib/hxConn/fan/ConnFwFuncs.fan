@@ -131,7 +131,7 @@ const class ConnFwFuncs
 
   **
   ** Return debug details for a connector or a connector point.
-  ** The value is anything acceptable by `toRecId()`.  The result
+  ** The argument is anything acceptable by `toRecId()`.  The result
   ** is returned as a plain text string.
   **
   @Axon { admin = true }

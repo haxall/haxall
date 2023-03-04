@@ -290,8 +290,16 @@ const class PointFuncs
     return PointConvert.fromStr(convert).convert(lib, rec, val)
   }
 
-  ** Get debug string for writables, his collections
-  @NoDoc @Axon
+  **
+  ** Get debug string for point including writables and his collection.
+  ** The argument is anything acceptable by `toRec()`.
+  ** The result is returned as a plain text string.
+  **
+  ** Examples:
+  **   read(dis=="My Point").pointDetails
+  **   pointDetails(@2b80f96a-820a4f1a)
+  **
+  @Axon
   static Str pointDetails(Obj point)
   {
     cx  := curContext
