@@ -1,0 +1,30 @@
+//
+// Copyright (c) 2022, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   20 Jul 2022  Brian Frank  Creation
+//
+
+// Singleton for not available to indicate invalid or missing data.
+NA: Scalar <sealed> "NA"
+
+// Singleton for remove operation.
+Remove: Scalar <sealed> "Remove"
+
+// Symbol to a def. Symbol values are ASCII strings limited to the
+// following chars: a-z, A-Z, 0-9, underbar, colon, dash, dot.
+Symbol: Scalar "x"
+
+// Geographic coordinate in latitude/longitude in decimal degrees.
+Coord:  Scalar "C(0,0)"
+
+// Extended string - type name and string value encoding.
+XStr: Scalar
+
+// Exclusive choice type
+Choice: Scalar <of:Marker>
+
+// Two dimension table of columns and rows.
+Grid: DataSet
+

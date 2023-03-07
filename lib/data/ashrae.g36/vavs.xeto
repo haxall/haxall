@@ -1,0 +1,83 @@
+//
+// Copyright (c) 2022, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// This file includes five VAV templates from ASHRAE Guideline 36
+// Author: Avijit Saha, Jaime Gagne, Maggie Sullivan
+//
+
+// Suggested Marker Tags in the tags.pog file
+// override: Marker
+// window: Marker
+
+// Guidline 36 base type for VAVs terminal units
+G36Vav : Vav <abstract> {
+  points: {
+    ZoneAirTempSensor
+    ZoneAirTempEffectiveSp
+    ZoneOccupiedSensor
+    ZoneCo2Sensor
+    //{window, override, cmd, point}
+  }
+}
+
+// Guidline 36 Fan Powered Terminal Unit
+G36FanPoweredTerminalUnit : G36Vav {
+  fanPowered
+  hotWaterHeating
+  singleDuct
+  points: {
+    DischargeFanSpeedCmd
+    DischargeFanRunSensor
+    DischargeFanRunCmd
+    DischargeDamperCmd
+    HotWaterValveCmd
+    DischargeAirFlowSensor
+    DischargeAirTempSensor
+  }
+}
+
+// Guidline 36 Dual-Duct Terminal Unit with Inlet Sensors
+G36DualDuctVavInlet : G36Vav {
+  dualDuct
+  coolingOnly
+  points: {
+    ColdDeckDischargeDamperCmd
+    HotDeckDischargeDamperCmd
+    ColdDeckDischargeAirFlowSensor
+    HotDeckDischargeAirFlowSensor
+  }
+}
+
+//  Guidline 36  Dual-Duct Terminal Unit with Discharge Sensor
+G36DualDuctVavOutlet : G36Vav {
+  dualDuct
+  coolingOnly
+  points: {
+    ColdDeckDischargeDamperCmd
+    HotDeckDischargeDamperCmd
+    DischargeAirFlowSensor
+  }
+}
+
+//  Guidline 36 Variable Air Volume Box With Reheat
+G36ReheatVav : G36Vav {
+  hotWaterHeating
+  singleDuct
+  points: {
+    HotWaterValveCmd
+    DischargeDamperCmd
+    DischargeAirFlowSensor
+    DischargeAirTempSensor
+  }
+}
+
+//  Guidline 36 Cooling Only VAV
+G36CoolingOnlyVav : G36Vav {
+  singleDuct
+  coolingOnly
+  points: {
+    DischargeDamperCmd
+    DischargeAirFlowSensor
+  }
+}

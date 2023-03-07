@@ -1,0 +1,90 @@
+//
+// Copyright (c) 2022, Brian Frank
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 May 2022  Brian Frank  Creation
+//
+
+// Root type for all objects
+Obj: <sealed>
+
+// None is the bottom type with no values
+None: Obj <sealed>
+
+// Self is a placeholder that always represents the parent type
+Self: Obj <sealed>
+
+// Scalar is an atomic value kind
+Scalar: Obj <abstract>
+
+// Marker labels a dict with typing information
+Marker: Scalar <sealed> "marker"
+
+// Unicode string of characters
+Str: Scalar <sealed> ""
+
+// Boolean value either true or false
+Bool: Scalar <sealed> "false"
+
+// Integer or floating point numbers annotated with an optional unit
+Number: Scalar <sealed> "0"
+
+// Unitless integer number
+Int: Number <sealed> "0"
+
+// Number with a unit of time
+Duration: Number <sealed> "0sec"
+
+// Universal resource identifier
+Uri: Scalar <sealed>  ""
+
+// Reference to another dict.
+Ref: Scalar <sealed, pattern: "[a-zA-Z\\d\\._~]*"> "x"
+
+// Version string formatted as decimal digits separated by a dot
+Version: Scalar <sealed, pattern: "\\d+(\\.\\d+)*"> "0"
+
+// ISO 8601 date as year, month, day: '2011-06-07'
+Date: Scalar <sealed, pattern: "\\d\\d\\d\\d-\\d\\d-\\d\\d"> "2000-01-01"
+
+// ISO 8601 time as hour, minute, seconds: '09:51:27.354'
+Time: Scalar <sealed, pattern: "\\d\\d:\\d\\d:\\d\\d(\\.\\d+)*"> "00:00:00"
+
+// ISO 8601 timestamp followed by timezone identifier
+DateTime: Scalar <sealed, pattern: "\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(\\.\\d+)*[Z+-][\\d:]*[ ]*[-+a-zA-Z_\\d]*"> "2000-01-01T00:00:00Z UTC"
+
+// Closed enumerated choice
+Enum: Scalar
+
+// Sequence is base type for all collections
+Seq: Obj
+
+// Associative array of name/value pairs
+Dict: Seq
+
+// Ordered list of zero or more values
+List: Seq
+
+// Data set is a collection of dicts.
+DataSet: Seq <of:Dict>
+
+// Maybe is the option type - some value or None
+Maybe: Obj
+
+// Or type is a choice between one of multiple types.
+// It is a union of the set of types.
+Or: Obj
+
+// And type is a combination of multiple types.
+// It is an intersection of the set of types.
+And: Obj
+
+// Query defines a named data set
+Query: Dict
+
+
+
+
+
+

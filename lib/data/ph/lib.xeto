@@ -1,0 +1,13 @@
+// Auto-generated 31-Jan-2023
+
+pragma: Lib <
+  doc: "Project haystack core library"
+  version: "3.9.13"
+  depends: {
+    { lib: "sys" }
+  }
+  org: {
+   dis: "Project Haystack"
+   uri: "https://project-haystack.org/"
+  }
+>

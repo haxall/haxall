@@ -1,0 +1,503 @@
+//
+// Copyright (c) 2022, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Nov 2022  Brian Frank  Creation
+//
+
+//////////////////////////////////////////////////////////////////////////
+// Point Kinds
+//////////////////////////////////////////////////////////////////////////
+
+// Boolean or digital point with an true/false state
+BoolPoint : Point <abstract> {
+  kind: "Bool"
+}
+
+// Numeric or analog point with floating point value
+NumberPoint : Point <abstract> {
+  kind: "Number"
+  unit: Str
+}
+
+// Enumerated or multi-state point with string value
+StrPoint : Point <abstract> {
+  kind: "Str"
+  enum: Str
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Point Functions
+//////////////////////////////////////////////////////////////////////////
+
+// Point is a sensor, input, AI/BI
+Sensor : Point <abstract> { sensor }
+
+// Point is a command, actuator, AO/BO
+Cmd : Point <abstract> { cmd }
+
+// Point is a setpoint, soft point, internal control variable, schedule
+Sp : Point <abstract> { sp }
+
+//////////////////////////////////////////////////////////////////////////
+// Air Flow
+//////////////////////////////////////////////////////////////////////////
+
+// Point associated with volumetric flow of air
+AirFlowPoint : NumberPoint <abstract> {
+  air
+  flow
+// TODO unit: "cfm" | "m³/s"
+}
+
+// Sensor for volumetric air flow
+AirFlowSensor : AirFlowPoint & Sensor <abstract>
+
+// Setpoint for volumetric air flow
+AirFlowSp : AirFlowPoint & Sp <abstract>
+
+// --- Discharge ---
+
+// Sensor for volumetric air flow in discharge duct
+DischargeAirFlowSensor : AirFlowSensor { discharge }
+
+// Setpoint for volumetric air flow in discharge duct
+DischargeAirFlowSp : AirFlowSp { discharge }
+
+// --- ColdDeck Discharge  ---
+
+// Sensor for volumetric air flow in cold deck discharge duct
+ColdDeckDischargeAirFlowSensor : DischargeAirFlowSensor { coldDeck }
+
+// Setpoint for volumetric air flow in cold deck discharge duct
+ColdDeckDischargeAirFlowSp : DischargeAirFlowSp { coldDeck }
+
+// --- HotDeck Discharge  ---
+
+// Sensor for volumetric air flow in hot deck discharge duct
+HotDeckDischargeAirFlowSensor : DischargeAirFlowSensor { hotDeck }
+
+// Setpoint for volumetric air flow in hot deck discharge duct
+HotDeckDischargeAirFlowSp : DischargeAirFlowSp { hotDeck }
+
+// --- Economizing ---
+
+// Sensor for volumetric air flow in economizing duct.
+// Used when there are separate ducts for minimum fresh air vs economizing.
+EconomizingAirFlowSensor : AirFlowSensor { economizing }
+
+// Setpoint for volumetric air flow in economizing duct.
+EconomizingAirFlowSp : AirFlowSp { economizing }
+
+// --- Exhaust ---
+
+// Sensor for volumetric air flow in exhaust duct
+ExhaustAirFlowSensor : AirFlowSensor { exhaust }
+
+// Setpoint for volumetric air flow in exhaust duct
+ExhaustAirFlowSp : AirFlowSp { exhaust }
+
+// --- Outside ---
+
+// Sensor for volumetric air flow in outside duct.
+// Used when there one duct for both minimum fresh air and economizing.
+OutsideAirFlowSensor : AirFlowSensor { outside }
+
+// Setpoint for volumetric air flow in outside duct.
+// Used when there one duct for both minimum fresh air and economizing.
+OutsideAirFlowSp : AirFlowSp { outside }
+
+// --- Return ---
+
+// Sensor for volumetric air flow in return duct
+ReturnAirFlowSensor : AirFlowSensor { return }
+
+// Setpoint for volumetric air flow in return duct
+ReturnAirFlowSp : AirFlowSp { return }
+
+// --- Ventilation ---
+
+// Sensor for volumetric air flow in ventilation or minimum fresh air duct.
+// Used when there are separate ducts for minimum fresh air vs economizing.
+VentilationAirFlowSensor : AirFlowSensor { ventilation }
+
+// Setpoint for volumetric air flow in ventilation or minimum fresh air duct.
+// Used when there are separate ducts for minimum fresh air vs economizing.
+VentilationAirFlowSp : AirFlowSp { ventilation }
+
+//////////////////////////////////////////////////////////////////////////
+// Air Pressure
+//////////////////////////////////////////////////////////////////////////
+
+// Point associated with static air pressure
+AirPressurePoint : NumberPoint <abstract> {
+  air
+  pressure
+// TODO  unit: "Pa" | "kPa" | "inH₂O"
+}
+
+// Sensor for static air pressure
+AirPressureSensor : AirPressurePoint & Sensor <abstract>
+
+// Setpoint for static air pressure
+AirPressureSp : AirPressurePoint & Sp <abstract>
+
+// --- Discharge ---
+
+// Sensor for static air pressure in discharge duct
+DischargeAirPressureSensor : AirPressureSensor { discharge }
+
+// Setpoint for static air pressure in discharge duct
+DischargeAirPressureSp : AirPressureSp { discharge }
+
+// --- Return ---
+
+// Sensor for static air pressure in return duct
+ReturnAirPressureSensor : AirPressureSensor { return }
+
+// Setpoint for static air pressure in return duct
+ReturnAirPressureSp : AirPressureSp { return }
+
+//////////////////////////////////////////////////////////////////////////
+// Air Temp
+//////////////////////////////////////////////////////////////////////////
+
+// Point associated with drybulb air temperature
+AirTempPoint : NumberPoint <abstract> {
+  air
+  temp
+// TODO  unit: "°C" | "°F"
+}
+
+// Sensor for drybulb air temperature
+AirTempSensor : AirTempPoint & Sensor <abstract>
+
+// Setpoint for drybulb air temperature
+AirTempSp : AirTempPoint & Sp <abstract>
+
+// --- Discharge ---
+
+// Sensor for drybulb air temperature of a discharge duct
+DischargeAirTempSensor : AirTempSensor { discharge }
+
+// Setpoint for drybulb air temperature of a discharge duct
+DischargeAirTempSp : AirTempSp { discharge }
+
+// --- Zone ---
+
+// Drybulb air temperature sensor for a zone
+ZoneAirTempSensor : AirTempSensor { zone }
+
+// Setpoint for drybulb air temperature a zone
+ZoneAirTempSp : AirTempSp <abstract> { zone }
+
+// Effective setpoint for drybulb air temperature a zone
+ZoneAirTempEffectiveSp : ZoneAirTempSp { effective }
+
+//////////////////////////////////////////////////////////////////////////
+// CO₂
+//////////////////////////////////////////////////////////////////////////
+
+// Point associated with the concentration of carbon dioxide (CO₂)
+Co2Point : NumberPoint <abstract> {
+  air
+  co2
+  concentration
+  unit: "ppm"
+}
+
+// Sensor for concentration of carbon dioxide (CO₂)
+Co2Sensor : Co2Point & Sensor <abstract>
+
+// Setpoint for concentration of carbon dioxide (CO₂)
+Co2Sp : Co2Point & Sp <abstract>
+
+// --- Zone ---
+
+// Sensor for concentration of carbon dioxide (CO₂) in zone space.
+ZoneCo2Sensor : Co2Sensor { zone }
+
+// Setpoint for concentration of carbon dioxide (CO₂) in zone space.
+ZoneCo2Sp : Co2Sp { zone }
+
+//////////////////////////////////////////////////////////////////////////
+// Dampers
+//////////////////////////////////////////////////////////////////////////
+
+// Point associated with damper position; 0% is fully closed, 100% is fully open
+DamperPoint : NumberPoint <abstract> {
+  air
+  damper
+  unit: "%"
+}
+
+// Damper position sensor; 0% is fully closed, 100% is fully open
+DamperSensor : DamperPoint & Sensor <abstract>
+
+// Damper position command; 0% is fully closed, 100% is fully open
+DamperCmd : DamperPoint & Cmd <abstract>
+
+// --- Discharge ---
+
+// Damper position sensor in dischage duct
+DischargeDamperSensor : DamperSensor { discharge }
+
+// Damper position command in dischage duct
+DischargeDamperCmd : DamperCmd { discharge }
+
+// --- Cold Deck Discharge ---
+
+// Damper position sensor in cold deck dischage duct
+ColdDeckDischargeDamperSensor : DischargeDamperSensor { coldDeck }
+
+// Damper position command in cold deck dischage duct
+ColdDeckDischargeDamperCmd : DischargeDamperCmd { coldDeck }
+
+// --- Hot Deck Discharge ---
+
+// Damper position sensor in hot deck dischage duct
+HotDeckDischargeDamperSensor : DischargeDamperSensor { hotDeck }
+
+// Damper position command in hot deck dischage duct
+HotDeckDischargeDamperCmd : DischargeDamperCmd { hotDeck }
+
+// --- Economizing ---
+
+// Damper position sensor in economizing duct.
+// Used when there are separate ducts for minimum fresh air vs economizing.
+EconomizingDamperSensor : DamperSensor { economizing }
+
+// Damper position command in economizing duct.
+// Used when there are separate ducts for minimum fresh air vs economizing.
+EconomizingDamperCmd : DamperCmd { economizing }
+
+// --- Exhaust ---
+
+// Damper position sensor in exhaust duct
+ExhaustDamperSensor : DamperSensor { exhaust }
+
+// Damper position command in exhaust duct
+ExhaustDamperCmd : DamperCmd { exhaust }
+
+// --- Mixed ---
+
+// Damper position sensor in mixed air duct
+MixedDamperSensor : DamperSensor { mixed }
+
+// Damper position command in mixed duct
+MixedDamperCmd : DamperCmd { mixed }
+
+// --- Outdoor ---
+
+// Damper position sensor in outdoor duct
+// Used when there one duct for both minimum fresh air and economizing.
+OutdoorDamperSensor : DamperSensor { outdoor }
+
+// Damper position command in outdoor duct
+// Used when there one duct for both minimum fresh air and economizing.
+OutdoorDamperCmd : DamperCmd { outdoor }
+
+// --- Return ---
+
+// Damper position sensor in return duct
+ReturnDamperSensor : DamperSensor { return }
+
+// Damper position command in return duct
+ReturnDamperCmd : DamperCmd { return }
+
+// --- Ventilation ---
+
+// Damper position sensor in ventilation or minimum fresh air duct
+// Used when there are separate ducts for minimum fresh air vs economizing.
+VentilationDamperSensor : DamperSensor { ventilation }
+
+// Damper position command in ventilation or minimum fresh air duct
+// Used when there are separate ducts for minimum fresh air vs economizing.
+VentilationDamperCmd : DamperCmd { ventilation }
+
+//////////////////////////////////////////////////////////////////////////
+// Fan
+//////////////////////////////////////////////////////////////////////////
+
+// Point associated with a fan
+FanPoint : Point <abstract> {
+  air
+  fan
+}
+
+// Sensor for primary on/off state of fan
+FanRunSensor : FanPoint & RunSensor <abstract>
+
+// Command for primary on/off state of fan
+FanRunCmd : FanPoint & RunCmd <abstract>
+
+// Sensor for secondary on/off state of fan
+FanEnableSensor : FanPoint & EnableSensor <abstract>
+
+// Command for secondary on/off state of fan
+FanEnableCmd : FanPoint & EnableCmd <abstract>
+
+// Sensor for speed of a fan as percentage 0% off and 100% full speed
+FanSpeedSensor : FanPoint & VfdSpeedSensor <abstract>
+
+// Command for speed of a fan as percentage 0% off and 100% full speed
+FanSpeedCmd : FanPoint & VfdSpeedCmd <abstract>
+
+// --- Discharge ---
+
+// Sensor for primary on/off state of fan in discharge duct
+DischargeFanRunSensor : FanRunSensor { discharge }
+
+// Command for primary on/off state of fan in discharge duct
+DischargeFanRunCmd : FanRunCmd { discharge }
+
+// Sensor for secondary on/off state of fan in discharge duct
+DischargeFanEnableSensor : FanEnableSensor { discharge }
+
+// Command for secondary on/off state of fan in discharge duct
+DischargeFanEnableCmd : FanEnableCmd { discharge }
+
+// Sensor for speed of a fan as percentage 0% off and 100% full speed in discharge duct
+DischargeFanSpeedSensor : FanSpeedSensor { discharge }
+
+// Command for speed of a fan as percentage 0% off and 100% full speed in discharge duct
+DischargeFanSpeedCmd : FanSpeedCmd { discharge }
+
+// --- Return ---
+
+// Sensor for primary on/off state of fan in return duct
+ReturnFanRunSensor : FanRunSensor { return }
+
+// Command for primary on/off state of fan in return duct
+ReturnFanRunCmd : FanRunCmd { return }
+
+// Sensor for secondary on/off state of fan in return duct
+ReturnFanEnableSensor : FanEnableSensor { return }
+
+// Command for secondary on/off state of fan in return duct
+ReturnFanEnableCmd : FanEnableCmd { return }
+
+// Sensor for speed of a fan as percentage 0% off and 100% full speed in return duct
+ReturnFanSpeedSensor : FanSpeedSensor { return }
+
+// Command for speed of a fan as percentage 0% off and 100% full speed in return duct
+ReturnFanSpeedCmd : FanSpeedCmd { return }
+
+//////////////////////////////////////////////////////////////////////////
+// Motors
+//////////////////////////////////////////////////////////////////////////
+
+// Point associated with the primary on/off state for running equipment such as motors
+RunPoint : BoolPoint <abstract> {
+  run
+  enum: "off,on"
+}
+
+// Sensor for the primary on/off command for running equipment such as motor
+RunSensor : RunPoint & Sensor <abstract>
+
+// Primary on/off command to run a equipment such as a motor
+RunCmd : RunPoint & Cmd <abstract>
+
+// Point associated with the secondary on/off state for running equipment such as motors
+EnablePoint : BoolPoint & Sensor <abstract> {
+  enable
+  enum: "off,on"
+}
+
+// Sensor for the secondary on/off command for running equipment such as motors
+EnableSensor : EnablePoint & Sensor <abstract>
+
+// Secondary on/off command to run equipment such as motors
+EnableCmd : EnablePoint & Cmd <abstract>
+
+// Boolean alarm condition
+AlarmSensor : BoolPoint & Sensor <abstract> { alarm }
+
+// Point associated with VFD frequency measured in Hertz
+VfdFreqPoint : NumberPoint & Sensor <abstract> {
+  vfd
+  freq
+  unit: "Hz"
+}
+
+// Sensor for VFD frequency in Hertz
+VfdFreqSensor : VfdFreqPoint & Sensor <abstract>
+
+// Command for VFD frequency in Hertz
+VfdFreqCmd : VfdFreqPoint & Cmd <abstract>
+
+// Point associated with VFD speed as percentage where 0% is off, 100% if full speed
+VfdSpeedPoint : VfdFreqPoint & Sensor <abstract> {
+  vfd
+  speed
+  unit: "%"
+}
+
+// VFD speed sensor as percentage where 0% is off, 100% if full speed
+VfdSpeedSensor : VfdSpeedPoint & Sensor <abstract>
+
+// VFD speed command as percentage where 0% is off, 100% if full speed
+VfdSpeedCmd : VfdSpeedPoint & Cmd <abstract>
+
+//////////////////////////////////////////////////////////////////////////
+// Occupied
+//////////////////////////////////////////////////////////////////////////
+
+// Point associated with the occupied state.  This is a boolean
+// state where false means unoccupied and true means occupied.
+OccupiedPoint  : BoolPoint <abstract> {
+  occupied
+  enum: "unoccupied,occupied"
+}
+
+// Occupancy sensor
+OccupiedSensor : OccupiedPoint & Sensor <abstract>
+
+// Occupancy setpoint
+OccupiedSp : OccupiedPoint & Sp <abstract>
+
+// --- Zone ---
+
+// Occupancy sensor for zone space
+ZoneOccupiedSensor : OccupiedSensor { zone }
+
+// Occupancy setpoint for zone space
+ZoneOccupiedSp : OccupiedSp { zone }
+
+//////////////////////////////////////////////////////////////////////////
+// Valves
+//////////////////////////////////////////////////////////////////////////
+
+// Point associated with a valve; 0% is fully closed and 100% is fully open.
+ValvePoint : NumberPoint <abstract> {
+  valve
+  unit: "%"
+}
+
+// Valve position sensor; 0% is fully closed and 100% is fully open.
+ValveSensor : ValvePoint & Sensor <abstract>
+
+// Valve position command; 0% is fully closed and 100% is fully open.
+ValveCmd : ValvePoint & Cmd <abstract>
+
+// --- Chilled Water ---
+
+// Valve sensor for chilled water
+ChilledWaterValveSensor : ValveSensor { chilled, water }
+
+// Valve commad for hot water
+ChilledWaterValveCmd : ValveCmd { chilled, water }
+
+// --- Hot Water ---
+
+// Valve sensor for hot water
+HotWaterValveSensor : ValveSensor { hot, water }
+
+// Valve commad for hot water
+HotWaterValveCmd : ValveCmd { hot, water }
+
+
+
+

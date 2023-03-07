@@ -1,0 +1,18 @@
+// Copyright (c) 2022, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   6 Nov 2022  Brian Frank  Creation
+
+pragma: Lib <
+  doc: "Project haystack experimental points library"
+  version: "3.9.12"
+  depends: {
+    { lib: "sys" }
+    { lib: "ph" }
+  }
+  org: {
+   dis: "Project Haystack"
+   uri: "https://project-haystack.org/"
+  }
+>

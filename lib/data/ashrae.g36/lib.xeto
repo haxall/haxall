@@ -1,0 +1,23 @@
+//
+// Copyright (c) 2022, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Nov 2022  Brian Frank  Creation
+//
+
+pragma: Lib <
+  doc: "ASHRAE Guideline 36 examples"
+  version: "0.9.2"
+  depends: {
+    { lib: "sys" }
+    { lib: "ph" }
+    { lib: "ph.points" }
+  }
+  org: {
+    dis: "Project Haystack"
+    uri: "https://project-haystack.org/"
+  }
+>
+
+
