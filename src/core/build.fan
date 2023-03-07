@@ -16,6 +16,7 @@ class Build : BuildGroup
   {
     childrenScripts =
     [
+      `data/build.fan`,
       `haystack/build.fan`,
       `hxUtil/build.fan`,
       `auth/build.fan`,
