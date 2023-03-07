@@ -1,0 +1,177 @@
+#
+# Tests for compiling libs and new types
+#
+
+---
+name: "simple"
+compileLib: |
+  Foo: Dict
+verifyTypes:
+  Foo:
+    base: "sys::Dict"
+    meta:
+      doc: "inherit"
+---
+name: "metaMarker"
+compileLib: |
+  Foo: Dict <bar>
+verifyTypes:
+  Foo:
+    base: "sys::Dict"
+    meta:
+      doc: "inherit"
+      bar: "sys::Marker"
+---
+name: "metaDoc"
+compileLib: |
+  // Foo doc
+  Foo: Dict
+verifyTypes:
+  Foo:
+    base: "sys::Dict"
+    meta:
+      doc: "sys::Str Foo doc"
+---
+name: "metaComplex"
+compileLib: |
+  // Foo doc
+  Foo: Dict <bar, baz:"hi!">
+verifyTypes:
+  Foo:
+    base: "sys::Dict"
+    meta:
+      doc: "sys::Str Foo doc"
+      bar: "sys::Marker"
+      baz: "sys::Str hi!"
+---
+name: "slotMarker"
+compileLib: |
+  Foo: { bar }
+verifyTypes:
+  Foo:
+    base: "sys::Dict"
+    meta:
+      doc: "inherit"
+    slots:
+      bar:
+        type: "sys::Marker"
+        meta:
+          doc: "inherit"
+          val: "sys::Marker"
+---
+name: "slotWithMeta"
+compileLib: |
+  Foo: Dict {
+    bar: Marker <baz>
+    qux: Str <corge : "garply", waldo: Date "2023-03-05">
+  }
+verifyTypes:
+  Foo:
+    base: "sys::Dict"
+    meta:
+      doc: "inherit"
+    slots:
+      bar:
+        type: "sys::Marker"
+        meta:
+          baz: "sys::Marker"
+          doc: "inherit"
+          val: "inherit"
+      qux:
+        type: "sys::Str"
+        meta:
+          corge: "sys::Str garply"
+          waldo: "sys::Date 2023-03-05"
+          doc: "inherit"
+          val: "inherit"
+---
+name: "slotWithMetaAndDoc"
+compileLib: |
+  Foo: Dict {
+    bar: Marker <baz>  // bar doc
+    // qux doc
+    qux: Str <corge : "garply", waldo: Date "2023-03-05">
+  }
+verifyTypes:
+  Foo:
+    base: "sys::Dict"
+    meta:
+      doc: "inherit"
+    slots:
+      bar:
+        type: "sys::Marker"
+        meta:
+          baz: "sys::Marker"
+          doc: "sys::Str bar doc"
+          val: "inherit"
+      qux:
+        type: "sys::Str"
+        meta:
+          corge: "sys::Str garply"
+          waldo: "sys::Date 2023-03-05"
+          doc: "sys::Str qux doc"
+          val: "inherit"
+---
+name: "slotInherit"
+compileLib: |
+  A: {
+    bar: Date <qux> "2023-02-05"
+  }
+  B : A
+verifyTypes:
+  A:
+    base: "sys::Dict"
+    meta:
+      doc: "inherit"
+    slots:
+      bar:
+        type: "sys::Date"
+        meta:
+          doc: "inherit"
+          pattern: "inherit"
+          qux: "sys::Marker"
+          val: "sys::Date 2023-02-05"
+  B:
+    base: "test::A"
+    meta:
+      doc: "inherit"
+    slots:
+      bar: "inherit A"
+---
+name: "slotOverride"
+compileLib: |
+  A: {
+    bar: Date <qux> "2023-02-05"
+  }
+  B : A {
+    bar: Date <baz>
+  }
+verifyTypes:
+  A:
+    base: "sys::Dict"
+    meta:
+      doc: "inherit"
+    slots:
+      bar:
+        type: "sys::Date"
+        meta:
+          doc: "inherit"
+          pattern: "inherit"
+          qux: "sys::Marker"
+          val: "sys::Date 2023-02-05"
+  B:
+    base: "test::A"
+    meta:
+      doc: "inherit"
+    slots:
+      bar:
+        type: "sys::Date"
+        val: "sys::Date 2023-02-05"
+        meta:
+          doc: "inherit"
+          pattern: "inherit"
+          qux: "inherit"
+          val: "inherit"
+          baz: "sys::Marker"
+---
+
