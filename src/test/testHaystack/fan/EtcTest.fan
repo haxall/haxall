@@ -163,6 +163,17 @@ class EtcTest : HaystackTest
       case 6:   verifyFixedDict(6, Etc.makeDict6("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4), "f", n(5)), dict)
       default:  verifyEq(dict.typeof.qname, "haystack::MapDict")
     }
+
+    switch (size)
+    {
+      case 1:   verifyFixedDict(1, Etc.dict1("a", n(0)), dict)
+      case 2:   verifyFixedDict(2, Etc.dict2("a", n(0), "b", n(1)), dict)
+      case 3:   verifyFixedDict(3, Etc.dict3("a", n(0), "b", n(1), "c", n(2)), dict)
+      case 4:   verifyFixedDict(4, Etc.dict4("a", n(0), "b", n(1), "c", n(2), "d", n(3)), dict)
+      case 5:   verifyFixedDict(5, Etc.dict5("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4)), dict)
+      case 6:   verifyFixedDict(6, Etc.dict6("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4), "f", n(5)), dict)
+      default:  verifyEq(dict.typeof.qname, "haystack::MapDict")
+    }
   }
 
   Void verifyFixedDict(Int size, Dict a, Dict b)

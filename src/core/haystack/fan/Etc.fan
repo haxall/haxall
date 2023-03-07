@@ -89,7 +89,8 @@ const class Etc
   }
 
   **
-  ** Make a Dict with one name/value pair
+  ** Make a Dict with one name/value pair.
+  ** Backward compatibility only for nullable values, use `dict1` now.
   **
   static Dict makeDict1(Str n, Obj? v)
   {
@@ -98,7 +99,8 @@ const class Etc
   }
 
   **
-  ** Make a Dict with two name/value pairs
+  ** Make a Dict with two name/value pairs.
+  ** Backward compatibility only for nullable values, use `dict2` now.
   **
   static Dict makeDict2(Str n0, Obj? v0, Str n1, Obj? v1)
   {
@@ -108,7 +110,8 @@ const class Etc
   }
 
   **
-  ** Make a Dict with three name/value pairs
+  ** Make a Dict with three name/value pairs.
+  ** Backward compatibility only for nullable values, use `dict3` now.
   **
   static Dict makeDict3(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2)
   {
@@ -119,7 +122,8 @@ const class Etc
   }
 
   **
-  ** Make a Dict with four name/value pairs
+  ** Make a Dict with four name/value pairs.
+  ** Backward compatibility only for nullable values, use `dict4` now.
   **
   static Dict makeDict4(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3)
   {
@@ -131,7 +135,8 @@ const class Etc
   }
 
   **
-  ** Make a Dict with five name/value pairs
+  ** Make a Dict with five name/value pairs.
+  ** Backward compatibility only for nullable values, use `dict5` now.
   **
   static Dict makeDict5(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3, Str n4, Obj? v4)
   {
@@ -144,7 +149,8 @@ const class Etc
   }
 
   **
-  ** Make a Dict with six name/value pairs
+  ** Make a Dict with six name/value pairs.
+  ** Backward compatibility only for nullable values, use `dict6` now.
   **
   static Dict makeDict6(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3, Str n4, Obj? v4, Str n5, Obj? v5)
   {
@@ -155,6 +161,62 @@ const class Etc
     if (v4 == null) return makeDict5(n0, v0, n1, v1, n2, v2, n3, v3, n5, v5)
     if (v5 == null) return makeDict5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4)
     return Dict6.make6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5)
+  }
+
+  **
+  ** Empty dict singleton
+  **
+  static Dict dict0()
+  {
+    EmptyDict.val
+  }
+
+  **
+  ** Create a Dict with one name/value pair
+  **
+  static Dict dict1(Str n, Obj v)
+  {
+    Dict1.make1(n, v)
+  }
+
+  **
+  ** Create a Dict with two name/value pairs
+  **
+  static Dict dict2(Str n0, Obj v0, Str n1, Obj v1)
+  {
+    Dict2.make2(n0, v0, n1, v1)
+  }
+
+  **
+  ** Create a Dict with three name/value pairs
+  **
+  static Dict dict3(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2)
+  {
+    Dict3.make3(n0, v0, n1, v1, n2, v2)
+  }
+
+  **
+  ** Create a Dict with four name/value pairs
+  **
+  static Dict dict4(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3)
+  {
+    Dict4.make4(n0, v0, n1, v1, n2, v2, n3, v3)
+  }
+
+  **
+  ** Create a Dict with five name/value pairs
+  **
+  static Dict dict5(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4)
+  {
+    Dict5.make5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4)
+  }
+
+  **
+  ** Create a Dict with six name/value pairs
+  **
+  static Dict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5)
+  {
+    Dict6.make6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5)
   }
 
   **

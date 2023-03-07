@@ -6,6 +6,8 @@
 //   22 Dec 2009  Brian Frank  Creation
 //
 
+using data
+
 **
 ** Dict is a map of name/value pairs.  It is used to model grid rows, grid
 ** meta-data, and name/value object literals.  Dict is characterized by:
@@ -17,33 +19,39 @@
 ** Also see `Etc.emptyDict`, `Etc.makeDict`.
 **
 @Js
-const mixin Dict
+const mixin Dict : DataDict
 {
+
+  **
+  ** Specification of this dict or 'sys::Dict' if generic.
+  **
+  override DataSpec spec() { DataEnv.cur.dictSpec }
+
   **
   ** Return if the there are no name/value pairs
   **
-  abstract Bool isEmpty()
+  abstract override Bool isEmpty()
 
   **
   ** Get the value for the given name or 'def' if name not mapped
   **
   @Operator
-  abstract Obj? get(Str name, Obj? def := null)
+  abstract override Obj? get(Str name, Obj? def := null)
 
   **
   ** Return true if the given name is mapped to a non-null value.
   **
-  abstract Bool has(Str name)
+  abstract override Bool has(Str name)
 
   **
   ** Return true if the given name is not mapped to a non-null value.
   **
-  abstract Bool missing(Str name)
+  abstract override Bool missing(Str name)
 
   **
   ** Iterate through the name/value pairs
   **
-  abstract Void each(|Obj val, Str name| f)
+  abstract override Void each(|Obj val, Str name| f)
 
   **
   ** Iterate through the name/value pairs until the given
@@ -51,7 +59,7 @@ const mixin Dict
   ** return resulting object.  Return null if function returns
   ** null for every name/value pair.
   **
-  abstract Obj? eachWhile(|Obj val, Str name->Obj?| f)
+  abstract override Obj? eachWhile(|Obj val, Str name->Obj?| f)
 
   **
   ** Get the value mapped by the given name.  If it is not
