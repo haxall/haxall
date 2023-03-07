@@ -9,6 +9,7 @@
 using concurrent
 using util
 using data
+using haystack::Etc
 
 **
 ** Xeto DataEnv implementation
@@ -19,7 +20,7 @@ internal const class XetoEnv : DataEnv
   new make()
   {
     this.libMgr = XetoLibMgr(this)
-    this.emptyDict = MDict(Str:Obj[:], null)
+    this.dict0 = Etc.dict0
     this.factory = XetoFactory()
     this.sys = MSys(libMgr.load("sys"))
   }
@@ -32,7 +33,35 @@ internal const class XetoEnv : DataEnv
 
   override Obj marker() { factory.marker }
 
-  const override MDict emptyDict
+  override DataSpec dictSpec() { sys.dict }
+
+  const override DataDict dict0
+
+  override DataDict dict1(Str n, Obj v) { Etc.dict1(n, v) }
+
+  override DataDict dict2(Str n0, Obj v0, Str n1, Obj v1) {  Etc.dict2(n0, v0, n1, v1) }
+
+  override DataDict dict3(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2) {  Etc.dict3(n0, v0, n1, v1, n2, v2)  }
+
+  override DataDict dict4(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3) { Etc.dict4(n0, v0, n1, v1, n2, v2, n3, v3) }
+
+  override DataDict dict5(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4) { Etc.dict5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4) }
+
+  override DataDict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5) { Etc.dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5) }
+
+  override DataDict dict(Obj? val, DataSpec? spec := null)
+  {
+    if (val == null) return dict0
+    if (val is DataDict) return val
+    map := val as Str:Obj? ?: throw ArgErr("Unsupported dict arg: $val.typeof")
+    if (map.isEmpty)
+    {
+      if (spec == null || spec === ((MSys?)sys)?.dict) return dict0
+    }
+    dict := Etc.makeDict(map)
+    if (spec == null) return dict
+    return MDict(dict, spec)
+  }
 
   override DataType? typeOf(Obj? val, Bool checked := true)
   {
@@ -42,20 +71,6 @@ internal const class XetoEnv : DataEnv
     if (val is DataDict) return ((DataDict)val).spec.type
     if (checked) throw UnknownTypeErr("No DataType mapped for '$val.typeof'")
     return null
-  }
-
-  override DataSpec dictSpec() { sys.dict }
-
-  override DataDict dict(Obj? val, DataSpec? spec := null)
-  {
-    if (val == null) return emptyDict
-    if (val is DataDict) return val
-    map := val as Str:Obj? ?: throw ArgErr("Unsupported dict arg: $val.typeof")
-    if (map.isEmpty)
-    {
-      if (spec == null || spec === ((MSys?)sys)?.dict) return emptyDict
-    }
-    return MDict(map, spec)
   }
 
   override Str[] libsInstalled() { libMgr.installed }

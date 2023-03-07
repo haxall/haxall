@@ -8,6 +8,7 @@
 
 **
 ** DataDict is a map of name/value pairs.
+** Create instances via `DataEnv.dict`.
 **
 @Js
 const mixin DataDict

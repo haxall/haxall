@@ -133,9 +133,9 @@ internal class Assemble : Step
 
   private DataDict asmMeta(ASpec x)
   {
-    if (x.meta == null && x.val == null) return env.emptyDict
+    if (x.meta == null && x.val == null) return env.dict0
 
-    DataDict dict := x.meta == null ? env.emptyDict : asmDict(x.meta)
+    DataDict dict := x.meta == null ? env.dict0 : asmDict(x.meta)
 
     // TODO: just temp hack for now
     if (x.val != null)

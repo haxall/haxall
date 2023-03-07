@@ -168,7 +168,7 @@ echo("### $x")
 
     verifyEq(type.qname, qname)
     verifySame(d.spec, env.type(qname))
-    if (map.isEmpty) verifySame(d, env.emptyDict)
+    if (map.isEmpty) verifySame(d, env.dict0)
 
     map.each |v, n|
     {

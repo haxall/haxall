@@ -36,21 +36,39 @@ const abstract class DataEnv
   ** Marker singleton
   abstract Obj marker()
 
-  ** Empty dict singleton
-  abstract DataDict emptyDict()
-
   ** Return generic 'sys::Dict'
   @NoDoc abstract DataSpec dictSpec()
 
-  ** Data type for Fantom object
-  abstract DataType? typeOf(Obj? val, Bool checked := true)
+  ** Empty dict singleton
+  @NoDoc abstract DataDict dict0()
 
-  ** Create Dict from given value:
+  ** Create a Dict with one name/value pair
+  @NoDoc abstract DataDict dict1(Str n, Obj v)
+
+  ** Create a Dict with two name/value pairs
+  @NoDoc abstract DataDict dict2(Str n0, Obj v0, Str n1, Obj v1)
+
+  ** Create a Dict with three name/value pairs
+  @NoDoc abstract DataDict dict3(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2)
+
+  ** Create a Dict with four name/value pairs
+  @NoDoc abstract DataDict dict4(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3)
+
+  ** Create a Dict with five name/value pairs
+  @NoDoc abstract DataDict dict5(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4)
+
+  ** Create a Dict with six name/value pairs
+  @NoDoc abstract DataDict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5)
+
+  ** Create a Dict from given value:
   **   - If null, return empty dict
   **   - If DataDict, return it
-  **   - If Fantom Map, wrap as DataDict
+  **   - If Fantom Map, wrap as DataDict (cannot have null values)
   **   - Raise exception for any other value type
   abstract DataDict dict(Obj? val, DataSpec? spec := null)
+
+  ** Data type for Fantom object
+  abstract DataType? typeOf(Obj? val, Bool checked := true)
 
   ** List the library qnames installed by this environment
   abstract Str[] libsInstalled()

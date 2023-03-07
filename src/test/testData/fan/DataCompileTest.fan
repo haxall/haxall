@@ -122,7 +122,7 @@ class DataCompileTest : AbstractDataTest
     if (expected.isEmpty && type == "sys::Dict")
     {
       verifyEq(actual.isEmpty, true)
-      verifySame(actual, env.emptyDict)
+      verifySame(actual, env.dict0)
       return
     }
     verifyDictEq(actual, expected)

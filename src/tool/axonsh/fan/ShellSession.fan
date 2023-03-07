@@ -141,7 +141,7 @@ internal class ShellSession
   {
     str := errToStr(msg, err)
     if (!str.endsWith("\n")) str += "\n"
-    Printer(cx.data, out, cx.data.emptyDict).warn(str)
+    Printer(cx.data, out, cx.data.dict0).warn(str)
     return null
   }
 
