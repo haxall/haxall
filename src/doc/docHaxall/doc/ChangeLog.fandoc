@@ -6,6 +6,8 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
+*Build 3.1.7 Patches *
+
 *Build 3.1.7 (17 Feb 2023)*
 - Add point conversion: boolToNumber
 - Haystack 3.9.13
