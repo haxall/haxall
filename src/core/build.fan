@@ -18,6 +18,7 @@ class Build : BuildGroup
     [
       `data/build.fan`,
       `haystack/build.fan`,
+      `xeto/build.fan`,
       `hxUtil/build.fan`,
       `auth/build.fan`,
       `def/build.fan`,

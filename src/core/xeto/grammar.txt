@@ -1,0 +1,83 @@
+//
+// Copyright (c) 2022, Brian Frank
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   2 Aug 2022  Brian Frank  Creation
+//
+
+
+Productions [#productions]
+**************************
+
+  <objs>             :=  [<obj> <endOfObj>]*
+  <endOfObj>         :=  ( [","] <nl> ) | ","
+  <obj>              :=  [<leadingDoc>] ( <markerOnly> | <named> | <unnamed> ) [<trailingDoc>]
+  <markerOnly>       :=  <markerName>
+  <named>            :=  <name> ":" <body>
+  <unnamed>          :=  <body>
+  <body>             :=  [<spec>] [<childrenOrVal>]  // must have at least one of these productions
+  <childrenOrVal>    :=  <children> | <val>
+  <children>         :=  "{" <objs> "}"
+
+  <spec>             :=  <type> [<meta>] "?"
+  <meta>             :=  "<" <objs> ">"
+  <type>             :=  <typeAnd> | <typeOr> | <typeSimple>
+  <typeAnd>          :=  <typeSimple> ("&" <typeSimple>)+
+  <typeOr>           :=  <typeSimple> ("|" <typeSimple>)+
+  <typeSimple>       :=  <qname>
+
+  <leadingDoc>       := (<lineComment>)*
+  <trailingDoc>      := <lineComment>
+
+  <qname>            :=  <name> ("." <name>)* ["::" <name>]
+  <name>             :=  <alpha> (<nameRest>)*
+  <markerName>       :=  <alphaLower> (<nameRest>)*
+  <nameRest>         :=  alpha | digit | '_'
+  <alpha>            :=  alphaLower | alphaUpper
+  <alphaLower>       :=  'a' - 'z'
+  <alphaUpper>       :=  'A' - 'Z'
+  <digit>            :=  '0' - '9'
+
+  <val>              :=  see below
+
+Values
+******
+Scalar values may take one of the following formats:
+  - single double-quoted string such as "hi"
+  - triple double-quoted strings such as """my name is "Brian", hi!"""
+  - numbers with embedded units/symbols such as 123% or 2023-03-04
+
+Quoted strings use the same backslash escape sequence as C languages:
+  - '\n'  for newline
+  - '\\'  for backslash itself
+  - '\"' for double-quote itself (triple quoted string does not require escaping)
+  - '\u2023" unicode hex value
+
+Number literals must start with an ASCII digit or "-" followed by an ASCII digit.
+Any of the following characters are matched to tokenize the number literal:
+  - ASCII digit or letter 0-9, A-Z, a-z
+  - "." dot (0x2E)
+  - "-" dash (0x2D)
+  - ":" colon (0x3A)
+  - "/" forward slash (0x2F)
+  - "$" dollar sign (0x24)
+  - "%" percent sign (0x25)
+  - any Unicode character > 0x7F
+
+Legend [#legend]
+****************
+Legend for BNF Grammar:
+  :=      is defined as
+  <x>     non-terminal
+  "x"     literal
+  'x'     char literal
+  [x]     optional
+  (x)     grouping
+  s-e     inclusive char range
+  x*      zero or more times
+  x+      one or more times
+  x|x     or
+
+
+
