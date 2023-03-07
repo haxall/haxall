@@ -176,7 +176,7 @@ const class Etc
   **
   static Dict dict1(Str n, Obj v)
   {
-    Dict1.make1(n, v)
+    Dict1(n, v)
   }
 
   **
@@ -184,7 +184,7 @@ const class Etc
   **
   static Dict dict2(Str n0, Obj v0, Str n1, Obj v1)
   {
-    Dict2.make2(n0, v0, n1, v1)
+    Dict2(n0, v0, n1, v1)
   }
 
   **
@@ -192,7 +192,7 @@ const class Etc
   **
   static Dict dict3(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2)
   {
-    Dict3.make3(n0, v0, n1, v1, n2, v2)
+    Dict3(n0, v0, n1, v1, n2, v2)
   }
 
   **
@@ -200,7 +200,7 @@ const class Etc
   **
   static Dict dict4(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3)
   {
-    Dict4.make4(n0, v0, n1, v1, n2, v2, n3, v3)
+    Dict4(n0, v0, n1, v1, n2, v2, n3, v3)
   }
 
   **
@@ -208,7 +208,7 @@ const class Etc
   **
   static Dict dict5(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4)
   {
-    Dict5.make5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4)
+    Dict5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4)
   }
 
   **
@@ -216,7 +216,48 @@ const class Etc
   **
   static Dict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5)
   {
-    Dict6.make6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5)
+    Dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5)
+  }
+
+  **
+  ** Create a Dict from a map of name/value pairs.  Result will automatically
+  ** optimize to create one of the fixed sizes if six or less pairs.
+  **
+  @NoDoc static Dict dictFromMap(Str:Obj map)
+  {
+    if (map.isEmpty) return dict0
+
+    if (map.size > 6) return NotNullMapDict(map)
+
+    i := 0
+    Str? n0; Str? n1; Str? n2; Str? n3; Str? n4; Str? n5
+    Obj? v0; Obj? v1; Obj? v2; Obj? v3; Obj? v4; Obj? v5
+
+    map.each |v, n|
+    {
+      switch (i++)
+      {
+        case 0: n0 = n; v0 = v
+        case 1: n1 = n; v1 = v
+        case 2: n2 = n; v2 = v
+        case 3: n3 = n; v3 = v
+        case 4: n4 = n; v4 = v
+        case 5: n5 = n; v5 = v
+        default: throw Err()
+      }
+    }
+
+    switch (i)
+    {
+      case 0:  return emptyDict
+      case 1:  return Dict1(n0, v0)
+      case 2:  return Dict2(n0, v0, n1, v1)
+      case 3:  return Dict3(n0, v0, n1, v1, n2, v2)
+      case 4:  return Dict4(n0, v0, n1, v1, n2, v2, n3, v3)
+      case 5:  return Dict5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4)
+      case 6:  return Dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5)
+      default: throw Err()
+    }
   }
 
   **

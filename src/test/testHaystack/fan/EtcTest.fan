@@ -144,6 +144,8 @@ class EtcTest : HaystackTest
 
     verifyDict(map.dup)
 
+    // test old nullable versions of makeDict, makeDictX
+
     dict := Etc.makeDict(map)
     verifyDictEq(dict, map)
 
@@ -164,6 +166,15 @@ class EtcTest : HaystackTest
       default:  verifyEq(dict.typeof.qname, "haystack::MapDict")
     }
 
+    // test non-null versions of dictFromMap, dictX
+
+    dict = Etc.dictFromMap(map)
+    verifyDictEq(dict, map)
+    if (size <= maxFixed)
+      verifyEq(dict.typeof.qname, "haystack::Dict${size}")
+    else
+      verifyEq(dict.typeof.qname, "haystack::NotNullMapDict")
+
     switch (size)
     {
       case 1:   verifyFixedDict(1, Etc.dict1("a", n(0)), dict)
@@ -172,7 +183,7 @@ class EtcTest : HaystackTest
       case 4:   verifyFixedDict(4, Etc.dict4("a", n(0), "b", n(1), "c", n(2), "d", n(3)), dict)
       case 5:   verifyFixedDict(5, Etc.dict5("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4)), dict)
       case 6:   verifyFixedDict(6, Etc.dict6("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4), "f", n(5)), dict)
-      default:  verifyEq(dict.typeof.qname, "haystack::MapDict")
+      default:  verifyEq(dict.typeof.qname, "haystack::NotNullMapDict")
     }
   }
 
