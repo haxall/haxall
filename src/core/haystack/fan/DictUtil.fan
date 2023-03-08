@@ -30,12 +30,12 @@ internal const class EmptyDict : Dict
 @Js
 internal const class MapDict : Dict
 {
-  new make(Str:Obj? map) { this.map = map.ro }
+  new make(Str:Obj? map) { this.map = map }
   const Str:Obj? map
   override Bool isEmpty() { map.isEmpty }
   override Obj? get(Str n, Obj? def := null) { map.get(n, def) }
-  override Bool has(Str n) { map[n] != null }
-  override Bool missing(Str n) { map[n] == null }
+  override Bool has(Str n) { map.get(n, null) != null }
+  override Bool missing(Str n) { map.get(n, null) == null }
   override Void each(|Obj, Str| f)
   {
     map.each |v, n|
@@ -50,6 +50,29 @@ internal const class MapDict : Dict
       v == null ? null : f(v, n)
     }
   }
+  override Obj? trap(Str n, Obj?[]? a := null)
+  {
+    v := map[n]
+    if (v != null) return v
+    throw UnknownNameErr(n)
+  }
+}
+
+**************************************************************************
+** NotNullMapDict
+**************************************************************************
+
+@Js
+internal const class NotNullMapDict : Dict
+{
+  new make(Str:Obj map) { this.map = map }
+  const Str:Obj map
+  override Bool isEmpty() { map.isEmpty }
+  override Obj? get(Str n, Obj? def := null) { map.get(n, def) }
+  override Bool has(Str n) { map.get(n, null) != null }
+  override Bool missing(Str n) { map.get(n, null) == null }
+  override Void each(|Obj, Str| f) { map.each(f) }
+  override Obj? eachWhile(|Obj, Str->Obj?| f) { map.eachWhile(f) }
   override Obj? trap(Str n, Obj?[]? a := null)
   {
     v := map[n]

@@ -10,6 +10,7 @@ using concurrent
 using util
 using data
 using haystack::Etc
+using haystack::Marker
 
 **
 ** Xeto DataEnv implementation
@@ -20,9 +21,11 @@ internal const class XetoEnv : DataEnv
   new make()
   {
     this.libMgr = XetoLibMgr(this)
+    this.marker = Marker.val
     this.dict0 = Etc.dict0
     this.factory = XetoFactory()
     this.sys = MSys(libMgr.load("sys"))
+    this.dictSpec = sys.dict
   }
 
   const XetoLibMgr libMgr
@@ -31,9 +34,9 @@ internal const class XetoEnv : DataEnv
 
   const XetoFactory factory
 
-  override Obj marker() { factory.marker }
+  override const Obj marker
 
-  override DataSpec dictSpec() { sys.dict }
+  override const DataSpec dictSpec
 
   const override DataDict dict0
 
@@ -49,18 +52,19 @@ internal const class XetoEnv : DataEnv
 
   override DataDict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5) { Etc.dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5) }
 
-  override DataDict dict(Obj? val, DataSpec? spec := null)
+  override DataDict dictMap(Str:Obj map, DataSpec? spec := null)
+  {
+    dict := Etc.dictFromMap(map)
+    if (spec == null || spec === dictSpec) return dict
+    return MDict(dict, spec)
+  }
+
+  override DataDict dict(Obj? val)
   {
     if (val == null) return dict0
     if (val is DataDict) return val
-    map := val as Str:Obj? ?: throw ArgErr("Unsupported dict arg: $val.typeof")
-    if (map.isEmpty)
-    {
-      if (spec == null || spec === ((MSys?)sys)?.dict) return dict0
-    }
-    dict := Etc.makeDict(map)
-    if (spec == null) return dict
-    return MDict(dict, spec)
+    map := val as Str:Obj ?: throw ArgErr("Unsupported dict arg: $val.typeof")
+    return dictMap(map, null)
   }
 
   override DataType? typeOf(Obj? val, Bool checked := true)

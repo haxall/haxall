@@ -19,12 +19,10 @@ internal const class XetoFactory
     b := XetoFactoryBuilder()
     this.fromXeto = b.fromXeto
     this.fromFantom = b.fromFantom
-    this.marker = fromXeto["sys::Marker"].fantom.field("val").get(null)
   }
 
   const Str:XetoScalarItem fromXeto
   const Type:XetoScalarItem fromFantom
-  const Obj marker
 }
 
 **************************************************************************

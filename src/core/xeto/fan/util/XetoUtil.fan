@@ -38,7 +38,7 @@ internal const class XetoUtil
     {
       acc[n] = v
     }
-    return spec.env.dict(acc)
+    return spec.env.dictMap(acc)
   }
 
   static Bool isMetaInherited(Str name)

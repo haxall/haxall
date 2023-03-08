@@ -60,12 +60,15 @@ const abstract class DataEnv
   ** Create a Dict with six name/value pairs
   @NoDoc abstract DataDict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5)
 
-  ** Create a Dict from given value:
-  **   - If null, return empty dict
-  **   - If DataDict, return it
-  **   - If Fantom Map, wrap as DataDict (cannot have null values)
-  **   - Raise exception for any other value type
-  abstract DataDict dict(Obj? val, DataSpec? spec := null)
+  ** Create a Dict from a map name/value pairs.
+  @NoDoc abstract DataDict dictMap(Str:Obj map, DataSpec? spec := null)
+
+  ** Coerce one of the following values to a dict:
+  **   - null return empty dict
+  **   - if DataDict return it
+  **   - if Str:Obj wrap it as dict
+  **   - raise exception for anything else
+  abstract DataDict dict(Obj? x)
 
   ** Data type for Fantom object
   abstract DataType? typeOf(Obj? val, Bool checked := true)

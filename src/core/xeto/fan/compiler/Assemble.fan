@@ -109,7 +109,7 @@ internal class Assemble : Step
     acc.ordered = true
     x.slots.each |obj, name| { acc[name] = obj.asm }
 
-    return env.dict(acc, spec)
+    return env.dictMap(acc, spec)
   }
 
   private Void asmLib(ALib x)
@@ -143,7 +143,7 @@ internal class Assemble : Step
       acc := Str:Obj[:]
       dict.each |v, n| { acc[n] = v }
       acc.add("val", asmScalar(x))
-      dict = env.dict(acc)
+      dict = env.dictMap(acc)
     }
 
     return dict
