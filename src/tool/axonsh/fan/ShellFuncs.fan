@@ -17,14 +17,14 @@ const class ShellFuncs : AbstractShellFuncs
   ** Exit the shell.
   @Axon static Obj? quit()
   {
-    cx.session.isDone = true
+    cx.isDone = true
     return noEcho
   }
 
   ** Set the show error trace flag.
   @Axon static Obj? showTrace(Bool flag)
   {
-    cx.session.showTrace = flag
+    cx.showTrace = flag
     return noEcho
   }
 
@@ -34,8 +34,7 @@ const class ShellFuncs : AbstractShellFuncs
   **    help(using)   // print help for the using function
   @Axon static Obj? help(Obj? func := null)
   {
-    session := cx.session
-    out := session.out
+    out := cx.out
 
     if (func == null)
     {
@@ -86,15 +85,14 @@ const class ShellFuncs : AbstractShellFuncs
   ** Print help summary of every function
   @Axon static Obj? helpAll()
   {
-    session := cx.session
-    out := session.out
-    names := session.cx.funcs.keys.sort
+    out := cx.out
+    names := cx.funcs.keys.sort
     nameMax := maxStr(names)
 
     out.printLine
     names.each |n|
     {
-      f := session.cx.funcs[n]
+      f := cx.funcs[n]
       if (isNoDoc(f)) return
       d := docSummary(funcDoc(f) ?: "")
       out.printLine(n.padr(nameMax) + " " + d)
@@ -106,14 +104,14 @@ const class ShellFuncs : AbstractShellFuncs
   ** Pretty print the given value.
   @Axon static Obj? print(Obj? val := null, Obj? opts := null)
   {
-    cx.session.print(val, opts)
+    cx.print(val, opts)
     return noEcho
   }
 
   ** Print the variables in scope
   @Axon static Obj? scope()
   {
-    out := cx.session.out
+    out := cx.out
     vars := cx.varsInScope
     names := vars.keys.sort
     nameMax := maxStr(names)
@@ -217,7 +215,7 @@ const class ShellFuncs : AbstractShellFuncs
 
 abstract const class AbstractShellFuncs
 {
-  internal static Str noEcho() { ShellSession.noEcho }
+  internal static Str noEcho() { ShellContext.noEcho }
 
   internal static ShellContext cx() { AxonContext.curAxon }
 

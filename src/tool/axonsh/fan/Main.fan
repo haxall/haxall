@@ -6,6 +6,8 @@
 //   24 Jan 2023  Brian Frank  Creation
 //
 
+using axon
+
 **
 ** Axon shell command line interface program
 **
@@ -22,14 +24,14 @@ class Main
     if (hasOpt(opts, "-version", "-v")) return printVersion
 
     // if no args, then enter interactive shell
-    session := ShellSession(out)
-    if (args.isEmpty) return session.run
+    cx := ShellContext(out)
+    if (args.isEmpty) return cx.runInteractive
 
     // arg is either expression or axon file name
     arg := args[0]
 
     // setup shell args with everything after file name
-    session.setArgs(mainArgs[mainArgs.index(arg)+1..-1])
+    cx.defOrAssign("args", mainArgs[mainArgs.index(arg)+1..-1], Loc("main"))
 
     // if first arg is axon file, then run it as script
     if (arg.endsWith(".axon"))
@@ -41,9 +43,9 @@ class Main
       if (arg.startsWith("#!")) arg = arg.splitLines[1..-1].join("\n")
     }
 
-    errnum := session.eval(arg)
+    errnum := cx.run(arg)
     if (hasOpt(opts, "-i"))
-      return session.run
+      return cx.runInteractive
     else
       return errnum
   }
