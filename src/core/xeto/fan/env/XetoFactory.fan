@@ -7,6 +7,9 @@
 //
 
 using util
+using haystack::Marker
+using haystack::NA
+using haystack::Remove
 
 **
 ** XetoFactory maps between Xeto and Fantom types
@@ -49,11 +52,11 @@ internal class XetoFactoryBuilder
 
     // haystack
     pod = Pod.find("haystack")
-    addScalar("sys::Marker",   pod.type("Marker"))
+    add(XetoSingletonItem("sys::Marker", pod.type("Marker"), Marker.val))
+    add(XetoSingletonItem("ph::NA",     pod.type("NA"),      NA.val))
+    add(XetoSingletonItem("ph::Remove", pod.type("Remove"),  Remove.val))
     addScalar("sys::Number",   pod.type("Number"))
     addScalar("sys::Ref",      pod.type("Ref"))
-    addScalar("ph::NA",        pod.type("NA"))
-    addScalar("ph::Remove",    pod.type("Remove"))
     addScalar("ph::Coord",     pod.type("Coord"))
     addScalar("ph::XStr",      pod.type("XStr"))
     addScalar("ph::Symbol",    pod.type("Symbol"))
@@ -121,6 +124,18 @@ internal const class XetoScalarItem
   }
 
   override Str toStr() { "$xeto <=> $fantom" }
+}
+
+@Js
+internal const class XetoSingletonItem : XetoScalarItem
+{
+  new make(Str xeto, Type fantom, Obj val) : super(xeto, fantom) { this.val = val }
+  const Obj val
+  override Obj? parse(XetoCompiler c, Str str, FileLoc loc)
+  {
+    if (str == val.toStr) return val
+    throw ParseErr("$xeto: $str.toCode")
+  }
 }
 
 @Js
