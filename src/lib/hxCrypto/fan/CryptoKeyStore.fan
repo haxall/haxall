@@ -21,7 +21,7 @@ const class CryptoKeyStore : KeyStore
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(ActorPool pool, File dir, Log log, Duration timeout := 10sec)
+  new make(ActorPool pool, File dir, Log log, Duration timeout := 1min)
   {
     this.file     = toFile(dir)
     this.log      = log

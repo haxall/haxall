@@ -34,7 +34,7 @@ const class CryptoLib : HxLib, HxCryptoService
   {
     val := rec.get("actorTimeout") as Number
     if (val != null && val.isDuration) return val.toDuration
-    return 10sec
+    return 1min
   }
 
 //////////////////////////////////////////////////////////////////////////
