@@ -12,11 +12,12 @@ using haystack
 using xeto::Printer
 using axon
 using def
+using hx
 
 **
 ** Shell context
 **
-internal class ShellContext : AxonContext
+internal class ShellContext : HxContext
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,9 +27,11 @@ internal class ShellContext : AxonContext
   ** Constructor
   new make(OutStream out)
   {
-    this.out = out
-    this.data = DataEnv.cur
+    this.out   = out
+    this.data  = DataEnv.cur
     this.funcs = loadFuncs
+    this.rt    = ShellRuntime()
+    this.user  = ShellUser()
 
     importDataLib("sys")
     importDataLib("ph")
@@ -39,7 +42,7 @@ internal class ShellContext : AxonContext
     acc := Str:TopFn[:]
     acc.addAll(FantomFn.reflectType(CoreLib#))
     acc.addAll(FantomFn.reflectType(ShellFuncs#))
-    acc.addAll(FantomFn.reflectType(ShellDbFuncs#))
+    acc.addAll(FantomFn.reflectType(HxCoreFuncs#))
     return acc
   }
 
@@ -180,9 +183,27 @@ internal class ShellContext : AxonContext
 // HxContext
 //////////////////////////////////////////////////////////////////////////
 
-  ShellDb db := ShellDb()
+  ** Runtime
+  override const ShellRuntime rt
 
-  override Namespace ns() {  throw Err("TODO") }
+  ** Def namespace
+  override Namespace ns() { rt.ns }
+
+  ** In-memory folio database
+  override ShellFolio db() { rt.db }
+
+  ** Current user
+  override const HxUser user
+
+  ** No session available
+  override HxSession? session(Bool checked := true)
+  {
+    if (checked) throw SessionUnavailableErr("ShellContext")
+    return null
+  }
+
+  ** Return empty dict
+  override Dict about() { Etc.dict0 }
 
 //////////////////////////////////////////////////////////////////////////
 // HaystackContext
@@ -200,8 +221,8 @@ internal class ShellContext : AxonContext
     tags := Str:Obj[:]
     tags["axonsh"] = Marker.val
     tags["locale"] = Locale.cur.toStr
-//    tags["username"] = user.username
-//    tags["userRef"] = user.id
+    tags["username"] = user.username
+    tags["userRef"] = user.id
     return Etc.makeDict(tags)
   }
 
@@ -210,15 +231,15 @@ internal class ShellContext : AxonContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Return if context has read access to given record
-  //override Bool canRead(Dict rec) { true }
+  override Bool canRead(Dict rec) { true }
 
   ** Return if context has write (update/delete) access to given record
-  //override Bool canWrite(Dict rec) { true }
+  override Bool canWrite(Dict rec) { true }
 
   ** Return an immutable thread safe object which will be passed thru
   ** the commit process and available via the FolioHooks callbacks.
   ** This is typically the User instance.  HxContext always returns user.
-  //override Obj? commitInfo() { user }
+  override Obj? commitInfo() { user }
 
 //////////////////////////////////////////////////////////////////////////
 // AxonContext

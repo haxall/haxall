@@ -7,6 +7,7 @@
 //
 
 using data
+using haystack
 using axon
 
 **
@@ -160,6 +161,76 @@ const class ShellFuncs : AbstractShellFuncs
   @Axon static DataLib datalib(Str qname)
   {
     cx.data.lib(qname)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Load
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Load in-memory database from local file.  The file is identified using
+  ** an URI with Unix forward slash conventions.  The file must have one
+  ** of the following file extensions: zinc, json, trio, or csv.
+  ** Each record should define an 'id' tag, or if missing one will
+  ** assigned automatically.
+  **
+  ** Examples:
+  **   load(`folder/site.json`)
+  **
+  @Axon
+  Obj? load(Obj arg)
+  {
+    uri := arg as Uri ?: throw ArgErr("Load file must be Uri, not $arg.typeof")
+    file := File(uri)
+
+    echo("LOAD: loading '$file.osPath' ...")
+    grid := readFile(file)
+
+    // map grid into byId table
+    acc := Ref:Dict[:]
+    acc.clear
+    grid.each |rec|
+    {
+      id := rec["id"] as Ref
+      if (id == null)
+      {
+        id = Ref.gen
+        rec = Etc.dictSet(rec, "id", id)
+      }
+      acc.add(id, rec)
+    }
+
+    // map ids to their dis
+    /*
+    acc.each |rec|
+    {
+      rec.each |v, n| { if (v is Ref) mapRefDis(v) }
+    }
+    */
+
+    echo("LOAD: loaded $acc.size recs")
+    return noEcho
+  }
+
+  /*
+  private Void mapRefDis(Ref ref)
+  {
+    rec := byId[ref]
+    if (rec == null) return
+    ref.disVal = rec["dis"]
+  }
+  */
+
+  private Grid readFile(File file)
+  {
+    switch (file.ext)
+    {
+      case "zinc": return ZincReader(file.in).readGrid
+      case "json": return JsonReader(file.in).readGrid
+      case "trio": return TrioReader(file.in).readGrid
+      case "csv":  return CsvReader(file.in).readGrid
+      default:     throw ArgErr("ERROR: unknown file type [$file.osPath]")
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
