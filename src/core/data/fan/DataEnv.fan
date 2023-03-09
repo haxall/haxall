@@ -28,8 +28,11 @@ const abstract class DataEnv
     }
     catch (Err e)
     {
-      echo("ERROR: cannot init DataEnv.cur")
-      e.trace
+      if (Env.cur.runtime == "java")
+      {
+        echo("ERROR: cannot init DataEnv.cur")
+        e.trace
+      }
     }
   }
 
