@@ -9,6 +9,7 @@
 using data
 using haystack
 using axon
+using folio
 
 **
 ** Axon shell specific functions
@@ -177,8 +178,7 @@ const class ShellFuncs : AbstractShellFuncs
   ** Examples:
   **   load(`folder/site.json`)
   **
-  @Axon
-  Obj? load(Obj arg)
+  @Axon static Obj? load(Obj arg)
   {
     uri := arg as Uri ?: throw ArgErr("Load file must be Uri, not $arg.typeof")
     file := File(uri)
@@ -187,41 +187,20 @@ const class ShellFuncs : AbstractShellFuncs
     grid := readFile(file)
 
     // map grid into byId table
-    acc := Ref:Dict[:]
-    acc.clear
-    grid.each |rec|
+    diffs := Diff[,]
+    grid.each |Dict rec|
     {
-      id := rec["id"] as Ref
-      if (id == null)
-      {
-        id = Ref.gen
-        rec = Etc.dictSet(rec, "id", id)
-      }
-      acc.add(id, rec)
+      id := rec.id
+      rec = Etc.dictRemoveAll(rec, ["id", "mod"])
+      diffs.add(Diff.makeAdd(rec, id))
     }
+    cx.db.commitAll(diffs)
 
-    // map ids to their dis
-    /*
-    acc.each |rec|
-    {
-      rec.each |v, n| { if (v is Ref) mapRefDis(v) }
-    }
-    */
-
-    echo("LOAD: loaded $acc.size recs")
+    echo("LOAD: loaded $grid.size recs")
     return noEcho
   }
 
-  /*
-  private Void mapRefDis(Ref ref)
-  {
-    rec := byId[ref]
-    if (rec == null) return
-    ref.disVal = rec["dis"]
-  }
-  */
-
-  private Grid readFile(File file)
+  private static Grid readFile(File file)
   {
     switch (file.ext)
     {

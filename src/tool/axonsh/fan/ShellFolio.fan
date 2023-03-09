@@ -93,10 +93,64 @@ internal const class ShellFolio : Folio
 
   override FolioFuture doCommitAllAsync(Diff[] diffs, Obj? cxInfo)
   {
-    diffs = diffs.toImmutable
     FolioUtil.checkDiffs(diffs)
 
-    throw Err("TODO")
+    newMod := DateTime.nowUtc(null)
+    diffs =  diffs.map |diff| { commitApply(diff, newMod) }
+
+    diffs.each |diff|
+    {
+      if (diff.isRemove)
+        map.remove(diff.id)
+      else
+        map.set(diff.id, diff.newRec)
+    }
+
+    return FolioFuture(CommitFolioRes(diffs))
+  }
+
+  private Diff commitApply(Diff diff, DateTime newMod)
+  {
+    id := diff.id
+    oldRec := map.get(id) as Dict
+
+    // sanity check oldRec
+    if (diff.isAdd)
+    {
+      if (oldRec != null) throw CommitErr("Rec already exists: $diff.id")
+    }
+    else
+    {
+      if (oldRec == null) throw CommitErr("Rec not found: $diff.id")
+      if (!diff.isForce && oldRec->mod != diff.oldMod)
+        throw ConcurrentChangeErr("$diff.id: ${oldRec->mod} != $diff.oldMod")
+    }
+
+    // construct new rec
+    tags := Str:Obj[:]
+    if (oldRec != null) oldRec.each |v, n| { tags[n] = v }
+    diff.changes.each |v, n|
+    {
+      if (v === Remove.val) tags.remove(n)
+      else tags[n] = commitNorm(v)
+    }
+    tags["id"] = id
+    if (!diff.isTransient) tags["mod"] = newMod
+    newRec := Etc.dictFromMap(tags)
+    newRec.id.disVal = newRec.dis
+
+    // return applied Diff
+    return Diff.makeAll(id, diff.oldMod, oldRec, newMod, newRec, diff.changes, diff.flags)
+  }
+
+  private Obj commitNorm(Obj val)
+  {
+    id := val as Ref
+    if (id == null) return val
+    rec := map.get(id) as Dict
+    if (rec != null) return rec.id
+    if (id.disVal != null) id = Ref(id.id, null)
+    return id
   }
 
   override FolioHis his() { throw UnsupportedErr() }
