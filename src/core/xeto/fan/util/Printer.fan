@@ -9,6 +9,7 @@
 using concurrent
 using util
 using data
+using haystack
 
 **
 ** Pretty printer
@@ -52,25 +53,13 @@ class Printer
   This val(Obj? val)
   {
     if (val == null) return w("null")
-    //if (val is DataSeq) return seq(val)
     if (val is Str) return quoted(val.toStr)
-    if (val is List) return list(val)
+    if (val is Grid) return grid(val)
     if (val is DataSpec) return spec(val, null)
+    if (val is Dict) return dict(val)
+    if (val is List) return list(val)
     return w(val)
   }
-
-  ** Print data sequence
-  /*
-  This seq(DataSeq seq)
-  {
-    if (seq is DataLib) return lib(seq)
-    if (seq is DataType) return type(seq)
-    if (seq is DataSlot) return slot(seq)
-    if (seq is Dict) return dict(seq)
-    if (seq.typeof.name.endsWith("Grid")) return grid(seq)
-    return list(seq.x.toList)
-  }
-  */
 
   ** Print list
   This list(Obj?[] list)
@@ -113,13 +102,50 @@ class Printer
     return this
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Grid
+//////////////////////////////////////////////////////////////////////////
+
   ** Print list
-  /*
-  This grid(DataSeq seq)
+  This grid(Grid grid)
   {
-    return table(seq->printCells)
+    cols := grid.cols.dup
+
+    id := cols.find { it.name == "id" }
+    dis := cols.find { it.name == "dis" }
+    cols.moveTo(id, 0)
+    cols.moveTo(dis, -1)
+
+    table := Str[][,]
+    table.add(cols.map |c->Str| { c.dis })
+    grid.each |row|
+    {
+      cells := Str[,]
+      cells.capacity = cols.size
+      cols.each |c|
+      {
+        val := row.val(c)
+        if (val is Str)
+        {
+          cells.add(val)
+        }
+        else if (val is Ref)
+        {
+          ref := (Ref)val
+          s := "@"+ref.id
+          if (ref.disVal != null) s += " " + ref.disVal.toCode
+          cells.add(s)
+        }
+        else
+        {
+          cells.add(row.dis(c.name))
+        }
+      }
+      table.add(cells)
+    }
+
+    return this.table(table)
   }
-  */
 
 //////////////////////////////////////////////////////////////////////////
 // Table

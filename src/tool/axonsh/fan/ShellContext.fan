@@ -168,13 +168,16 @@ internal class ShellContext : HxContext
   }
 
   ** Flag for full stack trace dumps
-  Bool showTrace := false
+  Bool showTrace := true
 
   ** Sentinel value for no echo
   static const Str noEcho := "_no_echo_"
 
   ** Standout output stream
   OutStream out { private set }
+
+  ** Create Xeto printer for output stream
+  Printer printer() { Printer(data, out, Etc.dict0) }
 
   ** Flag to terminate the interactive loop
   Bool isDone := false

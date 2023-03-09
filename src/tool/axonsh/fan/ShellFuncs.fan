@@ -10,6 +10,7 @@ using web
 using data
 using haystack
 using axon
+using xeto::Printer
 using folio
 
 **
@@ -37,31 +38,34 @@ const class ShellFuncs : AbstractShellFuncs
   **    help(using)   // print help for the using function
   @Axon static Obj? help(Obj? func := null)
   {
-    out := cx.out
+    out := cx.printer
+    comment := out.theme.comment
 
     if (func == null)
     {
-      out.printLine
-      out.printLine("?, help            Print this help summary")
-      out.printLine("quit, exit, bye    Exit the shell")
-      out.printLine("help(func)         Help on a specific function")
-      out.printLine("helpAll()          Print summary of all functions")
-      out.printLine("print(val)         Pretty print value")
-      out.printLine("showTrace(flag)    Toggle the show err trace flag")
-      out.printLine("scope()            Print variables in scope")
-      out.printLine("using()            Print data libraries in use")
-      out.printLine("using(qname)       Import given data library")
-      out.printLine("load(file)         Load virtual database")
-      out.printLine("read(filter)       Read rec as dict from virtual database")
-      out.printLine("readAll(filter)    Read recs as grid from virtual database")
-      out.printLine
+      out.nl
+      out.color(comment)
+      out.w("?, help            Print this help summary").nl
+      out.w("quit, exit, bye    Exit the shell").nl
+      out.w("help(func)         Help on a specific function").nl
+      out.w("helpAll()          Print summary of all functions").nl
+      out.w("print(val)         Pretty print value").nl
+      out.w("showTrace(flag)    Toggle the show err trace flag").nl
+      out.w("scope()            Print variables in scope").nl
+      out.w("using()            Print data libraries in use").nl
+      out.w("using(qname)       Import given data library").nl
+      out.w("load(file)         Load virtual database").nl
+      out.w("read(filter)       Read rec as dict from virtual database").nl
+      out.w("readAll(filter)    Read recs as grid from virtual database").nl
+      out.colorEnd(comment)
+      out.nl
       return noEcho
     }
 
     f := func as TopFn
     if (f == null)
     {
-      out.printLine("Not a top level function: $func [$func.typeof]")
+      out.warn("Not a top level function: $func [$func.typeof]")
       return noEcho
     }
 
@@ -78,29 +82,35 @@ const class ShellFuncs : AbstractShellFuncs
     sig := s.toStr
     doc := funcDoc(f)
 
-    out.printLine
-    out.printLine(sig)
-    if (doc != null) out.printLine.printLine(doc)
-    out.printLine
+    out.nl
+    out.color(comment)
+    out.w(sig).nl
+    if (doc != null) out.nl.w(doc).nl
+    out.colorEnd(comment)
+    out.nl
     return noEcho
   }
 
   ** Print help summary of every function
   @Axon static Obj? helpAll()
   {
-    out := cx.out
+    out := cx.printer
+    comment := out.theme.comment
+
     names := cx.funcs.keys.sort
     nameMax := maxStr(names)
 
-    out.printLine
+    out.nl
+    out.color(comment)
     names.each |n|
     {
       f := cx.funcs[n]
       if (isNoDoc(f)) return
       d := docSummary(funcDoc(f) ?: "")
-      out.printLine(n.padr(nameMax) + " " + d)
+      out.w(n.padr(nameMax) + " " + d).nl
     }
-    out.printLine
+    out.colorEnd(comment)
+    out.nl
     return noEcho
   }
 
