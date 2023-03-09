@@ -6,6 +6,7 @@
 //   25 Jan 2023  Brian Frank  Creation
 //
 
+using web
 using data
 using haystack
 using axon
@@ -169,28 +170,29 @@ const class ShellFuncs : AbstractShellFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Load in-memory database from local file.  The file is identified using
-  ** an URI with Unix forward slash conventions.  The file must have one
-  ** of the following file extensions: zinc, json, trio, or csv.
-  ** Each record should define an 'id' tag, or if missing one will
-  ** assigned automatically.
+  ** Load the in-memory database from an Uri.  The uri must be have http/https
+  ** scheme or reference a file on the local file system (using forward slash).
+  ** The filename must have one of the following file extensions: zinc, json,
+  ** trio, or csv.  Each record should define an 'id' tag, or if missing one
+  ** will assigned automatically.
   **
   ** Examples:
+  **   // load from the a local file
   **   load(`folder/site.json`)
   **
-  @Axon static Obj? load(Obj arg)
+  **   // load from a HTTP URI
+  **   load(`https://project-haystack.org/example/download/bravo.zinc`)
+  **
+  @Axon static Obj? load(Uri uri)
   {
-    uri := arg as Uri ?: throw ArgErr("Load file must be Uri, not $arg.typeof")
-    file := File(uri)
-
-    echo("LOAD: loading '$file.osPath' ...")
-    grid := readFile(file)
+    echo("LOAD: loading '$uri' ...")
+    grid := loadReadUri(uri)
 
     // map grid into byId table
     diffs := Diff[,]
     grid.each |Dict rec|
     {
-      id := rec.id
+      id := rec["id"] as Ref ?: Ref.gen
       rec = Etc.dictRemoveAll(rec, ["id", "mod"])
       diffs.add(Diff.makeAdd(rec, id))
     }
@@ -200,15 +202,24 @@ const class ShellFuncs : AbstractShellFuncs
     return noEcho
   }
 
-  private static Grid readFile(File file)
+  private static Grid loadReadUri(Uri uri)
   {
-    switch (file.ext)
+    // we use URI extension type even for HTTP
+    if (uri.scheme == "http" || uri.scheme == "https")
+      return loadReadStr(uri, WebClient(uri).getStr)
+    else
+      return loadReadStr(uri, uri.toFile.readAllStr)
+  }
+
+  private static Grid loadReadStr(Uri uri, Str s)
+  {
+    switch (uri.ext)
     {
-      case "zinc": return ZincReader(file.in).readGrid
-      case "json": return JsonReader(file.in).readGrid
-      case "trio": return TrioReader(file.in).readGrid
-      case "csv":  return CsvReader(file.in).readGrid
-      default:     throw ArgErr("ERROR: unknown file type [$file.osPath]")
+      case "zinc": return ZincReader(s.in).readGrid
+      case "json": return JsonReader(s.in).readGrid
+      case "trio": return TrioReader(s.in).readGrid
+      case "csv":  return CsvReader(s.in).readGrid
+      default:     throw ArgErr("ERROR: unknown file type [$uri.name]")
     }
   }
 
