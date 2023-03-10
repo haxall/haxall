@@ -30,11 +30,19 @@ class SpecTest : AxonTest
     verifySpec(Str<|Point|>, "ph::Point")
   }
 
-  Void verifySpec(Str expr, Str qname)
+//////////////////////////////////////////////////////////////////////////
+// Tyepof function
+//////////////////////////////////////////////////////////////////////////
+
+  Void testTypeof()
   {
-    x := eval(expr)
-    // echo("::: $expr => $x [$x.typeof]")
-    verifySame(x, data.type(qname))
+    verifySpec(Str<|typeof(marker())|>, "sys::Marker")
+    verifySpec(Str<|typeof("hi")|>, "sys::Str")
+    verifySpec(Str<|typeof(@id)|>, "sys::Ref")
+    verifySpec(Str<|typeof([])|>, "sys::List")
+    verifySpec(Str<|typeof({})|>, "sys::Dict")
+    verifySpec(Str<|typeof(Str)|>, "sys::Type")
+    verifySpec(Str<|typeof(toGrid("hi"))|>, "ph::Grid")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -73,6 +81,13 @@ class SpecTest : AxonTest
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  Void verifySpec(Str expr, Str qname)
+  {
+    x := eval(expr)
+    // echo("::: $expr => $x [$x.typeof]")
+    verifySame(x, data.type(qname))
+  }
 
   DataEnv data() { DataEnv.cur }
 }

@@ -11,6 +11,7 @@ using util
 using data
 using haystack::Etc
 using haystack::Marker
+using haystack::Grid
 
 **
 ** Xeto DataEnv implementation
@@ -76,6 +77,8 @@ internal const class XetoEnv : DataEnv
     item := factory.fromFantom[val.typeof]
     if (item != null) return type(item.xeto)
     if (val is DataDict) return ((DataDict)val).spec.type
+    if (val is List) return sys.list
+    if (val is Grid) return lib("ph").slotOwn("Grid")
     if (checked) throw UnknownTypeErr("No DataType mapped for '$val.typeof'")
     return null
   }

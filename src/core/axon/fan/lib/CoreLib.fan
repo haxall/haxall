@@ -1965,6 +1965,18 @@ const class CoreLib
 // DataSpecs
 //////////////////////////////////////////////////////////////////////////
 
+  ** Return the data type of the given value.  Raise exception
+  ** if value type is not mapped into the data type system.
+  **
+  ** Examples:
+  **    typeof("hi")  >>  sys::Str
+  **    typeof(@id)   >>  sys::Ref
+  **    typeof({})    >>  sys::Dict
+  @Axon static DataSpec? _typeof(Obj? val, Bool checked := true)
+  {
+    AxonContext.curAxon.usings.data.typeOf(val, checked)
+  }
+
   ** Return if value is an instance of the given type.  This
   ** function tests the type based on nominal typing via explicit
   ** inheritance.  If val is itself a type, then we test that
