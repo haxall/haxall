@@ -28,6 +28,7 @@ class Build : BuildPod
                "hx.docFantom": "true",
                ]
     depends = ["sys @{fan.depend}",
+               "concurrent @{fan.depend}",
                "util @{fan.depend}"]
     srcDirs = [`fan/`]
   }

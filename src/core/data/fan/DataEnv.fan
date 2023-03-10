@@ -6,6 +6,7 @@
 //   16 Jan 2023  Brian Frank  Creation
 //
 
+using concurrent
 using util
 
 **
@@ -16,25 +17,14 @@ using util
 const abstract class DataEnv
 {
   ** Current default environment for the VM
-  static DataEnv cur() { curRef ?: throw Err("DataEnv not initialized") }
-
-  // init env instance using reflection
-  private static const DataEnv? curRef
-  static
+  static DataEnv cur()
   {
-    try
-    {
-      curRef = Type.find("xeto::XetoEnv").make
-    }
-    catch (Err e)
-    {
-      if (Env.cur.runtime == "java")
-      {
-        echo("ERROR: cannot init DataEnv.cur")
-        e.trace
-      }
-    }
+    env := curRef.val as DataEnv
+    if (env != null) return env
+    curRef.compareAndSet(null, Type.find("xeto::XetoEnv").make)
+    return curRef.val
   }
+  private static const AtomicRef curRef := AtomicRef()
 
   ** Marker singleton
   abstract Obj marker()
