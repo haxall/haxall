@@ -18,8 +18,9 @@ enum class Token
 //////////////////////////////////////////////////////////////////////////
 
   // identifer/literals
-  id  ("identifier"),
-  val ("value"),
+  id       ("identifier"),
+  typename ("typename"),
+  val      ("value"),
 
   // operators
   colon         (":"),

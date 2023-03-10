@@ -26,6 +26,10 @@ class TokenizerTest : Test
     verifyToks("fooBar1999x", Obj?[Token.id, "fooBar1999x"])
     verifyToks("foo_23", Obj?[Token.id, "foo_23"])
 
+    // typename
+    verifyToks("Str", Obj?[Token.typename, "Str"])
+    verifyToks("Foo_23", Obj?[Token.typename, "Foo_23"])
+
     // ints
     verifyToks("5", Obj?[Token.val, n(5)])
     verifyToks("0x1234_abcd", Obj?[Token.val, n(0x1234_abcd)])
@@ -127,7 +131,6 @@ class TokenizerTest : Test
            Token.val, n(6)])
 
     // errors
-    verifyErr(SyntaxErr#) { verifyToks("Foo", [,]) }
     verifyErr(SyntaxErr#) { verifyToks(Str<|"fo..|>, [,]) }
     verifyErr(SyntaxErr#) { verifyToks(Str<|`fo..|>, [,]) }
     verifyErr(SyntaxErr#) { verifyToks(Str<|"\u345x"|>, [,]) }
