@@ -146,26 +146,24 @@ const class ShellFuncs : AbstractShellFuncs
   **   using("*")             // import every library installed
   @Axon static Obj? _using(Str? qname := null)
   {
-    /*
-    out := cx.session.out
+    out := cx.out
 
     if (qname == "*")
     {
-      cx.data.libsInstalled.each |x| { _using(x) }
+      cx.usings.data.libsInstalled.each |x| { _using(x) }
       return noEcho
     }
 
     if (qname != null)
     {
-      cx.importDataLib(qname)
+      cx.usings.add(qname)
       out.printLine("using $qname")
       return noEcho
     }
 
     out.printLine
-    cx.libs.keys.sort.each |x| { out.printLine(x) }
+    cx.usings.list.sort.each |x| { out.printLine(x) }
     out.printLine
-    */
     return noEcho
   }
 

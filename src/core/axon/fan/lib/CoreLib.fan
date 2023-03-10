@@ -1400,7 +1400,7 @@ const class CoreLib
   **
   ** Example:
   **   readAll(site).transpose
-  @NoDoc @Axon static Grid transpose(Grid grid) { grid.transpose }
+  @Axon static Grid transpose(Grid grid) { grid.transpose }
 
   ** Given a grid of records, assign new ids and swizzle all internal
   ** ref tags.  Each row of the grid must have an 'id' tag.  A new id
