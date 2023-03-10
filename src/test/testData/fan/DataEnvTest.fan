@@ -28,6 +28,7 @@ class DataEnvTest : Test
     verifySame(env.lib("sys"), sys)
     verifyEq(sys.qname, "sys")
     verifyEq(sys.version, typeof.pod.version)
+    verifySame(env.sysLib, sys)
 
     // env.print(sys)
 

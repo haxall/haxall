@@ -85,6 +85,9 @@ const abstract class DataEnv
   ** Get or load library by the given qualified name
   abstract DataLib? lib(Str qname, Bool checked := true)
 
+  ** Get the 'sys' library
+  @NoDoc abstract DataLib sysLib()
+
   ** Compile Xeto source code into a temp library
   abstract DataLib compileLib(Str src)
 

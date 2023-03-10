@@ -24,11 +24,14 @@ internal const class XetoEnv : DataEnv
     this.marker = Marker.val
     this.dict0 = Etc.dict0
     this.factory = XetoFactory()
-    this.sys = MSys(libMgr.load("sys"))
+    this.sysLib = libMgr.load("sys")
+    this.sys = MSys(sysLib)
     this.dictSpec = sys.dict
   }
 
   const XetoLibMgr libMgr
+
+  const override DataLib sysLib
 
   const MSys sys
 
