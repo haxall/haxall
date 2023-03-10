@@ -63,7 +63,7 @@ abstract class AxonContext : HaystackContext
   @NoDoc virtual Obj? evalOrReadAll(Str src) { throw UnsupportedErr() }
 
   ** Data spec usings namespace
-  @NoDoc virtual AxonUsings usings() { throw UnsupportedErr("DataSpecs not available") }
+  @NoDoc once AxonUsings usings() { AxonUsings() }
 
 /////////////////////////////////////////////////////////////////////////////
 // Eval

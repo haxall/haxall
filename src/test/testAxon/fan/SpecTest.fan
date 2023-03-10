@@ -9,12 +9,12 @@
 using data
 using haystack
 using axon
+using hx
 
 **
 ** SpecTest
 **
-@Js
-class SpecTest : AxonTest
+class SpecTest : HxTest
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -80,16 +80,32 @@ class SpecTest : AxonTest
 
   Void verifyIs(Str expr, Bool expect)
   {
-    verifyEval(expr, expect)
-    verifyEval(expr.replace("is(", "fits("), expect)
+    // override hook to reuse is() tests for fits()
+    if (verifyIsFunc != null) return verifyIsFunc(expr, expect)
+
+    cx := TestContext(this)
+    libs.each |x| { cx.usings.add(x) }
+    verifyEq(cx.eval(expr), expect)
   }
+
+  |Str,Bool|? verifyIsFunc := null
 
 //////////////////////////////////////////////////////////////////////////
 // Fits function
 //////////////////////////////////////////////////////////////////////////
 
+  @HxRuntimeTest
   Void testFits()
   {
+    rt.libs.add("data")
+
+    // run all the is tests with fits
+    verifyIsFunc = |Str expr, Bool expect|
+    {
+      verifyFits(expr.replace("is(", "fits("), expect)
+    }
+    testIs
+
     verifyFits(Str<|fits("hi", Str)|>, true)
     verifyFits(Str<|fits("hi", Marker)|>, false)
     verifyFits(Str<|fits("hi", Dict)|>, false)
@@ -103,17 +119,23 @@ class SpecTest : AxonTest
 
   Void verifyFits(Str expr, Bool expect)
   {
-//    echo("   $expr")
-    verifyEval(expr, expect)
+    cx := makeContext
+    libs.each |x| { cx.usings.add(x) }
+    // echo("   $expr")
+    verifyEq(cx.eval(expr), expect)
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
+  Str[] libs := [,]
+
   Void verifySpec(Str expr, Str qname)
   {
-    x := eval(expr)
+    cx := TestContext(this)
+    libs.each |x| { cx.usings.add(x) }
+    x := cx.eval(expr)
     // echo("::: $expr => $x [$x.typeof]")
     verifySame(x, data.type(qname))
   }

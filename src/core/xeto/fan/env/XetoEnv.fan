@@ -83,13 +83,6 @@ internal const class XetoEnv : DataEnv
     return null
   }
 
-  override Bool fits(Obj? val, DataSpec type)
-  {
-    // TODO
-    DataSpec x := val as DataSpec ?: typeOf(val)
-    return x.isa(type)
-  }
-
   override Str[] libsInstalled() { libMgr.installed }
 
   override Bool isLibLoaded(Str qname) { libMgr.isLoaded(qname) }
