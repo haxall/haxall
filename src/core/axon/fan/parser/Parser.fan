@@ -86,6 +86,7 @@ class Parser
     if (cur === Token.returnKeyword) return returnExpr
     if (cur === Token.throwKeyword)  return throwExpr
     if (cur === Token.tryKeyword)    return tryCatchExpr
+    if (cur === Token.typename)      return spec(null)
     return assignExpr
   }
 
@@ -706,6 +707,23 @@ class Parser
     if (cur !== Token.colon) return FnParam(name)
     consume
     return FnParam(name, expr)
+  }
+
+
+//////////////////////////////////////////////////////////////////////////
+// Spec
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Spec
+  **
+  private Spec spec(Str? libName)
+  {
+    if (cur != Token.typename) throw err("Expected typename, not $curToStr")
+    loc := curLoc
+    name := curVal
+    consume
+    return Spec(loc, null, name)
   }
 
 //////////////////////////////////////////////////////////////////////////

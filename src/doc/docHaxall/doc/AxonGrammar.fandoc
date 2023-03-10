@@ -30,7 +30,9 @@ Productions [#productions]
   <cell>         := <id> <dict>
 
   <expr>         :=  <lambda> | <def> | <if> | <list> | <dict> | <do> |
-                     <return> | <throw> | <tryCatch> | <defcomp> | <assignExpr>
+                     <return> | <throw> | <tryCatch> | <defcomp> |
+                     <assignExpr> | <spec>
+
   <do>           := "do" <exprs> "end"
   <exprs>        :=  <expr> (<exprSep> <expr>)*
   <exprSep>      := ";" | <nl>
@@ -86,6 +88,8 @@ Productions [#productions]
   <index>        := "[" <expr> "]"
   <trapCall>     := "->" <id>
 
+  <spec>         := <typename>
+
   <literal>      :=  <null> | <bool> | <number> | <str> | <date> |
                      <time> | <month> | <recId>
 
@@ -102,6 +106,7 @@ Tokens [#tokens]
   <id>        := <idFirst> (<idRest>)*
   <idFirst>   := alphaLo
   <idRest>    := alphaLo | alphaHi | digit | '_'
+  <typename>  := <alphaHi> (<idRest>)*
   <alphaLo>   := ('a' - 'z')
   <alphaHi>   := ('Z' - 'Z')
   <digit>     := ('0' - '9')
