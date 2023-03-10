@@ -6,6 +6,8 @@
 //   10 Mar 2023  Brian Frank  Creation
 //
 
+using concurrent
+using data
 using haystack
 
 **
@@ -31,8 +33,11 @@ internal const class Spec : Expr
 
   override Obj? eval(AxonContext cx)
   {
-    nameToStr
+    r := resolved.val
+    if (r == null) resolved.val = r = cx.usings.resolve(name)
+    return r
   }
+  private const AtomicRef resolved := AtomicRef()
 
   override Printer print(Printer out)
   {

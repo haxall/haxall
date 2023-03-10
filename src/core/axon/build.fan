@@ -29,6 +29,7 @@ class Build : BuildPod
                ]
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
+               "data @{hx.depend}",
                "haystack @{hx.depend}"]
     srcDirs = [`fan/`,
                `fan/ast/`,

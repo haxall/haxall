@@ -93,6 +93,8 @@ internal class TestContext : AxonContext
 
   override Namespace ns() { test.ns }
 
+  override once AxonUsings usings() { AxonUsings() }
+
   override Fn? findTop(Str name, Bool checked := true)
   {
     if (name.contains("::")) name = name[name.indexr(":")+1..-1]

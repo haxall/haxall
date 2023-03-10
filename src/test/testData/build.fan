@@ -31,6 +31,7 @@ class Build : BuildPod
                "yaml @{fan.depend}",
                "data @{hx.depend}",
                "haystack @{hx.depend}",
+               "xeto @{hx.depend}",
                ]
     srcDirs = [`fan/`]
   }
