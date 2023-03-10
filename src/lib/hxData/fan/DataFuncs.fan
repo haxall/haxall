@@ -31,6 +31,22 @@ const class DataFuncs
     Fitter(curContext).fits(val, type)
   }
 
+  **
+  ** Return grid which explains how data fits the given type.  This
+  ** function takes one or more recs and returns a grid.  For each rec
+  ** zero or more rows are returned with an error why the rec does not
+  ** fit the given type.  If a rec does fit the type, then zero rows are
+  ** returned for that record.
+  **
+  ** Example:
+  **    readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav)
+  **
+  @Axon
+  static Grid fitsExplain(Obj? recs, DataSpec type)
+  {
+    ExplainFitter(curContext).explain(recs, type)
+  }
+
   ** Current context
   internal static HxContext curContext()
   {

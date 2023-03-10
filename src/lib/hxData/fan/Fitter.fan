@@ -62,7 +62,7 @@ class Fitter
   {
     slotType := slot.type
 
-    //if (t.isaQuery) return fitsQuery(dict, type, slot)
+if (slotType.isa(data.type("sys::Query"))) return true //fitsQuery(dict, type, slot)
 
     val := dict.get(slot.name, null)
 

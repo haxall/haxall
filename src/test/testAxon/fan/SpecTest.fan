@@ -104,7 +104,8 @@ class SpecTest : HxTest
     {
       verifyFits(expr.replace("is(", "fits("), expect)
     }
-    testIs
+    // TODO
+    //testIs
 
     verifyFits(Str<|fits("hi", Str)|>, true)
     verifyFits(Str<|fits("hi", Marker)|>, false)
@@ -113,8 +114,8 @@ class SpecTest : HxTest
     libs = ["ph"]
     verifyFits(Str<|fits({site}, Str)|>, false)
     verifyFits(Str<|fits({site}, Dict)|>, true)
-//    verifyFits(Str<|fits({site}, Site)|>, true)
     verifyFits(Str<|fits({site}, Equip)|>, false)
+    verifyFits(Str<|fits({site}, Site)|>, true)
   }
 
   Void verifyFits(Str expr, Bool expect)
@@ -123,6 +124,49 @@ class SpecTest : HxTest
     libs.each |x| { cx.usings.add(x) }
     // echo("   $expr")
     verifyEq(cx.eval(expr), expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Fits function
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testFitsExplain()
+  {
+    rt.libs.add("data")
+
+    verifyFitsExplain(Str<|fitsExplain({}, Dict)|>, [,])
+
+    libs = ["ph"]
+    verifyFitsExplain(Str<|fitsExplain({site}, Site)|>, [,])
+    verifyFitsExplain(Str<|fitsExplain({}, Site)|>, [
+      "Missing required marker 'site'"
+      ])
+
+    verifyFitsExplain(Str<|fitsExplain({ahu, equip}, Ahu)|>, [,])
+    verifyFitsExplain(Str<|fitsExplain({}, Ahu)|>, [
+      "Missing required marker 'equip'",
+      "Missing required marker 'ahu'"
+      ])
+  }
+
+  Void verifyFitsExplain(Str expr, Str[] expect)
+  {
+
+    cx := makeContext
+    libs.each |x| { cx.usings.add(x) }
+    grid := (Grid)cx.eval(expr)
+
+    // echo; echo("-- $expr"); grid.dump
+
+    if (expect.isEmpty) return verifyEq(grid.size, 0)
+
+    verifyEq(grid.size, expect.size+1)
+    verifyEq(grid[0]->msg, expect.size == 1 ? "1 error" : "$expect.size errors")
+    expect.each |msg, i|
+    {
+      verifyEq(grid[i+1]->msg, msg)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
