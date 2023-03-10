@@ -15,8 +15,14 @@ using axon
 @Js
 abstract class AxonTest : HaystackTest
 {
+  Str[] libs := [,]
 
-  AxonContext makeContext() { TestContext(this) }
+  AxonContext makeContext()
+  {
+    cx := TestContext(this)
+    libs.each |lib| { cx.usings.add(lib) }
+    return cx
+  }
 
   Obj? eval(Str s) { makeContext.eval(s) }
 

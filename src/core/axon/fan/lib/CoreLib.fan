@@ -8,6 +8,7 @@
 //
 
 using haystack
+using data
 
 **
 ** System library
@@ -1958,6 +1959,31 @@ const class CoreLib
     u := unit is Number ? ((Number)unit).unit : Number.loadUnit(unit)
     if (val.unit === u) return val
     return Number(val.toFloat, u)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// DataSpecs
+//////////////////////////////////////////////////////////////////////////
+
+  ** Return if value is an instance of the given type.  This
+  ** function tests the type based on nominal typing via explicit
+  ** inheritance.  If val is itself a type, then we test that
+  ** it explicitly inherits from type.  Raise exception if value is
+  ** not mapped into the data type system.
+  **
+  ** Note that dict values will only match the generic 'sys.Dict'
+  ** type.  Use `fits()` for structural type matching.
+  **
+  ** Examples:
+  **   is("hi", Str)     >>  true
+  **   is("hi", Dict)    >>  false
+  **   is({}, Dict)      >>  true
+  **   is(Meter, Equip)  >>  true
+  @Axon static Bool _is(Obj? val, DataSpec type)
+  {
+    if (val is DataSpec) return ((DataSpec)val).isa(type)
+    cx := AxonContext.curAxon
+    return cx.usings.data.typeOf(val).isa(type)
   }
 
 //////////////////////////////////////////////////////////////////////////
