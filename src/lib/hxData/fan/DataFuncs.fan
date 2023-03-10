@@ -28,8 +28,13 @@ const class DataFuncs
   **    fits({equip}, Site)   >>  false
   @Axon static Bool fits(Obj? val, DataSpec type)
   {
-    DataSpec x := val as DataSpec ?: DataEnv.cur.typeOf(val)
-    return x.isa(type)
+    Fitter(curContext).fits(val, type)
+  }
+
+  ** Current context
+  internal static HxContext curContext()
+  {
+    HxContext.curHx
   }
 
 }
