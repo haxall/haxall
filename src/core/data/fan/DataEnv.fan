@@ -66,6 +66,10 @@ const abstract class DataEnv
   ** Data type for Fantom object
   abstract DataType? typeOf(Obj? val, Bool checked := true)
 
+  ** Return if the given value fits the data type
+  ** from a structural type perpective.
+  abstract Bool fits(Obj? val, DataSpec type)
+
   ** List the library qnames installed by this environment
   abstract Str[] libsInstalled()
 

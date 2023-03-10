@@ -1966,7 +1966,8 @@ const class CoreLib
 //////////////////////////////////////////////////////////////////////////
 
   ** Return the data type of the given value.  Raise exception
-  ** if value type is not mapped into the data type system.
+  ** if value type is not mapped into the data type system.  Also
+  ** see `is()` and `fits()`.
   **
   ** Examples:
   **    typeof("hi")  >>  sys::Str
@@ -1996,6 +1997,20 @@ const class CoreLib
     if (val is DataSpec) return ((DataSpec)val).isa(type)
     cx := AxonContext.curAxon
     return cx.usings.data.typeOf(val).isa(type)
+  }
+
+  ** Return if the given value fits the type.  This function tests
+  ** the type based on either nominally or structural typing.  Also
+  ** see `is()` that tests strictly by nominal typing.
+  **
+  ** Examples:
+  **    fits("foo", Str)      >>  true
+  **    fits(123, Str)        >>  false
+  **    fits({equip}, Equip)  >>  true
+  **    fits({equip}, Site)   >>  false
+  @Axon static Bool fits(Obj? val, DataSpec type)
+  {
+    AxonContext.curAxon.usings.data.fits(val, type)
   }
 
 //////////////////////////////////////////////////////////////////////////
