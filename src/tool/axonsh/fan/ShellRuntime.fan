@@ -13,7 +13,7 @@ using hx
 **
 ** ShellRuntime implements a limited, single-threaded runtime for the shell.
 **
-internal const class ShellRuntime : HxRuntime
+internal const class ShellRuntime : HxRuntime, ShellStdServices
 {
   new make()
   {
@@ -51,20 +51,73 @@ internal const class ShellRuntime : HxRuntime
 
   override Bool isRunning() { true }
 
-  override HxServiceRegistry services() { throw UnsupportedErr() }
+  override HxService service(Type type) { services.get(type, true) }
 
-  // HxStdServices conveniences
-  override HxContextService context() { services.context }
-  override HxObsService obs() { services.obs }
-  override HxWatchService watch() { services.watch }
-  override HxFileService file() { services.file }
-  override HxHisService his() { services.his }
-  override HxCryptoService crypto() { services.crypto }
-  override HxHttpService http() { services.http }
-  override HxUserService user() { services.user }
-  override HxIOService io() { services.io }
-  override HxTaskService task() { services.task }
-  override HxPointWriteService pointWrite() { services.pointWrite }
-  override HxConnService conn() { services.conn }
-
+  override const ShellServiceRegistry services := ShellServiceRegistry()
 }
+
+**************************************************************************
+** ShellStdServices
+**************************************************************************
+
+internal const mixin ShellStdServices : HxStdServices
+{
+  abstract HxService service(Type type)
+  override HxContextService context() { service(HxContextService#) }
+  override HxObsService obs()         { service(HxObsService#) }
+  override HxWatchService watch()     { service(HxWatchService#) }
+  override HxFileService file()       { service(HxFileService#)  }
+  override HxHisService his()         { service(HxHisService#) }
+  override HxCryptoService crypto()   { service(HxCryptoService#) }
+  override HxHttpService http()       { service(HxHttpService#) }
+  override HxUserService user()       { service(HxUserService#) }
+  override HxIOService io()           { service(HxIOService#) }
+  override HxTaskService task()       { service(HxTaskService#) }
+  override HxConnService conn()       { service(HxConnService#) }
+  override HxPointWriteService pointWrite() { service(HxPointWriteService#) }
+}
+
+**************************************************************************
+** ShellServiceRegistry
+**************************************************************************
+
+internal const class ShellServiceRegistry: HxServiceRegistry, ShellStdServices
+{
+  new make()
+  {
+    map := Type:HxService[][:]
+    map[HxFileService#] = HxService[ShellFileService()]
+
+    this.list = map.keys.sort
+    this.map  = map
+  }
+
+  override const Type[] list
+
+  override HxService service(Type type) { get(type, true) }
+
+  override HxService? get(Type type, Bool checked := true)
+  {
+    x := map[type]
+    if (x != null) return x.first
+    if (checked) throw UnknownServiceErr(type.qname)
+    return null
+  }
+
+  override HxService[] getAll(Type type)
+  {
+    map[type] ?: HxService#.emptyList
+  }
+
+  private const Type:HxService[] map
+}
+
+**************************************************************************
+** ShellFileService
+**************************************************************************
+
+internal const class ShellFileService : HxFileService
+{
+  override File resolve(Uri uri) { File(uri, false) }
+}
+

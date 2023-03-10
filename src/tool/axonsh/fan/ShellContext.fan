@@ -43,6 +43,8 @@ internal class ShellContext : HxContext
     acc.addAll(FantomFn.reflectType(CoreLib#))
     acc.addAll(FantomFn.reflectType(ShellFuncs#))
     acc.addAll(FantomFn.reflectType(HxCoreFuncs#))
+    acc.addAll(FantomFn.reflectType(Type.find("hxData::DataFuncs")))
+    acc.addAll(FantomFn.reflectType(Type.find("hxIO::IOFuncs")))
     return acc
   }
 
