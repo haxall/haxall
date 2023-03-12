@@ -27,4 +27,7 @@ const mixin DataSlots
   ** Iterate through the children until function returns non-null
   abstract Obj? eachWhile(|DataSpec val, Str name->Obj?| f)
 
+  ** Get the slots as DataDict of the specs.
+  @NoDoc abstract DataDict toDict()
+
 }

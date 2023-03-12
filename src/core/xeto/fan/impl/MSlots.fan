@@ -7,6 +7,7 @@
 //
 
 using data
+using haystack::Dict
 using haystack::UnknownNameErr
 
 **
@@ -61,4 +62,28 @@ internal const class MSlots : DataSlots
     return s.add("}").toStr
   }
 
+  override DataDict toDict()
+  {
+    MSlotsDict(this)
+  }
+}
+
+**************************************************************************
+** MSlotsDict
+**************************************************************************
+
+@Js
+internal const class MSlotsDict : Dict
+{
+  new make(MSlots slots) { this.slots = slots }
+
+  const MSlots slots
+
+  @Operator override Obj? get(Str n, Obj? def := null) { slots.get(n, false) ?: def }
+  override Bool isEmpty() { slots.isEmpty }
+  override Bool has(Str n) { slots.get(n, false) != null }
+  override Bool missing(Str n) {  slots.get(n, false) == null }
+  override Void each(|Obj, Str| f) { slots.each(f) }
+  override Obj? eachWhile(|Obj, Str->Obj?| f) { slots.eachWhile(f) }
+  override Obj? trap(Str n, Obj?[]? a := null) { slots.get(n, true) }
 }

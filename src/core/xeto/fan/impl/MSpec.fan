@@ -9,6 +9,7 @@
 using concurrent
 using util
 using data
+using haystack
 
 **
 ** Implementation of DataSpec wrapped by XetoSpec
@@ -131,7 +132,7 @@ internal const class MSpecFlags
 ** XetoSpec is the referential proxy for MSpec
 **
 @Js
-internal const class XetoSpec : DataSpec
+internal const class XetoSpec : DataSpec, Dict
 {
   new make() {}
 

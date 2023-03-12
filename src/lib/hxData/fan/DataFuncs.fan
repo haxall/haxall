@@ -16,6 +16,92 @@ using hx
 **
 const class DataFuncs
 {
+  **
+  ** Library which contains the given data type.  Raise exception
+  ** if type is not a direct type spec of a library.
+  **
+  ** Examples:
+  **   specLib(Str)    >>  sys
+  **   specLib(Equip)  >>  ph
+  **
+  @Axon static data::DataLib specLib(DataType type) { type.lib }
+
+  **
+  ** Parent spec which contains given spec and scopes its name.
+  ** Returns null for libs and derived specs.
+  **
+  ** Examples:
+  **   specParent(Str)  >>  sys
+  **
+  @Axon static DataSpec? specParent(DataSpec spec) { spec.parent }
+
+  **
+  ** Return simple name of spec.  Returns empty string spec is a library.
+  **
+  ** Examples:
+  **   specName(Dict)  >>  "Dict"
+  **   specName(Site)  >>  "Site"
+  **
+  @Axon static Str specName(DataSpec spec) { spec.name }
+
+  **
+  ** Return fully qualified name of the spec:
+  **   - DataLib will return "foo.bar"
+  **   - DataType will return "foo.bar::Baz"
+  **   - DataType slots will return "foo.bar::Baz.qux"
+  **   - Derived specs will return "derived123::{name}"
+  **
+  ** Examples:
+  **   specQName(Dict)  >>  "sys::Dict"
+  **   specQName(Site)  >>  "ph::Site"
+  **
+  @Axon static Str specQName(DataSpec spec) { spec.qname }
+
+  **
+  ** Data type of the spec.  Returns the spec itself if it is a DataType.
+  **
+  ** Examples:
+  **   specType(Str)    >>  sys:Str
+  **   specType(Dict)   >>  sys::Dict
+  **   specType(Point)  >>  sys::Point
+  **
+  @Axon static DataType specType(DataSpec spec) { spec.type }
+
+  **
+  ** Base spec from which the given spec directly inherits.
+  ** Returns null if spec is 'sys::Obj' itself.
+  **
+  ** Examples:
+  **   specBase(Str)    >>  sys::Scalar
+  **   specBase(Meter)  >>  ph::Equip
+  **   specType(Equip)  >>  ph::Entity
+  **
+  @Axon static DataSpec? specBase(DataSpec spec) { spec.base }
+
+  **
+  ** Get the spec's own declared meta-data as dict.  The effective
+  ** meta-data dict is the spec itself.
+  **
+  ** Examples:
+  **   specMetaOwn(Date)  >>  {sealed, val:2000-01-01, doc:"...", pattern:"..."}
+  **
+  @Axon static DataDict specMetaOwn(DataSpec spec) { spec.own }
+
+  **
+  ** Get the spec's declared children slots as dict of DataSpecs.
+  **
+  ** Examples:
+  **   specSlots(Ahu)  >>  {ahu: DataSpec}
+  **
+  @Axon static DataDict specSlotsOwn(DataSpec spec) { spec.slotsOwn.toDict }
+
+  **
+  ** Get the effective children slots as a dict of DataSpecs.
+  **
+  ** Examples:
+  **   specSlots(Ahu)  >>  {equip: DataSpec, points: DataSpec, ahu: DataSpec}
+  **
+  @Axon static DataDict specSlots(DataSpec spec) { spec.slots.toDict }
 
   **
   ** Return the data type of the given value.  Raise exception
