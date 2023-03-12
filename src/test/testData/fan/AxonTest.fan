@@ -43,6 +43,32 @@ class AxonTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Reflection Funcs
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testReflect()
+  {
+    verifyReflect("Obj", data.type("sys::Obj"))
+    verifyReflect("Str", data.type("sys::Str"))
+    verifyReflect("Dict", data.type("sys::Dict"))
+    verifyReflect("LibOrg", data.type("sys::LibOrg"))
+  }
+
+  Void verifyReflect(Str expr, DataSpec spec)
+  {
+    if (spec is DataType) verifyEval("specLib($expr)", ((DataType)spec).lib)
+    verifyEval("specParent($expr)", spec.parent)
+    verifyEval("specName($expr)", spec.name)
+    verifyEval("specQName($expr)", spec.qname)
+    verifyEval("specType($expr)", spec.type)
+    verifyEval("specBase($expr)", spec.base)
+    verifyDictEq(eval("specMetaOwn($expr)"), spec.own)
+    verifyDictEq(eval("specSlots($expr)"), spec.slots.toDict)
+    verifyDictEq(eval("specSlotsOwn($expr)"), spec.slotsOwn.toDict)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Tyepof function
 //////////////////////////////////////////////////////////////////////////
 
