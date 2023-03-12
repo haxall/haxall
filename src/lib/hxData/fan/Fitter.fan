@@ -62,13 +62,13 @@ class Fitter
   {
     slotType := slot.type
 
-if (slotType.isa(data.type("sys::Query"))) return true //fitsQuery(dict, type, slot)
+    if (slotType.isQuery) return true //fitsQuery(dict, type, slot)
 
     val := dict.get(slot.name, null)
 
     if (val == null)
     {
-      if (slotType.isa(data.type("sys::Maybe"))) return true // TODO
+      if (slotType.isMaybe) return true
       return explainMissingSlot(slot)
     }
 
