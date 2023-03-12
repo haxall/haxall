@@ -12,16 +12,28 @@ using axon
 using hx
 
 **
-** SpecTest
+** AxonTest
 **
-class SpecTest : HxTest
+class AxonTest : HxTest
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Specs
+// Setup
 //////////////////////////////////////////////////////////////////////////
 
-  Void testSpecs()
+  override Void setup()
+  {
+    super.setup
+    rt := rt(false)
+    if (rt != null) rt.libs.add("data")
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Specs Exprs
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testSpecExprs()
   {
     verifySpec(Str<|Str|>, "sys::Str")
     verifySpec(Str<|Dict|>, "sys::Dict")
@@ -34,6 +46,7 @@ class SpecTest : HxTest
 // Tyepof function
 //////////////////////////////////////////////////////////////////////////
 
+  @HxRuntimeTest
   Void testTypeof()
   {
     verifySpec(Str<|typeof(marker())|>, "sys::Marker")
@@ -49,6 +62,7 @@ class SpecTest : HxTest
 // Is function
 //////////////////////////////////////////////////////////////////////////
 
+  @HxRuntimeTest
   Void testIs()
   {
     verifyIs(Str<|is("hi", Str)|>, true)
@@ -83,9 +97,7 @@ class SpecTest : HxTest
     // override hook to reuse is() tests for fits()
     if (verifyIsFunc != null) return verifyIsFunc(expr, expect)
 
-    cx := TestContext(this)
-    libs.each |x| { cx.usings.add(x) }
-    verifyEq(cx.eval(expr), expect)
+    verifyEval(expr, expect)
   }
 
   |Str,Bool|? verifyIsFunc := null
@@ -97,8 +109,6 @@ class SpecTest : HxTest
   @HxRuntimeTest
   Void testFits()
   {
-    rt.libs.add("data")
-
     // run all the is tests with fits
     verifyIsFunc = |Str expr, Bool expect|
     {
@@ -120,10 +130,8 @@ class SpecTest : HxTest
 
   Void verifyFits(Str expr, Bool expect)
   {
-    cx := makeContext
-    libs.each |x| { cx.usings.add(x) }
     // echo("   $expr")
-    verifyEq(cx.eval(expr), expect)
+    verifyEval(expr, expect)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -133,8 +141,6 @@ class SpecTest : HxTest
   @HxRuntimeTest
   Void testFitsExplain()
   {
-    rt.libs.add("data")
-
     verifyFitsExplain(Str<|fitsExplain({}, Dict)|>, [,])
 
     libs = ["ph"]
@@ -153,9 +159,7 @@ class SpecTest : HxTest
   Void verifyFitsExplain(Str expr, Str[] expect)
   {
 
-    cx := makeContext
-    libs.each |x| { cx.usings.add(x) }
-    grid := (Grid)cx.eval(expr)
+    grid := (Grid)makeContext.eval(expr)
 
     // echo; echo("-- $expr"); grid.dump
 
@@ -175,11 +179,21 @@ class SpecTest : HxTest
 
   Str[] libs := [,]
 
+  override HxContext makeContext(HxUser? user := null)
+  {
+    cx := super.makeContext(user)
+    libs.each |x| { cx.usings.add(x) }
+    return cx
+  }
+
+  Void verifyEval(Str expr, Obj? expect)
+  {
+    verifyEq(makeContext.eval(expr), expect)
+  }
+
   Void verifySpec(Str expr, Str qname)
   {
-    cx := TestContext(this)
-    libs.each |x| { cx.usings.add(x) }
-    x := cx.eval(expr)
+    x := makeContext.eval(expr)
     // echo("::: $expr => $x [$x.typeof]")
     verifySame(x, data.type(qname))
   }

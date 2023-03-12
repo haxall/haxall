@@ -178,7 +178,7 @@ abstract class HxTest : HaystackTest
 
   ** Create a new context with the given user.  If user is null,
   ** then use a default test user with superuser permissions.
-  HxContext makeContext(HxUser? user := null)
+  virtual HxContext makeContext(HxUser? user := null)
   {
     spi.makeContext(user)
   }
