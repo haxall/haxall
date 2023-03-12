@@ -65,11 +65,13 @@ class DataEnvTest : Test
 
     // Spec.ofs: List<of:Spec>?
     specOfs := verifySlot(spec, "ofs", maybe)
-echo("### $specOfs")
+    verifyEq(specOfs.parent, spec)
+    verifyEq(specOfs.qname, "sys::Spec.ofs")
     verifyEq(specOfs["doc"], "Types used in compound types like And and Or")
     x := specOfs["of"] as DataSpec
-echo("### $x")
+    verifySame(x.parent, specOfs)
     verifyEq(x.typeof.qname, "xeto::XetoSpec")
+    verifyEq(x.qname, "sys::Spec.ofs.of")
     verifySame(x.type, list)
     verifySame(x["of"], spec)
   }

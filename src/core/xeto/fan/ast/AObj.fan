@@ -68,7 +68,7 @@ internal abstract class AObj : ANode
   ** Create new AVal with this's type+meta, then clear this's type+meta.
   AObj wrapSpec(Str name)
   {
-    of := this.meta == null ? AVal(loc, parent, name) : ASpec(loc, parent, name)
+    of := this.meta == null ? AVal(loc, this, name) : ASpec(loc, this, name)
     of.type = this.type
     of.meta = this.meta
     this.type = null
