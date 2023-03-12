@@ -16,7 +16,7 @@ using data
 @Js
 internal const class MSpec
 {
-  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoType type, DataDict own, MSlots slotsOwn)
+  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoType type, DataDict own, MSlots slotsOwn, Int flags)
   {
     this.loc      = loc
     this.parent   = parent
@@ -25,6 +25,7 @@ internal const class MSpec
     this.type     = type
     this.own      = own
     this.slotsOwn = slotsOwn
+    this.flags    = flags
   }
 
   virtual XetoEnv env() { parent.env }
@@ -76,6 +77,30 @@ internal const class MSpec
   Obj? eachWhile(|Obj val, Str name->Obj?| f) { meta.eachWhile(f) }
   override Obj? trap(Str name, Obj?[]? args := null) { meta.trap(name, args) }
 
+//////////////////////////////////////////////////////////////////////////
+// Flags
+//////////////////////////////////////////////////////////////////////////
+
+  Bool hasFlag(Int flag) { flags.and(flag) != 0 }
+
+  const Int flags
+}
+
+**************************************************************************
+** MSpecFlags
+**************************************************************************
+
+@Js
+internal const class MSpecFlags
+{
+  static const Int marker := 0x0001
+  static const Int scalar := 0x0002
+  static const Int dict   := 0x0004
+  static const Int list   := 0x0008
+  static const Int maybe  := 0x0010
+  static const Int and    := 0x0020
+  static const Int or     := 0x0040
+  static const Int query  := 0x0080
 }
 
 **************************************************************************
@@ -135,6 +160,15 @@ internal const class XetoSpec : DataSpec
   override final Obj? trap(Str n, Obj?[]? a := null) { m.trap(n, a) }
 
   override final Str toStr() { m?.toStr ?: super.toStr }
+
+  override final Bool isScalar() { m.hasFlag(MSpecFlags.scalar) }
+  override final Bool isMarker() { m.hasFlag(MSpecFlags.marker) }
+  override final Bool isDict()   { m.hasFlag(MSpecFlags.dict) }
+  override final Bool isList()   { m.hasFlag(MSpecFlags.list) }
+  override final Bool isMaybe()  { m.hasFlag(MSpecFlags.maybe) }
+  override final Bool isAnd()    { m.hasFlag(MSpecFlags.and) }
+  override final Bool isOr()     { m.hasFlag(MSpecFlags.or) }
+  override final Bool isQuery()  { m.hasFlag(MSpecFlags.query) }
 
   const MSpec? m
 }

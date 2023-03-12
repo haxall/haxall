@@ -39,21 +39,31 @@ internal class ARef : ANode
   ** Is this reference already resolved
   Bool isResolved() { referent != null }
 
+  ** Is this resolved to an internal AST node
+  Bool isResolvedInternal() { referent != null && referentInternal != null }
+
+  ** Is this resolved to an external dependency
+  Bool isResolvedExternal() { referent != null && referentInternal == null }
+
   ** Resolved reference or raise UnresolvedErr
   override XetoType asm() { referent ?: throw UnresolvedErr("$name [$loc]") }
+
+  ** Resovled reference to an internal AST node
+  ASpec resolvedInternal() { referentInternal ?: throw UnresolvedErr("$name [$loc]") }
 
   ** Resolved qname UnresolvedErr
   Str qname() { qnameRef ?: throw UnresolvedErr("$name [$loc]") }
 
   ** Resolve via an internal AST type
-  Void resolveAst(AType x)
+  Void resolveInternal(AType x)
   {
     this.referent = x.asm
+    this.referentInternal = x
     this.qnameRef = x.qname
   }
 
   ** Resolve via an external dependency type
-  Void resolveDepend(XetoType x)
+  Void resolveExternal(XetoType x)
   {
     this.referent = x
     this.qnameRef = x.qname
@@ -61,6 +71,9 @@ internal class ARef : ANode
 
   ** Resolved reference
   private XetoType? referent
+
+  ** Resolve reference to internal AST node
+  private ASpec? referentInternal
 
   ** Resolved qualified name
   private Str? qnameRef

@@ -90,21 +90,21 @@ class DataSpecTest : AbstractDataTest
     verifyIsa("ph.points::AirFlowSensor", "sys::And", true)
     verifyIsa("ph.points::AirFlowSensor", "ph::Point", true)
     verifyIsa("ph.points::AirFlowSensor", "ph.points::Sensor", true)
-    verifyIsa("ph.points::AirFlowSensor", "sys::Dict", true)
+    verifyIsa("ph.points::AirFlowSensor", "sys::Dict", true, false)
 
     verifyIsa("ph.points::ZoneAirTempSensor", "ph::Point", true)
-    verifyIsa("ph.points::ZoneAirTempSensor", "sys::Dict", true)
+    verifyIsa("ph.points::ZoneAirTempSensor", "sys::Dict", true, false)
   }
 
-  Void verifyIsa(Str an, Str bn, Bool expected)
+  Void verifyIsa(Str an, Str bn, Bool expect, Bool expectMethod := expect)
   {
     a := env.type(an)
     b := env.type(bn)
-    m := a.typeof.method("isa${b.name}", false)
+    m := a.typeof.method("is${b.name}", false)
     isa := a.isa(b)
-    // echo("-> $a isa $b = $isa ?= $expected [$m]")
-    verifyEq(isa, expected)
-    if (m != null) verifyEq(m.call(a), expected)
+    // echo("-> $a isa $b = $isa ?= $expect [$m]")
+    verifyEq(isa, expect)
+    if (m != null) verifyEq(m.call(a), expectMethod)
   }
 
 //////////////////////////////////////////////////////////////////////////

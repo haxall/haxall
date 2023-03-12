@@ -59,7 +59,34 @@ const mixin DataSpec : DataDict
   ** Return if this specs inherits from that from a nominal type perspective.
   abstract Bool isa(DataSpec that)
 
+//////////////////////////////////////////////////////////////////////////
+// NoDoc
+//////////////////////////////////////////////////////////////////////////
+
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 
+  ** Inherits directly from 'sys::Scalar' without considering Maybe/And/Or
+  @NoDoc abstract Bool isScalar()
+
+  ** Inherits directly from 'sys::Marker' without considering Maybe/And/Or
+  @NoDoc abstract Bool isMarker()
+
+  ** Inherits directly from 'sys::Dict' without considering Maybe/And/Or
+  @NoDoc abstract Bool isDict()
+
+  ** Inherits directly from 'sys::List' without considering Maybe/And/Or
+  @NoDoc abstract Bool isList()
+
+  ** Inherits directly from 'sys::Maybe' without considering Maybe/And/Or
+  @NoDoc abstract Bool isMaybe()
+
+  ** Inherits directly from 'sys::And' without considering Maybe/And/Or
+  @NoDoc abstract Bool isAnd()
+
+  ** Inherits directly from 'sys::Or' without considering Maybe/And/Or
+  @NoDoc abstract Bool isOr()
+
+  ** Inherits directly from 'sys::Query' without considering Maybe/And/Or
+  @NoDoc abstract Bool isQuery()
 }

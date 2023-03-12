@@ -16,7 +16,7 @@ using data
 internal const class MLib : MSpec
 {
   new make(XetoEnv env, FileLoc loc, Str qname, XetoType libType, DataDict own, MSlots declared)
-    : super(loc, null, "", libType, libType, own, declared)
+    : super(loc, null, "", libType, libType, own, declared, 0)
   {
     this.env   = env
     this.qname = qname

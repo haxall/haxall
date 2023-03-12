@@ -84,7 +84,7 @@ internal const class XetoUtil
   ** Merge inherited slot 'a' with override slot 'b'
   static XetoSpec overrideSlot(XetoSpec a, XetoSpec b)
   {
-    XetoSpec(MSpec(b.loc, b.parent, b.name, a, b.type, b.own, b.slotsOwn))
+    XetoSpec(MSpec(b.loc, b.parent, b.name, a, b.type, b.own, b.slotsOwn, b.m.flags))
   }
 
 //////////////////////////////////////////////////////////////////////////

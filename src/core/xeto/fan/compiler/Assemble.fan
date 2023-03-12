@@ -121,13 +121,13 @@ internal class Assemble : Step
 
   private Void asmType(AType x)
   {
-    m := MType(x.loc, x.lib.asm, x.qname, x.name, x.supertype?.asm, x.asm, asmMeta(x), asmSlots(x))
+    m := MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, asmMeta(x), asmSlots(x), x.flags)
     mField->setConst(x.asm, m)
   }
 
   private Void asmSpec(ASpec x)
   {
-    m := MSpec(x.loc, x.parent.asm, x.name, x.type.asm, x.type.asm, asmMeta(x), asmSlots(x))
+    m := MSpec(x.loc, x.parent.asm, x.name, x.base.asm, x.type.asm, asmMeta(x), asmSlots(x), x.flags)
     mField->setConst(x.asm, m)
   }
 

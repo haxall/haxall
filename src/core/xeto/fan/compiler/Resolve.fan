@@ -93,7 +93,7 @@ internal class Resolve : Step
       type := lib.slot(n.name)
       if (type != null)
       {
-        ref.resolveAst(type)
+        ref.resolveInternal(type)
         return
       }
     }
@@ -106,7 +106,7 @@ internal class Resolve : Step
     else if (matches.size > 1)
       err("Ambiguous type: $n $matches", ref.loc)
     else
-      ref.resolveDepend(matches.first)
+      ref.resolveExternal(matches.first)
   }
 
   private Void resolveQualified(ARef ref)
@@ -117,7 +117,7 @@ internal class Resolve : Step
     {
       type := lib.slot(n.name)
       if (type == null) return err("Spec '$n' not found in lib", ref.loc)
-      ref.resolveAst(type)
+      ref.resolveInternal(type)
       return
     }
 
@@ -128,7 +128,7 @@ internal class Resolve : Step
     // resolve in lib
     type := lib.slotOwn(n.name, false)
     if (type == null) return err("Unresolved spec '$n' in lib", ref.loc)
-    ref.resolveDepend(type)
+    ref.resolveExternal(type)
   }
 
   private Str:XetoLib depends := [:]

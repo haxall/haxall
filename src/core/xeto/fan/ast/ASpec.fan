@@ -35,6 +35,11 @@ internal class ASpec : AObj
   ** Construct nested spec
   override AObj makeChild(FileLoc loc, Str name) { ASpec(loc, this, name) }
 
+  ** We use AObj.type to model the base supertyp
+  ARef? base() { type }
+
+  ** Inheritance flags computed in Infer
+  Int flags
 }
 
 

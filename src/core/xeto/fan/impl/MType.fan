@@ -15,8 +15,8 @@ using data
 @Js
 internal const class MType : MSpec
 {
-  new make(FileLoc loc, XetoLib lib, Str qname, Str name, XetoType? base, XetoType self, DataDict own, MSlots declared)
-    : super(loc, lib, name, base, self, own, declared)
+  new make(FileLoc loc, XetoLib lib, Str qname, Str name, XetoType? base, XetoType self, DataDict own, MSlots declared, Int flags)
+    : super(loc, lib, name, base, self, own, declared, flags)
   {
     this.lib   = lib
     this.qname = qname
