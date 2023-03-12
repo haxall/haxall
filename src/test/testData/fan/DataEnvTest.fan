@@ -14,7 +14,7 @@ using haystack
 ** DataEnvTest
 **
 @Js
-class DataEnvTest : Test
+class DataEnvTest : AbstractDataTest
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -194,10 +194,61 @@ class DataEnvTest : Test
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Utils
+// Derive
 //////////////////////////////////////////////////////////////////////////
 
-  DataEnv env() { DataEnv.cur }
+  Void testDerive()
+  {
+    obj := env.type("sys::Obj")
+    scalar := env.type("sys::Scalar")
+    marker := env.type("sys::Marker")
+    str := env.type("sys::Str")
+    list := env.type("sys::List")
+    dict := env.type("sys::Dict")
+    m := Marker.val
+
+    verifyDerive("foo", list, env.dict1("bar", m), null)
+    verifyDerive("foo", list, env.dict2("bar", m, "baz", "hi"), Str:DataSpec[:])
+    verifyDerive("foo", dict, env.dict0, ["foo":marker])
+    verifyDerive("foo", dict, env.dict1("bar", m), ["foo":marker, "dis":str])
+
+    verifyDeriveErr("foo bar", scalar, env.dict0, null, "Invalid spec name: foo bar")
+    verifyDeriveErr("foo", scalar, env.dict0, null, "Must specify meta or slots")
+    verifyDeriveErr("foo", obj, env.dict1("a", m), null, "Cannot derive from sealed type: sys::Obj")
+    verifyDeriveErr("foo", scalar, env.dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::Scalar")
+    verifyDeriveErr("foo", list, env.dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::List")
+  }
+
+  Void verifyDerive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots)
+  {
+    x := env.derive(name, base, meta, slots)
+
+    verifyEq(x.name, name)
+    verifyEq(x.parent, null)
+    verifyEq(x.qname.startsWith("derived"), true)
+    verifyEq(x.qname.endsWith("::$name"), true)
+    verifySame(x.env, env)
+    verifyDictEq(x.own, meta)
+
+    if (slots == null || slots.isEmpty)
+    {
+      verifyEq(x.slotsOwn.isEmpty, true)
+    }
+    else
+    {
+      slots.each |s, n| { verifySame(s, x.slotsOwn.get(n)) }
+      x.slotsOwn.each |s, n| { verifySame(s, slots[n]) }
+    }
+  }
+
+  Void verifyDeriveErr(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots, Str msg)
+  {
+    verifyErrMsg(ArgErr#, msg) { env.derive(name, base, meta, slots) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
 
   DataLib verifyLibBasics(Str qname, Version version)
   {

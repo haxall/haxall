@@ -87,6 +87,26 @@ internal const class MSpec
 }
 
 **************************************************************************
+** MDerivedSpec
+**************************************************************************
+
+@Js
+internal const class MDerivedSpec : MSpec
+{
+  static const AtomicInt counter := AtomicInt()
+
+  new make(XetoEnv env, Str name, XetoSpec base, DataDict own, MSlots slotsOwn)
+    : super(FileLoc.synthetic, null, name, base, base.type, own, slotsOwn, base.m.flags)
+  {
+    this.env = env
+    this.qname = "derived" + counter.getAndIncrement + "::" + name
+  }
+
+  const override XetoEnv env
+  const override Str qname
+}
+
+**************************************************************************
 ** MSpecFlags
 **************************************************************************
 

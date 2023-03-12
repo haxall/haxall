@@ -7,6 +7,7 @@
 //
 
 using data
+using util
 
 **
 ** Utility functions
@@ -14,6 +15,17 @@ using data
 @Js
 internal const class XetoUtil
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Naming
+//////////////////////////////////////////////////////////////////////////
+
+  ** Return if valid spec name
+  static Bool isSpecName(Str n)
+  {
+    if (n.isEmpty || !n[0].isAlpha) return false
+    return n.all |c| { c.isAlphaNum || c == '_' }
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Inherit Meta
@@ -124,5 +136,26 @@ internal const class XetoUtil
     return false
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Derive
+//////////////////////////////////////////////////////////////////////////
+
+  ** Dervice a new spec from the given base, meta, and map
+  static DataSpec derive(XetoEnv env, Str name, XetoSpec base, DataDict meta, [Str:DataSpec]? slotsMap)
+  {
+    // create MSlots for map
+    slots := (slotsMap == null || slotsMap.isEmpty) ? MSlots.empty : MSlots(slotsMap)
+
+    // sanity checking
+    if (!isSpecName(name)) throw ArgErr("Invalid spec name: $name")
+    if (meta.isEmpty && slots.isEmpty) throw ArgErr("Must specify meta or slots")
+    if (base.own.has("sealed")) throw ArgErr("Cannot derive from sealed type: $base")
+    if (!base.isDict)
+    {
+      if (!slots.isEmpty) throw ArgErr("Cannot add slots to non-dict type: $base")
+    }
+
+    return XetoSpec(MDerivedSpec(env, name, base, meta, slots))
+  }
 }
 

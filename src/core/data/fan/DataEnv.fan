@@ -84,6 +84,11 @@ const abstract class DataEnv
   ** Compile Xeto data file into in-memory dict/scalar tree
   abstract Obj? compileData(Str src)
 
+  ** Derive a new spec from the given base type, additional meta, and
+  ** slots.  The spec is not associated with any library and a synthetic
+  ** qname is generated.
+  abstract DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)
+
   ** Get or load type by the given qualified name
   abstract DataType? type(Str qname, Bool checked := true)
 

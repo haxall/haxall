@@ -123,6 +123,11 @@ internal const class XetoEnv : DataEnv
     return c.compileData
   }
 
+  override DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)
+  {
+    XetoUtil.derive(this, name, base, meta, slots)
+  }
+
   override XetoType? type(Str qname, Bool checked := true)
   {
     colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
