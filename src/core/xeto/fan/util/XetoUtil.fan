@@ -148,19 +148,31 @@ internal const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Dervice a new spec from the given base, meta, and map
-  static DataSpec derive(XetoEnv env, Str name, XetoSpec base, DataDict meta, [Str:DataSpec]? slotsMap)
+  static DataSpec derive(XetoEnv env, Str name, XetoSpec base, DataDict meta, [Str:DataSpec]? slots)
   {
-    // create MSlots for map
-    slots := (slotsMap == null || slotsMap.isEmpty) ? MSlots.empty : MSlots(slotsMap)
-
     // sanity checking
     if (!isSpecName(name)) throw ArgErr("Invalid spec name: $name")
     if (!base.isDict)
     {
-      if (!slots.isEmpty) throw ArgErr("Cannot add slots to non-dict type: $base")
+      if (slots != null && !slots.isEmpty) throw ArgErr("Cannot add slots to non-dict type: $base")
     }
 
-    return XetoSpec(MDerivedSpec(env, name, base, meta, slots))
+    spec := XetoSpec()
+    m := MDerivedSpec(env, name, base, meta, deriveSlots(env, spec, slots))
+    XetoSpec#m->setConst(spec, m)
+    return spec
+  }
+
+  private static MSlots deriveSlots(XetoEnv env, XetoSpec parent, [Str:DataSpec]? slotsMap)
+  {
+    if (slotsMap == null || slotsMap.isEmpty) return MSlots.empty
+
+    derivedMap := slotsMap.map |XetoSpec base, Str name->XetoSpec|
+    {
+      XetoSpec(MSpec(FileLoc.synthetic, parent, name, base, base.type, env.dict0, MSlots.empty, base.m.flags))
+    }
+
+    return MSlots(derivedMap)
   }
 }
 

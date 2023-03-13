@@ -112,8 +112,9 @@ class AxonTest : HxTest
     if (expect.contains("<"))
     {
       s.add(" <")
-      x.own.each |v, n|
+      x.each |v, n|
       {
+        if (x.type.has(n)) return
         s.add(n)
         if (v !== Marker.val) s.add(":").add(v)
       }

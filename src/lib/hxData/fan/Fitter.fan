@@ -46,7 +46,7 @@ class Fitter
     return explainNoFit(valType, type)
   }
 
-  Bool fitsStruct(Dict dict, DataType type)
+  Bool fitsStruct(Dict dict, DataSpec type)
   {
     slots := type.slots
     match := true

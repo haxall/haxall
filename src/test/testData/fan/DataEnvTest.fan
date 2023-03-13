@@ -235,8 +235,14 @@ class DataEnvTest : AbstractDataTest
     }
     else
     {
-      slots.each |s, n| { verifySame(s, x.slotsOwn.get(n)) }
-      x.slotsOwn.each |s, n| { verifySame(s, slots[n]) }
+      slots.each |eslot, n|
+      {
+        aslot := x.slotsOwn.get(n)
+        verifyEq(aslot.name, n)
+        verifySame(aslot.parent, x)
+        verifySame(aslot.base, eslot)
+      }
+      x.slotsOwn.each |s, n| { verifySame(s.base, slots[n]) }
     }
   }
 

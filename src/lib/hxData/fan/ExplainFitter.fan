@@ -26,7 +26,7 @@ class ExplainFitter : Fitter
 // Top
 //////////////////////////////////////////////////////////////////////////
 
-  Grid explain(Obj? val, DataType type)
+  Grid explain(Obj? val, DataSpec type)
   {
     failFast = false
     recs := Etc.toRecs(val)
@@ -65,7 +65,7 @@ class ExplainFitter : Fitter
 
   override Bool explainMissingSlot(DataSpec slot)
   {
-    if (slot.type.isa(data.type("sys::Marker"))) // TODO
+    if (slot.type.isMarker)
       return log("Missing required marker '$slot.name'")
     else
       return log("Missing required slot '$slot.name'")
