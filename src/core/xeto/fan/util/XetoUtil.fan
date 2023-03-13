@@ -23,7 +23,14 @@ internal const class XetoUtil
   ** Return if valid spec name
   static Bool isSpecName(Str n)
   {
-    if (n.isEmpty || !n[0].isAlpha) return false
+    if (n.isEmpty) return false
+    ch := n[0]
+
+    // _123
+    if (ch == '_') return n.all |c, i| { i == 0 || c.isDigit }
+
+    // Foo_Bar_123
+    if (!ch.isAlpha) return false
     return n.all |c| { c.isAlphaNum || c == '_' }
   }
 
@@ -148,7 +155,6 @@ internal const class XetoUtil
 
     // sanity checking
     if (!isSpecName(name)) throw ArgErr("Invalid spec name: $name")
-    if (meta.isEmpty && slots.isEmpty) throw ArgErr("Must specify meta or slots")
     if (!base.isDict)
     {
       if (!slots.isEmpty) throw ArgErr("Cannot add slots to non-dict type: $base")

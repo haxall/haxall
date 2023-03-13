@@ -29,74 +29,76 @@ class AxonTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Specs Exprs
+// SpecsExpr
 //////////////////////////////////////////////////////////////////////////
 
   @HxRuntimeTest
-  Void testSpecExprs()
+  Void testSpecExpr()
   {
     // simple
     libs = ["ph"]
-    verifySpecExpr(Str<|Str|>, "sys::Str")
-    verifySpecExpr(Str<|Dict|>, "sys::Dict")
-    verifySpecExpr(Str<|Point|>, "ph::Point")
+    verifySpecRef(Str<|Str|>, "sys::Str")
+    verifySpecRef(Str<|Dict|>, "sys::Dict")
+    verifySpecRef(Str<|Point|>, "ph::Point")
 
     // with meta
-    verifySpecExpr(Str<|Dict <>|>, "sys::Dict")
-    verifySpecExpr(Str<|Dict <foo>|>, "sys::Dict", ["foo":m])
-    verifySpecExpr(Str<|Dict <foo, bar:"baz">|>, "sys::Dict", ["foo":m, "bar":"baz"])
+    verifySpecDerive(Str<|Dict <>|>, "sys::Dict")
+    verifySpecDerive(Str<|Dict <foo>|>, "sys::Dict", ["foo":m])
+    verifySpecDerive(Str<|Dict <foo, bar:"baz">|>, "sys::Dict", ["foo":m, "bar":"baz"])
 
     // with value
-    verifySpecExpr(Str<|Scalar "foo"|>, "sys::Scalar", ["val":"foo"])
-    verifySpecExpr(Str<|Scalar 123|>, "sys::Scalar", ["val":"123"])
-    verifySpecExpr(Str<|Scalar 2023-03-13|>, "sys::Scalar", ["val":"2023-03-13"])
-    verifySpecExpr(Str<|Scalar 13:14:15|>, "sys::Scalar", ["val":"13:14:15"])
-    verifySpecExpr(Str<|Scalar <qux> "bar"|>, "sys::Scalar", ["qux":m, "val":"bar"])
+    verifySpecDerive(Str<|Scalar "foo"|>, "sys::Scalar", ["val":"foo"])
+    verifySpecDerive(Str<|Scalar 123|>, "sys::Scalar", ["val":"123"])
+    verifySpecDerive(Str<|Scalar 2023-03-13|>, "sys::Scalar", ["val":"2023-03-13"])
+    verifySpecDerive(Str<|Scalar 13:14:15|>, "sys::Scalar", ["val":"13:14:15"])
+    verifySpecDerive(Str<|Scalar <qux> "bar"|>, "sys::Scalar", ["qux":m, "val":"bar"])
 
     // with slots
-    verifySpecExpr(Str<|Dict {}|>, "sys::Dict")
-    verifySpecExpr(Str<|Dict { equip }|>, "sys::Dict", [:], ["equip":"sys::Marker"])
-    verifySpecExpr(Str<|Dict { equip, ahu }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
-    verifySpecExpr(Str<|Dict { equip, ahu, }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
-    verifySpecExpr(Str<|Dict
-                        {
-                           equip
-                           ahu
-                        }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
-    verifySpecExpr(Str<|Dict { dis:Str }|>, "sys::Dict", [:], ["dis":"sys::Str"])
-    verifySpecExpr(Str<|Dict { dis:Str, foo, baz:Date }|>, "sys::Dict", [:], ["dis":"sys::Str", "foo":"sys::Marker", "baz":"sys::Date"])
-    verifySpecExpr(Str<|Dict {
-                         dis:Str
-                         foo,
-                         baz:Date }|>, "sys::Dict", [:], ["dis":"sys::Str", "foo":"sys::Marker", "baz":"sys::Date"])
-    verifySpecExpr(Str<|Dict { Ahu }|>, "sys::Dict", [:], ["_0":"ph::Ahu"])
-    verifySpecExpr(Str<|Dict { Ahu, Meter }|>, "sys::Dict", [:], ["_0":"ph::Ahu", "_1":"ph::Meter"])
+    verifySpecDerive(Str<|Dict {}|>, "sys::Dict")
+    verifySpecDerive(Str<|Dict { equip }|>, "sys::Dict", [:], ["equip":"sys::Marker"])
+    verifySpecDerive(Str<|Dict { equip, ahu }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
+    verifySpecDerive(Str<|Dict { equip, ahu, }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
+    verifySpecDerive(Str<|Dict
+                          {
+                             equip
+                             ahu
+                          }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
+    verifySpecDerive(Str<|Dict { dis:Str }|>, "sys::Dict", [:], ["dis":"sys::Str"])
+    verifySpecDerive(Str<|Dict { dis:Str, foo, baz:Date }|>, "sys::Dict", [:], ["dis":"sys::Str", "foo":"sys::Marker", "baz":"sys::Date"])
+    verifySpecDerive(Str<|Dict {
+                            dis:Str
+                            foo,
+                            baz:Date
+                          }|>, "sys::Dict", [:], ["dis":"sys::Str", "foo":"sys::Marker", "baz":"sys::Date"])
+    verifySpecDerive(Str<|Dict { Ahu }|>, "sys::Dict", [:], ["_0":"ph::Ahu"])
+    verifySpecDerive(Str<|Dict { Ahu, Meter }|>, "sys::Dict", [:], ["_0":"ph::Ahu", "_1":"ph::Meter"])
 
     // with slot and meta
-    verifySpecExpr(Str<|Dict <foo> { bar }|>, "sys::Dict", ["foo":m], ["bar":"sys::Marker"])
-    verifySpecExpr(Str<|Dict {
-                         dis: Str <qux>
-                         foo,
-                         baz: Date <x:"y">}|>, "sys::Dict", [:], ["dis":"sys::Str <qux>", "foo":"sys::Marker", "baz":"sys::Date <x:y>"])
+    verifySpecDerive(Str<|Dict <foo> { bar }|>, "sys::Dict", ["foo":m], ["bar":"sys::Marker"])
+    verifySpecDerive(Str<|Dict {
+                            dis: Str <qux>
+                            foo,
+                            baz: Date <x:"y">
+                          }|>, "sys::Dict", [:], ["dis":"sys::Str <qux>", "foo":"sys::Marker", "baz":"sys::Date <x:y>"])
+
   }
 
-  Void verifySpecExpr(Str expr, Str qname, Str:Obj meta := [:], Str:Str slots := [:])
+  Void verifySpecRef(Str expr, Str qname)
   {
-    type := data.type(qname)
-
     DataSpec x := makeContext.eval(expr)
-    // echo("::: $expr => $x [$x.typeof] " + Etc.dictToStr((Dict)x.own))
+    // echo(":::REF:::: $expr => $x [$x.typeof] " + Etc.dictToStr((Dict)x.own))
+    verifySame(x, env.type(qname))
+  }
 
-    // type reference only
-    if (meta.isEmpty && slots.isEmpty)
-    {
-      verifySame(x, type)
-      return
-    }
+  Void verifySpecDerive(Str expr, Str type, Str:Obj meta := [:], Str:Str slots := [:])
+  {
+    DataSpec x := makeContext.eval(expr)
+    // echo(":::DERIVE::: $expr => $x [$x.typeof] " + Etc.dictToStr((Dict)x.own))
 
     // verify spec
-    verifySame(x.type, type)
-    verifySame(x.base, type)
+    verifyNotSame(x, env.type(type))
+    verifySame(x.type, env.type(type))
+    verifySame(x.base, x.type)
     verifyDictEq(x.own, meta)
     slots.each |expect, name|
     {
@@ -121,16 +123,47 @@ class AxonTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Deftype
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testDeftype()
+  {
+    cx := makeContext
+    person := cx.eval(Str<|Person: Dict|>)
+    verifySame(cx.varsInScope.getChecked("Person"), person)
+    verifySame(cx.eval("Person"), person)
+    verifyEq(cx.eval("specParent(Person)"), null)
+    verifyEq(cx.eval("specName(Person)"), "Person")
+    verifyEq(cx.eval("specBase(Person)"), env.type("sys::Dict"))
+    verifyEq(cx.eval("specType(Person)"), env.type("sys::Dict"))
+    verifySame(cx.eval("specMetaOwn(Person)"), env.dict0)
+    verifyEq(cx.eval("specSlotsOwn(Person).isEmpty"), true)
+
+    person2 := cx.eval(Str<|Person2: Person { dis:Str }|>)
+    verifySame(cx.varsInScope.getChecked("Person2"), person2)
+    verifySame(cx.eval("Person2"), person2)
+    verifyEq(cx.eval("specParent(Person2)"), null)
+    verifyEq(cx.eval("specName(Person2)"), "Person2")
+    verifyEq(cx.eval("specBase(Person2)"), person)
+    verifyEq(cx.eval("specType(Person2)"), env.type("sys::Dict"))
+    verifySame(cx.eval("specMetaOwn(Person2)"), env.dict0)
+    verifyEq(cx.eval("specSlotsOwn(Person2)->dis.specName"), "dis")
+    verifyEq(cx.eval("specSlotsOwn(Person2)->dis.specType"), env.type("sys::Str"))
+  }
+
+
+//////////////////////////////////////////////////////////////////////////
 // Reflection Funcs
 //////////////////////////////////////////////////////////////////////////
 
   @HxRuntimeTest
   Void testReflect()
   {
-    verifyReflect("Obj", data.type("sys::Obj"))
-    verifyReflect("Str", data.type("sys::Str"))
-    verifyReflect("Dict", data.type("sys::Dict"))
-    verifyReflect("LibOrg", data.type("sys::LibOrg"))
+    verifyReflect("Obj", env.type("sys::Obj"))
+    verifyReflect("Str", env.type("sys::Str"))
+    verifyReflect("Dict", env.type("sys::Dict"))
+    verifyReflect("LibOrg", env.type("sys::LibOrg"))
   }
 
   Void verifyReflect(Str expr, DataSpec spec)
@@ -299,8 +332,8 @@ class AxonTest : HxTest
   {
     x := makeContext.eval(expr)
     // echo("::: $expr => $x [$x.typeof]")
-    verifySame(x, data.type(qname))
+    verifySame(x, env.type(qname))
   }
 
-  DataEnv data() { DataEnv.cur }
+  DataEnv env() { DataEnv.cur }
 }

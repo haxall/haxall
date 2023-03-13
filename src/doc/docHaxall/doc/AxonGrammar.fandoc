@@ -32,7 +32,7 @@ Productions [#productions]
 
   <expr>         :=  <lambda> | <def> | <if> | <list> | <dict> | <do> |
                      <return> | <throw> | <tryCatch> | <defcomp> |
-                     <assignExpr> | <spec>
+                     <assignExpr> | <deftype> | <spec>
 
   <do>           :=  "do" <exprs> "end"
   <exprs>        :=  <expr> (<exprSep> <expr>)*
@@ -89,6 +89,7 @@ Productions [#productions]
   <index>        :=  "[" <expr> "]"
   <trapCall>     :=  "->" <id>
 
+  <deftype>      :=  <typename> ":" <spec>
   <spec>         :=  <specType> [<specMeta>] ["?"] [<specBody>]
   <specMeta>     :=  "<" <dictItems> ">"
   <specBody>     :=  <specScalar> | <specSlots>

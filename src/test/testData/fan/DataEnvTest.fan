@@ -207,13 +207,13 @@ class DataEnvTest : AbstractDataTest
     dict := env.type("sys::Dict")
     m := Marker.val
 
+    verifyDerive("foo", list, env.dict0, null)
     verifyDerive("foo", list, env.dict1("bar", m), null)
     verifyDerive("foo", list, env.dict2("bar", m, "baz", "hi"), Str:DataSpec[:])
     verifyDerive("foo", dict, env.dict0, ["foo":marker])
     verifyDerive("foo", dict, env.dict1("bar", m), ["foo":marker, "dis":str])
 
     verifyDeriveErr("foo bar", scalar, env.dict0, null, "Invalid spec name: foo bar")
-    verifyDeriveErr("foo", scalar, env.dict0, null, "Must specify meta or slots")
     verifyDeriveErr("foo", scalar, env.dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::Scalar")
     verifyDeriveErr("foo", list, env.dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::List")
   }

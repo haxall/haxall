@@ -86,7 +86,7 @@ class Parser
     if (cur === Token.returnKeyword) return returnExpr
     if (cur === Token.throwKeyword)  return throwExpr
     if (cur === Token.tryKeyword)    return tryCatchExpr
-    if (cur === Token.typename)      return spec(null)
+    if (cur === Token.typename)      return typename
     return assignExpr
   }
 
@@ -716,20 +716,74 @@ class Parser
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Spec
+  ** Typename can be:
+  **    <deftype> := <typename> ":" <spec>
+  **    <spec>    :=  <specType> [<specMeta>] ["?"] [<specBody>]
   **
-  private Spec spec(Str? libName)
+  private Expr typename()
   {
-    inSpec++
+    if (peek === Token.colon)
+      return deftype
+    else
+      return spec(null)
+  }
+
+  **
+  ** Type definition; generates DefineVar with typename as the variable name:
+  **   <deftype> := <typename> ":" <spec>
+  **
+  private DefineVar deftype()
+  {
     if (cur != Token.typename) throw err("Expected typename, not $curToStr")
     loc := curLoc
     name := curVal
+    consume(Token.typename)
+    consume(Token.colon)
+    return DefineVar(loc, name, spec(name))
+  }
+
+  **
+  ** DataSpec production:
+  **
+  **   <spec>         :=  <specType> [<specMeta>] ["?"] [<specBody>]
+  **   <specMeta>     :=  "<" <dictItems> ">"
+  **   <specBody>     :=  <specScalar> | <specSlots>
+  **   <specScalar>   :=  <number> | <str> | <date> | <time>
+  **   <specSlots>    :=  "{" [<specSlot> (<specEos> <specSlot>)* [<specEos>]] "}"
+  **   <specSlot>     :=  <specMarker> | <specUnnamed> | <specNamed>
+  **   <specEos>      :=  "," | <nl>
+  **   <specMarker>   :=  <id>
+  **   <specUnnamed>  :=  <spec>
+  **   <specNamed>    :=  <id> ":" <spec>
+  **   <specType>     :=  <specAnd> | <specOr> | <specSimple>
+  **   <specAnd>      :=  <specSimple> ("&" <specSimple>)+
+  **   <specOr>       :=  <specSimple> ("|" <specSimple>)+
+  **   <specSimple>   :=  <typename>
+  **
+  private Expr spec(Str? name)
+  {
+    if (cur != Token.typename) throw err("Expected typename, not $curToStr")
+
+    loc := curLoc
+    typename := curVal
     consume
+    ref := SpecRef(loc, null, typename)
+
+    // if not named and we don't have additonal spec production, then just
+    // make this a reference to an existing type using a SpecRef
+    if (name == null && cur !== Token.lt && cur !== Token.val && cur !== Token.lbrace)
+      return ref
+
+
 
     // <meta>
     meta := Etc.dict0
     if (cur === Token.lt)
+    {
+      inSpec++
       meta = constDict(Token.lt, Token.gt)
+      inSpec--
+    }
 
     // value
     hasVal := false
@@ -741,7 +795,7 @@ class Parser
     }
 
     // "{" <slots> "}"
-    slots := null
+    [Str:Spec]? slots := null
     if (cur === Token.lbrace)
     {
       if (hasVal) throw err("Cannot have both value and slots")
@@ -752,8 +806,9 @@ class Parser
     if (cur === Token.val && slots != null)
        throw err("Cannot have both value and slots")
 
-    inSpec--
-    return Spec(loc, null, name, meta, slots)
+    // derive a new spec on evaluation
+    if (name == null) name = "unnamed"
+    return SpecDerive(loc, name, ref, meta, slots)
   }
 
   private Str specVal(Obj? val)
@@ -783,7 +838,7 @@ class Parser
       if (cur === Token.typename)
       {
         name = "_" + (auto++)
-        slot = spec(null)
+        slot = spec(name)
       }
       else
       {
@@ -791,11 +846,11 @@ class Parser
         if (cur === Token.colon)
         {
           consume
-          slot = spec(null)
+          slot = spec(name)
         }
         else
         {
-          slot = Spec(loc, "sys", "Marker", Etc.dict0, null)
+          slot = SpecRef(loc, "sys", "Marker")
         }
       }
 
