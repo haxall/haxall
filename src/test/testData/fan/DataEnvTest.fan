@@ -214,7 +214,6 @@ class DataEnvTest : AbstractDataTest
 
     verifyDeriveErr("foo bar", scalar, env.dict0, null, "Invalid spec name: foo bar")
     verifyDeriveErr("foo", scalar, env.dict0, null, "Must specify meta or slots")
-    verifyDeriveErr("foo", obj, env.dict1("a", m), null, "Cannot derive from sealed type: sys::Obj")
     verifyDeriveErr("foo", scalar, env.dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::Scalar")
     verifyDeriveErr("foo", list, env.dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::List")
   }

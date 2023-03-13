@@ -149,7 +149,6 @@ internal const class XetoUtil
     // sanity checking
     if (!isSpecName(name)) throw ArgErr("Invalid spec name: $name")
     if (meta.isEmpty && slots.isEmpty) throw ArgErr("Must specify meta or slots")
-    if (base.own.has("sealed")) throw ArgErr("Cannot derive from sealed type: $base")
     if (!base.isDict)
     {
       if (!slots.isEmpty) throw ArgErr("Cannot add slots to non-dict type: $base")

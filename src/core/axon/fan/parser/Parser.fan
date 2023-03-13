@@ -744,6 +744,7 @@ class Parser
   {
     acc := Str:Spec[:]
     acc.ordered = true
+    auto := 0
 
     consume(Token.lbrace)
     if (cur === Token.rbrace) { consume; return acc }
@@ -751,21 +752,32 @@ class Parser
     while (true)
     {
       loc := curLoc
-      name := consumeIdOrKeyword("spec slot name")
-      Spec? spec
+      Str? name
+      Spec? slot
 
-      if (cur === Token.colon)
+      // marker, named, unnamed
+      if (cur === Token.typename)
       {
-        throw err("TODO")
+        name = "_" + (auto++)
+        slot = spec(null)
       }
       else
       {
-        spec = Spec(loc, "sys", "Marker", Etc.dict0, null)
+        name = consumeIdOrKeyword("spec slot name")
+        if (cur === Token.colon)
+        {
+          consume
+          slot = spec(null)
+        }
+        else
+        {
+          slot = Spec(loc, "sys", "Marker", Etc.dict0, null)
+        }
       }
 
       // add to the map
       if (acc[name] != null) throw err("Duplicate slot name: $name", loc)
-      acc[name] = spec
+      acc[name] = slot
 
       // expecting "}" to end slots or a comma/newline to end this slot
       if (cur === Token.rbrace) break

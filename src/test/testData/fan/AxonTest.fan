@@ -56,9 +56,21 @@ class AxonTest : HxTest
                            equip
                            ahu
                         }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
+    verifySpecExpr(Str<|Dict { dis:Str }|>, "sys::Dict", [:], ["dis":"sys::Str"])
+    verifySpecExpr(Str<|Dict { dis:Str, foo, baz:Date }|>, "sys::Dict", [:], ["dis":"sys::Str", "foo":"sys::Marker", "baz":"sys::Date"])
+    verifySpecExpr(Str<|Dict {
+                         dis:Str
+                         foo,
+                         baz:Date }|>, "sys::Dict", [:], ["dis":"sys::Str", "foo":"sys::Marker", "baz":"sys::Date"])
+    verifySpecExpr(Str<|Dict { Ahu }|>, "sys::Dict", [:], ["_0":"ph::Ahu"])
+    verifySpecExpr(Str<|Dict { Ahu, Meter }|>, "sys::Dict", [:], ["_0":"ph::Ahu", "_1":"ph::Meter"])
 
     // with slot and meta
     verifySpecExpr(Str<|Dict <foo> { bar }|>, "sys::Dict", ["foo":m], ["bar":"sys::Marker"])
+    verifySpecExpr(Str<|Dict {
+                         dis: Str <qux>
+                         foo,
+                         baz: Date <x:"y">}|>, "sys::Dict", [:], ["dis":"sys::Str <qux>", "foo":"sys::Marker", "baz":"sys::Date <x:y>"])
   }
 
   Void verifySpecExpr(Str expr, Str qname, Str:Obj meta := [:], Str:Str slots := [:])
@@ -69,7 +81,6 @@ echo
 echo("::: $expr => ")
     DataSpec x := makeContext.eval(expr)
 echo("::: => $x [$x.typeof]")
-data.print(x)
 
     // type reference only
     if (meta.isEmpty && slots.isEmpty)
@@ -90,7 +101,18 @@ data.print(x)
 
   Void verifySpecExprSlot(DataSpec x, Str expect)
   {
-    verifySame(x, data.type(expect))
+    s := StrBuf().add(x.type.qname)
+    if (expect.contains("<"))
+    {
+      s.add(" <")
+      x.own.each |v, n|
+      {
+        s.add(n)
+        if (v !== Marker.val) s.add(":").add(v)
+      }
+      s.add(">")
+    }
+    verifyEq(s.toStr, expect)
   }
 
 //////////////////////////////////////////////////////////////////////////
