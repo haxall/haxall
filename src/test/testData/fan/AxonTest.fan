@@ -45,9 +45,23 @@ class AxonTest : HxTest
     verifySpecExpr(Str<|Dict <>|>, "sys::Dict")
     verifySpecExpr(Str<|Dict <foo>|>, "sys::Dict", ["foo":m])
     verifySpecExpr(Str<|Dict <foo, bar:"baz">|>, "sys::Dict", ["foo":m, "bar":"baz"])
+
+    // with slots
+    verifySpecExpr(Str<|Dict {}|>, "sys::Dict")
+    verifySpecExpr(Str<|Dict { equip }|>, "sys::Dict", [:], ["equip":"sys::Marker"])
+    verifySpecExpr(Str<|Dict { equip, ahu }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
+    verifySpecExpr(Str<|Dict { equip, ahu, }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
+    verifySpecExpr(Str<|Dict
+                        {
+                           equip
+                           ahu
+                        }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
+
+    // with slot and meta
+    verifySpecExpr(Str<|Dict <foo> { bar }|>, "sys::Dict", ["foo":m], ["bar":"sys::Marker"])
   }
 
-  Void verifySpecExpr(Str expr, Str qname, Str:Obj meta := [:])
+  Void verifySpecExpr(Str expr, Str qname, Str:Obj meta := [:], Str:Str slots := [:])
   {
     type := data.type(qname)
 
@@ -58,7 +72,7 @@ echo("::: => $x [$x.typeof]")
 data.print(x)
 
     // type reference only
-    if (meta.isEmpty)
+    if (meta.isEmpty && slots.isEmpty)
     {
       verifySame(x, type)
       return
@@ -68,6 +82,15 @@ data.print(x)
     verifySame(x.type, type)
     verifySame(x.base, type)
     verifyDictEq(x.own, meta)
+    slots.each |expect, name|
+    {
+      verifySpecExprSlot(x.slotOwn(name), expect)
+    }
+  }
+
+  Void verifySpecExprSlot(DataSpec x, Str expect)
+  {
+    verifySame(x, data.type(expect))
   }
 
 //////////////////////////////////////////////////////////////////////////

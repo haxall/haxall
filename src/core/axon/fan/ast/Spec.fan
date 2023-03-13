@@ -52,9 +52,25 @@ internal const class Spec : Expr
 
   private DataSpec resolve(AxonContext cx)
   {
-    type := cx.usings.resolve(name)
-    if (isTypeOnly) return type
-    return cx.usings.data.derive(name, type, meta)
+    type := resolveType(cx)
+    if (isTypeOnly)
+      return type
+    else
+      return cx.usings.data.derive(name, type, meta, resolveSlots(cx))
+  }
+
+  private [Str:DataSpec]? resolveSlots(AxonContext cx)
+  {
+    if (slots == null || slots.isEmpty) return null
+    return slots.map |Spec ast->DataSpec| { ast.resolve(cx) }
+  }
+
+  private DataType resolveType(AxonContext cx)
+  {
+    if (libName != null)
+      return cx.usings.data.lib(libName).slotOwn(name)
+    else
+      return cx.usings.resolve(name)
   }
 
   override Printer print(Printer out)
@@ -64,6 +80,7 @@ internal const class Spec : Expr
 
   override Void walk(|Str key, Obj? val| f)
   {
+    // TODO
     f("spec", nameToStr)
   }
 

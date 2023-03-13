@@ -731,10 +731,57 @@ class Parser
     if (cur === Token.lt)
       meta = constDict(Token.lt, Token.gt)
 
+    // "{" <slots> "}"
     slots := null
+    if (cur === Token.lbrace)
+      slots = specSlots
 
     inSpec--
     return Spec(loc, null, name, meta, slots)
+  }
+
+  private Str:Spec specSlots()
+  {
+    acc := Str:Spec[:]
+    acc.ordered = true
+
+    consume(Token.lbrace)
+    if (cur === Token.rbrace) { consume; return acc }
+
+    while (true)
+    {
+      loc := curLoc
+      name := consumeIdOrKeyword("spec slot name")
+      Spec? spec
+
+      if (cur === Token.colon)
+      {
+        throw err("TODO")
+      }
+      else
+      {
+        spec = Spec(loc, "sys", "Marker", Etc.dict0, null)
+      }
+
+      // add to the map
+      if (acc[name] != null) throw err("Duplicate slot name: $name", loc)
+      acc[name] = spec
+
+      // expecting "}" to end slots or a comma/newline to end this slot
+      if (cur === Token.rbrace) break
+      specEndOfSlot
+      if (cur === Token.rbrace) break
+    }
+
+    consume(Token.rbrace)
+    return acc
+  }
+
+  private Void specEndOfSlot()
+  {
+    if (cur === Token.comma) { consume; return }
+    if (nl) return
+    throw err("Expecting newline or comma to end slot, not $curToStr")
   }
 
 //////////////////////////////////////////////////////////////////////////
