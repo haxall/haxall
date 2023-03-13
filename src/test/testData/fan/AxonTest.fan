@@ -46,6 +46,13 @@ class AxonTest : HxTest
     verifySpecExpr(Str<|Dict <foo>|>, "sys::Dict", ["foo":m])
     verifySpecExpr(Str<|Dict <foo, bar:"baz">|>, "sys::Dict", ["foo":m, "bar":"baz"])
 
+    // with value
+    verifySpecExpr(Str<|Scalar "foo"|>, "sys::Scalar", ["val":"foo"])
+    verifySpecExpr(Str<|Scalar 123|>, "sys::Scalar", ["val":"123"])
+    verifySpecExpr(Str<|Scalar 2023-03-13|>, "sys::Scalar", ["val":"2023-03-13"])
+    verifySpecExpr(Str<|Scalar 13:14:15|>, "sys::Scalar", ["val":"13:14:15"])
+    verifySpecExpr(Str<|Scalar <qux> "bar"|>, "sys::Scalar", ["qux":m, "val":"bar"])
+
     // with slots
     verifySpecExpr(Str<|Dict {}|>, "sys::Dict")
     verifySpecExpr(Str<|Dict { equip }|>, "sys::Dict", [:], ["equip":"sys::Marker"])
@@ -77,10 +84,8 @@ class AxonTest : HxTest
   {
     type := data.type(qname)
 
-echo
-echo("::: $expr => ")
     DataSpec x := makeContext.eval(expr)
-echo("::: => $x [$x.typeof]")
+    // echo("::: $expr => $x [$x.typeof] " + Etc.dictToStr((Dict)x.own))
 
     // type reference only
     if (meta.isEmpty && slots.isEmpty)

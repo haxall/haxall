@@ -731,13 +731,37 @@ class Parser
     if (cur === Token.lt)
       meta = constDict(Token.lt, Token.gt)
 
+    // value
+    hasVal := false
+    if (cur === Token.val)
+    {
+      hasVal = true
+      meta = Etc.dictSet(meta, "val", specVal(curVal))
+      consume
+    }
+
     // "{" <slots> "}"
     slots := null
     if (cur === Token.lbrace)
+    {
+      if (hasVal) throw err("Cannot have both value and slots")
       slots = specSlots
+    }
+
+    // check for {} value
+    if (cur === Token.val && slots != null)
+       throw err("Cannot have both value and slots")
 
     inSpec--
     return Spec(loc, null, name, meta, slots)
+  }
+
+  private Str specVal(Obj? val)
+  {
+    // only allow a subset of values
+    if (val is Str || val is Number || val is Date || val is Time)
+      return val.toStr
+    throw err("Invalid spec scalar value type: ${val?.typeof?.name}")
   }
 
   private Str:Spec specSlots()

@@ -92,7 +92,7 @@ Productions [#productions]
   <spec>         :=  <specType> [<specMeta>] ["?"] [<specBody>]
   <specMeta>     :=  "<" <dictItems> ">"
   <specBody>     :=  <specScalar> | <specSlots>
-  <specScalar>   :=  <number> | <str> | <date> | <month>
+  <specScalar>   :=  <number> | <str> | <date> | <time>
   <specSlots>    :=  "{" [<specSlot> (<specEos> <specSlot>)* [<specEos>]] "}"
   <specSlot>     :=  <specMarker> | <specUnnamed> | <specNamed>
   <specEos>      :=  "," | <nl>
