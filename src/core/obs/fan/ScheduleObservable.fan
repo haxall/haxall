@@ -52,7 +52,8 @@ const class ScheduleObservable : Observable
     if (sub.times != null)
     {
       lastTime := toLastTime(sub, nowTime)
-      ready := sub.times.find |t| { lastTime <= t && t <= nowTime.time }
+      nowTimeTime := nowTime.time
+      ready := sub.times.find |t| { lastTime <= t && t <= nowTimeTime }
       if (ready != null)
         fire(sub, nowTime, nowTicks, msg)
       return
