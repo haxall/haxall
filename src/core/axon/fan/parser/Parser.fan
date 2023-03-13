@@ -304,10 +304,10 @@ class Parser
   **   <dictMarker>    := <id>
   **   <dictRemove>    := "-" <id>
   **
-  private DictExpr dict()
+  private DictExpr dict(Token open := Token.lbrace, Token close := Token.rbrace)
   {
-    consume(Token.lbrace)
-    if (cur === Token.rbrace) { consume; return DictExpr.empty }
+    consume(open)
+    if (cur === close) { consume; return DictExpr.empty }
     loc := curLoc
     names := Str[,]
     vals  := Expr[,]
@@ -336,21 +336,21 @@ class Parser
       vals.add(val)
       if (cur !== Token.comma)
       {
-        if (cur !== Token.rbrace) throw err("Expecting colon and value after $name.toCode dict literal")
+        if (cur !== close) throw err("Expecting colon and value after $name.toCode dict literal")
         break
       }
       consume
-      if (cur === Token.rbrace) break
+      if (cur === close) break
     }
-    consume(Token.rbrace)
+    consume(close)
 
     return DictExpr(loc, names, vals, allValsConst)
   }
 
   ** Parse dict literal
-  protected Dict constDict()
+  protected Dict constDict(Token open := Token.lbrace, Token close := Token.rbrace)
   {
-    expr := dict
+    expr := dict(open, close)
     if (expr.constVal == null) throw err("Dict cannot use expressions", expr.loc)
     return expr.constVal
   }
@@ -403,6 +403,7 @@ class Parser
   private Expr compareExpr()
   {
     expr := rangeExpr
+    if (inSpec > 0) return expr // don't parse ">" as Gt if inside spec meta
     switch (cur)
     {
       case Token.eq:    consume; return Eq(expr, rangeExpr)
@@ -719,11 +720,21 @@ class Parser
   **
   private Spec spec(Str? libName)
   {
+    inSpec++
     if (cur != Token.typename) throw err("Expected typename, not $curToStr")
     loc := curLoc
     name := curVal
     consume
-    return Spec(loc, null, name)
+
+    // <meta>
+    meta := Etc.dict0
+    if (cur === Token.lt)
+      meta = constDict(Token.lt, Token.gt)
+
+    slots := null
+
+    inSpec--
+    return Spec(loc, null, name, meta, slots)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -878,4 +889,5 @@ class Parser
   private Str? curFuncName     // current name of base func
   private Int anonNum          // number of anonymous funcs
   private Fn[] inners := [,]   // current number of funcs inside current
+  private Int inSpec           // if inside spec production
 }

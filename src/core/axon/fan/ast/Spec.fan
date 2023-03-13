@@ -16,11 +16,13 @@ using haystack
 @Js
 internal const class Spec : Expr
 {
-  new make(Loc loc, Str? libName, Str name)
+  new make(Loc loc, Str? libName, Str name, Dict meta, [Str:Spec]? slots)
   {
     this.loc     = loc
     this.libName = libName
     this.name    = name
+    this.meta    = meta
+    this.slots   = slots
   }
 
   override ExprType type() { ExprType.spec }
@@ -31,13 +33,29 @@ internal const class Spec : Expr
 
   const Str name
 
+  const Dict meta
+
+  const [Str:Spec]? slots
+
   override Obj? eval(AxonContext cx)
   {
     r := resolved.val
-    if (r == null) resolved.val = r = cx.usings.resolve(name)
+    if (r == null) resolved.val = r = resolve(cx)
     return r
   }
   private const AtomicRef resolved := AtomicRef()
+
+  Bool isTypeOnly()
+  {
+    meta.isEmpty && (slots == null || slots.isEmpty)
+  }
+
+  private DataSpec resolve(AxonContext cx)
+  {
+    type := cx.usings.resolve(name)
+    if (isTypeOnly) return type
+    return cx.usings.data.derive(name, type, meta)
+  }
 
   override Printer print(Printer out)
   {

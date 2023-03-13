@@ -35,11 +35,39 @@ class AxonTest : HxTest
   @HxRuntimeTest
   Void testSpecExprs()
   {
-    verifySpec(Str<|Str|>, "sys::Str")
-    verifySpec(Str<|Dict|>, "sys::Dict")
-
+    // simple
     libs = ["ph"]
-    verifySpec(Str<|Point|>, "ph::Point")
+    verifySpecExpr(Str<|Str|>, "sys::Str")
+    verifySpecExpr(Str<|Dict|>, "sys::Dict")
+    verifySpecExpr(Str<|Point|>, "ph::Point")
+
+    // with meta
+    verifySpecExpr(Str<|Dict <>|>, "sys::Dict")
+    verifySpecExpr(Str<|Dict <foo>|>, "sys::Dict", ["foo":m])
+    verifySpecExpr(Str<|Dict <foo, bar:"baz">|>, "sys::Dict", ["foo":m, "bar":"baz"])
+  }
+
+  Void verifySpecExpr(Str expr, Str qname, Str:Obj meta := [:])
+  {
+    type := data.type(qname)
+
+echo
+echo("::: $expr => ")
+    DataSpec x := makeContext.eval(expr)
+echo("::: => $x [$x.typeof]")
+data.print(x)
+
+    // type reference only
+    if (meta.isEmpty)
+    {
+      verifySame(x, type)
+      return
+    }
+
+    // verify spec
+    verifySame(x.type, type)
+    verifySame(x.base, type)
+    verifyDictEq(x.own, meta)
   }
 
 //////////////////////////////////////////////////////////////////////////

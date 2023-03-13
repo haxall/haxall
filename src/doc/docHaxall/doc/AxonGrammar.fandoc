@@ -18,6 +18,7 @@ Legend for BNF Grammar:
   (x)     grouping
   s-e     inclusive char range
   x*      zero or more times
+  x+      one or more times
   x|x     or
 
 
@@ -25,30 +26,30 @@ Productions [#productions]
 **************************
 
   <topFunc>      :=  <lambda-n> | <defcomp>
-  <defcomp>      := "defcomp" <cells> [<do>] "end"
-  <cells>        := [<cell> <nl>]*
-  <cell>         := <id> <dict>
+  <defcomp>      :=  "defcomp" <cells> [<do>] "end"
+  <cells>        :=  [<cell> <nl>]*
+  <cell>         :=  <id> <dict>
 
   <expr>         :=  <lambda> | <def> | <if> | <list> | <dict> | <do> |
                      <return> | <throw> | <tryCatch> | <defcomp> |
                      <assignExpr> | <spec>
 
-  <do>           := "do" <exprs> "end"
+  <do>           :=  "do" <exprs> "end"
   <exprs>        :=  <expr> (<exprSep> <expr>)*
-  <exprSep>      := ";" | <nl>
+  <exprSep>      :=  ";" | <nl>
 
   <var>          :=  <qname>
   <qname>        :=  [<id> "::" ] <id>
 
-  <list>         := "[" <listItems> "]"
-  <listItems>    := [ <expr> ("," <expr>)* [","] ]
+  <list>         :=  "[" <listItems> "]"
+  <listItems>    :=  [ <expr> ("," <expr>)* [","] ]
 
-  <dict>         := "{" <dictItems> "}"
-  <dictItems>    := [ <dictItem> ("," <dictItem>)* [","] ]
-  <dictItem>     := <dictVal> | <dictMarker> | <dictRemove>
-  <dictVal>      := <idOrKeyword> ":" <expr>
-  <dictMarker>   := <idOrKeyword>
-  <dictRemove>   := "-" <idOrKeyword>
+  <dict>         :=  "{" <dictItems> "}"
+  <dictItems>    :=  [ <dictItem> ("," <dictItem>)* [","] ]
+  <dictItem>     :=  <dictVal> | <dictMarker> | <dictRemove>
+  <dictVal>      :=  <idOrKeyword> ":" <expr>
+  <dictMarker>   :=  <idOrKeyword>
+  <dictRemove>   :=  "-" <idOrKeyword>
 
   <lambda>       :=  <lambda-1> | <lambda-n>
   <lambda-1>     :=  <id> "=>" <expr>
@@ -65,8 +66,8 @@ Productions [#productions]
   <throw>        :=  "throw" <expr>
   <tryCatch>     :=  "try" <expr> "catch" ["(" <id> ")"] <expr>
 
-  <defcomp>      := "compdef [<compcell>] [<do>] "end"
-  <compcell>     := <id> ":" <dict>
+  <defcomp>      :=  "compdef [<compcell>] [<do>] "end"
+  <compcell>     :=  <id> ":" <dict>
 
   <assignExpr>   :=  <condOrExpr> ("=" <assignExpr>)
   <condOrExpr>   :=  <condAndExpr> ("and" <condAndExpr>)*
@@ -85,45 +86,58 @@ Productions [#productions]
   <call>         :=  "(" [<callArg> ("," <callArg>)*] [<lambda>]
   <callArg>      :=  <expr> | "_"
   <dotCall>      :=  "." [<nl>] <qname> [<call> | <lamdba-1>]
-  <index>        := "[" <expr> "]"
-  <trapCall>     := "->" <id>
+  <index>        :=  "[" <expr> "]"
+  <trapCall>     :=  "->" <id>
 
-  <spec>         := <typename>
+  <spec>         :=  <specType> [<specMeta>] ["?"] [<specBody>]
+  <specMeta>     :=  "<" <dictItems> ">"
+  <specBody>     :=  <specScalar> | <specSlots>
+  <specScalar>   :=  <number> | <str> | <date> | <month>
+  <specSlots>    :=  "{" [<specSlot> (<specEos> <specSlot>)* [<specEos>]] "}"
+  <specSlot>     :=  <specMarker> | <specUnnamed> | <specNamed>
+  <specEos>      :=  "," | <nl>
+  <specMarker>   :=  <id>
+  <specUnnamed>  :=  <spec>
+  <specNamed>    :=  <id> ":" <spec>
+  <specType>     :=  <specAnd> | <specOr> | <specSimple>
+  <specAnd>      :=  <specSimple> ("&" <specSimple>)+
+  <specOr>       :=  <specSimple> ("|" <specSimple>)+
+  <specSimple>   :=  <typename>
 
   <literal>      :=  <null> | <bool> | <number> | <str> | <date> |
                      <time> | <month> | <recId>
 
-  <idOrKeyword>  := <id> | <keyword>
+  <idOrKeyword>  :=  <id> | <keyword>
 
-  <keyword>      := "and" | "catch" | "defcomp" | "deflinks" | "do" | "else" |
-                    "end" | "false" | "if" | "not" | "null" | "or" | "return" |
-                    "throw" | "true" | "try"
+  <keyword>      :=  "and" | "catch" | "defcomp" | "deflinks" | "do" | "else" |
+                     "end" | "false" | "if" | "not" | "null" | "or" | "return" |
+                     "throw" | "true" | "try"
 
 Tokens [#tokens]
 ****************
-  <bool>      := "true" | "false"
-  <null>      := "null"
-  <id>        := <idFirst> (<idRest>)*
-  <idFirst>   := alphaLo
-  <idRest>    := alphaLo | alphaHi | digit | '_'
-  <typename>  := <alphaHi> (<idRest>)*
-  <alphaLo>   := ('a' - 'z')
-  <alphaHi>   := ('Z' - 'Z')
-  <digit>     := ('0' - '9')
-  <digits>    := <digit> (<digit> | "_")*
-  <number>    := <hex> | <decimal>
-  <hex>       := "0x" <hexDigit> (<hexDigit> | "_")*
-  <hexDigit>  := ('a'-'f') | ('A'-'F') | digit
-  <decimal>   := ["-"] <digits> ["." <digits>] [<exp>] [<unit>]
-  <exp>       := "e"|"E" ["+"|"-"] <digits>
-  <unit>      := <unitChar>*
-  <unitChar>  := <alpha> | "%" | "_" | "/" | "$" | any char > 128  // see sys::Unit
-  <str>       := see Fantom grammar (single line single quote, and multi-line triple quote)
-  <date>      := yyyy-mm-dd
-  <time>      := [h]h:mm[:ss[.fff]]  // hour and secs optional
-  <month>     := yyyy-mm
-  <ref>       := "@" refChar (refChar)*
-  <symbol>    := "^" refChar (refChar)*
-  <refChar>   := <alpha> | <digit> | '_' | ':' | '.' | '~' | '-'
-  <nl>        := newline "\n"
+  <bool>      :=  "true" | "false"
+  <null>      :=  "null"
+  <id>        :=  <idFirst> (<idRest>)*
+  <idFirst>   :=  alphaLo
+  <idRest>    :=  alphaLo | alphaHi | digit | '_'
+  <typename>  :=  <alphaHi> (<idRest>)*
+  <alphaLo>   :=  ('a' - 'z')
+  <alphaHi>   :=  ('Z' - 'Z')
+  <digit>     :=  ('0' - '9')
+  <digits>    :=  <digit> (<digit> | "_")*
+  <number>    :=  <hex> | <decimal>
+  <hex>       :=  "0x" <hexDigit> (<hexDigit> | "_")*
+  <hexDigit>  :=  ('a'-'f') | ('A'-'F') | digit
+  <decimal>   :=  ["-"] <digits> ["." <digits>] [<exp>] [<unit>]
+  <exp>       :=  "e"|"E" ["+"|"-"] <digits>
+  <unit>      :=  <unitChar>*
+  <unitChar>  :=  <alpha> | "%" | "_" | "/" | "$" | any char > 128  // see sys::Unit
+  <str>       :=  see Fantom grammar (single line single quote, and multi-line triple quote)
+  <date>      :=  yyyy-mm-dd
+  <time>      :=  [h]h:mm[:ss[.fff]]  // hour and secs optional
+  <month>     :=  yyyy-mm
+  <ref>       :=  "@" refChar (refChar)*
+  <symbol>    :=  "^" refChar (refChar)*
+  <refChar>   :=  <alpha> | <digit> | '_' | ':' | '.' | '~' | '-'
+  <nl>        :=  newline "\n"
 
