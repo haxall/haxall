@@ -275,8 +275,8 @@ class DataTestCase
       return
     }
     expect.each |e, n| { verifySlot(spec, n, e) }
-    spec.slots.each |v, n| { verify(expect.containsKey(n)) }
-    spec.slotsOwn.each |v, n| { verify(expect.containsKey(n)) }
+    spec.slots.each |v| { verify(expect.containsKey(v.name)) }
+    spec.slotsOwn.each |v| { verify(expect.containsKey(v.name)) }
     verifyEq(spec.slots.names.sort, Str[,].addAll(expect.keys.sort))
   }
 

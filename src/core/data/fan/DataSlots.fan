@@ -22,10 +22,10 @@ const mixin DataSlots
   abstract Str[] names()
 
   ** Iterate through the children
-  abstract Void each(|DataSpec val, Str name| f)
+  abstract Void each(|DataSpec val| f)
 
   ** Iterate through the children until function returns non-null
-  abstract Obj? eachWhile(|DataSpec val, Str name->Obj?| f)
+  abstract Obj? eachWhile(|DataSpec val->Obj?| f)
 
   ** Get the slots as DataDict of the specs.
   @NoDoc abstract DataDict toDict()

@@ -84,14 +84,15 @@ internal const class XetoUtil
     // add supertype slots
     acc := Str:XetoSpec[:]
     acc.ordered = true
-    supertype.slots.each |s, n|
+    supertype.slots.each |s|
     {
-      acc[n] = s
+      acc[s.name] = s
     }
 
     // add in my own slots
-    own.each |s, n|
+    own.each |s|
     {
+      n := s.name
       inherit := acc[n]
       if (inherit != null) s = overrideSlot(inherit, s)
       acc[n] = s

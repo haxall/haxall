@@ -40,12 +40,12 @@ internal const class MSlots : DataSlots
     map.keys
   }
 
-  override Void each(|DataSpec,Str| f)
+  override Void each(|DataSpec| f)
   {
     map.each(f)
   }
 
-  override Obj? eachWhile(|DataSpec,Str->Obj?| f)
+  override Obj? eachWhile(|DataSpec->Obj?| f)
   {
     map.eachWhile(f)
   }
@@ -54,10 +54,10 @@ internal const class MSlots : DataSlots
   {
     s := StrBuf()
     s.add("{")
-    each |spec, name|
+    each |slot|
     {
       if (s.size > 1) s.add(", ")
-      s.add(name)
+      s.add(slot.name)
     }
     return s.add("}").toStr
   }
@@ -83,7 +83,7 @@ internal const class MSlotsDict : Dict
   override Bool isEmpty() { slots.isEmpty }
   override Bool has(Str n) { slots.get(n, false) != null }
   override Bool missing(Str n) {  slots.get(n, false) == null }
-  override Void each(|Obj, Str| f) { slots.each(f) }
-  override Obj? eachWhile(|Obj, Str->Obj?| f) { slots.eachWhile(f) }
+  override Void each(|Obj, Str| f) { slots.map.each(f) }
+  override Obj? eachWhile(|Obj, Str->Obj?| f) { slots.map.eachWhile(f) }
   override Obj? trap(Str n, Obj?[]? a := null) { slots.get(n, true) }
 }

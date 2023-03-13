@@ -250,10 +250,10 @@ class Printer
     {
       bracket(" {").nl
       indention++
-      spec.slotsOwn.each |s, n|
+      spec.slotsOwn.each |s|
       {
         if (indention == 1) nl
-        this.spec(s, n)
+        this.spec(s, s.name)
       }
       indention--
       indent.bracket("}")
@@ -309,9 +309,9 @@ class Printer
     {
       indent.quoted("slots").colon.bracket("{").nl
       indention++
-      slots.each |slot, name|
+      slots.each |slot|
       {
-        indent.quoted(name).colon
+        indent.quoted(slot.name).colon
         printJsonAst(slot)
       }
       indention--
