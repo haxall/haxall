@@ -69,7 +69,7 @@ internal class ShellContext : HxContext
       }
       catch (Err e)
       {
-        err("Internal error", e)
+        err(e.toStr, e)
       }
     }
     return 0
