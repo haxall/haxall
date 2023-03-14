@@ -81,6 +81,9 @@ class AxonTest : HxTest
                             baz: Date <x:"y">
                           }|>, "sys::Dict", [:], ["dis":"sys::Str <qux>", "foo":"sys::Marker", "baz":"sys::Date <x:y>"])
 
+    // maybe
+    verifySpecDerive(Str<|Dict?|>, "sys::Dict", ["maybe":m])
+    verifySpecDerive(Str<|Dict? <foo>|>, "sys::Dict", ["maybe":m, "foo":m])
   }
 
   Void verifySpecRef(Str expr, Str qname)

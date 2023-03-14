@@ -771,10 +771,16 @@ class Parser
 
     // if not named and we don't have additonal spec production, then just
     // make this a reference to an existing type using a SpecRef
-    if (name == null && cur !== Token.lt && cur !== Token.val && cur !== Token.lbrace)
+    if (name == null && cur !== Token.lt && cur !== Token.val && cur !== Token.lbrace && cur !== Token.question)
       return ref
 
-
+    // maybe "?"
+    maybe := false
+    if (cur === Token.question)
+    {
+      consume
+      maybe = true
+    }
 
     // <meta>
     meta := Etc.dict0
@@ -784,6 +790,7 @@ class Parser
       meta = constDict(Token.lt, Token.gt)
       inSpec--
     }
+    if (maybe) meta = Etc.dictSet(meta, "maybe", Marker.val)
 
     // value
     hasVal := false
