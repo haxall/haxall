@@ -69,9 +69,6 @@ List: Seq
 // Data set is a collection of dicts.
 DataSet: Seq <of:Dict>
 
-// Maybe is the option type - some value or None
-Maybe: Obj
-
 // Or type is a choice between one of multiple types.
 // It is a union of the set of types.
 Or: Obj

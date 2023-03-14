@@ -33,6 +33,9 @@ internal class AMap
     map.add(obj.name, obj)
   }
 
+  ** Return if given slot is set
+  Bool has(Str name) { map[name] != null }
+
   ** Get a pair by name or null
   AObj? get(Str name) { map[name] }
 

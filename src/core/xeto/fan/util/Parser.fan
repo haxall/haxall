@@ -172,9 +172,6 @@ internal class Parser
     if (cur === Token.lt)
       parseMeta(obj)
 
-    if (cur === Token.question)
-      parseTypeMaybe(obj)
-
     return true
   }
 
@@ -188,8 +185,9 @@ internal class Parser
     if (cur !== Token.id) return null
 
     type := parseTypeSimple("Expecting type name")
-    if (cur === Token.amp)  return parseTypeCompound("And", sys.and, obj, type)
-    if (cur === Token.pipe) return parseTypeCompound("Or", sys.or,  obj, type)
+    if (cur === Token.question)  return parseTypeMaybe(obj, type)
+    if (cur === Token.amp)       return parseTypeCompound("And", sys.and, obj, type)
+    if (cur === Token.pipe)      return parseTypeCompound("Or", sys.or,  obj, type)
     return type
   }
 
@@ -221,16 +219,22 @@ internal class Parser
     ofs.slots.add(typeRef)
   }
 
-  private Void parseTypeMaybe(AObj obj)
+  private ARef parseTypeMaybe(AObj obj, ARef type)
   {
     consume(Token.question)
 
-    // wrap obj's type+meta into new of object
-    of := obj.wrapSpec("of")
+    // create maybe marker
+    loc := type.loc
+    obj.initMeta(sys)
+    maybe := obj.meta.makeChild(loc, "maybe")
+    maybe.type = sys.marker
+    maybe.val = AScalar(loc, env.marker.toStr, env.marker)
 
-    // replace type with Maybe and set of meta
-    obj.type = sys.maybe
-    add(obj.initMeta(sys), of)
+    // set type + meta maybe marker
+    obj.type = type
+    obj.meta.slots.add(maybe)
+
+    return type
   }
 
   private ARef parseTypeSimple(Str errMsg)

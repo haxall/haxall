@@ -53,6 +53,13 @@ internal abstract class AObj : ANode
   ** Return value type qname for parsing
   virtual Str valParseType() { type.qname }
 
+  ** Does this object have the given meta tag set
+  Bool metaHas(Str name)
+  {
+    if (meta == null) return false
+    return meta.slots.has(name)
+  }
+
   ** Initialize meta data dict
   AVal initMeta(ASys sys)
   {
@@ -63,17 +70,6 @@ internal abstract class AObj : ANode
       meta.initSlots
     }
     return meta
-  }
-
-  ** Create new AVal with this's type+meta, then clear this's type+meta.
-  AObj wrapSpec(Str name)
-  {
-    of := this.meta == null ? AVal(loc, this, name) : ASpec(loc, this, name)
-    of.type = this.type
-    of.meta = this.meta
-    this.type = null
-    this.meta = null
-    return of
   }
 
   ** Initialize slots map

@@ -96,8 +96,8 @@ internal const class MDerivedSpec : MSpec
 {
   static const AtomicInt counter := AtomicInt()
 
-  new make(XetoEnv env, Str name, XetoSpec base, DataDict own, MSlots slotsOwn)
-    : super(FileLoc.synthetic, null, name, base, base.type, own, slotsOwn, base.m.flags)
+  new make(XetoEnv env, Str name, XetoSpec base, DataDict own, MSlots slotsOwn, Int flags)
+    : super(FileLoc.synthetic, null, name, base, base.type, own, slotsOwn, flags)
   {
     this.env = env
     this.qname = "derived" + counter.getAndIncrement + "::" + name
@@ -114,11 +114,11 @@ internal const class MDerivedSpec : MSpec
 @Js
 internal const class MSpecFlags
 {
-  static const Int marker := 0x0001
-  static const Int scalar := 0x0002
-  static const Int dict   := 0x0004
-  static const Int list   := 0x0008
-  static const Int maybe  := 0x0010
+  static const Int maybe  := 0x0001
+  static const Int marker := 0x0002
+  static const Int scalar := 0x0004
+  static const Int dict   := 0x0008
+  static const Int list   := 0x0010
   static const Int and    := 0x0020
   static const Int or     := 0x0040
   static const Int query  := 0x0080
@@ -182,11 +182,11 @@ internal const class XetoSpec : DataSpec, Dict
 
   override final Str toStr() { m?.toStr ?: super.toStr }
 
+  override final Bool isMaybe()  { m.hasFlag(MSpecFlags.maybe) }
   override final Bool isScalar() { m.hasFlag(MSpecFlags.scalar) }
   override final Bool isMarker() { m.hasFlag(MSpecFlags.marker) }
   override final Bool isDict()   { m.hasFlag(MSpecFlags.dict) }
   override final Bool isList()   { m.hasFlag(MSpecFlags.list) }
-  override final Bool isMaybe()  { m.hasFlag(MSpecFlags.maybe) }
   override final Bool isAnd()    { m.hasFlag(MSpecFlags.and) }
   override final Bool isOr()     { m.hasFlag(MSpecFlags.or) }
   override final Bool isQuery()  { m.hasFlag(MSpecFlags.query) }

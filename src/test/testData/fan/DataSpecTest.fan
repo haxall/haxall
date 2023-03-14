@@ -83,7 +83,6 @@ class DataSpecTest : AbstractDataTest
     verifyIsa("sys::List", "sys::List", true)
     verifyIsa("sys::List", "sys::Dict", false)
 
-    verifyIsa("sys::Maybe", "sys::Maybe", true)
     verifyIsa("sys::And",   "sys::And",   true)
     verifyIsa("sys::Or",    "sys::Or",    true)
 
@@ -122,20 +121,19 @@ class DataSpecTest : AbstractDataTest
     //env.print(lib)
 
      str := env.type("sys::Str")
-     maybe := env.type("sys::Maybe")
      foo := lib.slotOwn("Foo")
 
      bar := foo.slotOwn("bar")
-     verifySame(bar.type, maybe)
-     verifySame(bar["of"], str)
-     verifyEq(bar.isa(maybe), true)
+     verifySame(bar.type, str)
+     verifySame(bar["maybe"], env.marker)
      verifyEq(bar.isa(str), true)
+     verifyEq(bar.isMaybe, true)
 
      baz := foo.slotOwn("baz")
-     verifySame(baz.type, maybe)
-     verifySame(baz["of"], foo)
-     verifyEq(baz.isa(maybe), true)
+     verifySame(baz.type, foo)
+     verifySame(baz["maybe"], env.marker)
      verifyEq(baz.isa(foo), true)
+     verifyEq(baz.isMaybe, true)
    }
 
 //////////////////////////////////////////////////////////////////////////

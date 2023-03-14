@@ -30,7 +30,7 @@ class DataEnvTest : AbstractDataTest
     verifyEq(sys.version, typeof.pod.version)
     verifySame(env.sysLib, sys)
 
-    // env.print(sys)
+     // env.print(sys)
 
     // types
     obj    := verifyLibType(sys, "Obj",      null)
@@ -50,30 +50,25 @@ class DataEnvTest : AbstractDataTest
     type   := verifyLibType(sys, "Type",     spec)
     lib    := verifyLibType(sys, "Lib",      spec)
     org    := verifyLibType(sys, "LibOrg",   dict)
-    maybe  := verifyLibType(sys, "Maybe",    obj)
 
     // slots
     orgDis := verifySlot(org, "dis", str)
     orgUri := verifySlot(org, "uri", uri)
 
     // Spec.of: Spec?
-    specOf := verifySlot(spec, "of", maybe)
+    specOf := verifySlot(spec, "of", spec)
     verifyEq(specOf.qname, "sys::Spec.of")
     verifySame(specOf.parent, spec)
     verifyEq(specOf["doc"], "Item type used for containers like Maybe, Seq, and Ref")
-    verifySame(specOf["of"], spec)
+    verifyEq(specOf["maybe"], env.marker)
 
-    // Spec.ofs: List<of:Spec>?
-    specOfs := verifySlot(spec, "ofs", maybe)
+    // Spec.ofs: List? <of:Spec>
+    specOfs := verifySlot(spec, "ofs", list)
     verifyEq(specOfs.parent, spec)
     verifyEq(specOfs.qname, "sys::Spec.ofs")
     verifyEq(specOfs["doc"], "Types used in compound types like And and Or")
-    x := specOfs["of"] as DataSpec
-    verifySame(x.parent, specOfs)
-    verifyEq(x.typeof.qname, "xeto::XetoSpec")
-    verifyEq(x.qname, "sys::Spec.ofs.of")
-    verifySame(x.type, list)
-    verifySame(x["of"], spec)
+    verifyEq(specOfs["maybe"], env.marker)
+    verifySame(specOfs["of"], spec)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -212,6 +207,7 @@ class DataEnvTest : AbstractDataTest
     verifyDerive("foo", list, env.dict2("bar", m, "baz", "hi"), Str:DataSpec[:])
     verifyDerive("foo", dict, env.dict0, ["foo":marker])
     verifyDerive("foo", dict, env.dict1("bar", m), ["foo":marker, "dis":str])
+    verifyDerive("foo", dict, env.dict1("maybe", m), null)
 
     verifyDeriveErr("foo bar", scalar, env.dict0, null, "Invalid spec name: foo bar")
     verifyDeriveErr("foo", scalar, env.dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::Scalar")
@@ -228,6 +224,7 @@ class DataEnvTest : AbstractDataTest
     verifyEq(x.qname.endsWith("::$name"), true)
     verifySame(x.env, env)
     verifyDictEq(x.own, meta)
+    verifyEq(x.isMaybe, meta.has("maybe"))
 
     if (slots == null || slots.isEmpty)
     {

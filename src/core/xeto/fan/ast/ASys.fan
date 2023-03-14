@@ -21,7 +21,6 @@ internal class ASys
   ARef list   := init("List")
   ARef and    := init("And")
   ARef or     := init("Or")
-  ARef maybe  := init("Maybe")
   ARef lib    := init("Lib")
 
   Void each(|ARef| f)

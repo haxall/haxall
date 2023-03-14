@@ -39,7 +39,6 @@ internal const class MSys
     this.time     = x.get("Time")
     this.dateTime = x.get("DateTime")
     this.ref      = x.get("Ref")
-    this.maybe    = x.get("Maybe")
     this.and      = x.get("And")
     this.or       = x.get("Or")
     this.query    = x.get("Query")
@@ -66,7 +65,6 @@ internal const class MSys
   const XetoType time
   const XetoType dateTime
   const XetoType ref
-  const XetoType maybe
   const XetoType and
   const XetoType or
   const XetoType query

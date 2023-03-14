@@ -20,9 +20,10 @@ Productions [#productions]
   <childrenOrVal>    :=  <children> | <val>
   <children>         :=  "{" <objs> "}"
 
-  <spec>             :=  <type> [<meta>] "?"
+  <spec>             :=  <type> [<meta>]
   <meta>             :=  "<" <objs> ">"
-  <type>             :=  <typeAnd> | <typeOr> | <typeSimple>
+  <type>             :=  <typeMaybe> | <typeAnd> | <typeOr> | <typeSimple>
+  <typeMaybe>        :=  <typeSimple> "?"
   <typeAnd>          :=  <typeSimple> ("&" <typeSimple>)+
   <typeOr>           :=  <typeSimple> ("|" <typeSimple>)+
   <typeSimple>       :=  <qname>

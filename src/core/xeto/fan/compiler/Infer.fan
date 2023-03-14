@@ -61,19 +61,28 @@ internal class Infer : Step
   ** Compute flags for system types x directly inherits
   private Void computeFlags(ASpec x)
   {
-    if (isSys) return computeFlagsSys(x)
+    x.flags = isSys ? computeFlagsSys(x) : computeFlagsNonSys(x)
+  }
 
+  private Int computeFlagsNonSys(ASpec x)
+  {
     // walk inheritance tree until we get to an external
-    // type from a dependency and then re-use that types flags
+    // type from a dependency and get inherited flags
     p := x
     while (p.base.isResolvedInternal) p = p.base.resolvedInternal
-    x.flags = p.base.asm.m.flags
+    flags := p.base.asm.m.flags
+
+    // merge in my own flags
+    if (x.metaHas("maybe")) flags = flags.or(MSpecFlags.maybe)
+
+    return flags
   }
 
   ** We have to treat 'sys' itself special using names
-  private Void computeFlagsSys(ASpec x)
+  private Int computeFlagsSys(ASpec x)
   {
     flags := 0
+    if (x.metaHas("maybe")) flags = flags.or(MSpecFlags.maybe)
     for (ASpec? p := x; p != null; p = p.base?.resolvedInternal)
     {
       switch (p.name)
@@ -82,13 +91,12 @@ internal class Infer : Step
         case "Scalar": flags = flags.or(MSpecFlags.scalar)
         case "Dict":   flags = flags.or(MSpecFlags.dict)
         case "List":   flags = flags.or(MSpecFlags.list)
-        case "Maybe":  flags = flags.or(MSpecFlags.maybe)
         case "And":    flags = flags.or(MSpecFlags.and)
         case "Or":     flags = flags.or(MSpecFlags.or)
         case "Query":  flags = flags.or(MSpecFlags.query)
       }
     }
-    x.flags = flags
+    return flags
   }
 
 }

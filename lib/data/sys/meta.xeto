@@ -12,6 +12,9 @@ Spec: Dict {
   // Reference to value type if this spec is not a type
   type: Type?
 
+  // Indicates an optional type
+  maybe: Marker?
+
   // Reference to super type if this spec is a type
   inherits: Type?
 
@@ -25,16 +28,16 @@ Spec: Dict {
   of: Spec?
 
   // Types used in compound types like And and Or
-  ofs: List <of:Spec>?
+  ofs: List? <of:Spec>
 
   // Documentation description
   doc: Str
 
   // Abstract types cannot be implemented directly by instance data
-  abstract: Marker <noInherit>?
+  abstract: Marker? <noInherit>
 
   // Sealed types cannot be extended outside of their own lib
-  sealed: Marker <noInherit>?
+  sealed: Marker? <noInherit>
 
   // Marks spec as undocumented and not officially supported
   nodoc: Marker?

@@ -116,7 +116,6 @@ internal const class XetoUtil
   {
     // check direct inheritance
     and := a.m.env.sys.and
-    maybe := a.m.env.sys.maybe
     isAnd := false
     isMaybe := false
     for (DataSpec? x := a; x != null; x = x.base)
@@ -124,15 +123,16 @@ internal const class XetoUtil
       if (x === b) return true
 
       if (x === and) isAnd = true
-      else if (x === maybe) isMaybe = true
     }
 
     // if A is "maybe" type, then check his "of"
+/* TODO
     if (isMaybe)
     {
       of := a.get("of", null) as DataSpec
       if (of != null) return of.isa(b)
     }
+*/
 
     // if A is "and" type, then check his "ofs"
     if (isAnd)
@@ -159,9 +159,16 @@ internal const class XetoUtil
     }
 
     spec := XetoSpec()
-    m := MDerivedSpec(env, name, base, meta, deriveSlots(env, spec, slots))
+    m := MDerivedSpec(env, name, base, meta, deriveSlots(env, spec, slots), deriveFlags(base, meta))
     XetoSpec#m->setConst(spec, m)
     return spec
+  }
+
+  private static Int deriveFlags(XetoSpec base, DataDict meta)
+  {
+    flags := base.m.flags
+    if (meta.has("maybe")) flags = flags.or(MSpecFlags.maybe)
+    return flags
   }
 
   private static MSlots deriveSlots(XetoEnv env, XetoSpec parent, [Str:DataSpec]? slotsMap)
