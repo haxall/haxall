@@ -34,6 +34,8 @@ enum class Token
   slash         ("/"),
   bang          ("!"),
   caret         ("^"),
+  question      ("?"),
+  amp           ("&"),
   assign        ("="),
   fnEq          ("=>"),
   eq            ("=="),

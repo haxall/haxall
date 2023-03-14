@@ -399,6 +399,8 @@ class Tokenizer
       case '!':
         if (cur == '=') { consume; return Token.notEq }
         return Token.bang
+      case '&':
+        return Token.amp
       case '(':
         return Token.lparen
       case ')':
@@ -437,6 +439,8 @@ class Tokenizer
       case '>':
         if (cur == '=') { consume; return Token.gtEq }
         return Token.gt
+      case '?':
+        return Token.question
       case '[':
         return Token.lbracket
       case ']':
