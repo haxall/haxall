@@ -86,7 +86,7 @@ internal const class SpecRef : Spec
 @Js
 internal const class SpecDerive : Spec
 {
-  new make(Loc loc, Str name, Spec base, Dict meta, [Str:Spec]? slots)
+  new make(Loc loc, Str name, Spec base, SpecMetaTag[]? meta, [Str:Spec]? slots)
   {
     this.loc   = loc
     this.name  = name
@@ -103,19 +103,39 @@ internal const class SpecDerive : Spec
 
   const Spec base
 
-  const Dict meta
+  const SpecMetaTag[]? meta
 
   const [Str:Spec]? slots
 
   override DataSpec? eval(AxonContext cx)
   {
-    base := base.eval(cx)
-
-    [Str:DataSpec]? slots := null
-    if (this.slots != null)
-      slots = this.slots.map |Spec ast->DataSpec| { ast.eval(cx) }
-
+    base  := base.eval(cx)
+    meta  := evalMeta(cx)
+    slots := evalSlots(cx)
     return cx.usings.data.derive(name, base, meta, slots)
+  }
+
+  private Dict evalMeta(AxonContext cx)
+  {
+    m := meta
+    if (m == null || m.isEmpty) return Etc.dict0
+    switch (m.size)
+    {
+      case 1: return Etc.dict1(m[0].name, m[0].eval(cx))
+      case 2: return Etc.dict2(m[0].name, m[0].eval(cx), m[1].name, m[1].eval(cx))
+      case 3: return Etc.dict3(m[0].name, m[0].eval(cx), m[1].name, m[1].eval(cx), m[2].name, m[2].eval(cx))
+      case 4: return Etc.dict4(m[0].name, m[0].eval(cx), m[1].name, m[1].eval(cx), m[2].name, m[2].eval(cx), m[3].name, m[3].eval(cx))
+    }
+
+    acc := Str:Obj[:]
+    m.each |x| { acc[x.name] = x.eval(cx) }
+    return Etc.dictFromMap(acc)
+  }
+
+  private [Str:DataSpec]? evalSlots(AxonContext cx)
+  {
+    if (slots == null) return null
+    return slots.map |Spec ast->DataSpec| { ast.eval(cx) }
   }
 
   override Printer print(Printer out)
@@ -131,4 +151,34 @@ internal const class SpecDerive : Spec
   }
 
 }
+
+**************************************************************************
+** SpecMetaTag
+**************************************************************************
+
+**
+** SpecMetaTag models one name/value pair for spec meta.  Each
+** value must be a const literal or a SpecRef to evaluate at runtime
+**
+@Js
+internal const class SpecMetaTag
+{
+  new make(Str name, Expr val)
+  {
+    this.name = name
+    this.val  = val
+  }
+
+  Obj eval(AxonContext cx)
+  {
+    if (val.type === ExprType.list && name == "ofs")
+      return ((ListExpr)val).vals.map |x->DataSpec| { x.eval(cx) }
+    else
+      return val.eval(cx)
+  }
+
+  const Str name
+  const Expr val
+}
+
 

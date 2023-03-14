@@ -44,7 +44,15 @@ class AxonTest : HxTest
     // with meta
     verifySpecDerive(Str<|Dict <>|>, "sys::Dict")
     verifySpecDerive(Str<|Dict <foo>|>, "sys::Dict", ["foo":m])
+    verifySpecDerive(Str<|Dict <foo,>|>, "sys::Dict", ["foo":m])
     verifySpecDerive(Str<|Dict <foo, bar:"baz">|>, "sys::Dict", ["foo":m, "bar":"baz"])
+    verifySpecDerive(Str<|Dict <a:"1">|>, "sys::Dict", ["a":"1"])
+    verifySpecDerive(Str<|Dict <a:"1", b:"2">|>, "sys::Dict", ["a":"1", "b":"2"])
+    verifySpecDerive(Str<|Dict <a:"1", b:"2", c:"3">|>, "sys::Dict", ["a":"1", "b":"2", "c":"3"])
+    verifySpecDerive(Str<|Dict <a:"1", b:"2", c:"3", d:"4">|>, "sys::Dict", ["a":"1", "b":"2", "c":"3", "d":"4"])
+    verifySpecDerive(Str<|Dict <a:"1", b:"2", c:"3", d:"4", e:"5">|>, "sys::Dict", ["a":"1", "b":"2", "c":"3", "d":"4", "e":"5"])
+    x := verifySpecDerive(Str<|Dict <of:Str>|>, "sys::Dict", ["of":env.type("sys::Str")])
+    verifySame(x->of, env.type("sys::Str"))
 
     // with value
     verifySpecDerive(Str<|Scalar "foo"|>, "sys::Scalar", ["val":"foo"])
@@ -84,16 +92,28 @@ class AxonTest : HxTest
     // maybe
     verifySpecDerive(Str<|Dict?|>, "sys::Dict", ["maybe":m])
     verifySpecDerive(Str<|Dict? <foo>|>, "sys::Dict", ["maybe":m, "foo":m])
+
+    // and/or
+    ofs := DataSpec[env.type("ph::Meter"), env.type("ph::Chiller")]
+    verifySpecDerive(Str<|Meter & Chiller|>, "sys::And", ["ofs":ofs])
+    verifySpecDerive(Str<|Meter | Chiller|>, "sys::Or",  ["ofs":ofs])
+    verifySpecDerive(Str<|Meter & Chiller <foo>|>, "sys::And", ["ofs":ofs, "foo":m])
+    verifySpecDerive(Str<|Meter | Chiller <foo>|>, "sys::Or",  ["ofs":ofs, "foo":m])
+// TODO
+//    verifySpecDerive(Str<|Meter & Chiller { foo: Str }|>, "sys::And", ["ofs":DataSpec[env.type("ph::Meter"), env.type("ph::Chiller")]], ["foo":"sys::Str"])
+
+    // or
   }
 
-  Void verifySpecRef(Str expr, Str qname)
+  DataSpec verifySpecRef(Str expr, Str qname)
   {
     DataSpec x := makeContext.eval(expr)
     // echo(":::REF:::: $expr => $x [$x.typeof] " + Etc.dictToStr((Dict)x.own))
     verifySame(x, env.type(qname))
+    return x
   }
 
-  Void verifySpecDerive(Str expr, Str type, Str:Obj meta := [:], Str:Str slots := [:])
+  DataSpec verifySpecDerive(Str expr, Str type, Str:Obj meta := [:], Str:Str slots := [:])
   {
     DataSpec x := makeContext.eval(expr)
     // echo(":::DERIVE::: $expr => $x [$x.typeof] " + Etc.dictToStr((Dict)x.own))
@@ -107,6 +127,7 @@ class AxonTest : HxTest
     {
       verifySpecExprSlot(x.slotOwn(name), expect)
     }
+    return x
   }
 
   Void verifySpecExprSlot(DataSpec x, Str expect)

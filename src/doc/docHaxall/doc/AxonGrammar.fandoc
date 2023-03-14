@@ -90,8 +90,8 @@ Productions [#productions]
   <trapCall>     :=  "->" <id>
 
   <deftype>      :=  <typename> ":" <spec>
-  <spec>         :=  <specType> [<specMeta>] ["?"] [<specBody>]
-  <specMeta>     :=  "<" <dictItems> ">"
+  <spec>         :=  <specType> [<specMeta>] [<specBody>]
+  <specMeta>     :=  "<" <dictItems> ">"  // with restrictions
   <specBody>     :=  <specScalar> | <specSlots>
   <specScalar>   :=  <number> | <str> | <date> | <time>
   <specSlots>    :=  "{" [<specSlot> (<specEos> <specSlot>)* [<specEos>]] "}"
@@ -100,7 +100,8 @@ Productions [#productions]
   <specMarker>   :=  <id>
   <specUnnamed>  :=  <spec>
   <specNamed>    :=  <id> ":" <spec>
-  <specType>     :=  <specAnd> | <specOr> | <specSimple>
+  <specType>     :=  <specMaybe> | <specAnd> | <specOr> | <specSimple>
+  <specMaybe>    :=  <specSimple> "?"
   <specAnd>      :=  <specSimple> ("&" <specSimple>)+
   <specOr>       :=  <specSimple> ("|" <specSimple>)+
   <specSimple>   :=  <typename>

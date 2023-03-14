@@ -304,8 +304,11 @@ class Parser
   **   <dictMarker>    := <id>
   **   <dictRemove>    := "-" <id>
   **
-  private DictExpr dict(Token open := Token.lbrace, Token close := Token.rbrace)
+  private DictExpr dict()
   {
+    open := Token.lbrace
+    close := Token.rbrace
+
     consume(open)
     if (cur === close) { consume; return DictExpr.empty }
     loc := curLoc
@@ -348,9 +351,9 @@ class Parser
   }
 
   ** Parse dict literal
-  protected Dict constDict(Token open := Token.lbrace, Token close := Token.rbrace)
+  protected Dict constDict()
   {
-    expr := dict(open, close)
+    expr := dict
     if (expr.constVal == null) throw err("Dict cannot use expressions", expr.loc)
     return expr.constVal
   }
@@ -745,8 +748,8 @@ class Parser
   **
   ** DataSpec production:
   **
-  **   <spec>         :=  <specType> [<specMeta>] ["?"] [<specBody>]
-  **   <specMeta>     :=  "<" <dictItems> ">"
+  **   <spec>         :=  <specType> [<specMeta>] [<specBody>]
+  **   <specMeta>     :=  "<" <dictItems> ">"  // with restrictions
   **   <specBody>     :=  <specScalar> | <specSlots>
   **   <specScalar>   :=  <number> | <str> | <date> | <time>
   **   <specSlots>    :=  "{" [<specSlot> (<specEos> <specSlot>)* [<specEos>]] "}"
@@ -755,7 +758,8 @@ class Parser
   **   <specMarker>   :=  <id>
   **   <specUnnamed>  :=  <spec>
   **   <specNamed>    :=  <id> ":" <spec>
-  **   <specType>     :=  <specAnd> | <specOr> | <specSimple>
+  **   <specType>     :=  <specMaybe> | <specAnd> | <specOr> | <specSimple>
+  **   <specMaybe>    :=  <specSimple> "?"
   **   <specAnd>      :=  <specSimple> ("&" <specSimple>)+
   **   <specOr>       :=  <specSimple> ("|" <specSimple>)+
   **   <specSimple>   :=  <typename>
@@ -764,44 +768,44 @@ class Parser
   {
     if (cur != Token.typename) throw err("Expected typename, not $curToStr")
 
-    loc := curLoc
-    typename := curVal
-    consume
-    ref := SpecRef(loc, null, typename)
-
-    // if not named and we don't have additonal spec production, then just
-    // make this a reference to an existing type using a SpecRef
-    if (name == null && cur !== Token.lt && cur !== Token.val && cur !== Token.lbrace && cur !== Token.question)
-      return ref
-
-    // maybe "?"
-    maybe := false
+    // <specType>
+    ref := specSimple
+    loc := ref.loc
+    SpecMetaTag[]? meta := null
     if (cur === Token.question)
     {
       consume
-      maybe = true
+      meta = specMetaAdd(meta, "maybe", Literal.markerVal)
+    }
+    else if (cur === Token.amp)
+    {
+      meta = specMetaAdd(meta, "ofs", specCompound(ref, Token.amp))
+      ref = SpecRef(loc, "sys", "And")
+    }
+    else if (cur === Token.pipe)
+    {
+      meta = specMetaAdd(meta, "ofs", specCompound(ref, Token.pipe))
+      ref = SpecRef(loc, "sys", "Or")
     }
 
-    // <meta>
-    meta := Etc.dict0
+    // <specMeta>
     if (cur === Token.lt)
     {
       inSpec++
-      meta = constDict(Token.lt, Token.gt)
+      meta = specMeta(meta)
       inSpec--
     }
-    if (maybe) meta = Etc.dictSet(meta, "maybe", Marker.val)
 
-    // value
+    // <specScalar>
     hasVal := false
     if (cur === Token.val)
     {
       hasVal = true
-      meta = Etc.dictSet(meta, "val", specVal(curVal))
+      meta = specMetaAdd(meta, "val", specVal(curVal))
       consume
     }
 
-    // "{" <slots> "}"
+    // <specSlots>
     [Str:Spec]? slots := null
     if (cur === Token.lbrace)
     {
@@ -809,20 +813,80 @@ class Parser
       slots = specSlots
     }
 
-    // check for {} value
+    // check for {} and value
     if (cur === Token.val && slots != null)
        throw err("Cannot have both value and slots")
+
+    // if not named we have just a named reference, then use SpecRef only
+     if (name == null && meta == null && slots == null)
+       return ref
 
     // derive a new spec on evaluation
     if (name == null) name = "unnamed"
     return SpecDerive(loc, name, ref, meta, slots)
   }
 
-  private Str specVal(Obj? val)
+  private SpecRef specSimple()
+  {
+    loc := curLoc
+    typename := curVal
+    consume
+    return SpecRef(loc, null, typename)
+  }
+
+  private ListExpr specCompound(SpecRef first, Token token)
+  {
+    acc := SpecRef[,]
+    acc.add(first)
+    while (cur === token)
+    {
+      consume
+      acc.add(specSimple)
+    }
+    return ListExpr(acc, false)
+  }
+
+  private SpecMetaTag[] specMeta(SpecMetaTag[]? acc)
+  {
+    if (acc == null) acc = SpecMetaTag[,]
+    consume(Token.lt)
+    while (cur !== Token.gt)
+    {
+      name := consumeIdOrKeyword("spec meta tag name")
+      Expr val := Literal.markerVal
+      if (cur === Token.colon)
+      {
+        consume
+        val = specMetaVal
+      }
+      acc = specMetaAdd(acc, name, val)
+      if (cur === Token.comma) consume
+      else break
+    }
+    consume(Token.gt)
+    return acc
+  }
+
+  private SpecMetaTag[] specMetaAdd(SpecMetaTag[]? acc, Str name, Expr val)
+  {
+    tag := SpecMetaTag(name, val)
+    if (acc == null) return [tag]
+    if (acc.any |x| { x.name == name }) throw err("Duplicate meta name: $name", val.loc)
+    return acc.add(tag)
+  }
+
+  private Expr specMetaVal()
+  {
+    if (cur === Token.val) return Literal(consumeVal)
+    if (cur === Token.typename) return spec(null)
+    throw err("Expecting spec meta val, not $curToStr")
+  }
+
+  private Expr specVal(Obj? val)
   {
     // only allow a subset of values
     if (val is Str || val is Number || val is Date || val is Time)
-      return val.toStr
+      return Literal(val.toStr)
     throw err("Invalid spec scalar value type: ${val?.typeof?.name}")
   }
 
