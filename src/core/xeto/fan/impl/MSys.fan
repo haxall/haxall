@@ -23,7 +23,6 @@ internal const class MSys
     this.seq      = x.get("Seq")
     this.dict     = x.get("Dict")
     this.list     = x.get("List")
-    this.dataset  = x.get("DataSet")
     this.lib      = x.get("Lib")
     this.spec     = x.get("Spec")
     this.type     = x.get("Type")
@@ -49,7 +48,6 @@ internal const class MSys
   const XetoType dict
   const XetoType seq
   const XetoType list
-  const XetoType dataset
   const XetoType lib
   const XetoType spec
   const XetoType type

@@ -66,9 +66,6 @@ Dict: Seq
 // Ordered list of zero or more values
 List: Seq
 
-// Data set is a collection of dicts.
-DataSet: Seq <of:Dict>
-
 // Or type is a choice between one of multiple types.
 // It is a union of the set of types.
 Or: Obj

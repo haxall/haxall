@@ -26,5 +26,5 @@ XStr: Scalar
 Choice: Scalar <of:Marker>
 
 // Two dimension table of columns and rows.
-Grid: DataSet
+Grid: Seq <of:Dict>
 
