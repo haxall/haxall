@@ -26,6 +26,7 @@ internal class Infer : Step
         if (obj.isSpec) computeFlags(obj)
       }
     }
+    bombIfErr
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -34,7 +35,6 @@ internal class Infer : Step
 
   private Void inferObj(AObj x)
   {
-
     // short circuit if type already specified
     if (x.type != null) return
 
@@ -69,7 +69,11 @@ internal class Infer : Step
     // walk inheritance tree until we get to an external
     // type from a dependency and get inherited flags
     p := x
-    while (p.base.isResolvedInternal) p = p.base.resolvedInternal
+    while (p.base.isResolvedInternal)
+    {
+      p = p.base.resolvedInternal
+      if (x === p) { err("Cyclic inheritance: $x.name", x.loc); return 0 }
+    }
     flags := p.base.asm.m.flags
 
     // merge in my own flags

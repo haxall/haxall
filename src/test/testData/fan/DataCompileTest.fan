@@ -221,4 +221,28 @@ class DataCompileTest : AbstractDataTest
     }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Errs
+//////////////////////////////////////////////////////////////////////////
+
+  Void testErr()
+  {
+    verifyCompileLibErr("Foo: Foo", "Cyclic inheritance: Foo")
+    verifyCompileLibErr("Foo: Bar\nBar: Foo", "Cyclic inheritance: Foo")
+    verifyCompileLibErr("Foo: Bar\nBar: Baz\nBaz: Foo", "Cyclic inheritance: Foo")
+  }
+
+  Void verifyCompileLibErr(Str src, Str err)
+  {
+    try
+    {
+      env.compileLib(src)
+      fail
+    }
+    catch (FileLocErr e)
+    {
+      verifyEq(e.msg, err, e.msg)
+    }
+  }
+
 }
