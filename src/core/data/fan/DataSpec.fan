@@ -58,7 +58,15 @@ const mixin DataSpec : DataDict
   abstract DataSpec? slotOwn(Str name, Bool checked := true)
 
   ** Return if this specs inherits from that from a nominal type perspective.
+  ** Nonimal typing matches any of the following conditions:
+  **   - if that matches one of this spec inherited specs via base
+  **   - if this spec isMaybe and that is None
+  **   - if this spec is And and that matches any this.ofs
+  **   - if that spec is Or and this matches any of that.ofs
   abstract Bool isa(DataSpec that)
+
+  ** Does meta have maybe tag
+  abstract Bool isMaybe()
 
 //////////////////////////////////////////////////////////////////////////
 // NoDoc
@@ -67,8 +75,8 @@ const mixin DataSpec : DataDict
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 
-  ** Does meta have maybe tag
-  @NoDoc abstract Bool isMaybe()
+  ** Is this the None type itself
+  @NoDoc abstract Bool isNone()
 
   ** Inherits directly from 'sys::Scalar' without considering And/Or
   @NoDoc abstract Bool isScalar()

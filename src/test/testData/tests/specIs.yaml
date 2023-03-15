@@ -206,4 +206,193 @@ verifySpecIs:
 ---
 
 
+##########################################################################
+## And
+##########################################################################
+
+---
+name: "and"
+compileLib: |
+  Foo: Dict
+  Bar: Dict
+  Baz: Foo & Bar
+  Qux: Foo
+verifySpecIs:
+  with: "test::Baz"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+    - "sys::Dict"
+    - "sys::And"
+    - "test::Foo"
+    - "test::Bar"
+    - "test::Baz"
+  falses:
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::List"
+    - "sys::Or"
+    - "test::Qux"
+---
+name: "andFlip"
+compileLib: |
+  Foo: Dict
+  Bar: Dict
+  Baz: Foo & Bar
+verifySpecIs:
+  with: "test::Foo"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+    - "sys::Dict"
+    - "test::Foo"
+  falses:
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::List"
+    - "test::Bar"
+    - "test::Baz"
+---
+name: "andNest"
+compileLib: |
+  Foo: Dict
+  Bar: Dict
+  Baz: Foo & Bar
+  Qux: Baz
+verifySpecIs:
+  with: "test::Qux"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+    - "sys::Dict"
+    - "sys::And"
+    - "test::Foo"
+    - "test::Bar"
+    - "test::Baz"
+    - "test::Qux"
+  falses:
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::List"
+    - "sys::Or"
+---
+name: "andNestDeep"
+compileLib: |
+  A: Dict
+  B: Dict
+  C: Dict
+  D: Dict
+  E: Dict
+  AB: A & B & C
+  CD: C & D
+  AE: A & E
+  AE2: AE
+  X: AB & CD & AE2
+  Y: AB & CD & AE2
+verifySpecIs:
+  with: "test::X"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+    - "sys::Dict"
+    - "sys::And"
+    - "test::A"
+    - "test::B"
+    - "test::C"
+    - "test::D"
+    - "test::E"
+    - "test::AB"
+    - "test::CD"
+    - "test::AE"
+    - "test::AE2"
+    - "test::X"
+  falses:
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::List"
+    - "sys::Or"
+    - "test::Y"
+---
+
+##########################################################################
+## Or
+##########################################################################
+
+---
+name: "or"
+compileLib: |
+  Foo: Dict
+  Bar: Dict
+  Baz: Foo | Bar
+verifySpecIs:
+  with: "test::Baz"
+  trues:
+    - "sys::Obj"
+    - "sys::Or"
+    - "test::Baz"
+  falses:
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::List"
+    - "sys::And"
+    - "test::Foo"
+    - "test::Bar"
+---
+name: "orFlip"
+compileLib: |
+  Foo: Dict
+  Bar: Dict
+  Baz: Foo | Bar
+verifySpecIs:
+  with: "test::Foo"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+    - "sys::Dict"
+    - "test::Foo"
+    - "test::Baz"
+  falses:
+    - "sys::Str"
+    - "sys::List"
+    - "test::Bar"
+---
+name: "orFlipInherit"
+compileLib: |
+  Foo: Dict
+  Bar: Dict
+  Baz: Foo | Bar
+  Qux: Foo
+verifySpecIs:
+  with: "test::Qux"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+    - "sys::Dict"
+    - "test::Foo"
+    - "test::Baz"
+    - "test::Qux"
+  falses:
+    - "sys::Str"
+    - "sys::List"
+    - "test::Bar"
+---
+name: "orFlipBase"
+compileLib: |
+  Foo: Dict
+  Bar: Dict
+  Qux: Foo
+  Baz: Qux | Bar
+verifySpecIs:
+  with: "test::Foo"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+    - "sys::Dict"
+    - "test::Foo"
+  falses:
+    - "sys::Str"
+    - "sys::List"
+    - "test::Baz"
+    - "test::Qux"
+---
 

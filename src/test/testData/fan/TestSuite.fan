@@ -199,14 +199,14 @@ class DataTestCase
     trues.each |x|
     {
       b := spec(x)
-      //echo("    TRUE  $a is $b")
-      verifyEq(a.isa(b), true)
+      // echo("    TRUE  $a is $b")
+      verifyEq(a.isa(b), true, b.qname)
     }
     falses.each |x|
     {
       b := spec(x)
-      //echo("    FALSE $a is $b")
-      verifyEq(a.isa(b), false)
+      // echo("    FALSE $a is $b")
+      verifyEq(a.isa(b), false, b.qname)
     }
   }
 

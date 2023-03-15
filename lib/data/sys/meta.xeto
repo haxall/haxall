@@ -13,7 +13,7 @@ Spec: Dict {
   type: Type?
 
   // Indicates an optional type
-  maybe: Marker?
+  maybe: Marker? <noInherit>
 
   // Reference to super type if this spec is a type
   inherits: Type?

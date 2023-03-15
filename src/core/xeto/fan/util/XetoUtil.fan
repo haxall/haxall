@@ -123,25 +123,24 @@ internal const class XetoUtil
   static Bool isa(XetoSpec a, XetoSpec b)
   {
     // check direct inheritance
-    sys := a.m.env.sys
-    and := sys.and
-    isAnd := false
-    isMaybe := false
     for (DataSpec? x := a; x != null; x = x.base)
-    {
       if (x === b) return true
 
-      if (x === and) isAnd = true
-    }
-
     // if A is "maybe" type, then it also matches None
-    if (b === sys.none && a.isMaybe) return true
+    if (b.isNone && a.isMaybe) return true
 
-    // if A is "and" type, then check his "ofs"
-    if (isAnd)
+    // if A is And type, then check any of A.ofs is B
+    if (a.isAnd )
     {
       ofs := a.get("ofs", null) as DataSpec[]
       if (ofs != null && ofs.any |x| { x.isa(b) }) return true
+    }
+
+    // if B is Or type, then check if A is any of B.ofs
+    if (b.isOr)
+    {
+      ofs := b.get("ofs", null) as DataSpec[]
+      if (ofs != null && ofs.any |x| { a.isa(x) }) return true
     }
 
     return false

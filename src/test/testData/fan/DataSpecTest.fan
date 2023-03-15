@@ -55,6 +55,10 @@ class DataSpecTest : AbstractDataTest
     verifyIsa("sys::Obj", "sys::Obj", true)
     verifyIsa("sys::Obj", "sys::Str", false)
 
+    verifyIsa("sys::None", "sys::Obj", true)
+    verifyIsa("sys::None", "sys::None", true)
+    verifyIsa("sys::None", "sys::Scalar", false)
+
     verifyIsa("sys::Scalar", "sys::Obj",    true)
     verifyIsa("sys::Scalar", "sys::Scalar", true)
     verifyIsa("sys::Scalar", "sys::Str",    false)

@@ -182,6 +182,7 @@ internal const class XetoSpec : DataSpec, Dict
 
   override final Str toStr() { m?.toStr ?: super.toStr }
 
+  override final Bool isNone()   { this === m.env.sys.none }
   override final Bool isMaybe()  { m.hasFlag(MSpecFlags.maybe) }
   override final Bool isScalar() { m.hasFlag(MSpecFlags.scalar) }
   override final Bool isMarker() { m.hasFlag(MSpecFlags.marker) }
