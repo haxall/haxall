@@ -92,7 +92,7 @@ internal class XetoCallbackLog : XetoLog
 
   override Void log(LogLevel level, Str msg,  FileLoc loc, Err? err)
   {
-    cb(XetoLogRec(level, msg, loc, null, err))
+    cb(XetoLogRec(level, msg, loc, err))
   }
 
   private |DataLogRec| cb
@@ -105,19 +105,17 @@ internal class XetoCallbackLog : XetoLog
 @Js
 const class XetoLogRec : DataLogRec
 {
-  new make(LogLevel level, Str msg, FileLoc loc, DataDict? rec, Err? err)
+  new make(LogLevel level, Str msg, FileLoc loc, Err? err)
   {
     this.level = level
     this.msg   = msg
     this.loc   = loc
-    this.rec   = rec
     this.err   = err
   }
 
   const override LogLevel level
   const override Str msg
   const override FileLoc loc
-  const override DataDict? rec
   const override Err? err
 
   override Str toStr()

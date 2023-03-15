@@ -6,13 +6,14 @@
 //   22 Jan 2023  Brian Frank  Creation
 //
 
+using util
 using data
 using haystack
-using hx
 
 **
 ** Fitter
 **
+@Js
 class Fitter
 {
 
@@ -20,10 +21,9 @@ class Fitter
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxContext cx)
+  new make(DataEnv env)
   {
-    this.cx = cx
-    this.data = cx.usings.data
+    this.env = env
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -33,14 +33,14 @@ class Fitter
   Bool fits(Obj? val, DataSpec type)
   {
     // get type for value
-    valType := data.typeOf(val, false)
+    valType := env.typeOf(val, false)
     if (valType == null) return explainNoType(val)
 
     // check nominal typing
     if (valType.isa(type)) return true
 
     // check structurally typing
-    if (val is Dict && type.isa(data.dictSpec))
+    if (val is Dict && type.isa(env.dictSpec))
       return fitsStruct(val, type)
 
     return explainNoFit(valType, type)
@@ -72,7 +72,7 @@ class Fitter
       return explainMissingSlot(slot)
     }
 
-    valFits := Fitter(cx).fits(val, slotType)
+    valFits := Fitter(env).fits(val, slotType)
     if (!valFits) return explainInvalidSlotType(val, slot)
 
     return true
@@ -172,8 +172,78 @@ class Fitter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  HxContext cx
-  DataEnv data
+  DataEnv env
   Bool failFast := true
+}
+
+**************************************************************************
+** ExplainFitter
+**************************************************************************
+
+@Js
+internal class ExplainFitter : Fitter
+{
+  new make(DataEnv env, |DataLogRec| cb) : super(env) { this.cb = cb }
+
+  override Bool explainNoType(Obj? val)
+  {
+    log("Value not mapped to data type [${val?.typeof}]")
+  }
+
+  override Bool explainNoFit(DataSpec valType, DataSpec type)
+  {
+    log("Type '$valType' does not fit '$type'")
+  }
+
+  override Bool explainMissingSlot(DataSpec slot)
+  {
+    if (slot.type.isMarker)
+      return log("Missing required marker '$slot.name'")
+    else
+      return log("Missing required slot '$slot.name'")
+  }
+
+  override Bool explainMissingQueryConstraint(Str ofDis, DataSpec constraint)
+  {
+    log("Missing required $ofDis $constraint.name")
+  }
+
+/*
+  override Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, Dict[] matches)
+  {
+    log("Ambiguous match for $ofDis $constraint.name: " + recsToDis(matches))
+  }
+*/
+
+  override Bool explainInvalidSlotType(Obj val, DataSpec slot)
+  {
+    log("Invalid value type for '$slot.name' - '${val.typeof}' does not fit '$slot.type'")
+  }
+
+  private Bool log(Str msg)
+  {
+    cb(XetoLogRec(LogLevel.err, msg, FileLoc.unknown, null))
+    return false
+  }
+
+/*
+  private Str recsToDis(DataDict[] recs)
+  {
+    s := StrBuf()
+    for (i := 0; i<recs.size; ++i)
+    {
+      rec := recs[i]
+      str := "@" + rec->id
+      dis := relDis(rec)
+      if (dis != null) str += " $dis.toCode"
+      s.join(str, ", ")
+      if (s.size > 50 && i+1<recs.size)
+        return s.add(", ${recs.size - i - 1} more ...").toStr
+    }
+    return s.toStr
+  }
+ */
+
+  private |DataLogRec| cb
 }
 

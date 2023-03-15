@@ -125,6 +125,21 @@ internal const class XetoEnv : DataEnv
     return c.compileData
   }
 
+  override Bool specFits(DataSpec a, DataSpec b, [Str:Obj]? opts := null)
+  {
+    // TODO
+    return a.isa(b)
+  }
+
+  override Bool fits(Obj? val, DataSpec spec, [Str:Obj]? opts := null)
+  {
+    explain := opts?.get("explain")
+    if (explain == null)
+      return Fitter(this).fits(val, spec)
+    else
+      return ExplainFitter(this, explain).fits(val, spec)
+  }
+
   override DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)
   {
     XetoUtil.derive(this, name, base, meta, slots)

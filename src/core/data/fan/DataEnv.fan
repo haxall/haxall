@@ -92,6 +92,18 @@ const abstract class DataEnv
   **   - log: '|DataLogRec|' or if omitted then log to stdout
   abstract Obj? compileData(Str src, [Str:Obj]? opts := null)
 
+  ** Return if spec 'a' fits spec 'b' based on structural typing.
+  **
+  ** Options:
+  **   - explain: '|DataLogRec|' to log explantion (slower)
+  abstract Bool specFits(DataSpec a, DataSpec b, [Str:Obj]? opts := null)
+
+  ** Return if the given instance fits the spec via structural typing.
+  **
+  ** Options:
+  **   - explain: '|DataLogRec|' to log explantion (slower)
+  abstract Bool fits(Obj? val, DataSpec spec, [Str:Obj]? opts := null)
+
   ** Derive a new spec from the given base type, additional meta, and
   ** slots.  The spec is not associated with any library and a synthetic
   ** qname is generated.

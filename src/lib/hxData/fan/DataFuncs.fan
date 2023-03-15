@@ -131,7 +131,7 @@ const class DataFuncs
   **
   @Axon static Bool specFits(DataSpec a, DataSpec b)
   {
-    a.isa(b)
+    curContext.usings.data.specFits(a, b, null)
   }
 
   **
@@ -146,7 +146,7 @@ const class DataFuncs
   **
   @Axon static DataSpec? _typeof(Obj? val, Bool checked := true)
   {
-    AxonContext.curAxon.usings.data.typeOf(val, checked)
+    curContext.usings.data.typeOf(val, checked)
   }
 
   **
@@ -166,8 +166,7 @@ const class DataFuncs
   **
   @Axon static Bool _is(Obj? val, DataSpec spec)
   {
-    cx := AxonContext.curAxon
-    return cx.usings.data.typeOf(val).isa(spec)
+    curContext.usings.data.typeOf(val).isa(spec)
   }
 
   **
@@ -183,7 +182,7 @@ const class DataFuncs
   **
   @Axon static Bool fits(Obj? val, DataSpec spec)
   {
-    Fitter(curContext).fits(val, spec)
+    curContext.usings.data.fits(val, spec, null)
   }
 
   **
@@ -199,7 +198,32 @@ const class DataFuncs
   @Axon
   static Grid fitsExplain(Obj? recs, DataSpec spec)
   {
-    ExplainFitter(curContext).explain(recs, spec)
+    cx := curContext
+    dataEnv := cx.usings.data
+    hits := DataLogRec[,]
+    explain := |DataLogRec rec| { hits.add(rec) }
+    opts := ["explain": explain]
+    gb := GridBuilder().addCol("targetRef").addCol("msg")
+
+    // walk thru each rec
+    Etc.toRecs(recs).each |rec, i|
+    {
+      // reset hits accumulator
+      hits.clear
+
+      // call fits explain with this rec
+      dataEnv.fits(rec, spec, opts)
+
+      // if we had hits, then add to our result grid
+      if (!hits.isEmpty)
+      {
+        id := rec["id"] as Ref ?: Ref("_$i")
+        gb.addRow2(id, hits.size == 1 ? "1 error" : "$hits.size errors")
+        hits.each |hit| { gb.addRow2(id, hit.msg) }
+      }
+    }
+
+    return gb.toGrid
   }
 
   ** Current context

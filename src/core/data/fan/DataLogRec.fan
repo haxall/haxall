@@ -24,9 +24,6 @@ const mixin DataLogRec
   ** File location of issue or unknown
   abstract FileLoc loc()
 
-  ** Data record that is the subject of the issue if applicable
-  abstract DataDict? rec()
-
   ** Exception that caused the issue if applicable
   abstract Err? err()
 }
