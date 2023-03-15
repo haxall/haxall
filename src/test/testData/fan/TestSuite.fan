@@ -413,6 +413,16 @@ class DataTestCase
 
   DataSpec spec(Str qname)
   {
+    /*
+    lt := qname.index("<of:")
+    if (lt != null)
+    {
+      a := spec(qname[0..<lt].trim)
+      b := spec(qname[lt+4..-2].trim)
+      return env.derive("${a.name}_of_${b.name}", a, env.dict1("of", b))
+    }
+    */
+
     if (qname.startsWith("test::"))
       return lib.slotOwn(qname[6..-1])
     else

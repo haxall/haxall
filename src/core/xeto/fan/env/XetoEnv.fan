@@ -94,7 +94,7 @@ internal const class XetoEnv : DataEnv
     Printer(this, out, dict(opts)).print(val)
   }
 
-  override DataLib compileLib(Str src)
+  override DataLib compileLib(Str src, [Str:Obj]? opts := null)
   {
     qname := "temp" + compileCount.getAndIncrement
 
@@ -109,16 +109,18 @@ internal const class XetoEnv : DataEnv
       it.env = this
       it.qname = qname
       it.input = src.toBuf.toFile(`temp.xeto`)
+      it.applyOpts(opts)
     }
     return c.compileLib
   }
 
-  override Obj? compileData(Str src)
+  override Obj? compileData(Str src, [Str:Obj]? opts := null)
   {
     c := XetoCompiler
     {
       it.env = this
       it.input = src.toBuf.toFile(`parse.xeto`)
+      it.applyOpts(opts)
     }
     return c.compileData
   }

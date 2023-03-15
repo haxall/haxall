@@ -227,22 +227,39 @@ class DataCompileTest : AbstractDataTest
 
   Void testErr()
   {
-    verifyCompileLibErr("Foo: Foo", "Cyclic inheritance: Foo")
-    verifyCompileLibErr("Foo: Bar\nBar: Foo", "Cyclic inheritance: Foo")
-    verifyCompileLibErr("Foo: Bar\nBar: Baz\nBaz: Foo", "Cyclic inheritance: Foo")
+    verifyCompileLibErr("Foo: Foo", [
+      "Cyclic inheritance: Foo",
+      ])
+    verifyCompileLibErr("Foo: Bar\nBar: Foo", [
+      "Cyclic inheritance: Foo",
+      "Cyclic inheritance: Bar",
+      ])
+    verifyCompileLibErr("Foo: Bar\nBar: Baz\nBaz: Foo", [
+      "Cyclic inheritance: Foo",
+      "Cyclic inheritance: Bar",
+      "Cyclic inheritance: Baz",
+      ])
   }
 
-  Void verifyCompileLibErr(Str src, Str err)
+  Void verifyCompileLibErr(Str src, Str[] errs)
   {
+    log := DataLogRec[,]
+
+    logger := |DataLogRec rec|
+    {
+      //echo("~~ $rec")
+      log.add(rec)
+    }
+
     try
     {
-      env.compileLib(src)
+      env.compileLib(src, ["log":logger])
       fail
     }
-    catch (FileLocErr e)
-    {
-      verifyEq(e.msg, err, e.msg)
-    }
+    catch (Err e) {}
+
+    verifyEq(log.size, errs.size)
+    errs.each |err, i| { verifyEq(log[i].msg, err) }
   }
 
 }

@@ -7,6 +7,7 @@
 //
 
 using util
+using data
 
 **
 ** Logger is used to report compiler info, warnings, and errors
@@ -34,10 +35,10 @@ abstract class XetoLog
   Void info(Str msg) { log(LogLevel.info, msg, FileLoc.unknown, null) }
 
   ** Report warning level
-  Void warn(Str msg, FileLoc loc, Err? cause := null) { log(LogLevel.warn, msg, loc, cause) }
+  Void warn(Str msg, FileLoc loc, Err? err := null) { log(LogLevel.warn, msg, loc, err) }
 
   ** Report err level
-  Void err(Str msg, FileLoc loc, Err? cause := null) { log(LogLevel.err, msg, loc, cause) }
+  Void err(Str msg, FileLoc loc, Err? err := null) { log(LogLevel.err, msg, loc, err) }
 
   ** Report log message
   abstract Void log(LogLevel level, Str msg, FileLoc loc, Err? cause)
@@ -52,12 +53,12 @@ internal class XetoOutStreamLog : XetoLog
 {
   new make(OutStream out) { this.out = out }
 
-  override Void log(LogLevel level, Str msg,  FileLoc loc, Err? cause)
+  override Void log(LogLevel level, Str msg,  FileLoc loc, Err? err)
   {
     if (loc !== FileLoc.unknown) out.print(loc).print(": ")
     if (level == LogLevel.warn) out.print("WARN ")
     out.printLine(msg)
-    if (cause != null) cause.trace(out)
+    if (err != null) err.trace(out)
   }
 
   private OutStream out
@@ -74,10 +75,27 @@ internal class XetoWrapperLog : XetoLog
 
   const Log wrap
 
-  override Void log(LogLevel level, Str msg,  FileLoc loc, Err? cause)
+  override Void log(LogLevel level, Str msg,  FileLoc loc, Err? err)
   {
-    wrap.log(LogRec(DateTime.now, level, wrap.name, msg, cause))
+    wrap.log(LogRec(DateTime.now, level, wrap.name, msg, err))
   }
+}
+
+**************************************************************************
+** XetoCallbackLog
+**************************************************************************
+
+@Js
+internal class XetoCallbackLog : XetoLog
+{
+  new make(|DataLogRec| cb) { this.cb = cb }
+
+  override Void log(LogLevel level, Str msg,  FileLoc loc, Err? err)
+  {
+    cb(XetoLogRec(level, msg, loc, null, err))
+  }
+
+  private |DataLogRec| cb
 }
 
 

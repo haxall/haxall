@@ -78,11 +78,19 @@ const abstract class DataEnv
   ** Get the 'sys' library
   @NoDoc abstract DataLib sysLib()
 
-  ** Compile Xeto source code into a temp library
-  abstract DataLib compileLib(Str src)
+  ** Compile Xeto source code into a temp library.
+  ** Raise exception if there are any syntax or semantic errors.
+  **
+  ** Options:
+  **   - log: '|DataLogRec|' or if omitted then log to stdout
+  abstract DataLib compileLib(Str src, [Str:Obj]? opts := null)
 
   ** Compile Xeto data file into in-memory dict/scalar tree
-  abstract Obj? compileData(Str src)
+  ** Raise exception if there are any syntax or semantic errors.
+  **
+  ** Options:
+  **   - log: '|DataLogRec|' or if omitted then log to stdout
+  abstract Obj? compileData(Str src, [Str:Obj]? opts := null)
 
   ** Derive a new spec from the given base type, additional meta, and
   ** slots.  The spec is not associated with any library and a synthetic
