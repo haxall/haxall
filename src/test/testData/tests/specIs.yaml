@@ -1,0 +1,209 @@
+#
+# Tests for checking nominal typing with two specs
+#
+
+##########################################################################
+## Sys
+##########################################################################
+
+---
+name: "obj"
+verifySpecIs:
+  with: "sys::Obj"
+  trues:
+    - "sys::Obj"
+  falses:
+    - "sys::None"
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::Dict"
+---
+name: "none"
+verifySpecIs:
+  with: "sys::None"
+  trues:
+    - "sys::Obj"
+    - "sys::None"
+  falses:
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::Dict"
+---
+name: "scalar"
+verifySpecIs:
+  with: "sys::Scalar"
+  trues:
+    - "sys::Obj"
+    - "sys::Scalar"
+  falses:
+    - "sys::None"
+    - "sys::Str"
+    - "sys::Dict"
+---
+name: "str"
+verifySpecIs:
+  with: "sys::Str"
+  trues:
+    - "sys::Obj"
+    - "sys::Scalar"
+    - "sys::Str"
+  falses:
+    - "sys::None"
+    - "sys::Number"
+    - "sys::Dict"
+---
+name: "number"
+verifySpecIs:
+  with: "sys::Number"
+  trues:
+    - "sys::Obj"
+    - "sys::Scalar"
+    - "sys::Number"
+  falses:
+    - "sys::None"
+    - "sys::Str"
+    - "sys::Int"
+    - "sys::Dict"
+---
+name: "int"
+verifySpecIs:
+  with: "sys::Int"
+  trues:
+    - "sys::Obj"
+    - "sys::Scalar"
+    - "sys::Number"
+    - "sys::Int"
+  falses:
+    - "sys::None"
+    - "sys::Str"
+    - "sys::Duration"
+    - "sys::Dict"
+---
+name: "seq"
+verifySpecIs:
+  with: "sys::Seq"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+  falses:
+    - "sys::None"
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::Dict"
+---
+name: "list"
+verifySpecIs:
+  with: "sys::List"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+    - "sys::List"
+  falses:
+    - "sys::None"
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::Dict"
+---
+name: "dict"
+verifySpecIs:
+  with: "sys::Dict"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+    - "sys::Dict"
+  falses:
+    - "sys::None"
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::List"
+    - "sys::Spec"
+---
+name: "spec"
+verifySpecIs:
+  with: "sys::Spec"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+    - "sys::Dict"
+    - "sys::Spec"
+  falses:
+    - "sys::None"
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::List"
+---
+
+##########################################################################
+## Maybe
+##########################################################################
+
+---
+name: "maybeStr"
+compileLib: |
+  Foo: Str?
+verifySpecIs:
+  with: "test::Foo"
+  trues:
+    - "sys::Obj"
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::None"
+  falses:
+    - "sys::Number"
+    - "sys::Seq"
+    - "sys::Dict"
+---
+name: "maybeList"
+compileLib: |
+  Foo: List? <of:Str>
+verifySpecIs:
+  with: "test::Foo"
+  trues:
+    - "sys::Obj"
+    - "sys::Seq"
+    - "sys::List"
+    - "sys::None"
+  falses:
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::Dict"
+---
+name: "maybeCustom"
+compileLib: |
+  Foo: Dict
+  Bar: Foo
+  Baz: Bar?
+verifySpecIs:
+  with: "test::Baz"
+  trues:
+    - "sys::Obj"
+    - "sys::Dict"
+    - "test::Foo"
+    - "test::Bar"
+    - "test::Baz"
+    - "sys::None"
+  falses:
+    - "sys::Scalar"
+    - "sys::Str"
+---
+name: "maybeOverride"
+compileLib: |
+  Foo: Dict
+  Bar: Foo?
+  Baz: Bar
+verifySpecIs:
+  with: "test::Baz"
+  trues:
+    - "sys::Obj"
+    - "sys::Dict"
+    - "test::Foo"
+    - "test::Bar"
+    - "test::Baz"
+  falses:
+    - "sys::None"
+    - "sys::Scalar"
+    - "sys::Str"
+---
+
+
+

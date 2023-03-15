@@ -23,6 +23,7 @@ The following are the step types discussed in further detail below:
   - **verifyType**: verify a type from the active library
   - **verifyTypes**: convenience to verify a list of types
   - **verifyData**: verify the data value from compileData
+  - **verifySpecIs**: verify nonimal typing between two specs
 
 Any test that uses a qname from `compileLib` can assume the library
 is called "test" (but in reality it is likely something like "temp123").
@@ -62,12 +63,12 @@ Verify a type by name from the active library (see `loadLib` and `compileLib`).
 The value is a map with the following fields:
 
   - **name**: simple name of the type within the library
-  - **supertype**: qname of the supertype
+  - **base**: qname of the base spec
   - **meta**: map of the effective meta formatted as `verifyData`
   - **slots** map of the effective slots
 
 The slot map is the expected slot spec which follows the same rules
-as `verifyType` with the exception that `supertype` is replaced with `type`.
+as `verifyType` with the exception that `base` is replaced with `type`.
 
 ## verifyTypes
 
@@ -93,5 +94,26 @@ type:
     spec: "sys::Dict"
     str: "sys::Str hello world"
     marker: "sys::Marker"
+
+## verifySpecIs
+
+Verify nonimal typing via two specs.  The fields must be:
+  - **with**: qname of the base spec to check against
+  - **trues**: list of qnames which should match nominal typing
+  - **falses**: list of qnames which should not match nominal typing
+
+Example:
+
+    name: "str"
+    verifySpecIs:
+      with: "sys::Str"
+      trues:
+        - "sys::Obj"
+        - "sys::Scalar"
+        - "sys::Str"
+      falses:
+        - "sys::None"
+        - "sys::Number"
+        - "sys::Dict"
 
 

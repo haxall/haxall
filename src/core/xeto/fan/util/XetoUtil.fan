@@ -46,17 +46,24 @@ internal const class XetoUtil
     base := spec.base as XetoSpec
     if (base == null) return own
 
-    if (own.isEmpty) return base.m.meta
-
+    // walk thru base tags and map tags we inherit
     acc := Str:Obj[:]
+    baseSize := 0
     base.m.meta.each |v, n|
     {
+      baseSize++
       if (isMetaInherited(n)) acc[n] = v
     }
-    own.each |v, n|
-    {
-      acc[n] = v
-    }
+
+    // if we inherited all of the base tags and
+    // I have none of my own, then reuse base meta
+    if (acc.size == baseSize && own.isEmpty)
+      return base.m.meta
+
+    // merge in my own tags
+    if (!own.isEmpty)
+      own.each |v, n| { acc[n] = v }
+
     return spec.env.dictMap(acc)
   }
 
@@ -65,6 +72,7 @@ internal const class XetoUtil
     // we need to make this use reflection at some point
     if (name == "abstract") return false
     if (name == "sealed") return false
+    if (name == "maybe") return false
     return true
   }
 
@@ -115,7 +123,8 @@ internal const class XetoUtil
   static Bool isa(XetoSpec a, XetoSpec b)
   {
     // check direct inheritance
-    and := a.m.env.sys.and
+    sys := a.m.env.sys
+    and := sys.and
     isAnd := false
     isMaybe := false
     for (DataSpec? x := a; x != null; x = x.base)
@@ -125,14 +134,8 @@ internal const class XetoUtil
       if (x === and) isAnd = true
     }
 
-    // if A is "maybe" type, then check his "of"
-/* TODO
-    if (isMaybe)
-    {
-      of := a.get("of", null) as DataSpec
-      if (of != null) return of.isa(b)
-    }
-*/
+    // if A is "maybe" type, then it also matches None
+    if (b === sys.none && a.isMaybe) return true
 
     // if A is "and" type, then check his "ofs"
     if (isAnd)

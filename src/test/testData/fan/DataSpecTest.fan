@@ -116,12 +116,18 @@ class DataSpecTest : AbstractDataTest
       Str<|Foo: Dict {
              bar: Str?
              baz: Foo?
-           }|>)
+           }
+
+           Qux: Foo {
+             baz: Foo
+           }
+           |>)
 
     //env.print(lib)
 
      str := env.type("sys::Str")
      foo := lib.slotOwn("Foo")
+     qux := lib.slotOwn("Qux")
 
      bar := foo.slotOwn("bar")
      verifySame(bar.type, str)
@@ -134,6 +140,14 @@ class DataSpecTest : AbstractDataTest
      verifySame(baz["maybe"], env.marker)
      verifyEq(baz.isa(foo), true)
      verifyEq(baz.isMaybe, true)
+
+     verifySame(qux.slot("bar"), bar)
+
+     // do not inherit maybe
+     qbaz := qux.slot("baz")
+     verifySame(qbaz.base, baz)
+     verifyEq(qbaz["maybe"], null)
+     verifyEq(qbaz.isMaybe, false)
    }
 
 //////////////////////////////////////////////////////////////////////////

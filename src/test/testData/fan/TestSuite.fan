@@ -191,6 +191,25 @@ class DataTestCase
     verifyVal(data, expect)
   }
 
+  Void verifySpecIs(Str:Obj? def)
+  {
+    a := spec(def.getChecked("with"))
+    trues  := (Str[])def.getChecked("trues")
+    falses := (Str[])def.getChecked("falses")
+    trues.each |x|
+    {
+      b := spec(x)
+      //echo("    TRUE  $a is $b")
+      verifyEq(a.isa(b), true)
+    }
+    falses.each |x|
+    {
+      b := spec(x)
+      //echo("    FALSE $a is $b")
+      verifyEq(a.isa(b), false)
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // DataSpec Verifies
 //////////////////////////////////////////////////////////////////////////
@@ -390,6 +409,14 @@ class DataTestCase
   Obj data()
   {
     dataRef ?: throw Err("Missing compileData")
+  }
+
+  DataSpec spec(Str qname)
+  {
+    if (qname.startsWith("test::"))
+      return lib.slotOwn(qname[6..-1])
+    else
+      return env.type(qname)
   }
 
   Void verifyQName(DataType? actual, Str? expected)
