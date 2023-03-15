@@ -104,6 +104,37 @@ const class DataFuncs
   @Axon static DataDict specSlots(DataSpec spec) { spec.slots.toDict }
 
   **
+  ** Return if spec 'a' inherits from spec 'b' based on nominal typing.
+  ** This method checks the explicit inheritance hierarchy via `specBase()`.
+  ** Use `is()` to check if an instance is of a given type.  Also see
+  ** `fits()` and `specFits()` to check using structural typing.
+  **
+  ** Examples:
+  **   specIs(Str, Scalar)     >>  true
+  **   specIs(Scalar, Scalar)  >>  false
+  **   specIs(Equip, Dict)     >>  true
+  **   specIs(Meter, Equip)    >>  true
+  **   specIs(Meter, Point)    >>  false
+  **
+  @Axon static Bool specIs(DataSpec a, DataSpec b)
+  {
+    a.isa(b)
+  }
+
+  **
+  ** Return if spec 'a' fits spec 'b' based on structural typing.
+  ** Use `fits()` to check if an instance fits a given type.  Also see
+  ** `is()` and `specIs()` to check using nominal typing.
+  **
+  ** Examples:
+  **   TODO
+  **
+  @Axon static Bool specFits(DataSpec a, DataSpec b)
+  {
+    a.isa(b)
+  }
+
+  **
   ** Return the data type of the given value.  Raise exception
   ** if value type is not mapped into the data type system.  Also
   ** see `is()` and `fits()`.
@@ -119,44 +150,44 @@ const class DataFuncs
   }
 
   **
-  ** Return if value is an instance of the given type.  This
-  ** function tests the type based on nominal typing via explicit
-  ** inheritance.  If val is itself a type, then we test that
-  ** it explicitly inherits from type.  Raise exception if value is
-  ** not mapped into the data type system.
+  ** Return if the given instance inherits from the spec via nominal
+  ** typing.  Use `specIs()` to check nominal typing between two types.
+  ** Also see `fits()` and `specFits()` to check via structural typing.
   **
   ** Note that dict values will only match the generic 'sys.Dict'
   ** type.  Use `fits()` for structural type matching.
   **
   ** Examples:
-  **   is("hi", Str)     >>  true
-  **   is("hi", Dict)    >>  false
-  **   is({}, Dict)      >>  true
-  **   is(Meter, Equip)  >>  true
+  **   is("hi", Str)       >>  true
+  **   is("hi", Dict)      >>  false
+  **   is({}, Dict)        >>  true
+  **   is({equip}, Equip)  >>  false
+  **   is(Str, Spec)       >>  true
   **
-  @Axon static Bool _is(Obj? val, DataSpec type)
+  @Axon static Bool _is(Obj? val, DataSpec spec)
   {
-    if (val is DataSpec) return ((DataSpec)val).isa(type)
     cx := AxonContext.curAxon
-    return cx.usings.data.typeOf(val).isa(type)
+    return cx.usings.data.typeOf(val).isa(spec)
   }
 
-  ** Return if the given value fits the type.  This function tests
-  ** the type based on either nominally or structural typing.  Also
-  ** see `is()` that tests strictly by nominal typing.
+  **
+  ** Return if the given instance fits the spec via structural typing.
+  ** Use `specFits()` to check structural typing between two types.
+  ** Also see `is()` and `specIs()` to check via nominal typing.
   **
   ** Examples:
   **    fits("foo", Str)      >>  true
   **    fits(123, Str)        >>  false
   **    fits({equip}, Equip)  >>  true
   **    fits({equip}, Site)   >>  false
-  @Axon static Bool fits(Obj? val, DataSpec type)
+  **
+  @Axon static Bool fits(Obj? val, DataSpec spec)
   {
-    Fitter(curContext).fits(val, type)
+    Fitter(curContext).fits(val, spec)
   }
 
   **
-  ** Return grid which explains how data fits the given type.  This
+  ** Return grid which explains how data fits the given spec.  This
   ** function takes one or more recs and returns a grid.  For each rec
   ** zero or more rows are returned with an error why the rec does not
   ** fit the given type.  If a rec does fit the type, then zero rows are
@@ -166,9 +197,9 @@ const class DataFuncs
   **    readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav)
   **
   @Axon
-  static Grid fitsExplain(Obj? recs, DataSpec type)
+  static Grid fitsExplain(Obj? recs, DataSpec spec)
   {
-    ExplainFitter(curContext).explain(recs, type)
+    ExplainFitter(curContext).explain(recs, spec)
   }
 
   ** Current context

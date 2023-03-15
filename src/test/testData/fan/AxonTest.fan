@@ -218,7 +218,42 @@ class AxonTest : HxTest
     verifySpec(Str<|typeof({})|>, "sys::Dict")
     verifySpec(Str<|typeof(Str)|>, "sys::Type")
     verifySpec(Str<|typeof(toGrid("hi"))|>, "ph::Grid")
+    verifySpec(Str<|typeof(toGrid("hi"))|>, "ph::Grid")
+    verifySpec(Str<|typeof(Str)|>, "sys::Type")
+    verifySpec(Str<|typeof(Str <foo>)|>, "sys::Spec")
   }
+
+//////////////////////////////////////////////////////////////////////////
+// SpecIs function
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testSpecIs()
+  {
+    verifySpecIs(Str<|specIs(Str, Obj)|>,    true)
+    verifySpecIs(Str<|specIs(Str, Scalar)|>, true)
+    verifySpecIs(Str<|specIs(Str, Str)|>,    true)
+    verifySpecIs(Str<|specIs(Str, Marker)|>, false)
+    verifySpecIs(Str<|specIs(Str, Dict)|>,   false)
+
+    libs = ["ph"]
+    verifySpecIs(Str<|specIs(Meter, Obj)|>,    true)
+    verifySpecIs(Str<|specIs(Meter, Dict)|>,   true)
+    verifySpecIs(Str<|specIs(Meter, Entity)|>, true)
+    verifySpecIs(Str<|specIs(Meter, Equip)|>,  true)
+    verifySpecIs(Str<|specIs(Meter, Point)|>,  false)
+    verifySpecIs(Str<|specIs(Meter, Str)|>,    false)
+  }
+
+  Void verifySpecIs(Str expr, Bool expect)
+  {
+    // override hook to reuse specIs() tests for specFits()
+    if (verifySpecIsFunc != null) return verifySpecIsFunc(expr, expect)
+
+    verifyEval(expr, expect)
+  }
+
+  |Str,Bool|? verifySpecIsFunc := null
 
 //////////////////////////////////////////////////////////////////////////
 // Is function
@@ -227,31 +262,18 @@ class AxonTest : HxTest
   @HxRuntimeTest
   Void testIs()
   {
-    verifyIs(Str<|is("hi", Str)|>, true)
+    verifyIs(Str<|is("hi", Str)|>,    true)
     verifyIs(Str<|is("hi", Marker)|>, false)
-    verifyIs(Str<|is("hi", Dict)|>, false)
+    verifyIs(Str<|is("hi", Dict)|>,   false)
 
-    verifyIs(Str<|is(marker(), Str)|>, false)
+    verifyIs(Str<|is(marker(), Str)|>,    false)
     verifyIs(Str<|is(marker(), Marker)|>, true)
-    verifyIs(Str<|is(marker(), Dict)|>, false)
+    verifyIs(Str<|is(marker(), Dict)|>,   false)
 
-    verifyIs(Str<|is({}, Str)|>, false)
+    verifyIs(Str<|is({}, Str)|>,    false)
     verifyIs(Str<|is({}, Marker)|>, false)
-    verifyIs(Str<|is({}, Dict)|>, true)
+    verifyIs(Str<|is({}, Dict)|>,   true)
 
-    verifyIs(Str<|is(Str, Obj)|>, true)
-    verifyIs(Str<|is(Str, Scalar)|>, true)
-    verifyIs(Str<|is(Str, Str)|>, true)
-    verifyIs(Str<|is(Str, Marker)|>, false)
-    verifyIs(Str<|is(Str, Dict)|>, false)
-
-    libs = ["ph"]
-    verifyIs(Str<|is(Meter, Obj)|>, true)
-    verifyIs(Str<|is(Meter, Dict)|>, true)
-    verifyIs(Str<|is(Meter, Entity)|>, true)
-    verifyIs(Str<|is(Meter, Equip)|>, true)
-    verifyIs(Str<|is(Meter, Point)|>, false)
-    verifyIs(Str<|is(Meter, Str)|>, false)
   }
 
   Void verifyIs(Str expr, Bool expect)
@@ -265,6 +287,27 @@ class AxonTest : HxTest
   |Str,Bool|? verifyIsFunc := null
 
 //////////////////////////////////////////////////////////////////////////
+// SpecFits function
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testSpecFits()
+  {
+    // run all the is tests with fits
+    verifySpecIsFunc = |Str expr, Bool expect|
+    {
+      verifySpecFits(expr.replace("specIs(", "specFits("), expect)
+    }
+    testSpecIs
+  }
+
+  Void verifySpecFits(Str expr, Bool expect)
+  {
+    // echo("   $expr")
+    verifyEval(expr, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Fits function
 //////////////////////////////////////////////////////////////////////////
 
@@ -276,8 +319,7 @@ class AxonTest : HxTest
     {
       verifyFits(expr.replace("is(", "fits("), expect)
     }
-    // TODO
-    //testIs
+    testIs
 
     verifyFits(Str<|fits("hi", Str)|>, true)
     verifyFits(Str<|fits("hi", Marker)|>, false)
