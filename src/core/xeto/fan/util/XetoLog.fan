@@ -98,4 +98,35 @@ internal class XetoCallbackLog : XetoLog
   private |DataLogRec| cb
 }
 
+**************************************************************************
+** XetoLogRec
+**************************************************************************
+
+@Js
+const class XetoLogRec : DataLogRec
+{
+  new make(LogLevel level, Str msg, FileLoc loc, DataDict? rec, Err? err)
+  {
+    this.level = level
+    this.msg   = msg
+    this.loc   = loc
+    this.rec   = rec
+    this.err   = err
+  }
+
+  const override LogLevel level
+  const override Str msg
+  const override FileLoc loc
+  const override DataDict? rec
+  const override Err? err
+
+  override Str toStr()
+  {
+    s := StrBuf()
+    s.add(level.name.upper).add(": ").add(msg)
+    if (!loc.isUnknown) s.add(" [").add(loc).add("]")
+    return s.toStr
+  }
+}
+
 
