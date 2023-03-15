@@ -85,6 +85,9 @@ const mixin DataSpec : DataDict
   ** Inherits directly from 'sys::Marker' without considering And/Or
   @NoDoc abstract Bool isMarker()
 
+  ** Inherits directly from 'sys::Seq' without considering And/Or
+  @NoDoc abstract Bool isSeq()
+
   ** Inherits directly from 'sys::Dict' without considering And/Or
   @NoDoc abstract Bool isDict()
 

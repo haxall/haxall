@@ -93,6 +93,7 @@ internal class Infer : Step
       {
         case "Marker": flags = flags.or(MSpecFlags.marker)
         case "Scalar": flags = flags.or(MSpecFlags.scalar)
+        case "Seq":    flags = flags.or(MSpecFlags.seq)
         case "Dict":   flags = flags.or(MSpecFlags.dict)
         case "List":   flags = flags.or(MSpecFlags.list)
         case "And":    flags = flags.or(MSpecFlags.and)
