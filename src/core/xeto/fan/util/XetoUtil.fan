@@ -130,10 +130,17 @@ internal const class XetoUtil
     if (b.isNone && a.isMaybe) return true
 
     // if A is And type, then check any of A.ofs is B
-    if (a.isAnd )
+    if (a.isAnd)
     {
       ofs := a.get("ofs", null) as DataSpec[]
       if (ofs != null && ofs.any |x| { x.isa(b) }) return true
+    }
+
+    // if A is Or type, then check all of A.ofs is B
+    if (a.isOr)
+    {
+      ofs := a.get("ofs", null) as DataSpec[]
+      if (ofs != null && ofs.all |x| { x.isa(b) }) return true
     }
 
     // if B is Or type, then check if A is any of B.ofs

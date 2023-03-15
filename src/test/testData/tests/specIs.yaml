@@ -329,6 +329,7 @@ verifySpecIs:
   trues:
     - "sys::Obj"
     - "sys::Or"
+    - "sys::Dict"  # common base
     - "test::Baz"
   falses:
     - "sys::Scalar"
@@ -337,6 +338,34 @@ verifySpecIs:
     - "sys::And"
     - "test::Foo"
     - "test::Bar"
+---
+name: "orCommon"
+compileLib: |
+  A: Dict
+  B: Dict
+  C: Dict
+  CA: C & A
+  CB: C & B
+  D:  CA
+  E:  CB
+  Foo: D | E
+verifySpecIs:
+  with: "test::Foo"
+  trues:
+    - "sys::Obj"
+    - "sys::Or"
+    - "sys::Seq"   # common base
+    - "sys::Dict"  # common base
+    - "test::C"    # common base
+    - "test::Foo"
+  falses:
+    - "sys::Scalar"
+    - "sys::Str"
+    - "sys::List"
+    - "test::A"
+    - "test::B"
+    - "test::D"
+    - "test::E"
 ---
 name: "orFlip"
 compileLib: |

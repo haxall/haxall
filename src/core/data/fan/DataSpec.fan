@@ -57,12 +57,13 @@ const mixin DataSpec : DataDict
   ** Convenience for 'slotsOwn.get'
   abstract DataSpec? slotOwn(Str name, Bool checked := true)
 
-  ** Return if this specs inherits from that from a nominal type perspective.
+  ** Return if 'this' specs inherits from 'that' from a nominal type perspective.
   ** Nonimal typing matches any of the following conditions:
-  **   - if that matches one of this spec inherited specs via base
-  **   - if this spec isMaybe and that is None
-  **   - if this spec is And and that matches any this.ofs
-  **   - if that spec is Or and this matches any of that.ofs
+  **   - if 'that' matches one of 'this' inherited specs via `base`
+  **   - if 'this' is maybe and that is 'None'
+  **   - if 'this' is 'And' and 'that' matches any 'this.ofs'
+  **   - if 'this' is 'Or' and 'that' matches all 'this.ofs' (common base)
+  **   - if 'that' is 'Or' and 'this' matches any of 'that.ofs'
   abstract Bool isa(DataSpec that)
 
   ** Does meta have maybe tag
@@ -98,4 +99,5 @@ const mixin DataSpec : DataDict
 
   ** Inherits directly from 'sys::Query' without considering And/Or
   @NoDoc abstract Bool isQuery()
+
 }
