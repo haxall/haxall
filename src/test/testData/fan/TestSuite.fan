@@ -201,12 +201,14 @@ class DataTestCase
       b := spec(x)
       // echo("    TRUE  $a is $b")
       verifyEq(a.isa(b), true, b.qname)
+      verifyEq(env.specFits(a, b), true, b.qname)
     }
     falses.each |x|
     {
       b := spec(x)
       // echo("    FALSE $a is $b")
       verifyEq(a.isa(b), false, b.qname)
+      verifyEq(env.specFits(a, b), false, b.qname)
     }
   }
 

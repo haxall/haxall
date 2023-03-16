@@ -186,6 +186,20 @@ const class DataFuncs
   }
 
   **
+  ** Return a grid explaining why spec 'a' does not fit 'b'.
+  ** If 'a' does fit 'b' then return an empty grid.
+  **
+  @Axon
+  static Grid specFitsExplain(DataSpec a, DataSpec b)
+  {
+    gb := GridBuilder().addCol("msg")
+    explain := |DataLogRec rec| { gb.addRow1(rec.msg) }
+    opts := ["explain": explain]
+    curContext.usings.data.specFits(a, b, opts)
+    return gb.toGrid
+  }
+
+  **
   ** Return grid which explains how data fits the given spec.  This
   ** function takes one or more recs and returns a grid.  For each rec
   ** zero or more rows are returned with an error why the rec does not
@@ -203,7 +217,7 @@ const class DataFuncs
     hits := DataLogRec[,]
     explain := |DataLogRec rec| { hits.add(rec) }
     opts := ["explain": explain]
-    gb := GridBuilder().addCol("targetRef").addCol("msg")
+    gb := GridBuilder().addCol("id").addCol("msg")
 
     // walk thru each rec
     Etc.toRecs(recs).each |rec, i|

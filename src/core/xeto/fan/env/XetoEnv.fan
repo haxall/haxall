@@ -127,17 +127,20 @@ internal const class XetoEnv : DataEnv
 
   override Bool specFits(DataSpec a, DataSpec b, [Str:Obj]? opts := null)
   {
-    // TODO
-    return a.isa(b)
+    explain := opts?.get("explain")
+    if (explain == null)
+      return Fitter(this, true).specFits(a, b)
+    else
+      return ExplainFitter(this, explain).specFits(a, b)
   }
 
   override Bool fits(Obj? val, DataSpec spec, [Str:Obj]? opts := null)
   {
     explain := opts?.get("explain")
     if (explain == null)
-      return Fitter(this).fits(val, spec)
+      return Fitter(this, true).valFits(val, spec)
     else
-      return ExplainFitter(this, explain).fits(val, spec)
+      return ExplainFitter(this, explain).valFits(val, spec)
   }
 
   override DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2023, SkyFoundry LLC
+// Copyright (c) 2023, Brian Frank
 // Licensed under the Academic Free License version 3.0
 //
 // History:
@@ -21,16 +21,29 @@ class Fitter
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(DataEnv env)
+  new make(DataEnv env, Bool failFast := true)
   {
     this.env = env
+    this.failFast = failFast
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Fits
+// Spec Fits
 //////////////////////////////////////////////////////////////////////////
 
-  Bool fits(Obj? val, DataSpec type)
+  Bool specFits(DataSpec a, DataSpec b)
+  {
+    // check nominal typing
+    if (a.isa(b)) return true
+
+    return explainNoFit(a, b)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Instance Fits
+//////////////////////////////////////////////////////////////////////////
+
+  Bool valFits(Obj? val, DataSpec type)
   {
     // get type for value
     valType := env.typeOf(val, false)
@@ -72,7 +85,7 @@ class Fitter
       return explainMissingSlot(slot)
     }
 
-    valFits := Fitter(env).fits(val, slotType)
+    valFits := valFits(val, slotType)
     if (!valFits) return explainInvalidSlotType(val, slot)
 
     return true
@@ -134,7 +147,7 @@ class Fitter
   DataType[] matchAll(Dict rec, Str:DataType types)
   {
     // first pass is fit each type
-    matches := types.findAll |type| { fits(rec, type) }
+    matches := types.findAll |type| { valFits(rec, type) }
 
     // second pass is to remove supertypes so we only
     // return the most specific subtype
@@ -172,8 +185,8 @@ class Fitter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  DataEnv env
-  Bool failFast := true
+  const DataEnv env
+  const Bool failFast
 }
 
 **************************************************************************
@@ -183,7 +196,7 @@ class Fitter
 @Js
 internal class ExplainFitter : Fitter
 {
-  new make(DataEnv env, |DataLogRec| cb) : super(env) { this.cb = cb }
+  new make(DataEnv env, |DataLogRec| cb) : super(env, false) { this.cb = cb }
 
   override Bool explainNoType(Obj? val)
   {

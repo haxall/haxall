@@ -1,6 +1,8 @@
 #
 # Tests for checking nominal typing with two specs
 #
+# NOTE: all these tests should match specFits too
+#
 
 ##########################################################################
 ## Sys
