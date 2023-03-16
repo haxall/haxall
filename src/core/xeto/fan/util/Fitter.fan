@@ -33,10 +33,32 @@ class Fitter
 
   Bool specFits(DataSpec a, DataSpec b)
   {
-    // check nominal typing
+    // if a is nonimally typed as b, then definitely fits
     if (a.isa(b)) return true
 
+    // scalars are fit only by their nominal types
+    if (a.isScalar) return a.type.isa(b.type)
+
+    // dicts are fit by structural typing
+    if (b.isDict)
+    {
+      if (!a.isDict) return false
+      return specFitsStruct(a, b)
+    }
+
+    // no joy
     return explainNoFit(a, b)
+  }
+
+  private Bool specFitsStruct(DataSpec a, DataSpec b)
+  {
+    r := b.slots.eachWhile |bslot|
+    {
+      aslot := a.slot(bslot.name, false)
+      if (aslot == null) return "nofit"
+      return specFits(aslot, bslot) ? null : "nofit"
+    }
+    return r == null
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -59,7 +81,7 @@ class Fitter
     return explainNoFit(valType, type)
   }
 
-  Bool fitsStruct(Dict dict, DataSpec type)
+  private Bool fitsStruct(Dict dict, DataSpec type)
   {
     slots := type.slots
     match := true

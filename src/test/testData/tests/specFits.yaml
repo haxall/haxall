@@ -1,0 +1,91 @@
+#
+# Tests for checking nominal typing with two specs
+#
+
+---
+name: "scalars"
+compileLib: |
+  X: {
+    obj: Obj
+    num: Number
+    int: Int
+    str: Str
+  }
+verifySpecFits:
+  # Obj
+  - {a: "test::X.obj", b: "test::X.obj", expect: true}
+  - {a: "test::X.obj", b: "test::X.num", expect: false}
+  - {a: "test::X.obj", b: "test::X.int", expect: false}
+  - {a: "test::X.obj", b: "test::X.str", expect: false}
+  # Number
+  - {a: "test::X.num", b: "test::X.obj", expect: true}
+  - {a: "test::X.num", b: "test::X.num", expect: true}
+  - {a: "test::X.num", b: "test::X.int", expect: false}
+  - {a: "test::X.num", b: "test::X.str", expect: false}
+  # Int
+  - {a: "test::X.int", b: "test::X.obj", expect: true}
+  - {a: "test::X.int", b: "test::X.num", expect: true}
+  - {a: "test::X.int", b: "test::X.int", expect: true}
+  - {a: "test::X.int", b: "test::X.str", expect: false}
+---
+name: "dictMarkers"
+compileLib: |
+  X: {
+    empty: Dict {}
+    equip: Dict {equip}
+    meter: Dict {equip, meter}
+    elec:  Dict {equip, meter, elec}
+  }
+verifySpecFits:
+  # empty
+  - {a: "test::X.empty", b: "test::X.empty", expect: true}
+  - {a: "test::X.empty", b: "test::X.equip", expect: false}
+  - {a: "test::X.empty", b: "test::X.meter", expect: false}
+  - {a: "test::X.empty", b: "test::X.elec",  expect: false}
+  # equip
+  - {a: "test::X.equip", b: "test::X.empty", expect: true}
+  - {a: "test::X.equip", b: "test::X.equip", expect: true}
+  - {a: "test::X.equip", b: "test::X.meter", expect: false}
+  - {a: "test::X.equip", b: "test::X.elec",  expect: false}
+  # meter
+  - {a: "test::X.meter", b: "test::X.empty", expect: true}
+  - {a: "test::X.meter", b: "test::X.equip", expect: true}
+  - {a: "test::X.meter", b: "test::X.meter", expect: true}
+  - {a: "test::X.meter", b: "test::X.elec",  expect: false}
+  # elec
+  - {a: "test::X.elec", b: "test::X.empty", expect: true}
+  - {a: "test::X.elec", b: "test::X.equip", expect: true}
+  - {a: "test::X.elec", b: "test::X.meter", expect: true}
+  - {a: "test::X.elec", b: "test::X.elec",  expect: true}
+---
+name: "dictTypes"
+compileLib: |
+  X: {
+    a: Dict { name: Str, age: Number }
+    b: Dict { name: Str, age: Int }
+    c: Dict { name: Str, age: Number, job:Obj }
+    d: Dict { name: Str, age: Int, job:Str }
+  }
+verifySpecFits:
+  # a
+  - {a: "test::X.a", b: "test::X.a", expect: true }
+  - {a: "test::X.a", b: "test::X.b", expect: false }
+  - {a: "test::X.a", b: "test::X.c", expect: false }
+  - {a: "test::X.a", b: "test::X.d", expect: false }
+  # b
+  - {a: "test::X.b", b: "test::X.a", expect: true }
+  - {a: "test::X.b", b: "test::X.b", expect: true }
+  - {a: "test::X.b", b: "test::X.c", expect: false }
+  - {a: "test::X.b", b: "test::X.d", expect: false }
+  # c
+  - {a: "test::X.c", b: "test::X.a", expect: true }
+  - {a: "test::X.c", b: "test::X.b", expect: false }
+  - {a: "test::X.c", b: "test::X.c", expect: true }
+  - {a: "test::X.c", b: "test::X.d", expect: false }
+  # d
+  - {a: "test::X.d", b: "test::X.a", expect: true }
+  - {a: "test::X.d", b: "test::X.b", expect: true }
+  - {a: "test::X.d", b: "test::X.c", expect: true }
+  - {a: "test::X.d", b: "test::X.d", expect: true }
+---
+

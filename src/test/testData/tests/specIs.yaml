@@ -1,7 +1,8 @@
 #
 # Tests for checking nominal typing with two specs
 #
-# NOTE: all these tests should match specFits too
+# NOTE: any test case that is true, should also match specFits; but
+# the reverse for false specIs matches does not necessarily hold
 #
 
 ##########################################################################

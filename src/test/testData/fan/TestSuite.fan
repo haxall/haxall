@@ -208,7 +208,18 @@ class DataTestCase
       b := spec(x)
       // echo("    FALSE $a is $b")
       verifyEq(a.isa(b), false, b.qname)
-      verifyEq(env.specFits(a, b), false, b.qname)
+    }
+  }
+
+  Void verifySpecFits([Str:Obj][] list)
+  {
+    list.each |map|
+    {
+      a := spec(map.getChecked("a"))
+      b := spec(map.getChecked("b"))
+      expect := (Bool)map.getChecked("expect")
+      //echo("~~ verifySpecFits $a fits $b ?= $expect")
+      verifyEq(env.specFits(a, b), expect, "$a fits $b")
     }
   }
 
@@ -415,20 +426,21 @@ class DataTestCase
 
   DataSpec spec(Str qname)
   {
-    /*
-    lt := qname.index("<of:")
-    if (lt != null)
+    dot := qname.indexr(".")
+    Str? slot := null
+    if (dot != null)
     {
-      a := spec(qname[0..<lt].trim)
-      b := spec(qname[lt+4..-2].trim)
-      return env.derive("${a.name}_of_${b.name}", a, env.dict1("of", b))
+      slot = qname[dot+1..-1]
+      qname = qname[0..<dot]
     }
-    */
 
-    if (qname.startsWith("test::"))
-      return lib.slotOwn(qname[6..-1])
-    else
-      return env.type(qname)
+    DataSpec type := qname.startsWith("test::") ?
+                     lib.slotOwn(qname[6..-1]) :
+                     env.type(qname)
+
+    return slot == null ?
+           type :
+           type.slot(slot)
   }
 
   Void verifyQName(DataType? actual, Str? expected)
