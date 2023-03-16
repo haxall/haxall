@@ -24,6 +24,7 @@ The following are the step types discussed in further detail below:
   - **verifyTypes**: convenience to verify a list of types
   - **verifyData**: verify the data value from compileData
   - **verifySpecIs**: verify nonimal typing between two specs
+  - **verifySpecFits**: verify structural typing between two specs
 
 Any test that uses a qname from `compileLib` can assume the library
 is called "test" (but in reality it is likely something like "temp123").
@@ -97,23 +98,20 @@ type:
 
 ## verifySpecIs
 
-Verify nonimal typing via two specs.  The fields must be:
-  - **with**: qname of the base spec to check against
-  - **trues**: list of qnames which should match nominal typing
-  - **falses**: list of qnames which should not match nominal typing
+Verify nonimal typing via two specs.  This field must be a list of
+dicts with the following three fields:
+  - **a**: qname of spec
+  - **b**: qname of spec
+  - **expect**: expected value  of `is(a, b)`
 
 Example:
 
-    name: "str"
     verifySpecIs:
-      with: "sys::Str"
-      trues:
-        - "sys::Obj"
-        - "sys::Scalar"
-        - "sys::Str"
-      falses:
-        - "sys::None"
-        - "sys::Number"
-        - "sys::Dict"
+      - {a: "sys::Str", b: "sys::Scalar", expect: true}
+      - {a: "sys::Str", b: "sys::Number", expect: false}
 
+## verifySpecFits
+
+Verify structural typing between two specs.  This step follows the
+exact same conventions as `verifySpecIs`.
 

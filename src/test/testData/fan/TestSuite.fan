@@ -191,23 +191,17 @@ class DataTestCase
     verifyVal(data, expect)
   }
 
-  Void verifySpecIs(Str:Obj? def)
+  Void verifySpecIs([Str:Obj][] list)
   {
-    a := spec(def.getChecked("with"))
-    trues  := (Str[])def.getChecked("trues")
-    falses := (Str[])def.getChecked("falses")
-    trues.each |x|
+    list.each |map|
     {
-      b := spec(x)
-      // echo("    TRUE  $a is $b")
-      verifyEq(a.isa(b), true, b.qname)
-      verifyEq(env.specFits(a, b), true, b.qname)
-    }
-    falses.each |x|
-    {
-      b := spec(x)
-      // echo("    FALSE $a is $b")
-      verifyEq(a.isa(b), false, b.qname)
+      a := spec(map.getChecked("a"))
+      b := spec(map.getChecked("b"))
+      expect := (Bool)map.getChecked("expect")
+      //echo("~~ verifySpecIs $a fits $b ?= $expect")
+      verifyEq(a.isa(b), expect, "$a is $b")
+      if (expect)
+        verifyEq(env.specFits(a, b), expect, "$a fits $b")
     }
   }
 
