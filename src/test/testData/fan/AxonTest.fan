@@ -41,6 +41,11 @@ class AxonTest : HxTest
     verifySpecRef(Str<|Dict|>, "sys::Dict")
     verifySpecRef(Str<|Point|>, "ph::Point")
 
+    // slot
+    libs = ["ph"]
+    verifySpecRef(Str<|Equip.equip|>, "ph::Equip.equip")
+    verifySpecRef(Str<|Equip.points|>, "ph::Equip.points")
+
     // with meta
     verifySpecDerive(Str<|Dict <>|>, "sys::Dict")
     verifySpecDerive(Str<|Dict <foo>|>, "sys::Dict", ["foo":m])
@@ -101,15 +106,13 @@ class AxonTest : HxTest
     verifySpecDerive(Str<|Meter | Chiller <foo>|>, "sys::Or",  ["ofs":ofs, "foo":m])
 // TODO
 //    verifySpecDerive(Str<|Meter & Chiller { foo: Str }|>, "sys::And", ["ofs":DataSpec[env.type("ph::Meter"), env.type("ph::Chiller")]], ["foo":"sys::Str"])
-
-    // or
   }
 
   DataSpec verifySpecRef(Str expr, Str qname)
   {
     DataSpec x := makeContext.eval(expr)
-    // echo(":::REF:::: $expr => $x [$x.typeof] " + Etc.dictToStr((Dict)x.own))
-    verifySame(x, env.type(qname))
+    // echo(":::REF:::: $expr => $x [$x.typeof]")
+    verifySame(x, env.spec(qname))
     return x
   }
 

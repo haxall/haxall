@@ -20,14 +20,14 @@ internal abstract const class Spec : Expr
 }
 
 **************************************************************************
-** SpecRef
+** SpecTypeRef
 **************************************************************************
 
 **
-** SpecRef a DataSpec lookup by name from either using lib or a local definition.
+** SpecTypeRef is a DataType lookup by name from either using lib or a local definition.
 **
 @Js
-internal const class SpecRef : Spec
+internal const class SpecTypeRef : Spec
 {
   new make(Loc loc, Str? lib, Str name)
   {
@@ -36,7 +36,7 @@ internal const class SpecRef : Spec
     this.name = name
   }
 
-  override ExprType type() { ExprType.specRef }
+  override ExprType type() { ExprType.specTypeRef }
 
   override const Loc loc
 
@@ -74,6 +74,57 @@ internal const class SpecRef : Spec
     else
       return name
   }
+}
+
+**************************************************************************
+** SpecSlotRef
+**************************************************************************
+
+**
+** SpecSlotRef a slot path within SpecTypeRef
+**
+@Js
+internal const class SpecSlotRef : Spec
+{
+  new make(SpecTypeRef typeRef, Str[] slots)
+  {
+    this.typeRef = typeRef
+    this.slots = slots
+  }
+
+  override ExprType type() { ExprType.specSlotRef }
+
+  override Loc loc() { typeRef.loc }
+
+  const SpecTypeRef typeRef
+
+  const Str[] slots
+
+  override DataSpec? eval(AxonContext cx)
+  {
+    spec := typeRef.eval(cx)
+    for (i := 0; i<slots.size; ++i)
+    {
+      name := slots[i]
+      x := spec.slot(name, false)
+      if (x == null) throw UnknownSpecErr("${spec.qname}.${name}")
+      spec = x
+    }
+    return spec
+  }
+
+  override Printer print(Printer out)
+  {
+    typeRef.print(out)
+    slots.each |slot| { out.w(".").w(slot) }
+    return out
+  }
+
+  override Void walk(|Str key, Obj? val| f)
+  {
+    f("slots", slots)
+  }
+
 }
 
 **************************************************************************

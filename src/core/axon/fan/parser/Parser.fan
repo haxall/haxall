@@ -780,12 +780,12 @@ class Parser
     else if (cur === Token.amp)
     {
       meta = specMetaAdd(meta, "ofs", specCompound(ref, Token.amp))
-      ref = SpecRef(loc, "sys", "And")
+      ref = SpecTypeRef(loc, "sys", "And")
     }
     else if (cur === Token.pipe)
     {
       meta = specMetaAdd(meta, "ofs", specCompound(ref, Token.pipe))
-      ref = SpecRef(loc, "sys", "Or")
+      ref = SpecTypeRef(loc, "sys", "Or")
     }
 
     // <specMeta>
@@ -826,17 +826,27 @@ class Parser
     return SpecDerive(loc, name, ref, meta, slots)
   }
 
-  private SpecRef specSimple()
+  private Spec specSimple()
   {
     loc := curLoc
     typename := curVal
     consume
-    return SpecRef(loc, null, typename)
+    typeRef := SpecTypeRef(loc, null, typename)
+    if (cur !== Token.dot) return typeRef
+
+    slots := Str[,]
+    slots.capacity = 2
+    while (cur === Token.dot)
+    {
+      consume
+      slots.add(consumeIdOrKeyword("spec slot name"))
+    }
+    return SpecSlotRef(typeRef, slots)
   }
 
-  private ListExpr specCompound(SpecRef first, Token token)
+  private ListExpr specCompound(Spec first, Token token)
   {
-    acc := SpecRef[,]
+    acc := Spec[,]
     acc.add(first)
     while (cur === token)
     {
@@ -921,7 +931,7 @@ class Parser
         }
         else
         {
-          slot = SpecRef(loc, "sys", "Marker")
+          slot = SpecTypeRef(loc, "sys", "Marker")
         }
       }
 

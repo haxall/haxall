@@ -35,7 +35,8 @@ enum class ExprType
   returnExpr,
   throwExpr,
   tryExpr,
-  specRef,
+  specTypeRef,
+  specSlotRef,
   specDerive,
 
   // assignment
