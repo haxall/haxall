@@ -240,6 +240,21 @@ const class DataFuncs
     return gb.toGrid
   }
 
+  **
+  ** Evaluate a query spec. Subject must be an id ref or dict within the
+  ** current database.  Spec must evaluate to a 'sys::Query' data type.
+  ** Return grid with matching recs in the database.
+  **
+  ** Example:
+  **   read(ahu).query(Equip.points)
+  **
+  @Axon static Grid query(Obj subject, DataSpec spec)
+  {
+    cx := AxonContext.curAxon
+    recs := Query(cx).query(Etc.toRec(subject), spec)
+    return Etc.makeDictsGrid(null, recs)
+  }
+
   ** Current context
   internal static HxContext curContext()
   {

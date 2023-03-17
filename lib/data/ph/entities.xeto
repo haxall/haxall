@@ -218,7 +218,7 @@ Elevator: VerticalTransport {
 // See `docHaystack::Equips` chapter.
 Equip: Entity <abstract> {
   equip
-  points: Query<of:Point, inverse:"ph.Point.equips">
+  points: Query<of:Point, inverse:"ph::Point.equips">
 }
 
 // Moving staircase used to move people between floors.
@@ -306,14 +306,14 @@ HeatingCoil: Coil {
 // Historized point with a history log of timestamp/value pairs.  Points
 // marked as historized indicate the system can response to queries via
 // the 'hisRead' operation to return a trend log of timestamp/value pairs.
-// 
+//
 // There are typically two mechanisms for historization:
 // - the local system performs the historization by logging the
 // point's `curVal` to local storage
 // - in overlay systems a downstream device performs the historization
 // and the local system synchronizes the history data in batch on
 // a periodic basis
-// 
+//
 // Also see `docHaystack::Points#his` chapter.
 HisPoint: Point <abstract> {
   his
@@ -677,26 +677,26 @@ Wire: Conduit {
 // points typically are a setpoint or actuator command.  Haystack writable
 // points are modeled on the BACnet 16-level priority array with a
 // relinquish default which effectively acts as level 17.
-// 
+//
 // The following levels have special behavior:
 // - **Level 1**: highest priority reserved for emergency overrides
 // - **Level 8**: manual override with ability to set timer to expire back to auto
 // - **Default**: implicitly acts as level 17 for relinquish default
-// 
+//
 // The priority array provides for contention resolution when many different
 // control applications may be vying for control of a given point. Low level
 // applications like scheduling typically control levels 14, 15, or 16. Then
 // users can override at level 8. But a higher levels like 2 to 7 can be used
 // to trump a user override (for example a demand response energy routine
 // that requires higher priority).
-// 
+//
 // The actual value to write is resolved by starting at level 1 and working down
 // to relinquish default to find the first non-null value. It is possible for
 // all levels to be null, in which case the overall write output is null (which
 // in turn may be auto/null to another system). Anytime a null value is written
 // to a priority level, we say that level has been set to auto or released (this
 // allows the next highest level to take command of the output).
-// 
+//
 // Also see `docHaystack::Points#writable` chapter.
 WritablePoint: Point <abstract> {
   writable
