@@ -78,37 +78,6 @@ const abstract class DataEnv
   ** Get the 'sys' library
   @NoDoc abstract DataLib sysLib()
 
-  ** Compile Xeto source code into a temp library.
-  ** Raise exception if there are any syntax or semantic errors.
-  **
-  ** Options:
-  **   - log: '|DataLogRec|' or if omitted then log to stdout
-  abstract DataLib compileLib(Str src, [Str:Obj]? opts := null)
-
-  ** Compile Xeto data file into in-memory dict/scalar tree
-  ** Raise exception if there are any syntax or semantic errors.
-  **
-  ** Options:
-  **   - log: '|DataLogRec|' or if omitted then log to stdout
-  abstract Obj? compileData(Str src, [Str:Obj]? opts := null)
-
-  ** Return if spec 'a' fits spec 'b' based on structural typing.
-  **
-  ** Options:
-  **   - explain: '|DataLogRec|' to log explantion (slower)
-  abstract Bool specFits(DataSpec a, DataSpec b, [Str:Obj]? opts := null)
-
-  ** Return if the given instance fits the spec via structural typing.
-  **
-  ** Options:
-  **   - explain: '|DataLogRec|' to log explantion (slower)
-  abstract Bool fits(Obj? val, DataSpec spec, [Str:Obj]? opts := null)
-
-  ** Derive a new spec from the given base type, additional meta, and
-  ** slots.  The spec is not associated with any library and a synthetic
-  ** qname is generated.
-  abstract DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)
-
   ** Get or load type by the given qualified name
   abstract DataType? type(Str qname, Bool checked := true)
 
@@ -118,8 +87,32 @@ const abstract class DataEnv
   **   - slot: "foo.bar::Baz.qux"
   abstract DataSpec? spec(Str qname, Bool checked := true)
 
+  ** Derive a new spec from the given base type, additional meta, and
+  ** slots.  The spec is not associated with any library and a synthetic
+  ** qname is generated.
+  abstract DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)
+
+  ** Compile Xeto source code into a temp library.
+  ** Raise exception if there are any syntax or semantic errors.
+  abstract DataLib compileLib(Str src, DataDict? opts := null)
+
+  ** Compile Xeto data file into in-memory dict/scalar tree
+  ** Raise exception if there are any syntax or semantic errors.
+  abstract Obj? compileData(Str src, DataDict? opts := null)
+
+  ** Return if the given instance fits the spec via structural typing.
+  abstract Bool fits(DataContext cx, Obj? val, DataSpec spec, DataDict? opts := null)
+
+  ** Return if spec 'a' fits spec 'b' based on structural typing.
+  @NoDoc abstract Bool specFits(DataSpec a, DataSpec b, DataDict? opts := null)
+
+  ** Query a relationship using the given subject and query spec.
+  ** Call given callback function until it returns non-null and return
+  ** as overall result of the method.
+  @NoDoc abstract Obj? queryWhile(DataContext cx, DataDict subject, DataSpec query, DataDict? opts, |DataDict->Obj?| f)
+
   ** Pretty print object to output stream.
-  abstract Void print(Obj? val, OutStream out := Env.cur.out, Obj? opts := null)
+  @NoDoc abstract Void print(Obj? val, OutStream out := Env.cur.out, DataDict? opts := null)
 
   ** Debug dump of environment
   @NoDoc abstract Void dump(OutStream out := Env.cur.out)

@@ -38,15 +38,12 @@ internal class XetoCompiler
 //////////////////////////////////////////////////////////////////////////
 
   ** Apply options
-  Void applyOpts([Str:Obj]? opts)
+  Void applyOpts(DataDict? opts)
   {
     if (opts == null) return
-    log := opts["log"]
+    log :=  XetoUtil.optLog(opts, "log")
     if (log != null)
-    {
-      if (log isnot Func) throw Err("log option must be |DataLogRec|")
       this.log = XetoCallbackLog(log)
-    }
   }
 
 //////////////////////////////////////////////////////////////////////////

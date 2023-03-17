@@ -211,6 +211,21 @@ internal class ShellContext : HxContext
   override Dict about() { Etc.dict0 }
 
 //////////////////////////////////////////////////////////////////////////
+// DataContext
+//////////////////////////////////////////////////////////////////////////
+
+  ** Read a data record by id
+  override DataDict? dataReadById(Obj id)
+  {
+    db.readById(id, false)
+  }
+
+  ** Read all the records with a given tag name/value pair
+  override Obj? dataReadAllEachWhile(Str filter, |DataDict->Obj?| f)
+  {
+    db.readAllEachWhile(Filter(filter), Etc.dict0, f)
+  }
+//////////////////////////////////////////////////////////////////////////
 // HaystackContext
 //////////////////////////////////////////////////////////////////////////
 

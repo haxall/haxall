@@ -253,7 +253,7 @@ class DataCompileTest : AbstractDataTest
 
     try
     {
-      env.compileLib(src, ["log":logger])
+      env.compileLib(src, env.dict1("log", Unsafe(logger)))
       fail
     }
     catch (Err e) {}

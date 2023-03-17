@@ -163,6 +163,8 @@ internal const class XetoSpec : DataSpec, Dict
 
   override final Bool isa(DataSpec x) { XetoUtil.isa(this, x) }
 
+  override final Bool fits(DataSpec that) { Fitter(m.env, m.env.nilContext, m.env.dict0).specFits(this, that) }
+
   override final FileLoc loc() { m.loc }
 
   override final DataSpec spec() { m.spec }

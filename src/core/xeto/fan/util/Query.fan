@@ -7,12 +7,11 @@
 //
 
 using data
-using haystack
-using hx
 
 **
 ** Query
 **
+@Js
 class Query
 {
 
@@ -20,13 +19,15 @@ class Query
 // Public
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxContext cx)
+  new make(DataEnv env, DataContext cx, DataDict opts)
   {
+    this.env = env
     this.cx = cx
-    this.env = cx.usings.data
+    this.opts = opts
+    this.fitter = Fitter(env, cx, opts)
   }
 
-  Dict[] query(Dict subject, DataSpec query)
+  DataDict[] query(DataDict subject, DataSpec query)
   {
     // verify its a query
     if (!query.isQuery) throw ArgErr("Spec is not Query type: $query.qname")
@@ -49,7 +50,7 @@ class Query
 // Query Via
 //////////////////////////////////////////////////////////////////////////
 
-  private Dict[] queryVia(Dict subject, DataSpec of, DataSpec query, Str via)
+  private DataDict[] queryVia(DataDict subject, DataSpec of, DataSpec query, Str via)
   {
     multiHop := false
     if (via.endsWith("+"))
@@ -58,8 +59,8 @@ class Query
       via = via[0..-2]
     }
 
-    acc := Dict[,]
-    cur := subject as Dict
+    acc := DataDict[,]
+    cur := subject as DataDict
     while (true)
     {
       cur = matchVia(cur, of, via)
@@ -70,15 +71,15 @@ class Query
     return acc
   }
 
-  private Dict? matchVia(Dict subject, DataSpec of, Str via)
+  private DataDict? matchVia(DataDict subject, DataSpec of, Str via)
   {
-    ref := subject.get(via, null) as Ref
+    ref := subject.get(via, null)
     if (ref == null) return null
 
-    rec := cx.deref(ref)
+    rec := cx.dataReadById(ref)
     if (rec == null) return rec
 
-    if (!env.fits(rec, of, null)) return null
+    if (!fits(rec, of)) return null
 
     return rec
   }
@@ -87,7 +88,7 @@ class Query
 // Query Inverse
 //////////////////////////////////////////////////////////////////////////
 
-  private Dict[] queryInverse(Dict subject, DataType of, DataSpec query, Str inverseName)
+  private DataDict[] queryInverse(DataDict subject, DataType of, DataSpec query, Str inverseName)
   {
     inverse := env.spec(inverseName, false)
     if (inverse == null) throw Err("Inverse of query '$query.qname' not found: $inverseName")
@@ -102,39 +103,47 @@ class Query
       via = via[0..-2]
     }
 
-    // read all via filter
-    potentialRecs := cx.db.readAllList(Filter.has(via))
-
-    // find all potentials that have via refs+ back to me
-    subjectId := subject.id
-    return potentialRecs.findAll |rec|
+    // read all via filter and find recs where via refs+ back to me
+    subjectId := subject.trap("id", null)
+    acc := DataDict[,]
+    cx.dataReadAllEachWhile(via) |rec|
     {
-      matchInverse(subjectId, rec, via, multiHop) && env.fits(rec, of, null)
+       match := matchInverse(subjectId, rec, via, multiHop) && fits(rec, of)
+       if (match) acc.add(rec)
+       return null
     }
+    return acc
   }
 
-  private Bool matchInverse(Ref subjectId, Dict rec, Str via, Bool multiHop)
+  private Bool matchInverse(Obj subjectId, DataDict rec, Str via, Bool multiHop)
   {
-    ref := rec[via] as Ref
+    ref := rec[via]
     if (ref == null) return false
 
     if (ref == subjectId) return true
 
     if (!multiHop) return false
 
-    x := cx.deref(ref)
+    x := cx.dataReadById(ref)
     if (x == null) return false
 
     // TODO: need some cyclic checks
     return matchInverse(subjectId, x, via, multiHop)
   }
 
+  private Bool fits(Obj? val, DataSpec spec)
+  {
+    fitter.valFits(val, spec)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private HxContext cx
-  private DataEnv env
+  private const DataEnv env
+  private const DataDict opts
+  private DataContext cx
+  private Fitter fitter
 }
 
 

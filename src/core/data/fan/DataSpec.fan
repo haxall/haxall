@@ -57,7 +57,7 @@ const mixin DataSpec : DataDict
   ** Convenience for 'slotsOwn.get'
   abstract DataSpec? slotOwn(Str name, Bool checked := true)
 
-  ** Return if 'this' specs inherits from 'that' from a nominal type perspective.
+  ** Return if 'this' spec inherits from 'that' from a nominal type perspective.
   ** Nonimal typing matches any of the following conditions:
   **   - if 'that' matches one of 'this' inherited specs via `base`
   **   - if 'this' is maybe and that is 'None'
@@ -65,6 +65,9 @@ const mixin DataSpec : DataDict
   **   - if 'this' is 'Or' and 'that' matches all 'this.ofs' (common base)
   **   - if 'that' is 'Or' and 'this' matches any of 'that.ofs'
   abstract Bool isa(DataSpec that)
+
+  ** Return if spec 'this' spec fits 'that' based on structural typing.
+  abstract Bool fits(DataSpec that)
 
   ** Does meta have maybe tag
   abstract Bool isMaybe()

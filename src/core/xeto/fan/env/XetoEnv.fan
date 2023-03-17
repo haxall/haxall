@@ -39,6 +39,8 @@ internal const class XetoEnv : DataEnv
 
   const XetoFactory factory
 
+  const NilDataContext nilContext := NilDataContext()
+
   override const Obj marker
 
   override const DataSpec dictSpec
@@ -84,69 +86,27 @@ internal const class XetoEnv : DataEnv
     return null
   }
 
-  override Str[] libsInstalled() { libMgr.installed }
-
-  override Bool isLibLoaded(Str qname) { libMgr.isLoaded(qname) }
-
-  override XetoLib? lib(Str qname, Bool checked := true) { libMgr.load(qname, checked) }
-
-  override Void print(Obj? val, OutStream out := Env.cur.out, Obj? opts := null)
+  override Str[] libsInstalled()
   {
-    Printer(this, out, dict(opts)).print(val)
+    libMgr.installed
   }
 
-  override DataLib compileLib(Str src, [Str:Obj]? opts := null)
+  override Bool isLibLoaded(Str qname)
   {
-    qname := "temp" + compileCount.getAndIncrement
-
-    src = """pragma: Lib <
-                version: "0"
-                depends: { { lib: "sys" } }
-              >
-              """ + src
-
-    c := XetoCompiler
-    {
-      it.env = this
-      it.qname = qname
-      it.input = src.toBuf.toFile(`temp.xeto`)
-      it.applyOpts(opts)
-    }
-    return c.compileLib
+    libMgr.isLoaded(qname)
   }
 
-  override Obj? compileData(Str src, [Str:Obj]? opts := null)
+  override XetoLib? lib(Str qname, Bool checked := true)
   {
-    c := XetoCompiler
-    {
-      it.env = this
-      it.input = src.toBuf.toFile(`parse.xeto`)
-      it.applyOpts(opts)
-    }
-    return c.compileData
+    libMgr.load(qname, checked)
   }
 
-  override Bool specFits(DataSpec a, DataSpec b, [Str:Obj]? opts := null)
+  override XetoType? type(Str qname, Bool checked := true)
   {
-    explain := opts?.get("explain")
-    if (explain == null)
-      return Fitter(this, true).specFits(a, b)
-    else
-      return ExplainFitter(this, explain).specFits(a, b)
-  }
-
-  override Bool fits(Obj? val, DataSpec spec, [Str:Obj]? opts := null)
-  {
-    explain := opts?.get("explain")
-    if (explain == null)
-      return Fitter(this, true).valFits(val, spec)
-    else
-      return ExplainFitter(this, explain).valFits(val, spec)
-  }
-
-  override DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)
-  {
-    XetoUtil.derive(this, name, base, meta, slots)
+    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
+    libName := qname[0..<colon]
+    typeName := qname[colon+2..-1]
+    return lib(libName, checked)?.slotOwn(typeName, checked)
   }
 
   override XetoSpec? spec(Str qname, Bool checked := true)
@@ -172,12 +132,73 @@ internal const class XetoEnv : DataEnv
     return null
   }
 
-  override XetoType? type(Str qname, Bool checked := true)
+  override DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)
   {
-    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
-    libName := qname[0..<colon]
-    typeName := qname[colon+2..-1]
-    return lib(libName, checked)?.slotOwn(typeName, checked)
+    XetoUtil.derive(this, name, base, meta, slots)
+  }
+
+  override DataLib compileLib(Str src, DataDict? opts := null)
+  {
+    qname := "temp" + compileCount.getAndIncrement
+
+    src = """pragma: Lib <
+                version: "0"
+                depends: { { lib: "sys" } }
+              >
+              """ + src
+
+    c := XetoCompiler
+    {
+      it.env = this
+      it.qname = qname
+      it.input = src.toBuf.toFile(`temp.xeto`)
+      it.applyOpts(opts)
+    }
+    return c.compileLib
+  }
+
+  override Obj? compileData(Str src, DataDict? opts := null)
+  {
+    c := XetoCompiler
+    {
+      it.env = this
+      it.input = src.toBuf.toFile(`parse.xeto`)
+      it.applyOpts(opts)
+    }
+    return c.compileData
+  }
+
+  override Bool specFits(DataSpec a, DataSpec b, DataDict? opts := null)
+  {
+    if (opts == null) opts = dict0
+    explain := XetoUtil.optLog(opts, "explain")
+    cx := nilContext
+    if (explain == null)
+      return Fitter(this, cx, opts).specFits(a, b)
+    else
+      return ExplainFitter(this, cx, opts, explain).specFits(a, b)
+  }
+
+  override Bool fits(DataContext cx, Obj? val, DataSpec spec, DataDict? opts := null)
+  {
+    if (opts == null) opts = dict0
+    explain := XetoUtil.optLog(opts, "explain")
+    if (explain == null)
+      return Fitter(this, cx, opts).valFits(val, spec)
+    else
+      return ExplainFitter(this, cx, opts, explain).valFits(val, spec)
+  }
+
+  override Obj? queryWhile(DataContext cx, DataDict subject, DataSpec query, DataDict? opts, |DataDict->Obj?| f)
+  {
+    // TODO: redesign to use eachWhile
+    acc := Query(this, cx, opts).query(subject, query)
+    return acc.eachWhile(f)
+  }
+
+  override Void print(Obj? val, OutStream out := Env.cur.out, DataDict? opts := null)
+  {
+    Printer(this, out, opts ?: dict0).print(val)
   }
 
   override Void dump(OutStream out := Env.cur.out)
@@ -192,5 +213,16 @@ internal const class XetoEnv : DataEnv
 
   private const ConcurrentMap libs := ConcurrentMap()
   private const AtomicInt compileCount := AtomicInt()
+}
+
+**************************************************************************
+** NilContext
+**************************************************************************
+
+@Js
+internal const class NilDataContext : DataContext
+{
+  override DataDict? dataReadById(Obj id) { null }
+  override Obj? dataReadAllEachWhile(Str filter, |DataDict->Obj?| f) { null }
 }
 

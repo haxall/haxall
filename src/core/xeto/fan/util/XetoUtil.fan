@@ -35,6 +35,21 @@ internal const class XetoUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Opts
+//////////////////////////////////////////////////////////////////////////
+
+  ** Get logging function from options
+  static |DataLogRec|? optLog(DataDict? opts, Str name)
+  {
+    if (opts == null) return null
+    x := opts.get(name, null)
+    if (x == null) return null
+    if (x is Unsafe) x = ((Unsafe)x).val
+    if (x is Func) return x
+    throw Err("Expecting |DataLogRec| func for $name.toCode [$x.typeof]")
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Inherit Meta
 //////////////////////////////////////////////////////////////////////////
 
@@ -191,5 +206,6 @@ internal const class XetoUtil
 
     return MSlots(derivedMap)
   }
+
 }
 

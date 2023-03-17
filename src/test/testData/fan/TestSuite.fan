@@ -203,7 +203,7 @@ class DataTestCase
       verifyEq(a.isa(b), expect, "$a is $b")
 
       // specIs(a, b) true requires spedFits(a, b) to be true also
-      if (expect) verifyEq(env.specFits(a, b), expect, "$a fits $b")
+      if (expect) verifyEq(a.fits(b), expect, "$a fits $b")
 
       // check for isFoo flags
       // TODO

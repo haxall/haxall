@@ -6,6 +6,7 @@
 //   25 May 2021  Brian Frank  Creation
 //
 
+using data
 using concurrent
 using haystack
 using axon
@@ -14,7 +15,7 @@ using folio
 **
 ** Haxall execution and security context.
 **
-abstract class HxContext : AxonContext, HaystackContext, FolioContext
+abstract class HxContext : AxonContext, DataContext, FolioContext
 {
 
 //////////////////////////////////////////////////////////////////////////

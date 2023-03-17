@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using data
 using haystack
 using def
 using axon
@@ -36,6 +37,7 @@ const class HxdContextService : HxContextService
 **
 class HxdContext : HxContext
 {
+
 //////////////////////////////////////////////////////////////////////////
 // Current
 //////////////////////////////////////////////////////////////////////////
@@ -96,6 +98,22 @@ class HxdContext : HxContext
     tags["vendorUri"]       = rt.platform.vendorUri
     tags["whoami"]          = user.username
     return Etc.makeDict(tags)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// DataContext
+//////////////////////////////////////////////////////////////////////////
+
+  ** Read a data record by id
+  @NoDoc override DataDict? dataReadById(Obj id)
+  {
+    db.readById(id, false)
+  }
+
+  ** Read all the records with a given tag name/value pair
+  @NoDoc override Obj? dataReadAllEachWhile(Str filter, |DataDict->Obj?| f)
+  {
+    db.readAllEachWhile(Filter(filter), Etc.dict0, f)
   }
 
 //////////////////////////////////////////////////////////////////////////

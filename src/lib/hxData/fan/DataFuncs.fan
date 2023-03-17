@@ -182,7 +182,8 @@ const class DataFuncs
   **
   @Axon static Bool fits(Obj? val, DataSpec spec)
   {
-    curContext.usings.data.fits(val, spec, null)
+    cx := curContext
+    return cx.usings.data.fits(cx, val, spec, null)
   }
 
   **
@@ -194,7 +195,7 @@ const class DataFuncs
   {
     gb := GridBuilder().addCol("msg")
     explain := |DataLogRec rec| { gb.addRow1(rec.msg) }
-    opts := ["explain": explain]
+    opts := Etc.dict1("explain", Unsafe(explain))
     curContext.usings.data.specFits(a, b, opts)
     return gb.toGrid
   }
@@ -216,7 +217,7 @@ const class DataFuncs
     dataEnv := cx.usings.data
     hits := DataLogRec[,]
     explain := |DataLogRec rec| { hits.add(rec) }
-    opts := ["explain": explain]
+    opts := Etc.dict1("explain", Unsafe(explain))
     gb := GridBuilder().addCol("id").addCol("msg")
 
     // walk thru each rec
@@ -226,7 +227,7 @@ const class DataFuncs
       hits.clear
 
       // call fits explain with this rec
-      dataEnv.fits(rec, spec, opts)
+      dataEnv.fits(cx, rec, spec, opts)
 
       // if we had hits, then add to our result grid
       if (!hits.isEmpty)
@@ -250,9 +251,14 @@ const class DataFuncs
   **
   @Axon static Grid query(Obj subject, DataSpec spec)
   {
-    cx := AxonContext.curAxon
-    recs := Query(cx).query(Etc.toRec(subject), spec)
-    return Etc.makeDictsGrid(null, recs)
+    cx := curContext
+    acc := Dict[,]
+    cx.usings.data.queryWhile(cx, Etc.toRec(subject), spec, Etc.dict0) |hit|
+    {
+      acc.add(hit)
+      return null
+    }
+    return Etc.makeDictsGrid(null, acc)
   }
 
   ** Current context

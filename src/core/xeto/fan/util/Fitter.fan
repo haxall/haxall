@@ -21,10 +21,12 @@ class Fitter
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(DataEnv env, Bool failFast := true)
+  new make(DataEnv env, DataContext cx, DataDict opts, Bool failFast := true)
   {
     this.env = env
     this.failFast = failFast
+    this.opts = opts
+    this.cx = cx
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -97,7 +99,7 @@ class Fitter
   {
     slotType := slot.type
 
-    if (slotType.isQuery) return true //fitsQuery(dict, type, slot)
+    if (slotType.isQuery) return fitsQuery(dict, slot)
 
     val := dict.get(slot.name, null)
 
@@ -113,23 +115,20 @@ class Fitter
     return true
   }
 
-  /*
-  private Bool fitsQuery(Dict dict, DataType type, DataSpec slot)
+  private Bool fitsQuery(Dict dict, DataSpec query)
   {
     // if no constraints then no additional checking required
-    constraints := slot.constraints
-    if (constraints.isEmpty) return true
+    if (query.slots.isEmpty) return true
 
     // run the query to get matching extent
-    extent := Query(cx).query(dict, slot)
+    extent := Query(env, cx, opts).query(dict, query)
 
-    // TODO: we need to store of in meta to get of type
-    ofDis := slot.name
-    if (ofDis.endsWith("s")) ofDis = ofDis[0..-2]
+    // use query.of as explain name
+    ofDis := (query["of"] as DataSpec)?.name ?: query.name
 
     // make sure each constraint has exactly one match
     match := true
-    constraints.eachWhile |constraint, name|
+    query.slots.eachWhile |constraint|
     {
       match = fitQueryConstraint(dict, ofDis, extent, constraint) && match
       if (failFast && !match) return "break"
@@ -139,28 +138,24 @@ class Fitter
     return match
   }
 
-  private Bool fitQueryConstraint(Dict rec, Str ofDis, Dict[] extent, DataType constraint)
+  private Bool fitQueryConstraint(Dict rec, Str ofDis, Dict[] extent, DataSpec constraint)
   {
-    isMaybe := constraint.isaMaybe
-    if (isMaybe) constraint = constraint.of ?: throw Err("Expecting maybe of: $constraint")
-
     matches := Dict[,]
     extent.each |x|
     {
-      if (Fitter(cx).fits(x, constraint)) matches.add(x)
+      if (valFits(x, constraint)) matches.add(x)
     }
 
     if (matches.size == 1) return true
 
     if (matches.size == 0)
     {
-      if (isMaybe) return true
+      if (constraint.isMaybe) return true
       return explainMissingQueryConstraint(ofDis, constraint)
     }
 
     return explainAmbiguousQueryConstraint(ofDis, constraint, matches)
   }
-  */
 
 //////////////////////////////////////////////////////////////////////////
 // Match All
@@ -207,8 +202,10 @@ class Fitter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const DataEnv env
-  const Bool failFast
+  private const DataEnv env
+  private const Bool failFast
+  private const DataDict opts
+  private DataContext cx
 }
 
 **************************************************************************
@@ -218,7 +215,11 @@ class Fitter
 @Js
 internal class ExplainFitter : Fitter
 {
-  new make(DataEnv env, |DataLogRec| cb) : super(env, false) { this.cb = cb }
+  new make(DataEnv env,  DataContext cx, DataDict opts, |DataLogRec| cb)
+    : super(env, cx, opts, false)
+  {
+    this.cb = cb
+  }
 
   override Bool explainNoType(Obj? val)
   {
