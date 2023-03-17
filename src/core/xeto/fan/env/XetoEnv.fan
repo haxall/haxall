@@ -12,6 +12,7 @@ using data
 using haystack::Etc
 using haystack::Marker
 using haystack::Grid
+using haystack::UnknownSpecErr
 
 **
 ** Xeto DataEnv implementation
@@ -146,6 +147,29 @@ internal const class XetoEnv : DataEnv
   override DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)
   {
     XetoUtil.derive(this, name, base, meta, slots)
+  }
+
+  override XetoSpec? spec(Str qname, Bool checked := true)
+  {
+    colon := qname.index("::")
+    if (colon == null) return lib(qname, checked)
+
+    libName := qname[0..<colon]
+    names := qname[colon+2..-1].split('.', false)
+
+    DataSpec? spec := lib(libName, false)
+    if (spec != null)
+    {
+      for (i:=0; i<names.size; ++i)
+      {
+        spec = spec.slot(names[i], false)
+        if (spec == null) break
+      }
+    }
+
+    if (spec != null) return spec
+    if (checked) throw UnknownSpecErr(qname)
+    return null
   }
 
   override XetoType? type(Str qname, Bool checked := true)

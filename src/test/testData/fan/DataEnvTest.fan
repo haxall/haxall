@@ -69,6 +69,15 @@ class DataEnvTest : AbstractDataTest
     verifyEq(specOfs["doc"], "Types used in compound types like And and Or")
     verifyEq(specOfs["maybe"], env.marker)
     verifySame(specOfs["of"], spec)
+
+    // loukups
+    verifySame(env.spec("sys"), sys)
+    verifySame(env.spec("sys::LibOrg"), org)
+    verifySame(env.spec("sys::LibOrg.dis"), orgDis)
+    verifyErr(UnknownLibErr#) { env.spec("foo.bar.baz") }
+    verifyErr(UnknownSpecErr#) { env.spec("foo.bar.baz::Qux") }
+    verifyErr(UnknownSpecErr#) { env.spec("sys::Baz") }
+    verifyErr(UnknownSpecErr#) { env.spec("sys::Str.foo") }
   }
 
 //////////////////////////////////////////////////////////////////////////

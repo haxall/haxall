@@ -24,6 +24,12 @@
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
+** Invalid lookup for DataSpec
+@Js @NoDoc const class UnknownSpecErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+
 ** Invalid lookup for feature definition
 @Js @NoDoc const class UnknownFeatureErr : Err
 {

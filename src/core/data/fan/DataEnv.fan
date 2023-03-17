@@ -112,6 +112,12 @@ const abstract class DataEnv
   ** Get or load type by the given qualified name
   abstract DataType? type(Str qname, Bool checked := true)
 
+  ** Get or load spec by the given qualified name:
+  **   - lib: "foo.bar"
+  **   - type: "foo.bar::Baz"
+  **   - slot: "foo.bar::Baz.qux"
+  abstract DataSpec? spec(Str qname, Bool checked := true)
+
   ** Pretty print object to output stream.
   abstract Void print(Obj? val, OutStream out := Env.cur.out, Obj? opts := null)
 
