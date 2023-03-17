@@ -80,7 +80,7 @@ const class ExposedPort
 
 const class ExposedPorts
 {
-  static new fromJson(Map json)
+  static new fromJson([Str:Obj?] json)
   {
     ExposedPorts(json.keys.map |key->ExposedPort| { ExposedPort.fromStr(key) })
   }
