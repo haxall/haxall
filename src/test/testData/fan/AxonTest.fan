@@ -406,17 +406,50 @@ class AxonTest : HxTest
     verifyQuery(dfan,  "Equip.points", [drun])
     verifyQuery(dduct, "Equip.points", [dtemp, dflow, drun])
     verifyQuery(ahu, "  Equip.points", [mode, dtemp, dflow, drun])
+
+    // query with no matches
+    verifyEq(eval("query($drun.id.toCode, Equip.points, false)"), null)
+    verifyEvalErr("query($drun.id.toCode, Equip.points)", UnknownRecErr#)
+    verifyEvalErr("query($drun.id.toCode, Equip.points, true)", UnknownRecErr#)
   }
 
-  Void verifyQuery(Dict rec, Str query, Dict[] expected)
+  Void verifyQuery(Dict rec, Str query, Dict[] expect)
   {
-    expr := "query($rec.id.toCode, $query)"
+    // no options
+    expr := "queryAll($rec.id.toCode, $query)"
     // echo("-- $expr")
     Grid actual := eval(expr)
+    origActual := actual
     x := actual.sortDis.mapToList { it.dis }.join(",")
-    y := Etc.sortDictsByDis(expected).join(",") { it.dis }
-    //echo("   $x ?= $y")
+    y := Etc.sortDictsByDis(expect).join(",") { it.dis }
+    // echo("   $x ?= $y")
     verifyEq(x, y)
+
+    // sort option
+    expr = "queryAll($rec.id.toCode, $query, {sort})"
+    actual = eval(expr)
+    x = actual.mapToList { it.dis }.join(",")
+    y = Etc.sortDictsByDis(expect).join(",") { it.dis }
+    verifyEq(x, y)
+
+    // limit  option
+    expr = "queryAll($rec.id.toCode, $query, {limit:2})"
+    actual = eval(expr)
+    if (expect.size == 1)
+    {
+      verifyEq(actual.size, 1)
+      verifyEq(y.contains(actual[0].dis), true)
+    }
+    else
+    {
+      verifyEq(actual.size, 2)
+      verifyEq(y.contains(actual[0].dis), true)
+      verifyEq(y.contains(actual[1].dis), true)
+    }
+
+    // query
+    single := eval("query($rec.id.toCode, $query)")
+    verifyDictEq(single, origActual.first)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -442,6 +475,22 @@ class AxonTest : HxTest
     x := makeContext.eval(expr)
     // echo("::: $expr => $x [$x.typeof]")
     verifySame(x, env.type(qname))
+  }
+
+  Void verifyEvalErr(Str expr, Type? errType)
+  {
+    EvalErr? err := null
+    try { eval(expr) } catch (EvalErr e) { err = e }
+    if (err == null) fail("EvalErr not thrown: $expr")
+    if (errType == null)
+    {
+      verifyNull(err.cause)
+    }
+    else
+    {
+      if (err.cause == null) fail("EvalErr.cause is null: $expr")
+      verifyErr(errType) { throw err.cause }
+    }
   }
 
   DataEnv env() { DataEnv.cur }

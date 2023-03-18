@@ -22,8 +22,9 @@ const class HxCoreFuncs
 
   **
   ** Read from database the first record which matches [filter]`docHaystack::Filters`.
-  ** If no matches found throw UnknownRecErr or null based
-  ** on checked flag.  See `readAll` for how filter works.
+  ** If no matches found throw UnknownRecErr or null based on checked
+  ** flag.  If there are multiple matches it is indeterminate which one is
+  ** returned.  See `readAll` for how filter works.
   **
   ** Examples:
   **   read(site)                 // read any site rec

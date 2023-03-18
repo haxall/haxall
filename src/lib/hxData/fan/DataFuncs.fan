@@ -16,6 +16,11 @@ using hx
 **
 const class DataFuncs
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Spec Reflection
+//////////////////////////////////////////////////////////////////////////
+
   **
   ** Library which contains the given data type.  Raise exception
   ** if type is not a direct type spec of a library.
@@ -103,6 +108,25 @@ const class DataFuncs
   **
   @Axon static DataDict specSlots(DataSpec spec) { spec.slots.toDict }
 
+//////////////////////////////////////////////////////////////////////////
+// If/Fits
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Return the data type of the given value.  Raise exception
+  ** if value type is not mapped into the data type system.  Also
+  ** see `is()` and `fits()`.
+  **
+  ** Examples:
+  **    typeof("hi")  >>  sys::Str
+  **    typeof(@id)   >>  sys::Ref
+  **    typeof({})    >>  sys::Dict
+  **
+  @Axon static DataSpec? _typeof(Obj? val, Bool checked := true)
+  {
+    curContext.usings.data.typeOf(val, checked)
+  }
+
   **
   ** Return if spec 'a' inherits from spec 'b' based on nominal typing.
   ** This method checks the explicit inheritance hierarchy via `specBase()`.
@@ -132,21 +156,6 @@ const class DataFuncs
   @Axon static Bool specFits(DataSpec a, DataSpec b)
   {
     curContext.usings.data.specFits(a, b, null)
-  }
-
-  **
-  ** Return the data type of the given value.  Raise exception
-  ** if value type is not mapped into the data type system.  Also
-  ** see `is()` and `fits()`.
-  **
-  ** Examples:
-  **    typeof("hi")  >>  sys::Str
-  **    typeof(@id)   >>  sys::Ref
-  **    typeof({})    >>  sys::Dict
-  **
-  @Axon static DataSpec? _typeof(Obj? val, Bool checked := true)
-  {
-    curContext.usings.data.typeOf(val, checked)
   }
 
   **
@@ -241,25 +250,71 @@ const class DataFuncs
     return gb.toGrid
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Query
+//////////////////////////////////////////////////////////////////////////
+
   **
-  ** Evaluate a query spec. Subject must be an id ref or dict within the
-  ** current database.  Spec must evaluate to a 'sys::Query' data type.
-  ** Return grid with matching recs in the database.
+  ** Evaluate a relationship query and return record dict.  If no matches
+  ** found throw UnknownRecErr or return null based on checked flag.
+  ** If there are multiple matches it is indeterminate which one is
+  ** returned.  Subject must be a record id or dict in the database.  Spec
+  ** must be a DataSpec typed as a 'sys::Query'.  Also see `queryAll`.
   **
   ** Example:
-  **   read(ahu).query(Equip.points)
+  **   read(point).query(Point.equip)
   **
-  @Axon static Grid query(Obj subject, DataSpec spec)
+  @Axon static Dict? query(Obj subject, DataSpec spec, Bool checked := true)
   {
     cx := curContext
+    subjectRec := Etc.toRec(subject)
+    hit := cx.usings.data.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit| { hit }
+    if (hit != null) return hit
+    if (checked) throw UnknownRecErr("@$subjectRec.id $spec.qname")
+    return null
+  }
+
+  **
+  ** Evaluate a relationship query and return grid of results.
+  ** Subject must be a record id or dict in the database.  Spec
+  ** must be a DataSpec typed as a 'sys::Query'.  Also see `query`.
+  **
+  ** Options:
+  **   - 'limit': max number of recs to return
+  **   - 'sort': sort by display name
+  ** Example:
+  **   read(ahu).queryAll(Equip.points)
+  **
+  @Axon static Grid queryAll(Obj subject, DataSpec spec, Dict? opts := null)
+  {
+    // options
+    limit := Int.maxVal
+    sort := false
+    if (opts != null && !opts.isEmpty)
+    {
+      limit = (opts["limit"] as Number)?.toInt ?: limit
+      sort = opts.has("sort")
+    }
+
+    // query
+    cx := curContext
     acc := Dict[,]
-    cx.usings.data.queryWhile(cx, Etc.toRec(subject), spec, Etc.dict0) |hit|
+    subjectRec := Etc.toRec(subject)
+    cx.usings.data.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
     {
       acc.add(hit)
+      if (acc.size >= limit) return "break"
       return null
     }
+
+    // return grid result
+    if (sort) Etc.sortDictsByDis(acc)
     return Etc.makeDictsGrid(null, acc)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
 
   ** Current context
   internal static HxContext curContext()
