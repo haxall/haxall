@@ -65,8 +65,13 @@ const class ScheduleObservable : Observable
     // get last DateTime we ran
     last := sub.lastTime.val as DateTime
 
-    // if we haven't run yet, default to now
-    if (last == null) sub.lastTime.val = last = nowTime
+    // if we haven't run yet, default to now minus a little fudge;
+    // the fudge is important for handling midnight in combination
+    // with active days so that we don't end up defaulting to just
+    // a bit past midnight.  If reboot just after a time elapsed we
+    // will rerun the observable again - but that is probably ok
+    // because otherwise its just as likely we missed a time while down
+    if (last == null) sub.lastTime.val = last = (nowTime - 10min)
 
     // if day has rolled over, then assume midnight
     if (nowTime.day != last.day) return Time.defVal
