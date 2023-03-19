@@ -312,6 +312,32 @@ const class DataFuncs
     return Etc.makeDictsGrid(null, acc)
   }
 
+  **
+  ** Evaluate a relationship query and return the named constraints
+  ** as a record dict.  The slot names are the result names and the matching
+  ** record dicts are the result values. Missing matches are silently ignored
+  ** and ambiguous matches return an indeterminate record.
+  **
+  @Axon static Dict queryNamed(Obj subject, DataSpec spec, Dict? opts := null)
+  {
+    cx := curContext
+    env := cx.usings.data
+    subjectRec := Etc.toRec(subject)
+    acc := Str:Dict[:]
+    cx.usings.data.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
+    {
+      spec.slots.eachWhile |slot|
+      {
+        name := slot.name
+        if (acc[name] != null) return null // already matched
+        if (env.fits(cx, hit, slot)) return acc[name] = hit
+        return null
+      }
+      return null
+    }
+    return Etc.dictFromMap(acc)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////

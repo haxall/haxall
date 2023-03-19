@@ -391,11 +391,11 @@ class AxonTest : HxTest
 
     ahu       := addRec(["id":Ref("ahu"), "dis":"AHU", "ahu":m, "equip":m])
       mode    := addRec(["id":Ref("mode"), "dis":"Mode", "hvacMode":m, "point":m, "equipRef":ahu.id])
-      dduct   := addRec(["id":Ref("dduct"), "dis":"Discharge Duct", "duct":m, "equip":m, "equipRef":ahu.id])
-        dtemp := addRec(["id":Ref("dtemp"), "dis":"Discharge Temp", "temp":m, "point":m, "equipRef":dduct.id])
-        dflow := addRec(["id":Ref("dflow"), "dis":"Discharge Flow", "flow":m, "point":m, "equipRef":dduct.id])
-        dfan  := addRec(["id":Ref("dfan"), "dis":"Discharge Fan", "fan":m, "equip":m, "equipRef":dduct.id])
-         drun := addRec(["id":Ref("drun"), "dis":"Discharge Fan Run", "fan":m, "run":m, "point":m, "equipRef":dfan.id])
+      dduct   := addRec(["id":Ref("dduct"), "dis":"Discharge Duct", "discharge":m, "duct":m, "equip":m, "equipRef":ahu.id])
+        dtemp := addRec(["id":Ref("dtemp"), "dis":"Discharge Temp", "discharge":m, "temp":m, "point":m, "equipRef":dduct.id])
+        dflow := addRec(["id":Ref("dflow"), "dis":"Discharge Flow", "discharge":m, "flow":m, "point":m, "equipRef":dduct.id])
+        dfan  := addRec(["id":Ref("dfan"), "dis":"Discharge Fan", "discharge":m, "fan":m, "equip":m, "equipRef":dduct.id])
+         drun := addRec(["id":Ref("drun"), "dis":"Discharge Fan Run", "discharge":m, "fan":m, "run":m, "point":m, "equipRef":dfan.id])
 
     // Point.equips
     verifyQuery(mode,  "Point.equips", [ahu])
@@ -411,6 +411,19 @@ class AxonTest : HxTest
     verifyEq(eval("query($drun.id.toCode, Equip.points, false)"), null)
     verifyEvalErr("query($drun.id.toCode, Equip.points)", UnknownRecErr#)
     verifyEvalErr("query($drun.id.toCode, Equip.points, true)", UnknownRecErr#)
+
+    // compile some types with query constraints
+    lib := env.compileLib(
+      Str<|pragma: Lib < depends: { { lib:"sys" }, { lib:"ph" } } >
+           Ahu1: ph::Equip {
+             points: {
+               temp: {discharge, temp}
+               flow: {discharge, flow}
+               fan:  {fan, run}
+             }
+           }
+           |>)
+     verifyQueryNamed(ahu, lib.slot("Ahu1").slot("points"), ["temp":dtemp, "flow":dflow, "fan":drun])
   }
 
   Void verifyQuery(Dict rec, Str query, Dict[] expect)
@@ -450,6 +463,19 @@ class AxonTest : HxTest
     // query
     single := eval("query($rec.id.toCode, $query)")
     verifyDictEq(single, origActual.first)
+  }
+
+  Void verifyQueryNamed(Dict subject, DataSpec spec, Str:Dict expect)
+  {
+    cx := makeContext
+    Dict actual := cx.evalToFunc("queryNamed").call(cx, [subject, spec])
+    // echo("-- queryNamed:"); Etc.dictDump(actual)
+    expect.each |e, name|
+    {
+      a := actual[name]
+      if (a == null) fail("Missing $name")
+      verifyDictEq(e, a)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

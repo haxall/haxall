@@ -141,11 +141,12 @@ internal const class XetoEnv : DataEnv
   {
     qname := "temp" + compileCount.getAndIncrement
 
-    src = """pragma: Lib <
-                version: "0"
-                depends: { { lib: "sys" } }
-              >
-              """ + src
+    if (!src.startsWith("pragma:"))
+      src = """pragma: Lib <
+                  version: "0"
+                  depends: { { lib: "sys" } }
+                >
+                """ + src
 
     c := XetoCompiler
     {

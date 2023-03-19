@@ -30,7 +30,12 @@ class Query
   DataDict[] query(DataDict subject, DataSpec query)
   {
     // verify its a query
-    if (!query.isQuery) throw ArgErr("Spec is not Query type: $query.qname")
+    if (!query.isQuery)
+    {
+if (query.base.isQuery) echo("TODO: fix inheritance: $query")
+else
+      throw ArgErr("Spec is not Query type: $query.qname")
+    }
 
     // get of type
     of := query["of"] as DataSpec ?: throw Err("No 'of' type specified: $query.qname")
