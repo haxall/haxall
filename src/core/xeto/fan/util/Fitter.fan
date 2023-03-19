@@ -8,7 +8,6 @@
 
 using util
 using data
-using haystack
 
 **
 ** Fitter
@@ -77,13 +76,13 @@ class Fitter
     if (valType.isa(type)) return true
 
     // check structurally typing
-    if (val is Dict && type.isa(env.dictSpec))
+    if (val is DataDict && type.isa(env.dictSpec))
       return fitsStruct(val, type)
 
     return explainNoFit(valType, type)
   }
 
-  private Bool fitsStruct(Dict dict, DataSpec type)
+  private Bool fitsStruct(DataDict dict, DataSpec type)
   {
     slots := type.slots
     match := true
@@ -95,7 +94,7 @@ class Fitter
     return match
   }
 
-  private Bool fitsSlot(Dict dict, DataSpec slot)
+  private Bool fitsSlot(DataDict dict, DataSpec slot)
   {
     slotType := slot.type
 
@@ -115,7 +114,7 @@ class Fitter
     return true
   }
 
-  private Bool fitsQuery(Dict dict, DataSpec query)
+  private Bool fitsQuery(DataDict dict, DataSpec query)
   {
     // if no constraints then no additional checking required
     if (query.slots.isEmpty) return true
@@ -138,9 +137,9 @@ class Fitter
     return match
   }
 
-  private Bool fitQueryConstraint(Dict rec, Str ofDis, Dict[] extent, DataSpec constraint)
+  private Bool fitQueryConstraint(DataDict rec, Str ofDis, DataDict[] extent, DataSpec constraint)
   {
-    matches := Dict[,]
+    matches := DataDict[,]
     extent.each |x|
     {
       if (valFits(x, constraint)) matches.add(x)
@@ -161,7 +160,7 @@ class Fitter
 // Match All
 //////////////////////////////////////////////////////////////////////////
 
-  DataType[] matchAll(Dict rec, Str:DataType types)
+  DataType[] matchAll(DataDict rec, Str:DataType types)
   {
     // first pass is fit each type
     matches := types.findAll |type| { valFits(rec, type) }
@@ -196,7 +195,7 @@ class Fitter
 
   virtual Bool explainMissingQueryConstraint(Str ofDis, DataSpec constraint) { false }
 
-  virtual Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, Dict[] matches) { false }
+  virtual Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, DataDict[] matches) { false }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
@@ -245,7 +244,7 @@ internal class ExplainFitter : Fitter
   }
 
 /*
-  override Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, Dict[] matches)
+  override Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, DataDict[] matches)
   {
     log("Ambiguous match for $ofDis $constraint.name: " + recsToDis(matches))
   }
