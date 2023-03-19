@@ -45,7 +45,7 @@ internal const class XetoLibMgr
 
     qname := dir.name
     dup := acc[qname]
-    if (dup != null) echo("WARN: PogEnv '$qname' lib hidden [$dup.dir.osPath]")
+    if (dup != null) echo("WARN: XetoEnv '$qname' lib hidden [$dup.dir.osPath]")
     acc[qname] = XetoLibEntry(qname, dir)
   }
 
