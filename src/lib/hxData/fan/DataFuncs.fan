@@ -314,9 +314,27 @@ const class DataFuncs
 
   **
   ** Evaluate a relationship query and return the named constraints
-  ** as a record dict.  The slot names are the result names and the matching
-  ** record dicts are the result values. Missing matches are silently ignored
+  ** as a dict.  The query slot names are the dict names and the matching
+  ** record dicts are the dict values. Missing matches are silently ignored
   ** and ambiguous matches return an indeterminate record.
+  **
+  ** Example:
+  **   // spec
+  **   MyAhu: Equip {
+  **     points: {
+  **       dat: DischargeAirTempSensor
+  **       rat: DischargeAirTempSensor
+  **     }
+  **   }
+  **
+  **   // axon
+  **   myAhuPoints: read(ahu).queryNamed(MyAhu.points)
+  **
+  **   // result
+  **   {
+  **     dat: {dis:"DAT", discharge, air, temp, sensor, ...},
+  **     rat: {dis:"RAT", return, air, temp, sensor, ...}
+  **   }
   **
   @Axon static Dict queryNamed(Obj subject, DataSpec spec, Dict? opts := null)
   {
