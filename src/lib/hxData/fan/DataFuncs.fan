@@ -135,6 +135,68 @@ const class DataFuncs
   @Axon static DataDict specSlots(DataSpec spec) { spec.slots.toDict }
 
 //////////////////////////////////////////////////////////////////////////
+// AST
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Build an AST tree of dict, lists, and strings of the effective
+  ** meta and slots for the given spec.
+  **
+  @Axon static DataDict specAst(DataSpec spec)
+  {
+    doSpecAst(spec, false)
+  }
+
+  **
+  ** Build an AST tree of dict, lists, and strings of the effective
+  ** meta and slots for the given spec.
+  **
+  @Axon static DataDict specAstOwn(DataSpec spec)
+  {
+    doSpecAst(spec, true)
+  }
+
+  private static DataDict doSpecAst(DataSpec spec, Bool isOwn)
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
+
+    if (spec.base.type === spec.type)
+      acc["type"] = spec.type.qname
+    else
+      acc["base"] = spec.base.qname
+
+    DataDict meta := isOwn ? spec.own : spec
+    meta.each |v, n|
+    {
+      if (n == "val" && v == Marker.val) return
+      acc[n] = specAstVal(v)
+    }
+
+    slots := isOwn ? spec.slotsOwn : spec.slots
+    if (!slots.isEmpty)
+    {
+      slotsAcc := Str:Obj[:]
+      slotsAcc.ordered = true
+      slots.each |slot|
+      {
+        slotsAcc[slot.name] = doSpecAst(slot, isOwn)
+      }
+      acc["slots"] = Etc.dictFromMap(slotsAcc)
+    }
+
+    return Etc.dictFromMap(acc)
+  }
+
+  private static Obj specAstVal(Obj val)
+  {
+    if (val is DataSpec) return val.toStr
+    if (val is List) return ((List)val).map |x| { specAstVal(x) }
+    if (val is Dict) return Etc.dictMap(val) |x| { specAstVal(x) }
+    return val.toStr
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // If/Fits
 //////////////////////////////////////////////////////////////////////////
 
