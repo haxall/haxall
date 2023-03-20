@@ -381,6 +381,34 @@ class AxonTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// FitsMatchAll
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testFitsMatchAll()
+  {
+    libs = ["ph"]
+
+    ahu := addRec(["id":Ref("ahu"), "dis":"AHU", "ahu":m, "equip":m])
+    rtu := addRec(["id":Ref("rtu"), "dis":"RTU", "ahu":m, "rtu":m, "equip":m])
+    meter := addRec(["id":Ref("meter"), "dis":"Meter", "ahu":m, "meter":m, "equip":m])
+    elec := addRec(["id":Ref("elec-meter"), "dis":"Elec-Meter", "ahu":m, "elec":m, "meter":m, "equip":m])
+
+    grid := (Grid)eval("readAll(equip).sortDis.fitsMatchAll")
+    verifyFitsMatchAll(grid, ahu,   ["ph::Ahu"])
+    verifyFitsMatchAll(grid, elec,  ["ph::Ahu", "ph::ElecMeter"])
+    verifyFitsMatchAll(grid, meter, ["ph::Ahu", "ph::Meter"])
+    verifyFitsMatchAll(grid, rtu,   ["ph::Rtu"])
+  }
+
+  Void verifyFitsMatchAll(Grid g, Dict r, Str[] expect)
+  {
+    x := g.find { it.id == r.id }
+    verifyEq(x->num, n(expect.size))
+    verifyEq(((DataSpec[])x->specs).join(", "), expect.join(", "))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Query
 //////////////////////////////////////////////////////////////////////////
 
