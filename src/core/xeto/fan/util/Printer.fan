@@ -45,6 +45,7 @@ class Printer
   ** Top level print
   This print(Obj? v)
   {
+    if (opts.has("json")) return json(v).nl
     val(v)
     if (!lastnl) nl
     return this
@@ -340,56 +341,50 @@ class Printer
   }
 
 //////////////////////////////////////////////////////////////////////////
-// JSON AST
+// JSON
 //////////////////////////////////////////////////////////////////////////
 
-  ** Print the AST tree for the given spec
-  This printJsonAst(DataSpec spec)
+  ** Pretty print haystack data as JSON
+  This json(Obj? val)
+  {
+    if (val is DataDict) return jsonDict(val)
+    if (val is List) return jsonList(val)
+    return jsonScalar(val)
+  }
+
+  private This jsonDict(DataDict dict)
   {
     bracket("{").nl
     indention++
-    type := spec.type
-    if (type === spec)
+    dict.each |x, n|
     {
-      if (type.base != null) indent.quoted("type").colon.quoted(type.base.qname).nl
-    }
-    spec.each |v, n| { indent.quoted(n).colon.json(v).nl }
-//    if (spec.val != null) indent.quoted("val").colon.quoted(spec.val.toStr).nl
-    slots := spec.slotsOwn
-    if (!slots.isEmpty)
-    {
-      indent.quoted("slots").colon.bracket("{").nl
-      indention++
-      slots.each |slot|
-      {
-        indent.quoted(slot.name).colon
-        printJsonAst(slot)
-      }
-      indention--
-      indent.bracket("}").nl
+      indent.quoted(n).colon.json(x).nl
     }
     indention--
-    indent.bracket("}").nl
+    indent.bracket("}")
     return this
   }
 
-  This json(Obj? val)
+  private This jsonList(Obj?[] list)
+  {
+    bracket("[").nl
+    indention++
+    list.each |x, i|
+    {
+      indent.json(x)
+      if (i + 1 < list.size) comma
+      nl
+    }
+    indention--
+    indent.bracket("]")
+    return this
+  }
+
+  private This jsonScalar(Obj? val)
   {
     if (val == null) return w("null")
     if (val is Bool) return w(val.toStr)
-    if (val is List) return jsonList(val)
     return quoted(val.toStr)
-  }
-
-  This jsonList(Obj?[] list)
-  {
-    bracket("[")
-    list.each |x, i|
-    {
-      if (i > 0) w(", ")
-      json(x)
-    }
-    return bracket("]")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -451,6 +446,12 @@ class Printer
   This colon()
   {
     bracket(":").sp
+  }
+
+  ** Comma  (uses bracket color for now)
+  This comma()
+  {
+    bracket(",")
   }
 
   ** Print comment string in theme color

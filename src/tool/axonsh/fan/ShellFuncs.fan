@@ -119,6 +119,7 @@ const class ShellFuncs : AbstractShellFuncs
   ** Options:
   **   - spec: "qname" | "own" | "effective"
   **   - doc: include spec documentation comments
+  **   - ast: pretty print as JSON
   @Axon static Obj? print(Obj? val := null, Obj? opts := null)
   {
     cx.print(val, opts)
