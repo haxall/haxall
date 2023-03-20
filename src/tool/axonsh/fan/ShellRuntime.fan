@@ -20,7 +20,7 @@ internal const class ShellRuntime : HxRuntime, ShellStdServices
     this.name     = "axonsh"
     this.dir      = Env.cur.workDir + `axonsh/`
     this.version  = typeof.pod.version
-    this.platform = HxPlatform(Etc.dict0)
+    this.platform = HxPlatform(Etc.dict1("axonsh", Marker.val))
     this.config   = HxConfig(Etc.dict0)
     this.db       = ShellFolio(FolioConfig { it.name = this.name; it.dir = this.dir })
   }

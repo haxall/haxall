@@ -523,6 +523,7 @@ const class IOFuncs
   {
     cx := curContext
     if (arg == null) arg = Etc.emptyDict
+    if (cx.rt.platform.isShell) return Etc.emptyDict
     filetype := cx.ns.filetype("json")
     settings := cx.rt.lib("io").rec
     return filetype.ioOpts(cx.ns, null, arg, settings)

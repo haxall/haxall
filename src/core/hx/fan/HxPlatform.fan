@@ -17,7 +17,11 @@ using folio
 const class HxPlatform
 {
   ** Construct with meta data dict
-  new make(Dict meta) { this.metaRef = meta }
+  new make(Dict meta)
+  {
+    this.metaRef = meta
+    this.isShell = meta.has("axonsh")
+  }
 
   ** Meta data
   virtual Dict meta() { metaRef }
@@ -55,6 +59,9 @@ const class HxPlatform
 
   ** Host model
   virtual Str hostModel() { meta["hostModel"] as Str ?: productName + " (" + Env.cur.vars["os.name"] + ")" }
+
+  ** Is this the axon shell
+  @NoDoc const Bool isShell
 
 }
 
