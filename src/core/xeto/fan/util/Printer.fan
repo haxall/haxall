@@ -29,7 +29,8 @@ class Printer
     this.out        = out
     this.opts       = opts
     this.escUnicode = optBool("escapeUnicode", false)
-    this.showdoc    = optBool("showdoc", true)
+    this.showdoc    = optBool("doc", false)
+    this.specMode   = optSpecMode
     this.indention  = optInt("indent", 0)
     this.width      = optInt("width", terminalWidth)
     this.height     = optInt("height", terminalHeight)
@@ -55,7 +56,7 @@ class Printer
     if (val == null) return w("null")
     if (val is Str) return quoted(val.toStr)
     if (val is Grid) return grid(val)
-    if (val is DataSpec) return spec(val, null)
+    if (val is DataSpec) return specTop(val)
     if (val is Dict) return dict(val)
     if (val is List) return list(val)
     return w(val)
@@ -92,10 +93,8 @@ class Printer
       w(n)
       if (isMarker(v)) return
       colon
-      if (v is DataType)
+      if (v is DataSpec)
         w(v.toStr)
-      else if (v is DataSpec)
-        spec(v, null, false)
       else
         val(v)
     }
@@ -230,62 +229,114 @@ class Printer
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Data Type System
+// Spec
 //////////////////////////////////////////////////////////////////////////
 
-  ** Print data type and its slots
-  This spec(DataSpec spec, Str? name, Bool comments := true)
+  ** Print data spec using current mode
+  This specTop(DataSpec spec)
   {
-    if (name == null)
-    {
-      if (spec is DataLib) name = ((DataLib)spec).qname
-      else if (spec is DataType) name = ((DataType)spec).name
-    }
+    mode := this.specMode
+    if (mode === PrinterSpecMode.qname)
+      return w(spec.qname)
+    else
+      return doc(spec, mode).w(spec.qname).colon.spec(spec, mode)
+  }
 
-    if (comments) doc(spec["doc"])
-    if (name != null) indent.w(name).colon
-    w(spec.type.qname)
-    meta(spec.own)
-    if (!spec.slotsOwn.isEmpty)
+  ** Print data spec with specific mode
+  private This spec(DataSpec spec, PrinterSpecMode mode)
+  {
+    switch (mode)
     {
-      bracket(" {").nl
-      indention++
-      spec.slotsOwn.each |s|
-      {
-        if (indention == 1) nl
-        this.spec(s, s.name)
-      }
-      indention--
-      indent.bracket("}")
+      case PrinterSpecMode.qname:      w(spec.qname)
+      case PrinterSpecMode.effective:  specEffective(spec)
+      default:                         specOwn(spec)
     }
-//    if (spec.val != null && !isMarker(spec.val)) sp.quoted(spec.val.toStr)
-    if (comments) nl
     return this
   }
 
-  ** Meta data
-  This meta(DataDict dict)
+  ** Print only declared meta/slots
+  private This specOwn(DataSpec spec)
   {
+    base(spec).meta(spec.own).slots(spec.slotsOwn, PrinterSpecMode.own)
+  }
+
+  ** Print all effective meta/slots
+  private This specEffective(DataSpec spec)
+  {
+    base(spec).meta(spec.own).slots(spec.slots, PrinterSpecMode.effective)
+  }
+
+  ** Print base inherited type with special handling for maybe/and/or
+  private This base(DataSpec spec)
+  {
+    if (spec.isCompound)
+    {
+      symbol := spec.base.name == "And" ? "&" : "|"
+      spec.ofs.each |x, i|
+      {
+        if (i > 0) sp.bracket(symbol).sp
+        w(x.qname)
+      }
+    }
+    else if (spec.base != null)
+    {
+      w(spec.base.qname)
+      if (spec.isMaybe) bracket("?")
+    }
+    return this
+  }
+
+  ** Spec meta data
+  private This meta(DataDict dict)
+  {
+    skip := ["doc", "ofs", "maybe"]
     show := dict.eachWhile |v, n|
     {
-      if (n == "doc") return null
-      return "yes"
+      if (skip.contains(n)) return null
+      return "show"
     }
     if (show == null) return this
-    return sp.bracket("<").pairs(dict, ["doc"]).bracket(">")
+    return sp.bracket("<").pairs(dict, skip).bracket(">")
+  }
+
+  ** Spec slots
+  private This slots(DataSlots slots, PrinterSpecMode mode)
+  {
+    if (slots.isEmpty) return this
+    bracket(" {").nl
+    indention++
+    slots.each |slot|
+    {
+      doc(slot, mode)
+      indent.w(slot.name)
+      if (!isMarker(slot["val"]))
+      {
+        w(": ")
+        if (slot.base.type === slot.base)
+          base(slot)
+        else
+          spec(slot, mode)
+      }
+      nl
+    }
+    indention--
+    indent.bracket("}")
+    return this
   }
 
 
   ** Print doc lines if showdoc option configured
-  private Void doc(Str? doc)
+  private This doc(DataSpec spec, PrinterSpecMode mode)
   {
-    if (doc == null || doc.isEmpty) return
-    if (!showdoc) return
+    DataDict meta := mode === PrinterSpecMode.own ? spec.own : spec
+    doc := (meta.get("doc") as Str)?.trimToNull
+    if (doc == null || !showdoc) return this
 
     doc.splitLines.each |line, i|
     {
       indent.comment("// $line").nl
     }
+    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -454,11 +505,35 @@ class Printer
 // Options
 //////////////////////////////////////////////////////////////////////////
 
-  Obj? opt(Str name, Obj? def := null) { opts.get(name, def) }
+  Obj? opt(Str name, Obj? def := null)
+  {
+    opts.get(name, def)
+  }
 
-  Bool optBool(Str name, Bool def) { opt(name, def) as Bool ?: def }
+  Bool optBool(Str name, Bool def)
+  {
+    v := opt(name)
+    if (v == env.marker) return true
+    if (v is Bool) return v
+    return def
+  }
 
-  Int optInt(Str name, Int def) { opt(name, def) as Int ?: def }
+  Int optInt(Str name, Int def)
+  {
+    v := opt(name, def)
+    if (v is Int) return v
+    if (v is Number) return ((Number)v).toInt
+    return def
+  }
+
+  PrinterSpecMode optSpecMode()
+  {
+    v := opt("spec", null)
+    if (v != null) return PrinterSpecMode.fromStr(v)
+    v = opts.eachWhile |ignore, n| { PrinterSpecMode.fromStr(n, false) }
+    if (v != null) return v
+    return PrinterSpecMode.auto
+  }
 
   Int terminalWidth()
   {
@@ -488,17 +563,28 @@ class Printer
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private OutStream out        // output stream
-  private Int indention        // current level of indentation
-  private Bool lastnl          // was last char a newline
-  const DataEnv env            // environment
-  const Bool isStdout          // are we printing to stdout
-  const DataDict opts          // options
-  const Bool escUnicode        // escape unicode above 0x7f
-  const Bool showdoc           // print documentation
-  const Int width              // terminal width
-  const Int height             // terminal height
-  const PrinterTheme theme     // syntax color coding
+  private OutStream out           // output stream
+  private Int indention           // current level of indentation
+  private Bool lastnl             // was last char a newline
+  const DataEnv env               // environment
+  const Bool isStdout             // are we printing to stdout
+  const DataDict opts             // options
+  const Bool escUnicode           // escape unicode above 0x7f
+  const PrinterSpecMode specMode  // how to print specs
+  const Bool showdoc              // print documentation
+  const Int width                 // terminal width
+  const Int height                // terminal height
+  const PrinterTheme theme        // syntax color coding
+}
+
+**************************************************************************
+** PrinterSpecMode
+**************************************************************************
+
+@Js
+enum class PrinterSpecMode
+{
+  auto, qname, own, effective
 }
 
 **************************************************************************
