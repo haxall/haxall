@@ -85,6 +85,7 @@ internal const class MSpec
   Bool hasFlag(Int flag) { flags.and(flag) != 0 }
 
   const Int flags
+
 }
 
 **************************************************************************
@@ -120,9 +121,7 @@ internal const class MSpecFlags
   static const Int seq    := 0x0008
   static const Int dict   := 0x0010
   static const Int list   := 0x0020
-  static const Int and    := 0x0040
-  static const Int or     := 0x0080
-  static const Int query  := 0x0100
+  static const Int query  := 0x0040
 }
 
 **************************************************************************
@@ -161,7 +160,7 @@ internal const class XetoSpec : DataSpec, Dict
 
   override final DataSpec? slotOwn(Str n, Bool c := true) { m.slotOwn(n, c) }
 
-  override final Bool isa(DataSpec x) { XetoUtil.isa(this, x) }
+  override final Bool isa(DataSpec x) { XetoUtil.isa(this, x, true) }
 
   override final Bool fits(DataSpec that) { Fitter(m.env, m.env.nilContext, m.env.dict0).specFits(this, that) }
 
@@ -185,15 +184,18 @@ internal const class XetoSpec : DataSpec, Dict
 
   override final Str toStr() { m?.toStr ?: super.toStr }
 
-  override final Bool isNone()   { this === m.env.sys.none }
+  override final Bool isCompound()  { XetoUtil.isCompound(this) }
+
+  override final DataSpec[]? ofs(Bool checked := true)  { XetoUtil.ofs(this, checked) }
+
+  override final Bool isNone() { XetoUtil.isNone(this) }
+
   override final Bool isMaybe()  { m.hasFlag(MSpecFlags.maybe) }
   override final Bool isScalar() { m.hasFlag(MSpecFlags.scalar) }
   override final Bool isMarker() { m.hasFlag(MSpecFlags.marker) }
   override final Bool isSeq()    { m.hasFlag(MSpecFlags.seq) }
   override final Bool isDict()   { m.hasFlag(MSpecFlags.dict) }
   override final Bool isList()   { m.hasFlag(MSpecFlags.list) }
-  override final Bool isAnd()    { m.hasFlag(MSpecFlags.and) }
-  override final Bool isOr()     { m.hasFlag(MSpecFlags.or) }
   override final Bool isQuery()  { m.hasFlag(MSpecFlags.query) }
 
   const MSpec? m

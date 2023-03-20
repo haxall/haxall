@@ -79,6 +79,12 @@ const mixin DataSpec : DataDict
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 
+  ** Does this spec directly inherits from And/Or and define 'ofs'
+  @NoDoc abstract Bool isCompound()
+
+  ** Return list of component specs for a compound type
+  @NoDoc abstract DataSpec[]? ofs(Bool checked := true)
+
   ** Is this the None type itself
   @NoDoc abstract Bool isNone()
 
@@ -96,12 +102,6 @@ const mixin DataSpec : DataDict
 
   ** Inherits directly from 'sys::List' without considering And/Or
   @NoDoc abstract Bool isList()
-
-  ** Inherits directly from 'sys::And' without considering And/Or
-  @NoDoc abstract Bool isAnd()
-
-  ** Inherits directly from 'sys::Or' without considering And/Or
-  @NoDoc abstract Bool isOr()
 
   ** Inherits directly from 'sys::Query' without considering And/Or
   @NoDoc abstract Bool isQuery()

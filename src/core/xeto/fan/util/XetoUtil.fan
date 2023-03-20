@@ -6,8 +6,9 @@
 //   25 Feb 2023  Brian Frank  Creation
 //
 
-using data
 using util
+using data
+using haystack::UnknownNameErr
 
 **
 ** Utility functions
@@ -155,37 +156,55 @@ internal const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Return if a is-a b
-  static Bool isa(XetoSpec a, XetoSpec b)
+  static Bool isa(XetoSpec a, XetoSpec b, Bool isTop)
   {
-    // check direct inheritance
-    for (DataSpec? x := a; x != null; x = x.base)
-      if (x === b) return true
+    // check if a and b are the same
+    if (a === b) return true
 
     // if A is "maybe" type, then it also matches None
-    if (b.isNone && a.isMaybe) return true
+    if (b.isNone && a.isMaybe && isTop) return true
 
-    // if A is And type, then check any of A.ofs is B
-    if (a.isAnd)
+    // if A is sys::And type, then check any of A.ofs is B
+    if (isAnd(a))
     {
-      ofs := a.get("ofs", null) as DataSpec[]
+      ofs := ofs(a, false)
       if (ofs != null && ofs.any |x| { x.isa(b) }) return true
     }
 
-    // if A is Or type, then check all of A.ofs is B
-    if (a.isOr)
+    // if A is sys::Or type, then check all of A.ofs is B
+    if (isOr(a))
     {
-      ofs := a.get("ofs", null) as DataSpec[]
+      ofs := ofs(a, false)
       if (ofs != null && ofs.all |x| { x.isa(b) }) return true
     }
 
-    // if B is Or type, then check if A is any of B.ofs
-    if (b.isOr)
+    // if B is sys::Or type, then check if A is any of B.ofs
+    if (isOr(b))
     {
-      ofs := b.get("ofs", null) as DataSpec[]
+      ofs := ofs(b, false)
       if (ofs != null && ofs.any |x| { a.isa(x) }) return true
     }
 
+    // check a's base type
+    if (a.base != null) return isa(a.base, b, false)
+
     return false
+  }
+
+  static Bool isNone(XetoSpec x)  { x === x.m.env.sys.none }
+
+  static Bool isAnd(XetoSpec x) { x.base === x.m.env.sys.and }
+
+  static Bool isOr(XetoSpec x) { x.base === x.m.env.sys.or  }
+
+  static Bool isCompound(XetoSpec x) { (isAnd(x) || isOr(x)) && ofs(x, false) != null }
+
+  static DataSpec[]? ofs(XetoType x, Bool checked)
+  {
+    val := x.m.own.get("ofs", null) as DataSpec[]
+    if (val != null) return val
+    if (checked) throw UnknownNameErr("Missing 'ofs' meta: $x.qname")
+    return null
   }
 
 //////////////////////////////////////////////////////////////////////////

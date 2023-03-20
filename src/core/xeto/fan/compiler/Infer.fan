@@ -96,8 +96,6 @@ internal class Infer : Step
         case "Seq":    flags = flags.or(MSpecFlags.seq)
         case "Dict":   flags = flags.or(MSpecFlags.dict)
         case "List":   flags = flags.or(MSpecFlags.list)
-        case "And":    flags = flags.or(MSpecFlags.and)
-        case "Or":     flags = flags.or(MSpecFlags.or)
         case "Query":  flags = flags.or(MSpecFlags.query)
       }
     }
