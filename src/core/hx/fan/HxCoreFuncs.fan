@@ -483,6 +483,13 @@ const class HxCoreFuncs
 // Watches
 //////////////////////////////////////////////////////////////////////////
 
+  ** Return if given record is under at least one watch.
+  ** The rec argument can be any value accepted by `toRecId()`.
+  @Axon static  Bool isWatched(Obj rec)
+  {
+    curContext.rt.watch.isWatched(Etc.toId(rec))
+  }
+
   ** Open a new watch on a grid of records.  The 'dis' parameter
   ** is used for the watch's debug display string.  Update and return
   ** the grid with a meta 'watchId' tag.  Also see `hx::HxWatchService.open`
