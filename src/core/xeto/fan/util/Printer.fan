@@ -468,7 +468,7 @@ class Printer
       jline := Type.find("[java]jline::TerminalFactory", false)
       if (jline != null) return jline.method("get").call->getWidth
     }
-    catch (Err e) { e.trace }
+    catch (Err e) {} // ignore
     return 80
   }
 
@@ -480,7 +480,7 @@ class Printer
       jline := Type.find("[java]jline::TerminalFactory", false)
       if (jline != null) return jline.method("get").call->getHeight
     }
-    catch (Err e) { e.trace }
+    catch (Err e) {} // ignore
     return 50
   }
 
