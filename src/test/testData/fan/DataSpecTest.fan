@@ -182,7 +182,6 @@ class DataSpecTest : AbstractDataTest
 // Reflection
 //////////////////////////////////////////////////////////////////////////
 
-/* TODO
   Void testReflection()
   {
     ph := env.lib("ph")
@@ -193,33 +192,33 @@ class DataSpecTest : AbstractDataTest
     elecMeterSlots   := meterSlots.dup.add("elec:Marker")
     acElecMeterSlots := elecMeterSlots.dup.add("ac:Marker")
 
-    verifySlots(ph->Equip,       equipSlots)
-    verifySlots(ph->Meter,       meterSlots)
-    verifySlots(ph->ElecMeter,   elecMeterSlots)
-    verifySlots(ph->AcElecMeter, acElecMeterSlots)
+    verifySlots(ph.slot("Equip"),       equipSlots)
+    verifySlots(ph.slot("Meter"),       meterSlots)
+    verifySlots(ph.slot("ElecMeter"),   elecMeterSlots)
+    verifySlots(ph.slot("AcElecMeter"), acElecMeterSlots)
 
     ptSlots    := ["point:Marker", "equips:Query"]
     numPtSlots := ptSlots.dup.addAll(["kind:Str", "unit:Str"])
     afSlots    := numPtSlots.dup.addAll(["air:Marker", "flow:Marker"])
     afsSlots   := afSlots.dup.add("sensor:Marker")
     dafsSlots  := afsSlots.dup.add("discharge:Marker")
-    verifySlots(ph->Point, ptSlots)
-    verifySlots(phx->NumberPoint, numPtSlots)
-    verifySlots(phx->AirFlowPoint, afSlots)
-    verifySlots(phx->AirFlowSensor, afsSlots)
-    verifySlots(phx->DischargeAirFlowSensor, dafsSlots)
+    verifySlots(ph.slot("Point"), ptSlots)
+    verifySlots(phx.slot("NumberPoint"), numPtSlots)
+    verifySlots(phx.slot("AirFlowPoint"), afSlots)
+    verifySlots(phx.slot("AirFlowSensor"), afsSlots)
+    verifySlots(phx.slot("DischargeAirFlowSensor"), dafsSlots)
   }
 
   Void verifySlots(DataSpec t, Str[] expected)
   {
     slots := t.slots
-    slots.each |s, i|
+    i := 0
+    slots.each |s|
     {
-      verifyEq("$s.name:$s.slotType.name", expected[i])
+      verifyEq("$s.name:$s.type.name", expected[i++])
     }
-    verifyEq(slots.size, expected.size)
+    verifyEq(slots.names.size, expected.size)
   }
-  */
 
 }
 

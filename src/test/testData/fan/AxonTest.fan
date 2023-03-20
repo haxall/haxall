@@ -333,11 +333,20 @@ class AxonTest : HxTest
     verifyFits(Str<|fits({site}, Dict)|>, true)
     verifyFits(Str<|fits({site}, Equip)|>, false)
     verifyFits(Str<|fits({site}, Site)|>, true)
+
+    libs = ["ph", "ph.points"]
+    verifyFits(Str<|fits({}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({air, temp, sensor, point}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({discharge, temp, sensor, point}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({discharge, air, sensor, point}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({discharge, air, temp, point}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({discharge, air, temp, sensor}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({discharge, air, temp, sensor, point}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({discharge, air, temp, sensor, point, kind:"Number", unit:"°F"}, DischargeAirTempSensor)|>, true)
   }
 
   Void verifyFits(Str expr, Bool expect)
   {
-    // echo("   $expr")
     verifyEval(expr, expect)
   }
 

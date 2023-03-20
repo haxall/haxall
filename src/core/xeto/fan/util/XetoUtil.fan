@@ -102,14 +102,34 @@ internal const class XetoUtil
     supertype := spec.base
 
     if (supertype == null) return own
-    if (own.isEmpty) return supertype.slots
 
-    // add supertype slots
-    acc := Str:XetoSpec[:]
-    acc.ordered = true
-    supertype.slots.each |s|
+    [Str:XetoSpec]? acc := null
+    if (supertype === spec.env.sys.and)
     {
-      acc[s.name] = s
+      acc = Str:XetoSpec[:]
+      acc.ordered = true
+
+      ofs := spec.get("ofs", null) as DataSpec[]
+      if (ofs != null) ofs.each |x|
+      {
+        x.slots.each |s|
+        {
+          // TODO: need to handle conflicts in compiler checks
+          acc[s.name] = s
+        }
+      }
+    }
+    else
+    {
+      if (own.isEmpty) return supertype.slots
+
+      // add supertype slots
+      acc = Str:XetoSpec[:]
+      acc.ordered = true
+      supertype.slots.each |s|
+      {
+        acc[s.name] = s
+      }
     }
 
     // add in my own slots
