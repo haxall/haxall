@@ -18,6 +18,32 @@ const class DataFuncs
 {
 
 //////////////////////////////////////////////////////////////////////////
+// Lookup
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** List all the data types currently in scope.  Result is a list of DataType.
+  **
+  @Axon static DataType[] types()
+  {
+    typesInScope(curContext, null).sort
+  }
+
+  private static DataType[] typesInScope(HxContext cx, |DataType->Bool|? filter := null)
+  {
+    acc := DataType[,]
+    cx.usings.list.each |lib|
+    {
+      lib.slotsOwn.each |x|
+      {
+        if (filter != null && !filter(x)) return
+        acc.add(x)
+      }
+    }
+    return acc
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Spec Reflection
 //////////////////////////////////////////////////////////////////////////
 
@@ -248,6 +274,61 @@ const class DataFuncs
     }
 
     return gb.toGrid
+  }
+
+  **
+  ** Match dict recs against specs to find all the specs that fit.  The recs
+  ** argument can be anything accepted by `toRecList()`.  Specs must be a
+  ** list of DataSpecs.  If specs argument is omitted, then we match against
+  ** all the non-abstract [types]`types()` currently in scope.  Only the most
+  ** specific subtype is returned.
+  **
+  ** Result is a grid for each input rec with the following columns:
+  **   - id: of the input record
+  **   - num: number of matches
+  **   - specs: list of DataSpec for all matching specs
+  **
+  ** Example:
+  **    readAll(equip).fitsMatchAll
+  **
+  @Axon
+  static Grid fitsMatchAll(Obj? recs, DataSpec[]? specs := null)
+  {
+    // if specs not specific, get all in scope
+    cx := curContext
+    if (specs == null)
+      specs = typesInScope(cx) |t| { t.lib.qname != "sys" && t.isDict && t.missing("abstract") }
+
+    // walk thru each record add row
+    gb := GridBuilder().addCol("id").addCol("num").addCol("specs")
+    Etc.toRecs(recs).each |rec|
+    {
+      matches := doFitsMatchAll(cx, rec, specs)
+      gb.addRow([rec.id, Number(matches.size), matches])
+    }
+    return gb.toGrid
+  }
+
+  private static DataType[] doFitsMatchAll(HxContext cx, Dict rec, DataSpec[] specs)
+  {
+    // first pass is fit each type
+    env := cx.usings.data
+    matches := specs.findAll |spec| { env.fits(cx, rec, spec) }
+
+    // second pass is to remove supertypes so we only
+    // return the most specific subtype
+    best := DataSpec[,]
+    matches.each |spec|
+    {
+      // check if this type has subtypes in our match list
+      hasSubtypes := matches.any |x| { x !== spec && x.isa(spec) }
+
+      // add it to our best accumulator only if no subtypes
+      if (!hasSubtypes) best.add(spec)
+    }
+
+    // return most specific matches sorted
+    return best.sort
   }
 
 //////////////////////////////////////////////////////////////////////////

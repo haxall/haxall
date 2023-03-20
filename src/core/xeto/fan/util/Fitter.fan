@@ -13,7 +13,7 @@ using data
 ** Fitter
 **
 @Js
-class Fitter
+internal class Fitter
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,31 +154,6 @@ class Fitter
     }
 
     return explainAmbiguousQueryConstraint(ofDis, constraint, matches)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Match All
-//////////////////////////////////////////////////////////////////////////
-
-  DataType[] matchAll(DataDict rec, Str:DataType types)
-  {
-    // first pass is fit each type
-    matches := types.findAll |type| { valFits(rec, type) }
-
-    // second pass is to remove supertypes so we only
-    // return the most specific subtype
-    best := DataType[,]
-    matches.each |type|
-    {
-      // check if this type has subtypes in our match list
-      hasSubtypes := matches.any |x| { x !== type && x.isa(type) }
-
-      // add it to our best accumulator only if no subtypes
-      if (!hasSubtypes) best.add(type)
-    }
-
-    // return most specific matches sorted
-    return best.sort
   }
 
 //////////////////////////////////////////////////////////////////////////
