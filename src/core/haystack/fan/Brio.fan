@@ -57,7 +57,10 @@ const class BrioConsts
   static
   {
     try
-      curRef.val = load(BrioConsts#.pod.file(`/res/brio-consts.txt`))
+    {
+      if (Env.cur.runtime != "js")
+        curRef.val = load(BrioConsts#.pod.file(`/res/brio-consts.txt`))
+    }
     catch (Err e)
       e.trace
   }
