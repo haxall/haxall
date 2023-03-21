@@ -98,6 +98,14 @@ ExhaustAirFlowSensor : AirFlowSensor { exhaust }
 // Setpoint for volumetric air flow in exhaust duct
 ExhaustAirFlowSp : AirFlowSp { exhaust }
 
+// --- Inlet ---
+
+// Sensor for volumetric air flow in inlet duct
+InletAirFlowSensor : AirFlowSensor { inlet }
+
+// Setpoint for volumetric air flow in inlet duct
+InletAirFlowSp : AirFlowSp { inlet }
+
 // --- Outside ---
 
 // Sensor for volumetric air flow in outside duct.
@@ -179,18 +187,60 @@ AirTempSp : AirTempPoint & Sp <abstract>
 
 // --- Discharge ---
 
-// Sensor for drybulb air temperature of a discharge duct
+// Sensor for drybulb air temperature of discharge duct
 DischargeAirTempSensor : AirTempSensor { discharge }
 
-// Setpoint for drybulb air temperature of a discharge duct
+// Setpoint for drybulb air temperature of discharge duct
 DischargeAirTempSp : AirTempSp { discharge }
+
+// --- Economizing ---
+
+// Sensor for drybulb air temperature of economizing duct.
+// Used when there are separate ducts for minimum fresh air vs economizing.
+EconomizingAirTempSensor : AirTempSensor { economizing  }
+
+// --- Inlet ---
+
+// Sensor for drybulb air temperature of inlet duct
+InletAirTempSensor : AirTempSensor { inlet }
+
+// Setpoint for drybulb air temperature of inlet duct
+InletAirTempSp : AirTempSp { inlet }
+
+// --- Mixed ---
+
+// Sensor for drybulb air temperature of mixed duct
+MixedAirTempSensor : AirTempSensor { mixed }
+
+// Setpoint for drybulb air temperature of mixed duct
+MixedAirTempSp : AirTempSp { mixed }
+
+// --- Outside ---
+
+// Sensor for drybulb air temperature of outside duct.
+// Used when there one duct for both minimum fresh air and economizing.
+OutsideAirTempSensor : AirTempSensor { outside  }
+
+// --- Return ---
+
+// Sensor for drybulb air temperature of return duct
+ReturnAirTempSensor : AirTempSensor { return }
+
+// Setpoint for drybulb air temperature of return duct
+ReturnAirTempSp : AirTempSp { return }
+
+// --- ventilation ---
+
+// Sensor for drybulb air temperature of ventilation or minimum fresh  duct.
+// Used when there are separate ducts for minimum fresh air vs economizing.
+VentilationAirTempSensor : AirTempSensor { ventilation  }
 
 // --- Zone ---
 
-// Drybulb air temperature sensor for a zone
+// Drybulb air temperature sensor for zone
 ZoneAirTempSensor : AirTempSensor { zone }
 
-// Setpoint for drybulb air temperature a zone
+// Setpoint for drybulb air temperature zone
 ZoneAirTempSp : AirTempSp <abstract> { zone }
 
 // Effective setpoint for drybulb air temperature a zone
@@ -289,15 +339,15 @@ MixedDamperSensor : DamperSensor { mixed }
 // Damper position command in mixed duct
 MixedDamperCmd : DamperCmd { mixed }
 
-// --- Outdoor ---
+// --- Outside ---
 
-// Damper position sensor in outdoor duct
+// Damper position sensor in outside duct
 // Used when there one duct for both minimum fresh air and economizing.
-OutdoorDamperSensor : DamperSensor { outdoor }
+OutsideDamperSensor : DamperSensor { outside }
 
-// Damper position command in outdoor duct
+// Damper position command in outside duct
 // Used when there one duct for both minimum fresh air and economizing.
-OutdoorDamperCmd : DamperCmd { outdoor }
+OutsideDamperCmd : DamperCmd { outside }
 
 // --- Return ---
 
