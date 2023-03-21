@@ -37,16 +37,16 @@ const class DataFuncs
   }
 
   **
-  ** List all the data types currently in scope.  Result is a list of DataType.
+  ** List all the data types currently in scope.  Result is a list of DataSpec.
   **
-  @Axon static DataType[] types()
+  @Axon static DataSpec[] types()
   {
     typesInScope(curContext, null).sort
   }
 
-  private static DataType[] typesInScope(HxContext cx, |DataType->Bool|? filter := null)
+  private static DataSpec[] typesInScope(HxContext cx, |DataSpec->Bool|? filter := null)
   {
-    acc := DataType[,]
+    acc := DataSpec[,]
     cx.usings.list.each |lib|
     {
       lib.slotsOwn.each |x|
@@ -54,6 +54,17 @@ const class DataFuncs
         if (filter != null && !filter(x)) return
         acc.add(x)
       }
+    }
+
+    vars := Str:DataSpec[:]
+    cx.varsInScope.each |var|
+    {
+      x := var as DataSpec
+      if (x == null) return
+      if (vars[x.qname] != null) return
+      if (filter != null && !filter(x)) return
+      vars[x.qname] = x
+      acc.add(x)
     }
     return acc
   }
@@ -377,7 +388,7 @@ const class DataFuncs
     cx := curContext
     dictSpec := cx.usings.data.dictSpec // TODO - make isDict work for AND types
     if (specs == null)
-      specs = typesInScope(cx) |t| { t.lib.qname != "sys" && t.isa(dictSpec) && t.missing("abstract") }
+      specs = typesInScope(cx) |t| { !t.qname.startsWith("sys::") && t.isa(dictSpec) && t.missing("abstract") }
 
     // walk thru each record add row
     gb := GridBuilder().addCol("id").addCol("num").addCol("specs")
