@@ -92,6 +92,10 @@ const abstract class DataEnv
   ** qname is generated.
   abstract DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)
 
+  ** Create default instance for the given spec.
+  ** Raise exception if spec is abstract.
+  abstract Obj? instantiate(DataSpec spec)
+
   ** Compile Xeto source code into a temp library.
   ** Raise exception if there are any syntax or semantic errors.
   abstract DataLib compileLib(Str src, DataDict? opts := null)

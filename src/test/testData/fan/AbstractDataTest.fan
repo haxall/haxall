@@ -62,7 +62,7 @@ class AbstractDataTest : Test
   {
     //if (a is Ref && b is Ref)   return verifyRefEq(a, b)
     //if (a is List && b is List) return verifyListEq(a, b)
-    if (a is Dict && b is Dict) return verifyDictEq(a, b)
+    if (a is Dict) return verifyDictEq(a, b)
     //if (a is Grid && b is Grid) return verifyGridEq(a, b)
     //if (a is Buf && b is Buf)   return verifyBufEq(a, b)
     verifyEq(a, b)

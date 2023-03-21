@@ -188,6 +188,10 @@ class AxonTest : HxTest
   @HxRuntimeTest
   Void testReflect()
   {
+    verifySame(eval("""spec("sys")"""), env.spec("sys"))
+    verifySame(eval("""spec("sys::Str")"""), env.spec("sys::Str"))
+    verifySame(eval("""spec("ph::Site.site")"""), env.spec("ph::Site.site"))
+
     verifyReflect("Obj", env.type("sys::Obj"))
     verifyReflect("Str", env.type("sys::Str"))
     verifyReflect("Dict", env.type("sys::Dict"))
@@ -196,7 +200,6 @@ class AxonTest : HxTest
 
   Void verifyReflect(Str expr, DataSpec spec)
   {
-    if (spec is DataType) verifyEval("specLib($expr)", ((DataType)spec).lib)
     verifyEval("specParent($expr)", spec.parent)
     verifyEval("specName($expr)", spec.name)
     verifyEval("specQName($expr)", spec.qname)

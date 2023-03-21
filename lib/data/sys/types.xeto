@@ -7,7 +7,7 @@
 //
 
 // Root type for all objects
-Obj: <sealed>
+Obj: <sealed, abstract>
 
 // None is the bottom type with no values
 None: Obj <sealed>
@@ -58,7 +58,7 @@ DateTime: Scalar <sealed, pattern: "\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d
 Enum: Scalar
 
 // Sequence is base type for all collections
-Seq: Obj
+Seq: Obj <abstract>
 
 // Associative array of name/value pairs
 Dict: Seq

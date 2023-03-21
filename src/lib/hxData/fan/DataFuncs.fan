@@ -58,6 +58,15 @@ const class DataFuncs
     return acc
   }
 
+  **
+  ** Create the default instance for a given spec.
+  ** Raise exception if spec is abstract.
+  **
+  @Axon static Obj? instantiate(DataSpec spec)
+  {
+    curContext.usings.data.instantiate(spec)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Spec Reflection
 //////////////////////////////////////////////////////////////////////////
@@ -146,6 +155,8 @@ const class DataFuncs
   **
   ** Build an AST tree of dict, lists, and strings of the effective
   ** meta and slots for the given spec.
+  **
+  ** TODO: not sure how deep to make effective recursion yet
   **
   @Axon static DataDict specAst(DataSpec spec)
   {

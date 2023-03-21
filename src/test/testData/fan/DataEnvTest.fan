@@ -258,6 +258,41 @@ class DataEnvTest : AbstractDataTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Instantiate
+//////////////////////////////////////////////////////////////////////////
+
+  Void testInstantiate()
+  {
+    verifyInstantiate("sys::None",     null)
+    verifyInstantiate("sys::Str",      "")
+    verifyInstantiate("sys::Number",   n(0))
+    verifyInstantiate("sys::Int",      0)
+    verifyInstantiate("sys::Ref",      Ref("x"))
+    verifyInstantiate("sys::Date",     Date.defVal)
+    verifyInstantiate("sys::Time",     Time.defVal)
+    verifyInstantiate("sys::DateTime", DateTime.defVal)
+
+    verifyInstantiate("sys::Dict", env.dict0)
+    verifyInstantiate("sys::List", Obj?[,])
+
+    verifyInstantiate("ph::Meter", ["equip":m, "meter":m])
+    verifyInstantiate("ph::ElecMeter", ["equip":m, "meter":m, "elec":m])
+    verifyInstantiate("ph::AcElecMeter", ["equip":m, "meter":m, "elec":m, "ac":m])
+
+    verifyInstantiate("ph.points::DischargeAirTempSensor", ["discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":"°F"])
+
+    verifyErr(Err#) { env.instantiate(env.spec("sys::Obj")) }
+    verifyErr(Err#) { env.instantiate(env.spec("sys::Scalar")) }
+  }
+
+  Void verifyInstantiate(Str qname, Obj? expect)
+  {
+    actual := env.instantiate(env.spec(qname))
+    //echo("-- $qname: $actual ?= $expect")
+    verifyValEq(actual, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 

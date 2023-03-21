@@ -167,6 +167,7 @@ ReturnAirPressureSp : AirPressureSp { return }
 AirTempPoint : NumberPoint <abstract> {
   air
   temp
+  unit: "°F"
 // TODO  unit: "°C" | "°F"
 }
 

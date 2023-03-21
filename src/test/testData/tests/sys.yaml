@@ -10,6 +10,7 @@ verifyType:
   base: null
   meta:
     doc: "sys::Str Root type for all objects"
+    abstract: "sys::Marker"
     sealed: "sys::Marker"
 ---
 name: "none"

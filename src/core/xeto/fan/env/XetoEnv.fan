@@ -24,6 +24,7 @@ internal const class XetoEnv : DataEnv
   {
     this.libMgr = XetoLibMgr(this)
     this.marker = Marker.val
+    this.list0  = Obj?[,]
     this.dict0 = Etc.dict0
     this.factory = XetoFactory()
     this.sysLib = libMgr.load("sys")
@@ -42,6 +43,8 @@ internal const class XetoEnv : DataEnv
   const NilDataContext nilContext := NilDataContext()
 
   override const Obj marker
+
+  const Obj?[] list0
 
   override const DataSpec dictSpec
 
@@ -135,6 +138,11 @@ internal const class XetoEnv : DataEnv
   override DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)
   {
     XetoUtil.derive(this, name, base, meta, slots)
+  }
+
+  override Obj? instantiate(DataSpec spec)
+  {
+    XetoUtil.instantiate(this, spec)
   }
 
   override DataLib compileLib(Str src, DataDict? opts := null)

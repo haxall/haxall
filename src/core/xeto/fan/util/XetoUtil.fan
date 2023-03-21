@@ -246,5 +246,30 @@ internal const class XetoUtil
     return MSlots(derivedMap)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Instantiate
+//////////////////////////////////////////////////////////////////////////
+
+  ** Instantiate default value of spec
+  static Obj? instantiate(XetoEnv env, XetoSpec spec)
+  {
+    meta := spec.m.meta
+    if (meta.has("abstract")) throw Err("Spec is abstract: $spec.qname")
+
+    if (spec.isNone) return null
+    if (spec.isScalar) return meta->val
+    if (spec === env.sys.dict) return env.dict0
+    if (spec.isList) return env.list0
+
+    acc := Str:Obj[:]
+    spec.slots.each |slot|
+    {
+      if (slot.isMaybe) return
+      if (slot.isQuery) return
+      acc[slot.name] = instantiate(env, slot)
+    }
+    return env.dictMap(acc)
+  }
+
 }
 
