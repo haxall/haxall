@@ -733,7 +733,7 @@ class Parser
 
   **
   ** Type definition; generates DefineVar with typename as the variable name:
-  **   <deftype> := <typename> ":" <spec>
+  **    <deftype>  :=  <typename> ":" (<spec> | <specSlots>)
   **
   private DefineVar deftype()
   {
@@ -742,7 +742,20 @@ class Parser
     name := curVal
     consume(Token.typename)
     consume(Token.colon)
-    return DefineVar(loc, name, spec(name))
+
+    Spec? type
+    if (cur === Token.lbrace)
+    {
+      ref   := SpecTypeRef(loc, "sys", "Dict")
+      slots := specSlots()
+      type  = SpecDerive(loc, name, ref, null, slots)
+    }
+    else
+    {
+      type = spec(name)
+    }
+
+    return DefineVar(loc, name, type)
   }
 
   **

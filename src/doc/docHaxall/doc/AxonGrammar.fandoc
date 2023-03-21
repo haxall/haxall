@@ -89,7 +89,7 @@ Productions [#productions]
   <index>        :=  "[" <expr> "]"
   <trapCall>     :=  "->" <id>
 
-  <deftype>      :=  <typename> ":" <spec>
+  <deftype>      :=  <typename> ":" (<spec> | <specSlots>)
   <spec>         :=  <specType> [<specMeta>] [<specBody>]
   <specMeta>     :=  "<" <dictItems> ">"  // with restrictions
   <specBody>     :=  <specScalar> | <specSlots>

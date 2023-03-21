@@ -199,7 +199,7 @@ internal const class XetoUtil
 
   static Bool isCompound(XetoSpec x) { (isAnd(x) || isOr(x)) && ofs(x, false) != null }
 
-  static DataSpec[]? ofs(XetoType x, Bool checked)
+  static DataSpec[]? ofs(XetoSpec x, Bool checked)
   {
     val := x.m.own.get("ofs", null) as DataSpec[]
     if (val != null) return val

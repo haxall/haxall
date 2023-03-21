@@ -178,6 +178,11 @@ class AxonTest : HxTest
     verifySame(cx.eval("specMetaOwn(Person2)"), env.dict0)
     verifyEq(cx.eval("specSlotsOwn(Person2)->dis.specName"), "dis")
     verifyEq(cx.eval("specSlotsOwn(Person2)->dis.specType"), env.type("sys::Str"))
+
+    person3 := cx.eval(Str<|Person3: { dis: Str }|>)
+    verifySame(cx.varsInScope.getChecked("Person3"), person3)
+    verifySame(cx.eval("Person3"), person3)
+    verifyEq(cx.eval("specSlotsOwn(Person3)->dis.specName"), "dis")
   }
 
 
