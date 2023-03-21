@@ -375,8 +375,9 @@ const class DataFuncs
   {
     // if specs not specific, get all in scope
     cx := curContext
+    dictSpec := cx.usings.data.dictSpec // TODO - make isDict work for AND types
     if (specs == null)
-      specs = typesInScope(cx) |t| { t.lib.qname != "sys" && t.isDict && t.missing("abstract") }
+      specs = typesInScope(cx) |t| { t.lib.qname != "sys" && t.isa(dictSpec) && t.missing("abstract") }
 
     // walk thru each record add row
     gb := GridBuilder().addCol("id").addCol("num").addCol("specs")
