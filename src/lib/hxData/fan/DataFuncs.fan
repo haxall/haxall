@@ -166,10 +166,10 @@ const class DataFuncs
     acc := Str:Obj[:]
     acc.ordered = true
 
-    if (spec.base.type === spec.type)
-      acc["type"] = spec.type.qname
-    else
+    if (spec.isType)
       acc["base"] = spec.base.qname
+    else
+      acc["type"] = spec.type.qname
 
     DataDict meta := isOwn ? spec.own : spec
     meta.each |v, n|
@@ -185,7 +185,8 @@ const class DataFuncs
       slotsAcc.ordered = true
       slots.each |slot|
       {
-        slotsAcc[slot.name] = doSpecAst(slot, isOwn)
+        noRecurse := slot.base?.type === slot.base && !slot.isType
+        slotsAcc[slot.name] = doSpecAst(slot, isOwn || noRecurse)
       }
       acc["slots"] = Etc.dictFromMap(slotsAcc)
     }
