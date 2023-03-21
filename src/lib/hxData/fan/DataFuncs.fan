@@ -22,6 +22,21 @@ const class DataFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
+  ** Load or lookup a DataSpec by its qname.  If not found
+  ** raise exception or return null based on checked flag.
+  **
+  ** Examples:
+  **   spec("ph.points")         // library
+  **   spec("ph::Meter")         // type
+  **   spec("sys::Spec.of")      // slot
+  **   spec("foo::Bar", false)   // type unchecked
+  **
+  @Axon static data::DataSpec? spec(Str qname, Bool checked := true)
+  {
+    curContext.usings.data.spec(qname, checked)
+  }
+
+  **
   ** List all the data types currently in scope.  Result is a list of DataType.
   **
   @Axon static DataType[] types()
@@ -41,18 +56,6 @@ const class DataFuncs
       }
     }
     return acc
-  }
-
-  **
-  ** Load or lookup a DataLib by qname.
-  **
-  ** Examples:
-  **   specLib("sys")
-  **   specLib("ph.points", false)
-  **
-  @Axon static data::DataLib? specLib(Str qname, Bool checked := true)
-  {
-    curContext.usings.data.lib(qname, checked)
   }
 
 //////////////////////////////////////////////////////////////////////////
