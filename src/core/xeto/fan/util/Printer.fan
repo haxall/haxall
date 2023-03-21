@@ -60,6 +60,7 @@ class Printer
     if (val is DataSpec) return specTop(val)
     if (val is Dict) return dict(val)
     if (val is List) return list(val)
+    if (inMeta) return quoted(val.toStr)
     return w(val)
   }
 
@@ -297,7 +298,11 @@ class Printer
       return "show"
     }
     if (show == null) return this
-    return sp.bracket("<").pairs(dict, skip).bracket(">")
+
+    inMeta = true
+    sp.bracket("<").pairs(dict, skip).bracket(">")
+    inMeta = false
+    return this
   }
 
   ** Spec slots
@@ -310,12 +315,12 @@ class Printer
     {
       doc(slot, mode)
       indent.w(slot.name)
-      if (!isMarker(slot["val"]))
+      if (!isMarker(slot["val"]) && slot.base != null)
       {
         w(": ")
-        if (slot.base.type === slot.base)
+        if (slot.base?.type === slot.base && !slot.isType)
           base(slot)
-        else
+       else
           spec(slot, mode)
       }
       nl
@@ -564,9 +569,6 @@ class Printer
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private OutStream out           // output stream
-  private Int indention           // current level of indentation
-  private Bool lastnl             // was last char a newline
   const DataEnv env               // environment
   const Bool isStdout             // are we printing to stdout
   const DataDict opts             // options
@@ -576,6 +578,10 @@ class Printer
   const Int width                 // terminal width
   const Int height                // terminal height
   const PrinterTheme theme        // syntax color coding
+  private OutStream out           // output stream
+  private Int indention           // current level of indentation
+  private Bool lastnl             // was last char a newline
+  private Bool inMeta             // in spec meta
 }
 
 **************************************************************************
