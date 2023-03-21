@@ -919,7 +919,7 @@ class Parser
       if (cur === Token.typename)
       {
         name = "_" + (auto++)
-        slot = spec(name)
+        slot = spec(null)
       }
       else
       {
@@ -927,7 +927,7 @@ class Parser
         if (cur === Token.colon)
         {
           consume
-          slot = spec(name)
+          slot = spec(null)
         }
         else
         {
