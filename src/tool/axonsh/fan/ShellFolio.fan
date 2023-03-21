@@ -153,6 +153,35 @@ internal const class ShellFolio : Folio
     return id
   }
 
+  Void refreshDisAll()
+  {
+    // clear them all
+    map.each |Dict rec| { rec.id.disVal = null }
+
+    // update them all
+    map.each |Dict rec| { refreshDis(rec) }
+  }
+
+  private Str refreshDis(Dict rec)
+  {
+    id := rec.id
+    id.disVal = id.id // in case of circular macros
+    disMacro := rec.get("disMacro", null) as Str
+    dis := disMacro != null ?
+           DisMacro(disMacro, rec, this).apply :
+           rec.dis(null, null)
+    id.disVal = dis
+    return dis
+  }
+
+  internal Str toDis(Ref id)
+  {
+    if (id.disVal != null) return id.disVal
+    rec := map.get(id)
+    if (rec == null) return id.id
+    return refreshDis(rec)
+  }
+
   override FolioHis his() { throw UnsupportedErr() }
 
   override FolioBackup backup() { throw UnsupportedErr() }
@@ -165,3 +194,13 @@ internal const class ShellFolio : Folio
 
 }
 
+**************************************************************************
+** DisMacro
+**************************************************************************
+
+internal class DisMacro : Macro
+{
+  new make(Str p, Dict s, ShellFolio db) : super(p, s) { this.db = db  }
+  const ShellFolio db
+  override Str refToDis(Ref ref) { db.toDis(ref) }
+}

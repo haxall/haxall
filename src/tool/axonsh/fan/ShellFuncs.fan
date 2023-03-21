@@ -178,6 +178,13 @@ const class ShellFuncs : AbstractShellFuncs
     cx.data.lib(qname)
   }
 
+  ** Backdoor hook to refresh ref dis
+  @NoDoc @Axon static Obj? refreshDisAll()
+  {
+    cx.db.refreshDisAll
+    return "refreshed"
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Load
 //////////////////////////////////////////////////////////////////////////
@@ -201,6 +208,9 @@ const class ShellFuncs : AbstractShellFuncs
     echo("LOAD: loading '$uri' ...")
     grid := loadReadUri(uri)
 
+    // normalize refs
+    grid = grid.map |rec| { loadNorm(rec) }
+
     // map grid into byId table
     diffs := Diff[,]
     grid.each |Dict rec|
@@ -210,6 +220,7 @@ const class ShellFuncs : AbstractShellFuncs
       diffs.add(Diff.makeAdd(rec, id))
     }
     cx.db.commitAll(diffs)
+    cx.db.refreshDisAll
 
     echo("LOAD: loaded $grid.size recs")
     return noEcho
@@ -234,6 +245,18 @@ const class ShellFuncs : AbstractShellFuncs
       case "csv":  return CsvReader(s.in).readGrid
       default:     throw ArgErr("ERROR: unknown file type [$uri.name]")
     }
+  }
+
+  private static Dict loadNorm(Dict rec)
+  {
+    acc := Str:Obj[:]
+    rec.each |v, n|
+    {
+      if (FolioUtil.isUncommittable(n)) return
+      if (v is Ref) v = ((Ref)v).toProjRel
+      acc[n] = v
+    }
+    return Etc.dictFromMap(acc)
   }
 
 //////////////////////////////////////////////////////////////////////////
