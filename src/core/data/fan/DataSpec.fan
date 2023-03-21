@@ -79,6 +79,12 @@ const mixin DataSpec : DataDict
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 
+  ** Is this spec a DataLib
+  @NoDoc abstract Bool isLib()
+
+  ** Is this spec a named DataType
+  @NoDoc abstract Bool isType()
+
   ** Does this spec directly inherits from And/Or and define 'ofs'
   @NoDoc abstract Bool isCompound()
 

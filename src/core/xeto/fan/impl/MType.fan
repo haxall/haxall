@@ -13,7 +13,7 @@ using data
 ** Implementation of DataType wrapped by XetoType
 **
 @Js
-internal const class MType : MSpec
+internal const final class MType : MSpec
 {
   new make(FileLoc loc, XetoLib lib, Str qname, Str name, XetoType? base, XetoType self, DataDict own, MSlots declared, Int flags)
     : super(loc, lib, name, base, self, own, declared, flags)
@@ -28,6 +28,8 @@ internal const class MType : MSpec
   const override Str qname
 
   override DataSpec spec() { env.sys.type }
+
+  override Bool isType() { true }
 
   override Str toStr() { qname }
 }

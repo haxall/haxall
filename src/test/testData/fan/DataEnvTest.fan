@@ -271,6 +271,8 @@ class DataEnvTest : AbstractDataTest
     verifyEq(lib.name, "")
     verifyEq(lib.qname, qname)
     verifyEq(lib.version, version)
+    verifyEq(lib.isLib, true)
+    verifyEq(lib.isType, false)
     verifySame(lib.type, env.type("sys::Lib"))
     verifySame(lib.base, env.type("sys::Lib"))
     verifySame(lib.spec, env.type("sys::Lib"))
@@ -297,6 +299,8 @@ class DataEnvTest : AbstractDataTest
     verifySame(type.base, base)
     verifyEq(type.toStr, type.qname)
     verifySame(type.spec, env.type("sys::Type"))
+    verifyEq(type.isLib, false)
+    verifyEq(type.isType, true)
     verifyEq(type["val"], val)
     return type
   }
@@ -317,6 +321,8 @@ class DataEnvTest : AbstractDataTest
     verifySame(slot.type, type)
     verifySame(slot.base, type)
     verifySame(slot.spec, env.type("sys::Spec"))
+    verifyEq(slot.isLib, false)
+    verifyEq(slot.isType, false)
     return slot
   }
 

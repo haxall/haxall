@@ -82,6 +82,10 @@ internal const class MSpec
 // Flags
 //////////////////////////////////////////////////////////////////////////
 
+  virtual Bool isLib() { false }
+
+  virtual Bool isType() { false }
+
   Bool hasFlag(Int flag) { flags.and(flag) != 0 }
 
   const Int flags
@@ -189,6 +193,10 @@ internal const class XetoSpec : DataSpec, Dict
   override final DataSpec[]? ofs(Bool checked := true)  { XetoUtil.ofs(this, checked) }
 
   override final Bool isNone() { XetoUtil.isNone(this) }
+
+  override final Bool isLib() { m.isLib }
+
+  override final Bool isType() { m.isType }
 
   override final Bool isMaybe()  { m.hasFlag(MSpecFlags.maybe) }
   override final Bool isScalar() { m.hasFlag(MSpecFlags.scalar) }

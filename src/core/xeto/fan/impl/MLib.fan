@@ -13,7 +13,7 @@ using data
 ** Implementation of DataLib wrapped by XetoLib
 **
 @Js
-internal const class MLib : MSpec
+internal const final class MLib : MSpec
 {
   new make(XetoEnv env, FileLoc loc, Str qname, XetoType libType, DataDict own, MSlots declared)
     : super(loc, null, "", libType, libType, own, declared, 0)
@@ -33,6 +33,8 @@ internal const class MLib : MSpec
     // TODO
     return Version.fromStr(meta->version)
   }
+
+  override Bool isLib() { true }
 
   override Str toStr() { qname }
 
