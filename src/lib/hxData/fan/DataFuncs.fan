@@ -43,19 +43,21 @@ const class DataFuncs
     return acc
   }
 
+  **
+  ** Load or lookup a DataLib by qname.
+  **
+  ** Examples:
+  **   specLib("sys")
+  **   specLib("ph.points", false)
+  **
+  @Axon static data::DataLib? specLib(Str qname, Bool checked := true)
+  {
+    curContext.usings.data.lib(qname, checked)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Spec Reflection
 //////////////////////////////////////////////////////////////////////////
-
-  **
-  ** Library which contains the given data type.  Raise exception
-  ** if type is not a direct type spec of a library.
-  **
-  ** Examples:
-  **   specLib(Str)    >>  sys
-  **   specLib(Equip)  >>  ph
-  **
-  @Axon static data::DataLib specLib(DataType type) { type.lib }
 
   **
   ** Parent spec which contains given spec and scopes its name.
