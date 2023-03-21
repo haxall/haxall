@@ -178,7 +178,7 @@ class DataTestCase
 
   Void verifyType(Str:Obj? expect)
   {
-    verifySpec(lib.slot(expect.getChecked("name")), expect)
+    verifySpec(lib.libType(expect.getChecked("name")), expect)
   }
 
   Void verifyTypes(Str:Obj? expect)
@@ -436,7 +436,7 @@ class DataTestCase
     }
 
     DataSpec type := qname.startsWith("test::") ?
-                     lib.slotOwn(qname[6..-1]) :
+                     lib.libType(qname[6..-1]) :
                      env.type(qname)
 
     return slot == null ?

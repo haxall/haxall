@@ -126,7 +126,7 @@ internal class Resolve : Step
     if (lib == null) return err("Spec lib '$n' is not included in depends", ref.loc)
 
     // resolve in lib
-    type := lib.slotOwn(n.name, false)
+    type := lib.libType(n.name, false)
     if (type == null) return err("Unresolved spec '$n' in lib", ref.loc)
     ref.resolveExternal(type)
   }

@@ -281,12 +281,18 @@ class DataEnvTest : AbstractDataTest
     verifyErr(UnknownNameErr#) { lib.slotOwn("Bad") }
     verifyErr(UnknownNameErr#) { lib.slotOwn("Bad", true) }
 
+    verifyEq(lib.libType("Bad", false), null)
+    verifyErr(UnknownTypeErr#) { lib.libType("Bad") }
+    verifyErr(UnknownTypeErr#) { lib.libType("Bad", true) }
+
     return lib
   }
 
   DataSpec verifyLibType(DataLib lib, Str name, DataType? base, Obj? val := null)
   {
-    DataType type := lib.slotOwn(name)
+    DataType type := lib.libType(name)
+    verifySame(type, lib.slot(name))
+    verifySame(type, lib.slotOwn(name))
     verifySame(type.env, env)
     verifySame(type.parent, lib)
     verifySame(type.lib, lib)

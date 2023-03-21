@@ -17,4 +17,7 @@ const mixin DataLib : DataSpec
   ** Version of this library
   abstract Version version()
 
+  ** Lookup a type in this library by name.
+  @NoDoc abstract DataType? libType(Str name, Bool checked := true)
+
 }

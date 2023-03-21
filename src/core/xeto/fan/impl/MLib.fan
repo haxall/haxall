@@ -34,6 +34,14 @@ internal const final class MLib : MSpec
     return Version.fromStr(meta->version)
   }
 
+  DataType? libType(Str name, Bool checked := true)
+  {
+    type := slotOwn(name, false) as DataType
+    if (type != null) return type
+    if (checked) throw UnknownTypeErr(qname + "::" + name)
+    return null
+  }
+
   override Bool isLib() { true }
 
   override Str toStr() { qname }
@@ -53,6 +61,8 @@ internal const class XetoLib : XetoSpec, DataLib
   new make() : super() {}
 
   override Version version() { ml.version }
+
+  override DataType? libType(Str name, Bool checked := true) { ml.libType(name, checked) }
 
   const MLib? ml
 }

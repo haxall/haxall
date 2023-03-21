@@ -162,12 +162,12 @@ class DataCompileTest : AbstractDataTest
     num := env.type("sys::Number")
     int := env.type("sys::Int")
 
-    a := lib.slot("A"); af := a.slot("foo")
-    b := lib.slot("B"); bf := b.slot("foo")
-    c := lib.slot("C"); cf := c.slot("foo")
-    d := lib.slot("D"); df := d.slot("foo")
-    e := lib.slot("E"); ef := e.slot("foo")
-    f := lib.slot("F"); ff := f.slot("foo")
+    a := lib.libType("A"); af := a.slot("foo")
+    b := lib.libType("B"); bf := b.slot("foo")
+    c := lib.libType("C"); cf := c.slot("foo")
+    d := lib.libType("D"); df := d.slot("foo")
+    e := lib.libType("E"); ef := e.slot("foo")
+    f := lib.libType("F"); ff := f.slot("foo")
 
     verifyInheritSlot(a, af, num, num, ["a":m, "val":n(123), "doc":"a-doc"], "a,val,doc")
     verifySame(bf, af)
