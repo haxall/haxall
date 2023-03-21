@@ -108,7 +108,7 @@ internal class Fitter
       return explainMissingSlot(slot)
     }
 
-    valFits := valFits(val, slotType)
+    valFits := Fitter(env, cx, opts).valFits(val, slotType)
     if (!valFits) return explainInvalidSlotType(val, slot)
 
     return true
