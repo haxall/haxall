@@ -33,7 +33,7 @@ class Build : BuildPod
                "data @{hx.depend}",
                "haystack @{hx.depend}",
                "xeto @{hx.depend}",
-               "def @{hx.depend}"]
+               "defc @{hx.depend}"]
     srcDirs = [`fan/`]
     index =
     [
