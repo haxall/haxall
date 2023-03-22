@@ -1,8 +1,8 @@
-// Auto-generated 31-Jan-2023
+// Auto-generated 22-Mar-2023
 
 pragma: Lib <
   doc: "Project haystack core library"
-  version: "3.9.13"
+  version: "3.9.14"
   depends: {
     { lib: "sys" }
   }

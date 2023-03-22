@@ -1,4 +1,4 @@
-// Auto-generated 31-Jan-2023
+// Auto-generated 22-Mar-2023
 
 // Top-level dicts with a unique identifier.
 // See `docHaystack::Ontology#entities` chapter.
@@ -25,6 +25,31 @@ Actuator: Equip {
 // the air.  See `docHaystack::AHUs` chapter.
 Ahu: AirHandlingEquip {
   ahu
+}
+
+// System for air treatment to control its temperature, humidity, cleanliness,
+// and distribution to meet the requirements of a conditioned space.
+AirConditioningSystem: AirSystem {
+  conditioning
+}
+
+// System consisting of one or more fans that remove air from the building.
+// Exhaust systems allow outdoor air to enter by ventilation inlets or normal
+// leakage paths sthrough the building envelope.
+AirExhaustSystem: AirSystem {
+  exhaust
+}
+
+// System for moving air to maintain indoor thermal comfort and/or air quality.
+AirSystem: System {
+  air
+}
+
+// System that supplies or removes air by natural or mechanical means to or
+// from any space in order to provide outdoor air to the space. Such air may or
+// may not have been conditioned.
+AirVentilationSystem: AirSystem {
+  ventilation
 }
 
 // HVAC equipment that conditions and delivers air via one or more fans.
@@ -92,6 +117,12 @@ ChilledWaterPlant: Plant {
   water
 }
 
+// System that circulates water in its liquid state below ambient temperature
+// for cooling a space or process.
+ChilledWaterSystem: WaterSystem {
+  chilled
+}
+
 // Conditions a space using a heat exchanger integrated into the ceiling
 ChilledBeam: RadiantEquip {
   chilledBeam
@@ -117,6 +148,12 @@ Coil: HeatExchanger <abstract> {
 // General purpose computer.
 Computer: Device {
   computer
+}
+
+// System that circulates water in its liquid state for rejecting heat
+// from a space or process.
+CondenserWaterSystem: WaterSystem {
+  condenser
 }
 
 // Duct, pipe, or cable to convey a substance or phenomenon
@@ -193,6 +230,24 @@ Doas: Ahu {
   doas
 }
 
+// System that circulates potable cold water in its liquid state for purposes
+// other than space cooling and process requirements.
+DomesticColdWaterSystem: DomesticWaterSystem {
+  cold
+}
+
+// System that circulates potable hot water in its liquid state for purposes
+// other than space heating and process requirements.
+DomesticHotWaterSystem: DomesticWaterSystem {
+  hot
+}
+
+// System that circulates potable water in its liquid state for purposes
+// other than space conditioning and process requirements.
+DomesticWaterSystem: WaterSystem {
+  domestic
+}
+
 // Conduit used to convey air for HVAC
 Duct: Conduit {
   duct
@@ -206,6 +261,11 @@ ElecMeter: Meter {
 // Physical housing for electrical circuits, fuses, and breakers.
 // See `docHaystack::ElecPanels#panels` chapter.
 ElecPanel: Panel {
+  elec
+}
+
+// System that generates, converts, distributes, and/or stores electricity.
+ElecSystem: System {
   elec
 }
 
@@ -248,6 +308,12 @@ EvseEquip: Equip {
 // time.  See `docHaystack::EVSE#port` chapter.
 EvsePort: EvseEquip {
   port
+}
+
+// A system that supplies electricity to EVSE assembly equipment and its
+// auxiliary loads.
+EvseSystem: ElecSystem {
+  evse
 }
 
 // Motor used with a fan to create air flow.
@@ -308,11 +374,11 @@ HeatingCoil: Coil {
 // the 'hisRead' operation to return a trend log of timestamp/value pairs.
 //
 // There are typically two mechanisms for historization:
-// - the local system performs the historization by logging the
-// point's `curVal` to local storage
-// - in overlay systems a downstream device performs the historization
-// and the local system synchronizes the history data in batch on
-// a periodic basis
+//   - the local system performs the historization by logging the
+//     point's `curVal` to local storage
+//   - in overlay systems a downstream device performs the historization
+//     and the local system synchronizes the history data in batch on
+//     a periodic basis
 //
 // Also see `docHaystack::Points#his` chapter.
 HisPoint: Point <abstract> {
@@ -330,6 +396,12 @@ HotWaterBoiler: Boiler {
 HotWaterPlant: Plant {
   hot
   water
+}
+
+// System that circulates water in its liquid state for heating
+// a space or process.
+HotWaterSystem: WaterSystem {
+  hot
 }
 
 // Equipment which adds moisture to air to increase humidity
@@ -352,6 +424,11 @@ HvacZonePoints: PointGroup {
 // Portable laptop computer.
 Laptop: Computer {
   laptop
+}
+
+// System designed to provide lighting.
+LightingSystem: ElecSystem {
+  lighting
 }
 
 // Zone related to lighting system.
@@ -488,6 +565,11 @@ Radiator: RadiantEquip {
   radiator
 }
 
+// Refrigerant distribution to fulfill all or parts of a refrigeration cycle.
+RefrigSystem: System {
+  refrig
+}
+
 // The roof floor is the topmost level of a building.  It is often
 // where HVAC equipment is located such as rooftop AHUs.
 RoofFloor: Floor {
@@ -534,6 +616,12 @@ SteamPlant: Plant {
   steam
 }
 
+// System that circulates water in its vapor state for heating
+// a space or process.
+SteamSystem: WaterSystem {
+  steam
+}
+
 // Floor below ground level.  Subterranean floors are also known as
 // basements, lower levels, or cellars.
 SubterraneanFloor: Floor {
@@ -541,6 +629,7 @@ SubterraneanFloor: Floor {
 }
 
 // Grouping of related equipment dedicated to a single application.
+// See `docHaystack::Systems` chapter.
 System: Entity {
   system
 }
@@ -643,8 +732,13 @@ VrfRefrigPlant: Plant {
 // Variable refigerant flow system.  The system contains the indoor
 // units, outdoor units, and branch selectors.  See `docHaystack::VRF#types`
 // chapter.
-VrfSystem: System {
+VrfSystem: RefrigSystem {
   vrf
+}
+
+// System that supplies or collects potable or non-potable water in any state.
+WaterSystem: System {
+  water
 }
 
 // Weather station observation point.
@@ -679,9 +773,9 @@ Wire: Conduit {
 // relinquish default which effectively acts as level 17.
 //
 // The following levels have special behavior:
-// - **Level 1**: highest priority reserved for emergency overrides
-// - **Level 8**: manual override with ability to set timer to expire back to auto
-// - **Default**: implicitly acts as level 17 for relinquish default
+//  - **Level 1**: highest priority reserved for emergency overrides
+//  - **Level 8**: manual override with ability to set timer to expire back to auto
+//  - **Default**: implicitly acts as level 17 for relinquish default
 //
 // The priority array provides for contention resolution when many different
 // control applications may be vying for control of a given point. Low level
