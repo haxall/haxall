@@ -1,0 +1,20 @@
+//
+// Copyright (c) 2023, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   22 Mar 2023  Brian Frank  Creation
+//
+
+// Air handler which feeds VAVs
+VavZoneAhu : Ahu {
+  vavZone
+  vavs: Query <of:Vav, inverse:"ph.equips::AhuVav.ahu">
+}
+
+//  VAV which is fed by an AHU
+AhuVav : Vav {
+  ahu: Query<of:Ahu, via:"airRef+">
+}
+
+
