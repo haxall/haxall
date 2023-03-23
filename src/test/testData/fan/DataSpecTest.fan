@@ -220,5 +220,58 @@ class DataSpecTest : AbstractDataTest
     verifyEq(slots.names.size, expected.size)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Query Inherit
+//////////////////////////////////////////////////////////////////////////
+
+  Void testQueryInherit()
+  {
+    lib := compileLib(
+      Str<|pragma: Lib < depends: { { lib:"sys" }, { lib:"ph" } } >
+           AhuA: {
+             points: {
+               { discharge, temp}
+             }
+           }
+           AhuB: {
+             points: {
+               { return, temp}
+             }
+           }
+
+           AhuAB: AhuA & AhuB
+
+           AhuC: AhuAB {
+             points: {
+               { outside, temp}
+             }
+           }
+           |>)
+
+     // env.print(lib)
+
+     verifyQueryInherit(lib.libType("AhuA"),  ["discharge-temp"])
+     verifyQueryInherit(lib.libType("AhuB"),  ["return-temp"])
+     verifyQueryInherit(lib.libType("AhuAB"), ["discharge-temp", "return-temp"])
+     verifyQueryInherit(lib.libType("AhuC"),  ["discharge-temp", "return-temp", "outside-temp"])
+  }
+
+  Void verifyQueryInherit(DataSpec x, Str[] expectPoints)
+  {
+    q := x.slot("points")
+    actualPoints := Str[,]
+    q.slots.each |slot|
+    {
+      s := StrBuf()
+      slot.slots.each |tag| { s.join(tag.name, "-") }
+      actualPoints.add(s.toStr)
+    }
+    // echo(">>> $q: $q.type")
+    // echo("    $actualPoints")
+    verifyEq(q.isQuery, true)
+    verifyEq(q.type, env.spec("sys::Query"))
+    verifyEq(actualPoints, expectPoints)
+  }
+
 }
 

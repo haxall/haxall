@@ -35,6 +35,14 @@ internal const class XetoUtil
     return n.all |c| { c.isAlphaNum || c == '_' }
   }
 
+  ** Return if name is "_" + digits
+  static Bool isAutoName(Str n)
+  {
+    if (n.size < 2 || n[0] != '_' || !n[1].isDigit) return false
+    for (i:=2; i<n.size; ++i) if (!n[i].isDigit) return false
+    return true
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Opts
 //////////////////////////////////////////////////////////////////////////
@@ -100,12 +108,13 @@ internal const class XetoUtil
   static MSlots inheritSlots(MSpec spec)
   {
     own := spec.slotsOwn
-    supertype := spec.base
+    base := spec.base
 
-    if (supertype == null) return own
+    if (base == null) return own
 
     [Str:XetoSpec]? acc := null
-    if (supertype === spec.env.sys.and)
+    autoCount := 0
+    if (base === spec.env.sys.and)
     {
       acc = Str:XetoSpec[:]
       acc.ordered = true
@@ -116,37 +125,46 @@ internal const class XetoUtil
         x.slots.each |s|
         {
           // TODO: need to handle conflicts in compiler checks
-          acc[s.name] = s
+          name := s.name
+          if (XetoUtil.isAutoName(name)) name = "_" + (autoCount++)
+          dup := acc[name]
+          if (dup != null)
+            acc[name] = overrideSlot(dup, s)
+          else
+            acc[name] = s
         }
       }
     }
     else
     {
-      if (own.isEmpty) return supertype.slots
+      if (own.isEmpty) return base.slots
 
       // add supertype slots
       acc = Str:XetoSpec[:]
       acc.ordered = true
-      supertype.slots.each |s|
+      base.slots.each |s|
       {
-        acc[s.name] = s
+        name := s.name
+        if (XetoUtil.isAutoName(name)) name = "_" + (autoCount++)
+        acc[name] = s
       }
     }
 
     // add in my own slots
     own.each |s|
     {
-      n := s.name
-      inherit := acc[n]
+      name := s.name
+      if (XetoUtil.isAutoName(name)) name = "_" + (autoCount++)
+      inherit := acc[name]
       if (inherit != null) s = overrideSlot(inherit, s)
-      acc[n] = s
+      acc[name] = s
     }
 
     return MSlots(acc)
   }
 
   ** Merge inherited slot 'a' with override slot 'b'
-  static XetoSpec overrideSlot(XetoSpec a, XetoSpec b)
+  private static XetoSpec overrideSlot(XetoSpec a, XetoSpec b)
   {
     XetoSpec(MSpec(b.loc, b.parent, b.name, a, b.type, b.own, b.slotsOwn, b.m.flags))
   }

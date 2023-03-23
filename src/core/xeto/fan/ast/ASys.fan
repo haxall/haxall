@@ -22,6 +22,7 @@ internal class ASys
   ARef and    := init("And")
   ARef or     := init("Or")
   ARef lib    := init("Lib")
+  ARef query  := init("Query")
 
   Void each(|ARef| f)
   {

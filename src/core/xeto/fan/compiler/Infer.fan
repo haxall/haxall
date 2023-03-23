@@ -47,6 +47,13 @@ internal class Infer : Step
       return
     }
 
+    // TODO: total hack until we get inheritance
+    if (x.name == "points")
+    {
+      x.type = sys.query
+      return
+    }
+
     // TODO: fallback to Str/Dict
     if (x.val != null)
       x.type = sys.str
