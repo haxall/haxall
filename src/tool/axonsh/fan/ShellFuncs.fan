@@ -220,7 +220,6 @@ const class ShellFuncs : AbstractShellFuncs
       diffs.add(Diff.makeAdd(rec, id))
     }
     cx.db.commitAll(diffs)
-    cx.db.refreshDisAll
 
     echo("LOAD: loaded $grid.size recs")
     return noEcho

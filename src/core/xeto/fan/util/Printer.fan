@@ -46,6 +46,11 @@ class Printer
   This print(Obj? v)
   {
     if (opts.has("json")) return json(v).nl
+
+    dict := v as Dict
+    if (dict != null && dict.has("id"))
+      comment("// $dict.id.toZinc").nl
+
     val(v)
     if (!lastnl) nl
     return this
@@ -61,6 +66,7 @@ class Printer
     if (val is Dict) return dict(val)
     if (val is List) return list(val)
     if (inMeta) return quoted(val.toStr)
+    if (val is Ref) return ref(val)
     return w(val)
   }
 
@@ -100,6 +106,14 @@ class Printer
       else
         val(v)
     }
+    return this
+  }
+
+  ** Print ref
+  This ref(Ref ref)
+  {
+    w("@").w(ref.id)
+    if (ref.disVal != null) sp.quoted(ref.dis)
     return this
   }
 

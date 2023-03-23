@@ -87,7 +87,7 @@ class DataEnvTest : AbstractDataTest
   Void testPhLib()
   {
     // lib basics
-    ph := verifyLibBasics("ph", Version("3.9.13"))
+    ph := verifyLibBasics("ph", Version("3.9.14"))
 
     entity := verifyLibType(ph, "Entity", env.type("sys::Dict"))
     equip  := verifyLibType(ph, "Equip",  entity)

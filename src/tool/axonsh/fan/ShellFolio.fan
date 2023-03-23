@@ -91,13 +91,23 @@ internal const class ShellFolio : Folio
     }
   }
 
+  override FolioHis his() { throw UnsupportedErr() }
+
+  override FolioBackup backup() { throw UnsupportedErr() }
+
+//////////////////////////////////////////////////////////////////////////
+// Commit
+//////////////////////////////////////////////////////////////////////////
+
   override FolioFuture doCommitAllAsync(Diff[] diffs, Obj? cxInfo)
   {
+    // check and normalize all the diffs - not thread-safe!!!
     FolioUtil.checkDiffs(diffs)
-
     newMod := DateTime.nowUtc(null)
-    diffs =  diffs.map |diff| { commitApply(diff, newMod) }
+    internedIds := Ref:Ref[:]
+    diffs =  diffs.map |diff| { commitApply(diff, internedIds, newMod) }
 
+    // walk thru each diff and update my concurrent map
     diffs.each |diff|
     {
       if (diff.isRemove)
@@ -106,12 +116,18 @@ internal const class ShellFolio : Folio
         map.set(diff.id, diff.newRec)
     }
 
+    // force recompute of all dis on every commit; expensive but simple
+    refreshDisAll
+
     return FolioFuture(CommitFolioRes(diffs))
   }
 
-  private Diff commitApply(Diff diff, DateTime newMod)
+  private Diff commitApply(Diff diff, Ref:Ref internedIds, DateTime newMod)
   {
-    id := diff.id
+    // normalize and intern the id
+    id := commitNorm(diff.id, internedIds)
+
+    // lookup old record
     oldRec := map.get(id) as Dict
 
     // sanity check oldRec
@@ -132,7 +148,7 @@ internal const class ShellFolio : Folio
     diff.changes.each |v, n|
     {
       if (v === Remove.val) tags.remove(n)
-      else tags[n] = commitNorm(v)
+      else tags[n] = commitNorm(v, internedIds)
     }
     tags["id"] = id
     if (!diff.isTransient) tags["mod"] = newMod
@@ -143,15 +159,25 @@ internal const class ShellFolio : Folio
     return Diff.makeAll(id, diff.oldMod, oldRec, newMod, newRec, diff.changes, diff.flags)
   }
 
-  private Obj commitNorm(Obj val)
+  private Obj commitNorm(Obj val, Ref:Ref internedIds)
   {
     id := val as Ref
     if (id == null) return val
+
+    interned := internedIds[id]
+    if (interned != null) return interned
+
     rec := map.get(id) as Dict
     if (rec != null) return rec.id
+
     if (id.disVal != null) id = Ref(id.id, null)
+    internedIds[id] = id
     return id
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Ref Dis
+//////////////////////////////////////////////////////////////////////////
 
   Void refreshDisAll()
   {
@@ -182,9 +208,9 @@ internal const class ShellFolio : Folio
     return refreshDis(rec)
   }
 
-  override FolioHis his() { throw UnsupportedErr() }
-
-  override FolioBackup backup() { throw UnsupportedErr() }
+//////////////////////////////////////////////////////////////////////////
+// Rec Map
+//////////////////////////////////////////////////////////////////////////
 
   private Obj? eachWhile(|Dict->Obj?| f) { map.eachWhile(f) }
 
