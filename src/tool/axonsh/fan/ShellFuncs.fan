@@ -16,7 +16,7 @@ using folio
 **
 ** Axon shell specific functions
 **
-const class ShellFuncs : AbstractShellFuncs
+const class ShellFuncs
 {
   ** Exit the shell.
   @Axon static Obj? quit()
@@ -193,74 +193,34 @@ const class ShellFuncs : AbstractShellFuncs
   ** Load the in-memory database from an Uri.  The uri must be have http/https
   ** scheme or reference a file on the local file system (using forward slash).
   ** The filename must have one of the following file extensions: zinc, json,
-  ** trio, or csv.  Each record should define an 'id' tag, or if missing one
-  ** will assigned automatically.
+  ** trio, or csv.  Each record should define an 'id' tag, or if missing then
+  ** an id will assigned automatically.
+  **
+  ** Options:
+  **   - shortIds: will swizzle all internal refs to short ids
   **
   ** Examples:
   **   // load from the a local file
   **   load(`folder/site.json`)
   **
+  **   // load from the a local file and use short ids
+  **   load(`folder/site.json`, {shortIds})
+  **
   **   // load from a HTTP URI
   **   load(`https://project-haystack.org/example/download/bravo.zinc`)
   **
-  @Axon static Obj? load(Uri uri)
+  @Axon static Obj? load(Uri uri, Dict? opts := null)
   {
-    echo("LOAD: loading '$uri' ...")
-    grid := loadReadUri(uri)
-
-    // normalize refs
-    grid = grid.map |rec| { loadNorm(rec) }
-
-    // map grid into byId table
-    diffs := Diff[,]
-    grid.each |Dict rec|
-    {
-      id := rec["id"] as Ref ?: Ref.gen
-      rec = Etc.dictRemoveAll(rec, ["id", "mod"])
-      diffs.add(Diff.makeAdd(rec, id))
-    }
-    cx.db.commitAll(diffs)
-
-    echo("LOAD: loaded $grid.size recs")
-    return noEcho
-  }
-
-  private static Grid loadReadUri(Uri uri)
-  {
-    // we use URI extension type even for HTTP
-    if (uri.scheme == "http" || uri.scheme == "https")
-      return loadReadStr(uri, WebClient(uri).getStr)
-    else
-      return loadReadStr(uri, uri.toFile.readAllStr)
-  }
-
-  private static Grid loadReadStr(Uri uri, Str s)
-  {
-    switch (uri.ext)
-    {
-      case "zinc": return ZincReader(s.in).readGrid
-      case "json": return JsonReader(s.in).readGrid
-      case "trio": return TrioReader(s.in).readGrid
-      case "csv":  return CsvReader(s.in).readGrid
-      default:     throw ArgErr("ERROR: unknown file type [$uri.name]")
-    }
-  }
-
-  private static Dict loadNorm(Dict rec)
-  {
-    acc := Str:Obj[:]
-    rec.each |v, n|
-    {
-      if (FolioUtil.isUncommittable(n)) return
-      if (v is Ref) v = ((Ref)v).toProjRel
-      acc[n] = v
-    }
-    return Etc.dictFromMap(acc)
+    ShellLoader(cx, uri, opts ?: Etc.dict0).load
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  private static Str noEcho() { ShellContext.noEcho }
+
+  private static ShellContext cx() { AxonContext.curAxon }
 
   private static Int maxStr(Str[] strs)
   {
@@ -305,15 +265,4 @@ const class ShellFuncs : AbstractShellFuncs
 
 }
 
-**************************************************************************
-** Absstract ShellFuncs
-**************************************************************************
-
-abstract const class AbstractShellFuncs
-{
-  internal static Str noEcho() { ShellContext.noEcho }
-
-  internal static ShellContext cx() { AxonContext.curAxon }
-
-}
 
