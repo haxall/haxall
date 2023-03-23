@@ -246,14 +246,40 @@ class DataSpecTest : AbstractDataTest
                { outside, temp}
              }
            }
+
+           AhuX: {
+             points: {
+               dat: { discharge, temp}
+             }
+           }
+           AhuY : {
+             points: {
+               rat: { return, temp}
+             }
+           }
+
+           AhuXY: AhuX & AhuY
+
+           AhuZ: AhuXY {
+             points: {
+               oat: { outside, temp}
+             }
+           }
            |>)
 
-     // env.print(lib)
+     // env.print(lib, Env.cur.out, env.dict1("effective", m))
 
+     // auto named
      verifyQueryInherit(lib.libType("AhuA"),  ["discharge-temp"])
      verifyQueryInherit(lib.libType("AhuB"),  ["return-temp"])
      verifyQueryInherit(lib.libType("AhuAB"), ["discharge-temp", "return-temp"])
      verifyQueryInherit(lib.libType("AhuC"),  ["discharge-temp", "return-temp", "outside-temp"])
+
+     // explicitly named
+     verifyQueryInherit(lib.libType("AhuX"),  ["dat:discharge-temp"])
+     verifyQueryInherit(lib.libType("AhuY"),  ["rat:return-temp"])
+     verifyQueryInherit(lib.libType("AhuXY"), ["dat:discharge-temp", "rat:return-temp"])
+     verifyQueryInherit(lib.libType("AhuZ"),  ["dat:discharge-temp", "rat:return-temp", "oat:outside-temp"])
   }
 
   Void verifyQueryInherit(DataSpec x, Str[] expectPoints)
@@ -262,9 +288,11 @@ class DataSpecTest : AbstractDataTest
     actualPoints := Str[,]
     q.slots.each |slot|
     {
-      s := StrBuf()
-      slot.slots.each |tag| { s.join(tag.name, "-") }
-      actualPoints.add(s.toStr)
+      sb := StrBuf()
+      slot.slots.each |tag| { sb.join(tag.name, "-") }
+      s := sb.toStr
+      if (!slot.name.startsWith("_")) s = "$slot.name:$s"
+      actualPoints.add(s)
     }
     // echo(">>> $q: $q.type")
     // echo("    $actualPoints")
