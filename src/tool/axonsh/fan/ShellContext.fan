@@ -63,7 +63,11 @@ internal class ShellContext : HxContext
         expr := prompt
         if (!expr.isEmpty) run(expr)
       }
-      catch (AxonErr e)
+      catch (SyntaxErr e)
+      {
+        err("Syntax Error: $e.msg")
+      }
+      catch (EvalErr e)
       {
         err(e.msg, e.cause)
       }
