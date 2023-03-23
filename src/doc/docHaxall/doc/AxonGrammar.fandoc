@@ -95,7 +95,7 @@ Productions [#productions]
   <specBody>     :=  <specScalar> | <specSlots>
   <specScalar>   :=  <number> | <str> | <date> | <time>
   <specSlots>    :=  "{" [<specSlot> (<specEos> <specSlot>)* [<specEos>]] "}"
-  <specSlot>     :=  <specMarker> | <specUnnamed> | <specNamed>
+  <specSlot>     :=  <specMarker> | <specUnnamed> | <specNamed> | <specSlots>
   <specEos>      :=  "," | <nl>
   <specMarker>   :=  <id>
   <specUnnamed>  :=  <spec>

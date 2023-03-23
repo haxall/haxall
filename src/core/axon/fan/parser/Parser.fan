@@ -742,19 +742,7 @@ class Parser
     name := curVal
     consume(Token.typename)
     consume(Token.colon)
-
-    Spec? type
-    if (cur === Token.lbrace)
-    {
-      ref   := SpecTypeRef(loc, "sys", "Dict")
-      slots := specSlots()
-      type  = SpecDerive(loc, name, ref, null, slots)
-    }
-    else
-    {
-      type = spec(name)
-    }
-
+    type := spec(name)
     return DefineVar(loc, name, type)
   }
 
@@ -766,7 +754,7 @@ class Parser
   **   <specBody>     :=  <specScalar> | <specSlots>
   **   <specScalar>   :=  <number> | <str> | <date> | <time>
   **   <specSlots>    :=  "{" [<specSlot> (<specEos> <specSlot>)* [<specEos>]] "}"
-  **   <specSlot>     :=  <specMarker> | <specUnnamed> | <specNamed>
+  **   <specSlot>     :=  <specMarker> | <specUnnamed> | <specNamed> | <specSlots>
   **   <specEos>      :=  "," | <nl>
   **   <specMarker>   :=  <id>
   **   <specUnnamed>  :=  <spec>
@@ -779,26 +767,35 @@ class Parser
   **
   private Expr spec(Str? name)
   {
-    if (cur != Token.typename) throw err("Expected typename, not $curToStr")
+    loc := curLoc
+    Spec? ref := null
+    SpecMetaTag[]? meta := null
 
     // <specType>
-    ref := specSimple
-    loc := ref.loc
-    SpecMetaTag[]? meta := null
-    if (cur === Token.question)
+    if (cur === Token.typename)
     {
-      consume
-      meta = specMetaAdd(meta, "maybe", Literal.markerVal)
+      ref = specSimple
+      if (cur === Token.question)
+      {
+        consume
+        meta = specMetaAdd(meta, "maybe", Literal.markerVal)
+      }
+      else if (cur === Token.amp)
+      {
+        meta = specMetaAdd(meta, "ofs", specCompound(ref, Token.amp))
+        ref = SpecTypeRef(loc, "sys", "And")
+      }
+      else if (cur === Token.pipe)
+      {
+        meta = specMetaAdd(meta, "ofs", specCompound(ref, Token.pipe))
+        ref = SpecTypeRef(loc, "sys", "Or")
+      }
     }
-    else if (cur === Token.amp)
+    else
     {
-      meta = specMetaAdd(meta, "ofs", specCompound(ref, Token.amp))
-      ref = SpecTypeRef(loc, "sys", "And")
-    }
-    else if (cur === Token.pipe)
-    {
-      meta = specMetaAdd(meta, "ofs", specCompound(ref, Token.pipe))
-      ref = SpecTypeRef(loc, "sys", "Or")
+      // must be {...} assumed as sys::Dict
+      if (cur !== Token.lbrace) throw err("Expecting spec typename or '{' for slots")
+      ref = SpecTypeRef(loc, "sys", "Dict")
     }
 
     // <specMeta>
