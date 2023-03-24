@@ -35,14 +35,5 @@ class Build : BuildPod
                "xeto @{hx.depend}",
                "defc @{hx.depend}"]
     srcDirs = [`fan/`]
-    index =
-    [
-      "xeto.cmd": [
-        "xetoTools::EnvCmd",
-        "xetoTools::GenPH",
-        "xetoTools::HelpCmd",
-        "xetoTools::VersionCmd"
-      ]
-    ]
   }
 }

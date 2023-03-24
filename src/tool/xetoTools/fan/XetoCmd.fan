@@ -12,7 +12,7 @@ using util
 ** Xeto CLI command plugin.  To create:
 **
 **  1. Define subclass of XetoCmd
-**  2. Register type qname via indexed prop as "xeto.cmd"
+**  2. Register type qname via indexed prop as "xeto.cmd" (if not in this pod)
 **  3. Annotate options and args using `util::AbstractMain` design
 **
 abstract class XetoCmd : AbstractMain
@@ -27,6 +27,14 @@ abstract class XetoCmd : AbstractMain
   static XetoCmd[] list()
   {
     acc := XetoCmd[,]
+
+    // this pod
+    XetoCmd#.pod.types.each |t|
+    {
+      if (t.fits(XetoCmd#) && !t.isAbstract) acc.add(t.make)
+    }
+
+    // other pods via index
     Env.cur.index("xeto.cmd").each |qname|
     {
       try
@@ -37,6 +45,7 @@ abstract class XetoCmd : AbstractMain
       }
       catch (Err e) echo("ERROR: invalid xeto.cmd $qname\n  $e")
     }
+
     acc.sort |a, b| { a.name <=> b.name }
     return acc
   }
