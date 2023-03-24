@@ -8,6 +8,7 @@
 
 using util
 using data
+using haystack::Dict
 
 **
 ** Fitter
@@ -215,15 +216,15 @@ internal class ExplainFitter : Fitter
 
   override Bool explainMissingQueryConstraint(Str ofDis, DataSpec constraint)
   {
-    log("Missing required $ofDis $constraint.name")
+    name := constraint.name
+    if (XetoUtil.isAutoName(name)) name = constraint.type.qname
+    return log("Missing required $ofDis $name")
   }
 
-/*
   override Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, DataDict[] matches)
   {
     log("Ambiguous match for $ofDis $constraint.name: " + recsToDis(matches))
   }
-*/
 
   override Bool explainInvalidSlotType(Obj val, DataSpec slot)
   {
@@ -236,7 +237,6 @@ internal class ExplainFitter : Fitter
     return false
   }
 
-/*
   private Str recsToDis(DataDict[] recs)
   {
     s := StrBuf()
@@ -244,7 +244,7 @@ internal class ExplainFitter : Fitter
     {
       rec := recs[i]
       str := "@" + rec->id
-      dis := relDis(rec)
+      dis := ((Dict)rec).dis
       if (dis != null) str += " $dis.toCode"
       s.join(str, ", ")
       if (s.size > 50 && i+1<recs.size)
@@ -252,7 +252,6 @@ internal class ExplainFitter : Fitter
     }
     return s.toStr
   }
- */
 
   private |DataLogRec| cb
 }

@@ -467,8 +467,37 @@ class AxonTest : HxTest
                fan:  {fan, run}
              }
            }
+
+           DTemp: {discharge, temp}
+           DFlow: {discharge, flow}
+           Ahu2: ph::Equip { points: { DTemp, DFlow } }
            |>)
-     verifyQueryNamed(ahu, lib.slot("Ahu1").slot("points"), ["temp":dtemp, "flow":dflow, "fan":drun])
+     ahu1 := lib.libType("Ahu1")
+     ahu2 := lib.libType("Ahu2")
+
+     // verify queryNamed
+     verifyQueryNamed(ahu, ahu1.slot("points"), ["temp":dtemp, "flow":dflow, "fan":drun])
+
+     // verify fitsExplain for missing points
+     ahuX := addRec(["id":Ref("x"), "equip":m])
+     verifyQueryFitsExplain(ahuX, ahu1, [
+       "Missing required Point temp",
+       "Missing required Point flow",
+       "Missing required Point fan",
+      ])
+     verifyQueryFitsExplain(ahuX, ahu2, [
+       "Missing required Point ${lib.qname}::DTemp",
+       "Missing required Point ${lib.qname}::DFlow",
+      ])
+
+     // ambiguous matches
+     d1 := addRec(["id":Ref("d1"), "dis":"Temp 1", "discharge":m, "temp":m, "point":m, "equipRef":ahuX.id])
+     d2 := addRec(["id":Ref("d2"), "dis":"Temp 2", "discharge":m, "temp":m, "point":m, "equipRef":ahuX.id])
+     verifyQueryFitsExplain(ahuX, ahu1, [
+       "Ambiguous match for Point temp: @d1 \"Temp1\", @d2 \"Temp2\"",
+       "Missing required Point flow",
+       "Missing required Point fan",
+      ])
   }
 
   Void verifyQuery(Dict rec, Str query, Dict[] expect)
@@ -520,6 +549,23 @@ class AxonTest : HxTest
       a := actual[name]
       if (a == null) fail("Missing $name")
       verifyDictEq(e, a)
+    }
+  }
+
+  Void verifyQueryFitsExplain(Dict subject, DataSpec spec, Str[] expect)
+  {
+    cx := makeContext
+    Grid grid := cx.evalToFunc("fitsExplain").call(cx, [subject, spec])
+
+    // echo; echo("-- $subject | $spec"); grid.dump
+
+    if (expect.isEmpty) return verifyEq(grid.size, 0)
+
+    verifyEq(grid.size, expect.size+1)
+    verifyEq(grid[0]->msg, expect.size == 1 ? "1 error" : "$expect.size errors")
+    expect.each |msg, i|
+    {
+      verifyEq(grid[i+1]->msg, msg)
     }
   }
 
