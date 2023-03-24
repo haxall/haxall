@@ -7,6 +7,7 @@
 //
 
 using util
+using data
 
 **
 ** Xeto CLI command plugin.  To create:
@@ -68,10 +69,53 @@ abstract class XetoCmd : AbstractMain
   ** Single line summary of the command for help
   abstract Str summary()
 
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
   ** Print a line to stdout
   Void printLine(Str line := "") { echo(line) }
 
   ** Print error message and return 1
-  @NoDoc Int err(Str msg) { printLine("ERROR: $msg"); return 1 }
+  Int err(Str msg) { printLine("ERROR: $msg"); return 1 }
+
+  ** DataEnv
+  DataEnv env() { DataEnv.cur }
+
+  ** Handle list of spec qnames or "all".
+  ** If no names are specifid will print error message and return null.
+  DataSpec[]? toSpecs(Str[]? qnames)
+  {
+    if (qnames == null || qnames.isEmpty)
+    {
+      printLine("ERROR: no libs specified")
+      return null
+    }
+
+    if (qnames.contains("all"))
+    {
+      qnames = env.libsInstalled
+    }
+
+    return qnames.map |qname->DataSpec| { env.spec(qname) }
+  }
+
+  ** Output to a file or stdout and guaranteed closed
+  Void withOut(File? arg, |OutStream| f)
+  {
+    if (arg == null)
+    {
+      f(Env.cur.out)
+    }
+    else
+    {
+      out := arg.out
+      try
+        f(out)
+      finally
+        out.close
+    }
+  }
+
 }
 

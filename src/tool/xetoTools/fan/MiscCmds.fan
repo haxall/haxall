@@ -21,7 +21,7 @@ internal class EnvCmd : XetoCmd
 
   override Int run()
   {
-    DataEnv.cur.dump
+    env.dump
     return 0
   }
 }
