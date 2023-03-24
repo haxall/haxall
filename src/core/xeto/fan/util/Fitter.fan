@@ -143,7 +143,7 @@ internal class Fitter
     matches := DataDict[,]
     extent.each |x|
     {
-      if (valFits(x, constraint)) matches.add(x)
+      if (Fitter(env, cx, opts).valFits(x, constraint)) matches.add(x)
     }
 
     if (matches.size == 1) return true
@@ -216,14 +216,12 @@ internal class ExplainFitter : Fitter
 
   override Bool explainMissingQueryConstraint(Str ofDis, DataSpec constraint)
   {
-    name := constraint.name
-    if (XetoUtil.isAutoName(name)) name = constraint.type.qname
-    return log("Missing required $ofDis $name")
+    log("Missing required $ofDis: " + constraintToDis(constraint))
   }
 
   override Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, DataDict[] matches)
   {
-    log("Ambiguous match for $ofDis $constraint.name: " + recsToDis(matches))
+    log("Ambiguous match for $ofDis: " + constraintToDis(constraint) + " [" + recsToDis(matches) + "]")
   }
 
   override Bool explainInvalidSlotType(Obj val, DataSpec slot)
@@ -237,9 +235,17 @@ internal class ExplainFitter : Fitter
     return false
   }
 
+  private Str constraintToDis(DataSpec constraint)
+  {
+    n := constraint.name
+    if (XetoUtil.isAutoName(n)) return constraint.type.qname
+    return n
+  }
+
   private Str recsToDis(DataDict[] recs)
   {
     s := StrBuf()
+    recs.sort |a, b| { a["id"] <=> b["id"] }
     for (i := 0; i<recs.size; ++i)
     {
       rec := recs[i]

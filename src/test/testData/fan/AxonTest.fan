@@ -481,22 +481,26 @@ class AxonTest : HxTest
      // verify fitsExplain for missing points
      ahuX := addRec(["id":Ref("x"), "equip":m])
      verifyQueryFitsExplain(ahuX, ahu1, [
-       "Missing required Point temp",
-       "Missing required Point flow",
-       "Missing required Point fan",
+       "Missing required Point: temp",
+       "Missing required Point: flow",
+       "Missing required Point: fan",
       ])
      verifyQueryFitsExplain(ahuX, ahu2, [
-       "Missing required Point ${lib.qname}::DTemp",
-       "Missing required Point ${lib.qname}::DFlow",
+       "Missing required Point: ${lib.qname}::DTemp",
+       "Missing required Point: ${lib.qname}::DFlow",
       ])
 
      // ambiguous matches
      d1 := addRec(["id":Ref("d1"), "dis":"Temp 1", "discharge":m, "temp":m, "point":m, "equipRef":ahuX.id])
      d2 := addRec(["id":Ref("d2"), "dis":"Temp 2", "discharge":m, "temp":m, "point":m, "equipRef":ahuX.id])
      verifyQueryFitsExplain(ahuX, ahu1, [
-       "Ambiguous match for Point temp: @d1 \"Temp1\", @d2 \"Temp2\"",
-       "Missing required Point flow",
-       "Missing required Point fan",
+       "Ambiguous match for Point: temp [$d1.id.toZinc, $d2.id.toZinc]",
+       "Missing required Point: flow",
+       "Missing required Point: fan",
+      ])
+     verifyQueryFitsExplain(ahuX, ahu2, [
+       "Ambiguous match for Point: ${lib.qname}::DTemp [$d1.id.toZinc, $d2.id.toZinc]",
+       "Missing required Point: ${lib.qname}::DFlow",
       ])
   }
 
