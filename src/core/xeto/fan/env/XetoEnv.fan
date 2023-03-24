@@ -205,6 +205,12 @@ internal const class XetoEnv : DataEnv
     return acc.eachWhile(f)
   }
 
+  override DataDict genAst(DataSpec spec, DataDict? opts := null)
+  {
+    own := opts != null && opts.has("own")
+    return XetoUtil.genAst(this, spec, own)
+  }
+
   override Void print(Obj? val, OutStream out := Env.cur.out, DataDict? opts := null)
   {
     Printer(this, out, opts ?: dict0).print(val)

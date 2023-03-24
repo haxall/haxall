@@ -111,6 +111,7 @@ internal const class XetoUtil
     base := spec.base
 
     if (base == null) return own
+    if (spec.isLib) return own
 
     [Str:XetoSpec]? acc := null
     autoCount := 0
@@ -289,5 +290,74 @@ internal const class XetoUtil
     return env.dictMap(acc)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// AST
+//////////////////////////////////////////////////////////////////////////
+
+
+  **
+  ** Generate AST dict tree
+  **
+  static DataDict genAst(DataEnv env, DataSpec spec, Bool isOwn)
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
+
+    if (spec.isType)
+    {
+      if (spec.base != null)  acc["base"] = spec.base.qname
+    }
+    else
+    {
+      acc["type"] = spec.type.qname
+    }
+
+    DataDict meta := isOwn ? spec.own : spec
+    meta.each |v, n|
+    {
+      if (n == "val" && v === env.marker) return
+      acc[n] = genAstVal(env, v)
+    }
+
+    slots := isOwn ? spec.slotsOwn : spec.slots
+    if (!slots.isEmpty)
+    {
+      slotsAcc := Str:Obj[:]
+      slotsAcc.ordered = true
+      slots.each |slot|
+      {
+        noRecurse := slot.base?.type === slot.base && !slot.isType
+        slotsAcc[slot.name] = genAst(env, slot, isOwn || noRecurse)
+      }
+      acc["slots"] = env.dictMap(slotsAcc)
+    }
+
+    return env.dictMap(acc)
+  }
+
+  private static Obj genAstVal(DataEnv env, Obj val)
+  {
+    if (val is DataSpec) return val.toStr
+    if (val is List)
+    {
+      return ((List)val).map |x| { genAstVal(env, x) }
+    }
+    if (val is DataDict)
+    {
+      dict := (DataDict)val
+      if (dict.isEmpty) return dict
+      acc := Str:Obj[:]
+      acc.ordered = true
+      isList := true // TODO
+      ((DataDict)val).each |v, n|
+      {
+        if (!XetoUtil.isAutoName(n)) isList = false
+        acc[n] = genAstVal(env, v)
+      }
+      if (isList) return acc.vals // TODO: should already be a list!
+      return env.dictMap(acc)
+    }
+    return val.toStr
+  }
 }
 

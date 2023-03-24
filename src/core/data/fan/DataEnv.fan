@@ -115,6 +115,9 @@ const abstract class DataEnv
   ** as overall result of the method.
   @NoDoc abstract Obj? queryWhile(DataContext cx, DataDict subject, DataSpec query, DataDict? opts, |DataDict->Obj?| f)
 
+  ** Generate an AST for the given spec as a Dict tree.
+  @NoDoc abstract DataDict genAst(DataSpec spec, DataDict? opts := null)
+
   ** Pretty print object to output stream.
   @NoDoc abstract Void print(Obj? val, OutStream out := Env.cur.out, DataDict? opts := null)
 

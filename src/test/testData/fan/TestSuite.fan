@@ -224,6 +224,20 @@ class DataTestCase
     }
   }
 
+  Void verifyJsonAst(Str expect)
+  {
+    s := StrBuf()
+    env.print(env.genAst(lib), s.out, env.dict1("json", env.marker))
+    actual := s.toStr
+
+    // echo(actual)
+
+    // verify its actually Json
+    JsonInStream(actual.in).readJson
+
+    verifyStr(actual, expect)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // DataSpec Verifies
 //////////////////////////////////////////////////////////////////////////

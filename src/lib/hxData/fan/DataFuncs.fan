@@ -171,7 +171,7 @@ const class DataFuncs
   **
   @Axon static DataDict specAst(DataSpec spec)
   {
-    doSpecAst(spec, false)
+    curContext.usings.data.genAst(spec, Etc.dict0)
   }
 
   **
@@ -180,48 +180,7 @@ const class DataFuncs
   **
   @Axon static DataDict specAstOwn(DataSpec spec)
   {
-    doSpecAst(spec, true)
-  }
-
-  private static DataDict doSpecAst(DataSpec spec, Bool isOwn)
-  {
-    acc := Str:Obj[:]
-    acc.ordered = true
-
-    if (spec.isType)
-      acc["base"] = spec.base.qname
-    else
-      acc["type"] = spec.type.qname
-
-    DataDict meta := isOwn ? spec.own : spec
-    meta.each |v, n|
-    {
-      if (n == "val" && v == Marker.val) return
-      acc[n] = specAstVal(v)
-    }
-
-    slots := isOwn ? spec.slotsOwn : spec.slots
-    if (!slots.isEmpty)
-    {
-      slotsAcc := Str:Obj[:]
-      slotsAcc.ordered = true
-      slots.each |slot|
-      {
-        noRecurse := slot.base?.type === slot.base && !slot.isType
-        slotsAcc[slot.name] = doSpecAst(slot, isOwn || noRecurse)
-      }
-      acc["slots"] = Etc.dictFromMap(slotsAcc)
-    }
-
-    return Etc.dictFromMap(acc)
-  }
-
-  private static Obj specAstVal(Obj val)
-  {
-    if (val is DataSpec) return val.toStr
-    if (val is List) return ((List)val).map |x| { specAstVal(x) }
-    if (val is Dict) return Etc.dictMap(val) |x| { specAstVal(x) }
-    return val.toStr
+    curContext.usings.data.genAst(spec, Etc.dict1("own", Marker.val))
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -375,12 +375,15 @@ class Printer
   {
     bracket("{").nl
     indention++
+    first := true
     dict.each |x, n|
     {
-      indent.quoted(n).colon.json(x).nl
+      if (first) first = false
+      else comma.nl
+      indent.quoted(n).colon.json(x)
     }
     indention--
-    indent.bracket("}")
+    nl.indent.bracket("}")
     return this
   }
 

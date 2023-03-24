@@ -1,0 +1,88 @@
+#
+# Tests mapping Xeto specs to JSON AST
+#
+
+---
+name: "scalars"
+compileLib: |
+  pragma: Lib <
+    doc: "Test lib"
+    version: "1.2.3"
+    depends: { {lib:"sys"} }
+  >
+  // Foo doc
+  Foo: Scalar
+  // Bar doc
+  Bar: Scalar <sealed> "default"
+verifyJsonAst: |
+  {
+    "type": "sys::Lib",
+    "depends": [
+      {
+        "lib": "sys"
+      }
+    ],
+    "doc": "Test lib",
+    "version": "1.2.3",
+    "slots": {
+      "Foo": {
+        "base": "sys::Scalar",
+        "doc": "Foo doc"
+      },
+      "Bar": {
+        "base": "sys::Scalar",
+        "val": "default",
+        "sealed": "marker",
+        "doc": "Bar doc"
+      }
+    }
+  }
+---
+name: "dicts"
+compileLib: |
+  pragma: Lib <
+    doc: "Test lib"
+    version: "1.2.3"
+    depends: { {lib:"sys"}, {lib:"ph"} }
+  >
+  // Foo doc
+  Foo: {
+    bar
+    baz: Str "baz default"
+    qux: Date?
+  }
+verifyJsonAst: |
+  {
+    "type": "sys::Lib",
+    "depends": [
+      {
+        "lib": "sys"
+      },
+      {
+        "lib": "ph"
+      }
+    ],
+    "doc": "Test lib",
+    "version": "1.2.3",
+    "slots": {
+      "Foo": {
+        "base": "sys::Dict",
+        "doc": "Foo doc",
+        "slots": {
+          "bar": {
+            "type": "sys::Marker"
+          },
+          "baz": {
+            "type": "sys::Str",
+            "val": "baz default"
+          },
+          "qux": {
+            "type": "sys::Date",
+            "maybe": "marker"
+          }
+        }
+      }
+    }
+  }
+---
+
