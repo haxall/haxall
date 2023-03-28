@@ -359,7 +359,7 @@ const class DataFuncs
     return gb.toGrid
   }
 
-  private static DataType[] doFitsMatchAll(HxContext cx, Dict rec, DataSpec[] specs)
+  private static DataSpec[] doFitsMatchAll(HxContext cx, Dict rec, DataSpec[] specs)
   {
     // first pass is fit each type
     env := cx.usings.data

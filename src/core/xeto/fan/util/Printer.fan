@@ -328,10 +328,12 @@ class Printer
     slots.each |slot|
     {
       doc(slot, mode)
-      indent.w(slot.name)
+      showName := !XetoUtil.isAutoName(slot.name)
+      indent
+      if (showName) w(slot.name)
       if (!isMarker(slot["val"]) && slot.base != null)
       {
-        w(": ")
+        if (showName) w(": ")
         if (slot.base?.type === slot.base && !slot.isType)
           base(slot)
        else
