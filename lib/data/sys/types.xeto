@@ -33,6 +33,9 @@ Number: Scalar <sealed> "0"
 // Unitless integer number
 Int: Number <sealed> "0"
 
+// Unitless floating point number
+Float: Number <sealed> "0"
+
 // Number with a unit of time
 Duration: Number <sealed> "0sec"
 

@@ -30,6 +30,7 @@ class DataCompileTest : AbstractDataTest
     verifyScalar("sys::Int",      Str<|Int "123"|>, 123)
     verifyScalar("sys::Int",      Str<|Int 123|>, 123)
     verifyScalar("sys::Int",      Str<|Int -123|>, -123)
+    verifyScalar("sys::Float",    Str<|Float 123|>, 123f)
     verifyScalar("sys::Duration", Str<|Duration "123sec"|>, 123sec)
     verifyScalar("sys::Number",   Str<|Number "123kW"|>, n(123, "kW"))
     verifyScalar("sys::Number",   Str<|Number 123kW|>, n(123, "kW"))
