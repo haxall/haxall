@@ -61,15 +61,26 @@ internal class XetoFactoryBuilder
     addScalar("ph::XStr",      pod.type("XStr"))
     addScalar("ph::Symbol",    pod.type("Symbol"))
 
-    // graphics
-    pod = Pod.find("graphics")
-    addScalar("ion.ui::Color",       pod.type("Color"))
-    addScalar("ion.ui::FontStyle",   pod.type("FontStyle"))
-    addScalar("ion.ui::FontWeight",  pod.type("FontWeight"))
-    addScalar("ion.ui::Insets",      pod.type("Insets"))
-    addScalar("ion.ui::Point",       pod.type("Point"))
-    addScalar("ion.ui::Size",        pod.type("Size"))
-    addScalar("ion.ui::Stroke",      pod.type("Stroke"))
+    // UI stuff
+    ionPod := Pod.find("ionUi", false)
+    if (ionPod != null)
+    {
+      // graphics
+      pod = Pod.find("graphics")
+      addScalar("ion.ui::Color",       pod.type("Color"))
+      addScalar("ion.ui::FontStyle",   pod.type("FontStyle"))
+      addScalar("ion.ui::FontWeight",  pod.type("FontWeight"))
+      addScalar("ion.ui::Insets",      pod.type("Insets"))
+      addScalar("ion.ui::Point",       pod.type("Point"))
+      addScalar("ion.ui::Size",        pod.type("Size"))
+      addScalar("ion.ui::Stroke",      pod.type("Stroke"))
+
+      // ionUi
+      pod = Pod.find("ionUi")
+      addScalar("ion.ui::Dim",         pod.type("Dim"))
+      addScalar("ion.ui::HAlign",      pod.type("HAlign"))
+      addScalar("ion.ui::VAlign",      pod.type("VAlign"))
+    }
   }
 
   private Void addScalar(Str xeto, Type fantom)
