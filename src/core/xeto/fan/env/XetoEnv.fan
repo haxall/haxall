@@ -109,7 +109,10 @@ internal const class XetoEnv : DataEnv
     colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
     libName := qname[0..<colon]
     typeName := qname[colon+2..-1]
-    return lib(libName, checked)?.slotOwn(typeName, checked)
+    type := lib(libName, false)?.slotOwn(typeName, false)
+    if (type != null) return type
+    if (checked) throw UnknownTypeErr("Unknown data type: $qname")
+    return null
   }
 
   override XetoSpec? spec(Str qname, Bool checked := true)
