@@ -1,0 +1,33 @@
+//
+// Copyright (c) 2022, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Nov 2022  Brian Frank  Creation
+//
+
+// Point associated with the concentration of carbon dioxide (CO₂)
+Co2Point : NumberPoint <abstract> {
+  air
+  co2
+  concentration
+  unit: "ppm"
+}
+
+// Sensor for concentration of carbon dioxide (CO₂)
+Co2Sensor : Co2Point & Sensor <abstract>
+
+// Setpoint for concentration of carbon dioxide (CO₂)
+Co2Sp : Co2Point & Sp <abstract>
+
+//////////////////////////////////////////////////////////////////////////
+// Zone
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for concentration of carbon dioxide (CO₂) in zone space.
+ZoneCo2Sensor : Co2Sensor { zone }
+
+// Setpoint for concentration of carbon dioxide (CO₂) in zone space.
+ZoneCo2Sp : Co2Sp { zone }
+
+

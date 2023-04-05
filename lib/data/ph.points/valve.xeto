@@ -1,0 +1,43 @@
+//
+// Copyright (c) 2022, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Nov 2022  Brian Frank  Creation
+//
+
+// Point associated with a valve; 0% is fully closed and 100% is fully open.
+ValvePoint : NumberPoint <abstract> {
+  valve
+  unit: "%"
+}
+
+// Valve position sensor; 0% is fully closed and 100% is fully open.
+ValveSensor : ValvePoint & Sensor <abstract>
+
+// Valve position command; 0% is fully closed and 100% is fully open.
+ValveCmd : ValvePoint & Cmd <abstract>
+
+//////////////////////////////////////////////////////////////////////////
+// Chilled Water
+//////////////////////////////////////////////////////////////////////////
+
+// Valve sensor for chilled water
+ChilledWaterValveSensor : ValveSensor { chilled, water }
+
+// Valve commad for hot water
+ChilledWaterValveCmd : ValveCmd { chilled, water }
+
+//////////////////////////////////////////////////////////////////////////
+// Hot Water
+//////////////////////////////////////////////////////////////////////////
+
+// Valve sensor for hot water
+HotWaterValveSensor : ValveSensor { hot, water }
+
+// Valve commad for hot water
+HotWaterValveCmd : ValveCmd { hot, water }
+
+
+
+

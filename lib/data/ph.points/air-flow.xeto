@@ -1,0 +1,117 @@
+//
+// Copyright (c) 2022, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Nov 2022  Brian Frank  Creation
+//
+
+// Point associated with volumetric flow of air
+AirFlowPoint : NumberPoint <abstract> {
+  air
+  flow
+// TODO unit: "cfm" | "m³/s"
+}
+
+// Sensor for volumetric air flow
+AirFlowSensor : AirFlowPoint & Sensor <abstract>
+
+// Setpoint for volumetric air flow
+AirFlowSp : AirFlowPoint & Sp <abstract>
+
+//////////////////////////////////////////////////////////////////////////
+// Discharge
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for volumetric air flow in discharge duct
+DischargeAirFlowSensor : AirFlowSensor { discharge }
+
+// Setpoint for volumetric air flow in discharge duct
+DischargeAirFlowSp : AirFlowSp { discharge }
+
+//////////////////////////////////////////////////////////////////////////
+// ColdDeck Discharge
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for volumetric air flow in cold deck discharge duct
+ColdDeckDischargeAirFlowSensor : DischargeAirFlowSensor { coldDeck }
+
+// Setpoint for volumetric air flow in cold deck discharge duct
+ColdDeckDischargeAirFlowSp : DischargeAirFlowSp { coldDeck }
+
+//////////////////////////////////////////////////////////////////////////
+// HotDeck Discharge
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for volumetric air flow in hot deck discharge duct
+HotDeckDischargeAirFlowSensor : DischargeAirFlowSensor { hotDeck }
+
+// Setpoint for volumetric air flow in hot deck discharge duct
+HotDeckDischargeAirFlowSp : DischargeAirFlowSp { hotDeck }
+
+//////////////////////////////////////////////////////////////////////////
+// Economizing
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for volumetric air flow in economizing duct.
+// Used when there are separate ducts for minimum fresh air vs economizing.
+EconomizingAirFlowSensor : AirFlowSensor { economizing }
+
+// Setpoint for volumetric air flow in economizing duct.
+EconomizingAirFlowSp : AirFlowSp { economizing }
+
+//////////////////////////////////////////////////////////////////////////
+// Exhaust
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for volumetric air flow in exhaust duct
+ExhaustAirFlowSensor : AirFlowSensor { exhaust }
+
+// Setpoint for volumetric air flow in exhaust duct
+ExhaustAirFlowSp : AirFlowSp { exhaust }
+
+//////////////////////////////////////////////////////////////////////////
+// Inlet
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for volumetric air flow in inlet duct
+InletAirFlowSensor : AirFlowSensor { inlet }
+
+// Setpoint for volumetric air flow in inlet duct
+InletAirFlowSp : AirFlowSp { inlet }
+
+//////////////////////////////////////////////////////////////////////////
+// Outside
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for volumetric air flow in outside duct.
+// Used when there one duct for both minimum fresh air and economizing.
+OutsideAirFlowSensor : AirFlowSensor { outside }
+
+// Setpoint for volumetric air flow in outside duct.
+// Used when there one duct for both minimum fresh air and economizing.
+OutsideAirFlowSp : AirFlowSp { outside }
+
+//////////////////////////////////////////////////////////////////////////
+// Return
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for volumetric air flow in return duct
+ReturnAirFlowSensor : AirFlowSensor { return }
+
+// Setpoint for volumetric air flow in return duct
+ReturnAirFlowSp : AirFlowSp { return }
+
+//////////////////////////////////////////////////////////////////////////
+// Ventilation
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for volumetric air flow in ventilation or minimum fresh air duct.
+// Used when there are separate ducts for minimum fresh air vs economizing.
+VentilationAirFlowSensor : AirFlowSensor { ventilation }
+
+// Setpoint for volumetric air flow in ventilation or minimum fresh air duct.
+// Used when there are separate ducts for minimum fresh air vs economizing.
+VentilationAirFlowSp : AirFlowSp { ventilation }
+
+

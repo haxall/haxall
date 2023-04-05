@@ -1,0 +1,62 @@
+//
+// Copyright (c) 2022, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Nov 2022  Brian Frank  Creation
+//
+
+// Point associated with the primary on/off state for running equipment such as motors
+RunPoint : BoolPoint <abstract> {
+  run
+  enum: "off,on"
+}
+
+// Sensor for the primary on/off command for running equipment such as motor
+RunSensor : RunPoint & Sensor <abstract>
+
+// Primary on/off command to run a equipment such as a motor
+RunCmd : RunPoint & Cmd <abstract>
+
+// Point associated with the secondary on/off state for running equipment such as motors
+EnablePoint : BoolPoint & Sensor <abstract> {
+  enable
+  enum: "off,on"
+}
+
+// Sensor for the secondary on/off command for running equipment such as motors
+EnableSensor : EnablePoint & Sensor <abstract>
+
+// Secondary on/off command to run equipment such as motors
+EnableCmd : EnablePoint & Cmd <abstract>
+
+// Boolean alarm condition
+AlarmSensor : BoolPoint & Sensor <abstract> { alarm }
+
+// Point associated with VFD frequency measured in Hertz
+VfdFreqPoint : NumberPoint & Sensor <abstract> {
+  vfd
+  freq
+  unit: "Hz"
+}
+
+// Sensor for VFD frequency in Hertz
+VfdFreqSensor : VfdFreqPoint & Sensor <abstract>
+
+// Command for VFD frequency in Hertz
+VfdFreqCmd : VfdFreqPoint & Cmd <abstract>
+
+// Point associated with VFD speed as percentage where 0% is off, 100% if full speed
+VfdSpeedPoint : VfdFreqPoint & Sensor <abstract> {
+  vfd
+  speed
+  unit: "%"
+}
+
+// VFD speed sensor as percentage where 0% is off, 100% if full speed
+VfdSpeedSensor : VfdSpeedPoint & Sensor <abstract>
+
+// VFD speed command as percentage where 0% is off, 100% if full speed
+VfdSpeedCmd : VfdSpeedPoint & Cmd <abstract>
+
+

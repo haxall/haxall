@@ -1,0 +1,77 @@
+//
+// Copyright (c) 2022, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Nov 2022  Brian Frank  Creation
+//
+
+// Point associated with a fan
+FanPoint : Point <abstract> {
+  air
+  fan
+}
+
+// Sensor for primary on/off state of fan
+FanRunSensor : FanPoint & RunSensor <abstract>
+
+// Command for primary on/off state of fan
+FanRunCmd : FanPoint & RunCmd <abstract>
+
+// Sensor for secondary on/off state of fan
+FanEnableSensor : FanPoint & EnableSensor <abstract>
+
+// Command for secondary on/off state of fan
+FanEnableCmd : FanPoint & EnableCmd <abstract>
+
+// Sensor for speed of a fan as percentage 0% off and 100% full speed
+FanSpeedSensor : FanPoint & VfdSpeedSensor <abstract>
+
+// Command for speed of a fan as percentage 0% off and 100% full speed
+FanSpeedCmd : FanPoint & VfdSpeedCmd <abstract>
+
+//////////////////////////////////////////////////////////////////////////
+// Discharge
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for primary on/off state of fan in discharge duct
+DischargeFanRunSensor : FanRunSensor { discharge }
+
+// Command for primary on/off state of fan in discharge duct
+DischargeFanRunCmd : FanRunCmd { discharge }
+
+// Sensor for secondary on/off state of fan in discharge duct
+DischargeFanEnableSensor : FanEnableSensor { discharge }
+
+// Command for secondary on/off state of fan in discharge duct
+DischargeFanEnableCmd : FanEnableCmd { discharge }
+
+// Sensor for speed of a fan as percentage 0% off and 100% full speed in discharge duct
+DischargeFanSpeedSensor : FanSpeedSensor { discharge }
+
+// Command for speed of a fan as percentage 0% off and 100% full speed in discharge duct
+DischargeFanSpeedCmd : FanSpeedCmd { discharge }
+
+//////////////////////////////////////////////////////////////////////////
+// Return
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for primary on/off state of fan in return duct
+ReturnFanRunSensor : FanRunSensor { return }
+
+// Command for primary on/off state of fan in return duct
+ReturnFanRunCmd : FanRunCmd { return }
+
+// Sensor for secondary on/off state of fan in return duct
+ReturnFanEnableSensor : FanEnableSensor { return }
+
+// Command for secondary on/off state of fan in return duct
+ReturnFanEnableCmd : FanEnableCmd { return }
+
+// Sensor for speed of a fan as percentage 0% off and 100% full speed in return duct
+ReturnFanSpeedSensor : FanSpeedSensor { return }
+
+// Command for speed of a fan as percentage 0% off and 100% full speed in return duct
+ReturnFanSpeedCmd : FanSpeedCmd { return }
+
+

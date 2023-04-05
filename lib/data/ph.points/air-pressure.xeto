@@ -1,0 +1,42 @@
+//
+// Copyright (c) 2022, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Nov 2022  Brian Frank  Creation
+//
+
+// Point associated with static air pressure
+AirPressurePoint : NumberPoint <abstract> {
+  air
+  pressure
+// TODO  unit: "Pa" | "kPa" | "inH₂O"
+}
+
+// Sensor for static air pressure
+AirPressureSensor : AirPressurePoint & Sensor <abstract>
+
+// Setpoint for static air pressure
+AirPressureSp : AirPressurePoint & Sp <abstract>
+
+//////////////////////////////////////////////////////////////////////////
+// Discharge
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for static air pressure in discharge duct
+DischargeAirPressureSensor : AirPressureSensor { discharge }
+
+// Setpoint for static air pressure in discharge duct
+DischargeAirPressureSp : AirPressureSp { discharge }
+
+//////////////////////////////////////////////////////////////////////////
+// Return
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for static air pressure in return duct
+ReturnAirPressureSensor : AirPressureSensor { return }
+
+// Setpoint for static air pressure in return duct
+ReturnAirPressureSp : AirPressureSp { return }
+
+
