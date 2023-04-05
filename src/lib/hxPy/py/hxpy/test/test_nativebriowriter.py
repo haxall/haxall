@@ -150,6 +150,11 @@ class TestNativeBrioWriter(unittest.TestCase):
             NativeBrioWriter(f).write_val(datetime.datetime(2015, 11, 30, 12, 2, 33 , 378_000).astimezone(new_york))
             self.assertEqual(bytes.fromhex("1006f83cbfe7d92c80ff084e65775f596f726b"), f.getbuffer())
 
+    # def test_coord(self):
+    #     with io.BytesIO() as f:
+    #         NativeBrioWriter(f).write_val(Coord.from_str("C(84,-123)"))
+    #         self.assertEqual(bytes.fromhex("110a5f07800365c040"), f.getbuffer())
+
     def test_dict(self):
         with io.BytesIO() as f:
             # empty dict

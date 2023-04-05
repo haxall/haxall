@@ -79,6 +79,8 @@ class NativeBrioReader:
             return self._consume_datetimei4()
         elif ctrl == BrioControl.ctrlDateTimeI8:
             return self._consume_datetimei8()
+        elif ctrl == BrioControl.ctrlCoord:
+            return self._consume_coord();
         elif ctrl == BrioControl.ctrlBuf:
             return self._consume_buf()
         elif ctrl == BrioControl.ctrlDictEmpty:
@@ -181,6 +183,10 @@ class NativeBrioReader:
         if not tz:
             raise RuntimeError(f'Timezone not found: {name}')
         return tz
+
+    def _consume_coord(self):
+        bits, = struct.unpack("!q", self._consume(8))
+        return Coord.unpack(bits)
 
     def _consume_buf(self):
         size = self._decode_varint()

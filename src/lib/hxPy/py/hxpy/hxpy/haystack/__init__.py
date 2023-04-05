@@ -11,6 +11,7 @@ from .marker import Marker
 from .ref import Ref
 from .na import NA
 from .remove import Remove
+from .coord import Coord
 from .grid import Grid
 from .grid import GridBuilder
 

@@ -179,6 +179,11 @@ class TestNativeBrioReader(unittest.TestCase):
         brio = NativeBrioReader(data)
         self.assertEqual(datetime.datetime(1950, 6, 7, 1, 2, microsecond=123_000, tzinfo=new_york), brio.read_val())
 
+    def test_coord(self):
+        data = bytes.fromhex("110a5f07800365c040")
+        brio = NativeBrioReader(data)
+        self.assertEqual(Coord.from_str("C(84, -123)"), brio.read_val())
+
     def test_buf(self):
         # <ctrl=13><size=04><buf="foo!">
         data = bytes.fromhex("1304666f6f21")
