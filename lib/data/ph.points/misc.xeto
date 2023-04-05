@@ -1,0 +1,10 @@
+//
+// Copyright (c) 2023, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   5 Apr 2023  Brian Frank  Creation
+//
+
+// Temperature conditioning mode for a zone in an HVAC system
+ZoneAirHvacModeSp : StrPoint & Sp { zone, air, hvacMode }

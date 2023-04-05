@@ -1,0 +1,52 @@
+//
+// Copyright (c) 2023, Project-Haystack
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   5 Apr 2023  Brian Frank  Creation
+//
+
+// Point associated with relative humidity; measure of moisture in the air
+AirHumidityPoint : NumberPoint <abstract> {
+  air
+  pressure
+  unit: "%RH"
+}
+
+// Sensor for relative humidity
+AirHumiditySensor : AirHumidityPoint & Sensor <abstract>
+
+// Setpoint for relative humidity
+AirHumiditySp : AirHumidityPoint & Sp <abstract>
+
+//////////////////////////////////////////////////////////////////////////
+// Discharge
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for relative humidity in discharge duct
+DischargeAirHumiditySensor : AirHumiditySensor { discharge }
+
+// Setpoint for relative humidity in discharge duct
+DischargeAirHumiditySp : AirHumiditySp { discharge }
+
+//////////////////////////////////////////////////////////////////////////
+// Outdoor
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for relative humidity in outdoor duct
+OutdoorAirHumiditySensor : AirHumiditySensor { outdoor }
+
+// Setpoint for relative humidity in outdoor duct
+OutdoorAirHumiditySp : AirHumiditySp { outdoor }
+
+//////////////////////////////////////////////////////////////////////////
+// Zone
+//////////////////////////////////////////////////////////////////////////
+
+// Sensor for relative humidity in the zone
+ZoneAirHumiditySensor : AirHumiditySensor { zone }
+
+// Setpoint for relative humidity in the zone
+ZoneAirHumiditySp : AirHumiditySp { zone }
+
+

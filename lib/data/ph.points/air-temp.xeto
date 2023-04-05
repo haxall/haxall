@@ -97,4 +97,31 @@ ZoneAirTempSp : AirTempSp <abstract> { zone }
 // Effective setpoint for drybulb air temperature a zone
 ZoneAirTempEffectiveSp : ZoneAirTempSp { effective }
 
+// Cooling mode temperature setpoint for zone
+ZoneAirTempCoolingSp : ZoneAirTempSp { cooling }
+
+// Cooling mode temperature setpoint for zone when occupied
+ZoneAirTempOccCoolingSp : ZoneAirTempCoolingSp { occ }
+
+// Cooling mode temperature setpoint for zone when unoccupied
+ZoneAirTempUnoccCoolingSp : ZoneAirTempCoolingSp { unocc }
+
+// Cooling mode temperature setpoint for zone when in standby mode
+ZoneAirTempStandbyCoolingSp : ZoneAirTempCoolingSp { standby }
+
+// Heating mode temperature setpoint for zone
+ZoneAirTempHeatingSp : ZoneAirTempSp { heating }
+
+// Heating mode temperature setpoint for zone when occupied
+ZoneAirTempOccHeatingSp : ZoneAirTempHeatingSp { occ }
+
+// Heating mode temperature setpoint for zone when unoccupied
+ZoneAirTempUnoccHeatingSp : ZoneAirTempHeatingSp { unocc }
+
+// Heating mode temperature setpoint for zone when in standby mode
+ZoneAirTempStandbyHeatingSp : ZoneAirTempHeatingSp { standby }
+
+
+
+
 
