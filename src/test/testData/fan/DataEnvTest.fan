@@ -111,13 +111,13 @@ class DataEnvTest : AbstractDataTest
     verifyEq(env.type("bad.one::Foo", false), null)
     verifyErr(UnknownLibErr#) { env.lib("bad.one") }
     verifyErr(UnknownLibErr#) { env.lib("bad.one", true) }
-    verifyErr(UnknownLibErr#) { env.type("bad.one::Foo") }
-    verifyErr(UnknownLibErr#) { env.type("bad.one::Foo", true) }
+    verifyErr(UnknownTypeErr#) { env.type("bad.one::Foo") }
+    verifyErr(UnknownTypeErr#) { env.type("bad.one::Foo", true) }
 
     // good lib, bad type
     verifyEq(env.type("sys::Foo", false), null)
-    verifyErr(UnknownNameErr#) { env.type("sys::Foo") }
-    verifyErr(UnknownNameErr#) { env.type("sys::Foo", true) }
+    verifyErr(UnknownTypeErr#) { env.type("sys::Foo") }
+    verifyErr(UnknownTypeErr#) { env.type("sys::Foo", true) }
   }
 
 //////////////////////////////////////////////////////////////////////////

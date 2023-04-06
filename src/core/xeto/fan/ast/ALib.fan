@@ -31,5 +31,5 @@ internal class ALib : ASpec
   override AObj makeChild(FileLoc loc, Str name) { AType(loc, this, name) }
 
   ** Qualified name "foo.bar.baz"
-  const Str qname
+  override const Str qname
 }

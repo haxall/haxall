@@ -136,7 +136,7 @@ internal const class MSpecFlags
 ** XetoSpec is the referential proxy for MSpec
 **
 @Js
-internal const class XetoSpec : DataSpec, Dict
+internal const class XetoSpec : DataSpec, Dict, CSpec
 {
   new make() {}
 
@@ -205,6 +205,10 @@ internal const class XetoSpec : DataSpec, Dict
   override final Bool isDict()   { m.hasFlag(MSpecFlags.dict) }
   override final Bool isList()   { m.hasFlag(MSpecFlags.list) }
   override final Bool isQuery()  { m.hasFlag(MSpecFlags.query) }
+
+  override final CSpec? cbase() { m.base }
+
+  override final CSpec? cslot(Str n, Bool c := true) { m.slot(n, c) }
 
   const MSpec? m
 }

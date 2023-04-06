@@ -36,6 +36,8 @@ internal class ARef : ANode
   ** Return qualified/unqualified name
   override Str toStr() { qnameRef?.toStr ?: name.toStr }
 
+  CSpec creferenet() { referent ?: referentInternal }
+
   ** Is this reference already resolved
   Bool isResolved() { referent != null }
 

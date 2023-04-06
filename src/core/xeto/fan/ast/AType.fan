@@ -29,14 +29,11 @@ internal class AType : ASpec
   ** Assembled DataType reference
   override XetoType asm() { super.asm }
 
-  ** Construct slot spec
-  override AObj makeChild(FileLoc loc, Str name) { ASpec(loc, this, name) }
-
   ** Parent library
   ALib lib
 
   ** Qualified name "foo.bar::Baz"
-  const Str qname
+  override const Str qname
 
   ** Value type is myself
   override Str valParseType() { qname }

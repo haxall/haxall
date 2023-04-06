@@ -21,9 +21,9 @@ internal abstract class AObj : ANode
   ** Constructor
   new make(FileLoc loc, AObj? parent, Str name)
   {
-    this.loc    = loc
-    this.parent = parent
-    this.name   = name
+    this.loc       = loc
+    this.parentRef = parent
+    this.name   =   name
   }
 
   ** Source code location
@@ -33,7 +33,8 @@ internal abstract class AObj : ANode
   const Str name
 
   ** Parent spec (null for lib, root data)
-  AObj? parent { private set }
+  virtual AObj? parent() { parentRef }
+  private AObj? parentRef
 
   ** Is this an spec subtype including type/lib
   virtual Bool isSpec() { false }

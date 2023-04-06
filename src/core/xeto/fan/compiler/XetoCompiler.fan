@@ -57,6 +57,7 @@ internal class XetoCompiler
       InitLib(),
       Parse(),
       Resolve(),
+      Inherit(),
       Infer(),
       Assemble(),
     ])

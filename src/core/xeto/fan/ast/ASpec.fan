@@ -12,7 +12,7 @@ using util
 ** AST DataSpec
 **
 @Js
-internal class ASpec : AObj
+internal class ASpec : AObj, CSpec
 {
   ** Constructor
   new make(FileLoc loc, ASpec? parent, Str name, XetoSpec asm := XetoSpec())
@@ -21,8 +21,15 @@ internal class ASpec : AObj
     this.asmRef = asm
   }
 
+//////////////////////////////////////////////////////////////////////////
+// AObj
+//////////////////////////////////////////////////////////////////////////
+
   ** Node type
   override ANodeType nodeType() { ANodeType.spec }
+
+  ** Parent spec (null for lib)
+  override ASpec? parent() { super.parent }
 
   ** Return true
   override Bool isSpec() { true }
@@ -35,11 +42,36 @@ internal class ASpec : AObj
   ** Construct nested spec
   override AObj makeChild(FileLoc loc, Str name) { ASpec(loc, this, name) }
 
-  ** We use AObj.type to model the base supertyp
-  ARef? base() { type }
+//////////////////////////////////////////////////////////////////////////
+// ASpec
+//////////////////////////////////////////////////////////////////////////
 
   ** Inheritance flags computed in Infer
   Int flags
+
+  ** We use AObj.type to model the base supertype
+  ARef? base() { type }
+
+//////////////////////////////////////////////////////////////////////////
+// CSpec
+//////////////////////////////////////////////////////////////////////////
+
+  ** Qualified name
+  override Str qname() { parent.qname + "." + name }
+
+  ** Resolved base
+  override CSpec? cbase() { base.creferenet }
+
+  ** Lookup effective slot
+  override CSpec? cslot(Str name, Bool checked := true)
+  {
+    ast := slots?.get(name) as ASpec
+    if (ast != null) return ast
+    if (checked) throw UnknownSlotErr(name)
+    return null
+  }
+
+
 }
 
 
