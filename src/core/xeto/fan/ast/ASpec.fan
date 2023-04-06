@@ -50,17 +50,24 @@ internal class ASpec : AObj, CSpec
   Int flags
 
   ** We use AObj.type to model the base supertype
-  ARef? base() { type }
+  ARef? base
+  {
+    get { type }
+    set { type = it }
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // CSpec
 //////////////////////////////////////////////////////////////////////////
 
+  ** Return true
+  override Bool isAst() { true }
+
   ** Qualified name
   override Str qname() { parent.qname + "." + name }
 
   ** Resolved base
-  override CSpec? cbase() { base.creferenet }
+  override CSpec? cbase() { base?.creferent }
 
   ** Lookup effective slot
   override CSpec? cslot(Str name, Bool checked := true)
@@ -70,6 +77,10 @@ internal class ASpec : AObj, CSpec
     if (checked) throw UnknownSlotErr(name)
     return null
   }
+
+  ** Iterate the effective slots
+  override Str:CSpec cslots() { cslotsRef ?: throw Err("Inherit not run") }
+  [Str:CSpec]? cslotsRef
 
 
 }

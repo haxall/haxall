@@ -14,6 +14,9 @@ using util
 @Js
 internal mixin CSpec
 {
+  ** Return if this an AST ASpec
+  abstract Bool isAst()
+
   ** Simple name
   abstract Str name()
 
@@ -25,6 +28,9 @@ internal mixin CSpec
 
   ** Lookup effective slot
   abstract CSpec? cslot(Str name, Bool checked := true)
+
+  ** Get the effective slots as map
+  abstract Str:CSpec cslots()
 }
 
 

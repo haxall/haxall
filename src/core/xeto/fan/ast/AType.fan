@@ -20,11 +20,13 @@ internal class AType : ASpec
   {
     this.lib   = lib
     this.qname = lib.qname + "::" + name
-    this.name  = name
   }
 
   ** Node type
   override ANodeType nodeType() { ANodeType.type }
+
+  ** Return true
+  override Bool isType() { true }
 
   ** Assembled DataType reference
   override XetoType asm() { super.asm }

@@ -24,6 +24,9 @@ internal class ALib : ASpec
   ** Node type
   override ANodeType nodeType() { ANodeType.lib }
 
+  ** Return true
+  override Bool isLib() { true }
+
   ** Assembled DataLib reference
   override XetoLib asm() { asmRef }
 

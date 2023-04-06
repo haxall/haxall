@@ -23,21 +23,28 @@ internal abstract class AObj : ANode
   {
     this.loc       = loc
     this.parentRef = parent
-    this.name   =   name
+    this.nameRef   = name
   }
 
   ** Source code location
   const override FileLoc loc
 
   ** Simple name
-  const Str name
+  Str name() { nameRef }
+  const Str nameRef
 
   ** Parent spec (null for lib, root data)
   virtual AObj? parent() { parentRef }
   private AObj? parentRef
 
-  ** Is this an spec subtype including type/lib
-  virtual Bool isSpec() { false }
+  ** Is this an ASpec instance or subclass
+  virtual Bool isSpec() { false  }
+
+  ** Is this an AType instance
+  virtual Bool isType() { false }
+
+  ** Is this an ALib instance
+  virtual Bool isLib() { false }
 
   ** Type ref for this object.  Null if this is Obj or we need to infer type
   ARef? type

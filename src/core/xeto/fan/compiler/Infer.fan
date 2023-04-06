@@ -39,7 +39,7 @@ internal class Infer : Step
     if (x.type != null) return
 
     // types without a supertype are assumed to be sys::Dict
-    if (x.nodeType === ANodeType.type)
+    if (x.isType)
     {
       t := (AType)x
       if (t.qname == "sys::Obj") return

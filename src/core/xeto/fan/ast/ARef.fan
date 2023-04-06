@@ -21,6 +21,14 @@ internal class ARef : ANode
     this.name = name
   }
 
+  ** Construct for resolved
+  new makeResolved(FileLoc loc, ASpec spec)
+  {
+    this.loc = loc
+    this.name = AName(null, spec.name)
+    this.resolveInternal(spec)
+  }
+
   ** Node type
   override ANodeType nodeType() { ANodeType.ref }
 
@@ -36,7 +44,7 @@ internal class ARef : ANode
   ** Return qualified/unqualified name
   override Str toStr() { qnameRef?.toStr ?: name.toStr }
 
-  CSpec creferenet() { referent ?: referentInternal }
+  CSpec creferent() { referentInternal ?: referent }
 
   ** Is this reference already resolved
   Bool isResolved() { referent != null }
@@ -48,7 +56,7 @@ internal class ARef : ANode
   Bool isResolvedExternal() { referent != null && referentInternal == null }
 
   ** Resolved reference or raise UnresolvedErr
-  override XetoType asm() { referent ?: throw UnresolvedErr("$name [$loc]") }
+  override XetoSpec asm() { referent ?: throw UnresolvedErr("$name [$loc]") }
 
   ** Resovled reference to an internal AST node
   ASpec resolvedInternal() { referentInternal ?: throw UnresolvedErr("$name [$loc]") }
@@ -57,7 +65,7 @@ internal class ARef : ANode
   Str qname() { qnameRef ?: throw UnresolvedErr("$name [$loc]") }
 
   ** Resolve via an internal AST type
-  Void resolveInternal(AType x)
+  Void resolveInternal(ASpec x)
   {
     this.referent = x.asm
     this.referentInternal = x
@@ -72,7 +80,7 @@ internal class ARef : ANode
   }
 
   ** Resolved reference
-  private XetoType? referent
+  private XetoSpec? referent
 
   ** Resolve reference to internal AST node
   private ASpec? referentInternal
