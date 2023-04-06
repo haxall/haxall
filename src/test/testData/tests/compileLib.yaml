@@ -166,12 +166,59 @@ verifyTypes:
     slots:
       bar:
         type: "sys::Date"
-        val: "sys::Date 2023-02-05"
         meta:
           doc: "inherit"
           pattern: "inherit"
           qux: "inherit"
           val: "inherit"
           baz: "sys::Marker"
+---
+name: "slotInference"
+compileLib: |
+  A: {
+    foo: Date "2023-04-01"
+    bar: Date? "2023-05-01"
+  }
+  B : A {
+    foo: "2023-04-02"
+    bar: "2023-05-02"
+  }
+verifyTypes:
+  A:
+    base: "sys::Dict"
+    meta:
+      doc: "inherit"
+    slots:
+      foo:
+        type: "sys::Date"
+        meta:
+          doc: "inherit"
+          pattern: "inherit"
+          val: "sys::Date 2023-04-01"
+      bar:
+        type: "sys::Date"
+        meta:
+          doc: "inherit"
+          pattern: "inherit"
+          maybe: "sys::Marker"
+          val: "sys::Date 2023-05-01"
+  B:
+    base: "test::A"
+    meta:
+      doc: "inherit"
+    slots:
+      foo:
+        type: "sys::Date"
+        meta:
+          doc: "inherit"
+          pattern: "inherit"
+          val: "sys::Date 2023-04-02"
+      bar:
+        type: "sys::Date"
+        meta:
+          doc: "inherit"
+          pattern: "inherit"
+          maybe: "sys::Marker"
+          val: "sys::Date 2023-05-02"
 ---
 

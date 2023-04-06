@@ -296,7 +296,10 @@ class Printer
     }
     else if (spec.base != null)
     {
-      w(spec.base.qname)
+      if (spec.isType)
+        w(spec.base.qname)
+      else
+        w(spec.type.qname)
       if (spec.isMaybe) bracket("?")
     }
     return this
