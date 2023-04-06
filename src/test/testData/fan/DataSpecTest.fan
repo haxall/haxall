@@ -228,12 +228,12 @@ class DataSpecTest : AbstractDataTest
   {
     lib := compileLib(
       Str<|pragma: Lib < depends: { { lib:"sys" }, { lib:"ph" } } >
-           AhuA: {
+           AhuA: Equip {
              points: {
                { discharge, temp}
              }
            }
-           AhuB: {
+           AhuB: Equip {
              points: {
                { return, temp}
              }

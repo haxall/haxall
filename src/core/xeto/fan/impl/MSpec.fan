@@ -206,15 +206,17 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
   override final Bool isList()   { m.hasFlag(MSpecFlags.list) }
   override final Bool isQuery()  { m.hasFlag(MSpecFlags.query) }
 
-  override Bool isAst() { false }
+  override final Bool isAst() { false }
 
-  override XetoSpec asm() { this }
+  override final XetoSpec asm() { this }
+
+  override final Int flags() { m.flags }
 
   override final CSpec? cbase() { m.base }
 
   override final CSpec? cslot(Str n, Bool c := true) { m.slot(n, c) }
 
-  override Str:CSpec cslots() { m.slots.map }
+  override final Str:CSpec cslots() { m.slots.map }
 
   const MSpec? m
 }

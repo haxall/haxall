@@ -16,28 +16,33 @@ internal class Inherit : Step
 {
   override Void run()
   {
-    if (isData) return
     inherit(lib)
     bombIfErr
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Inherit
+//////////////////////////////////////////////////////////////////////////
 
   private Void inherit(ASpec spec)
   {
     // check if already inherited
     if (spec.cslotsRef != null) return
 
-    // if base type reference is null, then infer it
-    if (spec.base == null)
+    // if no type was specified during parse, then infer as Dict
+    if (spec.typeRef == null)
     {
-      // infer the base
-      spec.base = inferBase(spec)
-
-      // if base is still null this is sys::Obj
-      if (spec.base == null) { spec.cslotsRef = noSlots; return }
+      if (spec.qname == "sys::Obj") { spec.cslotsRef = noSlots; return }
+      spec.typeRef = spec.val == null ? sys.dict : sys.str
+// TODO
+if (spec.name == "points") spec.typeRef = sys.query
     }
 
-    // if base is spec, then recursively inherit it first
-    base := spec.base.creferent
+    // if base is not already configured, set it to type
+    if (spec.base == null) spec.base = spec.type
+
+    // if base is in my AST, then recursively inherit it first
+    base := spec.base
     if (base is ASpec)
     {
       if (stack.containsSame(spec) && !isSys)
@@ -49,6 +54,9 @@ internal class Inherit : Step
       inherit(base)
       stack.pop
     }
+
+    // now that we have base, compute my flags
+    computeFlags(spec)
 
     // first inherit slots from base type
     acc := Str:CSpec[:]
@@ -82,27 +90,43 @@ internal class Inherit : Step
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Infer Base
+// Flags
 //////////////////////////////////////////////////////////////////////////
 
-  private ARef? inferBase(ASpec x)
+  private Void computeFlags(ASpec x)
   {
-    // types without a supertype are assumed to be sys::Dict
-    if (x.isType)
+    x.flags = isSys ? computeFlagsSys(x) : computeFlagsNonSys(x)
+  }
+
+  private Int computeFlagsNonSys(ASpec x)
+  {
+    // start off with my base type flags
+    flags := x.base.flags
+
+    // merge in my own flags
+    if (x.metaHas("maybe")) flags = flags.or(MSpecFlags.maybe)
+
+    return flags
+  }
+
+  ** Treat 'sys' itself special using names
+  private Int computeFlagsSys(ASpec x)
+  {
+    flags := 0
+    if (x.metaHas("maybe")) flags = flags.or(MSpecFlags.maybe)
+    for (ASpec? p := x; p != null; p = p.base)
     {
-      if (x.qname == "sys::Obj") return null
-      return sys.dict
+      switch (p.name)
+      {
+        case "Marker": flags = flags.or(MSpecFlags.marker)
+        case "Scalar": flags = flags.or(MSpecFlags.scalar)
+        case "Seq":    flags = flags.or(MSpecFlags.seq)
+        case "Dict":   flags = flags.or(MSpecFlags.dict)
+        case "List":   flags = flags.or(MSpecFlags.list)
+        case "Query":  flags = flags.or(MSpecFlags.query)
+      }
     }
-
-    // TODO: total hack until we get inheritance
-    if (x.name == "points")
-      return sys.query
-
-    // TODO: fallback to Str/Dict
-    if (x.val != null)
-      return sys.str
-    else
-      return sys.dict
+    return flags
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -111,8 +135,7 @@ internal class Inherit : Step
 
   private ASpec overrideSlot(CSpec base, ASpec own)
   {
-// TODO
-//    if (own.base == null) own.base = ARef(own.loc, base)
+//    if (own.base == null) own.base = base
     return own
   }
 

@@ -68,11 +68,13 @@ internal class Infer : Step
   ** Compute flags for system types x directly inherits
   private Void computeFlags(ASpec x)
   {
-    x.flags = isSys ? computeFlagsSys(x) : computeFlagsNonSys(x)
+//    x.flags = isSys ? computeFlagsSys(x) : computeFlagsNonSys(x)
   }
 
   private Int computeFlagsNonSys(ASpec x)
   {
+return 0
+  /*
     // walk inheritance tree until we get to an external
     // type from a dependency and get inherited flags
     p := x
@@ -107,6 +109,7 @@ internal class Infer : Step
       }
     }
     return flags
+    */
   }
 
 }

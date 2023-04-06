@@ -47,14 +47,10 @@ internal class ASpec : AObj, CSpec
 //////////////////////////////////////////////////////////////////////////
 
   ** Inheritance flags computed in Infer
-  Int flags
+  override Int flags
 
-  ** We use AObj.type to model the base supertype
-  ARef? base
-  {
-    get { typeRef }
-    set { typeRef = it }
-  }
+  ** We refine type and base in Inherit step
+  CSpec? base
 
 //////////////////////////////////////////////////////////////////////////
 // CSpec
@@ -67,7 +63,7 @@ internal class ASpec : AObj, CSpec
   override Str qname() { parent.qname + "." + name }
 
   ** Resolved base
-  override CSpec? cbase() { base?.creferent }
+  override CSpec? cbase() { base }
 
   ** Lookup effective slot
   override CSpec? cslot(Str name, Bool checked := true)

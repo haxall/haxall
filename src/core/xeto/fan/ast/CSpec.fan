@@ -34,6 +34,9 @@ internal mixin CSpec : CNode
 
   ** Get the effective slots as map
   abstract Str:CSpec cslots()
+
+  ** MSpecFlags bitmask flags
+  abstract Int flags()
 }
 
 **************************************************************************
