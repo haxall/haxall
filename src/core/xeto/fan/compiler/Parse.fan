@@ -32,7 +32,7 @@ internal class Parse : Step
   {
     // create ALib as our root object
     lib := ALib(FileLoc(input), qname)
-    lib.type = sys.lib
+    lib.typeRef = sys.lib
     lib.initSlots
 
     // parse directory into root lib
@@ -57,7 +57,7 @@ internal class Parse : Step
   {
     // create dict as root object
     root := AVal(FileLoc(input), null, "root")
-    root.type = sys.dict
+    root.typeRef = sys.dict
     root.initSlots
 
     // parse into root
@@ -92,7 +92,7 @@ internal class Parse : Step
     // libs must type their pragma as Lib
     if (isLib)
     {
-      if (pragma.type == null || pragma.type.name.name != "Lib") err("Pragma must have 'Lib' type", pragma.loc)
+      if (pragma.typeRef == null || pragma.typeRef.name.name != "Lib") err("Pragma must have 'Lib' type", pragma.loc)
     }
 
     // must have meta, and no slots

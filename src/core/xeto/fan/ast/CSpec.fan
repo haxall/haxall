@@ -12,10 +12,13 @@ using util
 ** CSpec is common API shared by both ASpec and XetoSpec
 **
 @Js
-internal mixin CSpec
+internal mixin CSpec : CNode
 {
   ** Return if this an AST ASpec
   abstract Bool isAst()
+
+  ** Assembled XetoSpec (stub only in AST until Assemble step)
+  override abstract XetoSpec asm()
 
   ** Simple name
   abstract Str name()
@@ -31,6 +34,17 @@ internal mixin CSpec
 
   ** Get the effective slots as map
   abstract Str:CSpec cslots()
+}
+
+**************************************************************************
+** CNode
+**************************************************************************
+
+@Js
+internal mixin CNode
+{
+  ** Required for covariant conflict so that signature matches ANode
+  abstract Obj asm()
 }
 
 

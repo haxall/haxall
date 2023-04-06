@@ -94,7 +94,7 @@ internal class Parser
     {
       name = consumeName
       obj = parent.makeChild(loc, name)
-      obj.type = sys.marker
+      obj.typeRef = sys.marker
       obj.val = AScalar(loc, marker.toStr, marker)
     }
     else
@@ -160,9 +160,9 @@ internal class Parser
 
   private Bool parseSpec(AObj obj)
   {
-    obj.type = parseType(obj)
+    obj.typeRef = parseType(obj)
 
-    if (obj.type == null)
+    if (obj.typeRef == null)
     {
       // allow <meta> without type only for sys::Obj
       if (cur !== Token.lt) return false
@@ -195,7 +195,7 @@ internal class Parser
   {
     // add 'ofs' as list of type refs to the obj.meta
     ofs := AVal(first.loc, obj, "ofs")
-    ofs.type = sys.list
+    ofs.typeRef = sys.list
     ofs.initSlots
     ofs.asmToListOf = DataSpec#
     add(obj.initMeta(sys), ofs)
@@ -215,7 +215,7 @@ internal class Parser
   private Void addCompoundType(AObj ofs, ARef type)
   {
     typeRef := AVal(type.loc, ofs, compiler.autoName(ofs.slots.size))
-    typeRef.type = type
+    typeRef.typeRef = type
     ofs.slots.add(typeRef)
   }
 
@@ -227,11 +227,11 @@ internal class Parser
     loc := type.loc
     obj.initMeta(sys)
     maybe := obj.meta.makeChild(loc, "maybe")
-    maybe.type = sys.marker
+    maybe.typeRef = sys.marker
     maybe.val = AScalar(loc, env.marker.toStr, env.marker)
 
     // set type + meta maybe marker
-    obj.type = type
+    obj.typeRef = type
     obj.meta.slots.add(maybe)
 
     return type
@@ -314,7 +314,7 @@ internal class Parser
     // add it to meta
     loc := obj.loc
     docObj := AVal(loc, meta, "doc")
-    docObj.type = sys.str
+    docObj.typeRef = sys.str
     docObj.val = AScalar(loc, docStr, docStr)
     meta.initSlots.add(docObj)
   }

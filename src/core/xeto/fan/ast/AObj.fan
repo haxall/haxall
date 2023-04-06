@@ -47,7 +47,10 @@ internal abstract class AObj : ANode
   virtual Bool isLib() { false }
 
   ** Type ref for this object.  Null if this is Obj or we need to infer type
-  ARef? type
+  ARef? typeRef
+
+  ** Resolved type ref
+  CSpec? type() { typeRef?.creferent }
 
   ** Meta tags if there was '<>'
   AVal? meta { private set }
@@ -74,7 +77,7 @@ internal abstract class AObj : ANode
     if (meta == null)
     {
       meta = AVal(loc, this, "meta")
-      meta.type = sys.dict
+      meta.typeRef = sys.dict
       meta.initSlots
     }
     return meta
@@ -96,7 +99,7 @@ internal abstract class AObj : ANode
   ** Walk AST tree
   override Void walk(|ANode| f)
   {
-    type?.walk(f)
+    typeRef?.walk(f)
     meta?.walk(f)
     slots?.walk(f)
     f(this)

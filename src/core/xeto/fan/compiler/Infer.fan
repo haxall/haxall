@@ -43,22 +43,22 @@ internal class Infer : Step
     {
       t := (AType)x
       if (t.qname == "sys::Obj") return
-      t.type = sys.dict
+      t.typeRef = sys.dict
       return
     }
 
     // TODO: total hack until we get inheritance
     if (x.name == "points")
     {
-      x.type = sys.query
+      x.typeRef = sys.query
       return
     }
 
     // TODO: fallback to Str/Dict
     if (x.val != null)
-      x.type = sys.str
+      x.typeRef = sys.str
     else
-      x.type = sys.dict
+      x.typeRef = sys.dict
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -208,6 +208,8 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
 
   override Bool isAst() { false }
 
+  override XetoSpec asm() { this }
+
   override final CSpec? cbase() { m.base }
 
   override final CSpec? cslot(Str n, Bool c := true) { m.slot(n, c) }

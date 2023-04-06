@@ -52,8 +52,8 @@ internal class ASpec : AObj, CSpec
   ** We use AObj.type to model the base supertype
   ARef? base
   {
-    get { type }
-    set { type = it }
+    get { typeRef }
+    set { typeRef = it }
   }
 
 //////////////////////////////////////////////////////////////////////////
