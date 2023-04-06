@@ -3,28 +3,37 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//    6 Apr 2023  Brian Frank  Creation
+//   21 Dec 2022  Brian Frank  Creation
+//    6 Apr 2023  Brian Frank  Redesign from proto
 //
 
 using util
 
 **
-** Inherit slots from base type
+** Inherit walks all the objects:
+**   - infer type if unspecified
+**   - resolves base
+**   - handles slot overrides
+**   - computes spec flags
 **
 @Js
 internal class Inherit : Step
 {
   override Void run()
   {
-    inherit(lib)
+    if (ast.isSpec)
+      inheritSpec(ast)
+    else
+      inheritVal(ast, null)
     bombIfErr
   }
 
+
 //////////////////////////////////////////////////////////////////////////
-// Inherit
+// Spec
 //////////////////////////////////////////////////////////////////////////
 
-  private Void inherit(ASpec spec)
+  private Void inheritSpec(ASpec spec)
   {
     // check if already inherited
     if (spec.cslotsRef != null) return
@@ -51,7 +60,7 @@ if (spec.name == "points") spec.typeRef = sys.query
         spec.cslotsRef = noSlots
       }
       stack.push(spec)
-      inherit(base)
+      inheritSpec(base)
       stack.pop
     }
 
@@ -85,8 +94,11 @@ if (spec.name == "points") spec.typeRef = sys.query
     // we now have effective slot map
     spec.cslotsRef = acc
 
+    // iherit meta
+    inheritMeta(spec)
+
     // recurse children
-    acc.each |slot| { if (slot.isAst) inherit(slot) }
+    acc.each |slot| { if (slot.isAst) inheritSpec(slot) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -137,6 +149,31 @@ if (spec.name == "points") spec.typeRef = sys.query
   {
 //    if (own.base == null) own.base = base
     return own
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Values
+//////////////////////////////////////////////////////////////////////////
+
+  private Void inheritMeta(ASpec spec)
+  {
+    if (spec.meta == null) return
+    inheritVal(spec.meta, null)
+  }
+
+  private Void inheritVal(AVal x, ASpec? type)
+  {
+    // infer type if unspecified
+    if (x.typeRef == null)
+    {
+      if (x.val != null)
+        x.typeRef = sys.str
+      else
+        x.typeRef = sys.dict
+    }
+
+    // recurse
+    if (x.slots != null) x.slots.each |kid| { inheritVal(kid, null) }
   }
 
 //////////////////////////////////////////////////////////////////////////
