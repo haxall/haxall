@@ -214,6 +214,8 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
 
   override final CSpec? cbase() { m.base }
 
+  override final CSpec? ctype() { m.type }
+
   override final CSpec? cslot(Str n, Bool c := true) { m.slot(n, c) }
 
   override final Str:CSpec cslots() { m.slots.map }

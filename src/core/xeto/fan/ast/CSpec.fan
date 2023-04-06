@@ -26,6 +26,9 @@ internal mixin CSpec : CNode
   ** Qualified name
   abstract Str qname()
 
+  ** Type of the spec or if this a type then return self
+  abstract CSpec? ctype()
+
   ** Base spec or null if this sys::Obj itself
   abstract CSpec? cbase()
 

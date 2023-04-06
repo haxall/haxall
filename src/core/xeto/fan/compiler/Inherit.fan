@@ -147,7 +147,11 @@ if (spec.name == "points") spec.typeRef = sys.query
 
   private ASpec overrideSlot(CSpec base, ASpec own)
   {
-//    if (own.base == null) own.base = base
+    if (own.typeRef == null)
+    {
+      own.typeRef = ARef(own.loc, base.ctype)
+      own.base = base
+    }
     return own
   }
 

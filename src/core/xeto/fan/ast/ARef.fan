@@ -22,11 +22,14 @@ internal class ARef : ANode
   }
 
   ** Construct for resolved
-  new makeResolved(FileLoc loc, ASpec spec)
+  new makeResolved(FileLoc loc, CSpec spec)
   {
     this.loc = loc
     this.name = AName(null, spec.name)
-    this.resolveInternal(spec)
+    if (spec.isAst)
+      this.resolveInternal(spec)
+    else
+      this.resolveExternal(spec)
   }
 
   ** Node type

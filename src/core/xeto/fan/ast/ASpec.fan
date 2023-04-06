@@ -62,6 +62,9 @@ internal class ASpec : AObj, CSpec
   ** Qualified name
   override Str qname() { parent.qname + "." + name }
 
+  ** Resolved type
+  override CSpec? ctype() { type }
+
   ** Resolved base
   override CSpec? cbase() { base }
 
