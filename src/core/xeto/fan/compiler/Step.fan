@@ -45,10 +45,52 @@ abstract internal class Step
 
   Void bombIfErr() { if (!compiler.errs.isEmpty) throw compiler.errs.first }
 
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  ** Get meta tag
+  AObj? metaGet(AObj obj, Str name)
+  {
+    if (obj.meta == null) return null
+    return obj.meta.slots.get(name)
+  }
+
+  ** Return if object has meta tag set and it is not none
+  Bool metaHas(AObj obj, Str name)
+  {
+    x := metaGet(obj, name)
+    return x != null && !isNone(x)
+  }
+
+  ** Add marker tag to meta
+  Void metaAddMarker(AObj obj, Str name)
+  {
+    metaAdd(obj, name, sys.marker, env.marker)
+  }
+
+  ** Add none tag to meta
+  Void metaAddNone(AObj obj, Str name)
+  {
+    metaAdd(obj, name, sys.none, env.none, "none")
+  }
+
+  ** Add none tag to meta
+  Void metaAdd(AObj obj, Str name, ARef type, Obj val, Str valStr := val.toStr)
+  {
+    loc := obj.loc
+    kid := obj.metaInit(sys).makeChild(loc, name)
+    kid.typeRef = type
+    kid.val = AScalar(loc, valStr, val)
+    obj.meta.slots.add(kid)
+  }
+
+  ** Is object the none scalar value
   Bool isNone(AObj? obj)
   {
     if (obj == null) return false
     if (obj.val == null) return false
     return obj.val.val === env.none
   }
+
 }

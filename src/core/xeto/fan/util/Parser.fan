@@ -20,11 +20,12 @@ internal class Parser
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(XetoCompiler c, FileLoc fileLoc, InStream in)
+  new make(Step step, FileLoc fileLoc, InStream in)
   {
-    this.compiler = c
-    this.env = c.env
-    this.sys = c.sys
+    this.step = step
+    this.compiler = step.compiler
+    this.env = step.env
+    this.sys = step.sys
     this.marker = env.marker
     this.fileLoc = fileLoc
     this.tokenizer = Tokenizer(in) { it.keepComments = true }
@@ -177,7 +178,7 @@ internal class Parser
 
   private Void parseMeta(AObj obj)
   {
-    parseChildren(obj.initMeta(sys), Token.lt, Token.gt)
+    parseChildren(obj.metaInit(sys), Token.lt, Token.gt)
   }
 
   ARef? parseType(AObj obj)
@@ -198,7 +199,7 @@ internal class Parser
     ofs.typeRef = sys.list
     ofs.initSlots
     ofs.asmToListOf = DataSpec#
-    add(obj.initMeta(sys), ofs)
+    add(obj.metaInit(sys), ofs)
 
     // parse Type <sep> Type <sep> Type ...
     sepToken := cur
@@ -227,7 +228,7 @@ internal class Parser
     obj.typeRef = type
 
     // add maybe marker
-    obj.addMetaMarker(compiler, "maybe")
+    step.metaAddMarker(obj, "maybe")
 
     return type
   }
@@ -303,7 +304,7 @@ internal class Parser
     if (!obj.isSpec) return
 
     // if already present skip it
-    meta := obj.initMeta(sys)
+    meta := obj.metaInit(sys)
     if (meta.slot("doc") != null) return
 
     // add it to meta
@@ -444,6 +445,7 @@ internal class Parser
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private Step step
   private XetoCompiler compiler
   private ASys sys
   private XetoEnv env

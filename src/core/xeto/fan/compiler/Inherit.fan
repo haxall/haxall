@@ -136,7 +136,7 @@ if (spec.name == "points") spec.typeRef = sys.query
   private Int computeFlagsSys(ASpec x)
   {
     flags := 0
-    if (x.metaHas(compiler, "maybe")) flags = flags.or(MSpecFlags.maybe)
+    if (metaHas(x, "maybe")) flags = flags.or(MSpecFlags.maybe)
     for (ASpec? p := x; p != null; p = p.base)
     {
       switch (p.name)
@@ -166,8 +166,8 @@ if (spec.name == "points") spec.typeRef = sys.query
     else
     {
       // if base is maybe and my own type is not then clear maybe flag
-      if (base.isMaybe && !own.metaHas(compiler, "maybe"))
-        own.addMetaNone(compiler, "maybe")
+      if (base.isMaybe && !metaHas(own, "maybe"))
+        metaAddNone(own, "maybe")
     }
 
     // this slot is derived from base slot

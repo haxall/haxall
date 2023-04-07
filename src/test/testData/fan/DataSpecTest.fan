@@ -124,6 +124,7 @@ class DataSpecTest : AbstractDataTest
            }
 
            Qux: Foo {
+             bar: Str?
              baz: Foo
            }
            |>)
@@ -146,7 +147,12 @@ class DataSpecTest : AbstractDataTest
      verifyEq(baz.isa(foo), true)
      verifyEq(baz.isMaybe, true)
 
-     verifySame(qux.slot("bar"), bar)
+     // bar override with maybe
+     qbar := qux.slot("bar")
+     verifySame(qbar.base, bar)
+     verifySame(qbar["maybe"], env.marker)
+     verifyEq(qbar.isa(str), true)
+     verifyEq(qbar.isMaybe, true)
 
      // non-maybe type sets maybe to none
      qbaz := qux.slot("baz")
