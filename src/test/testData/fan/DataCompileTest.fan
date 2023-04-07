@@ -230,6 +230,44 @@ class DataCompileTest : AbstractDataTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Inherit None
+//////////////////////////////////////////////////////////////////////////
+
+  Void testInheritNone()
+  {
+    lib := compileLib(
+       Str<|A: Dict <baz, foo: NA "na"> {
+              foo: Date <bar, qux> "2023-04-07"
+            }
+            B : A <baz:None "none"> {
+              foo: Date <qux:None "none">
+            }
+           |>)
+
+    // env.print(lib)
+
+    a := lib.libType("A"); af := a.slot("foo")
+    b := lib.libType("B"); bf := b.slot("foo")
+
+    verifyInheritNone(a, "baz",  env.marker, env.marker)
+    verifyInheritNone(a, "foo",  env.na,     env.na)
+    verifyInheritNone(af, "bar", env.marker, env.marker)
+    verifyInheritNone(af, "qux", env.marker, env.marker)
+
+    verifyInheritNone(b, "baz",  env.none, null)
+    verifyInheritNone(b, "foo",  null,     env.na)
+    verifyInheritNone(bf, "bar", null,     env.marker)
+    verifyInheritNone(bf, "qux", env.none, null)
+  }
+
+  private Void verifyInheritNone(DataSpec s, Str name, Obj? own, Obj? effective)
+  {
+    // echo("~~ $s.qname own=" + s.own[name] + " effective=" + s[name])
+    verifyEq(s.own[name], own)
+    verifyEq(s[name], effective)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Errs
 //////////////////////////////////////////////////////////////////////////
 

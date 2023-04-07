@@ -65,6 +65,7 @@ internal const class XetoUtil
   ** Inherit spec meta data
   static DataDict inheritMeta(MSpec spec)
   {
+    env := spec.env
     own := spec.own
 
     base := spec.base as XetoSpec
@@ -86,7 +87,15 @@ internal const class XetoUtil
 
     // merge in my own tags
     if (!own.isEmpty)
-      own.each |v, n| { acc[n] = v }
+    {
+      own.each |v, n|
+      {
+        if (v === env.none)
+          acc.remove(n)
+        else
+          acc[n] = v
+      }
+    }
 
     return spec.env.dictMap(acc)
   }

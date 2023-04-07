@@ -101,10 +101,19 @@ class Printer
       w(n)
       if (isMarker(v)) return
       colon
-      if (v is DataSpec)
-        w(v.toStr)
-      else
-        val(v)
+
+      if (inMeta)
+      {
+        // express as Xeto values
+        if (v === env.none) return w("None \"none\"")
+        if (v === env.na) return w("NA \"na\"")
+        if (v is Str) return quoted(v)
+        t := env.typeOf(v)
+        if (t.isScalar) return w(t.qname).sp.quoted(v.toStr)
+      }
+
+      if (v is DataSpec) return w(v.toStr)
+      val(v)
     }
     return this
   }
