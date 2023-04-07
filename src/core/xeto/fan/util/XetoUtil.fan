@@ -90,7 +90,7 @@ internal const class XetoUtil
     {
       own.each |v, n|
       {
-        if (v === env.none)
+        if (v === env.none && spec !== env.sys.none.m)
           acc.remove(n)
         else
           acc[n] = v

@@ -135,18 +135,11 @@ internal class Assemble : Step
   {
     if (x.meta == null && x.val == null) return env.dict0
 
-    DataDict dict := x.meta == null ? env.dict0 : asmDict(x.meta)
-
-    // TODO: just temp hack for now
-    if (x.val != null)
-    {
-      acc := Str:Obj[:]
-      dict.each |v, n| { acc[n] = v }
-      acc.add("val", asmScalar(x))
-      dict = env.dictMap(acc)
-    }
-
-    return dict
+    acc := Str:Obj[:]
+    acc.ordered = true
+    if (x.meta != null) x.meta.slots.each |obj, name| { acc[name] = obj.asm }
+    if (x.val != null) acc["val"] = asmScalar(x)
+    return env.dictMap(acc)
   }
 
   private MSlots asmSlots(ASpec x)

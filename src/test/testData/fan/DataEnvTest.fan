@@ -28,15 +28,19 @@ class DataEnvTest : AbstractDataTest
     verifySame(env.lib("sys"), sys)
     verifyEq(sys.qname, "sys")
     verifyEq(sys.version, typeof.pod.version)
+// TODO
+//    verifyEq(sys["version"], typeof.pod.version)
     verifySame(env.sysLib, sys)
 
      // env.print(sys)
 
     // types
     obj    := verifyLibType(sys, "Obj",      null)
-    none   := verifyLibType(sys, "None",     obj)
     self   := verifyLibType(sys, "Self",     obj)
     scalar := verifyLibType(sys, "Scalar",   obj)
+    none   := verifyLibType(sys, "None",     scalar, env.none)
+    marker := verifyLibType(sys, "Marker",   scalar, env.marker)
+    na     := verifyLibType(sys, "NA",       scalar, env.na)
     str    := verifyLibType(sys, "Str",      scalar, "")
     uri    := verifyLibType(sys, "Uri",      scalar, ``)
     ref    := verifyLibType(sys, "Ref",      scalar, Ref("x"))
