@@ -23,6 +23,11 @@ class DataCompileTest : AbstractDataTest
 
   Void testScalars()
   {
+    verifyScalar("sys::Marker",   Str<|Marker "marker"|>, env.marker)
+    verifyScalar("sys::Marker",   Str<|sys::Marker "marker"|>, env.marker)
+    verifyScalar("sys::None",     Str<|None "none"|>, env.none)
+    verifyScalar("sys::None",     Str<|sys::None "none"|>, env.none)
+    verifyScalar("sys::NA",       Str<|sys::NA "na"|>, env.na)
     verifyScalar("sys::Str",      Str<|"hi"|>, "hi")
     verifyScalar("sys::Str",      Str<|Str "123"|>, "123")
     verifyScalar("sys::Str",      Str<|sys::Str "123"|>, "123")
@@ -65,6 +70,8 @@ class DataCompileTest : AbstractDataTest
   Void verifyScalar(Str qname, Str src, Obj? expected)
   {
     actual := compileData(src)
+    // echo("-- $src")
+    // echo("   $actual [$actual.typeof]")
     verifyEq(actual, expected)
 
     type := env.typeOf(actual)

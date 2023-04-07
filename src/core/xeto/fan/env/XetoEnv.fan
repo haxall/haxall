@@ -11,6 +11,8 @@ using util
 using data
 using haystack::Etc
 using haystack::Marker
+using haystack::NA
+using haystack::Remove
 using haystack::Grid
 using haystack::UnknownSpecErr
 
@@ -23,7 +25,9 @@ internal const class XetoEnv : DataEnv
   new make()
   {
     this.libMgr = XetoLibMgr(this)
+    this.none   = Remove.val
     this.marker = Marker.val
+    this.na     = NA.val
     this.list0  = Obj?[,]
     this.dict0 = Etc.dict0
     this.factory = XetoFactory()
@@ -43,6 +47,10 @@ internal const class XetoEnv : DataEnv
   const NilDataContext nilContext := NilDataContext()
 
   override const Obj marker
+
+  override const Obj none
+
+  override const Obj na
 
   const Obj?[] list0
 

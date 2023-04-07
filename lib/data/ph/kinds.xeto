@@ -6,12 +6,6 @@
 //   20 Jul 2022  Brian Frank  Creation
 //
 
-// Singleton for not available to indicate invalid or missing data.
-NA: Scalar <sealed> "NA"
-
-// Singleton for remove operation.
-Remove: Scalar <sealed> "remove"
-
 // Symbol to a def. Symbol values are ASCII strings limited to the
 // following chars: a-z, A-Z, 0-9, underbar, colon, dash, dot.
 Symbol: Scalar "x"

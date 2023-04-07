@@ -26,8 +26,14 @@ const abstract class DataEnv
   }
   private static const AtomicRef curRef := AtomicRef()
 
-  ** Marker singleton
+  ** None singleton value
+  abstract Obj none()
+
+  ** Marker singleton value
   abstract Obj marker()
+
+  ** NA singleton value
+  abstract Obj na()
 
   ** Return generic 'sys::Dict'
   @NoDoc abstract DataSpec dictSpec()

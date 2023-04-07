@@ -9,17 +9,20 @@
 // Root type for all objects
 Obj: <sealed, abstract>
 
-// None is the bottom type with no values
-None: Obj <sealed>
-
 // Self is a placeholder that always represents the parent type
 Self: Obj <sealed>
 
 // Scalar is an atomic value kind
 Scalar: Obj <abstract>
 
+// None is the bottom type used to represent absense of value
+None: Scalar <sealed> "none"
+
 // Marker labels a dict with typing information
 Marker: Scalar <sealed> "marker"
+
+// Not available indicates invalid or missing data
+NA: Scalar <sealed> "na"
 
 // Unicode string of characters
 Str: Scalar <sealed> ""

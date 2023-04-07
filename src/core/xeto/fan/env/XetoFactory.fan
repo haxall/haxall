@@ -53,8 +53,8 @@ internal class XetoFactoryBuilder
     // haystack
     pod = Pod.find("haystack")
     add(XetoSingletonItem("sys::Marker", pod.type("Marker"), Marker.val))
-    add(XetoSingletonItem("ph::NA",     pod.type("NA"),      NA.val))
-    add(XetoSingletonItem("ph::Remove", pod.type("Remove"),  Remove.val))
+    add(XetoSingletonItem("sys::None",   pod.type("Remove"), Remove.val, "none"))
+    add(XetoSingletonItem("sys::NA",     pod.type("NA"),     NA.val, "na"))
     addScalar("sys::Number",   pod.type("Number"))
     addScalar("sys::Ref",      pod.type("Ref"))
     addScalar("ph::Coord",     pod.type("Coord"))
@@ -140,11 +140,13 @@ internal const class XetoScalarItem
 @Js
 internal const class XetoSingletonItem : XetoScalarItem
 {
-  new make(Str xeto, Type fantom, Obj val) : super(xeto, fantom) { this.val = val }
+  new make(Str xeto, Type fantom, Obj val, Str? altStr := null) : super(xeto, fantom) { this.val = val; this.altStr = altStr }
   const Obj val
+  const Str? altStr
   override Obj? parse(XetoCompiler c, Str str, FileLoc loc)
   {
     if (str == val.toStr) return val
+    if (str == altStr) return val
     throw ParseErr("$xeto: $str.toCode")
   }
 }
