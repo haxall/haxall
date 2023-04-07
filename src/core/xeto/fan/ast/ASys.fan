@@ -15,6 +15,7 @@ using util
 internal class ASys
 {
   ARef obj    := init("Obj")
+  ARef none   := init("None")
   ARef marker := init("Marker")
   ARef str    := init("Str")
   ARef dict   := init("Dict")

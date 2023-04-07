@@ -116,7 +116,18 @@ if (spec.name == "points") spec.typeRef = sys.query
     flags := x.base.flags
 
     // merge in my own flags
-    if (x.metaHas("maybe")) flags = flags.or(MSpecFlags.maybe)
+    if (x.meta != null)
+    {
+      // if maybe is marker set flag, if none then clear flag
+      maybe := x.meta.slot("maybe")
+      if (maybe != null)
+      {
+        if (isNone(maybe))
+          flags = flags.and(MSpecFlags.maybe.not)
+        else
+          flags = flags.or(MSpecFlags.maybe)
+      }
+    }
 
     return flags
   }
@@ -125,7 +136,7 @@ if (spec.name == "points") spec.typeRef = sys.query
   private Int computeFlagsSys(ASpec x)
   {
     flags := 0
-    if (x.metaHas("maybe")) flags = flags.or(MSpecFlags.maybe)
+    if (x.metaHas(compiler, "maybe")) flags = flags.or(MSpecFlags.maybe)
     for (ASpec? p := x; p != null; p = p.base)
     {
       switch (p.name)
@@ -147,9 +158,17 @@ if (spec.name == "points") spec.typeRef = sys.query
 
   private ASpec overrideSlot(CSpec base, ASpec own)
   {
-    // if no type was specified, then inherit base type
     if (own.typeRef == null)
+    {
+      // if no type was specified, then inherit base type
       own.typeRef = ARef(own.loc, base.ctype)
+    }
+    else
+    {
+      // if base is maybe and my own type is not then clear maybe flag
+      if (base.isMaybe && !own.metaHas(compiler, "maybe"))
+        own.addMetaNone(compiler, "maybe")
+    }
 
     // this slot is derived from base slot
     own.base = base

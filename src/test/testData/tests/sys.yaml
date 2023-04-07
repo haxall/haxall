@@ -17,10 +17,11 @@ name: "none"
 loadLib: "sys"
 verifyType:
   name: "None"
-  base: "sys::Obj"
+  base: "sys::Scalar"
   meta:
-    doc: "sys::Str None is the bottom type with no values"
+    doc: "sys::Str None is the bottom type used to represent absense of value"
     sealed: "sys::Marker"
+    val: "sys::None none"
 ---
 name: "scalar"
 loadLib: "sys"

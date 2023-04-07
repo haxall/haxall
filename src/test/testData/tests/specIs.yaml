@@ -22,7 +22,7 @@ name: "none"
 verifySpecIs:
   - {a: "sys::None", b: "sys::Obj",    expect: true}
   - {a: "sys::None", b: "sys::None",   expect: true}
-  - {a: "sys::None", b: "sys::Scalar", expect: false}
+  - {a: "sys::None", b: "sys::Scalar", expect: true}
   - {a: "sys::None", b: "sys::Str",    expect: false}
   - {a: "sys::None", b: "sys::Dict",   expect: false}
 ---

@@ -405,8 +405,14 @@ class DataTestCase
       if (type.qname == "sys::Duration" && expectVal == "0sec")
         verifyEq(val, 0ns)
       else
-        verifyStr(val.toStr, expectVal)
+        verifyStr(scalarToStr(val), expectVal)
     }
+  }
+
+  private Str scalarToStr(Obj x)
+  {
+    if (x === env.none) return "none"
+    return x.toStr
   }
 
   Void verifyDict(DataDict dict, Str:Obj expect)

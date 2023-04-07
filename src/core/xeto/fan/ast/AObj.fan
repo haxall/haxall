@@ -65,10 +65,13 @@ internal abstract class AObj : ANode
   virtual Str valParseType() { type.qname }
 
   ** Does this object have the given meta tag set
-  Bool metaHas(Str name)
+  Bool metaHas(XetoCompiler c, Str name)
   {
     if (meta == null) return false
-    return meta.slots.has(name)
+    x := meta.slots.get(name)
+    if (x == null) return false
+    if (x.val?.val === c.env.none) return false
+    return true
   }
 
   ** Initialize meta data dict
@@ -83,12 +86,21 @@ internal abstract class AObj : ANode
     return meta
   }
 
-  ** Add tag marker tag to meta
+  ** Add marker tag to meta
   Void addMetaMarker(XetoCompiler c, Str name)
   {
     kid := initMeta(c.sys).makeChild(loc, name)
     kid.typeRef = c.sys.marker
-    kid.val = AScalar(loc, c.env.marker.toStr, c.env.marker)
+    kid.val = AScalar(loc, "marker", c.env.marker)
+    meta.slots.add(kid)
+  }
+
+  ** Add none tag to meta
+  Void addMetaNone(XetoCompiler c, Str name)
+  {
+    kid := initMeta(c.sys).makeChild(loc, name)
+    kid.typeRef = c.sys.none
+    kid.val = AScalar(loc, "none", c.env.none)
     meta.slots.add(kid)
   }
 

@@ -55,9 +55,10 @@ class DataSpecTest : AbstractDataTest
     verifyIsa("sys::Obj", "sys::Obj", true)
     verifyIsa("sys::Obj", "sys::Str", false)
 
-    verifyIsa("sys::None", "sys::Obj", true)
-    verifyIsa("sys::None", "sys::None", true)
-    verifyIsa("sys::None", "sys::Scalar", false)
+    verifyIsa("sys::None", "sys::Obj",    true)
+    verifyIsa("sys::None", "sys::None",   true)
+    verifyIsa("sys::None", "sys::Scalar", true)
+    verifyIsa("sys::None", "sys::Dict",   false)
 
     verifyIsa("sys::Scalar", "sys::Obj",    true)
     verifyIsa("sys::Scalar", "sys::Scalar", true)
@@ -127,7 +128,7 @@ class DataSpecTest : AbstractDataTest
            }
            |>)
 
-    //env.print(lib)
+     // env.print(lib)
 
      str := env.type("sys::Str")
      foo := lib.slotOwn("Foo")
@@ -147,10 +148,11 @@ class DataSpecTest : AbstractDataTest
 
      verifySame(qux.slot("bar"), bar)
 
-     // do not inherit maybe
+     // non-maybe type sets maybe to none
      qbaz := qux.slot("baz")
      verifySame(qbaz.base, baz)
      verifyEq(qbaz["maybe"], null)
+     verifyEq(qbaz.own["maybe"], env.none)
      verifyEq(qbaz.isMaybe, false)
    }
 
