@@ -83,6 +83,15 @@ internal abstract class AObj : ANode
     return meta
   }
 
+  ** Add tag marker tag to meta
+  Void addMetaMarker(XetoCompiler c, Str name)
+  {
+    kid := initMeta(c.sys).makeChild(loc, name)
+    kid.typeRef = c.sys.marker
+    kid.val = AScalar(loc, c.env.marker.toStr, c.env.marker)
+    meta.slots.add(kid)
+  }
+
   ** Initialize slots map
   AMap initSlots()
   {

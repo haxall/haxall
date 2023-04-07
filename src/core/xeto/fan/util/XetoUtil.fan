@@ -96,7 +96,6 @@ internal const class XetoUtil
     // we need to make this use reflection at some point
     if (name == "abstract") return false
     if (name == "sealed") return false
-    if (name == "maybe") return false
     return true
   }
 

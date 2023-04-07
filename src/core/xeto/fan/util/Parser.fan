@@ -223,16 +223,11 @@ internal class Parser
   {
     consume(Token.question)
 
-    // create maybe marker
-    loc := type.loc
-    obj.initMeta(sys)
-    maybe := obj.meta.makeChild(loc, "maybe")
-    maybe.typeRef = sys.marker
-    maybe.val = AScalar(loc, env.marker.toStr, env.marker)
-
-    // set type + meta maybe marker
+    // set type
     obj.typeRef = type
-    obj.meta.slots.add(maybe)
+
+    // add maybe marker
+    obj.addMetaMarker(compiler, "maybe")
 
     return type
   }

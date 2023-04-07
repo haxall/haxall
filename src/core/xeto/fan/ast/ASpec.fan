@@ -46,9 +46,6 @@ internal class ASpec : AObj, CSpec
 // ASpec
 //////////////////////////////////////////////////////////////////////////
 
-  ** Inheritance flags computed in Infer
-  override Int flags
-
   ** We refine type and base in Inherit step
   CSpec? base
 
@@ -81,7 +78,12 @@ internal class ASpec : AObj, CSpec
   override Str:CSpec cslots() { cslotsRef ?: throw Err("Inherit not run") }
   [Str:CSpec]? cslotsRef
 
+  ** Inheritance flags computed in Infer
+  override Int flags
 
+  override Bool isMaybe() { hasFlag(MSpecFlags.maybe) }
+
+  Bool hasFlag(Int flag) { flags.and(flag) != 0 }
 }
 
 

@@ -218,7 +218,7 @@ verifyTypes:
         meta:
           doc: "inherit"
           pattern: "inherit"
-          maybe: "sys::Marker"
+          maybe: "inherit"
           val: "sys::Date 2023-05-02"
 ---
 

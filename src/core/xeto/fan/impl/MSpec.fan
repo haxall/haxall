@@ -126,6 +126,20 @@ internal const class MSpecFlags
   static const Int dict   := 0x0010
   static const Int list   := 0x0020
   static const Int query  := 0x0040
+
+  static Str flagsToStr(Int flags)
+  {
+    s := StrBuf()
+    MSpecFlags#.fields.each |f|
+    {
+      if (f.isStatic && f.type == Int#)
+      {
+        has := flags.and(f.get(null)) != 0
+        if (has) s.join(f.name, ",")
+      }
+    }
+    return "{" + s.toStr + "}"
+  }
 }
 
 **************************************************************************

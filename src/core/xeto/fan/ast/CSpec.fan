@@ -40,6 +40,9 @@ internal mixin CSpec : CNode
 
   ** MSpecFlags bitmask flags
   abstract Int flags()
+
+  ** Is maybe flag set
+  abstract Bool isMaybe()
 }
 
 **************************************************************************

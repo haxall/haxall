@@ -147,11 +147,12 @@ if (spec.name == "points") spec.typeRef = sys.query
 
   private ASpec overrideSlot(CSpec base, ASpec own)
   {
+    // if no type was specified, then inherit base type
     if (own.typeRef == null)
-    {
       own.typeRef = ARef(own.loc, base.ctype)
-      own.base = base
-    }
+
+    // this slot is derived from base slot
+    own.base = base
     return own
   }
 
