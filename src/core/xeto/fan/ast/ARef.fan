@@ -26,10 +26,7 @@ internal class ARef : ANode
   {
     this.loc = loc
     this.name = AName(null, spec.name)
-    if (spec.isAst)
-      this.resolveInternal(spec)
-    else
-      this.resolveExternal(spec)
+    this.resolvedRef = spec
   }
 
   ** Node type
@@ -45,50 +42,19 @@ internal class ARef : ANode
   override Void walk(|ANode| f) { f(this) }
 
   ** Return qualified/unqualified name
-  override Str toStr() { qnameRef?.toStr ?: name.toStr }
-
-  CSpec creferent() { referentInternal ?: referent }
+  override Str toStr() { resolvedRef?.qname ?: name.toStr }
 
   ** Is this reference already resolved
-  Bool isResolved() { referent != null }
+  Bool isResolved() { resolvedRef != null }
 
-  ** Is this resolved to an internal AST node
-  Bool isResolvedInternal() { referent != null && referentInternal != null }
+  ** Get the resolved spec
+  CSpec resolved() { resolvedRef ?: throw UnresolvedErr("$name [$loc]") }
 
-  ** Is this resolved to an external dependency
-  Bool isResolvedExternal() { referent != null && referentInternal == null }
+  ** Resolved assmbled XetoSpec
+  override XetoSpec asm() { resolved.asm }
 
-  ** Resolved reference or raise UnresolvedErr
-  override XetoSpec asm() { referent ?: throw UnresolvedErr("$name [$loc]") }
+  ** Resolve to its spec
+  Void resolve(CSpec x) { this.resolvedRef = x }
 
-  ** Resovled reference to an internal AST node
-  ASpec resolvedInternal() { referentInternal ?: throw UnresolvedErr("$name [$loc]") }
-
-  ** Resolved qname UnresolvedErr
-  Str qname() { qnameRef ?: throw UnresolvedErr("$name [$loc]") }
-
-  ** Resolve via an internal AST type
-  Void resolveInternal(ASpec x)
-  {
-    this.referent = x.asm
-    this.referentInternal = x
-    this.qnameRef = x.qname
-  }
-
-  ** Resolve via an external dependency type
-  Void resolveExternal(XetoType x)
-  {
-    this.referent = x
-    this.qnameRef = x.qname
-  }
-
-  ** Resolved reference
-  private XetoSpec? referent
-
-  ** Resolve reference to internal AST node
-  private ASpec? referentInternal
-
-  ** Resolved qualified name
-  private Str? qnameRef
-
+  private CSpec? resolvedRef
 }

@@ -90,10 +90,10 @@ internal class Resolve : Step
     // match to name within this AST which trumps depends
     if (isLib)
     {
-      type := lib.slot(n.name)
+      type := lib.slot(n.name) as AType
       if (type != null)
       {
-        ref.resolveInternal(type)
+        ref.resolve(type)
         return
       }
     }
@@ -106,7 +106,7 @@ internal class Resolve : Step
     else if (matches.size > 1)
       err("Ambiguous type: $n $matches", ref.loc)
     else
-      ref.resolveExternal(matches.first)
+      ref.resolve(matches.first)
   }
 
   private Void resolveQualified(ARef ref)
@@ -115,9 +115,9 @@ internal class Resolve : Step
     n := ref.name
     if (n.lib == compiler.qname)
     {
-      type := lib.slot(n.name)
+      type := lib.slot(n.name) as AType
       if (type == null) return err("Spec '$n' not found in lib", ref.loc)
-      ref.resolveInternal(type)
+      ref.resolve(type)
       return
     }
 
@@ -128,7 +128,7 @@ internal class Resolve : Step
     // resolve in lib
     type := lib.libType(n.name, false)
     if (type == null) return err("Unresolved spec '$n' in lib", ref.loc)
-    ref.resolveExternal(type)
+    ref.resolve((CSpec)type)
   }
 
   private Str:XetoLib depends := [:]

@@ -50,7 +50,7 @@ internal abstract class AObj : ANode
   ARef? typeRef
 
   ** Resolved type ref
-  CSpec? type() { typeRef?.creferent }
+  CSpec? type() { typeRef?.resolved }
 
   ** Meta tags if there was '<>'
   AVal? meta { private set }
