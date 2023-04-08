@@ -49,6 +49,12 @@ abstract internal class Step
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
+  ** Is given spec the 'sys::Obj' type
+  Bool isObj(ASpec x)
+  {
+    isSys && x.typeRef == null && x.qname == "sys::Obj"
+  }
+
   ** Get meta tag
   AObj? metaGet(AObj obj, Str name)
   {

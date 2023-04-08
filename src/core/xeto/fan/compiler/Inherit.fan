@@ -38,17 +38,12 @@ internal class Inherit : Step
     // check if already inherited
     if (spec.cslotsRef != null) return
 
-    // if no type was specified during parse, then infer as Dict
-    if (spec.typeRef == null)
-    {
-      if (spec.qname == "sys::Obj") { spec.cslotsRef = noSlots; return }
-      spec.typeRef = spec.val == null ? sys.dict : sys.str
-// TODO
-if (spec.name == "points") spec.typeRef = sys.query
-    }
+    // special handling for sys::Obj
+    if (isObj(spec)) { spec.cslotsRef = noSlots; return }
 
-    // if base is not already configured, set it to type
-    if (spec.base == null) spec.base = spec.type
+    // infer type if unspecified or process subtype;
+    // this method returns the spec to use for the base
+    spec.base = inferType(spec, spec.base ?: spec.type)
 
     // if base is in my AST, then recursively inherit it first
     base := spec.base
@@ -99,6 +94,37 @@ if (spec.name == "points") spec.typeRef = sys.query
 
     // recurse children
     acc.each |slot| { if (slot.isAst) inheritSpec(slot) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Infer Type
+//////////////////////////////////////////////////////////////////////////
+
+  CSpec inferType(AObj x, CSpec? base)
+  {
+    // if source didn't specify the type, then we infer we must infer type
+    if (x.typeRef == null)
+    {
+      // infer type from base, or if not specified then
+      // scalars default to str and everything else to dict
+      if (base != null)
+        x.typeRef = ARef(x.loc, base.ctype)
+      else
+        x.typeRef = x.val == null ? sys.dict : sys.str
+// TODO
+if (x.name == "points") x.typeRef = sys.query
+    }
+
+    // we have an explicit type
+    else
+    {
+      // if base is maybe and my own type is not then clear maybe flag
+      if (x.isSpec && base.isMaybe && !metaHas(x, "maybe"))
+        metaAddNone(x, "maybe")
+    }
+
+    // return the spec to use for the base
+    return base ?: x.type
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -156,23 +182,12 @@ if (spec.name == "points") spec.typeRef = sys.query
 // Override
 //////////////////////////////////////////////////////////////////////////
 
-  private ASpec overrideSlot(CSpec base, ASpec own)
+  private ASpec overrideSlot(CSpec base, ASpec slot)
   {
-    if (own.typeRef == null)
-    {
-      // if no type was specified, then inherit base type
-      own.typeRef = ARef(own.loc, base.ctype)
-    }
-    else
-    {
-      // if base is maybe and my own type is not then clear maybe flag
-      if (base.isMaybe && !metaHas(own, "maybe"))
-        metaAddNone(own, "maybe")
-    }
+    // infer type from base
+    inferType(slot, base)
 
-    // this slot is derived from base slot
-    own.base = base
-    return own
+    return slot
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -185,16 +200,10 @@ if (spec.name == "points") spec.typeRef = sys.query
     inheritVal(spec.meta, null)
   }
 
-  private Void inheritVal(AVal x, ASpec? type)
+  private Void inheritVal(AVal x, ASpec? base)
   {
     // infer type if unspecified
-    if (x.typeRef == null)
-    {
-      if (x.val != null)
-        x.typeRef = sys.str
-      else
-        x.typeRef = sys.dict
-    }
+    inferType(x, base)
 
     // recurse
     if (x.slots != null) x.slots.each |kid| { inheritVal(kid, null) }
