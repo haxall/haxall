@@ -38,6 +38,25 @@ internal class Inherit : Step
     // check if already inherited
     if (spec.cslotsRef != null) return
 
+    // check for cyclic inheritance
+    if (stack.containsSame(spec) && !isSys)
+    {
+      err("Cyclic inheritance: $spec.name", spec.loc)
+      spec.cslotsRef = noSlots
+    }
+
+    // push onto stack to keep track of cycles
+    stack.push(spec)
+
+    // process
+    doInheritSpec(spec)
+
+    // pop from stack
+    stack.pop
+  }
+
+  private Void doInheritSpec(ASpec spec)
+  {
     // special handling for sys::Obj
     if (isObj(spec)) { spec.cslotsRef = noSlots; return }
 
@@ -47,17 +66,7 @@ internal class Inherit : Step
 
     // if base is in my AST, then recursively inherit it first
     base := spec.base
-    if (base is ASpec)
-    {
-      if (stack.containsSame(spec) && !isSys)
-      {
-        err("Cyclic inheritance: $spec.name", spec.loc)
-        spec.cslotsRef = noSlots
-      }
-      stack.push(spec)
-      inheritSpec(base)
-      stack.pop
-    }
+    if (base is ASpec) inheritSpec(base)
 
     // now that we have base, compute my flags
     computeFlags(spec)
@@ -69,38 +78,15 @@ internal class Inherit : Step
     if (!isSys && base === env.sys.and)
     {
       ofs := spec.cofs
-      if (ofs != null) ofs.each |x|
+      if (ofs != null) ofs.each |of|
       {
-if (x.isAst)
-{
-  inheritSpec(x)
-}
-        x.cslots.each |slot|
-        {
-          // TODO: need to handle conflicts in compiler checks
-          name := slot.name
-          if (XetoUtil.isAutoName(name)) name = "_" + (autoCount++)
-          dup := acc[name]
-          if (dup != null && dup !== slot)
-          {
-            if (slot.isAst)
-              acc[name] = overrideSlot(dup, slot)
-            else
-              throw Err("TODO")
-          }
-          else
-          {
-            acc[name] = slot
-          }
-        }
+        if (of.isAst) inheritSpec(of)
+        inheritSlots(spec, acc, autoCount, of)
       }
     }
     else
     {
-      base.cslots.each |slot|
-      {
-        acc[slot.name] = slot
-      }
+      inheritSlots(spec, acc, autoCount, base)
     }
 
     // now merge in my own slots
@@ -116,13 +102,12 @@ if (x.isAst)
       {
         acc[name] = slot
       }
-
     }
 
     // we now have effective slot map
     spec.cslotsRef = acc
 
-    // iherit meta
+    // inherit meta
     inheritMeta(spec)
 
     // recurse children
@@ -156,6 +141,43 @@ if (x.isAst)
 
     // return the spec to use for the base
     return base ?: x.type
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Slots Inheritance
+//////////////////////////////////////////////////////////////////////////
+
+  private Int inheritSlots(ASpec spec, Str:CSpec acc, Int autoCount, CSpec base)
+  {
+    base.cslots.each |slot|
+    {
+      // re-autoname to cleanly inherit from multiple types
+      name := slot.name
+      if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
+
+      // check for duplicate
+      dup := acc[name]
+
+      // if its the exact same slot, all is ok
+      if (dup === slot) return
+
+      // otherwise we have conflict
+      // TODO
+      //if (dup != null) return err("Conflicting inherited slot: $slot.qname, $dup.qname", spec.loc)
+
+      // accumlate
+      acc[name] = slot
+    }
+
+    return autoCount
+  }
+
+  private ASpec overrideSlot(CSpec base, ASpec slot)
+  {
+    // infer type from base
+    inferType(slot, base)
+
+    return slot
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -207,18 +229,6 @@ if (x.isAst)
       }
     }
     return flags
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Override
-//////////////////////////////////////////////////////////////////////////
-
-  private ASpec overrideSlot(CSpec base, ASpec slot)
-  {
-    // infer type from base
-    inferType(slot, base)
-
-    return slot
   }
 
 //////////////////////////////////////////////////////////////////////////
