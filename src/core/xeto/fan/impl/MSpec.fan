@@ -234,5 +234,7 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
 
   override final Str:CSpec cslots() { m.slots.map }
 
+  override final XetoSpec[]? cofs()  { ofs(false) }
+
   const MSpec? m
 }

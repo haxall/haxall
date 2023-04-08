@@ -65,9 +65,42 @@ internal class Inherit : Step
     // first inherit slots from base type
     acc := Str:CSpec[:]
     acc.ordered = true
-    base.cslots.each |slot|
+    autoCount := 0
+    if (!isSys && base === env.sys.and)
     {
-      acc[slot.name] = slot
+      ofs := spec.cofs
+      if (ofs != null) ofs.each |x|
+      {
+if (x.isAst)
+{
+  inheritSpec(x)
+}
+        x.cslots.each |slot|
+        {
+          // TODO: need to handle conflicts in compiler checks
+          name := slot.name
+          if (XetoUtil.isAutoName(name)) name = "_" + (autoCount++)
+          dup := acc[name]
+          if (dup != null && dup !== slot)
+          {
+            if (slot.isAst)
+              acc[name] = overrideSlot(dup, slot)
+            else
+              throw Err("TODO")
+          }
+          else
+          {
+            acc[name] = slot
+          }
+        }
+      }
+    }
+    else
+    {
+      base.cslots.each |slot|
+      {
+        acc[slot.name] = slot
+      }
     }
 
     // now merge in my own slots
@@ -111,8 +144,6 @@ internal class Inherit : Step
         x.typeRef = ARef(x.loc, base.ctype)
       else
         x.typeRef = x.val == null ? sys.dict : sys.str
-// TODO
-if (x.name == "points") x.typeRef = sys.query
     }
 
     // we have an explicit type

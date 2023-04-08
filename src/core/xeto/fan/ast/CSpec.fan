@@ -38,6 +38,9 @@ internal mixin CSpec : CNode
   ** Get the effective slots as map
   abstract Str:CSpec cslots()
 
+  ** Return list of component specs for a compound type
+  abstract CSpec[]? cofs()
+
   ** MSpecFlags bitmask flags
   abstract Int flags()
 

@@ -78,6 +78,17 @@ internal class ASpec : AObj, CSpec
   override Str:CSpec cslots() { cslotsRef ?: throw Err("Inherit not run") }
   [Str:CSpec]? cslotsRef
 
+  ** Extract 'ofs' list of type refs from AST model
+  override once CSpec[]? cofs()
+  {
+    if (meta == null) return null
+    list := meta.slots.get("ofs")
+    if (list == null || list.slots == null) return null
+    acc := CSpec[,]
+    list.slots.each |x| { acc.add(x.type) }
+    return acc.ro
+  }
+
   ** Inheritance flags computed in Infer
   override Int flags
 

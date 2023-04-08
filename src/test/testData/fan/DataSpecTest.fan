@@ -255,12 +255,12 @@ class DataSpecTest : AbstractDataTest
              }
            }
 
-           AhuX: {
+           AhuX: Equip {
              points: {
                dat: { discharge, temp}
              }
            }
-           AhuY : {
+           AhuY : Equip {
              points: {
                rat: { return, temp}
              }
