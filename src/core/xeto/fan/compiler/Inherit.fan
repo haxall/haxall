@@ -90,20 +90,7 @@ internal class Inherit : Step
     }
 
     // now merge in my own slots
-    if (spec.slots != null) spec.slots.each |ASpec slot|
-    {
-      name := slot.name
-      dup := acc[name]
-      if (dup != null)
-      {
-        if (dup === slot) return
-        acc[name] = overrideSlot(dup, slot)
-      }
-      else
-      {
-        acc[name] = slot
-      }
-    }
+    addOwnSlots(spec, acc, autoCount)
 
     // we now have effective slot map
     spec.cslotsRef = acc
@@ -116,12 +103,6 @@ internal class Inherit : Step
     {
       if (slot.isAst) inheritSpec(slot)
     }
-  }
-
-  private ASpec overrideSlot(CSpec base, ASpec slot)
-  {
-    slot.base = base
-    return slot
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -172,7 +153,7 @@ internal class Inherit : Step
       if (dup === slot) return
 
       // otherwise we have conflict
-      if (dup != null) slot = mergeInheritedSlots(spec, dup, slot)
+      if (dup != null) slot = mergeInheritedSlots(spec, name, dup, slot)
 
       // accumlate
       acc[name] = slot
@@ -181,7 +162,35 @@ internal class Inherit : Step
     return autoCount
   }
 
-  private ASpec mergeInheritedSlots(ASpec spec, CSpec a, CSpec b)
+  private Int addOwnSlots(ASpec spec, Str:CSpec acc, Int autoCount)
+  {
+    if (spec.slots == null) return autoCount
+    spec.slots.each |ASpec slot|
+    {
+      name := slot.name
+      if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
+
+      dup := acc[name]
+      if (dup != null)
+      {
+        if (dup === slot) return
+        acc[name] = overrideSlot(dup, slot)
+      }
+      else
+      {
+        acc[name] = slot
+      }
+    }
+    return autoCount
+  }
+
+  private ASpec overrideSlot(CSpec base, ASpec slot)
+  {
+    slot.base = base
+    return slot
+  }
+
+  private ASpec mergeInheritedSlots(ASpec spec, Str name, CSpec a, CSpec b)
   {
     // lets start conservatively and only allow this for queries
     if (!a.isQuery || !b.isQuery)
@@ -194,7 +203,6 @@ internal class Inherit : Step
 
     // create new merged slot
     loc := spec.loc
-    name := a.name // both a and b are same name
     ASpec merge := spec.makeChild(loc, name)
     merge.typeRef = ARef(loc, a.ctype)
     merge.base = a
