@@ -81,12 +81,12 @@ internal class Inherit : Step
       if (ofs != null) ofs.each |of|
       {
         if (of.isAst) inheritSpec(of)
-        inheritSlots(spec, acc, autoCount, of)
+        autoCount = inheritSlots(spec, acc, autoCount, of)
       }
     }
     else
     {
-      inheritSlots(spec, acc, autoCount, base)
+      autoCount = inheritSlots(spec, acc, autoCount, base)
     }
 
     // now merge in my own slots
@@ -175,7 +175,7 @@ internal class Inherit : Step
   private ASpec overrideSlot(CSpec base, ASpec slot)
   {
     // infer type from base
-    inferType(slot, base)
+    slot.base = inferType(slot, base)
 
     return slot
   }
