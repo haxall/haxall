@@ -275,19 +275,31 @@ class DataSpecTest : AbstractDataTest
            }
            |>)
 
-     // env.print(env.genAst(lib), Env.cur.out, env.dict1("json", m))
 
-     // auto named
-     verifyQueryInherit(lib.libType("AhuA"),  ["discharge-temp"])
-     verifyQueryInherit(lib.libType("AhuB"),  ["return-temp"])
-     verifyQueryInherit(lib.libType("AhuAB"), ["discharge-temp", "return-temp"])
-     verifyQueryInherit(lib.libType("AhuC"),  ["discharge-temp", "return-temp", "outside-temp"])
 
-     // explicitly named
-     verifyQueryInherit(lib.libType("AhuX"),  ["dat:discharge-temp"])
-     verifyQueryInherit(lib.libType("AhuY"),  ["rat:return-temp"])
-     verifyQueryInherit(lib.libType("AhuXY"), ["dat:discharge-temp", "rat:return-temp"])
-     verifyQueryInherit(lib.libType("AhuZ"),  ["dat:discharge-temp", "rat:return-temp", "oat:outside-temp"])
+    // env.print(env.genAst(lib), Env.cur.out, env.dict1("json", m))
+    // env.print(lib, Env.cur.out, env.dict1("effective", m))
+
+    a:= lib.libType("AhuA")
+    aPts := a.slot("points")
+    ab := lib.libType("AhuAB")
+    abPts := ab.slot("points")
+
+    verifyEq(abPts.qname, "${lib.qname}::AhuAB.points")
+    verifyEq(abPts.type, env.type("sys::Query"))
+    verifyEq(abPts.base, aPts)
+
+    // auto named
+    verifyQueryInherit(lib.libType("AhuA"),  ["discharge-temp"])
+    verifyQueryInherit(lib.libType("AhuB"),  ["return-temp"])
+    verifyQueryInherit(lib.libType("AhuAB"), ["discharge-temp", "return-temp"])
+//     verifyQueryInherit(lib.libType("AhuC"),  ["discharge-temp", "return-temp", "outside-temp"])
+
+    // explicitly named
+    verifyQueryInherit(lib.libType("AhuX"),  ["dat:discharge-temp"])
+    verifyQueryInherit(lib.libType("AhuY"),  ["rat:return-temp"])
+    verifyQueryInherit(lib.libType("AhuXY"), ["dat:discharge-temp", "rat:return-temp"])
+    verifyQueryInherit(lib.libType("AhuZ"),  ["dat:discharge-temp", "rat:return-temp", "oat:outside-temp"])
   }
 
   Void verifyQueryInherit(DataSpec x, Str[] expectPoints)

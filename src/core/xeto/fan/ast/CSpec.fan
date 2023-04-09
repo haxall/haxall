@@ -46,6 +46,9 @@ internal mixin CSpec : CNode
 
   ** Is maybe flag set
   abstract Bool isMaybe()
+
+  ** Is query flag set
+  abstract Bool isQuery()
 }
 
 **************************************************************************

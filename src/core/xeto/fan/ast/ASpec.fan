@@ -93,6 +93,7 @@ internal class ASpec : AObj, CSpec
   override Int flags
 
   override Bool isMaybe() { hasFlag(MSpecFlags.maybe) }
+  override Bool isQuery() { hasFlag(MSpecFlags.query) }
 
   Bool hasFlag(Int flag) { flags.and(flag) != 0 }
 }

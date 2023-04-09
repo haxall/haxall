@@ -96,6 +96,7 @@ internal class Inherit : Step
       dup := acc[name]
       if (dup != null)
       {
+        if (dup === slot) return
         acc[name] = overrideSlot(dup, slot)
       }
       else
@@ -111,7 +112,10 @@ internal class Inherit : Step
     inheritMeta(spec)
 
     // recurse children
-    acc.each |slot| { if (slot.isAst) inheritSpec(slot) }
+    acc.each |slot|
+    {
+      if (slot.isAst) inheritSpec(slot)
+    }
   }
 
   private ASpec overrideSlot(CSpec base, ASpec slot)
@@ -168,14 +172,46 @@ internal class Inherit : Step
       if (dup === slot) return
 
       // otherwise we have conflict
-      // TODO
-      //if (dup != null) return err("Conflicting inherited slot: $slot.qname, $dup.qname", spec.loc)
+      if (dup != null) slot = mergeInheritedSlots(spec, dup, slot)
 
       // accumlate
       acc[name] = slot
     }
 
     return autoCount
+  }
+
+  private ASpec mergeInheritedSlots(ASpec spec, CSpec a, CSpec b)
+  {
+    // lets start conservatively and only allow this for queries
+    if (!a.isQuery || !b.isQuery)
+    {
+      err("Conflicing inherited slots: $a.qname, $b.qname", spec.loc)
+      return a
+    }
+
+    // TODO: we need a lot of checking to verify a and b derive from same query
+
+    // create new merged slot
+    loc := spec.loc
+    name := a.name // both a and b are same name
+    ASpec merge := spec.makeChild(loc, name)
+    merge.typeRef = ARef(loc, a.ctype)
+    merge.base = a
+    merge.flags = a.flags
+
+    // merge in slots from both a and b
+    acc := Str:CSpec[:]
+    acc.ordered = true
+    autoCount := 0
+    autoCount = inheritSlots(merge, acc, autoCount, a)
+    autoCount = inheritSlots(merge, acc, autoCount, b)
+    merge.cslotsRef = acc
+
+    // we need to make this a new declared slot
+    spec.initSlots.add(merge)
+
+    return merge
   }
 
 //////////////////////////////////////////////////////////////////////////
