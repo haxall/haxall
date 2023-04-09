@@ -347,9 +347,14 @@ class Printer
       {
         if (showName) w(": ")
         if (slot.base?.type === slot.base && !slot.isType)
+        {
           base(slot)
-       else
+          meta(slot)
+        }
+        else
+        {
           spec(slot, mode)
+        }
       }
       nl
     }
