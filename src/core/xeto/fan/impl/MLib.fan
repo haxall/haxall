@@ -15,8 +15,8 @@ using data
 @Js
 internal const final class MLib : MSpec
 {
-  new make(XetoEnv env, FileLoc loc, Str qname, XetoType libType, DataDict own, MSlots declared)
-    : super(loc, null, "", libType, libType, own, declared, 0)
+  new make(XetoEnv env, FileLoc loc, Str qname, XetoType libType, DataDict own, MSlots slots)
+    : super(loc, null, "", libType, libType, own, slots, slots, 0)
   {
     this.env   = env
     this.qname = qname

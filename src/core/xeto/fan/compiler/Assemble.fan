@@ -114,20 +114,20 @@ internal class Assemble : Step
 
   private Void asmLib(ALib x)
   {
-    m := MLib(env, x.loc, x.qname, x.type.asm, asmMeta(x), asmSlots(x))
+    m := MLib(env, x.loc, x.qname, x.type.asm, asmMeta(x), asmSlotsOwn(x))
     mField->setConst(x.asm, m)
     mlField->setConst(x.asm, m)
   }
 
   private Void asmType(AType x)
   {
-    m := MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, asmMeta(x), asmSlots(x), x.flags)
+    m := MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, asmMeta(x), asmSlotsOwn(x), asmSlots(x), x.flags)
     mField->setConst(x.asm, m)
   }
 
   private Void asmSpec(ASpec x)
   {
-    m := MSpec(x.loc, x.parent.asm, x.name, x.base.asm, x.type.asm, asmMeta(x), asmSlots(x), x.flags)
+    m := MSpec(x.loc, x.parent.asm, x.name, x.base.asm, x.type.asm, asmMeta(x), asmSlotsOwn(x), asmSlots(x), x.flags)
     mField->setConst(x.asm, m)
   }
 
@@ -142,13 +142,19 @@ internal class Assemble : Step
     return env.dictMap(acc)
   }
 
-  private MSlots asmSlots(ASpec x)
+  private MSlots asmSlotsOwn(ASpec x)
   {
     if (x.slots == null || x.slots.isEmpty) return MSlots.empty
     acc := Str:XetoSpec[:]
     acc.ordered = true
     x.slots.each |kid, name| { acc.add(name, kid.asm) }
     return MSlots(acc)
+  }
+
+  private MSlots asmSlots(ASpec x)
+  {
+    if (x.cslots.isEmpty) return MSlots.empty
+    return MSlots(x.cslots.map |s->XetoSpec| { s.asm })
   }
 
   Field mField  := XetoSpec#m

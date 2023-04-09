@@ -175,7 +175,8 @@ internal const class XetoUtil
   ** Merge inherited slot 'a' with override slot 'b'
   private static XetoSpec overrideSlot(XetoSpec a, XetoSpec b)
   {
-    XetoSpec(MSpec(b.loc, b.parent, b.name, a, b.type, b.own, b.slotsOwn, b.m.flags))
+    // TODO; slots vs slotsOwn
+    XetoSpec(MSpec(b.loc, b.parent, b.name, a, b.type, b.own, b.slotsOwn, b.slotsOwn, b.m.flags))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -267,7 +268,7 @@ internal const class XetoUtil
 
     derivedMap := slotsMap.map |XetoSpec base, Str name->XetoSpec|
     {
-      XetoSpec(MSpec(FileLoc.synthetic, parent, name, base, base.type, env.dict0, MSlots.empty, base.m.flags))
+      XetoSpec(MSpec(FileLoc.synthetic, parent, name, base, base.type, env.dict0, MSlots.empty, MSlots.empty, base.m.flags))
     }
 
     return MSlots(derivedMap)

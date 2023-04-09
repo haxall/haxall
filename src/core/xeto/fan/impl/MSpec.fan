@@ -17,7 +17,7 @@ using haystack
 @Js
 internal const class MSpec
 {
-  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoType type, DataDict own, MSlots slotsOwn, Int flags)
+  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoType type, DataDict own, MSlots slotsOwn, MSlots slots, Int flags)
   {
     this.loc      = loc
     this.parent   = parent
@@ -102,7 +102,7 @@ internal const class MDerivedSpec : MSpec
   static const AtomicInt counter := AtomicInt()
 
   new make(XetoEnv env, Str name, XetoSpec base, DataDict own, MSlots slotsOwn, Int flags)
-    : super(FileLoc.synthetic, null, name, base, base.type, own, slotsOwn, flags)
+    : super(FileLoc.synthetic, null, name, base, base.type, own, slotsOwn, slotsOwn, flags) // TODO: slots vs slotsOwn
   {
     this.env = env
     this.qname = "derived" + counter.getAndIncrement + "::" + name
