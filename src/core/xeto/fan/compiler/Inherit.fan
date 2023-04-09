@@ -114,6 +114,12 @@ internal class Inherit : Step
     acc.each |slot| { if (slot.isAst) inheritSpec(slot) }
   }
 
+  private ASpec overrideSlot(CSpec base, ASpec slot)
+  {
+    slot.base = base
+    return slot
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Infer Type
 //////////////////////////////////////////////////////////////////////////
@@ -170,14 +176,6 @@ internal class Inherit : Step
     }
 
     return autoCount
-  }
-
-  private ASpec overrideSlot(CSpec base, ASpec slot)
-  {
-    // infer type from base
-    slot.base = inferType(slot, base)
-
-    return slot
   }
 
 //////////////////////////////////////////////////////////////////////////

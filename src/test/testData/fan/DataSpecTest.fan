@@ -238,12 +238,12 @@ class DataSpecTest : AbstractDataTest
       Str<|pragma: Lib < depends: { { lib:"sys" }, { lib:"ph" } } >
            AhuA: Equip {
              points: {
-               { discharge, temp}
+               { discharge, temp }
              }
            }
            AhuB: Equip {
              points: {
-               { return, temp}
+               { return, temp }
              }
            }
 
@@ -251,18 +251,18 @@ class DataSpecTest : AbstractDataTest
 
            AhuC: AhuAB {
              points: {
-               { outside, temp}
+               { outside, temp }
              }
            }
 
            AhuX: Equip {
              points: {
-               dat: { discharge, temp}
+               dat: { discharge, temp }
              }
            }
            AhuY : Equip {
              points: {
-               rat: { return, temp}
+               rat: { return, temp }
              }
            }
 
@@ -270,12 +270,12 @@ class DataSpecTest : AbstractDataTest
 
            AhuZ: AhuXY {
              points: {
-               oat: { outside, temp}
+               oat: { outside, temp }
              }
            }
            |>)
 
-     // env.print(lib, Env.cur.out, env.dict1("effective", m))
+     // env.print(env.genAst(lib), Env.cur.out, env.dict1("json", m))
 
      // auto named
      verifyQueryInherit(lib.libType("AhuA"),  ["discharge-temp"])

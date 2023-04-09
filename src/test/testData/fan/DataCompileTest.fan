@@ -165,7 +165,7 @@ class DataCompileTest : AbstractDataTest
            }
            |>)
 
-    //env.print(lib)
+    // env.print(lib)
 
     num := env.type("sys::Number")
     int := env.type("sys::Int")
@@ -220,7 +220,7 @@ class DataCompileTest : AbstractDataTest
       x := parent.slotsOwn.get(s.name)
       // echo("   ownSlot $x base:$x.base type:$x.type")
       // x.own.each |v, n| { echo("   $n: $v") }
-      verifyNotSame(s, x)
+      verifySame(s, x)
       verifyEq(x.name, s.name)
       verifyEq(x.qname, x.qname)
       verifySame(x.parent, parent)

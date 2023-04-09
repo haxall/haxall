@@ -168,7 +168,8 @@ class DataTestCase
   Void compileLib(Str src)
   {
     this.libRef = env.compileLib(src)
-    if (runner.verbose) env.print(libRef)
+    if (runner.verbose) env.print(env.genAst(libRef), Env.cur.out, env.dict1("json", env.marker))
+    //env.print(libRef)
   }
 
   Void compileData(Str src)

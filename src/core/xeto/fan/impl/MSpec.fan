@@ -26,7 +26,7 @@ internal const class MSpec
     this.type     = type
     this.own      = own
     this.slotsOwn = slotsOwn
-//    this.slots    = slots
+    this.slots    = slots
     this.flags    = flags
   }
 
@@ -44,8 +44,7 @@ internal const class MSpec
 
   const XetoSpec? base
 
-//  const MSlots slots
-  once MSlots slots() { XetoUtil.inheritSlots(this) }
+  const MSlots slots
 
   const MSlots slotsOwn
 

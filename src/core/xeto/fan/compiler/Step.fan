@@ -78,8 +78,6 @@ abstract internal class Step
   ** Add none tag to meta
   Void metaAddNone(AObj obj, Str name)
   {
-    dup := metaGet(obj, name)
-    if (isNone(dup)) return
     metaAdd(obj, name, sys.none, env.none, "none")
   }
 

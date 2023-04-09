@@ -112,6 +112,7 @@ internal const class XetoUtil
 // Inherit Slots
 //////////////////////////////////////////////////////////////////////////
 
+/* TODO
   ** Inherit spec slots
   static MSlots inheritSlots(MSpec spec)
   {
@@ -178,6 +179,7 @@ internal const class XetoUtil
     // TODO; slots vs slotsOwn
     XetoSpec(MSpec(b.loc, b.parent, b.name, a, b.type, b.own, b.slotsOwn, b.slotsOwn, b.m.flags))
   }
+*/
 
 //////////////////////////////////////////////////////////////////////////
 // Is-A
