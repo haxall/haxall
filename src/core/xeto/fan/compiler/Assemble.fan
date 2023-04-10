@@ -24,92 +24,10 @@ internal class Assemble : Step
   {
     switch (x.nodeType)
     {
-      case ANodeType.ref:    return asmRef(x)
-      case ANodeType.val:    return asmVal(x)
       case ANodeType.spec:   return asmSpec(x)
       case ANodeType.type:   return asmType(x)
       case ANodeType.lib:    return asmLib(x)
-      default: throw Err(x.nodeType.toStr)
     }
-  }
-
-  private Void asmRef(ARef x)
-  {
-    x.asm
-  }
-
-  private Void asmVal(AVal x)
-  {
-    // check if already assembled
-    if (x.asmRef != null) return
-
-    switch (x.valType)
-    {
-      case AValType.scalar:  x.asmRef = asmScalar(x)
-      case AValType.typeRef: x.asmRef = asmTypeRef(x)
-      case AValType.list:    x.asmRef = asmList(x)
-      case AValType.dict:    x.asmRef = asmDict(x)
-      default: throw Err(x.valType.name)
-    }
-  }
-
-  private Obj? asmScalar(AObj x)
-  {
-    // if value is null or already assembled
-    v := x.val
-    if (v == null) return null
-    if (v.isAsm) return v.asm
-
-    // sanity check
-    if (x.type == null) err("asmScalar without type", x.loc)
-
-    // map to Fantom type to parse
-    qname := x.valParseType
-    item := env.factory.fromXeto[qname]
-    if (item != null)
-    {
-      // parse to Fantom type
-      return v.val = item.parse(compiler, v.str, v.loc)
-    }
-    else
-    {
-      // just fallback to a string value
-      return v.val = v.str
-    }
-  }
-
-  private XetoType asmTypeRef(AVal x)
-  {
-    if (x.type == null) throw err("wtf-1", x.loc)
-    if (x.meta != null) throw err("wtf-2", x.loc)
-    return x.type.asm
-  }
-
-  private Obj?[] asmList(AVal x)
-  {
-    list := List(x.asmToListOf, x.slots.size)
-    x.slots.each |obj| { list.add(obj.asm) }
-    return list
-  }
-
-  private DataDict asmDict(AVal x)
-  {
-    // spec
-    DataSpec? spec := null
-    if (x.type != null)
-    {
-      if (x.meta != null)
-        err("Dict type with meta not supported", x.loc)
-      else
-        spec = x.type.asm
-    }
-
-    // name/value pairs
-    acc := Str:Obj[:]
-    acc.ordered = true
-    x.slots.each |obj, name| { acc[name] = obj.asm }
-
-    return env.dictMap(acc, spec)
   }
 
   private Void asmLib(ALib x)
@@ -138,7 +56,7 @@ internal class Assemble : Step
     acc := Str:Obj[:]
     acc.ordered = true
     if (x.meta != null) x.meta.slots.each |obj, name| { acc[name] = obj.asm }
-    if (x.val != null) acc["val"] = asmScalar(x)
+    if (x.val != null) acc["val"] = x.val.asm
     return env.dictMap(acc)
   }
 

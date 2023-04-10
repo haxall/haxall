@@ -40,7 +40,7 @@ internal class AVal: AObj
   ** Construct nested value
   override AObj makeChild(FileLoc loc, Str name) { AVal(loc, this, name) }
 
-  ** Assembled dict
+  ** Assembled value set in Reify
   Obj? asmRef
 
   ** Flag to indicate this value should be assembled to a
