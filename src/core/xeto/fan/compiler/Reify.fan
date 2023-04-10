@@ -11,7 +11,8 @@ using data
 
 **
 ** Reify creates concrete Fantom object for all the AVal objects
-** in the abstract syntax tree as their assembly value.
+** in the abstract syntax tree as their assembly value.  We use this
+** step to finalize the ASpec.metaOwn dict.
 **
 @Js
 internal class Reify : Step
@@ -30,33 +31,29 @@ internal class Reify : Step
 
   private Void asmSpec(ASpec x)
   {
-    DataDict own := env.dict0
+    // assemble default value into meta
+    if (x.val != null)
+    {
+      // assemble as scalar using my own type
+      scalarType := x.isType ? x : x.type
+      val := asmScalar(x, scalarType)
 
+      // insert into meta
+      AVal obj := x.metaInit(sys).makeChild(x.val.loc, "val")
+      obj.asmRef = val
+      x.meta.slots.add(obj)
+    }
+
+    // finalize the spec's metaOwn dict
     if (x.meta != null)
     {
       walkVals(x.meta) |obj| { asmVal(obj) }
-      own = x.meta.asm
+      x.metaOwnRef = x.meta.asm
     }
-
-    if (x.val != null)
+    else
     {
-      val := asmScalar(x)
-
-      // TODO - not efficient
-      if (own.isEmpty)
-      {
-        own = env.dict1("val", val)
-      }
-      else
-      {
-        acc := Str:Obj[:]
-        acc.ordered = true
-        own.each |v, n| { acc[n] = v }
-        acc["val"] = val
-        own = env.dictMap(acc)
-      }
+      x.metaOwnRef = env.dict0
     }
-    x.metaOwnRef = own
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -74,7 +71,7 @@ internal class Reify : Step
 
     switch (x.valType)
     {
-      case AValType.scalar:  x.asmRef = asmScalar(x)
+      case AValType.scalar:  x.asmRef = asmScalar(x, x.type)
       case AValType.typeRef: x.asmRef = asmTypeRef(x)
       case AValType.list:    x.asmRef = asmList(x)
       case AValType.dict:    x.asmRef = asmDict(x)
@@ -82,7 +79,7 @@ internal class Reify : Step
     }
   }
 
-  private Obj? asmScalar(AObj x)
+  private Obj? asmScalar(AObj x, CSpec scalarType)
   {
     // if value is null or already assembled
     v := x.val
@@ -93,7 +90,7 @@ internal class Reify : Step
     if (x.type == null) err("asmScalar without type", x.loc)
 
     // map to Fantom type to parse
-    qname := x.valParseType
+    qname := scalarType.qname
     item := env.factory.fromXeto[qname]
     if (item != null)
     {
@@ -140,4 +137,5 @@ internal class Reify : Step
 
     return env.dictMap(acc, spec)
   }
+
 }

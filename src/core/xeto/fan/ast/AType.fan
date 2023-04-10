@@ -33,7 +33,4 @@ internal class AType : ASpec
 
   ** Qualified name "foo.bar::Baz"
   override const Str qname
-
-  ** Value type is myself
-  override Str valParseType() { qname }
 }
