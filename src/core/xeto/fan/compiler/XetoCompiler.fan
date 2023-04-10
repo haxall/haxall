@@ -72,7 +72,6 @@ internal class XetoCompiler
       InitData(),
       Parse(),
       Resolve(),
-      InheritSlots(),
       Reify(),
     ])
     return ast.asm

@@ -10,7 +10,7 @@
 using util
 
 **
-** InheritSlots walks all the objects:
+** InheritSlots walks all the specs:
 **   - infer type if unspecified
 **   - resolves base
 **   - handles slot overrides
@@ -21,10 +21,7 @@ internal class InheritSlots : Step
 {
   override Void run()
   {
-    if (ast.isSpec)
-      inheritSpec(ast)
-    else
-      inheritVal(ast, null)
+    inherit(lib)
     bombIfErr
   }
 
@@ -34,7 +31,7 @@ internal class InheritSlots : Step
 //////////////////////////////////////////////////////////////////////////
 
   ** Process inheritance of given spec with cyclic checks
-  private Void inheritSpec(ASpec spec)
+  private Void inherit(ASpec spec)
   {
     // check if already inherited
     if (spec.cslotsRef != null) return
@@ -50,13 +47,13 @@ internal class InheritSlots : Step
     stack.push(spec)
 
     // process
-    doInheritSpec(spec)
+    doInherit(spec)
 
     // pop from stack
     stack.pop
   }
 
-  private Void doInheritSpec(ASpec spec)
+  private Void doInherit(ASpec spec)
   {
     // special handling for sys::Obj
     if (isObj(spec)) { spec.cslotsRef = noSlots; return }
@@ -66,10 +63,7 @@ internal class InheritSlots : Step
     spec.base = inferType(spec, spec.base ?: spec.type)
 
     // if base is in my AST, then recursively process it first
-    if (spec.base.isAst) inheritSpec(spec.base)
-
-    // compute effective meta
-    inheritMeta(spec)
+    if (spec.base.isAst) inherit(spec.base)
 
     // compute effective flags
     inheritFlags(spec)
@@ -78,7 +72,7 @@ internal class InheritSlots : Step
     inheritSlots(spec)
 
     // recurse children
-    if (spec.slots != null) spec.slots.each |slot| { inheritSpec(slot) }
+    if (spec.slots != null) spec.slots.each |slot| { inherit(slot) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -112,19 +106,6 @@ internal class InheritSlots : Step
 
     // return the spec to use for the base
     return base ?: x.type
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Meta
-//////////////////////////////////////////////////////////////////////////
-
-  ** Compute the effective meta dict and store to cmetaRef.
-  private Void inheritMeta(ASpec spec)
-  {
-    if (spec.meta == null) return
-    inheritVal(spec.meta, null)
-
-    // TODO
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -198,7 +179,7 @@ internal class InheritSlots : Step
       ofs := spec.cofs
       if (ofs != null) ofs.each |of|
       {
-        if (of.isAst) inheritSpec(of)
+        if (of.isAst) inherit(of)
         autoCount = inheritSlotsFrom(spec, acc, autoCount, of)
       }
     }
@@ -300,20 +281,6 @@ internal class InheritSlots : Step
     spec.initSlots.add(merge)
 
     return merge
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Values
-//////////////////////////////////////////////////////////////////////////
-
-  ** Recursively process value object for type inference
-  private Void inheritVal(AVal x, ASpec? base)
-  {
-    // infer type if unspecified
-    inferType(x, base)
-
-    // recurse
-    if (x.slots != null) x.slots.each |kid| { inheritVal(kid, null) }
   }
 
 //////////////////////////////////////////////////////////////////////////

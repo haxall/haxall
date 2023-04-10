@@ -54,6 +54,10 @@ internal class Reify : Step
     // check if already assembled
     if (x.asmRef != null) return
 
+    // infer type
+    if (x.typeRef == null)
+      x.typeRef = x.val == null ? sys.dict : sys.str
+
     switch (x.valType)
     {
       case AValType.scalar:  x.asmRef = asmScalar(x)
