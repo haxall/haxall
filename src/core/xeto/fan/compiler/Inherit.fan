@@ -33,6 +33,7 @@ internal class Inherit : Step
 // Spec
 //////////////////////////////////////////////////////////////////////////
 
+  ** Process inheritance of given spec with cyclic checks
   private Void inheritSpec(ASpec spec)
   {
     // check if already inherited
@@ -64,51 +65,30 @@ internal class Inherit : Step
     // this method returns the spec to use for the base
     spec.base = inferType(spec, spec.base ?: spec.type)
 
-    // if base is in my AST, then recursively inherit it first
-    base := spec.base
-    if (base is ASpec) inheritSpec(base)
+    // if base is in my AST, then recursively process it first
+    if (spec.base.isAst) inheritSpec(spec.base)
 
-    // now that we have base, compute my flags
-    computeFlags(spec)
-
-    // first inherit slots from base type
-    acc := Str:CSpec[:]
-    acc.ordered = true
-    autoCount := 0
-    if (!isSys && base === env.sys.and)
-    {
-      ofs := spec.cofs
-      if (ofs != null) ofs.each |of|
-      {
-        if (of.isAst) inheritSpec(of)
-        autoCount = inheritSlots(spec, acc, autoCount, of)
-      }
-    }
-    else
-    {
-      autoCount = inheritSlots(spec, acc, autoCount, base)
-    }
-
-    // now merge in my own slots
-    addOwnSlots(spec, acc, autoCount)
-
-    // we now have effective slot map
-    spec.cslotsRef = acc
-
-    // inherit meta
+    // compute effective meta
     inheritMeta(spec)
 
+    // compute effective flags
+    inheritFlags(spec)
+
+    // compute effective slots
+    inheritSlots(spec)
+
     // recurse children
-    acc.each |slot|
-    {
-      if (slot.isAst) inheritSpec(slot)
-    }
+    if (spec.slots != null) spec.slots.each |slot| { inheritSpec(slot) }
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Infer Type
 //////////////////////////////////////////////////////////////////////////
 
+  ** If x does not have an explicit type specified, then infer
+  ** it from either given base or whether it is a scalar/dict.
+  ** If a type is given, then we use that to decide if we need
+  ** clear maybe flag (set to None).  Return base to use for specs.
   CSpec inferType(AObj x, CSpec? base)
   {
     // if source didn't specify the type, then we infer we must infer type
@@ -135,98 +115,25 @@ internal class Inherit : Step
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Slots Inheritance
+// Meta
 //////////////////////////////////////////////////////////////////////////
 
-  private Int inheritSlots(ASpec spec, Str:CSpec acc, Int autoCount, CSpec base)
+  ** Compute the effective meta dict and store to cmetaRef.
+  private Void inheritMeta(ASpec spec)
   {
-    base.cslots.each |slot|
-    {
-      // re-autoname to cleanly inherit from multiple types
-      name := slot.name
-      if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
+    if (spec.meta == null) return
+    inheritVal(spec.meta, null)
 
-      // check for duplicate
-      dup := acc[name]
-
-      // if its the exact same slot, all is ok
-      if (dup === slot) return
-
-      // otherwise we have conflict
-      if (dup != null) slot = mergeInheritedSlots(spec, name, dup, slot)
-
-      // accumlate
-      acc[name] = slot
-    }
-
-    return autoCount
-  }
-
-  private Int addOwnSlots(ASpec spec, Str:CSpec acc, Int autoCount)
-  {
-    if (spec.slots == null) return autoCount
-    spec.slots.each |ASpec slot|
-    {
-      name := slot.name
-      if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
-
-      dup := acc[name]
-      if (dup != null)
-      {
-        if (dup === slot) return
-        acc[name] = overrideSlot(dup, slot)
-      }
-      else
-      {
-        acc[name] = slot
-      }
-    }
-    return autoCount
-  }
-
-  private ASpec overrideSlot(CSpec base, ASpec slot)
-  {
-    slot.base = base
-    return slot
-  }
-
-  private ASpec mergeInheritedSlots(ASpec spec, Str name, CSpec a, CSpec b)
-  {
-    // lets start conservatively and only allow this for queries
-    if (!a.isQuery || !b.isQuery)
-    {
-      err("Conflicing inherited slots: $a.qname, $b.qname", spec.loc)
-      return a
-    }
-
-    // TODO: we need a lot of checking to verify a and b derive from same query
-
-    // create new merged slot
-    loc := spec.loc
-    ASpec merge := spec.makeChild(loc, name)
-    merge.typeRef = ARef(loc, a.ctype)
-    merge.base = a
-    merge.flags = a.flags
-
-    // merge in slots from both a and b
-    acc := Str:CSpec[:]
-    acc.ordered = true
-    autoCount := 0
-    autoCount = inheritSlots(merge, acc, autoCount, a)
-    autoCount = inheritSlots(merge, acc, autoCount, b)
-    merge.cslotsRef = acc
-
-    // we need to make this a new declared slot
-    spec.initSlots.add(merge)
-
-    return merge
+    // TODO
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Flags
 //////////////////////////////////////////////////////////////////////////
 
-  private Void computeFlags(ASpec x)
+  ** Compute the effective flags which is bitmask used for
+  ** fast access of key types in my inheritance hiearchy
+  private Void inheritFlags(ASpec x)
   {
     x.flags = isSys ? computeFlagsSys(x) : computeFlagsNonSys(x)
   }
@@ -274,15 +181,132 @@ internal class Inherit : Step
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Slots
+//////////////////////////////////////////////////////////////////////////
+
+  ** The compute the effective slots and store in cslotsRef
+  private Void inheritSlots(ASpec spec)
+  {
+    acc := Str:CSpec[:]
+    acc.ordered = true
+    autoCount := 0
+    base := spec.base
+
+    // first inherit slots from base type
+    if (!isSys && base === env.sys.and)
+    {
+      ofs := spec.cofs
+      if (ofs != null) ofs.each |of|
+      {
+        if (of.isAst) inheritSpec(of)
+        autoCount = inheritSlotsFrom(spec, acc, autoCount, of)
+      }
+    }
+    else
+    {
+      autoCount = inheritSlotsFrom(spec, acc, autoCount, base)
+    }
+
+    // now merge in my own slots
+    addOwnSlots(spec, acc, autoCount)
+
+    // we now have effective slot map
+    spec.cslotsRef = acc
+  }
+
+  ** Inherit slots from the given base type to accumulator
+  private Int inheritSlotsFrom(ASpec spec, Str:CSpec acc, Int autoCount, CSpec base)
+  {
+    base.cslots.each |slot|
+    {
+      // re-autoname to cleanly inherit from multiple types
+      name := slot.name
+      if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
+
+      // check for duplicate
+      dup := acc[name]
+
+      // if its the exact same slot, all is ok
+      if (dup === slot) return
+
+      // otherwise we have conflict
+      if (dup != null) slot = mergeInheritedSlots(spec, name, dup, slot)
+
+      // accumlate
+      acc[name] = slot
+    }
+
+    return autoCount
+  }
+
+  ** Merge in my own slots to accumulator and handle slot overrides
+  private Int addOwnSlots(ASpec spec, Str:CSpec acc, Int autoCount)
+  {
+    if (spec.slots == null) return autoCount
+    spec.slots.each |ASpec slot|
+    {
+      name := slot.name
+      if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)
+
+      dup := acc[name]
+      if (dup != null)
+      {
+        if (dup === slot) return
+        acc[name] = overrideSlot(dup, slot)
+      }
+      else
+      {
+        acc[name] = slot
+      }
+    }
+    return autoCount
+  }
+
+  ** Override the base slot from an inherited type
+  private ASpec overrideSlot(CSpec base, ASpec slot)
+  {
+    slot.base = base
+    return slot
+  }
+
+  ** Handle inheriting the same slot name from two different super types
+  private ASpec mergeInheritedSlots(ASpec spec, Str name, CSpec a, CSpec b)
+  {
+    // lets start conservatively and only allow this for queries
+    if (!a.isQuery || !b.isQuery)
+    {
+      err("Conflicing inherited slots: $a.qname, $b.qname", spec.loc)
+      return a
+    }
+
+    // TODO: we need a lot of checking to verify a and b derive from same query
+
+    // create new merged slot
+    loc := spec.loc
+    ASpec merge := spec.makeChild(loc, name)
+    merge.typeRef = ARef(loc, a.ctype)
+    merge.base = a
+    merge.flags = a.flags
+
+    // merge in slots from both a and b
+    acc := Str:CSpec[:]
+    acc.ordered = true
+    autoCount := 0
+    autoCount = inheritSlotsFrom(merge, acc, autoCount, a)
+    autoCount = inheritSlotsFrom(merge, acc, autoCount, b)
+    merge.cslotsRef = acc
+
+    // we need to make this a new declared slot
+    spec.initSlots.add(merge)
+
+    return merge
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Values
 //////////////////////////////////////////////////////////////////////////
 
-  private Void inheritMeta(ASpec spec)
-  {
-    if (spec.meta == null) return
-    inheritVal(spec.meta, null)
-  }
-
+  ** Recursively process value object for type inference
   private Void inheritVal(AVal x, ASpec? base)
   {
     // infer type if unspecified
