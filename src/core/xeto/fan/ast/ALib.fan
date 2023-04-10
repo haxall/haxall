@@ -21,9 +21,6 @@ internal class ALib : ASpec
     this.qname = qname
   }
 
-  ** Node type
-  override ANodeType nodeType() { ANodeType.lib }
-
   ** Return true
   override Bool isLib() { true }
 

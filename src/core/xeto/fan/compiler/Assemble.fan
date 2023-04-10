@@ -17,17 +17,7 @@ internal class Assemble : Step
 {
   override Void run()
   {
-    ast.walk |x| { asmNode(x) }
-  }
-
-  private Void asmNode(ANode x)
-  {
-    switch (x.nodeType)
-    {
-      case ANodeType.spec:   return asmSpec(x)
-      case ANodeType.type:   return asmType(x)
-      case ANodeType.lib:    return asmLib(x)
-    }
+    asmLib(lib)
   }
 
   private Void asmLib(ALib x)
@@ -35,18 +25,33 @@ internal class Assemble : Step
     m := MLib(env, x.loc, x.qname, x.type.asm, x.metaOwn, asmSlotsOwn(x))
     mField->setConst(x.asm, m)
     mlField->setConst(x.asm, m)
+    asmChildren(x)
   }
 
   private Void asmType(AType x)
   {
     m := MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags)
     mField->setConst(x.asm, m)
+    asmChildren(x)
   }
 
   private Void asmSpec(ASpec x)
   {
     m := MSpec(x.loc, x.parent.asm, x.name, x.base.asm, x.type.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags)
     mField->setConst(x.asm, m)
+    asmChildren(x)
+  }
+
+  private Void asmChildren(ASpec x)
+  {
+    if (x.slots == null) return
+    x.slots.each |kid|
+    {
+      if (kid.isType)
+        asmType(kid)
+      else
+        asmSpec(kid)
+    }
   }
 
   private MSlots asmSlotsOwn(ASpec x)

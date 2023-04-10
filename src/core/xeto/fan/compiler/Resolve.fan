@@ -25,10 +25,7 @@ internal class Resolve : Step
     sys.each |x| { resolveRef(x) }
 
     // resolve the ARefs
-    ast.walk |x|
-    {
-      if (x is ARef) resolveRef(x)
-    }
+    walkRefs(ast) |x| { resolveRef(x) }
 
     bombIfErr
   }

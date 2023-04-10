@@ -22,8 +22,8 @@ internal class AVal: AObj
    ** Constructor
   new make(FileLoc loc, AObj? parent, Str name) : super(loc, parent, name) {}
 
-  ** Node type
-  override ANodeType nodeType() { ANodeType.val }
+  ** Return true
+  override Bool isVal() { true }
 
   ** Determine how to assemble this value
   AValType valType()

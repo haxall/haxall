@@ -22,9 +22,6 @@ internal class AType : ASpec
     this.qname = lib.qname + "::" + name
   }
 
-  ** Node type
-  override ANodeType nodeType() { ANodeType.type }
-
   ** Return true
   override Bool isType() { true }
 

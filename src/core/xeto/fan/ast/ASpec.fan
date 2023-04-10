@@ -26,9 +26,6 @@ internal class ASpec : AObj, CSpec
 // AObj
 //////////////////////////////////////////////////////////////////////////
 
-  ** Node type
-  override ANodeType nodeType() { ANodeType.spec }
-
   ** Parent spec (null for lib)
   override ASpec? parent() { super.parent }
 

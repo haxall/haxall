@@ -99,4 +99,34 @@ abstract internal class Step
     return obj.val.val === env.none
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Tree Walking
+//////////////////////////////////////////////////////////////////////////
+
+  ** Walk the tree for all ASpecs (children first)
+  Void walkSpecs(ASpec x, |ASpec| f)
+  {
+    if (x.slots != null) x.slots.each |slot| { walkSpecs(slot, f) }
+    f(x)
+  }
+
+  ** Walk the tree for all values (children first)
+  Void walkVals(AVal x, |AVal| f)
+  {
+    if (x.slots != null) x.slots.each |slot| { walkVals(slot, f) }
+    f(x)
+  }
+
+  ** Walk the tree for all ARefs
+  Void walkRefs(AObj obj, |ARef| f)
+  {
+    if (obj.typeRef != null) f(obj.typeRef)
+    if (obj.meta != null) walkRefs(obj.meta, f)
+    if (obj.slots != null) obj.slots.each |slot| { walkRefs(slot, f) }
+  }
+
 }
+
+
+
+

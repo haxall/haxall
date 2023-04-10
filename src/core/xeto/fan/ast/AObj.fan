@@ -16,7 +16,7 @@ using util
 **    - ALib:  compiles into named XetoLib
 **
 @Js
-internal abstract class AObj : ANode
+internal abstract class AObj
 {
   ** Constructor
   new make(FileLoc loc, AObj? parent, Str name)
@@ -27,7 +27,7 @@ internal abstract class AObj : ANode
   }
 
   ** Source code location
-  const override FileLoc loc
+  const FileLoc loc
 
   ** Simple name
   Str name() { nameRef }
@@ -45,6 +45,12 @@ internal abstract class AObj : ANode
 
   ** Is this an ALib instance
   virtual Bool isLib() { false }
+
+  ** Is this an AVal instance
+  virtual Bool isVal() { false }
+
+  ** Assembled value - raise NotAssembledErr if not assembled
+  abstract Obj asm()
 
   ** Type ref for this object.  Null if this is Obj or we need to infer type
   ARef? typeRef
@@ -88,15 +94,6 @@ internal abstract class AObj : ANode
 
   ** Construct proper child object for parser to use
   abstract AObj makeChild(FileLoc loc, Str name)
-
-  ** Walk AST tree
-  override Void walk(|ANode| f)
-  {
-    typeRef?.walk(f)
-    meta?.walk(f)
-    slots?.walk(f)
-    f(this)
-  }
 
   ** Debug string
   override final Str toStr()

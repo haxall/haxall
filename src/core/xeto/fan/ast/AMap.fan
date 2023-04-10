@@ -46,9 +46,6 @@ internal class AMap
   ** Iterate the name/object pairs
   Void each(|AObj, Str| f) { map.each(f) }
 
-  ** Walk the AST objects
-  Void walk(|AObj| f) { map.each |x| { x.walk(f) } }
-
   ** Debug string
   override Str toStr()
   {

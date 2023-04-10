@@ -18,16 +18,26 @@ internal class Reify : Step
 {
   override Void run()
   {
-    ast.walk |x|
-    {
-      if (x.nodeType === ANodeType.val) asm(x)
-      if (x is ASpec) asmSpecVal(x)
-    }
+    if (isLib)
+      walkSpecs(lib) |x| { asmSpec(x) }
+    else
+      walkVals(ast) |x| { asmVal(x) }
   }
 
-  private Void asmSpecVal(ASpec x)
+//////////////////////////////////////////////////////////////////////////
+// Specs
+//////////////////////////////////////////////////////////////////////////
+
+  private Void asmSpec(ASpec x)
   {
-    DataDict own := x.meta?.asm ?: env.dict0
+    DataDict own := env.dict0
+
+    if (x.meta != null)
+    {
+      walkVals(x.meta) |obj| { asmVal(obj) }
+      own = x.meta.asm
+    }
+
     if (x.val != null)
     {
       val := asmScalar(x)
@@ -49,7 +59,11 @@ internal class Reify : Step
     x.metaOwnRef = own
   }
 
-  private Void asm(AVal x)
+//////////////////////////////////////////////////////////////////////////
+// Values
+//////////////////////////////////////////////////////////////////////////
+
+  private Void asmVal(AVal x)
   {
     // check if already assembled
     if (x.asmRef != null) return

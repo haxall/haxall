@@ -165,14 +165,4 @@ internal class XetoCompiler
   private Str[] autoNames := [,]       // autoName
 }
 
-**************************************************************************
-** XetoCompilerErr
-**************************************************************************
-
-@Js
-const class XetoCompilerErr : FileLocErr
-{
-  new make(Str msg, FileLoc loc, Err? cause := null) : super(msg, loc, cause) {}
-}
-
 
