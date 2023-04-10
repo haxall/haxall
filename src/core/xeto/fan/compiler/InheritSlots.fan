@@ -10,14 +10,14 @@
 using util
 
 **
-** Inherit walks all the objects:
+** InheritSlots walks all the objects:
 **   - infer type if unspecified
 **   - resolves base
 **   - handles slot overrides
 **   - computes spec flags
 **
 @Js
-internal class Inherit : Step
+internal class InheritSlots : Step
 {
   override Void run()
   {

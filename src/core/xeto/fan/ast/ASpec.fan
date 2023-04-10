@@ -47,7 +47,7 @@ internal class ASpec : AObj, CSpec
 // ASpec
 //////////////////////////////////////////////////////////////////////////
 
-  ** We refine type and base in Inherit step
+  ** We refine type and base in InheritSlots step
   CSpec? base
 
 //////////////////////////////////////////////////////////////////////////
@@ -80,11 +80,11 @@ internal class ASpec : AObj, CSpec
   DataDict? metaOwnRef
 
   ** Effective meta (set in InheritMeta)
-  override DataDict cmeta() { cmetaRef ?: throw Err("Inherit not run") }
+  override DataDict cmeta() { cmetaRef ?: throw Err("InheritMeta not run") }
   DataDict? cmetaRef
 
   ** Iterate the effective slots
-  override Str:CSpec cslots() { cslotsRef ?: throw Err("Inherit not run") }
+  override Str:CSpec cslots() { cslotsRef ?: throw Err("InheritSlots not run") }
   [Str:CSpec]? cslotsRef
 
   ** Extract 'ofs' list of type refs from AST model
@@ -98,7 +98,7 @@ internal class ASpec : AObj, CSpec
     return acc.ro
   }
 
-  ** Inheritance flags computed in Infer
+  ** Inheritance flags computed in InheritSlots
   override Int flags
 
   override Bool isMaybe() { hasFlag(MSpecFlags.maybe) }
