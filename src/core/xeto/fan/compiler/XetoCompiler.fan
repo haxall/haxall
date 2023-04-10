@@ -59,6 +59,7 @@ internal class XetoCompiler
       Resolve(),
       Inherit(),
       Reify(),
+      InheritMeta(),
       Assemble(),
     ])
     return lib.asm
@@ -73,7 +74,6 @@ internal class XetoCompiler
       Resolve(),
       Inherit(),
       Reify(),
-      Assemble(),
     ])
     return ast.asm
   }

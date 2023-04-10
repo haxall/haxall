@@ -27,7 +27,26 @@ internal class Reify : Step
 
   private Void asmSpecVal(ASpec x)
   {
-    if (x.val != null) asmScalar(x)
+    DataDict own := x.meta?.asm ?: env.dict0
+    if (x.val != null)
+    {
+      val := asmScalar(x)
+
+      // TODO - not efficient
+      if (own.isEmpty)
+      {
+        own = env.dict1("val", val)
+      }
+      else
+      {
+        acc := Str:Obj[:]
+        acc.ordered = true
+        own.each |v, n| { acc[n] = v }
+        acc["val"] = val
+        own = env.dictMap(acc)
+      }
+    }
+    x.metaOwnRef = own
   }
 
   private Void asm(AVal x)

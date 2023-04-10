@@ -7,6 +7,7 @@
 //
 
 using util
+using data
 
 **
 ** AST DataSpec
@@ -73,6 +74,14 @@ internal class ASpec : AObj, CSpec
     if (checked) throw UnknownSlotErr(name)
     return null
   }
+
+  ** Declared meta (set in Reify)
+  DataDict metaOwn() { metaOwnRef ?: throw Err("Reify not run") }
+  DataDict? metaOwnRef
+
+  ** Effective meta (set in InheritMeta)
+  override DataDict cmeta() { cmetaRef ?: throw Err("Inherit not run") }
+  DataDict? cmetaRef
 
   ** Iterate the effective slots
   override Str:CSpec cslots() { cslotsRef ?: throw Err("Inherit not run") }

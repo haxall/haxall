@@ -62,6 +62,7 @@ internal const class XetoUtil
 // Inherit Meta
 //////////////////////////////////////////////////////////////////////////
 
+/* TODO
   ** Inherit spec meta data
   static DataDict inheritMeta(MSpec spec)
   {
@@ -107,6 +108,7 @@ internal const class XetoUtil
     if (name == "sealed") return false
     return true
   }
+*/
 
 //////////////////////////////////////////////////////////////////////////
 // Inherit Slots
@@ -270,7 +272,7 @@ internal const class XetoUtil
 
     derivedMap := slotsMap.map |XetoSpec base, Str name->XetoSpec|
     {
-      XetoSpec(MSpec(FileLoc.synthetic, parent, name, base, base.type, env.dict0, MSlots.empty, MSlots.empty, base.m.flags))
+      XetoSpec(MSpec(FileLoc.synthetic, parent, name, base, base.type, base.m.meta, env.dict0, MSlots.empty, MSlots.empty, base.m.flags))
     }
 
     return MSlots(derivedMap)

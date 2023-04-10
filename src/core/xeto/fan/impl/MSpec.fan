@@ -17,16 +17,17 @@ using haystack
 @Js
 internal const class MSpec
 {
-  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoType type, DataDict own, MSlots slotsOwn, MSlots slots, Int flags)
+  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoType type, DataDict meta, DataDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags)
   {
     this.loc      = loc
     this.parent   = parent
     this.name     = name
     this.base     = base
     this.type     = type
-    this.own      = own
-    this.slotsOwn = slotsOwn
+    this.meta     = meta
+    this.own      = metaOwn
     this.slots    = slots
+    this.slotsOwn = slotsOwn
     this.flags    = flags
   }
 
@@ -44,6 +45,10 @@ internal const class MSpec
 
   const XetoSpec? base
 
+  const DataDict meta
+
+  const DataDict own
+
   const MSlots slots
 
   const MSlots slotsOwn
@@ -54,22 +59,11 @@ internal const class MSpec
 
   override Str toStr() { qname }
 
-  const DataDict own
-
   virtual DataSpec spec() { env.sys.spec }
 
 //////////////////////////////////////////////////////////////////////////
 // Effective Meta
 //////////////////////////////////////////////////////////////////////////
-
-  DataDict meta()
-  {
-    meta := metaRef.val
-    if (meta != null) return meta
-    metaRef.compareAndSet(null, XetoUtil.inheritMeta(this))
-    return metaRef.val
-  }
-  private const AtomicRef metaRef := AtomicRef()
 
   Bool isEmpty() { meta.isEmpty }
   Obj? get(Str name, Obj? def := null) { meta.get(name, def) }
@@ -102,8 +96,8 @@ internal const class MDerivedSpec : MSpec
 {
   static const AtomicInt counter := AtomicInt()
 
-  new make(XetoEnv env, Str name, XetoSpec base, DataDict own, MSlots slotsOwn, Int flags)
-    : super(FileLoc.synthetic, null, name, base, base.type, own, slotsOwn, slotsOwn, flags) // TODO: slots vs slotsOwn
+  new make(XetoEnv env, Str name, XetoSpec base, DataDict meta, MSlots slots, Int flags)
+    : super(FileLoc.synthetic, null, name, base, base.type, meta, meta, slots, slots, flags) // TODO: meta vs metaOwn, slots vs slotsOwn
   {
     this.env = env
     this.qname = "derived" + counter.getAndIncrement + "::" + name
@@ -230,6 +224,8 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
   override final CSpec? cbase() { m.base }
 
   override final CSpec? ctype() { m.type }
+
+  override final DataDict cmeta() { m.meta }
 
   override final CSpec? cslot(Str n, Bool c := true) { m.slot(n, c) }
 

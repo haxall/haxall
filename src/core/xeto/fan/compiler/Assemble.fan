@@ -32,32 +32,21 @@ internal class Assemble : Step
 
   private Void asmLib(ALib x)
   {
-    m := MLib(env, x.loc, x.qname, x.type.asm, asmMeta(x), asmSlotsOwn(x))
+    m := MLib(env, x.loc, x.qname, x.type.asm, x.metaOwn, asmSlotsOwn(x))
     mField->setConst(x.asm, m)
     mlField->setConst(x.asm, m)
   }
 
   private Void asmType(AType x)
   {
-    m := MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, asmMeta(x), asmSlotsOwn(x), asmSlots(x), x.flags)
+    m := MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags)
     mField->setConst(x.asm, m)
   }
 
   private Void asmSpec(ASpec x)
   {
-    m := MSpec(x.loc, x.parent.asm, x.name, x.base.asm, x.type.asm, asmMeta(x), asmSlotsOwn(x), asmSlots(x), x.flags)
+    m := MSpec(x.loc, x.parent.asm, x.name, x.base.asm, x.type.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags)
     mField->setConst(x.asm, m)
-  }
-
-  private DataDict asmMeta(ASpec x)
-  {
-    if (x.meta == null && x.val == null) return env.dict0
-
-    acc := Str:Obj[:]
-    acc.ordered = true
-    if (x.meta != null) x.meta.slots.each |obj, name| { acc[name] = obj.asm }
-    if (x.val != null) acc["val"] = x.val.asm
-    return env.dictMap(acc)
   }
 
   private MSlots asmSlotsOwn(ASpec x)

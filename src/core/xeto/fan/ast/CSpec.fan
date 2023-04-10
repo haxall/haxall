@@ -6,6 +6,7 @@
 //   6 Apr 2023  Brian Frank  Creation
 //
 
+using data
 using util
 
 **
@@ -31,6 +32,9 @@ internal mixin CSpec : CNode
 
   ** Base spec or null if this sys::Obj itself
   abstract CSpec? cbase()
+
+  ** Effective meta
+  abstract DataDict cmeta()
 
   ** Lookup effective slot
   abstract CSpec? cslot(Str name, Bool checked := true)

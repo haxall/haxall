@@ -17,13 +17,13 @@ compileLib: |
 verifyJsonAst: |
   {
     "type": "sys::Lib",
+    "doc": "Test lib",
+    "version": "1.2.3",
     "depends": [
       {
         "lib": "sys"
       }
     ],
-    "doc": "Test lib",
-    "version": "1.2.3",
     "slots": {
       "Foo": {
         "base": "sys::Scalar",
@@ -31,9 +31,9 @@ verifyJsonAst: |
       },
       "Bar": {
         "base": "sys::Scalar",
-        "val": "default",
+        "doc": "Bar doc",
         "sealed": "marker",
-        "doc": "Bar doc"
+        "val": "default"
       }
     }
   }
@@ -54,6 +54,8 @@ compileLib: |
 verifyJsonAst: |
   {
     "type": "sys::Lib",
+    "doc": "Test lib",
+    "version": "1.2.3",
     "depends": [
       {
         "lib": "sys"
@@ -62,8 +64,6 @@ verifyJsonAst: |
         "lib": "ph"
       }
     ],
-    "doc": "Test lib",
-    "version": "1.2.3",
     "slots": {
       "Foo": {
         "base": "sys::Dict",

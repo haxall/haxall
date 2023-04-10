@@ -189,6 +189,7 @@ class DataCompileTest : AbstractDataTest
   {
     // echo
     // echo("-- testInheritSlot $s base:$s.base type:$s.type")
+    // echo("   own = $s.own")
     // s.each |v, n| { echo("   $n: $v [$v.typeof] " + (s.own.has(n) ? "own" : "inherit")) }
 
     verifySame(s.parent, parent)
