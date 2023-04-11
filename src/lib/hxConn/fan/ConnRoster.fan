@@ -265,7 +265,9 @@ internal const final class ConnRoster
     }
 
     // normal update
-    point.conn.send(HxMsg("pointUpdated", point, rec))
+    conn := point.conn
+    if (!conn.pool.isStopped)
+      conn.send(HxMsg("pointUpdated", point, rec))
   }
 
   private Void onPointRemoved(Ref id)
