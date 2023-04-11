@@ -95,12 +95,12 @@ internal class Reify : Step
     if (item != null)
     {
       // parse to Fantom type
-      return v.val = item.parse(compiler, v.str, v.loc)
+      return v.asmRef = item.parse(compiler, v.str, v.loc)
     }
     else
     {
       // just fallback to a string value
-      return v.val = v.str
+      return v.asmRef = v.str
     }
   }
 

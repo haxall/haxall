@@ -96,7 +96,7 @@ abstract internal class Step
   {
     if (obj == null) return false
     if (obj.val == null) return false
-    return obj.val.val === env.none
+    return obj.val.asm === env.none
   }
 
 //////////////////////////////////////////////////////////////////////////
