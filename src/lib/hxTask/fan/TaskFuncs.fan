@@ -112,7 +112,7 @@ const class TaskFuncs
   static Future taskRun(Expr expr, Expr msg := Literal.nullVal)
   {
     cx := curContext
-    return lib(cx).run(expr, msg)
+    return lib(cx).run(expr, msg.eval(cx))
   }
 
   ** Restart a task.  This kills the tasks and discards any

@@ -153,6 +153,10 @@ class TaskTest : HxTest
     verifyEq(eval("""taskSend($d.id.toCode, 100ms).futureCancel.futureState"""), "cancelled")
     verifyEq(eval("""taskSend($d.id.toCode, 100ms).futureCancel.futureIsComplete"""), true)
 
+    // taskRun
+    verifyEq(eval("""taskRun(x=>x, "test").futureGet"""), "test")
+    verifyDictEq(eval("""taskRun(x=>x, {foo}).futureGet"""), ["foo":m])
+
     // test service
     verifyEq(rt.task.run(Parser(Loc.eval, "(msg)=>msg+100".in).parse, n(7)).get, n(107))
     verifyEq(rt.task.cur(false), null)
