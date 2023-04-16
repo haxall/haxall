@@ -395,7 +395,16 @@ internal class CallFrame
 
   Void each(|Obj? v, Str n| f) { vars.each(f) }
 
-  Dict toDict() { Etc.makeDict(vars) }
+  Dict toDict()
+  {
+    acc := Str:Obj?[:]
+    vars.each |v, n|
+    {
+      if (v != null && !v.isImmutable) v = v.toStr
+      acc[n] = v
+    }
+    return Etc.makeDict(acc)
+  }
 
   Obj? get(Str name)
   {
