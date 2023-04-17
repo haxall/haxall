@@ -1,4 +1,4 @@
-// Auto-generated 22-Mar-2023
+// Auto-generated 17-Apr-2023
 
 // Top-level dicts with a unique identifier.
 // See `docHaystack::Ontology#entities` chapter.
@@ -278,7 +278,7 @@ Elevator: VerticalTransport {
 // See `docHaystack::Equips` chapter.
 Equip: Entity <abstract> {
   equip
-  points: Query<of:Point, inverse:"ph::Point.equips">
+  points: Query<of:Point, inverse:"ph::Point.equips">  // Points contained by this equip
 }
 
 // Moving staircase used to move people between floors.
@@ -525,7 +525,7 @@ Plant: Equip {
 // See `docHaystack::Points` chapter.
 Point: Entity <abstract> {
   point
-  equips: Query<of:Equip, via:"equipRef+">
+  equips: Query<of:Equip, via:"equipRef+">  // Parent equips that contain this point
 }
 
 // Grouping of children points used by spaces and equipment

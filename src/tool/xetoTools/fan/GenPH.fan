@@ -204,8 +204,8 @@ internal class GenPH : XetoCmd
   private Void writeEntityChildren(OutStream out, Def entity)
   {
     // insert queries
-    if (entity.name == "equip")  out.printLine("  points: Query<of:Point, inverse:\"ph::Point.equips\">")
-    if (entity.name == "point")  out.printLine("  equips: Query<of:Equip, via:\"equipRef+\">")
+    if (entity.name == "equip")  out.printLine("  points: Query<of:Point, inverse:\"ph::Point.equips\">  // Points contained by this equip")
+    if (entity.name == "point")  out.printLine("  equips: Query<of:Equip, via:\"equipRef+\">  // Parent equips that contain this point")
   }
 
   private Bool isInherited(Def entity, Def tag)
