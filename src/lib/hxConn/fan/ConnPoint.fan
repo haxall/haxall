@@ -75,7 +75,7 @@ const final class ConnPoint : HxConnPoint
   ** - the point is not disabled
   Bool isCurEnabled() { config.isCurEnabled }
 
-  ** Is write address enabled on this point
+  ** Is write address enabled on this point.
   ** This returns true only when all the of following conditions are met:
   ** - the connector supports writable points
   ** - this point has a write address tag configured
@@ -83,7 +83,7 @@ const final class ConnPoint : HxConnPoint
   ** - the point is not disabled
   Bool isWriteEnabled() { config.isWriteEnabled }
 
-  ** Is history address supported on this point
+  ** Is history address supported on this point.
   ** This returns true only when all the of following conditions are met:
   ** - the connector supports history synchronization
   ** - this point has a his address tag configured

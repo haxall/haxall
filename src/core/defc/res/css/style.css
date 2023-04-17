@@ -198,6 +198,52 @@ h2.defc-main-heading  {
   margin: 0;
 }
 
+/***************************************************************
+ * Xeto/Fantom Types
+ **************************************************************/
+
+.defc-type-sig {
+  margin: 0;
+  padding: 3px 0;
+  color: var(--name-color);
+}
+
+.defc-type-sig code {
+  background: none;
+  padding: 0;
+}
+
+.defc-type-sig a {
+  color: var(--name-color);
+  text-decoration: none;
+}
+
+.defc-type-sig a:hover {
+  color: var(--name-color);
+  text-decoration: underline;
+}
+
+h2.defc-slot-details {
+  color: var(--title-color);
+  margin: 20px 0 0 0;
+  padding-top: 8px;
+  border-top: var(--divider-border);
+}
+
+div.defc-type-slot-section {
+  border-top: var(--divider-border);
+}
+
+span.defc-type-src-link a {
+  float: right;
+  font-size: 80%;
+  color: var(--sidebar-color);
+}
+
+span.defc-type-src-link a:hover {
+  color: var(--sidebar-color);
+}
+
 /*************************************************************************
  * NavMenu
  ************************************************************************/

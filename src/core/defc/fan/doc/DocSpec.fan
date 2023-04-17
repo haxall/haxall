@@ -226,7 +226,8 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     doc := (DocDataType)this.doc
     writeSpecHeader(doc)
     writeSpecMetaSection(doc.spec)
-    writeSpecSlotsSection(doc)
+    writeSlotsIndexSection(doc)
+    writeSlotsDetailSection(doc)
   }
 
   Void writeSpecHeader(DocDataType doc)
@@ -238,7 +239,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
 
     if (spec.base != null)
     {
-      out.p("class='docgen-type-sig'").code
+      out.p("class='defc-type-sig'").code
       out.w(spec.name).w(": ")
       writeSpecBase(spec)
       out.codeEnd.pEnd
@@ -264,13 +265,59 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     }
   }
 
-  Void writeSpecSlotsSection(DocDataType doc)
+  private Void writeSlotsIndexSection(DocDataType doc)
   {
     out.defSection(doc.spec.isLib ? "types" : "slots").props
     doc.spec.slots.each |slot|
     {
-      out.prop(slot.name, "")
+      out.prop(DocLink(doc, doc, slot.name, slot.name), specDoc(slot).toSummary)
     }
     out.propsEnd.defSectionEnd
   }
+
+  private Void writeSlotsDetailSection(DocDataType doc)
+  {
+    out.defSection("").h2("class='defc-slot-details' id='slot-details'").w("Slot Details").h2End.defSectionEnd
+    doc.spec.slots.each |slot|
+    {
+      writeSlotDetailSection(slot)
+    }
+  }
+
+  private Void writeSlotDetailSection(DataSpec slot)
+  {
+    // each slot is one section
+    out.defSection(slot.name).div("class='defc-type-slot-section'")
+
+    // signature line with facets
+    out.p("class='defc-type-sig'").code
+    out.linkTo(linkToSpec(slot.type))
+    out.codeEnd.pEnd
+
+    // fandoc
+    out.fandoc(specDoc(slot))
+
+    // end section
+    out.divEnd.defSectionEnd
+  }
+
+  private CFandoc specDoc(DataSpec spec)
+  {
+    d := slotDocs[spec.qname]
+    if (d == null) slotDocs[spec.qname] = d = resolveSpecDoc(spec)
+    return d
+  }
+
+  private CFandoc resolveSpecDoc(DataSpec spec)
+  {
+    if (spec.isMarker)
+    {
+      tag := env.def(spec.name, false)
+      if (tag != null) return tag.docFull
+    }
+
+    return CFandoc(CLoc(spec.loc), spec["doc"] ?: "")
+  }
+
+  private Str:CFandoc slotDocs := [:]
 }
