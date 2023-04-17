@@ -46,10 +46,12 @@ DischargeFanEnableSensor : FanEnableSensor { discharge }
 // Command for secondary on/off state of fan in discharge duct
 DischargeFanEnableCmd : FanEnableCmd { discharge }
 
-// Sensor for speed of a fan as percentage 0% off and 100% full speed in discharge duct
+// Sensor for fan speed as percentage in discharge duct.
+// Percentage is 0% for off and 100% for full speed.
 DischargeFanSpeedSensor : FanSpeedSensor { discharge }
 
-// Command for speed of a fan as percentage 0% off and 100% full speed in discharge duct
+// Command for fan speed as percentage in discharge duct.
+// Percentage is 0% for off and 100% for full speed.
 DischargeFanSpeedCmd : FanSpeedCmd { discharge }
 
 //////////////////////////////////////////////////////////////////////////
@@ -68,10 +70,12 @@ ReturnFanEnableSensor : FanEnableSensor { return }
 // Command for secondary on/off state of fan in return duct
 ReturnFanEnableCmd : FanEnableCmd { return }
 
-// Sensor for speed of a fan as percentage 0% off and 100% full speed in return duct
+// Sensor for fan speed as percentage in return duct.
+// Percentage is 0% for off and 100% for full speed.
 ReturnFanSpeedSensor : FanSpeedSensor { return }
 
-// Command for speed of a fan as percentage 0% off and 100% full speed in return duct
+// Command for fan speed as percentage in return duct.
+// Percentage is 0% for off and 100% for full speed.
 ReturnFanSpeedCmd : FanSpeedCmd { return }
 
 

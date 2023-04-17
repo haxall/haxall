@@ -85,11 +85,11 @@ MixedDamperCmd : DamperCmd { mixed }
 // Outside
 //////////////////////////////////////////////////////////////////////////
 
-// Damper position sensor in outside duct
+// Damper position sensor in outside duct.
 // Used when there one duct for both minimum fresh air and economizing.
 OutsideDamperSensor : DamperSensor { outside }
 
-// Damper position command in outside duct
+// Damper position command in outside duct.
 // Used when there one duct for both minimum fresh air and economizing.
 OutsideDamperCmd : DamperCmd { outside }
 
@@ -107,11 +107,11 @@ ReturnDamperCmd : DamperCmd { return }
 // Ventilation
 //////////////////////////////////////////////////////////////////////////
 
-// Damper position sensor in ventilation or minimum fresh air duct
+// Damper position sensor in ventilation or minimum fresh air duct.
 // Used when there are separate ducts for minimum fresh air vs economizing.
 VentilationDamperSensor : DamperSensor { ventilation }
 
-// Damper position command in ventilation or minimum fresh air duct
+// Damper position command in ventilation or minimum fresh air duct.
 // Used when there are separate ducts for minimum fresh air vs economizing.
 VentilationDamperCmd : DamperCmd { ventilation }
 
