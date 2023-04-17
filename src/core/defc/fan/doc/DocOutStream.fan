@@ -85,6 +85,7 @@ class DocOutStream : WebOutStream
     if (val is List)      return listVal(val)
     if (val is Dict)      return dictVal(val)
     if (val is DocFandoc) return fandoc(val)
+    if (val is DocLink)   return linkTo(val)
     return esc(Etc.valToDis(val))
   }
 

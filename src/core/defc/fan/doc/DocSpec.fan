@@ -116,23 +116,71 @@ abstract class DocDataSpecRenderer : DefDocRenderer
 
   Void writeSpecMetaSection(DataSpec spec)
   {
-    names := Etc.dictNames((Dict)spec).sort
+    names := Etc.dictNames((Dict)spec)
+    names.remove("doc")
+    names.remove("ofs")
+    if (names.isEmpty) return
 
     out.defSection("meta").props
-    names.each |name|
+    names.sort.each |name|
     {
       val := spec[name]
 
       // specific tags handled specially
       switch (name)
       {
-        case "doc": val = val.toStr.isEmpty ? "\u2014" : "See above"
-        case "ofs": val = "See above"
+        case "depends": val = toDependLinks(val)
+      }
+
+      // show dict as foo.bar props
+      if (val is Dict)
+      {
+        ((Dict)val).each |v, n| { out.prop(name + "." + n, v) }
+        return
       }
 
       out.prop(name, val)
     }
     out.propsEnd.defSectionEnd
+  }
+
+  private Obj[] toDependLinks(Obj val)
+  {
+    acc := Obj[,]
+    ((Dict)val).each |Dict v|  // xeto compiler should reify as list
+    {
+      qname := v["lib"]
+      item := qname
+      lib := env.space("spec-$qname", false)?.doc("index", false)
+      if (lib != null) item = DocLink(doc, lib, qname)
+      acc.add(item)
+    }
+    return acc
+  }
+
+  DocLink linkToSpec(DataSpec spec)
+  {
+    Doc? to := null
+    Str dis := spec.name
+
+    if (spec.isLib)
+    {
+      to = env.space("spec-$spec.qname", false)?.doc("index", false)
+      dis = spec.qname
+    }
+    else
+    {
+      type := spec.type
+      to = env.space("spec-$type.lib.qname", false)?.doc(type.name, false)
+    }
+
+    if (to == null)
+    {
+      echo("WARN: Unresolved spec link: $spec.qname")
+      to = env.space("spec-sys").doc("index")
+    }
+
+    return DocLink(this.doc, to, dis)
   }
 }
 
@@ -186,7 +234,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     spec := doc.spec
 
     out.defSection("type")
-       .h1.esc(spec.qname).h1End
+       .h1.esc(spec.name).h1End
 
     if (spec.base != null)
     {
@@ -203,7 +251,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
   private Void writeSpecBase(DataType spec)
   {
     if (spec.isCompound) return writeSpecBaseCompound(spec.ofs, spec.isAnd ? "&" : "|")
-    writeSpecLink(spec.base)
+    out.linkTo(linkToSpec(spec.base))
     if (spec.isMaybe) out.w("?")
   }
 
@@ -212,18 +260,8 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     ofs.each |of, i|
     {
       if (i > 0) out.w(" ").esc(sep).w(" ")
-      writeSpecLink(of)
+      out.linkTo(linkToSpec(of))
     }
-  }
-
-  private Void writeSpecLink(DataSpec spec)
-  {
-    out.a(specToUri(spec)).esc(spec.name).aEnd
-  }
-
-  private Uri specToUri(DataSpec spec)
-  {
-    `${spec.name}.html`
   }
 
   Void writeSpecSlotsSection(DocDataType doc)
