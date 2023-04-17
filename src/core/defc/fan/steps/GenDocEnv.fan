@@ -77,6 +77,7 @@ internal class GenDocEnv : DefCompilerStep
     env.libsInstalled.each |qname|
     {
       lib := env.lib(qname)
+      if (lib.has("nodoc")) return
       addSpace(genSpecLib(lib))
     }
   }
