@@ -114,50 +114,6 @@ abstract class DocDataSpecRenderer : DefDocRenderer
 {
   new make(DefDocEnv env, DocOutStream out, Doc doc) : super(env, out, doc) {}
 
-  Void writeSpecMetaSection(DataSpec spec)
-  {
-    names := Etc.dictNames((Dict)spec)
-    names.remove("doc")
-    names.remove("ofs")
-    if (names.isEmpty) return
-
-    out.defSection("meta").props
-    names.sort.each |name|
-    {
-      val := spec[name]
-
-      // specific tags handled specially
-      switch (name)
-      {
-        case "depends": val = toDependLinks(val)
-      }
-
-      // show dict as foo.bar props
-      if (val is Dict)
-      {
-        ((Dict)val).each |v, n| { out.prop(name + "." + n, v) }
-        return
-      }
-
-      out.prop(name, val)
-    }
-    out.propsEnd.defSectionEnd
-  }
-
-  private Obj[] toDependLinks(Obj val)
-  {
-    acc := Obj[,]
-    ((Dict)val).each |Dict v|  // xeto compiler should reify as list
-    {
-      qname := v["lib"]
-      item := qname
-      lib := env.space("spec-$qname", false)?.doc("index", false)
-      if (lib != null) item = DocLink(doc, lib, qname)
-      acc.add(item)
-    }
-    return acc
-  }
-
   DocLink specToLink(DataSpec spec)
   {
     Doc? to := null
@@ -202,6 +158,50 @@ class DocDataLibIndexRenderer : DocDataSpecRenderer
     writeTypesSection(lib)
   }
 
+  Void writeSpecMetaSection(DataSpec spec)
+  {
+    names := Etc.dictNames((Dict)spec)
+    names.remove("doc")
+    names.remove("ofs")
+    if (names.isEmpty) return
+
+    out.defSection("meta").props
+    names.sort.each |name|
+    {
+      val := spec[name]
+
+      // specific tags handled specially
+      switch (name)
+      {
+        case "depends": val = toDependLinks(val)
+      }
+
+      // show dict as foo.bar props
+      if (val is Dict)
+      {
+        ((Dict)val).each |v, n| { out.prop(name + "." + n, v) }
+        return
+      }
+
+      out.prop(name, val)
+    }
+    out.propsEnd.defSectionEnd
+  }
+
+  private Obj[] toDependLinks(Obj val)
+  {
+    acc := Obj[,]
+    ((Dict)val).each |Dict v|  // xeto compiler should reify as list
+    {
+      qname := v["lib"]
+      item := qname
+      lib := env.space("spec-$qname", false)?.doc("index", false)
+      if (lib != null) item = DocLink(doc, lib, qname)
+      acc.add(item)
+    }
+    return acc
+  }
+
   private Void writeTypesSection(DocDataLib lib)
   {
     out.defSection("types").props
@@ -225,7 +225,6 @@ class DataTypeDocRenderer : DocDataSpecRenderer
   {
     doc := (DocDataType)this.doc
     writeSpecHeader(doc)
-    writeSpecMetaSection(doc.spec)
     writeSlotsIndexSection(doc)
     writeSlotsDetailSection(doc)
   }
@@ -237,32 +236,10 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     out.defSection("type")
        .h1.esc(spec.name).h1End
 
-    if (spec.base != null)
-    {
-      out.p("class='defc-type-sig'").code
-      out.w(spec.name).w(": ")
-      writeSpecBase(spec)
-      out.codeEnd.pEnd
-    }
+    if (spec.base != null) writeSpecSig(spec, true)
 
     out.fandoc(doc.docFull)
        .defSectionEnd
-  }
-
-  private Void writeSpecBase(DataType spec)
-  {
-    if (spec.isCompound) return writeSpecBaseCompound(spec.ofs, spec.isAnd ? "&" : "|")
-    out.linkTo(specToLink(spec.base))
-    if (spec.isMaybe) out.w("?")
-  }
-
-  private Void writeSpecBaseCompound(DataSpec[] ofs, Str sep)
-  {
-    ofs.each |of, i|
-    {
-      if (i > 0) out.w(" ").esc(sep).w(" ")
-      out.linkTo(specToLink(of))
-    }
   }
 
   private Void writeSlotsIndexSection(DocDataType doc)
@@ -292,12 +269,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     out.defSection(slot.name).div("class='defc-type-slot-section'")
 
     // signature line with meta
-    out.p("class='defc-type-sig'").code
-    out.linkTo(specToLink(slot.type))
-    if (slot.isMaybe) out.w("?")
-    writeSlotMeta(slot)
-    writeSlotVal(slot)
-    out.codeEnd.pEnd
+    writeSpecSig(slot, false)
 
     // fandoc
     out.fandoc(specDoc(slot))
@@ -309,44 +281,11 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     out.divEnd.defSectionEnd
   }
 
-  private Void writeSlotMeta(DataSpec slot)
-  {
-    names := Str[,]
-    slot.each |v, n|
-    {
-      if (n == "doc") return
-      if (n == "val") return
-      if (n == "maybe") return
-      names.add(n)
-    }
-    if (names.isEmpty) return
-    out.esc(" <")
-    names.each |n, i|
-    {
-      if (i > 0) out.w(", ")
-      v := slot[n]
-      out.w(n)
-      if (v === Marker.val) return
-      out.w(":")
-      if (v is DataSpec)
-        out.linkTo(specToLink(v))
-      else
-        out.esc(v.toStr.toCode)
-    }
-    out.esc(">")
-  }
-
-  private Void writeSlotVal(DataSpec slot)
-  {
-    val := slot["val"]
-    if (val == null || val == Marker.val) return
-    out.w(" ").esc(val.toStr.toCode)
-  }
-
   private Void writeConstrainedQuery(DataSpec slot)
   {
     if (!slot.isQuery || slot.slots.isEmpty) return
 
+    out.p.w("Required $slot.name:").pEnd
     out.ul
     slot.slots.each |item|
     {
@@ -373,6 +312,75 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     }
     out.w(" }")
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Spec Signature
+//////////////////////////////////////////////////////////////////////////
+
+  private Void writeSpecSig(DataSpec spec, Bool withName)
+  {
+    out.p("class='defc-type-sig'").code
+    if (withName) out.w(spec.name).w(": ")
+    writeSpecBase(spec)
+    writeSpecMeta(spec)
+    writeSpecVal(spec)
+    out.codeEnd.pEnd
+  }
+
+  private Void writeSpecBase(DataSpec spec)
+  {
+    if (spec.isCompound) return writeSpecBaseCompound(spec.ofs, spec.isAnd ? "&" : "|")
+    out.linkTo(specToLink(spec.base))
+    if (spec.isMaybe) out.w("?")
+  }
+
+  private Void writeSpecBaseCompound(DataSpec[] ofs, Str sep)
+  {
+    ofs.each |of, i|
+    {
+      if (i > 0) out.w(" ").esc(sep).w(" ")
+      out.linkTo(specToLink(of))
+    }
+  }
+
+  private Void writeSpecMeta(DataSpec spec)
+  {
+    names := Str[,]
+    spec.each |v, n|
+    {
+      if (n == "doc") return
+      if (n == "val") return
+      if (n == "maybe") return
+      if (n == "ofs" && spec.isCompound) return
+      names.add(n)
+    }
+    if (names.isEmpty) return
+    out.esc(" <")
+    names.each |n, i|
+    {
+      if (i > 0) out.w(", ")
+      v := spec[n]
+      out.w(n)
+      if (v === Marker.val) return
+      out.w(":")
+      if (v is DataSpec)
+        out.linkTo(specToLink(v))
+      else
+        out.esc(v.toStr.toCode)
+    }
+    out.esc(">")
+  }
+
+  private Void writeSpecVal(DataSpec spec)
+  {
+    val := spec["val"]
+    if (val == null || val == Marker.val) return
+    out.w(" ").esc(val.toStr.toCode)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Spec Doc
+//////////////////////////////////////////////////////////////////////////
 
   private CFandoc specDoc(DataSpec spec)
   {
