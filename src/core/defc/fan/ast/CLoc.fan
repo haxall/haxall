@@ -6,6 +6,7 @@
 //   11 Jun 2018  Brian Frank  Creation
 //
 
+using util
 using compilerDoc
 
 **
@@ -25,6 +26,12 @@ const class CLoc : DocLoc
     uri := file.uri
     name := uri.scheme == "fan" ? "$uri.host::$uri.pathStr" : file.osPath
     return make(name)
+  }
+
+  ** Make file util::FileLoc
+  static new makeFileLoc(FileLoc loc)
+  {
+    make(loc.file, loc.line)
   }
 
   ** Constructor

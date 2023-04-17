@@ -26,11 +26,23 @@ class DefTopIndexRenderer : DefDocRenderer
     // inline the appendix index
     DocAppendixIndexRenderer.doWriteContent(out, env.space("appendix"))
 
+    // link to protos
     out.defSection("protos").props
     out.propQuick("proto/index", "Listing of all prototypes", "protos")
     out.propsEnd.defSectionEnd
-  }
 
+    // list spec libs
+    specs := env.spacesMap.vals.findType(DocDataLib#).sort
+    if (!specs.isEmpty)
+    {
+      out.defSection("specs").props
+      specs.each |DocDataLib x|
+      {
+        out.prop(DocLink(doc, x.index, x.qname), x.docSummary)
+      }
+      out.propsEnd.defSectionEnd
+    }
+  }
 }
 
 **************************************************************************

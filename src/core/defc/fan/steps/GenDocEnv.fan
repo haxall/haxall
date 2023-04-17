@@ -8,6 +8,7 @@
 
 using fandoc
 using compilerDoc
+using data
 using haystack
 using def
 
@@ -27,6 +28,7 @@ internal class GenDocEnv : DefCompilerStep
     addSpace(genProtos)
     addSpace(genAppendix)
     compiler.manuals.each |manual| { addSpace(manual) }
+    genSpecs
 
     init := DefDocEnvInit
     {
@@ -64,6 +66,47 @@ internal class GenDocEnv : DefCompilerStep
   private DocDef genDef(DocLib lib, CDef def)
   {
     DocDef(lib, def.loc, def.actual(compiler.ns))
+  }
+
+  private Void genSpecs()
+  {
+    if (!compiler.includeSpecs) return
+
+    // for now just add all installed data libs
+    env := DataEnv.cur
+    env.libsInstalled.each |qname|
+    {
+      lib := env.lib(qname)
+      addSpace(genSpecLib(lib))
+    }
+  }
+
+  private DocDataLib genSpecLib(DataLib spec)
+  {
+    DocDataLib
+    {
+       it.qname      = spec.qname
+       it.spec       = spec
+       it.index      = DocDataLibIndex(it)
+       it.docFull    = specDoc(spec)
+       it.docSummary = docFull.toSummary
+       it.types      = genSpecTypes(it)
+    }
+  }
+
+  private DocDataType[] genSpecTypes(DocDataLib lib)
+  {
+    acc := DocDataType[,]
+    lib.spec.slots.each |spec|
+    {
+      acc.add(DocDataType(lib, spec, specDoc(spec)))
+    }
+    return acc
+  }
+
+  private CFandoc specDoc(DataSpec spec)
+  {
+    CFandoc(CLoc(spec.loc), spec["doc"] as Str ?: "")
   }
 
   private DocProtoSpace genProtos()

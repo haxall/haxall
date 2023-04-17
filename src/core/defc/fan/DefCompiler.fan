@@ -60,6 +60,9 @@ class DefCompiler
   ** Factory to create DefDocEnv if generating documentation
   |DefDocEnvInit->DefDocEnv|? docEnvFactory
 
+  ** Include data specs in output documentation
+  Bool includeSpecs
+
 //////////////////////////////////////////////////////////////////////////
 // Compile
 //////////////////////////////////////////////////////////////////////////

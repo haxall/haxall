@@ -25,6 +25,9 @@ class Main : AbstractMain
   @Opt { help = "Generate protos output file in addition to defs file" }
   Bool protos
 
+  @Opt { help = "Include data spec libs" }
+  Bool specs
+
   @Arg { help = "List of input pod names or directories (defaults to ph pods)" }
   Str[]? inputs
 
@@ -34,6 +37,7 @@ class Main : AbstractMain
 
     c := DefCompiler()
     c.outDir = outDir
+    c.includeSpecs = specs
 
     if (inputs != null)
     {
