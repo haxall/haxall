@@ -88,6 +88,12 @@ const mixin DataSpec : DataDict
   ** Does this spec directly inherits from And/Or and define 'ofs'
   @NoDoc abstract Bool isCompound()
 
+  ** Does this spec directly inherit from And
+  @NoDoc abstract Bool isAnd()
+
+  ** Does this spec directly inherit from Or
+  @NoDoc abstract Bool isOr()
+
   ** Return list of component specs for a compound type
   @NoDoc abstract DataSpec[]? ofs(Bool checked := true)
 

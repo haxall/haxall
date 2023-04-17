@@ -203,6 +203,10 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
 
   override final Bool isNone() { XetoUtil.isNone(this) }
 
+  override final Bool isAnd() { XetoUtil.isAnd(this) }
+
+  override final Bool isOr() { XetoUtil.isOr(this) }
+
   override final Bool isLib() { m.isLib }
 
   override final Bool isType() { m.isType }

@@ -88,8 +88,8 @@ class DataSpecTest : AbstractDataTest
     verifyIsa("sys::List", "sys::List", true)
     verifyIsa("sys::List", "sys::Dict", false)
 
-    verifyIsa("sys::And",   "sys::And",   true)
-    verifyIsa("sys::Or",    "sys::Or",    true)
+    verifyIsa("sys::And",   "sys::And",   true, false)
+    verifyIsa("sys::Or",    "sys::Or",    true, false)
 
     verifyIsa("ph.points::AirFlowSensor", "sys::And", true)
     verifyIsa("ph.points::AirFlowSensor", "ph::Point", true)
