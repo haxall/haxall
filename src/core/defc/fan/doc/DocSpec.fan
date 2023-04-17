@@ -158,7 +158,7 @@ abstract class DocDataSpecRenderer : DefDocRenderer
     return acc
   }
 
-  DocLink linkToSpec(DataSpec spec)
+  DocLink specToLink(DataSpec spec)
   {
     Doc? to := null
     Str dis := spec.name
@@ -252,7 +252,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
   private Void writeSpecBase(DataType spec)
   {
     if (spec.isCompound) return writeSpecBaseCompound(spec.ofs, spec.isAnd ? "&" : "|")
-    out.linkTo(linkToSpec(spec.base))
+    out.linkTo(specToLink(spec.base))
     if (spec.isMaybe) out.w("?")
   }
 
@@ -261,12 +261,13 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     ofs.each |of, i|
     {
       if (i > 0) out.w(" ").esc(sep).w(" ")
-      out.linkTo(linkToSpec(of))
+      out.linkTo(specToLink(of))
     }
   }
 
   private Void writeSlotsIndexSection(DocDataType doc)
   {
+    if (doc.spec.slots.isEmpty) return
     out.defSection(doc.spec.isLib ? "types" : "slots").props
     doc.spec.slots.each |slot|
     {
@@ -277,6 +278,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
 
   private Void writeSlotsDetailSection(DocDataType doc)
   {
+    if (doc.spec.slots.isEmpty) return
     out.defSection("").h2("class='defc-slot-details' id='slot-details'").w("Slot Details").h2End.defSectionEnd
     doc.spec.slots.each |slot|
     {
@@ -289,16 +291,87 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     // each slot is one section
     out.defSection(slot.name).div("class='defc-type-slot-section'")
 
-    // signature line with facets
+    // signature line with meta
     out.p("class='defc-type-sig'").code
-    out.linkTo(linkToSpec(slot.type))
+    out.linkTo(specToLink(slot.type))
+    if (slot.isMaybe) out.w("?")
+    writeSlotMeta(slot)
+    writeSlotVal(slot)
     out.codeEnd.pEnd
 
     // fandoc
     out.fandoc(specDoc(slot))
 
+    // query
+    writeConstrainedQuery(slot)
+
     // end section
     out.divEnd.defSectionEnd
+  }
+
+  private Void writeSlotMeta(DataSpec slot)
+  {
+    names := Str[,]
+    slot.each |v, n|
+    {
+      if (n == "doc") return
+      if (n == "val") return
+      if (n == "maybe") return
+      names.add(n)
+    }
+    if (names.isEmpty) return
+    out.esc(" <")
+    names.each |n, i|
+    {
+      if (i > 0) out.w(", ")
+      v := slot[n]
+      out.w(n)
+      if (v === Marker.val) return
+      out.w(":")
+      if (v is DataSpec)
+        out.linkTo(specToLink(v))
+      else
+        out.esc(v.toStr.toCode)
+    }
+    out.esc(">")
+  }
+
+  private Void writeSlotVal(DataSpec slot)
+  {
+    val := slot["val"]
+    if (val == null || val == Marker.val) return
+    out.w(" ").esc(val.toStr.toCode)
+  }
+
+  private Void writeConstrainedQuery(DataSpec slot)
+  {
+    if (!slot.isQuery || slot.slots.isEmpty) return
+
+    out.ul
+    slot.slots.each |item|
+    {
+      out.li.code
+      writeConstrainedQueryItem(item)
+      out.codeEnd.liEnd
+    }
+    out.ulEnd
+  }
+
+  private Void writeConstrainedQueryItem(DataSpec spec)
+  {
+    out.linkTo(specToLink(spec.base))
+    if (spec.slotsOwn.isEmpty) return
+    out.w(" {")
+    first := true
+    spec.slotsOwn.each |tag|
+    {
+      if (first) first = false; else out.w(", ")
+      n := tag.name
+      def := env.def(n, false)
+      if (def != null) out.link(def)
+      else out.w(tag.name)
+    }
+    out.w(" }")
   }
 
   private CFandoc specDoc(DataSpec spec)
