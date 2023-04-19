@@ -119,7 +119,10 @@ const class ShellFuncs
   ** Options:
   **   - spec: "qname" | "own" | "effective"
   **   - doc: include spec documentation comments
-  **   - ast: pretty print as JSON
+  **   - json: pretty print dict tree as JSON
+  **   - text: output as plain text (not string literal)
+  **   - escapeUnicode: escape string literals with non-ASCII chars
+  **   - width: max width of output text
   @Axon static Obj? print(Obj? val := null, Obj? opts := null)
   {
     cx.print(val, opts)

@@ -46,6 +46,7 @@ class Printer
   This print(Obj? v)
   {
     if (opts.has("json")) return json(v).nl
+    if (opts.has("text")) return w(v?.toStr ?: "")
 
     dict := v as Dict
     if (dict != null && dict.has("id"))
