@@ -151,9 +151,9 @@ internal const class XetoEnv : DataEnv
     XetoUtil.derive(this, name, base, meta, slots)
   }
 
-  override Obj? instantiate(DataSpec spec)
+  override Obj? instantiate(DataSpec spec, DataDict? opts := null)
   {
-    XetoUtil.instantiate(this, spec)
+    XetoUtil.instantiate(this, spec, opts ?: dict0)
   }
 
   override DataLib compileLib(Str src, DataDict? opts := null)

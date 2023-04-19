@@ -279,11 +279,25 @@ class DataEnvTest : AbstractDataTest
     verifyInstantiate("sys::Dict", env.dict0)
     verifyInstantiate("sys::List", Obj?[,])
 
-    verifyInstantiate("ph::Meter", ["equip":m, "meter":m])
-    verifyInstantiate("ph::ElecMeter", ["equip":m, "meter":m, "elec":m])
-    verifyInstantiate("ph::AcElecMeter", ["equip":m, "meter":m, "elec":m, "ac":m])
+    verifyInstantiate("ph::Meter", ["dis":"Meter", "equip":m, "meter":m])
+    verifyInstantiate("ph::ElecMeter", ["dis":"ElecMeter", "equip":m, "meter":m, "elec":m])
+    verifyInstantiate("ph::AcElecMeter", ["dis":"AcElecMeter", "equip":m, "meter":m, "elec":m, "ac":m])
 
-    verifyInstantiate("ph.points::DischargeAirTempSensor", ["discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":"°F"])
+    verifyInstantiate("ph.points::DischargeAirTempSensor", ["dis":"DischargeAirTempSensor", "discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":"°F"])
+    verifyInstantiate("ashrae.g36::G36ReheatVav", ["dis":"G36ReheatVav", "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m])
+
+    x := Ref("x")
+    verifyInstantiateGraph("ashrae.g36::G36ReheatVav", [
+      ["id":Ref("x"), "dis":"G36ReheatVav", "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m],
+      ["id":Ref("x"), "dis":"ZoneAirTempSensor",      "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "temp":m],
+      ["id":Ref("x"), "dis":"ZoneAirTempEffectiveSp", "point":m, "sp":m,      "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "effective":m, "temp":m],
+      ["id":Ref("x"), "dis":"ZoneOccupiedSensor",     "point":m, "sensor":m,  "kind":"Bool",   "equipRef":x, "enum":"unoccupied,occupied", "zone":m, "occupied":m],
+      ["id":Ref("x"), "dis":"ZoneCo2Sensor",          "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"ppm", "zone":m, "air":m, "co2":m, "concentration":m],
+      ["id":Ref("x"), "dis":"HotWaterValveCmd",       "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "hot":m, "water":m, "valve":m],
+      ["id":Ref("x"), "dis":"DischargeDamperCmd",     "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "discharge":m, "air":m, "damper":m],
+      ["id":Ref("x"), "dis":"DischargeAirFlowSensor", "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"",   "discharge":m, "air":m, "flow":m],
+      ["id":Ref("x"), "dis":"DischargeAirTempSensor", "point":m, "sensor":m , "kind":"Number", "equipRef":x, "unit":"°F", "discharge":m, "air":m, "temp":m],
+    ])
 
     verifyErr(Err#) { env.instantiate(env.spec("sys::Obj")) }
     verifyErr(Err#) { env.instantiate(env.spec("sys::Scalar")) }
@@ -292,8 +306,26 @@ class DataEnvTest : AbstractDataTest
   Void verifyInstantiate(Str qname, Obj? expect)
   {
     actual := env.instantiate(env.spec(qname))
-    //echo("-- $qname: $actual ?= $expect")
+    // echo("-- $qname: $actual ?= $expect")
     verifyValEq(actual, expect)
+  }
+
+  Void verifyInstantiateGraph(Str qname, [Str:Obj][] expect)
+  {
+    DataDict[] actual := env.instantiate(env.spec(qname), env.dict1("graph", m))
+    baseId := (Ref)actual[0]->id
+    verifyEq(actual.size, expect.size)
+    actual.each |a, i|
+    {
+      e := expect[i]
+      e = e.map |v, n|
+      {
+        if (n == "id") return a->id
+        if (v is Ref) return baseId
+        return v
+      }
+      verifyDictEq(a, e)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

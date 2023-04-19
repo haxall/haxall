@@ -73,9 +73,27 @@ const class DataFuncs
   ** Create the default instance for a given spec.
   ** Raise exception if spec is abstract.
   **
-  @Axon static Obj? instantiate(DataSpec spec)
+  ** The default behavior for dict types is to return a single Dict.
+  ** However, if the type has a constrainted query, then an entire graph
+  ** can be instantiated via the '{graph}' option in which case a Dict[] is
+  ** returned.  In graph mode an 'id' is generated for recs for cross-linking.
+  **
+  ** Options:
+  **   - 'graph': marker tag to instantate graph of recs
+  **
+  ** Examples:
+  **   // evaluates to 2000-01-01
+  **   instantiate(Date)
+  **
+  **   // evaluates to dict {equip, vav, hotWaterHeating, ...}
+  **   instantiate(G36ReheatVav)
+  **
+  **   // evaluates to dict[] of vav + points from constrained query
+  **   instantiate(G36ReheatVav, {graph})
+  **
+  @Axon static Obj? instantiate(DataSpec spec, Dict? opts := null)
   {
-    curContext.usings.data.instantiate(spec)
+    curContext.usings.data.instantiate(spec, opts)
   }
 
 //////////////////////////////////////////////////////////////////////////

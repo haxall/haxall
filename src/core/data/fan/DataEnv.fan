@@ -100,7 +100,10 @@ const abstract class DataEnv
 
   ** Create default instance for the given spec.
   ** Raise exception if spec is abstract.
-  abstract Obj? instantiate(DataSpec spec)
+  **
+  ** Options:
+  **   - 'graph': marker tag to instantate graph of recs
+  abstract Obj? instantiate(DataSpec spec, DataDict? opts := null)
 
   ** Compile Xeto source code into a temp library.
   ** Raise exception if there are any syntax or semantic errors.

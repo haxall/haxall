@@ -8,6 +8,8 @@
 
 using util
 using data
+using haystack::Etc
+using haystack::Ref
 using haystack::UnknownNameErr
 
 **
@@ -158,7 +160,7 @@ internal const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate default value of spec
-  static Obj? instantiate(XetoEnv env, XetoSpec spec)
+  static Obj? instantiate(XetoEnv env, XetoSpec spec, DataDict opts)
   {
     meta := spec.m.meta
     if (meta.has("abstract")) throw Err("Spec is abstract: $spec.qname")
@@ -168,14 +170,59 @@ internal const class XetoUtil
     if (spec === env.sys.dict) return env.dict0
     if (spec.isList) return env.list0
 
+    isGraph := opts.has("graph")
+
     acc := Str:Obj[:]
+    acc.ordered = true
+
+    if (isGraph) acc["id"] = Ref.gen
+    acc["dis"] = spec.name
+
     spec.slots.each |slot|
     {
       if (slot.isMaybe) return
       if (slot.isQuery) return
-      acc[slot.name] = instantiate(env, slot)
+      acc[slot.name] = instantiate(env, slot, opts)
     }
-    return env.dictMap(acc)
+
+    parent := opts["parent"] as DataDict
+    if (parent != null && parent["id"] is Ref)
+    {
+      // TODO: temp hack for equip/point common use case
+      parentId := (Ref)parent["id"]
+      if (parent.has("equip"))   acc["equipRef"] = parentId
+      if (parent.has("site"))    acc["siteRef"]  = parentId
+      if (parent.has("siteRef")) acc["siteRef"]  = parent["siteRef"]
+    }
+
+    dict := env.dictMap(acc)
+
+    if (opts.has("graph"))
+      return instantiateGraph(env, spec, opts, dict)
+    else
+      return dict
+  }
+
+  private static DataDict[] instantiateGraph(XetoEnv env, XetoSpec spec, DataDict opts, DataDict dict)
+  {
+    opts = Etc.dictSet(opts, "parent", dict)
+    graph := DataDict[,]
+    graph.add(dict)
+
+    // recursively add constrained query children
+    spec.slots.each |slot|
+    {
+      if (!slot.isQuery) return
+      if (slot.slots.isEmpty) return
+      slot.slots.each |x|
+      {
+        kids := instantiate(env, x.base, opts)
+        if (kids isnot List) return
+        graph.addAll(kids)
+      }
+    }
+
+    return graph
   }
 
 //////////////////////////////////////////////////////////////////////////
