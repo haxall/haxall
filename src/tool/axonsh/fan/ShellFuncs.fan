@@ -217,6 +217,18 @@ const class ShellFuncs
     ShellLoader(cx, uri, opts ?: Etc.dict0).load
   }
 
+  **
+  ** Unload all the data from the in-memory database.
+  ** This is essentially a commit to remove all recs.
+  **
+  @Axon static Obj? unloadAll()
+  {
+    recs := cx.db.readAllList(Filter.has("id"))
+    diffs := recs.map |rec->Diff| { Diff(rec, null, Diff.remove) }
+    cx.db.commitAll(diffs)
+    return "Removed $recs.size recs"
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
