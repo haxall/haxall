@@ -20,22 +20,44 @@ internal const class XetoLibMgr
   new make(XetoEnv env)
   {
     this.env = env
-    this.path = Env.cur.path.map |dir->File| { dir.plus(`lib/data/`) }
-    this.entries = initEntries(this.path)
+    this.libPath = Env.cur.path.map |dir->File| { dir.plus(`lib/xeto/`) }
+    this.entries = initEntries(this.libPath)
     this.installed = entries.keys.sort
   }
 
-  private static Str:XetoLibEntry initEntries(File[] path)
+  private static Str:XetoLibEntry initEntries(File[] libPath)
   {
     acc := Str:XetoLibEntry[:]
-    path.each |pogDir|
+
+    // find all lib/xeto entries
+    /*
+    libPath.each |dir|
     {
-      pogDir.listDirs.each |dir|
+      dir.list.each |f|
       {
-        doInitInstalled(acc, dir)
+        if (f.isFile && f.ext == "xetolib")
+          doInitInstalled(acc, dir)
       }
     }
+    */
+
+    // recursively find source entires
+    initSrcEntries(acc, Env.cur.workDir + `src/xeto/`)
+
     return acc
+  }
+
+  private static Void initSrcEntries(Str:XetoLibEntry acc, File dir)
+  {
+    lib := dir + `lib.xeto`
+    if (lib.exists)
+    {
+      doInitInstalled(acc, dir)
+    }
+    else
+    {
+      dir.listDirs.each |subDir| { initSrcEntries(acc, subDir) }
+    }
   }
 
   private static Void doInitInstalled(Str:XetoLibEntry acc, File dir)
@@ -125,7 +147,7 @@ internal const class XetoLibMgr
 
   const XetoEnv env
   const Str compilingKey := "dataEnv.compiling"
-  const File[] path
+  const File[] libPath
   const Str[] installed
   const Str:XetoLibEntry entries
 }

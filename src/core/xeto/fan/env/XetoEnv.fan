@@ -231,7 +231,7 @@ internal const class XetoEnv : DataEnv
   {
     out.printLine("=== XetoEnv ===")
     out.printLine("Lib Path:")
-    libMgr.path.each |x| { out.printLine("  $x.osPath") }
+    libMgr.libPath.each |x| { out.printLine("  $x.osPath") }
     max := libsInstalled.reduce(10) |acc, x| { x.size.max(acc) }
     out.printLine("Installed Libs:")
     libMgr.installed.each |x| { out.printLine("  " + x.padr(max) + " [" + libMgr.libDir(x, true).osPath + "]") }
