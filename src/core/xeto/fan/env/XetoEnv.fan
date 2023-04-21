@@ -234,7 +234,16 @@ internal const class XetoEnv : DataEnv
     libMgr.libPath.each |x| { out.printLine("  $x.osPath") }
     max := libsInstalled.reduce(10) |acc, x| { x.size.max(acc) }
     out.printLine("Installed Libs:")
-    libMgr.installed.each |x| { out.printLine("  " + x.padr(max) + " [" + libMgr.libDir(x, true).osPath + "]") }
+    libMgr.installed.each |x|
+    {
+      entry := libMgr.entries[x]
+      out.print("  ").print(x.padr(max))
+      if (entry.src != null)
+        out.print(" [SRC ").print(entry.src.osPath)
+      else
+        out.print(" [").print(entry.zip.osPath)
+      out.printLine("]")
+    }
   }
 
   private const ConcurrentMap libs := ConcurrentMap()

@@ -30,16 +30,14 @@ internal const class XetoLibMgr
     acc := Str:XetoLibEntry[:]
 
     // find all lib/xeto entries
-    /*
     libPath.each |dir|
     {
       dir.list.each |f|
       {
-        if (f.isFile && f.ext == "xetolib")
-          doInitInstalled(acc, dir)
+        if (!f.isDir && f.ext == "xetolib")
+          doInitInstalled(acc, f.basename, null, f)
       }
     }
-    */
 
     // recursively find source entires
     initSrcEntries(acc, Env.cur.workDir + `src/xeto/`)
@@ -49,10 +47,11 @@ internal const class XetoLibMgr
 
   private static Void initSrcEntries(Str:XetoLibEntry acc, File dir)
   {
+    qname := dir.name
     lib := dir + `lib.xeto`
     if (lib.exists)
     {
-      doInitInstalled(acc, dir)
+      doInitInstalled(acc, qname, dir, Env.cur.workDir + `lib/xeto/${qname}.xetolib`)
     }
     else
     {
@@ -60,25 +59,19 @@ internal const class XetoLibMgr
     }
   }
 
-  private static Void doInitInstalled(Str:XetoLibEntry acc, File dir)
+  private static Void doInitInstalled(Str:XetoLibEntry acc, Str qname, File? src, File zip)
   {
-    hasLib := dir.plus(`lib.xeto`).exists
-    if (!hasLib) return
-
-    qname := dir.name
     dup := acc[qname]
-    if (dup != null) echo("WARN: XetoEnv '$qname' lib hidden [$dup.dir.osPath]")
-    acc[qname] = XetoLibEntry(qname, dir)
+    if (dup != null)
+    {
+      if (dup.zip != zip) echo("WARN: XetoEnv '$qname' lib hidden [$dup.zip.osPath]")
+    }
+    acc[qname] = XetoLibEntry(qname, src, zip)
   }
 
   Bool isInstalled(Str libName)
   {
     entries[libName] != null
-  }
-
-  File? libDir(Str qname, Bool checked)
-  {
-    entry(qname, checked)?.dir
   }
 
   Bool isLoaded(Str qname)
@@ -117,9 +110,10 @@ internal const class XetoLibMgr
     {
       compiler := XetoCompiler
       {
-        it.env   = this.env
-        it.qname = entry.qname
-        it.input = entry.dir
+        it.env    = this.env
+        it.qname  = entry.qname
+        it.input  = entry.src ?: entry.zip
+        it.zipOut = entry.zip
       }
       return compiler.compileLib
     }
@@ -159,11 +153,17 @@ internal const class XetoLibMgr
 @Js
 internal const class XetoLibEntry
 {
-  new make(Str qname, File dir) { this.qname = qname; this.dir = dir }
+  new make(Str qname, File? src, File zip)
+  {
+    this.qname = qname
+    this.src   = src
+    this.zip   = zip
+  }
 
   const Str qname
-  const File dir
+  const File? src
+  const File zip
   const AtomicRef libRef := AtomicRef()
-  override Str toStr() { "$qname [$dir.osPath]" }
+  override Str toStr() { "$qname [src: $src, zip: $zip.osPath]" }
 }
 

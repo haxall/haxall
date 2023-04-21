@@ -104,7 +104,19 @@ internal class Parse : Step
 
   private Void parseDir(File input, AObj root)
   {
-    if (input.isDir)
+    if (input.ext == "xetolib")
+    {
+      zip := Zip.read(input.in)
+      try
+      {
+        zip.readEach |f|
+        {
+          if (f.ext == "xeto") parseFile(f, root)
+        }
+      }
+      finally zip.close
+    }
+    else if (input.isDir)
     {
       input.list.each |sub|
       {

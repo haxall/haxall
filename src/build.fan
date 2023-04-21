@@ -34,7 +34,7 @@ class Build : BuildGroup
   @Target { help = "Delete entire lib/ directory" }
   Void superclean()
   {
-    Delete(this, Env.cur.workDir + `lib/fan/`).run
+    Delete(this, Env.cur.workDir + `lib/`).run
   }
 
 //////////////////////////////////////////////////////////////////////////

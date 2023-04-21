@@ -27,8 +27,11 @@ internal class XetoCompiler
   ** Logging
   XetoLog log := XetoLog.makeOutStream
 
-  ** Input file or directory
+  ** Input as in-memory file, zip file, or source directory
   File? input
+
+  ** Zip file to generate
+  File? zipOut
 
   ** Qualified name of library to compile
   Str? qname
@@ -61,6 +64,7 @@ internal class XetoCompiler
       Reify(),
       InheritMeta(),
       Assemble(),
+      OutputZip()
     ])
     return lib.asm
   }
