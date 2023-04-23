@@ -77,7 +77,7 @@ internal const class XetoLibMgr
   Bool isLoaded(Str qname)
   {
     e := entry(qname, false)
-    return e != null && e.libRef.val != null
+    return e != null && e.isLoaded
   }
 
   DataLib? load(Str qname, Bool checked := true)
@@ -87,12 +87,56 @@ internal const class XetoLibMgr
     if (entry == null) return null
 
     // check for cached loaded lib
-    lib := entry.libRef.val as DataLib
-    if (lib != null) return lib
+    if (entry.isLoaded) return entry.get
 
     // compile the lib into memory and atomically cache once
-    entry.libRef.compareAndSet(null, compile(entry))
-    return entry.libRef.val
+    return compile(entry, null)
+  }
+
+  Int build(Str[] qnames)
+  {
+    // create a XetoLibEntry copy for each entry
+    build := Str:XetoLibEntry[:]
+    build.ordered = true
+    qnames.each |qname|
+    {
+      entry := entry(qname, true)
+      if (entry.src == null) throw Err("No source for lib: $qname")
+      build[qname] = XetoLibEntry(qname, entry.src, entry.zip)
+    }
+
+
+    // now build using build entries for dependencies
+    try
+    {
+      build.each |entry|
+      {
+        if (!entry.isLoaded) compile(entry, build)
+      }
+      return 0
+    }
+    catch (Err e)
+    {
+      echo("BUILD FAILED")
+      return 1
+    }
+  }
+
+  XetoLib? resolve(XetoCompiler c, Str qname)
+  {
+    // in build mode use build entries for depends
+    if (c.isBuild)
+    {
+      entry := c.build[qname]
+      if (entry != null)
+      {
+        if (entry.isLoaded) return entry.get
+        return compile(entry, c.build)
+      }
+    }
+
+    // use normal load code path
+    return load(qname, false)
   }
 
   XetoLibEntry? entry(Str qname, Bool checked)
@@ -103,19 +147,25 @@ internal const class XetoLibMgr
     return null
   }
 
-  DataLib compile(XetoLibEntry entry)
+  DataLib compile(XetoLibEntry entry, [Str:XetoLibEntry]? build)
   {
     compilingPush(entry.qname)
     try
     {
+      // compile
       compiler := XetoCompiler
       {
-        it.env    = this.env
-        it.qname  = entry.qname
-        it.input  = entry.src ?: entry.zip
-        it.zipOut = entry.zip
+        it.env     = this.env
+        it.qname   = entry.qname
+        it.input   = entry.src ?: entry.zip
+        it.zipOut  = entry.zip
+        it.build   = build
       }
-      return compiler.compileLib
+      lib := compiler.compileLib
+
+      // atomically set entry and return
+      entry.set(lib)
+      return entry.get
     }
     finally
     {
@@ -163,7 +213,15 @@ internal const class XetoLibEntry
   const Str qname
   const File? src
   const File zip
-  const AtomicRef libRef := AtomicRef()
+
   override Str toStr() { "$qname [src: $src, zip: $zip.osPath]" }
+
+  Bool isLoaded() { libRef.val != null }
+
+  DataLib get() { libRef.val ?: throw Err("Not loaded: $qname") }
+
+  Void set(DataLib lib) { libRef.compareAndSet(null, lib) }
+
+  private const AtomicRef libRef := AtomicRef()
 }
 

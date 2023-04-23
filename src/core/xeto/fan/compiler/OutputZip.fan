@@ -22,7 +22,6 @@ internal class OutputZip : Step
     srcDir := compiler.input
     zipOut := compiler.zipOut
 
-    info("  Compile xetolib zip [$zipOut.osPath]")
     zipOut.parent.create
     zip := Zip.write(zipOut.out)
     try
@@ -33,6 +32,9 @@ internal class OutputZip : Step
 
   private Bool needToRun()
   {
+    // we only output zip in build mode
+    if (!compiler.isBuild) return false
+
     // for now skip this step in JS runtime
     if (Env.cur.runtime == "js") return false
 
@@ -42,15 +44,10 @@ internal class OutputZip : Step
     if (zipOut == null) return false
     if (!input.isDir) return false
 
-    // if zip doesn't exist then do it
-    if (!zipOut.exists) return true
-
-    // if zip is newer than all source files, skip
-    if (zipOut.modified > srcModified(input)) return false
-
     return true
   }
 
+  /*
   private DateTime? srcModified(File f)
   {
     if (!f.isDir) return f.modified
@@ -65,6 +62,7 @@ internal class OutputZip : Step
     }
     return max
   }
+  */
 
   private Void writeToZip(Zip zip, Str path, File file)
   {

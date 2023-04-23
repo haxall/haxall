@@ -50,7 +50,7 @@ internal class Resolve : Step
     if (depends.isEmpty)
     {
       if (isLib) err("Must specify 'sys' in depends", pragma.loc)
-      depends["sys"] = env.lib("sys")
+      depends["sys"] = env.libMgr.resolve(compiler, "sys") ?: throw err("Cannot load sys", ast.loc)
       return
     }
   }
@@ -63,7 +63,7 @@ internal class Resolve : Step
     if (libName == null) return err("Depend missing lib name", loc)
 
     // resolve the library from environment
-    lib := env.lib(libName, false)
+    lib := env.libMgr.resolve(compiler, libName)
     if (lib == null) return err("Depend lib '$libName' not installed", loc)
 
     // register the library into our depends map

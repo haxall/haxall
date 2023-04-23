@@ -36,6 +36,12 @@ internal class XetoCompiler
   ** Qualified name of library to compile
   Str? qname
 
+  ** If performing a build then this is list of entries to use for depends
+  [Str:XetoLibEntry]? build
+
+  ** Is this a build mode compile
+  Bool isBuild() { build != null }
+
 //////////////////////////////////////////////////////////////////////////
 // Options
 //////////////////////////////////////////////////////////////////////////
@@ -66,6 +72,7 @@ internal class XetoCompiler
       Assemble(),
       OutputZip()
     ])
+    info("Compiled [$qname]")
     return lib.asm
   }
 
@@ -94,8 +101,6 @@ internal class XetoCompiler
       }
       t2 := Duration.now
       duration = t2 - t1
-      //if (isLib) info("Compile lib $qname.toCode [$duration.toLocale]")
-      //else info("Parse data [$duration.toLocale]")
       return this
     }
     catch (XetoCompilerErr e)
@@ -115,7 +120,7 @@ internal class XetoCompiler
   ** Log info message
   Void info(Str msg)
   {
-    log.info(msg)
+    if (isBuild) log.info(msg)
   }
 
   ** Log warning message

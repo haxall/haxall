@@ -81,6 +81,9 @@ const abstract class DataEnv
   ** Get or load library by the given qualified name
   abstract DataLib? lib(Str qname, Bool checked := true)
 
+  ** Hook for build command to force re-compile
+  @NoDoc abstract Int build(Str[] qnames)
+
   ** Get the 'sys' library
   @NoDoc abstract DataLib sysLib()
 
