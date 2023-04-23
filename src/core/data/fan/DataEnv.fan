@@ -72,11 +72,8 @@ const abstract class DataEnv
   ** Data type for Fantom object
   abstract DataType? typeOf(Obj? val, Bool checked := true)
 
-  ** List the library qnames installed by this environment
-  abstract Str[] libsInstalled()
-
-  ** Return if given library is loaded into memory
-  abstract Bool isLibLoaded(Str qname)
+  ** Registry of installed libs
+  @NoDoc abstract DataRegistry registry()
 
   ** Get or load library by the given qualified name
   abstract DataLib? lib(Str qname, Bool checked := true)

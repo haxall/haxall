@@ -12,22 +12,32 @@ using data
 using haystack::UnknownLibErr
 
 **
-** XetoLibMgr manages the cache and loading of the environments libs
+** XetoRegistry manages the cache and loading of the environments libs
 **
 @Js
-internal const class XetoLibMgr
+internal const class XetoRegistry : DataRegistry
 {
   new make(XetoEnv env)
   {
     this.env = env
     this.libPath = Env.cur.path.map |dir->File| { dir.plus(`lib/xeto/`) }
     this.entries = initEntries(this.libPath)
-    this.installed = entries.keys.sort
+    this.list    = entries.vals.sort |a, b| { a.qname <=> b.qname }
   }
 
-  private static Str:XetoLibEntry initEntries(File[] libPath)
+  override const XetoRegistryLib[] list
+
+  override XetoRegistryLib? get(Str qname, Bool checked := true)
   {
-    acc := Str:XetoLibEntry[:]
+    x := entries[qname]
+    if (x != null) return x
+    if (checked) throw UnknownLibErr("Not installed: $qname")
+    return null
+  }
+
+  private static Str:XetoRegistryLib initEntries(File[] libPath)
+  {
+    acc := Str:XetoRegistryLib[:]
 
     // find all lib/xeto entries
     libPath.each |dir|
@@ -45,7 +55,7 @@ internal const class XetoLibMgr
     return acc
   }
 
-  private static Void initSrcEntries(Str:XetoLibEntry acc, File dir)
+  private static Void initSrcEntries(Str:XetoRegistryLib acc, File dir)
   {
     qname := dir.name
     lib := dir + `lib.xeto`
@@ -59,14 +69,14 @@ internal const class XetoLibMgr
     }
   }
 
-  private static Void doInitInstalled(Str:XetoLibEntry acc, Str qname, File? src, File zip)
+  private static Void doInitInstalled(Str:XetoRegistryLib acc, Str qname, File? src, File zip)
   {
     dup := acc[qname]
     if (dup != null)
     {
       if (dup.zip != zip) echo("WARN: XetoEnv '$qname' lib hidden [$dup.zip.osPath]")
     }
-    acc[qname] = XetoLibEntry(qname, src, zip)
+    acc[qname] = XetoRegistryLib(qname, src, zip)
   }
 
   Bool isInstalled(Str libName)
@@ -96,13 +106,13 @@ internal const class XetoLibMgr
   Int build(Str[] qnames)
   {
     // create a XetoLibEntry copy for each entry
-    build := Str:XetoLibEntry[:]
+    build := Str:XetoRegistryLib[:]
     build.ordered = true
     qnames.each |qname|
     {
       entry := entry(qname, true)
       if (entry.src == null) throw Err("No source for lib: $qname")
-      build[qname] = XetoLibEntry(qname, entry.src, entry.zip)
+      build[qname] = XetoRegistryLib(qname, entry.src, entry.zip)
     }
 
 
@@ -139,7 +149,7 @@ internal const class XetoLibMgr
     return load(qname, false)
   }
 
-  XetoLibEntry? entry(Str qname, Bool checked)
+  XetoRegistryLib? entry(Str qname, Bool checked)
   {
     x := entries[qname]
     if (x != null) return x
@@ -147,7 +157,7 @@ internal const class XetoLibMgr
     return null
   }
 
-  DataLib compile(XetoLibEntry entry, [Str:XetoLibEntry]? build)
+  DataLib compile(XetoRegistryLib entry, [Str:XetoRegistryLib]? build)
   {
     compilingPush(entry.qname)
     try
@@ -192,16 +202,15 @@ internal const class XetoLibMgr
   const XetoEnv env
   const Str compilingKey := "dataEnv.compiling"
   const File[] libPath
-  const Str[] installed
-  const Str:XetoLibEntry entries
+  const Str:XetoRegistryLib entries
 }
 
 **************************************************************************
-** XetoLibEntry
+** XetoRegistryLib
 **************************************************************************
 
 @Js
-internal const class XetoLibEntry
+internal const class XetoRegistryLib : DataRegistryLib
 {
   new make(Str qname, File? src, File zip)
   {
@@ -210,13 +219,25 @@ internal const class XetoLibEntry
     this.zip   = zip
   }
 
-  const Str qname
-  const File? src
-  const File zip
+  override const Str qname
+
+  override const File zip
+
+  override Bool isLoaded() { libRef.val != null }
 
   override Str toStr() { "$qname [src: $src, zip: $zip.osPath]" }
 
-  Bool isLoaded() { libRef.val != null }
+  override Bool isSrc() { src != null }
+
+  override File? srcDir(Bool checked := true)
+  {
+    if (src != null) return src
+    if (checked) throw Err("Lib source not available: $qname")
+    return null
+  }
+
+  const File? src
+
 
   DataLib get() { libRef.val ?: throw Err("Not loaded: $qname") }
 

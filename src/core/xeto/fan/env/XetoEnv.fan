@@ -24,19 +24,19 @@ internal const class XetoEnv : DataEnv
 {
   new make()
   {
-    this.libMgr = XetoLibMgr(this)
-    this.none   = Remove.val
-    this.marker = Marker.val
-    this.na     = NA.val
-    this.list0  = Obj?[,]
-    this.dict0 = Etc.dict0
-    this.factory = XetoFactory()
-    this.sysLib = libMgr.load("sys")
-    this.sys = MSys(sysLib)
+    this.registry = XetoRegistry(this)
+    this.none     = Remove.val
+    this.marker   = Marker.val
+    this.na       = NA.val
+    this.list0    = Obj?[,]
+    this.dict0    = Etc.dict0
+    this.factory  = XetoFactory()
+    this.sysLib   = registry.load("sys")
+    this.sys      = MSys(sysLib)
     this.dictSpec = sys.dict
   }
 
-  const XetoLibMgr libMgr
+  const override XetoRegistry registry
 
   const override DataLib sysLib
 
@@ -97,24 +97,14 @@ internal const class XetoEnv : DataEnv
     return null
   }
 
-  override Str[] libsInstalled()
-  {
-    libMgr.installed
-  }
-
-  override Bool isLibLoaded(Str qname)
-  {
-    libMgr.isLoaded(qname)
-  }
-
   override XetoLib? lib(Str qname, Bool checked := true)
   {
-    libMgr.load(qname, checked)
+    registry.load(qname, checked)
   }
 
   override Int build(Str[] qnames)
   {
-    libMgr.build(qnames)
+    registry.build(qnames)
   }
 
   override XetoType? type(Str qname, Bool checked := true)
@@ -236,15 +226,14 @@ internal const class XetoEnv : DataEnv
   {
     out.printLine("=== XetoEnv ===")
     out.printLine("Lib Path:")
-    libMgr.libPath.each |x| { out.printLine("  $x.osPath") }
-    max := libsInstalled.reduce(10) |acc, x| { x.size.max(acc) }
+    registry.libPath.eachr |x| { out.printLine("  $x.osPath") }
+    max := registry.list.reduce(10) |acc, x| { x.qname.size.max(acc) }
     out.printLine("Installed Libs:")
-    libMgr.installed.each |x|
+    registry.list.each |entry|
     {
-      entry := libMgr.entries[x]
-      out.print("  ").print(x.padr(max))
-      if (entry.src != null)
-        out.print(" [SRC ").print(entry.src.osPath)
+      out.print("  ").print(entry.qname.padr(max))
+      if (entry.isSrc)
+        out.print(" [SRC ").print(entry.srcDir.osPath)
       else
         out.print(" [").print(entry.zip.osPath)
       out.printLine("]")

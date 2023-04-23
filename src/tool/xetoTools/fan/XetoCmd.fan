@@ -94,10 +94,22 @@ abstract class XetoCmd : AbstractMain
 
     if (qnames.contains("all"))
     {
-      qnames = env.libsInstalled
+      qnames = env.registry.list.map |x->Str| { x.qname }
     }
 
     return qnames.map |qname->DataSpec| { env.spec(qname) }
+  }
+
+  ** Return list of lib qnames for source libs
+  DataRegistryLib[]? toSrcLibs(Str[]? qnames)
+  {
+    if (qnames == null || qnames.isEmpty)
+    {
+      printLine("ERROR: no libs specified")
+      return null
+    }
+    ///qnames := libs.contains("all") ? env.listSrc.map(|x| { x.qname } : libs
+    throw Err("TODO")
   }
 
   ** Output to a file or stdout and guaranteed closed
