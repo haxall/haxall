@@ -17,6 +17,9 @@ const mixin DataRegistry
 
   ** Lookup installed lib
   abstract DataRegistryLib? get(Str qname, Bool checked := true)
+
+  ** Hook for build command to force re-compile
+  abstract Int build(DataRegistryLib[] libs)
 }
 
 **************************************************************************

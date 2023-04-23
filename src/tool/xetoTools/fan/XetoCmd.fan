@@ -108,8 +108,16 @@ abstract class XetoCmd : AbstractMain
       printLine("ERROR: no libs specified")
       return null
     }
-    ///qnames := libs.contains("all") ? env.listSrc.map(|x| { x.qname } : libs
-    throw Err("TODO")
+
+    if (qnames.contains("all"))
+      return env.registry.list.findAll |x| { x.isSrc }
+
+    return qnames.map |x->DataRegistryLib|
+    {
+      lib := env.registry.get(x)
+      if (!lib.isSrc) throw Err("Lib src not available: $x")
+      return lib
+    }
   }
 
   ** Output to a file or stdout and guaranteed closed

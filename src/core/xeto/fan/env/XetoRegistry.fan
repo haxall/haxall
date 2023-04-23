@@ -19,23 +19,21 @@ internal const class XetoRegistry : DataRegistry
 {
   new make(XetoEnv env)
   {
-    this.env = env
+    this.env     = env
     this.libPath = Env.cur.path.map |dir->File| { dir.plus(`lib/xeto/`) }
-    this.entries = initEntries(this.libPath)
-    this.list    = entries.vals.sort |a, b| { a.qname <=> b.qname }
+    this.map     = discover(this.libPath)
+    this.list    = map.vals.sort |a, b| { a.qname <=> b.qname }
   }
-
-  override const XetoRegistryLib[] list
 
   override XetoRegistryLib? get(Str qname, Bool checked := true)
   {
-    x := entries[qname]
+    x := map[qname]
     if (x != null) return x
     if (checked) throw UnknownLibErr("Not installed: $qname")
     return null
   }
 
-  private static Str:XetoRegistryLib initEntries(File[] libPath)
+  private static Str:XetoRegistryLib discover(File[] libPath)
   {
     acc := Str:XetoRegistryLib[:]
 
@@ -79,21 +77,10 @@ internal const class XetoRegistry : DataRegistry
     acc[qname] = XetoRegistryLib(qname, src, zip)
   }
 
-  Bool isInstalled(Str libName)
-  {
-    entries[libName] != null
-  }
-
-  Bool isLoaded(Str qname)
-  {
-    e := entry(qname, false)
-    return e != null && e.isLoaded
-  }
-
   DataLib? load(Str qname, Bool checked := true)
   {
     // check for install
-    entry := entry(qname, checked)
+    entry := get(qname, checked)
     if (entry == null) return null
 
     // check for cached loaded lib
@@ -103,18 +90,15 @@ internal const class XetoRegistry : DataRegistry
     return compile(entry, null)
   }
 
-  Int build(Str[] qnames)
+  override Int build(DataRegistryLib[] libs)
   {
     // create a XetoLibEntry copy for each entry
     build := Str:XetoRegistryLib[:]
     build.ordered = true
-    qnames.each |qname|
+    libs.each |x|
     {
-      entry := entry(qname, true)
-      if (entry.src == null) throw Err("No source for lib: $qname")
-      build[qname] = XetoRegistryLib(qname, entry.src, entry.zip)
+      build[x.qname] = XetoRegistryLib(x.qname, x.srcDir, x.zip)
     }
-
 
     // now build using build entries for dependencies
     try
@@ -147,14 +131,6 @@ internal const class XetoRegistry : DataRegistry
 
     // use normal load code path
     return load(qname, false)
-  }
-
-  XetoRegistryLib? entry(Str qname, Bool checked)
-  {
-    x := entries[qname]
-    if (x != null) return x
-    if (checked) throw UnknownLibErr("Not installed: $qname")
-    return null
   }
 
   DataLib compile(XetoRegistryLib entry, [Str:XetoRegistryLib]? build)
@@ -200,9 +176,10 @@ internal const class XetoRegistry : DataRegistry
   }
 
   const XetoEnv env
-  const Str compilingKey := "dataEnv.compiling"
   const File[] libPath
-  const Str:XetoRegistryLib entries
+  override const XetoRegistryLib[] list
+  const Str:XetoRegistryLib map
+  const Str compilingKey := "dataEnv.compiling"
 }
 
 **************************************************************************

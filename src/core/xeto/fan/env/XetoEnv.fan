@@ -102,11 +102,6 @@ internal const class XetoEnv : DataEnv
     registry.load(qname, checked)
   }
 
-  override Int build(Str[] qnames)
-  {
-    registry.build(qnames)
-  }
-
   override XetoType? type(Str qname, Bool checked := true)
   {
     colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")

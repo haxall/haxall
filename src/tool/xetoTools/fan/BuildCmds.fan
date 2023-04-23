@@ -10,6 +10,9 @@ using util
 using data
 using xeto
 
+**
+** BuildCmd is used to create xetolib zips
+**
 internal class BuildCmd : XetoCmd
 {
   @Arg { help = "Libs to build or \"all\" to rebuild all source libs" }
@@ -21,12 +24,40 @@ internal class BuildCmd : XetoCmd
 
   override Int run()
   {
-    if (libs == null || libs.isEmpty)
-    {
-      printLine("ERROR: no libs specified")
-      return 1
-    }
-    qnames := libs.contains("all") ? env.libsInstalled : libs
-    return env.build(qnames)
+    libs := toSrcLibs(this.libs)
+    if (libs == null) return 1
+    return env.registry.build(libs)
   }
 }
+
+**************************************************************************
+** Clean
+**************************************************************************
+
+**
+** CleanCmd deletes xetolib zips if the lib is a source
+**
+internal class CleanCmd : XetoCmd
+{
+  @Arg { help = "Libs to clean or \"all\" to clean all source libs" }
+  Str[]? libs
+
+  override Str name() { "clean" }
+
+  override Str summary() { "Delete xetolib files for source libs" }
+
+  override Int run()
+  {
+    libs := toSrcLibs(this.libs)
+    if (libs == null) return 1
+
+    libs.each |lib|
+    {
+      if (!lib.zip.exists) return
+      echo("Delete [$lib.zip]")
+      lib.zip.delete
+    }
+    return 0
+  }
+}
+
