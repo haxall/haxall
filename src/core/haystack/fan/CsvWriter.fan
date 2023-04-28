@@ -27,6 +27,7 @@ class CsvWriter : GridWriter
     {
       this.delimiter  = toDelimiter(opts)
       this.showHeader = toShowHeader(opts)
+      this.stripUnits = toStripUnits(opts)
     }
   }
 
@@ -48,6 +49,17 @@ class CsvWriter : GridWriter
     return this.showHeader
   }
 
+  private Bool toStripUnits(Dict opts)
+  {
+    x := opts["stripUnits"]
+    if (x != null)
+    {
+      if (x == true || x == "true") return true
+      if (x == false || x == "false") return false
+    }
+    return this.stripUnits
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Configuration
 //////////////////////////////////////////////////////////////////////////
@@ -60,6 +72,9 @@ class CsvWriter : GridWriter
 
   ** Include the column names as a header row
   Bool showHeader := true
+
+  ** Strip units from all numbers
+  Bool stripUnits := false
 
 //////////////////////////////////////////////////////////////////////////
 // Public
@@ -118,8 +133,14 @@ class CsvWriter : GridWriter
     // if marker use checkmark
     if (val === Marker.val) { out.writeChar(0x2713); return }
 
-    // if value is Ref, is "@id dois"
-    if (val is Ref)
+    // if number
+    if (val is Number)
+    {
+      if (stripUnits) val = Number(((Number)val).toFloat, null)
+    }
+
+    // if value is Ref, is "@id dis"
+    else if (val is Ref)
     {
       ref := (Ref)val
       if (ref.disVal == null)

@@ -7,7 +7,7 @@
 //
 
 pragma: Lib <
-  doc: "System library of built-in prototypes"
+  doc: "System library of built-in types"
   version: "3.1.7"
   org: {
     dis: "Project Haystack"

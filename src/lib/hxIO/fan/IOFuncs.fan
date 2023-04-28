@@ -433,6 +433,7 @@ const class IOFuncs
   **   - newline: newline string, default is "\n" (use "\r\n" for CRLF)
   **   - noHeader: Set this option to prevent the column names from being
   **     written as a header row.
+  **   - stripUnits: write all numbers without a unit
   **
   ** Also `ioReadCsv`, `ioEachCsv`, and `docHaystack::Csv`.
   **
@@ -441,14 +442,15 @@ const class IOFuncs
   {
     // parse options
     if (opts == null) opts = Etc.emptyDict
-    delimiter := opts["delimiter"] as Str ?: ","
-    newline   := opts["newline"] as Str ?: "\n"
-    header    := opts["noHeader"] == null
+    delimiter  := opts["delimiter"] as Str ?: ","
+    newline    := opts["newline"] as Str ?: "\n"
+    header     := opts["noHeader"] == null
+    stripUnits := opts["stripUnits"] != null
 
     grid := toDataGrid(val)
     return toHandle(handle).withOut |out|
     {
-      csv := CsvWriter(out) { it.delimiter = delimiter[0]; it.newline = newline; it.showHeader = header }
+      csv := CsvWriter(out) { it.delimiter = delimiter[0]; it.newline = newline; it.showHeader = header; it.stripUnits = stripUnits }
       csv.writeGrid(grid).close
     }
   }

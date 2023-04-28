@@ -96,9 +96,9 @@ class IOTest : HxTest
     verifyEq(eval("""(()=> do acc: []; ioEachCsv(`io/test.csv`, null) (x) => acc = acc.add(x[2]); acc; end)()"""), Obj?["n", "Brian", "Andy"])
 
     // csv format with no header
-    eval("""ioWriteCsv([{n:"Brian", age:30yr}, {n:"Andy", marker}], `io/test-3.csv`, {delimiter:"|", newline:"\\r\\n", noHeader})""")
+    eval("""ioWriteCsv([{n:"Brian", age:30yr}, {n:"Andy", marker}], `io/test-3.csv`, {delimiter:"|", newline:"\\r\\n", noHeader, stripUnits})""")
     s = (projDir + `io/test-3.csv`).readAllStr(false)
-    verifyEq(s, "30yr|\"\"|Brian\r\n\"\"|\u2713|Andy\r\n")
+    verifyEq(s, "30|\"\"|Brian\r\n\"\"|\u2713|Andy\r\n")
     csv = eval("""ioReadCsv(`io/test-3.csv`, {delimiter:"|", noHeader})""")
     verifyEq(csv.size, 2)
     verifyEq(csv.colNames, ["v0", "v1", "v2"])
