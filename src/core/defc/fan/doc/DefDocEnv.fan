@@ -30,6 +30,7 @@ const class DefDocEnv : DocEnv
     this.ts        = DateTime.now
     this.libs      = spacesMap.vals.findAll |s| { s is DocLib }.sort
     this.libsMap   = Str:DocLib[:].addList(libs) { it.name }
+    this.dataLibs  = spacesMap.vals.findAll |s| { s is DocDataLib }.sort
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -94,6 +95,9 @@ const class DefDocEnv : DocEnv
     defsMap.each |d| { if (f(d)) acc.add(d) }
     return acc.sort
   }
+
+  ** Data spec libs
+  const DocDataLib[] dataLibs
 
   ** Resolve Def to its DocDef, return null if def is undocumented
   DocDef? resolve(Def d)

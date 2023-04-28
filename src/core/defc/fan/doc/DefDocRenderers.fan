@@ -32,7 +32,7 @@ class DefTopIndexRenderer : DefDocRenderer
     out.propsEnd.defSectionEnd
 
     // list spec libs
-    specs := env.spacesMap.vals.findType(DocDataLib#).sort
+    specs := env.dataLibs
     if (!specs.isEmpty)
     {
       out.defSection("specs").props
