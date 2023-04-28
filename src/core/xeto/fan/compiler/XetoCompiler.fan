@@ -88,6 +88,17 @@ internal class XetoCompiler
     return ast.asm
   }
 
+  ** Parse pragma from lib.xeto meta into fantom JSON data
+  DataDict parsePragma()
+  {
+    run([
+      InitParsePragma(),
+      Parse(),
+      AstToJson()
+    ])
+    return json
+  }
+
   ** Run the pipeline with the given steps
   internal This run(Step[] steps)
   {
@@ -171,6 +182,7 @@ internal class XetoCompiler
   internal AObj? ast                   // Parse (lib or data)
   internal ALib? lib                   // Parse (compileLib only)
   internal AObj? pragma                // Parse
+  internal DataDict? json              // JSON output
   private Str[] autoNames := [,]       // autoName
 }
 

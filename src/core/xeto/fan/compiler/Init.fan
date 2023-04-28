@@ -31,7 +31,7 @@ internal abstract class Init : Step
 **************************************************************************
 
 **
-** Initialize to compile lib
+** Initialize to compileLib
 **
 @Js
 internal class InitLib : Init
@@ -56,10 +56,31 @@ internal class InitLib : Init
 **************************************************************************
 
 **
-** Initialize to compile data
+** Initialize for compileData
 **
 @Js
 internal class InitData : Init
+{
+  override Void run()
+  {
+    // base class checks
+    super.run
+
+    // set flags
+    compiler.isLib = false
+    compiler.isSys = false
+  }
+}
+
+**************************************************************************
+** InitParseLibMeta
+**************************************************************************
+
+**
+** Initialize for parsePragma
+**
+@Js
+internal class InitParsePragma : Init
 {
   override Void run()
   {

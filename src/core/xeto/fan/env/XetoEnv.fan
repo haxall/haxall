@@ -178,6 +178,17 @@ internal const class XetoEnv : DataEnv
     return c.compileData
   }
 
+  override DataDict parsePragma(File file, DataDict? opts := null)
+  {
+    c := XetoCompiler
+    {
+      it.env = this
+      it.input = file
+      it.applyOpts(opts)
+    }
+    return c.parsePragma
+  }
+
   override Bool specFits(DataSpec a, DataSpec b, DataDict? opts := null)
   {
     if (opts == null) opts = dict0

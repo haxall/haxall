@@ -110,6 +110,9 @@ const abstract class DataEnv
   ** Raise exception if there are any syntax or semantic errors.
   abstract Obj? compileData(Str src, DataDict? opts := null)
 
+  ** Parse pragma file into AST
+  @NoDoc abstract DataDict parsePragma(File file, DataDict? opts := null)
+
   ** Return if the given instance fits the spec via structural typing.
   abstract Bool fits(DataContext cx, Obj? val, DataSpec spec, DataDict? opts := null)
 

@@ -97,14 +97,13 @@ internal abstract class AObj
   {
     s := StrBuf()
     s.add(name).add(":")
-    if (type != null) s.join(type, " ")
+    if (typeRef != null) s.join(typeRef, " ")
     if (val != null) s.join(val, " ")
     //s.add("[").add(nodeType).add(", ").add(loc).add("]")
     return s.toStr
   }
 
   ** Dump
-  /*
   Void dump(OutStream out := Env.cur.out, Str indent := "")
   {
     out.print(indent).printLine(this)
@@ -120,8 +119,7 @@ internal abstract class AObj
       slots.each |kid| { kid.dump(out, indent+"  ") }
       out.print(indent).printLine("}")
     }
-    if (nodeType === ANodeType.type) out.printLine
+    out.printLine
   }
-  */
 
 }
