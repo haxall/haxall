@@ -7,6 +7,7 @@
 //
 
 using util
+using haystack
 using data
 
 **
@@ -36,14 +37,28 @@ class DataSpecTest : AbstractDataTest
 
   Void verifyMeta(DataSpec s, Str:Obj own, Str:Obj effective)
   {
+    // metaOwn
     acc := Str:Obj[:]
-    s.own.each |v, n| { acc[n] = v }
+    s.metaOwn.each |v, n| { acc[n] = v }
     verifyEq(acc, own)
 
+    // meta
+    acc = Str:Obj[:]
+    s.meta.each |v, n| { acc[n] = v }
+    acc.remove("doc")
+    verifyEq(acc, effective)
+
+    // spec itself is meta + spec
     acc = Str:Obj[:]
     s.each |v, n| { acc[n] = v }
     acc.remove("doc")
-    verifyEq(acc, effective)
+    verifyEq(acc, effective.dup.add("spec", s.qname))
+
+    // spec tag
+    verifyEq(s["spec"], s.qname)
+    verifyEq(s.has("spec"), true)
+    verifyEq(s.missing("spec"), false)
+    verifyEq(s->spec, s.qname)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -158,7 +173,7 @@ class DataSpecTest : AbstractDataTest
      qbaz := qux.slot("baz")
      verifySame(qbaz.base, baz)
      verifyEq(qbaz["maybe"], null)
-     verifyEq(qbaz.own["maybe"], env.none)
+     verifyEq(qbaz.metaOwn["maybe"], env.none)
      verifyEq(qbaz.isMaybe, false)
    }
 

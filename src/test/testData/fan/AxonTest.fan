@@ -119,13 +119,13 @@ class AxonTest : HxTest
   DataSpec verifySpecDerive(Str expr, Str type, Str:Obj meta := [:], Str:Str slots := [:])
   {
     DataSpec x := makeContext.eval(expr)
-    // echo(":::DERIVE::: $expr => $x [$x.typeof] " + Etc.dictToStr((Dict)x.own))
+    // echo(":::DERIVE::: $expr => $x [$x.typeof] " + Etc.dictToStr((Dict)x.metaOwn))
 
     // verify spec
     verifyNotSame(x, env.type(type))
     verifySame(x.type, env.type(type))
     verifySame(x.base, x.type)
-    verifyDictEq(x.own, meta)
+    verifyDictEq(x.metaOwn, meta)
     slots.each |expect, name|
     {
       verifySpecExprSlot(x.slotOwn(name), expect)
@@ -210,7 +210,7 @@ class AxonTest : HxTest
     verifyEval("specQName($expr)", spec.qname)
     verifyEval("specType($expr)", spec.type)
     verifyEval("specBase($expr)", spec.base)
-    verifyDictEq(eval("specMetaOwn($expr)"), spec.own)
+    verifyDictEq(eval("specMetaOwn($expr)"), spec.metaOwn)
     verifyDictEq(eval("specSlots($expr)"), spec.slots.toDict)
     verifyDictEq(eval("specSlotsOwn($expr)"), spec.slotsOwn.toDict)
   }

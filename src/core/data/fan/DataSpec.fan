@@ -42,8 +42,11 @@ const mixin DataSpec : DataDict
   ** Returns null if this is 'sys::Obj' itself.
   abstract DataSpec? base()
 
+  ** Get my effective meta; this does not include synthesized tags like 'spec'
+  abstract DataDict meta()
+
   ** Get my own declared meta-data
-  abstract DataDict own()
+  abstract DataDict metaOwn()
 
   ** Get the declared children slots
   abstract DataSlots slotsOwn()

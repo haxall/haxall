@@ -264,13 +264,13 @@ class DataTestCase
   {
     if (expect == null)
     {
-      verifyEq(spec.own.isEmpty, true, spec.qname)
+      verifyEq(spec.metaOwn.isEmpty, true, spec.qname)
       return
     }
 
     expect.each |e, n| { verifyMetaPair(spec, n, e) }
-    spec.each |v, n| { verify(expect.containsKey(n), "$spec $n missing") }
-    spec.own.each |v, n| { verify(expect.containsKey(n), n) }
+    spec.meta.each |v, n| { verify(expect.containsKey(n), "$spec $n missing") }
+    spec.metaOwn.each |v, n| { verify(expect.containsKey(n), n) }
   }
 
   Void verifyMetaPair(DataSpec spec, Str name, Obj expect)
@@ -291,10 +291,10 @@ class DataTestCase
       throw Err("not done")
     }
 
-    verifyEq(spec.own.has(name), false, name)
-    verifyEq(spec.own.missing(name), true)
-    verifyEq(spec.own[name], null)
-    verifyErr(UnknownNameErr#) { spec.own.trap(name) }
+    verifyEq(spec.metaOwn.has(name), false, name)
+    verifyEq(spec.metaOwn.missing(name), true)
+    verifyEq(spec.metaOwn[name], null)
+    verifyErr(UnknownNameErr#) { spec.metaOwn.trap(name) }
 
     verifyEq(spec.has(name), true, name)
     verifyEq(spec.missing(name), false)
@@ -303,13 +303,13 @@ class DataTestCase
 
   Void verifyMetaOwn(DataSpec spec, Str name, Obj expect)
   {
-    verifyEq(spec.own.has(name), true, name)
-    verifyEq(spec.own.missing(name), false)
-    verifyVal(spec.own[name], expect)
+    verifyEq(spec.metaOwn.has(name), true, name)
+    verifyEq(spec.metaOwn.missing(name), false)
+    verifyVal(spec.metaOwn[name], expect)
 
     verifyEq(spec.has(name), true, name)
     verifyEq(spec.missing(name), false)
-    verifySame(spec.get(name), spec.own.get(name))
+    verifySame(spec.get(name), spec.metaOwn.get(name))
 
     verifyVal(spec.get(name), expect)
   }

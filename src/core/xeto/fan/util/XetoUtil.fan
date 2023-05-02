@@ -110,7 +110,7 @@ internal const class XetoUtil
 
   static DataSpec[]? ofs(XetoSpec x, Bool checked)
   {
-    val := x.m.own.get("ofs", null) as DataSpec[]
+    val := x.m.metaOwn.get("ofs", null) as DataSpec[]
     if (val != null) return val
     if (checked) throw UnknownNameErr("Missing 'ofs' meta: $x.qname")
     return null
@@ -247,7 +247,7 @@ internal const class XetoUtil
       acc["type"] = spec.type.qname
     }
 
-    DataDict meta := isOwn ? spec.own : spec
+    DataDict meta := isOwn ? spec.metaOwn : spec.meta
     meta.each |v, n|
     {
       if (n == "val" && v === env.marker) return

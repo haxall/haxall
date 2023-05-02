@@ -236,7 +236,7 @@ class DataEnvTest : AbstractDataTest
     verifyEq(x.qname.startsWith("derived"), true)
     verifyEq(x.qname.endsWith("::$name"), true)
     verifySame(x.env, env)
-    verifyDictEq(x.own, meta)
+    verifyDictEq(x.metaOwn, meta)
     verifyEq(x.isMaybe, meta.has("maybe"))
 
     if (slots == null || slots.isEmpty)

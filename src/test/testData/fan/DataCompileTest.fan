@@ -189,8 +189,8 @@ class DataCompileTest : AbstractDataTest
   {
     // echo
     // echo("-- testInheritSlot $s base:$s.base type:$s.type")
-    // echo("   own = $s.own")
-    // s.each |v, n| { echo("   $n: $v [$v.typeof] " + (s.own.has(n) ? "own" : "inherit")) }
+    // echo("   own = $s.metaOwn")
+    // s.each |v, n| { echo("   $n: $v [$v.typeof] " + (s.metaOwn.has(n) ? "own" : "inherit")) }
 
     verifySame(s.parent, parent)
     verifyEq(s.qname, parent.qname + "." + s.name)
@@ -206,27 +206,30 @@ class DataCompileTest : AbstractDataTest
       verifyEq(s.missing(n), false)
 
       isOwn := own.contains(n)
-      verifyEq(s.own[n], isOwn ? v : null)
-      verifyEq(s.own.has(n), isOwn)
-      verifyEq(s.own.missing(n), !isOwn)
+      verifyEq(s.metaOwn[n], isOwn ? v : null)
+      verifyEq(s.metaOwn.has(n), isOwn)
+      verifyEq(s.metaOwn.missing(n), !isOwn)
     }
 
     s.each |v, n|
     {
-      verifyEq(meta[n], v, n)
+      if (n == "spec")
+        verifyEq(v, s.qname)
+      else
+        verifyEq(meta[n], v, n)
     }
 
     if (base !== type)
     {
       x := parent.slotsOwn.get(s.name)
       // echo("   ownSlot $x base:$x.base type:$x.type")
-      // x.own.each |v, n| { echo("   $n: $v") }
+      // x.metaOwn.each |v, n| { echo("   $n: $v") }
       verifySame(s, x)
       verifyEq(x.name, s.name)
       verifyEq(x.qname, x.qname)
       verifySame(x.parent, parent)
       verifySame(x.type, type)
-      x.own.each |v, n| { verifyEq(own.contains(n), true) }
+      x.metaOwn.each |v, n| { verifyEq(own.contains(n), true) }
     }
   }
 
@@ -263,8 +266,8 @@ class DataCompileTest : AbstractDataTest
 
   private Void verifyInheritNone(DataSpec s, Str name, Obj? own, Obj? effective)
   {
-    // echo("~~ $s.qname own=" + s.own[name] + " effective=" + s[name])
-    verifyEq(s.own[name], own)
+    // echo("~~ $s.qname own=" + s.metaOwn[name] + " effective=" + s[name])
+    verifyEq(s.metaOwn[name], own)
     verifyEq(s[name], effective)
   }
 

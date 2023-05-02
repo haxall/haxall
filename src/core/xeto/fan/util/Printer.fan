@@ -283,13 +283,13 @@ class Printer
   ** Print only declared meta/slots
   private This specOwn(DataSpec spec)
   {
-    base(spec).meta(spec.own).slots(spec.slotsOwn, PrinterSpecMode.own)
+    base(spec).meta(spec.metaOwn).slots(spec.slotsOwn, PrinterSpecMode.own)
   }
 
   ** Print all effective meta/slots
   private This specEffective(DataSpec spec)
   {
-    base(spec).meta(spec.own).slots(spec.slots, PrinterSpecMode.effective)
+    base(spec).meta(spec.metaOwn).slots(spec.slots, PrinterSpecMode.effective)
   }
 
   ** Print base inherited type with special handling for maybe/and/or
@@ -368,7 +368,7 @@ class Printer
   ** Print doc lines if showdoc option configured
   private This doc(DataSpec spec, PrinterSpecMode mode)
   {
-    DataDict meta := mode === PrinterSpecMode.own ? spec.own : spec
+    DataDict meta := mode === PrinterSpecMode.own ? spec.metaOwn : spec.meta
     doc := (meta.get("doc") as Str)?.trimToNull
     if (doc == null || !showdoc) return this
 

@@ -25,7 +25,7 @@ internal const class MSpec
     this.base     = base
     this.type     = type
     this.meta     = meta
-    this.own      = metaOwn
+    this.metaOwn  = metaOwn
     this.slots    = slots
     this.slotsOwn = slotsOwn
     this.flags    = flags
@@ -47,7 +47,7 @@ internal const class MSpec
 
   const DataDict meta
 
-  const DataDict own
+  const DataDict metaOwn
 
   const MSlots slots
 
@@ -65,13 +65,43 @@ internal const class MSpec
 // Effective Meta
 //////////////////////////////////////////////////////////////////////////
 
-  Bool isEmpty() { meta.isEmpty }
-  Obj? get(Str name, Obj? def := null) { meta.get(name, def) }
-  Bool has(Str name) { meta.has(name) }
-  Bool missing(Str name) { meta.missing(name) }
-  Void each(|Obj val, Str name| f) { meta.each(f) }
-  Obj? eachWhile(|Obj val, Str name->Obj?| f) { meta.eachWhile(f) }
-  override Obj? trap(Str name, Obj?[]? args := null) { meta.trap(name, args) }
+  Bool isEmpty() { false }
+
+  Obj? get(Str name, Obj? def := null)
+  {
+    if (name == "spec") return qname
+    return meta.get(name, def)
+  }
+
+  Bool has(Str name)
+  {
+    if (name == "spec") return true
+    return meta.has(name)
+  }
+
+  Bool missing(Str name)
+  {
+    if (name == "spec") return false
+    return meta.missing(name)
+  }
+
+  Void each(|Obj val, Str name| f)
+  {
+    f(qname, "spec")
+    meta.each(f)
+  }
+
+  Obj? eachWhile(|Obj val, Str name->Obj?| f)
+  {
+    r := f(qname, "spec"); if (r != null) return r
+    return meta.eachWhile(f)
+  }
+
+  override Obj? trap(Str name, Obj?[]? args := null)
+  {
+    if (name == "spec") return qname
+    return meta.trap(name, args)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Flags
@@ -163,7 +193,9 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
 
   override final DataSpec? base() { m.base }
 
-  override final DataDict own() { m.own }
+  override final DataDict meta() { m.meta }
+
+  override final DataDict metaOwn() { m.metaOwn }
 
   override final DataSlots slotsOwn() { m.slotsOwn }
 

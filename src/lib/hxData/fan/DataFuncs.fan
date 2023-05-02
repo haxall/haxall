@@ -153,13 +153,20 @@ const class DataFuncs
   @Axon static DataSpec? specBase(DataSpec spec) { spec.base }
 
   **
-  ** Get the spec's own declared meta-data as dict.  The effective
-  ** meta-data dict is the spec itself.
+  ** Get the spec's effective declared meta-data as dict.
+  **
+  ** Examples:
+  **   specMeta(Date)  >>  {sealed, val:2000-01-01, doc:"...", pattern:"..."}
+  **
+  @Axon static Dict specMeta(DataSpec spec) { spec.meta }
+
+  **
+  ** Get the spec's own declared meta-data as dict.
   **
   ** Examples:
   **   specMetaOwn(Date)  >>  {sealed, val:2000-01-01, doc:"...", pattern:"..."}
   **
-  @Axon static DataDict specMetaOwn(DataSpec spec) { spec.own }
+  @Axon static Dict specMetaOwn(DataSpec spec) { spec.metaOwn }
 
   **
   ** Get the spec's declared children slots as dict of DataSpecs.
@@ -167,7 +174,7 @@ const class DataFuncs
   ** Examples:
   **   specSlots(Ahu)  >>  {ahu: DataSpec}
   **
-  @Axon static DataDict specSlotsOwn(DataSpec spec) { spec.slotsOwn.toDict }
+  @Axon static Dict specSlotsOwn(DataSpec spec) { spec.slotsOwn.toDict }
 
   **
   ** Get the effective children slots as a dict of DataSpecs.
@@ -175,7 +182,7 @@ const class DataFuncs
   ** Examples:
   **   specSlots(Ahu)  >>  {equip: DataSpec, points: DataSpec, ahu: DataSpec}
   **
-  @Axon static DataDict specSlots(DataSpec spec) { spec.slots.toDict }
+  @Axon static Dict specSlots(DataSpec spec) { spec.slots.toDict }
 
 //////////////////////////////////////////////////////////////////////////
 // AST
@@ -187,7 +194,7 @@ const class DataFuncs
   **
   ** TODO: not sure how deep to make effective recursion yet
   **
-  @Axon static DataDict specAst(DataSpec spec)
+  @Axon static Dict specAst(DataSpec spec)
   {
     curContext.usings.data.genAst(spec, Etc.dict0)
   }
@@ -196,7 +203,7 @@ const class DataFuncs
   ** Build an AST tree of dict, lists, and strings of the effective
   ** meta and slots for the given spec.
   **
-  @Axon static DataDict specAstOwn(DataSpec spec)
+  @Axon static Dict specAstOwn(DataSpec spec)
   {
     curContext.usings.data.genAst(spec, Etc.dict1("own", Marker.val))
   }
