@@ -205,7 +205,8 @@ class DocDataLibIndexRenderer : DocDataSpecRenderer
   private Void writeTypesSection(DocDataLib lib)
   {
     out.defSection("types").props
-    lib.types.each |x|
+    types := lib.types.dup.sort |a, b| { a.name <=> b.name }
+    types.each |x|
     {
       out.prop(DocLink(doc, x, x.name), x.docSummary)
     }
@@ -289,28 +290,34 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     out.ul
     slot.slots.each |item|
     {
-      out.li.code
+      out.li
       writeConstrainedQueryItem(item)
-      out.codeEnd.liEnd
+      out.liEnd
     }
     out.ulEnd
   }
 
   private Void writeConstrainedQueryItem(DataSpec spec)
   {
+    out.span("class='defc-type-sig'")
     out.linkTo(specToLink(spec.base))
-    if (spec.slotsOwn.isEmpty) return
-    out.w(" {")
-    first := true
-    spec.slotsOwn.each |tag|
+    if (spec.isMaybe) out.w("?")
+    if (!spec.slotsOwn.isEmpty)
     {
-      if (first) first = false; else out.w(", ")
-      n := tag.name
-      def := env.def(n, false)
-      if (def != null) out.link(def)
-      else out.w(tag.name)
+      out.w(" {")
+      first := true
+      spec.slotsOwn.each |tag|
+      {
+        if (first) first = false; else out.w(", ")
+        n := tag.name
+        def := env.def(n, false)
+        if (def != null) out.link(def)
+        else out.w(tag.name)
+      }
+      out.w(" }")
     }
-    out.w(" }")
+    out.spanEnd
+    out.w("&nbsp;&nbsp;&nbsp;").w(specDoc(spec).summary)
   }
 
 //////////////////////////////////////////////////////////////////////////
