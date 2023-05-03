@@ -38,6 +38,12 @@ const mixin DataRegistryLib
   ** Has this library been loaded into memory
   abstract Bool isLoaded()
 
+  ** Installed version
+  abstract Version version()
+
+  ** Summary information
+  abstract Str doc()
+
   ** Xetolib zip file location
   abstract File zip()
 

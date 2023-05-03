@@ -191,14 +191,24 @@ internal const class XetoRegistryLib : DataRegistryLib
 {
   new make(Str qname, File? src, File zip)
   {
-    this.qname = qname
-    this.src   = src
-    this.zip   = zip
+    this.qname   = qname
+    this.src     = src
+    this.zip     = zip
   }
 
   override const Str qname
 
   override const File zip
+
+  override Version version()
+  {
+    isLoaded ? get.version : Version.defVal
+  }
+
+  override Str doc()
+  {
+    isLoaded ? (get["doc"] as Str ?: "") : ""
+  }
 
   override Bool isLoaded() { libRef.val != null }
 
@@ -214,7 +224,6 @@ internal const class XetoRegistryLib : DataRegistryLib
   }
 
   const File? src
-
 
   DataLib get() { libRef.val ?: throw Err("Not loaded: $qname") }
 
