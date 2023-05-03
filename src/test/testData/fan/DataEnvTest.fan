@@ -202,6 +202,35 @@ class DataEnvTest : AbstractDataTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// DependLibVersions
+//////////////////////////////////////////////////////////////////////////
+
+  Void testDependLibVersions()
+  {
+    verifyDependLibVersions("2.3.4", "2.3.3", false)
+    verifyDependLibVersions("2.3.4", "2.3.4", true)
+    verifyDependLibVersions("2.3.4", "2.3.5", false)
+    verifyDependLibVersions("2.3.4", "2.7.4", false)
+    verifyDependLibVersions("2.3.4", "1.3.4", false)
+
+    verifyDependLibVersions("2.3.x", "2.3.3", true)
+    verifyDependLibVersions("2.3.x", "2.3.1", true)
+    verifyDependLibVersions("2.3.x", "2.3.22", true)
+    verifyDependLibVersions("2.3.x", "2.4.0", false)
+    verifyDependLibVersions("2.3.x", "3.3.0", false)
+
+    // TODO
+  }
+
+  Void verifyDependLibVersions(Str s, Str v, Bool expect)
+  {
+    c := DataLibDependVersions(s)
+    // echo("--> $s => $c")
+    verifyEq(c.toStr, s.replace(" ", ""))
+    verifyEq(c.contains(Version(v)), expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Derive
 //////////////////////////////////////////////////////////////////////////
 

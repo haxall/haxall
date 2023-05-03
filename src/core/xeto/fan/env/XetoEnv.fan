@@ -189,6 +189,11 @@ internal const class XetoEnv : DataEnv
     return c.parsePragma
   }
 
+  override DataLibDependVersions parseLibDependVersions(Str s, Bool checked)
+  {
+    XetoLibDependVersions.fromStr(s, checked)
+  }
+
   override Bool specFits(DataSpec a, DataSpec b, DataDict? opts := null)
   {
     if (opts == null) opts = dict0

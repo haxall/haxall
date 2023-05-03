@@ -113,6 +113,9 @@ const abstract class DataEnv
   ** Parse pragma file into AST
   @NoDoc abstract DataDict parsePragma(File file, DataDict? opts := null)
 
+  ** Parse instance of DataLibDependVersions
+  @NoDoc abstract DataLibDependVersions parseLibDependVersions(Str s, Bool checked)
+
   ** Return if the given instance fits the spec via structural typing.
   abstract Bool fits(DataContext cx, Obj? val, DataSpec spec, DataDict? opts := null)
 
