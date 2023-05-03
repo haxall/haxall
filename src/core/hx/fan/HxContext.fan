@@ -50,6 +50,23 @@ abstract class HxContext : AxonContext, DataContext, FolioContext
   ** About data to use for HTTP API
   @NoDoc abstract Dict about()
 
+  ** Init using imports
+  @NoDoc override AxonUsings initUsings()
+  {
+    // recs with using:qname define what libs we are using
+    env := DataEnv.cur
+    libs := Str:DataLib[:].add("sys", env.sysLib)
+    db.readAllEach(Filter.has("using"), Etc.dict0) |rec|
+    {
+      qname := rec["using"] as Str
+      if (qname == null) return
+      lib := env.lib(qname, false)
+      if (lib == null || libs[lib.qname] != null) return
+      libs.add(lib.qname, lib)
+    }
+    return AxonUsings(env, libs)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Security
 //////////////////////////////////////////////////////////////////////////

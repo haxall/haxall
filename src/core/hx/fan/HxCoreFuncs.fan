@@ -446,6 +446,69 @@ const class HxCoreFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Using Spec Libs
+//////////////////////////////////////////////////////////////////////////
+
+  ** Get the list of installed Xeto libs and their current enable status.
+  @NoDoc @Axon
+  static Grid usingStatus()
+  {
+    gb := GridBuilder()
+    gb.addCol("qname")
+      .addCol("libStatus")
+      .addCol("enabled")
+      .addCol("loaded")
+      .addCol("version")
+      .addCol("doc")
+
+   cx := curContext
+   cx.usings.env.registry.list.each |lib|
+   {
+     qname := lib.qname
+     isSys := qname == "sys"
+     isEnabled := cx.usings.isEnabled(qname)
+
+     gb.addRow([
+       qname,
+       isEnabled ? "ok" : "disabled",
+       isSys ? "boot" : Marker.fromBool(isEnabled),
+       Marker.fromBool(lib.isLoaded),
+       lib.version.toStr,
+       lib.doc,
+       ])
+    }
+
+    return gb.toGrid.sort |a, b|
+    {
+      if (a["enabled"] == b["enabled"]) return a->qname <=> b->qname
+      return a.has("enabled") ? -1 : 1
+    }
+  }
+
+  ** Enable one or more Xeto libs by qname
+  @NoDoc @Axon { admin = true }
+  static Obj usingAdd(Obj qname)
+  {
+    if (qname is List) return ((List)qname).map |n| { usingAdd(n) }
+    if (qname == "sys") return "sys"
+    cx := curContext
+    rec := cx.db.read(Filter.eq("using", (Str)qname), false)
+    if (rec == null) rec = cx.db.commit(Diff.makeAdd(["using":qname])).newRec
+    return rec
+  }
+
+  ** Disable or more Xeto libs by qname
+  @NoDoc @Axon { admin = true }
+  static Obj usingRemove(Obj qname)
+  {
+    if (qname is List) return ((List)qname).map |n| { usingRemove(n) }
+    cx := curContext
+    rec := cx.db.read(Filter.eq("using", (Str)qname), false)
+    if (rec != null) cx.db.commit(Diff(rec, null, Diff.remove))
+    return "removed"
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Observables
 //////////////////////////////////////////////////////////////////////////
 

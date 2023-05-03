@@ -32,9 +32,6 @@ internal class ShellContext : HxContext
     this.funcs = loadFuncs
     this.rt    = ShellRuntime()
     this.user  = ShellUser()
-
-    importDataLib("sys")
-    importDataLib("ph")
   }
 
   static Str:TopFn loadFuncs()
@@ -294,26 +291,6 @@ internal class ShellContext : HxContext
   const DataEnv data
 
   Str:DataLib libs := [:]
-
-  DataLib importDataLib(Str qname)
-  {
-    lib := libs[qname]
-    if (lib == null)
-    {
-      libs[qname] = lib = data.lib(qname)
-    }
-    return lib
-  }
-
-  DataType? findType(Str name, Bool checked := true)
-  {
-    acc := DataType[,]
-    libs.each |lib| { acc.addNotNull(lib.slot(name, false)) }
-    if (acc.size == 1) return acc[0]
-    if (acc.size > 1) throw Err("Ambiguous types for '$name' $acc")
-    if (checked) throw UnknownTypeErr(name)
-    return null
-  }
 
 //////////////////////////////////////////////////////////////////////////
 // TODO

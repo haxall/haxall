@@ -62,8 +62,11 @@ abstract class AxonContext : HaystackContext
   ** Evaluate an expression or if a filter then readAll convenience
   @NoDoc virtual Obj? evalOrReadAll(Str src) { throw UnsupportedErr() }
 
-  ** Data spec usings namespace
-  @NoDoc once AxonUsings usings() { AxonUsings() }
+  ** Data spec usings namespace (lazy load)
+  @NoDoc once AxonUsings usings() { initUsings }
+
+  ** Init using imports
+  @NoDoc virtual AxonUsings initUsings()  { AxonUsings() }
 
 /////////////////////////////////////////////////////////////////////////////
 // Eval

@@ -18,27 +18,27 @@ using data
 class AxonUsings
 {
   ** Constructor
-  new make()
+  new make(DataEnv env := DataEnv.cur, [Str:DataLib]? libs := null)
   {
-    this.data = DataEnv.cur
-    this.libs = [data.sysLib]
+    this.env  = env
+    this.libs = libs ?: ["sys":env.sysLib]
   }
 
   ** Data environment
-  const DataEnv data
+  const DataEnv env
 
   ** List libraries we are using
-  DataLib[] list()
-  {
-    libs.dup
-  }
+  DataLib[] list() { libs.vals }
+
+  ** Is given library qname enabled
+  Bool isEnabled(Str qname) { libs[qname] != null }
 
   ** Add new using library name
   Void add(Str qname)
   {
-    lib := data.lib(qname)
-    if (libs.containsSame(lib)) return
-    libs.add(lib)
+    if (libs[qname] != null) return
+    lib := env.lib(qname)
+    libs.add(qname, lib)
   }
 
   ** Resolve simple name against imports
@@ -52,5 +52,5 @@ class AxonUsings
     return null
   }
 
-  private DataLib[] libs
+  private Str:DataLib libs
 }

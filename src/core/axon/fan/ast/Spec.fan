@@ -47,7 +47,7 @@ internal const class SpecTypeRef : Spec
   override DataSpec? eval(AxonContext cx)
   {
     // qualified type
-    if (lib != null) return cx.usings.data.lib(lib).slotOwn(name)
+    if (lib != null) return cx.usings.env.lib(lib).slotOwn(name)
 
     // try local varaible definition
     local := cx.getVar(name) as DataSpec
@@ -163,7 +163,7 @@ internal const class SpecDerive : Spec
     base  := base.eval(cx)
     meta  := evalMeta(cx)
     slots := evalSlots(cx)
-    return cx.usings.data.derive(name, base, meta, slots)
+    return cx.usings.env.derive(name, base, meta, slots)
   }
 
   private Dict evalMeta(AxonContext cx)

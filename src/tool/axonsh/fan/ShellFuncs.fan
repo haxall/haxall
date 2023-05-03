@@ -158,7 +158,7 @@ const class ShellFuncs
 
     if (qname == "*")
     {
-      cx.usings.data.registry.list.each |x| { _using(x.qname) }
+      cx.usings.env.registry.list.each |x| { _using(x.qname) }
       return noEcho
     }
 

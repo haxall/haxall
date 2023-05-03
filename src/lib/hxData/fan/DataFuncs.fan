@@ -33,7 +33,7 @@ const class DataFuncs
   **
   @Axon static data::DataSpec? spec(Str qname, Bool checked := true)
   {
-    curContext.usings.data.spec(qname, checked)
+    curContext.usings.env.spec(qname, checked)
   }
 
   **
@@ -93,7 +93,7 @@ const class DataFuncs
   **
   @Axon static Obj? instantiate(DataSpec spec, Dict? opts := null)
   {
-    curContext.usings.data.instantiate(spec, opts)
+    curContext.usings.env.instantiate(spec, opts)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -196,7 +196,7 @@ const class DataFuncs
   **
   @Axon static Dict specAst(DataSpec spec)
   {
-    curContext.usings.data.genAst(spec, Etc.dict0)
+    curContext.usings.env.genAst(spec, Etc.dict0)
   }
 
   **
@@ -205,7 +205,7 @@ const class DataFuncs
   **
   @Axon static Dict specAstOwn(DataSpec spec)
   {
-    curContext.usings.data.genAst(spec, Etc.dict1("own", Marker.val))
+    curContext.usings.env.genAst(spec, Etc.dict1("own", Marker.val))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -224,7 +224,7 @@ const class DataFuncs
   **
   @Axon static DataSpec? _typeof(Obj? val, Bool checked := true)
   {
-    curContext.usings.data.typeOf(val, checked)
+    curContext.usings.env.typeOf(val, checked)
   }
 
   **
@@ -255,7 +255,7 @@ const class DataFuncs
   **
   @Axon static Bool specFits(DataSpec a, DataSpec b)
   {
-    curContext.usings.data.specFits(a, b, null)
+    curContext.usings.env.specFits(a, b, null)
   }
 
   **
@@ -275,7 +275,7 @@ const class DataFuncs
   **
   @Axon static Bool _is(Obj? val, DataSpec spec)
   {
-    curContext.usings.data.typeOf(val).isa(spec)
+    curContext.usings.env.typeOf(val).isa(spec)
   }
 
   **
@@ -292,7 +292,7 @@ const class DataFuncs
   @Axon static Bool fits(Obj? val, DataSpec spec)
   {
     cx := curContext
-    return cx.usings.data.fits(cx, val, spec, null)
+    return cx.usings.env.fits(cx, val, spec, null)
   }
 
   **
@@ -305,7 +305,7 @@ const class DataFuncs
     gb := GridBuilder().addCol("msg")
     explain := |DataLogRec rec| { gb.addRow1(rec.msg) }
     opts := Etc.dict1("explain", Unsafe(explain))
-    curContext.usings.data.specFits(a, b, opts)
+    curContext.usings.env.specFits(a, b, opts)
     return gb.toGrid
   }
 
@@ -323,7 +323,7 @@ const class DataFuncs
   static Grid fitsExplain(Obj? recs, DataSpec spec)
   {
     cx := curContext
-    dataEnv := cx.usings.data
+    dataEnv := cx.usings.env
     hits := DataLogRec[,]
     explain := |DataLogRec rec| { hits.add(rec) }
     opts := Etc.dict1("explain", Unsafe(explain))
@@ -370,7 +370,7 @@ const class DataFuncs
   {
     // if specs not specific, get all in scope
     cx := curContext
-    dictSpec := cx.usings.data.dictSpec // TODO - make isDict work for AND types
+    dictSpec := cx.usings.env.dictSpec // TODO - make isDict work for AND types
     if (specs == null)
       specs = typesInScope(cx) |t| { !t.qname.startsWith("sys::") && t.isa(dictSpec) && t.missing("abstract") }
 
@@ -387,7 +387,7 @@ const class DataFuncs
   private static DataSpec[] doFitsMatchAll(HxContext cx, Dict rec, DataSpec[] specs)
   {
     // first pass is fit each type
-    env := cx.usings.data
+    env := cx.usings.env
     matches := specs.findAll |spec| { env.fits(cx, rec, spec) }
 
     // second pass is to remove supertypes so we only
@@ -424,7 +424,7 @@ const class DataFuncs
   {
     cx := curContext
     subjectRec := Etc.toRec(subject)
-    hit := cx.usings.data.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit| { hit }
+    hit := cx.usings.env.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit| { hit }
     if (hit != null) return hit
     if (checked) throw UnknownRecErr("@$subjectRec.id $spec.qname")
     return null
@@ -456,7 +456,7 @@ const class DataFuncs
     cx := curContext
     acc := Dict[,]
     subjectRec := Etc.toRec(subject)
-    cx.usings.data.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
+    cx.usings.env.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
     {
       acc.add(hit)
       if (acc.size >= limit) return "break"
@@ -495,10 +495,10 @@ const class DataFuncs
   @Axon static Dict queryNamed(Obj subject, DataSpec spec, Dict? opts := null)
   {
     cx := curContext
-    env := cx.usings.data
+    env := cx.usings.env
     subjectRec := Etc.toRec(subject)
     acc := Str:Dict[:]
-    cx.usings.data.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
+    cx.usings.env.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
     {
       spec.slots.eachWhile |slot|
       {
