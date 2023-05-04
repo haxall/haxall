@@ -65,6 +65,7 @@ internal class XetoCompiler
     run([
       InitLib(),
       Parse(),
+      ProcessPragma(),
       Resolve(),
       InheritSlots(),
       Reify(),
@@ -82,6 +83,7 @@ internal class XetoCompiler
     run([
       InitData(),
       Parse(),
+      ProcessPragma(),
       Resolve(),
       Reify(),
     ])
@@ -182,6 +184,7 @@ internal class XetoCompiler
   internal AObj? ast                   // Parse (lib or data)
   internal ALib? lib                   // Parse (compileLib only)
   internal AObj? pragma                // Parse
+  internal XetoLibDepend[]? depends    // ProcessPragma
   internal DataDict? json              // JSON output
   private Str[] autoNames := [,]       // autoName
 }

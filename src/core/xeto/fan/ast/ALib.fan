@@ -32,4 +32,7 @@ internal class ALib : ASpec
 
   ** Qualified name "foo.bar.baz"
   override const Str qname
+
+  ** Version parsed from lib.xeto
+  Version? version
 }

@@ -459,7 +459,7 @@ class AxonTest : HxTest
 
     // compile some types with query constraints
     lib := env.compileLib(
-      Str<|pragma: Lib < depends: { { lib:"sys" }, { lib:"ph" } } >
+      Str<|pragma: Lib < version: 0.0.0, depends: { { lib:"sys" }, { lib:"ph" } } >
            Ahu1: ph::Equip {
              points: {
                temp: {discharge, temp}

@@ -15,11 +15,13 @@ using data
 @Js
 internal const final class MLib : MSpec
 {
-  new make(XetoEnv env, FileLoc loc, Str qname, XetoType libType, DataDict meta, MSlots slots)
+  new make(XetoEnv env, FileLoc loc, Str qname, XetoType libType, DataDict meta, MSlots slots, Version version, XetoLibDepend[] depends)
     : super(loc, null, "", libType, libType, meta, meta, slots, slots, 0)
   {
-    this.env   = env
-    this.qname = qname
+    this.env     = env
+    this.qname   = qname
+    this.version = version
+    this.depends = depends
   }
 
   const override XetoEnv env
@@ -28,17 +30,9 @@ internal const final class MLib : MSpec
 
   override DataSpec spec() { env.sys.lib }
 
-  Version version()
-  {
-    // TODO
-    return Version.fromStr(meta->version)
-  }
+  const Version version
 
-  DataLibDepend[] depends()
-  {
-    // TODO
-    return DataLibDepend#.emptyList
-  }
+  const DataLibDepend[] depends
 
   DataType? libType(Str name, Bool checked := true)
   {
@@ -132,6 +126,8 @@ internal const class XetoLibDependVersions : DataLibDependVersions
       return null
     }
   }
+
+  static const XetoLibDependVersions wildcard := makeWildcard(-1, -1, -1)
 
   private static Int parseSeg(Str s) { s == "x" ? -1 : s.toInt(10, true) }
 

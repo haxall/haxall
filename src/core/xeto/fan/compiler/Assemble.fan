@@ -22,7 +22,7 @@ internal class Assemble : Step
 
   private Void asmLib(ALib x)
   {
-    m := MLib(env, x.loc, x.qname, x.type.asm, x.metaOwn, asmSlotsOwn(x))
+    m := MLib(env, x.loc, x.qname, x.type.asm, x.metaOwn, asmSlotsOwn(x), x.version, compiler.depends)
     mField->setConst(x.asm, m)
     mlField->setConst(x.asm, m)
     asmChildren(x)

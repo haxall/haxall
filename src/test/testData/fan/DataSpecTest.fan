@@ -250,7 +250,7 @@ class DataSpecTest : AbstractDataTest
   Void testQueryInherit()
   {
     lib := compileLib(
-      Str<|pragma: Lib < depends: { { lib:"sys" }, { lib:"ph" } } >
+      Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" } } >
            AhuA: Equip {
              points: {
                { discharge, temp }

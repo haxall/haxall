@@ -94,6 +94,9 @@ class DataEnvTest : AbstractDataTest
   {
     // lib basics
     ph := verifyLibBasics("ph", curVersion)
+    verifyEq(ph.depends.size, 1)
+    verifyEq(ph.depends[0].qname, "sys")
+    verifyEq(ph.depends[0].versions.toStr, "" + curVersion.major + "." + curVersion.minor + ".x")
 
     entity := verifyLibType(ph, "Entity", env.type("sys::Dict"))
     equip  := verifyLibType(ph, "Equip",  entity)

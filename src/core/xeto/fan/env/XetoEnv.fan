@@ -152,7 +152,7 @@ internal const class XetoEnv : DataEnv
 
     if (!src.startsWith("pragma:"))
       src = """pragma: Lib <
-                  version: "0"
+                  version: "0.0.0"
                   depends: { { lib: "sys" } }
                 >
                 """ + src
