@@ -8,11 +8,11 @@
 
 pragma: Lib <
   doc: "ASHRAE Guideline 36 examples"
-  version: "0.9.2"
+  version: "0.1.1"
   depends: {
-    { lib: "sys" }
-    { lib: "ph" }
-    { lib: "ph.points" }
+    { lib: "sys",       versions: "0.1.x" }
+    { lib: "ph",        versions: "0.1.x" }
+    { lib: "ph.points", versions: "0.1.x" }
   }
   org: {
     dis: "Project Haystack"

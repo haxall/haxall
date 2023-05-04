@@ -8,10 +8,10 @@
 
 pragma: Lib <
   doc: "Project haystack experimental equips library"
-  version: "3.9.12"
+  version: "0.1.1"
   depends: {
-    { lib: "sys" }
-    { lib: "ph" }
+    { lib: "sys", versions: "0.1.x" }
+    { lib: "ph",  versions: "0.1.x" }
   }
   org: {
    dis: "Project Haystack"

@@ -65,16 +65,32 @@ Lib: Spec {
   version: Version
 
   // Library dependency
-  depends: List <of:Depend>
+  depends: List <of:LibDepend>
 
   // Organization meta data for the library
   org: LibOrg
 }
 
 // Library dependency
-Depend: Dict {
-  lib: Str   // Library qualified dotted name
+LibDepend: Dict {
+  lib: Str                      // Library qualified dotted name
+  versions: LibDependVersions   // Version constraints for dependency
 }
+
+// Version constraints for a library dependency.
+//
+// The format is:
+//   <versions>  :=  <wildcard> | <range>
+//   <wildcard>  :=  <seg> "." <seg> "." <seg>
+//   <range>     :=  <wildcard> "-" <wildcard>
+//   <seg>       :=  <digits> | "x"
+//
+// Examples:
+//   1.5.20           // match only 1.5.20
+//   1.5.x            // match any patch version within 1.5
+//   3.x.x            // match any version with 3 as major version
+//   1.5.20 - 1.x.x   // greater than 1.5.20 and has 1 in major ver
+LibDependVersions: Scalar
 
 // Organization meta data
 LibOrg: Dict {

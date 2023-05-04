@@ -2,9 +2,9 @@
 
 pragma: Lib <
   doc: "Project haystack core library"
-  version: "3.9.14"
+  version: "0.1.1"
   depends: {
-    { lib: "sys" }
+    { lib: "sys", versions: "0.1.x" }
   }
   org: {
    dis: "Project Haystack"

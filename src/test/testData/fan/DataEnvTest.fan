@@ -21,13 +21,15 @@ class DataEnvTest : AbstractDataTest
 // Sys Lib
 //////////////////////////////////////////////////////////////////////////
 
+  static Version curVersion() { Version("0.1.1") }
+
   Void testSysLib()
   {
     // lib basics
-    sys := verifyLibBasics("sys", typeof.pod.version)
+    sys := verifyLibBasics("sys", curVersion)
     verifySame(env.lib("sys"), sys)
     verifyEq(sys.qname, "sys")
-    verifyEq(sys.version, typeof.pod.version)
+    verifyEq(sys.version, curVersion)
 // TODO
 //    verifyEq(sys["version"], typeof.pod.version)
     verifySame(env.sysLib, sys)
@@ -91,7 +93,7 @@ class DataEnvTest : AbstractDataTest
   Void testPhLib()
   {
     // lib basics
-    ph := verifyLibBasics("ph", Version("3.9.14"))
+    ph := verifyLibBasics("ph", curVersion)
 
     entity := verifyLibType(ph, "Entity", env.type("sys::Dict"))
     equip  := verifyLibType(ph, "Equip",  entity)
