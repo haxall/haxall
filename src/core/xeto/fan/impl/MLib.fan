@@ -79,15 +79,17 @@ internal const class XetoLib : XetoSpec, DataLib
 @Js
 internal const class XetoLibDepend : DataLibDepend
 {
-  new make(Str qname, XetoLibDependVersions versions)
+  new make(Str qname, XetoLibDependVersions versions, FileLoc loc)
   {
     this.qname = qname
     this.versions = versions
+    this.loc = loc
   }
 
   const override Str qname
   const override XetoLibDependVersions versions
   override Str toStr() { "$qname $versions" }
+  const FileLoc loc
 }
 
 **************************************************************************

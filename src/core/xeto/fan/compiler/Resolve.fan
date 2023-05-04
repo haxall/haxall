@@ -20,6 +20,7 @@ internal class Resolve : Step
   {
     // resolve the dependencies
     resolveDepends
+    bombIfErr
 
     // resolve the sys types (we might use them in later steps)
     sys.each |x| { resolveRef(x) }
@@ -39,36 +40,26 @@ internal class Resolve : Step
     // sys has no dependencies
     if (isSys) return
 
-    // import dependencies from pragma
-    astDepends := pragma?.meta?.slot("depends")
-    if (astDepends != null)
+    // process each depends from ProcessPragma step
+    compiler.depends.each |depend|
     {
-      astDepends.slots.each |astDepend| { resolveDepend(astDepend) }
-    }
-
-    // if not specified, assume just sys
-    if (depends.isEmpty)
-    {
-      if (isLib) err("Must specify 'sys' in depends", pragma.loc)
-      depends["sys"] = env.registry.resolve(compiler, "sys") ?: throw err("Cannot load sys", ast.loc)
-      return
+      resolveDepend(depend)
     }
   }
 
-  private Void resolveDepend(AObj obj)
+  private Void resolveDepend(XetoLibDepend d)
   {
-    // get library name from depend formattd as "{lib:<qname>}"
-    loc := obj.loc
-    libName := (obj.slot("lib")?.val as AScalar)?.str
-    if (libName == null) return err("Depend missing lib name", loc)
-
     // resolve the library from environment
-    lib := env.registry.resolve(compiler, libName)
-    if (lib == null) return err("Depend lib '$libName' not installed", loc)
+    lib := env.registry.resolve(compiler, d.qname)
+    if (lib == null)
+      return err("Depend lib '$d.qname' not installed", d.loc)
+
+    // validate our version constraints
+    if (!d.versions.contains(lib.version))
+      return err("Depend lib '$d.qname' version '$lib.version' is incompatible with '$d.versions'", d.loc)
 
     // register the library into our depends map
-    if (depends[libName] != null) return err("Duplicate depend '$libName'", loc)
-    depends[libName] = lib
+    depends.add(lib.qname, lib)
   }
 
 //////////////////////////////////////////////////////////////////////////

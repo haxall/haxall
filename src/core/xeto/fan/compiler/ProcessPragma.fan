@@ -80,7 +80,7 @@ internal class ProcessPragma : Step
     if (acc.isEmpty)
     {
       if (isLib) err("Must specify 'sys' in depends", pragma.loc)
-      acc["sys"] = XetoLibDepend("sys", XetoLibDependVersions.wildcard)
+      acc["sys"] = XetoLibDepend("sys", XetoLibDependVersions.wildcard, FileLoc.synthetic)
     }
 
     return acc.vals
@@ -107,7 +107,7 @@ internal class ProcessPragma : Step
 
     // register the library into our depends map
     if (acc[libName] != null) return err("Duplicate depend '$libName'", loc)
-    acc[libName] = XetoLibDepend(libName, versions)
+    acc[libName] = XetoLibDepend(libName, versions, loc)
   }
 
 }
