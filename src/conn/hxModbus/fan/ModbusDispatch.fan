@@ -68,41 +68,6 @@ class ModbusDispatch : ConnDispatch
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Learn
-//////////////////////////////////////////////////////////////////////////
-
-  override Grid onLearn(Obj? arg)
-  {
-    if (dev == null) throw Err("Not open")
-    tagMap := Str:Str[:]
-    dev.regMap.regs.each |reg|
-    {
-      names := Etc.dictNames(reg.tags)
-      tagMap.setList(names) |n| { n }
-    }
-    tags := tagMap.keys.sort
-
-    gb := GridBuilder()
-      .addCol("dis").addCol("kind").addCol("modbusCur")
-      .addCol("modbusWrite").addCol("point").addCol("unit")
-      .addColNames(tags)
-    dev.regMap.regs.each |reg|
-    {
-      row := Obj?[
-        reg.dis,
-        reg.data.kind.toStr,
-        reg.readable ? reg.name : null,
-        reg.writable ? reg.name : null,
-        Marker.val,
-        reg.unit?.toStr,
-      ]
-      tags.each |n| { row.add(reg.tags[n]) }
-      gb.addRow(row)
-    }
-    return gb.toGrid
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Sync Cur
 //////////////////////////////////////////////////////////////////////////
 

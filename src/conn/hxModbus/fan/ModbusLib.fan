@@ -7,6 +7,7 @@
 //   12 Jan 2022  Matthew Giannini  Redesign for Haxall
 //
 
+using concurrent
 using haystack
 using hx
 using hxConn
@@ -31,6 +32,37 @@ const class ModbusLib : ConnLib
   {
     super.onStop
     ModbusLinkMgr.stop
+  }
+
+  override Future onLearn(Conn conn, Obj? arg)
+  {
+    regMap := ModbusRegMap.fromConn(rt, conn.rec)
+    tagMap := Str:Str[:]
+    regMap.regs.each |reg|
+    {
+      names := Etc.dictNames(reg.tags)
+      tagMap.setList(names) |n| { n }
+    }
+    tags := tagMap.keys.sort
+
+    gb := GridBuilder()
+      .addCol("dis").addCol("kind").addCol("modbusCur")
+      .addCol("modbusWrite").addCol("point").addCol("unit")
+      .addColNames(tags)
+    regMap.regs.each |reg|
+    {
+      row := Obj?[
+        reg.dis,
+        reg.data.kind.toStr,
+        reg.readable ? reg.name : null,
+        reg.writable ? reg.name : null,
+        Marker.val,
+        reg.unit?.toStr,
+      ]
+      tags.each |n| { row.add(reg.tags[n]) }
+      gb.addRow(row)
+    }
+    return Future.makeCompletable.complete(gb.toGrid)
   }
 
   internal Grid read(Obj conn, Str[] regs)
