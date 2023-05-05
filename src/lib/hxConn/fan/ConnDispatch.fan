@@ -145,6 +145,13 @@ abstract class ConnDispatch
   ** a row which may be "dived into" to navigate the remote system's tree.
   ** The 'learn' value is passed back to this function to get the next
   ** level of the tree.  A null arg should return the root of the learn tree.
+  **
+  ** Also see `ConnLib.onLearn` which provides the top-level callback
+  ** for learn.  If your learn implementation does not require an open
+  ** connection, then use the 'ConnLib' level callback.  By default that
+  ** callback will dispatch a message to Conn actor, perform `open`, and
+  ** then invoke this callback.
+  **
   ** The following tags should be used to indicate points to map:
   **   - dis: display name for navigation (required for all rows)
   **   - point: marker indicating point (1 or more fooCur/His/Write)

@@ -169,6 +169,14 @@ abstract const class ConnLib : HxLib, HxConnLib
 // Callbacks
 //////////////////////////////////////////////////////////////////////////
 
+  ** Library level callback to process a connector learn.  The default
+  ** operation dispatches to the connector actor, performs an open,
+  ** and then callback to to `ConnDispatch.onLearn`.  However, some connectors
+  ** can perform a learn operation without using an open connector (for
+  ** example using configuration files).  In that case, use this hook to
+  ** process the learn request without dispatching to the Conn actor.
+  virtual Future onLearn(Conn conn, Obj? arg) { conn.send(HxMsg("learn", arg)) }
+
   ** Return connector specific details to insert into debug report.
   ** Connectors should avoid requiring a message to the Conn actor
   ** so that debug can proceed even if the actor is blocked on I/O.

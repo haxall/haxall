@@ -222,7 +222,12 @@ const final class Conn : Actor, HxConn
   }
 
   ** Invoke the learn request
-  @NoDoc override Future learnAsync(Obj? arg := null) { send(HxMsg("learn", arg)) }
+  @NoDoc override Future learnAsync(Obj? arg := null)
+  {
+    // route to ConnLib first so connectors can implement
+    // learn without a dispatch to connector/openLinger
+    lib.onLearn(this, arg)
+  }
 
   ** Actor messages are routed to `ConnDispatch`
   override Obj? receive(Obj? m)
