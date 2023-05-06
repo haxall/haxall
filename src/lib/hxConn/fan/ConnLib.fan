@@ -169,6 +169,9 @@ abstract const class ConnLib : HxLib, HxConnLib
 // Callbacks
 //////////////////////////////////////////////////////////////////////////
 
+  ** Create default point tuning configuration for this library
+  virtual ConnTuning tuningDefault() { ConnTuning(Etc.makeDict1("id", Ref("${name}-default"))) }
+
   ** Library level callback to process a connector learn.  The default
   ** operation dispatches to the connector actor, performs an open,
   ** and then callback to to `ConnDispatch.onLearn`.  However, some connectors

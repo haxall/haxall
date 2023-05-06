@@ -35,7 +35,7 @@ const final class ConnTuningRoster
   ** Get tuning for library level or fallback to library specific default
   internal ConnTuning forLib(ConnLib lib)
   {
-    forRec(lib.rec) ?: ConnTuning(Etc.makeDict1("id", Ref("${lib.name}-default")))
+    forRec(lib.rec) ?: lib.tuningDefault
   }
 
   ** Get or stub a ConnTuning instance to use for the given
