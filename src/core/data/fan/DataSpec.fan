@@ -11,7 +11,7 @@ using util
 **
 ** Data specification.  DataSpec implements the DataDict mixin
 ** which models the effective meta-data (including from inherited
-** types).  Use the `own` method to get only the declared meta-data.
+** types).  Use the `metaOwn` method to get only the declared meta-data.
 **
 @Js
 const mixin DataSpec : DataDict

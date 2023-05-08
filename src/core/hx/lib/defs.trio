@@ -25,7 +25,6 @@ doc: "Display name using macro syntax.  See `haystack::Etc.dictToDis`"
 --------------------------------------------------------------------------
 def: ^disabled
 is: ^marker
-tagOn: ^point
 doc: "Indicates the entity is in a disabled state"
 --------------------------------------------------------------------------
 def: ^flags
