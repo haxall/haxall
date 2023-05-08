@@ -55,8 +55,8 @@ class SerialSpiTest : HxTest
   @HxRuntimeTest
   Void testSpi()
   {
-    SerialLib? lib := rt.libs.get("serial", false)
-    if (lib == null) lib = rt.libs.add("serial")
+    PlatformSerialLib? lib := rt.libs.get("platformSerial", false)
+    if (lib == null) lib = rt.libs.add("platformSerial")
 
     // initial state
     s := lib.port("test")
@@ -78,7 +78,7 @@ class SerialSpiTest : HxTest
     verifyErr(UnknownSerialPortErr#) { lib.open(rt, conn, SerialConfig { it.name = "foobar" } ) }
 
     // verify serialPorts()
-    grid := (Grid)eval("serialPorts()")
+    grid := (Grid)eval("platformSerialPorts()")
     verifyEq(grid.size, 1)
     verifyEq(grid[0]["name"],   "test")
     verifyEq(grid[0]["device"], "/test")
@@ -91,7 +91,7 @@ class SerialSpiTest : HxTest
     verifyStatus(lib, s, "test", "/test", null)
   }
 
-  Void verifyStatus(SerialLib lib, SerialPort p, Str n, Str d, Dict? owner)
+  Void verifyStatus(PlatformSerialLib lib, SerialPort p, Str n, Str d, Dict? owner)
   {
     verifyEq(p.name,     n)
     verifyEq(p.device,   d)
@@ -100,7 +100,7 @@ class SerialSpiTest : HxTest
     verifyEq(p.rt,       owner == null ? null : this.rt)
     verifyValEq(p.owner, owner)
 
-    Grid grid := eval("serialPorts()")
+    Grid grid := eval("platformSerialPorts()")
     // grid.dump
 
     verifyEq(grid.size, lib.ports.size)

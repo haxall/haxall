@@ -11,7 +11,7 @@
 ** provides access to the serial ports of the host platform. Concurrent access
 ** to this SPI is managed by the `SerialLib`.
 **
-const mixin SerialSpi
+const mixin PlatformSerialSpi
 {
   ** List available ports and their current status
   abstract SerialPort[] ports()

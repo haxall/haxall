@@ -26,7 +26,7 @@ class HxdTestSpi : HxTestSpi
       it.projMeta = projMeta
       it.create = true
       it.config["test"] = Marker.val
-      it.config["serialSpi"] = "hxSerial::TestSerialSpi"
+      it.config["platformSerialSpi"] = "hxPlatformSerial::TestSerialSpi"
       it.requiredLibs.remove("http")
       it.log.level = LogLevel.warn
     }

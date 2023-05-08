@@ -30,7 +30,6 @@ class Build : BuildGroup
       `hxXml/build.fan`,
       `hxDocker/build.fan`,
       `hxPy/build.fan`,
-      `hxSerial/build.fan`,
     ]
   }
 }

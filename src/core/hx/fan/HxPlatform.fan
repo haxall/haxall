@@ -12,7 +12,10 @@ using haystack
 using folio
 
 **
-** HxPlatform models the host platform running Haxall
+** HxPlatform models the meta data of the platform running Haxall.  Note
+** this API provides readonly summary information about the platform.  Actual
+** integration to configure the platform is handled in pluggable libraries
+** such as 'hxPlatform', 'hxPlatformSerial', etc.
 **
 const class HxPlatform
 {

@@ -9,7 +9,7 @@
 
 using concurrent
 using inet
-using hxSerial
+using hxPlatformSerial
 
 **************************************************************************
 ** ModbusTransport provides a transport protocol for Modbus messaging.

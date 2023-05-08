@@ -1,0 +1,19 @@
+//
+// Copyright (c) 2023, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   8 May 2023  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+view: platformSerial
+appName: platform
+disKey: ui::serial
+su
+doc: "Platform serial port status"
+src:
+  view:     { inherit:"table" }
+  refresh:  { disKey:"ui::refresh" noFlash action:"noop"}
+  data:     { expr:"platformSerialPorts()" }
+--------------------------------------------------------------------------

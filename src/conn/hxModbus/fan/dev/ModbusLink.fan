@@ -11,7 +11,7 @@ using concurrent
 using inet
 using haystack
 using hx
-using hxSerial
+using hxPlatformSerial
 
 **************************************************************************
 ** ModbusLink
@@ -111,7 +111,7 @@ using hxSerial
         case "modbus-tcp":    tx = ModbusTcpTransport(IpAddr(uri.host),    uri.port, txTimeout)
         case "modbus-rtutcp": tx = ModbusRtuTcpTransport(IpAddr(uri.host), uri.port, txTimeout)
         case "modbus-rtu":
-          serial := lib.rt.lib("serial") as SerialLib
+          serial := lib.rt.lib("platformSerial", false) as PlatformSerialLib
           if (serial == null) throw FaultErr("RTU not supported")
           config := SerialConfig.fromStr(uri.host)
           tx = ModbusRtuTransport(serial.open(lib.rt, lib.rec, config))

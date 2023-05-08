@@ -15,14 +15,14 @@ using hx
 ** Axon library
 **
 @NoDoc
-const class SerialFuncs
+const class PlatformSerialFuncs
 {
   ** List serial ports available and current status
   @Axon { admin = true }
-  static Grid serialPorts()
+  static Grid platformSerialPorts()
   {
     gb := GridBuilder()
-    gb.addCol("name").addCol("device").addCol("status").addCol("proj").addCol("owner")
+    gb.addCol("name").addCol("device").addCol("connState").addCol("proj").addCol("owner")
     lib.ports.each |p|
     {
       gb.addRow([p.name, p.device, p.isOpen ? "open" : "closed", p.rt?.name, p.owner?.id])
@@ -30,9 +30,8 @@ const class SerialFuncs
     return gb.toGrid
   }
 
-  private static SerialLib lib()
-  {
-    HxContext.curHx.rt.lib("serial")
-  }
+  private static HxContext curContext() { HxContext.curHx }
+
+  private static PlatformSerialLib lib() {  curContext.rt.lib("platformSerial") }
 }
 

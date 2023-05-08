@@ -55,7 +55,8 @@ class HxdBoot
   ** Standard keys:
   **   - noAuth: Marker to disable authentication and use superuser
   **   - test: Marker for HxTest runtime
-  **   - serialSpi: Str qname for hxSerial::SerialSpi class
+  **   - platformSpi: Str qname for hxPlatform::PlatformSpi class
+  **   - platformSerialSpi: Str qname for hxPlatformSerial::PlatformSerialSpi class
   **   - hxLic: license Str or load from lic/xxx.trio
   **
   Str:Obj? config := [:]

@@ -36,7 +36,7 @@ class Build : BuildPod
                 "folio @{hx.depend}",
                 "hx @{hx.depend}",
                 "hxConn @{hx.depend}",
-                "hxSerial @{hx.depend}",
+                "hxPlatformSerial @{hx.depend}",
                ]
     srcDirs = [`fan/`,
                `fan/dev/`,

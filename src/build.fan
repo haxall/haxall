@@ -20,6 +20,7 @@ class Build : BuildGroup
       `util/build.fan`,
       `core/build.fan`,
       `lib/build.fan`,
+      `platform/build.fan`,
       `conn/build.fan`,
       `tool/build.fan`,
       `test/build.fan`,

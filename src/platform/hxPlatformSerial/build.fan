@@ -11,14 +11,14 @@
 using build
 
 **
-** Build: hxSerial
+** Build: hxPlatformSerial
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName = "hxSerial"
-    summary = "Serial port system module"
+    podName = "hxPlatformSerial"
+    summary = "Platform support for serial ports"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
@@ -35,6 +35,6 @@ class Build : BuildPod
               ]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "serial"]
+    index   = ["ph.lib": "platformSerial"]
   }
 }

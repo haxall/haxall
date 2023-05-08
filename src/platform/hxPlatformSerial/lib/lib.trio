@@ -7,10 +7,10 @@
 //
 
 --------------------------------------------------------------------------
-def: ^lib:serial
-icon: "serial"
+def: ^lib:platformSerial
+icon: "conn"
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc]
-typeName:"hxSerial::SerialLib"
+typeName:"hxPlatformSerial::PlatformSerialLib"
 noSkyarc
-doc: "Serial port subsystem"
+doc: "Platform support for serial ports"
 --------------------------------------------------------------------------

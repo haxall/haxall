@@ -14,7 +14,7 @@ using haystack
 ** TestSerialSpi
 **
 @NoDoc
-const class TestSerialSpi : SerialSpi
+const class TestSerialSpi : PlatformSerialSpi
 {
   override const SerialPort[] ports := [
     SerialPort(Etc.makeDict(["name":"test", "device":"/test"]))

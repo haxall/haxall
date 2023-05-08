@@ -11,9 +11,9 @@ using haystack
 using hx
 
 **
-** Serial ports management
+** Platform support for serial ports
 **
-const class SerialLib : HxLib
+const class PlatformSerialLib : HxLib
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -22,13 +22,14 @@ const class SerialLib : HxLib
 
   new make()
   {
-    this.serialSpi = rt.config.makeSpi("serialSpi")
+    this.platformSpi = rt.config.makeSpi("platformSerialSpi")
+
     // learn ports once and cache them for quick lookup
-    this.portsMap  = Str:SerialPort[:] { ordered = true }.addList(serialSpi.ports) { it.name }
+    this.portsMap  = Str:SerialPort[:] { ordered = true }.addList(platformSpi.ports) { it.name }
   }
 
   private const Duration timeout := 1min
-  private const SerialSpi serialSpi
+  private const PlatformSerialSpi platformSpi
   private const Str:SerialPort portsMap
 
 //////////////////////////////////////////////////////////////////////////
@@ -85,7 +86,7 @@ const class SerialLib : HxLib
     if (serialPort.isOpen) throw SerialPortAlreadyOpenErr("Owner: $serialPort.owner.id.toZinc")
 
     // open the serial port and install onClose callback
-    socket := serialSpi.open(serialPort, config)
+    socket := platformSpi.open(serialPort, config)
     socket.onClose = |SerialSocket s| { this.close(s) }
 
     // update internal state
@@ -106,7 +107,7 @@ const class SerialLib : HxLib
     socket.isClosedRef.val = true
 
     // route to spi
-    serialSpi.close(socket)
+    platformSpi.close(socket)
 
     return null
   }
