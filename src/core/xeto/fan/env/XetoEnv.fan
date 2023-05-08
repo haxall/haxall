@@ -224,8 +224,8 @@ internal const class XetoEnv : DataEnv
 
   override DataDict genAst(DataSpec spec, DataDict? opts := null)
   {
-    own := opts != null && opts.has("own")
-    return XetoUtil.genAst(this, spec, own)
+    if (opts == null) opts = dict0
+    return XetoUtil.genAst(this, spec, opts.has("own"), opts)
   }
 
   override Void print(Obj? val, OutStream out := Env.cur.out, DataDict? opts := null)

@@ -18,6 +18,9 @@ internal class JsonAst : XetoCmd
   @Opt { help = "Generate only own declared meta/slots" }
   Bool own
 
+  @NoDoc @Opt { help = "Include file location in meta" }
+  Bool fileloc
+
   @Opt { help = "Output file (default to stdout)" }
   File? out
 
@@ -45,11 +48,14 @@ internal class JsonAst : XetoCmd
     specs := toSpecs(this.specs)
     if (specs == null) return 1
 
+    opts := Str:Obj[:]
+    if (own) opts["own"] = env.marker
+    if (fileloc) opts["fileloc"] = env.marker
+
     acc := Str:DataDict[:]
-    opts := own ? env.dict1("own", env.marker) : env.dict0
     specs.each |spec|
     {
-      acc[spec.qname] = env.genAst(spec, opts)
+      acc[spec.qname] = env.genAst(spec, env.dict(opts))
     }
     root := env.dictMap(acc)
 

@@ -233,7 +233,7 @@ internal const class XetoUtil
   **
   ** Generate AST dict tree
   **
-  static DataDict genAst(DataEnv env, DataSpec spec, Bool isOwn)
+  static DataDict genAst(DataEnv env, DataSpec spec, Bool isOwn, DataDict opts)
   {
     acc := Str:Obj[:]
     acc.ordered = true
@@ -254,6 +254,9 @@ internal const class XetoUtil
       acc[n] = genAstVal(env, v)
     }
 
+    if (opts.has("fileloc"))
+      acc["fileloc"] = spec.loc.toStr
+
     slots := isOwn ? spec.slotsOwn : spec.slots
     if (!slots.isEmpty)
     {
@@ -262,7 +265,7 @@ internal const class XetoUtil
       slots.each |slot|
       {
         noRecurse := slot.base?.type === slot.base && !slot.isType
-        slotsAcc[slot.name] = genAst(env, slot, isOwn || noRecurse)
+        slotsAcc[slot.name] = genAst(env, slot, isOwn || noRecurse, opts)
       }
       acc["slots"] = env.dictMap(slotsAcc)
     }
