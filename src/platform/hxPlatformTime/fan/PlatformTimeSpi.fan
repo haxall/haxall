@@ -13,4 +13,11 @@ const mixin PlatformTimeSpi
 {
   ** Set the current time
   abstract Void timeSet(DateTime ts)
+
+  ** Get the list of network time protocol server addresses.
+  ** If NTP is not supported, then return null.
+  abstract Str[]? ntpServersGet()
+
+  ** Set the list of network time protocol server addresses.
+  abstract Void ntpServersSet(Str[] addresses)
 }

@@ -23,18 +23,47 @@ const class PlatformTimeFuncs
     lib.platformSpi.timeSet(ts)
   }
 
+  ** Get the list of network time protocol server addresses as
+  ** list of strings.  If NTP is not supported, then return null.
+  @Axon { su = true }
+  static Str[]? platformTimeNtpServersGet()
+  {
+    lib.platformSpi.ntpServersGet
+  }
+
+  ** Set the list of network time protocol server addresses as
+  ** list of strings.
+  @Axon { su = true }
+  static Void platformTimeNtpServersSet(Str[] addresses)
+  {
+    lib.platformSpi.ntpServersSet(addresses)
+  }
+
   ** Return grid of summary information used to populate UI.
   ** This is a nodoc method subject to change
   @NoDoc @Axon { su = true }
   static Grid platformTimeInfo()
   {
     cx := curContext
+    lib := lib(cx)
     now := DateTime.now
     gb := GridBuilder().addCol("dis").addCol("val").addCol("icon").addCol("edit")
+
     gb.addRow(["Time", "___", "clock", Marker.val])
     gb.addRow(["Time", now.time.toLocale, null, null])
     gb.addRow(["Date", now.date.toLocale, null, null])
     gb.addRow(["TimeZone", now.tz.name, null, null])
+
+    ntp := lib.platformSpi.ntpServersGet
+    if (ntp != null)
+    {
+      gb.addRow(["NTP", "___", "cloud", Marker.val])
+      ntp.each |address, i|
+      {
+        gb.addRow(["Server " + (i+1), address, null, null])
+      }
+    }
+
     return gb.toGrid
   }
 
