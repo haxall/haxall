@@ -3,7 +3,7 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   8 May 2023  Brian Frank       Creation
+//   8 May 2023  Brian Frank  Creation
 //
 
 using axon
@@ -49,7 +49,7 @@ const class PlatformTimeFuncs
     now := DateTime.now
     gb := GridBuilder().addCol("dis").addCol("val").addCol("icon").addCol("edit")
 
-    gb.addRow(["Time", "___", "clock", Marker.val])
+    gb.addRow(["Time", "___", "clock", "time"])
     gb.addRow(["Time", now.time.toLocale, null, null])
     gb.addRow(["Date", now.date.toLocale, null, null])
     gb.addRow(["TimeZone", now.tz.name, null, null])
@@ -57,7 +57,7 @@ const class PlatformTimeFuncs
     ntp := lib.platformSpi.ntpServersGet
     if (ntp != null)
     {
-      gb.addRow(["NTP", "___", "cloud", Marker.val])
+      gb.addRow(["NTP", "___", "cloud", "ntp"])
       ntp.each |address, i|
       {
         gb.addRow(["Server " + (i+1), address, null, null])

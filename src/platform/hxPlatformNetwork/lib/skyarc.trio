@@ -1,0 +1,19 @@
+//
+// Copyright (c) 2023, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   9 May 2023  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+view: platformNetwork
+appName: platform
+disKey: ui::network
+su
+doc: "Platform IP network configuration"
+src:
+  view:     { uiType:"uiPlatform::PlatformInfoView" }
+  refresh:  { disKey:"ui::refresh" noFlash action:"noop"}
+  data:     { expr:"platformNetworkInfo()" }
+--------------------------------------------------------------------------

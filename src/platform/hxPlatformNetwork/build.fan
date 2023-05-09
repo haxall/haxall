@@ -4,20 +4,20 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   8 May 2023  Brian Frank  Creation
+//   9 May 2023  Brian Frank  Creation
 //
 
 using build
 
 **
-** Build: hxPlatformTime
+** Build: hxPlatformNetwork
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName = "hxPlatformTime"
-    summary = "Platform support for date and time"
+    podName = "hxPlatformNetwork"
+    summary = "Platform support for IP network config"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
@@ -34,6 +34,6 @@ class Build : BuildPod
               ]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "platformTime"]
+    index   = ["ph.lib": "platformNetwork"]
   }
 }

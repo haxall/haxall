@@ -18,6 +18,7 @@ class Build : BuildGroup
     [
       `hxPlatform/build.fan`,
       `hxPlatformTime/build.fan`,
+      `hxPlatformNetwork/build.fan`,
       `hxPlatformSerial/build.fan`,
     ]
   }
