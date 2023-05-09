@@ -55,15 +55,16 @@ const class PlatformFuncs
   private static Dict[] platformInfoDefaults(HxRuntime rt)
   {
     env := Env.cur.vars
+    now := DateTime.now
     return [
       pi("sw",     "Name",     rt.platform.productName),
       pi("sw",     "Version",  rt.platform.productVersion),
-      pi("sw",     "Vendor",   rt.platform.vendorName),
+      pi("sw",     "Time",     now.time.toLocale + " " + now.date.toLocale + now.tz.name),
       pi("sw",     "Uptime",   Duration.uptime.toLocale),
       pi("os",     "Name",     env["os.name"] + " " + env["os.arch"]),
       pi("os",     "Version",  env["os.version"]),
+      pi("java",   "Name",     env["java.vm.name"] + " " + env["java.vm.version"]),
       pi("java",   "Version",  env["java.version"]),
-      pi("java",   "VM",       env["java.vm.name"] + " " + env["java.vm.version"]),
     ]
   }
 

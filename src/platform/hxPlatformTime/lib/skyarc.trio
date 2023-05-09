@@ -1,0 +1,19 @@
+//
+// Copyright (c) 2023, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   8 May 2023  Brian Frank  Creation
+//
+
+--------------------------------------------------------------------------
+view: platformTime
+appName: platform
+disKey: ui::time
+su
+doc: "Platform date and time configuration"
+src:
+  view:     { uiType:"uiPlatform::PlatformInfoView" }
+  refresh:  { disKey:"ui::refresh" noFlash action:"noop"}
+  data:     { expr:"platformTimeInfo()" }
+--------------------------------------------------------------------------

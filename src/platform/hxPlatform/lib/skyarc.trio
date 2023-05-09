@@ -14,9 +14,10 @@ su
 order: 100
 doc: "Platform management dashboard"
 src:
-  view:     { uiType:"uiPlatform::PlatformView" }
+  view:     { uiType:"uiPlatform::PlatformInfoView" }
+  refresh:  { disKey:"ui::refresh" noFlash action:"noop"}
+  restart:  { action:"platformRestart" noFlash confirm: {icon:"warn" dis:"Restart platform?" details:"Restart runtime only (not operating system)" } }
   reboot:   { action:"platformReboot" noFlash confirm: {icon:"warn" dis:"Reboot platform?" details:"Restart operating system and runtime" } }
-  restart:  { action:"platformRestart" noFlash confirm: {icon:"warn" dis:"Restart platform?" details:"Restart runtime" } }
   shutdown: { action:"platformShutdown" noFlash confirm: {icon:"warn" dis:"Shutdown platform?" details:"Shutdown runtime and operating system" } }
   data:     { expr:"platformInfo()" }
 --------------------------------------------------------------------------

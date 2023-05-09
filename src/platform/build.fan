@@ -17,6 +17,7 @@ class Build : BuildGroup
     childrenScripts =
     [
       `hxPlatform/build.fan`,
+      `hxPlatformTime/build.fan`,
       `hxPlatformSerial/build.fan`,
     ]
   }
