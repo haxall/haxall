@@ -73,7 +73,7 @@ internal class XetoCompiler
       Assemble(),
       OutputZip()
     ])
-    info("Compiled [$qname]")
+    info("Compiled xetolib [$qname]")
     return lib.asm
   }
 
