@@ -15,6 +15,12 @@ const mixin DataSlots
   ** Return if slots are empty
   abstract Bool isEmpty()
 
+  ** Return if the given slot name is defined.
+  abstract Bool has(Str name)
+
+  ** Return if the given slot name is undefined.
+  abstract Bool missing(Str name)
+
   ** Get the child slot spec
   abstract DataSpec? get(Str name, Bool checked := true)
 

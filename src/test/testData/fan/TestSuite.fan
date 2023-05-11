@@ -330,6 +330,8 @@ class DataTestCase
 
   Void verifySlot(DataSpec spec, Str name, Obj expect)
   {
+    verifyEq(spec.slots.has(name), true)
+    verifyEq(spec.slots.missing(name), false)
     if (expect is Str && expect.toStr.startsWith("inherit"))
     {
       verifySlotInherit(spec, name, expect)

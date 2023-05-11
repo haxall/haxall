@@ -14,7 +14,7 @@ using haystack::UnknownNameErr
 ** Implementation of DataSlots
 **
 @Js
-internal const class MSlots : DataSlots
+internal const final class MSlots : DataSlots
 {
   static const MSlots empty := MSlots(Str:XetoSpec[:])
 
@@ -25,6 +25,16 @@ internal const class MSlots : DataSlots
   override Bool isEmpty()
   {
     map.isEmpty
+  }
+
+  override Bool has(Str name)
+  {
+    map.containsKey(name)
+  }
+
+  override Bool missing(Str name)
+  {
+    !map.containsKey(name)
   }
 
   override XetoSpec? get(Str name, Bool checked := true)
