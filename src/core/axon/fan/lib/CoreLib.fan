@@ -1831,7 +1831,7 @@ const class CoreLib
   @Axon static Number weekOfYear(Obj val, Number? startOfWeek := null)
   {
     sow := startOfWeek != null ? Weekday.vals[startOfWeek.toInt] : Weekday.localeStartOfWeek
-    return Number.makeInt(val->weekOfYear(sow), unitDay)
+    return Number.makeInt(val->weekOfYear(sow))
   }
 
   ** Return current locale's start of weekday.  Weekday is
