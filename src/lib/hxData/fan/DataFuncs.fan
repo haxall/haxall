@@ -516,6 +516,15 @@ const class DataFuncs
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
+  ** Reload the data env - see `data::DataEnv.reload`
+  @NoDoc @Axon { su = true }
+  static Void dataEnvReload()
+  {
+    cx := curContext
+    cx.rt.lib("data").log.info("DataEnv.reload [$cx.user.username]")
+    DataEnv.reload
+  }
+
   ** Current context
   internal static HxContext curContext()
   {

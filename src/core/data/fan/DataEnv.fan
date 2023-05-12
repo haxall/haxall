@@ -26,6 +26,15 @@ const abstract class DataEnv
   }
   private static const AtomicRef curRef := AtomicRef()
 
+  ** Reload the entire data env.  This creates a new environment,
+  ** rescans the local file system for installed libs, and all previously
+  ** loaded libraries with be reloaded on first access.  Any
+  ** references to DataLib or DataSpecs must no longer be used.
+  static Void reload()
+  {
+    curRef.val = Type.find("xeto::XetoEnv").make
+  }
+
   ** None singleton value
   abstract Obj none()
 
