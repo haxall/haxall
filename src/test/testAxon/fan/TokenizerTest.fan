@@ -80,6 +80,7 @@ class TokenizerTest : Test
 
     // date
     verifyToks("2009-10-04", Obj?[Token.val, Date(2009, Month.oct, 4)])
+    verifyToks("2023-03//commen", Obj?[Token.val, DateSpan.makeMonth(2023, Month.mar)])
 
     // time
     verifyToks("8:30", Obj?[Token.val, Time(8, 30)])

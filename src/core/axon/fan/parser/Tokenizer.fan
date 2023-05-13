@@ -134,7 +134,7 @@ class Tokenizer
         else if ((exp || colons >= 1) && cur == '+') {}
         else if (cur == '.') { if (!peek.isDigit) break }
         else if ((cur == 'e' || cur == 'E') && (peek == '-' || peek == '+' || peek.isDigit)) { exp = true }
-        else if (cur.isAlpha || cur == '%' || cur == '$' || cur == '/' || cur > 128) { if (unitIndex == 0) unitIndex = s.size}
+        else if (cur.isAlpha || cur == '%' || cur == '$' || cur > 128 || (cur == '/' && peek != '/')) { if (unitIndex == 0) unitIndex = s.size}
         else if (cur == '_') { if (unitIndex == 0 && peek.isDigit) { consume; continue } else { if (unitIndex == 0) unitIndex = s.size } }
         else { break }
       }
@@ -185,7 +185,7 @@ class Tokenizer
       floatStr := str[0..<unitIndex]
       unitStr := str[unitIndex..-1]
       float := Float.fromStr(floatStr, false)
-      if (float == null) throw err("Invalid number literal '$floatStr'")
+      if (float == null) throw err("Invalid number literal '$str'")
       unit  := Number.loadUnit(unitStr, false)
       if (unit == null) throw err("Invalid unit name '$unitStr' [" + unitStr.toCode('"', true) + "]")
       val = Number(float, unit)
