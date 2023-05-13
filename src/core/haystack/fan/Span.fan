@@ -99,6 +99,9 @@ const final class Span
         start = start - 7day
         return makeDates(mode, start, start.plus(7day), tz)
 
+      case SpanMode.pastWeek:
+        return makeDates(mode, today - 7day, today, tz)
+
       case SpanMode.thisMonth:
         first := today.firstOfMonth
         return makeDates(mode, first, first.lastOfMonth.plus(1day), tz)
@@ -107,6 +110,9 @@ const final class Span
         first := today.firstOfMonth.minus(1day).firstOfMonth
         return makeDates(mode, first, first.lastOfMonth.plus(1day), tz)
 
+      case SpanMode.pastMonth:
+        return makeDates(mode, today - 28day, today, tz)
+
       case SpanMode.thisQuarter:
         return makeDates(mode, toQuarterStart(today), toQuarterEnd(today), tz)
 
@@ -114,11 +120,17 @@ const final class Span
         lastQuarter := toQuarterStart(today).minus(1day)
         return makeDates(mode, toQuarterStart(lastQuarter), toQuarterEnd(lastQuarter), tz)
 
+      case SpanMode.pastQuarter:
+        return makeDates(mode, today - 90day, today, tz)
+
       case SpanMode.thisYear:
         return makeDates(mode, Date(today.year, Month.jan, 1),  Date(today.year+1, Month.jan, 1), tz)
 
       case SpanMode.lastYear:
         return makeDates(mode, Date(today.year-1, Month.jan, 1),  Date(today.year, Month.jan, 1), tz)
+
+      case SpanMode.pastYear:
+        return makeDates(mode, today - 365day, today, tz)
 
       default: throw Err("TODO: $mode")
     }
@@ -479,12 +491,16 @@ enum class SpanMode
   yesterday,
   thisWeek,
   lastWeek,
+  pastWeek,
   thisMonth,
   lastMonth,
+  pastMonth,
   thisQuarter,
   lastQuarter,
+  pastQuarter,
   thisYear,
-  lastYear
+  lastYear,
+  pastYear
 
   ** Is this an absolute mode
   Bool isAbs() { this == abs }
