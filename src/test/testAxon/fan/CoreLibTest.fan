@@ -601,9 +601,9 @@ class CoreLibTest : HaystackTest
 
     verifyEval("2016-02-01.dayOfYear", n(32, "day"))
     verifyEval("dateTime(2016-02-01, 0:00).dayOfYear", n(32, "day"))
-    verifyEval("2016-02-01.weekOfYear", n(6, "day"))
-    verifyEval("2016-02-01.weekOfYear(6)", n(5, "day"))
-    verifyEval("dateTime(2016-02-01, 0:00).weekOfYear", n(6, "day"))
+    verifyEval("2016-02-01.weekOfYear", n(6, "week"))
+    verifyEval("2016-02-01.weekOfYear(6)", n(5, "week"))
+    verifyEval("dateTime(2016-02-01, 0:00).weekOfYear", n(6, "week"))
 
     verifyEval("isLeapYear(2019)", false)
     verifyEval("isLeapYear(2020)", true)
