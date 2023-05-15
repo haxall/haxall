@@ -26,6 +26,11 @@ InstallationGuide : Resource {
   installationGuide
 }
 
+// Instructions manual
+Manual : Resource {
+  manaul
+}
+
 // Operations guide
 OperationsGuide : Resource {
   operationsGuide

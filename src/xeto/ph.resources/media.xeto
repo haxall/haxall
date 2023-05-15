@@ -16,6 +16,16 @@ Document : Resource {
   document
 }
 
+// Plain text document
+TextDocument : Document {
+  text
+}
+
+// Markdown text document
+MarkdownDocument : Document {
+  markdown
+}
+
 // Document in PDF format
 PdfDocument : Document {
   pdf
@@ -48,6 +58,11 @@ GoogleSheetsDocument : Document {
 
 // Link to a Google slides document
 GoogleSlidesDocument : Document {
+  googleSlides
+}
+
+// AutoCAD dwg document
+AutoCadDocument : Document {
   googleSlides
 }
 
@@ -91,6 +106,16 @@ Audio : Resource {
 Video : Resource {
   video
 }
+
+//////////////////////////////////////////////////////////////////////////
+// Misc
+//////////////////////////////////////////////////////////////////////////
+
+// Zip archive file
+Zip : Resource {
+  zip
+}
+
 
 
 
