@@ -36,6 +36,10 @@ class SpanTest : HaystackTest
     verifyAbs(ts("2013-01-01"), ts("2014-01-01"), "year",    "2013")
     verifyAbs(ts("2013-01-01"), ts("2015-01-01"), "dates",   "1-Jan-2013..31-Dec-2014")
 
+    s := Span(Date("2023-05-15"), TimeZone("Chicago"))
+    verifyEq(s.start, DateTime("2023-05-15T00:00:00-05:00 Chicago"))
+    verifyEq(s.end, DateTime("2023-05-16T00:00:00-05:00 Chicago"))
+
     verifyErr(ArgErr#) { x := Span(ts("2016-01-03"), ts("2016-01-03")-1ms) }
     verifyErr(ArgErr#) { x := Span(ts("2016-01-04"), ts("2016-01-03")) }
     verifyErr(ArgErr#) { x := Span(DateTime.now - 1day, DateTime.nowUtc) }

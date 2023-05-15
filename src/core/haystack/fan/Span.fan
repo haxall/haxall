@@ -60,6 +60,12 @@ const final class Span
     return makeDateTimes(SpanMode.abs, start, end)
   }
 
+  ** Make an absolute span for the given date
+  static new makeDate(Date date, TimeZone tz := TimeZone.cur)
+  {
+    return makeDateTimes(SpanMode.abs, date.midnight(tz), date.plus(1day).midnight(tz))
+  }
+
   ** Make a relative span for given mode using current time
   ** and current locale for starting weekday
   static new makeRel(SpanMode mode, TimeZone tz := TimeZone.cur)
