@@ -109,6 +109,7 @@ const class NumberFormat
   Str format(Number num)
   {
     // special handling
+    if (num.isSpecial) return formatSpecial(num.toFloat)
     if (floatPattern == null && isDuration(num)) return formatDuration(num.toDuration)
     if (isBytes) return num.toInt.toLocale("B")
 
@@ -137,6 +138,14 @@ const class NumberFormat
     buf.add(str)
     add(buf, neg ? negSuffix : posSuffix, unit)
     return buf.toStr
+  }
+
+  private Str formatSpecial(Float f)
+  {
+    if (f.isNaN) return "$<sys::numNaN>"
+    if (f == Float.posInf) return "$<sys::numPosInf>"
+    if (f == Float.negInf) return "$<sys::numNegInf>"
+    return f.toStr
   }
 
   private Bool isDuration(Number num)
