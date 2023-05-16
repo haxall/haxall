@@ -163,10 +163,10 @@ internal const class XetoUtil
   static Obj? instantiate(XetoEnv env, XetoSpec spec, DataDict opts)
   {
     meta := spec.m.meta
-    if (meta.has("abstract")) throw Err("Spec is abstract: $spec.qname")
+    if (meta.has("abstract") && opts.missing("abstract")) throw Err("Spec is abstract: $spec.qname")
 
     if (spec.isNone) return null
-    if (spec.isScalar) return meta->val
+    if (spec.isScalar) return meta["val"] ?: ""
     if (spec === env.sys.dict) return env.dict0
     if (spec.isList) return env.list0
 
