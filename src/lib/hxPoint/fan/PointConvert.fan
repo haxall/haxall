@@ -174,6 +174,7 @@ internal class ConvertParser
       case "hexToNumber":     return HexToNumberConvert(args)
       case "lower":           return LowerConvert(args)
       case "upper":           return UpperConvert(args)
+      case "strReplace":      return StrReplaceConvert(args)
       default:                throw ParseErr("Unknown convert func: $name")
     }
   }
@@ -246,6 +247,17 @@ internal class ConvertParser
           acc.add(s[opStart..i])
         }
         start = i + 1
+      }
+      else if (ch == '\'')
+      {
+        // single quoted string literal
+        start = i + 1
+        i++
+        while (i < s.size && s.get(i) != '\'') i++
+        if (i >= s.size) throw Err("Missing end quote")
+        acc.add(s[start..<i])
+        i++
+        start = i
       }
     }
     if (start < s.size) acc.add(s[start..-1])
@@ -1000,6 +1012,30 @@ internal const class UpperConvert : PointConvert
   }
 }
 
+**************************************************************************
+** StrReplaceConvert
+**************************************************************************
+
+internal const class StrReplaceConvert : PointConvert
+{
+  new make(Str[] args)
+  {
+    if (args.size != 2) throw ParseErr("Invalid num args $args.size, expected 0")
+    this.from = args[0]
+    this.to   = args[1]
+  }
+
+  override Str toStr() { "strReplace(from, to)" }
+
+  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  {
+    if (val == null) return null
+    return val.toStr.replace(from, to)
+  }
+
+  const Str from
+  const Str to
+}
 
 **************************************************************************
 ** ThermistorConvert

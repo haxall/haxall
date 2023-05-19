@@ -261,6 +261,13 @@ class ConvertTest : HxTest
     verifyParse("lower()", null,     null,     LowerConvert#)
     verifyParse("lower()", "FooBar", "foobar", LowerConvert#)
 
+    // strReplace
+    verifyParse("strReplace(\$20, _)",    "Foo\$20Bar",      "Foo_Bar",         StrReplaceConvert#)
+    verifyParse("strReplace('_', ' ')",   "Foo_Bar",         "Foo Bar",         StrReplaceConvert#)
+    verifyParse("strReplace(' ', '')",    " Foo Bar ",       "FooBar",          StrReplaceConvert#)
+    verifyParse("strReplace('xx', '__')", "xxFooxxBarxxBox", "__Foo__Bar__Box", StrReplaceConvert#)
+    verifyParse("strReplace( xx, __ )",   "xxFooxxBarxxBox", "__Foo__Bar__Box", StrReplaceConvert#)
+
     // reset
     verifyParse("reset(10,20,300,400)", -8f, 300f, ResetConvert#)
     verifyParse("reset(10,20,300,400)", 10f, 300f, ResetConvert#)

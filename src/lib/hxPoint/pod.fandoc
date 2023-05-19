@@ -320,6 +320,8 @@ Examples:
   // string functions
   lower()                    // convert string to lowercase (ASCII only)
   upper()                    // convert string to uppercsae (ASCII only)
+  strReplace('x', '_')       // replace "x" with "_"
+  strReplace(' ', '')        // replace space with the empty string
 
   // enumeration conversions where 'x' is tag on enumMeta; if 'x' is
   // "self" then use 'enum' tag on the record itself to map zero based ordinals
@@ -382,9 +384,10 @@ Functions:
   numberToHex()
   lower()
   upper()
-  enumStrToNumber(enumDef,checked)
-  enumStrToBool(enumDef,checked)
-  enumNumberToStr(enumDef,checked)
+  strReplace(from, to)
+  enumStrToNumber(enumDef, checked)
+  enumStrToBool(enumDef, checked)
+  enumNumberToStr(enumDef, checked)
   enumBoolToStr(enumDef)
 
 Note that multiple conversions can be piped together by separating
