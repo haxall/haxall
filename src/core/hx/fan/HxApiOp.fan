@@ -503,26 +503,52 @@ internal class HxHisWriteOp : HxApiOp
     // check security
     cx.checkAdmin("hisWrite op")
 
-    // lookup history record
-    rec := cx.db.readById(req.meta.id)
+    // check for single vs batch
+    if (req.meta.has("id"))
+      onSingle(req, cx)
+    else
+      onBatch(req, cx)
 
-    // map request grid to HisItem
-    items := HisItem[,] { capacity = req.size }
-    tsCol := req.col("ts")
-    valCol := req.col("val")
+    return Etc.emptyGrid
+  }
+
+  private Void onSingle(Grid req, HxContext cx)
+  {
+    write(req, cx, req.meta.id, req.col("ts"), req.col("val"))
+  }
+
+  private Void onBatch(Grid req, HxContext cx)
+  {
+    tsCol := req.cols[0]
+    if (tsCol.name != "ts") throw Err("First col must be named 'ts', not '$tsCol.name'")
+
+    req.cols.eachRange(1..-1) |valCol|
+    {
+      id := valCol.meta["id"] as Ref ?: throw Err("Col missing id tag: $valCol.name")
+      write(req, cx, id, tsCol, valCol)
+    }
+  }
+
+  private Void write(Grid req, HxContext cx, Ref id, Col tsCol, Col valCol)
+  {
+    // lookup history record
+    rec := cx.db.readById(id)
+
+    // map ts/val rows into HisItem list
+    items := HisItem[,]
+    items.capacity = req.size
     req.each |row|
     {
       tsRaw := row.val(tsCol)
       ts := tsRaw as DateTime ?: throw Err("Timestamp value is not DateTime: $tsRaw [${tsRaw?.typeof}]")
       val := row.val(valCol)
+      if (val == null) return
       items.add(HisItem(ts, val))
     }
 
     // perform write
     opts := req.meta
     cx.rt.his.write(rec, items, opts)
-
-    return Etc.makeEmptyGrid(Etc.makeDict1("ok", Marker.val))
   }
 }
 
