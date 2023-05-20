@@ -428,9 +428,16 @@ internal class HxHisReadOp : HxApiOp
 {
   override Grid onRequest(Grid req, HxContext cx)
   {
-    // parse request
     if (req.isEmpty) throw Err("Request grid is empty")
-    reqRow := req.first
+    if (req.meta.has("range"))
+      return onBatch(req, cx)
+    else
+      return onSingle(req, cx)
+  }
+
+  private Grid onSingle(Grid req, HxContext cx)
+  {
+    reqRow := req[0]
     rec := cx.db.readById(reqRow.id)
     tz := FolioUtil.hisTz(rec)
     span := parseRange(tz, reqRow->range)
@@ -456,7 +463,72 @@ internal class HxHisReadOp : HxApiOp
     return gb.toGrid
   }
 
-  static Span? parseRange(TimeZone tz, Str q)
+  private Grid onBatch(Grid req, HxContext cx)
+  {
+    // read all the records
+    recs := Dict[,]
+    req.each |row| { recs.add(cx.db.readById(row.id)) }
+    if (recs.isEmpty) throw Err("No recs")
+
+    // determine tz to use
+    TimeZone? tz
+    tzName := req.meta["tz"] as Str
+    if (tzName != null) tz = TimeZone.fromStr(tzName)
+    else
+    {
+      // if meta.tz unspecified then all points must have same tz
+      tz = FolioUtil.hisTz(recs[0])
+      recs.each |rec|
+      {
+        if (tz !== FolioUtil.hisTz(recs[0]))
+          throw Err("Points do not share same tz, pass tz in meta")
+      }
+    }
+
+    // now we can get the span to use
+    span := parseRange(tz, req.meta->range).toTimeZone(tz)
+
+    // read all points into in-memory rows keyed by ts
+    rows := DateTime:Obj?[][:]
+    recs.each |rec, i|
+    {
+      read(req, cx, rec, span) |ts, val|
+      {
+        row := rows[ts]
+        if (row == null)
+        {
+          row = Obj?[,]
+          row.size = recs.size + 1
+          row[0] = ts
+          rows[ts] = row
+        }
+        row[i+1] = val
+      }
+    }
+
+    // build response grid
+    gb := GridBuilder()
+    gb.setMeta(["hisStart":span.start, "hisEnd":span.end])
+    gb.addCol("ts")
+    recs.each |rec, i| { gb.addCol("v" + i, ["id":rec.id]) }
+    rows.keys.sort.each |ts|
+    {
+      gb.addRow(rows[ts])
+    }
+    return gb.toGrid
+  }
+
+  private Void read(Grid req, HxContext cx, Dict rec, Span span, |DateTime, Obj val| f)
+  {
+    cx.rt.his.read(rec, span, req.meta) |item|
+    {
+      if (item.ts < span.start) return
+      if (item.ts >= span.end) return
+      f(item.ts.toTimeZone(span.tz), item.val)
+    }
+  }
+
+  static Span parseRange(TimeZone tz, Str q)
   {
     try
     {
@@ -486,7 +558,8 @@ internal class HxHisReadOp : HxApiOp
         if (end == null) return Span.makeAbs(start, DateTime.now.toTimeZone(((DateTime)start).tz))
         if (end is DateTime) return Span.makeAbs(start, end)
       }
-      return null
+
+      throw Err("Invalid range: $q")
     }
     catch (Err e) throw ParseErr("Invalid history range: $q", e)
   }
