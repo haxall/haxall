@@ -440,13 +440,8 @@ internal class HxHisReadOp : HxApiOp
     reqRow := req[0]
     rec := cx.db.readById(reqRow.id)
     tz := FolioUtil.hisTz(rec)
-    span := parseRange(tz, reqRow->range)
+    span := parseRange(tz, reqRow->range).toTimeZone(tz)
 
-    // convert timezones if needed so that clients are
-    // free to request/convert the timezone as they see fit
-    span = span.toTimeZone(tz)
-
-    // query items
     meta := [
       "id": rec.id,
       "hisStart": span.start,
@@ -492,7 +487,7 @@ internal class HxHisReadOp : HxApiOp
     rows := DateTime:Obj?[][:]
     recs.each |rec, i|
     {
-      read(req, cx, rec, span) |ts, val|
+      readBatch(req, cx, rec, span) |ts, val|
       {
         row := rows[ts]
         if (row == null)
@@ -518,7 +513,7 @@ internal class HxHisReadOp : HxApiOp
     return gb.toGrid
   }
 
-  private Void read(Grid req, HxContext cx, Dict rec, Span span, |DateTime, Obj val| f)
+  private Void readBatch(Grid req, HxContext cx, Dict rec, Span span, |DateTime, Obj val| f)
   {
     cx.rt.his.read(rec, span, req.meta) |item|
     {

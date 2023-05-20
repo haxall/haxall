@@ -379,8 +379,10 @@ class HttpApiTest : HxTest
     tz := TimeZone("New_York")
     today := DateTime.now.toTimeZone(tz).midnight
     yesterday := today.date.minus(1day).toDateTime(Time.defVal, tz)
-    pt := addRec(["dis":"HisPoint", "point":m, "his":m, "kind":"Number", "tz":tz.name])
+    ptA := addRec(["dis":"His-A", "point":m, "his":m, "kind":"Number", "tz":tz.name])
+    ptB := addRec(["dis":"His-B", "point":m, "his":m, "kind":"Number", "tz":tz.name])
 
+    // hisWrite to ptA
     items := HisItem[,]
     items.add(HisItem(yesterday + 1hr, n(1)))
     items.add(HisItem(yesterday + 2hr, n(2)))
@@ -388,29 +390,84 @@ class HttpApiTest : HxTest
     items.add(HisItem(today + 1hr, n(10)))
     items.add(HisItem(today + 2hr, n(20)))
     items.add(HisItem(today + 3hr, n(30)))
-    req := Etc.makeDictsGrid(["id":pt.id], items)
+    req := Etc.makeDictsGrid(["id":ptA.id.noDis], items)
     res := c.call("hisWrite", req)
 
-    rt.sync
-    pt = rt.db.readById(pt.id)
-    verifyEq(pt["hisSize"], n(6))
+    // batch hisWrite to ptA, ptB
+    gb := GridBuilder()
+    ts := Date("2023-05-13").midnight
+    gb.addCol("ts").addCol("v0", ["id":ptA.id.noDis]).addCol("v1", ["id":ptB.id.noDis])
+    gb.addRow([ts + 0hr, n(100), n(200)])
+    gb.addRow([ts + 1hr, null,   n(201)])
+    gb.addRow([ts + 2hr, n(102), null])
+    gb.addRow([ts + 3hr, n(103), n(203)])
+    res = c.call("hisWrite", gb.toGrid)
 
-    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":pt.id, "range":"yesterday"]))
+    // verify ptA got written
+    rt.sync
+    ptA = rt.db.readById(ptA.id)
+    ptB = rt.db.readById(ptB.id)
+    verifyEq(ptA["hisSize"], n(9))
+    verifyEq(ptB["hisSize"], n(3))
+
+    // hisRead from ptA (yesterday)
+    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":"yesterday"]))
     verifyEq(res.size, 3)
+    verifyEq(res.meta->hisStart, yesterday)
+    verifyEq(res.meta->hisEnd, today)
     verifyDictEq(res[0], items[0])
     verifyDictEq(res[1], items[1])
     verifyDictEq(res[2], items[2])
 
-    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":pt.id, "range":"today"]))
+    // hisRead from ptA (today)
+    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":"today"]))
     verifyEq(res.size, 3)
     verifyDictEq(res[0], items[3])
     verifyDictEq(res[1], items[4])
     verifyDictEq(res[2], items[5])
 
-    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":pt.id, "range":items[4].ts.toStr]))
+    // hisRead from ptA (range)
+    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":items[4].ts.toStr]))
     verifyEq(res.size, 2)
     verifyDictEq(res[0], items[-2])
     verifyDictEq(res[1], items[-1])
+
+    // batch hisRead
+    gb = GridBuilder().setMeta(["range":"2023-05-13"]).addCol("id")
+    gb.addRow1(ptA.id.noDis)
+    gb.addRow1(ptB.id.noDis)
+    res = c.call("hisRead", gb.toGrid)
+    verifyEq(res.size, 4)
+    verifyEq(res.meta->hisStart, ts)
+    verifyEq(res.meta->hisEnd, ts.plus(1day))
+    verifyDictEq(res[0], ["ts":ts + 0hr, "v0":n(100), "v1":n(200)])
+    verifyDictEq(res[1], ["ts":ts + 1hr, "v0":null,   "v1":n(201)])
+    verifyDictEq(res[2], ["ts":ts + 2hr, "v0":n(102), "v1":null])
+    verifyDictEq(res[3], ["ts":ts + 3hr, "v0":n(103), "v1":n(203)])
+
+    // batch hisRead with explicit tz minus 1hr
+    // first row will be clipped
+    gb = GridBuilder().setMeta(["range":"2023-05-13", "tz":"Chicago"]).addCol("id")
+    tsM1 := ts.date.midnight(TimeZone("Chicago"))
+    gb.addRow1(ptA.id.noDis)
+    gb.addRow1(ptB.id.noDis)
+    res = c.call("hisRead", gb.toGrid)
+    verifyEq(res.size, 3)
+    verifyEq(res.meta->hisStart.toStr, tsM1.toStr)
+    verifyEq(res.meta->hisEnd.toStr, tsM1.plus(1day).toStr)
+    verifyEq(res[0]->ts->tz.toStr, "Chicago")
+    verifyDictEq(res[0], ["ts":tsM1 + 0hr, "v0":null,   "v1":n(201)])
+    verifyDictEq(res[1], ["ts":tsM1 + 1hr, "v0":n(102), "v1":null])
+    verifyDictEq(res[2], ["ts":tsM1 + 2hr, "v0":n(103), "v1":n(203)])
+
+    // hisRead with span using Chicago timezone, results in point's tz
+    res = c.call("hisRead", Etc.makeMapGrid(null, ["id":ptA.id.noDis, "range":tsM1.toStr + "," +  tsM1.plus(1day).toStr]))
+    verifyEq(res.size, 2)
+    verifyEq(res.meta->hisStart.toStr, tsM1.toTimeZone(tz).toStr)
+    verifyEq(res.meta->hisEnd.toStr, tsM1.plus(1day).toTimeZone(tz).toStr)
+    verifyEq(res[0]->ts->tz.toStr, "New_York")
+    verifyDictEq(res[0], ["ts":ts + 2hr, "val":n(102)])
+    verifyDictEq(res[1], ["ts":ts + 3hr, "val":n(103)])
   }
 
 //////////////////////////////////////////////////////////////////////////
