@@ -235,7 +235,10 @@ class JsonWriter : GridWriter
 
   private Void writeRef(Ref ref)
   {
-    writeKind("ref", ["val": ref.id, "dis": ref.dis])
+    if (ref.disVal != null)
+      writeKind("ref", ["val": ref.id, "dis": ref.dis])
+    else
+      writeKind("ref", ["val": ref.id])
   }
 
   private Void writeDate(Date date)

@@ -353,6 +353,7 @@ span.defc-type-src-link a:hover {
 }
 
 .defc-preToggle span {
+  font-size: 12px;
   padding: 2px 6px;
   cursor: default;
 }
