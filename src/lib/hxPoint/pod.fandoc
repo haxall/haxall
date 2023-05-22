@@ -214,6 +214,7 @@ these names with [point conversion]`ext-point::doc#convert` as follows:
 A given name or given code may be double mapped, in which case the first
 mapping is defined as the *normalized* mapping.  Consider this example:
 
+  // definition grid
   ver:"3.0"
   name,code
   "alpha",0
@@ -234,6 +235,7 @@ When mapping from a name to a boolean, any non-zero code is mapped as
 true and zero code as false.  The first non-zero and zero name/code pair
 defines the mapping from boolean to string.  For example:
 
+  // definition grid
   ver:"3.0"
   name,code
   off,0
