@@ -8,6 +8,7 @@
 
 using concurrent
 using compilerDoc
+using fandoc::HtmlDocWriter
 using web
 using haystack
 
@@ -143,6 +144,12 @@ const class DefDocEnv : DocEnv
     if (doc is DocChapter) return DefChapterRenderer#
     if (doc is DocPodIndex) return DefPodIndexRenderer#
     return doc.renderer
+  }
+
+  ** Hook to use our own HtmlDocWriter subclass
+  override HtmlDocWriter initFandocHtmlWriter(OutStream out)
+  {
+    DocFandocWriter(out)
   }
 
 //////////////////////////////////////////////////////////////////////////

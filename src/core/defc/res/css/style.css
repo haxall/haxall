@@ -339,3 +339,31 @@ span.defc-type-src-link a:hover {
 .defc-search a:hover {
   text-decoration: underline;
 }
+
+/*************************************************************************
+ * PreToggle
+ ************************************************************************/
+
+.defc-preToggle-bar {
+  display: flex;
+  justify-content: right;
+  padding: 0;
+  background: #eee;
+  border-bottom: 1px solid #ddd;
+}
+
+.defc-preToggle span {
+  padding: 2px 6px;
+  cursor: default;
+}
+
+.defc-preToggle-sel {
+  background: #ddd;
+  border-top: 1px solid #aaa;
+  border-left: 1px solid #aaa;
+  border-right: 1px solid #aaa;
+}
+
+.defc-preToggle pre {
+  margin-top: 0;
+}
