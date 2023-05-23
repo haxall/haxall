@@ -548,7 +548,7 @@ const class HxCoreFuncs
 
   ** Return if given record is under at least one watch.
   ** The rec argument can be any value accepted by `toRecId()`.
-  @Axon static  Bool isWatched(Obj rec)
+  @Axon static Bool isWatched(Obj rec)
   {
     curContext.rt.watch.isWatched(Etc.toId(rec))
   }

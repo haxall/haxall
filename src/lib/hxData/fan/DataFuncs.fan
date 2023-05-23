@@ -517,12 +517,14 @@ const class DataFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Reload the data env - see `data::DataEnv.reload`
-  @NoDoc @Axon { su = true }
-  static Void dataEnvReload()
+  @Axon { su = true }
+  static Obj? dataEnvReload()
   {
     cx := curContext
-    cx.rt.lib("data").log.info("DataEnv.reload [$cx.user.username]")
+    log := cx.rt.platform.isShell ? Log.get("data") : cx.rt.lib("data").log
+    log.info("DataEnv.reload [$cx.user.username]")
     DataEnv.reload
+    return "reloaded"
   }
 
   ** Current context
