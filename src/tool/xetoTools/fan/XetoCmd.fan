@@ -137,5 +137,13 @@ abstract class XetoCmd : AbstractMain
     }
   }
 
+  ** Prompt for a confirm yes/no
+  Bool promptConfirm(Str msg)
+  {
+    res := Env.cur.prompt("$msg (y/n)> ")
+    if (res.lower == "y") return true
+    return false
+  }
+
 }
 
