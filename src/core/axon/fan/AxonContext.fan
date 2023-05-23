@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using data
 using haystack
 
 **
@@ -63,10 +64,22 @@ abstract class AxonContext : HaystackContext
   @NoDoc virtual Obj? evalOrReadAll(Str src) { throw UnsupportedErr() }
 
   ** Data spec usings namespace (lazy load)
-  @NoDoc once AxonUsings usings() { initUsings }
+  @NoDoc AxonUsings usings()
+  {
+    u := usingsRef
+    if (u == null) usingsRef = u = initUsings
+    return u
+  }
 
   ** Init using imports
-  @NoDoc virtual AxonUsings initUsings()  { AxonUsings() }
+  @NoDoc virtual AxonUsings initUsings() { AxonUsings() }
+
+  ** Hot reload of the DataEnv
+  @NoDoc virtual Void usingsReload()
+  {
+    if (usingsRef != null)
+      usingsRef = AxonUsings(DataEnv.cur, usingsRef.qnames)
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 // Eval
@@ -362,6 +375,7 @@ abstract class AxonContext : HaystackContext
   private Int timeoutTicks := Int.maxVal
   private CallFrame[] stack := [,]
   private [Str:Regex]? regex
+  private AxonUsings? usingsRef
 }
 
 **************************************************************************

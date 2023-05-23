@@ -55,16 +55,15 @@ abstract class HxContext : AxonContext, DataContext, FolioContext
   {
     // recs with using:qname define what libs we are using
     env := DataEnv.cur
-    libs := Str:DataLib[:].add("sys", env.sysLib)
+    libs := Str:Str[:]
+    libs["sys"] = "sys"
     db.readAllEach(Filter.has("using"), Etc.dict0) |rec|
     {
       qname := rec["using"] as Str
       if (qname == null) return
-      lib := env.lib(qname, false)
-      if (lib == null || libs[lib.qname] != null) return
-      libs.add(lib.qname, lib)
+      libs[qname] = qname
     }
-    return AxonUsings(env, libs)
+    return AxonUsings(env, libs.vals)
   }
 
 //////////////////////////////////////////////////////////////////////////

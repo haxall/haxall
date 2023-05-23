@@ -47,7 +47,7 @@ const class DataFuncs
   private static DataSpec[] typesInScope(HxContext cx, |DataSpec->Bool|? filter := null)
   {
     acc := DataSpec[,]
-    cx.usings.list.each |lib|
+    cx.usings.libs.each |lib|
     {
       lib.slotsOwn.each |x|
       {
@@ -524,6 +524,7 @@ const class DataFuncs
     log := cx.rt.platform.isShell ? Log.get("data") : cx.rt.lib("data").log
     log.info("DataEnv.reload [$cx.user.username]")
     DataEnv.reload
+    cx.usingsReload
     return "reloaded"
   }
 
