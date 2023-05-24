@@ -350,7 +350,7 @@ class Printer
         if (slot.base?.type === slot.base && !slot.isType)
         {
           base(slot)
-          meta(slot)
+          meta(slot.metaOwn)
         }
         else
         {
