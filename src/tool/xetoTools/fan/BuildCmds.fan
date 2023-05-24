@@ -122,10 +122,7 @@ internal class InitCmd : XetoCmd
   private File toRootDir()
   {
     if (dir != null) return dir
-    cwd := `./`.toFile.normalize
-    if (cwd.name == "src") return cwd.plus(`xeto/`)
-    if (cwd.plus(`src/`).exists) return cwd.plus(`src/xeto/`)
-    return cwd
+    return Env.cur.workDir + `src/xeto/`
   }
 
   private Void genMeta(File file)
