@@ -521,11 +521,12 @@ const class DataFuncs
   static Obj? dataEnvReload()
   {
     cx := curContext
-    log := cx.rt.platform.isShell ? Log.get("data") : cx.rt.lib("data").log
+    isShell := cx.rt.platform.isShell
+    log := isShell ? Log.get("data") : cx.rt.lib("data").log
     log.info("DataEnv.reload [$cx.user.username]")
     DataEnv.reload
     cx.usingsReload
-    return "reloaded"
+    return isShell ? "_no_echo_" : "reloaded"
   }
 
   ** Current context
