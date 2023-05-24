@@ -277,6 +277,7 @@ class DataCompileTest : AbstractDataTest
 
   Void testErr()
   {
+    // cyclic inheritance
     verifyCompileLibErr("Foo: Foo", [
       "Cyclic inheritance: Foo",
       ])
@@ -288,6 +289,19 @@ class DataCompileTest : AbstractDataTest
       "Cyclic inheritance: Foo",
       "Cyclic inheritance: Bar",
       "Cyclic inheritance: Baz",
+      ])
+
+    // slot merging
+    verifyCompileLibErr(
+      Str<|Foo: {x:Str}
+           Bar: {x:Date}
+           Baz: Foo & Bar|>, [
+      "Conflicing inherited slots: temp::Foo.x, temp::Bar.x",
+      ])
+    verifyCompileLibErr(
+      Str<|Foo: Bar {x:Str}
+           Bar: {x:Date}|>, [
+      "Slot 'x' type 'sys::Str' conflicts inherited slot 'temp::Bar.x' of type 'sys::Date'",
       ])
   }
 
@@ -309,7 +323,25 @@ class DataCompileTest : AbstractDataTest
     catch (Err e) {}
 
     verifyEq(log.size, errs.size)
-    errs.each |err, i| { verifyEq(log[i].msg, err) }
+    errs.each |err, i|
+    {
+      msg := errNormQName(log[i].msg)
+      verifyEq(msg, err)
+    }
+  }
+
+  private Str errNormQName(Str msg)
+  {
+    // normalize temp123::X to temp::X
+    Int? tempi := 0
+    while (true)
+    {
+      tempi = msg.index("temp", tempi+1)
+      if (tempi == null) break
+      colons := msg.index("::", tempi+1)
+      msg = msg[0..<tempi+4] + msg[colons..-1]
+    }
+    return msg
   }
 
 }

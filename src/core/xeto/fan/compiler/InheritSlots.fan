@@ -246,6 +246,14 @@ internal class InheritSlots : Step
   private ASpec overrideSlot(CSpec base, ASpec slot)
   {
     slot.base = base
+
+    // do basic type checking
+    // TODO: just temp hack for imported types
+    slotType := slot.ctype as XetoSpec
+    baseType := base.ctype as XetoSpec
+    if (slotType != null && baseType != null && !slotType.isa(baseType))
+      err("Slot '$slot.name' type '$slotType' conflicts inherited slot '$base.qname' of type '$baseType'", slot.loc)
+
     return slot
   }
 
