@@ -9,6 +9,7 @@
 using data
 using haystack
 using axon
+using folio
 using hx
 
 **
@@ -378,6 +379,24 @@ class AxonTest : HxTest
       "Missing required marker 'equip'",
       "Missing required marker 'ahu'"
       ])
+
+    verifyFitsExplain(
+       Str<|do
+              Foo: Dict { a:Str, b: Str? }
+              fitsExplain({}, Foo)
+            end
+            |>, [
+      "Missing required slot 'a'",
+      ])
+
+    verifyFitsExplain(
+       Str<|do
+              Foo: Dict { a:Str, b: Str? }
+              fitsExplain({a:"x", b}, Foo)
+            end
+            |>, [
+      "Invalid value type for 'b' - 'haystack::Marker' does not fit 'sys::Str'",
+      ])
   }
 
   Void verifyFitsExplain(Str expr, Str[] expect)
@@ -470,7 +489,8 @@ class AxonTest : HxTest
 
            DTemp: {discharge, temp}
            DFlow: {discharge, flow}
-           Ahu2: ph::Equip { points: { DTemp, DFlow } }
+           DPressure: {discharge, pressure}
+           Ahu2: ph::Equip { points: { DTemp, DFlow, DPressure? } }
            |>)
      ahu1 := lib.libType("Ahu1")
      ahu2 := lib.libType("Ahu2")
@@ -501,6 +521,15 @@ class AxonTest : HxTest
      verifyQueryFitsExplain(ahuX, ahu2, [
        "Ambiguous match for Point: ${lib.qname}::DTemp [$d1.id.toZinc, $d2.id.toZinc]",
        "Missing required Point: ${lib.qname}::DFlow",
+      ])
+
+     // ambiguous matches for optional point
+     rt.db.commit(Diff(d1, null, Diff.remove))
+     p1 := addRec(["id":Ref("p1"), "dis":"Pressure 1", "discharge":m, "pressure":m, "point":m, "equipRef":ahuX.id])
+     p2 := addRec(["id":Ref("p2"), "dis":"Pressure 2", "discharge":m, "pressure":m, "point":m, "equipRef":ahuX.id])
+     verifyQueryFitsExplain(ahuX, ahu2, [
+       "Missing required Point: ${lib.qname}::DFlow",
+       "Ambiguous match for Point: ${lib.qname}::DPressure [$p1.id.toZinc, $p2.id.toZinc]",
       ])
   }
 

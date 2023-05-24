@@ -105,7 +105,7 @@ internal class Fitter
 
     if (val == null)
     {
-      if (slotType.isMaybe) return true
+      if (slot.isMaybe) return true
       return explainMissingSlot(slot)
     }
 
