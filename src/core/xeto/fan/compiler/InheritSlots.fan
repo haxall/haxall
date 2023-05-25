@@ -59,7 +59,7 @@ internal class InheritSlots : Step
 
     // infer type if unspecified or process subtype;
     // this method returns the spec to use for the base
-    spec.base = inferType(spec, spec.base ?: spec.type)
+    spec.base = inferType(spec)
 
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
@@ -82,8 +82,12 @@ internal class InheritSlots : Step
   ** it from either given base or whether it is a scalar/dict.
   ** If a type is given, then we use that to decide if we need
   ** clear maybe flag (set to None).  Return base to use for specs.
-  CSpec inferType(AObj x, CSpec? base)
+  CSpec inferType(ASpec x)
   {
+    // get base the spec inherits from
+    base := x.base ?: x.type
+    if (base == null) base = inferBase(x)
+
     // if source didn't specify the type, then we infer we must infer type
     if (x.typeRef == null)
     {
@@ -105,6 +109,18 @@ internal class InheritSlots : Step
 
     // return the spec to use for the base
     return base ?: x.type
+  }
+
+  ** Attempt to infer base from parent type if not specified
+  ** NOTE: this code gets used in deeply nested specs
+  private CSpec? inferBase(ASpec x)
+  {
+    if (x.parent?.ctype != null)
+    {
+      p := x.parent.ctype.cslot(x.name, false)
+      if (p != null) return p
+    }
+    return x.base
   }
 
 //////////////////////////////////////////////////////////////////////////
