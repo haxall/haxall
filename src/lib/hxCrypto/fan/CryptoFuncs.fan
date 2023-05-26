@@ -141,7 +141,8 @@ const class CryptoFuncs
     return Etc.makeMapGrid(["view":"text"], ["val":buf.toStr])
   }
 
-  ** Add a private key and cert chain entry
+  ** Add a private key and cert chain entry.
+  ** Can also trust a single certificate if no priv key is supplied.
   @NoDoc @Axon { su = true }
   static Obj? cryptoAddCert(Str alias, Str pem)
   {
@@ -156,9 +157,19 @@ const class CryptoFuncs
       else if (entry is PrivKey) privKey = entry
       else chain.add(entry)
     }
-    if (privKey == null) throw Err("No private key in ${alias} PEM file")
-    if (chain.isEmpty) throw Err("No certificate chain in ${alias} PEM file")
-    ks.setPrivKey(alias, privKey, chain)
+
+    if (privKey == null)
+    {
+      // trust a single cert
+      if (chain.size != 1) throw Err("Must provide a single certificate to trust")
+      ks.setTrust(alias, chain.first)
+    }
+    else
+    {
+      // add public/private key certificate chain
+      if (chain.isEmpty) throw Err("No certificate chain in ${alias} PEM file")
+      ks.setPrivKey(alias, privKey, chain)
+    }
     return alias
   }
 
