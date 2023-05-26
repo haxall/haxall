@@ -256,8 +256,7 @@ internal class ConvertParser
         while (i < s.size && s.get(i) != '\'') i++
         if (i >= s.size) throw Err("Missing end quote")
         acc.add(s[start..<i])
-        i++
-        start = i
+        start = i+1
       }
     }
     if (start < s.size) acc.add(s[start..-1])
@@ -277,7 +276,8 @@ internal class ConvertParser
 
   static Void main(Str[] args)
   {
-    echo(args.first.toCode)
+    echo("0123456789_123456789")
+    echo(args.first)
     echo("--------------")
     tokenize(args.first).each |tok|
     {

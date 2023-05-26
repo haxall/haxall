@@ -264,6 +264,7 @@ class ConvertTest : HxTest
     // strReplace
     verifyParse("strReplace(\$20, _)",    "Foo\$20Bar",      "Foo_Bar",         StrReplaceConvert#)
     verifyParse("strReplace('_', ' ')",   "Foo_Bar",         "Foo Bar",         StrReplaceConvert#)
+    verifyParse("strReplace('_',' ')",    "Foo_Bar",         "Foo Bar",         StrReplaceConvert#)
     verifyParse("strReplace(' ', '')",    " Foo Bar ",       "FooBar",          StrReplaceConvert#)
     verifyParse("strReplace('xx', '__')", "xxFooxxBarxxBox", "__Foo__Bar__Box", StrReplaceConvert#)
     verifyParse("strReplace( xx, __ )",   "xxFooxxBarxxBox", "__Foo__Bar__Box", StrReplaceConvert#)
