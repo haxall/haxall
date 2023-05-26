@@ -118,11 +118,27 @@ const class CryptoFuncs
     rec   := Etc.toRec(dict)
     alias := toAlias(rec->alias)
     from  := toAlias(rec.id)
-    entry := ks.get(from) ?: throw Err("Entry with alias '$from' not found")
+    entry := ks.get(from, false) ?: throw Err("Entry with alias '$from' not found")
     if (ks.containsAlias(alias) && !rec["force"]) throw Err("Entry with alias $alias already exists. Use force option to overwrite.")
     ks.set(alias, entry)
     if (!rec["keep"]) ks.remove(from)
     return alias
+  }
+
+  @NoDoc @Axon
+  static Grid  cryptoShowPub(Obj obj)
+  {
+    alias := toAlias(obj)
+    entry := ks.get(alias)
+    buf   := StrBuf()
+    Cert[] certs := entry is TrustEntry ? [entry->cert] : entry->certChain
+
+    certs.each |cert|
+    {
+      buf.add(cert.toStr)
+    }
+
+    return Etc.makeMapGrid(["view":"text"], ["val":buf.toStr])
   }
 
   ** Add a private key and cert chain entry
