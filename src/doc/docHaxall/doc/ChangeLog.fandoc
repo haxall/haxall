@@ -6,7 +6,17 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
-*Build 3.1.8 (working)*
+*Build 3.1.8 (9 Jun 2023)*
+- Axon shell
+- Integrate data and xeto APIs
+- New data function library
+- New hx funcs: isWatched
+- Connector hook to learn without open
+- Haxall new platform APIs
+- Haxall rename of hxSerial to hxPlatformSerial
+- New strReplace point conversion
+- Support for batch hisRead/hisWrite HTTP ops
+- Flush out more HTTP API examples (in both Zinc and JSON)
 
 *Build 3.1.7 (17 Feb 2023)*
 - Add point conversion: boolToNumber
