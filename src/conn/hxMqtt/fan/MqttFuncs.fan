@@ -25,6 +25,8 @@ const class MqttFuncs
   ** specified, then QoS '0' is used. See `mqttQos`.
   ** - 'mqttRetain': Should the message be retained on the broker ('true' | 'false').
   ** If not specified, then 'false' is used. See `mqttRetain`.
+  ** - 'mqttExpiryInterval': Sets the expiry interval for the message as a Duration.
+  ** This is only supported in MQTT 5.
   **
   ** pre>
   ** read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2})

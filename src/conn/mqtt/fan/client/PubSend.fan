@@ -87,7 +87,7 @@ final class PubSend
 
   ** Set the expiry interval for the message
   ** (**MQTT 5 only**)
-  This expiryInterval(Duration interval)
+  This expiryInterval(Duration? interval)
   {
     fields[Message#expiryInterval] = interval
     return this
