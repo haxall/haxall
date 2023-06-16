@@ -230,6 +230,46 @@ const class ShellFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Libs
+//////////////////////////////////////////////////////////////////////////
+
+  ** Backdoor hook to load Axon functions from a resource pod.
+  ** No checking is done for dependencies.
+  @NoDoc @Axon static Obj? loadFuncs(Str libName)
+  {
+    // find the pod
+    pod := Pod.find(libName + "Ext", false)
+    if (pod == null) pod = Pod.find("hx" + libName.capitalize, false)
+    if (pod == null) throw Err("Cannot find pod for $libName.toCode")
+
+    // walk all the lib.trio files
+    acc := Str:TopFn[:]
+    pod.files.each |file|
+    {
+      if (file.ext == "trio" && file.pathStr.startsWith("/lib/"))
+        loadFuncsFromTrio(acc, file)
+    }
+
+    // merge into context top funcs
+    cx.funcs.setAll(acc)
+
+    return "Loaded $acc.size funcs from $pod"
+  }
+
+  private static Void loadFuncsFromTrio(Str:TopFn acc, File file)
+  {
+    TrioReader(file.in).eachDict |rec|
+    {
+      if (rec.missing("func") || rec.missing("name")) return
+      name := (Str)rec->name
+      try
+        acc[name] = Parser(Loc(file.toStr), rec->src.toStr.in).parseTop(name, rec)
+      catch (Err e)
+        echo("ERROR: Cannot load $name\n  $e")
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 

@@ -29,20 +29,9 @@ internal class ShellContext : HxContext
   {
     this.out   = out
     this.data  = DataEnv.cur
-    this.funcs = loadFuncs
+    this.funcs = loadBuiltInFuncs
     this.rt    = ShellRuntime()
     this.user  = ShellUser()
-  }
-
-  static Str:TopFn loadFuncs()
-  {
-    acc := Str:TopFn[:]
-    acc.addAll(FantomFn.reflectType(CoreLib#))
-    acc.addAll(FantomFn.reflectType(ShellFuncs#))
-    acc.addAll(FantomFn.reflectType(HxCoreFuncs#))
-    acc.addAll(FantomFn.reflectType(Type.find("hxData::DataFuncs")))
-    acc.addAll(FantomFn.reflectType(Type.find("hxIO::IOFuncs")))
-    return acc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -268,7 +257,7 @@ internal class ShellContext : HxContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Map of installed functions
-  const Str:TopFn funcs
+  Str:TopFn funcs
 
   ** Find top-level function by qname or name
   override Fn? findTop(Str name, Bool checked := true)
@@ -283,6 +272,17 @@ internal class ShellContext : HxContext
   override Dict? trapRef(Ref id, Bool checked := true)
   {
     db.readById(id, checked)
+  }
+
+  private static Str:TopFn loadBuiltInFuncs()
+  {
+    acc := Str:TopFn[:]
+    acc.addAll(FantomFn.reflectType(CoreLib#))
+    acc.addAll(FantomFn.reflectType(ShellFuncs#))
+    acc.addAll(FantomFn.reflectType(HxCoreFuncs#))
+    acc.addAll(FantomFn.reflectType(Type.find("hxData::DataFuncs")))
+    acc.addAll(FantomFn.reflectType(Type.find("hxIO::IOFuncs")))
+    return acc
   }
 
 //////////////////////////////////////////////////////////////////////////
