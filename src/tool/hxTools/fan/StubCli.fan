@@ -225,7 +225,7 @@ internal class StubCli : HxCli
     if (!Etc.isTagName(libName)) return fatal("Library name must be a valid tag name: $libName")
     if (libName.endsWith("Ext")) return fatal("Library name must not end with 'Ext': $libName")
     idx := libName.chars.findIndex { it.isUpper }
-    if (idx == 0) return fatal("Library name must start with lowercase prefix: $libName")
+    if (idx == null || idx == 0) return fatal("Library name must start with lowercase prefix: $libName")
     this.libOrg     = libName[0..<idx]
     this.typePrefix = isHx ? libName[idx..-1] : libName.capitalize
 
