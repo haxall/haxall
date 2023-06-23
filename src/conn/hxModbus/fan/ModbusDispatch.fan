@@ -135,7 +135,7 @@ class ModbusDispatch : ConnDispatch
     block.regs.each |r,i|
     {
       val := block.vals[i]
-      pts := points.findAll |x| { x.rec->modbusCur == r.name }
+      pts := points.findAll |x| { x.rec["modbusCur"] == r.name }
       pts.each |p|
       {
         if (val is Err) p.updateCurErr(val)
