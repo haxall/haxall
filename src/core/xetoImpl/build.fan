@@ -10,13 +10,13 @@
 using build
 
 **
-** Build: xeto
+** Build: xetoImpl
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName = "xeto"
+    podName = "xetoImpl"
     summary = "Xeto is eXtensible Explicitly Typed Objects"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",

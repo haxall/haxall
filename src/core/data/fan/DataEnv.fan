@@ -21,7 +21,7 @@ const abstract class DataEnv
   {
     env := curRef.val as DataEnv
     if (env != null) return env
-    curRef.compareAndSet(null, Type.find("xeto::XetoEnv").make)
+    curRef.compareAndSet(null, Type.find("xetoImpl::XetoEnv").make)
     return curRef.val
   }
   private static const AtomicRef curRef := AtomicRef()
@@ -32,7 +32,7 @@ const abstract class DataEnv
   ** references to DataLib or DataSpecs must no longer be used.
   static Void reload()
   {
-    curRef.val = Type.find("xeto::XetoEnv").make
+    curRef.val = Type.find("xetoImpl::XetoEnv").make
   }
 
   ** None singleton value

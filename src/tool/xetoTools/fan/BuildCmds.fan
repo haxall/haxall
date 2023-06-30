@@ -9,7 +9,7 @@
 using util
 using data
 using haystack
-using xeto
+using xetoImpl
 
 **
 ** BuildCmd is used to create xetolib zips

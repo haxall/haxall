@@ -10,7 +10,7 @@ using web
 using data
 using haystack
 using axon
-using xeto::Printer
+using xetoImpl::Printer
 using folio
 
 **
