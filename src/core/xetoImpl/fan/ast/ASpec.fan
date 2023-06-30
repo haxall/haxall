@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** AST DataSpec
+** AST Spec
 **
 @Js
 internal class ASpec : AObj, CSpec
@@ -33,7 +33,7 @@ internal class ASpec : AObj, CSpec
   override Bool isSpec() { true }
 
   ** Return 'asm' XetoSpec as the assembled value.  This is the
-  ** reference to the DataSpec - we backpatch the "m" field in Assemble step
+  ** reference to the Spec - we backpatch the "m" field in Assemble step
   override XetoSpec asm() { asmRef }
   const XetoSpec asmRef
 

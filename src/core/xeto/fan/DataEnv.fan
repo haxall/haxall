@@ -29,7 +29,7 @@ const abstract class DataEnv
   ** Reload the entire data env.  This creates a new environment,
   ** rescans the local file system for installed libs, and all previously
   ** loaded libraries with be reloaded on first access.  Any
-  ** references to DataLib or DataSpecs must no longer be used.
+  ** references to DataLib or Specs must no longer be used.
   static Void reload()
   {
     curRef.val = Type.find("xetoImpl::XetoEnv").make
@@ -45,7 +45,7 @@ const abstract class DataEnv
   abstract Obj na()
 
   ** Return generic 'sys::Dict'
-  @NoDoc abstract DataSpec dictSpec()
+  @NoDoc abstract Spec dictSpec()
 
   ** Empty dict singleton
   @NoDoc abstract Dict dict0()
@@ -69,7 +69,7 @@ const abstract class DataEnv
   @NoDoc abstract Dict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5)
 
   ** Create a Dict from a map name/value pairs.
-  @NoDoc abstract Dict dictMap(Str:Obj map, DataSpec? spec := null)
+  @NoDoc abstract Dict dictMap(Str:Obj map, Spec? spec := null)
 
   ** Coerce one of the following values to a dict:
   **   - null return empty dict
@@ -79,7 +79,7 @@ const abstract class DataEnv
   abstract Dict dict(Obj? x)
 
   ** Data type for Fantom object
-  abstract DataSpec? typeOf(Obj? val, Bool checked := true)
+  abstract Spec? typeOf(Obj? val, Bool checked := true)
 
   ** Registry of installed libs
   @NoDoc abstract DataRegistry registry()
@@ -91,18 +91,18 @@ const abstract class DataEnv
   @NoDoc abstract DataLib sysLib()
 
   ** Get or load type by the given qualified name
-  abstract DataSpec? type(Str qname, Bool checked := true)
+  abstract Spec? type(Str qname, Bool checked := true)
 
   ** Get or load spec by the given qualified name:
   **   - lib: "foo.bar"
   **   - type: "foo.bar::Baz"
   **   - slot: "foo.bar::Baz.qux"
-  abstract DataSpec? spec(Str qname, Bool checked := true)
+  abstract Spec? spec(Str qname, Bool checked := true)
 
   ** Derive a new spec from the given base type, additional meta, and
   ** slots.  The spec is not associated with any library and a synthetic
   ** qname is generated.
-  abstract DataSpec derive(Str name, DataSpec base, Dict meta, [Str:DataSpec]? slots := null)
+  abstract Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
 
   ** Create default instance for the given spec.
   ** Raise exception if spec is abstract.
@@ -110,7 +110,7 @@ const abstract class DataEnv
   ** Options:
   **   - 'graph': marker tag to instantiate graph of recs
   **   - 'abstract': marker to supress error if spec is abstract
-  abstract Obj? instantiate(DataSpec spec, Dict? opts := null)
+  abstract Obj? instantiate(Spec spec, Dict? opts := null)
 
   ** Compile Xeto source code into a temp library.
   ** Raise exception if there are any syntax or semantic errors.
@@ -127,18 +127,18 @@ const abstract class DataEnv
   @NoDoc abstract DataLibDependVersions parseLibDependVersions(Str s, Bool checked)
 
   ** Return if the given instance fits the spec via structural typing.
-  abstract Bool fits(DataContext cx, Obj? val, DataSpec spec, Dict? opts := null)
+  abstract Bool fits(DataContext cx, Obj? val, Spec spec, Dict? opts := null)
 
   ** Return if spec 'a' fits spec 'b' based on structural typing.
-  @NoDoc abstract Bool specFits(DataSpec a, DataSpec b, Dict? opts := null)
+  @NoDoc abstract Bool specFits(Spec a, Spec b, Dict? opts := null)
 
   ** Query a relationship using the given subject and query spec.
   ** Call given callback function until it returns non-null and return
   ** as overall result of the method.
-  @NoDoc abstract Obj? queryWhile(DataContext cx, Dict subject, DataSpec query, Dict? opts, |Dict->Obj?| f)
+  @NoDoc abstract Obj? queryWhile(DataContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
 
   ** Generate an AST for the given spec as a Dict tree.
-  @NoDoc abstract Dict genAst(DataSpec spec, Dict? opts := null)
+  @NoDoc abstract Dict genAst(Spec spec, Dict? opts := null)
 
   ** Pretty print object to output stream.
   @NoDoc abstract Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)

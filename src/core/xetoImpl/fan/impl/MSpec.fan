@@ -12,7 +12,7 @@ using xeto
 //using haystack
 
 **
-** Implementation of DataSpec wrapped by XetoSpec
+** Implementation of Spec wrapped by XetoSpec
 **
 @Js
 internal const class MSpec
@@ -61,7 +61,7 @@ internal const class MSpec
 
   override Str toStr() { qname }
 
-  virtual DataSpec spec() { env.sys.spec }
+  virtual Spec spec() { env.sys.spec }
 
 //////////////////////////////////////////////////////////////////////////
 // Effective Meta
@@ -177,7 +177,7 @@ internal const class MSpecFlags
 ** XetoSpec is the referential proxy for MSpec
 **
 @Js
-internal const class XetoSpec : DataSpec, Dict, CSpec
+internal const class XetoSpec : Spec, Dict, CSpec
 {
   new make() {}
 
@@ -187,15 +187,15 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
 
   override DataLib lib() { m.lib }
 
-  override final DataSpec? parent() { m.parent }
+  override final Spec? parent() { m.parent }
 
   override final Str name() { m.name }
 
   override final Str qname() { m.qname }
 
-  override final DataSpec type() { m.type }
+  override final Spec type() { m.type }
 
-  override final DataSpec? base() { m.base }
+  override final Spec? base() { m.base }
 
   override final Dict meta() { m.meta }
 
@@ -205,17 +205,17 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
 
   override final DataSlots slots() { m.slots }
 
-  override final DataSpec? slot(Str n, Bool c := true) { m.slot(n, c) }
+  override final Spec? slot(Str n, Bool c := true) { m.slot(n, c) }
 
-  override final DataSpec? slotOwn(Str n, Bool c := true) { m.slotOwn(n, c) }
+  override final Spec? slotOwn(Str n, Bool c := true) { m.slotOwn(n, c) }
 
-  override final Bool isa(DataSpec x) { XetoUtil.isa(this, x, true) }
+  override final Bool isa(Spec x) { XetoUtil.isa(this, x, true) }
 
-  override final Bool fits(DataSpec that) { Fitter(m.env, m.env.nilContext, m.env.dict0).specFits(this, that) }
+  override final Bool fits(Spec that) { Fitter(m.env, m.env.nilContext, m.env.dict0).specFits(this, that) }
 
   override final FileLoc loc() { m.loc }
 
-  override final DataSpec spec() { m.spec }
+  override final Spec spec() { m.spec }
 
   override final Bool isEmpty() { m.isEmpty }
 
@@ -235,7 +235,7 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
 
   override final Bool isCompound()  { XetoUtil.isCompound(this) }
 
-  override final DataSpec[]? ofs(Bool checked := true)  { XetoUtil.ofs(this, checked) }
+  override final Spec[]? ofs(Bool checked := true)  { XetoUtil.ofs(this, checked) }
 
   override final Bool isNone() { XetoUtil.isNone(this) }
 

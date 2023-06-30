@@ -9,18 +9,18 @@
 using xeto
 
 **
-** MDict is used to wrap a Dict with a DataSpec
+** MDict is used to wrap a Dict with a Spec
 **
 @Js
 internal const class MDict : haystack::Dict
 {
-  new make(Dict wrapped, DataSpec spec)
+  new make(Dict wrapped, Spec spec)
   {
     this.wrapped = wrapped
     this.spec = spec
   }
 
-  const override DataSpec spec
+  const override Spec spec
   const Dict wrapped
 
   @Operator override Obj? get(Str n, Obj? def := null) { wrapped.get(n, def) }

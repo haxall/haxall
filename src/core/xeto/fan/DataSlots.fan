@@ -7,7 +7,7 @@
 //
 
 **
-** DataSlots is a map of named DataSpecs
+** DataSlots is a map of named Specs
 **
 @Js
 const mixin DataSlots
@@ -22,16 +22,16 @@ const mixin DataSlots
   abstract Bool missing(Str name)
 
   ** Get the child slot spec
-  abstract DataSpec? get(Str name, Bool checked := true)
+  abstract Spec? get(Str name, Bool checked := true)
 
   ** Convenience to list the slots names; prefer `each`.
   abstract Str[] names()
 
   ** Iterate through the children
-  abstract Void each(|DataSpec val| f)
+  abstract Void each(|Spec val| f)
 
   ** Iterate through the children until function returns non-null
-  abstract Obj? eachWhile(|DataSpec val->Obj?| f)
+  abstract Obj? eachWhile(|Spec val->Obj?| f)
 
   ** Get the slots as Dict of the specs.
   @NoDoc abstract Dict toDict()

@@ -33,7 +33,7 @@ internal class Fitter
 // Spec Fits
 //////////////////////////////////////////////////////////////////////////
 
-  Bool specFits(DataSpec a, DataSpec b)
+  Bool specFits(Spec a, Spec b)
   {
     // if a is nonimally typed as b, then definitely fits
     if (a.isa(b)) return true
@@ -52,7 +52,7 @@ internal class Fitter
     return explainNoFit(a, b)
   }
 
-  private Bool specFitsStruct(DataSpec a, DataSpec b)
+  private Bool specFitsStruct(Spec a, Spec b)
   {
     r := b.slots.eachWhile |bslot|
     {
@@ -67,7 +67,7 @@ internal class Fitter
 // Instance Fits
 //////////////////////////////////////////////////////////////////////////
 
-  Bool valFits(Obj? val, DataSpec type)
+  Bool valFits(Obj? val, Spec type)
   {
     // get type for value
     valType := env.typeOf(val, false)
@@ -83,7 +83,7 @@ internal class Fitter
     return explainNoFit(valType, type)
   }
 
-  private Bool fitsStruct(Dict dict, DataSpec type)
+  private Bool fitsStruct(Dict dict, Spec type)
   {
     slots := type.slots
     match := true
@@ -95,7 +95,7 @@ internal class Fitter
     return match
   }
 
-  private Bool fitsSlot(Dict dict, DataSpec slot)
+  private Bool fitsSlot(Dict dict, Spec slot)
   {
     slotType := slot.type
 
@@ -115,7 +115,7 @@ internal class Fitter
     return true
   }
 
-  private Bool fitsQuery(Dict dict, DataSpec query)
+  private Bool fitsQuery(Dict dict, Spec query)
   {
     // if no constraints then no additional checking required
     if (query.slots.isEmpty) return true
@@ -124,7 +124,7 @@ internal class Fitter
     extent := Query(env, cx, opts).query(dict, query)
 
     // use query.of as explain name
-    ofDis := (query["of"] as DataSpec)?.name ?: query.name
+    ofDis := (query["of"] as Spec)?.name ?: query.name
 
     // make sure each constraint has exactly one match
     match := true
@@ -138,7 +138,7 @@ internal class Fitter
     return match
   }
 
-  private Bool fitQueryConstraint(Dict rec, Str ofDis, Dict[] extent, DataSpec constraint)
+  private Bool fitQueryConstraint(Dict rec, Str ofDis, Dict[] extent, Spec constraint)
   {
     matches := Dict[,]
     extent.each |x|
@@ -163,15 +163,15 @@ internal class Fitter
 
   virtual Bool explainNoType(Obj? val) { false }
 
-  virtual Bool explainNoFit(DataSpec valType, DataSpec type) { false }
+  virtual Bool explainNoFit(Spec valType, Spec type) { false }
 
-  virtual Bool explainMissingSlot(DataSpec slot) { false }
+  virtual Bool explainMissingSlot(Spec slot) { false }
 
-  virtual Bool explainInvalidSlotType(Obj val, DataSpec slot) { false }
+  virtual Bool explainInvalidSlotType(Obj val, Spec slot) { false }
 
-  virtual Bool explainMissingQueryConstraint(Str ofDis, DataSpec constraint) { false }
+  virtual Bool explainMissingQueryConstraint(Str ofDis, Spec constraint) { false }
 
-  virtual Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, Dict[] matches) { false }
+  virtual Bool explainAmbiguousQueryConstraint(Str ofDis, Spec constraint, Dict[] matches) { false }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
@@ -201,12 +201,12 @@ internal class ExplainFitter : Fitter
     log("Value not mapped to data type [${val?.typeof}]")
   }
 
-  override Bool explainNoFit(DataSpec valType, DataSpec type)
+  override Bool explainNoFit(Spec valType, Spec type)
   {
     log("Type '$valType' does not fit '$type'")
   }
 
-  override Bool explainMissingSlot(DataSpec slot)
+  override Bool explainMissingSlot(Spec slot)
   {
     if (slot.type.isMarker)
       return log("Missing required marker '$slot.name'")
@@ -214,17 +214,17 @@ internal class ExplainFitter : Fitter
       return log("Missing required slot '$slot.name'")
   }
 
-  override Bool explainMissingQueryConstraint(Str ofDis, DataSpec constraint)
+  override Bool explainMissingQueryConstraint(Str ofDis, Spec constraint)
   {
     log("Missing required $ofDis: " + constraintToDis(constraint))
   }
 
-  override Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, Dict[] matches)
+  override Bool explainAmbiguousQueryConstraint(Str ofDis, Spec constraint, Dict[] matches)
   {
     log("Ambiguous match for $ofDis: " + constraintToDis(constraint) + " [" + recsToDis(matches) + "]")
   }
 
-  override Bool explainInvalidSlotType(Obj val, DataSpec slot)
+  override Bool explainInvalidSlotType(Obj val, Spec slot)
   {
     log("Invalid value type for '$slot.name' - '${val.typeof}' does not fit '$slot.type'")
   }
@@ -235,7 +235,7 @@ internal class ExplainFitter : Fitter
     return false
   }
 
-  private Str constraintToDis(DataSpec constraint)
+  private Str constraintToDis(Spec constraint)
   {
     n := constraint.name
     if (XetoUtil.isAutoName(n)) return constraint.type.qname

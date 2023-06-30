@@ -12,12 +12,12 @@ using haystack
 using haystack::Dict
 
 **
-** Spec is an expression that evaluates to a DataSpec
+** SpecExpr is an expression that evaluates to a `xeto::Spec`
 **
 @Js
-internal abstract const class Spec : Expr
+internal abstract const class SpecExpr : Expr
 {
-  abstract override DataSpec? eval(AxonContext cx)
+  abstract override Spec? eval(AxonContext cx)
 }
 
 **************************************************************************
@@ -28,7 +28,7 @@ internal abstract const class Spec : Expr
 ** SpecTypeRef is a DataType lookup by name from either using lib or a local definition.
 **
 @Js
-internal const class SpecTypeRef : Spec
+internal const class SpecTypeRef : SpecExpr
 {
   new make(Loc loc, Str? lib, Str name)
   {
@@ -45,13 +45,13 @@ internal const class SpecTypeRef : Spec
 
   const Str name
 
-  override DataSpec? eval(AxonContext cx)
+  override Spec? eval(AxonContext cx)
   {
     // qualified type
     if (lib != null) return cx.usings.env.lib(lib).slotOwn(name)
 
     // try local varaible definition
-    local := cx.getVar(name) as DataSpec
+    local := cx.getVar(name) as Spec
     if (local != null) return local
 
     // resolve from usings
@@ -85,7 +85,7 @@ internal const class SpecTypeRef : Spec
 ** SpecSlotRef a slot path within SpecTypeRef
 **
 @Js
-internal const class SpecSlotRef : Spec
+internal const class SpecSlotRef : SpecExpr
 {
   new make(SpecTypeRef typeRef, Str[] slots)
   {
@@ -101,7 +101,7 @@ internal const class SpecSlotRef : Spec
 
   const Str[] slots
 
-  override DataSpec? eval(AxonContext cx)
+  override Spec? eval(AxonContext cx)
   {
     spec := typeRef.eval(cx)
     for (i := 0; i<slots.size; ++i)
@@ -133,12 +133,12 @@ internal const class SpecSlotRef : Spec
 **************************************************************************
 
 **
-** SpecDerive derives a new DataSpec with meta/slots
+** SpecDerive derives a new Spec with meta/slots
 **
 @Js
-internal const class SpecDerive : Spec
+internal const class SpecDerive : SpecExpr
 {
-  new make(Loc loc, Str name, Spec base, SpecMetaTag[]? meta, [Str:Spec]? slots)
+  new make(Loc loc, Str name, SpecExpr base, SpecMetaTag[]? meta, [Str:SpecExpr]? slots)
   {
     this.loc   = loc
     this.name  = name
@@ -153,13 +153,13 @@ internal const class SpecDerive : Spec
 
   const Str name
 
-  const Spec base
+  const SpecExpr base
 
   const SpecMetaTag[]? meta
 
-  const [Str:Spec]? slots
+  const [Str:SpecExpr]? slots
 
-  override DataSpec? eval(AxonContext cx)
+  override Spec? eval(AxonContext cx)
   {
     base  := base.eval(cx)
     meta  := evalMeta(cx)
@@ -184,10 +184,10 @@ internal const class SpecDerive : Spec
     return Etc.dictFromMap(acc)
   }
 
-  private [Str:DataSpec]? evalSlots(AxonContext cx)
+  private [Str:Spec]? evalSlots(AxonContext cx)
   {
     if (slots == null) return null
-    return slots.map |Spec ast->DataSpec| { ast.eval(cx) }
+    return slots.map |SpecExpr ast->Spec| { ast.eval(cx) }
   }
 
   override Printer print(Printer out)
@@ -224,7 +224,7 @@ internal const class SpecMetaTag
   Obj eval(AxonContext cx)
   {
     if (val.type === ExprType.list && name == "ofs")
-      return ((ListExpr)val).vals.map |x->DataSpec| { x.eval(cx) }
+      return ((ListExpr)val).vals.map |x->Spec| { x.eval(cx) }
     else
       return val.eval(cx)
   }

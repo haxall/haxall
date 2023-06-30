@@ -50,12 +50,12 @@ internal const final class MSlots : DataSlots
     map.keys
   }
 
-  override Void each(|DataSpec| f)
+  override Void each(|Spec| f)
   {
     map.each(f)
   }
 
-  override Obj? eachWhile(|DataSpec->Obj?| f)
+  override Obj? eachWhile(|Spec->Obj?| f)
   {
     map.eachWhile(f)
   }

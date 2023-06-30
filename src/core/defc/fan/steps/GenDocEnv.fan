@@ -105,7 +105,7 @@ internal class GenDocEnv : DefCompilerStep
     return acc
   }
 
-  private CFandoc specDoc(DataSpec spec)
+  private CFandoc specDoc(Spec spec)
   {
     CFandoc(CLoc(spec.loc), spec["doc"] as Str ?: "")
   }

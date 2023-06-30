@@ -241,10 +241,10 @@ class DataTestCase
   }
 
 //////////////////////////////////////////////////////////////////////////
-// DataSpec Verifies
+// Spec Verifies
 //////////////////////////////////////////////////////////////////////////
 
-  Void verifySpec(DataSpec spec, Str:Obj? expect)
+  Void verifySpec(Spec spec, Str:Obj? expect)
   {
     if (spec.isType)
     {
@@ -260,7 +260,7 @@ class DataTestCase
     verifySlots(spec, expect["slots"])
   }
 
-  Void verifyMeta(DataSpec spec, [Str:Obj?]? expect)
+  Void verifyMeta(Spec spec, [Str:Obj?]? expect)
   {
     if (expect == null)
     {
@@ -273,7 +273,7 @@ class DataTestCase
     spec.metaOwn.each |v, n| { verify(expect.containsKey(n), n) }
   }
 
-  Void verifyMetaPair(DataSpec spec, Str name, Obj expect)
+  Void verifyMetaPair(Spec spec, Str name, Obj expect)
   {
     if (expect is Str && expect.toStr.startsWith("inherit"))
       verifyMetaInherit(spec, name)
@@ -281,7 +281,7 @@ class DataTestCase
       verifyMetaOwn(spec, name, expect)
   }
 
-  Void verifyMetaInherit(DataSpec spec, Str expect)
+  Void verifyMetaInherit(Spec spec, Str expect)
   {
     name := expect
     sp := expect.index(" ")
@@ -301,7 +301,7 @@ class DataTestCase
     verifySame(spec.get(name), inheritFrom.get(name))
   }
 
-  Void verifyMetaOwn(DataSpec spec, Str name, Obj expect)
+  Void verifyMetaOwn(Spec spec, Str name, Obj expect)
   {
     verifyEq(spec.metaOwn.has(name), true, name)
     verifyEq(spec.metaOwn.missing(name), false)
@@ -314,7 +314,7 @@ class DataTestCase
     verifyVal(spec.get(name), expect)
   }
 
-  Void verifySlots(DataSpec spec, [Str:Obj?]? expect)
+  Void verifySlots(Spec spec, [Str:Obj?]? expect)
   {
     if (expect == null)
     {
@@ -328,7 +328,7 @@ class DataTestCase
     verifyEq(spec.slots.names.sort, Str[,].addAll(expect.keys.sort))
   }
 
-  Void verifySlot(DataSpec spec, Str name, Obj expect)
+  Void verifySlot(Spec spec, Str name, Obj expect)
   {
     verifyEq(spec.slots.has(name), true)
     verifyEq(spec.slots.missing(name), false)
@@ -346,7 +346,7 @@ class DataTestCase
     }
   }
 
-  Void verifySlotOwn(DataSpec spec, Str name, Obj expect)
+  Void verifySlotOwn(Spec spec, Str name, Obj expect)
   {
     slot := spec.slot(name)
     verifySame(spec.slotOwn(name), slot)
@@ -355,7 +355,7 @@ class DataTestCase
     verifySpec(slot, expect)
   }
 
-  Void verifySlotInherit(DataSpec spec, Str name, Obj expect)
+  Void verifySlotInherit(Spec spec, Str name, Obj expect)
   {
     slot := spec.slot(name)
     verifySame(spec.slotOwn(name, false), null)
@@ -363,7 +363,7 @@ class DataTestCase
     verifySame(spec.slotsOwn.get(name, false), null)
   }
 
-  Void verifySlotOverride(DataSpec spec, Str name, Obj expect)
+  Void verifySlotOverride(Spec spec, Str name, Obj expect)
   {
     slot := spec.slot(name)
     own := spec.slotOwn(name)
@@ -389,7 +389,7 @@ class DataTestCase
       throw Err("Unhandled type: $type")
   }
 
-  Void verifyScalar(Obj val, DataSpec type, Str expect)
+  Void verifyScalar(Obj val, Spec type, Str expect)
   {
     // scalar expect format is "<type> <val>"
     expectType := expect
@@ -429,7 +429,7 @@ class DataTestCase
     dict.each |v, n| { verify(expect[n] != null) }
   }
 
-  Void verifyDictSpec(DataSpec spec, Str expect)
+  Void verifyDictSpec(Spec spec, Str expect)
   {
     verifyEq(spec.type.qname, expect)
   }
@@ -448,7 +448,7 @@ class DataTestCase
     dataRef ?: throw Err("Missing compileData")
   }
 
-  DataSpec spec(Str qname)
+  Spec spec(Str qname)
   {
     dot := qname.indexr(".")
     Str? slot := null
@@ -458,7 +458,7 @@ class DataTestCase
       qname = qname[0..<dot]
     }
 
-    DataSpec type := qname.startsWith("test::") ?
+    Spec type := qname.startsWith("test::") ?
                      lib.libType(qname[6..-1]) :
                      env.type(qname)
 
@@ -467,7 +467,7 @@ class DataTestCase
            type.slot(slot)
   }
 
-  Void verifyQName(DataSpec? actual, Str? expected)
+  Void verifyQName(Spec? actual, Str? expected)
   {
     if (expected == null) { verifyEq(actual, null); return }
     if (expected.startsWith("test::"))

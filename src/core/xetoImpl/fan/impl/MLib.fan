@@ -28,13 +28,13 @@ internal const final class MLib : MSpec
 
   const override Str qname
 
-  override DataSpec spec() { env.sys.lib }
+  override Spec spec() { env.sys.lib }
 
   const Version version
 
   const DataLibDepend[] depends
 
-  DataSpec? libType(Str name, Bool checked := true)
+  Spec? libType(Str name, Bool checked := true)
   {
     type := slotOwn(name, false)
     if (type != null) return type
@@ -66,7 +66,7 @@ internal const class XetoLib : XetoSpec, DataLib
 
   override DataLibDepend[] depends() { ml.depends }
 
-  override DataSpec? libType(Str name, Bool checked := true) { ml.libType(name, checked) }
+  override Spec? libType(Str name, Bool checked := true) { ml.libType(name, checked) }
 
   const MLib? ml
 }

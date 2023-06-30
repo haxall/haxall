@@ -316,7 +316,7 @@ class DataEnvTest : AbstractDataTest
 
     verifyDerive("foo", list, env.dict0, null)
     verifyDerive("foo", list, env.dict1("bar", m), null)
-    verifyDerive("foo", list, env.dict2("bar", m, "baz", "hi"), Str:DataSpec[:])
+    verifyDerive("foo", list, env.dict2("bar", m, "baz", "hi"), Str:Spec[:])
     verifyDerive("foo", dict, env.dict0, ["foo":marker])
     verifyDerive("foo", dict, env.dict1("bar", m), ["foo":marker, "dis":str])
     verifyDerive("foo", dict, env.dict1("maybe", m), null)
@@ -326,7 +326,7 @@ class DataEnvTest : AbstractDataTest
     verifyDeriveErr("foo", list, env.dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::List")
   }
 
-  Void verifyDerive(Str name, DataSpec base, Dict meta, [Str:DataSpec]? slots)
+  Void verifyDerive(Str name, Spec base, Dict meta, [Str:Spec]? slots)
   {
     x := env.derive(name, base, meta, slots)
 
@@ -355,7 +355,7 @@ class DataEnvTest : AbstractDataTest
     }
   }
 
-  Void verifyDeriveErr(Str name, DataSpec base, Dict meta, [Str:DataSpec]? slots, Str msg)
+  Void verifyDeriveErr(Str name, Spec base, Dict meta, [Str:Spec]? slots, Str msg)
   {
     verifyErrMsg(ArgErr#, msg) { env.derive(name, base, meta, slots) }
   }
@@ -459,7 +459,7 @@ class DataEnvTest : AbstractDataTest
     return lib
   }
 
-  DataSpec verifyLibType(DataLib lib, Str name, DataSpec? base, Obj? val := null)
+  Spec verifyLibType(DataLib lib, Str name, Spec? base, Obj? val := null)
   {
     type := lib.libType(name)
     verifySame(type, lib.slot(name))
@@ -482,7 +482,7 @@ class DataEnvTest : AbstractDataTest
     return type
   }
 
-  DataSpec verifySlot(DataSpec parent, Str name, DataSpec type)
+  Spec verifySlot(Spec parent, Str name, Spec type)
   {
     slot := parent.slotOwn(name)
     verifyEq(slot.typeof.qname, "xetoImpl::XetoSpec") // not type

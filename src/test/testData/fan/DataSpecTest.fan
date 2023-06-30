@@ -36,7 +36,7 @@ class DataSpecTest : AbstractDataTest
      verifyMeta(lib.slotOwn("Bar"), Str:Obj["b":"B2", "c":"C"],  Str:Obj["a":"A", "b":"B2", "c":"C"])
   }
 
-  Void verifyMeta(DataSpec s, Str:Obj own, Str:Obj effective)
+  Void verifyMeta(Spec s, Str:Obj own, Str:Obj effective)
   {
     // metaOwn
     acc := Str:Obj[:]
@@ -199,7 +199,7 @@ class DataSpecTest : AbstractDataTest
      fooBar := lib.slotOwn("FooBar")
      verifySame(fooBar.type.base, and)
      verifyEq(fooBar.isa(and), true)
-     verifyEq(fooBar["ofs"], DataSpec[foo,bar])
+     verifyEq(fooBar["ofs"], Spec[foo,bar])
    }
 
 //////////////////////////////////////////////////////////////////////////
@@ -233,7 +233,7 @@ class DataSpecTest : AbstractDataTest
     verifySlots(phx.slot("DischargeAirFlowSensor"), dafsSlots)
   }
 
-  Void verifySlots(DataSpec t, Str[] expected)
+  Void verifySlots(Spec t, Str[] expected)
   {
     slots := t.slots
     i := 0
@@ -318,7 +318,7 @@ class DataSpecTest : AbstractDataTest
     verifyEq(abPts.base, aPts)
   }
 
-  Void verifyQueryInherit(DataSpec x, Str[] expectPoints)
+  Void verifyQueryInherit(Spec x, Str[] expectPoints)
   {
     q := x.slot("points")
     actualPoints := Str[,]

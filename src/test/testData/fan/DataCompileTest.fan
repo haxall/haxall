@@ -186,7 +186,7 @@ class DataCompileTest : AbstractDataTest
     verifyInheritSlot(f, ff, df, num, ["a":m, "val":n(456), "doc":"d-doc", "f":m, "baz":"hi"], "f, baz")
   }
 
-  Void verifyInheritSlot(DataSpec parent, DataSpec s, DataSpec base, DataSpec type, Str:Obj meta, Str ownNames)
+  Void verifyInheritSlot(Spec parent, Spec s, Spec base, Spec type, Str:Obj meta, Str ownNames)
   {
     // echo
     // echo("-- testInheritSlot $s base:$s.base type:$s.type")
@@ -265,7 +265,7 @@ class DataCompileTest : AbstractDataTest
     verifyInheritNone(bf, "qux", env.none, null)
   }
 
-  private Void verifyInheritNone(DataSpec s, Str name, Obj? own, Obj? effective)
+  private Void verifyInheritNone(Spec s, Str name, Obj? own, Obj? effective)
   {
     // echo("~~ $s.qname own=" + s.metaOwn[name] + " effective=" + s[name])
     verifyEq(s.metaOwn[name], own)

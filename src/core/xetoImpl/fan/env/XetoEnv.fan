@@ -54,7 +54,7 @@ internal const class XetoEnv : DataEnv
 
   const Obj?[] list0
 
-  override const DataSpec dictSpec
+  override const Spec dictSpec
 
   const override Dict dict0
 
@@ -70,7 +70,7 @@ internal const class XetoEnv : DataEnv
 
   override Dict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5) { Etc.dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5) }
 
-  override Dict dictMap(Str:Obj map, DataSpec? spec := null)
+  override Dict dictMap(Str:Obj map, Spec? spec := null)
   {
     dict := Etc.dictFromMap(map)
     if (spec == null || spec === dictSpec) return dict
@@ -85,7 +85,7 @@ internal const class XetoEnv : DataEnv
     return dictMap(map, null)
   }
 
-  override DataSpec? typeOf(Obj? val, Bool checked := true)
+  override Spec? typeOf(Obj? val, Bool checked := true)
   {
     if (val == null) return sys.none
     item := factory.fromFantom[val.typeof]
@@ -121,7 +121,7 @@ internal const class XetoEnv : DataEnv
     libName := qname[0..<colon]
     names := qname[colon+2..-1].split('.', false)
 
-    DataSpec? spec := lib(libName, false)
+    Spec? spec := lib(libName, false)
     if (spec != null)
     {
       for (i:=0; i<names.size; ++i)
@@ -136,12 +136,12 @@ internal const class XetoEnv : DataEnv
     return null
   }
 
-  override DataSpec derive(Str name, DataSpec base, Dict meta, [Str:DataSpec]? slots := null)
+  override Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
   {
     XetoUtil.derive(this, name, base, meta, slots)
   }
 
-  override Obj? instantiate(DataSpec spec, Dict? opts := null)
+  override Obj? instantiate(Spec spec, Dict? opts := null)
   {
     XetoUtil.instantiate(this, spec, opts ?: dict0)
   }
@@ -194,7 +194,7 @@ internal const class XetoEnv : DataEnv
     XetoLibDependVersions.fromStr(s, checked)
   }
 
-  override Bool specFits(DataSpec a, DataSpec b, Dict? opts := null)
+  override Bool specFits(Spec a, Spec b, Dict? opts := null)
   {
     if (opts == null) opts = dict0
     explain := XetoUtil.optLog(opts, "explain")
@@ -205,7 +205,7 @@ internal const class XetoEnv : DataEnv
       return ExplainFitter(this, cx, opts, explain).specFits(a, b)
   }
 
-  override Bool fits(DataContext cx, Obj? val, DataSpec spec, Dict? opts := null)
+  override Bool fits(DataContext cx, Obj? val, Spec spec, Dict? opts := null)
   {
     if (opts == null) opts = dict0
     explain := XetoUtil.optLog(opts, "explain")
@@ -215,14 +215,14 @@ internal const class XetoEnv : DataEnv
       return ExplainFitter(this, cx, opts, explain).valFits(val, spec)
   }
 
-  override Obj? queryWhile(DataContext cx, Dict subject, DataSpec query, Dict? opts, |Dict->Obj?| f)
+  override Obj? queryWhile(DataContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
   {
     // TODO: redesign to use eachWhile
     acc := Query(this, cx, opts).query(subject, query)
     return acc.eachWhile(f)
   }
 
-  override Dict genAst(DataSpec spec, Dict? opts := null)
+  override Dict genAst(Spec spec, Dict? opts := null)
   {
     if (opts == null) opts = dict0
     return XetoUtil.genAst(this, spec, opts.has("own"), opts)

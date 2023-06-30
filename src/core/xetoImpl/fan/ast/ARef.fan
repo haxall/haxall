@@ -9,7 +9,7 @@
 using util
 
 **
-** AST object reference to a named DataSpec
+** AST object reference to a named Spec
 **
 @Js
 internal class ARef

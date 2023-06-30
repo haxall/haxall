@@ -101,26 +101,26 @@ class AxonTest : HxTest
     verifySpecDerive(Str<|Dict? <foo>|>, "sys::Dict", ["maybe":m, "foo":m])
 
     // and/or
-    ofs := DataSpec[env.type("ph::Meter"), env.type("ph::Chiller")]
+    ofs := Spec[env.type("ph::Meter"), env.type("ph::Chiller")]
     verifySpecDerive(Str<|Meter & Chiller|>, "sys::And", ["ofs":ofs])
     verifySpecDerive(Str<|Meter | Chiller|>, "sys::Or",  ["ofs":ofs])
     verifySpecDerive(Str<|Meter & Chiller <foo>|>, "sys::And", ["ofs":ofs, "foo":m])
     verifySpecDerive(Str<|Meter | Chiller <foo>|>, "sys::Or",  ["ofs":ofs, "foo":m])
 // TODO
-//    verifySpecDerive(Str<|Meter & Chiller { foo: Str }|>, "sys::And", ["ofs":DataSpec[env.type("ph::Meter"), env.type("ph::Chiller")]], ["foo":"sys::Str"])
+//    verifySpecDerive(Str<|Meter & Chiller { foo: Str }|>, "sys::And", ["ofs":Spec[env.type("ph::Meter"), env.type("ph::Chiller")]], ["foo":"sys::Str"])
   }
 
-  DataSpec verifySpecRef(Str expr, Str qname)
+  Spec verifySpecRef(Str expr, Str qname)
   {
-    DataSpec x := makeContext.eval(expr)
+    Spec x := makeContext.eval(expr)
     // echo(":::REF:::: $expr => $x [$x.typeof]")
     verifySame(x, env.spec(qname))
     return x
   }
 
-  DataSpec verifySpecDerive(Str expr, Str type, Str:Obj meta := [:], Str:Str slots := [:])
+  Spec verifySpecDerive(Str expr, Str type, Str:Obj meta := [:], Str:Str slots := [:])
   {
-    DataSpec x := makeContext.eval(expr)
+    Spec x := makeContext.eval(expr)
     // echo(":::DERIVE::: $expr => $x [$x.typeof] " + Etc.dictToStr((Dict)x.metaOwn))
 
     // verify spec
@@ -135,7 +135,7 @@ class AxonTest : HxTest
     return x
   }
 
-  Void verifySpecExprSlot(DataSpec x, Str expect)
+  Void verifySpecExprSlot(Spec x, Str expect)
   {
     s := StrBuf().add(x.type.qname)
     if (expect.contains("<"))
@@ -205,7 +205,7 @@ class AxonTest : HxTest
     verifyReflect("LibOrg", env.type("sys::LibOrg"))
   }
 
-  Void verifyReflect(Str expr, DataSpec spec)
+  Void verifyReflect(Str expr, Spec spec)
   {
     verifyEval("specParent($expr)", spec.parent)
     verifyEval("specName($expr)", spec.name)
@@ -442,7 +442,7 @@ class AxonTest : HxTest
   {
     x := g.find { it.id == r.id }
     verifyEq(x->num, n(expect.size))
-    verifyEq(((DataSpec[])x->specs).join(", "), expect.join(", "))
+    verifyEq(((Spec[])x->specs).join(", "), expect.join(", "))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -573,7 +573,7 @@ class AxonTest : HxTest
     verifyDictEq(single, origActual.first)
   }
 
-  Void verifyQueryNamed(Dict subject, DataSpec spec, Str:Dict expect)
+  Void verifyQueryNamed(Dict subject, Spec spec, Str:Dict expect)
   {
     cx := makeContext
     Dict actual := cx.evalToFunc("queryNamed").call(cx, [subject, spec])
@@ -586,7 +586,7 @@ class AxonTest : HxTest
     }
   }
 
-  Void verifyQueryFitsExplain(Dict subject, DataSpec spec, Str[] expect)
+  Void verifyQueryFitsExplain(Dict subject, Spec spec, Str[] expect)
   {
     cx := makeContext
     Grid grid := cx.evalToFunc("fitsExplain").call(cx, [subject, spec])

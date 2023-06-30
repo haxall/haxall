@@ -84,7 +84,7 @@ abstract class XetoCmd : AbstractMain
 
   ** Handle list of spec qnames or "all".
   ** If no names are specifid will print error message and return null.
-  DataSpec[]? toSpecs(Str[]? qnames)
+  Spec[]? toSpecs(Str[]? qnames)
   {
     if (qnames == null || qnames.isEmpty)
     {
@@ -97,7 +97,7 @@ abstract class XetoCmd : AbstractMain
       qnames = env.registry.list.map |x->Str| { x.qname }
     }
 
-    return qnames.map |qname->DataSpec| { env.spec(qname) }
+    return qnames.map |qname->Spec| { env.spec(qname) }
   }
 
   ** Return list of lib qnames for source libs

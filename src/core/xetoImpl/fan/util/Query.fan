@@ -27,7 +27,7 @@ internal class Query
     this.fitter = Fitter(env, cx, opts)
   }
 
-  Dict[] query(Dict subject, DataSpec query)
+  Dict[] query(Dict subject, Spec query)
   {
     // verify its a query
     if (!query.isQuery)
@@ -38,7 +38,7 @@ else
     }
 
     // get of type
-    of := query["of"] as DataSpec ?: throw Err("No 'of' type specified: $query.qname")
+    of := query["of"] as Spec ?: throw Err("No 'of' type specified: $query.qname")
 
     // via
     via := query["via"] as Str
@@ -55,7 +55,7 @@ else
 // Query Via
 //////////////////////////////////////////////////////////////////////////
 
-  private Dict[] queryVia(Dict subject, DataSpec of, DataSpec query, Str via)
+  private Dict[] queryVia(Dict subject, Spec of, Spec query, Str via)
   {
     multiHop := false
     if (via.endsWith("+"))
@@ -76,7 +76,7 @@ else
     return acc
   }
 
-  private Dict? matchVia(Dict subject, DataSpec of, Str via)
+  private Dict? matchVia(Dict subject, Spec of, Str via)
   {
     ref := subject.get(via, null)
     if (ref == null) return null
@@ -93,7 +93,7 @@ else
 // Query Inverse
 //////////////////////////////////////////////////////////////////////////
 
-  private Dict[] queryInverse(Dict subject, DataSpec of, DataSpec query, Str inverseName)
+  private Dict[] queryInverse(Dict subject, Spec of, Spec query, Str inverseName)
   {
     inverse := env.spec(inverseName, false)
     if (inverse == null) throw Err("Inverse of query '$query.qname' not found: $inverseName")
@@ -136,7 +136,7 @@ else
     return matchInverse(subjectId, x, via, multiHop)
   }
 
-  private Bool fits(Obj? val, DataSpec spec)
+  private Bool fits(Obj? val, Spec spec)
   {
     fitter.valFits(val, spec)
   }

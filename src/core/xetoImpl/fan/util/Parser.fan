@@ -198,7 +198,7 @@ internal class Parser
     ofs := AVal(first.loc, obj, "ofs")
     ofs.typeRef = sys.list
     ofs.initSlots
-    ofs.asmToListOf = DataSpec#
+    ofs.asmToListOf = Spec#
     add(obj.metaInit(sys), ofs)
 
     // parse Type <sep> Type <sep> Type ...

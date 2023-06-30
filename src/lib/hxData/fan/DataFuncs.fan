@@ -23,7 +23,7 @@ const class DataFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Load or lookup a DataSpec by its qname.  If not found
+  ** Load or lookup a Spec by its qname.  If not found
   ** raise exception or return null based on checked flag.
   **
   ** Examples:
@@ -32,22 +32,22 @@ const class DataFuncs
   **   spec("sys::Spec.of")      // slot
   **   spec("foo::Bar", false)   // type unchecked
   **
-  @Axon static DataSpec? spec(Str qname, Bool checked := true)
+  @Axon static Spec? spec(Str qname, Bool checked := true)
   {
     curContext.usings.env.spec(qname, checked)
   }
 
   **
-  ** List all the data types currently in scope.  Result is a list of DataSpec.
+  ** List all the data types currently in scope.  Result is a list of Spec.
   **
-  @Axon static DataSpec[] types()
+  @Axon static Spec[] types()
   {
     typesInScope(curContext, null).sort
   }
 
-  private static DataSpec[] typesInScope(HxContext cx, |DataSpec->Bool|? filter := null)
+  private static Spec[] typesInScope(HxContext cx, |Spec->Bool|? filter := null)
   {
-    acc := DataSpec[,]
+    acc := Spec[,]
     cx.usings.libs.each |lib|
     {
       lib.slotsOwn.each |x|
@@ -57,10 +57,10 @@ const class DataFuncs
       }
     }
 
-    vars := Str:DataSpec[:]
+    vars := Str:Spec[:]
     cx.varsInScope.each |var|
     {
-      x := var as DataSpec
+      x := var as Spec
       if (x == null) return
       if (vars[x.qname] != null) return
       if (filter != null && !filter(x)) return
@@ -92,7 +92,7 @@ const class DataFuncs
   **   // evaluates to dict[] of vav + points from constrained query
   **   instantiate(G36ReheatVav, {graph})
   **
-  @Axon static Obj? instantiate(DataSpec spec, Dict? opts := null)
+  @Axon static Obj? instantiate(Spec spec, Dict? opts := null)
   {
     curContext.usings.env.instantiate(spec, opts)
   }
@@ -108,7 +108,7 @@ const class DataFuncs
   ** Examples:
   **   specParent(Str)  >>  sys
   **
-  @Axon static DataSpec? specParent(DataSpec spec) { spec.parent }
+  @Axon static Spec? specParent(Spec spec) { spec.parent }
 
   **
   ** Return simple name of spec.  Returns empty string spec is a library.
@@ -117,7 +117,7 @@ const class DataFuncs
   **   specName(Dict)  >>  "Dict"
   **   specName(Site)  >>  "Site"
   **
-  @Axon static Str specName(DataSpec spec) { spec.name }
+  @Axon static Str specName(Spec spec) { spec.name }
 
   **
   ** Return fully qualified name of the spec:
@@ -130,7 +130,7 @@ const class DataFuncs
   **   specQName(Dict)  >>  "sys::Dict"
   **   specQName(Site)  >>  "ph::Site"
   **
-  @Axon static Str specQName(DataSpec spec) { spec.qname }
+  @Axon static Str specQName(Spec spec) { spec.qname }
 
   **
   ** Data type of the spec.  Returns the spec itself if it is a DataType.
@@ -140,7 +140,7 @@ const class DataFuncs
   **   specType(Dict)   >>  sys::Dict
   **   specType(Point)  >>  sys::Point
   **
-  @Axon static DataSpec specType(DataSpec spec) { spec.type }
+  @Axon static Spec specType(Spec spec) { spec.type }
 
   **
   ** Base spec from which the given spec directly inherits.
@@ -151,7 +151,7 @@ const class DataFuncs
   **   specBase(Meter)  >>  ph::Equip
   **   specType(Equip)  >>  ph::Entity
   **
-  @Axon static DataSpec? specBase(DataSpec spec) { spec.base }
+  @Axon static Spec? specBase(Spec spec) { spec.base }
 
   **
   ** Get the spec's effective declared meta-data as dict.
@@ -159,7 +159,7 @@ const class DataFuncs
   ** Examples:
   **   specMeta(Date)  >>  {sealed, val:2000-01-01, doc:"...", pattern:"..."}
   **
-  @Axon static Dict specMeta(DataSpec spec) { spec.meta }
+  @Axon static Dict specMeta(Spec spec) { spec.meta }
 
   **
   ** Get the spec's own declared meta-data as dict.
@@ -167,23 +167,23 @@ const class DataFuncs
   ** Examples:
   **   specMetaOwn(Date)  >>  {sealed, val:2000-01-01, doc:"...", pattern:"..."}
   **
-  @Axon static Dict specMetaOwn(DataSpec spec) { spec.metaOwn }
+  @Axon static Dict specMetaOwn(Spec spec) { spec.metaOwn }
 
   **
-  ** Get the spec's declared children slots as dict of DataSpecs.
+  ** Get the spec's declared children slots as dict of Specs.
   **
   ** Examples:
-  **   specSlots(Ahu)  >>  {ahu: DataSpec}
+  **   specSlots(Ahu)  >>  {ahu: Spec}
   **
-  @Axon static Dict specSlotsOwn(DataSpec spec) { spec.slotsOwn.toDict }
+  @Axon static Dict specSlotsOwn(Spec spec) { spec.slotsOwn.toDict }
 
   **
-  ** Get the effective children slots as a dict of DataSpecs.
+  ** Get the effective children slots as a dict of Specs.
   **
   ** Examples:
-  **   specSlots(Ahu)  >>  {equip: DataSpec, points: DataSpec, ahu: DataSpec}
+  **   specSlots(Ahu)  >>  {equip: Spec, points: Spec, ahu: Spec}
   **
-  @Axon static Dict specSlots(DataSpec spec) { spec.slots.toDict }
+  @Axon static Dict specSlots(Spec spec) { spec.slots.toDict }
 
 //////////////////////////////////////////////////////////////////////////
 // AST
@@ -195,7 +195,7 @@ const class DataFuncs
   **
   ** TODO: not sure how deep to make effective recursion yet
   **
-  @Axon static Dict specAst(DataSpec spec)
+  @Axon static Dict specAst(Spec spec)
   {
     curContext.usings.env.genAst(spec, Etc.dict0)
   }
@@ -204,7 +204,7 @@ const class DataFuncs
   ** Build an AST tree of dict, lists, and strings of the effective
   ** meta and slots for the given spec.
   **
-  @Axon static Dict specAstOwn(DataSpec spec)
+  @Axon static Dict specAstOwn(Spec spec)
   {
     curContext.usings.env.genAst(spec, Etc.dict1("own", Marker.val))
   }
@@ -223,7 +223,7 @@ const class DataFuncs
   **    typeof(@id)   >>  sys::Ref
   **    typeof({})    >>  sys::Dict
   **
-  @Axon static DataSpec? _typeof(Obj? val, Bool checked := true)
+  @Axon static Spec? _typeof(Obj? val, Bool checked := true)
   {
     curContext.usings.env.typeOf(val, checked)
   }
@@ -241,7 +241,7 @@ const class DataFuncs
   **   specIs(Meter, Equip)    >>  true
   **   specIs(Meter, Point)    >>  false
   **
-  @Axon static Bool specIs(DataSpec a, DataSpec b)
+  @Axon static Bool specIs(Spec a, Spec b)
   {
     a.isa(b)
   }
@@ -254,7 +254,7 @@ const class DataFuncs
   ** Examples:
   **   TODO
   **
-  @Axon static Bool specFits(DataSpec a, DataSpec b)
+  @Axon static Bool specFits(Spec a, Spec b)
   {
     curContext.usings.env.specFits(a, b, null)
   }
@@ -274,7 +274,7 @@ const class DataFuncs
   **   is({equip}, Equip)  >>  false
   **   is(Str, Spec)       >>  true
   **
-  @Axon static Bool _is(Obj? val, DataSpec spec)
+  @Axon static Bool _is(Obj? val, Spec spec)
   {
     curContext.usings.env.typeOf(val).isa(spec)
   }
@@ -290,7 +290,7 @@ const class DataFuncs
   **    fits({equip}, Equip)  >>  true
   **    fits({equip}, Site)   >>  false
   **
-  @Axon static Bool fits(Obj? val, DataSpec spec)
+  @Axon static Bool fits(Obj? val, Spec spec)
   {
     cx := curContext
     return cx.usings.env.fits(cx, val, spec, null)
@@ -301,7 +301,7 @@ const class DataFuncs
   ** If 'a' does fit 'b' then return an empty grid.
   **
   @Axon
-  static Grid specFitsExplain(DataSpec a, DataSpec b)
+  static Grid specFitsExplain(Spec a, Spec b)
   {
     gb := GridBuilder().addCol("msg")
     explain := |DataLogRec rec| { gb.addRow1(rec.msg) }
@@ -321,7 +321,7 @@ const class DataFuncs
   **    readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav)
   **
   @Axon
-  static Grid fitsExplain(Obj? recs, DataSpec spec)
+  static Grid fitsExplain(Obj? recs, Spec spec)
   {
     cx := curContext
     dataEnv := cx.usings.env
@@ -354,20 +354,20 @@ const class DataFuncs
   **
   ** Match dict recs against specs to find all the specs that fit.  The recs
   ** argument can be anything accepted by `toRecList()`.  Specs must be a
-  ** list of DataSpecs.  If specs argument is omitted, then we match against
+  ** list of Specs.  If specs argument is omitted, then we match against
   ** all the non-abstract [types]`types()` currently in scope.  Only the most
   ** specific subtype is returned.
   **
   ** Result is a grid for each input rec with the following columns:
   **   - id: of the input record
   **   - num: number of matches
-  **   - specs: list of DataSpec for all matching specs
+  **   - specs: list of Spec for all matching specs
   **
   ** Example:
   **    readAll(equip).fitsMatchAll
   **
   @Axon
-  static Grid fitsMatchAll(Obj? recs, DataSpec[]? specs := null)
+  static Grid fitsMatchAll(Obj? recs, Spec[]? specs := null)
   {
     // if specs not specific, get all in scope
     cx := curContext
@@ -385,7 +385,7 @@ const class DataFuncs
     return gb.toGrid
   }
 
-  private static DataSpec[] doFitsMatchAll(HxContext cx, Dict rec, DataSpec[] specs)
+  private static Spec[] doFitsMatchAll(HxContext cx, Dict rec, Spec[] specs)
   {
     // first pass is fit each type
     env := cx.usings.env
@@ -393,7 +393,7 @@ const class DataFuncs
 
     // second pass is to remove supertypes so we only
     // return the most specific subtype
-    best := DataSpec[,]
+    best := Spec[,]
     matches.each |spec|
     {
       // check if this type has subtypes in our match list
@@ -416,12 +416,12 @@ const class DataFuncs
   ** found throw UnknownRecErr or return null based on checked flag.
   ** If there are multiple matches it is indeterminate which one is
   ** returned.  Subject must be a record id or dict in the database.  Spec
-  ** must be a DataSpec typed as a 'sys::Query'.  Also see `queryAll`.
+  ** must be a Spec typed as a 'sys::Query'.  Also see `queryAll`.
   **
   ** Example:
   **   read(point).query(Point.equip)
   **
-  @Axon static Dict? query(Obj subject, DataSpec spec, Bool checked := true)
+  @Axon static Dict? query(Obj subject, Spec spec, Bool checked := true)
   {
     cx := curContext
     subjectRec := Etc.toRec(subject)
@@ -434,7 +434,7 @@ const class DataFuncs
   **
   ** Evaluate a relationship query and return grid of results.
   ** Subject must be a record id or dict in the database.  Spec
-  ** must be a DataSpec typed as a 'sys::Query'.  Also see `query`.
+  ** must be a Spec typed as a 'sys::Query'.  Also see `query`.
   **
   ** Options:
   **   - 'limit': max number of recs to return
@@ -442,7 +442,7 @@ const class DataFuncs
   ** Example:
   **   read(ahu).queryAll(Equip.points)
   **
-  @Axon static Grid queryAll(Obj subject, DataSpec spec, Dict? opts := null)
+  @Axon static Grid queryAll(Obj subject, Spec spec, Dict? opts := null)
   {
     // options
     limit := Int.maxVal
@@ -493,7 +493,7 @@ const class DataFuncs
   **     rat: {dis:"RAT", return, air, temp, sensor, ...}
   **   }
   **
-  @Axon static Dict queryNamed(Obj subject, DataSpec spec, Dict? opts := null)
+  @Axon static Dict queryNamed(Obj subject, Spec spec, Dict? opts := null)
   {
     cx := curContext
     env := cx.usings.env

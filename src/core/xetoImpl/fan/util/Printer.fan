@@ -65,7 +65,7 @@ class Printer
     if (val == null) return w("null")
     if (val is Str) return quoted(val.toStr)
     if (val is Grid) return grid(val)
-    if (val is DataSpec) return specTop(val)
+    if (val is Spec) return specTop(val)
     if (val is Dict) return dict(val)
     if (val is List) return list(val)
     if (inMeta) return quoted(val.toStr)
@@ -115,7 +115,7 @@ class Printer
         if (t.isScalar) return w(t.qname).sp.quoted(v.toStr)
       }
 
-      if (v is DataSpec) return w(v.toStr)
+      if (v is Spec) return w(v.toStr)
       val(v)
     }
     return this
@@ -261,7 +261,7 @@ class Printer
 //////////////////////////////////////////////////////////////////////////
 
   ** Print data spec using current mode
-  This specTop(DataSpec spec)
+  This specTop(Spec spec)
   {
     mode := this.specMode
     if (mode === PrinterSpecMode.qname)
@@ -271,7 +271,7 @@ class Printer
   }
 
   ** Print data spec with specific mode
-  private This spec(DataSpec spec, PrinterSpecMode mode)
+  private This spec(Spec spec, PrinterSpecMode mode)
   {
     switch (mode)
     {
@@ -283,19 +283,19 @@ class Printer
   }
 
   ** Print only declared meta/slots
-  private This specOwn(DataSpec spec)
+  private This specOwn(Spec spec)
   {
     base(spec).meta(spec.metaOwn).slots(spec.slotsOwn, PrinterSpecMode.own)
   }
 
   ** Print all effective meta/slots
-  private This specEffective(DataSpec spec)
+  private This specEffective(Spec spec)
   {
     base(spec).meta(spec.metaOwn).slots(spec.slots, PrinterSpecMode.effective)
   }
 
   ** Print base inherited type with special handling for maybe/and/or
-  private This base(DataSpec spec)
+  private This base(Spec spec)
   {
     if (spec.isCompound)
     {
@@ -368,7 +368,7 @@ class Printer
 
 
   ** Print doc lines if showdoc option configured
-  private This doc(DataSpec spec, PrinterSpecMode mode)
+  private This doc(Spec spec, PrinterSpecMode mode)
   {
     Dict meta := mode === PrinterSpecMode.own ? spec.metaOwn : spec.meta
     doc := (meta.get("doc") as Str)?.trimToNull

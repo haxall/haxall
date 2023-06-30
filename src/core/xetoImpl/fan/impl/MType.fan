@@ -27,7 +27,7 @@ internal const final class MType : MSpec
 
   const override Str qname
 
-  override DataSpec spec() { env.sys.type }
+  override Spec spec() { env.sys.type }
 
   override Bool isType() { true }
 

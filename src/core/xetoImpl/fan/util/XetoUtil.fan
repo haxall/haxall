@@ -108,9 +108,9 @@ internal const class XetoUtil
 
   static Bool isCompound(XetoSpec x) { (isAnd(x) || isOr(x)) && ofs(x, false) != null }
 
-  static DataSpec[]? ofs(XetoSpec x, Bool checked)
+  static Spec[]? ofs(XetoSpec x, Bool checked)
   {
-    val := x.m.metaOwn.get("ofs", null) as DataSpec[]
+    val := x.m.metaOwn.get("ofs", null) as Spec[]
     if (val != null) return val
     if (checked) throw UnknownNameErr("Missing 'ofs' meta: $x.qname")
     return null
@@ -121,7 +121,7 @@ internal const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Dervice a new spec from the given base, meta, and map
-  static DataSpec derive(XetoEnv env, Str name, XetoSpec base, Dict meta, [Str:DataSpec]? slots)
+  static Spec derive(XetoEnv env, Str name, XetoSpec base, Dict meta, [Str:Spec]? slots)
   {
     // sanity checking
     if (!isSpecName(name)) throw ArgErr("Invalid spec name: $name")
@@ -143,7 +143,7 @@ internal const class XetoUtil
     return flags
   }
 
-  private static MSlots deriveSlots(XetoEnv env, XetoSpec parent, [Str:DataSpec]? slotsMap)
+  private static MSlots deriveSlots(XetoEnv env, XetoSpec parent, [Str:Spec]? slotsMap)
   {
     if (slotsMap == null || slotsMap.isEmpty) return MSlots.empty
 
@@ -233,7 +233,7 @@ internal const class XetoUtil
   **
   ** Generate AST dict tree
   **
-  static Dict genAst(DataEnv env, DataSpec spec, Bool isOwn, Dict opts)
+  static Dict genAst(DataEnv env, Spec spec, Bool isOwn, Dict opts)
   {
     acc := Str:Obj[:]
     acc.ordered = true
@@ -275,7 +275,7 @@ internal const class XetoUtil
 
   private static Obj genAstVal(DataEnv env, Obj val)
   {
-    if (val is DataSpec) return val.toStr
+    if (val is Spec) return val.toStr
     if (val is List)
     {
       return ((List)val).map |x| { genAstVal(env, x) }

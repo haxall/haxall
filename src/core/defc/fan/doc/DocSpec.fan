@@ -79,7 +79,7 @@ const class DocDataLibIndex : Doc
 **
 const class DocDataType : Doc
 {
-  internal new make(DocDataLib lib, DataSpec spec, CFandoc docFull)
+  internal new make(DocDataLib lib, Spec spec, CFandoc docFull)
   {
     this.lib        = lib
     this.spec       = spec
@@ -90,7 +90,7 @@ const class DocDataType : Doc
 
   const DocDataLib lib
 
-  const DataSpec spec
+  const Spec spec
 
   const Str name
 
@@ -108,14 +108,14 @@ const class DocDataType : Doc
 }
 
 **************************************************************************
-** DocDataSpecRenderer
+** DocSpecRenderer
 **************************************************************************
 
-abstract class DocDataSpecRenderer : DefDocRenderer
+abstract class DocSpecRenderer : DefDocRenderer
 {
   new make(DefDocEnv env, DocOutStream out, Doc doc) : super(env, out, doc) {}
 
-  DocLink specToLink(DataSpec spec)
+  DocLink specToLink(Spec spec)
   {
     Doc? to := null
     Str dis := spec.name
@@ -145,7 +145,7 @@ abstract class DocDataSpecRenderer : DefDocRenderer
 ** DocDataLibIndexRenderer
 **************************************************************************
 
-class DocDataLibIndexRenderer : DocDataSpecRenderer
+class DocDataLibIndexRenderer : DocSpecRenderer
 {
   new make(DefDocEnv env, DocOutStream out, DocDataLibIndex doc) : super(env, out, doc) {}
 
@@ -159,7 +159,7 @@ class DocDataLibIndexRenderer : DocDataSpecRenderer
     writeTypesSection(lib)
   }
 
-  Void writeSpecMetaSection(DataSpec spec)
+  Void writeSpecMetaSection(Spec spec)
   {
     names := Etc.dictNames((Dict)spec)
     names.remove("doc")
@@ -219,7 +219,7 @@ class DocDataLibIndexRenderer : DocDataSpecRenderer
 ** DataTypeDocRenderer
 **************************************************************************
 
-class DataTypeDocRenderer : DocDataSpecRenderer
+class DataTypeDocRenderer : DocSpecRenderer
 {
   new make(DefDocEnv env, DocOutStream out, DocDataType doc) : super(env, out, doc) {}
 
@@ -265,7 +265,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     }
   }
 
-  private Void writeSlotDetailSection(DataSpec slot)
+  private Void writeSlotDetailSection(Spec slot)
   {
     // each slot is one section
     out.defSection(slot.name).div("class='defc-type-slot-section'")
@@ -283,7 +283,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     out.divEnd.defSectionEnd
   }
 
-  private Void writeConstrainedQuery(DataSpec slot)
+  private Void writeConstrainedQuery(Spec slot)
   {
     if (!slot.isQuery || slot.slots.isEmpty) return
 
@@ -298,7 +298,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     out.ulEnd
   }
 
-  private Void writeConstrainedQueryItem(DataSpec spec)
+  private Void writeConstrainedQueryItem(Spec spec)
   {
     out.span("class='defc-type-sig'")
     out.linkTo(specToLink(spec.base))
@@ -325,7 +325,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
 // Spec Signature
 //////////////////////////////////////////////////////////////////////////
 
-  private Void writeSpecSig(DataSpec spec, Bool withName)
+  private Void writeSpecSig(Spec spec, Bool withName)
   {
     out.p("class='defc-type-sig'").code
     if (withName) out.w(spec.name).w(": ")
@@ -335,14 +335,14 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     out.codeEnd.pEnd
   }
 
-  private Void writeSpecBase(DataSpec spec)
+  private Void writeSpecBase(Spec spec)
   {
     if (spec.isCompound) return writeSpecBaseCompound(spec.ofs, spec.isAnd ? "&" : "|")
     out.linkTo(specToLink(spec.base))
     if (spec.isMaybe) out.w("?")
   }
 
-  private Void writeSpecBaseCompound(DataSpec[] ofs, Str sep)
+  private Void writeSpecBaseCompound(Spec[] ofs, Str sep)
   {
     ofs.each |of, i|
     {
@@ -351,7 +351,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     }
   }
 
-  private Void writeSpecMeta(DataSpec spec)
+  private Void writeSpecMeta(Spec spec)
   {
     names := Str[,]
     spec.each |v, n|
@@ -371,7 +371,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
       out.w(n)
       if (v === Marker.val) return
       out.w(":")
-      if (v is DataSpec)
+      if (v is Spec)
         out.linkTo(specToLink(v))
       else
         out.esc(v.toStr.toCode)
@@ -379,7 +379,7 @@ class DataTypeDocRenderer : DocDataSpecRenderer
     out.esc(">")
   }
 
-  private Void writeSpecVal(DataSpec spec)
+  private Void writeSpecVal(Spec spec)
   {
     val := spec["val"]
     if (val == null || val == Marker.val) return
@@ -390,14 +390,14 @@ class DataTypeDocRenderer : DocDataSpecRenderer
 // Spec Doc
 //////////////////////////////////////////////////////////////////////////
 
-  private CFandoc specDoc(DataSpec spec)
+  private CFandoc specDoc(Spec spec)
   {
     d := slotDocs[spec.qname]
     if (d == null) slotDocs[spec.qname] = d = resolveSpecDoc(spec)
     return d
   }
 
-  private CFandoc resolveSpecDoc(DataSpec spec)
+  private CFandoc resolveSpecDoc(Spec spec)
   {
     if (spec.isMarker)
     {

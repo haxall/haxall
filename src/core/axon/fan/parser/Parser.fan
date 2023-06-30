@@ -747,7 +747,7 @@ class Parser
   }
 
   **
-  ** DataSpec production:
+  ** Spec production:
   **
   **   <spec>         :=  <specType> [<specMeta>] [<specBody>]
   **   <specMeta>     :=  "<" <dictItems> ">"  // with restrictions
@@ -768,7 +768,7 @@ class Parser
   private Expr spec(Str? name)
   {
     loc := curLoc
-    Spec? ref := null
+    SpecExpr? ref := null
     SpecMetaTag[]? meta := null
 
     // <specType>
@@ -816,7 +816,7 @@ class Parser
     }
 
     // <specSlots>
-    [Str:Spec]? slots := null
+    [Str:SpecExpr]? slots := null
     if (cur === Token.lbrace)
     {
       if (hasVal) throw err("Cannot have both value and slots")
@@ -836,7 +836,7 @@ class Parser
     return SpecDerive(loc, name, ref, meta, slots)
   }
 
-  private Spec specSimple()
+  private SpecExpr specSimple()
   {
     loc := curLoc
     typename := curVal
@@ -854,9 +854,9 @@ class Parser
     return SpecSlotRef(typeRef, slots)
   }
 
-  private ListExpr specCompound(Spec first, Token token)
+  private ListExpr specCompound(SpecExpr first, Token token)
   {
-    acc := Spec[,]
+    acc := SpecExpr[,]
     acc.add(first)
     while (cur === token)
     {
@@ -910,9 +910,9 @@ class Parser
     throw err("Invalid spec scalar value type: ${val?.typeof?.name}")
   }
 
-  private Str:Spec specSlots()
+  private Str:SpecExpr specSlots()
   {
-    acc := Str:Spec[:]
+    acc := Str:SpecExpr[:]
     acc.ordered = true
     auto := 0
 
@@ -923,7 +923,7 @@ class Parser
     {
       loc := curLoc
       Str? name
-      Spec? slot
+      SpecExpr? slot
 
       // marker, named, unnamed
       if (cur === Token.typename)

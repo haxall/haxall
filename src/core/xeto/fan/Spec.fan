@@ -9,12 +9,12 @@
 using util
 
 **
-** Data specification.  DataSpec implements the Dict mixin
+** Data specification.  Spec implements the Dict mixin
 ** which models the effective meta-data (including from inherited
 ** types).  Use the `metaOwn` method to get only the declared meta-data.
 **
 @Js
-const mixin DataSpec : Dict
+const mixin Spec : Dict
 {
 
   ** Environment for spec
@@ -25,7 +25,7 @@ const mixin DataSpec : Dict
 
   ** Parent spec which contains this spec definition and scopes `name`.
   ** Returns null for libs and derived specs.
-  abstract DataSpec? parent()
+  abstract Spec? parent()
 
   ** Return simple name scoped by `parent`.  This method
   ** returns the empty string a library.
@@ -39,11 +39,11 @@ const mixin DataSpec : Dict
   abstract Str qname()
 
   ** Type of this spec.   If this spec is a top level type then return self.
-  abstract DataSpec type()
+  abstract Spec type()
 
   ** Base spec from which this spec directly inherits its meta and slots.
   ** Returns null if this is 'sys::Obj' itself.
-  abstract DataSpec? base()
+  abstract Spec? base()
 
   ** Get my effective meta; this does not include synthesized tags like 'spec'
   abstract Dict meta()
@@ -58,10 +58,10 @@ const mixin DataSpec : Dict
   abstract DataSlots slots()
 
   ** Convenience for 'slots.get'
-  abstract DataSpec? slot(Str name, Bool checked := true)
+  abstract Spec? slot(Str name, Bool checked := true)
 
   ** Convenience for 'slotsOwn.get'
-  abstract DataSpec? slotOwn(Str name, Bool checked := true)
+  abstract Spec? slotOwn(Str name, Bool checked := true)
 
   ** Return if 'this' spec inherits from 'that' from a nominal type perspective.
   ** Nonimal typing matches any of the following conditions:
@@ -70,10 +70,10 @@ const mixin DataSpec : Dict
   **   - if 'this' is 'And' and 'that' matches any 'this.ofs'
   **   - if 'this' is 'Or' and 'that' matches all 'this.ofs' (common base)
   **   - if 'that' is 'Or' and 'this' matches any of 'that.ofs'
-  abstract Bool isa(DataSpec that)
+  abstract Bool isa(Spec that)
 
   ** Return if spec 'this' spec fits 'that' based on structural typing.
-  abstract Bool fits(DataSpec that)
+  abstract Bool fits(Spec that)
 
   ** Does meta have maybe tag
   abstract Bool isMaybe()
@@ -101,7 +101,7 @@ const mixin DataSpec : Dict
   @NoDoc abstract Bool isOr()
 
   ** Return list of component specs for a compound type
-  @NoDoc abstract DataSpec[]? ofs(Bool checked := true)
+  @NoDoc abstract Spec[]? ofs(Bool checked := true)
 
   ** Is this the None type itself
   @NoDoc abstract Bool isNone()

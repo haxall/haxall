@@ -6,8 +6,6 @@
 //   22 Dec 2009  Brian Frank  Creation
 //
 
-using xeto
-
 **
 ** Dict is a map of name/value pairs.  It is used to model grid rows, grid
 ** meta-data, and name/value object literals.  Dict is characterized by:
@@ -25,7 +23,7 @@ const mixin Dict : xeto::Dict
   **
   ** Specification of this dict or 'sys::Dict' if generic.
   **
-  override DataSpec spec() { DataEnv.cur.dictSpec }
+  override xeto::Spec spec() { xeto::DataEnv.cur.dictSpec }
 
   **
   ** Return if the there are no name/value pairs

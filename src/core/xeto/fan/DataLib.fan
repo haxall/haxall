@@ -11,7 +11,7 @@
 ** Use `DataEnv.lib` to load libraries.
 **
 @Js
-const mixin DataLib : DataSpec
+const mixin DataLib : Spec
 {
 
   ** Version of this library
@@ -21,7 +21,7 @@ const mixin DataLib : DataSpec
   abstract DataLibDepend[] depends()
 
   ** Lookup a type in this library by name.
-  @NoDoc abstract DataSpec? libType(Str name, Bool checked := true)
+  @NoDoc abstract Spec? libType(Str name, Bool checked := true)
 
 }
 

@@ -121,7 +121,7 @@ internal class Reify : Step
   private Dict asmDict(AVal x)
   {
     // spec
-    DataSpec? spec := null
+    Spec? spec := null
     if (x.type != null)
     {
       if (x.meta != null)
