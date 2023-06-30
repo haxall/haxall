@@ -105,13 +105,13 @@ class HxdContext : HxContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Read a data record by id
-  @NoDoc override xeto::Dict? dataReadById(Obj id)
+  @NoDoc override xeto::Dict? xetoReadById(Obj id)
   {
     db.readById(id, false)
   }
 
   ** Read all the records with a given tag name/value pair
-  @NoDoc override Obj? dataReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f)
+  @NoDoc override Obj? xetoReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f)
   {
     db.readAllEachWhile(Filter(filter), Etc.dict0, f)
   }

@@ -7,15 +7,15 @@
 //
 
 **
-** DataContext is used to pass contextual state to DataEnv operations.
+** XetoContext is used to pass contextual state to XetoEnv operations.
 **
 @Js
-mixin DataContext
+mixin XetoContext
 {
   ** Read a data record by id or return null
-  @NoDoc abstract Dict? dataReadById(Obj id)
+  @NoDoc abstract Dict? xetoReadById(Obj id)
 
   ** Read all the records that match given haytack filter
-  @NoDoc abstract Obj? dataReadAllEachWhile(Str filter, |Dict->Obj?| f)
+  @NoDoc abstract Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f)
 }
 

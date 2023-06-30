@@ -206,13 +206,13 @@ internal class ShellContext : HxContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Read a data record by id
-  override Dict? dataReadById(Obj id)
+  override Dict? xetoReadById(Obj id)
   {
     db.readById(id, false)
   }
 
   ** Read all the records with a given tag name/value pair
-  override Obj? dataReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f)
+  override Obj? xetoReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f)
   {
     db.readAllEachWhile(Filter(filter), Etc.dict0, f)
   }

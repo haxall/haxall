@@ -19,7 +19,7 @@ internal class Query
 // Public
 //////////////////////////////////////////////////////////////////////////
 
-  new make(DataEnv env, DataContext cx, Dict opts)
+  new make(DataEnv env, XetoContext cx, Dict opts)
   {
     this.env = env
     this.cx = cx
@@ -81,7 +81,7 @@ else
     ref := subject.get(via, null)
     if (ref == null) return null
 
-    rec := cx.dataReadById(ref)
+    rec := cx.xetoReadById(ref)
     if (rec == null) return rec
 
     if (!fits(rec, of)) return null
@@ -111,7 +111,7 @@ else
     // read all via filter and find recs where via refs+ back to me
     subjectId := subject.trap("id", null)
     acc := Dict[,]
-    cx.dataReadAllEachWhile(via) |rec|
+    cx.xetoReadAllEachWhile(via) |rec|
     {
        match := matchInverse(subjectId, rec, via, multiHop) && fits(rec, of)
        if (match) acc.add(rec)
@@ -129,7 +129,7 @@ else
 
     if (!multiHop) return false
 
-    x := cx.dataReadById(ref)
+    x := cx.xetoReadById(ref)
     if (x == null) return false
 
     // TODO: need some cyclic checks
@@ -147,7 +147,7 @@ else
 
   private const DataEnv env
   private const Dict opts
-  private DataContext cx
+  private XetoContext cx
   private Fitter fitter
 }
 

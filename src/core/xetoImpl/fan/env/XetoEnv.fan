@@ -44,7 +44,7 @@ internal const class XetoEnv : DataEnv
 
   const XetoFactory factory
 
-  const NilDataContext nilContext := NilDataContext()
+  const NilContext nilContext := NilContext()
 
   override const Obj marker
 
@@ -205,7 +205,7 @@ internal const class XetoEnv : DataEnv
       return ExplainFitter(this, cx, opts, explain).specFits(a, b)
   }
 
-  override Bool fits(DataContext cx, Obj? val, Spec spec, Dict? opts := null)
+  override Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)
   {
     if (opts == null) opts = dict0
     explain := XetoUtil.optLog(opts, "explain")
@@ -215,7 +215,7 @@ internal const class XetoEnv : DataEnv
       return ExplainFitter(this, cx, opts, explain).valFits(val, spec)
   }
 
-  override Obj? queryWhile(DataContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
+  override Obj? queryWhile(XetoContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
   {
     // TODO: redesign to use eachWhile
     acc := Query(this, cx, opts).query(subject, query)
@@ -260,9 +260,9 @@ internal const class XetoEnv : DataEnv
 **************************************************************************
 
 @Js
-internal const class NilDataContext : DataContext
+internal const class NilContext : XetoContext
 {
-  override Dict? dataReadById(Obj id) { null }
-  override Obj? dataReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
+  override Dict? xetoReadById(Obj id) { null }
+  override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
 }
 

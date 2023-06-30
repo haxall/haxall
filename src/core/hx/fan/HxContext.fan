@@ -16,7 +16,7 @@ using folio
 **
 ** Haxall execution and security context.
 **
-abstract class HxContext : AxonContext, DataContext, FolioContext
+abstract class HxContext : AxonContext, XetoContext, FolioContext
 {
 
 //////////////////////////////////////////////////////////////////////////

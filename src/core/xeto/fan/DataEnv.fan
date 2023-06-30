@@ -127,7 +127,7 @@ const abstract class DataEnv
   @NoDoc abstract DataLibDependVersions parseLibDependVersions(Str s, Bool checked)
 
   ** Return if the given instance fits the spec via structural typing.
-  abstract Bool fits(DataContext cx, Obj? val, Spec spec, Dict? opts := null)
+  abstract Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)
 
   ** Return if spec 'a' fits spec 'b' based on structural typing.
   @NoDoc abstract Bool specFits(Spec a, Spec b, Dict? opts := null)
@@ -135,7 +135,7 @@ const abstract class DataEnv
   ** Query a relationship using the given subject and query spec.
   ** Call given callback function until it returns non-null and return
   ** as overall result of the method.
-  @NoDoc abstract Obj? queryWhile(DataContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
+  @NoDoc abstract Obj? queryWhile(XetoContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
 
   ** Generate an AST for the given spec as a Dict tree.
   @NoDoc abstract Dict genAst(Spec spec, Dict? opts := null)
