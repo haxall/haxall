@@ -23,7 +23,7 @@ internal const final class MType : MSpec
     this.type  = self
   }
 
-  const XetoLib lib
+  const override XetoLib lib
 
   const override Str qname
 

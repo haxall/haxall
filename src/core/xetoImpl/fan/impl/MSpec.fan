@@ -33,6 +33,8 @@ internal const class MSpec
 
   virtual XetoEnv env() { parent.env }
 
+  virtual XetoLib lib() { parent.lib }
+
   const FileLoc loc
 
   const XetoSpec? parent
@@ -182,6 +184,8 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
   new makem(MSpec m) { this.m = m }
 
   override final DataEnv env() { m.env }
+
+  override DataLib lib() { m.lib }
 
   override final DataSpec? parent() { m.parent }
 

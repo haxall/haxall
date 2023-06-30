@@ -60,6 +60,8 @@ internal const class XetoLib : XetoSpec, DataLib
 {
   new make() : super() {}
 
+  override XetoLib lib() { this }
+
   override Version version() { ml.version }
 
   override DataLibDepend[] depends() { ml.depends }

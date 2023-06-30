@@ -13,8 +13,5 @@
 const mixin DataType : DataSpec
 {
 
-  ** Parent library for type
-  abstract DataLib lib()
-
 }
 

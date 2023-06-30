@@ -20,6 +20,9 @@ const mixin DataSpec : Dict
   ** Environment for spec
   abstract DataEnv env()
 
+  ** Parent library for spec
+  abstract DataLib lib()
+
   ** Parent spec which contains this spec definition and scopes `name`.
   ** Returns null for libs and derived specs.
   abstract DataSpec? parent()
