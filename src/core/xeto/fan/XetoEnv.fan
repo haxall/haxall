@@ -124,7 +124,7 @@ const abstract class XetoEnv
   @NoDoc abstract Dict parsePragma(File file, Dict? opts := null)
 
   ** Parse instance of DataLibDependVersions
-  @NoDoc abstract DataLibDependVersions parseLibDependVersions(Str s, Bool checked)
+  @NoDoc abstract LibDependVersions parseLibDependVersions(Str s, Bool checked)
 
   ** Return if the given instance fits the spec via structural typing.
   abstract Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)

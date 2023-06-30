@@ -47,7 +47,7 @@ internal class Resolve : Step
     }
   }
 
-  private Void resolveDepend(XetoLibDepend d)
+  private Void resolveDepend(MLibDepend d)
   {
     // resolve the library from environment
     lib := env.registry.resolve(compiler, d.qname)

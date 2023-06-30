@@ -189,9 +189,9 @@ internal const class MEnv : XetoEnv
     return c.parsePragma
   }
 
-  override DataLibDependVersions parseLibDependVersions(Str s, Bool checked)
+  override LibDependVersions parseLibDependVersions(Str s, Bool checked)
   {
-    XetoLibDependVersions.fromStr(s, checked)
+    MLibDependVersions.fromStr(s, checked)
   }
 
   override Bool specFits(Spec a, Spec b, Dict? opts := null)

@@ -18,7 +18,7 @@ const mixin DataLib : Spec
   abstract Version version()
 
   ** List the dependencies
-  abstract DataLibDepend[] depends()
+  abstract LibDepend[] depends()
 
   ** Lookup a type in this library by name.
   @NoDoc abstract Spec? libType(Str name, Bool checked := true)
@@ -26,34 +26,34 @@ const mixin DataLib : Spec
 }
 
 **************************************************************************
-** DataLibDepend
+** LibDepend
 **************************************************************************
 
 **
-** Data library dependency
+** Xeto library dependency
 **
 @Js
-const mixin DataLibDepend
+const mixin LibDepend
 {
   ** Qualified name of library dependency
   abstract Str qname()
 
   ** Version constraints that satisify this dependency
-  abstract DataLibDependVersions versions()
+  abstract LibDependVersions versions()
 
   ** String representation is "<qname> <versions>"
   abstract override Str toStr()
 }
 
 **************************************************************************
-** DataLibDependVersions
+** LibDependVersions
 **************************************************************************
 
 **
-** Data library dependency version constraints
+** Xeto library dependency version constraints
 **
 @Js
-const mixin DataLibDependVersions
+const mixin LibDependVersions
 {
   ** Parse string representation
   static new fromStr(Str s, Bool checked := true) { XetoEnv.cur.parseLibDependVersions(s, checked) }

@@ -63,11 +63,11 @@ internal class ProcessPragma : Step
     return ver
   }
 
-  private XetoLibDepend[] toDepends()
+  private MLibDepend[] toDepends()
   {
-    if (isSys) return XetoLibDepend#.emptyList
+    if (isSys) return MLibDepend#.emptyList
 
-    acc := Str:XetoLibDepend[:]
+    acc := Str:MLibDepend[:]
     acc.ordered = true
 
     list := pragma?.meta?.slot("depends")
@@ -80,13 +80,13 @@ internal class ProcessPragma : Step
     if (acc.isEmpty)
     {
       if (isLib) err("Must specify 'sys' in depends", pragma.loc)
-      acc["sys"] = XetoLibDepend("sys", XetoLibDependVersions.wildcard, FileLoc.synthetic)
+      acc["sys"] = MLibDepend("sys", MLibDependVersions.wildcard, FileLoc.synthetic)
     }
 
     return acc.vals
   }
 
-  private Void toDepend(Str:XetoLibDepend acc, AObj obj)
+  private Void toDepend(Str:MLibDepend acc, AObj obj)
   {
     // get library name from depend formattd as "{lib:<qname>}"
     loc := obj.loc
@@ -94,20 +94,20 @@ internal class ProcessPragma : Step
     if (libName == null) return err("Depend missing lib name", loc)
 
     // get versions
-    XetoLibDependVersions? versions := XetoLibDependVersions.wildcard
+    MLibDependVersions? versions := MLibDependVersions.wildcard
     versionsObj := obj.slot("versions")
     if (versionsObj != null)
     {
       versionsStr := (versionsObj?.val as AScalar)?.str
       if (versionsStr == null) return err("Versions must be a scalar", versionsObj.loc)
 
-      versions = XetoLibDependVersions(versionsStr, false)
+      versions = MLibDependVersions(versionsStr, false)
       if (versions == null) return err("Invalid versions syntax: $versionsStr", versionsObj.loc)
     }
 
     // register the library into our depends map
     if (acc[libName] != null) return err("Duplicate depend '$libName'", loc)
-    acc[libName] = XetoLibDepend(libName, versions, loc)
+    acc[libName] = MLibDepend(libName, versions, loc)
   }
 
 }

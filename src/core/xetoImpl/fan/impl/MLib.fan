@@ -15,7 +15,7 @@ using xeto
 @Js
 internal const final class MLib : MSpec
 {
-  new make(MEnv env, FileLoc loc, Str qname, XetoType libType, Dict meta, MSlots slots, Version version, XetoLibDepend[] depends)
+  new make(MEnv env, FileLoc loc, Str qname, XetoType libType, Dict meta, MSlots slots, Version version, MLibDepend[] depends)
     : super(loc, null, "", libType, libType, meta, meta, slots, slots, 0)
   {
     this.env     = env
@@ -32,7 +32,7 @@ internal const final class MLib : MSpec
 
   const Version version
 
-  const DataLibDepend[] depends
+  const LibDepend[] depends
 
   Spec? libType(Str name, Bool checked := true)
   {
@@ -64,7 +64,7 @@ internal const class XetoLib : XetoSpec, DataLib
 
   override Version version() { ml.version }
 
-  override DataLibDepend[] depends() { ml.depends }
+  override LibDepend[] depends() { ml.depends }
 
   override Spec? libType(Str name, Bool checked := true) { ml.libType(name, checked) }
 
@@ -72,16 +72,16 @@ internal const class XetoLib : XetoSpec, DataLib
 }
 
 **************************************************************************
-** XetoLibDepend
+** MLibDepend
 **************************************************************************
 
 **
-** XetoLibDepend is implementation for DataLibDepend
+** Implementation for LibDepend
 **
 @Js
-internal const class XetoLibDepend : DataLibDepend
+internal const class MLibDepend : LibDepend
 {
-  new make(Str qname, XetoLibDependVersions versions, FileLoc loc)
+  new make(Str qname, MLibDependVersions versions, FileLoc loc)
   {
     this.qname = qname
     this.versions = versions
@@ -89,20 +89,20 @@ internal const class XetoLibDepend : DataLibDepend
   }
 
   const override Str qname
-  const override XetoLibDependVersions versions
+  const override MLibDependVersions versions
   override Str toStr() { "$qname $versions" }
   const FileLoc loc
 }
 
 **************************************************************************
-** XetoLibDependVersions
+** MLibDependVersions
 **************************************************************************
 
 **
-** XetoLibDepend is implementation for DataLibDepend
+** Implementation for LibDependVersions
 **
 @Js
-internal const class XetoLibDependVersions : DataLibDependVersions
+internal const class MLibDependVersions : LibDependVersions
 {
   static new fromStr(Str s, Bool checked)
   {
@@ -131,7 +131,7 @@ internal const class XetoLibDependVersions : DataLibDependVersions
     }
   }
 
-  static const XetoLibDependVersions wildcard := makeWildcard(-1, -1, -1)
+  static const MLibDependVersions wildcard := makeWildcard(-1, -1, -1)
 
   private static Int parseSeg(Str s) { s == "x" ? -1 : s.toInt(10, true) }
 

@@ -294,7 +294,7 @@ class DataEnvTest : AbstractDataTest
 
   Void verifyDependLibVersions(Str s, Str v, Bool expect)
   {
-    c := DataLibDependVersions(s)
+    c := LibDependVersions(s)
     // echo("--> $c " + v + " = " + c.contains(Version(v)))
     verifyEq(c.toStr, s.replace(" ", ""))
     verifyEq(c.contains(Version(v)), expect)

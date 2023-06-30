@@ -184,7 +184,7 @@ internal class XetoCompiler
   internal AObj? ast                   // Parse (lib or data)
   internal ALib? lib                   // Parse (compileLib only)
   internal AObj? pragma                // Parse
-  internal XetoLibDepend[]? depends    // ProcessPragma
+  internal MLibDepend[]? depends       // ProcessPragma
   internal Dict? json                  // JSON output
   private Str[] autoNames := [,]       // autoName
 }
