@@ -34,9 +34,9 @@ internal const final class MLib : MSpec
 
   const DataLibDepend[] depends
 
-  DataType? libType(Str name, Bool checked := true)
+  DataSpec? libType(Str name, Bool checked := true)
   {
-    type := slotOwn(name, false) as DataType
+    type := slotOwn(name, false)
     if (type != null) return type
     if (checked) throw UnknownTypeErr(qname + "::" + name)
     return null
@@ -66,7 +66,7 @@ internal const class XetoLib : XetoSpec, DataLib
 
   override DataLibDepend[] depends() { ml.depends }
 
-  override DataType? libType(Str name, Bool checked := true) { ml.libType(name, checked) }
+  override DataSpec? libType(Str name, Bool checked := true) { ml.libType(name, checked) }
 
   const MLib? ml
 }

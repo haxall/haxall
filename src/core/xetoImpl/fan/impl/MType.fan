@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** Implementation of DataType wrapped by XetoType
+** Implementation of top-level data spec
 **
 @Js
 internal const final class MType : MSpec
@@ -42,7 +42,7 @@ internal const final class MType : MSpec
 ** XetoType is the referential proxy for MType
 **
 @Js
-internal const class XetoType : XetoSpec, DataType
+internal const class XetoType : XetoSpec
 {
   new make() : super() {}
 

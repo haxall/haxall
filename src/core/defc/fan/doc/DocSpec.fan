@@ -79,7 +79,7 @@ const class DocDataLibIndex : Doc
 **
 const class DocDataType : Doc
 {
-  internal new make(DocDataLib lib, DataType spec, CFandoc docFull)
+  internal new make(DocDataLib lib, DataSpec spec, CFandoc docFull)
   {
     this.lib        = lib
     this.spec       = spec
@@ -90,7 +90,7 @@ const class DocDataType : Doc
 
   const DocDataLib lib
 
-  const DataType spec
+  const DataSpec spec
 
   const Str name
 

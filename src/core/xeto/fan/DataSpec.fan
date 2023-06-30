@@ -33,13 +33,13 @@ const mixin DataSpec : Dict
 
   ** Return fully qualified name of this spec:
   **   - DataLib will return "foo.bar"
-  **   - DataType will return "foo.bar::Baz"
-  **   - DataType slots will return "foo.bar::Baz.qux"
+  **   - Top level type will return "foo.bar::Baz"
+  **   - Type slots will return "foo.bar::Baz.qux"
   **   - Derived specs will return "derived123::{name}"
   abstract Str qname()
 
-  ** Type of this spec.   If this spec is a DataType itself then return self.
-  abstract DataType type()
+  ** Type of this spec.   If this spec is a top level type then return self.
+  abstract DataSpec type()
 
   ** Base spec from which this spec directly inherits its meta and slots.
   ** Returns null if this is 'sys::Obj' itself.
@@ -88,7 +88,7 @@ const mixin DataSpec : Dict
   ** Is this spec a DataLib
   @NoDoc abstract Bool isLib()
 
-  ** Is this spec a named DataType
+  ** Is this a top level type spec
   @NoDoc abstract Bool isType()
 
   ** Does this spec directly inherits from And/Or and define 'ofs'

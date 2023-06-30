@@ -181,7 +181,7 @@ class DataEnvTest : AbstractDataTest
   {
     d := env.dict(map)
 
-    type := (DataType)d.spec
+    type := d.spec
 
     verifyEq(type.qname, qname)
     verifySame(d.spec, env.type(qname))
@@ -459,9 +459,9 @@ class DataEnvTest : AbstractDataTest
     return lib
   }
 
-  DataSpec verifyLibType(DataLib lib, Str name, DataType? base, Obj? val := null)
+  DataSpec verifyLibType(DataLib lib, Str name, DataSpec? base, Obj? val := null)
   {
-    DataType type := lib.libType(name)
+    type := lib.libType(name)
     verifySame(type, lib.slot(name))
     verifySame(type, lib.slotOwn(name))
     verifySame(type.env, env)
@@ -482,7 +482,7 @@ class DataEnvTest : AbstractDataTest
     return type
   }
 
-  DataSpec verifySlot(DataSpec parent, Str name, DataType type)
+  DataSpec verifySlot(DataSpec parent, Str name, DataSpec type)
   {
     slot := parent.slotOwn(name)
     verifyEq(slot.typeof.qname, "xetoImpl::XetoSpec") // not type
@@ -507,7 +507,7 @@ class DataEnvTest : AbstractDataTest
   Void dumpLib(DataLib lib)
   {
     echo("--- dump $lib.qname ---")
-    lib.slotsOwn.each |DataType t|
+    lib.slotsOwn.each |t|
     {
       hasSlots := !t.slotsOwn.isEmpty
       echo("$t.name: $t.type <$t>" + (hasSlots ? " {" : ""))

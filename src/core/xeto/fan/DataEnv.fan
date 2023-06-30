@@ -79,7 +79,7 @@ const abstract class DataEnv
   abstract Dict dict(Obj? x)
 
   ** Data type for Fantom object
-  abstract DataType? typeOf(Obj? val, Bool checked := true)
+  abstract DataSpec? typeOf(Obj? val, Bool checked := true)
 
   ** Registry of installed libs
   @NoDoc abstract DataRegistry registry()
@@ -91,7 +91,7 @@ const abstract class DataEnv
   @NoDoc abstract DataLib sysLib()
 
   ** Get or load type by the given qualified name
-  abstract DataType? type(Str qname, Bool checked := true)
+  abstract DataSpec? type(Str qname, Bool checked := true)
 
   ** Get or load spec by the given qualified name:
   **   - lib: "foo.bar"

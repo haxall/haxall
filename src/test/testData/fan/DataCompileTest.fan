@@ -186,7 +186,7 @@ class DataCompileTest : AbstractDataTest
     verifyInheritSlot(f, ff, df, num, ["a":m, "val":n(456), "doc":"d-doc", "f":m, "baz":"hi"], "f, baz")
   }
 
-  Void verifyInheritSlot(DataType parent, DataSpec s, DataSpec base, DataType type, Str:Obj meta, Str ownNames)
+  Void verifyInheritSlot(DataSpec parent, DataSpec s, DataSpec base, DataSpec type, Str:Obj meta, Str ownNames)
   {
     // echo
     // echo("-- testInheritSlot $s base:$s.base type:$s.type")

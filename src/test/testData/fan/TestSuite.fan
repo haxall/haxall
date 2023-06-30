@@ -246,12 +246,11 @@ class DataTestCase
 
   Void verifySpec(DataSpec spec, Str:Obj? expect)
   {
-    type := spec as DataType
-    if (type != null)
+    if (spec.isType)
     {
-      verifyEq(type.qname, type.lib.qname + "::" + type.name)
-      verifySame(type.type, type)
-      verifyQName(type.base, expect["base"])
+      verifyEq(spec.qname, spec.lib.qname + "::" + spec.name)
+      verifySame(spec.type, spec)
+      verifyQName(spec.base, expect["base"])
     }
     else
     {
@@ -390,7 +389,7 @@ class DataTestCase
       throw Err("Unhandled type: $type")
   }
 
-  Void verifyScalar(Obj val, DataType type, Str expect)
+  Void verifyScalar(Obj val, DataSpec type, Str expect)
   {
     // scalar expect format is "<type> <val>"
     expectType := expect
@@ -468,7 +467,7 @@ class DataTestCase
            type.slot(slot)
   }
 
-  Void verifyQName(DataType? actual, Str? expected)
+  Void verifyQName(DataSpec? actual, Str? expected)
   {
     if (expected == null) { verifyEq(actual, null); return }
     if (expected.startsWith("test::"))

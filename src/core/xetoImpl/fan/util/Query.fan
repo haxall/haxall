@@ -93,7 +93,7 @@ else
 // Query Inverse
 //////////////////////////////////////////////////////////////////////////
 
-  private Dict[] queryInverse(Dict subject, DataType of, DataSpec query, Str inverseName)
+  private Dict[] queryInverse(Dict subject, DataSpec of, DataSpec query, Str inverseName)
   {
     inverse := env.spec(inverseName, false)
     if (inverse == null) throw Err("Inverse of query '$query.qname' not found: $inverseName")

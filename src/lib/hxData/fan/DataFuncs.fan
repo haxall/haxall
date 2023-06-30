@@ -140,7 +140,7 @@ const class DataFuncs
   **   specType(Dict)   >>  sys::Dict
   **   specType(Point)  >>  sys::Point
   **
-  @Axon static DataType specType(DataSpec spec) { spec.type }
+  @Axon static DataSpec specType(DataSpec spec) { spec.type }
 
   **
   ** Base spec from which the given spec directly inherits.

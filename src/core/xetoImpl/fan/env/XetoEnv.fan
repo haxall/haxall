@@ -85,7 +85,7 @@ internal const class XetoEnv : DataEnv
     return dictMap(map, null)
   }
 
-  override DataType? typeOf(Obj? val, Bool checked := true)
+  override DataSpec? typeOf(Obj? val, Bool checked := true)
   {
     if (val == null) return sys.none
     item := factory.fromFantom[val.typeof]

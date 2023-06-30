@@ -193,7 +193,7 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
 
   override final Str qname() { m.qname }
 
-  override final DataType type() { m.type }
+  override final DataSpec type() { m.type }
 
   override final DataSpec? base() { m.base }
 
