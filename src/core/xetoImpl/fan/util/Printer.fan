@@ -335,7 +335,7 @@ class Printer
   }
 
   ** Spec slots
-  private This slots(DataSlots slots, PrinterSpecMode mode)
+  private This slots(SpecSlots slots, PrinterSpecMode mode)
   {
     if (slots.isEmpty) return this
     bracket(" {").nl

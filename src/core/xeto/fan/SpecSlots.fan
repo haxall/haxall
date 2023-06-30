@@ -7,10 +7,10 @@
 //
 
 **
-** DataSlots is a map of named Specs
+** SpecSlots is a map of named Specs
 **
 @Js
-const mixin DataSlots
+const mixin SpecSlots
 {
   ** Return if slots are empty
   abstract Bool isEmpty()

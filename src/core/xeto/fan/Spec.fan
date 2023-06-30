@@ -52,10 +52,10 @@ const mixin Spec : Dict
   abstract Dict metaOwn()
 
   ** Get the declared children slots
-  abstract DataSlots slotsOwn()
+  abstract SpecSlots slotsOwn()
 
   ** Get the effective children slots including inherited
-  abstract DataSlots slots()
+  abstract SpecSlots slots()
 
   ** Convenience for 'slots.get'
   abstract Spec? slot(Str name, Bool checked := true)

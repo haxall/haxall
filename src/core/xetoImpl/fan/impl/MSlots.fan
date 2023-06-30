@@ -11,10 +11,10 @@ using haystack::Dict
 using haystack::UnknownNameErr
 
 **
-** Implementation of DataSlots
+** Implementation of SpecSlots
 **
 @Js
-internal const final class MSlots : DataSlots
+internal const final class MSlots : SpecSlots
 {
   static const MSlots empty := MSlots(Str:XetoSpec[:])
 

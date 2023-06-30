@@ -201,9 +201,9 @@ internal const class XetoSpec : Spec, Dict, CSpec
 
   override final Dict metaOwn() { m.metaOwn }
 
-  override final DataSlots slotsOwn() { m.slotsOwn }
+  override final SpecSlots slotsOwn() { m.slotsOwn }
 
-  override final DataSlots slots() { m.slots }
+  override final SpecSlots slots() { m.slots }
 
   override final Spec? slot(Str n, Bool c := true) { m.slot(n, c) }
 
