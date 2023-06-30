@@ -9,6 +9,7 @@
 using util
 using xeto
 using xeto::Dict
+using xeto::Lib
 using haystack
 
 **
@@ -20,7 +21,7 @@ class AbstractDataTest : Test
 
   XetoEnv env() { XetoEnv.cur }
 
-  DataLib compileLib(Str s) { env.compileLib(s) }
+  Lib compileLib(Str s) { env.compileLib(s) }
 
   Obj? compileData(Str s) { env.compileData(s) }
 

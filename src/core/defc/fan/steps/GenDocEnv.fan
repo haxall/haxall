@@ -9,6 +9,7 @@
 using fandoc
 using compilerDoc
 using xeto
+using xeto::Lib
 using haystack
 using def
 
@@ -82,7 +83,7 @@ internal class GenDocEnv : DefCompilerStep
     }
   }
 
-  private DocDataLib genSpecLib(DataLib spec)
+  private DocDataLib genSpecLib(Lib spec)
   {
     DocDataLib
     {

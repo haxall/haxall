@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** Implementation of DataLib wrapped by XetoLib
+** Implementation of Lib wrapped by XetoLib
 **
 @Js
 internal const final class MLib : MSpec
@@ -56,7 +56,7 @@ internal const final class MLib : MSpec
 ** XetoLib is the referential proxy for MLib
 **
 @Js
-internal const class XetoLib : XetoSpec, DataLib
+internal const class XetoLib : XetoSpec, Lib
 {
   new make() : super() {}
 

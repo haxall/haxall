@@ -9,6 +9,7 @@
 using compilerDoc
 using xeto
 using xeto::Dict
+using xeto::Lib
 using haystack
 
 **
@@ -18,7 +19,7 @@ const class DocDataLib : DocSpace
 {
   internal new make(|This| f) { f(this) }
 
-  const DataLib spec
+  const Lib spec
 
   const Str qname
 

@@ -46,6 +46,6 @@ internal const class XetoType : XetoSpec
 {
   new make() : super() {}
 
-  override DataLib lib() { (DataLib)m.parent }
+  override Lib lib() { (Lib)m.parent }
 
 }

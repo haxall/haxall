@@ -7,11 +7,11 @@
 //
 
 **
-** Versioned library module of data specifications.
+** Versioned library module of specs and defs.
 ** Use `XetoEnv.lib` to load libraries.
 **
 @Js
-const mixin DataLib : Spec
+const mixin Lib : Spec
 {
 
   ** Version of this library

@@ -9,7 +9,7 @@
 using util
 
 **
-** AST DataLib
+** AST Lib
 **
 @Js
 internal class ALib : ASpec
@@ -24,7 +24,7 @@ internal class ALib : ASpec
   ** Return true
   override Bool isLib() { true }
 
-  ** Assembled DataLib reference
+  ** Assembled Lib reference
   override XetoLib asm() { asmRef }
 
   ** Construct type

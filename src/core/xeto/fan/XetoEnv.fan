@@ -29,7 +29,7 @@ const abstract class XetoEnv
   ** Reload the entire data env.  This creates a new environment,
   ** rescans the local file system for installed libs, and all previously
   ** loaded libraries with be reloaded on first access.  Any
-  ** references to DataLib or Specs must no longer be used.
+  ** references to Lib or Specs must no longer be used.
   static Void reload()
   {
     curRef.val = Type.find("xetoImpl::XetoEnv").make
@@ -85,10 +85,10 @@ const abstract class XetoEnv
   @NoDoc abstract LibRegistry registry()
 
   ** Get or load library by the given qualified name
-  abstract DataLib? lib(Str qname, Bool checked := true)
+  abstract Lib? lib(Str qname, Bool checked := true)
 
   ** Get the 'sys' library
-  @NoDoc abstract DataLib sysLib()
+  @NoDoc abstract Lib sysLib()
 
   ** Get or load type by the given qualified name
   abstract Spec? type(Str qname, Bool checked := true)
@@ -114,7 +114,7 @@ const abstract class XetoEnv
 
   ** Compile Xeto source code into a temp library.
   ** Raise exception if there are any syntax or semantic errors.
-  abstract DataLib compileLib(Str src, Dict? opts := null)
+  abstract Lib compileLib(Str src, Dict? opts := null)
 
   ** Compile Xeto data file into in-memory dict/scalar tree
   ** Raise exception if there are any syntax or semantic errors.
@@ -123,7 +123,7 @@ const abstract class XetoEnv
   ** Parse pragma file into AST
   @NoDoc abstract Dict parsePragma(File file, Dict? opts := null)
 
-  ** Parse instance of DataLibDependVersions
+  ** Parse instance of LibDependVersions
   @NoDoc abstract LibDependVersions parseLibDependVersions(Str s, Bool checked)
 
   ** Return if the given instance fits the spec via structural typing.

@@ -77,7 +77,7 @@ internal const class MRegistry : LibRegistry
     acc[qname] = MRegistryEntry(qname, src, zip)
   }
 
-  DataLib? load(Str qname, Bool checked := true)
+  Lib? load(Str qname, Bool checked := true)
   {
     // check for install
     entry := get(qname, checked)
@@ -133,7 +133,7 @@ internal const class MRegistry : LibRegistry
     return load(qname, false)
   }
 
-  DataLib compile(MRegistryEntry entry, [Str:MRegistryEntry]? build)
+  Lib compile(MRegistryEntry entry, [Str:MRegistryEntry]? build)
   {
     compilingPush(entry.qname)
     try
@@ -225,9 +225,9 @@ internal const class MRegistryEntry : LibRegistryEntry
 
   const File? src
 
-  DataLib get() { libRef.val ?: throw Err("Not loaded: $qname") }
+  Lib get() { libRef.val ?: throw Err("Not loaded: $qname") }
 
-  Void set(DataLib lib) { libRef.compareAndSet(null, lib) }
+  Void set(Lib lib) { libRef.compareAndSet(null, lib) }
 
   private const AtomicRef libRef := AtomicRef()
 }

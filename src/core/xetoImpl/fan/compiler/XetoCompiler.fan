@@ -60,7 +60,7 @@ internal class XetoCompiler
 //////////////////////////////////////////////////////////////////////////
 
   ** Compile input directory to library
-  DataLib compileLib()
+  Lib compileLib()
   {
     run([
       InitLib(),

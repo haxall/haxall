@@ -36,9 +36,9 @@ class AxonUsings
   Str[] qnames() { map.vals.map |u->Str| { u.qname } }
 
   ** List libs (qnames we loaded successfully)
-  DataLib[] libs()
+  Lib[] libs()
   {
-    acc := DataLib[,]
+    acc := Lib[,]
     acc.capacity = acc.size
     map.each |u| { acc.addNotNull(u.lib) }
     return acc
@@ -89,13 +89,13 @@ class AxonUsings
 @Js
 internal const class AxonUsingLib
 {
-  new make(Str qname, DataLib? lib)
+  new make(Str qname, Lib? lib)
   {
     this.qname = qname
     this.lib = lib
   }
 
   const Str qname
-  const DataLib? lib
+  const Lib? lib
 }
 

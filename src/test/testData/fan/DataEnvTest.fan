@@ -9,6 +9,7 @@
 using util
 using xeto
 using xeto::Dict
+using xeto::Lib
 using haystack
 
 **
@@ -431,7 +432,7 @@ class DataEnvTest : AbstractDataTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  DataLib verifyLibBasics(Str qname, Version version)
+  Lib verifyLibBasics(Str qname, Version version)
   {
     lib := env.lib(qname)
 
@@ -459,7 +460,7 @@ class DataEnvTest : AbstractDataTest
     return lib
   }
 
-  Spec verifyLibType(DataLib lib, Str name, Spec? base, Obj? val := null)
+  Spec verifyLibType(Lib lib, Str name, Spec? base, Obj? val := null)
   {
     type := lib.libType(name)
     verifySame(type, lib.slot(name))
@@ -504,7 +505,7 @@ class DataEnvTest : AbstractDataTest
     return slot
   }
 
-  Void dumpLib(DataLib lib)
+  Void dumpLib(Lib lib)
   {
     echo("--- dump $lib.qname ---")
     lib.slotsOwn.each |t|

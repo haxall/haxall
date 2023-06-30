@@ -21,7 +21,7 @@ const mixin Spec : Dict
   @NoDoc abstract XetoEnv env()
 
   ** Parent library for spec
-  abstract DataLib lib()
+  abstract Lib lib()
 
   ** Parent spec which contains this spec definition and scopes `name`.
   ** Returns null for libs and derived specs.
@@ -32,7 +32,7 @@ const mixin Spec : Dict
   abstract Str name()
 
   ** Return fully qualified name of this spec:
-  **   - DataLib will return "foo.bar"
+  **   - Lib will return "foo.bar"
   **   - Top level type will return "foo.bar::Baz"
   **   - Type slots will return "foo.bar::Baz.qux"
   **   - Derived specs will return "derived123::{name}"
@@ -85,7 +85,7 @@ const mixin Spec : Dict
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 
-  ** Is this spec a DataLib
+  ** Is this spec a Lib
   @NoDoc abstract Bool isLib()
 
   ** Is this a top level type spec

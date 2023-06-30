@@ -9,6 +9,7 @@
 using web
 using xeto
 using xeto::Dict
+using xeto::Lib
 using haystack
 using axon
 using xetoImpl::Printer
@@ -177,7 +178,7 @@ const class ShellFuncs
   }
 
   ** Get library by qname (does not add it to using)
-  @Axon static DataLib datalib(Str qname)
+  @Axon static Lib datalib(Str qname)
   {
     cx.xeto.lib(qname)
   }

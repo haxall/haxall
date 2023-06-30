@@ -10,6 +10,7 @@ using util
 using yaml
 using xeto
 using xeto::Dict
+using xeto::Lib
 using haystack
 
 **
@@ -438,7 +439,7 @@ class DataTestCase
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  DataLib lib()
+  Lib lib()
   {
     libRef ?: throw Err("Missing loadLib/compileLib")
   }
@@ -558,7 +559,7 @@ class DataTestCase
   Test test               // make
   Str testName            // make
   Str:Obj? def            // make
-  DataLib? libRef         // compileLib, loadLib
+  Lib? libRef             // compileLib, loadLib
   Obj? dataRef            // compileData
   Int numVerifies         // verifyX
 }

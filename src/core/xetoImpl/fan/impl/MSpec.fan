@@ -185,7 +185,7 @@ internal const class XetoSpec : Spec, Dict, CSpec
 
   override XetoEnv env() { m.env }
 
-  override DataLib lib() { m.lib }
+  override Lib lib() { m.lib }
 
   override final Spec? parent() { m.parent }
 

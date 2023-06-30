@@ -38,7 +38,7 @@ internal const class MEnv : XetoEnv
 
   const override MRegistry registry
 
-  const override DataLib sysLib
+  const override Lib sysLib
 
   const MSys sys
 
@@ -146,7 +146,7 @@ internal const class MEnv : XetoEnv
     XetoUtil.instantiate(this, spec, opts ?: dict0)
   }
 
-  override DataLib compileLib(Str src, Dict? opts := null)
+  override Lib compileLib(Str src, Dict? opts := null)
   {
     qname := "temp" + compileCount.getAndIncrement
 
