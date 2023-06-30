@@ -644,5 +644,5 @@ class AxonTest : HxTest
     }
   }
 
-  DataEnv env() { DataEnv.cur }
+  XetoEnv env() { XetoEnv.cur }
 }

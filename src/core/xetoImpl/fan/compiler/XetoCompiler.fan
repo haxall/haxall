@@ -22,7 +22,7 @@ internal class XetoCompiler
 //////////////////////////////////////////////////////////////////////////
 
   ** Environment
-  XetoEnv? env
+  MEnv? env
 
   ** Logging
   XetoLog log := XetoLog.makeOutStream

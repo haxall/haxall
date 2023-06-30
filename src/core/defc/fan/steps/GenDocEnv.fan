@@ -73,7 +73,7 @@ internal class GenDocEnv : DefCompilerStep
     if (!compiler.includeSpecs) return
 
     // for now just add all installed data libs
-    env := DataEnv.cur
+    env := XetoEnv.cur
     env.registry.list.each |entry|
     {
       lib := env.lib(entry.qname)

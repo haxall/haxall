@@ -18,7 +18,7 @@ const mixin Spec : Dict
 {
 
   ** Environment for spec
-  abstract DataEnv env()
+  @NoDoc abstract XetoEnv env()
 
   ** Parent library for spec
   abstract DataLib lib()

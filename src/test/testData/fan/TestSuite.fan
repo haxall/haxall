@@ -108,7 +108,7 @@ class DataTestRunner
     failed.add(testName)
   }
 
-  DataEnv env := DataEnv.cur
+  XetoEnv env := XetoEnv.cur
   Str[] args
   Bool runAll
   Bool verbose
@@ -554,7 +554,7 @@ class DataTestCase
 //////////////////////////////////////////////////////////////////////////
 
   DataTestRunner runner   // make
-  DataEnv env             // make
+  XetoEnv env             // make
   Test test               // make
   Str testName            // make
   Str:Obj? def            // make

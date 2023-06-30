@@ -25,7 +25,7 @@ class Printer
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(DataEnv env, OutStream out, Dict opts)
+  new make(XetoEnv env, OutStream out, Dict opts)
   {
     this.env        = env
     this.out        = out
@@ -608,7 +608,7 @@ class Printer
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const DataEnv env               // environment
+  const XetoEnv env               // environment
   const Bool isStdout             // are we printing to stdout
   const Dict opts                 // options
   const Bool escUnicode           // escape unicode above 0x7f

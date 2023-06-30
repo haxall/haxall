@@ -21,7 +21,7 @@ internal class Fitter
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(DataEnv env, XetoContext cx, Dict opts, Bool failFast := true)
+  new make(XetoEnv env, XetoContext cx, Dict opts, Bool failFast := true)
   {
     this.env = env
     this.failFast = failFast
@@ -177,7 +177,7 @@ internal class Fitter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const DataEnv env
+  private const XetoEnv env
   private const Bool failFast
   private const Dict opts
   private XetoContext cx
@@ -190,7 +190,7 @@ internal class Fitter
 @Js
 internal class ExplainFitter : Fitter
 {
-  new make(DataEnv env,  XetoContext cx, Dict opts, |DataLogRec| cb)
+  new make(XetoEnv env,  XetoContext cx, Dict opts, |DataLogRec| cb)
     : super(env, cx, opts, false)
   {
     this.cb = cb

@@ -121,7 +121,7 @@ internal const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Dervice a new spec from the given base, meta, and map
-  static Spec derive(XetoEnv env, Str name, XetoSpec base, Dict meta, [Str:Spec]? slots)
+  static Spec derive(MEnv env, Str name, XetoSpec base, Dict meta, [Str:Spec]? slots)
   {
     // sanity checking
     if (!isSpecName(name)) throw ArgErr("Invalid spec name: $name")
@@ -143,7 +143,7 @@ internal const class XetoUtil
     return flags
   }
 
-  private static MSlots deriveSlots(XetoEnv env, XetoSpec parent, [Str:Spec]? slotsMap)
+  private static MSlots deriveSlots(MEnv env, XetoSpec parent, [Str:Spec]? slotsMap)
   {
     if (slotsMap == null || slotsMap.isEmpty) return MSlots.empty
 
@@ -160,7 +160,7 @@ internal const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate default value of spec
-  static Obj? instantiate(XetoEnv env, XetoSpec spec, Dict opts)
+  static Obj? instantiate(MEnv env, XetoSpec spec, Dict opts)
   {
     meta := spec.m.meta
     if (meta.has("abstract") && opts.missing("abstract")) throw Err("Spec is abstract: $spec.qname")
@@ -203,7 +203,7 @@ internal const class XetoUtil
       return dict
   }
 
-  private static Dict[] instantiateGraph(XetoEnv env, XetoSpec spec, Dict opts, Dict dict)
+  private static Dict[] instantiateGraph(MEnv env, XetoSpec spec, Dict opts, Dict dict)
   {
     opts = Etc.dictSet(opts, "parent", dict)
     graph := Dict[,]
@@ -233,7 +233,7 @@ internal const class XetoUtil
   **
   ** Generate AST dict tree
   **
-  static Dict genAst(DataEnv env, Spec spec, Bool isOwn, Dict opts)
+  static Dict genAst(XetoEnv env, Spec spec, Bool isOwn, Dict opts)
   {
     acc := Str:Obj[:]
     acc.ordered = true
@@ -273,7 +273,7 @@ internal const class XetoUtil
     return env.dictMap(acc)
   }
 
-  private static Obj genAstVal(DataEnv env, Obj val)
+  private static Obj genAstVal(XetoEnv env, Obj val)
   {
     if (val is Spec) return val.toStr
     if (val is List)

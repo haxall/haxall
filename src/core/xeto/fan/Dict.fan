@@ -8,7 +8,7 @@
 
 **
 ** Dict is a map of name/value pairs.
-** Create instances via `DataEnv.dict`.
+** Create instances via `XetoEnv.dict`.
 **
 @Js
 const mixin Dict

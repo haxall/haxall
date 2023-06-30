@@ -79,8 +79,8 @@ abstract class XetoCmd : AbstractMain
   ** Print error message and return 1
   Int err(Str msg) { printLine("ERROR: $msg"); return 1 }
 
-  ** DataEnv
-  DataEnv env() { DataEnv.cur }
+  ** XetoEnv
+  XetoEnv env() { XetoEnv.cur }
 
   ** Handle list of spec qnames or "all".
   ** If no names are specifid will print error message and return null.

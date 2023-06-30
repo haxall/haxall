@@ -18,7 +18,7 @@ using haystack
 class AbstractDataTest : Test
 {
 
-  DataEnv env() { DataEnv.cur }
+  XetoEnv env() { XetoEnv.cur }
 
   DataLib compileLib(Str s) { env.compileLib(s) }
 

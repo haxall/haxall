@@ -18,7 +18,7 @@ using xeto
 class AxonUsings
 {
   ** Constructor
-  new make(DataEnv env := DataEnv.cur, Str[] qnames := ["sys"])
+  new make(XetoEnv env := XetoEnv.cur, Str[] qnames := ["sys"])
   {
     this.env  = env
     map := Str:AxonUsingLib[:]
@@ -29,8 +29,8 @@ class AxonUsings
     this.map = map
   }
 
-  ** Data environment
-  const DataEnv env
+  ** Xeto environment
+  const XetoEnv env
 
   ** List qnames configured (both ok and failures)
   Str[] qnames() { map.vals.map |u->Str| { u.qname } }

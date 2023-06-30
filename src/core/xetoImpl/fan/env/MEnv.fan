@@ -17,10 +17,10 @@ using haystack::Grid
 using haystack::UnknownSpecErr
 
 **
-** Xeto DataEnv implementation
+** XetoEnv implementation
 **
 @Js
-internal const class XetoEnv : DataEnv
+internal const class MEnv : XetoEnv
 {
   new make()
   {

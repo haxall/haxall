@@ -448,7 +448,7 @@ internal class Parser
   private Step step
   private XetoCompiler compiler
   private ASys sys
-  private XetoEnv env
+  private MEnv env
   private FileLoc fileLoc
   private Tokenizer tokenizer
   private const Obj marker

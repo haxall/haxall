@@ -19,7 +19,7 @@ abstract internal class Step
 
   abstract Void run()
 
-  XetoEnv env() { compiler.env }
+  MEnv env() { compiler.env }
 
   Bool isLib() { compiler.isLib }
 

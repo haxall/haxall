@@ -55,7 +55,7 @@ abstract class HxContext : AxonContext, XetoContext, FolioContext
   @NoDoc override AxonUsings initUsings()
   {
     // recs with using:qname define what libs we are using
-    env := DataEnv.cur
+    env := XetoEnv.cur
     libs := Str:Str[:]
     libs["sys"] = "sys"
     db.readAllEach(Filter.has("using"), Etc.dict0) |rec|

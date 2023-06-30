@@ -8,7 +8,7 @@
 
 **
 ** Versioned library module of data specifications.
-** Use `DataEnv.lib` to load libraries.
+** Use `XetoEnv.lib` to load libraries.
 **
 @Js
 const mixin DataLib : Spec
@@ -56,7 +56,7 @@ const mixin DataLibDepend
 const mixin DataLibDependVersions
 {
   ** Parse string representation
-  static new fromStr(Str s, Bool checked := true) { DataEnv.cur.parseLibDependVersions(s, checked) }
+  static new fromStr(Str s, Bool checked := true) { XetoEnv.cur.parseLibDependVersions(s, checked) }
 
   ** Return if the given version satisifies this instance's constraints
   abstract Bool contains(Version version)

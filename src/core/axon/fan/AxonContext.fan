@@ -75,11 +75,11 @@ abstract class AxonContext : HaystackContext
   ** Init using imports
   @NoDoc virtual AxonUsings initUsings() { AxonUsings() }
 
-  ** Hot reload of the DataEnv
+  ** Hot reload of the XetoEnv
   @NoDoc virtual Void usingsReload()
   {
     if (usingsRef != null)
-      usingsRef = AxonUsings(DataEnv.cur, usingsRef.qnames)
+      usingsRef = AxonUsings(XetoEnv.cur, usingsRef.qnames)
   }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -10,18 +10,18 @@ using concurrent
 using util
 
 **
-** Environment for the data processing subsystem.
-** There is one instance for the VM accessed via `DataEnv.cur`.
+** Environment for the Xeto data and spec handling.
+** There is one instance for the VM accessed via `XetoEnv.cur`.
 **
 @Js
-const abstract class DataEnv
+const abstract class XetoEnv
 {
   ** Current default environment for the VM
-  static DataEnv cur()
+  static XetoEnv cur()
   {
-    env := curRef.val as DataEnv
+    env := curRef.val as XetoEnv
     if (env != null) return env
-    curRef.compareAndSet(null, Type.find("xetoImpl::XetoEnv").make)
+    curRef.compareAndSet(null, Type.find("xetoImpl::MEnv").make)
     return curRef.val
   }
   private static const AtomicRef curRef := AtomicRef()

@@ -517,15 +517,15 @@ const class DataFuncs
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Reload the data env - see `data::DataEnv.reload`
+  ** Reload all the Xeto libraries - see `xeto::XetoEnv.reload`
   @Axon { su = true }
-  static Obj? dataEnvReload()
+  static Obj? xetoEnvReload()
   {
     cx := curContext
     isShell := cx.rt.platform.isShell
     log := isShell ? Log.get("data") : cx.rt.lib("data").log
-    log.info("DataEnv.reload [$cx.user.username]")
-    DataEnv.reload
+    log.info("XetoEnv.reload [$cx.user.username]")
+    XetoEnv.reload
     cx.usingsReload
     return isShell ? "_no_echo_" : "reloaded"
   }

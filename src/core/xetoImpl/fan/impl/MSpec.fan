@@ -31,7 +31,7 @@ internal const class MSpec
     this.flags    = flags
   }
 
-  virtual XetoEnv env() { parent.env }
+  virtual MEnv env() { parent.env }
 
   virtual XetoLib lib() { parent.lib }
 
@@ -128,14 +128,14 @@ internal const class MDerivedSpec : MSpec
 {
   static const AtomicInt counter := AtomicInt()
 
-  new make(XetoEnv env, Str name, XetoSpec base, Dict meta, MSlots slots, Int flags)
+  new make(MEnv env, Str name, XetoSpec base, Dict meta, MSlots slots, Int flags)
     : super(FileLoc.synthetic, null, name, base, base.type, meta, meta, slots, slots, flags) // TODO: meta vs metaOwn, slots vs slotsOwn
   {
     this.env = env
     this.qname = "derived" + counter.getAndIncrement + "::" + name
   }
 
-  const override XetoEnv env
+  const override MEnv env
   const override Str qname
 }
 
@@ -183,7 +183,7 @@ internal const class XetoSpec : Spec, Dict, CSpec
 
   new makem(MSpec m) { this.m = m }
 
-  override final DataEnv env() { m.env }
+  override XetoEnv env() { m.env }
 
   override DataLib lib() { m.lib }
 

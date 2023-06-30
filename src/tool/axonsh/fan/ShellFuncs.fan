@@ -179,7 +179,7 @@ const class ShellFuncs
   ** Get library by qname (does not add it to using)
   @Axon static DataLib datalib(Str qname)
   {
-    cx.data.lib(qname)
+    cx.xeto.lib(qname)
   }
 
   ** Backdoor hook to refresh ref dis

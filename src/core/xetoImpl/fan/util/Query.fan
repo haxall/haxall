@@ -19,7 +19,7 @@ internal class Query
 // Public
 //////////////////////////////////////////////////////////////////////////
 
-  new make(DataEnv env, XetoContext cx, Dict opts)
+  new make(XetoEnv env, XetoContext cx, Dict opts)
   {
     this.env = env
     this.cx = cx
@@ -145,7 +145,7 @@ else
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const DataEnv env
+  private const XetoEnv env
   private const Dict opts
   private XetoContext cx
   private Fitter fitter

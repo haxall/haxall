@@ -17,7 +17,7 @@ using haystack::UnknownLibErr
 @Js
 internal const class XetoRegistry : DataRegistry
 {
-  new make(XetoEnv env)
+  new make(MEnv env)
   {
     this.env     = env
     this.libPath = Env.cur.path.map |dir->File| { dir.plus(`lib/xeto/`) }
@@ -175,7 +175,7 @@ internal const class XetoRegistry : DataRegistry
     if (stack.isEmpty) Actor.locals.remove(compilingKey)
   }
 
-  const XetoEnv env
+  const MEnv env
   const File[] libPath
   override const XetoRegistryLib[] list
   const Str:XetoRegistryLib map
