@@ -101,7 +101,7 @@ abstract class XetoCmd : AbstractMain
   }
 
   ** Return list of lib qnames for source libs
-  DataRegistryLib[]? toSrcLibs(Str[]? qnames)
+  LibRegistryEntry[]? toSrcLibs(Str[]? qnames)
   {
     if (qnames == null || qnames.isEmpty)
     {
@@ -112,7 +112,7 @@ abstract class XetoCmd : AbstractMain
     if (qnames.contains("all"))
       return env.registry.list.findAll |x| { x.isSrc }
 
-    return qnames.map |x->DataRegistryLib|
+    return qnames.map |x->LibRegistryEntry|
     {
       lib := env.registry.get(x)
       if (!lib.isSrc) throw Err("Lib src not available: $x")

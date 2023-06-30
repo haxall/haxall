@@ -24,7 +24,7 @@ internal const class MEnv : XetoEnv
 {
   new make()
   {
-    this.registry = XetoRegistry(this)
+    this.registry = MRegistry(this)
     this.none     = Remove.val
     this.marker   = Marker.val
     this.na       = NA.val
@@ -36,7 +36,7 @@ internal const class MEnv : XetoEnv
     this.dictSpec = sys.dict
   }
 
-  const override XetoRegistry registry
+  const override MRegistry registry
 
   const override DataLib sysLib
 

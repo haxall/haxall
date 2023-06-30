@@ -10,27 +10,27 @@
 ** Registry of libs installed on local machine
 **
 @NoDoc @Js
-const mixin DataRegistry
+const mixin LibRegistry
 {
   ** List all installed libs
-  abstract DataRegistryLib[] list()
+  abstract LibRegistryEntry[] list()
 
   ** Lookup installed lib
-  abstract DataRegistryLib? get(Str qname, Bool checked := true)
+  abstract LibRegistryEntry? get(Str qname, Bool checked := true)
 
   ** Hook for build command to force re-compile
-  abstract Int build(DataRegistryLib[] libs)
+  abstract Int build(LibRegistryEntry[] libs)
 }
 
 **************************************************************************
-** DataRegistryLib
+** LibRegistryEntry
 **************************************************************************
 
 **
 ** Registry entry of a single lib installed on local machine
 **
 @NoDoc @Js
-const mixin DataRegistryLib
+const mixin LibRegistryEntry
 {
   ** Qualilfied name
   abstract Str qname()

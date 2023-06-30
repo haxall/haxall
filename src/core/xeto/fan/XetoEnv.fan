@@ -82,7 +82,7 @@ const abstract class XetoEnv
   abstract Spec? typeOf(Obj? val, Bool checked := true)
 
   ** Registry of installed libs
-  @NoDoc abstract DataRegistry registry()
+  @NoDoc abstract LibRegistry registry()
 
   ** Get or load library by the given qualified name
   abstract DataLib? lib(Str qname, Bool checked := true)

@@ -12,10 +12,10 @@ using xeto
 using haystack::UnknownLibErr
 
 **
-** XetoRegistry manages the cache and loading of the environments libs
+** MRegistry manages the cache and loading of the environments libs
 **
 @Js
-internal const class XetoRegistry : DataRegistry
+internal const class MRegistry : LibRegistry
 {
   new make(MEnv env)
   {
@@ -25,7 +25,7 @@ internal const class XetoRegistry : DataRegistry
     this.list    = map.vals.sort |a, b| { a.qname <=> b.qname }
   }
 
-  override XetoRegistryLib? get(Str qname, Bool checked := true)
+  override MRegistryEntry? get(Str qname, Bool checked := true)
   {
     x := map[qname]
     if (x != null) return x
@@ -33,9 +33,9 @@ internal const class XetoRegistry : DataRegistry
     return null
   }
 
-  private static Str:XetoRegistryLib discover(File[] libPath)
+  private static Str:MRegistryEntry discover(File[] libPath)
   {
-    acc := Str:XetoRegistryLib[:]
+    acc := Str:MRegistryEntry[:]
 
     // find all lib/xeto entries
     libPath.each |dir|
@@ -53,7 +53,7 @@ internal const class XetoRegistry : DataRegistry
     return acc
   }
 
-  private static Void initSrcEntries(Str:XetoRegistryLib acc, File dir)
+  private static Void initSrcEntries(Str:MRegistryEntry acc, File dir)
   {
     qname := dir.name
     lib := dir + `lib.xeto`
@@ -67,14 +67,14 @@ internal const class XetoRegistry : DataRegistry
     }
   }
 
-  private static Void doInitInstalled(Str:XetoRegistryLib acc, Str qname, File? src, File zip)
+  private static Void doInitInstalled(Str:MRegistryEntry acc, Str qname, File? src, File zip)
   {
     dup := acc[qname]
     if (dup != null)
     {
       if (dup.zip != zip) echo("WARN: XetoEnv '$qname' lib hidden [$dup.zip.osPath]")
     }
-    acc[qname] = XetoRegistryLib(qname, src, zip)
+    acc[qname] = MRegistryEntry(qname, src, zip)
   }
 
   DataLib? load(Str qname, Bool checked := true)
@@ -90,14 +90,14 @@ internal const class XetoRegistry : DataRegistry
     return compile(entry, null)
   }
 
-  override Int build(DataRegistryLib[] libs)
+  override Int build(LibRegistryEntry[] libs)
   {
     // create a XetoLibEntry copy for each entry
-    build := Str:XetoRegistryLib[:]
+    build := Str:MRegistryEntry[:]
     build.ordered = true
     libs.each |x|
     {
-      build[x.qname] = XetoRegistryLib(x.qname, x.srcDir, x.zip)
+      build[x.qname] = MRegistryEntry(x.qname, x.srcDir, x.zip)
     }
 
     // now build using build entries for dependencies
@@ -133,7 +133,7 @@ internal const class XetoRegistry : DataRegistry
     return load(qname, false)
   }
 
-  DataLib compile(XetoRegistryLib entry, [Str:XetoRegistryLib]? build)
+  DataLib compile(MRegistryEntry entry, [Str:MRegistryEntry]? build)
   {
     compilingPush(entry.qname)
     try
@@ -177,17 +177,17 @@ internal const class XetoRegistry : DataRegistry
 
   const MEnv env
   const File[] libPath
-  override const XetoRegistryLib[] list
-  const Str:XetoRegistryLib map
+  override const MRegistryEntry[] list
+  const Str:MRegistryEntry map
   const Str compilingKey := "dataEnv.compiling"
 }
 
 **************************************************************************
-** XetoRegistryLib
+** MRegistryEntry
 **************************************************************************
 
 @Js
-internal const class XetoRegistryLib : DataRegistryLib
+internal const class MRegistryEntry : LibRegistryEntry
 {
   new make(Str qname, File? src, File zip)
   {
