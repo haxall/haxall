@@ -7,7 +7,7 @@
 //
 
 using util
-using data
+using xeto
 
 **
 ** Xeto CLI command plugin.  To create:

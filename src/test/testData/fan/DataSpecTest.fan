@@ -7,8 +7,8 @@
 //
 
 using util
+using xeto
 using haystack
-using data
 
 **
 ** DataSpecTest

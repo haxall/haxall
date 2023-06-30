@@ -7,7 +7,7 @@
 //
 
 using util
-using data
+using xeto
 
 **
 ** Extract lib metadata from pragma and set fields:

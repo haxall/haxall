@@ -6,7 +6,7 @@
 //   10 Mar 2023   Brian Frank   Creation
 //
 
-using data
+using xeto
 using haystack
 using axon
 using hx
@@ -31,7 +31,7 @@ const class DataFuncs
   **   spec("sys::Spec.of")      // slot
   **   spec("foo::Bar", false)   // type unchecked
   **
-  @Axon static data::DataSpec? spec(Str qname, Bool checked := true)
+  @Axon static DataSpec? spec(Str qname, Bool checked := true)
   {
     curContext.usings.env.spec(qname, checked)
   }

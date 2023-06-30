@@ -7,7 +7,7 @@
 //
 
 using util
-using data
+using xeto
 using haystack::Etc
 using haystack::Ref
 using haystack::UnknownNameErr

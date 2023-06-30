@@ -7,7 +7,7 @@
 //
 
 using util
-using data
+using xeto
 
 **
 ** Parser for the Xeto data type language

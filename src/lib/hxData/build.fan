@@ -27,7 +27,7 @@ class Build : BuildPod
                "vcs.uri":      "https://github.com/haxall/haxall",
                ]
     depends = ["sys @{fan.depend}",
-               "data @{hx.depend}",
+               "xeto @{hx.depend}",
                "haystack @{hx.depend}",
                "axon @{hx.depend}",
                "hx @{hx.depend}"]

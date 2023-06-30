@@ -31,7 +31,7 @@ class Build : BuildPod
                "util @{fan.depend}",
                "web @{fan.depend}",
                "wisp @{fan.depend}",
-               "data @{hx.depend}",
+               "xeto @{hx.depend}",
                "haystack @{hx.depend}",
                "auth @{hx.depend}",
                "def @{hx.depend}",

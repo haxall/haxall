@@ -6,7 +6,7 @@
 //   10 Mar 2023  Brian Frank  Creation
 //
 
-using data
+using xeto
 
 **
 ** AxonUsings manages the data spec namespace for a top-level function frame:

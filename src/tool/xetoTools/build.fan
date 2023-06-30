@@ -30,7 +30,7 @@ class Build : BuildPod
                "concurrent @{fan.depend}",
                "util @{fan.depend}",
                "web @{fan.depend}",
-               "data @{hx.depend}",
+               "xeto @{hx.depend}",
                "haystack @{hx.depend}",
                "xetoImpl @{hx.depend}",
                "defc @{hx.depend}"]

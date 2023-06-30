@@ -7,7 +7,7 @@
 //
 
 using util
-using data
+using xeto
 
 **
 ** Implementation of DataLib wrapped by XetoLib

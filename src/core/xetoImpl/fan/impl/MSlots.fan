@@ -6,7 +6,7 @@
 //   23 Feb 2023  Brian Frank  Creation
 //
 
-using data
+using xeto
 using haystack::Dict
 using haystack::UnknownNameErr
 

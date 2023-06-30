@@ -10,14 +10,14 @@
 using build
 
 **
-** Build: data
+** Build: xeto
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName = "data"
-    summary = "Data type system APIs"
+    podName = "xeto"
+    summary = "Xeto data and spec APIs"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",

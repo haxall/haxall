@@ -16,7 +16,7 @@ class Build : BuildGroup
   {
     childrenScripts =
     [
-      `data/build.fan`,
+      `xeto/build.fan`,
       `haystack/build.fan`,
       `xetoImpl/build.fan`,
       `hxUtil/build.fan`,

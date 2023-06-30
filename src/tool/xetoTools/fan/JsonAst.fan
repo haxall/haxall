@@ -7,7 +7,7 @@
 //
 
 using util
-using data
+using xeto
 
 internal class JsonAst : XetoCmd
 {

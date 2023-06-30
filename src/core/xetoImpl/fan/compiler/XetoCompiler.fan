@@ -8,7 +8,7 @@
 //
 
 using util
-using data
+using xeto
 
 **
 ** Xeto compiler

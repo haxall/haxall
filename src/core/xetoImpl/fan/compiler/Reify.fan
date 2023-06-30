@@ -7,7 +7,7 @@
 //
 
 using util
-using data
+using xeto
 
 **
 ** Reify creates concrete Fantom object for all the AVal objects

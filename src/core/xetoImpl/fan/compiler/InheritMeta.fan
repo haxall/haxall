@@ -7,7 +7,7 @@
 //
 
 using util
-using data
+using xeto
 
 **
 ** InheritMeta computes the effective meta for all the specs

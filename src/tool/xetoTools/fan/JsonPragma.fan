@@ -7,7 +7,7 @@
 //
 
 using util
-using data
+using xeto
 using xetoImpl
 
 internal class JsonPragma : XetoCmd

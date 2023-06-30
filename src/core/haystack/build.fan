@@ -32,7 +32,7 @@ class Build : BuildPod
                "concurrent @{fan.depend}",
                "util @{fan.depend}",
                "inet @{fan.depend}",
-               "data @{hx.depend}",
+               "xeto @{hx.depend}",
                "web @{fan.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`res/`, `locale/`]

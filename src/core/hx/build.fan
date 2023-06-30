@@ -33,7 +33,7 @@ class Build : BuildPod
                "crypto @{fan.depend}",
                "util @{fan.depend}",
                "web @{fan.depend}",
-               "data @{hx.depend}",
+               "xeto @{hx.depend}",
                "haystack @{hx.depend}",
                "def @{hx.depend}",
                "axon @{hx.depend}",

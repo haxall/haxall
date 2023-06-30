@@ -8,7 +8,7 @@
 
 using fandoc
 using compilerDoc
-using data
+using xeto
 using haystack
 using def
 
