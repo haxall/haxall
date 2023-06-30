@@ -308,9 +308,9 @@ class DataCompileTest : AbstractDataTest
 
   Void verifyCompileLibErr(Str src, Str[] errs)
   {
-    log := DataLogRec[,]
+    log := XetoLogRec[,]
 
-    logger := |DataLogRec rec|
+    logger := |XetoLogRec rec|
     {
       //echo("~~ $rec")
       log.add(rec)

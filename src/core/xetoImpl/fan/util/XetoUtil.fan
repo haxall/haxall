@@ -50,14 +50,14 @@ internal const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Get logging function from options
-  static |DataLogRec|? optLog(Dict? opts, Str name)
+  static |XetoLogRec|? optLog(Dict? opts, Str name)
   {
     if (opts == null) return null
     x := opts.get(name, null)
     if (x == null) return null
     if (x is Unsafe) x = ((Unsafe)x).val
     if (x is Func) return x
-    throw Err("Expecting |DataLogRec| func for $name.toCode [$x.typeof]")
+    throw Err("Expecting |XetoLogRec| func for $name.toCode [$x.typeof]")
   }
 
 //////////////////////////////////////////////////////////////////////////

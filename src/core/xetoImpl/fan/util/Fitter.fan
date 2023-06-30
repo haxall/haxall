@@ -190,7 +190,7 @@ internal class Fitter
 @Js
 internal class ExplainFitter : Fitter
 {
-  new make(XetoEnv env,  XetoContext cx, Dict opts, |DataLogRec| cb)
+  new make(XetoEnv env,  XetoContext cx, Dict opts, |XetoLogRec| cb)
     : super(env, cx, opts, false)
   {
     this.cb = cb
@@ -231,7 +231,7 @@ internal class ExplainFitter : Fitter
 
   private Bool log(Str msg)
   {
-    cb(XetoLogRec(LogLevel.err, msg, FileLoc.unknown, null))
+    cb(MLogRec(LogLevel.err, msg, FileLoc.unknown, null))
     return false
   }
 
@@ -259,6 +259,6 @@ internal class ExplainFitter : Fitter
     return s.toStr
   }
 
-  private |DataLogRec| cb
+  private |XetoLogRec| cb
 }
 

@@ -9,11 +9,11 @@
 using util
 
 **
-** DataLogRec models a message from a XetoEnv operation.
+** XetoLogRec models a message from a XetoEnv operation.
 ** It is used to report compiler errors and explanations.
 **
 @NoDoc @Js
-const mixin DataLogRec
+const mixin XetoLogRec
 {
   ** Severity level of the issue
   abstract LogLevel level()

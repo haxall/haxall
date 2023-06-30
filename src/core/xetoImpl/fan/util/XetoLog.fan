@@ -88,22 +88,22 @@ internal class XetoWrapperLog : XetoLog
 @Js
 internal class XetoCallbackLog : XetoLog
 {
-  new make(|DataLogRec| cb) { this.cb = cb }
+  new make(|XetoLogRec| cb) { this.cb = cb }
 
   override Void log(LogLevel level, Str msg,  FileLoc loc, Err? err)
   {
-    cb(XetoLogRec(level, msg, loc, err))
+    cb(MLogRec(level, msg, loc, err))
   }
 
-  private |DataLogRec| cb
+  private |XetoLogRec| cb
 }
 
 **************************************************************************
-** XetoLogRec
+** MLogRec
 **************************************************************************
 
 @Js
-const class XetoLogRec : DataLogRec
+const class MLogRec : XetoLogRec
 {
   new make(LogLevel level, Str msg, FileLoc loc, Err? err)
   {

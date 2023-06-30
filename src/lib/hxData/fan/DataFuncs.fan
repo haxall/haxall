@@ -304,7 +304,7 @@ const class DataFuncs
   static Grid specFitsExplain(Spec a, Spec b)
   {
     gb := GridBuilder().addCol("msg")
-    explain := |DataLogRec rec| { gb.addRow1(rec.msg) }
+    explain := |XetoLogRec rec| { gb.addRow1(rec.msg) }
     opts := Etc.dict1("explain", Unsafe(explain))
     curContext.usings.env.specFits(a, b, opts)
     return gb.toGrid
@@ -325,8 +325,8 @@ const class DataFuncs
   {
     cx := curContext
     dataEnv := cx.usings.env
-    hits := DataLogRec[,]
-    explain := |DataLogRec rec| { hits.add(rec) }
+    hits := XetoLogRec[,]
+    explain := |XetoLogRec rec| { hits.add(rec) }
     opts := Etc.dict1("explain", Unsafe(explain))
     gb := GridBuilder().addCol("id").addCol("msg")
 
