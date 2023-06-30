@@ -21,7 +21,7 @@ internal class Fitter
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(DataEnv env, DataContext cx, DataDict opts, Bool failFast := true)
+  new make(DataEnv env, DataContext cx, Dict opts, Bool failFast := true)
   {
     this.env = env
     this.failFast = failFast
@@ -77,13 +77,13 @@ internal class Fitter
     if (valType.isa(type)) return true
 
     // check structurally typing
-    if (val is DataDict && type.isa(env.dictSpec))
+    if (val is Dict && type.isa(env.dictSpec))
       return fitsStruct(val, type)
 
     return explainNoFit(valType, type)
   }
 
-  private Bool fitsStruct(DataDict dict, DataSpec type)
+  private Bool fitsStruct(Dict dict, DataSpec type)
   {
     slots := type.slots
     match := true
@@ -95,7 +95,7 @@ internal class Fitter
     return match
   }
 
-  private Bool fitsSlot(DataDict dict, DataSpec slot)
+  private Bool fitsSlot(Dict dict, DataSpec slot)
   {
     slotType := slot.type
 
@@ -115,7 +115,7 @@ internal class Fitter
     return true
   }
 
-  private Bool fitsQuery(DataDict dict, DataSpec query)
+  private Bool fitsQuery(Dict dict, DataSpec query)
   {
     // if no constraints then no additional checking required
     if (query.slots.isEmpty) return true
@@ -138,9 +138,9 @@ internal class Fitter
     return match
   }
 
-  private Bool fitQueryConstraint(DataDict rec, Str ofDis, DataDict[] extent, DataSpec constraint)
+  private Bool fitQueryConstraint(Dict rec, Str ofDis, Dict[] extent, DataSpec constraint)
   {
-    matches := DataDict[,]
+    matches := Dict[,]
     extent.each |x|
     {
       if (Fitter(env, cx, opts).valFits(x, constraint)) matches.add(x)
@@ -171,7 +171,7 @@ internal class Fitter
 
   virtual Bool explainMissingQueryConstraint(Str ofDis, DataSpec constraint) { false }
 
-  virtual Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, DataDict[] matches) { false }
+  virtual Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, Dict[] matches) { false }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
@@ -179,7 +179,7 @@ internal class Fitter
 
   private const DataEnv env
   private const Bool failFast
-  private const DataDict opts
+  private const Dict opts
   private DataContext cx
 }
 
@@ -190,7 +190,7 @@ internal class Fitter
 @Js
 internal class ExplainFitter : Fitter
 {
-  new make(DataEnv env,  DataContext cx, DataDict opts, |DataLogRec| cb)
+  new make(DataEnv env,  DataContext cx, Dict opts, |DataLogRec| cb)
     : super(env, cx, opts, false)
   {
     this.cb = cb
@@ -219,7 +219,7 @@ internal class ExplainFitter : Fitter
     log("Missing required $ofDis: " + constraintToDis(constraint))
   }
 
-  override Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, DataDict[] matches)
+  override Bool explainAmbiguousQueryConstraint(Str ofDis, DataSpec constraint, Dict[] matches)
   {
     log("Ambiguous match for $ofDis: " + constraintToDis(constraint) + " [" + recsToDis(matches) + "]")
   }
@@ -242,7 +242,7 @@ internal class ExplainFitter : Fitter
     return n
   }
 
-  private Str recsToDis(DataDict[] recs)
+  private Str recsToDis(Dict[] recs)
   {
     s := StrBuf()
     recs.sort |a, b| { a["id"] <=> b["id"] }

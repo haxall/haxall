@@ -9,6 +9,7 @@
 using util
 using yaml
 using xeto
+using xeto::Dict
 using haystack
 
 **
@@ -418,7 +419,7 @@ class DataTestCase
     return x.toStr
   }
 
-  Void verifyDict(DataDict dict, Str:Obj expect)
+  Void verifyDict(Dict dict, Str:Obj expect)
   {
     verifyDictSpec(dict.spec, expect.getChecked("spec"))
     expect.each |e, n|

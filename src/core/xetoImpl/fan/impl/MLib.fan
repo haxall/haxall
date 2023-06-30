@@ -15,7 +15,7 @@ using xeto
 @Js
 internal const final class MLib : MSpec
 {
-  new make(XetoEnv env, FileLoc loc, Str qname, XetoType libType, DataDict meta, MSlots slots, Version version, XetoLibDepend[] depends)
+  new make(XetoEnv env, FileLoc loc, Str qname, XetoType libType, Dict meta, MSlots slots, Version version, XetoLibDepend[] depends)
     : super(loc, null, "", libType, libType, meta, meta, slots, slots, 0)
   {
     this.env     = env

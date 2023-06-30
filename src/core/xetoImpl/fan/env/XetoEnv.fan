@@ -56,31 +56,31 @@ internal const class XetoEnv : DataEnv
 
   override const DataSpec dictSpec
 
-  const override DataDict dict0
+  const override Dict dict0
 
-  override DataDict dict1(Str n, Obj v) { Etc.dict1(n, v) }
+  override Dict dict1(Str n, Obj v) { Etc.dict1(n, v) }
 
-  override DataDict dict2(Str n0, Obj v0, Str n1, Obj v1) {  Etc.dict2(n0, v0, n1, v1) }
+  override Dict dict2(Str n0, Obj v0, Str n1, Obj v1) {  Etc.dict2(n0, v0, n1, v1) }
 
-  override DataDict dict3(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2) {  Etc.dict3(n0, v0, n1, v1, n2, v2)  }
+  override Dict dict3(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2) {  Etc.dict3(n0, v0, n1, v1, n2, v2)  }
 
-  override DataDict dict4(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3) { Etc.dict4(n0, v0, n1, v1, n2, v2, n3, v3) }
+  override Dict dict4(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3) { Etc.dict4(n0, v0, n1, v1, n2, v2, n3, v3) }
 
-  override DataDict dict5(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4) { Etc.dict5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4) }
+  override Dict dict5(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4) { Etc.dict5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4) }
 
-  override DataDict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5) { Etc.dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5) }
+  override Dict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5) { Etc.dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5) }
 
-  override DataDict dictMap(Str:Obj map, DataSpec? spec := null)
+  override Dict dictMap(Str:Obj map, DataSpec? spec := null)
   {
     dict := Etc.dictFromMap(map)
     if (spec == null || spec === dictSpec) return dict
     return MDict(dict, spec)
   }
 
-  override DataDict dict(Obj? val)
+  override Dict dict(Obj? val)
   {
     if (val == null) return dict0
-    if (val is DataDict) return val
+    if (val is Dict) return val
     map := val as Str:Obj ?: throw ArgErr("Unsupported dict arg: $val.typeof")
     return dictMap(map, null)
   }
@@ -90,7 +90,7 @@ internal const class XetoEnv : DataEnv
     if (val == null) return sys.none
     item := factory.fromFantom[val.typeof]
     if (item != null) return type(item.xeto)
-    if (val is DataDict) return ((DataDict)val).spec.type
+    if (val is Dict) return ((Dict)val).spec.type
     if (val is List) return sys.list
     if (val is Grid) return lib("ph").slotOwn("Grid")
     if (checked) throw UnknownTypeErr("No DataType mapped for '$val.typeof'")
@@ -136,17 +136,17 @@ internal const class XetoEnv : DataEnv
     return null
   }
 
-  override DataSpec derive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots := null)
+  override DataSpec derive(Str name, DataSpec base, Dict meta, [Str:DataSpec]? slots := null)
   {
     XetoUtil.derive(this, name, base, meta, slots)
   }
 
-  override Obj? instantiate(DataSpec spec, DataDict? opts := null)
+  override Obj? instantiate(DataSpec spec, Dict? opts := null)
   {
     XetoUtil.instantiate(this, spec, opts ?: dict0)
   }
 
-  override DataLib compileLib(Str src, DataDict? opts := null)
+  override DataLib compileLib(Str src, Dict? opts := null)
   {
     qname := "temp" + compileCount.getAndIncrement
 
@@ -167,7 +167,7 @@ internal const class XetoEnv : DataEnv
     return c.compileLib
   }
 
-  override Obj? compileData(Str src, DataDict? opts := null)
+  override Obj? compileData(Str src, Dict? opts := null)
   {
     c := XetoCompiler
     {
@@ -178,7 +178,7 @@ internal const class XetoEnv : DataEnv
     return c.compileData
   }
 
-  override DataDict parsePragma(File file, DataDict? opts := null)
+  override Dict parsePragma(File file, Dict? opts := null)
   {
     c := XetoCompiler
     {
@@ -194,7 +194,7 @@ internal const class XetoEnv : DataEnv
     XetoLibDependVersions.fromStr(s, checked)
   }
 
-  override Bool specFits(DataSpec a, DataSpec b, DataDict? opts := null)
+  override Bool specFits(DataSpec a, DataSpec b, Dict? opts := null)
   {
     if (opts == null) opts = dict0
     explain := XetoUtil.optLog(opts, "explain")
@@ -205,7 +205,7 @@ internal const class XetoEnv : DataEnv
       return ExplainFitter(this, cx, opts, explain).specFits(a, b)
   }
 
-  override Bool fits(DataContext cx, Obj? val, DataSpec spec, DataDict? opts := null)
+  override Bool fits(DataContext cx, Obj? val, DataSpec spec, Dict? opts := null)
   {
     if (opts == null) opts = dict0
     explain := XetoUtil.optLog(opts, "explain")
@@ -215,20 +215,20 @@ internal const class XetoEnv : DataEnv
       return ExplainFitter(this, cx, opts, explain).valFits(val, spec)
   }
 
-  override Obj? queryWhile(DataContext cx, DataDict subject, DataSpec query, DataDict? opts, |DataDict->Obj?| f)
+  override Obj? queryWhile(DataContext cx, Dict subject, DataSpec query, Dict? opts, |Dict->Obj?| f)
   {
     // TODO: redesign to use eachWhile
     acc := Query(this, cx, opts).query(subject, query)
     return acc.eachWhile(f)
   }
 
-  override DataDict genAst(DataSpec spec, DataDict? opts := null)
+  override Dict genAst(DataSpec spec, Dict? opts := null)
   {
     if (opts == null) opts = dict0
     return XetoUtil.genAst(this, spec, opts.has("own"), opts)
   }
 
-  override Void print(Obj? val, OutStream out := Env.cur.out, DataDict? opts := null)
+  override Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
   {
     Printer(this, out, opts ?: dict0).print(val)
   }
@@ -262,7 +262,7 @@ internal const class XetoEnv : DataEnv
 @Js
 internal const class NilDataContext : DataContext
 {
-  override DataDict? dataReadById(Obj id) { null }
-  override Obj? dataReadAllEachWhile(Str filter, |DataDict->Obj?| f) { null }
+  override Dict? dataReadById(Obj id) { null }
+  override Obj? dataReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
 }
 

@@ -8,6 +8,7 @@
 
 using web
 using xeto
+using xeto::Dict
 using haystack
 using axon
 using xetoImpl::Printer

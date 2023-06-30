@@ -9,7 +9,9 @@
 using concurrent
 using util
 using xeto
-using haystack
+using haystack::Grid
+using haystack::Number
+using haystack::Ref
 
 **
 ** Pretty printer
@@ -23,7 +25,7 @@ class Printer
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(DataEnv env, OutStream out, DataDict opts)
+  new make(DataEnv env, OutStream out, Dict opts)
   {
     this.env        = env
     this.out        = out
@@ -48,7 +50,7 @@ class Printer
     if (opts.has("json")) return json(v).nl
     if (opts.has("text")) return w(v?.toStr ?: "")
 
-    dict := v as Dict
+    dict := v as haystack::Dict // TODO
     if (dict != null && dict.has("id"))
       comment("// $dict.id.toZinc").nl
 
@@ -85,13 +87,13 @@ class Printer
   }
 
   ** Print dict
-  This dict(DataDict dict)
+  This dict(Dict dict)
   {
     bracket("{").pairs(dict).bracket("}")
   }
 
   ** Print dict pairs without brackets
-  This pairs(DataDict dict, Str[]? skip := null)
+  This pairs(Dict dict, Str[]? skip := null)
   {
     first := true
     dict.each |v, n|
@@ -316,7 +318,7 @@ class Printer
   }
 
   ** Spec meta data
-  private This meta(DataDict dict)
+  private This meta(Dict dict)
   {
     skip := ["doc", "ofs", "maybe"]
     show := dict.eachWhile |v, n|
@@ -368,7 +370,7 @@ class Printer
   ** Print doc lines if showdoc option configured
   private This doc(DataSpec spec, PrinterSpecMode mode)
   {
-    DataDict meta := mode === PrinterSpecMode.own ? spec.metaOwn : spec.meta
+    Dict meta := mode === PrinterSpecMode.own ? spec.metaOwn : spec.meta
     doc := (meta.get("doc") as Str)?.trimToNull
     if (doc == null || !showdoc) return this
 
@@ -386,12 +388,12 @@ class Printer
   ** Pretty print haystack data as JSON
   This json(Obj? val)
   {
-    if (val is DataDict) return jsonDict(val)
+    if (val is Dict) return jsonDict(val)
     if (val is List) return jsonList(val)
     return jsonScalar(val)
   }
 
-  private This jsonDict(DataDict dict)
+  private This jsonDict(Dict dict)
   {
     bracket("{").nl
     indention++
@@ -608,7 +610,7 @@ class Printer
 
   const DataEnv env               // environment
   const Bool isStdout             // are we printing to stdout
-  const DataDict opts             // options
+  const Dict opts                 // options
   const Bool escUnicode           // escape unicode above 0x7f
   const PrinterSpecMode specMode  // how to print specs
   const Bool showdoc              // print documentation

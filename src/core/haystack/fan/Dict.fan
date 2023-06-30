@@ -19,7 +19,7 @@ using xeto
 ** Also see `Etc.emptyDict`, `Etc.makeDict`.
 **
 @Js
-const mixin Dict : DataDict
+const mixin Dict : xeto::Dict
 {
 
   **

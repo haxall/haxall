@@ -13,9 +13,9 @@
 mixin DataContext
 {
   ** Read a data record by id or return null
-  @NoDoc abstract DataDict? dataReadById(Obj id)
+  @NoDoc abstract Dict? dataReadById(Obj id)
 
   ** Read all the records that match given haytack filter
-  @NoDoc abstract Obj? dataReadAllEachWhile(Str filter, |DataDict->Obj?| f)
+  @NoDoc abstract Obj? dataReadAllEachWhile(Str filter, |Dict->Obj?| f)
 }
 

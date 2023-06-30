@@ -34,7 +34,7 @@ internal class InheritMeta : Step
     if (spec.slots != null) spec.slots.each |slot| { inherit(slot) }
   }
 
-  private DataDict compute(ASpec spec)
+  private Dict compute(ASpec spec)
   {
     own := spec.metaOwn
 

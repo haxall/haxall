@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xeto::Dict
 using haystack
 using axon
 using hx

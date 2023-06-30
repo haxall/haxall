@@ -50,7 +50,7 @@ internal const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Get logging function from options
-  static |DataLogRec|? optLog(DataDict? opts, Str name)
+  static |DataLogRec|? optLog(Dict? opts, Str name)
   {
     if (opts == null) return null
     x := opts.get(name, null)
@@ -121,7 +121,7 @@ internal const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Dervice a new spec from the given base, meta, and map
-  static DataSpec derive(XetoEnv env, Str name, XetoSpec base, DataDict meta, [Str:DataSpec]? slots)
+  static DataSpec derive(XetoEnv env, Str name, XetoSpec base, Dict meta, [Str:DataSpec]? slots)
   {
     // sanity checking
     if (!isSpecName(name)) throw ArgErr("Invalid spec name: $name")
@@ -136,7 +136,7 @@ internal const class XetoUtil
     return spec
   }
 
-  private static Int deriveFlags(XetoSpec base, DataDict meta)
+  private static Int deriveFlags(XetoSpec base, Dict meta)
   {
     flags := base.m.flags
     if (meta.has("maybe")) flags = flags.or(MSpecFlags.maybe)
@@ -160,7 +160,7 @@ internal const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate default value of spec
-  static Obj? instantiate(XetoEnv env, XetoSpec spec, DataDict opts)
+  static Obj? instantiate(XetoEnv env, XetoSpec spec, Dict opts)
   {
     meta := spec.m.meta
     if (meta.has("abstract") && opts.missing("abstract")) throw Err("Spec is abstract: $spec.qname")
@@ -185,7 +185,7 @@ internal const class XetoUtil
       acc[slot.name] = instantiate(env, slot, opts)
     }
 
-    parent := opts["parent"] as DataDict
+    parent := opts["parent"] as Dict
     if (parent != null && parent["id"] is Ref)
     {
       // TODO: temp hack for equip/point common use case
@@ -203,10 +203,10 @@ internal const class XetoUtil
       return dict
   }
 
-  private static DataDict[] instantiateGraph(XetoEnv env, XetoSpec spec, DataDict opts, DataDict dict)
+  private static Dict[] instantiateGraph(XetoEnv env, XetoSpec spec, Dict opts, Dict dict)
   {
     opts = Etc.dictSet(opts, "parent", dict)
-    graph := DataDict[,]
+    graph := Dict[,]
     graph.add(dict)
 
     // recursively add constrained query children
@@ -233,7 +233,7 @@ internal const class XetoUtil
   **
   ** Generate AST dict tree
   **
-  static DataDict genAst(DataEnv env, DataSpec spec, Bool isOwn, DataDict opts)
+  static Dict genAst(DataEnv env, DataSpec spec, Bool isOwn, Dict opts)
   {
     acc := Str:Obj[:]
     acc.ordered = true
@@ -247,7 +247,7 @@ internal const class XetoUtil
       acc["type"] = spec.type.qname
     }
 
-    DataDict meta := isOwn ? spec.metaOwn : spec.meta
+    Dict meta := isOwn ? spec.metaOwn : spec.meta
     meta.each |v, n|
     {
       if (n == "val" && v === env.marker) return
@@ -280,14 +280,14 @@ internal const class XetoUtil
     {
       return ((List)val).map |x| { genAstVal(env, x) }
     }
-    if (val is DataDict)
+    if (val is Dict)
     {
-      dict := (DataDict)val
+      dict := (Dict)val
       if (dict.isEmpty) return dict
       acc := Str:Obj[:]
       acc.ordered = true
       isList := true // TODO
-      ((DataDict)val).each |v, n|
+      ((Dict)val).each |v, n|
       {
         if (!XetoUtil.isAutoName(n)) isList = false
         acc[n] = genAstVal(env, v)

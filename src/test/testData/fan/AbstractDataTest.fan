@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xeto::Dict
 using haystack
 
 **
@@ -36,7 +37,7 @@ class AbstractDataTest : Test
 
   static const Marker m := Marker.val
 
-  Void verifyDictEq(DataDict a, Obj bx)
+  Void verifyDictEq(Dict a, Obj bx)
   {
     b := env.dict(bx)
     bnames := Str:Str[:]; b.each |v, n| { bnames[n] = n }

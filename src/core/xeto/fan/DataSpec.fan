@@ -9,12 +9,12 @@
 using util
 
 **
-** Data specification.  DataSpec implements the DataDict mixin
+** Data specification.  DataSpec implements the Dict mixin
 ** which models the effective meta-data (including from inherited
 ** types).  Use the `metaOwn` method to get only the declared meta-data.
 **
 @Js
-const mixin DataSpec : DataDict
+const mixin DataSpec : Dict
 {
 
   ** Environment for spec
@@ -43,10 +43,10 @@ const mixin DataSpec : DataDict
   abstract DataSpec? base()
 
   ** Get my effective meta; this does not include synthesized tags like 'spec'
-  abstract DataDict meta()
+  abstract Dict meta()
 
   ** Get my own declared meta-data
-  abstract DataDict metaOwn()
+  abstract Dict metaOwn()
 
   ** Get the declared children slots
   abstract DataSlots slotsOwn()

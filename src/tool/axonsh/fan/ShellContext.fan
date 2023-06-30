@@ -9,6 +9,7 @@
 using util
 using xeto
 using haystack
+using haystack::Dict
 using xetoImpl::Printer
 using axon
 using def
@@ -205,13 +206,13 @@ internal class ShellContext : HxContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Read a data record by id
-  override DataDict? dataReadById(Obj id)
+  override Dict? dataReadById(Obj id)
   {
     db.readById(id, false)
   }
 
   ** Read all the records with a given tag name/value pair
-  override Obj? dataReadAllEachWhile(Str filter, |DataDict->Obj?| f)
+  override Obj? dataReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f)
   {
     db.readAllEachWhile(Filter(filter), Etc.dict0, f)
   }

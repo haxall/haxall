@@ -47,7 +47,7 @@ internal class XetoCompiler
 //////////////////////////////////////////////////////////////////////////
 
   ** Apply options
-  Void applyOpts(DataDict? opts)
+  Void applyOpts(Dict? opts)
   {
     if (opts == null) return
     log :=  XetoUtil.optLog(opts, "log")
@@ -91,7 +91,7 @@ internal class XetoCompiler
   }
 
   ** Parse pragma from lib.xeto meta into fantom JSON data
-  DataDict parsePragma()
+  Dict parsePragma()
   {
     run([
       InitParsePragma(),
@@ -185,7 +185,7 @@ internal class XetoCompiler
   internal ALib? lib                   // Parse (compileLib only)
   internal AObj? pragma                // Parse
   internal XetoLibDepend[]? depends    // ProcessPragma
-  internal DataDict? json              // JSON output
+  internal Dict? json                  // JSON output
   private Str[] autoNames := [,]       // autoName
 }
 

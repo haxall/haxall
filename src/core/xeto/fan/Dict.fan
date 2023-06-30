@@ -7,11 +7,11 @@
 //
 
 **
-** DataDict is a map of name/value pairs.
+** Dict is a map of name/value pairs.
 ** Create instances via `DataEnv.dict`.
 **
 @Js
-const mixin DataDict
+const mixin Dict
 {
 
   ** Specification of this dict or 'sys::Dict' if generic.

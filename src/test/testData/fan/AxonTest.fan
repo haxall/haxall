@@ -8,6 +8,7 @@
 
 using xeto
 using haystack
+using haystack::Dict  // TODO: need Dict.id
 using axon
 using folio
 using hx

@@ -22,7 +22,7 @@ internal class AstToJson : Step
     compiler.json = genDict(ast)
   }
 
-  private DataDict genDict(AVal obj)
+  private Dict genDict(AVal obj)
   {
     acc := Str:Obj[:]
     obj.slots.each |v|

@@ -19,7 +19,7 @@ internal class Query
 // Public
 //////////////////////////////////////////////////////////////////////////
 
-  new make(DataEnv env, DataContext cx, DataDict opts)
+  new make(DataEnv env, DataContext cx, Dict opts)
   {
     this.env = env
     this.cx = cx
@@ -27,7 +27,7 @@ internal class Query
     this.fitter = Fitter(env, cx, opts)
   }
 
-  DataDict[] query(DataDict subject, DataSpec query)
+  Dict[] query(Dict subject, DataSpec query)
   {
     // verify its a query
     if (!query.isQuery)
@@ -55,7 +55,7 @@ else
 // Query Via
 //////////////////////////////////////////////////////////////////////////
 
-  private DataDict[] queryVia(DataDict subject, DataSpec of, DataSpec query, Str via)
+  private Dict[] queryVia(Dict subject, DataSpec of, DataSpec query, Str via)
   {
     multiHop := false
     if (via.endsWith("+"))
@@ -64,8 +64,8 @@ else
       via = via[0..-2]
     }
 
-    acc := DataDict[,]
-    cur := subject as DataDict
+    acc := Dict[,]
+    cur := subject as Dict
     while (true)
     {
       cur = matchVia(cur, of, via)
@@ -76,7 +76,7 @@ else
     return acc
   }
 
-  private DataDict? matchVia(DataDict subject, DataSpec of, Str via)
+  private Dict? matchVia(Dict subject, DataSpec of, Str via)
   {
     ref := subject.get(via, null)
     if (ref == null) return null
@@ -93,7 +93,7 @@ else
 // Query Inverse
 //////////////////////////////////////////////////////////////////////////
 
-  private DataDict[] queryInverse(DataDict subject, DataType of, DataSpec query, Str inverseName)
+  private Dict[] queryInverse(Dict subject, DataType of, DataSpec query, Str inverseName)
   {
     inverse := env.spec(inverseName, false)
     if (inverse == null) throw Err("Inverse of query '$query.qname' not found: $inverseName")
@@ -110,7 +110,7 @@ else
 
     // read all via filter and find recs where via refs+ back to me
     subjectId := subject.trap("id", null)
-    acc := DataDict[,]
+    acc := Dict[,]
     cx.dataReadAllEachWhile(via) |rec|
     {
        match := matchInverse(subjectId, rec, via, multiHop) && fits(rec, of)
@@ -120,7 +120,7 @@ else
     return acc
   }
 
-  private Bool matchInverse(Obj subjectId, DataDict rec, Str via, Bool multiHop)
+  private Bool matchInverse(Obj subjectId, Dict rec, Str via, Bool multiHop)
   {
     ref := rec[via]
     if (ref == null) return false
@@ -146,7 +146,7 @@ else
 //////////////////////////////////////////////////////////////////////////
 
   private const DataEnv env
-  private const DataDict opts
+  private const Dict opts
   private DataContext cx
   private Fitter fitter
 }

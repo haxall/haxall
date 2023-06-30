@@ -52,7 +52,7 @@ internal class JsonAst : XetoCmd
     if (own) opts["own"] = env.marker
     if (fileloc) opts["fileloc"] = env.marker
 
-    acc := Str:DataDict[:]
+    acc := Str:Dict[:]
     specs.each |spec|
     {
       acc[spec.qname] = env.genAst(spec, env.dict(opts))

@@ -9,6 +9,7 @@
 
 using xeto
 using haystack
+using haystack::Dict
 
 **
 ** System library

@@ -118,7 +118,7 @@ internal class Reify : Step
     return list
   }
 
-  private DataDict asmDict(AVal x)
+  private Dict asmDict(AVal x)
   {
     // spec
     DataSpec? spec := null

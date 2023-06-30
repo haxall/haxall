@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xeto::Dict
 using haystack
 
 **
@@ -124,7 +125,7 @@ class DataCompileTest : AbstractDataTest
 
   Void verifyDict(Str src, Str:Obj expected, Str type := "sys::Dict")
   {
-    DataDict actual := compileData(src)
+    Dict actual := compileData(src)
     // echo("-- $actual [$actual.spec]")
     verifySame(actual.spec, env.type(type))
     if (expected.isEmpty && type == "sys::Dict")

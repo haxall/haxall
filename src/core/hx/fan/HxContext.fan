@@ -9,6 +9,7 @@
 using concurrent
 using xeto
 using haystack
+using haystack::Dict
 using axon
 using folio
 

@@ -34,7 +34,7 @@ internal mixin CSpec : CNode
   abstract CSpec? cbase()
 
   ** Effective meta
-  abstract DataDict cmeta()
+  abstract Dict cmeta()
 
   ** Lookup effective slot
   abstract CSpec? cslot(Str name, Bool checked := true)

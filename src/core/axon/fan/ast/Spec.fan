@@ -9,6 +9,7 @@
 using concurrent
 using xeto
 using haystack
+using haystack::Dict
 
 **
 ** Spec is an expression that evaluates to a DataSpec

@@ -73,12 +73,12 @@ internal class ASpec : AObj, CSpec
   }
 
   ** Declared meta (set in Reify)
-  DataDict metaOwn() { metaOwnRef ?: throw Err("Reify not run") }
-  DataDict? metaOwnRef
+  Dict metaOwn() { metaOwnRef ?: throw Err("Reify not run") }
+  Dict? metaOwnRef
 
   ** Effective meta (set in InheritMeta)
-  override DataDict cmeta() { cmetaRef ?: throw Err("InheritMeta not run") }
-  DataDict? cmetaRef
+  override Dict cmeta() { cmetaRef ?: throw Err("InheritMeta not run") }
+  Dict? cmetaRef
 
   ** Iterate the effective slots
   override Str:CSpec cslots() { cslotsRef ?: throw Err("InheritSlots not run") }

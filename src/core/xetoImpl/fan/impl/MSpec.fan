@@ -9,7 +9,7 @@
 using concurrent
 using util
 using xeto
-using haystack
+//using haystack
 
 **
 ** Implementation of DataSpec wrapped by XetoSpec
@@ -17,7 +17,7 @@ using haystack
 @Js
 internal const class MSpec
 {
-  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoType type, DataDict meta, DataDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags)
+  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoType type, Dict meta, Dict metaOwn, MSlots slots, MSlots slotsOwn, Int flags)
   {
     this.loc      = loc
     this.parent   = parent
@@ -45,9 +45,9 @@ internal const class MSpec
 
   const XetoSpec? base
 
-  const DataDict meta
+  const Dict meta
 
-  const DataDict metaOwn
+  const Dict metaOwn
 
   const MSlots slots
 
@@ -126,7 +126,7 @@ internal const class MDerivedSpec : MSpec
 {
   static const AtomicInt counter := AtomicInt()
 
-  new make(XetoEnv env, Str name, XetoSpec base, DataDict meta, MSlots slots, Int flags)
+  new make(XetoEnv env, Str name, XetoSpec base, Dict meta, MSlots slots, Int flags)
     : super(FileLoc.synthetic, null, name, base, base.type, meta, meta, slots, slots, flags) // TODO: meta vs metaOwn, slots vs slotsOwn
   {
     this.env = env
@@ -193,9 +193,9 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
 
   override final DataSpec? base() { m.base }
 
-  override final DataDict meta() { m.meta }
+  override final Dict meta() { m.meta }
 
-  override final DataDict metaOwn() { m.metaOwn }
+  override final Dict metaOwn() { m.metaOwn }
 
   override final DataSlots slotsOwn() { m.slotsOwn }
 
@@ -261,7 +261,7 @@ internal const class XetoSpec : DataSpec, Dict, CSpec
 
   override final CSpec? ctype() { m.type }
 
-  override final DataDict cmeta() { m.meta }
+  override final Dict cmeta() { m.meta }
 
   override final CSpec? cslot(Str n, Bool c := true) { m.slot(n, c) }
 

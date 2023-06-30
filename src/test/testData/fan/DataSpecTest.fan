@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xeto::Dict
 using haystack
 
 **

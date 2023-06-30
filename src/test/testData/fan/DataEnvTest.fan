@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xeto::Dict
 using haystack
 
 **
@@ -325,7 +326,7 @@ class DataEnvTest : AbstractDataTest
     verifyDeriveErr("foo", list, env.dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::List")
   }
 
-  Void verifyDerive(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots)
+  Void verifyDerive(Str name, DataSpec base, Dict meta, [Str:DataSpec]? slots)
   {
     x := env.derive(name, base, meta, slots)
 
@@ -354,7 +355,7 @@ class DataEnvTest : AbstractDataTest
     }
   }
 
-  Void verifyDeriveErr(Str name, DataSpec base, DataDict meta, [Str:DataSpec]? slots, Str msg)
+  Void verifyDeriveErr(Str name, DataSpec base, Dict meta, [Str:DataSpec]? slots, Str msg)
   {
     verifyErrMsg(ArgErr#, msg) { env.derive(name, base, meta, slots) }
   }
@@ -410,7 +411,7 @@ class DataEnvTest : AbstractDataTest
 
   Void verifyInstantiateGraph(Str qname, [Str:Obj][] expect)
   {
-    DataDict[] actual := env.instantiate(env.spec(qname), env.dict1("graph", m))
+    Dict[] actual := env.instantiate(env.spec(qname), env.dict1("graph", m))
     baseId := (Ref)actual[0]->id
     verifyEq(actual.size, expect.size)
     actual.each |a, i|

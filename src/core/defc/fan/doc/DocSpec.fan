@@ -8,6 +8,7 @@
 
 using compilerDoc
 using xeto
+using xeto::Dict
 using haystack
 
 **

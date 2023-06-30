@@ -72,7 +72,7 @@ internal const final class MSlots : DataSlots
     return s.add("}").toStr
   }
 
-  override DataDict toDict()
+  override Dict toDict()
   {
     MSlotsDict(this)
   }

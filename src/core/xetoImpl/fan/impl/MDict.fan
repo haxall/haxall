@@ -7,15 +7,14 @@
 //
 
 using xeto
-using haystack
 
 **
-** MDict is used to wrap a haystack::Dict with a DataSpec
+** MDict is used to wrap a Dict with a DataSpec
 **
 @Js
-internal const class MDict : Dict
+internal const class MDict : haystack::Dict
 {
-  new make(DataDict wrapped, DataSpec spec)
+  new make(Dict wrapped, DataSpec spec)
   {
     this.wrapped = wrapped
     this.spec = spec
