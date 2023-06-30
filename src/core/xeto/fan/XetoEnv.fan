@@ -21,7 +21,7 @@ const abstract class XetoEnv
   {
     env := curRef.val as XetoEnv
     if (env != null) return env
-    curRef.compareAndSet(null, Type.find("xetoImpl::MEnv").make)
+    curRef.compareAndSet(null, Type.find("xetoc::MEnv").make)
     return curRef.val
   }
   private static const AtomicRef curRef := AtomicRef()
@@ -32,7 +32,7 @@ const abstract class XetoEnv
   ** references to Lib or Specs must no longer be used.
   static Void reload()
   {
-    curRef.val = Type.find("xetoImpl::XetoEnv").make
+    curRef.val = Type.find("xetoc::XetoEnv").make
   }
 
   ** None singleton value

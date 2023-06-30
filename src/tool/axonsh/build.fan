@@ -32,7 +32,7 @@ class Build : BuildPod
                "web @{fan.depend}",
                "xeto @{hx.depend}",
                "haystack @{hx.depend}",
-               "xetoImpl @{hx.depend}",
+               "xetoc @{hx.depend}",
                "def @{hx.depend}",
                "axon @{hx.depend}",
                "folio @{hx.depend}",

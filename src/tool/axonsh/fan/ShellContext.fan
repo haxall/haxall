@@ -10,7 +10,7 @@ using util
 using xeto
 using haystack
 using haystack::Dict
-using xetoImpl::Printer
+using xetoc::Printer
 using axon
 using def
 using hx

@@ -8,7 +8,6 @@
 
 using util
 using xeto
-using xetoImpl
 
 internal class JsonPragma : XetoCmd
 {

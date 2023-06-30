@@ -32,7 +32,6 @@ class Build : BuildPod
                "web @{fan.depend}",
                "xeto @{hx.depend}",
                "haystack @{hx.depend}",
-               "xetoImpl @{hx.depend}",
                "defc @{hx.depend}"]
     srcDirs = [`fan/`]
   }

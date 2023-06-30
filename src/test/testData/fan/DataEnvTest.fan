@@ -486,7 +486,7 @@ class DataEnvTest : AbstractDataTest
   Spec verifySlot(Spec parent, Str name, Spec type)
   {
     slot := parent.slotOwn(name)
-    verifyEq(slot.typeof.qname, "xetoImpl::XetoSpec") // not type
+    verifyEq(slot.typeof.qname, "xetoc::XetoSpec") // not type
     verifySame(slot.parent, parent)
     verifyEq(slot.name, name)
     verifyEq(slot.qname, parent.qname + "." + name)
