@@ -57,6 +57,9 @@ internal class ASpec : AObj, CSpec
   ** Qualified name
   override Str qname() { parent.qname + "." + name }
 
+  ** Factory registerd on this spec's type
+  override SpecFactory factory() { ctype.factory }
+
   ** Resolved type
   override CSpec? ctype() { type }
 

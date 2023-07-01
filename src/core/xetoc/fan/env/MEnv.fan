@@ -31,7 +31,6 @@ internal const class MEnv : XetoEnv
     this.na       = NA.val
     this.list0    = Obj?[,]
     this.dict0    = Etc.dict0
-    this.factory  = XetoFactory()
     this.sysLib   = registry.load("sys")
     this.sys      = MSys(sysLib)
     this.dictSpec = sys.dict
@@ -42,8 +41,6 @@ internal const class MEnv : XetoEnv
   const override Lib sysLib
 
   const MSys sys
-
-  const XetoFactory factory
 
   const MFactories factories := MFactories()
 

@@ -27,6 +27,9 @@ internal mixin CSpec : CNode
   ** Qualified name
   abstract Str qname()
 
+  ** Factory for spec type
+  abstract SpecFactory factory()
+
   ** Type of the spec or if this a type then return self
   abstract CSpec? ctype()
 

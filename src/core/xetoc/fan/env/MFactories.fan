@@ -213,7 +213,12 @@ internal const class TimeFactory : ScalarSpecFactory
 internal const class DateTimeFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { DateTime.fromStr(str, checked) }
+  override Obj? decodeScalar(Str str, Bool checked := true)
+  {
+    // allow UTC timezone to be omitted if "Z" offset
+    if (str.endsWith("Z")) str += " UTC"
+    return DateTime.fromStr(str, checked)
+  }
 }
 
 @Js

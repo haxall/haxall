@@ -33,7 +33,7 @@ internal class AType : ASpec
   ALib lib
 
   ** Factory (set in AssignFactory)
-  SpecFactory factory() { factoryRef ?: throw Err("AssignFactories not run") }
+  override SpecFactory factory() { factoryRef ?: throw Err("LoadFactories not run") }
   SpecFactory? factoryRef
 
   ** Qualified name "foo.bar::Baz"

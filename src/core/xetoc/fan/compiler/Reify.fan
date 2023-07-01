@@ -90,18 +90,14 @@ internal class Reify : Step
     if (x.type == null) err("asmScalar without type", x.loc)
 
     // map to Fantom type to parse
-    qname := scalarType.qname
-    item := env.factory.fromXeto[qname]
-    if (item != null)
+    factory := scalarType.factory
+    fantom := scalarType.factory.decodeScalar(v.str, false)
+    if (fantom == null)
     {
-      // parse to Fantom type
-      return v.asmRef = item.parse(compiler, v.str, v.loc)
+      err("Invalid '$scalarType.qname' value: $v.str.toCode", x.loc)
+      fantom = v.str
     }
-    else
-    {
-      // just fallback to a string value
-      return v.asmRef = v.str
-    }
+    return v.asmRef = fantom
   }
 
   private XetoType asmTypeRef(AVal x)
