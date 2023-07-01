@@ -10,10 +10,10 @@ using util
 using xeto
 
 **
-** Assign a SpecFactory to each AType in the AST
+** Load and assign a SpecFactory to each AType in the AST
 **
 @Js
-internal class AssignFactories : Step
+internal class LoadFactories : Step
 {
   override Void run()
   {

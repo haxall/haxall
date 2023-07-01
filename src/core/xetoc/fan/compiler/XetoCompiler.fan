@@ -68,7 +68,7 @@ internal class XetoCompiler
       ProcessPragma(),
       Resolve(),
       InheritSlots(),
-      AssignFactories(),
+      LoadFactories(),
       Reify(),
       InheritMeta(),
       Assemble(),
