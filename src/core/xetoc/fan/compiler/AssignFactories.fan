@@ -21,15 +21,20 @@ internal class AssignFactories : Step
     typeName := pragma.meta.slot("factoryLoader")?.val?.str
     if (typeName != null) env.factories.install(typeName)
 
-    // build up list of type names
-    specNames := Str[,]
-    lib.slots.each |spec|
-    {
-      if (spec.isType) specNames.add(spec.name)
-    }
+    // find a loader for our library
+    loader := env.factories.loaders.find |x| { x.canLoad(lib.qname) }
 
-    // check factory loaders for factories to use for this lib
-    factories := env.factories.load(lib.qname, specNames)
+    // if we have a loader, give it my type names to map to factories
+    [Str:SpecFactory]? factories := null
+    if (loader != null)
+    {
+      specNames := Str[,]
+      lib.slots.each |spec|
+      {
+        if (spec.isType) specNames.add(spec.name)
+      }
+      factories = loader.load(lib.qname, specNames)
+    }
 
     // now assign factories to all type level types
     lib.slots.each |spec|
@@ -38,10 +43,15 @@ internal class AssignFactories : Step
     }
   }
 
-  private Void assignFactory(AType type, Str:SpecFactory factories)
+  private Void assignFactory(AType type, [Str:SpecFactory]? factories)
   {
     // lookup custom registered factory
-    type.factoryRef = factories[type.name]
+    if (factories != null)
+    {
+      type.factoryRef = factories[type.name]
+    }
+
+    // if (type.factoryRef != null) echo("INSTALL $type.qname => $type.factory")
 
     // install default dict/scalar factory
     if (type.factoryRef == null)

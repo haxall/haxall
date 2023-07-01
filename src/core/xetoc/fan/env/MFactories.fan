@@ -50,19 +50,6 @@ internal const class MFactories
 
   ** Default dict factory
   const SpecFactory dict := DictFactory()
-
-  ** Return registered factories for given library
-  Str:SpecFactory load(Str libName, Str[] specNames)
-  {
-    loaders := this.loaders
-    for (i := 0; i<loaders.size; ++i)
-    {
-      hit := loaders[i].load(libName, specNames)
-      if (hit != null) return hit
-    }
-    return none
-  }
-  private const Str:SpecFactory none := [:]
 }
 
 **************************************************************************
@@ -72,11 +59,18 @@ internal const class MFactories
 @Js
 internal const class CoreFactoryLoader : SpecFactoryLoader
 {
-  override [Str:SpecFactory]? load(Str libName, Str[] specNames)
+  override Bool canLoad(Str libName)
+  {
+    if (libName == "sys") return true
+    //if (libName == "ph") return true
+    return false
+  }
+
+  override Str:SpecFactory load(Str libName, Str[] specNames)
   {
     if (libName == "sys") return loadSys
     //if (libName == "ph") return loadPh
-    return null
+    throw Err(libName)
   }
 
   private Str:SpecFactory loadSys()

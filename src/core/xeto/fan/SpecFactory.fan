@@ -43,10 +43,12 @@ abstract const class SpecFactory
 @NoDoc @Js
 abstract const class SpecFactoryLoader
 {
-  ** Map a library name and its top-level type names to map of
-  ** factory instances keyed by simple spec name.  Return null
-  ** is this loader does not process the given Xeto library.
-  abstract [Str:SpecFactory]? load(Str libName, Str[] specNames)
+  ** Return if this loader handles the given library
+  abstract Bool canLoad(Str libName)
+
+  ** Map library name and its top-level type names to map of
+  ** factory instances keyed by simple spec name.
+  abstract Str:SpecFactory load(Str libName, Str[] specNames)
 }
 
 **************************************************************************
