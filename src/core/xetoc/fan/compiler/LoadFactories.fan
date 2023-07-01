@@ -48,10 +48,13 @@ internal class LoadFactories : Step
     // lookup custom registered factory
     if (factories != null)
     {
-      type.factoryRef = factories[type.name]
+      custom := factories[type.name]
+      if (custom != null)
+      {
+        type.factoryRef = custom
+        env.factories.map(custom.type, type.asm)
+      }
     }
-
-    // if (type.factoryRef != null) echo("INSTALL $type.qname => $type.factory")
 
     // install default dict/scalar factory
     if (type.factoryRef == null)

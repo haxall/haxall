@@ -55,6 +55,20 @@ internal const class MFactories
 
   ** Default dict factory
   const SpecFactory dict := DictFactory()
+
+  ** Map fantom type to its spec (called by Env.typeOf)
+  Spec? typeToSpec(Type type)
+  {
+    typeToSpecMap.get(type.qname)
+  }
+
+  ** Map Fantom type to its spec (called during LoadFactories)
+  Void map(Type type, Spec spec)
+  {
+    typeToSpecMap.set(type.qname, spec)
+  }
+
+  private const ConcurrentMap typeToSpecMap := ConcurrentMap()
 }
 
 **************************************************************************

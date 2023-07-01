@@ -91,13 +91,28 @@ internal const class MEnv : XetoEnv
   override Spec? typeOf(Obj? val, Bool checked := true)
   {
     if (val == null) return sys.none
-    item := factory.fromFantom[val.typeof]
-    if (item != null) return type(item.xeto)
+
+    // direct lookup by type
+    type := val.typeof
+    spec := factories.typeToSpec(type)
+    if (spec != null) return spec
+
+    // some special lookup
     if (val is Dict) return ((Dict)val).spec.type
     if (val is List) return sys.list
-    if (val is Grid) return lib("ph").slotOwn("Grid")
-    if (val is Symbol) return lib("ph").slotOwn("Symbol")
-    if (checked) throw UnknownTypeErr("No DataType mapped for '$val.typeof'")
+
+    // walk up type hiearchy (classes only)
+    for (Type? p := type.base; p != null; p = p.base)
+    {
+      spec = factories.typeToSpec(p)
+      if (spec != null) return spec
+    }
+
+    // fallbacks
+    if (val is Grid) return lib("ph").libType("Grid")
+
+    // cannot map to spec
+    if (checked) throw UnknownTypeErr("No spec mapped for '$type'")
     return null
   }
 
