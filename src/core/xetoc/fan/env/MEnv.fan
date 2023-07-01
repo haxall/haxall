@@ -44,6 +44,8 @@ internal const class MEnv : XetoEnv
 
   const XetoFactory factory
 
+  const MFactories factories := MFactories()
+
   const NilContext nilContext := NilContext()
 
   override const Obj marker

@@ -7,6 +7,7 @@
 //
 
 using util
+using xeto
 
 **
 ** AST DataType
@@ -30,6 +31,10 @@ internal class AType : ASpec
 
   ** Parent library
   ALib lib
+
+  ** Factory (set in AssignFactory)
+  SpecFactory factory() { factoryRef ?: throw Err("AssignFactories not run") }
+  SpecFactory? factoryRef
 
   ** Qualified name "foo.bar::Baz"
   override const Str qname

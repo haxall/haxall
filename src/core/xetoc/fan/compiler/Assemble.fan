@@ -30,7 +30,7 @@ internal class Assemble : Step
 
   private Void asmType(AType x)
   {
-    m := MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags)
+    m := MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.factory)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }

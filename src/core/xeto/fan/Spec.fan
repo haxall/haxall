@@ -85,6 +85,9 @@ const mixin Spec : Dict
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 
+  ** Mapping between this spec and its Fantom representation
+  @NoDoc abstract SpecFactory factory()
+
   ** Is this spec a Lib
   @NoDoc abstract Bool isLib()
 
