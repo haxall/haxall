@@ -14,6 +14,7 @@ using haystack::Marker
 using haystack::NA
 using haystack::Remove
 using haystack::Grid
+using haystack::Symbol
 using haystack::UnknownSpecErr
 
 **
@@ -95,6 +96,7 @@ internal const class MEnv : XetoEnv
     if (val is Dict) return ((Dict)val).spec.type
     if (val is List) return sys.list
     if (val is Grid) return lib("ph").slotOwn("Grid")
+    if (val is Symbol) return lib("ph").slotOwn("Symbol")
     if (checked) throw UnknownTypeErr("No DataType mapped for '$val.typeof'")
     return null
   }
