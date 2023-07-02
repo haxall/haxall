@@ -6,13 +6,21 @@
 //   16 Jan 2023  Brian Frank  Creation
 //
 
+using util
+
 **
 ** Versioned library module of specs and defs.
 ** Use `XetoEnv.lib` to load libraries.
 **
 @Js
-const mixin Lib : Spec
+const mixin Lib
 {
+
+  ** Dotted name of the library
+  abstract Str name()
+
+  ** Meta data for library
+  abstract Dict meta()
 
   ** Version of this library
   abstract Version version()
@@ -20,8 +28,17 @@ const mixin Lib : Spec
   ** List the dependencies
   abstract LibDepend[] depends()
 
-  ** Lookup a type in this library by name.
-  @NoDoc abstract Spec? libType(Str name, Bool checked := true)
+  ** List the top level types
+  abstract Spec[] types()
+
+  ** Lookup a top level type in this library by simple name
+  abstract Spec? libType(Str name, Bool checked := true)
+
+  ** Environment for lib
+  @NoDoc abstract XetoEnv env()
+
+  ** File location of definition or unknown
+  @NoDoc abstract FileLoc loc()
 
 }
 

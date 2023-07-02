@@ -238,10 +238,11 @@ internal const class MEnv : XetoEnv
     return acc.eachWhile(f)
   }
 
-  override Dict genAst(Spec spec, Dict? opts := null)
+  override Dict genAst(Obj libOrSpec, Dict? opts := null)
   {
+    // TODO: support Lib
     if (opts == null) opts = dict0
-    return XetoUtil.genAst(this, spec, opts.has("own"), opts)
+    return XetoUtil.genAst(this, (Spec)libOrSpec, opts.has("own"), opts)
   }
 
   override Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)

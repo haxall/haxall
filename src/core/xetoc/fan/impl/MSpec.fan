@@ -31,7 +31,7 @@ internal const class MSpec
     this.flags    = flags
   }
 
-  virtual MEnv env() { parent.env }
+  virtual MEnv env() { lib.env }
 
   virtual XetoLib lib() { parent.lib }
 
@@ -246,8 +246,6 @@ internal const class XetoSpec : Spec, Dict, CSpec
   override final Bool isAnd() { XetoUtil.isAnd(this) }
 
   override final Bool isOr() { XetoUtil.isOr(this) }
-
-  override final Bool isLib() { m.isLib }
 
   override final Bool isType() { m.isType }
 

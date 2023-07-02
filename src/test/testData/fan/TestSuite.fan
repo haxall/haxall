@@ -186,7 +186,7 @@ class DataTestCase
 
   Void verifyTypes(Str:Obj? expect)
   {
-    expect.each |e, n| { verifySpec(lib.slot(n), e) }
+    expect.each |e, n| { verifySpec(lib.libType(n), e) }
   }
 
   Void verifyData(Obj expect)
@@ -249,7 +249,7 @@ class DataTestCase
   {
     if (spec.isType)
     {
-      verifyEq(spec.qname, spec.lib.qname + "::" + spec.name)
+      verifyEq(spec.qname, spec.lib.name + "::" + spec.name)
       verifySame(spec.type, spec)
       verifyQName(spec.base, expect["base"])
     }
@@ -472,7 +472,7 @@ class DataTestCase
   {
     if (expected == null) { verifyEq(actual, null); return }
     if (expected.startsWith("test::"))
-      expected = lib.qname + "::" + expected[expected.index(":")+2..-1]
+      expected = lib.name + "::" + expected[expected.index(":")+2..-1]
     verifyEq(actual.qname, expected)
   }
 

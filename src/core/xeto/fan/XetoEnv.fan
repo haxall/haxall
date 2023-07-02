@@ -137,8 +137,8 @@ const abstract class XetoEnv
   ** as overall result of the method.
   @NoDoc abstract Obj? queryWhile(XetoContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
 
-  ** Generate an AST for the given spec as a Dict tree.
-  @NoDoc abstract Dict genAst(Spec spec, Dict? opts := null)
+  ** Generate an AST for the given Lib or Spec as a Dict tree.
+  @NoDoc abstract Dict genAst(Obj libOrSpec, Dict? opts := null)
 
   ** Pretty print object to output stream.
   @NoDoc abstract Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)

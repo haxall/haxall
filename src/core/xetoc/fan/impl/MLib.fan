@@ -16,17 +16,23 @@ using xeto
 internal const final class MLib : MSpec
 {
   new make(MEnv env, FileLoc loc, Str qname, XetoType libType, Dict meta, MSlots slots, Version version, MLibDepend[] depends)
-    : super(loc, null, "", libType, libType, meta, meta, slots, slots, 0)
+    : super(loc, null, qname, libType, libType, meta, meta, slots, slots, 0)
   {
     this.env     = env
     this.qname   = qname
     this.version = version
     this.depends = depends
+
+    types := Spec[,]
+    slots.each |x| { types.add(x) }
+    this.types = types
   }
 
   const override MEnv env
 
   const override Str qname
+
+  const Spec[] types
 
   override Spec spec() { env.sys.lib }
 
@@ -61,6 +67,8 @@ internal const class XetoLib : XetoSpec, Lib
   new make() : super() {}
 
   override XetoLib lib() { this }
+
+  override Spec[] types() { ml.types }
 
   override Version version() { ml.version }
 

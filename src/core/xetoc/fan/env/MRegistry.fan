@@ -207,7 +207,7 @@ internal const class MRegistryEntry : LibRegistryEntry
 
   override Str doc()
   {
-    isLoaded ? (get["doc"] as Str ?: "") : ""
+    isLoaded ? (get.meta["doc"] as Str ?: "") : ""
   }
 
   override Bool isLoaded() { libRef.val != null }

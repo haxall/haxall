@@ -30,7 +30,7 @@ class DataEnvTest : AbstractDataTest
     // lib basics
     sys := verifyLibBasics("sys", curVersion)
     verifySame(env.lib("sys"), sys)
-    verifyEq(sys.qname, "sys")
+    verifyEq(sys.name, "sys")
     verifyEq(sys.version, curVersion)
 // TODO
 //    verifyEq(sys["version"], typeof.pod.version)
@@ -115,7 +115,7 @@ class DataEnvTest : AbstractDataTest
     // sys
     sys := env.lib("sys")
     verifySame(env.lib("sys"), sys)
-    verifySame(env.type("sys::Dict"), sys.slotOwn("Dict"))
+    verifySame(env.type("sys::Dict"), sys.libType("Dict"))
 
     // bad libs
     verifyEq(env.lib("bad.one", false), null)
@@ -432,26 +432,14 @@ class DataEnvTest : AbstractDataTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  Lib verifyLibBasics(Str qname, Version version)
+  Lib verifyLibBasics(Str name, Version version)
   {
-    lib := env.lib(qname)
+    lib := env.lib(name)
 
-    verifySame(env.lib(qname), lib)
+    verifySame(env.lib(name), lib)
     verifySame(lib.env, env)
-    verifyEq(lib.parent, null)
-    verifyEq(lib.name, "")
-    verifyEq(lib.qname, qname)
+    verifyEq(lib.name, name)
     verifyEq(lib.version, version)
-    verifySame(lib.lib, lib)
-    verifyEq(lib.isLib, true)
-    verifyEq(lib.isType, false)
-    verifySame(lib.type, env.type("sys::Lib"))
-    verifySame(lib.base, env.type("sys::Lib"))
-    verifySame(lib.spec, env.type("sys::Lib"))
-
-    verifyEq(lib.slotOwn("Bad", false), null)
-    verifyErr(UnknownNameErr#) { lib.slotOwn("Bad") }
-    verifyErr(UnknownNameErr#) { lib.slotOwn("Bad", true) }
 
     verifyEq(lib.libType("Bad", false), null)
     verifyErr(UnknownTypeErr#) { lib.libType("Bad") }
@@ -463,21 +451,19 @@ class DataEnvTest : AbstractDataTest
   Spec verifyLibType(Lib lib, Str name, Spec? base, Obj? val := null)
   {
     type := lib.libType(name)
-    verifySame(type, lib.slot(name))
-    verifySame(type, lib.slotOwn(name))
+    verifySame(type, lib.libType(name))
+    verifyEq(lib.types.containsSame(type), true)
     verifySame(type.env, env)
-    verifySame(type.parent, lib)
+    verifySame(type.parent, null)
     verifySame(type.lib, lib)
     verifyEq(type.name, name)
-    verifyEq(type.qname, lib.qname + "::" + name)
+    verifyEq(type.qname, lib.name + "::" + name)
     verifySame(type.qname, type.qname)
-    verifySame(lib.slotOwn(name), type)
-    verifyEq(lib.slots.names.contains(name), true)
+    verifySame(lib.libType(name), type)
     verifySame(type.type, type)
     verifySame(type.base, base)
     verifyEq(type.toStr, type.qname)
     verifySame(type.spec, env.type("sys::Type"))
-    verifyEq(type.isLib, false)
     verifyEq(type.isType, true)
     verifyEq(type["val"], val)
     return type
@@ -500,15 +486,14 @@ class DataEnvTest : AbstractDataTest
     verifySame(slot.type, type)
     verifySame(slot.base, type)
     verifySame(slot.spec, env.type("sys::Spec"))
-    verifyEq(slot.isLib, false)
     verifyEq(slot.isType, false)
     return slot
   }
 
   Void dumpLib(Lib lib)
   {
-    echo("--- dump $lib.qname ---")
-    lib.slotsOwn.each |t|
+    echo("--- dump $lib.name ---")
+    lib.types.each |t|
     {
       hasSlots := !t.slotsOwn.isEmpty
       echo("$t.name: $t.type <$t>" + (hasSlots ? " {" : ""))

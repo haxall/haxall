@@ -17,28 +17,24 @@ using util
 const mixin Spec : Dict
 {
 
-  ** Environment for spec
-  @NoDoc abstract XetoEnv env()
-
   ** Parent library for spec
   abstract Lib lib()
 
   ** Parent spec which contains this spec definition and scopes `name`.
-  ** Returns null for libs and derived specs.
+  ** Returns null for top level specs in the library.
   abstract Spec? parent()
 
-  ** Return simple name scoped by `parent`.  This method
-  ** returns the empty string a library.
+  ** Return simple name scoped by `lib` or `parent`.
   abstract Str name()
 
   ** Return fully qualified name of this spec:
-  **   - Lib will return "foo.bar"
-  **   - Top level type will return "foo.bar::Baz"
+  **   - Type specs will return "foo.bar::Baz"
+  **   - Global slots will return "foo.bar::baz"
   **   - Type slots will return "foo.bar::Baz.qux"
   **   - Derived specs will return "derived123::{name}"
   abstract Str qname()
 
-  ** Type of this spec.   If this spec is a top level type then return self.
+  ** Type of this spec.  If this spec is a top level type then return self.
   abstract Spec type()
 
   ** Base spec from which this spec directly inherits its meta and slots.
@@ -82,14 +78,14 @@ const mixin Spec : Dict
 // NoDoc
 //////////////////////////////////////////////////////////////////////////
 
+  ** Environment for spec
+  @NoDoc abstract XetoEnv env()
+
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 
   ** Mapping between this spec and its Fantom representation
   @NoDoc abstract SpecFactory factory()
-
-  ** Is this spec a Lib
-  @NoDoc abstract Bool isLib()
 
   ** Is this a top level type spec
   @NoDoc abstract Bool isType()

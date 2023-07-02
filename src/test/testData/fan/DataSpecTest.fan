@@ -32,8 +32,8 @@ class DataSpecTest : AbstractDataTest
 
      // env.print(lib)
 
-     verifyMeta(lib.slotOwn("Foo"), Str:Obj["a":"A", "b":"B"],  Str:Obj["a":"A", "b":"B"])
-     verifyMeta(lib.slotOwn("Bar"), Str:Obj["b":"B2", "c":"C"],  Str:Obj["a":"A", "b":"B2", "c":"C"])
+     verifyMeta(lib.libType("Foo"), Str:Obj["a":"A", "b":"B"],  Str:Obj["a":"A", "b":"B"])
+     verifyMeta(lib.libType("Bar"), Str:Obj["b":"B2", "c":"C"],  Str:Obj["a":"A", "b":"B2", "c":"C"])
   }
 
   Void verifyMeta(Spec s, Str:Obj own, Str:Obj effective)
@@ -148,8 +148,8 @@ class DataSpecTest : AbstractDataTest
      // env.print(lib)
 
      str := env.type("sys::Str")
-     foo := lib.slotOwn("Foo")
-     qux := lib.slotOwn("Qux")
+     foo := lib.libType("Foo")
+     qux := lib.libType("Qux")
 
      bar := foo.slotOwn("bar")
      verifySame(bar.type, str)
@@ -193,10 +193,10 @@ class DataSpecTest : AbstractDataTest
      //env.print(lib)
 
      and := env.type("sys::And")
-     foo := lib.slotOwn("Foo")
-     bar := lib.slotOwn("Bar")
+     foo := lib.libType("Foo")
+     bar := lib.libType("Bar")
 
-     fooBar := lib.slotOwn("FooBar")
+     fooBar := lib.libType("FooBar")
      verifySame(fooBar.type.base, and)
      verifyEq(fooBar.isa(and), true)
      verifyEq(fooBar["ofs"], Spec[foo,bar])
@@ -216,21 +216,21 @@ class DataSpecTest : AbstractDataTest
     elecMeterSlots   := meterSlots.dup.add("elec:Marker")
     acElecMeterSlots := elecMeterSlots.dup.add("ac:Marker")
 
-    verifySlots(ph.slot("Equip"),       equipSlots)
-    verifySlots(ph.slot("Meter"),       meterSlots)
-    verifySlots(ph.slot("ElecMeter"),   elecMeterSlots)
-    verifySlots(ph.slot("AcElecMeter"), acElecMeterSlots)
+    verifySlots(ph.libType("Equip"),       equipSlots)
+    verifySlots(ph.libType("Meter"),       meterSlots)
+    verifySlots(ph.libType("ElecMeter"),   elecMeterSlots)
+    verifySlots(ph.libType("AcElecMeter"), acElecMeterSlots)
 
     ptSlots    := ["point:Marker", "equips:Query"]
     numPtSlots := ptSlots.dup.addAll(["kind:Str", "unit:Str"])
     afSlots    := numPtSlots.dup.addAll(["air:Marker", "flow:Marker"])
     afsSlots   := afSlots.dup.add("sensor:Marker")
     dafsSlots  := afsSlots.dup.add("discharge:Marker")
-    verifySlots(ph.slot("Point"), ptSlots)
-    verifySlots(phx.slot("NumberPoint"), numPtSlots)
-    verifySlots(phx.slot("AirFlowPoint"), afSlots)
-    verifySlots(phx.slot("AirFlowSensor"), afsSlots)
-    verifySlots(phx.slot("DischargeAirFlowSensor"), dafsSlots)
+    verifySlots(ph.libType("Point"), ptSlots)
+    verifySlots(phx.libType("NumberPoint"), numPtSlots)
+    verifySlots(phx.libType("AirFlowPoint"), afSlots)
+    verifySlots(phx.libType("AirFlowSensor"), afsSlots)
+    verifySlots(phx.libType("DischargeAirFlowSensor"), dafsSlots)
   }
 
   Void verifySlots(Spec t, Str[] expected)
@@ -313,7 +313,7 @@ class DataSpecTest : AbstractDataTest
     aPts := a.slot("points")
     ab := lib.libType("AhuAB")
     abPts := ab.slot("points")
-    verifyEq(abPts.qname, "${lib.qname}::AhuAB.points")
+    verifyEq(abPts.qname, "${lib.name}::AhuAB.points")
     verifyEq(abPts.type, env.type("sys::Query"))
     verifyEq(abPts.base, aPts)
   }
