@@ -123,7 +123,7 @@ internal const class MEnv : XetoEnv
     colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
     libName := qname[0..<colon]
     typeName := qname[colon+2..-1]
-    type := lib(libName, false)?.slotOwn(typeName, false)
+    type := lib(libName, false)?.libType(typeName, false)
     if (type != null) return type
     if (checked) throw UnknownTypeErr("Unknown data type: $qname")
     return null
@@ -131,21 +131,14 @@ internal const class MEnv : XetoEnv
 
   override XetoSpec? spec(Str qname, Bool checked := true)
   {
-    colon := qname.index("::")
-    if (colon == null) return lib(qname, checked)
+    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
 
     libName := qname[0..<colon]
     names := qname[colon+2..-1].split('.', false)
 
-    Spec? spec := lib(libName, false)
-    if (spec != null)
-    {
-      for (i:=0; i<names.size; ++i)
-      {
-        spec = spec.slot(names[i], false)
-        if (spec == null) break
-      }
-    }
+    spec := lib(libName, false)?.libType(names.first, false)
+    for (i:=1; spec != null && i<names.size; ++i)
+      spec = spec.slot(names[i], false)
 
     if (spec != null) return spec
     if (checked) throw UnknownSpecErr(qname)
@@ -240,9 +233,12 @@ internal const class MEnv : XetoEnv
 
   override Dict genAst(Obj libOrSpec, Dict? opts := null)
   {
-    // TODO: support Lib
     if (opts == null) opts = dict0
-    return XetoUtil.genAst(this, (Spec)libOrSpec, opts.has("own"), opts)
+    isOwn := opts.has("own")
+    if (libOrSpec is Lib)
+      return XetoUtil.genAstLib(this, libOrSpec, isOwn, opts)
+    else
+      return XetoUtil.genAstSpec(this, libOrSpec, isOwn, opts)
   }
 
   override Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)

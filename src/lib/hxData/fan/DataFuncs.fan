@@ -50,7 +50,7 @@ const class DataFuncs
     acc := Spec[,]
     cx.usings.libs.each |lib|
     {
-      lib.slotsOwn.each |x|
+      lib.types.each |x|
       {
         if (filter != null && !filter(x)) return
         acc.add(x)

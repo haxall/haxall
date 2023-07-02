@@ -229,11 +229,33 @@ internal const class XetoUtil
 // AST
 //////////////////////////////////////////////////////////////////////////
 
+  ** Generate AST dict tree for entire lib
+  static Dict genAstLib(XetoEnv env, Lib lib, Bool isOwn, Dict opts)
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
 
-  **
-  ** Generate AST dict tree
-  **
-  static Dict genAst(XetoEnv env, Spec spec, Bool isOwn, Dict opts)
+    acc["type"] = "sys::Lib"
+
+    lib.meta.each |v, n|
+    {
+      if (n == "val" && v === env.marker) return
+      acc[n] = genAstVal(env, v)
+    }
+
+    slots := Str:Obj[:]
+    slots.ordered = true
+    lib.types.each |type|
+    {
+      slots.add(type.name, genAstSpec(env, type, isOwn, opts))
+    }
+    acc.add("slots", env.dictMap(slots))
+
+    return env.dictMap(acc)
+  }
+
+  ** Generate AST dict tree for spec
+  static Dict genAstSpec(XetoEnv env, Spec spec, Bool isOwn, Dict opts)
   {
     acc := Str:Obj[:]
     acc.ordered = true
@@ -265,7 +287,7 @@ internal const class XetoUtil
       slots.each |slot|
       {
         noRecurse := slot.base?.type === slot.base && !slot.isType
-        slotsAcc[slot.name] = genAst(env, slot, isOwn || noRecurse, opts)
+        slotsAcc[slot.name] = genAstSpec(env, slot, isOwn || noRecurse, opts)
       }
       acc["slots"] = env.dictMap(slotsAcc)
     }

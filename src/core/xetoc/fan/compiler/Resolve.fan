@@ -59,7 +59,7 @@ internal class Resolve : Step
       return err("Depend lib '$d.qname' version '$lib.version' is incompatible with '$d.versions'", d.loc)
 
     // register the library into our depends map
-    depends.add(lib.qname, lib)
+    depends.add(lib.name, lib)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ internal class Resolve : Step
 
     // match to external dependencies
     matches := XetoSpec[,]
-    depends.each |lib| { matches.addNotNull(lib.slotOwn(n.name, false)) }
+    depends.each |lib| { matches.addNotNull(lib.libType(n.name, false)) }
     if (matches.isEmpty)
       err("Unresolved type: $n", ref.loc)
     else if (matches.size > 1)

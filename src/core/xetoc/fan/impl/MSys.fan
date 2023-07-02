@@ -17,7 +17,7 @@ internal const class MSys
 {
   new make(XetoLib lib)
   {
-    x := lib.slotsOwn
+    x := lib.m.typesMap
     this.obj      = x.get("Obj")
     this.none     = x.get("None")
     this.seq      = x.get("Seq")

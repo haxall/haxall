@@ -22,15 +22,14 @@ internal class Assemble : Step
 
   private Void asmLib(ALib x)
   {
-    m := MLib(env, x.loc, x.qname, x.type.asm, x.metaOwn, asmSlotsOwn(x), x.version, compiler.depends)
-    mField->setConst(x.asm, m)
-    mlField->setConst(x.asm, m)
+    m := MLib(env, x.loc, x.qname, x.metaOwn, x.version, compiler.depends, asmSlotsOwn(x))
+    XetoLib#m->setConst(x.asmLib, m)
     asmChildren(x)
   }
 
   private Void asmType(AType x)
   {
-    m := MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.factory)
+    m := MType(x.loc, x.lib.asmLib, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.factory)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }
@@ -70,5 +69,4 @@ internal class Assemble : Step
   }
 
   Field mField  := XetoSpec#m
-  Field mlField := XetoLib#ml
 }

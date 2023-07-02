@@ -48,7 +48,7 @@ internal const class SpecTypeRef : SpecExpr
   override Spec? eval(AxonContext cx)
   {
     // qualified type
-    if (lib != null) return cx.usings.env.lib(lib).slotOwn(name)
+    if (lib != null) return cx.usings.env.lib(lib).libType(name)
 
     // try local varaible definition
     local := cx.getVar(name) as Spec

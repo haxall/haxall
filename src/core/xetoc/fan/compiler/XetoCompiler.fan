@@ -75,7 +75,7 @@ internal class XetoCompiler
       OutputZip()
     ])
     info("Compiled xetolib [$qname]")
-    return lib.asm
+    return lib.asmLib
   }
 
   ** Compile input to instance data

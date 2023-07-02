@@ -195,7 +195,6 @@ class AxonTest : HxTest
   @HxRuntimeTest
   Void testReflect()
   {
-    verifySame(eval("""spec("sys")"""), env.spec("sys"))
     verifySame(eval("""spec("sys::Str")"""), env.spec("sys::Str"))
     verifySame(eval("""spec("ph::Site.site")"""), env.spec("ph::Site.site"))
 

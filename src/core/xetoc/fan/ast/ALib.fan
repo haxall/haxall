@@ -16,16 +16,18 @@ internal class ALib : ASpec
 {
   ** Constructor
   new make(FileLoc loc, Str qname)
-    : super(loc, null, "", XetoLib())
+    : super(loc, null, "", XetoSpec())
   {
     this.qname = qname
+    this.asmLib = XetoLib()
   }
 
   ** Return true
   override Bool isLib() { true }
 
   ** Assembled Lib reference
-  override XetoLib asm() { asmRef }
+  override XetoSpec asm() { throw Err("TODO") }
+  const XetoLib asmLib
 
   ** Construct type
   override AObj makeChild(FileLoc loc, Str name) { AType(loc, this, name) }

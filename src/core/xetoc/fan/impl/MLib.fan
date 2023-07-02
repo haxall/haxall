@@ -13,44 +13,49 @@ using xeto
 ** Implementation of Lib wrapped by XetoLib
 **
 @Js
-internal const final class MLib : MSpec
+internal const final class MLib
 {
-  new make(MEnv env, FileLoc loc, Str qname, XetoType libType, Dict meta, MSlots slots, Version version, MLibDepend[] depends)
-    : super(loc, null, qname, libType, libType, meta, meta, slots, slots, 0)
+  new make(MEnv env, FileLoc loc, Str name, Dict meta, Version version, MLibDepend[] depends, MSlots slots)
   {
     this.env     = env
-    this.qname   = qname
+    this.loc     = loc
+    this.name    = name
+    this.meta    = meta
     this.version = version
     this.depends = depends
+
 
     types := Spec[,]
     slots.each |x| { types.add(x) }
     this.types = types
+    this.typesMap = slots
   }
 
-  const override MEnv env
+  const MEnv env
 
-  const override Str qname
+  const FileLoc loc
 
-  const Spec[] types
+  const Str name
 
-  override Spec spec() { env.sys.lib }
+  const Dict meta
 
   const Version version
 
   const LibDepend[] depends
 
+  const Spec[] types
+
+  const MSlots typesMap
+
   Spec? libType(Str name, Bool checked := true)
   {
-    type := slotOwn(name, false)
+    type := typesMap.get(name, false)
     if (type != null) return type
-    if (checked) throw UnknownTypeErr(qname + "::" + name)
+    if (checked) throw UnknownTypeErr(this.name + "::" + name)
     return null
   }
 
-  override Bool isLib() { true }
-
-  override Str toStr() { qname }
+  override Str toStr() { name }
 
 }
 
@@ -62,21 +67,25 @@ internal const final class MLib : MSpec
 ** XetoLib is the referential proxy for MLib
 **
 @Js
-internal const class XetoLib : XetoSpec, Lib
+internal const class XetoLib : Lib
 {
-  new make() : super() {}
+  override FileLoc loc() { m.loc }
 
-  override XetoLib lib() { this }
+  override XetoEnv env() { m.env }
 
-  override Spec[] types() { ml.types }
+  override Str name() { m.name }
 
-  override Version version() { ml.version }
+  override Dict meta() { m.meta }
 
-  override LibDepend[] depends() { ml.depends }
+  override Version version() { m.version }
 
-  override Spec? libType(Str name, Bool checked := true) { ml.libType(name, checked) }
+  override LibDepend[] depends() { m.depends }
 
-  const MLib? ml
+  override Spec[] types() { m.types }
+
+  override Spec? libType(Str name, Bool checked := true) { m.libType(name, checked) }
+
+  const MLib? m
 }
 
 **************************************************************************

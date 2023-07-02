@@ -58,7 +58,7 @@ class AxonUsings
   Spec? resolve(Str name, Bool checked := true)
   {
     acc := Spec[,]
-    map.each |u| { acc.addNotNull(u.lib?.slotOwn(name, false)) }
+    map.each |u| { acc.addNotNull(u.lib?.libType(name, false)) }
     if (acc.size == 1) return acc[0]
     if (acc.size > 1) throw Err("Ambiguous types for '$name' $acc")
     if (checked) throw UnknownTypeErr(name)
