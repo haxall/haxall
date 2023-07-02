@@ -106,7 +106,7 @@ internal const class MEnv : XetoEnv
     }
 
     // fallbacks
-    if (val is Grid) return lib("ph").libType("Grid")
+    if (val is Grid) return lib("ph").type("Grid")
 
     // cannot map to spec
     if (checked) throw UnknownTypeErr("No spec mapped for '$type'")
@@ -123,7 +123,7 @@ internal const class MEnv : XetoEnv
     colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
     libName := qname[0..<colon]
     typeName := qname[colon+2..-1]
-    type := lib(libName, false)?.libType(typeName, false)
+    type := lib(libName, false)?.type(typeName, false)
     if (type != null) return type
     if (checked) throw UnknownTypeErr("Unknown data type: $qname")
     return null
@@ -136,7 +136,7 @@ internal const class MEnv : XetoEnv
     libName := qname[0..<colon]
     names := qname[colon+2..-1].split('.', false)
 
-    spec := lib(libName, false)?.libType(names.first, false)
+    spec := lib(libName, false)?.type(names.first, false)
     for (i:=1; spec != null && i<names.size; ++i)
       spec = spec.slot(names[i], false)
 

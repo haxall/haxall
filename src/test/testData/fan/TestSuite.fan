@@ -181,12 +181,12 @@ class DataTestCase
 
   Void verifyType(Str:Obj? expect)
   {
-    verifySpec(lib.libType(expect.getChecked("name")), expect)
+    verifySpec(lib.type(expect.getChecked("name")), expect)
   }
 
   Void verifyTypes(Str:Obj? expect)
   {
-    expect.each |e, n| { verifySpec(lib.libType(n), e) }
+    expect.each |e, n| { verifySpec(lib.type(n), e) }
   }
 
   Void verifyData(Obj expect)
@@ -460,7 +460,7 @@ class DataTestCase
     }
 
     Spec type := qname.startsWith("test::") ?
-                     lib.libType(qname[6..-1]) :
+                     lib.type(qname[6..-1]) :
                      env.type(qname)
 
     return slot == null ?

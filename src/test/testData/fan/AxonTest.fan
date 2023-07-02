@@ -492,8 +492,8 @@ class AxonTest : HxTest
            DPressure: {discharge, pressure}
            Ahu2: ph::Equip { points: { DTemp, DFlow, DPressure? } }
            |>)
-     ahu1 := lib.libType("Ahu1")
-     ahu2 := lib.libType("Ahu2")
+     ahu1 := lib.type("Ahu1")
+     ahu2 := lib.type("Ahu2")
 
      // verify queryNamed
      verifyQueryNamed(ahu, ahu1.slot("points"), ["temp":dtemp, "flow":dflow, "fan":drun])

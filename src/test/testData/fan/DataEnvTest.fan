@@ -113,7 +113,7 @@ class DataEnvTest : AbstractDataTest
     // sys
     sys := env.lib("sys")
     verifySame(env.lib("sys"), sys)
-    verifySame(env.type("sys::Dict"), sys.libType("Dict"))
+    verifySame(env.type("sys::Dict"), sys.type("Dict"))
 
     // bad libs
     verifyEq(env.lib("bad.one", false), null)
@@ -439,17 +439,17 @@ class DataEnvTest : AbstractDataTest
     verifyEq(lib.name, name)
     verifyEq(lib.version, version)
 
-    verifyEq(lib.libType("Bad", false), null)
-    verifyErr(UnknownTypeErr#) { lib.libType("Bad") }
-    verifyErr(UnknownTypeErr#) { lib.libType("Bad", true) }
+    verifyEq(lib.type("Bad", false), null)
+    verifyErr(UnknownTypeErr#) { lib.type("Bad") }
+    verifyErr(UnknownTypeErr#) { lib.type("Bad", true) }
 
     return lib
   }
 
   Spec verifyLibType(Lib lib, Str name, Spec? base, Obj? val := null)
   {
-    type := lib.libType(name)
-    verifySame(type, lib.libType(name))
+    type := lib.type(name)
+    verifySame(type, lib.type(name))
     verifyEq(lib.types.containsSame(type), true)
     verifySame(type.env, env)
     verifySame(type.parent, null)
@@ -457,7 +457,7 @@ class DataEnvTest : AbstractDataTest
     verifyEq(type.name, name)
     verifyEq(type.qname, lib.name + "::" + name)
     verifySame(type.qname, type.qname)
-    verifySame(lib.libType(name), type)
+    verifySame(lib.type(name), type)
     verifySame(type.type, type)
     verifySame(type.base, base)
     verifyEq(type.toStr, type.qname)

@@ -31,8 +31,8 @@ const mixin Lib
   ** List the top level types
   abstract Spec[] types()
 
-  ** Lookup a top level type in this library by simple name
-  abstract Spec? libType(Str name, Bool checked := true)
+  ** Lookup a top level type spec in this library by simple name
+  abstract Spec? type(Str name, Bool checked := true)
 
   ** Environment for lib
   @NoDoc abstract XetoEnv env()

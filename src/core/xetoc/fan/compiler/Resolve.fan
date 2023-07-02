@@ -88,7 +88,7 @@ internal class Resolve : Step
 
     // match to external dependencies
     matches := XetoSpec[,]
-    depends.each |lib| { matches.addNotNull(lib.libType(n.name, false)) }
+    depends.each |lib| { matches.addNotNull(lib.type(n.name, false)) }
     if (matches.isEmpty)
       err("Unresolved type: $n", ref.loc)
     else if (matches.size > 1)
@@ -114,7 +114,7 @@ internal class Resolve : Step
     if (lib == null) return err("Spec lib '$n' is not included in depends", ref.loc)
 
     // resolve in lib
-    type := lib.libType(n.name, false)
+    type := lib.type(n.name, false)
     if (type == null) return err("Unresolved spec '$n' in lib", ref.loc)
     ref.resolve((CSpec)type)
   }

@@ -32,8 +32,8 @@ class DataSpecTest : AbstractDataTest
 
      // env.print(lib)
 
-     verifyMeta(lib.libType("Foo"), Str:Obj["a":"A", "b":"B"],  Str:Obj["a":"A", "b":"B"])
-     verifyMeta(lib.libType("Bar"), Str:Obj["b":"B2", "c":"C"],  Str:Obj["a":"A", "b":"B2", "c":"C"])
+     verifyMeta(lib.type("Foo"), Str:Obj["a":"A", "b":"B"],  Str:Obj["a":"A", "b":"B"])
+     verifyMeta(lib.type("Bar"), Str:Obj["b":"B2", "c":"C"],  Str:Obj["a":"A", "b":"B2", "c":"C"])
   }
 
   Void verifyMeta(Spec s, Str:Obj own, Str:Obj effective)
@@ -148,8 +148,8 @@ class DataSpecTest : AbstractDataTest
      // env.print(lib)
 
      str := env.type("sys::Str")
-     foo := lib.libType("Foo")
-     qux := lib.libType("Qux")
+     foo := lib.type("Foo")
+     qux := lib.type("Qux")
 
      bar := foo.slotOwn("bar")
      verifySame(bar.type, str)
@@ -193,10 +193,10 @@ class DataSpecTest : AbstractDataTest
      //env.print(lib)
 
      and := env.type("sys::And")
-     foo := lib.libType("Foo")
-     bar := lib.libType("Bar")
+     foo := lib.type("Foo")
+     bar := lib.type("Bar")
 
-     fooBar := lib.libType("FooBar")
+     fooBar := lib.type("FooBar")
      verifySame(fooBar.type.base, and)
      verifyEq(fooBar.isa(and), true)
      verifyEq(fooBar["ofs"], Spec[foo,bar])
@@ -216,21 +216,21 @@ class DataSpecTest : AbstractDataTest
     elecMeterSlots   := meterSlots.dup.add("elec:Marker")
     acElecMeterSlots := elecMeterSlots.dup.add("ac:Marker")
 
-    verifySlots(ph.libType("Equip"),       equipSlots)
-    verifySlots(ph.libType("Meter"),       meterSlots)
-    verifySlots(ph.libType("ElecMeter"),   elecMeterSlots)
-    verifySlots(ph.libType("AcElecMeter"), acElecMeterSlots)
+    verifySlots(ph.type("Equip"),       equipSlots)
+    verifySlots(ph.type("Meter"),       meterSlots)
+    verifySlots(ph.type("ElecMeter"),   elecMeterSlots)
+    verifySlots(ph.type("AcElecMeter"), acElecMeterSlots)
 
     ptSlots    := ["point:Marker", "equips:Query"]
     numPtSlots := ptSlots.dup.addAll(["kind:Str", "unit:Str"])
     afSlots    := numPtSlots.dup.addAll(["air:Marker", "flow:Marker"])
     afsSlots   := afSlots.dup.add("sensor:Marker")
     dafsSlots  := afsSlots.dup.add("discharge:Marker")
-    verifySlots(ph.libType("Point"), ptSlots)
-    verifySlots(phx.libType("NumberPoint"), numPtSlots)
-    verifySlots(phx.libType("AirFlowPoint"), afSlots)
-    verifySlots(phx.libType("AirFlowSensor"), afsSlots)
-    verifySlots(phx.libType("DischargeAirFlowSensor"), dafsSlots)
+    verifySlots(ph.type("Point"), ptSlots)
+    verifySlots(phx.type("NumberPoint"), numPtSlots)
+    verifySlots(phx.type("AirFlowPoint"), afSlots)
+    verifySlots(phx.type("AirFlowSensor"), afsSlots)
+    verifySlots(phx.type("DischargeAirFlowSensor"), dafsSlots)
   }
 
   Void verifySlots(Spec t, Str[] expected)
@@ -297,21 +297,21 @@ class DataSpecTest : AbstractDataTest
     // env.print(lib, Env.cur.out, env.dict1("effective", m))
 
     // auto named
-    verifyQueryInherit(lib.libType("AhuA"),  ["discharge-temp"])
-    verifyQueryInherit(lib.libType("AhuB"),  ["return-temp"])
-    verifyQueryInherit(lib.libType("AhuAB"), ["discharge-temp", "return-temp"])
-    verifyQueryInherit(lib.libType("AhuC"),  ["discharge-temp", "return-temp", "outside-temp"])
+    verifyQueryInherit(lib.type("AhuA"),  ["discharge-temp"])
+    verifyQueryInherit(lib.type("AhuB"),  ["return-temp"])
+    verifyQueryInherit(lib.type("AhuAB"), ["discharge-temp", "return-temp"])
+    verifyQueryInherit(lib.type("AhuC"),  ["discharge-temp", "return-temp", "outside-temp"])
 
     // explicitly named
-    verifyQueryInherit(lib.libType("AhuX"),  ["dat:discharge-temp"])
-    verifyQueryInherit(lib.libType("AhuY"),  ["rat:return-temp"])
-    verifyQueryInherit(lib.libType("AhuXY"), ["dat:discharge-temp", "rat:return-temp"])
-    verifyQueryInherit(lib.libType("AhuZ"),  ["dat:discharge-temp", "rat:return-temp", "oat:outside-temp"])
+    verifyQueryInherit(lib.type("AhuX"),  ["dat:discharge-temp"])
+    verifyQueryInherit(lib.type("AhuY"),  ["rat:return-temp"])
+    verifyQueryInherit(lib.type("AhuXY"), ["dat:discharge-temp", "rat:return-temp"])
+    verifyQueryInherit(lib.type("AhuZ"),  ["dat:discharge-temp", "rat:return-temp", "oat:outside-temp"])
 
     // extra testing for mergeInheritedSlots
-    a:= lib.libType("AhuA")
+    a:= lib.type("AhuA")
     aPts := a.slot("points")
-    ab := lib.libType("AhuAB")
+    ab := lib.type("AhuAB")
     abPts := ab.slot("points")
     verifyEq(abPts.qname, "${lib.name}::AhuAB.points")
     verifyEq(abPts.type, env.type("sys::Query"))

@@ -47,7 +47,7 @@ internal const final class MLib
 
   const MSlots typesMap
 
-  Spec? libType(Str name, Bool checked := true)
+  Spec? type(Str name, Bool checked := true)
   {
     type := typesMap.get(name, false)
     if (type != null) return type
@@ -83,7 +83,7 @@ internal const class XetoLib : Lib
 
   override Spec[] types() { m.types }
 
-  override Spec? libType(Str name, Bool checked := true) { m.libType(name, checked) }
+  override Spec? type(Str name, Bool checked := true) { m.type(name, checked) }
 
   const MLib? m
 }
