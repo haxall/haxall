@@ -32,6 +32,7 @@ class DefTopIndexRenderer : DefDocRenderer
     out.propsEnd.defSectionEnd
 
     // list spec libs
+    /*
     specs := env.dataLibs
     if (!specs.isEmpty)
     {
@@ -42,6 +43,7 @@ class DefTopIndexRenderer : DefDocRenderer
       }
       out.propsEnd.defSectionEnd
     }
+    */
   }
 }
 

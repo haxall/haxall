@@ -29,7 +29,8 @@ internal class GenDocEnv : DefCompilerStep
     addSpace(genProtos)
     addSpace(genAppendix)
     compiler.manuals.each |manual| { addSpace(manual) }
-    genSpecs
+    // TODO
+    //genSpecs
 
     init := DefDocEnvInit
     {
@@ -69,6 +70,7 @@ internal class GenDocEnv : DefCompilerStep
     DocDef(lib, def.loc, def.actual(compiler.ns))
   }
 
+  /* TODO
   private Void genSpecs()
   {
     if (!compiler.includeSpecs) return
@@ -110,6 +112,7 @@ internal class GenDocEnv : DefCompilerStep
   {
     CFandoc(CLoc(spec.loc), spec["doc"] as Str ?: "")
   }
+  */
 
   private DocProtoSpace genProtos()
   {
