@@ -22,7 +22,7 @@ class TestSuite : Test
 
   Void run(Str[] args)
   {
-    testsDir := `src/test/testData/tests/`
+    testsDir := `src/test/testXeto/tests/`
     testsFile := testsDir + `sys.yaml`
     base := Env.cur.path.find { it.plus(testsFile).exists }
     if (base == null) throw Err("Test dir not found")
