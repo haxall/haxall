@@ -13,8 +13,9 @@
 internal enum class Token
 {
 
-  id          ("identifier"),
-  val         ("value"),
+  id          ("name"),
+  ref         ("ref"),
+  scalar      ("scalar"),
   dot         ("."),
   colon       (":"),
   doubleColon ("::"),

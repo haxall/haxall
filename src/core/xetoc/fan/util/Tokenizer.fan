@@ -85,6 +85,7 @@ internal class Tokenizer
     // handle various starting chars
     if (cur.isAlpha) return tok = id
     if (cur == '"')  return tok = str
+    if (cur == '@')  return tok = ref
     if (cur.isDigit) return tok = num
     if (cur == '-' && peek.isDigit) return tok = num
 
@@ -151,7 +152,7 @@ internal class Tokenizer
       s.addChar(ch)
     }
     this.val = s.toStr
-    return Token.val
+    return Token.scalar
   }
 
   private Int escape()
@@ -189,6 +190,71 @@ internal class Tokenizer
     throw err("Invalid escape sequence")
   }
 
+  private Token ref()
+  {
+    consume // opening "@"
+    this.val = refName
+    return Token.ref
+  }
+
+  private AName refName()
+  {
+    // this code duplicates Parser.parseTypeRefName but for refs
+
+    // handle simple name as common case
+    name := refSection
+    if (cur != '.' && !(cur == ':' && peek == ':')) return ASimpleName(null, name)
+
+    // handle qualified and dotted names
+    path := Str[,]
+    path.add(name)
+    while (cur == '.')
+    {
+      consume
+      path.add(refSection)
+    }
+
+    // if no "::" then this is a unqualified dotted path
+    if (!(cur == ':' && peek == ':')) return APathName(null, path)
+    consume
+    consume
+
+    // qualified name
+    lib := path.join(".")
+    name = refSection
+    if (cur != '.') return ASimpleName(lib, name)
+
+    // qualified dotted path
+    path.clear
+    path.add(name)
+    while (cur == '.')
+    {
+      consume
+      path.add(refSection)
+    }
+
+    return APathName(lib, path)
+  }
+
+  private Str refSection()
+  {
+    s := StrBuf()
+    while (isRefChar(cur, peek))
+    {
+      s.addChar(cur)
+      consume
+    }
+    return s.toStr
+  }
+
+  private static Bool isRefChar(Int cur, Int peek)
+  {
+    if (cur.isAlphaNum) return true
+    if (cur == '_' || cur == '~') return true
+    if (cur == ':' || cur == '-') return peek.isAlphaNum || peek == '_' || peek == '~'
+    return false
+  }
+
   private Token num()
   {
     s := StrBuf()
@@ -198,7 +264,7 @@ internal class Tokenizer
       consume
     }
     this.val = s.toStr
-    return Token.val
+    return Token.scalar
   }
 
   private static Bool isNum(Int c)
