@@ -10,10 +10,10 @@ using util
 using xeto
 
 **
-** Parser for the Xeto data type language
+** OldParser for the Xeto data type language
 **
 @Js
-internal class Parser
+internal class OldParser
 {
 
 //////////////////////////////////////////////////////////////////////////

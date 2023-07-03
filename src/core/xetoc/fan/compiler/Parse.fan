@@ -134,7 +134,7 @@ internal class Parse : Step
     loc := FileLoc(input)
     try
     {
-      Parser(this, loc, input.in).parse(root)
+      OldParser(this, loc, input.in).parse(root)
     }
     catch (FileLocErr e)
     {
