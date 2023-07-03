@@ -34,6 +34,6 @@ internal class ASys
     }
   }
 
-  private static ARef init(Str name) { ARef(FileLoc.synthetic, AName("sys", name)) }
+  private static ARef init(Str name) { ARef(FileLoc.synthetic, ASimpleName("sys", name)) }
 
 }

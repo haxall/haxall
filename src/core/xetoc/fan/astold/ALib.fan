@@ -38,3 +38,10 @@ internal class ALib : ASpec
   ** Version parsed from lib.xeto
   Version? version
 }
+
+@Js
+internal const class NotAssembledErr : Err
+{
+  new make() : super("") {}
+}
+

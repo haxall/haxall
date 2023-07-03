@@ -125,14 +125,14 @@ internal class Parser
     while (cur === Token.nl)
     {
       if (peek === Token.nl) { consume; continue }
-      if (peek === Token.lbrace || peek === Token.val) { consume; break }
+      if (peek === Token.lbrace || peek === Token.scalar) { consume; break }
       return false
     }
 
     if (cur === Token.lbrace)
       return parseChildren(obj, Token.lbrace, Token.rbrace)
 
-    if (cur === Token.val)
+    if (cur === Token.scalar)
       return parseVal(obj)
 
     return false
@@ -402,7 +402,7 @@ internal class Parser
       lib = name
       name = consumeName
     }
-    return AName(lib, name)
+    return ASimpleName(lib, name)
   }
 
   private Str consumeName()
@@ -415,7 +415,7 @@ internal class Parser
 
   private Str consumeVal()
   {
-    verify(Token.val)
+    verify(Token.scalar)
     val := curVal
     consume
     return val

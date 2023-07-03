@@ -25,7 +25,7 @@ internal class ARef
   new makeResolved(FileLoc loc, CSpec spec)
   {
     this.loc = loc
-    this.name = AName(null, spec.name)
+    this.name = ASimpleName(null, spec.name)
     this.resolvedRef = spec
   }
 
