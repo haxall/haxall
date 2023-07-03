@@ -22,9 +22,24 @@ internal class Assemble : Step
 
   private Void asmLib(ALib x)
   {
-    m := MLib(env, x.loc, x.qname, x.metaOwn, x.version, compiler.depends, asmSlotsOwn(x))
+    m := MLib(env, x.loc, x.qname, x.metaOwn, x.version, compiler.depends, asmTypes(x), asmInstances(x))
     XetoLib#m->setConst(x.asmLib, m)
     asmChildren(x)
+  }
+
+  private Str:Spec asmTypes(ALib x)
+  {
+    acc := Str:Spec[:]
+    x.slots.each |t, n| { acc.add(n, t.asm) }
+    if (acc.isEmpty) return noSpecs
+    return acc
+  }
+
+  private Str:Dict asmInstances(ALib x)
+  {
+    acc := Str:Dict[:]
+    if (acc.isEmpty) return noDicts
+    return acc
   }
 
   private Void asmType(AType x)
@@ -67,6 +82,9 @@ internal class Assemble : Step
     if (x.cslots.isEmpty) return MSlots.empty
     return MSlots(x.cslots.map |s->XetoSpec| { s.asm })
   }
+
+  static const Str:Spec noSpecs := [:]
+  static const Str:Dict noDicts := [:]
 
   Field mField  := XetoSpec#m
 }

@@ -59,6 +59,17 @@ class DataEnvTest : AbstractDataTest
     lib    := verifyLibType(sys, "Lib",      spec)
     org    := verifyLibType(sys, "LibOrg",   dict)
 
+    // types
+    verifyEq(sys.types.isEmpty, false)
+    verifyEq(sys.types.isImmutable, true)
+    verifySame(sys.types, sys.types)
+    verifyEq(sys.types.containsSame(str), true)
+
+    // instances
+    verifyEq(sys.instances.size, 0)
+    verifyEq(sys.instances.isImmutable, true)
+    verifySame(sys.instances, sys.instances)
+
     // slots
     orgDis := verifySlot(org, "dis", str)
     orgUri := verifySlot(org, "uri", uri)
@@ -79,6 +90,13 @@ class DataEnvTest : AbstractDataTest
     verifySame(specOfs["of"], spec)
 
     // lookups
+    verifySame(sys.type("DateTime"), dt)
+    verifySame(sys.type("Bad", false), null)
+    verifyErr(UnknownSpecErr#) { sys.type("Bad") }
+    verifyErr(UnknownSpecErr#) { sys.type("Bad", true) }
+    verifySame(sys.instance("bad", false), null)
+    verifyErr(UnknownRecErr#) { sys.instance("bad") }
+    verifyErr(UnknownRecErr#) { sys.instance("bad", true) }
     verifySame(env.spec("sys::LibOrg"), org)
     verifySame(env.spec("sys::LibOrg.dis"), orgDis)
     verifyErr(UnknownSpecErr#) { env.spec("foo.bar.baz::Qux") }
@@ -120,13 +138,13 @@ class DataEnvTest : AbstractDataTest
     verifyEq(env.type("bad.one::Foo", false), null)
     verifyErr(UnknownLibErr#) { env.lib("bad.one") }
     verifyErr(UnknownLibErr#) { env.lib("bad.one", true) }
-    verifyErr(UnknownTypeErr#) { env.type("bad.one::Foo") }
-    verifyErr(UnknownTypeErr#) { env.type("bad.one::Foo", true) }
+    verifyErr(UnknownSpecErr#) { env.type("bad.one::Foo") }
+    verifyErr(UnknownSpecErr#) { env.type("bad.one::Foo", true) }
 
     // good lib, bad type
     verifyEq(env.type("sys::Foo", false), null)
-    verifyErr(UnknownTypeErr#) { env.type("sys::Foo") }
-    verifyErr(UnknownTypeErr#) { env.type("sys::Foo", true) }
+    verifyErr(UnknownSpecErr#) { env.type("sys::Foo") }
+    verifyErr(UnknownSpecErr#) { env.type("sys::Foo", true) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -440,8 +458,8 @@ class DataEnvTest : AbstractDataTest
     verifyEq(lib.version, version)
 
     verifyEq(lib.type("Bad", false), null)
-    verifyErr(UnknownTypeErr#) { lib.type("Bad") }
-    verifyErr(UnknownTypeErr#) { lib.type("Bad", true) }
+    verifyErr(UnknownSpecErr#) { lib.type("Bad") }
+    verifyErr(UnknownSpecErr#) { lib.type("Bad", true) }
 
     return lib
   }

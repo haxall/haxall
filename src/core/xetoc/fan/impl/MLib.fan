@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using haystack::UnknownSpecErr
 
 **
 ** Implementation of Lib wrapped by XetoLib
@@ -15,20 +16,16 @@ using xeto
 @Js
 internal const final class MLib
 {
-  new make(MEnv env, FileLoc loc, Str name, Dict meta, Version version, MLibDepend[] depends, MSlots slots)
+  new make(MEnv env, FileLoc loc, Str name, Dict meta, Version version, MLibDepend[] depends, Str:Spec typesMap, Str:Dict instancesMap)
   {
-    this.env     = env
-    this.loc     = loc
-    this.name    = name
-    this.meta    = meta
-    this.version = version
-    this.depends = depends
-
-
-    types := Spec[,]
-    slots.each |x| { types.add(x) }
-    this.types = types
-    this.typesMap = slots
+    this.env          = env
+    this.loc          = loc
+    this.name         = name
+    this.meta         = meta
+    this.version      = version
+    this.depends      = depends
+    this.typesMap     = typesMap
+    this.instancesMap = instancesMap
   }
 
   const MEnv env
@@ -43,15 +40,39 @@ internal const final class MLib
 
   const LibDepend[] depends
 
-  const Spec[] types
+  const Str:Spec typesMap
 
-  const MSlots typesMap
+  const Str:Dict instancesMap
+
+  once Spec[] types()
+  {
+    if (typesMap.isEmpty)
+      return Spec#.emptyList
+    else
+      return typesMap.vals.sort |a, b| { a.name <=> b.name }.toImmutable
+  }
 
   Spec? type(Str name, Bool checked := true)
   {
-    type := typesMap.get(name, false)
+    type := typesMap[name]
     if (type != null) return type
-    if (checked) throw UnknownTypeErr(this.name + "::" + name)
+    if (checked) throw UnknownSpecErr(this.name + "::" + name)
+    return null
+  }
+
+  once Dict[] instances()
+  {
+    if (instancesMap.isEmpty)
+      return Dict#.emptyList
+    else
+      return instancesMap.vals.sort |a, b| { a->id <=> b->id }.toImmutable
+  }
+
+  Dict? instance(Str name, Bool checked := true)
+  {
+    instance := instancesMap[name]
+    if (instance != null) return instance
+    if (checked) throw haystack::UnknownRecErr(this.name + "::" + name)
     return null
   }
 
@@ -84,6 +105,10 @@ internal const class XetoLib : Lib
   override Spec[] types() { m.types }
 
   override Spec? type(Str name, Bool checked := true) { m.type(name, checked) }
+
+  override Dict[] instances() { m.instances }
+
+  override Dict? instance(Str name, Bool checked := true) { m.instance(name, checked) }
 
   const MLib? m
 }

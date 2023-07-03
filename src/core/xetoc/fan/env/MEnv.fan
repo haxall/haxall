@@ -109,7 +109,7 @@ internal const class MEnv : XetoEnv
     if (val is Grid) return lib("ph").type("Grid")
 
     // cannot map to spec
-    if (checked) throw UnknownTypeErr("No spec mapped for '$type'")
+    if (checked) throw UnknownSpecErr("No spec mapped for '$type'")
     return null
   }
 
@@ -125,7 +125,7 @@ internal const class MEnv : XetoEnv
     typeName := qname[colon+2..-1]
     type := lib(libName, false)?.type(typeName, false)
     if (type != null) return type
-    if (checked) throw UnknownTypeErr("Unknown data type: $qname")
+    if (checked) throw UnknownSpecErr("Unknown data type: $qname")
     return null
   }
 

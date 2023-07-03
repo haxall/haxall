@@ -34,6 +34,12 @@ const mixin Lib
   ** Lookup a top level type spec in this library by simple name
   abstract Spec? type(Str name, Bool checked := true)
 
+  ** List the instance data dicts declared in this library
+  abstract Dict[] instances()
+
+  ** Lookup an instance dict by its simple name
+  abstract Dict? instance(Str name, Bool checked := true)
+
   ** Environment for lib
   @NoDoc abstract XetoEnv env()
 

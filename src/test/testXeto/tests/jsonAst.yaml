@@ -25,15 +25,15 @@ verifyJsonAst: |
       }
     ],
     "slots": {
-      "Foo": {
-        "base": "sys::Scalar",
-        "doc": "Foo doc"
-      },
       "Bar": {
         "base": "sys::Scalar",
         "doc": "Bar doc",
         "sealed": "marker",
         "val": "default"
+      },
+      "Foo": {
+        "base": "sys::Scalar",
+        "doc": "Foo doc"
       }
     }
   }
