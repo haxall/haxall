@@ -133,6 +133,9 @@ internal class ADict : AData
   ** Set value (may overwrite existing)
   Void set(Str name, AData val) { map[name] = val }
 
+  ** Convenience to iterate name/value pairs
+  Void each(|AData,Str| f) { map.each(f) }
+
   ** Tree walk
   override Void walk(|ANode| f)
   {

@@ -67,16 +67,16 @@ internal class ProcessPragma : Step
   {
     if (isSys) return MLibDepend#.emptyList
 
-throw Err("TODO")
-  }
-/*
     acc := Str:MLibDepend[:]
     acc.ordered = true
 
-    list := pragma?.meta?.slot("depends")
+    list := pragma.get("depends")
     if (list != null)
     {
-      list.slots.each |obj| { toDepend(acc, obj) }
+      if (list isnot ADict)
+        err("Depends must be a list", list.loc)
+      else
+        ((ADict)list).each |obj| { toDepend(acc, obj) }
     }
 
     // if not specified, assume just sys
@@ -89,19 +89,23 @@ throw Err("TODO")
     return acc.vals
   }
 
-  private Void toDepend(Str:MLibDepend acc, AObj obj)
+  private Void toDepend(Str:MLibDepend acc, AData obj)
   {
     // get library name from depend formattd as "{lib:<qname>}"
     loc := obj.loc
-    libName := (obj.slot("lib")?.val as AScalar)?.str
+
+    dict := obj as ADict
+    if (dict == null) return err("Depend must be dict", loc)
+
+    libName := dict.getStr("lib")
     if (libName == null) return err("Depend missing lib name", loc)
 
     // get versions
     MLibDependVersions? versions := MLibDependVersions.wildcard
-    versionsObj := obj.slot("versions")
+    versionsObj := dict.get("versions")
     if (versionsObj != null)
     {
-      versionsStr := (versionsObj?.val as AScalar)?.str
+      versionsStr := (versionsObj as AScalar)?.str
       if (versionsStr == null) return err("Versions must be a scalar", versionsObj.loc)
 
       versions = MLibDependVersions(versionsStr, false)
@@ -112,5 +116,4 @@ throw Err("TODO")
     if (acc[libName] != null) return err("Duplicate depend '$libName'", loc)
     acc[libName] = MLibDepend(libName, versions, loc)
   }
- */
 }
