@@ -77,11 +77,22 @@ internal class Resolve : Step
     // if top level spec has a default value, then its scalar
     // type is the spec itself and its implicitly a meta "def" tag
     val := spec.val
-    if (val != null && spec.isTop)
+    if (val != null && !val.isAsm)
     {
-      ref := ASpecRef(val.loc, ASimpleName(lib.name, spec.name))
-      ref.resolve(spec)
-      val.typeRef = ref
+      if (val.typeRef == null)
+      {
+        ASpecRef? ref
+        if (spec.isTop)
+        {
+          ref = ASpecRef(val.loc, ASimpleName(lib.name, spec.name))
+          ref.resolve(spec)
+        }
+        else
+        {
+          ref = spec.typeRef
+        }
+        val.typeRef = ref
+      }
       spec.initMeta.set("val", val)
     }
   }
