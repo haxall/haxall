@@ -229,6 +229,9 @@ internal class Parser
     while (cur !== Token.rbrace)
     {
       doc := parseLeadingDoc
+
+      if (cur === Token.rbrace) break
+
       slot := parseNamedSpec(parent.lib, parent, doc)
       parseCommaOrNewline("Expecting end of slots", Token.rbrace)
 

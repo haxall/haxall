@@ -170,7 +170,7 @@ internal class ASpec : ANode, CSpec
     list := meta.get("ofs") as ADict
     if (list == null) return null
     acc := CSpec[,]
-    list.map.each |x| { acc.add(x.type) }
+    list.map.each |x| { acc.add(((ASpecRef)x).deref) }
     return acc.ro
   }
 
