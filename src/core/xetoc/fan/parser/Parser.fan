@@ -145,18 +145,40 @@ internal class Parser
   {
     loc := curToLoc
     name := consumeName("Expecting spec name")
-    spec := ASpec(loc, lib, parent, name)
+    ASpecRef? type := null
+    AScalar? val := null
 
+    // if not at a colon then a upper case name means auto-named
+    // spec type and lower case means marker name
     if (cur !== Token.colon)
     {
-      marker :=  impliedMarker(spec.loc)
-      spec.typeRef = marker.typeRef
-      spec.val = marker
+      if (parent == null) throw err("Top level spec name '$name' must be followed by colon, not $curToStr")
+      if (name[0].isUpper)
+      {
+        // Foo => _xxx: Foo
+        type = ASpecRef(loc, ASimpleName(null, name))
+        name = autoName(parent.initSlots)
+      }
+      else
+      {
+        // foo => foo: Marker
+        val  = impliedMarker(loc)
+        type = val.typeRef
+      }
     }
-    else
+
+    spec := ASpec(loc, lib, parent, name)
+    spec.typeRef = type
+    spec.val = val
+
+
+    if (cur === Token.colon)
     {
       consume  // colon
       parseSpecType(spec)
+    }
+    if (val == null)
+    {
       parseSpecMeta(spec)
       parseSpecBody(spec)
     }

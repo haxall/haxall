@@ -421,14 +421,16 @@ class DataEnvTest : AbstractDataTest
 
   Void verifyInstantiate(Str qname, Obj? expect)
   {
-    actual := env.instantiate(env.spec(qname))
+    spec := env.spec(qname)
+    actual := env.instantiate(spec)
     // echo("-- $qname: $actual ?= $expect")
     verifyValEq(actual, expect)
   }
 
   Void verifyInstantiateGraph(Str qname, [Str:Obj][] expect)
   {
-    Dict[] actual := env.instantiate(env.spec(qname), env.dict1("graph", m))
+    spec := env.spec(qname)
+    Dict[] actual := env.instantiate(spec, env.dict1("graph", m))
     baseId := (Ref)actual[0]->id
     verifyEq(actual.size, expect.size)
     actual.each |a, i|
