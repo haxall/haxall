@@ -35,6 +35,9 @@ internal class ASpec : ANode, CSpec
   ** Parent spec or null if this is top-level spec
   ASpec? parent { private set }
 
+  ** Is this a library top level spec
+  Bool isTop() { parent == null }
+
   ** Name within lib or parent
   const override Str name
 
@@ -43,6 +46,9 @@ internal class ASpec : ANode, CSpec
 
   ** XetoSpec for this spec - we backpatch the "m" field in Assemble step
   const override XetoSpec asm
+
+  ** String returns qname
+  override Str toStr() { qname }
 
   ** Resolved type ref
   CSpec? type() { typeRef?.deref }

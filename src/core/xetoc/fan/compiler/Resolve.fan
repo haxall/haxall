@@ -26,7 +26,7 @@ internal class Resolve : Step
     sys.each |x| { resolveRef(x) }
 
     // resolve the ARefs
-    ast.walk |x| { if (x.isRef) resolveRef(x) }
+    ast.walk |x| { resolveNode(x) }
 
     bombIfErr
   }
@@ -60,6 +60,30 @@ internal class Resolve : Step
 
     // register the library into our depends map
     depends.add(lib.name, lib)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Resolve Node
+//////////////////////////////////////////////////////////////////////////
+
+  private Void resolveNode(ANode node)
+  {
+    if (node.isRef) return resolveRef(node)
+    if (node.nodeType === ANodeType.spec) return resolveSpec(node)
+  }
+
+  private Void resolveSpec(ASpec spec)
+  {
+    // if top level spec has a default value, then its scalar
+    // type is the spec itself and its implicitly a meta "def" tag
+    val := spec.val
+    if (val != null && spec.isTop)
+    {
+      ref := ASpecRef(val.loc, ASimpleName(lib.name, spec.name))
+      ref.resolve(spec)
+      val.typeRef = ref
+      spec.initMeta.set("val", val)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

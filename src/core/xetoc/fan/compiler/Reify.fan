@@ -41,21 +41,6 @@ internal class Reify : Step
 
   private Void reifySpec(ASpec x)
   {
-    // assemble default value into meta
-    /*
-    if (x.val != null)
-    {
-      // assemble as scalar using my own type
-      scalarType := x.isType ? x : x.type
-      val := asmScalar(x, scalarType)
-
-      // insert into meta
-      AVal obj := x.metaInit(sys).makeChild(x.val.loc, "val")
-      obj.asmRef = val
-      x.meta.slots.add(obj)
-    }
-    */
-
     // finalize the spec's metaOwn dict
     if (x.meta != null)
       x.metaOwnRef = x.meta.asm
@@ -92,13 +77,8 @@ internal class Reify : Step
     // if already assembled
     if (x.isAsm) return x.asm
 
-    // sanity check
-    if (x.typeRef == null)
-    {
-      //throw err("reifyScalar without type", x.loc)
-echo("TODO: reifyScalar without type [$x.loc]")
-return x.asmRef = x.str
-    }
+    // if there is no type, then assume string
+    if (x.typeRef == null) return x.asmRef = x.str
 
     // map to Fantom type to parse
     type := x.type
