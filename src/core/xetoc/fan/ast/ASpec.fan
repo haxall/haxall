@@ -23,7 +23,7 @@ internal class ASpec : ANode, CSpec
     this.parent = parent
     this.qname  = parent == null ? "${lib.name}::$name" : "${parent.qname}.$name"
     this.name   = name
-    this.asm    = XetoSpec()
+    this.asm    = parent == null ? XetoType() : XetoSpec()
   }
 
   ** Node type
@@ -50,8 +50,17 @@ internal class ASpec : ANode, CSpec
   ** Type signature
   ASpecRef? typeRef
 
+  ** We refine type and base in InheritSlots step
+  CSpec? base
+
   ** Meta dict if there was "<>"
   ADict? meta { private set }
+
+  ** Return if meta has the given tag
+  Bool metaHas(Str name)
+  {
+    meta != null && meta.has(name)
+  }
 
   ** Initialize meta data dict
   ADict initMeta(ADict? meta := null)
@@ -66,7 +75,18 @@ internal class ASpec : ANode, CSpec
   }
 
   ** Slots if there was "{}"
-  [Str:ASpec]? slots
+  [Str:ASpec]? slots { private set }
+
+  ** Initialize slots map
+  Str:ASpec initSlots()
+  {
+    if (this.slots == null)
+    {
+      this.slots = Str:ASpec[:]
+      this.slots.ordered = true
+    }
+    return this.slots
+  }
 
   ** Default value if spec had scalar value
   AScalar? val
@@ -120,7 +140,10 @@ internal class ASpec : ANode, CSpec
   }
 
   ** Factory for spec type
-  override SpecFactory factory() { throw Err("TODO") }
+  override SpecFactory factory() { factoryRef ?: throw NotReadyErr(qname) }
+
+  ** Factory resolved in LoadFactories
+  SpecFactory? factoryRef
 
   ** Declared meta (set in Reify)
   Dict metaOwn() { metaOwnRef ?: throw NotReadyErr(qname) }
@@ -148,6 +171,7 @@ internal class ASpec : ANode, CSpec
   ** Inheritance flags computed in InheritSlots
   override Int flags
 
+  Bool isScalar() { hasFlag(MSpecFlags.scalar) }
   override Bool isMaybe() { hasFlag(MSpecFlags.maybe) }
   override Bool isQuery() { hasFlag(MSpecFlags.query) }
 

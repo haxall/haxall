@@ -24,7 +24,8 @@ internal abstract class ANode
   ** Return node type enum
   abstract ANodeType nodeType()
 
-  ** Recursively walk thru the AST tree
+  ** Recursively walk thru the AST tree.   Children nodes are
+  ** processed first, then this node itself is processed.
   abstract Void walk(|ANode| f)
 
   ** Is this an ARef type

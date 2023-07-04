@@ -32,6 +32,9 @@ internal class ALib : ANode
   ** XetoLib instance - we backpatch the "m" field in Assemble step
   const XetoLib asm
 
+// TODO
+Dict meta := haystack::Etc.dict0
+
   ** Version parsed from pragma (set in ProcessPragma)
   Version? version
 

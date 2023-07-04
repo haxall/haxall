@@ -28,14 +28,13 @@ internal abstract class AData : ANode
   ** Resolved type
   ASpecRef? typeRef
 
-  ** Assembled value - raise exception if not assembled yet
-  Obj asm() { asmRef ?: throw NotReadyErr() }
-
   ** Is data value already assembled
-  Bool isAsm() { asmRef != null }
+  abstract Bool isAsm()
 
-  ** Assembled value set in Reify
-  Obj? asmRef
+  ** Assembled value - raise exception if not assembled yet
+  abstract Obj asm()
+
+
 }
 
 **************************************************************************
@@ -58,6 +57,15 @@ internal class AScalar : AData
 
   ** Node type
   override ANodeType nodeType() { ANodeType.scalar }
+
+  ** Is data value already assembled
+  override Bool isAsm() { asmRef != null }
+
+  ** Assembled scalar value
+  override Obj asm() { asmRef ?: throw NotReadyErr(str) }
+
+  ** Assembled value set in Reify
+  Obj? asmRef
 
   ** Encoded string
   const Str str
@@ -92,6 +100,15 @@ internal class ADict : AData
   ** Node type
   override ANodeType nodeType() { ANodeType.dict }
 
+  ** Is data value already assembled
+  override Bool isAsm() { asmRef != null }
+
+  ** Assembled scalar value
+  override Obj asm() { asmRef ?: throw NotReadyErr() }
+
+  ** Assembled value set in Reify
+  Dict? asmRef
+
   ** Identifier for this dict (not included in map)
   AName? id
 
@@ -104,8 +121,14 @@ internal class ADict : AData
   ** Return quoted string encoding
   override Str toStr() { map.toStr }
 
+  ** Return if given tag is defined
+  Bool has(Str name) { map[name] != null }
+
   ** Convenience to get tag in map
   AData? get(Str name) { map[name] }
+
+  ** Get scalar string value
+  Str? getStr(Str name) { (map[name] as AScalar)?.str }
 
   ** Set value (may overwrite existing)
   Void set(Str name, AData val) { map[name] = val }

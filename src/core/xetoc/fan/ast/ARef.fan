@@ -23,6 +23,9 @@ internal abstract class ARef : AData
     this.name = name
   }
 
+  ** Is data value already assembled
+  override final Bool isAsm() { isResolved }
+
   ** Qualified or unqualified name
   const AName name
 
@@ -55,11 +58,21 @@ internal class ASpecRef : ARef
   ** Constructor
   new make(FileLoc loc, AName name) : super(loc, name) {}
 
+  ** Construct for resolved
+  new makeResolved(FileLoc loc, CSpec spec)
+    : super.make(loc, ASimpleName(null, spec.name)) // don't create full AName
+  {
+    this.resolvedRef = spec
+  }
+
   ** Node type
   override ANodeType nodeType() { ANodeType.specRef }
 
   ** Is this reference resolved
   override Bool isResolved() { resolvedRef != null }
+
+  ** Assembled scalar value
+  override Spec asm() { deref.asm }
 
   ** Resolve to its spec
   Void resolve(CSpec x) { this.resolvedRef = x }
@@ -87,6 +100,9 @@ internal class ADataRef : ARef
 
   ** Node type
   override ANodeType nodeType() { ANodeType.dataRef }
+
+  ** Assembled scalar value
+  override Obj asm() { throw Err("TODO") }
 
   ** Is this reference resolved
   override Bool isResolved() { true } // TODO
