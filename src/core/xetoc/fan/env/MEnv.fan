@@ -251,11 +251,11 @@ internal const class MEnv : XetoEnv
     out.printLine("=== XetoEnv ===")
     out.printLine("Lib Path:")
     registry.libPath.eachr |x| { out.printLine("  $x.osPath") }
-    max := registry.list.reduce(10) |acc, x| { x.qname.size.max(acc) }
+    max := registry.list.reduce(10) |acc, x| { x.name.size.max(acc) }
     out.printLine("Installed Libs:")
     registry.list.each |entry|
     {
-      out.print("  ").print(entry.qname.padr(max))
+      out.print("  ").print(entry.name.padr(max))
       if (entry.isSrc)
         out.print(" [SRC ").print(entry.srcDir.osPath)
       else

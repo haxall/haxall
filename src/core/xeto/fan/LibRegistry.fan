@@ -32,8 +32,8 @@ const mixin LibRegistry
 @NoDoc @Js
 const mixin LibRegistryEntry
 {
-  ** Qualilfied name
-  abstract Str qname()
+  ** Library dotted name
+  abstract Str name()
 
   ** Has this library been loaded into memory
   abstract Bool isLoaded()

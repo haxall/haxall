@@ -94,7 +94,7 @@ abstract class XetoCmd : AbstractMain
 
     if (qnames.contains("all"))
     {
-      qnames = env.registry.list.map |x->Str| { x.qname }
+      qnames = env.registry.list.map |x->Str| { x.name }
     }
 
     return qnames.map |qname->Spec| { env.spec(qname) }

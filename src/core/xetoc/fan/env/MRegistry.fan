@@ -22,7 +22,7 @@ internal const class MRegistry : LibRegistry
     this.env     = env
     this.libPath = Env.cur.path.map |dir->File| { dir.plus(`lib/xeto/`) }
     this.map     = discover(this.libPath)
-    this.list    = map.vals.sort |a, b| { a.qname <=> b.qname }
+    this.list    = map.vals.sort |a, b| { a.name <=> b.name }
   }
 
   override MRegistryEntry? get(Str qname, Bool checked := true)
@@ -97,7 +97,7 @@ internal const class MRegistry : LibRegistry
     build.ordered = true
     libs.each |x|
     {
-      build[x.qname] = MRegistryEntry(x.qname, x.srcDir, x.zip)
+      build[x.name] = MRegistryEntry(x.name, x.srcDir, x.zip)
     }
 
     // now build using build entries for dependencies
@@ -135,14 +135,14 @@ internal const class MRegistry : LibRegistry
 
   Lib compile(MRegistryEntry entry, [Str:MRegistryEntry]? build)
   {
-    compilingPush(entry.qname)
+    compilingPush(entry.name)
     try
     {
       // compile
       compiler := XetoCompiler
       {
         it.env     = this.env
-        it.libName = entry.qname
+        it.libName = entry.name
         it.input   = entry.src ?: entry.zip
         it.zipOut  = entry.zip
         it.build   = build
@@ -189,14 +189,14 @@ internal const class MRegistry : LibRegistry
 @Js
 internal const class MRegistryEntry : LibRegistryEntry
 {
-  new make(Str qname, File? src, File zip)
+  new make(Str name, File? src, File zip)
   {
-    this.qname   = qname
-    this.src     = src
-    this.zip     = zip
+    this.name = name
+    this.src  = src
+    this.zip  = zip
   }
 
-  override const Str qname
+  override const Str name
 
   override const File zip
 
@@ -212,20 +212,20 @@ internal const class MRegistryEntry : LibRegistryEntry
 
   override Bool isLoaded() { libRef.val != null }
 
-  override Str toStr() { "$qname [src: $src, zip: $zip.osPath]" }
+  override Str toStr() { "$name [src: $src, zip: $zip.osPath]" }
 
   override Bool isSrc() { src != null }
 
   override File? srcDir(Bool checked := true)
   {
     if (src != null) return src
-    if (checked) throw Err("Lib source not available: $qname")
+    if (checked) throw Err("Lib source not available: $name")
     return null
   }
 
   const File? src
 
-  Lib get() { libRef.val ?: throw Err("Not loaded: $qname") }
+  Lib get() { libRef.val ?: throw Err("Not loaded: $name") }
 
   Void set(Lib lib) { libRef.compareAndSet(null, lib) }
 

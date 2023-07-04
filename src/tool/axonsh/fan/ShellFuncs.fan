@@ -154,20 +154,20 @@ const class ShellFuncs
   **   using()                // list all libraries currently in scope
   **   using("phx.points")    // import given library into scope
   **   using("*")             // import every library installed
-  @Axon static Obj? _using(Str? qname := null)
+  @Axon static Obj? _using(Str? name := null)
   {
     out := cx.out
 
-    if (qname == "*")
+    if (name == "*")
     {
-      cx.usings.env.registry.list.each |x| { _using(x.qname) }
+      cx.usings.env.registry.list.each |x| { _using(x.name) }
       return noEcho
     }
 
-    if (qname != null)
+    if (name != null)
     {
-      cx.usings.add(qname)
-      out.printLine("using $qname")
+      cx.usings.add(name)
+      out.printLine("using $name")
       return noEcho
     }
 

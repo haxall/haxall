@@ -464,12 +464,12 @@ const class HxCoreFuncs
    cx := curContext
    cx.usings.env.registry.list.each |lib|
    {
-     qname := lib.qname
-     isSys := qname == "sys"
-     isEnabled := cx.usings.isEnabled(qname)
+     libName := lib.name
+     isSys := libName == "sys"
+     isEnabled := cx.usings.isEnabled(libName)
 
      gb.addRow([
-       qname,
+       libName,
        isEnabled ? "ok" : "disabled",
        isSys ? "boot" : Marker.fromBool(isEnabled),
        Marker.fromBool(lib.isLoaded),
