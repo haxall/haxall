@@ -13,7 +13,6 @@ using xeto
 **
 ** Parser for the Xeto data type language
 **
-/*
 @Js
 internal class Parser
 {
@@ -22,13 +21,12 @@ internal class Parser
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(FileLoc fileLoc, InStream in)
+  new make(Step step, FileLoc fileLoc, InStream in)
   {
-    //this.step = step
-//     this.compiler = step.compiler
-//     this.env = step.env
-//     this.sys = step.sys
-//    this.marker = env.marker
+    this.step = step
+    this.compiler = step.compiler
+    this.sys = step.sys
+    this.marker = compiler.env.marker
     this.fileLoc = fileLoc
     this.tokenizer = Tokenizer(in) { it.keepComments = true }
     this.cur = this.peek = Token.eof
@@ -40,7 +38,8 @@ internal class Parser
 // Public
 //////////////////////////////////////////////////////////////////////////
 
-  ** Top level parse of data file - instances only
+  ** Top level parse of data file - instances only.
+  ** The input stream is guaranteed to be closed upon exit.
   AData parseDataFile()
   {
     try
@@ -60,7 +59,8 @@ internal class Parser
   }
 
   ** Top level parse of lib file - specs or instances
-  Void parseLibFile(ALib lib)
+  ** The input stream is guaranteed to be closed upon exit.
+  ALib parseLibFile(ALib lib)
   {
     try
     {
@@ -69,6 +69,7 @@ internal class Parser
         if (!parseLibObj(lib)) break
       }
       verify(Token.eof)
+      return lib
     }
     catch (ParseErr e)
     {
@@ -182,15 +183,15 @@ internal class Parser
       return
     }
 
-    if (cur === Token.amp)  return parseCompoundType(spec, andTypeRef(loc))
-    if (cur === Token.pipe) return parseCompoundType(spec, orTypeRef(loc))
+    if (cur === Token.amp)  return parseCompoundType(spec, sys.and)
+    if (cur === Token.pipe) return parseCompoundType(spec, sys.or)
   }
 
-  private Void parseCompoundType(ASpec spec, ATypeRef compoundType)
+  private Void parseCompoundType(ASpec spec, ASpecRef compoundType)
   {
     first := spec.typeRef
     loc := first.loc
-    list := ADict(loc, listTypeRef(loc))
+    list := ADict(loc, sys.list)
     list.set("_0", first)
 
     separator := cur
@@ -215,12 +216,12 @@ internal class Parser
     if (cur === Token.scalar)
       spec.val = parseScalar(null)
     else if (cur === Token.lbrace)
-      spec.slots = parseSpecSlots(spec)
+      parseSpecSlots(spec)
   }
 
-  private Str:ASpec parseSpecSlots(ASpec parent)
+  private Void parseSpecSlots(ASpec parent)
   {
-    acc := Str:ASpec[:]
+    acc := parent.initSlots
 
     consume(Token.lbrace)
 
@@ -264,11 +265,12 @@ internal class Parser
     type := parseTypeRef
     if (cur === Token.scalar) return parseScalar(type)
     if (cur === Token.lbrace) return parseDict(type, Token.lbrace, Token.rbrace)
+    if (type != null) return type
     throw err("Expecting scalar or dict data value, not $curToStr")
   }
 
   ** Parse a scalar data value
-  private AScalar parseScalar(ATypeRef? type)
+  private AScalar parseScalar(ASpecRef? type)
   {
     x := AScalar(curToLoc, type, curVal)
     consume
@@ -276,11 +278,12 @@ internal class Parser
   }
 
   ** Parse a dict data value
-  private ADict parseDict(ATypeRef? type, Token openToken, Token closeToken)
+  private ADict parseDict(ASpecRef? type, Token openToken, Token closeToken)
   {
     // open "{" or "<"
     x := ADict(curToLoc, type)
     consume(openToken)
+    skipNewlines
 
     while (cur !== closeToken)
     {
@@ -321,47 +324,18 @@ internal class Parser
 
 
 //////////////////////////////////////////////////////////////////////////
-// Type/Scalar Utils
+// Scalar Utils
 //////////////////////////////////////////////////////////////////////////
-
-  private ATypeRef strTypeRef(FileLoc loc)
-  {
-    ATypeRef(loc, ASimpleName("sys", "Str"))
-  }
-
-  private ATypeRef markerTypeRef(FileLoc loc)
-  {
-    ATypeRef(loc, ASimpleName("sys", "Marker"))
-  }
-
-  private ATypeRef listTypeRef(FileLoc loc)
-  {
-    ATypeRef(loc, ASimpleName("sys", "List"))
-  }
-
-  private ATypeRef andTypeRef(FileLoc loc)
-  {
-    ATypeRef(loc, ASimpleName("sys", "And"))
-  }
-
-  private ATypeRef orTypeRef(FileLoc loc)
-  {
-    ATypeRef(loc, ASimpleName("sys", "Or"))
-  }
 
   private AScalar impliedStr(FileLoc loc, Str str)
   {
-    AScalar(loc, strTypeRef(loc), str, str)
+    AScalar(loc, sys.str, str, str)
   }
 
   private AScalar impliedMarker(FileLoc loc)
   {
-    AScalar(loc, markerTypeRef(loc), markerVal.toStr, markerVal)
-  }
-
-  private Obj markerVal()
-  {
-    haystack::Marker.val
+    AScalar(loc, sys.marker, marker.toStr, marker)
+    //AScalar(loc, ASpecRef(loc, ASimpleName("sys", "Marker")), marker.toStr, marker)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -369,13 +343,13 @@ internal class Parser
 //////////////////////////////////////////////////////////////////////////
 
   ** Parse a type signature
-  private ATypeRef? parseTypeRef()
+  private ASpecRef? parseTypeRef()
   {
     if (cur !== Token.id) return null
 
     loc := curToLoc
     name := parseTypeRefName
-    return ATypeRef(loc, name)
+    return ASpecRef(loc, name)
   }
 
   ** Parsed qualified or unqualified dotted path name
@@ -549,11 +523,10 @@ internal class Parser
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  //private Step step
-  //private XetoCompiler compiler
-  //private ASys sys
-  //private MEnv env
-  //private const Obj marker
+  private Step step
+  private XetoCompiler compiler
+  private ASys sys
+  private const Obj marker
   private FileLoc fileLoc
   private Tokenizer tokenizer
   private Str[]? autoNames
@@ -568,4 +541,4 @@ internal class Parser
   private Int peekLine   // next token line number
   private Int peekCol    // next token col number
 }
-*/
+

@@ -15,7 +15,9 @@ using xeto
 @Js
 internal class AstToJson : Step
 {
-  override Void run()
+  override Void run() { throw Err("TODO") }
+
+  /*
   {
     // for right now we just use this for parsePragma
     ast := pragma?.meta ?: throw err("No pragma meta", FileLoc(compiler.input))
@@ -54,4 +56,5 @@ internal class AstToJson : Step
       default: throw err("AstToJson: $obj.valType", obj.loc)
     }
   }
+  */
 }

@@ -21,7 +21,7 @@ internal class InheritSlots : Step
 {
   override Void run()
   {
-    inherit(lib)
+    lib.specs.each |spec| { inherit(spec) }
     bombIfErr
   }
 
@@ -94,7 +94,7 @@ internal class InheritSlots : Step
       // infer type from base, or if not specified then
       // scalars default to str and everything else to dict
       if (base != null)
-        x.typeRef = ARef(x.loc, base.ctype)
+        x.typeRef = ASpecRef(x.loc, base.ctype)
       else
         x.typeRef = x.val == null ? sys.dict : sys.str
     }
@@ -103,7 +103,7 @@ internal class InheritSlots : Step
     else
     {
       // if base is maybe and my own type is not then clear maybe flag
-      if (x.isSpec && base.isMaybe && !metaHas(x, "maybe"))
+      if (base.isMaybe && !x.metaHas("maybe"))
         metaAddNone(x, "maybe")
     }
 
@@ -143,7 +143,7 @@ internal class InheritSlots : Step
     if (x.meta != null)
     {
       // if maybe is marker set flag, if none then clear flag
-      maybe := x.meta.slot("maybe")
+      maybe := x.meta.get("maybe")
       if (maybe != null)
       {
         if (isNone(maybe))
@@ -160,7 +160,7 @@ internal class InheritSlots : Step
   private Int computeFlagsSys(ASpec x)
   {
     flags := 0
-    if (metaHas(x, "maybe")) flags = flags.or(MSpecFlags.maybe)
+    if (x.metaHas("maybe")) flags = flags.or(MSpecFlags.maybe)
     for (ASpec? p := x; p != null; p = p.base)
     {
       switch (p.name)
@@ -287,8 +287,8 @@ internal class InheritSlots : Step
 
     // create new merged slot
     loc := spec.loc
-    ASpec merge := spec.makeChild(loc, name)
-    merge.typeRef = ARef(loc, a.ctype)
+    ASpec merge := ASpec(loc, lib, spec, name)
+    merge.typeRef = ASpecRef(loc, a.ctype)
     merge.base = a
     merge.flags = a.flags
 
@@ -301,7 +301,7 @@ internal class InheritSlots : Step
     merge.cslotsRef = acc
 
     // we need to make this a new declared slot
-    spec.initSlots.add(merge)
+    spec.initSlots.add(name, merge)
 
     return merge
   }

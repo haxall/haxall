@@ -18,52 +18,52 @@ internal class LoadFactories : Step
   override Void run()
   {
     // check if we need to install a new factor loader
-    typeName := pragma.meta.slot("factoryLoader")?.val?.str
+    typeName := pragma.getStr("factoryLoader")
     if (typeName != null) env.factories.install(typeName)
 
     // find a loader for our library
-    loader := env.factories.loaders.find |x| { x.canLoad(lib.qname) }
+    loader := env.factories.loaders.find |x| { x.canLoad(lib.name) }
 
     // if we have a loader, give it my type names to map to factories
     [Str:SpecFactory]? factories := null
     if (loader != null)
     {
       specNames := Str[,]
-      lib.slots.each |spec|
+      lib.specs.each |spec|
       {
-        if (spec.isType) specNames.add(spec.name)
+        specNames.add(spec.name)
       }
-      factories = loader.load(lib.qname, specNames)
+      factories = loader.load(lib.name, specNames)
     }
 
     // now assign factories to all type level types
-    lib.slots.each |spec|
+    lib.specs.each |spec|
     {
-      if (spec.isType) assignFactory(spec, factories)
+      assignFactory(spec, factories)
     }
   }
 
-  private Void assignFactory(AType type, [Str:SpecFactory]? factories)
+
+  private Void assignFactory(ASpec spec, [Str:SpecFactory]? factories)
   {
     // lookup custom registered factory
     if (factories != null)
     {
-      custom := factories[type.name]
+      custom := factories[spec.name]
       if (custom != null)
       {
-        type.factoryRef = custom
-        env.factories.map(custom.type, type.asm)
+        spec.factoryRef = custom
+        env.factories.map(custom.type, spec.asm)
       }
     }
 
     // install default dict/scalar factory
-    if (type.factoryRef == null)
+    if (spec.factoryRef == null)
     {
-      if (type.flags.and(MSpecFlags.scalar) != 0)
-        type.factoryRef = env.factories.scalar
+      if (spec.isScalar)
+        spec.factoryRef = env.factories.scalar
       else
-        type.factoryRef = env.factories.dict
+        spec.factoryRef = env.factories.dict
     }
   }
-
 }

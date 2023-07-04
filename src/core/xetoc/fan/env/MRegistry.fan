@@ -142,7 +142,7 @@ internal const class MRegistry : LibRegistry
       compiler := XetoCompiler
       {
         it.env     = this.env
-        it.qname   = entry.qname
+        it.libName = entry.qname
         it.input   = entry.src ?: entry.zip
         it.zipOut  = entry.zip
         it.build   = build

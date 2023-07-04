@@ -22,15 +22,15 @@ internal class Assemble : Step
 
   private Void asmLib(ALib x)
   {
-    m := MLib(env, x.loc, x.qname, x.metaOwn, x.version, compiler.depends, asmTypes(x), asmInstances(x))
-    XetoLib#m->setConst(x.asmLib, m)
-    asmChildren(x)
+    m := MLib(env, x.loc, x.name, x.meta, x.version, compiler.depends, asmTypes(x), asmInstances(x))
+    XetoLib#m->setConst(x.asm, m)
+    lib.specs.each |spec| { asmType(spec) }
   }
 
   private Str:Spec asmTypes(ALib x)
   {
     acc := Str:Spec[:]
-    x.slots.each |t, n| { acc.add(n, t.asm) }
+    x.specs.each |t, n| { acc.add(n, t.asm) }
     if (acc.isEmpty) return noSpecs
     return acc
   }
@@ -42,9 +42,9 @@ internal class Assemble : Step
     return acc
   }
 
-  private Void asmType(AType x)
+  private Void asmType(ASpec x)
   {
-    m := MType(x.loc, x.lib.asmLib, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.factory)
+    m := MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.factory)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }
@@ -59,13 +59,7 @@ internal class Assemble : Step
   private Void asmChildren(ASpec x)
   {
     if (x.slots == null) return
-    x.slots.each |kid|
-    {
-      if (kid.isType)
-        asmType(kid)
-      else
-        asmSpec(kid)
-    }
+    x.slots.each |kid| { asmSpec(kid) }
   }
 
   private MSlots asmSlotsOwn(ASpec x)

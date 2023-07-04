@@ -21,7 +21,6 @@ internal class ProcessPragma : Step
   {
     if (isLib)
     {
-      if (pragma?.meta?.slots == null) throw err("No lib pragma", lib.loc)
       lib.version = toVersion
       compiler.depends = toDepends
     }
@@ -33,20 +32,21 @@ internal class ProcessPragma : Step
 
   private Version toVersion()
   {
-    obj := pragma.meta.slot("version")
+    obj := pragma.get("version")
     if (obj == null)
     {
       err("Missing required version lib meta", pragma.loc)
       return Version.defVal
     }
 
-    if (obj.val == null)
+    scalar := obj as AScalar
+    if (scalar == null)
     {
       err("Version must be scalar", obj.loc)
       return Version.defVal
     }
 
-    verStr := obj.val.str
+    verStr := scalar.str
     ver := Version.fromStr(verStr, false)
     if (ver == null)
     {
@@ -67,6 +67,9 @@ internal class ProcessPragma : Step
   {
     if (isSys) return MLibDepend#.emptyList
 
+throw Err("TODO")
+  }
+/*
     acc := Str:MLibDepend[:]
     acc.ordered = true
 
@@ -109,5 +112,5 @@ internal class ProcessPragma : Step
     if (acc[libName] != null) return err("Duplicate depend '$libName'", loc)
     acc[libName] = MLibDepend(libName, versions, loc)
   }
-
+ */
 }

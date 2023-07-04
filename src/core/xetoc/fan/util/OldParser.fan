@@ -12,6 +12,7 @@ using xeto
 **
 ** OldParser for the Xeto data type language
 **
+/*
 @Js
 internal class OldParser
 {
@@ -464,4 +465,5 @@ internal class OldParser
   private Int peekLine   // next token line number
   private Int peekCol    // next token col number
 }
+*/
 

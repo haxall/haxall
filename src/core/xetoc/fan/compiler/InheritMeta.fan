@@ -18,7 +18,7 @@ internal class InheritMeta : Step
   override Void run()
   {
     if (isData) return
-    inherit(ast)
+    lib.specs.each |spec| { inherit(spec) }
     bombIfErr
   }
 
@@ -41,7 +41,6 @@ internal class InheritMeta : Step
     // if base is null this is sys::Obj; otherwise recursively process base
     base := spec.base
     if (spec.base == null) return own
-    if (spec.isLib) return own
     if (base.isAst) inherit(base)
 
     // walk thru base tags and map tags we inherit

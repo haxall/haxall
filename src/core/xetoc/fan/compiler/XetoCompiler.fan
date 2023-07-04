@@ -33,8 +33,8 @@ internal class XetoCompiler
   ** Zip file to generate
   File? zipOut
 
-  ** Qualified name of library to compile
-  Str? qname
+  ** Dotted name of library to compile
+  Str? libName
 
   ** If performing a build then this is list of entries to use for depends
   [Str:MRegistryEntry]? build
@@ -74,13 +74,15 @@ internal class XetoCompiler
       Assemble(),
       OutputZip()
     ])
-    info("Compiled xetolib [$qname]")
-    return lib.asmLib
+    info("Compiled xetolib [$libName]")
+    return lib.asm
   }
 
   ** Compile input to instance data
   Obj? compileData()
   {
+throw Err("TODO")
+/*
     run([
       InitData(),
       Parse(),
@@ -89,6 +91,7 @@ internal class XetoCompiler
       Reify(),
     ])
     return ast.asm
+*/
   }
 
   ** Parse pragma from lib.xeto meta into fantom JSON data
@@ -182,9 +185,9 @@ internal class XetoCompiler
   internal Duration? duration          // run
   internal Bool isLib                  // Init (false isData)
   internal Bool isSys                  // Init
-  internal AObj? ast                   // Parse (lib or data)
+  internal ANode? ast                  // Parse (lib or data)
   internal ALib? lib                   // Parse (compileLib only)
-  internal AObj? pragma                // Parse
+  internal ADict? pragma               // Parse
   internal MLibDepend[]? depends       // ProcessPragma
   internal Dict? json                  // JSON output
   private Str[] autoNames := [,]       // autoName

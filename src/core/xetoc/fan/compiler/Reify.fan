@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** Reify creates concrete Fantom object for all the AVal objects
+** Reify creates concrete Fantom object for all the AData objects
 ** in the abstract syntax tree as their assembly value.  We use this
 ** step to finalize the ASpec.metaOwn dict.
 **
@@ -19,19 +19,30 @@ internal class Reify : Step
 {
   override Void run()
   {
-    if (isLib)
-      walkSpecs(lib) |x| { asmSpec(x) }
-    else
-      walkVals(ast) |x| { asmVal(x) }
+    ast.walk |x| { reify(x) }
+  }
+
+  private Void reify(ANode node)
+  {
+    switch (node.nodeType)
+    {
+      case ANodeType.spec:    reifySpec(node)
+      case ANodeType.dict:    reifyDict(node)
+      case ANodeType.scalar:  reifyScalar(node)
+      case ANodeType.specRef: reifySpecRef(node)
+      case ANodeType.lib:     return
+      default:                throw Err(node.nodeType.name)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Specs
 //////////////////////////////////////////////////////////////////////////
 
-  private Void asmSpec(ASpec x)
+  private Void reifySpec(ASpec x)
   {
     // assemble default value into meta
+    /*
     if (x.val != null)
     {
       // assemble as scalar using my own type
@@ -43,95 +54,71 @@ internal class Reify : Step
       obj.asmRef = val
       x.meta.slots.add(obj)
     }
+    */
 
     // finalize the spec's metaOwn dict
     if (x.meta != null)
-    {
-      walkVals(x.meta) |obj| { asmVal(obj) }
       x.metaOwnRef = x.meta.asm
-    }
     else
-    {
       x.metaOwnRef = env.dict0
-    }
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Values
+// Dict
 //////////////////////////////////////////////////////////////////////////
 
-  private Void asmVal(AVal x)
+  private Dict reifyDict(ADict x)
   {
-    // check if already assembled
-    if (x.asmRef != null) return
+    // if already assembled
+    if (x.isAsm) return x.asm
 
-    // infer type
-    if (x.typeRef == null)
-      x.typeRef = x.val == null ? sys.dict : sys.str
-
-    switch (x.valType)
-    {
-      case AValType.scalar:  x.asmRef = asmScalar(x, x.type)
-      case AValType.typeRef: x.asmRef = asmTypeRef(x)
-      case AValType.list:    x.asmRef = asmList(x)
-      case AValType.dict:    x.asmRef = asmDict(x)
-      default: throw Err(x.valType.name)
-    }
-  }
-
-  private Obj? asmScalar(AObj x, CSpec scalarType)
-  {
-    // if value is null or already assembled
-    v := x.val
-    if (v == null) return null
-    if (v.isAsm) return v.asm
-
-    // sanity check
-    if (x.type == null) err("asmScalar without type", x.loc)
-
-    // map to Fantom type to parse
-    factory := scalarType.factory
-    fantom := scalarType.factory.decodeScalar(v.str, false)
-    if (fantom == null)
-    {
-      err("Invalid '$scalarType.qname' value: $v.str.toCode", x.loc)
-      fantom = v.str
-    }
-    return v.asmRef = fantom
-  }
-
-  private XetoType asmTypeRef(AVal x)
-  {
-    if (x.type == null) throw err("wtf-1", x.loc)
-    if (x.meta != null) throw err("wtf-2", x.loc)
-    return x.type.asm
-  }
-
-  private Obj?[] asmList(AVal x)
-  {
-    list := List(x.asmToListOf, x.slots.size)
-    x.slots.each |obj| { list.add(obj.asm) }
-    return list
-  }
-
-  private Dict asmDict(AVal x)
-  {
     // spec
-    Spec? spec := null
-    if (x.type != null)
-    {
-      if (x.meta != null)
-        err("Dict type with meta not supported", x.loc)
-      else
-        spec = x.type.asm
-    }
+    spec := x.typeRef?.asm
 
     // name/value pairs
     acc := Str:Obj[:]
     acc.ordered = true
-    x.slots.each |obj, name| { acc[name] = obj.asm }
+    x.map.each |obj, name| { acc[name] = obj.asm }
 
-    return env.dictMap(acc, spec)
+    return x.asmRef = env.dictMap(acc, spec)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Scalar
+//////////////////////////////////////////////////////////////////////////
+
+  private Obj? reifyScalar(AScalar x)
+  {
+    // if already assembled
+    if (x.isAsm) return x.asm
+
+    // sanity check
+    if (x.typeRef == null)
+    {
+      //throw err("reifyScalar without type", x.loc)
+echo("TODO: reifyScalar without type [$x.loc]")
+return x.asmRef = x.str
+    }
+
+    // map to Fantom type to parse
+    type := x.type
+    factory := type.factory
+    fantom := factory.decodeScalar(x.str, false)
+    if (fantom == null)
+    {
+      err("Invalid '$type.qname' value: $x.str.toCode", x.loc)
+      fantom = x.str
+    }
+    // echo("___ reifyScalar $type => $fantom [$fantom.typeof]")
+    return x.asmRef = fantom
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// SpecRef
+//////////////////////////////////////////////////////////////////////////
+
+  private Obj? reifySpecRef(ASpecRef x)
+  {
+    x.deref
+  }
 }

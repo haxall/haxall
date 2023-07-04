@@ -26,7 +26,7 @@ internal class Resolve : Step
     sys.each |x| { resolveRef(x) }
 
     // resolve the ARefs
-    walkRefs(ast) |x| { resolveRef(x) }
+    ast.walk |x| { if (x.isRef) resolveRef(x) }
 
     bombIfErr
   }
@@ -66,10 +66,13 @@ internal class Resolve : Step
 // Resolve Ref
 //////////////////////////////////////////////////////////////////////////
 
-  private Void resolveRef(ARef ref)
+  private Void resolveRef(ASpecRef ref)
   {
     // short circuit if null or already resolved
     if (ref.isResolved) return
+
+    // don't support this yet
+    if (ref.name.size > 1) throw Err("TODO: path name: $ref")
 
     // resolve qualified name
     n := ref.name
@@ -78,10 +81,10 @@ internal class Resolve : Step
     // match to name within this AST which trumps depends
     if (isLib)
     {
-      type := lib.slot(n.name) as AType
-      if (type != null)
+      spec := lib.spec(n.name)
+      if (spec != null)
       {
-        ref.resolve(type)
+        ref.resolve(spec)
         return
       }
     }
@@ -97,15 +100,15 @@ internal class Resolve : Step
       ref.resolve(matches.first)
   }
 
-  private Void resolveQualified(ARef ref)
+  private Void resolveQualified(ASpecRef ref)
   {
     // if in my own lib
     n := ref.name
-    if (n.lib == compiler.qname)
+    if (n.lib == compiler.libName)
     {
-      type := lib.slot(n.name) as AType
-      if (type == null) return err("Spec '$n' not found in lib", ref.loc)
-      ref.resolve(type)
+      spec := lib.spec(n.name)
+      if (spec == null) return err("Spec '$n' not found in lib", ref.loc)
+      ref.resolve(spec)
       return
     }
 

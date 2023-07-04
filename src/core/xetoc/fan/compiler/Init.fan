@@ -41,13 +41,13 @@ internal class InitLib : Init
     // base class checks
     super.run
 
-    // default qname to directory
-    if (compiler.qname == null)
-      compiler.qname = compiler.input.name
+    // default libName to directory
+    if (compiler.libName == null)
+      compiler.libName = compiler.input.name
 
     // set flags
     compiler.isLib = true
-    compiler.isSys = compiler.qname == "sys"
+    compiler.isSys = compiler.libName == "sys"
   }
 }
 

@@ -31,30 +31,25 @@ internal class Parse : Step
   private Void parseLib(File input)
   {
     // create ALib as our root object
-    lib := ALib(FileLoc(input), qname)
-    lib.typeRef = sys.lib
-    lib.initSlots
+    lib := ALib(FileLoc(input), compiler.libName)
 
     // parse directory into root lib
     parseDir(input, lib)
     bombIfErr
 
     // remove pragma object from lib slots
-    pragma := validatePragma(lib)
+    pragma := validateLibPragma(lib)
     bombIfErr
 
-    // make pragma the lib meta
-    if (lib.meta != null) throw err("Lib meta not null", lib.loc)
-    lib.metaInit(sys)
-    pragma.meta.slots.each |obj| { lib.meta.slots.add(obj) }
-
-    compiler.lib    = lib
     compiler.ast    = lib
+    compiler.lib    = lib
     compiler.pragma = pragma
   }
 
   private Void parseData(File input)
   {
+    throw Err("TODO")
+  /*
     // create dict as root object
     root := AVal(FileLoc(input), null, "root")
     root.typeRef = sys.dict
@@ -74,18 +69,19 @@ internal class Parse : Step
 
     compiler.ast = root
     compiler.pragma = pragma
+    */
   }
 
-  private AObj? validatePragma(AObj root)
+  private ADict? validateLibPragma(ALib lib)
   {
     // remove object named "pragma" from root
-    pragma := root.slots?.remove("pragma")
+    pragma := lib.specs.remove("pragma")
 
     // if not found
     if (pragma == null)
     {
       // libs must have pragma
-      if (isLib) err("Lib '$compiler.qname' missing  pragma", root.loc)
+      err("Lib '$compiler.libName' missing  pragma", lib.loc)
       return null
     }
 
@@ -99,10 +95,10 @@ internal class Parse : Step
     if (pragma.meta == null) err("Pragma missing meta data", pragma.loc)
     if (pragma.slots != null) err("Pragma cannot have slots", pragma.loc)
     if (pragma.val != null) err("Pragma cannot scalar value", pragma.loc)
-    return pragma
+    return pragma.meta
   }
 
-  private Void parseDir(File input, AObj root)
+  private Void parseDir(File input, ALib lib)
   {
     if (input.ext == "xetolib")
     {
@@ -111,7 +107,7 @@ internal class Parse : Step
       {
         zip.readEach |f|
         {
-          if (f.ext == "xeto") parseFile(f, root)
+          if (f.ext == "xeto") parseFile(f, lib)
         }
       }
       finally zip.close
@@ -120,29 +116,35 @@ internal class Parse : Step
     {
       input.list.each |sub|
       {
-        if (sub.ext == "xeto") parseFile(sub, root)
+        if (sub.ext == "xeto") parseFile(sub, lib)
       }
     }
     else
     {
-      parseFile(input, root)
+      parseFile(input, lib)
     }
   }
 
-  private Void parseFile(File input, AObj root)
+  private ANode? parseFile(File input, ALib? lib)
   {
     loc := FileLoc(input)
     try
     {
-      OldParser(this, loc, input.in).parse(root)
+      p := Parser(this, loc, input.in)
+      if (lib == null)
+        return p.parseDataFile
+      else
+        return p.parseLibFile(lib)
     }
     catch (FileLocErr e)
     {
       err(e.msg, e.loc)
+      return null
     }
     catch (Err e)
     {
       err(e.toStr, loc, e)
+      return null
     }
   }
 }

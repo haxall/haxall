@@ -157,7 +157,7 @@ internal const class MEnv : XetoEnv
 
   override Lib compileLib(Str src, Dict? opts := null)
   {
-    qname := "temp" + compileCount.getAndIncrement
+    libName := "temp" + compileCount.getAndIncrement
 
     if (!src.startsWith("pragma:"))
       src = """pragma: Lib <
@@ -168,9 +168,9 @@ internal const class MEnv : XetoEnv
 
     c := XetoCompiler
     {
-      it.env = this
-      it.qname = qname
-      it.input = src.toBuf.toFile(`temp.xeto`)
+      it.env     = this
+      it.libName = libName
+      it.input   = src.toBuf.toFile(`temp.xeto`)
       it.applyOpts(opts)
     }
     return c.compileLib

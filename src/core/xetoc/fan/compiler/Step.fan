@@ -25,17 +25,15 @@ abstract internal class Step
 
   Bool isData() { !compiler.isLib }
 
-  Str qname() { compiler.qname }
-
   Bool isSys() { compiler.isSys }
 
   ASys sys() { compiler.sys }
 
-  AObj ast() { compiler.ast }
+  ANode ast() { compiler.ast }
 
   ALib lib() { compiler.lib }
 
-  AObj? pragma() { compiler.pragma }
+  ADict? pragma() { compiler.pragma }
 
   Void info(Str msg) { compiler.info(msg) }
 
@@ -55,74 +53,38 @@ abstract internal class Step
     isSys && x.typeRef == null && x.qname == "sys::Obj"
   }
 
-  ** Get meta tag
-  AObj? metaGet(AObj obj, Str name)
-  {
-    if (obj.meta == null) return null
-    return obj.meta.slots.get(name)
-  }
-
-  ** Return if object has meta tag set and it is not none
-  Bool metaHas(AObj obj, Str name)
-  {
-    x := metaGet(obj, name)
-    return x != null && !isNone(x)
-  }
+// TODO: move this into ASpec for cleaner API
 
   ** Add marker tag to meta
-  Void metaAddMarker(AObj obj, Str name)
+  Void metaAddMarker(ASpec obj, Str name)
   {
     metaAdd(obj, name, sys.marker, env.marker)
   }
 
   ** Add none tag to meta
-  Void metaAddNone(AObj obj, Str name)
+  Void metaAddNone(ASpec obj, Str name)
   {
     metaAdd(obj, name, sys.none, env.none, "none")
   }
 
   ** Add none tag to meta
-  Void metaAdd(AObj obj, Str name, ARef type, Obj val, Str valStr := val.toStr)
+  Void metaAdd(ASpec obj, Str name, ASpecRef type, Obj val, Str valStr := val.toStr)
   {
-    loc := obj.loc
-    kid := obj.metaInit(sys).makeChild(loc, name)
-    kid.typeRef = type
-    kid.val = AScalar(loc, valStr, val)
-    obj.meta.slots.add(kid)
+//     loc := obj.loc
+//     kid := obj.metaInit.makeChild(loc, name)
+//     kid.typeRef = type
+//     kid.val = AScalar(loc, valStr, val)
+//     obj.meta.slots.add(kid)
+throw Err("META ADD $name $type $val")
   }
 
   ** Is object the none scalar value
-  Bool isNone(AObj? obj)
+  Bool isNone(AData? obj)
   {
     if (obj == null) return false
-    if (obj.val == null) return false
-    return obj.val.asm === env.none
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Tree Walking
-//////////////////////////////////////////////////////////////////////////
-
-  ** Walk the tree for all ASpecs (children first)
-  Void walkSpecs(ASpec x, |ASpec| f)
-  {
-    if (x.slots != null) x.slots.each |slot| { walkSpecs(slot, f) }
-    f(x)
-  }
-
-  ** Walk the tree for all values (children first)
-  Void walkVals(AVal x, |AVal| f)
-  {
-    if (x.slots != null) x.slots.each |slot| { walkVals(slot, f) }
-    f(x)
-  }
-
-  ** Walk the tree for all ARefs
-  Void walkRefs(AObj obj, |ARef| f)
-  {
-    if (obj.typeRef != null) f(obj.typeRef)
-    if (obj.meta != null) walkRefs(obj.meta, f)
-    if (obj.slots != null) obj.slots.each |slot| { walkRefs(slot, f) }
+    scalar := obj as AScalar
+    if (scalar == null) return false
+    return scalar.asmRef === env.none
   }
 
 }
