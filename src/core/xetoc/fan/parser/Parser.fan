@@ -106,9 +106,7 @@ internal class Parser
     parseLibObjEnd("spec")
 
     // make sure name is unique
-    name := spec.name
-    if (lib.specs[name] != null) throw err("Duplicate spec name: name", spec.loc)
-    lib.specs[name] = spec
+    add("spec", lib.specs, spec.name, spec)
 
     return true
   }
@@ -125,8 +123,7 @@ internal class Parser
 
     // make sure id is unique
     id := data.id.toStr
-    if (lib.instances[id] != null) throw err("Duplicate instance id: $id", data.loc)
-    lib.instances[id] = data
+    add("instance", lib.instances, id, data)
 
     return true
   }
@@ -235,7 +232,7 @@ internal class Parser
       slot := parseNamedSpec(parent.lib, parent, doc)
       parseCommaOrNewline("Expecting end of slots", Token.rbrace)
 
-      acc.add(slot.name, slot)
+      add("slot", acc, slot.name, slot)
     }
 
     // close "}"
@@ -317,8 +314,7 @@ internal class Parser
       }
 
       // add to map
-      if (x.map[name] != null) throw err("Duplicate dict name: $name", loc)
-      x.map.add(name, val)
+      add("name", x.map, name, val)
 
       // check for comma or newline
       parseCommaOrNewline("Expecting end of dict tag", closeToken)
@@ -467,6 +463,16 @@ internal class Parser
   {
     AScalar(loc, sys.marker, marker.toStr, marker)
     //AScalar(loc, ASpecRef(loc, ASimpleName("sys", "Marker")), marker.toStr, marker)
+  }
+
+  private Void add(Str what, Str:ANode map, Str name, ANode val)
+  {
+    // check for duplicate or add
+    dup := map.get(name)
+    if (dup != null)
+      compiler.err2("Duplicate $what '$name'", dup.loc, val.loc)
+    else
+      map.add(name, val)
   }
 
   private Str autoName(Str:Obj map)
