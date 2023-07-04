@@ -208,7 +208,7 @@ internal class Parser
 
   private Void parseSpecMeta(ASpec spec)
   {
-    if (cur === Token.lt) spec.initMeta(parseDict(null, Token.lt, Token.gt))
+    if (cur === Token.lt) parseDict(null, Token.lt, Token.gt, spec.initMeta)
   }
 
   private Void parseSpecBody(ASpec spec)
@@ -224,6 +224,7 @@ internal class Parser
     acc := parent.initSlots
 
     consume(Token.lbrace)
+    skipNewlines
 
     while (cur !== Token.rbrace)
     {
@@ -264,7 +265,7 @@ internal class Parser
   {
     type := parseTypeRef
     if (cur === Token.scalar) return parseScalar(type)
-    if (cur === Token.lbrace) return parseDict(type, Token.lbrace, Token.rbrace)
+    if (cur === Token.lbrace) return parseDict(type, Token.lbrace, Token.rbrace, null)
     if (type != null) return type
     throw err("Expecting scalar or dict data value, not $curToStr")
   }
@@ -278,10 +279,10 @@ internal class Parser
   }
 
   ** Parse a dict data value
-  private ADict parseDict(ASpecRef? type, Token openToken, Token closeToken)
+  private ADict parseDict(ASpecRef? type, Token openToken, Token closeToken, ADict? x)
   {
     // open "{" or "<"
-    x := ADict(curToLoc, type)
+    if (x == null) x = ADict(curToLoc, type)
     consume(openToken)
     skipNewlines
 
@@ -289,17 +290,26 @@ internal class Parser
     {
       // parse tag name
       loc := curToLoc
-      name := consumeName("Expecting dict tag name")
 
-      // parse value or imply marker
+      Str? name
       AData? val
-      if (cur !== Token.colon)
+
+      if (cur === Token.id)
       {
-        val = impliedMarker(loc)
+        name = consumeName("Expecting dict tag name")
+        if (cur !== Token.colon)
+        {
+          val = impliedMarker(loc)
+        }
+        else
+        {
+          consume
+          val = parseData
+        }
       }
       else
       {
-        consume
+        name = autoName(x.map)
         val = parseData
       }
 
@@ -320,22 +330,6 @@ internal class Parser
   {
     if (doc == null) return
     spec.initMeta.set("doc", impliedStr(spec.loc, doc))
-  }
-
-
-//////////////////////////////////////////////////////////////////////////
-// Scalar Utils
-//////////////////////////////////////////////////////////////////////////
-
-  private AScalar impliedStr(FileLoc loc, Str str)
-  {
-    AScalar(loc, sys.str, str, str)
-  }
-
-  private AScalar impliedMarker(FileLoc loc)
-  {
-    AScalar(loc, sys.marker, marker.toStr, marker)
-    //AScalar(loc, ASpecRef(loc, ASimpleName("sys", "Marker")), marker.toStr, marker)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -455,6 +449,31 @@ internal class Parser
       consume
     }
     return doc
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  private AScalar impliedStr(FileLoc loc, Str str)
+  {
+    AScalar(loc, sys.str, str, str)
+  }
+
+  private AScalar impliedMarker(FileLoc loc)
+  {
+    AScalar(loc, sys.marker, marker.toStr, marker)
+    //AScalar(loc, ASpecRef(loc, ASimpleName("sys", "Marker")), marker.toStr, marker)
+  }
+
+  private Str autoName(Str:Obj map)
+  {
+    for (i := 0; i<1_000_000; ++i)
+    {
+      name := compiler.autoName(i)
+      if (map.get(name) == null) return name
+    }
+    throw Err("Too many children")
   }
 
 //////////////////////////////////////////////////////////////////////////
