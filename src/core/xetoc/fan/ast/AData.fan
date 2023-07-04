@@ -17,7 +17,7 @@ using xeto
 internal abstract class AData : ANode
 {
    ** Constructor
-  new make(FileLoc loc, ATypeRef? type) : super(loc)
+  new make(FileLoc loc, ASpecRef? type) : super(loc)
   {
     this.typeRef = type
   }
@@ -26,7 +26,7 @@ internal abstract class AData : ANode
   CSpec type() { typeRef?.deref ?: throw NotReadyErr() }
 
   ** Resolved type
-  ATypeRef? typeRef
+  ASpecRef? typeRef
 
   ** Assembled value - raise exception if not assembled yet
   Obj asm() { asmRef ?: throw NotReadyErr() }
@@ -49,12 +49,15 @@ internal abstract class AData : ANode
 internal class AScalar : AData
 {
   ** Constructor
-  new make(FileLoc loc, ATypeRef? type, Str str, Obj? asm := null)
+  new make(FileLoc loc, ASpecRef? type, Str str, Obj? asm := null)
     : super(loc, type)
   {
     this.str     = str
     this.asmRef  = asm
   }
+
+  ** Node type
+  override ANodeType nodeType() { ANodeType.scalar }
 
   ** Encoded string
   const Str str
@@ -63,6 +66,13 @@ internal class AScalar : AData
   override Str toStr()
   {
     typeRef != null ? "$typeRef $str.toCode" : str.toCode
+  }
+
+  ** Tree walk
+  override Void walk(|ANode| f)
+  {
+    if (typeRef != null) typeRef.walk(f)
+    f(this)
   }
 }
 
@@ -77,7 +87,10 @@ internal class AScalar : AData
 internal class ADict : AData
 {
   ** Constructor
-  new make(FileLoc loc, ATypeRef? type) : super(loc, type) {}
+  new make(FileLoc loc, ASpecRef? type) : super(loc, type) {}
+
+  ** Node type
+  override ANodeType nodeType() { ANodeType.dict }
 
   ** Identifier for this dict (not included in map)
   AName? id
@@ -91,8 +104,19 @@ internal class ADict : AData
   ** Return quoted string encoding
   override Str toStr() { map.toStr }
 
+  ** Convenience to get tag in map
+  AData? get(Str name) { map[name] }
+
   ** Set value (may overwrite existing)
   Void set(Str name, AData val) { map[name] = val }
+
+  ** Tree walk
+  override Void walk(|ANode| f)
+  {
+    if (typeRef != null) typeRef.walk(f)
+    map.each |x| { x.walk(f) }
+    f(this)
+  }
 
   ** Debug dump
   override Void dump(OutStream out := Env.cur.out, Str indent := "")

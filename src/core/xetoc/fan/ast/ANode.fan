@@ -21,9 +21,33 @@ internal abstract class ANode
   ** Source code location for reporting compiler errors
   const FileLoc loc
 
+  ** Return node type enum
+  abstract ANodeType nodeType()
+
+  ** Recursively walk thru the AST tree
+  abstract Void walk(|ANode| f)
+
+  ** Is this an ARef type
+  virtual Bool isRef() { false }
+
   ** Debug dump
   virtual Void dump(OutStream out := Env.cur.out, Str indent := "")
   {
     out.print(toStr)
   }
+}
+
+**************************************************************************
+** ANodeType
+**************************************************************************
+
+@Js
+enum class ANodeType
+{
+  lib,
+  spec,
+  scalar,
+  dict,
+  specRef,
+  dataRef
 }

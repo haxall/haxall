@@ -17,6 +17,6 @@ const class XetoCompilerErr : FileLocErr
 @Js
 internal const class NotReadyErr : Err
 {
-  new make() : super("") {}
+  new make(Str msg := "") : super(msg) {}
 }
 

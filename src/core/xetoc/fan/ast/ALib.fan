@@ -20,16 +20,40 @@ internal class ALib : ANode
   new make(FileLoc loc, Str name) : super(loc)
   {
     this.name = name
+    this.asm = XetoLib()
   }
+
+  ** Node type
+  override ANodeType nodeType() { ANodeType.lib }
 
   ** Dotted library name
   const Str name
+
+  ** XetoLib instance - we backpatch the "m" field in Assemble step
+  const XetoLib asm
+
+  ** Version parsed from pragma (set in ProcessPragma)
+  Version? version
 
   ** Instance data
   Str:AData instances := [:]
 
   ** Top level specs
   Str:ASpec specs := [:]
+
+  ** Lookup top level instance data
+  AData? instance(Str name) { instances.get(name) }
+
+  ** Lookup top level spec
+  ASpec? spec(Str name) { specs.get(name) }
+
+  ** Tree walk
+  override Void walk(|ANode| f)
+  {
+    instances.each |x| { x.walk(f) }
+    specs.each |x| { x.walk(f) }
+    f(this)
+  }
 
   ** Debug dump
   override Void dump(OutStream out := Env.cur.out, Str indent := "")
