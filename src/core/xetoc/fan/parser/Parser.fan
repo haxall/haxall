@@ -211,6 +211,7 @@ internal class Parser
     first := spec.typeRef
     loc := first.loc
     list := ADict(loc, sys.list)
+    list.listOf = Spec#  // TODO: should come thru via Xeto
     list.set("_0", first)
 
     separator := cur

@@ -52,6 +52,9 @@ internal mixin CSpec : CNode
   abstract Int flags()
 
   ** Is maybe flag set
+  abstract Bool isList()
+
+  ** Is maybe flag set
   abstract Bool isMaybe()
 
   ** Is query flag set

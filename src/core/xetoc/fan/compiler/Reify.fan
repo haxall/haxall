@@ -49,23 +49,37 @@ internal class Reify : Step
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Dict
+// Dict / List
 //////////////////////////////////////////////////////////////////////////
 
-  private Dict reifyDict(ADict x)
+  private Obj reifyDict(ADict x)
   {
     // if already assembled
     if (x.isAsm) return x.asm
 
     // spec
-    spec := x.typeRef?.asm
+    cspec := x.typeRef?.deref
+
+    // turn dict into list
+    if (cspec != null && cspec.isList)
+      return x.asmRef = reifyList(x, cspec)
 
     // name/value pairs
     acc := Str:Obj[:]
     acc.ordered = true
-    x.map.each |obj, name| { acc[name] = obj.asm }
+    x.each |obj, name| { acc[name] = obj.asm }
 
-    return x.asmRef = env.dictMap(acc, spec)
+    return x.asmRef = env.dictMap(acc, cspec?.asm)
+  }
+
+  private Obj[] reifyList(ADict x, CSpec spec)
+  {
+    // TODO: lists not being typed correctly
+    of := x.listOf ?: Obj#
+
+    list := List(of, x.size)
+    x.each |obj| { list.add(obj.asm) }
+    return list.toImmutable
   }
 
 //////////////////////////////////////////////////////////////////////////

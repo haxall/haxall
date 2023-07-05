@@ -106,8 +106,8 @@ internal class ADict : AData
   ** Assembled scalar value
   override Obj asm() { asmRef ?: throw NotReadyErr() }
 
-  ** Assembled value set in Reify
-  Dict? asmRef
+  ** Assembled value set in Reify as either Dict or Obj[]
+  Obj? asmRef
 
   ** Identifier for this dict (not included in map)
   AName? id
@@ -115,11 +115,17 @@ internal class ADict : AData
   ** Is this library or spec meta
   Bool isMeta
 
+  ** TODO: shim to type this dict as a list of
+  Type? listOf
+
   ** Map of dict tag name/value pairs
   Str:AData map := [:]
 
   ** Return quoted string encoding
   override Str toStr() { map.toStr }
+
+  ** Number of name/value pairs
+  Int size() { map.size }
 
   ** Return if given tag is defined
   Bool has(Str name) { map[name] != null }
