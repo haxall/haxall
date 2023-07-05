@@ -43,50 +43,6 @@ abstract internal class Step
 
   Void bombIfErr() { if (!compiler.errs.isEmpty) throw compiler.errs.first }
 
-//////////////////////////////////////////////////////////////////////////
-// Utils
-//////////////////////////////////////////////////////////////////////////
-
-  ** Is given spec the 'sys::Obj' type
-  Bool isObj(ASpec x)
-  {
-    isSys && x.typeRef == null && x.qname == "sys::Obj"
-  }
-
-// TODO: move this into ASpec for cleaner API
-
-  ** Add marker tag to meta
-  Void metaAddMarker(ASpec obj, Str name)
-  {
-    metaAdd(obj, name, sys.marker, env.marker)
-  }
-
-  ** Add none tag to meta
-  Void metaAddNone(ASpec obj, Str name)
-  {
-    metaAdd(obj, name, sys.none, env.none, "none")
-  }
-
-  ** Add none tag to meta
-  Void metaAdd(ASpec obj, Str name, ASpecRef type, Obj val, Str valStr := val.toStr)
-  {
-//     loc := obj.loc
-//     kid := obj.metaInit.makeChild(loc, name)
-//     kid.typeRef = type
-//     kid.val = AScalar(loc, valStr, val)
-//     obj.meta.slots.add(kid)
-throw Err("META ADD $name $type $val")
-  }
-
-  ** Is object the none scalar value
-  Bool isNone(AData? obj)
-  {
-    if (obj == null) return false
-    scalar := obj as AScalar
-    if (scalar == null) return false
-    return scalar.asmRef === env.none
-  }
-
 }
 
 

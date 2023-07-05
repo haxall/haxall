@@ -31,7 +31,7 @@ internal class Parse : Step
   private Void parseLib(File input)
   {
     // create ALib as our root object
-    lib := ALib(FileLoc(input), compiler.libName)
+    lib := ALib(compiler, FileLoc(input), compiler.libName)
 
     // parse directory into root lib
     parseDir(input, lib)

@@ -184,7 +184,7 @@ internal class Parser
     }
 
     doc = parseTrailingDoc(doc)
-    setDocMeta(spec, doc)
+    if (doc != null) spec.metaSetStr("doc", doc)
 
     return spec
   }
@@ -198,7 +198,7 @@ internal class Parser
     if (cur === Token.question)
     {
       consume
-      spec.initMeta.set("maybe", impliedMarker(loc))
+      spec.metaSetMarker("maybe")
       return
     }
 
@@ -208,27 +208,24 @@ internal class Parser
 
   private Void parseCompoundType(ASpec spec, ASpecRef compoundType)
   {
-    first := spec.typeRef
-    loc := first.loc
-    list := ADict(loc, sys.list)
-    list.listOf = Spec#  // TODO: should come thru via Xeto
-    list.set("_0", first)
+    list := ASpecRef[,]
+    list.add(spec.typeRef)
 
     separator := cur
     while (cur === separator)
     {
       consume
       next := parseTypeRef ?: throw err("Expecting next type name in $compoundType.name")
-      list.set("_" + list.map.size, next)
+      list.add(next)
     }
 
     spec.typeRef = compoundType
-    spec.initMeta.set("ofs", list)
+    spec.metaSetOfs("ofs", list)
   }
 
   private Void parseSpecMeta(ASpec spec)
   {
-    if (cur === Token.lt) parseDict(null, Token.lt, Token.gt, spec.initMeta)
+    if (cur === Token.lt) parseDict(null, Token.lt, Token.gt, spec.metaInit)
   }
 
   private Void parseSpecBody(ASpec spec)
@@ -346,12 +343,6 @@ internal class Parser
     // close "}" or ">"
     consume(closeToken)
     return x
-  }
-
-  private Void setDocMeta(ASpec spec, Str? doc)
-  {
-    if (doc == null) return
-    spec.initMeta.set("doc", impliedStr(spec.loc, doc))
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -93,7 +93,7 @@ internal class Resolve : Step
         }
         val.typeRef = ref
       }
-      spec.initMeta.set("val", val)
+      spec.metaSet("val", val)
     }
   }
 

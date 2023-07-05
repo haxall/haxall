@@ -34,6 +34,8 @@ internal abstract class AData : ANode
   ** Assembled value - raise exception if not assembled yet
   abstract Obj asm()
 
+  ** Is this the none singleton
+  virtual Bool isNone() { false }
 
 }
 
@@ -63,6 +65,9 @@ internal class AScalar : AData
 
   ** Assembled scalar value
   override Obj asm() { asmRef ?: throw NotReadyErr(str) }
+
+  ** Is this the none singleton
+  override Bool isNone() { asmRef === haystack::Remove.val }
 
   ** Assembled value set in Reify
   Obj? asmRef

@@ -16,6 +16,11 @@ using xeto
 @Js
 internal class ASpec : ANode, CSpec
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
    ** Constructor
   new make(FileLoc loc, ALib lib, ASpec? parent, Str name) : super(loc)
   {
@@ -26,11 +31,24 @@ internal class ASpec : ANode, CSpec
     this.asm    = parent == null ? XetoType() : XetoSpec()
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Identity
+//////////////////////////////////////////////////////////////////////////
+
   ** Node type
   override ANodeType nodeType() { ANodeType.spec }
 
   ** Parent library
   ALib lib { private set }
+
+  ** Reference to compiler
+  XetoCompiler compiler() { lib.compiler }
+
+  ** Reference to environment
+  MEnv env() { lib.compiler.env }
+
+  ** Reference to system types
+  ASys sys() { lib.compiler.sys }
 
   ** Parent spec or null if this is top-level spec
   ASpec? parent { private set }
@@ -50,6 +68,9 @@ internal class ASpec : ANode, CSpec
   ** String returns qname
   override Str toStr() { qname }
 
+  ** Is given spec the 'sys::Obj' type
+  Bool isObj() { lib.isSys && name == "Obj" }
+
   ** Resolved type ref
   CSpec? type() { typeRef?.deref }
 
@@ -59,17 +80,18 @@ internal class ASpec : ANode, CSpec
   ** We refine type and base in InheritSlots step
   CSpec? base
 
-  ** Meta dict if there was "<>"
+  ** Default value if spec had scalar value
+  AScalar? val
+
+//////////////////////////////////////////////////////////////////////////
+// Meta
+//////////////////////////////////////////////////////////////////////////
+
+  ** Declared meta if there was "<>"
   ADict? meta { private set }
 
-  ** Return if meta has the given tag
-  Bool metaHas(Str name)
-  {
-    meta != null && meta.has(name)
-  }
-
   ** Initialize meta data dict
-  ADict initMeta()
+  ADict metaInit()
   {
     if (meta == null)
     {
@@ -77,6 +99,55 @@ internal class ASpec : ANode, CSpec
     }
     return this.meta
   }
+
+  ** Return if meta has the given tag
+  Bool metaHas(Str name)
+  {
+    meta != null && meta.has(name)
+  }
+
+  ** Set meta-data tag
+  Void metaSet(Str name, AData data)
+  {
+    metaInit.set(name, data)
+  }
+
+  ** Set the given meta tag to marker singleton
+  Void metaSetMarker(Str name)
+  {
+    metaSet(name, AScalar(loc, sys.marker, env.marker.toStr, env.marker))
+  }
+
+  ** Set the given meta tag to none singleton
+  Void metaSetNone(Str name)
+  {
+    metaSet(name, AScalar(loc, sys.none, "none", env.none))
+  }
+
+  ** Set the given meta tag to string value
+  Void metaSetStr(Str name, Str val)
+  {
+    metaSet(name, AScalar(loc, sys.str, val, val))
+  }
+
+  ** Set the "ofs" meta tag
+  Void metaSetOfs(Str name, ASpecRef[] specs)
+  {
+    c := compiler
+    first := specs[0]
+    loc := first.loc
+    list := ADict(loc, sys.list)
+    list.listOf = Spec#  // TODO: should come thru via Xeto
+    specs.each |spec, i|
+    {
+      list.set(c.autoName(i), spec)
+    }
+    metaSet("ofs", list)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Slots
+//////////////////////////////////////////////////////////////////////////
 
   ** Slots if there was "{}"
   [Str:ASpec]? slots { private set }
@@ -92,8 +163,9 @@ internal class ASpec : ANode, CSpec
     return this.slots
   }
 
-  ** Default value if spec had scalar value
-  AScalar? val
+//////////////////////////////////////////////////////////////////////////
+// AST Node
+//////////////////////////////////////////////////////////////////////////
 
   ** Tree walk
   override Void walk(|ANode| f)
@@ -124,6 +196,10 @@ internal class ASpec : ANode, CSpec
     }
     if (val != null) out.print(" = ").print(val)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// CSpec
+//////////////////////////////////////////////////////////////////////////
 
   ** The answer is yes
   override Bool isAst() { true }

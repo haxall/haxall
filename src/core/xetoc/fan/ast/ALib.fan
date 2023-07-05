@@ -17,10 +17,12 @@ using xeto
 internal class ALib : ANode
 {
    ** Constructor
-  new make(FileLoc loc, Str name) : super(loc)
+  new make(XetoCompiler c, FileLoc loc, Str name) : super(loc)
   {
-    this.name = name
-    this.asm = XetoLib()
+    this.compiler = c
+    this.name     = name
+    this.isSys    = name == "sys"
+    this.asm      = XetoLib()
   }
 
   ** Node type
@@ -29,8 +31,14 @@ internal class ALib : ANode
   ** Dotted library name
   const Str name
 
+  ** Is this the core sys library
+  const Bool isSys
+
   ** XetoLib instance - we backpatch the "m" field in Assemble step
   const XetoLib asm
+
+  ** Compiler
+  XetoCompiler compiler { private set }
 
 // TODO
 Dict meta := haystack::Etc.dict0

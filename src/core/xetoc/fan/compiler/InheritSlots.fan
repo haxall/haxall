@@ -55,7 +55,7 @@ internal class InheritSlots : Step
   private Void doInherit(ASpec spec)
   {
     // special handling for sys::Obj
-    if (isObj(spec)) { spec.cslotsRef = noSlots; return }
+    if (spec.isObj) { spec.cslotsRef = noSlots; return }
 
     // infer type if unspecified or process subtype;
     // this method returns the spec to use for the base
@@ -104,7 +104,7 @@ internal class InheritSlots : Step
     {
       // if base is maybe and my own type is not then clear maybe flag
       if (base.isMaybe && !x.metaHas("maybe"))
-        metaAddNone(x, "maybe")
+        x.metaSetNone("maybe")
     }
 
     // return the spec to use for the base
@@ -146,7 +146,7 @@ internal class InheritSlots : Step
       maybe := x.meta.get("maybe")
       if (maybe != null)
       {
-        if (isNone(maybe))
+        if (maybe.isNone)
           flags = flags.and(MSpecFlags.maybe.not)
         else
           flags = flags.or(MSpecFlags.maybe)
