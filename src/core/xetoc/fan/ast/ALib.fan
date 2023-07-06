@@ -50,7 +50,7 @@ Dict meta := haystack::Etc.dict0
   Str:AData instances := [:]
 
   ** Top level specs
-  Str:ASpec specs := [:]
+  Str:ASpec specs := [:] { ordered = true }
 
   ** Lookup top level instance data
   AData? instance(Str name) { instances.get(name) }

@@ -102,6 +102,9 @@ internal class ADict : AData
   ** Constructor
   new make(FileLoc loc, ASpecRef? type) : super(loc, type) {}
 
+  ** Constructor for ASpec.meta
+  new makeMeta(FileLoc loc) : super.make(loc, null) { isMeta = true }
+
   ** Node type
   override ANodeType nodeType() { ANodeType.dict }
 
@@ -118,7 +121,7 @@ internal class ADict : AData
   AName? id
 
   ** Is this library or spec meta
-  Bool isMeta
+  const Bool isMeta
 
   ** TODO: shim to type this dict as a list of
   Type? listOf

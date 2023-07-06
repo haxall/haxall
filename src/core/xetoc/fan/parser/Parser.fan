@@ -143,45 +143,39 @@ internal class Parser
   ** Parse named spec
   private ASpec parseNamedSpec(ALib lib, ASpec? parent, Str? doc)
   {
-    loc := curToLoc
     name := consumeName("Expecting spec name")
-    ASpecRef? type := null
-    AScalar? val := null
 
-    // if not at a colon then a upper case name means auto-named
-    // spec type and lower case means marker name
-    if (cur !== Token.colon)
-    {
-      if (parent == null) throw err("Top level spec name '$name' must be followed by colon, not $curToStr")
-      if (name[0].isUpper)
-      {
-        // Foo => _xxx: Foo
-        type = ASpecRef(loc, ASimpleName(null, name))
-        name = autoName(parent.initSlots)
-      }
-      else
-      {
-        // foo => foo: Marker
-        val  = impliedMarker(loc)
-        type = val.typeRef
-      }
-    }
+    if (cur !== Token.colon) throw err("Spec name '$name' must be followed by colon, not $curToStr")
+    consume
 
-    spec := ASpec(loc, lib, parent, name)
-    spec.typeRef = type
-    spec.val = val
+    return parseSpec(lib, parent, doc, name)
+  }
 
+  ** Parse named spec
+  private ASpec parseSpec(ALib lib, ASpec? parent, Str? doc, Str name)
+  {
+    spec := ASpec(curToLoc, lib, parent, name)
 
-    if (cur === Token.colon)
-    {
-      consume  // colon
-      parseSpecType(spec)
-    }
-    if (val == null)
-    {
-      parseSpecMeta(spec)
-      parseSpecBody(spec)
-    }
+    parseSpecType(spec)
+    parseSpecMeta(spec)
+    parseSpecBody(spec)
+
+    doc = parseTrailingDoc(doc)
+    if (doc != null) spec.metaSetStr("doc", doc)
+
+    return spec
+  }
+
+  ** Parser marker slot
+  private ASpec parseMarkerSpec(ASpec parent, Str? doc)
+  {
+    loc := curToLoc
+    name := consumeName("Expecting marker name")
+    spec := ASpec(loc, parent.lib, parent, name)
+
+    marker :=  impliedMarker(loc)
+    spec.typeRef = marker.typeRef
+    spec.val = marker
 
     doc = parseTrailingDoc(doc)
     if (doc != null) spec.metaSetStr("doc", doc)
@@ -202,7 +196,7 @@ internal class Parser
       return
     }
 
-    if (cur === Token.amp)  return parseCompoundType(spec, sys.and)
+    if (cur === Token.amp) return parseCompoundType(spec, sys.and)
     if (cur === Token.pipe) return parseCompoundType(spec, sys.or)
   }
 
@@ -225,15 +219,28 @@ internal class Parser
 
   private Void parseSpecMeta(ASpec spec)
   {
-    if (cur === Token.lt) parseDict(null, Token.lt, Token.gt, spec.metaInit)
+    if (cur === Token.lt)
+    {
+      if (spec.typeRef == null && !spec.isObj) throw err("Cannot have <> meta without type name")
+      parseDict(null, Token.lt, Token.gt, spec.metaInit)
+    }
   }
 
   private Void parseSpecBody(ASpec spec)
   {
     if (cur === Token.scalar)
+    {
       spec.val = parseScalar(null)
-    else if (cur === Token.lbrace)
+      return
+    }
+
+    if (cur === Token.lbrace)
+    {
       parseSpecSlots(spec)
+      return
+    }
+
+    if (spec.typeRef == null && !spec.isObj) throw err("Expected spec body, not $curToStr")
   }
 
   private Void parseSpecSlots(ASpec parent)
@@ -249,7 +256,22 @@ internal class Parser
 
       if (cur === Token.rbrace) break
 
-      slot := parseNamedSpec(parent.lib, parent, doc)
+      // name: spec | marker | unnamed-spec
+      ASpec? slot
+      if (cur === Token.id && peek == Token.colon)
+      {
+        slot = parseNamedSpec(parent.lib, parent, doc)
+      }
+      else if (cur === Token.id && curVal.toStr[0].isLower)
+      {
+        slot = parseMarkerSpec(parent, doc)
+      }
+      else
+      {
+        name := autoName(acc)
+        slot = parseSpec(parent.lib, parent, doc, name)
+      }
+
       parseCommaOrNewline("Expecting end of slots", Token.rbrace)
 
       add("slot", acc, slot.name, slot)
