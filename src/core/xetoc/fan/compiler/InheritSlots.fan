@@ -270,6 +270,10 @@ internal class InheritSlots : Step
     if (slotType != null && baseType != null && !slotType.isa(baseType))
       err("Slot '$slot.name' type '$slotType' conflicts inherited slot '$base.qname' of type '$baseType'", slot.loc)
 
+    val := slot.val
+    if (val != null && val.typeRef == null)
+      val.typeRef = ASpecRef(val.loc, base.ctype)
+
     return slot
   }
 
