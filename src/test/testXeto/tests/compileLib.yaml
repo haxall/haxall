@@ -57,7 +57,7 @@ verifyTypes:
         type: "sys::Marker"
         meta:
           doc: "inherit"
-          val: "sys::Marker"
+          val: "inherit"
 ---
 name: "slotWithMeta"
 compileLib: |
