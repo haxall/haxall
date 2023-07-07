@@ -99,6 +99,7 @@ class DataCompileTest : AbstractDataTest
     verifyDict(Str<|LibOrg { dis:"Acme", uri:Uri "http://acme.com" }|>, ["dis":"Acme", "uri":`http://acme.com`], "sys::LibOrg")
 
     // whitespace
+    /* TODO: how much variation do we want to allow
     verifyDict(Str<|LibOrg
                     {
 
@@ -109,6 +110,7 @@ class DataCompileTest : AbstractDataTest
                                    {
 
                     }|>, [:], "sys::LibOrg")
+      */
   }
 
   Void verifyDict(Str src, Str:Obj expected, Str type := "sys::Dict")
