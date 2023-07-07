@@ -97,10 +97,19 @@ internal class AScalar : AData
 internal class ADict : AData
 {
   ** Constructor
-  new make(FileLoc loc, ASpecRef? type) : super(loc, type) {}
+  new make(FileLoc loc, ASpecRef? type) : super(loc, type)
+  {
+    map = Str:Obj[:]
+    map.ordered = true
+  }
 
   ** Constructor for ASpec.meta
-  new makeMeta(FileLoc loc) : super.make(loc, null) { isMeta = true }
+  new makeMeta(FileLoc loc) : super.make(loc, null)
+  {
+    map = Str:Obj[:]
+    map.ordered = true
+    isMeta = true
+  }
 
   ** Node type
   override ANodeType nodeType() { ANodeType.dict }
@@ -124,7 +133,7 @@ internal class ADict : AData
   Type? listOf
 
   ** Map of dict tag name/value pairs
-  Str:AData map := [:]
+  Str:AData map { private set }
 
   ** Return quoted string encoding
   override Str toStr() { map.toStr }

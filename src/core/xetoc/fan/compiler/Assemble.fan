@@ -22,7 +22,7 @@ internal class Assemble : Step
 
   private Void asmLib(ALib x)
   {
-    m := MLib(env, x.loc, x.name, x.meta, x.version, compiler.depends, asmTypes(x), asmInstances(x))
+    m := MLib(env, x.loc, x.name, x.meta.asm, x.version, compiler.depends, asmTypes(x), asmInstances(x))
     XetoLib#m->setConst(x.asm, m)
     lib.specs.each |spec| { asmType(spec) }
   }

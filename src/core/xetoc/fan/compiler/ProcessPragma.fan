@@ -21,6 +21,7 @@ internal class ProcessPragma : Step
   {
     if (isLib)
     {
+      lib.meta = compiler.pragma
       lib.version = toVersion
       compiler.depends = toDepends
     }

@@ -40,8 +40,8 @@ internal class ALib : ANode
   ** Compiler
   XetoCompiler compiler { private set }
 
-// TODO
-Dict meta := haystack::Etc.dict0
+  ** From pragma (set in ProcessPragma)
+  ADict? meta
 
   ** Version parsed from pragma (set in ProcessPragma)
   Version? version
@@ -61,6 +61,7 @@ Dict meta := haystack::Etc.dict0
   ** Tree walk
   override Void walk(|ANode| f)
   {
+    meta.walk(f)
     instances.each |x| { x.walk(f) }
     specs.each |x| { x.walk(f) }
     f(this)
