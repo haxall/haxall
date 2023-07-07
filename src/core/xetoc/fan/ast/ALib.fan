@@ -35,7 +35,7 @@ internal class ALib : ANode
   const Bool isSys
 
   ** XetoLib instance - we backpatch the "m" field in Assemble step
-  const XetoLib asm
+  const override XetoLib asm
 
   ** Compiler
   XetoCompiler compiler { private set }

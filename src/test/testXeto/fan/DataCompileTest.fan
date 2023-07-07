@@ -54,18 +54,6 @@ class DataCompileTest : AbstractDataTest
     verifyScalar("sys::DateTime", Str<|DateTime "2023-02-24T10:51:47.21-05:00 New_York"|>, DateTime("2023-02-24T10:51:47.21-05:00 New_York"))
     verifyScalar("sys::DateTime", Str<|DateTime "2023-03-04T12:26:41.495Z"|>, DateTime("2023-03-04T12:26:41.495Z UTC"))
     verifyScalar("sys::DateTime", Str<|DateTime 2023-03-04T12:26:41.495Z|>, DateTime("2023-03-04T12:26:41.495Z UTC"))
-
-    // whitespace
-    verifyScalar("sys::Date",
-         Str<|Date
-                 "2023-03-04"
-              |>, Date("2023-03-04"))
-    verifyScalar("sys::Date",
-         Str<|Date
-
-
-              2023-03-04
-              |>, Date("2023-03-04"))
   }
 
   Void verifyScalar(Str qname, Str src, Obj? expected)

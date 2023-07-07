@@ -45,6 +45,7 @@ internal class Parser
     try
     {
       data := cur === Token.ref ? parseNamedData : parseData
+      skipNewlines
       verify(Token.eof)
       return data
     }

@@ -31,9 +31,6 @@ internal abstract class AData : ANode
   ** Is data value already assembled
   abstract Bool isAsm()
 
-  ** Assembled value - raise exception if not assembled yet
-  abstract Obj asm()
-
   ** Is this the none singleton
   virtual Bool isNone() { false }
 

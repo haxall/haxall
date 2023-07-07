@@ -81,8 +81,6 @@ internal class XetoCompiler
   ** Compile input to instance data
   Obj? compileData()
   {
-throw Err("TODO")
-/*
     run([
       InitData(),
       Parse(),
@@ -91,7 +89,6 @@ throw Err("TODO")
       Reify(),
     ])
     return ast.asm
-*/
   }
 
   ** Parse pragma from lib.xeto meta into fantom JSON data

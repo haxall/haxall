@@ -28,6 +28,9 @@ internal abstract class ANode
   ** processed first, then this node itself is processed.
   abstract Void walk(|ANode| f)
 
+  ** Assembled value - raise exception if not assembled yet
+  abstract Obj asm()
+
   ** Is this an ARef type
   virtual Bool isRef() { false }
 

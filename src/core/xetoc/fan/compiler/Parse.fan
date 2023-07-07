@@ -48,28 +48,18 @@ internal class Parse : Step
 
   private Void parseData(File input)
   {
-    throw Err("TODO")
-  /*
-    // create dict as root object
-    root := AVal(FileLoc(input), null, "root")
-    root.typeRef = sys.dict
-    root.initSlots
-
     // parse into root
-    parseFile(input, root)
+    ast := parseFile(input, null)
     bombIfErr
 
     // remove pragma from root
-    pragma := validatePragma(root)
-    bombIfErr
+    // TODO
+    pragma := ADict(ast.loc)
+//     pragma := validatePragma(root)
+//     bombIfErr
 
-    // if we parsed a single, unnamed value as {_0:x} make it the root
-    if (root.slots.size == 1 && root.slot("_0") != null)
-      root = root.slot("_0")
-
-    compiler.ast = root
+    compiler.ast = ast
     compiler.pragma = pragma
-    */
   }
 
   private ADict? validateLibPragma(ALib lib)
