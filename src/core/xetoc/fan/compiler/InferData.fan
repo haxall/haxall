@@ -58,7 +58,14 @@ internal class InferData : Step
 
   private Void inferSpecSlot(ADict dict, CSpec slot)
   {
-    if (dict.has(slot.name)) return
+    // if we have a slot, then infer the type only
+    cur := dict.get(slot.name)
+    if (cur != null)
+    {
+      if (cur.typeRef == null)
+        cur.typeRef = ASpecRef(cur.loc, slot.ctype)
+      return
+    }
 
     // we haven't run InheritMeta yet, so this is awkward....
     // TODO: we need to run InheritMeta before Reify

@@ -148,7 +148,7 @@ class DataCompileTest : AbstractDataTest
            @alice: Person {
              first: "Alice"
              last: "Smith"
-             born: Date "1980-06-15"
+             born: "1980-06-15"
            }
            |>)
 
