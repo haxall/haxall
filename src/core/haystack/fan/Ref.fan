@@ -14,7 +14,7 @@ using concurrent
 **
 @Js
 @Serializable { simple = true }
-final const class Ref
+final const class Ref : xeto::Ref
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ final const class Ref
 //////////////////////////////////////////////////////////////////////////
 
   ** Identifier which does **not** include the leading '@'
-  Str id() { idRef }
+  override Str id() { idRef }
   private const Str idRef
 
   ** Optional display string for what the identifier references or null.
@@ -130,7 +130,7 @@ final const class Ref
   }
 
   ** Return display value of target if available, otherwise `id`
-  Str dis() { disVal ?: idRef }
+  override Str dis() { disVal ?: idRef }
 
   ** String format is `id` which does **not** include
   ** the leading '@'.  Use `toCode` to include leading '@'.

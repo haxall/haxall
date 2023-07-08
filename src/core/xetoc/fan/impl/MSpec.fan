@@ -179,7 +179,7 @@ internal const class MSpecFlags
 ** XetoSpec is the referential proxy for MSpec
 **
 @Js
-internal const class XetoSpec : Spec, Dict, CSpec
+internal const class XetoSpec : Spec, haystack::Dict, CSpec
 {
   new make() {}
 

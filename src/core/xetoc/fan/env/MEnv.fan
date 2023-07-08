@@ -85,6 +85,8 @@ internal const class MEnv : XetoEnv
     return dictMap(map, null)
   }
 
+  override Ref ref(Str id, Str? dis := null) { haystack::Ref.make(id, dis) }
+
   override Spec? typeOf(Obj? val, Bool checked := true)
   {
     if (val == null) return sys.none

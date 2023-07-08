@@ -78,6 +78,9 @@ const abstract class XetoEnv
   **   - raise exception for anything else
   abstract Dict dict(Obj? x)
 
+  ** Construct instance of `Ref`
+  abstract Ref ref(Str id, Str? dis := null)
+
   ** Data type for Fantom object
   abstract Spec? typeOf(Obj? val, Bool checked := true)
 

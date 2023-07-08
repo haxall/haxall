@@ -11,6 +11,7 @@ using xeto
 using xeto::Dict
 using xeto::Lib
 using haystack
+using haystack::Ref
 
 **
 ** DataEnvTest
@@ -19,11 +20,11 @@ using haystack
 class DataEnvTest : AbstractDataTest
 {
 
+  static Version curVersion() { Version("0.1.1") }
+
 //////////////////////////////////////////////////////////////////////////
 // Sys Lib
 //////////////////////////////////////////////////////////////////////////
-
-  static Version curVersion() { Version("0.1.1") }
 
   Void testSysLib()
   {
@@ -119,7 +120,21 @@ class DataEnvTest : AbstractDataTest
     entity := verifyLibType(ph, "Entity", env.type("sys::Dict"))
     equip  := verifyLibType(ph, "Equip",  entity)
     meter  := verifyLibType(ph, "Meter",  equip)
+  }
 
+//////////////////////////////////////////////////////////////////////////
+// Factories
+//////////////////////////////////////////////////////////////////////////
+
+  Void testFactories()
+  {
+    verifySame(env.marker, Marker.val)
+    verifySame(env.na, NA.val)
+    verifySame(env.none, Remove.val)
+    verifyEq(env.ref("foo"), haystack::Ref("foo", null))
+    verifyValEq(env.ref("foo", "Foo"), haystack::Ref("foo", "Foo"))
+    verifySame(env.dict0, Etc.emptyDict)
+    verifyDictEq(env.dict1("a", "A"), ["a":"A"])
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -424,7 +439,10 @@ class DataEnvTest : AbstractDataTest
     spec := env.spec(qname)
     actual := env.instantiate(spec)
     // echo("-- $qname: $actual ?= $expect")
-    verifyValEq(actual, expect)
+    if (expect is Map)
+      verifyDictEq(actual, expect)
+    else
+      verifyValEq(actual, expect)
   }
 
   Void verifyInstantiateGraph(Str qname, [Str:Obj][] expect)
