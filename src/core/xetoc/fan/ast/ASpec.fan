@@ -103,6 +103,12 @@ internal class ASpec : ANode, CSpec
     meta != null && meta.has(name)
   }
 
+  ** Get meta
+  AData? metaGet(Str name)
+  {
+    meta?.get(name)
+  }
+
   ** Set meta-data tag
   Void metaSet(Str name, AData data)
   {

@@ -95,9 +95,9 @@ class DataCompileTest : AbstractDataTest
     verifyDict(Str<|{dis:"Hi", mark}|>, ["dis":"Hi", "mark":m])
 
     // LibOrg
-    verifyDict(Str<|LibOrg {}|>, [:], "sys::LibOrg")
-    verifyDict(Str<|sys::LibOrg {}|>, [:], "sys::LibOrg")
-    verifyDict(Str<|LibOrg { dis:"Acme" }|>, ["dis":"Acme"], "sys::LibOrg")
+    verifyDict(Str<|LibOrg {}|>, ["dis":"", "uri":``], "sys::LibOrg")
+    verifyDict(Str<|sys::LibOrg {}|>, ["dis":"", "uri":``], "sys::LibOrg")
+    verifyDict(Str<|LibOrg { dis:"Acme" }|>, ["dis":"Acme", "uri":``], "sys::LibOrg")
     verifyDict(Str<|LibOrg { dis:"Acme", uri:Uri "http://acme.com" }|>, ["dis":"Acme", "uri":`http://acme.com`], "sys::LibOrg")
 
     // whitespace
@@ -118,7 +118,7 @@ class DataCompileTest : AbstractDataTest
   Void verifyDict(Str src, Str:Obj expected, Str type := "sys::Dict")
   {
     Dict actual := compileData(src)
-    // echo("-- $actual [$actual.spec]")
+    // echo("-- $actual [$actual.spec]"); TrioWriter(Env.cur.out).writeDict(actual)
     verifySame(actual.spec, env.type(type))
     if (expected.isEmpty && type == "sys::Dict")
     {
@@ -137,8 +137,10 @@ class DataCompileTest : AbstractDataTest
   {
     lib := compileLib(
       Str<|Person: Dict {
+             person
              first: Str
              last: Str
+             born: Date "2000-01-01"
            }
 
            @brian: Person {first:"Brian", last:"Frank"}
@@ -146,24 +148,29 @@ class DataCompileTest : AbstractDataTest
            @alice: Person {
              first: "Alice"
              last: "Smith"
+             born: Date "1980-06-15"
            }
            |>)
 
     spec := lib.type("Person")
     // env.print(spec)
 
-    verifyLibInstance(lib, spec, "brian", ["first":"Brian", "last":"Frank"])
-    verifyLibInstance(lib, spec, "alice", ["first":"Alice", "last":"Smith"])
+    verifyLibInstance(lib, spec, "brian",
+      ["person":m, "first":"Brian", "last":"Frank", "born": Date("2000-01-01")])
+
+    verifyLibInstance(lib, spec, "alice",
+      ["person":m, "first":"Alice", "last":"Smith", "born": Date("1980-06-15")])
   }
 
   Void verifyLibInstance(Lib lib, Spec spec, Str name, Str:Obj expect)
   {
     x := lib.instance(name)
     id := Ref(lib.name + "::" + name, null)
-    // echo("-- $id => $x")
+    // echo("-- $id =>"); TrioWriter(Env.cur.out).writeDict(x)
     verifyEq(lib.instances.containsSame(x), true)
     verifyRefEq(x->id, id)
     verifyDictEq(x, expect.dup.set("id", id))
+    verifySame(x.spec, spec)
   }
 
 //////////////////////////////////////////////////////////////////////////
