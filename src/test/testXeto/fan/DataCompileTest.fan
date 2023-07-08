@@ -9,6 +9,7 @@
 using util
 using xeto
 using xeto::Dict
+using xeto::Lib
 using haystack
 using haystack::Ref
 
@@ -126,6 +127,43 @@ class DataCompileTest : AbstractDataTest
       return
     }
     verifyDictEq(actual, expected)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Lib Instances
+//////////////////////////////////////////////////////////////////////////
+
+  Void testLibInstances()
+  {
+    lib := compileLib(
+      Str<|Person: Dict {
+             first: Str
+             last: Str
+           }
+
+           @brian: Person {first:"Brian", last:"Frank"}
+
+           @alice: Person {
+             first: "Alice"
+             last: "Smith"
+           }
+           |>)
+
+    spec := lib.type("Person")
+    // env.print(spec)
+
+    verifyLibInstance(lib, spec, "brian", ["first":"Brian", "last":"Frank"])
+    verifyLibInstance(lib, spec, "alice", ["first":"Alice", "last":"Smith"])
+  }
+
+  Void verifyLibInstance(Lib lib, Spec spec, Str name, Str:Obj expect)
+  {
+    x := lib.instance(name)
+    id := Ref(lib.name + "::" + name, null)
+    // echo("-- $id => $x")
+    verifyEq(lib.instances.containsSame(x), true)
+    verifyRefEq(x->id, id)
+    verifyDictEq(x, expect.dup.set("id", id))
   }
 
 //////////////////////////////////////////////////////////////////////////

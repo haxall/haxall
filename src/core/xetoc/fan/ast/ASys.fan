@@ -18,6 +18,7 @@ internal class ASys
   ASpecRef none   := init("None")
   ASpecRef marker := init("Marker")
   ASpecRef str    := init("Str")
+  ASpecRef ref    := init("Ref")
   ASpecRef dict   := init("Dict")
   ASpecRef list   := init("List")
   ASpecRef and    := init("And")

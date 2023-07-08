@@ -29,16 +29,17 @@ internal class Assemble : Step
 
   private Str:Spec asmTypes(ALib x)
   {
+    if (x.specs.isEmpty) return noSpecs
     acc := Str:Spec[:]
     x.specs.each |t, n| { acc.add(n, t.asm) }
-    if (acc.isEmpty) return noSpecs
     return acc
   }
 
   private Str:Dict asmInstances(ALib x)
   {
+    if (x.instances.isEmpty) return noDicts
     acc := Str:Dict[:]
-    if (acc.isEmpty) return noDicts
+    x.instances.each |d, n| { acc.add(n, d.asm) }
     return acc
   }
 

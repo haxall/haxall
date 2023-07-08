@@ -69,6 +69,7 @@ internal class XetoCompiler
       Resolve(),
       InheritSlots(),
       LoadFactories(),
+      InferData(),
       Reify(),
       InheritMeta(),
       Assemble(),
@@ -86,6 +87,7 @@ internal class XetoCompiler
       Parse(),
       ProcessPragma(),
       Resolve(),
+      InferData(),
       Reify(),
     ])
     return ast.asm
