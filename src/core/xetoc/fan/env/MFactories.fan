@@ -134,16 +134,11 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
 **************************************************************************
 
 @Js
-internal const class DictFactory : SpecFactory
+internal const class DictFactory : DictSpecFactory
 {
-  new make() { this.type = Dict# }
-  override const Type type
-  override Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr("Dict cannot decode to scalar") }
+  new make() : super(Dict#) {}
   override Obj? decodeDict(Dict xeto, Bool checked := true) { xeto }
-  override Str encodeScalar(Obj val) { throw UnsupportedErr("Dict cannot encode to scalar") }
-  override Dict encodeDict(Obj val) { val }
 }
-
 
 @Js
 internal const class SingletonFactory : ScalarSpecFactory

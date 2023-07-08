@@ -18,17 +18,14 @@ abstract const class SpecFactory
   ** Fantom type used to represent instances of the spec
   abstract Type type()
 
-  ** Decode a scalar Xeto string to a Fantom instance
-  abstract Obj? decodeScalar(Str xeto, Bool checked := true)
-
   ** Decode a Xeto dict of name/value pairs to a Fantom instance
   abstract Obj? decodeDict(Dict xeto, Bool checked := true)
 
+  ** Decode a scalar Xeto string to a Fantom instance
+  abstract Obj? decodeScalar(Str xeto, Bool checked := true)
+
   ** Encode a Fantom scalar instance to its Xeto string encoding
   abstract Str encodeScalar(Obj val)
-
-  ** Encode a Fantom dict instance to its name/value pairs to encode in Xeto
-  abstract Dict encodeDict(Obj val)
 }
 
 **************************************************************************
@@ -49,6 +46,29 @@ abstract const class SpecFactoryLoader
   ** Map library name and its top-level type names to map of
   ** factory instances keyed by simple spec name.
   abstract Str:SpecFactory load(Str libName, Str[] specNames)
+}
+
+**************************************************************************
+** DictSpecFactory
+**************************************************************************
+
+** Base class for handle dicts
+@NoDoc @Js
+abstract const class DictSpecFactory : SpecFactory
+{
+  new make(Type type) { this.type = type }
+
+  const override Type type
+
+  override Obj? decodeScalar(Str xeto, Bool checked := true)
+  {
+    throw UnsupportedErr("Dict cannot decode to scalar")
+  }
+
+  override Str encodeScalar(Obj val)
+  {
+    throw UnsupportedErr("Dict cannot encode to scalar")
+  }
 }
 
 **************************************************************************
@@ -77,11 +97,6 @@ const class ScalarSpecFactory : SpecFactory
   override Obj? decodeDict(Dict xeto, Bool checked := true)
   {
     throw UnsupportedErr("Scalar cannot decode to dict")
-  }
-
-  override Dict encodeDict(Obj val)
-  {
-    throw UnsupportedErr("Scalar cannot encode to dict")
   }
 
   override Str toStr() { "ScalarSpecFactory @ $type" }

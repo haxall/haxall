@@ -58,18 +58,36 @@ internal class Reify : Step
     if (x.isAsm) return x.asm
 
     // spec
-    cspec := x.typeRef?.deref
+    type := x.typeRef?.deref
 
     // turn dict into list
-    if (cspec != null && cspec.isList)
-      return x.asmRef = reifyList(x, cspec)
+    if (type != null && type.isList)
+      return x.asmRef = reifyList(x, type)
 
     // name/value pairs
     acc := Str:Obj[:]
     acc.ordered = true
     x.each |obj, name| { acc[name] = obj.asm }
 
-    return x.asmRef = env.dictMap(acc, cspec?.asm)
+    // create as Dict
+    dict := env.dictMap(acc, type?.asm)
+    Obj asm := dict
+
+    // if there is a factory registered, then decode to another Fantom type
+    if (type != null)
+    {
+      fantom := type.factory.decodeDict(dict, false)
+      if (fantom != null)
+      {
+        asm = fantom
+      }
+      else
+      {
+        err("Cannot instantiate '$type.qname' dict as Fantom class '$type.factory.type'", x.loc)
+      }
+    }
+
+    return x.asmRef = asm
   }
 
   private Obj[] reifyList(ADict x, CSpec spec)
