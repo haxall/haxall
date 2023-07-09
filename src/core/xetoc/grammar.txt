@@ -4,46 +4,59 @@
 //
 // History:
 //   2 Aug 2022  Brian Frank  Creation
+//   9 Jul 2023  Brian Frank  Rewrite to handle named instance data
 //
 
 
 Productions [#productions]
 **************************
 
-  <objs>             :=  [<obj> <endOfObj>]*
+  <libFile>      :=  [<namedSpec> | <namedData>]*
+  <dataFile>     :=  <data> | <namedData>*  // single scalar/dict or list of named dicts
+  <namedSpec>    :=  <name> ":" <spec> <nl>
+  <namedData>    :=  <ref> ":" <dict> <nl>
+
+  <spec>         :=  [<type> [<meta>]] <specBody> // must have at one
+  <specBody>     :=  <specSlots> | <specVal>
+  <specVal>      :=  <scalar>
+  <specSlots>    :=  "{" [<specSlot> <endOfObj>]* "}"
+  <specSlot>     :=  [<leadingDoc>] ( <markerOnly> | <namedSpec> | <spec> ) [<trailingDoc>]
+  <markerOnly>   :=  <markerName>
   <endOfObj>         :=  ( [","] <nl> ) | ","
-  <obj>              :=  [<leadingDoc>] ( <markerOnly> | <named> | <unnamed> ) [<trailingDoc>]
-  <markerOnly>       :=  <markerName>
-  <named>            :=  <name> ":" <body>
-  <unnamed>          :=  <body>
-  <body>             :=  [<spec>] [<childrenOrVal>]  // must have at least one of these productions
-  <childrenOrVal>    :=  <children> | <val>
-  <children>         :=  "{" <objs> "}"
+  <meta>             :=  "<" <dictTags> ">"
 
-  <spec>             :=  <type> [<meta>]
-  <meta>             :=  "<" <objs> ">"
-  <type>             :=  <typeMaybe> | <typeAnd> | <typeOr> | <typeSimple>
-  <typeMaybe>        :=  <typeSimple> "?"
-  <typeAnd>          :=  <typeSimple> ("&" <typeSimple>)+
-  <typeOr>           :=  <typeSimple> ("|" <typeSimple>)+
-  <typeSimple>       :=  <qname>
+  <data>         :=  <dict> | <scalar> | <type>
+  <dict>         :=  [<dictType>] "{" <dictTags> "}"
+  <dictTags>     :=  [<dictTag> <endOfObj>]*
+  <dictTag>      :=  <name> [":" <data>]  // marker if no data value
+  <dictType>     :=  <typeSimple>    // may want to allow List<of>
 
-  <leadingDoc>       := (<lineComment>)*
-  <trailingDoc>      := <lineComment>
+  <type>         :=  <typeMaybe> | <typeAnd> | <typeOr> | <typeSimple>
+  <typeMaybe>    :=  <typeSimple> "?"
+  <typeAnd>      :=  <typeSimple> ("&" <typeSimple>)+
+  <typeOr>       :=  <typeSimple> ("|" <typeSimple>)+
+  <typeSimple>   :=  <qname>
 
-  <qname>            :=  <name> ("." <name>)* ["::" <name>]
-  <name>             :=  <alpha> (<nameRest>)*
-  <markerName>       :=  <alphaLower> (<nameRest>)*
-  <nameRest>         :=  alpha | digit | '_'
-  <alpha>            :=  alphaLower | alphaUpper
-  <alphaLower>       :=  'a' - 'z'
-  <alphaUpper>       :=  'A' - 'Z'
-  <digit>            :=  '0' - '9'
+  <leadingDoc>   := (<lineComment>)*
+  <trailingDoc>  := <lineComment>
 
-  <val>              :=  see below
+  <qname>        :=  [<dottedName> "::"] <dottedName>
+  <dottedName>   :=  <name> ("." <name>)*
+  <name>         :=  <alpha> <nameRest>*
+  <markerName>   :=  <alphaLower> <nameRest>*
+  <nameRest>     :=  alpha | digit | '_'
+  <ref>          :=  "@" <refChar>* <refEnd>
+  <refChar>      :=  <alpha> | <digit> | "_" | "~" | ":" | "-"
+  <refEnd>       :=  <alpha> | <digit> | "_" | "~"  // cannot end with ":" or "-"
+  <alpha>        :=  alphaLower | alphaUpper
+  <alphaLower>   :=  'a' - 'z'
+  <alphaUpper>   :=  'A' - 'Z'
+  <digit>        :=  '0' - '9'
 
-Values
-******
+  <scalar>       :=  see below
+
+Scalar Values
+*************
 Scalar values may take one of the following formats:
   - single double-quoted string such as "hi"
   - triple double-quoted strings such as """my name is "Brian", hi!"""
@@ -54,6 +67,11 @@ Quoted strings use the same backslash escape sequence as C languages:
   - '\\'  for backslash itself
   - '\"' for double-quote itself (triple quoted string does not require escaping)
   - '\u2023" unicode hex value
+
+Triple quoted strings follow these indentation normalization rules:
+  - If opening triple quote line is empty, then next line is the first line
+  - Indentation is based on left-most line/closing quote
+  - Any leading spaces are trimmed based on inferred indentation
 
 Number literals must start with an ASCII digit or "-" followed by an ASCII digit.
 Any of the following characters are matched to tokenize the number literal:
