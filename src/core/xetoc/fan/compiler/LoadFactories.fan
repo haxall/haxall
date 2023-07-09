@@ -54,8 +54,13 @@ internal class LoadFactories : Step
       {
         spec.factoryRef = custom
         env.factories.map(custom.type, spec.asm)
+        return
       }
     }
+
+    // walk up type hiearchy looking for factory
+    if (spec.ctype != null && !spec.ctype.isAst)
+      spec.factoryRef = spec.ctype.factory
 
     // install default dict/scalar factory
     if (spec.factoryRef == null)

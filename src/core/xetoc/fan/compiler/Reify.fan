@@ -129,7 +129,7 @@ internal class Reify : Step
       err("Invalid '$type.qname' value: $x.str.toCode", x.loc)
       fantom = x.str
     }
-    // echo("___ reifyScalar $type => $fantom [$fantom.typeof]")
+    // echo("___ reifyScalar $type => $factory.typeof | $fantom [$fantom.typeof]")
     return x.asmRef = fantom
   }
 
