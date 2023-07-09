@@ -82,6 +82,124 @@ class DataCompileTest : AbstractDataTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Multi-line Strings
+//////////////////////////////////////////////////////////////////////////
+
+  Void testMultiLineStrs()
+  {
+    // single lines
+    verifyMultiLineStr(Str<|Str """"""|>, "")
+    verifyMultiLineStr(Str<|Str """x"""|>, "x")
+    verifyMultiLineStr(Str<|Str """\u2022"""|>, "\u2022")
+    verifyMultiLineStr(Str<|Str """ """|>, " ")
+
+    // newlines
+    verifyMultiLineStr(
+      Str<|Str """
+           """|>, "")
+    verifyMultiLineStr(
+      Str<|Str """
+             """|>, "")
+
+    // no indention
+    verifyMultiLineStr(
+      Str<|Str """
+           a
+            b
+             c
+           """|>,
+      Str<|a
+            b
+             c
+           |>)
+
+    // with indention
+    verifyMultiLineStr(
+      Str<|Str """
+             a
+              b
+               c
+             """|>,
+      Str<|a
+            b
+             c
+           |>)
+
+    // with indention in and out
+    verifyMultiLineStr(
+      Str<|Str """
+                 a
+                b
+               c
+                 """|>,
+      Str<|  a
+            b
+           c
+           |>)
+
+    // with quotes on last line
+    verifyMultiLineStr(
+      Str<|Str """
+             a
+              b
+               c"""|>,
+      Str<|a
+            b
+             c|>)
+
+    // based on closing quotes
+    verifyMultiLineStr(
+      Str<|Str """
+              a
+               b
+                c
+             """|>,
+      Str<| a
+             b
+              c
+           |>)
+
+    // with first line
+    verifyMultiLineStr(
+      Str<|Str """a
+                   b
+                    c
+                  """|>,
+      Str<|a
+            b
+             c
+           |>)
+
+    // blank lines
+    verifyMultiLineStr(
+      Str<|Str """a
+
+                   b
+
+                    c
+
+                  """|>,
+      Str<|a
+
+            b
+
+             c
+
+           |>)
+
+
+  }
+
+  Void verifyMultiLineStr(Str src, Str expect)
+  {
+    Str actual := compileData(src)
+
+    //actual.splitLines.each |line| { echo("| " +  line.replace(" ", ".")) }
+
+    verifyEq(actual, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Dicts
 //////////////////////////////////////////////////////////////////////////
 

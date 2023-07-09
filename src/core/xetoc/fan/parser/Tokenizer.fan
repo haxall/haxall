@@ -127,6 +127,7 @@ internal class Tokenizer
     consume // opening quote
     isTriple := cur == '"' && peek == '"'
     if (isTriple) { consume; consume }
+    lines := isTriple ? Str[,] : null
     s := StrBuf()
     while (true)
     {
@@ -146,13 +147,82 @@ internal class Tokenizer
         }
         break
       }
+
+      if (ch == '\n')
+      {
+        if (isTriple)
+        {
+          lines.add(s.toStr)
+          s = StrBuf()
+          consume
+          continue
+        }
+        else
+        {
+          throw err("Expected newline in string literal")
+        }
+      }
+
       if (ch == 0) throw err("Unexpected end of string literal")
+
       if (ch == '\\') { s.addChar(escape); continue }
+
       consume
       s.addChar(ch)
     }
-    this.val = s.toStr
+
+    if (isTriple)
+    {
+      lines.add(s.toStr)
+      this.val = normTripleQuotedStr(lines)
+    }
+    else
+    {
+      this.val = s.toStr
+    }
     return Token.scalar
+  }
+
+  private Str normTripleQuotedStr(Str[] lines)
+  {
+    if (lines.isEmpty) return ""
+    if (lines.size == 1) return lines[0]
+
+    // if first/last are empty then they are not considered real lines
+    firstIsEmpty := lines.first.trimToNull == null
+    lastIsEmpty := lines.last.trimToNull == null
+
+    // find left most indentation and estimate string buffer size
+    indent := Int.maxVal
+    size := lines.first.size
+    lines.eachRange(1..-1) |line|
+    {
+      indent = indent.min(indention(line))
+      size += line.size + 1
+    }
+    if (indent == Int.maxVal) indent = 0
+    if (lastIsEmpty) indent = indent.min(lines[-1].size)
+
+    // build normalized string with indentation stripped
+    s := StrBuf(size)
+    if (!firstIsEmpty) s.add(lines[0]).addChar('\n')
+    lines.eachRange(1..-2) |line|
+    {
+      if (line.size <= indent)
+        s.addChar('\n')  // blank lines
+      else
+        s.add(line[indent..-1]).addChar('\n')
+    }
+    if (!lastIsEmpty) s.add(lines.last[indent..-1])
+
+    return s.toStr
+  }
+
+  private Int indention(Str line)
+  {
+    for (i := 0; i<line.size; ++i)
+      if (!line[i].isSpace) return i
+    return Int.maxVal
   }
 
   private Int escape()
