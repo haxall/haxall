@@ -32,8 +32,14 @@ internal abstract class ARef : AData
   ** Return debug string
   override Str toStr() { name.toStr }
 
+  ** Type of ref to display in error messages
+  abstract Str what()
+
   ** Is this reference resolved
   abstract Bool isResolved()
+
+  ** Resolve to its spec/instance
+  abstract Void resolve(CNode node)
 
   ** Tree walk
   override Void walk(|ANode| f)
@@ -65,6 +71,9 @@ internal class ASpecRef : ARef
   ** Node type
   override ANodeType nodeType() { ANodeType.specRef }
 
+  ** Type of ref to display in error messages
+  override Str what() { "spec" }
+
   ** Is this reference resolved
   override Bool isResolved() { resolvedRef != null }
 
@@ -72,7 +81,7 @@ internal class ASpecRef : ARef
   override Spec asm() { deref.asm }
 
   ** Resolve to its spec
-  Void resolve(CSpec x) { this.resolvedRef = x }
+  override Void resolve(CNode x) { this.resolvedRef = x }
 
   ** Dereference the resolved type spec
   CSpec deref() { resolvedRef ?: throw NotReadyErr(toStr) }
@@ -98,6 +107,9 @@ internal class ADataRef : ARef
   ** Node type
   override ANodeType nodeType() { ANodeType.dataRef }
 
+  ** Type of ref to display in error messages
+  override Str what() { "instance" }
+
   ** Assembled scalar value
   override Ref asm() { asmRef ?: throw NotReadyErr(toStr) }
 
@@ -105,7 +117,7 @@ internal class ADataRef : ARef
   override Bool isResolved() { resolvedRef != null }
 
   ** Resolve to its instance
-  Void resolve(CInstance x) { this.resolvedRef = x }
+  override Void resolve(CNode x) { this.resolvedRef = x }
 
   ** Dereference the resolved data to its instance
   CInstance deref() { resolvedRef ?: throw NotReadyErr(toStr) }

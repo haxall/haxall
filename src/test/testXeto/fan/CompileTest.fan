@@ -278,14 +278,14 @@ class CompileTest : AbstractXetoTest
       ["person":m, "first":"Brian", "last":"Frank", "born": Date("2000-01-01")])
 
     a := verifyLibInstance(lib, spec, "alice",
-      ["person":m, "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":Ref("brian")]) // TODO
+      ["person":m, "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":b->id])
   }
 
   Dict verifyLibInstance(Lib lib, Spec spec, Str name, Str:Obj expect)
   {
     x := lib.instance(name)
     id := Ref(lib.name + "::" + name, null)
-    // echo("-- $id =>"); TrioWriter(Env.cur.out).writeDict(x)
+    //  echo("-- $id =>"); TrioWriter(Env.cur.out).writeDict(x)
     verifyEq(lib.instances.containsSame(x), true)
     verifyRefEq(x->id, id)
     verifyDictEq(x, expect.dup.set("id", id))

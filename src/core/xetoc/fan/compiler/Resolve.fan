@@ -23,7 +23,7 @@ internal class Resolve : Step
     bombIfErr
 
     // resolve the sys types (we might use them in later steps)
-    sys.each |x| { resolveSpecRef(x) }
+    sys.each |x| { resolveRef(x) }
 
     // resolve the ARefs
     ast.walk |x| { resolveNode(x) }
@@ -68,8 +68,8 @@ internal class Resolve : Step
 
   private Void resolveNode(ANode node)
   {
-    if (node.nodeType === ANodeType.specRef) return resolveSpecRef(node)
-    if (node.nodeType === ANodeType.dataRef) return resolveDataRef(node)
+    if (node.nodeType === ANodeType.specRef) return resolveRef(node)
+    if (node.nodeType === ANodeType.dataRef) return resolveRef(node)
     if (node.nodeType === ANodeType.spec) return resolveSpec(node)
   }
 
@@ -99,19 +99,10 @@ internal class Resolve : Step
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Resolve Data Ref
+// Resolve Data/Spec Ref
 //////////////////////////////////////////////////////////////////////////
 
-  private Void resolveDataRef(ADataRef ref)
-  {
-echo("TODO> resolveDataRef = $ref")
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Resolve Spec Ref
-//////////////////////////////////////////////////////////////////////////
-
-  private Void resolveSpecRef(ASpecRef ref)
+  private Void resolveRef(ARef ref)
   {
     // short circuit if null or already resolved
     if (ref.isResolved) return
@@ -121,50 +112,64 @@ echo("TODO> resolveDataRef = $ref")
 
     // resolve qualified name
     n := ref.name
-    if (n.isQualified) return resolveSpecRefQualified(ref)
+    if (n.isQualified) return resolveQualified(ref)
 
     // match to name within this AST which trumps depends
     if (isLib)
     {
-      spec := lib.spec(n.name)
-      if (spec != null)
+      x := resolveInAst(ref, n.name)
+      if (x != null)
       {
-        ref.resolve(spec)
+        ref.resolve(x)
         return
       }
     }
 
     // match to external dependencies
-    matches := XetoSpec[,]
-    depends.each |lib| { matches.addNotNull(lib.type(n.name, false)) }
+    matches := Obj[,]
+    depends.each |d| { matches.addNotNull(resolveInDepend(ref, n.name, d)) }
     if (matches.isEmpty)
-      err("Unresolved type: $n", ref.loc)
+      err("Unresolved $ref.what: $n", ref.loc)
     else if (matches.size > 1)
-      err("Ambiguous type: $n $matches", ref.loc)
+      err("Ambiguous $ref.what: $n $matches", ref.loc)
     else
       ref.resolve(matches.first)
   }
 
-  private Void resolveSpecRefQualified(ASpecRef ref)
+  private Void resolveQualified(ARef ref)
   {
     // if in my own lib
     n := ref.name
     if (n.lib == compiler.libName)
     {
-      spec := lib.spec(n.name)
-      if (spec == null) return err("Spec '$n' not found in lib", ref.loc)
-      ref.resolve(spec)
+      x := resolveInAst(ref, n.name)
+      if (x == null) return err("$ref.what.capitalize '$n' not found in lib", ref.loc)
+      ref.resolve(x)
       return
     }
 
     // resolve from dependent lib
-    XetoLib? lib := depends[n.lib]
-    if (lib == null) return err("Spec lib '$n' is not included in depends", ref.loc)
+    XetoLib? depend := depends[n.lib]
+    if (depend == null) return err("$ref.what.capitalize lib '$n' is not included in depends", ref.loc)
 
-    // resolve in lib
-    type := lib.type(n.name, false)
-    if (type == null) return err("Unresolved spec '$n' in lib", ref.loc)
-    ref.resolve((CSpec)type)
+    // resolve in dependency
+    x := resolveInDepend(ref, n.name, depend)
+    if (x == null) return err("Unresolved $ref.what '$n' in lib", ref.loc)
+    ref.resolve(x)
+  }
+
+  private Obj? resolveInAst(ARef ref, Str name)
+  {
+    ref.nodeType === ANodeType.specRef ?
+      lib.spec(name) :
+      lib.instance(name)
+  }
+
+  private Obj? resolveInDepend(ARef ref, Str name, XetoLib depend)
+  {
+    ref.nodeType === ANodeType.specRef ?
+      depend.type(name, false) :
+      CInstance.wrap(depend.instance(name, false))
   }
 
   private Str:XetoLib depends := [:]
