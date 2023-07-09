@@ -23,7 +23,7 @@ internal class Resolve : Step
     bombIfErr
 
     // resolve the sys types (we might use them in later steps)
-    sys.each |x| { resolveRef(x) }
+    sys.each |x| { resolveSpecRef(x) }
 
     // resolve the ARefs
     ast.walk |x| { resolveNode(x) }
@@ -68,7 +68,8 @@ internal class Resolve : Step
 
   private Void resolveNode(ANode node)
   {
-    if (node.isRef) return resolveRef(node)
+    if (node.nodeType === ANodeType.specRef) return resolveSpecRef(node)
+    if (node.nodeType === ANodeType.dataRef) return resolveDataRef(node)
     if (node.nodeType === ANodeType.spec) return resolveSpec(node)
   }
 
@@ -98,10 +99,19 @@ internal class Resolve : Step
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Resolve Ref
+// Resolve Data Ref
 //////////////////////////////////////////////////////////////////////////
 
-  private Void resolveRef(ASpecRef ref)
+  private Void resolveDataRef(ADataRef ref)
+  {
+echo("TODO> resolveDataRef = $ref")
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Resolve Spec Ref
+//////////////////////////////////////////////////////////////////////////
+
+  private Void resolveSpecRef(ASpecRef ref)
   {
     // short circuit if null or already resolved
     if (ref.isResolved) return
@@ -111,7 +121,7 @@ internal class Resolve : Step
 
     // resolve qualified name
     n := ref.name
-    if (n.isQualified) return resolveQualified(ref)
+    if (n.isQualified) return resolveSpecRefQualified(ref)
 
     // match to name within this AST which trumps depends
     if (isLib)
@@ -135,7 +145,7 @@ internal class Resolve : Step
       ref.resolve(matches.first)
   }
 
-  private Void resolveQualified(ASpecRef ref)
+  private Void resolveSpecRefQualified(ASpecRef ref)
   {
     // if in my own lib
     n := ref.name

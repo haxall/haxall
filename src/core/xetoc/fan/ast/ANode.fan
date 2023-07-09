@@ -31,9 +31,6 @@ internal abstract class ANode
   ** Assembled value - raise exception if not assembled yet
   abstract Obj asm()
 
-  ** Is this an ARef type
-  virtual Bool isRef() { false }
-
   ** Debug dump
   virtual Void dump(OutStream out := Env.cur.out, Str indent := "")
   {
@@ -52,6 +49,7 @@ enum class ANodeType
   spec,
   scalar,
   dict,
+  instance,
   specRef,
   dataRef
 }

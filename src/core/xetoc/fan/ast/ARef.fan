@@ -29,9 +29,6 @@ internal abstract class ARef : AData
   ** Qualified or unqualified name
   const AName name
 
-  ** Is this an ARef type
-  override Bool isRef() { true }
-
   ** Return debug string
   override Str toStr() { name.toStr }
 
@@ -102,10 +99,22 @@ internal class ADataRef : ARef
   override ANodeType nodeType() { ANodeType.dataRef }
 
   ** Assembled scalar value
-  override Obj asm() { throw Err("TODO") }
+  override Ref asm() { asmRef ?: throw NotReadyErr(toStr) }
 
   ** Is this reference resolved
-  override Bool isResolved() { true } // TODO
+  override Bool isResolved() { resolvedRef != null }
+
+  ** Resolve to its instance
+  Void resolve(CInstance x) { this.resolvedRef = x }
+
+  ** Dereference the resolved data to its instance
+  CInstance deref() { resolvedRef ?: throw NotReadyErr(toStr) }
+
+  ** Resolved instance
+  private CInstance? resolvedRef := null
+
+  ** Assembled instance
+  Ref? asmRef := null
 }
 
 

@@ -23,7 +23,7 @@ internal abstract class AData : ANode
   }
 
   ** Type of this data value - raise exception if not resolved yet
-  CSpec type() { typeRef?.deref ?: throw NotReadyErr() }
+  CSpec ctype() { typeRef?.deref ?: throw NotReadyErr() }
 
   ** Resolved type
   ASpecRef? typeRef
@@ -123,9 +123,6 @@ internal class ADict : AData
   ** Assembled value set in Reify as either Dict or Obj[]
   Obj? asmRef
 
-  ** Identifier for this dict (not included in map)
-  AName? id
-
   ** Is this library or spec meta
   const Bool isMeta
 
@@ -167,7 +164,6 @@ internal class ADict : AData
   ** Debug dump
   override Void dump(OutStream out := Env.cur.out, Str indent := "")
   {
-    if (id != null) out.print("@").print(id).print(": ")
     if (typeRef != null) out.print(typeRef).print(" ")
     indentMore := indent + "  "
     out.printLine(isMeta ? "<" : "{")
@@ -181,3 +177,39 @@ internal class ADict : AData
   }
 }
 
+**************************************************************************
+** AInstance
+**************************************************************************
+
+**
+** AST instance data dict
+**
+@Js
+internal class AInstance : ADict, CInstance
+{
+  ** Constructor
+  new make(FileLoc loc, ASpecRef? type, AName name) : super(loc, type)
+  {
+    this.name = name
+  }
+
+  ** Node type
+  override ANodeType nodeType() { ANodeType.instance }
+
+  ** Identifier for this dict (not included in map)
+  AName name
+
+  ** Debug dump
+  override Void dump(OutStream out := Env.cur.out, Str indent := "")
+  {
+    out.print("@").print(name).print(": ")
+    super.dump(out, indent)
+  }
+
+  ** Return true
+  override Bool isAst() { true }
+
+  ** Return scalar id
+  override Ref id() { get("id")?.asm ?: throw NotReadyErr() }
+
+}

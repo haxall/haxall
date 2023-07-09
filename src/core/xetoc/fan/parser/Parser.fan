@@ -120,10 +120,10 @@ internal class Parser
     parseLibObjEnd("instance")
 
     // data id cannot be qualified
-    if (data.id.isQualified) throw err("Cannot specify qualified id for instance id: $data.id", data.loc)
+    if (data.name.isQualified) throw err("Cannot specify qualified id for instance id: $data.name", data.loc)
 
     // make sure id is unique
-    id := data.id.toStr
+    id := data.name.toStr
     add("instance", lib.instances, id, data)
 
     return true
@@ -287,9 +287,9 @@ internal class Parser
 //////////////////////////////////////////////////////////////////////////
 
   ** Parse dict with id
-  private ADict parseNamedData()
+  private AInstance parseNamedData()
   {
-    id := curVal
+    AName name := curVal
     consume(Token.ref)
 
     if (cur !== Token.colon) throw err("Expecting colon after instance id, not $curToStr")
@@ -298,18 +298,33 @@ internal class Parser
     data := parseData
     dict := data as ADict
     if (dict == null) throw err("Can only name dict data", data.loc)
-    dict.id = id
-    return dict
+// TODO
+instance := AInstance(dict.loc, dict.typeRef, name)
+dict.each |v, n| { instance.set(n, v) }
+    return instance
   }
 
   ** Parse an optionally typed data value
   private AData parseData()
   {
+    if (cur === Token.ref) return parseDataRef
     type := parseTypeRef
     if (cur === Token.scalar) return parseScalar(type)
     if (cur === Token.lbrace) return parseDict(type, Token.lbrace, Token.rbrace, null)
     if (type != null) return type
     throw err("Expecting scalar or dict data value, not $curToStr")
+  }
+
+  ** Parse a scalar ref as a data value
+  private ADataRef parseDataRef()
+  {
+    loc := curToLoc
+    AName name:= curVal
+    consume
+
+echo(">>>> $name")
+
+    return ADataRef(loc, name)
   }
 
   ** Parse a scalar data value

@@ -20,22 +20,26 @@ internal class InferData : Step
   {
     ast.walk |node|
     {
-      if (node.nodeType === ANodeType.dict) infer(node)
+      if (node.nodeType === ANodeType.dict) inferDict(node)
+      if (node.nodeType === ANodeType.instance) inferInstance(node)
     }
   }
 
-  private Void infer(ADict dict)
+  private Void inferInstance(AInstance dict)
   {
     inferId(dict)
+    inferDict(dict)
+  }
+
+  private Void inferDict(ADict dict)
+  {
     inferSpecSlots(dict)
   }
 
-  private Void inferId(ADict dict)
+  private Void inferId(AInstance dict)
   {
-    if (dict.id == null) return
-
     // make id qualified if this is lib data
-    id := dict.id.toStr
+    id := dict.name.toStr
     if (isLib) id = lib.name + "::" + id
 
     // add "id" tag with Ref scalar value

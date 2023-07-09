@@ -26,12 +26,14 @@ internal class Reify : Step
   {
     switch (node.nodeType)
     {
-      case ANodeType.spec:    reifySpec(node)
-      case ANodeType.dict:    reifyDict(node)
-      case ANodeType.scalar:  reifyScalar(node)
-      case ANodeType.specRef: reifySpecRef(node)
-      case ANodeType.lib:     return
-      default:                throw Err(node.nodeType.name)
+      case ANodeType.spec:     reifySpec(node)
+      case ANodeType.dict:     reifyDict(node)
+      case ANodeType.instance: reifyDict(node)
+      case ANodeType.scalar:   reifyScalar(node)
+      case ANodeType.dataRef:  reifyDataRef(node)
+      case ANodeType.specRef:  reifySpecRef(node)
+      case ANodeType.lib:      return
+      default:                 throw Err(node.nodeType.name)
     }
   }
 
@@ -113,7 +115,7 @@ internal class Reify : Step
     if (x.typeRef == null) return x.asmRef = x.str
 
     // map to Fantom type to parse
-    type := x.type
+    type := x.ctype
     factory := type.factory
     fantom := factory.decodeScalar(x.str, false)
     if (fantom == null)
@@ -123,6 +125,15 @@ internal class Reify : Step
     }
     // echo("___ reifyScalar $type => $fantom [$fantom.typeof]")
     return x.asmRef = fantom
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// DataRef
+//////////////////////////////////////////////////////////////////////////
+
+  private Obj? reifyDataRef(ADataRef x)
+  {
+     x.asmRef = x.isResolved ? x.deref.id : env.ref(x.toStr, null)
   }
 
 //////////////////////////////////////////////////////////////////////////

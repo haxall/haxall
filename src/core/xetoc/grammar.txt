@@ -25,7 +25,7 @@ Productions [#productions]
   <endOfObj>         :=  ( [","] <nl> ) | ","
   <meta>             :=  "<" <dictTags> ">"
 
-  <data>         :=  <dict> | <scalar> | <type>
+  <data>         :=  <dict> | <scalar> | <type> | <ref>
   <dict>         :=  [<dictType>] "{" <dictTags> "}"
   <dictTags>     :=  [<dictTag> <endOfObj>]*
   <dictTag>      :=  <name> [":" <data>]  // marker if no data value

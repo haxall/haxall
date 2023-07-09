@@ -267,20 +267,21 @@ class CompileTest : AbstractXetoTest
              first: "Alice"
              last: "Smith"
              born: "1980-06-15"
+             boss: @brian
            }
            |>)
 
     spec := lib.type("Person")
     // env.print(spec)
 
-    verifyLibInstance(lib, spec, "brian",
+    b := verifyLibInstance(lib, spec, "brian",
       ["person":m, "first":"Brian", "last":"Frank", "born": Date("2000-01-01")])
 
-    verifyLibInstance(lib, spec, "alice",
-      ["person":m, "first":"Alice", "last":"Smith", "born": Date("1980-06-15")])
+    a := verifyLibInstance(lib, spec, "alice",
+      ["person":m, "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":Ref("brian")]) // TODO
   }
 
-  Void verifyLibInstance(Lib lib, Spec spec, Str name, Str:Obj expect)
+  Dict verifyLibInstance(Lib lib, Spec spec, Str name, Str:Obj expect)
   {
     x := lib.instance(name)
     id := Ref(lib.name + "::" + name, null)
@@ -289,6 +290,7 @@ class CompileTest : AbstractXetoTest
     verifyRefEq(x->id, id)
     verifyDictEq(x, expect.dup.set("id", id))
     verifySame(x.spec, spec)
+    return x
   }
 
 //////////////////////////////////////////////////////////////////////////
