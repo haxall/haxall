@@ -295,13 +295,11 @@ internal class Parser
     if (cur !== Token.colon) throw err("Expecting colon after instance id, not $curToStr")
     consume
 
-    data := parseData
-    dict := data as ADict
-    if (dict == null) throw err("Can only name dict data", data.loc)
-// TODO
-instance := AInstance(dict.loc, dict.typeRef, name)
-dict.each |v, n| { instance.set(n, v) }
-    return instance
+    type := parseTypeRef
+    dict := AInstance(curToLoc, type, name)
+    if (cur !== Token.lbrace) throw err("Expecting '{' to start named instance dict")
+    parseDict(type, Token.lbrace, Token.rbrace, dict)
+    return dict
   }
 
   ** Parse an optionally typed data value
@@ -321,9 +319,6 @@ dict.each |v, n| { instance.set(n, v) }
     loc := curToLoc
     AName name:= curVal
     consume
-
-echo(">>>> $name")
-
     return ADataRef(loc, name)
   }
 
