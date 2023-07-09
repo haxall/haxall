@@ -78,14 +78,20 @@ internal class Reify : Step
     // if there is a factory registered, then decode to another Fantom type
     if (type != null)
     {
-      fantom := type.factory.decodeDict(dict, false)
+      Obj? fantom
+      Err? err
+      try
+        fantom = type.factory.decodeDict(dict, false)
+      catch (Err e)
+        err = e
+
       if (fantom != null)
       {
         asm = fantom
       }
       else
       {
-        err("Cannot instantiate '$type.qname' dict as Fantom class '$type.factory.type'", x.loc)
+        this.err("Cannot instantiate '$type.qname' dict as Fantom class '$type.factory.type'", x.loc, err)
       }
     }
 
