@@ -12,10 +12,10 @@ using xeto::Dict
 using haystack
 
 **
-** DataSpecTest
+** SpecTest
 **
 @Js
-class DataSpecTest : AbstractDataTest
+class SpecTest : AbstractXetoTest
 {
 
 //////////////////////////////////////////////////////////////////////////

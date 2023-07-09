@@ -13,10 +13,10 @@ using xeto::Lib
 using haystack
 
 **
-** AbstractDataTest
+** AbstractXetoTest
 **
 @Js
-class AbstractDataTest : HaystackTest
+class AbstractXetoTest : HaystackTest
 {
 
   XetoEnv env() { XetoEnv.cur }

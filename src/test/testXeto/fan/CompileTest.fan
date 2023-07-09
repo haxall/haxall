@@ -14,10 +14,10 @@ using haystack
 using haystack::Ref
 
 **
-** DataCompileTest
+** CompileTest
 **
 @Js
-class DataCompileTest : AbstractDataTest
+class CompileTest : AbstractXetoTest
 {
 
 //////////////////////////////////////////////////////////////////////////

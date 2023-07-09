@@ -12,7 +12,7 @@ using haystack
 ** FactoryTest
 **
 @Js
-class FactoryTest : AbstractDataTest
+class FactoryTest : AbstractXetoTest
 {
   Void testSys()
   {
