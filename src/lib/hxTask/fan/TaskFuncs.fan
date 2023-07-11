@@ -265,7 +265,7 @@ const class TaskFuncs
   @Axon { admin = true }
   static Str futureState(Future future)
   {
-    future.state.name
+    future.status.name
   }
 
   ** Return if a future has completed or is still pending a result.
@@ -277,7 +277,7 @@ const class TaskFuncs
   @Axon { admin = true }
   static Bool futureIsComplete(Future future)
   {
-    future.state.isComplete
+    future.status.isComplete
   }
 
   ** Block until a future transitions to a completed state (ok,

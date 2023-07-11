@@ -153,7 +153,7 @@ class BackupTest : Test
     file := tempDir + `backup-${backupCount++}.zip`
     counterVal := counter.val
     b := src.backup(file, opts)
-    verifyEq(b.future.state, FutureState.pending)
+    verifyEq(b.future.status, FutureStatus.pending)
     b.onComplete { counter.getAndIncrement }
     verifySame(src.backup, b)
     verifySame(b.store, src)
@@ -180,7 +180,7 @@ class BackupTest : Test
     verifyEq(src.gcFreezeCount, 0)
     verifyEq(b.progress, 100)
     verifyEq(counter.val, counterVal+1)
-    verifyEq(b.future.state, FutureState.ok)
+    verifyEq(b.future.status, FutureStatus.ok)
     verifyEq(b.future.get, "_done_")
     if (b.err != null) throw b.err
 

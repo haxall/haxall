@@ -94,7 +94,7 @@ abstract const class FolioFuture : Future
 internal const class SyncFolioFuture : FolioFuture
 {
   new make(FolioRes res) { this.getRes = res }
-  override FutureState state() { FutureState.ok }
+  override FutureStatus status() { FutureStatus.ok }
   override This timeout(Duration? timeout) { this }
   override This waitFor(Duration? timeout := null) { this }
   override Void cancel() {}
@@ -111,7 +111,7 @@ internal const class AsyncFolioFuture : FolioFuture
   const Future future
   const AtomicRef timeoutRef := AtomicRef(30sec)
   override Future? wraps() { future }
-  override FutureState state() { future.state }
+  override FutureStatus status() { future.status }
   override This timeout(Duration? t) { timeoutRef.val = t; return this }
   override Void cancel() { future.cancel }
   override This waitFor(Duration? timeout := null) { future.waitFor(timeout); return this }

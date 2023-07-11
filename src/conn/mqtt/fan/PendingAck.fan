@@ -64,7 +64,7 @@ internal const class PendingAck
   const Future resp := Future.makeCompletable
 
   ** Have we received the connack response
-  Bool isComplete() { resp.state.isComplete }
+  Bool isComplete() { resp.status.isComplete }
 
   ** Return if this packet needs a retry based on the timeout threshold
   Bool isRetryNeeded(Duration threshold)

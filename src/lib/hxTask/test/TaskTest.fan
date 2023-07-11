@@ -136,9 +136,9 @@ class TaskTest : HxTest
     // taskSendLater
     startTicks := DateTime.nowTicks
     fut := (Future)eval("""taskSendLater($e.id.toCode, 50ms, "ignore")""")
-    verifyEq(fut.state.isComplete, false)
+    verifyEq(fut.status.isComplete, false)
     Actor.sleep(100ms)
-    verifyEq(fut.state.isComplete, true)
+    verifyEq(fut.status.isComplete, true)
     diff := ((Number)fut.get).toInt - startTicks
     verify(diff > 45ms.ticks)
 
@@ -241,11 +241,11 @@ class TaskTest : HxTest
     eval("taskCancel($t.id.toCode)")
 
     // block until task raises CancelledErr
-    while (!future.state.isComplete)
+    while (!future.status.isComplete)
       Actor.sleep(100ms)
 
     // verify future ended up in error state with CancelledErr
-    verifyEq(future.state, FutureState.err)
+    verifyEq(future.status, FutureStatus.err)
     try { future.get; fail }
     catch (EvalErr e) { verifyEq(e.cause.typeof, CancelledErr#) }
 

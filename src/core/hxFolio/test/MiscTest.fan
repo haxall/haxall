@@ -70,7 +70,7 @@ class MiscTest : WhiteboxTest
 
     // add Rec
     f1 := folio.commitAsync(Diff.makeAdd(["test":test]))
-    verifyEq(f1.state, FutureState.pending)
+    verifyEq(f1.status, FutureStatus.pending)
 
     // sync with timeout
     verifyErr(TimeoutErr#) { folio.sync(100ms) }
@@ -82,7 +82,7 @@ class MiscTest : WhiteboxTest
     t2 := Duration.now
     crc2 := index.readAllBuf.crc("CRC-32")
     diff := t2 - t1
-    verifyEq(f1.state, FutureState.ok)
+    verifyEq(f1.status, FutureStatus.ok)
     verify(diff > delay && diff < delay+100ms)
     verifyNotEq(crc1, crc2)
 
