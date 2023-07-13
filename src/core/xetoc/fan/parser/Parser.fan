@@ -340,6 +340,8 @@ internal class Parser
 
     while (cur !== closeToken)
     {
+      skipComments
+
       // parse tag name
       loc := curToLoc
 
@@ -534,6 +536,11 @@ internal class Parser
 //////////////////////////////////////////////////////////////////////////
 // Char Reads
 //////////////////////////////////////////////////////////////////////////
+
+  private Void skipComments()
+  {
+    while (cur === Token.comment || cur === Token.nl) consume
+  }
 
   private Bool skipNewlines()
   {

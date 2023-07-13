@@ -32,7 +32,7 @@ const abstract class XetoEnv
   ** references to Lib or Specs must no longer be used.
   static Void reload()
   {
-    curRef.val = Type.find("xetoc::XetoEnv").make
+    curRef.val = Type.find("xetoc::MEnv").make
   }
 
   ** None singleton value
