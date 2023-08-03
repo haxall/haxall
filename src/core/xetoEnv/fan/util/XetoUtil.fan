@@ -16,7 +16,7 @@ using haystack::UnknownNameErr
 ** Utility functions
 **
 @Js
-internal const class XetoUtil
+const class XetoUtil
 {
 
 //////////////////////////////////////////////////////////////////////////

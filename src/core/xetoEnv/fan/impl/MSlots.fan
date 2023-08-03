@@ -14,7 +14,7 @@ using haystack::UnknownNameErr
 ** Implementation of SpecSlots
 **
 @Js
-internal const final class MSlots : SpecSlots
+const final class MSlots : SpecSlots
 {
   static const MSlots empty := MSlots(Str:XetoSpec[:])
 

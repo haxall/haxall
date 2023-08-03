@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetoEnv
 
 **
 ** Walk thru all the dict AST instances and add inferred tags

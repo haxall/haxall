@@ -15,7 +15,7 @@ using xeto
 ** Implementation of Spec wrapped by XetoSpec
 **
 @Js
-internal const class MSpec
+const class MSpec
 {
   new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoType type, Dict meta, Dict metaOwn, MSlots slots, MSlots slotsOwn, Int flags)
   {
@@ -146,7 +146,7 @@ internal const class MDerivedSpec : MSpec
 **************************************************************************
 
 @Js
-internal const class MSpecFlags
+const class MSpecFlags
 {
   static const Int maybe  := 0x0001
   static const Int marker := 0x0002
@@ -179,7 +179,7 @@ internal const class MSpecFlags
 ** XetoSpec is the referential proxy for MSpec
 **
 @Js
-internal const class XetoSpec : Spec, haystack::Dict, CSpec
+const class XetoSpec : Spec, haystack::Dict, CSpec
 {
   new make() {}
 

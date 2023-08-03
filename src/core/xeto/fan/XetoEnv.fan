@@ -21,7 +21,7 @@ const abstract class XetoEnv
   {
     env := curRef.val as XetoEnv
     if (env != null) return env
-    curRef.compareAndSet(null, Type.find("xetoc::MEnv").make)
+    curRef.compareAndSet(null, Type.find("xetoc::LocalEnv").make)
     return curRef.val
   }
   private static const AtomicRef curRef := AtomicRef()

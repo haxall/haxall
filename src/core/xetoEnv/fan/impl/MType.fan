@@ -13,7 +13,7 @@ using xeto
 ** Implementation of top-level data spec
 **
 @Js
-internal const final class MType : MSpec
+const final class MType : MSpec
 {
   new make(FileLoc loc, XetoLib lib, Str qname, Str name, XetoType? base, XetoType self, Dict meta, Dict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, SpecFactory factory)
     : super(loc, null, name, base, self, meta, metaOwn, slots, slotsOwn, flags)
@@ -45,7 +45,7 @@ internal const final class MType : MSpec
 ** XetoType is the referential proxy for MType
 **
 @Js
-internal const class XetoType : XetoSpec
+const class XetoType : XetoSpec
 {
   new make() : super() {}
 }

@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetoEnv
 
 **
 ** Reify creates concrete Fantom object for all the AData objects

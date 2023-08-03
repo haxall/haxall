@@ -14,7 +14,7 @@ using haystack::UnknownSpecErr
 ** Implementation of Lib wrapped by XetoLib
 **
 @Js
-internal const final class MLib
+const final class MLib
 {
   new make(MEnv env, FileLoc loc, Str name, Dict meta, Version version, MLibDepend[] depends, Str:Spec typesMap, Str:Dict instancesMap)
   {
@@ -88,7 +88,7 @@ internal const final class MLib
 ** XetoLib is the referential proxy for MLib
 **
 @Js
-internal const class XetoLib : Lib
+const class XetoLib : Lib
 {
   override FileLoc loc() { m.loc }
 
@@ -121,7 +121,7 @@ internal const class XetoLib : Lib
 ** Implementation for LibDepend
 **
 @Js
-internal const class MLibDepend : LibDepend
+const class MLibDepend : LibDepend
 {
   new make(Str qname, MLibDependVersions versions, FileLoc loc)
   {
@@ -144,7 +144,7 @@ internal const class MLibDepend : LibDepend
 ** Implementation for LibDependVersions
 **
 @Js
-internal const class MLibDependVersions : LibDependVersions
+const class MLibDependVersions : LibDependVersions
 {
   static new fromStr(Str s, Bool checked)
   {

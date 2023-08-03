@@ -9,6 +9,7 @@
 
 using util
 using xeto
+using xetoEnv
 
 **
 ** Xeto compiler
@@ -21,7 +22,7 @@ internal class XetoCompiler
 //////////////////////////////////////////////////////////////////////////
 
   ** Environment
-  MEnv? env
+  LocalEnv? env
 
   ** Logging
   XetoLog log := XetoLog.makeOutStream

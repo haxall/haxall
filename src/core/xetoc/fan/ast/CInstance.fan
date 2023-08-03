@@ -8,6 +8,7 @@
 
 using xeto
 using util
+using xetoEnv
 
 **
 ** CInstance is implemented by AInstance and to wrap other lib instance dicts

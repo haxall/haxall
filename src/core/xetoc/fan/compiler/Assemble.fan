@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetoEnv
 
 **
 ** Assemble AST into implementation instances

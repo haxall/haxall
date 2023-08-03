@@ -13,7 +13,7 @@ using util
 ** CSpec is common API shared by both ASpec and XetoSpec
 **
 @Js
-internal mixin CSpec : CNode
+mixin CSpec : CNode
 {
   ** Return if this an AST ASpec
   abstract Bool isAst()
@@ -66,7 +66,7 @@ internal mixin CSpec : CNode
 **************************************************************************
 
 @Js
-internal mixin CNode
+mixin CNode
 {
   ** Required for covariant conflict so that signature matches ANode
   abstract Obj asm()

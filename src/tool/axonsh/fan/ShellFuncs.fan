@@ -12,7 +12,7 @@ using xeto::Dict
 using xeto::Lib
 using haystack
 using axon
-using xetoc::Printer
+using xetoEnv::Printer
 using folio
 
 **

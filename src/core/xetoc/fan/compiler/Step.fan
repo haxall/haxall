@@ -8,6 +8,7 @@
 //
 
 using util
+using xetoEnv
 
 **
 ** Base class for XetoCompiler steps
@@ -18,7 +19,7 @@ abstract internal class Step
 
   abstract Void run()
 
-  MEnv env() { compiler.env }
+  LocalEnv env() { compiler.env }
 
   Bool isLib() { compiler.isLib }
 

@@ -9,12 +9,13 @@
 using util
 using concurrent
 using xeto
+using xetoEnv
 using haystack::UnknownLibErr
 
 **
-** MRegistry manages the cache and loading of the environments libs
+** Registry implementation for local file system
 **
-internal const class MRegistry : LibRegistry
+internal const class LocalRegistry : MRegistry
 {
   new make(MEnv env)
   {
@@ -76,7 +77,7 @@ internal const class MRegistry : LibRegistry
     acc[qname] = MRegistryEntry(qname, src, zip)
   }
 
-  Lib? load(Str qname, Bool checked := true)
+  override Lib? load(Str qname, Bool checked := true)
   {
     // check for install
     entry := get(qname, checked)

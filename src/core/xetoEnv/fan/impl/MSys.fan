@@ -13,7 +13,7 @@ using xeto
 ** Sys library constants
 **
 @Js
-internal const class MSys
+const class MSys
 {
   new make(XetoLib lib)
   {

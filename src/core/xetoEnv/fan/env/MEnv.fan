@@ -20,22 +20,21 @@ using haystack::UnknownSpecErr
 **
 ** XetoEnv implementation
 **
-internal const class MEnv : XetoEnv
+@Js
+abstract const class MEnv : XetoEnv
 {
-  new make()
+  new make(MRegistry registry)
   {
-    this.registry = MRegistry(this)
-    this.none     = Remove.val
-    this.marker   = Marker.val
-    this.na       = NA.val
-    this.list0    = Obj?[,]
-    this.dict0    = Etc.dict0
-    this.sysLib   = registry.load("sys")
-    this.sys      = MSys(sysLib)
-    this.dictSpec = sys.dict
+    this.none        = Remove.val
+    this.marker      = Marker.val
+    this.na          = NA.val
+    this.list0       = Obj?[,]
+    this.dict0       = Etc.dict0
+    this.registryRef = registry
+    this.sysLib      = registry.load("sys")
+    this.sys         = MSys(sysLib)
+    this.dictSpec    = sys.dict
   }
-
-  const override MRegistry registry
 
   const override Lib sysLib
 
@@ -43,17 +42,21 @@ internal const class MEnv : XetoEnv
 
   const MFactories factories := MFactories()
 
-  const NilContext nilContext := NilContext()
+  override MRegistry registry() { registryRef }
 
-  override const Obj marker
+  const MRegistry registryRef
 
-  override const Obj none
+  internal const NilContext nilContext := NilContext()
 
-  override const Obj na
+  const override Obj marker
+
+  const override Obj none
+
+  const override Obj na
 
   const Obj?[] list0
 
-  override const Spec dictSpec
+  const override Spec dictSpec
 
   const override Dict dict0
 
@@ -156,49 +159,6 @@ internal const class MEnv : XetoEnv
     XetoUtil.instantiate(this, spec, opts ?: dict0)
   }
 
-  override Lib compileLib(Str src, Dict? opts := null)
-  {
-    libName := "temp" + compileCount.getAndIncrement
-
-    if (!src.startsWith("pragma:"))
-      src = """pragma: Lib <
-                  version: "0.0.0"
-                  depends: { { lib: "sys" } }
-                >
-                """ + src
-
-    c := XetoCompiler
-    {
-      it.env     = this
-      it.libName = libName
-      it.input   = src.toBuf.toFile(`temp.xeto`)
-      it.applyOpts(opts)
-    }
-    return c.compileLib
-  }
-
-  override Obj? compileData(Str src, Dict? opts := null)
-  {
-    c := XetoCompiler
-    {
-      it.env = this
-      it.input = src.toBuf.toFile(`parse.xeto`)
-      it.applyOpts(opts)
-    }
-    return c.compileData
-  }
-
-  override Dict parsePragma(File file, Dict? opts := null)
-  {
-    c := XetoCompiler
-    {
-      it.env = this
-      it.input = file
-      it.applyOpts(opts)
-    }
-    return c.parsePragma
-  }
-
   override LibDependVersions parseLibDependVersions(Str s, Bool checked)
   {
     MLibDependVersions.fromStr(s, checked)
@@ -247,26 +207,6 @@ internal const class MEnv : XetoEnv
     Printer(this, out, opts ?: dict0).print(val)
   }
 
-  override Void dump(OutStream out := Env.cur.out)
-  {
-    out.printLine("=== XetoEnv ===")
-    out.printLine("Lib Path:")
-    registry.libPath.eachr |x| { out.printLine("  $x.osPath") }
-    max := registry.list.reduce(10) |acc, x| { x.name.size.max(acc) }
-    out.printLine("Installed Libs:")
-    registry.list.each |entry|
-    {
-      out.print("  ").print(entry.name.padr(max))
-      if (entry.isSrc)
-        out.print(" [SRC ").print(entry.srcDir.osPath)
-      else
-        out.print(" [").print(entry.zip.osPath)
-      out.printLine("]")
-    }
-  }
-
-  private const ConcurrentMap libs := ConcurrentMap()
-  private const AtomicInt compileCount := AtomicInt()
 }
 
 **************************************************************************

@@ -9,6 +9,7 @@
 
 using util
 using xeto
+using xetoEnv
 
 **
 ** AST library

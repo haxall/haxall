@@ -49,7 +49,7 @@ abstract class XetoLog
 **************************************************************************
 
 @Js
-internal class XetoOutStreamLog : XetoLog
+class XetoOutStreamLog : XetoLog
 {
   new make(OutStream out) { this.out = out }
 
@@ -69,7 +69,7 @@ internal class XetoOutStreamLog : XetoLog
 **************************************************************************
 
 @Js
-internal class XetoWrapperLog : XetoLog
+class XetoWrapperLog : XetoLog
 {
   new make(Log wrap) { this.wrap = wrap }
 
@@ -86,7 +86,7 @@ internal class XetoWrapperLog : XetoLog
 **************************************************************************
 
 @Js
-internal class XetoCallbackLog : XetoLog
+class XetoCallbackLog : XetoLog
 {
   new make(|XetoLogRec| cb) { this.cb = cb }
 

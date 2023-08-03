@@ -20,7 +20,7 @@ using haystack::Ref
 ** to map between Xeto Spec and Fantom types
 **
 @Js
-internal const class MFactories
+const class MFactories
 {
   ** Constructor with and register core factory loader
   new make()
