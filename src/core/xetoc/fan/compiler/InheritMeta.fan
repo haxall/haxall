@@ -12,7 +12,6 @@ using xeto
 **
 ** InheritMeta computes the effective meta for all the specs
 **
-@Js
 internal class InheritMeta : Step
 {
   override Void run()

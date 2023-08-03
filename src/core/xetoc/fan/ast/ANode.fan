@@ -12,7 +12,6 @@ using xeto
 **
 ** Base class for all AST nodes
 **
-@Js
 internal abstract class ANode
 {
    ** Constructor
@@ -42,7 +41,6 @@ internal abstract class ANode
 ** ANodeType
 **************************************************************************
 
-@Js
 enum class ANodeType
 {
   lib,

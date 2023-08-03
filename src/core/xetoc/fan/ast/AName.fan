@@ -12,7 +12,6 @@ using util
 **
 ** AST relative or qualified name
 **
-@Js
 internal abstract const class AName
 {
   ** Constructor
@@ -42,7 +41,6 @@ internal abstract const class AName
 ** ASimpleName
 **************************************************************************
 
-@Js
 internal const class ASimpleName : AName
 {
   new make(Str? lib, Str name)  : super(lib)
@@ -72,7 +70,6 @@ internal const class ASimpleName : AName
 ** APathName
 **************************************************************************
 
-@Js
 internal const class APathName  : AName
 {
   new make(Str? lib, Str[] path) : super(lib)

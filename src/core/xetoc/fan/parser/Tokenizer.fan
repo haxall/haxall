@@ -9,7 +9,6 @@
 **
 ** Tokenizer generates Tokens from an input stream
 **
-@Js
 internal class Tokenizer
 {
 

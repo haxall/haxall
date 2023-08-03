@@ -13,7 +13,6 @@ using xeto
 ** Walk thru all the dict AST instances and add inferred tags
 **
 **
-@Js
 internal class InferData : Step
 {
   override Void run()

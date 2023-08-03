@@ -11,7 +11,6 @@ using util
 **
 ** Parse all source files into AST nodes
 **
-@Js
 internal class Parse : Step
 {
   override Void run()

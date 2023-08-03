@@ -13,7 +13,6 @@ using xeto
 **
 ** AST library
 **
-@Js
 internal class ALib : ANode
 {
    ** Constructor

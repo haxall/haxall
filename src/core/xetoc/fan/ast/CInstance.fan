@@ -12,7 +12,6 @@ using util
 **
 ** CInstance is implemented by AInstance and to wrap other lib instance dicts
 **
-@Js
 internal mixin CInstance : CNode
 {
   ** Wrap instance from dependency
@@ -37,7 +36,6 @@ internal mixin CInstance : CNode
 ** CInstanceWrap
 **************************************************************************
 
-@Js
 internal const class CInstanceWrap : CInstance
 {
   new make(Dict w) { this.w = w }

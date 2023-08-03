@@ -20,7 +20,6 @@ using haystack::UnknownSpecErr
 **
 ** XetoEnv implementation
 **
-@Js
 internal const class MEnv : XetoEnv
 {
   new make()

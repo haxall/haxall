@@ -13,7 +13,6 @@ using xeto
 **
 ** AST for reference to either a type or an instance
 **
-@Js
 internal abstract class ARef : AData
 {
   ** Constructor
@@ -55,7 +54,6 @@ internal abstract class ARef : AData
 **
 ** AST for signature to reference a spec
 **
-@Js
 internal class ASpecRef : ARef
 {
   ** Constructor
@@ -98,7 +96,6 @@ internal class ASpecRef : ARef
 **
 ** AST for reference to a qualified instance data dict
 **
-@Js
 internal class ADataRef : ARef
 {
   ** Constructor

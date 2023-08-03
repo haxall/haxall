@@ -12,7 +12,6 @@ using xeto
 **
 ** Load and assign a SpecFactory to each AType in the AST
 **
-@Js
 internal class LoadFactories : Step
 {
   override Void run()

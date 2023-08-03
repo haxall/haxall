@@ -16,7 +16,6 @@ using util
 **   - handles slot overrides
 **   - computes spec flags
 **
-@Js
 internal class InheritSlots : Step
 {
   override Void run()

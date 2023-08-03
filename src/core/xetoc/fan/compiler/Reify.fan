@@ -14,7 +14,6 @@ using xeto
 ** in the abstract syntax tree as their assembly value.  We use this
 ** step to finalize the ASpec.metaOwn dict.
 **
-@Js
 internal class Reify : Step
 {
   override Void run()

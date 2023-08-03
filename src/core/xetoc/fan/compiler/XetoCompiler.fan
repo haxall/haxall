@@ -13,7 +13,6 @@ using xeto
 **
 ** Xeto compiler
 **
-@Js
 internal class XetoCompiler
 {
 

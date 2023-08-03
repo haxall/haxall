@@ -14,7 +14,6 @@ using haystack::UnknownLibErr
 **
 ** MRegistry manages the cache and loading of the environments libs
 **
-@Js
 internal const class MRegistry : LibRegistry
 {
   new make(MEnv env)

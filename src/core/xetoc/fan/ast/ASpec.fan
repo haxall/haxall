@@ -13,7 +13,6 @@ using xeto
 **
 ** AST spec
 **
-@Js
 internal class ASpec : ANode, CSpec
 {
 

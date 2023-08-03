@@ -12,7 +12,6 @@ using xeto
 **
 ** Convert AST to JSON
 **
-@Js
 internal class AstToJson : Step
 {
   override Void run() { throw Err("TODO") }

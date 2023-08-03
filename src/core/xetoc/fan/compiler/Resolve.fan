@@ -13,7 +13,6 @@ using xeto
 **
 ** Resolve all type refs
 **
-@Js
 internal class Resolve : Step
 {
   override Void run()
