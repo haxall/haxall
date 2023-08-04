@@ -42,8 +42,8 @@ mixin CSpec : CNode
   ** Lookup effective slot
   abstract CSpec? cslot(Str name, Bool checked := true)
 
-  ** Get the effective slots as map
-  abstract Str:CSpec cslots()
+  ** Iterate the effective slots as map
+  abstract Void cslots(|CSpec, Str| f)
 
   ** Return list of component specs for a compound type
   abstract CSpec[]? cofs()

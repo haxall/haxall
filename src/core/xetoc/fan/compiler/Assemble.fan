@@ -79,8 +79,10 @@ internal class Assemble : Step
 
   private MSlots asmSlots(ASpec x)
   {
-    if (x.cslots.isEmpty) return MSlots.empty
-    map := x.cslots.map |s->XetoSpec| { s.asm }
+    if (x.cslotsRef.isEmpty) return MSlots.empty
+    map := Str:XetoSpec[:]
+    map.ordered = true
+    x.cslots |s, n| { map[n] = s.asm }
     dict := env.names.dictMap(map)
     return MSlots(dict)
   }

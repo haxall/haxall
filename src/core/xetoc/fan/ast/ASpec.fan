@@ -237,7 +237,11 @@ internal class ASpec : ANode, CSpec
   Dict? cmetaRef
 
   ** Iterate the effective slots
-  override Str:CSpec cslots() { cslotsRef ?: throw NotReadyErr(qname) }
+  override Void cslots(|CSpec, Str| f)
+  {
+    if (cslotsRef == null) throw NotReadyErr(qname)
+    cslotsRef.each(f)
+  }
   [Str:CSpec]? cslotsRef
 
   ** Extract 'ofs' list of type refs from AST model

@@ -274,14 +274,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final CSpec? cslot(Str n, Bool c := true) { m.slot(n, c) }
 
-  override final Str:CSpec cslots()
-  {
-    // TODO
-    acc := Str:CSpec[:]
-    acc.ordered = true
-    m.slots.each |XetoSpec x| { acc[x.name] = x }
-    return acc
-  }
+  override final Void cslots(|CSpec, Str| f) { m.slots.map.each(f) }
 
   override final XetoSpec[]? cofs()  { ofs(false) }
 

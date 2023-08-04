@@ -54,7 +54,7 @@ internal class InferData : Step
     spec := dict.typeRef?.deref
     if (spec == null) return
 
-    spec.cslots.each |slot|
+    spec.cslots |slot|
     {
       inferSpecSlot(dict, slot)
     }
