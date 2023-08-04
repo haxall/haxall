@@ -24,11 +24,14 @@ internal class ASpec : ANode, CSpec
    ** Constructor
   new make(FileLoc loc, ALib lib, ASpec? parent, Str name) : super(loc)
   {
-    this.lib    = lib
-    this.parent = parent
-    this.qname  = parent == null ? "${lib.name}::$name" : "${parent.qname}.$name"
-    this.name   = name
-    this.asm    = parent == null ? XetoType() : XetoSpec()
+    names := lib.compiler.env.names
+
+    this.lib      = lib
+    this.parent   = parent
+    this.qname    = parent == null ? "${lib.name}::$name" : "${parent.qname}.$name"
+    this.nameCode = names.add(name)
+    this.name     = names.toName(nameCode) // intern
+    this.asm      = parent == null ? XetoType() : XetoSpec()
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -55,6 +58,9 @@ internal class ASpec : ANode, CSpec
 
   ** Is this a library top level spec
   Bool isTop() { parent == null }
+
+  ** Name code in names table
+  const Int nameCode
 
   ** Name within lib or parent
   const override Str name
