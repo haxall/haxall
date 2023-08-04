@@ -50,13 +50,13 @@ internal class Resolve : Step
   private Void resolveDepend(MLibDepend d)
   {
     // resolve the library from environment
-    lib := env.registry.resolve(compiler, d.qname)
+    lib := env.registry.resolve(compiler, d.name)
     if (lib == null)
-      return err("Depend lib '$d.qname' not installed", d.loc)
+      return err("Depend lib '$d.name' not installed", d.loc)
 
     // validate our version constraints
     if (!d.versions.contains(lib.version))
-      return err("Depend lib '$d.qname' version '$lib.version' is incompatible with '$d.versions'", d.loc)
+      return err("Depend lib '$d.name' version '$lib.version' is incompatible with '$d.versions'", d.loc)
 
     // register the library into our depends map
     depends.add(lib.name, lib)

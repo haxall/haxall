@@ -126,16 +126,16 @@ const class XetoLib : Lib
 @Js
 const class MLibDepend : LibDepend
 {
-  new make(Str qname, MLibDependVersions versions, FileLoc loc)
+  new make(Str name, MLibDependVersions versions, FileLoc loc)
   {
-    this.qname = qname
+    this.name = name
     this.versions = versions
     this.loc = loc
   }
 
-  const override Str qname
+  const override Str name
   const override MLibDependVersions versions
-  override Str toStr() { "$qname $versions" }
+  override Str toStr() { "$name $versions" }
   const FileLoc loc
 }
 

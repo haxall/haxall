@@ -58,8 +58,8 @@ const mixin Lib
 @Js
 const mixin LibDepend
 {
-  ** Qualified name of library dependency
-  abstract Str qname()
+  ** Library name of dependency
+  abstract Str name()
 
   ** Version constraints that satisify this dependency
   abstract LibDependVersions versions()
