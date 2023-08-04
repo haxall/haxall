@@ -1,50 +1,51 @@
 //
 // Copyright (c) 2023, Brian Frank
-// Licensed under the Academic Free License version 3.0
+// All Rights Reserved
 //
 // History:
-//   16 Jan 2023  Brian Frank  Creation
+//   1 Aug 2023  Brian Frank  Creation
 //
 
 **
-** Dict is a map of name/value pairs.
-** Create instances via `XetoEnv.dict`.
+** NameDict implements name/value pairs backed by a NameTable
 **
-@Js
-const mixin Dict
+@NoDoc @Js
+native final const class NameDict  : Dict
 {
+  ** Number of name/value pairs in this dict
+  Int size()
+
+  ** Just for testing
+  @NoDoc Int fixedSize()
 
   ** Specification of this dict or 'sys::Dict' if generic.
-  abstract Spec spec()
+  override Spec spec()
 
   ** Return if the there are no name/value pairs
-  abstract Bool isEmpty()
+  override Bool isEmpty()
 
-  // Get the 'id' tag as a Ref or raise exception
-  // We can't add this without breaking backward binary compatibility
-  // abstract Ref id()
+  ** Get the 'id' tag as a Ref or raise exception
+  Ref id()
 
   ** Get the value for the given name or 'def' if name not mapped
-  @Operator abstract Obj? get(Str name, Obj? def := null)
+  @Operator override Obj? get(Str name, Obj? def := null)
 
   ** Return true if this dictionary contains given name
-  abstract Bool has(Str name)
+  override Bool has(Str name)
 
   ** Return true if this dictionary does not contain given name
-  abstract Bool missing(Str name)
+  override Bool missing(Str name)
 
   ** Iterate through the name/value pairs
-  abstract Void each(|Obj val, Str name| f)
+  override Void each(|Obj val, Str name| f)
 
   ** Iterate through the name/value pairs until the given
   ** function returns non-null, then break the iteration and
   ** return resulting object.  Return null if function returns
   ** null for every name/value pair.
-  abstract Obj? eachWhile(|Obj val, Str name->Obj?| f)
+  override Obj? eachWhile(|Obj val, Str name->Obj?| f)
 
   ** Get the value mapped by the given name.  If it is not
   ** mapped to a non-null value, then throw an UnknownNameErr.
-  override abstract Obj? trap(Str name, Obj?[]? args := null)
-
+  override Obj? trap(Str name, Obj?[]? args := null)
 }
-

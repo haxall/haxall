@@ -30,6 +30,8 @@ class Build : BuildPod
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
                "util @{fan.depend}"]
-    srcDirs = [`fan/`]
+    srcDirs  = [`fan/`, `fan/util/`]
+    javaDirs = [`java/`]
+    jsDirs   = [`js/`]
   }
 }
