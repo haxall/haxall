@@ -70,16 +70,19 @@ internal class Assemble : Step
   private MSlots asmSlotsOwn(ASpec x)
   {
     if (x.slots == null || x.slots.isEmpty) return MSlots.empty
-    acc := Str:XetoSpec[:]
-    acc.ordered = true
-    x.slots.each |kid, name| { acc.add(name, kid.asm) }
-    return MSlots(acc)
+    map := Str:XetoSpec[:]
+    map.ordered = true
+    x.slots.each |kid, name| { map.add(name, kid.asm) }
+    dict := env.names.dictMap(map)
+    return MSlots(dict)
   }
 
   private MSlots asmSlots(ASpec x)
   {
     if (x.cslots.isEmpty) return MSlots.empty
-    return MSlots(x.cslots.map |s->XetoSpec| { s.asm })
+    map := x.cslots.map |s->XetoSpec| { s.asm }
+    dict := env.names.dictMap(map)
+    return MSlots(dict)
   }
 
   static const Str:Spec noSpecs := [:]

@@ -152,7 +152,7 @@ const class XetoUtil
       XetoSpec(MSpec(FileLoc.synthetic, env, parent, env.names.add(name), base, base.type, base.m.meta, MNameDict.empty, MSlots.empty, MSlots.empty, base.m.flags))
     }
 
-    return MSlots(derivedMap)
+    return MSlots(env.names.dictMap(derivedMap))
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -16,11 +16,11 @@ using haystack::UnknownNameErr
 @Js
 const final class MSlots : SpecSlots
 {
-  static const MSlots empty := MSlots(Str:XetoSpec[:])
+  static const MSlots empty := MSlots(NameDict.empty)
 
-  new make(Str:XetoSpec map) { this.map = map }
+  new make(NameDict map) { this.map = map }
 
-  const Str:XetoSpec map
+  const NameDict map
 
   override Bool isEmpty()
   {
@@ -29,17 +29,17 @@ const final class MSlots : SpecSlots
 
   override Bool has(Str name)
   {
-    map.containsKey(name)
+    map.has(name)
   }
 
   override Bool missing(Str name)
   {
-    !map.containsKey(name)
+    map.missing(name)
   }
 
   override XetoSpec? get(Str name, Bool checked := true)
   {
-    kid := map[name]
+    kid := map.get(name)
     if (kid != null) return kid
     if (!checked) return null
     throw UnknownNameErr(name)
@@ -47,7 +47,10 @@ const final class MSlots : SpecSlots
 
   override Str[] names()
   {
-    map.keys
+    acc := Str[,]
+    acc.capacity = map.size
+    map.each |v, n| { acc.add(n) }
+    return acc
   }
 
   override Void each(|Spec| f)

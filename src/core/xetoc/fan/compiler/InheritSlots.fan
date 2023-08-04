@@ -314,7 +314,7 @@ internal class InheritSlots : Step
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  Str:CSpec noSlots() { MSlots.empty.map }
+  const Str:CSpec noSlots := Str:CSpec[:]
 
   private ASpec[] stack := [,]
 }
