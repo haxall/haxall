@@ -123,6 +123,33 @@ class EnvTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// NameTable
+//////////////////////////////////////////////////////////////////////////
+
+  Void testNameTable()
+  {
+    sys := verifyLibBasics("sys", curVersion)
+    ph  := verifyLibBasics("ph", curVersion)
+    str := sys.type("Str")
+    org := sys.type("LibOrg")
+
+    // env.names.dump(Env.cur.out)
+
+    verifyNameTable(sys.name)
+    verifyNameTable(str.name)
+    verifyNameTable(str.qname)
+    verifyNameTable(org.slot("dis").name)
+  }
+
+  Void verifyNameTable(Str name)
+  {
+    code := env.names.toCode(name)
+    // echo("-- $name = $code")
+    verifyEq(code > 0, true)
+    verifySame(env.names.toName(code), name)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Factories
 //////////////////////////////////////////////////////////////////////////
 

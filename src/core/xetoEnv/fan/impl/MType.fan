@@ -15,16 +15,19 @@ using xeto
 @Js
 const final class MType : MSpec
 {
-  new make(FileLoc loc, XetoLib lib, Str qname, Str name, XetoType? base, XetoType self, Dict meta, Dict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, SpecFactory factory)
-    : super(loc, null, name, base, self, meta, metaOwn, slots, slotsOwn, flags)
+  new make(FileLoc loc, XetoLib lib, Int qnameCode, Int nameCode, XetoType? base, XetoType self, Dict meta, Dict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, SpecFactory factory)
+    : super(loc, lib.env, null, nameCode, base, self, meta, metaOwn, slots, slotsOwn, flags)
   {
-    this.lib     = lib
-    this.qname   = qname
-    this.type    = self
-    this.factory = factory
+    this.lib       = lib
+    this.qnameCode = qnameCode
+    this.qname     = lib.env.names.toName(qnameCode)
+    this.type      = self
+    this.factory   = factory
   }
 
   const override XetoLib lib
+
+  const Int qnameCode
 
   const override Str qname
 

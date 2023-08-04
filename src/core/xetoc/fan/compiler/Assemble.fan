@@ -22,7 +22,8 @@ internal class Assemble : Step
 
   private Void asmLib(ALib x)
   {
-    m := MLib(env, x.loc, x.name, x.meta.asm, x.version, compiler.depends, asmTypes(x), asmInstances(x))
+    nameCode := env.names.add(x.name)
+    m := MLib(env, x.loc, nameCode, x.meta.asm, x.version, compiler.depends, asmTypes(x), asmInstances(x))
     XetoLib#m->setConst(x.asm, m)
     lib.specs.each |spec| { asmType(spec) }
   }
@@ -45,14 +46,17 @@ internal class Assemble : Step
 
   private Void asmType(ASpec x)
   {
-    m := MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.factory)
+    nameCode := env.names.add(x.name)
+    qnameCode := env.names.add(x.qname)
+    m := MType(x.loc, x.lib.asm, qnameCode, nameCode, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.factory)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }
 
   private Void asmSpec(ASpec x)
   {
-    m := MSpec(x.loc, x.parent.asm, x.name, x.base.asm, x.type.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags)
+    nameCode := env.names.add(x.name)
+    m := MSpec(x.loc, env, x.parent.asm, nameCode, x.base.asm, x.type.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }

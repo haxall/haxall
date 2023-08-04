@@ -84,6 +84,9 @@ const abstract class XetoEnv
   ** Data type for Fantom object
   abstract Spec? typeOf(Obj? val, Bool checked := true)
 
+  ** Name table for this environment
+  @NoDoc abstract NameTable names()
+
   ** Registry of installed libs
   @NoDoc abstract LibRegistry registry()
 

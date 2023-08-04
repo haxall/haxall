@@ -40,6 +40,8 @@ abstract const class MEnv : XetoEnv
 
   const MSys sys
 
+  override const NameTable names := NameTable()
+
   const MFactories factories := MFactories()
 
   override MRegistry registry() { registryRef }

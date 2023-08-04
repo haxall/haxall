@@ -17,11 +17,12 @@ using xeto
 @Js
 const class MSpec
 {
-  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoType type, Dict meta, Dict metaOwn, MSlots slots, MSlots slotsOwn, Int flags)
+  new make(FileLoc loc, XetoEnv env, XetoSpec? parent, Int nameCode, XetoSpec? base, XetoType type, Dict meta, Dict metaOwn, MSlots slots, MSlots slotsOwn, Int flags)
   {
     this.loc      = loc
     this.parent   = parent
-    this.name     = name
+    this.nameCode = nameCode
+    this.name     = env.names.toName(nameCode)
     this.base     = base
     this.type     = type
     this.meta     = meta
@@ -38,6 +39,8 @@ const class MSpec
   const FileLoc loc
 
   const XetoSpec? parent
+
+  const Int nameCode
 
   const Str name
 
@@ -130,8 +133,8 @@ internal const class MDerivedSpec : MSpec
 {
   static const AtomicInt counter := AtomicInt()
 
-  new make(MEnv env, Str name, XetoSpec base, Dict meta, MSlots slots, Int flags)
-    : super(FileLoc.synthetic, null, name, base, base.type, meta, meta, slots, slots, flags) // TODO: meta vs metaOwn, slots vs slotsOwn
+  new make(MEnv env, Int nameCode, XetoSpec base, Dict meta, MSlots slots, Int flags)
+    : super(FileLoc.synthetic, env, null, nameCode, base, base.type, meta, meta, slots, slots, flags) // TODO: meta vs metaOwn, slots vs slotsOwn
   {
     this.env = env
     this.qname = "derived" + counter.getAndIncrement + "::" + name
