@@ -81,6 +81,9 @@ class UtilTest : Test
     t := NameTable()
     id := haystack::Ref.gen
 
+    verifyDict(t, 0, NameDict.empty,
+      Str:Obj[:])
+
     verifyDict(t, 1, t.dict1("site", "marker"),
       Str:Obj["site":"marker"])
 
@@ -116,7 +119,7 @@ class UtilTest : Test
     verifySame(d.spec, spec)
 
     // size
-    verifyEq(d.isEmpty, false)
+    verifyEq(d.isEmpty, d.size == 0)
     verifyEq(d.size, expect.size)
     verifyEq(d.fixedSize, fixed)
 
@@ -159,16 +162,19 @@ class UtilTest : Test
     verifyEq(acc, expect)
 
     // eachWhile
-    expectWhile := expect.dup { remove(key) }
-    acc.clear
-    r := d.eachWhile |v, n|
+    if (key != null)
     {
-      if (n == key) return "break"
-      acc[n] = v
-      return null
+      expectWhile := expect.dup { remove(key) }
+      acc.clear
+      r := d.eachWhile |v, n|
+      {
+        if (n == key) return "break"
+        acc[n] = v
+        return null
+      }
+      verifyEq(r, "break")
+      verifyEq(acc, expectWhile)
     }
-    verifyEq(r, "break")
-    verifyEq(acc, expectWhile)
 
     verifyEq(d.get("bad"), null)
     verifyEq(d.get("bad", "def"), "def")

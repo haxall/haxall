@@ -191,7 +191,7 @@ public final class NameTable extends FanObj
   public final NameDict dictMap(Map map, Spec spec)
   {
     int size = map.sz();
-    if (size == 0) throw ArgErr.make("Map cannot be empty");
+    if (size == 0) return NameDict.empty();
 
     int[] names = new int[size];
     Object[] vals = new Object[size];

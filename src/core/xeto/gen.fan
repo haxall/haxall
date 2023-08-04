@@ -37,6 +37,9 @@ class Gen : BuildScript
            */
           public abstract class NameDict extends FanObj implements Dict
           {
+            public static NameDict empty() { return empty; }
+            private static final NameDict empty = new D0();
+
             NameDict(NameTable table, Spec spec)
             {
               this.table = table;
@@ -56,7 +59,7 @@ class Gen : BuildScript
               return XetoEnv.cur().dictSpec();
             }
 
-            public final Ref id()
+            public Ref id()
             {
               Object val = get(table.idCode, null);
               if (val != null) return (Ref)val;
@@ -67,13 +70,13 @@ class Gen : BuildScript
 
             public abstract long size();
 
-            public final boolean has(String name) { return get(table.code(name), null) != null; }
+            public final boolean has(String name) { return get(name) != null; }
 
-            public final boolean missing(String name) { return get(table.code(name), null) == null; }
+            public final boolean missing(String name) { return get(name) == null; }
 
-            public final Object get(String name) { return get(table.code(name), null); }
+            public Object get(String name) { return get(table.code(name), null); }
 
-            public final Object get(String name, Object def) { return get(table.code(name), def); }
+            public Object get(String name, Object def) { return get(table.code(name), def); }
 
             public abstract Object get(int name, Object def);
 
@@ -134,6 +137,30 @@ class Gen : BuildScript
               final Object[] vals;
             }
 
+          //////////////////////////////////////////////////////////////////////////
+          // D0
+          //////////////////////////////////////////////////////////////////////////
+
+            static final class D0 extends NameDict {
+
+              D0() { super(null, null); }
+
+              public final boolean isEmpty() { return true; }
+
+              public final long size() { return 0L; }
+
+              public final Ref id() { throw UnresolvedErr.make("id"); }
+
+              public final Object get(String name) { return null; }
+
+              public final Object get(String name, Object def) { return def; }
+
+              public final Object get(int n, Object def) { return def; }
+
+              public final void each(Func f) {}
+
+              public final Object eachWhile(Func f) { return null; }
+            }
           """);
 
     for (i := 1; i<=8; ++i)

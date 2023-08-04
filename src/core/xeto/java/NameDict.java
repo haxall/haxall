@@ -1,4 +1,4 @@
-// auto-generated 4-Aug-2023 Fri 8:28:19AM EDT
+// auto-generated 4-Aug-2023 Fri 11:06:11AM EDT
 
 package fan.xeto;
 
@@ -9,6 +9,9 @@ import fan.sys.*;
  */
 public abstract class NameDict extends FanObj implements Dict
 {
+  public static NameDict empty() { return empty; }
+  private static final NameDict empty = new D0();
+
   NameDict(NameTable table, Spec spec)
   {
     this.table = table;
@@ -28,7 +31,7 @@ public abstract class NameDict extends FanObj implements Dict
     return XetoEnv.cur().dictSpec();
   }
 
-  public final Ref id()
+  public Ref id()
   {
     Object val = get(table.idCode, null);
     if (val != null) return (Ref)val;
@@ -39,13 +42,13 @@ public abstract class NameDict extends FanObj implements Dict
 
   public abstract long size();
 
-  public final boolean has(String name) { return get(table.code(name), null) != null; }
+  public final boolean has(String name) { return get(name) != null; }
 
-  public final boolean missing(String name) { return get(table.code(name), null) == null; }
+  public final boolean missing(String name) { return get(name) == null; }
 
-  public final Object get(String name) { return get(table.code(name), null); }
+  public Object get(String name) { return get(table.code(name), null); }
 
-  public final Object get(String name, Object def) { return get(table.code(name), def); }
+  public Object get(String name, Object def) { return get(table.code(name), def); }
 
   public abstract Object get(int name, Object def);
 
@@ -106,6 +109,30 @@ public abstract class NameDict extends FanObj implements Dict
     final Object[] vals;
   }
 
+//////////////////////////////////////////////////////////////////////////
+// D0
+//////////////////////////////////////////////////////////////////////////
+
+  static final class D0 extends NameDict {
+
+    D0() { super(null, null); }
+
+    public final boolean isEmpty() { return true; }
+
+    public final long size() { return 0L; }
+
+    public final Ref id() { throw UnresolvedErr.make("id"); }
+
+    public final Object get(String name) { return null; }
+
+    public final Object get(String name, Object def) { return def; }
+
+    public final Object get(int n, Object def) { return def; }
+
+    public final void each(Func f) {}
+
+    public final Object eachWhile(Func f) { return null; }
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // D1

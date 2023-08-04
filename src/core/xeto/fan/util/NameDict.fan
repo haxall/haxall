@@ -12,6 +12,9 @@
 @NoDoc @Js
 native final const class NameDict  : Dict
 {
+  ** Return empty dict
+  static NameDict empty()
+
   ** Number of name/value pairs in this dict
   Int size()
 
