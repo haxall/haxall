@@ -81,12 +81,16 @@ class UtilTest : Test
   {
     t := NameTable()
     id := haystack::Ref.gen
+    spec := XetoEnv.cur.spec("ph::Site")
 
     verifyDict(t, 0, NameDict.empty,
       Str:Obj[:])
 
     verifyDict(t, 1, t.dict1("site", "marker"),
       Str:Obj["site":"marker"])
+
+    verifyDict(t, 1, t.dict1("site", "marker", spec),
+      Str:Obj["site":"marker"], spec)
 
     verifyDict(t, 2, t.dict2("site", "marker", "dis", "Site"),
       Str:Obj["site":"marker", "dis":"Site"])
@@ -109,13 +113,21 @@ class UtilTest : Test
     verifyDict(t, 8, t.dict8("site", "marker", "dis", "Site", "int", 123, "dur", 10sec, "a", "A", "b", "B", "c", "C", "d", "D"),
       Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D"])
 
+    verifyDict(t, 8, t.dict8("site", "marker", "dis", "Site", "int", 123, "dur", 10sec, "a", "A", "b", "B", "c", "C", "d", "D", spec),
+      Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D"], spec)
+
     verifyDict(t, -1, t.dictMap(Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id]),
       Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id])
+
+    verifyDict(t, -1, t.dictMap(Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id], spec),
+      Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id], spec)
 
     big := Str:Obj[:]
     100.times |i| { big["n" + i] = "val " + i }
     verifyDict(t, -1, t.dictMap(big), big)
+    verifyDict(t, -1, t.dictMap(big, spec), big, spec)
     verifyDict(t, -1, t.dictDict(Etc.makeDict(big)), big)
+    verifyDict(t, -1, t.dictDict(Etc.makeDict(big), spec), big, spec)
   }
 
   Void verifyDict(NameTable t, Int fixed, NameDict d, Str:Obj expect, Spec? spec := null)
