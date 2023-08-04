@@ -1,4 +1,4 @@
-// auto-generated 4-Aug-2023 Fri 11:06:11AM EDT
+// auto-generated 4-Aug-2023 Fri 11:42:17AM EDT
 
 package fan.xeto;
 
@@ -71,33 +71,34 @@ public abstract class NameDict extends FanObj implements Dict
 //////////////////////////////////////////////////////////////////////////
 
   static final class Map extends NameDict {
-    Map(NameTable table, int[] names, Object[] vals, Spec spec)
+    Map(NameTable table, int[] names, Object[] vals, int size, Spec spec)
     {
       super(table, spec);
       this.names = names;
       this.vals = vals;
+      this.size = size;
     }
 
-    public final long size() { return names.length; }
+    public final long size() { return size; }
 
     public final long fixedSize() { return -1L; }
 
     public final Object get(int n, Object def)
     {
-      for (int i=0; i<names.length; ++i)
+      for (int i=0; i<size; ++i)
         if (names[i] == n) return vals[i];
       return def;
     }
 
     public final void each(Func f)
     {
-      for (int i=0; i<names.length; ++i)
+      for (int i=0; i<size; ++i)
         f.call(vals[i], table.name(names[i]));
     }
 
     public final Object eachWhile(Func f)
     {
-      for (int i=0; i<names.length; ++i)
+      for (int i=0; i<size; ++i)
       {
         Object r = f.call(vals[i], table.name(names[i]));
         if (r != null) return r;
@@ -107,6 +108,7 @@ public abstract class NameDict extends FanObj implements Dict
 
     final int[] names;
     final Object[] vals;
+    final int size;
   }
 
 //////////////////////////////////////////////////////////////////////////

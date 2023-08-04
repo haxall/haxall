@@ -7,6 +7,7 @@
 //
 
 using xeto
+using haystack
 
 **
 ** UtilTest
@@ -110,6 +111,11 @@ class UtilTest : Test
 
     verifyDict(t, -1, t.dictMap(Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id]),
       Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id])
+
+    big := Str:Obj[:]
+    100.times |i| { big["n" + i] = "val " + i }
+    verifyDict(t, -1, t.dictMap(big), big)
+    verifyDict(t, -1, t.dictDict(Etc.makeDict(big)), big)
   }
 
   Void verifyDict(NameTable t, Int fixed, NameDict d, Str:Obj expect, Spec? spec := null)
@@ -176,10 +182,14 @@ class UtilTest : Test
       verifyEq(acc, expectWhile)
     }
 
+    // missing
     verifyEq(d.get("bad"), null)
     verifyEq(d.get("bad", "def"), "def")
     verifyEq(d.has("bad"), false)
     verifyEq(d.missing("bad"), true)
+
+    // make from dict
+    x = t.dictDict(Etc.makeDict(expect))
   }
 
 //////////////////////////////////////////////////////////////////////////

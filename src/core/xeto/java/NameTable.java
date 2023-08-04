@@ -220,7 +220,78 @@ public final class NameTable extends FanObj
       }
     }
 
-    return new NameDict.Map(this, names, vals, spec);
+    return new NameDict.Map(this, names, vals, size, spec);
+  }
+
+  public final NameDict dictDict(Dict dict) { return dictDict(dict, null); }
+  public final NameDict dictDict(Dict dict, Spec spec)
+  {
+    if (dict.isEmpty()) return NameDict.empty();
+
+    if (dict instanceof NameDict)
+    {
+      NameDict nameDict = (NameDict)dict;
+      if (nameDict.table == this) return nameDict;
+    }
+
+    DictEachAcc acc = new DictEachAcc(this);
+    dict.each(acc);
+    int[] names = acc.names;
+    Object[] vals = acc.vals;
+    int size = acc.size;
+
+    if (size <= 8)
+    {
+      switch (size)
+      {
+        case 1: return new NameDict.D1(this, names[0], vals[0], spec);
+        case 2: return new NameDict.D2(this, names[0], vals[0], names[1], vals[1], spec);
+        case 3: return new NameDict.D3(this, names[0], vals[0], names[1], vals[1], names[2], vals[2], spec);
+        case 4: return new NameDict.D4(this, names[0], vals[0], names[1], vals[1], names[2], vals[2], names[3], vals[3], spec);
+        case 5: return new NameDict.D5(this, names[0], vals[0], names[1], vals[1], names[2], vals[2], names[3], vals[3], names[4], vals[4], spec);
+        case 6: return new NameDict.D6(this, names[0], vals[0], names[1], vals[1], names[2], vals[2], names[3], vals[3], names[4], vals[4], names[5], vals[5], spec);
+        case 7: return new NameDict.D7(this, names[0], vals[0], names[1], vals[1], names[2], vals[2], names[3], vals[3], names[4], vals[4], names[5], vals[5], names[6], vals[6], spec);
+        case 8: return new NameDict.D8(this, names[0], vals[0], names[1], vals[1], names[2], vals[2], names[3], vals[3], names[4], vals[4], names[5], vals[5], names[6], vals[6], names[7], vals[7], spec);
+      }
+    }
+
+    return new NameDict.Map(this, names, vals, size, spec);
+  }
+
+  private static final FuncType eachFuncType = new FuncType(new Type[] { Sys.ObjType, Sys.StrType }, Sys.ObjType);
+
+  static final class DictEachAcc extends Func.Indirect2
+  {
+    DictEachAcc(NameTable table)
+    {
+      super(eachFuncType);
+      this.table = table;
+    }
+
+    public Object call(Object a, Object b)
+    {
+      if (size >= names.length) grow();
+      names[size] = table.put((String)b);
+      vals[size] = a;
+      ++size;
+      return null;
+    }
+
+    private void grow()
+    {
+      int[] tempNames = new int[names.length*2];
+      System.arraycopy(names, 0, tempNames, 0, names.length);
+      names = tempNames;
+
+      Object[] tempVals = new Object[vals.length*2];
+      System.arraycopy(vals, 0, tempVals, 0, vals.length);
+      vals = tempVals;
+    }
+
+    NameTable table;
+    int[] names = new int[16];
+    Object[] vals = new Object[16];
+    int size = 0;
   }
 
 //////////////////////////////////////////////////////////////////////////

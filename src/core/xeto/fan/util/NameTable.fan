@@ -54,4 +54,8 @@ native final const class NameTable
 
   ** Create dict mapped by this name table
   NameDict dictMap(Str:Obj map, Spec? spec := null)
+  ** Create dict mapped by this name table
+
+  ** Wrap dict as a name dict backed by this name table
+  NameDict dictDict(Dict dict, Spec? spec := null)
 }
