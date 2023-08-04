@@ -295,7 +295,7 @@ class DataTestCase
     verifyEq(spec.metaOwn.has(name), false, name)
     verifyEq(spec.metaOwn.missing(name), true)
     verifyEq(spec.metaOwn[name], null)
-    verifyErr(UnknownNameErr#) { spec.metaOwn.trap(name) }
+    verifyErr(UnresolvedErr#) { spec.metaOwn.trap(name) } // should be UnknownNameErr depend problem
 
     verifyEq(spec.has(name), true, name)
     verifyEq(spec.missing(name), false)

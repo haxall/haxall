@@ -16,7 +16,7 @@ using haystack::UnknownSpecErr
 @Js
 const final class MLib
 {
-  new make(MEnv env, FileLoc loc, Int nameCode, Dict meta, Version version, MLibDepend[] depends, Str:Spec typesMap, Str:Dict instancesMap)
+  new make(MEnv env, FileLoc loc, Int nameCode, MNameDict meta, Version version, MLibDepend[] depends, Str:Spec typesMap, Str:Dict instancesMap)
   {
     this.env          = env
     this.loc          = loc
@@ -37,7 +37,7 @@ const final class MLib
 
   const Str name
 
-  const Dict meta
+  const MNameDict meta
 
   const Version version
 

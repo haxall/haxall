@@ -132,6 +132,7 @@ class EnvTest : AbstractXetoTest
     ph  := verifyLibBasics("ph", curVersion)
     str := sys.type("Str")
     org := sys.type("LibOrg")
+    ref := sys.type("Ref")
 
     // env.names.dump(Env.cur.out)
 
@@ -139,6 +140,8 @@ class EnvTest : AbstractXetoTest
     verifyNameTable(str.name)
     verifyNameTable(str.qname)
     verifyNameTable(org.slot("dis").name)
+    verifyNameDict(sys.meta)
+    verifyNameDict(ref.meta)
   }
 
   Void verifyNameTable(Str name)
@@ -147,6 +150,12 @@ class EnvTest : AbstractXetoTest
     // echo("-- $name = $code")
     verifyEq(code > 0, true)
     verifySame(env.names.toName(code), name)
+  }
+
+  Void verifyNameDict(Dict meta)
+  {
+    verifyEq(meta.typeof.qname, "xetoEnv::MNameDict")
+    meta.each |v, n| { verifyNameTable(n) }
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetoEnv
 
 **
 ** InheritMeta computes the effective meta for all the specs
@@ -69,7 +70,7 @@ internal class InheritMeta : Step
       }
     }
 
-    return env.dictMap(acc)
+    return MNameDict(env.names.dictMap(acc))
   }
 
   static Bool isMetaInherited(Str name)

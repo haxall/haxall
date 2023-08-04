@@ -47,7 +47,7 @@ internal class Reify : Step
     if (x.meta != null)
       x.metaOwnRef = x.meta.asm
     else
-      x.metaOwnRef = env.dict0
+      x.metaOwnRef = MNameDict.empty
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ internal class Reify : Step
     x.each |obj, name| { acc[name] = obj.asm }
 
     // create as Dict
-    dict := env.dictMap(acc, type?.asm)
+    dict := MNameDict(env.names.dictMap(acc, type?.asm))
     Obj asm := dict
 
     // if there is a factory registered, then decode to another Fantom type

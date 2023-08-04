@@ -168,7 +168,7 @@ class AxonTest : HxTest
     verifyEq(cx.eval("specName(Person)"), "Person")
     verifyEq(cx.eval("specBase(Person)"), env.type("sys::Dict"))
     verifyEq(cx.eval("specType(Person)"), env.type("sys::Dict"))
-    verifySame(cx.eval("specMetaOwn(Person)"), env.dict0)
+    verifySame(cx.eval("specMetaOwn(Person)"), AbstractXetoTest.nameDictEmpty)
     verifyEq(cx.eval("specSlotsOwn(Person).isEmpty"), true)
 
     person2 := cx.eval(Str<|Person2: Person { dis:Str }|>)
@@ -178,7 +178,7 @@ class AxonTest : HxTest
     verifyEq(cx.eval("specName(Person2)"), "Person2")
     verifyEq(cx.eval("specBase(Person2)"), person)
     verifyEq(cx.eval("specType(Person2)"), env.type("sys::Dict"))
-    verifySame(cx.eval("specMetaOwn(Person2)"), env.dict0)
+    verifySame(cx.eval("specMetaOwn(Person2)"), AbstractXetoTest.nameDictEmpty)
     verifyEq(cx.eval("specSlotsOwn(Person2)->dis.specName"), "dis")
     verifyEq(cx.eval("specSlotsOwn(Person2)->dis.specType"), env.type("sys::Str"))
 

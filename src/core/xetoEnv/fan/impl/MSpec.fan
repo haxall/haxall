@@ -17,7 +17,7 @@ using xeto
 @Js
 const class MSpec
 {
-  new make(FileLoc loc, XetoEnv env, XetoSpec? parent, Int nameCode, XetoSpec? base, XetoType type, Dict meta, Dict metaOwn, MSlots slots, MSlots slotsOwn, Int flags)
+  new make(FileLoc loc, XetoEnv env, XetoSpec? parent, Int nameCode, XetoSpec? base, XetoType type, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags)
   {
     this.loc      = loc
     this.parent   = parent
@@ -50,9 +50,9 @@ const class MSpec
 
   const XetoSpec? base
 
-  const Dict meta
+  const MNameDict meta
 
-  const Dict metaOwn
+  const MNameDict metaOwn
 
   const MSlots slots
 
@@ -133,7 +133,7 @@ internal const class MDerivedSpec : MSpec
 {
   static const AtomicInt counter := AtomicInt()
 
-  new make(MEnv env, Int nameCode, XetoSpec base, Dict meta, MSlots slots, Int flags)
+  new make(MEnv env, Int nameCode, XetoSpec base, MNameDict meta, MSlots slots, Int flags)
     : super(FileLoc.synthetic, env, null, nameCode, base, base.type, meta, meta, slots, slots, flags) // TODO: meta vs metaOwn, slots vs slotsOwn
   {
     this.env = env

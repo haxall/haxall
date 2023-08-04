@@ -11,6 +11,7 @@ using xeto
 using xeto::Dict
 using xeto::Lib
 using haystack
+using xetoEnv
 
 **
 ** AbstractXetoTest
@@ -24,5 +25,7 @@ class AbstractXetoTest : HaystackTest
   Lib compileLib(Str s) { env.compileLib(s) }
 
   Obj? compileData(Str s) { env.compileData(s) }
+
+  static Dict nameDictEmpty() { MNameDict.empty }
 
 }

@@ -189,6 +189,7 @@ class UtilTest : Test
     verifyEq(d.missing("bad"), true)
 
     // make from dict
+    verifySame(t.dictDict(d), d)
     x = t.dictDict(Etc.makeDict(expect))
   }
 
