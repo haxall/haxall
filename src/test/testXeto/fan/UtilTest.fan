@@ -231,6 +231,19 @@ class UtilTest : Test
     // make from dict
     verifySame(t.dictDict(d), d)
     x = t.dictDict(Etc.makeDict(expect))
+
+    // readDict
+    names := Int[,]
+    vals := Obj[,]
+    d.each |v, n|
+    {
+      names.add(t.toCode(n))
+      vals.add(v)
+    }
+    x = t.readDict(d.size, TestNameDictReader(names, vals), spec)
+    verifyEq(x.size, d.size)
+    verifyEq(x.fixedSize, fixed)
+    x.each |v, n| { verifyEq(d.get(n), v) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -902,4 +915,26 @@ class UtilTest : Test
     return s.splitLines
   }
   */
+}
+
+**************************************************************************
+** TestNameDictReader
+**************************************************************************
+
+@Js
+internal class TestNameDictReader : NameDictReader
+{
+  new make(Int[] names, Obj[] vals)
+  {
+    this.names = names
+    this.vals = vals
+  }
+
+  override Int readName() { names[i] }
+
+  override Obj readVal() { vals[i++] }
+
+  Int[] names
+  Obj[] vals
+  Int i
 }

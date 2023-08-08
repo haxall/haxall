@@ -170,6 +170,10 @@ public final class NameTable extends FanObj
     }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// NameDict Factories
+//////////////////////////////////////////////////////////////////////////
+
   public final NameDict dict1(String n0, Object v0) { return dict1(n0, v0, null); }
   public final NameDict dict1(String n0, Object v0, Spec spec)
   {
@@ -323,6 +327,32 @@ public final class NameTable extends FanObj
     int[] names = new int[16];
     Object[] vals = new Object[16];
     int size = 0;
+  }
+
+  public final NameDict readDict(long size, NameDictReader r, Spec spec)
+  {
+    int sz = (int)size;
+    switch (sz)
+    {
+      case 0: return NameDict.empty();
+      case 1: return new NameDict.D1(this, (int)r.readName(), r.readVal(), spec);
+      case 2: return new NameDict.D2(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
+      case 3: return new NameDict.D3(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
+      case 4: return new NameDict.D4(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
+      case 5: return new NameDict.D5(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
+      case 6: return new NameDict.D6(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
+      case 7: return new NameDict.D7(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
+      case 8: return new NameDict.D8(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
+    }
+
+    int[] names = new int[sz];
+    Object[] vals = new Object[sz];
+    for (int i=0; i<sz; ++i)
+    {
+      names[i] = (int)r.readName();
+      vals[i] = r.readVal();
+    }
+    return new NameDict.Map(this, names, vals, sz, spec);
   }
 
 //////////////////////////////////////////////////////////////////////////

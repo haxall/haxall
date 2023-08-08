@@ -71,4 +71,7 @@ native final const class NameTable
 
   ** Wrap dict as a name dict backed by this name table
   NameDict dictDict(Dict dict, Spec? spec := null)
+
+  ** Decode name dict from binary encoding
+  NameDict readDict(Int size, NameDictReader r, Spec? spec)
 }

@@ -58,3 +58,18 @@ native final const class NameDict  : Dict
   ** Get value at given index
   @NoDoc Obj valAt(Int index)
 }
+
+**************************************************************************
+** NameDictReader
+**************************************************************************
+
+@NoDoc @Js
+mixin NameDictReader
+{
+  ** Read name code
+  abstract Int readName()
+
+  ** Read value
+  abstract Obj readVal()
+}
+
