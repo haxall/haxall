@@ -23,7 +23,7 @@ using haystack::UnknownSpecErr
 @Js
 abstract const class MEnv : XetoEnv
 {
-  new make(NameTable names, MRegistry registry)
+  new make(NameTable names, MRegistry registry, |This|? f)
   {
     this.names       = names
     this.none        = Remove.val
@@ -32,6 +32,7 @@ abstract const class MEnv : XetoEnv
     this.list0       = Obj?[,]
     this.dict0       = Etc.dict0
     this.registryRef = registry
+    if (f != null) f(this)
     this.sysLib      = registry.load("sys")
     this.sys         = MSys(sysLib)
     this.dictSpec    = sys.dict

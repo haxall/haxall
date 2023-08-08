@@ -9,12 +9,13 @@
 using concurrent
 using util
 using xeto
+using haystack::Marker
 
 **
 ** Reader for Xeto binary encoding of specs and data
 **
 @Js
-class XetoBinaryReader : XetoBinaryConst
+class XetoBinaryReader : XetoBinaryConst, NameDictReader
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -38,8 +39,12 @@ class XetoBinaryReader : XetoBinaryConst
     verifyU4(version, "version")
     readNameTable
     registry := readRegistry
-    verifyU4(magicEnd, "magicEnd")
-    return RemoteEnv(names, registry)
+    return RemoteEnv(names, registry) |env|
+    {
+      sys := readLib(env)
+      registry.map["sys"].set(sys)
+      verifyU4(magicEnd, "magicEnd")
+    }
   }
 
   private Void readNameTable()
@@ -63,8 +68,79 @@ class XetoBinaryReader : XetoBinaryConst
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Lib
+//////////////////////////////////////////////////////////////////////////
+
+  private XetoLib readLib(MEnv env)
+  {
+    lib := XetoLib()
+    nameCode := readName
+    verifyU1(ctrlNameDict, "ctrlNameDict")
+    meta := readNameDict
+    version := Version.fromStr((Str)meta->version)
+    depends := MLibDepend[,]
+    typesMap := Str:Spec[:]
+    instancesMap := Str:Dict[:]
+
+    m := MLib(env, FileLoc.synthetic, nameCode, MNameDict(meta), version, depends, typesMap, instancesMap)
+    XetoLib#m->setConst(lib, m)
+    return lib
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Values
+//////////////////////////////////////////////////////////////////////////
+
+  override Obj readVal()
+  {
+    ctrl := in.readU1
+    switch (ctrl)
+    {
+      case ctrlMarker:   return Marker.val
+      case ctrlName:     return names.toName(readName)
+      case ctrlStr:      return readUtf
+      case ctrlNameDict: return readNameDict
+      default:           throw IOErr("obj ctrl 0x$ctrl.toHex")
+    }
+  }
+
+  private NameDict readNameDict()
+  {
+    size := readVarInt
+    spec := null
+    return names.readDict(size, this, spec)
+  }
+
+  override Int readName()
+  {
+    code := readVarInt
+    if (code != 0) return code
+
+    code = readVarInt
+    name := readUtf
+    names.set(code, name) // is now sparse
+    return code
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  private Int read()
+  {
+    in.readU1
+  }
+
+  private Str readUtf()
+  {
+    in.readUtf
+  }
+
+  private Void verifyU1(Int expect, Str msg)
+  {
+    actual := in.readU1
+    if (actual != expect) throw IOErr("Invalid $msg: 0x$actual.toHex != 0x$expect.toHex")
+  }
 
   private Void verifyU4(Int expect, Str msg)
   {
@@ -72,7 +148,7 @@ class XetoBinaryReader : XetoBinaryConst
     if (actual != expect) throw IOErr("Invalid $msg: 0x$actual.toHex != 0x$expect.toHex")
   }
 
-  Int readVarInt()
+  private Int readVarInt()
   {
     v := in.readU1
     if (v == 0xff)           return -1

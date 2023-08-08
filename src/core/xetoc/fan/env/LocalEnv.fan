@@ -15,7 +15,7 @@ using xetoEnv
 **
 internal const class LocalEnv : MEnv
 {
-  new make() : super(NameTable(), LocalRegistry(this))
+  new make() : super(NameTable(), LocalRegistry(this), null)
   {
     this.registry = registryRef
   }

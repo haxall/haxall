@@ -9,6 +9,7 @@
 using concurrent
 using util
 using xeto
+using haystack::Marker
 
 **
 ** Writer for Xeto binary encoding of specs and data
@@ -21,7 +22,6 @@ class XetoBinaryWriter : XetoBinaryConst
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  ** Wrap output stream
   new make(XetoTransport transport, OutStream out)
   {
     this.names = transport.names
@@ -33,20 +33,17 @@ class XetoBinaryWriter : XetoBinaryConst
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  ** Write data required for bootstrapping a remote env
   internal Void writeRemoteEnvBootstrap(MEnv env)
   {
     out.writeI4(magic)
     out.writeI4(version)
     writeNameTable
     writeRegistry(env)
+    writeLib(env.sysLib)
     out.writeI4(magicEnd)
     return this
   }
 
-  ** Write name table:
-  **   - varInt: max name code
-  **   - utf*: names
   private Void writeNameTable()
   {
     max := maxNameCode
@@ -55,9 +52,6 @@ class XetoBinaryWriter : XetoBinaryConst
       out.writeUtf(names.toName(i))
   }
 
-  ** Write all loaded libs:
-  **   - varInt*: name code for each loaded lib
-  **   - zero
   private Void writeRegistry(MEnv env)
   {
     env.registry.list.each |MRegistryEntry entry|
@@ -70,19 +64,97 @@ class XetoBinaryWriter : XetoBinaryConst
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Lib
+//////////////////////////////////////////////////////////////////////////
+
+  internal Void writeLib(XetoLib lib)
+  {
+    writeName(lib.m.nameCode)
+    writeNameDict(lib.m.meta.wrapped)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Values
+//////////////////////////////////////////////////////////////////////////
+
+  Void writeVal(Obj val)
+  {
+    if (val === Marker.val)  return writeMarker
+    type := val.typeof
+    if (type === Str#)  return writeStr(val)
+    if (val is Dict)    return writeDict(val)
+    throw Err("$val [$val.typeof]")
+  }
+
+  private Void writeMarker()
+  {
+    out.write(ctrlMarker)
+  }
+
+  private Void writeStr(Str s)
+  {
+    nameCode := names.toCode(s)
+    if (nameCode > 0 && nameCode <= maxNameCode)
+    {
+      write(ctrlName)
+      writeVarInt(nameCode)
+    }
+    else
+    {
+      out.write(ctrlStr)
+      out.writeUtf(s)
+    }
+  }
+
+  private Void writeDict(Dict d)
+  {
+    if (d is MNameDict) return writeNameDict(((MNameDict)d).wrapped)
+    throw Err("TODO: $d.typeof")
+  }
+
+  private Void writeNameDict(NameDict dict)
+  {
+    write(ctrlNameDict)
+    size := dict.size
+    writeVarInt(size)
+    for (i := 0; i<size; ++i)
+    {
+      writeName(dict.nameAt(i))
+      writeVal(dict.valAt(i))
+    }
+  }
+
+  private Void writeName(Int nameCode)
+  {
+    if (nameCode <= maxNameCode)
+    {
+      writeVarInt(nameCode)
+    }
+    else
+    {
+      out.write(0)
+      writeVarInt(nameCode)
+      out.writeUtf(names.toName(nameCode))
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Postive variable ints are encoding using 1, 2, 4, or 9 bytes.  We also
-  ** support -1 as a special one byte 0xff encoding.  We use one to four of
-  ** the most significant bits to represent length:
-  **   - 0xxx: one byte (0 to 127)
-  **   - 10xx: two bytes (128 to 16_383)
-  **   - 110x: four bytes (16_384 to 536_870_911)
-  **   - 1110: nine bytes (536_870_912 .. Int.maxVal)
-  ** This encoding is same as Brio.
-  Void writeVarInt(Int val)
+  private Void write(Int byte)
   {
+    out.write(byte)
+  }
+
+  private Void writeUtf(Str s)
+  {
+    out.writeUtf(s)
+  }
+
+  private Void writeVarInt(Int val)
+  {
+    // see BrioWriter.encodeVarInt - same encoding
     if (val < 0) return out.write(0xff)
     if (val <= 0x7f) return out.write(val)
     if (val <= 0x3fff) return out.writeI2(val.or(0x8000))

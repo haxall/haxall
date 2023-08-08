@@ -19,6 +19,11 @@ mixin XetoBinaryConst
   static const Int magic    := 0x78623233   // xb23
   static const Int magicEnd := 0x78623233   // XB};
   static const Int version  := 0x2023_08
+
+  static const Int ctrlMarker   := 0x01
+  static const Int ctrlName     := 0x02
+  static const Int ctrlStr      := 0x03
+  static const Int ctrlNameDict := 0x04
 }
 
 
