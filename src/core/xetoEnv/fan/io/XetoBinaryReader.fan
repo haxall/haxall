@@ -37,9 +37,9 @@ class XetoBinaryReader : XetoBinaryConst
     verifyU4(magic, "magic")
     verifyU4(version, "version")
     readNameTable
-names.dump(Env.cur.out)
+    registry := readRegistry
     verifyU4(magicEnd, "magicEnd")
-    return RemoteEnv(names, RemoteRegistry(["sys"]))
+    return RemoteEnv(names, registry)
   }
 
   private Void readNameTable()
@@ -47,6 +47,19 @@ names.dump(Env.cur.out)
     max := readVarInt
     for (i := 1; i<=max; ++i)
       names.add(in.readUtf)
+  }
+
+  private RemoteRegistry readRegistry()
+  {
+    acc := RemoteRegistryEntry[,]
+    while (true)
+    {
+      nameCode := readVarInt
+      if (nameCode == 0) break
+      name := names.toName(nameCode)
+      acc.add(RemoteRegistryEntry(name))
+    }
+    return RemoteRegistry(acc)
   }
 
 //////////////////////////////////////////////////////////////////////////

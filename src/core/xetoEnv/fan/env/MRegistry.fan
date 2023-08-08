@@ -23,3 +23,23 @@ abstract const class MRegistry : LibRegistry
 
 }
 
+**************************************************************************
+** MRegistryEntry
+**************************************************************************
+
+**
+** LibRegistryEntry implementation base class
+**
+@Js
+abstract const class MRegistryEntry : LibRegistryEntry
+{
+  override Bool isLoaded() { libRef.val != null }
+
+  XetoLib get() { libRef.val ?: throw Err("Not loaded: $name") }
+
+  Void set(Lib lib) { libRef.compareAndSet(null, lib) }
+
+  private const AtomicRef libRef := AtomicRef()
+}
+
+

@@ -39,6 +39,7 @@ class XetoBinaryWriter : XetoBinaryConst
     out.writeI4(magic)
     out.writeI4(version)
     writeNameTable
+    writeRegistry(env)
     out.writeI4(magicEnd)
     return this
   }
@@ -52,6 +53,20 @@ class XetoBinaryWriter : XetoBinaryConst
     writeVarInt(max)
     for (i := 1; i<=max; ++i)
       out.writeUtf(names.toName(i))
+  }
+
+  ** Write all loaded libs:
+  **   - varInt*: name code for each loaded lib
+  **   - zero
+  private Void writeRegistry(MEnv env)
+  {
+    env.registry.list.each |MRegistryEntry entry|
+    {
+      if (!entry.isLoaded) return
+      lib := entry.get
+      writeVarInt(lib.m.nameCode)
+    }
+    writeVarInt(0)
   }
 
 //////////////////////////////////////////////////////////////////////////

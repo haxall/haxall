@@ -187,7 +187,7 @@ internal const class LocalRegistry : MRegistry
 **************************************************************************
 
 @Js
-internal const class LocalRegistryEntry : LibRegistryEntry
+internal const class LocalRegistryEntry : MRegistryEntry
 {
   new make(Str name, File? src, File zip)
   {
@@ -210,8 +210,6 @@ internal const class LocalRegistryEntry : LibRegistryEntry
     isLoaded ? (get.meta["doc"] as Str ?: "") : ""
   }
 
-  override Bool isLoaded() { libRef.val != null }
-
   override Str toStr() { "$name [src: $src, zip: $zip.osPath]" }
 
   override Bool isSrc() { src != null }
@@ -224,11 +222,5 @@ internal const class LocalRegistryEntry : LibRegistryEntry
   }
 
   const File? src
-
-  Lib get() { libRef.val ?: throw Err("Not loaded: $name") }
-
-  Void set(Lib lib) { libRef.compareAndSet(null, lib) }
-
-  private const AtomicRef libRef := AtomicRef()
 }
 

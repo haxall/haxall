@@ -17,10 +17,9 @@ using haystack::UnknownLibErr
 @Js
 internal const class RemoteRegistry : MRegistry
 {
-  new make(Str[] libNames)
+  new make(RemoteRegistryEntry[] list)
   {
-    libNames.sort
-    this.list = libNames.map |n->RemoteRegistryEntry| { RemoteRegistryEntry(n) }
+    this.list = list
     this.map  = Str:RemoteRegistryEntry[:].addList(list) { it.name }
   }
 
@@ -59,7 +58,7 @@ internal const class RemoteRegistry : MRegistry
 **************************************************************************
 
 @Js
-internal const class RemoteRegistryEntry : LibRegistryEntry
+internal const class RemoteRegistryEntry : MRegistryEntry
 {
   new make(Str name)
   {
@@ -68,24 +67,17 @@ internal const class RemoteRegistryEntry : LibRegistryEntry
 
   override const Str name
 
-  override File zip() { throw UnsupportedErr() }
-
   override Version version() { Version.defVal }
 
   override Str doc() { "" }
 
-  override Bool isLoaded() { libRef.val != null }
-
   override Str toStr() { name }
+
+  override File zip() { throw UnsupportedErr() }
 
   override Bool isSrc() { false }
 
   override File? srcDir(Bool checked := true) { throw UnsupportedErr() }
 
-  Lib get() { libRef.val ?: throw Err("Not loaded: $name") }
-
-  Void set(Lib lib) { libRef.compareAndSet(null, lib) }
-
-  private const AtomicRef libRef := AtomicRef()
 }
 
