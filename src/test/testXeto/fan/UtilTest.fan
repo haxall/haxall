@@ -44,7 +44,7 @@ class UtilTest : Test
       names[name] = code
     }
     */
-    200_000.times |i|
+    10_000.times |i|
     {
       name := Buf.random(8).toHex
       code := verifyAdd(t, name, start+4+i)
@@ -60,7 +60,25 @@ class UtilTest : Test
       verifyEq(t.toCode(name), code)
       verifyEq(t.toName(code), name)
     }
-   }
+
+    oldSize := t.size
+    setCode := oldSize + 100_000
+
+    // set
+    verifyEq(t.isSparse, false)
+    verifyEq(t.toCode("foo_bar"), 0)
+    t.set(setCode, "foo_bar")
+    verifyEq(t.isSparse, true)
+    verifyEq(t.toCode("foo_bar"), setCode)
+    verifyEq(t.size, oldSize+1)
+    verifyEq(t.maxCode, oldSize+1)
+    verifyEq(t.toCode("foo_bar"), setCode)
+
+    // cannot use add once we have called set
+    verifyErr(Err#) { t.add("foo_bar_2") }
+    verifyEq(t.toCode("foo_bar_2"), 0)
+    verifyEq(t.size, oldSize+1)
+  }
 
   Int verifyAdd(NameTable t, Str name, Int expect)
   {

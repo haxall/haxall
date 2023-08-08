@@ -42,6 +42,8 @@ public final class NameTable extends FanObj
 
   public final String toStr() { return "NameTable"; }
 
+  public final boolean isSparse() { return isSparse; }
+
   public final long size() { return size; }
 
   public final long maxCode() { return size; }
@@ -51,6 +53,16 @@ public final class NameTable extends FanObj
   public final String toName(long code) { return name((int)code); }
 
   public final long add(String name) { return put(name); }
+
+  public final void set(long code, String name)
+  {
+    // if already set, then ignore (we don't actually check name though)
+    int c = (int)code;
+    if (c < byCode.length && byCode[c] != null) return;
+
+    // add to lookup tables
+    put(c, name);
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -81,38 +93,55 @@ public final class NameTable extends FanObj
     int code = code(name);
     if (code > 0) return code;
 
-    synchronized (this)
+    // add to lookup tables
+    return put(-1, name);
+  }
+
+  private synchronized int put(int code, String name)
+  {
+    // find last entry in bucket; double check if
+    // added now that we are in synchronzied block
+    int index = name.hashCode() & hashMask;
+    Entry last = byHash[index];
+    while (last != null)
     {
-      // find last entry in bucket; double check if
-      // added now that we are in synchronzied block
-      int index = name.hashCode() & hashMask;
-      Entry last = byHash[index];
-      while (last != null)
-      {
-        if (last.name.equals(name)) return last.code;
-        if (last.next == null) break;
-        last = last.next;
-      }
-
-      // grow byCode array if needed
-      if (size >= maxSize) throw Err.make("Max names exceeded: " + maxSize);
-      code = ++size;
-      if (code >= byCode.length)
-      {
-        String[] temp = new String[byCode.length * 2];
-        System.arraycopy(byCode, 0, temp, 0, byCode.length);
-        byCode = temp;
-      }
-
-      // create new entry
-      Entry entry = new Entry(code, name);
-      byCode[code] = name;
-      if (last == null)
-        byHash[index] = entry;
-      else
-        last.next = entry;
-      return code;
+      if (last.name.equals(name)) return last.code;
+      if (last.next == null) break;
+      last = last.next;
     }
+
+    // allocate code unless this is a set
+    if (code < 0)
+    {
+      if (isSparse) throw Err.make("Cannot call add once set has been called");
+      ++size;
+      code = size;
+    }
+    else
+    {
+      isSparse = true;
+      ++size;
+    }
+
+    // grow byCode array if needed
+    if (size >= maxSize) throw Err.make("Max names exceeded: " + maxSize);
+    if (code >= byCode.length)
+    {
+      int newSize = byCode.length * 2;
+      while (code >= newSize) newSize *= 2;
+      String[] temp = new String[newSize];
+      System.arraycopy(byCode, 0, temp, 0, byCode.length);
+      byCode = temp;
+    }
+
+    // create new entry
+    Entry entry = new Entry(code, name);
+    byCode[code] = name;
+    if (last == null)
+      byHash[index] = entry;
+    else
+      last.next = entry;
+    return code;
   }
 
   public final void dump(OutStream out)
@@ -321,4 +350,5 @@ public final class NameTable extends FanObj
   private String[] byCode;
   private Entry[] byHash;
   private int size;
+  private boolean isSparse;
 }

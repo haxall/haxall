@@ -13,10 +13,16 @@
 @NoDoc @Js
 native final const class NameTable
 {
-  ** Number of names in table
+  ** Return true once set has been called
+  Bool isSparse()
+
+  ** Number of names in table.
+  ** If set has been used then the table may be sparse.
   Int size()
 
-  ** Last name code in use (inclusive)
+  ** Last name code in use (inclusive).
+  ** This is always the same as size, and will not be reliable
+  ** if set has been used to create a sparse name table.
   Int maxCode()
 
   ** Map name to a code or return 0 if not mapped
@@ -25,8 +31,12 @@ native final const class NameTable
   ** Map code to name or raise exception if not mapped
   Str toName(Int code)
 
-  ** Get code for name or add to table if not mapped yet
+  ** Get code for name or add to table if not mapped yet.
+  ** Raise exception if set has been called and table is sparse.
   Int add(Str name)
+
+  ** Set specific name code.  Once called isSparse is true.
+  Void set(Int code, Str name)
 
   ** Debug dump
   Void dump(OutStream out)
