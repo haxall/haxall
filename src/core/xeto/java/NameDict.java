@@ -1,4 +1,4 @@
-// auto-generated 4-Aug-2023 Fri 11:42:17AM EDT
+// auto-generated 8-Aug-2023 Tue 11:03:34AM EDT
 
 package fan.xeto;
 
@@ -66,6 +66,14 @@ public abstract class NameDict extends FanObj implements Dict
     throw UnresolvedErr.make(name);
   }
 
+  public final long nameAt(long i) { return nameAt((int)i); }
+
+  public final Object valAt(long i) { return valAt((int)i); }
+
+  public long nameAt(int i) { throw IndexErr.make(); }
+
+  public Object valAt(int i) { throw IndexErr.make(); }
+
 //////////////////////////////////////////////////////////////////////////
 // Map
 //////////////////////////////////////////////////////////////////////////
@@ -105,6 +113,10 @@ public abstract class NameDict extends FanObj implements Dict
       }
       return null;
     }
+
+    public final long nameAt(int i) { return names[i]; }
+
+    public final Object valAt(int i) { return vals[i]; }
 
     final int[] names;
     final Object[] vals;
@@ -170,6 +182,18 @@ public abstract class NameDict extends FanObj implements Dict
       return null;
     }
 
+    public final long nameAt(int i)
+    {
+      if (i == 0) return n0;
+      return super.nameAt(i);
+    }
+
+    public final Object valAt(int i)
+    {
+      if (i == 0) return v0;
+      return super.nameAt(i);
+    }
+
     final int n0;
     final Object v0;
   }
@@ -211,6 +235,20 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v0, table.name(n0)); if (r != null) return r;
       r = f.call(v1, table.name(n1)); if (r != null) return r;
       return null;
+    }
+
+    public final long nameAt(int i)
+    {
+      if (i == 0) return n0;
+      if (i == 1) return n1;
+      return super.nameAt(i);
+    }
+
+    public final Object valAt(int i)
+    {
+      if (i == 0) return v0;
+      if (i == 1) return v1;
+      return super.nameAt(i);
     }
 
     final int n0;
@@ -261,6 +299,22 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v1, table.name(n1)); if (r != null) return r;
       r = f.call(v2, table.name(n2)); if (r != null) return r;
       return null;
+    }
+
+    public final long nameAt(int i)
+    {
+      if (i == 0) return n0;
+      if (i == 1) return n1;
+      if (i == 2) return n2;
+      return super.nameAt(i);
+    }
+
+    public final Object valAt(int i)
+    {
+      if (i == 0) return v0;
+      if (i == 1) return v1;
+      if (i == 2) return v2;
+      return super.nameAt(i);
     }
 
     final int n0;
@@ -318,6 +372,24 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v2, table.name(n2)); if (r != null) return r;
       r = f.call(v3, table.name(n3)); if (r != null) return r;
       return null;
+    }
+
+    public final long nameAt(int i)
+    {
+      if (i == 0) return n0;
+      if (i == 1) return n1;
+      if (i == 2) return n2;
+      if (i == 3) return n3;
+      return super.nameAt(i);
+    }
+
+    public final Object valAt(int i)
+    {
+      if (i == 0) return v0;
+      if (i == 1) return v1;
+      if (i == 2) return v2;
+      if (i == 3) return v3;
+      return super.nameAt(i);
     }
 
     final int n0;
@@ -382,6 +454,26 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v3, table.name(n3)); if (r != null) return r;
       r = f.call(v4, table.name(n4)); if (r != null) return r;
       return null;
+    }
+
+    public final long nameAt(int i)
+    {
+      if (i == 0) return n0;
+      if (i == 1) return n1;
+      if (i == 2) return n2;
+      if (i == 3) return n3;
+      if (i == 4) return n4;
+      return super.nameAt(i);
+    }
+
+    public final Object valAt(int i)
+    {
+      if (i == 0) return v0;
+      if (i == 1) return v1;
+      if (i == 2) return v2;
+      if (i == 3) return v3;
+      if (i == 4) return v4;
+      return super.nameAt(i);
     }
 
     final int n0;
@@ -453,6 +545,28 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v4, table.name(n4)); if (r != null) return r;
       r = f.call(v5, table.name(n5)); if (r != null) return r;
       return null;
+    }
+
+    public final long nameAt(int i)
+    {
+      if (i == 0) return n0;
+      if (i == 1) return n1;
+      if (i == 2) return n2;
+      if (i == 3) return n3;
+      if (i == 4) return n4;
+      if (i == 5) return n5;
+      return super.nameAt(i);
+    }
+
+    public final Object valAt(int i)
+    {
+      if (i == 0) return v0;
+      if (i == 1) return v1;
+      if (i == 2) return v2;
+      if (i == 3) return v3;
+      if (i == 4) return v4;
+      if (i == 5) return v5;
+      return super.nameAt(i);
     }
 
     final int n0;
@@ -531,6 +645,30 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v5, table.name(n5)); if (r != null) return r;
       r = f.call(v6, table.name(n6)); if (r != null) return r;
       return null;
+    }
+
+    public final long nameAt(int i)
+    {
+      if (i == 0) return n0;
+      if (i == 1) return n1;
+      if (i == 2) return n2;
+      if (i == 3) return n3;
+      if (i == 4) return n4;
+      if (i == 5) return n5;
+      if (i == 6) return n6;
+      return super.nameAt(i);
+    }
+
+    public final Object valAt(int i)
+    {
+      if (i == 0) return v0;
+      if (i == 1) return v1;
+      if (i == 2) return v2;
+      if (i == 3) return v3;
+      if (i == 4) return v4;
+      if (i == 5) return v5;
+      if (i == 6) return v6;
+      return super.nameAt(i);
     }
 
     final int n0;
@@ -616,6 +754,32 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v6, table.name(n6)); if (r != null) return r;
       r = f.call(v7, table.name(n7)); if (r != null) return r;
       return null;
+    }
+
+    public final long nameAt(int i)
+    {
+      if (i == 0) return n0;
+      if (i == 1) return n1;
+      if (i == 2) return n2;
+      if (i == 3) return n3;
+      if (i == 4) return n4;
+      if (i == 5) return n5;
+      if (i == 6) return n6;
+      if (i == 7) return n7;
+      return super.nameAt(i);
+    }
+
+    public final Object valAt(int i)
+    {
+      if (i == 0) return v0;
+      if (i == 1) return v1;
+      if (i == 2) return v2;
+      if (i == 3) return v3;
+      if (i == 4) return v4;
+      if (i == 5) return v5;
+      if (i == 6) return v6;
+      if (i == 7) return v7;
+      return super.nameAt(i);
     }
 
     final int n0;

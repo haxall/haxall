@@ -94,6 +94,14 @@ class Gen : BuildScript
               throw UnresolvedErr.make(name);
             }
 
+            public final long nameAt(long i) { return nameAt((int)i); }
+
+            public final Object valAt(long i) { return valAt((int)i); }
+
+            public long nameAt(int i) { throw IndexErr.make(); }
+
+            public Object valAt(int i) { throw IndexErr.make(); }
+
           //////////////////////////////////////////////////////////////////////////
           // Map
           //////////////////////////////////////////////////////////////////////////
@@ -133,6 +141,10 @@ class Gen : BuildScript
                 }
                 return null;
               }
+
+              public final long nameAt(int i) { return names[i]; }
+
+              public final Object valAt(int i) { return vals[i]; }
 
               final int[] names;
               final Object[] vals;
@@ -226,6 +238,28 @@ class Gen : BuildScript
         out.printLine("      r = f.call(v${j}, table.name(n${j})); if (r != null) return r;")
       }
       out.printLine("      return null;")
+      out.printLine("    }")
+      out.printLine
+
+      // nameAt
+      out.printLine("    public final long nameAt(int i)")
+      out.printLine("    {")
+      for (j:=0; j<i; ++j)
+      {
+        out.printLine("      if (i == $j) return n${j};")
+      }
+      out.printLine("      return super.nameAt(i);")
+      out.printLine("    }")
+      out.printLine
+
+      // valAt
+      out.printLine("    public final Object valAt(int i)")
+      out.printLine("    {")
+      for (j:=0; j<i; ++j)
+      {
+        out.printLine("      if (i == $j) return v${j};")
+      }
+      out.printLine("      return super.nameAt(i);")
       out.printLine("    }")
       out.printLine
 

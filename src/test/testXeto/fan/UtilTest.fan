@@ -171,6 +171,14 @@ class UtilTest : Test
       key = n
     }
 
+    // nameAt/valAt
+    i := 0
+    d.each |v, n|
+    {
+      verifyEq(d.nameAt(i), t.toCode(n))
+      verifyEq(d.valAt(i), v)
+      i++
+    }
 
     // each
     acc := Str:Obj[:]

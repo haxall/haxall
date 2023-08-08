@@ -51,4 +51,10 @@ native final const class NameDict  : Dict
   ** Get the value mapped by the given name.  If it is not
   ** mapped to a non-null value, then throw an UnknownNameErr.
   override Obj? trap(Str name, Obj?[]? args := null)
+
+  ** Get name code at given index
+  @NoDoc Int nameAt(Int index)
+
+  ** Get value at given index
+  @NoDoc Obj valAt(Int index)
 }
