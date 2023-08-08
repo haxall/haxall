@@ -37,7 +37,7 @@ internal class XetoCompiler
   Str? libName
 
   ** If performing a build then this is list of entries to use for depends
-  [Str:MRegistryEntry]? build
+  [Str:LocalRegistryEntry]? build
 
   ** Is this a build mode compile
   Bool isBuild() { build != null }

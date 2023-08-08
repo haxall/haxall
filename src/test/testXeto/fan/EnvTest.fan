@@ -28,6 +28,13 @@ class EnvTest : AbstractXetoTest
 
   Void testSysLib()
   {
+    verifyAllEnvs |env| { verifySysLib(env) }
+  }
+
+  private Void verifySysLib(XetoEnv env)
+  {
+    verifySame(this.env, env)
+
     // lib basics
     sys := verifyLibBasics("sys", curVersion)
     verifySame(env.lib("sys"), sys)

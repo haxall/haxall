@@ -25,7 +25,7 @@ internal const class LocalRegistry : MRegistry
     this.list    = map.vals.sort |a, b| { a.name <=> b.name }
   }
 
-  override MRegistryEntry? get(Str qname, Bool checked := true)
+  override LocalRegistryEntry? get(Str qname, Bool checked := true)
   {
     x := map[qname]
     if (x != null) return x
@@ -33,9 +33,9 @@ internal const class LocalRegistry : MRegistry
     return null
   }
 
-  private static Str:MRegistryEntry discover(File[] libPath)
+  private static Str:LocalRegistryEntry discover(File[] libPath)
   {
-    acc := Str:MRegistryEntry[:]
+    acc := Str:LocalRegistryEntry[:]
 
     // find all lib/xeto entries
     libPath.each |dir|
@@ -53,7 +53,7 @@ internal const class LocalRegistry : MRegistry
     return acc
   }
 
-  private static Void initSrcEntries(Str:MRegistryEntry acc, File dir)
+  private static Void initSrcEntries(Str:LocalRegistryEntry acc, File dir)
   {
     qname := dir.name
     lib := dir + `lib.xeto`
@@ -67,14 +67,14 @@ internal const class LocalRegistry : MRegistry
     }
   }
 
-  private static Void doInitInstalled(Str:MRegistryEntry acc, Str qname, File? src, File zip)
+  private static Void doInitInstalled(Str:LocalRegistryEntry acc, Str qname, File? src, File zip)
   {
     dup := acc[qname]
     if (dup != null)
     {
       if (dup.zip != zip) echo("WARN: XetoEnv '$qname' lib hidden [$dup.zip.osPath]")
     }
-    acc[qname] = MRegistryEntry(qname, src, zip)
+    acc[qname] = LocalRegistryEntry(qname, src, zip)
   }
 
   override Lib? load(Str qname, Bool checked := true)
@@ -93,11 +93,11 @@ internal const class LocalRegistry : MRegistry
   override Int build(LibRegistryEntry[] libs)
   {
     // create a XetoLibEntry copy for each entry
-    build := Str:MRegistryEntry[:]
+    build := Str:LocalRegistryEntry[:]
     build.ordered = true
     libs.each |x|
     {
-      build[x.name] = MRegistryEntry(x.name, x.srcDir, x.zip)
+      build[x.name] = LocalRegistryEntry(x.name, x.srcDir, x.zip)
     }
 
     // now build using build entries for dependencies
@@ -133,7 +133,7 @@ internal const class LocalRegistry : MRegistry
     return load(qname, false)
   }
 
-  Lib compile(MRegistryEntry entry, [Str:MRegistryEntry]? build)
+  Lib compile(LocalRegistryEntry entry, [Str:LocalRegistryEntry]? build)
   {
     compilingPush(entry.name)
     try
@@ -177,17 +177,17 @@ internal const class LocalRegistry : MRegistry
 
   const MEnv env
   const File[] libPath
-  override const MRegistryEntry[] list
-  const Str:MRegistryEntry map
+  override const LocalRegistryEntry[] list
+  const Str:LocalRegistryEntry map
   const Str compilingKey := "dataEnv.compiling"
 }
 
 **************************************************************************
-** MRegistryEntry
+** LocalRegistryEntry
 **************************************************************************
 
 @Js
-internal const class MRegistryEntry : LibRegistryEntry
+internal const class LocalRegistryEntry : LibRegistryEntry
 {
   new make(Str name, File? src, File zip)
   {

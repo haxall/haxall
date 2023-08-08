@@ -7,16 +7,8 @@
 //
 
 using concurrent
-using util
 using xeto
 using xetoEnv
-using haystack::Etc
-using haystack::Marker
-using haystack::NA
-using haystack::Remove
-using haystack::Grid
-using haystack::Symbol
-using haystack::UnknownSpecErr
 
 **
 ** Local environment that compiles source from file system
@@ -75,8 +67,7 @@ internal const class LocalEnv : MEnv
 
   override Void dump(OutStream out := Env.cur.out)
   {
-    registry := (LocalRegistry)this.registry
-    out.printLine("=== XetoEnv ===")
+    out.printLine("=== LocalXetoEnv ===")
     out.printLine("Lib Path:")
     registry.libPath.eachr |x| { out.printLine("  $x.osPath") }
     max := registry.list.reduce(10) |acc, x| { x.name.size.max(acc) }
