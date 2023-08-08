@@ -44,6 +44,8 @@ public final class NameTable extends FanObj
 
   public final long size() { return size; }
 
+  public final long maxCode() { return size; }
+
   public final long toCode(String name) { return code(name); }
 
   public final String toName(long code) { return name((int)code); }

@@ -16,6 +16,9 @@ native final const class NameTable
   ** Number of names in table
   Int size()
 
+  ** Last name code in use (inclusive)
+  Int maxCode()
+
   ** Map name to a code or return 0 if not mapped
   Int toCode(Str name)
 

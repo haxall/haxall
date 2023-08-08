@@ -16,7 +16,7 @@ using xeto
 @Js
 const class RemoteEnv : MEnv
 {
-  new make(Str[] libNames) : super(RemoteRegistry(libNames))
+  internal new make(NameTable names, MRegistry registry) : super(names, registry)
   {
   }
 

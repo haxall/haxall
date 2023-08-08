@@ -47,7 +47,18 @@ class AbstractXetoTest : HaystackTest
   RemoteEnv initRemote()
   {
 echo("--- init remote ---")
-    return RemoteEnv(["sys"])
-  }
+    local := XetoEnv.cur
+    buf := Buf()
+    serverTransport := XetoTransport.writeEnvBootstrap(local, buf.out)
+echo("--- $buf.size ---")
+echo(buf.toHex)
 
+    envRef = XetoTransport.readEnvBootstrap(buf.flip.in)
+
+    verifyEq(env.names.maxCode, local.names.maxCode)
+    verifyEq(env.names.toName(3), local.names.toName(3))
+    verifyEq(env.names.toName(env.names.maxCode), local.names.toName(env.names.maxCode-1))
+
+    return env
+  }
 }

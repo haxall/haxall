@@ -25,6 +25,7 @@ class UtilTest : Test
     verifySame(t.typeof, NameTable#)
     start := 2
     verifyEq(t.size, start)
+    verifyEq(t.size, 2)
     verifyEq(t.toCode(""), 1)
     verifyEq(t.toCode("id"), 2)
     verifyEq(t.toCode("foo"), 0)
@@ -33,6 +34,7 @@ class UtilTest : Test
     b := verifyAdd(t, "beta",  start+2)
     c := verifyAdd(t, "gamma", start+3)
     verifyEq(t.size, start+3)
+    verifyEq(t.maxCode, start+3)
 
     names := Str:Int[:]
     /*

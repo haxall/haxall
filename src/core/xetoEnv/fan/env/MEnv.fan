@@ -23,8 +23,9 @@ using haystack::UnknownSpecErr
 @Js
 abstract const class MEnv : XetoEnv
 {
-  new make(MRegistry registry)
+  new make(NameTable names, MRegistry registry)
   {
+    this.names       = names
     this.none        = Remove.val
     this.marker      = Marker.val
     this.na          = NA.val
@@ -40,7 +41,7 @@ abstract const class MEnv : XetoEnv
 
   const MSys sys
 
-  override const NameTable names := NameTable()
+  override const NameTable names
 
   const MFactories factories := MFactories()
 
