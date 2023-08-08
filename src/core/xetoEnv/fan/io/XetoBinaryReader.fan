@@ -10,6 +10,8 @@ using concurrent
 using util
 using xeto
 using haystack::Marker
+using haystack::NA
+using haystack::Remove
 
 **
 ** Reader for Xeto binary encoding of specs and data
@@ -74,17 +76,58 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   private XetoLib readLib(MEnv env)
   {
     lib := XetoLib()
-    nameCode := readName
-    verifyU1(ctrlNameDict, "ctrlNameDict")
-    meta := readNameDict
-    version := Version.fromStr((Str)meta->version)
-    depends := MLibDepend[,]
-    typesMap := Str:Spec[:]
-    instancesMap := Str:Dict[:]
 
-    m := MLib(env, FileLoc.synthetic, nameCode, MNameDict(meta), version, depends, typesMap, instancesMap)
+    verifyU4(magicLib, "magicLib")
+    nameCode  := readName
+    meta      := readMeta
+    version   := Version.fromStr((Str)meta->version)
+    depends   := MLibDepend[,] // TODO: from meta
+    types     := readTypes(env, lib)
+    instances := readInstances(env, lib)
+    verifyU4(magicLibEnd, "magicLibEnd")
+
+    m := MLib(env, FileLoc.synthetic, nameCode, MNameDict(meta), version, depends, types, instances)
     XetoLib#m->setConst(lib, m)
     return lib
+  }
+
+  private Str:XetoType readTypes(MEnv env, XetoLib lib)
+  {
+    acc := Str:XetoType[:]
+    while (true)
+    {
+      qnameCode := readName
+      if (qnameCode < 0) break
+      type := readType(env, lib, qnameCode)
+      acc.add(type.name, type)
+    }
+    return acc
+  }
+
+  private XetoType readType(MEnv env, XetoLib lib, Int qnameCode)
+  {
+    type := XetoType()
+
+    loc      := FileLoc.synthetic
+    nameCode := readName
+    base     := type
+    meta     := MNameDict.empty
+    metaOwn  := readMeta
+    slots    := MSlots.empty
+    slotsOwn := MSlots.empty
+    flags    := readVarInt
+    factory  := env.factories.dict // TODO
+
+    m := MType(loc, env, lib, qnameCode, nameCode, base, type, meta, MNameDict(metaOwn), slots, slotsOwn, flags, factory)
+    XetoSpec#m->setConst(type, m)
+    return type
+  }
+
+  private Str:Dict readInstances(MEnv env, XetoLib lib)
+  {
+    // TODO
+    acc := Str:Dict[:]
+    return acc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -96,12 +139,45 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     ctrl := in.readU1
     switch (ctrl)
     {
-      case ctrlMarker:   return Marker.val
-      case ctrlName:     return names.toName(readName)
-      case ctrlStr:      return readUtf
-      case ctrlNameDict: return readNameDict
-      default:           throw IOErr("obj ctrl 0x$ctrl.toHex")
+      case ctrlMarker:     return Marker.val
+      case ctrlNA:         return NA.val
+      case ctrlRemove:     return Remove.val
+      case ctrlTrue:       return true
+      case ctrlFalse:      return false
+      case ctrlName:       return names.toName(readName)
+      case ctrlStr:        return readUtf
+      case ctrlDate:       return readDate
+      case ctrlTime:       return readTime
+      case ctrlDateTimeI4: return readDateTimeI4
+      case ctrlDateTimeI8: return readDateTimeI8
+      case ctrlNameDict:   return readNameDict
+      default:             throw IOErr("obj ctrl 0x$ctrl.toHex")
     }
+  }
+
+  private Date readDate()
+  {
+    Date(in.readU2, Month.vals[in.read-1], in.read)
+  }
+
+  private Time readTime()
+  {
+    Time.fromDuration(Duration(in.readU4 * 1ms.ticks))
+  }
+
+  private DateTime readDateTimeI4()
+  {
+    DateTime.makeTicks(in.readS4*1sec.ticks, readTimeZone)
+  }
+
+  private DateTime readDateTimeI8()
+  {
+    DateTime.makeTicks(in.readS8, readTimeZone)
+  }
+
+  private TimeZone readTimeZone()
+  {
+    TimeZone.fromStr(readVal)
   }
 
   private NameDict readNameDict()
@@ -134,6 +210,12 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   private Str readUtf()
   {
     in.readUtf
+  }
+
+  private NameDict readMeta()
+  {
+    verifyU1(ctrlNameDict, "ctrlNameDict for meta")  // readMeta is **with** the ctrl code
+    return readNameDict
   }
 
   private Void verifyU1(Int expect, Str msg)

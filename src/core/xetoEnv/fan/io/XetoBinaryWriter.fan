@@ -10,6 +10,10 @@ using concurrent
 using util
 using xeto
 using haystack::Marker
+using haystack::NA
+using haystack::Remove
+using haystack::Number
+using haystack::Ref
 
 **
 ** Writer for Xeto binary encoding of specs and data
@@ -35,8 +39,8 @@ class XetoBinaryWriter : XetoBinaryConst
 
   internal Void writeRemoteEnvBootstrap(MEnv env)
   {
-    out.writeI4(magic)
-    out.writeI4(version)
+    writeI4(magic)
+    writeI4(version)
     writeNameTable
     writeRegistry(env)
     writeLib(env.sysLib)
@@ -69,8 +73,26 @@ class XetoBinaryWriter : XetoBinaryConst
 
   internal Void writeLib(XetoLib lib)
   {
+    writeI4(magicLib)
     writeName(lib.m.nameCode)
     writeNameDict(lib.m.meta.wrapped)
+    writeTypes(lib)
+    writeI4(magicLibEnd)
+  }
+
+  private Void writeTypes(XetoLib lib)
+  {
+    lib.types.each |type| { writeType(type) }
+    writeVarInt(-1)
+  }
+
+  private Void writeType(XetoType type)
+  {
+    m := (MType)type.m
+    writeName(m.qnameCode)
+    writeName(m.nameCode)
+    writeNameDict(m.metaOwn.wrapped)
+    writeVarInt(m.flags)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -80,15 +102,45 @@ class XetoBinaryWriter : XetoBinaryConst
   Void writeVal(Obj val)
   {
     if (val === Marker.val)  return writeMarker
+    if (val === NA.val)      return writeNA
+    if (val === Remove.val)  return writeRemove
     type := val.typeof
-    if (type === Str#)  return writeStr(val)
-    if (val is Dict)    return writeDict(val)
+    if (type === Str#)      return writeStr(val)
+    if (type === Bool#)     return writeBool(val)
+    if (type === DateTime#) return writeDateTime(val)
+    if (val is Dict)        return writeDict(val)
+    if (type === Date#)     return writeDate(val)
+    if (type === Time#)     return writeTime(val)
+
+if (type === Duration#)   return writeStr(val.toStr)
+if (type === Number#)     return writeStr(val.toStr)
+if (type === Float#)      return writeStr(val.toStr)
+if (type === Int#)        return writeStr(val.toStr)
+if (type === Ref#)        return writeStr(val.toStr)
+if (type === Uri#)        return writeStr(val.toStr)
+if (type === Version#)    return writeStr(val.toStr)
+
     throw Err("$val [$val.typeof]")
   }
 
   private Void writeMarker()
   {
     out.write(ctrlMarker)
+  }
+
+  private Void writeNA()
+  {
+    out.write(ctrlNA)
+  }
+
+  private Void writeRemove()
+  {
+    out.write(ctrlRemove)
+  }
+
+  private Void writeBool(Bool val)
+  {
+    out.write(val ? ctrlTrue : ctrlFalse)
   }
 
   private Void writeStr(Str s)
@@ -101,9 +153,41 @@ class XetoBinaryWriter : XetoBinaryConst
     }
     else
     {
-      out.write(ctrlStr)
-      out.writeUtf(s)
+      write(ctrlStr)
+      writeUtf(s)
     }
+  }
+
+  private This writeDate(Date val)
+  {
+    out.write(ctrlDate)
+    out.writeI2(val.year).write(val.month.ordinal+1).write(val.day)
+    return this
+  }
+
+  private This writeTime(Time val)
+  {
+    out.write(ctrlTime)
+    out.writeI4(val.toDuration.ticks / 1ms.ticks)
+    return this
+  }
+
+  private This writeDateTime(DateTime val)
+  {
+    ticks := val.ticks
+    if (ticks % 1sec.ticks == 0)
+    {
+      out.write(ctrlDateTimeI4)
+      out.writeI4(val.ticks/1sec.ticks)
+      writeStr(val.tz.name) // TODO
+    }
+    else
+    {
+      out.write(ctrlDateTimeI8)
+      out.writeI8(val.ticks)
+      writeStr(val.tz.name) // TODO
+    }
+    return this
   }
 
   private Void writeDict(Dict d)
@@ -145,6 +229,11 @@ class XetoBinaryWriter : XetoBinaryConst
   private Void write(Int byte)
   {
     out.write(byte)
+  }
+
+  private Void writeI4(Int i)
+  {
+    out.writeI4(i)
   }
 
   private Void writeUtf(Str s)

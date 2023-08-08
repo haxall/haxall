@@ -15,12 +15,12 @@ using xeto
 @Js
 const final class MType : MSpec
 {
-  new make(FileLoc loc, XetoLib lib, Int qnameCode, Int nameCode, XetoType? base, XetoType self, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, SpecFactory factory)
-    : super(loc, lib.env, null, nameCode, base, self, meta, metaOwn, slots, slotsOwn, flags)
+  new make(FileLoc loc, XetoEnv env, XetoLib lib, Int qnameCode, Int nameCode, XetoType? base, XetoType self, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, SpecFactory factory)
+    : super(loc, env, null, nameCode, base, self, meta, metaOwn, slots, slotsOwn, flags)
   {
     this.lib       = lib
     this.qnameCode = qnameCode
-    this.qname     = lib.env.names.toName(qnameCode)
+    this.qname     = env.names.toName(qnameCode)
     this.type      = self
     this.factory   = factory
   }
