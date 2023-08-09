@@ -63,11 +63,12 @@ class Printer
   This val(Obj? val)
   {
     if (val == null) return w("null")
-    if (val is Str) return quoted(val.toStr)
+    if (val is Str)  return quoted(val.toStr)
     if (val is Grid) return grid(val)
     if (val is Spec) return specTop(val)
     if (val is Dict) return dict(val)
     if (val is List) return list(val)
+    if (val is Lib)  return lib(val)
     if (inMeta) return quoted(val.toStr)
     if (val is Ref) return ref(val)
     return w(val)
@@ -259,6 +260,18 @@ class Printer
 //////////////////////////////////////////////////////////////////////////
 // Spec
 //////////////////////////////////////////////////////////////////////////
+
+  ** Print data spec using current mode
+  This lib(Lib lib)
+  {
+    print(lib.name)
+    bracket(" {").nl
+    indention++
+    lib.types.each |t| { specTop(t).nl.nl }
+    indention--
+    bracket("}").nl
+    return this
+  }
 
   ** Print data spec using current mode
   This specTop(Spec spec)

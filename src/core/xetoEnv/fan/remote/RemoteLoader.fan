@@ -17,6 +17,11 @@ using haystack::Dict
 @Js
 internal class RemoteLoader
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Constructor
+//////////////////////////////////////////////////////////////////////////
+
   new make(RemoteEnv env, Int libNameCode, NameDict libMeta)
   {
     this.env         = env
@@ -26,8 +31,14 @@ internal class RemoteLoader
     this.libMeta     = libMeta
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Top
+//////////////////////////////////////////////////////////////////////////
+
   XetoLib loadLib()
   {
+    loadFactories
+
     version   := Version.fromStr((Str)libMeta->version)
     depends   := MLibDepend[,] // TODO: from meta
     types     := loadTypes
@@ -38,6 +49,50 @@ internal class RemoteLoader
     return lib
   }
 
+  RemoteLoaderSpec addType(Int nameCode)
+  {
+    name := names.toName(nameCode)
+    x := RemoteLoaderSpec(XetoType(), nameCode, name)
+    types.add(name, x)
+    return x
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Factories
+//////////////////////////////////////////////////////////////////////////
+
+  private Void loadFactories()
+  {
+    // find a loader for our library
+    loader := env.factories.loaders.find |x| { x.canLoad(libName) }
+    if (loader == null) return
+
+    // if we have a loader, give it my type names to map to factories
+    factories = loader.load(libName, types.keys)
+  }
+
+  private SpecFactory assignFactory(RemoteLoaderSpec x)
+  {
+    // check for custom factory if x is a type
+    if (x.isType)
+    {
+      custom := factories?.get(x.name)
+      if (custom != null)
+      {
+        env.factories.map(custom.type, x.spec)
+        return custom
+      }
+    }
+
+    // fallback to dict/scalar factory
+    isScalar := MSpecFlags.scalar.and(x.flags) != 0
+    return isScalar ? env.factories.scalar : env.factories.dict
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Specs
+//////////////////////////////////////////////////////////////////////////
+
   private Str:XetoType loadTypes()
   {
     types.map |x->XetoType| { loadSpec(x) }
@@ -45,24 +100,26 @@ internal class RemoteLoader
 
   private XetoSpec loadSpec(RemoteLoaderSpec x)
   {
-    isType := x.type == null
-
     name     := x.name
     qname    := StrBuf(libName.size + 2 + name.size).add(libName).addChar(':').addChar(':').add(name).toStr
-echo("## load type: $qname")
-    type     := isType ? x.spec : resolve(x.type)
+echo
+echo("## load $qname")
+    type     := x.isType ? x.spec : resolve(x.type)
     base     := resolve(x.base)
     metaOwn  := x.metaOwn
     meta     := metaOwn // TODO
     slots    := MSlots.empty // TODO
     slotsOwn := MSlots.empty // TODO
-    flags    := x.flags
-    factory  := env.factories.dict // TODO
+    factory  := assignFactory(x)
 
-    m := MType(loc, env, lib, qname, x.nameCode, base, type, MNameDict(meta), MNameDict(metaOwn), slots, slotsOwn, flags, factory)
+    m := MType(loc, env, lib, qname, x.nameCode, base, type, MNameDict(meta), MNameDict(metaOwn), slots, slotsOwn, x.flags, factory)
     XetoSpec#m->setConst(x.spec, m)
     return type
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Resolve
+//////////////////////////////////////////////////////////////////////////
 
   private XetoSpec? resolve(RemoteLoaderSpecRef? ref)
   {
@@ -86,18 +143,18 @@ echo("## load type: $qname")
     throw Err("TODO")
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Instances
+//////////////////////////////////////////////////////////////////////////
+
   private Str:Dict loadInstances()
   {
     Str:Dict[:]
   }
 
-  RemoteLoaderSpec addType(Int nameCode)
-  {
-    name := names.toName(nameCode)
-    x := RemoteLoaderSpec(XetoType(), nameCode, name)
-    types.add(name, x)
-    return x
-  }
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
 
   const RemoteEnv env
   const NameTable names
@@ -106,8 +163,9 @@ echo("## load type: $qname")
   const Str libName
   const Int libNameCode
   const NameDict libMeta
-  Str:RemoteLoaderSpec types := [:]
-  Str:NameDict instances := [:]
+  private Str:RemoteLoaderSpec types := [:]   // addType
+  private Str:NameDict instances := [:]       // addInstance
+  private [Str:SpecFactory]? factories        // loadFactories
 }
 
 **************************************************************************
@@ -127,6 +185,11 @@ internal class RemoteLoaderSpec
   const XetoSpec spec
   const Int nameCode
   const Str name
+
+  Bool isType() { type == null }
+  Bool isScalar() { hasFlag(MSpecFlags.scalar) }
+  Bool hasFlag(Int mask) { flags.and(mask) != 0 }
+
   RemoteLoaderSpecRef? type
   RemoteLoaderSpecRef? base
   NameDict? metaOwn
