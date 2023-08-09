@@ -59,7 +59,7 @@ Spec: Dict {
 Type: Spec
 
 // Library module meta data
-Lib: Spec {
+Lib: Dict {
 
   // Current version of the library
   version: Version

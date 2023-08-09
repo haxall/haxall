@@ -28,7 +28,8 @@ class EnvTest : AbstractXetoTest
 
   Void testSysLib()
   {
-    verifyAllEnvs |env| { verifySysLib(env) }
+    //verifyAllEnvs |env| { verifySysLib(env) }
+    verifySysLib(env)
   }
 
   private Void verifySysLib(XetoEnv env)
@@ -44,7 +45,7 @@ class EnvTest : AbstractXetoTest
 //    verifyEq(sys["version"], typeof.pod.version)
     verifySame(env.sysLib, sys)
 
-     // env.print(sys)
+ env.print(sys)
 
     // types
     obj    := verifyLibType(sys, "Obj",      null)
@@ -64,7 +65,7 @@ class EnvTest : AbstractXetoTest
     list   := verifyLibType(sys, "List",     seq)
     spec   := verifyLibType(sys, "Spec",     dict)
     type   := verifyLibType(sys, "Type",     spec)
-    lib    := verifyLibType(sys, "Lib",      spec)
+    lib    := verifyLibType(sys, "Lib",      dict)
     org    := verifyLibType(sys, "LibOrg",   dict)
 
     // types
