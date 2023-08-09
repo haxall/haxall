@@ -29,11 +29,13 @@ mixin XetoBinaryConst
   static const Int ctrlFalse      := 0x05
   static const Int ctrlName       := 0x06
   static const Int ctrlStr        := 0x07
-  static const Int ctrlDate       := 0x08
-  static const Int ctrlTime       := 0x09
-  static const Int ctrlDateTimeI4 := 0x0A
-  static const Int ctrlDateTimeI8 := 0x0B
-  static const Int ctrlNameDict   := 0x0C
+  static const Int ctrlRef        := 0x08
+  static const Int ctrlUri        := 0x09
+  static const Int ctrlDate       := 0x0A
+  static const Int ctrlTime       := 0x0B
+  static const Int ctrlDateTimeI4 := 0x0C
+  static const Int ctrlDateTimeI8 := 0x0D
+  static const Int ctrlNameDict   := 0x0E
 }
 
 

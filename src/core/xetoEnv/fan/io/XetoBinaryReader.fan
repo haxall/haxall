@@ -12,6 +12,7 @@ using xeto
 using haystack::Marker
 using haystack::NA
 using haystack::Remove
+using haystack::Ref
 
 **
 ** Reader for Xeto binary encoding of specs and data
@@ -151,6 +152,8 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlFalse:      return false
       case ctrlName:       return names.toName(readName)
       case ctrlStr:        return readUtf
+      case ctrlUri:        return readUri
+      case ctrlRef:        return readRef
       case ctrlDate:       return readDate
       case ctrlTime:       return readTime
       case ctrlDateTimeI4: return readDateTimeI4
@@ -158,6 +161,16 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlNameDict:   return readNameDict
       default:             throw IOErr("obj ctrl 0x$ctrl.toHex")
     }
+  }
+
+  private Uri readUri()
+  {
+    Uri.fromStr(readUtf)
+  }
+
+  private Ref readRef()
+  {
+    Ref.make(readUtf, null)
   }
 
   private Date readDate()

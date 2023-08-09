@@ -130,18 +130,18 @@ class XetoBinaryWriter : XetoBinaryConst
     if (val === Remove.val)  return writeRemove
     type := val.typeof
     if (type === Str#)      return writeStr(val)
-    if (type === Bool#)     return writeBool(val)
+    if (type === Ref#)      return writeRef(val)
     if (type === DateTime#) return writeDateTime(val)
     if (val is Dict)        return writeDict(val)
+    if (type === Bool#)     return writeBool(val)
     if (type === Date#)     return writeDate(val)
     if (type === Time#)     return writeTime(val)
+    if (type === Uri#)      return writeUri(val)
 
 if (type === Duration#)   return writeStr(val.toStr)
 if (type === Number#)     return writeStr(val.toStr)
 if (type === Float#)      return writeStr(val.toStr)
 if (type === Int#)        return writeStr(val.toStr)
-if (type === Ref#)        return writeStr(val.toStr)
-if (type === Uri#)        return writeStr(val.toStr)
 if (type === Version#)    return writeStr(val.toStr)
 
     throw Err("$val [$val.typeof]")
@@ -180,6 +180,18 @@ if (type === Version#)    return writeStr(val.toStr)
       write(ctrlStr)
       writeUtf(s)
     }
+  }
+
+  private Void writeUri(Uri uri)
+  {
+    write(ctrlUri)
+    writeUtf(uri.toStr)
+  }
+
+  private Void writeRef(Ref ref)
+  {
+    write(ctrlRef)
+    writeUtf(ref.id)
   }
 
   private This writeDate(Date val)
