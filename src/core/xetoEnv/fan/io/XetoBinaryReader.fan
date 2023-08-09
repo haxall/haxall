@@ -100,8 +100,39 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Void readSpec(RemoteLoaderSpec x)
   {
+    x.type    = readSpecRef
+    x.base    = readSpecRef
     x.metaOwn = readMeta
     x.flags   = readVarInt
+  }
+
+  private RemoteLoaderSpecRef? readSpecRef()
+  {
+    // first byte is slot path depth:
+    //  - 0: null
+    //  - 1: top-level type like "foo::Bar"
+    //  - 2: slot under type like "foo::Bar.baz"
+    //  - 3: "foo::Bar.baz.qux"
+
+    depth := read
+    if (depth == 0) return null
+
+    ref := RemoteLoaderSpecRef()
+    ref.lib  = readName
+    ref.type = readName
+    if (depth > 1)
+    {
+      ref.slot = readName
+      if (depth > 2)
+      {
+        moreSize := depth - 2
+        ref.more = Int[,]
+        ref.more.capacity = moreSize
+        moreSize.times { ref.more.add(readName) }
+      }
+    }
+
+    return ref
   }
 
 //////////////////////////////////////////////////////////////////////////

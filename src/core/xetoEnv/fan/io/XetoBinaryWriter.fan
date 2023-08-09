@@ -82,16 +82,41 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private Void writeTypes(XetoLib lib)
   {
-    lib.types.each |type| { writeType(type) }
+    lib.types.each |type| { writeSpec(type) }
     writeVarInt(-1)
   }
 
-  private Void writeType(XetoType type)
+  private Void writeSpec(XetoSpec x)
   {
-    m := (MType)type.m
+    m := x.m
     writeName(m.nameCode)
+    writeSpecRef(m.isType ? null : m.type)
+    writeSpecRef(m.base)
     writeNameDict(m.metaOwn.wrapped)
     writeVarInt(m.flags)
+  }
+
+  private Void writeSpecRef(XetoSpec? spec)
+  {
+    if (spec == null) { write(0); return }
+    if (spec.isType)
+    {
+      write(1)
+      writeName(spec.m.lib.m.nameCode)
+      writeName(spec.m.nameCode)
+    }
+    else if (spec.parent.isType)
+    {
+      write(2)
+      writeName(spec.m.lib.m.nameCode)
+      writeName(spec.m.parent.m.nameCode)
+      writeName(spec.m.nameCode)
+    }
+    else if (spec.parent.isType)
+    {
+      // build path up to type
+      throw Err("TODO")
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

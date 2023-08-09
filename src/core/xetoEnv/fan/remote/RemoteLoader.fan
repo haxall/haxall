@@ -40,15 +40,18 @@ internal class RemoteLoader
 
   private Str:XetoType loadTypes()
   {
-    types.map |x->XetoType| { loadType(x) }
+    types.map |x->XetoType| { loadSpec(x) }
   }
 
-  private XetoType loadType(RemoteLoaderSpec x)
+  private XetoSpec loadSpec(RemoteLoaderSpec x)
   {
+    isType := x.type == null
+
     name     := x.name
     qname    := StrBuf(libName.size + 2 + name.size).add(libName).addChar(':').addChar(':').add(name).toStr
-    base     := x.spec // ODO
-    type     := x.spec // TODO
+echo("## load type: $qname")
+    type     := isType ? x.spec : resolve(x.type)
+    base     := resolve(x.base)
     metaOwn  := x.metaOwn
     meta     := metaOwn // TODO
     slots    := MSlots.empty // TODO
@@ -57,9 +60,30 @@ internal class RemoteLoader
     factory  := env.factories.dict // TODO
 
     m := MType(loc, env, lib, qname, x.nameCode, base, type, MNameDict(meta), MNameDict(metaOwn), slots, slotsOwn, flags, factory)
-    XetoSpec#m->setConst(type, m)
-echo("-- load type: $m.qname")
+    XetoSpec#m->setConst(x.spec, m)
     return type
+  }
+
+  private XetoSpec? resolve(RemoteLoaderSpecRef? ref)
+  {
+    if (ref == null) return null
+    if (ref.lib == libNameCode)
+      return resolveInternal(ref)
+    else
+      return resolveExternal(ref)
+  }
+
+  private XetoSpec resolveInternal(RemoteLoaderSpecRef ref)
+  {
+    type := types.getChecked(names.toName(ref.type))
+    if (ref.slot == 0) return type.spec
+
+    throw Err("TODO: $ref")
+  }
+
+  private XetoSpec resolveExternal(RemoteLoaderSpecRef ref)
+  {
+    throw Err("TODO")
   }
 
   private Str:Dict loadInstances()
@@ -103,8 +127,8 @@ internal class RemoteLoaderSpec
   const XetoSpec spec
   const Int nameCode
   const Str name
-  RemoteLoaderSpecRef? base
   RemoteLoaderSpecRef? type
+  RemoteLoaderSpecRef? base
   NameDict? metaOwn
   RemoteLoaderSpec[]? slotsOwn
   Int flags
@@ -115,10 +139,14 @@ internal class RemoteLoaderSpec
 **************************************************************************
 
 @Js
-internal const class RemoteLoaderSpecRef
+internal class RemoteLoaderSpecRef
 {
-  const Int lib
-  const Int name
+  Int lib       // lib name
+  Int type      // top-level type name code
+  Int slot      // first level slot or zero if type only
+  Int[]? more   // slot path below first slot (uncommon)
+
+  override Str toStr() { "$lib $type $slot $more" }
 }
 
 
