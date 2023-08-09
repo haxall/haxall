@@ -36,6 +36,7 @@ mixin XetoBinaryConst
   static const Int ctrlDateTimeI4 := 0x0C
   static const Int ctrlDateTimeI8 := 0x0D
   static const Int ctrlNameDict   := 0x0E
+  static const Int ctrlSpecRef    := 0x0F
 }
 
 

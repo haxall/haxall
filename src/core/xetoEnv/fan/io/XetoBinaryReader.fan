@@ -95,16 +95,33 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       nameCode := readName
       if (nameCode < 0) break
       x := loader.addType(nameCode)
-      readSpec(x)
+      readSpec(loader, x)
     }
   }
 
-  private Void readSpec(RemoteLoaderSpec x)
+  private Void readSpec(RemoteLoader loader, RemoteLoaderSpec x)
   {
-    x.type    = readSpecRef
-    x.base    = readSpecRef
-    x.metaOwn = readMeta
-    x.flags   = readVarInt
+    x.base     = readSpecRef
+    x.type     = readSpecRef
+    x.metaOwn  = readMeta
+    x.slotsOwn = readSlots(loader, x)
+    x.flags    = readVarInt
+   }
+
+  private RemoteLoaderSpec[]? readSlots(RemoteLoader loader, RemoteLoaderSpec parent)
+  {
+    size := readVarInt
+    if (size == 0) return null
+    acc := RemoteLoaderSpec[,]
+    acc.capacity = size
+    size.times
+    {
+      name := readName
+      x := loader.makeSlot(parent, name)
+      readSpec(loader, x)
+      acc.add(x)
+    }
+    return acc
   }
 
   private RemoteLoaderSpecRef? readSpecRef()
@@ -159,6 +176,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlDateTimeI4: return readDateTimeI4
       case ctrlDateTimeI8: return readDateTimeI8
       case ctrlNameDict:   return readNameDict
+      case ctrlSpecRef:    return readSpecRefVal
       default:             throw IOErr("obj ctrl 0x$ctrl.toHex")
     }
   }
@@ -196,6 +214,13 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   private TimeZone readTimeZone()
   {
     TimeZone.fromStr(readVal)
+  }
+
+  private Obj readSpecRefVal()
+  {
+    // TODO: how to turn this into direct reference to XetoSpec?
+    ref := readSpecRef
+    return "TODO"
   }
 
   private NameDict readNameDict()

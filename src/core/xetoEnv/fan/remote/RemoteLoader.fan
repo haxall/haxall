@@ -52,8 +52,15 @@ internal class RemoteLoader
   RemoteLoaderSpec addType(Int nameCode)
   {
     name := names.toName(nameCode)
-    x := RemoteLoaderSpec(XetoType(), nameCode, name)
+    x := RemoteLoaderSpec(XetoType(), null, nameCode, name)
     types.add(name, x)
+    return x
+  }
+
+  RemoteLoaderSpec makeSlot(RemoteLoaderSpec parent, Int nameCode)
+  {
+    name := names.toName(nameCode)
+    x := RemoteLoaderSpec(XetoSpec(), parent, nameCode, name)
     return x
   }
 
@@ -100,21 +107,42 @@ internal class RemoteLoader
 
   private XetoSpec loadSpec(RemoteLoaderSpec x)
   {
+    parent   := x.parent?.spec
     name     := x.name
     qname    := StrBuf(libName.size + 2 + name.size).add(libName).addChar(':').addChar(':').add(name).toStr
-echo
-echo("## load $qname")
     type     := x.isType ? x.spec : resolve(x.type)
     base     := resolve(x.base)
     metaOwn  := x.metaOwn
     meta     := metaOwn // TODO
-    slots    := MSlots.empty // TODO
-    slotsOwn := MSlots.empty // TODO
-    factory  := assignFactory(x)
+    slotsOwn := loadSlots(x)
+    slots    := slotsOwn
 
-    m := MType(loc, env, lib, qname, x.nameCode, base, type, MNameDict(meta), MNameDict(metaOwn), slots, slotsOwn, x.flags, factory)
+    MSpec? m
+    if (x.isType)
+    {
+      factory  := assignFactory(x)
+      m = MType(loc, env, lib, qname, x.nameCode, base, type, MNameDict(meta), MNameDict(metaOwn), slots, slotsOwn, x.flags, factory)
+    }
+    else
+    {
+      m = MSpec(loc, env, parent, x.nameCode, base, type, MNameDict(meta), MNameDict(metaOwn), slots, slotsOwn, x.flags)
+    }
     XetoSpec#m->setConst(x.spec, m)
-    return type
+    return x.spec
+  }
+
+  private MSlots loadSlots(RemoteLoaderSpec x)
+  {
+    // short circuit if no slots
+    slots := x.slotsOwn
+    if (slots == null || slots.isEmpty) return MSlots.empty
+
+    // recursively load slot specs
+    slots.each |slot| { loadSpec(slot) }
+
+    // RemoteLoaderSpec is a NameDictReader to iterate slots as NameDict
+    dict := names.readDict(slots.size, x, null)
+    return MSlots(dict)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -173,28 +201,36 @@ echo("## load $qname")
 **************************************************************************
 
 @Js
-internal class RemoteLoaderSpec
+internal class RemoteLoaderSpec : NameDictReader
 {
-  new make(XetoSpec spec, Int nameCode, Str name)
+  new make(XetoSpec spec, RemoteLoaderSpec? parent, Int nameCode, Str name)
   {
-    this.spec = spec
+    this.spec     = spec
+    this.parent   = parent
     this.nameCode = nameCode
-    this.name = name
+    this.name     = name
   }
 
   const XetoSpec spec
   const Int nameCode
   const Str name
+  RemoteLoaderSpec? parent { private set }
 
   Bool isType() { type == null }
   Bool isScalar() { hasFlag(MSpecFlags.scalar) }
   Bool hasFlag(Int mask) { flags.and(mask) != 0 }
 
-  RemoteLoaderSpecRef? type
   RemoteLoaderSpecRef? base
+  RemoteLoaderSpecRef? type
   NameDict? metaOwn
   RemoteLoaderSpec[]? slotsOwn
   Int flags
+
+  override Int readName() { slotsOwn[readIndex].nameCode }
+  override Obj readVal() { slotsOwn[readIndex++].spec }
+  Int readIndex
+
+  override Str toStr() { name }
 }
 
 **************************************************************************

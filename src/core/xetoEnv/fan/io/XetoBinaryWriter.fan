@@ -90,10 +90,20 @@ class XetoBinaryWriter : XetoBinaryConst
   {
     m := x.m
     writeName(m.nameCode)
-    writeSpecRef(m.isType ? null : m.type)
     writeSpecRef(m.base)
+    writeSpecRef(m.isType ? null : m.type)
     writeNameDict(m.metaOwn.wrapped)
+    writeSlots(x)
     writeVarInt(m.flags)
+  }
+
+  private Void writeSlots(XetoSpec x)
+  {
+    slots := x.m.slotsOwn.map
+    size := slots.size
+    writeVarInt(size)
+    for (i := 0; i<size; ++i)
+      writeSpec(slots.valAt(i))
   }
 
   private Void writeSpecRef(XetoSpec? spec)
@@ -229,7 +239,15 @@ if (type === Version#)    return writeStr(val.toStr)
   private Void writeDict(Dict d)
   {
     if (d is MNameDict) return writeNameDict(((MNameDict)d).wrapped)
+    if (d is XetoSpec) return writeSpecRefVal(d)
     throw Err("TODO: $d.typeof")
+  }
+
+
+  private Void writeSpecRefVal(XetoSpec spec)
+  {
+    write(ctrlSpecRef)
+    writeSpecRef(spec)
   }
 
   private Void writeNameDict(NameDict dict)
