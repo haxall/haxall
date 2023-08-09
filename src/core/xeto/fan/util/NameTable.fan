@@ -65,9 +65,8 @@ native final const class NameTable
   ** Create dict with eight name/value pairs mapped by this name table
   NameDict dict8(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5, Str n6, Obj v6, Str n7, Obj v7, Spec? spec := null)
 
-  ** Create dict mapped by this name table
+  ** Create dict mapped by this name table using map
   NameDict dictMap(Str:Obj map, Spec? spec := null)
-  ** Create dict mapped by this name table
 
   ** Wrap dict as a name dict backed by this name table
   NameDict dictDict(Dict dict, Spec? spec := null)

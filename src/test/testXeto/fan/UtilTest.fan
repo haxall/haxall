@@ -148,6 +148,17 @@ class UtilTest : Test
     verifyDict(t, -1, t.dictMap(big, spec), big, spec)
     verifyDict(t, -1, t.dictDict(Etc.makeDict(big)), big)
     verifyDict(t, -1, t.dictDict(Etc.makeDict(big), spec), big, spec)
+
+    verifyErr(NotImmutableErr#) { t.dict1("a", this) }
+    verifyErr(NotImmutableErr#) { t.dict2("a", "x", "b", this) }
+    verifyErr(NotImmutableErr#) { t.dict3("a", "x", "b", "x", "c", this) }
+    verifyErr(NotImmutableErr#) { t.dict4("a", "x", "b", "x", "c", "x", "d", this) }
+    verifyErr(NotImmutableErr#) { t.dict5("a", "x", "b", "x", "c", "x", "d", "x", "e", this) }
+    verifyErr(NotImmutableErr#) { t.dict6("a", "x", "b", "x", "c", "x", "d", "x", "e", "x", "f", this) }
+    verifyErr(NotImmutableErr#) { t.dict7("a", "x", "b", "x", "c", "x", "d", "x", "e", "x", "f", "x", "g", this) }
+    verifyErr(NotImmutableErr#) { t.dict8("a", "x", "b", "x", "c", "x", "d", "x", "e", "x", "f", "x", "g", "x", "h", this) }
+    verifyErr(NotImmutableErr#) { t.dictMap(["a":this]) }
+    verifyErr(NotImmutableErr#) { t.dictMap(big.dup.set("foo", this)) }
   }
 
   Void verifyDict(NameTable t, Int fixed, NameDict d, Str:Obj expect, Spec? spec := null)

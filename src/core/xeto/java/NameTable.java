@@ -177,49 +177,49 @@ public final class NameTable extends FanObj
   public final NameDict dict1(String n0, Object v0) { return dict1(n0, v0, null); }
   public final NameDict dict1(String n0, Object v0, Spec spec)
   {
-    return new NameDict.D1(this, put(n0), v0, spec);
+    return new NameDict.D1(this, put(n0), ci(v0), spec);
   }
 
   public final NameDict dict2(String n0, Object v0, String n1, Object v1) { return dict2(n0, v0, n1, v1, null); }
   public final NameDict dict2(String n0, Object v0, String n1, Object v1, Spec spec)
   {
-    return new NameDict.D2(this, put(n0), v0, put(n1), v1, spec);
+    return new NameDict.D2(this, put(n0), ci(v0), put(n1), ci(v1), spec);
   }
 
   public final NameDict dict3(String n0, Object v0, String n1, Object v1, String n2, Object v2) { return dict3(n0, v0, n1, v1, n2, v2, null); }
   public final NameDict dict3(String n0, Object v0, String n1, Object v1, String n2, Object v2, Spec spec)
   {
-    return new NameDict.D3(this, put(n0), v0, put(n1), v1, put(n2), v2, spec);
+    return new NameDict.D3(this, put(n0), ci(v0), put(n1), ci(v1), put(n2), ci(v2), spec);
   }
 
   public final NameDict dict4(String n0, Object v0, String n1, Object v1, String n2, Object v2, String n3, Object v3) { return dict4(n0, v0, n1, v1, n2, v2, n3, v3, null); }
   public final NameDict dict4(String n0, Object v0, String n1, Object v1, String n2, Object v2, String n3, Object v3, Spec spec)
   {
-    return new NameDict.D4(this, put(n0), v0, put(n1), v1, put(n2), v2, put(n3), v3, spec);
+    return new NameDict.D4(this, put(n0), ci(v0), put(n1), ci(v1), put(n2), ci(v2), put(n3), ci(v3), spec);
   }
 
   public final NameDict dict5(String n0, Object v0, String n1, Object v1, String n2, Object v2, String n3, Object v3, String n4, Object v4) { return dict5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, null); }
   public final NameDict dict5(String n0, Object v0, String n1, Object v1, String n2, Object v2, String n3, Object v3, String n4, Object v4, Spec spec)
   {
-    return new NameDict.D5(this, put(n0), v0, put(n1), v1, put(n2), v2, put(n3), v3, put(n4), v4, spec);
+    return new NameDict.D5(this, put(n0), ci(v0), put(n1), ci(v1), put(n2), ci(v2), put(n3), ci(v3), put(n4), ci(v4), spec);
   }
 
   public final NameDict dict6(String n0, Object v0, String n1, Object v1, String n2, Object v2, String n3, Object v3, String n4, Object v4, String n5, Object v5) { return dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, null); }
   public final NameDict dict6(String n0, Object v0, String n1, Object v1, String n2, Object v2, String n3, Object v3, String n4, Object v4, String n5, Object v5, Spec spec)
   {
-    return new NameDict.D6(this, put(n0), v0, put(n1), v1, put(n2), v2, put(n3), v3, put(n4), v4, put(n5), v5, spec);
+    return new NameDict.D6(this, put(n0), ci(v0), put(n1), ci(v1), put(n2), ci(v2), put(n3), ci(v3), put(n4), ci(v4), put(n5), ci(v5), spec);
   }
 
   public final NameDict dict7(String n0, Object v0, String n1, Object v1, String n2, Object v2, String n3, Object v3, String n4, Object v4, String n5, Object v5, String n6, Object v6) { return dict7(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, null); }
   public final NameDict dict7(String n0, Object v0, String n1, Object v1, String n2, Object v2, String n3, Object v3, String n4, Object v4, String n5, Object v5, String n6, Object v6, Spec spec)
   {
-    return new NameDict.D7(this, put(n0), v0, put(n1), v1, put(n2), v2, put(n3), v3, put(n4), v4, put(n5), v5, put(n6), v6, spec);
+    return new NameDict.D7(this, put(n0), ci(v0), put(n1), ci(v1), put(n2), ci(v2), put(n3), ci(v3), put(n4), ci(v4), put(n5), ci(v5), put(n6), ci(v6), spec);
   }
 
   public final NameDict dict8(String n0, Object v0, String n1, Object v1, String n2, Object v2, String n3, Object v3, String n4, Object v4, String n5, Object v5, String n6, Object v6, String n7, Object v7) { return dict8(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, n7, v7, null); }
   public final NameDict dict8(String n0, Object v0, String n1, Object v1, String n2, Object v2, String n3, Object v3, String n4, Object v4, String n5, Object v5, String n6, Object v6, String n7, Object v7, Spec spec)
   {
-    return new NameDict.D8(this, put(n0), v0, put(n1), v1, put(n2), v2, put(n3), v3, put(n4), v4, put(n5), v5, put(n6), v6, put(n7), v7, spec);
+    return new NameDict.D8(this, put(n0), ci(v0), put(n1), ci(v1), put(n2), ci(v2), put(n3), ci(v3), put(n4), ci(v4), put(n5), ci(v5), put(n6), ci(v6), put(n7), ci(v7), spec);
   }
 
   public final NameDict dictMap(Map map) { return dictMap(map, null); }
@@ -236,7 +236,7 @@ public final class NameTable extends FanObj
     {
       java.util.Map.Entry e = (java.util.Map.Entry)it.next();
       names[i] = put((String)e.getKey());
-      vals[i] = e.getValue();
+      vals[i] = ci(e.getValue());
       ++i;
     }
 
@@ -269,6 +269,7 @@ public final class NameTable extends FanObj
       if (nameDict.table == this) return nameDict;
     }
 
+    // we can trust dict values are already immutable
     DictEachAcc acc = new DictEachAcc(this);
     dict.each(acc);
     int[] names = acc.names;
@@ -291,6 +292,12 @@ public final class NameTable extends FanObj
     }
 
     return new NameDict.Map(this, names, vals, size, spec);
+  }
+
+  private static Object ci(Object v)
+  {
+    // check immutable
+    return FanObj.toImmutable(v);
   }
 
   private static final FuncType eachFuncType = new FuncType(new Type[] { Sys.ObjType, Sys.StrType }, Sys.ObjType);
@@ -335,14 +342,14 @@ public final class NameTable extends FanObj
     switch (sz)
     {
       case 0: return NameDict.empty();
-      case 1: return new NameDict.D1(this, (int)r.readName(), r.readVal(), spec);
-      case 2: return new NameDict.D2(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
-      case 3: return new NameDict.D3(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
-      case 4: return new NameDict.D4(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
-      case 5: return new NameDict.D5(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
-      case 6: return new NameDict.D6(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
-      case 7: return new NameDict.D7(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
-      case 8: return new NameDict.D8(this, (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), (int)r.readName(), r.readVal(), spec);
+      case 1: return new NameDict.D1(this, (int)r.readName(), ci(r.readVal()), spec);
+      case 2: return new NameDict.D2(this, (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), spec);
+      case 3: return new NameDict.D3(this, (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), spec);
+      case 4: return new NameDict.D4(this, (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), spec);
+      case 5: return new NameDict.D5(this, (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), spec);
+      case 6: return new NameDict.D6(this, (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), spec);
+      case 7: return new NameDict.D7(this, (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), spec);
+      case 8: return new NameDict.D8(this, (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), (int)r.readName(), ci(r.readVal()), spec);
     }
 
     int[] names = new int[sz];
