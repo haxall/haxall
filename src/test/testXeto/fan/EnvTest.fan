@@ -145,7 +145,6 @@ class EnvTest : AbstractXetoTest
 
     verifyNameTable(sys.name)
     verifyNameTable(str.name)
-    verifyNameTable(str.qname)
     verifyNameTable(org.slot("dis").name)
     verifyNameDict(sys.meta)
     verifyNameDict(ref.meta)

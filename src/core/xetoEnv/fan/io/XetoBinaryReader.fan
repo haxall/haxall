@@ -80,54 +80,28 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     verifyU4(magicLib, "magicLib")
     nameCode  := readName
     meta      := readMeta
-    version   := Version.fromStr((Str)meta->version)
-    depends   := MLibDepend[,] // TODO: from meta
-    types     := readTypes(env, lib)
-    instances := readInstances(env, lib)
+    loader    := RemoteLoader(env, nameCode, meta)
+    readTypes(loader)
     verifyU4(magicLibEnd, "magicLibEnd")
 
-    m := MLib(env, FileLoc.synthetic, nameCode, MNameDict(meta), version, depends, types, instances)
-    XetoLib#m->setConst(lib, m)
-    return lib
+    return loader.loadLib
   }
 
-  private Str:XetoType readTypes(MEnv env, XetoLib lib)
+  private Void readTypes(RemoteLoader loader)
   {
-    acc := Str:XetoType[:]
     while (true)
     {
-      qnameCode := readName
-      if (qnameCode < 0) break
-      type := readType(env, lib, qnameCode)
-      acc.add(type.name, type)
+      nameCode := readName
+      if (nameCode < 0) break
+      x := loader.addType(nameCode)
+      readSpec(x)
     }
-    return acc
   }
 
-  private XetoType readType(MEnv env, XetoLib lib, Int qnameCode)
+  private Void readSpec(RemoteLoaderSpec x)
   {
-    type := XetoType()
-
-    loc      := FileLoc.synthetic
-    nameCode := readName
-    base     := type
-    meta     := MNameDict.empty
-    metaOwn  := readMeta
-    slots    := MSlots.empty
-    slotsOwn := MSlots.empty
-    flags    := readVarInt
-    factory  := env.factories.dict // TODO
-
-    m := MType(loc, env, lib, qnameCode, nameCode, base, type, meta, MNameDict(metaOwn), slots, slotsOwn, flags, factory)
-    XetoSpec#m->setConst(type, m)
-    return type
-  }
-
-  private Str:Dict readInstances(MEnv env, XetoLib lib)
-  {
-    // TODO
-    acc := Str:Dict[:]
-    return acc
+    x.metaOwn = readMeta
+    x.flags   = readVarInt
   }
 
 //////////////////////////////////////////////////////////////////////////

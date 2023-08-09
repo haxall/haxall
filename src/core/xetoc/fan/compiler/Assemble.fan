@@ -46,8 +46,7 @@ internal class Assemble : Step
 
   private Void asmType(ASpec x)
   {
-    qnameCode := env.names.add(x.qname)
-    m := MType(x.loc, env, x.lib.asm, qnameCode, x.nameCode, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.factory)
+    m := MType(x.loc, env, x.lib.asm, x.qname, x.nameCode, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.factory)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }

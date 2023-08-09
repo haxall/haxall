@@ -89,7 +89,6 @@ class XetoBinaryWriter : XetoBinaryConst
   private Void writeType(XetoType type)
   {
     m := (MType)type.m
-    writeName(m.qnameCode)
     writeName(m.nameCode)
     writeNameDict(m.metaOwn.wrapped)
     writeVarInt(m.flags)
