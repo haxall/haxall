@@ -112,7 +112,7 @@ internal class RemoteLoader
     qname    := StrBuf(libName.size + 2 + name.size).add(libName).addChar(':').addChar(':').add(name).toStr
     type     := x.isType ? x.spec : resolve(x.type)
     base     := resolve(x.base)
-    metaOwn  := x.metaOwn
+    metaOwn  := loadMetaOwn(x.metaOwn)
     meta     := metaOwn // TODO
     slotsOwn := loadSlots(x)
     slots    := slotsOwn
@@ -129,6 +129,18 @@ internal class RemoteLoader
     }
     XetoSpec#m->setConst(x.spec, m)
     return x.spec
+  }
+
+  private NameDict loadMetaOwn(NameDict meta)
+  {
+    // short circuit on empty
+    if (meta.isEmpty) return meta
+
+    // resolve ref values
+    return meta.map |v, n|
+    {
+      v is RemoteLoaderSpecRef ? resolve(v) : v
+    }
   }
 
   private MSlots loadSlots(RemoteLoaderSpec x)
@@ -238,12 +250,20 @@ internal class RemoteLoaderSpec : NameDictReader
 **************************************************************************
 
 @Js
-internal class RemoteLoaderSpecRef
+internal const class RemoteLoaderSpecRef
 {
-  Int lib       // lib name
-  Int type      // top-level type name code
-  Int slot      // first level slot or zero if type only
-  Int[]? more   // slot path below first slot (uncommon)
+  new make(Int lib, Int type, Int slot, Int[]? more)
+  {
+    this.lib  = lib
+    this.type = type
+    this.slot = slot
+    this.more = more
+  }
+
+  const Int lib       // lib name
+  const Int type      // top-level type name code
+  const Int slot      // first level slot or zero if type only
+  const Int[]? more   // slot path below first slot (uncommon)
 
   override Str toStr() { "$lib $type $slot $more" }
 }
