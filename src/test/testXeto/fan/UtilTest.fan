@@ -159,6 +159,8 @@ class UtilTest : Test
     verifyErr(NotImmutableErr#) { t.dict8("a", "x", "b", "x", "c", "x", "d", "x", "e", "x", "f", "x", "g", "x", "h", this) }
     verifyErr(NotImmutableErr#) { t.dictMap(["a":this]) }
     verifyErr(NotImmutableErr#) { t.dictMap(big.dup.set("foo", this)) }
+    verifyErr(NotImmutableErr#) { t.dict1("foo", "bar").map |v, n| { this } }
+    verifyErr(NotImmutableErr#) { t.dictMap(big).map |v, n| { this } }
   }
 
   Void verifyDict(NameTable t, Int fixed, NameDict d, Str:Obj expect, Spec? spec := null)
@@ -255,6 +257,12 @@ class UtilTest : Test
     verifyEq(x.size, d.size)
     verifyEq(x.fixedSize, fixed)
     x.each |v, n| { verifyEq(d.get(n), v) }
+
+    // map
+    x = d.map |v, n| { n.upper }
+    verifyEq(x.size, d.size)
+    verifyEq(x.fixedSize, fixed)
+    x.each |v, n| { verifyEq(v, n.upper) }
   }
 
 //////////////////////////////////////////////////////////////////////////

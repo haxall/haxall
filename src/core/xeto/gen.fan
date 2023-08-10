@@ -84,6 +84,8 @@ class Gen : BuildScript
 
             public abstract Object eachWhile(Func f);
 
+            public abstract NameDict map(Func f);
+
             public long fixedSize() { return size(); }
 
             public final Object trap(String name) { return trap(name, (List)null); }
@@ -101,6 +103,12 @@ class Gen : BuildScript
             public long nameAt(int i) { throw IndexErr.make(); }
 
             public Object valAt(int i) { throw IndexErr.make(); }
+
+            static Object ci(Object v)
+            {
+              // check immutable
+              return FanObj.toImmutable(v);
+            }
 
           //////////////////////////////////////////////////////////////////////////
           // Map
@@ -142,6 +150,14 @@ class Gen : BuildScript
                 return null;
               }
 
+              public final NameDict map(Func f)
+              {
+                Object[] newVals = new Object[size];
+                for (int i=0; i<size; ++i)
+                  newVals[i] = ci(f.call(vals[i], table.name(names[i])));
+                return new Map(table, names, newVals, size, spec);
+              }
+
               public final long nameAt(int i) { return names[i]; }
 
               public final Object valAt(int i) { return vals[i]; }
@@ -174,6 +190,8 @@ class Gen : BuildScript
               public final void each(Func f) {}
 
               public final Object eachWhile(Func f) { return null; }
+
+              public final NameDict map(Func f) { return this; }
             }
           """);
 
@@ -238,6 +256,18 @@ class Gen : BuildScript
         out.printLine("      r = f.call(v${j}, table.name(n${j})); if (r != null) return r;")
       }
       out.printLine("      return null;")
+      out.printLine("    }")
+      out.printLine
+
+      // map
+      out.printLine("    public final NameDict map(Func f)")
+      out.printLine("    {")
+      out.printLine("      return new D${i}(table, ")
+      for (j:=0; j<i; ++j)
+      {
+        out.printLine("        n${j}, ci(f.call(v${j}, table.name(n${j}))), ")
+      }
+      out.printLine("        spec);")
       out.printLine("    }")
       out.printLine
 

@@ -52,6 +52,9 @@ native final const class NameDict  : Dict
   ** mapped to a non-null value, then throw an UnknownNameErr.
   override Obj? trap(Str name, Obj?[]? args := null)
 
+  ** Map values to another NameDict of the exact same size
+  NameDict map(|Obj val, Str name->Obj| f)
+
   ** Get name code at given index
   @NoDoc Int nameAt(Int index)
 

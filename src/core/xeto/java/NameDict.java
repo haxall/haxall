@@ -1,4 +1,4 @@
-// auto-generated 8-Aug-2023 Tue 11:03:34AM EDT
+// auto-generated 10-Aug-2023 Thu 8:23:38AM EDT
 
 package fan.xeto;
 
@@ -56,6 +56,8 @@ public abstract class NameDict extends FanObj implements Dict
 
   public abstract Object eachWhile(Func f);
 
+  public abstract NameDict map(Func f);
+
   public long fixedSize() { return size(); }
 
   public final Object trap(String name) { return trap(name, (List)null); }
@@ -73,6 +75,12 @@ public abstract class NameDict extends FanObj implements Dict
   public long nameAt(int i) { throw IndexErr.make(); }
 
   public Object valAt(int i) { throw IndexErr.make(); }
+
+  static Object ci(Object v)
+  {
+    // check immutable
+    return FanObj.toImmutable(v);
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Map
@@ -114,6 +122,14 @@ public abstract class NameDict extends FanObj implements Dict
       return null;
     }
 
+    public final NameDict map(Func f)
+    {
+      Object[] newVals = new Object[size];
+      for (int i=0; i<size; ++i)
+        newVals[i] = ci(f.call(vals[i], table.name(names[i])));
+      return new Map(table, names, newVals, size, spec);
+    }
+
     public final long nameAt(int i) { return names[i]; }
 
     public final Object valAt(int i) { return vals[i]; }
@@ -146,6 +162,8 @@ public abstract class NameDict extends FanObj implements Dict
     public final void each(Func f) {}
 
     public final Object eachWhile(Func f) { return null; }
+
+    public final NameDict map(Func f) { return this; }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -180,6 +198,13 @@ public abstract class NameDict extends FanObj implements Dict
       Object r;
       r = f.call(v0, table.name(n0)); if (r != null) return r;
       return null;
+    }
+
+    public final NameDict map(Func f)
+    {
+      return new D1(table, 
+        n0, ci(f.call(v0, table.name(n0))), 
+        spec);
     }
 
     public final long nameAt(int i)
@@ -235,6 +260,14 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v0, table.name(n0)); if (r != null) return r;
       r = f.call(v1, table.name(n1)); if (r != null) return r;
       return null;
+    }
+
+    public final NameDict map(Func f)
+    {
+      return new D2(table, 
+        n0, ci(f.call(v0, table.name(n0))), 
+        n1, ci(f.call(v1, table.name(n1))), 
+        spec);
     }
 
     public final long nameAt(int i)
@@ -299,6 +332,15 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v1, table.name(n1)); if (r != null) return r;
       r = f.call(v2, table.name(n2)); if (r != null) return r;
       return null;
+    }
+
+    public final NameDict map(Func f)
+    {
+      return new D3(table, 
+        n0, ci(f.call(v0, table.name(n0))), 
+        n1, ci(f.call(v1, table.name(n1))), 
+        n2, ci(f.call(v2, table.name(n2))), 
+        spec);
     }
 
     public final long nameAt(int i)
@@ -372,6 +414,16 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v2, table.name(n2)); if (r != null) return r;
       r = f.call(v3, table.name(n3)); if (r != null) return r;
       return null;
+    }
+
+    public final NameDict map(Func f)
+    {
+      return new D4(table, 
+        n0, ci(f.call(v0, table.name(n0))), 
+        n1, ci(f.call(v1, table.name(n1))), 
+        n2, ci(f.call(v2, table.name(n2))), 
+        n3, ci(f.call(v3, table.name(n3))), 
+        spec);
     }
 
     public final long nameAt(int i)
@@ -454,6 +506,17 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v3, table.name(n3)); if (r != null) return r;
       r = f.call(v4, table.name(n4)); if (r != null) return r;
       return null;
+    }
+
+    public final NameDict map(Func f)
+    {
+      return new D5(table, 
+        n0, ci(f.call(v0, table.name(n0))), 
+        n1, ci(f.call(v1, table.name(n1))), 
+        n2, ci(f.call(v2, table.name(n2))), 
+        n3, ci(f.call(v3, table.name(n3))), 
+        n4, ci(f.call(v4, table.name(n4))), 
+        spec);
     }
 
     public final long nameAt(int i)
@@ -545,6 +608,18 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v4, table.name(n4)); if (r != null) return r;
       r = f.call(v5, table.name(n5)); if (r != null) return r;
       return null;
+    }
+
+    public final NameDict map(Func f)
+    {
+      return new D6(table, 
+        n0, ci(f.call(v0, table.name(n0))), 
+        n1, ci(f.call(v1, table.name(n1))), 
+        n2, ci(f.call(v2, table.name(n2))), 
+        n3, ci(f.call(v3, table.name(n3))), 
+        n4, ci(f.call(v4, table.name(n4))), 
+        n5, ci(f.call(v5, table.name(n5))), 
+        spec);
     }
 
     public final long nameAt(int i)
@@ -645,6 +720,19 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v5, table.name(n5)); if (r != null) return r;
       r = f.call(v6, table.name(n6)); if (r != null) return r;
       return null;
+    }
+
+    public final NameDict map(Func f)
+    {
+      return new D7(table, 
+        n0, ci(f.call(v0, table.name(n0))), 
+        n1, ci(f.call(v1, table.name(n1))), 
+        n2, ci(f.call(v2, table.name(n2))), 
+        n3, ci(f.call(v3, table.name(n3))), 
+        n4, ci(f.call(v4, table.name(n4))), 
+        n5, ci(f.call(v5, table.name(n5))), 
+        n6, ci(f.call(v6, table.name(n6))), 
+        spec);
     }
 
     public final long nameAt(int i)
@@ -754,6 +842,20 @@ public abstract class NameDict extends FanObj implements Dict
       r = f.call(v6, table.name(n6)); if (r != null) return r;
       r = f.call(v7, table.name(n7)); if (r != null) return r;
       return null;
+    }
+
+    public final NameDict map(Func f)
+    {
+      return new D8(table, 
+        n0, ci(f.call(v0, table.name(n0))), 
+        n1, ci(f.call(v1, table.name(n1))), 
+        n2, ci(f.call(v2, table.name(n2))), 
+        n3, ci(f.call(v3, table.name(n3))), 
+        n4, ci(f.call(v4, table.name(n4))), 
+        n5, ci(f.call(v5, table.name(n5))), 
+        n6, ci(f.call(v6, table.name(n6))), 
+        n7, ci(f.call(v7, table.name(n7))), 
+        spec);
     }
 
     public final long nameAt(int i)
