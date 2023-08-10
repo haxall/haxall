@@ -20,6 +20,8 @@ internal const class LocalEnv : MEnv
     this.registry = registryRef
   }
 
+  override Bool isRemote() { false }
+
   override const LocalRegistry registry
 
   override Lib compileLib(Str src, Dict? opts := null)

@@ -28,8 +28,7 @@ class EnvTest : AbstractXetoTest
 
   Void testSysLib()
   {
-    //verifyAllEnvs |env| { verifySysLib(env) }
-    verifySysLib(env)
+    verifyAllEnvs("sys") |env| { verifySysLib(env) }
   }
 
   private Void verifySysLib(XetoEnv env)
@@ -41,11 +40,10 @@ class EnvTest : AbstractXetoTest
     verifySame(env.lib("sys"), sys)
     verifyEq(sys.name, "sys")
     verifyEq(sys.version, curVersion)
-// TODO
-//    verifyEq(sys["version"], typeof.pod.version)
+    //verifyEq(sys.meta["version"], curVersion)  TODO
     verifySame(env.sysLib, sys)
 
- env.print(sys)
+    //  env.print(sys)
 
     // types
     obj    := verifyLibType(sys, "Obj",      null)
@@ -118,6 +116,11 @@ class EnvTest : AbstractXetoTest
 //////////////////////////////////////////////////////////////////////////
 
   Void testPhLib()
+  {
+    verifyAllEnvs("ph") |env| { verifyPhLib(env) }
+  }
+
+  private Void verifyPhLib(XetoEnv env)
   {
     // lib basics
     ph := verifyLibBasics("ph", curVersion)
@@ -519,6 +522,10 @@ class EnvTest : AbstractXetoTest
     verifySame(lib.env, env)
     verifyEq(lib.name, name)
     verifyEq(lib.version, version)
+
+    Lib? async := null
+    env.libAsync(name) |x| { async = x }
+    verifySame(async, lib)
 
     verifyEq(lib.type("Bad", false), null)
     verifyErr(UnknownSpecErr#) { lib.type("Bad") }

@@ -12,6 +12,7 @@ using haystack
 **
 ** UtilTest
 **
+@Js
 class UtilTest : Test
 {
 

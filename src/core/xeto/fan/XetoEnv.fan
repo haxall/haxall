@@ -35,6 +35,11 @@ const abstract class XetoEnv
     curRef.val = Type.find("xetoc::MEnv").make
   }
 
+  ** Is this a remote environment loaded over a network transport.
+  ** Remote environments must load libraries asynchronously and do
+  ** not support the full feature set.
+  abstract Bool isRemote()
+
   ** None singleton value
   abstract Obj none()
 
@@ -93,6 +98,10 @@ const abstract class XetoEnv
   ** Get or load library by the given qualified name
   abstract Lib? lib(Str qname, Bool checked := true)
 
+  ** Get or load library asynchronously by the given qualified name.
+  ** Once loaded then invoke callback with library or null if not found.
+  abstract Void libAsync(Str qname, |Lib?| f)
+
   ** Get the 'sys' library
   @NoDoc abstract Lib sysLib()
 
@@ -100,7 +109,6 @@ const abstract class XetoEnv
   abstract Spec? type(Str qname, Bool checked := true)
 
   ** Get or load spec by the given qualified name:
-  **   - lib: "foo.bar"
   **   - type: "foo.bar::Baz"
   **   - slot: "foo.bar::Baz.qux"
   abstract Spec? spec(Str qname, Bool checked := true)

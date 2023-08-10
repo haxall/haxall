@@ -28,6 +28,7 @@ class XetoBinaryWriter : XetoBinaryConst
 
   new make(XetoTransport transport, OutStream out)
   {
+    this.transport = transport
     this.names = transport.names
     this.maxNameCode = transport.maxNameCode
     this.out = out
@@ -37,7 +38,7 @@ class XetoBinaryWriter : XetoBinaryConst
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  internal Void writeRemoteEnvBootstrap(MEnv env)
+  Void writeBoot()
   {
     writeI4(magic)
     writeI4(version)
@@ -71,7 +72,7 @@ class XetoBinaryWriter : XetoBinaryConst
 // Lib
 //////////////////////////////////////////////////////////////////////////
 
-  internal Void writeLib(XetoLib lib)
+  Void writeLib(XetoLib lib)
   {
     writeI4(magicLib)
     writeName(lib.m.nameCode)
@@ -154,7 +155,8 @@ if (type === Float#)      return writeStr(val.toStr)
 if (type === Int#)        return writeStr(val.toStr)
 if (type === Version#)    return writeStr(val.toStr)
 
-    throw Err("$val [$val.typeof]")
+echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
+    writeStr(val.toStr)
   }
 
   private Void writeMarker()
@@ -305,10 +307,13 @@ if (type === Version#)    return writeStr(val.toStr)
     return out.write(0xe0).writeI8(val)
   }
 
+  MEnv env() { transport.env }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private const XetoTransport transport
   private const NameTable names
   private const Int maxNameCode
   private OutStream out

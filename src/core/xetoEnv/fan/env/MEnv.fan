@@ -33,7 +33,7 @@ abstract const class MEnv : XetoEnv
     this.dict0       = Etc.dict0
     this.registryRef = registry
     if (f != null) f(this)
-    this.sysLib      = registry.load("sys")
+    this.sysLib      = registry.loadSync("sys")
     this.sys         = MSys(sysLib)
     this.dictSpec    = sys.dict
   }
@@ -123,7 +123,12 @@ abstract const class MEnv : XetoEnv
 
   override XetoLib? lib(Str qname, Bool checked := true)
   {
-    registry.load(qname, checked)
+    registry.loadSync(qname, checked)
+  }
+
+  override Void libAsync(Str qname, |Lib?| f)
+  {
+    registry.loadAsync(qname, f)
   }
 
   override XetoType? type(Str qname, Bool checked := true)

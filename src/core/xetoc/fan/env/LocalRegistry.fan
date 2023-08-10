@@ -77,7 +77,7 @@ internal const class LocalRegistry : MRegistry
     acc[qname] = LocalRegistryEntry(qname, src, zip)
   }
 
-  override Lib? load(Str qname, Bool checked := true)
+  override Lib? loadSync(Str qname, Bool checked := true)
   {
     // check for install
     entry := get(qname, checked)
@@ -88,6 +88,11 @@ internal const class LocalRegistry : MRegistry
 
     // compile the lib into memory and atomically cache once
     return compile(entry, null)
+  }
+
+  override Void loadAsync(Str qname, |Lib?| f)
+  {
+    f(loadSync(qname, false))
   }
 
   override Int build(LibRegistryEntry[] libs)
@@ -130,7 +135,7 @@ internal const class LocalRegistry : MRegistry
     }
 
     // use normal load code path
-    return load(qname, false)
+    return loadSync(qname, false)
   }
 
   Lib compile(LocalRegistryEntry entry, [Str:LocalRegistryEntry]? build)

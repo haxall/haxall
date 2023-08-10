@@ -19,15 +19,19 @@ using xetoEnv
 @Js
 class AbstractXetoTest : HaystackTest
 {
-  Void verifyAllEnvs(|XetoEnv| f)
+  Void verifyAllEnvs(Str lib, |XetoEnv| f)
   {
     // first test local
     envRef = XetoEnv.cur
+    verifyEq(env.isRemote, false)
     f(env)
 
     // test remote
     envRef = initRemote
-    f(env)
+    verifyEq(env.isRemote, true)
+
+    // make sure sure lib is loaded
+    env.libAsync(lib) |x| { f(env) }
   }
 
   XetoEnv env()
@@ -47,12 +51,16 @@ class AbstractXetoTest : HaystackTest
   RemoteEnv initRemote()
   {
     local := XetoEnv.cur
+    server := TestServer(local)
+    client := TestClient(server)
+
     buf := Buf()
-    serverTransport := XetoTransport.writeEnvBootstrap(local, buf.out)
+    XetoBinaryWriter(server, buf.out).writeBoot
 echo("--- init remote bootstrap size = $buf.size bytes ---")
 //echo(buf.toHex)
 
-    envRef = XetoTransport.readEnvBootstrap(buf.flip.in)
+
+    envRef = client.boot(buf.flip.in)
 
     verifyEq(env.names.maxCode, local.names.maxCode)
     verifyEq(env.names.toName(3), local.names.toName(3))
@@ -60,4 +68,39 @@ echo("--- init remote bootstrap size = $buf.size bytes ---")
 
     return env
   }
+}
+
+**************************************************************************
+** TestClient
+**************************************************************************
+
+@Js
+const class TestClient : XetoClient
+{
+  new make(TestServer server) { this.server = server }
+
+  const TestServer server
+
+  override Void loadLib(Str qname, |Lib?| f)
+  {
+    serverLib := server.env.lib(qname, false)
+    if (serverLib == null) { f(null); return }
+
+    buf := Buf()
+    XetoBinaryWriter(server, buf.out).writeLib(serverLib)
+    echo("--- load lib $qname size = $buf.size bytes ---")
+
+    clientLib := XetoBinaryReader(this, buf.flip.in).readLib
+    f(clientLib)
+  }
+}
+
+**************************************************************************
+** TestServer
+**************************************************************************
+
+@Js
+const class TestServer : XetoServer
+{
+  new make(MEnv env) : super(env) {}
 }

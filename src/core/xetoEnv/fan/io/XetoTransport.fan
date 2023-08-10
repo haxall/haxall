@@ -12,38 +12,21 @@ using xeto
 
 **
 ** Transport for I/O of Xeto specs and data across network.
-** An instance of XetoTransport is used on both client and server endpoints.
+** This is the base class for XetoClient and XetoServer.
 **
 @Js
-class XetoTransport
+abstract const class XetoTransport
 {
-  ** Construct with name table
-  private new make(NameTable names)
-  {
-    this.names = names
-    this.maxNameCode = names.maxCode
-  }
+
+  ** Environment for the transport
+  abstract MEnv env()
 
   ** Shared name table up to maxNameCode
-  const NameTable names
+  abstract NameTable names()
 
-  ** Max name code (inclusive)
-  const Int maxNameCode
+  ** Max name code (inclusive) that safe to use
+  abstract Int maxNameCode()
 
-  ** Write boostrap data  for a remote env client to given output
-  ** stream and return new transport for server endpoint.
-  static XetoTransport writeEnvBootstrap(XetoEnv local, OutStream out)
-  {
-    transport := make(local.names)
-    XetoBinaryWriter(transport, out).writeRemoteEnvBootstrap(local)
-    return transport
-  }
-
-  ** Read boostrap data and create new RemoteEnv instance
-  static RemoteEnv readEnvBootstrap(InStream in)
-  {
-    XetoBinaryReader(make(NameTable()), in).readRemoteEnvBootstrap
-  }
 }
 
 

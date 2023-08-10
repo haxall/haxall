@@ -18,8 +18,11 @@ using haystack::UnknownLibErr
 abstract const class MRegistry : LibRegistry
 {
 
-  ** Load the given library
-  abstract Lib? load(Str qname, Bool checked := true)
+  ** Load the given library synchronously
+  abstract Lib? loadSync(Str qname, Bool checked := true)
+
+  ** Load the given library asynchronously
+  abstract Void loadAsync(Str qname, |Lib?| f)
 
 }
 

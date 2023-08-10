@@ -17,8 +17,9 @@ using haystack::UnknownLibErr
 @Js
 internal const class RemoteRegistry : MRegistry
 {
-  new make(RemoteRegistryEntry[] list)
+  new make(XetoClient client, RemoteRegistryEntry[] list)
   {
+    this.client = client
     this.list = list
     this.map  = Str:RemoteRegistryEntry[:].addList(list) { it.name }
   }
@@ -31,7 +32,7 @@ internal const class RemoteRegistry : MRegistry
     return null
   }
 
-  override Lib? load(Str qname, Bool checked := true)
+  override Lib? loadSync(Str qname, Bool checked := true)
   {
     // check for install
     entry := get(qname, checked)
@@ -40,8 +41,30 @@ internal const class RemoteRegistry : MRegistry
     // check for cached loaded lib
     if (entry.isLoaded) return entry.get
 
+    // cannot use this method to load
+    throw Err("Remote lib $qname.toCode not loaded, must use libAsync")
+  }
+
+  override Void loadAsync(Str qname,|Lib?| f)
+  {
+    // check for install
+    entry := get(qname, false)
+    if (entry == null) { f(null); return }
+
+    // check for cached loaded lib
+    if (entry.isLoaded) { f(entry.get); return }
+
     // load from transport
-    throw Err("TODO")
+    client.loadLib(qname) |lib|
+    {
+      if (lib != null)
+      {
+        entry.set(lib)
+        lib = entry.get
+      }
+
+      f(lib)
+    }
   }
 
   override Int build(LibRegistryEntry[] libs)
@@ -49,6 +72,7 @@ internal const class RemoteRegistry : MRegistry
     throw UnsupportedErr()
   }
 
+  const XetoClient client
   override const RemoteRegistryEntry[] list
   const Str:RemoteRegistryEntry map
 }

@@ -20,6 +20,8 @@ const class RemoteEnv : MEnv
   {
   }
 
+  override Bool isRemote() { true }
+
   override Lib compileLib(Str src, Dict? opts := null)
   {
     throw UnsupportedErr()
