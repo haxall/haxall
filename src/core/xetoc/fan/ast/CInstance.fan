@@ -25,9 +25,6 @@ internal mixin CInstance : CNode
   ** Return if this an AST ADict
   abstract Bool isAst()
 
-  ** Ref identifiers
-  abstract Ref id()
-
   ** Type of dict
   abstract CSpec ctype()
 
@@ -42,7 +39,7 @@ internal const class CInstanceWrap : CInstance
   new make(Dict w) { this.w = w }
   const Dict w
   override Bool isAst() { false }
-  override Ref id() { w->id }
+  override haystack::Ref id() { w->id }
   override CSpec ctype() { (XetoSpec)w.spec }
   override Obj asm() { id }
 }

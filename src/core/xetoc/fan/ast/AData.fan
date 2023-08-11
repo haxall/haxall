@@ -207,6 +207,6 @@ internal class AInstance : ADict, CInstance
   override Bool isAst() { true }
 
   ** Return scalar id
-  override Ref id() { get("id")?.asm ?: throw NotReadyErr() }
+  override haystack::Ref id() { get("id")?.asm ?: throw NotReadyErr() }
 
 }

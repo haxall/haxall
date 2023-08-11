@@ -33,6 +33,7 @@ internal class RSpec : CSpec, NameDictReader
   override Bool isAst() { true }
 
   override Str qname() { throw UnsupportedErr() }
+  override haystack::Ref id() { throw UnsupportedErr() }
   override SpecFactory factory() { throw UnsupportedErr() }
   override CSpec? ctype
   override CSpec? cbase

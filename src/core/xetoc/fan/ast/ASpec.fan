@@ -68,6 +68,9 @@ internal class ASpec : ANode, CSpec
   ** Qualified name
   const override Str qname
 
+  ** Ref of qualified name
+  override once haystack::Ref id() { haystack::Ref(qname, null) }
+
   ** XetoSpec for this spec - we backpatch the "m" field in Assemble step
   const override XetoSpec asm
 

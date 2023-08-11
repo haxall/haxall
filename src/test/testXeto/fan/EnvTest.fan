@@ -128,9 +128,17 @@ class EnvTest : AbstractXetoTest
     verifyEq(ph.depends[0].name, "sys")
     verifyEq(ph.depends[0].versions.toStr, "" + curVersion.major + "." + curVersion.minor + ".x")
 
-    entity := verifyLibType(ph, "Entity", env.type("sys::Dict"))
-    equip  := verifyLibType(ph, "Equip",  entity)
-    meter  := verifyLibType(ph, "Meter",  equip)
+    entity    := verifyLibType(ph, "Entity", env.type("sys::Dict"))
+    equip     := verifyLibType(ph, "Equip",  entity)
+    meter     := verifyLibType(ph, "Meter",  equip)
+    elecMeter := verifyLibType(ph, "ElecMeter",  meter)
+
+env.print(elecMeter)
+
+    marker := env.spec("sys::Marker")
+    verifyEq(elecMeter.slot("elec").type, marker)
+//     verifyEq(elecMeter.slot("meter").type, marker)
+//     verifyEq(elecMeter.slot("equip").type, marker)
   }
 
 //////////////////////////////////////////////////////////////////////////

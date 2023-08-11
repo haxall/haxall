@@ -69,7 +69,7 @@ internal class Reify : Step
     // name/value pairs
     acc := Str:Obj[:]
     acc.ordered = true
-    x.each |obj, name| { acc[name] = obj.asm }
+    x.each |obj, name| { acc[name] = reifyDictVal(obj) }
 
     // create as Dict
     dict := MNameDict(env.names.dictMap(acc, type?.asm))
@@ -104,8 +104,13 @@ internal class Reify : Step
     of := x.listOf ?: Obj#
 
     list := List(of, x.size)
-    x.each |obj| { list.add(obj.asm) }
+    x.each |obj| { list.add(reifyDictVal(obj)) }
     return list.toImmutable
+  }
+
+  private Obj reifyDictVal(ANode x)
+  {
+    x.asm
   }
 
 //////////////////////////////////////////////////////////////////////////

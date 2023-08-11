@@ -27,6 +27,9 @@ mixin CSpec : CNode
   ** Qualified name
   abstract Str qname()
 
+  ** Ref for qualified name
+  abstract override haystack::Ref id()
+
   ** Factory for spec type
   abstract SpecFactory factory()
 
@@ -73,6 +76,9 @@ mixin CNode
 {
   ** Required for covariant conflict so that signature matches ANode
   abstract Obj asm()
+
+  ** Qualified name as Ref
+  abstract haystack::Ref id()
 }
 
 
