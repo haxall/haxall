@@ -40,7 +40,7 @@ internal class RemoteLoader
     loadFactories
 
     version   := Version.fromStr((Str)libMeta->version)
-    depends   := MLibDepend[,] // TODO: from meta
+    depends   := loadDepends
     types     := loadTypes
     instances := loadInstances
 
@@ -62,6 +62,27 @@ internal class RemoteLoader
     name := names.toName(nameCode)
     x := RemoteLoaderSpec(XetoSpec(), parent, nameCode, name)
     return x
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Lib Depends
+//////////////////////////////////////////////////////////////////////////
+
+  private MLibDepend[] loadDepends()
+  {
+    obj := libMeta["depends"]
+    if (obj == null) return MLibDepend#.emptyList
+    list := (NameDict)obj
+
+    acc := MLibDepend[,]
+    acc.capacity = list.size
+    list.each |NameDict x|
+    {
+      name := x->lib
+      vers := MLibDependVersions(x->versions.toStr, true)
+      acc.add(MLibDepend(name, vers, loc))
+    }
+    return acc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -180,7 +201,12 @@ internal class RemoteLoader
 
   private XetoSpec resolveExternal(RemoteLoaderSpecRef ref)
   {
-    throw Err("TODO")
+    // should already be loaded
+    lib := env.lib(names.toName(ref.lib))
+    type := lib.type(names.toName(ref.type))
+    if (ref.slot == 0) return type
+
+    throw Err("TODO: $type $ref")
   }
 
 //////////////////////////////////////////////////////////////////////////
