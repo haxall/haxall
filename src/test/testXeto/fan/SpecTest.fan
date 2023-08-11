@@ -68,6 +68,11 @@ class SpecTest : AbstractXetoTest
 
   Void testIsa()
   {
+    verifyAllEnvs("ph.points") |env| { doTestIsa }
+  }
+
+  Void doTestIsa()
+  {
     verifyIsa("sys::Obj", "sys::Obj", true)
     verifyIsa("sys::Obj", "sys::Str", false)
 
@@ -106,6 +111,8 @@ class SpecTest : AbstractXetoTest
 
     verifyIsa("sys::And",   "sys::And",   true, false)
     verifyIsa("sys::Or",    "sys::Or",    true, false)
+
+env.print(env.spec("ph.points::DischargeAirTempSensor"))
 
     verifyIsa("ph.points::AirFlowSensor", "sys::And", true)
     verifyIsa("ph.points::AirFlowSensor", "ph::Point", true)

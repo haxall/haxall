@@ -66,11 +66,23 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     {
       nameCode := readVarInt
       if (nameCode == 0) break
-      name := names.toName(nameCode)
-      acc.add(RemoteRegistryEntry(name))
+      entry := readRegistryEntry(nameCode)
+      acc.add(entry)
     }
 
     return RemoteRegistry(transport, acc)
+  }
+
+  private RemoteRegistryEntry readRegistryEntry(Int nameCode)
+  {
+    name := names.toName(nameCode)
+
+    dependsSize := readVarInt
+    depends := Str[,]
+    depends.capacity = dependsSize
+    dependsSize.times { depends.add(names.toName(readName)) }
+
+    return RemoteRegistryEntry(name, depends)
   }
 
 //////////////////////////////////////////////////////////////////////////

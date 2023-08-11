@@ -113,8 +113,9 @@ internal class ProcessPragma : Step
       if (versions == null) return err("Invalid versions syntax: $versionsStr", versionsObj.loc)
     }
 
-    // register the library into our depends map
+    // register the library into our names table and our depends map
     if (acc[libName] != null) return err("Duplicate depend '$libName'", loc)
+    env.names.add(libName)
     acc[libName] = MLibDepend(libName, versions, loc)
   }
 }

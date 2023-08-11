@@ -196,6 +196,9 @@ internal class RemoteLoader
     type := types.getChecked(names.toName(ref.type))
     if (ref.slot == 0) return type.spec
 
+    slot := type.slotsOwn.find |s| { s.nameCode == ref.slot } ?: throw UnresolvedErr(ref.toStr)
+    if (ref.more == null) return slot.spec
+
     throw Err("TODO: $ref")
   }
 
@@ -203,8 +206,11 @@ internal class RemoteLoader
   {
     // should already be loaded
     lib := env.lib(names.toName(ref.lib))
-    type := lib.type(names.toName(ref.type))
+    type := (XetoType)lib.type(names.toName(ref.type))
     if (ref.slot == 0) return type
+
+    slot := type.m.slots.map.getByCode(ref.slot) ?: throw UnresolvedErr(ref.toStr)
+    if (ref.more == null) return slot
 
     throw Err("TODO: $type $ref")
   }

@@ -32,39 +32,72 @@ internal const class RemoteRegistry : MRegistry
     return null
   }
 
-  override Lib? loadSync(Str qname, Bool checked := true)
+  override Lib? loadSync(Str name, Bool checked := true)
   {
     // check for install
-    entry := get(qname, checked)
+    entry := get(name, checked)
     if (entry == null) return null
 
     // check for cached loaded lib
     if (entry.isLoaded) return entry.get
 
     // cannot use this method to load
-    throw Err("Remote lib $qname.toCode not loaded, must use libAsync")
+    throw Err("Remote lib $name.toCode not loaded, must use libAsync")
   }
 
-  override Void loadAsync(Str qname,|Lib?| f)
+  override Void loadAsync(Str name,|Lib?| f)
   {
     // check for install
-    entry := get(qname, false)
+    entry := get(name, false)
     if (entry == null) { f(null); return }
 
     // check for cached loaded lib
     if (entry.isLoaded) { f(entry.get); return }
 
+    // now flatten out unloaded depends
+     toLoad := flattenUnloadedDepends(Str[,], entry)
+
+    // load each one async in order
+    doLoadAsync(toLoad, 0, f)
+  }
+
+  private Void doLoadAsync(Str[] names, Int index, |Lib?| f)
+  {
     // load from transport
-    client.loadLib(qname) |lib|
+    name := names[index]
+    client.loadLib(name) |lib|
     {
+      // update entry with the library instance
       if (lib != null)
       {
+        entry := get(name)
         entry.set(lib)
         lib = entry.get
       }
 
-      f(lib)
+      // recursively load the next library in our flattened
+      // depends list or if last one then invoke the callback
+      index++
+      if (index < names.size)
+        doLoadAsync(names, index, f)
+      else
+        f(lib)
     }
+  }
+
+  Str[] flattenUnloadedDepends(Str[] acc, RemoteRegistryEntry entry)
+  {
+    entry.depends.each |dependName|
+    {
+      // if dependency is already loaded or already in our load list skip it
+      depend := get(dependName)
+      if (depend.isLoaded || acc.contains(depend.name)) return
+
+      // recursively get its unloaded dependencies
+      flattenUnloadedDepends(acc, depend)
+    }
+    acc.add(entry.name)
+    return acc
   }
 
   override Int build(LibRegistryEntry[] libs)
@@ -84,12 +117,15 @@ internal const class RemoteRegistry : MRegistry
 @Js
 internal const class RemoteRegistryEntry : MRegistryEntry
 {
-  new make(Str name)
+  new make(Str name, Str[] depends)
   {
     this.name = name
+    this.depends = depends
   }
 
   override const Str name
+
+  const Str[] depends   // depends library names
 
   override Version version() { Version.defVal }
 

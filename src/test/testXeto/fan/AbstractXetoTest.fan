@@ -24,6 +24,7 @@ class AbstractXetoTest : HaystackTest
     // first test local
     envRef = XetoEnv.cur
     verifyEq(env.isRemote, false)
+    env.lib(lib)
     f(env)
 
     // test remote
@@ -31,7 +32,11 @@ class AbstractXetoTest : HaystackTest
     verifyEq(env.isRemote, true)
 
     // make sure sure lib is loaded
-    env.libAsync(lib) |x| { f(env) }
+    env.libAsync(lib) |x|
+    {
+      if (x == null) throw Err("Lib not found: $lib")
+      f(env)
+    }
   }
 
   XetoEnv env()

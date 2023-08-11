@@ -77,10 +77,10 @@ internal const class LocalRegistry : MRegistry
     acc[qname] = LocalRegistryEntry(qname, src, zip)
   }
 
-  override Lib? loadSync(Str qname, Bool checked := true)
+  override Lib? loadSync(Str name, Bool checked := true)
   {
     // check for install
-    entry := get(qname, checked)
+    entry := get(name, checked)
     if (entry == null) return null
 
     // check for cached loaded lib
@@ -90,9 +90,9 @@ internal const class LocalRegistry : MRegistry
     return compile(entry, null)
   }
 
-  override Void loadAsync(Str qname, |Lib?| f)
+  override Void loadAsync(Str name, |Lib?| f)
   {
-    f(loadSync(qname, false))
+    f(loadSync(name, false))
   }
 
   override Int build(LibRegistryEntry[] libs)

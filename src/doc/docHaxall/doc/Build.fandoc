@@ -28,7 +28,7 @@ of [Fantom]`https://fantom.org/` rather than building from scratch:
 
   2. See [Fantom Setup]`docTools::Setup`
 
-  3. Make sure 'fan' or 'fan.exe' is in your executable path
+  3. Make sure 'fan' or 'fan.bat' is in your executable path
 
 There are cases where the current version of the Haxall repo requires
 building Fantom from source.  We call this a *bootstrap* build because Fantom

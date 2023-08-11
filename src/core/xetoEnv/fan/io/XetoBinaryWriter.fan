@@ -61,11 +61,16 @@ class XetoBinaryWriter : XetoBinaryConst
   {
     env.registry.list.each |MRegistryEntry entry|
     {
-      if (!entry.isLoaded) return
-      lib := entry.get
-      writeVarInt(lib.m.nameCode)
+      if (entry.isLoaded) writeRegistryEntry(entry.get)
     }
     writeVarInt(0)
+  }
+
+  private Void writeRegistryEntry(XetoLib lib)
+  {
+    writeName(lib.m.nameCode)
+    writeVarInt(lib.depends.size)
+    lib.depends.each |d| { writeName(names.toCode(d.name)) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,6 +159,7 @@ if (type === Number#)     return writeStr(val.toStr)
 if (type === Float#)      return writeStr(val.toStr)
 if (type === Int#)        return writeStr(val.toStr)
 if (type === Version#)    return writeStr(val.toStr)
+if (val is List)          return writeStr(val.toStr)
 
 echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
     writeStr(val.toStr)

@@ -28,10 +28,10 @@ class EnvTest : AbstractXetoTest
 
   Void testSysLib()
   {
-    verifyAllEnvs("sys") |env| { verifySysLib(env) }
+    verifyAllEnvs("sys") |env| { doTestSysLib(env) }
   }
 
-  private Void verifySysLib(XetoEnv env)
+  private Void doTestSysLib(XetoEnv env)
   {
     verifySame(this.env, env)
 
@@ -117,10 +117,10 @@ class EnvTest : AbstractXetoTest
 
   Void testPhLib()
   {
-    verifyAllEnvs("ph") |env| { verifyPhLib(env) }
+    verifyAllEnvs("ph") |env| { doTestPhLib(env) }
   }
 
-  private Void verifyPhLib(XetoEnv env)
+  private Void doTestPhLib(XetoEnv env)
   {
     // lib basics
     ph := verifyLibBasics("ph", curVersion)
