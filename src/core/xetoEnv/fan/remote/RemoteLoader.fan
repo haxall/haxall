@@ -123,51 +123,68 @@ internal class RemoteLoader
 
   private Str:XetoType loadTypes()
   {
-    types.map |x->XetoType| { loadSpec(x) }
+    types.map |x->XetoType| { loadSpec(x).asm }
   }
 
-  private XetoSpec loadSpec(RSpec x)
+  private RSpec loadSpec(RSpec x)
   {
-    parent   := x.parent?.asm
-    name     := x.name
-    qname    := StrBuf(libName.size + 2 + name.size).add(libName).addChar(':').addChar(':').add(name).toStr
-    type     := x.isType ? x.asm : resolve(x.type).asm
-    base     := resolve(x.base)?.asm
-    metaOwn  := loadMetaOwn(x.metaOwn)
-    meta     := metaOwn // TODO
-    slotsOwn := loadSlots(x)
-    slots    := slotsOwn
+    if (x.isLoaded) return x
+
+    x.isLoaded = true
+    x.base     = resolve(x.baseIn)
+    x.metaOwn  = loadMetaOwn(x)
+    x.slotsOwn = loadSlotsOwn(x)
+
+    if (x.base == null)
+    {
+      // sys::Obj
+      x.meta  = x.metaOwn
+      x.slots = x.slotsOwn
+    }
+    else
+    {
+      // recursively load base and inherit
+      if (x.base.isAst) loadSpec(x.base)
+      x.meta = inheritMeta(x)
+      x.slots = inheritSlots(x)
+    }
 
     MSpec? m
     if (x.isType)
     {
-      factory  := assignFactory(x)
-      m = MType(loc, env, lib, qname, x.nameCode, base, type, MNameDict(meta), MNameDict(metaOwn), slots, slotsOwn, x.flags, factory)
+      factory := assignFactory(x)
+      qname   := StrBuf(libName.size + 2 + x.name.size).add(libName).addChar(':').addChar(':').add(x.name).toStr
+      m = MType(loc, env, lib, qname, x.nameCode, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, factory)
     }
     else
     {
-      m = MSpec(loc, env, parent, x.nameCode, base, type, MNameDict(meta), MNameDict(metaOwn), slots, slotsOwn, x.flags)
+      x.type = resolve(x.typeIn).asm
+      m = MSpec(loc, env, x.parent.asm, x.nameCode, x.base.asm, x.type, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags)
     }
     XetoSpec#m->setConst(x.asm, m)
-    return x.asm
+    return x
   }
 
-  private NameDict loadMetaOwn(NameDict meta)
+  private MNameDict loadMetaOwn(RSpec x)
   {
     // short circuit on empty
-    if (meta.isEmpty) return meta
+    m := x.metaIn
+    if (m.isEmpty) return MNameDict.empty
 
-    // resolve ref values
-    return meta.map |v, n|
+    // resolve spec ref values
+    m = m.map |v, n|
     {
       v is RSpecRef ? resolve(v).asm : v
     }
+
+    // wrap
+    return MNameDict(m)
   }
 
-  private MSlots loadSlots(RSpec x)
+  private MSlots loadSlotsOwn(RSpec x)
   {
     // short circuit if no slots
-    slots := x.slotsOwn
+    slots := x.slotsIn
     if (slots == null || slots.isEmpty) return MSlots.empty
 
     // recursively load slot specs
@@ -176,6 +193,41 @@ internal class RemoteLoader
     // RSpec is a NameDictReader to iterate slots as NameDict
     dict := names.readDict(slots.size, x, null)
     return MSlots(dict)
+  }
+
+  private MNameDict inheritMeta(RSpec x)
+  {
+    if (x.metaOwn.isEmpty) return x.base.cmeta
+    // TODO: I'm not sure AND/OR are merging meta
+    return x.metaOwn
+  }
+
+  private MSlots inheritSlots(RSpec x)
+  {
+    base := x.base
+    if (x.slotsOwn.isEmpty)
+    {
+      // TODO: this is type ref problem
+      if (base === x.parent) return MSlots.empty
+
+      if (base.isAst)
+        return ((RSpec)base).slots ?: MSlots.empty // TODO: recursive base problem
+      else
+        return ((XetoSpec)base).m.slots
+    }
+
+    // TODO: just simple direct base class solution (not AND/OR)
+    acc := Str:XetoSpec[:]
+    acc.ordered = true
+    x.base.cslots |slot|
+    {
+      if (acc[slot.name] == null) acc[slot.name] = slot.asm
+    }
+    x.slotsOwn.each |slot|
+    {
+      acc[slot.name] = slot
+    }
+    return MSlots(names.dictMap(acc))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -196,7 +248,7 @@ internal class RemoteLoader
     type := types.getChecked(names.toName(ref.type))
     if (ref.slot == 0) return type
 
-    slot := type.slotsOwn.find |s| { s.nameCode == ref.slot } ?: throw UnresolvedErr(ref.toStr)
+    slot := type.slotsIn.find |s| { s.nameCode == ref.slot } ?: throw UnresolvedErr(ref.toStr)
     if (ref.more == null) return slot
 
     throw Err("TODO: $ref")

@@ -270,7 +270,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final CSpec? ctype() { m.type }
 
-  override final Dict cmeta() { m.meta }
+  override final MNameDict cmeta() { m.meta }
 
   override final CSpec? cslot(Str n, Bool c := true) { m.slot(n, c) }
 

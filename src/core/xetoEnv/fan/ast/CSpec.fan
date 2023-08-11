@@ -40,7 +40,7 @@ mixin CSpec : CNode
   abstract CSpec? cbase()
 
   ** Effective meta
-  abstract Dict cmeta()
+  abstract MNameDict cmeta()
 
   ** Lookup effective slot
   abstract CSpec? cslot(Str name, Bool checked := true)

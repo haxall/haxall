@@ -116,11 +116,11 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Void readSpec(RemoteLoader loader, RSpec x)
   {
-    x.base     = readSpecRef
-    x.type     = readSpecRef
-    x.metaOwn  = readMeta
-    x.slotsOwn = readSlots(loader, x)
-    x.flags    = readVarInt
+    x.baseIn  = readSpecRef
+    x.typeIn  = readSpecRef
+    x.metaIn  = readMeta
+    x.slotsIn = readSlots(loader, x)
+    x.flags   = readVarInt
    }
 
   private RSpec[]? readSlots(RemoteLoader loader, RSpec parent)

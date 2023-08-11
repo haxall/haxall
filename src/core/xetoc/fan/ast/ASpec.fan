@@ -242,8 +242,8 @@ internal class ASpec : ANode, CSpec
   Dict? metaOwnRef
 
   ** Effective meta (set in InheritMeta)
-  override Dict cmeta() { cmetaRef ?: throw NotReadyErr(qname) }
-  Dict? cmetaRef
+  override MNameDict cmeta() { cmetaRef ?: throw NotReadyErr(qname) }
+  MNameDict? cmetaRef
 
   ** Iterate the effective slots
   override Void cslots(|CSpec, Str| f)

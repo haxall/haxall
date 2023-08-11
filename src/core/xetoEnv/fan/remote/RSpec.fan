@@ -21,6 +21,7 @@ internal class RSpec : CSpec, NameDictReader
   {
     this.asm      = asm
     this.parent   = parent
+    this.isType   = parent == null
     this.name     = name
     this.nameCode = nameCode
   }
@@ -28,27 +29,38 @@ internal class RSpec : CSpec, NameDictReader
   const override XetoSpec asm
   const override Str name
   const Int nameCode
+  const Bool isType
   RSpec? parent { private set }
 
-  override Bool isAst() { true }
+  // decoded by XetoBinaryReader
+  RSpecRef? baseIn
+  RSpecRef? typeIn
+  NameDict? metaIn
+  RSpec[]? slotsIn
 
+  // RemoteLoader.loadSpec
+  Bool isLoaded
+  CSpec? type
+  CSpec? base
+  MNameDict? metaOwn
+  MNameDict? meta
+  MSlots? slotsOwn
+  MSlots? slots
+
+  // CSpec
+  override Bool isAst() { true }
   override Str qname() { throw UnsupportedErr() }
   override haystack::Ref id() { throw UnsupportedErr() }
   override SpecFactory factory() { throw UnsupportedErr() }
   override CSpec? ctype
   override CSpec? cbase
-  override Dict cmeta() { throw UnsupportedErr() }
-  override CSpec? cslot(Str name, Bool checked := true) { null }
-  override Void cslots(|CSpec, Str| f) {}
+  override MNameDict cmeta() { meta ?: throw Err(name) }
+  override CSpec? cslot(Str name, Bool checked := true) { throw UnsupportedErr() }
+  override Void cslots(|CSpec, Str| f) { slots.each |s| { f((CSpec)s, s.name) } }
   override CSpec[]? cofs
+  override Str toStr() { name }
 
-  Bool isType() { type == null }
-
-  RSpecRef? base
-  RSpecRef? type
-  NameDict? metaOwn
-  RSpec[]? slotsOwn
-
+  // flags
   override Int flags
   override Bool isScalar() { hasFlag(MSpecFlags.scalar) }
   override Bool isList() { hasFlag(MSpecFlags.list) }
@@ -56,11 +68,11 @@ internal class RSpec : CSpec, NameDictReader
   override Bool isQuery() { hasFlag(MSpecFlags.query) }
   Bool hasFlag(Int mask) { flags.and(mask) != 0 }
 
-  override Int readName() { slotsOwn[readIndex].nameCode }
-  override Obj readVal() { slotsOwn[readIndex++].asm }
+  // NameDictReader
+  override Int readName() { slotsIn[readIndex].nameCode }
+  override Obj readVal() { slotsIn[readIndex++].asm }
   Int readIndex
 
-  override Str toStr() { name }
 }
 
 **************************************************************************
