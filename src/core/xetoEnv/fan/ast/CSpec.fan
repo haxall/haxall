@@ -10,7 +10,7 @@ using xeto
 using util
 
 **
-** CSpec is common API shared by both ASpec and XetoSpec
+** CSpec is common API shared by both ASpec, RSpec, and XetoSpec
 **
 @Js
 mixin CSpec : CNode

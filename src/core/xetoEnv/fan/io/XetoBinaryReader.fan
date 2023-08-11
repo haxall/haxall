@@ -114,7 +114,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     }
   }
 
-  private Void readSpec(RemoteLoader loader, RemoteLoaderSpec x)
+  private Void readSpec(RemoteLoader loader, RSpec x)
   {
     x.base     = readSpecRef
     x.type     = readSpecRef
@@ -123,11 +123,11 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     x.flags    = readVarInt
    }
 
-  private RemoteLoaderSpec[]? readSlots(RemoteLoader loader, RemoteLoaderSpec parent)
+  private RSpec[]? readSlots(RemoteLoader loader, RSpec parent)
   {
     size := readVarInt
     if (size == 0) return null
-    acc := RemoteLoaderSpec[,]
+    acc := RSpec[,]
     acc.capacity = size
     size.times
     {
@@ -139,7 +139,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     return acc
   }
 
-  private RemoteLoaderSpecRef? readSpecRef()
+  private RSpecRef? readSpecRef()
   {
     // first byte is slot path depth:
     //  - 0: null
@@ -166,7 +166,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       }
     }
 
-    return RemoteLoaderSpecRef(lib, type, slot, more)
+    return RSpecRef(lib, type, slot, more)
   }
 
 //////////////////////////////////////////////////////////////////////////

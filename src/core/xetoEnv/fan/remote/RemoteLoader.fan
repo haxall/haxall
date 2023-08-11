@@ -49,18 +49,18 @@ internal class RemoteLoader
     return lib
   }
 
-  RemoteLoaderSpec addType(Int nameCode)
+  RSpec addType(Int nameCode)
   {
     name := names.toName(nameCode)
-    x := RemoteLoaderSpec(XetoType(), null, nameCode, name)
+    x := RSpec(XetoType(), null, nameCode, name)
     types.add(name, x)
     return x
   }
 
-  RemoteLoaderSpec makeSlot(RemoteLoaderSpec parent, Int nameCode)
+  RSpec makeSlot(RSpec parent, Int nameCode)
   {
     name := names.toName(nameCode)
-    x := RemoteLoaderSpec(XetoSpec(), parent, nameCode, name)
+    x := RSpec(XetoSpec(), parent, nameCode, name)
     return x
   }
 
@@ -99,7 +99,7 @@ internal class RemoteLoader
     factories = loader.load(libName, types.keys)
   }
 
-  private SpecFactory assignFactory(RemoteLoaderSpec x)
+  private SpecFactory assignFactory(RSpec x)
   {
     // check for custom factory if x is a type
     if (x.isType)
@@ -126,7 +126,7 @@ internal class RemoteLoader
     types.map |x->XetoType| { loadSpec(x) }
   }
 
-  private XetoSpec loadSpec(RemoteLoaderSpec x)
+  private XetoSpec loadSpec(RSpec x)
   {
     parent   := x.parent?.asm
     name     := x.name
@@ -160,11 +160,11 @@ internal class RemoteLoader
     // resolve ref values
     return meta.map |v, n|
     {
-      v is RemoteLoaderSpecRef ? resolve(v).asm : v
+      v is RSpecRef ? resolve(v).asm : v
     }
   }
 
-  private MSlots loadSlots(RemoteLoaderSpec x)
+  private MSlots loadSlots(RSpec x)
   {
     // short circuit if no slots
     slots := x.slotsOwn
@@ -173,7 +173,7 @@ internal class RemoteLoader
     // recursively load slot specs
     slots.each |slot| { loadSpec(slot) }
 
-    // RemoteLoaderSpec is a NameDictReader to iterate slots as NameDict
+    // RSpec is a NameDictReader to iterate slots as NameDict
     dict := names.readDict(slots.size, x, null)
     return MSlots(dict)
   }
@@ -182,7 +182,7 @@ internal class RemoteLoader
 // Resolve
 //////////////////////////////////////////////////////////////////////////
 
-  private CSpec? resolve(RemoteLoaderSpecRef? ref)
+  private CSpec? resolve(RSpecRef? ref)
   {
     if (ref == null) return null
     if (ref.lib == libNameCode)
@@ -191,7 +191,7 @@ internal class RemoteLoader
       return resolveExternal(ref)
   }
 
-  private CSpec resolveInternal(RemoteLoaderSpecRef ref)
+  private CSpec resolveInternal(RSpecRef ref)
   {
     type := types.getChecked(names.toName(ref.type))
     if (ref.slot == 0) return type
@@ -202,7 +202,7 @@ internal class RemoteLoader
     throw Err("TODO: $ref")
   }
 
-  private XetoSpec resolveExternal(RemoteLoaderSpecRef ref)
+  private XetoSpec resolveExternal(RSpecRef ref)
   {
     // should already be loaded
     lib := env.lib(names.toName(ref.lib))
@@ -235,85 +235,8 @@ internal class RemoteLoader
   const Str libName
   const Int libNameCode
   const NameDict libMeta
-  private Str:RemoteLoaderSpec types := [:]   // addType
-  private Str:NameDict instances := [:]       // addInstance
-  private [Str:SpecFactory]? factories        // loadFactories
+  private Str:RSpec types := [:]             // addType
+  private Str:NameDict instances := [:]      // addInstance
+  private [Str:SpecFactory]? factories       // loadFactories
 }
-
-**************************************************************************
-** RemoteLoaderSpec
-**************************************************************************
-
-@Js
-internal class RemoteLoaderSpec : CSpec, NameDictReader
-{
-  new make(XetoSpec asm, RemoteLoaderSpec? parent, Int nameCode, Str name)
-  {
-    this.asm      = asm
-    this.parent   = parent
-    this.name     = name
-    this.nameCode = nameCode
-  }
-
-  const override XetoSpec asm
-  const override Str name
-  const Int nameCode
-  RemoteLoaderSpec? parent { private set }
-
-  override Bool isAst() { true }
-
-  override Str qname() { throw UnsupportedErr() }
-  override SpecFactory factory() { throw UnsupportedErr() }
-  override CSpec? ctype
-  override CSpec? cbase
-  override Dict cmeta() { throw UnsupportedErr() }
-  override CSpec? cslot(Str name, Bool checked := true) { null }
-  override Void cslots(|CSpec, Str| f) {}
-  override CSpec[]? cofs
-
-  Bool isType() { type == null }
-
-  RemoteLoaderSpecRef? base
-  RemoteLoaderSpecRef? type
-  NameDict? metaOwn
-  RemoteLoaderSpec[]? slotsOwn
-
-  override Int flags
-  override Bool isScalar() { hasFlag(MSpecFlags.scalar) }
-  override Bool isList() { hasFlag(MSpecFlags.list) }
-  override Bool isMaybe() { hasFlag(MSpecFlags.maybe) }
-  override Bool isQuery() { hasFlag(MSpecFlags.query) }
-  Bool hasFlag(Int mask) { flags.and(mask) != 0 }
-
-  override Int readName() { slotsOwn[readIndex].nameCode }
-  override Obj readVal() { slotsOwn[readIndex++].asm }
-  Int readIndex
-
-  override Str toStr() { name }
-}
-
-**************************************************************************
-** RemoteLoaderSpecRef
-**************************************************************************
-
-@Js
-internal const class RemoteLoaderSpecRef
-{
-  new make(Int lib, Int type, Int slot, Int[]? more)
-  {
-    this.lib  = lib
-    this.type = type
-    this.slot = slot
-    this.more = more
-  }
-
-  const Int lib       // lib name
-  const Int type      // top-level type name code
-  const Int slot      // first level slot or zero if type only
-  const Int[]? more   // slot path below first slot (uncommon)
-
-  override Str toStr() { "$lib $type $slot $more" }
-}
-
-
 
