@@ -78,6 +78,8 @@ class Gen : BuildScript
 
             public Object get(String name, Object def) { return get(table.code(name), def); }
 
+            public final Object getByCode(long code) { return get((int)code, null); }
+
             public abstract Object get(int name, Object def);
 
             public abstract void each(Func f);

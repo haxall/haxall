@@ -1,4 +1,4 @@
-// auto-generated 10-Aug-2023 Thu 8:23:38AM EDT
+// auto-generated 11-Aug-2023 Fri 8:14:09AM EDT
 
 package fan.xeto;
 
@@ -49,6 +49,8 @@ public abstract class NameDict extends FanObj implements Dict
   public Object get(String name) { return get(table.code(name), null); }
 
   public Object get(String name, Object def) { return get(table.code(name), def); }
+
+  public final Object getByCode(long code) { return get((int)code, null); }
 
   public abstract Object get(int name, Object def);
 

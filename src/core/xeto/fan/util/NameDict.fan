@@ -55,6 +55,9 @@ native final const class NameDict  : Dict
   ** Map values to another NameDict of the exact same size
   NameDict map(|Obj val, Str name->Obj| f)
 
+  ** Get the value for given name code
+  @NoDoc Obj? getByCode(Int code)
+
   ** Get name code at given index
   @NoDoc Int nameAt(Int index)
 

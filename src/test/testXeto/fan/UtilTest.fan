@@ -189,7 +189,7 @@ class UtilTest : Test
       verifyErr(UnresolvedErr#) { d.id }
     }
 
-    // get, has, missing, trap
+    // get, getByCode, has, missing, trap
     key := null
     expect.each |v, n|
     {
@@ -200,6 +200,7 @@ class UtilTest : Test
       verifyEq(d.missing(n), false)
       verifyEq(d.trap(n), v)
       verifyEq(t.toCode(n) > 0, true)
+      verifyEq(v, d.getByCode(t.toCode(n)))
       key = n
     }
 
