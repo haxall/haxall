@@ -107,7 +107,7 @@ internal class RemoteLoader
       custom := factories?.get(x.name)
       if (custom != null)
       {
-        env.factories.map(custom.type, x.spec)
+        env.factories.map(custom.type, x.asm)
         return custom
       }
     }
@@ -128,11 +128,11 @@ internal class RemoteLoader
 
   private XetoSpec loadSpec(RemoteLoaderSpec x)
   {
-    parent   := x.parent?.spec
+    parent   := x.parent?.asm
     name     := x.name
     qname    := StrBuf(libName.size + 2 + name.size).add(libName).addChar(':').addChar(':').add(name).toStr
-    type     := x.isType ? x.spec : resolve(x.type)
-    base     := resolve(x.base)
+    type     := x.isType ? x.asm : resolve(x.type).asm
+    base     := resolve(x.base)?.asm
     metaOwn  := loadMetaOwn(x.metaOwn)
     meta     := metaOwn // TODO
     slotsOwn := loadSlots(x)
@@ -148,8 +148,8 @@ internal class RemoteLoader
     {
       m = MSpec(loc, env, parent, x.nameCode, base, type, MNameDict(meta), MNameDict(metaOwn), slots, slotsOwn, x.flags)
     }
-    XetoSpec#m->setConst(x.spec, m)
-    return x.spec
+    XetoSpec#m->setConst(x.asm, m)
+    return x.asm
   }
 
   private NameDict loadMetaOwn(NameDict meta)
@@ -160,7 +160,7 @@ internal class RemoteLoader
     // resolve ref values
     return meta.map |v, n|
     {
-      v is RemoteLoaderSpecRef ? resolve(v) : v
+      v is RemoteLoaderSpecRef ? resolve(v).asm : v
     }
   }
 
@@ -182,7 +182,7 @@ internal class RemoteLoader
 // Resolve
 //////////////////////////////////////////////////////////////////////////
 
-  private XetoSpec? resolve(RemoteLoaderSpecRef? ref)
+  private CSpec? resolve(RemoteLoaderSpecRef? ref)
   {
     if (ref == null) return null
     if (ref.lib == libNameCode)
@@ -191,13 +191,13 @@ internal class RemoteLoader
       return resolveExternal(ref)
   }
 
-  private XetoSpec resolveInternal(RemoteLoaderSpecRef ref)
+  private CSpec resolveInternal(RemoteLoaderSpecRef ref)
   {
     type := types.getChecked(names.toName(ref.type))
-    if (ref.slot == 0) return type.spec
+    if (ref.slot == 0) return type
 
     slot := type.slotsOwn.find |s| { s.nameCode == ref.slot } ?: throw UnresolvedErr(ref.toStr)
-    if (ref.more == null) return slot.spec
+    if (ref.more == null) return slot
 
     throw Err("TODO: $ref")
   }
@@ -245,33 +245,48 @@ internal class RemoteLoader
 **************************************************************************
 
 @Js
-internal class RemoteLoaderSpec : NameDictReader
+internal class RemoteLoaderSpec : CSpec, NameDictReader
 {
-  new make(XetoSpec spec, RemoteLoaderSpec? parent, Int nameCode, Str name)
+  new make(XetoSpec asm, RemoteLoaderSpec? parent, Int nameCode, Str name)
   {
-    this.spec     = spec
+    this.asm      = asm
     this.parent   = parent
-    this.nameCode = nameCode
     this.name     = name
+    this.nameCode = nameCode
   }
 
-  const XetoSpec spec
+  const override XetoSpec asm
+  const override Str name
   const Int nameCode
-  const Str name
   RemoteLoaderSpec? parent { private set }
 
+  override Bool isAst() { true }
+
+  override Str qname() { throw UnsupportedErr() }
+  override SpecFactory factory() { throw UnsupportedErr() }
+  override CSpec? ctype
+  override CSpec? cbase
+  override Dict cmeta() { throw UnsupportedErr() }
+  override CSpec? cslot(Str name, Bool checked := true) { null }
+  override Void cslots(|CSpec, Str| f) {}
+  override CSpec[]? cofs
+
   Bool isType() { type == null }
-  Bool isScalar() { hasFlag(MSpecFlags.scalar) }
-  Bool hasFlag(Int mask) { flags.and(mask) != 0 }
 
   RemoteLoaderSpecRef? base
   RemoteLoaderSpecRef? type
   NameDict? metaOwn
   RemoteLoaderSpec[]? slotsOwn
-  Int flags
+
+  override Int flags
+  override Bool isScalar() { hasFlag(MSpecFlags.scalar) }
+  override Bool isList() { hasFlag(MSpecFlags.list) }
+  override Bool isMaybe() { hasFlag(MSpecFlags.maybe) }
+  override Bool isQuery() { hasFlag(MSpecFlags.query) }
+  Bool hasFlag(Int mask) { flags.and(mask) != 0 }
 
   override Int readName() { slotsOwn[readIndex].nameCode }
-  override Obj readVal() { slotsOwn[readIndex++].spec }
+  override Obj readVal() { slotsOwn[readIndex++].asm }
   Int readIndex
 
   override Str toStr() { name }
