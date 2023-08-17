@@ -9,9 +9,9 @@
 using hx
 
 **
-** Data type system function library
+** Xeto function library
 **
-const class DataLib : HxLib
+const class XetoLib : HxLib
 {
 }
 

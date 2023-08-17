@@ -10,14 +10,14 @@
 using build
 
 **
-** Build: hxData
+** Build: hxXeto
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName = "hxData"
-    summary = "Data type system function library"
+    podName = "hxXeto"
+    summary = "Xeto data and spec function library"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
@@ -33,6 +33,6 @@ class Build : BuildPod
                "hx @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "data"]
+    index   = ["ph.lib": "xeto"]
   }
 }

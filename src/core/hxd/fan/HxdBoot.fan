@@ -77,6 +77,7 @@ class HxdBoot
     "hx",
     "obs",
     "axon",
+    "xeto",
     "crypto",
     "http",
     "hxApi",

@@ -14,9 +14,9 @@ using axon
 using hx
 
 **
-** Axon functions for working with data type system
+** Axon functions for working with xeto specs
 **
-const class DataFuncs
+const class XetoFuncs
 {
 
 //////////////////////////////////////////////////////////////////////////

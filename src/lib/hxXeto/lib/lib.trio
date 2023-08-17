@@ -7,10 +7,10 @@
 //
 
 --------------------------------------------------------------------------
-def: ^lib:data
+def: ^lib:xeto
 depends: [^lib:ph, ^lib:axon, ^lib:hx]
-typeName:"hxData::DataLib"
-doc: "Data type system function library"
+typeName:"hxXeto::XetoLib"
+doc: "Xeto spec and data function library"
 --------------------------------------------------------------------------
 
 

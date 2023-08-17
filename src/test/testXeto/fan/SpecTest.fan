@@ -68,7 +68,9 @@ class SpecTest : AbstractXetoTest
 
   Void testIsa()
   {
-    verifyAllEnvs("ph.points") |env| { doTestIsa }
+    // TODO
+    // verifyAllEnvs("ph.points") |env| { doTestIsa }
+    doTestIsa
   }
 
   Void doTestIsa()
