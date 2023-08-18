@@ -126,6 +126,7 @@ class TrioTest : HaystackTest
            time2: 7:56
            time3: 6:12:34
            geoCoord: C(37.65,-77.61)
+           _0: "unnamed"
            |>,
       [[
         "m":m,
@@ -150,6 +151,7 @@ class TrioTest : HaystackTest
         "time2":Time(7, 56, 0),
         "time3":Time(6, 12, 34),
         "geoCoord": Coord(37.65f, -77.61f),
+        "_0": "unnamed"
         ]])
 
     verifyTrio(

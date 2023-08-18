@@ -99,13 +99,13 @@ class ZincTest : HaystackTest
     // specials
     verifyGrid(
       Str<|ver:"3.0"
-           foo
+           _foo
            `foo$20bar`
            `foo\`bar`
            `file \#2`
            "$15"|>,
       Str:Obj?[:],
-      [tc("foo")],
+      [tc("_foo")],
       [[`foo\$20bar`],
        [`foo\`bar`],
        [`file \#2`],

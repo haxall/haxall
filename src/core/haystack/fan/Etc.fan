@@ -969,7 +969,9 @@ const class Etc
   **
   static Bool isTagName(Str n)
   {
-    if (n.isEmpty || !n[0].isLower) return false
+    if (n.isEmpty) return false
+    first := n[0]
+    if (!first.isLower && (first != '_' || n.size == 1 || !n[1].isAlphaNum)) return false
     return n.all |c| { c.isAlphaNum || c == '_' }
   }
 
@@ -1011,7 +1013,7 @@ const class Etc
       {
         if (buf.isEmpty)
         {
-          if (ch.isDigit || ch == '_') buf.addChar('v').addChar(ch)
+          if (ch.isDigit || (ch == '_' && (n.size == 1 || !n[1].isAlphaNum))) buf.addChar('v').addChar(ch)
           else if (ch.isUpper) buf.addChar(ch.lower)
           else buf.addChar(ch)
         }

@@ -207,7 +207,7 @@ class ZincReader : GridReader
     {
       // tag name
       id := (Str)curVal
-      if (!id[0].isLower) throw err("Invalid dict tag name: $id.toCode")
+      if (!id[0].isLower && id[0] != '_') throw err("Invalid dict tag name: $id.toCode")
       consume
 
       // tag value
@@ -310,7 +310,7 @@ class ZincReader : GridReader
   {
     verify(HaystackToken.id)
     id := (Str)curVal
-    if (!id[0].isLower) throw err("Invalid dict tag name: $id.toCode")
+    if (!id[0].isLower && id[0] != '_') throw err("Invalid dict tag name: $id.toCode")
     consume
     return id
   }

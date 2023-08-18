@@ -85,7 +85,7 @@ class HaystackTokenizer
     }
 
     // handle various starting chars
-    if (cur.isAlpha) return tok = id
+    if (cur.isAlpha || (cur == '_' && peek.isAlphaNum)) return tok = id
     if (cur == '"')  return tok = str
     if (cur == '@')  return tok = ref
     if (cur == '^')  return tok = symbol

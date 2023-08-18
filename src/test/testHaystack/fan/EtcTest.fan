@@ -29,6 +29,7 @@ class EtcTest : HaystackTest
     verifyTagName("#", false)
     verifyTagName("P", false)
     verifyTagName("x", true)
+    verifyTagName("_", false)
 
     verifyTagName("xy", true)
     verifyTagName("x3", true)
@@ -40,6 +41,9 @@ class EtcTest : HaystackTest
     verifyTagName("x,", false)
     verifyTagName("3x", false)
     verifyTagName("#@", false)
+    verifyTagName("_x", true)
+    verifyTagName("_3", true)
+    verifyTagName("__", false)
 
     verifyTagName("x3y", true)
     verifyTagName("x3Z", true)
@@ -65,9 +69,12 @@ class EtcTest : HaystackTest
     verifyEq(Etc.toTagName("3"), "v3")
     verifyEq(Etc.toTagName("Foo Bar"), "fooBar")
     verifyEq(Etc.toTagName("Foo_Bar"), "foo_Bar")
-    verifyEq(Etc.toTagName("_hi_there"), "v_hi_there")
+    verifyEq(Etc.toTagName("_"), "v_")
+    verifyEq(Etc.toTagName("__"), "v__")
+    verifyEq(Etc.toTagName("_3"), "_3")
+    verifyEq(Etc.toTagName("_hi_there"), "_hi_there")
     verifyEq(Etc.toTagName("Foo 33 Bar 55"), "foo33Bar55")
-    verifyEq(Etc.toTagName("_ foo %\n | bar _ baz"), "v_FooBar_Baz")
+    verifyEq(Etc.toTagName("_ foo %\n | bar _ baz"), "_FooBar_Baz")
     verifyEq(Etc.toTagName("-"), "v")
     verifyEq(Etc.toTagName("!"), "v")
     verifyEq(Etc.toTagName("!!"), "v")
@@ -583,8 +590,8 @@ class EtcTest : HaystackTest
                  "navName":"Fan"], "RTU Fan")
     verifyToDis(["disMacro":Str<|${navName}-${stage}|>, "navName":"Cool",
                  "stage":Number(3)], "Cool-3")
-    verifyToDis(["disMacro":Str<|$<fwt::err.name>|>], "Error")
-    verifyToDis(["disMacro":Str<|$<fwt::err.name>|>, "dis":"X"], "X")
+    verifyToDis(["disMacro":Str<|$<haystack::justNow>|>], "Just now")
+    verifyToDis(["disMacro":Str<|$<haystack::justNow>|>, "dis":"X"], "X")
     verifyToDis(["disKey":"foo::bar"], "foo::bar")
     verifyToDis(["disKey":"haystack::foo"], "haystack::foo")
     verifyToDis(["disKey":"haystack::today"], "Today")
@@ -716,12 +723,12 @@ class EtcTest : HaystackTest
     verifyMacro(Str<|${not good}|>, scope, Str<|${not good}|>, ["not good"])
 
     // locale expressions
-    verifyMacro(Str<|$<fwt::ok.name>|>,  scope, Str<|OK|>)
-    verifyMacro(Str<|$<fwt::ok.name>-$stage|>,  scope, Str<|OK-2|>, ["stage"])
-    verifyMacro(Str<|$<fwt::ok.name>!|>, scope, Str<|OK!|>)
-    verifyMacro(Str<|$<fwt::ok.name|>,   scope, Str<|$<fwt::ok.name|>)
-    verifyMacro(Str<|$<bad::ok.name>|>,  scope, Str<|$<bad::ok.name>|>)
-    verifyMacro(Str<|$<fwt::ok.bad>|>,   scope, Str<|$<fwt::ok.bad>|>)
+    verifyMacro(Str<|$<haystack::justNow>|>,  scope, Str<|Just now|>)
+    verifyMacro(Str<|$<haystack::justNow>-$stage|>,  scope, Str<|Just now-2|>, ["stage"])
+    verifyMacro(Str<|$<haystack::justNow>!|>, scope, Str<|Just now!|>)
+    verifyMacro(Str<|$<haystack::justNow|>,   scope, Str<|$<haystack::justNow|>)
+    verifyMacro(Str<|$<bad::name>|>,  scope, Str<|$<bad::name>|>)
+    verifyMacro(Str<|$<haystack::bad>|>,   scope, Str<|$<haystack::bad>|>)
   }
 
   Void verifyMacro(Str pattern, Dict scope, Str expected, Str[] vars := Str[,])
