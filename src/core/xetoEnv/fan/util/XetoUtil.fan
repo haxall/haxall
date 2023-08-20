@@ -76,21 +76,21 @@ const class XetoUtil
     // if A is sys::And type, then check any of A.ofs is B
     if (isAnd(a))
     {
-      ofs := ofs(a, false)
+      ofs := a.ofs(false)
       if (ofs != null && ofs.any |x| { x.isa(b) }) return true
     }
 
     // if A is sys::Or type, then check all of A.ofs is B
     if (isOr(a))
     {
-      ofs := ofs(a, false)
+      ofs := a.ofs(false)
       if (ofs != null && ofs.all |x| { x.isa(b) }) return true
     }
 
     // if B is sys::Or type, then check if A is any of B.ofs
     if (isOr(b))
     {
-      ofs := ofs(b, false)
+      ofs := b.ofs(false)
       if (ofs != null && ofs.any |x| { a.isa(x) }) return true
     }
 
@@ -106,15 +106,7 @@ const class XetoUtil
 
   static Bool isOr(XetoSpec x) { x.base === x.m.env.sys.or  }
 
-  static Bool isCompound(XetoSpec x) { (isAnd(x) || isOr(x)) && ofs(x, false) != null }
-
-  static Spec[]? ofs(XetoSpec x, Bool checked)
-  {
-    val := x.m.metaOwn.get("ofs", null) as Spec[]
-    if (val != null) return val
-    if (checked) throw UnknownNameErr("Missing 'ofs' meta: $x.qname")
-    return null
-  }
+  static Bool isCompound(XetoSpec x) { (isAnd(x) || isOr(x)) && x.ofs(false) != null }
 
 //////////////////////////////////////////////////////////////////////////
 // Derive

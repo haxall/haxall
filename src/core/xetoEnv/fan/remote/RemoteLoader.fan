@@ -154,12 +154,12 @@ internal class RemoteLoader
     {
       factory := assignFactory(x)
       qname   := StrBuf(libName.size + 2 + x.name.size).add(libName).addChar(':').addChar(':').add(x.name).toStr
-      m = MType(loc, env, lib, qname, x.nameCode, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, factory)
+      m = MType(loc, env, lib, qname, x.nameCode, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, factory)
     }
     else
     {
       x.type = resolve(x.typeIn).asm
-      m = MSpec(loc, env, x.parent.asm, x.nameCode, x.base.asm, x.type, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags)
+      m = MSpec(loc, env, x.parent.asm, x.nameCode, x.base.asm, x.type, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
     XetoSpec#m->setConst(x.asm, m)
     return x

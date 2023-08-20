@@ -22,10 +22,10 @@ Spec: Dict {
   slots: Dict <of:Spec>
 
   // Item type used for containers like Maybe, Seq, and Ref
-  of: Spec?
+  of: Ref? <of:Spec>
 
   // Types used in compound types like And and Or
-  ofs: List? <of:Spec>
+  ofs: List? <of:Ref>
 
   // Documentation description
   doc: Str

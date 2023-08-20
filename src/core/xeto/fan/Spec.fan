@@ -103,6 +103,9 @@ const mixin Spec : Dict
   ** Does this spec directly inherit from Or
   @NoDoc abstract Bool isOr()
 
+  ** Return component spec for a collection/ref type
+  @NoDoc abstract Spec? of(Bool checked := true)
+
   ** Return list of component specs for a compound type
   @NoDoc abstract Spec[]? ofs(Bool checked := true)
 

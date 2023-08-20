@@ -17,7 +17,7 @@ using xeto
 @Js
 const class MSpec
 {
-  new make(FileLoc loc, XetoEnv env, XetoSpec? parent, Int nameCode, XetoSpec? base, XetoType type, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags)
+  new make(FileLoc loc, XetoEnv env, XetoSpec? parent, Int nameCode, XetoSpec? base, XetoType type, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
   {
     this.loc      = loc
     this.parent   = parent
@@ -30,6 +30,7 @@ const class MSpec
     this.slots    = slots
     this.slotsOwn = slotsOwn
     this.flags    = flags
+    this.args     = args
   }
 
   virtual MEnv env() { lib.env }
@@ -63,6 +64,8 @@ const class MSpec
   XetoSpec? slot(Str name, Bool checked := true) { slots.get(name, checked) }
 
   XetoSpec? slotOwn(Str name, Bool checked := true) { slotsOwn.get(name, checked) }
+
+  const MSpecArgs args
 
   override Str toStr() { qname }
 
@@ -170,7 +173,7 @@ internal const class MDerivedSpec : MSpec
   static const AtomicInt counter := AtomicInt()
 
   new make(MEnv env, XetoSpec? parent, Int nameCode, XetoSpec base, MNameDict meta, MSlots slots, Int flags)
-    : super(FileLoc.synthetic, env, parent, nameCode, base, base.type, meta, meta, slots, slots, flags) // TODO: meta vs metaOwn, slots vs slotsOwn
+    : super(FileLoc.synthetic, env, parent, nameCode, base, base.type, meta, meta, slots, slots, flags, MSpecArgs.nil) // TODO: meta vs metaOwn, slots vs slotsOwn
   {
     this.env = env
     this.qname = "derived" + counter.getAndIncrement + "::" + name
@@ -282,7 +285,9 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Bool isCompound()  { XetoUtil.isCompound(this) }
 
-  override final Spec[]? ofs(Bool checked := true)  { XetoUtil.ofs(this, checked) }
+  override final Spec? of(Bool checked := true) { m.args.of(checked) }
+
+  override final Spec[]? ofs(Bool checked := true)  { m.args.ofs(checked) }
 
   override final Bool isNone() { XetoUtil.isNone(this) }
 

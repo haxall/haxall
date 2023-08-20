@@ -46,6 +46,7 @@ internal class RSpec : CSpec, NameDictReader
   MNameDict? meta
   MSlots? slotsOwn
   MSlots? slots
+  MSpecArgs? args := MSpecArgs.nil  // TODO
 
   // CSpec
   override Bool isAst() { true }

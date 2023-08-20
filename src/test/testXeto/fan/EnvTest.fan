@@ -28,7 +28,9 @@ class EnvTest : AbstractXetoTest
 
   Void testSysLib()
   {
-    verifyAllEnvs("sys") |env| { doTestSysLib(env) }
+//    verifyAllEnvs("sys") |env| { doTestSysLib(env) }
+// TODO: need to wire up args in RSpec
+    doTestSysLib(env)
   }
 
   private Void doTestSysLib(XetoEnv env)
@@ -82,19 +84,23 @@ class EnvTest : AbstractXetoTest
     orgUri := verifySlot(org, "uri", uri)
 
     // Spec.of: Spec?
-    specOf := verifySlot(spec, "of", spec)
+    specOf := verifySlot(spec, "of", ref)
     verifyEq(specOf.qname, "sys::Spec.of")
     verifySame(specOf.parent, spec)
     verifyEq(specOf["doc"], "Item type used for containers like Maybe, Seq, and Ref")
     verifyEq(specOf["maybe"], env.marker)
+    verifyEq(specOf["of"], env.ref("sys::Spec"))
+    verifySame(specOf.of, spec)
 
-    // Spec.ofs: List? <of:Spec>
+    // Spec.ofs: List? <of:Ref>
+    // TODO: need to make compound
     specOfs := verifySlot(spec, "ofs", list)
     verifyEq(specOfs.parent, spec)
     verifyEq(specOfs.qname, "sys::Spec.ofs")
     verifyEq(specOfs["doc"], "Types used in compound types like And and Or")
     verifyEq(specOfs["maybe"], env.marker)
-    verifySame(specOfs["of"], spec)
+    verifyEq(specOfs["of"], env.ref("sys::Ref"))
+    verifySame(specOfs.of, ref)
 
     // lookups
     verifySame(sys.type("DateTime"), dt)

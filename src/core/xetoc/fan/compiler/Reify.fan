@@ -110,7 +110,10 @@ internal class Reify : Step
 
   private Obj reifyDictVal(ANode x)
   {
-    x.asm
+    if (x.nodeType === ANodeType.specRef)
+      return ((ASpecRef)x).deref.id
+    else
+      return x.asm
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -153,6 +156,6 @@ internal class Reify : Step
 
   private Obj? reifySpecRef(ASpecRef x)
   {
-    x.deref
+    x.deref.id
   }
 }

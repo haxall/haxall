@@ -38,7 +38,7 @@ else
     }
 
     // get of type
-    of := query["of"] as Spec ?: throw Err("No 'of' type specified: $query.qname")
+    of := query.of(false) ?: throw Err("No 'of' type specified: $query.qname")
 
     // via
     via := query["via"] as Str

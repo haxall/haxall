@@ -15,8 +15,8 @@ using xeto
 @Js
 const final class MType : MSpec
 {
-  new make(FileLoc loc, XetoEnv env, XetoLib lib, Str qname, Int nameCode, XetoType? base, XetoType self, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, SpecFactory factory)
-    : super(loc, env, null, nameCode, base, self, meta, metaOwn, slots, slotsOwn, flags)
+  new make(FileLoc loc, XetoEnv env, XetoLib lib, Str qname, Int nameCode, XetoType? base, XetoType self, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args, SpecFactory factory)
+    : super(loc, env, null, nameCode, base, self, meta, metaOwn, slots, slotsOwn, flags, args)
   {
     this.lib       = lib
     this.qname     = qname

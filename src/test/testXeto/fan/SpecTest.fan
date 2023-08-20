@@ -250,7 +250,8 @@ env.print(env.spec("ph.points::DischargeAirTempSensor"))
      fooBar := lib.type("FooBar")
      verifySame(fooBar.type.base, and)
      verifyEq(fooBar.isa(and), true)
-     verifyEq(fooBar["ofs"], Spec[foo,bar])
+     verifyEq(fooBar.ofs, Spec[foo,bar])
+     verifyEq(fooBar["ofs"], [foo._id, bar._id])
    }
 
 //////////////////////////////////////////////////////////////////////////

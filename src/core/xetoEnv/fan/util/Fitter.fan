@@ -124,7 +124,7 @@ internal class Fitter
     extent := Query(env, cx, opts).query(dict, query)
 
     // use query.of as explain name
-    ofDis := (query["of"] as Spec)?.name ?: query.name
+    ofDis := query.of(false)?.name ?: query.name
 
     // make sure each constraint has exactly one match
     match := true
