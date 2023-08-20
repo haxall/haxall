@@ -20,6 +20,7 @@ const final class MType : MSpec
   {
     this.lib       = lib
     this.qname     = qname
+    this.id        = haystack::Ref(qname, null)
     this.type      = self
     this.factory   = factory
   }
@@ -27,6 +28,8 @@ const final class MType : MSpec
   const override XetoLib lib
 
   const override Str qname
+
+  const override haystack::Ref id
 
   override Spec spec() { env.sys.type }
 

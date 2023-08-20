@@ -24,6 +24,17 @@ const class XetoFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
+  ** Load or lookup Xeto lib and return its meta as a dict.
+  **
+  ** Example:
+  **   specLib("ph.points")
+  **
+  @Axon static Dict? specLib(Str name, Bool checked := true)
+  {
+    curContext.usings.env.lib(name, checked)?.meta
+  }
+
+  **
   ** Load or lookup a Spec by its qname.  If not found
   ** raise exception or return null based on checked flag.
   **

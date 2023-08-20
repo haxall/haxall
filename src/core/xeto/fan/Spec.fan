@@ -20,6 +20,10 @@ const mixin Spec : Dict
   ** Parent library for spec
   abstract Lib lib()
 
+  ** Identifier for a spec is always its qualified name
+  ** This is a temp shim until we move 'haystack::Dict' fully into Xeto.
+  abstract Ref _id()
+
   ** Parent spec which contains this spec definition and scopes `name`.
   ** Returns null for top level specs in the library.
   abstract Spec? parent()

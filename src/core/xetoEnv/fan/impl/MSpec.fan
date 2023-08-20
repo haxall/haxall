@@ -40,6 +40,8 @@ const class MSpec
 
   const XetoSpec? parent
 
+  virtual haystack::Ref id() { haystack::Ref(qname) }
+
   const Int nameCode
 
   const Str name
@@ -193,6 +195,10 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override Lib lib() { m.lib }
 
   override final Spec? parent() { m.parent }
+
+  override final haystack::Ref id() { m.id }
+
+  override final haystack::Ref _id() { m.id }
 
   override final Str name() { m.name }
 
