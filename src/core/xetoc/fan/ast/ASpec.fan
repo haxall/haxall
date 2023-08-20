@@ -92,6 +92,10 @@ internal class ASpec : ANode, CSpec
   ** Default value if spec had scalar value
   AScalar? val
 
+  ** Parameterized arguments of/ofs (set in InheritMeta)
+  override MSpecArgs args() { argsRef ?: throw NotReadyErr(qname) }
+  internal MSpecArgs? argsRef
+
 //////////////////////////////////////////////////////////////////////////
 // Meta
 //////////////////////////////////////////////////////////////////////////

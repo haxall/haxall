@@ -46,7 +46,7 @@ internal class Assemble : Step
 
   private Void asmType(ASpec x)
   {
-    m := MType(x.loc, env, x.lib.asm, x.qname, x.nameCode, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, asmArgs(x), x.factory)
+    m := MType(x.loc, env, x.lib.asm, x.qname, x.nameCode, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args, x.factory)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }
@@ -54,7 +54,7 @@ internal class Assemble : Step
   private Void asmSpec(ASpec x)
   {
     nameCode := env.names.add(x.name)
-    m := MSpec(x.loc, env, x.parent.asm, nameCode, x.base.asm, x.type.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, asmArgs(x))
+    m := MSpec(x.loc, env, x.parent.asm, nameCode, x.base.asm, x.type.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }
@@ -84,24 +84,6 @@ internal class Assemble : Step
     dict := env.names.dictMap(map)
     return MSlots(dict)
   }
-
-  private MSpecArgs asmArgs(ASpec x)
-  {
-    of := x.metaGet("of")
-    if (of != null) return MSpecArgsOf(of.asm)
-
-    ofs := x.metaGet("ofs") as ADict
-    if (ofs != null)
-    {
-      acc := Spec[,]
-      acc.capacity = ofs.size
-      ofs.each |ASpecRef ref| { acc.add(ref.asm) }
-      return MSpecArgsOfs(acc)
-    }
-
-    return MSpecArgs.nil
-  }
-
 
   static const Str:Spec noSpecs := [:]
   static const Str:Dict noDicts := [:]

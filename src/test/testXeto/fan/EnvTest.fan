@@ -87,7 +87,7 @@ class EnvTest : AbstractXetoTest
     specOf := verifySlot(spec, "of", ref)
     verifyEq(specOf.qname, "sys::Spec.of")
     verifySame(specOf.parent, spec)
-    verifyEq(specOf["doc"], "Item type used for containers like Maybe, Seq, and Ref")
+    verifyEq(specOf["doc"], "Item type for parameterized Seq, Query, and Ref specs")
     verifyEq(specOf["maybe"], env.marker)
     verifyEq(specOf["of"], env.ref("sys::Spec"))
     verifySame(specOf.of, spec)

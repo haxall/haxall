@@ -285,6 +285,8 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Bool isCompound()  { XetoUtil.isCompound(this) }
 
+  override final MSpecArgs args() { m.args }
+
   override final Spec? of(Bool checked := true) { m.args.of(checked) }
 
   override final Spec[]? ofs(Bool checked := true)  { m.args.ofs(checked) }

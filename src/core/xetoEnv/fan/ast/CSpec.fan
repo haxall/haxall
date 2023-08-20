@@ -54,6 +54,9 @@ mixin CSpec : CNode
   ** MSpecFlags bitmask flags
   abstract Int flags()
 
+  ** MSpecArgs
+  abstract MSpecArgs args()
+
   ** Is scalar flag set
   abstract Bool isScalar()
 

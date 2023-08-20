@@ -46,7 +46,6 @@ internal class RSpec : CSpec, NameDictReader
   MNameDict? meta
   MSlots? slotsOwn
   MSlots? slots
-  MSpecArgs? args := MSpecArgs.nil  // TODO
 
   // CSpec
   override Bool isAst() { true }
@@ -60,6 +59,7 @@ internal class RSpec : CSpec, NameDictReader
   override Void cslots(|CSpec, Str| f) { slots.each |s| { f((CSpec)s, s.name) } }
   override CSpec[]? cofs
   override Str toStr() { name }
+  override MSpecArgs args := MSpecArgs.nil  // TODO
 
   // flags
   override Int flags

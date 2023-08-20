@@ -28,13 +28,16 @@ internal class InheritMeta : Step
     if (spec.cmetaRef != null) return
 
     // process this spec
-    spec.cmetaRef = compute(spec)
+    spec.cmetaRef = computeMeta(spec)
+
+    // compute arguments
+    spec.argsRef = computeArgs(spec)
 
     // recurse children slots
     if (spec.slots != null) spec.slots.each |slot| { inherit(slot) }
   }
 
-  private Dict compute(ASpec spec)
+  private Dict computeMeta(ASpec spec)
   {
     own := spec.metaOwn
 
@@ -80,4 +83,24 @@ internal class InheritMeta : Step
     if (name == "sealed") return false
     return true
   }
+
+  private MSpecArgs computeArgs(ASpec spec)
+  {
+    of := spec.metaGet("of")
+    if (of != null) return MSpecArgsOf(of.asm)
+
+    ofs := spec.metaGet("ofs") as ADict
+    if (ofs != null)
+    {
+      acc := Spec[,]
+      acc.capacity = ofs.size
+      ofs.each |ASpecRef ref| { acc.add(ref.asm) }
+      return MSpecArgsOfs(acc)
+    }
+
+    if (spec.base != null) return spec.base.args
+
+    return MSpecArgs.nil
+  }
+
 }

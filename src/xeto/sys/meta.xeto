@@ -21,7 +21,7 @@ Spec: Dict {
   // Dict slot specs
   slots: Dict <of:Spec>
 
-  // Item type used for containers like Maybe, Seq, and Ref
+  // Item type for parameterized Seq, Query, and Ref specs
   of: Ref? <of:Spec>
 
   // Types used in compound types like And and Or
