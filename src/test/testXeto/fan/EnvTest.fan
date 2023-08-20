@@ -550,13 +550,19 @@ class EnvTest : AbstractXetoTest
     verifySame(type.env, env)
     verifySame(type.parent, null)
     verifySame(type.lib, lib)
+
+    // name/qname
     verifyEq(type.name, name)
     verifyEq(type.qname, lib.name + "::" + name)
+    verifySame(type.qname, type.qname)
+
+    // id
     verifyRefEq(((haystack::Dict)type).id, Ref(type.qname))
     verifyRefEq(type._id, Ref(type.qname))
-    //verifyRefEq(type->id, Ref(type.qname))
     verifySame(type._id, type._id)
-    verifySame(type.qname, type.qname)
+    verifySame(type["id"], type._id)
+    verifySame(type->id, type._id)
+
     verifySame(lib.type(name), type)
     verifySame(type.type, type)
     verifySame(type.base, base)

@@ -132,6 +132,7 @@ class AxonTest : HxTest
       s.add(" <")
       x.each |v, n|
       {
+        if (n == "id" || n == "spec" || n == "type" || n == "base") return
         if (x.type.has(n)) return
         s.add(n)
         if (v !== Marker.val) s.add(":").add(v)

@@ -26,40 +26,82 @@ class SpecTest : AbstractXetoTest
   {
     lib := compileLib(
       Str<|Foo: Dict <a:"A", b:"B">
-           Bar: Foo <b:"B2", c:"C">
-           Baz: Bar <c:"C2", d:"D">
+           Bar: Foo <b:"B2", c:"C"> { qux: Str <e:"E", f:"F"> "x" }
+           Baz: Bar <c:"C2", d:"D"> { qux: Str <f:"F2", g:"G"> "y" }
            |>)
 
      // env.print(lib)
 
+     obj := env.spec("sys::Obj")
+     verifyEq(obj.get("base", "_"), "_")
+     verifyEq(obj.has("base"), false)
+     verifyEq(obj.missing("base"), true)
+     verifyEq(obj.has("type"), false)
+     verifyEq(obj.missing("type"), true)
+
+     verifyMeta(obj, Str:Obj["sealed":m, "abstract":m],  Str:Obj["sealed":m, "abstract":m])
      verifyMeta(lib.type("Foo"), Str:Obj["a":"A", "b":"B"],  Str:Obj["a":"A", "b":"B"])
      verifyMeta(lib.type("Bar"), Str:Obj["b":"B2", "c":"C"],  Str:Obj["a":"A", "b":"B2", "c":"C"])
+     verifyMeta(lib.type("Baz"), Str:Obj["c":"C2", "d":"D"],  Str:Obj["a":"A", "b":"B2", "c":"C2", "d":"D"])
+
+     verifyMeta(lib.type("Bar").slot("qux"), Str:Obj["e":"E", "f":"F", "val":"x"],  Str:Obj["e":"E", "f":"F", "val":"x"])
+     verifyMeta(lib.type("Baz").slot("qux"), Str:Obj["f":"F2", "g":"G", "val":"y"],  Str:Obj["e":"E", "f":"F2", "g":"G", "val":"y"])
   }
 
   Void verifyMeta(Spec s, Str:Obj own, Str:Obj effective)
   {
-    // metaOwn
-    acc := Str:Obj[:]
-    s.metaOwn.each |v, n| { acc[n] = v }
-    verifyEq(acc, own)
+    verifyMetaDict(s.metaOwn, own)
 
-    // meta
-    acc = Str:Obj[:]
-    s.meta.each |v, n| { acc[n] = v }
-    acc.remove("doc")
-    verifyEq(acc, effective)
+    verifyMetaDict(s.meta, effective)
 
-    // spec itself is meta + spec
-    acc = Str:Obj[:]
-    s.each |v, n| { acc[n] = v }
-    acc.remove("doc")
-    verifyEq(acc, effective.dup.add("spec", s.qname))
+    // spec itself is effective meta + built-in tags
+    self := effective.dup
+    self["id"] = s._id
+    self["spec"] = env.ref("sys::Spec")
+    if (s.isType)
+      self.addNotNull("base", s.base?._id)
+    else
+      self["type"] = s.type._id
+    verifyMetaDict(s, self)
+  }
 
-    // spec tag
-    verifyEq(s["spec"], s.qname)
-    verifyEq(s.has("spec"), true)
-    verifyEq(s.missing("spec"), false)
-    verifyEq(s->spec, s.qname)
+  Void verifyMetaDict(Dict d, Str:Obj expect)
+  {
+    actual := Str:Obj[:]
+    d.each |v, n|
+    {
+      if (n == "doc") return
+      actual[n] = v
+    }
+    verifyValEq(actual, expect)
+
+    expect.each |v, n|
+    {
+      verifyValEq(v, d.get(n))
+      verifyValEq(v, d.trap(n))
+      verifyEq(d.has(n), true)
+      verifyEq(d.missing(n), false)
+    }
+
+    actual.clear
+    firstName := null
+    d.eachWhile |v, n|
+    {
+      if (n == "doc") return null
+      if (firstName == null) firstName = n
+      actual[n] = v
+      return null
+    }
+    verifyValEq(actual, expect)
+
+    actual.clear
+    d.eachWhile |v, n|
+    {
+      if (n == "doc") return null
+      actual[n] = v
+      return "break"
+    }
+    verifyValEq(actual, Str:Obj[firstName: expect[firstName]])
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -131,7 +131,7 @@ const class XetoUtil
     }
 
     spec := XetoSpec()
-    m := MDerivedSpec(env, env.names.add(name), base, MNameDict(env.names.dictDict(meta)), deriveSlots(env, spec, slots), deriveFlags(base, meta))
+    m := MDerivedSpec(env, null, env.names.add(name), base, MNameDict(env.names.dictDict(meta)), deriveSlots(env, spec, slots), deriveFlags(base, meta))
     XetoSpec#m->setConst(spec, m)
     return spec
   }
@@ -149,7 +149,7 @@ const class XetoUtil
 
     derivedMap := slotsMap.map |XetoSpec base, Str name->XetoSpec|
     {
-      XetoSpec(MSpec(FileLoc.synthetic, env, parent, env.names.add(name), base, base.type, base.m.meta, MNameDict.empty, MSlots.empty, MSlots.empty, base.m.flags))
+      XetoSpec(MDerivedSpec(env, parent, env.names.add(name), base, base.m.meta, base.m.slots, base.m.flags))
     }
 
     return MSlots(env.names.dictMap(derivedMap))

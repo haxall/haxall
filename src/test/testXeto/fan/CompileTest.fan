@@ -370,10 +370,13 @@ class CompileTest : AbstractXetoTest
 
     s.each |v, n|
     {
-      if (n == "spec")
-        verifyEq(v, s.qname)
-      else
-        verifyEq(meta[n], v, n)
+      switch (n)
+      {
+        case "id":   verifyEq(v, s._id)
+        case "spec": verifyEq(v, env.ref("sys::Spec"))
+        case "type": verifyEq(v, s.type._id)
+        default:     verifyEq(meta[n], v, n)
+      }
     }
 
     if (base !== type)

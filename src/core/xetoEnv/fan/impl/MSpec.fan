@@ -78,37 +78,71 @@ const class MSpec
 
   Obj? get(Str name, Obj? def := null)
   {
-    if (name == "spec") return qname
+    if (name == "id")   return id
+    if (name == "spec") return env.specRef
+    if (isType)
+    {
+      if (name == "base") return base?.id ?: def
+    }
+    else
+    {
+      if (name == "type") return type.id
+    }
     return meta.get(name, def)
   }
 
   Bool has(Str name)
   {
+    if (name == "id")   return true
     if (name == "spec") return true
+    if (name == "base") return isType && base != null
+    if (name == "type") return !isType
     return meta.has(name)
   }
 
   Bool missing(Str name)
   {
+    if (name == "id")   return false
     if (name == "spec") return false
+    if (name == "base") return !isType || base == null
+    if (name == "type") return isType
     return meta.missing(name)
   }
 
   Void each(|Obj val, Str name| f)
   {
-    f(qname, "spec")
+    f(id, "id")
+    f(env.specRef, "spec")
+    if (isType)
+    {
+      if (base != null) f(base.id, "base")
+    }
+    else
+    {
+      f(type.id, "type")
+    }
     meta.each(f)
   }
 
   Obj? eachWhile(|Obj val, Str name->Obj?| f)
   {
-    r := f(qname, "spec"); if (r != null) return r
+    r := f(id, "id");            if (r != null) return r
+    r  = f(env.specRef, "spec"); if (r != null) return r
+    if (isType)
+    {
+      if (base != null) { r = f(base.id, "base"); if (r != null) return r }
+    }
+    else
+    {
+      r = f(type.id, "type"); if (r != null) return r
+    }
     return meta.eachWhile(f)
   }
 
   override Obj? trap(Str name, Obj?[]? args := null)
   {
-    if (name == "spec") return qname
+    val := get(name, null)
+    if (val != null) return val
     return meta.trap(name, args)
   }
 
@@ -135,8 +169,8 @@ internal const class MDerivedSpec : MSpec
 {
   static const AtomicInt counter := AtomicInt()
 
-  new make(MEnv env, Int nameCode, XetoSpec base, MNameDict meta, MSlots slots, Int flags)
-    : super(FileLoc.synthetic, env, null, nameCode, base, base.type, meta, meta, slots, slots, flags) // TODO: meta vs metaOwn, slots vs slotsOwn
+  new make(MEnv env, XetoSpec? parent, Int nameCode, XetoSpec base, MNameDict meta, MSlots slots, Int flags)
+    : super(FileLoc.synthetic, env, parent, nameCode, base, base.type, meta, meta, slots, slots, flags) // TODO: meta vs metaOwn, slots vs slotsOwn
   {
     this.env = env
     this.qname = "derived" + counter.getAndIncrement + "::" + name
