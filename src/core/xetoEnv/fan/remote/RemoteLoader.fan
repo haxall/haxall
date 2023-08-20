@@ -147,6 +147,7 @@ internal class RemoteLoader
       if (x.base.isAst) loadSpec(x.base)
       x.meta = inheritMeta(x)
       x.slots = inheritSlots(x)
+      x.args  = loadArgs(x)
     }
 
     MSpec? m
@@ -228,6 +229,28 @@ internal class RemoteLoader
       acc[slot.name] = slot
     }
     return MSlots(names.dictMap(acc))
+  }
+
+  private MSpecArgs loadArgs(RSpec x)
+  {
+    of := x.metaOwn["of"] as Ref
+    if (of != null) return MSpecArgsOf(resolveRef(of))
+
+    ofs := x.metaOwn["ofs"] as Ref[]
+    if (ofs != null) return MSpecArgsOfs(ofs.map |ref->Spec| { resolveRef(ref) })
+
+    return x.base.args
+  }
+
+  private Spec resolveRef(Ref ref)
+  {
+    // TODO: we can encode spec refs way better than a simple string
+    // that has to get parsed again (see down below with RSpecRef)
+    colons := ref.id.index("::")
+    libName := ref.id[0..<colons]
+    specName := ref.id[colons+2..-1]
+    rref := RSpecRef(names.toCode(libName), names.toCode(specName), 0, null)
+    return resolve(rref).asm
   }
 
 //////////////////////////////////////////////////////////////////////////

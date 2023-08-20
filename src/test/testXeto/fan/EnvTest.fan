@@ -28,9 +28,7 @@ class EnvTest : AbstractXetoTest
 
   Void testSysLib()
   {
-//    verifyAllEnvs("sys") |env| { doTestSysLib(env) }
-// TODO: need to wire up args in RSpec
-    doTestSysLib(env)
+    verifyAllEnvs("sys") |env| { doTestSysLib(env) }
   }
 
   private Void doTestSysLib(XetoEnv env)
