@@ -87,7 +87,13 @@ internal class InheritMeta : Step
   private MSpecArgs computeArgs(ASpec spec)
   {
     of := spec.metaGet("of")
-    if (of != null) return MSpecArgsOf(of.asm)
+    if (of != null)
+    {
+      if (of.nodeType != ANodeType.specRef)
+        err("Invalid value for 'of' meta, not a spec", of.loc)
+      else
+        return MSpecArgsOf(of.asm)
+    }
 
     ofs := spec.metaGet("ofs") as ADict
     if (ofs != null)

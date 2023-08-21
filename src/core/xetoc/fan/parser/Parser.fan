@@ -176,9 +176,11 @@ internal class Parser
   ** Parse type reference or nested spec within a data dict
   private ASpecRef parseDataSpec(ASpecRef typeRef)
   {
-    // if the current token doesn't indicate a nested spec,
-    // then we parse it as just a type reference
-    if (cur !== Token.lt) return typeRef
+    // if the current token doesn't indicate a nested spec, then we
+    // parse it as just a type reference.  Note you can't have "{" here
+    // because that is parsed as Type {} typed dict literal.
+    if (cur !== Token.lt && cur !== Token.pipe && cur !== Token.amp && cur !== Token.question)
+      return typeRef
 
     // we are creating a nested synthetic spec
     loc := typeRef.loc

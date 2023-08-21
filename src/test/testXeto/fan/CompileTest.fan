@@ -432,6 +432,105 @@ class CompileTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Nested specs
+//////////////////////////////////////////////////////////////////////////
+
+  Void testNestedSpecs()
+  {
+    lib := compileLib(
+       Str<|Foo: {
+              a: List<of:Foo>
+              b: List<of:Spec>
+              c: List<of:Ref<of:Foo>>
+              d: List<of:Ref<of:Spec>>
+              e: List<of:Foo <qux>>
+              f: List<of:Foo <> { extra: Str }>
+              g: List<of:Foo <qux> { extra: Str }>
+              h: List<of:Foo | Bar>
+              i: List<of:Foo & Bar>
+              j: Dict < x:Foo? >
+              k: Dict < x:Foo<qux> >
+              l: Dict < x:Foo<y:Bar<z:Str>> >
+            }
+
+            Bar: {}
+           |>)
+
+    foo := lib.type("Foo")
+    /*
+    env.print(lib)
+    foo.slots.each |slot|
+    {
+      echo("${slot.name}: " + toNestedSpecSig(lib, slot))
+    }
+    */
+
+    verifyNestedSpec(foo.slot("a"), "List<of:Foo>")
+    verifyNestedSpec(foo.slot("b"), "List<of:Spec>")
+    verifyNestedSpec(foo.slot("c"), "List<of:Ref<of:Foo>>")
+    verifyNestedSpec(foo.slot("d"), "List<of:Ref<of:Spec>>")
+    verifyNestedSpec(foo.slot("e"), "List<of:Foo<qux>>")
+    verifyNestedSpec(foo.slot("f"), "List<of:Foo{extra:Str}>")
+    verifyNestedSpec(foo.slot("g"), "List<of:Foo<qux>{extra:Str}>")
+    verifyNestedSpec(foo.slot("h"), "List<of:Foo|Bar>")
+    verifyNestedSpec(foo.slot("i"), "List<of:Foo&Bar>")
+    verifyNestedSpec(foo.slot("j"), "Dict<x:Foo<maybe>>")
+    verifyNestedSpec(foo.slot("k"), "Dict<x:Foo<qux>>")
+    verifyNestedSpec(foo.slot("l"), "Dict<x:Foo<y:Bar<z:Str>>>")
+  }
+
+  Void verifyNestedSpec(Spec x, Str expect)
+  {
+    actual := toNestedSpecSig(x.lib, x)
+    verifyEq(actual, expect)
+  }
+
+  Str toNestedSpecSig(Lib lib, Spec x)
+  {
+    if (x.isCompound)
+    {
+      sep := x.isAnd ? "&" : "|"
+      return x.ofs.join(sep) |c| { c.name }
+    }
+
+    s := StrBuf()
+    if (x.type.name[0] == '_')
+      s.add(x.base.name)
+    else
+      s.add(x.type.name)
+
+    if (!x.metaOwn.isEmpty)
+    {
+      s.add("<")
+      x.metaOwn.each |v, n|
+      {
+        s.add(n)
+        if (v === Marker.val) return
+        s.add(":").add(toNestedSpecRef(lib, v))
+      }
+      s.add(">")
+    }
+
+    if (!x.slotsOwn.isEmpty)
+    {
+      s.add("{")
+      x.slotsOwn.each |slot| { s.add(slot.name).add(":").add(slot.type.name) }
+      s.add("}")
+    }
+
+    return s.toStr
+  }
+
+  Str toNestedSpecRef(Lib lib, Ref x)
+  {
+    name := x.toStr[x.toStr.indexr(":")+1..-1]
+    if (name[0] != '_') return name
+
+    deref := lib.type(name)
+    return toNestedSpecSig(lib, deref)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Errs
 //////////////////////////////////////////////////////////////////////////
 
