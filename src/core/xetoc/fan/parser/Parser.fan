@@ -64,9 +64,10 @@ internal class Parser
   {
     try
     {
+      this.libRef = lib
       while (true)
       {
-        if (!parseLibObj(lib)) break
+        if (!parseLibObj) break
       }
       verify(Token.eof)
       return lib
@@ -85,24 +86,30 @@ internal class Parser
 // Lib
 //////////////////////////////////////////////////////////////////////////
 
+  ** Parent lib
+  private ALib lib()
+  {
+    libRef ?: throw err("Lib not available in data file")
+  }
+
   ** Parse top level lib object - spec or instance
-  private Bool parseLibObj(ALib lib)
+  private Bool parseLibObj()
   {
     doc := parseLeadingDoc
 
     if (cur === Token.eof) return false
 
-    if (cur === Token.id) return parseLibSpec(lib, doc)
+    if (cur === Token.id) return parseLibSpec(doc)
 
-    if (cur === Token.ref) return parseLibData(lib)
+    if (cur === Token.ref) return parseLibData
 
     throw err("Expecting instance data or spec, not $curToStr")
   }
 
   ** Parse top level spec and add it to lib
-  private Bool parseLibSpec(ALib lib, Str? doc)
+  private Bool parseLibSpec(Str? doc)
   {
-    spec := parseNamedSpec(lib, null, doc)
+    spec := parseNamedSpec(null, doc)
     parseLibObjEnd("spec")
 
     // make sure name is unique
@@ -112,7 +119,7 @@ internal class Parser
   }
 
   ** Parse top level instance data and add it to lib
-  private Bool parseLibData(ALib lib)
+  private Bool parseLibData()
   {
     // parse named instance
     data := parseNamedData
@@ -141,18 +148,18 @@ internal class Parser
 //////////////////////////////////////////////////////////////////////////
 
   ** Parse named spec
-  private ASpec parseNamedSpec(ALib lib, ASpec? parent, Str? doc)
+  private ASpec parseNamedSpec(ASpec? parent, Str? doc)
   {
     name := consumeName("Expecting spec name")
 
     if (cur !== Token.colon) throw err("Spec name '$name' must be followed by colon, not $curToStr")
     consume
 
-    return parseSpec(lib, parent, doc, name)
+    return parseSpec(parent, doc, name)
   }
 
   ** Parse named spec
-  private ASpec parseSpec(ALib lib, ASpec? parent, Str? doc, Str name)
+  private ASpec parseSpec(ASpec? parent, Str? doc, Str name)
   {
     spec := ASpec(curToLoc, lib, parent, name)
 
@@ -259,7 +266,7 @@ internal class Parser
       ASpec? slot
       if (cur === Token.id && peek == Token.colon)
       {
-        slot = parseNamedSpec(parent.lib, parent, doc)
+        slot = parseNamedSpec(parent, doc)
       }
       else if (cur === Token.id && curVal.toStr[0].isLower)
       {
@@ -268,7 +275,7 @@ internal class Parser
       else
       {
         name := autoName(acc)
-        slot = parseSpec(parent.lib, parent, doc, name)
+        slot = parseSpec(parent, doc, name)
       }
 
       parseCommaOrNewline("Expecting end of slots", Token.rbrace)
@@ -610,6 +617,7 @@ internal class Parser
   private FileLoc fileLoc
   private Tokenizer tokenizer
   private Str[]? autoNames
+  private ALib? libRef
 
   private Token cur      // current token
   private Obj? curVal    // current token value
