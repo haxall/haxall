@@ -71,6 +71,10 @@ internal class Reify : Step
     acc.ordered = true
     x.each |obj, name| { acc[name] = reifyDictVal(obj) }
 
+    // if spec is not sys::Dict then add synthetic spec tag
+    if (type != null && !isSys && type !== (CSpec)env.dictSpec)
+      acc["spec"] = env.ref(type.qname)
+
     // create as Dict
     dict := MNameDict(env.names.dictMap(acc, type?.asm))
     Obj asm := dict

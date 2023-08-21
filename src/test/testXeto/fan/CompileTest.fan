@@ -213,10 +213,10 @@ class CompileTest : AbstractXetoTest
     verifyDict(Str<|{dis:"Hi", mark}|>, ["dis":"Hi", "mark":m])
 
     // LibOrg
-    verifyDict(Str<|LibOrg {}|>, ["dis":"", "uri":``], "sys::LibOrg")
-    verifyDict(Str<|sys::LibOrg {}|>, ["dis":"", "uri":``], "sys::LibOrg")
-    verifyDict(Str<|LibOrg { dis:"Acme" }|>, ["dis":"Acme", "uri":``], "sys::LibOrg")
-    verifyDict(Str<|LibOrg { dis:"Acme", uri:Uri "http://acme.com" }|>, ["dis":"Acme", "uri":`http://acme.com`], "sys::LibOrg")
+    verifyDict(Str<|LibOrg {}|>, ["dis":"", "uri":``, "spec":Ref("sys::LibOrg")], "sys::LibOrg")
+    verifyDict(Str<|sys::LibOrg {}|>, ["dis":"", "uri":``, "spec":Ref("sys::LibOrg")], "sys::LibOrg")
+    verifyDict(Str<|LibOrg { dis:"Acme" }|>, ["dis":"Acme", "uri":``, "spec":Ref("sys::LibOrg")], "sys::LibOrg")
+    verifyDict(Str<|LibOrg { dis:"Acme", uri:Uri "http://acme.com" }|>, ["dis":"Acme", "uri":`http://acme.com`, "spec":Ref("sys::LibOrg")], "sys::LibOrg")
 
     // whitespace
     /* TODO: how much variation do we want to allow
@@ -236,7 +236,7 @@ class CompileTest : AbstractXetoTest
   Void verifyDict(Str src, Str:Obj expected, Str type := "sys::Dict")
   {
     Dict actual := compileData(src)
-    // echo("-- $actual [$actual.spec]"); TrioWriter(Env.cur.out).writeDict(actual)
+     // echo("-- $actual [$actual.spec]"); TrioWriter(Env.cur.out).writeDict(actual)
     verifySame(actual.spec, env.type(type))
     if (expected.isEmpty && type == "sys::Dict")
     {
@@ -285,10 +285,10 @@ class CompileTest : AbstractXetoTest
   {
     x := lib.instance(name)
     id := Ref(lib.name + "::" + name, null)
-    //  echo("-- $id =>"); TrioWriter(Env.cur.out).writeDict(x)
+    // echo("-- $id =>"); TrioWriter(Env.cur.out).writeDict(x)
     verifyEq(lib.instances.containsSame(x), true)
     verifyRefEq(x->id, id)
-    verifyDictEq(x, expect.dup.set("id", id))
+    verifyDictEq(x, expect.dup.set("id", id).set("spec", Ref(spec.qname)))
     verifySame(x.spec, spec)
     return x
   }

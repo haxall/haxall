@@ -421,7 +421,7 @@ class DataTestCase
 
   Void verifyDict(Dict dict, Str:Obj expect)
   {
-    verifyDictSpec(dict.spec, expect.getChecked("spec"))
+    verifyDictSpec(dict, expect.getChecked("spec"))
     expect.each |e, n|
     {
       if (n == "spec") return
@@ -430,9 +430,19 @@ class DataTestCase
     dict.each |v, n| { verify(expect[n] != null) }
   }
 
-  Void verifyDictSpec(Spec spec, Str expect)
+  Void verifyDictSpec(Dict dict, Str expect)
   {
-    verifyEq(spec.type.qname, expect)
+    verifyEq(dict.spec.type.qname, expect)
+    if (expect == "sys::Dict")
+    {
+      verifyEq(dict["spec"], null)
+      verifyEq(dict.has("spec"), false)
+    }
+    else
+    {
+      verifyEq(dict["spec"], env.ref(expect))
+      verifyEq(dict.has("spec"), true)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
