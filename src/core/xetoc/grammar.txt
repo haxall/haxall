@@ -25,11 +25,12 @@ Productions [#productions]
   <endOfObj>         :=  ( [","] <nl> ) | ","
   <meta>             :=  "<" <dictTags> ">"
 
-  <data>         :=  <dict> | <scalar> | <type> | <ref>
+  <data>         :=  <dict> | <dictScalar> | <ref> | <spec>
   <dict>         :=  [<dictType>] "{" <dictTags> "}"
   <dictTags>     :=  [<dictTag> <endOfObj>]*
   <dictTag>      :=  <name> [":" <data>]  // marker if no data value
   <dictType>     :=  <typeSimple>    // may want to allow List<of>
+  <dictScalar>   :=  [<dictType>] <scalar>
 
   <type>         :=  <typeMaybe> | <typeAnd> | <typeOr> | <typeSimple>
   <typeMaybe>    :=  <typeSimple> "?"

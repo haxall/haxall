@@ -173,6 +173,30 @@ internal class Parser
     return spec
   }
 
+  ** Parse type reference or nested spec within a data dict
+  private ASpecRef parseDataSpec(ASpecRef typeRef)
+  {
+    // if the current token doesn't indicate a nested spec,
+    // then we parse it as just a type reference
+    if (cur !== Token.lt) return typeRef
+
+    // we are creating a nested synthetic spec
+    loc := typeRef.loc
+    if (libRef == null) throw err("Cannot use nested spec in data file", loc)
+    spec := ASpec(loc, lib, null, lib.autoName)
+
+    // normal spec body - same as parseSpec
+    parseSpecType(spec, typeRef)
+    parseSpecMeta(spec)
+    parseSpecBody(spec)
+
+    // add synthetic spec to the library
+    add("spec", lib.specs, spec.name, spec)
+
+    // return type ref to our synthetic spec for dict itself
+    return ASpecRef(loc, spec)
+  }
+
   ** Parser marker slot
   private ASpec parseMarkerSpec(ASpec parent, Str? doc)
   {
@@ -189,11 +213,18 @@ internal class Parser
     return spec
   }
 
-  private Void parseSpecType(ASpec spec)
+ ** Parse type for a spec including maybe/compound types
+  private Void parseSpecType(ASpec spec, ASpecRef? typeRef := null)
   {
-    spec.typeRef = parseTypeRef
-    if (spec.typeRef == null) return
-    loc := spec.typeRef.loc
+    if (typeRef == null)
+    {
+      spec.typeRef = parseTypeRef
+      if (spec.typeRef == null) return
+    }
+    else
+    {
+      spec.typeRef = typeRef
+    }
 
     if (cur === Token.question)
     {
@@ -315,8 +346,8 @@ internal class Parser
     type := parseTypeRef
     if (cur === Token.scalar) return parseScalar(type)
     if (cur === Token.lbrace) return parseDict(type, Token.lbrace, Token.rbrace, null)
-    if (type != null) return type
-    throw err("Expecting scalar or dict data value, not $curToStr")
+    if (type != null) return parseDataSpec(type)
+    throw err("Expecting data value, not $curToStr")
   }
 
   ** Parse a scalar ref as a data value

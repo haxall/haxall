@@ -67,6 +67,10 @@ internal class ALib : ANode
     f(this)
   }
 
+  ** Auto naming for synthetic specs
+  Str autoName() { "_" + (autoNameCount++) }
+  private Int autoNameCount
+
   ** Debug dump
   override Void dump(OutStream out := Env.cur.out, Str indent := "")
   {

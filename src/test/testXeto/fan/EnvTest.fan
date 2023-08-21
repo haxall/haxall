@@ -43,8 +43,6 @@ class EnvTest : AbstractXetoTest
     //verifyEq(sys.meta["version"], curVersion)  TODO
     verifySame(env.sysLib, sys)
 
-    //  env.print(sys)
-
     // types
     obj    := verifyLibType(sys, "Obj",      null)
     self   := verifyLibType(sys, "Self",     obj)
@@ -90,15 +88,18 @@ class EnvTest : AbstractXetoTest
     verifyEq(specOf["of"], env.ref("sys::Spec"))
     verifySame(specOf.of, spec)
 
-    // Spec.ofs: List? <of:Ref>
-    // TODO: need to make compound
+    // Spec.ofs: List? <of:Ref<of:Spec>>
     specOfs := verifySlot(spec, "ofs", list)
+    specOfsOfRef := (Ref)specOfs["of"]
     verifyEq(specOfs.parent, spec)
     verifyEq(specOfs.qname, "sys::Spec.ofs")
     verifyEq(specOfs["doc"], "Types used in compound types like And and Or")
     verifyEq(specOfs["maybe"], env.marker)
-    verifyEq(specOfs["of"], env.ref("sys::Ref"))
-    verifySame(specOfs.of, ref)
+    verifyEq(specOfsOfRef.toStr.startsWith("sys::_"), true)
+    specOfsOf := env.spec(specOfsOfRef.id)
+    verifySame(specOfs.of, specOfsOf)
+    verifySame(specOfsOf.base, ref)
+    verifyEq(specOfsOf["of"], env.ref("sys::Spec"))
 
     // lookups
     verifySame(sys.type("DateTime"), dt)

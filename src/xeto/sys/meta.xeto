@@ -25,7 +25,7 @@ Spec: Dict {
   of: Ref? <of:Spec>
 
   // Types used in compound types like And and Or
-  ofs: List? <of:Ref>
+  ofs: List? <of:Ref<of:Spec>>
 
   // Documentation description
   doc: Str
