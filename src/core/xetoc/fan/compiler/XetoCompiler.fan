@@ -72,6 +72,7 @@ internal class XetoCompiler
       LoadFactories(),
       Reify(),
       InheritMeta(),
+      CheckErrors(),
       Assemble(),
       OutputZip()
     ])
@@ -89,6 +90,7 @@ internal class XetoCompiler
       Resolve(),
       InferData(),
       Reify(),
+      CheckErrors(),
     ])
     return ast.asm
   }
