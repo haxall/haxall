@@ -21,6 +21,7 @@ internal class CheckErrors : Step
       checkLib(lib)
     else
       checkData(ast)
+    bombIfErr
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -63,8 +64,19 @@ internal class CheckErrors : Step
   {
     if (x.meta == null) return
 
+    metaReservedTags.each |name|
+    {
+      if (x.meta.has(name)) err("Spec '$x.name' cannot use reserved meta tag '$name'", x.loc)
+    }
+
     checkDict(x.meta)
   }
+
+  const Str[] metaReservedTags := [
+    // used right now
+    "id", "base", "type", "spec", "slots",
+    // future proofing
+    "class", "is", "lib", "loc", "parent", "super", "supers", "version", "xeto"]
 
 //////////////////////////////////////////////////////////////////////////
 // Data

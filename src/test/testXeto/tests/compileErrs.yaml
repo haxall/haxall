@@ -48,3 +48,20 @@ verifyErrs: |
   Slot 'x' type 'sys::Str' conflicts inherited slot 'temp::Bar.x' of type 'sys::Date'
 ---
 
+##########################################################################
+## CheckErrors
+##########################################################################
+
+---
+name: "reservedMeta"
+compileLib: |
+  Foo: Dict <id:"x", base:"x", type:"x", spec:"x", slots:"x", lib:"x", loc:"x">
+verifyErrs: |
+  Spec 'Foo' cannot use reserved meta tag 'id'
+  Spec 'Foo' cannot use reserved meta tag 'base'
+  Spec 'Foo' cannot use reserved meta tag 'type'
+  Spec 'Foo' cannot use reserved meta tag 'spec'
+  Spec 'Foo' cannot use reserved meta tag 'slots'
+  Spec 'Foo' cannot use reserved meta tag 'lib'
+  Spec 'Foo' cannot use reserved meta tag 'loc'
+---
