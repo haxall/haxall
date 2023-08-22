@@ -86,8 +86,8 @@ const abstract class XetoEnv
   ** Construct instance of `Ref`
   abstract Ref ref(Str id, Str? dis := null)
 
-  ** Data type for Fantom object
-  abstract Spec? typeOf(Obj? val, Bool checked := true)
+  ** Spec for Fantom object
+  abstract Spec? specOf(Obj? val, Bool checked := true)
 
   ** Name table for this environment
   @NoDoc abstract NameTable names()

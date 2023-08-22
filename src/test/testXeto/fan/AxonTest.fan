@@ -232,22 +232,22 @@ class AxonTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Tyepof function
+// SpecOf function
 //////////////////////////////////////////////////////////////////////////
 
   @HxRuntimeTest
   Void testTypeof()
   {
-    verifySpec(Str<|typeof(marker())|>, "sys::Marker")
-    verifySpec(Str<|typeof("hi")|>, "sys::Str")
-    verifySpec(Str<|typeof(@id)|>, "sys::Ref")
-    verifySpec(Str<|typeof([])|>, "sys::List")
-    verifySpec(Str<|typeof({})|>, "sys::Dict")
-    verifySpec(Str<|typeof(Str)|>, "sys::Type")
-    verifySpec(Str<|typeof(toGrid("hi"))|>, "ph::Grid")
-    verifySpec(Str<|typeof(toGrid("hi"))|>, "ph::Grid")
-    verifySpec(Str<|typeof(Str)|>, "sys::Type")
-    verifySpec(Str<|typeof(Str <foo>)|>, "sys::Spec")
+    verifySpec(Str<|specOf(marker())|>, "sys::Marker")
+    verifySpec(Str<|specOf("hi")|>, "sys::Str")
+    verifySpec(Str<|specOf(@id)|>, "sys::Ref")
+    verifySpec(Str<|specOf([])|>, "sys::List")
+    verifySpec(Str<|specOf({})|>, "sys::Dict")
+    verifySpec(Str<|specOf(Str)|>, "sys::Type")
+    verifySpec(Str<|specOf(toGrid("hi"))|>, "ph::Grid")
+    verifySpec(Str<|specOf(toGrid("hi"))|>, "ph::Grid")
+    verifySpec(Str<|specOf(Str)|>, "sys::Type")
+    verifySpec(Str<|specOf(Str <foo>)|>, "sys::Spec")
   }
 
 //////////////////////////////////////////////////////////////////////////

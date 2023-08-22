@@ -51,7 +51,7 @@ class FactoryTest : AbstractXetoTest
     v := spec.factory.decodeScalar(s)
     // echo("::: $type <=> $spec | $v")
     verifyEq(v, val)
-    verifySame(env.typeOf(v), spec)
+    verifySame(env.specOf(v), spec)
   }
 
 }

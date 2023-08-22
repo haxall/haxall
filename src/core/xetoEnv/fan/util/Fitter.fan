@@ -70,7 +70,7 @@ internal class Fitter
   Bool valFits(Obj? val, Spec type)
   {
     // get type for value
-    valType := env.typeOf(val, false)
+    valType := env.specOf(val, false)
     if (valType == null) return explainNoType(val)
 
     // check nominal typing

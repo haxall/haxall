@@ -65,7 +65,7 @@ class CompileTest : AbstractXetoTest
     // echo("   $actual [$actual.typeof]")
     verifyEq(actual, expected)
 
-    type := env.typeOf(actual)
+    type := env.specOf(actual)
     verifyEq(type.qname, qname)
 
     pattern := type.get("pattern")

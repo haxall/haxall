@@ -112,7 +112,7 @@ class Printer
         if (v === env.none) return w("None \"none\"")
         if (v === env.na) return w("NA \"na\"")
         if (v is Str) return quoted(v)
-        t := env.typeOf(v)
+        t := env.specOf(v)
         if (t.isScalar) return w(t.qname).sp.quoted(v.toStr)
       }
 

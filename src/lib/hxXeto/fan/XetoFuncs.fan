@@ -291,18 +291,18 @@ const class XetoFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Return the data type of the given value.  Raise exception
+  ** Return the Xeto spec of the given value.  Raise exception
   ** if value type is not mapped into the data type system.  Also
   ** see `is()` and `fits()`.
   **
   ** Examples:
-  **    typeof("hi")  >>  sys::Str
-  **    typeof(@id)   >>  sys::Ref
-  **    typeof({})    >>  sys::Dict
+  **    specOf("hi")  >>  sys::Str
+  **    specOf(@id)   >>  sys::Ref
+  **    specOf({})    >>  sys::Dict
   **
-  @Axon static Spec? _typeof(Obj? val, Bool checked := true)
+  @Axon static Spec? specOf(Obj? val, Bool checked := true)
   {
-    curContext.usings.env.typeOf(val, checked)
+    curContext.usings.env.specOf(val, checked)
   }
 
   **
@@ -353,7 +353,7 @@ const class XetoFuncs
   **
   @Axon static Bool _is(Obj? val, Spec spec)
   {
-    curContext.usings.env.typeOf(val).isa(spec)
+    curContext.usings.env.specOf(val).isa(spec)
   }
 
   **

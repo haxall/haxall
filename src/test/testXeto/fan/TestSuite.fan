@@ -425,7 +425,7 @@ class DataTestCase
   Void verifyVal(Obj? val, Obj? expect)
   {
     if (expect == null) return
-    type := env.typeOf(val)
+    type := env.specOf(val)
     if (type.isa(env.type("sys::Scalar")))
       verifyScalar(val, type, expect)
     else if (type.isa(env.type("sys::Dict")))
