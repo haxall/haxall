@@ -9,6 +9,7 @@
 using xeto
 using xeto::Dict
 using xeto::Lib
+using xetoEnv::MDictMerge1
 using haystack::Ref
 using haystack
 using axon
@@ -98,10 +99,15 @@ const class XetoFuncs
   **  - lib: return all the top-level specs declared in given library
   **  - filter: return all the top-level specs in scope filtered by given expression
   **
+  ** The dict representation of specs for filters supports a "slots" tag on
+  ** each spec with a Dict of the effective slots name.  This allows filtering
+  ** slots using the syntax 'slots->someName'.
+  **
   ** Examples:
   **   specs()                // specs in using scope
   **   specLib("ph").specs    // specs in a given library
   **   specs(abstract)        // filter specs with filter expression
+  **   specs(slots->ahu)      // filter specs have ahu tag
   **
   @Axon static Spec[] specs(Expr scope := Literal.nullVal)
   {
@@ -118,8 +124,13 @@ const class XetoFuncs
       if (var isnot Lib) throw ArgErr("Expecting scope to be Lib, not ${var?.typeof}")
       return ((Lib)var).types
     }
+
     filter := scope.evalToFilter(cx)
-    return typesInScope(cx) |spec| { filter.matches((haystack::Dict)spec, cx) }
+
+    return typesInScope(cx) |spec|
+    {
+      filter.matches(MDictMerge1(spec, "slots", spec.slots.toDict), cx)
+    }
   }
 
   private static Spec[] typesInScope(HxContext cx, |Spec->Bool|? filter := null)
@@ -616,3 +627,4 @@ const class XetoFuncs
   }
 
 }
+

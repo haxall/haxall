@@ -28,6 +28,7 @@ class Build : BuildPod
                ]
     depends = ["sys @{fan.depend}",
                "xeto @{hx.depend}",
+               "xetoEnv @{hx.depend}",
                "haystack @{hx.depend}",
                "axon @{hx.depend}",
                "hx @{hx.depend}"]
