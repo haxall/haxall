@@ -9,17 +9,11 @@
 // Spec models a value specification
 Spec: Dict {
 
-  // Reference to value type if this spec is not a type
-  type: Type?
-
   // Indicates an optional type
   maybe: Marker? <noInherit>
 
   // Scalar default value
   val: Obj?
-
-  // Dict slot specs
-  slots: Dict <of:Spec>
 
   // Item type for parameterized Seq, Query, and Ref specs
   of: Ref? <of:Spec>
@@ -54,9 +48,6 @@ Spec: Dict {
   // Inverse query to run against parent
   inverse: Spec?
 }
-
-// Type is a named spec in a library
-Type: Spec
 
 // Library module meta data
 Lib: Dict {

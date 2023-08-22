@@ -69,7 +69,7 @@ const class MSpec
 
   override Str toStr() { qname }
 
-  virtual Spec spec() { env.sys.spec }
+  Spec spec() { env.sys.spec }
 
   virtual SpecFactory factory() { type.factory }
 

@@ -31,8 +31,6 @@ const final class MType : MSpec
 
   const override haystack::Ref id
 
-  override Spec spec() { env.sys.type }
-
   override Bool isType() { true }
 
   override const SpecFactory factory

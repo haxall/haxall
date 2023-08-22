@@ -25,7 +25,6 @@ const class MSys
     this.list     = x.get("List")
     this.lib      = x.get("Lib")
     this.spec     = x.get("Spec")
-    this.type     = x.get("Type")
     this.scalar   = x.get("Scalar")
     this.marker   = x.get("Marker")
     this.bool     = x.get("Bool")
@@ -50,7 +49,6 @@ const class MSys
   const XetoType list
   const XetoType lib
   const XetoType spec
-  const XetoType type
   const XetoType scalar
   const XetoType marker
   const XetoType bool

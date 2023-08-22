@@ -211,6 +211,7 @@ class AxonTest : HxTest
     verifyDictsEq(eval("""specs(abstract)"""), env.sysLib.types.findAll |x| { x.has("abstract") })
     verifyDictsEq(eval("""specs(abstract)"""), env.sysLib.types.findAll |x| { x.has("abstract") })
     verifyDictsEq(eval("""specs(base==@sys::Seq)"""), env.sysLib.types.findAll |x| { x.base?.qname == "sys::Seq" })
+    verifyDictsEq(eval("""specs(slots->of)"""), Spec[env.spec("sys::Spec")])
 
     // specX
     verifyReflect("Obj", env.type("sys::Obj"))
@@ -243,10 +244,10 @@ class AxonTest : HxTest
     verifySpec(Str<|specOf(@id)|>, "sys::Ref")
     verifySpec(Str<|specOf([])|>, "sys::List")
     verifySpec(Str<|specOf({})|>, "sys::Dict")
-    verifySpec(Str<|specOf(Str)|>, "sys::Type")
+    verifySpec(Str<|specOf(Str)|>, "sys::Spec")
     verifySpec(Str<|specOf(toGrid("hi"))|>, "ph::Grid")
     verifySpec(Str<|specOf(toGrid("hi"))|>, "ph::Grid")
-    verifySpec(Str<|specOf(Str)|>, "sys::Type")
+    verifySpec(Str<|specOf(Str)|>, "sys::Spec")
     verifySpec(Str<|specOf(Str <foo>)|>, "sys::Spec")
     verifySpec(Str<|specOf({spec:@ph::Equip})|>, "ph::Equip")
   }

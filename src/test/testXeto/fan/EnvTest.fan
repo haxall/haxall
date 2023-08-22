@@ -60,7 +60,6 @@ class EnvTest : AbstractXetoTest
     dict   := verifyLibType(sys, "Dict",     seq)
     list   := verifyLibType(sys, "List",     seq)
     spec   := verifyLibType(sys, "Spec",     dict)
-    type   := verifyLibType(sys, "Type",     spec)
     lib    := verifyLibType(sys, "Lib",      dict)
     org    := verifyLibType(sys, "LibOrg",   dict)
 
@@ -583,7 +582,7 @@ class EnvTest : AbstractXetoTest
     verifySame(type.type, type)
     verifySame(type.base, base)
     verifyEq(type.toStr, type.qname)
-    verifySame(type.spec, env.type("sys::Type"))
+    verifySame(type.spec, env.type("sys::Spec"))
     verifyEq(type.isType, true)
     verifyEq(type["val"], val)
     return type
