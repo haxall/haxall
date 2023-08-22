@@ -158,6 +158,11 @@ class DataTestCase
     m.callOn(this, [val])
   }
 
+  Bool hasStep(Str name)
+  {
+    def.containsKey(name)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Steps
 //////////////////////////////////////////////////////////////////////////
@@ -169,14 +174,31 @@ class DataTestCase
 
   Void compileLib(Str src)
   {
-    this.libRef = env.compileLib(src)
-    if (runner.verbose) env.print(env.genAst(libRef), Env.cur.out, env.dict1("json", env.marker))
+    this.libRef = compile |opts| { env.compileLib(src, opts) }
+    if (runner.verbose && libRef != null) env.print(env.genAst(libRef), Env.cur.out, env.dict1("json", env.marker))
     //env.print(libRef)
   }
 
   Void compileData(Str src)
   {
-     this.dataRef = env.compileData(src)
+     this.dataRef = compile |opts| { env.compileData(src, opts) }
+  }
+
+  private Obj? compile(|Dict opts->Obj| f)
+  {
+    errs = XetoLogRec[,]
+    logger := |XetoLogRec rec| { errs.add(rec) }
+    opts := env.dict1("log", Unsafe(logger))
+
+    try
+      return f(opts)
+    catch (Err e)
+      {}
+
+    /// if we are not checking errors, then report them and fail
+    if (hasStep("verifyErrs")) return null
+    errs.each |err| { echo(err) }
+    throw Err("Compile failed [$errs.size errors]")
   }
 
   Void verifyType(Str:Obj? expect)
@@ -239,6 +261,28 @@ class DataTestCase
     JsonInStream(actual.in).readJson
 
     verifyStr(actual, expect)
+  }
+
+  Void verifyErrs(Str expectLinesStr)
+  {
+    expectLines := expectLinesStr.splitLines.mapNotNull |line| { line.trimToNull }
+
+    errs.each |err, i|
+    {
+      expect := expectLines.getSafe(i)
+      actual := normQName(err.msg)
+
+      if (expect == null) return // check sizes below
+
+      if (runner.verbose)
+      {
+        echo("     ~ $expect")
+        echo("       $actual")
+      }
+      verifyEq(actual, expect)
+    }
+
+    verifyEq(errs.size, expectLines.size, "Actual errors $errs.size != $expectLines.size expected")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -486,6 +530,20 @@ class DataTestCase
     verifyEq(actual.qname, expected)
   }
 
+  Str normQName(Str msg)
+  {
+    // normalize temp123::X to temp::X
+    Int? tempi := 0
+    while (true)
+    {
+      tempi = msg.index("temp", tempi+1)
+      if (tempi == null) break
+      colons := msg.index("::", tempi+1)
+      msg = msg[0..<tempi+4] + msg[colons..-1]
+    }
+    return msg
+  }
+
   Void verifyStr(Str actual, Str expected)
   {
     actual = actual.trim
@@ -564,14 +622,15 @@ class DataTestCase
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  DataTestRunner runner   // make
-  XetoEnv env             // make
-  Test test               // make
-  Str testName            // make
-  Str:Obj? def            // make
-  Lib? libRef             // compileLib, loadLib
-  Obj? dataRef            // compileData
-  Int numVerifies         // verifyX
+  DataTestRunner runner     // make
+  XetoEnv env               // make
+  Test test                 // make
+  Str testName              // make
+  Str:Obj? def              // make
+  XetoLogRec[]? errs        // compileLib, compileData
+  Lib? libRef               // compileLib, loadLib
+  Obj? dataRef              // compileData
+  Int numVerifies           // verifyX
 }
 
 

@@ -1,0 +1,50 @@
+#
+# Tests for compiler errors
+#
+
+
+##########################################################################
+## InheritSlots
+##########################################################################
+
+---
+name: "cycle1"
+compileLib: |
+  Foo: Foo
+verifyErrs: |
+  Cyclic inheritance: Foo
+---
+name: "cycle2"
+compileLib: |
+  Foo: Bar
+  Bar: Foo
+verifyErrs: |
+  Cyclic inheritance: Foo
+  Cyclic inheritance: Bar
+---
+name: "cycle3"
+compileLib: |
+  Foo: Bar
+  Bar: Baz
+  Baz: Foo
+verifyErrs: |
+  Cyclic inheritance: Foo
+  Cyclic inheritance: Bar
+  Cyclic inheritance: Baz
+---
+name: "conflictSlots1"
+compileLib: |
+  Foo: {x:Str}
+  Bar: {x:Date}
+  Baz: Foo & Bar
+verifyErrs: |
+  Conflicing inherited slots: temp::Foo.x, temp::Bar.x
+---
+name: "conflictSlots2"
+compileLib: |
+  Foo: Bar {x:Str}
+  Bar: {x:Date}
+verifyErrs: |
+  Slot 'x' type 'sys::Str' conflicts inherited slot 'temp::Bar.x' of type 'sys::Date'
+---
+

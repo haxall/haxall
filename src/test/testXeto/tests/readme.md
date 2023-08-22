@@ -25,6 +25,7 @@ The following are the step types discussed in further detail below:
   - **verifyData**: verify the data value from compileData
   - **verifySpecIs**: verify nonimal typing between two specs
   - **verifySpecFits**: verify structural typing between two specs
+  - **verifyErrs**: verify compile time errors
 
 Any test that uses a qname from `compileLib` can assume the library
 is called "test" (but in reality it is likely something like "temp123").
@@ -114,4 +115,9 @@ Example:
 
 Verify structural typing between two specs.  This step follows the
 exact same conventions as `verifySpecIs`.
+
+## verifyErrs
+
+Verify compiler errors for Xeto source code with illegal syntax/semantics.
+The value is a multiline string with an expected error on each line.
 
