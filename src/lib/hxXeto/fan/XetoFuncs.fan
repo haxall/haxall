@@ -97,11 +97,12 @@ const class XetoFuncs
   ** Scope may one of the following:
   **  - null: return all the top-level specs currently in the using scope
   **  - lib: return all the top-level specs declared in given library
-  **  - filter: return all the top-level specs in scope filtered by given expression
+  **  - list of lib: all specs in given libraries
   **
-  ** The dict representation of specs for filters supports a "slots" tag on
-  ** each spec with a Dict of the effective slots name.  This allows filtering
-  ** slots using the syntax 'slots->someName'.
+  ** A filter may be specified to filter the specs found in the scope.  The
+  ** dict representation for filtering supports a "slots" tag on each spec
+  ** with a Dict of the effective slots name.  This allows filtering slots
+  ** using the syntax 'slots->someName'.
   **
   ** Examples:
   **   specs()                // specs in using scope
@@ -109,28 +110,46 @@ const class XetoFuncs
   **   specs(abstract)        // filter specs with filter expression
   **   specs(slots->ahu)      // filter specs have ahu tag
   **
-  @Axon static Spec[] specs(Expr scope := Literal.nullVal)
+  @Axon static Spec[] specs(Expr scope := Literal.nullVal, Expr filter := Literal.nullVal)
   {
     cx := curContext
-    if (scope === Literal.nullVal) return typesInScope(cx, null)
-    if (scope.type === ExprType.var)
+
+    |Spec->Bool|? filterFunc := null
+    if (filter !== Literal.nullVal)
     {
-      var := cx.getVar(scope.toStr)
-      if (var is Lib) return ((Lib)var).types
-    }
-    if (scope.type === ExprType.call)
-    {
-      var := scope.eval(cx)
-      if (var isnot Lib) throw ArgErr("Expecting scope to be Lib, not ${var?.typeof}")
-      return ((Lib)var).types
+      f := filter.evalToFilter(cx)
+      filterFunc = |Spec x->Bool| { f.matches(MDictMerge1(x, "slots", x.slots.toDict), cx) }
     }
 
-    filter := scope.evalToFilter(cx)
+    scopeVal := scope.eval(cx)
 
-    return typesInScope(cx) |spec|
+    if (scopeVal == null) return typesInScope(cx, filterFunc)
+
+    lib := scopeVal as Lib
+    if (lib != null)
     {
-      filter.matches(MDictMerge1(spec, "slots", spec.slots.toDict), cx)
+      specs := lib.types
+      if (filterFunc != null) specs = specs.findAll(filterFunc)
+      return specs
     }
+
+    list := scopeVal as List
+    if (list != null)
+    {
+      acc := Spec[,]
+      list.each |x|
+      {
+        lib = x as Lib ?: throw ArgErr("Expecting list of Lib: $x [$x.typeof]")
+        lib.types.each |spec|
+        {
+          if (filterFunc != null && !filterFunc(spec)) return
+          acc.add(spec)
+        }
+      }
+      return acc
+    }
+
+    throw ArgErr("Invalid value for scope: $scopeVal [$scopeVal.typeof]")
   }
 
   private static Spec[] typesInScope(HxContext cx, |Spec->Bool|? filter := null)
@@ -175,48 +194,69 @@ const class XetoFuncs
 
   **
   ** Lookup instances from Xeto libs as a list of dicts.
+  **
   ** Scope may one of the following:
   **  - null: all instances from all libs currently in the using scope
   **  - lib: all instances declared in given library
-  **  - filter: return all the instances in scope filtered by given expression
+  **  - list of lib: all instances in given libraries
+  **
+  ** If the filter is null, then it filters the instances from the scope.
   **
   ** Examples:
   **   instances()                  // all instances in scope
   **   specLib("icons").instances   // instances in a given library
-  **   instances(a and b)           // filter instances with filter expression
+  **   instances(null, a and b)     // filter instances with filter expression
   **
-  @Axon static Dict[] instances(Expr scope := Literal.nullVal)
+  @Axon static Dict[] instances(Expr scope := Literal.nullVal, Expr filter := Literal.nullVal)
   {
     cx := curContext
-    if (scope === Literal.nullVal) return instancesInScope(cx, null)
-    if (scope.type === ExprType.var)
+
+    Filter? f := null
+    if (filter !== Literal.nullVal)
+      f = filter.evalToFilter(cx)
+
+    scopeVal := scope.eval(cx)
+
+    if (scopeVal == null)
     {
-      var := cx.getVar(scope.toStr)
-      if (var is Lib) return ((Lib)var).instances
-    }
-    if (scope.type === ExprType.call)
-    {
-      var := scope.eval(cx)
-      if (var isnot Lib) throw ArgErr("Expecting scope to be Lib, not ${var?.typeof}")
-      return ((Lib)var).instances
+      return instancesInScope(cx, f)
     }
 
-    filter := scope.evalToFilter(cx)
-
-    return instancesInScope(cx) |dict|
+    lib := scopeVal as Lib
+    if (lib != null)
     {
-      filter.matches(dict, cx)
+      instances := lib.instances
+      if (f != null) instances = instances.findAll |x| { f.matches(x, cx) }
+      return instances
     }
+
+    list := scopeVal as List
+    if (list != null)
+    {
+      acc := Dict[,]
+      list.each |x|
+      {
+        lib = x as Lib ?: throw ArgErr("Expecting list of Lib: $x [$x.typeof]")
+        lib.instances.each |instance|
+        {
+          if (f != null && !f.matches(instance, cx)) return
+          acc.add(instance)
+        }
+      }
+      return acc
+    }
+
+    throw ArgErr("Invalid value for scope: $scopeVal [$scopeVal.typeof]")
   }
 
-  private static Dict[] instancesInScope(HxContext cx, |Dict->Bool|? filter := null)
+  private static Dict[] instancesInScope(HxContext cx, Filter? filter)
   {
     acc := Dict[,]
     cx.usings.libs.each |lib|
     {
       lib.instances.each |x|
       {
-        if (filter != null && !filter(x)) return
+        if (filter != null && !filter.matches(x, cx)) return
         acc.add(x)
       }
     }

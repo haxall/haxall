@@ -206,12 +206,14 @@ class AxonTest : HxTest
     // specs
     verifyDictsEq(eval("""specs()"""), env.sysLib.types)
     verifyDictsEq(eval("""specs(null)"""), env.sysLib.types)
-    verifyDictsEq(eval("""specLib("ph").specs(x)"""), env.lib("ph").types)
+    verifyDictsEq(eval("""specLib("ph").specs"""), env.lib("ph").types)
     verifyDictsEq(eval("""do x: specLib("ph"); specs(x); end"""), env.lib("ph").types)
-    verifyDictsEq(eval("""specs(abstract)"""), env.sysLib.types.findAll |x| { x.has("abstract") })
-    verifyDictsEq(eval("""specs(abstract)"""), env.sysLib.types.findAll |x| { x.has("abstract") })
-    verifyDictsEq(eval("""specs(base==@sys::Seq)"""), env.sysLib.types.findAll |x| { x.base?.qname == "sys::Seq" })
-    verifyDictsEq(eval("""specs(slots->of)"""), Spec[env.spec("sys::Spec")])
+    verifyDictsEq(eval("""specs(null, abstract)"""), env.sysLib.types.findAll |x| { x.has("abstract") })
+    verifyDictsEq(eval("""specs(null, abstract)"""), env.sysLib.types.findAll |x| { x.has("abstract") })
+    verifyDictsEq(eval("""specs(null, base==@sys::Seq)"""), env.sysLib.types.findAll |x| { x.base?.qname == "sys::Seq" })
+    verifyDictsEq(eval("""specs(null, slots->of)"""), Spec[env.spec("sys::Spec")])
+    verifyDictsEq(eval("""specLib("ph").specs(slots->vav)"""), [env.spec("ph::Vav")])
+    verifyDictsEq(eval("""[specLib("ph")].specs(slots->vav)"""), [env.spec("ph::Vav")])
 
     // specX
     verifyReflect("Obj", env.type("sys::Obj"))
@@ -228,7 +230,7 @@ class AxonTest : HxTest
     verifyDictsEq(eval("""instances()"""), Dict[,])
     verifyDictsEq(eval("""do x: specLib("ashrae.g36"); instances(x); end"""), env.lib("ashrae.g36").instances)
     verifyDictsEq(eval("""specLib("ashrae.g36").instances"""), env.lib("ashrae.g36").instances)
-    // TODO: need to handle instances with filter
+    verifyDictsEq(eval("""[specLib("ashrae.g36")].instances(alpha)"""), [env.instance("ashrae.g36::test-a")])
   }
 
   Void verifyReflect(Str expr, Spec spec)
