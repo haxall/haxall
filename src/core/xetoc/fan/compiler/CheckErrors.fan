@@ -28,10 +28,19 @@ internal class CheckErrors : Step
 // Lib
 //////////////////////////////////////////////////////////////////////////
 
-  Void checkLib(ALib lib)
+  Void checkLib(ALib x)
   {
-    lib.specs.each |type| { checkType(type) }
-    lib.instances.each |instance| { checkDict(instance) }
+    checkLibMeta(lib)
+    x.specs.each |type| { checkType(type) }
+    x.instances.each |instance| { checkDict(instance) }
+  }
+
+  Void checkLibMeta(ALib x)
+  {
+    libMetaReservedTags.each |name|
+    {
+      if (x.meta.has(name)) err("Lib '$x.name' cannot use reserved meta tag '$name'", x.loc)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -64,19 +73,13 @@ internal class CheckErrors : Step
   {
     if (x.meta == null) return
 
-    metaReservedTags.each |name|
+    specMetaReservedTags.each |name|
     {
       if (x.meta.has(name)) err("Spec '$x.name' cannot use reserved meta tag '$name'", x.loc)
     }
 
     checkDict(x.meta)
   }
-
-  const Str[] metaReservedTags := [
-    // used right now
-    "id", "base", "type", "spec", "slots",
-    // future proofing
-    "class", "is", "lib", "loc", "parent", "super", "supers", "version", "xeto"]
 
 //////////////////////////////////////////////////////////////////////////
 // Data
@@ -108,4 +111,23 @@ internal class CheckErrors : Step
   Void checkDataRef(ADataRef x)
   {
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
+
+  const Str[] libMetaReservedTags := [
+    // used right now
+    "id", "spec", "loaded",
+    // future proofing
+    "data", "instances", "name", "lib", "loc", "slots", "specs", "types", "xeto"
+  ]
+
+  const Str[] specMetaReservedTags := [
+    // used right now
+    "id", "base", "type", "spec", "slots",
+    // future proofing
+    "class", "is", "lib", "loc", "name", "parent", "qname", "super", "supers", "version", "xeto"
+  ]
+
 }
