@@ -13,7 +13,7 @@ class NameDict extends sys.Obj
 {
   constructor(table, spec, ...entries) { 
     super(); 
-    this.#table = table;
+    this.#table = table ?? NameTable.makeEmpty();
     this.#spec = spec;
     this.#entries = sys.Map.make(sys.Int.type$, sys.Obj.type$);
     this.#entries.ordered(true);
@@ -28,7 +28,7 @@ class NameDict extends sys.Obj
 
   static #empty;
   static empty() {
-    if (!NameDict.#empty) NameDict.#empty = new NameDict(null, null, []);
+    if (!NameDict.#empty) NameDict.#empty = new NameDict(null, null);
     return NameDict.#empty;
   }
 

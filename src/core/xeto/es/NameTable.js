@@ -16,12 +16,14 @@ class NameTable extends sys.Obj
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  constructor() { 
+  constructor(empty=false) {
     super(); 
     this.#byCode = [];
     this.#map = new js.Map();
-    this.#emptyCode = this.#put("");
-    this.#idCode = this.#put("id");
+    if (!empty) {
+      this.#emptyCode = this.#put("");
+      this.#idCode    = this.#put("id");
+    }
   }
 
   static #maxSize = 1_000_000;
@@ -33,6 +35,7 @@ class NameTable extends sys.Obj
   #isSparse = false;
 
   static make() { return new NameTable(); }
+  static makeEmpty() { return new NameTable(true); }
 
 //////////////////////////////////////////////////////////////////////////
 // Fantom API
