@@ -218,6 +218,14 @@ class EnvTest : AbstractXetoTest
     verifyEq(env.type("sys::Foo", false), null)
     verifyErr(UnknownSpecErr#) { env.type("sys::Foo") }
     verifyErr(UnknownSpecErr#) { env.type("sys::Foo", true) }
+
+    // instances
+    verifyDictEq(env.instance("ashrae.g36::test-a"), ["id":Ref("ashrae.g36::test-a"), "alpha":m])
+    verifyEq(env.instance("ashrae.g36::badOne", false), null)
+    verifyEq(env.instance("badOne::badOne", false), null)
+    verifyErr(UnknownRecErr#) { env.instance("ashrae.g36::badOne") }
+    verifyErr(UnknownRecErr#) { env.instance("ashrae.g36::badOne", true) }
+    verifyErr(UnknownRecErr#) { env.instance("badOne::badOne") }
   }
 
 //////////////////////////////////////////////////////////////////////////

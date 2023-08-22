@@ -6,6 +6,10 @@
 // Author: Avijit Saha, Jaime Gagne, Maggie Sullivan
 //
 
+// just for testing
+@test-a: {alpha}
+@test-b: {beta}
+
 // Suggested Marker Tags in the tags.pog file
 // override: Marker
 // window: Marker

@@ -113,6 +113,9 @@ const abstract class XetoEnv
   **   - slot: "foo.bar::Baz.qux"
   abstract Spec? spec(Str qname, Bool checked := true)
 
+  ** Get or load instance by the given qualified name
+  abstract Dict? instance(Str qname, Bool checked := true)
+
   ** Derive a new spec from the given base type, additional meta, and
   ** slots.  The spec is not associated with any library and a synthetic
   ** qname is generated.

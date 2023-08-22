@@ -218,6 +218,17 @@ class AxonTest : HxTest
     verifyReflect("Str", env.type("sys::Str"))
     verifyReflect("Dict", env.type("sys::Dict"))
     verifyReflect("LibOrg", env.type("sys::LibOrg"))
+
+    // instance
+    verifySame(eval("""instance("ashrae.g36::test-a")"""), env.instance("ashrae.g36::test-a"))
+    verifySame(eval("""instance(@ashrae.g36::test-a)"""), env.instance("ashrae.g36::test-a"))
+    verifySame(eval("""instance(@bad::one, false)"""), null)
+
+    // instances
+    verifyDictsEq(eval("""instances()"""), Dict[,])
+    verifyDictsEq(eval("""do x: specLib("ashrae.g36"); instances(x); end"""), env.lib("ashrae.g36").instances)
+    verifyDictsEq(eval("""specLib("ashrae.g36").instances"""), env.lib("ashrae.g36").instances)
+    // TODO: need to handle instances with filter
   }
 
   Void verifyReflect(Str expr, Spec spec)

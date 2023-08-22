@@ -159,6 +159,71 @@ const class XetoFuncs
   }
 
   **
+  ** Load or lookup a instance from a Xeto library by its string or ref qname
+  ** as a Dict. If not found raise exception or return null based on checked flag.
+  **
+  ** Examples:
+  **   instance("icons::apple")             // qname string
+  **   instance(@icons::apple)              // qname Ref id
+  **   instance("icons::bad-name")          // raises exception if not found
+  **   instance("icons::bad-name", false)   // unchecked returns null
+  **
+  @Axon static Dict? instance(Obj qname, Bool checked := true)
+  {
+    curContext.usings.env.instance(qname.toStr, checked)
+  }
+
+  **
+  ** Lookup instances from Xeto libs as a list of dicts.
+  ** Scope may one of the following:
+  **  - null: all instances from all libs currently in the using scope
+  **  - lib: all instances declared in given library
+  **  - filter: return all the instances in scope filtered by given expression
+  **
+  ** Examples:
+  **   instances()                  // all instances in scope
+  **   specLib("icons").instances   // instances in a given library
+  **   instances(a and b)           // filter instances with filter expression
+  **
+  @Axon static Dict[] instances(Expr scope := Literal.nullVal)
+  {
+    cx := curContext
+    if (scope === Literal.nullVal) return instancesInScope(cx, null)
+    if (scope.type === ExprType.var)
+    {
+      var := cx.getVar(scope.toStr)
+      if (var is Lib) return ((Lib)var).instances
+    }
+    if (scope.type === ExprType.call)
+    {
+      var := scope.eval(cx)
+      if (var isnot Lib) throw ArgErr("Expecting scope to be Lib, not ${var?.typeof}")
+      return ((Lib)var).instances
+    }
+
+    filter := scope.evalToFilter(cx)
+
+    return instancesInScope(cx) |dict|
+    {
+      filter.matches(dict, cx)
+    }
+  }
+
+  private static Dict[] instancesInScope(HxContext cx, |Dict->Bool|? filter := null)
+  {
+    acc := Dict[,]
+    cx.usings.libs.each |lib|
+    {
+      lib.instances.each |x|
+      {
+        if (filter != null && !filter(x)) return
+        acc.add(x)
+      }
+    }
+    return acc
+  }
+
+  **
   ** Create the default instance for a given spec.
   ** Raise exception if spec is abstract.
   **

@@ -164,6 +164,20 @@ abstract const class MEnv : XetoEnv
     return null
   }
 
+  override Dict? instance(Str qname, Bool checked := true)
+  {
+    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
+
+    libName := qname[0..<colon]
+    name := qname[colon+2..-1]
+
+    instance := lib(libName, false)?.instance(name, false)
+
+    if (instance != null) return instance
+    if (checked) throw haystack::UnknownRecErr(qname)
+    return null
+  }
+
   override Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
   {
     XetoUtil.derive(this, name, base, meta, slots)
