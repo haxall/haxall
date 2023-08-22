@@ -220,7 +220,7 @@ abstract class AxonContext : HaystackContext
 
   ** Safely get just a variable or return null (don't check
   ** for top-level functions, nor raise exception)
-  internal Obj? getVar(Str name)
+  @NoDoc Obj? getVar(Str name)
   {
     frame := varFrame(name)
     if (frame != null) return frame.get(name)

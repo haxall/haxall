@@ -9,9 +9,14 @@
 using util
 
 **
-** Data specification.  Spec implements the Dict mixin
-** which models the effective meta-data (including from inherited
-** types).  Use the `metaOwn` method to get only the declared meta-data.
+** Xeto data specification.
+**
+** Spec dict representation:
+**   - id: Ref "lib:{qname}"
+**   - spec: Ref "sys::Spec"
+**   - base: Ref to base type (types only)
+**   - type: Ref to slot type (slots only)
+**   - effective meta
 **
 @Js
 const mixin Spec : Dict

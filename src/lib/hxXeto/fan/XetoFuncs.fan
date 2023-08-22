@@ -25,13 +25,15 @@ const class XetoFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Load or lookup Xeto lib and return its [dict]`xeto::Lib` representation.
-  ** The name may be passed a dotted name string or a Ref.
+  ** Load or lookup a Xeto library by its string or ref name.  Return
+  ** the [dict]`xeto::Lib` representation.  If not found raise
+  ** exception or return null based on checked flag.
   **
-  ** Example:
-  **   specLib("ph.points")
-  **   specLib(@lib:ph.points)
-  **   specLib("bad.lib.name", false)
+  ** Examples:
+  **   specLib("ph.points")            // load by dotted name
+  **   specLib(@lib:ph.points)         // load by lib ref id
+  **   specLib("bad.lib.name")         // raises exception if not found
+  **   specLib("bad.lib.name", false)  // unchecked returns null
   **
   @Axon static Lib? specLib(Obj name, Bool checked := true)
   {
@@ -45,14 +47,14 @@ const class XetoFuncs
   }
 
   **
-  ** List Xeto libs as a list of their [dict]`xeto::Lib` representation.
+  ** List Xeto libraries as a list of their [dict]`xeto::Lib` representation.
   ** Is scope is null then return all installed libs (libs not yet loaded
   ** will not have their metadata).  Otherwise scope must be a filter
   ** expression used to filter the dict representation.
   **
-  ** Example:
-  **   specLibs()
-  **   specLibs(loaded)
+  ** Examples:
+  **   specLibs()             // all installed libs
+  **   specLibs(loaded)       // only libs loaded into memory
   **
   @Axon static Dict[] specLibs(Expr scope := Literal.nullVal)
   {
@@ -73,26 +75,51 @@ const class XetoFuncs
   }
 
   **
-  ** Load or lookup a Spec by its qname.  If not found
-  ** raise exception or return null based on checked flag.
+  ** Load or lookup a Xeto spec by its string or ref qname.  Return
+  ** the [dict]`xeto::Spec` representation.  If not found raise
+  ** exception or return null based on checked flag.
   **
   ** Examples:
-  **   spec("ph.points")         // library
-  **   spec("ph::Meter")         // type
+  **   spec("ph::Meter")         // type string
+  **   spec(@ph::Meter)          // type id
   **   spec("sys::Spec.of")      // slot
-  **   spec("foo::Bar", false)   // type unchecked
+  **   spec("foo::Bad")          // raises exception if not found
+  **   spec("foo::Bad", false)   // unchecked returns null
   **
-  @Axon static Spec? spec(Str qname, Bool checked := true)
+  @Axon static Spec? spec(Obj qname, Bool checked := true)
   {
-    curContext.usings.env.spec(qname, checked)
+    curContext.usings.env.spec(qname.toStr, checked)
   }
 
   **
-  ** List all the data types currently in scope.  Result is a list of Spec.
+  ** List Xeto specs as a list of their [dict]`xeto::Spec` representation.
+  ** Scope may one of the following:
+  **  - null: return all the top-level specs currently in the using scope
+  **  - lib: return all the top-level specs declared in given library
+  **  - filter: return all the top-level specs in scope filtered by given expression
   **
-  @Axon static Spec[] types()
+  ** Examples:
+  **   specs()                // specs in using scope
+  **   specLib("ph").specs    // specs in a given library
+  **   specs(abstract)        // filter specs with filter expression
+  **
+  @Axon static Spec[] specs(Expr scope := Literal.nullVal)
   {
-    typesInScope(curContext, null).sort
+    cx := curContext
+    if (scope === Literal.nullVal) return typesInScope(cx, null)
+    if (scope.type === ExprType.var)
+    {
+      var := cx.getVar(scope.toStr)
+      if (var is Lib) return ((Lib)var).types
+    }
+    if (scope.type === ExprType.call)
+    {
+      var := scope.eval(cx)
+      if (var isnot Lib) throw ArgErr("Expecting scope to be Lib, not ${var?.typeof}")
+      return ((Lib)var).types
+    }
+    filter := scope.evalToFilter(cx)
+    return typesInScope(cx) |spec| { filter.matches((haystack::Dict)spec, cx) }
   }
 
   private static Spec[] typesInScope(HxContext cx, |Spec->Bool|? filter := null)
@@ -405,7 +432,7 @@ const class XetoFuncs
   ** Match dict recs against specs to find all the specs that fit.  The recs
   ** argument can be anything accepted by `toRecList()`.  Specs must be a
   ** list of Specs.  If specs argument is omitted, then we match against
-  ** all the non-abstract [types]`types()` currently in scope.  Only the most
+  ** all the non-abstract [types]`specs()` currently in scope.  Only the most
   ** specific subtype is returned.
   **
   ** Result is a grid for each input rec with the following columns:

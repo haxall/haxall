@@ -186,19 +186,33 @@ class AxonTest : HxTest
   @HxRuntimeTest
   Void testReflect()
   {
+    // specLib
     verifySame(eval("""specLib("ph.points")"""), env.lib("ph.points"))
     verifySame(eval("""specLib(@lib:ph.points)"""), env.lib("ph.points"))
     verifyEq(eval("""specLib("badone", false)"""), null)
     verifyEq(eval("""specLib(@lib:bad.one, false)"""), null)
 
+    // specLibs
     verifyDictsEq(eval("""specLibs()"""),
       env.registry.list.map |x| { x.isLoaded ? x.get : env.dict2("id", Ref("lib:$x.name"), "spec", Ref("sys::Lib")) })
     verifyDictsEq(eval("""specLibs(id==@lib:ph.points)"""), [env.lib("ph.points")])
 
-
+    // spec
     verifySame(eval("""spec("sys::Str")"""), env.spec("sys::Str"))
+    verifySame(eval("""spec(@sys::Str)"""), env.spec("sys::Str"))
     verifySame(eval("""spec("ph::Site.site")"""), env.spec("ph::Site.site"))
+    verifyEq(eval("""spec("ph::Site.badOne", false)"""), null)
 
+    // specs
+    verifyDictsEq(eval("""specs()"""), env.sysLib.types)
+    verifyDictsEq(eval("""specs(null)"""), env.sysLib.types)
+    verifyDictsEq(eval("""specLib("ph").specs(x)"""), env.lib("ph").types)
+    verifyDictsEq(eval("""do x: specLib("ph"); specs(x); end"""), env.lib("ph").types)
+    verifyDictsEq(eval("""specs(abstract)"""), env.sysLib.types.findAll |x| { x.has("abstract") })
+    verifyDictsEq(eval("""specs(abstract)"""), env.sysLib.types.findAll |x| { x.has("abstract") })
+    verifyDictsEq(eval("""specs(base==@sys::Seq)"""), env.sysLib.types.findAll |x| { x.base?.qname == "sys::Seq" })
+
+    // specX
     verifyReflect("Obj", env.type("sys::Obj"))
     verifyReflect("Str", env.type("sys::Str"))
     verifyReflect("Dict", env.type("sys::Dict"))
