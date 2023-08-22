@@ -236,7 +236,7 @@ class AxonTest : HxTest
 //////////////////////////////////////////////////////////////////////////
 
   @HxRuntimeTest
-  Void testTypeof()
+  Void testSpecOf()
   {
     verifySpec(Str<|specOf(marker())|>, "sys::Marker")
     verifySpec(Str<|specOf("hi")|>, "sys::Str")
@@ -248,6 +248,7 @@ class AxonTest : HxTest
     verifySpec(Str<|specOf(toGrid("hi"))|>, "ph::Grid")
     verifySpec(Str<|specOf(Str)|>, "sys::Type")
     verifySpec(Str<|specOf(Str <foo>)|>, "sys::Spec")
+    verifySpec(Str<|specOf({spec:@ph::Equip})|>, "ph::Equip")
   }
 
 //////////////////////////////////////////////////////////////////////////

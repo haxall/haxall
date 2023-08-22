@@ -296,9 +296,10 @@ const class XetoFuncs
   ** see `is()` and `fits()`.
   **
   ** Examples:
-  **    specOf("hi")  >>  sys::Str
-  **    specOf(@id)   >>  sys::Ref
-  **    specOf({})    >>  sys::Dict
+  **    specOf("hi")                 >>  sys::Str
+  **    specOf(@id)                  >>  sys::Ref
+  **    specOf({})                   >>  sys::Dict
+  **    specOf({spec:@ph::Equip})    >>  ph::Dict
   **
   @Axon static Spec? specOf(Obj? val, Bool checked := true)
   {
