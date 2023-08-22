@@ -180,7 +180,7 @@ const class XetoFuncs
 
   **
   ** Parent spec which contains given spec and scopes its name.
-  ** Returns null for libs and derived specs.
+  ** Returns null for top-level specs within their library.
   **
   ** Examples:
   **   specParent(Str)  >>  sys
@@ -188,7 +188,7 @@ const class XetoFuncs
   @Axon static Spec? specParent(Spec spec) { spec.parent }
 
   **
-  ** Return simple name of spec.  Returns empty string spec is a library.
+  ** Return simple name of spec.
   **
   ** Examples:
   **   specName(Dict)  >>  "Dict"
@@ -198,9 +198,8 @@ const class XetoFuncs
 
   **
   ** Return fully qualified name of the spec:
-  **   - DataLib will return "foo.bar"
-  **   - DataType will return "foo.bar::Baz"
-  **   - DataType slots will return "foo.bar::Baz.qux"
+  **   - Top-level type will return "foo.bar::Baz"
+  **   - Slot spec will return "foo.bar::Baz.qux"
   **   - Derived specs will return "derived123::{name}"
   **
   ** Examples:
@@ -210,12 +209,11 @@ const class XetoFuncs
   @Axon static Str specQName(Spec spec) { spec.qname }
 
   **
-  ** Data type of the spec.  Returns the spec itself if it is a DataType.
+  ** Data type of the spec.  Returns the spec itself if given a top-level type.
   **
   ** Examples:
-  **   specType(Str)    >>  sys:Str
-  **   specType(Dict)   >>  sys::Dict
-  **   specType(Point)  >>  sys::Point
+  **   specType(Str)                      >>  sys:Str
+  **   spec("ph::Equip.equip").specType   >>  sys::Marker
   **
   @Axon static Spec specType(Spec spec) { spec.type }
 
@@ -270,7 +268,7 @@ const class XetoFuncs
   ** Build an AST tree of dict, lists, and strings of the effective
   ** meta and slots for the given spec.
   **
-  ** TODO: not sure how deep to make effective recursion yet
+  ** TODO: the AST format will change
   **
   @Axon static Dict specAst(Spec spec)
   {
@@ -280,6 +278,8 @@ const class XetoFuncs
   **
   ** Build an AST tree of dict, lists, and strings of the effective
   ** meta and slots for the given spec.
+  **
+  ** TODO: the AST format will change
   **
   @Axon static Dict specAstOwn(Spec spec)
   {
@@ -330,7 +330,8 @@ const class XetoFuncs
   ** `is()` and `specIs()` to check using nominal typing.
   **
   ** Examples:
-  **   TODO
+  **   specFits(Meter, Equip)    >>  true
+  **   specFits(Meter, Point)    >>  false
   **
   @Axon static Bool specFits(Spec a, Spec b)
   {
