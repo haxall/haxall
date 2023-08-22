@@ -38,6 +38,9 @@ const mixin LibRegistryEntry
   ** Has this library been loaded into memory
   abstract Bool isLoaded()
 
+  ** Get loaded lib or raise exception if not loaded
+  abstract Lib get()
+
   ** Installed version
   abstract Version version()
 

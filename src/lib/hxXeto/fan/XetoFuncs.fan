@@ -8,6 +8,7 @@
 
 using xeto
 using xeto::Dict
+using xeto::Lib
 using haystack::Ref
 using haystack
 using axon
@@ -32,7 +33,7 @@ const class XetoFuncs
   **   specLib(@lib:ph.points)
   **   specLib("bad.lib.name", false)
   **
-  @Axon static Dict? specLib(Obj name, Bool checked := true)
+  @Axon static Lib? specLib(Obj name, Bool checked := true)
   {
     if (name is Ref)
     {
@@ -41,6 +42,34 @@ const class XetoFuncs
       name = id[4..-1]
     }
     return curContext.usings.env.lib(name, checked)
+  }
+
+  **
+  ** List Xeto libs as a list of their [dict]`xeto::Lib` representation.
+  ** Is scope is null then return all installed libs (libs not yet loaded
+  ** will not have their metadata).  Otherwise scope must be a filter
+  ** expression used to filter the dict representation.
+  **
+  ** Example:
+  **   specLibs()
+  **   specLibs(loaded)
+  **
+  @Axon static Dict[] specLibs(Expr scope := Literal.nullVal)
+  {
+    cx := curContext
+
+    Filter? filter := null
+    if (scope !== Literal.nullVal)
+      filter = scope.evalToFilter(cx)
+
+    env := cx.usings.env
+    libSpecRef := Ref("sys::Lib")
+    return env.registry.list.mapNotNull |entry->Dict?|
+    {
+      dict := entry.isLoaded ? entry.get : env.dict2("id", Ref("lib:$entry.name"), "spec", libSpecRef)
+      if (filter != null && !filter.matches(dict, cx)) return null
+      return dict
+    }
   }
 
   **

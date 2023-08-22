@@ -38,7 +38,7 @@ abstract const class MRegistryEntry : LibRegistryEntry
 {
   override Bool isLoaded() { libRef.val != null }
 
-  XetoLib get() { libRef.val ?: throw Err("Not loaded: $name") }
+  override XetoLib get() { libRef.val ?: throw Err("Not loaded: $name") }
 
   Void set(Lib lib) { libRef.compareAndSet(null, lib) }
 

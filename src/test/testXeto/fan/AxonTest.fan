@@ -191,6 +191,11 @@ class AxonTest : HxTest
     verifyEq(eval("""specLib("badone", false)"""), null)
     verifyEq(eval("""specLib(@lib:bad.one, false)"""), null)
 
+    verifyDictsEq(eval("""specLibs()"""),
+      env.registry.list.map |x| { x.isLoaded ? x.get : env.dict2("id", Ref("lib:$x.name"), "spec", Ref("sys::Lib")) })
+    verifyDictsEq(eval("""specLibs(id==@lib:ph.points)"""), [env.lib("ph.points")])
+
+
     verifySame(eval("""spec("sys::Str")"""), env.spec("sys::Str"))
     verifySame(eval("""spec("ph::Site.site")"""), env.spec("ph::Site.site"))
 
