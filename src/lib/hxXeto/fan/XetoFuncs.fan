@@ -105,10 +105,10 @@ const class XetoFuncs
   ** using the syntax 'slots->someName'.
   **
   ** Examples:
-  **   specs()                // specs in using scope
-  **   specLib("ph").specs    // specs in a given library
-  **   specs(abstract)        // filter specs with filter expression
-  **   specs(slots->ahu)      // filter specs have ahu tag
+  **   specs()                  // specs in using scope
+  **   specLib("ph").specs      // specs in a given library
+  **   specs(null, abstract)    // filter specs with filter expression
+  **   specs(null, slots->ahu)  // filter specs have ahu tag
   **
   @Axon static Spec[] specs(Expr scope := Literal.nullVal, Expr filter := Literal.nullVal)
   {
