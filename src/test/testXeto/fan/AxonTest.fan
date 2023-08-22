@@ -19,6 +19,7 @@ using hx
 **
 class AxonTest : HxTest
 {
+
 //////////////////////////////////////////////////////////////////////////
 // SpecsExpr
 //////////////////////////////////////////////////////////////////////////
@@ -185,6 +186,11 @@ class AxonTest : HxTest
   @HxRuntimeTest
   Void testReflect()
   {
+    verifySame(eval("""specLib("ph.points")"""), env.lib("ph.points"))
+    verifySame(eval("""specLib(@lib:ph.points)"""), env.lib("ph.points"))
+    verifyEq(eval("""specLib("badone", false)"""), null)
+    verifyEq(eval("""specLib(@lib:bad.one, false)"""), null)
+
     verifySame(eval("""spec("sys::Str")"""), env.spec("sys::Str"))
     verifySame(eval("""spec("ph::Site.site")"""), env.spec("ph::Site.site"))
 

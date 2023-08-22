@@ -74,15 +74,13 @@ const class MSpec
   virtual SpecFactory factory() { type.factory }
 
 //////////////////////////////////////////////////////////////////////////
-// Effective Meta
+// Dict Representation
 //////////////////////////////////////////////////////////////////////////
-
-  Bool isEmpty() { false }
 
   Obj? get(Str name, Obj? def := null)
   {
     if (name == "id")   return id
-    if (name == "spec") return env.specRef
+    if (name == "spec") return env.specSpecRef
     if (isType)
     {
       if (name == "base") return base?.id ?: def
@@ -115,7 +113,7 @@ const class MSpec
   Void each(|Obj val, Str name| f)
   {
     f(id, "id")
-    f(env.specRef, "spec")
+    f(env.specSpecRef, "spec")
     if (isType)
     {
       if (base != null) f(base.id, "base")
@@ -129,8 +127,8 @@ const class MSpec
 
   Obj? eachWhile(|Obj val, Str name->Obj?| f)
   {
-    r := f(id, "id");            if (r != null) return r
-    r  = f(env.specRef, "spec"); if (r != null) return r
+    r := f(id, "id");                if (r != null) return r
+    r  = f(env.specSpecRef, "spec"); if (r != null) return r
     if (isType)
     {
       if (base != null) { r = f(base.id, "base"); if (r != null) return r }
@@ -267,7 +265,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final SpecFactory factory() { m.factory }
 
-  override final Bool isEmpty() { m.isEmpty }
+  override final Bool isEmpty() { false }
 
   @Operator override final Obj? get(Str n, Obj? d := null) { m.get(n, d) }
 

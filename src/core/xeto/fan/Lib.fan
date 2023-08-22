@@ -12,9 +12,19 @@ using util
 ** Versioned library module of specs and defs.
 ** Use `XetoEnv.lib` to load libraries.
 **
+** Lib dict representation:
+**   - id: Ref "lib:{name}"
+**   - spec: Ref "sys::Lib"
+**   - loaded: marker tag if loaded into memory
+**   - meta
+**
 @Js
-const mixin Lib
+const mixin Lib : Dict
 {
+
+  ** Return "lib:{name}" as identifier
+  ** This is a temp shim until we move 'haystack::Dict' fully into Xeto.
+  abstract Ref _id()
 
   ** Dotted name of the library
   abstract Str name()

@@ -24,14 +24,23 @@ const class XetoFuncs
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Load or lookup Xeto lib and return its meta as a dict.
+  ** Load or lookup Xeto lib and return its [dict]`xeto::Lib` representation.
+  ** The name may be passed a dotted name string or a Ref.
   **
   ** Example:
   **   specLib("ph.points")
+  **   specLib(@lib:ph.points)
+  **   specLib("bad.lib.name", false)
   **
-  @Axon static Dict? specLib(Str name, Bool checked := true)
+  @Axon static Dict? specLib(Obj name, Bool checked := true)
   {
-    curContext.usings.env.lib(name, checked)?.meta
+    if (name is Ref)
+    {
+      id := name.toStr
+      if (!id.startsWith("lib:")) throw ArgErr("Invalid ref format: $id")
+      name = id[4..-1]
+    }
+    return curContext.usings.env.lib(name, checked)
   }
 
   **

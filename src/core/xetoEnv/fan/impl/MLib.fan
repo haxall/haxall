@@ -22,6 +22,7 @@ const final class MLib
     this.loc          = loc
     this.nameCode     = nameCode
     this.name         = env.names.toName(nameCode)
+    this.id           = haystack::Ref(StrBuf(4+name.size).add("lib:").add(name).toStr, null)
     this.meta         = meta
     this.version      = version
     this.depends      = depends
@@ -32,6 +33,8 @@ const final class MLib
   const MEnv env
 
   const FileLoc loc
+
+  const Ref id
 
   const Int nameCode
 
@@ -81,6 +84,57 @@ const final class MLib
 
   override Str toStr() { name }
 
+//////////////////////////////////////////////////////////////////////////
+// Dict Representation
+//////////////////////////////////////////////////////////////////////////
+
+  Obj? get(Str name, Obj? def := null)
+  {
+    if (name == "id")     return id
+    if (name == "spec")   return env.libSpecRef
+    if (name == "loaded") return env.marker
+    return meta.get(name, def)
+  }
+
+  Bool has(Str name)
+  {
+    if (name == "id")     return true
+    if (name == "spec")   return true
+    if (name == "loaded") return true
+    return meta.has(name)
+  }
+
+  Bool missing(Str name)
+  {
+    if (name == "id")     return false
+    if (name == "spec")   return false
+    if (name == "loaded") return false
+    return meta.missing(name)
+  }
+
+  Void each(|Obj val, Str name| f)
+  {
+    f(id,             "id")
+    f(env.libSpecRef, "spec")
+    f(env.marker,     "loaded")
+    meta.each(f)
+  }
+
+  Obj? eachWhile(|Obj val, Str name->Obj?| f)
+  {
+    r := f(id, "id");               if (r != null) return r
+    r  = f(env.libSpecRef, "spec"); if (r != null) return r
+    r  = f(env.marker, "loaded");   if (r != null) return r
+    return meta.eachWhile(f)
+  }
+
+  override Obj? trap(Str name, Obj?[]? args := null)
+  {
+    val := get(name, null)
+    if (val != null) return val
+    return meta.trap(name, args)
+  }
+
 }
 
 **************************************************************************
@@ -91,11 +145,15 @@ const final class MLib
 ** XetoLib is the referential proxy for MLib
 **
 @Js
-const class XetoLib : Lib
+const final class XetoLib : Lib, haystack::Dict
 {
   override FileLoc loc() { m.loc }
 
   override XetoEnv env() { m.env }
+
+  override haystack::Ref id() { m.id }
+
+  override haystack::Ref _id() { m.id }
 
   override Str name() { m.name }
 
@@ -112,6 +170,20 @@ const class XetoLib : Lib
   override Dict[] instances() { m.instances }
 
   override Dict? instance(Str name, Bool checked := true) { m.instance(name, checked) }
+
+  override final Bool isEmpty() { false }
+
+  @Operator override final Obj? get(Str n, Obj? d := null) { m.get(n, d) }
+
+  override final Bool has(Str n) { m.has(n) }
+
+  override final Bool missing(Str n) { m.missing(n) }
+
+  override final Void each(|Obj val, Str name| f) { m.each(f) }
+
+  override final Obj? eachWhile(|Obj,Str->Obj?| f) { m.eachWhile(f) }
+
+  override final Obj? trap(Str n, Obj?[]? a := null) { m.trap(n, a) }
 
   const MLib? m
 }

@@ -536,6 +536,17 @@ class EnvTest : AbstractXetoTest
     verifyEq(lib.name, name)
     verifyEq(lib.version, version)
 
+    verifyEq(lib._id, Ref("lib:$name"))
+    verifySame(lib->id, lib._id)
+    verifyEq(lib["loaded"], Marker.val)
+    verifyEq(lib["spec"], Ref("sys::Lib"))
+
+    asDict := Etc.dictMerge(lib.meta, [
+      "id":lib._id,
+      "spec":Ref("sys::Lib"),
+      "loaded":m])
+    verifyDictEq((haystack::Dict)lib, asDict)
+
     Lib? async := null
     env.libAsync(name) |x| { async = x }
     verifySame(async, lib)

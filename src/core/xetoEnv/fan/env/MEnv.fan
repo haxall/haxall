@@ -31,7 +31,8 @@ abstract const class MEnv : XetoEnv
     this.na          = NA.val
     this.list0       = Obj?[,]
     this.dict0       = Etc.dict0
-    this.specRef     = haystack::Ref("sys::Spec", null)
+    this.specSpecRef = haystack::Ref("sys::Spec", null)
+    this.libSpecRef  = haystack::Ref("sys::Lib", null)
     this.registryRef = registry
     if (f != null) f(this)
     this.sysLib      = registry.loadSync("sys")
@@ -61,7 +62,9 @@ abstract const class MEnv : XetoEnv
 
   const Obj?[] list0
 
-  const Ref specRef
+  const Ref specSpecRef
+
+  const Ref libSpecRef
 
   const override Spec dictSpec
 
