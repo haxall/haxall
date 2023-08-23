@@ -718,7 +718,7 @@ const class XetoFuncs
   {
     cx := curContext
     isShell := cx.rt.platform.isShell
-    log := isShell ? Log.get("data") : cx.rt.lib("data").log
+    log := isShell ? Log.get("xeto") : cx.rt.lib("xeto").log
     log.info("XetoEnv.reload [$cx.user.username]")
     XetoEnv.reload
     cx.usingsReload

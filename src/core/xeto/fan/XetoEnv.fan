@@ -32,7 +32,7 @@ const abstract class XetoEnv
   ** references to Lib or Specs must no longer be used.
   static Void reload()
   {
-    curRef.val = Type.find("xetoc::MEnv").make
+    curRef.val = Type.find("xetoc::LocalEnv").make
   }
 
   ** Is this a remote environment loaded over a network transport.
