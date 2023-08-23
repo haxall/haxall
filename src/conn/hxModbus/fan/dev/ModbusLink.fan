@@ -92,15 +92,15 @@ using hxPlatformSerial
     _touched.val = Duration.nowTicks
     switch (m.id)
     {
-      case "read":  return _read(_open, m.a, m.b).toImmutable
-      case "write": return _write(_open, m.a, m.b, m.c)
+      case "read":  return _read(_open(m.a), m.a, m.b).toImmutable
+      case "write": return _write(_open(m.a), m.a, m.b, m.c)
       case "close": return _close(Actor.locals["m"])
       default:      return null
     }
   }
 
   ** Actor open master.
-  private ModbusMaster _open()
+  private ModbusMaster _open(ModbusDev dev)
   {
     ModbusMaster? master := Actor.locals["m"]
     if (master == null)
@@ -108,8 +108,8 @@ using hxPlatformSerial
       ModbusTransport? tx
       switch (uri.scheme)
       {
-        case "modbus-tcp":    tx = ModbusTcpTransport(IpAddr(uri.host),    uri.port, txTimeout)
-        case "modbus-rtutcp": tx = ModbusRtuTcpTransport(IpAddr(uri.host), uri.port, txTimeout)
+        case "modbus-tcp":    tx = ModbusTcpTransport(IpAddr(uri.host),    uri.port, dev.timeout)
+        case "modbus-rtutcp": tx = ModbusRtuTcpTransport(IpAddr(uri.host), uri.port, dev.timeout)
         case "modbus-rtu":
           serial := lib.rt.lib("platformSerial", false) as PlatformSerialLib
           if (serial == null) throw FaultErr("RTU not supported")
@@ -228,9 +228,6 @@ using hxPlatformSerial
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
-
-  private const Duration acTimeout := 15sec  // TODO: actor timeout
-  private const Duration txTimeout := 10sec  // TODO: socket timeout
 
   private const ModbusLib lib
   private const Uri uri

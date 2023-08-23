@@ -37,6 +37,9 @@ using hxConn
   ** Timeout for register writes
   const Duration writeTimeout
 
+  ** Default I/O timeout (for socket configuration)
+  const Duration timeout
+
   ** Log for this device
   const Log? log
 
@@ -64,8 +67,9 @@ using hxConn
       it.slave  = slave->toInt
       it.regMap = loadRegMap(conn.rt, regUri)
       it.forceWriteMultiple = fwm
-      it.readTimeout  = toDuration(rec, "modbusReadTimeout", 15sec)
-      it.writeTimeout = toDuration(rec, "modbusWriteTimeout", 15sec)
+      it.readTimeout  = toDuration(rec, "modbusReadTimeout", conn.timeout)
+      it.writeTimeout = toDuration(rec, "modbusWriteTimeout", conn.timeout)
+      it.timeout = conn.timeout
       it.log = conn.trace.asLog
     }
   }
