@@ -18,13 +18,13 @@ using xeto
 class AxonUsings
 {
   ** Constructor
-  new make(XetoEnv env := XetoEnv.cur, Str[] qnames := ["sys"])
+  new make(XetoEnv env := XetoEnv.cur, Str[] names := ["sys"])
   {
     this.env  = env
     map := Str:AxonUsingLib[:]
-    qnames.each |qname|
+    names.each |name|
     {
-      map[qname] = compile(qname)
+      map[name] = compile(name)
     }
     this.map = map
   }
@@ -32,8 +32,8 @@ class AxonUsings
   ** Xeto environment
   const XetoEnv env
 
-  ** List qnames configured (both ok and failures)
-  Str[] qnames() { map.vals.map |u->Str| { u.qname } }
+  ** List lib names configured (both ok and failures)
+  Str[] libNames() { map.vals.map |u->Str| { u.name } }
 
   ** List libs (qnames we loaded successfully)
   Lib[] libs()
@@ -42,6 +42,15 @@ class AxonUsings
     acc.capacity = acc.size
     map.each |u| { acc.addNotNull(u.lib) }
     return acc
+  }
+
+  ** Lookup a lib by name
+  Lib? lib(Str name, Bool checked := true)
+  {
+    lib := map[name]?.lib
+    if (lib != null) return lib
+    if (checked) throw haystack::UnknownLibErr(name)
+    return lib
   }
 
   ** Is given library qname enabled
@@ -89,13 +98,13 @@ class AxonUsings
 @Js
 internal const class AxonUsingLib
 {
-  new make(Str qname, Lib? lib)
+  new make(Str name, Lib? lib)
   {
-    this.qname = qname
+    this.name = name
     this.lib = lib
   }
 
-  const Str qname
+  const Str name
   const Lib? lib
 }
 

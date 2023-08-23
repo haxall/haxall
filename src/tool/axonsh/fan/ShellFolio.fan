@@ -13,7 +13,7 @@ using folio
 **
 ** ShellFolio is a single-threaded in-memory implementation of Folio
 **
-internal const class ShellFolio : Folio
+const class ShellFolio : Folio
 {
   new make(FolioConfig config) : super(config) {}
 

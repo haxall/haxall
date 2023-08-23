@@ -13,7 +13,7 @@ using hx
 **
 ** ShellRuntime implements a limited, single-threaded runtime for the shell.
 **
-internal const class ShellRuntime : HxRuntime, ShellStdServices
+const class ShellRuntime : HxRuntime, ShellStdServices
 {
   new make()
   {
@@ -60,7 +60,7 @@ internal const class ShellRuntime : HxRuntime, ShellStdServices
 ** ShellStdServices
 **************************************************************************
 
-internal const mixin ShellStdServices : HxStdServices
+const mixin ShellStdServices : HxStdServices
 {
   abstract HxService service(Type type)
   override HxContextService context() { service(HxContextService#) }
@@ -81,7 +81,7 @@ internal const mixin ShellStdServices : HxStdServices
 ** ShellServiceRegistry
 **************************************************************************
 
-internal const class ShellServiceRegistry: HxServiceRegistry, ShellStdServices
+const class ShellServiceRegistry: HxServiceRegistry, ShellStdServices
 {
   new make()
   {

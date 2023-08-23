@@ -19,7 +19,7 @@ using hx
 **
 ** Shell context
 **
-internal class ShellContext : HxContext
+class ShellContext : HxContext
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ internal class ShellContext : HxContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(OutStream out)
+  new make(OutStream out := Env.cur.out)
   {
     this.out   = out
     this.xeto  = XetoEnv.cur

@@ -80,7 +80,7 @@ abstract class AxonContext : HaystackContext
   @NoDoc virtual Void usingsReload()
   {
     if (usingsRef != null)
-      usingsRef = AxonUsings(XetoEnv.cur, usingsRef.qnames)
+      usingsRef = AxonUsings(XetoEnv.cur, usingsRef.libNames)
   }
 
 /////////////////////////////////////////////////////////////////////////////
