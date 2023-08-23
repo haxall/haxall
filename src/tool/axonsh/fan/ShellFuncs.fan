@@ -172,7 +172,7 @@ const class ShellFuncs
     }
 
     out.printLine
-    cx.usings.qnames.sort.each |x| { out.printLine(x) }
+    cx.usings.libNames.sort.each |x| { out.printLine(x) }
     out.printLine
     return noEcho
   }
