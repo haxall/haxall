@@ -210,6 +210,9 @@ abstract class ConnDispatch
   ** Callback when conn record is updated
   virtual Void onConnUpdated() {}
 
+  ** Callback when conn record is removed
+  virtual Void onConnRemoved() {}
+
   ** Callback when point is added to this connector
   virtual Void onPointAdded(ConnPoint pt) {}
 

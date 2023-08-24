@@ -71,6 +71,7 @@ internal final class ConnMgr
         case "hisPending":   return onHisPending(msg.a)
         case "learn":        return onLearn(msg.a)
         case "connUpdated":  return onConnUpdated(msg.a)
+        case "connRemoved":  return onConnRemoved
         case "pointAdded":   return onPointAdded(msg.a)
         case "pointUpdated": return onPointUpdated(msg.a, msg.b)
         case "pointRemoved": return onPointRemoved(msg.a)
@@ -294,6 +295,12 @@ internal final class ConnMgr
       updateBuckets
 
     dispatch.onConnUpdated
+    return null
+  }
+
+  private Obj? onConnRemoved()
+  {
+    dispatch.onConnRemoved
     return null
   }
 

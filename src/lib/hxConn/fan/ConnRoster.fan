@@ -171,6 +171,9 @@ internal const final class ConnRoster
 
   private Void onConnRemoved(Conn conn)
   {
+    // send removed event
+    conn.send(HxMsg("connRemoved"))
+
     // mark this connector as not alive anymore
     conn.kill
 
