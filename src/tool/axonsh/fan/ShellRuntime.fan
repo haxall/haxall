@@ -27,6 +27,8 @@ const class ShellRuntime : HxRuntime, ShellStdServices
 
   override const Str name
 
+  override Str dis() { name }
+
   override const File dir
 
   override const Version version

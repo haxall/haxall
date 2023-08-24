@@ -59,8 +59,11 @@ const class HxdRuntime : HxRuntime
 // HxRuntime
 //////////////////////////////////////////////////////////////////////////
 
-  ** Runtime version
+  ** Runtime name
   override const Str name
+
+  ** Runtime display name
+  override Str dis() { meta["dis"] ?: name }
 
   ** Runtime version
   override const Version version

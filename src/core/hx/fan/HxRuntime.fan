@@ -20,6 +20,9 @@ const mixin HxRuntime : HxStdServices
   ** Programatic name of the runtime. This string is always a valid tag name.
   abstract Str name()
 
+  ** Display name of the runtime.
+  abstract Str dis()
+
   ** Runtime version
   abstract Version version()
 
