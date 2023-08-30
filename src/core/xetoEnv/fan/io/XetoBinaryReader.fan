@@ -173,6 +173,13 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 // Values
 //////////////////////////////////////////////////////////////////////////
 
+  Dict readDict()
+  {
+    val := readVal
+    if (val is Dict) return val
+    throw IOErr("Expecting dict, not $val.typeof")
+  }
+
   override Obj readVal()
   {
     ctrl := in.readU1

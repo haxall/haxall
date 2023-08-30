@@ -244,13 +244,13 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
     return this
   }
 
-  private Void writeDict(Dict d)
+  Void writeDict(Dict d)
   {
+    if (d is NameDict) return writeNameDict(d)
     if (d is MNameDict) return writeNameDict(((MNameDict)d).wrapped)
     if (d is XetoSpec) return writeSpecRefVal(d)
     throw Err("TODO: $d.typeof")
   }
-
 
   private Void writeSpecRefVal(XetoSpec spec)
   {

@@ -36,7 +36,7 @@ abstract const class XetoClient : XetoTransport
   }
 
   ** Asynchronously load a library
-  abstract  Void loadLib(Str qname, |Lib?| f)
+  abstract Void loadLib(Str qname, |Lib?| f)
 }
 
 
