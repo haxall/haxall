@@ -37,19 +37,25 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  internal RemoteEnv readBoot()
+  RemoteEnv readBoot()
   {
+    transport := (XetoClient)this.transport as XetoClient
+    if (transport.envRef.val != null) throw Err("Already booted")
+
     verifyU4(magic, "magic")
     verifyU4(version, "version")
     readNameTable
     registry := readRegistry
-    return RemoteEnv(names, registry) |env|
+    env := RemoteEnv(names, registry) |env|
     {
       ((XetoClient)transport).envRef.val = env
       sys := readLib
       registry.map["sys"].set(sys)
       verifyU4(magicEnd, "magicEnd")
     }
+
+    transport.envRef.val = env
+    return env
   }
 
   private Void readNameTable()

@@ -65,7 +65,7 @@ echo("--- init remote bootstrap size = $buf.size bytes ---")
 //echo(buf.toHex)
 
 
-    envRef = client.boot(buf.flip.in)
+    envRef = XetoBinaryReader(client, buf.flip.in).readBoot
 
     verifyEq(env.names.maxCode, local.names.maxCode)
     verifyEq(env.names.toName(3), local.names.toName(3))

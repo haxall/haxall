@@ -27,14 +27,6 @@ abstract const class XetoClient : XetoTransport
   ** Clients can always safely use every name they have mapped from server
   override Int maxNameCode() { Int.defVal }
 
-  ** Read boostrap data and create new RemoteEnv instance
-  RemoteEnv boot(InStream in)
-  {
-    if (envRef.val != null) throw Err("Already booted")
-    envRef.val = XetoBinaryReader(this, in).readBoot
-    return env
-  }
-
   ** Asynchronously load a library
   abstract Void loadLib(Str qname, |Lib?| f)
 }
