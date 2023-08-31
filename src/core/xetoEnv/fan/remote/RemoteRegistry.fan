@@ -45,14 +45,14 @@ internal const class RemoteRegistry : MRegistry
     throw Err("Remote lib $name.toCode not loaded, must use libAsync")
   }
 
-  override Void loadAsync(Str name,|Lib?,Err?| f)
+  override Void loadAsync(Str name,|Err?, Lib?| f)
   {
     // check for install
     entry := get(name, false)
-    if (entry == null) { f(null, UnknownLibErr(name)); return }
+    if (entry == null) { f(UnknownLibErr(name), null); return }
 
     // check for cached loaded lib
-    if (entry.isLoaded) { f(entry.get, null); return }
+    if (entry.isLoaded) { f(null, entry.get); return }
 
     // now flatten out unloaded depends
      toLoad := flattenUnloadedDepends(Str[,], entry)
@@ -61,7 +61,7 @@ internal const class RemoteRegistry : MRegistry
     doLoadAsync(toLoad, 0, f)
   }
 
-  private Void doLoadAsync(Str[] names, Int index, |Lib?,Err?| f)
+  private Void doLoadAsync(Str[] names, Int index, |Err?, Lib?| f)
   {
     // load from transport
     name := names[index]
@@ -70,7 +70,7 @@ internal const class RemoteRegistry : MRegistry
       // handle error
       if (err != null)
       {
-        f(null, err)
+        f(err, null)
         return
       }
 
@@ -85,7 +85,7 @@ internal const class RemoteRegistry : MRegistry
       if (index < names.size)
         doLoadAsync(names, index, f)
       else
-        f(lib, null)
+        f(null, lib)
     }
   }
 

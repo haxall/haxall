@@ -90,12 +90,12 @@ internal const class LocalRegistry : MRegistry
     return compile(entry, null)
   }
 
-  override Void loadAsync(Str name, |Lib?,Err?| f)
+  override Void loadAsync(Str name, |Err?, Lib?| f)
   {
     try
-      f(loadSync(name, true), null)
+      f(null, loadSync(name, true))
     catch (Err e)
-      f(null, e)
+      f(e, null)
   }
 
   override Int build(LibRegistryEntry[] libs)

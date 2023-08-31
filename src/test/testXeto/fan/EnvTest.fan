@@ -214,12 +214,12 @@ class EnvTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { env.type("bad.one::Foo") }
     verifyErr(UnknownSpecErr#) { env.type("bad.one::Foo", true) }
 
-    asyncLib := null
     asyncErr := null
-    env.libAsync("sys") |x, e| { asyncLib = x; asyncErr = e }
+    asyncLib := null
+    env.libAsync("sys") |e, x| { asyncErr = e ; asyncLib = x }
     verifyEq(asyncLib, sys)
     verifyEq(asyncErr, null)
-    env.libAsync("badLib") |x, e| { asyncLib = x; asyncErr = e }
+    env.libAsync("badLib") |e, x| {  asyncErr = e; asyncLib = x }
     verifyEq(asyncLib, null)
     verifyEq(asyncErr?.typeof, UnknownLibErr#)
 
@@ -564,7 +564,7 @@ class EnvTest : AbstractXetoTest
     verifyDictEq((haystack::Dict)lib, asDict)
 
     Lib? async := null
-    env.libAsync(name) |x| { async = x }
+    env.libAsync(name) |e, x| { async = x }
     verifySame(async, lib)
 
     verifyEq(lib.type("Bad", false), null)

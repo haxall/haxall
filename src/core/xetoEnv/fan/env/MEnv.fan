@@ -132,7 +132,7 @@ abstract const class MEnv : XetoEnv
     registry.loadSync(qname, checked)
   }
 
-  override Void libAsync(Str qname, |Lib?,Err?| f)
+  override Void libAsync(Str qname, |Err?, Lib?| f)
   {
     registry.loadAsync(qname, f)
   }

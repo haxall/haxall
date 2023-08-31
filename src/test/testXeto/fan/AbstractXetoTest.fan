@@ -32,9 +32,9 @@ class AbstractXetoTest : HaystackTest
     verifyEq(env.isRemote, true)
 
     // make sure sure lib is loaded
-    env.libAsync(lib) |x|
+    env.libAsync(lib) |e, x|
     {
-      if (x == null) throw Err("Lib not found: $lib")
+      if (e != null) throw e
       f(env)
     }
   }
