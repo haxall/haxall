@@ -88,17 +88,17 @@ const class TestTransport : XetoTransport
 
   const TestTransport? server
 
-  override Void loadLib(Str name, |Lib?,Err?| f)
+  override Void loadLib(Str name, |Err?, Lib?| f)
   {
     serverLib := server.env.lib(name, false)
-    if (serverLib == null) { f(null, UnknownLibErr(name)); return }
+    if (serverLib == null) { f(UnknownLibErr(name), null); return }
 
     buf := Buf()
     XetoBinaryWriter(server, buf.out).writeLib(serverLib)
     echo("--- load lib $name size = $buf.size bytes ---")
 
     clientLib := XetoBinaryReader(this, buf.flip.in).readLib
-    f(clientLib, null)
+    f(null, clientLib)
   }
 }
 

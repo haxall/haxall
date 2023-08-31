@@ -65,7 +65,7 @@ internal const class RemoteRegistry : MRegistry
   {
     // load from transport
     name := names[index]
-    transport.loadLib(name) |lib,err|
+    transport.loadLib(name) |err, lib|
     {
       // handle error
       if (err != null)
