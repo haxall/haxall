@@ -56,8 +56,8 @@ class AbstractXetoTest : HaystackTest
   RemoteEnv initRemote()
   {
     local := XetoEnv.cur
-    server := TestServer(local)
-    client := TestClient(server)
+    server := TestTransport.makeServer(local)
+    client := TestTransport.makeClient(server)
 
     buf := Buf()
     XetoBinaryWriter(server, buf.out).writeBoot
@@ -76,36 +76,29 @@ echo("--- init remote bootstrap size = $buf.size bytes ---")
 }
 
 **************************************************************************
-** TestClient
+** TestTransport
 **************************************************************************
 
 @Js
-const class TestClient : XetoClient
+const class TestTransport : XetoTransport
 {
-  new make(TestServer server) { this.server = server }
+  new makeServer(MEnv env) : super(env) {}
 
-  const TestServer server
+  new makeClient(TestTransport server) : super.makeClient() { this.server = server }
 
-  override Void loadLib(Str qname, |Lib?| f)
+  const TestTransport? server
+
+  override Void loadLib(Str name, |Lib?,Err?| f)
   {
-    serverLib := server.env.lib(qname, false)
-    if (serverLib == null) { f(null); return }
+    serverLib := server.env.lib(name, false)
+    if (serverLib == null) { f(null, UnknownLibErr(name)); return }
 
     buf := Buf()
     XetoBinaryWriter(server, buf.out).writeLib(serverLib)
-    echo("--- load lib $qname size = $buf.size bytes ---")
+    echo("--- load lib $name size = $buf.size bytes ---")
 
     clientLib := XetoBinaryReader(this, buf.flip.in).readLib
-    f(clientLib)
+    f(clientLib, null)
   }
 }
 
-**************************************************************************
-** TestServer
-**************************************************************************
-
-@Js
-const class TestServer : XetoServer
-{
-  new make(MEnv env) : super(env) {}
-}

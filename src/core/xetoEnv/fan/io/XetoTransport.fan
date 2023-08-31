@@ -15,18 +15,38 @@ using xeto
 ** This is the base class for XetoClient and XetoServer.
 **
 @Js
-abstract const class XetoTransport
+const class XetoTransport
 {
+  ** Constructor to wrap given local environment
+  new makeServer(MEnv env)
+  {
+    this.envRef = env
+    this.names = env.names
+    this.maxNameCode = names.maxCode
+  }
+
+  ** Constructor to load RemoteEnv
+  new makeClient()
+  {
+    this.envRef = null             // set in XetoBinaryReader.readBoot
+    this.names = NameTable()       // start off with empty name table
+    this.maxNameCode = Int.defVal  // can safely use every name mapped from server
+  }
 
   ** Environment for the transport
-  abstract MEnv env()
+  MEnv env() { envRef }
+  internal const MEnv? envRef
 
   ** Shared name table up to maxNameCode
-  abstract NameTable names()
+  const NameTable names
 
   ** Max name code (inclusive) that safe to use
-  abstract Int maxNameCode()
+  const Int maxNameCode
+
+  ** Asynchronously load a library
+  virtual Void loadLib(Str qname, |Lib?,Err?| f)
+  {
+    throw UnsupportedErr()
+  }
 
 }
-
-
