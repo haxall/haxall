@@ -16,14 +16,13 @@ class NameTable extends sys.Obj
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  constructor(empty=false) {
-    super(); 
-    this.#byCode = [];
-    this.#map = new js.Map();
-    if (!empty) {
-      this.#emptyCode = this.#put("");
-      this.#idCode    = this.#put("id");
-    }
+  constructor() {
+    super();
+    this.#byCode    = [];
+    this.#map       = new js.Map();
+    this.#size      = 0;
+    this.#emptyCode = this.#put("");
+    this.#idCode    = this.#put("id");
   }
 
   static #maxSize = 1_000_000;
@@ -32,10 +31,10 @@ class NameTable extends sys.Obj
   #map;
   #emptyCode;
   #idCode;
+  #size
   #isSparse = false;
 
   static make() { return new NameTable(); }
-  static makeEmpty() { return new NameTable(true); }
 
 //////////////////////////////////////////////////////////////////////////
 // Fantom API
@@ -47,9 +46,9 @@ class NameTable extends sys.Obj
 
   isSparse() { return this.#isSparse; }
 
-  size() { return this.#map.size; }
+  size() { return this.#size; }
 
-  maxCode() { return this.#map.size; }
+  maxCode() { return this.#size; }
 
   toCode(name) { return this.#code(name); }
 
@@ -57,12 +56,12 @@ class NameTable extends sys.Obj
 
   add(name) { return this.#put(name); }
 
-  set(code, name) { 
+  set(code, name) {
     // if already set, then ignore (we don't actually check name though)
     if (this.#byCode[code]) return;
 
     // add to lookup table
-    this.#doPut(c, name);
+    this.#doPut(code, name);
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -74,7 +73,7 @@ class NameTable extends sys.Obj
 
   #name(code) {
     const name = this.#byCode[code];
-    if (!name) throw sys.Err.make(`Invalid name code: ${code}`);
+    if (name == undefined) throw sys.Err.make(`Invalid name code: ${code}`);
     return name;
   }
 
@@ -94,12 +93,13 @@ class NameTable extends sys.Obj
     // allocate code unless this is a set
     if (code < 0) {
       if (this.#isSparse) throw sys.Err.make("Cannot call add once set has been called");
-      code = this.size();
+      this.#size = this.#size + 1
+      code = this.#size;
     } else {
       this.#isSparse = true;
     }
 
-    if (this.size() > NameTable.#maxSize) throw Err.make(`Max names exceeded: ${NameTable.#maxSize}`);
+    if (this.#size > NameTable.#maxSize) throw Err.make(`Max names exceeded: ${NameTable.#maxSize}`);
 
     this.#byCode[code] = name;
     this.#map.set(name, code);
@@ -109,7 +109,7 @@ class NameTable extends sys.Obj
 
   dump(out) {
     out.printLine(`=== NameTable [${this.size()}] ===`);
-    for (let i = 0; i < this.size(); ++i) {
+    for (let i = 0; i <= this.size(); ++i) {
       out.printLine(`${i.toString().padStart(6)}: ${this.#byCode[i]}`)
     }
     out.printLine();
@@ -146,7 +146,7 @@ class NameTable extends sys.Obj
   dict7(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, spec=null) {
     return new NameDict(this, spec, n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6);
   }
-  
+
   dict8(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, n7, v7, spec=null) {
     return new NameDict(this, spec, n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, n7, v7);
   }
