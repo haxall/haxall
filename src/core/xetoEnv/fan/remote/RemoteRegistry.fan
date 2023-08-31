@@ -17,9 +17,9 @@ using haystack::UnknownLibErr
 @Js
 internal const class RemoteRegistry : MRegistry
 {
-  new make(XetoClient client, RemoteRegistryEntry[] list)
+  new make(XetoTransport transport, RemoteRegistryEntry[] list)
   {
-    this.client = client
+    this.transport = transport
     this.list = list
     this.map  = Str:RemoteRegistryEntry[:].addList(list) { it.name }
   }
@@ -45,14 +45,14 @@ internal const class RemoteRegistry : MRegistry
     throw Err("Remote lib $name.toCode not loaded, must use libAsync")
   }
 
-  override Void loadAsync(Str name,|Lib?| f)
+  override Void loadAsync(Str name,|Lib?,Err?| f)
   {
     // check for install
     entry := get(name, false)
-    if (entry == null) { f(null); return }
+    if (entry == null) { f(null, UnknownLibErr(name)); return }
 
     // check for cached loaded lib
-    if (entry.isLoaded) { f(entry.get); return }
+    if (entry.isLoaded) { f(entry.get, null); return }
 
     // now flatten out unloaded depends
      toLoad := flattenUnloadedDepends(Str[,], entry)
@@ -61,19 +61,23 @@ internal const class RemoteRegistry : MRegistry
     doLoadAsync(toLoad, 0, f)
   }
 
-  private Void doLoadAsync(Str[] names, Int index, |Lib?| f)
+  private Void doLoadAsync(Str[] names, Int index, |Lib?,Err?| f)
   {
     // load from transport
     name := names[index]
-    client.loadLib(name) |lib|
+    transport.loadLib(name) |lib,err|
     {
-      // update entry with the library instance
-      if (lib != null)
+      // handle error
+      if (err != null)
       {
-        entry := get(name)
-        entry.set(lib)
-        lib = entry.get
+        f(null, err)
+        return
       }
+
+      // update entry with the library instance
+      entry := get(name)
+      entry.set(lib)
+      lib = entry.get
 
       // recursively load the next library in our flattened
       // depends list or if last one then invoke the callback
@@ -81,7 +85,7 @@ internal const class RemoteRegistry : MRegistry
       if (index < names.size)
         doLoadAsync(names, index, f)
       else
-        f(lib)
+        f(lib, null)
     }
   }
 
@@ -105,7 +109,7 @@ internal const class RemoteRegistry : MRegistry
     throw UnsupportedErr()
   }
 
-  const XetoClient client
+  const XetoTransport transport
   override const RemoteRegistryEntry[] list
   const Str:RemoteRegistryEntry map
 }

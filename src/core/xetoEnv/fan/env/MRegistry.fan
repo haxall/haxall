@@ -22,7 +22,7 @@ abstract const class MRegistry : LibRegistry
   abstract Lib? loadSync(Str name, Bool checked := true)
 
   ** Load the given library asynchronously
-  abstract Void loadAsync(Str name, |Lib?| f)
+  abstract Void loadAsync(Str name, |Lib?,Err?| f)
 
 }
 

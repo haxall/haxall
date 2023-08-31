@@ -99,8 +99,8 @@ const abstract class XetoEnv
   abstract Lib? lib(Str qname, Bool checked := true)
 
   ** Get or load library asynchronously by the given qualified name.
-  ** Once loaded then invoke callback with library or null if not found.
-  abstract Void libAsync(Str qname, |Lib?| f)
+  ** Once loaded then invoke callback with library or err.
+  abstract Void libAsync(Str qname, |Lib?, Err?| f)
 
   ** Get the 'sys' library
   @NoDoc abstract Lib sysLib()

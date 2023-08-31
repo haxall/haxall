@@ -214,6 +214,15 @@ class EnvTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { env.type("bad.one::Foo") }
     verifyErr(UnknownSpecErr#) { env.type("bad.one::Foo", true) }
 
+    asyncLib := null
+    asyncErr := null
+    env.libAsync("sys") |x, e| { asyncLib = x; asyncErr = e }
+    verifyEq(asyncLib, sys)
+    verifyEq(asyncErr, null)
+    env.libAsync("badLib") |x, e| { asyncLib = x; asyncErr = e }
+    verifyEq(asyncLib, null)
+    verifyEq(asyncErr?.typeof, UnknownLibErr#)
+
     // good lib, bad type
     verifyEq(env.type("sys::Foo", false), null)
     verifyErr(UnknownSpecErr#) { env.type("sys::Foo") }
