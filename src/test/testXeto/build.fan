@@ -31,6 +31,7 @@ class Build : BuildPod
                "util @{fan.depend}",
                "yaml @{fan.depend}",
                "xeto @{hx.depend}",
+               "xetoc @{hx.depend}",
                "xetoEnv @{hx.depend}",
                "haystack @{hx.depend}",
                "axon @{hx.depend}",

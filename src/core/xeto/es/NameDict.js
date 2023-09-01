@@ -50,6 +50,8 @@ class NameDict extends sys.Obj
 
   size() { return this.#entries.size(); }
 
+  fixedSize() { return this.size(); }
+
   has(name) { return this.get(name) != null; }
 
   missing(name) { return this.get(name) == null; }
@@ -64,9 +66,11 @@ class NameDict extends sys.Obj
     return this.#entries.get(code) ?? def;
   }
 
-  each(f) { this.#entries.each(f); }
+  each(f) { this.#entries.each((v, n) => f(v, this.#table.toName(n))); }
 
-  eachWhile(f) { return this.#entries.eachWhile(f); }
+  eachWhile(f) {
+    return this.#entries.eachWhile((v, n) => { return f(v, this.#table.toName(n)); });
+  }
 
   map(f) {
     const newEntries = [];
@@ -77,8 +81,6 @@ class NameDict extends sys.Obj
     }
     return new NameDict(this.#table, this.#spec, ...newEntries);
   }
-
-  fixedSize() { return -1; }
 
   trap(name, args=null) { 
     const val = this.get(name);

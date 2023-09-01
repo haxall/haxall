@@ -109,7 +109,7 @@ class NameTable extends sys.Obj
 
   dump(out) {
     out.printLine(`=== NameTable [${this.size()}] ===`);
-    for (let i = 0; i < this.size(); ++i) {
+    for (let i = 0; i <=this.size(); ++i) {
       out.printLine(`${i.toString().padStart(6)}: ${this.#byCode[i]}`)
     }
     out.printLine();
