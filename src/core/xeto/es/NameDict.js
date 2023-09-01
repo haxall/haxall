@@ -32,6 +32,12 @@ class NameDict extends sys.Obj
     return NameDict.#empty;
   }
 
+  static #refType;
+  static __refType() {
+    if (!NameDict.#refType) NameDict.#refType = sys.Type.find("haystack::Ref");
+    return NameDict.#refType;
+  }
+
   #table;
   __table() { return this.#table; }
   #spec;
@@ -43,7 +49,7 @@ class NameDict extends sys.Obj
 
   id() {
     const val = this.#get(this.#table.idCode())
-    if (val != null) return sys.ObjUtil.as(val, sys.Type.find("haystack::Ref"));
+    if (val != null) return sys.ObjUtil.as(val, NameDict.__refType());
     throw sys.UnresolvedErr.make("id");
   }
 
