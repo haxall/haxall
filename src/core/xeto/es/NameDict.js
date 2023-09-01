@@ -11,9 +11,9 @@
  */
 class NameDict extends sys.Obj
 {
-  constructor(table, spec, ...entries) {
-    super();
-    this.#table = table;
+  constructor(table, spec, ...entries) { 
+    super(); 
+    this.#table = table ?? NameTable.makeEmpty();
     this.#spec = spec;
     this.#entries = sys.Map.make(sys.Int.type$, sys.Obj.type$);
     this.#entries.ordered(true);
@@ -54,7 +54,7 @@ class NameDict extends sys.Obj
 
   missing(name) { return this.get(name) == null; }
 
-  get(name, def=null) {
+  get(name, def=null) { 
     return this.#get(this.#table.toCode(name), def);
   }
 
@@ -80,7 +80,7 @@ class NameDict extends sys.Obj
 
   fixedSize() { return -1; }
 
-  trap(name, args=null) {
+  trap(name, args=null) { 
     const val = this.get(name);
     if (val != null) return val;
     throw sys.UnresolvedErr.make(name);

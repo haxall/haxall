@@ -16,13 +16,14 @@ class NameTable extends sys.Obj
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  constructor() {
+  constructor(empty=false) {
     super();
-    this.#byCode    = [];
-    this.#map       = new js.Map();
-    this.#size      = 0;
-    this.#emptyCode = this.#put("");
-    this.#idCode    = this.#put("id");
+    this.#byCode = [];
+    this.#map = new js.Map();
+    if (!empty) {
+      this.#emptyCode = this.#put("");
+      this.#idCode    = this.#put("id");
+    }
   }
 
   static #maxSize = 1_000_000;
@@ -31,10 +32,10 @@ class NameTable extends sys.Obj
   #map;
   #emptyCode;
   #idCode;
-  #size
   #isSparse = false;
 
   static make() { return new NameTable(); }
+  static makeEmpty() { return new NameTable(true); }
 
 //////////////////////////////////////////////////////////////////////////
 // Fantom API
@@ -46,9 +47,9 @@ class NameTable extends sys.Obj
 
   isSparse() { return this.#isSparse; }
 
-  size() { return this.#size; }
+  size() { return this.#map.size; }
 
-  maxCode() { return this.#size; }
+  maxCode() { return this.#map.size; }
 
   toCode(name) { return this.#code(name); }
 
@@ -73,7 +74,7 @@ class NameTable extends sys.Obj
 
   #name(code) {
     const name = this.#byCode[code];
-    if (name == undefined) throw sys.Err.make(`Invalid name code: ${code}`);
+    if (!name) throw sys.Err.make(`Invalid name code: ${code}`);
     return name;
   }
 
@@ -93,13 +94,12 @@ class NameTable extends sys.Obj
     // allocate code unless this is a set
     if (code < 0) {
       if (this.#isSparse) throw sys.Err.make("Cannot call add once set has been called");
-      this.#size = this.#size + 1
-      code = this.#size;
+      code = this.size() + 1;
     } else {
       this.#isSparse = true;
     }
 
-    if (this.#size > NameTable.#maxSize) throw Err.make(`Max names exceeded: ${NameTable.#maxSize}`);
+    if (this.size() > NameTable.#maxSize) throw Err.make(`Max names exceeded: ${NameTable.#maxSize}`);
 
     this.#byCode[code] = name;
     this.#map.set(name, code);
@@ -109,7 +109,7 @@ class NameTable extends sys.Obj
 
   dump(out) {
     out.printLine(`=== NameTable [${this.size()}] ===`);
-    for (let i = 0; i <= this.size(); ++i) {
+    for (let i = 0; i < this.size(); ++i) {
       out.printLine(`${i.toString().padStart(6)}: ${this.#byCode[i]}`)
     }
     out.printLine();
