@@ -161,6 +161,11 @@ class NameTable extends sys.Obj
 
   dictDict(dict, spec=null) {
     if (dict.isEmpty()) return NameDict.empty();
+
+    if (dict instanceof NameDict) {
+      if (dict.__table() == this) return dict;
+    }
+
     const entries = [];
     dict.each((v, k) => { entries.push(k, v); });
     return new NameDict(this, spec, ...entries);

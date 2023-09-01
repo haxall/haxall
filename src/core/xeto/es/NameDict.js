@@ -33,6 +33,7 @@ class NameDict extends sys.Obj
   }
 
   #table;
+  __table() { return this.#table; }
   #spec;
   #entries;
 
@@ -42,7 +43,7 @@ class NameDict extends sys.Obj
 
   id() {
     const val = this.#get(this.#table.idCode())
-    if (val != null) return sys.ObjUtil.as(val, haystack.Ref.type$);
+    if (val != null) return sys.ObjUtil.as(val, sys.Type.find("haystack::Ref"));
     throw sys.UnresolvedErr.make("id");
   }
 
@@ -50,7 +51,11 @@ class NameDict extends sys.Obj
 
   size() { return this.#entries.size(); }
 
-  fixedSize() { return this.size(); }
+  fixedSize() {
+    const size = this.size();
+    if (size < 9) return size;
+    return -1;
+  }
 
   has(name) { return this.get(name) != null; }
 
