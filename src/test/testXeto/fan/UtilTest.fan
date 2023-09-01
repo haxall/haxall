@@ -102,7 +102,9 @@ class UtilTest : Test
   {
     t := NameTable()
     id := haystack::Ref.gen
-    spec := XetoEnv.cur.spec("ph::Site")
+    Spec? spec := null
+    if (Env.cur.runtime != "js")
+      spec = XetoEnv.cur.spec("ph::Site")
 
     verifyDict(t, 0, NameDict.empty,
       Str:Obj[:])
@@ -167,8 +169,11 @@ class UtilTest : Test
   Void verifyDict(NameTable t, Int fixed, NameDict d, Str:Obj expect, Spec? spec := null)
   {
     // spec
-    if (spec == null) spec = XetoEnv.cur.dictSpec
-    verifySame(d.spec, spec)
+    if (Env.cur.runtime != "js")
+    {
+      if (spec == null) spec = XetoEnv.cur.dictSpec
+      verifySame(d.spec, spec)
+    }
 
     // size
     verifyEq(d.isEmpty, d.size == 0)
