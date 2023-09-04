@@ -13,6 +13,7 @@ using haystack::Marker
 using haystack::NA
 using haystack::Remove
 using haystack::Ref
+using haystack::Dict
 
 **
 ** Reader for Xeto binary encoding of specs and data
@@ -120,7 +121,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   {
     x.baseIn  = readSpecRef
     x.typeIn  = readSpecRef
-    x.metaIn  = readMeta
+    x.metaIn  = ((MNameDict)readMeta).wrapped
     x.slotsIn = readSlots(loader, x)
     x.flags   = readVarInt
    }
@@ -241,11 +242,11 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     TimeZone.fromStr(readVal)
   }
 
-  private NameDict readNameDict()
+  private MNameDict readNameDict()
   {
     size := readVarInt
     spec := null
-    return names.readDict(size, this, spec)
+    return MNameDict(names.readDict(size, this, spec))
   }
 
   override Int readName()
@@ -273,7 +274,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     in.readUtf
   }
 
-  private NameDict readMeta()
+  private Dict readMeta()
   {
     verifyU1(ctrlNameDict, "ctrlNameDict for meta")  // readMeta is **with** the ctrl code
     return readNameDict

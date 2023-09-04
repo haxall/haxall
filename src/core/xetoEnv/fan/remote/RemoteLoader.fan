@@ -22,7 +22,7 @@ internal class RemoteLoader
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(RemoteEnv env, Int libNameCode, NameDict libMeta)
+  new make(RemoteEnv env, Int libNameCode, MNameDict libMeta)
   {
     this.env         = env
     this.names       = env.names
@@ -44,7 +44,7 @@ internal class RemoteLoader
     types     := loadTypes
     instances := loadInstances
 
-    m := MLib(env, loc, libNameCode, MNameDict(libMeta), version, depends, types, instances)
+    m := MLib(env, loc, libNameCode, libMeta, version, depends, types, instances)
     XetoLib#m->setConst(lib, m)
     return lib
   }
@@ -72,11 +72,11 @@ internal class RemoteLoader
   {
     obj := libMeta["depends"]
     if (obj == null) return MLibDepend#.emptyList
-    list := (NameDict)obj
+    list := (MNameDict)obj
 
     acc := MLibDepend[,]
-    acc.capacity = list.size
-    list.each |NameDict x|
+    acc.capacity = list.wrapped.size
+    list.each |MNameDict x|
     {
       name := x->lib
       vers := MLibDependVersions(x->versions.toStr, true)
@@ -309,7 +309,7 @@ internal class RemoteLoader
   const XetoLib lib := XetoLib()
   const Str libName
   const Int libNameCode
-  const NameDict libMeta
+  const MNameDict libMeta
   private Str:RSpec types := [:]             // addType
   private Str:NameDict instances := [:]      // addInstance
   private [Str:SpecFactory]? factories       // loadFactories
