@@ -18,6 +18,9 @@ using haystack::Ref
 **
 ** Writer for Xeto binary encoding of specs and data
 **
+** NOTE: this encoding is not backward/forward compatible - it only
+** works with XetoBinaryReader of the same version
+**
 @Js
 class XetoBinaryWriter : XetoBinaryConst
 {
@@ -246,10 +249,11 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
 
   Void writeDict(Dict d)
   {
-    if (d is NameDict) return writeNameDict(d)
+    if (d.isEmpty)      return write(ctrlEmptyDict)
+    if (d is NameDict)  return writeNameDict(d)
     if (d is MNameDict) return writeNameDict(((MNameDict)d).wrapped)
-    if (d is XetoSpec) return writeSpecRefVal(d)
-    throw Err("TODO: $d.typeof")
+    if (d is XetoSpec)  return writeSpecRefVal(d)
+    return writeGenericDict(d)
   }
 
   private Void writeSpecRefVal(XetoSpec spec)
@@ -270,6 +274,17 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
     }
   }
 
+  private Void writeGenericDict(Dict dict)
+  {
+    write(ctrlGenericDict)
+    dict.each |v, n|
+    {
+      writeStr(n)
+      writeVal(v)
+    }
+    writeStr("")
+  }
+
   private Void writeName(Int nameCode)
   {
     if (nameCode <= maxNameCode)
@@ -288,22 +303,34 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  private Void write(Int byte)
+  Void write(Int byte)
   {
     out.write(byte)
   }
 
-  private Void writeI4(Int i)
+  Void writeI4(Int i)
   {
     out.writeI4(i)
   }
 
-  private Void writeUtf(Str s)
+  Void writeUtf(Str s)
   {
     out.writeUtf(s)
   }
 
-  private Void writeVarInt(Int val)
+  Void writeRawRefList(Ref[] ids)
+  {
+    writeVarInt(ids.size)
+    ids.each |id| { writeUtf(id.id) }
+  }
+
+  Void writeRawDictList(Dict[] dicts)
+  {
+    writeVarInt(dicts.size)
+    dicts.each |d| { writeDict(d) }
+  }
+
+  Void writeVarInt(Int val)
   {
     // see BrioWriter.encodeVarInt - same encoding
     if (val < 0) return out.write(0xff)

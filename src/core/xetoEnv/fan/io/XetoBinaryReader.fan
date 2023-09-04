@@ -18,6 +18,9 @@ using haystack::Dict
 **
 ** Reader for Xeto binary encoding of specs and data
 **
+** NOTE: this encoding is not backward/forward compatible - it only
+** works with XetoBinaryWriter of the same version
+**
 @Js
 class XetoBinaryReader : XetoBinaryConst, NameDictReader
 {
@@ -188,22 +191,24 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     ctrl := in.readU1
     switch (ctrl)
     {
-      case ctrlMarker:     return Marker.val
-      case ctrlNA:         return NA.val
-      case ctrlRemove:     return Remove.val
-      case ctrlTrue:       return true
-      case ctrlFalse:      return false
-      case ctrlName:       return names.toName(readName)
-      case ctrlStr:        return readUtf
-      case ctrlUri:        return readUri
-      case ctrlRef:        return readRef
-      case ctrlDate:       return readDate
-      case ctrlTime:       return readTime
-      case ctrlDateTimeI4: return readDateTimeI4
-      case ctrlDateTimeI8: return readDateTimeI8
-      case ctrlNameDict:   return readNameDict
-      case ctrlSpecRef:    return readSpecRef // resolve to Spec later
-      default:             throw IOErr("obj ctrl 0x$ctrl.toHex")
+      case ctrlMarker:      return Marker.val
+      case ctrlNA:          return NA.val
+      case ctrlRemove:      return Remove.val
+      case ctrlTrue:        return true
+      case ctrlFalse:       return false
+      case ctrlName:        return names.toName(readName)
+      case ctrlStr:         return readUtf
+      case ctrlUri:         return readUri
+      case ctrlRef:         return readRef
+      case ctrlDate:        return readDate
+      case ctrlTime:        return readTime
+      case ctrlDateTimeI4:  return readDateTimeI4
+      case ctrlDateTimeI8:  return readDateTimeI8
+      case ctrlEmptyDict:   return NameDict.empty
+      case ctrlNameDict:    return readNameDict
+      case ctrlGenericDict: return readGenericDict
+      case ctrlSpecRef:     return readSpecRef // resolve to Spec later
+      default:              throw IOErr("obj ctrl 0x$ctrl.toHex")
     }
   }
 
@@ -249,6 +254,18 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     return MNameDict(names.readDict(size, this, spec))
   }
 
+  private Dict readGenericDict()
+  {
+    acc := Str:Obj[:]
+    while (true)
+    {
+      name := readVal.toStr
+      if (name.isEmpty) break
+      acc[name] = readVal
+    }
+    return haystack::Etc.dictFromMap(acc)
+  }
+
   override Int readName()
   {
     code := readVarInt
@@ -264,14 +281,37 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  private Int read()
+  Int read()
   {
     in.readU1
   }
 
-  private Str readUtf()
+  Int readU4()
+  {
+    in.readU4
+  }
+
+  Str readUtf()
   {
     in.readUtf
+  }
+
+  Ref[] readRawRefList()
+  {
+    size := readVarInt
+    acc := Ref[,]
+    acc.capacity = size
+    size.times { acc.add(Ref(readUtf)) }
+    return acc
+  }
+
+  Dict[] readRawDictList()
+  {
+    size := readVarInt
+    acc := Dict[,]
+    acc.capacity = size
+    size.times { acc.add(readDict) }
+    return acc
   }
 
   private Dict readMeta()
@@ -288,11 +328,11 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Void verifyU4(Int expect, Str msg)
   {
-    actual := in.readU4
+    actual := readU4
     if (actual != expect) throw IOErr("Invalid $msg: 0x$actual.toHex != 0x$expect.toHex")
   }
 
-  private Int readVarInt()
+  Int readVarInt()
   {
     v := in.readU1
     if (v == 0xff)           return -1
