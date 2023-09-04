@@ -53,7 +53,7 @@ class XetoBinaryWriter : XetoBinaryConst
   {
     max := maxNameCode
     writeVarInt(max)
-    for (i := 1; i<=max; ++i)
+    for (i := NameTable.initSize+1; i<=max; ++i)
       out.writeUtf(names.toName(i))
   }
 

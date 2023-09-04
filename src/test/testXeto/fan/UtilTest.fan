@@ -27,6 +27,7 @@ class UtilTest : Test
     start := 2
     verifyEq(t.size, start)
     verifyEq(t.size, 2)
+    verifyEq(NameTable.initSize, 2)
     verifyEq(t.toCode(""), 1)
     verifyEq(t.toCode("id"), 2)
     verifyEq(t.toCode("foo"), 0)

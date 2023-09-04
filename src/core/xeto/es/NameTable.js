@@ -26,6 +26,8 @@ class NameTable extends sys.Obj
     }
   }
 
+  static initSize() { return 2; }
+
   static #maxSize = 1_000_000;
 
   #byCode;
@@ -74,7 +76,7 @@ class NameTable extends sys.Obj
 
   #name(code) {
     const name = this.#byCode[code];
-    if (!name) throw sys.Err.make(`Invalid name code: ${code}`);
+    if (name == undefined) throw sys.Err.make(`Invalid name code: ${code}`);
     return name;
   }
 

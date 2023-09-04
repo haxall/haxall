@@ -20,6 +20,9 @@ native final const class NameTable
   ** If set has been used then the table may be sparse.
   Int size()
 
+  ** Size we initialize table with predefined names
+  static Int initSize()
+
   ** Last name code in use (inclusive).
   ** This is always the same as size, and will not be reliable
   ** if set has been used to create a sparse name table.

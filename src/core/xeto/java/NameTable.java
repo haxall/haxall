@@ -29,9 +29,11 @@ public final class NameTable extends FanObj
   {
     this.byCode = new String[1024];
     this.byHash = new Entry[byHashSize];
-    this.emptyCode = this.put("");
-    this.idCode    = this.put("id");
+    this.emptyCode = this.put("");    // always 1
+    this.idCode    = this.put("id");  // always 2
   }
+
+  public static long initSize() { return 2L; }
 
 //////////////////////////////////////////////////////////////////////////
 // Fantom API

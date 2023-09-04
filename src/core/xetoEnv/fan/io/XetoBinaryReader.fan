@@ -57,7 +57,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   private Void readNameTable()
   {
     max := readVarInt
-    for (i := 1; i<=max; ++i)
+    for (i := NameTable.initSize+1; i<=max; ++i)
       names.add(in.readUtf)
   }
 
