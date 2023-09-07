@@ -92,6 +92,7 @@ const class Fn : Expr, HaystackFunc
     // check arity
     if (arity != args.size)
     {
+      args = args.rw
       while (args.size < params.size)
       {
         def := params[args.size].def
