@@ -70,8 +70,8 @@ internal const class LocalEnv : MEnv
   override Void dump(OutStream out := Env.cur.out)
   {
     out.printLine("=== LocalXetoEnv ===")
-    out.printLine("Lib Path:")
-    registry.libPath.eachr |x| { out.printLine("  $x.osPath") }
+    out.printLine("Env Path:")
+    registry.envPath.eachr |x| { out.printLine("  $x.osPath") }
     max := registry.list.reduce(10) |acc, x| { x.name.size.max(acc) }
     out.printLine("Installed Libs:")
     registry.list.each |entry|

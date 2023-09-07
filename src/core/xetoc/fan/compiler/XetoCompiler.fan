@@ -76,7 +76,7 @@ internal class XetoCompiler
       Assemble(),
       OutputZip()
     ])
-    info("Compiled xetolib [$libName]")
+    info("Compiled xetolib [${zipOut?.osPath ?: libName}]")
     return lib.asm
   }
 

@@ -20,8 +20,8 @@ internal const class LocalRegistry : MRegistry
   new make(MEnv env)
   {
     this.env     = env
-    this.libPath = Env.cur.path.map |dir->File| { dir.plus(`lib/xeto/`) }
-    this.map     = discover(this.libPath)
+    this.envPath = Env.cur.path
+    this.map     = discover(this.envPath)
     this.list    = map.vals.sort |a, b| { a.name <=> b.name }
   }
 
@@ -33,48 +33,52 @@ internal const class LocalRegistry : MRegistry
     return null
   }
 
-  private static Str:LocalRegistryEntry discover(File[] libPath)
+  private static Str:LocalRegistryEntry discover(File[] envPath)
   {
     acc := Str:LocalRegistryEntry[:]
 
-    // find all lib/xeto entries
-    libPath.each |dir|
+    // walk each directory in Fantom environment path
+    envPath.eachr |dir|
     {
-      dir.list.each |f|
+      libDir := dir + `lib/xeto/`
+
+      // find all lib/xeto/*.xetolib entries
+      libDir.list.each |f|
       {
         if (!f.isDir && f.ext == "xetolib")
           doInitInstalled(acc, f.basename, null, f)
       }
+
+      // find all src/xeto/* source entries
+      initSrcEntries(acc, libDir, dir + `src/xeto/`)
     }
 
-    // recursively find source entires
-    initSrcEntries(acc, Env.cur.workDir + `src/xeto/`)
 
     return acc
   }
 
-  private static Void initSrcEntries(Str:LocalRegistryEntry acc, File dir)
+  private static Void initSrcEntries(Str:LocalRegistryEntry acc, File libDir, File dir)
   {
-    qname := dir.name
+    name := dir.name
     lib := dir + `lib.xeto`
     if (lib.exists)
     {
-      doInitInstalled(acc, qname, dir, Env.cur.workDir + `lib/xeto/${qname}.xetolib`)
+      doInitInstalled(acc, name, dir, libDir + `${name}.xetolib`)
     }
     else
     {
-      dir.listDirs.each |subDir| { initSrcEntries(acc, subDir) }
+      dir.listDirs.each |subDir| { initSrcEntries(acc, libDir, subDir) }
     }
   }
 
-  private static Void doInitInstalled(Str:LocalRegistryEntry acc, Str qname, File? src, File zip)
+  private static Void doInitInstalled(Str:LocalRegistryEntry acc, Str name, File? src, File zip)
   {
-    dup := acc[qname]
+    dup := acc[name]
     if (dup != null)
     {
-      if (dup.zip != zip) echo("WARN: XetoEnv '$qname' lib hidden [$dup.zip.osPath]")
+      if (dup.zip != zip) echo("WARN: XetoEnv '$name' lib hidden [$dup.zip.osPath]")
     }
-    acc[qname] = LocalRegistryEntry(qname, src, zip)
+    acc[name] = LocalRegistryEntry(name, src, zip)
   }
 
   override Lib? loadSync(Str name, Bool checked := true)
@@ -184,7 +188,7 @@ internal const class LocalRegistry : MRegistry
   }
 
   const MEnv env
-  const File[] libPath
+  const File[] envPath
   override const LocalRegistryEntry[] list
   const Str:LocalRegistryEntry map
   const Str compilingKey := "dataEnv.compiling"
