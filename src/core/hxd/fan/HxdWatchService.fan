@@ -135,6 +135,8 @@ internal const class HxdWatch : HxWatch
     return refs.keys(Ref#)
   }
 
+  override Bool isEmpty() { refs.isEmpty }
+
   override Duration lastPoll() { lastPollRef.val }
   private const AtomicRef lastPollRef := AtomicRef(Duration.defVal)
 

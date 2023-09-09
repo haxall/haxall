@@ -31,6 +31,9 @@ const abstract class HxWatch
   ** Raise exception if watch is closed.
   abstract Ref[] list()
 
+  ** Return if the list of recs currently subscribed is empty.
+  abstract Bool isEmpty()
+
   ** Ticks of the last call to `poll`
   @NoDoc abstract Duration lastPoll()
 

@@ -44,6 +44,7 @@ class WatchTest : HxTest
     verifyEq(HxWatch[,].addAll(rt.watch.list),[w])
     verifySame(rt.watch.get(w.id), w)
     verifyEq(w.list, Ref[,])
+    verifyEq(w.isEmpty, true)
 
     // add/remove some ids
     bad := Ref.gen
@@ -59,6 +60,7 @@ class WatchTest : HxTest
     verifyEq(w.list, Ref[,])
     w.addAll([aId, bId])
     verifyEq(w.list.sort, [aId, bId].sort)
+    verifyEq(w.isEmpty, false)
 
     // set
     w.set([bId, cId])
