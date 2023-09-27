@@ -247,5 +247,6 @@ internal const class NilContext : XetoContext
 {
   override Dict? xetoReadById(Obj id) { null }
   override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
+  override Bool xetoIsSpec(Str spec, Dict rec) { false }
 }
 

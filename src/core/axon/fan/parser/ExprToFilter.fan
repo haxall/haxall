@@ -93,7 +93,13 @@ internal class ExprToFilter
       return Filter.missing(toPath(operand))
     }
 
-    throw err("Not a filter expr: $expr")
+    // spec type
+    if (expr.type === ExprType.specTypeRef)
+    {
+      return Filter.isSpec(((SpecTypeRef)expr).nameToStr)
+    }
+
+    throw err("Not a filter expr: $expr [$expr.type]")
   }
 
   private FilterPath toPath(Expr expr)

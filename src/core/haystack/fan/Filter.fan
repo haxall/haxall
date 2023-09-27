@@ -530,7 +530,7 @@ internal const final class FilterIsSymbol : Filter
 internal const final class FilterIsSpec : Filter
 {
   new make(Str spec) { this.spec = spec }
-  override Bool doMatches(Dict r, HaystackContext cx) { throw Err("TODO: $spec") }
+  override Bool doMatches(Dict r, HaystackContext cx) { cx.xetoIsSpec(spec, r) }
   override Str pattern() { spec }
   override Void eachVal(|Obj?,FilterPath| f) {}
   override Void eachTag(|Str| f) {}

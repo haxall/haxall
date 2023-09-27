@@ -122,6 +122,27 @@ abstract class AxonContext : HaystackContext
   }
 
 //////////////////////////////////////////////////////////////////////////
+// XetoContext
+//////////////////////////////////////////////////////////////////////////
+
+  ** Return true if the given rec is nominally an instance of the given
+  ** spec.  This is used by haystack Filters with a spec name.  The spec
+  ** name may be qualified or unqualified.
+  @NoDoc override Bool xetoIsSpec(Str specName, xeto::Dict rec)
+  {
+    // cache the spec since it can be fairly expensive to lookup
+    // and this method could be called 1000s of time in a filter loop
+    spec := xetoIsSpecCache?.get(specName)
+    if (spec == null)
+    {
+      if (xetoIsSpecCache == null) xetoIsSpecCache = Str:Spec[:]
+      spec = specName.contains("::") ? usings.env.spec(specName) : usings.resolve(specName)
+      xetoIsSpecCache[specName] = spec
+    }
+    return usings.env.specOf(rec).isa(spec)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Heartbeat
 //////////////////////////////////////////////////////////////////////////
 
@@ -378,6 +399,7 @@ abstract class AxonContext : HaystackContext
   private CallFrame[] stack := [,]
   private [Str:Regex]? regex
   private AxonUsings? usingsRef
+  private [Str:Spec]? xetoIsSpecCache
 }
 
 **************************************************************************

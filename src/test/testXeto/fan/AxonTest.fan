@@ -329,6 +329,37 @@ class AxonTest : HxTest
   |Str,Bool|? verifyIsFunc := null
 
 //////////////////////////////////////////////////////////////////////////
+// Filter Is function
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testFilterIs()
+  {
+    this.libs = ["ph"]
+
+    a := Etc.makeDict(["dis":"A"])
+    b := Etc.makeDict(["dis":"B", "spec":Ref("ph::Ahu")])
+    c := Etc.makeDict(["dis":"C", "spec":Ref("ph::Rtu")])
+    recs := [a, b, c]
+
+    verifyFilterIs(recs, "None", Dict[,])
+    verifyFilterIs(recs, "Dict", [a, b, c])
+    verifyFilterIs(recs, "Equip", [b, c])
+    verifyFilterIs(recs, "Ahu", [b, c])
+    verifyFilterIs(recs, "Rtu", [c])
+  }
+
+  Void verifyFilterIs(Dict[] recs, Str expr, Dict[] expect)
+  {
+    filter := Filter(expr)
+    verifyEq(filter.type, FilterType.isSpec)
+    cx := makeContext
+    actual := Dict[,]
+    recs.each |r| { if (filter.matches(r, cx)) actual.add(r) }
+    verifyEq(actual, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // SpecFits function
 //////////////////////////////////////////////////////////////////////////
 
