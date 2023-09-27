@@ -151,6 +151,12 @@ class FilterTest : HaystackTest
     // isSymbol
     verifyParse("^air-output", Filter.isSymbol(Symbol("air-output")), "^air-output", Str[,])
 
+    // isSpec
+    verifyParse("Rtu", Filter.isSpec("Rtu"), "Rtu", Str[,])
+    verifyParse("ph::Equip", Filter.isSpec("ph::Equip"), "ph::Equip", Str[,])
+    verifyParse("ph.points::AirTempSensor", Filter.isSpec("ph.points::AirTempSensor"), "ph.points::AirTempSensor", Str[,])
+    verifyParse("x.y.z::Foo", Filter.isSpec("x.y.z::Foo"), "x.y.z::Foo", Str[,])
+
     // combo
     isA := Filter.has("a")
     isB := Filter.has("b")
@@ -171,6 +177,7 @@ class FilterTest : HaystackTest
     // fromStr
     actual := Filter(s)
     verifyEq(actual, expected)
+    verifyEq(actual.type, expected.type)
 
     // pattern
     verifyEq(actual.pattern, pattern)
@@ -434,6 +441,10 @@ class FilterTest : HaystackTest
     verifyInclude(recs, Str<|^foo-bar|>, [,])
     verifyInclude(recs, Str<|^foo|>, [a,b,c])
     verifyInclude(recs, Str<|^foo-thru|>, [c])
+
+    // nothing matches with default context
+    verifyInclude(recs, Str<|None|>, [,])
+    verifyInclude(recs, Str<|Dict|>, [,])
   }
 
   Void testIncludeList()

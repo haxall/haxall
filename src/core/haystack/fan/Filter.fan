@@ -58,6 +58,9 @@ const abstract class Filter
   ** Return a query which is the logical-or of this and that query.
   @NoDoc Filter or(Filter that) { logic(this, FilterType.or, that) |a,b| { FilterOr(a,b) } }
 
+  ** Match records which nominally is an instance of the given spec name
+  @NoDoc static Filter isSpec(Str spec) { FilterIsSpec(spec) }
+
   ** Match records which define the symbol terms or subtypes the given definition
   @NoDoc static Filter isSymbol(Symbol symbol) { FilterIsSymbol(symbol) }
 
@@ -246,7 +249,8 @@ enum class FilterType
   le,
   and,
   or,
-  isA,
+  isSymbol,
+  isSpec,
   search
 }
 
@@ -512,12 +516,29 @@ internal const final class FilterIsSymbol : Filter
   override Str pattern() { symbol.toCode }
   override Void eachVal(|Obj?,FilterPath| f) {}
   override Void eachTag(|Str| f) {}
-  override FilterType type() { FilterType.isA }
+  override FilterType type() { FilterType.isSymbol }
   override Obj? argA() { symbol }
   override const Str toStr
   private const Symbol symbol
 }
 
+**************************************************************************
+** FilterIsSpec
+**************************************************************************
+
+@Js
+internal const final class FilterIsSpec : Filter
+{
+  new make(Str spec) { this.spec = spec }
+  override Bool doMatches(Dict r, HaystackContext cx) { throw Err("TODO: $spec") }
+  override Str pattern() { spec }
+  override Void eachVal(|Obj?,FilterPath| f) {}
+  override Void eachTag(|Str| f) {}
+  override FilterType type() { FilterType.isSpec }
+  override Obj? argA() { spec }
+  override Str toStr() { spec }
+  private const Str spec
+}
 
 **************************************************************************
 ** FilterPath
@@ -703,6 +724,18 @@ internal class FilterParser : HaystackParser
       return FilterIsSymbol(val)
     }
 
+    if (cur === HaystackToken.id)
+    {
+      // FooBar
+      if (curVal.toStr[0].isUpper) return FilterIsSpec(consumeId)
+
+      // baz::FooBar
+      if (peek === HaystackToken.colon2) return FilterIsSpec(specQName)
+
+      // baz.qux::FooBar
+      if (peek === HaystackToken.dot) return FilterIsSpec(specQName)
+    }
+
     p := path
     switch (cur)
     {
@@ -713,6 +746,7 @@ internal class FilterParser : HaystackParser
       case HaystackToken.gt:    consume; return FilterGt(p, val)
       case HaystackToken.gtEq:  consume; return FilterGe(p, val)
     }
+
     return FilterHas(p)
   }
 
@@ -755,6 +789,30 @@ internal class FilterParser : HaystackParser
     }
 
     throw err("Expecting value literal, not $curToStr")
+  }
+
+  private Str specQName()
+  {
+    s := StrBuf()
+    s.add(consumeId)
+    while (cur === HaystackToken.dot)
+    {
+      consume
+      s.addChar('.').add(consumeId)
+    }
+    if (cur !== HaystackToken.colon2) throw err("Expecting spec qname ::, not $curToStr")
+    consume
+    if (cur !== HaystackToken.id || !curVal.toStr[0].isUpper) throw err("Expecting spec capitalized name, not $curToStr")
+    s.add("::").add(consumeId)
+    return s.toStr
+  }
+
+  private Str consumeId()
+  {
+    if (cur !== HaystackToken.id) throw err("Expecting identifier, not $curToStr")
+    id := curVal
+    consume
+    return id
   }
 
 }

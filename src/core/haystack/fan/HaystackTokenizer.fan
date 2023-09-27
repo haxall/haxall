@@ -388,6 +388,7 @@ class HaystackTokenizer
       case ',':
         return HaystackToken.comma
       case ':':
+        if (cur == ':') { consume; return HaystackToken.colon2 }
         return HaystackToken.colon
       case ';':
         return HaystackToken.semicolon
@@ -709,6 +710,7 @@ enum class HaystackToken
   // operators
   dot           ("."),
   colon         (":"),
+  colon2        ("::"),
   comma         (","),
   semicolon     (";"),
   minus         ("-"),
