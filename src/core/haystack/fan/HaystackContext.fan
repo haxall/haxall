@@ -6,15 +6,23 @@
 //   10 Aug 2020  Brian Frank  Creation
 //
 
+using xeto::XetoContext
+
 **
 ** HaystackContext defines an environment of defs and data
 **
 @Js
-mixin HaystackContext
+mixin HaystackContext : XetoContext
 {
   ** Nil context has no data and no inference
   @NoDoc static HaystackContext nil() { nilRef }
   private static const NilContext nilRef := NilContext()
+
+  ** Read a data record by id or return null
+  @NoDoc override xeto::Dict? xetoReadById(Obj id) { deref(id) }
+
+  ** Read all the records that match given haystack filter
+  @NoDoc override Obj? xetoReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f) { null }
 
   ** Dereference an id to an record dict or null if unresolved
   @NoDoc abstract Dict? deref(Ref id)
