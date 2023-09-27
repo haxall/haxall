@@ -148,8 +148,8 @@ class FilterTest : HaystackTest
     verifyParse("(a) and (b)", Filter.has("a").and(Filter.has("b")), "(a) and (b)", ["a", "b"])
     verifyParse("(a) or (b) or (c == 3)", Filter.has("a").or(Filter.has("b")).or(Filter.eq("c", n(3))), "((a) or (b)) or (c == ?)", ["a", "b", "c"])
 
-    // isA
-    verifyParse("^air-output", Filter.isA(Symbol("air-output")), "^air-output", Str[,])
+    // isSymbol
+    verifyParse("^air-output", Filter.isSymbol(Symbol("air-output")), "^air-output", Str[,])
 
     // combo
     isA := Filter.has("a")

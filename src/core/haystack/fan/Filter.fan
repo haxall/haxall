@@ -59,7 +59,7 @@ const abstract class Filter
   @NoDoc Filter or(Filter that) { logic(this, FilterType.or, that) |a,b| { FilterOr(a,b) } }
 
   ** Match records which define the symbol terms or subtypes the given definition
-  @NoDoc static Filter isA(Symbol symbol) { FilterIsA(symbol) }
+  @NoDoc static Filter isSymbol(Symbol symbol) { FilterIsSymbol(symbol) }
 
   ** This factory method is used for and/or to ensure that we
   ** normalize all the logical query parts consistently by order.
@@ -501,11 +501,11 @@ internal const final class FilterOr : Filter
 }
 
 **************************************************************************
-** FilterIsA
+** FilterIsSymbol
 **************************************************************************
 
 @Js
-internal const final class FilterIsA : Filter
+internal const final class FilterIsSymbol : Filter
 {
   new make(Symbol symbol) { this.symbol = symbol; this.toStr = symbol.toCode }
   override Bool doMatches(Dict r, HaystackContext cx) { cx.inference.isA(r, symbol) }
@@ -700,7 +700,7 @@ internal class FilterParser : HaystackParser
     {
       val := curVal
       consume
-      return FilterIsA(val)
+      return FilterIsSymbol(val)
     }
 
     p := path

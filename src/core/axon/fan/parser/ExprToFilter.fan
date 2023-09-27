@@ -59,7 +59,7 @@ internal class ExprToFilter
 
     // isA symbol
     if (expr.type === ExprType.literal && expr.eval(cx) is Symbol)
-      return Filter.isA(expr.eval(cx))
+      return Filter.isSymbol(expr.eval(cx))
 
     // if 'foo' or 'foo->bar' (allow foo to be str literal)
     if (expr.type === ExprType.var ||
