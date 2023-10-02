@@ -728,7 +728,7 @@ class Parser
     if (peek === Token.colon)
       return deftype
     else
-      return spec(null)
+      return spec(null, null)
   }
 
   **
@@ -742,7 +742,7 @@ class Parser
     name := curVal
     consume(Token.typename)
     consume(Token.colon)
-    type := spec(name)
+    type := spec(null, name)
     return DefineVar(loc, name, type)
   }
 
@@ -765,7 +765,7 @@ class Parser
   **   <specOr>       :=  <specSimple> ("|" <specSimple>)+
   **   <specSimple>   :=  <typename>
   **
-  private Expr spec(Str? name)
+  private Expr spec(Str? lib, Str? name)
   {
     loc := curLoc
     SpecExpr? ref := null
@@ -774,7 +774,7 @@ class Parser
     // <specType>
     if (cur === Token.typename)
     {
-      ref = specSimple
+      ref = specSimple(lib)
       if (cur === Token.question)
       {
         consume
@@ -836,12 +836,12 @@ class Parser
     return SpecDerive(loc, name, ref, meta, slots)
   }
 
-  private SpecExpr specSimple()
+  private SpecExpr specSimple(Str? lib)
   {
     loc := curLoc
     typename := curVal
     consume
-    typeRef := SpecTypeRef(loc, null, typename)
+    typeRef := SpecTypeRef(loc, lib, typename)
     if (cur !== Token.dot) return typeRef
 
     slots := Str[,]
@@ -861,7 +861,7 @@ class Parser
     while (cur === token)
     {
       consume
-      acc.add(specSimple)
+      acc.add(specSimple(null))
     }
     return ListExpr(acc, false)
   }
@@ -898,7 +898,7 @@ class Parser
   private Expr specMetaVal()
   {
     if (cur === Token.val) return Literal(consumeVal)
-    if (cur === Token.typename) return spec(null)
+    if (cur === Token.typename) return spec(null, null)
     throw err("Expecting spec meta val, not $curToStr")
   }
 
@@ -929,7 +929,7 @@ class Parser
       if (cur === Token.typename)
       {
         name = "_" + (auto++)
-        slot = spec(null)
+        slot = spec(null, null)
       }
       else
       {
@@ -937,7 +937,7 @@ class Parser
         if (cur === Token.colon)
         {
           consume
-          slot = spec(null)
+          slot = spec(null, null)
         }
         else
         {
