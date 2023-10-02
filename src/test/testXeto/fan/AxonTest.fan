@@ -33,6 +33,13 @@ class AxonTest : HxTest
     verifySpecRef(Str<|Dict|>, "sys::Dict")
     verifySpecRef(Str<|Point|>, "ph::Point")
 
+    // qualified
+    libs = ["ph", "ph.points"]
+    verifySpecRef(Str<|ph::Point|>, "ph::Point")
+    verifySpecRef(Str<|ph.points::AirTempSensor|>, "ph.points::AirTempSensor")
+    verifySpecRef(Str<|hx.test.axon::Alpha|>, "hx.test.axon::Alpha")
+    verifySpecRef(Str<|hx.test.axon.deep::Beta|>, "hx.test.axon.deep::Beta")
+
     // slot
     libs = ["ph"]
     verifySpecRef(Str<|Equip.equip|>, "ph::Equip.equip")

@@ -104,7 +104,8 @@ Productions [#productions]
   <specMaybe>    :=  <specSimple> "?"
   <specAnd>      :=  <specSimple> ("&" <specSimple>)+
   <specOr>       :=  <specSimple> ("|" <specSimple>)+
-  <specSimple>   :=  <typename> ("." <idOrKeyword>)*
+  <specSimple>   :=  [<specLibName> "::"] <typename> ("." <idOrKeyword>)*
+  <specLibName>  :=  <id> ("." <id>)*
 
   <literal>      :=  <null> | <bool> | <number> | <str> | <date> |
                      <time> | <month> | <recId>

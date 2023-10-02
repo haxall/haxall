@@ -504,7 +504,7 @@ class Parser
   {
     if (cur === Token.lparen) return parenExpr
     if (cur === Token.val)    return Literal(consumeVal)
-    if (cur === Token.id)     return var
+    if (cur === Token.id)     return termId
     if (cur === Token.trueKeyword)  { consume; return Literal.trueVal }
     if (cur === Token.falseKeyword) { consume; return Literal.falseVal }
     if (cur === Token.nullKeyword)  { consume; return Literal.nullVal }
@@ -512,25 +512,23 @@ class Parser
   }
 
   **
-  ** Variable:
-  **   <var>  :=  <qname>
+  ** Variable or spec qname:
+  **   <var>          :=  <qname>
+  **   <specSimple>   :=  [<specLibName> "::"] <typename> ("." <idOrKeyword>)*
+  **   <specLibName>  :=  <id> ("." <id>)*
   **
-  private Expr var()
+  private Expr termId()
   {
     loc := curLoc
-    return Var(loc, qname)
-  }
+    name := consumeId("name")
 
-  **
-  ** Parse qname:
-  **    qname  :=  [<id> "::" ] <id>
-  **
-  private Str qname()
-  {
-    name := consumeId("func name")
-    if (cur !== Token.doubleColon) return name
+    if (cur !== Token.doubleColon) return Var(loc, name)
     consume
-    return name + "::" + consumeIdOrKeyword("func name")
+
+    if (cur === Token.typename)
+      return spec(name, null)
+    else
+      return Var(loc, name + "::" + consumeIdOrKeyword("func qname"))
   }
 
   **
@@ -547,7 +545,18 @@ class Parser
     if (isMethod)
     {
       consume(Token.dot)
-      methodName = cur.keyword ? consumeIdOrKeyword("func name") : qname
+
+      methodName = consumeIdOrKeyword("func name")
+
+      if (cur === Token.doubleColon)
+      {
+        consume
+        if (cur === Token.typename)
+          return specFromDottedPath(target, methodName)
+        else
+          methodName = methodName + "::" + consumeIdOrKeyword("func qname")
+      }
+
       if (cur !== Token.lparen)
       {
         if (cur === Token.id && peek === Token.fnEq)
@@ -964,6 +973,43 @@ class Parser
     if (cur === Token.comma) { consume; return }
     if (nl) return
     throw err("Expecting newline or comma to end slot, not $curToStr")
+  }
+
+  **
+  ** Convert dotted calls followed by "::" Typename back into a qualified
+  ** spec reference.  This method is called when we encounter a "::Foo"
+  ** capitalized type name after a string of dotted calls such as "a.b.c::Foo".
+  ** We have to unroll the series of DotCall with a root Var into a library
+  ** qname.
+  **
+  private Expr specFromDottedPath(Expr base, Str lastName)
+  {
+    // build up list of names from end back to start
+    names := Str[,]
+    names.add(lastName)
+    while (true)
+    {
+      if (base.type === ExprType.var)
+      {
+        // var will be the first name in the lib path
+        var := (Var)base
+        names.add(var.name)
+        return spec(names.reverse.join("."), null)
+      }
+      if (base.type ===  ExprType.dotCall)
+      {
+        // dotted call such as "foo.bar.baz"
+        dot := (DotCall)base
+        if (dot.args.size == 1)
+        {
+          names.add(dot.funcName)
+          base = dot.args[0]
+          continue
+        }
+      }
+      throw err("Invalid spec qname: $base", base.loc)
+    }
+    throw err("illegal state")
   }
 
 //////////////////////////////////////////////////////////////////////////
