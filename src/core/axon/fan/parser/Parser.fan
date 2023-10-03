@@ -848,6 +848,22 @@ class Parser
   private SpecExpr specSimple(Str? lib)
   {
     loc := curLoc
+
+    // lib qname
+    if (lib == null && (cur === Token.id || cur.keyword))
+    {
+      lib = consumeIdOrKeyword("spec lib name")
+      while (cur === Token.dot)
+      {
+        consume
+        lib = lib + "." + consumeIdOrKeyword("spec lib name")
+      }
+      if (cur !== Token.doubleColon) throw err("Expecting :: for spec qname")
+      consume
+    }
+
+    if (cur !== Token.typename) throw err("Expecting spec typename")
+
     typename := curVal
     consume
     typeRef := SpecTypeRef(loc, lib, typename)

@@ -105,6 +105,13 @@ class AxonTest : HxTest
     verifySpecDerive(Str<|Meter | Chiller <foo>|>, "sys::Or",  ["ofs":ofs, "foo":m])
 // TODO
 //    verifySpecDerive(Str<|Meter & Chiller { foo: Str }|>, "sys::And", ["ofs":Spec[env.type("ph::Meter"), env.type("ph::Chiller")]], ["foo":"sys::Str"])
+
+    // and/or with qualified
+    verifySpecDerive(Str<|ph::Meter & Chiller|>, "sys::And", ["ofs":ofs])
+    verifySpecDerive(Str<|Meter & ph::Chiller|>, "sys::And", ["ofs":ofs])
+    verifySpecDerive(Str<|ph::Meter & ph::Chiller|>, "sys::And", ["ofs":ofs])
+    ofs = Spec[env.type("ph::Meter"), env.type("hx.test.axon::Alpha")]
+    verifySpecDerive(Str<|ph::Meter & hx.test.axon::Alpha|>, "sys::And", ["ofs":ofs])
   }
 
   Spec verifySpecRef(Str expr, Str qname)
