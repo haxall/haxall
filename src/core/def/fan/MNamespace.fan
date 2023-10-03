@@ -220,6 +220,38 @@ abstract const class MNamespace : Namespace
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Xeto
+//////////////////////////////////////////////////////////////////////////
+
+  ** Resolve simple spec name against imported libs.
+  ** Raise exception if ambiguous types.
+  override final xeto::Spec? xetoResolve(Str name, Bool checked := true)
+  {
+    // qualified (we restrict to imported libs)
+    colons := name.index("::")
+    if (colons != null)
+    {
+      libName := name[0..<colons]
+      specName := name[colons+2..-1]
+      lib := xetoLibs.find |x| { x.name == libName }
+      if (lib == null)
+      {
+        if (checked) throw Err("Lib is not imported: $libName")
+        return null
+      }
+      return lib.type(specName, checked)
+    }
+
+    // unqualified, find in all imported libs
+    acc := xeto::Spec[,]
+    xetoLibs.each |lib| { acc.addNotNull(lib.type(name, false)) }
+    if (acc.size == 1) return acc[0]
+    if (acc.size > 1) throw Err("Ambiguous types for '$name' $acc")
+    if (checked) throw UnknownTypeErr(name)
+    return null
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 

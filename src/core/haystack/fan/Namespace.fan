@@ -158,6 +158,20 @@ const mixin Namespace
   @NoDoc abstract Void eachMisc(|Obj,Str| f)
 
 //////////////////////////////////////////////////////////////////////////
+// Xeto
+//////////////////////////////////////////////////////////////////////////
+
+  ** Xeto environment
+  @NoDoc abstract xeto::XetoEnv xetoEnv()
+
+  ** Xeto libs imported into namespace
+  @NoDoc abstract xeto::Lib[] xetoLibs()
+
+  ** Resolve qualified or unqualified spec name against imported libs.
+  ** Raise exception if ambiguous types.
+  @NoDoc abstract xeto::Spec? xetoResolve(Str name, Bool checked := true)
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 

@@ -40,7 +40,7 @@ const class MOverlayNamespace : MNamespace
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(Namespace base, MOverlayLib? olib, |Lib->Bool| enabled)
+  new make(Namespace base, MOverlayLib? olib, xeto::Lib[] xetoLibs, |Lib->Bool| enabled)
   {
     ref := AtomicRef(this)
     this.base        = base
@@ -50,6 +50,7 @@ const class MOverlayNamespace : MNamespace
     this.libsMap     = Str:Lib[:].addList(this.libsList) { it.name }
     this.features    = base.features.map |MFeature f->Feature| { f.overlay(ref) }
     this.featuresMap = Str:Feature[:].addList(this.features) { it.name }
+    this.xetoLibs    = xetoLibs
   }
 
   private static Lib[] toLibsList(Namespace base, Bool[] enabled, MOverlayLib? olib)
@@ -160,6 +161,16 @@ const class MOverlayNamespace : MNamespace
   {
     base.filetype(name, checked)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Xeto
+//////////////////////////////////////////////////////////////////////////
+
+  ** Xeto environment
+  override xeto::XetoEnv xetoEnv() { base.xetoEnv }
+
+  ** Xeto libs imported into namespace
+  override const xeto::Lib[] xetoLibs
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

@@ -256,7 +256,7 @@ const class HxdOverlayCompiler
     b := BOverlayLib(base, meta)
     rt.db.readAll(Filter.has("def")).each |rec| { addRecDef(b, rec) }
 
-    return MOverlayNamespace(base, MOverlayLib(b), |Lib lib->Bool| { true })
+    return MOverlayNamespace(base, MOverlayLib(b), resolveXetoLibs, |Lib lib->Bool| { true })
   }
 
   private Void addRecDef(BOverlayLib b, Dict rec)
@@ -300,10 +300,25 @@ const class HxdOverlayCompiler
     return true
   }
 
+  private xeto::Lib[] resolveXetoLibs()
+  {
+    env := base.xetoEnv
+    acc := xeto::Lib[,]
+    acc.add(env.sysLib)
+    rt.db.readAllList(Filter.has("using")).each |rec|
+    {
+      name := rec["using"] as Str
+      if (name == null) return
+      acc.addNotNull(env.lib(name, false))
+    }
+    return acc
+  }
+
   private Void err(Str msg, Dict rec, Err? err := null)
   {
     log.err("$msg [$rec.id.toCode]", err)
   }
+
 }
 
 

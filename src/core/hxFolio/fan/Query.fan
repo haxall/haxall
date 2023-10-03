@@ -8,6 +8,7 @@
 
 using concurrent
 using haystack
+using xeto::Spec
 using def
 using folio
 
@@ -58,6 +59,22 @@ internal class Query : HaystackContext
   {
     if (!opts.skipTrash) return FullScanPlan()
     return doMakePlan(index, filter, false)
+  }
+
+  @NoDoc override Bool xetoIsSpec(Str specName, xeto::Dict rec)
+  {
+    // cache the spec since it can be fairly expensive to lookup
+    // and this method could be called 1000s of time in a filter loop
+    spec := xetoIsSpecCache?.get(specName)
+    if (spec == null)
+    {
+      ns := folio.hooks.ns(false)
+      if (ns == null) return false
+      if (xetoIsSpecCache == null) xetoIsSpecCache = Str:Spec[:]
+      spec = ns.xetoResolve(specName)
+      xetoIsSpecCache[specName] = spec
+    }
+    return spec.env.specOf(rec).isa(spec)
   }
 
   override Dict? deref(Ref id)
@@ -114,6 +131,7 @@ internal class Query : HaystackContext
   const Filter filter
   const QueryOpts opts
   const Int startTicks
+  private [Str:Spec]? xetoIsSpecCache
 }
 
 **************************************************************************

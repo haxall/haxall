@@ -17,7 +17,7 @@ using haystack
 @NoDoc
 const mixin FolioHooks
 {
-  ** Def namespace is available
+  ** Def namespace if available
   abstract Namespace? ns(Bool checked := true)
 
   ** Callback before diff is committed during verify
@@ -78,7 +78,7 @@ abstract class FolioHisEvent
 }
 
 **************************************************************************
-** NilTracker
+** NilHooks
 **************************************************************************
 
 **

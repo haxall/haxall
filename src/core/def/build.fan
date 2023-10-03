@@ -29,6 +29,7 @@ class Build : BuildPod
                "concurrent @{fan.depend}",
                "web @{fan.depend}",
                "rdf @{hx.depend}",
+               "xeto @{hx.depend}",
                "haystack @{hx.depend}"]
     srcDirs = [`fan/`,
                `fan/rdf/`,

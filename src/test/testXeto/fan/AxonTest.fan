@@ -343,7 +343,7 @@ class AxonTest : HxTest
   |Str,Bool|? verifyIsFunc := null
 
 //////////////////////////////////////////////////////////////////////////
-// Filter Is function
+// Filter Is
 //////////////////////////////////////////////////////////////////////////
 
   @HxRuntimeTest
@@ -371,6 +371,36 @@ class AxonTest : HxTest
     actual := Dict[,]
     recs.each |r| { if (filter.matches(r, cx)) actual.add(r) }
     verifyEq(actual, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Folio ReadAll
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testFolioReadAll()
+  {
+    addRec(["using":"ph"])
+    a := addRec(["dis":"a", "spec":Ref("ph::Ahu")])
+    b := addRec(["dis":"b", "spec":Ref("ph::Rtu")])
+    c := addRec(["dis":"c", "spec":Ref("ph::ElecMeter")])
+    d := addRec(["dis":"d", "spec":Ref("ph::Meter")])
+
+    verifyFolioReadAll("Equip", [a, b, c, d])
+    verifyFolioReadAll("ph::Equip", [a, b, c, d])
+    verifyFolioReadAll("Ahu", [a, b])
+    verifyFolioReadAll("ph::Rtu", [b])
+    verifyFolioReadAll("Meter", [c, d])
+    verifyFolioReadAll("ElecMeter", [c])
+  }
+
+  Void verifyFolioReadAll(Str filter, Dict[] expect)
+  {
+    actual := rt.db.readAll(Filter(filter)).sortDis
+    a := actual.toRows.join(",") { it.dis }
+    e := expect.join(",") { it.dis }
+    // echo("-- $filter | $a ?= $e")
+    verifyEq(a, e)
   }
 
 //////////////////////////////////////////////////////////////////////////
