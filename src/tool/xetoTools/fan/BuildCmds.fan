@@ -76,8 +76,8 @@ internal class InitCmd : XetoCmd
   @Opt { aliases=["y"]; help = "Skip confirmation" }
   Bool noconfirm
 
-  @Arg { help = "Qualified name of the new lib" }
-  Str? qname
+  @Arg { help = "Dotted name of the new lib" }
+  Str? libName
 
   override Str name() { "init" }
 
@@ -85,9 +85,9 @@ internal class InitCmd : XetoCmd
 
   override Int run()
   {
-    if (!qnameIsValid(qname)) throw Err("Invalid lib qname: $qname")
+    if (!nameIsValid(libName)) throw Err("Invalid dotted lib name: $libName")
     rootDir := toRootDir
-    libDir  := rootDir + `${qname}/`
+    libDir  := rootDir + `${libName}/`
     meta    := libDir + `lib.xeto`
     specs   := libDir + `specs.xeto`
 
@@ -113,9 +113,9 @@ internal class InitCmd : XetoCmd
     return 0
   }
 
-  private static Bool qnameIsValid(Str qname)
+  private static Bool nameIsValid(Str name)
   {
-    qname.split('.', false).all |tok| { Etc.isTagName(tok) }
+    name.split('.', false).all |tok| { Etc.isTagName(tok) }
   }
 
   private File toRootDir()
