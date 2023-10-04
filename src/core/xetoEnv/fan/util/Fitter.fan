@@ -73,12 +73,12 @@ internal class Fitter
     valType := env.specOf(val, false)
     if (valType == null) return explainNoType(val)
 
-    // check nominal typing
-    if (valType.isa(type)) return true
-
     // check structurally typing
     if (val is Dict && type.isa(env.dictSpec))
       return fitsStruct(val, type)
+
+    // check nominal typing
+    if (valType.isa(type)) return true
 
     return explainNoFit(valType, type)
   }

@@ -6,10 +6,12 @@
 //   10 Mar 2023   Brian Frank   Creation
 //
 
+using util
 using xeto
 using xeto::Dict
 using xeto::Lib
 using xetoEnv::MDictMerge1
+using xetoEnv::MLogRec
 using haystack::Ref
 using haystack
 using axon
@@ -512,14 +514,18 @@ const class XetoFuncs
   ** fit the given type.  If a rec does fit the type, then zero rows are
   ** returned for that record.
   **
+  ** If you pass null for the spec, then each record is fit against
+  ** its declared 'spec' tag.  If a given rec is missing a 'spec' tag
+  ** then it is reported an error.
+  **
   ** Example:
   **    readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav)
   **
   @Axon
-  static Grid fitsExplain(Obj? recs, Spec spec)
+  static Grid fitsExplain(Obj? recs, Spec? spec)
   {
     cx := curContext
-    dataEnv := cx.usings.env
+    xetoEnv := cx.usings.env
     hits := XetoLogRec[,]
     explain := |XetoLogRec rec| { hits.add(rec) }
     opts := Etc.dict1("explain", Unsafe(explain))
@@ -531,8 +537,25 @@ const class XetoFuncs
       // reset hits accumulator
       hits.clear
 
+      // lookup record's declared spec if spec param is null
+      recSpec := spec
+      if (recSpec == null)
+      {
+        specTag := rec["spec"] as Ref
+        if (specTag == null)
+        {
+          hits.add(MLogRec(LogLevel.err, "Missing 'spec' ref tag", FileLoc.unknown, null))
+        }
+        else
+        {
+          recSpec = xetoEnv.spec(specTag.id, false)
+          if (recSpec == null)
+            hits.add(MLogRec(LogLevel.err, "Unknown 'spec' ref: $specTag", FileLoc.unknown, null))
+        }
+      }
+
       // call fits explain with this rec
-      dataEnv.fits(cx, rec, spec, opts)
+      if (recSpec != null) xetoEnv.fits(cx, rec, recSpec, opts)
 
       // if we had hits, then add to our result grid
       if (!hits.isEmpty)
