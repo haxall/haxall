@@ -139,6 +139,7 @@ const class TaskFuncs
 
   **
   ** Update the current running task's progress data with given dict.
+  ** This is a silent no-op if the current context is not running in a task.
   **
   ** Example:
   **    // report progress percentage processing a list of records
@@ -151,7 +152,7 @@ const class TaskFuncs
   @Axon { admin = true }
   static Obj? taskProgress(Obj? progress)
   {
-    taskCur.progressUpdate(Etc.makeDict(progress))
+    taskCur(false)?.progressUpdate(Etc.makeDict(progress))
   }
 
   **
