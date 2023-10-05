@@ -8,9 +8,9 @@
 
 Str Examples [#str]
 *******************
-Common functions for working with strings: `capitalize`, `contains`, `decapitalize`,
-`endsWith`, `get`, `index()`, `indexr`, `isEmpty`, `isTagName`, `lower`, `replace`,
-`size`, `startsWith`, `toTagName`, `trim`, `trimStart`, `trimEnd`, `upper`.
+Common functions for working with strings: `capitalize()`, `contains()`, `decapitalize()`,
+`endsWith()`, `get()`, `index()`, `indexr()`, `isEmpty()`, `isTagName()`, `lower()`, `replace()`,
+`size()`, `startsWith()`, `toTagName()`, `trim()`, `trimStart()`, `trimEnd()`, `upper()`.
 
   123.toStr                      >>  "123"    // convert any object to string
   "num=" + 3                     >>  "num=3"  // use '+' for concat
@@ -107,9 +107,9 @@ Common functions for working with Spans and DateSpans: `eachDay()`,
 
 Uri Examples [#uri]
 *******************
-Common functions for working with URIs: `uriBasename`, `uriDecode`, `uriEncode`,
-`uriExt`, `uriHost`, `uriIsDir`, `uriName`, `uriPath`, `uriPathStr`, `uriPort`,
-`uriScheme`
+Common functions for working with URIs: `uriBasename()`, `uriDecode()`, `uriEncode()`,
+`uriExt()`, `uriHost()`, `uriIsDir()`, `uriName()`, `uriPath()`, `uriPathStr()`, `uriPort()`,
+`uriScheme()`
 
   `/a/b/file.txt`.uriName                   >>  "file.txt"
   `/a/b/file.txt`.uriBasename               >>  "file"
@@ -126,10 +126,10 @@ Common functions for working with URIs: `uriBasename`, `uriDecode`, `uriEncode`,
 
 List Examples [#list]
 *********************
-Common functions for working with lists: `add`, `addAll`, `all`, `any`,
-`concat`, `contains`, `get`, `each`, `find`, `findAll`, `first`, `flatMap`,
-`fold`, `index`, `indexr`, `insert`, `insertAll`, `isEmpty`, `last`, `map`,
-`moveTo`, `remove`, `set`, `size`, `sort`, `sortr`, `unique`.
+Common functions for working with lists: `add()`, `addAll()`, `all()`, `any()`,
+`concat()`, `contains()`, `get()`, `each()`, `find()`, `findAll()`, `first()`, `flatMap()`,
+`fold()`, `index()`, `indexr()`, `insert()`, `insertAll()`, `isEmpty()`, `last()`, `map()`,
+`moveTo()`, `remove()`, `set()`, `size()`, `sort()`, `sortr()`, `unique()`.
 
   x: [10, 20, 30]
   y: ["chat", "apple", "bee"]
@@ -168,9 +168,9 @@ is immutable):
 
 Dict Examples [#dict]
 *********************
-Common functions for working with dicts: `all`, `any`, `get`, `each`, `find`,
-`findAll`, `has`, `isEmpty`, `map`, `missing`, `names`, `remove`, `set`,
-`dis`, `trap`, `vals`.
+Common functions for working with dicts: `all()`, `any()`, `get()`, `each()`, `find()`,
+`findAll()`, `has()`, `isEmpty()`, `map()`, `missing()`, `names()`, `remove()`, `set()`,
+`dis()`, `trap()`, `vals()`.
 
   d: {dis:"Bob", bday:1980-06-01}
   d.isEmpty            >>  false
@@ -203,12 +203,12 @@ original is immutable):
 
 Grid Examples [#grid]
 *********************
-Common functions for working with grids: `addCol`, `addColMeta`, `addMeta`,
-`addRow`, `addRows`, `all`, `any`, `col`, `cols`, `colNames`, `colToList`, `each`,
-`find`, `findAll`, `first`, `flatMap`, `foldCol`, `foldCols`, `get`, `gridRowsToDict`,
-`gridColsToDict`, `has`, `isEmpty`, `join`, `joinAll`, `keepCols`, `last`,
-`map`, `meta`, `missing`, `removeCol`, `removeCols`, `renameCol`,
-`reorderCols`, `rowToList()`, `size`, `sort`, `sortr`, `toGrid`, `unique`.
+Common functions for working with grids: `addCol()`, `addColMeta()`, `addMeta()`,
+`addRow()`, `addRows()`, `all()`, `any()`, `col()`, `cols()`, `colNames()`, `colToList()`, `each()`,
+`find()`, `findAll()`, `first()`, `flatMap()`, `foldCol()`, `foldCols()`, `get()`, `gridRowsToDict()`,
+`gridColsToDict()`, `has()`, `isEmpty()`, `join()`, `joinAll()`, `keepCols()`, `last()`,
+`map()`, `meta()`, `missing()`, `removeCol()`, `removeCols()`, `renameCol()`,
+`reorderCols()`, `rowToList()`, `size()`, `sort()`, `sortr()`, `toGrid()`, `unique()`.
 
   // create grid from list of dicts
   g: [{dis:"Site-A", area:2300ft²},
@@ -334,7 +334,7 @@ to the `hisRead()` function (SkySpark only):
   readAll(point and equipRef==xxx).hisRead(2009-10-01..2009-10-07)
 
 Any of the time range functions can be used with `hisRead()` including
-`today`, `yesterday`, `thisWeek`, `pastWeek`, `thisMonth`, `pastMonth`.
+`today()`, `yesterday()`, `thisWeek()`, `pastWeek()`, `thisMonth()`, `pastMonth()`.
 
 In general once you get above a days worth of data, you will need to
 use a rollup to condense the data into a more manageable volume.
