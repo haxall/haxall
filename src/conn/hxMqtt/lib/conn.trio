@@ -33,6 +33,16 @@ tagOn: ^mqttConn
 doc:
   Whether to set the clean session flag on the connect request to the broker.
 --------------------------------------------------------------------------
+def: ^mqttMaxRetry
+is: ^int
+tagOn: ^mqttConn
+doc: "How many times to retry sending messages that require acknowlegment"
+--------------------------------------------------------------------------
+def: ^mqttRetryInterval
+is: ^duration
+tagOn: ^mqttConn
+doc: "How long to wait between retries for messages that require acknowlegment"
+--------------------------------------------------------------------------
 def: ^mqttQos
 is: ^number
 tagOn: ^obsMqtt

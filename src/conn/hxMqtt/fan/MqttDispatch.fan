@@ -45,14 +45,16 @@ class MqttDispatch : ConnDispatch, ClientListener
     clientId := toClientId
     config := ClientConfig
     {
-      it.serverUri    = uriVal
-      it.version      = verVal
-      it.clientId     = clientId
-      it.socketConfig = SocketConfig.cur.copy {
-        it.keystore = this.mqttKey
+      it.serverUri     = uriVal
+      it.version       = verVal
+      it.clientId      = clientId
+      it.maxRetry      = rec.get("mqttMaxRetry", Number.zero)->toInt
+      it.retryInterval = rec.get("mqttRetryInterval", Number(10sec))->toDuration
+      it.socketConfig  = SocketConfig.cur.copy {
+        it.keystore       = this.mqttKey
         it.connectTimeout = 10sec
         it.receiveTimeout = null
-        it.tlsParams = ["appProtocols": this.appProtocols]
+        it.tlsParams      = ["appProtocols": this.appProtocols]
       }
     }
     this.client = MqttClient(config, trace.asLog)
