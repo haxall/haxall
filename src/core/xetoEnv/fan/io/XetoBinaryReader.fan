@@ -219,7 +219,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Ref readRef()
   {
-    Ref.make(readUtf, null)
+    Ref.make(readUtf, readUtf.trimToNull)
   }
 
   private Date readDate()

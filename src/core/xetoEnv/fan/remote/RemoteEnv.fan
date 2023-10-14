@@ -12,7 +12,7 @@ using xeto
 
 **
 ** Remote environment that loads libs over a network transport layer.
-** Create a new remote env via `XetoClient.boot`.
+** Create a new remote env via `XetoBinaryReader.readBoot`.
 **
 @Js
 const class RemoteEnv : MEnv

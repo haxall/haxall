@@ -213,6 +213,7 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
   {
     write(ctrlRef)
     writeUtf(ref.id)
+    writeUtf(ref.disVal ?: "")
   }
 
   private This writeDate(Date val)

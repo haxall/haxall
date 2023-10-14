@@ -12,7 +12,6 @@ using xeto
 
 **
 ** Transport for I/O of Xeto specs and data across network.
-** This is the base class for XetoClient and XetoServer.
 **
 @Js
 const class XetoTransport
