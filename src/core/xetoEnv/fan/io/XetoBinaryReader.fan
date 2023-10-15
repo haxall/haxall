@@ -204,7 +204,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlTime:        return readTime
       case ctrlDateTimeI4:  return readDateTimeI4
       case ctrlDateTimeI8:  return readDateTimeI8
-      case ctrlEmptyDict:   return NameDict.empty
+      case ctrlEmptyDict:   return transport.env.dict0
       case ctrlNameDict:    return readNameDict
       case ctrlGenericDict: return readGenericDict
       case ctrlSpecRef:     return readSpecRef // resolve to Spec later
