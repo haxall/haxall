@@ -20,6 +20,36 @@ from .control import BrioControl
 from ..brio import NativeBrioReader
 from ..haystack import *
 
+BRIO_WRITE_MAP = {
+    type(None): "_write_null",
+    Marker: "_write_marker",
+    NA: "_write_na",
+    Remove: "_write_remove",
+    bool: "_write_bool",
+    int: "_write_int",
+    numpy.int64: "_write_int",
+    numpy.int32: "_write_int",
+    numpy.int8: "_write_int",
+    numpy.int16: "_write_int",
+    numpy.uint64: "_write_int",
+    numpy.uint32: "_write_int",
+    numpy.uint8: "_write_int",
+    numpy.uint16: "_write_int",
+    float: "_write_float",
+    str: "_write_str",
+    Ref: "_write_ref",
+    datetime.date: "_write_date",
+    datetime.time: "_write_time",
+    datetime.datetime: "_write_datetime",
+    pandas.Timestamp: "_write_pandas_timestamp",
+    bytes: "_write_bytes",
+    dict: "_write_dict",
+    list: "_write_list",
+    Grid: "_write_grid",
+    numpy.ndarray: "_write_ndarray",
+    pandas.core.frame.DataFrame: "_write_dataframe"
+}
+
 
 class NativeBrioWriter:
     """Serialize native python types to Haystack BRIO encoding"""
@@ -38,67 +68,31 @@ class NativeBrioWriter:
         self._file.close()
 
     def write_val(self, val):
-        if val is None:
-            return self._write_null()
-        t = type(val)
-        if t is Marker:
-            return self._write_marker()
-        elif t is NA:
-            return self._write_na()
-        elif t is Remove:
-            return self._write_remove()
-        elif t is bool:
-            return self._write_bool(val)
-        elif isinstance(val, (int, numpy.integer)):
-            return self._write_int(val)
-        elif isinstance(val, float):
-            return self._write_float(val)
-        elif t is str:
-            return self._write_str(val)
-        elif t is Ref:
-            return self._write_ref(val)
-        elif t is datetime.date:
-            return self._write_date(val)
-        elif t is datetime.time:
-            return self._write_time(val)
-        elif t is datetime.datetime:
-            return self._write_datetime(val)
-        elif t is pandas.Timestamp:
-            return self._write_pandas_timestamp(val)
-        elif t is bytes:
-            return self._write_bytes(val)
-        elif t is dict:
-            return self._write_dict(val)
-        elif t is list:
-            return self._write_list(val)
-        elif t is Grid:
-            return self._write_grid(val)
-        elif t is numpy.ndarray:
-            return self._write_ndarray(val)
-        elif t is pandas.core.frame.DataFrame:
-            return self._write_dataframe(val)
-        else:
+        try:
+            val_type = type(val)
+            return getattr(self, BRIO_WRITE_MAP[val_type])(val)
+        except AttributeError:
             if self.strict:
-                raise IOError(f'Cannot encode {val} [{t}]')
+                raise IOError(f'Cannot encode {val} [{type(val)}]')
             return self._write_str(str(val))
-
+    
     ##########################################################
     # Encode
     ##########################################################
 
-    def _write_null(self):
+    def _write_null(self, _=None):
         self._file.write(bytes([BrioControl.ctrlNull]))
         return self
 
-    def _write_marker(self):
+    def _write_marker(self, _=None):
         self._file.write(bytes([BrioControl.ctrlMarker]))
         return self
 
-    def _write_na(self):
+    def _write_na(self, _=None):
         self._file.write(bytes([BrioControl.ctrlNA]))
         return self
 
-    def _write_remove(self):
+    def _write_remove(self, _=None):
         self._file.write(bytes([BrioControl.ctrlRemove]))
         return self
 

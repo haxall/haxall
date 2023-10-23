@@ -7,20 +7,29 @@
 #   21 Jul 2021  Matthew Giannini  Creation
 #
 
-import unittest
-import io
 import datetime
+import inspect
+import io
 import struct
+import time
+import unittest
+
 import numpy
 import pandas
 import pytz
 
-from hxpy.brio import NativeBrioWriter
-from hxpy.brio import NativeBrioReader
+from hxpy.brio import NativeBrioReader, NativeBrioWriter
 from hxpy.haystack import *
 
 
 class TestNativeBrioWriter(unittest.TestCase):
+
+    def setUp(self):
+        self.start_time = time.time()
+
+    def tearDown(self):
+        t = time.time() - self.start_time
+        print(f"{self.id()}: {t:.3f} sec")
 
     def test_null(self):
         with io.BytesIO() as f:
@@ -226,6 +235,12 @@ class TestNativeBrioWriter(unittest.TestCase):
             frame = pandas.DataFrame(data=[[1,2,3], [4,5,6]])
             brio.write_val(frame)
             self.assertEqual(bytes.fromhex("183c030214ff02763014ff02763114ff02763214060001ff00060002ff00060003ff00060004ff00060005ff00060006ff003e"), bytes(f.getbuffer()))
+    
+    def test_timing(self):
+        for test_name, method in inspect.getmembers(self, predicate=inspect.ismethod):
+            if test_name.startswith("test_") and test_name not in ("test_timing"):
+                for _ in range(100):
+                    method()
 
 
 # TestNativeBrioWriter
