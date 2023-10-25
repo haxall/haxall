@@ -29,8 +29,13 @@ class CoreLibTest : HaystackTest
 
     DateTime now := eval("core::now()")
     verify(DateTime.now(null) - now < 300ms)
+    verifyEq(now.tz, TimeZone.cur)
     verifyEval("today()", today)
     verifyEval("core::yesterday()", today - 1day)
+
+    now = eval("core::nowUtc()")
+    verify(DateTime.now(null) - now < 300ms)
+    verifyEq(now.tz, TimeZone.utc)
 
     verifyEval("thisWeek()", DateSpan.thisWeek)
     verifyEval("thisMonth()", DateSpan.thisMonth)

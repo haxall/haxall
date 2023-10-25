@@ -1490,8 +1490,13 @@ const class CoreLib
   ** Return current DateTime according to context's time zone.
   ** This function will use a cached version which is only
   ** accurate to within 250ms (see `sys::DateTime.now` for details).
-  ** Also see `nowTicks()`.
+  ** Also see `nowTicks()` and `nowUtc()`.
   @Axon static DateTime now() { DateTime.now }
+
+  ** Return current DateTime in UTC.  This function will use a  cached
+  ** version which is only accurate to within 250ms (see `sys::DateTime.nowUtc`
+  ** for details).  Also see `now()` and `nowTicks()`.
+  @Axon static DateTime nowUtc() { DateTime.nowUtc }
 
   ** Return current time as nanosecond ticks since 1 Jan 2000 UTC.
   ** Note that the 64-bit floating point representations of nanosecond
