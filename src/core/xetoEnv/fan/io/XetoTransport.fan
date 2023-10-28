@@ -43,7 +43,7 @@ const class XetoTransport
   const Int maxNameCode
 
   ** Asynchronously load a library
-  virtual Void loadLib(Str qname, |Err?, Lib?| f)
+  virtual Void loadLib(Str name, |Err?, Lib?| f)
   {
     throw UnsupportedErr()
   }

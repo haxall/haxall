@@ -14,6 +14,8 @@ using haystack::NA
 using haystack::Remove
 using haystack::Number
 using haystack::Ref
+using haystack::Coord
+using haystack::Symbol
 
 **
 ** Writer for Xeto binary encoding of specs and data
@@ -142,30 +144,40 @@ class XetoBinaryWriter : XetoBinaryConst
 // Values
 //////////////////////////////////////////////////////////////////////////
 
-  Void writeVal(Obj val)
+  Void writeVal(Obj? val)
   {
+    // haystack
+    if (val == null)         return writeNull
     if (val === Marker.val)  return writeMarker
     if (val === NA.val)      return writeNA
     if (val === Remove.val)  return writeRemove
     type := val.typeof
     if (type === Str#)      return writeStr(val)
+    if (type === Number#)   return writeNumber(val)
     if (type === Ref#)      return writeRef(val)
     if (type === DateTime#) return writeDateTime(val)
     if (val is Dict)        return writeDict(val)
+    if (val is List)        return writeList(val)
     if (type === Bool#)     return writeBool(val)
     if (type === Date#)     return writeDate(val)
     if (type === Time#)     return writeTime(val)
     if (type === Uri#)      return writeUri(val)
+    if (type === Coord#)    return writeCoord(val)
+    if (val is Symbol)      return writeSymbol(val)
 
-if (type === Duration#)   return writeStr(val.toStr)
-if (type === Number#)     return writeStr(val.toStr)
-if (type === Float#)      return writeStr(val.toStr)
-if (type === Int#)        return writeStr(val.toStr)
-if (type === Version#)    return writeStr(val.toStr)
-if (val is List)          return writeStr(val.toStr)
+    // non-haystack
+    if (type === Int#)      return writeInt(val)
+    if (type === Float#)    return writeFloat(val)
+    if (type === Duration#) return writeDuration(val)
+    if (type === Version#)  return writeVersion(val)
 
 echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
     writeStr(val.toStr)
+  }
+
+  private Void writeNull()
+  {
+    out.write(ctrlNull)
   }
 
   private Void writeMarker()
@@ -201,6 +213,49 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
       write(ctrlStr)
       writeUtf(s)
     }
+  }
+
+  private This writeNumber(Number val)
+  {
+    unit := val.unit?.symbol
+    if (unit == null)
+    {
+      out.write(ctrlNumberNoUnit)
+      out.writeF8(val.toFloat)
+    }
+    else
+    {
+      out.write(ctrlNumberUnit)
+      out.writeF8(val.toFloat)
+      out.writeUtf(unit)
+    }
+    return this
+  }
+
+  private Void writeInt(Int val)
+  {
+    if (-32767 <= val && val <= 32767)
+    {
+      out.write(ctrlInt2)
+      out.writeI2(val)
+    }
+    else
+    {
+      out.write(ctrlInt8)
+      out.writeI8(val)
+    }
+  }
+
+  private Void writeFloat(Float val)
+  {
+    out.write(ctrlFloat8)
+    out.writeF8(val)
+  }
+
+  private Void writeDuration(Duration val)
+  {
+    out.write(ctrlDuration)
+    out.writeI8(val.ticks)
   }
 
   private Void writeUri(Uri uri)
@@ -248,6 +303,27 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
     return this
   }
 
+  private This writeVersion(Version val)
+  {
+    out.write(ctrlVersion)
+    out.writeUtf(val.toStr)
+    return this
+  }
+
+  private This writeCoord(Coord val)
+  {
+    out.write(ctrlCoord)
+    out.writeI8(val.pack)
+    return this
+  }
+
+  private This writeSymbol(Symbol symbol)
+  {
+    out.write(ctrlSymbol)
+    out.writeUtf(symbol.toStr)
+    return this
+  }
+
   Void writeDict(Dict d)
   {
     if (d.isEmpty)      return write(ctrlEmptyDict)
@@ -284,6 +360,16 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
       writeVal(v)
     }
     writeStr("")
+  }
+
+  Void writeList(Obj?[] list)
+  {
+    write(ctrlList)
+    writeVarInt(list.size)
+    list.each |x|
+    {
+      writeVal(x)
+    }
   }
 
   private Void writeName(Int nameCode)

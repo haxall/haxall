@@ -59,13 +59,7 @@ class AbstractXetoTest : HaystackTest
     server := TestTransport.makeServer(local)
     client := TestTransport.makeClient(server)
 
-    buf := Buf()
-    XetoBinaryWriter(server, buf.out).writeBoot
-echo("--- init remote bootstrap size = $buf.size bytes ---")
-//echo(buf.toHex)
-
-
-    envRef = XetoBinaryReader(client, buf.flip.in).readBoot
+    envRef = client.bootRemoteEnv
 
     verifyEq(env.names.maxCode, local.names.maxCode)
     verifyEq(env.names.toName(3), local.names.toName(3))
@@ -87,6 +81,14 @@ const class TestTransport : XetoTransport
   new makeClient(TestTransport server) : super.makeClient() { this.server = server }
 
   const TestTransport? server
+
+  RemoteEnv bootRemoteEnv()
+  {
+    buf := Buf()
+    XetoBinaryWriter(server, buf.out).writeBoot
+    // echo("--- init remote bootstrap size = $buf.size bytes ---")
+    return XetoBinaryReader(this, buf.flip.in).readBoot
+  }
 
   override Void loadLib(Str name, |Err?, Lib?| f)
   {

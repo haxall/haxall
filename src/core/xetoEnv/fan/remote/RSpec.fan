@@ -71,7 +71,7 @@ internal class RSpec : CSpec, NameDictReader
 
   // NameDictReader
   override Int readName() { slotsIn[readIndex].nameCode }
-  override Obj readVal() { slotsIn[readIndex++].asm }
+  override Obj? readVal() { slotsIn[readIndex++].asm }
   Int readIndex
 
 }

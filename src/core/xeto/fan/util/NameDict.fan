@@ -76,6 +76,6 @@ mixin NameDictReader
   abstract Int readName()
 
   ** Read value
-  abstract Obj readVal()
+  abstract Obj? readVal()
 }
 

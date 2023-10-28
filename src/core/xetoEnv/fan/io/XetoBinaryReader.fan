@@ -12,7 +12,10 @@ using xeto
 using haystack::Marker
 using haystack::NA
 using haystack::Remove
+using haystack::Number
 using haystack::Ref
+using haystack::Coord
+using haystack::Symbol
 using haystack::Dict
 
 **
@@ -49,7 +52,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     verifyU4(version, "version")
     readNameTable
     registry := readRegistry
-    return RemoteEnv(names, registry) |env|
+    return RemoteEnv(transport, names, registry) |env|
     {
       XetoTransport#envRef->setConst(transport, env)
       sys := readLib
@@ -186,30 +189,51 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     throw IOErr("Expecting dict, not $val.typeof")
   }
 
-  override Obj readVal()
+  override Obj? readVal()
   {
     ctrl := in.readU1
     switch (ctrl)
     {
-      case ctrlMarker:      return Marker.val
-      case ctrlNA:          return NA.val
-      case ctrlRemove:      return Remove.val
-      case ctrlTrue:        return true
-      case ctrlFalse:       return false
-      case ctrlName:        return names.toName(readName)
-      case ctrlStr:         return readUtf
-      case ctrlUri:         return readUri
-      case ctrlRef:         return readRef
-      case ctrlDate:        return readDate
-      case ctrlTime:        return readTime
-      case ctrlDateTimeI4:  return readDateTimeI4
-      case ctrlDateTimeI8:  return readDateTimeI8
-      case ctrlEmptyDict:   return transport.env.dict0
-      case ctrlNameDict:    return readNameDict
-      case ctrlGenericDict: return readGenericDict
-      case ctrlSpecRef:     return readSpecRef // resolve to Spec later
-      default:              throw IOErr("obj ctrl 0x$ctrl.toHex")
+      case ctrlNull:         return null
+      case ctrlMarker:       return Marker.val
+      case ctrlNA:           return NA.val
+      case ctrlRemove:       return Remove.val
+      case ctrlTrue:         return true
+      case ctrlFalse:        return false
+      case ctrlName:         return names.toName(readName)
+      case ctrlStr:          return readUtf
+      case ctrlNumberNoUnit: return readNumberNoUnit
+      case ctrlNumberUnit:   return readNumberUnit
+      case ctrlInt2:         return in.readS2
+      case ctrlInt8:         return in.readS8
+      case ctrlFloat8:       return in.readF8
+      case ctrlDuration:     return Duration(in.readS8)
+      case ctrlUri:          return readUri
+      case ctrlRef:          return readRef
+      case ctrlDate:         return readDate
+      case ctrlTime:         return readTime
+      case ctrlDateTimeI4:   return readDateTimeI4
+      case ctrlDateTimeI8:   return readDateTimeI8
+      case ctrlEmptyDict:    return transport.env.dict0
+      case ctrlNameDict:     return readNameDict
+      case ctrlGenericDict:  return readGenericDict
+      case ctrlSpecRef:      return readSpecRef // resolve to Spec later
+      case ctrlList:         return readList
+      case ctrlVersion:      return Version.fromStr(readUtf)
+      case ctrlCoord:        return readCoord
+      case ctrlSymbol:       return readSymbol
+      default:               throw IOErr("obj ctrl 0x$ctrl.toHex")
     }
+  }
+
+  private Number readNumberNoUnit()
+  {
+    Number(in.readF8, null)
+  }
+
+  private Number readNumberUnit()
+  {
+    Number(in.readF8, Number.loadUnit(readUtf))
   }
 
   private Uri readUri()
@@ -247,6 +271,16 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     TimeZone.fromStr(readVal)
   }
 
+  private Coord readCoord()
+  {
+    Coord.unpack(in.readS8)
+  }
+
+  private Symbol readSymbol()
+  {
+    Symbol.fromStr(readUtf)
+  }
+
   private MNameDict readNameDict()
   {
     size := readVarInt
@@ -264,6 +298,15 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       acc[name] = readVal
     }
     return haystack::Etc.dictFromMap(acc)
+  }
+
+  private Obj?[] readList()
+  {
+    size := readVarInt
+    acc := Obj?[,]
+    acc.capacity = size
+    size.times |i| { acc.add(readVal) }
+    return acc
   }
 
   override Int readName()

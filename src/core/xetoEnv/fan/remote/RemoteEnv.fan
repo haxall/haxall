@@ -17,9 +17,12 @@ using xeto
 @Js
 const class RemoteEnv : MEnv
 {
-  internal new make(NameTable names, MRegistry registry, |This| f) : super(names, registry, f)
+  internal new make(XetoTransport transport, NameTable names, MRegistry registry, |This| f) : super(names, registry, f)
   {
+    this.transport = transport
   }
+
+  const XetoTransport transport
 
   override Bool isRemote() { true }
 

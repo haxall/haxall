@@ -959,7 +959,7 @@ internal class TestNameDictReader : NameDictReader
 
   override Int readName() { names[i] }
 
-  override Obj readVal() { vals[i++] }
+  override Obj? readVal() { vals[i++] }
 
   Int[] names
   Obj[] vals
