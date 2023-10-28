@@ -177,27 +177,27 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
 
   private Void writeNull()
   {
-    out.write(ctrlNull)
+    write(ctrlNull)
   }
 
   private Void writeMarker()
   {
-    out.write(ctrlMarker)
+    write(ctrlMarker)
   }
 
   private Void writeNA()
   {
-    out.write(ctrlNA)
+    write(ctrlNA)
   }
 
   private Void writeRemove()
   {
-    out.write(ctrlRemove)
+    write(ctrlRemove)
   }
 
   private Void writeBool(Bool val)
   {
-    out.write(val ? ctrlTrue : ctrlFalse)
+    write(val ? ctrlTrue : ctrlFalse)
   }
 
   private Void writeStr(Str s)
@@ -220,14 +220,14 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
     unit := val.unit?.symbol
     if (unit == null)
     {
-      out.write(ctrlNumberNoUnit)
-      out.writeF8(val.toFloat)
+      write(ctrlNumberNoUnit)
+      writeF8(val.toFloat)
     }
     else
     {
-      out.write(ctrlNumberUnit)
-      out.writeF8(val.toFloat)
-      out.writeUtf(unit)
+      write(ctrlNumberUnit)
+      writeF8(val.toFloat)
+      writeUtf(unit)
     }
     return this
   }
@@ -236,26 +236,26 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
   {
     if (-32767 <= val && val <= 32767)
     {
-      out.write(ctrlInt2)
-      out.writeI2(val)
+      write(ctrlInt2)
+      writeI2(val)
     }
     else
     {
-      out.write(ctrlInt8)
-      out.writeI8(val)
+      write(ctrlInt8)
+      writeI8(val)
     }
   }
 
   private Void writeFloat(Float val)
   {
-    out.write(ctrlFloat8)
-    out.writeF8(val)
+    write(ctrlFloat8)
+    writeF8(val)
   }
 
   private Void writeDuration(Duration val)
   {
-    out.write(ctrlDuration)
-    out.writeI8(val.ticks)
+    write(ctrlDuration)
+    writeI8(val.ticks)
   }
 
   private Void writeUri(Uri uri)
@@ -273,15 +273,15 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
 
   private This writeDate(Date val)
   {
-    out.write(ctrlDate)
+    write(ctrlDate)
     out.writeI2(val.year).write(val.month.ordinal+1).write(val.day)
     return this
   }
 
   private This writeTime(Time val)
   {
-    out.write(ctrlTime)
-    out.writeI4(val.toDuration.ticks / 1ms.ticks)
+    write(ctrlTime)
+    writeI4(val.toDuration.ticks / 1ms.ticks)
     return this
   }
 
@@ -290,14 +290,14 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
     ticks := val.ticks
     if (ticks % 1sec.ticks == 0)
     {
-      out.write(ctrlDateTimeI4)
-      out.writeI4(val.ticks/1sec.ticks)
+      write(ctrlDateTimeI4)
+      writeI4(val.ticks/1sec.ticks)
       writeStr(val.tz.name) // TODO
     }
     else
     {
-      out.write(ctrlDateTimeI8)
-      out.writeI8(val.ticks)
+      write(ctrlDateTimeI8)
+      writeI8(val.ticks)
       writeStr(val.tz.name) // TODO
     }
     return this
@@ -305,15 +305,15 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
 
   private This writeVersion(Version val)
   {
-    out.write(ctrlVersion)
-    out.writeUtf(val.toStr)
+    write(ctrlVersion)
+    writeUtf(val.toStr)
     return this
   }
 
   private This writeCoord(Coord val)
   {
-    out.write(ctrlCoord)
-    out.writeI8(val.pack)
+    write(ctrlCoord)
+    writeUtf(val.toStr)
     return this
   }
 
@@ -395,9 +395,24 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
     out.write(byte)
   }
 
+  Void writeI2(Int i)
+  {
+    out.writeI2(i)
+  }
+
   Void writeI4(Int i)
   {
     out.writeI4(i)
+  }
+
+  Void writeI8(Int i)
+  {
+    out.writeI8(i)
+  }
+
+  Void writeF8(Float f)
+  {
+    out.writeUtf(f.toStr) // TODO
   }
 
   Void writeUtf(Str s)

@@ -206,7 +206,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlNumberUnit:   return readNumberUnit
       case ctrlInt2:         return in.readS2
       case ctrlInt8:         return in.readS8
-      case ctrlFloat8:       return in.readF8
+      case ctrlFloat8:       return readF8
       case ctrlDuration:     return Duration(in.readS8)
       case ctrlUri:          return readUri
       case ctrlRef:          return readRef
@@ -228,12 +228,12 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Number readNumberNoUnit()
   {
-    Number(in.readF8, null)
+    Number(readF8, null)
   }
 
   private Number readNumberUnit()
   {
-    Number(in.readF8, Number.loadUnit(readUtf))
+    Number(readF8, Number.loadUnit(readUtf))
   }
 
   private Uri readUri()
@@ -273,7 +273,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Coord readCoord()
   {
-    Coord.unpack(in.readS8)
+    Coord.fromStr(readUtf)
   }
 
   private Symbol readSymbol()
@@ -332,6 +332,16 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   Int readU4()
   {
     in.readU4
+  }
+
+  Int readS8()
+  {
+    in.readS8
+  }
+
+  Float readF8()
+  {
+    Float.fromStr(readUtf) // TODO
   }
 
   Str readUtf()
