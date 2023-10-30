@@ -85,7 +85,8 @@ const class TestTransport : XetoTransport
   RemoteEnv bootRemoteEnv()
   {
     buf := Buf()
-    XetoBinaryWriter(server, buf.out).writeBoot
+    libs := server.env.registry.list.findAll { it.isLoaded }.map { it.get }
+    XetoBinaryWriter(server, buf.out).writeBoot(libs)
     // echo("--- init remote bootstrap size = $buf.size bytes ---")
     return XetoBinaryReader(this, buf.flip.in).readBoot
   }

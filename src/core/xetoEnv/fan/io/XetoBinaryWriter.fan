@@ -43,12 +43,12 @@ class XetoBinaryWriter : XetoBinaryConst
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  Void writeBoot()
+  Void writeBoot(Lib[] libs)
   {
     writeI4(magic)
     writeI4(version)
     writeNameTable
-    writeRegistry(env)
+    writeRegistry(libs)
     writeLib(env.sysLib)
     out.writeI4(magicEnd)
     return this
@@ -62,11 +62,11 @@ class XetoBinaryWriter : XetoBinaryConst
       out.writeUtf(names.toName(i))
   }
 
-  private Void writeRegistry(MEnv env)
+  private Void writeRegistry(Lib[] libs)
   {
-    env.registry.list.each |MRegistryEntry entry|
+    libs.each |lib|
     {
-      if (entry.isLoaded) writeRegistryEntry(entry.get)
+      writeRegistryEntry(lib)
     }
     writeVarInt(0)
   }
