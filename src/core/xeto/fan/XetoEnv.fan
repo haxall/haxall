@@ -26,6 +26,13 @@ const abstract class XetoEnv
   }
   private static const AtomicRef curRef := AtomicRef()
 
+  ** Install an environment only if one is not currently installed
+  @NoDoc
+  static Void install(XetoEnv env)
+  {
+    curRef.compareAndSet(null, env)
+  }
+
   ** Reload the entire data env.  This creates a new environment,
   ** rescans the local file system for installed libs, and all previously
   ** loaded libraries with be reloaded on first access.  Any
