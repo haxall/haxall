@@ -212,7 +212,7 @@ class TrioWriter : GridWriter
 //////////////////////////////////////////////////////////////////////////
 
   private static const Str:Str quotedKeyword := Str:Str[:].addList([
-    "true", "false", "INF", "NA", "NaN", "R", "Zinc"])
+    "true", "false", "T", "F", "INF", "NA", "NaN", "R", "Zinc"])
 
   private static const Bool[] quoteChars
   static

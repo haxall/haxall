@@ -30,6 +30,8 @@ class TrioTest : HaystackTest
     verifyUseQuotes("@x", true)
     verifyUseQuotes("true", true)
     verifyUseQuotes("false", true)
+    verifyUseQuotes("T", true)
+    verifyUseQuotes("F", true)
     verifyUseQuotes("NAx", false)
   }
 
@@ -107,6 +109,8 @@ class TrioTest : HaystackTest
       Str<|m
            bt:true
            bf: false
+           bt2: T
+           bf2: F
            i1: -123456
            i2: 1_2_3
            f1: 2.0
@@ -132,6 +136,8 @@ class TrioTest : HaystackTest
         "m":m,
         "bt":true,
         "bf":false,
+        "bt2": true,
+        "bf2": false,
         "i1":n(-123456),
         "i2":n(123),
         "f1":n(2.0f),

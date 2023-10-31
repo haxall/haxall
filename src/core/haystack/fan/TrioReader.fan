@@ -218,6 +218,8 @@ class TrioReader : GridReader
     {
       if (s == "true")  return true
       if (s == "false") return false
+      if (s == "T")     return true
+      if (s == "F")     return false
       if (s == "NA")    return NA.val
       if (s == "NaN")   return Number.nan
       if (s == "INF")   return Number.posInf
