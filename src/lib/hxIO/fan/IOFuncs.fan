@@ -342,13 +342,16 @@ const class IOFuncs
   ** Write dicts to a [Trio]`docHaystack::Trio` file.
   ** The 'val' may be can be any format accepted by `toRecList`.
   **
+  ** Following options are supported
+  **   - noSort: marker to prevent tags from being sorted by name
+  **
   @Axon { admin = true }
-  static Obj? ioWriteTrio(Obj? val, Obj? handle)
+  static Obj? ioWriteTrio(Obj? val, Obj? handle, Dict? opts := null)
   {
     dicts := Etc.toRecs(val)
     return toHandle(handle).withOut |out|
     {
-      TrioWriter(out).writeAllDicts(dicts)
+      TrioWriter(out, opts).writeAllDicts(dicts)
     }
   }
 

@@ -63,6 +63,8 @@ class IOTest : HxTest
     verifyDictEq(trio[1], ["n":"Andy", "marker":Marker.val])
     verifyEq(eval("""ioWriteTrio([{n:"Brian"}], "")"""), "n:Brian\n")
     verifyEq(eval("""ioWriteTrio([{n:"Brian"}], "// hi\\n")"""), "// hi\nn:Brian\n")
+    verifyEq(eval("""{src:"source", c: "C", b:"B", a:"A"}.ioWriteTrio("")"""), "a:A\nb:B\nc:C\nsrc:source\n")
+    verifyEq(eval("""{src:"source", c: "C", b:"B", a:"A"}.ioWriteTrio("", {noSort})"""), "src:source\nc:C\nb:B\na:A\n")
 
     // grid format
     eval("""ioWriteZinc([{n:"Brian", age:30yr}, {n:"Andy", marker}], `io/test.zinc`)""")

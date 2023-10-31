@@ -9,6 +9,9 @@
 **
 ** Write Haystack data in [Trio]`docHaystack::Trio` format.
 **
+** Options:
+**  - noSort: do not sort tag names
+**
 @Js
 class TrioWriter : GridWriter
 {
@@ -18,9 +21,13 @@ class TrioWriter : GridWriter
 //////////////////////////////////////////////////////////////////////////
 
   ** Wrap output stream
-  new make(OutStream out)
+  new make(OutStream out, Dict? opts := null)
   {
     this.out = out
+    if (opts != null)
+    {
+      this.noSort = opts.has("noSort")
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,11 +72,15 @@ class TrioWriter : GridWriter
      else needSep = true
 
     // get names in nice order
-    names := Etc.dictNames(dict).sort
-    names.moveTo("dis",  0)
-    names.moveTo("name", 0)
-    names.moveTo("id",   0)
-    names.moveTo("src", -1)
+    names := Etc.dictNames(dict)
+    if (!noSort)
+    {
+      names.sort
+      names.moveTo("dis",  0)
+      names.moveTo("name", 0)
+      names.moveTo("id",   0)
+      names.moveTo("src", -1)
+    }
 
     names.each |n|
     {
@@ -231,4 +242,5 @@ class TrioWriter : GridWriter
 
   private OutStream out
   private Bool needSep
+  private Bool noSort
 }
