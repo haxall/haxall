@@ -341,7 +341,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   Float readF8()
   {
-    Float.fromStr(readUtf) // TODO
+    in.readF8
   }
 
   Str readUtf()

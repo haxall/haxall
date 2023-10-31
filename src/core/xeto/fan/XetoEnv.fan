@@ -102,12 +102,12 @@ const abstract class XetoEnv
   ** Registry of installed libs
   @NoDoc abstract LibRegistry registry()
 
-  ** Get or load library by the given qualified name
-  abstract Lib? lib(Str qname, Bool checked := true)
+  ** Get or load library by the given library name
+  abstract Lib? lib(Str name, Bool checked := true)
 
-  ** Get or load library asynchronously by the given qualified name.
+  ** Get or load library asynchronously by the given library name.
   ** Once loaded then invoke callback with library or err.
-  abstract Void libAsync(Str qname, |Err?, Lib?| f)
+  abstract Void libAsync(Str name, |Err?, Lib?| f)
 
   ** Get the 'sys' library
   @NoDoc abstract Lib sysLib()

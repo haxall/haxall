@@ -412,7 +412,7 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
 
   Void writeF8(Float f)
   {
-    out.writeUtf(f.toStr) // TODO
+    out.writeF8(f)
   }
 
   Void writeUtf(Str s)
