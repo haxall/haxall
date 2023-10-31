@@ -89,6 +89,11 @@ abstract class IOHandle
   }
 
   **
+  ** Create an empty file or directory for this handle.
+  **
+  virtual Void create() { toFile("create").create }
+
+  **
   ** Delete the file or directory specified for this handle
   **
   virtual Void delete() { toFile("delete").delete }

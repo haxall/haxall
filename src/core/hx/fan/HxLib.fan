@@ -93,8 +93,9 @@ abstract const class HxLib
   ** Actor instance or Method literal on this class.  If callback is a
   ** method, then its called on the lib's dedicated background actor.
   ** pool. This method should be called in the `onStart` callback.
-  ** The observation is automatically unsubscribed on stop.
-  ** See `docHaxall::Observables#fantomObserve`.
+  ** The observation is automatically unsubscribed on stop.  You should
+  ** **not** unsubscribe this subscription - it must be managed by the
+  ** extension itself.  See `docHaxall::Observables#fantomObserve`.
   Subscription observe(Str name, Dict config, Obj callback) { spi.observe(name, config, callback) }
 
 //////////////////////////////////////////////////////////////////////////

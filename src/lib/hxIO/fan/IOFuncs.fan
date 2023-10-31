@@ -144,6 +144,22 @@ const class IOFuncs
   }
 
   **
+  ** Create a directory or empty file with the given I/O handle.
+  ** If creating a file that already exists, it is overwritten as empty.
+  **
+  ** Examples:
+  **   ioCreate(`io/new-dir/`)        // create new empty directory
+  **   ioCreate(`io/new-file.txt`)    // create new empty file
+  **
+  @Axon { admin = true }
+  static Obj? ioCreate(Obj? handle)
+  {
+    h := toHandle(handle)
+    h.create
+    return null
+  }
+
+  **
   ** Delete a file or a directory as mapped by the given I/O handle.
   ** If a directory is specified, then it is recursively deleted.  If the
   ** I/O handle does map to a file system then raise exception.  If the

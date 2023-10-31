@@ -148,6 +148,15 @@ class IOTest : HxTest
     eval("""ioDelete(`io/lines.txt`)""")
     verifyEq(projDir.plus(`io/lines.txt`).exists, false)
 
+    // create
+    verifyEq(projDir.plus(`io/foo/`).exists, false)
+    eval("""ioCreate(`io/foo/`)""")
+    verifyEq(projDir.plus(`io/foo/`).exists, true)
+    verifyEq(projDir.plus(`io/foo/bar.txt`).exists, false)
+    eval("""ioCreate(`io/foo/bar.txt`)""")
+    verifyEq(projDir.plus(`io/foo/bar.txt`).exists, true)
+    verifyEq(projDir.plus(`io/foo/bar.txt`).readAllStr, "")
+
     // torture csv
     projDir.plus(`io/more.csv`).out.print(
       """Name,Name, name , , Foo Bar,
