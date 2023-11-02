@@ -298,6 +298,7 @@ internal class CryptoCli : HxCli
     }
 
     if (hasArg("d")) this.dir = parseArgToDir(argsMap["d"])
+    else if (hasArg("var")) this.dir = parseArgToDir(argsMap["var"])
 
     return true
   }
@@ -351,6 +352,7 @@ internal class CryptoCli : HxCli
 
        Options:
          -d <dir>    Path to directory containing crypto/ (default = $dir)
+         -var <dir>  Alias for -d <dir>
          -help, -?   Print usage help.
 
        Use 'hx crypto <action> -help' to get action-specific help")
