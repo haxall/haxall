@@ -116,7 +116,6 @@ const class CryptoFuncs
   static Obj? cryptoEntryRename(Obj dict)
   {
     rec   := Etc.toRec(dict)
-    if (((Str)rec->alias).trimToNull == null) throw Err("Alias cannot be empty")
     alias := toAlias(rec->alias)
     from  := toAlias(rec.id)
     entry := ks.get(from, false) ?: throw Err("Entry with alias '$from' not found")
@@ -220,7 +219,11 @@ const class CryptoFuncs
   ** Coerce value to an alias
   private static Str toAlias(Obj? val)
   {
-    if (val is Str) return val
+    if (val is Str) 
+    {
+      if (((Str)val).trimToNull == null) throw Err("Alias cannot be empty")
+      return val
+    }
     if (val is Ref) return Buf.fromBase64(((Ref)val).id).readAllStr
     throw ArgErr("Cannot coerce val to alias str: $val [${val?.typeof}]")
   }
