@@ -219,7 +219,11 @@ const class CryptoFuncs
   ** Coerce value to an alias
   private static Str toAlias(Obj? val)
   {
-    if (val is Str) return val
+    if (val is Str) 
+    {
+      if (((Str)val).trimToNull == null) throw Err("Alias cannot be empty")
+      return val
+    }
     if (val is Ref) return Buf.fromBase64(((Ref)val).id).readAllStr
     throw ArgErr("Cannot coerce val to alias str: $val [${val?.typeof}]")
   }
