@@ -116,6 +116,7 @@ const class CryptoFuncs
   static Obj? cryptoEntryRename(Obj dict)
   {
     rec   := Etc.toRec(dict)
+    if (((Str)rec->alias).trimToNull == null) throw Err("Alias cannot be empty")
     alias := toAlias(rec->alias)
     from  := toAlias(rec.id)
     entry := ks.get(from, false) ?: throw Err("Entry with alias '$from' not found")
