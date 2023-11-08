@@ -52,6 +52,7 @@ class FactoryTest : AbstractXetoTest
     // echo("::: $type <=> $spec | $v")
     verifyEq(v, val)
     verifySame(env.specOf(v), spec)
+    verifySame(env.specOf(v.typeof), spec)
   }
 
 }

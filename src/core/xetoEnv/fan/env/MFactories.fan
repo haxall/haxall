@@ -56,7 +56,7 @@ const class MFactories
   ** Default dict factory
   const SpecFactory dict := DictFactory()
 
-  ** Map fantom type to its spec (called by Env.typeOf)
+  ** Map fantom type to its spec (called by MEnv.specOf)
   Spec? typeToSpec(Type type)
   {
     typeToSpecMap.get(type.qname)

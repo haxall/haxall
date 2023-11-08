@@ -93,7 +93,7 @@ const abstract class XetoEnv
   ** Construct instance of `Ref`
   abstract Ref ref(Str id, Str? dis := null)
 
-  ** Spec for Fantom object
+  ** Spec for Fantom `sys::Type` or the typeof given object
   abstract Spec? specOf(Obj? val, Bool checked := true)
 
   ** Name table for this environment
@@ -102,7 +102,8 @@ const abstract class XetoEnv
   ** Registry of installed libs
   @NoDoc abstract LibRegistry registry()
 
-  ** Get or load library by the given library name
+  ** Get or load library by the given library name.
+  ** If the library is found but cannot be compiled, then raise an exception.
   abstract Lib? lib(Str name, Bool checked := true)
 
   ** Get or load library asynchronously by the given library name.

@@ -104,7 +104,7 @@ abstract const class MEnv : XetoEnv
     if (val == null) return sys.none
 
     // direct lookup by type
-    type := val.typeof
+    type := val as Type ?: val.typeof
     spec := factories.typeToSpec(type)
     if (spec != null) return spec
 
