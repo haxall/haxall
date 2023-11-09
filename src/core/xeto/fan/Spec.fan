@@ -135,4 +135,7 @@ const mixin Spec : Dict
   ** Inherits directly from 'sys::Query' without considering And/Or
   @NoDoc abstract Bool isQuery()
 
+  ** Return the Fantom type used to represent this spec (scalar, Dict, or Item)
+  @NoDoc abstract Type fantomType()
+
 }

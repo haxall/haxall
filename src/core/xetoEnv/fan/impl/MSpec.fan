@@ -159,6 +159,13 @@ const class MSpec
 
   const Int flags
 
+  once Type fantomType()
+  {
+    type := env.factories.specToType(qname)
+    if (type != null) return type
+    if (base != null) return base.fantomType
+    return Obj#
+  }
 }
 
 **************************************************************************
@@ -322,6 +329,8 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override final Void cslots(|CSpec, Str| f) { m.slots.map.each(f) }
 
   override final XetoSpec[]? cofs()  { ofs(false) }
+
+  override final Type fantomType() { m.fantomType }
 
   const MSpec? m
 }

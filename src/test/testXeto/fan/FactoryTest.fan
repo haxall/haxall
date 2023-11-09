@@ -6,7 +6,10 @@
 //   1 Jul 2023  Brian Frank  Creation
 //
 
+using xeto
+using xeto::Dict
 using haystack
+using haystack::Ref
 
 **
 ** FactoryTest
@@ -14,7 +17,13 @@ using haystack
 @Js
 class FactoryTest : AbstractXetoTest
 {
+
   Void testSys()
+  {
+    verifyAllEnvs("sys") |env| { doTestSys(env) }
+  }
+
+  private Void doTestSys(XetoEnv env)
   {
     verifyScalar("sys::Str",     "hello")
     verifyScalar("sys::Bool",     true)
@@ -32,6 +41,11 @@ class FactoryTest : AbstractXetoTest
     verifyScalar("sys::NA",       NA.val)
     verifyScalar("sys::Number",   Number(80, Unit("%")))
     verifyScalar("sys::Ref",      Ref("abc"))
+
+    verifySame(env.spec("sys::Obj").fantomType, Obj#)
+    verifySame(env.spec("sys::Dict").fantomType, Dict#)
+    verifySame(env.spec("sys::Spec").fantomType, Spec#)
+    verifySame(env.spec("sys::LibOrg").fantomType, Dict#)
   }
 
   Void testPh()
@@ -53,6 +67,7 @@ class FactoryTest : AbstractXetoTest
     verifyEq(v, val)
     verifySame(env.specOf(v), spec)
     verifySame(env.specOf(v.typeof), spec)
+    verifySame(spec.fantomType, type)
   }
 
 }

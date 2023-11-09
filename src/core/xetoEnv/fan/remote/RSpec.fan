@@ -17,8 +17,9 @@ using haystack::Dict
 @Js
 internal class RSpec : CSpec, NameDictReader
 {
-  new make(XetoSpec asm, RSpec? parent, Int nameCode, Str name)
+  new make(Str libName, XetoSpec asm, RSpec? parent, Int nameCode, Str name)
   {
+    this.libName  = libName
     this.asm      = asm
     this.parent   = parent
     this.isType   = parent == null
@@ -26,6 +27,7 @@ internal class RSpec : CSpec, NameDictReader
     this.nameCode = nameCode
   }
 
+  const Str libName
   const override XetoSpec asm
   const override Str name
   const Int nameCode
@@ -49,7 +51,11 @@ internal class RSpec : CSpec, NameDictReader
 
   // CSpec
   override Bool isAst() { true }
-  override Str qname() { throw UnsupportedErr() }
+  override Str qname()
+  {
+    if (parent != null) return parent.qname + "." + name
+    return libName + "::" + name
+  }
   override haystack::Ref id() { throw UnsupportedErr() }
   override SpecFactory factory() { throw UnsupportedErr() }
   override CSpec? ctype

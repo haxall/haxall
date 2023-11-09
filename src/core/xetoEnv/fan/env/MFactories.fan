@@ -62,13 +62,21 @@ const class MFactories
     typeToSpecMap.get(type.qname)
   }
 
+  ** Map spec to its fantom type (called by Spec.fantomType)
+  Type? specToType(Str qname)
+  {
+    specToTypeMap.get(qname)
+  }
+
   ** Map Fantom type to its spec (called during LoadFactories)
-  Void map(Type type, Spec spec)
+  Void map(Type type, Str qnameSpec, Spec spec)
   {
     typeToSpecMap.set(type.qname, spec)
+    specToTypeMap.set(qnameSpec, type)
   }
 
   private const ConcurrentMap typeToSpecMap := ConcurrentMap()
+  private const ConcurrentMap specToTypeMap := ConcurrentMap()
 }
 
 **************************************************************************
@@ -116,6 +124,8 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
       "NA":       SingletonFactory(hay.type("NA"),     NA.val, "na"),
       "Number":   NumberFactory(hay.type("Number")),
       "Ref":      RefFactory(hay.type("Ref")),
+      "Dict":     DictFactory(),
+      "Spec":     DictFactory(Spec#),
     ]
   }
 
@@ -137,6 +147,7 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
 internal const class DictFactory : DictSpecFactory
 {
   new make() : super(Dict#) {}
+  new makeWith(Type type) : super.make(type) {}
   override Obj? decodeDict(Dict xeto, Bool checked := true) { xeto }
 }
 

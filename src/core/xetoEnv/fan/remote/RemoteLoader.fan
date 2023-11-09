@@ -52,7 +52,7 @@ internal class RemoteLoader
   RSpec addType(Int nameCode)
   {
     name := names.toName(nameCode)
-    x := RSpec(XetoType(), null, nameCode, name)
+    x := RSpec(libName, XetoType(), null, nameCode, name)
     types.add(name, x)
     return x
   }
@@ -60,7 +60,7 @@ internal class RemoteLoader
   RSpec makeSlot(RSpec parent, Int nameCode)
   {
     name := names.toName(nameCode)
-    x := RSpec(XetoSpec(), parent, nameCode, name)
+    x := RSpec(libName, XetoSpec(), parent, nameCode, name)
     return x
   }
 
@@ -107,7 +107,7 @@ internal class RemoteLoader
       custom := factories?.get(x.name)
       if (custom != null)
       {
-        env.factories.map(custom.type, x.asm)
+        env.factories.map(custom.type, x.qname, x.asm)
         return custom
       }
     }
