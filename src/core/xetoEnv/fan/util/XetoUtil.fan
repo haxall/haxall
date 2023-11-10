@@ -167,7 +167,10 @@ const class XetoUtil
     acc := Str:Obj[:]
     acc.ordered = true
 
-    if (isGraph) acc["id"] = Ref.gen
+    id := opts["id"]
+    if (id == null && isGraph) id = Ref.gen
+    if (id != null) acc["id"] = id
+
     acc["dis"] = spec.name
 
     spec.slots.each |slot|

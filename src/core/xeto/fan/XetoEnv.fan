@@ -133,8 +133,9 @@ const abstract class XetoEnv
   ** Raise exception if spec is abstract.
   **
   ** Options:
-  **   - 'graph': marker tag to instantiate graph of recs
+  **   - 'graph': marker tag to instantiate graph of recs (will auto-generate ids)
   **   - 'abstract': marker to supress error if spec is abstract
+  **   - 'id': Ref tag to include in new instance
   abstract Obj? instantiate(Spec spec, Dict? opts := null)
 
   ** Compile Xeto source code into a temp library.

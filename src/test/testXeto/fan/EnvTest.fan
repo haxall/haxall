@@ -489,6 +489,8 @@ class EnvTest : AbstractXetoTest
     verifyInstantiate("ph::ElecMeter", ["dis":"ElecMeter", "equip":m, "meter":m, "elec":m])
     verifyInstantiate("ph::AcElecMeter", ["dis":"AcElecMeter", "equip":m, "meter":m, "elec":m, "ac":m])
 
+    verifyInstantiate("ph::Meter", ["id":Ref("foo"), "dis":"Meter", "equip":m, "meter":m], ["id":Ref("foo")])
+
     verifyInstantiate("ph.points::DischargeAirTempSensor", ["dis":"DischargeAirTempSensor", "discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":"°F"])
     verifyInstantiate("ashrae.g36::G36ReheatVav", ["dis":"G36ReheatVav", "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m])
 
@@ -509,10 +511,10 @@ class EnvTest : AbstractXetoTest
     verifyErr(Err#) { env.instantiate(env.spec("sys::Scalar")) }
   }
 
-  Void verifyInstantiate(Str qname, Obj? expect)
+  Void verifyInstantiate(Str qname, Obj? expect, Obj? opts := null)
   {
     spec := env.spec(qname)
-    actual := env.instantiate(spec)
+    actual := env.instantiate(spec, Etc.makeDict(opts))
     // echo("-- $qname: $actual ?= $expect")
     if (expect is Map)
       verifyDictEq(actual, expect)
