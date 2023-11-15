@@ -120,7 +120,8 @@ abstract const class MEnv : XetoEnv
     }
 
     // fallbacks
-    if (val is Grid) return lib("ph").type("Grid")
+    if (type.fits(Dict#)) return dictSpec
+    if (type.fits(Grid#)) return lib("ph").type("Grid")
 
     // cannot map to spec
     if (checked) throw UnknownSpecErr("No spec mapped for '$type'")
