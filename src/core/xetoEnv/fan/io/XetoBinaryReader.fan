@@ -212,8 +212,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlRef:          return readRef
       case ctrlDate:         return readDate
       case ctrlTime:         return readTime
-      case ctrlDateTimeI4:   return readDateTimeI4
-      case ctrlDateTimeI8:   return readDateTimeI8
+      case ctrlDateTime:     return readDateTime
       case ctrlEmptyDict:    return transport.env.dict0
       case ctrlNameDict:     return readNameDict
       case ctrlGenericDict:  return readGenericDict
@@ -256,19 +255,12 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     Time.fromDuration(Duration(in.readU4 * 1ms.ticks))
   }
 
-  private DateTime readDateTimeI4()
+  private DateTime readDateTime()
   {
-    DateTime.makeTicks(in.readS4*1sec.ticks, readTimeZone)
-  }
-
-  private DateTime readDateTimeI8()
-  {
-    DateTime.makeTicks(in.readS8, readTimeZone)
-  }
-
-  private TimeZone readTimeZone()
-  {
-    TimeZone.fromStr(readVal)
+    secs := in.readS4
+    millis := in.readS2
+    tz := TimeZone.fromStr(readVal)
+    return DateTime.makeTicks(secs*1sec.ticks + millis*1ms.ticks, tz)
   }
 
   private Coord readCoord()

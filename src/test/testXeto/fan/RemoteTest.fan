@@ -39,6 +39,7 @@ class RemoteTest : AbstractXetoTest
     verifyIO(s, c, Date.today)
     verifyIO(s, c, Time.now)
     verifyIO(s, c, DateTime.now)
+    verifyIO(s, c, DateTime("2023-11-17T07:46:32.573-05:00 New_York"))
     verifyIO(s, c, haystack::Ref("foo"))
     verifyIO(s, c, haystack::Ref("foo", "Foo Dis"))
     verifyIO(s, c, 123)

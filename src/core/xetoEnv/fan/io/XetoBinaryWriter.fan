@@ -288,18 +288,12 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
   private This writeDateTime(DateTime val)
   {
     ticks := val.ticks
-    if (ticks % 1sec.ticks == 0)
-    {
-      write(ctrlDateTimeI4)
-      writeI4(val.ticks/1sec.ticks)
-      writeStr(val.tz.name) // TODO
-    }
-    else
-    {
-      write(ctrlDateTimeI8)
-      writeI8(val.ticks)
-      writeStr(val.tz.name) // TODO
-    }
+    secs := ticks / 1sec.ticks
+    millis := (ticks % 1sec.ticks) / 1ms.ticks
+    write(ctrlDateTime)
+    writeI4(secs)
+    writeI2(millis)
+    writeStr(val.tz.name) // TODO
     return this
   }
 
