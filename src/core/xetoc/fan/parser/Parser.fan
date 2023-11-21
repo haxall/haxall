@@ -43,7 +43,7 @@ internal class Parser
   {
     try
     {
-      data := cur === Token.ref ? parseNamedData : parseData
+      data := cur === Token.ref && peek === Token.colon ? parseNamedData : parseData
       skipNewlines
       verify(Token.eof)
       return data
@@ -358,7 +358,7 @@ internal class Parser
     loc := curToLoc
     AName name:= curVal
     consume
-    return ADataRef(loc, name)
+    return ADataRef(loc, name, tokenizer.refDis)
   }
 
   ** Parse a scalar data value

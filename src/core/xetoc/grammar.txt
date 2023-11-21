@@ -46,15 +46,17 @@ Productions [#productions]
   <name>         :=  <alpha> <nameRest>*
   <markerName>   :=  <alphaLower> <nameRest>*
   <nameRest>     :=  alpha | digit | '_'
-  <ref>          :=  "@" <refChar>* <refEnd>
+  <ref>          :=  "@" <refChar>* <refEnd> [<sp> <quotedStr>]
   <refChar>      :=  <alpha> | <digit> | "_" | "~" | ":" | "-"
   <refEnd>       :=  <alpha> | <digit> | "_" | "~"  // cannot end with ":" or "-"
   <alpha>        :=  alphaLower | alphaUpper
   <alphaLower>   :=  'a' - 'z'
   <alphaUpper>   :=  'A' - 'Z'
   <digit>        :=  '0' - '9'
+  <sp>           :=  ' '
 
   <scalar>       :=  see below
+  <quotedStr>    :=  single quoted string, see below
 
 Scalar Values
 *************
@@ -62,7 +64,7 @@ Scalar values may take one of the following formats:
   - single double-quoted string such as "hi"
   - triple double-quoted strings such as """my name is "Brian", hi!"""
   - numbers with embedded units/symbols such as 123% or 2023-03-04
-  - refs that start with "@" (see grammar above)
+  - refs that start with "@" (see above)
 
 Quoted strings use the same backslash escape sequence as C languages:
   - '\n'  for newline

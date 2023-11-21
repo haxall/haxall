@@ -10,6 +10,7 @@ using util
 using xeto
 using xetoEnv
 using haystack
+using haystack::Ref
 
 **
 ** IOTest tests ability to serialize specs/data over Xeto text and binary I/O
@@ -45,7 +46,8 @@ class IOTest : AbstractXetoTest
     verifyIO(DateTime.now)
     verifyIO(DateTime("2023-11-17T07:46:32.573-05:00 New_York"))
     verifyIO(haystack::Ref("foo"))
-//    verifyIO(haystack::Ref("foo", "Foo Dis"))
+    verifyIO(haystack::Ref("foo-bar:baz~qux"))
+    verifyIO(haystack::Ref("foo", "Foo Dis"))
     verifyIO(123)
     verifyIO(-32_000)
     verifyIO(123567890)
@@ -62,6 +64,12 @@ class IOTest : AbstractXetoTest
     verifyIO(Obj?["a", null, n(123)])
     verifyIO(haystack::Coord(12f, -34f))
     verifyIO(haystack::Symbol("foo-bar"))
+
+    a := env.instantiate(env.spec("ph::AcElecMeter"))
+    b := env.dict(["spec":Ref("ph::Rtu"), "dis":"RTU", "equip":m, "ahu":m, "rtu":m])
+    verifyIO(a)
+    verifyIO(b)
+    //verifyIO([a, b])
   }
 
   Void verifyIO(Obj? val)
@@ -86,8 +94,8 @@ class IOTest : AbstractXetoTest
     buf.clear
     env.writeData(buf.out, val)
     str := buf.flip.readAllStr
-echo("--> $str")
-    x = env.compileData(str)
+    // echo("--> $str")
+    x = env.compileData(str, env.dict1("externRefs", m))
     verifyValEq(val, x)
   }
 }

@@ -45,6 +45,7 @@ internal const class ASimpleName : AName
 {
   new make(Str? lib, Str name)  : super(lib)
   {
+    if (name.isEmpty) throw ArgErr("${lib?.toCode} $name.toCode")
     this.name = name
   }
 

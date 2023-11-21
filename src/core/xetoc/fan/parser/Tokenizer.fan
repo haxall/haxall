@@ -38,6 +38,9 @@ internal class Tokenizer
   **  - ParseErr: the error message
   Obj? val
 
+  ** Dispay string for ref tokens
+  Str? refDis
+
   ** One based line number for current token
   Int line := 1
 
@@ -262,7 +265,16 @@ internal class Tokenizer
   private Token ref()
   {
     consume // opening "@"
-    this.val = refName
+    ref := refName
+    dis := null
+    if (cur == ' ' && peek == '\"')
+    {
+      consume
+      str
+      dis = this.val
+    }
+    this.val = ref
+    this.refDis = dis
     return Token.ref
   }
 
@@ -313,6 +325,7 @@ internal class Tokenizer
       s.addChar(cur)
       consume
     }
+    if (s.isEmpty) throw err("Expecting ref char, not $cur.toChar [0x$cur.toHex]")
     return s.toStr
   }
 

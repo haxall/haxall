@@ -151,7 +151,7 @@ internal class Reify : Step
 
   private Obj? reifyDataRef(ADataRef x)
   {
-     x.asmRef = x.isResolved ? x.deref.id : env.ref(x.toStr, null)
+     x.asmRef = x.isResolved ? x.deref.id : env.ref(x.toStr, x.dis)
   }
 
 //////////////////////////////////////////////////////////////////////////

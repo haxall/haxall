@@ -25,7 +25,7 @@ class Printer
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(XetoEnv env, OutStream out, Dict opts)
+  new make(MEnv env, OutStream out, Dict opts)
   {
     this.env        = env
     this.out        = out
@@ -411,13 +411,22 @@ class Printer
   ** Print scalar in Xeto text format
   This xetoScalar(Spec spec, Obj x)
   {
-    qname(spec).sp.w(x.toStr.toCode)
+    if (spec === env.sys.ref)
+    {
+      ref := (Ref)x
+      w("@").w(ref.id)
+      if (ref.disVal != null) sp.w(ref.disVal.toCode)
+      return this
+    }
+
+    if (spec !== env.sys.str) qname(spec).sp
+    return w(x.toStr.toCode)
   }
 
   ** Print dict in Xeto text format
   This xetoDict(Spec spec, Dict x)
   {
-    qname(spec)
+    qname(spec).sp
     if (x.isEmpty) return bracket("{}")
     bracket("{").nl
     indention++
@@ -429,7 +438,7 @@ class Printer
       colon.xeto(v).nl
     }
     indention--
-    bracket("}")
+    indent.bracket("}")
     return this
   }
 
@@ -681,7 +690,7 @@ class Printer
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const XetoEnv env               // environment
+  const MEnv env                  // environment
   const Bool isStdout             // are we printing to stdout
   const Dict opts                 // options
   const Bool escUnicode           // escape unicode above 0x7f

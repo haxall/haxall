@@ -145,6 +145,9 @@ const abstract class XetoEnv
   ** Compile Xeto data file into in-memory dict/scalar tree
   ** Raise exception if there are any syntax or semantic errors.
   ** Use `writeData` to encode data back to Xeto text format.
+  **
+  ** Options
+  **   - externRefs: marker to allow unresolved refs to compile
   abstract Obj? compileData(Str src, Dict? opts := null)
 
   ** Write instance data in Xeto format to an outpout stream.

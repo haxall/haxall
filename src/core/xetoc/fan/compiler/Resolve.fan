@@ -136,11 +136,18 @@ internal class Resolve : Step
     matches := Obj[,]
     depends.each |d| { matches.addNotNull(resolveInDepend(ref, n.name, d)) }
     if (matches.isEmpty)
+    {
+      if (compiler.externRefs) return
       err("Unresolved $ref.what: $n", ref.loc)
+    }
     else if (matches.size > 1)
+    {
       err("Ambiguous $ref.what: $n $matches", ref.loc)
+    }
     else
+    {
       ref.resolve(matches.first)
+    }
   }
 
   private Void resolveQualified(ARef ref)
@@ -167,7 +174,11 @@ internal class Resolve : Step
 
     // resolve in dependency
     x := resolveInDepend(ref, n.name, depend)
-    if (x == null) return err("Unresolved $ref.what '$n' in lib", ref.loc)
+    if (x == null)
+    {
+      if (compiler.externRefs) return
+      return err("Unresolved $ref.what '$n' in lib", ref.loc)
+    }
     ref.resolve(x)
   }
 

@@ -50,9 +50,11 @@ internal class XetoCompiler
   Void applyOpts(Dict? opts)
   {
     if (opts == null) return
+
     log :=  XetoUtil.optLog(opts, "log")
-    if (log != null)
-      this.log = XetoCallbackLog(log)
+    if (log != null) this.log = XetoCallbackLog(log)
+
+    this.externRefs = opts.has("externRefs")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -191,6 +193,7 @@ internal class XetoCompiler
   internal ADict? pragma               // Parse
   internal MLibDepend[]? depends       // ProcessPragma
   internal Dict? json                  // JSON output
+  internal Bool externRefs             // allow unresolved refs to compile
   private Str[] autoNames := [,]       // autoName
 }
 

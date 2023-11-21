@@ -100,7 +100,13 @@ internal class ASpecRef : ARef
 internal class ADataRef : ARef
 {
   ** Constructor
-  new make(FileLoc loc, AName name) : super(loc, name) {}
+  new make(FileLoc loc, AName name, Str? dis) : super(loc, name)
+  {
+    this.dis = dis
+  }
+
+  ** Optional display string
+  const Str? dis
 
   ** Node type
   override ANodeType nodeType() { ANodeType.dataRef }
