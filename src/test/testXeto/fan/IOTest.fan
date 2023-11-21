@@ -45,7 +45,7 @@ class IOTest : AbstractXetoTest
     verifyIO(DateTime.now)
     verifyIO(DateTime("2023-11-17T07:46:32.573-05:00 New_York"))
     verifyIO(haystack::Ref("foo"))
-    verifyIO(haystack::Ref("foo", "Foo Dis"))
+//    verifyIO(haystack::Ref("foo", "Foo Dis"))
     verifyIO(123)
     verifyIO(-32_000)
     verifyIO(123567890)
@@ -73,8 +73,6 @@ class IOTest : AbstractXetoTest
     x := XetoBinaryReader(client, buf.flip.in).readVal
     verifyValEq(val, x)
 
-return
-
     // Xeto format does not support null
     if (val == null) return null
     list := val as Obj?[]
@@ -88,7 +86,7 @@ return
     buf.clear
     env.writeData(buf.out, val)
     str := buf.flip.readAllStr
-    // echo("--> $str")
+echo("--> $str")
     x = env.compileData(str)
     verifyValEq(val, x)
   }

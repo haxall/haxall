@@ -47,19 +47,26 @@ internal class Resolve : Step
     }
   }
 
-  private Void resolveDepend(MLibDepend d)
+  private XetoLib? resolveDepend(MLibDepend d)
   {
     // resolve the library from environment
     lib := env.registry.resolve(compiler, d.name)
     if (lib == null)
-      return err("Depend lib '$d.name' not installed", d.loc)
+    {
+      err("Depend lib '$d.name' not installed", d.loc)
+      return null
+    }
 
     // validate our version constraints
     if (!d.versions.contains(lib.version))
-      return err("Depend lib '$d.name' version '$lib.version' is incompatible with '$d.versions'", d.loc)
+    {
+      err("Depend lib '$d.name' version '$lib.version' is incompatible with '$d.versions'", d.loc)
+      return null
+    }
 
     // register the library into our depends map
     depends.add(lib.name, lib)
+    return lib
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -150,7 +157,13 @@ internal class Resolve : Step
 
     // resolve from dependent lib
     XetoLib? depend := depends[n.lib]
-    if (depend == null) return err("$ref.what.capitalize lib '$n' is not included in depends", ref.loc)
+    if (depend == null)
+    {
+      // libs must have explicit depends, but we allow lazy depends in data files
+      if (isLib) return err("$ref.what.capitalize lib '$n' is not included in depends", ref.loc)
+      depend = resolveDepend(MLibDepend(n.lib, MLibDependVersions.wildcard, ref.loc))
+      if (depend == null) return
+    }
 
     // resolve in dependency
     x := resolveInDepend(ref, n.name, depend)
