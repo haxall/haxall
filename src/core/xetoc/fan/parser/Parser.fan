@@ -387,7 +387,7 @@ internal class Parser
       Str? name
       AData? val
 
-      if (cur === Token.id)
+      if (cur === Token.id && curVal.toStr[0].isLower)
       {
         name = consumeName("Expecting dict tag name")
         if (cur !== Token.colon)

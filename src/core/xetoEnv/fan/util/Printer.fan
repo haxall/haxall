@@ -442,7 +442,6 @@ class Printer
     x.each |v, i|
     {
       indent
-      w("x").w(i).colon  // TODO
       xeto(v).nl
     }
     indention--
