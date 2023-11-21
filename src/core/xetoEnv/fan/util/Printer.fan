@@ -401,7 +401,9 @@ class Printer
   ** Pretty print instance data in Xeto text format
   This xetoTop(Obj x)
   {
-    if (isDictList(x))
+    if (x is Grid)
+      ((Grid)x).each |dict| { xeto(dict, true).nl.nl }
+    else if (isDictList(x))
       ((Dict[])x).each |dict| { xeto(dict, true).nl.nl }
     else
       xeto(x, true)
