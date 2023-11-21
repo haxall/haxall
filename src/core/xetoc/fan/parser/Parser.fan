@@ -43,10 +43,20 @@ internal class Parser
   {
     try
     {
-      data := cur === Token.ref && peek === Token.colon ? parseNamedData : parseData
+      // parse one scalar/instance
+      data := parseTopData
       skipNewlines
-      verify(Token.eof)
-      return data
+      if (cur === Token.eof) return data
+
+      // multiple dicts are allowed as implicit list of dicts
+      list := ADict(data.loc, sys.list)
+      addDataDict(list, data)
+      while (cur !== Token.eof)
+      {
+        addDataDict(list, parseTopData)
+        skipNewlines
+      }
+      return list
     }
     catch (ParseErr e)
     {
@@ -325,6 +335,15 @@ internal class Parser
 // Data
 //////////////////////////////////////////////////////////////////////////
 
+  ** Parse top-level data file scalar/dict/instance
+  private AData parseTopData()
+  {
+    if (cur === Token.ref && peek === Token.colon)
+      return parseNamedData
+    else
+      return parseData
+  }
+
   ** Parse dict with id
   private AInstance parseNamedData()
   {
@@ -555,6 +574,16 @@ internal class Parser
   {
     AScalar(loc, sys.marker, marker.toStr, marker)
     //AScalar(loc, ASpecRef(loc, ASimpleName("sys", "Marker")), marker.toStr, marker)
+  }
+
+  private Void addDataDict(ADict list, AData data)
+  {
+    // only allowed if data is dict/instance
+    if (data.nodeType !== ANodeType.instance && data.nodeType !== ANodeType.dict)
+      throw err("Data file can only contain one scalar", data.loc)
+
+    // add to implicit top-level list
+    list.map[compiler.autoName(list.map.size)] = data
   }
 
   private Void add(Str what, Str:ANode map, Str name, ANode val)
