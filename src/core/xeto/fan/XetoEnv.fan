@@ -144,7 +144,12 @@ const abstract class XetoEnv
 
   ** Compile Xeto data file into in-memory dict/scalar tree
   ** Raise exception if there are any syntax or semantic errors.
+  ** Use `writeData` to encode data back to Xeto text format.
   abstract Obj? compileData(Str src, Dict? opts := null)
+
+  ** Write instance data in Xeto format to an outpout stream.
+  ** Use `compileData` to read data from Xeto text format.
+  abstract Void writeData(OutStream out, Obj val, Dict? opts := null)
 
   ** Parse pragma file into AST
   @NoDoc abstract Dict parsePragma(File file, Dict? opts := null)

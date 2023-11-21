@@ -189,6 +189,11 @@ abstract const class MEnv : XetoEnv
     XetoUtil.instantiate(this, spec, opts ?: dict0)
   }
 
+  override Void writeData(OutStream out, Obj val, Dict? opts := null)
+  {
+    Printer(this, out, opts ?: dict0).xeto(val)
+  }
+
   override LibDependVersions parseLibDependVersions(Str s, Bool checked)
   {
     MLibDependVersions.fromStr(s, checked)

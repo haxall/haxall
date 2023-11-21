@@ -395,6 +395,62 @@ class Printer
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Xeto Instance
+//////////////////////////////////////////////////////////////////////////
+
+  ** Pretty print instance data in Xeto text format
+  This xeto(Obj x)
+  {
+    spec := env.specOf(x)
+    if (spec.isScalar) return xetoScalar(spec, x)
+    if (x is Dict) return xetoDict(spec, x)
+    if (x is List) return xetoList(spec, x)
+    throw ArgErr("Not xeto type: $x.typeof")
+  }
+
+  ** Print scalar in Xeto text format
+  This xetoScalar(Spec spec, Obj x)
+  {
+    qname(spec).sp.w(x.toStr.toCode)
+  }
+
+  ** Print dict in Xeto text format
+  This xetoDict(Spec spec, Dict x)
+  {
+    qname(spec)
+    if (x.isEmpty) return bracket("{}")
+    bracket("{").nl
+    indention++
+    x.each |v, n|
+    {
+      indent
+      w(n)
+      if (v === env.marker) return nl
+      colon.xeto(v).nl
+    }
+    indention--
+    bracket("}")
+    return this
+  }
+
+  ** Print list in Xeto text format
+  This xetoList(Spec spec, Obj[] x)
+  {
+    if (x.isEmpty) return w("List").sp.bracket("{}")
+    w("List").sp.bracket("{").nl
+    indention++
+    x.each |v, i|
+    {
+      indent
+      w("x").w(i).colon  // TODO
+      xeto(v).nl
+    }
+    indention--
+    bracket("}")
+    return this
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // JSON
 //////////////////////////////////////////////////////////////////////////
 
@@ -526,6 +582,11 @@ class Printer
 //////////////////////////////////////////////////////////////////////////
 // OutStream Utils
 //////////////////////////////////////////////////////////////////////////
+
+  This qname(Spec spec)
+  {
+    spec.lib === env.sysLib ? w(spec.name) : w(spec.qname)
+  }
 
   This w(Obj obj)
   {

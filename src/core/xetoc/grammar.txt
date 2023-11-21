@@ -62,6 +62,7 @@ Scalar values may take one of the following formats:
   - single double-quoted string such as "hi"
   - triple double-quoted strings such as """my name is "Brian", hi!"""
   - numbers with embedded units/symbols such as 123% or 2023-03-04
+  - refs that start with "@" (see grammar above)
 
 Quoted strings use the same backslash escape sequence as C languages:
   - '\n'  for newline
