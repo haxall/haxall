@@ -387,7 +387,7 @@ internal class Parser
       Str? name
       AData? val
 
-      if (cur === Token.id && curVal.toStr[0].isLower)
+      if (curIsDictSlotName)
       {
         name = consumeName("Expecting dict tag name")
         if (cur !== Token.colon)
@@ -416,6 +416,11 @@ internal class Parser
     // close "}" or ">"
     consume(closeToken)
     return x
+  }
+
+  private Bool curIsDictSlotName()
+  {
+    cur === Token.id && curVal.toStr[0].isLower && peek !== Token.doubleColon && peek !== Token.dot
   }
 
 //////////////////////////////////////////////////////////////////////////

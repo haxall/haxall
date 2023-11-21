@@ -69,7 +69,15 @@ class IOTest : AbstractXetoTest
     b := env.dict(["spec":Ref("ph::Rtu"), "dis":"RTU", "equip":m, "ahu":m, "rtu":m])
     verifyIO(a)
     verifyIO(b)
-    //verifyIO([a, b])
+    verifyIO([a, b])
+    verifyIO(["foo", n(123), a, b])
+
+    a = Etc.dictSet(a, "id", Ref.gen)
+    b = Etc.dictSet(b, "id", Ref.gen)
+    verifyIO(a)
+    verifyIO(b)
+    verifyIO([a, b])
+    verifyIO(["foo", n(123), a, b])
   }
 
   Void verifyIO(Obj? val)
@@ -94,7 +102,6 @@ class IOTest : AbstractXetoTest
     buf.clear
     env.writeData(buf.out, val)
     str := buf.flip.readAllStr
-    // echo("--> $str")
     x = env.compileData(str, env.dict1("externRefs", m))
     verifyValEq(val, x)
   }

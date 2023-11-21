@@ -399,17 +399,23 @@ class Printer
 //////////////////////////////////////////////////////////////////////////
 
   ** Pretty print instance data in Xeto text format
-  This xeto(Obj x)
+  This xetoTop(Obj x)
+  {
+    xeto(x, true)
+  }
+
+  ** Pretty print instance data in Xeto text format
+  This xeto(Obj x, Bool top := false)
   {
     spec := env.specOf(x)
     if (spec.isScalar) return xetoScalar(spec, x)
-    if (x is Dict) return xetoDict(spec, x)
+    if (x is Dict) return xetoDict(spec, x, top)
     if (x is List) return xetoList(spec, x)
     throw ArgErr("Not xeto type: $x.typeof")
   }
 
   ** Print scalar in Xeto text format
-  This xetoScalar(Spec spec, Obj x)
+  private This xetoScalar(Spec spec, Obj x)
   {
     if (spec === env.sys.ref)
     {
@@ -424,14 +430,22 @@ class Printer
   }
 
   ** Print dict in Xeto text format
-  This xetoDict(Spec spec, Dict x)
+  private This xetoDict(Spec spec, Dict x, Bool top)
   {
+    id := x["id"] as Ref
+    if (top)
+    {
+      if (id != null) w("@").w(id.id).colon
+    }
+
     qname(spec).sp
     if (x.isEmpty) return bracket("{}")
     bracket("{").nl
     indention++
+    if (id != null && !top) indent.w("id").colon.xeto(id).nl
     x.each |v, n|
     {
+      if (n == "id" || n == "spec") return
       indent
       w(n)
       if (v === env.marker) return nl
@@ -443,7 +457,7 @@ class Printer
   }
 
   ** Print list in Xeto text format
-  This xetoList(Spec spec, Obj[] x)
+  private This xetoList(Spec spec, Obj[] x)
   {
     if (x.isEmpty) return w("List").sp.bracket("{}")
     w("List").sp.bracket("{").nl
