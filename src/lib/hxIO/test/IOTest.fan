@@ -297,6 +297,31 @@ class IOTest : HxTest
     Grid g := eval("ioReadJsonGrid(`io/json.txt`, {v3})")
     verifyGridEq(g, eval("""[{n:"Brian", age:30yr}, {n:"Andy"}].toGrid.reorderCols(["n", "age"])"""))
 
+    // ioReadXeto
+    projDir.plus(`io/foo.xeto`).out.print(
+      Str<|Date "2023-11-21"|>).close
+    xeto :=  eval("""ioReadXeto(`io/foo.xeto`)""")
+    verifyEq(xeto, Date("2023-11-21"))
+    projDir.plus(`io/foo.xeto`).out.print(
+      Str<|sys::Dict {
+             ref: @foo-bar
+           }|>).close
+    xeto =  eval("""ioReadXeto(`io/foo.xeto`, {externRefs})""")
+    verifyDictEq(xeto, ["ref":Ref("foo-bar")])
+
+    // ioWriteXeto
+    eval("""ioWriteXeto([{n:"Brian", age:30yr}, {n:"Andy", bday:1980-01-31}], `io/foo.xeto`)""")
+    verifyEq(projDir.plus(`io/foo.xeto`).readAllStr.trim,
+      """Dict {
+           n: "Brian"
+           age: Number "30yr"
+         }
+
+         Dict {
+           n: "Andy"
+           bday: Date "1980-01-31"
+         }""")
+
     // ioZipDir
     zip := Zip.write(projDir.plus(`io/zipped.zip`).out)
     zip.writeNext(`/alpha.txt`).print("alpha!").close

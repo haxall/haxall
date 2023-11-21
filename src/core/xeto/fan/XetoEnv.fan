@@ -142,16 +142,19 @@ const abstract class XetoEnv
   ** Raise exception if there are any syntax or semantic errors.
   abstract Lib compileLib(Str src, Dict? opts := null)
 
-  ** Compile Xeto data file into in-memory dict/scalar tree
-  ** Raise exception if there are any syntax or semantic errors.
-  ** Use `writeData` to encode data back to Xeto text format.
+  ** Compile a Xeto data file into an in-memory value. Raise exception if
+  ** there are any syntax or semantic errors.  If the file contains a scalar
+  ** value or one dict, then it is returned as the value.  If the file contains
+  ** two or more dicts then return a Dict[] of the instances.  Also
+  ** see `writeData` to encode data back to Xeto text format.
   **
   ** Options
   **   - externRefs: marker to allow unresolved refs to compile
   abstract Obj? compileData(Str src, Dict? opts := null)
 
-  ** Write instance data in Xeto format to an outpout stream.
-  ** Use `compileData` to read data from Xeto text format.
+  ** Write instance data in Xeto text format to an output stream.  If the
+  ** value is a Dict[], then it is flattened in the output.  Use `compileData`
+  ** to read data from Xeto text format.
   abstract Void writeData(OutStream out, Obj val, Dict? opts := null)
 
   ** Parse pragma file into AST

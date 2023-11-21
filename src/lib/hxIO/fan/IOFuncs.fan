@@ -385,6 +385,36 @@ const class IOFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Xeto
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Read a Xeto data file into memory as a Haystack data type.
+  ** See `xeto::XetoEnv.compileData` for details and options.
+  **
+  @Axon { admin = true }
+  static Obj? ioReadXeto(Obj? handle, Obj? opts := null)
+  {
+    toHandle(handle).withIn |in|
+    {
+      HxContext.curHx.usings.env.compileData(in.readAllStr, opts)
+    }
+  }
+
+  **
+  ** Write value to a Xeto text format file.
+  ** See `xeto::XetoEnv.writeData` for details and options.
+  **
+  @Axon { admin = true }
+  static Obj? ioWriteXeto(Obj? val, Obj? handle, Obj? opts := null)
+  {
+    return toHandle(handle).withOut |out|
+    {
+      HxContext.curHx.usings.env.writeData(out, val, opts)
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // CSV
 //////////////////////////////////////////////////////////////////////////
 

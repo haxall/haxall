@@ -95,7 +95,10 @@ class IOTest : AbstractXetoTest
     if (list != null)
     {
       if (list.contains(null)) return
-      val = Obj[,].addAll(list)
+      if (!list.isEmpty && list.all { it is xeto::Dict })
+        val = xeto::Dict[,].addAll(list)
+      else
+        val = Obj[,].addAll(list)
     }
 
     // xeto text format

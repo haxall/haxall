@@ -50,6 +50,7 @@ internal class Parser
 
       // multiple dicts are allowed as implicit list of dicts
       list := ADict(data.loc, sys.list)
+      list.listOf = Dict#
       addDataDict(list, data)
       while (cur !== Token.eof)
       {
