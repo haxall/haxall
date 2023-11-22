@@ -61,6 +61,28 @@ internal const class RemoteRegistry : MRegistry
     doLoadAsync(toLoad, 0, f)
   }
 
+  override Void loadAsyncList(Str[] names, |Err?| f)
+  {
+    doLoadAsyncList(names, 0, f)
+  }
+
+  private Void doLoadAsyncList(Str[] names, Int index, |Err?| f)
+  {
+    loadAsync(names[index]) |err, lib|
+    {
+      if (err != null)
+      {
+        f(err)
+        return
+      }
+      index++
+      if (index < names.size)
+        doLoadAsyncList(names, index, f)
+      else
+        f(null)
+    }
+  }
+
   private Void doLoadAsync(Str[] names, Int index, |Err?, Lib?| f)
   {
     // load from transport

@@ -110,6 +110,10 @@ const abstract class XetoEnv
   ** Once loaded then invoke callback with library or err.
   abstract Void libAsync(Str name, |Err?, Lib?| f)
 
+  ** Load a list of library names asynchronously and invoke callback once
+  ** all are loaded.
+  @NoDoc abstract Void libAsyncList(Str[] names, |Err?| f)
+
   ** Get the 'sys' library
   @NoDoc abstract Lib sysLib()
 

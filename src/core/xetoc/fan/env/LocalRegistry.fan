@@ -102,6 +102,19 @@ internal const class LocalRegistry : MRegistry
       f(e, null)
   }
 
+  override Void loadAsyncList(Str[] names, |Err?| f)
+  {
+    try
+    {
+      names.each |name| { loadSync(name, true) }
+      f(null)
+    }
+    catch (Err e)
+    {
+      f(e)
+    }
+  }
+
   override Int build(LibRegistryEntry[] libs)
   {
     // create a XetoLibEntry copy for each entry

@@ -24,6 +24,8 @@ abstract const class MRegistry : LibRegistry
   ** Load the given library asynchronously
   abstract Void loadAsync(Str name, |Err?, Lib?| f)
 
+  ** Load a list of library names asynchronously
+  abstract Void loadAsyncList(Str[] names, |Err?| f)
 }
 
 **************************************************************************

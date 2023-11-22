@@ -128,14 +128,19 @@ abstract const class MEnv : XetoEnv
     return null
   }
 
-  override XetoLib? lib(Str qname, Bool checked := true)
+  override XetoLib? lib(Str name, Bool checked := true)
   {
-    registry.loadSync(qname, checked)
+    registry.loadSync(name, checked)
   }
 
-  override Void libAsync(Str qname, |Err?, Lib?| f)
+  override Void libAsync(Str name, |Err?, Lib?| f)
   {
-    registry.loadAsync(qname, f)
+    registry.loadAsync(name, f)
+  }
+
+  override Void libAsyncList(Str[] names, |Err?| f)
+  {
+    registry.loadAsyncList(names, f)
   }
 
   override XetoType? type(Str qname, Bool checked := true)
