@@ -618,7 +618,9 @@ const class Etc
       if (s.size > 1) s.add(", ")
       s.add(n)
       if (v === Marker.val) return
-      s.add(":").add(v)
+      s.addChar(':')
+      if (v is Ref) s.addChar('@')
+      s.add(v)
     }
     return s.add("}").toStr
   }

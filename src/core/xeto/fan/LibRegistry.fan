@@ -16,7 +16,7 @@ const mixin LibRegistry
   abstract LibRegistryEntry[] list()
 
   ** Lookup installed lib
-  abstract LibRegistryEntry? get(Str qname, Bool checked := true)
+  abstract LibRegistryEntry? get(Str name, Bool checked := true)
 
   ** Hook for build command to force re-compile
   abstract Int build(LibRegistryEntry[] libs)
