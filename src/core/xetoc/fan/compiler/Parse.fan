@@ -47,17 +47,21 @@ internal class Parse : Step
 
   private Void parseData(File input)
   {
+    // create ADataDoc as our root object
+    doc := ADataDoc(compiler, FileLoc(input))
+
     // parse into root
-    ast := parseFile(input, null)
+    parseFile(input, doc)
     bombIfErr
 
     // remove pragma from root
     // TODO
-    pragma := ADict(ast.loc)
+    pragma := ADict(doc.loc)
 //     pragma := validatePragma(root)
 //     bombIfErr
 
-    compiler.ast = ast
+    compiler.ast = doc
+    compiler.data = doc
     compiler.pragma = pragma
   }
 
@@ -114,16 +118,12 @@ internal class Parse : Step
     }
   }
 
-  private ANode? parseFile(File input, ALib? lib)
+  private Void parseFile(File input, ADoc doc)
   {
     loc := FileLoc(input)
     try
     {
-      p := Parser(this, loc, input.in)
-      if (lib == null)
-        return p.parseDataFile
-      else
-        return p.parseLibFile(lib)
+      Parser(this, loc, input.in, doc).parseFile
     }
     catch (FileLocErr e)
     {

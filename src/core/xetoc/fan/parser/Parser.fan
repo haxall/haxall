@@ -20,10 +20,11 @@ internal class Parser
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(Step step, FileLoc fileLoc, InStream in)
+  new make(Step step, FileLoc fileLoc, InStream in, ADoc doc)
   {
     this.step = step
     this.compiler = step.compiler
+    this.doc = doc
     this.sys = step.sys
     this.marker = compiler.env.marker
     this.fileLoc = fileLoc
@@ -37,27 +38,15 @@ internal class Parser
 // Public
 //////////////////////////////////////////////////////////////////////////
 
-  ** Top level parse of data file - instances only.
-  ** The input stream is guaranteed to be closed upon exit.
-  AData parseDataFile()
+  ** Parse a file using given top-level AST document node
+  Void parseFile()
   {
     try
     {
-      // parse one scalar/instance
-      data := parseTopData
-      skipNewlines
-      if (cur === Token.eof) return data
-
-      // multiple dicts are allowed as implicit list of dicts
-      list := ADict(data.loc, sys.list)
-      list.listOf = Dict#
-      addDataDict(list, data)
-      while (cur !== Token.eof)
-      {
-        addDataDict(list, parseTopData)
-        skipNewlines
-      }
-      return list
+      if (doc.nodeType == ANodeType.dataDoc)
+        parseDataFile(doc)
+      else
+        parseLibFile(doc)
     }
     catch (ParseErr e)
     {
@@ -69,28 +58,39 @@ internal class Parser
     }
   }
 
+  ** Top level parse of data file - instances only.
+  ** The input stream is guaranteed to be closed upon exit.
+  private Void parseDataFile(ADataDoc doc)
+  {
+    // parse one scalar/instance
+    data := parseTopData
+    doc.root = data
+    skipNewlines
+    if (cur === Token.eof) return
+
+    // multiple dicts are allowed as implicit list of dicts
+    list := ADict(data.loc, sys.list)
+    list.listOf = Dict#
+    doc.root = list
+    addDataDict(list, data)
+    while (cur !== Token.eof)
+    {
+      addDataDict(list, parseTopData)
+      skipNewlines
+    }
+    return
+  }
+
   ** Top level parse of lib file - specs or instances
   ** The input stream is guaranteed to be closed upon exit.
-  ALib parseLibFile(ALib lib)
+  private Void parseLibFile(ALib lib)
   {
-    try
+    this.libRef = lib
+    while (true)
     {
-      this.libRef = lib
-      while (true)
-      {
-        if (!parseLibObj) break
-      }
-      verify(Token.eof)
-      return lib
+      if (!parseLibObj) break
     }
-    catch (ParseErr e)
-    {
-      throw err(e.msg, curToLoc)
-    }
-    finally
-    {
-      tokenizer.close
-    }
+    verify(Token.eof)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -135,13 +135,6 @@ internal class Parser
     // parse named instance
     data := parseNamedData
     parseLibObjEnd("instance")
-
-    // data id cannot be qualified
-    if (data.name.isQualified) throw err("Cannot specify qualified id for instance id: $data.name", data.loc)
-
-    // make sure id is unique
-    id := data.name.toStr
-    add("instance", lib.instances, id, data)
 
     return true
   }
@@ -358,6 +351,15 @@ internal class Parser
     dict := AInstance(curToLoc, type, name)
     if (cur !== Token.lbrace) throw err("Expecting '{' to start named instance dict")
     parseDict(type, Token.lbrace, Token.rbrace, dict)
+
+
+    // data id cannot be qualified
+    if (name.isQualified) throw err("Cannot specify qualified id for instance id: $name", dict.loc)
+
+    // make sure id is unique and add to document
+    id := name.toStr
+    add("instance", doc.instances, id, dict)
+
     return dict
   }
 
@@ -685,6 +687,7 @@ internal class Parser
   private FileLoc fileLoc
   private Tokenizer tokenizer
   private Str[]? autoNames
+  private ADoc doc
   private ALib? libRef
 
   private Token cur      // current token

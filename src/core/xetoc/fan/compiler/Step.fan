@@ -29,7 +29,9 @@ abstract internal class Step
 
   ASys sys() { compiler.sys }
 
-  ANode ast() { compiler.ast }
+  ADoc ast() { compiler.ast }
+
+  ADataDoc data() { compiler.data }
 
   ALib lib() { compiler.lib }
 

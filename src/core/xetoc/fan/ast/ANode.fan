@@ -44,6 +44,7 @@ internal abstract class ANode
 enum class ANodeType
 {
   lib,
+  dataDoc,
   spec,
   scalar,
   dict,

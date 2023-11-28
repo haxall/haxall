@@ -20,7 +20,7 @@ internal class CheckErrors : Step
     if (isLib)
       checkLib(lib)
     else
-      checkData(ast)
+      checkData(data.root)
     bombIfErr
   }
 

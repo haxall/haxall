@@ -14,12 +14,11 @@ using xetoEnv
 **
 ** AST library
 **
-internal class ALib : ANode
+internal class ALib : ADoc
 {
    ** Constructor
-  new make(XetoCompiler c, FileLoc loc, Str name) : super(loc)
+  new make(XetoCompiler c, FileLoc loc, Str name) : super(c, loc)
   {
-    this.compiler = c
     this.name     = name
     this.isSys    = name == "sys"
     this.asm      = XetoLib()
@@ -37,23 +36,14 @@ internal class ALib : ANode
   ** XetoLib instance - we backpatch the "m" field in Assemble step
   const override XetoLib asm
 
-  ** Compiler
-  XetoCompiler compiler { private set }
-
   ** From pragma (set in ProcessPragma)
   ADict? meta
 
   ** Version parsed from pragma (set in ProcessPragma)
   Version? version
 
-  ** Instance data
-  Str:AData instances := [:]
-
   ** Top level specs
   Str:ASpec specs := [:] { ordered = true }
-
-  ** Lookup top level instance data
-  AData? instance(Str name) { instances.get(name) }
 
   ** Lookup top level spec
   ASpec? spec(Str name) { specs.get(name) }

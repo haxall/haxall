@@ -122,14 +122,11 @@ internal class Resolve : Step
     if (n.isQualified) return resolveQualified(ref)
 
     // match to name within this AST which trumps depends
-    if (isLib)
+    x := resolveInAst(ref, n.name)
+    if (x != null)
     {
-      x := resolveInAst(ref, n.name)
-      if (x != null)
-      {
-        ref.resolve(x)
-        return
-      }
+      ref.resolve(x)
+      return
     }
 
     // match to external dependencies
@@ -185,8 +182,8 @@ internal class Resolve : Step
   private Obj? resolveInAst(ARef ref, Str name)
   {
     ref.nodeType === ANodeType.specRef ?
-      lib.spec(name) :
-      lib.instance(name)
+      compiler.lib?.spec(name) :
+      ast.instance(name)
   }
 
   private Obj? resolveInDepend(ARef ref, Str name, XetoLib depend)

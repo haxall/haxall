@@ -294,6 +294,32 @@ class CompileTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Data Instances
+//////////////////////////////////////////////////////////////////////////
+
+  Void testDataInstances()
+  {
+    Dict[] dicts := compileData(
+      Str<|@brian: {first:"Brian", last:"Frank"}
+
+           @alice: {
+             first: "Alice"
+             last: "Smith"
+             born: Date "1980-06-15"
+             boss: @brian
+           }
+           |>)
+
+   // echo(dicts.join("\n"))
+
+    b := dicts[0]
+    a := dicts[1]
+
+    verifyDictEq(b, ["id":Ref("brian"), "first":"Brian", "last":"Frank"])
+    verifyDictEq(a, ["id":Ref("alice"), "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":b->id])
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Inherit
 //////////////////////////////////////////////////////////////////////////
 

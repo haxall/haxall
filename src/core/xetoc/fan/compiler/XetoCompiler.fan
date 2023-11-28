@@ -188,8 +188,9 @@ internal class XetoCompiler
   internal Duration? duration          // run
   internal Bool isLib                  // Init (false isData)
   internal Bool isSys                  // Init
-  internal ANode? ast                  // Parse (lib or data)
+  internal ADoc? ast                   // Parse (lib or data)
   internal ALib? lib                   // Parse (compileLib only)
+  internal ADataDoc? data              // Parse (compileData only)
   internal ADict? pragma               // Parse
   internal MLibDepend[]? depends       // ProcessPragma
   internal Dict? json                  // JSON output
