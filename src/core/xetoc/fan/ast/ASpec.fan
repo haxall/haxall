@@ -224,7 +224,7 @@ internal class ASpec : ANode, CSpec
   override CSpec? ctype() { type }
 
   ** Resolved base
-  override CSpec? cbase() { throw Err("TODO") }
+  override CSpec? cbase() { base }
 
   ** Lookup effective slot
   override CSpec? cslot(Str name, Bool checked := true)

@@ -129,20 +129,29 @@ internal class Reify : Step
     // if already assembled
     if (x.isAsm) return x.asm
 
-    // if there is no type, then assume string
-    if (x.typeRef == null) return x.asmRef = x.str
+    // if there is no type or type is sys::Obj, then assume string
+    if (x.typeRef == null || isObj(x.ctype)) return x.asmRef = x.str
 
     // map to Fantom type to parse
-    type := x.ctype
-    factory := type.factory
-    fantom := factory.decodeScalar(x.str, false)
-    if (fantom == null)
+    try
     {
-      err("Invalid '$type.qname' value: $x.str.toCode", x.loc)
-      fantom = x.str
+      type := x.ctype
+      factory := type.factory
+      fantom := factory.decodeScalar(x.str, false)
+      if (fantom == null)
+      {
+        err("Invalid '$type.qname' value: $x.str.toCode", x.loc)
+        fantom = x.str
+      }
+
+      // echo("___ reifyScalar $type => $factory.typeof | $fantom [$fantom.typeof]")
+      return x.asmRef = fantom
     }
-    // echo("___ reifyScalar $type => $factory.typeof | $fantom [$fantom.typeof]")
-    return x.asmRef = fantom
+    catch (Err e)
+    {
+      err("Cannot decode scalar: $e", x.loc)
+      return x.asmRef = "error"
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

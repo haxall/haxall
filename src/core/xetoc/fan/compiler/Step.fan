@@ -45,6 +45,7 @@ abstract internal class Step
 
   Void bombIfErr() { if (!compiler.errs.isEmpty) throw compiler.errs.first }
 
+  Bool isObj(CSpec s) { s.cbase == null }
 }
 
 
