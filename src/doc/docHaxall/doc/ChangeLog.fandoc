@@ -6,7 +6,17 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
-*Build 3.1.9 (working)*
+*Build 3.1.9 (1 Dec 2023)*
+- New ECMA class-based JavaScript design
+- Actor queue overflow limits
+- Xeto support for instance data
+- Redesign how Xeto specs are mapped to Haystack dicts
+- Allow tag names to start with underbar
+- Rename Xeto function library from data to xeto
+- Fix Trio to handle T and F for true/false
+- Fix to use TLS 1.3 when supported
+- New noSort flag to ioWriteTrio
+- New funcs: nowUtc, ioCreate, ioReadXeto, ioWriteXeto
 
 *Build 3.1.8 (9 Jun 2023)*
 - Axon shell
