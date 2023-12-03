@@ -16,7 +16,7 @@ using haystack::UnknownSpecErr
 @Js
 const final class MLib
 {
-  new make(MEnv env, FileLoc loc, Int nameCode, MNameDict meta, Version version, MLibDepend[] depends, Str:Spec typesMap, Str:Dict instancesMap)
+  new make(MEnv env, FileLoc loc, Int nameCode, MNameDict meta, Version version, MLibDepend[] depends, Str:Spec topsMap, Str:Dict instancesMap)
   {
     this.env          = env
     this.loc          = loc
@@ -26,7 +26,7 @@ const final class MLib
     this.meta         = meta
     this.version      = version
     this.depends      = depends
-    this.typesMap     = typesMap
+    this.topsMap      = topsMap
     this.instancesMap = instancesMap
   }
 
@@ -46,22 +46,48 @@ const final class MLib
 
   const LibDepend[] depends
 
-  const Str:Spec typesMap
+  const Str:Spec topsMap
 
   const Str:Dict instancesMap
 
-  once Spec[] types()
+  once Spec[] tops()
   {
-    if (typesMap.isEmpty)
+    if (topsMap.isEmpty)
       return Spec#.emptyList
     else
-      return typesMap.vals.sort |a, b| { a.name <=> b.name }.toImmutable
+      return topsMap.vals.sort |a, b| { a.name <=> b.name }.toImmutable
+  }
+
+  Spec? top(Str name, Bool checked := true)
+  {
+    x := topsMap[name]
+    if (x != null) return x
+    if (checked) throw UnknownSpecErr(this.name + "::" + name)
+    return null
+  }
+
+  once Spec[] types()
+  {
+    tops.findAll |x| { x.isType }.toImmutable
   }
 
   Spec? type(Str name, Bool checked := true)
   {
-    type := typesMap[name]
-    if (type != null) return type
+    top := top(name, checked)
+    if (top != null && top.isType) return top
+    if (checked) throw UnknownSpecErr(this.name + "::" + name)
+    return null
+  }
+
+  once Spec[] globals()
+  {
+    tops.findAll |x| { x.isGlobal }.toImmutable
+  }
+
+  Spec? global(Str name, Bool checked := true)
+  {
+    top := top(name, checked)
+    if (top != null && top.isGlobal) return top
     if (checked) throw UnknownSpecErr(this.name + "::" + name)
     return null
   }
@@ -163,9 +189,17 @@ const final class XetoLib : Lib, haystack::Dict
 
   override LibDepend[] depends() { m.depends }
 
+  override Spec[] tops() { m.tops }
+
+  override Spec? top(Str name, Bool checked := true) { m.top(name, checked) }
+
   override Spec[] types() { m.types }
 
   override Spec? type(Str name, Bool checked := true) { m.type(name, checked) }
+
+  override Spec[] globals() { m.globals }
+
+  override Spec? global(Str name, Bool checked := true) { m.global(name, checked) }
 
   override Dict[] instances() { m.instances }
 

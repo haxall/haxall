@@ -28,7 +28,7 @@ internal class LoadFactories : Step
     if (loader != null)
     {
       specNames := Str[,]
-      lib.specs.each |spec|
+      lib.tops.each |spec|
       {
         specNames.add(spec.name)
       }
@@ -36,7 +36,7 @@ internal class LoadFactories : Step
     }
 
     // now assign factories to all type level types
-    lib.specs.each |spec|
+    lib.tops.each |spec|
     {
       assignFactory(spec, factories)
     }

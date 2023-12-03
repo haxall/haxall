@@ -31,7 +31,7 @@ internal class CheckErrors : Step
   Void checkLib(ALib x)
   {
     checkLibMeta(lib)
-    x.specs.each |type| { checkType(type) }
+    x.tops.each |type| { checkType(type) }
     x.instances.each |instance| { checkDict(instance) }
   }
 

@@ -38,11 +38,23 @@ const mixin Lib : Dict
   ** List the dependencies
   abstract LibDepend[] depends()
 
+  ** List the top level specs (types and global slots)
+  abstract Spec[] tops()
+
+  ** Lookup a top level spec in this library by simple name (type or global slot)
+  abstract Spec? top(Str name, Bool checked := true)
+
   ** List the top level types
   abstract Spec[] types()
 
   ** Lookup a top level type spec in this library by simple name
   abstract Spec? type(Str name, Bool checked := true)
+
+  ** List the top level global slots
+  abstract Spec[] globals()
+
+  ** Lookup a top level global slot spec in this library by simple name
+  abstract Spec? global(Str name, Bool checked := true)
 
   ** List the instance data dicts declared in this library
   abstract Dict[] instances()

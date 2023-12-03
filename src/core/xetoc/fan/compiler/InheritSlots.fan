@@ -21,7 +21,7 @@ internal class InheritSlots : Step
 {
   override Void run()
   {
-    lib.specs.each |spec| { inherit(spec) }
+    lib.tops.each |spec| { inherit(spec) }
     bombIfErr
   }
 

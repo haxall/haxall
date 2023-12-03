@@ -151,9 +151,9 @@ const class MSpec
 // Flags
 //////////////////////////////////////////////////////////////////////////
 
-  virtual Bool isLib() { false }
-
   virtual Bool isType() { false }
+
+  virtual Bool isGlobal() { false }
 
   Bool hasFlag(Int flag) { flags.and(flag) != 0 }
 
@@ -303,6 +303,8 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override final Bool isOr() { XetoUtil.isOr(this) }
 
   override final Bool isType() { m.isType }
+
+  override final Bool isGlobal() { m.isGlobal }
 
   override final Bool isMaybe()  { m.hasFlag(MSpecFlags.maybe) }
   override final Bool isScalar() { m.hasFlag(MSpecFlags.scalar) }

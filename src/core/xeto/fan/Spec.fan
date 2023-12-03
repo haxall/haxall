@@ -99,6 +99,9 @@ const mixin Spec : Dict
   ** Is this a top level type spec
   @NoDoc abstract Bool isType()
 
+  ** Is this a top level global slot spec
+  @NoDoc abstract Bool isGlobal()
+
   ** Does this spec directly inherits from And/Or and define 'ofs'
   @NoDoc abstract Bool isCompound()
 

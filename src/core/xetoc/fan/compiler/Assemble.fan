@@ -23,16 +23,16 @@ internal class Assemble : Step
   private Void asmLib(ALib x)
   {
     nameCode := env.names.add(x.name)
-    m := MLib(env, x.loc, nameCode, x.meta.asm, x.version, compiler.depends, asmTypes(x), asmInstances(x))
+    m := MLib(env, x.loc, nameCode, x.meta.asm, x.version, compiler.depends, asmTops(x), asmInstances(x))
     XetoLib#m->setConst(x.asm, m)
-    lib.specs.each |spec| { asmType(spec) }
+    lib.tops.each |spec| { asmTop(spec) }
   }
 
-  private Str:Spec asmTypes(ALib x)
+  private Str:Spec asmTops(ALib x)
   {
-    if (x.specs.isEmpty) return noSpecs
+    if (x.tops.isEmpty) return noSpecs
     acc := Str:Spec[:]
-    x.specs.each |t, n| { acc.add(n, t.asm) }
+    x.tops.each |t, n| { acc.add(n, t.asm) }
     return acc
   }
 
@@ -44,9 +44,11 @@ internal class Assemble : Step
     return acc
   }
 
-  private Void asmType(ASpec x)
+  private Void asmTop(ASpec x)
   {
-    m := MType(x.loc, env, x.lib.asm, x.qname, x.nameCode, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args, x.factory)
+    m := x.isType ?
+           MType(x.loc, env, x.lib.asm, x.qname, x.nameCode, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args, x.factory) :
+         MGlobal(x.loc, env, x.lib.asm, x.qname, x.nameCode, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }

@@ -3,26 +3,25 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   23 Feb 2023  Brian Frank  Creation
+//   3 Dec 2023  Brian Frank  Creation
 //
 
 using util
 using xeto
 
 **
-** Implementation of top-level type spec
+** Implementation of top-level global slot spec
 **
 @Js
-const final class MType : MSpec
+const final class MGlobal : MSpec
 {
-  new make(FileLoc loc, XetoEnv env, XetoLib lib, Str qname, Int nameCode, XetoType? base, XetoType self, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args, SpecFactory factory)
+  new make(FileLoc loc, XetoEnv env, XetoLib lib, Str qname, Int nameCode, XetoType? base, XetoType self, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
     : super(loc, env, null, nameCode, base, self, meta, metaOwn, slots, slotsOwn, flags, args)
   {
     this.lib       = lib
     this.qname     = qname
     this.id        = haystack::Ref(qname, null)
     this.type      = self
-    this.factory   = factory
   }
 
   const override XetoLib lib
@@ -31,22 +30,20 @@ const final class MType : MSpec
 
   const override haystack::Ref id
 
-  override Bool isType() { true }
-
-  override const SpecFactory factory
+  override Bool isGlobal() { true }
 
   override Str toStr() { qname }
 }
 
 **************************************************************************
-** XetoType
+** XetoGlobal
 **************************************************************************
 
 **
-** XetoType is the referential proxy for MType
+** XetoGlobal is the referential proxy for MGlobal
 **
 @Js
-const class XetoType : XetoSpec
+const class XetoGlobal : XetoSpec
 {
   new make() : super() {}
 }

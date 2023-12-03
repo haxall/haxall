@@ -59,6 +59,12 @@ internal class ASpec : ANode, CSpec
   ** Is this a library top level spec
   Bool isTop() { parent == null }
 
+  ** Is this a top-level type
+  Bool isType() { isTop && !name[0].isLower }
+
+  ** Is this a top-level global slot
+  Bool isGlobal() { isTop && name[0].isLower }
+
   ** Name code in names table
   const Int nameCode
 

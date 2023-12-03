@@ -43,17 +43,17 @@ internal class ALib : ADoc
   Version? version
 
   ** Top level specs
-  Str:ASpec specs := [:] { ordered = true }
+  Str:ASpec tops := [:] { ordered = true }
 
   ** Lookup top level spec
-  ASpec? spec(Str name) { specs.get(name) }
+  ASpec? top(Str name) { tops.get(name) }
 
   ** Tree walk
   override Void walk(|ANode| f)
   {
     meta.walk(f)
+    tops.each |x| { x.walk(f) }
     instances.each |x| { x.walk(f) }
-    specs.each |x| { x.walk(f) }
     f(this)
   }
 
@@ -64,7 +64,7 @@ internal class ALib : ADoc
   ** Debug dump
   override Void dump(OutStream out := Env.cur.out, Str indent := "")
   {
-    specs.each |spec|
+    tops.each |spec|
     {
       spec.dump(out, indent)
       out.printLine.printLine

@@ -18,7 +18,7 @@ internal class InheritMeta : Step
   override Void run()
   {
     if (isData) return
-    lib.specs.each |spec| { inherit(spec) }
+    lib.tops.each |spec| { inherit(spec) }
     bombIfErr
   }
 

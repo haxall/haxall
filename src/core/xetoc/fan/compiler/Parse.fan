@@ -68,7 +68,7 @@ internal class Parse : Step
   private ADict? validateLibPragma(ALib lib)
   {
     // remove object named "pragma" from root
-    pragma := lib.specs.remove("pragma")
+    pragma := lib.tops.remove("pragma")
 
     // if not found
     if (pragma == null)

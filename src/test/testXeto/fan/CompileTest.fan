@@ -287,7 +287,7 @@ class CompileTest : AbstractXetoTest
   {
     x := lib.instance(name)
     id := Ref(lib.name + "::" + name, null)
-echo("-- $id =>"); TrioWriter(Env.cur.out).writeDict(x)
+    // echo("-- $id =>"); TrioWriter(Env.cur.out).writeDict(x)
     verifyEq(lib.instances.containsSame(x), true)
     verifyRefEq(x->id, id)
     verifyDictEq(x, expect.dup.set("id", id).set("spec", Ref(spec.qname)))

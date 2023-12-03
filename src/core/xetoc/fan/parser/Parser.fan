@@ -124,7 +124,7 @@ internal class Parser
     parseLibObjEnd("spec")
 
     // make sure name is unique
-    add("spec", lib.specs, spec.name, spec)
+    add("spec", lib.tops, spec.name, spec)
 
     return true
   }
@@ -197,7 +197,7 @@ internal class Parser
     parseSpecBody(spec)
 
     // add synthetic spec to the library
-    add("spec", lib.specs, spec.name, spec)
+    add("spec", lib.tops, spec.name, spec)
 
     // return type ref to our synthetic spec for dict itself
     return ASpecRef(loc, spec)
