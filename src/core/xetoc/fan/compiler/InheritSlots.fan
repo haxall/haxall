@@ -57,15 +57,17 @@ internal class InheritSlots : Step
     // special handling for sys::Obj
     if (spec.isObj) { spec.cslotsRef = noSlots; return }
 
-    // infer type if unspecified or process subtype;
-    // this method returns the spec to use for the base
-    spec.base = inferType(spec)
+    // infer the base we inherit from (may be null)
+    spec.base = inferBase(spec)
+
+    // now infer the type of the spec
+    spec.typeRef = inferType(spec)
+
+    // if we couldn't infer base before, then use type as base
+    if (spec.base == null) spec.base = spec.type
 
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
-
-    // check for global slot
-    inheritGlobal(spec)
 
     // compute effective flags
     inheritFlags(spec)
@@ -78,45 +80,30 @@ internal class InheritSlots : Step
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Infer Type
+// Infer Base
 //////////////////////////////////////////////////////////////////////////
 
-  ** If x does not have an explicit type specified, then infer
-  ** it from either given base or whether it is a scalar/dict.
-  ** If a type is given, then we use that to decide if we need
-  ** clear maybe flag (set to None).  Return base to use for specs.
-  CSpec inferType(ASpec x)
+  ** Infer the base spec we inherit from
+  CSpec? inferBase(ASpec x)
   {
-    // get base the spec inherits from
-    base := x.base ?: x.type
-    if (base == null) base = inferBase(x)
+    // if already inferred
+    if (x.base != null) return x.base
 
-    // if source didn't specify the type, then we infer we must infer type
-    if (x.typeRef == null)
-    {
-      // infer type from base, or if not specified then
-      // scalars default to str and everything else to dict
-      if (base != null)
-        x.typeRef = ASpecRef(x.loc, base.ctype)
-      else
-        x.typeRef = x.val == null ? sys.dict : sys.str
-    }
+    // first try to inherit from parent spec's inherited slot
+    base := inferBaseInherited(x)
+    if (base != null) return base
 
-    // we have an explicit type
-    else
-    {
-      // if base is maybe and my own type is not then clear maybe flag
-      if (base.isMaybe && !x.metaHas("maybe"))
-        x.metaSetNone("maybe")
-    }
+    // infer base from global slot
+    base = inferBaseGlobal(x)
+    if (base != null) return base
 
-    // return the spec to use for the base
-    return base ?: x.type
+    // try to infer from the explicit type if available
+    return x.type
   }
 
-  ** Attempt to infer base from parent type if not specified
+  ** Attempt to infer base from parent type's inherited slots
   ** NOTE: this code gets used in deeply nested specs
-  private CSpec? inferBase(ASpec x)
+  private CSpec? inferBaseInherited(ASpec x)
   {
     if (x.parent?.ctype != null)
     {
@@ -126,24 +113,48 @@ internal class InheritSlots : Step
     return x.base
   }
 
+  ** Attempt to infer base from global slots
+  private CSpec? inferBaseGlobal(ASpec x)
+  {
+    // don't process top-level types/globals
+    if (x.isTop) return null
+
+     // check for global slot with this name
+     return resolveGlobal(x.name, x.loc)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Infer Type
+//////////////////////////////////////////////////////////////////////////
+
+  ** If x does not have an explicit type specified, then infer
+  ** it from either given base or whether it is a scalar/dict.
+  ** If a type is given, then we use that to decide if we need
+  ** clear maybe flag (set to None).
+  ASpecRef inferType(ASpec x)
+  {
+    // if already specified use it
+    if (x.typeRef != null)
+    {
+      // if base is maybe and my own type is not then clear maybe flag
+      if (x.base != null && x.base.isMaybe && !x.metaHas("maybe"))
+        x.metaSetNone("maybe")
+
+      return x.typeRef
+    }
+
+    // infer type from base
+    if (x.base != null) return ASpecRef(x.loc, x.base.ctype)
+
+    // scalars default to str and everything else to dict
+    return x.typeRef = x.val == null ? sys.dict : sys.str
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Global Slots
 //////////////////////////////////////////////////////////////////////////
 
-  ** Check if slot should inherit from a global slot
-  private Void inheritGlobal(ASpec x)
-  {
-    // don't process top-level types/globals
-    if (x.isTop) return
-
-     // check for global slot with this name
-     global := resolveGlobal(x.name, x.loc)
-     if (global == null) return
-
-     // TODO
-     x.base = global
-  }
-
+  ** Lookup global slot for given slot name
   private CSpec? resolveGlobal(Str name, FileLoc loc)
   {
     if (!globals.containsKey(name))
