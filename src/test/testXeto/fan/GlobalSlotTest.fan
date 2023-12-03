@@ -35,9 +35,14 @@ class GlobalSlotTest : AbstractXetoTest
      t := lib.top("Person")
      m := t.slot("person")
 
+     // Lib.top lookups
      verifyEq(lib.tops, Spec[t, g])
      verifyEq(lib.tops.isImmutable, true)
+     verifyEq(lib.top("Bad", false), null)
+     verifyErr(UnknownSpecErr#) { lib.top("Bad") }
+     verifyErr(UnknownSpecErr#) { lib.top("bad", true) }
 
+     // Lib.global lookups
      verifyEq(g.isType, false)
      verifyEq(g.isGlobal, true)
      verifyEq(lib.globals, Spec[g])
@@ -47,6 +52,7 @@ class GlobalSlotTest : AbstractXetoTest
      verifyErr(UnknownSpecErr#) { lib.type("person") }
      verifyErr(UnknownSpecErr#) { lib.type("person", true) }
 
+     // Lib.type lookups
      verifyEq(t.isType, true)
      verifyEq(t.isGlobal, false)
      verifyEq(lib.types, Spec[t])
@@ -55,6 +61,10 @@ class GlobalSlotTest : AbstractXetoTest
      verifyErr(UnknownSpecErr#) { lib.global("Person") }
      verifyErr(UnknownSpecErr#) { lib.global("Person", true) }
 
-     // verifySame(m.base, g)
+     // verify Person.person is derived from global person
+     verifySame(m.base, g)
+     verifySame(m.type, env.spec("sys::Marker"))
+     verifyEq(m.meta["doc"], "Person global slot marker")
+     verifyEq(m.meta["foo"], Marker.val)
   }
 }

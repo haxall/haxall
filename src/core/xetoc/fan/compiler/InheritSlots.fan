@@ -64,6 +64,9 @@ internal class InheritSlots : Step
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
 
+    // check for global slot
+    inheritGlobal(spec)
+
     // compute effective flags
     inheritFlags(spec)
 
@@ -121,6 +124,54 @@ internal class InheritSlots : Step
       if (p != null) return p
     }
     return x.base
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Global Slots
+//////////////////////////////////////////////////////////////////////////
+
+  ** Check if slot should inherit from a global slot
+  private Void inheritGlobal(ASpec x)
+  {
+    // don't process top-level types/globals
+    if (x.isTop) return
+
+     // check for global slot with this name
+     global := resolveGlobal(x.name, x.loc)
+     if (global == null) return
+
+     // TODO
+     x.base = global
+  }
+
+  private CSpec? resolveGlobal(Str name, FileLoc loc)
+  {
+    if (!globals.containsKey(name))
+      globals[name] = doResolveGlobal(name, loc)
+    return globals[name]
+  }
+
+  private CSpec? doResolveGlobal(Str name, FileLoc loc)
+  {
+    // walk thru my lib and dependencies
+    acc := CSpec[,]
+
+    // check my own lib
+    mine := lib.tops[name]
+    if (mine != null && mine.isGlobal) acc.add(mine)
+
+    // check my dependencies
+    // TODO
+
+    // no global slots by this name
+    if (acc.isEmpty) return null
+
+    // exactly one
+    if (acc.size == 1) return acc.first
+
+    // duplicate global slots with this name
+    err("Duplicate global slots: $name", loc)
+    return null
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -317,4 +368,5 @@ internal class InheritSlots : Step
   const Str:CSpec noSlots := Str:CSpec[:]
 
   private ASpec[] stack := [,]
+  private Str:CSpec? globals := [:]
 }
