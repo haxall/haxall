@@ -154,8 +154,11 @@ internal class RemoteLoader
     if (x.isType)
     {
       factory := assignFactory(x)
-      qname   := StrBuf(libName.size + 2 + x.name.size).add(libName).addChar(':').addChar(':').add(x.name).toStr
-      m = MType(loc, env, lib, qname, x.nameCode, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, factory)
+      m = MType(loc, env, lib, qname(x), x.nameCode, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, factory)
+    }
+    else if (x.isGlobal)
+    {
+      m = MGlobal(loc, env, lib, qname(x), x.nameCode, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
     else
     {
@@ -164,6 +167,11 @@ internal class RemoteLoader
     }
     XetoSpec#m->setConst(x.asm, m)
     return x
+  }
+
+  private Str qname(RSpec x)
+  {
+    StrBuf(libName.size + 2 + x.name.size).add(libName).addChar(':').addChar(':').add(x.name).toStr
   }
 
   private MNameDict loadMetaOwn(RSpec x)

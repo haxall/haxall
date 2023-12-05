@@ -87,13 +87,13 @@ class XetoBinaryWriter : XetoBinaryConst
     writeI4(magicLib)
     writeName(lib.m.nameCode)
     writeNameDict(lib.m.meta.wrapped)
-    writeTypes(lib)
+    writeTops(lib)
     writeI4(magicLibEnd)
   }
 
-  private Void writeTypes(XetoLib lib)
+  private Void writeTops(XetoLib lib)
   {
-    lib.types.each |type| { writeSpec(type) }
+    lib.tops.each |x| { writeSpec(x) }
     writeVarInt(-1)
   }
 
