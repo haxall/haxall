@@ -137,16 +137,57 @@ class GlobalSlotTest : AbstractXetoTest
      verifySame(ruxB, quxB)
   }
 
-  Spec verifyGlobal(Spec global, Spec type, Str:Obj meta)
+//////////////////////////////////////////////////////////////////////////
+// PH
+//////////////////////////////////////////////////////////////////////////
+
+  Void testPh()
+  {
+    lib := compileLib(
+      Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" } } >
+
+           Foo: Dict {
+             zone
+             space
+             area: Number
+           }
+           |>)
+
+     ph := env.lib("ph")
+
+     marker := env.spec("sys::Marker")
+     number := env.spec("sys::Number")
+
+     zone  := verifyGlobal(ph.global("zone"),  marker, null)
+     space := verifyGlobal(ph.global("space"), marker, null)
+     area  := verifyGlobal(ph.global("area"),  number, null)
+
+     foo := lib.type("Foo")
+     // env.print(foo)
+
+    verifySlot(foo, "zone",  zone,  marker)
+    verifySlot(foo, "space", space, marker)
+    verifySlot(foo, "area",  area,  number)
+
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  Spec verifyGlobal(Spec global, Spec type, [Str:Obj]? meta)
   {
     verifySame(global.type, type)
     verifySame(global.base, type)
-    verifyDictEq(global.metaOwn, meta)
-    meta.each |v, n| { verifyEq(global.meta[n], v) }
+    if (meta != null)
+    {
+      verifyDictEq(global.metaOwn, meta)
+      meta.each |v, n| { verifyEq(global.meta[n], v) }
+    }
     return global
   }
 
-  Spec verifySlot(Spec parent, Str name, Spec base, Spec type, Str:Obj meta)
+  Spec verifySlot(Spec parent, Str name, Spec base, Spec type, Str:Obj meta := [:])
   {
     slot := parent.slot(name)
     verifySame(slot.base, base)

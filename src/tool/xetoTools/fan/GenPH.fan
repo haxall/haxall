@@ -17,8 +17,8 @@ internal class GenPH : XetoCmd
 
   override Str summary() { "Compile haystack defs into xeto ph lib" }
 
-  @Opt { help = "Directory for 'lib/data/ph/' to output to" }
-  File outDir := Env.cur.workDir + `lib/data/ph/`
+  @Opt { help = "Directory to output" }
+  File outDir := Env.cur.workDir + `src/xeto/ph/`
 
 //////////////////////////////////////////////////////////////////////////
 // Run
@@ -29,6 +29,7 @@ internal class GenPH : XetoCmd
     checkInputs
     compileNamespace
     writeLib
+    writeTags
     writeEntities
     return 0
   }
@@ -64,9 +65,9 @@ internal class GenPH : XetoCmd
       out.printLine(
        """pragma: Lib <
             doc: "Project haystack core library"
-            version: "$ph.version.toStr"
+            version: "0.1.1"
             depends: {
-              { lib: "sys" }
+              { lib: "sys", versions: "0.1.x" }
             }
             org: {
              dis: "Project Haystack"
@@ -74,6 +75,69 @@ internal class GenPH : XetoCmd
             }
           >""")
     }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Write Tags
+//////////////////////////////////////////////////////////////////////////
+
+  private Void writeTags()
+  {
+    // get all the entity defs
+    tags := Def[,]
+    ns.eachDef |def| { if (def.symbol.type.isTag) tags.add(def) }
+    tags.sort |a, b| { a.name <=> b.name }
+
+    write(`tags.xeto`) |out|
+    {
+      tags.each |def|
+      {
+        name := def.name
+        kind := ns.defToKind(def)
+        meta := toTagMeta(def, kind)
+
+        if (excludeTag(def, kind)) return
+
+        writeDoc(out, def)
+        out.printLine("$name: $kind.name $meta".trim)
+        out.printLine
+      }
+    }
+  }
+
+  private Bool excludeTag(Def def, Kind kind)
+  {
+    // skip marker, str, list, etc
+    n := def.name
+    if (n == kind.name.decapitalize) return true
+
+    if (n == "doc") return true
+    if (n == "enum") return true
+    if (n == "is") return true
+    if (n == "mandatory") return true
+    if (n == "notInherited") return true
+    if (n == "tagOn") return true
+    if (n == "transient") return true
+
+    return false
+  }
+
+  private const Symbol defSymbol := Symbol("def")
+
+  private Str toTagMeta(Def def, Kind kind)
+  {
+    if (kind.isList)
+    {
+      of := def["of"]
+      if (of != null)
+      {
+        ofName := of.toStr.capitalize
+        if (ofName == "Unit") ofName = "Str"
+        if (ofName == "Phenomenon") return ""
+        return "<of:$ofName>"
+      }
+    }
+    return ""
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -73,13 +73,20 @@ verifyErrs: |
 ---
 name: "wrongGlobalType"
 compileLib: |
-  x: Str
+  pragma: Lib <
+      doc: "Test lib"
+      version: "1.2.3"
+      depends: { {lib:"sys"}, {lib:"ph"} }
+    >
+    x: Str
   y: Number
   Bar: {
     x
     y: Int // ok
+    space: Str
   }
 verifyErrs: |
   Slot 'x' type 'sys::Marker' conflicts global slot 'temp::x' of type 'sys::Str'
+  Slot 'space' type 'sys::Str' conflicts global slot 'ph::space' of type 'sys::Marker'
 ---
 
