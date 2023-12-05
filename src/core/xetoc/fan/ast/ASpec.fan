@@ -263,6 +263,13 @@ internal class ASpec : ANode, CSpec
   }
   [Str:CSpec]? cslotsRef
 
+  ** Return if spec inherits from that from a nominal type perspective.
+  ** This is the same behavior as Spec.isa, just using CSpec (XetoSpec or AST)
+  override Bool cisa(CSpec that)
+  {
+    XetoUtil.isa(this, that)
+  }
+
   ** Extract 'ofs' list of type refs from AST model
   override once CSpec[]? cofs()
   {
@@ -277,6 +284,7 @@ internal class ASpec : ANode, CSpec
   ** Inheritance flags computed in InheritSlots
   override Int flags
 
+  override Bool isNone() { lib.isSys && name == "None" }
   override Bool isScalar() { hasFlag(MSpecFlags.scalar) }
   override Bool isList() { hasFlag(MSpecFlags.list) }
   override Bool isMaybe() { hasFlag(MSpecFlags.maybe) }

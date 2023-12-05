@@ -51,11 +51,18 @@ mixin CSpec : CNode
   ** Return list of component specs for a compound type
   abstract CSpec[]? cofs()
 
+  ** Return if spec inherits from that from a nominal type perspective.
+  ** This is the same behavior as Spec.isa, just using CSpec (XetoSpec or AST)
+  abstract Bool cisa(CSpec that)
+
   ** MSpecFlags bitmask flags
   abstract Int flags()
 
   ** MSpecArgs
   abstract MSpecArgs args()
+
+  ** Is none flag set
+  abstract Bool isNone()
 
   ** Is scalar flag set
   abstract Bool isScalar()

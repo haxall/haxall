@@ -65,7 +65,7 @@ const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Return if a is-a b
-  static Bool isa(XetoSpec a, XetoSpec b, Bool isTop)
+  static Bool isa(CSpec a, CSpec b, Bool isTop := true)
   {
     // check if a and b are the same
     if (a === b) return true
@@ -76,26 +76,26 @@ const class XetoUtil
     // if A is sys::And type, then check any of A.ofs is B
     if (isAnd(a))
     {
-      ofs := a.ofs(false)
-      if (ofs != null && ofs.any |x| { x.isa(b) }) return true
+      ofs := a.cofs
+      if (ofs != null && ofs.any |x| { x.cisa(b) }) return true
     }
 
     // if A is sys::Or type, then check all of A.ofs is B
     if (isOr(a))
     {
-      ofs := a.ofs(false)
-      if (ofs != null && ofs.all |x| { x.isa(b) }) return true
+      ofs := a.cofs
+      if (ofs != null && ofs.all |x| { x.cisa(b) }) return true
     }
 
     // if B is sys::Or type, then check if A is any of B.ofs
     if (isOr(b))
     {
-      ofs := b.ofs(false)
-      if (ofs != null && ofs.any |x| { a.isa(x) }) return true
+      ofs := b.cofs
+      if (ofs != null && ofs.any |x| { a.cisa(x) }) return true
     }
 
     // check a's base type
-    if (a.base != null) return isa(a.base, b, false)
+    if (a.cbase != null) return isa(a.cbase, b, false)
 
     return false
   }

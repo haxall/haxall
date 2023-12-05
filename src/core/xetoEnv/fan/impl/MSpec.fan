@@ -262,7 +262,9 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Spec? slotOwn(Str n, Bool c := true) { m.slotOwn(n, c) }
 
-  override final Bool isa(Spec x) { XetoUtil.isa(this, x, true) }
+  override final Bool isa(Spec x) { XetoUtil.isa(this, (CSpec)x) }
+
+  override final Bool cisa(CSpec x) { XetoUtil.isa(this, x) }
 
   override final Bool fits(Spec that) { Fitter(m.env, m.env.nilContext, m.env.dict0).specFits(this, that) }
 

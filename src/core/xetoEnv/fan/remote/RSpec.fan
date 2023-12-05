@@ -63,12 +63,14 @@ internal class RSpec : CSpec, NameDictReader
   override MNameDict cmeta() { meta ?: throw Err(name) }
   override CSpec? cslot(Str name, Bool checked := true) { throw UnsupportedErr() }
   override Void cslots(|CSpec, Str| f) { slots.each |s| { f((CSpec)s, s.name) } }
+  override Bool cisa(CSpec x) { XetoUtil.isa(this, x) }
   override CSpec[]? cofs
   override Str toStr() { name }
   override MSpecArgs args := MSpecArgs.nil  // TODO
 
   // flags
   override Int flags
+  override Bool isNone() { qname == "sys::None" }
   override Bool isScalar() { hasFlag(MSpecFlags.scalar) }
   override Bool isList() { hasFlag(MSpecFlags.list) }
   override Bool isMaybe() { hasFlag(MSpecFlags.maybe) }
