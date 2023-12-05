@@ -67,6 +67,26 @@ internal class CheckErrors : Step
   Void checkSlot(ASpec x)
   {
     checkSpec(x)
+    checkSlotType(x)
+  }
+
+  Void checkSlotType(ASpec slot)
+  {
+    // get base type (inherited or global slot)
+    base := slot.base
+    baseType := base.ctype
+    if (baseType == null) return // if base is sys::Obj
+
+    // verify slot type is covariant
+    slotType := slot.ctype
+    if (!slotType.cisa(baseType))
+    {
+      if (slot.base.isGlobal)
+        err("Slot '$slot.name' type '$slotType' conflicts global slot '$base.qname' of type '$baseType'", slot.loc)
+      else
+        err("Slot '$slot.name' type '$slotType' conflicts inherited slot '$base.qname' of type '$baseType'", slot.loc)
+    }
+
   }
 
   Void checkMeta(ASpec x)
