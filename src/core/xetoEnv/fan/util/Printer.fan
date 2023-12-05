@@ -267,7 +267,7 @@ class Printer
     print(lib.name)
     bracket(" {").nl
     indention++
-    lib.types.each |t| { specTop(t).nl.nl }
+    lib.tops.each |t| { specTop(t).nl.nl }
     indention--
     bracket("}").nl
     return this

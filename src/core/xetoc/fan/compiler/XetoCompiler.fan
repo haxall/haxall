@@ -18,6 +18,17 @@ internal class XetoCompiler
 {
 
 //////////////////////////////////////////////////////////////////////////
+// Constructor
+//////////////////////////////////////////////////////////////////////////
+
+  ** Constructor
+  new make()
+  {
+    this.sys = ASys()
+    this.ns  = ANamespace(this)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Inputs
 //////////////////////////////////////////////////////////////////////////
 
@@ -184,7 +195,8 @@ internal class XetoCompiler
 //////////////////////////////////////////////////////////////////////////
 
   XetoCompilerErr[] errs := [,]        // err
-  internal ASys sys := ASys()          // make
+  internal ASys sys                    // make
+  internal ANamespace ns               // make
   internal Duration? duration          // run
   internal Bool isLib                  // Init (false isData)
   internal Bool isSys                  // Init
@@ -192,7 +204,6 @@ internal class XetoCompiler
   internal ALib? lib                   // Parse (compileLib only)
   internal ADataDoc? data              // Parse (compileData only)
   internal ADict? pragma               // Parse
-  internal MLibDepend[]? depends       // ProcessPragma
   internal Dict? json                  // JSON output
   internal Bool externRefs             // allow unresolved refs to compile
   private Str[] autoNames := [,]       // autoName

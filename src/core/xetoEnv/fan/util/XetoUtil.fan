@@ -240,9 +240,9 @@ const class XetoUtil
 
     slots := Str:Obj[:]
     slots.ordered = true
-    lib.types.each |type|
+    lib.tops.each |spec|
     {
-      slots.add(type.name, genAstSpec(env, type, isOwn, opts))
+      slots.add(spec.name, genAstSpec(env, spec, isOwn, opts))
     }
     acc.add("slots", env.dictMap(slots))
 

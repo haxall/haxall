@@ -29,6 +29,8 @@ abstract internal class Step
 
   ASys sys() { compiler.sys }
 
+  ANamespace ns() { compiler.ns }
+
   ADoc ast() { compiler.ast }
 
   ADataDoc data() { compiler.data }
