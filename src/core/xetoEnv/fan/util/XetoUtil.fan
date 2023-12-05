@@ -74,21 +74,21 @@ const class XetoUtil
     if (b.isNone && a.isMaybe && isTop) return true
 
     // if A is sys::And type, then check any of A.ofs is B
-    if (isAnd(a))
+    if (a.isBaseAnd)
     {
       ofs := a.cofs
       if (ofs != null && ofs.any |x| { x.cisa(b) }) return true
     }
 
     // if A is sys::Or type, then check all of A.ofs is B
-    if (isOr(a))
+    if (a.isBaseOr)
     {
       ofs := a.cofs
       if (ofs != null && ofs.all |x| { x.cisa(b) }) return true
     }
 
     // if B is sys::Or type, then check if A is any of B.ofs
-    if (isOr(b))
+    if (b.isBaseOr)
     {
       ofs := b.cofs
       if (ofs != null && ofs.any |x| { a.cisa(x) }) return true
@@ -99,14 +99,6 @@ const class XetoUtil
 
     return false
   }
-
-  static Bool isNone(XetoSpec x)  { x === x.m.env.sys.none }
-
-  static Bool isAnd(XetoSpec x) { x.base === x.m.env.sys.and }
-
-  static Bool isOr(XetoSpec x) { x.base === x.m.env.sys.or  }
-
-  static Bool isCompound(XetoSpec x) { (isAnd(x) || isOr(x)) && x.ofs(false) != null }
 
 //////////////////////////////////////////////////////////////////////////
 // Derive

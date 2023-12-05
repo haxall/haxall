@@ -60,10 +60,13 @@ internal class ASpec : ANode, CSpec
   Bool isTop() { parent == null }
 
   ** Is this a top-level type
-  Bool isType() { isTop && !name[0].isLower }
+  override Bool isType() { isTop && !name[0].isLower }
 
   ** Is this a top-level global slot
-  Bool isGlobal() { isTop && name[0].isLower }
+  override Bool isGlobal() { isTop && name[0].isLower }
+
+  ** Are we compiling sys itself
+  override Bool isSys() { lib.isSys }
 
   ** Name code in names table
   const Int nameCode
@@ -281,10 +284,15 @@ internal class ASpec : ANode, CSpec
     return acc.ro
   }
 
+  override Bool isNone() { isSys && name == "None" }
+
+  override Bool isBaseAnd() { base != null && base.isSys && base.name == "And" }
+
+  override Bool isBaseOr() { base != null && base.isSys && base.name == "Or" }
+
   ** Inheritance flags computed in InheritSlots
   override Int flags
 
-  override Bool isNone() { lib.isSys && name == "None" }
   override Bool isScalar() { hasFlag(MSpecFlags.scalar) }
   override Bool isList() { hasFlag(MSpecFlags.list) }
   override Bool isMaybe() { hasFlag(MSpecFlags.maybe) }

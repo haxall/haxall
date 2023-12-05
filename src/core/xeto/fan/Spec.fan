@@ -102,23 +102,23 @@ const mixin Spec : Dict
   ** Is this a top level global slot spec
   @NoDoc abstract Bool isGlobal()
 
+  ** Is this the sys::None spec itself
+  @NoDoc abstract Bool isNone()
+
+  ** Does this spec directly inherit from And where base is sys::And
+  @NoDoc abstract Bool isBaseAnd()
+
+  ** Does this spec directly inherit from Or where base is sys::Or
+  @NoDoc abstract Bool isBaseOr()
+
   ** Does this spec directly inherits from And/Or and define 'ofs'
   @NoDoc abstract Bool isCompound()
-
-  ** Does this spec directly inherit from And
-  @NoDoc abstract Bool isAnd()
-
-  ** Does this spec directly inherit from Or
-  @NoDoc abstract Bool isOr()
 
   ** Return component spec for a collection/ref type
   @NoDoc abstract Spec? of(Bool checked := true)
 
   ** Return list of component specs for a compound type
   @NoDoc abstract Spec[]? ofs(Bool checked := true)
-
-  ** Is this the None type itself
-  @NoDoc abstract Bool isNone()
 
   ** Inherits directly from 'sys::Scalar' without considering And/Or
   @NoDoc abstract Bool isScalar()

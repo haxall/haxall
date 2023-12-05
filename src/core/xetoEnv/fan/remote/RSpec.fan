@@ -22,7 +22,8 @@ internal class RSpec : CSpec, NameDictReader
     this.libName  = libName
     this.asm      = asm
     this.parent   = parent
-    this.isType   = parent == null
+    this.isType   = parent == null && !name[0].isLower
+    this.isGlobal = parent == null && name[0].isLower
     this.name     = name
     this.nameCode = nameCode
   }
@@ -31,8 +32,9 @@ internal class RSpec : CSpec, NameDictReader
   const override XetoSpec asm
   const override Str name
   const Int nameCode
-  const Bool isType
   RSpec? parent { private set }
+  const override Bool isType
+  const override Bool isGlobal
 
   // decoded by XetoBinaryReader
   RSpecRef? baseIn
@@ -68,9 +70,13 @@ internal class RSpec : CSpec, NameDictReader
   override Str toStr() { name }
   override MSpecArgs args := MSpecArgs.nil  // TODO
 
+  override final Bool isSys() { libName =="sys" }
+  override final Bool isNone() { qname == "sys::None" }
+  override final Bool isBaseAnd() { base != null && base.qname == "sys::And" }
+  override final Bool isBaseOr() { base != null && base.qname == "sys::Or" }
+
   // flags
   override Int flags
-  override Bool isNone() { qname == "sys::None" }
   override Bool isScalar() { hasFlag(MSpecFlags.scalar) }
   override Bool isList() { hasFlag(MSpecFlags.list) }
   override Bool isMaybe() { hasFlag(MSpecFlags.maybe) }

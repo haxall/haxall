@@ -232,7 +232,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   new makem(MSpec m) { this.m = m }
 
-  override XetoEnv env() { m.env }
+  override MEnv env() { m.env }
 
   override Lib lib() { m.lib }
 
@@ -290,23 +290,23 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Str toStr() { m?.toStr ?: super.toStr }
 
-  override final Bool isCompound()  { XetoUtil.isCompound(this) }
-
   override final MSpecArgs args() { m.args }
 
   override final Spec? of(Bool checked := true) { m.args.of(checked) }
 
   override final Spec[]? ofs(Bool checked := true)  { m.args.ofs(checked) }
 
-  override final Bool isNone() { XetoUtil.isNone(this) }
-
-  override final Bool isAnd() { XetoUtil.isAnd(this) }
-
-  override final Bool isOr() { XetoUtil.isOr(this) }
-
   override final Bool isType() { m.isType }
 
   override final Bool isGlobal() { m.isGlobal }
+
+  override final Bool isSys() { lib === env.sysLib }
+
+  override final Bool isNone() { this === env.sys.none }
+
+  override final Bool isBaseAnd() { base === env.sys.and }
+
+  override final Bool isBaseOr() { base === env.sys.or }
 
   override final Bool isMaybe()  { m.hasFlag(MSpecFlags.maybe) }
   override final Bool isScalar() { m.hasFlag(MSpecFlags.scalar) }

@@ -61,8 +61,26 @@ mixin CSpec : CNode
   ** MSpecArgs
   abstract MSpecArgs args()
 
-  ** Is none flag set
+  ** Is this spec in the 'sys' library
+  abstract Bool isSys()
+
+  ** Is this a top-level type spec
+  abstract Bool isType()
+
+  ** Is this a top-level global slot spec
+  abstract Bool isGlobal()
+
+  ** Is this the sys::None spec
   abstract Bool isNone()
+
+  ** Does this spec directly inherit from And where base is sys::And
+  abstract Bool isBaseAnd()
+
+  ** Does this spec directly inherit from Or where base is sys::Or
+  abstract Bool isBaseOr()
+
+  ** Does this spec directly inherits from And/Or and define 'ofs'
+  Bool isCompound() { (isBaseAnd || isBaseOr) && cofs != null }
 
   ** Is scalar flag set
   abstract Bool isScalar()
