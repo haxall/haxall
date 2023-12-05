@@ -110,7 +110,7 @@ internal class InheritSlots : Step
       p := x.parent.ctype.cslot(x.name, false)
       if (p != null) return p
     }
-    return x.base
+    return null
   }
 
   ** Attempt to infer base from global slots
@@ -120,7 +120,7 @@ internal class InheritSlots : Step
     if (x.isTop) return null
 
      // check for global slot with this name
-     return resolveGlobal(x.name, x.loc)
+     return ns.resolveGlobal(x.name, x.loc)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -148,41 +148,6 @@ internal class InheritSlots : Step
 
     // scalars default to str and everything else to dict
     return x.typeRef = x.val == null ? sys.dict : sys.str
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Global Slots
-//////////////////////////////////////////////////////////////////////////
-
-  ** Lookup global slot for given slot name
-  private CSpec? resolveGlobal(Str name, FileLoc loc)
-  {
-    if (!globals.containsKey(name))
-      globals[name] = doResolveGlobal(name, loc)
-    return globals[name]
-  }
-
-  private CSpec? doResolveGlobal(Str name, FileLoc loc)
-  {
-    // walk thru my lib and dependencies
-    acc := CSpec[,]
-
-    // check my own lib
-    mine := lib.tops[name]
-    if (mine != null && mine.isGlobal) acc.add(mine)
-
-    // check my dependencies
-    // TODO
-
-    // no global slots by this name
-    if (acc.isEmpty) return null
-
-    // exactly one
-    if (acc.size == 1) return acc.first
-
-    // duplicate global slots with this name
-    err("Duplicate global slots: $name", loc)
-    return null
   }
 
 //////////////////////////////////////////////////////////////////////////

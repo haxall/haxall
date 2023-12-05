@@ -41,7 +41,10 @@ internal class ANamespace
     if (mine != null && mine.isGlobal) acc.add(mine)
 
     // check my dependencies
-    // TODO
+    dependLibs.each |lib|
+    {
+      acc.addNotNull(lib.global(name, false) as CSpec)
+    }
 
     // no global slots by this name
     if (acc.isEmpty) return null

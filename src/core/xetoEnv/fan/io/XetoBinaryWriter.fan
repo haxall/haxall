@@ -120,20 +120,20 @@ class XetoBinaryWriter : XetoBinaryConst
   private Void writeSpecRef(XetoSpec? spec)
   {
     if (spec == null) { write(0); return }
-    if (spec.isType)
+    if (spec.parent == null)
     {
       write(1)
       writeName(spec.m.lib.m.nameCode)
       writeName(spec.m.nameCode)
     }
-    else if (spec.parent.isType)
+    else if (spec.parent.parent == null)
     {
       write(2)
       writeName(spec.m.lib.m.nameCode)
       writeName(spec.m.parent.m.nameCode)
       writeName(spec.m.nameCode)
     }
-    else if (spec.parent.isType)
+    else
     {
       // build path up to type
       throw Err("TODO")

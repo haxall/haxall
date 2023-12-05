@@ -31,6 +31,8 @@ class GlobalSlotTest : AbstractXetoTest
            Person: Dict { person }
            |>)
 
+     marker := env.spec("sys::Marker")
+
      g := lib.top("person")
      t := lib.top("Person")
      m := t.slot("person")
@@ -47,6 +49,8 @@ class GlobalSlotTest : AbstractXetoTest
      verifyEq(g.isGlobal, true)
      verifyEq(lib.globals, Spec[g])
      verifyEq(lib.globals.isImmutable, true)
+     verifyEq(g.base, marker)
+     verifyEq(g.type, marker)
      verifySame(lib.global("person"), g)
      verifyEq(lib.type("person", false), null)
      verifyErr(UnknownSpecErr#) { lib.type("person") }
@@ -98,13 +102,16 @@ class GlobalSlotTest : AbstractXetoTest
      date   := env.spec("sys::Date")
      marker := env.spec("sys::Marker")
 
-     a := lib.global("a")
-     b := lib.global("b")
-     c := lib.global("c")
+     a := verifyGlobal(lib.global("a"), str,    ["foo":m, "val":"alpha"])
+     b := verifyGlobal(lib.global("b"), date,   ["bar":m, "val":Date("2023-12-03")])
+     c := verifyGlobal(lib.global("c"), marker, ["foo":m, "bar":m])
 
      baz := lib.type("Baz")
      qux := lib.type("Qux")
      rux := lib.type("Rux")
+
+     verifyEq(a.base, str)
+     verifyEq(a.type, str)
 
      //dumpBases(baz)
      //dumpBases(qux)
@@ -128,6 +135,15 @@ class GlobalSlotTest : AbstractXetoTest
      ruxC := verifySlot(rux, "c", quxC, marker, ["foo":m, "bar":m, "rux":m])
      verifySame(ruxA, bazA)
      verifySame(ruxB, quxB)
+  }
+
+  Spec verifyGlobal(Spec global, Spec type, Str:Obj meta)
+  {
+    verifySame(global.type, type)
+    verifySame(global.base, type)
+    verifyDictEq(global.metaOwn, meta)
+    meta.each |v, n| { verifyEq(global.meta[n], v) }
+    return global
   }
 
   Spec verifySlot(Spec parent, Str name, Spec base, Spec type, Str:Obj meta)
