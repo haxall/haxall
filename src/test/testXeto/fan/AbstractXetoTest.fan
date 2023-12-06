@@ -98,7 +98,7 @@ const class TestTransport : XetoTransport
 
     buf := Buf()
     XetoBinaryWriter(server, buf.out).writeLib(serverLib)
-    echo("--- load lib $name size = $buf.size bytes ---")
+    echo("   --- load lib $name size = $buf.size bytes ---")
 
     clientLib := XetoBinaryReader(this, buf.flip.in).readLib
     f(null, clientLib)

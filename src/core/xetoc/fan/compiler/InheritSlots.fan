@@ -119,6 +119,9 @@ internal class InheritSlots : Step
     // don't process top-level types/globals
     if (x.isTop) return null
 
+    // don't process constrained query slots
+    if (x.parent.isQuery) return null
+
      // check for global slot with this name
      return ns.resolveGlobal(x.name, x.loc)
   }

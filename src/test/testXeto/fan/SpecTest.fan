@@ -156,7 +156,7 @@ class SpecTest : AbstractXetoTest
     verifyIsa("sys::And",   "sys::And",   true, false)
     verifyIsa("sys::Or",    "sys::Or",    true, false)
 
-env.print(env.spec("ph.points::DischargeAirTempSensor"))
+    // env.print(env.spec("ph.points::DischargeAirTempSensor"))
 
     verifyIsa("ph.points::AirFlowSensor", "sys::And", true)
     verifyIsa("ph.points::AirFlowSensor", "ph::Point", true)

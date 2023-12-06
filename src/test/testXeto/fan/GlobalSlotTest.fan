@@ -172,6 +172,39 @@ class GlobalSlotTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Constrained Queries
+//////////////////////////////////////////////////////////////////////////
+
+  Void testConstrainedQueries()
+  {
+    // we want to verify that constrained query slots don't use global slots
+
+    lib := compileLib(
+      Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" }, { lib:"ph.points" } } >
+
+           Foo: Equip {
+             ahu
+             points: {
+               discharge: DischargeAirTempSensor
+               return: {return, air, temp, sensor, point}
+             }
+           }
+           |>)
+
+     dict := env.spec("sys::Dict")
+     dat := env.spec("ph.points::DischargeAirTempSensor")
+
+     foo := lib.type("Foo")
+     // env.print(foo)
+
+     pts := foo.slot("points")
+     verifySame(pts.base, env.spec("ph::Equip.points"))
+
+     verifySlot(pts, "discharge", dat, dat)
+     verifySlot(pts, "return",   dict, dict)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 

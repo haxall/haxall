@@ -31,7 +31,7 @@ internal class CheckErrors : Step
   Void checkLib(ALib x)
   {
     checkLibMeta(lib)
-    x.tops.each |type| { checkType(type) }
+    x.tops.each |type| { checkTop(type) }
     x.instances.each |instance| { checkDict(instance) }
   }
 
@@ -47,7 +47,7 @@ internal class CheckErrors : Step
 // Specs
 //////////////////////////////////////////////////////////////////////////
 
-  Void checkType(ASpec x)
+  Void checkTop(ASpec x)
   {
     checkSpec(x)
   }
@@ -55,7 +55,10 @@ internal class CheckErrors : Step
   Void checkSpec(ASpec x)
   {
     checkMeta(x)
-    checkSlots(x)
+    if (x.isQuery)
+      checkQuery(x)
+    else
+      checkSlots(x)
   }
 
   Void checkSlots(ASpec x)
@@ -115,6 +118,10 @@ internal class CheckErrors : Step
     }
 
     checkDict(x.meta)
+  }
+
+  Void checkQuery(ASpec x)
+  {
   }
 
 //////////////////////////////////////////////////////////////////////////
