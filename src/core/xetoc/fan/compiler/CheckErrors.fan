@@ -68,6 +68,7 @@ internal class CheckErrors : Step
   {
     checkSpec(x)
     checkSlotType(x)
+    checkSlotVal(x)
   }
 
   Void checkSlotType(ASpec slot)
@@ -87,6 +88,21 @@ internal class CheckErrors : Step
         err("Slot '$slot.name' type '$slotType' conflicts inherited slot '$base.qname' of type '$baseType'", slot.loc)
     }
 
+  }
+
+  Void checkSlotVal(ASpec slot)
+  {
+    // scalars cannot have slots
+    if (slot.ctype.isScalar)
+    {
+      if (slot.slots != null) err("Scalar slot '$slot.name' of type '$slot.ctype' cannot have slots", slot.loc)
+    }
+
+    // non-scalars cannot have value
+    else
+    {
+      if (slot.val != null) err("Non-scalar slot '$slot.name' of type '$slot.ctype' cannot have scalar value", slot.loc)
+    }
   }
 
   Void checkMeta(ASpec x)

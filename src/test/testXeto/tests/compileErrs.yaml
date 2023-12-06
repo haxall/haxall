@@ -78,15 +78,24 @@ compileLib: |
       version: "1.2.3"
       depends: { {lib:"sys"}, {lib:"ph"} }
     >
-    x: Str
-  y: Number
+  a: Str
+  b: Number
+  c: Marker
+  d: Date
+  e: Dict
   Bar: {
-    x
-    y: Int // ok
+    a
+    b: Int // ok
     space: Str
+    c: {}
+    d: {foo}
+    e: "wrong"
   }
 verifyErrs: |
-  Slot 'x' type 'sys::Marker' conflicts global slot 'temp::x' of type 'sys::Str'
+  Slot 'a' type 'sys::Marker' conflicts global slot 'temp::a' of type 'sys::Str'
   Slot 'space' type 'sys::Str' conflicts global slot 'ph::space' of type 'sys::Marker'
+  Scalar slot 'c' of type 'sys::Marker' cannot have slots
+  Scalar slot 'd' of type 'sys::Date' cannot have slots
+  Non-scalar slot 'e' of type 'sys::Dict' cannot have scalar value
 ---
 
