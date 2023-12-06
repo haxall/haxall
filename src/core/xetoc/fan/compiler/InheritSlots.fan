@@ -301,7 +301,7 @@ internal class InheritSlots : Step
   }
 
   ** Handle inheriting the same slot name from two different super types
-  private ASpec mergeInheritedSlots(ASpec spec, Str name, CSpec a, CSpec b)
+  private CSpec mergeInheritedSlots(ASpec spec, Str name, CSpec a, CSpec b)
   {
     // lets start conservatively and only allow this for queries
     if (!a.isQuery || !b.isQuery)
