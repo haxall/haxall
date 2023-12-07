@@ -303,13 +303,28 @@ internal class InheritSlots : Step
   ** Handle inheriting the same slot name from two different super types
   private CSpec mergeInheritedSlots(ASpec spec, Str name, CSpec a, CSpec b)
   {
-    // lets start conservatively and only allow this for queries
-    if (!a.isQuery || !b.isQuery)
-    {
-      err("Conflicing inherited slots: $a.qname, $b.qname", spec.loc)
-      return a
-    }
+    // if both are queries, then we need to merge the slots
+    if (a.isQuery && b.isQuery) return mergeQuerySlots(spec, name, a, b)
 
+    // check if b is derived from a in which case we use b (and vise versa)
+    if (isDerivedFrom(a, b)) return b
+    if (isDerivedFrom(b, a)) return a
+
+    // no resolution
+    err("Conflicing inherited slots: $a.qname, $b.qname", spec.loc)
+    return a
+  }
+
+  ** Is b derived from a through its base inheritance chain
+  private Bool isDerivedFrom(CSpec a, CSpec? b)
+  {
+    if (b == null) return false
+    if (b === a) return true
+    return isDerivedFrom(a, b.cbase)
+  }
+
+  private CSpec mergeQuerySlots(ASpec spec, Str name, CSpec a, CSpec b)
+  {
     // TODO: we need a lot of checking to verify a and b derive from same query
 
     // create new merged slot

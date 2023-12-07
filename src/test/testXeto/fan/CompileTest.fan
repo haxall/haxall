@@ -460,6 +460,74 @@ class CompileTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Inherit And
+//////////////////////////////////////////////////////////////////////////
+
+  Void testInheritAnd()
+  {
+    lib := compileLib(
+       Str<|A: {
+              enum: Str?    // nullable
+              foo:  Str?    // nullable
+            }
+            A1 : A {
+              enum: Str     // non-nullable
+            }
+            A2 : A {
+              foo: Str      // non-nullable
+            }
+            A12 : A1 & A2 {
+            }
+            B1 : A1 {
+              enum: Str <x>     // more
+            }
+            B2 : A2 {
+              foo: Str <x>      // more
+            }
+            B12 : B1 & B2 {
+            }
+           |>)
+
+    // lib.tops.each |x| { env.print(x) }
+
+    str := env.spec("sys::Str")
+
+    a   := lib.type("A")
+    a1  := lib.type("A1")
+    a2  := lib.type("A2")
+    a12 := lib.type("A12")
+    b1  := lib.type("B1")
+    b2  := lib.type("B2")
+    b12 := lib.type("B12")
+
+    e   := verifyInheritAnd(a,  "enum", str, str, ["val":"", "doc":"nullable", "maybe":m])
+    eA1 := verifyInheritAnd(a1, "enum", e,   str, ["val":"", "doc":"non-nullable"])
+    eB1 := verifyInheritAnd(b1, "enum", eA1, str, ["val":"", "doc":"more", "x":m])
+    verifySame(a2.slot("enum"), e)
+    verifySame(b2.slot("enum"), e)
+    verifySame(a12.slot("enum"), eA1)
+    verifySame(b12.slot("enum"), eB1)
+
+    f   := verifyInheritAnd(a,  "foo", str, str, ["val":"", "doc":"nullable", "maybe":m])
+    fA2 := verifyInheritAnd(a2, "foo", f,   str, ["val":"", "doc":"non-nullable"])
+    fB2 := verifyInheritAnd(b2, "foo", fA2, str, ["val":"", "doc":"more", "x":m])
+    verifySame(a1.slot("foo"), f)
+    verifySame(a12.slot("foo"), fA2)
+    verifySame(b12.slot("foo"), fB2)
+
+  }
+
+  Spec verifyInheritAnd(Spec x, Str slotName, Spec base, Spec type, Str:Obj meta)
+  {
+    slot := x.slot(slotName)
+    // echo("  ~~ $slot.name <= $slot.base : $slot.type $slot.meta")
+    verifySame(slot.base, base)
+    verifySame(slot.type, type)
+    verifyDictEq(slot.meta, meta)
+    return slot
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Nested specs
 //////////////////////////////////////////////////////////////////////////
 
