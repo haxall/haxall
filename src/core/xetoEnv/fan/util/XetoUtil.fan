@@ -169,6 +169,7 @@ const class XetoUtil
     {
       if (slot.isMaybe) return
       if (slot.isQuery) return
+      if (slot.type === env.sys.ref) return // fill-in siteRef, equipRef, etc
       acc[slot.name] = instantiate(env, slot, opts)
     }
 

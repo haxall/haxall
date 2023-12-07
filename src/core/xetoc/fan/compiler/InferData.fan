@@ -62,6 +62,9 @@ internal class InferData : Step
 
   private Void inferSpecSlot(ADict dict, CSpec slot)
   {
+    // if slot is nullable, then don't infer anything
+    if (slot.isMaybe) return
+
     // if we have a slot, then infer the type only
     cur := dict.get(slot.name)
     if (cur != null)
@@ -86,8 +89,10 @@ internal class InferData : Step
     }
 
     val := cspec.cmeta.get("val")
-    if (val != null)
-      dict.set(slot.name, AScalar(dict.loc, null, val.toStr, val))
+    if (val == null) return
+    if (val == refDefVal) return
+    dict.set(slot.name, AScalar(dict.loc, null, val.toStr, val))
   }
 
+  const Ref refDefVal := haystack::Ref("x")
 }
