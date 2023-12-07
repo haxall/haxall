@@ -263,8 +263,11 @@ class SpecTest : AbstractXetoTest
     ph := env.lib("ph")
     phx := env.lib("ph.points")
 
-    equipSlots       := ["equip:Marker", "points:Query"]
-    meterSlots       := equipSlots.dup.add("meter:Marker")
+    equipSlots := [
+      "dis:Str?", "id:Ref", "equip:Marker",
+      "equipRef:Ref?", "siteRef:Ref", "spaceRef:Ref?", "systemRef:Ref?",
+      "points:Query"]
+    meterSlots       := equipSlots.dup.addAll(["meter:Marker", "submeterOf:Ref?"])
     elecMeterSlots   := meterSlots.dup.add("elec:Marker")
     acElecMeterSlots := elecMeterSlots.dup.add("ac:Marker")
 
@@ -273,11 +276,19 @@ class SpecTest : AbstractXetoTest
     verifySlots(ph.type("ElecMeter"),   elecMeterSlots)
     verifySlots(ph.type("AcElecMeter"), acElecMeterSlots)
 
-    ptSlots    := ["point:Marker", "equips:Query"]
-    numPtSlots := ptSlots.dup.addAll(["kind:Str", "unit:Str"])
+    ptSlots := [
+      "dis:Str?", "id:Ref",
+      "point:Marker", "cur:Marker?", "enum:Str?",
+      "equipRef:Ref", "his:Marker?", "kind:Str",
+      "maxVal:Number?", "minVal:Number?",
+      "siteRef:Ref", "spaceRef:Ref?", "systemRef:Ref?",
+      "tz:Str?", "unit:Str?", "writable:Marker?",
+      "equips:Query"]
+    numPtSlots := ptSlots.dup.set(ptSlots.findIndex { it == "unit:Str?"}, "unit:Str")
     afSlots    := numPtSlots.dup.addAll(["air:Marker", "flow:Marker"])
     afsSlots   := afSlots.dup.add("sensor:Marker")
     dafsSlots  := afsSlots.dup.add("discharge:Marker")
+
     verifySlots(ph.type("Point"), ptSlots)
     verifySlots(phx.type("NumberPoint"), numPtSlots)
     verifySlots(phx.type("AirFlowPoint"), afSlots)
@@ -291,7 +302,10 @@ class SpecTest : AbstractXetoTest
     i := 0
     slots.each |s|
     {
-      verifyEq("$s.name:$s.type.name", expected[i++])
+      type := s.type.name
+      if (s.isMaybe) type += "?"
+      // echo("-- $s.name: $type $s.meta")
+      verifyEq("$s.name:$type", expected[i++])
     }
     verifyEq(slots.names.size, expected.size)
   }

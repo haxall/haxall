@@ -445,18 +445,19 @@ class AxonTest : HxTest
     libs = ["ph"]
     verifyFits(Str<|fits({site}, Str)|>, false)
     verifyFits(Str<|fits({site}, Dict)|>, true)
-    verifyFits(Str<|fits({site}, Equip)|>, false)
-    verifyFits(Str<|fits({site}, Site)|>, true)
+    verifyFits(Str<|fits({id:@x, site}, Equip)|>, false)
+    verifyFits(Str<|fits({id:@x, site}, Site)|>, true)
 
     libs = ["ph", "ph.points"]
-    verifyFits(Str<|fits({}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({air, temp, sensor, point}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({discharge, temp, sensor, point}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({discharge, air, sensor, point}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({discharge, air, temp, point}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({discharge, air, temp, sensor}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({discharge, air, temp, sensor, point}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({discharge, air, temp, sensor, point, kind:"Number", unit:"°F"}, DischargeAirTempSensor)|>, true)
+    verifyFits(Str<|fits({id:@x}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({id:@x, air, temp, sensor, point}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({id:@x, discharge, temp, sensor, point}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({id:@x, discharge, air, sensor, point}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({id:@x, discharge, air, temp, point}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point, kind:"Number", unit:"°F"}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point, kind:"Number", unit:"°F", equipRef:@y, siteRef:@z}, DischargeAirTempSensor)|>, true)
   }
 
   Void verifyFits(Str expr, Bool expect)
@@ -474,14 +475,19 @@ class AxonTest : HxTest
     verifyFitsExplain(Str<|fitsExplain({}, Dict)|>, [,])
 
     libs = ["ph"]
-    verifyFitsExplain(Str<|fitsExplain({site}, Site)|>, [,])
+    verifyFitsExplain(Str<|fitsExplain({id:@x, site}, Site)|>, [,])
     verifyFitsExplain(Str<|fitsExplain({}, Site)|>, [
+      "Missing required slot 'id'",
+      "Missing required marker 'site'"
+      ])
+    verifyFitsExplain(Str<|fitsExplain({id:@x}, Site)|>, [
       "Missing required marker 'site'"
       ])
 
-    verifyFitsExplain(Str<|fitsExplain({ahu, equip}, Ahu)|>, [,])
-    verifyFitsExplain(Str<|fitsExplain({}, Ahu)|>, [
+    verifyFitsExplain(Str<|fitsExplain({id:@x, ahu, equip, siteRef:@s}, Ahu)|>, [,])
+    verifyFitsExplain(Str<|fitsExplain({id:@x}, Ahu)|>, [
       "Missing required marker 'equip'",
+      "Missing required slot 'siteRef'",
       "Missing required marker 'ahu'"
       ])
 
@@ -521,6 +527,12 @@ class AxonTest : HxTest
     }
   }
 
+  Void dumpFitsExplain(Dict rec, Str qname)
+  {
+    recAxon := Etc.toAxon(rec)
+    eval("fitsExplain($recAxon, $qname).dump")
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // FitsMatchAll
 //////////////////////////////////////////////////////////////////////////
@@ -530,10 +542,11 @@ class AxonTest : HxTest
   {
     libs = ["ph"]
 
-    ahu := addRec(["id":Ref("ahu"), "dis":"AHU", "ahu":m, "equip":m])
-    rtu := addRec(["id":Ref("rtu"), "dis":"RTU", "ahu":m, "rtu":m, "equip":m])
-    meter := addRec(["id":Ref("meter"), "dis":"Meter", "ahu":m, "meter":m, "equip":m])
-    elec := addRec(["id":Ref("elec-meter"), "dis":"Elec-Meter", "ahu":m, "elec":m, "meter":m, "equip":m])
+    site := addRec(["id":Ref("site"), "site":m])
+    ahu := addRec(["id":Ref("ahu"), "dis":"AHU", "ahu":m, "equip":m, "siteRef":site.id])
+    rtu := addRec(["id":Ref("rtu"), "dis":"RTU", "ahu":m, "rtu":m, "equip":m, "siteRef":site.id])
+    meter := addRec(["id":Ref("meter"), "dis":"Meter", "ahu":m, "meter":m, "equip":m, "siteRef":site.id])
+    elec := addRec(["id":Ref("elec-meter"), "dis":"Elec-Meter", "ahu":m, "elec":m, "meter":m, "equip":m, "siteRef":site.id])
 
     grid := (Grid)eval("readAll(equip).sortDis.fitsMatchAll")
     verifyFitsMatchAll(grid, ahu,   ["ph::Ahu"])
@@ -558,13 +571,15 @@ class AxonTest : HxTest
   {
     libs = ["ph"]
 
-    ahu       := addRec(["id":Ref("ahu"), "dis":"AHU", "ahu":m, "equip":m])
-      mode    := addRec(["id":Ref("mode"), "dis":"Mode", "hvacMode":m, "point":m, "equipRef":ahu.id])
-      dduct   := addRec(["id":Ref("dduct"), "dis":"Discharge Duct", "discharge":m, "duct":m, "equip":m, "equipRef":ahu.id])
-        dtemp := addRec(["id":Ref("dtemp"), "dis":"Discharge Temp", "discharge":m, "temp":m, "point":m, "equipRef":dduct.id])
-        dflow := addRec(["id":Ref("dflow"), "dis":"Discharge Flow", "discharge":m, "flow":m, "point":m, "equipRef":dduct.id])
-        dfan  := addRec(["id":Ref("dfan"), "dis":"Discharge Fan", "discharge":m, "fan":m, "equip":m, "equipRef":dduct.id])
-         drun := addRec(["id":Ref("drun"), "dis":"Discharge Fan Run", "discharge":m, "fan":m, "run":m, "point":m, "equipRef":dfan.id])
+   site := addRec(["id":Ref("site"), "site":m])
+
+    ahu       := addRec(["id":Ref("ahu"), "dis":"AHU", "ahu":m, "equip":m, "siteRef":site.id])
+      mode    := addRec(["id":Ref("mode"), "dis":"Mode", "hvacMode":m, "kind":"Str","point":m, "equipRef":ahu.id, "siteRef":site.id])
+      dduct   := addRec(["id":Ref("dduct"), "dis":"Discharge Duct", "discharge":m, "duct":m, "equip":m, "equipRef":ahu.id, "siteRef":site.id])
+        dtemp := addRec(["id":Ref("dtemp"), "dis":"Discharge Temp", "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":dduct.id, "siteRef":site.id])
+        dflow := addRec(["id":Ref("dflow"), "dis":"Discharge Flow", "discharge":m, "flow":m, "kind":"Number", "point":m, "equipRef":dduct.id, "siteRef":site.id])
+        dfan  := addRec(["id":Ref("dfan"), "dis":"Discharge Fan", "discharge":m, "fan":m, "equip":m, "equipRef":dduct.id, "siteRef":site.id])
+         drun := addRec(["id":Ref("drun"), "dis":"Discharge Fan Run", "discharge":m, "fan":m, "run":m, "kind":"Bool", "point":m, "equipRef":dfan.id, "siteRef":site.id])
 
     // Point.equips
     verifyQuery(mode,  "Point.equips", [ahu])
@@ -604,7 +619,7 @@ class AxonTest : HxTest
      verifyQueryNamed(ahu, ahu1.slot("points"), ["temp":dtemp, "flow":dflow, "fan":drun])
 
      // verify fitsExplain for missing points
-     ahuX := addRec(["id":Ref("x"), "equip":m])
+     ahuX := addRec(["id":Ref("x"), "equip":m, "siteRef":site.id])
      verifyQueryFitsExplain(ahuX, ahu1, [
        "Missing required Point: temp",
        "Missing required Point: flow",
@@ -616,8 +631,8 @@ class AxonTest : HxTest
       ])
 
      // ambiguous matches
-     d1 := addRec(["id":Ref("d1"), "dis":"Temp 1", "discharge":m, "temp":m, "point":m, "equipRef":ahuX.id])
-     d2 := addRec(["id":Ref("d2"), "dis":"Temp 2", "discharge":m, "temp":m, "point":m, "equipRef":ahuX.id])
+     d1 := addRec(["id":Ref("d1"), "dis":"Temp 1", "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
+     d2 := addRec(["id":Ref("d2"), "dis":"Temp 2", "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
      verifyQueryFitsExplain(ahuX, ahu1, [
        "Ambiguous match for Point: temp [$d1.id.toZinc, $d2.id.toZinc]",
        "Missing required Point: flow",
@@ -630,8 +645,8 @@ class AxonTest : HxTest
 
      // ambiguous matches for optional point
      rt.db.commit(Diff(d1, null, Diff.remove))
-     p1 := addRec(["id":Ref("p1"), "dis":"Pressure 1", "discharge":m, "pressure":m, "point":m, "equipRef":ahuX.id])
-     p2 := addRec(["id":Ref("p2"), "dis":"Pressure 2", "discharge":m, "pressure":m, "point":m, "equipRef":ahuX.id])
+     p1 := addRec(["id":Ref("p1"), "dis":"Pressure 1", "discharge":m, "pressure":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
+     p2 := addRec(["id":Ref("p2"), "dis":"Pressure 2", "discharge":m, "pressure":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
      verifyQueryFitsExplain(ahuX, ahu2, [
        "Missing required Point: ${lib.name}::DFlow",
        "Ambiguous match for Point: ${lib.name}::DPressure [$p1.id.toZinc, $p2.id.toZinc]",
