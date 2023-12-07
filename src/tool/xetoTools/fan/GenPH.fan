@@ -18,7 +18,7 @@ internal class GenPH : XetoCmd
   override Str summary() { "Compile haystack defs into xeto ph lib" }
 
   @Opt { help = "Directory to output" }
-  File outDir := Env.cur.workDir + `src/xeto/ph/`
+  File outDir := (Env.cur.workDir + `../xeto/src/xeto/ph/`).normalize
 
 //////////////////////////////////////////////////////////////////////////
 // Run
@@ -163,8 +163,7 @@ internal class GenPH : XetoCmd
         writeEntityMeta(out, def)
         out.printLine(" {")
         writeEntityUsage(out, def)
-        //writeEntityTags(out, def)
-        writeEntityChildren(out, def)
+        writeEntitySlots(out, def)
         out.printLine("}")
         out.printLine
       }
@@ -243,14 +242,14 @@ internal class GenPH : XetoCmd
     name == "verticalTransport"
   }
 
-/*
-  private Void writeEntityTags(OutStream out, Def entity)
+  private Void writeEntitySlots(OutStream out, Def entity)
   {
     tags := Def[,]
     maxNameSize := 2
     ns.tags(entity).each |tag|
     {
       if (isInherited(entity, tag)) return
+      if (ns.fitsChoice(tag)) return // TODO for now
       if (skip(tag.name)) return
       tags.add(tag)
       maxNameSize = maxNameSize.max(tag.name.size)
@@ -260,16 +259,34 @@ internal class GenPH : XetoCmd
 
     tags.each |tag|
     {
-      out.printLine("  $tag: " + Str.spaces(maxNameSize-tag.toStr.size) + "ph.Tag.$tag?")
+      type := ns.defToKind(tag).name
+      if (isOptional(entity, tag)) type += "?"
+      writeEntitySlot(out, tag.name, maxNameSize, type)
     }
-  }
-*/
 
-  private Void writeEntityChildren(OutStream out, Def entity)
+    // built-in queries
+    if (entity.name == "equip") writeEntitySlot(out, "points", maxNameSize, "Query<of:Point, inverse:\"ph::Point.equips\">  // Points contained by this equip")
+    if (entity.name == "point") writeEntitySlot(out, "equips", maxNameSize, "Query<of:Equip, via:\"equipRef+\">  // Parent equips that contain this point")
+  }
+
+  private Void writeEntitySlot(OutStream out, Str name, Int maxNameSize, Str sig)
   {
-    // insert queries
-    if (entity.name == "equip")  out.printLine("  points: Query<of:Point, inverse:\"ph::Point.equips\">  // Points contained by this equip")
-    if (entity.name == "point")  out.printLine("  equips: Query<of:Equip, via:\"equipRef+\">  // Parent equips that contain this point")
+    out.printLine("  $name: " + Str.spaces(maxNameSize-name.toStr.size) + sig)
+  }
+
+  private Bool isOptional(Def entity, Def tag)
+  {
+    if (tag.name == "id") return false
+
+    if (tag.name == "siteRef") return false
+
+    if (entity.name == "point")
+    {
+      if (tag.name == "equipRef") return false
+      if (tag.name == "kind") return false
+    }
+
+    return true
   }
 
   private Bool isInherited(Def entity, Def tag)

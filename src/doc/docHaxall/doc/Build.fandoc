@@ -74,3 +74,8 @@ Env Path is as follows: 'haxall (work), xeto, haystack-defs,fantom (home)'
 
 5. Run '{haxall}/src/build.fan'; should build to '{haxall}/lib/'
 
+Note that when building from source as described here, the batch files
+in '{haxall}/bin' cannot be used directly.  Instead you can run the Haxall command
+line using the 'fan <pod>' launcher like this:
+
+  fan hx version
