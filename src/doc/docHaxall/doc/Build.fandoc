@@ -15,7 +15,8 @@ this guide.
 To build Haxall from source requires the following projects:
   1. [Fantom]`#fantom` language and runtime
   2. [Project Haystack]`#ph` core definitions
-  3. [Haxall]`#hx` repo itself
+  3. [Xeto]`#xeto` core Xeto libraries
+  4. [Haxall]`#hx` repo itself
 
 All of these projects are available on GitHub.
 
@@ -48,6 +49,14 @@ your Env Path is as follows: 'haystack-defs (work), fantom (home)'
 
 4. Run '{haystack-defs}/src/build.fan'; should build to '{haystack-defs}/lib/'
 
+Xeto [#xeto]
+************
+You also need to clone the Xeto repo:
+
+1. Pull the [Xeto GitHub]`https://github.com/Project-Haystack/xeto` repo
+
+You do not need to do anything else with this repo.
+
 Haxall [#hx]
 ************
 To build Haxall from source:
@@ -56,10 +65,10 @@ To build Haxall from source:
 
 2. Setup "fan.props" in repo root of Haxall with this line:
 
-       path=/path-to/haystack-defs
+       path=/path-to/haystack-defs;/path-to/xeto
 
 3. CD to your '{haxall}' root directory and run 'fan -version'; verify your
-Env Path is as follows: 'haxall (work), haystack-defs, fantom (home)'
+Env Path is as follows: 'haxall (work), xeto, haystack-defs,fantom (home)'
 
 4. Set the environment variable 'FAN_BUILD_JDKHOME' to point to your JDK install
 
