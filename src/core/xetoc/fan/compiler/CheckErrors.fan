@@ -97,6 +97,9 @@ internal class CheckErrors : Step
 
   Void checkSlotType(ASpec slot)
   {
+    // don't run these checks for enum items
+    if (slot.parent.isEnum) return
+
     // get base type (inherited or global slot)
     base := slot.base
     baseType := base.ctype

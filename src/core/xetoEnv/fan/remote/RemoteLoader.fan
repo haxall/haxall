@@ -133,12 +133,12 @@ internal class RemoteLoader
     x.isLoaded = true
     x.base     = resolve(x.baseIn)
     x.metaOwn  = loadMetaOwn(x)
-    x.slotsOwn = loadSlotsOwn(x)
 
     if (x.base == null)
     {
       // sys::Obj
       x.meta  = x.metaOwn
+      x.slotsOwn = loadSlotsOwn(x)
       x.slots = x.slotsOwn
     }
     else
@@ -146,6 +146,7 @@ internal class RemoteLoader
       // recursively load base and inherit
       if (x.base.isAst) loadSpec(x.base)
       x.meta = inheritMeta(x)
+      x.slotsOwn = loadSlotsOwn(x)
       x.slots = inheritSlots(x)
       x.args  = loadArgs(x)
     }
