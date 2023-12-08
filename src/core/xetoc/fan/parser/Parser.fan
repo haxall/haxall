@@ -213,6 +213,8 @@ internal class Parser
     marker :=  impliedMarker(loc)
     spec.typeRef = marker.typeRef
 
+    parseSpecMeta(spec)
+
     doc = parseTrailingDoc(doc)
     if (doc != null) spec.metaSetStr("doc", doc)
 

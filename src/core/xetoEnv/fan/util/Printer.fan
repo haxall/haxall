@@ -298,13 +298,13 @@ class Printer
   ** Print only declared meta/slots
   private This specOwn(Spec spec)
   {
-    base(spec).meta(spec.metaOwn).slots(spec.slotsOwn, PrinterSpecMode.own)
+    base(spec).meta(spec.metaOwn).slots(spec, spec.slotsOwn, PrinterSpecMode.own)
   }
 
   ** Print all effective meta/slots
   private This specEffective(Spec spec)
   {
-    base(spec).meta(spec.metaOwn).slots(spec.slots, PrinterSpecMode.effective)
+    base(spec).meta(spec.metaOwn).slots(spec, spec.slots, PrinterSpecMode.effective)
   }
 
   ** Print base inherited type with special handling for maybe/and/or
@@ -348,7 +348,7 @@ class Printer
   }
 
   ** Spec slots
-  private This slots(SpecSlots slots, PrinterSpecMode mode)
+  private This slots(Spec parent, SpecSlots slots, PrinterSpecMode mode)
   {
     if (slots.isEmpty) return this
     bracket(" {").nl
@@ -359,7 +359,11 @@ class Printer
       showName := !XetoUtil.isAutoName(slot.name)
       indent
       if (showName) w(slot.name)
-      if (!isMarker(slot["val"]) && slot.base != null)
+      if (parent.isEnum)
+      {
+        meta(slot.metaOwn)
+      }
+      else if (!isMarker(slot["val"]) && slot.base != null)
       {
         if (showName) w(": ")
         if (slot.base?.type === slot.base && !slot.isType)

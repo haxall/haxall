@@ -21,7 +21,7 @@ Productions [#productions]
   <specVal>      :=  <scalar>
   <specSlots>    :=  "{" [<specSlot> <endOfObj>]* "}"
   <specSlot>     :=  [<leadingDoc>] ( <markerOnly> | <namedSpec> | <spec> ) [<trailingDoc>]
-  <markerOnly>   :=  <markerName>
+  <markerOnly>   :=  <markerName> [<meta>]
   <endOfObj>         :=  ( [","] <nl> ) | ","
   <meta>             :=  "<" <dictTags> ">"
 
