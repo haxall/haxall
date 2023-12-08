@@ -9,6 +9,7 @@
 
 using util
 using haystack
+using def
 using defc
 
 internal class GenPH : XetoCmd
@@ -31,6 +32,9 @@ internal class GenPH : XetoCmd
     writeLib
     writeTags
     writeEntities
+    writeEnums
+    writeTimeZones
+    writeUnits
     return 0
   }
 
@@ -94,12 +98,13 @@ internal class GenPH : XetoCmd
       {
         name := def.name
         kind := ns.defToKind(def)
+        type := toTagType(def)
         meta := toTagMeta(def, kind)
 
         if (excludeTag(def, kind)) return
 
         writeDoc(out, def)
-        out.printLine("$name: $kind.name $meta".trim)
+        out.printLine("$name: $type $meta".trim)
         out.printLine
       }
     }
@@ -123,6 +128,19 @@ internal class GenPH : XetoCmd
   }
 
   private const Symbol defSymbol := Symbol("def")
+
+  private Str toTagType(Def tag)
+  {
+    // TODO
+    // if (tag.has("enum")) return toEnumTypeName(tag)
+    return ns.defToKind(tag).name
+  }
+
+  private Str toEnumTypeName(Def tag)
+  {
+    if (tag.name == "tz") return "TimeZone"
+    return tag.name.capitalize
+  }
 
   private Str toTagMeta(Def def, Kind kind)
   {
@@ -259,14 +277,19 @@ internal class GenPH : XetoCmd
 
     tags.each |tag|
     {
-      type := ns.defToKind(tag).name
-      if (isOptional(entity, tag)) type += "?"
-      writeEntitySlot(out, tag.name, maxNameSize, type)
+      writeEntitySlot(out, tag.name, maxNameSize, toSlotType(entity, tag))
     }
 
     // built-in queries
     if (entity.name == "equip") writeEntitySlot(out, "points", maxNameSize, "Query<of:Point, inverse:\"ph::Point.equips\">  // Points contained by this equip")
     if (entity.name == "point") writeEntitySlot(out, "equips", maxNameSize, "Query<of:Equip, via:\"equipRef+\">  // Parent equips that contain this point")
+  }
+
+  private Str toSlotType(Def entity, Def tag)
+  {
+    type := toTagType(tag)
+    if (isOptional(entity, tag)) type += "?"
+    return type
   }
 
   private Void writeEntitySlot(OutStream out, Str name, Int maxNameSize, Str sig)
@@ -293,6 +316,118 @@ internal class GenPH : XetoCmd
   {
     on := tag["tagOn"] as Symbol[]
     return !on.contains(entity.symbol)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Write Enums
+//////////////////////////////////////////////////////////////////////////
+
+  private Void writeEnums()
+  {
+    // get all the enums
+    enums := Def[,]
+    ns.eachDef |def|
+    {
+      if (def.missing("enum")) return
+      if (def.name == "tz" || def.name =="unit") return
+      if (!def.symbol.type.isTag) return
+      enums.add(def)
+    }
+    enums.sort |a, b| { a.name <=> b.name }
+
+    write(`enums.xeto`) |out|
+    {
+      enums.each |def|
+      {
+        writeEnum(out, def)
+      }
+    }
+  }
+
+  private Void writeEnum(OutStream out, Def def)
+  {
+    if (def.name == "unit") return
+
+    docAbove := false
+    nameAndMetas := Str[,]
+    docs := Str[,]
+    maxNameAndMetaSize := 2
+    DefUtil.parseEnum(def["enum"]).each |item|
+    {
+      name := (Str)item->name
+      nameAndMeta := name
+
+      if (!Etc.isTagName(name))
+        nameAndMeta = normEnumName(name) + " <key:$name.toCode>"
+
+      doc := item["doc"] as Str ?: ""
+      if (doc.contains("\n")) docAbove = true
+
+      nameAndMetas.add(nameAndMeta)
+      docs.add(doc)
+      maxNameAndMetaSize = maxNameAndMetaSize.max(nameAndMeta.size)
+    }
+
+    writeDoc(out, def)
+    name := toEnumTypeName(def)
+    out.printLine("$name: Enum {")
+    nameAndMetas.each |nameAndMeta, i|
+    {
+      doc := docs[i]
+
+      if (!doc.isEmpty && docAbove)
+        doc.splitLines.each |line| { out.printLine("  // $line".trimEnd) }
+
+      out.print("  $nameAndMeta")
+
+      if (!doc.isEmpty && !docAbove)
+        out.print(Str.spaces(maxNameAndMetaSize-nameAndMeta.toStr.size)).print("  // ").print(doc)
+
+      out.printLine
+
+      if (docAbove && i+1 < nameAndMetas.size) out.printLine
+    }
+    out.printLine("}")
+    out.printLine
+  }
+
+  private Str normEnumName(Str name)
+  {
+    name = name.replace("-", " ")
+    name = name.replace("/", " ")
+    return Etc.toTagName(name)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Write Units
+//////////////////////////////////////////////////////////////////////////
+
+  private Void writeTimeZones()
+  {
+    def := ns.def("tz")
+    write(`timezones.xeto`) |out|
+    {
+      writeDoc(out, def)
+      out.printLine("TimeZone: Enum {")
+      out.printLine("   // TODO")
+      out.printLine("}")
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Write Units
+//////////////////////////////////////////////////////////////////////////
+
+  private Void writeUnits()
+  {
+    def := ns.def("unit")
+    write(`units.xeto`) |out|
+    {
+      writeDoc(out, def)
+      out.printLine("Unit: Enum {")
+      out.printLine("   // TODO")
+      out.printLine("}")
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
