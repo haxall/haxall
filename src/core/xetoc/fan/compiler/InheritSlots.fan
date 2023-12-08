@@ -377,10 +377,17 @@ internal class InheritSlots : Step
     // set flags to sys::Enum's flags
     spec.flags = spec.base.flags
 
+    // sealed is implied
+    loc := spec.loc
+    if (spec.metaHas("sealed"))
+      err("Enum types are implied sealed", loc)
+    else
+      spec.metaInit.set("sealed", markerScalar(loc))
+
     // recurse children slots to process as the enum items
     items := Str:CSpec[:]
     items.ordered = true
-    enumRef := ASpecRef(spec.loc, spec)
+    enumRef := ASpecRef(loc, spec)
     spec.slots.each |slot|
     {
       item := inheritEnumItem(spec, enumRef, slot)
@@ -389,8 +396,13 @@ internal class InheritSlots : Step
     spec.cslotsRef = items
   }
 
+  ** Check that an item was a marker only, then coerce to be derived from parent enum
   private ASpec? inheritEnumItem(ASpec enum, ASpecRef enumRef, ASpec item)
   {
+    // this should only be true if slot created in Parser.parseMarkerSpec
+    if (item.typeRef !== sys.marker)
+      err("Enum item '$item.name' cannot have type", item.loc)
+
     item.base      = enum
     item.typeRef   = enumRef
     item.flags     = enum.flags

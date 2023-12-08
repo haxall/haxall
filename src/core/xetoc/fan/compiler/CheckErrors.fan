@@ -50,6 +50,23 @@ internal class CheckErrors : Step
   Void checkTop(ASpec x)
   {
     checkSpec(x)
+    checkTypeInherit(x)
+  }
+
+  Void checkTypeInherit(ASpec x)
+  {
+    if (!x.isType) return
+    if (x.base == null) return // Obj
+    base := x.base
+
+    // enums are effectively sealed even in same lib
+    if (base.isEnum)
+      return err("Cannot inherit from Enum type '$base.name'", x.loc)
+
+    // cannot subtype from sealed types in external libs
+//    if (base.cmeta.has("sealed") && !base.isAst)
+//      err("Cannot inherit from sealed type '$base.name'", x.loc)
+
   }
 
   Void checkSpec(ASpec x)

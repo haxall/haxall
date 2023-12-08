@@ -26,7 +26,6 @@ internal class Parser
     this.compiler = step.compiler
     this.doc = doc
     this.sys = step.sys
-    this.marker = compiler.env.marker
     this.fileLoc = fileLoc
     this.tokenizer = Tokenizer(in) { it.keepComments = true }
     this.cur = this.peek = Token.eof
@@ -210,7 +209,7 @@ internal class Parser
     name := consumeName("Expecting marker name")
     spec := ASpec(loc, parent.lib, parent, name)
 
-    marker :=  impliedMarker(loc)
+    marker := step.markerScalar(loc)
     spec.typeRef = marker.typeRef
 
     parseSpecMeta(spec)
@@ -416,7 +415,7 @@ internal class Parser
         name = consumeName("Expecting dict tag name")
         if (cur !== Token.colon)
         {
-          val = impliedMarker(loc)
+          val = step.markerScalar(loc)
         }
         else
         {
@@ -570,17 +569,6 @@ internal class Parser
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  private AScalar impliedStr(FileLoc loc, Str str)
-  {
-    AScalar(loc, sys.str, str, str)
-  }
-
-  private AScalar impliedMarker(FileLoc loc)
-  {
-    AScalar(loc, sys.marker, marker.toStr, marker)
-    //AScalar(loc, ASpecRef(loc, ASimpleName("sys", "Marker")), marker.toStr, marker)
-  }
-
   private Void addDataDict(ADict list, AData data)
   {
     // only allowed if data is dict/instance
@@ -685,7 +673,6 @@ internal class Parser
   private Step step
   private XetoCompiler compiler
   private ASys sys
-  private const Obj marker
   private FileLoc fileLoc
   private Tokenizer tokenizer
   private Str[]? autoNames

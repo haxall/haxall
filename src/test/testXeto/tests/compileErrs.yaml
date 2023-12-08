@@ -40,6 +40,17 @@ compileLib: |
 verifyErrs: |
   Conflicing inherited slots: temp::Foo.x, temp::Bar.x
 ---
+name: "enumInherit"
+compileLib: |
+  Foo: Enum <sealed> {
+    a: Str
+    b: Marker
+  }
+verifyErrs: |
+  Enum types are implied sealed
+  Enum item 'a' cannot have type
+  Enum item 'b' cannot have type
+---
 
 ##########################################################################
 ## CheckErrors
@@ -97,5 +108,12 @@ verifyErrs: |
   Scalar slot 'c' of type 'sys::Marker' cannot have slots
   Scalar slot 'd' of type 'sys::Date' cannot have slots
   Non-scalar slot 'e' of type 'sys::Dict' cannot have scalar value
+---
+name: "enumChecks"
+compileLib: |
+  A: Enum { foo }
+  B: A { bar  }
+verifyErrs: |
+  Cannot inherit from Enum type 'A'
 ---
 

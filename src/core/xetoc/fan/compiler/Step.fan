@@ -48,6 +48,16 @@ abstract internal class Step
   Void bombIfErr() { if (!compiler.errs.isEmpty) throw compiler.errs.first }
 
   Bool isObj(CSpec s) { s.cbase == null }
+
+  AScalar strScalar(FileLoc loc, Str str)
+  {
+    AScalar(loc, sys.str, str, str)
+  }
+
+  AScalar markerScalar(FileLoc loc)
+  {
+    AScalar(loc, sys.marker, env.marker.toStr, env.marker)
+  }
 }
 
 

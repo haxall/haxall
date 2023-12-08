@@ -28,6 +28,7 @@ class EnumTest : AbstractXetoTest
      // env.print(e)
 
      verifyEq(e.isEnum, true)
+     verifyEq(e.meta["sealed"], Marker.val)
      verifyEnumFlags(e)
      verifyEnumItem(e, "diamond", ["doc":"Cards"])
      verifyEnumItem(e, "clubs",   ["doc":"Cards"])
@@ -39,7 +40,7 @@ class EnumTest : AbstractXetoTest
   {
     lib := compileLib(
       Str<|// Cards
-           Suit: Enum {
+           Suit: Enum <foo> {
              diamond  <color:"r">  // Red diamonds
              clubs    <color:"b">  // Black clubs
              hearts   <color:"r">  // Red hearts
@@ -48,14 +49,15 @@ class EnumTest : AbstractXetoTest
            |>)
 
      e := lib.top("Suit")
-  env.print(e)
+     // env.print(e)
 
      verifyEq(e.isEnum, true)
+     verifyEq(e.meta["foo"], Marker.val)
      verifyEnumFlags(e)
-     verifyEnumItem(e, "diamond", ["color":"r", "doc":"Red diamonds"])
-     verifyEnumItem(e, "clubs",   ["color":"b", "doc":"Black clubs"])
-     verifyEnumItem(e, "hearts",  ["color":"r", "doc":"Red hearts"])
-     verifyEnumItem(e, "spades",  ["color":"b", "doc":"Black spades"])
+     verifyEnumItem(e, "diamond", ["foo":m, "color":"r", "doc":"Red diamonds"])
+     verifyEnumItem(e, "clubs",   ["foo":m, "color":"b", "doc":"Black clubs"])
+     verifyEnumItem(e, "hearts",  ["foo":m, "color":"r", "doc":"Red hearts"])
+     verifyEnumItem(e, "spades",  ["foo":m, "color":"b", "doc":"Black spades"])
   }
 
   Void verifyEnumFlags(Spec enum)
