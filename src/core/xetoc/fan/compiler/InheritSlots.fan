@@ -16,6 +16,13 @@ using xetoEnv
 **   - resolves base
 **   - handles slot overrides
 **   - computes spec flags
+**   - special handling for enums
+**
+** When this step completes, the following fields must be set on each ASpec:
+**   - base
+**   - typeRef
+**   - flags
+**   - cslotsRef
 **
 internal class InheritSlots : Step
 {
@@ -56,6 +63,9 @@ internal class InheritSlots : Step
   {
     // special handling for sys::Obj
     if (spec.isObj) { spec.cslotsRef = noSlots; return }
+
+    // special handling for Enums
+    if (isEnum(spec)) return inheritEnum(spec)
 
     // infer the base we inherit from (may be null)
     spec.base = inferBase(spec)
@@ -346,6 +356,46 @@ internal class InheritSlots : Step
     spec.initSlots.add(name, merge)
 
     return merge
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Enum
+//////////////////////////////////////////////////////////////////////////
+
+  ** At this point the ASpec.type will be sys::Enum (base is still null)
+  private Bool isEnum(ASpec spec)
+  {
+    spec.type != null && spec.type.isSys && spec.type.name == "Enum"
+  }
+
+  ** Enum slots are implied as the parent type
+  private Void inheritEnum(ASpec spec)
+  {
+    // set base to type (which is sys::Enum)
+    spec.base = spec.type
+
+    // set flags to sys::Enum's flags
+    spec.flags = spec.base.flags
+
+    // recurse children slots to process as the enum items
+    items := Str:CSpec[:]
+    items.ordered = true
+    enumRef := ASpecRef(spec.loc, spec)
+    spec.slots.each |slot|
+    {
+      item := inheritEnumItem(spec, enumRef, slot)
+      if (item != null) items[item.name] = item
+    }
+    spec.cslotsRef = items
+  }
+
+  private ASpec? inheritEnumItem(ASpec enum, ASpecRef enumRef, ASpec item)
+  {
+    item.base      = enum
+    item.typeRef   = enumRef
+    item.flags     = enum.flags
+    item.cslotsRef = noSlots
+    return item
   }
 
 //////////////////////////////////////////////////////////////////////////

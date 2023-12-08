@@ -92,7 +92,7 @@ internal class ASpec : ANode, CSpec
   ** Resolved type ref
   CSpec? type() { typeRef?.deref }
 
-  ** Type signature
+  ** Type signature - set in Parser, InheritSlots
   ASpecRef? typeRef
 
   ** We refine type and base in InheritSlots step
@@ -264,6 +264,8 @@ internal class ASpec : ANode, CSpec
     if (cslotsRef == null) throw NotReadyErr(qname)
     cslotsRef.each(f)
   }
+
+  ** Effective slots configured in InheritSlots
   [Str:CSpec]? cslotsRef
 
   ** Return if spec inherits from that from a nominal type perspective.
