@@ -112,13 +112,13 @@ verifySpecIs:
 ##########################################################################
 
 ---
-name: "maybeStr"
+name: "maybeScalar"
 compileLib: |
-  Foo: Str?
+  Foo: Scalar?
 verifySpecIs:
   - {a: "test::Foo", b: "sys::Obj",    expect: true}
   - {a: "test::Foo", b: "sys::Scalar", expect: true}
-  - {a: "test::Foo", b: "sys::Str",    expect: true}
+  - {a: "test::Foo", b: "sys::Str",    expect: false}
   - {a: "test::Foo", b: "sys::None",   expect: true}
   - {a: "test::Foo", b: "sys::Number", expect: false}
   - {a: "test::Foo", b: "sys::Seq",    expect: false}

@@ -69,6 +69,16 @@ verifyErrs: |
   Spec 'Foo' cannot use reserved meta tag 'lib'
   Spec 'Foo' cannot use reserved meta tag 'loc'
 ---
+name: "checkTypeInherit"
+compileLib: |
+  A: Str
+  B: And
+  C: sys::Or
+verifyErrs: |
+  Cannot inherit from sealed type 'Str'
+  Cannot directly inherit from compound type 'And'
+  Cannot directly inherit from compound type 'Or'
+---
 name: "wrongInheritType"
 compileLib: |
   Foo: {

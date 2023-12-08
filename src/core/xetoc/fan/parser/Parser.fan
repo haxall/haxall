@@ -189,6 +189,7 @@ internal class Parser
     loc := typeRef.loc
     if (libRef == null) throw err("Cannot use nested spec in data file", loc)
     spec := ASpec(loc, lib, null, lib.autoName)
+    spec.parsedSyntheticRef = true
 
     // normal spec body - same as parseSpec
     parseSpecType(spec, typeRef)
@@ -257,6 +258,7 @@ internal class Parser
       list.add(next)
     }
 
+    spec.parsedCompound = true
     spec.typeRef = compoundType
     spec.metaSetOfs("ofs", list)
   }

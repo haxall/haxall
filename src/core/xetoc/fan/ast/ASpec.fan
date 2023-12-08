@@ -105,6 +105,12 @@ internal class ASpec : ANode, CSpec
   override MSpecArgs args() { argsRef ?: throw NotReadyErr(qname) }
   internal MSpecArgs? argsRef
 
+  ** True if we parsed this spec as an '&' or '|' type
+  Bool parsedCompound
+
+  ** True if we parsed this as a nested spec ref
+  Bool parsedSyntheticRef
+
 //////////////////////////////////////////////////////////////////////////
 // Meta
 //////////////////////////////////////////////////////////////////////////

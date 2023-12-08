@@ -57,16 +57,20 @@ internal class CheckErrors : Step
   {
     if (!x.isType) return
     if (x.base == null) return // Obj
-    base := x.base
+    base := x.cbase
 
     // enums are effectively sealed even in same lib
     if (base.isEnum)
       return err("Cannot inherit from Enum type '$base.name'", x.loc)
 
     // cannot subtype from sealed types in external libs
-//    if (base.cmeta.has("sealed") && !base.isAst)
-//      err("Cannot inherit from sealed type '$base.name'", x.loc)
+    // Note: we allow this in cases like <of:Ref<of:Site>>
+    if (base.cmeta.has("sealed") && !base.isAst && !x.parsedSyntheticRef)
+      return err("Cannot inherit from sealed type '$base.name'", x.loc)
 
+    // cannot subtype from And/Or without using & or |
+    if (!isSys && (base === env.sys.and || base === env.sys.or) && !x.parsedCompound)
+      return err("Cannot directly inherit from compound type '$base.name'", x.loc)
   }
 
   Void checkSpec(ASpec x)
