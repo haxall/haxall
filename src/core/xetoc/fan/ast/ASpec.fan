@@ -286,6 +286,8 @@ internal class ASpec : ANode, CSpec
 
   override Bool isNone() { isSys && name == "None" }
 
+  override Bool isEnum() { base != null && base.isSys && base.name == "Enum" }
+
   override Bool isBaseAnd() { base != null && base.isSys && base.name == "And" }
 
   override Bool isBaseOr() { base != null && base.isSys && base.name == "Or" }

@@ -102,13 +102,16 @@ const mixin Spec : Dict
   ** Is this a top level global slot spec
   @NoDoc abstract Bool isGlobal()
 
-  ** Is this the sys::None spec itself
+  ** Is this the 'sys::None' spec itself
   @NoDoc abstract Bool isNone()
 
-  ** Does this spec directly inherit from And where base is sys::And
+  ** Is the base 'sys::Enum'
+  @NoDoc abstract Bool isEnum()
+
+  ** Does this spec directly inherit from And where base is 'sys::And'
   @NoDoc abstract Bool isBaseAnd()
 
-  ** Does this spec directly inherit from Or where base is sys::Or
+  ** Does this spec directly inherit from Or where base is 'sys::Or'
   @NoDoc abstract Bool isBaseOr()
 
   ** Does this spec directly inherits from And/Or and define 'ofs'
@@ -120,22 +123,22 @@ const mixin Spec : Dict
   ** Return list of component specs for a compound type
   @NoDoc abstract Spec[]? ofs(Bool checked := true)
 
-  ** Inherits directly from 'sys::Scalar' without considering And/Or
+  ** Inherits from 'sys::Scalar' without considering And/Or
   @NoDoc abstract Bool isScalar()
 
-  ** Inherits directly from 'sys::Marker' without considering And/Or
+  ** Inherits from 'sys::Marker' without considering And/Or
   @NoDoc abstract Bool isMarker()
 
-  ** Inherits directly from 'sys::Seq' without considering And/Or
+  ** Inherits from 'sys::Seq' without considering And/Or
   @NoDoc abstract Bool isSeq()
 
-  ** Inherits directly from 'sys::Dict' without considering And/Or
+  ** Inherits from 'sys::Dict' without considering And/Or
   @NoDoc abstract Bool isDict()
 
-  ** Inherits directly from 'sys::List' without considering And/Or
+  ** Inherits from 'sys::List' without considering And/Or
   @NoDoc abstract Bool isList()
 
-  ** Inherits directly from 'sys::Query' without considering And/Or
+  ** Inherits from 'sys::Query' without considering And/Or
   @NoDoc abstract Bool isQuery()
 
   ** Return the Fantom type used to represent this spec (scalar, Dict, or Item)

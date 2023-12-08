@@ -72,6 +72,7 @@ internal class RSpec : CSpec, NameDictReader
 
   override final Bool isSys() { libName =="sys" }
   override final Bool isNone() { qname == "sys::None" }
+  override final Bool isEnum() { base != null && base.qname == "sys::Enum" }
   override final Bool isBaseAnd() { base != null && base.qname == "sys::And" }
   override final Bool isBaseOr() { base != null && base.qname == "sys::Or" }
 

@@ -37,6 +37,7 @@ const class MSys
     this.time     = x.get("Time")
     this.dateTime = x.get("DateTime")
     this.ref      = x.get("Ref")
+    this.enum     = x.get("Enum")
     this.and      = x.get("And")
     this.or       = x.get("Or")
     this.query    = x.get("Query")
@@ -61,6 +62,7 @@ const class MSys
   const XetoType time
   const XetoType dateTime
   const XetoType ref
+  const XetoType enum
   const XetoType and
   const XetoType or
   const XetoType query

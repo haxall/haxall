@@ -304,6 +304,8 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Bool isNone() { this === env.sys.none }
 
+  override final Bool isEnum() { base === env.sys.enum }
+
   override final Bool isBaseAnd() { base === env.sys.and }
 
   override final Bool isBaseOr() { base === env.sys.or }
