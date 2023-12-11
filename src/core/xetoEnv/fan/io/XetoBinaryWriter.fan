@@ -88,6 +88,7 @@ class XetoBinaryWriter : XetoBinaryConst
     writeName(lib.m.nameCode)
     writeNameDict(lib.m.meta.wrapped)
     writeTops(lib)
+    writeInstances(lib)
     writeI4(magicLibEnd)
   }
 
@@ -138,6 +139,12 @@ class XetoBinaryWriter : XetoBinaryConst
       // build path up to type
       throw Err("TODO")
     }
+  }
+
+  private Void writeInstances(XetoLib lib)
+  {
+    lib.m.instancesMap.each |x| { writeNameDict(((MNameDict)x).wrapped) }
+    write(0)  // end with control byte zero instead NameDict control byte
   }
 
 //////////////////////////////////////////////////////////////////////////

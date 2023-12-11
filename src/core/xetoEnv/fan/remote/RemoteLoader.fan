@@ -42,7 +42,7 @@ internal class RemoteLoader
     version   := Version.fromStr((Str)libMeta->version)
     depends   := loadDepends
     types     := loadTypes
-    instances := loadInstances
+    instances := this.instances
 
     m := MLib(env, loc, libNameCode, libMeta, version, depends, types, instances)
     XetoLib#m->setConst(lib, m)
@@ -62,6 +62,13 @@ internal class RemoteLoader
     name := names.toName(nameCode)
     x := RSpec(libName, XetoSpec(), parent, nameCode, name)
     return x
+  }
+
+  Void addInstance(Dict x)
+  {
+    id := x.id.id
+    name := id[id.index(":")+2..-1]
+    instances.add(name, x)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -300,15 +307,6 @@ internal class RemoteLoader
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Instances
-//////////////////////////////////////////////////////////////////////////
-
-  private Str:Dict loadInstances()
-  {
-    Str:Dict[:]
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
@@ -320,7 +318,7 @@ internal class RemoteLoader
   const Int libNameCode
   const MNameDict libMeta
   private Str:RSpec types := [:]             // addType
-  private Str:NameDict instances := [:]      // addInstance
+  private Str:Dict instances := [:]          // addInstance
   private [Str:SpecFactory]? factories       // loadFactories
 }
 

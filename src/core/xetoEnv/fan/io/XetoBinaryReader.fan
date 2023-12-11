@@ -107,6 +107,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     meta      := readMeta
     loader    := RemoteLoader(transport.env, nameCode, meta)
     readTypes(loader)
+    readInstances(loader)
     verifyU4(magicLibEnd, "magicLibEnd")
 
     return loader.loadLib
@@ -176,6 +177,17 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     }
 
     return RSpecRef(lib, type, slot, more)
+  }
+
+  private Void readInstances(RemoteLoader loader)
+  {
+    while (true)
+    {
+      ctrl := read
+      if (ctrl != ctrlNameDict) break
+      x := readNameDict
+      loader.addInstance(x)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
