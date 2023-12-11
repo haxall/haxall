@@ -513,7 +513,11 @@ internal class GenPH : XetoCmd
     out := f.out
     try
     {
+      out.printLine("//")
+      out.printLine("// Copyright (c) 2011-2023, Project-Haystack")
+      out.printLine("// Licensed under the Academic Free License version 3.0")
       out.printLine("// Auto-generated $ts")
+      out.printLine("//")
       out.printLine
       cb(out)
     }
