@@ -305,8 +305,7 @@ public final class BackupMonitor extends FanObj
     {
       // write file into zip
       startEntry(path);
-      MemBuf buf = (MemBuf)f.readAllBuf();
-      zip.write(buf.buf, 0, buf.size);
+      f.in().pipe(SysOutStream.make(zip, new Long(4096L)));
       closeEntry();
     }
     catch (Exception e)
