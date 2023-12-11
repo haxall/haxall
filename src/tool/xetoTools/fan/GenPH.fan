@@ -35,6 +35,7 @@ internal class GenPH : XetoCmd
     writeEnums
     writeTimeZones
     writeUnits
+    writeFeatureDefs
     return 0
   }
 
@@ -428,6 +429,76 @@ internal class GenPH : XetoCmd
       out.printLine("   // TODO")
       out.printLine("}")
     }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Write Feature Defs
+//////////////////////////////////////////////////////////////////////////
+
+  private Void writeFeatureDefs()
+  {
+    write(`filetypes.xeto`) |out|
+    {
+      out.printLine(
+      Str<|// File format type definition
+           Filetype: Feature {
+             filetype       // Filetype marker
+             fileExt: Str?  // Filename extension such as "csv"
+             mime:    Str?  // Mime type formatted as "type/subtype"
+           }
+           |>)
+      ns.filetypes.each |x| { writeFeatureInstance(out, x) }
+    }
+
+    write(`ops.xeto`) |out|
+    {
+      out.printLine(
+      Str<|// Operation for HTTP API.  See `docHaystack::Ops` chapter.
+           Op: Feature {
+             // Op marker
+             op
+
+             // Marks a function or operation as having no side effects.  The function
+             // may or may not be *pure* in that calling it multiple times with the
+             // same arguments always evaluates to the same result.
+             noSideEffects: Marker?
+           }
+           |>)
+      ns.feature("op").defs.sort.each |x| { writeFeatureInstance(out, x) }
+    }
+  }
+
+  private Void writeFeatureType(OutStream out, Def def)
+  {
+    type := def.name.capitalize
+    tags := ns.tags(def)
+
+    writeDoc(out, def)
+    out.printLine("$type: Feature {")
+    writeEntitySlots(out, def)
+    out.printLine("}")
+    out.printLine
+  }
+
+  private Void writeFeatureInstance(OutStream out, Def def)
+  {
+    type := def.symbol.part(0).capitalize
+
+    writeDoc(out, def)
+    out.printLine("@${def.symbol} : $type {")
+    names := Etc.dictNames(def)
+    names.removeAll(["def", "lib", "is", "doc"])
+    names.sort
+    names.each |n|
+    {
+      v := def[n]
+      if (v === Marker.val)
+        out.printLine("  $n")
+      else
+        out.printLine("  $n: $v.toStr.toCode")
+    }
+    out.printLine("}")
+    out.printLine
   }
 
 //////////////////////////////////////////////////////////////////////////

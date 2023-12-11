@@ -137,12 +137,24 @@ class EnvTest : AbstractXetoTest
     meter     := verifyLibType(ph, "Meter",  equip)
     elecMeter := verifyLibType(ph, "ElecMeter",  meter)
 
-
     // env.print(elecMeter, Env.cur.out, env.dict1("effective", m))
     marker := env.spec("sys::Marker")
     verifyEq(elecMeter.slot("elec").type, marker)
     verifyEq(elecMeter.slot("meter").type, marker)
     verifyEq(elecMeter.slot("equip").type, marker)
+
+    // feature instances
+    verifyFeatureInstance(ph.instance("filetype:zinc"),
+      ["id":Ref("ph::filetype:zinc"), "spec":Ref("ph::Filetype"), "filetype":m, "dis":"Zinc", "fileExt":"zinc", "mime":"text/zinc"])
+    verifyFeatureInstance(ph.instance("op:about"),
+      ["id":Ref("ph::op:about"), "spec":Ref("ph::Op"), "op":m, "noSideEffects":m])
+    verifyFeatureInstance(ph.instance("op:pointWrite"),
+      ["id":Ref("ph::op:pointWrite"), "spec":Ref("ph::Op"), "op":m])
+  }
+
+  Void verifyFeatureInstance(Dict dict, Str:Obj expect)
+  {
+    verifyDictEq(dict, expect)
   }
 
 //////////////////////////////////////////////////////////////////////////
