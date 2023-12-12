@@ -125,6 +125,20 @@ internal class GenPH : XetoCmd
     if (n == "tagOn") return true
     if (n == "transient") return true
 
+    // relationships
+    if (n == "relationship") return true
+    if (n == "inputs") return true
+    if (n == "outputs") return true
+    if (n == "contains") return true
+    if (n == "containedBy") return true
+
+    // associations
+    if (n == "association") return true
+    if (n == "quantities") return true
+    if (n == "quantityOf") return true
+    if (n == "tagOn") return true
+    if (n == "tags") return true
+
     return false
   }
 
