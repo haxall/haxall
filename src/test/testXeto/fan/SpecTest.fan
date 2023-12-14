@@ -282,9 +282,9 @@ class SpecTest : AbstractXetoTest
       "equipRef:Ref", "his:Marker?", "kind:Kind",
       "maxVal:Number?", "minVal:Number?",
       "siteRef:Ref", "spaceRef:Ref?", "systemRef:Ref?",
-      "tz:TimeZone?", "unit:Str?", "writable:Marker?",
+      "tz:TimeZone?", "unit:Unit?", "writable:Marker?",
       "equips:Query"]
-    numPtSlots := ptSlots.dup.set(ptSlots.findIndex { it == "unit:Str?"}, "unit:Str")
+    numPtSlots := ptSlots.dup.set(ptSlots.findIndex { it == "unit:Unit?"}, "unit:Unit")
     afSlots    := numPtSlots.dup.addAll(["air:Marker", "flow:Marker"])
     afsSlots   := afSlots.dup.add("sensor:Marker")
     dafsSlots  := afsSlots.dup.add("discharge:Marker")

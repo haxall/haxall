@@ -38,7 +38,7 @@ internal class Normalize : DefCompilerStep
   {
     // some special handling
     if (def.symbol.toStr == "tz") def.set(etc.enum, TimeZone.listNames.join("\n"))
-    if (def.symbol.toStr == "unit") def.set(etc.enum, tzUnitStr)
+    if (def.symbol.toStr == "unit") def.set(etc.enum, unitEnumStr)
 
     // implied lib tag in every def
     if (def.meta["lib"] != null) err("Def cannot declare lib tag: $def", def.loc)
@@ -64,7 +64,7 @@ internal class Normalize : DefCompilerStep
     }
   }
 
-  private Str tzUnitStr()
+  private Str unitEnumStr()
   {
     s := StrBuf(16_384)
     Unit.quantities.each |q|

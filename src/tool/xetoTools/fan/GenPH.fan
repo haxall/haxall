@@ -153,8 +153,6 @@ internal class GenPH : AbstractGenCmd
 
   private Str toEnumTypeName(Def tag)
   {
-// TODO
-if (tag.name == "unit") return "Str"
     if (tag.name == "tz") return "TimeZone"
     return tag.name.capitalize
   }

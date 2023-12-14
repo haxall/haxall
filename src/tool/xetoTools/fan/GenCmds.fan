@@ -105,12 +105,12 @@ internal class GenTz: AbstractGenCmd
 }
 
 **************************************************************************
-** GenUnit
+** GenUnits
 **************************************************************************
 
-internal class GenUnit : AbstractGenCmd
+internal class GenUnits : AbstractGenCmd
 {
-  override Str name() { "gen-unit" }
+  override Str name() { "gen-units" }
 
   override Str summary() { "Compile unit db into sys::Unit" }
 
@@ -125,7 +125,20 @@ internal class GenUnit : AbstractGenCmd
     {
       out.printLine("// Unit symbols for standardized database")
       out.printLine("Unit: Enum {")
-      out.printLine("   // TODO")
+      Unit.quantities.each |q|
+      {
+        quantityMeta := null
+        if (q != "dimensionless")
+          quantityMeta = ", quantity:" + normEnumName(q).toCode
+
+        Unit.quantity(q).each |u|
+        {
+          out.print("  $u.name <key:$u.symbol.toCode")
+          if (quantityMeta != null) out.print(quantityMeta)
+          out.printLine(">")
+        }
+        out.printLine
+      }
       out.printLine("}")
     }
 
