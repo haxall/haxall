@@ -9,6 +9,7 @@
 using util
 using xeto
 using haystack
+using haystack::Ref
 
 **
 ** EnumTest
@@ -58,6 +59,23 @@ class EnumTest : AbstractXetoTest
      verifyEnumItem(e, "clubs",   ["foo":m, "color":"b", "doc":"Black clubs"])
      verifyEnumItem(e, "hearts",  ["foo":m, "color":"r", "doc":"Red hearts"])
      verifyEnumItem(e, "spades",  ["foo":m, "color":"b", "doc":"Black spades"])
+  }
+
+  Void testInstances()
+  {
+    lib := compileLib(
+      Str<|Color: Enum { red, blue, green }
+           Car: Dict { color: Color }
+           @a: Car { color:"red" }
+           @b: Car { color:"blue" }
+           |>)
+
+     e := lib.type("Color")
+     c := lib.type("Car")
+     a := lib.instance("a")
+     b := lib.instance("b")
+     verifyDictEq(a, ["id":Ref("${lib.name}::a"), "spec":c._id, "color":"red"])
+     verifyDictEq(b, ["id":Ref("${lib.name}::b"), "spec":c._id, "color":"blue"])
   }
 
   Void verifyEnumFlags(Spec enum)

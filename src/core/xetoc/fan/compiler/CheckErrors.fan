@@ -165,10 +165,37 @@ internal class CheckErrors : Step
 
   Void checkDict(ADict x)
   {
+    x.map.each |slot| { checkData(slot) }
   }
 
   Void checkScalar(AScalar x)
   {
+    // TODO investigate why some scalars don't have ctypes (seems to be in meta data) ...
+    if (x.typeRef == null) return
+
+    if (x.ctype.isEnum) return checkEnum(x)
+  }
+
+  Void checkEnum(AScalar x)
+  {
+    // first lookup slot by name
+    key := x.str
+    enum := x.ctype
+    item := enum.cslot(key, false)
+
+    // if there a matching name with no key, then this is a valid value
+    if (item != null && item.cmeta.missing("key")) return
+
+    // if that failed try to find matching item by meta key tag
+    foundByKey := false
+    enum.cslots |slot|
+    {
+      slotKey := slot.cmeta.get("key") as Str
+      if (slotKey == key) foundByKey = true
+    }
+    if (foundByKey) return
+
+    return err("Invalid value '$x.str' for enum type '$enum.qname'", x.loc)
   }
 
   Void checkSpecRef(ASpecRef x)

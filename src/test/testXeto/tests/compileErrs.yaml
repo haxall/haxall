@@ -126,4 +126,29 @@ compileLib: |
 verifyErrs: |
   Cannot inherit from Enum type 'A'
 ---
+name: "enumInstances"
+compileLib: |
+  Color: Enum { red, blue }
+  State: Enum {
+    va <key:"VA">
+    tx <key:"TX">
+  }
+  Car: {
+    color: Color?
+    st: State?
+  }
+
+  A: { color: Color "bad1" }
+  B: Car { color: "bad2" }
+
+  C: { st: State "tx" }
+  D: Car { st: "va" }
+
+  E: Car { color:"blue", st: "TX" }  // ok
+verifyErrs: |
+  Invalid value 'bad1' for enum type 'temp::Color'
+  Invalid value 'bad2' for enum type 'temp::Color'
+  Invalid value 'tx' for enum type 'temp::State'
+  Invalid value 'va' for enum type 'temp::State'
+---
 
