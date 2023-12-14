@@ -12,14 +12,14 @@ using haystack
 using def
 using defc
 
-internal class GenPH : XetoCmd
+internal class GenPH : AbstractGenCmd
 {
   override Str name() { "gen-ph" }
 
   override Str summary() { "Compile haystack defs into xeto ph lib" }
 
   @Opt { help = "Directory to output" }
-  File outDir := (Env.cur.workDir + `../xeto/src/xeto/ph/`).normalize
+  override File outDir := (Env.cur.workDir + `../xeto/src/xeto/ph/`).normalize
 
 //////////////////////////////////////////////////////////////////////////
 // Run
@@ -33,8 +33,6 @@ internal class GenPH : XetoCmd
     writeTags
     writeEntities
     writeEnums
-    writeTimeZones
-    writeUnits
     writeFeatureDefs
     return 0
   }
@@ -410,55 +408,6 @@ if (tag.name == "unit") return "Str"
     out.printLine
   }
 
-  private Str normEnumName(Str name)
-  {
-    name = name.replace("-", " ")
-    name = name.replace("/", " ")
-    return Etc.toTagName(name)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Write Units
-//////////////////////////////////////////////////////////////////////////
-
-  private Void writeTimeZones()
-  {
-    def := ns.def("tz")
-    write(`timezones.xeto`) |out|
-    {
-      writeDoc(out, def)
-      out.printLine("TimeZone: Enum {")
-      TimeZone.listNames.each |name|
-      {
-        key := name
-        if (key.startsWith("GMT-"))
-          name = "gmtMinus" + key[4..-1]
-        else if (key.startsWith("GMT+"))
-          name = "gmtPlus" + key[4..-1]
-        else
-          name = normEnumName(name)
-        out.printLine("  $name <key:$key.toCode>")
-      }
-      out.printLine("}")
-    }
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Write Units
-//////////////////////////////////////////////////////////////////////////
-
-  private Void writeUnits()
-  {
-    def := ns.def("unit")
-    write(`units.xeto`) |out|
-    {
-      writeDoc(out, def)
-      out.printLine("Unit: Enum {")
-      out.printLine("   // TODO")
-      out.printLine("}")
-    }
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Write Feature Defs
 //////////////////////////////////////////////////////////////////////////
@@ -533,42 +482,6 @@ if (tag.name == "unit") return "Str"
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Write given file under phDir
-  Void write(Uri file, |OutStream| cb)
-  {
-    info("write [$file]")
-    f := outDir + file
-    out := f.out
-    try
-    {
-      out.printLine("//")
-      out.printLine("// Copyright (c) 2011-2023, Project-Haystack")
-      out.printLine("// Licensed under the Academic Free License version 3.0")
-      out.printLine("// Auto-generated $ts")
-      out.printLine("//")
-      out.printLine
-      cb(out)
-    }
-    finally out.close
-  }
-
-
-  ** Write doc comment
-  Void writeDoc(OutStream out, Def def)
-  {
-    doc := def["doc"] as Str ?: def.name
-    doc.splitLines.each |line|
-    {
-      out.printLine("// $line".trimEnd)
-    }
-  }
-
-  ** Log message to stdout
-  Void info(Str msg)
-  {
-    echo(msg)
-  }
-
   ** Skip tag
   private Bool skip(Str name)
   {
@@ -579,8 +492,6 @@ if (tag.name == "unit") return "Str"
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
-
-  private const Str ts := DateTime.now.toLocale("DD-MMM-YYYY")
 
   private Namespace? ns    // compileNamespace
   private Lib? ph          // compileNamespace
