@@ -77,10 +77,27 @@ internal class Fitter
     if (val is Dict && type.isa(env.dictSpec))
       return fitsStruct(val, type)
 
+    // check enums
+    if (type.isEnum && val is Str) return fitsEnum(val, type)
+
     // check nominal typing
     if (valType.isa(type)) return true
 
     return explainNoFit(valType, type)
+  }
+
+  private Bool fitsEnum(Str val, Spec enum)
+  {
+    // first match slot name without key
+    slot := enum.slot(val, false)
+    if (slot != null && slot.meta.missing("key")) return true
+
+    // iterate slots to find key
+    r := enum.slots.eachWhile |x|
+    {
+      x.meta["key"] as Str == val ? "found": null
+    }
+    return r != null
   }
 
   private Bool fitsStruct(Dict dict, Spec type)

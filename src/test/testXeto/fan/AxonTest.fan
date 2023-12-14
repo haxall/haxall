@@ -447,6 +447,11 @@ class AxonTest : HxTest
     verifyFits(Str<|fits({site}, Dict)|>, true)
     verifyFits(Str<|fits({id:@x, site}, Equip)|>, false)
     verifyFits(Str<|fits({id:@x, site}, Site)|>, true)
+    verifyFits(Str<|fits(`ok`, CurStatus)|>, false)
+    verifyFits(Str<|fits("foo", CurStatus)|>, false)
+    verifyFits(Str<|fits("ok", CurStatus)|>, true)
+    verifyFits(Str<|fits("bool", Kind)|>, false)
+    verifyFits(Str<|fits("Bool", Kind)|>, true)
 
     libs = ["ph", "ph.points"]
     verifyFits(Str<|fits({id:@x}, DischargeAirTempSensor)|>, false)
