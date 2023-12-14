@@ -146,13 +146,17 @@ internal class GenPH : XetoCmd
 
   private Str toTagType(Def tag)
   {
-    // TODO
-    // if (tag.has("enum")) return toEnumTypeName(tag)
+    if (tag.has("enum") && ns.fits(tag, ns.def("str")))
+    {
+      return toEnumTypeName(tag)
+    }
     return ns.defToKind(tag).name
   }
 
   private Str toEnumTypeName(Def tag)
   {
+// TODO
+if (tag.name == "unit" || tag.name == "tz") return "Str"
     if (tag.name == "tz") return "TimeZone"
     return tag.name.capitalize
   }

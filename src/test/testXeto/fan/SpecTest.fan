@@ -279,7 +279,7 @@ class SpecTest : AbstractXetoTest
     ptSlots := [
       "dis:Str?", "id:Ref",
       "point:Marker", "cur:Marker?", "enum:Str?",
-      "equipRef:Ref", "his:Marker?", "kind:Str",
+      "equipRef:Ref", "his:Marker?", "kind:Kind",
       "maxVal:Number?", "minVal:Number?",
       "siteRef:Ref", "spaceRef:Ref?", "systemRef:Ref?",
       "tz:Str?", "unit:Str?", "writable:Marker?",
