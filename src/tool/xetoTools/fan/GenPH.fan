@@ -156,7 +156,7 @@ internal class GenPH : XetoCmd
   private Str toEnumTypeName(Def tag)
   {
 // TODO
-if (tag.name == "unit" || tag.name == "tz") return "Str"
+if (tag.name == "unit") return "Str"
     if (tag.name == "tz") return "TimeZone"
     return tag.name.capitalize
   }
@@ -428,7 +428,17 @@ if (tag.name == "unit" || tag.name == "tz") return "Str"
     {
       writeDoc(out, def)
       out.printLine("TimeZone: Enum {")
-      out.printLine("   // TODO")
+      TimeZone.listNames.each |name|
+      {
+        key := name
+        if (key.startsWith("GMT-"))
+          name = "gmtMinus" + key[4..-1]
+        else if (key.startsWith("GMT+"))
+          name = "gmtPlus" + key[4..-1]
+        else
+          name = normEnumName(name)
+        out.printLine("  $name <key:$key.toCode>")
+      }
       out.printLine("}")
     }
   }
