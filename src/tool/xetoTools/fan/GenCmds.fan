@@ -121,6 +121,7 @@ internal class GenUnits : AbstractGenCmd
   {
     if (!outDir.plus(`types.xeto`).exists) throw Err("Invalid outDir: $outDir")
 
+    quantities := Str[,]
     write(`units.xeto`) |out|
     {
       out.printLine("// Unit symbols for standardized database")
@@ -129,7 +130,11 @@ internal class GenUnits : AbstractGenCmd
       {
         quantityMeta := null
         if (q != "dimensionless")
-          quantityMeta = ", quantity:" + normEnumName(q).toCode
+        {
+          quantityName := normEnumName(q)
+          quantities.add(quantityName)
+          quantityMeta = ", quantity:${quantityName.toCode}"
+        }
 
         Unit.quantity(q).each |u|
         {
@@ -138,6 +143,15 @@ internal class GenUnits : AbstractGenCmd
           out.printLine(">")
         }
         out.printLine
+      }
+      out.printLine("}")
+      out.printLine
+
+      out.printLine("// Unit quantity types for standardized database")
+      out.printLine("UnitQuantity: Enum {")
+      quantities.each |q|
+      {
+        out.printLine("  $q")
       }
       out.printLine("}")
     }
