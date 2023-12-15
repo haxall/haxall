@@ -58,6 +58,12 @@ abstract internal class Step
   {
     AScalar(loc, sys.marker, env.marker.toStr, env.marker)
   }
+
+  File[] dirList(File dir)
+  {
+    // use consistent ordering
+    dir.list.sort |a, b| { a.name <=> b.name }
+  }
 }
 
 

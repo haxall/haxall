@@ -64,9 +64,6 @@ internal class InheritSlots : Step
     // special handling for sys::Obj
     if (spec.isObj) { spec.cslotsRef = noSlots; return }
 
-    // special handling for Enums
-    if (isEnum(spec)) return inheritEnum(spec)
-
     // infer the base we inherit from (may be null)
     spec.base = inferBase(spec)
 
@@ -78,6 +75,9 @@ internal class InheritSlots : Step
 
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
+
+    // special handling for Enums
+    if (isEnum(spec)) return inheritEnum(spec)
 
     // compute effective flags
     inheritFlags(spec)

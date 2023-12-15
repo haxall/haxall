@@ -109,7 +109,7 @@ internal class Parse : Step
     }
     else if (input.isDir)
     {
-      input.list.each |sub|
+      dirList(input).each |sub|
       {
         if (sub.ext == "xeto") parseFile(sub, lib)
       }
