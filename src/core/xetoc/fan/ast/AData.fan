@@ -95,18 +95,11 @@ internal class AScalar : AData
 internal class ADict : AData
 {
   ** Constructor
-  new make(FileLoc loc, ASpecRef? type) : super(loc, type)
+  new make(FileLoc loc, ASpecRef? type, Bool isMeta := false) : super(loc, type)
   {
     map = Str:Obj[:]
     map.ordered = true
-  }
-
-  ** Constructor for ASpec.meta
-  new makeMeta(FileLoc loc) : super.make(loc, null)
-  {
-    map = Str:Obj[:]
-    map.ordered = true
-    isMeta = true
+    this.isMeta = isMeta
   }
 
   ** Node type

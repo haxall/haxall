@@ -121,7 +121,7 @@ internal class ASpec : ANode, CSpec
   ** Initialize meta data dict
   ADict metaInit()
   {
-    if (meta == null) meta = ADict.makeMeta(this.loc)
+    if (meta == null) meta = ADict(this.loc, compiler.sys.spec, true)
     return this.meta
   }
 

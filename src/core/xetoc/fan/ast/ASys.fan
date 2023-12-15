@@ -23,6 +23,7 @@ internal class ASys
   ASpecRef and    := init("And")
   ASpecRef or     := init("Or")
   ASpecRef lib    := init("Lib")
+  ASpecRef spec   := init("Spec")
   ASpecRef query  := init("Query")
 
   Void each(|ASpecRef| f)

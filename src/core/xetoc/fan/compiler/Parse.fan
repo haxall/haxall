@@ -56,7 +56,7 @@ internal class Parse : Step
 
     // remove pragma from root
     // TODO
-    pragma := ADict(doc.loc)
+    pragma := ADict(doc.loc, sys.lib)
 //     pragma := validatePragma(root)
 //     bombIfErr
 

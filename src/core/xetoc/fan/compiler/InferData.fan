@@ -11,7 +11,7 @@ using xeto
 using xetoEnv
 
 **
-** Walk thru all the dict AST instances and add inferred tags
+** Walk thru all the dict AST instances and add inferred types/tags
 **
 **
 internal class InferData : Step
@@ -33,7 +33,7 @@ internal class InferData : Step
 
   private Void inferDict(ADict dict)
   {
-    inferSpecSlots(dict)
+    inferDictSlots(dict)
   }
 
   private Void inferId(AInstance dict)
@@ -49,30 +49,42 @@ internal class InferData : Step
     dict.set("id", AScalar(loc, sys.ref, id, ref))
   }
 
-  private Void inferSpecSlots(ADict dict)
+  private Void inferDictSlots(ADict dict)
   {
-    spec := dict.typeRef?.deref
-    if (spec == null) return
+    // walk thru the spec slots and infer type/value
+    if (dict.typeRef == null) return //echo("WARN: Dict not typed [$dict.loc]")
 
+    spec := dict.ctype
     spec.cslots |slot|
     {
-      inferSpecSlot(dict, slot)
+      inferDictSlot(dict, slot)
+    }
+
+    // walk thru any remaining slots and infer type
+    dict.each |val|
+    {
+      if (val.typeRef == null) inferValType(val)
     }
   }
 
-  private Void inferSpecSlot(ADict dict, CSpec slot)
+  private Void inferDictSlot(ADict dict, CSpec slot)
   {
-    // if slot is nullable, then don't infer anything
-    if (slot.isMaybe) return
-
-    // if we have a slot, then infer the type only
+    // get the slot value
     cur := dict.get(slot.name)
+
+    // if no value and slot is nullable, then don't infer anything
+    if (cur == null && slot.isMaybe) return
+
+    // if we have a slot value, then infer the type only
     if (cur != null)
     {
       if (cur.typeRef == null)
         cur.typeRef = ASpecRef(cur.loc, slot.ctype)
       return
     }
+
+    // we don't infer meta dict slots, that is handled in InheritMeta
+    if (dict.isMeta) return
 
     // we haven't run InheritMeta yet, so this is awkward....
     // TODO: we need to run InheritMeta before Reify
@@ -92,6 +104,19 @@ internal class InferData : Step
     if (val == null) return
     if (val == refDefVal) return
     dict.set(slot.name, AScalar(dict.loc, null, val.toStr, val))
+  }
+
+  private Void inferValType(AData data)
+  {
+    switch (data.nodeType)
+    {
+      case ANodeType.scalar:   data.typeRef = sys.str
+      case ANodeType.dict:     data.typeRef = sys.dict
+      case ANodeType.instance: data.typeRef = sys.dict
+      case ANodeType.dataRef:  data.typeRef = sys.ref
+      case ANodeType.specRef:  data.typeRef = sys.ref
+      default: throw err("inferValType $data $data.nodeType", data.loc)
+    }
   }
 
   const Ref refDefVal := haystack::Ref("x")
