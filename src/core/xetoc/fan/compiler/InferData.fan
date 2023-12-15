@@ -11,7 +11,8 @@ using xeto
 using xetoEnv
 
 **
-** Walk thru all the dict AST instances and add inferred types/tags
+** Walk thru all the dict AST spec meta and instances and add inferred types/tags.
+** Once complete every AData instance must have its typeRef set.
 **
 **
 internal class InferData : Step
@@ -22,6 +23,9 @@ internal class InferData : Step
     {
       if (node.nodeType === ANodeType.dict) inferDict(node)
       if (node.nodeType === ANodeType.instance) inferInstance(node)
+      if (node.nodeType === ANodeType.scalar) inferScalar(node)
+      if (node.nodeType === ANodeType.specRef) inferRef(node)
+      if (node.nodeType === ANodeType.dataRef) inferRef(node)
     }
   }
 
@@ -34,6 +38,18 @@ internal class InferData : Step
   private Void inferDict(ADict dict)
   {
     inferDictSlots(dict)
+  }
+
+  private Void inferScalar(AScalar scalar)
+  {
+    if (scalar.typeRef == null || isObj(scalar.ctype))
+      scalar.typeRef = sys.str
+  }
+
+  private Void inferRef(ARef ref)
+  {
+    if (ref.typeRef == null)
+      ref.typeRef = sys.ref
   }
 
   private Void inferId(AInstance dict)
@@ -59,12 +75,6 @@ internal class InferData : Step
     spec.cslots |slot|
     {
       inferDictSlot(dict, slot)
-    }
-
-    // walk thru any remaining slots and infer type
-    dict.each |val|
-    {
-      if (val.typeRef == null) inferValType(val)
     }
   }
 
@@ -105,19 +115,6 @@ internal class InferData : Step
     if (val == null) return
     if (val == refDefVal) return
     dict.set(slot.name, AScalar(dict.loc, null, val.toStr, val))
-  }
-
-  private Void inferValType(AData data)
-  {
-    switch (data.nodeType)
-    {
-      case ANodeType.scalar:   data.typeRef = sys.str
-      case ANodeType.dict:     data.typeRef = sys.dict
-      case ANodeType.instance: data.typeRef = sys.dict
-      case ANodeType.dataRef:  data.typeRef = sys.ref
-      case ANodeType.specRef:  data.typeRef = sys.ref
-      default: throw err("inferValType $data $data.nodeType", data.loc)
-    }
   }
 
   const Ref refDefVal := haystack::Ref("x")

@@ -126,9 +126,6 @@ internal class Reify : Step
     // if already assembled
     if (x.isAsm) return x.asm
 
-    // if there is no type or type is sys::Obj, then assume string
-    if (x.typeRef == null || isObj(x.ctype)) return x.asmRef = x.str
-
     // map to Fantom type to parse
     try
     {

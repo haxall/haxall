@@ -170,9 +170,6 @@ internal class CheckErrors : Step
 
   Void checkScalar(AScalar x)
   {
-    // TODO investigate why some scalars don't have ctypes (seems to be in meta data) ...
-    if (x.typeRef == null) return
-
     if (x.ctype.isEnum) return checkEnum(x)
   }
 
