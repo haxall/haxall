@@ -51,9 +51,10 @@ internal class InferData : Step
 
   private Void inferDictSlots(ADict dict)
   {
-    // walk thru the spec slots and infer type/value
-    if (dict.typeRef == null) return //echo("WARN: Dict not typed [$dict.loc]")
+    // untyped dicts default to sys::Dict
+    if (dict.typeRef == null) dict.typeRef = sys.dict
 
+    // walk thru the spec slots and infer type/value
     spec := dict.ctype
     spec.cslots |slot|
     {

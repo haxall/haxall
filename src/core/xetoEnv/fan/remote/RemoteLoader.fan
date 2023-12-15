@@ -39,7 +39,7 @@ internal class RemoteLoader
   {
     loadFactories
 
-    version   := Version.fromStr((Str)libMeta->version)
+    version   := libMeta->version
     depends   := loadDepends
     types     := loadTypes
     instances := this.instances
@@ -79,10 +79,10 @@ internal class RemoteLoader
   {
     obj := libMeta["depends"]
     if (obj == null) return MLibDepend#.emptyList
-    list := (MNameDict)obj
+    list := (Obj?[])obj
 
     acc := MLibDepend[,]
-    acc.capacity = list.wrapped.size
+    acc.capacity = list.size
     list.each |MNameDict x|
     {
       name := x->lib

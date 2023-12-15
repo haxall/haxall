@@ -40,8 +40,14 @@ class EnvTest : AbstractXetoTest
     verifySame(env.lib("sys"), sys)
     verifyEq(sys.name, "sys")
     verifyEq(sys.version, curVersion)
-    //verifyEq(sys.meta["version"], curVersion)  TODO
     verifySame(env.sysLib, sys)
+
+    // verify lib meta inference
+    verifyEq(sys.meta["version"], curVersion)
+    sysOrg := sys.meta["org"] as Dict
+    verifyEq(sysOrg->dis, "Project Haystack")
+    verifyEq(sysOrg->uri, `https://project-haystack.org/`)
+    verifyEq(sysOrg->spec, Ref("sys::LibOrg"))
 
     // types
     obj    := verifyLibType(sys, "Obj",      null)

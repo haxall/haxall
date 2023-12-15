@@ -60,10 +60,10 @@ internal class Reify : Step
     if (x.isAsm) return x.asm
 
     // spec
-    type := x.typeRef?.deref
+    type := x.ctype
 
     // turn dict into list
-    if (type != null && type.isList)
+    if (type.isList)
       return x.asmRef = reifyList(x, type)
 
     // name/value pairs
@@ -72,31 +72,28 @@ internal class Reify : Step
     x.each |obj, name| { acc[name] = reifyDictVal(obj) }
 
     // if spec is not meta or sys::Dict then add synthetic spec tag
-    if (!x.isMeta && type != null && !isSys && type !== (CSpec)env.dictSpec)
+    if (!x.isMeta && type.qname != "sys::Dict")
       acc["spec"] = env.ref(type.qname)
 
     // create as Dict
-    dict := MNameDict(env.names.dictMap(acc, type?.asm))
+    dict := MNameDict(env.names.dictMap(acc, type.asm))
     Obj asm := dict
 
     // if there is a factory registered, then decode to another Fantom type
-    if (type != null)
-    {
-      Obj? fantom
-      Err? err
-      try
-        fantom = type.factory.decodeDict(dict, false)
-      catch (Err e)
-        err = e
+    Obj? fantom
+    Err? err
+    try
+      fantom = type.factory.decodeDict(dict, false)
+    catch (Err e)
+      err = e
 
-      if (fantom != null)
-      {
-        asm = fantom
-      }
-      else
-      {
-        this.err("Cannot instantiate '$type.qname' dict as Fantom class '$type.factory.type'", x.loc, err)
-      }
+    if (fantom != null)
+    {
+      asm = fantom
+    }
+    else
+    {
+      this.err("Cannot instantiate '$type.qname' dict as Fantom class '$type.factory.type'", x.loc, err)
     }
 
     return x.asmRef = asm
