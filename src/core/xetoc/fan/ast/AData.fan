@@ -78,9 +78,16 @@ internal class AScalar : AData
   }
 
   ** Tree walk
-  override Void walk(|ANode| f)
+  override Void walkBottomUp(|ANode| f)
   {
-    if (typeRef != null) typeRef.walk(f)
+    if (typeRef != null) typeRef.walkBottomUp(f)
+    f(this)
+  }
+
+  ** Tree walk
+  override Void walkTopDown(|ANode| f)
+  {
+    if (typeRef != null) typeRef.walkTopDown(f)
     f(this)
   }
 }
@@ -145,11 +152,19 @@ internal class ADict : AData
   Void each(|AData,Str| f) { map.each(f) }
 
   ** Tree walk
-  override Void walk(|ANode| f)
+  override Void walkBottomUp(|ANode| f)
   {
-    if (typeRef != null) typeRef.walk(f)
-    map.each |x| { x.walk(f) }
+    if (typeRef != null) typeRef.walkBottomUp(f)
+    map.each |x| { x.walkBottomUp(f) }
     f(this)
+  }
+
+  ** Tree walk
+  override Void walkTopDown(|ANode| f)
+  {
+    if (typeRef != null) typeRef.walkTopDown(f)
+    f(this)
+    map.each |x| { x.walkTopDown(f) }
   }
 
   ** Debug dump

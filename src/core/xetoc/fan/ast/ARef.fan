@@ -42,7 +42,13 @@ internal abstract class ARef : AData
   abstract Void resolve(CNode node)
 
   ** Tree walk
-  override Void walk(|ANode| f)
+  override Void walkBottomUp(|ANode| f)
+  {
+    f(this)
+  }
+
+  ** Tree walk
+  override Void walkTopDown(|ANode| f)
   {
     f(this)
   }

@@ -18,7 +18,7 @@ internal class InferData : Step
 {
   override Void run()
   {
-    ast.walk |node|
+    ast.walkTopDown |node|
     {
       if (node.nodeType === ANodeType.dict) inferDict(node)
       if (node.nodeType === ANodeType.instance) inferInstance(node)

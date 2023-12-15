@@ -199,13 +199,23 @@ internal class ASpec : ANode, CSpec
 //////////////////////////////////////////////////////////////////////////
 
   ** Tree walk
-  override Void walk(|ANode| f)
+  override Void walkBottomUp(|ANode| f)
   {
-    if (typeRef != null) typeRef.walk(f)
-    if (meta != null) meta.walk(f)
-    if (slots != null) slots.each |x| { x.walk(f) }
-    if (val != null) val.walk(f)
+    if (typeRef != null) typeRef.walkBottomUp(f)
+    if (meta != null) meta.walkBottomUp(f)
+    if (slots != null) slots.each |x| { x.walkBottomUp(f) }
+    if (val != null) val.walkBottomUp(f)
     f(this)
+  }
+
+  ** Tree walk
+  override Void walkTopDown(|ANode| f)
+  {
+    if (typeRef != null) typeRef.walkTopDown(f)
+    f(this)
+    if (meta != null) meta.walkTopDown(f)
+    if (slots != null) slots.each |x| { x.walkTopDown(f) }
+    if (val != null) val.walkTopDown(f)
   }
 
   ** Debug dump

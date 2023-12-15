@@ -19,7 +19,7 @@ internal class Reify : Step
 {
   override Void run()
   {
-    ast.walk |x| { reify(x) }
+    ast.walkBottomUp |x| { reify(x) }
   }
 
   private Void reify(ANode node)

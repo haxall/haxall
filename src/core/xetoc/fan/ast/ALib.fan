@@ -49,12 +49,21 @@ internal class ALib : ADoc
   ASpec? top(Str name) { tops.get(name) }
 
   ** Tree walk
-  override Void walk(|ANode| f)
+  override Void walkBottomUp(|ANode| f)
   {
-    meta.walk(f)
-    tops.each |x| { x.walk(f) }
-    instances.each |x| { x.walk(f) }
+    meta.walkBottomUp(f)
+    tops.each |x| { x.walkBottomUp(f) }
+    instances.each |x| { x.walkBottomUp(f) }
     f(this)
+  }
+
+  ** Tree walk
+  override Void walkTopDown(|ANode| f)
+  {
+    f(this)
+    meta.walkTopDown(f)
+    tops.each |x| { x.walkTopDown(f) }
+    instances.each |x| { x.walkTopDown(f) }
   }
 
   ** Auto naming for synthetic specs

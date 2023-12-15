@@ -51,7 +51,9 @@ internal class ADataDoc : ADoc
 
   override Obj asm() { root.asm }
 
-  override Void walk(|ANode| f) { root.walk(f) } // don't walk myself
+  override Void walkBottomUp(|ANode| f) { root.walkBottomUp(f) } // don't walk myself
+
+  override Void walkTopDown(|ANode| f) { root.walkTopDown(f) } // don't walk myself
 
   override Void dump(OutStream out := Env.cur.out, Str indent := "") { root.dump(out, indent) }
 

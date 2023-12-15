@@ -26,7 +26,7 @@ internal class Resolve : Step
     sys.each |x| { resolveRef(x) }
 
     // resolve the ARefs
-    ast.walk |x| { resolveNode(x) }
+    ast.walkBottomUp |x| { resolveNode(x) }
 
     bombIfErr
   }
