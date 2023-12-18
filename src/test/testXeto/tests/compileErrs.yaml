@@ -51,6 +51,15 @@ verifyErrs: |
   Enum item 'a' cannot have type
   Enum item 'b' cannot have type
 ---
+name: "enumInheritDupKeys"
+compileLib: |
+  Foo: Enum {
+    a <key:"Alpha">
+    b <key:"Alpha">
+  }
+verifyErrs: |
+  Duplicate enum key: Alpha
+---
 
 ##########################################################################
 ## CheckErrors
@@ -126,6 +135,7 @@ compileLib: |
     b: Number? <minVal:Number "-20kW", maxVal:Number "-10kW">
     c: Number? <maxVal:Number "100kW">
     d: Number? <unit:"kWh">
+    e: Unit? <quantity: "power">
   }
   @ok1a: Foo { a:"10ft" }
   @ok2a: Foo { a:"15in" }
@@ -134,6 +144,7 @@ compileLib: |
   @ok2b: Foo { b:"-20kW" }
   @ok3b: Foo { b:"-15kW" }
   @ok1d: Foo { d:"3kWh" }
+  @ok1e: Foo { e:"kW" }
 
   @err1a: Foo { a:"21m" }
   @err2a: Foo { a:"0ft" }

@@ -76,6 +76,9 @@ mixin CSpec : CNode
   ** Is the base 'sys::Enum'
   abstract Bool isEnum()
 
+  ** Lookup enum item by its key - raise exception if not enum type
+  abstract CSpec? cenum(Str key, Bool checked := true)
+
   ** Does this spec directly inherit from And where base is sys::And
   abstract Bool isBaseAnd()
 

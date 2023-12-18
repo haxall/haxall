@@ -310,6 +310,8 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final SpecEnum enum() { m.enum }
 
+  override final CSpec? cenum(Str key, Bool checked := true) { m.enum.spec(key, checked) as CSpec }
+
   override final Bool isBaseAnd() { base === env.sys.and }
 
   override final Bool isBaseOr() { base === env.sys.or }

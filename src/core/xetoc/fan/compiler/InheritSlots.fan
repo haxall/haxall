@@ -385,19 +385,41 @@ internal class InheritSlots : Step
       spec.metaInit.set("sealed", markerScalar(loc))
 
     // recurse children slots to process as the enum items
-    items := Str:CSpec[:]
-    items.ordered = true
+    slots := Str:CSpec[:]; slots.ordered = true
+    enums := Str:CSpec[:]; enums.ordered = true
+    hasKeys := false
     enumRef := ASpecRef(loc, spec)
     spec.slots.each |slot|
     {
       item := inheritEnumItem(spec, enumRef, slot)
-      if (item != null) items[item.name] = item
+
+      // map slot by its programatic name
+      slots.add(item.name, item)
+
+      // map by key
+      key := item.name
+      keyVal := item.metaGet("key") as AScalar
+      if (keyVal != null)
+      {
+        key = keyVal.str
+        hasKeys = true
+      }
+      if (enums[key] != null)
+        err("Duplicate enum key: $key", item.loc)
+      else
+        enums.add(key, item)
     }
-    spec.cslotsRef = items
+
+    // if we don't have any key meta, then reuse same slots map to save RAM
+    if (!hasKeys) enums = slots
+
+    // save away both slots and enums
+    spec.cslotsRef = slots
+    spec.enums = enums
   }
 
   ** Check that an item was a marker only, then coerce to be derived from parent enum
-  private ASpec? inheritEnumItem(ASpec enum, ASpecRef enumRef, ASpec item)
+  private ASpec inheritEnumItem(ASpec enum, ASpecRef enumRef, ASpec item)
   {
     // this should only be true if slot created in Parser.parseMarkerSpec
     if (item.typeRef !== sys.marker)

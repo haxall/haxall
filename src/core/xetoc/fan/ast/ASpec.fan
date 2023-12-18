@@ -284,6 +284,20 @@ internal class ASpec : ANode, CSpec
   ** Effective slots configured in InheritSlots
   [Str:CSpec]? cslotsRef
 
+  ** Enum items
+  override CSpec? cenum(Str key, Bool checked := true)
+  {
+    if (!isEnum) throw Err(qname)
+    if (enums == null) throw NotReadyErr(qname)
+    x := enums[key]
+    if (x != null) return x
+    if (checked) throw Err(key)
+    return null
+  }
+
+  // Map of enum items by string kehy (set in InheritSlots)
+  [Str:CSpec]? enums
+
   ** Return if spec inherits from that from a nominal type perspective.
   ** This is the same behavior as Spec.isa, just using CSpec (XetoSpec or AST)
   override Bool cisa(CSpec that)
