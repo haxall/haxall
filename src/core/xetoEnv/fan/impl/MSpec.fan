@@ -73,6 +73,8 @@ const class MSpec
 
   virtual SpecFactory factory() { type.factory }
 
+  virtual MEnum enum() { throw UnsupportedErr("Spec is not enum: $qname") }
+
 //////////////////////////////////////////////////////////////////////////
 // Dict Representation
 //////////////////////////////////////////////////////////////////////////
@@ -305,6 +307,8 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override final Bool isNone() { this === env.sys.none }
 
   override final Bool isEnum() { base === env.sys.enum }
+
+  override final SpecEnum enum() { m.enum }
 
   override final Bool isBaseAnd() { base === env.sys.and }
 

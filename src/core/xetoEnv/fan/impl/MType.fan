@@ -35,6 +35,15 @@ const final class MType : MSpec
 
   override const SpecFactory factory
 
+  override MEnum enum()
+  {
+    if (enumRef != null) return enumRef
+    if (base !== env.sys.enum) return super.enum
+    MType#enumRef->setConst(this, MEnum.init(this))
+    return enumRef
+  }
+  private const MEnum? enumRef
+
   override Str toStr() { qname }
 }
 

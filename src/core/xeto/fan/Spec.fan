@@ -83,6 +83,12 @@ const mixin Spec : Dict
   ** Does meta have maybe tag
   abstract Bool isMaybe()
 
+  ** Is the base 'sys::Enum'
+  abstract Bool isEnum()
+
+  ** Return enum item meta.  Raise exception if `isEnum` is false.
+  abstract SpecEnum enum()
+
 //////////////////////////////////////////////////////////////////////////
 // NoDoc
 //////////////////////////////////////////////////////////////////////////
@@ -104,9 +110,6 @@ const mixin Spec : Dict
 
   ** Is this the 'sys::None' spec itself
   @NoDoc abstract Bool isNone()
-
-  ** Is the base 'sys::Enum'
-  @NoDoc abstract Bool isEnum()
 
   ** Does this spec directly inherit from And where base is 'sys::And'
   @NoDoc abstract Bool isBaseAnd()
