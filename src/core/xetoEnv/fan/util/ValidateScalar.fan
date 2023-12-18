@@ -52,6 +52,13 @@ const class ValidateScalar
         onErr("Number $x > maxVal $max")
     }
 
+    reqUnit := meta["unit"] as Str
+    if (reqUnit != null)
+    {
+      if (reqUnit != unit?.symbol)
+        onErr("Number $x must have unit of '$reqUnit'")
+    }
+
     quantity := meta["quantity"] as Str
     if (quantity != null)
     {

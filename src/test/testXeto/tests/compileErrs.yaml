@@ -125,6 +125,7 @@ compileLib: |
     a: Number? <minVal:Number 10, maxVal:Number 20, quantity:"length">
     b: Number? <minVal:Number "-20kW", maxVal:Number "-10kW">
     c: Number? <maxVal:Number "100kW">
+    d: Number? <unit:"kWh">
   }
   @ok1a: Foo { a:"10ft" }
   @ok2a: Foo { a:"15in" }
@@ -132,6 +133,7 @@ compileLib: |
   @ok1b: Foo { b:"-10kW" }
   @ok2b: Foo { b:"-20kW" }
   @ok3b: Foo { b:"-15kW" }
+  @ok1d: Foo { d:"3kWh" }
 
   @err1a: Foo { a:"21m" }
   @err2a: Foo { a:"0ft" }
@@ -146,6 +148,10 @@ compileLib: |
   @err1c: Foo { c:"12" }
   @err2c: Foo { c:"12%" }
 
+  @err1d: Foo { d:"3" }
+  @err2d: Foo { d:"3%" }
+  @err3d: Foo { d:"3Wh" }
+
 verifyErrs: |
   Number 21m > maxVal 20
   Number 0ft < minVal 10
@@ -157,6 +163,9 @@ verifyErrs: |
   Number -15W has invalid unit, minVal requires 'kW'
   Number 12 has invalid unit, maxVal requires 'kW'
   Number 12% has invalid unit, maxVal requires 'kW'
+  Number 3 must have unit of 'kWh'
+  Number 3% must have unit of 'kWh'
+  Number 3Wh must have unit of 'kWh'
 ---
 name: "enumChecks"
 compileLib: |

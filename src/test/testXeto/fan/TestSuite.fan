@@ -195,6 +195,8 @@ class DataTestCase
     catch (Err e)
       {}
 
+    if (runner.verbose) errs.each |err| { echo(err) }
+
     /// if we are not checking errors, then report them and fail
     if (hasStep("verifyErrs")) return null
     errs.each |err| { echo(err) }
