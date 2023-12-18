@@ -124,7 +124,6 @@ internal class CheckErrors : Step
     if (slot.ctype.isScalar)
     {
       if (slot.slots != null) err("Scalar slot '$slot.name' of type '$slot.ctype' cannot have slots", slot.loc)
-      if (slot.val != null) checkScalar(slot.val, slot)
     }
 
     // non-scalars cannot have value

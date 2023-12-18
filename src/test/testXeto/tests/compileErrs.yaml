@@ -177,13 +177,13 @@ compileLib: |
     st: State?
   }
 
-  A: { color: Color "bad1" }
-  B: Car { color: "bad2" }
+  @a: { color: Color "bad1" }
+  @b: Car { color: "bad2" }
 
-  C: { st: State "tx" }
-  D: Car { st: "va" }
+  @c: { st: State "tx" }
+  @d: Car { st: "va" }
 
-  E: Car { color:"blue", st: "TX" }  // ok
+  @e: Car { color:"blue", st: "TX", ok }
 verifyErrs: |
   Invalid value 'bad1' for enum type 'temp::Color'
   Invalid value 'bad2' for enum type 'temp::Color'
