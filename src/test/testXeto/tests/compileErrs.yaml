@@ -119,6 +119,45 @@ verifyErrs: |
   Scalar slot 'd' of type 'sys::Date' cannot have slots
   Non-scalar slot 'e' of type 'sys::Dict' cannot have scalar value
 ---
+name: "numberChecksInstance"
+compileLib: |
+  Foo: {
+    a: Number? <minVal:Number 10, maxVal:Number 20, quantity:"length">
+    b: Number? <minVal:Number "-20kW", maxVal:Number "-10kW">
+    c: Number? <maxVal:Number "100kW">
+  }
+  @ok1a: Foo { a:"10ft" }
+  @ok2a: Foo { a:"15in" }
+  @ok3a: Foo { a:"20m" }
+  @ok1b: Foo { b:"-10kW" }
+  @ok2b: Foo { b:"-20kW" }
+  @ok3b: Foo { b:"-15kW" }
+
+  @err1a: Foo { a:"21m" }
+  @err2a: Foo { a:"0ft" }
+  @err3a: Foo { a:"10" }
+  @err4a: Foo { a:"10_count" }
+  @err5a: Foo { a:"10kW" }
+
+  @err1b: Foo { b:"-21kW" }
+  @err2b: Foo { b:"-9kW" }
+  @err3b: Foo { b:"-15W" }
+
+  @err1c: Foo { c:"12" }
+  @err2c: Foo { c:"12%" }
+
+verifyErrs: |
+  Number 21m > maxVal 20
+  Number 0ft < minVal 10
+  Number must be 'length' unit; no unit specified
+  Number must be 'length' unit; '_count' has no quantity
+  Number must be 'length' unit; 'kW' has quantity of 'power'
+  Number -21kW < minVal -20kW
+  Number -9kW > maxVal -10kW
+  Number -15W has invalid unit, minVal requires 'kW'
+  Number 12 has invalid unit, maxVal requires 'kW'
+  Number 12% has invalid unit, maxVal requires 'kW'
+---
 name: "enumChecks"
 compileLib: |
   A: Enum { foo }

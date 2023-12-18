@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using haystack::Number
 using xetoEnv
 
 **
@@ -20,7 +21,7 @@ internal class CheckErrors : Step
     if (isLib)
       checkLib(lib)
     else
-      checkData(data.root)
+      checkData(data.root, null)
     bombIfErr
   }
 
@@ -123,6 +124,7 @@ internal class CheckErrors : Step
     if (slot.ctype.isScalar)
     {
       if (slot.slots != null) err("Scalar slot '$slot.name' of type '$slot.ctype' cannot have slots", slot.loc)
+      if (slot.val != null) checkScalar(slot.val, slot)
     }
 
     // non-scalars cannot have value
@@ -152,12 +154,12 @@ internal class CheckErrors : Step
 // Data
 //////////////////////////////////////////////////////////////////////////
 
-  Void checkData(AData x)
+  Void checkData(AData x, CSpec? slot)
   {
     switch (x.nodeType)
     {
       case ANodeType.dict: checkDict(x)
-      case ANodeType.scalar: checkScalar(x)
+      case ANodeType.scalar: checkScalar(x, slot)
       case ANodeType.specRef: checkSpecRef(x)
       case ANodeType.dataRef: checkDataRef(x)
     }
@@ -165,12 +167,24 @@ internal class CheckErrors : Step
 
   Void checkDict(ADict x)
   {
-    x.map.each |slot| { checkData(slot) }
+    spec := x.ctype
+    x.map.each |v, n|
+    {
+      checkData(v, spec.cslot(n, false))
+    }
   }
 
-  Void checkScalar(AScalar x)
+  Void checkScalar(AScalar x, CSpec? slot)
   {
     if (x.ctype.isEnum) return checkEnum(x)
+
+    if (slot != null)
+    {
+      ValidateScalar.validate(x.asm, slot.cmeta) |msg|
+      {
+        err(msg, x.loc)
+      }
+    }
   }
 
   Void checkEnum(AScalar x)

@@ -25,7 +25,7 @@ internal abstract class ADoc : ANode
   XetoCompiler compiler { private set }
 
   ** Instance data
-  Str:AData instances := [:]
+  Str:AData instances := [:] { ordered = true }
 
   ** Lookup top level instance data
   AData? instance(Str name) { instances.get(name) }
