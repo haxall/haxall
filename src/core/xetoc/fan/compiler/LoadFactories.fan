@@ -58,7 +58,7 @@ internal class LoadFactories : Step
     }
 
     // walk up type hiearchy looking for factory
-    if (spec.ctype != null && !spec.ctype.isAst)
+    if (!spec.ctype.isAst)
       spec.factoryRef = spec.ctype.factory
 
     // install default dict/scalar factory

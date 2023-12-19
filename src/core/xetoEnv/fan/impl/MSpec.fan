@@ -332,7 +332,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final CSpec? cbase() { m.base }
 
-  override final CSpec? ctype() { m.type }
+  override final CSpec ctype() { m.type }
 
   override final MNameDict cmeta() { m.meta }
 

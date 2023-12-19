@@ -71,7 +71,7 @@ internal class InheritSlots : Step
     spec.typeRef = inferType(spec)
 
     // if we couldn't infer base before, then use type as base
-    if (spec.base == null) spec.base = spec.type
+    if (spec.base == null) spec.base = spec.typeRef.deref
 
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
@@ -110,7 +110,7 @@ internal class InheritSlots : Step
     if (base != null) return base
 
     // try to infer from the explicit type if available
-    return x.type
+    return x.typeRef?.deref
   }
 
   ** Attempt to infer base from parent type's inherited slots
@@ -369,14 +369,15 @@ internal class InheritSlots : Step
   ** At this point the ASpec.type will be sys::Enum (base is still null)
   private Bool isEnum(ASpec spec)
   {
-    spec.type != null && spec.type.isSys && spec.type.name == "Enum"
+    t := spec.typeRef.deref
+    return t.isSys && t.name == "Enum"
   }
 
   ** Enum slots are implied as the parent type
   private Void inheritEnum(ASpec spec)
   {
-    // set base to type (which is sys::Enum)
-    spec.base = spec.type
+    // set base to typeRef (which is sys::Enum)
+    spec.base = spec.typeRef.deref
 
     // set flags to sys::Enum's flags
     spec.flags = spec.base.flags

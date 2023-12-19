@@ -104,7 +104,6 @@ internal class CheckErrors : Step
     // get base type (inherited or global slot)
     base := slot.base
     baseType := base.ctype
-    if (baseType == null) return // if base is sys::Obj
 
     // verify slot type is covariant
     slotType := slot.ctype

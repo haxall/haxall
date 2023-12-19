@@ -60,7 +60,7 @@ internal class RSpec : CSpec, NameDictReader
   }
   override haystack::Ref id() { throw UnsupportedErr() }
   override SpecFactory factory() { throw UnsupportedErr() }
-  override CSpec? ctype
+  override CSpec ctype() { type }
   override CSpec? cbase
   override MNameDict cmeta() { meta ?: throw Err(name) }
   override CSpec? cslot(Str name, Bool checked := true) { throw UnsupportedErr() }

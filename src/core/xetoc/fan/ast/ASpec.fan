@@ -89,13 +89,9 @@ internal class ASpec : ANode, CSpec
   ** Is given spec the 'sys::Obj' type
   Bool isObj() { lib.isSys && name == "Obj" }
 
-  ** Resolved type ref
+  ** Type signature after colon - set in Parser, InheritSlots.
   ** This is base for top-level types and value type for slots.
-  ** Note that ctype has different behavior (this for top-level types)!
-  CSpec? type() { typeRef?.deref }
-
-  ** Type signature after colon - set in Parser, InheritSlots
-  ** This is base for top-level types and value type for slots
+  ** Note ctype is different because it is this for top-level types.
   ASpecRef? typeRef
 
   ** We refine type and base in InheritSlots step
@@ -249,7 +245,7 @@ internal class ASpec : ANode, CSpec
   override Bool isAst() { true }
 
   ** Resolved type
-  override CSpec? ctype() { isType ? this : type }
+  override CSpec ctype() { isType ? this : typeRef.deref }
 
   ** Resolved base
   override CSpec? cbase() { base }

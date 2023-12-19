@@ -34,7 +34,7 @@ mixin CSpec : CNode
   abstract SpecFactory factory()
 
   ** Type of the spec or if this a type then return self
-  abstract CSpec? ctype()
+  abstract CSpec ctype()
 
   ** Base spec or null if this sys::Obj itself
   abstract CSpec? cbase()
