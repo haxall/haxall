@@ -95,7 +95,8 @@ const class CheckScalar
     key := x as Str
     if (key == null) return onErr("Invalid enum value type, $x.typeof not Str")
 
-    item := spec.ctype.cenum(key, false)
-    if (item == null) return onErr("Invalid key '$key' for enum type '$spec.qname'")
+    enum := spec.ctype
+    item := enum.cenum(key, false)
+    if (item == null) return onErr("Invalid key '$key' for enum type '$enum.qname'")
   }
 }
