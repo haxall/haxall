@@ -175,26 +175,11 @@ internal class CheckErrors : Step
 
   Void checkScalar(AScalar x, CSpec? slot)
   {
-    if (x.ctype.isEnum) return checkEnum(x)
-
-    if (slot != null)
+    spec := slot ?: x.ctype
+    CheckScalar.check(spec, x.asm) |msg|
     {
-      ValidateScalar.validate(x.asm, slot.cmeta) |msg|
-      {
-        err(msg, x.loc)
-      }
+      err(msg, x.loc)
     }
-  }
-
-  Void checkEnum(AScalar x)
-  {
-    // first lookup slot by name
-    key := x.str
-    enum := x.ctype
-    item := enum.cenum(key, false)
-    if (item != null) return
-
-    return err("Invalid value '$x.str' for enum type '$enum.qname'", x.loc)
   }
 
   Void checkSpecRef(ASpecRef x)

@@ -163,6 +163,8 @@ compileLib: |
   @err2d: Foo { d:"3%" }
   @err3d: Foo { d:"3Wh" }
 
+  @err1e: Foo { e:"ft" }
+
 verifyErrs: |
   Number 21m > maxVal 20
   Number 0ft < minVal 10
@@ -205,9 +207,9 @@ compileLib: |
 
   @e: Car { color:"blue", st: "TX", ok }
 verifyErrs: |
-  Invalid value 'bad1' for enum type 'temp::Color'
-  Invalid value 'bad2' for enum type 'temp::Color'
-  Invalid value 'tx' for enum type 'temp::State'
-  Invalid value 'va' for enum type 'temp::State'
+  Invalid key 'bad1' for enum type 'temp::Color'
+  Invalid key 'bad2' for enum type 'temp::Color'
+  Invalid key 'tx' for enum type 'temp::State'
+  Invalid key 'va' for enum type 'temp::State'
 ---
 

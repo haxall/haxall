@@ -11,20 +11,21 @@ using xeto
 using haystack::Number
 
 **
-** Validation for scalar values against meta dict
+** Validation for scalar values against a spec type and meta
 **
 @Js
-const class ValidateScalar
+const class CheckScalar
 {
 
-  static Void validate(Obj x, Dict meta, |Str| onErr)
+  static Void check(CSpec spec, Obj x, |Str| onErr)
   {
-    if (meta.isEmpty) return
-    if (x is Number) validateNumber(x, meta, onErr)
+    if (x is Number) return checkNumber(spec, x, onErr)
+    if (spec.ctype.isEnum) return checkEnum(spec, x, onErr)
   }
 
-  static Void validateNumber(Number x, Dict meta, |Str| onErr)
+  static Void checkNumber(CSpec spec, Number x, |Str| onErr)
   {
+    meta := spec.cmeta
     unit := x.unit
 
     min := meta["minVal"] as Number
@@ -87,5 +88,14 @@ const class ValidateScalar
       Unit.quantity(q).each |u| { acc[u] = q }
     }
     unitToQuantity = acc
+  }
+
+  static Void checkEnum(CSpec spec, Obj x, |Str| onErr)
+  {
+    key := x as Str
+    if (key == null) return onErr("Invalid enum value type, $x.typeof not Str")
+
+    item := spec.ctype.cenum(key, false)
+    if (item == null) return onErr("Invalid key '$key' for enum type '$spec.qname'")
   }
 }
