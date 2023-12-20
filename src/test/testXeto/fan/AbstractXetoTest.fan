@@ -47,9 +47,9 @@ class AbstractXetoTest : HaystackTest
 
   private XetoEnv? envRef
 
-  Lib compileLib(Str s) { env.compileLib(s) }
+  Lib compileLib(Str s, Dict? opts := null) { env.compileLib(s, opts) }
 
-  Obj? compileData(Str s) { env.compileData(s) }
+  Obj? compileData(Str s, Dict? opts := null) { env.compileData(s, opts) }
 
   static Dict nameDictEmpty() { MNameDict.empty }
 
@@ -67,6 +67,37 @@ class AbstractXetoTest : HaystackTest
 
     return env
   }
+
+  Void verifyFitsExplain(Obj? val, Spec spec, Str[] expected)
+  {
+    cx := TextContext()
+    hits := XetoLogRec[,]
+    explain := |XetoLogRec rec| { hits.add(rec) }
+    opts := Etc.dict1("explain", Unsafe(explain))
+    env.fits(cx, val, spec, opts)
+    if (expected.size != hits.size)
+    {
+      echo("FAIL verifyFitsExplain $val $spec [$hits.size != $expected.size]")
+      echo(hits.join("\n"))
+      fail
+    }
+    expected.each |expect, i|
+    {
+      verifyEq(expect, hits[i].msg)
+    }
+  }
+}
+
+**************************************************************************
+**
+**************************************************************************
+
+@Js
+class TextContext : XetoContext
+{
+  override Dict? xetoReadById(Obj id) { null }
+  override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
+  override Bool xetoIsSpec(Str spec, Dict rec) { false }
 }
 
 **************************************************************************
