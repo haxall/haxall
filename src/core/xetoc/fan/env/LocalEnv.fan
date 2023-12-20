@@ -26,6 +26,8 @@ internal const class LocalEnv : MEnv
 
   override Lib compileLib(Str src, Dict? opts := null)
   {
+    if (opts == null) opts = dict0
+
     libName := "temp" + compileCount.getAndIncrement
 
     if (!src.startsWith("pragma:"))
@@ -42,7 +44,12 @@ internal const class LocalEnv : MEnv
       it.input   = src.toBuf.toFile(`temp.xeto`)
       it.applyOpts(opts)
     }
-    return c.compileLib
+
+    lib := c.compileLib
+
+    if (opts.has("register")) registry.addTemp(lib)
+
+    return lib
   }
 
   override Obj? compileData(Str src, Dict? opts := null)

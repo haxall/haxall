@@ -22,7 +22,11 @@ internal const class LocalRegistry : MRegistry
     this.env     = env
     this.envPath = Env.cur.path
     this.map     = discover(this.envPath)
-    this.list    = map.vals.sort |a, b| { a.name <=> b.name }
+  }
+
+  override LocalRegistryEntry[] list()
+  {
+    map.vals(LocalRegistryEntry#).sort
   }
 
   override LocalRegistryEntry? get(Str qname, Bool checked := true)
@@ -33,9 +37,9 @@ internal const class LocalRegistry : MRegistry
     return null
   }
 
-  private static Str:LocalRegistryEntry discover(File[] envPath)
+  private static ConcurrentMap discover(File[] envPath)
   {
-    acc := Str:LocalRegistryEntry[:]
+    acc := ConcurrentMap()
 
     // walk each directory in Fantom environment path
     envPath.eachr |dir|
@@ -53,11 +57,10 @@ internal const class LocalRegistry : MRegistry
       initSrcEntries(acc, libDir, dir + `src/xeto/`)
     }
 
-
     return acc
   }
 
-  private static Void initSrcEntries(Str:LocalRegistryEntry acc, File libDir, File dir)
+  private static Void initSrcEntries(ConcurrentMap acc, File libDir, File dir)
   {
     name := dir.name
     lib := dir + `lib.xeto`
@@ -71,9 +74,9 @@ internal const class LocalRegistry : MRegistry
     }
   }
 
-  private static Void doInitInstalled(Str:LocalRegistryEntry acc, Str name, File? src, File zip)
+  private static Void doInitInstalled(ConcurrentMap acc, Str name, File? src, File zip)
   {
-    dup := acc[name]
+    dup := acc[name] as LocalRegistryEntry
     if (dup != null)
     {
       if (dup.zip != zip) echo("WARN: XetoEnv '$name' lib hidden [$dup.zip.osPath]")
@@ -203,10 +206,17 @@ internal const class LocalRegistry : MRegistry
     if (stack.isEmpty) Actor.locals.remove(compilingKey)
   }
 
+  internal Void addTemp(XetoLib lib)
+  {
+    zip := Env.cur.workDir + `lib/xeto/${lib.name}.xetolib`
+    entry := LocalRegistryEntry(lib.name, null, zip)
+    entry.set(lib)
+    map.add(lib.name, entry)
+  }
+
   const MEnv env
   const File[] envPath
-  override const LocalRegistryEntry[] list
-  const Str:LocalRegistryEntry map
+  const ConcurrentMap map
   const Str compilingKey := "dataEnv.compiling"
 }
 

@@ -42,6 +42,8 @@ abstract const class MRegistryEntry : LibRegistryEntry
 
   override XetoLib get() { libRef.val ?: throw Err("Not loaded: $name") }
 
+  override Int compare(Obj that) { this.name <=> ((LibRegistryEntry)that).name }
+
   Void set(Lib lib) { libRef.compareAndSet(null, lib) }
 
   private const AtomicRef libRef := AtomicRef()
