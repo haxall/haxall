@@ -500,6 +500,8 @@ class EnvTest : AbstractXetoTest
     verifyInstantiate("sys::Time",     Time.defVal)
     verifyInstantiate("sys::DateTime", DateTime.defVal)
 
+    verifyInstantiate("sys::Unit",     "%")
+
     verifyInstantiate("sys::Dict", env.dict0)
     verifyInstantiate("sys::List", Obj?[,])
 
@@ -521,7 +523,7 @@ class EnvTest : AbstractXetoTest
       ["id":Ref("x"), "dis":"ZoneCo2Sensor",          "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"ppm", "zone":m, "air":m, "co2":m, "concentration":m],
       ["id":Ref("x"), "dis":"HotWaterValveCmd",       "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "hot":m, "water":m, "valve":m],
       ["id":Ref("x"), "dis":"DischargeDamperCmd",     "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "discharge":m, "air":m, "damper":m],
-      ["id":Ref("x"), "dis":"DischargeAirFlowSensor", "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"",   "discharge":m, "air":m, "flow":m],
+      ["id":Ref("x"), "dis":"DischargeAirFlowSensor", "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"cfm","discharge":m, "air":m, "flow":m],
       ["id":Ref("x"), "dis":"DischargeAirTempSensor", "point":m, "sensor":m , "kind":"Number", "equipRef":x, "unit":"°F", "discharge":m, "air":m, "temp":m],
     ])
 

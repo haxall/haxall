@@ -394,7 +394,8 @@ internal class InheritSlots : Step
     enums := Str:CSpec[:]; enums.ordered = true
     hasKeys := false
     enumRef := ASpecRef(loc, spec)
-    spec.slots.each |slot|
+    defKey := null
+    spec.slots?.each |slot|
     {
       item := inheritEnumItem(spec, enumRef, slot)
 
@@ -413,10 +414,18 @@ internal class InheritSlots : Step
         err("Duplicate enum key: $key", item.loc)
       else
         enums.add(key, item)
+
+      if (defKey == null) defKey = key
     }
 
     // if we don't have any key meta, then reuse same slots map to save RAM
     if (!hasKeys) enums = slots
+
+    // set first key to the default value for enum type
+    if (defKey == null)
+      err("Enum has no items", spec.loc)
+    else
+      spec.metaInit.set("val", AScalar(spec.loc, enumRef, defKey))
 
     // save away both slots and enums
     spec.cslotsRef = slots

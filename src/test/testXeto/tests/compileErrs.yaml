@@ -51,6 +51,14 @@ verifyErrs: |
   Enum item 'a' cannot have type
   Enum item 'b' cannot have type
 ---
+name: "enumNoItems"
+compileLib: |
+  Foo: Enum {}
+  Bar: Enum
+verifyErrs: |
+  Enum has no items
+  Enum has no items
+---
 name: "enumInheritDupKeys"
 compileLib: |
   Foo: Enum {

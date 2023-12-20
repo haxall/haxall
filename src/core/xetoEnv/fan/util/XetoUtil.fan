@@ -150,7 +150,7 @@ const class XetoUtil
     if (meta.has("abstract") && opts.missing("abstract")) throw Err("Spec is abstract: $spec.qname")
 
     if (spec.isNone) return null
-    if (spec.isScalar) return meta["val"] ?: ""
+    if (spec.isScalar) return instantiateScalar(env, spec, meta)
     if (spec === env.sys.dict) return env.dict0
     if (spec.isList) return env.list0
 
@@ -189,6 +189,11 @@ const class XetoUtil
       return instantiateGraph(env, spec, opts, dict)
     else
       return dict
+  }
+
+  private static Obj instantiateScalar(MEnv env, XetoSpec spec, Dict meta)
+  {
+    meta["val"] ?: ""
   }
 
   private static Dict[] instantiateGraph(MEnv env, XetoSpec spec, Dict opts, Dict dict)

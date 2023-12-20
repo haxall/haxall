@@ -53,7 +53,7 @@ internal class InheritMeta : Step
     base.cmeta.each |v, n|
     {
       baseSize++
-      if (isMetaInherited(n)) acc[n] = v
+      if (isMetaInherited(base, n)) acc[n] = v
     }
 
     // if we inherited all of the base tags and
@@ -76,11 +76,12 @@ internal class InheritMeta : Step
     return MNameDict(env.names.dictMap(acc))
   }
 
-  static Bool isMetaInherited(Str name)
+  static Bool isMetaInherited(CSpec base, Str name)
   {
     // we need to make this use reflection at some point
     if (name == "abstract") return false
     if (name == "sealed") return false
+    if (name == "val") return !base.isEnum
     return true
   }
 

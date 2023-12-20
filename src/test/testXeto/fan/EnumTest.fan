@@ -26,10 +26,11 @@ class EnumTest : AbstractXetoTest
            |>)
 
      e := lib.top("Suit")
-     // env.print(e)
+    // env.print(e)
 
      verifyEq(e.isEnum, true)
      verifyEq(e.meta["sealed"], Marker.val)
+     verifyEq(e.meta["val"], "diamonds")
      verifySame(e.enum, e.enum)
      verifyEq(e.enum.keys, ["diamonds", "clubs", "hearts", "spades"])
      verifyEnumFlags(e)
@@ -65,6 +66,7 @@ class EnumTest : AbstractXetoTest
 
      verifyEq(e.isEnum, true)
      verifyEq(e.meta["sealed"], Marker.val)
+     verifyEq(e.meta["val"], "Diamonds!")
      verifySame(e.enum, e.enum)
      verifyEq(e.enum.keys, ["Diamonds!", "Clubs!", "Hearts!", "Spades!"])
      verifyEnumFlags(e)
@@ -100,6 +102,8 @@ class EnumTest : AbstractXetoTest
 
      verifyEq(e.isEnum, true)
      verifyEq(e.meta["foo"], Marker.val)
+     verifyEq(e.meta["sealed"], Marker.val)
+     verifyEq(e.meta["val"], "diamonds")
      verifyEnumFlags(e)
      verifyEnumItem(e, "diamonds", ["foo":m, "color":"r", "doc":"Red diamonds"])
      verifyEnumItem(e, "clubs",    ["foo":m, "color":"b", "doc":"Black clubs"])

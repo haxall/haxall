@@ -20,15 +20,21 @@ const final class MEnum : SpecEnum
   {
     acc := Str:Spec[:]
     acc.ordered = true
+    defKey := null
     enum.slots.each |x|
     {
       key := x.meta["key"] as Str ?: x.name
+      if (defKey == null) defKey = key
       acc.add(key, x)
     }
-    return make(acc)
+    return make(acc, defKey)
   }
 
-  private new make(Str:Spec map) { this.map = map }
+  private new make(Str:Spec map, Str defKey)
+  {
+    this.map = map
+    this.defKey = defKey
+  }
 
   const Str:Spec map
 
@@ -39,6 +45,8 @@ const final class MEnum : SpecEnum
     if (checked) throw UnknownNameErr("Unknown enum key '$key'")
     return null
   }
+
+  const Str defKey
 
   override Str[] keys()
   {
