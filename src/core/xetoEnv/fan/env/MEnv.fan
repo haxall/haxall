@@ -161,7 +161,7 @@ abstract const class MEnv : XetoEnv
     libName := qname[0..<colon]
     names := qname[colon+2..-1].split('.', false)
 
-    spec := lib(libName, false)?.type(names.first, false)
+    spec := lib(libName, false)?.top(names.first, false)
     for (i:=1; spec != null && i<names.size; ++i)
       spec = spec.slot(names[i], false)
 

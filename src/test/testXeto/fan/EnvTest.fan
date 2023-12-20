@@ -143,6 +143,9 @@ class EnvTest : AbstractXetoTest
     meter     := verifyLibType(ph, "Meter",  equip)
     elecMeter := verifyLibType(ph, "ElecMeter",  meter)
 
+    water := ph.global("water")
+    verifySame(env.spec("ph::water"), water)
+
     // env.print(elecMeter, Env.cur.out, env.dict1("effective", m))
     marker := env.spec("sys::Marker")
     verifyEq(elecMeter.slot("elec").type, marker)
