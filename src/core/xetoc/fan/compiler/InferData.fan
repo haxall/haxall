@@ -21,16 +21,18 @@ internal class InferData : Step
   {
     ast.walkTopDown |node|
     {
-      if (node.nodeType === ANodeType.dict) inferDict(node)
+      if (node.nodeType === ANodeType.spec)     curSpec = node
+      if (node.nodeType === ANodeType.dict)     inferDict(node)
       if (node.nodeType === ANodeType.instance) inferInstance(node)
-      if (node.nodeType === ANodeType.scalar) inferScalar(node)
-      if (node.nodeType === ANodeType.specRef) inferRef(node)
-      if (node.nodeType === ANodeType.dataRef) inferRef(node)
+      if (node.nodeType === ANodeType.scalar)   inferScalar(node)
+      if (node.nodeType === ANodeType.specRef)  inferRef(node)
+      if (node.nodeType === ANodeType.dataRef)  inferRef(node)
     }
   }
 
   private Void inferInstance(AInstance dict)
   {
+    curSpec = null
     inferId(dict)
     inferDict(dict)
   }
@@ -90,7 +92,7 @@ internal class InferData : Step
     if (cur != null)
     {
       if (cur.typeRef == null)
-        cur.typeRef = ASpecRef(cur.loc, slot.ctype)
+        cur.typeRef = ASpecRef(cur.loc, inferDictSlotType(slot))
       return
     }
 
@@ -117,5 +119,14 @@ internal class InferData : Step
     dict.set(slot.name, AScalar(dict.loc, null, val.toStr, val))
   }
 
+  private CSpec inferDictSlotType(CSpec slot)
+  {
+    type := slot.ctype
+    if (type.isSelf && curSpec != null) return curSpec.ctype
+    return type
+  }
+
   const Ref refDefVal := haystack::Ref("x")
+
+  private ASpec? curSpec
 }

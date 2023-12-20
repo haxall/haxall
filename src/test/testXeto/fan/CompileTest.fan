@@ -248,6 +248,32 @@ class CompileTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Self
+//////////////////////////////////////////////////////////////////////////
+
+  Void testSelf()
+  {
+    lib := compileLib(
+      Str<|A: {
+            n: Number <minVal:0, maxVal:100>
+            i: Int <minVal:0, maxVal:100>
+            d: Duration <minVal:0sec, maxVal:100sec>
+           }|>)
+
+    a := lib.type("A")
+    // env.print(a)
+
+    verifyEq(a.slot("n").meta["minVal"], Number(0))
+    verifyEq(a.slot("n").meta["maxVal"], Number(100))
+
+    verifyEq(a.slot("i").meta["minVal"], 0)
+    verifyEq(a.slot("i").meta["maxVal"], 100)
+
+    verifyEq(a.slot("d").meta["minVal"], 0sec)
+    verifyEq(a.slot("d").meta["maxVal"], 100sec)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Lib Instances
 //////////////////////////////////////////////////////////////////////////
 
