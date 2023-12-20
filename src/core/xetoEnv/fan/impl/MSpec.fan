@@ -61,6 +61,8 @@ const class MSpec
 
   const MSlots slotsOwn
 
+  Bool hasSlots() { !slots.isEmpty }
+
   XetoSpec? slot(Str name, Bool checked := true) { slots.get(name, checked) }
 
   XetoSpec? slotOwn(Str name, Bool checked := true) { slotsOwn.get(name, checked) }
@@ -255,6 +257,8 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override final Dict meta() { m.meta }
 
   override final Dict metaOwn() { m.metaOwn }
+
+  override final Bool hasSlots() { m.hasSlots }
 
   override final SpecSlots slotsOwn() { m.slotsOwn }
 

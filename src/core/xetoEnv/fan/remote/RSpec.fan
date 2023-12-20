@@ -51,6 +51,8 @@ internal class RSpec : CSpec, NameDictReader
   MSlots? slotsOwn
   MSlots? slots
 
+  override Bool hasSlots() { !slots.isEmpty }
+
   // CSpec
   override Bool isAst() { true }
   override Str qname()

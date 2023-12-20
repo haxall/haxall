@@ -276,6 +276,13 @@ internal class ASpec : ANode, CSpec
   override MNameDict cmeta() { cmetaRef ?: throw NotReadyErr(qname) }
   MNameDict? cmetaRef
 
+  ** Is there one or more effective slots
+  override Bool hasSlots()
+  {
+    if (cslotsRef == null) throw NotReadyErr(qname)
+    return !cslotsRef.isEmpty
+  }
+
   ** Iterate the effective slots
   override Void cslots(|CSpec, Str| f)
   {

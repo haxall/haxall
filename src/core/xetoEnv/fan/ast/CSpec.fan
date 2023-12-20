@@ -46,6 +46,9 @@ mixin CSpec : CNode
   ** Effective meta
   abstract MNameDict cmeta()
 
+  ** Is there one or more effective slots
+  abstract Bool hasSlots()
+
   ** Lookup effective slot
   abstract CSpec? cslot(Str name, Bool checked := true)
 
