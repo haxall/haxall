@@ -95,16 +95,25 @@ mixin CSpec : CNode
   ** Does this spec directly inherits from And/Or and define 'ofs'
   Bool isCompound() { (isBaseAnd || isBaseOr) && cofs != null }
 
-  ** Is scalar flag set
-  abstract Bool isScalar()
-
-  ** Is maybe flag set
-  abstract Bool isList()
-
   ** Is maybe flag set
   abstract Bool isMaybe()
 
-  ** Is query flag set
+  ** Inherits from 'sys::Scalar' without considering And/Or
+  abstract Bool isScalar()
+
+  ** Inherits from 'sys::Marker' without considering And/Or
+  abstract Bool isMarker()
+
+  ** Inherits from 'sys::Seq' without considering And/Or
+  abstract Bool isSeq()
+
+  ** Inherits from 'sys::Dict' without considering And/Or
+  abstract Bool isDict()
+
+  ** Inherits from 'sys::List' without considering And/Or
+  abstract Bool isList()
+
+  ** Inherits from 'sys::Query' without considering And/Or
   abstract Bool isQuery()
 }
 

@@ -332,6 +332,9 @@ internal class ASpec : ANode, CSpec
   override Int flags
 
   override Bool isScalar() { hasFlag(MSpecFlags.scalar) }
+  override Bool isMarker() { hasFlag(MSpecFlags.marker) }
+  override Bool isSeq() { hasFlag(MSpecFlags.seq) }
+  override Bool isDict() { hasFlag(MSpecFlags.dict) }
   override Bool isList() { hasFlag(MSpecFlags.list) }
   override Bool isMaybe() { hasFlag(MSpecFlags.maybe) }
   override Bool isQuery() { hasFlag(MSpecFlags.query) }
