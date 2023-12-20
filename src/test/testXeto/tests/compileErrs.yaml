@@ -179,6 +179,7 @@ verifyErrs: |
   Number 3 must have unit of 'kWh'
   Number 3% must have unit of 'kWh'
   Number 3Wh must have unit of 'kWh'
+  Unit 'ft' must be 'power' not 'length'
 ---
 name: "enumChecks"
 compileLib: |

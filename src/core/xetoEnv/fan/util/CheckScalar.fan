@@ -92,11 +92,25 @@ const class CheckScalar
 
   static Void checkEnum(CSpec spec, Obj x, |Str| onErr)
   {
+    // value must be string
     key := x as Str
     if (key == null) return onErr("Invalid enum value type, $x.typeof not Str")
 
+    // verify key maps to enum item
     enum := spec.ctype
     item := enum.cenum(key, false)
     if (item == null) return onErr("Invalid key '$key' for enum type '$enum.qname'")
+
+    // special handling for unit
+    if (enum.qname == "sys::Unit")
+    {
+      q := spec.cmeta["quantity"] as Str
+      if (q != null)
+      {
+        unitQuantity := item.cmeta["quantity"]
+        if (q != unitQuantity) onErr("Unit '$key' must be '$q' not '$unitQuantity'")
+      }
+    }
+
   }
 }
