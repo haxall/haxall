@@ -250,6 +250,9 @@ internal class ASpec : ANode, CSpec
   ** Resolved base
   override CSpec? cbase() { base }
 
+  ** Parent spec or null if this is top-level spec
+  override CSpec? cparent() { parent }
+
   ** Lookup effective slot
   override CSpec? cslot(Str name, Bool checked := true)
   {

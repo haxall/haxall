@@ -27,6 +27,10 @@ mixin CSpec : CNode
   ** Qualified name
   abstract Str qname()
 
+  ** Parent spec which contains this spec definition and scopes `name`.
+  ** Returns null for top level specs in the library.
+  abstract CSpec? cparent()
+
   ** Ref for qualified name
   abstract override haystack::Ref id()
 
