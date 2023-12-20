@@ -41,19 +41,19 @@ internal class RemoteLoader
 
     version   := libMeta->version
     depends   := loadDepends
-    types     := loadTypes
+    tops      := loadTops
     instances := this.instances
 
-    m := MLib(env, loc, libNameCode, libMeta, version, depends, types, instances)
+    m := MLib(env, loc, libNameCode, libMeta, version, depends, tops, instances)
     XetoLib#m->setConst(lib, m)
     return lib
   }
 
-  RSpec addType(Int nameCode)
+  RSpec addTop(Int nameCode)
   {
     name := names.toName(nameCode)
     x := RSpec(libName, XetoType(), null, nameCode, name)
-    types.add(name, x)
+    tops.add(name, x)
     return x
   }
 
@@ -103,7 +103,7 @@ internal class RemoteLoader
     if (loader == null) return
 
     // if we have a loader, give it my type names to map to factories
-    factories = loader.load(libName, types.keys)
+    factories = loader.load(libName, tops.keys)
   }
 
   private SpecFactory assignFactory(RSpec x)
@@ -128,9 +128,9 @@ internal class RemoteLoader
 // Specs
 //////////////////////////////////////////////////////////////////////////
 
-  private Str:XetoType loadTypes()
+  private Str:XetoSpec loadTops()
   {
-    types.map |x->XetoType| { loadSpec(x).asm }
+    tops.map |x->XetoType| { loadSpec(x).asm }
   }
 
   private RSpec loadSpec(RSpec x)
@@ -284,7 +284,7 @@ internal class RemoteLoader
 
   private CSpec resolveInternal(RSpecRef ref)
   {
-    type := types.getChecked(names.toName(ref.type))
+    type := tops.getChecked(names.toName(ref.type))
     if (ref.slot == 0) return type
 
     slot := type.slotsIn.find |s| { s.nameCode == ref.slot } ?: throw UnresolvedErr(ref.toStr)
@@ -297,7 +297,7 @@ internal class RemoteLoader
   {
     // should already be loaded
     lib := env.lib(names.toName(ref.lib))
-    type := (XetoType)lib.type(names.toName(ref.type))
+    type := (XetoSpec)lib.top(names.toName(ref.type))
     if (ref.slot == 0) return type
 
     slot := type.m.slots.map.getByCode(ref.slot) ?: throw UnresolvedErr(ref.toStr)
@@ -317,7 +317,7 @@ internal class RemoteLoader
   const Str libName
   const Int libNameCode
   const MNameDict libMeta
-  private Str:RSpec types := [:]             // addType
+  private Str:RSpec tops := [:]              // addTops
   private Str:Dict instances := [:]          // addInstance
   private [Str:SpecFactory]? factories       // loadFactories
 }

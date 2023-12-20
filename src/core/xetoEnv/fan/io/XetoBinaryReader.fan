@@ -106,20 +106,20 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     nameCode  := readName
     meta      := readMeta
     loader    := RemoteLoader(transport.env, nameCode, meta)
-    readTypes(loader)
+    readTops(loader)
     readInstances(loader)
     verifyU4(magicLibEnd, "magicLibEnd")
 
     return loader.loadLib
   }
 
-  private Void readTypes(RemoteLoader loader)
+  private Void readTops(RemoteLoader loader)
   {
     while (true)
     {
       nameCode := readName
       if (nameCode < 0) break
-      x := loader.addType(nameCode)
+      x := loader.addTop(nameCode)
       readSpec(loader, x)
     }
   }
