@@ -73,6 +73,9 @@ mixin CSpec : CNode
   ** Is this the sys::None spec
   abstract Bool isNone()
 
+  ** Is this the sys::Self spec
+  abstract Bool isSelf()
+
   ** Is the base 'sys::Enum'
   abstract Bool isEnum()
 

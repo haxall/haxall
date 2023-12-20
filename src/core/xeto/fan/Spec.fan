@@ -111,6 +111,9 @@ const mixin Spec : Dict
   ** Is this the 'sys::None' spec itself
   @NoDoc abstract Bool isNone()
 
+  ** Is this the 'sys::Self' spec itself
+  @NoDoc abstract Bool isSelf()
+
   ** Does this spec directly inherit from And where base is 'sys::And'
   @NoDoc abstract Bool isBaseAnd()
 

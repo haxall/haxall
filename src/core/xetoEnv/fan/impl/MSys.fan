@@ -20,6 +20,7 @@ const class MSys
     x := lib.m.topsMap
     this.obj      = x.get("Obj")
     this.none     = x.get("None")
+    this.self     = x.get("Self")
     this.seq      = x.get("Seq")
     this.dict     = x.get("Dict")
     this.list     = x.get("List")
@@ -45,6 +46,7 @@ const class MSys
 
   const XetoType obj
   const XetoType none
+  const XetoType self
   const XetoType dict
   const XetoType seq
   const XetoType list
