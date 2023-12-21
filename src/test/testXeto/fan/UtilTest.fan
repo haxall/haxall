@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xetoEnv
 using haystack
 
 **
@@ -15,6 +16,32 @@ using haystack
 @Js
 class UtilTest : Test
 {
+
+//////////////////////////////////////////////////////////////////////////
+// NameUtils
+//////////////////////////////////////////////////////////////////////////
+
+  Void testNameUtils()
+  {
+    // dotted -> camel
+    verifyEq(XetoUtil.dottedToCamel("x"), "x")
+    verifyEq(XetoUtil.dottedToCamel("foo"), "foo")
+    verifyEq(XetoUtil.dottedToCamel("x.y"), "xY")
+    verifyEq(XetoUtil.dottedToCamel("foo.bar"), "fooBar")
+    verifyEq(XetoUtil.dottedToCamel("foo.bar.baz"), "fooBarBaz")
+    verifyEq(XetoUtil.dottedToCamel("foo.bar.baz."), "fooBarBaz")
+    verifyEq(XetoUtil.dottedToCamel(".foo.bar.baz."), "FooBarBaz")
+    verifyEq(XetoUtil.dottedToCamel("a.b.c.d"), "aBCD")
+
+    // camel -> dotted
+    verifyEq(XetoUtil.camelToDotted("x"), "x")
+    verifyEq(XetoUtil.camelToDotted("foo"), "foo")
+    verifyEq(XetoUtil.camelToDotted("xY"), "x.y")
+    verifyEq(XetoUtil.camelToDotted("fooBar"), "foo.bar")
+    verifyEq(XetoUtil.camelToDotted("fooBarBaz"), "foo.bar.baz")
+    verifyEq(XetoUtil.camelToDotted("aBCD"), "a.b.c.d")
+  }
+
 
 //////////////////////////////////////////////////////////////////////////
 // NameTable

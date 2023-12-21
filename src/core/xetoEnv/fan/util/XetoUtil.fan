@@ -45,6 +45,37 @@ const class XetoUtil
     return true
   }
 
+  ** Convert "fooBarBaz" to "foo.bar.baz"
+  static Str camelToDotted(Str name)
+  {
+    s := StrBuf(name.size + 4)
+    name.each |char|
+    {
+      if (char.isUpper && !s.isEmpty)
+        s.addChar('.').addChar(char.lower)
+      else
+        s.addChar(char)
+    }
+    return s.toStr
+  }
+
+  ** Convert "foo.bar.baz" to "fooBarBaz"
+  static Str dottedToCamel(Str name)
+  {
+    s := StrBuf(name.size)
+    capitalize := false
+    name.each |char|
+    {
+      if (char == '.')
+        capitalize = true
+      else if (capitalize)
+        { s.addChar(char.upper); capitalize = false }
+      else
+        s.addChar(char)
+    }
+    return s.toStr
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Opts
 //////////////////////////////////////////////////////////////////////////
