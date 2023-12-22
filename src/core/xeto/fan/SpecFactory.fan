@@ -11,10 +11,9 @@ using util
 
 **
 ** SpecFactory is used to map between Xeto specs and Fantom types.
-** A given spec maps to a Fantom class one of three ways:
+** A given spec maps to a Fantom class one of two ways:
 **  - Scalar: maps specs to const scalar class
 **  - Dict: maps specs to const Dict subclass
-**  - Item: maps specs to mutable tachyon::Item subclass
 **
 @NoDoc @Js
 abstract const class SpecFactory
@@ -22,8 +21,8 @@ abstract const class SpecFactory
   ** Fantom type used to represent instances of the spec
   abstract Type type()
 
-  ** Decode a Xeto dict of name/value pairs to a Fantom instance (Dict or Item)
-  abstract Obj? decodeDict(Dict xeto, Bool checked := true)
+  ** Decode a Xeto dict of name/value pairs to a Fantom Dict instance
+  abstract Dict decodeDict(Dict xeto, Bool checked := true)
 
   ** Decode a scalar Xeto string to a Fantom instance
   abstract Obj? decodeScalar(Str xeto, Bool checked := true)
@@ -98,7 +97,7 @@ const class ScalarSpecFactory : SpecFactory
     val.toStr
   }
 
-  override Obj? decodeDict(Dict xeto, Bool checked := true)
+  override Dict decodeDict(Dict xeto, Bool checked := true)
   {
     throw UnsupportedErr("Scalar cannot decode to dict")
   }

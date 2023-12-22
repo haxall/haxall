@@ -148,7 +148,7 @@ internal const class DictFactory : DictSpecFactory
 {
   new make() : super(Dict#) {}
   new makeWith(Type type) : super.make(type) {}
-  override Obj? decodeDict(Dict xeto, Bool checked := true) { xeto }
+  override Dict decodeDict(Dict xeto, Bool checked := true) { xeto }
 }
 
 @Js
