@@ -358,7 +358,7 @@ const class Etc
     if (dictIterateNulls)
     {
       if (d is Row) return rowEach(d, f, false)
-      if (d is MapDict) return ((MapDict)d).map.each(f)
+      if (d is MapDict) return ((MapDict)d).tags.each(f)
     }
     d.each(f)
   }
@@ -371,7 +371,7 @@ const class Etc
     if (dictIterateNulls)
     {
       if (d is Row) return rowEach(d, f, true)
-      if (d is MapDict) return ((MapDict)d).map.eachWhile(f)
+      if (d is MapDict) return ((MapDict)d).tags.eachWhile(f)
     }
     return d.eachWhile(f)
   }
@@ -412,7 +412,7 @@ const class Etc
 
   **
   ** Apply the given map function to each name/value pair
-  ** to construct a new Dict.
+  ** to construct a new Dict.  NOTE: use Dict.map now
   **
   static Dict dictMap(Dict d, |Obj? v, Str n->Obj?| f)
   {

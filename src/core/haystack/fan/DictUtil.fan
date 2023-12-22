@@ -20,6 +20,7 @@ internal const class EmptyDict : Dict
   override Bool missing(Str name) { true }
   override Void each(|Obj, Str| f) {}
   override Obj? eachWhile(|Obj, Str->Obj?| f) { null }
+  override This map(|Obj, Str->Obj| f) { this }
   override Obj? trap(Str n, Obj?[]? a := null) { throw UnknownNameErr(n) }
 }
 
@@ -30,29 +31,29 @@ internal const class EmptyDict : Dict
 @Js
 internal const class MapDict : Dict
 {
-  new make(Str:Obj? map) { this.map = map }
-  const Str:Obj? map
-  override Bool isEmpty() { map.isEmpty }
-  override Obj? get(Str n, Obj? def := null) { map.get(n, def) }
-  override Bool has(Str n) { map.get(n, null) != null }
-  override Bool missing(Str n) { map.get(n, null) == null }
+  new make(Str:Obj? tags) { this.tags = tags }
+  const Str:Obj? tags
+  override Bool isEmpty() { tags.isEmpty }
+  override Obj? get(Str n, Obj? def := null) { tags.get(n, def) }
+  override Bool has(Str n) { tags.get(n, null) != null }
+  override Bool missing(Str n) { tags.get(n, null) == null }
   override Void each(|Obj, Str| f)
   {
-    map.each |v, n|
+    tags.each |v, n|
     {
       if (v != null) f(v, n)
     }
   }
   override Obj? eachWhile(|Obj, Str->Obj?| f)
   {
-    map.eachWhile |v, n|
+    tags.eachWhile |v, n|
     {
       v == null ? null : f(v, n)
     }
   }
   override Obj? trap(Str n, Obj?[]? a := null)
   {
-    v := map[n]
+    v := tags[n]
     if (v != null) return v
     throw UnknownNameErr(n)
   }
@@ -65,17 +66,17 @@ internal const class MapDict : Dict
 @Js
 internal const class NotNullMapDict : Dict
 {
-  new make(Str:Obj map) { this.map = map }
-  const Str:Obj map
-  override Bool isEmpty() { map.isEmpty }
-  override Obj? get(Str n, Obj? def := null) { map.get(n, def) }
-  override Bool has(Str n) { map.get(n, null) != null }
-  override Bool missing(Str n) { map.get(n, null) == null }
-  override Void each(|Obj, Str| f) { map.each(f) }
-  override Obj? eachWhile(|Obj, Str->Obj?| f) { map.eachWhile(f) }
+  new make(Str:Obj tags) { this.tags = tags }
+  const Str:Obj tags
+  override Bool isEmpty() { tags.isEmpty }
+  override Obj? get(Str n, Obj? def := null) { tags.get(n, def) }
+  override Bool has(Str n) { tags.get(n, null) != null }
+  override Bool missing(Str n) { tags.get(n, null) == null }
+  override Void each(|Obj, Str| f) { tags.each(f) }
+  override Obj? eachWhile(|Obj, Str->Obj?| f) { tags.eachWhile(f) }
   override Obj? trap(Str n, Obj?[]? a := null)
   {
-    v := map[n]
+    v := tags[n]
     if (v != null) return v
     throw UnknownNameErr(n)
   }
@@ -129,6 +130,11 @@ internal const class Dict1 : DictX
     return null
   }
 
+  override This map(|Obj,Str->Obj| f)
+  {
+    make1(n0, f(v0, n0))
+  }
+
   const Str n0
   const Obj v0
 }
@@ -165,6 +171,12 @@ internal const class Dict2 : DictX
     r = f(v0,n0); if (r != null) return r
     r = f(v1,n1); if (r != null) return r
     return null
+  }
+
+  override This map(|Obj,Str->Obj| f)
+  {
+    make2(n0, f(v0, n0),
+          n1, f(v1, n1))
   }
 
   const Str n0
@@ -209,6 +221,13 @@ internal const class Dict3 : DictX
     r = f(v1,n1); if (r != null) return r
     r = f(v2,n2); if (r != null) return r
     return null
+  }
+
+  override This map(|Obj,Str->Obj| f)
+  {
+    make3(n0, f(v0, n0),
+          n1, f(v1, n1),
+          n2, f(v2, n2))
   }
 
   const Str n0
@@ -259,6 +278,14 @@ internal const class Dict4 : DictX
     r = f(v2,n2); if (r != null) return r
     r = f(v3,n3); if (r != null) return r
     return null
+  }
+
+  override This map(|Obj,Str->Obj| f)
+  {
+    make4(n0, f(v0, n0),
+          n1, f(v1, n1),
+          n2, f(v2, n2),
+          n3, f(v3, n3))
   }
 
   const Str n0
@@ -315,6 +342,15 @@ internal const class Dict5 : DictX
     r = f(v3,n3); if (r != null) return r
     r = f(v4,n4); if (r != null) return r
     return null
+  }
+
+  override This map(|Obj,Str->Obj| f)
+  {
+    make5(n0, f(v0, n0),
+          n1, f(v1, n1),
+          n2, f(v2, n2),
+          n3, f(v3, n3),
+          n4, f(v4, n4))
   }
 
   const Str n0
@@ -377,6 +413,16 @@ internal const class Dict6 : DictX
     r = f(v4,n4); if (r != null) return r
     r = f(v5,n5); if (r != null) return r
     return null
+  }
+
+  override This map(|Obj,Str->Obj| f)
+  {
+    make6(n0, f(v0, n0),
+          n1, f(v1, n1),
+          n2, f(v2, n2),
+          n3, f(v3, n3),
+          n4, f(v4, n4),
+          n5, f(v5, n5))
   }
 
   const Str n0

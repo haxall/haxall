@@ -73,6 +73,17 @@ const mixin Dict : xeto::Dict
   override abstract Obj? trap(Str name, Obj?[]? args := null)
 
   **
+  ** Create a new instance of this dict with the same names,
+  ** but apply the specified closure to generate new values.
+  **
+  override This map(|Obj val, Str name->Obj| f)
+  {
+    acc := Str:Obj[:]
+    each |v, n| { acc[n] = f(v, n) }
+    return Etc.dictFromMap(acc)
+  }
+
+  **
   ** Get the 'id' tag as a Ref or raise CastErr/UnknownNameErr
   **
   virtual Ref id()

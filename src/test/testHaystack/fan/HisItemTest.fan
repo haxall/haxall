@@ -60,4 +60,12 @@ class HisItemTest : HaystackTest
     }
   }
 
+  Void testUtils()
+  {
+    ts := DateTime.now
+    ts2 := ts - 1hr
+    verifyEq(HisItem(ts,  n(123)).mapVal |x| { n(789) }, HisItem(ts, n(789)))
+    verifyEq(HisItem(ts,  n(123)).map |x,k| { k=="ts" ? ts2 : n(789) }, HisItem(ts2, n(789)))
+  }
+
 }
