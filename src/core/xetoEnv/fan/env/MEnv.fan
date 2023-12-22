@@ -194,6 +194,14 @@ abstract const class MEnv : XetoEnv
     XetoUtil.instantiate(this, spec, opts ?: dict0)
   }
 
+  override Dict[] compileDicts(Str src, Dict? opts := null)
+  {
+    val := compileData(src, opts)
+    if (val is List) return ((List)val).map |x->Dict| { x as Dict ?: throw IOErr("Expecting Xeto list of dicts, not ${x?.typeof}") }
+    if (val is Dict) return Dict[val]
+    throw IOErr("Expecting Xeto dict data, not ${val?.typeof}")
+  }
+
   override Void writeData(OutStream out, Obj val, Dict? opts := null)
   {
     Printer(this, out, opts ?: dict0).xetoTop(val)

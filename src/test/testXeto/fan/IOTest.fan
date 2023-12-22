@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xeto::Dict
 using xetoEnv
 using haystack
 using haystack::Ref
@@ -105,7 +106,25 @@ class IOTest : AbstractXetoTest
     buf.clear
     env.writeData(buf.out, val)
     str := buf.flip.readAllStr
-    x = env.compileData(str, env.dict1("externRefs", m))
+    opts := env.dict1("externRefs", m)
+    x = env.compileData(str, opts)
     verifyValEq(val, x)
+
+    // compileDicts
+    if (val is Dict)
+    {
+      dicts := env.compileDicts(str, opts)
+      verifyEq(dicts.size, 1)
+      verifyDictEq(dicts[0], val)
+    }
+    else if (val is List && ((List)val).all { it is Dict })
+    {
+      dicts := env.compileDicts(str, opts)
+      verifyDictsEq(dicts, val)
+    }
+    else
+    {
+      verifyErr(IOErr#) { env.compileDicts(str, opts) }
+    }
   }
 }

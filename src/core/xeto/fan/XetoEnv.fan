@@ -156,6 +156,10 @@ const abstract class XetoEnv
   **   - externRefs: marker to allow unresolved refs to compile
   abstract Obj? compileData(Str src, Dict? opts := null)
 
+  ** Convenience for `compileData` but always returns data as list of dicts.
+  ** If the data is not a Dict nor list of Dicts, then raise an exception.
+  abstract Dict[] compileDicts(Str src, Dict? opts := null)
+
   ** Write instance data in Xeto text format to an output stream.  If the
   ** value is a Dict[], then it is flattened in the output.  Use `compileData`
   ** to read data from Xeto text format.
