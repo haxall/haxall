@@ -71,7 +71,8 @@ const class MFactories
   ** Map Fantom type to its spec (called during LoadFactories)
   Void map(Type type, Str qnameSpec, Spec spec)
   {
-    typeToSpecMap.set(type.qname, spec)
+    qnameType := type.qname
+    if (typeToSpecMap[qnameType] == null) typeToSpecMap.set(qnameType, spec)
     specToTypeMap.set(qnameSpec, type)
   }
 
