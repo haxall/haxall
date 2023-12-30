@@ -107,15 +107,13 @@ abstract const class MEnv : XetoEnv
       return spec(specRef.id, checked)
     }
 
-    // direct lookup by type
+    // look in Fantom class hiearchy
     type := val as Type ?: val.typeof
-    spec := factories.typeToSpec(type)
-    if (spec != null) return spec
-
-    // walk up type hiearchy (classes only)
-    for (Type? p := type.base; p != null; p = p.base)
+    for (Type? p := type; p != null; p = p.base)
     {
-      spec = factories.typeToSpec(p)
+      spec := factories.typeToSpec(p)
+      if (spec != null) return spec
+      spec = p.mixins.eachWhile |m| { factories.typeToSpec(m) }
       if (spec != null) return spec
     }
 
