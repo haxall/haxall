@@ -82,19 +82,14 @@ abstract const class MEnv : XetoEnv
 
   override Dict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5) { Etc.dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5) }
 
-  override Dict dictMap(Str:Obj map, Spec? spec := null)
-  {
-    dict := Etc.dictFromMap(map)
-    if (spec == null || spec === dictSpec) return dict
-    return MDict(dict, spec)
-  }
+  override Dict dictMap(Str:Obj map) { Etc.dictFromMap(map) }
 
   override Dict dict(Obj? val)
   {
     if (val == null) return dict0
     if (val is Dict) return val
     map := val as Str:Obj ?: throw ArgErr("Unsupported dict arg: $val.typeof")
-    return dictMap(map, null)
+    return dictMap(map)
   }
 
   override Ref ref(Str id, Str? dis := null) { haystack::Ref.make(id, dis) }
@@ -103,14 +98,19 @@ abstract const class MEnv : XetoEnv
   {
     if (val == null) return sys.none
 
+    // dict handling
+    dict := val as Dict
+    if (dict != null)
+    {
+      specRef := dict["spec"] as Ref
+      if (specRef == null) return dictSpec
+      return spec(specRef.id, checked)
+    }
+
     // direct lookup by type
     type := val as Type ?: val.typeof
     spec := factories.typeToSpec(type)
     if (spec != null) return spec
-
-    // some special lookup
-    if (val is Dict) return ((Dict)val).spec.type
-    if (val is List) return sys.list
 
     // walk up type hiearchy (classes only)
     for (Type? p := type.base; p != null; p = p.base)
@@ -120,7 +120,7 @@ abstract const class MEnv : XetoEnv
     }
 
     // fallbacks
-    if (type.fits(Dict#)) return dictSpec
+    if (val is List) return sys.list
     if (type.fits(Grid#)) return lib("ph").type("Grid")
 
     // cannot map to spec

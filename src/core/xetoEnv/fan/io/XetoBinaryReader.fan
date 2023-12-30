@@ -288,8 +288,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   private MNameDict readNameDict()
   {
     size := readVarInt
-    spec := null
-    return MNameDict(names.readDict(size, this, spec))
+    return MNameDict(names.readDict(size, this))
   }
 
   private Dict readGenericDict()

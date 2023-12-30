@@ -276,8 +276,6 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final FileLoc loc() { m.loc }
 
-  override final Spec spec() { m.spec }
-
   override final SpecFactory factory() { m.factory }
 
   override final Bool isEmpty() { false }

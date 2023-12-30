@@ -309,10 +309,9 @@ class EnvTest : AbstractXetoTest
   {
     d := env.dict(map)
 
-    type := d.spec
+    type := env.specOf(d)
 
     verifyEq(type.qname, qname)
-    verifySame(d.spec, env.type(qname))
     if (map.isEmpty) verifySame(d, env.dict0)
 
     map.each |v, n|
@@ -624,7 +623,7 @@ class EnvTest : AbstractXetoTest
     verifySame(type.type, type)
     verifySame(type.base, base)
     verifyEq(type.toStr, type.qname)
-    verifySame(type.spec, env.type("sys::Spec"))
+    verifySame(env.specOf(type), env.type("sys::Spec"))
     verifyEq(type.isType, true)
     verifyEq(type["val"], val)
     return type
@@ -646,7 +645,7 @@ class EnvTest : AbstractXetoTest
     verifyEq(slot.toStr, slot.qname)
     verifySame(slot.type, type)
     verifySame(slot.base, type)
-    verifySame(slot.spec, env.type("sys::Spec"))
+    verifySame(env.specOf(slot), env.type("sys::Spec"))
     verifyEq(slot.isType, false)
     return slot
   }

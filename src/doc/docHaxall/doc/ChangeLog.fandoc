@@ -7,13 +7,15 @@
 **************************************************************************
 
 *Build 3.1.10 (working)*
-- Dict.map
+- Dict.spec removed, must use XetoEnv.specOf
+- Dict.map added
 - Xeto global slots
 - Xeto ph-gen redesign
 - Xeto enum types
 - Xeto sys::TimeZone enum
 - Xeto sys::Unit enum
 - Number and unit quantity validation
+- TODO: rename tops to specs
 
 *Build 3.1.9 (1 Dec 2023)*
 - New ECMA class-based JavaScript design

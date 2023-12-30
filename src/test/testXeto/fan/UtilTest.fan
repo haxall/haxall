@@ -140,8 +140,8 @@ class UtilTest : Test
     verifyDict(t, 1, t.dict1("site", "marker"),
       Str:Obj["site":"marker"])
 
-    verifyDict(t, 1, t.dict1("site", "marker", spec),
-      Str:Obj["site":"marker"], spec)
+    verifyDict(t, 1, t.dict1("site", "marker"),
+      Str:Obj["site":"marker"])
 
     verifyDict(t, 2, t.dict2("site", "marker", "dis", "Site"),
       Str:Obj["site":"marker", "dis":"Site"])
@@ -164,21 +164,19 @@ class UtilTest : Test
     verifyDict(t, 8, t.dict8("site", "marker", "dis", "Site", "int", 123, "dur", 10sec, "a", "A", "b", "B", "c", "C", "d", "D"),
       Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D"])
 
-    verifyDict(t, 8, t.dict8("site", "marker", "dis", "Site", "int", 123, "dur", 10sec, "a", "A", "b", "B", "c", "C", "d", "D", spec),
-      Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D"], spec)
+    verifyDict(t, 8, t.dict8("site", "marker", "dis", "Site", "int", 123, "dur", 10sec, "a", "A", "b", "B", "c", "C", "d", "D"),
+      Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D"])
 
     verifyDict(t, -1, t.dictMap(Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id]),
       Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id])
 
-    verifyDict(t, -1, t.dictMap(Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id], spec),
-      Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id], spec)
+    verifyDict(t, -1, t.dictMap(Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id]),
+      Str:Obj["site":"marker", "dis":"Site", "int":123, "dur":10sec, "a":"A", "b":"B", "c":"C", "d":"D", "id":id])
 
     big := Str:Obj[:]
     100.times |i| { big["n" + i] = "val " + i }
     verifyDict(t, -1, t.dictMap(big), big)
-    verifyDict(t, -1, t.dictMap(big, spec), big, spec)
     verifyDict(t, -1, t.dictDict(Etc.makeDict(big)), big)
-    verifyDict(t, -1, t.dictDict(Etc.makeDict(big), spec), big, spec)
 
     verifyErr(NotImmutableErr#) { t.dict1("a", this) }
     verifyErr(NotImmutableErr#) { t.dict2("a", "x", "b", this) }
@@ -194,15 +192,8 @@ class UtilTest : Test
     verifyErr(NotImmutableErr#) { t.dictMap(big).map |v, n| { this } }
   }
 
-  Void verifyDict(NameTable t, Int fixed, NameDict d, Str:Obj expect, Spec? spec := null)
+  Void verifyDict(NameTable t, Int fixed, NameDict d, Str:Obj expect)
   {
-    // spec
-    if (Env.cur.runtime != "js")
-    {
-      if (spec == null) spec = XetoEnv.cur.dictSpec
-      verifySame(d.spec, spec)
-    }
-
     // size
     verifyEq(d.isEmpty, d.size == 0)
     verifyEq(d.size, expect.size)
@@ -288,7 +279,7 @@ class UtilTest : Test
       names.add(t.toCode(n))
       vals.add(v)
     }
-    x = t.readDict(d.size, TestNameDictReader(names, vals), spec)
+    x = t.readDict(d.size, TestNameDictReader(names, vals))
     verifyEq(x.size, d.size)
     verifyEq(x.fixedSize, fixed)
     x.each |v, n| { verifyEq(d.get(n), v) }

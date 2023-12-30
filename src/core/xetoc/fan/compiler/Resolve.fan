@@ -193,7 +193,7 @@ internal class Resolve : Step
   {
     ref.nodeType === ANodeType.specRef ?
       depend.type(name, false) :
-      CInstance.wrap(depend.instance(name, false))
+      CInstance.wrap(env, depend.instance(name, false))
   }
 
 

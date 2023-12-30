@@ -30,7 +30,6 @@ const class MNameDict : haystack::Dict
 
   const NameDict wrapped
 
-  override Spec spec() { wrapped.spec }
   override Bool isEmpty() { wrapped.isEmpty }
   override Bool has(Str n) { wrapped.has(n) }
   override Bool missing(Str n) { wrapped.missing(n) }

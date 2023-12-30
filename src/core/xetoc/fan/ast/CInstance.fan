@@ -16,10 +16,11 @@ using xetoEnv
 internal mixin CInstance : CNode
 {
   ** Wrap instance from dependency
-  static CInstance? wrap(Dict? val)
+  static CInstance? wrap(XetoEnv env, Dict? val)
   {
     if (val == null) return null
-    return CInstanceWrap(val)
+    spec := env.specOf(val, false) ?: env.dictSpec
+    return CInstanceWrap(val, spec)
   }
 
   ** Return if this an AST ADict
@@ -36,11 +37,12 @@ internal mixin CInstance : CNode
 
 internal const class CInstanceWrap : CInstance
 {
-  new make(Dict w) { this.w = w }
+  new make(Dict w, XetoSpec spec) { this.w = w; this.spec = spec }
   const Dict w
+  const XetoSpec spec
   override Bool isAst() { false }
   override haystack::Ref id() { w->id }
-  override CSpec ctype() { (XetoSpec)w.spec }
+  override CSpec ctype() { spec }
   override Obj asm() { id }
 }
 

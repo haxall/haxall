@@ -14,9 +14,6 @@
 const mixin Dict
 {
 
-  ** Specification of this dict or 'sys::Dict' if generic.
-  abstract Spec spec()
-
   ** Return if the there are no name/value pairs
   abstract Bool isEmpty()
 

@@ -21,9 +21,6 @@ native final const class NameDict  : Dict
   ** Just for testing
   @NoDoc Int fixedSize()
 
-  ** Specification of this dict or 'sys::Dict' if generic.
-  override Spec spec()
-
   ** Return if the there are no name/value pairs
   override Bool isEmpty()
 

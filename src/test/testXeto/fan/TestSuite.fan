@@ -478,7 +478,7 @@ class DataTestCase
 
   Void verifyDictSpec(Dict dict, Str expect)
   {
-    verifyEq(dict.spec.type.qname, expect)
+    verifyEq(env.specOf(dict).qname, expect)
     if (expect == "sys::Dict")
     {
       verifyEq(dict["spec"], null)

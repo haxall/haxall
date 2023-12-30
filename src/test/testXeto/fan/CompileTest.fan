@@ -237,7 +237,6 @@ class CompileTest : AbstractXetoTest
   {
     Dict actual := compileData(src)
      // echo("-- $actual [$actual.spec]"); TrioWriter(Env.cur.out).writeDict(actual)
-    verifySame(actual.spec, env.type(type))
     if (expected.isEmpty && type == "sys::Dict")
     {
       verifyEq(actual.isEmpty, true)
@@ -297,7 +296,7 @@ class CompileTest : AbstractXetoTest
              boss: @brian
              obj: "string"
            }
-           |>)
+           |>, env.dict1("register", m))
 
     spec := lib.type("Person")
     // env.print(spec)
@@ -317,7 +316,7 @@ class CompileTest : AbstractXetoTest
     verifyEq(lib.instances.containsSame(x), true)
     verifyRefEq(x->id, id)
     verifyDictEq(x, expect.dup.set("id", id).set("spec", Ref(spec.qname)))
-    verifySame(x.spec, spec)
+    verifySame(env.specOf(x), spec)
     return x
   }
 

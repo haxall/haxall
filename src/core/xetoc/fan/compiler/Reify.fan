@@ -76,7 +76,7 @@ internal class Reify : Step
       acc["spec"] = env.ref(type.qname)
 
     // create as Dict
-    dict := MNameDict(env.names.dictMap(acc, type.asm))
+    dict := MNameDict(env.names.dictMap(acc))
     Obj asm := dict
 
     // if there is a factory registered, then decode to another Fantom type

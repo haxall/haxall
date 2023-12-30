@@ -21,18 +21,6 @@ const mixin Dict : xeto::Dict
 {
 
   **
-  ** Specification of this dict or 'sys::Dict' if generic.
-  **
-  override xeto::Spec spec()
-  {
-    ref := get("spec", null) as Ref
-    if (ref != null)
-      return xeto::XetoEnv.cur.spec(ref.id)
-    else
-      return xeto::XetoEnv.cur.dictSpec
-  }
-
-  **
   ** Return if the there are no name/value pairs
   **
   abstract override Bool isEmpty()

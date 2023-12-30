@@ -51,29 +51,29 @@ native final const class NameTable
   NameDict dict2(Str n0, Obj v0, Str n1, Obj v1, Spec? spec := null)
 
   ** Create dict with three name/value pairs mapped by this name table
-  NameDict dict3(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Spec? spec := null)
+  NameDict dict3(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2)
 
   ** Create dict with four name/value pairs mapped by this name table
-  NameDict dict4(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Spec? spec := null)
+  NameDict dict4(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3)
 
   ** Create dict with five name/value pairs mapped by this name table
-  NameDict dict5(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Spec? spec := null)
+  NameDict dict5(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4)
 
   ** Create dict with six name/value pairs mapped by this name table
-  NameDict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5, Spec? spec := null)
+  NameDict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5)
 
   ** Create dict with seven name/value pairs mapped by this name table
-  NameDict dict7(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5, Str n6, Obj v6, Spec? spec := null)
+  NameDict dict7(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5, Str n6, Obj v6)
 
   ** Create dict with eight name/value pairs mapped by this name table
-  NameDict dict8(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5, Str n6, Obj v6, Str n7, Obj v7, Spec? spec := null)
+  NameDict dict8(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5, Str n6, Obj v6, Str n7, Obj v7)
 
   ** Create dict mapped by this name table using map
-  NameDict dictMap(Str:Obj map, Spec? spec := null)
+  NameDict dictMap(Str:Obj map)
 
   ** Wrap dict as a name dict backed by this name table
-  NameDict dictDict(Dict dict, Spec? spec := null)
+  NameDict dictDict(Dict dictl)
 
   ** Decode name dict from binary encoding
-  NameDict readDict(Int size, NameDictReader r, Spec? spec)
+  NameDict readDict(Int size, NameDictReader r)
 }

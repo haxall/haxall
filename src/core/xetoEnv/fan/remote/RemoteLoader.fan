@@ -208,7 +208,7 @@ internal class RemoteLoader
     slots.each |slot| { loadSpec(slot) }
 
     // RSpec is a NameDictReader to iterate slots as NameDict
-    dict := names.readDict(slots.size, x, null)
+    dict := names.readDict(slots.size, x)
     return MSlots(dict)
   }
 
