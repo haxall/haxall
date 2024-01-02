@@ -32,6 +32,7 @@ class UtilTest : Test
     verifyEq(XetoUtil.dottedToCamel("foo.bar.baz."), "fooBarBaz")
     verifyEq(XetoUtil.dottedToCamel(".foo.bar.baz."), "FooBarBaz")
     verifyEq(XetoUtil.dottedToCamel("a.b.c.d"), "aBCD")
+    verifyEq(XetoUtil.dottedToCamel("foo-bar-baz", '-'), "fooBarBaz")
 
     // camel -> dotted
     verifyEq(XetoUtil.camelToDotted("x"), "x")
@@ -40,6 +41,8 @@ class UtilTest : Test
     verifyEq(XetoUtil.camelToDotted("fooBar"), "foo.bar")
     verifyEq(XetoUtil.camelToDotted("fooBarBaz"), "foo.bar.baz")
     verifyEq(XetoUtil.camelToDotted("aBCD"), "a.b.c.d")
+    verifyEq(XetoUtil.camelToDotted("FooBar"), "foo.bar")
+    verifyEq(XetoUtil.camelToDotted("FooBar", '-'), "foo-bar")
   }
 
 
