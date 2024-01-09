@@ -298,12 +298,13 @@ class CompileTest : AbstractXetoTest
 
              @nest1: Person {
                first: "Bird"
-               last: "Nest"
+               last: "Nest1"
+               boss: @nest2
              }
 
              n2 @nest2: Person {
                first: "Bird"
-               last: "Nest"
+               last: "Nest2"
                boss: @nest1
              }
            }
@@ -316,10 +317,10 @@ class CompileTest : AbstractXetoTest
       ["person":m, "first":"Brian", "last":"Frank", "born": Date("2000-01-01")])
 
     n1 := verifyLibInstance(lib, spec, "nest1",
-      ["person":m, "first":"Bird", "last":"Nest", "born": Date("2000-01-01")])
+      ["person":m, "first":"Bird", "last":"Nest1", "born": Date("2000-01-01"), "boss":Ref("${lib.name}::nest2")])
 
     n2 := verifyLibInstance(lib, spec, "nest2",
-      ["person":m, "first":"Bird", "last":"Nest", "born": Date("2000-01-01"), "boss":n1->id])
+      ["person":m, "first":"Bird", "last":"Nest2", "born": Date("2000-01-01"), "boss":n1->id])
 
     a := verifyLibInstance(lib, spec, "alice",
       ["person":m, "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":b->id, "obj":"string", "_0":n1, "n2":n2])
@@ -351,16 +352,24 @@ class CompileTest : AbstractXetoTest
              last: "Smith"
              born: Date "1980-06-15"
              boss: @brian
+
+             @nest1: { first: "Bird", last: "Nest1", boss: @nest2  }
+
+             n2 @nest2: { first: "Bird", last: "Nest2", boss: @nest1 }
            }
            |>)
 
-   // echo(dicts.join("\n"))
+    // echo(dicts.join("\n"))
 
     b := dicts[0]
     a := dicts[1]
+    n1 := a["_0"] as Dict
+    n2 := a["n2"] as Dict
 
-    verifyDictEq(b, ["id":Ref("brian"), "first":"Brian", "last":"Frank"])
-    verifyDictEq(a, ["id":Ref("alice"), "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":b->id])
+    verifyDictEq(b,  ["id":Ref("brian"), "first":"Brian", "last":"Frank"])
+    verifyDictEq(n1, ["id":Ref("nest1"), "first":"Bird", "last":"Nest1", "boss":Ref("nest2")])
+    verifyDictEq(n2, ["id":Ref("nest2"), "first":"Bird", "last":"Nest2", "boss":Ref("nest1")])
+    verifyDictEq(a,  ["id":Ref("alice"), "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":b->id, "_0":n1, "n2":n2])
   }
 
 //////////////////////////////////////////////////////////////////////////
