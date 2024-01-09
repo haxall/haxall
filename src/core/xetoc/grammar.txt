@@ -30,11 +30,12 @@ Productions [#productions]
   <dataScalar>     :=  [<dataType>] <scalar>
   <dict>           :=  [<dataType>] "{" <dictTags> "}"
   <dictTags>       :=  [<dictTag> <endOfObj>]*
-  <dictTag>        :=  <dictMarkerTag> | <dictNamedTag> | <dictUnnamedTag> | <dictIdTag>
+  <dictTag>        :=  <dictMarkerTag> | <dictNamedTag> | <dictUnnamedTag> | <dictIdTag> | <dictNamedIdTag>
   <dictMarkerTag>  :=  <name>
   <dictNamedTag>   :=  <name> ":" <data>
   <dictUnnamedTag> :=  <data>
   <dictIdTag>      :=  <ref> ":" <dict>
+  <dictNamedIdTag> :=  <name> <ref> ":" <dict>
 
   <type>         :=  <typeMaybe> | <typeAnd> | <typeOr> | <typeSimple>
   <typeMaybe>    :=  <typeSimple> "?"

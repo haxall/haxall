@@ -415,7 +415,11 @@ internal class Parser
       if (curIsDictSlotName)
       {
         name = consumeName("Expecting dict tag name")
-        if (cur !== Token.colon)
+        if (cur === Token.ref && peek === Token.colon)
+        {
+          val = parseNamedData(true)
+        }
+        else if (cur !== Token.colon)
         {
           val = step.markerScalar(loc)
         }

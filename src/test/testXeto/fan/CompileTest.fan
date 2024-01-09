@@ -301,7 +301,7 @@ class CompileTest : AbstractXetoTest
                last: "Nest"
              }
 
-             @nest2: Person {
+             n2 @nest2: Person {
                first: "Bird"
                last: "Nest"
                boss: @nest1
@@ -322,7 +322,7 @@ class CompileTest : AbstractXetoTest
       ["person":m, "first":"Bird", "last":"Nest", "born": Date("2000-01-01"), "boss":n1->id])
 
     a := verifyLibInstance(lib, spec, "alice",
-      ["person":m, "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":b->id, "obj":"string", "_0":n1, "_1":n2])
+      ["person":m, "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":b->id, "obj":"string", "_0":n1, "n2":n2])
   }
 
   Dict verifyLibInstance(Lib lib, Spec spec, Str name, Str:Obj expect)
