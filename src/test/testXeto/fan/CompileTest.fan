@@ -295,24 +295,41 @@ class CompileTest : AbstractXetoTest
              born: "1980-06-15"
              boss: @brian
              obj: "string"
+
+             @nest1: Person {
+               first: "Bird"
+               last: "Nest"
+             }
+
+             @nest2: Person {
+               first: "Bird"
+               last: "Nest"
+               boss: @nest1
+             }
            }
+
            |>, env.dict1("register", m))
 
     spec := lib.type("Person")
-    // env.print(spec)
 
     b := verifyLibInstance(lib, spec, "brian",
       ["person":m, "first":"Brian", "last":"Frank", "born": Date("2000-01-01")])
 
+    n1 := verifyLibInstance(lib, spec, "nest1",
+      ["person":m, "first":"Bird", "last":"Nest", "born": Date("2000-01-01")])
+
+    n2 := verifyLibInstance(lib, spec, "nest2",
+      ["person":m, "first":"Bird", "last":"Nest", "born": Date("2000-01-01"), "boss":n1->id])
+
     a := verifyLibInstance(lib, spec, "alice",
-      ["person":m, "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":b->id, "obj":"string"])
+      ["person":m, "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":b->id, "obj":"string", "_0":n1, "_1":n2])
   }
 
   Dict verifyLibInstance(Lib lib, Spec spec, Str name, Str:Obj expect)
   {
     x := lib.instance(name)
     id := Ref(lib.name + "::" + name, null)
-    // echo("-- $id =>"); TrioWriter(Env.cur.out).writeDict(x)
+    // echo("\n-- $id =>"); TrioWriter(Env.cur.out).writeDict(x)
     verifyEq(lib.instances.containsSame(x), true)
     verifyRefEq(x->id, id)
     verifyDictEq(x, expect.dup.set("id", id).set("spec", Ref(spec.qname)))

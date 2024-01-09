@@ -53,7 +53,7 @@ internal class ALib : ADoc
   {
     meta.walkBottomUp(f)
     tops.each |x| { x.walkBottomUp(f) }
-    instances.each |x| { x.walkBottomUp(f) }
+    instances.each |x| { if (!x.isNested) x.walkBottomUp(f) }
     f(this)
   }
 
@@ -63,7 +63,7 @@ internal class ALib : ADoc
     f(this)
     meta.walkTopDown(f)
     tops.each |x| { x.walkTopDown(f) }
-    instances.each |x| { x.walkTopDown(f) }
+    instances.each |x| { if (!x.isNested) x.walkTopDown(f) }
   }
 
   ** Auto naming for synthetic specs

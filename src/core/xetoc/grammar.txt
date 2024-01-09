@@ -22,15 +22,19 @@ Productions [#productions]
   <specSlots>    :=  "{" [<specSlot> <endOfObj>]* "}"
   <specSlot>     :=  [<leadingDoc>] ( <markerOnly> | <namedSpec> | <spec> ) [<trailingDoc>]
   <markerOnly>   :=  <markerName> [<meta>]
-  <endOfObj>         :=  ( [","] <nl> ) | ","
-  <meta>             :=  "<" <dictTags> ">"
+  <endOfObj>     :=  ( [","] <nl> ) | ","
+  <meta>         :=  "<" <dictTags> ">"
 
-  <data>         :=  <dict> | <dictScalar> | <ref> | <spec>
-  <dict>         :=  [<dictType>] "{" <dictTags> "}"
-  <dictTags>     :=  [<dictTag> <endOfObj>]*
-  <dictTag>      :=  <name> [":" <data>]  // marker if no data value
-  <dictType>     :=  <typeSimple>    // may want to allow List<of>
-  <dictScalar>   :=  [<dictType>] <scalar>
+  <data>           :=  <dict> | <dataScalar> | <ref> | <spec>
+  <dataType>       :=  <typeSimple>    // may want to allow List<of>
+  <dataScalar>     :=  [<dataType>] <scalar>
+  <dict>           :=  [<dataType>] "{" <dictTags> "}"
+  <dictTags>       :=  [<dictTag> <endOfObj>]*
+  <dictTag>        :=  <dictMarkerTag> | <dictNamedTag> | <dictUnnamedTag> | <dictIdTag>
+  <dictMarkerTag>  :=  <name>
+  <dictNamedTag>   :=  <name> ":" <data>
+  <dictUnnamedTag> :=  <data>
+  <dictIdTag>      :=  <ref> ":" <dict>
 
   <type>         :=  <typeMaybe> | <typeAnd> | <typeOr> | <typeSimple>
   <typeMaybe>    :=  <typeSimple> "?"

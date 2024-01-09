@@ -193,9 +193,10 @@ internal class ADict : AData
 internal class AInstance : ADict, CInstance
 {
   ** Constructor
-  new make(FileLoc loc, ASpecRef? type, AName name) : super(loc, type)
+  new make(FileLoc loc, ASpecRef? type, AName name, Bool isNested) : super(loc, type)
   {
     this.name = name
+    this.isNested = isNested
   }
 
   ** Node type
@@ -203,6 +204,9 @@ internal class AInstance : ADict, CInstance
 
   ** Identifier for this dict (not included in map)
   AName name
+
+  ** True if this instance is nested under another instance
+  const Bool isNested
 
   ** Debug dump
   override Void dump(OutStream out := Env.cur.out, Str indent := "")

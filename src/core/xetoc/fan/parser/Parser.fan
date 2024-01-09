@@ -342,7 +342,7 @@ internal class Parser
   }
 
   ** Parse dict with id
-  private AInstance parseNamedData()
+  private AInstance parseNamedData(Bool isNested := false)
   {
     AName name := curVal
     consume(Token.ref)
@@ -351,7 +351,7 @@ internal class Parser
     consume
 
     type := parseTypeRef
-    dict := AInstance(curToLoc, type, name)
+    dict := AInstance(curToLoc, type, name, isNested)
     if (cur !== Token.lbrace) throw err("Expecting '{' to start named instance dict")
     parseDict(type, Token.lbrace, Token.rbrace, dict)
 
@@ -424,6 +424,11 @@ internal class Parser
           consume
           val = parseData
         }
+      }
+      else if (cur === Token.ref && peek === Token.colon)
+      {
+        name = autoName(x.map)
+        val = parseNamedData(true)
       }
       else
       {
