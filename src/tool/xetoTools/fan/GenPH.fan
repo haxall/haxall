@@ -33,6 +33,7 @@ internal class GenPH : AbstractGenCmd
     writeTags
     writeEntities
     writeEnums
+    writeChoices
     writeFeatureDefs
     return 0
   }
@@ -154,6 +155,11 @@ internal class GenPH : AbstractGenCmd
   private Str toEnumTypeName(Def tag)
   {
     if (tag.name == "tz") return "TimeZone"
+    return tag.name.capitalize
+  }
+
+  private Str toChoiceTypeName(Def tag)
+  {
     return tag.name.capitalize
   }
 
@@ -361,8 +367,6 @@ internal class GenPH : AbstractGenCmd
 
   private Void writeEnum(OutStream out, Def def)
   {
-    if (def.name == "unit") return
-
     docAbove := false
     nameAndMetas := Str[,]
     docs := Str[,]
@@ -404,6 +408,61 @@ internal class GenPH : AbstractGenCmd
     }
     out.printLine("}")
     out.printLine
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Write Choices
+//////////////////////////////////////////////////////////////////////////
+
+  private Void writeChoices()
+  {
+    // get all the choices
+    choices := ns.subtypes(ns.def("choice"))
+    choices.sort |a, b| { a.name <=> b.name }
+
+    write(`choices.xeto`) |out|
+    {
+      choices.each |def|
+      {
+        writeChoice(out, def)
+      }
+    }
+  }
+
+  private Void writeChoice(OutStream out, Def def)
+  {
+    baseName := toChoiceTypeName(def)
+
+    // special cases for suffix such as LeavingPipe instead of just Leaving
+    suffix := ""
+    switch (baseName)
+    {
+      case "AhuZoneDelivery":  suffix = "Ahu"
+      case "ChillerMechanism": suffix = "Chiller"
+      case "DuctSection":      suffix = "Duct"
+      case "PipeSection":      suffix = "Pipe"
+      case "VavAirCircuit":    suffix = "Vav"
+      case "VavModulation":    suffix = "Vav"
+    }
+
+    section := "//////////////////////////////////////////////////////////////////////////"
+    out.printLine(section)
+    out.printLine("// $baseName")
+    out.printLine(section)
+    out.printLine
+
+    writeDoc(out, def)
+    out.printLine("$baseName: Choice")
+    out.printLine
+
+    ns.subtypes(def).each |sub|
+    {
+      tag := sub.symbol.type.isConjunct ? sub.symbol.part(1) : sub.name
+      subName := tag.capitalize + suffix
+      writeDoc(out, sub)
+      out.printLine("$subName: $baseName { $tag }")
+      out.printLine
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
