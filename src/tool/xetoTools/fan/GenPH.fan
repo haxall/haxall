@@ -11,6 +11,7 @@ using util
 using haystack
 using def
 using defc
+using xetoEnv
 
 internal class GenPH : AbstractGenCmd
 {
@@ -158,9 +159,9 @@ internal class GenPH : AbstractGenCmd
     return tag.name.capitalize
   }
 
-  private Str toChoiceTypeName(Def tag)
+  private Str toChoiceTypeName(Def def)
   {
-    return tag.name.capitalize
+    XetoUtil.dottedToCamel(def.name, '-').capitalize
   }
 
   private Str toTagMeta(Def def, Kind kind)
@@ -427,15 +428,20 @@ internal class GenPH : AbstractGenCmd
         writeChoice(out, def)
       }
     }
+
+    // special handling for phenomenon and quantity
+    writeChoiceTaxonomy(ns.def("phenomenon"))
+    writeChoiceTaxonomy(ns.def("quantity"))
   }
 
   private Void writeChoice(OutStream out, Def def)
   {
-    baseName := toChoiceTypeName(def)
+    specName := toChoiceTypeName(def)
+    baseName := "Choice"
 
     // special cases for suffix such as LeavingPipe instead of just Leaving
     suffix := ""
-    switch (baseName)
+    switch (specName)
     {
       case "AhuZoneDelivery":  suffix = "Ahu"
       case "ChillerMechanism": suffix = "Chiller"
@@ -447,22 +453,75 @@ internal class GenPH : AbstractGenCmd
 
     section := "//////////////////////////////////////////////////////////////////////////"
     out.printLine(section)
-    out.printLine("// $baseName")
+    out.printLine("// $specName")
     out.printLine(section)
     out.printLine
 
+    // handle of thru subtyping
+    of := def["of"]
+    if (of != null) baseName = toChoiceTypeName(ns.def(of.toStr))
+
     writeDoc(out, def)
-    out.printLine("$baseName: Choice")
+    out.printLine("$specName: $baseName")
     out.printLine
+
+    if (of != null) return
 
     ns.subtypes(def).each |sub|
     {
       tag := sub.symbol.type.isConjunct ? sub.symbol.part(1) : sub.name
       subName := tag.capitalize + suffix
       writeDoc(out, sub)
-      out.printLine("$subName: $baseName { $tag }")
+      out.printLine("$subName: $specName { $tag }")
       out.printLine
     }
+  }
+
+  private Void writeChoiceTaxonomy(Def def)
+  {
+    write(`${def.name}.xeto`) |out|
+    {
+      writeChoiceTaxonomyLevel(out, def, "Choice")
+    }
+  }
+
+  private Void writeChoiceTaxonomyLevel(OutStream out, Def def, Str baseName)
+  {
+    specName := toChoiceTypeName(def)
+    tag := toChoiceTaxonomyTag(def)
+
+    writeDoc(out, def)
+    out.print("$specName: $baseName")
+    out.print(" { $tag }")
+    out.printLine
+    out.printLine
+
+    subtypes := ns.subtypes(def)
+    subtypes.sort |a, b| { a.name <=> b.name }
+    subtypes.each |sub|
+    {
+      writeChoiceTaxonomyLevel(out, sub, specName)
+    }
+  }
+
+  private Str? toChoiceTaxonomyTag(Def def)
+  {
+    sym := def.symbol
+    if (sym.type.isTag) return sym.name
+
+    part1 := def.symbol.part(0)
+    part2 := def.symbol.part(1)
+
+    supertype := ns.supertypes(def).first
+
+    // co2-emission returns "co2"
+    if (ns.fits(supertype, ns.def(part1))) return part2
+
+    // hot-water returns "hot"
+    if (ns.fits(supertype, ns.def(part2))) return part1
+
+    // air-velocity returns "air, velocity"
+    return "$part1, $part2"
   }
 
 //////////////////////////////////////////////////////////////////////////
