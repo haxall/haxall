@@ -155,7 +155,9 @@ internal class GenPH : AbstractGenCmd
 
   private Str toEnumTypeName(Def tag)
   {
-    if (tag.name == "tz") return "TimeZone"
+    if (tag.name == "tz")          return "TimeZone"
+    if (tag.name == "weatherCond") return "WeatherCondEnum"
+    if (tag.name == "daytime")     return "DaytimeEnum"
     return tag.name.capitalize
   }
 
