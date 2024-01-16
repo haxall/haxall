@@ -267,9 +267,9 @@ class SpecTest : AbstractXetoTest
       "dis:Str?", "id:Ref", "equip:Marker",
       "equipRef:Ref?", "siteRef:Ref", "spaceRef:Ref?", "systemRef:Ref?",
       "points:Query"]
-    meterSlots       := equipSlots.dup.addAll(["meter:Marker", "submeterOf:Ref?"])
+    meterSlots       := equipSlots.dup.addAll(["meter:Marker", "meterScope:MeterScope?", "submeterOf:Ref?"])
     elecMeterSlots   := meterSlots.dup.add("elec:Marker")
-    acElecMeterSlots := elecMeterSlots.dup.add("ac:Marker")
+    acElecMeterSlots := elecMeterSlots.dup.addAll(["ac:Marker", "phaseCount:PhaseCount?"])
 
     verifySlots(ph.type("Equip"),       equipSlots)
     verifySlots(ph.type("Meter"),       meterSlots)
@@ -281,6 +281,7 @@ class SpecTest : AbstractXetoTest
       "point:Marker", "cur:Marker?", "enum:Str?",
       "equipRef:Ref", "his:Marker?", "kind:Kind",
       "maxVal:Number?", "minVal:Number?",
+      "pointFunction:PointFunction?", "pointQuantity:PointQuantity?", "pointSubject:PointSubject?",
       "siteRef:Ref", "spaceRef:Ref?", "systemRef:Ref?",
       "tz:TimeZone?", "unit:Unit?", "writable:Marker?",
       "equips:Query"]

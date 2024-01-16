@@ -92,7 +92,7 @@ internal class GenPH : AbstractGenCmd
     tags := Def[,]
     ns.eachDef |def|
     {
-      if (def.symbol.type.isTag && !isAbstractChoice(def.name))
+      if (def.symbol.type.isTag)
         tags.add(def)
     }
     tags.sort |a, b| { a.name <=> b.name }
@@ -142,6 +142,12 @@ internal class GenPH : AbstractGenCmd
     if (n == "quantityOf") return true
     if (n == "tagOn") return true
     if (n == "tags") return true
+
+    // don't generate tags like fluid, liquid
+    if (isAbstractChoice(def.name)) return true
+
+    // don't generate direct choices such as a ductSection
+    if (ns.supertypes(def).first?.name == "choice") return true
 
     return false
   }
@@ -295,8 +301,6 @@ internal class GenPH : AbstractGenCmd
     ns.tags(entity).each |tag|
     {
       if (isInherited(entity, tag)) return
-      if (ns.fitsChoice(tag)) return // TODO for now
-      if (skipEntityTag(tag.name)) return
       tags.add(tag)
       maxNameSize = maxNameSize.max(tag.name.size)
     }
@@ -316,6 +320,7 @@ internal class GenPH : AbstractGenCmd
   private Str toSlotType(Def entity, Def tag)
   {
     type := toTagType(tag)
+    if (ns.fitsChoice(tag)) type = toChoiceTypeName(tag)
     if (isOptional(entity, tag)) type += "?"
     return type
   }
@@ -617,12 +622,6 @@ internal class GenPH : AbstractGenCmd
     name == "liquid"     ||
     name == "gas"        ||
     name == "airQuality"
-  }
-
-  private Bool skipEntityTag(Str name)
-  {
-    // TODO: chillerMechanism and vavAirCircuit have conjuncts
-    name ==  "chillerMechanism" || name ==  "vavAirCircuit"
   }
 
 //////////////////////////////////////////////////////////////////////////
