@@ -160,7 +160,7 @@ class SpecTest : AbstractXetoTest
 
     verifyIsa("ph.points::AirFlowSensor", "sys::And", true)
     verifyIsa("ph.points::AirFlowSensor", "ph::Point", true)
-    verifyIsa("ph.points::AirFlowSensor", "ph.points::Sensor", true)
+    verifyIsa("ph.points::AirFlowSensor", "ph::Sensor", true)
     verifyIsa("ph.points::AirFlowSensor", "sys::Dict", true, false)
 
     verifyIsa("ph.points::ZoneAirTempSensor", "ph::Point", true)
