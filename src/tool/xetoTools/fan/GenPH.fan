@@ -88,9 +88,13 @@ internal class GenPH : AbstractGenCmd
 
   private Void writeTags()
   {
-    // get all the entity defs
+    // get all the tags (skip abstract choice like liquid)
     tags := Def[,]
-    ns.eachDef |def| { if (def.symbol.type.isTag) tags.add(def) }
+    ns.eachDef |def|
+    {
+      if (def.symbol.type.isTag && !isAbstractChoice(def.name))
+        tags.add(def)
+    }
     tags.sort |a, b| { a.name <=> b.name }
 
     write(`tags.xeto`) |out|
@@ -292,7 +296,7 @@ internal class GenPH : AbstractGenCmd
     {
       if (isInherited(entity, tag)) return
       if (ns.fitsChoice(tag)) return // TODO for now
-      if (skip(tag.name)) return
+      if (skipEntityTag(tag.name)) return
       tags.add(tag)
       maxNameSize = maxNameSize.max(tag.name.size)
     }
@@ -490,11 +494,11 @@ internal class GenPH : AbstractGenCmd
   private Void writeChoiceTaxonomyLevel(OutStream out, Def def, Str baseName)
   {
     specName := toChoiceTypeName(def)
-    tag := toChoiceTaxonomyTag(def)
+    tags := toChoiceTaxonomyTags(def)
 
     writeDoc(out, def)
     out.print("$specName: $baseName")
-    out.print(" { $tag }")
+    if (tags != null) out.print(" { $tags }")
     out.printLine
     out.printLine
 
@@ -506,10 +510,15 @@ internal class GenPH : AbstractGenCmd
     }
   }
 
-  private Str? toChoiceTaxonomyTag(Def def)
+  private Str? toChoiceTaxonomyTags(Def def)
   {
     sym := def.symbol
-    if (sym.type.isTag) return sym.name
+    if (sym.type.isTag)
+    {
+      name := sym.name
+      if (isAbstractChoice(name)) return null
+      return name
+    }
 
     part1 := def.symbol.part(0)
     part2 := def.symbol.part(1)
@@ -600,8 +609,17 @@ internal class GenPH : AbstractGenCmd
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Skip tag
-  private Bool skip(Str name)
+  private Bool isAbstractChoice(Str name)
+  {
+    name == "phenomenon" ||
+    name == "substance"  ||
+    name == "fluid"      ||
+    name == "liquid"     ||
+    name == "gas"        ||
+    name == "airQuality"
+  }
+
+  private Bool skipEntityTag(Str name)
   {
     // TODO: chillerMechanism and vavAirCircuit have conjuncts
     name ==  "chillerMechanism" || name ==  "vavAirCircuit"

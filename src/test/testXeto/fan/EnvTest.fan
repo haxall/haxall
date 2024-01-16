@@ -159,6 +159,10 @@ class EnvTest : AbstractXetoTest
       ["id":Ref("ph::op:about"), "spec":Ref("ph::Op"), "op":m, "noSideEffects":m])
     verifyFeatureInstance(ph.instance("op:pointWrite"),
       ["id":Ref("ph::op:pointWrite"), "spec":Ref("ph::Op"), "op":m])
+
+    // hot water
+    hotWater := ph.type("HotWater")
+    verifyEq(hotWater.slots.names.join(","), "water,hot")
   }
 
   Void verifyFeatureInstance(Dict dict, Str:Obj expect)
