@@ -119,8 +119,16 @@ internal class CheckErrors : Step
 
   Void checkSlotVal(ASpec slot)
   {
+    // slots of type Obj can have either scalar or slots (but not both)
+    if (isObj(slot.ctype))
+    {
+      // this actually should never happen because we don't parse this case
+      if (slot.val != null && slot.slots != null)
+        err("Cannot have both scalar value and slots", slot.loc)
+    }
+
     // scalars cannot have slots
-    if (slot.ctype.isScalar)
+    else if (slot.ctype.isScalar)
     {
       if (slot.slots != null) err("Scalar slot '$slot.name' of type '$slot.ctype' cannot have slots", slot.loc)
     }

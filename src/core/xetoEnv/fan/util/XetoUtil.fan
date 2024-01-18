@@ -186,7 +186,7 @@ const class XetoUtil
     if (meta.has("abstract") && opts.missing("abstract")) throw Err("Spec is abstract: $spec.qname")
 
     if (spec.isNone) return null
-    if (spec.isScalar) return instantiateScalar(env, spec, meta)
+    if (spec.isScalar || spec.has("val")) return instantiateScalar(env, spec, meta)
     if (spec === env.sys.dict) return env.dict0
     if (spec.isList) return env.list0
 

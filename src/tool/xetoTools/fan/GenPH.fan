@@ -122,7 +122,6 @@ internal class GenPH : AbstractGenCmd
     if (n == kind.name.decapitalize) return true
 
     if (n == "doc") return true
-    if (n == "enum") return true
     if (n == "is") return true
     if (n == "mandatory") return true
     if (n == "notInherited") return true
@@ -144,7 +143,7 @@ internal class GenPH : AbstractGenCmd
     if (n == "tags") return true
 
     // don't generate tags like fluid, liquid
-    if (isAbstractChoice(def.name)) return true
+    if (isAbstract(def.name)) return true
 
     // don't generate direct choices such as a ductSection
     if (ns.supertypes(def).first?.name == "choice") return true
@@ -208,6 +207,7 @@ internal class GenPH : AbstractGenCmd
     {
       entities.each |def|
       {
+        if (excludeEntity(def)) return
         writeDoc(out, def)
         name := toEntityName(def)
         type := toEntityType(def)
@@ -280,18 +280,34 @@ internal class GenPH : AbstractGenCmd
     }
   }
 
+  private Bool excludeEntity(Def def)
+  {
+    def.name == "pointGroup" || ns.supertypes(def).first.name == "pointGroup"
+  }
+
   private Bool isAbstract(Str name)
   {
     // not sure how to best handle this, but for now just
     // consider these tags as abstract
     name == "airHandlingEquip" ||
-    name == "airQualityZonePoints" ||
     name == "airTerminalUnit" ||
     name == "conduit" ||
     name == "coil" ||
     name == "entity" ||
     name == "radiantEquip" ||
-    name == "verticalTransport"
+    name == "verticalTransport" ||
+
+    name == "pointGroup" ||
+    name == "hvacZonePoints" ||
+    name == "lightingZonePoints" ||
+    name == "airQualityZonePoints" ||
+
+    name == "phenomenon" ||
+    name == "substance"  ||
+    name == "fluid"      ||
+    name == "liquid"     ||
+    name == "gas"        ||
+    name == "airQuality"
   }
 
   private Void writeEntitySlots(OutStream out, Def entity)
@@ -521,7 +537,7 @@ internal class GenPH : AbstractGenCmd
     if (sym.type.isTag)
     {
       name := sym.name
-      if (isAbstractChoice(name)) return null
+      if (isAbstract(name)) return null
       return name
     }
 
@@ -614,15 +630,7 @@ internal class GenPH : AbstractGenCmd
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  private Bool isAbstractChoice(Str name)
-  {
-    name == "phenomenon" ||
-    name == "substance"  ||
-    name == "fluid"      ||
-    name == "liquid"     ||
-    name == "gas"        ||
-    name == "airQuality"
-  }
+
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
