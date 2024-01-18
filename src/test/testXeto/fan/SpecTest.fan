@@ -295,6 +295,9 @@ class SpecTest : AbstractXetoTest
     verifySlots(phx.type("AirFlowPoint"), afSlots)
     verifySlots(phx.type("AirFlowSensor"), afsSlots)
     verifySlots(phx.type("DischargeAirFlowSensor"), dafsSlots)
+
+    cond := phx.type("WeatherCondPoint")
+    verifyEq(cond.slot("enum")["val"], haystack::Ref("ph::WeatherCondEnum"))
   }
 
   Void verifySlots(Spec t, Str[] expected)
