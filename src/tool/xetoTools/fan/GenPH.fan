@@ -166,7 +166,7 @@ internal class GenPH : AbstractGenCmd
   {
     if (tag.name == "tz")          return "TimeZone"
     if (tag.name == "weatherCond") return "WeatherCondEnum"
-    if (tag.name == "daytime")     return "DaytimeEnum"
+    if (tag.name == "daytime")     return "WeatherDaytimeEnum"
     return tag.name.capitalize
   }
 
@@ -382,7 +382,7 @@ internal class GenPH : AbstractGenCmd
       if (!def.symbol.type.isTag) return
       enums.add(def)
     }
-    enums.sort |a, b| { a.name <=> b.name }
+    enums.sort |a, b| { toEnumTypeName(a) <=> toEnumTypeName(b) }
 
     write(`enums.xeto`) |out|
     {
