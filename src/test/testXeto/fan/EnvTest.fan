@@ -525,7 +525,7 @@ class EnvTest : AbstractXetoTest
       ["id":Ref("x"), "dis":"G36ReheatVav", "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m],
       ["id":Ref("x"), "dis":"ZoneAirTempSensor",      "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "temp":m],
       ["id":Ref("x"), "dis":"ZoneAirTempEffectiveSp", "point":m, "sp":m,      "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "effective":m, "temp":m],
-      ["id":Ref("x"), "dis":"ZoneOccupiedSensor",     "point":m, "sensor":m,  "kind":"Bool",   "equipRef":x, "enum":"unoccupied,occupied", "zone":m, "occupied":m],
+      ["id":Ref("x"), "dis":"ZoneOccupiedSensor",     "point":m, "sensor":m,  "kind":"Bool",   "equipRef":x, "enum":Ref("ph.points::OccupiedEnum"), "zone":m, "occupied":m],
       ["id":Ref("x"), "dis":"ZoneCo2Sensor",          "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"ppm", "zone":m, "air":m, "co2":m, "concentration":m],
       ["id":Ref("x"), "dis":"HotWaterValveCmd",       "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "hot":m, "water":m, "valve":m],
       ["id":Ref("x"), "dis":"DischargeDamperCmd",     "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "discharge":m, "air":m, "damper":m],
@@ -554,13 +554,14 @@ class EnvTest : AbstractXetoTest
     Dict[] actual := env.instantiate(spec, env.dict1("graph", m))
     baseId := (Ref)actual[0]->id
     verifyEq(actual.size, expect.size)
+    // TrioWriter(Env.cur.out).writeAllDicts(actual)
     actual.each |a, i|
     {
       e := expect[i]
       e = e.map |v, n|
       {
         if (n == "id") return a->id
-        if (v is Ref) return baseId
+        if (v is Ref && n != "enum") return baseId
         return v
       }
       verifyDictEq(a, e)
