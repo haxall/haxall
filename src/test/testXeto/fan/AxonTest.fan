@@ -452,6 +452,16 @@ class AxonTest : HxTest
     verifyFits(Str<|fits("ok", CurStatus)|>, true)
     verifyFits(Str<|fits("bool", Kind)|>, false)
     verifyFits(Str<|fits("Bool", Kind)|>, true)
+    verifyFits(Str<|fits({discharge}, Choice)|>, false)
+    verifyFits(Str<|fits({discharge}, DuctSection)|>, false)
+    verifyFits(Str<|fits({discharge}, DischargeDuct)|>, true)
+    // TODO: to fit these, we need to namespace to look for all subtypes
+    // verifyFits(Str<|fits({water}, Substance)|>, true)
+    // verifyFits(Str<|fits({water}, Fluid)|>, true)
+    verifyFits(Str<|fits({water}, Water)|>, true)
+    verifyFits(Str<|fits({water}, HotWater)|>, false)
+    verifyFits(Str<|fits({hot, water}, HotWater)|>, true)
+    verifyFits(Str<|fits({hot, water}, ChilledWater)|>, false)
 
     libs = ["ph", "ph.points"]
     verifyFits(Str<|fits({id:@x}, DischargeAirTempSensor)|>, false)
@@ -467,6 +477,7 @@ class AxonTest : HxTest
 
   Void verifyFits(Str expr, Bool expect)
   {
+    // echo("-- $expr => $expect")
     verifyEval(expr, expect)
   }
 
@@ -555,7 +566,7 @@ class AxonTest : HxTest
 
     grid := (Grid)eval("readAll(equip).sortDis.fitsMatchAll")
     verifyFitsMatchAll(grid, ahu,   ["ph::Ahu"])
-    verifyFitsMatchAll(grid, elec,  ["ph::Ahu", "ph::ElecMeter"])
+    verifyFitsMatchAll(grid, elec,  ["ph::Ahu", "ph::Elec", "ph::ElecMeter"])
     verifyFitsMatchAll(grid, meter, ["ph::Ahu", "ph::Meter"])
     verifyFitsMatchAll(grid, rtu,   ["ph::Rtu"])
   }

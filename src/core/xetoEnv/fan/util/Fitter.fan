@@ -103,6 +103,7 @@ internal class Fitter
   private Bool fitsStruct(Dict dict, Spec type)
   {
     slots := type.slots
+    if (type.isChoice && slots.isEmpty) return false
     match := true
     slots.each |slot|
     {
