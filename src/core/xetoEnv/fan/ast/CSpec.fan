@@ -107,8 +107,8 @@ mixin CSpec : CNode
   ** Inherits from 'sys::Marker' without considering And/Or
   abstract Bool isMarker()
 
-  ** Inherits from 'sys::Seq' without considering And/Or
-  abstract Bool isSeq()
+  ** Inherits from 'sys::Choice' without considering And/Or
+  abstract Bool isChoice()
 
   ** Inherits from 'sys::Dict' without considering And/Or
   abstract Bool isDict()

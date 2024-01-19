@@ -131,7 +131,7 @@ class EnumTest : AbstractXetoTest
   Void verifyEnumFlags(Spec enum)
   {
     verifyEq(enum.isScalar, true)
-    verifyEq(enum.isSeq,    false)
+    verifyEq(enum.isChoice, false)
     verifyEq(enum.isDict,   false)
     verifyEq(enum.isList,   false)
     verifyEq(enum.isQuery,  false)

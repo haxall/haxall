@@ -202,7 +202,7 @@ const class MSpecFlags
   static const Int maybe  := 0x0001
   static const Int marker := 0x0002
   static const Int scalar := 0x0004
-  static const Int seq    := 0x0008
+  static const Int choice := 0x0008
   static const Int dict   := 0x0010
   static const Int list   := 0x0020
   static const Int query  := 0x0040
@@ -323,7 +323,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override final Bool isMaybe()  { m.hasFlag(MSpecFlags.maybe) }
   override final Bool isScalar() { m.hasFlag(MSpecFlags.scalar) }
   override final Bool isMarker() { m.hasFlag(MSpecFlags.marker) }
-  override final Bool isSeq()    { m.hasFlag(MSpecFlags.seq) }
+  override final Bool isChoice() { m.hasFlag(MSpecFlags.choice) }
   override final Bool isDict()   { m.hasFlag(MSpecFlags.dict) }
   override final Bool isList()   { m.hasFlag(MSpecFlags.list) }
   override final Bool isQuery()  { m.hasFlag(MSpecFlags.query) }

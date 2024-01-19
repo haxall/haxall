@@ -165,6 +165,14 @@ class SpecTest : AbstractXetoTest
 
     verifyIsa("ph.points::ZoneAirTempSensor", "ph::Point", true)
     verifyIsa("ph.points::ZoneAirTempSensor", "sys::Dict", true, false)
+
+    verifyIsa("ph::DuctSection",   "sys::Choice",    true)
+    verifyIsa("ph::DischargeDuct", "sys::Choice",    true)
+    verifyIsa("ph::Phenomenon",    "sys::Choice",    true)
+    verifyIsa("ph::Fluid",         "sys::Choice",    true)
+    verifyIsa("ph::Fluid",         "ph::Phenomenon", true)
+    verifyIsa("ph::PipeFluid",     "sys::Choice",    true)
+    verifyIsa("ph::PipeFluid",     "ph::Fluid",      true)
   }
 
   Void verifyIsa(Str an, Str bn, Bool expect, Bool expectMethod := expect)

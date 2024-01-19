@@ -135,8 +135,8 @@ const mixin Spec : Dict
   ** Inherits from 'sys::Marker' without considering And/Or
   @NoDoc abstract Bool isMarker()
 
-  ** Inherits from 'sys::Seq' without considering And/Or
-  @NoDoc abstract Bool isSeq()
+  ** Inherits from 'sys::Choice' without considering And/Or
+  @NoDoc abstract Bool isChoice()
 
   ** Inherits from 'sys::Dict' without considering And/Or
   @NoDoc abstract Bool isDict()
