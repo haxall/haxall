@@ -64,6 +64,12 @@ const class XetoUtil
     return s.toStr
   }
 
+  ** Convert "fooBarBaz" or "FooBarBaz" to "foo-bar-baz".
+  static Str camelToDashed(Str name)
+  {
+    camelToDotted(name, '-')
+  }
+
   ** Convert "foo.bar.baz" to "fooBarBaz"
   static Str dottedToCamel(Str name, Int dot := '.')
   {
@@ -79,6 +85,28 @@ const class XetoUtil
         s.addChar(char)
     }
     return s.toStr
+  }
+
+  ** Convert "foo-bar-baz" to "fooBarBaz"
+  static Str dashedToCamel(Str name)
+  {
+    dottedToCamel(name, '-')
+  }
+
+  ** Convert "foo.bar::Baz" to simple name "Baz" or null if no "::"
+  static Str? qnameToName(Str qname)
+  {
+    colon := qname.indexr(":")
+    if (colon == null || colon < 2 || colon+1 >= qname.size || qname[colon-1] != ':') return null
+    return qname[colon+1..-1]
+  }
+
+  ** Convert "foo.bar::Baz" to lib name "foo.bar" or null if no "::"
+  static Str? qnameToLib(Str qname)
+  {
+    colon := qname.index(":")
+    if (colon == null || colon < 1 || colon+2 >= qname.size || qname[colon+1] != ':') return null
+    return qname[0..<colon]
   }
 
 //////////////////////////////////////////////////////////////////////////

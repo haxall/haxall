@@ -33,6 +33,7 @@ class UtilTest : Test
     verifyEq(XetoUtil.dottedToCamel(".foo.bar.baz."), "FooBarBaz")
     verifyEq(XetoUtil.dottedToCamel("a.b.c.d"), "aBCD")
     verifyEq(XetoUtil.dottedToCamel("foo-bar-baz", '-'), "fooBarBaz")
+    verifyEq(XetoUtil.dashedToCamel("foo-bar-baz"), "fooBarBaz")
 
     // camel -> dotted
     verifyEq(XetoUtil.camelToDotted("x"), "x")
@@ -43,8 +44,32 @@ class UtilTest : Test
     verifyEq(XetoUtil.camelToDotted("aBCD"), "a.b.c.d")
     verifyEq(XetoUtil.camelToDotted("FooBar"), "foo.bar")
     verifyEq(XetoUtil.camelToDotted("FooBar", '-'), "foo-bar")
-  }
+    verifyEq(XetoUtil.camelToDashed("FooBar"), "foo-bar")
 
+    // qnameToName
+    verifyEq(XetoUtil.qnameToName("foo::Bar"), "Bar")
+    verifyEq(XetoUtil.qnameToName("foo.bar::Baz"), "Baz")
+    verifyEq(XetoUtil.qnameToName("foo.bar::x"), "x")
+    verifyEq(XetoUtil.qnameToName("foo.bar"), null)
+    verifyEq(XetoUtil.qnameToName("foo.bar:"), null)
+    verifyEq(XetoUtil.qnameToName("foo.bar::"), null)
+    verifyEq(XetoUtil.qnameToName("foo.bar:Baz"), null)
+    verifyEq(XetoUtil.qnameToName(":Y"), null)
+    verifyEq(XetoUtil.qnameToName("::Y"), null)
+    verifyEq(XetoUtil.qnameToName("x::Y"), "Y")
+
+    // qnameToLib
+    verifyEq(XetoUtil.qnameToLib("foo::Bar"), "foo")
+    verifyEq(XetoUtil.qnameToLib("foo.bar::Baz"), "foo.bar")
+    verifyEq(XetoUtil.qnameToLib("foo.bar::x"), "foo.bar")
+    verifyEq(XetoUtil.qnameToLib("foo.bar"), null)
+    verifyEq(XetoUtil.qnameToLib("foo.bar:"), null)
+    verifyEq(XetoUtil.qnameToLib("foo.bar::"), null)
+    verifyEq(XetoUtil.qnameToLib("foo.bar:Baz"), null)
+    verifyEq(XetoUtil.qnameToLib(":Y"), null)
+    verifyEq(XetoUtil.qnameToLib("::Y"), null)
+    verifyEq(XetoUtil.qnameToLib("x::Y"), "x")
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // NameTable
