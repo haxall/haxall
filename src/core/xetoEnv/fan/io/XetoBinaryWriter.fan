@@ -65,15 +65,16 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private Void writeRegistry(Lib[] libs)
   {
+    writeVarInt(libs.size)
     libs.each |lib|
     {
       writeRegistryEntry(lib)
     }
-    writeVarInt(0)
   }
 
   private Void writeRegistryEntry(XetoLib lib)
   {
+    writeI4(magicReg)
     writeName(lib.m.nameCode)
     writeVarInt(lib.depends.size)
     lib.depends.each |d| { writeName(names.toCode(d.name)) }

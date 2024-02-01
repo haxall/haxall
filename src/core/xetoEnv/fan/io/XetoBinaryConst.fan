@@ -21,6 +21,7 @@ mixin XetoBinaryConst
   static const Int version     := 0x2023_08
   static const Int magicLib    := 0x6c69627b   // lib{
   static const Int magicLibEnd := 0x7d6c6962   // }lib
+  static const Int magicReg    := 0x7265673a   // reg:
 
   static const Int ctrlNull         := 1
   static const Int ctrlMarker       := 2
