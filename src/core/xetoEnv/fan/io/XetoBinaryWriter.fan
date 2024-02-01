@@ -16,6 +16,7 @@ using haystack::Number
 using haystack::Ref
 using haystack::Coord
 using haystack::Symbol
+using haystack::Grid
 
 **
 ** Writer for Xeto binary encoding of specs and data
@@ -170,6 +171,7 @@ class XetoBinaryWriter : XetoBinaryConst
     if (type === Time#)     return writeTime(val)
     if (type === Uri#)      return writeUri(val)
     if (type === Coord#)    return writeCoord(val)
+    if (val is Grid)        return writeGrid(val)
     if (val is Symbol)      return writeSymbol(val)
 
     // non-haystack
@@ -370,6 +372,26 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
     list.each |x|
     {
       writeVal(x)
+    }
+  }
+
+  Void writeGrid(Grid grid)
+  {
+    write(ctrlGrid)
+
+    cols := grid.cols
+    writeVarInt(cols.size)
+    writeVarInt(grid.size)
+
+    writeDict(grid.meta)
+    cols.each |col|
+    {
+      writeStr(col.name)
+      writeDict(col.meta)
+    }
+    grid.each |row|
+    {
+      cols.each |c| { writeVal(row.val(c)) }
     }
   }
 

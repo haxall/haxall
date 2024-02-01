@@ -79,6 +79,13 @@ class IOTest : AbstractXetoTest
     verifyIO(b)
     verifyIO([a, b])
     verifyIO(["foo", n(123), a, b])
+
+    g := Etc.makeMapsGrid(["meta":"val"], [
+        ["dis":"A", "foo":n(123)],
+        ["dis":"B", "bar":m]
+      ])
+    g = g.addColMeta("dis", ["disMeta":m])
+    verifyIO(g)
   }
 
   Void verifyIO(Obj? val)
@@ -86,7 +93,7 @@ class IOTest : AbstractXetoTest
     // binary format
     buf := Buf()
     XetoBinaryWriter(server, buf.out).writeVal(val)
-    //echo("--> $val [$buf.size bytes]")
+    // echo("--> $val [$buf.size bytes]")
     x := XetoBinaryReader(client, buf.flip.in).readVal
     verifyValEq(val, x)
 
@@ -101,6 +108,9 @@ class IOTest : AbstractXetoTest
       else
         val = Obj[,].addAll(list)
     }
+
+    // for now don't try to map grids to Xeto text format...
+    if (val is Grid) return
 
     // xeto text format
     buf.clear

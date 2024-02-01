@@ -17,6 +17,8 @@ using haystack::Ref
 using haystack::Coord
 using haystack::Symbol
 using haystack::Dict
+using haystack::Grid
+using haystack::GridBuilder
 
 **
 ** Reader for Xeto binary encoding of specs and data
@@ -230,6 +232,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlGenericDict:  return readGenericDict
       case ctrlSpecRef:      return readSpecRef // resolve to Spec later
       case ctrlList:         return readList
+      case ctrlGrid:         return readGrid
       case ctrlVersion:      return Version.fromStr(readUtf)
       case ctrlCoord:        return readCoord
       case ctrlSymbol:       return readSymbol
@@ -310,6 +313,29 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     acc.capacity = size
     size.times |i| { acc.add(readVal) }
     return acc
+  }
+
+  private Grid readGrid()
+  {
+    numCols := readVarInt
+    numRows := readVarInt
+
+    gb := GridBuilder()
+    gb.capacity = numRows
+    gb.setMeta(readDict)
+    for (c:=0; c<numCols; ++c)
+    {
+      gb.addCol(readVal, readDict)
+    }
+    for (r:=0; r<numRows; ++r)
+    {
+      cells := Obj?[,]
+      cells.size = numCols
+      for (c:=0; c<numCols; ++c)
+        cells[c] = readVal
+      gb.addRow(cells)
+    }
+    return gb.toGrid
   }
 
   override Int readName()
