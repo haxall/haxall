@@ -41,7 +41,17 @@ const class MFactories
     if (cur.any |loader| { loader.typeof.qname == qname })
       return
 
-    loader := Type.find(qname).make
+    SpecFactoryLoader? loader := null
+    try
+    {
+      loader = Type.find(qname).make
+    }
+    catch (Err e)
+    {
+      echo("ERROR: XetoSpecLaoder cannot be created: $qname")
+      return
+    }
+
     while (true)
     {
       oldList := loaders
