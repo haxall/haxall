@@ -70,7 +70,8 @@ const class FolioUtil
     {
       if (val is Str)
       {
-        if (!Etc.isTagName(val)) throw InvalidTagValErr("Invalid 'name' tag value ${val->toCode}")
+        // allow name tag be dotted lib names too
+        if (!Etc.isTagName(val) && !Etc.isTagName(val.toStr.replace(".", "_"))) throw InvalidTagValErr("Invalid 'name' tag value ${val->toCode}")
       }
       else if (val isnot Remove)
       {
