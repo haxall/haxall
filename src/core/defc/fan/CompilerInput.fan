@@ -239,8 +239,11 @@ internal const class PodLibInput : LibInput
     if (libFile == null) return c.err("No lib.trio found", CLoc(pod.name))
 
     meta := parseLibMetaFile(c, libFile) as Dict
-    if (meta is Dict && ((Dict)meta).missing("version"))
-      meta = Etc.dictSet(meta, "version", pod.version.toStr)
+    if (meta != null)
+    {
+      if (meta.missing("version")) meta = Etc.dictSet(meta, "version", pod.version.toStr)
+      if (meta.missing("baseUri")) meta = Etc.dictSet(meta, "baseUri", `/def/${meta->def}`)
+    }
     return meta
   }
 
