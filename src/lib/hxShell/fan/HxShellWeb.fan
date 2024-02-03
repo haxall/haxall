@@ -16,13 +16,13 @@ using hx
 **
 const class HxShellWeb : HxLibWeb
 {
-  new make(HxShellLib lib) : super(lib)
+  new make(HxLib lib) : super(lib)
   {
     this.lib   = lib
     this.title = "" + rt.platform.productName + " Shell"
   }
 
-  override const HxShellLib lib
+  override const HxLib lib
 
   const Str title
 
