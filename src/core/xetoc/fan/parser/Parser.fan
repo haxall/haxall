@@ -25,6 +25,7 @@ internal class Parser
     this.step = step
     this.compiler = step.compiler
     this.doc = doc
+    this.isDataFile = doc.nodeType == ANodeType.dataDoc
     this.sys = step.sys
     this.fileLoc = fileLoc
     this.tokenizer = Tokenizer(in) { it.keepComments = true }
@@ -61,6 +62,8 @@ internal class Parser
   ** The input stream is guaranteed to be closed upon exit.
   private Void parseDataFile(ADataDoc doc)
   {
+    skipNewlines
+
     // parse one scalar/instance
     data := parseTopData
     doc.root = data
@@ -661,6 +664,14 @@ internal class Parser
   {
     if (expected != null) verify(expected)
 
+    doConsume
+
+    while (isDataFile && cur === Token.comment)
+      doConsume
+  }
+
+  private Void doConsume()
+  {
     cur      = peek
     curVal   = peekVal
     curLine  = peekLine
@@ -670,6 +681,7 @@ internal class Parser
     peekVal  = tokenizer.val
     peekLine = tokenizer.line
     peekCol  = tokenizer.col
+
   }
 
   private Err err(Str msg, FileLoc loc := curToLoc)
@@ -689,6 +701,7 @@ internal class Parser
   private Str[]? autoNames
   private ADoc doc
   private ALib? libRef
+  private Bool isDataFile
 
   private Token cur      // current token
   private Obj? curVal    // current token value
