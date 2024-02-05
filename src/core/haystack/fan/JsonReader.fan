@@ -145,6 +145,7 @@ class HaysonParser : JsonParser
 
       name := colMap["name"]
       if (name == null) throw ParseErr("JSON col $i missing 'name' field: $colMap")
+      if (safeNames) name = Etc.toTagName(name)
 
       metaObj := colMap["meta"]
       if (metaObj == null) return gb.addCol(name)
