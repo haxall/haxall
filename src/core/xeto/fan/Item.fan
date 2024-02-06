@@ -53,7 +53,12 @@ mixin Item
 
   ** Call a method function by name.  Raise exception if name
   ** does not map to a function slot.
-  abstract Obj? call(Str name, Obj?[] args)
+  virtual Obj? call(Str name, Obj?[] args) { throw UnsupportedErr() }
+
+  ** Call a method function by name asynchronously.
+  ** Invoke the given callback when the call completes with
+  ** error or result.
+  virtual Void callAsync(Str name, Obj?[] args, |Err?,Obj?| cb) { throw UnsupportedErr() }
 
 }
 

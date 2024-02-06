@@ -63,9 +63,11 @@ public abstract class NameDict extends FanObj implements Dict
 
   public final void set(String name, Object val) { throw ReadonlyErr.make(); }
 
-  public final void remove(String name){ throw ReadonlyErr.make(); }
+  public final void remove(String name) { throw ReadonlyErr.make(); }
 
   public final Object call(String name, List args) { throw UnsupportedErr.make(); }
+
+  public final void callAsync(String name, List args, Func cb) { throw UnsupportedErr.make(); }
 
   public final long nameAt(long i) { return nameAt((int)i); }
 

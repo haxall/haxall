@@ -82,11 +82,6 @@ const mixin Dict : xeto::Dict
   override Void remove(Str name) { throw ReadonlyErr() }
 
   **
-  ** Raise UnsupportedErr.
-  **
-  override Obj? call(Str name, Obj?[] args) { throw UnsupportedErr() }
-
-  **
   ** Get the 'id' tag as a Ref or raise CastErr/UnknownNameErr
   **
   virtual Ref id()

@@ -58,9 +58,6 @@ native final const class NameDict  : Dict
   ** Raise ReadonlyErr
   override Void remove(Str name)
 
-  ** Raise UnsupportedErr
-  override Obj? call(Str name, Obj?[] args)
-
   ** Get the value for given name code
   @NoDoc Obj? getByCode(Int code)
 

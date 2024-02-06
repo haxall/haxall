@@ -60,8 +60,9 @@ internal class GenFantom : XetoCmd
     if (build == null) throw Err("Root of build file must be a dict")
 
     // read flags
-    genSetters = build["setters"] as Bool ?: false
-    genDicts   = build["dicts"]   as Bool ?: false
+    genSetters      = build["setters"] as Bool ?: false
+    genDicts        = build["dicts"]   as Bool ?: false
+    genAsyncMethods = build["asyncMethods"] as Bool ?: false
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -205,21 +206,38 @@ internal class GenFantom : XetoCmd
 
   private Void genMethod(Spec slot)
   {
+    isAsync := genAsyncMethods
     returns := slot.slot("returns")
-    w("  ").slotFacets(slot).w("virtual ").slotTypeSig(returns).sp.w(slot.name).w("(")
 
-    args := StrBuf()
+    // @NoDoc virtual
+    w("  ").slotFacets(slot).w("virtual ")
+
+    // return type
+    if (isAsync)
+      w("Void")
+    else
+      slotTypeSig(returns)
+
+    // name
+    sp.w(slot.name)
+
+    // params (a, b, [cb])
+    w("(")
+    paramNames := Str[,]
     eachParam(slot) |param, i|
     {
-      if (i > 0) { w(", "); args.add(", ") }
-      slotTypeSig(param).w(" ").w(param.name)
-      args.add(param.name)
+      paramNames.add(param.name)
+      comma.slotTypeSig(param).w(" ").w(param.name)
     }
-    if (args.isEmpty) args.add(",")
-
+    if (isAsync) comma.w("|Err?, ").slotTypeSig(returns, true).w("| cb")
     w(")").nl
+
+    callName := isAsync ? "callAsync" : "call"
+    args := paramNames.isEmpty ? "," : paramNames.join(", ")
+    cbArg := isAsync ? ", cb" : ""
+
     w("  {").nl
-    w("    call(\"").w(slot.qname).w("\", [").w(args).w("])").nl
+    w("    ").w(callName).w("(\"").w(slot.name).w("\", [").w(args).w("]").w(cbArg).w(")").nl
     w("  }").nl
   }
 
@@ -242,7 +260,7 @@ internal class GenFantom : XetoCmd
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  private This slotTypeSig(Spec slot)
+  private This slotTypeSig(Spec slot, Bool forceMaybe := false)
   {
     if (slot.type.isList)
     {
@@ -252,7 +270,7 @@ internal class GenFantom : XetoCmd
     {
       w(slot.type.name)
     }
-    if (slot.isMaybe) w("?")
+    if (slot.isMaybe || forceMaybe) w("?")
     return this
   }
 
@@ -284,6 +302,12 @@ internal class GenFantom : XetoCmd
   private This sp() { buf.addChar(' '); return this  }
 
   private This nl() { buf.addChar('\n'); return this }
+
+  private This comma()
+  {
+    if (buf[-1] != '(') buf.add(", ")
+    return this
+  }
 
   private Void genOpen()
   {
@@ -326,11 +350,12 @@ internal class GenFantom : XetoCmd
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private File? outDir        // output directory for generated fantom source files
-  private Dict? build         // parsed build.xeto instructions
-  private Bool genSetters     // gen setters flag
-  private Bool genDicts       // gen dicts flag
-  private Spec[]? types       // type specs to generate
-  private StrBuf? buf         // current file contents without header
-  private Int numRewrote      // number of files we rewrote that changed
+  private File? outDir          // output directory for generated fantom source files
+  private Dict? build           // parsed build.xeto instructions
+  private Bool genSetters       // gen setters flag
+  private Bool genDicts         // gen dicts flag
+  private Bool genAsyncMethods  // gen asyncMethods flag
+  private Spec[]? types         // type specs to generate
+  private StrBuf? buf           // current file contents without header
+  private Int numRewrote        // number of files we rewrote that changed
 }
