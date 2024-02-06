@@ -61,6 +61,7 @@ internal class GenFantom : XetoCmd
 
     // read flags
     genSetters = build["setters"] as Bool ?: false
+    genDicts   = build["dicts"]   as Bool ?: false
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -99,29 +100,76 @@ internal class GenFantom : XetoCmd
     name := type.name
     file := outDir + `${name}.fan`
 
-    genOpen
 
     //w("//force").nl
+    genOpen
+    genTypeMixin(type)
+    genTypeDict(type)
+    genClose(file)
+  }
 
+  private Bool hasDict(Spec type)
+  {
+    genDicts && type.missing("abstract")
+  }
+
+  private Void genTypeMixin(Spec type)
+  {
+    name := type.name
+    baseName := type.base.name
+    if (baseName == "Dict") baseName = "Item"
+
+    w("**").nl
     fandoc(type, 0)
-    w("mixin ").w(name)
-    if (type.base.qname != "sys::Dict")
-    {
-      w(" : ").w(type.base.name)
-    }
+    w("**").nl
+    w("@Js").nl
+    w("mixin ").w(name).w(" : ").w(baseName)
     w(" {").nl
     nl
+
+    // dict constructor
+    if (hasDict(type))
+    {
+      w("  ** Constructor to wrap dict data").nl
+      w("  static new makeDict(Dict dict)").nl
+      w("  {").nl
+      w("    ").w(name).w("Dict(dict)").nl
+      w("  }").nl
+      nl
+    }
+
+    // slot getter/setters/calls
     type.slotsOwn.each |slot|
     {
       if (includeSlot(slot))  genSlot(slot)
     }
+
     w("}").nl
-    genClose(file)
+  }
+
+  private Void genTypeDict(Spec type)
+  {
+    if (!hasDict(type)) return
+
+    name := type.name
+
+    section("${name}Dict", '*')
+
+    w("**").nl
+    w("** Dict implementation for $name").nl
+    w("**").nl
+    w("@NoDoc @Js").nl
+    w("const class ").w(name).w("Dict").w(": ItemDict, ").w(name).nl
+    w("{").nl
+    w("  new make(Dict dict) : super(dict) {}").nl
+    w("}").nl
   }
 
   private Bool includeSlot(Spec slot)
   {
     if (slot.type.isMarker) return false
+    if (slot.name == "id") return false // will move this to Item
+    if (slot.name == "dis") return false // need to make Dict.dis no params
     return true
   }
 
@@ -137,17 +185,38 @@ internal class GenFantom : XetoCmd
 
   private Void genField(Spec slot)
   {
-    w("  abstract ").typeSig(slot.type).sp.w(slot.name).nl
+    w("  ").slotFacets(slot).w("virtual ").typeSig(slot.type).sp.w(slot.name).nl
+    w("  {").nl
+    w("    get { get(\"").w(slot.name).w("\") }").nl
+    w("    set { set(\"").w(slot.name).w("\", it) }").nl
+    w("  }").nl
+
   }
 
   private Void genGetter(Spec slot)
   {
-    w("  abstract ").typeSig(slot.type).sp.w(slot.name).w("()").nl
+    w("  ").slotFacets(slot).w("virtual ").typeSig(slot.type).sp.w(slot.name).w("()").nl
+    w("  {").nl
+    w("    get(\"").w(slot.name).w("\")").nl
+    w("  }").nl
+  }
+
+  private This slotFacets(Spec slot)
+  {
+    if (slot.has("nodoc")) w("@NoDoc ")
+    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  private This typeSig(Spec type)
+  {
+    w(type.name)
+    if (type.isMaybe) w("?")
+    return this
+  }
 
   private This fandoc(Spec spec, Int indent)
   {
@@ -162,10 +231,13 @@ internal class GenFantom : XetoCmd
     return this
   }
 
-  private This typeSig(Spec type)
+  private This section(Str title, Int char)
   {
-    w(type.name)
-    if (type.isMaybe) w("?")
+    nl
+    75.times { buf.addChar(char) }; nl
+    w("** ").w(title).nl
+    75.times { buf.addChar(char) }; nl
+    nl
     return this
   }
 
@@ -178,6 +250,7 @@ internal class GenFantom : XetoCmd
   private Void genOpen()
   {
     this.buf = StrBuf()
+    w("using xeto::Item").nl
     w("using haystack").nl
     nl
   }
@@ -203,11 +276,11 @@ internal class GenFantom : XetoCmd
 
     // strip header
     lines := file.readAllLines
-    if (lines.size < 5) return true
-    if (!lines[3].trim.isEmpty) return true
+    if (lines.size < 4) return true
+    if (!lines[1].trim.isEmpty) return true
 
     // compare old body to new body
-    oldBody := lines[4..-1].join("\n")
+    oldBody := lines[2..-1].join("\n")
     return oldBody.trim != newBody.trim
   }
 
@@ -218,6 +291,7 @@ internal class GenFantom : XetoCmd
   private File? outDir        // output directory for generated fantom source files
   private Dict? build         // parsed build.xeto instructions
   private Bool genSetters     // gen setters flag
+  private Bool genDicts       // gen dicts flag
   private Spec[]? types       // type specs to generate
   private StrBuf? buf         // current file contents without header
   private Int numRewrote      // number of files we rewrote that changed
