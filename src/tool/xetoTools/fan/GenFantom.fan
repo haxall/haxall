@@ -124,8 +124,8 @@ internal class GenFantom : XetoCmd
     fandoc(type, 0)
     w("**").nl
     w("@Js").nl
-    w("mixin ").w(name).w(" : ").w(baseName)
-    w(" {").nl
+    w("mixin ").w(name).w(" : ").w(baseName).nl
+    w("{").nl
     nl
 
     // dict constructor
