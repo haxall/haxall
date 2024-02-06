@@ -22,7 +22,7 @@ public abstract class NameDict extends FanObj implements Dict
   public final Type typeof() { return typeof; }
   private static final Type typeof = Type.find("xeto::NameDict");
 
-  public Ref id()
+  public Ref _id()
   {
     Object val = get(table.idCode, null);
     if (val != null) return (Ref)val;
@@ -60,6 +60,12 @@ public abstract class NameDict extends FanObj implements Dict
     if (val != null) return val;
     throw UnresolvedErr.make(name);
   }
+
+  public final void set(String name, Object val) { throw ReadonlyErr.make(); }
+
+  public final void remove(String name){ throw ReadonlyErr.make(); }
+
+  public final Object call(String name, List args) { throw UnsupportedErr.make(); }
 
   public final long nameAt(long i) { return nameAt((int)i); }
 
@@ -144,7 +150,7 @@ public abstract class NameDict extends FanObj implements Dict
 
     public final long size() { return 0L; }
 
-    public final Ref id() { throw UnresolvedErr.make("id"); }
+    public final Ref _id() { throw UnresolvedErr.make("id"); }
 
     public final Object get(String name) { return null; }
 

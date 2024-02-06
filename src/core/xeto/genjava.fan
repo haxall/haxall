@@ -59,7 +59,7 @@ class Gen : BuildScript
               return XetoEnv.cur().dictSpec();
             }
 
-            public Ref id()
+            public Ref _id()
             {
               Object val = get(table.idCode, null);
               if (val != null) return (Ref)val;
@@ -181,7 +181,7 @@ class Gen : BuildScript
 
               public final long size() { return 0L; }
 
-              public final Ref id() { throw UnresolvedErr.make("id"); }
+              public final Ref _id() { throw UnresolvedErr.make("id"); }
 
               public final Object get(String name) { return null; }
 

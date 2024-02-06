@@ -25,7 +25,7 @@ native final const class NameDict  : Dict
   override Bool isEmpty()
 
   ** Get the 'id' tag as a Ref or raise exception
-  Ref id()
+  override Ref _id()
 
   ** Get the value for the given name or 'def' if name not mapped
   @Operator override Obj? get(Str name, Obj? def := null)
@@ -51,6 +51,15 @@ native final const class NameDict  : Dict
 
   ** Map values to another NameDict of the exact same size
   override This map(|Obj val, Str name->Obj| f)
+
+  ** Raise ReadonlyErr
+  override Void set(Str name, Obj? val)
+
+  ** Raise ReadonlyErr
+  override Void remove(Str name)
+
+  ** Raise UnsupportedErr
+  override Obj? call(Str name, Obj?[] args)
 
   ** Get the value for given name code
   @NoDoc Obj? getByCode(Int code)

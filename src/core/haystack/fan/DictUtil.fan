@@ -457,6 +457,24 @@ abstract const class WrapDict : Dict
 }
 
 **************************************************************************
+** ItemDict
+**************************************************************************
+
+@NoDoc @Js
+abstract const class ItemDict : Dict
+{
+  new make(Dict wrapped) { this.wrapped = wrapped }
+  const Dict wrapped
+  @Operator override Obj? get(Str n, Obj? def := null) { wrapped.get(n, def) }
+  override Bool isEmpty() { wrapped.isEmpty }
+  override Bool has(Str n) { wrapped.has(n) }
+  override Bool missing(Str n) { wrapped.missing(n) }
+  override Void each(|Obj, Str| f) { wrapped.each(f) }
+  override Obj? eachWhile(|Obj, Str->Obj?| f) { wrapped.eachWhile(f) }
+  override Obj? trap(Str n, Obj?[]? a := null) { wrapped.trap(n, a) }
+}
+
+**************************************************************************
 ** DictHashKey
 **************************************************************************
 

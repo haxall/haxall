@@ -24,7 +24,7 @@ const mixin Lib : Dict
 
   ** Return "lib:{name}" as identifier
   ** This is a temp shim until we move 'haystack::Dict' fully into Xeto.
-  abstract Ref _id()
+  abstract override Ref _id()
 
   ** Dotted name of the library
   abstract Str name()

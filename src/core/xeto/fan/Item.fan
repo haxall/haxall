@@ -1,24 +1,27 @@
 //
-// Copyright (c) 2023, Brian Frank
+// Copyright (c) 2024, Brian Frank
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   16 Jan 2023  Brian Frank  Creation
+//   5 Feb 2024  Brian Frank  Creation
 //
 
 **
-** Dict is an immutable map of name/value pairs.
-** Create instances via `XetoEnv.dict`.
+** Item is a map of name/value pairs that may be mutable or immutable.
 **
 @Js
-const mixin Dict : Item
+mixin Item
 {
-/*
+
+  // Get the 'id' tag as a Ref or raise exception
+  // TODO: this can't be id yet without breaking backward binary compatibility
+  abstract Ref _id()
+
   ** Return if the there are no name/value pairs
-  abstract override Bool isEmpty()
+  abstract Bool isEmpty()
 
   ** Get the value for the given name or 'def' if name not mapped
-  @Operator abstract override Obj? get(Str name, Obj? def := null)
+  @Operator abstract Obj? get(Str name, Obj? def := null)
 
   ** Return true if this dictionary contains given name
   abstract Bool has(Str name)
@@ -38,11 +41,19 @@ const mixin Dict : Item
   ** Get the value mapped by the given name.  If it is not
   ** mapped to a non-null value, then throw an UnknownNameErr.
   override abstract Obj? trap(Str name, Obj?[]? args := null)
-*/
 
-  ** Create a new instance of this dict with the same names,
-  ** but apply the specified closure to generate new values.
-  abstract This map(|Obj val, Str name->Obj| f)
+  ** Set a name/value pair with the given value.  If the value
+  ** is null, then this is a conveniece for remove.  If this instance
+  ** is not mutable then raise ReadonlyErr.
+  abstract Void set(Str name, Obj? val)
+
+  ** Remove a slot by name. If slot is not found, then silently ignore
+  ** this call. If this instanceis not mutable then raise ReadonlyErr.
+  abstract Void remove(Str name)
+
+  ** Call a method function by name.  Raise exception if name
+  ** does not map to a function slot.
+  abstract Obj? call(Str name, Obj?[] args)
 
 }
 

@@ -47,7 +47,7 @@ def: ^writeMaxTime
 is: ^duration
 tagOn: ^connTuning
 doc:
-  Maximum time between writes used to send perioid writes.
+  Maximum time between writes used to send periodic writes.
   See `docHaxall::ConnTuning#writeMaxTime`.
 --------------------------------------------------------------------------
 def: ^writeMinTime

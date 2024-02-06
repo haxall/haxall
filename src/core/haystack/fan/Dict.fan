@@ -72,9 +72,32 @@ const mixin Dict : xeto::Dict
   }
 
   **
+  ** Raise ReadonlyErr.
+  **
+  override Void set(Str name, Obj? val) { throw ReadonlyErr() }
+
+  **
+  ** Raise ReadonlyErr.
+  **
+  override Void remove(Str name) { throw ReadonlyErr() }
+
+  **
+  ** Raise UnsupportedErr.
+  **
+  override Obj? call(Str name, Obj?[] args) { throw UnsupportedErr() }
+
+  **
   ** Get the 'id' tag as a Ref or raise CastErr/UnknownNameErr
   **
   virtual Ref id()
+  {
+    get("id", null) ?: throw UnknownNameErr("id")
+  }
+
+  **
+  ** Temp shim until we break backward compatibility
+  **
+  override xeto::Ref _id()
   {
     get("id", null) ?: throw UnknownNameErr("id")
   }

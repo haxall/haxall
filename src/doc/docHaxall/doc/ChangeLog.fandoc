@@ -9,6 +9,7 @@
 *Build 3.1.10 (working)*
 - Dict.spec removed, must use XetoEnv.specOf
 - Dict.map added
+- Dict now extends Item (set, remove, call)
 - Xeto global slots
 - Xeto ph-gen redesign
 - Xeto enum types

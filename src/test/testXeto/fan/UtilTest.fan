@@ -234,11 +234,11 @@ class UtilTest : Test
     // id
     if (expect["id"] != null)
     {
-      verifySame(d.id, expect["id"])
+      verifySame(d._id, expect["id"])
     }
     else
     {
-      verifyErr(UnresolvedErr#) { d.id }
+      verifyErr(UnresolvedErr#) { d._id }
     }
 
     // get, getByCode, has, missing, trap

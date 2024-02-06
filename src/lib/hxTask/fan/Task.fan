@@ -336,12 +336,12 @@ const class Task : Actor, Observer, HxTask
     // execute expr within our job context
     Actor.locals[Etc.cxActorLocalsKey] = cx
     try
-      return call(expr, cx, msg)
+      return doEval(expr, cx, msg)
     finally
       Actor.locals.remove(Etc.cxActorLocalsKey)
   }
 
-  private Obj? call(Expr expr, HxContext cx, Obj? msg)
+  private Obj? doEval(Expr expr, HxContext cx, Obj? msg)
   {
     if (expr.type === ExprType.var) expr = cx.findTop(expr.toStr)
     if (expr is Fn) return ((Fn)expr).call(cx, [msg])
