@@ -338,6 +338,10 @@ internal class GenPH : AbstractGenCmd
     type := toTagType(tag)
     if (ns.fitsChoice(tag)) type = toChoiceTypeName(tag)
     if (isOptional(entity, tag)) type += "?"
+    if (entity.name == "airHandlingEquip")
+    {
+      if (tag.name == "heatingProcess" || tag.name == "coolingProcess") type += " <multiChoice>"
+    }
     return type
   }
 
