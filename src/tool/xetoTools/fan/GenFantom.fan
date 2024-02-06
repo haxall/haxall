@@ -176,7 +176,9 @@ internal class GenFantom : XetoCmd
   private Void genSlot(Spec slot)
   {
     fandoc(slot, 2)
-    if (genSetters && slot.missing("readonly"))
+    if (slot.type.isFunc)
+      genMethod(slot)
+    else if (genSetters && slot.missing("readonly"))
       genField(slot)
     else
       genGetter(slot)
@@ -185,7 +187,7 @@ internal class GenFantom : XetoCmd
 
   private Void genField(Spec slot)
   {
-    w("  ").slotFacets(slot).w("virtual ").typeSig(slot.type).sp.w(slot.name).nl
+    w("  ").slotFacets(slot).w("virtual ").slotTypeSig(slot).sp.w(slot.name).nl
     w("  {").nl
     w("    get { get(\"").w(slot.name).w("\") }").nl
     w("    set { set(\"").w(slot.name).w("\", it) }").nl
@@ -195,10 +197,39 @@ internal class GenFantom : XetoCmd
 
   private Void genGetter(Spec slot)
   {
-    w("  ").slotFacets(slot).w("virtual ").typeSig(slot.type).sp.w(slot.name).w("()").nl
+    w("  ").slotFacets(slot).w("virtual ").slotTypeSig(slot).sp.w(slot.name).w("()").nl
     w("  {").nl
     w("    get(\"").w(slot.name).w("\")").nl
     w("  }").nl
+  }
+
+  private Void genMethod(Spec slot)
+  {
+    returns := slot.slot("returns")
+    w("  ").slotFacets(slot).w("virtual ").slotTypeSig(returns).sp.w(slot.name).w("(")
+
+    args := StrBuf()
+    eachParam(slot) |param, i|
+    {
+      if (i > 0) { w(", "); args.add(", ") }
+      slotTypeSig(param).w(" ").w(param.name)
+      args.add(param.name)
+    }
+    if (args.isEmpty) args.add(",")
+
+    w(")").nl
+    w("  {").nl
+    w("    call(\"").w(slot.qname).w("\", [").w(args).w("])").nl
+    w("  }").nl
+  }
+
+  private Void eachParam(Spec slot, |Spec, Int| f)
+  {
+    i := 0
+    slot.slots.each |x|
+    {
+      if (x.name != "returns") f(x, i++)
+    }
   }
 
   private This slotFacets(Spec slot)
@@ -211,10 +242,17 @@ internal class GenFantom : XetoCmd
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  private This typeSig(Spec type)
+  private This slotTypeSig(Spec slot)
   {
-    w(type.name)
-    if (type.isMaybe) w("?")
+    if (slot.type.isList)
+    {
+      slotTypeSig(slot.of).w("[]")
+    }
+    else
+    {
+      w(slot.type.name)
+    }
+    if (slot.isMaybe) w("?")
     return this
   }
 
