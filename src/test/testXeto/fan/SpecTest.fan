@@ -135,6 +135,8 @@ class SpecTest : AbstractXetoTest
     verifyIsa("sys::Str", "sys::Int",    false)
     verifyIsa("sys::Str", "sys::Dict",   false)
     verifyIsa("sys::Str", "sys::And",    false)
+    verifyIsa("sys::Func", "sys::Func",  true)
+    verifyIsa("sys::Str",  "sys::Func",   false)
 
     verifyIsa("sys::Int", "sys::Obj",    true)
     verifyIsa("sys::Int", "sys::Scalar", true)

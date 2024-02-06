@@ -206,6 +206,7 @@ const class MSpecFlags
   static const Int dict   := 0x0010
   static const Int list   := 0x0020
   static const Int query  := 0x0040
+  static const Int func   := 0x0080
 
   static Str flagsToStr(Int flags)
   {
@@ -327,6 +328,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override final Bool isDict()   { m.hasFlag(MSpecFlags.dict) }
   override final Bool isList()   { m.hasFlag(MSpecFlags.list) }
   override final Bool isQuery()  { m.hasFlag(MSpecFlags.query) }
+  override final Bool isFunc()   { m.hasFlag(MSpecFlags.func) }
 
   override final Bool isAst() { false }
 

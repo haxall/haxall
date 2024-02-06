@@ -215,6 +215,7 @@ internal class InheritSlots : Step
         case "Dict":   flags = flags.or(MSpecFlags.dict)
         case "List":   flags = flags.or(MSpecFlags.list)
         case "Query":  flags = flags.or(MSpecFlags.query)
+        case "Func":   flags = flags.or(MSpecFlags.func)
       }
     }
     return flags

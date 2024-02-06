@@ -90,6 +90,7 @@ internal class RSpec : CSpec, NameDictReader
   override Bool isList()   { hasFlag(MSpecFlags.list) }
   override Bool isMaybe()  { hasFlag(MSpecFlags.maybe) }
   override Bool isQuery()  { hasFlag(MSpecFlags.query) }
+  override Bool isFunc()   { hasFlag(MSpecFlags.func) }
   Bool hasFlag(Int mask) { flags.and(mask) != 0 }
 
   // NameDictReader

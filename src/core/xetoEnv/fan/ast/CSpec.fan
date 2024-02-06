@@ -118,6 +118,9 @@ mixin CSpec : CNode
 
   ** Inherits from 'sys::Query' without considering And/Or
   abstract Bool isQuery()
+
+  ** Inherits from 'sys::Func' without considering And/Or
+  abstract Bool isFunc()
 }
 
 **************************************************************************
