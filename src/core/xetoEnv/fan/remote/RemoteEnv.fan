@@ -17,12 +17,18 @@ using xeto
 @Js
 const class RemoteEnv : MEnv
 {
-  internal new make(XetoTransport transport, NameTable names, MRegistry registry, |This| f) : super(names, registry, f)
+  ** Boot a RemoteEnv from the given boot message input stream
+  static RemoteEnv boot(InStream in, RemoteLibLoader? libLoader)
   {
-    this.transport = transport
+    XetoBinaryIO.makeClient.reader(in).readBoot(libLoader)
   }
 
-  const XetoTransport transport
+  internal new make(XetoBinaryIO io, NameTable names, MRegistry registry, |This| f) : super(names, registry, f)
+  {
+    this.io = io
+  }
+
+  const XetoBinaryIO io
 
   override Bool isRemote() { true }
 

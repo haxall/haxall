@@ -19,14 +19,14 @@ using haystack::Ref
 @Js
 class IOTest : AbstractXetoTest
 {
-  TestTransport? client
-  TestTransport? server
+  TestClient? client
+  TestServer? server
 
   Void test()
   {
     env.lib("ph")
-    server = TestTransport.makeServer(env)
-    client = TestTransport.makeClient(server)
+    server = TestServer(env)
+    client = TestClient(server)
     client.bootRemoteEnv
 
     verifyIO(null)
@@ -92,9 +92,9 @@ class IOTest : AbstractXetoTest
   {
     // binary format
     buf := Buf()
-    XetoBinaryWriter(server, buf.out).writeVal(val)
+    server.io.writer(buf.out).writeVal(val)
     // echo("--> $val [$buf.size bytes]")
-    x := XetoBinaryReader(client, buf.flip.in).readVal
+    x := client.io.reader(buf.flip.in).readVal
     verifyValEq(val, x)
 
     // Xeto format does not support null

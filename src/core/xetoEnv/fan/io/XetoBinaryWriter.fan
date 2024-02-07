@@ -32,11 +32,10 @@ class XetoBinaryWriter : XetoBinaryConst
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(XetoTransport transport, OutStream out)
+  internal new make(XetoBinaryIO io, OutStream out)
   {
-    this.transport = transport
-    this.names = transport.names
-    this.maxNameCode = transport.maxNameCode
+    this.names = io.names
+    this.maxNameCode = io.maxNameCode
     this.out = out
   }
 
@@ -470,7 +469,6 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const XetoTransport transport
   private const NameTable names
   private const Int maxNameCode
   private OutStream out

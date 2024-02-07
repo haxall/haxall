@@ -57,8 +57,8 @@ class AbstractXetoTest : HaystackTest
   RemoteEnv initRemote()
   {
     local := XetoEnv.cur
-    server := TestTransport.makeServer(local)
-    client := TestTransport.makeClient(server)
+    server := TestServer(local)
+    client := TestClient(server)
 
     envRef = client.bootRemoteEnv
 
@@ -90,7 +90,7 @@ class AbstractXetoTest : HaystackTest
 }
 
 **************************************************************************
-**
+** TextContext
 **************************************************************************
 
 @Js
@@ -102,30 +102,48 @@ class TextContext : XetoContext
 }
 
 **************************************************************************
-** TestTransport
+** TestServer
 **************************************************************************
 
 @Js
-const class TestTransport : XetoTransport, RemoteLibLoader
+const class TestServer
 {
-  new makeServer(MEnv env) : super(env) { envRef.val = env }
+  new make(MEnv env)
+  {
+    this.env = env
+    this.io  = XetoBinaryIO.makeServer(env)
+  }
 
-  MEnv env() { envRef.val }
+  const MEnv env
+  const XetoBinaryIO io
+}
+
+**************************************************************************
+** TestClient
+**************************************************************************
+
+@Js
+const class TestClient : RemoteLibLoader
+{
+  new make(TestServer server) { this.server = server }
+
+  const TestServer server
+
+  RemoteEnv? env() { envRef.val }
   const AtomicRef envRef := AtomicRef()
 
-  new makeClient(TestTransport server) : super.makeClient() { this.server = server }
-
-  const TestTransport? server
+  XetoBinaryIO io() { env.io }
 
   RemoteEnv bootRemoteEnv()
   {
     buf := Buf()
     libs := server.env.registry.list.findAll { it.isLoaded }.map { it.get }
-    XetoBinaryWriter(server, buf.out).writeBoot(server.env, libs)
+    server.io.writer(buf.out).writeBoot(server.env, libs)
     // echo("--- init remote bootstrap size = $buf.size bytes ---")
-    remoteEnv := XetoBinaryReader(this, buf.flip.in).readBoot(this)
-    envRef.val = remoteEnv
-    return remoteEnv
+
+    env := RemoteEnv.boot(buf.flip.in, this)
+    envRef.val = env
+    return env
   }
 
   override Void loadLib(Str name, |Err?, Lib?| f)
@@ -134,10 +152,10 @@ const class TestTransport : XetoTransport, RemoteLibLoader
     if (serverLib == null) { f(UnknownLibErr(name), null); return }
 
     buf := Buf()
-    XetoBinaryWriter(server, buf.out).writeLib(serverLib)
+    server.io.writer(buf.out).writeLib(serverLib)
     echo("   --- load lib $name size = $buf.size bytes ---")
 
-    clientLib := XetoBinaryReader(this, buf.flip.in).readLib(env)
+    clientLib := io.reader(buf.flip.in).readLib(env)
     f(null, clientLib)
   }
 }

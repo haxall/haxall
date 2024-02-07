@@ -35,11 +35,10 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(XetoTransport transport, InStream in)
+  internal new make(XetoBinaryIO io, InStream in)
   {
-    this.transport = transport
-    this.names = transport.names
-    this.maxNameCode = transport.maxNameCode
+    this.io = io
+    this.names = io.names
     this.in = in
   }
 
@@ -47,13 +46,13 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  RemoteEnv readBoot(RemoteLibLoader? libLoader)
+  internal RemoteEnv readBoot(RemoteLibLoader? libLoader)
   {
     verifyU4(magic, "magic")
     verifyU4(version, "version")
     readNameTable
     registry := readRegistry(libLoader)
-    return RemoteEnv(transport, names, registry) |env|
+    return RemoteEnv(io, names, registry) |env|
     {
       sys := readLib(env)
       registry.map["sys"].set(sys)
@@ -78,7 +77,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       acc.add(readRegistryEntry)
     }
 
-    return RemoteRegistry(transport, acc, libLoader)
+    return RemoteRegistry(acc, libLoader)
   }
 
   private RemoteRegistryEntry readRegistryEntry()
@@ -430,9 +429,8 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const XetoTransport transport
+  private const XetoBinaryIO io
   private const NameTable names
-  private const Int maxNameCode
   private InStream in
 }
 
