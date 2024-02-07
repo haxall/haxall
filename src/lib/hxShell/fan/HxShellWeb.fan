@@ -31,7 +31,7 @@ const class HxShellWeb : HxLibWeb
     cx := rt.user.authenticate(req, res)
     if (cx == null) return
 
-    if (!cx.user.isAdmin) return res.sendErr(403)
+    if (!cx.user.isSu) return res.sendErr(403)
 
     route := req.modRel.path.getSafe(0)
     switch (route)
