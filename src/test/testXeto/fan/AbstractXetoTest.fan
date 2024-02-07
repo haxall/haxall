@@ -6,6 +6,7 @@
 //   1 Mar 2023  Brian Frank  Creation
 //
 
+using concurrent
 using util
 using xeto
 using xeto::Dict
@@ -107,7 +108,10 @@ class TextContext : XetoContext
 @Js
 const class TestTransport : XetoTransport
 {
-  new makeServer(MEnv env) : super(env) {}
+  new makeServer(MEnv env) : super(env) { envRef.val = env }
+
+  MEnv env() { envRef.val }
+  const AtomicRef envRef := AtomicRef()
 
   new makeClient(TestTransport server) : super.makeClient() { this.server = server }
 
@@ -117,9 +121,11 @@ const class TestTransport : XetoTransport
   {
     buf := Buf()
     libs := server.env.registry.list.findAll { it.isLoaded }.map { it.get }
-    XetoBinaryWriter(server, buf.out).writeBoot(libs)
+    XetoBinaryWriter(server, buf.out).writeBoot(server.env, libs)
     // echo("--- init remote bootstrap size = $buf.size bytes ---")
-    return XetoBinaryReader(this, buf.flip.in).readBoot
+    remoteEnv := XetoBinaryReader(this, buf.flip.in).readBoot
+    envRef.val = remoteEnv
+    return remoteEnv
   }
 
   override Void loadLib(Str name, |Err?, Lib?| f)
@@ -131,7 +137,7 @@ const class TestTransport : XetoTransport
     XetoBinaryWriter(server, buf.out).writeLib(serverLib)
     echo("   --- load lib $name size = $buf.size bytes ---")
 
-    clientLib := XetoBinaryReader(this, buf.flip.in).readLib
+    clientLib := XetoBinaryReader(this, buf.flip.in).readLib(env)
     f(null, clientLib)
   }
 }

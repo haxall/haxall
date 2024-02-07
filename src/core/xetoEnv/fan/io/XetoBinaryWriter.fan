@@ -44,7 +44,7 @@ class XetoBinaryWriter : XetoBinaryConst
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  Void writeBoot(Lib[] libs)
+  Void writeBoot(XetoEnv env, Lib[] libs)
   {
     writeI4(magic)
     writeI4(version)
@@ -465,8 +465,6 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
     if (val <= 0x1fff_ffff) return out.writeI4(val.or(0xc000_0000))
     return out.write(0xe0).writeI8(val)
   }
-
-  MEnv env() { transport.env }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

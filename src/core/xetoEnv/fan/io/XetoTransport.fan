@@ -19,7 +19,6 @@ const class XetoTransport
   ** Constructor to wrap given local environment
   new makeServer(MEnv env)
   {
-    this.envRef = env
     this.names = env.names
     this.maxNameCode = names.maxCode
   }
@@ -27,14 +26,9 @@ const class XetoTransport
   ** Constructor to load RemoteEnv
   new makeClient()
   {
-    this.envRef = null             // set in XetoBinaryReader.readBoot
     this.names = NameTable()       // start off with empty name table
-    this.maxNameCode = Int.defVal  // can safely use every name mapped from server
+    this.maxNameCode = Int.maxVal  // can safely use every name mapped from server
   }
-
-  ** Environment for the transport
-  MEnv env() { envRef }
-  internal const MEnv? envRef
 
   ** Shared name table up to maxNameCode
   const NameTable names

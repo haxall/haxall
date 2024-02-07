@@ -9,6 +9,7 @@
 using concurrent
 using util
 using xeto
+using haystack::Etc
 using haystack::Marker
 using haystack::NA
 using haystack::Remove
@@ -48,16 +49,13 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   RemoteEnv readBoot()
   {
-    if (transport.envRef != null) throw Err("Already booted")
-
     verifyU4(magic, "magic")
     verifyU4(version, "version")
     readNameTable
     registry := readRegistry
     return RemoteEnv(transport, names, registry) |env|
     {
-      XetoTransport#envRef->setConst(transport, env)
-      sys := readLib
+      sys := readLib(env)
       registry.map["sys"].set(sys)
       verifyU4(magicEnd, "magicEnd")
     }
@@ -104,14 +102,14 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 // Lib
 //////////////////////////////////////////////////////////////////////////
 
-  XetoLib readLib()
+  XetoLib readLib(RemoteEnv env)
   {
     lib := XetoLib()
 
     verifyU4(magicLib, "magicLib")
     nameCode  := readName
     meta      := readMeta
-    loader    := RemoteLoader(transport.env, nameCode, meta)
+    loader    := RemoteLoader(env, nameCode, meta)
     readTops(loader)
     readInstances(loader)
     verifyU4(magicLibEnd, "magicLibEnd")
@@ -231,7 +229,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlDate:         return readDate
       case ctrlTime:         return readTime
       case ctrlDateTime:     return readDateTime
-      case ctrlEmptyDict:    return transport.env.dict0
+      case ctrlEmptyDict:    return Etc.dict0
       case ctrlNameDict:     return readNameDict
       case ctrlGenericDict:  return readGenericDict
       case ctrlSpecRef:      return readSpecRef // resolve to Spec later
