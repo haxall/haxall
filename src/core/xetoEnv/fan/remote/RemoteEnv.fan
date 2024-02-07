@@ -55,4 +55,14 @@ const class RemoteEnv : MEnv
   }
 }
 
+**************************************************************************
+** RemoteLibLoader
+**************************************************************************
+
+** Handler to async load a remote lib
+@Js
+const mixin RemoteLibLoader
+{
+  abstract Void loadLib(Str name, |Err?, Lib?| f)
+}
 

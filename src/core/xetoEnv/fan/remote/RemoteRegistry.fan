@@ -17,11 +17,12 @@ using haystack::UnknownLibErr
 @Js
 internal const class RemoteRegistry : MRegistry
 {
-  new make(XetoTransport transport, RemoteRegistryEntry[] list)
+  new make(XetoTransport transport, RemoteRegistryEntry[] list, RemoteLibLoader? libLoader)
   {
     this.transport = transport
     this.list = list
     this.map  = Str:RemoteRegistryEntry[:].addList(list) { it.name }
+    this.libLoader = libLoader
   }
 
   override RemoteRegistryEntry? get(Str qname, Bool checked := true)
@@ -85,9 +86,11 @@ internal const class RemoteRegistry : MRegistry
 
   private Void doLoadAsync(Str[] names, Int index, |Err?, Lib?| f)
   {
+    if (libLoader == null) throw UnsupportedErr("No RemoteLibLoader installed")
+
     // load from transport
     name := names[index]
-    transport.loadLib(name) |err, lib|
+    libLoader.loadLib(name) |err, lib|
     {
       // handle error
       if (err != null)
@@ -132,6 +135,7 @@ internal const class RemoteRegistry : MRegistry
   }
 
   const XetoTransport transport
+  const RemoteLibLoader? libLoader
   override const RemoteRegistryEntry[] list
   const Str:RemoteRegistryEntry map
 }

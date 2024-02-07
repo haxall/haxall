@@ -47,12 +47,12 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  RemoteEnv readBoot()
+  RemoteEnv readBoot(RemoteLibLoader? libLoader)
   {
     verifyU4(magic, "magic")
     verifyU4(version, "version")
     readNameTable
-    registry := readRegistry
+    registry := readRegistry(libLoader)
     return RemoteEnv(transport, names, registry) |env|
     {
       sys := readLib(env)
@@ -68,7 +68,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       names.add(in.readUtf)
   }
 
-  private RemoteRegistry readRegistry()
+  private RemoteRegistry readRegistry(RemoteLibLoader? libLoader)
   {
     num := readVarInt
     acc := RemoteRegistryEntry[,]
@@ -78,7 +78,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       acc.add(readRegistryEntry)
     }
 
-    return RemoteRegistry(transport, acc)
+    return RemoteRegistry(transport, acc, libLoader)
   }
 
   private RemoteRegistryEntry readRegistryEntry()

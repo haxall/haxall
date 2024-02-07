@@ -36,10 +36,4 @@ const class XetoTransport
   ** Max name code (inclusive) that safe to use
   const Int maxNameCode
 
-  ** Asynchronously load a library
-  virtual Void loadLib(Str name, |Err?, Lib?| f)
-  {
-    throw UnsupportedErr()
-  }
-
 }

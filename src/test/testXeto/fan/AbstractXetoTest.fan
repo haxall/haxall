@@ -106,7 +106,7 @@ class TextContext : XetoContext
 **************************************************************************
 
 @Js
-const class TestTransport : XetoTransport
+const class TestTransport : XetoTransport, RemoteLibLoader
 {
   new makeServer(MEnv env) : super(env) { envRef.val = env }
 
@@ -123,7 +123,7 @@ const class TestTransport : XetoTransport
     libs := server.env.registry.list.findAll { it.isLoaded }.map { it.get }
     XetoBinaryWriter(server, buf.out).writeBoot(server.env, libs)
     // echo("--- init remote bootstrap size = $buf.size bytes ---")
-    remoteEnv := XetoBinaryReader(this, buf.flip.in).readBoot
+    remoteEnv := XetoBinaryReader(this, buf.flip.in).readBoot(this)
     envRef.val = remoteEnv
     return remoteEnv
   }
