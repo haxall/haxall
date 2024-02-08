@@ -189,6 +189,32 @@ class SpecTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Choice Of
+//////////////////////////////////////////////////////////////////////////
+
+  Void testChoiceOf()
+  {
+    verifyChoiceOf(["discharge":m], "ph::DuctSection", "ph::DischargeDuct")
+    verifyChoiceOf(["foo":m], "ph::DuctSection", null)
+    verifyChoiceOf(["elec":m], "ph::Phenomenon", "ph::Elec")
+    verifyChoiceOf(["elec":m, "dc":m], "ph::Phenomenon", "ph::DcElec")
+    verifyChoiceOf(["naturalGas":m], "ph::Phenomenon", "ph::NaturalGas")
+    verifyChoiceOf(["naturalGas":m], "ph::Liquid", null)
+    verifyChoiceOf(["water":m], "ph::Fluid", "ph::Water")
+    verifyChoiceOf(["water":m, "hot":m], "ph::Fluid", "ph::HotWater")
+
+    // TODO
+    //verifyChoiceOf(["water":m, "hot":m, "naturalGas":m], "ph::Fluid", null)
+  }
+
+  Void verifyChoiceOf(Str:Obj tags, Str choice, Str? expect)
+  {
+    actual := env.choiceOf(env.dictMap(tags), env.spec(choice), false)
+    //echo("--> $tags choiceOf $choice => $actual ?= $expect")
+    verifyEq(actual?.qname, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Maybe
 //////////////////////////////////////////////////////////////////////////
 

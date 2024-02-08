@@ -165,6 +165,54 @@ const class XetoUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
+// ChoiceOf
+//////////////////////////////////////////////////////////////////////////
+
+  ** Implementation of XetoEnv.choiceOf
+  static Spec? choiceOf(MEnv env, Dict instance, Spec choice, Bool checked)
+  {
+    // TODO: need namespace, but for now only use declared lib
+    ns := choice.lib
+    acc := Spec[,]
+    ns.types.each |x|
+    {
+      if (!x.isa(choice)) return
+      if (x.slots.isEmpty) return
+      if (hasChoiceMarkers(instance, x)) acc.add(x)
+    }
+
+    // TODO: for now just compare on number of tags so that {hot, water}
+    // trumps {water}. But that isn't correct because {naturalGas, hot, water}
+    // would actually be incorrect with multiple matches
+    if (acc.size > 1)
+    {
+      maxSize := 0
+      acc.each |XetoSpec x| { maxSize = maxSize.max(x.m.slots.size) }
+      acc = acc.findAll |XetoSpec x->Bool| { x.m.slots.size == maxSize }
+    }
+
+    // if exactly one
+    if (acc.size == 1) return acc.first
+
+    if (checked)
+    {
+      if (acc.isEmpty) throw Err("Choice not implemented by instance: $choice")
+      else throw Err("Multiple choices implemented by instance: $choice $acc")
+    }
+    return null
+  }
+
+  ** Return if instance has all the given tags of the given choice
+  static Bool hasChoiceMarkers(Dict instance, Spec choice)
+  {
+    r := choice.slots.eachWhile |slot|
+    {
+      instance.has(slot.name) ? null : "break"
+    }
+    return r == null
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Derive
 //////////////////////////////////////////////////////////////////////////
 

@@ -22,6 +22,8 @@ const final class MSlots : SpecSlots
 
   const NameDict map
 
+  Int size() { map.size }
+
   override Bool isEmpty()
   {
     map.isEmpty

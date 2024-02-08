@@ -177,6 +177,13 @@ const abstract class XetoEnv
   ** Return if spec 'a' fits spec 'b' based on structural typing.
   @NoDoc abstract Bool specFits(Spec a, Spec b, Dict? opts := null)
 
+  ** Given an instance and choice base type, return the selected choice.
+  ** If instance has zero or more than one choice, then return null or
+  ** raise an exception based on the checked flag.
+  ** Example:
+  **   choiceOf({hot, water, point}, Fluid)  >>  HotWater
+  @NoDoc abstract Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
+
   ** Query a relationship using the given subject and query spec.
   ** Call given callback function until it returns non-null and return
   ** as overall result of the method.

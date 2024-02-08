@@ -16,6 +16,7 @@
 - Xeto sys::TimeZone enum
 - Xeto sys::Unit enum
 - Number and unit quantity validation
+- New funcs: choiceOf
 - TODO: rename tops to specs
 
 *Build 3.1.9 (1 Dec 2023)*

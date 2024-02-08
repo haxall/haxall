@@ -231,6 +231,11 @@ abstract const class MEnv : XetoEnv
       return ExplainFitter(this, cx, opts, explain).valFits(val, spec)
   }
 
+  override Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
+  {
+    XetoUtil.choiceOf(this, instance, choice, checked)
+  }
+
   override Obj? queryWhile(XetoContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
   {
     // TODO: redesign to use eachWhile

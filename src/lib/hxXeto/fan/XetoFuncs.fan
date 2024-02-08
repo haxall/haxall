@@ -477,6 +477,22 @@ const class XetoFuncs
   }
 
   **
+  ** Given a choice spec, return the most specific choice subtype
+  ** implemented by the instance.  If the instance implements zero more
+  ** than one subtype of the choice, then return null or raise an example
+  ** based on the checked flag.  The instance may be anything accepted
+  ** by the `toRec()` function.
+  **
+  ** Example:
+  **   choiceOf({discharge, duct}, DuctSection)  >>  DischargeDuct
+  **   choiceOf({hot, water}, Fluid)             >>  HotWater
+  **
+  @Axon static Spec? choiceOf(Obj instance, Spec choice, Bool checked := true)
+  {
+    curContext.usings.env.choiceOf(Etc.toRec(instance), choice, checked)
+  }
+
+  **
   ** Return if the given instance fits the spec via structural typing.
   ** Use `specFits()` to check structural typing between two types.
   ** Also see `is()` and `specIs()` to check via nominal typing.
