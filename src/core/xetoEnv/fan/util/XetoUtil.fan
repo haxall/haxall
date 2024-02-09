@@ -26,21 +26,31 @@ const class XetoUtil
   ** Return if valid lib name
   static Bool isLibName(Str n)
   {
-    if (n.isEmpty) return false
-    if (!n[0].isLower) return false
-    if (!n[-1].isAlphaNum) return false
+    libNameErr(n) == null
+  }
+
+  ** If the given lib is is not a valid name return an error message,
+  ** otherwise if its valid return return null.
+  static Str? libNameErr(Str n)
+  {
+    if (n.isEmpty) return "Lib name cannot be the empty string"
+    if (!n[0].isLower) return "Lib name must start with lowercase letter"
+    if (!n[-1].isLower && !n[-1].isDigit) return "Lib name must end with lowercase letter or digit"
     for (i := 0; i<n.size; ++i)
     {
       ch := n[i]
       prev := i == 0 ? 0 : n[i-1]
-      if (prev == '.' && !ch.isLower) return false
-      if (ch.isAlpha) continue
-      if (ch == '_') { if (prev.isAlphaNum) continue; return false; }
-      if (ch == '.') { if (prev.isAlphaNum) continue; return false; }
-      if (ch.isDigit) { if (prev.isAlphaNum || prev == '_') continue; return false; }
-      return false
+      if (ch.isUpper) return "Lib name must be all lowercase"
+      if (prev == '.' && !ch.isLower) return "Lib dotted name sections must begin with lowercase letter"
+      if (ch.isLower || ch.isDigit) continue
+      if (ch == '_' || ch == '.')
+      {
+        if (prev.isLower || prev.isDigit) continue;
+        return "Invalid adjacent chars at pos $i";
+      }
+      return "Invalid lib name char '$ch' 0x$ch.toHex"
     }
-    return true
+    return null
   }
 
   ** Return if valid spec name

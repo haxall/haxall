@@ -31,7 +31,7 @@ internal class CheckErrors : Step
 
   Void checkLib(ALib x)
   {
-    if (!XetoUtil.isLibName(x.name)) err("Invalid lib name $x.name.toCode", x.loc)
+    if (!XetoUtil.isLibName(x.name)) err("Invalid lib name $x.name.toCode: " + XetoUtil.libNameErr(x.name), x.loc)
     checkLibMeta(lib)
     x.tops.each |type| { checkTop(type) }
     x.instances.each |instance| { checkDict(instance) }
