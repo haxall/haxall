@@ -123,6 +123,7 @@ internal class GenFantom : XetoCmd
     w("**").nl
     fandoc(type, 0)
     w("**").nl
+    if (type.meta.has("nodoc")) w("@NoDoc ")
     w("@Js").nl
     w("mixin ").w(name).w(" : ").w(baseName).nl
     w("{").nl
