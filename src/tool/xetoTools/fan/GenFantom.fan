@@ -82,8 +82,20 @@ internal class GenFantom : XetoCmd
 
     // get type specs to generate - all of them right now
     types := Spec[,]
-    libs.each |lib| { types.addAll(lib.types) }
+    libs.each |lib|
+    {
+      lib.types.each |type|
+      {
+        if (includeType(type)) types.add(type)
+      }
+    }
     this.types = types.sort
+  }
+
+  Bool includeType(Spec type)
+  {
+    if (type.name.startsWith("_")) return false
+    return true
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -265,7 +277,9 @@ internal class GenFantom : XetoCmd
   {
     if (slot.type.isList)
     {
-      slotTypeSig(slot.of).w("[]")
+      of := slot.of
+      if (of.name.startsWith("_")) of = slot.lib.type(of.name).base // nested specs such as List<of:Ref<of:Foo>>
+      slotTypeSig(of).w("[]")
     }
     else
     {
