@@ -23,6 +23,26 @@ const class XetoUtil
 // Naming
 //////////////////////////////////////////////////////////////////////////
 
+  ** Return if valid lib name
+  static Bool isLibName(Str n)
+  {
+    if (n.isEmpty) return false
+    if (!n[0].isLower) return false
+    if (!n[-1].isAlphaNum) return false
+    for (i := 0; i<n.size; ++i)
+    {
+      ch := n[i]
+      prev := i == 0 ? 0 : n[i-1]
+      if (prev == '.' && !ch.isLower) return false
+      if (ch.isAlpha) continue
+      if (ch == '_') { if (prev.isAlphaNum) continue; return false; }
+      if (ch == '.') { if (prev.isAlphaNum) continue; return false; }
+      if (ch.isDigit) { if (prev.isAlphaNum || prev == '_') continue; return false; }
+      return false
+    }
+    return true
+  }
+
   ** Return if valid spec name
   static Bool isSpecName(Str n)
   {

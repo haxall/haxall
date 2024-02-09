@@ -18,11 +18,53 @@ class UtilTest : Test
 {
 
 //////////////////////////////////////////////////////////////////////////
+// IsLibName
+//////////////////////////////////////////////////////////////////////////
+
+  Void testIsLibName()
+  {
+    verifyIsLibName("x", true)
+    verifyIsLibName("xy", true)
+    verifyIsLibName("xyz", true)
+    verifyIsLibName("x987", true)
+    verifyIsLibName("x_y", true)
+    verifyIsLibName("x_76", true)
+    verifyIsLibName("x.y", true)
+    verifyIsLibName("xy.ab", true)
+    verifyIsLibName("x_y.a123", true)
+    verifyIsLibName("x_y.a_123", true)
+
+    verifyIsLibName("Q", false)
+    verifyIsLibName("_", false)
+    verifyIsLibName("4", false)
+    verifyIsLibName(".", false)
+    verifyIsLibName("#", false)
+    verifyIsLibName("x#", false)
+    verifyIsLibName("x!", false)
+    verifyIsLibName("_xyx", false)
+    verifyIsLibName("xyx_", false)
+    verifyIsLibName(".x", false)
+    verifyIsLibName("x.", false)
+    verifyIsLibName("x_.y", false)
+    verifyIsLibName("x._y", false)
+    verifyIsLibName("x..y", false)
+    verifyIsLibName("x__y", false)
+    verifyIsLibName("xyz.123", false)
+    verifyIsLibName("xyz.Qpr", false)
+  }
+
+  Void verifyIsLibName(Str n, Bool expect)
+  {
+    verifyEq(XetoUtil.isLibName(n), expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // NameUtils
 //////////////////////////////////////////////////////////////////////////
 
   Void testNameUtils()
   {
+
     // dotted -> camel
     verifyEq(XetoUtil.dottedToCamel("x"), "x")
     verifyEq(XetoUtil.dottedToCamel("foo"), "foo")
