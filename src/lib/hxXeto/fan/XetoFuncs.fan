@@ -478,8 +478,8 @@ const class XetoFuncs
 
   **
   ** Given a choice spec, return the most specific choice subtype
-  ** implemented by the instance.  If the instance implements zero more
-  ** than one subtype of the choice, then return null or raise an example
+  ** implemented by the instance.  If the instance implements zero or more
+  ** than one subtype of the choice, then return null or raise an exception
   ** based on the checked flag.  The instance may be anything accepted
   ** by the `toRec()` function.
   **

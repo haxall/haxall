@@ -78,7 +78,7 @@ const class FantomFn : TopFn
     return name
   }
 
-  internal new make(Str name, Dict meta, FnParam[] params, Method method, AtomicRef? instanceRef)
+  protected new make(Str name, Dict meta, FnParam[] params, Method method, AtomicRef? instanceRef)
     : super(Loc(name), name, meta, params, Literal.nullVal)
   {
     this.method       = method

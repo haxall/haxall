@@ -121,7 +121,7 @@ abstract const class LibInput : CompilerInput
   abstract Obj scanMeta(DefCompiler c)
 
   ** Return trio files to scan
-  abstract File[] scanFiles(DefCompiler c)
+  virtual File[] scanFiles(DefCompiler c) { File#.emptyList }
 
   ** Reflection inputs
   virtual ReflectInput[] scanReflects(DefCompiler c) { ReflectInput#.emptyList }
