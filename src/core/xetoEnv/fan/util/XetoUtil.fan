@@ -48,6 +48,7 @@ const class XetoUtil
         if (prev.isLower || prev.isDigit) continue;
         return "Invalid adjacent chars at pos $i";
       }
+      if (ch == ' ') return "Lib name cannot contain spaces"
       return "Invalid lib name char '$ch' 0x$ch.toHex"
     }
     return null
