@@ -75,7 +75,7 @@ const class EvalTimeoutErr : EvalErr
 @Js @NoDoc
 const class ThrowErr : EvalErr
 {
-  new make(AxonContext cx, Loc loc, Dict tags) : super(tags.toStr, cx, loc)
+  new make(AxonContext cx, Loc loc, Dict tags) : super(tags.dis, cx, loc)
   {
     this.tags = tags
   }
