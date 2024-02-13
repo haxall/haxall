@@ -33,6 +33,11 @@ class SedonaDispatch : ConnDispatch
     if (msgId === "updateCur") return onUpdateCur(msg.a)
     if (msgId === "readComp")  return onReadComp(msg.a)
     if (msgId === "soxClosed") return onSoxClosed(msg.a)
+    if (msgId === "writeCompProperty")
+    {
+      onWriteProperty(msg.a, msg.b)
+      return null
+    }
     return super.onReceive(msg)
   }
 
@@ -315,6 +320,14 @@ class SedonaDispatch : ConnDispatch
     {
       point.updateWriteErr(info, e)
     }
+  }
+
+  private Void onWriteProperty(Str addr, Obj? val) {
+    open
+    comp := sox.load(toCompId(addr))
+    slot := toCompSlot(comp, addr)
+    sval := SedonaUtil.fanToValue(slot.type, val)
+    sox.write(comp, slot, sval)
   }
 
   private SoxComponent load(ConnPoint point, Str addr)

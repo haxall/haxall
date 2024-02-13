@@ -48,6 +48,14 @@ const class SedonaFuncs
     dispatch(curContext, conn, HxMsg("readComp", compId))
   }
 
+  ** Synchronously write a property
+  @Axon { admin = true }
+  static Obj? sedonaWrite(Obj conn, Str addr, Obj? val)
+  {
+    dispatch(curContext, conn, HxMsg("writeCompProperty", addr, val))
+    return "ok"
+  }
+
   ** Discover function for sedona.
   @NoDoc @Axon { admin = true }
   static Grid sedonaDiscover()
