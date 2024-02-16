@@ -133,11 +133,18 @@ internal class GenFantom : XetoCmd
     genDicts && type.missing("abstract")
   }
 
-  private Void genTypeEnum(Spec type)
+  private Void genTypeHeader(Spec type)
   {
     w("**").nl
     fandoc(type, 0)
     w("**").nl
+    if (type.meta.has("nodoc")) w("@NoDoc ")
+    w("@Js").nl
+  }
+
+  private Void genTypeEnum(Spec type)
+  {
+    genTypeHeader(type)
     w("enum class ").w(type.name).nl
     w("{").nl
 
@@ -160,11 +167,7 @@ internal class GenFantom : XetoCmd
     baseName := type.base.name
     if (baseName == "Dict") baseName = "Item"
 
-    w("**").nl
-    fandoc(type, 0)
-    w("**").nl
-    if (type.meta.has("nodoc")) w("@NoDoc ")
-    w("@Js").nl
+    genTypeHeader(type)
     w("mixin ").w(name).w(" : ").w(baseName).nl
     w("{").nl
     nl
