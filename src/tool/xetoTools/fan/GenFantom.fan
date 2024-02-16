@@ -110,20 +110,48 @@ internal class GenFantom : XetoCmd
 
   private Void genType(Spec type)
   {
+    if (type.meta.has("nogen")) return
+
     name := type.name
     file := outDir + `${name}.fan`
 
-
     //w("//force").nl
     genOpen
+    genTypeBody(type)
+    genClose(file)
+  }
+
+  private Void genTypeBody(Spec type)
+  {
+    if (type.isEnum) return genTypeEnum(type)
     genTypeMixin(type)
     genTypeDict(type)
-    genClose(file)
   }
 
   private Bool hasDict(Spec type)
   {
     genDicts && type.missing("abstract")
+  }
+
+  private Void genTypeEnum(Spec type)
+  {
+    w("**").nl
+    fandoc(type, 0)
+    w("**").nl
+    w("enum class ").w(type.name).nl
+    w("{").nl
+
+    first := true
+    type.slotsOwn.each |slot|
+    {
+      if (first) first = false
+      else w(",").nl.nl
+
+      fandoc(slot, 2)
+      w("  ").w(slot.name)
+    }
+
+    nl.w("}").nl
   }
 
   private Void genTypeMixin(Spec type)
