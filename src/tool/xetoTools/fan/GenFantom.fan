@@ -110,7 +110,7 @@ internal class GenFantom : XetoCmd
 
   private Void genType(Spec type)
   {
-    if (type.meta.has("nogen")) return
+    if (type.metaOwn.has("nogen")) return
 
     name := type.name
     file := outDir + `${name}.fan`

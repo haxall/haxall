@@ -633,6 +633,7 @@ const class HxCoreFuncs
   **   - 'username' for current user
   **   - 'userRef' id for current user
   **   - 'locale' current locale
+  **
   ** SkySpark tags:
   **   - 'projName' if evaluating in context of a project
   **   - 'nodeId' local cluster node id
