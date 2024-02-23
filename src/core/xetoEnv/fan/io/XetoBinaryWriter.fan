@@ -144,8 +144,8 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private Void writeInstances(XetoLib lib)
   {
-    lib.m.instancesMap.each |x| { writeNameDict(((MNameDict)x).wrapped) }
-    write(0)  // end with control byte zero instead NameDict control byte
+    lib.m.instancesMap.each |x| { writeDict(x) }
+    write(0)  // end with control byte zero
   }
 
 //////////////////////////////////////////////////////////////////////////

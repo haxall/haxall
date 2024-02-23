@@ -187,8 +187,8 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     while (true)
     {
       ctrl := read
-      if (ctrl != ctrlNameDict) break
-      x := readNameDict
+      if (ctrl == 0) break
+      Dict x := doReadVal(ctrl)
       loader.addInstance(x)
     }
   }
@@ -206,7 +206,11 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   override Obj? readVal()
   {
-    ctrl := in.readU1
+    doReadVal(in.readU1)
+  }
+
+  private Obj? doReadVal(Int ctrl)
+  {
     switch (ctrl)
     {
       case ctrlNull:         return null

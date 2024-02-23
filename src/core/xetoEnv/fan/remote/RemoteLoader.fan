@@ -10,6 +10,7 @@ using util
 using concurrent
 using xeto
 using haystack::Dict
+using haystack::Etc
 
 **
 ** RemoteLoader is used to load a library serialized over a network
@@ -86,7 +87,8 @@ internal class RemoteLoader
     list.each |MNameDict x|
     {
       name := x->lib
-      vers := MLibDependVersions(x->versions.toStr, true)
+      vers := MLibDependVersions.wildcard
+      if (x.has("versions")) vers = MLibDependVersions(x->versions.toStr, true)
       acc.add(MLibDepend(name, vers, loc))
     }
     return acc
