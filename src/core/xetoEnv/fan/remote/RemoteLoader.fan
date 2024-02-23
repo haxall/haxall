@@ -292,7 +292,12 @@ internal class RemoteLoader
     slot := type.slotsIn.find |s| { s.nameCode == ref.slot } ?: throw UnresolvedErr(ref.toStr)
     if (ref.more == null) return slot
 
-    throw Err("TODO: $ref")
+    x := slot
+    ref.more.each |moreCode|
+    {
+      x = x.slotsIn.find |s| { s.nameCode == moreCode } ?: throw UnresolvedErr(ref.toStr)
+    }
+    return x
   }
 
   private XetoSpec resolveExternal(RSpecRef ref)

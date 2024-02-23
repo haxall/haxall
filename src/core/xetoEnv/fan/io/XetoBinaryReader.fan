@@ -172,7 +172,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       slot = readName
       if (depth > 2)
       {
-        moreSize := depth - 2
+        moreSize := depth - 3
         more = Int[,]
         more.capacity = moreSize
         moreSize.times { more.add(readName) }

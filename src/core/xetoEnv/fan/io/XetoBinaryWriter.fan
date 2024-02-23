@@ -137,8 +137,13 @@ class XetoBinaryWriter : XetoBinaryConst
     }
     else
     {
-      // build path up to type
-      throw Err("TODO")
+      path := Str[,]
+      for (Spec? x := spec; x != null; x = x.parent)
+        path.add(x.name)
+      path.reverse
+      write(path.size + 1)
+      writeName(spec.m.lib.m.nameCode)
+      path.each |n| { writeName(names.toCode(n)) }
     }
   }
 
