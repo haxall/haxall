@@ -125,9 +125,6 @@ internal const class LocalRegistry : MRegistry
     build.ordered = true
     libs.each |x|
     {
-      // can't check sys this way
-      if (x.name == "sys") return
-
       build[x.name] = LocalRegistryEntry(x.name, x.srcDir, x.zip)
     }
 
