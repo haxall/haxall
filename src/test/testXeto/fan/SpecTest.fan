@@ -334,6 +334,14 @@ class SpecTest : AbstractXetoTest
 
     cond := phx.type("WeatherCondPoint")
     verifyEq(cond.slot("enum")["val"], haystack::Ref("ph::WeatherCondEnum"))
+
+    eqA := env.spec("hx.test.axon::EqA")
+    a := eqA.slot("points").slot("a")
+    verifyEq(a.slot("co2")["val"], Marker.val)
+    verifyEq(a.slot("foo", false), null)
+    b := eqA.slot("points").slot("b")
+    verifyEq(b.slot("co2")["val"], Marker.val)
+    verifyEq(b.slot("foo")["val"], Marker.val)
   }
 
   Void verifySlots(Spec t, Str[] expected)

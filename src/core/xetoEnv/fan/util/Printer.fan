@@ -366,7 +366,7 @@ class Printer
       else if (!isMarker(slot["val"]) && slot.base != null)
       {
         if (showName) w(": ")
-        if (slot.base?.type === slot.base && !slot.isType)
+        if ((slot.base?.type === slot.base && !slot.isType) || slot.type.isEnum)
         {
           base(slot)
           meta(slot.metaOwn)

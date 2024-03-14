@@ -306,7 +306,7 @@ const class XetoUtil
     if (id == null && isGraph) id = Ref.gen
     if (id != null) acc["id"] = id
 
-    acc["dis"] = spec.name
+    acc["dis"] = XetoUtil.isAutoName(spec.name) ? spec.base.name : spec.name
 
     spec.slots.each |slot|
     {
@@ -352,7 +352,7 @@ const class XetoUtil
       if (slot.slots.isEmpty) return
       slot.slots.each |x|
       {
-        kids := instantiate(env, x.base, opts)
+        kids := instantiate(env, x, opts)
         if (kids isnot List) return
         graph.addAll(kids)
       }

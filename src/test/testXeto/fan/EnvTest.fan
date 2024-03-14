@@ -533,6 +533,12 @@ class EnvTest : AbstractXetoTest
       ["id":Ref("x"), "dis":"DischargeAirTempSensor", "point":m, "sensor":m , "kind":"Number", "equipRef":x, "unit":"°F", "discharge":m, "air":m, "temp":m],
     ])
 
+    verifyInstantiateGraph("hx.test.axon::EqA", [
+      ["id":Ref("x"), "dis":"EqA", "equip":m],
+      ["id":Ref("x"), "dis":"a", "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x],
+      ["id":Ref("x"), "dis":"b", "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x, "foo":m],
+    ])
+
     verifyErr(Err#) { env.instantiate(env.spec("sys::Obj")) }
     verifyErr(Err#) { env.instantiate(env.spec("sys::Scalar")) }
   }
@@ -552,9 +558,9 @@ class EnvTest : AbstractXetoTest
   {
     spec := env.spec(qname)
     Dict[] actual := env.instantiate(spec, env.dict1("graph", m))
+    // echo; TrioWriter(Env.cur.out).writeAllDicts(actual)
     baseId := (Ref)actual[0]->id
     verifyEq(actual.size, expect.size)
-    // TrioWriter(Env.cur.out).writeAllDicts(actual)
     actual.each |a, i|
     {
       e := expect[i]

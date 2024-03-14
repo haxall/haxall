@@ -10,4 +10,12 @@
 Alpha : Dict {
 }
 
+// Equip with points
+EqA: Equip {
+  points: {
+    a: ZoneCo2Sensor
+    b: ZoneCo2Sensor { foo }
+  }
+}
+
 
