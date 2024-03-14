@@ -74,7 +74,7 @@ const class ScheduleObservable : Observable
     if (last == null) sub.lastTime.val = last = (nowTime - 10min)
 
     // if day has rolled over, then assume midnight
-    if (nowTime.day != last.day) return Time.defVal
+    if (nowTime.date != last.date) return Time.defVal
 
     // return last time we ran today
     return last.time
