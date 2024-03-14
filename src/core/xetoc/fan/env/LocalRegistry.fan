@@ -144,12 +144,16 @@ internal const class LocalRegistry : MRegistry
     }
   }
 
-  XetoLib? resolve(XetoCompiler c, Str qname)
+  XetoLib? resolve(XetoCompiler c, Str libName)
   {
     // in build mode use build entries for depends
     if (c.isBuild)
     {
-      entry := c.build[qname]
+      // must use the bootstrap version of sys always
+      if (libName == "sys") return env.sysLib
+      
+      // otherwise use our build version
+      entry := c.build[libName]
       if (entry != null)
       {
         if (entry.isLoaded) return entry.get
@@ -158,7 +162,7 @@ internal const class LocalRegistry : MRegistry
     }
 
     // use normal load code path
-    return loadSync(qname, false)
+    return loadSync(libName, false)
   }
 
   Lib compile(LocalRegistryEntry entry, [Str:LocalRegistryEntry]? build)
