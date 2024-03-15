@@ -377,9 +377,19 @@ const class HxCoreFuncs
   ** This includes special tags such as 'hisSize' and any transient tags
   ** the record has defined.  If 'val' is Dict, then a single Dict is returned.
   ** Otherwise 'val' must be Dict[] or Grid and Dict[] is returned.
-  ** The 'mod' tag is always stripped.  The 'id' tag is not stripped
-  ** for cases when adding records with swizzled ids; pass '{-id}' for
-  ** options to strip the 'id' tag also.
+  ** The 'mod' tag is stripped unless the '{mod}' option is specified.
+  ** The 'id' tag is not stripped for cases when adding records with
+  ** swizzled ids; pass '{-id}' in options to strip the 'id' tag also.
+  **
+  ** Examples:
+  **   // strip uncommittable tags and keep id
+  **   toCommit: rec.stripUncommittable
+  **
+  **   // strip uncommittable tags and the id tag
+  **   toCommit: rec.stripUncommittable({-id})
+  **
+  **   // strip uncommittable tags, but keep id and mod
+  **   toCommit: rec.stripUncommittable({mod})
   @Axon
   static Obj stripUncommittable(Obj val, Obj? opts := null)
   {

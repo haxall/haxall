@@ -113,6 +113,7 @@ const class FolioUtil
     d.each |v, n|
     {
       if (transients.has(n)) return
+      if (n == "mod" && opts.has("mod")) { acc[n] = v; return }
       if (DiffTagRule.isUncommittable(n)) return
       if (n == "id" && opts["id"] === Remove.val) return
       acc[n] = v

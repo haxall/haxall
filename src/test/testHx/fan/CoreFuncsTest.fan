@@ -562,6 +562,7 @@ class CoreFuncsTest : HxTest
     verifyDictEq(eval("stripUncommittable({id:@bad, connErr, point})"), ["id":Ref("bad"), "point":m])
     verifyDictEq(eval("stripUncommittable({id:@bad, connErr, point, bad:null})"), ["id":Ref("bad"), "point":m])
     verifyDictEq(eval("readById($r.id.toCode).stripUncommittable"), ["id":r.id, "dis":"Test", "foo":m])
+    verifyDictEq(eval("readById($r.id.toCode).stripUncommittable({mod})"), ["id":r.id, "dis":"Test", "foo":m, "mod":r->mod])
 
     x := (Dict[])eval("readAll(foo).stripUncommittable")
     verifyDictEq(x[0], ["id":r.id, "dis":"Test", "foo":m])
