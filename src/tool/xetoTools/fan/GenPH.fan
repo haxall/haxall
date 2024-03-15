@@ -188,6 +188,7 @@ internal class GenPH : AbstractGenCmd
         return "<of:$ofName>"
       }
     }
+    if (def.name == "area") return """<quantity:"area">"""
     return ""
   }
 
