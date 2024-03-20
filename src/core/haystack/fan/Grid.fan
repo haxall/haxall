@@ -684,11 +684,12 @@ const mixin Grid
   ** Return new grid with column meta-data replaced by given meta.
   ** The 'col' parameter may be either a `Col` or column name.
   ** The meta may be any value accepted by `Etc.makeDict`
-  ** Also see `addColMeta`.
+  ** If column is not found then return this.  Also see `addColMeta`.
   **
   Grid setColMeta(Obj col, Obj? meta)
   {
-    c := toCol(col)
+    c := toCol(col, false)
+    if (c == null) return this
     gb := GridBuilder().copyMetaAndCols(this)
     gb.setColMeta(c.name, Etc.makeDict(meta))
     return gb.addGridRows(this).toGrid
@@ -699,11 +700,12 @@ const mixin Grid
   ** The new tags are merged according to `Etc.dictMerge`.
   ** The 'col' parameter may be either a `Col` or column name.
   ** The meta may be any value accepted by `Etc.makeDict`.
-  ** Also see `setColMeta`.
+  ** If column is not found then return this. Also see `setColMeta`.
   **
   Grid addColMeta(Obj col, Obj? meta)
   {
-    c := toCol(col)
+    c := toCol(col, false)
+    if (c == null) return this
     gb := GridBuilder().copyMetaAndCols(this)
     gb.setColMeta(c.name, Etc.dictMerge(c.meta, meta))
     return gb.addGridRows(this).toGrid
@@ -948,4 +950,7 @@ const mixin Grid
     return s
   }
 }
+
+
+
 

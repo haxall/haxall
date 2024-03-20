@@ -1276,13 +1276,13 @@ class CoreLibTest : HaystackTest
     verifyDictEq(grid[1], ["name":"brian", "age":n(30), "foo":m])
 
     // addColMeta
-    grid = eval(x + """.addColMeta("age", {foo, bar:"baz"})""")
+    grid = eval(x + """.addColMeta("age", {foo, bar:"baz"}).addColMeta("notFound", {xxxx})""")
     verifyEq(grid.col("age").name, "age")
     verifyEq(grid.col("age").meta->foo, Marker.val)
     verifyEq(grid.col("age").meta->bar, "baz")
 
     // setColMeta
-    grid = eval(x + """.addColMeta("age", {foo, bar:"baz"}).setColMeta("age", {newMeta})""")
+    grid = eval(x + """.addColMeta("age", {foo, bar:"baz"}).setColMeta("age", {newMeta}).setColMeta("notFound", {xxxx})""")
     verifyEq(grid.col("age").name, "age")
     verifyDictEq(grid.col("age").meta, ["newMeta":m])
 

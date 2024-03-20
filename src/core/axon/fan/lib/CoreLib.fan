@@ -1277,6 +1277,7 @@ const class CoreLib
   }
 
   ** Return a new grid with column meta-data replaced by given meta dict.
+  ** If column not found, then return given grid.
   ** Also see `addColMeta` and `docHaxall::Streams#setColMeta`.
   @Axon static Obj setColMeta(Obj grid, Str name, Dict meta)
   {
@@ -1286,6 +1287,7 @@ const class CoreLib
   }
 
   ** Return a new grid with additional column meta-data.
+  ** If column not found, then return given grid.
   ** Column meta is added using `merge` conventions.  Also
   ** see `setColMeta` and `docHaxall::Streams#addColMeta`.
   @Axon static Obj addColMeta(Obj grid, Str name, Dict meta)
