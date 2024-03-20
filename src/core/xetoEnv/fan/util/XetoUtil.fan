@@ -381,7 +381,7 @@ const class XetoUtil
 
     slots := Str:Obj[:]
     slots.ordered = true
-    lib.tops.each |spec|
+    lib.specs.each |spec|
     {
       slots.add(spec.name, genAstSpec(env, spec, isOwn, opts))
     }
@@ -456,4 +456,5 @@ const class XetoUtil
     return val.toStr
   }
 }
+
 

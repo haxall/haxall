@@ -17,7 +17,7 @@ const class MSys
 {
   new make(XetoLib lib)
   {
-    x := lib.m.topsMap
+    x := lib.m.specsMap
     this.obj      = x.get("Obj")
     this.none     = x.get("None")
     this.self     = x.get("Self")

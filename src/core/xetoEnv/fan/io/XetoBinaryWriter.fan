@@ -95,7 +95,7 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private Void writeTops(XetoLib lib)
   {
-    lib.tops.each |x| { writeSpec(x) }
+    lib.specs.each |x| { writeSpec(x) }
     writeVarInt(-1)
   }
 
@@ -478,5 +478,6 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
   private const Int maxNameCode
   private OutStream out
 }
+
 
 

@@ -39,10 +39,10 @@ const mixin Lib : Dict
   abstract LibDepend[] depends()
 
   ** List the top level specs (types and global slots)
-  abstract Spec[] tops()
+  abstract Spec[] specs()
 
   ** Lookup a top level spec in this library by simple name (type or global slot)
-  abstract Spec? top(Str name, Bool checked := true)
+  abstract Spec? spec(Str name, Bool checked := true)
 
   ** List the top level types
   abstract Spec[] types()
@@ -106,4 +106,5 @@ const mixin LibDependVersions
   ** Return if the given version satisifies this instance's constraints
   abstract Bool contains(Version version)
 }
+
 

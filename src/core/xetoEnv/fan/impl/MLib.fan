@@ -16,7 +16,7 @@ using haystack::UnknownSpecErr
 @Js
 const final class MLib
 {
-  new make(MEnv env, FileLoc loc, Int nameCode, MNameDict meta, Version version, MLibDepend[] depends, Str:Spec topsMap, Str:Dict instancesMap)
+  new make(MEnv env, FileLoc loc, Int nameCode, MNameDict meta, Version version, MLibDepend[] depends, Str:Spec specsMap, Str:Dict instancesMap)
   {
     this.env          = env
     this.loc          = loc
@@ -26,7 +26,7 @@ const final class MLib
     this.meta         = meta
     this.version      = version
     this.depends      = depends
-    this.topsMap      = topsMap
+    this.specsMap     = specsMap
     this.instancesMap = instancesMap
   }
 
@@ -46,21 +46,21 @@ const final class MLib
 
   const LibDepend[] depends
 
-  const Str:Spec topsMap
+  const Str:Spec specsMap
 
   const Str:Dict instancesMap
 
-  once Spec[] tops()
+  once Spec[] specs()
   {
-    if (topsMap.isEmpty)
+    if (specsMap.isEmpty)
       return Spec#.emptyList
     else
-      return topsMap.vals.sort |a, b| { a.name <=> b.name }.toImmutable
+      return specsMap.vals.sort |a, b| { a.name <=> b.name }.toImmutable
   }
 
-  Spec? top(Str name, Bool checked := true)
+  Spec? spec(Str name, Bool checked := true)
   {
-    x := topsMap[name]
+    x := specsMap[name]
     if (x != null) return x
     if (checked) throw UnknownSpecErr(this.name + "::" + name)
     return null
@@ -68,12 +68,12 @@ const final class MLib
 
   once Spec[] types()
   {
-    tops.findAll |x| { x.isType }.toImmutable
+    specs.findAll |x| { x.isType }.toImmutable
   }
 
   Spec? type(Str name, Bool checked := true)
   {
-    top := top(name, checked)
+    top := spec(name, checked)
     if (top != null && top.isType) return top
     if (checked) throw UnknownSpecErr(this.name + "::" + name)
     return null
@@ -81,12 +81,12 @@ const final class MLib
 
   once Spec[] globals()
   {
-    tops.findAll |x| { x.isGlobal }.toImmutable
+    specs.findAll |x| { x.isGlobal }.toImmutable
   }
 
   Spec? global(Str name, Bool checked := true)
   {
-    top := top(name, checked)
+    top := spec(name, checked)
     if (top != null && top.isGlobal) return top
     if (checked) throw UnknownSpecErr(this.name + "::" + name)
     return null
@@ -189,9 +189,9 @@ const final class XetoLib : Lib, haystack::Dict
 
   override LibDepend[] depends() { m.depends }
 
-  override Spec[] tops() { m.tops }
+  override Spec[] specs() { m.specs }
 
-  override Spec? top(Str name, Bool checked := true) { m.top(name, checked) }
+  override Spec? spec(Str name, Bool checked := true) { m.spec(name, checked) }
 
   override Spec[] types() { m.types }
 
@@ -375,6 +375,9 @@ const class MLibDependVersions : LibDependVersions
   }
 
 }
+
+
+
 
 
 

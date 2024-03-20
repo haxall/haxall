@@ -304,7 +304,7 @@ internal class RemoteLoader
   {
     // should already be loaded
     lib := env.lib(names.toName(ref.lib))
-    type := (XetoSpec)lib.top(names.toName(ref.type))
+    type := (XetoSpec)lib.spec(names.toName(ref.type))
     if (ref.slot == 0) return type
 
     slot := type.m.slots.map.getByCode(ref.slot) ?: throw UnresolvedErr(ref.toStr)
@@ -328,4 +328,5 @@ internal class RemoteLoader
   private Str:Dict instances := [:]          // addInstance
   private [Str:SpecFactory]? factories       // loadFactories
 }
+
 

@@ -25,7 +25,7 @@ class EnumTest : AbstractXetoTest
            Suit: Enum { diamonds, clubs, hearts, spades }
            |>)
 
-     e := lib.top("Suit")
+     e := lib.spec("Suit")
     // env.print(e)
 
      verifyEq(e.isEnum, true)
@@ -61,7 +61,7 @@ class EnumTest : AbstractXetoTest
            }
            |>)
 
-     e := lib.top("Suit")
+     e := lib.spec("Suit")
      // env.print(e)
 
      verifyEq(e.isEnum, true)
@@ -97,7 +97,7 @@ class EnumTest : AbstractXetoTest
            }
            |>)
 
-     e := lib.top("Suit")
+     e := lib.spec("Suit")
      // env.print(e)
 
      verifyEq(e.isEnum, true)

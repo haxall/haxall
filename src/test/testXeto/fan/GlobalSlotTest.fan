@@ -33,16 +33,16 @@ class GlobalSlotTest : AbstractXetoTest
 
      marker := env.spec("sys::Marker")
 
-     g := lib.top("person")
-     t := lib.top("Person")
+     g := lib.spec("person")
+     t := lib.spec("Person")
      m := t.slot("person")
 
      // Lib.top lookups
-     verifyEq(lib.tops, Spec[t, g])
-     verifyEq(lib.tops.isImmutable, true)
-     verifyEq(lib.top("Bad", false), null)
-     verifyErr(UnknownSpecErr#) { lib.top("Bad") }
-     verifyErr(UnknownSpecErr#) { lib.top("bad", true) }
+     verifyEq(lib.specs, Spec[t, g])
+     verifyEq(lib.specs.isImmutable, true)
+     verifyEq(lib.spec("Bad", false), null)
+     verifyErr(UnknownSpecErr#) { lib.spec("Bad") }
+     verifyErr(UnknownSpecErr#) { lib.spec("bad", true) }
 
      // Lib.global lookups
      verifyEq(g.isType, false)

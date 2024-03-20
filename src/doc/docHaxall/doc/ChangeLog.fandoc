@@ -7,17 +7,6 @@
 **************************************************************************
 
 *Build 3.1.10 (working)*
-- Dict.spec removed, must use XetoEnv.specOf
-- Dict.map added
-- Dict now extends Item (set, remove, call)
-- Xeto global slots
-- Xeto ph-gen redesign
-- Xeto enum types
-- Xeto sys::TimeZone enum
-- Xeto sys::Unit enum
-- Number and unit quantity validation
-- New funcs: choiceOf
-- TODO: rename tops to specs
 
 *Build 3.1.9 (1 Dec 2023)*
 - New ECMA class-based JavaScript design
