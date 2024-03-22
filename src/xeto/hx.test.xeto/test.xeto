@@ -19,16 +19,16 @@ EqA: Equip {
 }
 
 // A
-A: Dict <q: Date "2024-01-01"> {
+A: Dict <q: Date "2024-01-01", foo:"A", bar:"A"> {
   x: Str
 }
 
 // B
-B: Dict <r: Date "2024-02-01"> {
+B: Dict <r: Date "2024-02-01", foo:"B", qux:"B"> {
   y: Str
 }
 
 // AB
-AB: A & B <s: Date "2024-03-01"> {
+AB: A & B <s: Date "2024-03-01", qux:"AB"> {
   z: Str
 }

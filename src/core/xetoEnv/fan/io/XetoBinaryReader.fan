@@ -131,11 +131,12 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   {
     x.baseIn     = readSpecRef
     x.typeIn     = readSpecRef
-    x.metaIn     = ((MNameDict)readMeta).wrapped
+    x.metaOwnIn  = ((MNameDict)readMeta).wrapped
     x.slotsOwnIn = readOwnSlots(loader, x)
     x.flags      = readVarInt
     if (read == XetoBinaryConst.specInherited)
     {
+      x.metaIn = ((MNameDict)readMeta).wrapped
       x.slotsInheritedIn = readInheritedSlotRefs
     }
   }

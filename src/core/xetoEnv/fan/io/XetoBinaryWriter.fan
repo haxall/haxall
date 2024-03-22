@@ -114,6 +114,7 @@ class XetoBinaryWriter : XetoBinaryConst
       // for and/or types we encoded inherited meta/slots to
       // avoid duplicating that complicated logic in the client
       write(XetoBinaryConst.specInherited)
+      writeNameDict(m.meta.wrapped)
       writeInheritedSlotRefs(x)
     }
   }

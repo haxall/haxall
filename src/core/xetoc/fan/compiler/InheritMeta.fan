@@ -49,12 +49,7 @@ internal class InheritMeta : Step
     // walk thru base tags and map tags we inherit
     acc := Str:Obj[:]
     acc.ordered = true
-    baseSize := 0
-    base.cmeta.each |v, n|
-    {
-      baseSize++
-      if (isMetaInherited(base, n)) acc[n] = v
-    }
+    baseSize := computedInherited(acc, spec, base)
 
     // if we inherited all of the base tags and
     // I have none of my own, then reuse base meta
@@ -74,6 +69,45 @@ internal class InheritMeta : Step
     }
 
     return MNameDict(env.names.dictMap(acc))
+  }
+
+  private Int computedInherited(Str:Obj acc, ASpec spec, CSpec base)
+  {
+    if (!isSys)
+    {
+      if (base === env.sys.and) return computeUnion(acc, spec.cofs)
+      if (base === env.sys.or) return computeIntersection(acc, spec.cofs)
+    }
+    return computeFromBase(acc, base)
+  }
+
+  private Int computeFromBase(Str:Obj acc, CSpec base)
+  {
+    baseSize := 0
+    base.cmeta.each |v, n|
+    {
+      baseSize++
+      if (isMetaInherited(base, n) && acc[n] == null) acc[n] = v
+    }
+    return baseSize
+  }
+
+  private Int computeUnion(Str:Obj acc, CSpec[]? ofs)
+  {
+    if (ofs == null) return 0
+    baseSize := 0
+    ofs.each |of|
+    {
+      if (of.isAst) inherit(of)
+      baseSize += computeFromBase(acc, of)
+    }
+    return baseSize
+  }
+
+  private Int computeIntersection(Str:Obj acc, CSpec[]? ofs)
+  {
+    // do we want to do this for or types?
+    return 0
   }
 
   static Bool isMetaInherited(CSpec base, Str name)

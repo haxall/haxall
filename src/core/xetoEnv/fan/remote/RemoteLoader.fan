@@ -141,7 +141,7 @@ internal class RemoteLoader
 
     x.isLoaded = true
     x.base     = resolve(x.baseIn)
-    x.metaOwn  = loadMetaOwn(x)
+    x.metaOwn  = resolveMeta(x.metaOwnIn)
 
     if (x.base == null)
     {
@@ -184,10 +184,9 @@ internal class RemoteLoader
     StrBuf(libName.size + 2 + x.name.size).add(libName).addChar(':').addChar(':').add(x.name).toStr
   }
 
-  private MNameDict loadMetaOwn(RSpec x)
+  private MNameDict resolveMeta(NameDict m)
   {
-    // short circuit on empty
-    m := x.metaIn
+    // if emtpy
     if (m.isEmpty) return MNameDict.empty
 
     // resolve spec ref values
@@ -216,8 +215,11 @@ internal class RemoteLoader
 
   private MNameDict inheritMeta(RSpec x)
   {
-    if (x.metaOwn.isEmpty) return x.base.cmeta
-    // TODO: I'm not sure AND/OR are merging meta
+    // if we included effective meta from compound types use it
+    if (x.metaIn != null) return resolveMeta(x.metaIn)
+
+    // TODO if none of my own, use base meta
+    if (x.metaOwnIn.isEmpty) return x.base.cmeta
     return x.metaOwn
   }
 

@@ -39,6 +39,7 @@ internal class RSpec : CSpec, NameDictReader
   // decoded by XetoBinaryReader
   RSpecRef? baseIn
   RSpecRef? typeIn
+  NameDict? metaOwnIn
   NameDict? metaIn
   RSpec[]? slotsOwnIn
   RSpecRef[]? slotsInheritedIn

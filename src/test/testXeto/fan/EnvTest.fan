@@ -198,8 +198,13 @@ class EnvTest : AbstractXetoTest
     verifyEq(slotNames(ab.slots), "x,y,z")
     verifyEq(slotNames(ab.slotsOwn), "z")
 
-echo("==> $ab.metaOwn")
-echo("  > $ab.meta")
+echo("===> $ab.meta")
+
+    // verify own vs inherited meta
+    abOfs := ab.metaOwn->ofs
+    verifyDictEq(ab.metaOwn, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB"])
+    verifyDictEq(ab.meta, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB",
+      "q":Date("2024-01-01"), "r":Date("2024-02-01"), "foo":"A", "bar":"A", ])
   }
 
 //////////////////////////////////////////////////////////////////////////
