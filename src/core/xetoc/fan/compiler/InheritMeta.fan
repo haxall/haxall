@@ -57,16 +57,11 @@ internal class InheritMeta : Step
       return base.cmeta
 
     // merge in my own tags
-    if (!own.isEmpty)
-    {
-      own.each |v, n|
-      {
-        if (v === env.none && spec.qname != "sys::None")
-          acc.remove(n)
-        else
-          acc[n] = v
-      }
-    }
+    XetoUtil.addOwnMeta(env, acc, own)
+
+    // special handling for None val (which gets treated as meta remove)
+    if (isSys && spec.name == "None")
+      acc["val"] = env.none
 
     return MNameDict(env.names.dictMap(acc))
   }
@@ -87,7 +82,7 @@ internal class InheritMeta : Step
     base.cmeta.each |v, n|
     {
       baseSize++
-      if (isMetaInherited(base, n) && acc[n] == null) acc[n] = v
+      if (XetoUtil.isMetaInherited(base, n) && acc[n] == null) acc[n] = v
     }
     return baseSize
   }
@@ -108,15 +103,6 @@ internal class InheritMeta : Step
   {
     // do we want to do this for or types?
     return 0
-  }
-
-  static Bool isMetaInherited(CSpec base, Str name)
-  {
-    // we need to make this use reflection at some point
-    if (name == "abstract") return false
-    if (name == "sealed") return false
-    if (name == "val") return !base.isEnum
-    return true
   }
 
   private MSpecArgs computeArgs(ASpec spec)

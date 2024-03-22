@@ -184,23 +184,41 @@ class EnvTest : AbstractXetoTest
     // lib basics
     lib := verifyLibBasics("hx.test.xeto", curVersion)
 
-    a  := lib.type("A");  x := a.slot("x")
-    b  := lib.type("B");  y := b.slot("y")
-    ab := lib.type("AB"); z := ab.slot("z")
+    a  := lib.type("A");  ax := a.slot("x")
+    b  := lib.type("B");  by := b.slot("y")
+    c  := lib.type("C");  cz := c.slot("z")
+    d  := lib.type("D");  dz := d.slot("z")
+    ab := lib.type("AB"); abz := ab.slot("z")
 
-    // verify own vs inherited slots
+    // single inheritance - slots
+    verifySame(c.base, a)
+    verifyEq(c.slotOwn("x", false), null)
+    verifySame(c.slotOwn("z"), cz)
+    verifySame(c.slot("x"), ax)
+    verifyEq(slotNames(c.slots), "x,z")
+    verifyEq(slotNames(c.slotsOwn), "z")
+
+    // AND inheritance - slots
     verifyEq(ab.isBaseAnd, true)
     verifyEq(ab.slotOwn("x", false), null)
     verifyEq(ab.slotOwn("y", false), null)
-    verifySame(ab.slotOwn("z"), z)
-    verifySame(ab.slot("x"), x)
-    verifySame(ab.slot("y"), y)
+    verifySame(ab.slotOwn("z"), abz)
+    verifySame(ab.slot("x"), ax)
+    verifySame(ab.slot("y"), by)
     verifyEq(slotNames(ab.slots), "x,y,z")
     verifyEq(slotNames(ab.slotsOwn), "z")
 
-echo("===> $ab.meta")
+    // single inheritance - C meta, reuse A.meta actual instance
+    verifyDictEq(c.meta, ["doc":"A", "q":Date("2024-01-01"), "foo":"A", "bar":"A"])
+    verifySame(c.meta, a.meta)
+    verifyDictEq(c.metaOwn, [:])
 
-    // verify own vs inherited meta
+    // single inheritance - D meta (abstract should not be inherited)
+    verifyDictEq(d.meta, ["doc":"B", "r":Date("2024-02-01"), "foo":"B", "qux":"B"])
+    verifyNotSame(d.meta, b.meta)
+    verifyDictEq(d.metaOwn, [:])
+
+    // AND inheritance - meta
     abOfs := ab.metaOwn->ofs
     verifyDictEq(ab.metaOwn, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB"])
     verifyDictEq(ab.meta, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB",

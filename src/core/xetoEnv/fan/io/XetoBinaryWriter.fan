@@ -108,7 +108,7 @@ class XetoBinaryWriter : XetoBinaryConst
     writeNameDict(m.metaOwn.wrapped)
     writeOwnSlots(x)
     writeVarInt(m.flags)
-    if (!x.isCompound) write(XetoBinaryConst.specOwnOnly)
+    if (!x.isCompound && !x.isNone) write(XetoBinaryConst.specOwnOnly)
     else
     {
       // for and/or types we encoded inherited meta/slots to

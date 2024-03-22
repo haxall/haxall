@@ -218,9 +218,24 @@ internal class RemoteLoader
     // if we included effective meta from compound types use it
     if (x.metaIn != null) return resolveMeta(x.metaIn)
 
-    // TODO if none of my own, use base meta
-    if (x.metaOwnIn.isEmpty) return x.base.cmeta
-    return x.metaOwn
+    // compute meta we inherit from base
+    baseSize := 0
+    acc := Str:Obj[:]
+    x.base.cmeta.each |v, n|
+    {
+      baseSize++
+      if (XetoUtil.isMetaInherited(x.base, n)) acc[n] = v
+    }
+
+    // if no meta of my own and I inherited all the meta
+    // from base, reuse the base.meta dict instance
+    own := x.metaOwn
+    if (acc.size == baseSize && own.isEmpty) return x.base.cmeta
+
+    // merge in my own meta
+    XetoUtil.addOwnMeta(env, acc, own)
+
+    return MNameDict(env.names.dictMap(acc))
   }
 
   private MSlots inheritSlots(RSpec x)

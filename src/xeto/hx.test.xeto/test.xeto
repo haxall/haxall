@@ -24,8 +24,16 @@ A: Dict <q: Date "2024-01-01", foo:"A", bar:"A"> {
 }
 
 // B
-B: Dict <r: Date "2024-02-01", foo:"B", qux:"B"> {
+B: Dict <abstract, r: Date "2024-02-01", foo:"B", qux:"B"> {
   y: Str
+}
+
+C : A {
+  z: Str
+}
+
+D : B {
+  z: Str
 }
 
 // AB

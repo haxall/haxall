@@ -156,6 +156,32 @@ const class XetoUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Meta
+//////////////////////////////////////////////////////////////////////////
+
+  ** Return if base is inherited
+  static Bool isMetaInherited(CSpec base, Str name)
+  {
+    // we need to make this use reflection at some point
+    if (name == "abstract") return false
+    if (name == "sealed") return false
+    if (name == "val") return !base.isEnum
+    return true
+  }
+
+  static Void addOwnMeta(XetoEnv env, Str:Obj acc, Dict own)
+  {
+    if (own.isEmpty) return
+    own.each |v, n|
+    {
+      if (v === env.none)
+        acc.remove(n)
+      else
+        acc[n] = v
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Is-A
 //////////////////////////////////////////////////////////////////////////
 
@@ -456,5 +482,3 @@ const class XetoUtil
     return val.toStr
   }
 }
-
-
