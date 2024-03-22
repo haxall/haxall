@@ -203,7 +203,7 @@ internal class RemoteLoader
   private MSlots loadSlotsOwn(RSpec x)
   {
     // short circuit if no slots
-    slots := x.slotsIn
+    slots := x.slotsOwnIn
     if (slots == null || slots.isEmpty) return MSlots.empty
 
     // recursively load slot specs
@@ -223,11 +223,15 @@ internal class RemoteLoader
 
   private MSlots inheritSlots(RSpec x)
   {
+    // if we encoded inherited refs for and/or types, then use that
+    if (x.slotsInheritedIn != null)
+      return inheritSlotsFromRefs(x)
+
+    // if my own slots are empty, I can just reuse my parent's slot map
     base := x.base
     if (x.slotsOwn.isEmpty)
     {
-      // TODO: this is type ref problem
-      if (base === x.parent) return MSlots.empty
+      // if (base === x.parent) return MSlots.empty
 
       if (base.isAst)
         return ((RSpec)base).slots ?: MSlots.empty // TODO: recursive base problem
@@ -235,11 +239,28 @@ internal class RemoteLoader
         return ((XetoSpec)base).m.slots
     }
 
-    // TODO: just simple direct base class solution (not AND/OR)
+    // simple single base class solution
     acc := Str:XetoSpec[:]
     acc.ordered = true
     x.base.cslots |slot|
     {
+      if (acc[slot.name] == null) acc[slot.name] = slot.asm
+    }
+    x.slotsOwn.each |slot|
+    {
+      acc[slot.name] = slot
+    }
+    return MSlots(names.dictMap(acc))
+  }
+
+  private MSlots inheritSlotsFromRefs(RSpec x)
+  {
+    acc := Str:XetoSpec[:]
+    acc.ordered = true
+    x.slotsInheritedIn.each |ref|
+    {
+      slot := resolve(ref)
+      if (slot.isAst) loadSpec(slot)
       if (acc[slot.name] == null) acc[slot.name] = slot.asm
     }
     x.slotsOwn.each |slot|
@@ -289,13 +310,13 @@ internal class RemoteLoader
     type := tops.getChecked(names.toName(ref.type))
     if (ref.slot == 0) return type
 
-    slot := type.slotsIn.find |s| { s.nameCode == ref.slot } ?: throw UnresolvedErr(ref.toStr)
+    slot := type.slotsOwnIn.find |s| { s.nameCode == ref.slot } ?: throw UnresolvedErr(ref.toStr)
     if (ref.more == null) return slot
 
     x := slot
     ref.more.each |moreCode|
     {
-      x = x.slotsIn.find |s| { s.nameCode == moreCode } ?: throw UnresolvedErr(ref.toStr)
+      x = x.slotsOwnIn.find |s| { s.nameCode == moreCode } ?: throw UnresolvedErr(ref.toStr)
     }
     return x
   }
@@ -328,5 +349,3 @@ internal class RemoteLoader
   private Str:Dict instances := [:]          // addInstance
   private [Str:SpecFactory]? factories       // loadFactories
 }
-
-

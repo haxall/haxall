@@ -171,6 +171,38 @@ class EnvTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// HxTest Lib
+//////////////////////////////////////////////////////////////////////////
+
+  Void testHxTestLib()
+  {
+    verifyAllEnvs("hx.test.axon") |env| { doTestHxTestLib(env) }
+  }
+
+  private Void doTestHxTestLib(XetoEnv env)
+  {
+    // lib basics
+    lib := verifyLibBasics("hx.test.axon", curVersion)
+
+    a  := lib.type("A");  x := a.slot("x")
+    b  := lib.type("B");  y := b.slot("y")
+    ab := lib.type("AB"); z := ab.slot("z")
+
+    // verify own vs inherited slots
+    verifyEq(ab.isBaseAnd, true)
+    verifyEq(ab.slotOwn("x", false), null)
+    verifyEq(ab.slotOwn("y", false), null)
+    verifySame(ab.slotOwn("z"), z)
+    verifySame(ab.slot("x"), x)
+    verifySame(ab.slot("y"), y)
+    verifyEq(slotNames(ab.slots), "x,y,z")
+    verifyEq(slotNames(ab.slotsOwn), "z")
+
+echo("==> $ab.metaOwn")
+echo("  > $ab.meta")
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // NameTable
 //////////////////////////////////////////////////////////////////////////
 
@@ -659,6 +691,13 @@ class EnvTest : AbstractXetoTest
     verifySame(env.specOf(slot), env.type("sys::Spec"))
     verifyEq(slot.isType, false)
     return slot
+  }
+
+  Str slotNames(SpecSlots slots)
+  {
+    buf := StrBuf()
+    slots.each |x| { buf.join(x.name, ",") }
+    return buf.toStr
   }
 
   Void dumpLib(Lib lib)

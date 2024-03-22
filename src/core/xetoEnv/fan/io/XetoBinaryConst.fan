@@ -16,12 +16,14 @@ using xeto
 @Js
 mixin XetoBinaryConst
 {
-  static const Int magic       := 0x78623233   // xb23
-  static const Int magicEnd    := 0x78623233   // XB};
-  static const Int version     := 0x2023_08
-  static const Int magicLib    := 0x6c69627b   // lib{
-  static const Int magicLibEnd := 0x7d6c6962   // }lib
-  static const Int magicReg    := 0x7265673a   // reg:
+  static const Int magic         := 0x78623233   // xb23
+  static const Int magicEnd      := 0x78623233   // XB};
+  static const Int version       := 0x2023_08
+  static const Int magicLib      := 0x6c69627b   // lib{
+  static const Int magicLibEnd   := 0x7d6c6962   // }lib
+  static const Int magicReg      := 0x7265673a   // reg:
+  static const Int specOwnOnly   := ';'          // encoding own meta/slots only
+  static const Int specInherited := '+'          // encoding inherited too (for and/or)
 
   static const Int ctrlNull         := 1
   static const Int ctrlMarker       := 2
@@ -52,5 +54,3 @@ mixin XetoBinaryConst
   static const Int ctrlCoord        := 27
   static const Int ctrlSymbol       := 28
 }
-
-

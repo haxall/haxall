@@ -18,4 +18,17 @@ EqA: Equip {
   }
 }
 
+// A
+A: Dict <q: Date "2024-01-01"> {
+  x: Str
+}
 
+// B
+B: Dict <r: Date "2024-02-01"> {
+  y: Str
+}
+
+// AB
+AB: A & B <s: Date "2024-03-01"> {
+  z: Str
+}

@@ -88,12 +88,12 @@ class XetoBinaryWriter : XetoBinaryConst
     writeI4(magicLib)
     writeName(lib.m.nameCode)
     writeNameDict(lib.m.meta.wrapped)
-    writeTops(lib)
+    writeSpecs(lib)
     writeInstances(lib)
     writeI4(magicLibEnd)
   }
 
-  private Void writeTops(XetoLib lib)
+  private Void writeSpecs(XetoLib lib)
   {
     lib.specs.each |x| { writeSpec(x) }
     writeVarInt(-1)
@@ -106,17 +106,35 @@ class XetoBinaryWriter : XetoBinaryConst
     writeSpecRef(m.base)
     writeSpecRef(m.isType ? null : m.type)
     writeNameDict(m.metaOwn.wrapped)
-    writeSlots(x)
+    writeOwnSlots(x)
     writeVarInt(m.flags)
+    if (!x.isCompound) write(XetoBinaryConst.specOwnOnly)
+    else
+    {
+      // for and/or types we encoded inherited meta/slots to
+      // avoid duplicating that complicated logic in the client
+      write(XetoBinaryConst.specInherited)
+      writeInheritedSlotRefs(x)
+    }
   }
 
-  private Void writeSlots(XetoSpec x)
+  private Void writeOwnSlots(XetoSpec x)
   {
-    slots := x.m.slotsOwn.map
-    size := slots.size
+    map := x.m.slotsOwn.map
+    size := map.size
     writeVarInt(size)
     for (i := 0; i<size; ++i)
-      writeSpec(slots.valAt(i))
+      writeSpec(map.valAt(i))
+  }
+
+  private Void writeInheritedSlotRefs(XetoSpec x)
+  {
+    x.slots.each |slot|
+    {
+      if (x.slotOwn(slot.name, false) != null) return
+      writeSpecRef(slot)
+    }
+    writeSpecRef(null)
   }
 
   private Void writeSpecRef(XetoSpec? spec)
@@ -478,6 +496,3 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
   private const Int maxNameCode
   private OutStream out
 }
-
-
-

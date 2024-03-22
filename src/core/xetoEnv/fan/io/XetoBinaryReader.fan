@@ -129,14 +129,18 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Void readSpec(RemoteLoader loader, RSpec x)
   {
-    x.baseIn  = readSpecRef
-    x.typeIn  = readSpecRef
-    x.metaIn  = ((MNameDict)readMeta).wrapped
-    x.slotsIn = readSlots(loader, x)
-    x.flags   = readVarInt
-   }
+    x.baseIn     = readSpecRef
+    x.typeIn     = readSpecRef
+    x.metaIn     = ((MNameDict)readMeta).wrapped
+    x.slotsOwnIn = readOwnSlots(loader, x)
+    x.flags      = readVarInt
+    if (read == XetoBinaryConst.specInherited)
+    {
+      x.slotsInheritedIn = readInheritedSlotRefs
+    }
+  }
 
-  private RSpec[]? readSlots(RemoteLoader loader, RSpec parent)
+  private RSpec[]? readOwnSlots(RemoteLoader loader, RSpec parent)
   {
     size := readVarInt
     if (size == 0) return null
@@ -148,6 +152,18 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       x := loader.makeSlot(parent, name)
       readSpec(loader, x)
       acc.add(x)
+    }
+    return acc
+  }
+
+  private RSpecRef[] readInheritedSlotRefs()
+  {
+    acc := RSpecRef[,]
+    while (true)
+    {
+      ref := readSpecRef
+      if (ref == null) break
+      acc.add(ref)
     }
     return acc
   }
@@ -437,5 +453,3 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   private const NameTable names
   private InStream in
 }
-
-

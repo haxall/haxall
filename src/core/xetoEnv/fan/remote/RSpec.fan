@@ -40,7 +40,8 @@ internal class RSpec : CSpec, NameDictReader
   RSpecRef? baseIn
   RSpecRef? typeIn
   NameDict? metaIn
-  RSpec[]? slotsIn
+  RSpec[]? slotsOwnIn
+  RSpecRef[]? slotsInheritedIn
 
   // RemoteLoader.loadSpec
   Bool isLoaded
@@ -93,10 +94,10 @@ internal class RSpec : CSpec, NameDictReader
   override Bool isFunc()   { hasFlag(MSpecFlags.func) }
   Bool hasFlag(Int mask) { flags.and(mask) != 0 }
 
-  // NameDictReader
-  override Int readName() { slotsIn[readIndex].nameCode }
-  override Obj? readVal() { slotsIn[readIndex++].asm }
-  Int readIndex
+  // NameDictReader to iterate slotsOwnIn
+  override Int readName() { slotsOwnIn[readIndex].nameCode }
+  override Obj? readVal() { slotsOwnIn[readIndex++].asm }
+  private Int readIndex
 
 }
 
@@ -122,6 +123,3 @@ internal const class RSpecRef
 
   override Str toStr() { "$lib $type $slot $more" }
 }
-
-
-
