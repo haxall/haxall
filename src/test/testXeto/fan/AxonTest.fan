@@ -37,8 +37,8 @@ class AxonTest : HxTest
     libs = ["ph", "ph.points"]
     verifySpecRef(Str<|ph::Point|>, "ph::Point")
     verifySpecRef(Str<|ph.points::AirTempSensor|>, "ph.points::AirTempSensor")
-    verifySpecRef(Str<|hx.test.axon::Alpha|>, "hx.test.axon::Alpha")
-    verifySpecRef(Str<|hx.test.axon.deep::Beta|>, "hx.test.axon.deep::Beta")
+    verifySpecRef(Str<|hx.test.xeto::Alpha|>, "hx.test.xeto::Alpha")
+    verifySpecRef(Str<|hx.test.xeto.deep::Beta|>, "hx.test.xeto.deep::Beta")
 
     // slot
     libs = ["ph"]
@@ -110,8 +110,8 @@ class AxonTest : HxTest
     verifySpecDerive(Str<|ph::Meter & Chiller|>, "sys::And", ["ofs":ofs])
     verifySpecDerive(Str<|Meter & ph::Chiller|>, "sys::And", ["ofs":ofs])
     verifySpecDerive(Str<|ph::Meter & ph::Chiller|>, "sys::And", ["ofs":ofs])
-    ofs = Spec[env.type("ph::Meter"), env.type("hx.test.axon::Alpha")]
-    verifySpecDerive(Str<|ph::Meter & hx.test.axon::Alpha|>, "sys::And", ["ofs":ofs])
+    ofs = Spec[env.type("ph::Meter"), env.type("hx.test.xeto::Alpha")]
+    verifySpecDerive(Str<|ph::Meter & hx.test.xeto::Alpha|>, "sys::And", ["ofs":ofs])
   }
 
   Spec verifySpecRef(Str expr, Str qname)

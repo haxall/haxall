@@ -176,13 +176,13 @@ class EnvTest : AbstractXetoTest
 
   Void testHxTestLib()
   {
-    verifyAllEnvs("hx.test.axon") |env| { doTestHxTestLib(env) }
+    verifyAllEnvs("hx.test.xeto") |env| { doTestHxTestLib(env) }
   }
 
   private Void doTestHxTestLib(XetoEnv env)
   {
     // lib basics
-    lib := verifyLibBasics("hx.test.axon", curVersion)
+    lib := verifyLibBasics("hx.test.xeto", curVersion)
 
     a  := lib.type("A");  x := a.slot("x")
     b  := lib.type("B");  y := b.slot("y")
@@ -565,7 +565,7 @@ echo("  > $ab.meta")
       ["id":Ref("x"), "dis":"DischargeAirTempSensor", "point":m, "sensor":m , "kind":"Number", "equipRef":x, "unit":"°F", "discharge":m, "air":m, "temp":m],
     ])
 
-    verifyInstantiateGraph("hx.test.axon::EqA", [
+    verifyInstantiateGraph("hx.test.xeto::EqA", [
       ["id":Ref("x"), "dis":"EqA", "equip":m],
       ["id":Ref("x"), "dis":"a", "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x],
       ["id":Ref("x"), "dis":"b", "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x, "foo":m],
