@@ -536,6 +536,7 @@ internal const class DiffTagRule
       "curVal":      curVal,
       "curStatus":   curVal,
       "curErr":      transientOnly,
+      "curSource":   transientOnly,
 
       "writeVal":    transientOnly,
       "writeLevel":  transientOnly,
