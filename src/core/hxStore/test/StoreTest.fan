@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 
 **
 ** StoreTest
@@ -25,7 +26,7 @@ class StoreTest : Test
     dir := tempDir
     s = Store.open(dir)
 
-    verifyErrMsg(Err#, "java.nio.channels.OverlappingFileLockException") { Store.open(dir) }
+    verifyErrMsg(CannotAcquireLockFileErr#, "/work/haxall/temp/test/db.lock") { Store.open(dir) }
 
     // verify meta
     verifyStoreMeta(s)
@@ -573,5 +574,4 @@ class StoreTest : Test
     return x
   }
 }
-
 

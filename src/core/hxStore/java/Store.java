@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import fan.sys.*;
+import fan.util.*;
 
 /**
  * Store
@@ -29,7 +30,7 @@ public final class Store extends FanObj
 
       // acquire lock file
       LockFile lockFile = LockFile.make(dir.plus(Uri.fromStr("db.lock")));
-      lockFile.acquire();
+      lockFile.lock();
 
       // create config if null
       if (config == null) config = StoreConfig.make();
@@ -144,7 +145,7 @@ public final class Store extends FanObj
       closed = true;
       pages.close();
       index.close();
-      lockFile.release();
+      lockFile.unlock();
     }
     catch (IOException e)
     {
@@ -266,3 +267,4 @@ public final class Store extends FanObj
   boolean testDiskFull;
   boolean nosync;
 }
+

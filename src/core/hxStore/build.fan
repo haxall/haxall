@@ -27,9 +27,11 @@ class Build : BuildPod
                "vcs.uri":      "https://github.com/haxall/haxall"
               ]
     depends = ["sys @{fan.depend}",
-               "concurrent @{fan.depend}"]
+               "concurrent @{fan.depend}",
+               "util @{fan.depend}"]
     srcDirs  = [`fan/`, `test/`]
     javaDirs = [`java/`]
     docApi   = false
   }
 }
+

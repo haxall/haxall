@@ -6,6 +6,8 @@
 //   8 Feb 2016  Brian Frank  Creation
 //
 
+using util
+
 **
 ** Database storage engine as file system of blobs.
 **
@@ -153,5 +155,4 @@ class JavaTestBridge
   Void verify(Bool b) { test.verify(b) }
   Test test
 }
-
 
