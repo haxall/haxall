@@ -26,6 +26,7 @@ internal class GenFantom : XetoCmd
   override Int run()
   {
     init
+    mapNameToDir
     parseBuildFile
     readInputs
     genTypes
@@ -47,6 +48,36 @@ internal class GenFantom : XetoCmd
     srcDir := buildFile.parent
     if (!srcDir.plus(`build.fan`).exists) throw Err("Expecting build.fan in $srcDir")
     this.outDir = srcDir + `fan/`
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Map Name To Dir
+//////////////////////////////////////////////////////////////////////////
+
+  private Void mapNameToDir()
+  {
+    acc := Str:File[:]
+    doMapNameToDir(acc, outDir)
+    this.nameToDir = acc
+  }
+
+  private Void doMapNameToDir(Str:File acc, File dir)
+  {
+    dir.list.each |kid|
+    {
+      if (kid.isDir)
+        doMapNameToDir(acc, kid)
+      else if (kid.ext == "fan")
+        acc[kid.basename] = dir
+    }
+  }
+
+  File dirForType(Spec? spec)
+  {
+    if (spec == null) return outDir
+    dir := nameToDir[spec.name]
+    if (dir != null) return dir
+    return dirForType(spec.base)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -113,7 +144,7 @@ internal class GenFantom : XetoCmd
     if (type.metaOwn.has("nogen")) return
 
     name := type.name
-    file := outDir + `${name}.fan`
+    file := dirForType(type) + `${name}.fan`
 
     //w("//force").nl
     genOpen
@@ -402,6 +433,8 @@ internal class GenFantom : XetoCmd
   private Bool genDicts         // gen dicts flag
   private Bool genAsyncMethods  // gen asyncMethods flag
   private Spec[]? types         // type specs to generate
+  private [Str:File]? nameToDir // map type names to directory
   private StrBuf? buf           // current file contents without header
   private Int numRewrote        // number of files we rewrote that changed
 }
+
