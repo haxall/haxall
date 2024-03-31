@@ -391,7 +391,6 @@ internal class GenFantom : XetoCmd
   private Void genOpen()
   {
     this.buf = StrBuf()
-    w("using xeto::Item").nl
     w("using haystack").nl
     nl
   }
