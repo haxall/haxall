@@ -16,11 +16,11 @@ using haystack
 internal const class MCellDef : WrapDict, CellDef
 {
   new make(AtomicRef parentRef, Int index, Str name, Dict meta)
+    : super(meta)
   {
     this.parentRef  = parentRef
     this.index   = index
     this.name    = name
-    this.wrapped = meta
     this.defVal  = meta["defVal"]
     this.ro      = isReadonly(meta)
   }
@@ -34,7 +34,6 @@ internal const class MCellDef : WrapDict, CellDef
   private const AtomicRef parentRef
   const override Int index
   const override Str name
-  const override Dict wrapped
   const Obj? defVal
   const Bool ro
 
@@ -45,10 +44,4 @@ internal const class MCellDef : WrapDict, CellDef
     return s.toStr
   }
 }
-
-
-
-
-
-
 

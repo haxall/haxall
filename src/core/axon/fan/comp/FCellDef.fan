@@ -39,12 +39,12 @@ facet class Cell : Define
 internal const class FCellDef : WrapDict, CellDef
 {
   new make(FCompDef parent, Int index, Field field, Cell facet)
+    : super(toMeta(field, facet))
   {
     this.parent  = parent
     this.index   = index
     this.name    = field.name
     this.field   = field
-    this.wrapped = toMeta(field, facet)
     this.ro      = MCellDef.isReadonly(wrapped)
   }
 
@@ -58,7 +58,6 @@ internal const class FCellDef : WrapDict, CellDef
   override const FCompDef parent
   const override Int index
   const override Str name
-  const override Dict wrapped
   const Field field
   const Bool ro
 
@@ -80,10 +79,4 @@ internal const class FCellDef : WrapDict, CellDef
     field.set(comp, val)
   }
 }
-
-
-
-
-
-
 
