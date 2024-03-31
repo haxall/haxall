@@ -196,9 +196,11 @@ internal class GenFantom : XetoCmd
   {
     name := type.name
     baseName := type.base.name
-    if (baseName == "Dict") baseName = "Item"
+
+    isConst := type.meta.missing("genNonConst")
 
     genTypeHeader(type)
+    if (isConst) w("const ")
     w("mixin ").w(name).w(" : ").w(baseName).nl
     w("{").nl
     nl
@@ -235,7 +237,7 @@ internal class GenFantom : XetoCmd
     w("** Dict implementation for $name").nl
     w("**").nl
     w("@NoDoc @Js").nl
-    w("const class ").w(name).w("Dict").w(": ItemDict, ").w(name).nl
+    w("const class ").w(name).w("Dict").w(": WrapDict, ").w(name).nl
     w("{").nl
     w("  new make(Dict dict) : super(dict) {}").nl
     w("}").nl
