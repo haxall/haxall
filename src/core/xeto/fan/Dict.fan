@@ -11,14 +11,17 @@
 ** Create instances via `XetoEnv.dict`.
 **
 @Js
-const mixin Dict : Item
+const mixin Dict
 {
-/*
+  // Get the 'id' tag as a Ref or raise exception
+  // TODO: this can't be id yet without breaking backward binary compatibility
+  abstract Ref _id()
+
   ** Return if the there are no name/value pairs
-  abstract override Bool isEmpty()
+  abstract Bool isEmpty()
 
   ** Get the value for the given name or 'def' if name not mapped
-  @Operator abstract override Obj? get(Str name, Obj? def := null)
+  @Operator abstract Obj? get(Str name, Obj? def := null)
 
   ** Return true if this dictionary contains given name
   abstract Bool has(Str name)
@@ -38,7 +41,6 @@ const mixin Dict : Item
   ** Get the value mapped by the given name.  If it is not
   ** mapped to a non-null value, then throw an UnknownNameErr.
   override abstract Obj? trap(Str name, Obj?[]? args := null)
-*/
 
   ** Create a new instance of this dict with the same names,
   ** but apply the specified closure to generate new values.

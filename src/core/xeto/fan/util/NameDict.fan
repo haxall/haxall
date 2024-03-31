@@ -52,12 +52,6 @@ native final const class NameDict  : Dict
   ** Map values to another NameDict of the exact same size
   override This map(|Obj val, Str name->Obj| f)
 
-  ** Raise ReadonlyErr
-  override Void set(Str name, Obj? val)
-
-  ** Raise ReadonlyErr
-  override Void remove(Str name)
-
   ** Get the value for given name code
   @NoDoc Obj? getByCode(Int code)
 
