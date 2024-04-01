@@ -92,8 +92,9 @@ const class CheckScalar
 
   static Void checkEnum(CSpec spec, Obj x, |Str| onErr)
   {
-    // value must be string
+    // value must be string key or mapped by factory to Enum
     key := x as Str
+    if (key == null) key = (x as Enum)?.name
     if (key == null) return onErr("Invalid enum value type, $x.typeof not Str")
 
     // verify key maps to enum item
@@ -114,3 +115,4 @@ const class CheckScalar
 
   }
 }
+
