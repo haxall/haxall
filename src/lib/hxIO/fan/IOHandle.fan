@@ -388,8 +388,10 @@ internal class HttpHandle : IOHandle
 {
   new make(Uri uri) { this.uri = uri }
   const Uri uri
-  override InStream in() { WebClient(uri).getIn }
+  override InStream in() { toClient.getIn }
   override OutStream out() { throw UnsupportedErr("Cannot write to HTTP handle")  }
+  override File toFile(Str func) { toClient.getBuf.toFile(uri.name.toUri) }
+  WebClient toClient() { WebClient(uri) }
 }
 
 **************************************************************************
@@ -524,3 +526,4 @@ internal class SkipHandle : IOHandle
   IOHandle handle
   const Dict opts
 }
+
