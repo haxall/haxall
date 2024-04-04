@@ -24,15 +24,11 @@ const mixin LibVersion
   ** Summary information or empty string if not available
   abstract Str doc()
 
-  ** Xetolib zip file location.  This file might not exist if the source has
-  ** not been built yet or the repo is not backed by the file system.  But it
-  ** is always available as "lib/xeto/{name}/{name}-{version}.xetolib".
-  abstract File zip()
+  ** File used to load this lib if backed by the file system.  If we are
+  ** using the source then return the source directory, otherwise return
+  ** the xetolib zip file found in "lib/xeto".  If the version is not backed
+  ** by a file then raise exception or return null based on checked flag.
+  @NoDoc abstract File? file(Bool checked := true)
 
-  ** Is the source available
-  abstract Bool isSrc()
-
-  ** Source dir if available
-  abstract File? src(Bool checked := true)
 }
 

@@ -156,7 +156,7 @@ internal class FileRepoScanner
       if (version == null) return log.warn("Invalid xetolib filename [$f.osPath]")
 
       // add to accumulator
-      add(name, version, f, null)
+      add(name, version, f)
     }
   }
 
@@ -179,8 +179,7 @@ internal class FileRepoScanner
     version := parseSrcVersion(lib)
     if (version == null) return
 
-    zip := pathDir + `lib/xeto/${name}/${name}-${version}.xetolib`
-    add(name, version, zip, srcDir)
+    add(name, version, srcDir)
   }
 
   private Version? parseSrcVersion(File lib)
@@ -208,10 +207,10 @@ internal class FileRepoScanner
     }
   }
 
-  private Void add(Str name, Version version, File zip, File? srcDir)
+  private Void add(Str name, Version version, File file)
   {
     list := acc[name]
-    entry := FileLibVersion(name, version, zip, srcDir)
+    entry := FileLibVersion(name, version, file)
     if (list == null)
     {
       acc[name] = [entry]
@@ -223,13 +222,14 @@ internal class FileRepoScanner
       {
         list.add(entry)
       }
-      else if (dup.zip.osPath == zip.osPath)
+      else if (file.isDir && dup.file.ext == "xetolib")
       {
-        FileLibVersion#srcDir->setConst(dup, srcDir)
+        // source dir hides xetolib
+        FileLibVersion#fileRef->setConst(dup, file)
       }
       else
       {
-        log.warn("Dup lib $name.toCode lib hidden [$dup.zip.osPath]")
+        log.warn("Dup lib $name.toCode lib hidden [$dup.file.osPath]")
       }
     }
   }

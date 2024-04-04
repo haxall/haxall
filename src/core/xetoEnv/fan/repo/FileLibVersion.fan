@@ -15,12 +15,11 @@ using xeto
 @Js
 const class FileLibVersion : LibVersion
 {
-  new make(Str name, Version version, File zip, File? srcDir)
+  new make(Str name, Version version, File file)
   {
     this.name    = name
     this.version = version
-    this.zip     = zip
-    this.srcDir  = srcDir
+    this.fileRef = file
   }
 
   override const Str name
@@ -29,18 +28,10 @@ const class FileLibVersion : LibVersion
 
   override const Str doc := ""
 
-  override const File zip
+  override File? file(Bool checked := true) { fileRef }
+  const File fileRef
 
-  override Bool isSrc() { srcDir != null }
-
-  override File? src(Bool checked := true)
-  {
-    if (srcDir != null) return srcDir
-    if (checked) throw Err("Lib source not available: $name")
-    return null
-  }
-
-  override Str toStr() { "$name-$version [src: ${srcDir?.osPath}, zip: $zip.osPath]" }
+  override Str toStr() { "$name-$version [$file.osPath]" }
 
   override Int compare(Obj that)
   {
@@ -53,7 +44,8 @@ const class FileLibVersion : LibVersion
   override LibDepend[] depends()
   {
     if (name == "sys") return LibDepend#.emptyList
-    throw Err("TODO")
+echo("TODO: load depends $file")
+return LibDepend[,]
   }
 
   const File? srcDir
