@@ -20,7 +20,7 @@ const mixin LibRepo
   {
     repo := curRef.val as LibRepo
     if (repo != null) return repo
-    curRef.compareAndSet(null, Type.find("xetoEnv::LocalRepo").make)
+    curRef.compareAndSet(null, Type.find("xetoEnv::FileRepo").make)
     return curRef.val
   }
   private static const AtomicRef curRef := AtomicRef()
@@ -37,12 +37,27 @@ const mixin LibRepo
 
   ** List the verions available for given library name.  If the library is
   ** not available then raise exception or return null based on check flag.
-  abstract LibInfo[]? versions(Str name, Bool checked := true)
+  abstract LibVersion[]? versions(Str name, Bool checked := true)
 
   ** Get the info for a specific library name and version. If the given
   ** library or version is not available then raise exception or return
   ** null based on the checked flag.
-  abstract LibInfo? lib(Str name, Version version, Bool checked := true)
+  abstract LibVersion? version(Str name, Version version, Bool checked := true)
+
+  ** Get the latest version of the library name available.  If no versions
+  ** are available then raise exception or return null based on check flag.
+  abstract LibVersion? latest(Str name, Bool checked := true)
+
+  ** Solve the dependency graph for given list of libs and return a complete
+  ** dependency graph.  Raise an exception is no solution can be computed
+  ** based on the installed lib versions.
+  abstract LibVersion[] solveDepends(LibVersion[] libs)
+
+  ** Construct a namespace for the given set of lib infos in this repo.
+  ** This method does not solve the dependency graph.  The list of lib
+  ** versions passed must be a complete dependency tree that satisifies
+  ** all version constraints.  Also see `solveDepends`.
+  //abstract LibNamespace createNamespace(LibVersion[] libs)
 
   ** Rescan file system if this is a local repo
   @NoDoc

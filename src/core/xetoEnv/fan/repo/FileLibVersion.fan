@@ -10,10 +10,10 @@ using concurrent
 using xeto
 
 **
-** LibInfo implementation for LocalRepo
+** LibVersion implementation for FileRepo
 **
 @Js
-const class LocalLibInfo : LibInfo
+const class FileLibVersion : LibVersion
 {
   new make(Str name, Version version, File zip, File? srcDir)
   {
@@ -45,9 +45,15 @@ const class LocalLibInfo : LibInfo
   override Int compare(Obj that)
   {
     a := this
-    b := (LocalLibInfo)that
+    b := (FileLibVersion)that
     if (a.name != b.name) return a.name <=> b.name
     return a.version <=> b.version
+  }
+
+  override LibDepend[] depends()
+  {
+    if (name == "sys") return LibDepend#.emptyList
+    throw Err("TODO")
   }
 
   const File? srcDir

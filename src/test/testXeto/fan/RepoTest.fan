@@ -17,7 +17,6 @@ using haystack::Ref
 @Js
 class RepoTest : AbstractXetoTest
 {
-
   Void testBasics()
   {
     repo := LibRepo.cur
@@ -30,9 +29,20 @@ class RepoTest : AbstractXetoTest
       versions := repo.versions(lib)
       versions.each |v|
       {
-        verifySame(repo.lib(lib, v.version), v)
+        verifySame(repo.version(lib, v.version), v)
       }
+      verifySame(versions.last, repo.latest(lib))
     }
+  }
+
+  Void testSolveDepends()
+  {
+    repo := LibRepo.cur
+    sys := repo.latest("sys")
+    verifyEq(sys.depends, LibDepend[,])
+    libs := repo.solveDepends([repo.latest("sys")])
+    verifyEq(libs.size, 1)
+    verifySame(libs[0], sys)
   }
 }
 

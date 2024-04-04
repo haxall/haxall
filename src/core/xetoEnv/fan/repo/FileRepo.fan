@@ -12,12 +12,11 @@ using xeto
 using haystack::UnknownLibErr
 
 **
-** LocalRepo is a simple file system based repo that uses the
-** the Fantom path to find zip versions in "lib/xeto/" and source
-** version in "src/xeto/".
+** FileRepo is a file system based repo that uses the the Fantom path to
+** find zip versions in "lib/xeto/" and sourceversion in "src/xeto/".
 **
 @Js
-const class LocalRepo : LibRepo
+const class FileRepo : LibRepo
 {
   new make(File[] path := Env.cur.path)
   {
@@ -29,12 +28,14 @@ const class LocalRepo : LibRepo
 
   const File[] path
 
-  internal LocalRepoScan scan() { scanRef.val }
+  internal FileRepoScan scan() { scanRef.val }
   private const AtomicRef scanRef := AtomicRef()
+
+  override Str toStr() { "$typeof.qname ($scan.ts.toLocale)" }
 
   override This rescan()
   {
-    scanRef.val = LocalRepoScanner(log, path).scan
+    scanRef.val = FileRepoScanner(log, path).scan
     return this
   }
 
@@ -43,7 +44,7 @@ const class LocalRepo : LibRepo
     scan.list
   }
 
-  override LibInfo[]? versions(Str name, Bool checked := true)
+  override LibVersion[]? versions(Str name, Bool checked := true)
   {
     versions := scan.map.get(name)
     if (versions != null) return versions
@@ -51,7 +52,15 @@ const class LocalRepo : LibRepo
     return null
   }
 
-  override LibInfo? lib(Str name, Version version, Bool checked := true)
+  override LibVersion? latest(Str name, Bool checked := true)
+  {
+    versions := versions(name, checked)
+    if (versions != null) return versions.last
+    if (checked) throw UnknownLibErr(name)
+    return null
+  }
+
+  override LibVersion? version(Str name, Version version, Bool checked := true)
   {
     versions := versions(name, checked)
     if (versions != null)
@@ -63,33 +72,38 @@ const class LocalRepo : LibRepo
     return null
   }
 
-  override Str toStr() { "$typeof.qname ($scan.ts.toLocale)" }
+  override LibVersion[] solveDepends(LibVersion[] libs)
+  {
+    if (libs.isEmpty) throw Err("No libs specified")
+    if (libs.size == 1 && libs.first.name == "sys") return libs.dup
+    throw Err("TODO")
+  }
 }
 
 **************************************************************************
-** LocalRepoScan
+** FileRepoScan
 **************************************************************************
 
 @Js
-internal const class LocalRepoScan
+internal const class FileRepoScan
 {
-  new make(Str:LocalLibInfo[] map)
+  new make(Str:FileLibVersion[] map)
   {
     this.list = map.keys.sort
     this.map  = map
   }
 
   const Str[] list
-  const Str:LocalLibInfo[] map
+  const Str:FileLibVersion[] map
   const Str ts := DateTime.now.toLocale("YYYY-MM-DD hh:mm:ss")
 }
 
 **************************************************************************
-** LocalRepoScanner
+** FileRepoScanner
 **************************************************************************
 
 @Js
-internal class LocalRepoScanner
+internal class FileRepoScanner
 {
   new make(Log log, File[] path)
   {
@@ -97,7 +111,7 @@ internal class LocalRepoScanner
     this.path = path
   }
 
-  LocalRepoScan scan()
+  FileRepoScan scan()
   {
     path.each |dir|
     {
@@ -108,7 +122,7 @@ internal class LocalRepoScanner
     {
       list.sort
     }
-    return LocalRepoScan(acc)
+    return FileRepoScan(acc)
   }
 
   private Void scanZips(File pathDir, File libXetoDir)
@@ -197,21 +211,21 @@ internal class LocalRepoScanner
   private Void add(Str name, Version version, File zip, File? srcDir)
   {
     list := acc[name]
-    info := LocalLibInfo(name, version, zip, srcDir)
+    entry := FileLibVersion(name, version, zip, srcDir)
     if (list == null)
     {
-      acc[name] = LocalLibInfo[info]
+      acc[name] = [entry]
     }
     else
     {
       dup := list.find |x| { x.version == version }
       if (dup == null)
       {
-        list.add(info)
+        list.add(entry)
       }
       else if (dup.zip.osPath == zip.osPath)
       {
-        LocalLibInfo#srcDir->setConst(dup, srcDir)
+        FileLibVersion#srcDir->setConst(dup, srcDir)
       }
       else
       {
@@ -222,6 +236,6 @@ internal class LocalRepoScanner
 
   private Log log
   private File[] path
-  private Str:LocalLibInfo[] acc := [:]
+  private Str:FileLibVersion[] acc := [:]
 }
 

@@ -10,13 +10,16 @@
 ** Library information models a library name and version.
 **
 @Js
-const mixin LibInfo
+const mixin LibVersion
 {
   ** Library dotted name
   abstract Str name()
 
   ** Library version
   abstract Version version()
+
+  ** Dependencies of this library
+  abstract LibDepend[] depends()
 
   ** Summary information or empty string if not available
   abstract Str doc()
