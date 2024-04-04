@@ -20,7 +20,7 @@ const mixin LibRepo
   {
     repo := curRef.val as LibRepo
     if (repo != null) return repo
-    curRef.compareAndSet(null, Type.find("xetoEnv::FileRepo").make)
+    curRef.compareAndSet(null, Type.find("xetoc::FileRepo").make)
     return curRef.val
   }
   private static const AtomicRef curRef := AtomicRef()

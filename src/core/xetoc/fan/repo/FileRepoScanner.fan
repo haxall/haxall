@@ -9,6 +9,7 @@
 using concurrent
 using util
 using xeto
+using xetoEnv
 using haystack::UnknownLibErr
 
 **

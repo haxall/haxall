@@ -34,6 +34,7 @@ class Build : BuildPod
                "xetoEnv @{hx.depend}",
                ]
     srcDirs = [`fan/env/`,
+               `fan/repo/`,
                `fan/compiler/`,
                `fan/ast/`,
                `fan/parser/`,
@@ -41,3 +42,4 @@ class Build : BuildPod
                ]
   }
 }
+
