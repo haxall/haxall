@@ -15,7 +15,6 @@ using haystack::UnknownLibErr
 ** FileRepo is a file system based repo that uses the the Fantom path to
 ** find zip versions in "lib/xeto/" and sourceversion in "src/xeto/".
 **
-@Js
 const class FileRepo : LibRepo
 {
   new make(File[] path := Env.cur.path)
@@ -75,7 +74,7 @@ const class FileRepo : LibRepo
   override LibVersion[] solveDepends(LibVersion[] libs)
   {
     if (libs.isEmpty) throw Err("No libs specified")
-    if (libs.size == 1 && libs.first.name == "sys") return libs.dup
+    if (libs.size == 1 && libs.first.name == "sys") return LibVersion[libs.first]
     throw Err("TODO")
   }
 }

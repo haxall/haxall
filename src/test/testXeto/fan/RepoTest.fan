@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetoEnv
 using haystack
 using haystack::Ref
 
@@ -42,10 +43,31 @@ class RepoTest : AbstractXetoTest
 
   Void verifyVersion(LibRepo repo, Str name, LibVersion v)
   {
-echo("-- $v")
+    /*
+    echo
+    echo("-- $v")
+    echo("   name:    $v.name")
+    echo("   version: $v.version")
+    echo("   doc:     $v.doc")
+    echo("   depends: $v.depends")
+    echo("   file:    $v.file")
+    echo
+    */
     verifyEq(v.name, name)
     verifyEq(v.version.segments.size, 3)
-echo("   $v.depends")
+
+    // spot test known libs
+    if (name == "sys")
+    {
+      verifyEq(v.doc, "System library of built-in types")
+      verifyEq(v.depends.size, 0)
+    }
+    else if (name == "ph")
+    {
+      verifyEq(v.doc, "Project haystack core library")
+      verifyEq(v.depends.size, 1)
+      verifyEq(v.depends[0].name, "sys")
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,7 +78,7 @@ echo("   $v.depends")
   {
     repo := LibRepo.cur
     sys := repo.latest("sys")
-    verifyEq(sys.depends, LibDepend[,])
+    verifyEq(sys.depends, MLibDepend[,])
     libs := repo.solveDepends([repo.latest("sys")])
     verifyEq(libs.size, 1)
     verifySame(libs[0], sys)

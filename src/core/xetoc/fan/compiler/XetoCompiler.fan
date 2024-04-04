@@ -108,6 +108,21 @@ internal class XetoCompiler
     return ast.asm
   }
 
+  ** Parse only the lib.xeto file into version, doc, and depends.
+  ** Must setup libName and input to the "lib.xeto" file
+  FileLibVersion parseLibVersion()
+  {
+    run([
+      InitLib(),
+      Parse(),
+      ProcessPragma(),
+    ])
+
+    doc := lib.meta.getStr("doc") ?: ""
+    dir := input.parent
+    return FileLibVersion(libName, lib.version, dir, doc, ns.depends)
+  }
+
   ** Parse pragma from lib.xeto meta into fantom JSON data
   Dict parsePragma()
   {
@@ -208,5 +223,4 @@ internal class XetoCompiler
   internal Bool externRefs             // allow unresolved refs to compile
   private Str[] autoNames := [,]       // autoName
 }
-
 

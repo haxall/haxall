@@ -16,7 +16,6 @@ using haystack::UnknownLibErr
 ** FileRepoScanner walks thru the Fantom env path to find all the
 ** libs in "lib/xeto" and "src/xeto".
 **
-@Js
 internal class FileRepoScanner
 {
   new make(Log log, File[] path)
@@ -27,6 +26,7 @@ internal class FileRepoScanner
 
   FileRepoScan scan()
   {
+    t1 := Duration.now
     path.each |dir|
     {
       scanZips(dir, dir+`lib/xeto/`)
@@ -36,6 +36,8 @@ internal class FileRepoScanner
     {
       list.sort
     }
+    t2 := Duration.now
+    log.info("FileRepo scan [" + (t2-t1).toLocale + "]")
     return FileRepoScan(acc)
   }
 
@@ -69,8 +71,8 @@ internal class FileRepoScanner
       }
       if (version == null) return log.warn("Invalid xetolib filename [$f.osPath]")
 
-      // add to accumulator
-      add(name, version, f)
+      // add to accumulator (lazily load depends)
+      add(FileLibVersion(name, version, f, "", null))
     }
   }
 
@@ -90,62 +92,58 @@ internal class FileRepoScanner
     err := XetoUtil.libNameErr(name)
     if (err != null) return log.warn("Invalid lib name $name.toCode [$srcDir.osPath]")
 
-    version := parseSrcVersion(lib)
-    if (version == null) return
+    entry := parseSrcVersion(name, lib)
+    if (entry == null) return
 
-    add(name, version, srcDir)
+    add(entry)
   }
 
-  private Version? parseSrcVersion(File lib)
+  private FileLibVersion? parseSrcVersion(Str name, File lib)
   {
     try
     {
-      // for performance we assume version is on a line by itself like
-      // version: "0.0.1"
-      lines := lib.readAllLines
-      version := lines.eachWhile |line|
+      c := XetoCompiler
       {
-        line = line.trim
-        if (!line.startsWith("version")) return null
-        colon := line.index(":") ?: throw Err("No colon: $line")
-        quoted := line[colon+1..-1].trim
-        if (quoted[0] != '"' || quoted[-1] != '"') throw Err("Version not quoted: $line")
-        return Version.fromStr(quoted[1..-2])
+        it.env     = XetoEnv.cur
+        it.libName = name
+        it.input   = lib
       }
-      return version ?: throw Err("Cannot find version line")
+      return c.parseLibVersion
     }
     catch (Err e)
     {
-      log.info("Cannot lib source version [$lib.osPath]\n  $e")
+      log.info("Cannot parse lib source meta [$lib.osPath]\n  $e")
       return null
     }
   }
 
-  private Void add(Str name, Version version, File file)
+  private Void add(FileLibVersion entry)
   {
+    name := entry.name
     list := acc[name]
-    entry := FileLibVersion(name, version, file, null)
     if (list == null)
     {
       acc[name] = [entry]
+      return
     }
-    else
+
+    dupIndex := list.findIndex |x| { x.version == entry.version }
+    if (dupIndex == null)
     {
-      dup := list.find |x| { x.version == version }
-      if (dup == null)
-      {
-        list.add(entry)
-      }
-      else if (file.isDir && dup.file.ext == "xetolib")
-      {
-        // source dir hides xetolib
-        FileLibVersion#fileRef->setConst(dup, file)
-      }
-      else
-      {
-        log.warn("Dup lib $name.toCode lib hidden [$dup.file.osPath]")
-      }
+      list.add(entry)
+      return
     }
+
+    dup := list[dupIndex]
+    if (entry.file.isDir && dup.file.ext == "xetolib")
+    {
+      // source dir hides xetolib
+      list.removeAt(dupIndex)
+      list.add(entry)
+      return
+    }
+
+    log.warn("Dup lib $name.toCode lib hidden [$entry.file.osPath]")
   }
 
   private Log log
@@ -157,7 +155,6 @@ internal class FileRepoScanner
 ** FileRepoScan
 **************************************************************************
 
-@Js
 internal const class FileRepoScan
 {
   new make(Str:FileLibVersion[] map)

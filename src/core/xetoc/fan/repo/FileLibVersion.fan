@@ -12,23 +12,23 @@ using xeto
 **
 ** LibVersion implementation for FileRepo
 **
-@Js
 const class FileLibVersion : LibVersion
 {
 
-  new make(Str name, Version version, File file, LibDepend[]? depends)
+  new make(Str name, Version version, File file, Str doc, LibDepend[]? depends)
   {
     this.name       = name
     this.version    = version
     this.fileRef    = file
-    this.dependsRef = AtomicRef(depends)
+    this.doc        = doc
+    this.dependsRef = AtomicRef(depends?.toImmutable)
   }
 
   override const Str name
 
   override const Version version
 
-  override const Str doc := ""
+  override const Str doc
 
   override File? file(Bool checked := true) { fileRef }
   const File fileRef
