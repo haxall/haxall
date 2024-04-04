@@ -15,11 +15,13 @@ using xeto
 @Js
 const class FileLibVersion : LibVersion
 {
-  new make(Str name, Version version, File file)
+
+  new make(Str name, Version version, File file, LibDepend[]? depends)
   {
-    this.name    = name
-    this.version = version
-    this.fileRef = file
+    this.name       = name
+    this.version    = version
+    this.fileRef    = file
+    this.dependsRef = AtomicRef(depends)
   }
 
   override const Str name
@@ -43,11 +45,30 @@ const class FileLibVersion : LibVersion
 
   override LibDepend[] depends()
   {
-    if (name == "sys") return LibDepend#.emptyList
-echo("TODO: load depends $file")
-return LibDepend[,]
+    d := dependsRef.val
+    if (d == null) dependsRef.val = d = loadDepends.toImmutable
+    return d
   }
 
-  const File? srcDir
+  private const AtomicRef dependsRef
+
+  private LibDepend[] loadDepends()
+  {
+    if (name == "sys") return LibDepend#.emptyList
+
+    if (file.isDir) return parseDepends(file.plus(`lib.xeto`))
+
+    zip := Zip.open(file)
+    try
+      return parseDepends(zip.contents.getChecked(`/lib.xeto`))
+    finally
+      zip.close
+  }
+
+  private LibDepend[] parseDepends(File f)
+  {
+    echo("~~ parseDepends $f")
+    return LibDepend[,]
+  }
 }
 

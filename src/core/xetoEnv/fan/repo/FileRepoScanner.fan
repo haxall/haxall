@@ -123,7 +123,7 @@ internal class FileRepoScanner
   private Void add(Str name, Version version, File file)
   {
     list := acc[name]
-    entry := FileLibVersion(name, version, file)
+    entry := FileLibVersion(name, version, file, null)
     if (list == null)
     {
       acc[name] = [entry]
