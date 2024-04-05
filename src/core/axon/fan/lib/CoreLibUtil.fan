@@ -28,7 +28,7 @@ internal const class CoreLibUtil
 
     if (val is List)
     {
-      list := ((List)val).rw
+      list := ((List)val).dup
       if (sorter == null) return ascending ? list.sort : list.sortr
       if (func != null)   return ascending ? list.sort(func) : list.sortr(func)
     }
@@ -237,6 +237,4 @@ internal const class CoreLibUtil
   Bool grid
   Bool symbol
 }
-
-
 

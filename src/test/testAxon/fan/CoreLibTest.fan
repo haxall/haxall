@@ -819,6 +819,8 @@ class CoreLibTest : HaystackTest
     verifyEval("""["if", "x", "foo", "boat"].sort((a,b)=>a.size<=>b.size)""", Obj?["x", "if", "foo", "boat"])
     verifyEval("""["if", "x", "foo", "boat"].sortr""", Obj?["x", "if", "foo", "boat"])
     verifyEval("""["if", "x", "foo", "boat"].sortr((a,b)=>a.size<=>b.size)""", Obj?["boat", "foo", "if", "x"])
+    verifyEval("""do x: ["if", "x", "foo", "boat"].map(x=>x); x.sort; x; end""", Obj?["if", "x", "foo", "boat"])
+    verifyEval("""do x: ["if", "x", "foo", "boat"].map(x=>x); x.sortr; x; end""", Obj?["if", "x", "foo", "boat"])
     verifyEval("[].any(x=>x.isOdd)", false)
     verifyEval("[].all(x=>x.isOdd)", true)
     verifyEval("[1, 3, 6].any(x=>x.isOdd)", true)
@@ -1846,3 +1848,4 @@ class CoreLibTest : HaystackTest
     return g
   }
 }
+
