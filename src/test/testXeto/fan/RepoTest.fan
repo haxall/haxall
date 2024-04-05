@@ -70,6 +70,45 @@ class RepoTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Order Depends
+//////////////////////////////////////////////////////////////////////////
+
+  Void testOrderByDepends()
+  {
+    repo := buildTestRepo
+
+    verifyOrderByDepends(repo, "sys")
+    verifyOrderByDepends(repo, "sys, ph")
+    verifyOrderByDepends(repo, "sys, ph, ph.points")
+    verifyOrderByDepends(repo, "sys, ph, ph.points, cc.vavs")
+    verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.vavs")
+
+    verifyErrMsg(DependErr#, "Circular depends")
+    {
+      verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.circular")
+    }
+
+    verifyErrMsg(DependErr#, "cc.noSolve-10.0.10 dependency: ph 9.x.x [ph-3.0.9]")
+    {
+      verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.noSolve")
+    }
+  }
+
+  Void verifyOrderByDepends(LibRepo repo, Str names)
+  {
+    LibVersion[] libs := names.split(',').map |x->LibVersion| { repo.latest(x) }
+    (libs.size * 2).times
+    {
+      shuffled := libs.dup.shuffle
+      sorted := LibVersion.orderByDepends(shuffled)
+      sortedNames := sorted.join(", ") { it.name }
+      // echo("~~> " + shuffled.join(", ") { it.name })
+      // echo("  > $sortedNames")
+      verifyEq(sortedNames, names)
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Solve Depends
 //////////////////////////////////////////////////////////////////////////
 
@@ -107,15 +146,15 @@ class RepoTest : AbstractXetoTest
     // errors
     verifySolveDependsErr(repo,
       "sys 4.x.x",
-      "Target dependency on sys 4.x.x")
+      "Target dependency: sys 4.x.x [not found]")
 
     verifySolveDependsErr(repo,
       "sys 3.x.x, foo.bar 1.2.3",
-      "Target dependency on foo.bar 1.2.3")
+      "Target dependency: foo.bar 1.2.3 [not found]")
 
     verifySolveDependsErr(repo,
-      "cc.vavs x.x.x",
-      "ph.points dependency on ph 2.0.8")
+      "cc.vavs 20.x.x",
+      "ph.points dependency: ph 2.0.8 [ph-3.0.9]")
   }
 
   Void verifySolveDepends(LibRepo repo, Str targetsStr, Str expectStr)
@@ -183,10 +222,22 @@ class RepoTest : AbstractXetoTest
     addVer("1.0.207", "sys 1.x.x, ph 1.0.7")
     addVer("2.0.108", "sys x.x.x, ph 2.0.8")
     addVer("2.0.208", "sys x.x.x, ph 2.0.8")
+    addVer("3.0.309", "sys x.x.x, ph x.x.x")
 
     testLibName = "cc.vavs"
     addVer("10.0.10", "sys x.x.x, ph x.x.x, ph.points 1.x.x")
     addVer("20.0.20", "sys x.x.x, ph x.x.x, ph.points 2.x.x")
+    addVer("30.0.30", "sys x.x.x, ph x.x.x, ph.points x.x.x")
+
+    testLibName = "cc.ahus"
+    addVer("10.0.10", "sys x.x.x, ph x.x.x, ph.points 1.x.x")
+    addVer("20.0.20", "sys x.x.x, ph x.x.x, ph.points x.x.x")
+
+    testLibName = "cc.circular"
+    addVer("10.0.10", "sys x.x.x, ph x.x.x, cc.circular x.x.x")
+
+    testLibName = "cc.noSolve"
+    addVer("10.0.10", "sys x.x.x, ph 9.x.x")
 
     return TestRepo(testRepoMap)
   }

@@ -35,14 +35,6 @@ const class FileLibVersion : LibVersion
 
   override Str toStr() { "$name-$version [$file.osPath]" }
 
-  override Int compare(Obj that)
-  {
-    a := this
-    b := (FileLibVersion)that
-    if (a.name != b.name) return a.name <=> b.name
-    return a.version <=> b.version
-  }
-
   override LibDepend[] depends()
   {
     d := dependsRef.val

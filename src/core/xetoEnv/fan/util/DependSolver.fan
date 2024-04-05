@@ -40,14 +40,14 @@ class DependSolver
     // if we have not, then find the latest version available that matches
     if (x == null)
     {
-      x = repo.latestMatch(d, false) ?: throw DependErr("$who dependency on $d.toStr")
+      x = repo.latestMatch(d, false) ?: throw DependErr("$who dependency: $d.toStr [not found]")
       acc[x.name] = x
     }
 
     // otherwise make sure that one we selected is a match
     else
     {
-      if (!d.versions.contains(x.version)) throw DependErr("$who dependency on $d.toStr")
+      if (!d.versions.contains(x.version)) throw DependErr("$who dependency: $d.toStr [$x]")
     }
 
     // now recursively ensure all the dependencies are added
