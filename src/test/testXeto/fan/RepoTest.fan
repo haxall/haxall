@@ -137,6 +137,28 @@ class RepoTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Namespace
+//////////////////////////////////////////////////////////////////////////
+
+  Void testNamespace()
+  {
+    // sys only
+    repo := LibRepo.cur
+    LibVersion sysVer := repo.latest("sys")
+    ns := repo.createNamespace([sysVer])
+    verifyEq(ns.versions, [sysVer])
+    verifySame(ns.version("sys"), sysVer)
+    verifyEq(ns.isLoaded("sys"), true)
+    verifyEq(ns.isAllLoaded, true)
+
+    sys := ns.lib("sys")
+    verifySame(ns.lib("sys"), sys)
+    verifySame(ns.sysLib, sys)
+    verifyEq(sys.name, "sys")
+    verifyEq(sys.version, sysVer.version)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Test Repo
 //////////////////////////////////////////////////////////////////////////
 
@@ -247,6 +269,11 @@ internal const class TestRepo : LibRepo
   override LibVersion[] solveDepends(LibDepend[] libs)
   {
     DependSolver(this, libs).solve
+  }
+
+  override LibNamespace createNamespace(LibVersion[] libs)
+  {
+    throw UnsupportedErr()
   }
 
   Void dump()

@@ -33,6 +33,7 @@ class Build : BuildPod
                "haystack @{hx.depend}"]
   srcDirs = [`fan/ast/`,
              `fan/env/`,
+             `fan/ns/`,
              `fan/impl/`,
              `fan/io/`,
              `fan/remote/`,

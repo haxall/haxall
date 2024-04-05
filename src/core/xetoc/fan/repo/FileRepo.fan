@@ -88,5 +88,12 @@ const class FileRepo : LibRepo
   {
     DependSolver(this, libs).solve
   }
+
+  override LibNamespace createNamespace(LibVersion[] libs)
+  {
+    LocalNamespace(names, libs, this)
+  }
+
+  const NameTable names := NameTable()
 }
 

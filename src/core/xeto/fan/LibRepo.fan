@@ -57,11 +57,11 @@ const mixin LibRepo
   ** based on the installed lib versions.
   abstract LibVersion[] solveDepends(LibDepend[] libs)
 
-  ** Construct a namespace for the given set of lib infos in this repo.
+  ** Construct a namespace for the given set of lib versions in this repo.
   ** This method does not solve the dependency graph.  The list of lib
   ** versions passed must be a complete dependency tree that satisifies
   ** all version constraints.  Also see `solveDepends`.
-  //abstract LibNamespace createNamespace(LibVersion[] libs)
+  abstract LibNamespace createNamespace(LibVersion[] libs)
 
   ** Rescan file system if this is a local repo
   @NoDoc
