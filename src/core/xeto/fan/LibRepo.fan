@@ -48,10 +48,14 @@ const mixin LibRepo
   ** are available then raise exception or return null based on check flag.
   abstract LibVersion? latest(Str name, Bool checked := true)
 
+  ** Get the latest version that matches the given dependency.  If no matches
+  ** are available, then raise exception or return null based on check flag.
+  abstract LibVersion? latestMatch(LibDepend depend, Bool checked := true)
+
   ** Solve the dependency graph for given list of libs and return a complete
   ** dependency graph.  Raise an exception is no solution can be computed
   ** based on the installed lib versions.
-  abstract LibVersion[] solveDepends(LibVersion[] libs)
+  abstract LibVersion[] solveDepends(LibDepend[] libs)
 
   ** Construct a namespace for the given set of lib infos in this repo.
   ** This method does not solve the dependency graph.  The list of lib

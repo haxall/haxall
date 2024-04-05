@@ -9,6 +9,7 @@
 using concurrent
 using util
 using xeto
+using xetoEnv
 using haystack::UnknownLibErr
 
 **
@@ -59,6 +60,18 @@ const class FileRepo : LibRepo
     return null
   }
 
+  override LibVersion? latestMatch(LibDepend d, Bool checked := true)
+  {
+    versions := versions(d.name, checked)
+    if (versions != null)
+    {
+      match := versions.eachrWhile |x| { d.versions.contains(x.version) ? x : null }
+      if (match != null) return match
+    }
+    if (checked) throw UnknownLibErr(d.toStr)
+    return null
+  }
+
   override LibVersion? version(Str name, Version version, Bool checked := true)
   {
     versions := versions(name, checked)
@@ -71,11 +84,9 @@ const class FileRepo : LibRepo
     return null
   }
 
-  override LibVersion[] solveDepends(LibVersion[] libs)
+  override LibVersion[] solveDepends(LibDepend[] libs)
   {
-    if (libs.isEmpty) throw Err("No libs specified")
-    if (libs.size == 1 && libs.first.name == "sys") return LibVersion[libs.first]
-    throw Err("TODO")
+    DependSolver(this, libs).solve
   }
 }
 
