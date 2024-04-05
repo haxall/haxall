@@ -392,7 +392,7 @@ const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Generate AST dict tree for entire lib
-  static Dict genAstLib(XetoEnv env, Lib lib, Bool isOwn, Dict opts)
+  static Dict genAstLib(MEnv env, Lib lib, Bool isOwn, Dict opts)
   {
     acc := Str:Obj[:]
     acc.ordered = true
@@ -417,7 +417,7 @@ const class XetoUtil
   }
 
   ** Generate AST dict tree for spec
-  static Dict genAstSpec(XetoEnv env, Spec spec, Bool isOwn, Dict opts)
+  static Dict genAstSpec(MEnv env, Spec spec, Bool isOwn, Dict opts)
   {
     acc := Str:Obj[:]
     acc.ordered = true
@@ -457,7 +457,7 @@ const class XetoUtil
     return env.dictMap(acc)
   }
 
-  private static Obj genAstVal(XetoEnv env, Obj val)
+  private static Obj genAstVal(MEnv env, Obj val)
   {
     if (val is Spec) return val.toStr
     if (val is List)
@@ -482,3 +482,4 @@ const class XetoUtil
     return val.toStr
   }
 }
+

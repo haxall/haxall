@@ -59,37 +59,6 @@ const abstract class XetoEnv
   ** Return generic 'sys::Dict'
   @NoDoc abstract Spec dictSpec()
 
-  ** Empty dict singleton
-  @NoDoc abstract Dict dict0()
-
-  ** Create a Dict with one name/value pair
-  @NoDoc abstract Dict dict1(Str n, Obj v)
-
-  ** Create a Dict with two name/value pairs
-  @NoDoc abstract Dict dict2(Str n0, Obj v0, Str n1, Obj v1)
-
-  ** Create a Dict with three name/value pairs
-  @NoDoc abstract Dict dict3(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2)
-
-  ** Create a Dict with four name/value pairs
-  @NoDoc abstract Dict dict4(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3)
-
-  ** Create a Dict with five name/value pairs
-  @NoDoc abstract Dict dict5(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4)
-
-  ** Create a Dict with six name/value pairs
-  @NoDoc abstract Dict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5)
-
-  ** Create a Dict from a map name/value pairs.
-  @NoDoc abstract Dict dictMap(Str:Obj map)
-
-  ** Coerce one of the following values to a dict:
-  **   - null return empty dict
-  **   - if Dict return it
-  **   - if Str:Obj wrap it as dict
-  **   - raise exception for anything else
-  abstract Dict dict(Obj? x)
-
   ** Construct instance of `Ref`
   abstract Ref ref(Str id, Str? dis := null)
 

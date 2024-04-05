@@ -271,8 +271,8 @@ class EnvTest : AbstractXetoTest
     verifySame(env.none, Remove.val)
     verifyEq(env.ref("foo"), haystack::Ref("foo", null))
     verifyValEq(env.ref("foo", "Foo"), haystack::Ref("foo", "Foo"))
-    verifySame(env.dict0, Etc.emptyDict)
-    verifyDictEq(env.dict1("a", "A"), ["a":"A"])
+    verifySame(dict0, Etc.emptyDict)
+    verifyDictEq(dict1("a", "A"), ["a":"A"])
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -366,12 +366,12 @@ class EnvTest : AbstractXetoTest
 
   Void verifyDict(Str:Obj map, Str qname := "sys::Dict")
   {
-    d := env.dict(map)
+    d := dict(map)
 
     type := env.specOf(d)
 
     verifyEq(type.qname, qname)
-    if (map.isEmpty) verifySame(d, env.dict0)
+    if (map.isEmpty) verifySame(d, dict0)
 
     map.each |v, n|
     {
@@ -500,16 +500,16 @@ class EnvTest : AbstractXetoTest
     dict := env.type("sys::Dict")
     m := Marker.val
 
-    verifyDerive("foo", list, env.dict0, null)
-    verifyDerive("foo", list, env.dict1("bar", m), null)
-    verifyDerive("foo", list, env.dict2("bar", m, "baz", "hi"), Str:Spec[:])
-    verifyDerive("foo", dict, env.dict0, ["foo":marker])
-    verifyDerive("foo", dict, env.dict1("bar", m), ["foo":marker, "dis":str])
-    verifyDerive("foo", dict, env.dict1("maybe", m), null)
+    verifyDerive("foo", list, dict0, null)
+    verifyDerive("foo", list, dict1("bar", m), null)
+    verifyDerive("foo", list, dict2("bar", m, "baz", "hi"), Str:Spec[:])
+    verifyDerive("foo", dict, dict0, ["foo":marker])
+    verifyDerive("foo", dict, dict1("bar", m), ["foo":marker, "dis":str])
+    verifyDerive("foo", dict, dict1("maybe", m), null)
 
-    verifyDeriveErr("foo bar", scalar, env.dict0, null, "Invalid spec name: foo bar")
-    verifyDeriveErr("foo", scalar, env.dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::Scalar")
-    verifyDeriveErr("foo", list, env.dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::List")
+    verifyDeriveErr("foo bar", scalar, dict0, null, "Invalid spec name: foo bar")
+    verifyDeriveErr("foo", scalar, dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::Scalar")
+    verifyDeriveErr("foo", list, dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::List")
   }
 
   Void verifyDerive(Str name, Spec base, Dict meta, [Str:Spec]? slots)
@@ -563,7 +563,7 @@ class EnvTest : AbstractXetoTest
 
     verifyInstantiate("sys::Unit",     "%")
 
-    verifyInstantiate("sys::Dict", env.dict0)
+    verifyInstantiate("sys::Dict", dict0)
     verifyInstantiate("sys::List", Obj?[,])
 
     verifyInstantiate("ph::Meter", ["dis":"Meter", "equip":m, "meter":m])
@@ -612,7 +612,7 @@ class EnvTest : AbstractXetoTest
   Void verifyInstantiateGraph(Str qname, [Str:Obj][] expect)
   {
     spec := env.spec(qname)
-    Dict[] actual := env.instantiate(spec, env.dict1("graph", m))
+    Dict[] actual := env.instantiate(spec, dict1("graph", m))
     // echo; TrioWriter(Env.cur.out).writeAllDicts(actual)
     baseId := (Ref)actual[0]->id
     verifyEq(actual.size, expect.size)
@@ -736,3 +736,4 @@ class EnvTest : AbstractXetoTest
   }
 
 }
+

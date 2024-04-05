@@ -30,7 +30,6 @@ abstract const class MEnv : XetoEnv
     this.marker      = Marker.val
     this.na          = NA.val
     this.list0       = Obj?[,]
-    this.dict0       = Etc.dict0
     this.specSpecRef = haystack::Ref("sys::Spec", null)
     this.libSpecRef  = haystack::Ref("sys::Lib", null)
     this.registryRef = registry
@@ -68,29 +67,9 @@ abstract const class MEnv : XetoEnv
 
   const override Spec dictSpec
 
-  const override Dict dict0
+  Dict dict0() { Etc.dict0 }
 
-  override Dict dict1(Str n, Obj v) { Etc.dict1(n, v) }
-
-  override Dict dict2(Str n0, Obj v0, Str n1, Obj v1) {  Etc.dict2(n0, v0, n1, v1) }
-
-  override Dict dict3(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2) {  Etc.dict3(n0, v0, n1, v1, n2, v2)  }
-
-  override Dict dict4(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3) { Etc.dict4(n0, v0, n1, v1, n2, v2, n3, v3) }
-
-  override Dict dict5(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4) { Etc.dict5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4) }
-
-  override Dict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5) { Etc.dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5) }
-
-  override Dict dictMap(Str:Obj map) { Etc.dictFromMap(map) }
-
-  override Dict dict(Obj? val)
-  {
-    if (val == null) return dict0
-    if (val is Dict) return val
-    map := val as Str:Obj ?: throw ArgErr("Unsupported dict arg: $val.typeof")
-    return dictMap(map)
-  }
+  Dict dictMap(Str:Obj map) { Etc.dictFromMap(map) }
 
   override Ref ref(Str id, Str? dis := null) { haystack::Ref.make(id, dis) }
 

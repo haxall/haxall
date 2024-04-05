@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using haystack::Etc
 
 internal class JsonAst : XetoCmd
 {
@@ -55,15 +56,16 @@ internal class JsonAst : XetoCmd
     acc := Str:Dict[:]
     specs.each |spec|
     {
-      acc[spec.qname] = env.genAst(spec, env.dict(opts))
+      acc[spec.qname] = env.genAst(spec, Etc.dictFromMap(opts))
     }
-    root := env.dictMap(acc)
+    root := Etc.dictFromMap(acc)
 
     withOut(this.out) |out|
     {
-      env.print(root, out, env.dict1("json", env.marker))
+      env.print(root, out, Etc.dict1("json", env.marker))
     }
     return 0
   }
 
 }
+

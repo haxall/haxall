@@ -175,7 +175,7 @@ class DataTestCase
   Void compileLib(Str src)
   {
     this.libRef = compile |opts| { env.compileLib(src, opts) }
-    if (runner.verbose && libRef != null) env.print(env.genAst(libRef), Env.cur.out, env.dict1("json", env.marker))
+    if (runner.verbose && libRef != null) env.print(env.genAst(libRef), Env.cur.out, Etc.dict1("json", env.marker))
     //env.print(libRef)
   }
 
@@ -188,7 +188,7 @@ class DataTestCase
   {
     errs = XetoLogRec[,]
     logger := |XetoLogRec rec| { errs.add(rec) }
-    opts := env.dict1("log", Unsafe(logger))
+    opts := Etc.dict1("log", Unsafe(logger))
 
     try
       return f(opts)
@@ -254,7 +254,7 @@ class DataTestCase
   Void verifyJsonAst(Str expect)
   {
     s := StrBuf()
-    env.print(env.genAst(lib), s.out, env.dict1("json", env.marker))
+    env.print(env.genAst(lib), s.out, Etc.dict1("json", env.marker))
     actual := s.toStr
 
     // echo(actual)
@@ -634,5 +634,4 @@ class DataTestCase
   Obj? dataRef              // compileData
   Int numVerifies           // verifyX
 }
-
 

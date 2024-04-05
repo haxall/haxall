@@ -71,7 +71,7 @@ const class XetoFuncs
     libSpecRef := Ref("sys::Lib")
     return env.registry.list.mapNotNull |entry->Dict?|
     {
-      dict := entry.isLoaded ? entry.get : env.dict2("id", Ref("lib:$entry.name"), "spec", libSpecRef)
+      dict := entry.isLoaded ? entry.get : Etc.dict2("id", Ref("lib:$entry.name"), "spec", libSpecRef)
       if (filter != null && !filter.matches(dict, cx)) return null
       return dict
     }

@@ -48,6 +48,14 @@ class AbstractXetoTest : HaystackTest
 
   private XetoEnv? envRef
 
+  Dict dict0() { Etc.dict0 }
+
+  Dict dict1(Str n0, Obj v0) { Etc.dict1(n0, v0) }
+
+  Dict dict2(Str n0, Obj v0, Str n1, Obj v1) { Etc.dict2(n0, v0, n1, v1) }
+
+  Dict dict(Str:Obj map) { Etc.dictFromMap(map) }
+
   Lib compileLib(Str s, Dict? opts := null) { env.compileLib(s, opts) }
 
   Obj? compileData(Str s, Dict? opts := null) { env.compileData(s, opts) }

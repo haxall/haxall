@@ -309,7 +309,7 @@ class CompileTest : AbstractXetoTest
              }
            }
 
-           |>, env.dict1("register", m))
+           |>, dict1("register", m))
 
     spec := lib.type("Person")
 
@@ -677,3 +677,4 @@ class CompileTest : AbstractXetoTest
     return toNestedSpecSig(lib, deref)
   }
 }
+

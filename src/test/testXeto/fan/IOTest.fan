@@ -67,7 +67,7 @@ class IOTest : AbstractXetoTest
     verifyIO(haystack::Symbol("foo-bar"))
 
     a := env.instantiate(env.spec("ph::AcElecMeter"))
-    b := env.dict(["spec":Ref("ph::Rtu"), "dis":"RTU", "equip":m, "ahu":m, "rtu":m])
+    b := dict(["spec":Ref("ph::Rtu"), "dis":"RTU", "equip":m, "ahu":m, "rtu":m])
     verifyIO(a)
     verifyIO(b)
     verifyIO([a, b])
@@ -116,7 +116,7 @@ class IOTest : AbstractXetoTest
     buf.clear
     env.writeData(buf.out, val)
     str := buf.flip.readAllStr
-    opts := env.dict1("externRefs", m)
+    opts := dict1("externRefs", m)
     x = env.compileData(str, opts)
     verifyValEq(val, x)
 
@@ -138,3 +138,4 @@ class IOTest : AbstractXetoTest
     }
   }
 }
+

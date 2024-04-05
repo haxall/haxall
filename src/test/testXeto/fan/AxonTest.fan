@@ -208,7 +208,7 @@ class AxonTest : HxTest
 
     // specLibs
     verifyDictsEq(eval("""specLibs()"""),
-      env.registry.list.map |x| { x.isLoaded ? x.get : env.dict2("id", Ref("lib:$x.name"), "spec", Ref("sys::Lib")) })
+      env.registry.list.map |x| { x.isLoaded ? x.get : Etc.dict2("id", Ref("lib:$x.name"), "spec", Ref("sys::Lib")) })
     verifyDictsEq(eval("""specLibs(id==@lib:ph.points)"""), [env.lib("ph.points")])
 
     // spec
@@ -781,3 +781,4 @@ class AxonTest : HxTest
 
   XetoEnv env() { XetoEnv.cur }
 }
+

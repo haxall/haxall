@@ -146,7 +146,7 @@ class ShellContext : HxContext
   {
     str := errToStr(msg, err)
     if (!str.endsWith("\n")) str += "\n"
-    Printer(xeto, out, xeto.dict0).warn(str)
+    Printer(xeto, out, Etc.dict0).warn(str)
     return null
   }
 
@@ -303,3 +303,4 @@ class ShellContext : HxContext
   const XetoEnv xeto
 
 }
+

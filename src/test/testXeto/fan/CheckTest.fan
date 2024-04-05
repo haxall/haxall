@@ -39,9 +39,10 @@ class CheckTest : AbstractXetoTest
        }"""
 
     // first try fits against lib
-    lib := compileLib(src, env.dict1("register", m))
+    lib := compileLib(src, dict1("register", m))
     foo := lib.type("Foo")
-    instance := env.dict(["dis":"A", "spec":Ref(foo.qname), "n":n])
+    instance := dict(["dis":"A", "spec":Ref(foo.qname), "n":n])
     verifyFitsExplain(instance, foo, errs)
   }
 }
+

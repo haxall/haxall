@@ -209,7 +209,7 @@ class SpecTest : AbstractXetoTest
 
   Void verifyChoiceOf(Str:Obj tags, Str choice, Str? expect)
   {
-    actual := env.choiceOf(env.dictMap(tags), env.spec(choice), false)
+    actual := env.choiceOf(dict(tags), env.spec(choice), false)
     //echo("--> $tags choiceOf $choice => $actual ?= $expect")
     verifyEq(actual?.qname, expect)
   }
@@ -453,3 +453,4 @@ class SpecTest : AbstractXetoTest
   }
 
 }
+
