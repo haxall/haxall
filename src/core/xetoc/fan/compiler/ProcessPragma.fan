@@ -109,7 +109,7 @@ internal class ProcessPragma : Step
       versionsStr := (versionsObj as AScalar)?.str
       if (versionsStr == null) return err("Versions must be a scalar", versionsObj.loc)
 
-      versions = MLibDependVersions(versionsStr, false)
+      versions = LibDependVersions(versionsStr, false)
       if (versions == null) return err("Invalid versions syntax: $versionsStr", versionsObj.loc)
     }
 
@@ -119,3 +119,4 @@ internal class ProcessPragma : Step
     acc[libName] = MLibDepend(libName, versions, loc)
   }
 }
+

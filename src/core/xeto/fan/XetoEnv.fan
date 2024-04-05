@@ -168,9 +168,6 @@ const abstract class XetoEnv
   ** Parse pragma file into AST
   @NoDoc abstract Dict parsePragma(File file, Dict? opts := null)
 
-  ** Parse instance of LibDependVersions
-  @NoDoc abstract LibDependVersions parseLibDependVersions(Str s, Bool checked)
-
   ** Return if the given instance fits the spec via structural typing.
   abstract Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)
 
@@ -199,3 +196,4 @@ const abstract class XetoEnv
   @NoDoc abstract Void dump(OutStream out := Env.cur.out)
 
 }
+

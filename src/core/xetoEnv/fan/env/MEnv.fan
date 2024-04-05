@@ -205,11 +205,6 @@ abstract const class MEnv : XetoEnv
     Printer(this, out, opts ?: dict0).xetoTop(val)
   }
 
-  override LibDependVersions parseLibDependVersions(Str s, Bool checked)
-  {
-    MLibDependVersions.fromStr(s, checked)
-  }
-
   override Bool specFits(Spec a, Spec b, Dict? opts := null)
   {
     if (opts == null) opts = dict0
@@ -271,5 +266,4 @@ internal const class NilContext : XetoContext
   override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
   override Bool xetoIsSpec(Str spec, Dict rec) { false }
 }
-
 

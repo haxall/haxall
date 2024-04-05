@@ -7,6 +7,7 @@
 //
 
 using util
+using xeto
 using xetoEnv
 
 **
@@ -66,3 +67,4 @@ internal class ANamespace
   [Str:XetoLib]? dependLibs             // Resolve
   private Str:CSpec? globals := [:]     // resolveGlobals
 }
+

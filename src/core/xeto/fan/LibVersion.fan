@@ -7,7 +7,7 @@
 //
 
 **
-** Library information models a library name and version.
+** Xeto library name, version, and dependencies
 **
 @Js
 const mixin LibVersion
