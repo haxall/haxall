@@ -181,7 +181,9 @@ class RepoTest : AbstractXetoTest
 
   Void testNamespace()
   {
+    //
     // sys only
+    //
     repo := LibRepo.cur
     LibVersion sysVer := repo.latest("sys")
     ns := repo.createNamespace([sysVer])
@@ -195,6 +197,41 @@ class RepoTest : AbstractXetoTest
     verifySame(ns.sysLib, sys)
     verifyEq(sys.name, "sys")
     verifyEq(sys.version, sysVer.version)
+
+    //
+    // sys and ph
+    //
+    LibVersion phVer := repo.latest("ph")
+    ns = repo.createNamespace([phVer, sysVer])
+    verifyEq(ns.versions, [sysVer, phVer])
+    verifySame(ns.version("sys"), sysVer)
+    verifyEq(ns.isLoaded("sys"), true)
+    verifySame(ns.version("ph"), phVer)
+    verifyEq(ns.isAllLoaded, false)
+    verifyNotSame(ns.sysLib, sys)  // new compile of sys
+    verifyNotSame(ns.lib("sys"), sys)
+
+    verifyEq(ns.lib("foo.bar.baz", false), null)
+    verifyErr(UnknownLibErr#) { ns.lib("foo.bar.baz") }
+    verifyErr(UnknownLibErr#) { ns.lib("foo.bar.baz", true) }
+    asyncErr := null; asyncLib := null
+    ns.libAsync("foo.bar.baz") |e,l| { asyncErr = e; asyncLib = l }
+    verifyEq(asyncErr.typeof, UnknownLibErr#)
+    verifyEq(asyncLib, null)
+
+    verifyEq(ns.isLoaded("ph"), false)
+    verifyEq(ns.lib("ph", false), null)
+    verifyEq(ns.isLoaded("ph"), false)
+    ph := ns.lib("ph")
+    verifySame(ns.lib("ph"), ph)
+    verifyEq(ph.name, "ph")
+    verifyEq(ph.version, phVer.version)
+    verifyEq(ns.isLoaded("ph"), true)
+    verifyEq(ns.isAllLoaded, true)
+    asyncErr = null; asyncLib = null
+    ns.libAsync("ph") |e,l| { asyncErr = e; asyncLib = l }
+    verifyEq(asyncErr, null)
+    verifySame(asyncLib, ph)
   }
 
 //////////////////////////////////////////////////////////////////////////

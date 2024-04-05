@@ -30,11 +30,13 @@ const mixin LibNamespace
   ** Many operations require a namespace to be fully loaded.
   abstract Bool isAllLoaded()
 
-  ** Get the given library by name.  If this is a local namespace, then the
-  ** library will be compiled on its first access.  If the library cannot
-  ** be compiled then an exception is raised.  If the namespace is remote
-  ** then the library must already have been loaded or an exception is
-  ** raised.  Use `libAsync` to load a library in a remote namespace.
+  ** Get the given library by name synchronously.  If this is a local
+  ** namespace, then the library will be compiled on its first access.  If
+  ** the library cannot be compiled then an exception is always raised
+  ** regardless of checked flag.  If the namespace is remote then the
+  ** library must already have been loaded, otherwise raise exception or
+  ** return null based on checked flag.  Use `libAsync` to load a library
+  ** in a remote namespace.
   abstract Lib? lib(Str name, Bool checked := true)
 
   ** Get or load library asynchronously by the given dotted name.

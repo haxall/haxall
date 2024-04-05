@@ -19,13 +19,24 @@ abstract const class MNamespace : LibNamespace
 {
   new make(NameTable names, LibVersion[] versions)
   {
-    this.names = names
-    versions.each |x| { entries.add(x.name, MLibEntry(x)) }
+    // order versions by depends - also checks all internal constraints
+    versions = LibVersion.orderByDepends(versions)
 
-    // TODO: reuse XetoEnv.cur for now
-    this.sysLib = XetoEnv.cur.sysLib
-    entry("sys").set(this.sysLib)
-    if (versions.size == 1) allLoaded.val = true
+    // build list and map of entries
+    list := MLibEntry[,]
+    list.capacity = versions.size
+    map := Str:MLibEntry[:]
+    versions.each |x|
+    {
+      entry := MLibEntry(x)
+      list.add(entry)
+      map.add(x.name, entry)
+    }
+
+    this.names       = names
+    this.entriesList = list
+    this.entriesMap  = map
+    this.sysLib      = lib("sys")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -36,10 +47,7 @@ abstract const class MNamespace : LibNamespace
 
   override LibVersion[] versions()
   {
-    acc := LibVersion[,]
-    acc.capacity = entries.size
-    entries.each |MLibEntry e| { acc.add(e.version) }
-    return acc
+    entriesList.map |x->LibVersion| { x.version }
   }
 
   override LibVersion? version(Str name, Bool checked :=true)
@@ -59,28 +67,59 @@ abstract const class MNamespace : LibNamespace
 
   override Lib? lib(Str name, Bool checked := true)
   {
-    entry(name, checked)?.get(checked)
+    e := entry(name, false)
+    if (e == null)
+    {
+      if (checked) throw UnknownLibErr(name)
+      return null
+    }
+    if (e.isLoaded) return e.get
+    if (!checked) return null
+    return loaded(e, loadSync(e.version))
   }
 
   override Void libAsync(Str name, |Err?, Lib?| f)
   {
-    throw Err("TODO")
+    e := entry(name, false)
+    if (e == null) return f(UnknownLibErr(name), null)
+    if (e.isLoaded) return f(null, e.get)
+    loadAsync(e.version) |err, lib|
+    {
+      if (lib != null) lib = loaded(e, lib)
+      f(err, lib)
+    }
   }
 
   internal MLibEntry? entry(Str name, Bool checked := true)
   {
-    entry := entries.get(name) as MLibEntry
+    entry := entriesMap.get(name) as MLibEntry
     if (entry != null) return entry
     if (checked) throw UnknownLibErr(name)
     return null
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Loading
+//////////////////////////////////////////////////////////////////////////
+
+  private Lib loaded(MLibEntry entry, XetoLib lib)
+  {
+    entry.set(lib)
+    allLoaded.val = entriesList.all |x| { x.isLoaded }
+    return entry.get
+  }
+
+  abstract XetoLib loadSync(LibVersion v)
+
+  abstract Void loadAsync(LibVersion v, |Err?, XetoLib?| f)
+
+//////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
   const NameTable names
-  private const ConcurrentMap entries := ConcurrentMap()
+  private const Str:MLibEntry entriesMap
+  private const MLibEntry[] entriesList  // orderd by depends
   private const AtomicBool allLoaded := AtomicBool()
 
 }
@@ -102,13 +141,7 @@ internal const class MLibEntry
 
   Bool isLoaded() { libRef.val != null }
 
-  XetoLib? get(Bool checked := true)
-  {
-    lib := libRef.val as XetoLib
-    if (lib != null) return lib
-    if (checked) throw Err("Not loaded: $name")
-    return null
-  }
+  XetoLib? get() { libRef.val as XetoLib ?: throw Err("Not loaded: $name") }
 
   Void set(XetoLib lib) { libRef.compareAndSet(null, lib) }
 
