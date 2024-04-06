@@ -78,6 +78,10 @@ const mixin LibNamespace
   ** If the instance's lib is not loaded, it is loaded synchronously.
   abstract Dict? instance(Str qname, Bool checked := true)
 
+  ** Resolve unqualified type name against all libs.  Raise exception if not
+  ** fully loaded.  Raise exception if ambiguous types regardless of checked flag.
+  @NoDoc abstract Spec? unqualifiedType(Str name, Bool checked := true)
+
 //////////////////////////////////////////////////////////////////////////
 // Reflection
 //////////////////////////////////////////////////////////////////////////

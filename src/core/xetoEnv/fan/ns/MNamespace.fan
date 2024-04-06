@@ -167,6 +167,21 @@ abstract const class MNamespace : LibNamespace
     return null
   }
 
+  override Spec? unqualifiedType(Str name, Bool checked := true)
+  {
+    if (!isAllLoaded) throw Err("Namespace must be fully loaded")
+
+    acc := Spec[,]
+    entriesList.each |e|
+    {
+      acc.addNotNull(e.get.type(name, false))
+    }
+    if (acc.size == 1) return acc[0]
+    if (acc.size > 1) throw Err("Ambiguous types for '$name' $acc")
+    if (checked) throw UnknownTypeErr(name)
+    return null
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Reflection
 //////////////////////////////////////////////////////////////////////////

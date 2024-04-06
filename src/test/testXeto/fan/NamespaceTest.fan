@@ -132,6 +132,9 @@ doTestPhLib(createNamespace(["sys", "ph"]))
 
   private Void doTestPhLib(LibNamespace ns)
   {
+    verifyEq(ns.isAllLoaded, false)
+    verifyErr(Err#) { ns.unqualifiedType("Str") }
+
     // lib basics
     ph := verifyLibBasics(ns, "ph", curVersion)
     verifyEq(ph.depends.size, 1)
@@ -168,6 +171,11 @@ marker = env.spec("sys::Marker")
     // hot water
     hotWater := ph.type("HotWater")
     verifyEq(hotWater.slots.names.join(","), "water,hot")
+
+    // unqualifiedType
+    verifyEq(ns.isAllLoaded, true)
+    verifySame(ns.unqualifiedType("Str"), ns.spec("sys::Str"))
+    verifySame(ns.unqualifiedType("Equip"), ns.spec("ph::Equip"))
   }
 
   Void verifyFeatureInstance(Dict dict, Str:Obj expect)
@@ -182,7 +190,7 @@ marker = env.spec("sys::Marker")
   Void testHxTestLib()
   {
 //  verifyAllEnvs("hx.test.xeto") |env| { doTestHxTestLib(env) }
-doTestPhLib(createNamespace(["hx.test.xeto"]))
+doTestHxTestLib(createNamespace(["hx.test.xeto"]))
   }
 
   private Void doTestHxTestLib(LibNamespace ns)
