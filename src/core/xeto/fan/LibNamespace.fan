@@ -70,6 +70,9 @@ const mixin LibNamespace
    ** The instance's library must already be loaded in this namespace.
   abstract Dict? instance(Str qname, Bool checked := true)
 
+  ** Spec for Fantom `sys::Type` or the typeof given object
+  abstract Spec? specOf(Obj? val, Bool checked := true)
+
 
 
 }

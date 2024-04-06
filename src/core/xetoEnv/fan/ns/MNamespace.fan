@@ -9,6 +9,7 @@
 using concurrent
 using util
 using xeto
+using haystack::Grid
 using haystack::UnknownLibErr
 using haystack::UnknownSpecErr
 
@@ -38,6 +39,7 @@ abstract const class MNamespace : LibNamespace
     this.entriesList = list
     this.entriesMap  = map
     this.sysLib      = lib("sys")
+    this.sys         = MSys(sysLib)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -159,11 +161,45 @@ abstract const class MNamespace : LibNamespace
     return null
   }
 
+  override Spec? specOf(Obj? val, Bool checked := true)
+  {
+    if (val == null) return sys.none
+
+    // dict handling
+    dict := val as Dict
+    if (dict != null)
+    {
+      specRef := dict["spec"] as Ref
+      if (specRef == null) return sys.dict
+      return spec(specRef.id, checked)
+    }
+
+    // look in Fantom class hiearchy
+    type := val as Type ?: val.typeof
+    for (Type? p := type; p != null; p = p.base)
+    {
+      spec := factories.typeToSpec(p)
+      if (spec != null) return spec
+      spec = p.mixins.eachWhile |m| { factories.typeToSpec(m) }
+      if (spec != null) return spec
+    }
+
+    // fallbacks
+    if (val is List) return sys.list
+    if (type.fits(Grid#)) return lib("ph").type("Grid")
+
+    // cannot map to spec
+    if (checked) throw UnknownSpecErr("No spec mapped for '$type'")
+    return null
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
   const NameTable names
+  const MSys sys
+  const MFactories factories := MFactories()
   private const Str:MLibEntry entriesMap
   private const MLibEntry[] entriesList  // orderd by depends
   private const AtomicBool allLoaded := AtomicBool()
