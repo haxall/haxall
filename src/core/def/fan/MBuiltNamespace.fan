@@ -24,6 +24,7 @@ const class MBuiltNamespace : MNamespace
   new make(BNamespace b)
   {
     b.ref.val = this
+    this.xeto         = b.xeto
     this.defsMap      = b.defsMap
     this.features     = b.features
     this.featuresMap  = b.featuresMap
@@ -43,6 +44,8 @@ const class MBuiltNamespace : MNamespace
 //////////////////////////////////////////////////////////////////////////
 // Namespace
 //////////////////////////////////////////////////////////////////////////
+
+  override const xeto::LibNamespace xeto
 
   override Def? def(Str symbol, Bool checked := true)
   {
@@ -96,17 +99,6 @@ const class MBuiltNamespace : MNamespace
     if (checked) throw UnknownFiletypeErr(name)
     return null
   }
-
-
-//////////////////////////////////////////////////////////////////////////
-// Xeto
-//////////////////////////////////////////////////////////////////////////
-
-  ** Xeto environment
-  override xeto::XetoEnv xetoEnv() { xeto::XetoEnv.cur }
-
-  ** Xeto libs imported into namespace
-  override xeto::Lib[] xetoLibs() { xeto::Lib#.emptyList }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

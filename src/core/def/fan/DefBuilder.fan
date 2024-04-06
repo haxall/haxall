@@ -24,6 +24,9 @@ class DefBuilder
   ** Pluggable factory
   DefFactory factory := DefFactory()
 
+  ** Xeto namespace to wrap or bootNamespace is used
+  xeto::LibNamespace? xeto
+
   ** Add new def with normalized meta
   Void addDef(Dict meta, Obj? aux := null)
   {
@@ -116,6 +119,7 @@ class DefBuilder
 
     // initialize namespace builder stub
     b := BNamespace()
+    b.xeto = xeto ?: xeto::LibRepo.cur.bootNamespace
     b.ref = nsRef
     b.defsMap = defs
     b.features = features.vals.sort
@@ -157,6 +161,7 @@ class BNamespace
   [Str:Lib]? libsMap
   Filetype[]? filetypes
   [Str:Filetype]? filetypesMap
+  xeto::LibNamespace? xeto
 }
 
 **************************************************************************
@@ -217,3 +222,4 @@ class BFeature
   const Str name
   internal AtomicRef nsRef
 }
+

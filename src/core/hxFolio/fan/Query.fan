@@ -63,18 +63,21 @@ internal class Query : HaystackContext
 
   @NoDoc override Bool xetoIsSpec(Str specName, xeto::Dict rec)
   {
+    ns := folio.hooks.ns(false)
+    if (ns == null) return false
+
     // cache the spec since it can be fairly expensive to lookup
     // and this method could be called 1000s of time in a filter loop
     spec := xetoIsSpecCache?.get(specName)
     if (spec == null)
     {
-      ns := folio.hooks.ns(false)
-      if (ns == null) return false
       if (xetoIsSpecCache == null) xetoIsSpecCache = Str:Spec[:]
-      spec = ns.xetoResolve(specName)
+      spec = specName.contains("::") ?
+             ns.xeto.type(specName) :
+             ns.xeto.unqualifiedType(specName)
       xetoIsSpecCache[specName] = spec
     }
-    return spec.env.specOf(rec).isa(spec)
+    return ns.xeto.specOf(rec).isa(spec)
   }
 
   override Dict? deref(Ref id)

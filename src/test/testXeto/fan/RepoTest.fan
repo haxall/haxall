@@ -367,6 +367,11 @@ internal const class TestRepo : LibRepo
     throw UnsupportedErr()
   }
 
+  override LibNamespace bootNamespace()
+  {
+    throw UnsupportedErr()
+  }
+
   Void dump()
   {
     libs.each |lib|

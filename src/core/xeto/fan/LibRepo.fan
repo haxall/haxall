@@ -63,9 +63,11 @@ const mixin LibRepo
   ** all version constraints.  Also see `solveDepends`.
   abstract LibNamespace createNamespace(LibVersion[] libs)
 
+  ** Bootstrap namespace
+  @NoDoc abstract LibNamespace bootNamespace()
+
   ** Rescan file system if this is a local repo
-  @NoDoc
-  abstract This rescan()
+  @NoDoc abstract This rescan()
 
 }
 

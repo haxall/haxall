@@ -94,6 +94,11 @@ const class FileRepo : LibRepo
     LocalNamespace(names, libs, this)
   }
 
+  override once LibNamespace bootNamespace()
+  {
+    createNamespace([latest("sys")])
+  }
+
   const NameTable names := XetoEnv.cur.names // TODO
 }
 
