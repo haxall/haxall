@@ -274,7 +274,7 @@ const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Dervice a new spec from the given base, meta, and map
-  static Spec derive(MEnv env, Str name, XetoSpec base, Dict meta, [Str:Spec]? slots)
+  static Spec derive(MNamespace ns, Str name, XetoSpec base, Dict meta, [Str:Spec]? slots)
   {
     // sanity checking
     if (!isSpecName(name)) throw ArgErr("Invalid spec name: $name")
@@ -284,7 +284,7 @@ const class XetoUtil
     }
 
     spec := XetoSpec()
-    m := MDerivedSpec(env, null, env.names.add(name), base, MNameDict(env.names.dictDict(meta)), deriveSlots(env, spec, slots), deriveFlags(base, meta))
+    m := MDerivedSpec(ns.env, null, ns.names.add(name), base, MNameDict(ns.names.dictDict(meta)), deriveSlots(ns, spec, slots), deriveFlags(base, meta))
     XetoSpec#m->setConst(spec, m)
     return spec
   }
@@ -296,16 +296,16 @@ const class XetoUtil
     return flags
   }
 
-  private static MSlots deriveSlots(MEnv env, XetoSpec parent, [Str:Spec]? slotsMap)
+  private static MSlots deriveSlots(MNamespace ns, XetoSpec parent, [Str:Spec]? slotsMap)
   {
     if (slotsMap == null || slotsMap.isEmpty) return MSlots.empty
 
     derivedMap := slotsMap.map |XetoSpec base, Str name->XetoSpec|
     {
-      XetoSpec(MDerivedSpec(env, parent, env.names.add(name), base, base.m.meta, base.m.slots, base.m.flags))
+      XetoSpec(MDerivedSpec(ns.env, parent, ns.names.add(name), base, base.m.meta, base.m.slots, base.m.flags))
     }
 
-    return MSlots(env.names.dictMap(derivedMap))
+    return MSlots(ns.names.dictMap(derivedMap))
   }
 
 //////////////////////////////////////////////////////////////////////////

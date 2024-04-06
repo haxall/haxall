@@ -88,6 +88,7 @@ const abstract class XetoEnv
   ** Derive a new spec from the given base type, additional meta, and
   ** slots.  The spec is not associated with any library and a synthetic
   ** qname is generated.
+  @Deprecated
   abstract Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
 
   ** Create default instance for the given spec.

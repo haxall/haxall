@@ -81,6 +81,14 @@ const mixin LibNamespace
   ** Spec for Fantom `sys::Type` or the typeof given object
   abstract Spec? specOf(Obj? val, Bool checked := true)
 
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  ** Derive a new spec from the given base type, additional meta, and
+  ** slots.  The spec is not associated with any library and a synthetic
+  ** qname is generated.  This feature is subject to change or removal.
+  @NoDoc abstract Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
 
 
 }

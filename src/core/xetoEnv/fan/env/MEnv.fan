@@ -163,7 +163,7 @@ abstract const class MEnv : XetoEnv
 
   override Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
   {
-    XetoUtil.derive(this, name, base, meta, slots)
+throw UnsupportedErr()
   }
 
   override Obj? instantiate(Spec spec, Dict? opts := null)

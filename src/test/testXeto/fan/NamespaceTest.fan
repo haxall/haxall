@@ -372,29 +372,30 @@ doTestPhLib(createNamespace(["hx.test.xeto"]))
 
   Void testDerive()
   {
-    obj := env.type("sys::Obj")
-    scalar := env.type("sys::Scalar")
-    marker := env.type("sys::Marker")
-    str := env.type("sys::Str")
-    list := env.type("sys::List")
-    dict := env.type("sys::Dict")
+    ns := createNamespace(["sys"])
+    obj := ns.type("sys::Obj")
+    scalar := ns.type("sys::Scalar")
+    marker := ns.type("sys::Marker")
+    str := ns.type("sys::Str")
+    list := ns.type("sys::List")
+    dict := ns.type("sys::Dict")
     m := Marker.val
 
-    verifyDerive("foo", list, dict0, null)
-    verifyDerive("foo", list, dict1("bar", m), null)
-    verifyDerive("foo", list, dict2("bar", m, "baz", "hi"), Str:Spec[:])
-    verifyDerive("foo", dict, dict0, ["foo":marker])
-    verifyDerive("foo", dict, dict1("bar", m), ["foo":marker, "dis":str])
-    verifyDerive("foo", dict, dict1("maybe", m), null)
+    verifyDerive(ns, "foo", list, dict0, null)
+    verifyDerive(ns, "foo", list, dict1("bar", m), null)
+    verifyDerive(ns, "foo", list, dict2("bar", m, "baz", "hi"), Str:Spec[:])
+    verifyDerive(ns, "foo", dict, dict0, ["foo":marker])
+    verifyDerive(ns, "foo", dict, dict1("bar", m), ["foo":marker, "dis":str])
+    verifyDerive(ns, "foo", dict, dict1("maybe", m), null)
 
-    verifyDeriveErr("foo bar", scalar, dict0, null, "Invalid spec name: foo bar")
-    verifyDeriveErr("foo", scalar, dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::Scalar")
-    verifyDeriveErr("foo", list, dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::List")
+    verifyDeriveErr(ns, "foo bar", scalar, dict0, null, "Invalid spec name: foo bar")
+    verifyDeriveErr(ns, "foo", scalar, dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::Scalar")
+    verifyDeriveErr(ns, "foo", list, dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::List")
   }
 
-  Void verifyDerive(Str name, Spec base, Dict meta, [Str:Spec]? slots)
+  Void verifyDerive(LibNamespace ns, Str name, Spec base, Dict meta, [Str:Spec]? slots)
   {
-    x := env.derive(name, base, meta, slots)
+    x := ns.derive(name, base, meta, slots)
 
     verifyEq(x.name, name)
     verifyEq(x.parent, null)
@@ -421,9 +422,9 @@ doTestPhLib(createNamespace(["hx.test.xeto"]))
     }
   }
 
-  Void verifyDeriveErr(Str name, Spec base, Dict meta, [Str:Spec]? slots, Str msg)
+  Void verifyDeriveErr(LibNamespace ns, Str name, Spec base, Dict meta, [Str:Spec]? slots, Str msg)
   {
-    verifyErrMsg(ArgErr#, msg) { env.derive(name, base, meta, slots) }
+    verifyErrMsg(ArgErr#, msg) { ns.derive(name, base, meta, slots) }
   }
 
 //////////////////////////////////////////////////////////////////////////
