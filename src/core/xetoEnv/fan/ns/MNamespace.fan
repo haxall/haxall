@@ -10,6 +10,7 @@ using concurrent
 using util
 using xeto
 using haystack::UnknownLibErr
+using haystack::UnknownSpecErr
 
 **
 ** LibNamespace implementation base class
@@ -40,7 +41,7 @@ abstract const class MNamespace : LibNamespace
   }
 
 //////////////////////////////////////////////////////////////////////////
-// LibNamespace
+// Libs
 //////////////////////////////////////////////////////////////////////////
 
   const override Lib sysLib
@@ -112,6 +113,51 @@ abstract const class MNamespace : LibNamespace
   abstract XetoLib loadSync(LibVersion v)
 
   abstract Void loadAsync(LibVersion v, |Err?, XetoLib?| f)
+
+//////////////////////////////////////////////////////////////////////////
+// Lookups
+//////////////////////////////////////////////////////////////////////////
+
+  override XetoType? type(Str qname, Bool checked := true)
+  {
+    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
+    libName := qname[0..<colon]
+    typeName := qname[colon+2..-1]
+    type := lib(libName, false)?.type(typeName, false)
+    if (type != null) return type
+    if (checked) throw UnknownSpecErr("Unknown data type: $qname")
+    return null
+  }
+
+  override XetoSpec? spec(Str qname, Bool checked := true)
+  {
+    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
+
+    libName := qname[0..<colon]
+    names := qname[colon+2..-1].split('.', false)
+
+    spec := lib(libName, false)?.spec(names.first, false)
+    for (i:=1; spec != null && i<names.size; ++i)
+      spec = spec.slot(names[i], false)
+
+    if (spec != null) return spec
+    if (checked) throw UnknownSpecErr(qname)
+    return null
+  }
+
+  override Dict? instance(Str qname, Bool checked := true)
+  {
+    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
+
+    libName := qname[0..<colon]
+    name := qname[colon+2..-1]
+
+    instance := lib(libName, false)?.instance(name, false)
+
+    if (instance != null) return instance
+    if (checked) throw haystack::UnknownRecErr(qname)
+    return null
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

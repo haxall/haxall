@@ -16,6 +16,11 @@ using concurrent
 @Js
 const mixin LibNamespace
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Libs
+//////////////////////////////////////////////////////////////////////////
+
   ** List the library name and versions in this namespace.
   abstract LibVersion[] versions()
 
@@ -45,6 +50,27 @@ const mixin LibNamespace
 
   ** Get the 'sys' library
   @NoDoc abstract Lib sysLib()
+
+//////////////////////////////////////////////////////////////////////////
+// Lookups
+//////////////////////////////////////////////////////////////////////////
+
+   ** Get or load type by the given qualified name.
+   ** The type's library must already be loaded in this namespace.
+  abstract Spec? type(Str qname, Bool checked := true)
+
+  ** Get or load spec by the given qualified name:
+  **   - type: "foo.bar::Baz"
+  **   - global: "foo.bar::baz"
+  **   - slot: "foo.bar::Baz.qux"
+   ** The spec's library must already be loaded in this namespace.
+  abstract Spec? spec(Str qname, Bool checked := true)
+
+  ** Get or load instance by the given qualified name
+   ** The instance's library must already be loaded in this namespace.
+  abstract Dict? instance(Str qname, Bool checked := true)
+
+
 
 }
 

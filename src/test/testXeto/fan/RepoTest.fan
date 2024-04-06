@@ -222,6 +222,8 @@ class RepoTest : AbstractXetoTest
     verifyEq(ns.isLoaded("ph"), false)
     verifyEq(ns.lib("ph", false), null)
     verifyEq(ns.isLoaded("ph"), false)
+    verifyEq(ns.type("ph::Point", false), null)
+    verifyEq(ns.spec("ph::Point.point", false), null)
     ph := ns.lib("ph")
     verifySame(ns.lib("ph"), ph)
     verifyEq(ph.name, "ph")
@@ -232,6 +234,10 @@ class RepoTest : AbstractXetoTest
     ns.libAsync("ph") |e,l| { asyncErr = e; asyncLib = l }
     verifyEq(asyncErr, null)
     verifySame(asyncLib, ph)
+
+    verifySame(ns.spec("sys::Str").lib, ns.sysLib)
+    verifySame(ns.type("ph::Point").lib, ph)
+    verifySame(ns.spec("ph::Point.point").lib, ph)
   }
 
 //////////////////////////////////////////////////////////////////////////
