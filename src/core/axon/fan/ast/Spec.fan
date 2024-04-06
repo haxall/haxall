@@ -164,7 +164,7 @@ internal const class SpecDerive : SpecExpr
     base  := base.eval(cx)
     meta  := evalMeta(cx)
     slots := evalSlots(cx)
-    return cx.usings.env.derive(name, base, meta, slots)
+    return cx.usings.ns.derive(name, base, meta, slots)
   }
 
   private Dict evalMeta(AxonContext cx)
@@ -232,5 +232,4 @@ internal const class SpecMetaTag
   const Str name
   const Expr val
 }
-
 

@@ -32,6 +32,18 @@ class AxonUsings
   ** Xeto environment
   const XetoEnv env
 
+  ** Xeto library namespace
+  LibNamespace ns()
+  {
+    // TODO: this is temp shim to transition from XetoEnv APIs
+    if (nsRef != null) return nsRef
+    depends := libNames.map |x->LibDepend| { LibDepend(x) }
+    vers := LibRepo.cur.solveDepends(depends)
+    nsRef = LibRepo.cur.createNamespace(vers)
+    return nsRef
+  }
+  private LibNamespace? nsRef
+
   ** List lib names configured (both ok and failures)
   Str[] libNames() { map.vals.map |u->Str| { u.name } }
 

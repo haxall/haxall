@@ -161,11 +161,6 @@ abstract const class MEnv : XetoEnv
     return null
   }
 
-  override Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
-  {
-throw UnsupportedErr()
-  }
-
   override Obj? instantiate(Spec spec, Dict? opts := null)
   {
     XetoUtil.instantiate(this, spec, opts ?: dict0)
