@@ -14,10 +14,10 @@ using haystack
 using haystack::Ref
 
 **
-** EnvTest
+** NamespaceTest
 **
 @Js
-class EnvTest : AbstractXetoTest
+class NamespaceTest : AbstractXetoTest
 {
 
   static Version curVersion() { Version("0.1.1") }
