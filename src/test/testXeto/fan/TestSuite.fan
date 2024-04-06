@@ -135,6 +135,7 @@ class DataTestCase
     this.runner   = runner
     this.test     = runner.test
     this.env      = runner.env
+    this.ns       = LibRepo.cur.bootNamespace
     this.testName = testName
     this.def      = def
   }
@@ -219,7 +220,7 @@ class DataTestCase
     verifyVal(data, expect)
   }
 
-  Void verifySpecIs(LibNamespace ns, [Str:Obj][] list)
+  Void verifySpecIs([Str:Obj][] list)
   {
     list.each |map|
     {
@@ -240,7 +241,7 @@ class DataTestCase
     }
   }
 
-  Void verifySpecFits(LibNamespace ns, [Str:Obj][] list)
+  Void verifySpecFits([Str:Obj][] list)
   {
     list.each |map|
     {
@@ -627,6 +628,7 @@ class DataTestCase
 
   DataTestRunner runner     // make
   XetoEnv env               // make
+  LibNamespace ns           // make
   Test test                 // make
   Str testName              // make
   Str:Obj? def              // make
