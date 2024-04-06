@@ -63,6 +63,14 @@ class AbstractXetoTest : HaystackTest
 
   Dict dict(Str:Obj map) { Etc.dictFromMap(map) }
 
+  LibNamespace createNamespace(Str[] libs)
+  {
+    repo    := LibRepo.cur
+    depends := libs.map |n->LibDepend| { LibDepend(n) }
+    vers    := repo.solveDepends(depends)
+    return repo.createNamespace(vers)
+  }
+
   Lib compileLib(Str s, Dict? opts := null) { env.compileLib(s, opts) }
 
   Obj? compileData(Str s, Dict? opts := null) { env.compileData(s, opts) }

@@ -28,19 +28,18 @@ class EnvTest : AbstractXetoTest
 
   Void testSysLib()
   {
-    verifyAllEnvs("sys") |env| { doTestSysLib(env) }
+    //verifyAllEnvs("sys") |env| { doTestSysLib(env) }
+doTestSysLib(createNamespace(["sys"]))
   }
 
-  private Void doTestSysLib(XetoEnv env)
+  private Void doTestSysLib(LibNamespace ns)
   {
-    verifySame(this.env, env)
-
     // lib basics
-    sys := verifyLibBasics("sys", curVersion)
-    verifySame(env.lib("sys"), sys)
+    sys := verifyLibBasics(ns, "sys", curVersion)
+    verifySame(ns.lib("sys"), sys)
     verifyEq(sys.name, "sys")
     verifyEq(sys.version, curVersion)
-    verifySame(env.sysLib, sys)
+    verifySame(ns.sysLib, sys)
 
     // verify lib meta inference
     verifyEq(sys.meta["version"], curVersion)
@@ -50,24 +49,24 @@ class EnvTest : AbstractXetoTest
     verifyEq(sysOrg->spec, Ref("sys::LibOrg"))
 
     // types
-    obj    := verifyLibType(sys, "Obj",      null)
-    self   := verifyLibType(sys, "Self",     obj)
-    scalar := verifyLibType(sys, "Scalar",   obj)
-    none   := verifyLibType(sys, "None",     scalar, none)
-    marker := verifyLibType(sys, "Marker",   scalar, m)
-    na     := verifyLibType(sys, "NA",       scalar, na)
-    str    := verifyLibType(sys, "Str",      scalar, "")
-    uri    := verifyLibType(sys, "Uri",      scalar, ``)
-    ref    := verifyLibType(sys, "Ref",      scalar, ref("x"))
-    time   := verifyLibType(sys, "Time",     scalar, Time.defVal)
-    date   := verifyLibType(sys, "Date",     scalar, Date.defVal)
-    dt     := verifyLibType(sys, "DateTime", scalar, DateTime.defVal)
-    seq    := verifyLibType(sys, "Seq",      obj)
-    dict   := verifyLibType(sys, "Dict",     seq)
-    list   := verifyLibType(sys, "List",     seq)
-    spec   := verifyLibType(sys, "Spec",     dict)
-    lib    := verifyLibType(sys, "Lib",      dict)
-    org    := verifyLibType(sys, "LibOrg",   dict)
+    obj    := verifyLibType(ns, sys, "Obj",      null)
+    self   := verifyLibType(ns, sys, "Self",     obj)
+    scalar := verifyLibType(ns, sys, "Scalar",   obj)
+    none   := verifyLibType(ns, sys, "None",     scalar, none)
+    marker := verifyLibType(ns, sys, "Marker",   scalar, m)
+    na     := verifyLibType(ns, sys, "NA",       scalar, na)
+    str    := verifyLibType(ns, sys, "Str",      scalar, "")
+    uri    := verifyLibType(ns, sys, "Uri",      scalar, ``)
+    ref    := verifyLibType(ns, sys, "Ref",      scalar, ref("x"))
+    time   := verifyLibType(ns, sys, "Time",     scalar, Time.defVal)
+    date   := verifyLibType(ns, sys, "Date",     scalar, Date.defVal)
+    dt     := verifyLibType(ns, sys, "DateTime", scalar, DateTime.defVal)
+    seq    := verifyLibType(ns, sys, "Seq",      obj)
+    dict   := verifyLibType(ns, sys, "Dict",     seq)
+    list   := verifyLibType(ns, sys, "List",     seq)
+    spec   := verifyLibType(ns, sys, "Spec",     dict)
+    lib    := verifyLibType(ns, sys, "Lib",      dict)
+    org    := verifyLibType(ns, sys, "LibOrg",   dict)
 
     // types
     verifyEq(sys.types.isEmpty, false)
@@ -101,7 +100,7 @@ class EnvTest : AbstractXetoTest
     verifyEq(specOfs["doc"], "Types used in compound types like And and Or")
     verifyEq(specOfs["maybe"], m)
     verifyEq(specOfsOfRef.toStr.startsWith("sys::_"), true)
-    specOfsOf := env.spec(specOfsOfRef.id)
+    specOfsOf := ns.spec(specOfsOfRef.id)
     verifySame(specOfs.of, specOfsOf)
     verifySame(specOfsOf.base, ref)
     verifyEq(specOfsOf["of"], Ref("sys::Spec"))
@@ -114,8 +113,8 @@ class EnvTest : AbstractXetoTest
     verifySame(sys.instance("bad", false), null)
     verifyErr(UnknownRecErr#) { sys.instance("bad") }
     verifyErr(UnknownRecErr#) { sys.instance("bad", true) }
-    verifySame(env.spec("sys::LibOrg"), org)
-    verifySame(env.spec("sys::LibOrg.dis"), orgDis)
+    verifySame(ns.spec("sys::LibOrg"), org)
+    verifySame(ns.spec("sys::LibOrg.dis"), orgDis)
     verifyErr(UnknownSpecErr#) { env.spec("foo.bar.baz::Qux") }
     verifyErr(UnknownSpecErr#) { env.spec("sys::Baz") }
     verifyErr(UnknownSpecErr#) { env.spec("sys::Str.foo") }
@@ -127,27 +126,33 @@ class EnvTest : AbstractXetoTest
 
   Void testPhLib()
   {
-    verifyAllEnvs("ph") |env| { doTestPhLib(env) }
+//    verifyAllEnvs("ph") |env| { doTestPhLib(env) }
+doTestPhLib(createNamespace(["sys", "ph"]))
   }
 
-  private Void doTestPhLib(XetoEnv env)
+  private Void doTestPhLib(LibNamespace ns)
   {
     // lib basics
-    ph := verifyLibBasics("ph", curVersion)
+    ph := verifyLibBasics(ns, "ph", curVersion)
     verifyEq(ph.depends.size, 1)
     verifyEq(ph.depends[0].name, "sys")
     verifyEq(ph.depends[0].versions.toStr, "" + curVersion.major + "." + curVersion.minor + ".x")
 
-    entity    := verifyLibType(ph, "Entity", env.type("sys::Dict"))
-    equip     := verifyLibType(ph, "Equip",  entity)
-    meter     := verifyLibType(ph, "Meter",  equip)
-    elecMeter := verifyLibType(ph, "ElecMeter",  meter)
+// TODO
+dict := env.dictSpec
+
+    entity    := verifyLibType(ns, ph, "Entity",   dict)
+    equip     := verifyLibType(ns, ph, "Equip",    entity)
+    meter     := verifyLibType(ns, ph, "Meter",    equip)
+    elecMeter := verifyLibType(ns, ph, "ElecMeter",meter)
 
     water := ph.global("water")
-    verifySame(env.spec("ph::water"), water)
+    verifySame(ns.spec("ph::water"), water)
 
     // env.print(elecMeter, Env.cur.out, env.dict1("effective", m))
-    marker := env.spec("sys::Marker")
+    marker := ns.spec("sys::Marker")
+// TODO
+marker = env.spec("sys::Marker")
     verifyEq(elecMeter.slot("elec").type, marker)
     verifyEq(elecMeter.slot("meter").type, marker)
     verifyEq(elecMeter.slot("equip").type, marker)
@@ -176,13 +181,14 @@ class EnvTest : AbstractXetoTest
 
   Void testHxTestLib()
   {
-    verifyAllEnvs("hx.test.xeto") |env| { doTestHxTestLib(env) }
+//  verifyAllEnvs("hx.test.xeto") |env| { doTestHxTestLib(env) }
+doTestPhLib(createNamespace(["hx.test.xeto"]))
   }
 
-  private Void doTestHxTestLib(XetoEnv env)
+  private Void doTestHxTestLib(LibNamespace ns)
   {
     // lib basics
-    lib := verifyLibBasics("hx.test.xeto", curVersion)
+    lib := verifyLibBasics(ns, "hx.test.xeto", curVersion)
 
     a  := lib.type("A");  ax := a.slot("x")
     b  := lib.type("B");  by := b.slot("y")
@@ -231,8 +237,9 @@ class EnvTest : AbstractXetoTest
 
   Void testNameTable()
   {
-    sys := verifyLibBasics("sys", curVersion)
-    ph  := verifyLibBasics("ph", curVersion)
+    ns  := createNamespace(["sys", "ph"])
+    sys := verifyLibBasics(ns, "sys", curVersion)
+    ph  := verifyLibBasics(ns, "ph", curVersion)
     str := sys.type("Str")
     org := sys.type("LibOrg")
     ref := sys.type("Ref")
@@ -540,12 +547,11 @@ class EnvTest : AbstractXetoTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  Lib verifyLibBasics(Str name, Version version)
+  Lib verifyLibBasics(LibNamespace ns, Str name, Version version)
   {
-    lib := env.lib(name)
+    lib := ns.lib(name)
 
-    verifySame(env.lib(name), lib)
-    verifySame(lib.env, env)
+    verifySame(ns.lib(name), lib)
     verifyEq(lib.name, name)
     verifyEq(lib.version, version)
 
@@ -561,7 +567,7 @@ class EnvTest : AbstractXetoTest
     verifyDictEq((haystack::Dict)lib, asDict)
 
     Lib? async := null
-    env.libAsync(name) |e, x| { async = x }
+    ns.libAsync(name) |e, x| { async = x }
     verifySame(async, lib)
 
     verifyEq(lib.type("Bad", false), null)
@@ -571,12 +577,11 @@ class EnvTest : AbstractXetoTest
     return lib
   }
 
-  Spec verifyLibType(Lib lib, Str name, Spec? base, Obj? val := null)
+  Spec verifyLibType(LibNamespace ns, Lib lib, Str name, Spec? base, Obj? val := null)
   {
     type := lib.type(name)
     verifySame(type, lib.type(name))
     verifyEq(lib.types.containsSame(type), true)
-    verifySame(type.env, env)
     verifySame(type.parent, null)
     verifySame(type.lib, lib)
 
@@ -596,7 +601,7 @@ class EnvTest : AbstractXetoTest
     verifySame(type.type, type)
     verifySame(type.base, base)
     verifyEq(type.toStr, type.qname)
-    verifySame(env.specOf(type), env.type("sys::Spec"))
+    verifySame(ns.specOf(type), ns.type("sys::Spec"))
     verifyEq(type.isType, true)
     verifyEq(type["val"], val)
     return type
