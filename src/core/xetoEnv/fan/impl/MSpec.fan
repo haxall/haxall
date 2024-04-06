@@ -237,7 +237,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   new makem(MSpec m) { this.m = m }
 
-  override MEnv env() { m.env }
+  MEnv env() { m.env }
 
   override Lib lib() { m.lib }
 

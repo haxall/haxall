@@ -62,9 +62,6 @@ const mixin Lib : Dict
   ** Lookup an instance dict by its simple name
   abstract Dict? instance(Str name, Bool checked := true)
 
-  ** Environment for lib
-  @NoDoc abstract XetoEnv env()
-
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 

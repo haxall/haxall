@@ -90,9 +90,6 @@ const mixin Spec : Dict
 // NoDoc
 //////////////////////////////////////////////////////////////////////////
 
-  ** Environment for spec
-  @NoDoc abstract XetoEnv env()
-
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 

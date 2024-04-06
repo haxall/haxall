@@ -175,7 +175,7 @@ const final class XetoLib : Lib, haystack::Dict
 {
   override FileLoc loc() { m.loc }
 
-  override XetoEnv env() { m.env }
+  XetoEnv env() { m.env }
 
   override haystack::Ref id() { m.id }
 
