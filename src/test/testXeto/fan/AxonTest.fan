@@ -236,15 +236,15 @@ class AxonTest : HxTest
     verifyReflect("LibOrg", env.type("sys::LibOrg"))
 
     // instance
-    verifySame(eval("""instance("ashrae.g36::test-a")"""), env.instance("ashrae.g36::test-a"))
-    verifySame(eval("""instance(@ashrae.g36::test-a)"""), env.instance("ashrae.g36::test-a"))
+    verifySame(eval("""instance("hx.test.xeto::test-a")"""), env.instance("hx.test.xeto::test-a"))
+    verifySame(eval("""instance(@hx.test.xeto::test-a)"""), env.instance("hx.test.xeto::test-a"))
     verifySame(eval("""instance(@bad::one, false)"""), null)
 
     // instances
     verifyDictsEq(eval("""instances()"""), Dict[,])
-    verifyDictsEq(eval("""do x: specLib("ashrae.g36"); instances(x); end"""), env.lib("ashrae.g36").instances)
-    verifyDictsEq(eval("""specLib("ashrae.g36").instances"""), env.lib("ashrae.g36").instances)
-    verifyDictsEq(eval("""[specLib("ashrae.g36")].instances(alpha)"""), [env.instance("ashrae.g36::test-a")])
+    verifyDictsEq(eval("""do x: specLib("hx.test.xeto"); instances(x); end"""), env.lib("hx.test.xeto").instances)
+    verifyDictsEq(eval("""specLib("hx.test.xeto").instances"""), env.lib("hx.test.xeto").instances)
+    verifyDictsEq(eval("""[specLib("hx.test.xeto")].instances(alpha)"""), [env.instance("hx.test.xeto::test-a")])
   }
 
   Void verifyReflect(Str expr, Spec spec)

@@ -220,11 +220,8 @@ class RepoTest : AbstractXetoTest
     verifyEq(asyncLib, null)
 
     verifyEq(ns.isLoaded("ph"), false)
-    verifyEq(ns.lib("ph", false), null)
-    verifyEq(ns.isLoaded("ph"), false)
-    verifyEq(ns.type("ph::Point", false), null)
-    verifyEq(ns.spec("ph::Point.point", false), null)
     ph := ns.lib("ph")
+    verifyEq(ns.isLoaded("ph"), true)
     verifySame(ns.lib("ph"), ph)
     verifyEq(ph.name, "ph")
     verifyEq(ph.version, phVer.version)

@@ -289,39 +289,41 @@ doTestPhLib(createNamespace(["hx.test.xeto"]))
   Void testLookups()
   {
     // sys
-    sys := env.lib("sys")
-    verifySame(env.lib("sys"), sys)
-    verifySame(env.type("sys::Dict"), sys.type("Dict"))
+    ns := createNamespace(["hx.test.xeto"])
+    sys := ns.lib("sys")
+    verifySame(ns.lib("sys"), sys)
+    verifySame(ns.type("sys::Dict"), sys.type("Dict"))
 
     // bad libs
-    verifyEq(env.lib("bad.one", false), null)
-    verifyEq(env.type("bad.one::Foo", false), null)
-    verifyErr(UnknownLibErr#) { env.lib("bad.one") }
-    verifyErr(UnknownLibErr#) { env.lib("bad.one", true) }
-    verifyErr(UnknownSpecErr#) { env.type("bad.one::Foo") }
-    verifyErr(UnknownSpecErr#) { env.type("bad.one::Foo", true) }
+    verifyEq(ns.lib("bad.one", false), null)
+    verifyEq(ns.type("bad.one::Foo", false), null)
+    verifyErr(UnknownLibErr#) { ns.lib("bad.one") }
+    verifyErr(UnknownLibErr#) { ns.lib("bad.one", true) }
+    verifyErr(UnknownSpecErr#) { ns.type("bad.one::Foo") }
+    verifyErr(UnknownSpecErr#) { ns.type("bad.one::Foo", true) }
 
     asyncErr := null
     asyncLib := null
-    env.libAsync("sys") |e, x| { asyncErr = e ; asyncLib = x }
+    ns.libAsync("sys") |e, x| { asyncErr = e ; asyncLib = x }
     verifyEq(asyncLib, sys)
     verifyEq(asyncErr, null)
-    env.libAsync("badLib") |e, x| {  asyncErr = e; asyncLib = x }
+    ns.libAsync("badLib") |e, x| { asyncErr = e; asyncLib = x }
     verifyEq(asyncLib, null)
     verifyEq(asyncErr?.typeof, UnknownLibErr#)
 
     // good lib, bad type
-    verifyEq(env.type("sys::Foo", false), null)
-    verifyErr(UnknownSpecErr#) { env.type("sys::Foo") }
-    verifyErr(UnknownSpecErr#) { env.type("sys::Foo", true) }
+    verifyEq(ns.type("sys::Foo", false), null)
+    verifyErr(UnknownSpecErr#) { ns.type("sys::Foo") }
+    verifyErr(UnknownSpecErr#) { ns.type("sys::Foo", true) }
 
     // instances
-    verifyDictEq(env.instance("ashrae.g36::test-a"), ["id":Ref("ashrae.g36::test-a"), "alpha":m])
-    verifyEq(env.instance("ashrae.g36::badOne", false), null)
-    verifyEq(env.instance("badOne::badOne", false), null)
-    verifyErr(UnknownRecErr#) { env.instance("ashrae.g36::badOne") }
-    verifyErr(UnknownRecErr#) { env.instance("ashrae.g36::badOne", true) }
-    verifyErr(UnknownRecErr#) { env.instance("badOne::badOne") }
+    verifyEq(ns.isLoaded("hx.test.xeto"), false)
+    verifyDictEq(ns.instance("hx.test.xeto::test-a"), ["id":Ref("hx.test.xeto::test-a"), "alpha":m])
+    verifyEq(ns.instance("hx.test.xeto::badOne", false), null)
+    verifyEq(ns.instance("hx.test.xeto::badOne", false), null)
+    verifyErr(UnknownRecErr#) { ns.instance("hx.test.xeto::badOne") }
+    verifyErr(UnknownRecErr#) { ns.instance("hx.test.xeto::badOne", true) }
+    verifyErr(UnknownRecErr#) { ns.instance("badOne::badOne") }
   }
 
 //////////////////////////////////////////////////////////////////////////

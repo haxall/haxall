@@ -77,7 +77,6 @@ abstract const class MNamespace : LibNamespace
       return null
     }
     if (e.isLoaded) return e.get
-    if (!checked) return null
     return loaded(e, loadSync(e.version))
   }
 

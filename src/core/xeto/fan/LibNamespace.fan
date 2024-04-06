@@ -36,12 +36,13 @@ const mixin LibNamespace
   abstract Bool isAllLoaded()
 
   ** Get the given library by name synchronously.  If this is a local
-  ** namespace, then the library will be compiled on its first access.  If
-  ** the library cannot be compiled then an exception is always raised
+  ** namespace, then the library will be compiled on its first access.
+  ** If the library cannot be compiled then an exception is always raised
   ** regardless of checked flag.  If the namespace is remote then the
-  ** library must already have been loaded, otherwise raise exception or
-  ** return null based on checked flag.  Use `libAsync` to load a library
-  ** in a remote namespace.
+  ** library must already have been loaded, otherwise raise exception
+  ** regardless of checked flag.  The checked flag only returns null if
+  ** the library is not defined by this namespace.  Use `libAsync` to
+  ** load a library in a remote namespace.
   abstract Lib? lib(Str name, Bool checked := true)
 
   ** Get or load library asynchronously by the given dotted name.
@@ -55,19 +56,19 @@ const mixin LibNamespace
 // Lookups
 //////////////////////////////////////////////////////////////////////////
 
-   ** Get or load type by the given qualified name.
-   ** The type's library must already be loaded in this namespace.
+  ** Get or load type by the given qualified name.
+  ** If the type's lib is not loaded, it is loaded synchronously.
   abstract Spec? type(Str qname, Bool checked := true)
 
   ** Get or load spec by the given qualified name:
   **   - type: "foo.bar::Baz"
   **   - global: "foo.bar::baz"
   **   - slot: "foo.bar::Baz.qux"
-   ** The spec's library must already be loaded in this namespace.
+   ** If the spec's lib is not loaded, it is loaded synchronously.
   abstract Spec? spec(Str qname, Bool checked := true)
 
   ** Get or load instance by the given qualified name
-   ** The instance's library must already be loaded in this namespace.
+  ** If the instance's lib is not loaded, it is loaded synchronously.
   abstract Dict? instance(Str qname, Bool checked := true)
 
   ** Spec for Fantom `sys::Type` or the typeof given object
