@@ -9,6 +9,7 @@
 using util
 using xeto
 using haystack::Etc
+using haystack::Marker
 
 internal class JsonAst : XetoCmd
 {
@@ -50,8 +51,8 @@ internal class JsonAst : XetoCmd
     if (specs == null) return 1
 
     opts := Str:Obj[:]
-    if (own) opts["own"] = env.marker
-    if (fileloc) opts["fileloc"] = env.marker
+    if (own) opts["own"] = Marker.val
+    if (fileloc) opts["fileloc"] = Marker.val
 
     acc := Str:Dict[:]
     specs.each |spec|
@@ -62,7 +63,7 @@ internal class JsonAst : XetoCmd
 
     withOut(this.out) |out|
     {
-      env.print(root, out, Etc.dict1("json", env.marker))
+      env.print(root, out, Etc.dict1("json", Marker.val))
     }
     return 0
   }

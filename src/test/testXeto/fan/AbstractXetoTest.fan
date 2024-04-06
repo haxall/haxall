@@ -12,6 +12,7 @@ using xeto
 using xeto::Dict
 using xeto::Lib
 using haystack
+using haystack::Ref
 using xetoEnv
 
 **
@@ -47,6 +48,12 @@ class AbstractXetoTest : HaystackTest
   }
 
   private XetoEnv? envRef
+
+  Obj none() { Remove.val }
+
+  Obj na() { NA.val }
+
+  Ref ref(Str id, Str? dis := null) { Ref(id, dis) }
 
   Dict dict0() { Etc.dict0 }
 

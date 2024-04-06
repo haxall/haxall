@@ -57,7 +57,7 @@ class SpecTest : AbstractXetoTest
     // spec itself is effective meta + built-in tags
     self := effective.dup
     self["id"] = s._id
-    self["spec"] = env.ref("sys::Spec")
+    self["spec"] = ref("sys::Spec")
     if (s.isType)
       self.addNotNull("base", s.base?._id)
     else
@@ -240,20 +240,20 @@ class SpecTest : AbstractXetoTest
 
      bar := foo.slotOwn("bar")
      verifySame(bar.type, str)
-     verifySame(bar["maybe"], env.marker)
+     verifySame(bar["maybe"], m)
      verifyEq(bar.isa(str), true)
      verifyEq(bar.isMaybe, true)
 
      baz := foo.slotOwn("baz")
      verifySame(baz.type, foo)
-     verifySame(baz["maybe"], env.marker)
+     verifySame(baz["maybe"], m)
      verifyEq(baz.isa(foo), true)
      verifyEq(baz.isMaybe, true)
 
      // bar override with maybe
      qbar := qux.slot("bar")
      verifySame(qbar.base, bar)
-     verifySame(qbar["maybe"], env.marker)
+     verifySame(qbar["maybe"], m)
      verifyEq(qbar.isa(str), true)
      verifyEq(qbar.isMaybe, true)
 
@@ -261,7 +261,7 @@ class SpecTest : AbstractXetoTest
      qbaz := qux.slot("baz")
      verifySame(qbaz.base, baz)
      verifyEq(qbaz["maybe"], null)
-     verifyEq(qbaz.metaOwn["maybe"], env.none)
+     verifyEq(qbaz.metaOwn["maybe"], none)
      verifyEq(qbaz.isMaybe, false)
    }
 

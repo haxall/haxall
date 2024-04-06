@@ -47,20 +47,8 @@ const abstract class XetoEnv
   ** not support the full feature set.
   abstract Bool isRemote()
 
-  ** None singleton value
-  abstract Obj none()
-
-  ** Marker singleton value
-  abstract Obj marker()
-
-  ** NA singleton value
-  abstract Obj na()
-
   ** Return generic 'sys::Dict'
   @NoDoc abstract Spec dictSpec()
-
-  ** Construct instance of `Ref`
-  abstract Ref ref(Str id, Str? dis := null)
 
   ** Spec for Fantom `sys::Type` or the typeof given object
   abstract Spec? specOf(Obj? val, Bool checked := true)

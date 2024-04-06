@@ -12,6 +12,7 @@ using xeto
 using xeto::Dict
 using xeto::Lib
 using haystack
+using haystack::Ref
 
 **
 ** TestSuite runs all the declartive tests captured in YAML files.
@@ -175,7 +176,7 @@ class DataTestCase
   Void compileLib(Str src)
   {
     this.libRef = compile |opts| { env.compileLib(src, opts) }
-    if (runner.verbose && libRef != null) env.print(env.genAst(libRef), Env.cur.out, Etc.dict1("json", env.marker))
+    if (runner.verbose && libRef != null) env.print(env.genAst(libRef), Env.cur.out, Etc.dict1("json", Marker.val))
     //env.print(libRef)
   }
 
@@ -254,7 +255,7 @@ class DataTestCase
   Void verifyJsonAst(Str expect)
   {
     s := StrBuf()
-    env.print(env.genAst(lib), s.out, Etc.dict1("json", env.marker))
+    env.print(env.genAst(lib), s.out, Etc.dict1("json", Marker.val))
     actual := s.toStr
 
     // echo(actual)
@@ -461,7 +462,7 @@ class DataTestCase
 
   private Str scalarToStr(Obj x)
   {
-    if (x === env.none) return "none"
+    if (x === Remove.val) return "none"
     return x.toStr
   }
 
@@ -486,7 +487,7 @@ class DataTestCase
     }
     else
     {
-      verifyEq(dict["spec"], env.ref(expect))
+      verifyEq(dict["spec"], Ref(expect))
       verifyEq(dict.has("spec"), true)
     }
   }

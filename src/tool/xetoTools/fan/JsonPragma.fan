@@ -9,6 +9,7 @@
 using util
 using xeto
 using haystack::Etc
+using haystack::Marker
 
 internal class JsonPragma : XetoCmd
 {
@@ -47,7 +48,7 @@ internal class JsonPragma : XetoCmd
 
     withOut(this.out) |out|
     {
-      env.print(json, out, Etc.dict1("json", env.marker))
+      env.print(json, out, Etc.dict1("json", Marker.val))
     }
     return 0
   }

@@ -169,7 +169,7 @@ const class XetoUtil
     return true
   }
 
-  static Void addOwnMeta(XetoEnv env, Str:Obj acc, Dict own)
+  static Void addOwnMeta(MEnv env, Str:Obj acc, Dict own)
   {
     if (own.isEmpty) return
     own.each |v, n|

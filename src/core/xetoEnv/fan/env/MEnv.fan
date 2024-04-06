@@ -53,11 +53,11 @@ abstract const class MEnv : XetoEnv
 
   internal const NilContext nilContext := NilContext()
 
-  const override Obj marker
+  const Obj marker
 
-  const override Obj none
+  const Obj none
 
-  const override Obj na
+  const Obj na
 
   const Obj?[] list0
 
@@ -71,7 +71,7 @@ abstract const class MEnv : XetoEnv
 
   Dict dictMap(Str:Obj map) { Etc.dictFromMap(map) }
 
-  override Ref ref(Str id, Str? dis := null) { haystack::Ref.make(id, dis) }
+  Ref ref(Str id, Str? dis := null) { haystack::Ref.make(id, dis) }
 
   override Spec? specOf(Obj? val, Bool checked := true)
   {

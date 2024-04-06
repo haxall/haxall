@@ -26,11 +26,11 @@ class CompileTest : AbstractXetoTest
 
   Void testScalars()
   {
-    verifyScalar("sys::Marker",   Str<|Marker "marker"|>, env.marker)
-    verifyScalar("sys::Marker",   Str<|sys::Marker "marker"|>, env.marker)
-    verifyScalar("sys::None",     Str<|None "none"|>, env.none)
-    verifyScalar("sys::None",     Str<|sys::None "none"|>, env.none)
-    verifyScalar("sys::NA",       Str<|sys::NA "na"|>, env.na)
+    verifyScalar("sys::Marker",   Str<|Marker "marker"|>, m)
+    verifyScalar("sys::Marker",   Str<|sys::Marker "marker"|>, m)
+    verifyScalar("sys::None",     Str<|None "none"|>, none)
+    verifyScalar("sys::None",     Str<|sys::None "none"|>, none)
+    verifyScalar("sys::NA",       Str<|sys::NA "na"|>, na)
     verifyScalar("sys::Str",      Str<|"hi"|>, "hi")
     verifyScalar("sys::Str",      Str<|Str "123"|>, "123")
     verifyScalar("sys::Str",      Str<|sys::Str "123"|>, "123")
@@ -452,7 +452,7 @@ class CompileTest : AbstractXetoTest
       switch (n)
       {
         case "id":   verifyEq(v, s._id)
-        case "spec": verifyEq(v, env.ref("sys::Spec"))
+        case "spec": verifyEq(v, ref("sys::Spec"))
         case "type": verifyEq(v, s.type._id)
         default:     verifyEq(meta[n], v, n)
       }
@@ -492,15 +492,15 @@ class CompileTest : AbstractXetoTest
     a := lib.type("A"); af := a.slot("foo")
     b := lib.type("B"); bf := b.slot("foo")
 
-    verifyInheritNone(a, "baz",  env.marker, env.marker)
-    verifyInheritNone(a, "foo",  env.na,     env.na)
-    verifyInheritNone(af, "bar", env.marker, env.marker)
-    verifyInheritNone(af, "qux", env.marker, env.marker)
+    verifyInheritNone(a, "baz",  m, m)
+    verifyInheritNone(a, "foo",  na, na)
+    verifyInheritNone(af, "bar", m, m)
+    verifyInheritNone(af, "qux", m, m)
 
-    verifyInheritNone(b, "baz",  env.none, null)
-    verifyInheritNone(b, "foo",  null,     env.na)
-    verifyInheritNone(bf, "bar", null,     env.marker)
-    verifyInheritNone(bf, "qux", env.none, null)
+    verifyInheritNone(b, "baz",  none, null)
+    verifyInheritNone(b, "foo",  null, na)
+    verifyInheritNone(bf, "bar", null, m)
+    verifyInheritNone(bf, "qux", none, null)
   }
 
   private Void verifyInheritNone(Spec s, Str name, Obj? own, Obj? effective)
