@@ -19,12 +19,12 @@ internal class Query
 // Public
 //////////////////////////////////////////////////////////////////////////
 
-  new make(XetoEnv env, XetoContext cx, Dict opts)
+  new make(MNamespace ns, XetoContext cx, Dict opts)
   {
-    this.env = env
+    this.ns = ns
     this.cx = cx
     this.opts = opts
-    this.fitter = Fitter(env, cx, opts)
+    this.fitter = Fitter(ns, cx, opts)
   }
 
   Dict[] query(Dict subject, Spec query)
@@ -95,7 +95,7 @@ else
 
   private Dict[] queryInverse(Dict subject, Spec of, Spec query, Str inverseName)
   {
-    inverse := env.spec(inverseName, false)
+    inverse := ns.spec(inverseName, false)
     if (inverse == null) throw Err("Inverse of query '$query.qname' not found: $inverseName")
 
     // require inverse query to be structured as via (which is all we support anyways)
@@ -145,10 +145,9 @@ else
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const XetoEnv env
+  private const MNamespace ns
   private const Dict opts
   private XetoContext cx
   private Fitter fitter
 }
-
 

@@ -179,37 +179,9 @@ abstract const class MEnv : XetoEnv
     Printer(this, out, opts ?: dict0).xetoTop(val)
   }
 
-  override Bool specFits(Spec a, Spec b, Dict? opts := null)
-  {
-    if (opts == null) opts = dict0
-    explain := XetoUtil.optLog(opts, "explain")
-    cx := nilContext
-    if (explain == null)
-      return Fitter(this, cx, opts).specFits(a, b)
-    else
-      return ExplainFitter(this, cx, opts, explain).specFits(a, b)
-  }
-
-  override Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)
-  {
-    if (opts == null) opts = dict0
-    explain := XetoUtil.optLog(opts, "explain")
-    if (explain == null)
-      return Fitter(this, cx, opts).valFits(val, spec)
-    else
-      return ExplainFitter(this, cx, opts, explain).valFits(val, spec)
-  }
-
   override Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
   {
     XetoUtil.choiceOf(this, instance, choice, checked)
-  }
-
-  override Obj? queryWhile(XetoContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
-  {
-    // TODO: redesign to use eachWhile
-    acc := Query(this, cx, opts).query(subject, query)
-    return acc.eachWhile(f)
   }
 
   override Dict genAst(Obj libOrSpec, Dict? opts := null)
@@ -236,6 +208,7 @@ abstract const class MEnv : XetoEnv
 @Js
 internal const class NilContext : XetoContext
 {
+  static const NilContext val := make
   override Dict? xetoReadById(Obj id) { null }
   override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
   override Bool xetoIsSpec(Str spec, Dict rec) { false }

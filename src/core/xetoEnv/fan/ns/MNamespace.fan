@@ -9,6 +9,7 @@
 using concurrent
 using util
 using xeto
+using haystack::Etc
 using haystack::Grid
 using haystack::UnknownLibErr
 using haystack::UnknownSpecErr
@@ -166,6 +167,10 @@ abstract const class MNamespace : LibNamespace
     return null
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Reflection
+//////////////////////////////////////////////////////////////////////////
+
   override Spec? specOf(Obj? val, Bool checked := true)
   {
     if (val == null) return sys.none
@@ -198,6 +203,32 @@ abstract const class MNamespace : LibNamespace
     return null
   }
 
+  override Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)
+  {
+    if (opts == null) opts = Etc.dict0
+    explain := XetoUtil.optLog(opts, "explain")
+    if (explain == null)
+      return Fitter(this, cx, opts).valFits(val, spec)
+    else
+      return ExplainFitter(this, cx, opts, explain).valFits(val, spec)
+  }
+
+  override Bool specFits(Spec a, Spec b, Dict? opts := null)
+  {
+    if (opts == null) opts = Etc.dict0
+    explain := XetoUtil.optLog(opts, "explain")
+    cx := NilContext.val
+    if (explain == null)
+      return Fitter(this, cx, opts).specFits(a, b)
+    else
+      return ExplainFitter(this, cx, opts, explain).specFits(a, b)
+  }
+
+  override Obj? queryWhile(XetoContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
+  {
+    Query(this, cx, opts).query(subject, query).eachWhile(f)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
@@ -215,7 +246,7 @@ abstract const class MNamespace : LibNamespace
 MEnv env() { XetoEnv.cur }
 
   const MSys sys
-  const MFactories factories := MFactories()
+  const MFactories factories := env.factories // TODO
   private const Str:MLibEntry entriesMap
   private const MLibEntry[] entriesList  // orderd by depends
   private const AtomicBool allLoaded := AtomicBool()

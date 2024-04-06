@@ -78,8 +78,23 @@ const mixin LibNamespace
   ** If the instance's lib is not loaded, it is loaded synchronously.
   abstract Dict? instance(Str qname, Bool checked := true)
 
+//////////////////////////////////////////////////////////////////////////
+// Reflection
+//////////////////////////////////////////////////////////////////////////
+
   ** Spec for Fantom `sys::Type` or the typeof given object
   abstract Spec? specOf(Obj? val, Bool checked := true)
+
+  ** Return if the given instance fits the spec via structural typing.
+  abstract Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)
+
+  ** Return if spec 'a' fits spec 'b' based on structural typing.
+  @NoDoc abstract Bool specFits(Spec a, Spec b, Dict? opts := null)
+
+  ** Query a relationship using the given subject and query spec.
+  ** Call given callback function until it returns non-null and return
+  ** as overall result of the method.
+  @NoDoc abstract Obj? queryWhile(XetoContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
 
 //////////////////////////////////////////////////////////////////////////
 // Utils

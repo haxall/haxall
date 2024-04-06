@@ -120,23 +120,12 @@ const abstract class XetoEnv
   ** Parse pragma file into AST
   @NoDoc abstract Dict parsePragma(File file, Dict? opts := null)
 
-  ** Return if the given instance fits the spec via structural typing.
-  abstract Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)
-
-  ** Return if spec 'a' fits spec 'b' based on structural typing.
-  @NoDoc abstract Bool specFits(Spec a, Spec b, Dict? opts := null)
-
   ** Given an instance and choice base type, return the selected choice.
   ** If instance has zero or more than one choice, then return null or
   ** raise an exception based on the checked flag.
   ** Example:
   **   choiceOf({hot, water, point}, Fluid)  >>  HotWater
   @NoDoc abstract Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
-
-  ** Query a relationship using the given subject and query spec.
-  ** Call given callback function until it returns non-null and return
-  ** as overall result of the method.
-  @NoDoc abstract Obj? queryWhile(XetoContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
 
   ** Generate an AST for the given Lib or Spec as a Dict tree.
   @NoDoc abstract Dict genAst(Obj libOrSpec, Dict? opts := null)

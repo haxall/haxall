@@ -21,9 +21,9 @@ internal class Fitter
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(XetoEnv env, XetoContext cx, Dict opts, Bool failFast := true)
+  new make(MNamespace ns, XetoContext cx, Dict opts, Bool failFast := true)
   {
-    this.env = env
+    this.ns = ns
     this.failFast = failFast
     this.opts = opts
     this.cx = cx
@@ -70,11 +70,11 @@ internal class Fitter
   Bool valFits(Obj? val, Spec type)
   {
     // get type for value
-    valType := env.specOf(val, false)
+    valType := ns.specOf(val, false)
     if (valType == null) return explainNoType(val)
 
     // check structurally typing
-    if (val is Dict && type.isa(env.dictSpec))
+    if (val is Dict && type.isa(ns.sys.dict))
       return fitsStruct(val, type)
 
     // check enums
@@ -127,7 +127,7 @@ internal class Fitter
       return explainMissingSlot(slot)
     }
 
-    valFits := Fitter(env, cx, opts).valFits(val, slotType)
+    valFits := Fitter(ns, cx, opts).valFits(val, slotType)
     if (!valFits) return explainInvalidSlotType(val, slot)
 
     return true
@@ -139,7 +139,7 @@ internal class Fitter
     if (query.slots.isEmpty) return true
 
     // run the query to get matching extent
-    extent := Query(env, cx, opts).query(dict, query)
+    extent := Query(ns, cx, opts).query(dict, query)
 
     // use query.of as explain name
     ofDis := query.of(false)?.name ?: query.name
@@ -161,7 +161,7 @@ internal class Fitter
     matches := Dict[,]
     extent.each |x|
     {
-      if (Fitter(env, cx, opts).valFits(x, constraint)) matches.add(x)
+      if (Fitter(ns, cx, opts).valFits(x, constraint)) matches.add(x)
     }
 
     if (matches.size == 1) return true
@@ -195,7 +195,7 @@ internal class Fitter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const XetoEnv env
+  private const MNamespace ns
   private const Bool failFast
   private const Dict opts
   private XetoContext cx
@@ -208,8 +208,8 @@ internal class Fitter
 @Js
 internal class ExplainFitter : Fitter
 {
-  new make(XetoEnv env,  XetoContext cx, Dict opts, |XetoLogRec| cb)
-    : super(env, cx, opts, false)
+  new make(MNamespace ns,  XetoContext cx, Dict opts, |XetoLogRec| cb)
+    : super(ns, cx, opts, false)
   {
     this.cb = cb
   }

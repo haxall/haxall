@@ -219,7 +219,7 @@ class DataTestCase
     verifyVal(data, expect)
   }
 
-  Void verifySpecIs([Str:Obj][] list)
+  Void verifySpecIs(LibNamespace ns, [Str:Obj][] list)
   {
     list.each |map|
     {
@@ -231,7 +231,7 @@ class DataTestCase
       verifyEq(a.isa(b), expect, "$a is $b")
 
       // specIs(a, b) true requires spedFits(a, b) to be true also
-      if (expect) verifyEq(a.fits(b), expect, "$a fits $b")
+      if (expect) verifyEq(ns.specFits(a, b), expect, "$a fits $b")
 
       // check for isFoo flags
       // TODO
@@ -240,7 +240,7 @@ class DataTestCase
     }
   }
 
-  Void verifySpecFits([Str:Obj][] list)
+  Void verifySpecFits(LibNamespace ns, [Str:Obj][] list)
   {
     list.each |map|
     {
@@ -248,7 +248,7 @@ class DataTestCase
       b := spec(map.getChecked("b"))
       expect := (Bool)map.getChecked("expect")
       //echo("~~ verifySpecFits $a fits $b ?= $expect")
-      verifyEq(env.specFits(a, b), expect, "$a fits $b")
+      verifyEq(ns.specFits(a, b), expect, "$a fits $b")
     }
   }
 

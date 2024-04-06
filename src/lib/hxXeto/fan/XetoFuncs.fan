@@ -453,7 +453,7 @@ const class XetoFuncs
   **
   @Axon static Bool specFits(Spec a, Spec b)
   {
-    curContext.usings.env.specFits(a, b, null)
+    curContext.usings.ns.specFits(a, b, null)
   }
 
   **
@@ -506,7 +506,7 @@ const class XetoFuncs
   @Axon static Bool fits(Obj? val, Spec spec)
   {
     cx := curContext
-    return cx.usings.env.fits(cx, val, spec, null)
+    return cx.usings.ns.fits(cx, val, spec, null)
   }
 
   **
@@ -519,7 +519,7 @@ const class XetoFuncs
     gb := GridBuilder().addCol("msg")
     explain := |XetoLogRec rec| { gb.addRow1(rec.msg) }
     opts := Etc.dict1("explain", Unsafe(explain))
-    curContext.usings.env.specFits(a, b, opts)
+    curContext.usings.ns.specFits(a, b, opts)
     return gb.toGrid
   }
 
@@ -541,7 +541,7 @@ const class XetoFuncs
   static Grid fitsExplain(Obj? recs, Spec? spec)
   {
     cx := curContext
-    xetoEnv := cx.usings.env
+    ns := cx.usings.ns
     hits := XetoLogRec[,]
     explain := |XetoLogRec rec| { hits.add(rec) }
     opts := Etc.dict1("explain", Unsafe(explain))
@@ -564,14 +564,14 @@ const class XetoFuncs
         }
         else
         {
-          recSpec = xetoEnv.spec(specTag.id, false)
+          recSpec = ns.spec(specTag.id, false)
           if (recSpec == null)
             hits.add(MLogRec(LogLevel.err, "Unknown 'spec' ref: $specTag", FileLoc.unknown, null))
         }
       }
 
       // call fits explain with this rec
-      if (recSpec != null) xetoEnv.fits(cx, rec, recSpec, opts)
+      if (recSpec != null) ns.fits(cx, rec, recSpec, opts)
 
       // if we had hits, then add to our result grid
       if (!hits.isEmpty)
@@ -622,8 +622,8 @@ const class XetoFuncs
   private static Spec[] doFitsMatchAll(HxContext cx, Dict rec, Spec[] specs)
   {
     // first pass is fit each type
-    env := cx.usings.env
-    matches := specs.findAll |spec| { env.fits(cx, rec, spec) }
+    ns := cx.usings.ns
+    matches := specs.findAll |spec| { ns.fits(cx, rec, spec) }
 
     // second pass is to remove supertypes so we only
     // return the most specific subtype
@@ -659,7 +659,7 @@ const class XetoFuncs
   {
     cx := curContext
     subjectRec := Etc.toRec(subject)
-    hit := cx.usings.env.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit| { hit }
+    hit := cx.usings.ns.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit| { hit }
     if (hit != null) return hit
     if (checked) throw UnknownRecErr("@$subjectRec.id $spec.qname")
     return null
@@ -691,7 +691,7 @@ const class XetoFuncs
     cx := curContext
     acc := Dict[,]
     subjectRec := Etc.toRec(subject)
-    cx.usings.env.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
+    cx.usings.ns.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
     {
       acc.add(hit)
       if (acc.size >= limit) return "break"
@@ -730,16 +730,16 @@ const class XetoFuncs
   @Axon static Dict queryNamed(Obj subject, Spec spec, Dict? opts := null)
   {
     cx := curContext
-    env := cx.usings.env
+    ns := cx.usings.ns
     subjectRec := Etc.toRec(subject)
     acc := Str:Dict[:]
-    cx.usings.env.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
+    ns.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
     {
       spec.slots.eachWhile |slot|
       {
         name := slot.name
         if (acc[name] != null) return null // already matched
-        if (env.fits(cx, hit, slot)) return acc[name] = hit
+        if (ns.fits(cx, hit, slot)) return acc[name] = hit
         return null
       }
       return null

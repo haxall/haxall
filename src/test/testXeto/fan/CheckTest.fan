@@ -20,13 +20,14 @@ class CheckTest : AbstractXetoTest
 
   Void testNumbers()
   {
-    verifyNumber(n(123), "<>", [,])
-    verifyNumber(n(123), "<minVal:123>", [,])
+    ns := createNamespace(["sys"])
+    verifyNumber(ns, n(123), "<>", [,])
+    verifyNumber(ns, n(123), "<minVal:123>", [,])
     // TODO
     // verifyNumber(n(123), "<minVal:124>", ["Min val too low"])
   }
 
-  Void verifyNumber(Number n, Str meta, Str[] errs)
+  Void verifyNumber(LibNamespace ns, Number n, Str meta, Str[] errs)
   {
     // try all three ways:
     //   - instance with fits
@@ -42,7 +43,7 @@ class CheckTest : AbstractXetoTest
     lib := compileLib(src, dict1("register", m))
     foo := lib.type("Foo")
     instance := dict(["dis":"A", "spec":Ref(foo.qname), "n":n])
-    verifyFitsExplain(instance, foo, errs)
+    verifyFitsExplain(ns, instance, foo, errs)
   }
 }
 

@@ -92,13 +92,13 @@ class AbstractXetoTest : HaystackTest
     return env
   }
 
-  Void verifyFitsExplain(Obj? val, Spec spec, Str[] expected)
+  Void verifyFitsExplain(LibNamespace ns, Obj? val, Spec spec, Str[] expected)
   {
     cx := TextContext()
     hits := XetoLogRec[,]
     explain := |XetoLogRec rec| { hits.add(rec) }
     opts := Etc.dict1("explain", Unsafe(explain))
-    env.fits(cx, val, spec, opts)
+    ns.fits(cx, val, spec, opts)
     if (expected.size != hits.size)
     {
       echo("FAIL verifyFitsExplain $val $spec [$hits.size != $expected.size]")

@@ -77,9 +77,6 @@ const mixin Spec : Dict
   **   - if 'that' is 'Or' and 'this' matches any of 'that.ofs'
   abstract Bool isa(Spec that)
 
-  ** Return if spec 'this' spec fits 'that' based on structural typing.
-  abstract Bool fits(Spec that)
-
   ** Does meta have maybe tag
   abstract Bool isMaybe()
 
@@ -154,3 +151,4 @@ const mixin Spec : Dict
   @NoDoc abstract Type fantomType()
 
 }
+

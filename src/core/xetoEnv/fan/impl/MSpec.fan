@@ -273,8 +273,6 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Bool cisa(CSpec x) { XetoUtil.isa(this, x) }
 
-  override final Bool fits(Spec that) { Fitter(m.env, m.env.nilContext, m.env.dict0).specFits(this, that) }
-
   override final FileLoc loc() { m.loc }
 
   override final SpecFactory factory() { m.factory }
@@ -354,3 +352,4 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   const MSpec? m
 }
+
