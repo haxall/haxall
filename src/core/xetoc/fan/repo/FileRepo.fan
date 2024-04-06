@@ -94,6 +94,6 @@ const class FileRepo : LibRepo
     LocalNamespace(names, libs, this)
   }
 
-  const NameTable names := NameTable()
+  const NameTable names := XetoEnv.cur.names // TODO
 }
 

@@ -115,9 +115,9 @@ doTestSysLib(createNamespace(["sys"]))
     verifyErr(UnknownRecErr#) { sys.instance("bad", true) }
     verifySame(ns.spec("sys::LibOrg"), org)
     verifySame(ns.spec("sys::LibOrg.dis"), orgDis)
-    verifyErr(UnknownSpecErr#) { env.spec("foo.bar.baz::Qux") }
-    verifyErr(UnknownSpecErr#) { env.spec("sys::Baz") }
-    verifyErr(UnknownSpecErr#) { env.spec("sys::Str.foo") }
+    verifyErr(UnknownSpecErr#) { ns.spec("foo.bar.baz::Qux") }
+    verifyErr(UnknownSpecErr#) { ns.spec("sys::Baz") }
+    verifyErr(UnknownSpecErr#) { ns.spec("sys::Str.foo") }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -244,27 +244,27 @@ doTestPhLib(createNamespace(["hx.test.xeto"]))
     org := sys.type("LibOrg")
     ref := sys.type("Ref")
 
-    // env.names.dump(Env.cur.out)
+    // ns.names.dump(Env.cur.out)
 
-    verifyNameTable(sys.name)
-    verifyNameTable(str.name)
-    verifyNameTable(org.slot("dis").name)
-    verifyNameDict(sys.meta)
-    verifyNameDict(ref.meta)
+    verifyNameTable(ns, sys.name)
+    verifyNameTable(ns, str.name)
+    verifyNameTable(ns, org.slot("dis").name)
+    verifyNameDict(ns, sys.meta)
+    verifyNameDict(ns, ref.meta)
   }
 
-  Void verifyNameTable(Str name)
+  Void verifyNameTable(LibNamespace ns, Str name)
   {
-    code := env.names.toCode(name)
+    code := ns.names.toCode(name)
     // echo("-- $name = $code")
     verifyEq(code > 0, true)
-    verifySame(env.names.toName(code), name)
+    verifySame(ns.names.toName(code), name)
   }
 
-  Void verifyNameDict(Dict meta)
+  Void verifyNameDict(LibNamespace ns, Dict meta)
   {
     verifyEq(meta.typeof.qname, "xetoEnv::MNameDict")
-    meta.each |v, n| { verifyNameTable(n) }
+    meta.each |v, n| { verifyNameTable(ns, n) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -325,42 +325,6 @@ doTestPhLib(createNamespace(["hx.test.xeto"]))
     verifyErr(UnknownRecErr#) { ns.instance("hx.test.xeto::badOne", true) }
     verifyErr(UnknownRecErr#) { ns.instance("badOne::badOne") }
   }
-
-//////////////////////////////////////////////////////////////////////////
-// TypeOf
-//////////////////////////////////////////////////////////////////////////
-
-/*
-  Void testTypeOf()
-  {
-    verifyTypeOf(null, "sys::None")
-    verifyTypeOf("hi", "sys::Str")
-    verifyTypeOf(true, "sys::Bool")
-    verifyTypeOf(`foo`, "sys::Uri")
-    verifyTypeOf(123, "sys::Int")
-    verifyTypeOf(123f, "sys::Float")
-    verifyTypeOf(123sec,"sys::Duration")
-    verifyTypeOf(Date.today, "sys::Date")
-    verifyTypeOf(Time.now, "sys::Time")
-    verifyTypeOf(DateTime.now, "sys::DateTime")
-
-    verifyTypeOf(Marker.val,  "sys::Marker")
-    verifyTypeOf(Number(123), "sys::Number")
-    verifyTypeOf(Ref.gen,     "sys::Ref")
-
-    verifyEq(env.typeOf(Buf(), false), null)
-    verifyErr(UnknownTypeErr#) { env.typeOf(this) }
-    verifyErr(UnknownTypeErr#) { env.typeOf(this, true) }
-  }
-
-  Void verifyTypeOf(Obj? val, Str qname)
-  {
-    t := env.typeOf(val)
-    // echo(">> $val | $t ?= $qname")
-    verifyEq(t.qname, qname)
-    verifySame(t, env.type(qname))
-  }
-*/
 
 //////////////////////////////////////////////////////////////////////////
 // Dicts
