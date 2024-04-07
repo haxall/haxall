@@ -80,11 +80,11 @@ doTestSysLib(createNamespace(["sys"]))
     verifySame(sys.instances, sys.instances)
 
     // slots
-    orgDis := verifySlot(org, "dis", str)
-    orgUri := verifySlot(org, "uri", uri)
+    orgDis := verifySlot(ns, org, "dis", str)
+    orgUri := verifySlot(ns, org, "uri", uri)
 
     // Spec.of: Spec?
-    specOf := verifySlot(spec, "of", ref)
+    specOf := verifySlot(ns, spec, "of", ref)
     verifyEq(specOf.qname, "sys::Spec.of")
     verifySame(specOf.parent, spec)
     verifyEq(specOf["doc"], "Item type for parameterized Seq, Query, and Ref specs")
@@ -93,7 +93,7 @@ doTestSysLib(createNamespace(["sys"]))
     verifySame(specOf.of, spec)
 
     // Spec.ofs: List? <of:Ref<of:Spec>>
-    specOfs := verifySlot(spec, "ofs", list)
+    specOfs := verifySlot(ns, spec, "ofs", list)
     specOfsOfRef := (Ref)specOfs["of"]
     verifyEq(specOfs.parent, spec)
     verifyEq(specOfs.qname, "sys::Spec.ofs")
@@ -141,10 +141,7 @@ doTestPhLib(createNamespace(["sys", "ph"]))
     verifyEq(ph.depends[0].name, "sys")
     verifyEq(ph.depends[0].versions.toStr, "" + curVersion.major + "." + curVersion.minor + ".x")
 
-// TODO
-dict := env.dictSpec
-
-    entity    := verifyLibType(ns, ph, "Entity",   dict)
+    entity    := verifyLibType(ns, ph, "Entity",   ns.spec("sys::Dict"))
     equip     := verifyLibType(ns, ph, "Equip",    entity)
     meter     := verifyLibType(ns, ph, "Meter",    equip)
     elecMeter := verifyLibType(ns, ph, "ElecMeter",meter)
@@ -152,10 +149,8 @@ dict := env.dictSpec
     water := ph.global("water")
     verifySame(ns.spec("ph::water"), water)
 
-    // env.print(elecMeter, Env.cur.out, env.dict1("effective", m))
+    // env.print(elecMeter, Env.cur.out, dict1("effective", m))
     marker := ns.spec("sys::Marker")
-// TODO
-marker = env.spec("sys::Marker")
     verifyEq(elecMeter.slot("elec").type, marker)
     verifyEq(elecMeter.slot("meter").type, marker)
     verifyEq(elecMeter.slot("equip").type, marker)
@@ -340,16 +335,17 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
 
   Void testDicts()
   {
-    verifyDict(Str:Obj[:])
-    verifyDict(["str":"hi there!"])
-    verifyDict(["str":"hi", "int":123])
+    ns := LibRepo.cur.bootNamespace
+    verifyDict(ns, Str:Obj[:])
+    verifyDict(ns, ["str":"hi there!"])
+    verifyDict(ns, ["str":"hi", "int":123])
   }
 
-  Void verifyDict(Str:Obj map, Str qname := "sys::Dict")
+  Void verifyDict(LibNamespace ns, Str:Obj map, Str qname := "sys::Dict")
   {
     d := dict(map)
 
-    type := env.specOf(d)
+    type := ns.specOf(d)
 
     verifyEq(type.qname, qname)
     if (map.isEmpty) verifySame(d, dict0)
@@ -484,8 +480,8 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
       ["id":Ref("x"), "dis":"b", "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x, "foo":m],
     ])
 
-    verifyErr(Err#) { ns.instantiate(env.spec("sys::Obj")) }
-    verifyErr(Err#) { ns.instantiate(env.spec("sys::Scalar")) }
+    verifyErr(Err#) { ns.instantiate(ns.spec("sys::Obj")) }
+    verifyErr(Err#) { ns.instantiate(ns.spec("sys::Scalar")) }
   }
 
   Void verifyInstantiate(LibNamespace ns, Str qname, Obj? expect, Obj? opts := null)
@@ -583,7 +579,7 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
     return type
   }
 
-  Spec verifySlot(Spec parent, Str name, Spec type)
+  Spec verifySlot(LibNamespace ns, Spec parent, Str name, Spec type)
   {
     slot := parent.slotOwn(name)
     verifyEq(slot.typeof.qname, "xetoEnv::XetoSpec") // not type
@@ -598,7 +594,7 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
     verifyEq(slot.toStr, slot.qname)
     verifySame(slot.type, type)
     verifySame(slot.base, type)
-    verifySame(env.specOf(slot), env.type("sys::Spec"))
+    verifySame(ns.specOf(slot), ns.type("sys::Spec"))
     verifyEq(slot.isType, false)
     return slot
   }

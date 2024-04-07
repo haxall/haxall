@@ -67,7 +67,7 @@ class IOTest : AbstractXetoTest
     verifyIO(haystack::Coord(12f, -34f))
     verifyIO(haystack::Symbol("foo-bar"))
 
-    a := ns.instantiate(env.spec("ph::AcElecMeter"))
+    a := ns.instantiate(ns.spec("ph::AcElecMeter"))
     b := dict(["spec":Ref("ph::Rtu"), "dis":"RTU", "equip":m, "ahu":m, "rtu":m])
     verifyIO(a)
     verifyIO(b)
