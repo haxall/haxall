@@ -40,12 +40,12 @@ const class MOverlayNamespace : MNamespace
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(Namespace base, MOverlayLib? olib, xeto::LibNamespace xeto, |Lib->Bool| enabled)
+  new make(Namespace base, MOverlayLib? olib, XetoGetter xetoGetter, |Lib->Bool| enabled)
   {
     ref := AtomicRef(this)
     this.base        = base
     this.olib        = olib
-    this.xeto        = xeto
+    this.xetoGetter   = xetoGetter
     this.enabled     = base.libsList.map |lib->Bool| { enabled(lib) }
     this.libsList    = toLibsList(base, this.enabled, olib)
     this.libsMap     = Str:Lib[:].addList(this.libsList) { it.name }
@@ -84,7 +84,7 @@ const class MOverlayNamespace : MNamespace
 // Namespace
 //////////////////////////////////////////////////////////////////////////
 
-  override const xeto::LibNamespace xeto
+  override const XetoGetter xetoGetter
 
   override Def? def(Str symbol, Bool checked := true)
   {

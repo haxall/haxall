@@ -256,7 +256,7 @@ const class HxdOverlayCompiler
     b := BOverlayLib(base, meta)
     rt.db.readAll(Filter.has("def")).each |rec| { addRecDef(b, rec) }
 
-    return MOverlayNamespace(base, MOverlayLib(b), resolveXeto, |Lib lib->Bool| { true })
+    return MOverlayNamespace(base, MOverlayLib(b), HxdXetoGetter(rt), |Lib lib->Bool| { true })
   }
 
   private Void addRecDef(BOverlayLib b, Dict rec)
@@ -300,7 +300,23 @@ const class HxdOverlayCompiler
     return true
   }
 
-  private xeto::LibNamespace resolveXeto()
+  private Void err(Str msg, Dict rec, Err? err := null)
+  {
+    log.err("$msg [$rec.id.toCode]", err)
+  }
+}
+
+**************************************************************************
+** HxdXetoGetter
+**************************************************************************
+
+internal const class HxdXetoGetter : XetoGetter
+{
+  new make(HxdRuntime rt) { this.rt = rt }
+
+  const HxdRuntime rt
+
+  override once xeto::LibNamespace get()
   {
     repo := xeto::LibRepo.cur
     acc := xeto::LibVersion[,]
@@ -312,11 +328,6 @@ const class HxdOverlayCompiler
       acc.addNotNull(repo.latest(name, false))
     }
     return repo.createNamespace(acc)
-  }
-
-  private Void err(Str msg, Dict rec, Err? err := null)
-  {
-    log.err("$msg [$rec.id.toCode]", err)
   }
 
 }

@@ -32,6 +32,11 @@ abstract const class MNamespace : Namespace
   ** Lazy loading support
   const MLazy lazy := MLazy(this)
 
+  ** Wrap Xeto namespace for 3.1
+  override final xeto::LibNamespace xeto() { xetoGetter.get }
+
+  abstract XetoGetter xetoGetter()
+
 //////////////////////////////////////////////////////////////////////////
 // Iterators
 //////////////////////////////////////////////////////////////////////////
@@ -252,5 +257,21 @@ abstract const class MNamespace : Namespace
 
   virtual Bool isSkySpark() { false }
 
+}
+
+**************************************************************************
+** XetoGetter
+**************************************************************************
+
+@NoDoc @Js
+const mixin XetoGetter
+{
+  abstract xeto::LibNamespace get()
+}
+
+@NoDoc @Js
+const class DefXetoGetter : XetoGetter
+{
+  override xeto::LibNamespace get() { xeto::LibRepo.cur.bootNamespace }
 }
 
