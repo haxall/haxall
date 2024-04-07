@@ -313,15 +313,15 @@ const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate default value of spec
-  static Obj? instantiate(MEnv env, XetoSpec spec, Dict opts)
+  static Obj? instantiate(MNamespace ns, XetoSpec spec, Dict opts)
   {
     meta := spec.m.meta
     if (meta.has("abstract") && opts.missing("abstract")) throw Err("Spec is abstract: $spec.qname")
 
     if (spec.isNone) return null
-    if (spec.isScalar || spec.has("val")) return instantiateScalar(env, spec, meta)
-    if (spec === env.sys.dict) return env.dict0
-    if (spec.isList) return env.list0
+    if (spec.isScalar || spec.has("val")) return instantiateScalar(ns, spec, meta)
+    if (spec === ns.sys.dict) return Etc.dict0
+    if (spec.isList) return Etc.list0
 
     isGraph := opts.has("graph")
 
@@ -338,8 +338,8 @@ const class XetoUtil
     {
       if (slot.isMaybe) return
       if (slot.isQuery) return
-      if (slot.type === env.sys.ref && slot.name != "enum") return // fill-in siteRef, equipRef, etc
-      acc[slot.name] = instantiate(env, slot, opts)
+      if (slot.type === ns.sys.ref && slot.name != "enum") return // fill-in siteRef, equipRef, etc
+      acc[slot.name] = instantiate(ns, slot, opts)
     }
 
     parent := opts["parent"] as Dict
@@ -352,20 +352,20 @@ const class XetoUtil
       if (parent.has("siteRef")) acc["siteRef"]  = parent["siteRef"]
     }
 
-    dict := env.dictMap(acc)
+    dict := Etc.dictFromMap(acc)
 
     if (opts.has("graph"))
-      return instantiateGraph(env, spec, opts, dict)
+      return instantiateGraph(ns, spec, opts, dict)
     else
       return dict
   }
 
-  private static Obj instantiateScalar(MEnv env, XetoSpec spec, Dict meta)
+  private static Obj instantiateScalar(MNamespace ns, XetoSpec spec, Dict meta)
   {
     meta["val"] ?: ""
   }
 
-  private static Dict[] instantiateGraph(MEnv env, XetoSpec spec, Dict opts, Dict dict)
+  private static Dict[] instantiateGraph(MNamespace ns, XetoSpec spec, Dict opts, Dict dict)
   {
     opts = Etc.dictSet(opts, "parent", dict)
     graph := Dict[,]
@@ -378,7 +378,7 @@ const class XetoUtil
       if (slot.slots.isEmpty) return
       slot.slots.each |x|
       {
-        kids := instantiate(env, x, opts)
+        kids := instantiate(ns, x, opts)
         if (kids isnot List) return
         graph.addAll(kids)
       }

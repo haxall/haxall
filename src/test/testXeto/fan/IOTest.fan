@@ -24,6 +24,7 @@ class IOTest : AbstractXetoTest
 
   Void test()
   {
+    ns := createNamespace(["sys", "ph"])
     env.lib("ph")
     server = TestServer(env)
     client = TestClient(server)
@@ -66,7 +67,7 @@ class IOTest : AbstractXetoTest
     verifyIO(haystack::Coord(12f, -34f))
     verifyIO(haystack::Symbol("foo-bar"))
 
-    a := env.instantiate(env.spec("ph::AcElecMeter"))
+    a := ns.instantiate(env.spec("ph::AcElecMeter"))
     b := dict(["spec":Ref("ph::Rtu"), "dis":"RTU", "equip":m, "ahu":m, "rtu":m])
     verifyIO(a)
     verifyIO(b)

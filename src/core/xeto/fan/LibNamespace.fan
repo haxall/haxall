@@ -100,6 +100,15 @@ const mixin LibNamespace
   ** as overall result of the method.
   @NoDoc abstract Obj? queryWhile(XetoContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
 
+  ** Create default instance for the given spec.
+  ** Raise exception if spec is abstract.
+  **
+  ** Options:
+  **   - 'graph': marker tag to instantiate graph of recs (will auto-generate ids)
+  **   - 'abstract': marker to supress error if spec is abstract
+  **   - 'id': Ref tag to include in new instance
+  abstract Obj? instantiate(Spec spec, Dict? opts := null)
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////

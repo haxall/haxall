@@ -289,7 +289,7 @@ const class XetoFuncs
   **
   @Axon static Obj? instantiate(Spec spec, Dict? opts := null)
   {
-    curContext.usings.env.instantiate(spec, opts)
+    curContext.usings.ns.instantiate(spec, opts)
   }
 
 //////////////////////////////////////////////////////////////////////////

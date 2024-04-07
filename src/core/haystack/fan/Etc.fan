@@ -651,6 +651,9 @@ const class Etc
 // Values
 //////////////////////////////////////////////////////////////////////////
 
+  ** The empty list
+  @NoDoc static const Obj?[] list0 := Obj?[,]
+
   ** Return if two values are equal including Haystack collection types
   @NoDoc static Bool eq(Obj? a, Obj? b)
   {
@@ -1815,3 +1818,4 @@ const class Etc
   @NoDoc const static Str cxActorLocalsKey := "cx"
 
 }
+

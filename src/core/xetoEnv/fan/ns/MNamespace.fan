@@ -244,6 +244,11 @@ abstract const class MNamespace : LibNamespace
     Query(this, cx, opts).query(subject, query).eachWhile(f)
   }
 
+  override Obj? instantiate(Spec spec, Dict? opts := null)
+  {
+    XetoUtil.instantiate(this, spec, opts ?: Etc.dict0)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////

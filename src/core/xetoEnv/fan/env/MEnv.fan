@@ -161,11 +161,6 @@ abstract const class MEnv : XetoEnv
     return null
   }
 
-  override Obj? instantiate(Spec spec, Dict? opts := null)
-  {
-    XetoUtil.instantiate(this, spec, opts ?: dict0)
-  }
-
   override Dict[] compileDicts(Str src, Dict? opts := null)
   {
     val := compileData(src, opts)

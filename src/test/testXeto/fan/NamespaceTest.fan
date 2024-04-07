@@ -440,31 +440,33 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
 
   Void testInstantiate()
   {
-    verifyInstantiate("sys::None",     null)
-    verifyInstantiate("sys::Str",      "")
-    verifyInstantiate("sys::Number",   n(0))
-    verifyInstantiate("sys::Int",      0)
-    verifyInstantiate("sys::Ref",      Ref("x"))
-    verifyInstantiate("sys::Date",     Date.defVal)
-    verifyInstantiate("sys::Time",     Time.defVal)
-    verifyInstantiate("sys::DateTime", DateTime.defVal)
+    ns := createNamespace(["ph", "ph.points", "ashrae.g36", "hx.test.xeto"])
 
-    verifyInstantiate("sys::Unit",     "%")
+    verifyInstantiate(ns, "sys::None",     null)
+    verifyInstantiate(ns, "sys::Str",      "")
+    verifyInstantiate(ns, "sys::Number",   n(0))
+    verifyInstantiate(ns, "sys::Int",      0)
+    verifyInstantiate(ns, "sys::Ref",      Ref("x"))
+    verifyInstantiate(ns, "sys::Date",     Date.defVal)
+    verifyInstantiate(ns, "sys::Time",     Time.defVal)
+    verifyInstantiate(ns, "sys::DateTime", DateTime.defVal)
 
-    verifyInstantiate("sys::Dict", dict0)
-    verifyInstantiate("sys::List", Obj?[,])
+    verifyInstantiate(ns, "sys::Unit",     "%")
 
-    verifyInstantiate("ph::Meter", ["dis":"Meter", "equip":m, "meter":m])
-    verifyInstantiate("ph::ElecMeter", ["dis":"ElecMeter", "equip":m, "meter":m, "elec":m])
-    verifyInstantiate("ph::AcElecMeter", ["dis":"AcElecMeter", "equip":m, "meter":m, "elec":m, "ac":m])
+    verifyInstantiate(ns, "sys::Dict", dict0)
+    verifyInstantiate(ns, "sys::List", Obj?[,])
 
-    verifyInstantiate("ph::Meter", ["id":Ref("foo"), "dis":"Meter", "equip":m, "meter":m], ["id":Ref("foo")])
+    verifyInstantiate(ns, "ph::Meter", ["dis":"Meter", "equip":m, "meter":m])
+    verifyInstantiate(ns, "ph::ElecMeter", ["dis":"ElecMeter", "equip":m, "meter":m, "elec":m])
+    verifyInstantiate(ns, "ph::AcElecMeter", ["dis":"AcElecMeter", "equip":m, "meter":m, "elec":m, "ac":m])
 
-    verifyInstantiate("ph.points::DischargeAirTempSensor", ["dis":"DischargeAirTempSensor", "discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":"°F"])
-    verifyInstantiate("ashrae.g36::G36ReheatVav", ["dis":"G36ReheatVav", "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m])
+    verifyInstantiate(ns, "ph::Meter", ["id":Ref("foo"), "dis":"Meter", "equip":m, "meter":m], ["id":Ref("foo")])
+
+    verifyInstantiate(ns, "ph.points::DischargeAirTempSensor", ["dis":"DischargeAirTempSensor", "discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":"°F"])
+    verifyInstantiate(ns, "ashrae.g36::G36ReheatVav", ["dis":"G36ReheatVav", "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m])
 
     x := Ref("x")
-    verifyInstantiateGraph("ashrae.g36::G36ReheatVav", [
+    verifyInstantiateGraph(ns, "ashrae.g36::G36ReheatVav", [
       ["id":Ref("x"), "dis":"G36ReheatVav", "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m],
       ["id":Ref("x"), "dis":"ZoneAirTempSensor",      "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "temp":m],
       ["id":Ref("x"), "dis":"ZoneAirTempEffectiveSp", "point":m, "sp":m,      "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "effective":m, "temp":m],
@@ -476,20 +478,20 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
       ["id":Ref("x"), "dis":"DischargeAirTempSensor", "point":m, "sensor":m , "kind":"Number", "equipRef":x, "unit":"°F", "discharge":m, "air":m, "temp":m],
     ])
 
-    verifyInstantiateGraph("hx.test.xeto::EqA", [
+    verifyInstantiateGraph(ns, "hx.test.xeto::EqA", [
       ["id":Ref("x"), "dis":"EqA", "equip":m],
       ["id":Ref("x"), "dis":"a", "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x],
       ["id":Ref("x"), "dis":"b", "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x, "foo":m],
     ])
 
-    verifyErr(Err#) { env.instantiate(env.spec("sys::Obj")) }
-    verifyErr(Err#) { env.instantiate(env.spec("sys::Scalar")) }
+    verifyErr(Err#) { ns.instantiate(env.spec("sys::Obj")) }
+    verifyErr(Err#) { ns.instantiate(env.spec("sys::Scalar")) }
   }
 
-  Void verifyInstantiate(Str qname, Obj? expect, Obj? opts := null)
+  Void verifyInstantiate(LibNamespace ns, Str qname, Obj? expect, Obj? opts := null)
   {
-    spec := env.spec(qname)
-    actual := env.instantiate(spec, Etc.makeDict(opts))
+    spec := ns.spec(qname)
+    actual := ns.instantiate(spec, Etc.makeDict(opts))
     // echo("-- $qname: $actual ?= $expect")
     if (expect is Map)
       verifyDictEq(actual, expect)
@@ -497,10 +499,10 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
       verifyValEq(actual, expect)
   }
 
-  Void verifyInstantiateGraph(Str qname, [Str:Obj][] expect)
+  Void verifyInstantiateGraph(LibNamespace ns, Str qname, [Str:Obj][] expect)
   {
-    spec := env.spec(qname)
-    Dict[] actual := env.instantiate(spec, dict1("graph", m))
+    spec := ns.spec(qname)
+    Dict[] actual := ns.instantiate(spec, dict1("graph", m))
     // echo; TrioWriter(Env.cur.out).writeAllDicts(actual)
     baseId := (Ref)actual[0]->id
     verifyEq(actual.size, expect.size)

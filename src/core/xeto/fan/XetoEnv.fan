@@ -85,15 +85,6 @@ const abstract class XetoEnv
   ** Get or load instance by the given qualified name
   abstract Dict? instance(Str qname, Bool checked := true)
 
-  ** Create default instance for the given spec.
-  ** Raise exception if spec is abstract.
-  **
-  ** Options:
-  **   - 'graph': marker tag to instantiate graph of recs (will auto-generate ids)
-  **   - 'abstract': marker to supress error if spec is abstract
-  **   - 'id': Ref tag to include in new instance
-  abstract Obj? instantiate(Spec spec, Dict? opts := null)
-
   ** Compile Xeto source code into a temp library.
   ** Raise exception if there are any syntax or semantic errors.
   abstract Lib compileLib(Str src, Dict? opts := null)
