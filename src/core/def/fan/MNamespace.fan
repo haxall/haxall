@@ -269,9 +269,16 @@ const mixin XetoGetter
   abstract xeto::LibNamespace get()
 }
 
+
 @NoDoc @Js
 const class DefXetoGetter : XetoGetter
 {
   override xeto::LibNamespace get() { xeto::LibRepo.cur.bootNamespace }
+}
+
+@NoDoc @Js
+const class UnsupportedXetoGetter : XetoGetter
+{
+  override xeto::LibNamespace get() { throw UnsupportedErr() }
 }
 
