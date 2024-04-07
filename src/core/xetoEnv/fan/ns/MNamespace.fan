@@ -65,14 +65,34 @@ abstract const class MNamespace : LibNamespace
     entry(name, checked)?.version
   }
 
-  override Bool isLoaded(Str name)
+  override LibStatus libStatus(Str name)
   {
-    entry(name, false)?.isLoaded ?: false
+    entry(name).status
+  }
+
+  override Err? libErr(Str name)
+  {
+    entry(name).err
   }
 
   override Bool isAllLoaded()
   {
-    allLoaded.val
+    libsRef.val != null
+  }
+
+  override Lib[] libs()
+  {
+    libs := libsRef.val as Lib[]
+    if (libs != null) return libs
+    loadAllSync
+    return libsRef.val
+  }
+
+  override Void libsAsync(|Err?, Lib[]?| f)
+  {
+    libs := libsRef.val as Lib[]
+    if (libs != null) { f(null, libs); return }
+    loadAllAsync(f)
   }
 
   override Lib? lib(Str name, Bool checked := true)
@@ -83,20 +103,18 @@ abstract const class MNamespace : LibNamespace
       if (checked) throw UnknownLibErr(name)
       return null
     }
-    if (e.isLoaded) return e.get
-    return loaded(e, loadSync(e.version))
+    if (e.status.isNotLoaded) loadSyncWithDepends(e)
+    if (e.status.isOk) return e.get
+    throw e.err ?: Err("$name [$e.status]")
   }
 
   override Void libAsync(Str name, |Err?, Lib?| f)
   {
     e := entry(name, false)
-    if (e == null) return f(UnknownLibErr(name), null)
-    if (e.isLoaded) return f(null, e.get)
-    loadAsync(e.version) |err, lib|
-    {
-      if (lib != null) lib = loaded(e, lib)
-      f(err, lib)
-    }
+    if (e == null) { f(UnknownLibErr(name), null); return }
+    if (e.status.isOk) { f(null, e.get); return }
+    if (e.status.isErr) { f(e.err, null); return }
+    loadAsyncWithDepends(e, f)
   }
 
   internal MLibEntry? entry(Str name, Bool checked := true)
@@ -111,16 +129,116 @@ abstract const class MNamespace : LibNamespace
 // Loading
 //////////////////////////////////////////////////////////////////////////
 
-  private Lib loaded(MLibEntry entry, XetoLib lib)
+  private Void loadAllSync()
   {
-    entry.set(lib)
-    allLoaded.val = entriesList.all |x| { x.isLoaded }
-    return entry.get
+    entriesList.each |entry|
+    {
+      loadSync(entry)
+    }
+    checkAllLoaded
   }
 
-  abstract XetoLib loadSync(LibVersion v)
+  private Void loadSyncWithDepends(MLibEntry entry)
+  {
+    entry.version.depends.each |depend|
+    {
+      if (entry.status.isNotLoaded)
+        loadSync(this.entry(depend.name))
+    }
+    loadSync(entry)
+    checkAllLoaded
+  }
 
-  abstract Void loadAsync(LibVersion v, |Err?, XetoLib?| f)
+  private Void loadSync(MLibEntry entry)
+  {
+    try
+    {
+      lib := doLoadSync(entry.version)
+      entry.setOk(lib)
+    }
+    catch (Err e)
+    {
+      entry.setErr(e)
+    }
+  }
+
+  private Void checkAllLoaded()
+  {
+    allLoaded := entriesList.all |e| { e.status.isLoaded }
+    if (!allLoaded) return
+    acc := Lib[,]
+    acc.capacity = entriesList.size
+    entriesList.each |e| { if (e.status.isOk) acc.add(e.get) }
+    libsRef.val = acc.toImmutable
+  }
+
+  private Void loadAllAsync(|Err?, Lib[]?| f)
+  {
+    // find all the libs not loaded yet
+    toLoad := LibVersion[,]
+    entriesList.each |e|
+    {
+      if (e.status.isNotLoaded) toLoad.add(e.version)
+    }
+
+    loadListAsync(toLoad) |err, list| { f(err, libsRef.val) }
+  }
+
+  private Void loadAsyncWithDepends(MLibEntry e, |Err?, Lib?| f)
+  {
+    // find all the dependencies not loaded yet
+    toLoad := LibVersion[,]
+    e.version.depends.each |depend|
+    {
+      d := entry(depend.name)
+      if (d.status.isNotLoaded) toLoad.add(d.version)
+    }
+
+    // and load myself as last in list
+    toLoad.add(e.version)
+
+    loadListAsync(toLoad) |err, list| { f(err, list.last) }
+  }
+
+  private Void loadListAsync(LibVersion[] toLoad, |Err?, Lib[]?| f)
+  {
+    acc := Lib[,]
+    doLoadListAsync(toLoad) |err, results|
+    {
+      // if whole operation failed
+      if (err != null) { f(err, null); return }
+
+      // otherwise results is list of Lib/Err in same order as toLoad
+      results.each |r, i|
+      {
+        e := entry(toLoad[i].name)
+        lib := r as XetoLib
+        if (lib != null)
+        {
+          acc.add(lib)
+          e.setOk(lib)
+        }
+        else
+        {
+          e.setErr(r)
+        }
+      }
+
+      // check if all libs should be loaded
+      checkAllLoaded
+
+      // callback with the libs successfully loaded
+      f(null, acc)
+    }
+  }
+
+  ** Load given version synchronously.  If the libary can not be
+  ** loaed then raise exception to the caller of this method.
+  abstract XetoLib doLoadSync(LibVersion v)
+
+  ** Load a list of versions asynchronously and return a list
+  ** of Lib or Err in the same order as the versions
+  abstract Void doLoadListAsync(LibVersion[] v, |Err?, Obj[]?| f)
 
 //////////////////////////////////////////////////////////////////////////
 // Lookups
@@ -283,7 +401,7 @@ MEnv env() { XetoEnv.cur }
   const MFactories factories := env.factories // TODO
   private const Str:MLibEntry entriesMap
   private const MLibEntry[] entriesList  // orderd by depends
-  private const AtomicBool allLoaded := AtomicBool()
+  private const AtomicRef libsRef := AtomicRef()
 
 }
 
@@ -302,12 +420,25 @@ internal const class MLibEntry
 
   override Int compare(Obj that) { this.name <=> ((MLibEntry)that).name }
 
-  Bool isLoaded() { libRef.val != null }
+  LibStatus status() { statusRef.val }
 
-  XetoLib? get() { libRef.val as XetoLib ?: throw Err("Not loaded: $name") }
+  Err? err() { loadRef.val as Err }
 
-  Void set(XetoLib lib) { libRef.compareAndSet(null, lib) }
+  XetoLib get() { loadRef.val as XetoLib ?: throw Err("Not loaded: $name [$status]") }
 
-  private const AtomicRef libRef := AtomicRef()
+  Void setOk(XetoLib lib)
+  {
+    loadRef.compareAndSet(null, lib)
+    statusRef.val = LibStatus.ok
+  }
+
+  Void setErr(Err err)
+  {
+    loadRef.compareAndSet(null, err)
+    statusRef.val = LibStatus.err
+  }
+
+  private const AtomicRef statusRef := AtomicRef(LibStatus.notLoaded)
+  private const AtomicRef loadRef := AtomicRef() // XetoLib or Err
 }
 

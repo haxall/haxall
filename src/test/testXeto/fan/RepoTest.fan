@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xeto::Lib
 using xetoEnv
 using haystack
 using haystack::Ref
@@ -189,7 +190,7 @@ class RepoTest : AbstractXetoTest
     ns := repo.createNamespace([sysVer])
     verifyEq(ns.versions, [sysVer])
     verifySame(ns.version("sys"), sysVer)
-    verifyEq(ns.isLoaded("sys"), true)
+    verifyEq(ns.libStatus("sys"), LibStatus.ok)
     verifyEq(ns.isAllLoaded, true)
 
     sys := ns.lib("sys")
@@ -197,6 +198,8 @@ class RepoTest : AbstractXetoTest
     verifySame(ns.sysLib, sys)
     verifyEq(sys.name, "sys")
     verifyEq(sys.version, sysVer.version)
+    verifyEq(ns.libs, Lib[sys])
+    verifySame(ns.libs, ns.libs)
 
     //
     // sys and ph
@@ -205,11 +208,12 @@ class RepoTest : AbstractXetoTest
     ns = repo.createNamespace([phVer, sysVer])
     verifyEq(ns.versions, [sysVer, phVer])
     verifySame(ns.version("sys"), sysVer)
-    verifyEq(ns.isLoaded("sys"), true)
+    verifyEq(ns.libStatus("sys"), LibStatus.ok)
     verifySame(ns.version("ph"), phVer)
     verifyEq(ns.isAllLoaded, false)
-    verifyNotSame(ns.sysLib, sys)  // new compile of sys
-    verifyNotSame(ns.lib("sys"), sys)
+// TODO: once we switch compiler
+//    verifyNotSame(ns.sysLib, sys)  // new compile of sys
+//    verifyNotSame(ns.lib("sys"), sys)
 
     verifyEq(ns.lib("foo.bar.baz", false), null)
     verifyErr(UnknownLibErr#) { ns.lib("foo.bar.baz") }
@@ -219,14 +223,15 @@ class RepoTest : AbstractXetoTest
     verifyEq(asyncErr.typeof, UnknownLibErr#)
     verifyEq(asyncLib, null)
 
-    verifyEq(ns.isLoaded("ph"), false)
+    verifyEq(ns.libStatus("ph"), LibStatus.notLoaded)
     ph := ns.lib("ph")
-    verifyEq(ns.isLoaded("ph"), true)
+    verifyEq(ns.libStatus("ph"), LibStatus.ok)
+    verifyEq(ns.isAllLoaded, true)
     verifySame(ns.lib("ph"), ph)
     verifyEq(ph.name, "ph")
     verifyEq(ph.version, phVer.version)
-    verifyEq(ns.isLoaded("ph"), true)
-    verifyEq(ns.isAllLoaded, true)
+    verifyEq(ns.libs, Lib[sys, ph])
+    verifySame(ns.libs, ns.libs)
     asyncErr = null; asyncLib = null
     ns.libAsync("ph") |e,l| { asyncErr = e; asyncLib = l }
     verifyEq(asyncErr, null)
@@ -235,6 +240,102 @@ class RepoTest : AbstractXetoTest
     verifySame(ns.spec("sys::Str").lib, ns.sysLib)
     verifySame(ns.type("ph::Point").lib, ph)
     verifySame(ns.spec("ph::Point.point").lib, ph)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// AllLoaded
+//////////////////////////////////////////////////////////////////////////
+
+  Void testAllLoaded()
+  {
+    // sync all libs
+    ns := initAllLoaded
+    libs := ns.libs
+    verifyAllLoaded(ns, libs)
+
+    // async all libs
+    ns = initAllLoaded
+    asyncLibs := null
+    ns.libsAsync |err, res| { asyncLibs = res } // 1st time
+    verifyAllLoaded(ns, asyncLibs)
+    asyncLibs = null
+    ns.libsAsync |err, res| { asyncLibs = res } // 2nd time
+    verifyAllLoaded(ns, asyncLibs)
+
+    // sync individual libs with depends
+    ns = initAllLoaded
+    verifyEq(ns.libStatus("ph"),        LibStatus.notLoaded)
+    verifyEq(ns.libStatus("ph.equips"), LibStatus.notLoaded)
+    verifyEq(ns.libStatus("ph.points"), LibStatus.notLoaded)
+    ns.lib("ph.points")
+    verifyEq(ns.libStatus("ph"),        LibStatus.ok)
+    verifyEq(ns.libStatus("ph.equips"), LibStatus.notLoaded)
+    verifyEq(ns.libStatus("ph.points"), LibStatus.ok)
+    verifyEq(ns.isAllLoaded, false)
+    ns.lib("ph.equips")
+    verifyEq(ns.libStatus("ph"),        LibStatus.ok)
+    verifyEq(ns.libStatus("ph.equips"), LibStatus.ok)
+    verifyEq(ns.libStatus("ph.points"), LibStatus.ok)
+    verifyEq(ns.isAllLoaded, true)
+    verifyAllLoaded(ns, ns.libs)
+
+    // async individual libs with depends
+    ns = initAllLoaded
+    verifyEq(ns.libStatus("ph"),        LibStatus.notLoaded)
+    verifyEq(ns.libStatus("ph.equips"), LibStatus.notLoaded)
+    verifyEq(ns.libStatus("ph.points"), LibStatus.notLoaded)
+    Lib? asyncLib := null
+    ns.libAsync("ph.points") |err, lib| { asyncLib = lib }
+    verifyEq(asyncLib?.name, "ph.points")
+    verifyEq(ns.libStatus("ph"),        LibStatus.ok)
+    verifyEq(ns.libStatus("ph.equips"), LibStatus.notLoaded)
+    verifyEq(ns.libStatus("ph.points"), LibStatus.ok)
+    verifyEq(ns.isAllLoaded, false)
+    asyncLib = null
+    ns.libAsync("ph.equips") |err, lib| { asyncLib = lib }
+    verifyEq(asyncLib?.name, "ph.equips")
+    verifyEq(ns.libStatus("ph"),        LibStatus.ok)
+    verifyEq(ns.libStatus("ph.equips"), LibStatus.ok)
+    verifyEq(ns.libStatus("ph.points"), LibStatus.ok)
+    verifyEq(ns.isAllLoaded, true)
+    verifyAllLoaded(ns, ns.libs)
+  }
+
+  LibNamespace initAllLoaded()
+  {
+    repo := LibRepo.cur
+    LibVersion sysVer      := repo.latest("sys")
+    LibVersion phVer       := repo.latest("ph")
+    LibVersion phPointsVer := repo.latest("ph.points")
+    LibVersion phEquipsVer := repo.latest("ph.equips")
+
+    ns := repo.createNamespace([sysVer, phVer, phPointsVer, phEquipsVer])
+
+    verifyEq(ns.versions, [sysVer, phVer, phEquipsVer, phPointsVer])
+
+    verifyEq(ns.isAllLoaded, false)
+    verifyEq(ns.libStatus("sys"), LibStatus.ok)
+    verifyEq(ns.libStatus("ph"), LibStatus.notLoaded)
+    verifyEq(ns.libStatus("ph.equips"), LibStatus.notLoaded)
+    verifyEq(ns.libStatus("ph.points"), LibStatus.notLoaded)
+
+    return ns
+  }
+
+  Void verifyAllLoaded(LibNamespace ns, Lib[] libs)
+  {
+    verifyEq(ns.isAllLoaded, true)
+    verifyEq(ns.libStatus("sys"), LibStatus.ok)
+    verifyEq(ns.libStatus("ph"), LibStatus.ok)
+    verifyEq(ns.libStatus("ph.equips"), LibStatus.ok)
+    verifyEq(ns.libStatus("ph.points"), LibStatus.ok)
+
+    verifyEq(libs.size, 4)
+    verifySame(libs[0], ns.lib("sys"))
+    verifySame(libs[1], ns.lib("ph"))
+    verifySame(libs[2], ns.lib("ph.equips"))
+    verifySame(libs[3], ns.lib("ph.points"))
+    verifySame(ns.libs, libs)
   }
 
 //////////////////////////////////////////////////////////////////////////

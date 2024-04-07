@@ -22,7 +22,7 @@ const class LocalNamespace : MNamespace
     this.repo = repo
   }
 
-  override XetoLib loadSync(LibVersion v)
+  override XetoLib doLoadSync(LibVersion v)
   {
     /* TODO
     c := XetoCompiler
@@ -38,12 +38,25 @@ const class LocalNamespace : MNamespace
     return XetoEnv.cur.lib(v.name)
   }
 
-  override Void loadAsync(LibVersion v, |Err?, XetoLib?| f)
+  override Void doLoadListAsync(LibVersion[] versions, |Err?, Obj[]?| f)
   {
     try
-      f(null, loadSync(v))
+    {
+      acc := Obj[,]
+      acc.capacity = versions.size
+      versions.each |version|
+      {
+        try
+          acc.add(doLoadSync(version))
+        catch (Err e)
+          acc.add(e)
+      }
+      f(null, acc)
+    }
     catch (Err e)
+    {
       f(e, null)
+    }
   }
 
   const LibRepo repo

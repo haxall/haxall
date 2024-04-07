@@ -320,8 +320,9 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
     verifyErr(UnknownSpecErr#) { ns.type("sys::Foo", true) }
 
     // instances
-    verifyEq(ns.isLoaded("hx.test.xeto"), false)
+    verifyEq(ns.libStatus("hx.test.xeto"), LibStatus.notLoaded)
     verifyDictEq(ns.instance("hx.test.xeto::test-a"), ["id":Ref("hx.test.xeto::test-a"), "alpha":m])
+    verifyEq(ns.libStatus("hx.test.xeto"), LibStatus.ok)
     verifyEq(ns.instance("hx.test.xeto::badOne", false), null)
     verifyEq(ns.instance("hx.test.xeto::badOne", false), null)
     verifyErr(UnknownRecErr#) { ns.instance("hx.test.xeto::badOne") }

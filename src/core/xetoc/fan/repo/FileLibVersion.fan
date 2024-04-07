@@ -33,7 +33,7 @@ const class FileLibVersion : LibVersion
   override File? file(Bool checked := true) { fileRef }
   const File fileRef
 
-  override Str toStr() { "$name-$version [$file.osPath]" }
+  override Str toStr() { "$name-$version" }
 
   override LibDepend[] depends()
   {

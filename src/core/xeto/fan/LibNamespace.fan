@@ -34,22 +34,46 @@ const mixin LibNamespace
   ** Lookup the version info for a library name in this namespace.
   abstract LibVersion? version(Str name, Bool checked :=true)
 
-  ** Return true if the given library name is included in
-  ** this namespace and has been loaded.
-  abstract Bool isLoaded(Str name)
+  ** Return load status for the given library name:
+  **   - 'notLoaded': library is included but has not been loaded yet
+  **   - 'ok': library is included and loaded successfully
+  **   - 'err': library is included but could not be loaded
+  **   - raise exception if library is not included in this namespace
+  abstract LibStatus libStatus(Str name)
 
-  ** Return true if the every library in this namespace has been loaded.
-  ** Many operations require a namespace to be fully loaded.
+  ** Exception for a library with lib status of 'err', or null otherwise.
+  ** Raise exception is library not included in this namespace.
+  abstract Err? libErr(Str name)
+
+  ** Return true if the every library in this namespace has been
+  ** loaded (successfully or unsuccessfully).  This method returns false
+  ** is any libs have a load status of 'notLoaded'.  Many operations
+  ** require a namespace to be fully loaded.
   abstract Bool isAllLoaded()
 
-  ** Get the given library by name synchronously.  If this is a local
-  ** namespace, then the library will be compiled on its first access.
+  ** List all libraries.  On first call, this will force all libraries to
+  ** be loaded synchronously.  Any libs which cannot be compiled will log
+  ** an error and be excluded from this list.  If `isAllLoaded` is true
+  ** then this call can also be in JS environments, otherwise you must use
+  ** the `libsAsync` call to fully load all libraries into memory.
+  abstract Lib[] libs()
+
+  ** Load all libraries asynchronosly.  Once this operation completes
+  ** successfully the `isAllLoaded` method will return `true` and the
+  ** `libs` method may be used even in JS environments.  Note that an
+  ** error is reported only if the entire load failed.  Individual libs
+  ** which cannot be loaded will logged on server, and be excluded from
+  ** the final libs list.
+  abstract Void libsAsync(|Err?, Lib[]?| f)
+
+  ** Get the given library by name synchronously.  If this is a Java
+  ** environment, then the library will be compiled on its first access.
   ** If the library cannot be compiled then an exception is always raised
-  ** regardless of checked flag.  If the namespace is remote then the
+  ** regardless of checked flag.  If this is a JS environment then the
   ** library must already have been loaded, otherwise raise exception
   ** regardless of checked flag.  The checked flag only returns null if
   ** the library is not defined by this namespace.  Use `libAsync` to
-  ** load a library in a remote namespace.
+  ** load a library in JS environment.
   abstract Lib? lib(Str name, Bool checked := true)
 
   ** Get or load library asynchronously by the given dotted name.
@@ -130,5 +154,27 @@ const mixin LibNamespace
   @NoDoc abstract Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
 
 
+}
+
+**************************************************************************
+** LibStatus
+**************************************************************************
+
+@Js
+enum class LibStatus
+{
+  ** The library has not been loaded into the namespace yet
+  notLoaded,
+
+   ** The library was successfully loaded into namespace
+  ok,
+
+  ** Load was attempted, but failed due to compiler error
+  err
+
+  @NoDoc Bool isOk() { this === ok }
+  @NoDoc Bool isErr() { this === err }
+  @NoDoc Bool isNotLoaded() { this === notLoaded }
+  @NoDoc Bool isLoaded() { this !== notLoaded }
 }
 
