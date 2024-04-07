@@ -111,13 +111,6 @@ const abstract class XetoEnv
   ** Parse pragma file into AST
   @NoDoc abstract Dict parsePragma(File file, Dict? opts := null)
 
-  ** Given an instance and choice base type, return the selected choice.
-  ** If instance has zero or more than one choice, then return null or
-  ** raise an exception based on the checked flag.
-  ** Example:
-  **   choiceOf({hot, water, point}, Fluid)  >>  HotWater
-  @NoDoc abstract Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
-
   ** Generate an AST for the given Lib or Spec as a Dict tree.
   @NoDoc abstract Dict genAst(Obj libOrSpec, Dict? opts := null)
 

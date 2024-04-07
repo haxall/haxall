@@ -174,11 +174,6 @@ abstract const class MEnv : XetoEnv
     Printer(this, out, opts ?: dict0).xetoTop(val)
   }
 
-  override Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
-  {
-    XetoUtil.choiceOf(this, instance, choice, checked)
-  }
-
   override Dict genAst(Obj libOrSpec, Dict? opts := null)
   {
     if (opts == null) opts = dict0

@@ -226,12 +226,10 @@ const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Implementation of XetoEnv.choiceOf
-  static Spec? choiceOf(MEnv env, Dict instance, Spec choice, Bool checked)
+  static Spec? choiceOf(MNamespace ns, Dict instance, Spec choice, Bool checked)
   {
-    // TODO: need namespace, but for now only use declared lib
-    ns := choice.lib
     acc := Spec[,]
-    ns.types.each |x|
+    ns.eachType |x|
     {
       if (!x.isa(choice)) return
       if (x.slots.isEmpty) return

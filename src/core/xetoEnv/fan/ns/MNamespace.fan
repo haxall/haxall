@@ -182,6 +182,15 @@ abstract const class MNamespace : LibNamespace
     return null
   }
 
+  override Void eachType(|Spec| f)
+  {
+    if (!isAllLoaded) throw Err("Namespace must be fully loaded")
+    entriesList.each |e|
+    {
+      e.get.types.each |type| { f(type) }
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Reflection
 //////////////////////////////////////////////////////////////////////////
@@ -247,6 +256,11 @@ abstract const class MNamespace : LibNamespace
   override Obj? instantiate(Spec spec, Dict? opts := null)
   {
     XetoUtil.instantiate(this, spec, opts ?: Etc.dict0)
+  }
+
+  override Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
+  {
+    XetoUtil.choiceOf(this, instance, choice, checked)
   }
 
 //////////////////////////////////////////////////////////////////////////

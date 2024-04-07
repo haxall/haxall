@@ -82,6 +82,10 @@ const mixin LibNamespace
   ** fully loaded.  Raise exception if ambiguous types regardless of checked flag.
   @NoDoc abstract Spec? unqualifiedType(Str name, Bool checked := true)
 
+  ** Iterate all the top-level types in all the libs.
+  ** Raise exception is not fully loaded.
+  abstract Void eachType(|Spec| f)
+
 //////////////////////////////////////////////////////////////////////////
 // Reflection
 //////////////////////////////////////////////////////////////////////////
@@ -108,6 +112,13 @@ const mixin LibNamespace
   **   - 'abstract': marker to supress error if spec is abstract
   **   - 'id': Ref tag to include in new instance
   abstract Obj? instantiate(Spec spec, Dict? opts := null)
+
+  ** Given an instance and choice base type, return the selected choice.
+  ** If instance has zero or more than one choice, then return null or
+  ** raise an exception based on the checked flag.
+  ** Example:
+  **   choiceOf({hot, water, point}, Fluid)  >>  HotWater
+  @NoDoc abstract Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
 
 //////////////////////////////////////////////////////////////////////////
 // Utils

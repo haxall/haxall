@@ -194,23 +194,26 @@ class SpecTest : AbstractXetoTest
 
   Void testChoiceOf()
   {
-    verifyChoiceOf(["discharge":m], "ph::DuctSection", "ph::DischargeDuct")
-    verifyChoiceOf(["foo":m], "ph::DuctSection", null)
-    verifyChoiceOf(["elec":m], "ph::Phenomenon", "ph::Elec")
-    verifyChoiceOf(["elec":m, "dc":m], "ph::Phenomenon", "ph::DcElec")
-    verifyChoiceOf(["naturalGas":m], "ph::Phenomenon", "ph::NaturalGas")
-    verifyChoiceOf(["naturalGas":m], "ph::Liquid", null)
-    verifyChoiceOf(["water":m], "ph::Fluid", "ph::Water")
-    verifyChoiceOf(["water":m, "hot":m], "ph::Fluid", "ph::HotWater")
+    ns := createNamespace(["sys", "ph"])
+// TODO: force full load
+ns.lib("ph")
+    verifyChoiceOf(ns, ["discharge":m], "ph::DuctSection", "ph::DischargeDuct")
+    verifyChoiceOf(ns, ["foo":m], "ph::DuctSection", null)
+    verifyChoiceOf(ns, ["elec":m], "ph::Phenomenon", "ph::Elec")
+    verifyChoiceOf(ns, ["elec":m, "dc":m], "ph::Phenomenon", "ph::DcElec")
+    verifyChoiceOf(ns, ["naturalGas":m], "ph::Phenomenon", "ph::NaturalGas")
+    verifyChoiceOf(ns, ["naturalGas":m], "ph::Liquid", null)
+    verifyChoiceOf(ns, ["water":m], "ph::Fluid", "ph::Water")
+    verifyChoiceOf(ns, ["water":m, "hot":m], "ph::Fluid", "ph::HotWater")
 
     // TODO
-    //verifyChoiceOf(["water":m, "hot":m, "naturalGas":m], "ph::Fluid", null)
+    //verifyChoiceOf(ns, ["water":m, "hot":m, "naturalGas":m], "ph::Fluid", null)
   }
 
-  Void verifyChoiceOf(Str:Obj tags, Str choice, Str? expect)
+  Void verifyChoiceOf(LibNamespace ns, Str:Obj tags, Str choice, Str? expect)
   {
-    actual := env.choiceOf(dict(tags), env.spec(choice), false)
-    //echo("--> $tags choiceOf $choice => $actual ?= $expect")
+    actual := ns.choiceOf(dict(tags), env.spec(choice), false)
+    // echo("--> $tags choiceOf $choice => $actual ?= $expect")
     verifyEq(actual?.qname, expect)
   }
 
