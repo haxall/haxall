@@ -381,8 +381,6 @@ class AxonTest : HxTest
   Void testFolioReadAll()
   {
     addRec(["using":"ph"])
-// TODO force all
-rt.ns.xeto.lib("ph")
 
     a := addRec(["dis":"a", "spec":Ref("ph::Ahu")])
     b := addRec(["dis":"b", "spec":Ref("ph::Rtu")])

@@ -195,8 +195,6 @@ class SpecTest : AbstractXetoTest
   Void testChoiceOf()
   {
     ns := createNamespace(["sys", "ph"])
-// TODO: force full load
-ns.lib("ph")
     verifyChoiceOf(ns, ["discharge":m], "ph::DuctSection", "ph::DischargeDuct")
     verifyChoiceOf(ns, ["foo":m], "ph::DuctSection", null)
     verifyChoiceOf(ns, ["elec":m], "ph::Phenomenon", "ph::Elec")

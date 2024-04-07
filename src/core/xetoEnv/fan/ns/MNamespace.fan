@@ -287,12 +287,10 @@ abstract const class MNamespace : LibNamespace
 
   override Spec? unqualifiedType(Str name, Bool checked := true)
   {
-    if (!isAllLoaded) throw Err("Namespace must be fully loaded")
-
     acc := Spec[,]
-    entriesList.each |e|
+    libs.each |lib|
     {
-      acc.addNotNull(e.get.type(name, false))
+      acc.addNotNull(lib.type(name, false))
     }
     if (acc.size == 1) return acc[0]
     if (acc.size > 1) throw Err("Ambiguous types for '$name' $acc")
@@ -302,10 +300,9 @@ abstract const class MNamespace : LibNamespace
 
   override Void eachType(|Spec| f)
   {
-    if (!isAllLoaded) throw Err("Namespace must be fully loaded")
-    entriesList.each |e|
+    libs.each |lib|
     {
-      e.get.types.each |type| { f(type) }
+      lib.types.each |type| { f(type) }
     }
   }
 
