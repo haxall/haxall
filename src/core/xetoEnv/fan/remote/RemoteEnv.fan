@@ -42,11 +42,6 @@ const class RemoteEnv : MEnv
     throw UnsupportedErr()
   }
 
-  override Dict parsePragma(File file, Dict? opts := null)
-  {
-    throw UnsupportedErr()
-  }
-
   override Void dump(OutStream out := Env.cur.out)
   {
     out.printLine("=== RemoteXetoEnv ===")

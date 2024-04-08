@@ -63,17 +63,6 @@ internal const class LocalEnv : MEnv
     return c.compileData
   }
 
-  override Dict parsePragma(File file, Dict? opts := null)
-  {
-    c := XetoCompiler
-    {
-      it.env = this
-      it.input = file
-      it.applyOpts(opts)
-    }
-    return c.parsePragma
-  }
-
   override Void dump(OutStream out := Env.cur.out)
   {
     out.printLine("=== LocalXetoEnv ===")
@@ -94,5 +83,4 @@ internal const class LocalEnv : MEnv
 
   private const AtomicInt compileCount := AtomicInt()
 }
-
 

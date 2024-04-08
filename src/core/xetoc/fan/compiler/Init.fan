@@ -69,22 +69,3 @@ internal class InitData : Init
   }
 }
 
-**************************************************************************
-** InitParseLibMeta
-**************************************************************************
-
-**
-** Initialize for parsePragma
-**
-internal class InitParsePragma : Init
-{
-  override Void run()
-  {
-    // base class checks
-    super.run
-
-    // set flags
-    compiler.isLib = false
-    compiler.isSys = false
-  }
-}

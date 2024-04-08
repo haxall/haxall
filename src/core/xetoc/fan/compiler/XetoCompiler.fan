@@ -123,17 +123,6 @@ internal class XetoCompiler
     return FileLibVersion(libName, lib.version, dir, doc, ns.depends)
   }
 
-  ** Parse pragma from lib.xeto meta into fantom JSON data
-  Dict parsePragma()
-  {
-    run([
-      InitParsePragma(),
-      Parse(),
-      AstToJson()
-    ])
-    return json
-  }
-
   ** Run the pipeline with the given steps
   internal This run(Step[] steps)
   {

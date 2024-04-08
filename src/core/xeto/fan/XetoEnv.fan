@@ -108,9 +108,6 @@ const abstract class XetoEnv
   ** to read data from Xeto text format.
   abstract Void writeData(OutStream out, Obj val, Dict? opts := null)
 
-  ** Parse pragma file into AST
-  @NoDoc abstract Dict parsePragma(File file, Dict? opts := null)
-
   ** Generate an AST for the given Lib or Spec as a Dict tree.
   @NoDoc abstract Dict genAst(Obj libOrSpec, Dict? opts := null)
 
