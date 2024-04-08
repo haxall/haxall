@@ -122,10 +122,10 @@ doTestSysLib(createNamespace(["sys"]))
     verifyErr(UnknownSpecErr#) { ns.spec("sys::Str.foo") }
 
     // specials
-    verifyEq(self.isSelf,     true)
-    verifyEq(none.isNone,     true)
-    verifyEq(or.isBaseAnd,    false)
-    verifyEq(or.isBaseOr,     false)
+    verifyEq(self.isSelf, true)
+    verifyEq(none.isNone, true)
+    verifyEq(or.isAnd, false)
+    verifyEq(or.isOr, false)
     verifyEq(marker.isMarker, true)
   }
 
@@ -217,7 +217,7 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
     verifyEq(slotNames(c.slotsOwn), "z")
 
     // AND inheritance - slots
-    verifyEq(ab.isBaseAnd, true)
+    verifyEq(ab.isAnd, true)
     verifyEq(ab.slotOwn("x", false), null)
     verifyEq(ab.slotOwn("y", false), null)
     verifySame(ab.slotOwn("z"), abz)

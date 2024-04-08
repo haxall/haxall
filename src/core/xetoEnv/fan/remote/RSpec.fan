@@ -77,11 +77,6 @@ internal class RSpec : CSpec, NameDictReader
   override MSpecArgs args := MSpecArgs.nil  // TODO
 
   override final Bool isSys() { libName =="sys" }
-  override final Bool isNone() { qname == "sys::None" }
-  override final Bool isSelf() { qname == "sys::Self" }
-  override final Bool isEnum() { base != null && base.qname == "sys::Enum" }
-  override final Bool isBaseAnd() { base != null && base.qname == "sys::And" }
-  override final Bool isBaseOr() { base != null && base.qname == "sys::Or" }
 
   // flags
   override Int flags
@@ -93,6 +88,11 @@ internal class RSpec : CSpec, NameDictReader
   override Bool isMaybe()  { hasFlag(MSpecFlags.maybe) }
   override Bool isQuery()  { hasFlag(MSpecFlags.query) }
   override Bool isFunc()   { hasFlag(MSpecFlags.func) }
+  override Bool isNone()   { hasFlag(MSpecFlags.none) }
+  override Bool isSelf()   { hasFlag(MSpecFlags.self) }
+  override Bool isEnum()   { hasFlag(MSpecFlags.enum) }
+  override Bool isAnd()    { hasFlag(MSpecFlags.and) }
+  override Bool isOr()     { hasFlag(MSpecFlags.or) }
   Bool hasFlag(Int mask) { flags.and(mask) != 0 }
 
   // NameDictReader to iterate slotsOwnIn
@@ -124,3 +124,4 @@ internal const class RSpecRef
 
   override Str toStr() { "$lib $type $slot $more" }
 }
+

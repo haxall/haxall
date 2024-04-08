@@ -164,17 +164,17 @@ class SpecTest : AbstractXetoTest
     verifyIsa("ph.points::AirFlowSensor", "ph::Point", true)
     verifyIsa("ph.points::AirFlowSensor", "ph::Sensor", true)
     verifyIsa("ph.points::AirFlowSensor", "sys::Dict", true, false)
-    verifyEq(s.isBaseAnd, true)
+    verifyEq(s.isAnd, true)
 
     s = verifyIsa("ph.points::AirTempSensor", "ph.points::AirTempPoint", true)
     s = verifyIsa("ph.points::AirTempSensor", "ph::Point", true)
-    verifyEq(s.isBaseAnd, true)
+    verifyEq(s.isAnd, true)
 
     s = verifyIsa("ph.points::ZoneAirTempSensor", "ph::Point", true)
     verifyIsa("ph.points::ZoneAirTempSensor", "ph.points::AirTempPoint", true)
     verifyIsa("ph.points::ZoneAirTempSensor", "ph.points::AirTempSensor", true)
     verifyIsa("ph.points::ZoneAirTempSensor", "sys::Dict", true, false)
-    verifyEq(s.isBaseAnd, false)
+    verifyEq(s.isAnd, false)
 
     verifyIsa("ph::DuctSection",   "sys::Choice",    true)
     verifyIsa("ph::DischargeDuct", "sys::Choice",    true)

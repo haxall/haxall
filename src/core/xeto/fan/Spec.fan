@@ -112,15 +112,6 @@ const mixin Spec : Dict
   ** Is this the 'sys::Self' spec itself
   @NoDoc abstract Bool isSelf()
 
-  ** Does this spec directly inherit from And where base is 'sys::And'
-  @NoDoc abstract Bool isBaseAnd()
-
-  ** Does this spec directly inherit from Or where base is 'sys::Or'
-  @NoDoc abstract Bool isBaseOr()
-
-  ** Does this spec directly inherits from And/Or and define 'ofs'
-  @NoDoc abstract Bool isCompound()
-
   ** Return component spec for a collection/ref type
   @NoDoc abstract Spec? of(Bool checked := true)
 
@@ -147,6 +138,15 @@ const mixin Spec : Dict
 
   ** Inherits from 'sys::Func' without considering And/Or
   @NoDoc abstract Bool isFunc()
+
+  ** Is base 'sys::And'
+  @NoDoc abstract Bool isAnd()
+
+  ** Is base 'sys::Or'
+  @NoDoc abstract Bool isOr()
+
+  ** Does this spec directly inherits from And/Or and define 'ofs'
+  @NoDoc abstract Bool isCompound()
 
 }
 

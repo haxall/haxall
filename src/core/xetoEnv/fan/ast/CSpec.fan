@@ -89,14 +89,14 @@ mixin CSpec : CNode
   ** Lookup enum item by its key - raise exception if not enum type
   abstract CSpec? cenum(Str key, Bool checked := true)
 
-  ** Does this spec directly inherit from And where base is sys::And
-  abstract Bool isBaseAnd()
+  ** Is base 'sys::And'
+  abstract Bool isAnd()
 
-  ** Does this spec directly inherit from Or where base is sys::Or
-  abstract Bool isBaseOr()
+  ** Is base 'sys::Or'
+  abstract Bool isOr()
 
   ** Does this spec directly inherits from And/Or and define 'ofs'
-  Bool isCompound() { (isBaseAnd || isBaseOr) && cofs != null }
+  Bool isCompound() { (isAnd || isOr) && cofs != null }
 
   ** Is maybe flag set
   abstract Bool isMaybe()
@@ -136,5 +136,4 @@ mixin CNode
   ** Qualified name as Ref
   abstract haystack::Ref id()
 }
-
 

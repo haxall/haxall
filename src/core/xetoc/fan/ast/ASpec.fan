@@ -331,9 +331,9 @@ internal class ASpec : ANode, CSpec
 
   override Bool isEnum() { base != null && base.isSys && base.name == "Enum" }
 
-  override Bool isBaseAnd() { base != null && base.isSys && base.name == "And" }
+  override Bool isAnd() { base != null && base.isSys && base.name == "And" }
 
-  override Bool isBaseOr() { base != null && base.isSys && base.name == "Or" }
+  override Bool isOr() { base != null && base.isSys && base.name == "Or" }
 
   ** Inheritance flags computed in InheritSlots
   override Int flags
@@ -347,7 +347,20 @@ internal class ASpec : ANode, CSpec
   override Bool isQuery()  { hasFlag(MSpecFlags.query) }
   override Bool isFunc()   { hasFlag(MSpecFlags.func) }
 
-  Bool hasFlag(Int flag) { flags.and(flag) != 0 }
+  /*
+  override Bool isNone()   { hasFlag(MSpecFlags.none) }
+  override Bool isSelf()   { hasFlag(MSpecFlags.self) }
+  override Bool isEnum()   { hasFlag(MSpecFlags.enum) }
+  override Bool isAnd()    { hasFlag(MSpecFlags.and) }
+  override Bool isOr()     { hasFlag(MSpecFlags.or) }
+  */
+
+  Bool hasFlag(Int flag)
+  {
+// TODO: we are using flags before they are ready and need this check
+//    if (flags < 0) throw Err("Flags not set yet: $qname")
+    return flags.and(flag) != 0
+  }
 
 }
 

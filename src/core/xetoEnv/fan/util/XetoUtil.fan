@@ -195,21 +195,21 @@ const class XetoUtil
     if (b.isNone && a.isMaybe && isTop) return true
 
     // if A is sys::And type, then check any of A.ofs is B
-    if (a.isBaseAnd)
+    if (a.isAnd)
     {
       ofs := a.cofs
       if (ofs != null && ofs.any |x| { x.cisa(b) }) return true
     }
 
     // if A is sys::Or type, then check all of A.ofs is B
-    if (a.isBaseOr)
+    if (a.isOr)
     {
       ofs := a.cofs
       if (ofs != null && ofs.all |x| { x.cisa(b) }) return true
     }
 
     // if B is sys::Or type, then check if A is any of B.ofs
-    if (b.isBaseOr)
+    if (b.isOr)
     {
       ofs := b.cofs
       if (ofs != null && ofs.any |x| { a.cisa(x) }) return true

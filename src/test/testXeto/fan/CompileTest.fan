@@ -636,7 +636,7 @@ class CompileTest : AbstractXetoTest
   {
     if (x.isCompound)
     {
-      sep := x.isBaseAnd ? "&" : "|"
+      sep := x.isAnd ? "&" : "|"
       return x.ofs.join(sep) |c| { c.name }
     }
 
