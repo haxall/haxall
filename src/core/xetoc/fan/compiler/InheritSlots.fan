@@ -136,8 +136,8 @@ internal class InheritSlots : Step
     // don't process constrained query slots
     if (x.parent.isQuery) return null
 
-     // check for global slot with this name
-     return ns.resolveGlobal(x.name, x.loc)
+     // check for global slot within dependencies
+     return depends.resolveGlobal(x.name, x.loc)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -456,3 +456,4 @@ internal class InheritSlots : Step
   private ASpec[] stack := [,]
   private Str:CSpec? globals := [:]
 }
+

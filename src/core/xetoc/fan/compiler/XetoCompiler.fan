@@ -24,8 +24,8 @@ internal class XetoCompiler
   ** Constructor
   new make()
   {
-    this.sys = ASys()
-    this.ns  = ANamespace(this)
+    this.sys     = ASys()
+    this.depends = ADepends(this)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ internal class XetoCompiler
 
     doc := lib.meta.getStr("doc") ?: ""
     dir := input.parent
-    return FileLibVersion(libName, lib.version, dir, doc, ns.depends)
+    return FileLibVersion(libName, lib.version, dir, doc, depends.list)
   }
 
   ** Run the pipeline with the given steps
@@ -200,7 +200,7 @@ internal class XetoCompiler
 
   XetoCompilerErr[] errs := [,]        // err
   internal ASys sys                    // make
-  internal ANamespace ns               // make
+  internal ADepends depends            // make
   internal Duration? duration          // run
   internal Bool isLib                  // Init (false isData)
   internal Bool isSys                  // Init

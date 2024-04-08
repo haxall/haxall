@@ -23,7 +23,7 @@ internal class Assemble : Step
   private Void asmLib(ALib x)
   {
     nameCode := env.names.add(x.name)
-    m := MLib(env, x.loc, nameCode, x.meta.asm, x.version, compiler.ns.depends, asmTops(x), asmInstances(x))
+    m := MLib(env, x.loc, nameCode, x.meta.asm, x.version, compiler.depends.list, asmTops(x), asmInstances(x))
     XetoLib#m->setConst(x.asm, m)
     lib.tops.each |spec| { asmTop(spec) }
   }
@@ -92,3 +92,4 @@ internal class Assemble : Step
 
   Field mField  := XetoSpec#m
 }
+

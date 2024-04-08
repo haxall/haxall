@@ -23,11 +23,11 @@ internal class ProcessPragma : Step
     {
       lib.meta = compiler.pragma
       lib.version = toVersion
-      compiler.ns.depends = toDepends
+      compiler.depends.list = toDepends
     }
     else
     {
-      compiler.ns.depends = toDepends
+      compiler.depends.list = toDepends
     }
   }
 

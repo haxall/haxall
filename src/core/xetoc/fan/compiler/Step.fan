@@ -29,7 +29,7 @@ abstract internal class Step
 
   ASys sys() { compiler.sys }
 
-  ANamespace ns() { compiler.ns }
+  ADepends depends() { compiler.depends }
 
   ADoc ast() { compiler.ast }
 
@@ -65,7 +65,4 @@ abstract internal class Step
     dir.list.sort |a, b| { a.name <=> b.name }
   }
 }
-
-
-
 

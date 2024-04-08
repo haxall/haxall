@@ -11,9 +11,9 @@ using xeto
 using xetoEnv
 
 **
-** AST namespace manages dependencies and imported names
+** AST dependencies and imported namespace handling
 **
-internal class ANamespace
+internal class ADepends
 {
   new make(XetoCompiler compiler)
   {
@@ -42,7 +42,7 @@ internal class ANamespace
     if (mine != null && mine.isGlobal) acc.add(mine)
 
     // check my dependencies
-    dependLibs.each |lib|
+    libs.each |lib|
     {
       acc.addNotNull(lib.global(name, false) as CSpec)
     }
@@ -63,8 +63,8 @@ internal class ANamespace
 //////////////////////////////////////////////////////////////////////////
 
   XetoCompiler compiler                 // make
-  MLibDepend[]? depends                 // ProcessPragma
-  [Str:XetoLib]? dependLibs             // Resolve
+  MLibDepend[]? list                    // ProcessPragma
+  [Str:XetoLib]? libs                   // Resolve
   private Str:CSpec? globals := [:]     // resolveGlobals
 }
 
