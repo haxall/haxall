@@ -17,12 +17,12 @@ using xeto
 @Js
 const class MSpec
 {
-  new make(FileLoc loc, XetoEnv env, XetoSpec? parent, Int nameCode, XetoSpec? base, XetoType type, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
+  new make(FileLoc loc, XetoSpec? parent, Int nameCode, Str name, XetoSpec? base, XetoType type, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
   {
     this.loc      = loc
-    this.parent   = parent
     this.nameCode = nameCode
-    this.name     = env.names.toName(nameCode)
+    this.name     = name
+    this.parent   = parent
     this.base     = base
     this.type     = type
     this.meta     = meta
@@ -33,19 +33,17 @@ const class MSpec
     this.args     = args
   }
 
-  virtual MEnv env() { lib.env }
-
   virtual XetoLib lib() { parent.lib }
 
   const FileLoc loc
 
-  const XetoSpec? parent
-
-  virtual haystack::Ref id() { haystack::Ref(qname) }
-
   const Int nameCode
 
   const Str name
+
+  const XetoSpec? parent
+
+  virtual haystack::Ref id() { haystack::Ref(qname) }
 
   virtual Str qname() { parent.qname + "." + name }
 
@@ -175,14 +173,12 @@ internal const class MDerivedSpec : MSpec
 {
   static const AtomicInt counter := AtomicInt()
 
-  new make(MEnv env, XetoSpec? parent, Int nameCode, XetoSpec base, MNameDict meta, MSlots slots, Int flags)
-    : super(FileLoc.synthetic, env, parent, nameCode, base, base.type, meta, meta, slots, slots, flags, MSpecArgs.nil) // TODO: meta vs metaOwn, slots vs slotsOwn
+  new make(MEnv env, XetoSpec? parent, Int nameCode, Str name, XetoSpec base, MNameDict meta, MSlots slots, Int flags)
+    : super(FileLoc.synthetic, parent, nameCode, name, base, base.type, meta, meta, slots, slots, flags, MSpecArgs.nil) // TODO: meta vs metaOwn, slots vs slotsOwn
   {
-    this.env = env
     this.qname = "derived" + counter.getAndIncrement + "::" + name
   }
 
-  const override MEnv env
   const override Str qname
 }
 
@@ -199,8 +195,6 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   new make() {}
 
   new makem(MSpec m) { this.m = m }
-
-  MEnv env() { m.env }
 
   override Lib lib() { m.lib }
 

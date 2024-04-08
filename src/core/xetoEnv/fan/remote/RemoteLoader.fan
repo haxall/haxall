@@ -45,7 +45,7 @@ internal class RemoteLoader
     tops      := loadTops
     instances := this.instances
 
-    m := MLib(env, loc, libNameCode, libMeta, version, depends, tops, instances)
+    m := MLib(loc, libNameCode, libName, libMeta, version, depends, tops, instances)
     XetoLib#m->setConst(lib, m)
     return lib
   }
@@ -164,16 +164,16 @@ internal class RemoteLoader
     if (x.isType)
     {
       factory := assignFactory(x)
-      m = MType(loc, env, lib, qname(x), x.nameCode, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, factory)
+      m = MType(loc, lib, qname(x), x.nameCode, x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, factory)
     }
     else if (x.isGlobal)
     {
-      m = MGlobal(loc, env, lib, qname(x), x.nameCode, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      m = MGlobal(loc, lib, qname(x), x.nameCode, x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
     else
     {
       x.type = resolve(x.typeIn).asm
-      m = MSpec(loc, env, x.parent.asm, x.nameCode, x.base.asm, x.type, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      m = MSpec(loc, x.parent.asm, x.nameCode, x.name, x.base.asm, x.type, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
     XetoSpec#m->setConst(x.asm, m)
     return x

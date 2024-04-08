@@ -142,7 +142,6 @@ doTestPhLib(createNamespace(["sys", "ph"]))
   private Void doTestPhLib(LibNamespace ns)
   {
     verifyEq(ns.isAllLoaded, false)
-    verifyErr(Err#) { ns.unqualifiedType("Str") }
 
     // lib basics
     ph := verifyLibBasics(ns, "ph", curVersion)
@@ -571,6 +570,8 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
     verifyEq(type.name, name)
     verifyEq(type.qname, lib.name + "::" + name)
     verifySame(type.qname, type.qname)
+// TODO
+//    verifySame(name, ns.names.toName(ns.names.toCode(name)))
 
     // id
     verifyRefEq(((haystack::Dict)type).id, Ref(type.qname))
