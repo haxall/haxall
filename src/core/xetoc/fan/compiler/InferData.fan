@@ -62,7 +62,7 @@ internal class InferData : Step
 
     // add "id" tag with Ref scalar value
     loc := dict.loc
-    ref := env.ref(id, null)
+    ref := compiler.makeRef(id, null)
     if (dict.has("id")) err("Named dict cannot have explicit id tag", loc)
     dict.set("id", AScalar(loc, sys.ref, id, ref))
   }
@@ -130,3 +130,4 @@ internal class InferData : Step
 
   private ASpec? curSpec
 }
+

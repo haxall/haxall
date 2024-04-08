@@ -7,6 +7,7 @@
 //
 
 using util
+using haystack::Marker
 
 **
 ** AST system type references
@@ -40,4 +41,9 @@ internal class ASys
     ASpecRef(FileLoc.synthetic, ASimpleName("sys", name))
   }
 
+  AScalar markerScalar(FileLoc loc)
+  {
+    AScalar(loc, marker, Marker.val.toStr, Marker.val)
+  }
 }
+

@@ -54,11 +54,6 @@ abstract internal class Step
     AScalar(loc, sys.str, str, str)
   }
 
-  AScalar markerScalar(FileLoc loc)
-  {
-    AScalar(loc, sys.marker, env.marker.toStr, env.marker)
-  }
-
   File[] dirList(File dir)
   {
     // use consistent ordering

@@ -213,7 +213,7 @@ internal class Parser
     name := consumeName("Expecting marker name")
     spec := ASpec(loc, parent.lib, parent, name)
 
-    marker := step.markerScalar(loc)
+    marker := sys.markerScalar(loc)
     spec.typeRef = marker.typeRef
 
     parseSpecMeta(spec)
@@ -424,7 +424,7 @@ internal class Parser
         }
         else if (cur !== Token.colon)
         {
-          val = step.markerScalar(loc)
+          val = sys.markerScalar(loc)
         }
         else
         {

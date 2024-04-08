@@ -9,6 +9,7 @@
 
 using util
 using xeto
+using haystack::Ref
 using xetoEnv
 
 **
@@ -194,6 +195,15 @@ internal class XetoCompiler
     return n
   }
 
+  ** Make an interned ref
+  Ref makeRef(Str id, Str? dis)
+  {
+    ref := internRefs[id]
+    if (ref == null) internRefs[id] = ref = Ref(id, null)
+    if (dis != null) ref.disVal = dis
+    return ref
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
@@ -211,5 +221,6 @@ internal class XetoCompiler
   internal Dict? json                  // JSON output
   internal Bool externRefs             // allow unresolved refs to compile
   private Str[] autoNames := [,]       // autoName
+  private Str:Ref internRefs := [:]    // makeRef
 }
 

@@ -388,7 +388,7 @@ internal class InheritSlots : Step
     if (spec.metaHas("sealed"))
       err("Enum types are implied sealed", loc)
     else
-      spec.metaInit.set("sealed", markerScalar(loc))
+      spec.metaInit.set("sealed", sys.markerScalar(loc))
 
     // recurse children slots to process as the enum items
     slots := Str:CSpec[:]; slots.ordered = true

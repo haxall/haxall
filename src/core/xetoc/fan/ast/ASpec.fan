@@ -145,7 +145,7 @@ internal class ASpec : ANode, CSpec
   ** Set the given meta tag to marker singleton
   Void metaSetMarker(Str name)
   {
-    metaSet(name, AScalar(loc, sys.marker, env.marker.toStr, env.marker))
+    metaSet(name, sys.markerScalar(loc))
   }
 
   ** Set the given meta tag to none singleton
@@ -350,5 +350,4 @@ internal class ASpec : ANode, CSpec
   Bool hasFlag(Int flag) { flags.and(flag) != 0 }
 
 }
-
 

@@ -73,7 +73,7 @@ internal class Reify : Step
 
     // if spec is not meta or sys::Dict then add synthetic spec tag
     if (!x.isMeta && type.qname != "sys::Dict")
-      acc["spec"] = env.ref(type.qname)
+      acc["spec"] = compiler.makeRef(type.qname, null)
 
     // create as Dict
     dict := MNameDict(env.names.dictMap(acc))
@@ -154,7 +154,7 @@ internal class Reify : Step
 
   private Obj? reifyDataRef(ADataRef x)
   {
-     x.asmRef = x.isResolved ? x.deref.id : env.ref(x.toStr, x.dis)
+     x.asmRef = x.isResolved ? x.deref.id : compiler.makeRef(x.toStr, x.dis)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -166,3 +166,4 @@ internal class Reify : Step
     x.deref.id
   }
 }
+
