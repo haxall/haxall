@@ -67,6 +67,8 @@ doTestSysLib(createNamespace(["sys"]))
     spec   := verifyLibType(ns, sys, "Spec",     dict)
     lib    := verifyLibType(ns, sys, "Lib",      dict)
     org    := verifyLibType(ns, sys, "LibOrg",   dict)
+    and    := verifyLibType(ns, sys, "And",      obj)
+    or     := verifyLibType(ns, sys, "Or",      obj)
 
     // types
     verifyEq(sys.types.isEmpty, false)
@@ -118,6 +120,13 @@ doTestSysLib(createNamespace(["sys"]))
     verifyErr(UnknownSpecErr#) { ns.spec("foo.bar.baz::Qux") }
     verifyErr(UnknownSpecErr#) { ns.spec("sys::Baz") }
     verifyErr(UnknownSpecErr#) { ns.spec("sys::Str.foo") }
+
+    // specials
+    verifyEq(self.isSelf,     true)
+    verifyEq(none.isNone,     true)
+    verifyEq(or.isBaseAnd,    false)
+    verifyEq(or.isBaseOr,     false)
+    verifyEq(marker.isMarker, true)
   }
 
 //////////////////////////////////////////////////////////////////////////

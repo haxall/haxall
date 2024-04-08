@@ -160,13 +160,21 @@ class SpecTest : AbstractXetoTest
 
     // env.print(env.spec("ph.points::DischargeAirTempSensor"))
 
-    verifyIsa("ph.points::AirFlowSensor", "sys::And", true)
+    s := verifyIsa("ph.points::AirFlowSensor", "sys::And", true)
     verifyIsa("ph.points::AirFlowSensor", "ph::Point", true)
     verifyIsa("ph.points::AirFlowSensor", "ph::Sensor", true)
     verifyIsa("ph.points::AirFlowSensor", "sys::Dict", true, false)
+    verifyEq(s.isBaseAnd, true)
 
-    verifyIsa("ph.points::ZoneAirTempSensor", "ph::Point", true)
+    s = verifyIsa("ph.points::AirTempSensor", "ph.points::AirTempPoint", true)
+    s = verifyIsa("ph.points::AirTempSensor", "ph::Point", true)
+    verifyEq(s.isBaseAnd, true)
+
+    s = verifyIsa("ph.points::ZoneAirTempSensor", "ph::Point", true)
+    verifyIsa("ph.points::ZoneAirTempSensor", "ph.points::AirTempPoint", true)
+    verifyIsa("ph.points::ZoneAirTempSensor", "ph.points::AirTempSensor", true)
     verifyIsa("ph.points::ZoneAirTempSensor", "sys::Dict", true, false)
+    verifyEq(s.isBaseAnd, false)
 
     verifyIsa("ph::DuctSection",   "sys::Choice",    true)
     verifyIsa("ph::DischargeDuct", "sys::Choice",    true)
@@ -177,7 +185,7 @@ class SpecTest : AbstractXetoTest
     verifyIsa("ph::PipeFluid",     "ph::Fluid",      true)
   }
 
-  Void verifyIsa(Str an, Str bn, Bool expect, Bool expectMethod := expect)
+  Spec verifyIsa(Str an, Str bn, Bool expect, Bool expectMethod := expect)
   {
     a := env.type(an)
     b := env.type(bn)
@@ -186,6 +194,7 @@ class SpecTest : AbstractXetoTest
     // echo("-> $a isa $b = $isa ?= $expect [$m]")
     verifyEq(isa, expect)
     if (m != null) verifyEq(m.call(a), expectMethod)
+    return a
   }
 
 //////////////////////////////////////////////////////////////////////////

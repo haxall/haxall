@@ -29,6 +29,8 @@ class EnumTest : AbstractXetoTest
     // env.print(e)
 
      verifyEq(e.isEnum, true)
+     verifyEq(e.base.qname, "sys::Enum")
+     verifyEq(e.base.isEnum, false)
      verifyEq(e.meta["sealed"], Marker.val)
      verifyEq(e.meta["val"], "diamonds")
      verifySame(e.enum, e.enum)
@@ -147,3 +149,4 @@ class EnumTest : AbstractXetoTest
     verifyDictEq(x.meta, meta)
   }
 }
+

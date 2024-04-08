@@ -187,37 +187,6 @@ internal const class MDerivedSpec : MSpec
 }
 
 **************************************************************************
-** MSpecFlags
-**************************************************************************
-
-@Js
-const class MSpecFlags
-{
-  static const Int maybe  := 0x0001
-  static const Int marker := 0x0002
-  static const Int scalar := 0x0004
-  static const Int choice := 0x0008
-  static const Int dict   := 0x0010
-  static const Int list   := 0x0020
-  static const Int query  := 0x0040
-  static const Int func   := 0x0080
-
-  static Str flagsToStr(Int flags)
-  {
-    s := StrBuf()
-    MSpecFlags#.fields.each |f|
-    {
-      if (f.isStatic && f.type == Int#)
-      {
-        has := flags.and(f.get(null)) != 0
-        if (has) s.join(f.name, ",")
-      }
-    }
-    return "{" + s.toStr + "}"
-  }
-}
-
-**************************************************************************
 ** XetoSpec
 **************************************************************************
 
@@ -299,28 +268,25 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Bool isSys() { lib.isSys }
 
-  override final Bool isNone() { this === env.sys.none }
 
-  override final Bool isSelf() { this === env.sys.self }
-
-  override final Bool isEnum() { base === env.sys.enum }
 
   override final SpecEnum enum() { m.enum }
 
   override final CSpec? cenum(Str key, Bool checked := true) { m.enum.spec(key, checked) as CSpec }
 
-  override final Bool isBaseAnd() { base === env.sys.and }
-
-  override final Bool isBaseOr() { base === env.sys.or }
-
-  override final Bool isMaybe()  { m.hasFlag(MSpecFlags.maybe) }
-  override final Bool isScalar() { m.hasFlag(MSpecFlags.scalar) }
-  override final Bool isMarker() { m.hasFlag(MSpecFlags.marker) }
-  override final Bool isChoice() { m.hasFlag(MSpecFlags.choice) }
-  override final Bool isDict()   { m.hasFlag(MSpecFlags.dict) }
-  override final Bool isList()   { m.hasFlag(MSpecFlags.list) }
-  override final Bool isQuery()  { m.hasFlag(MSpecFlags.query) }
-  override final Bool isFunc()   { m.hasFlag(MSpecFlags.func) }
+  override final Bool isNone()    { m.hasFlag(MSpecFlags.none) }
+  override final Bool isSelf()    { m.hasFlag(MSpecFlags.self) }
+  override final Bool isMaybe()   { m.hasFlag(MSpecFlags.maybe) }
+  override final Bool isScalar()  { m.hasFlag(MSpecFlags.scalar) }
+  override final Bool isMarker()  { m.hasFlag(MSpecFlags.marker) }
+  override final Bool isChoice()  { m.hasFlag(MSpecFlags.choice) }
+  override final Bool isDict()    { m.hasFlag(MSpecFlags.dict) }
+  override final Bool isList()    { m.hasFlag(MSpecFlags.list) }
+  override final Bool isQuery()   { m.hasFlag(MSpecFlags.query) }
+  override final Bool isFunc()    { m.hasFlag(MSpecFlags.func) }
+  override final Bool isEnum()    { m.hasFlag(MSpecFlags.enum) }
+  override final Bool isBaseAnd() { m.hasFlag(MSpecFlags.and) }
+  override final Bool isBaseOr()  { m.hasFlag(MSpecFlags.or) }
 
   override final Bool isAst() { false }
 

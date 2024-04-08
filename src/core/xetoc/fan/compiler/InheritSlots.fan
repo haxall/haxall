@@ -180,8 +180,8 @@ internal class InheritSlots : Step
 
   private Int computeFlagsNonSys(ASpec x)
   {
-    // start off with my base type flags
-    flags := x.base.flags
+    // start off with my base type flags that are inherited
+    flags := x.base.flags.and(MSpecFlags.inheritMask)
 
     // merge in my own flags
     if (x.meta != null)
@@ -195,6 +195,14 @@ internal class InheritSlots : Step
         else
           flags = flags.or(MSpecFlags.maybe)
       }
+    }
+
+    // if my base is compound type
+    baseName := x.base.name
+    switch (baseName)
+    {
+      case "And":  flags = flags.or(MSpecFlags.and)
+      case "Or":   flags = flags.or(MSpecFlags.or)
     }
 
     return flags
@@ -216,6 +224,8 @@ internal class InheritSlots : Step
         case "List":   flags = flags.or(MSpecFlags.list)
         case "Query":  flags = flags.or(MSpecFlags.query)
         case "Func":   flags = flags.or(MSpecFlags.func)
+        case "None":   flags = flags.or(MSpecFlags.none)
+        case "Self":   flags = flags.or(MSpecFlags.self)
       }
     }
     return flags
@@ -380,8 +390,8 @@ internal class InheritSlots : Step
     // set base to typeRef (which is sys::Enum)
     spec.base = spec.typeRef.deref
 
-    // set flags to sys::Enum's flags
-    spec.flags = spec.base.flags
+    // set flags
+    spec.flags = spec.base.flags.or(MSpecFlags.enum)
 
     // sealed is implied
     loc := spec.loc
