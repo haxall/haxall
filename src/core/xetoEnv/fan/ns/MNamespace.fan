@@ -379,12 +379,20 @@ abstract const class MNamespace : LibNamespace
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Utils
+// Compile
 //////////////////////////////////////////////////////////////////////////
 
   override Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
   {
     XetoUtil.derive(this, name, base, meta, slots)
+  }
+
+  override Dict[] compileDicts(Str src, Dict? opts := null)
+  {
+    val := compileData(src, opts)
+    if (val is List) return ((List)val).map |x->Dict| { x as Dict ?: throw IOErr("Expecting Xeto list of dicts, not ${x?.typeof}") }
+    if (val is Dict) return Dict[val]
+    throw IOErr("Expecting Xeto dict data, not ${val?.typeof}")
   }
 
 //////////////////////////////////////////////////////////////////////////

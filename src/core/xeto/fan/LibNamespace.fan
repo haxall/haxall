@@ -145,13 +145,32 @@ const mixin LibNamespace
   @NoDoc abstract Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
 
 //////////////////////////////////////////////////////////////////////////
-// Utils
+// Compile
 //////////////////////////////////////////////////////////////////////////
 
   ** Derive a new spec from the given base type, additional meta, and
   ** slots.  The spec is not associated with any library and a synthetic
   ** qname is generated.  This feature is subject to change or removal.
   @NoDoc abstract Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
+
+  ** Compile Xeto source code into a temp library.  All dependencies are
+  ** resolved against this namespace.  Raise exception if there are any
+  ** syntax or semantic errors.
+  abstract Lib compileLib(Str src, Dict? opts := null)
+
+  ** Compile a Xeto data file into an in-memory value. All dependencies are
+  ** resolved against this namespace.  Raise exception if there are any
+  ** syntax or semantic errors.  If the file contains a scalar value or
+  ** one dict, then it is returned as the value.  If the file contains
+  ** two or more dicts then return a Dict[] of the instances.
+  **
+  ** Options
+  **   - externRefs: marker to allow unresolved refs to compile
+  abstract Obj? compileData(Str src, Dict? opts := null)
+
+  ** Convenience for `compileData` but always returns data as list of dicts.
+  ** If the data is not a Dict nor list of Dicts, then raise an exception.
+  abstract Dict[] compileDicts(Str src, Dict? opts := null)
 
 
 }

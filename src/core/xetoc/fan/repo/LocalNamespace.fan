@@ -10,6 +10,7 @@ using concurrent
 using util
 using xeto
 using xetoEnv
+using haystack::Etc
 
 **
 ** LocalNamespace compiles its libs from a repo
@@ -21,6 +22,12 @@ const class LocalNamespace : MNamespace
   {
     this.repo = repo
   }
+
+  const LibRepo repo
+
+//////////////////////////////////////////////////////////////////////////
+// Loading
+//////////////////////////////////////////////////////////////////////////
 
   override XetoLib doLoadSync(LibVersion v)
   {
@@ -59,6 +66,49 @@ const class LocalNamespace : MNamespace
     }
   }
 
-  const LibRepo repo
+//////////////////////////////////////////////////////////////////////////
+// Compiling
+//////////////////////////////////////////////////////////////////////////
+
+  override Lib compileLib(Str src, Dict? opts := null)
+  {
+    if (opts == null) opts = Etc.dict0
+
+    libName := "temp" + compileCount.getAndIncrement
+
+    if (!src.startsWith("pragma:"))
+      src = """pragma: Lib <
+                  version: "0.0.0"
+                  depends: { { lib: "sys" } }
+                >
+                """ + src
+
+    c := XetoCompiler
+    {
+//      it.env     = this
+      it.libName = libName
+      it.input   = src.toBuf.toFile(`temp.xeto`)
+      it.applyOpts(opts)
+    }
+
+    lib := c.compileLib
+
+//    if (opts.has("register")) registry.addTemp(lib)
+
+    return lib
+  }
+
+  override Obj? compileData(Str src, Dict? opts := null)
+  {
+    c := XetoCompiler
+    {
+//      it.env = this
+      it.input = src.toBuf.toFile(`parse.xeto`)
+      it.applyOpts(opts)
+    }
+    return c.compileData
+  }
+
+  private const AtomicInt compileCount := AtomicInt()
 }
 
