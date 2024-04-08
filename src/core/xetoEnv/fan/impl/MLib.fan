@@ -23,6 +23,7 @@ const final class MLib
     this.nameCode     = nameCode
     this.name         = env.names.toName(nameCode)
     this.id           = haystack::Ref(StrBuf(4+name.size).add("lib:").add(name).toStr, null)
+    this.isSys        = name == "sys"
     this.meta         = meta
     this.version      = version
     this.depends      = depends
@@ -39,6 +40,8 @@ const final class MLib
   const Int nameCode
 
   const Str name
+
+  const Bool isSys
 
   const MNameDict meta
 
@@ -204,6 +207,8 @@ const final class XetoLib : Lib, haystack::Dict
   override Dict[] instances() { m.instances }
 
   override Dict? instance(Str name, Bool checked := true) { m.instance(name, checked) }
+
+  override Bool isSys() { m.isSys }
 
   override final Bool isEmpty() { false }
 

@@ -297,7 +297,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Bool isGlobal() { m.isGlobal }
 
-  override final Bool isSys() { lib === env.sysLib }
+  override final Bool isSys() { lib.isSys }
 
   override final Bool isNone() { this === env.sys.none }
 
