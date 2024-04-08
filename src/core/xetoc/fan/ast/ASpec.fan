@@ -24,7 +24,7 @@ internal class ASpec : ANode, CSpec
    ** Constructor
   new make(FileLoc loc, ALib lib, ASpec? parent, Str name) : super(loc)
   {
-    names := lib.compiler.env.names
+    names := lib.compiler.names
 
     this.lib      = lib
     this.parent   = parent

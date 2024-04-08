@@ -22,9 +22,7 @@ internal class Assemble : Step
 
   private Void asmLib(ALib x)
   {
-    nameCode := env.names.add(x.name)
-    name := env.names.toName(nameCode)
-    m := MLib(x.loc, nameCode, name, x.meta.asm, x.version, compiler.depends.list, asmTops(x), asmInstances(x))
+    m := MLib(x.loc, x.nameCode, x.name, x.meta.asm, x.version, compiler.depends.list, asmTops(x), asmInstances(x))
     XetoLib#m->setConst(x.asm, m)
     lib.tops.each |spec| { asmTop(spec) }
   }
@@ -56,8 +54,7 @@ internal class Assemble : Step
 
   private Void asmSpec(ASpec x)
   {
-    nameCode := env.names.add(x.name)
-    m := MSpec(x.loc, x.parent.asm, nameCode, x.name, x.base.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+    m := MSpec(x.loc, x.parent.asm, x.nameCode, x.name, x.base.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }
@@ -74,7 +71,7 @@ internal class Assemble : Step
     map := Str:XetoSpec[:]
     map.ordered = true
     x.slots.each |kid, name| { map.add(name, kid.asm) }
-    dict := env.names.dictMap(map)
+    dict := names.dictMap(map)
     return MSlots(dict)
   }
 
@@ -84,7 +81,7 @@ internal class Assemble : Step
     map := Str:XetoSpec[:]
     map.ordered = true
     x.cslots |s, n| { map[n] = s.asm }
-    dict := env.names.dictMap(map)
+    dict := names.dictMap(map)
     return MSlots(dict)
   }
 

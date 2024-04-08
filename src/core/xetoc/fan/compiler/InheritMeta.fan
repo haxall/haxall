@@ -64,7 +64,7 @@ internal class InheritMeta : Step
     if (isSys && spec.name == "None")
       acc["val"] = Remove.val
 
-    return MNameDict(env.names.dictMap(acc))
+    return MNameDict(names.dictMap(acc))
   }
 
   private Int computedInherited(Str:Obj acc, ASpec spec, CSpec base)

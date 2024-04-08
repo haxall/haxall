@@ -8,6 +8,7 @@
 //
 
 using util
+using xeto
 using xetoEnv
 
 **
@@ -20,6 +21,8 @@ abstract internal class Step
   abstract Void run()
 
   LocalEnv env() { compiler.env }
+
+  NameTable names() { compiler.names }
 
   Bool isLib() { compiler.isLib }
 

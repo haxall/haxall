@@ -19,13 +19,17 @@ internal class ALib : ADoc
    ** Constructor
   new make(XetoCompiler c, FileLoc loc, Str name) : super(c, loc)
   {
-    this.name     = name
+    this.nameCode = c.names.add(name)
+    this.name     = c.names.toName(nameCode) // intern
     this.isSys    = name == "sys"
     this.asm      = XetoLib()
   }
 
   ** Node type
   override ANodeType nodeType() { ANodeType.lib }
+
+  ** Name code in names table
+  const Int nameCode
 
   ** Dotted library name
   const Str name

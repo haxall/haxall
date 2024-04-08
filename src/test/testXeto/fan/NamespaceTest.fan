@@ -535,6 +535,7 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
     verifySame(ns.lib(name), lib)
     verifyEq(lib.name, name)
     verifyEq(lib.version, version)
+    verifySame(lib.name, ns.names.toName(ns.names.toCode(name)))
 
     verifyEq(lib._id, Ref("lib:$name"))
     verifySame(lib->id, lib._id)
@@ -570,8 +571,7 @@ doTestHxTestLib(createNamespace(["hx.test.xeto"]))
     verifyEq(type.name, name)
     verifyEq(type.qname, lib.name + "::" + name)
     verifySame(type.qname, type.qname)
-// TODO
-//    verifySame(name, ns.names.toName(ns.names.toCode(name)))
+    verifySame(type.name, ns.names.toName(ns.names.toCode(name)))
 
     // id
     verifyRefEq(((haystack::Dict)type).id, Ref(type.qname))

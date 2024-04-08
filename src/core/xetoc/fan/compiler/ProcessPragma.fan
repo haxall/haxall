@@ -115,7 +115,7 @@ internal class ProcessPragma : Step
 
     // register the library into our names table and our depends map
     if (acc[libName] != null) return err("Duplicate depend '$libName'", loc)
-    env.names.add(libName)
+    libName = names.toName(names.add(libName))
     acc[libName] = MLibDepend(libName, versions, loc)
   }
 }

@@ -36,6 +36,9 @@ internal class XetoCompiler
   ** Environment
   LocalEnv? env
 
+  ** Names table to use, initialized from namespace
+  NameTable? names
+
   ** Logging
   XetoLog log := XetoLog.makeOutStream
 

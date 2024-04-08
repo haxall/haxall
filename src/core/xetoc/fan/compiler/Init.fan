@@ -18,6 +18,9 @@ internal abstract class Init : Step
     // check environment
     if (compiler.env == null)  err("Compiler env not configured", FileLoc.inputs)
 
+    // TODO
+    compiler.names = compiler.env.names
+
     // check input exists
     input := compiler.input
     if (input == null) throw err("Compiler input not configured", FileLoc.inputs)
