@@ -71,8 +71,6 @@ const class MSpec
 
   override Str toStr() { qname }
 
-  Spec spec() { env.sys.spec }
-
   virtual SpecFactory factory() { type.factory }
 
   virtual MEnum enum() { throw UnsupportedErr("Spec is not enum: $qname") }
@@ -81,10 +79,12 @@ const class MSpec
 // Dict Representation
 //////////////////////////////////////////////////////////////////////////
 
+  const static Ref specSpecRef := haystack::Ref("sys::Spec")
+
   Obj? get(Str name, Obj? def := null)
   {
     if (name == "id")   return id
-    if (name == "spec") return env.specSpecRef
+    if (name == "spec") return specSpecRef
     if (isType)
     {
       if (name == "base") return base?.id ?: def
@@ -117,7 +117,7 @@ const class MSpec
   Void each(|Obj val, Str name| f)
   {
     f(id, "id")
-    f(env.specSpecRef, "spec")
+    f(specSpecRef, "spec")
     if (isType)
     {
       if (base != null) f(base.id, "base")
@@ -131,8 +131,8 @@ const class MSpec
 
   Obj? eachWhile(|Obj val, Str name->Obj?| f)
   {
-    r := f(id, "id");                if (r != null) return r
-    r  = f(env.specSpecRef, "spec"); if (r != null) return r
+    r := f(id, "id");            if (r != null) return r
+    r  = f(specSpecRef, "spec"); if (r != null) return r
     if (isType)
     {
       if (base != null) { r = f(base.id, "base"); if (r != null) return r }

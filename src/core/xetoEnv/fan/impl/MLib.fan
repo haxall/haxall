@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using haystack::Marker
 using haystack::UnknownSpecErr
 
 **
@@ -117,11 +118,13 @@ const final class MLib
 // Dict Representation
 //////////////////////////////////////////////////////////////////////////
 
+  const static Ref libSpecRef := haystack::Ref("sys::Lib")
+
   Obj? get(Str name, Obj? def := null)
   {
     if (name == "id")     return id
-    if (name == "spec")   return env.libSpecRef
-    if (name == "loaded") return env.marker
+    if (name == "spec")   return libSpecRef
+    if (name == "loaded") return Marker.val
     return meta.get(name, def)
   }
 
@@ -143,17 +146,17 @@ const final class MLib
 
   Void each(|Obj val, Str name| f)
   {
-    f(id,             "id")
-    f(env.libSpecRef, "spec")
-    f(env.marker,     "loaded")
+    f(id,         "id")
+    f(libSpecRef, "spec")
+    f(Marker.val, "loaded")
     meta.each(f)
   }
 
   Obj? eachWhile(|Obj val, Str name->Obj?| f)
   {
-    r := f(id, "id");               if (r != null) return r
-    r  = f(env.libSpecRef, "spec"); if (r != null) return r
-    r  = f(env.marker, "loaded");   if (r != null) return r
+    r := f(id, "id");             if (r != null) return r
+    r  = f(libSpecRef, "spec");   if (r != null) return r
+    r  = f(Marker.val, "loaded"); if (r != null) return r
     return meta.eachWhile(f)
   }
 
