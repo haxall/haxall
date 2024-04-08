@@ -61,6 +61,7 @@ class FactoryTest : AbstractXetoTest
   {
     spec := env.spec(qname)
     verifySame(spec.factory.type, type)
+    // echo("---> $spec | $spec.factory | $spec.fantomType")
     s := spec.factory.encodeScalar(val)
     v := spec.factory.decodeScalar(s)
     // echo("::: $type <=> $spec | $v")

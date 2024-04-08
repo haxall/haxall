@@ -96,6 +96,10 @@ const mixin Spec : Dict
   ** Mapping between this spec and its Fantom representation
   @NoDoc abstract SpecFactory factory()
 
+  ** Return the Fantom type used to represent this spec.
+  ** Convenience for 'factory.type'.
+  @NoDoc abstract Type fantomType()
+
   ** Is this a top level type spec
   @NoDoc abstract Bool isType()
 
@@ -143,9 +147,6 @@ const mixin Spec : Dict
 
   ** Inherits from 'sys::Func' without considering And/Or
   @NoDoc abstract Bool isFunc()
-
-  ** Return the Fantom type used to represent this spec (scalar, Dict, or Item)
-  @NoDoc abstract Type fantomType()
 
 }
 

@@ -163,13 +163,7 @@ const class MSpec
 
   const Int flags
 
-  once Type fantomType()
-  {
-    type := env.factories.specToType(qname)
-    if (type != null) return type
-    if (base != null) return base.fantomType
-    return Obj#
-  }
+  Type fantomType() { factory.type }
 }
 
 **************************************************************************

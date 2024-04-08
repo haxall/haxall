@@ -118,6 +118,7 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
     return [
 
       // sys pod
+      "Obj":      ObjFactory(sys.type("Obj")),
       "Str":      StrFactory(sys.type("Str")),
       "Bool":     BoolFactory(sys.type("Bool")),
       "Int":      IntFactory(sys.type("Int")),
@@ -153,6 +154,16 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
 **************************************************************************
 ** Factory Implemenntations
 **************************************************************************
+
+@Js
+internal const class ObjFactory : SpecFactory
+{
+  new make(Type type) { this.type = type }
+  const override Type type
+  override Dict decodeDict(Dict xeto, Bool checked := true) { throw UnsupportedErr("Obj") }
+  override Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr("Obj")  }
+  override Str encodeScalar(Obj val) { throw UnsupportedErr("Obj") }
+}
 
 @Js
 internal const class DictFactory : DictSpecFactory

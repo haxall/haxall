@@ -9,6 +9,7 @@
 using util
 using xeto
 using xetoEnv
+using haystack::Remove
 
 **
 ** InheritMeta computes the effective meta for all the specs
@@ -61,7 +62,7 @@ internal class InheritMeta : Step
 
     // special handling for None val (which gets treated as meta remove)
     if (isSys && spec.name == "None")
-      acc["val"] = env.none
+      acc["val"] = Remove.val
 
     return MNameDict(env.names.dictMap(acc))
   }
@@ -131,3 +132,4 @@ internal class InheritMeta : Step
   }
 
 }
+
