@@ -43,10 +43,10 @@ ns := createNamespace(["sys"])
     verifyScalar(ns, "sys::Number",   Number(80, Unit("%")))
     verifyScalar(ns, "sys::Ref",      Ref("abc"))
 
-    verifySame(env.spec("sys::Obj").fantomType, Obj#)
-    verifySame(env.spec("sys::Dict").fantomType, Dict#)
-    verifySame(env.spec("sys::Spec").fantomType, Spec#)
-    verifySame(env.spec("sys::LibOrg").fantomType, Dict#)
+    verifySame(ns.spec("sys::Obj").fantomType, Obj#)
+    verifySame(ns.spec("sys::Dict").fantomType, Dict#)
+    verifySame(ns.spec("sys::Spec").fantomType, Spec#)
+    verifySame(ns.spec("sys::LibOrg").fantomType, Dict#)
   }
 
   Void testPh()

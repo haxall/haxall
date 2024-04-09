@@ -23,7 +23,9 @@ class GlobalSlotTest : AbstractXetoTest
 
   Void testBasics()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|// Person global slot marker
            person: Marker <foo>
 
@@ -31,7 +33,7 @@ class GlobalSlotTest : AbstractXetoTest
            Person: Dict { person }
            |>)
 
-     marker := env.spec("sys::Marker")
+     marker := ns.spec("sys::Marker")
 
      g := lib.spec("person")
      t := lib.spec("Person")
@@ -67,7 +69,7 @@ class GlobalSlotTest : AbstractXetoTest
 
      // verify Person.person is derived from global person
      verifySame(m.base, g)
-     verifySame(m.type, env.spec("sys::Marker"))
+     verifySame(m.type, marker)
      verifyEq(m.meta["doc"], "Person global slot marker")
      verifyEq(m.meta["foo"], Marker.val)
   }
@@ -78,7 +80,9 @@ class GlobalSlotTest : AbstractXetoTest
 
   Void testInheritance()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|a: Str <foo> "alpha"
            b: Date <bar> "2023-12-03"
            c: Marker <foo, bar>
@@ -98,9 +102,9 @@ class GlobalSlotTest : AbstractXetoTest
            }
            |>)
 
-     str    := env.spec("sys::Str")
-     date   := env.spec("sys::Date")
-     marker := env.spec("sys::Marker")
+     str    := ns.spec("sys::Str")
+     date   := ns.spec("sys::Date")
+     marker := ns.spec("sys::Marker")
 
      a := verifyGlobal(lib.global("a"), str,    ["foo":m, "val":"alpha"])
      b := verifyGlobal(lib.global("b"), date,   ["bar":m, "val":Date("2023-12-03")])
@@ -144,6 +148,7 @@ class GlobalSlotTest : AbstractXetoTest
   Void testPh()
   {
     ns := createNamespace(["sys", "ph"])
+
     lib := ns.compileLib(
       Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" } } >
 

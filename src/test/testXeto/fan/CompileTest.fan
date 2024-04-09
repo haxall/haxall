@@ -61,7 +61,7 @@ class CompileTest : AbstractXetoTest
 
   Void verifyScalar(LibNamespace ns, Str qname, Str src, Obj? expected)
   {
-    actual := compileData(src)
+    actual := ns.compileData(src)
     // echo("-- $src")
     // echo("   $actual [$actual.typeof]")
     verifyEq(actual, expected)
@@ -253,7 +253,9 @@ class CompileTest : AbstractXetoTest
 
   Void testSelf()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|A: {
             n: Number <minVal:0, maxVal:100>
             i: Int <minVal:0, maxVal:100>
@@ -279,7 +281,9 @@ class CompileTest : AbstractXetoTest
 
   Void testLibInstances()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|Person: Dict {
              person
              first: Str
@@ -378,7 +382,9 @@ class CompileTest : AbstractXetoTest
 
   Void testInheritSlots()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|A: {
              foo: Number <a> 123  // a-doc
            }
@@ -403,8 +409,8 @@ class CompileTest : AbstractXetoTest
 
     // env.print(lib)
 
-    num := env.type("sys::Number")
-    int := env.type("sys::Int")
+    num := ns.type("sys::Number")
+    int := ns.type("sys::Int")
 
     a := lib.type("A"); af := a.slot("foo")
     b := lib.type("B"); bf := b.slot("foo")
@@ -478,7 +484,9 @@ class CompileTest : AbstractXetoTest
 
   Void testInheritNone()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
        Str<|A: Dict <baz, foo: NA "na"> {
               foo: Date <bar, qux> "2023-04-07"
             }
@@ -516,7 +524,9 @@ class CompileTest : AbstractXetoTest
 
   Void testInheritAnd()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
        Str<|A: {
               enum: Str?    // nullable
               foo:  Str?    // nullable
@@ -541,7 +551,7 @@ class CompileTest : AbstractXetoTest
 
     // lib.tops.each |x| { env.print(x) }
 
-    str := env.spec("sys::Str")
+    str := ns.spec("sys::Str")
 
     a   := lib.type("A")
     a1  := lib.type("A1")
@@ -584,7 +594,9 @@ class CompileTest : AbstractXetoTest
 
   Void testNestedSpecs()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
        Str<|Foo: {
               a: List<of:Foo>
               b: List<of:Spec>

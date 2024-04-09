@@ -65,15 +65,13 @@ class AbstractXetoTest : HaystackTest
 
   LibNamespace createNamespace(Str[] libs)
   {
+    if (libs.size == 1 && libs[0] == "sys")
+      return LibRepo.cur.bootNamespace
+
     repo    := LibRepo.cur
     depends := libs.map |n->LibDepend| { LibDepend(n) }
     vers    := repo.solveDepends(depends)
     return repo.createNamespace(vers)
-  }
-
-  Lib compileLib(Str s, Dict? opts := null)
-  {
-    LibRepo.cur.bootNamespace.compileLib(s, opts)
   }
 
   Obj? compileData(Str s, Dict? opts := null)

@@ -40,7 +40,7 @@ class CheckTest : AbstractXetoTest
        }"""
 
     // first try fits against lib
-    lib := compileLib(src, dict1("register", m))
+    lib := ns.compileLib(src, dict1("register", m))
     foo := lib.type("Foo")
     instance := dict(["dis":"A", "spec":Ref(foo.qname), "n":n])
     verifyFitsExplain(ns, instance, foo, errs)

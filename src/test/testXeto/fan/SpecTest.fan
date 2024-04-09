@@ -24,7 +24,9 @@ class SpecTest : AbstractXetoTest
 
   Void testMeta()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|Foo: Dict <a:"A", b:"B">
            Bar: Foo <b:"B2", c:"C"> { qux: Str <e:"E", f:"F"> "x" }
            Baz: Bar <c:"C2", d:"D"> { qux: Str <f:"F2", g:"G"> "y" }
@@ -32,7 +34,7 @@ class SpecTest : AbstractXetoTest
 
      // env.print(lib)
 
-     obj := env.spec("sys::Obj")
+     obj := ns.spec("sys::Obj")
      verifyEq(obj.get("base", "_"), "_")
      verifyEq(obj.has("base"), false)
      verifyEq(obj.missing("base"), true)
@@ -231,7 +233,9 @@ ns := createNamespace(["ph.points"])
 
   Void testMaybe()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|Foo: Dict {
              bar: Str?
              baz: Foo?
@@ -245,7 +249,7 @@ ns := createNamespace(["ph.points"])
 
      // env.print(lib)
 
-     str := env.type("sys::Str")
+     str := ns.type("sys::Str")
      foo := lib.type("Foo")
      qux := lib.type("Qux")
 
@@ -282,7 +286,9 @@ ns := createNamespace(["ph.points"])
 
   Void testAnd()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|Foo: Dict
            Bar: Dict
            FooBar : Foo & Bar
@@ -290,7 +296,7 @@ ns := createNamespace(["ph.points"])
 
      //env.print(lib)
 
-     and := env.type("sys::And")
+     and := ns.type("sys::And")
      foo := lib.type("Foo")
      bar := lib.type("Bar")
 

@@ -20,7 +20,9 @@ class EnumTest : AbstractXetoTest
 
   Void testBasics()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|// Cards
            Suit: Enum { diamonds, clubs, hearts, spades }
            |>)
@@ -53,7 +55,9 @@ class EnumTest : AbstractXetoTest
 
   Void testKeys()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|// Cards
            Suit: Enum {
              diamonds <key:"Diamonds!">
@@ -89,7 +93,9 @@ class EnumTest : AbstractXetoTest
 
   Void testMeta()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|// Cards
            Suit: Enum <foo> {
              diamonds  <color:"r">  // Red diamonds
@@ -115,7 +121,9 @@ class EnumTest : AbstractXetoTest
 
   Void testInstances()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
       Str<|Color: Enum { red, blue, green }
            Car: Dict { color: Color }
            @a: Car { color:"red" }
