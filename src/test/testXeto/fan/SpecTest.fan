@@ -112,10 +112,7 @@ class SpecTest : AbstractXetoTest
 
   Void testIsa()
   {
-    // TODO
-    // verifyAllEnvs("ph.points") |env| { doTestIsa }
-ns := createNamespace(["ph.points"])
-    doTestIsa(ns)
+    verifyLocalAndRemote(["ph.points"]) |ns| { doTestIsa(ns) }
   }
 
   Void doTestIsa(LibNamespace ns)

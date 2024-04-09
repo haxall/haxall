@@ -181,9 +181,9 @@ abstract const class MEnv : XetoEnv
     if (opts == null) opts = dict0
     isOwn := opts.has("own")
     if (libOrSpec is Lib)
-      return XetoUtil.genAstLib(this, libOrSpec, isOwn, opts)
+      return XetoUtil.genAstLib(libOrSpec, isOwn, opts)
     else
-      return XetoUtil.genAstSpec(this, libOrSpec, isOwn, opts)
+      return XetoUtil.genAstSpec(libOrSpec, isOwn, opts)
   }
 
   override Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)

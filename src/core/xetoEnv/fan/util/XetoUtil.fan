@@ -9,6 +9,7 @@
 using util
 using xeto
 using haystack::Etc
+using haystack::Marker
 using haystack::Ref
 using haystack::Remove
 using haystack::UnknownNameErr
@@ -395,7 +396,7 @@ const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Generate AST dict tree for entire lib
-  static Dict genAstLib(MEnv env, Lib lib, Bool isOwn, Dict opts)
+  static Dict genAstLib(Lib lib, Bool isOwn, Dict opts)
   {
     acc := Str:Obj[:]
     acc.ordered = true
@@ -404,23 +405,23 @@ const class XetoUtil
 
     lib.meta.each |v, n|
     {
-      if (n == "val" && v === env.marker) return
-      acc[n] = genAstVal(env, v)
+      if (n == "val" && v === Marker.val) return
+      acc[n] = genAstVal(v)
     }
 
     slots := Str:Obj[:]
     slots.ordered = true
     lib.specs.each |spec|
     {
-      slots.add(spec.name, genAstSpec(env, spec, isOwn, opts))
+      slots.add(spec.name, genAstSpec(spec, isOwn, opts))
     }
-    acc.add("slots", env.dictMap(slots))
+    acc.add("slots", Etc.dictFromMap(slots))
 
-    return env.dictMap(acc)
+    return Etc.dictFromMap(acc)
   }
 
   ** Generate AST dict tree for spec
-  static Dict genAstSpec(MEnv env, Spec spec, Bool isOwn, Dict opts)
+  static Dict genAstSpec(Spec spec, Bool isOwn, Dict opts)
   {
     acc := Str:Obj[:]
     acc.ordered = true
@@ -437,8 +438,8 @@ const class XetoUtil
     Dict meta := isOwn ? spec.metaOwn : spec.meta
     meta.each |v, n|
     {
-      if (n == "val" && v === env.marker) return
-      acc[n] = genAstVal(env, v)
+      if (n == "val" && v === Marker.val) return
+      acc[n] = genAstVal(v)
     }
 
     if (opts.has("fileloc"))
@@ -452,20 +453,20 @@ const class XetoUtil
       slots.each |slot|
       {
         noRecurse := slot.base?.type === slot.base && !slot.isType
-        slotsAcc[slot.name] = genAstSpec(env, slot, isOwn || noRecurse, opts)
+        slotsAcc[slot.name] = genAstSpec(slot, isOwn || noRecurse, opts)
       }
-      acc["slots"] = env.dictMap(slotsAcc)
+      acc["slots"] = Etc.dictFromMap(slotsAcc)
     }
 
-    return env.dictMap(acc)
+    return Etc.dictFromMap(acc)
   }
 
-  private static Obj genAstVal(MEnv env, Obj val)
+  private static Obj genAstVal(Obj val)
   {
     if (val is Spec) return val.toStr
     if (val is List)
     {
-      return ((List)val).map |x| { genAstVal(env, x) }
+      return ((List)val).map |x| { genAstVal(x) }
     }
     if (val is Dict)
     {
@@ -477,10 +478,10 @@ const class XetoUtil
       ((Dict)val).each |v, n|
       {
         if (!XetoUtil.isAutoName(n)) isList = false
-        acc[n] = genAstVal(env, v)
+        acc[n] = genAstVal(v)
       }
       if (isList) return acc.vals // TODO: should already be a list!
-      return env.dictMap(acc)
+      return Etc.dictFromMap(acc)
     }
     return val.toStr
   }

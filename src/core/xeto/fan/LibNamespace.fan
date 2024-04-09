@@ -185,6 +185,10 @@ const mixin LibNamespace
   ** Pretty print object to output stream.
   @NoDoc abstract Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
 
+  ** Generate an AST for the given Lib or Spec as a Dict tree.
+  ** TODO: this is just shim for old code
+  @NoDoc abstract Dict genAst(Obj libOrSpec, Dict? opts := null)
+
 }
 
 **************************************************************************

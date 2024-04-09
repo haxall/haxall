@@ -85,23 +85,6 @@ class AbstractXetoTest : HaystackTest
 
   static Dict nameDictEmpty() { MNameDict.empty }
 
-/*
-  RemoteNamespace initRemote()
-  {
-    local := XetoEnv.cur
-    server := TestServer(local)
-    client := TestClient(server)
-
-    envRef = client.bootRemoteEnv
-
-    verifyEq(env.names.maxCode, local.names.maxCode)
-    verifyEq(env.names.toName(3), local.names.toName(3))
-    verifyEq(env.names.toName(env.names.maxCode), local.names.toName(env.names.maxCode))
-
-    return env
-  }
-*/
-
   Void verifyFitsExplain(LibNamespace ns, Obj? val, Spec spec, Str[] expected)
   {
     cx := TextContext()
@@ -167,25 +150,27 @@ const class TestClient : RemoteLibLoader
 
   XetoBinaryIO io() { ns.io }
 
-  RemoteNamespace boot()
+  const Bool debug := false
+
+  This boot()
   {
     buf := Buf()
     server.io.writer(buf.out).writeBoot(server.ns)
-echo("   ~~~ init remote bootstrap size = $buf.size bytes ~~~")
+    if (debug) echo("   ~~~ init remote bootstrap size = $buf.size bytes ~~~")
 
     ns := RemoteNamespace.boot(buf.flip.in, this)
     nsRef.val = ns
-    return ns
+    return this
   }
 
-  override Void loadLib(Str name, |Err?, Lib?| f)
+  override Void loadLib(Str name, |Err?, Obj?| f)
   {
     serverLib := server.ns.lib(name, false)
     if (serverLib == null) { f(UnknownLibErr(name), null); return }
 
     buf := Buf()
     server.io.writer(buf.out).writeLib(serverLib)
-echo("   ~~~ load lib $name size = $buf.size bytes ~~~")
+    if (debug) echo("   ~~~ load lib $name size = $buf.size bytes ~~~")
 
     clientLib := io.reader(buf.flip.in).readLib(ns)
     f(null, clientLib)

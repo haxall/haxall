@@ -20,8 +20,7 @@ class FactoryTest : AbstractXetoTest
 
   Void testSys()
   {
-//    verifyAllEnvs("sys") |env| { doTestSys(env) }
-ns := createNamespace(["sys"])
+    verifyLocalAndRemote(["sys"]) |ns| { doTestSys(ns) }
   }
 
   private Void doTestSys(LibNamespace ns)

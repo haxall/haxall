@@ -25,10 +25,8 @@ class IOTest : AbstractXetoTest
   Void test()
   {
     ns := createNamespace(["sys", "ph"])
-    env.lib("ph")
-    server = TestServer(env)
-    client = TestClient(server)
-    client.bootRemoteEnv
+    server = TestServer(ns)
+    client = TestClient(server).boot
 
     verifyIO(null)
     verifyIO(Marker.val)

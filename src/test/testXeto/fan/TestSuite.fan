@@ -17,7 +17,7 @@ using haystack::Ref
 **
 ** TestSuite runs all the declartive tests captured in YAML files.
 **
-class TestSuite : Test
+class TestSuite : AbstractXetoTest
 {
   Void test() { run(Str[,]) }
 
@@ -41,9 +41,10 @@ class Main { Void main(Str[] args) { TestSuite().run(args) } }
 
 class DataTestRunner
 {
-  new make(Test test, Str[] args)
+  new make(AbstractXetoTest test, Str[] args)
   {
     this.test     = test
+    this.ns       = test.createNamespace(["sys", "ph"])
     this.args     = args
     this.runAll   = args.isEmpty || args.contains("-all")
     this.verbose  = args.contains("-v")
@@ -110,7 +111,7 @@ class DataTestRunner
     failed.add(testName)
   }
 
-  XetoEnv env := XetoEnv.cur
+  LibNamespace ns
   Str[] args
   Bool runAll
   Bool verbose
@@ -134,8 +135,7 @@ class DataTestCase
   {
     this.runner   = runner
     this.test     = runner.test
-    this.env      = runner.env
-    this.ns       = LibRepo.cur.bootNamespace
+    this.ns       = runner.ns
     this.testName = testName
     this.def      = def
   }
@@ -169,16 +169,15 @@ class DataTestCase
 // Steps
 //////////////////////////////////////////////////////////////////////////
 
-  Void loadLib(Str qname)
+  Void loadLib(Str name)
   {
-    this.libRef = env.lib(qname)
+    this.libRef = ns.lib(name)
   }
 
   Void compileLib(Str src)
   {
-    ns := LibRepo.cur.bootNamespace
     this.libRef = compile |opts| { ns.compileLib(src, opts) }
-    if (runner.verbose && libRef != null) env.print(env.genAst(libRef), Env.cur.out, Etc.dict1("json", Marker.val))
+    if (runner.verbose && libRef != null) ns.print(ns.genAst(libRef), Env.cur.out, Etc.dict1("json", Marker.val))
     //env.print(libRef)
   }
 
@@ -258,7 +257,7 @@ class DataTestCase
   Void verifyJsonAst(Str expect)
   {
     s := StrBuf()
-    env.print(env.genAst(lib), s.out, Etc.dict1("json", Marker.val))
+    ns.print(ns.genAst(lib), s.out, Etc.dict1("json", Marker.val))
     actual := s.toStr
 
     // echo(actual)
@@ -431,10 +430,10 @@ class DataTestCase
   Void verifyVal(Obj? val, Obj? expect)
   {
     if (expect == null) return
-    type := env.specOf(val)
-    if (type.isa(env.type("sys::Scalar")))
+    type := ns.specOf(val)
+    if (type.isa(ns.type("sys::Scalar")))
       verifyScalar(val, type, expect)
-    else if (type.isa(env.type("sys::Dict")))
+    else if (type.isa(ns.type("sys::Dict")))
       verifyDict(val, expect)
     else
       throw Err("Unhandled type: $type")
@@ -482,7 +481,7 @@ class DataTestCase
 
   Void verifyDictSpec(Dict dict, Str expect)
   {
-    verifyEq(env.specOf(dict).qname, expect)
+    verifyEq(ns.specOf(dict).qname, expect)
     if (expect == "sys::Dict")
     {
       verifyEq(dict["spec"], null)
@@ -521,7 +520,7 @@ class DataTestCase
 
     Spec type := qname.startsWith("test::") ?
                      lib.type(qname[6..-1]) :
-                     env.type(qname)
+                     ns.type(qname)
 
     return slot == null ?
            type :
@@ -629,7 +628,6 @@ class DataTestCase
 //////////////////////////////////////////////////////////////////////////
 
   DataTestRunner runner     // make
-  XetoEnv env               // make
   LibNamespace ns           // make
   Test test                 // make
   Str testName              // make
