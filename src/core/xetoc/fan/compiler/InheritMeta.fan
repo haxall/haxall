@@ -69,11 +69,8 @@ internal class InheritMeta : Step
 
   private Int computedInherited(Str:Obj acc, ASpec spec, CSpec base)
   {
-    if (!isSys)
-    {
-      if (base === env.sys.and) return computeUnion(acc, spec.cofs)
-      if (base === env.sys.or) return computeIntersection(acc, spec.cofs)
-    }
+    if (spec.isAnd) return computeUnion(acc, spec.cofs)
+    if (spec.isOr)  return computeIntersection(acc, spec.cofs)
     return computeFromBase(acc, base)
   }
 

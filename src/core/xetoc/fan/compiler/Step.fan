@@ -24,6 +24,8 @@ abstract internal class Step
 
   NameTable names() { compiler.names }
 
+  MFactories factories() { env.factories }
+
   Bool isLib() { compiler.isLib }
 
   Bool isData() { !compiler.isLib }

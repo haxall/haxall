@@ -18,13 +18,13 @@ internal class LoadFactories : Step
   {
     // check if we need to install a new factor loader
     typeName := pragma.getStr("factoryLoader")
-    if (typeName != null) env.factories.install(typeName)
+    if (typeName != null) factories.install(typeName)
 
     // find a loader for our library
-    loader := env.factories.loaders.find |x| { x.canLoad(lib.name) }
+    loader := factories.loaders.find |x| { x.canLoad(lib.name) }
 
     // if we have a loader, give it my type names to map to factories
-    [Str:SpecFactory]? factories := null
+    [Str:SpecFactory]? customs := null
     if (loader != null)
     {
       specNames := Str[,]
@@ -32,27 +32,27 @@ internal class LoadFactories : Step
       {
         specNames.add(spec.name)
       }
-      factories = loader.load(lib.name, specNames)
+      customs = loader.load(lib.name, specNames)
     }
 
     // now assign factories to all type level types
     lib.tops.each |spec|
     {
-      assignFactory(spec, factories)
+      assignFactory(spec, customs)
     }
   }
 
 
-  private Void assignFactory(ASpec spec, [Str:SpecFactory]? factories)
+  private Void assignFactory(ASpec spec, [Str:SpecFactory]? customs)
   {
     // lookup custom registered factory
-    if (factories != null)
+    if (customs != null)
     {
-      custom := factories[spec.name]
+      custom := customs[spec.name]
       if (custom != null)
       {
         spec.factoryRef = custom
-        env.factories.map(custom.type, spec.qname, spec.asm)
+        factories.map(custom.type, spec.qname, spec.asm)
         return
       }
     }
@@ -65,9 +65,10 @@ internal class LoadFactories : Step
     if (spec.factoryRef == null)
     {
       if (spec.isScalar)
-        spec.factoryRef = env.factories.scalar
+        spec.factoryRef = factories.scalar
       else
-        spec.factoryRef = env.factories.dict
+        spec.factoryRef = factories.dict
     }
   }
 }
+

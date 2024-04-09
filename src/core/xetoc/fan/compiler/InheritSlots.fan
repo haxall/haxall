@@ -244,7 +244,7 @@ internal class InheritSlots : Step
     base := spec.base
 
     // first inherit slots from base type
-    if (!isSys && base === env.sys.and)
+    if (spec.isAnd)
     {
       ofs := spec.cofs
       if (ofs != null) ofs.each |of|

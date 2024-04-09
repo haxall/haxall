@@ -71,7 +71,7 @@ internal class CheckErrors : Step
       return err("Cannot inherit from sealed type '$base.name'", x.loc)
 
     // cannot subtype from And/Or without using & or |
-    if (!isSys && (base === env.sys.and || base === env.sys.or) && !x.parsedCompound)
+    if ((x.isAnd || x.isOr) && !x.parsedCompound)
       return err("Cannot directly inherit from compound type '$base.name'", x.loc)
   }
 
@@ -217,3 +217,4 @@ internal class CheckErrors : Step
   ]
 
 }
+
