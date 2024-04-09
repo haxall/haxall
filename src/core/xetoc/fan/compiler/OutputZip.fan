@@ -37,6 +37,9 @@ internal class OutputZip : Step
     // for now skip this step in JS runtime
     if (Env.cur.runtime == "js") return false
 
+echo("TODO: XetoCompiler zip $compiler.libName")
+return false
+
     // need to have zip out configured and compiled from source
     zipOut := compiler.zipOut
     input := compiler.input
@@ -94,3 +97,4 @@ internal class OutputZip : Step
     return true
   }
 }
+

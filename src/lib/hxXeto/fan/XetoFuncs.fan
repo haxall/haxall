@@ -755,8 +755,6 @@ const class XetoFuncs
     isShell := cx.rt.platform.isShell
     log := isShell ? Log.get("xeto") : cx.rt.lib("xeto").log
     log.info("XetoEnv.reload [$cx.user.username]")
-    XetoEnv.reload
-//    cx.usingsReload
 echo("TODO: xetoEnvReload!!!")
 throw Err("TODO")
     return isShell ? "_no_echo_" : "reloaded"

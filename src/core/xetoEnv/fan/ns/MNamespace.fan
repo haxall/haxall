@@ -384,7 +384,7 @@ abstract const class MNamespace : LibNamespace
   {
     if (opts == null) opts = Etc.dict0
     explain := XetoUtil.optLog(opts, "explain")
-    cx := NilContext.val
+    cx := NilXetoContext.val
     if (explain == null)
       return Fitter(this, cx, opts).specFits(a, b)
     else

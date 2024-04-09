@@ -24,3 +24,16 @@ mixin XetoContext
   @NoDoc abstract Bool xetoIsSpec(Str spec, Dict rec)
 }
 
+**************************************************************************
+** NilContext
+**************************************************************************
+
+@NoDoc @Js
+const class NilXetoContext : XetoContext
+{
+  static const NilXetoContext val := make
+  override Dict? xetoReadById(Obj id) { null }
+  override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
+  override Bool xetoIsSpec(Str spec, Dict rec) { false }
+}
+

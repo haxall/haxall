@@ -227,7 +227,7 @@ const class XetoUtil
 // ChoiceOf
 //////////////////////////////////////////////////////////////////////////
 
-  ** Implementation of XetoEnv.choiceOf
+  ** Implementation of choiceOf
   static Spec? choiceOf(MNamespace ns, Dict instance, Spec choice, Bool checked)
   {
     acc := Spec[,]
