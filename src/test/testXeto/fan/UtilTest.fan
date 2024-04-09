@@ -14,7 +14,7 @@ using haystack
 ** UtilTest
 **
 @Js
-class UtilTest : Test
+class UtilTest : AbstractXetoTest
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -207,7 +207,7 @@ class UtilTest : Test
     id := haystack::Ref.gen
     Spec? spec := null
     if (Env.cur.runtime != "js")
-      spec = XetoEnv.cur.spec("ph::Site")
+      spec = createNamespace(["sys", "ph"]).spec("ph::Site")
 
     verifyDict(t, 0, NameDict.empty,
       Str:Obj[:])

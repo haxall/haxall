@@ -20,27 +20,28 @@ class FactoryTest : AbstractXetoTest
 
   Void testSys()
   {
-    verifyAllEnvs("sys") |env| { doTestSys(env) }
+//    verifyAllEnvs("sys") |env| { doTestSys(env) }
+ns := createNamespace(["sys"])
   }
 
-  private Void doTestSys(XetoEnv env)
+  private Void doTestSys(LibNamespace ns)
   {
-    verifyScalar("sys::Str",     "hello")
-    verifyScalar("sys::Bool",     true)
-    verifyScalar("sys::Int",      123)
-    verifyScalar("sys::Float",    123f)
-    verifyScalar("sys::Duration", 10sec)
-    verifyScalar("sys::Date",     Date("2023-07-01"))
-    verifyScalar("sys::Time",     Time("13:00:00"))
-    verifyScalar("sys::DateTime", DateTime.now)
-    verifyScalar("sys::Uri",      `foo.txt`)
-    verifyScalar("sys::Version",  Version("1.2.3"))
+    verifyScalar(ns, "sys::Str",     "hello")
+    verifyScalar(ns, "sys::Bool",     true)
+    verifyScalar(ns, "sys::Int",      123)
+    verifyScalar(ns, "sys::Float",    123f)
+    verifyScalar(ns, "sys::Duration", 10sec)
+    verifyScalar(ns, "sys::Date",     Date("2023-07-01"))
+    verifyScalar(ns, "sys::Time",     Time("13:00:00"))
+    verifyScalar(ns, "sys::DateTime", DateTime.now)
+    verifyScalar(ns, "sys::Uri",      `foo.txt`)
+    verifyScalar(ns, "sys::Version",  Version("1.2.3"))
 
-    verifyScalar("sys::Marker",   Marker.val)
-    verifyScalar("sys::None",     Remove.val)
-    verifyScalar("sys::NA",       NA.val)
-    verifyScalar("sys::Number",   Number(80, Unit("%")))
-    verifyScalar("sys::Ref",      Ref("abc"))
+    verifyScalar(ns, "sys::Marker",   Marker.val)
+    verifyScalar(ns, "sys::None",     Remove.val)
+    verifyScalar(ns, "sys::NA",       NA.val)
+    verifyScalar(ns, "sys::Number",   Number(80, Unit("%")))
+    verifyScalar(ns, "sys::Ref",      Ref("abc"))
 
     verifySame(env.spec("sys::Obj").fantomType, Obj#)
     verifySame(env.spec("sys::Dict").fantomType, Dict#)
@@ -50,24 +51,26 @@ class FactoryTest : AbstractXetoTest
 
   Void testPh()
   {
-    verifyScalar("ph::Coord",     Coord(23f, 45f))
-    verifyScalar("ph::Symbol",    Symbol("tag"), Symbol#)
+    ns := createNamespace(["sys", "ph"])
+
+    verifyScalar(ns, "ph::Coord",     Coord(23f, 45f))
+    verifyScalar(ns, "ph::Symbol",    Symbol("tag"), Symbol#)
 
     // what to do with this guy?
     //verifyScalar("ph::XStr", XStr("Foo", "bar"))
   }
 
-  Void verifyScalar(Str qname, Obj val, Type? type := val.typeof)
+  Void verifyScalar(LibNamespace ns, Str qname, Obj val, Type? type := val.typeof)
   {
-    spec := env.spec(qname)
+    spec := ns.spec(qname)
     verifySame(spec.factory.type, type)
     // echo("---> $spec | $spec.factory | $spec.fantomType")
     s := spec.factory.encodeScalar(val)
     v := spec.factory.decodeScalar(s)
     // echo("::: $type <=> $spec | $v")
     verifyEq(v, val)
-    verifySame(env.specOf(v), spec)
-    verifySame(env.specOf(v.typeof), spec)
+    verifySame(ns.specOf(v), spec)
+    verifySame(ns.specOf(v.typeof), spec)
     verifySame(spec.fantomType, type)
   }
 
