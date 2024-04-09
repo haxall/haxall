@@ -31,10 +31,8 @@ const class LocalNamespace : MNamespace
 
   override XetoLib doLoadSync(LibVersion v)
   {
-    /*
     c := XetoCompiler
     {
-it.env     = XetoEnv.cur
       it.ns      = this
       it.libName = v.name
       it.input   = v.file
@@ -42,8 +40,6 @@ it.env     = XetoEnv.cur
       //it.build   = build
     }
     return c.compileLib
-    */
-    return XetoEnv.cur.lib(v.name)
   }
 
   override Void doLoadListAsync(LibVersion[] versions, |Err?, Obj[]?| f)
@@ -86,7 +82,6 @@ it.env     = XetoEnv.cur
 
     c := XetoCompiler
     {
-it.env     = XetoEnv.cur
       it.ns      = this
       it.libName = libName
       it.input   = src.toBuf.toFile(`temp.xeto`)
@@ -100,7 +95,6 @@ it.env     = XetoEnv.cur
   {
     c := XetoCompiler
     {
-it.env     = XetoEnv.cur
       it.ns    = this
       it.input = src.toBuf.toFile(`parse.xeto`)
       it.applyOpts(opts)

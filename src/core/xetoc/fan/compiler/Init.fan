@@ -15,11 +15,12 @@ internal abstract class Init : Step
 {
   override Void run()
   {
-    // check environment
-    if (compiler.env == null)  err("Compiler env not configured", FileLoc.inputs)
+    // check names
+    if (compiler.ns != null) compiler.names = compiler.ns.names
+    if (compiler.names == null) throw err("Compiler names not configured", FileLoc.inputs)
 
-    // TODO
-    compiler.names = compiler.env.names
+    // check namespace
+    if (compiler.ns == null && !compiler.libVersionOnly) throw err("Compiler ns not configured", FileLoc.inputs)
 
     // check input exists
     input := compiler.input

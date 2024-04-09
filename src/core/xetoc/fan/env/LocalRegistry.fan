@@ -151,7 +151,7 @@ internal const class LocalRegistry : MRegistry
     {
       // must use the bootstrap version of sys always
       if (libName == "sys") return env.sysLib
-      
+
       // otherwise use our build version
       entry := c.build[libName]
       if (entry != null)
@@ -167,13 +167,15 @@ internal const class LocalRegistry : MRegistry
 
   Lib compile(LocalRegistryEntry entry, [Str:LocalRegistryEntry]? build)
   {
+if (entry.name == "sys") return LibRepo.cur.bootNamespace.lib("sys")
+throw Err("no longer supported $entry")
     compilingPush(entry.name)
     try
     {
       // compile
       compiler := XetoCompiler
       {
-        it.env     = this.env
+        //it.env     = this.env
         it.libName = entry.name
         it.input   = entry.src ?: entry.zip
         it.zipOut  = entry.zip

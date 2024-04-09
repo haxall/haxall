@@ -399,11 +399,8 @@ abstract const class MNamespace : LibNamespace
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-// TODO
-MEnv env() { XetoEnv.cur }
-
   const MSys sys
-  const MFactories factories := env.factories // TODO
+  const MFactories factories := MFactories()
   private const Str:MLibEntry entriesMap
   private const MLibEntry[] entriesList  // orderd by depends
   private const AtomicRef libsRef := AtomicRef()

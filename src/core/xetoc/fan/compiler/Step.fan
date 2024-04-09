@@ -20,13 +20,11 @@ abstract internal class Step
 
   abstract Void run()
 
-  LocalEnv env() { compiler.env }
-
-  LibNamespace? ns() { compiler.ns }
+  MNamespace? ns() { compiler.ns }
 
   NameTable names() { compiler.names }
 
-  MFactories factories() { env.factories }
+  MFactories factories() { ns.factories }
 
   Bool isLib() { compiler.isLib }
 

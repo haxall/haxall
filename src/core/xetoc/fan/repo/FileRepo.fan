@@ -24,6 +24,8 @@ const class FileRepo : LibRepo
     rescan
   }
 
+  const NameTable names := NameTable()
+
   const Log log := Log.get("xeto")
 
   const File[] path
@@ -35,7 +37,7 @@ const class FileRepo : LibRepo
 
   override This rescan()
   {
-    scanRef.val = FileRepoScanner(log, path).scan
+    scanRef.val = FileRepoScanner(log, names, path).scan
     return this
   }
 
@@ -99,6 +101,5 @@ const class FileRepo : LibRepo
     createNamespace([latest("sys")])
   }
 
-  const NameTable names := XetoEnv.cur.names // TODO
 }
 

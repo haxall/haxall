@@ -33,13 +33,10 @@ internal class XetoCompiler
 // Inputs
 //////////////////////////////////////////////////////////////////////////
 
-  ** Environment
-  LocalEnv? env
-
   ** Namespace used for depends resolution
-  LibNamespace? ns
+  MNamespace? ns
 
-  ** Names table to use, initialized from namespace
+  ** Names table to use
   NameTable? names
 
   ** Logging
@@ -119,6 +116,8 @@ internal class XetoCompiler
   ** Must setup libName and input to the "lib.xeto" file
   FileLibVersion parseLibVersion()
   {
+// TODO
+libVersionOnly = true
     run([
       InitLib(),
       Parse(),
@@ -129,6 +128,8 @@ internal class XetoCompiler
     dir := input.parent
     return FileLibVersion(libName, lib.version, dir, doc, depends.list)
   }
+
+Bool libVersionOnly
 
   ** Run the pipeline with the given steps
   internal This run(Step[] steps)

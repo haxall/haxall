@@ -52,11 +52,11 @@ internal class Resolve : Step
 
   private XetoLib? resolveDepend(MLibDepend d)
   {
-    // resolve the library from environment
-    lib := env.registry.resolve(compiler, d.name)
+    // resolve the library from namespace
+    lib := ns.lib(d.name, false)
     if (lib == null)
     {
-      err("Depend lib '$d.name' not installed", d.loc)
+      err("Depend lib '$d.name' not in namespace", d.loc)
       return null
     }
 

@@ -285,7 +285,7 @@ const class XetoUtil
     spec := XetoSpec()
     nameCode :=ns.names.add(name)
     name = ns.names.toName(nameCode)
-    m := MDerivedSpec(ns.env, null, nameCode, name, base, MNameDict(ns.names.dictDict(meta)), deriveSlots(ns, spec, slots), deriveFlags(base, meta))
+    m := MDerivedSpec(null, nameCode, name, base, MNameDict(ns.names.dictDict(meta)), deriveSlots(ns, spec, slots), deriveFlags(base, meta))
     XetoSpec#m->setConst(spec, m)
     return spec
   }
@@ -305,7 +305,7 @@ const class XetoUtil
     {
       nameCode := ns.names.add(name)
       name = ns.names.toName(nameCode)
-      return XetoSpec(MDerivedSpec(ns.env, parent, nameCode, name, base, base.m.meta, base.m.slots, base.m.flags))
+      return XetoSpec(MDerivedSpec(parent, nameCode, name, base, base.m.meta, base.m.slots, base.m.flags))
     }
 
     return MSlots(ns.names.dictMap(derivedMap))

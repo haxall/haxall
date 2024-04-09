@@ -18,10 +18,11 @@ using haystack::UnknownLibErr
 **
 internal class FileRepoScanner
 {
-  new make(Log log, File[] path)
+  new make(Log log, NameTable names, File[] path)
   {
-    this.log  = log
-    this.path = path
+    this.log   = log
+    this.names = names
+    this.path  = path
   }
 
   FileRepoScan scan()
@@ -104,7 +105,7 @@ internal class FileRepoScanner
     {
       c := XetoCompiler
       {
-        it.env     = XetoEnv.cur
+        it.names   = this.names
         it.libName = name
         it.input   = lib
       }
@@ -113,6 +114,7 @@ internal class FileRepoScanner
     catch (Err e)
     {
       log.info("Cannot parse lib source meta [$lib.osPath]\n  $e")
+
       return null
     }
   }
@@ -147,6 +149,7 @@ internal class FileRepoScanner
   }
 
   private Log log
+  private NameTable names
   private File[] path
   private Str:FileLibVersion[] acc := [:]
 }

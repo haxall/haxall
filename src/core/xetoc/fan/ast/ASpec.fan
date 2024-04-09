@@ -10,6 +10,7 @@
 using util
 using xeto
 using xetoEnv
+using haystack::Remove
 
 **
 ** AST spec
@@ -46,9 +47,6 @@ internal class ASpec : ANode, CSpec
 
   ** Reference to compiler
   XetoCompiler compiler() { lib.compiler }
-
-  ** Reference to environment
-  MEnv env() { lib.compiler.env }
 
   ** Reference to system types
   ASys sys() { lib.compiler.sys }
@@ -151,7 +149,7 @@ internal class ASpec : ANode, CSpec
   ** Set the given meta tag to none singleton
   Void metaSetNone(Str name)
   {
-    metaSet(name, AScalar(loc, sys.none, "none", env.none))
+    metaSet(name, AScalar(loc, sys.none, "none", Remove.val))
   }
 
   ** Set the given meta tag to string value
