@@ -193,7 +193,14 @@ internal class Resolve : Step
   {
     ref.nodeType === ANodeType.specRef ?
       depend.type(name, false) :
-      CInstance.wrap(env, depend.instance(name, false))
+      wrapInstance(depend.instance(name, false))
+  }
+
+  ** Wrap instance from dependency
+  private CInstance? wrapInstance(Dict? dict)
+  {
+    if (dict == null) return null
+    return CInstanceWrap(dict, ns.specOf(dict))
   }
 
 

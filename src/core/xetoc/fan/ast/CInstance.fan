@@ -15,20 +15,11 @@ using xetoEnv
 **
 internal mixin CInstance : CNode
 {
-  ** Wrap instance from dependency
-  static CInstance? wrap(XetoEnv env, Dict? val)
-  {
-    if (val == null) return null
-    spec := env.specOf(val, false) ?: env.dictSpec
-    return CInstanceWrap(val, spec)
-  }
-
   ** Return if this an AST ADict
   abstract Bool isAst()
 
   ** Type of dict
   abstract CSpec ctype()
-
 }
 
 **************************************************************************
@@ -45,5 +36,4 @@ internal const class CInstanceWrap : CInstance
   override CSpec ctype() { spec }
   override Obj asm() { id }
 }
-
 

@@ -58,7 +58,7 @@ internal class InheritMeta : Step
       return base.cmeta
 
     // merge in my own tags
-    XetoUtil.addOwnMeta(env, acc, own)
+    XetoUtil.addOwnMeta(acc, own)
 
     // special handling for None val (which gets treated as meta remove)
     if (isSys && spec.name == "None")

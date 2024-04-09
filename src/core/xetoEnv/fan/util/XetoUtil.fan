@@ -10,6 +10,7 @@ using util
 using xeto
 using haystack::Etc
 using haystack::Ref
+using haystack::Remove
 using haystack::UnknownNameErr
 
 **
@@ -169,12 +170,12 @@ const class XetoUtil
     return true
   }
 
-  static Void addOwnMeta(MEnv env, Str:Obj acc, Dict own)
+  static Void addOwnMeta(Str:Obj acc, Dict own)
   {
     if (own.isEmpty) return
     own.each |v, n|
     {
-      if (v === env.none)
+      if (v === Remove.val)
         acc.remove(n)
       else
         acc[n] = v

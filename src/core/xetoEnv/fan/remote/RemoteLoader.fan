@@ -233,7 +233,7 @@ internal class RemoteLoader
     if (acc.size == baseSize && own.isEmpty) return x.base.cmeta
 
     // merge in my own meta
-    XetoUtil.addOwnMeta(env, acc, own)
+    XetoUtil.addOwnMeta(acc, own)
 
     return MNameDict(env.names.dictMap(acc))
   }
