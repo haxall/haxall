@@ -10,8 +10,11 @@ using concurrent
 using util
 using xeto
 using haystack::Grid
+using haystack::Marker
+using haystack::NA
 using haystack::Number
 using haystack::Ref
+using haystack::Remove
 
 **
 ** Pretty printer
@@ -25,9 +28,9 @@ class Printer
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(MEnv env, OutStream out, Dict opts)
+  new make(MNamespace ns, OutStream out, Dict opts)
   {
-    this.env        = env
+    this.ns         = ns
     this.out        = out
     this.opts       = opts
     this.escUnicode = optBool("escapeUnicode", false)
@@ -109,10 +112,10 @@ class Printer
       if (inMeta)
       {
         // express as Xeto values
-        if (v === env.none) return w("None \"none\"")
-        if (v === env.na) return w("NA \"na\"")
+        if (isNone(v)) return w("None \"none\"")
+        if (isNA(v)) return w("NA \"na\"")
         if (v is Str) return quoted(v)
-        t := env.specOf(v)
+        t := specOf(v)
         if (t.isScalar) return w(t.qname).sp.quoted(v.toStr)
       }
 
@@ -425,7 +428,7 @@ class Printer
   ** Pretty print instance data in Xeto text format
   This xeto(Obj x, Bool top := false)
   {
-    spec := env.specOf(x)
+    spec := specOf(x)
     if (spec.isScalar) return xetoScalar(spec, x)
     if (x is Dict) return xetoDict(spec, x, top)
     if (x is List) return xetoList(spec, x)
@@ -435,15 +438,15 @@ class Printer
   ** Print scalar in Xeto text format
   private This xetoScalar(Spec spec, Obj x)
   {
-    if (spec === env.sys.ref)
+    ref := x as Ref
+    if (ref != null)
     {
-      ref := (Ref)x
       w("@").w(ref.id)
       if (ref.disVal != null) sp.w(ref.disVal.toCode)
       return this
     }
 
-    if (spec !== env.sys.str) qname(spec).sp
+    if (x isnot Str) qname(spec).sp
     return w(x.toStr.toCode)
   }
 
@@ -466,7 +469,7 @@ class Printer
       if (n == "id" || n == "spec") return
       indent
       w(n)
-      if (v === env.marker) return nl
+      if (isMarker(v)) return nl
       colon.xeto(v).nl
     }
     indention--
@@ -625,7 +628,7 @@ class Printer
 
   This qname(Spec spec)
   {
-    spec.lib === env.sysLib ? w(spec.name) : w(spec.qname)
+    spec.lib.isSys ? w(spec.name) : w(spec.qname)
   }
 
   This w(Obj obj)
@@ -658,7 +661,13 @@ class Printer
 // Data Utils
 //////////////////////////////////////////////////////////////////////////
 
-  private Bool isMarker(Obj? val) { val === env.marker }
+  private Spec specOf(Obj? val) { ns.specOf(val) }
+
+  private Bool isMarker(Obj? val) { val === Marker.val }
+
+  private Bool isNA(Obj? val) { val === NA.val }
+
+  private Bool isNone(Obj? val) { val === Remove.val }
 
 //////////////////////////////////////////////////////////////////////////
 // Options
@@ -672,7 +681,7 @@ class Printer
   Bool optBool(Str name, Bool def)
   {
     v := opt(name)
-    if (v == env.marker) return true
+    if (isMarker(v)) return true
     if (v is Bool) return v
     return def
   }
@@ -722,7 +731,7 @@ class Printer
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const MEnv env                  // environment
+  const MNamespace ns             // namespace
   const Bool isStdout             // are we printing to stdout
   const Dict opts                 // options
   const Bool escUnicode           // escape unicode above 0x7f
@@ -820,3 +829,4 @@ const class PrinterTheme
   const Str? comment
   const Str? warn
 }
+

@@ -173,7 +173,8 @@ abstract const class MEnv : XetoEnv
 
   override Void writeData(OutStream out, Obj val, Dict? opts := null)
   {
-    Printer(this, out, opts ?: dict0).xetoTop(val)
+   throw UnsupportedErr()
+    //Printer(out, opts ?: dict0).xetoTop(val)
   }
 
   override Dict genAst(Obj libOrSpec, Dict? opts := null)
@@ -188,7 +189,8 @@ abstract const class MEnv : XetoEnv
 
   override Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
   {
-    Printer(this, out, opts ?: dict0).print(val)
+   throw UnsupportedErr()
+//    Printer(out, opts ?: dict0).print(val)
   }
 
 }

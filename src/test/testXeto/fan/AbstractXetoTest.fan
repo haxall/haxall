@@ -21,6 +21,23 @@ using xetoEnv
 @Js
 class AbstractXetoTest : HaystackTest
 {
+
+  Obj none() { Remove.val }
+
+  Obj na() { NA.val }
+
+  Ref ref(Str id, Str? dis := null) { Ref(id, dis) }
+
+  Dict dict0() { Etc.dict0 }
+
+  Dict dict1(Str n0, Obj v0) { Etc.dict1(n0, v0) }
+
+  Dict dict2(Str n0, Obj v0, Str n1, Obj v1) { Etc.dict2(n0, v0, n1, v1) }
+
+  Dict dict(Str:Obj map) { Etc.dictFromMap(map) }
+
+  static Dict nameDictEmpty() { MNameDict.empty }
+
   Void verifyLocalAndRemote(Str[] libs, |LibNamespace ns| f)
   {
     // first test local server
@@ -39,28 +56,6 @@ class AbstractXetoTest : HaystackTest
       f(client.ns)
     }
   }
-
-  XetoEnv env()
-  {
-    if (envRef == null) envRef = XetoEnv.cur
-    return envRef
-  }
-
-  private XetoEnv? envRef
-
-  Obj none() { Remove.val }
-
-  Obj na() { NA.val }
-
-  Ref ref(Str id, Str? dis := null) { Ref(id, dis) }
-
-  Dict dict0() { Etc.dict0 }
-
-  Dict dict1(Str n0, Obj v0) { Etc.dict1(n0, v0) }
-
-  Dict dict2(Str n0, Obj v0, Str n1, Obj v1) { Etc.dict2(n0, v0, n1, v1) }
-
-  Dict dict(Str:Obj map) { Etc.dictFromMap(map) }
 
   LibNamespace createNamespace(Str[] libs)
   {
@@ -82,8 +77,6 @@ class AbstractXetoTest : HaystackTest
   {
     LibRepo.cur.bootNamespace.compileDicts(s, opts)
   }
-
-  static Dict nameDictEmpty() { MNameDict.empty }
 
   Void verifyFitsExplain(LibNamespace ns, Obj? val, Spec spec, Str[] expected)
   {

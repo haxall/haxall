@@ -170,7 +170,7 @@ class ShellContext : HxContext
   OutStream out { private set }
 
   ** Create Xeto printer for output stream
-  Printer printer() { Printer(XetoEnv.cur, out, Etc.dict0) }
+  Printer printer() { Printer(xeto, out, Etc.dict0) }
 
   ** Flag to terminate the interactive loop
   Bool isDone := false

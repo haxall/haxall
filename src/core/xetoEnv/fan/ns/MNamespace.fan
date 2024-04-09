@@ -425,12 +425,12 @@ abstract const class MNamespace : LibNamespace
 
   override Void writeData(OutStream out, Obj val, Dict? opts := null)
   {
-    Printer(XetoEnv.cur, out, opts ?: Etc.dict0).xetoTop(val)
+    Printer(this, out, opts ?: Etc.dict0).xetoTop(val)
   }
 
   override Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
   {
-    Printer(XetoEnv.cur, out, opts ?: Etc.dict0).print(val)
+    Printer(this, out, opts ?: Etc.dict0).print(val)
   }
 
   override Dict genAst(Obj libOrSpec, Dict? opts := null)
