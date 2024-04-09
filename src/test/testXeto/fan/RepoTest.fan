@@ -211,9 +211,9 @@ class RepoTest : AbstractXetoTest
     verifyEq(ns.libStatus("sys"), LibStatus.ok)
     verifySame(ns.version("ph"), phVer)
     verifyEq(ns.isAllLoaded, false)
-// TODO: once we switch compiler
-//    verifyNotSame(ns.sysLib, sys)  // new compile of sys
-//    verifyNotSame(ns.lib("sys"), sys)
+    verifyNotSame(ns.sysLib, sys)  // new compile of sys
+    verifyNotSame(ns.lib("sys"), sys)
+    sys = ns.lib("sys")
 
     verifyEq(ns.lib("foo.bar.baz", false), null)
     verifyErr(UnknownLibErr#) { ns.lib("foo.bar.baz") }

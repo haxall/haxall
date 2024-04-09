@@ -112,83 +112,84 @@ class SpecTest : AbstractXetoTest
   {
     // TODO
     // verifyAllEnvs("ph.points") |env| { doTestIsa }
-    doTestIsa
+ns := createNamespace(["ph.points"])
+    doTestIsa(ns)
   }
 
-  Void doTestIsa()
+  Void doTestIsa(LibNamespace ns)
   {
-    verifyIsa("sys::Obj", "sys::Obj", true)
-    verifyIsa("sys::Obj", "sys::Str", false)
+    verifyIsa(ns, "sys::Obj", "sys::Obj", true)
+    verifyIsa(ns, "sys::Obj", "sys::Str", false)
 
-    verifyIsa("sys::None", "sys::Obj",    true)
-    verifyIsa("sys::None", "sys::None",   true)
-    verifyIsa("sys::None", "sys::Scalar", true)
-    verifyIsa("sys::None", "sys::Dict",   false)
+    verifyIsa(ns, "sys::None", "sys::Obj",    true)
+    verifyIsa(ns, "sys::None", "sys::None",   true)
+    verifyIsa(ns, "sys::None", "sys::Scalar", true)
+    verifyIsa(ns, "sys::None", "sys::Dict",   false)
 
-    verifyIsa("sys::Scalar", "sys::Obj",    true)
-    verifyIsa("sys::Scalar", "sys::Scalar", true)
-    verifyIsa("sys::Scalar", "sys::Str",    false)
+    verifyIsa(ns, "sys::Scalar", "sys::Obj",    true)
+    verifyIsa(ns, "sys::Scalar", "sys::Scalar", true)
+    verifyIsa(ns, "sys::Scalar", "sys::Str",    false)
 
-    verifyIsa("sys::Str", "sys::Obj",    true)
-    verifyIsa("sys::Str", "sys::Scalar", true)
-    verifyIsa("sys::Str", "sys::Str",    true)
-    verifyIsa("sys::Str", "sys::Int",    false)
-    verifyIsa("sys::Str", "sys::Dict",   false)
-    verifyIsa("sys::Str", "sys::And",    false)
-    verifyIsa("sys::Func", "sys::Func",  true)
-    verifyIsa("sys::Str",  "sys::Func",   false)
+    verifyIsa(ns, "sys::Str", "sys::Obj",    true)
+    verifyIsa(ns, "sys::Str", "sys::Scalar", true)
+    verifyIsa(ns, "sys::Str", "sys::Str",    true)
+    verifyIsa(ns, "sys::Str", "sys::Int",    false)
+    verifyIsa(ns, "sys::Str", "sys::Dict",   false)
+    verifyIsa(ns, "sys::Str", "sys::And",    false)
+    verifyIsa(ns, "sys::Func", "sys::Func",  true)
+    verifyIsa(ns, "sys::Str",  "sys::Func",   false)
 
-    verifyIsa("sys::Int", "sys::Obj",    true)
-    verifyIsa("sys::Int", "sys::Scalar", true)
-    verifyIsa("sys::Int", "sys::Number", true)
-    verifyIsa("sys::Int", "sys::Int",    true)
-    verifyIsa("sys::Int", "sys::Duration",false)
+    verifyIsa(ns, "sys::Int", "sys::Obj",    true)
+    verifyIsa(ns, "sys::Int", "sys::Scalar", true)
+    verifyIsa(ns, "sys::Int", "sys::Number", true)
+    verifyIsa(ns, "sys::Int", "sys::Int",    true)
+    verifyIsa(ns, "sys::Int", "sys::Duration",false)
 
-    verifyIsa("sys::Seq", "sys::Seq",  true)
-    verifyIsa("sys::Seq", "sys::Dict", false)
+    verifyIsa(ns, "sys::Seq", "sys::Seq",  true)
+    verifyIsa(ns, "sys::Seq", "sys::Dict", false)
 
-    verifyIsa("sys::Dict", "sys::Seq",  true)
-    verifyIsa("sys::Dict", "sys::Dict", true)
-    verifyIsa("sys::Dict", "sys::List", false)
+    verifyIsa(ns, "sys::Dict", "sys::Seq",  true)
+    verifyIsa(ns, "sys::Dict", "sys::Dict", true)
+    verifyIsa(ns, "sys::Dict", "sys::List", false)
 
-    verifyIsa("sys::List", "sys::Seq",  true)
-    verifyIsa("sys::List", "sys::List", true)
-    verifyIsa("sys::List", "sys::Dict", false)
+    verifyIsa(ns, "sys::List", "sys::Seq",  true)
+    verifyIsa(ns, "sys::List", "sys::List", true)
+    verifyIsa(ns, "sys::List", "sys::Dict", false)
 
-    verifyIsa("sys::And",   "sys::And",   true, false)
-    verifyIsa("sys::Or",    "sys::Or",    true, false)
+    verifyIsa(ns, "sys::And",   "sys::And",   true, false)
+    verifyIsa(ns, "sys::Or",    "sys::Or",    true, false)
 
     // env.print(env.spec("ph.points::DischargeAirTempSensor"))
 
-    s := verifyIsa("ph.points::AirFlowSensor", "sys::And", true)
-    verifyIsa("ph.points::AirFlowSensor", "ph::Point", true)
-    verifyIsa("ph.points::AirFlowSensor", "ph::Sensor", true)
-    verifyIsa("ph.points::AirFlowSensor", "sys::Dict", true, false)
+    s := verifyIsa(ns, "ph.points::AirFlowSensor", "sys::And", true)
+    verifyIsa(ns, "ph.points::AirFlowSensor", "ph::Point", true)
+    verifyIsa(ns, "ph.points::AirFlowSensor", "ph::Sensor", true)
+    verifyIsa(ns, "ph.points::AirFlowSensor", "sys::Dict", true, false)
     verifyEq(s.isAnd, true)
 
-    s = verifyIsa("ph.points::AirTempSensor", "ph.points::AirTempPoint", true)
-    s = verifyIsa("ph.points::AirTempSensor", "ph::Point", true)
+    s = verifyIsa(ns, "ph.points::AirTempSensor", "ph.points::AirTempPoint", true)
+    s = verifyIsa(ns, "ph.points::AirTempSensor", "ph::Point", true)
     verifyEq(s.isAnd, true)
 
-    s = verifyIsa("ph.points::ZoneAirTempSensor", "ph::Point", true)
-    verifyIsa("ph.points::ZoneAirTempSensor", "ph.points::AirTempPoint", true)
-    verifyIsa("ph.points::ZoneAirTempSensor", "ph.points::AirTempSensor", true)
-    verifyIsa("ph.points::ZoneAirTempSensor", "sys::Dict", true, false)
+    s = verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph::Point", true)
+    verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph.points::AirTempPoint", true)
+    verifyIsa(ns, "ph.points::ZoneAirTempSensor", "ph.points::AirTempSensor", true)
+    verifyIsa(ns, "ph.points::ZoneAirTempSensor", "sys::Dict", true, false)
     verifyEq(s.isAnd, false)
 
-    verifyIsa("ph::DuctSection",   "sys::Choice",    true)
-    verifyIsa("ph::DischargeDuct", "sys::Choice",    true)
-    verifyIsa("ph::Phenomenon",    "sys::Choice",    true)
-    verifyIsa("ph::Fluid",         "sys::Choice",    true)
-    verifyIsa("ph::Fluid",         "ph::Phenomenon", true)
-    verifyIsa("ph::PipeFluid",     "sys::Choice",    true)
-    verifyIsa("ph::PipeFluid",     "ph::Fluid",      true)
+    verifyIsa(ns, "ph::DuctSection",   "sys::Choice",    true)
+    verifyIsa(ns, "ph::DischargeDuct", "sys::Choice",    true)
+    verifyIsa(ns, "ph::Phenomenon",    "sys::Choice",    true)
+    verifyIsa(ns, "ph::Fluid",         "sys::Choice",    true)
+    verifyIsa(ns, "ph::Fluid",         "ph::Phenomenon", true)
+    verifyIsa(ns, "ph::PipeFluid",     "sys::Choice",    true)
+    verifyIsa(ns, "ph::PipeFluid",     "ph::Fluid",      true)
   }
 
-  Spec verifyIsa(Str an, Str bn, Bool expect, Bool expectMethod := expect)
+  Spec verifyIsa(LibNamespace ns, Str an, Str bn, Bool expect, Bool expectMethod := expect)
   {
-    a := env.type(an)
-    b := env.type(bn)
+    a := ns.type(an)
+    b := ns.type(bn)
     m := a.typeof.method("is${b.name}", false)
     isa := a.isa(b)
     // echo("-> $a isa $b = $isa ?= $expect [$m]")
@@ -219,7 +220,7 @@ class SpecTest : AbstractXetoTest
 
   Void verifyChoiceOf(LibNamespace ns, Str:Obj tags, Str choice, Str? expect)
   {
-    actual := ns.choiceOf(dict(tags), env.spec(choice), false)
+    actual := ns.choiceOf(dict(tags), ns.spec(choice), false)
     // echo("--> $tags choiceOf $choice => $actual ?= $expect")
     verifyEq(actual?.qname, expect)
   }
@@ -306,8 +307,9 @@ class SpecTest : AbstractXetoTest
 
   Void testReflection()
   {
-    ph := env.lib("ph")
-    phx := env.lib("ph.points")
+    ns := createNamespace(["ph.points", "hx.test.xeto"])
+    ph := ns.lib("ph")
+    phx := ns.lib("ph.points")
 
     equipSlots := [
       "dis:Str?", "id:Ref", "equip:Marker",
@@ -345,7 +347,7 @@ class SpecTest : AbstractXetoTest
     cond := phx.type("WeatherCondPoint")
     verifyEq(cond.slot("enum")["val"], haystack::Ref("ph::WeatherCondEnum"))
 
-    eqA := env.spec("hx.test.xeto::EqA")
+    eqA := ns.spec("hx.test.xeto::EqA")
     a := eqA.slot("points").slot("a")
     verifyEq(a.slot("co2")["val"], Marker.val)
     verifyEq(a.slot("foo", false), null)
@@ -374,7 +376,8 @@ class SpecTest : AbstractXetoTest
 
   Void testQueryInherit()
   {
-    lib := compileLib(
+    ns := createNamespace(["ph"])
+    lib := ns.compileLib(
       Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" } } >
            AhuA: Equip {
              points: {
@@ -421,16 +424,16 @@ class SpecTest : AbstractXetoTest
     // env.print(lib, Env.cur.out, env.dict1("effective", m))
 
     // auto named
-    verifyQueryInherit(lib.type("AhuA"),  ["discharge-temp"])
-    verifyQueryInherit(lib.type("AhuB"),  ["return-temp"])
-    verifyQueryInherit(lib.type("AhuAB"), ["discharge-temp", "return-temp"])
-    verifyQueryInherit(lib.type("AhuC"),  ["discharge-temp", "return-temp", "outside-temp"])
+    verifyQueryInherit(ns, lib.type("AhuA"),  ["discharge-temp"])
+    verifyQueryInherit(ns, lib.type("AhuB"),  ["return-temp"])
+    verifyQueryInherit(ns, lib.type("AhuAB"), ["discharge-temp", "return-temp"])
+    verifyQueryInherit(ns, lib.type("AhuC"),  ["discharge-temp", "return-temp", "outside-temp"])
 
     // explicitly named
-    verifyQueryInherit(lib.type("AhuX"),  ["dat:discharge-temp"])
-    verifyQueryInherit(lib.type("AhuY"),  ["rat:return-temp"])
-    verifyQueryInherit(lib.type("AhuXY"), ["dat:discharge-temp", "rat:return-temp"])
-    verifyQueryInherit(lib.type("AhuZ"),  ["dat:discharge-temp", "rat:return-temp", "oat:outside-temp"])
+    verifyQueryInherit(ns, lib.type("AhuX"),  ["dat:discharge-temp"])
+    verifyQueryInherit(ns, lib.type("AhuY"),  ["rat:return-temp"])
+    verifyQueryInherit(ns, lib.type("AhuXY"), ["dat:discharge-temp", "rat:return-temp"])
+    verifyQueryInherit(ns, lib.type("AhuZ"),  ["dat:discharge-temp", "rat:return-temp", "oat:outside-temp"])
 
     // extra testing for mergeInheritedSlots
     a:= lib.type("AhuA")
@@ -438,11 +441,11 @@ class SpecTest : AbstractXetoTest
     ab := lib.type("AhuAB")
     abPts := ab.slot("points")
     verifyEq(abPts.qname, "${lib.name}::AhuAB.points")
-    verifyEq(abPts.type, env.type("sys::Query"))
+    verifySame(abPts.type, ns.type("sys::Query"))
     verifyEq(abPts.base, aPts)
   }
 
-  Void verifyQueryInherit(Spec x, Str[] expectPoints)
+  Void verifyQueryInherit(LibNamespace ns, Spec x, Str[] expectPoints)
   {
     q := x.slot("points")
     actualPoints := Str[,]
@@ -458,7 +461,7 @@ class SpecTest : AbstractXetoTest
     // echo(">>> $q: $q.type")
     // echo("    $actualPoints")
     verifyEq(q.isQuery, true)
-    verifyEq(q.type, env.spec("sys::Query"))
+    verifyEq(q.type, ns.spec("sys::Query"))
     verifyEq(actualPoints, expectPoints)
   }
 

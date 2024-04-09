@@ -143,7 +143,8 @@ class GlobalSlotTest : AbstractXetoTest
 
   Void testPh()
   {
-    lib := compileLib(
+    ns := createNamespace(["sys", "ph"])
+    lib := ns.compileLib(
       Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" } } >
 
            Foo: Dict {
@@ -153,10 +154,10 @@ class GlobalSlotTest : AbstractXetoTest
            }
            |>)
 
-     ph := env.lib("ph")
+     ph := ns.lib("ph")
 
-     marker := env.spec("sys::Marker")
-     number := env.spec("sys::Number")
+     marker := ns.spec("sys::Marker")
+     number := ns.spec("sys::Number")
 
      zone  := verifyGlobal(ph.global("zone"),  marker, null)
      space := verifyGlobal(ph.global("space"), marker, null)
@@ -179,7 +180,8 @@ class GlobalSlotTest : AbstractXetoTest
   {
     // we want to verify that constrained query slots don't use global slots
 
-    lib := compileLib(
+    ns := createNamespace(["sys", "ph", "ph.points"])
+    lib := ns.compileLib(
       Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" }, { lib:"ph.points" } } >
 
            Foo: Equip {
@@ -191,14 +193,14 @@ class GlobalSlotTest : AbstractXetoTest
            }
            |>)
 
-     dict := env.spec("sys::Dict")
-     dat := env.spec("ph.points::DischargeAirTempSensor")
+     dict := ns.spec("sys::Dict")
+     dat := ns.spec("ph.points::DischargeAirTempSensor")
 
      foo := lib.type("Foo")
      // env.print(foo)
 
      pts := foo.slot("points")
-     verifySame(pts.base, env.spec("ph::Equip.points"))
+     verifySame(pts.base, ns.spec("ph::Equip.points"))
 
      verifySlot(pts, "discharge", dat, dat)
      verifySlot(pts, "return",   dict, dict)
@@ -239,3 +241,4 @@ class GlobalSlotTest : AbstractXetoTest
     }
   }
 }
+
