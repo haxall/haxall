@@ -50,6 +50,7 @@ abstract const class MNamespace : LibNamespace
       // remote ns uses callback to read from boot buffer
       this.sysLib = loadSys(this)
       entry("sys").setOk(this.sysLib)
+      checkAllLoaded
     }
 
     // now we can initialize sys fast lookups
@@ -187,6 +188,8 @@ abstract const class MNamespace : LibNamespace
 
   private Void loadAllAsync(|Err?, Lib[]?| f)
   {
+    if (isAllLoaded) { f(null, libs); return }
+
     // find all the libs not loaded yet
     toLoad := LibVersion[,]
     entriesList.each |e|

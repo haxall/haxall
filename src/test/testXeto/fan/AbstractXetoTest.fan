@@ -32,17 +32,12 @@ class AbstractXetoTest : HaystackTest
     client := TestClient(server)
     client.boot
     verifyEq(client.ns.isRemote, true)
-
-    f(client.ns)
-
-    // make sure sure lib is loaded
-    /*
-    env.libAsync(lib) |e, x|
+    client.ns.libsAsync |e, x|
     {
       if (e != null) throw e
-      f(env)
+      verifyEq(x.size, server.ns.versions.size)
+      f(client.ns)
     }
-    */
   }
 
   XetoEnv env()
@@ -176,7 +171,7 @@ const class TestClient : RemoteLibLoader
   {
     buf := Buf()
     server.io.writer(buf.out).writeBoot(server.ns)
-echo("--- init remote bootstrap size = $buf.size bytes ---")
+echo("   ~~~ init remote bootstrap size = $buf.size bytes ~~~")
 
     ns := RemoteNamespace.boot(buf.flip.in, this)
     nsRef.val = ns
@@ -190,7 +185,7 @@ echo("--- init remote bootstrap size = $buf.size bytes ---")
 
     buf := Buf()
     server.io.writer(buf.out).writeLib(serverLib)
-    echo("   --- load lib $name size = $buf.size bytes ---")
+echo("   ~~~ load lib $name size = $buf.size bytes ~~~")
 
     clientLib := io.reader(buf.flip.in).readLib(ns)
     f(null, clientLib)

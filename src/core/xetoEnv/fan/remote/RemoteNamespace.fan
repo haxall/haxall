@@ -23,13 +23,16 @@ const class RemoteNamespace : MNamespace
     XetoBinaryIO.makeClient.reader(in).readBoot(libLoader)
   }
 
-  internal new make(XetoBinaryIO io, NameTable names, LibVersion[] versions, |This->XetoLib| loadSys)
+  internal new make(XetoBinaryIO io, NameTable names, LibVersion[] versions, RemoteLibLoader? libLoader, |This->XetoLib| loadSys)
     : super(names, versions, loadSys)
   {
     this.io = io
+    this.libLoader = libLoader
   }
 
   const XetoBinaryIO io
+
+  const RemoteLibLoader? libLoader
 
   override Bool isRemote() { true }
 
@@ -50,10 +53,36 @@ const class RemoteNamespace : MNamespace
 
   override Void doLoadListAsync(LibVersion[] v, |Err?, Obj[]?| f)
   {
-echo("~~~~ doLoadListAsync: $v")
-throw Err("TODO")
+    acc := Obj?[,]
+    doLoadListAsyncRecursive(v, 0, acc, f)
   }
 
+  private Void doLoadListAsyncRecursive(LibVersion[] vers, Int index, Obj?[] acc, |Err?, Obj[]?| f)
+  {
+    if (libLoader == null) throw UnsupportedErr("No RemoteLibLoader installed")
+
+    // load from pluggable loader
+    libLoader.loadLib(vers[index].name) |err, libOrErr|
+    {
+      // handle error
+      if (err != null)
+      {
+        f(err, null)
+        return
+      }
+
+      // add to our results accumulator
+      acc.add(libOrErr)
+
+      // recursively load the next library in our flattened
+      // depends list or if last one then invoke the callback
+      index++
+      if (index < vers.size)
+        doLoadListAsyncRecursive(vers, index, acc, f)
+      else
+        f(null, acc)
+    }
+  }
 }
 
 **************************************************************************
@@ -64,6 +93,6 @@ throw Err("TODO")
 @Js
 const mixin RemoteLibLoader
 {
-  abstract Void loadLib(Str name, |Err?, Lib?| f)
+  abstract Void loadLib(Str name, |Err?, Obj?| f)
 }
 

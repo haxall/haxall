@@ -222,6 +222,8 @@ const final class XetoLib : Lib, haystack::Dict
 
   override final Obj? trap(Str n, Obj?[]? a := null) { m.trap(n, a) }
 
+  override Str toStr() { "$name-$version" }
+
   const MLib? m
 }
 

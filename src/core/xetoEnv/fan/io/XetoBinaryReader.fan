@@ -52,7 +52,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     verifyU4(version, "version")
     readNameTable
     libVersions := readLibVersions(libLoader)
-    return RemoteNamespace(io, names, libVersions) |ns->XetoLib|
+    return RemoteNamespace(io, names, libVersions, libLoader) |ns->XetoLib|
     {
       sysLib := readLib(ns)
       verifyU4(magicEnd, "magicEnd")

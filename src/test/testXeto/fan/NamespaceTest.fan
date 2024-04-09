@@ -134,13 +134,12 @@ class NamespaceTest : AbstractXetoTest
 
   Void testPhLib()
   {
-//    verifyAllEnvs("ph") |env| { doTestPhLib(env) }
-doTestPhLib(createNamespace(["sys", "ph"]))
+    verifyLocalAndRemote(["sys", "ph"]) |ns| { doTestPhLib(ns) }
   }
 
   private Void doTestPhLib(LibNamespace ns)
   {
-    verifyEq(ns.isAllLoaded, false)
+    verifyEq(ns.isAllLoaded, ns.isRemote)
 
     // lib basics
     ph := verifyLibBasics(ns, "ph", curVersion)
@@ -191,8 +190,7 @@ doTestPhLib(createNamespace(["sys", "ph"]))
 
   Void testHxTestLib()
   {
-//  verifyAllEnvs("hx.test.xeto") |env| { doTestHxTestLib(env) }
-doTestHxTestLib(createNamespace(["hx.test.xeto"]))
+    verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestHxTestLib(ns) }
   }
 
   private Void doTestHxTestLib(LibNamespace ns)
