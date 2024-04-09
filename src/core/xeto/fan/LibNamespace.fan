@@ -24,6 +24,11 @@ const mixin LibNamespace
   ** Name table for this namespace
   @NoDoc abstract NameTable names()
 
+  ** Is this a remote namespace loaded over a network transport.
+  ** Remote environments must load libraries asynchronously and do
+  ** not support the full feature set.
+  @NoDoc abstract Bool isRemote()
+
 //////////////////////////////////////////////////////////////////////////
 // Libs
 //////////////////////////////////////////////////////////////////////////

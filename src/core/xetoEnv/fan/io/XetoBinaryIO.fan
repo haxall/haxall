@@ -19,14 +19,14 @@ using xeto
 @Js
 const class XetoBinaryIO
 {
-  ** Constructor to wrap given local environment
-  new makeServer(MEnv env)
+  ** Constructor to wrap given local namespace
+  new makeServer(MNamespace ns)
   {
-    this.names = env.names
+    this.names = ns.names
     this.maxNameCode = names.maxCode
   }
 
-  ** Constructor for booting client used by RemotEnv.boot
+  ** Constructor for booting client used by RemotNamespace.boot
   internal new makeClient()
   {
     this.names = NameTable()       // start off with empty name table
@@ -52,3 +52,4 @@ const class XetoBinaryIO
   internal const Int maxNameCode
 
 }
+

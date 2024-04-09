@@ -28,8 +28,7 @@ class NamespaceTest : AbstractXetoTest
 
   Void testSysLib()
   {
-    //verifyAllEnvs("sys") |env| { doTestSysLib(env) }
-doTestSysLib(createNamespace(["sys"]))
+    verifyLocalAndRemote(["sys"]) |ns| { doTestSysLib(ns) }
   }
 
   private Void doTestSysLib(LibNamespace ns)

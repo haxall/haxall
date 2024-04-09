@@ -11,19 +11,20 @@ using util
 using xeto
 
 **
-** Remote environment that loads libs over a network transport layer.
+** Remote namespace that loads libs over a network transport layer.
 ** Create a new remote env via `XetoBinaryReader.readBoot`.
 **
 @Js
-const class RemoteEnv : MEnv
+const class RemoteNamespace : MNamespace
 {
   ** Boot a RemoteEnv from the given boot message input stream
-  static RemoteEnv boot(InStream in, RemoteLibLoader? libLoader)
+  static RemoteNamespace boot(InStream in, RemoteLibLoader? libLoader)
   {
     XetoBinaryIO.makeClient.reader(in).readBoot(libLoader)
   }
 
-  internal new make(XetoBinaryIO io, NameTable names, MRegistry registry, |This| f) : super(names, registry, f)
+  internal new make(XetoBinaryIO io, NameTable names, LibVersion[] versions, |This->XetoLib| loadSys)
+    : super(names, versions, loadSys)
   {
     this.io = io
   }
@@ -32,7 +33,6 @@ const class RemoteEnv : MEnv
 
   override Bool isRemote() { true }
 
-/*
   override Lib compileLib(Str src, Dict? opts := null)
   {
     throw UnsupportedErr()
@@ -42,20 +42,18 @@ const class RemoteEnv : MEnv
   {
     throw UnsupportedErr()
   }
-*/
 
-  override Void dump(OutStream out := Env.cur.out)
+  override XetoLib doLoadSync(LibVersion v)
   {
-    out.printLine("=== RemoteXetoEnv ===")
-    registry.list.each |entry|
-    {
-      out.print("  ")
-         .print(entry.name.padr(32))
-         .print(" [")
-         .print(entry.isLoaded ? "loaded" : "not loaded")
-         .printLine("]")
-    }
+    throw UnsupportedErr("Must use libAsync [$v]")
   }
+
+  override Void doLoadListAsync(LibVersion[] v, |Err?, Obj[]?| f)
+  {
+echo("~~~~ doLoadListAsync: $v")
+throw Err("TODO")
+  }
+
 }
 
 **************************************************************************

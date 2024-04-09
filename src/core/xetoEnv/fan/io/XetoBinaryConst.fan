@@ -21,7 +21,7 @@ mixin XetoBinaryConst
   static const Int version       := 0x2023_08
   static const Int magicLib      := 0x6c69627b   // lib{
   static const Int magicLibEnd   := 0x7d6c6962   // }lib
-  static const Int magicReg      := 0x7265673a   // reg:
+  static const Int magicLibVer   := 0x7265673a   // reg:
   static const Int specOwnOnly   := ';'          // encoding own meta/slots only
   static const Int specInherited := '+'          // encoding inherited too (for and/or)
 
@@ -54,3 +54,4 @@ mixin XetoBinaryConst
   static const Int ctrlCoord        := 27
   static const Int ctrlSymbol       := 28
 }
+

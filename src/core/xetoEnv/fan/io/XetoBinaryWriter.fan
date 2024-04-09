@@ -40,16 +40,16 @@ class XetoBinaryWriter : XetoBinaryConst
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Remote Env Bootstrap
+// Remote Namespace Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  Void writeBoot(XetoEnv env, Lib[] libs)
+  Void writeBoot(MNamespace ns)
   {
     writeI4(magic)
     writeI4(version)
     writeNameTable
-    writeRegistry(libs)
-    writeLib(env.sysLib)
+    writeLibVersions(ns.versions)
+    writeLib(ns.sysLib)
     out.writeI4(magicEnd)
     return this
   }
@@ -62,21 +62,22 @@ class XetoBinaryWriter : XetoBinaryConst
       out.writeUtf(names.toName(i))
   }
 
-  private Void writeRegistry(Lib[] libs)
+  private Void writeLibVersions(LibVersion[] vers)
   {
-    writeVarInt(libs.size)
-    libs.each |lib|
+    writeVarInt(vers.size)
+    vers.each |ver|
     {
-      writeRegistryEntry(lib)
+      writeLibVersion(ver)
     }
   }
 
-  private Void writeRegistryEntry(XetoLib lib)
+  private Void writeLibVersion(LibVersion v)
   {
-    writeI4(magicReg)
-    writeName(lib.m.nameCode)
-    writeVarInt(lib.depends.size)
-    lib.depends.each |d| { writeName(names.toCode(d.name)) }
+    writeI4(magicLibVer)
+    writeName(names.toCode(v.name))
+    writeVersion(v.version)
+    writeVarInt(v.depends.size)
+    v.depends.each |d| { writeName(names.toCode(d.name)) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -497,3 +498,4 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
   private const Int maxNameCode
   private OutStream out
 }
+

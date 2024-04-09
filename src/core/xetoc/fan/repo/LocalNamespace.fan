@@ -18,12 +18,14 @@ using haystack::Etc
 const class LocalNamespace : MNamespace
 {
   new make(NameTable names, LibVersion[] versions, LibRepo repo)
-    : super(names, versions)
+    : super(names, versions, null)
   {
     this.repo = repo
   }
 
   const LibRepo repo
+
+  override Bool isRemote() { false }
 
 //////////////////////////////////////////////////////////////////////////
 // Loading

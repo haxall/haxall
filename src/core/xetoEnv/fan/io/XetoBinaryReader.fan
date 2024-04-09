@@ -46,17 +46,17 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  internal RemoteEnv readBoot(RemoteLibLoader? libLoader)
+  internal RemoteNamespace readBoot(RemoteLibLoader? libLoader)
   {
     verifyU4(magic, "magic")
     verifyU4(version, "version")
     readNameTable
-    registry := readRegistry(libLoader)
-    return RemoteEnv(io, names, registry) |env|
+    libVersions := readLibVersions(libLoader)
+    return RemoteNamespace(io, names, libVersions) |ns->XetoLib|
     {
-      sys := readLib(env)
-      registry.map["sys"].set(sys)
+      sysLib := readLib(ns)
       verifyU4(magicEnd, "magicEnd")
+      return sysLib
     }
   }
 
@@ -67,48 +67,45 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       names.add(in.readUtf)
   }
 
-  private RemoteRegistry readRegistry(RemoteLibLoader? libLoader)
+  private LibVersion[] readLibVersions(RemoteLibLoader? libLoader)
   {
     num := readVarInt
-    acc := RemoteRegistryEntry[,]
+    acc := LibVersion[,]
     acc.capacity = num
-    num.times
-    {
-      acc.add(readRegistryEntry)
-    }
-
-    return RemoteRegistry(acc, libLoader)
+    num.times { acc.add(readLibVersion) }
+    return acc
   }
 
-  private RemoteRegistryEntry readRegistryEntry()
+  private LibVersion readLibVersion()
   {
-    verifyU4(magicReg, "magic register entry")
+    verifyU4(magicLibVer, "magic lib version")
 
     name := names.toName(readName)
+    version := (Version)readVal
 
     dependsSize := readVarInt
-    depends := Str[,]
+    depends := LibDepend[,]
     depends.capacity = dependsSize
     dependsSize.times
     {
-      depends.add(names.toName(readName))
+      depends.add(LibDepend(names.toName(readName)))
     }
 
-    return RemoteRegistryEntry(name, depends)
+    return RemoteLibVersion(name, version, depends)
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Lib
 //////////////////////////////////////////////////////////////////////////
 
-  XetoLib readLib(RemoteEnv env)
+  XetoLib readLib(MNamespace ns)
   {
     lib := XetoLib()
 
     verifyU4(magicLib, "magicLib")
     nameCode  := readName
     meta      := readMeta
-    loader    := RemoteLoader(env, nameCode, meta)
+    loader    := RemoteLoader(ns, nameCode, meta)
     readTops(loader)
     readInstances(loader)
     verifyU4(magicLibEnd, "magicLibEnd")
@@ -255,7 +252,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlSpecRef:      return readSpecRef // resolve to Spec later
       case ctrlList:         return readList
       case ctrlGrid:         return readGrid
-      case ctrlVersion:      return Version.fromStr(readUtf)
+      case ctrlVersion:      return readVersion
       case ctrlCoord:        return readCoord
       case ctrlSymbol:       return readSymbol
       default:               throw IOErr("obj ctrl 0x$ctrl.toHex")
@@ -360,6 +357,11 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     return gb.toGrid
   }
 
+  private Version readVersion()
+  {
+    Version.fromStr(readUtf)
+  }
+
   override Int readName()
   {
     code := readVarInt
@@ -454,3 +456,4 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   private const NameTable names
   private InStream in
 }
+

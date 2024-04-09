@@ -23,10 +23,10 @@ internal class RemoteLoader
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(RemoteEnv env, Int libNameCode, MNameDict libMeta)
+  new make(MNamespace ns, Int libNameCode, MNameDict libMeta)
   {
-    this.env         = env
-    this.names       = env.names
+    this.ns          = ns
+    this.names       = ns.names
     this.libName     = names.toName(libNameCode)
     this.libNameCode = libNameCode
     this.libMeta     = libMeta
@@ -101,7 +101,7 @@ internal class RemoteLoader
   private Void loadFactories()
   {
     // find a loader for our library
-    loader := env.factories.loaders.find |x| { x.canLoad(libName) }
+    loader := ns.factories.loaders.find |x| { x.canLoad(libName) }
     if (loader == null) return
 
     // if we have a loader, give it my type names to map to factories
@@ -116,14 +116,14 @@ internal class RemoteLoader
       custom := factories?.get(x.name)
       if (custom != null)
       {
-        env.factories.map(custom.type, x.qname, x.asm)
+        ns.factories.map(custom.type, x.qname, x.asm)
         return custom
       }
     }
 
     // fallback to dict/scalar factory
     isScalar := MSpecFlags.scalar.and(x.flags) != 0
-    return isScalar ? env.factories.scalar : env.factories.dict
+    return isScalar ? ns.factories.scalar : ns.factories.dict
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -235,7 +235,7 @@ internal class RemoteLoader
     // merge in my own meta
     XetoUtil.addOwnMeta(acc, own)
 
-    return MNameDict(env.names.dictMap(acc))
+    return MNameDict(names.dictMap(acc))
   }
 
   private MSlots inheritSlots(RSpec x)
@@ -341,7 +341,7 @@ internal class RemoteLoader
   private XetoSpec resolveExternal(RSpecRef ref)
   {
     // should already be loaded
-    lib := env.lib(names.toName(ref.lib))
+    lib := ns.lib(names.toName(ref.lib))
     type := (XetoSpec)lib.spec(names.toName(ref.type))
     if (ref.slot == 0) return type
 
@@ -355,7 +355,7 @@ internal class RemoteLoader
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const RemoteEnv env
+  const MNamespace ns
   const NameTable names
   const FileLoc loc := FileLoc("remote")
   const XetoLib lib := XetoLib()

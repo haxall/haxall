@@ -20,7 +20,7 @@ using haystack::UnknownSpecErr
 @Js
 abstract const class MNamespace : LibNamespace
 {
-  new make(NameTable names, LibVersion[] versions)
+  new make(NameTable names, LibVersion[] versions, |This->XetoLib|? loadSys)
   {
     // order versions by depends - also checks all internal constraints
     versions = LibVersion.orderByDepends(versions)
@@ -35,12 +35,25 @@ abstract const class MNamespace : LibNamespace
       list.add(entry)
       map.add(x.name, entry)
     }
-
     this.names       = names
     this.entriesList = list
     this.entriesMap  = map
-    this.sysLib      = lib("sys")
-    this.sys         = MSys(sysLib)
+
+    // load sys library
+    if (loadSys == null)
+    {
+      // local ns does normal sync load
+      this.sysLib = lib("sys")
+    }
+    else
+    {
+      // remote ns uses callback to read from boot buffer
+      this.sysLib = loadSys(this)
+      entry("sys").setOk(this.sysLib)
+    }
+
+    // now we can initialize sys fast lookups
+    this.sys = MSys(sysLib)
   }
 
 //////////////////////////////////////////////////////////////////////////

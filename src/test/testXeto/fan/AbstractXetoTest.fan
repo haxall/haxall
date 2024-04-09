@@ -21,24 +21,28 @@ using xetoEnv
 @Js
 class AbstractXetoTest : HaystackTest
 {
-  Void verifyAllEnvs(Str lib, |XetoEnv| f)
+  Void verifyLocalAndRemote(Str[] libs, |LibNamespace ns| f)
   {
-    // first test local
-    envRef = XetoEnv.cur
-    verifyEq(env.isRemote, false)
-    env.lib(lib)
-    f(env)
+    // first test local server
+    server := TestServer(createNamespace(libs))
+    verifyEq(server.ns.isRemote, false)
+    f(server.ns)
 
-    // test remote
-    envRef = initRemote
-    verifyEq(env.isRemote, true)
+    // setup remote client
+    client := TestClient(server)
+    client.boot
+    verifyEq(client.ns.isRemote, true)
+
+    f(client.ns)
 
     // make sure sure lib is loaded
+    /*
     env.libAsync(lib) |e, x|
     {
       if (e != null) throw e
       f(env)
     }
+    */
   }
 
   XetoEnv env()
@@ -86,7 +90,8 @@ class AbstractXetoTest : HaystackTest
 
   static Dict nameDictEmpty() { MNameDict.empty }
 
-  RemoteEnv initRemote()
+/*
+  RemoteNamespace initRemote()
   {
     local := XetoEnv.cur
     server := TestServer(local)
@@ -100,6 +105,7 @@ class AbstractXetoTest : HaystackTest
 
     return env
   }
+*/
 
   Void verifyFitsExplain(LibNamespace ns, Obj? val, Spec spec, Str[] expected)
   {
@@ -140,13 +146,13 @@ class TextContext : XetoContext
 @Js
 const class TestServer
 {
-  new make(MEnv env)
+  new make(LibNamespace ns)
   {
-    this.env = env
-    this.io  = XetoBinaryIO.makeServer(env)
+    this.ns = ns
+    this.io = XetoBinaryIO.makeServer(ns)
   }
 
-  const MEnv env
+  const LibNamespace ns
   const XetoBinaryIO io
 }
 
@@ -161,33 +167,32 @@ const class TestClient : RemoteLibLoader
 
   const TestServer server
 
-  RemoteEnv? env() { envRef.val }
-  const AtomicRef envRef := AtomicRef()
+  RemoteNamespace? ns() { nsRef.val }
+  const AtomicRef nsRef := AtomicRef()
 
-  XetoBinaryIO io() { env.io }
+  XetoBinaryIO io() { ns.io }
 
-  RemoteEnv bootRemoteEnv()
+  RemoteNamespace boot()
   {
     buf := Buf()
-    libs := server.env.registry.list.findAll { it.isLoaded }.map { it.get }
-    server.io.writer(buf.out).writeBoot(server.env, libs)
-    // echo("--- init remote bootstrap size = $buf.size bytes ---")
+    server.io.writer(buf.out).writeBoot(server.ns)
+echo("--- init remote bootstrap size = $buf.size bytes ---")
 
-    env := RemoteEnv.boot(buf.flip.in, this)
-    envRef.val = env
-    return env
+    ns := RemoteNamespace.boot(buf.flip.in, this)
+    nsRef.val = ns
+    return ns
   }
 
   override Void loadLib(Str name, |Err?, Lib?| f)
   {
-    serverLib := server.env.lib(name, false)
+    serverLib := server.ns.lib(name, false)
     if (serverLib == null) { f(UnknownLibErr(name), null); return }
 
     buf := Buf()
     server.io.writer(buf.out).writeLib(serverLib)
     echo("   --- load lib $name size = $buf.size bytes ---")
 
-    clientLib := io.reader(buf.flip.in).readLib(env)
+    clientLib := io.reader(buf.flip.in).readLib(ns)
     f(null, clientLib)
   }
 }
