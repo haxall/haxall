@@ -44,25 +44,12 @@ const class LocalNamespace : MNamespace
     return c.compileLib
   }
 
-  override Void doLoadListAsync(LibVersion[] versions, |Err?, Obj[]?| f)
+  override Void doLoadAsync(LibVersion version, |Err?, Obj?| f)
   {
     try
-    {
-      acc := Obj[,]
-      acc.capacity = versions.size
-      versions.each |version|
-      {
-        try
-          acc.add(doLoadSync(version))
-        catch (Err e)
-          acc.add(e)
-      }
-      f(null, acc)
-    }
+      f(null, doLoadSync(version))
     catch (Err e)
-    {
-      f(e, null)
-    }
+      f(null, e)
   }
 
 //////////////////////////////////////////////////////////////////////////

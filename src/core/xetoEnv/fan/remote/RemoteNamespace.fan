@@ -51,37 +51,10 @@ const class RemoteNamespace : MNamespace
     throw UnsupportedErr("Must use libAsync [$v]")
   }
 
-  override Void doLoadListAsync(LibVersion[] v, |Err?, Obj[]?| f)
-  {
-    acc := Obj?[,]
-    doLoadListAsyncRecursive(v, 0, acc, f)
-  }
-
-  private Void doLoadListAsyncRecursive(LibVersion[] vers, Int index, Obj?[] acc, |Err?, Obj[]?| f)
+  override Void doLoadAsync(LibVersion v, |Err?, Obj?| f)
   {
     if (libLoader == null) throw UnsupportedErr("No RemoteLibLoader installed")
-
-    // load from pluggable loader
-    libLoader.loadLib(vers[index].name) |err, libOrErr|
-    {
-      // handle error
-      if (err != null)
-      {
-        f(err, null)
-        return
-      }
-
-      // add to our results accumulator
-      acc.add(libOrErr)
-
-      // recursively load the next library in our flattened
-      // depends list or if last one then invoke the callback
-      index++
-      if (index < vers.size)
-        doLoadListAsyncRecursive(vers, index, acc, f)
-      else
-        f(null, acc)
-    }
+    libLoader.loadLib(v.name, f)
   }
 }
 

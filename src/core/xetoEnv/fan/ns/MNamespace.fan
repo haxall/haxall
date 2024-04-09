@@ -154,6 +154,7 @@ abstract const class MNamespace : LibNamespace
 
   private Void loadSyncWithDepends(MLibEntry entry)
   {
+// TODO: this aren't necessarily in the right order
     entry.version.depends.each |depend|
     {
       if (entry.status.isNotLoaded)
@@ -197,7 +198,11 @@ abstract const class MNamespace : LibNamespace
       if (e.status.isNotLoaded) toLoad.add(e.version)
     }
 
-    loadListAsync(toLoad) |err, list| { f(err, libsRef.val) }
+    loadListAsync(toLoad) |err|
+    {
+      if (err != null) f(err, null)
+      else f(null, libsRef.val)
+    }
   }
 
   private Void loadAsyncWithDepends(MLibEntry e, |Err?, Lib?| f)
@@ -213,38 +218,45 @@ abstract const class MNamespace : LibNamespace
     // and load myself as last in list
     toLoad.add(e.version)
 
-    loadListAsync(toLoad) |err, list| { f(err, list.last) }
+    loadListAsync(toLoad) |err|
+    {
+      if (err != null) f(err, null)
+      else f(null, e.get)
+    }
   }
 
-  private Void loadListAsync(LibVersion[] toLoad, |Err?, Lib[]?| f)
+  private Void loadListAsync(LibVersion[] toLoad, |Err?| f)
   {
-    acc := Lib[,]
-    doLoadListAsync(toLoad) |err, results|
-    {
-      // if whole operation failed
-      if (err != null) { f(err, null); return }
+    doLoadListAsync(toLoad, 0, f)
+  }
 
-      // otherwise results is list of Lib/Err in same order as toLoad
-      results.each |r, i|
+  private Void doLoadListAsync(LibVersion[] toLoad, Int index, |Err?| f)
+  {
+    // load from pluggable loader
+    doLoadAsync(toLoad[index]) |err, libOrErr|
+    {
+      // handle top-level error
+      if (err != null)
       {
-        e := entry(toLoad[i].name)
-        lib := r as XetoLib
-        if (lib != null)
-        {
-          acc.add(lib)
-          e.setOk(lib)
-        }
-        else
-        {
-          e.setErr(r)
-        }
+        f(err)
+        return
       }
 
-      // check if all libs should be loaded
-      checkAllLoaded
+      // update entry
+      e := entry(toLoad[index].name)
+      lib := libOrErr as XetoLib
+      if (lib != null)
+        e.setOk(lib)
+      else
+        e.setErr(libOrErr)
 
-      // callback with the libs successfully loaded
-      f(null, acc)
+      // recursively load next lib
+      index++
+      if (index < toLoad.size) return doLoadListAsync(toLoad, index, f)
+
+      // we loaded all of them, now finish and invoke final callback
+      checkAllLoaded
+      f(null)
     }
   }
 
@@ -252,9 +264,9 @@ abstract const class MNamespace : LibNamespace
   ** loaed then raise exception to the caller of this method.
   abstract XetoLib doLoadSync(LibVersion v)
 
-  ** Load a list of versions asynchronously and return a list
-  ** of Lib or Err in the same order as the versions
-  abstract Void doLoadListAsync(LibVersion[] v, |Err?, Obj[]?| f)
+  ** Load a list of versions asynchronously and return result
+  ** of either a XetoLib or Err (is error on server)
+  abstract Void doLoadAsync(LibVersion v, |Err?, Obj?| f)
 
 //////////////////////////////////////////////////////////////////////////
 // Lookups
