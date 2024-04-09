@@ -334,7 +334,9 @@ echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
   private This writeVersion(Version val)
   {
     write(ctrlVersion)
-    writeUtf(val.toStr)
+    segs := val.segments
+    writeVarInt(segs.size)
+    for (i:=0; i<segs.size; ++i) writeVarInt(segs[i])
     return this
   }
 

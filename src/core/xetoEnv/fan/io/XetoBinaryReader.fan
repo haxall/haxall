@@ -359,7 +359,11 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Version readVersion()
   {
-    Version.fromStr(readUtf)
+    size := readVarInt
+    segs := Int[,]
+    segs.capacity = size
+    for (i:=0; i<size; ++i) segs.add(readVarInt)
+    return Version(segs)
   }
 
   override Int readName()
