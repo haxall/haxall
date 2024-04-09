@@ -172,6 +172,13 @@ const mixin LibNamespace
   ** If the data is not a Dict nor list of Dicts, then raise an exception.
   abstract Dict[] compileDicts(Str src, Dict? opts := null)
 
+  ** Write instance data in Xeto text format to an output stream.  If the
+  ** value is a Dict[], then it is flattened in the output.  Use `compileData`
+  ** to read data from Xeto text format.
+  abstract Void writeData(OutStream out, Obj val, Dict? opts := null)
+
+  ** Pretty print object to output stream.
+  @NoDoc abstract Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
 
 }
 

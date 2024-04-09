@@ -89,6 +89,11 @@ const class HxdFolioHooks : FolioHooks
       rt.nsOverlayRecompile
     }
 
+    if (diff.getOld("using") != null || diff.getNew("using") != null)
+    {
+      rt.nsBaseRecompile
+    }
+
     rt.obs.commit(diff, user)
   }
 
@@ -98,3 +103,4 @@ const class HxdFolioHooks : FolioHooks
     rt.obs.hisWrite(e.rec, e.result, e.cxInfo as HxUser)
   }
 }
+

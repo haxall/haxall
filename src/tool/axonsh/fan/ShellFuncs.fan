@@ -158,6 +158,9 @@ const class ShellFuncs
   {
     out := cx.out
 
+out.printLine("TODO")
+throw Err()
+/*
     if (name == "*")
     {
       cx.usings.env.registry.list.each |x| { _using(x.name) }
@@ -174,6 +177,7 @@ const class ShellFuncs
     out.printLine
     cx.usings.libNames.sort.each |x| { out.printLine(x) }
     out.printLine
+*/
     return noEcho
   }
 
@@ -321,5 +325,4 @@ const class ShellFuncs
   }
 
 }
-
 

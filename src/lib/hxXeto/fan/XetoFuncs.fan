@@ -46,7 +46,7 @@ const class XetoFuncs
       if (!id.startsWith("lib:")) throw ArgErr("Invalid ref format: $id")
       name = id[4..-1]
     }
-    return curContext.usings.env.lib(name, checked)
+    return curContext.xeto.lib(name, checked)
   }
 
   **
@@ -67,13 +67,10 @@ const class XetoFuncs
     if (scope !== Literal.nullVal)
       filter = scope.evalToFilter(cx)
 
-    env := cx.usings.env
-    libSpecRef := Ref("sys::Lib")
-    return env.registry.list.mapNotNull |entry->Dict?|
+    return cx.xeto.libs.mapNotNull |Dict lib->Dict?|
     {
-      dict := entry.isLoaded ? entry.get : Etc.dict2("id", Ref("lib:$entry.name"), "spec", libSpecRef)
-      if (filter != null && !filter.matches(dict, cx)) return null
-      return dict
+      if (filter != null && !filter.matches(lib, cx)) return null
+      return lib
     }
   }
 
@@ -91,7 +88,7 @@ const class XetoFuncs
   **
   @Axon static Spec? spec(Obj qname, Bool checked := true)
   {
-    curContext.usings.env.spec(qname.toStr, checked)
+    curContext.xeto.spec(qname.toStr, checked)
   }
 
   **
@@ -157,13 +154,10 @@ const class XetoFuncs
   private static Spec[] typesInScope(HxContext cx, |Spec->Bool|? filter := null)
   {
     acc := Spec[,]
-    cx.usings.libs.each |lib|
+    cx.xeto.eachType |x|
     {
-      lib.types.each |x|
-      {
-        if (filter != null && !filter(x)) return
-        acc.add(x)
-      }
+      if (filter != null && !filter(x)) return
+      acc.add(x)
     }
 
     vars := Str:Spec[:]
@@ -191,7 +185,7 @@ const class XetoFuncs
   **
   @Axon static Dict? instance(Obj qname, Bool checked := true)
   {
-    curContext.usings.env.instance(qname.toStr, checked)
+    curContext.xeto.instance(qname.toStr, checked)
   }
 
   **
@@ -254,7 +248,7 @@ const class XetoFuncs
   private static Dict[] instancesInScope(HxContext cx, Filter? filter)
   {
     acc := Dict[,]
-    cx.usings.libs.each |lib|
+    cx.xeto.libs.each |lib|
     {
       lib.instances.each |x|
       {
@@ -289,7 +283,7 @@ const class XetoFuncs
   **
   @Axon static Obj? instantiate(Spec spec, Dict? opts := null)
   {
-    curContext.usings.ns.instantiate(spec, opts)
+    curContext.xeto.instantiate(spec, opts)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -382,6 +376,7 @@ const class XetoFuncs
 // AST
 //////////////////////////////////////////////////////////////////////////
 
+/* TODO
   **
   ** Build an AST tree of dict, lists, and strings of the effective
   ** meta and slots for the given spec.
@@ -390,7 +385,7 @@ const class XetoFuncs
   **
   @Axon static Dict specAst(Spec spec)
   {
-    curContext.usings.env.genAst(spec, Etc.dict0)
+    curContext.xeto.genAst(spec, Etc.dict0)
   }
 
   **
@@ -401,8 +396,9 @@ const class XetoFuncs
   **
   @Axon static Dict specAstOwn(Spec spec)
   {
-    curContext.usings.env.genAst(spec, Etc.dict1("own", Marker.val))
+    curContext.xeto.genAst(spec, Etc.dict1("own", Marker.val))
   }
+*/
 
 //////////////////////////////////////////////////////////////////////////
 // If/Fits
@@ -421,7 +417,7 @@ const class XetoFuncs
   **
   @Axon static Spec? specOf(Obj? val, Bool checked := true)
   {
-    curContext.usings.env.specOf(val, checked)
+    curContext.xeto.specOf(val, checked)
   }
 
   **
@@ -453,7 +449,7 @@ const class XetoFuncs
   **
   @Axon static Bool specFits(Spec a, Spec b)
   {
-    curContext.usings.ns.specFits(a, b, null)
+    curContext.xeto.specFits(a, b, null)
   }
 
   **
@@ -473,7 +469,7 @@ const class XetoFuncs
   **
   @Axon static Bool _is(Obj? val, Spec spec)
   {
-    curContext.usings.env.specOf(val).isa(spec)
+    curContext.xeto.specOf(val).isa(spec)
   }
 
   **
@@ -489,7 +485,7 @@ const class XetoFuncs
   **
   @Axon static Spec? choiceOf(Obj instance, Spec choice, Bool checked := true)
   {
-    curContext.usings.ns.choiceOf(Etc.toRec(instance), choice, checked)
+    curContext.xeto.choiceOf(Etc.toRec(instance), choice, checked)
   }
 
   **
@@ -506,7 +502,7 @@ const class XetoFuncs
   @Axon static Bool fits(Obj? val, Spec spec)
   {
     cx := curContext
-    return cx.usings.ns.fits(cx, val, spec, null)
+    return cx.xeto.fits(cx, val, spec, null)
   }
 
   **
@@ -519,7 +515,7 @@ const class XetoFuncs
     gb := GridBuilder().addCol("msg")
     explain := |XetoLogRec rec| { gb.addRow1(rec.msg) }
     opts := Etc.dict1("explain", Unsafe(explain))
-    curContext.usings.ns.specFits(a, b, opts)
+    curContext.xeto.specFits(a, b, opts)
     return gb.toGrid
   }
 
@@ -541,7 +537,7 @@ const class XetoFuncs
   static Grid fitsExplain(Obj? recs, Spec? spec)
   {
     cx := curContext
-    ns := cx.usings.ns
+    ns := cx.xeto
     hits := XetoLogRec[,]
     explain := |XetoLogRec rec| { hits.add(rec) }
     opts := Etc.dict1("explain", Unsafe(explain))
@@ -605,7 +601,7 @@ const class XetoFuncs
   {
     // if specs not specific, get all in scope
     cx := curContext
-    dictSpec := cx.usings.env.dictSpec // TODO - make isDict work for AND types
+    dictSpec := cx.xeto.spec("sys::Dict") // TODO - make isDict work for AND types
     if (specs == null)
       specs = typesInScope(cx) |t| { !t.qname.startsWith("sys::") && t.isa(dictSpec) && t.missing("abstract") }
 
@@ -622,7 +618,7 @@ const class XetoFuncs
   private static Spec[] doFitsMatchAll(HxContext cx, Dict rec, Spec[] specs)
   {
     // first pass is fit each type
-    ns := cx.usings.ns
+    ns := cx.xeto
     matches := specs.findAll |spec| { ns.fits(cx, rec, spec) }
 
     // second pass is to remove supertypes so we only
@@ -659,7 +655,7 @@ const class XetoFuncs
   {
     cx := curContext
     subjectRec := Etc.toRec(subject)
-    hit := cx.usings.ns.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit| { hit }
+    hit := cx.xeto.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit| { hit }
     if (hit != null) return hit
     if (checked) throw UnknownRecErr("@$subjectRec.id $spec.qname")
     return null
@@ -691,7 +687,7 @@ const class XetoFuncs
     cx := curContext
     acc := Dict[,]
     subjectRec := Etc.toRec(subject)
-    cx.usings.ns.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
+    cx.xeto.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
     {
       acc.add(hit)
       if (acc.size >= limit) return "break"
@@ -730,7 +726,7 @@ const class XetoFuncs
   @Axon static Dict queryNamed(Obj subject, Spec spec, Dict? opts := null)
   {
     cx := curContext
-    ns := cx.usings.ns
+    ns := cx.xeto
     subjectRec := Etc.toRec(subject)
     acc := Str:Dict[:]
     ns.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
@@ -760,7 +756,9 @@ const class XetoFuncs
     log := isShell ? Log.get("xeto") : cx.rt.lib("xeto").log
     log.info("XetoEnv.reload [$cx.user.username]")
     XetoEnv.reload
-    cx.usingsReload
+//    cx.usingsReload
+echo("TODO: xetoEnvReload!!!")
+throw Err("TODO")
     return isShell ? "_no_echo_" : "reloaded"
   }
 

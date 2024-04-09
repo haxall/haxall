@@ -15,12 +15,10 @@ using axon
 @Js
 abstract class AxonTest : HaystackTest
 {
-  Str[] libs := [,]
 
   AxonContext makeContext()
   {
     cx := TestContext(this)
-    libs.each |lib| { cx.usings.add(lib) }
     return cx
   }
 
@@ -105,3 +103,4 @@ internal class TestContext : AxonContext
     return core.getChecked(name, checked)
   }
 }
+

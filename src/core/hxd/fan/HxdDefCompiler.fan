@@ -319,15 +319,16 @@ internal const class HxdXetoGetter : XetoGetter
   override once xeto::LibNamespace get()
   {
     repo := xeto::LibRepo.cur
-    acc := xeto::LibVersion[,]
-    acc.add(repo.latest("sys"))
+    acc := Str:xeto::LibVersion[:]
+    acc.add("sys", repo.latest("sys"))
     rt.db.readAllList(Filter.has("using")).each |rec|
     {
       name := rec["using"] as Str
       if (name == null) return
-      acc.addNotNull(repo.latest(name, false))
+      if (acc[name] != null) rt.log.warn("Duplicate using [$name]")
+      else acc.addNotNull(name, repo.latest(name, false))
     }
-    return repo.createNamespace(acc)
+    return repo.createNamespace(acc.vals)
   }
 
 }

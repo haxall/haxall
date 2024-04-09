@@ -50,6 +50,9 @@ abstract class AxonContext : HaystackContext
   ** Definition namespace
   abstract Namespace ns()
 
+  ** Xeto namespace
+  LibNamespace xeto() { ns.xeto }
+
   ** Find top-level function by qname or name
   @NoDoc abstract Fn? findTop(Str name, Bool checked := true)
 
@@ -64,24 +67,6 @@ abstract class AxonContext : HaystackContext
 
   ** Evaluate an expression or if a filter then readAll convenience
   @NoDoc virtual Obj? evalOrReadAll(Str src) { throw UnsupportedErr() }
-
-  ** Data spec usings namespace (lazy load)
-  @NoDoc AxonUsings usings()
-  {
-    u := usingsRef
-    if (u == null) usingsRef = u = initUsings
-    return u
-  }
-
-  ** Init using imports
-  @NoDoc virtual AxonUsings initUsings() { AxonUsings() }
-
-  ** Hot reload of the XetoEnv
-  @NoDoc virtual Void usingsReload()
-  {
-    if (usingsRef != null)
-      usingsRef = AxonUsings(XetoEnv.cur, usingsRef.libNames)
-  }
 
 /////////////////////////////////////////////////////////////////////////////
 // Eval
@@ -136,10 +121,12 @@ abstract class AxonContext : HaystackContext
     if (spec == null)
     {
       if (xetoIsSpecCache == null) xetoIsSpecCache = Str:Spec[:]
-      spec = specName.contains("::") ? usings.env.spec(specName) : usings.resolve(specName)
+      spec = specName.contains("::") ?
+             xeto.type(specName) :
+             xeto.unqualifiedType(specName)
       xetoIsSpecCache[specName] = spec
     }
-    return usings.env.specOf(rec).isa(spec)
+    return xeto.specOf(rec).isa(spec)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -398,8 +385,7 @@ abstract class AxonContext : HaystackContext
   private Int timeoutTicks := Int.maxVal
   private CallFrame[] stack := [,]
   private [Str:Regex]? regex
-  private AxonUsings? usingsRef
-  private [Str:Spec]? xetoIsSpecCache
+ private [Str:Spec]? xetoIsSpecCache
 }
 
 **************************************************************************

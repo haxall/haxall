@@ -30,7 +30,6 @@ class ShellContext : HxContext
   new make(OutStream out := Env.cur.out)
   {
     this.out   = out
-    this.xeto  = XetoEnv.cur
     this.funcs = loadBuiltInFuncs
     this.rt    = ShellRuntime()
     this.user  = ShellUser()
@@ -138,7 +137,7 @@ class ShellContext : HxContext
   ** Print the value to the stdout
   Void print(Obj? val, Obj? opts := null)
   {
-    xeto.print(val, out, opts)
+    printer.print(val)
   }
 
   ** Log evaluation error
@@ -146,7 +145,7 @@ class ShellContext : HxContext
   {
     str := errToStr(msg, err)
     if (!str.endsWith("\n")) str += "\n"
-    Printer(xeto, out, Etc.dict0).warn(str)
+    printer.warn(str)
     return null
   }
 
@@ -171,7 +170,7 @@ class ShellContext : HxContext
   OutStream out { private set }
 
   ** Create Xeto printer for output stream
-  Printer printer() { Printer(xeto, out, Etc.dict0) }
+  Printer printer() { Printer(XetoEnv.cur, out, Etc.dict0) }
 
   ** Flag to terminate the interactive loop
   Bool isDone := false
@@ -295,12 +294,6 @@ class ShellContext : HxContext
   {
     File(uri, false)
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Usings
-//////////////////////////////////////////////////////////////////////////
-
-  const XetoEnv xeto
 
 }
 

@@ -48,14 +48,14 @@ internal const class SpecTypeRef : SpecExpr
   override Spec? eval(AxonContext cx)
   {
     // qualified type
-    if (lib != null) return cx.usings.env.lib(lib).type(name)
+    if (lib != null) return cx.xeto.lib(lib).type(name)
 
     // try local varaible definition
     local := cx.getVar(name) as Spec
     if (local != null) return local
 
     // resolve from usings
-    return cx.usings.resolve(name)
+    return cx.xeto.unqualifiedType(name)
   }
 
   override Printer print(Printer out)
@@ -164,7 +164,7 @@ internal const class SpecDerive : SpecExpr
     base  := base.eval(cx)
     meta  := evalMeta(cx)
     slots := evalSlots(cx)
-    return cx.usings.ns.derive(name, base, meta, slots)
+    return cx.xeto.derive(name, base, meta, slots)
   }
 
   private Dict evalMeta(AxonContext cx)
