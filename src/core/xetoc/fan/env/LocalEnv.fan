@@ -24,6 +24,7 @@ internal const class LocalEnv : MEnv
 
   override const LocalRegistry registry
 
+/*
   override Lib compileLib(Str src, Dict? opts := null)
   {
     if (opts == null) opts = dict0
@@ -62,6 +63,7 @@ internal const class LocalEnv : MEnv
     }
     return c.compileData
   }
+*/
 
   override Void dump(OutStream out := Env.cur.out)
   {

@@ -309,7 +309,7 @@ class CompileTest : AbstractXetoTest
              }
            }
 
-           |>, dict1("register", m))
+           |>)
 
     spec := lib.type("Person")
 
@@ -334,7 +334,6 @@ class CompileTest : AbstractXetoTest
     verifyEq(lib.instances.containsSame(x), true)
     verifyRefEq(x->id, id)
     verifyDictEq(x, expect.dup.set("id", id).set("spec", Ref(spec.qname)))
-    verifySame(env.specOf(x), spec)
     return x
   }
 

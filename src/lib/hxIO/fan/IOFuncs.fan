@@ -397,7 +397,7 @@ const class IOFuncs
   {
     toHandle(handle).withIn |in|
     {
-      HxContext.curHx.usings.env.compileData(in.readAllStr, opts)
+      HxContext.curHx.usings.ns.compileData(in.readAllStr, opts)
     }
   }
 
@@ -995,3 +995,4 @@ const class IOFuncs
     HxContext.curHx
   }
 }
+

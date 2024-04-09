@@ -31,10 +31,11 @@ const class LocalNamespace : MNamespace
 
   override XetoLib doLoadSync(LibVersion v)
   {
-    /* TODO
+    /*
     c := XetoCompiler
     {
-      it.env     = XetoEnv.cur
+it.env     = XetoEnv.cur
+      it.ns      = this
       it.libName = v.name
       it.input   = v.file
       //it.zipOut  = entry.zip
@@ -85,24 +86,22 @@ const class LocalNamespace : MNamespace
 
     c := XetoCompiler
     {
-//      it.env     = this
+it.env     = XetoEnv.cur
+      it.ns      = this
       it.libName = libName
       it.input   = src.toBuf.toFile(`temp.xeto`)
       it.applyOpts(opts)
     }
 
-    lib := c.compileLib
-
-//    if (opts.has("register")) registry.addTemp(lib)
-
-    return lib
+    return c.compileLib
   }
 
   override Obj? compileData(Str src, Dict? opts := null)
   {
     c := XetoCompiler
     {
-//      it.env = this
+it.env     = XetoEnv.cur
+      it.ns    = this
       it.input = src.toBuf.toFile(`parse.xeto`)
       it.applyOpts(opts)
     }

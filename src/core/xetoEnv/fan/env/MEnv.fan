@@ -161,6 +161,7 @@ abstract const class MEnv : XetoEnv
     return null
   }
 
+/*
   override Dict[] compileDicts(Str src, Dict? opts := null)
   {
     val := compileData(src, opts)
@@ -168,6 +169,7 @@ abstract const class MEnv : XetoEnv
     if (val is Dict) return Dict[val]
     throw IOErr("Expecting Xeto dict data, not ${val?.typeof}")
   }
+*/
 
   override Void writeData(OutStream out, Obj val, Dict? opts := null)
   {

@@ -588,7 +588,7 @@ class AxonTest : HxTest
   {
     libs = ["ph"]
 
-   site := addRec(["id":Ref("site"), "site":m])
+    site := addRec(["id":Ref("site"), "site":m])
 
     ahu       := addRec(["id":Ref("ahu"), "dis":"AHU", "ahu":m, "equip":m, "siteRef":site.id])
       mode    := addRec(["id":Ref("mode"), "dis":"Mode", "hvacMode":m, "kind":"Str","point":m, "equipRef":ahu.id, "siteRef":site.id])
@@ -614,7 +614,7 @@ class AxonTest : HxTest
     verifyEvalErr("query($drun.id.toCode, Equip.points, true)", UnknownRecErr#)
 
     // compile some types with query constraints
-    lib := env.compileLib(
+    lib := compileLib(
       Str<|pragma: Lib < version: 0.0.0, depends: { { lib:"sys" }, { lib:"ph" } } >
            Ahu1: ph::Equip {
              points: {
@@ -750,6 +750,11 @@ class AxonTest : HxTest
     cx := super.makeContext(user)
     libs.each |x| { cx.usings.add(x) }
     return cx
+  }
+
+  xeto::Lib compileLib(Str str)
+  {
+throw Err("TODO")
   }
 
   Void verifyEval(Str expr, Obj? expect)

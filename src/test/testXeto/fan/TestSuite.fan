@@ -176,14 +176,16 @@ class DataTestCase
 
   Void compileLib(Str src)
   {
-    this.libRef = compile |opts| { env.compileLib(src, opts) }
+    ns := LibRepo.cur.bootNamespace
+    this.libRef = compile |opts| { ns.compileLib(src, opts) }
     if (runner.verbose && libRef != null) env.print(env.genAst(libRef), Env.cur.out, Etc.dict1("json", Marker.val))
     //env.print(libRef)
   }
 
   Void compileData(Str src)
   {
-     this.dataRef = compile |opts| { env.compileData(src, opts) }
+    ns := LibRepo.cur.bootNamespace
+    this.dataRef = compile |opts| { ns.compileData(src, opts) }
   }
 
   private Obj? compile(|Dict opts->Obj| f)

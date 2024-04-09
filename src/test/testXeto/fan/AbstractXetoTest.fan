@@ -71,9 +71,20 @@ class AbstractXetoTest : HaystackTest
     return repo.createNamespace(vers)
   }
 
-  Lib compileLib(Str s, Dict? opts := null) { env.compileLib(s, opts) }
+  Lib compileLib(Str s, Dict? opts := null)
+  {
+    LibRepo.cur.bootNamespace.compileLib(s, opts)
+  }
 
-  Obj? compileData(Str s, Dict? opts := null) { env.compileData(s, opts) }
+  Obj? compileData(Str s, Dict? opts := null)
+  {
+    LibRepo.cur.bootNamespace.compileData(s, opts)
+  }
+
+  Dict[] compileDicts(Str s, Dict? opts := null)
+  {
+    LibRepo.cur.bootNamespace.compileDicts(s, opts)
+  }
 
   static Dict nameDictEmpty() { MNameDict.empty }
 

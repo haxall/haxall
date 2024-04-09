@@ -32,6 +32,7 @@ const class RemoteEnv : MEnv
 
   override Bool isRemote() { true }
 
+/*
   override Lib compileLib(Str src, Dict? opts := null)
   {
     throw UnsupportedErr()
@@ -41,6 +42,7 @@ const class RemoteEnv : MEnv
   {
     throw UnsupportedErr()
   }
+*/
 
   override Void dump(OutStream out := Env.cur.out)
   {

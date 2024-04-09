@@ -22,6 +22,8 @@ abstract internal class Step
 
   LocalEnv env() { compiler.env }
 
+  LibNamespace? ns() { compiler.ns }
+
   NameTable names() { compiler.names }
 
   MFactories factories() { env.factories }

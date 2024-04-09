@@ -36,6 +36,9 @@ internal class XetoCompiler
   ** Environment
   LocalEnv? env
 
+  ** Namespace used for depends resolution
+  LibNamespace? ns
+
   ** Names table to use, initialized from namespace
   NameTable? names
 

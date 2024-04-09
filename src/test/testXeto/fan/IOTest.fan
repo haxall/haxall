@@ -118,24 +118,24 @@ class IOTest : AbstractXetoTest
     env.writeData(buf.out, val)
     str := buf.flip.readAllStr
     opts := dict1("externRefs", m)
-    x = env.compileData(str, opts)
+    x = compileData(str, opts)
     verifyValEq(val, x)
 
     // compileDicts
     if (val is Dict)
     {
-      dicts := env.compileDicts(str, opts)
+      dicts := compileDicts(str, opts)
       verifyEq(dicts.size, 1)
       verifyDictEq(dicts[0], val)
     }
     else if (val is List && ((List)val).all { it is Dict })
     {
-      dicts := env.compileDicts(str, opts)
+      dicts := compileDicts(str, opts)
       verifyDictsEq(dicts, val)
     }
     else
     {
-      verifyErr(IOErr#) { env.compileDicts(str, opts) }
+      verifyErr(IOErr#) { compileDicts(str, opts) }
     }
   }
 }
