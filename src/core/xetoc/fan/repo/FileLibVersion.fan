@@ -73,8 +73,16 @@ const class FileLibVersion : LibVersion
     // depends
     depends := LibDepend#.emptyList
     dependsStr := props["depends"]?.trimToNull
-    if (dependsStr != null) depends = dependsStr.split(';').map |s->LibDepend| { LibDepend(s) }
+    if (dependsStr != null) depends = dependsStr.split(';').map |s->LibDepend| { parseDepend(s) }
     #dependsRef->setConst(this, depends.toImmutable)
+  }
+
+  private static LibDepend parseDepend(Str s)
+  {
+    sp := s.index(" ") ?: throw ParseErr("Invalid depend: $s")
+    n  := s[0..<sp].trim
+    v  := LibDependVersions(s[sp+1..-1])
+    return LibDepend(n, v)
   }
 }
 
