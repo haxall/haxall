@@ -15,20 +15,25 @@ using xeto
 const class FileLibVersion : LibVersion
 {
 
-  new make(Str name, Version version, File file, Str doc, LibDepend[]? depends)
+  new make(Str name, Version version, File file, Str? doc, LibDepend[]? depends)
   {
     this.name       = name
     this.version    = version
     this.fileRef    = file
-    this.doc        = doc
-    this.dependsRef = AtomicRef(depends?.toImmutable)
+    this.docRef     = doc
+    this.dependsRef = depends?.toImmutable
   }
 
   override const Str name
 
   override const Version version
 
-  override const Str doc
+  override Str doc()
+  {
+    if (docRef == null) loadMeta
+    return docRef
+  }
+  private const Str? docRef
 
   override File? file(Bool checked := true) { fileRef }
   const File fileRef
@@ -39,30 +44,37 @@ const class FileLibVersion : LibVersion
 
   override LibDepend[] depends()
   {
-    d := dependsRef.val
-    if (d == null) dependsRef.val = d = loadDepends.toImmutable
-    return d
+    if (dependsRef == null) loadMeta
+    return dependsRef
   }
 
-  private const AtomicRef dependsRef
+  private const LibDepend[]? dependsRef
 
-  private LibDepend[] loadDepends()
+  private Void loadMeta()
   {
-    if (name == "sys") return LibDepend#.emptyList
-
-    if (file.isDir) return parseDepends(file.plus(`lib.xeto`))
+    if (file.isDir) throw Err("src meta must be passed to make")
 
     zip := Zip.open(file)
     try
-      return parseDepends(zip.contents.getChecked(`/lib.xeto`))
+      parseMeta(zip.contents.getChecked(`/meta.props`))
     finally
       zip.close
   }
 
-  private LibDepend[] parseDepends(File f)
+  private Void parseMeta(File f)
   {
-    echo("~~ parseDepends $f")
-    return LibDepend[,]
+    // parse meta.props
+    props := f.readProps
+
+    // doc
+    doc := props["doc"] ?: ""
+    #docRef->setConst(this, doc)
+
+    // depends
+    depends := LibDepend#.emptyList
+    dependsStr := props["depends"]?.trimToNull
+    if (dependsStr != null) depends = dependsStr.split(';').map |s->LibDepend| { LibDepend(s) }
+    #dependsRef->setConst(this, depends.toImmutable)
   }
 }
 

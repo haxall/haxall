@@ -24,9 +24,11 @@ internal class OutputZip : Step
     zipFile.parent.create
     zip := Zip.write(zipFile.out)
     try
+    {
+      writeMeta(zip, "/meta.props")
       writeToZip(zip, "", srcDir)
-    finally
-      zip.close
+    }
+    finally zip.close
   }
 
   private Bool needToRun()
@@ -40,22 +42,16 @@ internal class OutputZip : Step
     return true
   }
 
-  /*
-  private DateTime? srcModified(File f)
+  private Void writeMeta(Zip zip, Str path)
   {
-    if (!f.isDir) return f.modified
-
-    DateTime? max := null
-    f.list.each |kid|
-    {
-      x := srcModified(kid)
-      if (x == null) return
-      if (max == null) max = x
-      else if (x > max) max = x
-    }
-    return max
+    meta := Str:Str[:]
+    meta.ordered = true
+    meta["name"]    = lib.name
+    meta["version"] = lib.version.toStr
+    meta["depends"] = depends.list.join(";")
+    meta["doc"]     = lib.meta.getStr("doc") ?: ""
+    zip.writeNext(path.toUri).writeProps(meta).close
   }
-  */
 
   private Void writeToZip(Zip zip, Str path, File file)
   {

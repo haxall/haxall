@@ -73,7 +73,7 @@ internal class FileRepoScanner
       if (version == null) return log.warn("Invalid xetolib filename [$f.osPath]")
 
       // add to accumulator (lazily load depends)
-      add(FileLibVersion(name, version, f, "", null))
+      add(FileLibVersion(name, version, f, null, null))
     }
   }
 

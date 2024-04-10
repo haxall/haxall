@@ -69,7 +69,8 @@ internal class RepoCmd : XetoCmd
 
   private Void listFull(LibVersion v, Str indent)
   {
-    echo(indent + "File: $v.file.osPath")
+    echo(indent + "File:   $v.file.osPath")
+    echo(indent + "Doc:    $v.doc")
     v.depends.each |d| { echo(indent + "Depend: $d" ) }
   }
 }
