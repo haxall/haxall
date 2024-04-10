@@ -53,12 +53,22 @@ internal class Resolve : Step
   private XetoLib? resolveDepend(MLibDepend d)
   {
     // resolve the library from namespace
-    lib := ns.lib(d.name, false)
-    if (lib == null)
+    libStatus := ns.libStatus(d.name, false)
+    if (libStatus == null)
     {
       err("Depend lib '$d.name' not in namespace", d.loc)
       return null
     }
+
+    // if we could not compile dependency
+    if (libStatus.isErr)
+    {
+      err("Depend lib '$d.name' could not be compiled", d.loc)
+      return null
+    }
+
+    // resolve the library from namespace
+    lib := ns.lib(d.name)
 
     // validate our version constraints
     if (!d.versions.contains(lib.version))

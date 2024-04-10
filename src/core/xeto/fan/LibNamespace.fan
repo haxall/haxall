@@ -43,8 +43,8 @@ const mixin LibNamespace
   **   - 'notLoaded': library is included but has not been loaded yet
   **   - 'ok': library is included and loaded successfully
   **   - 'err': library is included but could not be loaded
-  **   - raise exception if library is not included in this namespace
-  abstract LibStatus libStatus(Str name)
+  **   - null/exception if library not included
+  abstract LibStatus? libStatus(Str name, Bool checked := true)
 
   ** Exception for a library with lib status of 'err', or null otherwise.
   ** Raise exception is library not included in this namespace.

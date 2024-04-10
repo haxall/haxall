@@ -79,9 +79,9 @@ abstract const class MNamespace : LibNamespace
     entry(name, checked)?.version
   }
 
-  override LibStatus libStatus(Str name)
+  override LibStatus? libStatus(Str name, Bool checked := true)
   {
-    entry(name).status
+    entry(name, checked)?.status
   }
 
   override Err? libErr(Str name)

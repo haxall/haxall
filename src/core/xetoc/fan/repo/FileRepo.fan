@@ -120,6 +120,13 @@ const class FileRepo : LibRepo
     // create namespace and force all libs to be compiled
     ns := LocalNamespace(names, libs, this, buildFiles)
     ns.libs
+
+    // report which libs could not be compiled
+    ns.versions.each |v|
+    {
+      if (ns.libStatus(v.name).isErr) echo("ERROR: could not compile $v.name.toCode")
+    }
+
     return ns
   }
 
