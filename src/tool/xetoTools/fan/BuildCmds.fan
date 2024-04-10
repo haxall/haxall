@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetoEnv
 using haystack
 
 **
@@ -93,10 +94,8 @@ internal class BuildCmd : SrcLibCmd
 
   override Int process(LibRepo repo, LibVersion[] vers)
   {
-echo("### build!!!!")
-echo("### vers:")
-echo(vers.join("\n") { "$it $it.file" })
-return 0
+    repo.build(vers)
+    return 0
   }
 }
 
@@ -124,18 +123,8 @@ internal class CleanCmd : SrcLibCmd
 
   private Void clean(LibVersion v)
   {
-    srcDir := v.file
-
-    // we expect src/xeto/{name} and lib/xeto/{name}
-    srcPath := srcDir.path
-    if (srcPath.size < 4 || srcPath[-3] != "src" || srcPath[-2] != "xeto")
-    {
-      printLine("WARN: non-standard src dir [$srcDir.osPath]")
-      return
-    }
-
     // directory for all xetolibs
-    libDir := (srcDir + `../../lib/xeto/${v.name}/`).normalize
+    libDir := XetoUtil.srcToLibDir(v)
     printLine("Delete [$libDir.osPath]")
     libDir.delete
     return 0

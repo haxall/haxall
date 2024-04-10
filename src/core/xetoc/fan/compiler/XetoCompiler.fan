@@ -45,16 +45,13 @@ internal class XetoCompiler
   ** Input as in-memory file, zip file, or source directory
   File? input
 
-  ** Zip file to generate
-  File? zipOut
-
   ** Dotted name of library to compile
   Str? libName
 
-  ** If performing a build then this is list of entries to use for depends
-  [Str:LocalRegistryEntry]? build
+  ** If set, then build this libraries xetolib zip to this file
+  File? build
 
-  ** Is this a build mode compile
+  ** Are we building a xetolib zip
   Bool isBuild() { build != null }
 
 //////////////////////////////////////////////////////////////////////////
@@ -93,7 +90,7 @@ internal class XetoCompiler
       Assemble(),
       OutputZip()
     ])
-    info("Compiled xetolib [${zipOut?.osPath ?: libName}]")
+    info("Compiled xetolib [${build?.osPath ?: libName}]")
     return lib.asm
   }
 

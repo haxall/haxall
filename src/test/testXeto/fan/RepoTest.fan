@@ -473,6 +473,11 @@ internal const class TestRepo : LibRepo
     throw UnsupportedErr()
   }
 
+  override LibNamespace build(LibVersion[] libs)
+  {
+    throw UnsupportedErr()
+  }
+
   Void dump()
   {
     libs.each |lib|
@@ -497,6 +502,7 @@ internal const class TestLibVersion : LibVersion
   override const Version version
   override const LibDepend[] depends
   override Str doc() { "" }
+  override Bool isSrc() { false }
   override File? file(Bool checked := true) { throw UnsupportedErr() }
   override Str toStr() { "$name-$version" }
 }

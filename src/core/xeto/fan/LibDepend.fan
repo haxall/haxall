@@ -66,6 +66,12 @@ const mixin LibDependVersions
     MLibDependVersions.fromStr(s, checked)
   }
 
+  ** Create exact match for given version
+  static new fromVersion(Version v)
+  {
+    MLibDependVersions.makeWildcard(v.major, v.minor, v.build)
+  }
+
   ** Return if the given version satisifies this instance's constraints
   abstract Bool contains(Version version)
 }

@@ -93,12 +93,34 @@ const class FileRepo : LibRepo
 
   override LibNamespace createNamespace(LibVersion[] libs)
   {
-    LocalNamespace(names, libs, this)
+    LocalNamespace(names, libs, this, null)
   }
 
   override once LibNamespace bootNamespace()
   {
     createNamespace([latest("sys")])
+  }
+
+  override LibNamespace build(LibVersion[] build)
+  {
+    // turn verions to lib depends
+    buildAsDepends := build.map |v->LibDepend|
+    {
+      if (!v.isSrc) throw ArgErr("Not source lib: $v")
+      return LibDepend(v.name, LibDependVersions(v.version))
+    }
+
+    // solve dependency graph for full list of libs
+    libs := solveDepends(buildAsDepends)
+
+    // build map of lib name to
+    buildFiles := Str:File[:]
+    build.each |v| { buildFiles[v.name] = XetoUtil.srcToLibZip(v) }
+
+    // create namespace and force all libs to be compiled
+    ns := LocalNamespace(names, libs, this, buildFiles)
+    ns.libs
+    return ns
   }
 
 }

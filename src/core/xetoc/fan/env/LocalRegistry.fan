@@ -146,6 +146,7 @@ internal const class LocalRegistry : MRegistry
 
   XetoLib? resolve(XetoCompiler c, Str libName)
   {
+  /*
     // in build mode use build entries for depends
     if (c.isBuild)
     {
@@ -160,6 +161,7 @@ internal const class LocalRegistry : MRegistry
         return compile(entry, c.build)
       }
     }
+    */
 
     // use normal load code path
     return loadSync(libName, false)
@@ -178,8 +180,6 @@ throw Err("no longer supported $entry")
         //it.env     = this.env
         it.libName = entry.name
         it.input   = entry.src ?: entry.zip
-        it.zipOut  = entry.zip
-        it.build   = build
       }
       lib := compiler.compileLib
 

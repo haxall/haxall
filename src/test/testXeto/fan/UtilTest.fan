@@ -449,6 +449,11 @@ class UtilTest : AbstractXetoTest
     verifyDependLibVersions("3.107.x - 3.x.x", "3.109.0",   true)
     verifyDependLibVersions("3.107.x - 3.x.x", "3.999.8",   true)
     verifyDependLibVersions("3.107.x - 3.x.x", "4.0.0",     false)
+
+    v := Version("1.2.3")
+    d := LibDependVersions(v)
+    verifyEq(d.toStr, v.toStr)
+    verifyEq(d.contains(v), true)
   }
 
   Void verifyDependLibVersions(Str s, Str v, Bool expect)

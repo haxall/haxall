@@ -17,15 +17,18 @@ using haystack::Etc
 **
 const class LocalNamespace : MNamespace
 {
-  new make(NameTable names, LibVersion[] versions, LibRepo repo)
+  new make(NameTable names, LibVersion[] versions, LibRepo repo, [Str:File]? build)
     : super(names, versions, null)
   {
-    this.repo = repo
+    this.repo  = repo
+    this.build = build
   }
 
   const LibRepo repo
 
   override Bool isRemote() { false }
+
+  const [Str:File]? build
 
 //////////////////////////////////////////////////////////////////////////
 // Loading
@@ -38,8 +41,7 @@ const class LocalNamespace : MNamespace
       it.ns      = this
       it.libName = v.name
       it.input   = v.file
-      //it.zipOut  = entry.zip
-      //it.build   = build
+      it.build   = this.build?.get(v.name)
     }
     return c.compileLib
   }

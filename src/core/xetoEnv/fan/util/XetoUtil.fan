@@ -143,6 +143,32 @@ const class XetoUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Dirs
+//////////////////////////////////////////////////////////////////////////
+
+  ** Return "{work}" for source path of "{work}/src/xeto/{name}".
+  static File? srcToWorkDir(LibVersion v)
+  {
+    srcPath := v.file.path
+    if (srcPath.size < 4 || srcPath[-3] != "src" || srcPath[-2] != "xeto" || srcPath[-1] != v.name)
+      throw Err("Non-standard src dir: $v [$v.file]")
+    return (v.file + `../../../`).normalize
+  }
+
+  ** Return "{work}/lib/xeto/{name}" for source path of "{work}/src/xeto/{name}".
+  static File? srcToLibDir(LibVersion v)
+  {
+    srcToWorkDir(v) + `lib/xeto/${v.name}/`
+  }
+
+  ** Return "{work}/lib/xeto/{name}/{name}-{version}.xetolib" for
+  ** source path of "{work}/src/xeto/{name}".
+  static File? srcToLibZip(LibVersion v)
+  {
+    srcToWorkDir(v) + `lib/xeto/${v.name}/${v.name}-${v.version}.xetolib`
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Opts
 //////////////////////////////////////////////////////////////////////////
 
