@@ -113,10 +113,8 @@ internal class XetoCompiler
   ** Must setup libName and input to the "lib.xeto" file
   FileLibVersion parseLibVersion()
   {
-// TODO
-libVersionOnly = true
     run([
-      InitLib(),
+      InitLibVersion(),
       Parse(),
       ProcessPragma(),
     ])
@@ -125,8 +123,6 @@ libVersionOnly = true
     dir := input.parent
     return FileLibVersion(libName, lib.version, dir, doc, depends.list)
   }
-
-Bool libVersionOnly
 
   ** Run the pipeline with the given steps
   internal This run(Step[] steps)

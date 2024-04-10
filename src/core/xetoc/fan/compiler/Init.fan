@@ -20,13 +20,15 @@ internal abstract class Init : Step
     if (compiler.names == null) throw err("Compiler names not configured", FileLoc.inputs)
 
     // check namespace
-    if (compiler.ns == null && !compiler.libVersionOnly) throw err("Compiler ns not configured", FileLoc.inputs)
+    if (compiler.ns == null && nsRequired) throw err("Compiler ns not configured", FileLoc.inputs)
 
     // check input exists
     input := compiler.input
     if (input == null) throw err("Compiler input not configured", FileLoc.inputs)
     if (!input.exists) throw err("Input file not found: $input", FileLoc.inputs)
   }
+
+  virtual Bool nsRequired() { true }
 }
 
 **************************************************************************
@@ -51,6 +53,19 @@ internal class InitLib : Init
     compiler.isLib = true
     compiler.isSys = compiler.libName == "sys"
   }
+}
+
+
+**************************************************************************
+** InitLibVersion
+**************************************************************************
+
+**
+** Initialize to parseLibVersion
+**
+internal class InitLibVersion : InitLib
+{
+  override Bool nsRequired() { false }
 }
 
 **************************************************************************
