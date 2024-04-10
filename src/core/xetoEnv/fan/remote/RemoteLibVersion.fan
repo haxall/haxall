@@ -36,6 +36,8 @@ internal const class RemoteLibVersion : LibVersion
     return null
   }
 
+  override Bool isSrc() { false }
+
   override Str toStr() { "$name-$version" }
 
   override const LibDepend[] depends

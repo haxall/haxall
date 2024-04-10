@@ -100,26 +100,6 @@ abstract class XetoCmd : AbstractMain
     return qnames.map |qname->Spec| { env.spec(qname) }
   }
 
-  ** Return list of lib qnames for source libs
-  LibRegistryEntry[]? toSrcLibs(Str[]? qnames)
-  {
-    if (qnames == null || qnames.isEmpty)
-    {
-      printLine("ERROR: no libs specified")
-      return null
-    }
-
-    if (qnames.contains("all"))
-      return env.registry.list.findAll |x| { x.isSrc }
-
-    return qnames.map |x->LibRegistryEntry|
-    {
-      lib := env.registry.get(x)
-      if (!lib.isSrc) throw Err("Lib src not available: $x")
-      return lib
-    }
-  }
-
   ** Output to a file or stdout and guaranteed closed
   Void withOut(File? arg, |OutStream| f)
   {

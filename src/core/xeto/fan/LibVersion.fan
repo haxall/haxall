@@ -39,6 +39,9 @@ const mixin LibVersion
   ** by a file then raise exception or return null based on checked flag.
   @NoDoc abstract File? file(Bool checked := true)
 
+  ** Does the file represent a source directory under "src/xeto"
+  @NoDoc abstract Bool isSrc()
+
   ** Order a list of versions by their dependencies.  Raise exception if
   ** the given list does not satisify all the internal dependencies or
   ** has circular dependencies.

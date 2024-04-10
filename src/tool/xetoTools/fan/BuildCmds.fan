@@ -11,11 +11,17 @@ using xeto
 using haystack
 
 **
-** BuildCmd is used to create xetolib zips
+** SrcLibCmd is used to work a list of library sources
 **
-internal class BuildCmd : XetoCmd
+internal abstract class SrcLibCmd : XetoCmd
 {
-  @Arg { help = "Libs to build or \"all\" to rebuild all source libs" }
+  @Opt { help = "All source libs in working dir" }
+  Bool all
+
+  @Opt { help = "All source libs under given directory" }
+  File? allIn
+
+  @Arg { help = "List of lib names for any source lib in path" }
   Str[]? libs
 
   override Str name() { "build" }
@@ -24,9 +30,73 @@ internal class BuildCmd : XetoCmd
 
   override Int run()
   {
-    libs := toSrcLibs(this.libs)
-    if (libs == null) return 1
-    return env.registry.build(libs)
+    repo := LibRepo.cur
+
+    // all flag uses all in working dir
+    if (all) allIn = Env.cur.workDir
+
+    // allIn diectory
+    if (allIn != null)
+    {
+      vers := LibVersion[,]
+      inOsPath := allIn.normalize.osPath
+      repo.libs.each |libName|
+      {
+        ver := repo.latest(libName, false)
+        if (ver == null) return ver
+        f := ver.file(false)
+        if (f != null && ver.isSrc && f.normalize.osPath.startsWith(inOsPath))
+          vers.add(ver)
+      }
+
+      if (vers.isEmpty)
+      {
+        printLine("ERROR: no libs found [$allIn.osPath]")
+        return 0
+      }
+
+      return process(repo, vers)
+    }
+
+    // sanity check that libNames specified
+    if (libs  == null || libs.isEmpty)
+    {
+      printLine("ERROR: no libs specified")
+      return 1
+    }
+
+    // explicit list of lib names
+    vers := libs.map |x->LibVersion|
+    {
+      ver := repo.latest(x, false)
+      if (!ver.isSrc) throw Err("Lib src not available: $x")
+      return ver
+    }
+    return process(repo, vers)
+  }
+
+  abstract Int process(LibRepo repo, LibVersion[] vers)
+}
+
+**************************************************************************
+** BuildCmd
+**************************************************************************
+
+**
+** BuildCmd is used to create xetolib zips
+**
+internal class BuildCmd : SrcLibCmd
+{
+  override Str name() { "build" }
+
+  override Str summary() { "Compile xeto source to xetolib" }
+
+  override Int process(LibRepo repo, LibVersion[] vers)
+  {
+echo("### build!!!!")
+echo("### vers:")
+echo(vers.join("\n") { "$it $it.file" })
+return 0
   }
 }
 
@@ -37,26 +107,37 @@ internal class BuildCmd : XetoCmd
 **
 ** CleanCmd deletes xetolib zips if the lib is a source
 **
-internal class CleanCmd : XetoCmd
+internal class CleanCmd : SrcLibCmd
 {
-  @Arg { help = "Libs to clean or \"all\" to clean all source libs" }
-  Str[]? libs
-
   override Str name() { "clean" }
 
-  override Str summary() { "Delete xetolib files for source libs" }
+  override Str summary() { "Delete all xetolib versions for source libs" }
 
-  override Int run()
+  override Int process(LibRepo repo, LibVersion[] vers)
   {
-    libs := toSrcLibs(this.libs)
-    if (libs == null) return 1
-
-    libs.each |lib|
+    vers.each |ver|
     {
-      if (!lib.zip.exists) return
-      echo("Delete [$lib.zip]")
-      lib.zip.delete
+      clean(ver)
     }
+    return 0
+  }
+
+  private Void clean(LibVersion v)
+  {
+    srcDir := v.file
+
+    // we expect src/xeto/{name} and lib/xeto/{name}
+    srcPath := srcDir.path
+    if (srcPath.size < 4 || srcPath[-3] != "src" || srcPath[-2] != "xeto")
+    {
+      printLine("WARN: non-standard src dir [$srcDir.osPath]")
+      return
+    }
+
+    // directory for all xetolibs
+    libDir := (srcDir + `../../lib/xeto/${v.name}/`).normalize
+    printLine("Delete [$libDir.osPath]")
+    libDir.delete
     return 0
   }
 }
