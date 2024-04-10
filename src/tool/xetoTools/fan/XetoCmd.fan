@@ -79,27 +79,6 @@ abstract class XetoCmd : AbstractMain
   ** Print error message and return 1
   Int err(Str msg) { printLine("ERROR: $msg"); return 1 }
 
-  ** XetoEnv
-  XetoEnv env() { XetoEnv.cur }
-
-  ** Handle list of spec qnames or "all".
-  ** If no names are specifid will print error message and return null.
-  Spec[]? toSpecs(Str[]? qnames)
-  {
-    if (qnames == null || qnames.isEmpty)
-    {
-      printLine("ERROR: no libs specified")
-      return null
-    }
-
-    if (qnames.contains("all"))
-    {
-      qnames = env.registry.list.map |x->Str| { x.name }
-    }
-
-    return qnames.map |qname->Spec| { env.spec(qname) }
-  }
-
   ** Output to a file or stdout and guaranteed closed
   Void withOut(File? arg, |OutStream| f)
   {

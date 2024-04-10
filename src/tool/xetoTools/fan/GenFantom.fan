@@ -103,18 +103,18 @@ internal class GenFantom : XetoCmd
   ** Read the configuration from build.xeto to setup types/funcs to generate
   private Void readInputs()
   {
-    // get lib to compile
-    libs := Lib[,]
+    // map libs to a namespace
+    repo := LibRepo.cur
     libNames := build["libs"] as List ?: throw Err("Must define 'libs' as list of lib names")
-    libNames.each |name|
-    {
-      libs.add(env.lib(name))
-    }
+    depends := libNames.map |n->LibDepend| { LibDepend(n) }
+    versions := repo.solveDepends(depends)
+    ns := repo.createNamespace(versions)
 
     // get type specs to generate - all of them right now
     types := Spec[,]
-    libs.each |lib|
+    libNames.each |libName|
     {
+      lib := ns.lib(libName)
       lib.types.each |type|
       {
         if (includeType(type)) types.add(type)

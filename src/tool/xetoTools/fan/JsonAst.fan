@@ -47,8 +47,11 @@ internal class JsonAst : XetoCmd
 
   override Int run()
   {
-    specs := toSpecs(this.specs)
+    Spec[]? specs := null
+    printLine("TODO: json-ast is not currently working :-(")
     if (specs == null) return 1
+
+    LibNamespace? ns
 
     opts := Str:Obj[:]
     if (own) opts["own"] = Marker.val
@@ -57,13 +60,13 @@ internal class JsonAst : XetoCmd
     acc := Str:Dict[:]
     specs.each |spec|
     {
-      acc[spec.qname] = env.genAst(spec, Etc.dictFromMap(opts))
+      acc[spec.qname] = ns.genAst(spec, Etc.dictFromMap(opts))
     }
     root := Etc.dictFromMap(acc)
 
     withOut(this.out) |out|
     {
-      env.print(root, out, Etc.dict1("json", Marker.val))
+      ns.print(root, out, Etc.dict1("json", Marker.val))
     }
     return 0
   }
