@@ -70,7 +70,7 @@ internal abstract class SrcLibCmd : XetoCmd
     vers := libs.map |x->LibVersion|
     {
       ver := repo.latest(x, false)
-      if (!ver.isSrc) throw Err("Lib src not available: $x")
+      if (ver == null || !ver.isSrc) throw Err("Lib src not available: $x")
       return ver
     }
     return process(repo, vers)

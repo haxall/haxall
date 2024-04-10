@@ -46,7 +46,7 @@ class Build : BuildGroup
   @Target { help = "Build all xeto libs" }
   Void xeto()
   {
-    Type.find("xetoTools::Main").make->main(["build", "all"])
+    Type.find("xetoTools::Main").make->main(["build", "-all"])
   }
 
 //////////////////////////////////////////////////////////////////////////
