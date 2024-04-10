@@ -24,6 +24,15 @@ const class FileLibVersion : LibVersion
     this.dependsRef = depends?.toImmutable
   }
 
+  new makeFile(File file)
+  {
+    n := file.basename
+    dash := n.index("-") ?: throw Err(n)
+    this.name = n[0..<dash]
+    this.version = Version(n[dash+1..-1])
+    this.fileRef = file
+  }
+
   override const Str name
 
   override const Version version
