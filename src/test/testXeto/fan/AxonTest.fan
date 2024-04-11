@@ -276,13 +276,6 @@ class AxonTest : HxTest
     verifySpec(Str<|specOf(marker())|>, "sys::Marker")
     verifySpec(Str<|specOf("hi")|>, "sys::Str")
     verifySpec(Str<|specOf(@id)|>, "sys::Ref")
-// TODO
-echo
-echo
-echo("TODO!!!!!")
-echo
-echo
-return
     verifySpec(Str<|specOf([])|>, "sys::List")
     verifySpec(Str<|specOf({})|>, "sys::Dict")
     verifySpec(Str<|specOf(Str)|>, "sys::Spec")

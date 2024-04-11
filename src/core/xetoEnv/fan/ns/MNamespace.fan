@@ -353,7 +353,7 @@ abstract const class MNamespace : LibNamespace
 
     // look in Fantom class hiearchy
     type := val as Type ?: val.typeof
-    for (Type? p := type; p != null; p = p.base)
+    for (Type? p := type; p.base != null; p = p.base)
     {
       spec := factories.typeToSpec(p)
       if (spec != null) return spec
