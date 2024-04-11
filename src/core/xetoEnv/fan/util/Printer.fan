@@ -550,14 +550,14 @@ class Printer
   ** Enter color section which should be constant from PrinterTheme
   This color(Str? color)
   {
-    if (color != null) w(color)
+    if (color != null) w(color).flush
     return this
   }
 
   ** Exit colored section
   This colorEnd(Str? color)
   {
-    if (color != null) w(PrinterTheme.reset)
+    if (color != null) w(PrinterTheme.reset).flush
     return this
   }
 
@@ -656,6 +656,8 @@ class Printer
   This sp() { wc(' ') }
 
   This indent() { w(Str.spaces(indention*2)) }
+
+  This flush() { out.flush; return this }
 
 //////////////////////////////////////////////////////////////////////////
 // Data Utils

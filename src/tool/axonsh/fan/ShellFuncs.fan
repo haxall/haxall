@@ -158,26 +158,15 @@ const class ShellFuncs
   {
     out := cx.out
 
-out.printLine("TODO")
-throw Err()
-/*
-    if (name == "*")
-    {
-      cx.usings.env.registry.list.each |x| { _using(x.name) }
-      return noEcho
-    }
-
     if (name != null)
     {
-      cx.usings.add(name)
-      out.printLine("using $name")
+      cx.rt.ns.addUsing(name, out)
       return noEcho
     }
 
     out.printLine
-    cx.usings.libNames.sort.each |x| { out.printLine(x) }
+    cx.ns.xeto.versions.sort.each |x| { out.printLine("$x.name [$x.version]") }
     out.printLine
-*/
     return noEcho
   }
 
