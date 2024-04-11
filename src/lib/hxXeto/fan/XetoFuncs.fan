@@ -747,16 +747,15 @@ const class XetoFuncs
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Reload all the Xeto libraries - see `xeto::XetoEnv.reload`
+  ** Reload all the Xeto libraries
   @Axon { su = true }
-  static Obj? xetoEnvReload()
+  static Obj? xetoReload()
   {
     cx := curContext
     isShell := cx.rt.platform.isShell
     log := isShell ? Log.get("xeto") : cx.rt.lib("xeto").log
-    log.info("XetoEnv.reload [$cx.user.username]")
-echo("TODO: xetoEnvReload!!!")
-throw Err("TODO")
+    log.info("xetoReload [$cx.user.username]")
+    cx.rt.context.xetoReload
     return isShell ? "_no_echo_" : "reloaded"
   }
 

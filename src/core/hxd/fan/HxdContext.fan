@@ -26,6 +26,9 @@ const class HxdContextService : HxContextService
   override HxContext create(HxUser user) { HxdContext(rt, user, null) }
 
   override HxContext createSession(HxSession session) { HxdContext(rt, session.user, session) }
+
+  override Void xetoReload() { rt.nsBaseRecompile }
+
 }
 
 **************************************************************************
@@ -183,6 +186,4 @@ class HxdContext : HxContext
     return expr.eval(this)
   }
 }
-
-
 

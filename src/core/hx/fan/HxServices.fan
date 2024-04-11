@@ -106,6 +106,9 @@ const mixin HxContextService : HxService
 
   ** Create new context for given session
   @NoDoc abstract HxContext createSession(HxSession session)
+
+  ** Reload the xeto LibNamespace
+  @NoDoc abstract Void xetoReload()
 }
 
 **************************************************************************

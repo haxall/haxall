@@ -57,7 +57,7 @@ const class ShellRuntime : HxRuntime, ShellStdServices
 
   override HxService service(Type type) { services.get(type, true) }
 
-  override const ShellServiceRegistry services := ShellServiceRegistry()
+  override const ShellServiceRegistry services := ShellServiceRegistry(this)
 }
 
 **************************************************************************
@@ -87,9 +87,10 @@ const mixin ShellStdServices : HxStdServices
 
 const class ShellServiceRegistry: HxServiceRegistry, ShellStdServices
 {
-  new make()
+  new make(ShellRuntime rt)
   {
     map := Type:HxService[][:]
+    map[HxContextService#] = HxService[ShellContextService(rt)]
     map[HxFileService#] = HxService[ShellFileService()]
 
     this.list = map.keys.sort
@@ -114,6 +115,23 @@ const class ShellServiceRegistry: HxServiceRegistry, ShellStdServices
   }
 
   private const Type:HxService[] map
+}
+
+**************************************************************************
+** ShellContextService
+**************************************************************************
+
+internal const class ShellContextService : HxContextService
+{
+  new make(ShellRuntime rt) { this.rt = rt }
+
+  const ShellRuntime rt
+
+  override HxContext create(HxUser user) { throw UnsupportedErr() }
+
+  override HxContext createSession(HxSession session) { throw UnsupportedErr() }
+
+  override Void xetoReload() { rt.ns.xetoReload }
 }
 
 **************************************************************************
