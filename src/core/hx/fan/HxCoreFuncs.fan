@@ -6,6 +6,8 @@
 //   7 Jun 2021  Brian Frank  Creation
 //
 
+using xeto::LibRepo
+using xeto::LibDepend
 using haystack
 using axon
 using folio
@@ -463,62 +465,101 @@ const class HxCoreFuncs
   @NoDoc @Axon
   static Grid usingStatus()
   {
-throw Err("TODO")
-/*
     gb := GridBuilder()
-    gb.addCol("qname")
+    gb.addCol("name")
       .addCol("libStatus")
       .addCol("enabled")
-      .addCol("loaded")
       .addCol("version")
       .addCol("doc")
 
    cx := curContext
-   cx.usings.env.registry.list.each |lib|
+   ns := cx.xeto
+   repo := LibRepo.cur
+   repo.libs.each |libName|
    {
-     libName := lib.name
+     status := ns.libStatus(libName, false)?.name ?: "disabled"
+     enabledVer := ns.version(libName, false)
      isSys := libName == "sys"
-     isEnabled := cx.usings.isEnabled(libName)
+     isEnabled := enabledVer != null
+     ver := enabledVer ?: repo.latest(libName)
 
      gb.addRow([
        libName,
-       isEnabled ? "ok" : "disabled",
+       status,
        isSys ? "boot" : Marker.fromBool(isEnabled),
-       Marker.fromBool(lib.isLoaded),
-       lib.version.toStr,
-       lib.doc,
+       ver.version.toStr,
+       ver.doc,
        ])
     }
 
     return gb.toGrid.sort |a, b|
     {
-      if (a["enabled"] == b["enabled"]) return a->qname <=> b->qname
+      if (a["enabled"] == b["enabled"]) return a->name <=> b->name
       return a.has("enabled") ? -1 : 1
     }
-*/
   }
 
-  ** Enable one or more Xeto libs by qname
+  ** Enable one or more Xeto libs by dotted names
   @NoDoc @Axon { admin = true }
-  static Obj usingAdd(Obj qname)
+  static Obj usingAdd(Obj names)
   {
-    if (qname is List) return ((List)qname).map |n| { usingAdd(n) }
-    if (qname == "sys") return "sys"
+    if (names is Str) names = Str[names]
+    list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
+
+    // solve the dependency graph
+    repo := LibRepo.cur
+    depends := list.map |n->LibDepend| { LibDepend(n) }
+    vers := repo.solveDepends(depends)
+
+    // create add diff for every using statement we need
     cx := curContext
-    rec := cx.db.read(Filter.eq("using", (Str)qname), false)
-    if (rec == null) rec = cx.db.commit(Diff.makeAdd(["using":qname])).newRec
-    return rec
+    diffs := Diff[,]
+    vers.each |ver|
+    {
+      libName := ver.name
+      if (libName == "sys") return
+      rec := cx.db.read(Filter.eq("using", libName), false)
+      if (rec == null) diffs.add(Diff.makeAdd(["using":libName]))
+    }
+
+    // commit the new using recs
+    cx.db.commitAll(diffs)
+    return list
   }
 
   ** Disable or more Xeto libs by qname
   @NoDoc @Axon { admin = true }
-  static Obj usingRemove(Obj qname)
+  static Obj usingRemove(Obj names)
   {
-    if (qname is List) return ((List)qname).map |n| { usingRemove(n) }
+    if (names is Str) names = Str[names]
+    list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
+
+    // ensure that removing libs won't break dependencies
     cx := curContext
-    rec := cx.db.read(Filter.eq("using", (Str)qname), false)
-    if (rec != null) cx.db.commit(Diff(rec, null, Diff.remove))
-    return "removed"
+    ns := cx.xeto
+    ns.versions.each |v|
+    {
+      if (list.contains(v.name)) return
+      v.depends.each |d|
+      {
+        if (list.contains(d.name))
+        {
+          throw DependErr("Removing $d.name.toCode would break depends for $v.name.toCode")
+        }
+      }
+    }
+
+    // build remove diff for each using rec
+    diffs := Diff[,]
+    list.each |libName|
+    {
+      rec := cx.db.read(Filter.eq("using", libName), false)
+      if (rec != null) diffs.add(Diff(rec, null, Diff.remove))
+    }
+
+    // commit them
+    cx.db.commitAll(diffs)
+    return list
   }
 
 //////////////////////////////////////////////////////////////////////////
