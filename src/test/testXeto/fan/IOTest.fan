@@ -62,15 +62,8 @@ class IOTest : AbstractXetoTest
     verifyIO(Obj?["a"])
     verifyIO(Obj?["a", n(123)])
     verifyIO(Obj?["a", null, n(123)])
-/*
     verifyIO(haystack::Coord(12f, -34f))
     verifyIO(haystack::Symbol("foo-bar"))
-*/
-echo
-echo
-echo(">>>> TODO")
-echo
-echo
 
     a := ns.instantiate(ns.spec("ph::AcElecMeter"))
     b := dict(["spec":Ref("ph::Rtu"), "dis":"RTU", "equip":m, "ahu":m, "rtu":m])

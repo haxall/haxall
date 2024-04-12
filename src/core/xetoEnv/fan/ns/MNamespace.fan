@@ -365,6 +365,14 @@ abstract const class MNamespace : LibNamespace
     if (val is List) return sys.list
     if (type.fits(Grid#)) return lib("ph").type("Grid")
 
+    // if we didn't find a match and we aren't fully
+    // loaded, then do a full load and try again
+    if (!isAllLoaded && !isRemote)
+    {
+      loadAllSync
+      if (isAllLoaded) return specOf(val, checked)
+    }
+
     // cannot map to spec
     if (checked) throw UnknownSpecErr("No spec mapped for '$type'")
     return null

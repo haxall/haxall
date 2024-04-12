@@ -86,6 +86,16 @@ const class MFactories
     specToTypeMap.set(qnameSpec, type)
   }
 
+  ** Debug dump
+  Void dump(OutStream out := Env.cur.out)
+  {
+    out.printLine("=== MFactories [$typeToSpecMap.size, $specToTypeMap.size] ===")
+    typeToSpecMap.each |v, k|
+    {
+      out.printLine("$v <=> $k")
+    }
+  }
+
   private const ConcurrentMap typeToSpecMap := ConcurrentMap()
   private const ConcurrentMap specToTypeMap := ConcurrentMap()
 }
