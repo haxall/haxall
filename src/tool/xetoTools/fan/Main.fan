@@ -16,7 +16,7 @@ class Main
   static Int main(Str[] args)
   {
     // lookup command
-    if (args.isEmpty) args = ["help"]
+    if (args.isEmpty || args.first == "-?" || args.first == "-help" || args.first == "--help") args = ["help"]
     cmdName := args.first
     cmd := XetoCmd.find(cmdName)
     if (cmd == null)
