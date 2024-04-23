@@ -576,7 +576,8 @@ internal const final class ListKind : Kind
     return true
   }
   override Obj defVal() { Obj?[,] }
-  override Str valToAxon(Obj v) { return "[" + ((List)v).join(", ") |x| { Etc.toAxon(x) }  + "]" }
+  override Str valToAxon(Obj v) { "[" + ((List)v).join(", ") |x| { Etc.toAxon(x) }  + "]" }
+  override Str valToZinc(Obj v) { "[" + ((List)v).join(", ") |x| { ZincWriter.valToStr(x) }  + "]" }
   override Str valToDis(Obj val, Dict meta := Etc.emptyDict)
   {
     list := (List)val
