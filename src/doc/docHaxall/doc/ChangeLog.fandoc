@@ -6,7 +6,22 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
-*Build 3.1.10 (working)*
+*Build 3.1.10 (23 Apr 2024)*
+- Xeto new LibRepo and LibNamespae APIs replace XetoEnv
+- Dict.spec removed, must use LibNamespace.specOf
+- Dict.map added
+- Xeto Lib.top/tops renamed to spec/specs
+- Xeto global slots
+- Xeto ph-gen redesign
+- Xeto enum types
+- Xeto sys::TimeZone enum
+- Xeto sys::Unit enum
+- Axon func xetoEnvReload renamed to xetoReload
+- Axon new funcs: choiceOf
+- New Xeto lib lazily loading design
+- Number and unit quantity validation
+- Add option to stripUncommittable to keep mod tag
+- Change setColMeta, addColMeta to silently ignore when column not found
 
 *Build 3.1.9 (1 Dec 2023)*
 - New ECMA class-based JavaScript design
@@ -98,3 +113,4 @@
 
 *Build 3.1.1 (8 Sep 2021)*
 - Initial release
+
