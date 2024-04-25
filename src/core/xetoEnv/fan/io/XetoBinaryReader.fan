@@ -52,12 +52,23 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     verifyU4(version, "version")
     readNameTable
     libVersions := readLibVersions(libLoader)
-    return RemoteNamespace(io, names, libVersions, libLoader) |ns->XetoLib|
+    numNonSysLibs := readVarInt - 1
+    ns := RemoteNamespace(io, names, libVersions, libLoader) |ns->XetoLib|
     {
-      sysLib := readLib(ns)
-      verifyU4(magicEnd, "magicEnd")
-      return sysLib
+      readLib(ns) // read sys inside MNamespace constructor
     }
+    if (numNonSysLibs > 0)
+    {
+      // read non-sys boot libs
+      numNonSysLibs.times |->|
+      {
+        lib := readLib(ns)
+        ns.entry(lib.name).setOk(lib)
+      }
+      ns.checkAllLoaded
+    }
+    verifyU4(magicEnd, "magicEnd")
+    return ns
   }
 
   private Void readNameTable()

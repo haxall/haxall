@@ -43,13 +43,16 @@ class XetoBinaryWriter : XetoBinaryConst
 // Remote Namespace Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  Void writeBoot(MNamespace ns)
+  ** Write boot message that can be serialized over the network and then
+  ** passed to RemoteNamespace.boot.  The bootLibs are all the libs to
+  ** synchronously load from the boot up front (sys is always implicitly loaded)
+  Void writeBoot(MNamespace ns, Str[]? bootLibs := null)
   {
     writeI4(magic)
     writeI4(version)
     writeNameTable
     writeLibVersions(ns.versions)
-    writeLib(ns.sysLib)
+    writeBootLibs(ns, bootLibs ?: Str[,])
     out.writeI4(magicEnd)
     return this
   }
@@ -78,6 +81,20 @@ class XetoBinaryWriter : XetoBinaryConst
     writeVersion(v.version)
     writeVarInt(v.depends.size)
     v.depends.each |d| { writeName(names.toCode(d.name)) }
+  }
+
+  private Void writeBootLibs(MNamespace ns, Str[] list)
+  {
+    // build map of libs to include in boot message
+    map := Str:Str[:].addList(list)
+    map["sys"] = "sys"
+
+    // load the libs in version depend order
+    writeVarInt(map.size)
+    ns.versions.each |v|
+    {
+      if (map[v.name] != null) writeLib(ns.lib(v.name))
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

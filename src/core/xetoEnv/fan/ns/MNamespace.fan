@@ -177,7 +177,7 @@ abstract const class MNamespace : LibNamespace
     }
   }
 
-  private Void checkAllLoaded()
+  internal Void checkAllLoaded()
   {
     allLoaded := entriesList.all |e| { e.status.isLoaded }
     if (!allLoaded) return
@@ -457,7 +457,7 @@ abstract const class MNamespace : LibNamespace
 
   override Void dump(OutStream out := Env.cur.out)
   {
-    out.printLine("--- $typeof [$versions.size libs] ---")
+    out.printLine("--- $typeof [$versions.size libs, allLoaded=$isAllLoaded] ---")
     versions.each |v| { out.printLine("  $v [" + libStatus(v.name) + "]") }
   }
 
