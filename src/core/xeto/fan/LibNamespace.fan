@@ -189,6 +189,12 @@ const mixin LibNamespace
   ** TODO: this is just shim for old code
   @NoDoc abstract Dict genAst(Obj libOrSpec, Dict? opts := null)
 
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  ** Debug dump of libs and status
+  @NoDoc abstract Void dump(OutStream out := Env.cur.out)
 }
 
 **************************************************************************
