@@ -69,7 +69,18 @@ internal class RemoteLoader
   {
     id := x.id.id
     name := id[id.index(":")+2..-1]
-    instances.add(name, x)
+    instances.add(name, reifyInstance(x))
+  }
+
+  Dict reifyInstance(Dict x)
+  {
+    specRef := x["spec"] as Ref
+    if (specRef == null) return x
+
+    spec := resolveStr(specRef.id, false)
+    if (spec == null) return x
+
+    return spec.factory.decodeDict(x)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -100,6 +111,10 @@ internal class RemoteLoader
 
   private Void loadFactories()
   {
+    // check if this library registers a new factory loader
+    installType := libMeta["factoryLoader"] as Str
+    if (installType != null) ns.factories.install(installType)
+
     // find a loader for our library
     loader := ns.factories.loaders.find |x| { x.canLoad(libName) }
     if (loader == null) return
@@ -312,6 +327,18 @@ internal class RemoteLoader
 //////////////////////////////////////////////////////////////////////////
 // Resolve
 //////////////////////////////////////////////////////////////////////////
+
+  private CSpec? resolveStr(Str qname, Bool checked := true)
+  {
+    if (qname.startsWith(libName) && qname[libName.size] == ':')
+    {
+      return tops.getChecked(qname[libName.size+1..-1], checked)
+    }
+    else
+    {
+      return ns.spec(qname, checked)
+    }
+  }
 
   private CSpec? resolve(RSpecRef? ref)
   {
