@@ -20,8 +20,10 @@ using haystack::UnknownSpecErr
 @Js
 abstract const class MNamespace : LibNamespace
 {
-  new make(NameTable names, LibVersion[] versions, |This->XetoLib|? loadSys)
+  new make(MNamespace? base, NameTable names, LibVersion[] versions, |This->XetoLib|? loadSys)
   {
+    this.base = base
+
     // order versions by depends - also checks all internal constraints
     versions = LibVersion.orderByDepends(versions)
 
@@ -62,6 +64,10 @@ abstract const class MNamespace : LibNamespace
 //////////////////////////////////////////////////////////////////////////
 
   const override NameTable names
+
+  const override MNamespace? base
+
+  override Bool isOverlay() { base != null }
 
 //////////////////////////////////////////////////////////////////////////
 // Libs

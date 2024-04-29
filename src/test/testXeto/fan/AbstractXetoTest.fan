@@ -156,7 +156,7 @@ const class TestClient : RemoteLibLoader
     server.io.writer(buf.out).writeBoot(server.ns)
     if (debug) echo("   ~~~ init remote bootstrap size = $buf.size bytes ~~~")
 
-    ns := RemoteNamespace.boot(buf.flip.in, this)
+    ns := RemoteNamespace.boot(buf.flip.in, null, this)
     nsRef.val = ns
     return this
   }

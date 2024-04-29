@@ -63,6 +63,14 @@ const mixin LibRepo
   ** all version constraints.  Also see `solveDepends`.
   abstract LibNamespace createNamespace(LibVersion[] libs)
 
+  ** Construct a namespace that overlays the given namespace with the
+  ** given list of lib versions in this repo.  This method works just like
+  ** createNamespace with the exception that it reuses the libs from the
+  ** the base namespace.  The combination of the base libs and overlay libs
+  ** must be satisfy all version constraints.   The overlay libs must not
+  ** duplicte any libs in the base.
+  abstract LibNamespace createOverlayNamespace(LibNamespace base, LibVersion[] libs)
+
   ** Bootstrap namespace
   @NoDoc abstract LibNamespace bootNamespace()
 

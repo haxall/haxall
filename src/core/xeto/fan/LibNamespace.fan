@@ -29,6 +29,12 @@ const mixin LibNamespace
   ** not support the full feature set.
   @NoDoc abstract Bool isRemote()
 
+  ** Return base namespace if this namespace is an overlay.
+  abstract LibNamespace? base()
+
+  ** Return true if this an overlay namespace overlaid on `base`.
+  abstract Bool isOverlay()
+
 //////////////////////////////////////////////////////////////////////////
 // Libs
 //////////////////////////////////////////////////////////////////////////

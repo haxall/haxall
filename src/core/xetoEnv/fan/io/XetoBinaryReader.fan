@@ -46,14 +46,14 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  internal RemoteNamespace readBoot(RemoteLibLoader? libLoader)
+  internal RemoteNamespace readBoot(MNamespace? base, RemoteLibLoader? libLoader)
   {
     verifyU4(magic, "magic")
     verifyU4(version, "version")
     readNameTable
     libVersions := readLibVersions(libLoader)
     numNonSysLibs := readVarInt - 1
-    ns := RemoteNamespace(io, names, libVersions, libLoader) |ns->XetoLib|
+    ns := RemoteNamespace(io, base, names, libVersions, libLoader) |ns->XetoLib|
     {
       readLib(ns) // read sys inside MNamespace constructor
     }

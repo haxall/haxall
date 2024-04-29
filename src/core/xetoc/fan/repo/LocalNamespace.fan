@@ -17,8 +17,8 @@ using haystack::Etc
 **
 const class LocalNamespace : MNamespace
 {
-  new make(NameTable names, LibVersion[] versions, LibRepo repo, [Str:File]? build)
-    : super(names, versions, null)
+  new make(MNamespace? base, NameTable names, LibVersion[] versions, LibRepo repo, [Str:File]? build)
+    : super(base, names, versions, null)
   {
     this.repo  = repo
     this.build = build
