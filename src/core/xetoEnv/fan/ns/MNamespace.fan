@@ -23,6 +23,7 @@ abstract const class MNamespace : LibNamespace
   new make(MNamespace? base, NameTable names, LibVersion[] versions, |This->XetoLib|? loadSys)
   {
     this.base = base
+    this.factories = base?.factories ?: MFactories()
     if (base != null)
     {
       // must reuse same name table
@@ -37,6 +38,7 @@ abstract const class MNamespace : LibNamespace
         acc[v.name] = v
       }
       versions = acc.vals
+      base.loadAllSync // force all to be loaded
     }
 
     // order versions by depends - also checks all internal constraints
@@ -67,11 +69,13 @@ abstract const class MNamespace : LibNamespace
       // remote ns uses callback to read from boot buffer
       this.sysLib = loadSys(this)
       entry("sys").setOk(this.sysLib)
-      checkAllLoaded
     }
 
-    // now we can initialize sys fast lookups
-    this.sys = MSys(sysLib)
+    // check all loaded flag
+    checkAllLoaded
+
+    // now we can initialize sys for fast lookups
+    this.sys = base?.sys ?: MSys(sysLib)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -98,6 +102,11 @@ abstract const class MNamespace : LibNamespace
   override LibVersion? version(Str name, Bool checked :=true)
   {
     entry(name, checked)?.version
+  }
+
+  override Bool hasLib(Str name)
+  {
+    entry(name, false) != null
   }
 
   override LibStatus? libStatus(Str name, Bool checked := true)
@@ -487,7 +496,7 @@ abstract const class MNamespace : LibNamespace
 //////////////////////////////////////////////////////////////////////////
 
   const MSys sys
-  const MFactories factories := MFactories()
+  const MFactories factories
   private const Str:MLibEntry entriesMap
   private const MLibEntry[] entriesList  // orderd by depends
   private const AtomicRef libsRef := AtomicRef()

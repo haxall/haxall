@@ -101,11 +101,6 @@ const class FileRepo : LibRepo
     LocalNamespace(base, names, libs, this, null)
   }
 
-  override once LibNamespace bootNamespace()
-  {
-    createNamespace([latest("sys")])
-  }
-
   override LibNamespace build(LibVersion[] build)
   {
     // turn verions to lib depends
@@ -133,6 +128,22 @@ const class FileRepo : LibRepo
     }
 
     return ns
+  }
+
+  override once LibNamespace systemNamespace()
+  {
+    createNamespace(systemNamespaceLibs(this))
+  }
+
+  static LibVersion[] systemNamespaceLibs(LibRepo repo)
+  {
+    libs := ["sys", "ion", "ion.icons", "foo"]
+    vers := LibVersion[,]
+    libs.each |libName|
+    {
+      vers.addNotNull(repo.latest(libName, false))
+    }
+    return vers
   }
 
 }

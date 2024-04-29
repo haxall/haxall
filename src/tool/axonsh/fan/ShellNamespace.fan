@@ -34,7 +34,7 @@ const class ShellNamespace : MBuiltNamespace
 
   const LibRepo repo := LibRepo.cur
 
-  const AtomicRef xetoRef := AtomicRef(repo.bootNamespace)
+  const AtomicRef xetoRef := AtomicRef(repo.systemNamespace)
 
   Void xetoReload() { xetoRef.val = repo.createNamespace([repo.latest("sys")]) }
 

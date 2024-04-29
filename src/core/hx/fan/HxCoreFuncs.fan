@@ -475,6 +475,7 @@ const class HxCoreFuncs
    cx := curContext
    ns := cx.xeto
    repo := LibRepo.cur
+   system := repo.systemNamespace
    repo.libs.each |libName|
    {
      status := ns.libStatus(libName, false)?.name ?: "disabled"
@@ -486,7 +487,7 @@ const class HxCoreFuncs
      gb.addRow([
        libName,
        status,
-       isSys ? "boot" : Marker.fromBool(isEnabled),
+       system.version(libName, false) != null ? "boot" : Marker.fromBool(isEnabled),
        ver.version.toStr,
        ver.doc,
        ])

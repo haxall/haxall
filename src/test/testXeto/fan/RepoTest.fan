@@ -192,6 +192,9 @@ class RepoTest : AbstractXetoTest
     verifySame(ns.version("sys"), sysVer)
     verifyEq(ns.libStatus("sys"), LibStatus.ok)
     verifyEq(ns.isAllLoaded, true)
+    verifyEq(ns.hasLib("sys"), true)
+    verifyEq(ns.hasLib("ph"), false)
+    verifyEq(ns.hasLib("foo.bad.one"), false)
 
     sys := ns.lib("sys")
     verifySame(ns.lib("sys"), sys)
@@ -213,6 +216,9 @@ class RepoTest : AbstractXetoTest
     verifyEq(ns.isAllLoaded, false)
     verifyNotSame(ns.sysLib, sys)  // new compile of sys
     verifyNotSame(ns.lib("sys"), sys)
+    verifyEq(ns.hasLib("sys"), true)
+    verifyEq(ns.hasLib("ph"), true)
+    verifyEq(ns.hasLib("foo.bad.one"), false)
     sys = ns.lib("sys")
 
     verifyEq(ns.lib("foo.bar.baz", false), null)
@@ -473,7 +479,7 @@ internal const class TestRepo : LibRepo
     throw UnsupportedErr()
   }
 
-  override LibNamespace bootNamespace()
+  override LibNamespace systemNamespace()
   {
     throw UnsupportedErr()
   }

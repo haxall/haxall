@@ -767,6 +767,7 @@ class AxonTest : HxTest
     // sync
     rt.sync
     ns := rt.ns.xeto
+    verifySame(ns.sysLib, LibRepo.cur.systemNamespace.sysLib)
     return ns
   }
 
@@ -782,7 +783,8 @@ class AxonTest : HxTest
 
   Void verifySpec(Str expr, Str qname)
   {
-    x := makeContext.eval(expr)
+    cx := makeContext
+    x := cx.eval(expr)
     // echo("::: $expr => $x [$x.typeof]")
     verifySame(x, xns.type(qname))
   }

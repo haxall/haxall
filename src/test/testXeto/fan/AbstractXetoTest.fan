@@ -59,7 +59,7 @@ class AbstractXetoTest : HaystackTest
 
   LibNamespace sysNamespace()
   {
-    LibRepo.cur.bootNamespace
+    LibRepo.cur.systemNamespace
   }
 
   LibNamespace createNamespace(Str[] libs)
@@ -75,12 +75,12 @@ class AbstractXetoTest : HaystackTest
 
   Obj? compileData(Str s, Dict? opts := null)
   {
-    LibRepo.cur.bootNamespace.compileData(s, opts)
+    sysNamespace.compileData(s, opts)
   }
 
   Dict[] compileDicts(Str s, Dict? opts := null)
   {
-    LibRepo.cur.bootNamespace.compileDicts(s, opts)
+    sysNamespace.compileDicts(s, opts)
   }
 
   Void verifyFitsExplain(LibNamespace ns, Obj? val, Spec spec, Str[] expected)

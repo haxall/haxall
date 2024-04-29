@@ -273,7 +273,7 @@ const mixin XetoGetter
 @NoDoc @Js
 const class DefXetoGetter : XetoGetter
 {
-  override xeto::LibNamespace get() { xeto::LibRepo.cur.bootNamespace }
+  override xeto::LibNamespace get() { xeto::LibRepo.cur.systemNamespace }
 }
 
 @NoDoc @Js

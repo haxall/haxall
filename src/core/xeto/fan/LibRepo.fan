@@ -71,8 +71,8 @@ const mixin LibRepo
   ** duplicte any libs in the base.
   abstract LibNamespace createOverlayNamespace(LibNamespace base, LibVersion[] libs)
 
-  ** Bootstrap namespace
-  @NoDoc abstract LibNamespace bootNamespace()
+  ** System namespace that all application namespaces overlay
+  @NoDoc abstract LibNamespace systemNamespace()
 
   ** Given a set of specific source lib versions, solve their dependency
   ** graph and compile a namespace.  For each source lib generate the xetolib

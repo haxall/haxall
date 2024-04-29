@@ -45,6 +45,10 @@ const mixin LibNamespace
   ** Lookup the version info for a library name in this namespace.
   abstract LibVersion? version(Str name, Bool checked :=true)
 
+  ** Return if this namespace contains the given lib name.
+  ** This is true if version will return non-null regardless of libStatus.
+  abstract Bool hasLib(Str name)
+
   ** Return load status for the given library name:
   **   - 'notLoaded': library is included but has not been loaded yet
   **   - 'ok': library is included and loaded successfully
