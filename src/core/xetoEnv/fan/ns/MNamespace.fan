@@ -23,6 +23,21 @@ abstract const class MNamespace : LibNamespace
   new make(MNamespace? base, NameTable names, LibVersion[] versions, |This->XetoLib|? loadSys)
   {
     this.base = base
+    if (base != null)
+    {
+      // must reuse same name table
+      if (base.names !== names) throw Err("base.names != names")
+
+      // build unified list of versions and check overlay doesn't dup one
+      acc := Str:LibVersion[:]
+      base.versions.each |v| { acc[v.name] = v }
+      versions.each |v|
+      {
+        if (acc[v.name] != null) throw Err("Base already defines $v")
+        acc[v.name] = v
+      }
+      versions = acc.vals
+    }
 
     // order versions by depends - also checks all internal constraints
     versions = LibVersion.orderByDepends(versions)
@@ -33,7 +48,7 @@ abstract const class MNamespace : LibNamespace
     map := Str:MLibEntry[:]
     versions.each |x|
     {
-      entry := MLibEntry(x)
+      entry := base?.entriesMap?.get(x.name) ?: MLibEntry(x)
       list.add(entry)
       map.add(x.name, entry)
     }
