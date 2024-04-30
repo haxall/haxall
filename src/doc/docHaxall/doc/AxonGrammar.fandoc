@@ -32,7 +32,7 @@ Productions [#productions]
 
   <expr>         :=  <lambda> | <def> | <if> | <list> | <dict> | <do> |
                      <return> | <throw> | <tryCatch> | <defcomp> |
-                     <assignExpr> | <deftype> | <spec>
+                     <assignExpr> | <specRef>
 
   <do>           :=  "do" <exprs> "end"
   <exprs>        :=  <expr> (<exprSep> <expr>)*
@@ -89,22 +89,7 @@ Productions [#productions]
   <index>        :=  "[" <expr> "]"
   <trapCall>     :=  "->" <id>
 
-  <deftype>      :=  <typename> ":" (<spec> | <specSlots>)
-  <spec>         :=  <specType> [<specMeta>] [<specBody>]
-  <specMeta>     :=  "<" <dictItems> ">"  // with restrictions
-  <specBody>     :=  <specScalar> | <specSlots>
-  <specScalar>   :=  <number> | <str> | <date> | <time>
-  <specSlots>    :=  "{" [<specSlot> (<specEos> <specSlot>)* [<specEos>]] "}"
-  <specSlot>     :=  <specMarker> | <specUnnamed> | <specNamed> | <specSlots>
-  <specEos>      :=  "," | <nl>
-  <specMarker>   :=  <id>
-  <specUnnamed>  :=  <spec>
-  <specNamed>    :=  <id> ":" <spec>
-  <specType>     :=  <specMaybe> | <specAnd> | <specOr> | <specSimple>
-  <specMaybe>    :=  <specSimple> "?"
-  <specAnd>      :=  <specSimple> ("&" <specSimple>)+
-  <specOr>       :=  <specSimple> ("|" <specSimple>)+
-  <specSimple>   :=  [<specLibName> "::"] <typename> ("." <idOrKeyword>)*
+  <specRef>      :=  [<specLibName> "::"] <typename>
   <specLibName>  :=  <id> ("." <id>)*
 
   <literal>      :=  <null> | <bool> | <number> | <str> | <date> |

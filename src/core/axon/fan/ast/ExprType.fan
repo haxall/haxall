@@ -36,8 +36,6 @@ enum class ExprType
   throwExpr,
   tryExpr,
   specTypeRef,
-  specSlotRef,
-  specDerive,
 
   // assignment
   assign("="),
@@ -70,3 +68,4 @@ enum class ExprType
   const Str? op
 
 }
+

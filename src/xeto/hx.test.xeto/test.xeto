@@ -40,3 +40,6 @@ D : B {
 AB: A & B <s: Date "2024-03-01", qux:"AB"> {
   z: Str
 }
+
+FitsExplain1: { a:Str, b: Str? }
+

@@ -670,7 +670,7 @@ const class XetoFuncs
   **   - 'limit': max number of recs to return
   **   - 'sort': sort by display name
   ** Example:
-  **   read(ahu).queryAll(Equip.points)
+  **   read(ahu).queryAll(spec("ph::Equip.points"))
   **
   @Axon static Grid queryAll(Obj subject, Spec spec, Dict? opts := null)
   {
@@ -715,7 +715,7 @@ const class XetoFuncs
   **   }
   **
   **   // axon
-  **   myAhuPoints: read(ahu).queryNamed(MyAhu.points)
+  **   myAhuPoints: read(ahu).queryNamed(spec("mylib::MyAhu.points"))
   **
   **   // result
   **   {

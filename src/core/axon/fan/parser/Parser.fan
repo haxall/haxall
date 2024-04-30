@@ -86,7 +86,7 @@ class Parser
     if (cur === Token.returnKeyword) return returnExpr
     if (cur === Token.throwKeyword)  return throwExpr
     if (cur === Token.tryKeyword)    return tryCatchExpr
-    if (cur === Token.typename)      return typename
+    if (cur === Token.typename)      return specRef(null)
     return assignExpr
   }
 
@@ -514,7 +514,7 @@ class Parser
   **
   ** Variable or spec qname:
   **   <var>          :=  <qname>
-  **   <specSimple>   :=  [<specLibName> "::"] <typename> ("." <idOrKeyword>)*
+  **   <specRef>      :=  [<specLibName> "::"] <typename>
   **   <specLibName>  :=  <id> ("." <id>)*
   **
   private Expr termId()
@@ -526,7 +526,7 @@ class Parser
     consume
 
     if (cur === Token.typename)
-      return spec(name, null)
+      return specRef(name)
     else
       return Var(loc, name + "::" + consumeIdOrKeyword("func qname"))
   }
@@ -722,130 +722,15 @@ class Parser
     return FnParam(name, expr)
   }
 
-
 //////////////////////////////////////////////////////////////////////////
 // Spec
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Typename can be:
-  **    <deftype> := <typename> ":" <spec>
-  **    <spec>    :=  <specType> [<specMeta>] ["?"] [<specBody>]
+  ** <specRef>     :=  [<specLibName> "::"] <typename> ("." <idOrKeyword>)*
+  ** <specLibName> :=  <id> ("." <id>)*
   **
-  private Expr typename()
-  {
-    if (peek === Token.colon)
-      return deftype
-    else
-      return spec(null, null)
-  }
-
-  **
-  ** Type definition; generates DefineVar with typename as the variable name:
-  **    <deftype>  :=  <typename> ":" (<spec> | <specSlots>)
-  **
-  private DefineVar deftype()
-  {
-    if (cur != Token.typename) throw err("Expected typename, not $curToStr")
-    loc := curLoc
-    name := curVal
-    consume(Token.typename)
-    consume(Token.colon)
-    type := spec(null, name)
-    return DefineVar(loc, name, type)
-  }
-
-  **
-  ** Spec production:
-  **
-  **   <spec>         :=  <specType> [<specMeta>] [<specBody>]
-  **   <specMeta>     :=  "<" <dictItems> ">"  // with restrictions
-  **   <specBody>     :=  <specScalar> | <specSlots>
-  **   <specScalar>   :=  <number> | <str> | <date> | <time>
-  **   <specSlots>    :=  "{" [<specSlot> (<specEos> <specSlot>)* [<specEos>]] "}"
-  **   <specSlot>     :=  <specMarker> | <specUnnamed> | <specNamed> | <specSlots>
-  **   <specEos>      :=  "," | <nl>
-  **   <specMarker>   :=  <id>
-  **   <specUnnamed>  :=  <spec>
-  **   <specNamed>    :=  <id> ":" <spec>
-  **   <specType>     :=  <specMaybe> | <specAnd> | <specOr> | <specSimple>
-  **   <specMaybe>    :=  <specSimple> "?"
-  **   <specAnd>      :=  <specSimple> ("&" <specSimple>)+
-  **   <specOr>       :=  <specSimple> ("|" <specSimple>)+
-  **   <specSimple>   :=  <typename>
-  **
-  private Expr spec(Str? lib, Str? name)
-  {
-    loc := curLoc
-    SpecExpr? ref := null
-    SpecMetaTag[]? meta := null
-
-    // <specType>
-    if (cur === Token.typename)
-    {
-      ref = specSimple(lib)
-      if (cur === Token.question)
-      {
-        consume
-        meta = specMetaAdd(meta, "maybe", Literal.markerVal)
-      }
-      else if (cur === Token.amp)
-      {
-        meta = specMetaAdd(meta, "ofs", specCompound(ref, Token.amp))
-        ref = SpecTypeRef(loc, "sys", "And")
-      }
-      else if (cur === Token.pipe)
-      {
-        meta = specMetaAdd(meta, "ofs", specCompound(ref, Token.pipe))
-        ref = SpecTypeRef(loc, "sys", "Or")
-      }
-    }
-    else
-    {
-      // must be {...} assumed as sys::Dict
-      if (cur !== Token.lbrace) throw err("Expecting spec typename or '{' for slots")
-      ref = SpecTypeRef(loc, "sys", "Dict")
-    }
-
-    // <specMeta>
-    if (cur === Token.lt)
-    {
-      inSpec++
-      meta = specMeta(meta)
-      inSpec--
-    }
-
-    // <specScalar>
-    hasVal := false
-    if (cur === Token.val)
-    {
-      hasVal = true
-      meta = specMetaAdd(meta, "val", specVal(curVal))
-      consume
-    }
-
-    // <specSlots>
-    [Str:SpecExpr]? slots := null
-    if (cur === Token.lbrace)
-    {
-      if (hasVal) throw err("Cannot have both value and slots")
-      slots = specSlots
-    }
-
-    // check for {} and value
-    if (cur === Token.val && slots != null)
-       throw err("Cannot have both value and slots")
-
-    // if not named we have just a named reference, then use SpecRef only
-     if (name == null && meta == null && slots == null)
-       return ref
-
-    // derive a new spec on evaluation
-    if (name == null) name = "unnamed"
-    return SpecDerive(loc, name, ref, meta, slots)
-  }
-
-  private SpecExpr specSimple(Str? lib)
+  private SpecExpr specRef(Str? lib)
   {
     loc := curLoc
 
@@ -866,129 +751,7 @@ class Parser
 
     typename := curVal
     consume
-    typeRef := SpecTypeRef(loc, lib, typename)
-    if (cur !== Token.dot) return typeRef
-
-    slots := Str[,]
-    slots.capacity = 2
-    while (cur === Token.dot)
-    {
-      consume
-      slots.add(consumeIdOrKeyword("spec slot name"))
-    }
-    return SpecSlotRef(typeRef, slots)
-  }
-
-  private ListExpr specCompound(SpecExpr first, Token token)
-  {
-    acc := SpecExpr[,]
-    acc.add(first)
-    while (cur === token)
-    {
-      consume
-      acc.add(specSimple(null))
-    }
-    return ListExpr(acc, false)
-  }
-
-  private SpecMetaTag[] specMeta(SpecMetaTag[]? acc)
-  {
-    if (acc == null) acc = SpecMetaTag[,]
-    consume(Token.lt)
-    while (cur !== Token.gt)
-    {
-      name := consumeIdOrKeyword("spec meta tag name")
-      Expr val := Literal.markerVal
-      if (cur === Token.colon)
-      {
-        consume
-        val = specMetaVal
-      }
-      acc = specMetaAdd(acc, name, val)
-      if (cur === Token.comma) consume
-      else break
-    }
-    consume(Token.gt)
-    return acc
-  }
-
-  private SpecMetaTag[] specMetaAdd(SpecMetaTag[]? acc, Str name, Expr val)
-  {
-    tag := SpecMetaTag(name, val)
-    if (acc == null) return [tag]
-    if (acc.any |x| { x.name == name }) throw err("Duplicate meta name: $name", val.loc)
-    return acc.add(tag)
-  }
-
-  private Expr specMetaVal()
-  {
-    if (cur === Token.val) return Literal(consumeVal)
-    if (cur === Token.typename) return spec(null, null)
-    throw err("Expecting spec meta val, not $curToStr")
-  }
-
-  private Expr specVal(Obj? val)
-  {
-    // only allow a subset of values
-    if (val is Str || val is Number || val is Date || val is Time)
-      return Literal(val.toStr)
-    throw err("Invalid spec scalar value type: ${val?.typeof?.name}")
-  }
-
-  private Str:SpecExpr specSlots()
-  {
-    acc := Str:SpecExpr[:]
-    acc.ordered = true
-    auto := 0
-
-    consume(Token.lbrace)
-    if (cur === Token.rbrace) { consume; return acc }
-
-    while (true)
-    {
-      loc := curLoc
-      Str? name
-      SpecExpr? slot
-
-      // marker, named, unnamed
-      if (cur === Token.typename)
-      {
-        name = "_" + (auto++)
-        slot = spec(null, null)
-      }
-      else
-      {
-        name = consumeIdOrKeyword("spec slot name")
-        if (cur === Token.colon)
-        {
-          consume
-          slot = spec(null, null)
-        }
-        else
-        {
-          slot = SpecTypeRef(loc, "sys", "Marker")
-        }
-      }
-
-      // add to the map
-      if (acc[name] != null) throw err("Duplicate slot name: $name", loc)
-      acc[name] = slot
-
-      // expecting "}" to end slots or a comma/newline to end this slot
-      if (cur === Token.rbrace) break
-      specEndOfSlot
-      if (cur === Token.rbrace) break
-    }
-
-    consume(Token.rbrace)
-    return acc
-  }
-
-  private Void specEndOfSlot()
-  {
-    if (cur === Token.comma) { consume; return }
-    if (nl) return
-    throw err("Expecting newline or comma to end slot, not $curToStr")
+    return SpecTypeRef(loc, lib, typename)
   }
 
   **
@@ -1010,7 +773,7 @@ class Parser
         // var will be the first name in the lib path
         var := (Var)base
         names.add(var.name)
-        return spec(names.reverse.join("."), null)
+        return specRef(names.reverse.join("."))
       }
       if (base.type ===  ExprType.dotCall)
       {
@@ -1182,3 +945,4 @@ class Parser
   private Fn[] inners := [,]   // current number of funcs inside current
   private Int inSpec           // if inside spec production
 }
+

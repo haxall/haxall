@@ -38,78 +38,6 @@ class AxonTest : HxTest
     verifySpecRef(Str<|ph.points::AirTempSensor|>, "ph.points::AirTempSensor")
     verifySpecRef(Str<|hx.test.xeto::Alpha|>, "hx.test.xeto::Alpha")
     verifySpecRef(Str<|hx.test.xeto.deep::Beta|>, "hx.test.xeto.deep::Beta")
-
-    // slot
-    verifySpecRef(Str<|Equip.equip|>, "ph::Equip.equip")
-    verifySpecRef(Str<|Equip.points|>, "ph::Equip.points")
-
-    // with meta
-    verifySpecDerive(Str<|Dict <>|>, "sys::Dict")
-    verifySpecDerive(Str<|Dict <foo>|>, "sys::Dict", ["foo":m])
-    verifySpecDerive(Str<|Dict <foo,>|>, "sys::Dict", ["foo":m])
-    verifySpecDerive(Str<|Dict <foo, bar:"baz">|>, "sys::Dict", ["foo":m, "bar":"baz"])
-    verifySpecDerive(Str<|Dict <a:"1">|>, "sys::Dict", ["a":"1"])
-    verifySpecDerive(Str<|Dict <a:"1", b:"2">|>, "sys::Dict", ["a":"1", "b":"2"])
-    verifySpecDerive(Str<|Dict <a:"1", b:"2", c:"3">|>, "sys::Dict", ["a":"1", "b":"2", "c":"3"])
-    verifySpecDerive(Str<|Dict <a:"1", b:"2", c:"3", d:"4">|>, "sys::Dict", ["a":"1", "b":"2", "c":"3", "d":"4"])
-    verifySpecDerive(Str<|Dict <a:"1", b:"2", c:"3", d:"4", e:"5">|>, "sys::Dict", ["a":"1", "b":"2", "c":"3", "d":"4", "e":"5"])
-    x := verifySpecDerive(Str<|Dict <of:Str>|>, "sys::Dict", ["of":ns.type("sys::Str")])
-    verifySame(x->of, ns.type("sys::Str"))
-
-    // with value
-    verifySpecDerive(Str<|Scalar "foo"|>, "sys::Scalar", ["val":"foo"])
-    verifySpecDerive(Str<|Scalar 123|>, "sys::Scalar", ["val":"123"])
-    verifySpecDerive(Str<|Scalar 2023-03-13|>, "sys::Scalar", ["val":"2023-03-13"])
-    verifySpecDerive(Str<|Scalar 13:14:15|>, "sys::Scalar", ["val":"13:14:15"])
-    verifySpecDerive(Str<|Scalar <qux> "bar"|>, "sys::Scalar", ["qux":m, "val":"bar"])
-
-    // with slots
-    verifySpecDerive(Str<|Dict {}|>, "sys::Dict")
-    verifySpecDerive(Str<|Dict { equip }|>, "sys::Dict", [:], ["equip":"sys::Marker"])
-    verifySpecDerive(Str<|Dict { equip, ahu }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
-    verifySpecDerive(Str<|Dict { equip, ahu, }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
-    verifySpecDerive(Str<|Dict
-                          {
-                             equip
-                             ahu
-                          }|>, "sys::Dict", [:], ["equip":"sys::Marker", "ahu":"sys::Marker"])
-    verifySpecDerive(Str<|Dict { dis:Str }|>, "sys::Dict", [:], ["dis":"sys::Str"])
-    verifySpecDerive(Str<|Dict { dis:Str, foo, baz:Date }|>, "sys::Dict", [:], ["dis":"sys::Str", "foo":"sys::Marker", "baz":"sys::Date"])
-    verifySpecDerive(Str<|Dict {
-                            dis:Str
-                            foo,
-                            baz:Date
-                          }|>, "sys::Dict", [:], ["dis":"sys::Str", "foo":"sys::Marker", "baz":"sys::Date"])
-    verifySpecDerive(Str<|Dict { Ahu }|>, "sys::Dict", [:], ["_0":"ph::Ahu"])
-    verifySpecDerive(Str<|Dict { Ahu, Meter }|>, "sys::Dict", [:], ["_0":"ph::Ahu", "_1":"ph::Meter"])
-
-    // with slot and meta
-    verifySpecDerive(Str<|Dict <foo> { bar }|>, "sys::Dict", ["foo":m], ["bar":"sys::Marker"])
-    verifySpecDerive(Str<|Dict {
-                            dis: Str <qux>
-                            foo,
-                            baz: Date <x:"y">
-                          }|>, "sys::Dict", [:], ["dis":"sys::Str <qux>", "foo":"sys::Marker", "baz":"sys::Date <x:y>"])
-
-    // maybe
-    verifySpecDerive(Str<|Dict?|>, "sys::Dict", ["maybe":m])
-    verifySpecDerive(Str<|Dict? <foo>|>, "sys::Dict", ["maybe":m, "foo":m])
-
-    // and/or
-    ofs := Spec[ns.type("ph::Meter"), ns.type("ph::Chiller")]
-    verifySpecDerive(Str<|Meter & Chiller|>, "sys::And", ["ofs":ofs])
-    verifySpecDerive(Str<|Meter | Chiller|>, "sys::Or",  ["ofs":ofs])
-    verifySpecDerive(Str<|Meter & Chiller <foo>|>, "sys::And", ["ofs":ofs, "foo":m])
-    verifySpecDerive(Str<|Meter | Chiller <foo>|>, "sys::Or",  ["ofs":ofs, "foo":m])
-// TODO
-//   verifySpecDerive(Str<|Meter & Chiller { foo: Str }|>, "sys::And", ["ofs":Spec[ns.type("ph::Meter"), ns.type("ph::Chiller")]], ["foo":"sys::Str"])
-
-    // and/or with qualified
-    verifySpecDerive(Str<|ph::Meter & Chiller|>, "sys::And", ["ofs":ofs])
-    verifySpecDerive(Str<|Meter & ph::Chiller|>, "sys::And", ["ofs":ofs])
-    verifySpecDerive(Str<|ph::Meter & ph::Chiller|>, "sys::And", ["ofs":ofs])
-    ofs = Spec[ns.type("ph::Meter"), ns.type("hx.test.xeto::Alpha")]
-    verifySpecDerive(Str<|ph::Meter & hx.test.xeto::Alpha|>, "sys::And", ["ofs":ofs])
   }
 
   Spec verifySpecRef(Str expr, Str qname)
@@ -121,77 +49,6 @@ class AxonTest : HxTest
     verifySame(x, xns.spec(qname))
     return x
   }
-
-  Spec verifySpecDerive(Str expr, Str type, Str:Obj meta := [:], Str:Str slots := [:])
-  {
-    Spec x := makeContext.eval(expr)
-    // echo(":::DERIVE::: $expr => $x [$x.typeof] " + Etc.dictToStr((Dict)x.metaOwn))
-
-    // verify spec
-    verifyNotSame(x, xns.type(type))
-    verifySame(x.type, xns.type(type))
-    verifySame(x.base, x.type)
-    verifyDictEq(x.metaOwn, meta)
-    slots.each |expect, name|
-    {
-      verifySpecExprSlot(x.slotOwn(name), expect)
-    }
-    return x
-  }
-
-  Void verifySpecExprSlot(Spec x, Str expect)
-  {
-    s := StrBuf().add(x.type.qname)
-    if (expect.contains("<"))
-    {
-      s.add(" <")
-      x.each |v, n|
-      {
-        if (n == "id" || n == "spec" || n == "type" || n == "base") return
-        if (x.type.has(n)) return
-        s.add(n)
-        if (v !== Marker.val) s.add(":").add(v)
-      }
-      s.add(">")
-    }
-    verifyEq(s.toStr, expect)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Deftype
-//////////////////////////////////////////////////////////////////////////
-
-  @HxRuntimeTest
-  Void testDeftype()
-  {
-    cx := makeContext
-    person := cx.eval(Str<|Person: Dict|>)
-    verifySame(cx.varsInScope.getChecked("Person"), person)
-    verifySame(cx.eval("Person"), person)
-    verifyEq(cx.eval("specParent(Person)"), null)
-    verifyEq(cx.eval("specName(Person)"), "Person")
-    verifyEq(cx.eval("specBase(Person)"), xns.type("sys::Dict"))
-    verifyEq(cx.eval("specType(Person)"), xns.type("sys::Dict"))
-    verifySame(cx.eval("specMetaOwn(Person)"), AbstractXetoTest.nameDictEmpty)
-    verifyEq(cx.eval("specSlotsOwn(Person).isEmpty"), true)
-
-    person2 := cx.eval(Str<|Person2: Person { dis:Str }|>)
-    verifySame(cx.varsInScope.getChecked("Person2"), person2)
-    verifySame(cx.eval("Person2"), person2)
-    verifyEq(cx.eval("specParent(Person2)"), null)
-    verifyEq(cx.eval("specName(Person2)"), "Person2")
-    verifyEq(cx.eval("specBase(Person2)"), person)
-    verifyEq(cx.eval("specType(Person2)"), xns.type("sys::Dict"))
-    verifySame(cx.eval("specMetaOwn(Person2)"), AbstractXetoTest.nameDictEmpty)
-    verifyEq(cx.eval("specSlotsOwn(Person2)->dis.specName"), "dis")
-    verifyEq(cx.eval("specSlotsOwn(Person2)->dis.specType"), xns.type("sys::Str"))
-
-    person3 := cx.eval(Str<|Person3: { dis: Str }|>)
-    verifySame(cx.varsInScope.getChecked("Person3"), person3)
-    verifySame(cx.eval("Person3"), person3)
-    verifyEq(cx.eval("specSlotsOwn(Person3)->dis.specName"), "dis")
-  }
-
 
 //////////////////////////////////////////////////////////////////////////
 // Reflection Funcs
@@ -282,8 +139,6 @@ class AxonTest : HxTest
     verifySpec(Str<|specOf(toGrid("hi"))|>, "ph::Grid")
     verifySpec(Str<|specOf(toGrid("hi"))|>, "ph::Grid")
     verifySpec(Str<|specOf(Str)|>, "sys::Spec")
-    verifySpec(Str<|specOf(Str <foo>)|>, "sys::Spec")
-    verifySpec(Str<|specOf({spec:@ph::Equip})|>, "ph::Equip")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -501,7 +356,7 @@ class AxonTest : HxTest
   @HxRuntimeTest
   Void testFitsExplain()
   {
-    ns := initNamespace(["ph"])
+    ns := initNamespace(["ph", "ph.points", "hx.test.xeto"])
 
     verifyFitsExplain(Str<|fitsExplain({}, Dict)|>, [,])
 
@@ -521,21 +376,11 @@ class AxonTest : HxTest
       "Missing required marker 'ahu'"
       ])
 
-    verifyFitsExplain(
-       Str<|do
-              Foo: Dict { a:Str, b: Str? }
-              fitsExplain({}, Foo)
-            end
-            |>, [
+    verifyFitsExplain(Str<|fitsExplain({}, FitsExplain1)|>, [
       "Missing required slot 'a'",
       ])
 
-    verifyFitsExplain(
-       Str<|do
-              Foo: Dict { a:Str, b: Str? }
-              fitsExplain({a:"x", b}, Foo)
-            end
-            |>, [
+    verifyFitsExplain(Str<|fitsExplain({a:"x", b}, FitsExplain1)|>, [
       "Invalid value type for 'b' - 'haystack::Marker' does not fit 'sys::Str'",
       ])
   }
@@ -612,19 +457,19 @@ class AxonTest : HxTest
          drun := addRec(["id":Ref("drun"), "dis":"Discharge Fan Run", "discharge":m, "fan":m, "run":m, "kind":"Bool", "point":m, "equipRef":dfan.id, "siteRef":site.id])
 
     // Point.equips
-    verifyQuery(mode,  "Point.equips", [ahu])
-    verifyQuery(dtemp, "Point.equips", [ahu, dduct])
-    verifyQuery(drun,  "Point.equips", [ahu, dduct, dfan])
+    verifyQuery(mode,  "ph::Point.equips", [ahu])
+    verifyQuery(dtemp, "ph::Point.equips", [ahu, dduct])
+    verifyQuery(drun,  "ph::Point.equips", [ahu, dduct, dfan])
 
     // Equip.points
-    verifyQuery(dfan,  "Equip.points", [drun])
-    verifyQuery(dduct, "Equip.points", [dtemp, dflow, drun])
-    verifyQuery(ahu, "  Equip.points", [mode, dtemp, dflow, drun])
+    verifyQuery(dfan,  "ph::Equip.points", [drun])
+    verifyQuery(dduct, "ph::Equip.points", [dtemp, dflow, drun])
+    verifyQuery(ahu,   "ph::Equip.points", [mode, dtemp, dflow, drun])
 
     // query with no matches
-    verifyEq(eval("query($drun.id.toCode, Equip.points, false)"), null)
-    verifyEvalErr("query($drun.id.toCode, Equip.points)", UnknownRecErr#)
-    verifyEvalErr("query($drun.id.toCode, Equip.points, true)", UnknownRecErr#)
+    verifyEq(eval("""query($drun.id.toCode, spec("ph::Equip.points"), false)"""), null)
+    verifyEvalErr("""query($drun.id.toCode, spec("ph::Equip.points"))""", UnknownRecErr#)
+    verifyEvalErr("""query($drun.id.toCode, spec("ph::Equip.points"), true)""", UnknownRecErr#)
 
     // compile some types with query constraints
     lib := ns.compileLib(
@@ -686,7 +531,7 @@ class AxonTest : HxTest
   Void verifyQuery(Dict rec, Str query, Dict[] expect)
   {
     // no options
-    expr := "queryAll($rec.id.toCode, $query)"
+    expr := "queryAll($rec.id.toCode, spec($query.toCode))"
     // echo("-- $expr")
     Grid actual := eval(expr)
     origActual := actual
@@ -696,14 +541,14 @@ class AxonTest : HxTest
     verifyEq(x, y)
 
     // sort option
-    expr = "queryAll($rec.id.toCode, $query, {sort})"
+    expr = "queryAll($rec.id.toCode, spec($query.toCode), {sort})"
     actual = eval(expr)
     x = actual.mapToList { it.dis }.join(",")
     y = Etc.sortDictsByDis(expect).join(",") { it.dis }
     verifyEq(x, y)
 
     // limit  option
-    expr = "queryAll($rec.id.toCode, $query, {limit:2})"
+    expr = "queryAll($rec.id.toCode, spec($query.toCode), {limit:2})"
     actual = eval(expr)
     if (expect.size == 1)
     {
@@ -718,7 +563,7 @@ class AxonTest : HxTest
     }
 
     // query
-    single := eval("query($rec.id.toCode, $query)")
+    single := eval("query($rec.id.toCode, spec($query.toCode))")
     verifyDictEq(single, origActual.first)
   }
 
