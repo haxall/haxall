@@ -1,0 +1,13 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   30 Apr 2024  Brian Frank  Creation
+//
+
+IFoo: Interface {
+  str: Str
+  add: Func { a: Number, b: Number, returns: Number }
+}
+

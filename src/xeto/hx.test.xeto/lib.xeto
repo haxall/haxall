@@ -18,4 +18,6 @@ pragma: Lib <
    dis: "Haxall"
    uri: "https://haxall.io/"
   }
+  factoryLoader: "testXeto::XetoFactoryLoader"
 >
+
