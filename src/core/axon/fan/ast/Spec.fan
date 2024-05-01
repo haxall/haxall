@@ -12,23 +12,10 @@ using haystack
 using haystack::Dict
 
 **
-** SpecExpr is an expression that evaluates to a `xeto::Spec`
+** TypeRef is a spec type lookup either by qualified or unqualified name
 **
 @Js
-internal abstract const class SpecExpr : Expr
-{
-  abstract override Spec? eval(AxonContext cx)
-}
-
-**************************************************************************
-** SpecTypeRef
-**************************************************************************
-
-**
-** SpecTypeRef is a DataType lookup by name from either using lib or a local definition.
-**
-@Js
-internal const class SpecTypeRef : SpecExpr
+internal const class TypeRef : Expr
 {
   new make(Loc loc, Str? lib, Str name)
   {
@@ -37,7 +24,7 @@ internal const class SpecTypeRef : SpecExpr
     this.name = name
   }
 
-  override ExprType type() { ExprType.specTypeRef }
+  override ExprType type() { ExprType.typeRef }
 
   override const Loc loc
 

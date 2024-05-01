@@ -32,7 +32,7 @@ Productions [#productions]
 
   <expr>         :=  <lambda> | <def> | <if> | <list> | <dict> | <do> |
                      <return> | <throw> | <tryCatch> | <defcomp> |
-                     <assignExpr> | <specRef>
+                     <assignExpr>
 
   <do>           :=  "do" <exprs> "end"
   <exprs>        :=  <expr> (<exprSep> <expr>)*
@@ -79,7 +79,7 @@ Productions [#productions]
   <multExpr>     :=  <unaryExpr> (("*" | "/") <unaryExpr>)*
   <unaryExpr>    :=  ("-" | "not") <termExpr>
   <termExpr>     :=  <termBase> <termChain>*
-  <termBase>     :=  <var> | <groupedExpr> | <literal>
+  <termBase>     :=  <var> | <groupedExpr> | <literal> | <typeRef>
   <groupedExpr>  :=  "(" <expr> ")"
 
   <termChain>    :=  <call> | <dotCall> | <index> | <trapCall>
@@ -89,8 +89,8 @@ Productions [#productions]
   <index>        :=  "[" <expr> "]"
   <trapCall>     :=  "->" <id>
 
-  <specRef>      :=  [<specLibName> "::"] <typename>
-  <specLibName>  :=  <id> ("." <id>)*
+  <typeRef>      :=  [<typeLibName> "::"] <typename>
+  <typeLibName>  :=  <id> ("." <id>)*
 
   <literal>      :=  <null> | <bool> | <number> | <str> | <date> |
                      <time> | <month> | <recId>

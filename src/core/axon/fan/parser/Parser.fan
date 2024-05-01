@@ -86,7 +86,6 @@ class Parser
     if (cur === Token.returnKeyword) return returnExpr
     if (cur === Token.throwKeyword)  return throwExpr
     if (cur === Token.tryKeyword)    return tryCatchExpr
-    if (cur === Token.typename)      return specRef(null)
     return assignExpr
   }
 
@@ -505,6 +504,7 @@ class Parser
     if (cur === Token.lparen) return parenExpr
     if (cur === Token.val)    return Literal(consumeVal)
     if (cur === Token.id)     return termId
+    if (cur === Token.typename) return typeRef(null)
     if (cur === Token.trueKeyword)  { consume; return Literal.trueVal }
     if (cur === Token.falseKeyword) { consume; return Literal.falseVal }
     if (cur === Token.nullKeyword)  { consume; return Literal.nullVal }
@@ -514,8 +514,8 @@ class Parser
   **
   ** Variable or spec qname:
   **   <var>          :=  <qname>
-  **   <specRef>      :=  [<specLibName> "::"] <typename>
-  **   <specLibName>  :=  <id> ("." <id>)*
+  **   <typeRef>      :=  [<typeLibName> "::"] <typename>
+  **   <typeLibName>  :=  <id> ("." <id>)*
   **
   private Expr termId()
   {
@@ -526,7 +526,7 @@ class Parser
     consume
 
     if (cur === Token.typename)
-      return specRef(name)
+      return typeRef(name)
     else
       return Var(loc, name + "::" + consumeIdOrKeyword("func qname"))
   }
@@ -561,7 +561,7 @@ class Parser
       {
         if (cur === Token.id && peek === Token.fnEq)
           args.add(lambda1)
-        return DotCall(methodName, args)
+        return toDotCall(methodName, args)
       }
     }
 
@@ -592,11 +592,20 @@ class Parser
     if (!isEos && (cur === Token.id || cur === Token.lparen))
       args.add(lamdba)
 
-    call := isMethod ? DotCall(methodName, args) : Call(target, args)
+    call := isMethod ? toDotCall(methodName, args) : Call(target, args)
     if (numPartials > 0)
       return PartialCall(call.target, call.args, numPartials)
     else
       return call
+  }
+
+  ** Create DotCall vs StaticCall based on first arg
+  private Call toDotCall(Str methodName, Expr[] args)
+  {
+    if (args.first.type === ExprType.typeRef)
+      return StaticCall(args[0], methodName, args[1..-1])
+    else
+      return DotCall(methodName, args)
   }
 
   **
@@ -723,14 +732,14 @@ class Parser
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Spec
+// Types
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** <specRef>     :=  [<specLibName> "::"] <typename> ("." <idOrKeyword>)*
-  ** <specLibName> :=  <id> ("." <id>)*
+  ** <typeRef>     :=  [<typeLibName> "::"] <typename>
+  ** <typeLibName> :=  <id> ("." <id>)*
   **
-  private SpecExpr specRef(Str? lib)
+  private TypeRef typeRef(Str? lib)
   {
     loc := curLoc
 
@@ -751,7 +760,7 @@ class Parser
 
     typename := curVal
     consume
-    return SpecTypeRef(loc, lib, typename)
+    return TypeRef(loc, lib, typename)
   }
 
   **
@@ -773,7 +782,7 @@ class Parser
         // var will be the first name in the lib path
         var := (Var)base
         names.add(var.name)
-        return specRef(names.reverse.join("."))
+        return typeRef(names.reverse.join("."))
       }
       if (base.type ===  ExprType.dotCall)
       {

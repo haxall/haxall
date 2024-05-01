@@ -94,9 +94,9 @@ internal class ExprToFilter
     }
 
     // spec type
-    if (expr.type === ExprType.specTypeRef)
+    if (expr.type === ExprType.typeRef)
     {
-      return Filter.isSpec(((SpecTypeRef)expr).nameToStr)
+      return Filter.isSpec(((TypeRef)expr).nameToStr)
     }
 
     throw err("Not a filter expr: $expr [$expr.type]")
@@ -159,3 +159,4 @@ internal const class NotFilterErr : Err
 {
   new make(Str? msg) : super(msg) {}
 }
+

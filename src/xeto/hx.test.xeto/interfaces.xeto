@@ -7,6 +7,12 @@
 //
 
 IFoo: Interface {
+
+  make: Func <new> { name: Str }
+
+  staticStr: Str <static>
+  staticAdd: Func <static> { a: Number, b: Number, returns: Number }
+
   str: Str
   add: Func { a: Number, b: Number, returns: Number }
 }

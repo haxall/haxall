@@ -29,14 +29,35 @@ class InterfaceTest : AbstractAxonTest
   {
     initNamespace(["ph", "ph.points", "hx.test.xeto"])
 
+    // factory mapping
     a := xns.spec("hx.test.xeto::IFoo")
     verifyEq(a.fantomType, IFoo#)
 
-    x := eval("IFoo()")
-echo(">>>> $x [$x.typeof]")
+    // static methods
+    verifyEval("IFoo.staticStr", "hi static!")
+    verifyEval("IFoo.staticStr()", "hi static!")
+    verifyEval("IFoo.staticAdd(30, 40)", n(70))
+    verifyEval("hx.test.xeto::IFoo.staticStr()", "hi static!")
+    verifyEval("hx.test.xeto::IFoo.staticAdd(30, 40)", n(70))
 
+    // constructor - make with no arg
+    expect := IFoo()
+    verifyEval("IFoo.make", expect)
+    verifyEval("IFoo.make()", expect)
+    verifyEval("hx.test.xeto::IFoo.make", expect)
+    verifyEval("hx.test.xeto::IFoo.make()", expect)
+
+    // constructor - make with arg
+    expect = IFoo("baz")
+    verifyEval("""IFoo.make("baz")""", expect)
+    verifyEval("""hx.test.xeto::IFoo.make("baz")""", expect)
+
+
+    // instance methods
+    /*
     verifyEval("IFoo().str", "working")
     verifyEval("IFoo().add(3, 4)", n(7))
+    */
   }
 }
 
@@ -58,16 +79,9 @@ internal const class XetoFactoryLoader: SpecFactoryLoader
     if (libName != "hx.test.xeto") throw Err(libName)
     pod := typeof.pod
     acc := Str:SpecFactory[:]
-    acc["IFoo"] = InterfaceFactory(IFoo#)
+    acc["IFoo"] = InterfaceSpecFactory(IFoo#)
     return acc
   }
-}
-
-@Js
-internal const class InterfaceFactory : DictSpecFactory
-{
-  new make(Type type) : super(type) {}
-  override Dict decodeDict(xeto::Dict m, Bool b := true) { IFoo(m) }
 }
 
 **************************************************************************
@@ -75,9 +89,26 @@ internal const class InterfaceFactory : DictSpecFactory
 **************************************************************************
 
 @Js
-const class IFoo : WrapDict {
-  new make(Dict m) : super(m) {}
-  Str str() { "hi!" }
+const class IFoo {
+
+  new make(Str name := "noname") { this.name = name }
+
+  const Str name
+
+  static Str staticStr() { "hi static!" }
+  static Number staticAdd(Number a, Number b) { a + b }
+
+  Str str() { "hi $name!" }
   Number add(Number a, Number b) { a + b }
+
+  override Int hash()
+  {
+    name.hash
+  }
+
+  override Bool equals(Obj? that)
+  {
+    name == ((IFoo)that).name
+  }
 }
 

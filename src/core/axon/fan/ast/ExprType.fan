@@ -28,6 +28,7 @@ enum class ExprType
   celldef,
   call,
   dotCall,
+  staticCall,
   trapCall,
   partialCall,
   block,
@@ -35,7 +36,7 @@ enum class ExprType
   returnExpr,
   throwExpr,
   tryExpr,
-  specTypeRef,
+  typeRef,
 
   // assignment
   assign("="),

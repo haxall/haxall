@@ -105,3 +105,34 @@ const class ScalarSpecFactory : SpecFactory
   override Str toStr() { "ScalarSpecFactory @ $type" }
 }
 
+
+**************************************************************************
+** InterfaceSpecFactory
+**************************************************************************
+
+** Base class for handle interfaces that don't decode from dict nor string
+@NoDoc @Js
+const class InterfaceSpecFactory : SpecFactory
+{
+  new make(Type type) { this.type = type }
+
+  const override Type type
+
+  override Dict decodeDict(Dict xeto, Bool checked := true)
+  {
+    throw UnsupportedErr("Interface cannot decode to dict")
+  }
+
+  override Obj? decodeScalar(Str xeto, Bool checked := true)
+  {
+    throw UnsupportedErr("Interface cannot decode to scalar")
+  }
+
+  override Str encodeScalar(Obj val)
+  {
+    throw UnsupportedErr("Interface cannot encode to scalar")
+  }
+
+  override Str toStr() { "InterfaceSpecFactory @ $type" }
+}
+

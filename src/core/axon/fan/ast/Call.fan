@@ -105,6 +105,57 @@ internal const class DotCall : Call
 }
 
 **************************************************************************
+** StaticCall
+**************************************************************************
+
+**
+** StaticCall implements the dot operator on a spec name:
+**   Foo.bar
+**
+@Js
+internal const class StaticCall : Call
+{
+  new make(TypeRef typeRef, Str funcName, Expr[] args)
+    : super(typeRef, args)
+  {
+    this.typeRef = typeRef
+    this.funcName= funcName
+  }
+
+  override ExprType type() { ExprType.staticCall }
+
+  const TypeRef typeRef
+
+  const Str funcName
+
+  override Str? targetFuncName() { funcName }
+
+  override Obj? eval(AxonContext cx)
+  {
+    // check that slot is defined on Xeto type for security purposes
+    type := typeRef.eval(cx)
+    slot := type.slot(funcName, false) ?: throw UnknownSlotErr("${type.name}.${funcName}")
+
+    // now use reflection on Fantom type
+    method := type.fantomType.method(funcName)
+    if (!method.isStatic && !method.isCtor) throw Err("Cannot call instance method as static: $method.qname")
+    return method.callList(evalArgs(cx))
+  }
+
+  override Printer print(Printer out)
+  {
+    out.atomicStart.atomic(typeRef).wc('.').w(funcName).wc('(')
+    args.each |arg, i|
+    {
+      if (i > 1) out.comma
+      arg.print(out)
+    }
+    out.wc(')').atomicEnd
+    return out
+  }
+}
+
+**************************************************************************
 ** TrapCall
 **************************************************************************
 
