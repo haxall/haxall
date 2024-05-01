@@ -46,11 +46,15 @@ class InterfaceTest : AbstractAxonTest
     verifyEval("IFoo.make()", expect)
     verifyEval("hx.test.xeto::IFoo.make", expect)
     verifyEval("hx.test.xeto::IFoo.make()", expect)
+    verifyEval("IFoo()", expect)
+    verifyEval("hx.test.xeto::IFoo()", expect)
 
     // constructor - make with arg
     expect = IFoo("baz")
     verifyEval("""IFoo.make("baz")""", expect)
+    verifyEval("""IFoo("baz")""", expect)
     verifyEval("""hx.test.xeto::IFoo.make("baz")""", expect)
+    verifyEval("""hx.test.xeto::IFoo("baz")""", expect)
 
 
     // instance methods

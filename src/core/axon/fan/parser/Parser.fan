@@ -592,11 +592,20 @@ class Parser
     if (!isEos && (cur === Token.id || cur === Token.lparen))
       args.add(lamdba)
 
-    call := isMethod ? toDotCall(methodName, args) : Call(target, args)
+    call := isMethod ? toDotCall(methodName, args) : toCall(target, args)
     if (numPartials > 0)
       return PartialCall(call.target, call.args, numPartials)
     else
       return call
+  }
+
+  ** Map TypeRef() call to Type.make
+  private Call toCall(Expr target, Expr[] args)
+  {
+    if (target.type === ExprType.typeRef)
+      return StaticCall(target, "make", args)
+    else
+      return Call(target, args)
   }
 
   ** Create DotCall vs StaticCall based on first arg
