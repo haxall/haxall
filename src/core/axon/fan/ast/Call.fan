@@ -14,32 +14,32 @@ using haystack
 @Js
 internal const class Call : Expr
 {
-  new make(Expr target, Expr?[] args)
+  new make(Expr func, Expr?[] args)
   {
-    this.target = target
-    this.args   = args
+    this.func = func
+    this.args = args
   }
 
   override ExprType type() { ExprType.call }
 
-  override Loc loc() { target.loc }
+  override Loc loc() { func.loc }
 
-  const Expr target
+  const Expr func
 
   const Expr?[] args  // null args indicate "_" partials
 
-  virtual Str? targetFuncName()
+  virtual Str? funcName()
   {
-    if (target is Var) return ((Var)target).name
+    if (func is Var) return ((Var)func).name
     return null
   }
 
   override Obj? eval(AxonContext cx)
   {
-    evalTarget(cx).callLazy(cx, args, loc)
+    evalFunc(cx).callLazy(cx, args, loc)
   }
 
-  Fn evalTarget(AxonContext cx) { target.evalToFunc(cx) }
+  Fn evalFunc(AxonContext cx) { func.evalToFunc(cx) }
 
   Obj?[] evalArgs(AxonContext cx)
   {
@@ -48,13 +48,13 @@ internal const class Call : Expr
 
   override Void walk(|Str key, Obj? val| f)
   {
-    f("target", target)
-    f("args",   args)
+    f("func", func)
+    f("args", args)
   }
 
   override Printer print(Printer out)
   {
-    out.atomicStart.atomic(target).wc('(')
+    out.atomicStart.atomic(func).wc('(')
     args.each |arg, i|
     {
       if (i > 0) out.comma
@@ -85,13 +85,11 @@ internal const class DotCall : Call
 
   override ExprType type() { ExprType.dotCall }
 
-  const Str funcName
-
-  override Str? targetFuncName() { funcName }
+  override const Str? funcName
 
   override Printer print(Printer out)
   {
-    out.atomicStart.atomic(args[0]).wc('.').expr(target).wc('(')
+    out.atomicStart.atomic(args[0]).wc('.').expr(func).wc('(')
     args.each |arg, i|
     {
       if (i == 0) return
@@ -126,9 +124,7 @@ internal const class StaticCall : Call
 
   const TypeRef typeRef
 
-  const Str funcName
-
-  override Str? targetFuncName() { funcName }
+  override const Str? funcName
 
   override Obj? eval(AxonContext cx)
   {
@@ -192,10 +188,10 @@ internal const class TrapCall : DotCall
 internal const class PartialCall : Call
 {
   // null args are the _ partial params
-  new make(Expr target, Expr?[] args, Int numPartials)
-    : super(target, args)
+  new make(Expr func, Expr?[] args, Int numPartials)
+    : super(func, args)
   {
-    this.target = target
+    this.func   = func
     this.args   = args
     this.params = FnParam.makeNum(numPartials)
   }
@@ -205,7 +201,7 @@ internal const class PartialCall : Call
   override Obj? eval(AxonContext cx)
   {
     partial := 0
-    Expr boundTarget := bind(target, cx)
+    Expr boundTarget := bind(func, cx)
     Expr[] boundArgs := args.map |arg->Expr|
     {
       // if partial, then use partial func param, otherwise

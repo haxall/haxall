@@ -189,7 +189,7 @@ const abstract class Expr
     if (type === ExprType.dotCall) return ((DotCall)this).funcName
     if (type === ExprType.call)
     {
-      target := ((Call)this).target as Var
+      target := ((Call)this).func as Var
       if (target != null)
       {
         name := target.name
@@ -202,3 +202,4 @@ const abstract class Expr
   }
 
 }
+

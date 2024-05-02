@@ -594,7 +594,7 @@ class Parser
 
     call := isMethod ? toDotCall(methodName, args) : toCall(target, args)
     if (numPartials > 0)
-      return PartialCall(call.target, call.args, numPartials)
+      return PartialCall(call.func, call.args, numPartials)
     else
       return call
   }

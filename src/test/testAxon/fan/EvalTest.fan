@@ -579,8 +579,8 @@ class EvalTest : AxonTest
     verifyBlock("2012.date(10, 31)", Date("2012-10-31"))
     verifyBlock("2012.date(10, 31, `ignore`, `me`)", Date("2012-10-31"))
 
-    verifyAst("foo(x, y)",  Str<|{type:"call", target:{type:"var", name:"foo"}, args:[{type:"var", name:"x"}, {type:"var", name:"y"}]}|>)
-    verifyAst("foo.bar(x, y)",  Str<|{type:"dotCall", target:{type:"var", name:"bar"}, args:[{type:"var", name:"foo"}, {type:"var", name:"x"}, {type:"var", name:"y"}]}|>)
+    verifyAst("foo(x, y)",  Str<|{type:"call", func:{type:"var", name:"foo"}, args:[{type:"var", name:"x"}, {type:"var", name:"y"}]}|>)
+    verifyAst("foo.bar(x, y)",  Str<|{type:"dotCall", func:{type:"var", name:"bar"}, args:[{type:"var", name:"foo"}, {type:"var", name:"x"}, {type:"var", name:"y"}]}|>)
   }
 
   Void testLambda()
@@ -721,7 +721,7 @@ class EvalTest : AxonTest
            |>,
        "a,b,c")
 
-    verifyAst("f(_, 123, _)",  Str<|{type:"partialCall", target:{type:"var", name:"f"}, args:[N, {type:"literal", val:123}, N]}|>)
+    verifyAst("f(_, 123, _)",  Str<|{type:"partialCall", func:{type:"var", name:"f"}, args:[N, {type:"literal", val:123}, N]}|>)
   }
 
   Void testTrailingLambda()
