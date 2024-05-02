@@ -92,6 +92,20 @@ internal const class DotCall : Call
     // evaluate first arg as target object
     target := args.first.eval(cx)
 
+    // check if we should dispatch as interface method
+    if (target != null)
+    {
+      method := cx.xeto.interfaceMethodOn(target, funcName)
+      if (method != null)
+      {
+        if (method.isStatic || method.isCtor) throw Err("Cannot call static method as instance: $method.qname")
+        methodArgs := Obj?[,]
+        methodArgs.capacity = args.size - 1
+        args.eachRange(1..-1) |arg| { methodArgs.add(arg.eval(cx)) }
+        return method.callOn(target, methodArgs)
+      }
+    }
+
     // evaluate as global function, but wrap target as
     // literal to ensure it is evaluated exactly once
     callArgs := args.dup.set(0, Literal.wrap(target))
@@ -139,12 +153,9 @@ internal const class StaticCall : Call
 
   override Obj? eval(AxonContext cx)
   {
-    // check that slot is defined on Xeto type for security purposes
-    type := typeRef.eval(cx)
-    slot := type.slot(funcName, false) ?: throw UnknownSlotErr("${type.name}.${funcName}")
-
     // now use reflection on Fantom type
-    method := type.fantomType.method(funcName)
+    method := cx.xeto.interfaceMethod(typeRef.eval(cx), funcName)
+    if (method == null) throw UnknownSlotErr("${typeRef}.${funcName}")
     if (!method.isStatic && !method.isCtor) throw Err("Cannot call instance method as static: $method.qname")
     return method.callList(evalArgs(cx))
   }

@@ -58,12 +58,10 @@ class InterfaceTest : AbstractAxonTest
     verifyEval("""hx.test.xeto::IFoo("baz")""", expect)
 
     // instance methods
-    /*
-    verifyEval("""IFoo().str""", "hi noname")
+    verifyEval("""IFoo().str""", "hi noname!")
     verifyEval("""IFoo().add(3, 4)""", "noname 7")
-    verifyEval("""IFoo("brian").str""", "hi brian")
+    verifyEval("""IFoo("brian").str""", "hi brian!")
     verifyEval("""IFoo("brian").add(3, 4)""", "brian 7")
-    */
   }
 }
 

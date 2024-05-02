@@ -393,7 +393,11 @@ abstract const class MNamespace : LibNamespace
 
     // fallbacks
     if (val is List) return sys.list
-    if (type.fits(Grid#)) return lib("ph").type("Grid")
+    if (type.fits(Grid#))
+    {
+      ph := lib("ph", false)
+      if (ph != null) return ph.type("Grid")
+    }
 
     // if we didn't find a match and we aren't fully
     // loaded, then do a full load and try again
@@ -442,6 +446,20 @@ abstract const class MNamespace : LibNamespace
   override Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
   {
     XetoUtil.choiceOf(this, instance, choice, checked)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Interfaces
+//////////////////////////////////////////////////////////////////////////
+
+  override Method? interfaceMethod(Spec spec, Str methodName)
+  {
+    interfaces.method(spec, methodName)
+  }
+
+  override Method? interfaceMethodOn(Obj target, Str methodName)
+  {
+    interfaces.methodOn(target, methodName)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -500,7 +518,7 @@ abstract const class MNamespace : LibNamespace
   private const Str:MLibEntry entriesMap
   private const MLibEntry[] entriesList  // orderd by depends
   private const AtomicRef libsRef := AtomicRef()
-
+  private const MInterfaces interfaces := MInterfaces(this)
 }
 
 **************************************************************************
