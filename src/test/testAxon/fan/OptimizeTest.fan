@@ -13,8 +13,13 @@ using axon
 ** OptimizeTest
 **
 @Js
-class OptimizeTest : Test
+class OptimizeTest : AxonTest
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Return
+//////////////////////////////////////////////////////////////////////////
+
   Void testReturn()
   {
     verifyNormalize("(x) => x", "(x) => x")
@@ -89,4 +94,32 @@ class OptimizeTest : Test
     // echo("\n------\n$actual")
     verifyEq(actual, expected)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Dot Calls
+//////////////////////////////////////////////////////////////////////////
+
+  Void testDotCall()
+  {
+    // dot call must evaluate the first argument to determine
+    // the dispatch mechanism; but we want to make sure that
+    // the first argument isn't evaluated more than once
+    verifyEval(
+    """do
+         x: 0
+         foo: (a, b) => a + b
+         bar: () => do
+           //echo("calling bar x=" + x)
+           x = x + 1
+           x
+         end
+         y: bar().foo(7)
+         [x, y]
+       end""",
+       Obj?[n(1), n(8)])
+
+
+  }
+
 }
+

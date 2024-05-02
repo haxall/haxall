@@ -28,6 +28,7 @@ internal class ExprToFilter
         literal := ((Literal)expr).val
         if (literal is Str && !Token.isKeyword(literal))
           throw NotFilterErr("String literal")
+        if (literal is Filter) return literal
       }
 
       return toFilter(expr)

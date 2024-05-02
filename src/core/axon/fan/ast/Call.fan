@@ -87,6 +87,17 @@ internal const class DotCall : Call
 
   override const Str? funcName
 
+  override Obj? eval(AxonContext cx)
+  {
+    // evaluate first arg as target object
+    target := args.first.eval(cx)
+
+    // evaluate as global function, but wrap target as
+    // literal to ensure it is evaluated exactly once
+    callArgs := args.dup.set(0, Literal.wrap(target))
+    return evalFunc(cx).callLazy(cx, callArgs, loc)
+  }
+
   override Printer print(Printer out)
   {
     out.atomicStart.atomic(args[0]).wc('.').expr(func).wc('(')

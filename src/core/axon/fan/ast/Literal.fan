@@ -22,6 +22,13 @@ const class Literal : Expr
   const static Literal markerVal := Literal(Marker.val)
   const static Literal removeVal := Literal(Remove.val)
 
+  static Literal wrap(Obj? val)
+  {
+    if (val == null) return nullVal
+    if (val.isImmutable) return make(val)
+    return UnsafeLiteral(val)
+  }
+
   new make(Obj? val) { this.val = val }
 
   override ExprType type() { ExprType.literal }
@@ -236,5 +243,4 @@ internal const class RangeExpr : Expr
     out.atomicStart.atomic(start).w("..").atomic(end).atomicEnd
   }
 }
-
 
