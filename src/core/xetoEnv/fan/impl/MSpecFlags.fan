@@ -19,14 +19,15 @@ const class MSpecFlags
   static const Int list        := 0x0020
   static const Int query       := 0x0040
   static const Int func        := 0x0080
-  static const Int inheritMask := 0x00FF
+  static const Int interface   := 0x0100
+  static const Int inheritMask := 0xFFFF
 
   // non-inherited flags
-  static const Int self    := 0x0100
-  static const Int none    := 0x0200
-  static const Int enum    := 0x0400  // base is sys::Enum
-  static const Int and     := 0x0800  // base is sys::And
-  static const Int or      := 0x1000  // base is sys::Or
+  static const Int self    := 0x01_0000
+  static const Int none    := 0x02_0000
+  static const Int enum    := 0x04_0000  // base is sys::Enum
+  static const Int and     := 0x08_0000  // base is sys::And
+  static const Int or      := 0x10_0000  // base is sys::Or
 
   static Str flagsToStr(Int flags)
   {

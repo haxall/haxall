@@ -262,8 +262,6 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Bool isSys() { lib.isSys }
 
-
-
   override final SpecEnum enum() { m.enum }
 
   override final CSpec? cenum(Str key, Bool checked := true) { m.enum.spec(key, checked) as CSpec }
@@ -278,6 +276,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override final Bool isList()    { m.hasFlag(MSpecFlags.list) }
   override final Bool isQuery()   { m.hasFlag(MSpecFlags.query) }
   override final Bool isFunc()    { m.hasFlag(MSpecFlags.func) }
+  override final Bool isInterface() { m.hasFlag(MSpecFlags.interface) }
   override final Bool isEnum()    { m.hasFlag(MSpecFlags.enum) }
   override final Bool isAnd()     { m.hasFlag(MSpecFlags.and) }
   override final Bool isOr()      { m.hasFlag(MSpecFlags.or) }

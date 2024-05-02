@@ -80,19 +80,20 @@ internal class RSpec : CSpec, NameDictReader
 
   // flags
   override Int flags
-  override Bool isScalar() { hasFlag(MSpecFlags.scalar) }
-  override Bool isMarker() { hasFlag(MSpecFlags.marker) }
-  override Bool isChoice() { hasFlag(MSpecFlags.choice) }
-  override Bool isDict()   { hasFlag(MSpecFlags.dict) }
-  override Bool isList()   { hasFlag(MSpecFlags.list) }
-  override Bool isMaybe()  { hasFlag(MSpecFlags.maybe) }
-  override Bool isQuery()  { hasFlag(MSpecFlags.query) }
-  override Bool isFunc()   { hasFlag(MSpecFlags.func) }
-  override Bool isNone()   { hasFlag(MSpecFlags.none) }
-  override Bool isSelf()   { hasFlag(MSpecFlags.self) }
-  override Bool isEnum()   { hasFlag(MSpecFlags.enum) }
-  override Bool isAnd()    { hasFlag(MSpecFlags.and) }
-  override Bool isOr()     { hasFlag(MSpecFlags.or) }
+  override Bool isScalar()    { hasFlag(MSpecFlags.scalar) }
+  override Bool isMarker()    { hasFlag(MSpecFlags.marker) }
+  override Bool isChoice()    { hasFlag(MSpecFlags.choice) }
+  override Bool isDict()      { hasFlag(MSpecFlags.dict) }
+  override Bool isList()      { hasFlag(MSpecFlags.list) }
+  override Bool isMaybe()     { hasFlag(MSpecFlags.maybe) }
+  override Bool isQuery()     { hasFlag(MSpecFlags.query) }
+  override Bool isFunc()      { hasFlag(MSpecFlags.func) }
+  override Bool isInterface() { hasFlag(MSpecFlags.interface) }
+  override Bool isNone()      { hasFlag(MSpecFlags.none) }
+  override Bool isSelf()      { hasFlag(MSpecFlags.self) }
+  override Bool isEnum()      { hasFlag(MSpecFlags.enum) }
+  override Bool isAnd()       { hasFlag(MSpecFlags.and) }
+  override Bool isOr()        { hasFlag(MSpecFlags.or) }
   Bool hasFlag(Int mask) { flags.and(mask) != 0 }
 
   // NameDictReader to iterate slotsOwnIn

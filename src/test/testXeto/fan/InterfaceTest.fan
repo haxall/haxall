@@ -31,6 +31,7 @@ class InterfaceTest : AbstractAxonTest
 
     // factory mapping
     a := xns.spec("hx.test.xeto::IFoo")
+    verifyEq(a.isInterface, true)
     verifyEq(a.fantomType, IFoo#)
 
     // static methods
@@ -56,11 +57,12 @@ class InterfaceTest : AbstractAxonTest
     verifyEval("""hx.test.xeto::IFoo.make("baz")""", expect)
     verifyEval("""hx.test.xeto::IFoo("baz")""", expect)
 
-
     // instance methods
     /*
-    verifyEval("IFoo().str", "working")
-    verifyEval("IFoo().add(3, 4)", n(7))
+    verifyEval("""IFoo().str""", "hi noname")
+    verifyEval("""IFoo().add(3, 4)""", "noname 7")
+    verifyEval("""IFoo("brian").str""", "hi brian")
+    verifyEval("""IFoo("brian").add(3, 4)""", "brian 7")
     */
   }
 }
@@ -103,7 +105,7 @@ const class IFoo {
   static Number staticAdd(Number a, Number b) { a + b }
 
   Str str() { "hi $name!" }
-  Number add(Number a, Number b) { a + b }
+  Str add(Number a, Number b) { "$name " + (a + b) }
 
   override Int hash()
   {

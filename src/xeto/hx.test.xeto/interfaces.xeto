@@ -14,6 +14,6 @@ IFoo: Interface {
   staticAdd: Func <static> { a: Number, b: Number, returns: Number }
 
   str: Str
-  add: Func { a: Number, b: Number, returns: Number }
+  add: Func { a: Number, b: Number, returns: Str }
 }
 
