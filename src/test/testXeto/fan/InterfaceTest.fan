@@ -95,6 +95,8 @@ internal const class XetoFactoryLoader: SpecFactoryLoader
 @Js
 const class IFoo {
 
+  static IFoo axonMakeIFoo(Str name := "noname") { make(name) }
+
   new make(Str name := "noname") { this.name = name }
 
   const Str name

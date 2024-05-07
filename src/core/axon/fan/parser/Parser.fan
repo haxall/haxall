@@ -603,9 +603,15 @@ class Parser
   private Call toCall(Expr target, Expr[] args)
   {
     if (target.type === ExprType.typeRef)
-      return StaticCall(target, "make", args)
+    {
+      // "Foo()" maps to factory named "axonMakeFoo"
+      typeName := ((TypeRef)target).name
+      return StaticCall(target, "axonMake" + typeName, args)
+    }
     else
+    {
       return Call(target, args)
+    }
   }
 
   ** Create DotCall vs StaticCall based on first arg

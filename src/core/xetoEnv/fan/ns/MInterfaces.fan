@@ -23,8 +23,9 @@ internal const class MInterfaces
     if (!spec.isInterface) return null
 
     // must have slot in interface for security purposes
+    // unless its a special case of "axonMakeFoo"
     slot := spec.slot(name, false)
-    if (slot == null) return null
+    if (slot == null && !name.startsWith("axonMake")) return null
 
     // expect Fantom method of same name
     return spec.fantomType.method(name)
