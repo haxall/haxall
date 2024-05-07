@@ -51,7 +51,7 @@ abstract class AxonContext : HaystackContext
   abstract Namespace ns()
 
   ** Xeto namespace
-  LibNamespace xeto() { ns.xeto }
+  virtual LibNamespace xeto() { ns.xeto }
 
   ** Find top-level function by qname or name
   @NoDoc abstract Fn? findTop(Str name, Bool checked := true)
