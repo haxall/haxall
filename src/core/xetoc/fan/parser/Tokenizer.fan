@@ -16,9 +16,9 @@ internal class Tokenizer
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(InStream in)
+  new make(Str buf)
   {
-    this.in  = in
+    this.buf = buf
     this.tok = Token.eof
     consume
     consume
@@ -113,9 +113,6 @@ internal class Tokenizer
     this.line = curLine
     this.col  = curCol
   }
-
-  ** Close
-  Bool close() { in.close }
 
 //////////////////////////////////////////////////////////////////////////
 // Token Productions
@@ -525,7 +522,8 @@ internal class Tokenizer
     curLine = peekLine
     curCol  = peekCol
 
-    peek = in.readChar ?: 0
+    peek = pos < buf.size ? buf[pos] : 0
+    pos++
     if (peek == '\n') { peekLine++; peekCol = 0 }
     else { peekCol++ }
   }
@@ -534,7 +532,8 @@ internal class Tokenizer
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private InStream in       // underlying file
+  private Str buf           // file as in-memory string
+  private Int pos           // position in file string
   private Int cur           // current char
   private Int peek          // next char
   private Int peekLine := 1

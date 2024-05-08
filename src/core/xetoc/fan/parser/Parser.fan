@@ -20,7 +20,7 @@ internal class Parser
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(Step step, FileLoc fileLoc, InStream in, ADoc doc)
+  new make(Step step, FileLoc fileLoc, Str fileStr, ADoc doc)
   {
     this.step = step
     this.compiler = step.compiler
@@ -28,7 +28,7 @@ internal class Parser
     this.isDataFile = doc.nodeType == ANodeType.dataDoc
     this.sys = step.sys
     this.fileLoc = fileLoc
-    this.tokenizer = Tokenizer(in) { it.keepComments = true }
+    this.tokenizer = Tokenizer(fileStr) { it.keepComments = true }
     this.cur = this.peek = Token.eof
     consume
     consume
@@ -51,10 +51,6 @@ internal class Parser
     catch (ParseErr e)
     {
       throw err(e.msg, curToLoc)
-    }
-    finally
-    {
-      tokenizer.close
     }
   }
 
