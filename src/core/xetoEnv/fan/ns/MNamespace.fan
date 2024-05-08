@@ -88,6 +88,17 @@ abstract const class MNamespace : LibNamespace
 
   override Bool isOverlay() { base != null }
 
+  override once Str digest()
+  {
+    buf := Buf()
+    keys := versions.dup.sort |a, b| { a.name <=> b.name }
+    keys.each |v|
+    {
+      buf.print(v.name).print(" ").print(v.version.toStr).print("\n")
+    }
+    return buf.toDigest("SHA-1").toBase64Uri
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Libs
 //////////////////////////////////////////////////////////////////////////

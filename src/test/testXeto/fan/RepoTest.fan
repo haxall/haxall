@@ -188,6 +188,7 @@ class RepoTest : AbstractXetoTest
     repo := LibRepo.cur
     LibVersion sysVer := repo.latest("sys")
     ns := repo.createNamespace([sysVer])
+    sysNs := ns
     verifyEq(ns.versions, [sysVer])
     verifySame(ns.version("sys"), sysVer)
     verifyEq(ns.libStatus("sys"), LibStatus.ok)
@@ -195,6 +196,7 @@ class RepoTest : AbstractXetoTest
     verifyEq(ns.hasLib("sys"), true)
     verifyEq(ns.hasLib("ph"), false)
     verifyEq(ns.hasLib("foo.bad.one"), false)
+    verifySame(ns.digest, ns.digest)
 
     sys := ns.lib("sys")
     verifySame(ns.lib("sys"), sys)
@@ -209,6 +211,8 @@ class RepoTest : AbstractXetoTest
     //
     LibVersion phVer := repo.latest("ph")
     ns = repo.createNamespace([phVer, sysVer])
+    verifySame(ns.digest, ns.digest)
+    verifyNotEq(sysNs.digest, ns.digest)
     verifyEq(ns.versions, [sysVer, phVer])
     verifySame(ns.version("sys"), sysVer)
     verifyEq(ns.libStatus("sys"), LibStatus.ok)

@@ -35,6 +35,9 @@ const mixin LibNamespace
   ** Return true if this an overlay namespace overlaid on `base`.
   abstract Bool isOverlay()
 
+  ** Base64 digest for this namespace based on its lib versions
+  abstract Str digest()
+
 //////////////////////////////////////////////////////////////////////////
 // Libs
 //////////////////////////////////////////////////////////////////////////
