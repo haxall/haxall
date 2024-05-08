@@ -176,6 +176,8 @@ internal class Parser
     doc = parseTrailingDoc(doc)
     if (doc != null) spec.metaSetStr("doc", doc)
 
+    parseSpecHeredocs(spec)
+
     return spec
   }
 
@@ -329,6 +331,17 @@ internal class Parser
     // close "}"
     consume(Token.rbrace)
     return acc
+  }
+
+  private Void parseSpecHeredocs(ASpec spec)
+  {
+    while (cur === Token.nl && peek === Token.heredoc)
+    {
+      consume
+      heredoc := (Heredoc)curVal
+      consume
+      spec.metaSetStr(heredoc.name, heredoc.val)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -200,6 +200,68 @@ class CompileTest : AbstractXetoTest
     verifyEq(actual, expect)
   }
 
+
+//////////////////////////////////////////////////////////////////////////
+// HereDocs
+//////////////////////////////////////////////////////////////////////////
+
+  Void testHereDocs()
+  {
+    ns := createNamespace(["sys"])
+
+    lib := ns.compileLib(
+       Str<|Foo: {}
+              --- bar
+              line 1
+                line 2
+
+              line 4
+              ---
+           |>)
+    foo := lib.type("Foo")
+
+    verifyHeredoc(foo, "bar",
+      Str<|line 1
+             line 2
+
+           line 4|>)
+
+return
+    lib = ns.compileLib(
+       Str<|Foo: {}
+              --- bar
+              line 1
+                line 2
+
+              line 4
+              --- baz
+                line a
+              line b
+                line c
+              ---
+           |>)
+    foo = lib.type("Foo")
+
+    verifyHeredoc(foo, "bar",
+      Str<|line 1
+             line 2
+
+           line 4|>)
+    verifyHeredoc(foo, "baz",
+      Str<|  line a
+           line b
+             line c|>)
+  }
+
+  Void verifyHeredoc(Spec spec, Str metaName, Str expect)
+  {
+    actual := spec.meta[metaName]
+echo(">>>> TEST $metaName")
+echo(actual)
+echo("<<<<")
+    verifyEq(actual, expect)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Dicts
 //////////////////////////////////////////////////////////////////////////

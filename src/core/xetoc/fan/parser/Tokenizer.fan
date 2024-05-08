@@ -35,6 +35,7 @@ internal class Tokenizer
   **  - id: identifier string
   **  - literals: the literal value
   **  - comment: comment line if keepComments set
+  **  - heredoc: Heredoc
   **  - ParseErr: the error message
   Obj? val
 
@@ -60,7 +61,7 @@ internal class Tokenizer
     while (true)
     {
       // treat space, tab, non-breaking space as whitespace
-      if (cur == ' ' || cur == '\t' || cur == 0xa0)  { consume; continue }
+      skipSpaces
 
       // comments
       if (cur == '/')
@@ -89,10 +90,21 @@ internal class Tokenizer
     if (cur == '"')  return tok = str
     if (cur == '@')  return tok = ref
     if (cur.isDigit) return tok = num
-    if (cur == '-' && peek.isDigit) return tok = num
+    if (cur == '-')
+    {
+      if (peek.isDigit) return tok = num
+      if (peek == '-') return tok = heredoc
+    }
 
     // operator
     return tok = operator
+  }
+
+  ** Skip non-breaking whitespace
+  private Void skipSpaces()
+  {
+    // treat space, tab, non-breaking space as whitespace
+    while (cur == ' ' || cur == '\t' || cur == 0xa0) consume
   }
 
   ** Lock in location of start of token
@@ -384,6 +396,67 @@ internal class Tokenizer
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Heredoc
+//////////////////////////////////////////////////////////////////////////
+
+  private Token heredoc()
+  {
+    // consume "---"
+    startCol := curCol
+    consume
+    consume
+    consume
+    skipSpaces
+
+    // name
+    if (!cur.isAlpha) throw err("Expecting heredoc name")
+    id
+    Str name := val
+    skipSpaces
+
+    // expect newline
+    if (cur != '\n') throw err("Expecting newline after heredoc name")
+
+    // now read all lines up until "---"
+    s := StrBuf()
+    firstNewline := true
+    while (true)
+    {
+      if (cur == 0) throw err("Unexpected end of heredoc")
+
+      // after newline must have whitespace up to startCol
+      if (cur == '\n')
+      {
+        if (firstNewline) firstNewline = false
+        else s.add("\n")
+        consume
+        skipSpaces
+        if  (cur == '\n') continue
+        if (curCol < startCol) throw err("Heredoc must be aligned with column ${startCol+1}")
+        if (curCol > startCol) s.add(Str.spaces(curCol - startCol))
+      }
+
+      // check if end of heredoc
+      if (cur == '-' && peek == '-')
+      {
+        consume
+        consume
+        if (cur != '-') throw err("TODO")
+        consume
+        break
+      }
+
+      s.addChar(cur)
+      consume
+    }
+    if (s[-1] == '\n') s.remove(-1)
+    val := s.toStr
+
+    this.val = Heredoc(name, val)
+    return Token.heredoc
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Comments
 //////////////////////////////////////////////////////////////////////////
 
@@ -461,7 +534,7 @@ internal class Tokenizer
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private InStream in       // underlying stream
+  private InStream in       // underlying file
   private Int cur           // current char
   private Int peek          // next char
   private Int peekLine := 1

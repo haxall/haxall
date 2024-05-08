@@ -16,7 +16,7 @@ Productions [#productions]
   <namedSpec>    :=  <name> ":" <spec> <nl>
   <namedData>    :=  <ref> ":" <dict> <nl>
 
-  <spec>         :=  [<type> [<meta>]] <specBody> // must have at one
+  <spec>         :=  [<type> [<meta>]] <specBody> [<heredocs>] // must have at one
   <specBody>     :=  <specSlots> | <specVal>
   <specVal>      :=  <scalar>
   <specSlots>    :=  "{" [<specSlot> <endOfObj>]* "}"
@@ -24,6 +24,11 @@ Productions [#productions]
   <markerOnly>   :=  <markerName> [<meta>]
   <endOfObj>     :=  ( [","] <nl> ) | ","
   <meta>         :=  "<" <dictTags> ">"
+  <heredocs>     :=  (<heredocStart> <heredocLines>)+ <heredocEnd>
+  <heredocStart> :=  <nl> "---" <name> <nl>
+  <heredocEnd>   :=  <nl> "---" <nl>
+  <heredocLines> :=  // lines with same indentation as heredoc start
+
 
   <data>           :=  <dict> | <dataScalar> | <ref> | <spec>
   <dataType>       :=  <typeSimple>    // may want to allow List<of>
@@ -106,6 +111,4 @@ Legend for BNF Grammar:
   x*      zero or more times
   x+      one or more times
   x|x     or
-
-
 
