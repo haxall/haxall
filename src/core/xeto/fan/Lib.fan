@@ -10,7 +10,6 @@ using util
 
 **
 ** Versioned library module of specs and defs.
-** Use `XetoEnv.lib` to load libraries.
 **
 ** Lib dict representation:
 **   - id: Ref "lib:{name}"

@@ -390,7 +390,7 @@ const class IOFuncs
 
   **
   ** Read a Xeto data file into memory as a Haystack data type.
-  ** See `xeto::XetoEnv.compileData` for details and options.
+  ** See `xeto::LibNamespace.compileData` for details and options.
   **
   @Axon { admin = true }
   static Obj? ioReadXeto(Obj? handle, Obj? opts := null)
@@ -403,7 +403,7 @@ const class IOFuncs
 
   **
   ** Write value to a Xeto text format file.
-  ** See `xeto::XetoEnv.writeData` for details and options.
+  ** See `xeto::LibNamespace.writeData` for details and options.
   **
   @Axon { admin = true }
   static Obj? ioWriteXeto(Obj? val, Obj? handle, Obj? opts := null)

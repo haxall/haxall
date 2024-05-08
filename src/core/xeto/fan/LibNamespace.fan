@@ -74,7 +74,7 @@ const mixin LibNamespace
   abstract Lib[] libs()
 
   ** Load all libraries asynchronosly.  Once this operation completes
-  ** successfully the `isAllLoaded` method will return `true` and the
+  ** successfully the `isAllLoaded` method will return 'true' and the
   ** `libs` method may be used even in JS environments.  Note that an
   ** error is reported only if the entire load failed.  Individual libs
   ** which cannot be loaded will logged on server, and be excluded from

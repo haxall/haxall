@@ -8,7 +8,6 @@
 
 **
 ** Dict is an immutable map of name/value pairs.
-** Create instances via `XetoEnv.dict`.
 **
 @Js
 const mixin Dict
