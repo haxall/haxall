@@ -130,20 +130,29 @@ const class FileRepo : LibRepo
     return ns
   }
 
-  override once LibNamespace systemNamespace()
+  override LibNamespace systemNamespace()
   {
-    createNamespace(systemNamespaceLibs(this))
+    ns := systemNamespaceRef.val
+    if (ns == null) installSystemNamespace(ns = createDefaultSystemNamespace)
+    return ns
   }
 
-  static LibVersion[] systemNamespaceLibs(LibRepo repo)
+  private const AtomicRef systemNamespaceRef := AtomicRef()
+
+  override Void installSystemNamespace(LibNamespace ns)
   {
-    libs := ["sys", "ion", "ion.icons", "foo"]
+    systemNamespaceRef.val = ns
+  }
+
+  private LibNamespace createDefaultSystemNamespace()
+  {
+    libs := ["sys"]
     vers := LibVersion[,]
     libs.each |libName|
     {
-      vers.addNotNull(repo.latest(libName, false))
+      vers.addNotNull(latest(libName, false))
     }
-    return vers
+    return createNamespace(vers)
   }
 
 }

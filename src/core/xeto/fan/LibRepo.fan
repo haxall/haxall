@@ -74,6 +74,10 @@ const mixin LibRepo
   ** System namespace that all application namespaces overlay
   @NoDoc abstract LibNamespace systemNamespace()
 
+  ** Install (or reinstall) the system namespace.
+  ** This method is only by used the platform provider during bootstrap.
+  @NoDoc abstract Void installSystemNamespace(LibNamespace ns)
+
   ** Given a set of specific source lib versions, solve their dependency
   ** graph and compile a namespace.  For each source lib generate the xetolib
   ** zip in the appropriate "lib/xeto/" directory.  Report errors to stdout
