@@ -93,7 +93,7 @@ internal class Tokenizer
     if (cur == '-')
     {
       if (peek.isDigit) return tok = num
-      if (peek == '-') return tok = heredoc
+      if (peek == '-' && peekPeek == '-') return tok = heredoc
     }
 
     // operator
@@ -104,7 +104,13 @@ internal class Tokenizer
   private Void skipSpaces()
   {
     // treat space, tab, non-breaking space as whitespace
-    while (cur == ' ' || cur == '\t' || cur == 0xa0) consume
+    while (isSpace(cur)) consume
+  }
+
+  ** Is char non-breaking whitespace
+  private static Bool isSpace(Int c)
+  {
+    c == ' ' || c == '\t' || c == 0xa0
   }
 
   ** Lock in location of start of token
@@ -429,17 +435,16 @@ internal class Tokenizer
         consume
         skipSpaces
         if  (cur == '\n') continue
-        if (curCol < startCol) throw err("Heredoc must be aligned with column ${startCol+1}")
+        if (curCol < startCol) throw err("Heredoc must be aligned with column ${startCol}")
         if (curCol > startCol) s.add(Str.spaces(curCol - startCol))
       }
 
-      // check if end of heredoc
-      if (cur == '-' && peek == '-')
+      // check if end of heredoc; if the "---" is proceeded by another name
+      // then we have chained heredocs so we don't consume the "---", otherwise
+      // this is the end of the heredocs so consume the "---"
+      if (cur == '-' && peek == '-' && peekPeek == '-')
       {
-        consume
-        consume
-        if (cur != '-') throw err("TODO")
-        consume
+        if (isHeredocEnd) { consume; consume; consume }
         break
       }
 
@@ -451,6 +456,16 @@ internal class Tokenizer
 
     this.val = Heredoc(name, val)
     return Token.heredoc
+  }
+
+  private Bool isHeredocEnd()
+  {
+    // skip spaces after "---"
+    i := pos+1
+    while (i<buf.size && isSpace(buf[i])) ++i
+
+    // we are at end of chain if eof or newline
+    return i >= buf.size || buf[i] == '\n'
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -515,6 +530,11 @@ internal class Tokenizer
 //////////////////////////////////////////////////////////////////////////
 // Char Reads
 //////////////////////////////////////////////////////////////////////////
+
+  private Int peekPeek()
+  {
+    pos < buf.size ? buf[pos] : 0
+  }
 
   private Void consume()
   {

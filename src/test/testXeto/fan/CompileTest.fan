@@ -226,7 +226,6 @@ class CompileTest : AbstractXetoTest
 
            line 4|>)
 
-return
     lib = ns.compileLib(
        Str<|Foo: {}
               --- bar
@@ -238,8 +237,7 @@ return
                 line a
               line b
                 line c
-              ---
-           |>)
+              --- |>)
     foo = lib.type("Foo")
 
     verifyHeredoc(foo, "bar",

@@ -331,12 +331,15 @@ internal class Parser
 
   private Void parseSpecHeredocs(ASpec spec)
   {
-    while (cur === Token.nl && peek === Token.heredoc)
+    if (cur === Token.nl && peek === Token.heredoc)
     {
       consume
-      heredoc := (Heredoc)curVal
-      consume
-      spec.metaSetStr(heredoc.name, heredoc.val)
+      while (cur === Token.heredoc)
+      {
+        heredoc := (Heredoc)curVal
+        consume
+        spec.metaSetStr(heredoc.name, heredoc.val)
+      }
     }
   }
 
