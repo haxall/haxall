@@ -175,6 +175,24 @@ class RuntimeTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Services
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testServices()
+  {
+    // makeSyntheticUser
+    u := rt.user.makeSyntheticUser("FooBar", ["bar":"baz"])
+    if (rt.platform.isSkySpark)
+      verifyEq(u.id, Ref("u:FooBar"))
+    else
+      verifyEq(u.id, Ref("FooBar"))
+    verifyEq(u.username, "FooBar")
+    verifyEq(u.meta["bar"], "baz")
+    verifyErr(ParseErr#) { rt.user.makeSyntheticUser("Foo Bar", ["bar":"baz"]) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Axon
 //////////////////////////////////////////////////////////////////////////
 

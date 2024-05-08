@@ -76,9 +76,8 @@ const class HxUserLib : HxLib, HxUserService
   ** Create synthetic user.  The tags arg may be a dict or a map.
   override HxUser makeSyntheticUser(Str username, Obj? extra := null)
   {
-    if (!Etc.isTagName(username)) throw ArgErr("username must be valid tag name: $username")
     extraTags := Etc.makeDict(extra)
-    tags := ["id": Ref("synthetic-user-$username"), "username":username, "userRole":"admin", "mod":DateTime.nowUtc, "synthetic":Marker.val]
+    tags := ["id": Ref(username), "username":username, "userRole":"admin", "mod":DateTime.nowUtc, "synthetic":Marker.val]
     extraTags.each |v, n| { tags[n] = v }
     return HxUserImpl(Etc.makeDict(tags))
   }
