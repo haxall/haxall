@@ -7,7 +7,10 @@
 //
 
 using concurrent
+using web
 using util
+using xeto::LibRepo
+using xeto::LibVersion
 using haystack
 using folio
 using hx
@@ -103,6 +106,8 @@ class HxdBoot
   {
     if (rt != null) return rt
     initArgs
+    initSystemNamespace
+    initWebMode
     initPlatform
     initLic
     openDatabase
@@ -149,6 +154,21 @@ class HxdBoot
       echo("## NO AUTH - authentication is disabled!!!!")
       echo("##")
     }
+  }
+
+  private Void initSystemNamespace()
+  {
+    repo    := LibRepo.cur
+    sysLibs := ["sys", "sys.comp", "ion", "ion.icons"]
+    sysVers := LibVersion[,]
+    sysLibs.each |libName| { sysVers.addNotNull(repo.latest(libName, false)) }
+    ns := repo.createNamespace(sysVers)
+    LibRepo.cur.installSystemNamespace(ns)
+  }
+
+  private Void initWebMode()
+  {
+    WebJsMode.setCur(WebJsMode.es)
   }
 
   private Void initPlatform()
