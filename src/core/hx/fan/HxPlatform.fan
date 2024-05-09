@@ -42,6 +42,9 @@ const class HxPlatform
   ** Relative URI to the SVG logo
   virtual Uri logoUri() { meta["logoUri"] as Uri ?: `/hxUser/logo.svg` }
 
+  ** Relative URI to favicon.png image
+  virtual Uri faviconUri() { meta["faviconUri"] as Uri ?: `/hxUser/favicon.png` }
+
   ** Product name for about op
   virtual Str productName() { meta["productName"] as Str ?: "Haxall" }
 

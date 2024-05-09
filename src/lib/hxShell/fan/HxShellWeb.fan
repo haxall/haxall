@@ -18,13 +18,16 @@ const class HxShellWeb : HxLibWeb
 {
   new make(HxLib lib) : super(lib)
   {
-    this.lib   = lib
-    this.title = "" + rt.platform.productName + " Shell"
+    this.lib     = lib
+    this.title   = "" + rt.platform.productName + " Shell"
+    this.favicon = rt.platform.faviconUri
   }
 
   override const HxLib lib
 
   const Str title
+
+  const Uri favicon
 
   override Void onService()
   {
@@ -61,6 +64,7 @@ const class HxShellWeb : HxLibWeb
      .title.w(title).titleEnd
      .tag("meta", "charset='UTF-8'", true).nl
      .tag("meta", "name='google' content='notranslate'", true).nl
+     .tag("link", "rel='icon' type='image/png' href='$favicon'", true).nl
      .includeCss(this.uri+`shell.css`)
      .initJs(env)
      .includeJs(this.uri+`shell.js`)
@@ -86,3 +90,4 @@ const class HxShellWeb : HxLibWeb
 
   private Pod[] pods() { [typeof.pod] }
 }
+

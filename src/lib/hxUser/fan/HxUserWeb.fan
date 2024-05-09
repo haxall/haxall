@@ -25,13 +25,14 @@ const class HxUserWeb : HxLibWeb
     route := req.modRel.path.first
     switch (route)
     {
-      case "login":     onLogin
-      case "auth":      onAuth
-      case "logout":    onLogout
-      case "login.js":  onRes
-      case "login.css": onRes
-      case "logo.svg":  onRes
-      default:          res.sendErr(404)
+      case "login":       onLogin
+      case "auth":        onAuth
+      case "logout":      onLogout
+      case "login.js":    onRes
+      case "login.css":   onRes
+      case "logo.svg":    onRes
+      case "favicon.png": onRes
+      default:            res.sendErr(404)
     }
   }
 
