@@ -20,10 +20,10 @@ using xeto
 const class XetoBinaryIO
 {
   ** Constructor to wrap given local namespace
-  new makeServer(MNamespace ns)
+  new makeServer(MNamespace ns, Int maxNameCode := ns.names.maxCode)
   {
     this.names = ns.names
-    this.maxNameCode = names.maxCode
+    this.maxNameCode = maxNameCode
   }
 
   ** Constructor for booting client used by RemotNamespace.boot
