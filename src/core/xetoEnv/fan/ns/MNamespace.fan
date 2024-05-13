@@ -196,7 +196,6 @@ abstract const class MNamespace : LibNamespace
 
   private Void loadSyncWithDepends(MLibEntry entry)
   {
-// TODO: this aren't necessarily in the right order
     entry.version.depends.each |depend|
     {
       if (entry.status.isNotLoaded)
@@ -259,11 +258,15 @@ abstract const class MNamespace : LibNamespace
 
     // and load myself as last in list
     toLoad.add(e.version)
+    toLoad = toLoad.toImmutable
 
     loadListAsync(toLoad) |err|
     {
-      if (err != null) f(err, null)
-      else f(null, e.get)
+      if (err != null) return f(err, null)
+      if (e.status.isErr)
+        f(e.err, null)
+      else
+        f(null, e.get)
     }
   }
 
@@ -298,7 +301,12 @@ abstract const class MNamespace : LibNamespace
 
       // we loaded all of them, now finish and invoke final callback
       checkAllLoaded
-      f(null)
+
+      // do not raise exception from client callback
+      try
+        f(null)
+      catch(Err e2)
+        e2.trace
     }
   }
 
