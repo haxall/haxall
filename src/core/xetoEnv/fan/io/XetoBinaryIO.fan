@@ -46,7 +46,7 @@ const class XetoBinaryIO
   }
 
   ** Shared name table up to maxNameCode
-  internal const NameTable names
+  const NameTable names
 
   ** Max name code (inclusive) that safe to use
   internal const Int maxNameCode

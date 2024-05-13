@@ -206,6 +206,7 @@ class XetoBinaryWriter : XetoBinaryConst
     if (type === Number#)   return writeNumber(val)
     if (type === Ref#)      return writeRef(val)
     if (type === DateTime#) return writeDateTime(val)
+    if (val is Buf)         return writeBuf(val)
     if (val is Dict)        return writeDict(val)
     if (val is List)        return writeList(val)
     if (type === Bool#)     return writeBool(val)
@@ -345,6 +346,14 @@ class XetoBinaryWriter : XetoBinaryConst
     writeI4(secs)
     writeI2(millis)
     writeStr(val.tz.name) // TODO
+    return this
+  }
+
+  private This writeBuf(Buf buf)
+  {
+    write(ctrlBuf)
+    writeVarInt(buf.size)
+    out.writeBuf(buf.seek(0))
     return this
   }
 

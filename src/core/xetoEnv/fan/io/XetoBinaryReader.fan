@@ -257,6 +257,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlDate:         return readDate
       case ctrlTime:         return readTime
       case ctrlDateTime:     return readDateTime
+      case ctrlBuf:          return readBuf
       case ctrlEmptyDict:    return Etc.dict0
       case ctrlNameDict:     return readNameDict
       case ctrlGenericDict:  return readGenericDict
@@ -306,6 +307,12 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     millis := in.readS2
     tz := TimeZone.fromStr(readVal)
     return DateTime.makeTicks(secs*1sec.ticks + millis*1ms.ticks, tz)
+  }
+
+  private Buf readBuf()
+  {
+    size := readVarInt
+    return in.readBufFully(null, size)
   }
 
   private Coord readCoord()
