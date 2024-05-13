@@ -412,12 +412,8 @@ abstract const class MNamespace : LibNamespace
     }
 
     // fallbacks
-    if (val is List) return sys.list
-    if (type.fits(Grid#))
-    {
-      ph := lib("ph", false)
-      if (ph != null) return ph.type("Grid")
-    }
+    if (type.fits(List#)) return sys.list
+    if (type.fits(Grid#)) return sys.grid
 
     // if we didn't find a match and we aren't fully
     // loaded, then do a full load and try again

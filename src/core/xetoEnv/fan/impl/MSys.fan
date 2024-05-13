@@ -24,6 +24,7 @@ const class MSys
     this.seq      = x.get("Seq")
     this.dict     = x.get("Dict")
     this.list     = x.get("List")
+    this.grid     = x.get("Grid")
     this.lib      = x.get("Lib")
     this.spec     = x.get("Spec")
     this.scalar   = x.get("Scalar")
@@ -47,9 +48,10 @@ const class MSys
   const XetoType obj
   const XetoType none
   const XetoType self
-  const XetoType dict
   const XetoType seq
   const XetoType list
+  const XetoType dict
+  const XetoType grid
   const XetoType lib
   const XetoType spec
   const XetoType scalar
@@ -69,3 +71,4 @@ const class MSys
   const XetoType or
   const XetoType query
 }
+

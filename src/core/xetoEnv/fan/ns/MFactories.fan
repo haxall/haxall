@@ -140,6 +140,9 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
       "Uri":      UriFactory(sys.type("Uri")),
       "Version":  ScalarSpecFactory(sys.type("Version")),
 
+      // xeto pod
+      "Spec":     DictFactory(Spec#),
+
       // haystack pod
       "Marker":   SingletonFactory(hay.type("Marker"), Marker.val),
       "None":     SingletonFactory(hay.type("Remove"), Remove.val, "none"),
@@ -147,7 +150,6 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
       "Number":   NumberFactory(hay.type("Number")),
       "Ref":      RefFactory(hay.type("Ref")),
       "Dict":     DictFactory(),
-      "Spec":     DictFactory(Spec#),
     ]
   }
 

@@ -136,8 +136,8 @@ class AxonTest : AbstractAxonTest
     verifySpec(Str<|specOf([])|>, "sys::List")
     verifySpec(Str<|specOf({})|>, "sys::Dict")
     verifySpec(Str<|specOf(Str)|>, "sys::Spec")
-    verifySpec(Str<|specOf(toGrid("hi"))|>, "ph::Grid")
-    verifySpec(Str<|specOf(toGrid("hi"))|>, "ph::Grid")
+    verifySpec(Str<|specOf(toGrid("hi"))|>, "sys::Grid")
+    verifySpec(Str<|specOf(toGrid("hi"))|>, "sys::Grid")
     verifySpec(Str<|specOf(Str)|>, "sys::Spec")
   }
 
