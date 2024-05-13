@@ -222,7 +222,7 @@ class XetoBinaryWriter : XetoBinaryConst
     if (type === Duration#) return writeDuration(val)
     if (type === Version#)  return writeVersion(val)
 
-echo("TODO: XetoBinaryWriter.writeVal $val [$val.typeof]")
+    // assume scalar string value
     writeStr(val.toStr)
   }
 
