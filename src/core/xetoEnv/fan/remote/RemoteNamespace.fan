@@ -20,7 +20,10 @@ const class RemoteNamespace : MNamespace
   ** Boot a RemoteEnv from the given boot message input stream
   static RemoteNamespace boot(InStream in, MNamespace? base, RemoteLibLoader? libLoader)
   {
-    XetoBinaryIO.makeClient.reader(in).readBoot(base, libLoader)
+    if (base == null)
+      return XetoBinaryIO.makeClient.reader(in).readBootBase(libLoader)
+    else
+      return XetoBinaryIO(base).reader(in).readBootOverlay(base, libLoader)
   }
 
   internal new make(XetoBinaryIO io, MNamespace? base, NameTable names, LibVersion[] versions, RemoteLibLoader? libLoader, |This->XetoLib| loadSys)

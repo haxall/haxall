@@ -17,6 +17,7 @@ using xeto
 mixin XetoBinaryConst
 {
   static const Int magic         := 0x78623233   // xb23
+  static const Int magicOverlay  := 0x78626f76   // xbov
   static const Int magicEnd      := 0x78623233   // XB};
   static const Int version       := 0x2023_08
   static const Int magicLib      := 0x6c69627b   // lib{

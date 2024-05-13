@@ -46,14 +46,14 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  internal RemoteNamespace readBoot(MNamespace? base, RemoteLibLoader? libLoader)
+  internal RemoteNamespace readBootBase(RemoteLibLoader? libLoader)
   {
     verifyU4(magic, "magic")
     verifyU4(version, "version")
     readNameTable
-    libVersions := readLibVersions(libLoader)
+    libVersions := readLibVersions
     numNonSysLibs := readVarInt - 1
-    ns := RemoteNamespace(io, base, names, libVersions, libLoader) |ns->XetoLib|
+    ns := RemoteNamespace(io, null, names, libVersions, libLoader) |ns->XetoLib|
     {
       readLib(ns) // read sys inside MNamespace constructor
     }
@@ -71,6 +71,19 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     return ns
   }
 
+  internal RemoteNamespace readBootOverlay(MNamespace base, RemoteLibLoader? libLoader)
+  {
+    if (!base.isAllLoaded) throw Err("Base must be fully loaded")
+    verifyU4(magicOverlay, "magic")
+    verifyU4(version, "version")
+    libVersions := readLibVersions
+    ns := RemoteNamespace(io, base, names, libVersions, libLoader) |ns->XetoLib|
+    {
+      base.sysLib
+    }
+    return ns
+  }
+
   private Void readNameTable()
   {
     max := readVarInt
@@ -78,7 +91,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       names.add(in.readUtf)
   }
 
-  private LibVersion[] readLibVersions(RemoteLibLoader? libLoader)
+  private LibVersion[] readLibVersions()
   {
     num := readVarInt
     acc := LibVersion[,]

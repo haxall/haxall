@@ -186,6 +186,7 @@ abstract const class MNamespace : LibNamespace
 
   private Void loadAllSync()
   {
+    if (isAllLoaded) return
     entriesList.each |entry|
     {
       loadSync(entry)
@@ -564,6 +565,8 @@ internal const class MLibEntry
     loadRef.compareAndSet(null, err)
     statusRef.val = LibStatus.err
   }
+
+  override Str toStr() { "MLibEntry $name [$status] $err" }
 
   private const AtomicRef statusRef := AtomicRef(LibStatus.notLoaded)
   private const AtomicRef loadRef := AtomicRef() // XetoLib or Err

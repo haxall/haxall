@@ -57,6 +57,18 @@ class XetoBinaryWriter : XetoBinaryConst
     return this
   }
 
+  ** Write boot message that can be serialized over the network to
+  ** call RemoteNamespace.boot as an overlay namespace
+  Void writeBootOverlay(MNamespace ns)
+  {
+    if (!ns.isOverlay) throw Err("not an overlay ns")
+    base := ns.base
+    writeI4(magicOverlay)
+    writeI4(version)
+    writeLibVersions(ns.versions.findAll |x| { !base.hasLib(x.name) })
+    out.writeI4(magicEnd)
+  }
+
   private Void writeNameTable()
   {
     max := maxNameCode
