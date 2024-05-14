@@ -87,7 +87,7 @@ internal class GenFantom : XetoCmd
   ** Parse the build.xeto file as the build dict instructions
   private Void parseBuildFile()
   {
-    this.build = LibRepo.cur.systemNamespace.compileData(buildFile.readAllStr) as Dict
+    this.build = LibNamespace.system.compileData(buildFile.readAllStr) as Dict
     if (build == null) throw Err("Root of build file must be a dict")
 
     // read flags

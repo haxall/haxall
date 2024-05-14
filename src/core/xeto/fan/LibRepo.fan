@@ -20,7 +20,10 @@ const mixin LibRepo
   {
     repo := curRef.val as LibRepo
     if (repo != null) return repo
-    curRef.compareAndSet(null, Type.find("xetoc::FileRepo").make)
+    try
+      curRef.compareAndSet(null, Type.find("xetoc::FileRepo").make)
+    catch
+      throw Err("LibRepo not available for runtime")
     return curRef.val
   }
   private static const AtomicRef curRef := AtomicRef()
@@ -70,13 +73,6 @@ const mixin LibRepo
   ** must be satisfy all version constraints.   The overlay libs must not
   ** duplicte any libs in the base.
   abstract LibNamespace createOverlayNamespace(LibNamespace base, LibVersion[] libs)
-
-  ** System namespace that all application namespaces overlay
-  @NoDoc abstract LibNamespace systemNamespace()
-
-  ** Install (or reinstall) the system namespace.
-  ** This method is only by used the platform provider during bootstrap.
-  @NoDoc abstract Void installSystemNamespace(LibNamespace ns)
 
   ** Given a set of specific source lib versions, solve their dependency
   ** graph and compile a namespace.  For each source lib generate the xetolib

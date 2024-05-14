@@ -7,6 +7,7 @@
 //
 
 using xeto::LibRepo
+using xeto::LibNamespace
 using xeto::LibDepend
 using haystack
 using axon
@@ -475,7 +476,7 @@ const class HxCoreFuncs
    cx := curContext
    ns := cx.xeto
    repo := LibRepo.cur
-   system := repo.systemNamespace
+   system := LibNamespace.system
    repo.libs.each |libName|
    {
      status := ns.libStatus(libName, false)?.name ?: "disabled"

@@ -483,16 +483,6 @@ internal const class TestRepo : LibRepo
     throw UnsupportedErr()
   }
 
-  override LibNamespace systemNamespace()
-  {
-    throw UnsupportedErr()
-  }
-
-  override Void installSystemNamespace(LibNamespace ns)
-  {
-    throw UnsupportedErr()
-  }
-
   override LibNamespace build(LibVersion[] libs)
   {
     throw UnsupportedErr()

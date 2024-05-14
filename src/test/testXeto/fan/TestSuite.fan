@@ -183,7 +183,7 @@ class DataTestCase
 
   Void compileData(Str src)
   {
-    ns := LibRepo.cur.systemNamespace
+    ns := LibNamespace.system
     this.dataRef = compile |opts| { ns.compileData(src, opts) }
   }
 

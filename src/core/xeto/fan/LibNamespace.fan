@@ -18,6 +18,51 @@ const mixin LibNamespace
 {
 
 //////////////////////////////////////////////////////////////////////////
+// System
+//////////////////////////////////////////////////////////////////////////
+
+  ** System namespace that all application namespaces overlay
+  @NoDoc static LibNamespace system()
+  {
+    ns := systemRef.val
+    if (ns == null) systemRef.val = ns = createSystem
+    return ns
+  }
+
+  private const static AtomicRef systemRef := AtomicRef()
+
+  ** Default system namesapce used across all Haxall based platforms
+  private static LibNamespace createSystem()
+  {
+    repo := LibRepo.cur
+    libs := ["sys", "sys.comp", "ion", "ion.icons"]
+    vers := LibVersion[,]
+    libs.each |libName|
+    {
+      vers.addNotNull(repo.latest(libName, false))
+    }
+    return repo.createNamespace(vers)
+  }
+
+  ** Standard pattern to create project based overlay over the
+  ** system namespace from the project's using records.
+  @NoDoc static LibNamespace createSystemOverlay(Dict[] usings, Log log)
+  {
+    repo := LibRepo.cur
+    system := LibNamespace.system
+    acc := Str:LibVersion[:]
+    usings.each |rec|
+    {
+      name := rec["using"] as Str
+      if (name == null) return
+      if (system.hasLib(name)) return
+      if (acc[name] != null) log.warn("Duplicate using [$name]")
+      else acc.addNotNull(name, repo.latest(name, false))
+    }
+    return repo.createOverlayNamespace(system, acc.vals)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
 

@@ -59,7 +59,7 @@ class AbstractXetoTest : HaystackTest
 
   LibNamespace sysNamespace()
   {
-    LibRepo.cur.systemNamespace
+    LibNamespace.system
   }
 
   LibNamespace createNamespace(Str[] libs)

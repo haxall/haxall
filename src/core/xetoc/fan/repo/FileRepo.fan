@@ -130,30 +130,5 @@ const class FileRepo : LibRepo
     return ns
   }
 
-  override LibNamespace systemNamespace()
-  {
-    ns := systemNamespaceRef.val
-    if (ns == null) installSystemNamespace(ns = createDefaultSystemNamespace)
-    return ns
-  }
-
-  private const AtomicRef systemNamespaceRef := AtomicRef()
-
-  override Void installSystemNamespace(LibNamespace ns)
-  {
-    systemNamespaceRef.val = ns
-  }
-
-  private LibNamespace createDefaultSystemNamespace()
-  {
-    libs := ["sys"]
-    vers := LibVersion[,]
-    libs.each |libName|
-    {
-      vers.addNotNull(latest(libName, false))
-    }
-    return createNamespace(vers)
-  }
-
 }
 

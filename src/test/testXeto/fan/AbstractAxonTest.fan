@@ -30,7 +30,7 @@ abstract class AbstractAxonTest : HxTest
     // sync
     rt.sync
     ns := rt.ns.xeto
-    verifySame(ns.sysLib, LibRepo.cur.systemNamespace.sysLib)
+    verifySame(ns.sysLib, LibNamespace.system.sysLib)
     return ns
   }
 

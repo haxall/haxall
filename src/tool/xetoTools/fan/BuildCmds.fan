@@ -196,7 +196,7 @@ internal class InitCmd : XetoCmd
 
   private Void genMeta(File file)
   {
-    sysVer := LibRepo.cur.systemNamespace.sysLib.version
+    sysVer := LibNamespace.system.sysLib.version
     sysDepend := "" + sysVer.major + "." + sysVer.minor + ".x"
     file.out.print(
      """pragma: Lib <
