@@ -104,16 +104,27 @@ internal class Fitter
   {
     slots := type.slots
     if (type.isChoice && slots.isEmpty) return false
-    match := true
+
+
+    matchFail := false  // did we have any failed matches
+    matchSucc := false  // did we have any success matches
     slots.each |slot|
     {
-      match = fitsSlot(dict, slot) && match
-      if (failFast && !match) return false
+      match := fitsSlot(dict, slot)
+      if (match == null) return // null means we just skipped optional slot
+      if (match) matchSucc = true
+      else matchFail = true
+      if (failFast && matchFail) return false
     }
-    return match
+
+    // must have no fails
+    if (matchFail) return false
+
+    // must have at least one success unless type is sys::Dict itself
+    return matchSucc || type === ns.sys.dict
   }
 
-  private Bool fitsSlot(Dict dict, Spec slot)
+  private Bool? fitsSlot(Dict dict, Spec slot)
   {
     slotType := slot.type
 
@@ -123,7 +134,7 @@ internal class Fitter
 
     if (val == null)
     {
-      if (slot.isMaybe) return true
+      if (slot.isMaybe) return null
       return explainMissingSlot(slot)
     }
 
@@ -133,10 +144,10 @@ internal class Fitter
     return true
   }
 
-  private Bool fitsQuery(Dict dict, Spec query)
+  private Bool? fitsQuery(Dict dict, Spec query)
   {
     // if no constraints then no additional checking required
-    if (query.slots.isEmpty) return true
+    if (query.slots.isEmpty) return null
 
     // run the query to get matching extent
     extent := Query(ns, cx, opts).query(dict, query)
