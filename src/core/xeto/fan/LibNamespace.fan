@@ -31,6 +31,14 @@ const mixin LibNamespace
 
   private const static AtomicRef systemRef := AtomicRef()
 
+  ** Install system namespace only if not installed yet.
+  ** Return true if installed and false if already available.
+  ** This should only be used in a browser to install remote namespace.
+  @NoDoc static Bool installSystem(LibNamespace ns)
+  {
+    systemRef.compareAndSet(null, ns)
+  }
+
   ** Default system namesapce used across all Haxall based platforms
   private static LibNamespace createSystem()
   {
