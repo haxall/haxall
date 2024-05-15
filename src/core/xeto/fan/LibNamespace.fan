@@ -43,7 +43,7 @@ const mixin LibNamespace
   private static LibNamespace createSystem()
   {
     repo := LibRepo.cur
-    libs := ["sys", "sys.comp", "ion", "ion.icons"]
+    libs := ["sys", "sys.comp", "ion", "ion.icons", "ion.styles"]
     vers := LibVersion[,]
     libs.each |libName|
     {
