@@ -17,3 +17,9 @@ IFoo: Interface {
   add: Func { a: Number, b: Number, returns: Str }
 }
 
+IFooAndDict: IFoo & Dict {
+  text: Str
+}
+
+@ifoo-and-dict: IFooAndDict { text: "hi" }
+

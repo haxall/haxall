@@ -99,6 +99,9 @@ internal class InferData : Step
     // we don't infer meta dict slots, that is handled in InheritMeta
     if (dict.isMeta) return
 
+    // we don't infer slots from interfaces
+    if (slot.cparent.isInterface) return
+
     // we haven't run InheritMeta yet, so this is awkward....
     // TODO: we need to run InheritMeta before Reify
     CSpec cspec := slot

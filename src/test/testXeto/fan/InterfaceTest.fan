@@ -62,6 +62,10 @@ class InterfaceTest : AbstractAxonTest
     verifyEval("""IFoo().add(3, 4)""", "noname 7")
     verifyEval("""IFoo("brian").str""", "hi brian!")
     verifyEval("""IFoo("brian").add(3, 4)""", "brian 7")
+
+    // verify dict+interface doesn't treat slots as defaults
+    i := xns.instance("hx.test.xeto::ifoo-and-dict")
+    verifyDictEq(i, ["id":i->id, "spec":i->spec, "text":"hi"])
   }
 }
 
