@@ -20,6 +20,7 @@ using hx
 **
 ** Axon functions for working with xeto specs
 **
+@Js
 const class XetoFuncs
 {
 
@@ -151,7 +152,7 @@ const class XetoFuncs
     throw ArgErr("Invalid value for scope: $scopeVal [$scopeVal.typeof]")
   }
 
-  private static Spec[] typesInScope(HxContext cx, |Spec->Bool|? filter := null)
+  private static Spec[] typesInScope(AxonContext cx, |Spec->Bool|? filter := null)
   {
     acc := Spec[,]
     cx.xeto.eachType |x|
@@ -245,7 +246,7 @@ const class XetoFuncs
     throw ArgErr("Invalid value for scope: $scopeVal [$scopeVal.typeof]")
   }
 
-  private static Dict[] instancesInScope(HxContext cx, Filter? filter)
+  private static Dict[] instancesInScope(AxonContext cx, Filter? filter)
   {
     acc := Dict[,]
     cx.xeto.libs.each |lib|
@@ -615,7 +616,7 @@ const class XetoFuncs
     return gb.toGrid
   }
 
-  private static Spec[] doFitsMatchAll(HxContext cx, Dict rec, Spec[] specs)
+  private static Spec[] doFitsMatchAll(AxonContext cx, Dict rec, Spec[] specs)
   {
     // first pass is fit each type
     ns := cx.xeto
@@ -743,26 +744,10 @@ const class XetoFuncs
     return Etc.dictFromMap(acc)
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Utils
-//////////////////////////////////////////////////////////////////////////
-
-  ** Reload all the Xeto libraries
-  @Axon { su = true }
-  static Obj? xetoReload()
-  {
-    cx := curContext
-    isShell := cx.rt.platform.isShell
-    log := isShell ? Log.get("xeto") : cx.rt.lib("xeto").log
-    log.info("xetoReload [$cx.user.username]")
-    cx.rt.context.xetoReload
-    return isShell ? "_no_echo_" : "reloaded"
-  }
-
   ** Current context
-  internal static HxContext curContext()
+  internal static AxonContext curContext()
   {
-    HxContext.curHx
+    AxonContext.curAxon
   }
 
 }

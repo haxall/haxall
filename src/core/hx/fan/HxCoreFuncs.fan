@@ -462,6 +462,18 @@ const class HxCoreFuncs
 // Using Spec Libs
 //////////////////////////////////////////////////////////////////////////
 
+  ** Reload all the Xeto libraries
+  @Axon { su = true }
+  static Obj? xetoReload()
+  {
+    cx := HxContext.curHx
+    isShell := cx.rt.platform.isShell
+    log := isShell ? Log.get("xeto") : cx.rt.lib("xeto").log
+    log.info("xetoReload [$cx.user.username]")
+    cx.rt.context.xetoReload
+    return isShell ? "_no_echo_" : "reloaded"
+  }
+
   ** Get the list of installed Xeto libs and their current enable status.
   @NoDoc @Axon
   static Grid usingStatus()
