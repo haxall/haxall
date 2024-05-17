@@ -396,22 +396,31 @@ internal abstract const class FilterCmp : SimpleFilter
 {
   new make(FilterPath p, Obj v) : super(p)
   {
-    val = v; valType = v.typeof
-    toStr = "$p $op ${Kind.fromVal(v).valToStr(v)}"
+    this.val      = v
+    this.valType  = v.typeof
+    this.isNumber = valType === Number#
+    this.toStr    = "$p $op ${Kind.fromVal(v).valToStr(v)}"
   }
   override Bool doMatchesVal(Obj? v)
   {
-    if (v == null || v.typeof !== valType) return false
+    if (v == null || v.typeof !== valType) return false // scalar types are final
+    if (isNumber) return cmpNumber(v, val)
     return cmp(v, val)
   }
   override Void eachVal(|Obj?, FilterPath| f) { f(val, path) }
   override Str pattern() { "$path $op ?" }
   abstract Str op()
   abstract Bool cmp(Obj x, Obj val)
+  Bool cmpNumber(Number a, Number b)
+  {
+    if (a.unit !== b.unit) return false
+    return cmp(a.toFloat, b.toFloat)
+  }
   override final Obj? argB() { val }
   override const Str toStr
   const Obj val
   const Type valType
+  const Bool isNumber
 }
 
 @Js
@@ -904,6 +913,4 @@ internal const class FilterSearchFilter : SearchFilter
 
   const Filter filter
 }
-
-
 

@@ -449,6 +449,35 @@ class FilterTest : HaystackTest
     verifyInclude(recs, Str<|Dict|>, [,])
   }
 
+  Void testIncludeNumbers()
+  {
+    a := Etc.makeDict(["dis":"a", "num":n(75)])
+    b := Etc.makeDict(["dis":"b", "num":n(75, "°F")])
+    c := Etc.makeDict(["dis":"c", "num":n(2, "min")])
+    recs := [a, b, c]
+
+    verifyInclude(recs, Str<|num==75|>,    [a])
+    verifyInclude(recs, Str<|num==75°F|>,  [b])
+    verifyInclude(recs, Str<|num==75°C|>,  [,])
+    verifyInclude(recs, Str<|num==2min|>,  [c])
+    verifyInclude(recs, Str<|num==120sec|>, [,])
+
+    verifyInclude(recs, Str<|num > 70|>,    [a])
+    verifyInclude(recs, Str<|num > 70°F|>,  [b])
+    verifyInclude(recs, Str<|num >= 70°F|>, [b])
+    verifyInclude(recs, Str<|num >= 75°F|>, [b])
+    verifyInclude(recs, Str<|num <  80°F|>, [b])
+    verifyInclude(recs, Str<|num <= 80°F|>, [b])
+    verifyInclude(recs, Str<|num <= 75°F|>, [b])
+    verifyInclude(recs, Str<|num > 70°C|>,  [,])
+    verifyInclude(recs, Str<|num > 1min|>,  [c])
+    verifyInclude(recs, Str<|num > 60sec|>, [,])
+
+    verifyInclude(recs, Str<|dis == 75|>, [,])
+    verifyInclude(recs, Str<|dis >  75|>, [,])
+    verifyInclude(recs, Str<|dis <  75|>, [,])
+  }
+
   Void testIncludeList()
   {
     aId := Ref("a")

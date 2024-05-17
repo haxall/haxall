@@ -810,7 +810,7 @@ const class CoreLib
   ** Fold a list or stream into a single value using given folding function.
   ** The folding function signature must be '(val, acc)' where val is the items
   ** being folded, and acc is an accumulator used to maintain
-  ** state between interations.  Lifecycle of a fold:
+  ** state between iterations.  Lifecycle of a fold:
   **   1. Call 'fn(foldStart, null)', return initial accumulator state
   **   2. Call 'fn(item, acc)' for every item, return new accumulator state
   **   3. Call 'fn(foldEnd, acc)' return final result
@@ -3089,3 +3089,4 @@ const class CoreLib
   private const static Unit unitMin   := Unit("min")
   private const static Unit unitSec   := Unit("s")
 }
+
