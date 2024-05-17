@@ -9,10 +9,11 @@
 
 using concurrent
 using xeto
+using haystack::Etc
 using haystack::Marker
 using haystack::NA
-using haystack::Remove
 using haystack::Number
+using haystack::Remove
 using haystack::Ref
 
 **
@@ -109,15 +110,17 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
 {
   override Bool canLoad(Str libName)
   {
-    if (libName == "sys") return true
-    if (libName == "ph") return true
+    if (libName == "sys")      return true
+    if (libName == "sys.comp") return true
+    if (libName == "ph")       return true
     return false
   }
 
   override Str:SpecFactory load(Str libName, Str[] specNames)
   {
-    if (libName == "sys") return loadSys
-    if (libName == "ph") return loadPh
+    if (libName == "sys")      return loadSys
+    if (libName == "sys.comp") return loadSysComp
+    if (libName == "ph")       return loadPh
     throw Err(libName)
   }
 
@@ -150,6 +153,15 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
       "Number":   NumberFactory(hay.type("Number")),
       "Ref":      RefFactory(hay.type("Ref")),
       "Dict":     DictFactory(),
+    ]
+  }
+
+  private Str:SpecFactory loadSysComp()
+  {
+    xeto := Pod.find("xeto")
+    return [
+      "Link":  LinkFactory(xeto.type("Link")),
+      "Links": LinksFactory(xeto.type("Links")),
     ]
   }
 
@@ -280,5 +292,19 @@ internal const class RefFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Ref.fromStr(str, checked) }
+}
+
+@Js
+internal const class LinkFactory : DictSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Dict decodeDict(Dict xeto, Bool checked := true) { Etc.linkWrap(xeto) }
+}
+
+@Js
+internal const class LinksFactory : DictSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Dict decodeDict(Dict xeto, Bool checked := true) { Etc.links(xeto) }
 }
 

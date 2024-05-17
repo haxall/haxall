@@ -48,6 +48,40 @@ class FactoryTest : AbstractXetoTest
     verifySame(ns.spec("sys::LibOrg").fantomType, Dict#)
   }
 
+  Void testSysComp()
+  {
+    ns := createNamespace(["sys", "sys.comp"])
+
+    // Link
+    Link link := ns.compileData(Str<|sys.comp::Link { fromRef:"a", fromSlot:"b", toSlot:"c"}|>)
+    verifyEq(link.fromRef,  Ref("a"))
+    verifyEq(link.fromSlot, "b")
+    verifyEq(link.toSlot,   "c")
+    verifyEq(ns.specOf(link), ns.spec("sys.comp::Link"))
+
+    // Links - single
+    Links links := ns.compileData(
+      Str<|sys.comp::Links {
+             c: sys.comp::Link { fromRef:"a", fromSlot:"b", toSlot:"c" }
+           }|>)
+    verifyDictsEq((haystack::Dict[])(Obj)links.list, [link])
+    verifyDictsEq((haystack::Dict[])(Obj)links.on("c"), [link])
+    verifyEq(ns.specOf(links), ns.spec("sys.comp::Links"))
+
+    // Links - list
+    links = ns.compileData(
+      Str<|sys.comp::Links {
+             c: List {
+               sys.comp::Link { fromRef:"a", fromSlot:"b", toSlot:"c" }
+               sys.comp::Link { fromRef:"x", fromSlot:"b", toSlot:"c" }
+             }
+           }|>)
+    link2 := Etc.link(Ref("x"), "b", "c")
+    verifyDictsEq((haystack::Dict[])(Obj)links.list, [link, link2])
+    verifyDictsEq((haystack::Dict[])(Obj)links.on("c"), [link, link2])
+    verifyEq(ns.specOf(links), ns.spec("sys.comp::Links"))
+  }
+
   Void testPh()
   {
     ns := createNamespace(["sys", "ph"])
