@@ -36,6 +36,9 @@ const mixin Link : Dict
 @Js
 const mixin Links : Dict
 {
+  ** Iterate all the links as flat list
+  abstract Void eachLink(|Link| f)
+
   ** List all the links as flat list
   abstract Link[] list()
 

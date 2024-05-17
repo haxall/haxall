@@ -9,6 +9,7 @@
 using xeto
 using xetoEnv
 using haystack
+using haystack::Ref
 
 **
 ** UtilTest
@@ -462,6 +463,95 @@ class UtilTest : AbstractXetoTest
     // echo("--> $c " + v + " = " + c.contains(Version(v)))
     verifyEq(c.toStr, s.replace(" ", ""))
     verifyEq(c.contains(Version(v)), expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Etc.link
+//////////////////////////////////////////////////////////////////////////
+
+  Void testLink()
+  {
+    // empty
+    verifyLink(Etc.linkWrap(Etc.dict0), Ref.nullRef, "-", "-")
+
+    // Etc.linkWrap (without spec)
+    tags := ["fromRef":Ref("foo.bar"), "fromSlot":"baz", "toSlot":"qux"]
+    verifyLink(Etc.linkWrap(Etc.makeDict(tags)), Ref("foo.bar"), "baz", "qux")
+
+    // Etc.linkWrap (with spec)
+    tags = ["fromRef":Ref("foo.bar"), "fromSlot":"baz", "toSlot":"qux", "spec":Ref("sys.comp::Link")]
+    verifyLink(Etc.linkWrap(Etc.makeDict(tags)), Ref("foo.bar"), "baz", "qux")
+
+    //  Etc.link
+    verifyLink(Etc.link(Ref("foo.bar"), "baz", "qux"), Ref("foo.bar"), "baz", "qux")
+  }
+
+  Void verifyLink(Link link, Ref fromRef, Str fromSlot, Str toSlot)
+  {
+    // echo("---> $link")
+
+    verifyEq(link.fromRef,  fromRef)
+    verifyEq(link.fromSlot, fromSlot)
+    verifyEq(link.toSlot,   toSlot)
+    verifyEq(link["spec"],  Ref("sys.comp::Link"))
+
+    tags := Str:Obj[:]
+    tags["spec"] = link->spec
+    if (!fromRef.isNull) tags["fromRef"]  = fromRef
+    if (fromSlot != "-") tags["fromSlot"] = fromSlot
+    if (toSlot != "-")   tags["toSlot"]   = toSlot
+    verifyDictEq((haystack::Dict)link, tags)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Etc.links
+//////////////////////////////////////////////////////////////////////////
+
+  Void testLinks()
+  {
+    a := Etc.link(Ref("add-1"), "out", "in1")
+    b := Etc.link(Ref("add-1"), "out", "in1")
+    c := Etc.link(Ref("add-1"), "out", "in2")
+
+    // empty
+    verifyLinks(Etc.links(null), [:])
+
+    // single
+    w := Etc.makeDict(["in1":a])
+    verifyLinks(Etc.links(w), ["in1":[a]])
+
+    // list of single
+    w = Etc.makeDict(["in1":[a]])
+    verifyLinks(Etc.links(w), ["in1":[a]])
+
+    // list of two
+    w = Etc.makeDict(["spec":Ref("sys.comp::Links"), "in1":[a, b]])
+    verifyLinks(Etc.links(w), ["in1":[a, b]])
+
+    // combo
+    w = Etc.makeDict(["in1":[a, b], "in2":c])
+    verifyLinks(Etc.links(w), ["in1":[a, b], "in2":[c]])
+  }
+
+  Void verifyLinks(Links links, Str:Link[] expect)
+  {
+    verifyEq(links["spec"], Ref("sys.comp::Links"))
+
+    // Links.list
+    all := Link[,]
+    expect.each |v, n| { all.addAll(v) }
+    verifyEq(links.list, all)
+
+    // Links.eachLink
+    acc := Link[,]
+    links.eachLink |x| { acc.add(x) }
+    verifyEq(acc, all)
+
+    // Links.on
+    expect.each |v, n|
+    {
+      verifyEq(links.on(n), v)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -6,6 +6,8 @@
 //   22 Dec 2009  Brian Frank  Creation
 //
 
+using xeto::Link
+
 **************************************************************************
 ** EmptyDict
 **************************************************************************
@@ -455,6 +457,65 @@ abstract const class WrapDict : Dict
   override Void each(|Obj, Str| f) { wrapped.each(f) }
   override Obj? eachWhile(|Obj, Str->Obj?| f) { wrapped.eachWhile(f) }
   override Obj? trap(Str n, Obj?[]? a := null) { wrapped.trap(n, a) }
+}
+
+**************************************************************************
+** MLink
+**************************************************************************
+
+@Js
+internal const class MLink : WrapDict, xeto::Link
+{
+  static const Ref specRef := Ref("sys.comp::Link")
+  new make(Dict wrapped) : super(wrapped)
+  {
+    this.fromRef  = wrapped["fromRef"]  as Ref ?: Ref.nullRef
+    this.fromSlot = wrapped["fromSlot"] as Str ?: "-"
+    this.toSlot   = wrapped["toSlot"]   as Str ?: "-"
+  }
+  override const Ref fromRef
+  override const Str fromSlot
+  override const Str toSlot
+}
+
+**************************************************************************
+** MLinks
+**************************************************************************
+
+@Js
+internal const class MLinks : WrapDict, xeto::Links
+{
+  static const Ref specRef := Ref("sys.comp::Links")
+  static const MLinks empty := make(Etc.dict1("spec", specRef))
+  new make(Dict wrapped) : super(wrapped) {}
+  override Void eachLink(|Link| f)
+  {
+    each |v, n|
+    {
+      if (v is Link)
+      {
+        f(v)
+      }
+      else if (v is List)
+      {
+        ((List)v).each |x| { if (x is Link) f(x) }
+      }
+    }
+  }
+  override Link[] list()
+  {
+    if (this === empty) return Link#.emptyList
+    acc := Link[,]
+    eachLink |v| { acc.add(v) }
+    return acc
+  }
+  override Link[] on(Str toSlot)
+  {
+    v := get(toSlot)
+    if (v is List) return v
+    if (v is Link) return Link[v]
+    return Link#.emptyList
+  }
 }
 
 **************************************************************************

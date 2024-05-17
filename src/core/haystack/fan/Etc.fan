@@ -260,6 +260,29 @@ const class Etc
     }
   }
 
+  ** Construct link from its parts - temp solution until we can move into xeto
+  @NoDoc static xeto::Link link(Ref fromRef, Str fromSlot, Str toSlot)
+  {
+    linkWrap(dict4("fromRef", fromRef, "fromSlot", fromSlot, "toSlot", toSlot, "spec", MLink.specRef))
+  }
+
+  ** Construct link from dict - temp solution until we can move into xeto
+  @NoDoc static xeto::Link linkWrap(Dict wrap)
+  {
+    if (wrap["spec"] == null) wrap = dictSet(wrap, "spec", MLink.specRef)
+    return MLink(wrap)
+  }
+
+  ** Construct links implementation - temp solution until we can move into xeto
+  @NoDoc static xeto::Links links(Obj? v)
+  {
+    if (v == null) return MLinks.empty
+    wrap := (Dict)v
+    if (wrap.isEmpty) return MLinks.empty
+    if (wrap["spec"] == null) wrap = dictSet(wrap, "spec", MLinks.specRef)
+    return MLinks(wrap)
+  }
+
   **
   ** Make a list of Dict instances using `makeDict`.
   **
