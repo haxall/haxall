@@ -33,7 +33,7 @@ internal class InitCli : HxCli
   @Opt { help = "The su username. Required for headless mode." }
   Str? suUser
 
-  @Opt { help = "The su user password. Required for headless mode." }
+  @Opt { help = "The su user password. Used for headless, or one is auto-generated" }
   Str? suPass
 
   @Arg { help = "Runtime database directory" }
@@ -49,6 +49,14 @@ internal class InitCli : HxCli
     printLine("Success!")
     printLine
 
+    if (showPassword)
+    {
+      printLine("--- Superuser account ---")
+      printLine("Username: $suUser")
+      printLine("Password: $suPass")
+      printLine
+    }
+
     return 0
   }
 
@@ -58,9 +66,15 @@ internal class InitCli : HxCli
     if (!dir.isDir) dir = dir.uri.plusSlash.toFile
     dir = dir.normalize
 
-    // headless requires suPass
+    // headless requires suUser
     if (headless && suUser == null) throw Err("suUser option is required for headless mode")
-    if (headless && suPass == null) throw Err("suPass option is required for headless mode")
+
+    // headless wihtout suPass generates one
+    if (headless && suPass == null)
+    {
+      suPass = genPassword
+      showPassword = true
+    }
 
     printLine
     printLine("hx init [$dir.normalize.osPath]")
@@ -193,5 +207,20 @@ internal class InitCli : HxCli
       HxUserUtil.updatePassword(rt.db, rec, suPass)
     }
   }
+
+  private static Str genPassword()
+  {
+    alphabet := "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    mixed := alphabet.chars.shuffle
+    buf := StrBuf()
+    3.times |i|
+    {
+      5.times { buf.addChar(mixed[Int.random(0..<mixed.size)]) }
+      if (i < 2) buf.addChar('-')
+    }
+    return buf.toStr
+  }
+
+  private Bool showPassword
 }
 
