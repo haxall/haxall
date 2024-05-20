@@ -449,6 +449,11 @@ internal class Parser
         name = autoName(x.map)
         val = parseNamedData(true)
       }
+      else if (cur === Token.heredoc)
+      {
+        parseDictHeredocs(x)
+        continue
+      }
       else
       {
         name = autoName(x.map)
@@ -470,6 +475,18 @@ internal class Parser
   private Bool curIsDictSlotName()
   {
     cur === Token.id && curVal.toStr[0].isLower && peek !== Token.doubleColon && peek !== Token.dot
+  }
+
+  private Void parseDictHeredocs(ADict x)
+  {
+    while (cur === Token.heredoc)
+    {
+      heredoc := (Heredoc)curVal
+      val := AScalar(curToLoc, sys.str, heredoc.val, heredoc.val)
+      consume
+      add("name", x.map, heredoc.name, val)
+    }
+    consume(Token.nl)
   }
 
 //////////////////////////////////////////////////////////////////////////

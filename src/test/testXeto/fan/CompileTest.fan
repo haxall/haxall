@@ -249,14 +249,47 @@ class CompileTest : AbstractXetoTest
       Str<|  line a
            line b
              line c|>)
+
+   // instance data
+   lib = ns.compileLib(
+       Str<|@a: {
+              bar
+              --- baz
+              line 1
+                line 2
+              ---
+              }
+
+            @b: {
+              bar
+              --- baz
+              line 1
+                line 2
+              --- qux
+              some--
+              --code
+              ---
+              }
+            @c: {
+              tag1
+              --- tag2
+              line 1
+                line 2
+              ---
+              tag3
+              }|>)
+    a := lib.instance("a")
+    b := lib.instance("b")
+    c := lib.instance("c")
+
+    verifyDictEq(a, ["id":a->id, "bar":m, "baz":"line 1\n  line 2"])
+    verifyDictEq(b, ["id":b->id, "bar":m, "baz":"line 1\n  line 2", "qux":"some--\n--code"])
+    verifyDictEq(c, ["id":c->id, "tag1":m, "tag2":"line 1\n  line 2", "tag3":m])
   }
 
   Void verifyHeredoc(Spec spec, Str metaName, Str expect)
   {
     actual := spec.meta[metaName]
-echo(">>>> TEST $metaName")
-echo(actual)
-echo("<<<<")
     verifyEq(actual, expect)
   }
 

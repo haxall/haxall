@@ -30,17 +30,19 @@ Productions [#productions]
   <heredocLines> :=  // lines with same indentation as heredoc start
 
 
-  <data>           :=  <dict> | <dataScalar> | <ref> | <spec>
-  <dataType>       :=  <typeSimple>    // may want to allow List<of>
-  <dataScalar>     :=  [<dataType>] <scalar>
-  <dict>           :=  [<dataType>] "{" <dictTags> "}"
-  <dictTags>       :=  [<dictTag> <endOfObj>]*
-  <dictTag>        :=  <dictMarkerTag> | <dictNamedTag> | <dictUnnamedTag> | <dictIdTag> | <dictNamedIdTag>
-  <dictMarkerTag>  :=  <name>
-  <dictNamedTag>   :=  <name> ":" <data>
-  <dictUnnamedTag> :=  <data>
-  <dictIdTag>      :=  <ref> ":" <dict>
-  <dictNamedIdTag> :=  <name> <ref> ":" <dict>
+  <data>            :=  <dict> | <dataScalar> | <ref> | <spec>
+  <dataType>        :=  <typeSimple>    // may want to allow List<of>
+  <dataScalar>      :=  [<dataType>] <scalar>
+  <dict>            :=  [<dataType>] "{" <dictTags> "}"
+  <dictTags>        :=  [<dictTag> <endOfObj>]*
+  <dictTag>         :=  <dictMarkerTag> | <dictNamedTag> | <dictUnnamedTag> |
+                        <dictIdTag> | <dictNamedIdTag> | <dictHeredocTags>
+  <dictMarkerTag>   :=  <name>
+  <dictNamedTag>    :=  <name> ":" <data>
+  <dictUnnamedTag>  :=  <data>
+  <dictIdTag>       :=  <ref> ":" <dict>
+  <dictNamedIdTag>  :=  <name> <ref> ":" <dict>
+  <dictHeredocTags> :=  <heredocs>
 
   <type>         :=  <typeMaybe> | <typeAnd> | <typeOr> | <typeSimple>
   <typeMaybe>    :=  <typeSimple> "?"
