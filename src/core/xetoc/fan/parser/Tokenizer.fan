@@ -451,7 +451,7 @@ internal class Tokenizer
       s.addChar(cur)
       consume
     }
-    if (s[-1] == '\n') s.remove(-1)
+    if (s.size > 0 && s[-1] == '\n') s.remove(-1)
     val := s.toStr
 
     this.val = Heredoc(name, val)

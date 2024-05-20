@@ -275,6 +275,7 @@ class CompileTest : AbstractXetoTest
               --- tag2
               line 1
                 line 2
+              --- empty
               ---
               tag3
               }|>)
@@ -284,7 +285,7 @@ class CompileTest : AbstractXetoTest
 
     verifyDictEq(a, ["id":a->id, "bar":m, "baz":"line 1\n  line 2"])
     verifyDictEq(b, ["id":b->id, "bar":m, "baz":"line 1\n  line 2", "qux":"some--\n--code"])
-    verifyDictEq(c, ["id":c->id, "tag1":m, "tag2":"line 1\n  line 2", "tag3":m])
+    verifyDictEq(c, ["id":c->id, "tag1":m, "tag2":"line 1\n  line 2", "empty":"", "tag3":m])
   }
 
   Void verifyHeredoc(Spec spec, Str metaName, Str expect)
