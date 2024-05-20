@@ -142,7 +142,7 @@ internal class HisCollectRec
   {
     if (buf.size < buf.max) return false
     old := (HisCollectItem)buf.oldest
-    return !old.written
+    return old.written == HisCollectItemState.pending
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -172,18 +172,21 @@ internal class HisCollectRec
     buf.eachWhile |HisCollectItem item->Obj?|
     {
       // iterate only pending unwritten items, then exit loop
-      if (item.written) return "done"
-
-      // mark this item written to historian
-      item.written = true
+      if (item.written != HisCollectItemState.pending) return "done"
 
       // if value is bad, then we write NA to historian
       val := item.curVal
       if (val == null || item.curStatus != "ok")
       {
-        if (!collectNA) return null // skip bad data if not collecting NA
+        if (!collectNA)
+        {
+          item.written = HisCollectItemState.skipped
+          return null // skip bad data if not collecting NA
+        }
         val = NA.val
+        item.written = HisCollectItemState.wroteNA
       }
+      else { item.written = HisCollectItemState.wroteVal }
 
       toWrite.add(HisItem(item.ts, val))
       return null
@@ -377,6 +380,7 @@ internal class HisCollectRec
        interval:        $interval (${intervalHours}hr, ${intervalMinutes}min, ${intervalSecs}sec)
        cov:             $cov
        covRateLimit:    $covRateLimit
+       collectNA:       $collectNA
        tz:              $tz
        writeFreq:       $writeFreq
        writeLast:       ${detailsDurToTs(writeLast)}
@@ -447,15 +451,22 @@ internal class HisCollectItem
     this.ts        = ts
     this.curVal    = curVal
     this.curStatus = curStatus
+    this.written   = HisCollectItemState.pending
   }
 
   const DateTime ts
   const Obj? curVal
   const Str? curStatus
 
-  Bool written
+  HisCollectItemState written
 
-  Str writtenToStr() { written ? "written" : "pending" }
+  Str writtenToStr() { written.toStr }
 
   override Str toStr() { "$ts.toLocale $curVal {$curStatus} $writtenToStr" }
 }
+
+**************************************************************************
+** HisCollectItemState
+**************************************************************************
+
+internal enum class HisCollectItemState { pending, wroteVal, wroteNA, skipped }
