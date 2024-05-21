@@ -1,0 +1,17 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   21 May 2024  Brian Frank  Creation
+//
+
+TestFolder : Comp {
+}
+
+TestAdd : Comp {
+  in1: Number
+  in2: Number
+  out: Number
+}
+

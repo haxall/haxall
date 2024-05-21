@@ -198,4 +198,39 @@ const class DisabledErr : Err
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
+**
+** Invalid name error
+**
+@NoDoc @Js
+const class InvalidNameErr : Err
+{
+  new make(Str msg := "", Err? cause := null) : super(msg, cause) {}
+}
+
+**
+** Invalid change error
+**
+@NoDoc @Js
+const class InvalidChangeErr : Err
+{
+  new make(Str msg := "", Err? cause := null) : super(msg, cause) {}
+}
+
+**
+** Using a name that already exists
+**
+@NoDoc @Js
+const class DuplicateNameErr : Err
+{
+  new make(Str msg := "", Err? cause := null) : super(msg, cause) {}
+}
+
+**
+** Raised when adding a component that already has a parent
+**
+@NoDoc @Js
+const class AlreadyParentedErr : Err
+{
+  new make(Str msg := "", Err? cause := null) : super(msg, cause) {}
+}
 

@@ -32,9 +32,10 @@ class Build : BuildPod
                "xeto @{hx.depend}",
                "haystack @{hx.depend}"]
   srcDirs = [`fan/ast/`,
-             `fan/ns/`,
+             `fan/comp/`,
              `fan/impl/`,
              `fan/io/`,
+             `fan/ns/`,
              `fan/remote/`,
              `fan/util/`,
              ]
