@@ -30,10 +30,10 @@ internal class InitCli : HxCli
   @Opt { help = "Disable HTTPS if configured" }
   Bool httpsDisable := false
 
-  @Opt { help = "The su username. Required for headless mode." }
+  @Opt { help = "The su username for headless, defaults to su" }
   Str? suUser
 
-  @Opt { help = "The su user password. Used for headless, or one is auto-generated" }
+  @Opt { help = "The su user password for headless, defaults to auto-generated" }
   Str? suPass
 
   @Arg { help = "Runtime database directory" }
@@ -67,7 +67,10 @@ internal class InitCli : HxCli
     dir = dir.normalize
 
     // headless requires suUser
-    if (headless && suUser == null) throw Err("suUser option is required for headless mode")
+    if (headless && suUser == null)
+    {
+      suUser = "su"
+    }
 
     // headless wihtout suPass generates one
     if (headless && suPass == null)
