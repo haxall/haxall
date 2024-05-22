@@ -28,17 +28,23 @@ class CompSpace : CompSpiFactory
   new make(LibNamespace ns)
   {
     this.ns = ns
+  }
+
+  ** Initialize the root - this must be called exactly once during initialization
+  This initRoot(|This->Comp| f)
+  {
+    if (rootRef != null) throw Err("Root already initialized")
 
     // use callback to make root while this is installed as actor local
     Actor.locals[actorKey] = this
     try
-      this.rootRef = makeRoot()
+      this.rootRef = f(this)
     finally
     Actor.locals.remove(actorKey)
     mount(root)
-  }
 
-  protected virtual Comp makeRoot() { CompObj() }
+    return this
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Identity
@@ -48,7 +54,7 @@ class CompSpace : CompSpiFactory
   const LibNamespace ns
 
   ** Root component
-  Comp root() { rootRef }
+  Comp root() { rootRef ?: throw Err("Must call initRoot") }
 
 //////////////////////////////////////////////////////////////////////////
 // Comp Management
@@ -109,7 +115,7 @@ class CompSpace : CompSpiFactory
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private Comp rootRef
+  private Comp? rootRef
   private Int compCounter
   private Ref:Comp byId := [:]
 }
