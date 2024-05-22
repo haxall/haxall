@@ -25,7 +25,7 @@ class CompSpace : CompSpiFactory
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(LibNamespace ns, |->Comp| makeRoot)
+  new make(LibNamespace ns)
   {
     this.ns = ns
 
@@ -37,6 +37,8 @@ class CompSpace : CompSpiFactory
     Actor.locals.remove(actorKey)
     mount(root)
   }
+
+  protected virtual Comp makeRoot() { CompObj() }
 
 //////////////////////////////////////////////////////////////////////////
 // Identity

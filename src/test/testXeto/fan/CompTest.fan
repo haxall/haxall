@@ -27,7 +27,7 @@ class CompTest: AbstractXetoTest
     ns := createNamespace(["hx.test.xeto"])
     folder := ns.spec("hx.test.xeto::TestFolder")
     add := ns.spec("hx.test.xeto::TestAdd")
-    cs := CompSpace(ns) |->Comp| { CompObj(folder) }
+    cs := CompSpace(ns)
     Actor.locals[CompSpace.actorKey] = cs
     r := cs.root
 

@@ -131,7 +131,7 @@ mixin Comp
 //////////////////////////////////////////////////////////////////////////
 
   ** Debug dump with some pretty print
-  @NoDoc Void dump(OutStream out := Env.cur.out, Obj? opts := null) { spi.dump(out, opts) }
+  @NoDoc virtual Void dump(OutStream out := Env.cur.out, Obj? opts := null) { spi.dump(out, opts) }
 
 }
 
@@ -152,7 +152,8 @@ class CompObj : Comp
   }
 
   ** Constructor for generic component with given spec
-  new makeForSpec(Spec spec)
+  static new makeForSpec(Spec spec) { doMakeForSpec(spec) }
+  private new doMakeForSpec(Spec spec)
   {
     this.spiRef = CompSpiFactory.cur.initSpi(this, spec)
   }

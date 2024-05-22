@@ -160,8 +160,9 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
   {
     xeto := Pod.find("xeto")
     return [
-      "Link":  LinkFactory(xeto.type("Link")),
-      "Links": LinksFactory(xeto.type("Links")),
+      "Comp":   DictFactory(Comp#),
+      "Link":   LinkFactory(xeto.type("Link")),
+      "Links":  LinksFactory(xeto.type("Links")),
     ]
   }
 
