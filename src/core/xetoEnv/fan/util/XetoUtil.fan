@@ -363,6 +363,7 @@ const class XetoUtil
     if (id != null) acc["id"] = id
 
     acc["dis"] = XetoUtil.isAutoName(spec.name) ? spec.base.name : spec.name
+    acc["spec"] = spec.type._id
 
     spec.slots.each |slot|
     {

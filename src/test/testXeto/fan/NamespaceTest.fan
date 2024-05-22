@@ -491,32 +491,32 @@ class NamespaceTest : AbstractXetoTest
     verifyInstantiate(ns, "sys::Dict", dict0)
     verifyInstantiate(ns, "sys::List", Obj?[,])
 
-    verifyInstantiate(ns, "ph::Meter", ["dis":"Meter", "equip":m, "meter":m])
-    verifyInstantiate(ns, "ph::ElecMeter", ["dis":"ElecMeter", "equip":m, "meter":m, "elec":m])
-    verifyInstantiate(ns, "ph::AcElecMeter", ["dis":"AcElecMeter", "equip":m, "meter":m, "elec":m, "ac":m])
+    verifyInstantiate(ns, "ph::Meter", ["dis":"Meter", "spec":Ref("ph::Meter"), "equip":m, "meter":m])
+    verifyInstantiate(ns, "ph::ElecMeter", ["dis":"ElecMeter", "spec":Ref("ph::ElecMeter"), "equip":m, "meter":m, "elec":m])
+    verifyInstantiate(ns, "ph::AcElecMeter", ["dis":"AcElecMeter", "spec":Ref("ph::AcElecMeter"), "equip":m, "meter":m, "elec":m, "ac":m])
 
-    verifyInstantiate(ns, "ph::Meter", ["id":Ref("foo"), "dis":"Meter", "equip":m, "meter":m], ["id":Ref("foo")])
+    verifyInstantiate(ns, "ph::Meter", ["id":Ref("foo"), "dis":"Meter", "spec":Ref("ph::Meter"), "equip":m, "meter":m], ["id":Ref("foo")])
 
-    verifyInstantiate(ns, "ph.points::DischargeAirTempSensor", ["dis":"DischargeAirTempSensor", "discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":"°F"])
-    verifyInstantiate(ns, "ashrae.g36::G36ReheatVav", ["dis":"G36ReheatVav", "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m])
+    verifyInstantiate(ns, "ph.points::DischargeAirTempSensor", ["dis":"DischargeAirTempSensor", "spec":Ref("ph.points::DischargeAirTempSensor"),  "discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":"°F"])
+    verifyInstantiate(ns, "ashrae.g36::G36ReheatVav", ["dis":"G36ReheatVav", "spec":Ref("ashrae.g36::G36ReheatVav"), "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m])
 
     x := Ref("x")
     verifyInstantiateGraph(ns, "ashrae.g36::G36ReheatVav", [
-      ["id":Ref("x"), "dis":"G36ReheatVav", "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m],
-      ["id":Ref("x"), "dis":"ZoneAirTempSensor",      "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "temp":m],
-      ["id":Ref("x"), "dis":"ZoneAirTempEffectiveSp", "point":m, "sp":m,      "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "effective":m, "temp":m],
-      ["id":Ref("x"), "dis":"ZoneOccupiedSensor",     "point":m, "sensor":m,  "kind":"Bool",   "equipRef":x, "enum":Ref("ph.points::OccupiedEnum"), "zone":m, "occupied":m],
-      ["id":Ref("x"), "dis":"ZoneCo2Sensor",          "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"ppm", "zone":m, "air":m, "co2":m, "concentration":m],
-      ["id":Ref("x"), "dis":"HotWaterValveCmd",       "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "hot":m, "water":m, "valve":m],
-      ["id":Ref("x"), "dis":"DischargeDamperCmd",     "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "discharge":m, "air":m, "damper":m],
-      ["id":Ref("x"), "dis":"DischargeAirFlowSensor", "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"cfm","discharge":m, "air":m, "flow":m],
-      ["id":Ref("x"), "dis":"DischargeAirTempSensor", "point":m, "sensor":m , "kind":"Number", "equipRef":x, "unit":"°F", "discharge":m, "air":m, "temp":m],
+      ["id":Ref("x"), "dis":"G36ReheatVav", "spec":Ref("ashrae.g36::G36ReheatVav"), "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m],
+      ["id":Ref("x"), "dis":"ZoneAirTempSensor",      "spec":Ref("ph.points::ZoneAirTempSensor"),      "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "temp":m],
+      ["id":Ref("x"), "dis":"ZoneAirTempEffectiveSp", "spec":Ref("ph.points::ZoneAirTempEffectiveSp"), "point":m, "sp":m,      "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "effective":m, "temp":m],
+      ["id":Ref("x"), "dis":"ZoneOccupiedSensor",     "spec":Ref("ph.points::ZoneOccupiedSensor"),     "point":m, "sensor":m,  "kind":"Bool",   "equipRef":x, "enum":Ref("ph.points::OccupiedEnum"), "zone":m, "occupied":m],
+      ["id":Ref("x"), "dis":"ZoneCo2Sensor",          "spec":Ref("ph.points::ZoneCo2Sensor"),          "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"ppm", "zone":m, "air":m, "co2":m, "concentration":m],
+      ["id":Ref("x"), "dis":"HotWaterValveCmd",       "spec":Ref("ph.points::HotWaterValveCmd"),       "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "hot":m, "water":m, "valve":m],
+      ["id":Ref("x"), "dis":"DischargeDamperCmd",     "spec":Ref("ph.points::DischargeDamperCmd"),     "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "discharge":m, "air":m, "damper":m],
+      ["id":Ref("x"), "dis":"DischargeAirFlowSensor", "spec":Ref("ph.points::DischargeAirFlowSensor"), "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"cfm","discharge":m, "air":m, "flow":m],
+      ["id":Ref("x"), "dis":"DischargeAirTempSensor", "spec":Ref("ph.points::DischargeAirTempSensor"), "point":m, "sensor":m , "kind":"Number", "equipRef":x, "unit":"°F", "discharge":m, "air":m, "temp":m],
     ])
 
     verifyInstantiateGraph(ns, "hx.test.xeto::EqA", [
-      ["id":Ref("x"), "dis":"EqA", "equip":m],
-      ["id":Ref("x"), "dis":"a", "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x],
-      ["id":Ref("x"), "dis":"b", "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x, "foo":m],
+      ["id":Ref("x"), "dis":"EqA", "spec":Ref("hx.test.xeto::EqA"), "equip":m],
+      ["id":Ref("x"), "dis":"a", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x],
+      ["id":Ref("x"), "dis":"b", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x, "foo":m],
     ])
 
     verifyErr(Err#) { ns.instantiate(ns.spec("sys::Obj")) }
@@ -547,7 +547,7 @@ class NamespaceTest : AbstractXetoTest
       e = e.map |v, n|
       {
         if (n == "id") return a->id
-        if (v is Ref && n != "enum") return baseId
+        if (v is Ref && n != "enum" && n != "spec") return baseId
         return v
       }
       verifyDictEq(a, e)
