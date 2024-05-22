@@ -19,6 +19,87 @@ class CompTest: AbstractXetoTest
 {
 
 //////////////////////////////////////////////////////////////////////////
+// Test
+//////////////////////////////////////////////////////////////////////////
+
+  CompSpace? cs
+
+  override Void setup()
+  {
+    super.setup
+
+    ns := createNamespace(["hx.test.xeto"])
+    cs = CompSpace(ns).initRoot { CompObj() }
+    Actor.locals[CompSpace.actorKey] = cs
+  }
+
+  override Void teardown()
+  {
+    super.teardown
+    Actor.locals.remove(CompSpace.actorKey)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Instantiation
+//////////////////////////////////////////////////////////////////////////
+
+  Void testInstantiation()
+  {
+    composite := cs.ns.spec("hx.test.xeto::TestComposite")
+    add       := cs.ns.spec("hx.test.xeto::TestAdd")
+
+    // create composite comp
+    c    := CompObj(composite)
+    a    := (Comp)c->a
+    nest := (Comp)c->nest
+    b    := (Comp)nest->b
+    verifySame(c["spec"], composite._id)
+    verifyEq(c["descr"], "test descr")
+    verifyEq(c["dur"], 5min)
+    verifyCompEq(c, ["dis":"TestComposite", "id":c.id,
+      "spec":composite._id, "descr":"test descr", "dur":5min,
+      "a":a, "nest":nest])
+
+    // verify it created a (one level child)
+    verifySame(a.parent, c)
+    verifyEq(a.name, "a")
+    verifySame(c.child("a"), a)
+    verifyCompEq(a, ["dis":"a", "id":a.id,
+      "spec":add._id, "in1":n(7), "in2":n(5), "out":n(0)])
+
+    // verify it created b (two level child)
+    verifySame(nest.parent, c)
+    verifySame(b.parent, nest)
+    verifyEq(b.name, "b")
+    verifySame(c.child("nest"), nest)
+    verifySame(nest.child("b"), b)
+    verifyCompEq(b, ["dis":"b", "id":b.id,
+      "spec":add._id, "in1":n(17), "in2":n(15), "out":n(0)])
+
+    // verify unmounted
+    verifyEq(c.name, "")
+    verifyEq(c.parent, null)
+    verifyEq(c.isMounted, false)
+    verifyEq(a.isMounted, false)
+    verifyEq(b.isMounted, false)
+    verifyEq(cs.readById(c.id, false), null)
+    verifyEq(cs.readById(a.id, false), null)
+    verifyEq(cs.readById(b.id, false), null)
+
+    // verify recursive mount
+    cs.root["composite"] = c
+    verifyEq(c.name, "composite")
+    verifyEq(c.parent, cs.root)
+    verifySame(cs.root->composite, c)
+    verifyEq(c.isMounted, true)
+    verifyEq(a.isMounted, true)
+    verifyEq(b.isMounted, true)
+    verifySame(cs.readById(c.id, false), c)
+    verifySame(cs.readById(a.id, false), a)
+    verifySame(cs.readById(b.id, false), b)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Tree
 //////////////////////////////////////////////////////////////////////////
 

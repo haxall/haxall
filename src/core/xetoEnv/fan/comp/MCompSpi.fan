@@ -9,7 +9,6 @@
 
 using xeto
 using haystack
-using haystack::Dict
 using haystack::Ref
 
 **
@@ -173,7 +172,7 @@ class MCompSpi : CompSpi
     if (val is Comp) removeChild(val)
   }
 
-  private Void addChild(Str name, Comp child)
+  internal Void addChild(Str name, Comp child)
   {
     if (child.spi.parent != null) throw AlreadyParentedErr(child.typeof.qname)
     childSpi := (MCompSpi)child.spi

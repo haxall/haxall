@@ -15,3 +15,18 @@ TestAdd : Comp {
   out: Number
 }
 
+TestComposite : Comp {
+  descr: "test descr"
+  dur: Duration "5min"
+  a: TestAdd {
+     in1: 7
+     in2: 5
+  }
+  nest: TestFolder {
+    b: TestAdd {
+       in1: 17
+       in2: 15
+    }
+  }
+}
+

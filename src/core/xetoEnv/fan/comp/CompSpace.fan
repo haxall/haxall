@@ -9,6 +9,7 @@
 using concurrent
 using xeto
 using haystack
+using haystack::Dict
 using haystack::Ref
 
 **
@@ -28,6 +29,7 @@ class CompSpace : CompSpiFactory
   new make(LibNamespace ns)
   {
     this.ns = ns
+    this.factory = CompFactory(this)
   }
 
   ** Initialize the root - this must be called exactly once during initialization
@@ -60,19 +62,10 @@ class CompSpace : CompSpiFactory
 // Comp Management
 //////////////////////////////////////////////////////////////////////////
 
-  ** Create service provider for given component
+  ** Initialize server provider interface for given instance
   override CompSpi initSpi(CompObj c, Spec? spec)
   {
-    // infer spec from type if not passed in
-    if (spec == null) spec = ns.specOf(c)
-
-    // TODO create default values
-    slots := Str:Obj[:]
-    slots["id"] = genId
-    slots["spec"] = spec._id
-
-    // return component spec
-    return MCompSpi(this, c, spec, slots)
+    factory.initSpi(c, spec)
   }
 
   ** Read by id
@@ -104,19 +97,12 @@ class CompSpace : CompSpiFactory
     byId.remove(c.id)
   }
 
-  ** Generate id for new component
-  internal haystack::Ref genId()
-  {
-    compCounter++
-    return haystack::Ref(""+compCounter)
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private CompFactory factory
   private Comp? rootRef
-  private Int compCounter
   private Ref:Comp byId := [:]
 }
 

@@ -101,6 +101,25 @@ class AbstractXetoTest : HaystackTest
       verifyEq(expect, hits[i].msg)
     }
   }
+
+  Void verifyCompEq(Comp c, Str:Obj expect)
+  {
+    names := expect.dup
+    c.each |v, n|
+    {
+      try
+      {
+        verifyValEq(v, expect[n])
+      }
+      catch (TestErr e)
+      {
+        echo("TAG FAILED: $n")
+        throw e
+      }
+      names.remove(n)
+    }
+    verifyEq(names.size, 0, names.keys.toStr)
+  }
 }
 
 **************************************************************************

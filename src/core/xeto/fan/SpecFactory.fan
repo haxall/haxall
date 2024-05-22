@@ -75,6 +75,18 @@ abstract const class DictSpecFactory : SpecFactory
 }
 
 **************************************************************************
+** CompSpecFactory
+**************************************************************************
+
+** Comp specs are modeled as generic dicts
+@NoDoc @Js
+const class CompSpecFactory : DictSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Dict decodeDict(Dict xeto, Bool checked := true) { xeto }
+}
+
+**************************************************************************
 ** ScalarSpecFactory
 **************************************************************************
 
@@ -105,12 +117,11 @@ const class ScalarSpecFactory : SpecFactory
   override Str toStr() { "ScalarSpecFactory @ $type" }
 }
 
-
 **************************************************************************
 ** InterfaceSpecFactory
 **************************************************************************
 
-** Base class for handle interfaces that don't decode from dict nor string
+** Factory for interfaces that don't decode from dict nor string
 @NoDoc @Js
 const class InterfaceSpecFactory : SpecFactory
 {
