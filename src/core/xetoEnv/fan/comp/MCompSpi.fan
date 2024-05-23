@@ -165,12 +165,14 @@ class MCompSpi : CompSpi
     if (val is Comp) addChild(name, val)
     else val = val.toImmutable
     slots.set(name, val)
+    if (isMounted) cs.onChange(comp, name, val)
   }
 
   private Void doRemove(Str name)
   {
     val := slots.remove(name)
     if (val is Comp) removeChild(val)
+    if (isMounted) cs.onChange(comp, name, null)
   }
 
   internal Void addChild(Str name, Comp child)
