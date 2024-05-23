@@ -84,6 +84,7 @@ const class CompSpecFactory : DictSpecFactory
 {
   new make(Type type) : super(type) {}
   override Dict decodeDict(Dict xeto, Bool checked := true) { xeto }
+  override Str toStr() { "CompSpecFactory @ $type" }
 }
 
 **************************************************************************

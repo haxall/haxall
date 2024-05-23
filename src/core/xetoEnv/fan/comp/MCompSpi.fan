@@ -9,6 +9,7 @@
 
 using xeto
 using haystack
+using haystack::Dict
 using haystack::Ref
 
 **
@@ -247,7 +248,34 @@ class MCompSpi : CompSpi
 
   override Void dump(OutStream out, Obj? opts)
   {
-    each |v, n| { echo("$n: $v") }
+    doDump(comp, out, 0, Etc.makeDict(opts))
+  }
+
+  private static Void doDump(Comp c, OutStream out, Int indent, Dict opts)
+  {
+    out.print(c.spec.name).print(" @").print(c.id).printLine(" {")
+    c.each |v, n|
+    {
+      if (n == "id" || n == "spec" || n == "dis") return
+      out.print(Str.spaces(indent+2)).print(n)
+      if (v !==  Marker.val)
+      {
+        out.print(": ")
+        if (v is Comp)
+          doDump(v, out, indent+2, opts)
+        else
+          out.print(dumpValToStr(v))
+      }
+      out.printLine
+    }
+    out.print(Str.spaces(indent)).printLine("}")
+  }
+
+  private static Str dumpValToStr(Obj val)
+  {
+    s := val.toStr
+    if (s.size > 80) s = s[0..80]
+    return "$s $s.typeof"
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -369,6 +369,7 @@ const class XetoUtil
     {
       if (slot.isMaybe) return
       if (slot.isQuery) return
+      if (slot.isFunc) return
       if (slot.type === ns.sys.ref && slot.name != "enum") return // fill-in siteRef, equipRef, etc
       acc[slot.name] = instantiate(ns, slot, opts)
     }

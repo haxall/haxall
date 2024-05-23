@@ -36,6 +36,7 @@ internal class CompFactory
     // create default slots for component
     [Str:Comp]? children := null
     acc := Str:Obj[:]
+    acc.ordered = true
     acc["id"] = genId
     Dict slots := init?.slots ?: ns.instantiate(spec)
     slots.each |v, n|
