@@ -233,7 +233,8 @@ const abstract class Filter
 **    le       a <= b     argA=FilterPath, argB=Obj
 **    and      a and b    argA=Filter, argB=Filter
 **    or       a or b     argA=Filter, argB=Filter
-**    isA      ^a         argA=Symbol
+**    isSpec   a          argA=Str
+**    isSymbol ^a         argA=Symbol
 **    search   special
 **
 @Js @NoDoc
