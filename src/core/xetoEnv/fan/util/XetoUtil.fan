@@ -351,7 +351,14 @@ const class XetoUtil
     if (spec.isNone) return null
     if (spec.isScalar || spec.has("val")) return instantiateScalar(ns, spec, meta)
     if (spec === ns.sys.dict) return Etc.dict0
-    if (spec.isList) return Etc.list0
+    if (spec.isList)
+    {
+      of := spec.of(false)
+      if (of == null) return Etc.list0
+      listOf := of.fantomType
+      if (of.isMaybe) listOf = of.base.fantomType.toNullable
+      return List(listOf, 0).toImmutable
+    }
 
     isGraph := opts.has("graph")
 

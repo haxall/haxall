@@ -43,3 +43,8 @@ AB: A & B <s: Date "2024-03-01", qux:"AB"> {
 
 FitsExplain1: { a:Str, b: Str? }
 
+InstantiateA: {
+  listRef: List<of:Ref>
+  listRefNullable: List<of:Ref?>
+}
+
