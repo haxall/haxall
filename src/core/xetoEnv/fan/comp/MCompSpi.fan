@@ -165,14 +165,32 @@ class MCompSpi : CompSpi
     if (val is Comp) addChild(name, val)
     else val = val.toImmutable
     slots.set(name, val)
-    if (isMounted) cs.onChange(comp, name, val)
+    onChange(name, val)
   }
 
   private Void doRemove(Str name)
   {
     val := slots.remove(name)
     if (val is Comp) removeChild(val)
-    if (isMounted) cs.onChange(comp, name, null)
+    onChange(name, val)
+  }
+
+  // choke point for all slot changes
+  private Void onChange(Str name, Obj? val)
+  {
+    // invoke
+    try
+    {
+      comp.onChange(name, val)
+
+      // comp callback
+      if (isMounted) cs.onChange(comp, name, val)
+    }
+    catch (Err e)
+    {
+      echo("ERROR: $this onChange")
+      e.trace
+    }
   }
 
   internal Void addChild(Str name, Comp child)
