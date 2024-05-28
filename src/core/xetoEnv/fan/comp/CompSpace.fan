@@ -56,7 +56,7 @@ class CompSpace : CompSpiFactory
   const LibNamespace ns
 
   ** Root component
-  Comp root() { rootRef ?: throw Err("Must call initRoot") }
+  virtual Comp root() { rootRef ?: throw Err("Must call initRoot") }
 
 //////////////////////////////////////////////////////////////////////////
 // Hooks
