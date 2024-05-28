@@ -155,7 +155,8 @@ internal class InitCmd : XetoCmd
 
   override Int run()
   {
-    if (!nameIsValid(libName)) throw Err("Invalid dotted lib name: $libName")
+    err := XetoUtil.libNameErr(libName)
+    if (err != null) throw Err("Invalid lib name $libName.toCode: $err")
     rootDir := toRootDir
     libDir  := rootDir + `${libName}/`
     meta    := libDir + `lib.xeto`
@@ -163,6 +164,7 @@ internal class InitCmd : XetoCmd
 
     if (meta.exists) throw Err("File already exists: $meta.osPath")
     if (specs.exists) throw Err("File already exists: $specs.osPath")
+
 
     echo
     echo("Generate:")
@@ -181,11 +183,6 @@ internal class InitCmd : XetoCmd
     echo("Complete")
 
     return 0
-  }
-
-  private static Bool nameIsValid(Str name)
-  {
-    name.split('.', false).all |tok| { Etc.isTagName(tok) }
   }
 
   private File toRootDir()
