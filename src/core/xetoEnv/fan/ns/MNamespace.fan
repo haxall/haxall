@@ -384,6 +384,14 @@ abstract const class MNamespace : LibNamespace
     }
   }
 
+  override Void eachInstance(|Dict| f)
+  {
+    libs.each |lib|
+    {
+      lib.instances.each |x| { f(x) }
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Reflection
 //////////////////////////////////////////////////////////////////////////
