@@ -142,6 +142,19 @@ const class XetoUtil
     return qname[0..<colon]
   }
 
+  ** Convert a list of Str or Ref qnames into the unique list of libraries
+  static Str[] qnamesToLibs(Obj[] qnames)
+  {
+    if (qnames.isEmpty) return Str#.emptyList
+    acc := Str:Str[:]
+    qnames.each |qname|
+    {
+      lib := qnameToLib(qname)
+      if (lib != null) acc[lib] = lib
+    }
+    return acc.vals
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Dirs
 //////////////////////////////////////////////////////////////////////////

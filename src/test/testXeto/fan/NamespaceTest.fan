@@ -297,7 +297,7 @@ class NamespaceTest : AbstractXetoTest
   Void testLookups()
   {
     // sys
-    ns := createNamespace(["hx.test.xeto"])
+    ns := createNamespace(["hx.test.xeto", "ashrae.g36"])
     sys := ns.lib("sys")
     verifySame(ns.lib("sys"), sys)
     verifySame(ns.type("sys::Dict"), sys.type("Dict"))
@@ -310,6 +310,7 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { ns.type("bad.one::Foo") }
     verifyErr(UnknownSpecErr#) { ns.type("bad.one::Foo", true) }
 
+    // libAsync
     asyncErr := null
     asyncLib := null
     ns.libAsync("sys") |e, x| { asyncErr = e ; asyncLib = x }
@@ -318,6 +319,19 @@ class NamespaceTest : AbstractXetoTest
     ns.libAsync("badLib") |e, x| { asyncErr = e; asyncLib = x }
     verifyEq(asyncLib, null)
     verifyEq(asyncErr?.typeof, UnknownLibErr#)
+
+    // libAsync
+    asyncErr = null
+    asyncLibs := null
+    ns.libListAsync(["sys", "ashrae.g36"]) |e, x| { asyncErr = e; asyncLibs = x }
+    verifyEq(asyncLibs, Lib[sys, ns.lib("ashrae.g36")])
+    verifyEq(asyncErr, null)
+    ns.libListAsync(["sys", "ashrae.g36"]) |e, x| { asyncErr = e; asyncLibs = x } // do it again for different code path
+    verifyEq(asyncLibs, Lib[sys, ns.lib("ashrae.g36")])
+    verifyEq(asyncErr, null)
+    ns.libListAsync(["sys", "bad", "ph"]) |e, x| { asyncErr = e; asyncLibs = x }
+    verifyEq(asyncLibs, null)
+    verifyEq(asyncErr?.toStr, UnknownLibErr#.toStr + ": bad")
 
     // good lib, bad type
     verifyEq(ns.type("sys::Foo", false), null)

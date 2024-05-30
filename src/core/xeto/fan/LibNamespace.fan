@@ -130,21 +130,6 @@ const mixin LibNamespace
   ** require a namespace to be fully loaded.
   abstract Bool isAllLoaded()
 
-  ** List all libraries.  On first call, this will force all libraries to
-  ** be loaded synchronously.  Any libs which cannot be compiled will log
-  ** an error and be excluded from this list.  If `isAllLoaded` is true
-  ** then this call can also be in JS environments, otherwise you must use
-  ** the `libsAsync` call to fully load all libraries into memory.
-  abstract Lib[] libs()
-
-  ** Load all libraries asynchronosly.  Once this operation completes
-  ** successfully the `isAllLoaded` method will return 'true' and the
-  ** `libs` method may be used even in JS environments.  Note that an
-  ** error is reported only if the entire load failed.  Individual libs
-  ** which cannot be loaded will logged on server, and be excluded from
-  ** the final libs list.
-  abstract Void libsAsync(|Err?, Lib[]?| f)
-
   ** Get the given library by name synchronously.  If this is a Java
   ** environment, then the library will be compiled on its first access.
   ** If the library cannot be compiled then an exception is always raised
@@ -155,9 +140,32 @@ const mixin LibNamespace
   ** load a library in JS environment.
   abstract Lib? lib(Str name, Bool checked := true)
 
+  ** List all libraries.  On first call, this will force all libraries to
+  ** be loaded synchronously.  Any libs which cannot be compiled will log
+  ** an error and be excluded from this list.  If `isAllLoaded` is true
+  ** then this call can also be in JS environments, otherwise you must use
+  ** the `libsAllAsync` call to fully load all libraries into memory.
+  abstract Lib[] libs()
+
+  ** Load all libraries asynchronosly.  Once this operation completes
+  ** successfully the `isAllLoaded` method will return 'true' and the
+  ** `libs` method may be used even in JS environments.  Note that an
+  ** error is reported only if the entire load failed.  Individual libs
+  ** which cannot be loaded will logged on server, and be excluded from
+  ** the final libs list.
+  abstract Void libsAllAsync(|Err?, Lib[]?| f)
+
   ** Get or load library asynchronously by the given dotted name.
+  ** This method automatically also loads the dependency chain.
   ** Once loaded then invoke callback with library or err.
   abstract Void libAsync(Str name, |Err?, Lib?| f)
+
+  ** Get or load list of libraries asynchronously by the given dotted names.
+  ** This method automatically also loads the dependency chain.
+  ** Once loaded then invoke callback with libraries or err.  If a lib
+  ** cannot be loaded then it is excluded from the callback list (so its
+  ** possible the results list is not the same size as the names list).
+  abstract Void libListAsync(Str[] names, |Err?, Lib[]?| f)
 
   ** Get the 'sys' library
   @NoDoc abstract Lib sysLib()
