@@ -266,10 +266,10 @@ class RepoTest : AbstractXetoTest
     // async all libs
     ns = initAllLoaded
     asyncLibs := null
-    ns.libsAsync |err, res| { asyncLibs = res } // 1st time
+    ns.libsAllAsync |err, res| { asyncLibs = res } // 1st time
     verifyAllLoaded(ns, asyncLibs)
     asyncLibs = null
-    ns.libsAsync |err, res| { asyncLibs = res } // 2nd time
+    ns.libsAllAsync |err, res| { asyncLibs = res } // 2nd time
     verifyAllLoaded(ns, asyncLibs)
 
     // sync individual libs with depends

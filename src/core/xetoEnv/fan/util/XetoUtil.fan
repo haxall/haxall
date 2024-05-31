@@ -127,19 +127,34 @@ const class XetoUtil
   }
 
   ** Convert "foo.bar::Baz" to simple name "Baz" or null if no "::"
-  static Str? qnameToName(Str qname)
+  static Str? qnameToName(Obj qname)
   {
-    colon := qname.indexr(":")
-    if (colon == null || colon < 2 || colon+1 >= qname.size || qname[colon-1] != ':') return null
-    return qname[colon+1..-1]
+    s := qname.toStr
+    colon := s.indexr(":")
+    if (colon == null || colon < 2 || colon+1 >= s.size || s[colon-1] != ':') return null
+    return s[colon+1..-1]
   }
 
   ** Convert "foo.bar::Baz" to lib name "foo.bar" or null if no "::"
-  static Str? qnameToLib(Str qname)
+  static Str? qnameToLib(Obj qname)
   {
-    colon := qname.index(":")
-    if (colon == null || colon < 1 || colon+2 >= qname.size || qname[colon+1] != ':') return null
-    return qname[0..<colon]
+    s := qname.toStr
+    colon := s.index(":")
+    if (colon == null || colon < 1 || colon+2 >= s.size || s[colon+1] != ':') return null
+    return s[0..<colon]
+  }
+
+  ** Convert a list of Str or Ref qnames into the unique list of libraries
+  static Str[] qnamesToLibs(Obj[] qnames)
+  {
+    if (qnames.isEmpty) return Str#.emptyList
+    acc := Str:Str[:]
+    qnames.each |qname|
+    {
+      lib := qnameToLib(qname)
+      if (lib != null) acc[lib] = lib
+    }
+    return acc.vals
   }
 
 //////////////////////////////////////////////////////////////////////////

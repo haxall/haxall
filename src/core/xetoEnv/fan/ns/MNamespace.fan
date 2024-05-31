@@ -135,21 +135,6 @@ abstract const class MNamespace : LibNamespace
     libsRef.val != null
   }
 
-  override Lib[] libs()
-  {
-    libs := libsRef.val as Lib[]
-    if (libs != null) return libs
-    loadAllSync
-    return libsRef.val
-  }
-
-  override Void libsAsync(|Err?, Lib[]?| f)
-  {
-    libs := libsRef.val as Lib[]
-    if (libs != null) { f(null, libs); return }
-    loadAllAsync(f)
-  }
-
   override Lib? lib(Str name, Bool checked := true)
   {
     e := entry(name, false)
@@ -163,13 +148,72 @@ abstract const class MNamespace : LibNamespace
     throw e.err ?: Err("$name [$e.status]")
   }
 
+  override Lib[] libs()
+  {
+    libs := libsRef.val as Lib[]
+    if (libs != null) return libs
+    loadAllSync
+    return libsRef.val
+  }
+
+  override Void libsAllAsync(|Err?, Lib[]?| f)
+  {
+    libs := libsRef.val as Lib[]
+    if (libs != null) { f(null, libs); return }
+    loadAllAsync(f)
+  }
+
   override Void libAsync(Str name, |Err?, Lib?| f)
   {
     e := entry(name, false)
     if (e == null) { f(UnknownLibErr(name), null); return }
     if (e.status.isOk) { f(null, e.get); return }
     if (e.status.isErr) { f(e.err, null); return }
-    loadAsyncWithDepends(e, f)
+
+    toLoadWithDepends := flattenUnloadedDepends([e])
+    loadListAsync(toLoadWithDepends) |err|
+    {
+      if (err != null) return f(err, null)
+      if (e.status.isErr)
+        f(e.err, null)
+      else
+        f(null, e.get)
+    }
+  }
+
+  override Void libListAsync(Str[] names, |Err?, Lib[]?| f)
+  {
+    // find all the libs already loaded and entries not loaded
+    loaded := Lib[,]
+    toLoad := MLibEntry[,]
+    for (i := 0; i<names.size; ++i)
+    {
+      name := names[i]
+      e := entry(name, false)
+      if (e == null) { f(UnknownLibErr(name), null); return }
+      if (e.status.isNotLoaded) toLoad.add(e)
+      else if (e.status.isOk) loaded.add(e.get)
+    }
+
+    // if we have loaded them all then complete synchronously
+    if (toLoad.isEmpty) return f(null, loaded)
+
+    // flatten dependency chain and load
+    toLoadWithDepends := flattenUnloadedDepends(toLoad)
+    loadListAsync(toLoadWithDepends) |err|
+    {
+      // complete callback with error
+      if (err != null) return f(err, null)
+
+      // otherwise build result lib list
+      result := Lib[,]
+      names.each |name|
+      {
+        e := entry(name, false)
+        if (e != null && e.status.isOk) result.add(e.get)
+      }
+      f(null, result)
+    }
   }
 
   internal MLibEntry? entry(Str name, Bool checked := true)
@@ -178,6 +222,22 @@ abstract const class MNamespace : LibNamespace
     if (entry != null) return entry
     if (checked) throw UnknownLibErr(name)
     return null
+  }
+
+  private MLibEntry[] flattenUnloadedDepends(MLibEntry[] entries)
+  {
+    // flatten depends
+    toLoad := Str:MLibEntry[:]
+    entries.each |entry| { doFlattenUnloadedDepends(toLoad, entry) }
+
+    // now map them back in the correct dependency order
+    return entriesList.findAll |e| { toLoad.containsKey(e.name) }
+  }
+
+  private Void doFlattenUnloadedDepends(Str:MLibEntry acc, MLibEntry e)
+  {
+    if (e.status.isNotLoaded) acc[e.name] = e
+    e.version.depends.each |depend| { doFlattenUnloadedDepends(acc, entry(depend.name)) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -233,11 +293,7 @@ abstract const class MNamespace : LibNamespace
     if (isAllLoaded) { f(null, libs); return }
 
     // find all the libs not loaded yet
-    toLoad := LibVersion[,]
-    entriesList.each |e|
-    {
-      if (e.status.isNotLoaded) toLoad.add(e.version)
-    }
+    toLoad := entriesList.findAll |e| { e.status.isNotLoaded }
 
     loadListAsync(toLoad) |err|
     {
@@ -246,39 +302,15 @@ abstract const class MNamespace : LibNamespace
     }
   }
 
-  private Void loadAsyncWithDepends(MLibEntry e, |Err?, Lib?| f)
-  {
-    // find all the dependencies not loaded yet
-    toLoad := LibVersion[,]
-    e.version.depends.each |depend|
-    {
-      d := entry(depend.name)
-      if (d.status.isNotLoaded) toLoad.add(d.version)
-    }
-
-    // and load myself as last in list
-    toLoad.add(e.version)
-    toLoad = toLoad.toImmutable
-
-    loadListAsync(toLoad) |err|
-    {
-      if (err != null) return f(err, null)
-      if (e.status.isErr)
-        f(e.err, null)
-      else
-        f(null, e.get)
-    }
-  }
-
-  private Void loadListAsync(LibVersion[] toLoad, |Err?| f)
+  private Void loadListAsync(MLibEntry[] toLoad, |Err?| f)
   {
     doLoadListAsync(toLoad, 0, f)
   }
 
-  private Void doLoadListAsync(LibVersion[] toLoad, Int index, |Err?| f)
+  private Void doLoadListAsync(MLibEntry[] toLoad, Int index, |Err?| f)
   {
     // load from pluggable loader
-    doLoadAsync(toLoad[index]) |err, libOrErr|
+    doLoadAsync(toLoad[index].version) |err, libOrErr|
     {
       // handle top-level error
       if (err != null)
@@ -288,7 +320,7 @@ abstract const class MNamespace : LibNamespace
       }
 
       // update entry
-      e := entry(toLoad[index].name)
+      e := toLoad[index]
       lib := libOrErr as XetoLib
       if (lib != null)
         e.setOk(lib)
@@ -381,6 +413,14 @@ abstract const class MNamespace : LibNamespace
     libs.each |lib|
     {
       lib.types.each |type| { f(type) }
+    }
+  }
+
+  override Void eachInstance(|Dict| f)
+  {
+    libs.each |lib|
+    {
+      lib.instances.each |x| { f(x) }
     }
   }
 

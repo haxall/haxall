@@ -18,6 +18,22 @@ EqA: Equip {
   }
 }
 
+EqB: Equip {
+  points: {
+    DischargeAirTempSensor
+  }
+}
+
+NestedEq: Equip {
+  childEquips: {
+    EqA
+    EqB
+  }
+  points: {
+    OutsideAirTempSensor
+  }
+}
+
 // A
 A: Dict <q: Date "2024-01-01", foo:"A", bar:"A"> {
   x: Str

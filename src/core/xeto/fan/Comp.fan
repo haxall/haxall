@@ -104,7 +104,7 @@ mixin Comp
   Bool isMounted() { spi.isMounted }
 
   ** Parent component or null if root/unmounted
-  Comp? parent() { spi.parent }
+  virtual Comp? parent() { spi.parent }
 
   ** Slot name under parent or "" if parent is null
   Str name() { spi.name }
@@ -121,7 +121,7 @@ mixin Comp
   Bool hasChild(Str name) { spi.hasChild(name) }
 
   ** Lookup a child component by name
-  Comp? child(Str name, Bool checked := true) { spi.child(name, checked) }
+  virtual Comp? child(Str name, Bool checked := true) { spi.child(name, checked) }
 
   ** Iterate children components in the tree structure
   Void eachChild(|Comp,Str| f) { spi.eachChild(f) }

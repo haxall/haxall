@@ -277,6 +277,7 @@ class MCompSpi : CompSpi
     c.each |v, n|
     {
       if (n == "id" || n == "spec" || n == "dis") return
+      if (isDefault(c, n, v)) return
       out.print(Str.spaces(indent+2)).print(n)
       if (v !==  Marker.val)
       {
@@ -289,6 +290,15 @@ class MCompSpi : CompSpi
       out.printLine
     }
     out.print(Str.spaces(indent)).printLine("}")
+  }
+
+  private static Bool isDefault(Comp c, Str name, Obj val)
+  {
+    slot := c.spec.slot(name, false)
+    if (slot == null) return false
+    def := slot.meta.get("val")
+    if (slot.isList) return val is List && ((List)val).isEmpty
+    return def == val
   }
 
   private static Str dumpValToStr(Obj val)
