@@ -25,11 +25,11 @@ class MCompSpi : CompSpi
 
   new make(CompSpace cs, CompObj comp, Spec spec, Str:Obj slots)
   {
-    this.cs    = cs
-    this.comp  = comp
-    this.spec  = spec
-    this.slots = slots
-    this.id    = slots.getChecked("id")
+    this.cs      = cs
+    this.comp    = comp
+    this.specRef = spec
+    this.slots   = slots
+    this.id      = slots.getChecked("id")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,8 @@ class MCompSpi : CompSpi
 
   Comp comp { private set }
 
-  override const Spec spec
+  override Spec spec() { specRef }
+  internal Spec? specRef
 
   override const Ref id
 
