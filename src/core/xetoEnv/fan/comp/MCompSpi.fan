@@ -305,7 +305,7 @@ class MCompSpi : CompSpi
   {
     s := val.toStr
     if (s.size > 80) s = s[0..80]
-    return "$s $s.typeof"
+    return "$s [$val.typeof]"
   }
 
 //////////////////////////////////////////////////////////////////////////

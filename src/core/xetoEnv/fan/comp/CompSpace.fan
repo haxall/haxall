@@ -70,6 +70,13 @@ class CompSpace : CompSpiFactory
 // Comp Management
 //////////////////////////////////////////////////////////////////////////
 
+  ** Create new component instance from dict state.
+  ** The dict must have a Comp spec tag.
+  Comp create(Dict dict)
+  {
+    factory.create(dict)
+  }
+
   ** Initialize server provider interface for given instance
   override CompSpi initSpi(CompObj c, Spec? spec)
   {
