@@ -182,9 +182,13 @@ class MCompSpi : CompSpi
     // invoke
     try
     {
+      // special callback
+      comp.onChangePre(name, val)
+
+      // standard callback
       comp.onChange(name, val)
 
-      // comp callback
+      // space level callback
       if (isMounted) cs.onChange(comp, name, val)
     }
     catch (Err e)
