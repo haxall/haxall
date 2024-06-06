@@ -25,11 +25,11 @@ class MCompSpi : CompSpi
 
   new make(CompSpace cs, CompObj comp, Spec spec, Str:Obj slots)
   {
-    this.cs    = cs
-    this.comp  = comp
-    this.spec  = spec
-    this.slots = slots
-    this.id    = slots.getChecked("id")
+    this.cs      = cs
+    this.comp    = comp
+    this.specRef = spec
+    this.slots   = slots
+    this.id      = slots.getChecked("id")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,8 @@ class MCompSpi : CompSpi
 
   Comp comp { private set }
 
-  override const Spec spec
+  override Spec spec() { specRef }
+  internal Spec? specRef
 
   override const Ref id
 
@@ -181,9 +182,13 @@ class MCompSpi : CompSpi
     // invoke
     try
     {
+      // special callback
+      comp.onChangePre(name, val)
+
+      // standard callback
       comp.onChange(name, val)
 
-      // comp callback
+      // space level callback
       if (isMounted) cs.onChange(comp, name, val)
     }
     catch (Err e)
@@ -305,7 +310,7 @@ class MCompSpi : CompSpi
   {
     s := val.toStr
     if (s.size > 80) s = s[0..80]
-    return "$s $s.typeof"
+    return "$s [$val.typeof]"
   }
 
 //////////////////////////////////////////////////////////////////////////

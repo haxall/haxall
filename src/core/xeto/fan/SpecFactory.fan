@@ -84,7 +84,7 @@ const class CompSpecFactory : DictSpecFactory
 {
   new make(Type type) : super(type) {}
   override Dict decodeDict(Dict xeto, Bool checked := true) { xeto }
-  override Str toStr() { "CompSpecFactory @ $type" }
+  override Str toStr() { "$typeof.name @ $type" }
 }
 
 **************************************************************************
@@ -115,7 +115,7 @@ const class ScalarSpecFactory : SpecFactory
     throw UnsupportedErr("Scalar cannot decode to dict")
   }
 
-  override Str toStr() { "ScalarSpecFactory @ $type" }
+  override Str toStr() { "$typeof.name @ $type" }
 }
 
 **************************************************************************
@@ -145,6 +145,6 @@ const class InterfaceSpecFactory : SpecFactory
     throw UnsupportedErr("Interface cannot encode to scalar")
   }
 
-  override Str toStr() { "InterfaceSpecFactory @ $type" }
+  override Str toStr() { "$typeof.name @ $type" }
 }
 

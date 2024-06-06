@@ -43,7 +43,7 @@ internal class RemoteLoader
     version   := libMeta->version
     depends   := loadDepends
     tops      := loadTops
-    instances := this.instances
+    instances := reifyInstances
 
     m := MLib(loc, libNameCode, libName, libMeta, version, depends, tops, instances)
     XetoLib#m->setConst(lib, m)
@@ -69,7 +69,12 @@ internal class RemoteLoader
   {
     id := x.id.id
     name := id[id.index(":")+2..-1]
-    instances.add(name, reifyInstance(x))
+    instances.add(name, x)
+  }
+
+  Str:Dict reifyInstances()
+  {
+    instances.map |x->Dict| { reifyInstance(x) }
   }
 
   Dict reifyInstance(Dict x)
@@ -178,8 +183,8 @@ internal class RemoteLoader
     MSpec? m
     if (x.isType)
     {
-      factory := assignFactory(x)
-      m = MType(loc, lib, qname(x), x.nameCode, x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, factory)
+      x.factoryRef = assignFactory(x)
+      m = MType(loc, lib, qname(x), x.nameCode, x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, x.factory)
     }
     else if (x.isGlobal)
     {
@@ -332,7 +337,7 @@ internal class RemoteLoader
   {
     if (qname.startsWith(libName) && qname[libName.size] == ':')
     {
-      return tops.getChecked(qname[libName.size+1..-1], checked)
+      return tops.getChecked(qname[libName.size+2..-1], checked)
     }
     else
     {
@@ -390,7 +395,7 @@ internal class RemoteLoader
   const Int libNameCode
   const MNameDict libMeta
   private Str:RSpec tops := [:]              // addTops
-  private Str:Dict instances := [:]          // addInstance
+  private Str:Dict instances := [:]          // addInstance (unreified)
   private [Str:SpecFactory]? factories       // loadFactories
 }
 

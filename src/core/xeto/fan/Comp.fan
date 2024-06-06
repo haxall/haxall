@@ -93,7 +93,10 @@ mixin Comp
     return this
   }
 
-  ** Callbackl when a slot is modified. Value is null if slot removed.
+  ** Special onChange callback to handle built-in logic, called before onChange.
+  @NoDoc virtual Void onChangePre(Str name, Obj? val) {}
+
+  ** Callback when a slot is modified. Value is null if slot removed.
   virtual Void onChange(Str name, Obj? val) {}
 
 //////////////////////////////////////////////////////////////////////////

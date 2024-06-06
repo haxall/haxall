@@ -24,6 +24,12 @@ internal class CompFactory
     this.compSpec = cs.ns.lib("sys.comp").spec("Comp")
   }
 
+  Comp create(Dict dict)
+  {
+    spec := cs.ns.spec(dict->spec.toStr)
+    return reifyComp(spec, dict)
+  }
+
   CompSpi initSpi(CompObj c, Spec? spec)
   {
     // check if we stashed spec/slots for this instance
@@ -42,7 +48,7 @@ internal class CompFactory
     slots.each |v, n|
     {
       // skip
-      if (n == "compName") return
+      if (n == "id" || n == "compName") return
 
       // reify dict value to value to store as actual comp slot
       v = reify(v)
@@ -97,6 +103,7 @@ internal class CompFactory
     // TODO: this should never default to Dict
     t := spec.fantomType
     if (t == xeto::Dict# || t == Comp#) return CompObj#
+    if (t.isMixin) return t.pod.type(t.name + "Obj")
     return t
   }
 
