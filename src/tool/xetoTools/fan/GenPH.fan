@@ -315,6 +315,7 @@ internal class GenPH : AbstractGenCmd
   {
     tags := Def[,]
     maxNameSize := 2
+    if (entity.name == "equip") maxNameSize = "parentEquips".size
     ns.tags(entity).each |tag|
     {
       if (isInherited(entity, tag)) return
@@ -329,9 +330,12 @@ internal class GenPH : AbstractGenCmd
       writeEntitySlot(out, tag.name, maxNameSize, toSlotType(entity, tag))
     }
 
+
     // built-in queries
-    if (entity.name == "equip") writeEntitySlot(out, "points", maxNameSize, "Query<of:Point, inverse:\"ph::Point.equips\">  // Points contained by this equip")
-    if (entity.name == "point") writeEntitySlot(out, "equips", maxNameSize, "Query<of:Equip, via:\"equipRef+\">  // Parent equips that contain this point")
+    if (entity.name == "equip") writeEntitySlot(out, "parentEquips", maxNameSize, "Query<of:Point, via:\"equipRef+\">                  // Parent equips that contain this point")
+    if (entity.name == "equip") writeEntitySlot(out, "childEquips",  maxNameSize, "Query<of:Point, inverse:\"ph::Equip.parentEquips\"> // Sub-equips contained by this equip")
+    if (entity.name == "equip") writeEntitySlot(out, "points",       maxNameSize, "Query<of:Point, inverse:\"ph::Point.equips\">       // Points contained by this equip")
+    if (entity.name == "point") writeEntitySlot(out, "equips",       maxNameSize, "Query<of:Equip, via:\"equipRef+\">  // Parent equips that contain this point")
   }
 
   private Str toSlotType(Def entity, Def tag)
@@ -644,5 +648,4 @@ internal class GenPH : AbstractGenCmd
   private Namespace? ns    // compileNamespace
   private Lib? ph          // compileNamespace
 }
-
 

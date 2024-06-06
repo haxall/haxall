@@ -7,6 +7,7 @@
 //   11 Aug 2020  Brian Frank  Rename FolioTracker to FolioHooks, add ns
 //
 
+using xeto::LibNamespace
 using haystack
 
 **
@@ -19,6 +20,9 @@ const mixin FolioHooks
 {
   ** Def namespace if available
   abstract Namespace? ns(Bool checked := true)
+
+  ** Xeto namespace if available
+  virtual LibNamespace? xeto(Bool checked := true) { ns(false)?.xeto }
 
   ** Callback before diff is committed during verify
   ** phase. An exception will cancel entire commit.
@@ -91,6 +95,4 @@ internal const class NilHooks : FolioHooks
   override Void postCommit(FolioCommitEvent event) {}
   override Void postHisWrite(FolioHisEvent event) {}
 }
-
-
 

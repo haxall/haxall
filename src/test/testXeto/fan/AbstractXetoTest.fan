@@ -49,7 +49,7 @@ class AbstractXetoTest : HaystackTest
     client := TestClient(server)
     client.boot
     verifyEq(client.ns.isRemote, true)
-    client.ns.libsAsync |e, x|
+    client.ns.libsAllAsync |e, x|
     {
       if (e != null) throw e
       verifyEq(x.size, server.ns.versions.size)

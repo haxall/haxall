@@ -25,11 +25,11 @@ class MCompSpi : CompSpi
 
   new make(CompSpace cs, CompObj comp, Spec spec, Str:Obj slots)
   {
-    this.cs    = cs
-    this.comp  = comp
-    this.spec  = spec
-    this.slots = slots
-    this.id    = slots.getChecked("id")
+    this.cs      = cs
+    this.comp    = comp
+    this.specRef = spec
+    this.slots   = slots
+    this.id      = slots.getChecked("id")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,8 @@ class MCompSpi : CompSpi
 
   Comp comp { private set }
 
-  override const Spec spec
+  override Spec spec() { specRef }
+  internal Spec? specRef
 
   override const Ref id
 
@@ -181,9 +182,13 @@ class MCompSpi : CompSpi
     // invoke
     try
     {
+      // special callback
+      comp.onChangePre(name, val)
+
+      // standard callback
       comp.onChange(name, val)
 
-      // comp callback
+      // space level callback
       if (isMounted) cs.onChange(comp, name, val)
     }
     catch (Err e)
@@ -277,6 +282,7 @@ class MCompSpi : CompSpi
     c.each |v, n|
     {
       if (n == "id" || n == "spec" || n == "dis") return
+      if (isDefault(c, n, v)) return
       out.print(Str.spaces(indent+2)).print(n)
       if (v !==  Marker.val)
       {
@@ -291,11 +297,20 @@ class MCompSpi : CompSpi
     out.print(Str.spaces(indent)).printLine("}")
   }
 
+  private static Bool isDefault(Comp c, Str name, Obj val)
+  {
+    slot := c.spec.slot(name, false)
+    if (slot == null) return false
+    def := slot.meta.get("val")
+    if (slot.isList) return val is List && ((List)val).isEmpty
+    return def == val
+  }
+
   private static Str dumpValToStr(Obj val)
   {
     s := val.toStr
     if (s.size > 80) s = s[0..80]
-    return "$s $s.typeof"
+    return "$s [$val.typeof]"
   }
 
 //////////////////////////////////////////////////////////////////////////

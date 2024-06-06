@@ -28,7 +28,7 @@ class CompSpace : CompSpiFactory
   ** Constructor
   new make(LibNamespace ns)
   {
-    this.ns = ns
+    this.nsRef = ns
     this.factory = CompFactory(this)
   }
 
@@ -53,10 +53,11 @@ class CompSpace : CompSpiFactory
 //////////////////////////////////////////////////////////////////////////
 
   ** Xeto namespace for this space
-  const LibNamespace ns
+  LibNamespace ns() { nsRef }
+  private LibNamespace nsRef
 
   ** Root component
-  Comp root() { rootRef ?: throw Err("Must call initRoot") }
+  virtual Comp root() { rootRef ?: throw Err("Must call initRoot") }
 
 //////////////////////////////////////////////////////////////////////////
 // Hooks
@@ -69,6 +70,13 @@ class CompSpace : CompSpiFactory
 //////////////////////////////////////////////////////////////////////////
 // Comp Management
 //////////////////////////////////////////////////////////////////////////
+
+  ** Create new component instance from dict state.
+  ** The dict must have a Comp spec tag.
+  Comp create(Dict dict)
+  {
+    factory.create(dict)
+  }
 
   ** Initialize server provider interface for given instance
   override CompSpi initSpi(CompObj c, Spec? spec)
@@ -103,6 +111,33 @@ class CompSpace : CompSpiFactory
 
     // remove from my lookup tables
     byId.remove(c.id)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Namespace
+//////////////////////////////////////////////////////////////////////////
+
+  ** Modify the namespace on the fly.  Every component in the current tree
+  ** must map to a spec in the new namespace or exception is raised.  This
+  ** update does not check that components validate against the new specs.
+  Void updateNamespace(LibNamespace ns)
+  {
+    // first check that we have spec for each component
+    updateCompSpec(root, ns, false)
+
+    // now commit new specs to component tree
+    updateCompSpec(root, ns, true)
+
+    // now update my own namespace ref
+    nsRef = ns
+  }
+
+  ** Recursively walk the component tree to update specs
+  private Void updateCompSpec(Comp c, LibNamespace ns, Bool commit)
+  {
+    newSpec := ns.spec(c.spec.qname)
+    if (commit) ((MCompSpi)c.spi).specRef = newSpec
+    c.eachChild |kid| { updateCompSpec(kid, ns, commit) }
   }
 
 //////////////////////////////////////////////////////////////////////////

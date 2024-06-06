@@ -317,7 +317,7 @@ class SpecTest : AbstractXetoTest
     equipSlots := [
       "dis:Str?", "id:Ref", "equip:Marker",
       "equipRef:Ref?", "siteRef:Ref", "spaceRef:Ref?", "systemRef:Ref?",
-      "points:Query"]
+      "parentEquips:Query", "childEquips:Query", "points:Query"]
     meterSlots       := equipSlots.dup.addAll(["meter:Marker", "meterScope:MeterScope?", "submeterOf:Ref?"])
     elecMeterSlots   := meterSlots.dup.add("elec:Marker")
     acElecMeterSlots := elecMeterSlots.dup.addAll(["ac:Marker", "phaseCount:PhaseCount?"])
