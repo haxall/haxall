@@ -24,6 +24,9 @@ abstract const class SpecFactory
   ** Decode a Xeto dict of name/value pairs to a Fantom Dict instance
   abstract Dict decodeDict(Dict xeto, Bool checked := true)
 
+  ** Decode a Xeto list of objects to a Fantom wrapper instance
+  abstract Obj decodeList(Obj?[] xeto, Bool checked := true)
+
   ** Decode a scalar Xeto string to a Fantom instance
   abstract Obj? decodeScalar(Str xeto, Bool checked := true)
 
@@ -63,12 +66,17 @@ abstract const class DictSpecFactory : SpecFactory
 
   const override Type type
 
-  override Obj? decodeScalar(Str xeto, Bool checked := true)
+  override final Obj decodeList(Obj?[] xeto, Bool checked := true)
+  {
+    throw UnsupportedErr("Dict cannot decode to list")
+  }
+
+  override final Obj? decodeScalar(Str xeto, Bool checked := true)
   {
     throw UnsupportedErr("Dict cannot decode to scalar")
   }
 
-  override Str encodeScalar(Obj val)
+  override final Str encodeScalar(Obj val)
   {
     throw UnsupportedErr("Dict cannot encode to scalar")
   }
@@ -88,6 +96,35 @@ const class CompSpecFactory : DictSpecFactory
 }
 
 **************************************************************************
+** ListSpecFactory
+**************************************************************************
+
+** Base class for creating Fantom wrappers for list types
+@NoDoc @Js
+abstract const class ListSpecFactory : SpecFactory
+{
+  new make(Type type) { this.type = type }
+
+  const override Type type
+
+  override final Dict decodeDict(Dict xeto, Bool checked := true)
+  {
+    throw UnsupportedErr("List cannot decode to dict")
+  }
+
+  override final Obj? decodeScalar(Str xeto, Bool checked := true)
+  {
+    throw UnsupportedErr("List cannot decode to scalar")
+  }
+
+  override final Str encodeScalar(Obj val)
+  {
+    throw UnsupportedErr("List cannot encode to scalar")
+  }
+}
+
+
+**************************************************************************
 ** ScalarSpecFactory
 **************************************************************************
 
@@ -99,6 +136,16 @@ const class ScalarSpecFactory : SpecFactory
 
   const override Type type
 
+  override final Dict decodeDict(Dict xeto, Bool checked := true)
+  {
+    throw UnsupportedErr("Scalar cannot decode to dict")
+  }
+
+  override final Obj decodeList(Obj?[] xeto, Bool checked := true)
+  {
+    throw UnsupportedErr("Scalar cannot decode to list")
+  }
+
   override Obj? decodeScalar(Str xeto, Bool checked := true)
   {
     fromStr := type.method("fromStr", false)
@@ -108,11 +155,6 @@ const class ScalarSpecFactory : SpecFactory
   override Str encodeScalar(Obj val)
   {
     val.toStr
-  }
-
-  override Dict decodeDict(Dict xeto, Bool checked := true)
-  {
-    throw UnsupportedErr("Scalar cannot decode to dict")
   }
 
   override Str toStr() { "$typeof.name @ $type" }
@@ -133,6 +175,11 @@ const class InterfaceSpecFactory : SpecFactory
   override Dict decodeDict(Dict xeto, Bool checked := true)
   {
     throw UnsupportedErr("Interface cannot decode to dict")
+  }
+
+  override final Obj decodeList(Obj?[] xeto, Bool checked := true)
+  {
+    throw UnsupportedErr("Interface cannot decode to list")
   }
 
   override Obj? decodeScalar(Str xeto, Bool checked := true)
