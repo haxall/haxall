@@ -6,6 +6,7 @@
 //   22 Dec 2009  Brian Frank  Creation
 //
 
+using concurrent
 using xeto::Link
 
 **************************************************************************
@@ -466,7 +467,7 @@ abstract const class WrapDict : Dict
 @Js
 internal const class MLink : WrapDict, xeto::Link
 {
-  static const Ref specRef := Ref("sys.comp::Link")
+  static once Ref specRef() { Ref("sys.comp::Link") }
   new make(Dict wrapped) : super(wrapped)
   {
     this.fromRef  = wrapped["fromRef"]  as Ref ?: Ref.nullRef
@@ -485,8 +486,8 @@ internal const class MLink : WrapDict, xeto::Link
 @Js
 internal const class MLinks : WrapDict, xeto::Links
 {
-  static const Ref specRef := Ref("sys.comp::Links")
-  static const MLinks empty := make(Etc.dict1("spec", specRef))
+  static once Ref specRef() { Ref("sys.comp::Links") }
+  static once MLinks empty() { make(Etc.dict1("spec", specRef)) }
   new make(Dict wrapped) : super(wrapped) {}
   override Void eachLink(|Link| f)
   {
