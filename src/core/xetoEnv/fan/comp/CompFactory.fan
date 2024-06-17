@@ -33,7 +33,7 @@ internal class CompFactory
   CompSpi initSpi(CompObj c, Spec? spec)
   {
     // check if we stashed spec/slots for this instance
-    init := Actor.locals[spiInitActorKey] as CompSpiInit
+    init := Actor.locals.remove(spiInitActorKey) as CompSpiInit
     if (init != null) spec = init.spec
 
     // infer spec from type if not passed in
@@ -91,11 +91,7 @@ internal class CompFactory
   private Comp reifyComp(Spec spec, Dict slots)
   {
     Actor.locals[spiInitActorKey] = CompSpiInit(spec, slots)
-    CompObj? child
-    try
-      return toFantomType(spec).make
-    finally
-      Actor.locals.remove(spiInitActorKey)
+    return toFantomType(spec).make
   }
 
   private Type toFantomType(Spec spec)
