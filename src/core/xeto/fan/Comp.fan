@@ -136,8 +136,8 @@ mixin Comp
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Debug dump with some pretty print
-  @NoDoc virtual Void dump(OutStream out := Env.cur.out, Obj? opts := null) { spi.dump(out, opts) }
+  ** Debug dump the component tree to the console
+  @NoDoc virtual Void dump(Obj? opts := null) { spi.dump(opts) }
 
 }
 
@@ -216,6 +216,6 @@ mixin CompSpi
   abstract Bool hasChild(Str name)
   abstract Comp? child(Str name, Bool checked)
   abstract Void eachChild(|Comp,Str| f)
-  abstract Void dump(OutStream out, Obj? opts)
+  abstract Void dump(Obj? opts)
 }
 
