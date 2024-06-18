@@ -1,0 +1,32 @@
+# Look at documentation for docker compose: 
+# https://docs.docker.com/compose/compose-file/build
+
+# name: hx
+
+services:
+  #main haxall application
+  #using "build" looks for a local Dockerfile
+  haxall:
+    #comment these two lines out?
+    stdin_open: true
+    tty: true
+    build:
+      context: ../
+      dockerfile: ./docker/dev.Dockerfile
+      # target: devrun
+      # ssh:
+      #   - default=${SSH_AUTH_SOCK} #mounts the default ssh agent, in windows it is OpenSSH
+    ports: 
+      - 8080:8080
+    volumes:
+      #local directory "var" connects to container directory "var"
+      - ./var:/app/haxall/var
+      #this way requires "./var" to exists beforehand, throws error otherwise
+      # - type: bind
+      #   source: ./var
+      #   target: /app/haxall/var
+
+  # #fantom container
+  # #using "image" pulls from GitHub Docker image registry
+  # fantom:
+  #   image: "ghcr.io/fantom-lang/fantom:latest"
