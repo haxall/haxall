@@ -6,6 +6,7 @@
 //   22 Dec 2009  Brian Frank  Creation
 //
 
+using concurrent
 using xeto::Link
 
 **************************************************************************
@@ -448,7 +449,7 @@ internal const class Dict6 : DictX
 @NoDoc @Js
 abstract const class WrapDict : Dict
 {
-  new make(Dict wrapped) { this.wrapped = wrapped }
+  new make(Dict wrapped) { this.wrapped = normalize(wrapped) }
   const Dict wrapped
   @Operator override Obj? get(Str n, Obj? def := null) { wrapped.get(n, def) }
   override Bool isEmpty() { wrapped.isEmpty }
@@ -457,6 +458,7 @@ abstract const class WrapDict : Dict
   override Void each(|Obj, Str| f) { wrapped.each(f) }
   override Obj? eachWhile(|Obj, Str->Obj?| f) { wrapped.eachWhile(f) }
   override Obj? trap(Str n, Obj?[]? a := null) { wrapped.trap(n, a) }
+  virtual Dict normalize(Dict d) { d }
 }
 
 **************************************************************************
@@ -466,7 +468,7 @@ abstract const class WrapDict : Dict
 @Js
 internal const class MLink : WrapDict, xeto::Link
 {
-  static const Ref specRef := Ref("sys.comp::Link")
+  static once Ref specRef() { Ref("sys.comp::Link") }
   new make(Dict wrapped) : super(wrapped)
   {
     this.fromRef  = wrapped["fromRef"]  as Ref ?: Ref.nullRef
@@ -485,8 +487,8 @@ internal const class MLink : WrapDict, xeto::Link
 @Js
 internal const class MLinks : WrapDict, xeto::Links
 {
-  static const Ref specRef := Ref("sys.comp::Links")
-  static const MLinks empty := make(Etc.dict1("spec", specRef))
+  static once Ref specRef() { Ref("sys.comp::Links") }
+  static once MLinks empty() { make(Etc.dict1("spec", specRef)) }
   new make(Dict wrapped) : super(wrapped) {}
   override Void eachLink(|Link| f)
   {

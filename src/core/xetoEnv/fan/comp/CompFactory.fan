@@ -33,7 +33,7 @@ internal class CompFactory
   CompSpi initSpi(CompObj c, Spec? spec)
   {
     // check if we stashed spec/slots for this instance
-    init := Actor.locals[spiInitActorKey] as CompSpiInit
+    init := Actor.locals.remove(spiInitActorKey) as CompSpiInit
     if (init != null) spec = init.spec
 
     // infer spec from type if not passed in
@@ -50,8 +50,11 @@ internal class CompFactory
       // skip
       if (n == "id" || n == "compName") return
 
+      // get spec slot
+      slot := spec.slot(n, false)
+
       // reify dict value to value to store as actual comp slot
-      v = reify(v)
+      v = reify(slot, v)
 
       // if slot is child comp, we need to keep track
       if (v is Comp)
@@ -76,26 +79,38 @@ internal class CompFactory
     return spi
   }
 
-  private Obj reify(Obj v)
+  private Obj reify(Spec? slot, Obj v)
   {
-    // check if we have a dict with a Comp spec
-    dict := v as Dict;                  if (dict == null) return v
-    specRef := dict["spec"] as Ref;     if (specRef == null) return v
-    spec := ns.spec(specRef.id, false); if (spec == null) return v
-    if (!spec.isa(compSpec)) return v
+    // check for scalar slot - this might need to happen instantiate
+    if (slot != null && slot.isScalar && v is Str)
+      return slot.factory.decodeScalar(v)
 
-    // need to reify this value as a Comp instance
-    return reifyComp(spec, dict)
+    // check if we have a dict with a Comp spec
+    dict := v as Dict
+    if (dict != null)
+    {
+      spec := dictToSpec(dict)
+      if (spec != null && spec.isa(compSpec))
+      {
+        return reifyComp(spec, dict)
+      }
+    }
+
+    // return the instantiate value
+    return v
+  }
+
+  private Spec? dictToSpec(Dict dict)
+  {
+    specRef := dict["spec"] as Ref
+    if (specRef == null) return null
+    return ns.spec(specRef.id, false)
   }
 
   private Comp reifyComp(Spec spec, Dict slots)
   {
     Actor.locals[spiInitActorKey] = CompSpiInit(spec, slots)
-    CompObj? child
-    try
-      return toFantomType(spec).make
-    finally
-      Actor.locals.remove(spiInitActorKey)
+    return toFantomType(spec).make
   }
 
   private Type toFantomType(Spec spec)

@@ -59,31 +59,21 @@ internal class Reify : Step
     // if already assembled
     if (x.isAsm) return x.asm
 
-    // spec
+    // turn ADict into raw Dict or Obj?[]
     type := x.ctype
-
-    // turn dict into list
-    if (type.isList)
-      return x.asmRef = reifyList(x, type)
-
-    // name/value pairs
-    acc := Str:Obj[:]
-    acc.ordered = true
-    x.each |obj, name| { acc[name] = reifyDictVal(obj) }
-
-    // if spec is not meta or sys::Dict then add synthetic spec tag
-    if (!x.isMeta && type.qname != "sys::Dict")
-      acc["spec"] = compiler.makeRef(type.qname, null)
-
-    // create as Dict
-    dict := MNameDict(names.dictMap(acc))
-    Obj asm := dict
+    isList := type.isList
+    Obj? asm
+    if (isList)
+      asm = reifyRawList(x, type)
+    else
+      asm = reifyRawDict(x, type)
 
     // if there is a factory registered, then decode to another Fantom type
+    factory := type.factory
     Obj? fantom
     Err? err
     try
-      fantom = type.factory.decodeDict(dict, false)
+      fantom = isList ? factory.decodeList(asm, false) : factory.decodeDict(asm, false)
     catch (Err e)
       err = e
 
@@ -99,7 +89,22 @@ internal class Reify : Step
     return x.asmRef = asm
   }
 
-  private Obj[] reifyList(ADict x, CSpec spec)
+  private Dict reifyRawDict(ADict x, CSpec type)
+  {
+    // name/value pairs
+    acc := Str:Obj[:]
+    acc.ordered = true
+    x.each |obj, name| { acc[name] = reifyDictVal(obj) }
+
+    // if spec is not meta or sys::Dict then add synthetic spec tag
+    if (!x.isMeta && type.qname != "sys::Dict")
+      acc["spec"] = compiler.makeRef(type.qname, null)
+
+    // create as Dict
+    return MNameDict(names.dictMap(acc))
+  }
+
+  private Obj[] reifyRawList(ADict x, CSpec type)
   {
     // TODO: lists not being typed correctly
     of := x.listOf ?: Obj#
