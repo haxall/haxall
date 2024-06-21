@@ -54,7 +54,7 @@ jobs:
       # Further about: https://forums.docker.com/t/docker-compose-push-multiple-services-containers-to-docker-hub/121826
       - name: Build Docker image with docker compose
         # docker compose [-f <arg>...] [options] [COMMAND] [ARGS...]
-        run: docker compose -f docker-compose.yml --progress=plain build --pull --no-cache --tag ${{ steps.meta.outputs.tags }} --label ${{ steps.meta.outputs.labels }}
+        run: docker compose -f docker-compose.yml --progress=plain build --pull --no-cache -t ${{ steps.meta.outputs.tags }} --label ${{ steps.meta.outputs.labels }}
       
       - name: Push Docker image
         run: docker push ${{ env.REGISTRY }}/{{env.IMAGE_NAME }}:latest
