@@ -43,21 +43,26 @@ const mixin LibNamespace
   private static LibNamespace createSystem()
   {
     repo := LibRepo.cur
-    libs := [
-      "sys",
-      "sys.comp",
-      "ion",
-      "ion.actions",
-      "ion.icons",
-      "ion.styles",
-      "ion.ux"
-    ]
+    libs := defaultSystemLibNames
     vers := LibVersion[,]
     libs.each |libName|
     {
       vers.addNotNull(repo.latest(libName, false))
     }
     return repo.createNamespace(vers)
+  }
+
+  ** List of default lib names for system namesapce
+  @NoDoc static Str[] defaultSystemLibNames()
+  {
+    ["sys",
+      "sys.comp",
+      "ion",
+      "ion.actions",
+      "ion.icons",
+      "ion.styles",
+      "ion.table",
+      "ion.ux"]
   }
 
   ** Standard pattern to create project based overlay over the

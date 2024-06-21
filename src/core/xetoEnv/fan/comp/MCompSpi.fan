@@ -7,6 +7,7 @@
 //   21 May 2024  Brian Frank  Port into xetoEnv
 //
 
+using util
 using xeto
 using haystack
 using haystack::Dict
@@ -271,30 +272,28 @@ class MCompSpi : CompSpi
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  override Void dump(OutStream out, Obj? opts)
+  override Void dump(Obj? opts)
   {
-    doDump(comp, out, 0, Etc.makeDict(opts))
+    doDump(Console.cur, comp, null, Etc.makeDict(opts))
   }
 
-  private static Void doDump(Comp c, OutStream out, Int indent, Dict opts)
+  private static Void doDump(Console con, Comp c, Str? name, Dict opts)
   {
-    out.print(c.spec.name).print(" @").print(c.id).printLine(" {")
+    s := StrBuf()
+    if (name != null) s.add(name).add(": ")
+    s.add(c.spec.name).add(" @ ").add(c.id).add(" {")
+    con.group(s.toStr)
     c.each |v, n|
     {
       if (n == "id" || n == "spec" || n == "dis") return
       if (isDefault(c, n, v)) return
-      out.print(Str.spaces(indent+2)).print(n)
-      if (v !==  Marker.val)
-      {
-        out.print(": ")
-        if (v is Comp)
-          doDump(v, out, indent+2, opts)
-        else
-          out.print(dumpValToStr(v))
-      }
-      out.printLine
+      if (v is Comp) return doDump(con, v, n, opts)
+
+      s.clear.add(n)
+      if (v !==  Marker.val) s.add(": ").add(dumpValToStr(v))
+      con.info(s.toStr)
     }
-    out.print(Str.spaces(indent)).printLine("}")
+    con.groupEnd.info("}")
   }
 
   private static Bool isDefault(Comp c, Str name, Obj val)

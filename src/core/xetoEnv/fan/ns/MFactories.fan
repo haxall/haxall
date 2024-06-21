@@ -152,6 +152,7 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
       "NA":       SingletonFactory(hay.type("NA"),     NA.val, "na"),
       "Number":   NumberFactory(hay.type("Number")),
       "Ref":      RefFactory(hay.type("Ref")),
+      "List":     ListFactory(),
       "Dict":     DictFactory(),
     ]
   }
@@ -186,6 +187,7 @@ internal const class ObjFactory : SpecFactory
   new make(Type type) { this.type = type }
   const override Type type
   override Dict decodeDict(Dict xeto, Bool checked := true) { throw UnsupportedErr("Obj") }
+  override Obj decodeList(Obj?[] xeto, Bool checked := true) { throw UnsupportedErr("Obj") }
   override Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr("Obj")  }
   override Str encodeScalar(Obj val) { throw UnsupportedErr("Obj") }
 }
@@ -196,6 +198,14 @@ internal const class DictFactory : DictSpecFactory
   new make() : super(Dict#) {}
   new makeWith(Type type) : super.make(type) {}
   override Dict decodeDict(Dict xeto, Bool checked := true) { xeto }
+}
+
+@Js
+internal const class ListFactory : ListSpecFactory
+{
+  new make() : super(List#) {}
+  new makeWith(Type type) : super.make(type) {}
+  override Obj decodeList(Obj?[] xeto, Bool checked := true) { xeto }
 }
 
 @Js
