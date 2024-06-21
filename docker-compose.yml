@@ -12,9 +12,9 @@ services:
     tty: true
     # The "image" line is for telling "docker compose build" to push/publish, but since we do most of this in the 'publish-hxdefault-docker-image.yaml' file in .github/workflows, it is not necessary here, I believe?
     # Also listed there, look at: https://stackoverflow.com/questions/53416685/docker-compose-tagging-and-pushing
-    image: ghcr.io/${{ github.repository }}:latest
+    # image: ghcr.io/haxall/haxall:latest
     build:
-      context: ../
+      context: .
       dockerfile: ./docker/Dockerfile
       args: 
         DB_NAME: var

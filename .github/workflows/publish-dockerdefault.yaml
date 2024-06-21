@@ -25,7 +25,7 @@ jobs:
       attestations: write
     defaults:
       run:
-        working-directory: '/docker'
+        working-directory: /
 
     # I don't know whether most of the below docker Github actions should be v1, v2, v3, v4, or main... I also don't know what those mean?
     # Maybe find some info here: https://docs.docker.com/build/ci/github-actions/
@@ -57,10 +57,7 @@ jobs:
       # Further about: https://forums.docker.com/t/docker-compose-push-multiple-services-containers-to-docker-hub/121826
       - name: Build Docker image with docker compose
         # docker compose [-f <arg>...] [options] [COMMAND] [ARGS...]
-        run: docker compose -f docker-compose.yml build --pull --no-cache --progress=plain
-        with:
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+        run: docker compose -f docker-compose.yml --progress=plain build --pull --no-cache --tag ${{ steps.meta.outputs.tags }} --label ${{ steps.meta.outputs.labels }}
       
       - name: Push Docker image
         run: docker push ${{ env.REGISTRY }}/{{env.IMAGE_NAME }}:latest

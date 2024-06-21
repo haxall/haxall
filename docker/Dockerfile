@@ -102,4 +102,4 @@ EOF
 EXPOSE 8080
 
 # This provides the default entrypoint and parameters, and can be overridden in command line with "--entrypoint" when doing docker run or docker compose run...
-CMD ["/bin/bash docker/hx_dockerstart.sh"]
+CMD ["./docker/hx_dockerstart.sh" ]

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-EXPORT PATH=$PATH:/app/haxall/bin
+export PATH=$PATH:/app/haxall/bin
 echo "$DB_NAME"
 
 # This volume is connected via bind-mount. The bind-mount, under volumes in the compose file, will create the folder on local system if it doesn't exist. 
