@@ -37,11 +37,10 @@
 
 
 # The following was listed by me:
-**/.dockerignore
 **/.git
 **/.gitignore
 **/.github
-**/compose.y*ml
-**/*Dockerfile*
-**/*dockerfile*
+**/.dockerignore
+**/Dockerfile
+**/docker-compose*.y*ml
 readme.md

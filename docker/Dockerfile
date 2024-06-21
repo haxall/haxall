@@ -3,7 +3,7 @@
 
 #This Dockerfile installs fantom, haystack-defs, and xeto before running haxall init to create hx database named "var" 
 #To create it along with the compose file, use the following command for testing:
-#docker compose -f .\devDockerfile.compose.yml run --rm -it -p 8082:8082 --entrypoint /bin/bash haxall
+#docker compose -f .\docker-compose.yml run --rm -it -p 8082:8082 --entrypoint /bin/bash haxall
 
 ARG JDK_VERSION=17
 
@@ -71,7 +71,7 @@ RUN git clone -b master --depth 1 --single-branch https://github.com/Project-Hay
 WORKDIR /app/haystack-defs/
 RUN <<EOF
   touch fan.props
-  fan src/build.fan
+  fan src/build.fan clean compile
 EOF
 #HAYSTACK-DEFS END
 
@@ -85,6 +85,9 @@ COPY --from=base /app/haystack-defs/ /app/haystack-defs/
 COPY --from=base /app/xeto/ /app/xeto/
 ENV PATH $PATH:/opt/fan/bin
 
+ARG DB_NAME
+ENV DB_NAME=${DB_NAME}
+
 #HAXALL START
 COPY . /app/haxall/
 WORKDIR /app/haxall
@@ -92,15 +95,11 @@ RUN <<EOF
   chmod +x bin/*
   chmod +x docker/*dockerstart.sh
   echo "path=../haystack-defs;../xeto" > fan.props
-  fan src/build.fan
+  fan src/build.fan clean compile
 EOF
-ENV PATH $PATH:/app/haxall/bin
 #HAXALL END
-
 
 EXPOSE 8080
 
-# This provides the default entrypoint and parameters, and can be overridden in command line with "--entrypoint" when doing docker run or docker compose up...
-# CMD ["hx init", "-headless", "var"]
-# CMD ["/bin/bash docker/hx_dockerstart.sh", "./hx-db"]
-CMD ["/bin/bash"]
+# This provides the default entrypoint and parameters, and can be overridden in command line with "--entrypoint" when doing docker run or docker compose run...
+CMD ["/bin/bash docker/hx_dockerstart.sh"]
