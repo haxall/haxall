@@ -89,7 +89,12 @@ class MCompSpi : CompSpi
 
     // call as CompFunc
     func := val as CompFunc ?: throw Err("Slot $name.toCode is not CompFunc [$val.typeof]")
-    return func.call(comp, arg)
+    r := func.call(comp, arg)
+
+    // callbacks
+    called(name, arg)
+
+    return r
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -193,36 +198,14 @@ class MCompSpi : CompSpi
     if (val is Comp) addChild(name, val)
     else if (val isnot CompFunc) val = val.toImmutable
     slots.set(name, val)
-    onChange(name, val)
+    changed(name, val)
   }
 
   private Void doRemove(Str name)
   {
     val := slots.remove(name)
     if (val is Comp) removeChild(val)
-    onChange(name, val)
-  }
-
-  // choke point for all slot changes
-  private Void onChange(Str name, Obj? val)
-  {
-    // invoke
-    try
-    {
-      // special callback
-      comp.onChangePre(name, val)
-
-      // standard callback
-      comp.onChange(name, val)
-
-      // space level callback
-      if (isMounted) cs.onChange(comp, name, val)
-    }
-    catch (Err e)
-    {
-      echo("ERROR: $this onChange")
-      e.trace
-    }
+    changed(name, null)
   }
 
   internal Void addChild(Str name, Comp child)
@@ -240,6 +223,78 @@ class MCompSpi : CompSpi
     childSpi.nameRef = ""
     childSpi.parentRef = null
     if (isMounted) cs.unmount(child)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Callbacks
+//////////////////////////////////////////////////////////////////////////
+
+  override Void onChange(Str name, |Comp, Obj?| cb)
+  {
+    if (listeners == null) listeners = CompListeners()
+    listeners.onChangeAdd(name, cb)
+  }
+
+  override Void onCall(Str name, |Comp, Obj?| cb)
+  {
+    if (listeners == null) listeners = CompListeners()
+    listeners.onCallAdd(name, cb)
+  }
+
+  override Void onChangeRemove(Str name, Func cb)
+  {
+    if (listeners == null) return
+    listeners.onChangeRemove(name, cb)
+  }
+
+  override Void onCallRemove(Str name, Func cb)
+  {
+    if (listeners == null) return
+    listeners.onCallRemove(name, cb)
+  }
+
+  // choke point for calls
+  private Void called(Str name, Obj? arg)
+  {
+    // invoke
+    try
+    {
+      // standard callback
+      comp.onCallThis(name, arg)
+
+      // listeners
+      if (listeners != null) listeners.fireOnCall(comp, name, arg)
+    }
+    catch (Err e)
+    {
+      echo("ERROR: $this onCall")
+      e.trace
+    }
+  }
+
+  // choke point for all slot changes
+  private Void changed(Str name, Obj? newVal)
+  {
+    // invoke
+    try
+    {
+      // special callback
+      comp.onChangePre(name, newVal)
+
+      // standard callback
+      comp.onChangeThis(name, newVal)
+
+      // space level callback
+      if (isMounted) cs.onChange(comp, name, newVal)
+
+      // listeners
+      if (listeners != null) listeners.fireOnChange(comp, name, newVal)
+    }
+    catch (Err e)
+    {
+      echo("ERROR: $this onChange")
+      e.trace
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -345,5 +400,6 @@ class MCompSpi : CompSpi
   internal Comp? parentRef
   internal Str nameRef := ""
   private Str:Obj slots
+  private CompListeners? listeners
 }
 
