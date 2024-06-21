@@ -23,9 +23,6 @@ jobs:
       packages: write
       #what is an attestation?
       attestations: write
-    defaults:
-      run:
-        working-directory: /
 
     # I don't know whether most of the below docker Github actions should be v1, v2, v3, v4, or main... I also don't know what those mean?
     # Maybe find some info here: https://docs.docker.com/build/ci/github-actions/

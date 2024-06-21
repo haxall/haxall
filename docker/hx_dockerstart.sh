@@ -24,7 +24,7 @@ if [ -d "$DB_NAME" ]; then
         fan hx init -headless "$DB_NAME"
     # The directory exists, and is NOT empty.
     else
-        echo "$DB_NAME already exists. \nIf you want to modify your superuser account or the HTTP port, run the 'fan hx init' command again on the same directory, like so: \nfan hx init $DB_NAME\n"
+        echo "$DB_NAME already exists." && echo "If you want to modify your superuser account or the HTTP port, run the 'fan hx init' command again on the same directory, like so:" && echo "fan hx init $DB_NAME"
     fi
 # The directory does not exist.
 else
