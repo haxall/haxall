@@ -66,6 +66,10 @@ mixin Comp
     throw ArgErr("Unsupported args to trap")
   }
 
+  ** Call a method slot. If slot is not found then silently ignore and
+  ** return null. If slot is defined but not a CompFunc then raise exception.
+  Obj? call(Str name, Obj? arg := null) { spi.call(name, arg)  }
+
 //////////////////////////////////////////////////////////////////////////
 // Updates
 //////////////////////////////////////////////////////////////////////////
@@ -90,6 +94,15 @@ mixin Comp
   This remove(Str name)
   {
     spi.remove(name)
+    return this
+  }
+
+  ** Set a method slot with a Fantom function.  The Fantom
+  ** function must have the signature:
+  **   |Comp, ArgType -> RetType|
+  This setFunc(Str name, |This, Obj?->Obj?| f)
+  {
+    set(name, FantomFuncCompFunc(f))
     return this
   }
 
@@ -204,6 +217,7 @@ mixin CompSpi
   abstract Bool missing(Str name)
   abstract Void each(|Obj val, Str name| f)
   abstract Obj? eachWhile(|Obj val, Str name->Obj?| f)
+  abstract Obj? call(Str name, Obj? arg)
   abstract Links links()
   abstract Void set(Str name, Obj? val)
   abstract Void add(Obj val, Str? name)

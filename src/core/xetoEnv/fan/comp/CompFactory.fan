@@ -67,6 +67,15 @@ internal class CompFactory
       acc.add(n, v)
     }
 
+    // reify functions that map to methods
+    spec.slots.each |slot|
+    {
+      name := slot.name
+      if (!slot.isFunc || acc[name] != null) return
+      method := CompUtil.toHandlerMethod(c, slot)
+      if (method != null) acc[name] = FantomMethodCompFunc(method)
+    }
+
     // create spi
     spi := MCompSpi(cs, c, spec, acc)
 

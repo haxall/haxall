@@ -79,6 +79,19 @@ class MCompSpi : CompSpi
     slots.eachWhile(f)
   }
 
+  override Obj? call(Str name, Obj? arg)
+  {
+    // check for func slot value
+    val := get(name)
+
+    // if slot not defined, then return null
+    if (val == null) return null
+
+    // call as CompFunc
+    func := val as CompFunc ?: throw Err("Slot $name.toCode is not CompFunc [$val.typeof]")
+    return func.call(comp, arg)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Updates
 //////////////////////////////////////////////////////////////////////////
@@ -157,7 +170,20 @@ class MCompSpi : CompSpi
 
     slot := spec.slot(name, false)
     if (slot != null && !slot.isMaybe)
+    {
+      // allow removing a func if we have fallback method
+      if (slot.isFunc)
+      {
+        method := CompUtil.toHandlerMethod(comp, slot)
+        if (method != null)
+        {
+          doSet(name, FantomMethodCompFunc(method))
+          return
+        }
+      }
+
       throw InvalidChangeErr("$slot.qname is required")
+    }
 
     doRemove(name)
   }
@@ -165,7 +191,7 @@ class MCompSpi : CompSpi
   private Void doSet(Str name, Obj val)
   {
     if (val is Comp) addChild(name, val)
-    else val = val.toImmutable
+    else if (val isnot CompFunc) val = val.toImmutable
     slots.set(name, val)
     onChange(name, val)
   }

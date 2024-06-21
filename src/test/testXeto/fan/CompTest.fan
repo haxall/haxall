@@ -29,6 +29,7 @@ class CompTest: AbstractXetoTest
     super.setup
 
     ns := createNamespace(["hx.test.xeto"])
+    ns.lib("hx.test.xeto")
     cs = CompSpace(ns).initRoot { CompObj() }
     Actor.locals[CompSpace.actorKey] = cs
   }
@@ -257,5 +258,97 @@ class CompTest: AbstractXetoTest
     }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Methods
+//////////////////////////////////////////////////////////////////////////
+
+  Void testMethods()
+  {
+    c := TestFoo()
+    verifyEq(c.spec.qname, "hx.test.xeto::TestFoo")
+    verifyEq(c.has("method1"), true)
+    verifyEq(c.has("method2"), true)
+    verifyEq(c.has("method3"), true)
+    verifyEq(c.has("methodUnsafe"), false)
+    verifyEq(c.get("method1").typeof, FantomMethodCompFunc#)
+    verifyEq(c.get("method2").typeof, FantomMethodCompFunc#)
+    verifyEq(c.get("method3").typeof, FantomMethodCompFunc#)
+    verifyEq(c.get("methodUnsafe"), null)
+
+    // slot not defined
+    verifyEq(c.call("notFound"), null)
+    verifyEq(c.call("notFound", null), null)
+    verifyEq(c["last"], null)
+
+    // method1 call
+    c.remove("last")
+    verifyEq(c.call("method1", "one"), null)
+    verifyEq(c["last"], "one")
+
+    // method2
+    verifyEq(c.call("method2"), "method2 called")
+    c.remove("last")
+    verifyEq(c.call("method2", "two"), "method2 called")
+    verifyEq(c["last"], "_method2_")
+
+    // method3
+    c.remove("last")
+    verifyEq(c.call("method3", "three"), "method3 called: three")
+    verifyEq(c["last"], "three")
+
+    // methodUnsafe - since its not in spec, cannot reflect
+    c.remove("last")
+    verifyEq(c.call("methodUnsafe", "no-way"), null)
+    verifyEq(c["last"], null)
+
+    // now override method3
+    c.setFunc("method3") |self, arg| { "method3 override: $arg" }
+    c.remove("last")
+    verifyEq(c.call("method3", "by func"), "method3 override: by func")
+    verifyEq(c["last"], null)
+
+    // remove method3 override, which falls back to reflected method
+    c.remove("last")
+    verifyEq(c.has("method3"), true)
+    verifyEq(c.get("method3").typeof, FantomFuncCompFunc#)
+    c.remove("method3")
+    verifyEq(c.has("method3"), true)
+    verifyEq(c.get("method3").typeof, FantomMethodCompFunc#)
+    verifyEq(c.call("method3", "reflect again"), "method3 called: reflect again")
+    verifyEq(c["last"], "reflect again")
+  }
+
+}
+
+**************************************************************************
+** TestFoo
+**************************************************************************
+
+@Js
+class TestFoo : CompObj
+{
+  private Void onMethod1(Str s)
+  {
+    set("last", s)
+  }
+
+  private Str onMethod2()
+  {
+    set("last", "_method2_")
+    return "method2 called"
+  }
+
+  private Str onMethod3(Str s)
+  {
+    set("last", s)
+    return "method3 called: $s"
+  }
+
+  private Str onMethodUnsafe(Str s)
+  {
+    // this method isn't in the spec, so can't be called via reflection
+    set("last", s)
+    return "methodUnsafe called: $s"
+  }
 }
 

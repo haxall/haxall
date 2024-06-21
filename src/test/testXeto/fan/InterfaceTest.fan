@@ -70,29 +70,6 @@ class InterfaceTest : AbstractAxonTest
 }
 
 **************************************************************************
-** XetoFactoryLoader
-**************************************************************************
-
-@Js
-internal const class XetoFactoryLoader: SpecFactoryLoader
-{
-  override Bool canLoad(Str libName)
-  {
-    if (libName == "hx.test.xeto") return true
-    return false
-  }
-
-  override Str:SpecFactory load(Str libName, Str[] specNames)
-  {
-    if (libName != "hx.test.xeto") throw Err(libName)
-    pod := typeof.pod
-    acc := Str:SpecFactory[:]
-    acc["IFoo"] = InterfaceSpecFactory(IFoo#)
-    return acc
-  }
-}
-
-**************************************************************************
 ** IFoo
 **************************************************************************
 

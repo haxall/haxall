@@ -30,3 +30,9 @@ TestComposite : Comp {
   }
 }
 
+TestFoo: Comp {
+  method1: Func { arg: Str }
+  method2: Func { returns: Str }
+  method3: Func { arg: Str, returns: Str }
+}
+
