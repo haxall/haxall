@@ -30,8 +30,8 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
-      # - name: Setup Docker buildx
-      #   uses: docker/setup-buildx-action@v2
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: Log in to GitHub Container registry
         uses: docker/login-action@v2
@@ -51,10 +51,14 @@ jobs:
         run: docker compose -f docker-compose.yml down
 
       # ABOUT THIS SECTION: https://stackoverflow.com/questions/53416685/docker-compose-tagging-and-pushing
-      # Further about: https://forums.docker.com/t/docker-compose-push-multiple-services-containers-to-docker-hub/121826
-      - name: Build Docker image with docker compose
-        # docker compose [-f <arg>...] [options] [COMMAND] [ARGS...]
-        run: docker compose -f docker-compose.yml --progress=plain build --pull --no-cache --tag ${{ steps.meta.outputs.tags }} --label ${{ steps.meta.outputs.labels }}
+      # ABOUT 2: https://forums.docker.com/t/docker-compose-push-multiple-services-containers-to-docker-hub/121826
+      # - name: Build Docker image with docker compose
+      #   # docker compose [-f <arg>...] [options] [COMMAND] [ARGS...]
+      #   run: docker compose -f docker-compose.yml --progress=plain build --pull --no-cache --tag ${{ steps.meta.outputs.tags }} --label ${{ steps.meta.outputs.labels }}
+        
+      #About Docker bake: https://docs.docker.com/reference/cli/docker/buildx/bake/#set
+      - name: Build Docker image with docker bake
+        run: docker buildx bake -f docker-compose.yml --progress=plain --pull --no-cache --set haxall.tags=${{ steps.meta.outputs.tags }} --set haxall.labels=${{ steps.meta.outputs.labels }} haxall
       
       - name: Push Docker image
         run: docker push ${{ env.REGISTRY }}/{{env.IMAGE_NAME }}:latest
