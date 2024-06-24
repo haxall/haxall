@@ -54,12 +54,13 @@ jobs:
       # ABOUT 2: https://forums.docker.com/t/docker-compose-push-multiple-services-containers-to-docker-hub/121826
       # - name: Build Docker image with docker compose
       #   # docker compose [-f <arg>...] [options] [COMMAND] [ARGS...]
-      #   run: docker compose -f docker-compose.yml --progress=plain build --pull --no-cache --tag ${{ steps.meta.outputs.tags }} --label ${{ steps.meta.outputs.labels }}
+      #   run: docker compose -f docker-compose.yml --progress=plain build --pull --push --no-cache --tag ${{ steps.meta.outputs.tags }} --label ${{ steps.meta.outputs.labels }}
         
       #About Docker bake: https://docs.docker.com/reference/cli/docker/buildx/bake/#set
       #Using github actions: https://github.com/docker/bake-action
       - name: Build Docker image with docker bake
-        run: docker buildx bake -f docker-compose.yml --progress=plain --pull --no-cache --set haxall.tags="${{ steps.meta.outputs.tags }}" --set haxall.labels."${{ steps.meta.outputs.labels }}" haxall
-      
-      - name: Push Docker image
-        run: docker push ${{ steps.meta.outputs.tags }}/docker:latest
+        run: docker buildx bake -f docker-compose.yml --progress=plain --pull --push --no-cache --set haxall.tags="${{ steps.meta.outputs.tags }}" --set haxall.labels."${{ steps.meta.outputs.labels }}" haxall
+
+      # THIS SECTION IS NOT REQUIRED, SINCE THE ABOVE TWO SECTIONS HAVE THE --push OPTION      
+      # - name: Push Docker image
+      #   run: docker push ${{ env.REGISTRY }}/{{ env.IMAGE_NAME }}:latest
