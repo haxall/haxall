@@ -29,6 +29,7 @@ class CompTest: AbstractXetoTest
     super.setup
 
     ns := createNamespace(["hx.test.xeto"])
+    ns.lib("hx.test.xeto")
     cs = CompSpace(ns).initRoot { CompObj() }
     Actor.locals[CompSpace.actorKey] = cs
   }
@@ -257,5 +258,264 @@ class CompTest: AbstractXetoTest
     }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Methods
+//////////////////////////////////////////////////////////////////////////
+
+  Void testMethods()
+  {
+    c := TestFoo()
+    verifyEq(c.spec.qname, "hx.test.xeto::TestFoo")
+    verifyEq(c.has("method1"), true)
+    verifyEq(c.has("method2"), true)
+    verifyEq(c.has("method3"), true)
+    verifyEq(c.has("methodUnsafe"), false)
+    verifyEq(c.get("method1").typeof, FantomMethodCompFunc#)
+    verifyEq(c.get("method2").typeof, FantomMethodCompFunc#)
+    verifyEq(c.get("method3").typeof, FantomMethodCompFunc#)
+    verifyEq(c.get("methodUnsafe"), null)
+
+    // slot not defined
+    verifyEq(c.call("notFound"), null)
+    verifyEq(c.call("notFound", null), null)
+    verifyEq(c["last"], null)
+
+    // method1 call
+    c.remove("last")
+    verifyEq(c.call("method1", "one"), null)
+    verifyEq(c["last"], "one")
+
+    // method2
+    verifyEq(c.call("method2"), "method2 called")
+    c.remove("last")
+    verifyEq(c.call("method2", "two"), "method2 called")
+    verifyEq(c["last"], "_method2_")
+
+    // method3
+    c.remove("last")
+    verifyEq(c.call("method3", "three"), "method3 called: three")
+    verifyEq(c["last"], "three")
+
+    // methodUnsafe - since its not in spec, cannot reflect
+    c.remove("last")
+    verifyEq(c.call("methodUnsafe", "no-way"), null)
+    verifyEq(c["last"], null)
+
+    // now override method3
+    c.setFunc("method3") |self, arg| { "method3 override: $arg" }
+    c.remove("last")
+    verifyEq(c.call("method3", "by func"), "method3 override: by func")
+    verifyEq(c["last"], null)
+
+    // remove method3 override, which falls back to reflected method
+    c.remove("last")
+    verifyEq(c.has("method3"), true)
+    verifyEq(c.get("method3").typeof, FantomFuncCompFunc#)
+    c.remove("method3")
+    verifyEq(c.has("method3"), true)
+    verifyEq(c.get("method3").typeof, FantomMethodCompFunc#)
+    verifyEq(c.call("method3", "reflect again"), "method3 called: reflect again")
+    verifyEq(c["last"], "reflect again")
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Callbacks
+//////////////////////////////////////////////////////////////////////////
+
+  Void testCallbacks()
+  {
+    c := TestFoo()
+    verifyEq(c.get("a"), "alpha")
+    verifyEq(c.get("b"), "beta")
+
+    debug := |s| {} //echo(s) }
+
+    // listener
+    a1 := null
+    acb1 := |self, v| { a1 = v; debug("a1=$v") }
+    c.onChange("a", acb1)
+    c.set("a", "1")
+    verifyEq(a1, "1")
+    verifyEq(c.onChangeThisLast, "a = 1")
+
+    // remove with wrong name
+    c.onChangeRemove("foo", acb1)
+    c.set("a", "2")
+    verifyEq(a1, "2")
+
+    // remove with correct name
+    c.onChangeRemove("a", acb1)
+    c.set("a", "3")
+    verifyEq(a1, "2")
+
+    // now add a few
+    a2 := null; acb2 := |self, v| { a2 = v; debug("a2=$v") }
+    a3 := null; acb3 := |self, v| { a3 = v; debug("a3=$v") }
+    a4 := null; acb4 := |self, v| { a4 = v; debug("a4=$v") }
+    c.onChange("a", acb1)
+    c.onChange("a", acb2)
+    c.onChange("a", acb3)
+    c.onChange("a", acb4)
+    c.set("a", "4")
+    verifyEq(a1, "4")
+    verifyEq(a2, "4")
+    verifyEq(a3, "4")
+    verifyEq(a4, "4")
+
+    // remove head
+    c.onChangeRemove("a", acb1)
+    c.set("a", "5")
+    verifyEq(a1, "4")
+    verifyEq(a2, "5")
+    verifyEq(a3, "5")
+    verifyEq(a4, "5")
+
+    // remove middle
+    c.onChangeRemove("a", acb3)
+    c.set("a", "6")
+    verifyEq(a1, "4")
+    verifyEq(a2, "6")
+    verifyEq(a3, "5")
+    verifyEq(a4, "6")
+
+    // remove tail
+    c.onChangeRemove("a", acb4)
+    c.set("a", "7")
+    verifyEq(a1, "4")
+    verifyEq(a2, "7")
+    verifyEq(a3, "5")
+    verifyEq(a4, "6")
+    verifyEq(c.onChangeThisLast, "a = 7")
+
+    // remove last one
+    c.onChangeRemove("a", acb2)
+    c.set("a", "8")
+    verifyEq(a1, "4")
+    verifyEq(a2, "7")
+    verifyEq(a3, "5")
+    verifyEq(a4, "6")
+    verifyEq(c.onChangeThisLast, "a = 8")
+
+    // register onChange and onCall on method3
+    mx1 := null; mx1cb := |self, v| { mx1 = v; debug("mx1=$v") }
+    mc1 := null; mc1cb := |self, v| { mc1 = v; debug("mc1=$v") }
+    c.onChange("method3", mc1cb)
+    c.onCall("method3", mx1cb)
+    c.call("method3", "100")
+    verifyEq(mc1, null)
+    verifyEq(mx1, "100")
+    verifyEq(c.onCallThisLast, "method3 = 100")
+
+    // add some more onCall
+    mx2 := null; mx2cb := |self, v| { mx2 = v; debug("mx2=$v") }
+    mx3 := null; mx3cb := |self, v| { mx3 = v; debug("mx3=$v") }
+    c.onCall("method3", mx2cb)
+    c.onCall("method3", mx3cb)
+    c.call("method3", "200")
+    verifyEq(mc1, null)
+    verifyEq(mx1, "200")
+    verifyEq(mx2, "200")
+    verifyEq(mx3, "200")
+
+    // change method3
+    c.setFunc("method3") |arg| { "override=$arg" }
+    verifyEq(mc1 is FantomFuncCompFunc, true)
+    verifyEq(mx1, "200")
+    verifyEq(mx2, "200")
+    verifyEq(mx3, "200")
+    c.call("method3", "300")
+    verifyEq(mc1 is FantomFuncCompFunc, true)
+    verifyEq(mx1, "300")
+    verifyEq(mx2, "300")
+    verifyEq(mx3, "300")
+
+    // remove change method3
+    mc1 = null
+    c.onChangeRemove("method3", mc1cb)
+    c.set("method3", null)
+    c.call("method3", "400")
+    verifyEq(mc1, null)
+    verifyEq(mx1, "400")
+    verifyEq(mx2, "400")
+    verifyEq(mx3, "400")
+
+    // remove method3 onCalls...
+    c.onCallRemove("method3", mx2cb)
+    c.call("method3", "500")
+    verifyEq(mc1, null)
+    verifyEq(mx1, "500")
+    verifyEq(mx2, "400")
+    verifyEq(mx3, "500")
+    c.onCallRemove("method3", mx3cb)
+    c.call("method3", "600")
+    verifyEq(mc1, null)
+    verifyEq(mx1, "600")
+    verifyEq(mx2, "400")
+    verifyEq(mx3, "500")
+    c.onCallRemove("method3", mx1cb)
+    c.call("method3", "700")
+    verifyEq(mc1, null)
+    verifyEq(mx1, "600")
+    verifyEq(mx2, "400")
+    verifyEq(mx3, "500")
+
+    // register onChange for slot not added yet
+    n := null
+    c.onChange("newone") |self, v| { n = v }
+    c.set("newone", "1st")
+    verifyEq(n, "1st")
+    c.set("newone", null)
+    verifyEq(n, null)
+    c.add("2nd", "newone")
+    verifyEq(n, "2nd")
+    c.remove("newone")
+    verifyEq(n, null)
+  }
+
+}
+
+**************************************************************************
+** TestFoo
+**************************************************************************
+
+@Js
+class TestFoo : CompObj
+{
+  private Void onMethod1(Str s)
+  {
+    set("last", s)
+  }
+
+  private Str onMethod2()
+  {
+    set("last", "_method2_")
+    return "method2 called"
+  }
+
+  private Str onMethod3(Str s)
+  {
+    set("last", s)
+    return "method3 called: $s"
+  }
+
+  private Str onMethodUnsafe(Str s)
+  {
+    // this method isn't in the spec, so can't be called via reflection
+    set("last", s)
+    return "methodUnsafe called: $s"
+  }
+
+  Str? onChangeThisLast
+  Str? onCallThisLast
+
+  override Void onCallThis(Str n, Obj? v)
+  {
+    onCallThisLast = "$n = $v"
+  }
+
+  override Void onChangeThis(Str n, Obj? v)
+  {
+    onChangeThisLast = "$n = $v"
+  }
 }
 
