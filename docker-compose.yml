@@ -10,21 +10,15 @@ services:
     # These two lines are for keeping the shell open when using bash as an entrypoint. 
     stdin_open: true
     tty: true
-    # The "image" line is for telling "docker compose build" to push/publish, but since we do most of this in the 'publish-hxdefault-docker-image.yaml' file in .github/workflows, it is not necessary here, I believe?
-    # Also listed there, look at: https://stackoverflow.com/questions/53416685/docker-compose-tagging-and-pushing
-    # image: ghcr.io/haxall/haxall:latest
+    image: haxall
+    container_name: haxall_run
     build:
       context: .
       dockerfile: ./docker/Dockerfile
       args: 
-        DB_NAME: var
+        DB_NAME: haxall
       # target: devrun
     ports: 
       - "8080:8080"
     volumes:
       - ./dbs:/app/haxall/dbs
-
-  # #fantom container
-  # #using "image" pulls from GitHub Docker image registry
-  # fantom:
-  #   image: "ghcr.io/fantom-lang/fantom:latest"

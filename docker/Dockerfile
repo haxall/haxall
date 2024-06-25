@@ -1,9 +1,9 @@
 # escape=`
 # syntax=docker/dockerfile:1
 
-#This Dockerfile installs fantom, haystack-defs, and xeto before running haxall init to create hx database named "var" 
+#This Dockerfile installs fantom, haystack-defs, and xeto before running haxall init to create hx database named "haxall" 
 #To create it along with the compose file, use the following command for testing:
-#docker compose -f .\docker-compose.yml run --rm -it -p 8082:8082 --entrypoint /bin/bash haxall
+#docker compose -f .\docker-compose.yml run --rm -it -p 8080:8080 haxall
 
 ARG JDK_VERSION=17
 
@@ -29,12 +29,7 @@ RUN LATEST_ZIPURL=$(curl -s "https://api.github.com/repos/fantom-lang/fantom/rel
   && mv fantom/fantom-* rel `
   && chmod +x rel/bin/* `
   && chmod +x rel/adm/* `
-  && rm -rf fantom && rm -f fantom.zip `
-  #download linux-x86_64 SWT
-  && curl -fsSL "https://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.27-202303020300/swt-4.27-gtk-linux-x86_64.zip&mirror_id=1" -o swt.zip `
-  && unzip swt.zip -d swt `
-  && mv swt/swt.jar ./ `
-  && rm -rf swt && rm -f swt.zip
+  && rm -rf fantom && rm -f fantom.zip 
 
 ENV FAN_SUBSTITUTE=/app/rel
 
