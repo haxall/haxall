@@ -1,4 +1,5 @@
 # ignore files for git
+.gitattributes
 
 Thumbs.db
 .DS_Store
@@ -25,3 +26,6 @@ fan.props
 # python
 venv/
 __pycache__/
+
+# docker bind-mount
+/dbs/
