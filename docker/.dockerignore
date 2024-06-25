@@ -44,3 +44,4 @@
 **/Dockerfile
 **/docker-compose*.y*ml
 readme.md
+**/.gitattributes

@@ -1,4 +1,5 @@
 # ignore files for git
+.gitattributes
 
 Thumbs.db
 .DS_Store
