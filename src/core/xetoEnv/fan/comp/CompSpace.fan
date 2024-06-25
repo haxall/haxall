@@ -49,6 +49,34 @@ class CompSpace : CompSpiFactory
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Lifecycle
+//////////////////////////////////////////////////////////////////////////
+
+  ** Has this space been started, but not stopped yet
+  Bool isRunning() { isRunningRef }
+
+  ** Start space.  Sublasses must begin to call checkTimers
+  Void start()
+  {
+    isRunningRef = true
+    timersNeedUpdate = true
+    onStart
+  }
+
+  ** Stop space.  Sublasses must cease to call checkTimers
+  Void stop()
+  {
+    isRunningRef = false
+    onStop
+  }
+
+  ** Callback for subclasses on start
+  virtual Void onStart() {}
+
+  ** Callback for subclasses on stop
+  virtual Void onStop() {}
+
+//////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
@@ -101,6 +129,9 @@ class CompSpace : CompSpiFactory
 
     // recurse children
     c.eachChild |kid| { mount(kid) }
+
+    // set flag to indicate we need to update timers
+    timersNeedUpdate = true
   }
 
   ** Recursively unmount component into this space
@@ -111,6 +142,9 @@ class CompSpace : CompSpiFactory
 
     // remove from my lookup tables
     byId.remove(c.id)
+
+    // set flag to indicate we need to update timers
+    timersNeedUpdate = true
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -141,11 +175,54 @@ class CompSpace : CompSpiFactory
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Timers
+//////////////////////////////////////////////////////////////////////////
+
+  ** This method should be called at periodically to check and fire
+  ** component timers.  The frequency this method is called determines
+  ** the smaller timer increment.  For example if its called every 100ms
+  ** then timers will only fire as fast as 100ms.
+  Void checkTimers()
+  {
+    // if the component tree has been modified, we need to rebuild
+    if (timersNeedUpdate)
+    {
+      timersNeedUpdate = false
+      rebuildTimers
+    }
+
+    // walk thru timed components
+    ticks := Duration.nowTicks
+    ts := DateTime.now(null)
+    timed.each |spi| { spi.checkTimer(ticks, ts) }
+  }
+
+  ** Walk component tree to build our timers list
+  private Void rebuildTimers()
+  {
+    acc := MCompSpi[,]
+    acc.capacity = this.timed.size
+    doRebuildTimers(acc, rootRef)
+    this.timed = acc
+  }
+
+  ** Walk component tree to build our timers list
+  private static Void doRebuildTimers(MCompSpi[] acc, Comp c)
+  {
+    freq := c.onTimerFreq
+    if (freq != null) acc.add(c.spi)
+    c.eachChild |kid| { doRebuildTimers(acc, kid) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private Bool isRunningRef
   private CompFactory factory
   private Comp? rootRef
   private Ref:Comp byId := [:]
+  private Bool timersNeedUpdate
+  private MCompSpi[] timed := [,]
 }
 

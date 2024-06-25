@@ -133,6 +133,13 @@ mixin Comp
   ** Callback on instance itself when a call is invoked.
   virtual Void onCallThis(Str name, Obj? arg) {}
 
+  ** How often should this component have its onTimer callback invoked.
+  ** Return null if this component has no time based computation.
+  virtual Duration? onTimerFreq() { null }
+
+  ** Callback for time based computation based on `onTimerFreq`.
+  virtual Void onTimer(DateTime now) {}
+
 //////////////////////////////////////////////////////////////////////////
 // Tree
 //////////////////////////////////////////////////////////////////////////

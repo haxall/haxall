@@ -350,6 +350,37 @@ class MCompSpi : CompSpi
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Timers
+//////////////////////////////////////////////////////////////////////////
+
+  ** Check if timer has elapsed
+  Void checkTimer(Int ticks, DateTime ts)
+  {
+    // short circuit if frequency null
+    freq := comp.onTimerFreq
+    if (freq == null) return
+
+    // if first call then init lastOnTimer ticks
+    if (lastOnTimer <= 0) { this.lastOnTimer = ticks; return }
+
+   // check if freq has elapsed
+    elapsed := ticks - lastOnTimer
+    if (elapsed < freq.ticks) return
+
+    // invoke callback
+    this.lastOnTimer = ticks
+    try
+    {
+      comp.onTimer(ts)
+    }
+    catch (Err e)
+    {
+      echo("ERROR: {c.typeof.name}.onTimer")
+      e.trace
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
@@ -401,5 +432,6 @@ class MCompSpi : CompSpi
   internal Str nameRef := ""
   private Str:Obj slots
   private CompListeners? listeners
+  private Int lastOnTimer
 }
 
