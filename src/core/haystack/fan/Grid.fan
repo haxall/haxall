@@ -103,6 +103,22 @@ const mixin Grid
   }
 
   **
+  ** Return if this grid conforms to the [history grid shape]`lib-his::doc#hisGrid`:
+  **  - has at least two columns
+  **  - first column is named "ts"
+  **  - has meta hisStart and hisEnd DateTime values
+  **
+  ** This method does **not** check timezones or the ts cells.
+  **
+  Bool isHisGrid()
+  {
+    cols.size >= 2 &&
+    cols[0].name == "ts" &&
+    meta["hisStart"] is DateTime &&
+    meta["hisEnd"] is DateTime
+  }
+
+  **
   ** Get the number of rows in the grid.  Throw UnsupportedErr
   ** if the grid doesn't support a size.
   **
@@ -950,7 +966,4 @@ const mixin Grid
     return s
   }
 }
-
-
-
 

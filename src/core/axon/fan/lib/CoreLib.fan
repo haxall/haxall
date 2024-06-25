@@ -2172,11 +2172,17 @@ const class CoreLib
   ** Return if an object is a grid type
   @Axon static Bool isGrid(Obj? val) { val is Grid }
 
+  ** Return if an object is a grid that conforms to the [history grid shape]`haystack::Grid.isHisGrid`
+  @Axon static Bool isHisGrid(Obj? val) { val is Grid && ((Grid)val).isHisGrid }
+
   ** Return if an object is a boolean type
   @Axon static Bool isBool(Obj? val) { val is Bool }
 
   ** Return if an object is a number type
   @Axon static Bool isNumber(Obj? val) { val is Number }
+
+  ** Return if an object is a number type with a [time unit]`haystack::Number.isDuration`
+  @Axon static Bool isDuration(Obj? val) { val is Number && ((Number)val).isDuration }
 
   ** Return if an object is a ref type
   @Axon static Bool isRef(Obj? val) { val is Ref }

@@ -375,7 +375,7 @@ class MCompSpi : CompSpi
     }
     catch (Err e)
     {
-      echo("ERROR: {c.typeof.name}.onTimer")
+      echo("ERROR: ${comp.typeof.name}.onTimer")
       e.trace
     }
   }

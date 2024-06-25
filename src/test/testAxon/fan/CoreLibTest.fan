@@ -1586,6 +1586,19 @@ class CoreLibTest : HaystackTest
     verifyEval("\"foo\".isStr", true);     verifyEval("true.isStr", false)
     verifyEval("(@foo).isRef", true);      verifyEval("3.isRef", false)
     verifyEval("\"end\".isKeyword", true); verifyEval("\"foo\".isKeyword", false)
+
+    verifyEval("4.isDuration", false)
+    verifyEval("true.isDuration", false)
+    verifyEval("4ft.isDuration", false)
+    verifyEval("4min.isDuration", true)
+
+    verifyEval("4.isHisGrid", false);
+    verifyEval("4.toGrid.isHisGrid", false)
+    verifyEval("{ts:now(), v0:123}.toGrid({hisStart:now()}).isHisGrid", false)
+    verifyEval("{ts:now(), v0:123}.toGrid({hisEnd:now()}).isHisGrid", false)
+    verifyEval("{ts:now()}.toGrid({hisStart:now(), hisEnd:now()}).isHisGrid", false)
+    verifyEval("{xx:now(), v0:123}.toGrid({hisStart:now(), hisEnd:now()}).isHisGrid", false)
+    verifyEval("{ts:now(), v0:123}.toGrid({hisStart:now(), hisEnd:now()}).isHisGrid", true)
   }
 
 //////////////////////////////////////////////////////////////////////////
