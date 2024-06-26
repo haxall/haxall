@@ -1,0 +1,24 @@
+# Look at documentation for docker compose: 
+# https://docs.docker.com/compose/compose-file/build
+
+# name: hx
+
+services:
+  #main haxall application
+  #using "build" looks for a local Dockerfile
+  haxall:
+    # These two lines are for keeping the shell open when using bash as an entrypoint. 
+    stdin_open: true
+    tty: true
+    image: haxall
+    container_name: haxall_run
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args: 
+        DB_NAME: haxall
+      # target: devrun
+    ports: 
+      - "8080:8080"
+    volumes:
+      - ./dbs:/app/haxall/dbs
