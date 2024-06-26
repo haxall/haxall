@@ -45,3 +45,5 @@
 **/docker-compose*.y*ml
 readme.md
 **/.gitattributes
+**/venv
+**/.venv
