@@ -57,6 +57,10 @@ internal abstract class AbstractGenCmd : XetoCmd
   ** Map enum name with special cares to programmatic name
   Str normEnumName(Str name)
   {
+    // map L1-L2 to pL1L2"
+    if (name.startsWith("L") && name[1].isDigit)
+      name = "p" + name
+
     name = name.replace("-", " ")
     name = name.replace("/", " ")
     return Etc.toTagName(name)
@@ -159,3 +163,4 @@ internal class GenUnits : AbstractGenCmd
     return 0
   }
 }
+
