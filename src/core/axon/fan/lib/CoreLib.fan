@@ -692,6 +692,7 @@ const class CoreLib
   **   ["Carytown", "Gaithersburg"].map(n=>readAll(siteRef->dis==n)).flatten
   @Axon static Obj flatten(List list)
   {
+    if (list.isEmpty) return list
     if (list.of.fits(Grid#) || list.all |x| { x is Grid })
       return Etc.gridFlatten(list)
     else
