@@ -34,7 +34,7 @@ internal class CheckErrors : Step
     if (!XetoUtil.isLibName(x.name)) err("Invalid lib name $x.name.toCode: " + XetoUtil.libNameErr(x.name), x.loc)
     checkLibMeta(lib)
     x.tops.each |type| { checkTop(type) }
-    x.instances.each |instance| { checkDict(instance) }
+    x.instances.each |instance, name| { checkInstance(x, name, instance) }
   }
 
   Void checkLibMeta(ALib x)
@@ -155,6 +155,54 @@ internal class CheckErrors : Step
 
   Void checkQuery(ASpec x)
   {
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Instances
+//////////////////////////////////////////////////////////////////////////
+
+  Void checkInstance(ALib lib, Str name, AData x)
+  {
+    if (name.startsWith("xmeta-")) checkXMeta(lib, name, x)
+    checkDict(x)
+  }
+
+  Void checkXMeta(ALib lib, Str name, ADict x)
+  {
+    // set the lib hasXMeta flag
+    lib.flags = lib.flags.or(MLibFlags.hasXMeta)
+
+    // parse "xmeta-{lib}-{Name}"
+    dash := name.index("-", 6)
+    if (dash == null) err("Invalid xmeta id: $name", x.loc)
+    libName:= name[6..<dash]
+    specName := name[dash+1..-1]
+
+    // cannot use xmeta inside my own lib (just put it in meta!)
+    if (libName == lib.name)
+    {
+      err("Cannot specify xmeta for spec in lib itself", x.loc)
+      return
+    }
+
+    // resolve from dependent lib
+    XetoLib? depend := compiler.depends.libs[libName]
+    if (depend == null)
+    {
+      err("Unknown lib for xmeta: $libName", x.loc)
+      return
+    }
+
+    // check that spec exists in depend
+    spec := depend.spec(specName, false)
+    if (spec == null)
+    {
+      if (specName.contains("."))
+        err("Cannot use dotted spec names for xmeta: $libName::$specName", x.loc)
+      else
+        err("Unknown spec for xmeta: $libName::$specName", x.loc)
+      return
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

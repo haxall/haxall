@@ -118,6 +118,7 @@ class XetoBinaryWriter : XetoBinaryConst
     writeI4(magicLib)
     writeName(lib.m.nameCode)
     writeNameDict(lib.m.meta.wrapped)
+    writeVarInt(lib.m.flags)
     writeSpecs(lib)
     writeInstances(lib)
     writeI4(magicLibEnd)

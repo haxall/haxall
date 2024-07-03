@@ -408,6 +408,39 @@ abstract const class MNamespace : LibNamespace
     return null
   }
 
+  override Dict? xmeta(Str qname, Bool checked := true)
+  {
+    // lookup spec
+    spec := spec(qname, checked)
+    if (spec == null) return null
+
+    // get meta as map
+    acc := Etc.dictToMap(spec.meta)
+
+    // simple instance name pattern to search for
+    instanceName := "xmeta-" + spec.lib.name + "-" + spec.name
+
+    // walk loaded libs
+    entriesList.each |entry|
+    {
+      if (entry.status.isLoaded)
+      {
+        lib := entry.get
+        if (lib.hasXMeta)
+        {
+          xmeta := lib.instance(instanceName, false)
+          if (xmeta == null) return
+          xmeta.each |v, n|
+          {
+            if (acc[n] == null && n != "id" && n != "spec") acc[n] = v
+          }
+        }
+      }
+    }
+
+    return Etc.dictFromMap(acc)
+  }
+
   override Void eachType(|Spec| f)
   {
     libs.each |lib|

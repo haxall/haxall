@@ -129,7 +129,8 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     verifyU4(magicLib, "magicLib")
     nameCode  := readName
     meta      := readMeta
-    loader    := RemoteLoader(ns, nameCode, meta)
+    flags     := readVarInt
+    loader    := RemoteLoader(ns, nameCode, meta, flags)
     readTops(loader)
     readInstances(loader)
     verifyU4(magicLibEnd, "magicLibEnd")

@@ -23,13 +23,14 @@ internal class RemoteLoader
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(MNamespace ns, Int libNameCode, MNameDict libMeta)
+  new make(MNamespace ns, Int libNameCode, MNameDict libMeta, Int flags)
   {
     this.ns          = ns
     this.names       = ns.names
     this.libName     = names.toName(libNameCode)
     this.libNameCode = libNameCode
     this.libMeta     = libMeta
+    this.flags       = flags
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -45,7 +46,7 @@ internal class RemoteLoader
     tops      := loadTops
     instances := reifyInstances
 
-    m := MLib(loc, libNameCode, libName, libMeta, version, depends, tops, instances)
+    m := MLib(loc, libNameCode, libName, libMeta, flags, version, depends, tops, instances)
     XetoLib#m->setConst(lib, m)
     return lib
   }
@@ -394,6 +395,7 @@ internal class RemoteLoader
   const Str libName
   const Int libNameCode
   const MNameDict libMeta
+  const Int flags
   private Str:RSpec tops := [:]              // addTops
   private Str:Dict instances := [:]          // addInstance (unreified)
   private [Str:SpecFactory]? factories       // loadFactories

@@ -64,6 +64,9 @@ const mixin Lib : Dict
   ** Is this the 'sys' library
   @NoDoc abstract Bool isSys()
 
+  ** Does this library contain extended meta instances
+  @NoDoc abstract Bool hasXMeta()
+
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 

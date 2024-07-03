@@ -17,7 +17,7 @@ using haystack::UnknownSpecErr
 @Js
 const final class MLib
 {
-  new make(FileLoc loc, Int nameCode, Str name, MNameDict meta, Version version, MLibDepend[] depends, Str:Spec specsMap, Str:Dict instancesMap)
+  new make(FileLoc loc, Int nameCode, Str name, MNameDict meta, Int flags, Version version, MLibDepend[] depends, Str:Spec specsMap, Str:Dict instancesMap)
   {
     this.loc          = loc
     this.nameCode     = nameCode
@@ -25,6 +25,7 @@ const final class MLib
     this.id           = haystack::Ref(StrBuf(4+name.size).add("lib:").add(name).toStr, null)
     this.isSys        = name == "sys"
     this.meta         = meta
+    this.flags        = flags
     this.version      = version
     this.depends      = depends
     this.specsMap     = specsMap
@@ -164,6 +165,34 @@ const final class MLib
     return meta.trap(name, args)
   }
 
+  Bool hasFlag(Int flag) { flags.and(flag) != 0 }
+
+  const Int flags
+
+}
+
+**************************************************************************
+** MLibFlags
+**************************************************************************
+
+@Js
+const class MLibFlags
+{
+  static const Int hasXMeta := 0x0001
+
+  static Str flagsToStr(Int flags)
+  {
+    s := StrBuf()
+    MLibFlags#.fields.each |f|
+    {
+      if (f.isStatic && f.type == Int#)
+      {
+        has := flags.and(f.get(null)) != 0
+        if (has) s.join(f.name, ",")
+      }
+    }
+    return "{" + s.toStr + "}"
+  }
 }
 
 **************************************************************************
@@ -207,6 +236,8 @@ const final class XetoLib : Lib, haystack::Dict
   override Dict? instance(Str name, Bool checked := true) { m.instance(name, checked) }
 
   override Bool isSys() { m.isSys }
+
+  override Bool hasXMeta() { m.hasFlag(MLibFlags.hasXMeta )}
 
   override final Bool isEmpty() { false }
 

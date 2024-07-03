@@ -107,6 +107,41 @@ class SpecTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// XMeta
+//////////////////////////////////////////////////////////////////////////
+
+  Void testXMeta()
+  {
+    ns := createNamespace(["ph.points", "hx.test.xeto"])
+
+    // Lib.hasXMeta flag
+    verifyEq(ns.lib("sys").hasXMeta, false)
+    verifyEq(ns.lib("ph").hasXMeta, false)
+    verifyEq(ns.lib("hx.test.xeto").hasXMeta, true)
+
+    // Site (normal spec)
+    spec := ns.spec("ph::Site")
+    doc := spec.meta["doc"]
+    verifyXMeta(ns, spec,
+      ["doc":doc],
+      ["doc":doc, "testIcon":"building"])
+
+    // area (global spec)
+    spec = ns.spec("ph::area")
+    doc = spec.meta["doc"]
+    verifyXMeta(ns, spec,
+      ["doc":doc, "val":n(0), "quantity":"area"],
+      ["doc":doc, "val":n(0), "quantity":"area", "editor":"AreaEditor", "foo":m])
+  }
+
+  Void verifyXMeta(LibNamespace ns, Spec spec, Str:Obj meta, Str:Obj xmeta)
+  {
+    actual := ns.xmeta(spec.qname)
+    verifyDictEq(spec.meta, meta)
+    verifyDictEq(actual, xmeta)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Is-A
 //////////////////////////////////////////////////////////////////////////
 

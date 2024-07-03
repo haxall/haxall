@@ -43,6 +43,9 @@ internal class ALib : ADoc
   ** From pragma (set in ProcessPragma)
   ADict? meta
 
+  ** Flags
+  Int flags
+
   ** Version parsed from pragma (set in ProcessPragma)
   Version? version
 

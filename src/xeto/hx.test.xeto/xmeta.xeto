@@ -1,0 +1,25 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Jul 2024  Brian Frank  Creation
+//
+
+@xmeta-ph-Site: {
+  testIcon: "building"
+}
+
+@xmeta-ph-area: {
+  doc: "no take"
+  val: 123
+  editor: "AreaEditor"
+  foo
+}
+
+/*
+@xmeta-hx.test.xeto-Bad: { foo }
+@xmeta-foobar-Bad: { foo }
+@xmeta-ph-Bad: { foo }
+*/
+
