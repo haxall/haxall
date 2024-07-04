@@ -71,4 +71,3 @@ This will create a local bind-mount in a folder called `haxall`, from wherever y
 ![A screenshot of Docker Desktop container setup](/docker/docker_desktop_setup.png)
 
 In the example inputs, a local bind-mount will be created at the folder specified by path, in this case `C:\Apps\haxall`.
-

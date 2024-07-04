@@ -1,18 +1,18 @@
-# look at fan/.github/workflows/publish.yaml as the base example for this publish file
-# Also look here: https://dev.to/ken_mwaura1/automate-docker-image-builds-and-push-to-github-registry-using-github-actions-4h20
 name: Build and Publish Docker Image to GitHub Packages
 
+# This workflow is run on any push to main, or on push tag when it starts with a 'v'
 on:
   push: 
     branches: 
       - main
     tags:
-      - v*
+      - 'v*'
+  # This enables a workflow to be triggered manually
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  # This is equivalent to ${{ github.repository_owner }}/haxall
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository_owner }}/haxall
 
 jobs:
   build-and-publish-image:
@@ -20,46 +20,46 @@ jobs:
     permissions:
       contents: read
       packages: write
-      #what is an attestation?
-      attestations: write
 
-    # I don't know whether most of the below docker Github actions should be v1, v2, v3, v4, or main... I also don't know what those mean?
-    # Maybe find some info here: https://docs.docker.com/build/ci/github-actions/
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
+      - name: Checkout the repository
+        uses: actions/checkout@v4
 
       - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # https://github.com/docker/metadata-action?tab=readme-ov-file#latest-tag
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v3
         with:
+          # flavor: |
+          #   latest=true
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # tag with version number upon "git push tag"
+            type=match,pattern=v(.*),group=1
+            # set latest tag for default branch
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
-      # unsure if this bit here is neccessary, since we are using "docker compose build", not "docker compose up --build"
-      - name: Remove and stop docker compose containers
-        run: docker compose -f docker-compose.yml down
-
-      # ABOUT THIS SECTION: https://stackoverflow.com/questions/53416685/docker-compose-tagging-and-pushing
-      # ABOUT 2: https://forums.docker.com/t/docker-compose-push-multiple-services-containers-to-docker-hub/121826
-      # - name: Build Docker image with docker compose
-      #   # docker compose [-f <arg>...] [options] [COMMAND] [ARGS...]
-      #   run: docker compose -f docker-compose.yml --progress=plain build --pull --push --no-cache --tag ${{ steps.meta.outputs.tags }} --label ${{ steps.meta.outputs.labels }}
-        
-      #About Docker bake: https://docs.docker.com/reference/cli/docker/buildx/bake/#set
-      #Using github actions: https://github.com/docker/bake-action
-      - name: Build Docker image with docker bake
-        run: docker buildx bake -f docker-compose.yml --progress=plain --pull --push --no-cache --set haxall.tags="${{ steps.meta.outputs.tags }}" --set haxall.labels."${{ steps.meta.outputs.labels }}" haxall
-
-      # THIS SECTION IS NOT REQUIRED, SINCE THE ABOVE TWO SECTIONS HAVE THE --push OPTION      
-      # - name: Push Docker image
-      #   run: docker push ${{ env.REGISTRY }}/{{ env.IMAGE_NAME }}:latest
+      # The github 'docker/bake-action' runs into a registry error... 
+      # Using https://github.com/docker/build-push-action
+      - name: Build & push image with Github Action
+        uses: docker/build-push-action@v6
+        with:
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          #since the context is root, that's where the .dockerignore needs to be.
+          context: "{{defaultContext}}:."
+          file: ./docker/Dockerfile
+          push: true
+          pull: true
+          build-args: 
+            DB_NAME=haxall
