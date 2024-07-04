@@ -73,7 +73,6 @@ EOF
 
 
 FROM eclipse-temurin:$JDK_VERSION AS devrun
-LABEL org.opencontainers.image.source="https://github.com/haxall/haxall"
 
 COPY --from=base /app/fan/ /opt/fan/
 COPY --from=base /app/haystack-defs/ /app/haystack-defs/
