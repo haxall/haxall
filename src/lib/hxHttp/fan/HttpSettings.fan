@@ -43,6 +43,10 @@ const class HttpSettings : TypedDict
   @TypedTag { restart=true }
   const Int httpsPort := 443
 
+  ** Max threads to allocate to service concurrent HTTP requests.
+  @TypedTag { restart=true }
+  const Int maxThreads := 500
+
   ** Disable showing exception stack trace for 500 internal server errors
   @TypedTag
   const Bool disableErrTrace := false
