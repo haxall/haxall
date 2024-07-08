@@ -62,6 +62,7 @@ const mixin LibNamespace
       "ion.icons",
       "ion.inputs",
       "ion.styles",
+      "ion.sysx",
       "ion.table",
       "ion.ux"]
   }
