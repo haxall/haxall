@@ -44,28 +44,12 @@ internal class CompFactory
     acc := Str:Obj[:]
     acc.ordered = true
     acc["id"] = genId
-    Dict slots := init?.slots ?: ns.instantiate(spec)
-    slots.each |v, n|
-    {
-      // skip
-      if (n == "id" || n == "compName") return
 
-      // get spec slot
-      slot := spec.slot(n, false)
+    // first fill in with default slot values
+    children = initSlots(spec, acc, children, ns.instantiate(spec))
 
-      // reify dict value to value to store as actual comp slot
-      v = reify(slot, v)
-
-      // if slot is child comp, we need to keep track
-      if (v is Comp)
-      {
-        if (children == null) children = Str:Comp[:]
-        children[n] = v
-      }
-
-      // add this to our default slots
-      acc.add(n, v)
-    }
+    // overwrite with slots passed in
+    if (init != null) children = initSlots(spec, acc, children, init.slots)
 
     // reify functions that map to methods
     spec.slots.each |slot|
@@ -86,6 +70,33 @@ internal class CompFactory
     }
 
     return spi
+  }
+
+  private [Str:Comp]? initSlots(Spec spec, Str:Obj acc, [Str:Comp]? children, Dict slots)
+  {
+    slots.each |v, n|
+    {
+      // skip
+      if (n == "id" || n == "compName") return
+
+      // get spec slot
+      slot := spec.slot(n, false)
+
+      // reify dict value to value to store as actual comp slot
+      v = reify(slot, v)
+
+      // if slot is child comp, we need to keep track
+      if (v is Comp)
+      {
+        if (children == null) children = Str:Comp[:]
+        children[n] = v
+      }
+
+      // add this to our default slots
+      acc[n] = v
+    }
+
+    return children
   }
 
   private Obj reify(Spec? slot, Obj v)
