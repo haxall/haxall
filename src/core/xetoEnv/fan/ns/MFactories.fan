@@ -15,6 +15,7 @@ using haystack::NA
 using haystack::Number
 using haystack::Remove
 using haystack::Ref
+using haystack::Span
 
 **
 ** MFactories is used to handle the lookup tables for SpecFactory
@@ -153,6 +154,7 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
       "NA":       SingletonFactory(hay.type("NA"),     NA.val, "na"),
       "Number":   NumberFactory(hay.type("Number")),
       "Ref":      RefFactory(hay.type("Ref")),
+      "Span":     SpanFactory(hay.type("Span")),
       "List":     ListFactory(),
       "Dict":     DictFactory(),
     ]
@@ -304,6 +306,13 @@ internal const class RefFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Ref.fromStr(str, checked) }
+}
+
+@Js
+internal const class SpanFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Span.fromStr(str, TimeZone.cur, checked) }
 }
 
 @Js
