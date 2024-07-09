@@ -106,6 +106,12 @@ class CompSpace : CompSpiFactory
     factory.create(dict)
   }
 
+  ** Create new component instance from spec.
+  Comp createSpec(Spec spec)
+  {
+    create(Etc.makeDict1("spec", spec._id))
+  }
+
   ** Initialize server provider interface for given instance
   override CompSpi initSpi(CompObj c, Spec? spec)
   {
