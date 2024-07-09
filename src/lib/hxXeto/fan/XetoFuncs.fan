@@ -270,7 +270,7 @@ const class XetoFuncs
   ** returned.  In graph mode an 'id' is generated for recs for cross-linking.
   **
   ** Options:
-  **   - 'graph': marker tag to instantate graph of recs
+  **   - 'graph': marker tag to instantiate a graph of recs
   **
   ** Examples:
   **   // evaluates to 2000-01-01
