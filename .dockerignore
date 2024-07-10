@@ -4,40 +4,7 @@
 # For more help, visit the .dockerignore file reference guide at
 # https://docs.docker.com/go/build-context-dockerignore/
 
-
-# # The following was automatically listed:
-# **/.DS_Store
-# **/__pycache__
-# **/.venv
-# **/.classpath
-# **/.dockerignore
-# **/.env
-# **/.git
-# **/.gitignore
-# **/.project
-# **/.settings
-# **/.toolstarget
-# **/.vs
-# **/.vscode
-# **/*.*proj.user
-# **/*.dbmdl
-# **/*.jfm
-# # **/bin
-# **/charts
-# **/docker-compose*
-# **/compose.y*ml
-# **/Dockerfile*
-# **/node_modules
-# **/npm-debug.log
-# **/obj
-# **/secrets.dev.yaml
-# **/values.dev.yaml
-# LICENSE
-# README.md
-
-
-# The following was listed by me:
-**/.git
+**/.git*
 **/.gitignore
 **/.github
 **/.dockerignore

@@ -1,8 +1,6 @@
 # Look at documentation for docker compose: 
 # https://docs.docker.com/compose/compose-file/build
 
-# name: hx
-
 services:
   #main haxall application
   #using "build" looks for a local Dockerfile
