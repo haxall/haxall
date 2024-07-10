@@ -53,10 +53,10 @@ const class CheckScalar
         onErr("Number $x > maxVal $max")
     }
 
-    reqUnit := meta["unit"] as Str
+    reqUnit := meta["unit"] as Unit
     if (reqUnit != null)
     {
-      if (reqUnit != unit?.symbol)
+      if (reqUnit != unit)
         onErr("Number $x must have unit of '$reqUnit'")
     }
 
@@ -95,6 +95,7 @@ const class CheckScalar
     // value must be string key or mapped by factory to Enum
     key := x as Str
     if (key == null) key = (x as Enum)?.name
+    if (key == null) key = (x as Unit)?.symbol
     if (key == null) return onErr("Invalid enum value type, $x.typeof not Str")
 
     // verify key maps to enum item

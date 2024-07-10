@@ -141,6 +141,7 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
       "Date":     DateFactory(sys.type("Date")),
       "Time":     TimeFactory(sys.type("Time")),
       "DateTime": DateTimeFactory(sys.type("DateTime")),
+      "Unit":     UnitFactory(sys.type("Unit")),
       "Uri":      UriFactory(sys.type("Uri")),
       "Version":  ScalarSpecFactory(sys.type("Version")),
 
@@ -285,6 +286,13 @@ internal const class DateTimeFactory : ScalarSpecFactory
     if (str.endsWith("Z")) str += " UTC"
     return DateTime.fromStr(str, checked)
   }
+}
+
+@Js
+internal const class UnitFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Unit.fromStr(str, checked) }
 }
 
 @Js
