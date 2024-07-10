@@ -990,17 +990,48 @@ const class Etc
 
   **
   ** Return if the given string is a legal tag name:
-  **   - first char must be ASCII lower case
-  **     letter: 'a' - 'z'
-  **   - rest of chars must be ASCII letter or
-  **     digit: 'a' - 'z', 'A' - 'Z', '0' - '9', or '_'
+  **   - first char must be ASCII lower case letter or underbar:
+  **     'a' - 'z' or '_'
+  **   - rest of chars must be ASCII letter,digit, or underbar:
+  **     'a' - 'z', 'A' - 'Z', '0' - '9', or '_'
+  **   - if first char is underbar, then it must have a
+  **     at least one additional alpha-num character
+  **   - or if first two chars are underbar, then must be
+  **     followed by a hexdecimal characters for a UTF-8
+  **     encoded string
   **
   static Bool isTagName(Str n)
   {
     if (n.isEmpty) return false
     first := n[0]
-    if (!first.isLower && (first != '_' || n.size == 1 || !n[1].isAlphaNum)) return false
+    if (!first.isLower)
+    {
+      if (first != '_' || n.size == 1) return false
+      second := n[1]
+      if (second == '_')
+      {
+        if (n.size < 4 || n.size.mod(2) != 0) return false
+        return n.all |c, i| { i < 2 || c.isDigit(16) }
+      }
+    }
     return n.all |c| { c.isAlphaNum || c == '_' }
+  }
+
+  **
+  ** Escape tag name into "__{utf-8 hex}" format
+  **
+  static Str escapeTagName(Str n)
+  {
+    "__" + n.toBuf.toHex
+  }
+
+  **
+  ** Unescape tag name from "__{utf-8 hex}" format
+  **
+  static Str unescapeTagName(Str n)
+  {
+    if (n.size < 4 || n[0] != '_' || n[1] != '_') throw ArgErr("Not escaped tag name: $n")
+    return Buf.fromHex(n[2..-1]).readAllStr
   }
 
   **
