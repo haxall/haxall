@@ -417,23 +417,28 @@ abstract const class MNamespace : LibNamespace
     // get meta as map
     acc := Etc.dictToMap(spec.meta)
 
-    // simple instance name pattern to search for
-    instanceName := "xmeta-" + spec.lib.name + "-" + spec.name
+    // build list of parent specs to check (don't take and/or into account yet)
+    instanceNames := Str[,]
+    for (p := spec; p != null; p = p.base)
+      instanceNames.add("xmeta-" + p.lib.name + "-" + p.name)
 
     // walk loaded libs
     entriesList.each |entry|
     {
-      if (entry.status.isLoaded)
+      // skip if not loaded
+      if (!entry.status.isLoaded) return
+
+      // skip if we didn't mark it containing xmeta
+      lib := entry.get
+
+      // walk the instanceNames to and build up all tags
+      instanceNames.each |instanceName|
       {
-        lib := entry.get
-        if (lib.hasXMeta)
+        xmeta := lib.instance(instanceName, false)
+        if (xmeta == null) return
+        xmeta.each |v, n|
         {
-          xmeta := lib.instance(instanceName, false)
-          if (xmeta == null) return
-          xmeta.each |v, n|
-          {
-            if (acc[n] == null && n != "id" && n != "spec") acc[n] = v
-          }
+          if (acc[n] == null && n != "id" && n != "spec") acc[n] = v
         }
       }
     }

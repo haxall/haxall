@@ -132,6 +132,13 @@ class SpecTest : AbstractXetoTest
     verifyXMeta(ns, spec,
       ["doc":doc, "val":n(0), "quantity":"area"],
       ["doc":doc, "val":n(0), "quantity":"area", "editor":"AreaEditor", "foo":m])
+
+    // Vav (inherited from Equip)
+    spec = ns.spec("ph::Vav")
+    doc = spec.meta["doc"]
+    verifyXMeta(ns, spec,
+      ["doc":doc],
+      ["doc":doc, "testIcon":"Device"])
   }
 
   Void verifyXMeta(LibNamespace ns, Spec spec, Str:Obj meta, Str:Obj xmeta)

@@ -17,6 +17,10 @@
   foo
 }
 
+@xmeta-ph-Equip: {
+  testIcon: "Device"
+}
+
 /*
 @xmeta-hx.test.xeto-Bad: { foo }
 @xmeta-foobar-Bad: { foo }
