@@ -26,6 +26,7 @@ internal class Fitter
     this.ns = ns
     this.failFast = failFast
     this.opts = opts
+    this.isGraph = opts.has("graph")
     this.cx = cx
   }
 
@@ -146,6 +147,9 @@ internal class Fitter
 
   private Bool? fitsQuery(Dict dict, Spec query)
   {
+    // don't check queries if not fitting graph
+    if (!isGraph) return null
+
     // if no constraints then no additional checking required
     if (query.slots.isEmpty) return null
 
@@ -209,6 +213,7 @@ internal class Fitter
   private const MNamespace ns
   private const Bool failFast
   private const Dict opts
+  private const Bool isGraph
   private XetoContext cx
 }
 

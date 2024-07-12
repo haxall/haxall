@@ -583,7 +583,14 @@ class AxonTest : AbstractAxonTest
   Void verifyQueryFitsExplain(Dict subject, Spec spec, Str[] expect)
   {
     cx := makeContext
+
+    // first eval with without opts to verify we don't validate graph
     Grid grid := cx.evalToFunc("fitsExplain").call(cx, [subject, spec])
+    verifyEq(grid.size, 0)
+
+    // now verify with graph option
+    opts := Etc.makeDict1("graph", Marker.val)
+    grid = cx.evalToFunc("fitsExplain").call(cx, [subject, spec, opts])
 
     // echo; echo("-- $subject | $spec"); grid.dump
 

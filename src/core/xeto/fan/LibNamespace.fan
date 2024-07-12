@@ -224,6 +224,8 @@ const mixin LibNamespace
   abstract Spec? specOf(Obj? val, Bool checked := true)
 
   ** Return if the given instance fits the spec via structural typing.
+  ** Options:
+  **   - 'graph': marker to also check graph of references such as required points
   abstract Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)
 
   ** Return if spec 'a' fits spec 'b' based on structural typing.
