@@ -462,6 +462,59 @@ abstract const class WrapDict : Dict
 }
 
 **************************************************************************
+** ReflectDict
+**************************************************************************
+
+**
+** Dict that defines its tags as fields
+**
+@NoDoc @Js
+abstract const class ReflectDict : Dict
+{
+  override Bool isEmpty() { false }
+
+  override Bool has(Str n) { get(n, null) != null }
+
+  override Bool missing(Str n) { get(n, null) == null }
+
+  override Obj? get(Str n, Obj? def := null)
+  {
+    field := typeof.field(n, false)
+    if (field != null && !field.isStatic) return field.get(this) ?: def
+    return def
+  }
+
+  override Void each(|Obj val, Str name| f)
+  {
+    typeof.fields.each |field|
+    {
+      if (field.isStatic) return
+      val := field.get(this)
+      if (val == null) return
+      f(val, field.name)
+    }
+  }
+
+  override Obj? eachWhile(|Obj val, Str name->Obj?| f)
+  {
+    typeof.fields.eachWhile |field|
+    {
+      if (field.isStatic) return null
+      val := field.get(this)
+      if (val == null) return null
+      return f(val, field.name)
+    }
+  }
+
+  override Obj? trap(Str n, Obj?[]? args := null)
+  {
+    v := get(n, null)
+    if (v != null) return v
+    throw UnknownNameErr(n)
+  }
+}
+
+**************************************************************************
 ** MLink
 **************************************************************************
 
