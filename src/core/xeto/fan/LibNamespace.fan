@@ -63,7 +63,7 @@ const mixin LibNamespace
       "ion.inputs",
       "ion.form",
       "ion.styles",
-      "ion.metax",
+      "ion.misc",
       "ion.table",
       "ion.ux"]
   }
