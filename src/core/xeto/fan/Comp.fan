@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 
 **
 ** Component or function block
@@ -178,7 +179,7 @@ mixin Comp
 //////////////////////////////////////////////////////////////////////////
 
   ** Debug dump the component tree to the console
-  @NoDoc virtual Void dump(Obj? opts := null) { spi.dump(opts) }
+  @NoDoc virtual Void dump(Console con := Console.cur, Obj? opts := null) { spi.dump(con, opts) }
 
 }
 
@@ -262,6 +263,6 @@ mixin CompSpi
   abstract Void onCall(Str name, |Comp, Obj?| cb)
   abstract Void onChangeRemove(Str name, Func cb)
   abstract Void onCallRemove(Str name, Func cb)
-  abstract Void dump(Obj? opts)
+  abstract Void dump(Console con, Obj? opts)
 }
 
