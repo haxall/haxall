@@ -161,7 +161,8 @@ Block Reads [#blockReads]
 *************************
 Modbus connectors will attempt to optimize consecutive registers into a single
 block read when possible. This behavior can be tuned by adding the
-`modbusBlockGap` and `modbusBlockMax` tags to your 'modbusConn' rec.
+`modbusBlockGap` and `modbusBlockMax` tags to your 'modbusConn' rec, or by configuring
+them on the connector's associated conn tuning rec.
 
 modbusBlockGap [#blockGap]
 ==========================
