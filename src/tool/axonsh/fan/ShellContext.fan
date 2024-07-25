@@ -135,9 +135,9 @@ class ShellContext : HxContext
   }
 
   ** Print the value to the stdout
-  Void print(Obj? val, Obj? opts := null)
+  Void print(Obj? val, Dict? opts := null)
   {
-    printer.print(val)
+    printer(opts).print(val)
   }
 
   ** Log evaluation error
@@ -170,7 +170,7 @@ class ShellContext : HxContext
   OutStream out { private set }
 
   ** Create Xeto printer for output stream
-  Printer printer() { Printer(xeto, out, Etc.dict0) }
+  Printer printer(Dict? opts := null) { Printer(xeto, out, opts ?: Etc.dict0) }
 
   ** Flag to terminate the interactive loop
   Bool isDone := false
