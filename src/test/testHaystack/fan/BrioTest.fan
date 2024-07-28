@@ -191,6 +191,15 @@ class BrioTest : HaystackTest
     verifyEq(map.keys.sort, ["y", "z"])
     verifyEq(map, Str:Obj?["y":Remove.val, "z":"foo"])
 
+    // dicts of different sizes
+    verifyIO(Etc.dict1("x", n(10)))
+    verifyIO(Etc.dict2("x", n(10), "y", n(20)))
+    verifyIO(Etc.dict3("x", n(10), "y", n(20), "z", m))
+    verifyIO(Etc.dict4("x", n(10), "y", n(20), "z", m, "a", "bar"))
+    verifyIO(Etc.dict5("x", n(10), "y", n(20), "z", m, "a", "bar", "b", n(-99)))
+    verifyIO(Etc.dict6("x", n(10), "y", n(20), "z", m, "a", "bar", "b", n(-99), "c", "!"))
+    verifyIO(Etc.makeDict(["x": n(10), "y": n(20), "z": m, "a": "bar", "b": n(-99), "c": "!", "d":"extra"]))
+
     // typical spark
     verifyIO(["spark": Marker.val, "ruleRef": Ref.gen,
               "targetRef": Ref("Gathersburg.RTU-2.Fan"),
@@ -282,3 +291,4 @@ class BrioTest : HaystackTest
   }
 
 }
+
