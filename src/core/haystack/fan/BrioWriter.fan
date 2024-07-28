@@ -50,6 +50,7 @@ class BrioWriter : GridWriter, BrioCtrl
     if (val is Dict)        return writeDict(val)
     if (val is Grid)        return writeGrid(val)
     if (val is List)        return writeList(val)
+    if (val is BrioPreEncoded) return writePreEncoded(val)
     return writeXStr(XStr.encode(val))
   }
 
@@ -298,6 +299,12 @@ class BrioWriter : GridWriter, BrioCtrl
     }
 
     out.write('>')
+    return this
+  }
+
+  This writePreEncoded(BrioPreEncoded x)
+  {
+    out.writeBuf(x.buf.seek(0))
     return this
   }
 

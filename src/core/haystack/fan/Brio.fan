@@ -43,6 +43,20 @@ mixin BrioCtrl
 }
 
 **************************************************************************
+** BrioPreEncoded
+**************************************************************************
+
+**
+** BrioPreEncoded is used to pass a pre-encoded brio buffer to BrioWriter.
+**
+@NoDoc
+class BrioPreEncoded
+{
+  new make(Buf buf) { this.buf = buf }
+  Buf buf
+}
+
+**************************************************************************
 ** BrioConsts
 **************************************************************************
 
@@ -225,3 +239,4 @@ class BrioConstTrace
   Int count
 }
 */
+

@@ -268,6 +268,15 @@ class BrioTest : HaystackTest
      big := Str:Obj[:]
      0x7fff.times |i| { big["t$i"] = n(i) }
      verifyIO(big)
+
+     // pre-encoded
+     dict1 := Etc.makeDict(["a":"foo", "b":n(123), "c":["x", "y"]])
+     pre := Buf()
+     BrioWriter(pre.out).writeVal(dict1)
+     buf := Buf()
+     BrioWriter(buf.out).writeVal(BrioPreEncoded(pre))
+     dict2 := (Dict)BrioReader(buf.flip.in).readVal
+     verifyDictEq(dict1, dict2)
   }
 
   internal Obj? verifyIO(Obj? x, Int? size := null, |BrioWriter|? f := null)
