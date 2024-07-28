@@ -9,7 +9,7 @@
 **
 ** BrioWriter serializes Haystack data using a binary format.
 **
-@NoDoc
+@NoDoc @Js
 class BrioWriter : GridWriter, BrioCtrl
 {
   static Buf valToBuf(Obj? val)
@@ -153,7 +153,7 @@ class BrioWriter : GridWriter, BrioCtrl
     {
       // 1deb31b8-7508b187
       id := val.id
-      if (id.size != 17 || id[8] != '-') return -1
+      if (id.size != 17 || id[8] != '-' || js) return -1
       i8 := 0
       for (i:=0; i<17; ++i)
       {
@@ -203,6 +203,12 @@ class BrioWriter : GridWriter, BrioCtrl
       out.writeI4(val.ticks/1sec.ticks)
       encodeStr(val.tz.name)
     }
+    else if (js)
+    {
+      out.write(ctrlDateTimeF8)
+      out.writeF8(val.ticks.toFloat)
+      encodeStr(val.tz.name)
+    }
     else
     {
       out.write(ctrlDateTimeI8)
@@ -215,7 +221,8 @@ class BrioWriter : GridWriter, BrioCtrl
   private This writeCoord(Coord val)
   {
     out.write(ctrlCoord)
-    out.writeI8(val.pack)
+    out.writeI4(val.packLat)
+    out.writeI4(val.packLng)
     return this
   }
 
@@ -347,6 +354,8 @@ class BrioWriter : GridWriter, BrioCtrl
     if (val <= 0x1fff_ffff) return out.writeI4(val.or(0xc000_0000))
     return out.write(0xe0).writeI8(val)
   }
+
+  @NoDoc static const Bool js := Env.cur.runtime == "js"
 
   @NoDoc Str? encodeRefToRel
   @NoDoc Bool encodeRefDis := true

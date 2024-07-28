@@ -11,6 +11,7 @@ using haystack
 **
 ** BrioTest
 **
+@Js
 class BrioTest : HaystackTest
 {
 
@@ -66,6 +67,9 @@ class BrioTest : HaystackTest
 
   Void testVarInt()
   {
+    // cannot really test this in JS
+    if (Env.cur.runtime == "js") return
+
     // Explicit checks along boundaries:
     // - 0xxx: one byte (0 to 127)
     // - 10xx: two bytes (128 to 16_383)
@@ -171,6 +175,9 @@ class BrioTest : HaystackTest
     verifyIO("foo!".toBuf, 6)
     verifyIO(Etc.emptyDict, 1)
     verifyIO(Obj?[,], 1)
+    verifyIO(Coord(37.54f, 77.43f), 9)
+    verifyIO(Coord(-17.535f, -149.569f), 9)
+
     verifyIO(Bin("text/plain"), 3)
     verifyIO(Bin("text/foobar"), 4+11)
     verifyIO(Span(SpanMode.lastWeek), 4+8)
@@ -178,7 +185,7 @@ class BrioTest : HaystackTest
 
     // all different types
     verifyIO(["m":Marker.val, "na":NA.val, "bf":false, "bt":true, "n":n(123), "s":"hi",
-      "r":Ref.gen, "u":`a/b`, "d":Date.today, "t":Time.now, "dt":DateTime.now,
+      "r":Ref.gen, "u":`a/b`, "d":Date.today, "t":Time(15, 6, 13, 123_000_000), "dt":DateTime.now,
       "c": Coord(84f, -123f), "bin":Bin("text/plain; charset=utf-8")])
 
     // with and with/out units
@@ -289,7 +296,7 @@ class BrioTest : HaystackTest
     writer.writeVal(x)
     buf.flip
 
-    if (size != null) verifyEq(buf.size, size)
+    if (size != null && Env.cur.runtime != "js") verifyEq(buf.size, size)
 
     y := BrioReader(buf.in).readVal
     if (writer.encodeRefDis)

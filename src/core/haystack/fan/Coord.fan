@@ -138,6 +138,24 @@ const final class Coord
     (ulat + 90_000_000).and(0xfff_ffff).shiftl(32).or((ulng+180_000_000).and(0xffff_ffff))
   }
 
+  ** Pack lat into 32-bit integer
+  @NoDoc Int packLat()
+  {
+    (ulat + 90_000_000).and(0xfff_ffff)
+  }
+
+  ** Pack lng into 32-bit integer
+  @NoDoc Int packLng()
+  {
+    (ulng+180_000_000).and(0xffff_ffff)
+  }
+
+  ** Unpack from from two 32-bit integers
+  @NoDoc static Coord unpackI4(Int lat, Int lng)
+  {
+    makeu(lat - 90_000_000, lng - 180_000_000)
+  }
+
   ** Unpack froma 64-bit integer - see `pack`
   @NoDoc static Coord unpack(Int bits)
   {
@@ -164,5 +182,4 @@ const final class Coord
     return d * 1000f
   }
 }
-
 

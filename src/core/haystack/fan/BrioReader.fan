@@ -9,7 +9,7 @@
 **
 ** BrioReader deserializes Haystack data using a binary format.
 **
-@NoDoc
+@NoDoc @Js
 class BrioReader : GridReader, BrioCtrl
 {
 
@@ -58,6 +58,7 @@ class BrioReader : GridReader, BrioCtrl
       case ctrlList:       return consumeList
       case ctrlGrid:       return consumeGrid
       case ctrlSymbol:     return consumeSymbol
+      case ctrlDateTimeF8: return consumeDateTimeF8
       default:             throw IOErr("obj ctrl 0x$ctrl.toHex")
     }
   }
@@ -129,11 +130,18 @@ class BrioReader : GridReader, BrioCtrl
     DateTime.makeTicks(in.readS8, consumeTimeZone)
   }
 
+  private DateTime consumeDateTimeF8()
+  {
+    DateTime.makeTicks(in.readF8.toInt, consumeTimeZone)
+  }
+
   private TimeZone consumeTimeZone() { TimeZone.fromStr(decodeStr(false)) }
 
   private Coord consumeCoord()
   {
-    Coord.unpack(in.readS8)
+    lat := in.readU4
+    lng := in.readU4
+    return Coord.unpackI4(lat, lng)
   }
 
   private Obj consumeXStr()
