@@ -125,6 +125,9 @@ const mixin HxObsService : HxService
 
   ** Lookup a observable for the runtime by name.
   abstract Observable? get(Str name, Bool checked := true)
+
+  ** Get the schedule observable
+  @NoDoc abstract ScheduleObservable schedule()
 }
 
 **************************************************************************
