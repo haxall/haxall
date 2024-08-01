@@ -210,6 +210,11 @@ const mixin LibNamespace
   ** dict with the local name of 'xmeta-ph-Site'.
   abstract Dict? xmeta(Str qname, Bool checked := true)
 
+  ** Lookup the extended meta for an enum spec.  This returns a SpecEnum
+  ** instance with resolved extended meta for all the enum items via a merge
+  ** of all libs with instances named "xmeta-{lib}-{spec}-enum".
+  abstract SpecEnum? xmetaEnum(Str qname, Bool checked := true)
+
   ** Iterate all the top-level types in all the libs.
   ** Raise exception is not fully loaded.
   abstract Void eachType(|Spec| f)

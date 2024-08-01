@@ -27,3 +27,13 @@
 @xmeta-ph-Bad: { foo }
 */
 
+@xmeta-ph-CurStatus: {
+  self: "_self_"
+}
+
+@xmeta-ph-CurStatus-enum: {
+  ok:    {color:"green"}
+  down:  {color:"yellow"}
+  fault: {color:"red"}
+}
+

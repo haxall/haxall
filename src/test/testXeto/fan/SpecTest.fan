@@ -149,6 +149,28 @@ class SpecTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// XMeta Enum
+//////////////////////////////////////////////////////////////////////////
+
+  Void testXMetaEnum()
+  {
+    ns := createNamespace(["ph", "hx.test.xeto"])
+    verifyEq(ns.lib("hx.test.xeto").hasXMeta, true)
+
+    spec := ns.spec("ph::CurStatus")
+    verifyErr(UnsupportedErr#) { spec.enum.xmeta }
+    verifyErr(UnsupportedErr#) { spec.enum.xmeta("ok") }
+
+    e := ns.xmetaEnum("ph::CurStatus")
+
+    doc := spec.meta["doc"]
+    verifyDictEq(e.xmeta, Etc.dictToMap(spec.meta).set("self", "_self_"))
+    verifyDictEq(e.xmeta("ok"), Etc.dictToMap(e.spec("ok").meta).set("color", "green"))
+    verifyDictEq(e.xmeta("down"), Etc.dictToMap(e.spec("down").meta).set("color", "yellow"))
+    verifyDictEq(e.xmeta("disabled"), e.spec("disabled").meta)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Is-A
 //////////////////////////////////////////////////////////////////////////
 

@@ -410,40 +410,12 @@ abstract const class MNamespace : LibNamespace
 
   override Dict? xmeta(Str qname, Bool checked := true)
   {
-    // lookup spec
-    spec := spec(qname, checked)
-    if (spec == null) return null
+    XMeta(this).xmeta(qname, checked)
+  }
 
-    // get meta as map
-    acc := Etc.dictToMap(spec.meta)
-
-    // build list of parent specs to check (don't take and/or into account yet)
-    instanceNames := Str[,]
-    for (p := spec; p != null; p = p.base)
-      instanceNames.add("xmeta-" + p.lib.name + "-" + p.name)
-
-    // walk loaded libs
-    entriesList.each |entry|
-    {
-      // skip if not loaded
-      if (!entry.status.isLoaded) return
-
-      // skip if we didn't mark it containing xmeta
-      lib := entry.get
-
-      // walk the instanceNames to and build up all tags
-      instanceNames.each |instanceName|
-      {
-        xmeta := lib.instance(instanceName, false)
-        if (xmeta == null) return
-        xmeta.each |v, n|
-        {
-          if (acc[n] == null && n != "id" && n != "spec") acc[n] = v
-        }
-      }
-    }
-
-    return Etc.dictFromMap(acc)
+  override SpecEnum? xmetaEnum(Str qname, Bool checked := true)
+  {
+    XMeta(this).xmetaEnum(qname, checked)
   }
 
   override Void eachType(|Spec| f)
@@ -609,8 +581,8 @@ abstract const class MNamespace : LibNamespace
 
   const MSys sys
   const MFactories factories
+  internal const MLibEntry[] entriesList  // orderd by depends
   private const Str:MLibEntry entriesMap
-  private const MLibEntry[] entriesList  // orderd by depends
   private const AtomicRef libsRef := AtomicRef()
   private const MInterfaces interfaces := MInterfaces(this)
 }

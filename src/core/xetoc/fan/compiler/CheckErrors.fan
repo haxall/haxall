@@ -195,6 +195,15 @@ internal class CheckErrors : Step
 
     // check that spec exists in depend
     spec := depend.spec(specName, false)
+
+    // check "Foo-enum" as special case
+    if (spec == null && specName.endsWith("-enum"))
+    {
+      spec = depend.spec(specName[0..-6], false)
+      if (spec != null && !spec.isEnum)
+        return err("Enum xmeta for $name for non-enum type", x.loc)
+    }
+
     if (spec == null)
     {
       if (specName.contains("."))
