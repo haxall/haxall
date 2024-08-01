@@ -137,7 +137,7 @@ class HxdContext : HxContext
     tags["username"] = user.username
     tags["userRef"] = user.id
     if (timeout != null) tags["timeout"] = Number(timeout, Number.mins)
-    return Etc.makeDict(tags)
+    return Etc.dictMerge(super.toDict, tags)
   }
 
 //////////////////////////////////////////////////////////////////////////

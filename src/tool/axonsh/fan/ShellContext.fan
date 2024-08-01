@@ -235,7 +235,7 @@ class ShellContext : HxContext
     tags["locale"] = Locale.cur.toStr
     tags["username"] = user.username
     tags["userRef"] = user.id
-    return Etc.makeDict(tags)
+    return Etc.dictMerge(super.toDict, tags)
   }
 
 //////////////////////////////////////////////////////////////////////////
