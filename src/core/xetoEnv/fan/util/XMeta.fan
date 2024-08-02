@@ -74,7 +74,7 @@ internal class XMeta
   {
     // lookup spec
     spec := ns.spec(qname, checked)
-    if (spec == null) return null
+    if (spec == null || !spec.isEnum) return null
 
     // self meta
     self := xmeta(qname)
