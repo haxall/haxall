@@ -27,9 +27,10 @@ internal class XMeta
   }
 
   ** Walk each lib that is both loaded and has xmeta
-  Void eachXMetaLib(|Lib| f)
+  once Lib[] libs()
   {
     // walk loaded libs
+    acc := Lib[,]
     ns.entriesList.each |entry|
     {
       // skip if not loaded
@@ -39,8 +40,9 @@ internal class XMeta
       lib := entry.get
       if (!lib.hasXMeta) return
 
-      f(lib)
+      acc.add(lib)
     }
+    return acc
   }
 
   Dict? xmeta(Str qname, Bool checked := true)
@@ -57,11 +59,11 @@ internal class XMeta
     for (p := spec; p != null; p = p.base)
       instanceNames.add(instanceName(p))
 
-    // walk loaded libs with xmeta
-    eachXMetaLib |lib|
+    // walk the instanceNames from the spec itself down to Obj
+    instanceNames.each |instanceName|
     {
-      // walk the instanceNames to and build up all tags
-      instanceNames.each |instanceName|
+      // walk loaded libs with xmeta
+      libs.each |lib|
       {
         merge(acc, lib.instance(instanceName, false))
       }
@@ -90,7 +92,7 @@ internal class XMeta
 
     // walk loaded libs with xmeta
     enumInstanceName := instanceName(spec) + "-enum"
-    eachXMetaLib |lib|
+    libs.each |lib|
     {
       xmeta := lib.instance(enumInstanceName, false)
       if (xmeta == null) return
