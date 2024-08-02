@@ -81,8 +81,10 @@ internal class XMeta
 
     // default key meta from declared
     accByKey := Str:Map[:]
+    nameToKey := Str:Str[:]
     spec.enum.each |item, key|
     {
+      nameToKey[item.name] = key
       accByKey[key] = Etc.dictToMap(item.meta)
     }
 
@@ -94,8 +96,15 @@ internal class XMeta
       if (xmeta == null) return
       xmeta.each |v, n|
       {
-        acc := accByKey[n]
+        // first map name to key (might no be same pL2 vs L2)
+        key := nameToKey[n]
+        if (key == null) return
+
+        // lookup current xmeta map of Str:Obj
+        acc := accByKey[key]
         if (acc == null) return
+
+        // merge in
         merge(acc, v as Dict)
       }
     }

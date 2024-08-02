@@ -168,6 +168,10 @@ class SpecTest : AbstractXetoTest
     verifyDictEq(e.xmeta("ok"), Etc.dictToMap(e.spec("ok").meta).set("color", "green"))
     verifyDictEq(e.xmeta("down"), Etc.dictToMap(e.spec("down").meta).set("color", "yellow"))
     verifyDictEq(e.xmeta("disabled"), e.spec("disabled").meta)
+
+    // test ph::EnumLine where names are different than keys
+    e = ns.xmetaEnum("ph::ElecLine")
+    verifyDictEq(e.xmeta("L1"), Etc.dictToMap(e.spec("L1").meta).set("foo", "Line 1"))
   }
 
 //////////////////////////////////////////////////////////////////////////
