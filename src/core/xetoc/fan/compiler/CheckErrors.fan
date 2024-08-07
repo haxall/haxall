@@ -51,8 +51,15 @@ internal class CheckErrors : Step
 
   Void checkTop(ASpec x)
   {
+    checkTopName(x)
     checkSpec(x)
     checkTypeInherit(x)
+  }
+
+  Void checkTopName(ASpec x)
+  {
+    if (lib.instances[x.name] != null)
+      err("Spec $x.name.toCode conflicts with instance of the same name", x.loc)
   }
 
   Void checkTypeInherit(ASpec x)
