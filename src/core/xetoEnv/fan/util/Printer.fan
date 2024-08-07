@@ -682,18 +682,12 @@ class Printer
 
   Bool optBool(Str name, Bool def)
   {
-    v := opt(name)
-    if (isMarker(v)) return true
-    if (v is Bool) return v
-    return def
+    XetoUtil.optBool(opts, name, def)
   }
 
   Int optInt(Str name, Int def)
   {
-    v := opt(name, def)
-    if (v is Int) return v
-    if (v is Number) return ((Number)v).toInt
-    return def
+    XetoUtil.optInt(opts, name, def)
   }
 
   PrinterSpecMode optSpecMode()

@@ -8,9 +8,9 @@
 //
 
 using util
-using xeto
-using haystack::Etc
-using haystack::Marker
+using xeto::LibNamespace
+using haystack
+using xetoEnv
 
 internal class ExportJson : ExportCmd
 {
@@ -22,5 +22,15 @@ internal class ExportJson : ExportCmd
   Bool own
 
 
+  override Exporter initExporter(LibNamespace ns, OutStream out)
+  {
+    opts := Etc.dict0
+    return JsonExporter(ns, out, opts)
+  }
+
+  override Str toFileName(ExportTarget t)
+  {
+    t.toStr + ".json"
+  }
 }
 

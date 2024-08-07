@@ -10,6 +10,7 @@ using util
 using xeto
 using haystack::Etc
 using haystack::Marker
+using haystack::Number
 using haystack::Ref
 using haystack::Remove
 using haystack::UnknownNameErr
@@ -186,6 +187,24 @@ const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 // Opts
 //////////////////////////////////////////////////////////////////////////
+
+  ** Boolean option
+  static Bool optBool(Dict? opts, Str name, Bool def)
+  {
+    v := opts?.get(name)
+    if (v === Marker.val) return true
+    if (v is Bool) return v
+    return def
+  }
+
+  ** Integer option
+  static Int optInt(Dict? opts, Str name, Int def)
+  {
+    v := opts?.get(name)
+    if (v is Int) return v
+    if (v is Number) return ((Number)v).toInt
+    return def
+  }
 
   ** Get logging function from options
   static |XetoLogRec|? optLog(Dict? opts, Str name)

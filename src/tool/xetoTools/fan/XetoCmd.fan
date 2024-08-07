@@ -88,6 +88,7 @@ abstract class XetoCmd : AbstractMain
     }
     else
     {
+      printLine("Write [$arg.osPath]")
       out := arg.out
       try
         f(out)

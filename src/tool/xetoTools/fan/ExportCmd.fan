@@ -20,8 +20,11 @@ internal abstract class ExportCmd : XetoCmd
   @Opt { help = "Dump debug info as processing" }
   Bool verbose
 
-  @Opt { help = "Output directory or file (default to stdout)" }
-  File? out
+  @Opt { help = "Output directory (generates one file per target)" }
+  File? outDir
+
+  @Opt { help = "Output file (combine all targets in one file, default to stdout)" }
+  File? outFile
 
   @Arg { help = "Libs, specs, and instances to export" }
   Str[]? targets
@@ -48,11 +51,12 @@ internal abstract class ExportCmd : XetoCmd
 
   override Int run()
   {
-    repo := LibRepo.cur
+    // sanity checks
+    if (!checkArgs) return 1
 
     // find targets
+    repo := LibRepo.cur
     targets := findTargets(repo)
-    if (targets.isEmpty) { err("No targets specified"); return 1 }
     if (verbose)
     {
       printLine("\nFind Targets:")
@@ -67,7 +71,31 @@ internal abstract class ExportCmd : XetoCmd
       ns.versions.each |x| { printLine("  $x") }
     }
 
+    // export
+    exportTargets(ns, targets)
+
     return 0
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Check Args
+//////////////////////////////////////////////////////////////////////////
+
+  private Bool checkArgs()
+  {
+    if (outDir != null && outFile != null)
+    {
+      err("Cannot specify both outDir and outFile")
+      return false
+    }
+
+    if (targets == null && !all)
+    {
+      err("No targets specified")
+      return false
+    }
+
+    return true
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -134,6 +162,82 @@ internal abstract class ExportCmd : XetoCmd
     // create namespace from our dependency solution
     return repo.createNamespace(versions)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Export
+//////////////////////////////////////////////////////////////////////////
+
+  private Void exportTargets(LibNamespace ns, ExportTarget[] targets)
+  {
+    if (outDir != null)
+      exportToDir(ns, targets)
+    else
+      exportToFile(ns, targets)
+  }
+
+  private Void exportToDir(LibNamespace ns, ExportTarget[] targets)
+  {
+    targets.each |t|
+    {
+      name := toFileName(t).replace("::", "_")
+      file := outDir.uri.plusSlash.plusName(name).toFile
+      withOut(file) |out|
+      {
+        ex := initExporter(ns, out)
+        ex.start
+        exportTarget(ns, ex, t)
+        ex.end
+      }
+    }
+  }
+
+  private Void exportToFile(LibNamespace ns, ExportTarget[] targets)
+  {
+    withOut(outFile) |out|
+    {
+      ex := initExporter(ns, out)
+      if (targets.size == 1)
+      {
+        exportTarget(ns, ex, targets[0])
+      }
+      else
+      {
+        ex.start
+        targets.each |t| { exportTarget(ns, ex, t) }
+        ex.end
+      }
+    }
+  }
+
+  private Void exportTarget(LibNamespace ns, Exporter ex, ExportTarget t)
+  {
+    lib := ns.lib(t.lib.name)
+    if (t.specName == null)
+    {
+      ex.lib(lib)
+      return
+    }
+
+    spec := lib.spec(t.specName, false)
+    if (spec != null)
+    {
+      ex.spec(spec)
+      return
+    }
+
+    instance := lib.instance(t.specName, false)
+    if (instance != null)
+    {
+      ex.instance(instance)
+      return
+    }
+
+    throw Err("Unknown spec/instance $lib.name::$t.specName")
+  }
+
+  abstract Exporter initExporter(LibNamespace ns, OutStream out)
+
+  abstract Str toFileName(ExportTarget t)
 }
 
 **************************************************************************
