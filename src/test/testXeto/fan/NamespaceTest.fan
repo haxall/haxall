@@ -120,6 +120,12 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { ns.spec("sys::Baz") }
     verifyErr(UnknownSpecErr#) { ns.spec("sys::Str.foo") }
 
+    // reify scalar default values
+    verifySame(sys.type("Unit").meta["val"], Unit("%"))
+    verifySame(sys.type("Unit").metaOwn["val"], Unit("%"))
+    verifySame(sys.type("TimeZone").meta["val"], TimeZone.utc)
+    verifySame(sys.type("TimeZone").metaOwn["val"], TimeZone.utc)
+
     // specials
     verifyEq(self.isSelf, true)
     verifyEq(none.isNone, true)
@@ -154,6 +160,7 @@ class NamespaceTest : AbstractXetoTest
 
     water := ph.global("water")
     verifySame(ns.spec("ph::water"), water)
+    verifySame(water.meta["val"], Marker.val)
 
     // env.print(elecMeter, Env.cur.out, dict1("effective", m))
     marker := ns.spec("sys::Marker")
@@ -238,6 +245,7 @@ class NamespaceTest : AbstractXetoTest
     verifyDictEq(ab.meta, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB",
       "q":Date("2024-01-01"), "r":Date("2024-02-01"), "foo":"A", "bar":"A", ])
   }
+
 
 //////////////////////////////////////////////////////////////////////////
 // NameTable
