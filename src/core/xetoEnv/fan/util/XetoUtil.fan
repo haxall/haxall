@@ -390,6 +390,7 @@ const class XetoUtil
     spec.slots.each |slot|
     {
       if (slot.isMaybe) return
+      if (slot.isMaybe) return
       if (slot.isQuery) return
       if (slot.isFunc) return
       if (slot.type === ns.sys.ref && slot.name != "enum") return // fill-in siteRef, equipRef, etc
@@ -407,6 +408,8 @@ const class XetoUtil
     }
 
     dict := Etc.dictFromMap(acc)
+    if (spec.factory.isDict)
+      dict = spec.factory.decodeDict(dict)
 
     if (opts.has("graph"))
       return instantiateGraph(ns, spec, opts, dict)

@@ -21,6 +21,18 @@ abstract const class SpecFactory
   ** Fantom type used to represent instances of the spec
   abstract Type type()
 
+  ** Is this a scalar factory that handles decodeScalar and encodeScalar
+  abstract Bool isScalar()
+
+  ** Is this a dict (or component) factory that handles decodeDict
+  abstract Bool isDict()
+
+  ** Is this a list factory that handles decodeList
+  abstract Bool isList()
+
+  ** Is this an interface factory that is only for its type (no decoding)
+  abstract Bool isInterface()
+
   ** Decode a Xeto dict of name/value pairs to a Fantom Dict instance
   abstract Dict decodeDict(Dict xeto, Bool checked := true)
 
@@ -66,6 +78,14 @@ abstract const class DictSpecFactory : SpecFactory
 
   const override Type type
 
+  override Bool isScalar() { false }
+
+  override Bool isDict() { true }
+
+  override Bool isList() { false }
+
+  override Bool isInterface() { false }
+
   override final Obj decodeList(Obj?[] xeto, Bool checked := true)
   {
     throw UnsupportedErr("Dict cannot decode to list")
@@ -107,6 +127,14 @@ abstract const class ListSpecFactory : SpecFactory
 
   const override Type type
 
+  override Bool isScalar() { false }
+
+  override Bool isDict() { false }
+
+  override Bool isList() { true }
+
+  override Bool isInterface() { false }
+
   override final Dict decodeDict(Dict xeto, Bool checked := true)
   {
     throw UnsupportedErr("List cannot decode to dict")
@@ -135,6 +163,14 @@ const class ScalarSpecFactory : SpecFactory
   new make(Type type) { this.type = type }
 
   const override Type type
+
+  override Bool isScalar() { true }
+
+  override Bool isDict() { false }
+
+  override Bool isList() { false }
+
+  override Bool isInterface() { false }
 
   override final Dict decodeDict(Dict xeto, Bool checked := true)
   {
@@ -171,6 +207,14 @@ const class InterfaceSpecFactory : SpecFactory
   new make(Type type) { this.type = type }
 
   const override Type type
+
+  override Bool isScalar() { false }
+
+  override Bool isDict() { false }
+
+  override Bool isList() { false }
+
+  override Bool isInterface() { true }
 
   override Dict decodeDict(Dict xeto, Bool checked := true)
   {

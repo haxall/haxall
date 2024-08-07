@@ -191,6 +191,10 @@ internal const class ObjFactory : SpecFactory
 {
   new make(Type type) { this.type = type }
   const override Type type
+  override Bool isScalar() { false }
+  override Bool isDict() { false }
+  override Bool isList() { false }
+  override Bool isInterface() { false }
   override Dict decodeDict(Dict xeto, Bool checked := true) { throw UnsupportedErr("Obj") }
   override Obj decodeList(Obj?[] xeto, Bool checked := true) { throw UnsupportedErr("Obj") }
   override Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr("Obj")  }
