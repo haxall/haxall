@@ -196,16 +196,9 @@ internal abstract class ExportCmd : XetoCmd
     withOut(outFile) |out|
     {
       ex := initExporter(ns, out)
-      if (targets.size == 1)
-      {
-        exportTarget(ns, ex, targets[0])
-      }
-      else
-      {
-        ex.start
-        targets.each |t| { exportTarget(ns, ex, t) }
-        ex.end
-      }
+      ex.start
+      targets.each |t| { exportTarget(ns, ex, t) }
+      ex.end
     }
   }
 

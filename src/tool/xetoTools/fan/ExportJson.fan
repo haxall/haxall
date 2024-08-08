@@ -18,14 +18,14 @@ internal class ExportJson : ExportCmd
 
   override Str summary() { "Export xeto to JSON" }
 
-  @Opt { help = "Generate only own declared meta/slots" }
-  Bool own
-
+  @Opt { aliases=["e"]; help = "Generate inherited effective meta/slots (default is own)" }
+  Bool effective
 
   override Exporter initExporter(LibNamespace ns, OutStream out)
   {
-    opts := Etc.dict0
-    return JsonExporter(ns, out, opts)
+    opts := Str:Obj[:]
+    if (effective) opts["effective"] = Marker.val
+    return JsonExporter(ns, out, Etc.makeDict(opts))
   }
 
   override Str toFileName(ExportTarget t)

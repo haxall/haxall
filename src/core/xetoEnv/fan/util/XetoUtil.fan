@@ -79,20 +79,6 @@ const class XetoUtil
     return true
   }
 
-  ** Is the given spec name reserved
-  static Bool isReservedSpecName(Str n)
-  {
-    if (n == "pragma") return true
-    return false
-  }
-
-  ** Is the given instance name reserved
-  static Bool isReservedInstanceName(Str n)
-  {
-    if (n == "pragma") return true
-    return false
-  }
-
   ** Convert "fooBarBaz" or "FooBarBaz" to "foo.bar.baz".
   static Str camelToDotted(Str name, Int dot := '.')
   {
@@ -171,6 +157,38 @@ const class XetoUtil
     }
     return acc.vals
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Reserved Names
+//////////////////////////////////////////////////////////////////////////
+
+  ** Is the given spec name reserved
+  static Bool isReservedSpecName(Str n)
+  {
+    if (n == "pragma") return true
+    return false
+  }
+
+  ** Is the given instance name reserved
+  static Bool isReservedInstanceName(Str n)
+  {
+    if (n == "pragma") return true
+    return false
+  }
+
+  static const Str[] libMetaReservedTags := [
+    // used right now
+    "id", "spec", "loaded",
+    // future proofing
+    "data", "instances", "name", "lib", "loc", "slots", "specs", "types", "xeto"
+  ]
+
+  static const Str[] specMetaReservedTags := [
+    // used right now
+    "id", "base", "type", "spec", "slots",
+    // future proofing
+    "class", "is", "lib", "loc", "name", "parent", "qname", "super", "supers", "version", "xeto"
+  ]
 
 //////////////////////////////////////////////////////////////////////////
 // Dirs

@@ -11,6 +11,7 @@ using xeto::Lib
 using haystack::Dict
 using haystack::Etc
 using haystack::Marker
+using haystack::Ref
 
 **
 ** JSON Exporter
@@ -81,6 +82,7 @@ class JsonExporter : Exporter
   private This doSpec(Str name, Spec spec)
   {
     prop(name).obj
+    prop("spec").val(specRef).propEnd
     if (spec.isType) specBase(spec)
     else specType(spec)
     meta(isEffective ? spec.meta : spec.metaOwn)
@@ -218,6 +220,7 @@ class JsonExporter : Exporter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private Ref specRef := Ref("sys::Spec")
   private Bool[] firsts := Bool[true]    // object state stack
   private Bool lastWasEnd
   private Bool isEffective

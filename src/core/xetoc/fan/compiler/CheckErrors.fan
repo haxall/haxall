@@ -39,7 +39,7 @@ internal class CheckErrors : Step
 
   Void checkLibMeta(ALib x)
   {
-    libMetaReservedTags.each |name|
+    XetoUtil.libMetaReservedTags.each |name|
     {
       if (x.meta.has(name)) err("Lib '$x.name' cannot use reserved meta tag '$name'", x.loc)
     }
@@ -155,7 +155,7 @@ internal class CheckErrors : Step
   {
     if (x.meta == null) return
 
-    specMetaReservedTags.each |name|
+    XetoUtil.specMetaReservedTags.each |name|
     {
       if (x.meta.has(name)) err("Spec '$x.name' cannot use reserved meta tag '$name'", x.loc)
     }
@@ -269,24 +269,6 @@ internal class CheckErrors : Step
   Void checkDataRef(ADataRef x)
   {
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Fields
-//////////////////////////////////////////////////////////////////////////
-
-  const Str[] libMetaReservedTags := [
-    // used right now
-    "id", "spec", "loaded",
-    // future proofing
-    "data", "instances", "name", "lib", "loc", "slots", "specs", "types", "xeto"
-  ]
-
-  const Str[] specMetaReservedTags := [
-    // used right now
-    "id", "base", "type", "spec", "slots",
-    // future proofing
-    "class", "is", "lib", "loc", "name", "parent", "qname", "super", "supers", "version", "xeto"
-  ]
 
 }
 
