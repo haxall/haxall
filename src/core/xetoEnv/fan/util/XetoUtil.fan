@@ -79,6 +79,20 @@ const class XetoUtil
     return true
   }
 
+  ** Is the given spec name reserved
+  static Bool isReservedSpecName(Str n)
+  {
+    if (n == "pragma") return true
+    return false
+  }
+
+  ** Is the given instance name reserved
+  static Bool isReservedInstanceName(Str n)
+  {
+    if (n == "pragma") return true
+    return false
+  }
+
   ** Convert "fooBarBaz" or "FooBarBaz" to "foo.bar.baz".
   static Str camelToDotted(Str name, Int dot := '.')
   {
