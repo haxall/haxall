@@ -45,6 +45,7 @@ internal abstract class ExportCmd : XetoCmd
     out.printLine("  xeto $name ph::Rtu               // one spec")
     out.printLine("  xeto $name ph -outFile foo.xeto  // output to file")
     out.printLine("  xeto $name sys ph -outDir myDir  // output each target to file in dir")
+    out.printLine("  xeto $name -all -outDir myDir    // output every lib to file in dir")
     return 1
   }
 
