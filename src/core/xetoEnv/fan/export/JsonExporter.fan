@@ -47,7 +47,8 @@ class JsonExporter : Exporter
   {
     prop(lib.name).obj
     libPragma(lib)
-    lib.specs.each |spec| { doSpec(spec.name, spec) }
+    lib.specs.each |x| { doSpec(x.name, x) }
+    lib.instances.each |x| { instance(x) }
     objEnd.propEnd
     return this
   }
@@ -61,6 +62,16 @@ class JsonExporter : Exporter
   override This instance(Dict instance)
   {
     prop(instance.id.id).obj
+
+    spec := instance["spec"]
+    if (spec != null) dictPair("spec", spec)
+
+    instance.each |v, n|
+    {
+      if (n == "id" || n == "spec") return
+      dictPair(n, v)
+    }
+
     objEnd.propEnd
     return this
   }
