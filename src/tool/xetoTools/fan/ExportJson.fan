@@ -21,6 +21,13 @@ internal class ExportJson : ExportCmd
   @Opt { aliases=["e"]; help = "Generate inherited effective meta/slots (default is own)" }
   Bool effective
 
+  override Int usage(OutStream out := Env.cur.out)
+  {
+    super.usage(out)
+    out.printLine("  xeto $name ph::Rtu -effective    // output effective meta and slots")
+    return 1
+  }
+
   override Exporter initExporter(LibNamespace ns, OutStream out)
   {
     opts := Str:Obj[:]

@@ -33,15 +33,18 @@ internal abstract class ExportCmd : XetoCmd
   {
     super.usage(out)
     out.printLine("Targets:")
-    out.printLine("  ph.points                     // latest version of lib")
-    out.printLine("  ph.points-1.0.43              // specific version of lib")
-    out.printLine("  ph.points::RunCmd             // latest version of spec")
-    out.printLine("  ph.points-1.0.43::RunCmd      // specific version of spec")
+    out.printLine("  ph.points                   // latest version of lib")
+    out.printLine("  ph.points-1.0.43            // specific version of lib")
+    out.printLine("  ph.points::RunCmd           // latest version of spec")
+    out.printLine("  ph.points-1.0.43::RunCmd    // specific version of spec")
+    out.printLine("  ion.icons::apple            // instance in a lib")
     out.printLine("Examples:")
-    out.printLine("  xeto $name sys                 // latest version of lib")
-    out.printLine("  xeto $name sys-1.0.3           // specific lib version")
-    out.printLine("  xeto $name sys ph ph.points    // multiple libs")
-    out.printLine("  xeto $name ph::Rtu             // one spec")
+    out.printLine("  xeto $name sys                   // latest version of lib")
+    out.printLine("  xeto $name sys-1.0.3             // specific lib version")
+    out.printLine("  xeto $name sys ph ph.points      // multiple libs")
+    out.printLine("  xeto $name ph::Rtu               // one spec")
+    out.printLine("  xeto $name ph -outFile foo.xeto  // output to file")
+    out.printLine("  xeto $name sys ph -outDir myDir  // output each target to file in dir")
     return 1
   }
 
