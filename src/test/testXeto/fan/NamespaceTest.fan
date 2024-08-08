@@ -157,6 +157,7 @@ class NamespaceTest : AbstractXetoTest
     equip     := verifyLibType(ns, ph, "Equip",    entity)
     meter     := verifyLibType(ns, ph, "Meter",    equip)
     elecMeter := verifyLibType(ns, ph, "ElecMeter",meter)
+    site      := verifyLibType(ns, ph, "Site",     entity)
 
     water := ph.global("water")
     verifySame(ns.spec("ph::water"), water)
@@ -175,6 +176,10 @@ class NamespaceTest : AbstractXetoTest
       ["id":Ref("ph::op:about"), "spec":Ref("ph::Op"), "op":m, "noSideEffects":m])
     verifyFeatureInstance(ph.instance("op:pointWrite"),
       ["id":Ref("ph::op:pointWrite"), "spec":Ref("ph::Op"), "op":m])
+
+    // siteRef
+    verifySame(ns.spec("ph::siteRef").of, site)
+    verifySame(ns.spec("ph::Equip.siteRef").of, site)
 
     // hot water
     hotWater := ph.type("HotWater")
