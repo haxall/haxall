@@ -25,10 +25,10 @@ abstract class Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts)
   {
-    this.ns        = ns
-    this.out       = out
-    this.opts      = opts
-    this.indention = XetoUtil.optInt(opts, "indent", 0)
+    this.ns          = ns
+    this.out         = out
+    this.opts        = opts
+    this.indentation = XetoUtil.optInt(opts, "indent", 0)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ abstract class Exporter
 
   This sp() { wc(' ') }
 
-  This indent() { w(Str.spaces(indention*2)) }
+  This indent() { w(Str.spaces(indentation*2)) }
 
   This flush() { out.flush; return this }
 
@@ -86,6 +86,6 @@ abstract class Exporter
   const MNamespace ns             // namespace
   const Dict opts                 // options
   private OutStream out           // output stream
-  Int indention                  // current level of indentation
+  Int indentation                 // current level of indentation
 }
 

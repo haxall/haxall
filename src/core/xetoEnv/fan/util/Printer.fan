@@ -30,17 +30,17 @@ class Printer
   ** Constructor
   new make(MNamespace ns, OutStream out, Dict opts)
   {
-    this.ns         = ns
-    this.out        = out
-    this.opts       = opts
-    this.escUnicode = optBool("escapeUnicode", false)
-    this.showdoc    = optBool("doc", false)
-    this.specMode   = optSpecMode
-    this.indention  = optInt("indent", 0)
-    this.width      = optInt("width", terminalWidth)
-    this.height     = optInt("height", terminalHeight)
-    this.isStdout   = out === Env.cur.out
-    this.theme      = isStdout ? PrinterTheme.configured : PrinterTheme.none
+    this.ns          = ns
+    this.out         = out
+    this.opts        = opts
+    this.escUnicode  = optBool("escapeUnicode", false)
+    this.showdoc     = optBool("doc", false)
+    this.specMode    = optSpecMode
+    this.indentation = optInt("indent", 0)
+    this.width       = optInt("width", terminalWidth)
+    this.height      = optInt("height", terminalHeight)
+    this.isStdout    = out === Env.cur.out
+    this.theme       = isStdout ? PrinterTheme.configured : PrinterTheme.none
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -269,9 +269,9 @@ class Printer
   {
     print(lib.name)
     bracket(" {").nl
-    indention++
+    indentation++
     lib.specs.each |t| { specTop(t).nl.nl }
-    indention--
+    indentation--
     bracket("}").nl
     return this
   }
@@ -355,7 +355,7 @@ class Printer
   {
     if (slots.isEmpty) return this
     bracket(" {").nl
-    indention++
+    indentation++
     slots.each |slot|
     {
       doc(slot, mode)
@@ -381,7 +381,7 @@ class Printer
       }
       nl
     }
-    indention--
+    indentation--
     indent.bracket("}")
     return this
   }
@@ -462,7 +462,7 @@ class Printer
     qname(spec).sp
     if (x.isEmpty) return bracket("{}")
     bracket("{").nl
-    indention++
+    indentation++
     if (id != null && !top) indent.w("id").colon.xeto(id).nl
     x.each |v, n|
     {
@@ -472,7 +472,7 @@ class Printer
       if (isMarker(v)) return nl
       colon.xeto(v).nl
     }
-    indention--
+    indentation--
     indent.bracket("}")
     return this
   }
@@ -482,13 +482,13 @@ class Printer
   {
     if (x.isEmpty) return w("List").sp.bracket("{}")
     w("List").sp.bracket("{").nl
-    indention++
+    indentation++
     x.each |v, i|
     {
       indent
       xeto(v).nl
     }
-    indention--
+    indentation--
     bracket("}")
     return this
   }
@@ -508,7 +508,7 @@ class Printer
   private This jsonDict(Dict dict)
   {
     bracket("{").nl
-    indention++
+    indentation++
     first := true
     dict.each |x, n|
     {
@@ -516,7 +516,7 @@ class Printer
       else comma.nl
       indent.quoted(n).colon.json(x)
     }
-    indention--
+    indentation--
     nl.indent.bracket("}")
     return this
   }
@@ -524,14 +524,14 @@ class Printer
   private This jsonList(Obj?[] list)
   {
     bracket("[").nl
-    indention++
+    indentation++
     list.each |x, i|
     {
       indent.json(x)
       if (i + 1 < list.size) comma
       nl
     }
-    indention--
+    indentation--
     indent.bracket("]")
     return this
   }
@@ -655,7 +655,7 @@ class Printer
 
   This sp() { wc(' ') }
 
-  This indent() { w(Str.spaces(indention*2)) }
+  This indent() { w(Str.spaces(indentation*2)) }
 
   This flush() { out.flush; return this }
 
@@ -737,7 +737,7 @@ class Printer
   const Int height                // terminal height
   const PrinterTheme theme        // syntax color coding
   private OutStream out           // output stream
-  private Int indention           // current level of indentation
+  private Int indentation         // current level of indentation
   private Bool lastnl             // was last char a newline
   private Bool inMeta             // in spec meta
 }
