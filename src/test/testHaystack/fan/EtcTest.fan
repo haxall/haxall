@@ -43,7 +43,17 @@ class EtcTest : HaystackTest
     verifyTagName("#@", false)
     verifyTagName("_x", true)
     verifyTagName("_3", true)
+    verifyTagName("_3_4", true)
+
     verifyTagName("__", false)
+    verifyTagName("__x", false)
+    verifyTagName("__xx", false)
+    verifyTagName("__33", true)
+    verifyTagName("__33a", false)
+    verifyTagName("__33aB", true)
+    verifyTagName("__33aBC", false)
+    verifyTagName("__33aBCx", false)
+    verifyTagName("__33aBCE", true)
 
     verifyTagName("x3y", true)
     verifyTagName("x3Z", true)
@@ -93,6 +103,32 @@ class EtcTest : HaystackTest
     verifyEq(Etc.toTagName("foo."), "foo")
     verifyEq(Etc.toTagName("foo.x"), "foo_x")
     verifyEq(Etc.toTagName("foo/"), "foo")
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Escape Tag Name
+//////////////////////////////////////////////////////////////////////////
+
+  Void testEscapeTagName()
+  {
+    verifyEscapeTagName("x y")
+    verifyEscapeTagName(" x\ny ")
+    verifyEscapeTagName(":#@%^*()[]\\")
+    verifyEscapeTagName("‚úìŒî¬∞Fm¬≤œÄ‚Ä¢")
+    verifyEscapeTagName("Ì†ΩÌ∏ÄÌ†ΩÌ∏ùÌ†ΩÌ∏à")
+
+    verifyErr(ArgErr#) { Etc.unescapeTagName("x") }
+    verifyErr(ArgErr#) { Etc.unescapeTagName("_") }
+    verifyErr(ArgErr#) { Etc.unescapeTagName("__") }
+    verifyErr(ArgErr#) { Etc.unescapeTagName("__4") }
+  }
+
+  Void verifyEscapeTagName(Str n)
+  {
+    x := Etc.escapeTagName(n)
+    verifyEq(Etc.isTagName(n), false)
+    verifyEq(Etc.isTagName(x), true)
+    verifyEq(Etc.unescapeTagName(x), n)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -850,3 +886,4 @@ class EtcTest : HaystackTest
 
 
 }
+

@@ -17,6 +17,10 @@ const class ScheduleObservable : Observable
 {
   override Str name() { "obsSchedule" }
 
+  ** Cached DateTime in system timezone accurate +/- 100ms
+  DateTime now() { nowRef.val }
+  private const AtomicRef nowRef := AtomicRef(DateTime.now())
+
   override Subscription onSubscribe(Observer observer, Dict config)
   {
     ScheduleSubscription(this, observer, config)
@@ -24,6 +28,7 @@ const class ScheduleObservable : Observable
 
   Void check(DateTime nowTime)
   {
+    nowRef.val = nowTime
     subs := subscriptions
     if (subs.isEmpty) return
     nowTicks := Duration.nowTicks
@@ -205,5 +210,4 @@ const class ScheduleSubscription : Subscription
     }
   }
 }
-
 

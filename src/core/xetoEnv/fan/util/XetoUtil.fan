@@ -10,6 +10,7 @@ using util
 using xeto
 using haystack::Etc
 using haystack::Marker
+using haystack::Number
 using haystack::Ref
 using haystack::Remove
 using haystack::UnknownNameErr
@@ -51,7 +52,7 @@ const class XetoUtil
         return "Invalid adjacent chars at pos $i";
       }
       if (ch == ' ') return "Lib name cannot contain spaces"
-      return "Invalid lib name char '$ch' 0x$ch.toHex"
+      return "Invalid lib name char '$ch.toChar' 0x$ch.toHex"
     }
     return null
   }
@@ -158,6 +159,38 @@ const class XetoUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Reserved Names
+//////////////////////////////////////////////////////////////////////////
+
+  ** Is the given spec name reserved
+  static Bool isReservedSpecName(Str n)
+  {
+    if (n == "pragma") return true
+    return false
+  }
+
+  ** Is the given instance name reserved
+  static Bool isReservedInstanceName(Str n)
+  {
+    if (n == "pragma") return true
+    return false
+  }
+
+  static const Str[] libMetaReservedTags := [
+    // used right now
+    "id", "spec", "loaded",
+    // future proofing
+    "data", "instances", "name", "lib", "loc", "slots", "specs", "types", "xeto"
+  ]
+
+  static const Str[] specMetaReservedTags := [
+    // used right now
+    "id", "base", "type", "spec", "slots",
+    // future proofing
+    "class", "is", "lib", "loc", "name", "parent", "qname", "super", "supers", "version", "xeto"
+  ]
+
+//////////////////////////////////////////////////////////////////////////
 // Dirs
 //////////////////////////////////////////////////////////////////////////
 
@@ -186,6 +219,24 @@ const class XetoUtil
 //////////////////////////////////////////////////////////////////////////
 // Opts
 //////////////////////////////////////////////////////////////////////////
+
+  ** Boolean option
+  static Bool optBool(Dict? opts, Str name, Bool def)
+  {
+    v := opts?.get(name)
+    if (v === Marker.val) return true
+    if (v is Bool) return v
+    return def
+  }
+
+  ** Integer option
+  static Int optInt(Dict? opts, Str name, Int def)
+  {
+    v := opts?.get(name)
+    if (v is Int) return v
+    if (v is Number) return ((Number)v).toInt
+    return def
+  }
 
   ** Get logging function from options
   static |XetoLogRec|? optLog(Dict? opts, Str name)
@@ -390,6 +441,7 @@ const class XetoUtil
     spec.slots.each |slot|
     {
       if (slot.isMaybe) return
+      if (slot.isMaybe) return
       if (slot.isQuery) return
       if (slot.isFunc) return
       if (slot.type === ns.sys.ref && slot.name != "enum") return // fill-in siteRef, equipRef, etc
@@ -407,6 +459,8 @@ const class XetoUtil
     }
 
     dict := Etc.dictFromMap(acc)
+    if (spec.factory.isDict)
+      dict = spec.factory.decodeDict(dict)
 
     if (opts.has("graph"))
       return instantiateGraph(ns, spec, opts, dict)

@@ -61,7 +61,9 @@ const mixin LibNamespace
       "ion.actions",
       "ion.icons",
       "ion.inputs",
+      "ion.form",
       "ion.styles",
+      "ion.misc",
       "ion.table",
       "ion.ux"]
   }
@@ -208,6 +210,11 @@ const mixin LibNamespace
   ** dict with the local name of 'xmeta-ph-Site'.
   abstract Dict? xmeta(Str qname, Bool checked := true)
 
+  ** Lookup the extended meta for an enum spec.  This returns a SpecEnum
+  ** instance with resolved extended meta for all the enum items via a merge
+  ** of all libs with instances named "xmeta-{lib}-{spec}-enum".
+  abstract SpecEnum? xmetaEnum(Str qname, Bool checked := true)
+
   ** Iterate all the top-level types in all the libs.
   ** Raise exception is not fully loaded.
   abstract Void eachType(|Spec| f)
@@ -223,6 +230,8 @@ const mixin LibNamespace
   abstract Spec? specOf(Obj? val, Bool checked := true)
 
   ** Return if the given instance fits the spec via structural typing.
+  ** Options:
+  **   - 'graph': marker to also check graph of references such as required points
   abstract Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)
 
   ** Return if spec 'a' fits spec 'b' based on structural typing.

@@ -403,6 +403,13 @@ internal class FtpHandle : IOHandle
   new make(HxRuntime rt, Uri uri) { this.rt = rt; this.uri = uri }
   const HxRuntime rt
   const Uri uri
+  override Void create()
+  {
+    if (uri.isDir)
+      open(uri).mkdir(uri)
+    else
+      this.out
+  }
   override Void delete()
   {
     if (uri.isDir)
@@ -419,6 +426,9 @@ internal class FtpHandle : IOHandle
     client := open(uri)
     // make sure parent directories exist
     client.mkdir(uri.parent)
+
+    // re-open client for writing uri
+    client = open(uri)
     return client.write(uri)
   }
   override DirItem[] dir() { open(uri).list(uri).map |uri->DirItem| { DirItem(uri, uri.name, uri.mimeType, false, null, null) } }

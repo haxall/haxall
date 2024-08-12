@@ -143,7 +143,7 @@ class ZincTest : HaystackTest
     // sparse
     verifyGrid(
       Str<|ver:"3.0"
-           a, b, c
+           a, _b, __45
            , 1, 2
            3, , 5
            6, 7_000,
@@ -152,7 +152,7 @@ class ZincTest : HaystackTest
            14,,
            |>,
       Str:Obj?[:],
-      [tc("a"), tc("b"), tc("c")],
+      [tc("a"), tc("_b"), tc("__45")],
       [[null, n(1), n(2)],
        [n(3), null, n(5)],
        [n(6), n(7_000), null],
@@ -834,3 +834,4 @@ class TestCol
   Obj? val
   [Str:Obj?]? meta
 }
+

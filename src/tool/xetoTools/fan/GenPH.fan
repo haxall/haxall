@@ -189,6 +189,12 @@ internal class GenPH : AbstractGenCmd
       }
     }
     if (def.name == "area") return """<quantity:"area">"""
+    if (kind.isRef)
+    {
+      of := def["of"]?.toStr
+      if (of != null && !of.endsWith("-output"))
+        return "<of:" + XetoUtil.dottedToCamel(of.toStr, '-').capitalize + ">"
+    }
     return ""
   }
 

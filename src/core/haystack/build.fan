@@ -35,6 +35,46 @@ class Build : BuildPod
                "xeto @{hx.depend}",
                "web @{fan.depend}"]
     srcDirs = [`fan/`]
+    jsDirs  = [`js/`]
     resDirs = [`res/`, `locale/`]
   }
+
+  @Target
+  Void genBrioConstJs()
+  {
+    f := scriptDir + `res/brio-consts.txt`
+    lines := f.readAllLines
+    ver := lines.removeAt(0).split(':')[1].trim
+    lines = lines.findAll |line| { !line.trim.isEmpty && !line.startsWith("//") }
+    buf := StrBuf().add("\"")
+    lines.each |line, i|
+    {
+      toks := line.split
+      id   := toks[0]
+      val := toks[1]
+      if (id.toInt - 1 != i) throw Err("line $i = $id")
+      if (val.contains("\"") || val.contains("|")) throw Err("val = $val.toCode")
+      if (i > 0) buf.add("|")
+      buf.add(val)
+    }
+    buf.add("\"")
+
+    out := scriptDir.plus(`es/BrioConstsFile.js`).out
+    out.print("class BrioConstsFile extends sys.Obj {\n")
+    out.print("  constructor() { super(); }\n")
+    out.print("  typeof() { return BrioConstsFile.type\$; }\n")
+    out.print("  static version() { return $ver.toCode; }\n");
+    out.print("  static file() { return ").print(buf).print("; }\n");
+    out.print("}\n")
+    out.close
+
+    out = scriptDir.plus(`js/BrioConstsFile.js`).out
+    out.print("fan.haystack.BrioConstsFile = fan.sys.Obj.\$extend(fan.sys.Obj);\n")
+    out.print("fan.haystack.BrioConstsFile.prototype.\$ctor = function() {}\n")
+    out.print("fan.haystack.BrioConstsFile.prototype.\$typeof = function() { return fan.haystack.BrioConstsFile.\$type; }\n")
+    out.print("fan.haystack.BrioConstsFile.version = function() { return $ver.toCode; }\n")
+    out.print("fan.haystack.BrioConstsFile.file = function() { throw \"unsupported in js\" }\n")
+    out.close
+  }
 }
+

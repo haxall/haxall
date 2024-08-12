@@ -255,9 +255,10 @@ using hxPlatformSerial
     mgr := curRef.val as ModbusLinkMgr
     if (mgr == null) return
 
-    // clear the curRef and kill actor pool
-    mgr.pool.kill
-    curRef.val = null
+    // we can't actually stop the pool because it is being shared
+    // across projects.
+    // mgr.pool.kill
+    // curRef.val = null
   }
 
   ** ModbusLinkMgr instance for this VM.

@@ -384,9 +384,9 @@ class MCompSpi : CompSpi
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  override Void dump(Obj? opts)
+  override Void dump(Console con, Obj? opts)
   {
-    doDump(Console.cur, comp, null, Etc.makeDict(opts))
+    doDump(con, comp, null, Etc.makeDict(opts))
   }
 
   private static Void doDump(Console con, Comp c, Str? name, Dict opts)

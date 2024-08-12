@@ -120,6 +120,12 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { ns.spec("sys::Baz") }
     verifyErr(UnknownSpecErr#) { ns.spec("sys::Str.foo") }
 
+    // reify scalar default values
+    verifySame(sys.type("Unit").meta["val"], Unit("%"))
+    verifySame(sys.type("Unit").metaOwn["val"], Unit("%"))
+    verifySame(sys.type("TimeZone").meta["val"], TimeZone.utc)
+    verifySame(sys.type("TimeZone").metaOwn["val"], TimeZone.utc)
+
     // specials
     verifyEq(self.isSelf, true)
     verifyEq(none.isNone, true)
@@ -151,9 +157,11 @@ class NamespaceTest : AbstractXetoTest
     equip     := verifyLibType(ns, ph, "Equip",    entity)
     meter     := verifyLibType(ns, ph, "Meter",    equip)
     elecMeter := verifyLibType(ns, ph, "ElecMeter",meter)
+    site      := verifyLibType(ns, ph, "Site",     entity)
 
     water := ph.global("water")
     verifySame(ns.spec("ph::water"), water)
+    verifySame(water.meta["val"], Marker.val)
 
     // env.print(elecMeter, Env.cur.out, dict1("effective", m))
     marker := ns.spec("sys::Marker")
@@ -168,6 +176,10 @@ class NamespaceTest : AbstractXetoTest
       ["id":Ref("ph::op:about"), "spec":Ref("ph::Op"), "op":m, "noSideEffects":m])
     verifyFeatureInstance(ph.instance("op:pointWrite"),
       ["id":Ref("ph::op:pointWrite"), "spec":Ref("ph::Op"), "op":m])
+
+    // siteRef
+    verifySame(ns.spec("ph::siteRef").of, site)
+    verifySame(ns.spec("ph::Equip.siteRef").of, site)
 
     // hot water
     hotWater := ph.type("HotWater")
@@ -238,6 +250,7 @@ class NamespaceTest : AbstractXetoTest
     verifyDictEq(ab.meta, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB",
       "q":Date("2024-01-01"), "r":Date("2024-02-01"), "foo":"A", "bar":"A", ])
   }
+
 
 //////////////////////////////////////////////////////////////////////////
 // NameTable
@@ -500,7 +513,7 @@ class NamespaceTest : AbstractXetoTest
     verifyInstantiate(ns, "sys::Time",     Time.defVal)
     verifyInstantiate(ns, "sys::DateTime", DateTime.defVal)
 
-    verifyInstantiate(ns, "sys::Unit",     "%")
+    verifyInstantiate(ns, "sys::Unit",     Unit("%"))
 
     verifyInstantiate(ns, "sys::Dict", dict0)
     verifyInstantiate(ns, "sys::List", Obj?[,])
@@ -511,7 +524,7 @@ class NamespaceTest : AbstractXetoTest
 
     verifyInstantiate(ns, "ph::Meter", ["id":Ref("foo"), "dis":"Meter", "spec":Ref("ph::Meter"), "equip":m, "meter":m], ["id":Ref("foo")])
 
-    verifyInstantiate(ns, "ph.points::DischargeAirTempSensor", ["dis":"DischargeAirTempSensor", "spec":Ref("ph.points::DischargeAirTempSensor"),  "discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":"°F"])
+    verifyInstantiate(ns, "ph.points::DischargeAirTempSensor", ["dis":"DischargeAirTempSensor", "spec":Ref("ph.points::DischargeAirTempSensor"),  "discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":Unit("°F")])
     verifyInstantiate(ns, "ashrae.g36::G36ReheatVav", ["dis":"G36ReheatVav", "spec":Ref("ashrae.g36::G36ReheatVav"), "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m])
 
     instantiateA := ns.spec("hx.test.xeto::InstantiateA")
@@ -521,30 +534,30 @@ class NamespaceTest : AbstractXetoTest
     x := Ref("x")
     verifyInstantiateGraph(ns, "ashrae.g36::G36ReheatVav", [
       ["id":Ref("x"), "dis":"G36ReheatVav", "spec":Ref("ashrae.g36::G36ReheatVav"), "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m],
-      ["id":Ref("a"), "dis":"ZoneAirTempSensor",      "spec":Ref("ph.points::ZoneAirTempSensor"),      "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "temp":m],
-      ["id":Ref("b"), "dis":"ZoneAirTempEffectiveSp", "spec":Ref("ph.points::ZoneAirTempEffectiveSp"), "point":m, "sp":m,      "kind":"Number", "equipRef":x, "unit":"°F", "zone":m, "air":m, "effective":m, "temp":m],
+      ["id":Ref("a"), "dis":"ZoneAirTempSensor",      "spec":Ref("ph.points::ZoneAirTempSensor"),      "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":Unit("°F"), "zone":m, "air":m, "temp":m],
+      ["id":Ref("b"), "dis":"ZoneAirTempEffectiveSp", "spec":Ref("ph.points::ZoneAirTempEffectiveSp"), "point":m, "sp":m,      "kind":"Number", "equipRef":x, "unit":Unit("°F"), "zone":m, "air":m, "effective":m, "temp":m],
       ["id":Ref("c"), "dis":"ZoneOccupiedSensor",     "spec":Ref("ph.points::ZoneOccupiedSensor"),     "point":m, "sensor":m,  "kind":"Bool",   "equipRef":x, "enum":Ref("ph.points::OccupiedEnum"), "zone":m, "occupied":m],
-      ["id":Ref("d"), "dis":"ZoneCo2Sensor",          "spec":Ref("ph.points::ZoneCo2Sensor"),          "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"ppm", "zone":m, "air":m, "co2":m, "concentration":m],
-      ["id":Ref("e"), "dis":"HotWaterValveCmd",       "spec":Ref("ph.points::HotWaterValveCmd"),       "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "hot":m, "water":m, "valve":m],
-      ["id":Ref("f"), "dis":"DischargeDamperCmd",     "spec":Ref("ph.points::DischargeDamperCmd"),     "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":"%",  "discharge":m, "air":m, "damper":m],
-      ["id":Ref("g"), "dis":"DischargeAirFlowSensor", "spec":Ref("ph.points::DischargeAirFlowSensor"), "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":"cfm","discharge":m, "air":m, "flow":m],
-      ["id":Ref("h"), "dis":"DischargeAirTempSensor", "spec":Ref("ph.points::DischargeAirTempSensor"), "point":m, "sensor":m , "kind":"Number", "equipRef":x, "unit":"°F", "discharge":m, "air":m, "temp":m],
+      ["id":Ref("d"), "dis":"ZoneCo2Sensor",          "spec":Ref("ph.points::ZoneCo2Sensor"),          "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":Unit("ppm"), "zone":m, "air":m, "co2":m, "concentration":m],
+      ["id":Ref("e"), "dis":"HotWaterValveCmd",       "spec":Ref("ph.points::HotWaterValveCmd"),       "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":Unit("%"),  "hot":m, "water":m, "valve":m],
+      ["id":Ref("f"), "dis":"DischargeDamperCmd",     "spec":Ref("ph.points::DischargeDamperCmd"),     "point":m, "cmd":m,     "kind":"Number", "equipRef":x, "unit":Unit("%"),  "discharge":m, "air":m, "damper":m],
+      ["id":Ref("g"), "dis":"DischargeAirFlowSensor", "spec":Ref("ph.points::DischargeAirFlowSensor"), "point":m, "sensor":m,  "kind":"Number", "equipRef":x, "unit":Unit("cfm"),"discharge":m, "air":m, "flow":m],
+      ["id":Ref("h"), "dis":"DischargeAirTempSensor", "spec":Ref("ph.points::DischargeAirTempSensor"), "point":m, "sensor":m , "kind":"Number", "equipRef":x, "unit":Unit("°F"), "discharge":m, "air":m, "temp":m],
     ])
 
     verifyInstantiateGraph(ns, "hx.test.xeto::EqA", [
       ["id":Ref("x"), "dis":"EqA", "spec":Ref("hx.test.xeto::EqA"), "equip":m],
-      ["id":Ref("a"), "dis":"a", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x],
-      ["id":Ref("b"), "dis":"b", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":x, "foo":m],
+      ["id":Ref("a"), "dis":"a", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":Unit("ppm"), "equipRef":x],
+      ["id":Ref("b"), "dis":"b", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":Unit("ppm"), "equipRef":x, "foo":m],
     ])
 
     verifyInstantiateGraph(ns, "hx.test.xeto::NestedEq", [
       ["id":Ref("x"),  "dis":"NestedEq", "spec":Ref("hx.test.xeto::NestedEq"), "equip":m],
       ["id":Ref("a"),  "dis":"EqA", "spec":Ref("hx.test.xeto::EqA"), "equip":m, "equipRef":Ref("x")],
-      ["id":Ref("a1"), "dis":"a", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":Ref("a")],
-      ["id":Ref("a2"), "dis":"b", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":"ppm", "equipRef":Ref("a"), "foo":m],
+      ["id":Ref("a1"), "dis":"a", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":Unit("ppm"), "equipRef":Ref("a")],
+      ["id":Ref("a2"), "dis":"b", "spec":Ref("ph.points::ZoneCo2Sensor"), "point":m, "sensor":m, "air":m, "co2":m, "concentration":m, "kind":"Number", "zone":m, "unit":Unit("ppm"), "equipRef":Ref("a"), "foo":m],
       ["id":Ref("b"),  "dis":"EqB", "spec":Ref("hx.test.xeto::EqB"), "equip":m, "equipRef":Ref("x")],
-      ["id":Ref("b2"), "dis":"DischargeAirTempSensor", "spec":Ref("ph.points::DischargeAirTempSensor"), "point":m, "sensor":m, "air":m, "discharge":m, "temp":m, "kind":"Number", "unit":"°F", "equipRef":Ref("b")],
-      ["id":Ref("x1"), "dis":"OutsideAirTempSensor", "spec":Ref("ph.points::OutsideAirTempSensor"), "point":m, "sensor":m, "air":m, "outside":m, "temp":m, "kind":"Number", "unit":"°F", "equipRef":Ref("x")],
+      ["id":Ref("b2"), "dis":"DischargeAirTempSensor", "spec":Ref("ph.points::DischargeAirTempSensor"), "point":m, "sensor":m, "air":m, "discharge":m, "temp":m, "kind":"Number", "unit":Unit("°F"), "equipRef":Ref("b")],
+      ["id":Ref("x1"), "dis":"OutsideAirTempSensor", "spec":Ref("ph.points::OutsideAirTempSensor"), "point":m, "sensor":m, "air":m, "outside":m, "temp":m, "kind":"Number", "unit":Unit("°F"), "equipRef":Ref("x")],
     ])
 
     verifyErr(Err#) { ns.instantiate(ns.spec("sys::Obj")) }

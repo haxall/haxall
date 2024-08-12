@@ -259,7 +259,7 @@ const class HxdObsService : Actor, HxObsService
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  internal const ScheduleObservable schedule
+  override const ScheduleObservable schedule
   internal const CommitsObservable commits
   internal const WatchesObservable watches
   internal const CurValsObservable curVals

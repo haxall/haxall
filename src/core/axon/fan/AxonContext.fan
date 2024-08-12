@@ -130,6 +130,26 @@ abstract class AxonContext : HaystackContext
   }
 
 //////////////////////////////////////////////////////////////////////////
+// HaystackContext
+//////////////////////////////////////////////////////////////////////////
+
+  ** Convert to Dict for use by `context()` Axon function
+  @NoDoc override Dict toDict()
+  {
+    toDictExtra == null ? Etc.emptyDict : Etc.makeDict(toDictExtra)
+  }
+
+  ** Add/remove a tag to use for `toDict` and `context()` Axon function
+  @NoDoc Void toDictSet(Str name, Obj? val)
+  {
+    if (toDictExtra == null) toDictExtra = Str:Obj[:]
+    if (val != null)
+      toDictExtra.set(name, val)
+    else
+      toDictExtra.remove(name)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Heartbeat
 //////////////////////////////////////////////////////////////////////////
 
@@ -385,7 +405,8 @@ abstract class AxonContext : HaystackContext
   private Int timeoutTicks := Int.maxVal
   private CallFrame[] stack := [,]
   private [Str:Regex]? regex
- private [Str:Spec]? xetoIsSpecCache
+  private [Str:Spec]? xetoIsSpecCache
+  private [Str:Obj]? toDictExtra
 }
 
 **************************************************************************

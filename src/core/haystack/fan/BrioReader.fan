@@ -9,7 +9,7 @@
 **
 ** BrioReader deserializes Haystack data using a binary format.
 **
-@NoDoc
+@NoDoc @Js
 class BrioReader : GridReader, BrioCtrl
 {
 
@@ -58,6 +58,7 @@ class BrioReader : GridReader, BrioCtrl
       case ctrlList:       return consumeList
       case ctrlGrid:       return consumeGrid
       case ctrlSymbol:     return consumeSymbol
+      case ctrlDateTimeF8: return consumeDateTimeF8
       default:             throw IOErr("obj ctrl 0x$ctrl.toHex")
     }
   }
@@ -129,11 +130,18 @@ class BrioReader : GridReader, BrioCtrl
     DateTime.makeTicks(in.readS8, consumeTimeZone)
   }
 
+  private DateTime consumeDateTimeF8()
+  {
+    DateTime.makeTicks(in.readF8.toInt, consumeTimeZone)
+  }
+
   private TimeZone consumeTimeZone() { TimeZone.fromStr(decodeStr(false)) }
 
   private Coord consumeCoord()
   {
-    Coord.unpack(in.readS8)
+    lat := in.readU4
+    lng := in.readU4
+    return Coord.unpackI4(lat, lng)
   }
 
   private Obj consumeXStr()
@@ -168,6 +176,15 @@ class BrioReader : GridReader, BrioCtrl
   {
     verifyByte('{')
     count := decodeVarInt
+    switch (count)
+    {
+      case 1: return consumeDict1
+      case 2: return consumeDict2
+      case 3: return consumeDict3
+      case 4: return consumeDict4
+      case 5: return consumeDict5
+      case 6: return consumeDict6
+    }
     acc := Str:Obj[:]
     for (i:=0; i<count; ++i)
     {
@@ -177,6 +194,84 @@ class BrioReader : GridReader, BrioCtrl
     }
     verifyByte('}')
     return Etc.makeDict(acc)
+  }
+
+  private Dict consumeDict1()
+  {
+    n0 := decodeStr(true)
+    v0 := readVal
+    verifyByte('}')
+    return Etc.dict1(n0, v0)
+  }
+
+  private Dict consumeDict2()
+  {
+    n0 := decodeStr(true)
+    v0 := readVal
+    n1 := decodeStr(true)
+    v1 := readVal
+    verifyByte('}')
+    return Etc.dict2(n0, v0, n1, v1)
+  }
+
+  private Dict consumeDict3()
+  {
+    n0 := decodeStr(true)
+    v0 := readVal
+    n1 := decodeStr(true)
+    v1 := readVal
+    n2 := decodeStr(true)
+    v2 := readVal
+    verifyByte('}')
+    return Etc.dict3(n0, v0, n1, v1, n2, v2)
+  }
+
+  private Dict consumeDict4()
+  {
+    n0 := decodeStr(true)
+    v0 := readVal
+    n1 := decodeStr(true)
+    v1 := readVal
+    n2 := decodeStr(true)
+    v2 := readVal
+    n3 := decodeStr(true)
+    v3 := readVal
+    verifyByte('}')
+    return Etc.dict4(n0, v0, n1, v1, n2, v2, n3, v3)
+  }
+
+  private Dict consumeDict5()
+  {
+    n0 := decodeStr(true)
+    v0 := readVal
+    n1 := decodeStr(true)
+    v1 := readVal
+    n2 := decodeStr(true)
+    v2 := readVal
+    n3 := decodeStr(true)
+    v3 := readVal
+    n4 := decodeStr(true)
+    v4 := readVal
+    verifyByte('}')
+    return Etc.dict5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4)
+  }
+
+  private Dict consumeDict6()
+  {
+    n0 := decodeStr(true)
+    v0 := readVal
+    n1 := decodeStr(true)
+    v1 := readVal
+    n2 := decodeStr(true)
+    v2 := readVal
+    n3 := decodeStr(true)
+    v3 := readVal
+    n4 := decodeStr(true)
+    v4 := readVal
+    n5 := decodeStr(true)
+    v5 := readVal
+    verifyByte('}')
+    return Etc.dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5)
   }
 
   private Grid consumeGrid()
@@ -281,3 +376,4 @@ class BrioReader : GridReader, BrioCtrl
   private [Str:Symbol]? internSymbols
   private [Date:Date]? internDates
 }
+

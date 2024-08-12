@@ -15,6 +15,7 @@ using haystack::NA
 using haystack::Number
 using haystack::Remove
 using haystack::Ref
+using haystack::Span
 
 **
 ** MFactories is used to handle the lookup tables for SpecFactory
@@ -140,6 +141,8 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
       "Date":     DateFactory(sys.type("Date")),
       "Time":     TimeFactory(sys.type("Time")),
       "DateTime": DateTimeFactory(sys.type("DateTime")),
+      "TimeZone": TimeZoneFactory(sys.type("TimeZone")),
+      "Unit":     UnitFactory(sys.type("Unit")),
       "Uri":      UriFactory(sys.type("Uri")),
       "Version":  ScalarSpecFactory(sys.type("Version")),
 
@@ -153,6 +156,7 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
       "NA":       SingletonFactory(hay.type("NA"),     NA.val, "na"),
       "Number":   NumberFactory(hay.type("Number")),
       "Ref":      RefFactory(hay.type("Ref")),
+      "Span":     SpanFactory(hay.type("Span")),
       "List":     ListFactory(),
       "Dict":     DictFactory(),
     ]
@@ -187,6 +191,10 @@ internal const class ObjFactory : SpecFactory
 {
   new make(Type type) { this.type = type }
   const override Type type
+  override Bool isScalar() { false }
+  override Bool isDict() { false }
+  override Bool isList() { false }
+  override Bool isInterface() { false }
   override Dict decodeDict(Dict xeto, Bool checked := true) { throw UnsupportedErr("Obj") }
   override Obj decodeList(Obj?[] xeto, Bool checked := true) { throw UnsupportedErr("Obj") }
   override Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr("Obj")  }
@@ -286,6 +294,20 @@ internal const class DateTimeFactory : ScalarSpecFactory
 }
 
 @Js
+internal const class TimeZoneFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { TimeZone.fromStr(str, checked) }
+}
+
+@Js
+internal const class UnitFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Unit.fromStr(str, checked) }
+}
+
+@Js
 internal const class UriFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
@@ -304,6 +326,13 @@ internal const class RefFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Ref.fromStr(str, checked) }
+}
+
+@Js
+internal const class SpanFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Span.fromStr(str, TimeZone.cur, checked) }
 }
 
 @Js

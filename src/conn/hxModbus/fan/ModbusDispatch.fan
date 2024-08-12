@@ -109,9 +109,19 @@ class ModbusDispatch : ConnDispatch
 
   private ModbusBlock[] toBlocks(ModbusReg[] regs)
   {
-    gaps := rec["modbusBlockGap"] as Number ?: defGaps
-    max  := rec["modbusBlockMax"] as Number ?: defMax
+    gaps := resolveConfigNum("modbusBlockGap", defGaps)
+    max  := resolveConfigNum("modbusBlockMax", defMax)
     return ModbusBlock.optimize(regs, gaps.toInt, max.toInt)
+  }
+
+  ** Resolve configuration tag against conn rec first. If not found
+  ** check the the conn tuning. Otherwise return the default
+  private Number resolveConfigNum(Str tag, Number def)
+  {
+    Number? v := rec[tag] as Number
+    if (v == null) v = conn.tuning.rec[tag] as Number
+    if (v == null) v = def
+    return def
   }
 
   private ModbusReg[] mapToRegs(ConnPoint[] points)

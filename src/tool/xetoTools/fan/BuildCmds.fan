@@ -40,13 +40,13 @@ internal abstract class SrcLibCmd : XetoCmd
     if (allIn != null)
     {
       vers := LibVersion[,]
-      inOsPath := allIn.normalize.osPath
+      inOsPath := allIn.normalize.pathStr
       repo.libs.each |libName|
       {
         ver := repo.latest(libName, false)
         if (ver == null) return ver
         f := ver.file(false)
-        if (f != null && ver.isSrc && f.normalize.osPath.startsWith(inOsPath))
+        if (f != null && ver.isSrc && f.normalize.pathStr.startsWith(inOsPath))
           vers.add(ver)
       }
 

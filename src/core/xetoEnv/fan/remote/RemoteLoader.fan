@@ -80,13 +80,51 @@ internal class RemoteLoader
 
   Dict reifyInstance(Dict x)
   {
+    reifyDict(x)
+  }
+
+  private Dict reifyDict(Dict x)
+  {
     specRef := x["spec"] as Ref
     if (specRef == null) return x
 
+    // resolve dict spec
     spec := resolveStr(specRef.id, false)
     if (spec == null) return x
 
+    // check if this dict contains nested dicts that need to be reified
+    if (hasNestedDict(x))
+    {
+      // reify nested dict by recursing thru collections; this isn't
+      // ideal and would be nice to when reading the instances out but
+      // that happens before we have CSpec
+      x = Etc.dictMap(x) |v, n| { reifyVal(v) }
+    }
+
+    // decode from factory
     return spec.factory.decodeDict(x)
+  }
+
+  private Obj reifyVal(Obj val)
+  {
+    if (val is Dict) return reifyDict(val)
+    if (val is List) return ((List)val).map |item| { reifyVal(item) }
+    return val
+  }
+
+  private Bool hasNestedDict(Obj v)
+  {
+    dict := v as Dict
+    if (dict != null)
+    {
+      if (dict.has("spec")) return true
+      return Etc.dictAny(dict) |kid| { hasNestedDict(kid) }
+    }
+    if (v is List)
+    {
+      ((List)v).any |item| { hasNestedDict(v) }
+    }
+    return false
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -153,7 +191,9 @@ internal class RemoteLoader
 
   private Str:XetoSpec loadTops()
   {
-    tops.map |x->XetoType| { loadSpec(x).asm }
+    specs := tops.map |x->XetoType| { loadSpec(x).asm }
+    specs.each |spec| { reifySpecMeta(spec) }
+    return specs
   }
 
   private RSpec loadSpec(RSpec x)
@@ -328,6 +368,54 @@ internal class RemoteLoader
     specName := ref.id[colons+2..-1]
     rref := RSpecRef(names.toCode(libName), names.toCode(specName), 0, null)
     return resolve(rref).asm
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// ReifyMeta
+//////////////////////////////////////////////////////////////////////////
+
+  private Void reifySpecMeta(XetoSpec spec)
+  {
+    // this is not ideal because we don't have all our types and
+    // factories setup until after we have mapped RSpecs to XetoSpecs;
+    // but at the very least we need to reify scalar default values
+    if (spec.isDict)
+    {
+      spec.slotsOwn.each |slot| { reifySpecMeta(slot) }
+      return
+    }
+
+    if (spec.isScalar)
+    {
+      reifySpecMetaScalarVal(spec)
+    }
+  }
+
+  private Void reifySpecMetaScalarVal(XetoSpec spec)
+  {
+    // skip if already not a string
+    val := spec.meta["val"]
+    if (val == null || val isnot Str) return
+
+    // skip if already mapped as Fantom string
+    if (spec.factory.type === Str#) return
+
+    try
+    {
+      // decode string to its scalar fantom instance
+      val = spec.factory.decodeScalar(val.toStr, true)
+
+      // use setConst to update the const meta/metaOwn fields
+      mspec := spec.m
+      MSpec#meta->setConst(mspec, metaSet(mspec.meta, "val", val))
+      MSpec#metaOwn->setConst(mspec, metaSet(mspec.metaOwn, "val", val))
+    }
+    catch (Err e) echo("ERROR: cannot reify spec meta $spec\n" + e.traceToStr)
+  }
+
+  private MNameDict metaSet(MNameDict d, Str name, Obj val)
+  {
+    MNameDict(d.wrapped.map |v, n| { n == name ? val : v })
   }
 
 //////////////////////////////////////////////////////////////////////////

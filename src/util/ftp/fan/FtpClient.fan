@@ -18,6 +18,9 @@ class FtpClient
   {
     this.username = username
     this.password = password
+    this.socketConfig = SocketConfig.cur.copy {
+      it.tlsParams = ["sslProtocol": "TLSv1.2"]
+    }
   }
 
   ** Read file from remote server, return input stream to passive socket
@@ -302,7 +305,7 @@ class FtpClient
 
   private const Str username
   private const Str password
-  private const SocketConfig socketConfig := SocketConfig.cur
+  private const SocketConfig socketConfig
 
   private TcpSocket? cmdSocket
   private TcpSocket? pasvSocket

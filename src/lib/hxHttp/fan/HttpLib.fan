@@ -73,6 +73,7 @@ const class HttpLib : HxLib, HxHttpService
       it.httpPort     = settings.httpPort
       it.httpsPort    = httpsEnabled ? settings.httpsPort : null
       it.addr         = addr
+      it.maxThreads   = settings.maxThreads
       it.root         = this.root
       it.errMod       = it.errMod is WispDefaultErrMod ? HttpErrMod(this) : it.errMod
       it.socketConfig = socketConfig
@@ -87,8 +88,4 @@ const class HttpLib : HxLib, HxHttpService
     wisp.stop
   }
 }
-
-
-
-
 

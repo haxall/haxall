@@ -41,6 +41,7 @@ class FactoryTest : AbstractXetoTest
     verifyScalar(ns, "sys::NA",       NA.val)
     verifyScalar(ns, "sys::Number",   Number(80, Unit("%")))
     verifyScalar(ns, "sys::Ref",      Ref("abc"))
+    verifyScalar(ns, "sys::Span",     Span.today)
 
     verifySame(ns.spec("sys::Obj").fantomType, Obj#)
     verifySame(ns.spec("sys::Dict").fantomType, Dict#)

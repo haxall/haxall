@@ -270,7 +270,7 @@ const class XetoFuncs
   ** returned.  In graph mode an 'id' is generated for recs for cross-linking.
   **
   ** Options:
-  **   - 'graph': marker tag to instantate graph of recs
+  **   - 'graph': marker tag to instantiate a graph of recs
   **
   ** Examples:
   **   // evaluates to 2000-01-01
@@ -492,18 +492,31 @@ const class XetoFuncs
   **
   ** Return if the given instance fits the spec via structural typing.
   ** Use `specFits()` to check structural typing between two types.
-  ** Also see `is()` and `specIs()` to check via nominal typing.
+  ** Also see `is()` and `specIs()` to check via nominal typing.  Use
+  ** `fitsExplain()` to explain why fits returns true or false.
+  **
+  ** If the val is a Dict, then the default behavior is to only check
+  ** the dict's tags against the given spec.  In this mode all spec query
+  ** slots are ignored.  Pass the '{graph}' option to also check
+  ** queries to validate the graph of entities.  For example, the graph
+  ** option can be used with equip specs to validate required points.
+  **
+  **
+  ** Options:
+  **   - 'graph': marker to also check graph of references such as required points
   **
   ** Examples:
-  **    fits("foo", Str)      >>  true
-  **    fits(123, Str)        >>  false
-  **    fits({equip}, Equip)  >>  true
-  **    fits({equip}, Site)   >>  false
+  **    fits("foo", Str)               >>  true
+  **    fits(123, Str)                 >>  false
+  **    fits({equip}, Equip)           >>  true
+  **    fits({equip}, Site)            >>  false
+  **    fits(vav, MyVavSpec)           >> validate tags only
+  **    fits(vav, MyVavSpec, {graph})  >> validate tags and required points
   **
-  @Axon static Bool fits(Obj? val, Spec spec)
+  @Axon static Bool fits(Obj? val, Spec spec, Dict? opts := null)
   {
     cx := curContext
-    return cx.xeto.fits(cx, val, spec, null)
+    return cx.xeto.fits(cx, val, spec, opts)
   }
 
   **
@@ -531,17 +544,23 @@ const class XetoFuncs
   ** its declared 'spec' tag.  If a given rec is missing a 'spec' tag
   ** then it is reported an error.
   **
+  ** See `fits()` for list of options.
+  **
   ** Example:
+  **    // validate tags on records only
   **    readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav)
   **
+  **    // validate tags and required points and other graph queries
+  **    readAll(vav and hotWaterHeating).fitsExplain(G36ReheatVav, {graph})
+  **
   @Axon
-  static Grid fitsExplain(Obj? recs, Spec? spec)
+  static Grid fitsExplain(Obj? recs, Spec? spec, Dict? opts := null)
   {
     cx := curContext
     ns := cx.xeto
     hits := XetoLogRec[,]
     explain := |XetoLogRec rec| { hits.add(rec) }
-    opts := Etc.dict1("explain", Unsafe(explain))
+    opts = Etc.dictSet(opts, "explain", Unsafe(explain))
     gb := GridBuilder().addCol("id").addCol("msg")
 
     // walk thru each rec
@@ -594,11 +613,13 @@ const class XetoFuncs
   **   - num: number of matches
   **   - specs: list of Spec for all matching specs
   **
+  ** See `fits()` for a list of supported fit options.
+  **
   ** Example:
   **    readAll(equip).fitsMatchAll
   **
   @Axon
-  static Grid fitsMatchAll(Obj? recs, Spec[]? specs := null)
+  static Grid fitsMatchAll(Obj? recs, Spec[]? specs := null, Dict? opts := null)
   {
     // if specs not specific, get all in scope
     cx := curContext
@@ -610,17 +631,17 @@ const class XetoFuncs
     gb := GridBuilder().addCol("id").addCol("num").addCol("specs")
     Etc.toRecs(recs).each |rec|
     {
-      matches := doFitsMatchAll(cx, rec, specs)
+      matches := doFitsMatchAll(cx, rec, specs, opts)
       gb.addRow([rec.id, Number(matches.size), matches])
     }
     return gb.toGrid
   }
 
-  private static Spec[] doFitsMatchAll(AxonContext cx, Dict rec, Spec[] specs)
+  private static Spec[] doFitsMatchAll(AxonContext cx, Dict rec, Spec[] specs, Dict? opts)
   {
     // first pass is fit each type
     ns := cx.xeto
-    matches := specs.findAll |spec| { ns.fits(cx, rec, spec) }
+    matches := specs.findAll |spec| { ns.fits(cx, rec, spec, opts) }
 
     // second pass is to remove supertypes so we only
     // return the most specific subtype

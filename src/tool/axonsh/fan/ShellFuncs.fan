@@ -125,7 +125,7 @@ const class ShellFuncs
   **   - text: output as plain text (not string literal)
   **   - escapeUnicode: escape string literals with non-ASCII chars
   **   - width: max width of output text
-  @Axon static Obj? print(Obj? val := null, Obj? opts := null)
+  @Axon static Obj? print(Obj? val := null, Dict? opts := null)
   {
     cx.print(val, opts)
     return noEcho

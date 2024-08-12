@@ -11,7 +11,7 @@ using concurrent
 **
 ** BrioCtrl defines binary control constants
 **
-@NoDoc
+@NoDoc @Js
 mixin BrioCtrl
 {
   static const Int ctrlNull       := 0x00
@@ -40,13 +40,28 @@ mixin BrioCtrl
   static const Int ctrlList       := 0x17
   static const Int ctrlGrid       := 0x18
   static const Int ctrlSymbol     := 0x19
+  static const Int ctrlDateTimeF8 := 0x20  // js only
+}
+
+**************************************************************************
+** BrioPreEncoded
+**************************************************************************
+
+**
+** BrioPreEncoded is used to pass a pre-encoded brio buffer to BrioWriter.
+**
+@NoDoc @Js
+class BrioPreEncoded
+{
+  new make(Buf buf) { this.buf = buf }
+  Buf buf
 }
 
 **************************************************************************
 ** BrioConsts
 **************************************************************************
 
-@NoDoc
+@NoDoc @Js
 const class BrioConsts
 {
   static BrioConsts cur() { curRef.val }
@@ -59,13 +74,15 @@ const class BrioConsts
     try
     {
       if (Env.cur.runtime != "js")
-        curRef.val = load(BrioConsts#.pod.file(`/res/brio-consts.txt`))
+        curRef.val = loadJava(BrioConsts#.pod.file(`/res/brio-consts.txt`))
+      else
+        curRef.val = loadJs
     }
     catch (Err e)
       e.trace
   }
 
-  private static BrioConsts load(File f)
+  private static BrioConsts loadJava(File f)
   {
     Version? version
     byCode := Str[,] { capacity = 1000 }
@@ -98,6 +115,32 @@ const class BrioConsts
         byVal.add(val, code)
       }
       catch (Err e) throw IOErr("Invalid line: $line", e)
+    }
+
+    return make
+    {
+      it.version = version
+      it.byCode  = byCode
+      it.byVal   = byVal
+    }
+  }
+
+  private static BrioConsts loadJs()
+  {
+    version := Version.fromStr(BrioConstsFile.version)
+
+    byCode := Str[,] { capacity = 1000 }
+    byVal := Str:Int[:]
+
+    byCode.add("")
+    byVal.add("", 0)
+
+    names := BrioConstsFile.file
+    names.split('|').each |name|
+    {
+      code := byCode.size
+      byCode.add(name)
+      byVal[name] = code
     }
 
     return make
@@ -180,6 +223,18 @@ const class BrioConsts
 }
 
 **************************************************************************
+** BrioConstsFile
+**************************************************************************
+
+** BrioConstsFile is used to encode brio-consts.txt in JS environments
+@NoDoc @Js
+native class BrioConstsFile
+{
+  static Str version()
+  static Str file()
+}
+
+**************************************************************************
 ** BrioConstTracing
 **************************************************************************
 
@@ -225,3 +280,4 @@ class BrioConstTrace
   Int count
 }
 */
+

@@ -132,6 +132,13 @@ class SpecTest : AbstractXetoTest
     verifyXMeta(ns, spec,
       ["doc":doc, "val":n(0), "quantity":"area"],
       ["doc":doc, "val":n(0), "quantity":"area", "editor":"AreaEditor", "foo":m])
+
+    // Vav (inherited from Equip)
+    spec = ns.spec("ph::Vav")
+    doc = spec.meta["doc"]
+    verifyXMeta(ns, spec,
+      ["doc":doc],
+      ["doc":doc, "testIcon":"Device"])
   }
 
   Void verifyXMeta(LibNamespace ns, Spec spec, Str:Obj meta, Str:Obj xmeta)
@@ -139,6 +146,32 @@ class SpecTest : AbstractXetoTest
     actual := ns.xmeta(spec.qname)
     verifyDictEq(spec.meta, meta)
     verifyDictEq(actual, xmeta)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// XMeta Enum
+//////////////////////////////////////////////////////////////////////////
+
+  Void testXMetaEnum()
+  {
+    ns := createNamespace(["ph", "hx.test.xeto"])
+    verifyEq(ns.lib("hx.test.xeto").hasXMeta, true)
+
+    spec := ns.spec("ph::CurStatus")
+    verifyErr(UnsupportedErr#) { spec.enum.xmeta }
+    verifyErr(UnsupportedErr#) { spec.enum.xmeta("ok") }
+
+    e := ns.xmetaEnum("ph::CurStatus")
+
+    doc := spec.meta["doc"]
+    verifyDictEq(e.xmeta, Etc.dictToMap(spec.meta).set("self", "_self_"))
+    verifyDictEq(e.xmeta("ok"), Etc.dictToMap(e.spec("ok").meta).set("color", "green"))
+    verifyDictEq(e.xmeta("down"), Etc.dictToMap(e.spec("down").meta).set("color", "yellow"))
+    verifyDictEq(e.xmeta("disabled"), e.spec("disabled").meta)
+
+    // test ph::EnumLine where names are different than keys
+    e = ns.xmetaEnum("ph::ElecLine")
+    verifyDictEq(e.xmeta("L1"), Etc.dictToMap(e.spec("L1").meta).set("foo", "Line 1"))
   }
 
 //////////////////////////////////////////////////////////////////////////

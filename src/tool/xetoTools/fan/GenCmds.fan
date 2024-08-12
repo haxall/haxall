@@ -90,7 +90,9 @@ internal class GenTz: AbstractGenCmd
     {
       out.printLine("// TimeZone names for standardized database")
       out.printLine("TimeZone: Enum {")
-      TimeZone.listNames.each |name|
+      names := TimeZone.listNames.dup
+      names.moveTo("UTC", 0)
+      names.each |name|
       {
         key := name
         if (key.startsWith("GMT-"))

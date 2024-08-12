@@ -31,7 +31,7 @@ internal class CheckErrors : Step
 
   Void checkLib(ALib x)
   {
-    if (!XetoUtil.isLibName(x.name)) err("Invalid lib name $x.name.toCode: " + XetoUtil.libNameErr(x.name), x.loc)
+    if (!XetoUtil.isLibName(x.name)) err("Invalid lib name '$x.name': " + XetoUtil.libNameErr(x.name), x.loc)
     checkLibMeta(lib)
     x.tops.each |type| { checkTop(type) }
     x.instances.each |instance, name| { checkInstance(x, name, instance) }
@@ -39,7 +39,7 @@ internal class CheckErrors : Step
 
   Void checkLibMeta(ALib x)
   {
-    libMetaReservedTags.each |name|
+    XetoUtil.libMetaReservedTags.each |name|
     {
       if (x.meta.has(name)) err("Lib '$x.name' cannot use reserved meta tag '$name'", x.loc)
     }
@@ -51,8 +51,18 @@ internal class CheckErrors : Step
 
   Void checkTop(ASpec x)
   {
+    checkTopName(x)
     checkSpec(x)
     checkTypeInherit(x)
+  }
+
+  Void checkTopName(ASpec x)
+  {
+    if (lib.instances[x.name] != null)
+      err("Spec '$x.name' conflicts with instance of the same name", x.loc)
+
+    if (XetoUtil.isReservedSpecName(x.name))
+      err("Spec name '$x.name' is reserved", x.loc)
   }
 
   Void checkTypeInherit(ASpec x)
@@ -145,7 +155,7 @@ internal class CheckErrors : Step
   {
     if (x.meta == null) return
 
-    specMetaReservedTags.each |name|
+    XetoUtil.specMetaReservedTags.each |name|
     {
       if (x.meta.has(name)) err("Spec '$x.name' cannot use reserved meta tag '$name'", x.loc)
     }
@@ -163,7 +173,12 @@ internal class CheckErrors : Step
 
   Void checkInstance(ALib lib, Str name, AData x)
   {
-    if (name.startsWith("xmeta-")) checkXMeta(lib, name, x)
+    if (XetoUtil.isReservedInstanceName(name))
+      err("Instance name '$name' is reserved", x.loc)
+
+    if (name.startsWith("xmeta-"))
+      checkXMeta(lib, name, x)
+
     checkDict(x)
   }
 
@@ -195,6 +210,15 @@ internal class CheckErrors : Step
 
     // check that spec exists in depend
     spec := depend.spec(specName, false)
+
+    // check "Foo-enum" as special case
+    if (spec == null && specName.endsWith("-enum"))
+    {
+      spec = depend.spec(specName[0..-6], false)
+      if (spec != null && !spec.isEnum)
+        return err("Enum xmeta for $name for non-enum type", x.loc)
+    }
+
     if (spec == null)
     {
       if (specName.contains("."))
@@ -245,24 +269,6 @@ internal class CheckErrors : Step
   Void checkDataRef(ADataRef x)
   {
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Fields
-//////////////////////////////////////////////////////////////////////////
-
-  const Str[] libMetaReservedTags := [
-    // used right now
-    "id", "spec", "loaded",
-    // future proofing
-    "data", "instances", "name", "lib", "loc", "slots", "specs", "types", "xeto"
-  ]
-
-  const Str[] specMetaReservedTags := [
-    // used right now
-    "id", "base", "type", "spec", "slots",
-    // future proofing
-    "class", "is", "lib", "loc", "name", "parent", "qname", "super", "supers", "version", "xeto"
-  ]
 
 }
 

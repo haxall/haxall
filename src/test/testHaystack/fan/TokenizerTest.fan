@@ -45,6 +45,8 @@ class TokenizerTest : HaystackTest
     verifyToks("fooBar1999x",[id, "fooBar1999x"])
     verifyToks("foo_23", [id, "foo_23"])
     verifyToks("Foo", [id, "Foo"])
+    verifyToks("_3", [id, "_3"])
+    verifyToks("__90", [id, "__90"])
 
     // keywords
     verifyToks("x", [kw, "x"]) { it.keywords = ["x":"x"] }
@@ -217,3 +219,4 @@ class TokenizerTest : HaystackTest
     verifyDictEq(actual, expected)
   }
 }
+
