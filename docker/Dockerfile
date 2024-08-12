@@ -79,8 +79,12 @@ COPY --from=base /app/haystack-defs/ /app/haystack-defs/
 COPY --from=base /app/xeto/ /app/xeto/
 ENV PATH $PATH:/opt/fan/bin
 
-ARG DB_NAME
+#This is the default database name. Can be changed during image build stage with build-args
+ARG DB_NAME=haxall
 ENV DB_NAME=${DB_NAME}
+
+#This line is necessary for AWS container healthchecking
+RUN apt-get -q install -y curl
 
 #HAXALL START
 COPY . /app/haxall/
