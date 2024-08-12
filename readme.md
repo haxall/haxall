@@ -35,7 +35,7 @@ If you follow the instructions, you will create a local bind-mount located somew
 Any data will be persisted there, and can be changed on the local system to affect the container and vice versa. 
 
 Once the container is running, go to <i><u>http://localhost:8080</i></u> to use haxall. Default suuser and supass
-should be 
+should be printed in whatever terminal or logs you are using. 
 
 ## 1. Build the image yourself with Docker Compose
 - Make sure you have dowloaded and are running Docker Desktop.
