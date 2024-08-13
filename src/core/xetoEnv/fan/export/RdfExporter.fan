@@ -46,6 +46,7 @@ class RdfExporter : Exporter
   override This lib(Lib lib)
   {
     prefixDefs(lib)
+    ontologyDef(lib)
     lib.types.each |x| { if (!XetoUtil.isAutoName(x.name)) cls(x) }
     lib.globals.each |x| { global(x) }
     if (lib.name == "sys") sysDefs
@@ -146,10 +147,34 @@ class RdfExporter : Exporter
     nl
   }
 
+  ** Generate ontology def
+  private Void ontologyDef(Lib lib)
+  {
+    w(libUri(lib)).w(" a owl:Ontology ;").nl
+    w("rdfs:label \"").w(lib.name).w(" Ontology\"@en ;").nl
+    if (!lib.depends.isEmpty)
+    {
+      w("owl:imports ")
+      lib.depends.each |x, i|
+      {
+        if (i > 0) w(",").nl.w(Str.spaces(12))
+        w(libUri(ns.lib(x.name)))
+      }
+      w(" .").nl
+    }
+    nl
+  }
+
   ** Generate prefix declaration for given library
   private Void prefixDef(Lib lib)
   {
-    w("@prefix ").prefix(lib.name).w(": <http://xeto.dev/rdf/${lib.name}-${lib.version}#> .").nl
+    w("@prefix ").prefix(lib.name).w(": ").w(libUri(lib)).w(" .").nl
+  }
+
+  ** Convert library to its RDF URI
+  private Str libUri(Lib lib)
+  {
+    "<http://xeto.dev/rdf/${lib.name}-${lib.version}#>"
   }
 
   ** Output a library name as a prefix; turtle spec isn't clear what
