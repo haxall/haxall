@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using haystack
 using haystack::Dict
@@ -133,6 +134,12 @@ class CompSpace : CompSpiFactory
     // add to my lookup tables
     byId.add(c.id, c)
 
+    // invoke callback
+    try
+      onMount(c)
+    catch (Err e)
+      err("CompSpace.onMount", e)
+
     // recurse children
     c.eachChild |kid| { mount(kid) }
 
@@ -146,12 +153,24 @@ class CompSpace : CompSpiFactory
     // recurse children
     c.eachChild |kid| { unmount(kid) }
 
+    // invoke callback
+    try
+      onUnmount(c)
+    catch (Err e)
+      err("CompSpace.onUnmount", e)
+
     // remove from my lookup tables
     byId.remove(c.id)
 
     // set flag to indicate we need to update timers
     timersNeedUpdate = true
   }
+
+  ** Callback when component is mounted into tree
+  virtual Void onMount(Comp c) {}
+
+  ** Callback when component is unmounted from tree
+  virtual Void onUnmount(Comp c) {}
 
 //////////////////////////////////////////////////////////////////////////
 // Namespace
@@ -218,6 +237,17 @@ class CompSpace : CompSpiFactory
     freq := c.onTimerFreq
     if (freq != null) acc.add(c.spi)
     c.eachChild |kid| { doRebuildTimers(acc, kid) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  ** Log error
+  Void err(Str msg, Err? err := null)
+  {
+    Console.cur.err(msg)
+    if (err != null) Console.cur.err(err.traceToStr)
   }
 
 //////////////////////////////////////////////////////////////////////////
