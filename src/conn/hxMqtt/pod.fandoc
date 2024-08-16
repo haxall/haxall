@@ -37,6 +37,18 @@ mqttVersion: "v3.1.1"
 mqttClientId: "MqttTestClient"
 <pre
 
+Optional Connect Configuration [#connect]
+=========================================
+By default, the connection to the broker is opened with 'cleanSession=false' (3.1.1) and
+'cleanStart=false' (5.0). You can set the 'mqttCleanSession: true' tag on the connector
+rec to force the connection to use cleanSession/cleanStart.
+
+By default, the *session expiry interval* is configured for "on-close", meaning the
+broker will retain client session information until the network connection is closed.
+Use the 'mqttSessionExpiryInterval' tag on the connector rec to specify the duration
+for the session to linger after the connection is closed. A value of '-1sec' indicates
+that the session should never expire.
+
 Web Sockets [#websockets]
 =========================
 To connect to an MQTT broker using web sockets, use the 'ws' scheme for plaintext

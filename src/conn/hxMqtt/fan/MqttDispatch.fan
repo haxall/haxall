@@ -65,6 +65,7 @@ class MqttDispatch : ConnDispatch, ClientListener
       // connect
       resume := ConnectConfig {
         it.cleanSession = rec["mqttCleanSession"] == true
+        it.sessionExpiryInterval = toSessionExpiryInterval
 
         // optional username and password
         it.username = rec["username"] as Str
@@ -263,6 +264,13 @@ class MqttDispatch : ConnDispatch, ClientListener
     if (protos is Str) return [protos]
     if (protos is Str[]) return protos
     return null
+  }
 
+  private Duration toSessionExpiryInterval()
+  {
+    v := rec["mqttSessionExpiryInterval"] as Duration
+    if (v == null) v = MqttConst.sessionExpiresOnClose
+    else if (v == -1sec) v = MqttConst.sessionNeverExpires
+    return v
   }
 }
