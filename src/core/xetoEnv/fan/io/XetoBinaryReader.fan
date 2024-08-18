@@ -326,7 +326,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   private Buf readBuf()
   {
     size := readVarInt
-    return in.readBufFully(null, size)
+    return in.readBufFully(null, size).toImmutable
   }
 
   private Coord readCoord()
