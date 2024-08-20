@@ -109,7 +109,7 @@ class RdfExporter : Exporter
     qname(x.qname).nl
     w("  a owl:ObjectProperty ;").nl
     w("  rdfs:label \"").w(x.name).w("\"@en ;").nl
-    w("  rdfs:range \"").qname(of).w(" ;").nl
+    w("  rdfs:range ").qname(of).w(" ;").nl
     w(".").nl
     return this
   }
@@ -123,9 +123,9 @@ class RdfExporter : Exporter
   private This sysDefs()
   {
     w(
-    Str<|:hasMarker
+    Str<|sys:hasMarker
            a owl:ObjectProperty ;
-           rdfs:label \"Has Marker\"@en ;
+           rdfs:label "Has Marker"@en ;
            rdfs:range sys:Marker ;
          .
          |>)
@@ -138,6 +138,8 @@ class RdfExporter : Exporter
   ** Generate prefixes for libraries dependencies
   private Void prefixDefs(Lib lib)
   {
+    w("# baseURI: ").w(libUri(lib)).nl
+    nl
     w("@prefix owl: <http://www.w3.org/2002/07/owl#> .").nl
     w("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .").nl
     w("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .").nl
@@ -147,34 +149,34 @@ class RdfExporter : Exporter
     nl
   }
 
+  ** Generate prefix declaration for given library
+  private Void prefixDef(Lib lib)
+  {
+    w("@prefix ").prefix(lib.name).w(": <").w(libUri(lib)).w("#> .").nl
+  }
+
   ** Generate ontology def
   private Void ontologyDef(Lib lib)
   {
-    w(libUri(lib)).w(" a owl:Ontology ;").nl
-    w("rdfs:label \"").w(lib.name).w(" Ontology\"@en ;").nl
+    w("<").w(libUri(lib)).w("> a owl:Ontology ;").nl
+    w("rdfs:label \"").w(lib.name).w(" Ontology\"@en ;")
     if (!lib.depends.isEmpty)
     {
-      w("owl:imports ")
+      nl.w("owl:imports ")
       lib.depends.each |x, i|
       {
         if (i > 0) w(",").nl.w(Str.spaces(12))
         w(libUri(ns.lib(x.name)))
       }
-      w(" .").nl
     }
+    nl.w(".").nl
     nl
-  }
-
-  ** Generate prefix declaration for given library
-  private Void prefixDef(Lib lib)
-  {
-    w("@prefix ").prefix(lib.name).w(": ").w(libUri(lib)).w(" .").nl
   }
 
   ** Convert library to its RDF URI
   private Str libUri(Lib lib)
   {
-    "<http://xeto.dev/rdf/${lib.name}-${lib.version}#>"
+    "http://xeto.dev/rdf/${lib.name}-${lib.version}"
   }
 
   ** Output a library name as a prefix; turtle spec isn't clear what
