@@ -71,9 +71,11 @@ class RdfExporter : Exporter
 
   private This cls(Spec x)
   {
+    if (x.isEnum) return enum(x)
+
     qname(x.qname).nl
     w("  a owl:Class ;").nl
-    w("  rdfs:label \"").w(x.name).w("\"@en ;").nl
+    labelAndDoc(x)
 
     if (x.base != null)
       w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
@@ -83,6 +85,21 @@ class RdfExporter : Exporter
     w("    a owl:Class ;").nl
     w("    ] ;").nl
     */
+    w(".").nl
+    return this
+  }
+
+  private This enum(Spec x)
+  {
+    qname(x.qname).nl
+    w("  a rdfs:Datatype ;").nl
+    labelAndDoc(x)
+    w("  owl:oneOf (").nl
+    x.enum.each |spec, key|
+    {
+      w("    ").w(key.toCode).w("^^rdf:PlainLiteral").nl
+    }
+    w("  )").nl
     w(".").nl
     return this
   }
@@ -98,7 +115,7 @@ class RdfExporter : Exporter
   {
     qname(x.qname).nl
     w("  a sys:Marker ;").nl
-    w("  rdfs:label \"").w(x.name).w("\"@en ;").nl
+    labelAndDoc(x)
     w(".").nl
     return this
   }
@@ -108,7 +125,7 @@ class RdfExporter : Exporter
     of := x.of(false)?.qname ?: "sys::Dict"
     qname(x.qname).nl
     w("  a owl:ObjectProperty ;").nl
-    w("  rdfs:label \"").w(x.name).w("\"@en ;").nl
+    labelAndDoc(x)
     w("  rdfs:range ").qname(of).w(" ;").nl
     w(".").nl
     return this
@@ -116,6 +133,15 @@ class RdfExporter : Exporter
 
   private This globalProp(Spec x)
   {
+    return this
+  }
+
+  private This labelAndDoc(Spec x)
+  {
+    w("  rdfs:label \"").w(x.name).w("\"@en ;").nl
+    doc := x.metaOwn.get("doc") as Str
+    if (doc != null && !doc.isEmpty)
+      w("  rdfs:comment ").w(doc.toCode).w("@en ;").nl
     return this
   }
 
