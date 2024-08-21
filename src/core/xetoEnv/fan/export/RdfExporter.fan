@@ -97,7 +97,7 @@ class RdfExporter : Exporter
     w("  owl:oneOf (").nl
     x.enum.each |spec, key|
     {
-      w("    ").w(key.toCode).w("^^rdf:PlainLiteral").nl
+      w("    ").literal(key).w("^^rdf:PlainLiteral").nl
     }
     w("  )").nl
     w(".").nl
@@ -141,7 +141,7 @@ class RdfExporter : Exporter
     w("  rdfs:label \"").w(x.name).w("\"@en ;").nl
     doc := x.metaOwn.get("doc") as Str
     if (doc != null && !doc.isEmpty)
-      w("  rdfs:comment ").w(doc.toCode).w("@en ;").nl
+      w("  rdfs:comment ").literal(doc).w("@en ;").nl
     return this
   }
 
@@ -192,7 +192,7 @@ class RdfExporter : Exporter
       lib.depends.each |x, i|
       {
         if (i > 0) w(",").nl.w(Str.spaces(12))
-        w(libUri(ns.lib(x.name)))
+        w("<").w(libUri(ns.lib(x.name))).w(">")
       }
     }
     nl.w(".").nl
@@ -216,6 +216,12 @@ class RdfExporter : Exporter
   private This qname(Str qname)
   {
     w(qname.replace("::", ":"))
+  }
+
+  ** Quoted string literal
+  private This literal(Str s)
+  {
+    w(s.toCode.replace(Str<|\$|>, Str<|$|>))
   }
 
 //////////////////////////////////////////////////////////////////////////
