@@ -48,7 +48,10 @@ class MCompSpi : CompSpi
 
   override Str dis() { get("dis") ?: toStr }
 
-  override Str toStr() { "@$id $spec.qname" }
+  override Str toStr()
+  {
+    "$name @$id [$spec.qname]"
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Slots
