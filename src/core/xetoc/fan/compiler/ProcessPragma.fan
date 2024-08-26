@@ -21,13 +21,15 @@ internal class ProcessPragma : Step
   {
     if (isLib)
     {
+      // for libs the pragma defines the depends
       lib.meta = compiler.pragma
       lib.version = toVersion
-      compiler.depends.list = toDepends
+      compiler.depends.list = pragmaToDepends
     }
     else
     {
-      compiler.depends.list = toDepends
+      // for data we use the entire ns as our implict resolution depends
+      compiler.depends.list = nsToDepends
     }
   }
 
@@ -64,7 +66,15 @@ internal class ProcessPragma : Step
     return ver
   }
 
-  private MLibDepend[] toDepends()
+  private MLibDepend[] nsToDepends()
+  {
+    ns.libs.map |lib->MLibDepend|
+    {
+      MLibDepend(lib.name,MLibDependVersions.wildcard, FileLoc.synthetic)
+    }
+  }
+
+  private MLibDepend[] pragmaToDepends()
   {
     if (isSys) return MLibDepend#.emptyList
 

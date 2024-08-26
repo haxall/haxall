@@ -54,11 +54,9 @@ internal class Parse : Step
     parseFile(input, doc)
     bombIfErr
 
-    // remove pragma from root
-    // TODO
+    // data does not support a pragma (at least not yet); so
+    // set pragma to empty dict and use ns as depends
     pragma := ADict(doc.loc, sys.lib)
-//     pragma := validatePragma(root)
-//     bombIfErr
 
     compiler.ast = doc
     compiler.data = doc
