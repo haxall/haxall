@@ -114,7 +114,7 @@ class MCompSpi : CompSpi
     {
       checkName(name)
       checkSet(name, val)
-      doSet(name, val)
+      doSet(name, get(name), val)
     }
   }
 
@@ -130,7 +130,7 @@ class MCompSpi : CompSpi
       name = autoName
     }
     checkSet(name, val)
-    doSet(name, val)
+    doSet(name, null, val)
   }
 
   private Void checkSet(Str name, Obj val)
@@ -185,7 +185,7 @@ class MCompSpi : CompSpi
         method := CompUtil.toHandlerMethod(comp, slot)
         if (method != null)
         {
-          doSet(name, FantomMethodCompFunc(method))
+          doSet(name, null, FantomMethodCompFunc(method))
           return
         }
       }
@@ -196,12 +196,13 @@ class MCompSpi : CompSpi
     doRemove(name)
   }
 
-  private Void doSet(Str name, Obj val)
+  private Void doSet(Str name, Obj? oldVal, Obj newVal)
   {
-    if (val is Comp) addChild(name, val)
-    else if (val isnot CompFunc) val = val.toImmutable
-    slots.set(name, val)
-    changed(name, val)
+    if (oldVal is Comp) removeChild(oldVal)
+    if (newVal is Comp) addChild(name, newVal)
+    else if (newVal isnot CompFunc) newVal = newVal.toImmutable
+    slots.set(name, newVal)
+    changed(name, newVal)
   }
 
   private Void doRemove(Str name)

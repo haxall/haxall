@@ -134,11 +134,17 @@ class CompSpace : CompSpiFactory
     // add to my lookup tables
     byId.add(c.id, c)
 
-    // invoke callback
+    // invoke callback on space
     try
       onMount(c)
     catch (Err e)
       err("CompSpace.onMount", e)
+
+    // invoke callback on component
+    try
+      c.onMount()
+    catch (Err e)
+      err("${c.typeof}.onMount", e)
 
     // recurse children
     c.eachChild |kid| { mount(kid) }
@@ -153,7 +159,13 @@ class CompSpace : CompSpiFactory
     // recurse children
     c.eachChild |kid| { unmount(kid) }
 
-    // invoke callback
+    // invoke callback on component
+    try
+      c.onUnmount()
+    catch (Err e)
+      err("${c.typeof}.onUnmount", e)
+
+    // invoke callback on space
     try
       onUnmount(c)
     catch (Err e)

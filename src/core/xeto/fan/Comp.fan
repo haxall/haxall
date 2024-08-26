@@ -134,6 +134,12 @@ mixin Comp
   ** Callback on instance itself when a call is invoked.
   virtual Void onCallThis(Str name, Obj? arg) {}
 
+  ** Callback whem mounted into a component space
+  @NoDoc virtual Void onMount() {}
+
+  ** Callback whem mounted into a component space
+  @NoDoc virtual Void onUnmount() {}
+
   ** How often should this component have its onTimer callback invoked.
   ** Return null if this component has no time based computation.
   virtual Duration? onTimerFreq() { null }
