@@ -142,11 +142,7 @@ internal class CompFactory
     return t
   }
 
-  private haystack::Ref genId()
-  {
-    compCounter++
-    return haystack::Ref(""+compCounter)
-  }
+  private haystack::Ref genId() { cs.genId }
 
   private LibNamespace ns() { cs.ns }
 
@@ -154,7 +150,6 @@ internal class CompFactory
 
   private const Spec compSpec
   private CompSpace cs
-  private Int compCounter := 0
 }
 
 **************************************************************************

@@ -31,13 +31,13 @@ class CompTest: AbstractXetoTest
     ns := createNamespace(["hx.test.xeto"])
     ns.lib("hx.test.xeto")
     cs = CompSpace(ns).initRoot { CompObj() }
-    Actor.locals[CompSpace.actorKey] = cs
+    Actor.locals[CompSpiFactory.actorKey] = cs
   }
 
   override Void teardown()
   {
     super.teardown
-    Actor.locals.remove(CompSpace.actorKey)
+    Actor.locals.remove(CompSpiFactory.actorKey)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ class CompTest: AbstractXetoTest
     folder := ns.spec("hx.test.xeto::TestFolder")
     add := ns.spec("hx.test.xeto::TestAdd")
     cs := CompSpace(ns).initRoot { CompObj(folder) }
-    Actor.locals[CompSpace.actorKey] = cs
+    Actor.locals[CompSpiFactory.actorKey] = cs
     r := cs.root
 
     verifyTree(cs, "", null, r, [,])
@@ -199,7 +199,7 @@ class CompTest: AbstractXetoTest
     verifyEq(a.isBelow(g), false)
 
     // cleanup
-    Actor.locals.remove(CompSpace.actorKey)
+    Actor.locals.remove(CompSpiFactory.actorKey)
   }
 
   Void verifyTree(CompSpace cs, Str path, Comp? parent, Comp c, Comp[] children)
@@ -480,13 +480,15 @@ class CompTest: AbstractXetoTest
   {
     xeto :=
      Str<|@root: TestFolder {
-            a @a: TestRamp { }
             b @b: TestRamp { }
             c @add: TestAdd {
               links: {
                 Link { fromRef: @a, fromSlot:"out", toSlot:"in1" }
                 Link { fromRef: @b, fromSlot:"out", toSlot:"in2" }
               }
+            }
+            a @a: TestRamp {
+              fooRef: @add
             }
           }|>
 
@@ -500,6 +502,9 @@ cs.root.dump
     a := verifyLoadComp(cs, r->a,    "a", r,    "TestRamp")
     b := verifyLoadComp(cs, r->b,    "b", r,    "TestRamp")
     c := verifyLoadComp(cs, r->c,    "c", r,    "TestAdd")
+
+    // verify ref swizzling
+    verifyEq(a->fooRef, c.id)
 
     verifyLoadLink(a, "out", r, "in1")
     verifyLoadLink(b, "out", r, "in2")

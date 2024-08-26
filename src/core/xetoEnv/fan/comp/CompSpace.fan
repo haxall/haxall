@@ -252,7 +252,7 @@ class CompSpace : CompSpiFactory
     acc := MCompSpi[,]
     acc.capacity = this.timed.size
     doRebuildTimers(acc, rootRef)
-    this.timed = acc
+    this.timed = acc.isEmpty ? MCompSpi#.emptyList : acc
   }
 
   ** Walk component tree to build our timers list
@@ -266,6 +266,13 @@ class CompSpace : CompSpiFactory
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  ** Generate new id
+  internal haystack::Ref genId()
+  {
+    compCounter++
+    return haystack::Ref(""+compCounter)
+  }
 
   ** Log error
   Void err(Str msg, Err? err := null)
@@ -283,6 +290,7 @@ class CompSpace : CompSpiFactory
   private Comp? rootRef
   private Ref:Comp byId := [:]
   private Bool timersNeedUpdate
-  private MCompSpi[] timed := [,]
+  private MCompSpi[] timed := MCompSpi#.emptyList
+  private Int compCounter := 0
 }
 
