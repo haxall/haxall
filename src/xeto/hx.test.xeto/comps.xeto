@@ -15,6 +15,10 @@ TestAdd : Comp {
   out: Number
 }
 
+TestRamp : Comp {
+  out: Number
+}
+
 TestComposite : Comp {
   descr: "test descr"
   dur: Duration "5min"

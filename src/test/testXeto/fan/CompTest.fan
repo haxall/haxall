@@ -472,6 +472,56 @@ class CompTest: AbstractXetoTest
     verifyEq(n, null)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Load/Save
+//////////////////////////////////////////////////////////////////////////
+
+  Void testLoad()
+  {
+    xeto :=
+     Str<|@root: TestFolder {
+            a @a: TestRamp { }
+            b @b: TestRamp { }
+            c @add: TestAdd {
+              links: {
+                Link { fromRef: @a, fromSlot:"out", toSlot:"in1" }
+                Link { fromRef: @b, fromSlot:"out", toSlot:"in2" }
+              }
+            }
+          }|>
+
+    ns := createNamespace(["sys.comp", "hx.test.xeto"])
+    cs := CompSpace(ns)
+    cs.load(xeto)
+
+cs.root.dump
+
+    r := verifyLoadComp(cs, cs.root, "",  null, "TestFolder")
+    a := verifyLoadComp(cs, r->a,    "a", r,    "TestRamp")
+    b := verifyLoadComp(cs, r->b,    "b", r,    "TestRamp")
+    c := verifyLoadComp(cs, r->c,    "c", r,    "TestAdd")
+
+    verifyLoadLink(a, "out", r, "in1")
+    verifyLoadLink(b, "out", r, "in2")
+  }
+
+  Comp verifyLoadComp(CompSpace cs, Comp c, Str name, Comp? parent, Str specName)
+  {
+echo("verifLoad $c")
+    verifyEq(c.name, name)
+    verifyEq(c.spec.name, specName)
+    verifyEq(c.isMounted, true)
+    verifySame(c.parent, parent)
+    verifySame(cs.readById(c.id), c)
+    return c
+  }
+
+  Void verifyLoadLink(Comp f, Str fs, Comp t, Str ts)
+  {
+    links := t.links
+echo("verifyLink $f $fs => $t $ts | $links.list")
+  }
+
 }
 
 **************************************************************************
