@@ -19,7 +19,7 @@ using haystack::Ref
 ** programming
 **
 @Js
-class CompSpace : CompSpiFactory
+class CompSpace : AbstractCompSpace
 {
 
 //////////////////////////////////////////////////////////////////////////

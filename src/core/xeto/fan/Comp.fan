@@ -202,14 +202,14 @@ class CompObj : Comp
   ** Constructor for subclasses
   new make()
   {
-    this.spiRef = CompSpiFactory.cur.initSpi(this, null)
+    this.spiRef = AbstractCompSpace.cur.initSpi(this, null)
   }
 
   ** Constructor for generic component with given spec
   static new makeForSpec(Spec spec) { doMakeForSpec(spec) }
   private new doMakeForSpec(Spec spec)
   {
-    this.spiRef = CompSpiFactory.cur.initSpi(this, spec)
+    this.spiRef = AbstractCompSpace.cur.initSpi(this, spec)
   }
 
   ** Service provider interface
@@ -218,17 +218,17 @@ class CompObj : Comp
 }
 
 **************************************************************************
-** CompSpiFactory
+** AbstractCompSpace
 **************************************************************************
 
 @Js @NoDoc
-mixin CompSpiFactory
+mixin AbstractCompSpace
 {
   ** Actor key for local CompSpace
-  static const Str actorKey := "xcsf"
+  static const Str actorKey := "xcs"
 
-  ** Get the current factory as actor local
-  internal static CompSpiFactory cur()
+  ** Get the current space as actor local
+  internal static AbstractCompSpace cur()
   {
     Actor.locals[actorKey] ?: throw Err("No CompSpace active for current thread")
   }

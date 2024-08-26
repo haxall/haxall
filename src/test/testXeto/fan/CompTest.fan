@@ -31,13 +31,13 @@ class CompTest: AbstractXetoTest
     ns := createNamespace(["hx.test.xeto"])
     ns.lib("hx.test.xeto")
     cs = CompSpace(ns).initRoot { CompObj() }
-    Actor.locals[CompSpiFactory.actorKey] = cs
+    Actor.locals[CompSpace.actorKey] = cs
   }
 
   override Void teardown()
   {
     super.teardown
-    Actor.locals.remove(CompSpiFactory.actorKey)
+    Actor.locals.remove(CompSpace.actorKey)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ class CompTest: AbstractXetoTest
     folder := ns.spec("hx.test.xeto::TestFolder")
     add := ns.spec("hx.test.xeto::TestAdd")
     cs := CompSpace(ns).initRoot { CompObj(folder) }
-    Actor.locals[CompSpiFactory.actorKey] = cs
+    Actor.locals[CompSpace.actorKey] = cs
     r := cs.root
 
     verifyTree(cs, "", null, r, [,])
@@ -199,7 +199,7 @@ class CompTest: AbstractXetoTest
     verifyEq(a.isBelow(g), false)
 
     // cleanup
-    Actor.locals.remove(CompSpiFactory.actorKey)
+    Actor.locals.remove(CompSpace.actorKey)
   }
 
   Void verifyTree(CompSpace cs, Str path, Comp? parent, Comp c, Comp[] children)
