@@ -238,7 +238,7 @@ class MCompSpi : CompSpi
     listeners.onChangeAdd(name, cb)
   }
 
-  override Void onCall(Str name, |Comp, Obj?| cb)
+  override Void onCall(Str name, |Comp, Obj?->Obj?| cb)
   {
     if (listeners == null) listeners = CompListeners()
     listeners.onCallAdd(name, cb)
