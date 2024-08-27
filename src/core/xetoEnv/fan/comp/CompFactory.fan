@@ -24,57 +24,73 @@ internal class CompFactory
 // Public
 //////////////////////////////////////////////////////////////////////////
 
-  static Comp create(CompSpace cs, Dict dict)
+  ** Create new list of components from a dicts
+  static Comp[] create(CompSpace cs, Dict[] dicts)
   {
-    process(cs) { it.doCreate(dict) }
+    process(cs) |cf, isTop|{ cf.doCreate(dicts, isTop) }
   }
 
+  ** Create the SPI for given component. This is called by
+  ** the CompObj constructor thru CompSpace actor local
   static CompSpi initSpi(CompSpace cs, CompObj c, Spec? spec)
   {
-    process(cs) { it.doInitSpi(c, spec) }
+    process(cs) |cf, isTop| { cf.doInitSpi(c, spec, isTop) }
   }
 
-  private static Obj? process(CompSpace cs, |This->Obj?| f)
+  ** Process a graph operation with single instance via actor local
+  private static Obj? process(CompSpace cs, |This,Bool->Obj?| f)
   {
-    actorKey := "xetoEnv::csf"
+    actorKey := "xetoEnv::cf"
 
-    // if already inside a factory then resuse it
+    // if already inside a factory operation then resuse it
     cur := Actor.locals.get(actorKey)
-    if (cur != null) return f(cur)
+    if (cur != null) return f(cur, false)
 
     // new top-level factory call
     cur = make(cs)
     Actor.locals.set(actorKey, cur)
     Obj? res
     try
-      res = f(cur)
+      res = f(cur, true)
     finally
       Actor.locals.remove(actorKey)
     return res
+  }
+
+  ** Private constructor
+  private new make(CompSpace cs)
+  {
+    this.cs = cs
+    this.ns = cs.ns
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Implementation
 //////////////////////////////////////////////////////////////////////////
 
-  private new make(CompSpace cs)
+  private Comp[] doCreate(Dict[] dicts, Bool isTop)
   {
-    this.cs = cs
-    this.ns = cs.ns
-    this.compSpec = cs.ns.lib("sys.comp").spec("Comp")
+    // swizzle ids if at top-level
+    if (isTop) dicts.each |dict| { swizzleInit(dict) }
+
+    // map dict to spec
+    return dicts.map |dict->Comp|
+    {
+      // reuse normal reifyComp code path
+      spec := cs.ns.spec(dict->spec.toStr)
+      return reifyComp(spec, dict)
+    }
   }
 
-  private Comp doCreate(Dict dict)
-  {
-    spec := cs.ns.spec(dict->spec.toStr)
-    return reifyComp(spec, dict)
-  }
-
-  private CompSpi doInitSpi(CompObj c, Spec? spec)
+  private CompSpi doInitSpi(CompObj c, Spec? spec, Bool isTop)
   {
     // check if we stashed spec/slots for this instance
     init := curCompInit
+    curCompInit = null
     if (init != null) spec = init.spec
+
+    // swizzle ids if at top-level
+    if (isTop && init != null) swizzleInit(init.slots)
 
     // infer spec from type if not passed in
     if (spec == null) spec = ns.specOf(c)
@@ -83,7 +99,7 @@ internal class CompFactory
     [Str:Comp]? children := null
     acc := Str:Obj[:]
     acc.ordered = true
-    acc["id"] = genId
+    acc["id"] = newId(init?.slots)
 
     // first fill in with default slot values
     children = initSlots(spec, acc, children, ns.instantiate(spec))
@@ -140,6 +156,60 @@ internal class CompFactory
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Id Generation & Swizzling
+//////////////////////////////////////////////////////////////////////////
+
+  ** Top-level init to swizzle a graph of dicts to map old ids to new ids.
+  private Void swizzleInit(Dict dict)
+  {
+    // check if dict has old id
+    oldId := dict["id"] as Ref
+    if (oldId == null) return
+
+    // lazily create swizzle map
+    if (swizzleMap == null) swizzleMap = Ref:Ref[:]
+
+    // create swizzled mapping
+    newId := genId
+    swizzleMap[oldId] = newId
+
+    // recurse
+    dict.each |v, n|
+    {
+      if (v is Dict) swizzleInit(v)
+    }
+  }
+
+  ** Generate new id for given slots dict.  If we have previously
+  ** swizzled the old id during top-level processing then return swizzled
+  ** mapping, otherwise generate a fresh id
+  private Ref newId(Dict? dict)
+  {
+    if (swizzleMap != null && dict != null)
+    {
+      oldId := dict["id"] as Ref
+      if (oldId != null)
+      {
+        newId := swizzleMap[oldId]
+        if (newId != null) return newId
+      }
+    }
+    return genId
+  }
+
+  ** Given a non-id ref tag value, check if we need to swizzle id
+  private Ref swizzleRef(Ref ref)
+  {
+    swizzleMap?.get(ref) ?: ref
+  }
+
+  ** Generate a fresh new id for a component
+  private haystack::Ref genId()
+  {
+    cs.genId
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Reify
 //////////////////////////////////////////////////////////////////////////
 
@@ -168,7 +238,6 @@ internal class CompFactory
   {
     this.curCompInit = CompSpiInit(spec, slots)
     comp := toFantomType(spec).make
-    this.curCompInit = null
     return comp
   }
 
@@ -192,16 +261,19 @@ internal class CompFactory
     return t
   }
 
-  private haystack::Ref genId() { cs.genId }
+  private once Spec compSpec()
+  {
+    cs.ns.lib("sys.comp").spec("Comp")
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const Spec compSpec
   private const LibNamespace ns
   private CompSpace cs
   private CompSpiInit? curCompInit
+  private [Ref:Ref]? swizzleMap
 }
 
 **************************************************************************
@@ -214,5 +286,6 @@ internal const class CompSpiInit
   new make(Spec spec, Dict slots) { this.spec = spec; this.slots = slots }
   const Spec spec
   const Dict slots
+  override Str toStr() { "CompSpiInit { $spec }" }
 }
 

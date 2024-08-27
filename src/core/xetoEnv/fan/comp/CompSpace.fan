@@ -121,7 +121,14 @@ class CompSpace : AbstractCompSpace
   ** The dict must have a Comp spec tag.
   Comp create(Dict dict)
   {
-    CompFactory.create(this, dict)
+    CompFactory.create(this, [dict]).first
+  }
+
+  ** Create new list of component instances from dict state.
+  ** Each dict must have a Comp spec tag.
+  Comp[] createAll(Dict[] dicts)
+  {
+    CompFactory.create(this, dicts)
   }
 
   ** Initialize server provider interface for given instance
