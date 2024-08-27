@@ -27,31 +27,35 @@ internal class CompFactory
   ** Create new list of components from a dicts
   static Comp[] create(CompSpace cs, Dict[] dicts)
   {
-    process(cs) |cf, isTop|{ cf.doCreate(dicts, isTop) }
+    process(cs, false) |cf|{ cf.doCreate(dicts) }
   }
 
   ** Create the SPI for given component. This is called by
   ** the CompObj constructor thru CompSpace actor local
   static CompSpi initSpi(CompSpace cs, CompObj c, Spec? spec)
   {
-    process(cs) |cf, isTop| { cf.doInitSpi(c, spec, isTop) }
+    process(cs, true) |cf| { cf.doInitSpi(c, spec) }
   }
 
   ** Process a graph operation with single instance via actor local
-  private static Obj? process(CompSpace cs, |This,Bool->Obj?| f)
+  private static Obj? process(CompSpace cs, Bool reentrant, |This->Obj?| f)
   {
     actorKey := "xetoEnv::cf"
 
     // if already inside a factory operation then resuse it
     cur := Actor.locals.get(actorKey)
-    if (cur != null) return f(cur, false)
+    if (cur != null)
+    {
+      if (reentrant) return f(cur)
+      throw Err("CompSpace.create is not reentrant; cannot call in from ctor")
+    }
 
     // new top-level factory call
     cur = make(cs)
     Actor.locals.set(actorKey, cur)
     Obj? res
     try
-      res = f(cur, true)
+      res = f(cur)
     finally
       Actor.locals.remove(actorKey)
     return res
@@ -68,10 +72,11 @@ internal class CompFactory
 // Implementation
 //////////////////////////////////////////////////////////////////////////
 
-  private Comp[] doCreate(Dict[] dicts, Bool isTop)
+  ** Graph graph of components from graph of dicts
+  private Comp[] doCreate(Dict[] dicts)
   {
-    // swizzle ids if at top-level
-    if (isTop) dicts.each |dict| { swizzleInit(dict) }
+    // swizzle ids of entire graph
+    dicts.each |dict| { swizzleInit(dict) }
 
     // map dict to spec
     return dicts.map |dict->Comp|
@@ -82,15 +87,14 @@ internal class CompFactory
     }
   }
 
-  private CompSpi doInitSpi(CompObj c, Spec? spec, Bool isTop)
+  ** Create the SPI for given component. This is called by
+  ** the CompObj constructor thru CompSpace actor local
+  private CompSpi doInitSpi(CompObj c, Spec? spec)
   {
     // check if we stashed spec/slots for this instance
     init := curCompInit
     curCompInit = null
     if (init != null) spec = init.spec
-
-    // swizzle ids if at top-level
-    if (isTop && init != null) swizzleInit(init.slots)
 
     // infer spec from type if not passed in
     if (spec == null) spec = ns.specOf(c)
@@ -213,32 +217,51 @@ internal class CompFactory
 // Reify
 //////////////////////////////////////////////////////////////////////////
 
+  ** Reify the given value
   private Obj reify(Spec? slot, Obj v)
   {
     // check for scalar slot - this might need to happen instantiate
     if (slot != null && slot.isScalar && v is Str)
-      return slot.factory.decodeScalar(v)
+      v = slot.factory.decodeScalar(v)
 
-    // check if we have a dict with a Comp spec
-    dict := v as Dict
-    if (dict != null)
-    {
-      spec := dictToSpec(dict)
-      if (spec != null && spec.isa(compSpec))
-      {
-        return reifyComp(spec, dict)
-      }
-    }
 
-    // return the instantiate value
+    // swizzle refs
+    if (v is Ref)  return swizzleRef(v)
+
+    // check for comp/recursion
+    if (v is Dict) return reifyDict(v)
+    if (v is List) return reifyList(v)
+
     return v
   }
 
+  ** Reify dict that might be a component type
+  private Obj reifyDict(Dict v)
+  {
+    // check if dict needs to be reified as Comp instance
+    spec := dictToSpec(v)
+    if (spec != null && spec.isa(compSpec))
+      return reifyComp(spec, v)
+
+    // recurse tags
+    return v.map |kid| { reify(null, kid) }
+  }
+
+  ** Reify dict to a component instance
   private Comp reifyComp(Spec spec, Dict slots)
   {
     this.curCompInit = CompSpiInit(spec, slots)
     comp := toFantomType(spec).make
     return comp
+  }
+
+  ** Reify list recursively
+  private List reifyList(List v)
+  {
+    // create list of same type
+    acc := List(v.of, v.capacity)
+    v.each |kid| { acc.add(reify(null, kid)) }
+    return acc
   }
 
 //////////////////////////////////////////////////////////////////////////

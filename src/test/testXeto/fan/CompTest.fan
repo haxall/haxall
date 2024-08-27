@@ -480,15 +480,17 @@ class CompTest: AbstractXetoTest
   {
     xeto :=
      Str<|@root: TestFolder {
-            b @b: TestRamp { }
+            a @a: TestRamp {
+              fooRef: @add
+            }
+            b @b: TestRamp {
+             fooRef: @a
+            }
             c @add: TestAdd {
               links: {
                 Link { fromRef: @a, fromSlot:"out", toSlot:"in1" }
                 Link { fromRef: @b, fromSlot:"out", toSlot:"in2" }
               }
-            }
-            a @a: TestRamp {
-              fooRef: @add
             }
           }|>
 
@@ -503,8 +505,9 @@ cs.root.dump
     b := verifyLoadComp(cs, r->b,    "b", r,    "TestRamp")
     c := verifyLoadComp(cs, r->c,    "c", r,    "TestAdd")
 
-    // verify ref swizzling
+    // verify ref swizzling (forward and backward refs)
     verifyEq(a->fooRef, c.id)
+    verifyEq(b->fooRef, a.id)
 
     verifyLoadLink(a, "out", r, "in1")
     verifyLoadLink(b, "out", r, "in2")
