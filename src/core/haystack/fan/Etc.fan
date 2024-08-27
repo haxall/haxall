@@ -7,6 +7,8 @@
 //
 
 using concurrent
+using xeto::Link
+using xeto::Links
 
 **
 ** Etc is the utility methods for Haystack.
@@ -261,26 +263,38 @@ const class Etc
   }
 
   ** Construct link from its parts - temp solution until we can move into xeto
-  @NoDoc static xeto::Link link(Ref fromRef, Str fromSlot, Str toSlot)
+  @NoDoc static Link link(Ref fromRef, Str fromSlot)
   {
-    linkWrap(dict4("fromRef", fromRef, "fromSlot", fromSlot, "toSlot", toSlot, "spec", MLink.specRef))
+    linkWrap(dict3("fromRef", fromRef, "fromSlot", fromSlot, "spec", MLink.specRef))
   }
 
   ** Construct link from dict - temp solution until we can move into xeto
-  @NoDoc static xeto::Link linkWrap(Dict wrap)
+  @NoDoc static Link linkWrap(Dict wrap)
   {
+    if (wrap is Link) return (Link)wrap
     if (wrap["spec"] == null) wrap = dictSet(wrap, "spec", MLink.specRef)
     return MLink(wrap)
   }
 
   ** Construct links implementation - temp solution until we can move into xeto
-  @NoDoc static xeto::Links links(Obj? v)
+  @NoDoc static Links links(Obj? val)
   {
-    if (v == null) return MLinks.empty
-    wrap := (Dict)v
+    if (val is Links) return val
+    if (val == null) return MLinks.empty
+    wrap := (Dict)val
     if (wrap.isEmpty) return MLinks.empty
-    if (wrap["spec"] == null) wrap = dictSet(wrap, "spec", MLinks.specRef)
-    return MLinks(wrap)
+    acc := Str:Obj[:]
+    wrap.each |v, n|
+    {
+      if (v is Dict)
+        acc[n] = linkWrap(v)
+      else if (v is List)
+        acc[n] = ((List)v).map |x->Link| { linkWrap(x) }
+      else if (n != "spec")
+        throw Err("Invalid tag for links: $n = $v [$v.typeof]")
+    }
+    acc["spec"] = MLinks.specRef
+    return MLinks(Etc.dictFromMap(acc))
   }
 
   **

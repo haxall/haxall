@@ -526,11 +526,9 @@ internal const class MLink : WrapDict, xeto::Link
   {
     this.fromRef  = wrapped["fromRef"]  as Ref ?: Ref.nullRef
     this.fromSlot = wrapped["fromSlot"] as Str ?: "-"
-    this.toSlot   = wrapped["toSlot"]   as Str ?: "-"
   }
   override const Ref fromRef
   override const Str fromSlot
-  override const Str toSlot
 }
 
 **************************************************************************
@@ -543,28 +541,21 @@ internal const class MLinks : WrapDict, xeto::Links
   static once Ref specRef() { Ref("sys.comp::Links") }
   static once MLinks empty() { make(Etc.dict1("spec", specRef)) }
   new make(Dict wrapped) : super(wrapped) {}
-  override Void eachLink(|Link| f)
+  override Void eachLink(|Str,Link| f)
   {
     each |v, n|
     {
       if (v is Link)
       {
-        f(v)
+        f(n, v)
       }
       else if (v is List)
       {
-        ((List)v).each |x| { if (x is Link) f(x) }
+        ((List)v).each |x| { if (x is Link) f(n, x) }
       }
     }
   }
-  override Link[] list()
-  {
-    if (this === empty) return Link#.emptyList
-    acc := Link[,]
-    eachLink |v| { acc.add(v) }
-    return acc
-  }
-  override Link[] on(Str toSlot)
+  override Link[] listOn(Str toSlot)
   {
     v := get(toSlot)
     if (v is List) return v

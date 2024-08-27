@@ -20,9 +20,6 @@ const mixin Link : Dict
 
   ** Soruce component slot name
   abstract Str fromSlot()
-
-  ** Soruce component slot name
-  abstract Str toSlot()
 }
 
 **************************************************************************
@@ -37,12 +34,9 @@ const mixin Link : Dict
 const mixin Links : Dict
 {
   ** Iterate all the links as flat list
-  abstract Void eachLink(|Link| f)
-
-  ** List all the links as flat list
-  abstract Link[] list()
+  abstract Void eachLink(|Str toSlot, Link| f)
 
   ** List all the links with the given toSlot name
-  abstract Link[] on(Str slot)
+  abstract Link[] listOn(Str slot)
 }
 

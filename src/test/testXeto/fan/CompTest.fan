@@ -488,8 +488,8 @@ class CompTest: AbstractXetoTest
             }
             c @add: TestAdd {
               links: {
-                Link { fromRef: @a, fromSlot:"out", toSlot:"in1" }
-                Link { fromRef: @b, fromSlot:"out", toSlot:"in2" }
+                in1: Link { fromRef: @a, fromSlot:"out" }
+                in2: Link { fromRef: @b, fromSlot:"out" }
               }
             }
           }|>
@@ -497,8 +497,6 @@ class CompTest: AbstractXetoTest
     ns := createNamespace(["sys.comp", "hx.test.xeto"])
     cs := CompSpace(ns)
     cs.load(xeto)
-
-cs.root.dump
 
     r := verifyLoadComp(cs, cs.root, "",  null, "TestFolder")
     a := verifyLoadComp(cs, r->a,    "a", r,    "TestRamp")
@@ -509,13 +507,12 @@ cs.root.dump
     verifyEq(a->fooRef, c.id)
     verifyEq(b->fooRef, a.id)
 
-    verifyLoadLink(a, "out", r, "in1")
-    verifyLoadLink(b, "out", r, "in2")
+    verifyLoadLink(a, "out", c, "in1")
+    verifyLoadLink(b, "out", c, "in2")
   }
 
   Comp verifyLoadComp(CompSpace cs, Comp c, Str name, Comp? parent, Str specName)
   {
-echo("verifLoad $c")
     verifyEq(c.name, name)
     verifyEq(c.spec.name, specName)
     verifyEq(c.isMounted, true)
@@ -526,8 +523,11 @@ echo("verifLoad $c")
 
   Void verifyLoadLink(Comp f, Str fs, Comp t, Str ts)
   {
-    links := t.links
-echo("verifyLink $f $fs => $t $ts | $links.list")
+// TODO
+// verifySame(t.links, t.links)
+    x := t.links.listOn(ts).first ?: throw Err("Failed to find link: $f $fs => $t")
+    verifyEq(x.fromRef, f.id)
+    verifyEq(x.fromSlot, fs)
   }
 
 }

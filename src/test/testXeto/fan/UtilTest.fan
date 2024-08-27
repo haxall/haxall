@@ -472,34 +472,32 @@ class UtilTest : AbstractXetoTest
   Void testLink()
   {
     // empty
-    verifyLink(Etc.linkWrap(Etc.dict0), Ref.nullRef, "-", "-")
+    verifyLink(Etc.linkWrap(Etc.dict0), Ref.nullRef, "-")
 
     // Etc.linkWrap (without spec)
-    tags := ["fromRef":Ref("foo.bar"), "fromSlot":"baz", "toSlot":"qux"]
-    verifyLink(Etc.linkWrap(Etc.makeDict(tags)), Ref("foo.bar"), "baz", "qux")
+    tags := ["fromRef":Ref("foo.bar"), "fromSlot":"baz"]
+    verifyLink(Etc.linkWrap(Etc.makeDict(tags)), Ref("foo.bar"), "baz")
 
     // Etc.linkWrap (with spec)
-    tags = ["fromRef":Ref("foo.bar"), "fromSlot":"baz", "toSlot":"qux", "spec":Ref("sys.comp::Link")]
-    verifyLink(Etc.linkWrap(Etc.makeDict(tags)), Ref("foo.bar"), "baz", "qux")
+    tags = ["fromRef":Ref("foo.bar"), "fromSlot":"baz", "spec":Ref("sys.comp::Link")]
+    verifyLink(Etc.linkWrap(Etc.makeDict(tags)), Ref("foo.bar"), "baz")
 
     //  Etc.link
-    verifyLink(Etc.link(Ref("foo.bar"), "baz", "qux"), Ref("foo.bar"), "baz", "qux")
+    verifyLink(Etc.link(Ref("foo.bar"), "baz"), Ref("foo.bar"), "baz")
   }
 
-  Void verifyLink(Link link, Ref fromRef, Str fromSlot, Str toSlot)
+  Void verifyLink(Link link, Ref fromRef, Str fromSlot)
   {
     // echo("---> $link")
 
     verifyEq(link.fromRef,  fromRef)
     verifyEq(link.fromSlot, fromSlot)
-    verifyEq(link.toSlot,   toSlot)
     verifyEq(link["spec"],  Ref("sys.comp::Link"))
 
     tags := Str:Obj[:]
     tags["spec"] = link->spec
     if (!fromRef.isNull) tags["fromRef"]  = fromRef
     if (fromSlot != "-") tags["fromSlot"] = fromSlot
-    if (toSlot != "-")   tags["toSlot"]   = toSlot
     verifyDictEq((haystack::Dict)link, tags)
   }
 
@@ -509,9 +507,9 @@ class UtilTest : AbstractXetoTest
 
   Void testLinks()
   {
-    a := Etc.link(Ref("add-1"), "out", "in1")
-    b := Etc.link(Ref("add-1"), "out", "in1")
-    c := Etc.link(Ref("add-1"), "out", "in2")
+    a := Etc.link(Ref("add-1"), "out")
+    b := Etc.link(Ref("add-1"), "out")
+    c := Etc.link(Ref("add-1"), "out")
 
     // empty
     verifyLinks(Etc.links(null), [:])
@@ -537,20 +535,19 @@ class UtilTest : AbstractXetoTest
   {
     verifyEq(links["spec"], Ref("sys.comp::Links"))
 
-    // Links.list
+    // Links.each
     all := Link[,]
     expect.each |v, n| { all.addAll(v) }
-    verifyEq(links.list, all)
 
     // Links.eachLink
     acc := Link[,]
-    links.eachLink |x| { acc.add(x) }
+    links.eachLink |n, x| { acc.add(x) }
     verifyEq(acc, all)
 
     // Links.on
     expect.each |v, n|
     {
-      verifyEq(links.on(n), v)
+      verifyEq(links.listOn(n), v)
     }
   }
 
