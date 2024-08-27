@@ -13,27 +13,67 @@ using haystack::Dict
 using haystack::Ref
 
 **
-** CompFactory is used to create Comp and CompSpi instances
+** CompFactory is a temporary object used to create a swizzled
+** graph of components and their SPIs.
 **
 @Js
 internal class CompFactory
 {
-  new make(CompSpace cs)
+
+//////////////////////////////////////////////////////////////////////////
+// Public
+//////////////////////////////////////////////////////////////////////////
+
+  static Comp create(CompSpace cs, Dict dict)
+  {
+    process(cs) { it.doCreate(dict) }
+  }
+
+  static CompSpi initSpi(CompSpace cs, CompObj c, Spec? spec)
+  {
+    process(cs) { it.doInitSpi(c, spec) }
+  }
+
+  private static Obj? process(CompSpace cs, |This->Obj?| f)
+  {
+    actorKey := "xetoEnv::csf"
+
+    // if already inside a factory then resuse it
+    cur := Actor.locals.get(actorKey)
+    if (cur != null) return f(cur)
+
+    // new top-level factory call
+    cur = make(cs)
+    Actor.locals.set(actorKey, cur)
+    Obj? res
+    try
+      res = f(cur)
+    finally
+      Actor.locals.remove(actorKey)
+    return res
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Implementation
+//////////////////////////////////////////////////////////////////////////
+
+  private new make(CompSpace cs)
   {
     this.cs = cs
+    this.ns = cs.ns
     this.compSpec = cs.ns.lib("sys.comp").spec("Comp")
   }
 
-  Comp create(Dict dict)
+  private Comp doCreate(Dict dict)
   {
     spec := cs.ns.spec(dict->spec.toStr)
     return reifyComp(spec, dict)
   }
 
-  CompSpi initSpi(CompObj c, Spec? spec)
+  private CompSpi doInitSpi(CompObj c, Spec? spec)
   {
     // check if we stashed spec/slots for this instance
-    init := Actor.locals.remove(spiInitActorKey) as CompSpiInit
+    init := curCompInit
     if (init != null) spec = init.spec
 
     // infer spec from type if not passed in
@@ -99,6 +139,10 @@ internal class CompFactory
     return children
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Reify
+//////////////////////////////////////////////////////////////////////////
+
   private Obj reify(Spec? slot, Obj v)
   {
     // check for scalar slot - this might need to happen instantiate
@@ -120,17 +164,23 @@ internal class CompFactory
     return v
   }
 
+  private Comp reifyComp(Spec spec, Dict slots)
+  {
+    this.curCompInit = CompSpiInit(spec, slots)
+    comp := toFantomType(spec).make
+    this.curCompInit = null
+    return comp
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
   private Spec? dictToSpec(Dict dict)
   {
     specRef := dict["spec"] as Ref
     if (specRef == null) return null
     return ns.spec(specRef.id, false)
-  }
-
-  private Comp reifyComp(Spec spec, Dict slots)
-  {
-    Actor.locals[spiInitActorKey] = CompSpiInit(spec, slots)
-    return toFantomType(spec).make
   }
 
   private Type toFantomType(Spec spec)
@@ -144,12 +194,14 @@ internal class CompFactory
 
   private haystack::Ref genId() { cs.genId }
 
-  private LibNamespace ns() { cs.ns }
-
-  private const static Str spiInitActorKey := "compSpiInit"
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
 
   private const Spec compSpec
+  private const LibNamespace ns
   private CompSpace cs
+  private CompSpiInit? curCompInit
 }
 
 **************************************************************************

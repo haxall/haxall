@@ -30,7 +30,6 @@ class CompSpace : AbstractCompSpace
   new make(LibNamespace ns)
   {
     this.nsRef = ns
-    this.factory = CompFactory(this)
   }
 
   ** Initialize the root - this must be called exactly once during initialization
@@ -112,23 +111,23 @@ class CompSpace : AbstractCompSpace
 // Comp Management
 //////////////////////////////////////////////////////////////////////////
 
-  ** Create new component instance from dict state.
-  ** The dict must have a Comp spec tag.
-  Comp create(Dict dict)
-  {
-    factory.create(dict)
-  }
-
-  ** Create new component instance from spec.
+  ** Convenience to create new default component instance from spec.
   Comp createSpec(Spec spec)
   {
     create(Etc.makeDict1("spec", spec._id))
   }
 
+  ** Create new component instance from dict state.
+  ** The dict must have a Comp spec tag.
+  Comp create(Dict dict)
+  {
+    CompFactory.create(this, dict)
+  }
+
   ** Initialize server provider interface for given instance
   override CompSpi initSpi(CompObj c, Spec? spec)
   {
-    factory.initSpi(c, spec)
+    CompFactory.initSpi(this, c, spec)
   }
 
   ** Read by id
@@ -286,7 +285,6 @@ class CompSpace : AbstractCompSpace
 //////////////////////////////////////////////////////////////////////////
 
   private Bool isRunningRef
-  private CompFactory factory
   private Comp? rootRef
   private Ref:Comp byId := [:]
   private Bool timersNeedUpdate

@@ -225,7 +225,7 @@ class CompObj : Comp
 mixin AbstractCompSpace
 {
   ** Actor key for local CompSpace
-  static const Str actorKey := "xcs"
+  static const Str actorKey := "xeto::cs"
 
   ** Get the current space as actor local
   internal static AbstractCompSpace cur()
