@@ -99,12 +99,24 @@ class CompSpace : AbstractCompSpace
 // Loading/Saving
 //////////////////////////////////////////////////////////////////////////
 
+  ** Check that the xeto can be loaded or raise exception
+  This checkLoad(Str xeto)
+  {
+    parse(xeto)
+    return this
+  }
+
   ** Load tree from xeto instances
   This load(Str xeto)
   {
-    root := ns.compileData(xeto) as Dict ?: throw Err("Expecting one dict root")
+    root := parse(xeto)
     initRoot |self->Comp| { create(root) }
     return this
+  }
+
+  private Dict parse(Str xeto)
+  {
+    ns.compileData(xeto) as Dict ?: throw Err("Expecting one dict root")
   }
 
 //////////////////////////////////////////////////////////////////////////
