@@ -523,8 +523,8 @@ class CompTest: AbstractXetoTest
 
   Void verifyLoadLink(Comp f, Str fs, Comp t, Str ts)
   {
-// TODO
-// verifySame(t.links, t.links)
+    verifySame(t.links, t.links)
+    verifySame(t.get("links"), t.links)
     x := t.links.listOn(ts).first ?: throw Err("Failed to find link: $f $fs => $t")
     verifyEq(x.fromRef, f.id)
     verifyEq(x.fromSlot, fs)

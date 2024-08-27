@@ -499,6 +499,10 @@ class UtilTest : AbstractXetoTest
     if (!fromRef.isNull) tags["fromRef"]  = fromRef
     if (fromSlot != "-") tags["fromSlot"] = fromSlot
     verifyDictEq((haystack::Dict)link, tags)
+
+    // verify Link.map returns same instance
+    mapped := link.map |v, n| { v }
+    verifySame(mapped.typeof, link.typeof)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -549,6 +553,10 @@ class UtilTest : AbstractXetoTest
     {
       verifyEq(links.listOn(n), v)
     }
+
+    // verify Links.map returns same instance
+    mapped := links.map |v, n| { v }
+    verifySame(mapped.typeof, links.typeof)
   }
 
 //////////////////////////////////////////////////////////////////////////

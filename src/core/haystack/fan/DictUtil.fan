@@ -527,6 +527,7 @@ internal const class MLink : WrapDict, xeto::Link
     this.fromRef  = wrapped["fromRef"]  as Ref ?: Ref.nullRef
     this.fromSlot = wrapped["fromSlot"] as Str ?: "-"
   }
+  override This map(|Obj, Str->Obj| f) { make(wrapped.map(f)) }
   override const Ref fromRef
   override const Str fromSlot
 }
@@ -541,6 +542,7 @@ internal const class MLinks : WrapDict, xeto::Links
   static once Ref specRef() { Ref("sys.comp::Links") }
   static once MLinks empty() { make(Etc.dict1("spec", specRef)) }
   new make(Dict wrapped) : super(wrapped) {}
+  override This map(|Obj, Str->Obj| f) { make(wrapped.map(f)) }
   override Void eachLink(|Str,Link| f)
   {
     each |v, n|

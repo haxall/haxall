@@ -350,7 +350,7 @@ class MCompSpi : CompSpi
 
   override Links links()
   {
-    Etc.links(get("links"))
+    get("links") ?: Etc.links(null)
   }
 
 //////////////////////////////////////////////////////////////////////////

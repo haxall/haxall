@@ -279,8 +279,8 @@ const class Etc
   ** Construct links implementation - temp solution until we can move into xeto
   @NoDoc static Links links(Obj? val)
   {
-    if (val is Links) return val
     if (val == null) return MLinks.empty
+    if (val is Links) return val
     wrap := (Dict)val
     if (wrap.isEmpty) return MLinks.empty
     acc := Str:Obj[:]
