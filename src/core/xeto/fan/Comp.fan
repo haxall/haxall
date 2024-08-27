@@ -115,8 +115,9 @@ mixin Comp
   ** was removed.
   Void onChange(Str name, |This self, Obj? newVal| cb) { spi.onChange(name, cb) }
 
-  ** Callback when a method is called
-  Void onCall(Str name, |This self, Obj? arg->Obj?| cb) { spi.onCall(name, cb) }
+  ** Callback when a method is called. This is an observer callback
+  ** only and will not determine the result value of calling a method.
+  Void onCall(Str name, |This self, Obj? arg| cb) { spi.onCall(name, cb) }
 
   ** Remove an onChange callback
   Void onChangeRemove(Str name, Func cb) { spi.onChangeRemove(name, cb) }
@@ -266,7 +267,7 @@ mixin CompSpi
   abstract Comp? child(Str name, Bool checked)
   abstract Void eachChild(|Comp,Str| f)
   abstract Void onChange(Str name, |Comp, Obj?| cb)
-  abstract Void onCall(Str name, |Comp, Obj?->Obj?| cb)
+  abstract Void onCall(Str name, |Comp, Obj?| cb)
   abstract Void onChangeRemove(Str name, Func cb)
   abstract Void onCallRemove(Str name, Func cb)
   abstract Void dump(Console con, Obj? opts)
