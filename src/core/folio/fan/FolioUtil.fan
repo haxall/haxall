@@ -555,6 +555,8 @@ internal const class DiffTagRule
       "hisStartVal": never,
       "hisEnd":      never,
       "hisEndVal":   never,
+
+      "userFailedLogins": transientOnly,
     ]
   }
 }
