@@ -146,6 +146,7 @@ const class CryptoFuncs
   @NoDoc @Axon { su = true }
   static Obj? cryptoAddCert(Str alias, Str pem)
   {
+    alias = toAlias(alias)
     crypto := Crypto.cur
     PrivKey? privKey := null
     Cert[] chain := [,]
