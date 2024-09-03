@@ -91,13 +91,33 @@ class MCompSpi : CompSpi
     if (val == null) return null
 
     // call as CompFunc
-    func := val as CompFunc ?: throw Err("Slot $name.toCode is not CompFunc [$val.typeof]")
+    func := val as Function ?: throw Err("Slot $name.toCode is not Function [$val.typeof]")
     r := func.call(comp, arg)
 
     // callbacks
     called(name, arg)
 
     return r
+  }
+
+  override Void callAsync(Str name, Obj? arg, |Err?,Obj?| cb)
+  {
+    // check for func slot value
+    val := get(name)
+
+    // if slot not defined, then return null
+    if (val == null)
+    {
+      cb(null, null)
+      return
+    }
+
+    // call as CompAsyncFunc
+    func := val as Function ?: throw Err("Slot $name.toCode is not Function [$val.typeof]")
+    func.callAsync(comp, arg, cb)
+
+    // callbacks
+    called(name, arg)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -185,7 +205,7 @@ class MCompSpi : CompSpi
         method := CompUtil.toHandlerMethod(comp, slot)
         if (method != null)
         {
-          doSet(name, null, FantomMethodCompFunc(method))
+          doSet(name, null, MethodFunction(method))
           return
         }
       }
@@ -200,7 +220,7 @@ class MCompSpi : CompSpi
   {
     if (oldVal is Comp) removeChild(oldVal)
     if (newVal is Comp) addChild(name, newVal)
-    else if (newVal isnot CompFunc) newVal = newVal.toImmutable
+    else if (newVal isnot Function) newVal = newVal.toImmutable
     slots.set(name, newVal)
     changed(name, newVal)
   }

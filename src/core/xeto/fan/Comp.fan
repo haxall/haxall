@@ -67,9 +67,15 @@ mixin Comp
     throw ArgErr("Unsupported args to trap")
   }
 
-  ** Call a method slot. If slot is not found then silently ignore and
-  ** return null. If slot is defined but not a CompFunc then raise exception.
+  ** Call a method slot synchronously. If slot is not found then silently
+  ** ignore and return null. If slot is defined but not a Function or the
+  ** Function must be called asynchronously then raise exception.
   Obj? call(Str name, Obj? arg := null) { spi.call(name, arg)  }
+
+  ** Call a method slot asynchronously. If slot is not found then
+  ** silently ignore and return null. If slot is defined but not an
+  ** Function then raise exception.
+  Void callAsync(Str name, Obj? arg, |Err?, Obj?| cb) { spi.callAsync(name, arg, cb)  }
 
 //////////////////////////////////////////////////////////////////////////
 // Updates
@@ -95,15 +101,6 @@ mixin Comp
   This remove(Str name)
   {
     spi.remove(name)
-    return this
-  }
-
-  ** Set a method slot with a Fantom function.  The Fantom
-  ** function must have the signature:
-  **   |Comp, ArgType -> RetType|
-  This setFunc(Str name, |This, Obj?->Obj?| f)
-  {
-    set(name, FantomFuncCompFunc(f))
     return this
   }
 
@@ -254,6 +251,7 @@ mixin CompSpi
   abstract Void each(|Obj val, Str name| f)
   abstract Obj? eachWhile(|Obj val, Str name->Obj?| f)
   abstract Obj? call(Str name, Obj? arg)
+  abstract Void callAsync(Str name, Obj? arg, |Err?, Obj?| cb)
   abstract Links links()
   abstract Void set(Str name, Obj? val)
   abstract Void add(Obj val, Str? name)

@@ -270,9 +270,9 @@ class CompTest: AbstractXetoTest
     verifyEq(c.has("method2"), true)
     verifyEq(c.has("method3"), true)
     verifyEq(c.has("methodUnsafe"), false)
-    verifyEq(c.get("method1").typeof, FantomMethodCompFunc#)
-    verifyEq(c.get("method2").typeof, FantomMethodCompFunc#)
-    verifyEq(c.get("method3").typeof, FantomMethodCompFunc#)
+    verifyEq(c.get("method1").typeof, MethodFunction#)
+    verifyEq(c.get("method2").typeof, MethodFunction#)
+    verifyEq(c.get("method3").typeof, MethodFunction#)
     verifyEq(c.get("methodUnsafe"), null)
 
     // slot not defined
@@ -302,18 +302,30 @@ class CompTest: AbstractXetoTest
     verifyEq(c["last"], null)
 
     // now override method3
-    c.setFunc("method3") |self, arg| { "method3 override: $arg" }
+    c.set("method3", SyncFunction() |self, arg| { "method3 override: $arg" })
     c.remove("last")
     verifyEq(c.call("method3", "by func"), "method3 override: by func")
     verifyEq(c["last"], null)
 
+    // callAsync on sync is ok
+    result := null
+    c.callAsync("method3", "by async") |err, r| { result = r }
+    verifyEq(result, "method3 override: by async")
+
+    // install async version
+    result = null
+    c.set("method3", AsyncFunction() |self, arg, cb| { cb(null, "method3 async: $arg") })
+    verifyErrMsg(Err#, "Must use callAsync") { c.call("method3", "bad") }
+    c.callAsync("method3", "working?") |err, r| { result = r }
+    verifyEq(result, "method3 async: working?")
+
     // remove method3 override, which falls back to reflected method
     c.remove("last")
     verifyEq(c.has("method3"), true)
-    verifyEq(c.get("method3").typeof, FantomFuncCompFunc#)
+    verifyEq(c.get("method3").typeof, AsyncFunction#)
     c.remove("method3")
     verifyEq(c.has("method3"), true)
-    verifyEq(c.get("method3").typeof, FantomMethodCompFunc#)
+    verifyEq(c.get("method3").typeof, MethodFunction#)
     verifyEq(c.call("method3", "reflect again"), "method3 called: reflect again")
     verifyEq(c["last"], "reflect again")
   }
@@ -418,13 +430,13 @@ class CompTest: AbstractXetoTest
     verifyEq(mx3, "200")
 
     // change method3
-    c.setFunc("method3") |arg| { "override=$arg" }
-    verifyEq(mc1 is FantomFuncCompFunc, true)
+    c.set("method3", SyncFunction() |arg| { "override=$arg" })
+    verifyEq(mc1 is SyncFunction, true)
     verifyEq(mx1, "200")
     verifyEq(mx2, "200")
     verifyEq(mx3, "200")
     c.call("method3", "300")
-    verifyEq(mc1 is FantomFuncCompFunc, true)
+    verifyEq(mc1 is SyncFunction, true)
     verifyEq(mx1, "300")
     verifyEq(mx2, "300")
     verifyEq(mx3, "300")

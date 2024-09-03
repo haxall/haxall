@@ -117,7 +117,7 @@ internal class CompFactory
       name := slot.name
       if (!slot.isFunc || acc[name] != null) return
       method := CompUtil.toHandlerMethod(c, slot)
-      if (method != null) acc[name] = FantomMethodCompFunc(method)
+      if (method != null) acc[name] = MethodFunction(method)
     }
 
     // create spi

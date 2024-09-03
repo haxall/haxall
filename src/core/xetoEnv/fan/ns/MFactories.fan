@@ -147,7 +147,7 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
       "Version":  ScalarSpecFactory(sys.type("Version")),
 
       // xeto pod
-      "Func":     InterfaceSpecFactory(CompFunc#),
+      "Func":     InterfaceSpecFactory(Function#),
       "Spec":     DictFactory(Spec#),
 
       // haystack pod
