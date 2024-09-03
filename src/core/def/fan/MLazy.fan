@@ -68,7 +68,7 @@ const class MLazy
   private Def[] doAssociations(Def parent, Def assoc)
   {
     // if declared association then is just a tag on the parent
-    if (assoc.missing("computed"))
+    if (assoc.missing("computedFromReciprocal"))
       return DefUtil.resolveList(ns, parent[assoc.name]).toImmutable
 
     // computed requires the reciprocalOf

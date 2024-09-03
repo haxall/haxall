@@ -58,7 +58,7 @@ internal class Normalize : DefCompilerStep
     {
       if (pair.tag == null) return
       if (!pair.tag.isList) return
-      if (pair.tag.has("computed")) return // skip template.tags
+      if (pair.tag.has("computedFromReciprocal")) return // skip template.tags
       if (pair.val is List) return
       pair.val =  [pair.val]
     }
@@ -77,5 +77,4 @@ internal class Normalize : DefCompilerStep
     return s.toStr
   }
 }
-
 

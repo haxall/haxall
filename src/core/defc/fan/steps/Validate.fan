@@ -59,8 +59,8 @@ internal class Validate : DefCompilerStep
     if (tag == null) return
     name := tag.name
 
-    if (tag.has("computed") && !isComputedException(def, pair))
-      err("Cannot declare computed tag '$pair.name' on '$def'", def.loc)
+    if (tag.has("computedFromReciprocal") && !isComputedException(def, pair))
+      err("Cannot declare computedFromReciprocal tag '$pair.name' on '$def'", def.loc)
 
     if (name == "tagOn" && !def.type.isTag)
       err("Cannot use tagOn on $def.symbol.type '$def'", def.loc)
@@ -97,3 +97,4 @@ internal class Validate : DefCompilerStep
     return false
   }
 }
+
