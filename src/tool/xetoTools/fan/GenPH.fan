@@ -185,6 +185,7 @@ internal class GenPH : AbstractGenCmd
         ofName := of.toStr.capitalize
         if (ofName == "Unit") ofName = "Str"
         if (ofName == "Phenomenon") return ""
+        if (ofName == "MlVarRef") ofName = "Ref<of:MlVar>"
         return "<of:$ofName>"
       }
     }
@@ -640,11 +641,6 @@ internal class GenPH : AbstractGenCmd
     out.printLine("}")
     out.printLine
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Utils
-//////////////////////////////////////////////////////////////////////////
-
 
 
 //////////////////////////////////////////////////////////////////////////
