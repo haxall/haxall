@@ -27,9 +27,12 @@ abstract const class HxFeed
   ** Constructor
   new make(HxContext cx)
   {
-    this.rt     = cx.rt
-    this.viewId = cx.feedViewId
-    this.key    = cx.feedKey
+    init := cx.feedInit
+
+    this.rt     = init.rt
+    this.viewId = init.viewId
+    this.key    = init.key
+    this.log    = init.log
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -47,6 +50,9 @@ abstract const class HxFeed
 
   ** Debug string
   override Str toStr() { "$typeof.name $key" }
+
+  ** Log to use for feed
+  const Log log
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle Callbacks
@@ -70,5 +76,29 @@ abstract const class HxFeed
     throw UnsupportedErr("${typeof}.call")
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  ** Convenience for log.err
+  Void err(Str msg, Err? err)
+  {
+    log.err("Feed $key: $msg", err)
+  }
+
+}
+
+**************************************************************************
+** HxFeedInit
+**************************************************************************
+
+@NoDoc
+const class HxFeedInit
+{
+  new make(|This| f) { f(this) }
+  const HxRuntime rt
+  const Str viewId
+  const Str key
+  const Log log
 }
 

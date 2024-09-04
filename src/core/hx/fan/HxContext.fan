@@ -70,28 +70,35 @@ abstract class HxContext : AxonContext, FolioContext
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Utils
+// Feeds
 //////////////////////////////////////////////////////////////////////////
+
+  ** Feed initialization
+  @NoDoc virtual HxFeedInit feedInit()
+  {
+    feedInitRef ?: throw Err("Feeds not supported")
+  }
+
+  ** Install feed initialization
+  @NoDoc virtual HxFeedInit? feedInitRef
 
   ** In context a SkySpark feed
   @NoDoc virtual Bool feedIsEnabled() { false }
 
-  ** Setup a SkySpark feed
-  @NoDoc virtual Void feedAdd(HxFeed feed, [Str:Obj?]? meta := null) { unsupportedErr }
+  ** Setup a feed (SkySpark only)
+  @NoDoc virtual Void feedAdd(HxFeed feed, [Str:Obj?]? meta := null) {}
+
+//////////////////////////////////////////////////////////////////////////
+// SkySpark Context virtuals
+//////////////////////////////////////////////////////////////////////////
 
   ** Clear read cache for subclasses
   @NoDoc virtual Void readCacheClear() {}
 
-  ** Feed view id
-  @NoDoc virtual Str feedViewId() { throw unsupportedErr }
-
-  ** Feed key
-  @NoDoc virtual Str feedKey() { throw unsupportedErr }
-
   ** Export to outpout stream - SkySpark only
-  @NoDoc virtual Obj export(Dict req, OutStream out) { unsupportedErr }
-
-  private Err unsupportedErr() { UnsupportedErr("SkySpark only") }
-
+  @NoDoc virtual Obj export(Dict req, OutStream out)
+  {
+    throw UnsupportedErr("Export not supported")
+  }
 }
 
