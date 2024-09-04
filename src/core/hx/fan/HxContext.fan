@@ -82,6 +82,12 @@ abstract class HxContext : AxonContext, FolioContext
   ** Clear read cache for subclasses
   @NoDoc virtual Void readCacheClear() {}
 
+  ** Feed view id
+  @NoDoc virtual Str feedViewId() { throw unsupportedErr }
+
+  ** Feed key
+  @NoDoc virtual Str feedKey() { throw unsupportedErr }
+
   ** Export to outpout stream - SkySpark only
   @NoDoc virtual Obj export(Dict req, OutStream out) { unsupportedErr }
 
