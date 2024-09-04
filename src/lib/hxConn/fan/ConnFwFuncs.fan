@@ -281,7 +281,7 @@ const class ConnFwFuncs
     if (cx.feedIsEnabled)
     {
       ts := list.last?.ts ?: DateTime.now
-      cx.feedAdd(ConnTraceFeed(c.trace, ts, opts), meta)
+      cx.feedAdd(ConnTraceFeed(cx, c.trace, ts, opts), meta)
     }
     list = ConnTraceMsg.applyOpts(list, opts)
     return ConnTraceMsg.toGrid(list, meta)
@@ -316,5 +316,4 @@ const class ConnFwFuncs
     Err("$c.lib.name connector uses classic framework [$c.rec.dis]")
   }
 }
-
 

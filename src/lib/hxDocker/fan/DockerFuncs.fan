@@ -35,7 +35,8 @@ const class DockerFuncs
   static Grid dockerListContainers()
   {
     meta := Str:Obj?[:]
-    if (curHx.feedIsEnabled) curHx.feedAdd(DockerContainerFeed(), meta)
+    cx := HxContext.curHx
+    if (curHx.feedIsEnabled) curHx.feedAdd(DockerContainerFeed(cx), meta)
     return lib.dockerMgr.listContainers.setMeta(meta)
   }
 
@@ -121,5 +122,7 @@ const class DockerFuncs
 
 internal const class DockerContainerFeed : HxFeed
 {
-  override Grid onPoll() { DockerFuncs.dockerListContainers }
+  new make(HxContext cx) : super(cx) {}
+  override Grid? poll(HxContext cx) { DockerFuncs.dockerListContainers }
 }
+

@@ -89,9 +89,3 @@ abstract class HxContext : AxonContext, FolioContext
 
 }
 
-**************************************************************************
-** HxFeed  (SkySpark Only)
-**************************************************************************
-
-@NoDoc const mixin HxFeed { protected abstract Grid onPoll() }
-

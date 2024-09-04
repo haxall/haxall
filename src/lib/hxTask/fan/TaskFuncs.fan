@@ -38,7 +38,7 @@ const class TaskFuncs
     cx := curContext
     lib := lib(cx)
     meta := Str:Obj?[:]
-    if (cx.feedIsEnabled) cx.feedAdd(TasksFeed(lib), meta)
+    if (cx.feedIsEnabled) cx.feedAdd(TasksFeed(cx, lib), meta)
     grid := tasksGrid(lib, meta, 0)
     grid = grid.sortDis
     search := opts["search"]?.toStr?.trimToNull
@@ -412,10 +412,10 @@ internal const class TestTaskAdjunct : HxTaskAdjunct
 
 @NoDoc const class TasksFeed : HxFeed
 {
-  new make(TaskLib lib) { this.lib = lib }
+  new make(HxContext cx, TaskLib lib) : super(cx) { this.lib = lib }
   const TaskLib lib
   const AtomicInt lastPollTicks := AtomicInt(Duration.nowTicks)
-  override Grid onPoll()
+  override Grid? poll(HxContext cx)
   {
     // poll for tasks which have ver updated since last poll ticks
     grid := TaskFuncs.tasksGrid(lib, null, lastPollTicks.val)
