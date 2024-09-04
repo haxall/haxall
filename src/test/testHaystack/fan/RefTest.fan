@@ -34,6 +34,16 @@ class RefTest : HaystackTest
     verifySegs("p:demo:", [RefSeg("p", "demo"), RefSeg("", "")])
     verifySegs("p:demo:r:f6d583b-5a5a04e7", [RefSeg("p", "demo"), RefSeg("r", "f6d583b-5a5a04e7")])
     verifySegs("p:demo:r:f6d583b:x:5a5a04e7", [RefSeg("p", "demo"), RefSeg("r", "f6d583b"), RefSeg("x", "5a5a04e7")])
+
+    x := Ref.gen
+    verifyEq(x.segs.size, 1)
+    verifyEq(x.segs[0].scheme, "")
+    verifyEq(x.segs[0].body, x.toStr)
+
+    x = Ref.makeHandle(x.handle)
+    verifyEq(x.segs.size, 1)
+    verifyEq(x.segs[0].scheme, "")
+    verifyEq(x.segs[0].body, x.toStr)
   }
 
   Void verifySegs(Str id, RefSeg[] segs)
@@ -79,6 +89,7 @@ class RefTest : HaystackTest
   Void testToProjRel()
   {
     verifyToProjRel("p:demo:r:x", "x")
+    verifyToProjRel("p:demo:r:foo", "foo")
     verifyToProjRel("r:x", null)
     verifyToProjRel("proj:demo:r:x", null)
     verifyToProjRel("u:matthew", null)
@@ -89,9 +100,18 @@ class RefTest : HaystackTest
   {
     ref := Ref(refStr, "dis")
     if (expected == null)
+    {
       verifySame(ref.toProjRel, ref)
+    }
     else
-      verifyValEq(ref.toProjRel, Ref(expected, "dis"))
+    {
+      x := ref.toProjRel
+      verifyNotSame(x, ref)
+      verifyValEq(x, Ref(expected, "dis"))
+      verifyEq(x.segs.size, 1)
+      verifyEq(x.segs[0].scheme, "")
+      verifyEq(x.segs[0].body, expected)
+    }
   }
 
   Void testToAbs()
@@ -102,3 +122,4 @@ class RefTest : HaystackTest
     verifyErr(ArgErr#) { Ref("foo").toAbs("x y") }
   }
 }
+

@@ -55,7 +55,8 @@ final const class Ref : xeto::Ref
   {
     time := (DateTime.nowTicks / 1sec.ticks).and(0xffff_ffff)
     rand := (Int.random).and(0xffff_ffff)
-    return makeImpl(handleToStr(time, rand), null)
+    str  := handleToStr(time, rand)
+    return makeSegs(str, null, [RefSeg("", str)])
   }
 
   ** Construct with 64-bit handle
@@ -63,7 +64,8 @@ final const class Ref : xeto::Ref
   {
     time := handle.shiftr(32).and(0xffff_ffff)
     rand := handle.and(0xffff_ffff)
-    return makeImpl(handleToStr(time, rand), null)
+    str  := handleToStr(time, rand)
+    return makeSegs(str, null, [RefSeg("", str)])
   }
 
   ** Format as "tttttttt-rrrrrrrr"
@@ -77,6 +79,14 @@ final const class Ref : xeto::Ref
   {
     this.idRef  = id
     this.segs   = RefSeg.parse(id)
+    this.disVal = dis
+  }
+
+  ** Constructor
+  @NoDoc private new makeSegs(Str id, Str? dis, RefSeg[] segs)
+  {
+    this.idRef  = id
+    this.segs   = segs
     this.disVal = dis
   }
 
@@ -307,7 +317,9 @@ final const class Ref : xeto::Ref
   ** "@p:xxx:r:yyy" => "@yyy"
   @NoDoc Ref toProjRel()
   {
-    isProjRec() ? Ref.makeImpl(segs[1].body, disVal) : this
+    if (!isProjRec()) return this
+    body := segs[1].body
+    return makeSegs(body, disVal, [RefSeg("", body)])
   }
 
 //////////////////////////////////////////////////////////////////////////
