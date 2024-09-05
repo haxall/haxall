@@ -74,6 +74,12 @@ abstract const class HxLib
   ** from the runtime.
   virtual HxService[] services() { HxService#.emptyList }
 
+  ** Initialize a feed from a subscription request for this library
+  @NoDoc virtual HxFeed feedInit(Dict req, HxContext cx)
+  {
+    throw Err("HxLib does not support feedInit: $name")
+  }
+
   ** Service provider interface
   @NoDoc virtual HxLibSpi spi() { spiRef }
   @NoDoc const HxLibSpi spiRef
