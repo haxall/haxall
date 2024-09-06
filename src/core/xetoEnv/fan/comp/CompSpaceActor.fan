@@ -252,8 +252,7 @@ Actor.locals[CompSpace.actorKey] = cs
     switch (req->type)
     {
       case "create": return onFeedCreate(state.cs, req->compSpec, req->x, req->y)
-      case "move":   return onFeedMove(state.cs, req->id, req->x, req->y)
-      case "resize": return onFeedResize(state.cs, req->id, req->w)
+      case "layout": return onFeedLayout(state.cs, req->id, req->x, req->y, req->w)
       default:       throw Err("Unknown feedCall: $req")
     }
   }
@@ -267,33 +266,10 @@ Actor.locals[CompSpace.actorKey] = cs
     return CompUtil.compToBrio(comp)
   }
 
-  private Obj? onFeedMove(CompSpace cs, Ref compId, Number x, Number y)
+  private Obj? onFeedLayout(CompSpace cs, Ref compId, Number x, Number y, Number w)
   {
     comp := cs.readById(compId)
-    layout := comp.get("compLayout")
-    if (layout == null)
-    {
-      comp.set("compLayout", Etc.compLayout(x.toInt, y.toInt))
-      return null
-    }
-// TODO
-old :=  Etc.compLayoutWrap(layout)
-    comp.set("compLayout", Etc.compLayout(x.toInt, y.toInt, old.w))
-    return null
-  }
-
-  private Obj? onFeedResize(CompSpace cs, Ref compId, Number w)
-  {
-    comp := cs.readById(compId)
-    layout := comp.get("compLayout")
-    if (layout == null)
-    {
-      comp.set("compLayout", Etc.compLayout(4, 4, w.toInt))
-      return null
-    }
-// TODO
-old :=  Etc.compLayoutWrap(layout)
-    comp.set("compLayout", Etc.compLayout(old.x, old.y, w.toInt))
+    comp.set("compLayout", Etc.compLayout(x.toInt, y.toInt, w.toInt))
     return null
   }
 
