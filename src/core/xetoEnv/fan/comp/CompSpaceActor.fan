@@ -104,7 +104,7 @@ const class CompSpaceActor : Actor
     // dispatch message
     switch (msg.id)
     {
-      case "checkTimers":     return onCheckTimers(cs, msg.a)
+      case "checkTimers":     return onCheckTimers(state, msg.a)
       case "feedPoll":        return onFeedPoll(state, msg.a)
       case "feedSubscribe":   return onFeedSubscribe(state, msg.a)
       case "feedUnsubscribe": return onFeedSubscribe(state, msg.a)
@@ -139,10 +139,26 @@ const class CompSpaceActor : Actor
     return this
   }
 
-  private This onCheckTimers(CompSpace cs, DateTime now)
+  private This onCheckTimers(CompSpaceActorState state, DateTime now)
   {
-    cs.checkTimers(now)
+    state.cs.checkTimers(now)
+    checkHouseKeeping(state, now)
     return this
+  }
+
+  private Void checkHouseKeeping(CompSpaceActorState state, DateTime now)
+  {
+    // run house keeping every 5sec from checkTimers
+    if (now.ticks - state.lastHouseKeeping.ticks > 5sec.ticks)
+    {
+      state.lastHouseKeeping = now
+      onHouseKeeping(state)
+    }
+  }
+
+  private Void onHouseKeeping(CompSpaceActorState state)
+  {
+    expireFeeds(state)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -208,9 +224,30 @@ const class CompSpaceActor : Actor
 
   private Void feedEachChild(CompSpace cs, |Comp| f)
   {
+    // iterate the roots as the block view components
     cs.root.eachChild(f)
   }
 
+  private Void expireFeeds(CompSpaceActorState state)
+  {
+    // short circuit if no feeds
+    if (state.feeds.isEmpty) return
+
+    // find all feeds that have not been touched in over 1min
+    now := Duration.nowTicks
+    Str[]? cookies
+    state.feeds.each |feed|
+    {
+      age := now - feed.touched
+      if (age < 1min.ticks) return
+      if (cookies == null) cookies = Str[,]
+      cookies.add(feed.cookie)
+    }
+
+    // unsubscribe the expired cookies
+    if (cookies.isEmpty) return
+    cookies.each |cookie| { onFeedUnsubscribe(state, cookie) }
+  }
 }
 
 **************************************************************************
@@ -228,6 +265,9 @@ internal class CompSpaceActorState
 
   ** Subscriptions keyed by cookie
   Str:CompSpaceFeed feeds := [:]
+
+  ** Timestamp of last house keeping
+  DateTime lastHouseKeeping := DateTime.now
 }
 
 **************************************************************************
