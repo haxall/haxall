@@ -331,6 +331,72 @@ class CompTest: AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Ver
+//////////////////////////////////////////////////////////////////////////
+
+  Void testVer()
+  {
+    r := cs.root
+    x := CompObj()
+    y := CompObj()
+    z := CompObj()
+
+    // dump := |Str s| { echo("$s | cs=$cs.ver r=$r.spi.ver x=$x.spi.ver y=$y.spi.ver z=$z.spi.ver") }
+
+    // initial state
+    verifyEq(cs.ver, 1)
+    verifyEq(r.spi.ver, 1)
+    verifyEq(x.spi.ver, 0)
+
+    // until x mounted no ver changes
+    x.set("foo", "bar")
+    verifyEq(x.spi.ver, 0)
+
+    // mount x
+    r.set("x", x)
+    verifyEq(cs.ver, 3)
+    verifyEq(r.spi.ver, 3)
+    verifyEq(x.spi.ver, 2)
+
+    // set x
+    x.set("foo", "new foo")
+    verifyEq(cs.ver, 4)
+    verifyEq(r.spi.ver, 3)
+    verifyEq(x.spi.ver, 4)
+
+    // add x
+    x.add("there", "baz")
+    verifyEq(cs.ver, 5)
+    verifyEq(r.spi.ver, 3)
+    verifyEq(x.spi.ver, 5)
+
+    // remove x
+    x.remove("baz")
+    verifyEq(cs.ver, 6)
+    verifyEq(r.spi.ver, 3)
+    verifyEq(x.spi.ver, 6)
+    verifyEq(y.spi.ver, 0)
+    verifyEq(z.spi.ver, 0)
+
+    // mount two comps
+    y.set("z", z)
+    x.add(y)
+    verifyEq(cs.ver, 9)
+    verifyEq(r.spi.ver, 3)
+    verifyEq(x.spi.ver, 9)
+    verifyEq(y.spi.ver, 7)
+    verifyEq(z.spi.ver, 8)
+
+    // unmount two comps
+    x.set(y.name, "replaced")
+    verifyEq(cs.ver, 12)
+    verifyEq(r.spi.ver, 3)
+    verifyEq(x.spi.ver, 12)
+    verifyEq(y.spi.ver, 10)
+    verifyEq(z.spi.ver, 11)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Callbacks
 //////////////////////////////////////////////////////////////////////////
 

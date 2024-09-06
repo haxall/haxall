@@ -245,6 +245,7 @@ mixin CompSpi
   abstract Ref id()
   abstract Str dis()
   abstract Spec spec()
+  abstract Int ver()
   abstract Obj? get(Str name)
   abstract Bool has(Str name)
   abstract Bool missing(Str name)

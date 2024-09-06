@@ -46,6 +46,8 @@ class MCompSpi : CompSpi
 
   override const Ref id
 
+  override Int ver { internal set }
+
   override Str dis() { get("dis") ?: toStr }
 
   override Str toStr()
@@ -309,7 +311,7 @@ class MCompSpi : CompSpi
       comp.onChangeThis(name, newVal)
 
       // space level callback
-      if (isMounted) cs.onChange(comp, name, newVal)
+      if (isMounted) cs.change(this, name, newVal)
 
       // listeners
       if (listeners != null) listeners.fireOnChange(comp, name, newVal)

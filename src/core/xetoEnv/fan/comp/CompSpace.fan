@@ -52,6 +52,9 @@ class CompSpace : AbstractCompSpace
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
+  ** Current version of component changes
+  Int ver() { curVer }
+
   ** Has this space been started, but not stopped yet
   Bool isRunning() { isRunningRef }
 
@@ -86,14 +89,6 @@ class CompSpace : AbstractCompSpace
 
   ** Root component
   virtual Comp root() { rootRef ?: throw Err("Must call initRoot") }
-
-//////////////////////////////////////////////////////////////////////////
-// Hooks
-//////////////////////////////////////////////////////////////////////////
-
-  ** Callback anytime a component in the space is modified.
-  ** The name and value are the slot modified, or null for a remove.
-  virtual Void onChange(Comp comp, Str name, Obj? val) {}
 
 //////////////////////////////////////////////////////////////////////////
 // Loading/Saving
@@ -158,9 +153,25 @@ class CompSpace : AbstractCompSpace
     return null
   }
 
+  ** Hook when component is modified
+  internal Void change(MCompSpi spi, Str name, Obj? val)
+  {
+    // increment version
+    updateVer(spi)
+
+    // invoke callback on space
+    try
+      onChange(spi.comp, name, val)
+    catch (Err e)
+      err("CompSpace.onChange", e)
+  }
+
   ** Recursively mount component into this space
   internal Void mount(Comp c)
   {
+    // increment version
+    updateVer(c.spi)
+
     // add to my lookup tables
     byId.add(c.id, c)
 
@@ -186,6 +197,9 @@ class CompSpace : AbstractCompSpace
   ** Recursively unmount component into this space
   internal Void unmount(Comp c)
   {
+    // increment version
+    updateVer(c.spi)
+
     // recurse children
     c.eachChild |kid| { unmount(kid) }
 
@@ -208,11 +222,22 @@ class CompSpace : AbstractCompSpace
     timersNeedUpdate = true
   }
 
+  ** Increment space version and assign to comp
+  private Void updateVer(MCompSpi spi)
+  {
+    ++this.curVer
+    spi.ver = this.curVer
+  }
+
   ** Callback when component is mounted into tree
   virtual Void onMount(Comp c) {}
 
   ** Callback when component is unmounted from tree
   virtual Void onUnmount(Comp c) {}
+
+  ** Callback anytime a component in the space is modified.
+  ** The name and value are the slot modified, or null for a remove.
+  virtual Void onChange(Comp comp, Str name, Obj? val) {}
 
 //////////////////////////////////////////////////////////////////////////
 // Namespace
@@ -307,5 +332,6 @@ class CompSpace : AbstractCompSpace
   private Bool timersNeedUpdate
   private MCompSpi[] timed := MCompSpi#.emptyList
   private Int compCounter := 0
+  private Int curVer
 }
 
