@@ -31,6 +31,10 @@ const class CompSpaceActor : Actor
 // Api
 //////////////////////////////////////////////////////////////////////////
 
+  ** Namespace for the CompSpace - must have called init
+  LibNamespace ns() { nsRef.val ?: throw Err("Must call init first") }
+  private const AtomicRef nsRef := AtomicRef()
+
   ** Initialize the CompSpace using given subtype and make args
   ** Future evaluates to this.
   Future init(Type csType, Obj?[] args)
@@ -56,7 +60,7 @@ const class CompSpaceActor : Actor
 //////////////////////////////////////////////////////////////////////////
 
   ** Dispatch message
-  override Obj? receive(Obj? msgObj)
+  override final Obj? receive(Obj? msgObj)
   {
     msg := (ActorMsg)msgObj
 
@@ -76,13 +80,22 @@ const class CompSpaceActor : Actor
     {
       case "checkTimers": return onCheckTimers(cs, msg.a)
       case "load":        return onLoad(cs, msg.a)
-      default: throw Err("Unknown msg id: $msg")
     }
+
+    // route to subclass dispatch
+    return onDispatch(msg, cs)
+  }
+
+  ** Subclass hook for dispatch
+  protected virtual Obj? onDispatch(ActorMsg msg, CompSpace cs)
+  {
+    throw Err("Unknown msg id: $msg")
   }
 
   private CompSpaceActorState onInit(Type csType, Obj?[] args)
   {
     CompSpace cs := csType.make(args)
+    nsRef.val = cs.ns
     return CompSpaceActorState(cs)
   }
 
