@@ -488,9 +488,13 @@ class CompTest: AbstractXetoTest
 // Load/Save
 //////////////////////////////////////////////////////////////////////////
 
-  Void testLoad()
+  static Str[] loadTestLibs()
   {
-    xeto :=
+    ["sys.comp", "hx.test.xeto"]
+  }
+
+  static Str loadTestXeto()
+  {
      Str<|@root: TestFolder {
             a @a: TestRamp {
               fooRef: @add
@@ -505,10 +509,13 @@ class CompTest: AbstractXetoTest
               }
             }
           }|>
+  }
 
-    ns := createNamespace(["sys.comp", "hx.test.xeto"])
+  Void testLoad()
+  {
+    ns := createNamespace(loadTestLibs)
     cs := CompSpace(ns)
-    cs.load(xeto)
+    cs.load(loadTestXeto)
 
     r := verifyLoadComp(cs, cs.root, "",  null, "TestFolder")
     a := verifyLoadComp(cs, r->a,    "a", r,    "TestRamp")

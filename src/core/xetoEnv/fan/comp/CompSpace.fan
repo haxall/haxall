@@ -249,7 +249,7 @@ class CompSpace : AbstractCompSpace
   ** component timers.  The frequency this method is called determines
   ** the smaller timer increment.  For example if its called every 100ms
   ** then timers will only fire as fast as 100ms.
-  Void checkTimers()
+  Void checkTimers(DateTime now := DateTime.now(null))
   {
     // if the component tree has been modified, we need to rebuild
     if (timersNeedUpdate)
@@ -259,9 +259,7 @@ class CompSpace : AbstractCompSpace
     }
 
     // walk thru timed components
-    ticks := Duration.nowTicks
-    ts := DateTime.now(null)
-    timed.each |spi| { spi.checkTimer(ticks, ts) }
+    timed.each |spi| { spi.checkTimer(now) }
   }
 
   ** Walk component tree to build our timers list

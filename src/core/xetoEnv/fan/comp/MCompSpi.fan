@@ -378,13 +378,14 @@ class MCompSpi : CompSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Check if timer has elapsed
-  Void checkTimer(Int ticks, DateTime ts)
+  Void checkTimer(DateTime ts)
   {
     // short circuit if frequency null
     freq := comp.onTimerFreq
     if (freq == null) return
 
     // if first call then init lastOnTimer ticks
+    ticks := ts.ticks
     if (lastOnTimer <= 0) { this.lastOnTimer = ticks; return }
 
    // check if freq has elapsed
