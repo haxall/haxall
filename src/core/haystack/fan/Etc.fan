@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto::CompLayout
 using xeto::Link
 using xeto::Links
 
@@ -260,6 +261,20 @@ const class Etc
       case 6:  return Dict6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5)
       default: throw Err()
     }
+  }
+
+  ** Construct CompLayout from its parts - temp solution until we can move into xeto
+  @NoDoc static CompLayout compLayout(Int x, Int y, Int w := 8)
+  {
+    compLayoutWrap(dict4("x", Number(x), "y", Number(y), "w", Number(w), "spec", MCompLayout.specRef))
+  }
+
+  ** Construct CompLayout from dict - temp solution until we can move into xeto
+  @NoDoc static CompLayout compLayoutWrap(Dict wrap)
+  {
+    if (wrap is CompLayout) return (CompLayout)wrap
+    if (wrap["spec"] == null) wrap = dictSet(wrap, "spec", MCompLayout.specRef)
+    return MCompLayout(wrap)
   }
 
   ** Construct link from its parts - temp solution until we can move into xeto

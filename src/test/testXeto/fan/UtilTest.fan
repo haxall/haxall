@@ -465,6 +465,50 @@ class UtilTest : AbstractXetoTest
     verifyEq(c.contains(Version(v)), expect)
   }
 
+
+//////////////////////////////////////////////////////////////////////////
+// Etc.compLayout
+//////////////////////////////////////////////////////////////////////////
+
+  Void testCompLayout()
+  {
+    // Etc.compLayout
+    verifyCompLayout(Etc.compLayout(2, 3, 4), 2, 3, 4)
+
+    // Etc.compLayoutWrap (without spec) - Ints
+    tags := Str:Obj["x":5, "y":9, "w": 10]
+    verifyCompLayout(Etc.compLayoutWrap(Etc.makeDict(tags)), 5, 9, 10)
+
+    // Etc.compLayoutWrap (without spec) - Numbers
+    tags = ["x":n(5), "y":n(9), "w":n(10)]
+    verifyCompLayout(Etc.compLayoutWrap(Etc.makeDict(tags)), 5, 9, 10)
+
+    // Etc.compLayoutWrap (with spec)
+    tags = ["spec":Ref("sys.comp::CompLayout"), "x": 6, "y":Number(9), "w":Number(7)]
+    verifyCompLayout(Etc.compLayoutWrap(Etc.makeDict(tags)), 6, 9, 7)
+  }
+
+  Void verifyCompLayout(CompLayout c, Int x, Int y, Int w)
+  {
+    // echo("---> $c")
+
+    verifyEq(c.x, x)
+    verifyEq(c.y, y)
+    verifyEq(c.w, w)
+    verifyEq(c["spec"],  Ref("sys.comp::CompLayout"))
+
+    tags := Str:Obj[:]
+    tags["x"] = c->x
+    tags["y"] = c->y
+    tags["w"] = c->w
+    tags["spec"] = c->spec
+    verifyDictEq((haystack::Dict)c, tags)
+
+    // verify CompLayout.map returns same instance
+    mapped := c.map |v, n| { v }
+    verifySame(mapped.typeof, c.typeof)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Etc.link
 //////////////////////////////////////////////////////////////////////////

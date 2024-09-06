@@ -260,8 +260,7 @@ Actor.locals[CompSpace.actorKey] = cs
   {
     spec := cs.ns.spec(specRef.id)
     comp := cs.createSpec(spec)
-// TODO: set layout with CompLayout
-comp.set("compLayout", "$x, $y")
+    comp.set("compLayout", Etc.compLayout(x.toInt, y.toInt))
     cs.root.add(comp)
     return CompUtil.compToBrio(comp)
   }

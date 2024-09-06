@@ -166,9 +166,10 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
   {
     xeto := Pod.find("xeto")
     return [
-      "Comp":   CompSpecFactory(Comp#),
-      "Link":   LinkFactory(xeto.type("Link")),
-      "Links":  LinksFactory(xeto.type("Links")),
+      "Comp":        CompSpecFactory(Comp#),
+      "CompLayout":  CompLayoutFactory(xeto.type("CompLayout")),
+      "Link":        LinkFactory(xeto.type("Link")),
+      "Links":       LinksFactory(xeto.type("Links")),
     ]
   }
 
@@ -333,6 +334,13 @@ internal const class SpanFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Span.fromStr(str, TimeZone.cur, checked) }
+}
+
+@Js
+internal const class CompLayoutFactory : DictSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Dict decodeDict(Dict xeto, Bool checked := true) { Etc.compLayoutWrap(xeto) }
 }
 
 @Js
