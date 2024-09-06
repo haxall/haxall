@@ -48,6 +48,12 @@ class CompUtil
     return Etc.dictFromMap(acc)
   }
 
+  ** Encode a component into a sys.comp::Comp dict representation, then brio
+  static Buf compToBrio(Comp comp)
+  {
+    dictToBrio(compToDict(comp))
+  }
+
   ** Dict to brio buf
   static Buf dictToBrio(Dict dict)
   {

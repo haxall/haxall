@@ -10,6 +10,7 @@ using concurrent
 using xeto
 using haystack
 using haystack::Dict
+using haystack::Ref
 
 **
 ** CompSpaceActor is used to encapsulate a CompSpace and provide
@@ -100,6 +101,9 @@ const class CompSpaceActor : Actor
       return this
     }
     cs := state.cs
+
+// TODO: should not need this more than once
+Actor.locals[CompSpace.actorKey] = cs
 
     // dispatch message
     switch (msg.id)
@@ -216,12 +220,6 @@ const class CompSpaceActor : Actor
     return CompUtil.toFeedGrid(cookie, dicts)
   }
 
-  private Obj? onFeedCall(CompSpaceActorState state, Dict req)
-  {
-    echo("TODO: feedCall $req")
-    throw Err("TODO")
-  }
-
   private Void feedEachChild(CompSpace cs, |Comp| f)
   {
     // iterate the roots as the block view components
@@ -248,6 +246,26 @@ const class CompSpaceActor : Actor
     if (cookies.isEmpty) return
     cookies.each |cookie| { onFeedUnsubscribe(state, cookie) }
   }
+
+  private Obj? onFeedCall(CompSpaceActorState state, Dict req)
+  {
+    switch (req->type)
+    {
+      case "create": return onFeedCreate(state.cs, req->compSpec, req->x, req->y)
+      default:       throw Err("Unknown feedCall: $req")
+    }
+  }
+
+  private Buf onFeedCreate(CompSpace cs, Ref specRef, Number x, Number y)
+  {
+    spec := cs.ns.spec(specRef.id)
+    comp := cs.createSpec(spec)
+// TODO: set layout with CompLayout
+comp.set("compLayout", "$x, $y")
+    cs.root.add(comp)
+    return CompUtil.compToBrio(comp)
+  }
+
 }
 
 **************************************************************************
