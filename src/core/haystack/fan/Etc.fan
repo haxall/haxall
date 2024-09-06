@@ -1805,32 +1805,6 @@ const class Etc
     return s.toStr
   }
 
-  ** Format actor msg tuple as "type(id, a=a, b=b, ...)"
-  @NoDoc static Str debugMsg(Str type, Obj? id, Obj? a, Obj? b := null, Obj? c := null, Obj? d := null, Obj? e := null)
-  {
-    s := StrBuf()
-    s.add(type).add("(").add(id)
-    debugMsgArg(s, "a", a)
-    debugMsgArg(s, "b", b)
-    debugMsgArg(s, "c", c)
-    debugMsgArg(s, "d", d)
-    debugMsgArg(s, "e", e)
-    return s.add(")").toStr
-  }
-
-  private static Void debugMsgArg(StrBuf b, Str name, Obj? arg)
-  {
-    if (arg == null) return
-    b.addChar(' ').add(name).addChar('=')
-    try
-    {
-      s := arg.toStr
-      if (s.size <= 64) b.add(s)
-      else b.add(s[0..64]).add("...")
-    }
-    catch (Err e) b.add(e.toStr)
-  }
-
   static Void addArg(StrBuf b, Str name, Obj? arg)
   {
     if (arg == null) return

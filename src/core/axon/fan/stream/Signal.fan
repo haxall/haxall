@@ -6,7 +6,7 @@
 //   3 Aug 2019  Brian Frank  Creation
 //
 
-using haystack
+using concurrent
 
 **
 ** Signal is used to pass out-of-band events across streams
@@ -39,7 +39,7 @@ const class Signal
   Bool isComplete() { type.isComplete }
 
   ** Debug string
-  override Str toStr() { Etc.debugMsg("Signal", type, a, b) }
+  override Str toStr() { ActorMsg.toDebugStr("Signal", type, a, b) }
 }
 
 **************************************************************************
@@ -64,3 +64,4 @@ enum class SignalType
 
   const Bool isComplete
 }
+

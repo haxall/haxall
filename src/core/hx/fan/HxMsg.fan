@@ -6,7 +6,7 @@
 //   20 May 2021  Brian Frank  Creation
 //
 
-using haystack
+using concurrent
 
 **
 ** HxMsg provides simple immutable tuple to use for actor messages.
@@ -110,7 +110,7 @@ const class HxMsg
   ** Return debug string representation
   override Str toStr()
   {
-    Etc.debugMsg("HxMsg", id, a, b, c, d, e)
+    ActorMsg.toDebugStr("HxMsg", id, a, b, c, d, e)
   }
 }
 

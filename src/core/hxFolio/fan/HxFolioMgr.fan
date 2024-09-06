@@ -103,7 +103,7 @@ internal const class Msg
   const Obj? d
   const MsgCoalesceKey? coalesceKey
 
-  override Str toStr() { Etc.debugMsg("Msg", id, a, b, c, d) }
+  override Str toStr() { ActorMsg.toDebugStr("Msg", id, a, b, c, d) }
 }
 
 **************************************************************************
@@ -157,7 +157,4 @@ internal const class MsgCoalesceKey
   override Str toStr() { "$id $rec.id" }
 
 }
-
-
-
 
