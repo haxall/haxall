@@ -8,6 +8,8 @@
 //
 
 using xeto
+using haystack::Dict
+using haystack
 
 **
 ** CompUtil
@@ -36,6 +38,36 @@ class CompUtil
       .addChar(name[0].upper)
       .addRange(name, 1..-1)
       .toStr
+  }
+
+  ** Encode a component into a sys.comp::Comp dict representation
+  static Dict compToDict(Comp comp)
+  {
+    acc := Str:Obj[:]
+    comp.each |v, n| { acc[n] = v }
+    return Etc.dictFromMap(acc)
+  }
+
+  ** Dict to brio buf
+  static Buf dictToBrio(Dict dict)
+  {
+    buf := Buf()
+    BrioWriter(buf.out).writeDict(dict)
+    return buf.toImmutable
+  }
+
+  ** Return grid format used for BlockView feed protocol
+  static Grid toFeedGrid(Str cookie, Dict[] dicts)
+  {
+    gb := GridBuilder()
+    gb.capacity = dicts.size
+    gb.setMeta(Etc.dict1("cookie", cookie))
+    gb.addCol("id").addCol("comp")
+    dicts.each |dict|
+    {
+      gb.addRow2(dict.id, CompUtil.dictToBrio(dict))
+    }
+    return gb.toGrid
   }
 
 }
