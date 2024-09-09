@@ -253,6 +253,7 @@ Actor.locals[CompSpace.actorKey] = cs
     {
       case "create": return onFeedCreate(state.cs, req->compSpec, req->x, req->y)
       case "layout": return onFeedLayout(state.cs, req->id, req->x, req->y, req->w)
+      case "link":   return onFeedLink(state.cs, req->fromRef, req->fromSlot, req->toRef, req->toSlot)
       default:       throw Err("Unknown feedCall: $req")
     }
   }
@@ -270,6 +271,13 @@ Actor.locals[CompSpace.actorKey] = cs
   {
     comp := cs.readById(compId)
     comp.set("compLayout", Etc.compLayout(x.toInt, y.toInt, w.toInt))
+    return null
+  }
+
+  private Obj? onFeedLink(CompSpace cs, Ref fromRef, Str fromSlot, Ref toRef, Str toSlot)
+  {
+    comp := cs.readById(toRef)
+    comp.set("links", comp.links.add(toSlot, Etc.link(fromRef, fromSlot)))
     return null
   }
 
