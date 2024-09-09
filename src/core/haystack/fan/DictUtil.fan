@@ -568,8 +568,11 @@ internal const class MLinks : WrapDict, xeto::Links
 {
   static once Ref specRef() { Ref("sys.comp::Links") }
   static once MLinks empty() { make(Etc.dict1("spec", specRef)) }
+
   new make(Dict wrapped) : super(wrapped) {}
+
   override This map(|Obj, Str->Obj| f) { make(wrapped.map(f)) }
+
   override Void eachLink(|Str,Link| f)
   {
     each |v, n|
@@ -584,12 +587,67 @@ internal const class MLinks : WrapDict, xeto::Links
       }
     }
   }
+
   override Link[] listOn(Str toSlot)
   {
     v := get(toSlot)
     if (v is List) return v
     if (v is Link) return Link[v]
     return Link#.emptyList
+  }
+
+  override This add(Str toSlot, Link newLink)
+  {
+    acc := Etc.dictToMap(this)
+    old := acc[toSlot]
+    if (old == null)
+    {
+      acc[toSlot] = newLink
+    }
+    else if (old is Link)
+    {
+      oldLink := (Link)old
+      if (eq(oldLink, newLink)) return this
+      acc[toSlot] = [oldLink, newLink]
+    }
+    else
+    {
+      oldList := (List)old
+      dup := oldList.find |x| { eq(x, newLink) }
+      if (dup != null) return this
+      acc[toSlot] = oldList.dup.add(newLink)
+    }
+    return make(Etc.dictFromMap(acc))
+  }
+
+  override This remove(Str toSlot, Link link)
+  {
+    acc := Etc.dictToMap(this)
+    old := acc[toSlot]
+    if (old == null) return this
+
+    if (old is Link)
+    {
+      if (!eq(old, link)) return this
+      acc.remove(toSlot)
+    }
+    else
+    {
+      oldList := (List)old
+      idx := oldList.findIndex |x| { eq(x, link) }
+      if (idx == null) return this
+      newList := oldList.dup
+      newList.removeAt(idx)
+      if (newList.isEmpty) acc.remove(toSlot)
+      else acc[toSlot] = newList
+    }
+    if (acc.size == 1 && acc["spec"] != null) return empty
+    return make(Etc.dictFromMap(acc))
+  }
+
+  private static Bool eq(Link a, Link b)
+  {
+    a.fromRef == b.fromRef && a.fromSlot == b.fromSlot
   }
 }
 

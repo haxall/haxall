@@ -37,6 +37,12 @@ const mixin Links : Dict
   abstract Void eachLink(|Str toSlot, Link| f)
 
   ** List all the links with the given toSlot name
-  abstract Link[] listOn(Str slot)
+  abstract Link[] listOn(Str toSlot)
+
+  ** Add given link (if not duplicate) and return new instance of Links
+  abstract This add(Str toSlot, Link link)
+
+  ** Remove given link (if found) and return new instance of Links
+  abstract This remove(Str toSlot, Link link)
 }
 

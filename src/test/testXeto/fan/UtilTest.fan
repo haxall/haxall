@@ -555,9 +555,10 @@ class UtilTest : AbstractXetoTest
 
   Void testLinks()
   {
-    a := Etc.link(Ref("add-1"), "out")
-    b := Etc.link(Ref("add-1"), "out")
-    c := Etc.link(Ref("add-1"), "out")
+    a := Etc.link(Ref("add-a"), "out")
+    b := Etc.link(Ref("add-b"), "out")
+    c := Etc.link(Ref("add-c"), "out")
+    d := Etc.link(Ref("add-d"), "out")
 
     // empty
     verifyLinks(Etc.links(null), [:])
@@ -577,6 +578,53 @@ class UtilTest : AbstractXetoTest
     // combo
     w = Etc.makeDict(["in1":[a, b], "in2":c])
     verifyLinks(Etc.links(w), ["in1":[a, b], "in2":[c]])
+
+    // test add (null)
+    k := Etc.links(null)
+    verifyLinks(k, [:])
+    k = k.add("in3", a)
+    verifyLinks(k, ["in3":[a]])
+
+    // add dup single
+    verifySame(k.add("in3", a), k)
+
+    // add single
+    k = k.add("in3", b)
+    verifyLinks(k, ["in3":[a, b]])
+
+    // add list dup
+    verifySame(k.add("in3", a), k)
+    verifySame(k.add("in3", b), k)
+
+    // add list
+    k = k.add("in3", c)
+    verifyLinks(k, ["in3":[a, b, c]])
+
+    // add new toSlot
+    k = k.add("in4", c)
+    verifyLinks(k, ["in3":[a, b, c], "in4":[c]])
+
+    // remove not found
+    verifySame(k.remove("bad", a), k)
+    verifySame(k.remove("in3", d), k)
+    verifySame(k.remove("in4", a), k)
+
+    // remove list (middle)
+    k = k.remove("in3", b)
+    verifyLinks(k, ["in3":[a, c], "in4":[c]])
+
+    // remove single
+    k = k.remove("in4", c)
+    verifyLinks(k, ["in3":[a, c]])
+
+    // remove list again
+    k = k.remove("in3", a)
+    verifyLinks(k, ["in3":[c]])
+
+    // remove list again down to zero
+    k = k.remove("in3", c)
+    verifyLinks(k, [:])
+    verifySame(k, Etc.links(null))
   }
 
   Void verifyLinks(Links links, Str:Link[] expect)
