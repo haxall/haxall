@@ -415,7 +415,7 @@ const class XetoUtil
     if (meta.has("abstract") && opts.missing("abstract")) throw Err("Spec is abstract: $spec.qname")
 
     if (spec.isNone) return null
-    if (spec.isScalar || spec.has("val")) return instantiateScalar(ns, spec, meta)
+    if (spec.type.isScalar) return instantiateScalar(ns, spec, meta)
     if (spec === ns.sys.dict) return Etc.dict0
     if (spec.isList)
     {
@@ -434,9 +434,11 @@ const class XetoUtil
     id := opts["id"]
     if (id == null && isGraph) id = Ref.gen
     if (id != null) acc["id"] = id
-
-    acc["dis"] = XetoUtil.isAutoName(spec.name) ? spec.base.name : spec.name
     acc["spec"] = spec.type._id
+
+    // add dis if not a dict slot
+    isSlot := spec.parent != null && !spec.parent.isQuery
+    if (!isSlot) acc["dis"] = XetoUtil.isAutoName(spec.name) ? spec.base.name : spec.name
 
     spec.slots.each |slot|
     {
@@ -470,7 +472,11 @@ const class XetoUtil
 
   private static Obj instantiateScalar(MNamespace ns, XetoSpec spec, Dict meta)
   {
-    meta["val"] ?: ""
+    x := meta["val"]
+    if (x != null) return x
+    x = spec.type.meta["val"]
+    if (x != null) return x
+    return ""
   }
 
   private static Dict[] instantiateGraph(MNamespace ns, XetoSpec spec, Dict opts, Dict dict)

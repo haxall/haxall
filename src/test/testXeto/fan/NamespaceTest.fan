@@ -595,7 +595,7 @@ class NamespaceTest : AbstractXetoTest
       return Etc.makeDict(acc)
     }
 
-    // echo; TrioWriter(Env.cur.out).writeAllDicts(actual)
+    // echo("\n" + actual.join("\n"))
 
     verifyEq(actual.size, expect.size)
     actual.each |a, i|
