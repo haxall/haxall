@@ -251,7 +251,7 @@ internal class CompFactory
   private Comp reifyComp(Spec spec, Dict slots)
   {
     this.curCompInit = CompSpiInit(spec, slots)
-    comp := toFantomType(spec).make
+    comp := toCompFantomType(spec).make
     return comp
   }
 
@@ -275,11 +275,12 @@ internal class CompFactory
     return ns.spec(specRef.id, false)
   }
 
-  private Type toFantomType(Spec spec)
+  private Type toCompFantomType(Spec spec)
   {
-    // TODO: this should never default to Dict
+    // if there is no Fantom type registered this defaults
+    // to Dict in which case walk up class hierarchy
     t := spec.fantomType
-    if (t == xeto::Dict# || t == Comp#) return CompObj#
+    if (t == xeto::Dict#) return toCompFantomType(spec.base)
     if (t.isMixin) return t.pod.type(t.name + "Obj")
     return t
   }
