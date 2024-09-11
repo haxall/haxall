@@ -10,6 +10,8 @@ using concurrent
 using xeto
 using xetoEnv
 using haystack
+using haystack::Dict
+using haystack::Ref
 
 **
 ** CheckTest
@@ -47,7 +49,14 @@ class CompTest: AbstractXetoTest
   Void testInstantiation()
   {
     composite := cs.ns.spec("hx.test.xeto::TestComposite")
-    add       := cs.ns.spec("hx.test.xeto::TestAdd")
+    addSpec   := cs.ns.spec("hx.test.xeto::TestAdd")
+
+    // create empty add
+    TestAdd add := cs.createSpec(addSpec)
+    verifyEq(add["spec"], addSpec._id)
+    verifyEq(add["in1"], TestVal(0, ""))
+    verifyEq(add["in2"], TestVal(0, ""))
+    verifyEq(add["out"], TestVal(0, ""))
 
     // create composite comp
     c    := CompObj(composite)
@@ -66,7 +75,7 @@ class CompTest: AbstractXetoTest
     verifyEq(a.name, "a")
     verifySame(c.child("a"), a)
     verifyCompEq(a, ["dis":"TestAdd", "id":a.id,
-      "spec":add._id, "in1":n(7), "in2":n(5), "out":n(0)])
+      "spec":addSpec._id, "in1":TestVal(7), "in2":TestVal(5), "out":TestVal(0)])
 
     // verify it created b (two level child)
     verifySame(nest.parent, c)
@@ -75,7 +84,7 @@ class CompTest: AbstractXetoTest
     verifySame(c.child("nest"), nest)
     verifySame(nest.child("b"), b)
     verifyCompEq(b, ["dis":"TestAdd", "id":b.id,
-      "spec":add._id, "in1":n(17), "in2":n(15), "out":n(0)])
+      "spec":addSpec._id, "in1":TestVal(17), "in2":TestVal(15), "out":TestVal(0)])
 
     // verify unmounted
     verifyEq(c.name, "")
@@ -656,15 +665,44 @@ class CompTest: AbstractXetoTest
 
   Void verifyExecuteCounter(TestCounter c, Int out)
   {
-    verifyEq(c["out"], n(out))
+    verifyEq(c["out"], TestVal(out))
   }
 
   Void verifyExecuteAdd(TestAdd c, Int in1, Int in2, Int out)
   {
-    verifyEq(c["in1"], n(in1))
-    verifyEq(c["in2"], n(in2))
-    verifyEq(c["out"], n(out))
+    verifyEq(c["in1"], TestVal(in1))
+    verifyEq(c["in2"], TestVal(in2))
+    verifyEq(c["out"], TestVal(out))
   }
+}
+
+**************************************************************************
+** TestVal
+**************************************************************************
+
+@Js
+const class TestVal: WrapDict
+{
+  static new makeNum(Int v, Str s := "")
+  {
+    makeNumber(Number(v), s)
+  }
+
+  static new makeNumber(Number v, Str s := "")
+  {
+    make(Etc.dict3("val", v, "status", s, "spec", Ref("hx.test.xeto::TestVal")))
+  }
+
+  new make(Dict wrap) : super(wrap) {}
+
+  Number val() { get("val") }
+  Str status() { get("status") }
+
+  override Int hash() { val.hash.xor(status.hash) }
+
+  override Bool equals(Obj? that) { Etc.eq(this, that) }
+
+  override Str toStr() { "$val {$status}" }
 }
 
 **************************************************************************
@@ -722,8 +760,8 @@ class TestCounter : CompObj
   override Duration? onExecuteFreq() { 1min }
   override Void onExecute(CompContext cx)
   {
-    old := get("out") as Number
-    out := old + Number.one
+    TestVal old := get("out")
+    TestVal out := TestVal(old.val + Number.one)
     //echo("~~ execute $this => $old -> $out")
     set("out", out)
   }
@@ -738,9 +776,9 @@ class TestAdd : CompObj
 {
   override Void onExecute(CompContext cx)
   {
-    in1 := get("in1") as Number
-    in2 := get("in2") as Number
-    out := in1 + in2
+    TestVal in1 := get("in1")
+    TestVal in2 := get("in2")
+    out := TestVal(in1.val + in2.val)
     //echo("~~ execute $this => $in1 + $in2 = $out")
     set("out", out)
   }

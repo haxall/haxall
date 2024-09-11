@@ -244,7 +244,13 @@ internal class CompFactory
       return reifyComp(spec, v)
 
     // recurse tags
-    return v.map |kid| { reify(null, kid) }
+    v = v.map |kid| { reify(null, kid) }
+
+    // decode to fantom type
+    if (spec != null && spec.factory.isDict)
+      return spec.factory.decodeDict(v)
+
+    return v
   }
 
   ** Reify dict to a component instance

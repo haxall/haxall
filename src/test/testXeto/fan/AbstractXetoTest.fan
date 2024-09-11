@@ -216,7 +216,15 @@ internal const class XetoFactoryLoader: SpecFactoryLoader
     acc["TestAdd"]     = CompSpecFactory(TestAdd#)
     acc["TestCounter"] = CompSpecFactory(TestCounter#)
     acc["TestFoo"]     = CompSpecFactory(TestFoo#)
+    acc["TestVal"]     = TestValSpecFactory(TestVal#)
     return acc
   }
+}
+
+@Js
+internal const class TestValSpecFactory : DictSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Dict decodeDict(Dict xeto, Bool checked := true) { TestVal(xeto) }
 }
 

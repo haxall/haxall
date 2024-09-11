@@ -10,30 +10,30 @@ TestFolder : Comp {
 }
 
 TestAdd : Comp {
-  in1: Number
-  in2: Number
-  out: Number
+  in1: TestVal
+  in2: TestVal
+  out: TestVal
 }
 
 TestRamp : Comp {
-  out: Number
+  out: TestVal
 }
 
 TestCounter : Comp {
-  out: Number
+  out: TestVal
 }
 
 TestComposite : Comp {
   descr: "test descr"
   dur: Duration "5min"
   a: TestAdd {
-     in1: 7
-     in2: 5
+     in1: {val:7}
+     in2: {val:5}
   }
   nest: TestFolder {
     b: TestAdd {
-       in1: 17
-       in2: 15
+       in1: {val:17}
+       in2: {val:15}
     }
   }
 }
@@ -44,5 +44,10 @@ TestFoo: Comp {
   method1: Func { arg: Str }
   method2: Func { returns: Str }
   method3: Func { arg: Str, returns: Str }
+}
+
+TestVal : Dict {
+  val: Number
+  status: Str
 }
 
