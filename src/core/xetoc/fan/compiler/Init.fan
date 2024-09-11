@@ -52,6 +52,7 @@ internal class InitLib : Init
     // set flags
     compiler.isLib = true
     compiler.isSys = compiler.libName == "sys"
+    compiler.isSysComp = compiler.libName == "sys.comp"
   }
 }
 

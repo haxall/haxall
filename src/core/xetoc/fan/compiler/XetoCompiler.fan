@@ -214,6 +214,7 @@ internal class XetoCompiler
   internal Duration? duration          // run
   internal Bool isLib                  // Init (false isData)
   internal Bool isSys                  // Init
+  internal Bool isSysComp              // Init
   internal ADoc? ast                   // Parse (lib or data)
   internal ALib? lib                   // Parse (compileLib only)
   internal ADataDoc? data              // Parse (compileData only)

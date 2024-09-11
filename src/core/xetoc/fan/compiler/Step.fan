@@ -32,6 +32,8 @@ abstract internal class Step
 
   Bool isSys() { compiler.isSys }
 
+  Bool isSysComp() { compiler.isSysComp }
+
   ASys sys() { compiler.sys }
 
   ADepends depends() { compiler.depends }

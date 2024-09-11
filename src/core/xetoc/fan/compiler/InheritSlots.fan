@@ -175,7 +175,12 @@ internal class InheritSlots : Step
   ** fast access of key types in my inheritance hiearchy
   private Void inheritFlags(ASpec x)
   {
-    x.flags = isSys ? computeFlagsSys(x) : computeFlagsNonSys(x)
+    if (isSys)
+      x.flags = computeFlagsSys(x)
+    else if (isSysComp)
+      x.flags = computeFlagsSysComp(x)
+    else
+      x.flags = computeFlagsNonSys(x)
   }
 
   private Int computeFlagsNonSys(ASpec x)
@@ -230,6 +235,13 @@ internal class InheritSlots : Step
       }
     }
     return flags
+  }
+
+  ** Hahdle flags in 'sys.comp'
+  private Int computeFlagsSysComp(ASpec x)
+  {
+    if (x.name == "Comp") return MSpecFlags.comp
+    return computeFlagsNonSys(x)
   }
 
 //////////////////////////////////////////////////////////////////////////

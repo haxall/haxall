@@ -345,6 +345,7 @@ internal class ASpec : ANode, CSpec
   override Bool isQuery()     { hasFlag(MSpecFlags.query) }
   override Bool isFunc()      { hasFlag(MSpecFlags.func) }
   override Bool isInterface() { hasFlag(MSpecFlags.interface) }
+  override Bool isComp()      { hasFlag(MSpecFlags.comp) }
 
   /*
   override Bool isNone()   { hasFlag(MSpecFlags.none) }

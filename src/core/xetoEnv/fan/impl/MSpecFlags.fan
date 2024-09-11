@@ -20,6 +20,7 @@ const class MSpecFlags
   static const Int query       := 0x0040
   static const Int func        := 0x0080
   static const Int interface   := 0x0100
+  static const Int comp        := 0x0200
   static const Int inheritMask := 0xFFFF
 
   // non-inherited flags

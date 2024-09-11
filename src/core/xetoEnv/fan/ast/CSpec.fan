@@ -124,6 +124,9 @@ mixin CSpec : CNode
 
   ** Inherits from 'sys::Interface' without considering And/Or
   abstract Bool isInterface()
+
+  ** Inherits from 'sys.comp::Comp' without considering And/Or
+  abstract Bool isComp()
 }
 
 **************************************************************************
