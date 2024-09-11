@@ -153,6 +153,12 @@ class CompSpace : AbstractCompSpace
     return null
   }
 
+  ** Iterate every component in space
+  Void each(|Comp| f)
+  {
+    byId.each(f)
+  }
+
   ** Hook when component is modified
   internal Void change(MCompSpi spi, Str name, Obj? val)
   {
@@ -267,14 +273,14 @@ class CompSpace : AbstractCompSpace
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Timers
+// Execute
 //////////////////////////////////////////////////////////////////////////
 
-  ** This method should be called at periodically to check and fire
-  ** component timers.  The frequency this method is called determines
-  ** the smaller timer increment.  For example if its called every 100ms
+  ** This method should be called at periodically to execute components
+  ** and check timers.  The frequency this method is called determines
+  ** the smallest timer increment.  For example if its called every 100ms
   ** then timers will only fire as fast as 100ms.
-  Void checkTimers(DateTime now := DateTime.now(null))
+  Void execute(DateTime now := DateTime.now(null))
   {
     // if the component tree has been modified, we need to rebuild
     if (timersNeedUpdate)
@@ -283,8 +289,15 @@ class CompSpace : AbstractCompSpace
       rebuildTimers
     }
 
-    // walk thru timed components
+// TODO
+each |comp| { if (comp.onExecuteFreq == null) ((MCompSpi)comp.spi).needsExecute = true }
+
+    // walk thru timed components to set needExecute flag
     timed.each |spi| { spi.checkTimer(now) }
+
+    // now walk thru every component that has been triggered to execute
+    cx := MCompContext(now)
+    each |comp| { ((MCompSpi)comp.spi).checkExecute(cx) }
   }
 
   ** Walk component tree to build our timers list
@@ -299,7 +312,7 @@ class CompSpace : AbstractCompSpace
   ** Walk component tree to build our timers list
   private static Void doRebuildTimers(MCompSpi[] acc, Comp c)
   {
-    freq := c.onTimerFreq
+    freq := c.onExecuteFreq
     if (freq != null) acc.add(c.spi)
     c.eachChild |kid| { doRebuildTimers(acc, kid) }
   }
@@ -333,5 +346,16 @@ class CompSpace : AbstractCompSpace
   private MCompSpi[] timed := MCompSpi#.emptyList
   private Int compCounter := 0
   private Int curVer
+}
+
+**************************************************************************
+** MCompContext
+**************************************************************************
+
+@Js
+internal class MCompContext : CompContext
+{
+  new make(DateTime now) { this.now = now }
+  const override DateTime now
 }
 

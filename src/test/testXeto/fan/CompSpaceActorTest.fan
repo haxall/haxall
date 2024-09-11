@@ -24,7 +24,7 @@ class CompSpaceActorTest: AbstractXetoTest
     a := CompSpaceActor(ActorPool())
     a.init(CompSpace#, [ns]).get
     a.load(xeto).get
-    a.checkTimers.get
+    a.execute.get
   }
 }
 

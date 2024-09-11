@@ -376,35 +376,65 @@ class MCompSpi : CompSpi
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Timers
+// Execution
 //////////////////////////////////////////////////////////////////////////
 
   ** Check if timer has elapsed
-  Void checkTimer(DateTime ts)
+  internal Void checkTimer(DateTime now)
   {
     // short circuit if frequency null
-    freq := comp.onTimerFreq
+    freq := comp.onExecuteFreq
     if (freq == null) return
 
     // if first call then init lastOnTimer ticks
-    ticks := ts.ticks
+    ticks := now.ticks
     if (lastOnTimer <= 0) { this.lastOnTimer = ticks; return }
 
    // check if freq has elapsed
     elapsed := ticks - lastOnTimer
     if (elapsed < freq.ticks) return
 
-    // invoke callback
+    // needs execute
     this.lastOnTimer = ticks
+    this.needsExecute = true
+  }
+
+  ** Execute the component
+  internal Void checkExecute(MCompContext cx)
+  {
+    if (!needsExecute) return
+    needsExecute = false
+    pullLinks
     try
     {
-      comp.onTimer(ts)
+      comp.onExecute(cx)
     }
     catch (Err e)
     {
-      echo("ERROR: ${comp.typeof.name}.onTimer")
+      echo("ERROR: ${comp.typeof.name}.onExecute")
       e.trace
     }
+  }
+
+  ** Pull all links
+  private Void pullLinks()
+  {
+    links.eachLink |toSlot, link| { pullLink(toSlot, link) }
+  }
+
+  ** Pull given link
+  private Void pullLink(Str toSlot, Link link)
+  {
+    // lookup from component
+    fromComp := cs.readById(link.fromRef, false)
+    if (fromComp == null) return
+
+    // lookuip from slot value
+    val := fromComp.get(link.fromSlot)
+    if (val == null) return val
+
+    // pull to my own slot
+    set(toSlot, val)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -457,6 +487,7 @@ class MCompSpi : CompSpi
 
   internal Comp? parentRef
   internal Str nameRef := ""
+  internal Bool needsExecute
   private Str:Obj slots
   private CompListeners? listeners
   private Int lastOnTimer

@@ -562,10 +562,10 @@ class CompTest: AbstractXetoTest
   static Str loadTestXeto()
   {
      Str<|@root: TestFolder {
-            a @a: TestRamp {
+            a @a: TestCounter {
               fooRef: @add
             }
-            b @b: TestRamp {
+            b @b: TestCounter {
              fooRef: @a
             }
             c @add: TestAdd {
@@ -584,8 +584,8 @@ class CompTest: AbstractXetoTest
     cs.load(loadTestXeto)
 
     r := verifyLoadComp(cs, cs.root, "",  null, "TestFolder")
-    a := verifyLoadComp(cs, r->a,    "a", r,    "TestRamp")
-    b := verifyLoadComp(cs, r->b,    "b", r,    "TestRamp")
+    a := verifyLoadComp(cs, r->a,    "a", r,    "TestCounter")
+    b := verifyLoadComp(cs, r->b,    "b", r,    "TestCounter")
     c := verifyLoadComp(cs, r->c,    "c", r,    "TestAdd")
 
     // verify ref swizzling (forward and backward refs)
@@ -615,6 +615,56 @@ class CompTest: AbstractXetoTest
     verifyEq(x.fromSlot, fs)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Execute
+//////////////////////////////////////////////////////////////////////////
+
+  Void testExecute()
+  {
+    ns := createNamespace(loadTestLibs)
+    cs := CompSpace(ns)
+    cs.load(loadTestXeto)
+    a := (TestCounter)cs.root->a
+    b := (TestCounter)cs.root->b
+    c := (TestAdd)cs.root->c
+
+    // initial state
+    verifyExecuteCounter(a, 0)
+    verifyExecuteCounter(b, 0)
+    verifyExecuteAdd(c, 0, 0, 0)
+
+    // initial executes do trigger until 1min in
+    ts := DateTime.now - 1day
+    cs.execute(ts)
+    cs.execute(ts + 59sec)
+    verifyExecuteCounter(a, 0)
+    verifyExecuteCounter(b, 0)
+    verifyExecuteAdd(c, 0, 0, 0)
+
+    // execute +1min; counters trigger once
+    cs.execute(ts + 1min)
+    verifyExecuteCounter(a, 1)
+    verifyExecuteCounter(b, 1)
+    verifyExecuteAdd(c, 1, 1, 2)
+
+    // execute +2min; counters trigger twice
+    cs.execute(ts + 2min)
+    verifyExecuteCounter(a, 2)
+    verifyExecuteCounter(b, 2)
+    verifyExecuteAdd(c, 2, 2, 4)
+  }
+
+  Void verifyExecuteCounter(TestCounter c, Int out)
+  {
+    verifyEq(c["out"], n(out))
+  }
+
+  Void verifyExecuteAdd(TestAdd c, Int in1, Int in2, Int out)
+  {
+    verifyEq(c["in1"], n(in1))
+    verifyEq(c["in2"], n(in2))
+    verifyEq(c["out"], n(out))
+  }
 }
 
 **************************************************************************
@@ -659,6 +709,40 @@ class TestFoo : CompObj
   override Void onChangeThis(Str n, Obj? v)
   {
     onChangeThisLast = "$n = $v"
+  }
+}
+
+**************************************************************************
+** TestCounter
+**************************************************************************
+
+@Js
+class TestCounter : CompObj
+{
+  override Duration? onExecuteFreq() { 1min }
+  override Void onExecute(CompContext cx)
+  {
+    old := get("out") as Number
+    out := old + Number.one
+    //echo("~~ execute $this => $old -> $out")
+    set("out", out)
+  }
+}
+
+**************************************************************************
+** TestAdd
+**************************************************************************
+
+@Js
+class TestAdd : CompObj
+{
+  override Void onExecute(CompContext cx)
+  {
+    in1 := get("in1") as Number
+    in2 := get("in2") as Number
+    out := in1 + in2
+    //echo("~~ execute $this => $in1 + $in2 = $out")
+    set("out", out)
   }
 }
 

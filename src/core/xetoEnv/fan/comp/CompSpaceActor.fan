@@ -52,10 +52,10 @@ const class CompSpaceActor : Actor
     send(ActorMsg("load", xeto))
   }
 
-  ** Call the `CompSpace.checkTimers`
-  Future checkTimers(DateTime now := DateTime.now(null))
+  ** Call `CompSpace.execute`
+  Future execute(DateTime now := DateTime.now(null))
   {
-    send(ActorMsg("checkTimers", now))
+    send(ActorMsg("execute", now))
   }
 
   ** BlockView feed subscribe; return Grid
@@ -108,7 +108,7 @@ Actor.locals[CompSpace.actorKey] = cs
     // dispatch message
     switch (msg.id)
     {
-      case "checkTimers":     return onCheckTimers(state, msg.a)
+      case "execute":         return onExecute(state, msg.a)
       case "feedPoll":        return onFeedPoll(state, msg.a)
       case "feedSubscribe":   return onFeedSubscribe(state, msg.a)
       case "feedUnsubscribe": return onFeedSubscribe(state, msg.a)
@@ -143,9 +143,9 @@ Actor.locals[CompSpace.actorKey] = cs
     return this
   }
 
-  private This onCheckTimers(CompSpaceActorState state, DateTime now)
+  private This onExecute(CompSpaceActorState state, DateTime now)
   {
-    state.cs.checkTimers(now)
+    state.cs.execute(now)
     checkHouseKeeping(state, now)
     return this
   }

@@ -138,12 +138,12 @@ mixin Comp
   ** Callback whem mounted into a component space
   @NoDoc virtual Void onUnmount() {}
 
-  ** How often should this component have its onTimer callback invoked.
-  ** Return null if this component has no time based computation.
-  virtual Duration? onTimerFreq() { null }
+  ** Callback to recompute component state.
+  virtual Void onExecute(CompContext cx) {}
 
-  ** Callback for time based computation based on `onTimerFreq`.
-  virtual Void onTimer(DateTime now) {}
+  ** How often should this component have its onExecute callback invoked.
+  ** Return null if this component has no time based computation.
+  virtual Duration? onExecuteFreq() { null }
 
 //////////////////////////////////////////////////////////////////////////
 // Tree
@@ -213,6 +213,20 @@ class CompObj : Comp
   ** Service provider interface
   @NoDoc override CompSpi spi() { spiRef }
   private CompSpi? spiRef
+}
+
+**************************************************************************
+** CompContext
+**************************************************************************
+
+**
+** Context for Comp.onExecute
+**
+@Js
+mixin CompContext
+{
+  ** Current DateTime to use; might be simulated
+  abstract DateTime now()
 }
 
 **************************************************************************
