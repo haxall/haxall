@@ -267,7 +267,7 @@ internal class CompFactory
     // create list of same type
     acc := List(v.of, v.capacity)
     v.each |kid| { acc.add(reify(null, kid)) }
-    return acc
+    return acc.toImmutable
   }
 
 //////////////////////////////////////////////////////////////////////////
