@@ -254,6 +254,8 @@ Actor.locals[CompSpace.actorKey] = cs
       case "create": return onFeedCreate(state.cs, req->compSpec, req->x, req->y)
       case "layout": return onFeedLayout(state.cs, req->id, req->x, req->y, req->w)
       case "link":   return onFeedLink(state.cs, req->fromRef, req->fromSlot, req->toRef, req->toSlot)
+      case "unlink": return onFeedUnlink(state.cs, req->links)
+      case "delete": return onFeedDelete(state.cs, req->ids)
       default:       throw Err("Unknown feedCall: $req")
     }
   }
@@ -278,6 +280,22 @@ Actor.locals[CompSpace.actorKey] = cs
   {
     comp := cs.readById(toRef)
     comp.set("links", comp.links.add(toSlot, Etc.link(fromRef, fromSlot)))
+    return null
+  }
+
+  private Obj? onFeedUnlink(CompSpace cs, Grid links)
+  {
+    links.each |link|
+    {
+      comp := cs.readById(link->toRef)
+      comp.set("links", comp.links.remove(link->toSlot, Etc.link(link->fromRef, link->fromSlot)))
+    }
+    return null
+  }
+
+  private Obj? onFeedDelete(CompSpace cs, Ref[] ids)
+  {
+    echo("TODO: delete comps: $ids")
     return null
   }
 
