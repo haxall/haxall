@@ -134,7 +134,9 @@ Actor.locals[CompSpace.actorKey] = cs
   {
     CompSpace cs := csType.make(args)
     nsRef.val = cs.ns
-    return CompSpaceActorState(cs)
+    state := CompSpaceActorState(cs)
+    cs.actorState = state
+    return state
   }
 
   private This onLoad(CompSpace cs, Str xeto)
@@ -185,7 +187,7 @@ Actor.locals[CompSpace.actorKey] = cs
     }
 
     // encode into a grid of brio dicts
-    return CompUtil.toFeedGrid(cookie, dicts)
+    return CompUtil.toFeedGrid(cookie, dicts, null)
   }
 
   private Obj? onFeedUnsubscribe(CompSpaceActorState state, Str cookie)
@@ -213,11 +215,15 @@ Actor.locals[CompSpace.actorKey] = cs
       if (comp.spi.ver > lastVer) dicts.add(CompUtil.compToDict(comp))
     }
 
+    // also find all the deleted ids
+    deleted := feed.deleted
+    feed.deleted = null
+
     // if nothing has changed return null
-    if (dicts.isEmpty) return null
+    if (dicts.isEmpty && deleted == null) return null
 
     // return modified comps
-    return CompUtil.toFeedGrid(cookie, dicts)
+    return CompUtil.toFeedGrid(cookie, dicts, deleted)
   }
 
   private Void feedEachChild(CompSpace cs, |Comp| f)
@@ -251,12 +257,13 @@ Actor.locals[CompSpace.actorKey] = cs
   {
     switch (req->type)
     {
-      case "create": return onFeedCreate(state.cs, req->compSpec, req->x, req->y)
-      case "layout": return onFeedLayout(state.cs, req->id, req->x, req->y, req->w)
-      case "link":   return onFeedLink(state.cs, req->fromRef, req->fromSlot, req->toRef, req->toSlot)
-      case "unlink": return onFeedUnlink(state.cs, req->links)
-      case "delete": return onFeedDelete(state.cs, req->ids)
-      default:       throw Err("Unknown feedCall: $req")
+      case "create":    return onFeedCreate(state.cs, req->compSpec, req->x, req->y)
+      case "layout":    return onFeedLayout(state.cs, req->id, req->x, req->y, req->w)
+      case "link":      return onFeedLink(state.cs, req->fromRef, req->fromSlot, req->toRef, req->toSlot)
+      case "unlink":    return onFeedUnlink(state.cs, req->links)
+      case "duplicate": return onFeedDuplicate(state.cs, req->ids)
+      case "delete":    return onFeedDelete(state.cs, req->ids)
+      default:          throw Err("Unknown feedCall: $req")
     }
   }
 
@@ -293,9 +300,21 @@ Actor.locals[CompSpace.actorKey] = cs
     return null
   }
 
+  private Obj? onFeedDuplicate(CompSpace cs, Ref[] ids)
+  {
+    echo("Duplicate comps: $ids")
+    return null
+  }
+
   private Obj? onFeedDelete(CompSpace cs, Ref[] ids)
   {
-    echo("TODO: delete comps: $ids")
+    ids.each |id|
+    {
+      comp := cs.readById(id, false)
+      if (comp == null) return
+      if (comp.parent == null) throw Err("Cannot delete root")
+      comp.parent.remove(comp.name)
+    }
     return null
   }
 
@@ -306,6 +325,7 @@ Actor.locals[CompSpace.actorKey] = cs
 **************************************************************************
 
 ** CompSpaceActorState manages mutable state inside CompSpaceActor
+@Js
 internal class CompSpaceActorState
 {
   ** Constructor
@@ -319,6 +339,18 @@ internal class CompSpaceActorState
 
   ** Timestamp of last house keeping
   DateTime lastHouseKeeping := DateTime.now
+
+  ** Unmounted
+  Void onUnmount(Comp comp)
+  {
+    // add this id to all the feeds
+    feeds.each |feed|
+    {
+      map := feed.deleted
+      if (map == null) feed.deleted = map = Ref:Ref[:]
+      map[comp.id] = comp.id
+    }
+  }
 }
 
 **************************************************************************
@@ -326,6 +358,7 @@ internal class CompSpaceActorState
 **************************************************************************
 
 ** CompSpaceFeed manages one block feed subscription keyed by cookie
+@Js
 internal class CompSpaceFeed
 {
   ** Constructor
@@ -348,6 +381,9 @@ internal class CompSpaceFeed
 
   ** CompSpace.ver of last poll
   Int lastPollVer
+
+  ** Deleted component ids
+  [Ref:Ref]? deleted
 
   ** Debug string
   override Str toStr() { "$cookie lastPollVer=$lastPollVer" }

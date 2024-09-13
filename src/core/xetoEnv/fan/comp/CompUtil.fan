@@ -9,6 +9,7 @@
 
 using xeto
 using haystack::Dict
+using haystack::Ref
 using haystack
 
 **
@@ -63,15 +64,19 @@ class CompUtil
   }
 
   ** Return grid format used for BlockView feed protocol
-  static Grid toFeedGrid(Str cookie, Dict[] dicts)
+  static Grid toFeedGrid(Str cookie, Dict[] dicts, [Ref:Ref]? deleted)
   {
     gb := GridBuilder()
-    gb.capacity = dicts.size
+    gb.capacity = dicts.size + (deleted == null ? 0 : deleted.size)
     gb.setMeta(Etc.dict1("cookie", cookie))
     gb.addCol("id").addCol("comp")
     dicts.each |dict|
     {
       gb.addRow2(dict.id, CompUtil.dictToBrio(dict))
+    }
+    if (deleted != null)
+    {
+      deleted.each |id| { gb.addRow2(id, null) }
     }
     return gb.toGrid
   }

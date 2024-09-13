@@ -221,6 +221,9 @@ class CompSpace : AbstractCompSpace
     catch (Err e)
       err("CompSpace.onUnmount", e)
 
+    // invoke callback on actor state
+    if (actorState != null) actorState.onUnmount(c)
+
     // remove from my lookup tables
     byId.remove(c.id)
 
@@ -339,6 +342,7 @@ each |comp| { if (comp.onExecuteFreq == null) ((MCompSpi)comp.spi).needsExecute 
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  internal CompSpaceActorState? actorState
   private Bool isRunningRef
   private Comp? rootRef
   private Ref:Comp byId := [:]
