@@ -317,10 +317,16 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private DateTime readDateTime()
   {
-    secs := in.readS4
-    millis := in.readS2
-    tz := TimeZone.fromStr(readVal)
-    return DateTime.makeTicks(secs*1sec.ticks + millis*1ms.ticks, tz)
+    year  := in.readU2
+    month := Month.vals[in.read-1]
+    day   := in.read
+    hour  := in.read
+    min   := in.read
+    sec   := in.read
+    nanos := in.readU2 * 1ms.ticks
+    tz    := TimeZone.fromStr(readVal)
+    val   := DateTime(year, month, day, hour, min, sec, nanos, tz)
+    return val
   }
 
   private Buf readBuf()

@@ -352,12 +352,9 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private This writeDateTime(DateTime val)
   {
-    ticks := val.ticks
-    secs := ticks / 1sec.ticks
-    millis := (ticks % 1sec.ticks) / 1ms.ticks
     write(ctrlDateTime)
-    writeI4(secs)
-    writeI2(millis)
+    out.writeI2(val.year).write(val.month.ordinal+1).write(val.day)
+    out.write(val.hour).write(val.min).write(val.sec).writeI2(val.nanoSec / 1ms.ticks)
     writeStr(val.tz.name) // TODO
     return this
   }
