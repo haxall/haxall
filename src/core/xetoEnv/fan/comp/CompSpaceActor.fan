@@ -303,7 +303,7 @@ Actor.locals[CompSpace.actorKey] = cs
   private Obj? onFeedDuplicate(CompSpace cs, Ref[] ids)
   {
     echo("Duplicate comps: $ids")
-    return null
+    throw Err("TODO")
   }
 
   private Obj? onFeedDelete(CompSpace cs, Ref[] ids)

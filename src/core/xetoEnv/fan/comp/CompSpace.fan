@@ -109,6 +109,15 @@ class CompSpace : AbstractCompSpace
     return this
   }
 
+  ** Save tree to eto instances
+  Str save()
+  {
+    rootDict := CompUtil.compSave(root)
+    buf := StrBuf()
+    ns.writeData(buf.out, rootDict)
+    return buf.toStr
+  }
+
   private Dict parse(Str xeto)
   {
     ns.compileData(xeto) as Dict ?: throw Err("Expecting one dict root")

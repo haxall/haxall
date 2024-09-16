@@ -593,9 +593,19 @@ class CompTest: AbstractXetoTest
 
   Void testLoad()
   {
+    // fixed Xeto
+    cs := doTestLoad(loadTestXeto)
+
+    // test save and round-trip
+    saved := cs.save
+    doTestLoad(saved)
+  }
+
+  CompSpace doTestLoad(Str xeto)
+  {
     ns := createNamespace(loadTestLibs)
     cs := CompSpace(ns)
-    cs.load(loadTestXeto)
+    cs.load(xeto)
 
     r := verifyLoadComp(cs, cs.root, "",  null, "TestFolder")
     a := verifyLoadComp(cs, r->a,    "a", r,    "TestCounter")
@@ -608,6 +618,8 @@ class CompTest: AbstractXetoTest
 
     verifyLoadLink(a, "out", c, "in1")
     verifyLoadLink(b, "out", c, "in2")
+
+    return cs
   }
 
   Comp verifyLoadComp(CompSpace cs, Comp c, Str name, Comp? parent, Str specName)

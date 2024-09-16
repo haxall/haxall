@@ -426,11 +426,11 @@ class Printer
   }
 
   ** Pretty print instance data in Xeto text format
-  This xeto(Obj x, Bool top := false)
+  This xeto(Obj x, Bool topIds := false)
   {
     spec := specOf(x)
     if (spec.isScalar) return xetoScalar(spec, x)
-    if (x is Dict) return xetoDict(spec, x, top)
+    if (x is Dict) return xetoDict(spec, x, topIds)
     if (x is List) return xetoList(spec, x)
     throw ArgErr("Not xeto type: $x.typeof")
   }
@@ -451,10 +451,10 @@ class Printer
   }
 
   ** Print dict in Xeto text format
-  private This xetoDict(Spec spec, Dict x, Bool top)
+  private This xetoDict(Spec spec, Dict x, Bool topIds)
   {
     id := x["id"] as Ref
-    if (top)
+    if (topIds)
     {
       if (id != null) w("@").w(id.id).colon
     }
@@ -463,13 +463,17 @@ class Printer
     if (x.isEmpty) return bracket("{}")
     bracket("{").nl
     indentation++
-    if (id != null && !top) indent.w("id").colon.xeto(id).nl
     x.each |v, n|
     {
-      if (n == "id" || n == "spec") return
+      if (n == "id" || n == "spec") return // handled by outer syntax
       indent
       w(n)
       if (isMarker(v)) return nl
+      if (v is Dict)
+      {
+        subId := ((Dict)v)["id"] as Ref
+        if (subId != null) w(" @").w(subId)
+      }
       colon.xeto(v).nl
     }
     indentation--
@@ -486,7 +490,7 @@ class Printer
     x.each |v, i|
     {
       indent
-      xeto(v).nl
+      xeto(v, true).nl
     }
     indentation--
     bracket("}")

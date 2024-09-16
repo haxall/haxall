@@ -41,11 +41,27 @@ class CompUtil
       .toStr
   }
 
-  ** Encode a component into a sys.comp::Comp dict representation
+  ** Encode a component into a sys.comp::Comp dict representation (with children)
+  static Dict compSave(Comp comp)
+  {
+    acc := Str:Obj[:]
+    comp.each |v, n|
+    {
+      if (v is Comp) v = compSave(v)
+      acc[n] = v
+    }
+    return Etc.dictFromMap(acc)
+  }
+
+  ** Encode a component into a sys.comp::Comp dict representation (no children)
   static Dict compToDict(Comp comp)
   {
     acc := Str:Obj[:]
-    comp.each |v, n| { acc[n] = v }
+    comp.each |v, n|
+    {
+      if (v is Comp) return
+      acc[n] = v
+    }
     return Etc.dictFromMap(acc)
   }
 
