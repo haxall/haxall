@@ -52,6 +52,12 @@ const class CompSpaceActor : Actor
     send(ActorMsg("load", xeto))
   }
 
+  ** Save to Xeto string
+  Future save()
+  {
+    send(ActorMsg("save"))
+  }
+
   ** Call `CompSpace.execute`
   Future execute(DateTime now := DateTime.now(null))
   {
@@ -114,6 +120,7 @@ Actor.locals[CompSpace.actorKey] = cs
       case "feedUnsubscribe": return onFeedSubscribe(state, msg.a)
       case "feedCall":        return onFeedCall(state, msg.a)
       case "load":            return onLoad(cs, msg.a)
+      case "save":            return cs.save
     }
 
     // route to subclass dispatch
