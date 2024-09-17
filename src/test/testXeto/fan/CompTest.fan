@@ -717,7 +717,12 @@ const class TestVal: WrapDict
 
   override Int hash() { val.hash.xor(status.hash) }
 
-  override Bool equals(Obj? that) { Etc.eq(this, that) }
+  override Bool equals(Obj? x)
+  {
+    that := x as TestVal
+    if (that == null) return false
+    return this.val == that->val && this.status == that->status
+  }
 
   override Str toStr() { "$val {$status}" }
 }

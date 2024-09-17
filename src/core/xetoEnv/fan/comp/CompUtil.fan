@@ -45,9 +45,27 @@ class CompUtil
   static Dict compSave(Comp comp)
   {
     acc := Str:Obj[:]
+    spec := comp.spec
+    links := comp.links
     comp.each |v, n|
     {
+      // must have spec tag
+      if (n == "spec") { acc[n] = v; return }
+
+      // skip transients
+      slot := spec.slot(n, false)
+      if (slot != null && slot.meta.has("transient")) return
+
+      // skip default scalar values
+      if (slot != null && v == slot.meta["val"]) return
+
+      // skip linked slots
+      if (links.isLinked(n)) return
+
+      // recurse component sub-tree
       if (v is Comp) v = compSave(v)
+
+      // save this name/value pair
       acc[n] = v
     }
     return Etc.dictFromMap(acc)

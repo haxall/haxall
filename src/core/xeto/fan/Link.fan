@@ -33,6 +33,9 @@ const mixin Link : Dict
 @Js
 const mixin Links : Dict
 {
+  ** Return if given toSlot has one or more links
+  abstract Bool isLinked(Str toSlot)
+
   ** Iterate all the links as flat list
   abstract Void eachLink(|Str toSlot, Link| f)
 

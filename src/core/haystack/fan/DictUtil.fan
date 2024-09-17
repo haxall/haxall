@@ -573,6 +573,11 @@ internal const class MLinks : WrapDict, xeto::Links
 
   override This map(|Obj, Str->Obj| f) { make(wrapped.map(f)) }
 
+  override Bool isLinked(Str toSlot)
+  {
+    has(toSlot)
+  }
+
   override Void eachLink(|Str,Link| f)
   {
     each |v, n|
