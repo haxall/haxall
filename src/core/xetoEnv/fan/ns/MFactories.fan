@@ -337,10 +337,10 @@ internal const class SpanFactory : ScalarSpecFactory
 }
 
 @Js
-internal const class CompLayoutFactory : DictSpecFactory
+internal const class CompLayoutFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
-  override Dict decodeDict(Dict xeto, Bool checked := true) { Etc.compLayoutWrap(xeto) }
+  override Obj? decodeScalar(Str str, Bool checked := true) { CompLayout.fromStr(str, checked) }
 }
 
 @Js

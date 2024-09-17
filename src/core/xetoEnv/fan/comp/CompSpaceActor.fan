@@ -278,7 +278,7 @@ Actor.locals[CompSpace.actorKey] = cs
   {
     spec := cs.ns.spec(specRef.id)
     comp := cs.createSpec(spec)
-    comp.set("compLayout", Etc.compLayout(x.toInt, y.toInt))
+    comp.set("compLayout", CompLayout(x.toInt, y.toInt))
     cs.root.add(comp)
     return CompUtil.compToBrio(comp)
   }
@@ -286,7 +286,7 @@ Actor.locals[CompSpace.actorKey] = cs
   private Obj? onFeedLayout(CompSpace cs, Ref compId, Number x, Number y, Number w)
   {
     comp := cs.readById(compId)
-    comp.set("compLayout", Etc.compLayout(x.toInt, y.toInt, w.toInt))
+    comp.set("compLayout", CompLayout(x.toInt, y.toInt, w.toInt))
     return null
   }
 

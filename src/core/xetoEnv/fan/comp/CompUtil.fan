@@ -78,6 +78,11 @@ class CompUtil
     comp.each |v, n|
     {
       if (v is Comp) return
+
+      // non-Haystack typed scalars encode to Str
+      kind := Kind.fromVal(v, false)
+      if (kind == null) v = v.toStr
+
       acc[n] = v
     }
     return Etc.dictFromMap(acc)

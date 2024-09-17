@@ -515,33 +515,6 @@ abstract const class ReflectDict : Dict
 }
 
 **************************************************************************
-** MCompLayout
-**************************************************************************
-
-@Js
-internal const class MCompLayout : WrapDict, xeto::CompLayout
-{
-  static once Ref specRef() { Ref("sys.comp::CompLayout") }
-  new make(Dict wrapped) : super(wrapped)
-  {
-    this.x = coerce(wrapped, "x")
-    this.y = coerce(wrapped, "y")
-    this.w = coerce(wrapped, "w")
-  }
-  override This map(|Obj, Str->Obj| f) { make(wrapped.map(f)) }
-  override const Int x
-  override const Int y
-  override const Int w
-  private static Int coerce(Dict wrapped, Str key)
-  {
-    v := wrapped.get(key)
-    if (v is Number) return ((Number)v).toInt
-    if (v is Int) return v
-    return 8
-  }
-}
-
-**************************************************************************
 ** MLink
 **************************************************************************
 
