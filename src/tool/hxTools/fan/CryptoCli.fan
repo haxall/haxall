@@ -103,9 +103,11 @@ internal class CryptoCli : HxCli
     if (!hasArg("priv")) usageAdd("-priv required")
     if (!hasArg("certs")) usageAdd("-certs required")
 
+    alg := hasArg("alg") ? (argsMap["alg"] as Str).upper : "RSA"
+
     // read private key
     in := parseArgToFile(argsMap["priv"]).in
-    privKey := Crypto.cur.loadPem(in) as PrivKey
+    privKey := Crypto.cur.loadPem(in, alg) as PrivKey
     in.close
 
     // read cert chain
@@ -343,7 +345,7 @@ internal class CryptoCli : HxCli
          hx crypto <action> <action options>* <options>*
 
        Actions:
-         add     Adds a private key + certificate chain entry to the keystore
+         add     Adds a private key + certificate to the keystore
          trust   Adds a trusted certificate to the keystore
          export  Export an entry from the keystore
          remove  Removes an entry from the keystore
@@ -368,15 +370,20 @@ internal class CryptoCli : HxCli
          hx crypto add -alias <alias> -import <file> [-pass <password>]
 
        Options:
-         -alias  <alias> Add the private key + certificate chain with this alias
-         -priv   <file>  PEM-encoded private key
-         -certs  <file>  PEM-encoced certificate chain
-         -import <file>  Import the private key and certificate chain from the
-                         given key store file. The private key and certificate
-                         should be the only entries in the key store. Supports
-                         key stores with .jks, .p12, .pfx, and .fks extensions.
-         -pass   <pass>  If the imported file is password protected, you can
-                         specify the password with this option.
+         -alias   <alias>   Add the private key + certificate with this
+                            alias
+         -priv    <file>    PEM-encoded private key
+         -certs   <file>    PEM-encoded certificate (the entire
+                            certificate chain may be included, but that
+                            is optional)
+         -import  <file>    Import the private key and certificate from
+                            the given key store file. The private key and
+                            certificate should be the only entries in
+                            the key store. Supports key stores with .jks,
+                            .p12, .pfx, and .fks extensions.
+         -pass    <pass>    If the imported file is password protected,
+                            specify the password with this option.
+         -alg     <alg>     RSA or EC (default: RSA)
        ")
     Env.cur.exit(1)
   }
