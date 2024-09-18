@@ -56,8 +56,8 @@ class CompUtil
       slot := spec.slot(n, false)
       if (slot != null && slot.meta.has("transient")) return
 
-      // skip default scalar values
-      if (slot != null && v == slot.meta["val"]) return
+      // skip default scalar values if not maybe
+      if (slot != null && !slot.isMaybe && v == slot.meta["val"]) return
 
       // skip linked slots
       if (links.isLinked(n)) return
