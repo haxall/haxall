@@ -51,6 +51,8 @@ class BrioWriter : GridWriter, BrioCtrl
     if (val is Grid)        return writeGrid(val)
     if (val is List)        return writeList(val)
     if (val is BrioPreEncoded) return writePreEncoded(val)
+
+    if (encodeUnknownAsStr) return writeStr(val.toStr)
     return writeXStr(XStr.encode(val))
   }
 
@@ -360,6 +362,7 @@ class BrioWriter : GridWriter, BrioCtrl
   @NoDoc Str? encodeRefToRel
   @NoDoc Bool encodeRefDis := true
   @NoDoc Int maxStrCode
+  @NoDoc Bool encodeUnknownAsStr
   private const BrioConsts cp
   private OutStream out
 }
