@@ -466,15 +466,21 @@ class Printer
     x.each |v, n|
     {
       if (n == "id" || n == "spec") return // handled by outer syntax
+
+      autoName  := XetoUtil.isAutoName(n)
+      subId     := (v as Dict)?.get("id") as Ref
+      needColon := !autoName || subId != null
+
       indent
-      w(n)
+      if (!autoName) w(n)
       if (isMarker(v)) return nl
-      if (v is Dict)
+      if (subId != null)
       {
-        subId := ((Dict)v)["id"] as Ref
-        if (subId != null) w(" @").w(subId)
+        if (!autoName) w(" ")
+        w(" @").w(subId)
       }
-      colon.xeto(v).nl
+      if (needColon) colon
+      xeto(v).nl
     }
     indentation--
     indent.bracket("}")
