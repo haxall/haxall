@@ -149,12 +149,11 @@ public final class NameTable extends FanObj
   public final void dump(OutStream out)
   {
     out.printLine("=== NameTable [" + size + "] ===");
-    /*
     for (int i=0; i<size; ++i)
     {
       out.printLine("  " + i + ": " + byCode[i]);
     }
-    */
+    /*
     out.printLine("  --- byHash ---");
     for (int i=0; i<byHash.length; ++i)
     {
@@ -170,6 +169,7 @@ public final class NameTable extends FanObj
       }
       out.printLine();
     }
+    */
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -381,3 +381,4 @@ public final class NameTable extends FanObj
   private int size;
   private boolean isSparse;
 }
+

@@ -27,10 +27,17 @@ const class XetoBinaryIO
   }
 
   ** Constructor for booting client used by RemotNamespace.boot
-  internal new makeClient()
+  internal new makeClientStart()
   {
     this.names = NameTable()       // start off with empty name table
     this.maxNameCode = Int.maxVal  // can safely use every name mapped from server
+  }
+
+  ** Constructor before making RemoteNamespace to lock down maxNameCode
+  internal new makeClientEnd(NameTable names, Int maxNameCoce)
+  {
+    this.names = names
+    this.maxNameCode = maxNameCoce
   }
 
   ** Create a new writer
@@ -49,7 +56,7 @@ const class XetoBinaryIO
   const NameTable names
 
   ** Max name code (inclusive) that safe to use
-  internal const Int maxNameCode
+  const Int maxNameCode
 
 }
 

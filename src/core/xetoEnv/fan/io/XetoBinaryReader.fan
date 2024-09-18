@@ -50,10 +50,10 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   {
     verifyU4(magic, "magic")
     verifyU4(version, "version")
-    readNameTable
+    maxNameCode := readNameTable
     libVersions := readLibVersions
     numNonSysLibs := readVarInt - 1
-    ns := RemoteNamespace(io, null, names, libVersions, libLoader) |ns->XetoLib|
+    ns := RemoteNamespace(XetoBinaryIO.makeClientEnd(io.names, maxNameCode), null, names, libVersions, libLoader) |ns->XetoLib|
     {
       readLib(ns) // read sys inside MNamespace constructor
     }
@@ -84,11 +84,14 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     return ns
   }
 
-  private Void readNameTable()
+  private Int readNameTable()
   {
     max := readVarInt
     for (i := NameTable.initSize+1; i<=max; ++i)
+    {
       names.add(in.readUtf)
+    }
+    return max
   }
 
   private LibVersion[] readLibVersions()

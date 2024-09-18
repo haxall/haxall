@@ -21,7 +21,7 @@ const class RemoteNamespace : MNamespace
   static RemoteNamespace boot(InStream in, MNamespace? base, RemoteLibLoader? libLoader)
   {
     if (base == null)
-      return XetoBinaryIO.makeClient.reader(in).readBootBase(libLoader)
+      return XetoBinaryIO.makeClientStart.reader(in).readBootBase(libLoader)
     else
       return XetoBinaryIO(base).reader(in).readBootOverlay(base, libLoader)
   }
