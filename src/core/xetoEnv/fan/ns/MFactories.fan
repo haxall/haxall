@@ -27,39 +27,42 @@ const class MFactories
   ** Constructor with and register core factory loader
   new make()
   {
-    this.loadersRef = AtomicRef(SpecFactoryLoader[CoreFactoryLoader()].toImmutable)
+    loadersMap["sys"]      = SysFactoryLoader()
+    loadersMap["sys.comp"] = SysCompFactoryLoader()
+    loadersMap["ph"]       = PhFactoryLoader()
   }
 
-  ** Installed factory loaders
-  SpecFactoryLoader[] loaders() { loadersRef.val }
-  private const AtomicRef loadersRef
+  ** Lookup installed factory loader by libName
+  SpecFactoryLoader? loader(Str libName) { loadersMap.get(libName) }
+  private const ConcurrentMap loadersMap := ConcurrentMap()
 
-  ** Install new loader if not already created. We do this lazily via
-  ** lib pragma factoryLoader so that we aren't loading a ton of Fantom
-  ** classes until they are really required
-  Void install(Str qname)
+  ** Check if we need to install new loader for given lib.
+  Void install(Str libName, Dict libMeta)
   {
-    cur := loaders
-    if (cur.any |loader| { loader.typeof.qname == qname })
-      return
+    // look for the lib meta key fantomPodName
+    podName := libMeta["fantomPodName"] as Str
+    if (podName == null || loadersMap[podName] != null) return
 
+    // if the pod defines a custoj XetoFactoryLoader class we use
+    // that, otherwise create an instance of StandardFactoryLoader
     SpecFactoryLoader? loader := null
     try
     {
-      loader = Type.find(qname).make
+      pod := Pod.find(podName)
+      custom := pod.type("XetoFactoryLoader", false)
+      if (custom != null)
+        loader = custom.make
+      else
+        loader = StandardFactoryLoader(podName)
     }
     catch (Err e)
     {
-      echo("ERROR: XetoSpecLaoder cannot be created: $qname")
+      echo("ERROR: XetoSpecLaoder cannot be created: $libName\n $e")
       return
     }
 
-    while (true)
-    {
-      oldList := loaders
-      newList := oldList.dup.add(loader).toImmutable
-      if (loadersRef.compareAndSet(oldList, newList)) break
-    }
+    // add to our map
+    loadersMap.set(libName, loader)
   }
 
   ** Default scalar factory
@@ -103,29 +106,13 @@ const class MFactories
 }
 
 **************************************************************************
-** CoreFactoryLoader
+** Buildin FactoryLoaders
 **************************************************************************
 
 @Js
-internal const class CoreFactoryLoader : SpecFactoryLoader
+internal const class SysFactoryLoader : SpecFactoryLoader
 {
-  override Bool canLoad(Str libName)
-  {
-    if (libName == "sys")      return true
-    if (libName == "sys.comp") return true
-    if (libName == "ph")       return true
-    return false
-  }
-
   override Str:SpecFactory load(Str libName, Str[] specNames)
-  {
-    if (libName == "sys")      return loadSys
-    if (libName == "sys.comp") return loadSysComp
-    if (libName == "ph")       return loadPh
-    throw Err(libName)
-  }
-
-  private Str:SpecFactory loadSys()
   {
     sys := Pod.find("sys")
     hay := Pod.find("haystack")
@@ -161,30 +148,81 @@ internal const class CoreFactoryLoader : SpecFactoryLoader
       "Dict":     DictFactory(),
     ]
   }
+}
 
-  private Str:SpecFactory loadSysComp()
+@Js
+internal const class SysCompFactoryLoader : SpecFactoryLoader
+{
+  override Str:SpecFactory load(Str libName, Str[] specNames)
   {
-    xeto := Pod.find("xeto")
+    pod := Pod.find("xeto")
     return [
-      "Comp":        CompSpecFactory(Comp#),
-      "CompLayout":  CompLayoutFactory(xeto.type("CompLayout")),
-      "Link":        LinkFactory(xeto.type("Link")),
-      "Links":       LinksFactory(xeto.type("Links")),
+      "Comp":       CompSpecFactory(Comp#),
+      "CompLayout": CompLayoutFactory(pod.type("CompLayout")),
+      "Link":       LinkFactory(pod.type("Link")),
+      "Links":      LinksFactory(pod.type("Links")),
     ]
   }
+}
 
-  private Str:SpecFactory loadPh()
+@Js
+internal const class PhFactoryLoader : SpecFactoryLoader
+{
+  override Str:SpecFactory load(Str libName, Str[] specNames)
   {
-    hay := Pod.find("haystack")
+    pod := Pod.find("haystack")
     return [
-      "Coord":    ScalarSpecFactory(hay.type("Coord")),
-      "Symbol":   ScalarSpecFactory(hay.type("Symbol")),
+      "Coord":    ScalarSpecFactory(pod.type("Coord")),
+      "Symbol":   ScalarSpecFactory(pod.type("Symbol")),
     ]
   }
 }
 
 **************************************************************************
-** Factory Implemenntations
+** StandardFactoryLoader
+**************************************************************************
+
+**
+** Standard factory loader mapped by the fantomPodName lib meta
+**
+@Js
+internal const class StandardFactoryLoader : SpecFactoryLoader
+{
+  new make(Str podName) { this.podName = podName }
+
+  const Str podName
+
+  override Str:SpecFactory load(Str libName, Str[] specNames)
+  {
+    acc := Str:SpecFactory[:]
+    pod := Pod.find(podName)
+    doLoad(acc, pod, specNames)
+    return acc
+  }
+
+  Void doLoad(Str:SpecFactory acc, Pod pod, Str[] specNames)
+  {
+    specNames.each |name|
+    {
+      if (acc[name] != null) return
+      type := pod.type(name, false)
+      if (name.endsWith("View"))
+      {
+        acc[name] = Type.find("ion::ViewSpecFactory").make([type])
+      }
+      else if (type != null)
+      {
+        // have Fantom type for this spec
+        if (type.fits(Comp#)) acc[name] = CompSpecFactory(type)
+        else if (type.fits(Enum#)) acc[name] = ScalarSpecFactory(type)
+        else if (type.fits(Dict#)) acc[name] = ImplDictFactory(type)
+      }
+    }
+  }
+}
+
+**************************************************************************
+** Factory Implementations
 **************************************************************************
 
 @Js
@@ -208,6 +246,14 @@ internal const class DictFactory : DictSpecFactory
   new make() : super(Dict#) {}
   new makeWith(Type type) : super.make(type) {}
   override Dict decodeDict(Dict xeto, Bool checked := true) { xeto }
+}
+
+@Js
+const class ImplDictFactory : DictSpecFactory
+{
+  new make(Type type) : super(type) { impl = type.pod.type("M" + type.name) }
+  const Type impl
+  override Dict decodeDict(Dict xeto, Bool checked := true) { impl.make([xeto]) }
 }
 
 @Js

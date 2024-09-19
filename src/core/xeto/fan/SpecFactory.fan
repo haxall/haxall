@@ -53,14 +53,10 @@ abstract const class SpecFactory
 ** SpecFactoryLoader are used to map Xeto spec names to SpecFactory
 ** instances.  They are used early in the compile pipeline before the
 ** specs themselves have been created so that scalar default values can
-** be reified.  Factory loaders are lazily installed when a Xeto lib is
-** loaded with the pragma key "factoryLoader" mapped to Fantom qname.
+** be reified.
 @NoDoc @Js
 abstract const class SpecFactoryLoader
 {
-  ** Return if this loader handles the given library
-  abstract Bool canLoad(Str libName)
-
   ** Map library name and its top-level type names to map of
   ** factory instances keyed by simple spec name.
   abstract Str:SpecFactory load(Str libName, Str[] specNames)

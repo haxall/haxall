@@ -201,12 +201,6 @@ const class TestClient : RemoteLibLoader
 @Js
 internal const class XetoFactoryLoader: SpecFactoryLoader
 {
-  override Bool canLoad(Str libName)
-  {
-    if (libName == "hx.test.xeto") return true
-    return false
-  }
-
   override Str:SpecFactory load(Str libName, Str[] specNames)
   {
     if (libName != "hx.test.xeto") throw Err(libName)

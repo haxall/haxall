@@ -156,11 +156,10 @@ internal class RemoteLoader
   private Void loadFactories()
   {
     // check if this library registers a new factory loader
-    installType := libMeta["factoryLoader"] as Str
-    if (installType != null) ns.factories.install(installType)
+    ns.factories.install(libName, libMeta)
 
     // find a loader for our library
-    loader := ns.factories.loaders.find |x| { x.canLoad(libName) }
+    loader := ns.factories.loader(libName)
     if (loader == null) return
 
     // if we have a loader, give it my type names to map to factories

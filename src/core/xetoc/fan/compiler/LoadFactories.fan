@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using haystack
 
 **
 ** Load and assign a SpecFactory to each AType in the AST
@@ -17,11 +18,16 @@ internal class LoadFactories : Step
   override Void run()
   {
     // check if we need to install a new factor loader
-    typeName := pragma.getStr("factoryLoader")
-    if (typeName != null) factories.install(typeName)
+    podName := pragma.getStr("fantomPodName")
+    if (podName != null)
+    {
+      // just pass thru meta required by loader
+      loadLibMeta := Etc.dict1("fantomPodName", podName)
+      factories.install(lib.name, loadLibMeta)
+    }
 
     // find a loader for our library
-    loader := factories.loaders.find |x| { x.canLoad(lib.name) }
+    loader := factories.loader(lib.name)
 
     // if we have a loader, give it my type names to map to factories
     [Str:SpecFactory]? customs := null
