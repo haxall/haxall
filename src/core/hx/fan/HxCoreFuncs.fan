@@ -508,8 +508,10 @@ const class HxCoreFuncs
 
     return gb.toGrid.sort |a, b|
     {
-      if (a["enabled"] == b["enabled"]) return a->name <=> b->name
-      return a.has("enabled") ? -1 : 1
+      aEnableKey := a["enabled"]?.toStr ?: "z"
+      bEnableKey := b["enabled"]?.toStr ?: "z"
+      if (aEnableKey == bEnableKey) return a->name <=> b->name
+      return aEnableKey <=> bEnableKey
     }
   }
 
