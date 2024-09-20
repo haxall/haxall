@@ -32,11 +32,7 @@ const final class CompLayout
   ** Coerce CompLayout or Str to CompLayout
   @NoDoc static CompLayout coerce(Obj v)
   {
-if (v is Dict)
-{
-  return make( v->x->toInt , v->y->toInt , v->w->toInt )
-}
-    return v as CompLayout ?: fromStr(v)
+    v as CompLayout ?: fromStr(v)
   }
 
   ** Constructor
