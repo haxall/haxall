@@ -79,7 +79,7 @@ const class CompSpaceActor : Actor
   ** BlockView feed unsubscribe; return null
   Future feedUnsubscribe(Str cookie)
   {
-    send(ActorMsg("feedPoll", cookie))
+    send(ActorMsg("feedUnsubscribe", cookie))
   }
 
   ** BlockView feed call; return null
@@ -117,7 +117,7 @@ Actor.locals[CompSpace.actorKey] = cs
       case "execute":         return onExecute(state, msg.a)
       case "feedPoll":        return onFeedPoll(state, msg.a)
       case "feedSubscribe":   return onFeedSubscribe(state, msg.a)
-      case "feedUnsubscribe": return onFeedSubscribe(state, msg.a)
+      case "feedUnsubscribe": return onFeedUnsubscribe(state, msg.a)
       case "feedCall":        return onFeedCall(state, msg.a)
       case "load":            return onLoad(cs, msg.a)
       case "save":            return cs.save
