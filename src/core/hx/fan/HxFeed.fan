@@ -24,7 +24,7 @@ abstract const class HxFeed
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  ** Constructor
+  ** Constructor - must safe not perform any I/O or multi-threading!
   new make(HxContext cx)
   {
     init := cx.feedInit

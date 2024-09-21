@@ -33,6 +33,10 @@ internal abstract class SrcLibCmd : XetoCmd
   {
     repo := LibRepo.cur
 
+    // no flags defaults to all
+    if (libs == null && allIn == null)
+      all = true
+
     // all flag uses all in working dir
     if (all) allIn = Env.cur.workDir
 
