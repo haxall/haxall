@@ -57,6 +57,7 @@ const mixin LibNamespace
   {
     ["sys",
       "sys.comp",
+      "axon",
       "ion",
       "ion.actions",
       "ion.icons",
