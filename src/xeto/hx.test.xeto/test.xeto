@@ -64,3 +64,6 @@ InstantiateA: {
   listRefNullable: List<of:Ref?>
 }
 
+// Global tag example. Sentence two
+globalTag: Str
+

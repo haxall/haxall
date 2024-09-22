@@ -11,23 +11,26 @@ using xeto
 using xetoEnv
 
 **
-** Generate ids for every top-level node indexed by qname
+** Generate initial PageEntry stub for every top-level page
 **
-internal class GenIds : Step
+internal class StubPages: Step
 {
   override Void run()
   {
-    acc := Str:DocId[:]
-    eachLib |lib|
+    acc := Str:PageEntry[:]
+    add := |PageEntry entry| { acc.add(entry.key, entry) }
+
+    compiler.libs.each |lib|
     {
       // lib id
-      acc.add(lib.name, libId(lib))
+      add(PageEntry(lib))
 
       // type ids
       lib.types.each |x|
       {
-        acc.add(x.qname, typeId(lib, x))
+        add(PageEntry(x))
       }
+/*
 
       // globals ids
       lib.globals.each |x|
@@ -42,28 +45,10 @@ internal class GenIds : Step
         name := XetoUtil.qnameToName(qname)
         acc.add(qname, instanceId(lib, name))
       }
+*/
     }
-    compiler.ids = acc
+    compiler.pages = acc
   }
 
-  DocId libId(Lib lib)
-  {
-    DocId(DocNodeType.lib, `$lib.name`, lib.name)
-  }
-
-  DocId typeId(Lib lib, Spec x)
-  {
-    DocId(DocNodeType.type, `$lib.name/$x.name`, x.name)
-  }
-
-  DocId globalId(Lib lib, Spec x)
-  {
-    DocId(DocNodeType.global, `$lib.name/$x.name`, x.name)
-  }
-
-  DocId instanceId(Lib lib, Str name)
-  {
-    DocId(DocNodeType.instance, `$lib.name/$name`, name)
-  }
 }
 

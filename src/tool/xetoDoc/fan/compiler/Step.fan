@@ -29,27 +29,17 @@ abstract internal class Step
 
   Void bombIfErr() { if (!compiler.errs.isEmpty) throw compiler.errs.first }
 
-  DocId id(Str qname)
+  Void eachPage(|PageEntry| f)
   {
-    compiler.ids.getChecked(qname)
+    compiler.pages.each(f)
   }
 
-  DocSummary summary(Str qname)
+  static Str key(Obj x)
   {
-    compiler.summaries.getChecked(qname)
-  }
-
-  Void eachLib(|Lib| f)
-  {
-    compiler.libs.each(f)
-  }
-
-  Void eachSpec(|Spec| f)
-  {
-    compiler.libs.each |lib|
-    {
-      lib.specs.each(f)
-    }
+    if (x is Spec) return ((Spec)x).qname
+    if (x is Lib)  return ((Lib)x).name
+    if (x is Dict) return ((Dict)x)._id.id
+    throw Err("Cannot derive key: $x [$x.typeof]")
   }
 
 }

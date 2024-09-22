@@ -10,22 +10,19 @@
 ** DocLink is a hyperlink
 **
 @Js
-const class DocLink : DocNode
+const class DocLink
 {
   ** Constructor
-  new make(DocId href, Str dis := href.dis)
+  new make(Uri uri, Str dis)
   {
-    this.href = href
-    this.dis  = dis
+    this.uri = uri
+    this.dis = dis
   }
 
-  ** Node type
-  override DocNodeType nodeType() { DocNodeType.link }
+  ** URI relative to base dir to page
+  const Uri uri
 
-  ** Doc identifier to link to
-  const DocId href
-
-  ** Display text
+  ** Display text for link
   const Str dis
 }
 

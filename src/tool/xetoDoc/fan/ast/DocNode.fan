@@ -14,6 +14,7 @@ abstract const class DocNode
 {
   ** Enumerated type of this node
   abstract DocNodeType nodeType()
+
 }
 
 **************************************************************************
@@ -26,6 +27,7 @@ abstract const class DocNode
 @Js
 enum class DocNodeType
 {
+  nodeList,
   lib,
   libMeta,
   type,
@@ -33,6 +35,7 @@ enum class DocNodeType
   instance,
   summary,
   block,
-  link
+  link,
+  scalar
 }
 

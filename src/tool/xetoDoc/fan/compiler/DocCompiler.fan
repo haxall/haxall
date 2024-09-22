@@ -60,10 +60,10 @@ class DocCompiler
   This compile()
   {
     run([
-      GenIds(),
+      StubPages(),
       GenSummaries(),
-      GenLibs(),
-      GenSpecs(),
+      GenPages(),
+      WriteJson(),
     ])
     return this
   }
@@ -131,9 +131,8 @@ class DocCompiler
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  XetoCompilerErr[] errs := [,]         // err
-  internal Duration? duration           // run
-  internal [Str:DocId]? ids             // GenIds keyed by qnames
-  internal [Str:DocSummary]? summaries  // GenSummaries keyed by qnames
+  XetoCompilerErr[] errs := [,]       // err
+  Duration? duration                  // run
+  [Str:PageEntry]? pages              // StubPages
 }
 

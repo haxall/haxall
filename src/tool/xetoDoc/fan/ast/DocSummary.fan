@@ -10,7 +10,7 @@
 ** DocSummary is a hyperlink to a node with a formatted summary sentence.
 **
 @Js
-const class DocSummary : DocNode
+const class DocSummary
 {
   ** Constructor
   new make(DocLink link, DocBlock text)
@@ -20,7 +20,7 @@ const class DocSummary : DocNode
   }
 
   ** Node type
-  override DocNodeType nodeType() { DocNodeType.summary }
+//   override DocNodeType nodeType() { DocNodeType.summary }
 
   ** Title and hyperlink
   const DocLink link
@@ -30,5 +30,16 @@ const class DocSummary : DocNode
 
   ** Debug string
   override Str toStr() { "$link.dis: $text" }
+
+  ** Get this node as a map of name/value pairs
+  Str:Obj encode()
+  {
+    obj := Str:Obj[:]
+    obj.ordered = true
+    obj["link"] = link
+    obj["text"] = text
+    return obj
+  }
+
 }
 

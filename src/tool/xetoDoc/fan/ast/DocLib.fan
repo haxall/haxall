@@ -9,50 +9,46 @@
 using haystack
 
 **
-** DocLib is the documentation for a Xeto library
+** DocLib is the documentation page for a Xeto library
 **
 @Js
-const class DocLib : DocNode
+const class DocLib : DocPage
 {
-  ** It-block constructor
+  ** Constructor
   new make(|This| f) { f(this) }
 
-  ** Identifier for this library
-  const DocId id
+  ** URI relative to base dir to page
+  const override Uri uri
 
-  ** Enumerated type of this node
-  override DocNodeType nodeType() { DocNodeType.lib }
-
-  ** Unique library dotted name
+  ** Dotted name for library
   const Str name
 
-  ** Library metadata
-  const DocLibMeta meta
+  ** Page type
+  override DocPageType pageType() { DocPageType.lib }
+
+  ** Encode to a JSON object tree
+  override Str:Obj encode()
+  {
+    obj := Str:Obj[:]
+    obj.ordered = true
+    obj["page"] = pageType.name
+    obj["uri"]  = uri.toStr
+    obj["name"] = name
+    return obj
+  }
+
+  ** Decode from a JSON object tree
+  static DocLib doDecode(Str:Obj obj)
+  {
+    DocLib
+    {
+      it.uri   = Uri.fromStr(obj.getChecked("uri"))
+      it.name  = obj.getChecked("name")
+      it.types = DocSummary[,]
+    }
+  }
 
   ** Top-level type spesc defined in this library
   const DocSummary[] types
-
-  ** Top-level global specs contained in this library
-  const DocSummary[] globals
-
-  ** Instances defined in this library
-  const DocSummary[] instances
-}
-
-**************************************************************************
-** DocLibMeta
-**************************************************************************
-
-**
-** Library metadata
-**
-@Js
-const class DocLibMeta : DocDict
-{
-  ** It-block constructor
-  new make(Dict dict) : super(dict) {}
-
-  ** Enumerated type of this node
-  override DocNodeType nodeType() { DocNodeType.libMeta }
 }
 

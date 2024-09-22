@@ -11,57 +11,22 @@ using xeto
 using xetoEnv
 
 **
-** Generate summaries for every top-level node indexed by qname
+** Generate summaries for every page
 **
 internal class GenSummaries : Step
 {
   override Void run()
   {
-    acc := Str:DocSummary[:]
-    eachLib |lib|
+    eachPage |entry|
     {
-      // lib summary
-      acc.add(lib.name, libSummary(lib))
-
-      // types summary
-      lib.types.each |x|
-      {
-        acc.add(x.qname, specSummary(x))
-      }
-
-      // globals ids
-      lib.globals.each |x|
-      {
-        acc.add(x.qname, specSummary(x))
-      }
-
-      // instances summary
-      lib.instances.each |x|
-      {
-        acc.add(x._id.id, instanceSummary(x))
-      }
+      entry.summaryRef = genSummary(entry)
     }
-    compiler.summaries = acc
   }
 
-  DocSummary libSummary(Lib x)
+  private DocSummary genSummary(PageEntry entry)
   {
-    link := id(x.name).link
-    text := parse(x.meta["doc"])
-    return DocSummary(link, text)
-  }
-
-  DocSummary specSummary(Spec x)
-  {
-    link := id(x.qname).link
-    text := parse(x.meta["doc"])
-    return DocSummary(link, text)
-  }
-
-  DocSummary instanceSummary(Dict x)
-  {
-    link := id(x._id.id).link
-    text := parse(x["doc"])
+    link := entry.link
+    text := parse(entry.meta["doc"] as Str ?: "")
     return DocSummary(link, text)
   }
 

@@ -34,8 +34,7 @@ class Build : BuildPod
                "xetoEnv @{hx.depend}",
                "haystack @{hx.depend}"]
     srcDirs = [`fan/ast/`,
-               `fan/compiler/`,
-               `fan/io/`]
+               `fan/compiler/`]
   }
 }
 
