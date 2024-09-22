@@ -31,14 +31,36 @@ const class DocSummary
   ** Debug string
   override Str toStr() { "$link.dis: $text" }
 
-  ** Get this node as a map of name/value pairs
+  ** Encode a list or null if empty
+  static Obj? encodeList(DocSummary[] list)
+  {
+    if (list.isEmpty) return null
+    return list.map |x->Str:Obj| { x.encode }
+  }
+
+  ** Encode to a JSON object tree
   Str:Obj encode()
   {
     obj := Str:Obj[:]
     obj.ordered = true
-    obj["link"] = link
-    obj["text"] = text
+    obj["link"] = link.encode
+    obj["text"] = text.encode
     return obj
+  }
+
+  ** Decode a list or empty if null
+  static DocSummary[] decodeList(Obj[]? list)
+  {
+    if (list == null || list.isEmpty) return DocSummary#.emptyList
+    return list.map |x->DocSummary| { decode(x) }
+  }
+
+  ** Decode from JSON object tree
+  static DocSummary decode(Str:Obj obj)
+  {
+    link := DocLink.decode(obj.getChecked("link"))
+    text := DocBlock.decode(obj.getChecked("text"))
+    return make(link, text)
   }
 
 }

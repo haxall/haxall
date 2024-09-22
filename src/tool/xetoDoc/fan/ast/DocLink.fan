@@ -24,5 +24,23 @@ const class DocLink
 
   ** Display text for link
   const Str dis
+
+  ** Encode to a JSON object tree
+  Str:Obj encode()
+  {
+    obj := Str:Obj[:]
+    obj.ordered = true
+    obj["uri"] = uri.toStr
+    obj["dis"] = dis
+    return obj
+  }
+
+  ** Decode from JSON object tree
+  static DocLink decode(Str:Obj obj)
+  {
+    uri := Uri.fromStr(obj.getChecked("uri"))
+    dis := obj.getChecked("dis")
+    return make(uri, dis)
+  }
 }
 

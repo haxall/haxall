@@ -24,33 +24,35 @@ class DocTest : AbstractXetoTest
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
+  DocCompiler? compiler
+
   Void testBasics()
   {
     ns := createNamespace(["ph.points", "hx.test.xeto"])
     lib := ns.lib("hx.test.xeto")
-    c := DocCompiler { it.ns = ns; it.libs = [lib]; it.outDir = tempDir }
-    c.compile
+    compiler = DocCompiler { it.ns = ns; it.libs = [lib]; it.outDir = tempDir }
+    compiler.compile
 
     // lib
-    entry := c.pages[lib.name]
+    entry := compiler.pages[lib.name]
     verifyLib(entry, lib, entry.page)
     verifyLib(entry, lib, roundtrip(entry))
 
     // type
     spec := lib.spec("EqA")
-    entry = c.pages.getChecked(spec.qname)
+    entry = compiler.pages.getChecked(spec.qname)
     verifyTypeSpec(entry, spec, entry.page)
     verifyTypeSpec(entry, spec, roundtrip(entry))
 
     // global
     spec = lib.spec("globalTag")
-    entry = c.pages.getChecked(spec.qname)
+    entry = compiler.pages.getChecked(spec.qname)
     verifyGlobal(entry, spec, entry.page)
     verifyGlobal(entry, spec, roundtrip(entry))
 
     // instance
     Dict inst := lib.instance("test-a")
-    entry = c.pages.getChecked(inst.id.toStr)
+    entry = compiler.pages.getChecked(inst.id.toStr)
     verifyInstance(entry, inst, entry.page)
     verifyInstance(entry, inst, roundtrip(entry))
   }
@@ -59,9 +61,7 @@ class DocTest : AbstractXetoTest
   {
     file := tempDir + entry.uriJson
     json := file.readAllStr
-echo
-echo("#### rountrip $entry.uri")
-echo(json)
+    // echo("\n#### rountrip $entry.uri\n$json")
     obj  := JsonInStream(json.in).readJson
     return DocPage.decode(obj)
   }
@@ -80,11 +80,11 @@ echo(json)
 /*
     verifyEq(n.meta.get("doc"),     lib.meta["doc"])
     verifyEq(n.meta.get("version"), lib.version.toStr)
-
-    n.types.each |s| { verifySpecSummary(ns, lib, s, DocNodeType.type) }
-    n.globals.each |s| { verifySpecSummary(ns, lib, s, DocNodeType.global) }
-    n.instances.each |s| { verifyInstanceSummary(ns, lib, s) }
 */
+
+    verifySummaries(n.types,     lib.types)
+    verifySummaries(n.globals,   lib.globals)
+    verifySummaries(n.instances, lib.instances)
   }
 
   Void verifySpec(PageEntry entry, Spec spec, DocSpec n)
@@ -113,31 +113,29 @@ echo(json)
     verifyEq(n.pageType, DocPageType.instance)
   }
 
-  /*
-  Void verifySpecSummary(LibNamespace ns, Lib lib, DocSummary x, DocNodeType nt)
+
+  Void verifySummaries(DocSummary[] nodes, Obj[] defs)
   {
-    name := x.link.dis
-    spec := lib.spec(name)
-    verifyEq(x.link.href.nodeType, nt)
-    verifyEq(x.link.href.uri, `$lib.name/${name}`)
-    verifySummaryText(x.text, spec.meta["doc"])
+    verifyEq(nodes.size, defs.size)
+    nodes.each |n, i|
+    {
+      verifySummary(n, defs[i])
+    }
   }
 
-  Void verifyInstanceSummary(LibNamespace ns, Lib lib, DocSummary x)
+  Void verifySummary(DocSummary n, Obj def)
   {
-    name := x.link.dis
-    instance := lib.instance(x.link.dis)
-    verifyEq(x.link.href.nodeType, DocNodeType.instance)
-    verifyEq(x.link.href.uri, `$lib.name/${name}`)
-    verifySummaryText(x.text, instance["doc"])
+    entry := compiler.page(def)
+    verifyEq(n.link.uri, entry.uri)
+    verifyEq(n.link.dis, entry.dis)
+    verifySummaryText(n.text, entry.meta["doc"])
   }
-  */
 
   Void verifySummaryText(DocBlock n, Str? doc)
   {
     if (doc == null) doc = ""
-    //echo("-- $n.text.toCode")
-    //echo("   $doc.toCode")
+    // echo("-- $n.text.toCode")
+    // echo("   $doc.toCode")
     verify(doc.startsWith(n.text))
   }
 }

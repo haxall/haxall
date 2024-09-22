@@ -40,9 +40,11 @@ internal class GenPages: Step
   {
     DocLib
     {
-      it.uri   = entry.uri
-      it.name  = x.name
-      it.types = DocSummary[,]
+      it.uri       = entry.uri
+      it.name      = x.name
+      it.types     = summaries(x.types)
+      it.globals   = summaries(x.globals)
+      it.instances = summaries(x.instances)
     }
   }
 

@@ -34,6 +34,9 @@ const class DocLib : DocPage
     obj["page"] = pageType.name
     obj["uri"]  = uri.toStr
     obj["name"] = name
+    obj.addNotNull("types",     DocSummary.encodeList(types))
+    obj.addNotNull("globals",   DocSummary.encodeList(globals))
+    obj.addNotNull("instances", DocSummary.encodeList(instances))
     return obj
   }
 
@@ -42,13 +45,21 @@ const class DocLib : DocPage
   {
     DocLib
     {
-      it.uri   = Uri.fromStr(obj.getChecked("uri"))
-      it.name  = obj.getChecked("name")
-      it.types = DocSummary[,]
+      it.uri       = Uri.fromStr(obj.getChecked("uri"))
+      it.name      = obj.getChecked("name")
+      it.types     = DocSummary.decodeList(obj["types"])
+      it.globals   = DocSummary.decodeList(obj["globals"])
+      it.instances = DocSummary.decodeList(obj["instances"])
     }
   }
 
-  ** Top-level type spesc defined in this library
+  ** Top-level type specs defined in this library
   const DocSummary[] types
+
+  ** Top-level global specs defined in this library
+  const DocSummary[] globals
+
+  ** Instances defined in this library
+  const DocSummary[] instances
 }
 

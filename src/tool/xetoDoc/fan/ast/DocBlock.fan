@@ -26,5 +26,17 @@ const class DocBlock : DocNode
 
   ** Debug string
   override Str toStr() { text }
+
+  ** Encode to a JSON object tree
+  Obj encode()
+  {
+    text
+  }
+
+  ** Decode from JSON object tree
+  static DocBlock decode(Obj obj)
+  {
+    DocBlock(obj.toStr)
+  }
 }
 

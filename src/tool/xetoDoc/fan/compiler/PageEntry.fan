@@ -20,7 +20,7 @@ class PageEntry
   ** Constructor for lib
   new makeLib(Lib x)
   {
-    this.key      = Step.key(x)
+    this.key      = DocCompiler.key(x)
     this.def      = x
     this.uri      = `${x.name}/doc-index`
     this.dis      = x.name
@@ -32,7 +32,7 @@ class PageEntry
   ** Constructor for type/global
   new makeSpec(Spec x, DocPageType pageType)
   {
-    this.key      = Step.key(x)
+    this.key      = DocCompiler.key(x)
     this.def      = x
     this.uri      = `${x.lib.name}/${x.name}`
     this.dis      = x.name
@@ -48,7 +48,7 @@ class PageEntry
     libName := XetoUtil.qnameToLib(qname)
     name    := XetoUtil.qnameToName(qname)
 
-    this.key      = Step.key(x)
+    this.key      = DocCompiler.key(x)
     this.def      = x
     this.uri      = `${libName}/${name}`
     this.dis      = name

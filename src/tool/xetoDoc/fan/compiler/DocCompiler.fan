@@ -127,6 +127,21 @@ class DocCompiler
     return err
   }
 
+  ** Lookup page entry for lib, spec, instance
+  PageEntry page(Obj def)
+  {
+    pages.getChecked(key(def))
+  }
+
+  ** Get page entry key for lib, spec, instance
+  static Str key(Obj def)
+  {
+    if (def is Spec) return ((Spec)def).qname
+    if (def is Lib)  return ((Lib)def).name
+    if (def is Dict) return ((Dict)def)._id.id
+    throw Err("Cannot derive key: $def [$def.typeof]")
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////

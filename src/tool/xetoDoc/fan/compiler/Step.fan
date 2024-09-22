@@ -34,12 +34,19 @@ abstract internal class Step
     compiler.pages.each(f)
   }
 
-  static Str key(Obj x)
+  PageEntry page(Obj x)
   {
-    if (x is Spec) return ((Spec)x).qname
-    if (x is Lib)  return ((Lib)x).name
-    if (x is Dict) return ((Dict)x)._id.id
-    throw Err("Cannot derive key: $x [$x.typeof]")
+    compiler.page(x)
+  }
+
+  DocSummary summary(Obj x)
+  {
+    page(x).summary
+  }
+
+  DocSummary[] summaries(Obj[] list)
+  {
+    list.map |x->DocSummary| { summary(x) }
   }
 
 }
