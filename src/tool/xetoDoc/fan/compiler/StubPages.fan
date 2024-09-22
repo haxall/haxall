@@ -23,29 +23,25 @@ internal class StubPages: Step
     compiler.libs.each |lib|
     {
       // lib id
-      add(PageEntry(lib))
+      add(PageEntry.makeLib(lib))
 
       // type ids
       lib.types.each |x|
       {
-        add(PageEntry(x))
+        add(PageEntry.makeSpec(x, DocPageType.type))
       }
-/*
 
-      // globals ids
+      // globals
       lib.globals.each |x|
       {
-        acc.add(x.qname, globalId(lib, x))
+        add(PageEntry.makeSpec(x, DocPageType.global))
       }
 
-      // instance ids
+      // instances
       lib.instances.each |x|
       {
-        qname := x._id.id
-        name := XetoUtil.qnameToName(qname)
-        acc.add(qname, instanceId(lib, name))
+        add(PageEntry.makeInstance(x))
       }
-*/
     }
     compiler.pages = acc
   }

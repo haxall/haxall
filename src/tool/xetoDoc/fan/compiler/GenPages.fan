@@ -9,6 +9,7 @@
 using util
 using xeto
 using xetoEnv
+using haystack::Dict
 
 **
 ** Generate DocPage for each entry
@@ -27,8 +28,10 @@ internal class GenPages: Step
   {
     switch (entry.pageType)
     {
-      case DocPageType.lib:  return genLib(entry, entry.def)
-      case DocPageType.type: return genSpec(entry, entry.def)
+      case DocPageType.lib:      return genLib(entry, entry.def)
+      case DocPageType.type:     return genSpec(entry, entry.def)
+      case DocPageType.global:   return genSpec(entry, entry.def)
+      case DocPageType.instance: return genInstance(entry, entry.def)
       default: throw Err(entry.pageType.name)
     }
   }
@@ -50,8 +53,15 @@ internal class GenPages: Step
       it.uri      = entry.uri
       it.pageType = entry.pageType
       it.qname    = x.qname
-      it.libName  = x.lib.name
-      it.name     = x.name
+    }
+  }
+
+  DocInstance genInstance(PageEntry entry, Dict x)
+  {
+    DocInstance
+    {
+      it.uri   = entry.uri
+      it.qname = x.id.id
     }
   }
 }

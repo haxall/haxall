@@ -9,10 +9,10 @@
 using xetoEnv
 
 **
-** DocSpec is the documentation for a Xeto spec
+** DocInstance is the documentation for an instance in a lib
 **
 @Js
-const class DocSpec : DocPage
+const class DocInstance : DocPage
 {
   ** Constructor
   new make(|This| f) { f(this) }
@@ -20,7 +20,7 @@ const class DocSpec : DocPage
   ** URI relative to base dir to page
   const override Uri uri
 
-  ** Qualified name of this spec
+  ** Qualified name of this instance
   const Str qname
 
   ** Library name for this instance
@@ -30,7 +30,7 @@ const class DocSpec : DocPage
   once Str name() { XetoUtil.qnameToName(qname) }
 
   ** Page type
-  override const DocPageType pageType
+  override DocPageType pageType() { DocPageType.instance }
 
   ** Encode to a JSON object tree
   override Str:Obj encode()
@@ -44,13 +44,12 @@ const class DocSpec : DocPage
   }
 
   ** Decode from a JSON object tree
-  static DocSpec doDecode(Str:Obj obj)
+  static DocInstance doDecode(Str:Obj obj)
   {
-    DocSpec
+    DocInstance
     {
-      it.pageType = DocPageType.fromStr(obj.getChecked("page"))
-      it.uri      = Uri.fromStr(obj.getChecked("uri"))
-      it.qname    = obj.getChecked("qname")
+      it.uri   = Uri.fromStr(obj.getChecked("uri"))
+      it.qname = obj.getChecked("qname")
     }
   }
 

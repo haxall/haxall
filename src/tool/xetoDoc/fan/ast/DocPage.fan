@@ -29,9 +29,11 @@ abstract const class DocPage
     pageType := DocPageType.fromStr(obj.getChecked("page"))
     switch (pageType)
     {
-      case DocPageType.lib:  return DocLib.doDecode(obj)
-      case DocPageType.type: return DocSpec.doDecode(obj)
-      default:               throw Err("Unknown page type: $pageType")
+      case DocPageType.lib:      return DocLib.doDecode(obj)
+      case DocPageType.type:     return DocSpec.doDecode(obj)
+      case DocPageType.global:   return DocSpec.doDecode(obj)
+      case DocPageType.instance: return DocInstance.doDecode(obj)
+      default:                   throw Err("Unknown page type: $pageType")
     }
   }
 

@@ -9,6 +9,7 @@
 using util
 using xeto
 using xetoEnv
+using haystack::Dict
 
 **
 ** PageEntry is the working data for a DocPage
@@ -28,15 +29,31 @@ class PageEntry
     this.link     = DocLink(uri, dis)
   }
 
-  ** Constructor for type
-  new makeType(Spec x)
+  ** Constructor for type/global
+  new makeSpec(Spec x, DocPageType pageType)
   {
     this.key      = Step.key(x)
     this.def      = x
     this.uri      = `${x.lib.name}/${x.name}`
     this.dis      = x.name
-    this.pageType = DocPageType.type
+    this.pageType = pageType
     this.meta     = x.meta
+    this.link     = DocLink(uri, dis)
+  }
+
+  ** Constructor for instance
+  new makeInstance(Dict x)
+  {
+    qname   := x.id.id
+    libName := XetoUtil.qnameToLib(qname)
+    name    := XetoUtil.qnameToName(qname)
+
+    this.key      = Step.key(x)
+    this.def      = x
+    this.uri      = `${libName}/${name}`
+    this.dis      = name
+    this.pageType = DocPageType.instance
+    this.meta     = x
     this.link     = DocLink(uri, dis)
   }
 

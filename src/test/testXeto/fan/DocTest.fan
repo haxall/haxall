@@ -11,6 +11,7 @@ using xeto
 using xeto::Lib
 using xetoEnv
 using haystack
+using haystack::Dict
 using xetoDoc
 
 **
@@ -30,24 +31,37 @@ class DocTest : AbstractXetoTest
     c := DocCompiler { it.ns = ns; it.libs = [lib]; it.outDir = tempDir }
     c.compile
 
-    // DocLib
+    // lib
     entry := c.pages[lib.name]
     verifyLib(entry, lib, entry.page)
     verifyLib(entry, lib, roundtrip(entry))
 
-    // DocType
+    // type
     spec := lib.spec("EqA")
-    entry = c.pages[spec.qname]
+    entry = c.pages.getChecked(spec.qname)
     verifyTypeSpec(entry, spec, entry.page)
     verifyTypeSpec(entry, spec, roundtrip(entry))
+
+    // global
+    spec = lib.spec("globalTag")
+    entry = c.pages.getChecked(spec.qname)
+    verifyGlobal(entry, spec, entry.page)
+    verifyGlobal(entry, spec, roundtrip(entry))
+
+    // instance
+    Dict inst := lib.instance("test-a")
+    entry = c.pages.getChecked(inst.id.toStr)
+    verifyInstance(entry, inst, entry.page)
+    verifyInstance(entry, inst, roundtrip(entry))
   }
 
   DocPage roundtrip(PageEntry entry)
   {
     file := tempDir + entry.uriJson
     json := file.readAllStr
- echo("#### rountripo $entry.uri")
- echo(json)
+echo
+echo("#### rountrip $entry.uri")
+echo(json)
     obj  := JsonInStream(json.in).readJson
     return DocPage.decode(obj)
   }
@@ -61,6 +75,7 @@ class DocTest : AbstractXetoTest
   Void verifyLib(PageEntry entry, Lib lib, DocLib n)
   {
     verifyPage(entry, n)
+    verifyEq(n.pageType, DocPageType.lib)
     verifyEq(n.name, lib.name)
 /*
     verifyEq(n.meta.get("doc"),     lib.meta["doc"])
@@ -74,15 +89,28 @@ class DocTest : AbstractXetoTest
 
   Void verifySpec(PageEntry entry, Spec spec, DocSpec n)
   {
-    verifyEq(n.qname,   spec.qname)
-    verifyEq(n.name,    spec.name)
-    verifyEq(n.libName, spec.lib.name)
+    verifyPage(entry, n)
+    verifyEq(n.qname,    spec.qname)
+    verifyEq(n.name,     spec.name)
+    verifyEq(n.libName,  spec.lib.name)
   }
 
   Void verifyTypeSpec(PageEntry entry, Spec spec, DocSpec n)
   {
-    verifyPage(entry, n)
     verifySpec(entry, spec, n)
+    verifyEq(n.pageType, DocPageType.type)
+  }
+
+  Void verifyGlobal(PageEntry entry, Spec spec, DocSpec n)
+  {
+    verifySpec(entry, spec, n)
+    verifyEq(n.pageType, DocPageType.global)
+  }
+
+  Void verifyInstance(PageEntry entry, Dict inst, DocInstance n)
+  {
+    verifyPage(entry, n)
+    verifyEq(n.pageType, DocPageType.instance)
   }
 
   /*

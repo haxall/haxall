@@ -28,8 +28,6 @@ internal class WriteJson : Step
     file := compiler.outDir + entry.uriJson
     obj := entry.page.encode
     str := JsonOutStream.prettyPrintToStr(obj)
-echo("### generate $file.osPath")
-echo(str)
     file.out.print(str).close
   }
 }
