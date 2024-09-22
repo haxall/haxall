@@ -33,6 +33,12 @@ const mixin LibVersion
     return a.version <=> b.version
   }
 
+  ** Get this exact version as LibDepend instance
+  @NoDoc LibDepend asDepend()
+  {
+    LibDepend(name, LibDependVersions(version))
+  }
+
   ** File used to load this lib if backed by the file system.  If we are
   ** using the source then return the source directory, otherwise return
   ** the xetolib zip file found in "lib/xeto".  If the version is not backed

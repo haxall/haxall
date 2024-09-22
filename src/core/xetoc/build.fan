@@ -37,7 +37,6 @@ class Build : BuildPod
                `fan/compiler/`,
                `fan/ast/`,
                `fan/parser/`,
-               `fan/util/`,
                ]
   }
 }
