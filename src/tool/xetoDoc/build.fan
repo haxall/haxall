@@ -1,23 +1,23 @@
 #! /usr/bin/env fan
 //
-// Copyright (c) 2023, SkyFoundry LLC
+// Copyright (c) 2024, SkyFoundry LLC
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   22 Mar 2023  Brian Frank  Creation
+//   22 Sep 2024  Brian Frank  Creation
 //
 
 using build
 
 **
-** Build: xetoTools
+** Build: xetoDoc
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName = "xetoTools"
-    summary = "Xeto CLI tools"
+    podName = "xetoDoc"
+    summary = "Xeto documentation compiler"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
@@ -32,11 +32,10 @@ class Build : BuildPod
                "web @{fan.depend}",
                "xeto @{hx.depend}",
                "xetoEnv @{hx.depend}",
-               "xetoDoc @{hx.depend}",
-               "haystack @{hx.depend}",
-               "def @{hx.depend}",
-               "defc @{hx.depend}"]
-    srcDirs = [`fan/`]
+               "haystack @{hx.depend}"]
+    srcDirs = [`fan/ast/`,
+               `fan/compiler/`,
+               `fan/io/`]
   }
 }
 

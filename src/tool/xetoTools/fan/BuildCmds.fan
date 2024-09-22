@@ -8,7 +8,9 @@
 
 using util
 using xeto
+using xeto::Lib
 using xetoEnv
+using xetoDoc
 using haystack
 
 **
@@ -131,6 +133,47 @@ internal class CleanCmd : SrcLibCmd
     libDir := XetoUtil.srcToLibDir(v)
     printLine("Delete [$libDir.osPath]")
     libDir.delete
+    return 0
+  }
+}
+
+**************************************************************************
+** DocCmd
+**************************************************************************
+
+**
+** DocCmd compiles a namespace to docs
+**
+internal class DocCmd : SrcLibCmd
+{
+  override Str name() { "doc" }
+
+  override Str summary() { "Compile libs to JSON doc AST files" }
+
+  @Opt { help = "Output directory" }
+  File? outDir
+
+  override Int process(LibRepo repo, LibVersion[] vers)
+  {
+    // flatten and build namespace
+    depends := vers.map |x->LibDepend| { x.asDepend }
+    flatten := repo.solveDepends(depends)
+    ns := repo.createNamespace(flatten)
+
+    // get libs to compile
+    libs := vers.map |v->Lib| { ns.lib(v.name) }
+
+    // output directory
+    outDir := this.outDir ?: Env.cur.workDir + `xeto-doc/`
+
+    // compile
+    c := DocCompiler
+    {
+      it.ns     = ns
+      it.libs   = libs
+      it.outDir = outDir
+    }
+    c.compile
     return 0
   }
 }
