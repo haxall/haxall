@@ -131,9 +131,9 @@ const class XetoUtil
   static Str? qnameToName(Obj qname)
   {
     s := qname.toStr
-    colon := s.indexr(":")
-    if (colon == null || colon < 2 || colon+1 >= s.size || s[colon-1] != ':') return null
-    return s[colon+1..-1]
+    colon := s.index(":")
+    if (colon == null || colon < 1 || colon+2 >= s.size || s[colon+1] != ':') return null
+    return s[colon+2..-1]
   }
 
   ** Convert "foo.bar::Baz" to lib name "foo.bar" or null if no "::"

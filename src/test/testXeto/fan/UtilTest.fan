@@ -105,6 +105,7 @@ class UtilTest : AbstractXetoTest
     verifyEq(XetoUtil.qnameToName(":Y"), null)
     verifyEq(XetoUtil.qnameToName("::Y"), null)
     verifyEq(XetoUtil.qnameToName("x::Y"), "Y")
+    verifyEq(XetoUtil.qnameToName("foo.bar::file:csv"), "file:csv")
 
     // qnameToLib
     verifyEq(XetoUtil.qnameToLib("foo::Bar"), "foo")
@@ -117,6 +118,7 @@ class UtilTest : AbstractXetoTest
     verifyEq(XetoUtil.qnameToLib(":Y"), null)
     verifyEq(XetoUtil.qnameToLib("::Y"), null)
     verifyEq(XetoUtil.qnameToLib("x::Y"), "x")
+    verifyEq(XetoUtil.qnameToLib("foo.bar::file:csv"), "foo.bar")
   }
 
 //////////////////////////////////////////////////////////////////////////
