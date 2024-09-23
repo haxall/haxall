@@ -22,7 +22,7 @@ class PageEntry
   {
     this.key      = DocCompiler.key(x)
     this.def      = x
-    this.uri      = `${x.name}/doc-index`
+    this.uri      = `${x.name}/index`
     this.dis      = x.name
     this.pageType = DocPageType.lib
     this.meta     = x.meta
