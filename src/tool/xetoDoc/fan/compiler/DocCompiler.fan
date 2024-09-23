@@ -20,6 +20,18 @@ class DocCompiler
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
+  ** Static utility which can be easily used for reflection
+  static Void runCompiler(LibNamespace ns, File outDir)
+  {
+    c := DocCompiler
+    {
+      it.ns     = ns
+      it.libs   = ns.libs
+      it.outDir = outDir
+    }
+    c.compile
+  }
+
   ** It-block Constructor
   new make(|This| f) { f(this) }
 
@@ -81,6 +93,7 @@ class DocCompiler
       }
       t2 := Duration.now
       duration = t2 - t1
+      //info("Compiled xeto docs ${duration.toLocale} [$outDir.osPath]")
       return this
     }
     catch (XetoCompilerErr e)
