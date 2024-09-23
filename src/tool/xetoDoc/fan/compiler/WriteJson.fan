@@ -25,7 +25,7 @@ internal class WriteJson : Step
 
   Void writePage(PageEntry entry)
   {
-    file := compiler.outDir + entry.uriJson
+    file := compiler.outDir + entry.uriJson.relTo(`/`)
     obj := entry.page.encode
     str := JsonOutStream.prettyPrintToStr(obj)
     file.out.print(str).close

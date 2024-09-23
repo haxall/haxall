@@ -59,7 +59,7 @@ class DocTest : AbstractXetoTest
 
   DocPage roundtrip(PageEntry entry)
   {
-    file := tempDir + entry.uriJson
+    file := tempDir + entry.uriJson.toStr[1..-1].toUri
     json := file.readAllStr
     // echo("\n#### rountrip $entry.uri\n$json")
     obj  := JsonInStream(json.in).readJson
