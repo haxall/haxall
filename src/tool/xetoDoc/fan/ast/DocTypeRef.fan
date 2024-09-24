@@ -20,6 +20,9 @@ abstract const class DocTypeRef
   ** Return if this is an And/Or type
   virtual Bool isCompound() { false }
 
+  ** Return null, "&" or "|"
+  virtual Str? compoundSymbol() { null }
+
   ** Compound types or null if not applicable
   virtual DocTypeRef[]? ofs() { null }
 
@@ -98,6 +101,7 @@ const class DocAndTypeRef : DocCompoundTypeRef
 {
   new make(DocTypeRef[] ofs) : super(ofs) {}
   override Str qname() { "sys::And" }
+  override Str? compoundSymbol() { "&" }
   override Str:Obj encode() { ["and":ofs.map |x| { x.encode}] }
 }
 
@@ -109,6 +113,7 @@ const class DocOrTypeRef : DocCompoundTypeRef
 {
   new make(DocTypeRef[] ofs) : super(ofs) {}
   override Str qname() { "sys::Or" }
+  override Str? compoundSymbol() { "|" }
   override Str:Obj encode() { ["or":ofs.map |x| { x.encode}] }
 }
 
