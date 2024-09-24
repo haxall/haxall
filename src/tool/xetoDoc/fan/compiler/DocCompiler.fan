@@ -45,8 +45,8 @@ class DocCompiler
   ** Libs to generate
   const Lib[] libs
 
-  ** Output directory
-  const File outDir
+  ** Output directory or if null then output to in-mem files field
+  const File? outDir
 
   ** Logging
   XetoLog log := XetoLog.makeOutStream
@@ -162,5 +162,6 @@ class DocCompiler
   XetoCompilerErr[] errs := [,]       // err
   Duration? duration                  // run
   [Str:PageEntry]? pages              // StubPages
+  File[] files := [,]                 // WriteJson if generating in-mem
 }
 

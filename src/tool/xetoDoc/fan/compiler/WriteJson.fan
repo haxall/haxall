@@ -25,10 +25,24 @@ internal class WriteJson : Step
 
   Void writePage(PageEntry entry)
   {
-    file := compiler.outDir + entry.uriJson.relTo(`/`)
     obj := entry.page.encode
-    str := JsonOutStream.prettyPrintToStr(obj)
-    file.out.print(str).close
+    json := JsonOutStream.prettyPrintToStr(obj)
+    if (compiler.outDir == null)
+      writeToMem(entry, json)
+    else
+      writeToFile(entry, json)
+  }
+
+  Void writeToMem(PageEntry entry, Str json)
+  {
+    file := Buf(json.size).print(json).toFile(entry.uriJson.name.toUri)
+    compiler.files.add(file)
+  }
+
+  Void writeToFile(PageEntry entry, Str json)
+  {
+    file := compiler.outDir + entry.uriJson.relTo(`/`)
+    file.out.print(json).close
   }
 }
 
