@@ -65,9 +65,9 @@ const class CompSpaceActor : Actor
   }
 
   ** BlockView feed subscribe; return Grid
-  Future feedSubscribe(Str cookie)
+  Future feedSubscribe(Str cookie, Dict gridMeta)
   {
-    send(ActorMsg("feedSubscribe", cookie))
+    send(ActorMsg("feedSubscribe", cookie, gridMeta))
   }
 
   ** BlockView feed poll; return Grid or null
@@ -116,7 +116,7 @@ Actor.locals[CompSpace.actorKey] = cs
     {
       case "execute":         return onExecute(state, msg.a)
       case "feedPoll":        return onFeedPoll(state, msg.a)
-      case "feedSubscribe":   return onFeedSubscribe(state, msg.a)
+      case "feedSubscribe":   return onFeedSubscribe(state, msg.a, msg.b)
       case "feedUnsubscribe": return onFeedUnsubscribe(state, msg.a)
       case "feedCall":        return onFeedCall(state, msg.a)
       case "load":            return onLoad(cs, msg.a)
@@ -178,7 +178,7 @@ Actor.locals[CompSpace.actorKey] = cs
 // BlockView Feeds
 //////////////////////////////////////////////////////////////////////////
 
-  private Grid onFeedSubscribe(CompSpaceActorState state, Str cookie)
+  private Grid onFeedSubscribe(CompSpaceActorState state, Str cookie, Dict gridMeta)
   {
     cs := state.cs
 
@@ -194,7 +194,7 @@ Actor.locals[CompSpace.actorKey] = cs
     }
 
     // encode into a grid of brio dicts
-    return CompUtil.toFeedGrid(cookie, dicts, null)
+    return CompUtil.toFeedGrid(gridMeta, cookie, dicts, null)
   }
 
   private Obj? onFeedUnsubscribe(CompSpaceActorState state, Str cookie)
@@ -230,7 +230,7 @@ Actor.locals[CompSpace.actorKey] = cs
     if (dicts.isEmpty && deleted == null) return null
 
     // return modified comps
-    return CompUtil.toFeedGrid(cookie, dicts, deleted)
+    return CompUtil.toFeedGrid(Etc.dict0, cookie, dicts, deleted)
   }
 
   private Void feedEachChild(CompSpace cs, |Comp| f)

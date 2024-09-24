@@ -103,11 +103,12 @@ class CompUtil
   }
 
   ** Return grid format used for BlockView feed protocol
-  static Grid toFeedGrid(Str cookie, Dict[] dicts, [Ref:Ref]? deleted)
+  static Grid toFeedGrid(Dict gridMeta, Str cookie, Dict[] dicts, [Ref:Ref]? deleted)
   {
     gb := GridBuilder()
     gb.capacity = dicts.size + (deleted == null ? 0 : deleted.size)
-    gb.setMeta(Etc.dict1("cookie", cookie))
+    if (gridMeta.isEmpty) gb.setMeta(Etc.dict1("cookie", cookie))
+    else gb.setMeta(Etc.dictSet(gridMeta, "cookie", cookie))
     gb.addCol("id").addCol("comp")
     dicts.each |dict|
     {
