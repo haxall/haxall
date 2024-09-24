@@ -42,6 +42,7 @@ internal class GenPages: Step
     {
       it.uri       = entry.uri
       it.name      = x.name
+      it.doc       = genDoc(x.meta["doc"])
       it.types     = summaries(x.types)
       it.globals   = summaries(x.globals)
       it.instances = summaries(x.instances)
@@ -50,14 +51,16 @@ internal class GenPages: Step
 
   DocType genType(PageEntry entry, Spec x)
   {
+    doc := genSpecDoc(x)
     base := x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
-    return DocType(entry.uri, x.qname, base)
+    return DocType(entry.uri, x.qname, doc, base)
   }
 
   DocGlobal genGlobal(PageEntry entry, Spec x)
   {
+    doc := genSpecDoc(x)
     type := genTypeRef(x.type)
-    return DocGlobal(entry.uri, x.qname, type)
+    return DocGlobal(entry.uri, x.qname, doc, type)
   }
 
   DocInstance genInstance(PageEntry entry, Dict x)
@@ -80,6 +83,18 @@ internal class GenPages: Step
   DocTypeRef[] genTypeRefOfs(Spec x)
   {
     x.ofs.map |of->DocTypeRef| { genTypeRef(of) }
+  }
+
+  DocBlock genSpecDoc(Spec x)
+  {
+    genDoc(x.meta["doc"])
+  }
+
+  DocBlock genDoc(Obj? doc)
+  {
+    str := doc as Str ?: ""
+    if (str.isEmpty) return DocBlock.empty
+    return DocBlock(str)
   }
 }
 

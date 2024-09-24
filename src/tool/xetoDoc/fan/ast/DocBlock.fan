@@ -34,9 +34,10 @@ const class DocBlock : DocNode
   }
 
   ** Decode from JSON object tree
-  static DocBlock decode(Obj obj)
+  static DocBlock decode(Obj? obj)
   {
-    DocBlock(obj.toStr)
+    if (obj == null) return empty
+    return DocBlock(obj.toStr)
   }
 }
 

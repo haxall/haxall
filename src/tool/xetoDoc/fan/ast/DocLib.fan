@@ -23,6 +23,9 @@ const class DocLib : DocPage
   ** Dotted name for library
   const Str name
 
+  ** Summary documentation for library
+  const DocBlock doc
+
   ** Page type
   override DocPageType pageType() { DocPageType.lib }
 
@@ -34,6 +37,7 @@ const class DocLib : DocPage
     obj["page"] = pageType.name
     obj["uri"]  = uri.toStr
     obj["name"] = name
+    obj["doc"]  = doc.encode
     obj.addNotNull("types",     DocSummary.encodeList(types))
     obj.addNotNull("globals",   DocSummary.encodeList(globals))
     obj.addNotNull("instances", DocSummary.encodeList(instances))
@@ -47,6 +51,7 @@ const class DocLib : DocPage
     {
       it.uri       = Uri.fromStr(obj.getChecked("uri"))
       it.name      = obj.getChecked("name")
+      it.doc       = DocBlock.decode(obj.get("doc"))
       it.types     = DocSummary.decodeList(obj["types"])
       it.globals   = DocSummary.decodeList(obj["globals"])
       it.instances = DocSummary.decodeList(obj["instances"])

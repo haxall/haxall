@@ -22,6 +22,9 @@ abstract const class DocSpec
 
   ** Simple name of this instance
   abstract Str name()
+
+  ** Documentation text
+  abstract DocBlock doc()
 }
 
 **************************************************************************
@@ -32,10 +35,11 @@ abstract const class DocSpec
 abstract const class DocSpecPage : DocSpec, DocPage
 {
   ** Constructor
-  new make(Uri uri, Str qname)
+  new make(Uri uri, Str qname, DocBlock doc)
   {
     this.uri   = uri
     this.qname = qname
+    this.doc   = doc
   }
 
   ** URI relative to base dir to page
@@ -50,6 +54,9 @@ abstract const class DocSpecPage : DocSpec, DocPage
   ** Simple name of this instance
   override once Str name() { XetoUtil.qnameToName(qname) }
 
+  ** Documentation text
+  const override DocBlock doc
+
   ** Encode to a JSON object tree
   override Str:Obj encode()
   {
@@ -58,6 +65,7 @@ abstract const class DocSpecPage : DocSpec, DocPage
     obj["page"]  = pageType.name
     obj["uri"]   = uri.toStr
     obj["qname"] = qname
+    obj["doc"]   = doc.encode
     return obj
   }
 }
@@ -73,7 +81,7 @@ abstract const class DocSpecPage : DocSpec, DocPage
 const class DocType : DocSpecPage
 {
   ** Constructor
-  new make(Uri uri, Str qname, DocTypeRef? base) : super(uri, qname)
+  new make(Uri uri, Str qname, DocBlock doc, DocTypeRef? base) : super(uri, qname, doc)
   {
     this.base = base
   }
@@ -97,8 +105,9 @@ const class DocType : DocSpecPage
   {
     uri   := Uri.fromStr(obj.getChecked("uri"))
     qname := obj.getChecked("qname")
+    doc   := DocBlock.decode(obj.get("doc"))
     base  := DocTypeRef.decode(obj.get("base"))
-    return DocType(uri, qname, base)
+    return DocType(uri, qname, doc, base)
   }
 }
 
@@ -113,7 +122,7 @@ const class DocType : DocSpecPage
 const class DocGlobal : DocSpecPage
 {
   ** Constructor
-  new make(Uri uri, Str qname, DocTypeRef type) : super(uri, qname)
+  new make(Uri uri, Str qname, DocBlock doc, DocTypeRef type) : super(uri, qname, doc)
   {
     this.type = type
   }
@@ -137,8 +146,9 @@ const class DocGlobal : DocSpecPage
   {
     uri   := Uri.fromStr(obj.getChecked("uri"))
     qname := obj.getChecked("qname")
+    doc   := DocBlock.decode(obj.get("doc"))
     type  := DocTypeRef.decode(obj.getChecked("type"))
-    return DocGlobal(uri, qname, type)
+    return DocGlobal(uri, qname, doc, type)
  }
 }
 
@@ -160,5 +170,8 @@ const class DocSlot : DocSpec
 
   ** Simple name of this instance
   override once Str name() { "TODO"  }
+
+  ** Documentation for this slot
+  override once DocBlock doc() { DocBlock.empty }
 }
 
