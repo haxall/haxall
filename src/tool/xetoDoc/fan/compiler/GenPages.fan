@@ -29,8 +29,8 @@ internal class GenPages: Step
     switch (entry.pageType)
     {
       case DocPageType.lib:      return genLib(entry, entry.def)
-      case DocPageType.type:     return genSpec(entry, entry.def)
-      case DocPageType.global:   return genSpec(entry, entry.def)
+      case DocPageType.type:     return genType(entry, entry.def)
+      case DocPageType.global:   return genGlobal(entry, entry.def)
       case DocPageType.instance: return genInstance(entry, entry.def)
       default: throw Err(entry.pageType.name)
     }
@@ -48,14 +48,14 @@ internal class GenPages: Step
     }
   }
 
-  DocSpec genSpec(PageEntry entry, Spec x)
+  DocType genType(PageEntry entry, Spec x)
   {
-    DocSpec
-    {
-      it.uri      = entry.uri
-      it.pageType = entry.pageType
-      it.qname    = x.qname
-    }
+    DocType(entry.uri, x.qname)
+  }
+
+  DocGlobal genGlobal(PageEntry entry, Spec x)
+  {
+    DocGlobal(entry.uri, x.qname)
   }
 
   DocInstance genInstance(PageEntry entry, Dict x)

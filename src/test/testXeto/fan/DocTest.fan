@@ -87,7 +87,7 @@ class DocTest : AbstractXetoTest
     verifySummaries(n.instances, lib.instances)
   }
 
-  Void verifySpec(PageEntry entry, Spec spec, DocSpec n)
+  Void verifySpec(PageEntry entry, Spec spec, DocSpecPage n)
   {
     verifyPage(entry, n)
     verifyEq(n.qname,    spec.qname)
@@ -95,13 +95,13 @@ class DocTest : AbstractXetoTest
     verifyEq(n.libName,  spec.lib.name)
   }
 
-  Void verifyTypeSpec(PageEntry entry, Spec spec, DocSpec n)
+  Void verifyTypeSpec(PageEntry entry, Spec spec, DocType n)
   {
     verifySpec(entry, spec, n)
     verifyEq(n.pageType, DocPageType.type)
   }
 
-  Void verifyGlobal(PageEntry entry, Spec spec, DocSpec n)
+  Void verifyGlobal(PageEntry entry, Spec spec, DocGlobal n)
   {
     verifySpec(entry, spec, n)
     verifyEq(n.pageType, DocPageType.global)

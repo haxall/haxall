@@ -12,7 +12,7 @@ using util
 ** DocPage is base class for documentation pages: libs, specs, instances
 **
 @Js
-abstract const class DocPage
+const mixin DocPage
 {
   ** URI relative to base dir to page
   abstract Uri uri()
@@ -30,8 +30,8 @@ abstract const class DocPage
     switch (pageType)
     {
       case DocPageType.lib:      return DocLib.doDecode(obj)
-      case DocPageType.type:     return DocSpec.doDecode(obj)
-      case DocPageType.global:   return DocSpec.doDecode(obj)
+      case DocPageType.type:     return DocType.doDecode(obj)
+      case DocPageType.global:   return DocGlobal.doDecode(obj)
       case DocPageType.instance: return DocInstance.doDecode(obj)
       default:                   throw Err("Unknown page type: $pageType")
     }
