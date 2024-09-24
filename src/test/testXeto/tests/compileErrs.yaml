@@ -74,6 +74,32 @@ verifyErrs: |
 ##########################################################################
 
 ---
+name: "reservedInstanceNames"
+compileLib: |
+  @index: {}
+  @pragma: {}
+  @doc-overview: {}
+verifyErrs: |
+  Instance name 'index' is reserved
+  Instance name 'pragma' is reserved
+  Instance name 'doc-overview' is reserved
+---
+name: "reservedSpecNames"
+compileLib: |
+  index: Dict
+verifyErrs: |
+  Spec name 'index' is reserved
+---
+name: "dupTops"
+compileLib: |
+  foo: Dict
+  Bar: Dict
+  @foo: {}
+  @Bar: {}
+verifyErrs: |
+  Spec 'foo' conflicts with instance of the same name
+  Spec 'Bar' conflicts with instance of the same name
+---
 name: "reservedMeta"
 compileLib: |
   Foo: Dict <id:"x", base:"x", type:"x", spec:"x", slots:"x", lib:"x", loc:"x">
