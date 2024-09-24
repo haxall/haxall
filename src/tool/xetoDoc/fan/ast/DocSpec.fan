@@ -14,12 +14,6 @@ using xetoEnv
 @Js
 abstract const class DocSpec
 {
-  ** Qualified name of this spec
-  abstract Str qname()
-
-  ** Library name for this instance
-  abstract Str libName()
-
   ** Simple name of this instance
   abstract Str name()
 
@@ -46,13 +40,13 @@ abstract const class DocSpecPage : DocSpec, DocPage
   const override Uri uri
 
   ** Qualified name of this spec
-  const override Str qname
+  const Str qname
 
   ** Library name for this instance
-  override once Str libName() { XetoUtil.qnameToLib(qname) }
+  once Str libName() { XetoUtil.qnameToLib(qname) }
 
   ** Simple name of this instance
-  override once Str name() { XetoUtil.qnameToName(qname) }
+  once override Str name() { XetoUtil.qnameToName(qname) }
 
   ** Documentation text
   const override DocBlock doc
@@ -81,9 +75,10 @@ abstract const class DocSpecPage : DocSpec, DocPage
 const class DocType : DocSpecPage
 {
   ** Constructor
-  new make(Uri uri, Str qname, DocBlock doc, DocTypeRef? base) : super(uri, qname, doc)
+  new make(Uri uri, Str qname, DocBlock doc, DocTypeRef? base, Str:DocSlot slots) : super(uri, qname, doc)
   {
     this.base = base
+    this.slots = slots
   }
 
   ** Page type
@@ -92,11 +87,15 @@ const class DocType : DocSpecPage
   ** Super type or null if this is 'sys::Obj'
   const DocTypeRef? base
 
+  ** Child slots on this type
+  const Str:DocSlot slots
+
   ** Encode to a JSON object tree
   override Str:Obj encode()
   {
     obj := super.encode
     obj.addNotNull("base", base?.encode)
+    obj.addNotNull("slots", DocSlot.encodeMap(slots))
     return obj
   }
 
@@ -107,7 +106,8 @@ const class DocType : DocSpecPage
     qname := obj.getChecked("qname")
     doc   := DocBlock.decode(obj.get("doc"))
     base  := DocTypeRef.decode(obj.get("base"))
-    return DocType(uri, qname, doc, base)
+    slots := DocSlot.decodeMap(obj.get("slots"))
+    return DocType(uri, qname, doc, base, slots)
   }
 }
 
@@ -162,16 +162,62 @@ const class DocGlobal : DocSpecPage
 @Js
 const class DocSlot : DocSpec
 {
-  ** Qualified name
-  override Str qname() { "TODO"  }
+  ** Empty map of slots
+  static const Str:DocSlot empty := Str:DocSlot[:]
 
-  ** Library name for this instance
-  override once Str libName() { "TODO" }
+  ** Constructor
+  new make(Str name, DocBlock doc, DocTypeRef type, DocTypeRef? parent)
+  {
+    this.name   = name
+    this.doc    = doc
+    this.type   = type
+    this.parent = parent
+  }
 
   ** Simple name of this instance
-  override once Str name() { "TODO"  }
+  override const Str name
 
   ** Documentation for this slot
-  override once DocBlock doc() { DocBlock.empty }
+  override const DocBlock doc
+
+  ** Type for this slot
+  const DocTypeRef type
+
+  ** Declared parent type if inherited
+  const DocTypeRef? parent
+
+  ** Encode to a JSON object tree
+  Str:Obj encode()
+  {
+    obj := Str:Obj[:]
+    obj.ordered  = true
+    obj["doc"]   = doc.encode
+    obj["type"]  = type.encode
+    obj.addNotNull("parent", parent?.encode)
+    return obj
+  }
+
+  ** Decode map keyed by name
+  static Obj? encodeMap(Str:DocSlot map)
+  {
+    if (map.isEmpty) return null
+    return map.map |x| { x.encode }
+  }
+
+  ** Decode from a JSON object tree
+  static DocSlot decode(Str name, Str:Obj obj)
+  {
+    doc    := DocBlock.decode(obj.get("doc"))
+    type   := DocTypeRef.decode(obj.getChecked("type"))
+    parent := DocTypeRef.decode(obj.get("parent"))
+    return make(name, doc, type, parent)
+  }
+
+  ** Decode map keyed by name
+  static Str:DocSlot decodeMap([Str:Obj]? obj)
+  {
+    if (obj == null || obj.isEmpty) return DocSlot.empty
+    return obj.map |x, n| { DocSlot.decode(n, x) }
+  }
 }
 

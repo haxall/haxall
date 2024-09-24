@@ -51,9 +51,10 @@ internal class GenPages: Step
 
   DocType genType(PageEntry entry, Spec x)
   {
-    doc := genSpecDoc(x)
-    base := x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
-    return DocType(entry.uri, x.qname, doc, base)
+    doc   := genSpecDoc(x)
+    base  := x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
+    slots := genSlots(x)
+    return DocType(entry.uri, x.qname, doc, base, slots)
   }
 
   DocGlobal genGlobal(PageEntry entry, Spec x)
@@ -70,6 +71,26 @@ internal class GenPages: Step
       it.uri   = entry.uri
       it.qname = x.id.id
     }
+  }
+
+  Str:DocSlot genSlots(Spec type)
+  {
+    slots := type.slots
+    if (slots.isEmpty) return DocSlot.empty
+    acc := Str:DocSlot[:]
+    acc.ordered = true
+    slots.each |slot|
+    {
+      d := genSlot(type, slot)
+      acc[d.name] = d
+    }
+    return acc
+  }
+
+  DocSlot genSlot(Spec type, Spec slot)
+  {
+    parent := slot.parent === type ? null : DocSimpleTypeRef(slot.parent.qname)
+    return DocSlot(slot.name, genSpecDoc(slot), genTypeRef(slot.type), parent)
   }
 
   DocTypeRef? genTypeRef(Spec? x)
