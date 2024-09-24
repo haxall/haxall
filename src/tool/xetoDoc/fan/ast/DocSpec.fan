@@ -73,17 +73,22 @@ abstract const class DocSpecPage : DocSpec, DocPage
 const class DocType : DocSpecPage
 {
   ** Constructor
-  new make(Uri uri, Str qname) : super(uri, qname)
+  new make(Uri uri, Str qname, DocTypeRef? base) : super(uri, qname)
   {
+    this.base = base
   }
 
   ** Page type
   override DocPageType pageType() { DocPageType.type }
 
+  ** Super type or null if this is 'sys::Obj'
+  const DocTypeRef? base
+
   ** Encode to a JSON object tree
   override Str:Obj encode()
   {
     obj := super.encode
+    obj.addNotNull("base", base?.encode)
     return obj
   }
 
@@ -92,7 +97,8 @@ const class DocType : DocSpecPage
   {
     uri   := Uri.fromStr(obj.getChecked("uri"))
     qname := obj.getChecked("qname")
-    return DocType(uri, qname)
+    base  := DocTypeRef.decode(obj.get("base"))
+    return DocType(uri, qname, base)
   }
 }
 
@@ -107,9 +113,13 @@ const class DocType : DocSpecPage
 const class DocGlobal : DocSpecPage
 {
   ** Constructor
-  new make(Uri uri, Str qname) : super(uri, qname)
+  new make(Uri uri, Str qname, DocTypeRef type) : super(uri, qname)
   {
+    this.type = type
   }
+
+  ** Type of this global
+  const DocTypeRef type
 
   ** Page type
   override DocPageType pageType() { DocPageType.global }
@@ -118,6 +128,7 @@ const class DocGlobal : DocSpecPage
   override Str:Obj encode()
   {
     obj := super.encode
+    obj["type"] = type.encode
     return obj
   }
 
@@ -126,7 +137,8 @@ const class DocGlobal : DocSpecPage
   {
     uri   := Uri.fromStr(obj.getChecked("uri"))
     qname := obj.getChecked("qname")
-    return DocGlobal(uri, qname)
+    type  := DocTypeRef.decode(obj.getChecked("type"))
+    return DocGlobal(uri, qname, type)
  }
 }
 

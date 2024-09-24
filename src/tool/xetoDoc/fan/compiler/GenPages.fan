@@ -50,12 +50,14 @@ internal class GenPages: Step
 
   DocType genType(PageEntry entry, Spec x)
   {
-    DocType(entry.uri, x.qname)
+    base := x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
+    return DocType(entry.uri, x.qname, base)
   }
 
   DocGlobal genGlobal(PageEntry entry, Spec x)
   {
-    DocGlobal(entry.uri, x.qname)
+    type := genTypeRef(x.type)
+    return DocGlobal(entry.uri, x.qname, type)
   }
 
   DocInstance genInstance(PageEntry entry, Dict x)
@@ -65,6 +67,19 @@ internal class GenPages: Step
       it.uri   = entry.uri
       it.qname = x.id.id
     }
+  }
+
+  DocTypeRef? genTypeRef(Spec? x)
+  {
+    if (x == null) return null
+    if (x.isAnd) return DocAndTypeRef(genTypeRefOfs(x))
+    if (x.isOr)  return DocOrTypeRef(genTypeRefOfs(x))
+    return DocSimpleTypeRef(x.qname)
+  }
+
+  DocTypeRef[] genTypeRefOfs(Spec x)
+  {
+    x.ofs.map |of->DocTypeRef| { genTypeRef(of) }
   }
 }
 
