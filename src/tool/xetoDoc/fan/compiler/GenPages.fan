@@ -43,6 +43,7 @@ internal class GenPages: Step
       it.uri       = entry.uri
       it.name      = x.name
       it.doc       = genDoc(x.meta["doc"])
+      it.meta      = genDict(x.meta)
       it.types     = summaries(x.types)
       it.globals   = summaries(x.globals)
       it.instances = summaries(x.instances)
@@ -52,25 +53,25 @@ internal class GenPages: Step
   DocType genType(PageEntry entry, Spec x)
   {
     doc   := genSpecDoc(x)
+    meta  := genDict(x.meta)
     base  := x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
     slots := genSlots(x)
-    return DocType(entry.uri, x.qname, doc, base, slots)
+    return DocType(entry.uri, x.qname, doc, meta, base, slots)
   }
 
   DocGlobal genGlobal(PageEntry entry, Spec x)
   {
     doc := genSpecDoc(x)
+    meta  := genDict(x.meta)
     type := genTypeRef(x.type)
-    return DocGlobal(entry.uri, x.qname, doc, type)
+    return DocGlobal(entry.uri, x.qname, doc, meta, type)
   }
 
   DocInstance genInstance(PageEntry entry, Dict x)
   {
-    DocInstance
-    {
-      it.uri   = entry.uri
-      it.qname = x.id.id
-    }
+    qname    := x.id.id
+    instance := genDict(x)
+    return DocInstance(qname, instance)
   }
 
   Str:DocSlot genSlots(Spec type)
@@ -87,10 +88,13 @@ internal class GenPages: Step
     return acc
   }
 
-  DocSlot genSlot(Spec type, Spec slot)
+  DocSlot genSlot(Spec parentType, Spec slot)
   {
-    parent := slot.parent === type ? null : DocSimpleTypeRef(slot.parent.qname)
-    return DocSlot(slot.name, genSpecDoc(slot), genTypeRef(slot.type), parent)
+    doc     := genSpecDoc(slot)
+    meta    := genDict(slot.metaOwn)
+    typeRef := genTypeRef(slot.type)
+    parent  := slot.parent === parentType ? null : DocSimpleTypeRef(slot.parent.qname)
+    return DocSlot(slot.name, doc, meta, typeRef, parent)
   }
 
   DocTypeRef? genTypeRef(Spec? x)
@@ -104,6 +108,11 @@ internal class GenPages: Step
   DocTypeRef[] genTypeRefOfs(Spec x)
   {
     x.ofs.map |of->DocTypeRef| { genTypeRef(of) }
+  }
+
+  DocDict genDict(Dict d)
+  {
+    DocDict(d)
   }
 
   DocBlock genSpecDoc(Spec x)

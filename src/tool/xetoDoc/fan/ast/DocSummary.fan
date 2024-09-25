@@ -19,9 +19,6 @@ const class DocSummary
     this.text = text
   }
 
-  ** Node type
-//   override DocNodeType nodeType() { DocNodeType.summary }
-
   ** Title and hyperlink
   const DocLink link
 

@@ -10,16 +10,13 @@
 ** DocBlock is a formatted block of text.
 **
 @Js
-const class DocBlock : DocNode
+const class DocBlock
 {
   ** Empty string
   static const DocBlock empty := make("")
 
   ** Constructor
   new make(Str text) { this.text = text }
-
-  ** Node type
-  override DocNodeType nodeType() { DocNodeType.block }
 
   ** TODO: just wrap plain text string for now
   const Str text

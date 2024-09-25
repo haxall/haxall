@@ -9,27 +9,50 @@
 using haystack
 
 **
-** DocDict is base class for dict values: meta, instances, and nested dict values
+** DocDict encodes meta and instances
 **
-/*
 @Js
-abstract const class DocDict : DocNodeObj
+const class DocDict
 {
+  ** Empty doc dict
+  static const DocDict empty := doMake(Etc.dict0)
+
   ** Constructor
-  new make(Str:Obj obj)
+  static new make(Dict dict)
   {
-    this.obj      = obj
-    this.nodeType = obj.getChecked("_node")
+    if (dict.isEmpty) return empty
+    dict = Etc.dictRemove(dict, "doc") // pull out as parsed DocBlock
+    if (dict.isEmpty) return empty
+    return doMake(dict)
   }
 
-  ** Node object name/value pairs
-  override const Str:Obj obj
+  private new doMake(Dict dict) { this.dict = dict }
 
-  ** Enumerated type of this node
-  override const DocNodeType nodeType
+  ** Dict value
+  const Dict dict
 
-  ** Get value
-  Obj? get(Str name) { obj.get(name) }
+  ** Convenience for 'dict.get'
+  Obj? get(Str name) { dict.get(name) }
+
+  ** Encode to a JSON object tree
+  Obj? encode()
+  {
+    // TODO: probably need to a much more sophisticated encoding
+    if (dict.isEmpty) return null
+    acc := Str:Obj[:]
+    acc.ordered = true
+    dict.each |v, n|
+    {
+      acc[n] = v.toStr
+    }
+    return acc
+  }
+
+  ** Decode from a JSON object tree
+  static DocDict decode([Str:Obj]? obj)
+  {
+    if (obj == null || obj.isEmpty) return empty
+    return doMake(Etc.dictFromMap(obj))
+  }
 }
-*/
 

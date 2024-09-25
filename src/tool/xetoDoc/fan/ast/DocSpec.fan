@@ -19,6 +19,9 @@ abstract const class DocSpec
 
   ** Documentation text
   abstract DocBlock doc()
+
+  ** Effective metadata
+  abstract DocDict meta()
 }
 
 **************************************************************************
@@ -29,11 +32,12 @@ abstract const class DocSpec
 abstract const class DocSpecPage : DocSpec, DocPage
 {
   ** Constructor
-  new make(Uri uri, Str qname, DocBlock doc)
+  new make(Uri uri, Str qname, DocBlock doc, DocDict meta)
   {
     this.uri   = uri
     this.qname = qname
     this.doc   = doc
+    this.meta  = meta
   }
 
   ** URI relative to base dir to page
@@ -51,6 +55,9 @@ abstract const class DocSpecPage : DocSpec, DocPage
   ** Documentation text
   const override DocBlock doc
 
+  ** Effective meta data
+  const override DocDict meta
+
   ** Encode to a JSON object tree
   override Str:Obj encode()
   {
@@ -60,6 +67,7 @@ abstract const class DocSpecPage : DocSpec, DocPage
     obj["uri"]   = uri.toStr
     obj["qname"] = qname
     obj["doc"]   = doc.encode
+    obj.addNotNull("meta", meta.encode)
     return obj
   }
 }
@@ -75,7 +83,7 @@ abstract const class DocSpecPage : DocSpec, DocPage
 const class DocType : DocSpecPage
 {
   ** Constructor
-  new make(Uri uri, Str qname, DocBlock doc, DocTypeRef? base, Str:DocSlot slots) : super(uri, qname, doc)
+  new make(Uri uri, Str qname, DocBlock doc, DocDict meta, DocTypeRef? base, Str:DocSlot slots) : super(uri, qname, doc, meta)
   {
     this.base = base
     this.slots = slots
@@ -105,9 +113,10 @@ const class DocType : DocSpecPage
     uri   := Uri.fromStr(obj.getChecked("uri"))
     qname := obj.getChecked("qname")
     doc   := DocBlock.decode(obj.get("doc"))
+    meta  := DocDict.decode(obj.get("meta"))
     base  := DocTypeRef.decode(obj.get("base"))
     slots := DocSlot.decodeMap(obj.get("slots"))
-    return DocType(uri, qname, doc, base, slots)
+    return DocType(uri, qname, doc, meta, base, slots)
   }
 }
 
@@ -122,7 +131,7 @@ const class DocType : DocSpecPage
 const class DocGlobal : DocSpecPage
 {
   ** Constructor
-  new make(Uri uri, Str qname, DocBlock doc, DocTypeRef type) : super(uri, qname, doc)
+  new make(Uri uri, Str qname, DocBlock doc, DocDict meta, DocTypeRef type) : super(uri, qname, doc, meta)
   {
     this.type = type
   }
@@ -147,8 +156,9 @@ const class DocGlobal : DocSpecPage
     uri   := Uri.fromStr(obj.getChecked("uri"))
     qname := obj.getChecked("qname")
     doc   := DocBlock.decode(obj.get("doc"))
+    meta  := DocDict.decode(obj.get("meta"))
     type  := DocTypeRef.decode(obj.getChecked("type"))
-    return DocGlobal(uri, qname, doc, type)
+    return DocGlobal(uri, qname, doc, meta, type)
  }
 }
 
@@ -166,10 +176,11 @@ const class DocSlot : DocSpec
   static const Str:DocSlot empty := Str:DocSlot[:]
 
   ** Constructor
-  new make(Str name, DocBlock doc, DocTypeRef type, DocTypeRef? parent)
+  new make(Str name, DocBlock doc, DocDict meta, DocTypeRef type, DocTypeRef? parent)
   {
     this.name   = name
     this.doc    = doc
+    this.meta   = meta
     this.type   = type
     this.parent = parent
   }
@@ -179,6 +190,9 @@ const class DocSlot : DocSpec
 
   ** Documentation for this slot
   override const DocBlock doc
+
+  ** Declared own meta
+  override const DocDict meta
 
   ** Type for this slot
   const DocTypeRef type
@@ -194,6 +208,7 @@ const class DocSlot : DocSpec
     obj["doc"]   = doc.encode
     obj["type"]  = type.encode
     obj.addNotNull("parent", parent?.encode)
+    obj.addNotNull("meta", meta.encode)
     return obj
   }
 
@@ -210,7 +225,8 @@ const class DocSlot : DocSpec
     doc    := DocBlock.decode(obj.get("doc"))
     type   := DocTypeRef.decode(obj.getChecked("type"))
     parent := DocTypeRef.decode(obj.get("parent"))
-    return make(name, doc, type, parent)
+    meta   := DocDict.decode(obj.get("meta"))
+    return make(name, doc, meta, type, parent)
   }
 
   ** Decode map keyed by name

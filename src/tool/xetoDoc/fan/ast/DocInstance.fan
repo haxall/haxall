@@ -15,10 +15,14 @@ using xetoEnv
 const class DocInstance : DocPage
 {
   ** Constructor
-  new make(|This| f) { f(this) }
+  new make(Str qname, DocDict instance)
+  {
+    this.qname    = qname
+    this.instance = instance
+  }
 
   ** URI relative to base dir to page
-  const override Uri uri
+  override Uri uri() { DocUtil.qnameToUri(qname) }
 
   ** Qualified name of this instance
   const Str qname
@@ -32,25 +36,27 @@ const class DocInstance : DocPage
   ** Page type
   override DocPageType pageType() { DocPageType.instance }
 
+  ** Instance dictionary
+  const DocDict instance
+
   ** Encode to a JSON object tree
   override Str:Obj encode()
   {
     obj := Str:Obj[:]
-    obj.ordered  = true
-    obj["page"]  = pageType.name
-    obj["uri"]   = uri.toStr
-    obj["qname"] = qname
+    obj.ordered     = true
+    obj["page"]     = pageType.name
+    obj["uri"]      = uri.toStr
+    obj["qname"]    = qname
+    obj["instance"] = instance.encode
     return obj
   }
 
   ** Decode from a JSON object tree
   static DocInstance doDecode(Str:Obj obj)
   {
-    DocInstance
-    {
-      it.uri   = Uri.fromStr(obj.getChecked("uri"))
-      it.qname = obj.getChecked("qname")
-    }
+    qname    := obj.getChecked("qname")
+    instance := DocDict.decode(obj.getChecked("instance"))
+    return make(qname, instance)
   }
 
 }

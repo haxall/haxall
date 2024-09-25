@@ -77,10 +77,7 @@ class DocTest : AbstractXetoTest
     verifyPage(entry, n)
     verifyEq(n.pageType, DocPageType.lib)
     verifyEq(n.name, lib.name)
-/*
-    verifyEq(n.meta.get("doc"),     lib.meta["doc"])
-    verifyEq(n.meta.get("version"), lib.version.toStr)
-*/
+    //verifyDictEq(n.meta.dict, lib.meta)
 
     verifySummaries(n.types,     lib.types)
     verifySummaries(n.globals,   lib.globals)
