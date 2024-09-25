@@ -12,47 +12,51 @@ using haystack
 ** DocDict encodes meta and instances
 **
 @Js
-const class DocDict
+const class DocDict : DocVal
 {
   ** Empty doc dict
-  static const DocDict empty := doMake(Etc.dict0)
+  static const DocDict empty := doMake(DocTypeRef.dict, Str:DocVal[:])
 
   ** Constructor
-  static new make(Dict dict)
+  static new make(DocTypeRef type, Str:DocVal dict)
   {
     if (dict.isEmpty) return empty
-    dict = Etc.dictRemove(dict, "doc") // pull out as parsed DocBlock
-    if (dict.isEmpty) return empty
-    return doMake(dict)
+    return doMake(type, dict)
   }
 
-  private new doMake(Dict dict) { this.dict = dict }
+  private new doMake(DocTypeRef type, Str:DocVal dict)
+  {
+    this.type = type
+    this.dict = dict
+  }
+
+  ** Dict type
+  override const DocTypeRef type
 
   ** Dict value
-  const Dict dict
+  const Str:DocVal dict
+
+  ** Return true
+  override Bool isDict() { true }
+
+  ** Return this
+  override DocDict asDict() { this }
 
   ** Convenience for 'dict.get'
-  Obj? get(Str name) { dict.get(name) }
+  DocVal? get(Str name) { dict.get(name) }
 
-  ** Encode to a JSON object tree
-  Obj? encode()
+  ** Encode to a JSON object tree or null if empty
+  [Str:Obj]? encode()
   {
-    // TODO: probably need to a much more sophisticated encoding
     if (dict.isEmpty) return null
-    acc := Str:Obj[:]
-    acc.ordered = true
-    dict.each |v, n|
-    {
-      acc[n] = v.toStr
-    }
-    return acc
+    return encodeVal
   }
 
-  ** Decode from a JSON object tree
-  static DocDict decode([Str:Obj]? obj)
+  ** Encode to top-level dict or null if empty
+  static DocDict? decode([Str:Obj]? obj)
   {
-    if (obj == null || obj.isEmpty) return empty
-    return doMake(Etc.dictFromMap(obj))
+    if (obj == null) return empty
+    return DocVal.decodeVal(obj)
   }
 }
 

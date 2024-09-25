@@ -77,7 +77,7 @@ class DocTest : AbstractXetoTest
     verifyPage(entry, n)
     verifyEq(n.pageType, DocPageType.lib)
     verifyEq(n.name, lib.name)
-    //verifyDictEq(n.meta.dict, lib.meta)
+    verifyScalar(n.meta.get("version"), "sys::Version", lib.version.toStr)
 
     verifySummaries(n.types,     lib.types)
     verifySummaries(n.globals,   lib.globals)
@@ -134,6 +134,13 @@ class DocTest : AbstractXetoTest
     // echo("-- $n.text.toCode")
     // echo("   $doc.toCode")
     verify(doc.startsWith(n.text))
+  }
+
+  Void verifyScalar(DocScalar n, Str qname, Str s)
+  {
+    // echo("~~ verifyScalar $n.type $n.scalar")
+    verifyEq(n.type.qname, qname)
+    verifyEq(n.scalar, s)
   }
 }
 

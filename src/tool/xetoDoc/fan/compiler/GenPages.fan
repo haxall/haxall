@@ -111,7 +111,34 @@ internal class GenPages: Step
 
   DocDict genDict(Dict d)
   {
-    DocDict(d)
+    // we type everything as sys::Dict for now
+    spec := d.get("spec") as Ref
+    type := spec == null ? DocTypeRef.dict : DocSimpleTypeRef(spec.id.toStr)
+    acc := Str:Obj[:]
+    d.each |v, n|
+    {
+      if (n == "doc") return // handled by DocBlock
+      acc[n] = genVal(v)
+    }
+    return DocDict(type, acc)
+  }
+
+  DocVal genVal(Obj x)
+  {
+    if (x is Dict) return genDict(x)
+    if (x is List) return genList(x)
+    return genScalar(x)
+  }
+
+  DocList genList(Obj[] x)
+  {
+    DocList(DocTypeRef.list, x.map |item| { genVal(item) })
+  }
+
+  DocScalar genScalar(Obj x)
+  {
+    type := DocSimpleTypeRef(ns.specOf(x).qname)
+    return DocScalar(type, x.toStr)
   }
 
   DocBlock genSpecDoc(Spec x)

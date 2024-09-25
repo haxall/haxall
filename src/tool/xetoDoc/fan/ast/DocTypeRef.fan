@@ -14,6 +14,9 @@ using xetoEnv
 @Js
 abstract const class DocTypeRef
 {
+  static DocTypeRef dict() { DocSimpleTypeRef.predefined.getChecked("sys::Dict") }
+  static DocTypeRef list() { DocSimpleTypeRef.predefined.getChecked("sys::List") }
+
   ** Return qualified name (if compound "sys::And" or "sys::Or")
   abstract Str qname()
 
@@ -57,8 +60,29 @@ abstract const class DocTypeRef
 @Js
 const class DocSimpleTypeRef : DocTypeRef
 {
-  ** Constructor
-  new make(Str qname) { this.qname = qname }
+  static const Str:DocSimpleTypeRef predefined
+  static
+  {
+    acc := Str:DocSimpleTypeRef[:]
+    add := |Str qname| { acc[qname] = DocSimpleTypeRef.doMake(qname) }
+    add("sys::Dict")
+    add("sys::Enum")
+    add("sys::Func")
+    add("sys::Marker")
+    add("sys::Number")
+    add("sys::List")
+    add("sys::Str")
+    predefined = acc
+  }
+
+  ** Constructor with interning
+  static new make(Str qname)
+  {
+    predefined[qname] ?: doMake(qname)
+  }
+
+  ** Private constructor
+  private new doMake(Str qname) { this.qname = qname }
 
   ** URI to this type
   Uri uri() { DocUtil.qnameToUri(qname) }
@@ -71,6 +95,9 @@ const class DocSimpleTypeRef : DocTypeRef
 
   ** Encode to a JSON object tree
   override Obj encode() { qname }
+
+  ** String
+  override Str toStr() { qname }
 }
 
 **************************************************************************
@@ -91,6 +118,9 @@ abstract const class DocCompoundTypeRef : DocTypeRef
 
   ** Return true
   override Bool isCompound() { true }
+
+  ** String
+  override Str toStr() { ofs.join(" $compoundSymbol ") }
 }
 
 **
