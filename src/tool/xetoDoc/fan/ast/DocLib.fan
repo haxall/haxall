@@ -18,7 +18,7 @@ const class DocLib : DocPage
   new make(|This| f) { f(this) }
 
   ** URI relative to base dir to page
-  const override Uri uri
+  override Uri uri() { DocUtil.libToUri(name) }
 
   ** Dotted name for library
   const Str name
@@ -38,7 +38,6 @@ const class DocLib : DocPage
     obj := Str:Obj[:]
     obj.ordered = true
     obj["page"] = pageType.name
-    obj["uri"]  = uri.toStr
     obj["name"] = name
     obj["doc"]  = doc.encode
     obj["meta"] = meta.encode
@@ -53,7 +52,6 @@ const class DocLib : DocPage
   {
     DocLib
     {
-      it.uri       = Uri.fromStr(obj.getChecked("uri"))
       it.name      = obj.getChecked("name")
       it.doc       = DocBlock.decode(obj.get("doc"))
       it.meta      = DocDict.decode(obj.get("meta"))

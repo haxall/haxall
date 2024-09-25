@@ -45,7 +45,6 @@ const class DocInstance : DocPage
     obj := Str:Obj[:]
     obj.ordered     = true
     obj["page"]     = pageType.name
-    obj["uri"]      = uri.toStr
     obj["qname"]    = qname
     obj["instance"] = instance.encode
     return obj

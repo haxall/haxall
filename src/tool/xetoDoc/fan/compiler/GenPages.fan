@@ -40,7 +40,6 @@ internal class GenPages: Step
   {
     DocLib
     {
-      it.uri       = entry.uri
       it.name      = x.name
       it.doc       = genDoc(x.meta["doc"])
       it.meta      = genDict(x.meta)
@@ -56,7 +55,7 @@ internal class GenPages: Step
     meta  := genDict(x.meta)
     base  := x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
     slots := genSlots(x)
-    return DocType(entry.uri, x.qname, doc, meta, base, slots)
+    return DocType(x.qname, doc, meta, base, slots)
   }
 
   DocGlobal genGlobal(PageEntry entry, Spec x)
@@ -64,7 +63,7 @@ internal class GenPages: Step
     doc := genSpecDoc(x)
     meta  := genDict(x.meta)
     type := genTypeRef(x.type)
-    return DocGlobal(entry.uri, x.qname, doc, meta, type)
+    return DocGlobal(x.qname, doc, meta, type)
   }
 
   DocInstance genInstance(PageEntry entry, Dict x)

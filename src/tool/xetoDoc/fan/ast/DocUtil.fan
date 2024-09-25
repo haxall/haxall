@@ -14,9 +14,16 @@ using xetoEnv
 @Js
 const class DocUtil
 {
+  ** Lib name to the library index page
+  static Uri libToUri(Str libName)
+  {
+    "/${libName}/index".toUri
+  }
+
   ** Convert spec or instance qualified name to its normalized URI
   static Uri qnameToUri(Str qname)
   {
+    // TODO: we are going to have to deal with lower vs upper case names on file systems
     colons := qname.index("::")
     if (colons == null) return "/${qname}".toUri
     s := StrBuf(qname.size + 3)

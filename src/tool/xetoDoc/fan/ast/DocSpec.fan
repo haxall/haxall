@@ -32,16 +32,15 @@ abstract const class DocSpec
 abstract const class DocSpecPage : DocSpec, DocPage
 {
   ** Constructor
-  new make(Uri uri, Str qname, DocBlock doc, DocDict meta)
+  new make(Str qname, DocBlock doc, DocDict meta)
   {
-    this.uri   = uri
     this.qname = qname
     this.doc   = doc
     this.meta  = meta
   }
 
   ** URI relative to base dir to page
-  const override Uri uri
+  override Uri uri() { DocUtil.qnameToUri(qname) }
 
   ** Qualified name of this spec
   const Str qname
@@ -64,7 +63,6 @@ abstract const class DocSpecPage : DocSpec, DocPage
     obj := Str:Obj[:]
     obj.ordered  = true
     obj["page"]  = pageType.name
-    obj["uri"]   = uri.toStr
     obj["qname"] = qname
     obj["doc"]   = doc.encode
     obj.addNotNull("meta", meta.encode)
@@ -83,7 +81,7 @@ abstract const class DocSpecPage : DocSpec, DocPage
 const class DocType : DocSpecPage
 {
   ** Constructor
-  new make(Uri uri, Str qname, DocBlock doc, DocDict meta, DocTypeRef? base, Str:DocSlot slots) : super(uri, qname, doc, meta)
+  new make(Str qname, DocBlock doc, DocDict meta, DocTypeRef? base, Str:DocSlot slots) : super(qname, doc, meta)
   {
     this.base = base
     this.slots = slots
@@ -110,13 +108,12 @@ const class DocType : DocSpecPage
   ** Decode from a JSON object tree
   static DocType doDecode(Str:Obj obj)
   {
-    uri   := Uri.fromStr(obj.getChecked("uri"))
     qname := obj.getChecked("qname")
     doc   := DocBlock.decode(obj.get("doc"))
     meta  := DocDict.decode(obj.get("meta"))
     base  := DocTypeRef.decode(obj.get("base"))
     slots := DocSlot.decodeMap(obj.get("slots"))
-    return DocType(uri, qname, doc, meta, base, slots)
+    return DocType(qname, doc, meta, base, slots)
   }
 }
 
@@ -131,7 +128,7 @@ const class DocType : DocSpecPage
 const class DocGlobal : DocSpecPage
 {
   ** Constructor
-  new make(Uri uri, Str qname, DocBlock doc, DocDict meta, DocTypeRef type) : super(uri, qname, doc, meta)
+  new make(Str qname, DocBlock doc, DocDict meta, DocTypeRef type) : super(qname, doc, meta)
   {
     this.type = type
   }
@@ -153,12 +150,11 @@ const class DocGlobal : DocSpecPage
   ** Decode from a JSON object tree
   static DocGlobal doDecode(Str:Obj obj)
   {
-    uri   := Uri.fromStr(obj.getChecked("uri"))
     qname := obj.getChecked("qname")
     doc   := DocBlock.decode(obj.get("doc"))
     meta  := DocDict.decode(obj.get("meta"))
     type  := DocTypeRef.decode(obj.getChecked("type"))
-    return DocGlobal(uri, qname, doc, meta, type)
+    return DocGlobal(qname, doc, meta, type)
  }
 }
 
