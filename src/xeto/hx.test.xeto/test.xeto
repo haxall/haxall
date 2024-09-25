@@ -67,3 +67,12 @@ InstantiateA: {
 // Global tag example. Sentence two
 globalTag: Str
 
+Sigs: {
+  a: Str
+  b: Str?
+  c: A | B
+  d: A & B
+  e: A | B <maybe>
+  f: A & B <maybe>
+}
+

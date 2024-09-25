@@ -20,6 +20,12 @@ abstract const class DocTypeRef
   ** Return qualified name (if compound "sys::And" or "sys::Or")
   abstract Str qname()
 
+  ** Return simple name
+  Str name() { XetoUtil.qnameToName(qname) }
+
+  ** Return if this is a Maybe type
+  abstract Bool isMaybe()
+
   ** Return if this is an And/Or type
   virtual Bool isCompound() { false }
 
@@ -36,10 +42,17 @@ abstract const class DocTypeRef
   static DocTypeRef? decode(Obj? obj)
   {
     if (obj == null) return null
-    if (obj is Str) return DocSimpleTypeRef(obj.toStr)
+    if (obj is Str)
+    {
+      sig := obj.toStr
+      if (sig.endsWith("?")) return DocSimpleTypeRef(sig[0..-2], true)
+      return DocSimpleTypeRef(sig, false)
+
+    }
     map := (Str:Obj)obj
-    ofs := map["and"]; if (ofs != null) return DocAndTypeRef(decodeList(ofs))
-    ofs = map["or"]; if (ofs != null) return DocOrTypeRef(decodeList(ofs))
+    isMaybe := map["maybe"] != null
+    ofs := map["and"]; if (ofs != null) return DocAndTypeRef(decodeList(ofs), isMaybe)
+    ofs = map["or"]; if (ofs != null) return DocOrTypeRef(decodeList(ofs), isMaybe)
     throw Err("Cannot decode: $obj")
   }
 
@@ -64,7 +77,7 @@ const class DocSimpleTypeRef : DocTypeRef
   static
   {
     acc := Str:DocSimpleTypeRef[:]
-    add := |Str qname| { acc[qname] = DocSimpleTypeRef.doMake(qname) }
+    add := |Str qname| { acc[qname] = DocSimpleTypeRef.doMake(qname, false) }
     add("sys::Dict")
     add("sys::Enum")
     add("sys::Func")
@@ -76,13 +89,22 @@ const class DocSimpleTypeRef : DocTypeRef
   }
 
   ** Constructor with interning
-  static new make(Str qname)
+  static new make(Str qname, Bool isMaybe := false)
   {
-    predefined[qname] ?: doMake(qname)
+    if (!isMaybe)
+    {
+      p := predefined[qname]
+      if (p != null) return p
+    }
+    return doMake(qname, isMaybe)
   }
 
   ** Private constructor
-  private new doMake(Str qname) { this.qname = qname }
+  private new doMake(Str qname, Bool isMaybe)
+  {
+    this.qname = qname
+    this.isMaybe = isMaybe
+  }
 
   ** URI to this type
   Uri uri() { DocUtil.qnameToUri(qname) }
@@ -90,14 +112,18 @@ const class DocSimpleTypeRef : DocTypeRef
   ** Qualified name of the type
   const override Str qname
 
-  ** Simple name of the type
-  Str name() { XetoUtil.qnameToName(qname) }
+  ** Is this maybe type
+  const override Bool isMaybe
 
   ** Encode to a JSON object tree
-  override Obj encode() { qname }
+  override Obj encode()
+  {
+    if (isMaybe) return "${qname}?"
+    return qname
+  }
 
   ** String
-  override Str toStr() { qname }
+  override Str toStr() { encode }
 }
 
 **************************************************************************
@@ -111,13 +137,33 @@ const class DocSimpleTypeRef : DocTypeRef
 abstract const class DocCompoundTypeRef : DocTypeRef
 {
   ** Constructor
-  new make(DocTypeRef[] ofs) { this.ofs = ofs }
+  new make(DocTypeRef[] ofs, Bool isMaybe)
+  {
+    this.ofs = ofs
+    this.isMaybe = isMaybe
+  }
 
   ** Compound types
   override const DocTypeRef[]? ofs
 
+  ** Return if this is a Maybe type
+  override const Bool isMaybe
+
   ** Return true
   override Bool isCompound() { true }
+
+  ** Encode
+  override final Str:Obj encode()
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
+    if (isMaybe) acc["maybe"] = true
+    acc[encodeTag] = ofs.map |x| { x.encode}
+    return acc
+  }
+
+  ** Return "and" or "or"
+  abstract Str encodeTag()
 
   ** String
   override Str toStr() { ofs.join(" $compoundSymbol ") }
@@ -129,10 +175,10 @@ abstract const class DocCompoundTypeRef : DocTypeRef
 @Js
 const class DocAndTypeRef : DocCompoundTypeRef
 {
-  new make(DocTypeRef[] ofs) : super(ofs) {}
+  new make(DocTypeRef[] ofs, Bool isMaybe) : super(ofs, isMaybe) {}
   override Str qname() { "sys::And" }
   override Str? compoundSymbol() { "&" }
-  override Str:Obj encode() { ["and":ofs.map |x| { x.encode}] }
+  override Str encodeTag() { "and" }
 }
 
 **
@@ -141,9 +187,9 @@ const class DocAndTypeRef : DocCompoundTypeRef
 @Js
 const class DocOrTypeRef : DocCompoundTypeRef
 {
-  new make(DocTypeRef[] ofs) : super(ofs) {}
+  new make(DocTypeRef[] ofs, Bool isMaybe) : super(ofs, isMaybe) {}
   override Str qname() { "sys::Or" }
   override Str? compoundSymbol() { "|" }
-  override Str:Obj encode() { ["or":ofs.map |x| { x.encode}] }
+  override Str encodeTag() { "or" }
 }
 

@@ -91,7 +91,7 @@ internal class GenPages: Step
   {
     doc     := genSpecDoc(slot)
     meta    := genDict(slot.metaOwn)
-    typeRef := genTypeRef(slot.type)
+    typeRef := genTypeRef(slot)
     parent  := slot.parent === parentType ? null : DocSimpleTypeRef(slot.parent.qname)
     return DocSlot(slot.name, doc, meta, typeRef, parent)
   }
@@ -99,9 +99,9 @@ internal class GenPages: Step
   DocTypeRef? genTypeRef(Spec? x)
   {
     if (x == null) return null
-    if (x.isAnd) return DocAndTypeRef(genTypeRefOfs(x))
-    if (x.isOr)  return DocOrTypeRef(genTypeRefOfs(x))
-    return DocSimpleTypeRef(x.qname)
+    if (x.isAnd) return DocAndTypeRef(genTypeRefOfs(x), x.isMaybe)
+    if (x.isOr)  return DocOrTypeRef(genTypeRefOfs(x), x.isMaybe)
+    return DocSimpleTypeRef(x.type.qname, x.isMaybe)
   }
 
   DocTypeRef[] genTypeRefOfs(Spec x)

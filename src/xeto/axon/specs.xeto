@@ -8,3 +8,17 @@
 
 AxonFunc: Dict
 
+Foo: Dict
+
+Bar: Dict
+
+Alpha: {
+  a: Foo
+  b: Foo?
+  b2: Foo <maybe>
+  c: Foo & Bar
+  d: Foo | Bar
+  e: Foo & Bar <maybe>
+  f: Foo | Bar <maybe>
+}
+

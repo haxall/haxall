@@ -55,6 +55,12 @@ class DocTest : AbstractXetoTest
     entry = compiler.pages.getChecked(inst.id.toStr)
     verifyInstance(entry, inst, entry.page)
     verifyInstance(entry, inst, roundtrip(entry))
+
+    // type sigs
+    spec = lib.spec("Sigs")
+    entry = compiler.pages.getChecked(spec.qname)
+    verifyTypeRefs(spec, entry.page)
+    verifyTypeRefs(spec, roundtrip(entry))
   }
 
   DocPage roundtrip(PageEntry entry)
@@ -134,6 +140,62 @@ class DocTest : AbstractXetoTest
     // echo("-- $n.text.toCode")
     // echo("   $doc.toCode")
     verify(doc.startsWith(n.text))
+  }
+
+  Void verifyTypeRefs(Spec spec, DocType n)
+  {
+    /*
+      a: Str
+      b: Str?
+      c: A | B
+      d: A & B
+      e: A | B <maybe>
+      f: A & B <maybe>
+    */
+
+    x := n.slots["a"].type
+    verifyEq(x.qname, "sys::Str")
+    verifyEq(x.isMaybe, false)
+    verifyEq(x.isCompound, false)
+
+    x = n.slots["b"].type
+    verifyEq(x.qname, "sys::Str")
+    verifyEq(x.isMaybe, true)
+    verifyEq(x.isCompound, false)
+
+    x = n.slots["c"].type
+    verifyEq(x.qname, "sys::Or")
+    verifyEq(x.isMaybe, false)
+    verifyEq(x.isCompound, true)
+    verifyEq(x.compoundSymbol, "|")
+    verifyOfs := |->|
+    {
+      verifyEq(x.ofs.size, 2)
+      verifyEq(x.ofs[0].name, "A")
+      verifyEq(x.ofs[1].name, "B")
+    }
+    verifyOfs()
+
+    x = n.slots["d"].type
+    verifyEq(x.qname, "sys::And")
+    verifyEq(x.isMaybe, false)
+    verifyEq(x.isCompound, true)
+    verifyEq(x.compoundSymbol, "&")
+    verifyOfs()
+
+    x = n.slots["e"].type
+    verifyEq(x.qname, "sys::Or")
+    verifyEq(x.isMaybe, true)
+    verifyEq(x.isCompound, true)
+    verifyEq(x.compoundSymbol, "|")
+    verifyOfs()
+
+    x = n.slots["f"].type
+    verifyEq(x.qname, "sys::And")
+    verifyEq(x.isMaybe, true)
+    verifyEq(x.isCompound, true)
+    verifyEq(x.compoundSymbol, "&")
+    verifyOfs()
   }
 
   Void verifyScalar(DocScalar n, Str qname, Str s)
