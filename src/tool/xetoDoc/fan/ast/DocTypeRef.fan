@@ -26,6 +26,12 @@ abstract const class DocTypeRef
   ** Return if this is a Maybe type
   abstract Bool isMaybe()
 
+  ** Return if is a parameterized type with 'of'
+  virtual Bool isOf() { false }
+
+  ** Return of the 'of' parameterized type
+  virtual DocTypeRef? of() { null }
+
   ** Return if this is an And/Or type
   virtual Bool isCompound() { false }
 
@@ -51,6 +57,8 @@ abstract const class DocTypeRef
     }
     map := (Str:Obj)obj
     isMaybe := map["maybe"] != null
+    of := map["of"]
+    if (of != null) return DocOfTypeRef(decode(map.getChecked("base")), decode(of))
     ofs := map["and"]; if (ofs != null) return DocAndTypeRef(decodeList(ofs), isMaybe)
     ofs = map["or"]; if (ofs != null) return DocOrTypeRef(decodeList(ofs), isMaybe)
     throw Err("Cannot decode: $obj")
@@ -124,6 +132,44 @@ const class DocSimpleTypeRef : DocTypeRef
 
   ** String
   override Str toStr() { encode }
+}
+
+**************************************************************************
+** DocOfTypeRef
+**************************************************************************
+
+**
+** DocOfTypeRef
+**
+@Js
+const class DocOfTypeRef : DocTypeRef
+{
+  new make(DocTypeRef base, DocTypeRef of)
+  {
+    this.base = base
+    this.of   = of
+  }
+
+  const DocTypeRef base
+
+  override Str qname() { base.qname }
+
+  override Bool isMaybe() { base.isMaybe }
+
+  override Bool isOf() { true }
+
+  override const DocTypeRef? of
+
+  override final Str:Obj encode()
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
+    acc["base"] = base.encode
+    acc["of"] = of.encode
+    return acc
+  }
+
+  override Str toStr() { "$base <of:$of>" }
 }
 
 **************************************************************************

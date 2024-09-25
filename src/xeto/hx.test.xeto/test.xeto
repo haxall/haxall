@@ -74,5 +74,7 @@ Sigs: {
   d: A & B
   e: A | B <maybe>
   f: A & B <maybe>
+  g: List <of:Str>
+  h: List <of:Ref<of:A>>
 }
 

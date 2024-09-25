@@ -99,9 +99,19 @@ internal class GenPages: Step
   DocTypeRef? genTypeRef(Spec? x)
   {
     if (x == null) return null
-    if (x.isAnd) return DocAndTypeRef(genTypeRefOfs(x), x.isMaybe)
-    if (x.isOr)  return DocOrTypeRef(genTypeRefOfs(x), x.isMaybe)
-    return DocSimpleTypeRef(x.type.qname, x.isMaybe)
+    if (x.isCompound)
+    {
+      if (x.isAnd) return DocAndTypeRef(genTypeRefOfs(x), x.isMaybe)
+      if (x.isOr)  return DocOrTypeRef(genTypeRefOfs(x), x.isMaybe)
+    }
+    baseType := XetoUtil.isAutoName(x.name) ? x.base : x.type
+    base := DocSimpleTypeRef(baseType.qname, x.isMaybe)
+    of := x.of(false)
+    if (of != null)
+    {
+      return DocOfTypeRef(base, genTypeRef(of))
+    }
+    return base
   }
 
   DocTypeRef[] genTypeRefOfs(Spec x)

@@ -151,21 +151,26 @@ class DocTest : AbstractXetoTest
       d: A & B
       e: A | B <maybe>
       f: A & B <maybe>
+      g: List <of:Str>
+      h: List <of:Ref<of:A>>
     */
 
     x := n.slots["a"].type
     verifyEq(x.qname, "sys::Str")
     verifyEq(x.isMaybe, false)
+    verifyEq(x.isOf, false)
     verifyEq(x.isCompound, false)
 
     x = n.slots["b"].type
     verifyEq(x.qname, "sys::Str")
     verifyEq(x.isMaybe, true)
+    verifyEq(x.isOf, false)
     verifyEq(x.isCompound, false)
 
     x = n.slots["c"].type
     verifyEq(x.qname, "sys::Or")
     verifyEq(x.isMaybe, false)
+    verifyEq(x.isOf, false)
     verifyEq(x.isCompound, true)
     verifyEq(x.compoundSymbol, "|")
     verifyOfs := |->|
@@ -179,6 +184,7 @@ class DocTest : AbstractXetoTest
     x = n.slots["d"].type
     verifyEq(x.qname, "sys::And")
     verifyEq(x.isMaybe, false)
+    verifyEq(x.isOf, false)
     verifyEq(x.isCompound, true)
     verifyEq(x.compoundSymbol, "&")
     verifyOfs()
@@ -186,6 +192,7 @@ class DocTest : AbstractXetoTest
     x = n.slots["e"].type
     verifyEq(x.qname, "sys::Or")
     verifyEq(x.isMaybe, true)
+    verifyEq(x.isOf, false)
     verifyEq(x.isCompound, true)
     verifyEq(x.compoundSymbol, "|")
     verifyOfs()
@@ -193,9 +200,27 @@ class DocTest : AbstractXetoTest
     x = n.slots["f"].type
     verifyEq(x.qname, "sys::And")
     verifyEq(x.isMaybe, true)
+    verifyEq(x.isOf, false)
     verifyEq(x.isCompound, true)
     verifyEq(x.compoundSymbol, "&")
     verifyOfs()
+
+    x = n.slots["g"].type
+    verifyEq(x.qname, "sys::List")
+    verifyEq(x.isMaybe, false)
+    verifyEq(x.isOf, true)
+    verifyEq(x.isCompound, false)
+    verifyEq(x.of.qname, "sys::Str")
+
+    x = n.slots["h"].type
+    verifyEq(x.qname, "sys::List")
+    verifyEq(x.isMaybe, false)
+    verifyEq(x.isOf, true)
+    verifyEq(x.isCompound, false)
+    verifyEq(x.of.qname, "sys::Ref")
+    verifyEq(x.of.isOf, true)
+    verifyEq(x.of.of.name, "A")
+
   }
 
   Void verifyScalar(DocScalar n, Str qname, Str s)
