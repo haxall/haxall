@@ -61,6 +61,18 @@ class DocTest : AbstractXetoTest
     entry = compiler.pages.getChecked(spec.qname)
     verifyTypeRefs(spec, entry.page)
     verifyTypeRefs(spec, roundtrip(entry))
+
+    // supertypes
+    spec = lib.spec("AB")
+    entry = compiler.pages.getChecked(spec.qname)
+    verifySupertypes(spec, entry.page)
+    verifySupertypes(spec, roundtrip(entry))
+
+    // subtypes
+    spec = lib.spec("A")
+    entry = compiler.pages.getChecked(spec.qname)
+    verifySubtypes(spec, entry.page)
+    verifySubtypes(spec, roundtrip(entry))
   }
 
   DocPage roundtrip(PageEntry entry)
@@ -85,7 +97,9 @@ class DocTest : AbstractXetoTest
     verifyEq(n.name, lib.name)
     verifyScalar(n.meta.get("version"), "sys::Version", lib.version.toStr)
 
-    verifySummaries(n.types,     lib.types)
+    docTypes := lib.types.findAll { it.name[0] != '_' }
+
+    verifySummaries(n.types,     docTypes)
     verifySummaries(n.globals,   lib.globals)
     verifySummaries(n.instances, lib.instances)
   }
@@ -221,6 +235,37 @@ class DocTest : AbstractXetoTest
     verifyEq(x.of.isOf, true)
     verifyEq(x.of.of.name, "A")
 
+  }
+
+  Void verifySupertypes(Spec spec, DocType n)
+  {
+    /*
+       A: Dict
+       B: Dict
+       AB: A & B
+    */
+
+    x := n.supertypes
+    e0a := x.edges[0][0]
+    e0b := x.edges[0][1]
+    verifyEq(x.types[0].name, "AB")
+    verifyEq(x.edges[0].size, 2)
+    verifyEq(x.types[e0a].name, "A")
+    verifyEq(x.types[e0b].name, "B")
+  }
+
+  Void verifySubtypes(Spec spec, DocType n)
+  {
+    /*
+       A: Dict
+       C: A
+       AB: A & B
+    */
+
+    x := n.subtypes
+    verifyEq(x.types.size, 2)
+    verifyEq(x.types[0].name, "AB")
+    verifyEq(x.types[1].name, "C")
   }
 
   Void verifyScalar(DocScalar n, Str qname, Str s)

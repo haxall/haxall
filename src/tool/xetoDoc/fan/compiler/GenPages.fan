@@ -62,12 +62,55 @@ internal class GenPages: Step
 
   DocTypeGraph genSupertypes(Spec x)
   {
-    DocTypeGraph.empty
+    acc := Str:Int[:]
+    acc.ordered = true
+    doGenSupertypes(acc, x)
+    types := acc.keys.map |qname->DocTypeRef| { DocSimpleTypeRef(qname) }
+
+    edges := Int[][,]
+    acc.each |index, qname|
+    {
+      edges.add(toSupertypeBaseIndex(acc, ns.spec(qname)))
+    }
+    return DocTypeGraph(types, edges)
+  }
+
+  Int[] toSupertypeBaseIndex(Str:Int qnameToIndex, Spec spec)
+  {
+    if (spec.base == null) return Int#.emptyList
+    if (!spec.isCompound) return [qnameToIndex.getChecked(spec.base.qname)]
+    return spec.ofs.map |x->Int| { qnameToIndex.getChecked(x.qname) }
+  }
+
+  Void doGenSupertypes(Str:Int acc, Spec? x)
+  {
+    if (x == null || acc[x.qname] != null) return
+    acc[x.qname] = acc.size
+    if (!x.isCompound)
+    {
+      doGenSupertypes(acc, x.base)
+    }
+    else
+    {
+      x.ofs.each |sup|
+      {
+        doGenSupertypes(acc, sup)
+      }
+    }
   }
 
   DocTypeGraph genSubtypes(Spec x)
   {
-    DocTypeGraph.empty
+    acc := typesToDoc(x.lib).findAll |t|
+    {
+      if (t.isCompound)
+        return t.ofs.any { it === x }
+      else
+        return t.base === x
+    }
+    if (acc.isEmpty) return DocTypeGraph.empty
+    types := acc.map |s| { DocSimpleTypeRef(s.qname) }
+    return DocTypeGraph(types, null)
   }
 
   DocGlobal genGlobal(PageEntry entry, Spec x)

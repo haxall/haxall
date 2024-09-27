@@ -15,16 +15,21 @@ using xetoEnv
 const class DocTypeGraph
 {
   ** Empty list of types
-  static const DocTypeGraph empty := make(DocTypeRef[,])
+  static const DocTypeGraph empty := make(DocTypeRef[,], null)
 
   ** Constructor
-  new make(DocTypeRef[] types)
+  new make(DocTypeRef[] types, Int[][]? edges)
   {
     this.types = types
+    this.edges = edges
   }
 
   ** List of all types in the inheritance graph
   const DocTypeRef[] types
+
+  ** This is a list of edges for each type aligned by list index
+  ** Used only for supertypes, not subtypes
+  const Int[][]? edges
 
   ** Encode to a JSON object tree
   [Str:Obj]? encode()
@@ -33,6 +38,7 @@ const class DocTypeGraph
     acc := Str:Obj[:]
     acc.ordered = true
     acc["types"] = types.map |x| { x.encode }
+    acc.addNotNull("edges", edges)
     return acc
   }
 
@@ -41,7 +47,8 @@ const class DocTypeGraph
   {
     if (obj == null) return empty
     types := ((List)obj.getChecked("types")).map |x| { DocTypeRef.decode(x) }
-    return make(types)
+    edges := obj["edges"]
+    return make(types, edges)
   }
 }
 

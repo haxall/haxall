@@ -109,9 +109,9 @@ const class DocType : DocSpecPage
   {
     obj := super.encode
     obj.addNotNull("base", base?.encode)
-    obj.addNotNull("slots", DocSlot.encodeMap(slots))
     obj.addNotNull("supertypes", supertypes.encode)
     obj.addNotNull("subtypes", subtypes.encode)
+    obj.addNotNull("slots", DocSlot.encodeMap(slots))
     return obj
   }
 
@@ -122,9 +122,9 @@ const class DocType : DocSpecPage
     doc        := DocBlock.decode(obj.get("doc"))
     meta       := DocDict.decode(obj.get("meta"))
     base       := DocTypeRef.decode(obj.get("base"))
-    slots      := DocSlot.decodeMap(obj.get("slots"))
     supertypes := DocTypeGraph.decode(obj.get("supertypes"))
     subtypes   := DocTypeGraph.decode(obj.get("subtypes"))
+    slots      := DocSlot.decodeMap(obj.get("slots"))
     return DocType(qname, doc, meta, base, supertypes, subtypes, slots)
   }
 }
