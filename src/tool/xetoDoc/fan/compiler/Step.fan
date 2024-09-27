@@ -34,6 +34,11 @@ abstract internal class Step
     compiler.pages.each(f)
   }
 
+  Spec[] typesToDoc(Lib lib)
+  {
+    lib.types.findAll |t| { !XetoUtil.isAutoName(t.name) }
+  }
+
   PageEntry page(Obj x)
   {
     compiler.page(x)

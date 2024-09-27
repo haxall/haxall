@@ -81,9 +81,11 @@ abstract const class DocSpecPage : DocSpec, DocPage
 const class DocType : DocSpecPage
 {
   ** Constructor
-  new make(Str qname, DocBlock doc, DocDict meta, DocTypeRef? base, Str:DocSlot slots) : super(qname, doc, meta)
+  new make(Str qname, DocBlock doc, DocDict meta, DocTypeRef? base, DocTypeGraph supertypes, DocTypeGraph subtypes, Str:DocSlot slots) : super(qname, doc, meta)
   {
     this.base = base
+    this.supertypes = supertypes
+    this.subtypes = subtypes
     this.slots = slots
   }
 
@@ -92,6 +94,12 @@ const class DocType : DocSpecPage
 
   ** Super type or null if this is 'sys::Obj'
   const DocTypeRef? base
+
+  ** Supertype inheritance graph
+  const DocTypeGraph supertypes
+
+  ** Subtypes in this library
+  const DocTypeGraph subtypes
 
   ** Child slots on this type
   const Str:DocSlot slots
@@ -102,18 +110,22 @@ const class DocType : DocSpecPage
     obj := super.encode
     obj.addNotNull("base", base?.encode)
     obj.addNotNull("slots", DocSlot.encodeMap(slots))
+    obj.addNotNull("supertypes", supertypes.encode)
+    obj.addNotNull("subtypes", subtypes.encode)
     return obj
   }
 
   ** Decode from a JSON object tree
   static DocType doDecode(Str:Obj obj)
   {
-    qname := obj.getChecked("qname")
-    doc   := DocBlock.decode(obj.get("doc"))
-    meta  := DocDict.decode(obj.get("meta"))
-    base  := DocTypeRef.decode(obj.get("base"))
-    slots := DocSlot.decodeMap(obj.get("slots"))
-    return DocType(qname, doc, meta, base, slots)
+    qname      := obj.getChecked("qname")
+    doc        := DocBlock.decode(obj.get("doc"))
+    meta       := DocDict.decode(obj.get("meta"))
+    base       := DocTypeRef.decode(obj.get("base"))
+    slots      := DocSlot.decodeMap(obj.get("slots"))
+    supertypes := DocTypeGraph.decode(obj.get("supertypes"))
+    subtypes   := DocTypeGraph.decode(obj.get("subtypes"))
+    return DocType(qname, doc, meta, base, supertypes, subtypes, slots)
   }
 }
 

@@ -26,7 +26,7 @@ internal class StubPages: Step
       add(PageEntry.makeLib(lib))
 
       // type ids
-      lib.types.each |x|
+      typesToDoc(lib).each |x|
       {
         add(PageEntry.makeSpec(x, DocPageType.type))
       }

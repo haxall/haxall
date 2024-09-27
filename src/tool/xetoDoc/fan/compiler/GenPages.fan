@@ -43,7 +43,7 @@ internal class GenPages: Step
       it.name      = x.name
       it.doc       = genDoc(x.meta["doc"])
       it.meta      = genDict(x.meta)
-      it.types     = summaries(x.types)
+      it.types     = summaries(typesToDoc(x))
       it.globals   = summaries(x.globals)
       it.instances = summaries(x.instances)
     }
@@ -51,11 +51,23 @@ internal class GenPages: Step
 
   DocType genType(PageEntry entry, Spec x)
   {
-    doc   := genSpecDoc(x)
-    meta  := genDict(x.meta)
-    base  := x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
-    slots := genSlots(x)
-    return DocType(x.qname, doc, meta, base, slots)
+    doc        := genSpecDoc(x)
+    meta       := genDict(x.meta)
+    base       := x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
+    slots      := genSlots(x)
+    supertypes := genSupertypes(x)
+    subtypes   := genSubtypes(x)
+    return DocType(x.qname, doc, meta, base, supertypes, subtypes, slots)
+  }
+
+  DocTypeGraph genSupertypes(Spec x)
+  {
+    DocTypeGraph.empty
+  }
+
+  DocTypeGraph genSubtypes(Spec x)
+  {
+    DocTypeGraph.empty
   }
 
   DocGlobal genGlobal(PageEntry entry, Spec x)
