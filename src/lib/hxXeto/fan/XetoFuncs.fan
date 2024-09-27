@@ -604,7 +604,7 @@ const class XetoFuncs
   **
   ** Match dict recs against specs to find all the specs that fit.  The recs
   ** argument can be anything accepted by `toRecList()`.  Specs must be a
-  ** list of Specs.  If specs argument is omitted, then we match against
+  ** Spec or list of Specs.  If specs argument is omitted, then we match against
   ** all the non-abstract [types]`specs()` currently in scope.  Only the most
   ** specific subtype is returned.
   **
@@ -619,19 +619,23 @@ const class XetoFuncs
   **    readAll(equip).fitsMatchAll
   **
   @Axon
-  static Grid fitsMatchAll(Obj? recs, Spec[]? specs := null, Dict? opts := null)
+  static Grid fitsMatchAll(Obj? recs, Obj? specs := null, Dict? opts := null)
   {
+    // coerce specs to list
+    specList := specs as Spec[]
+    if (specList == null && specs != null) specList = [(Spec)specs]
+
     // if specs not specific, get all in scope
     cx := curContext
     dictSpec := cx.xeto.spec("sys::Dict") // TODO - make isDict work for AND types
-    if (specs == null)
-      specs = typesInScope(cx) |t| { !t.qname.startsWith("sys::") && t.isa(dictSpec) && t.missing("abstract") }
+    if (specList == null)
+      specList = typesInScope(cx) |t| { !t.qname.startsWith("sys::") && t.isa(dictSpec) && t.missing("abstract") }
 
     // walk thru each record add row
     gb := GridBuilder().addCol("id").addCol("num").addCol("specs")
     Etc.toRecs(recs).each |rec|
     {
-      matches := doFitsMatchAll(cx, rec, specs, opts)
+      matches := doFitsMatchAll(cx, rec, specList, opts)
       gb.addRow([rec.id, Number(matches.size), matches])
     }
     return gb.toGrid
