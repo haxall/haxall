@@ -184,13 +184,14 @@ const class DocSlot : DocSpec
   static const Str:DocSlot empty := Str:DocSlot[:]
 
   ** Constructor
-  new make(Str name, DocBlock doc, DocDict meta, DocTypeRef type, DocTypeRef? parent)
+  new make(Str name, DocBlock doc, DocDict meta, DocTypeRef type, DocTypeRef? parent, Str:DocSlot slots)
   {
     this.name   = name
     this.doc    = doc
     this.meta   = meta
     this.type   = type
     this.parent = parent
+    this.slots  = slots
   }
 
   ** Simple name of this instance
@@ -205,8 +206,11 @@ const class DocSlot : DocSpec
   ** Type for this slot
   const DocTypeRef type
 
-  ** Declared parent type if inherited
+  ** Declared parent type if inherited, null if declared in containing type
   const DocTypeRef? parent
+
+  ** Child slots on this type
+  const Str:DocSlot slots
 
   ** Encode to a JSON object tree
   Str:Obj encode()
@@ -217,6 +221,7 @@ const class DocSlot : DocSpec
     obj["type"]  = type.encode
     obj.addNotNull("parent", parent?.encode)
     obj.addNotNull("meta", meta.encode)
+    obj.addNotNull("slots", DocSlot.encodeMap(slots))
     return obj
   }
 
@@ -234,7 +239,8 @@ const class DocSlot : DocSpec
     type   := DocTypeRef.decode(obj.getChecked("type"))
     parent := DocTypeRef.decode(obj.get("parent"))
     meta   := DocDict.decode(obj.get("meta"))
-    return make(name, doc, meta, type, parent)
+    slots  := DocSlot.decodeMap(obj.get("slots"))
+    return make(name, doc, meta, type, parent, slots)
   }
 
   ** Decode map keyed by name

@@ -24,6 +24,12 @@ EqB: Equip {
   }
 }
 
+EqAX: EqA {
+  points: {
+    c: DischargeAirTempSensor
+  }
+}
+
 NestedEq: Equip {
   childEquips: {
     EqA

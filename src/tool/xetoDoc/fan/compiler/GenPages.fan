@@ -128,16 +128,25 @@ internal class GenPages: Step
     return DocInstance(qname, instance)
   }
 
-  Str:DocSlot genSlots(Spec type)
+  Str:DocSlot genSlots(Spec spec)
   {
-    slots := type.slots
+    // only gen effective slots for top type slots
+    // or a query such as points
+    effective := spec.isType || spec.isQuery
+    slots := effective ? spec.slots : spec.slotsOwn
     if (slots.isEmpty) return DocSlot.empty
+
+    // create map of slots taking into account we may be
+    // inheriting duplicated autoNamed slots such as "_0"
+    autoNameCount := 0
     acc := Str:DocSlot[:]
     acc.ordered = true
     slots.each |slot|
     {
-      d := genSlot(type, slot)
-      acc[d.name] = d
+      d := genSlot(spec, slot)
+      name := slot.name
+      if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoNameCount++)
+      acc.add(name, d)
     }
     return acc
   }
@@ -148,7 +157,8 @@ internal class GenPages: Step
     meta    := genDict(slot.metaOwn)
     typeRef := genTypeRef(slot)
     parent  := slot.parent === parentType ? null : DocSimpleTypeRef(slot.parent.qname)
-    return DocSlot(slot.name, doc, meta, typeRef, parent)
+    slots   := genSlots(slot)
+    return DocSlot(slot.name, doc, meta, typeRef, parent, slots)
   }
 
   DocTypeRef? genTypeRef(Spec? x)

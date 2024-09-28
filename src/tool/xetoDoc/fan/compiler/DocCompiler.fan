@@ -155,6 +155,18 @@ class DocCompiler
     throw Err("Cannot derive key: $def [$def.typeof]")
   }
 
+  ** Generate an auto name of "_0", "_1", etc
+  Str autoName(Int i)
+  {
+    // optimize to reuse "_0", "_1", etc per compilation
+    if (i < autoNames.size) return autoNames[i]
+    if (i != autoNames.size) throw Err(i.toStr)
+    s := i.toStr
+    n := StrBuf(1+s.size).addChar('_').add(s).toStr
+    autoNames.add(n)
+    return n
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
@@ -163,5 +175,6 @@ class DocCompiler
   Duration? duration                  // run
   [Str:PageEntry]? pages              // StubPages
   File[] files := [,]                 // WriteJson if generating in-mem
+  private Str[] autoNames := [,]      // autoName
 }
 

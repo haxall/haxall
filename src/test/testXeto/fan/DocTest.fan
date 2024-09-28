@@ -73,6 +73,12 @@ class DocTest : AbstractXetoTest
     entry = compiler.pages.getChecked(spec.qname)
     verifySubtypes(spec, entry.page)
     verifySubtypes(spec, roundtrip(entry))
+
+    // nested queries with points
+    spec = lib.spec("EqAX")
+    entry = compiler.pages.getChecked(spec.qname)
+    verifyPoints(spec, entry.page)
+    verifyPoints(spec, roundtrip(entry))
   }
 
   DocPage roundtrip(PageEntry entry)
@@ -273,6 +279,42 @@ class DocTest : AbstractXetoTest
     // echo("~~ verifyScalar $n.type $n.scalar")
     verifyEq(n.type.qname, qname)
     verifyEq(n.scalar, s)
+  }
+
+  Void verifyPoints(Spec spec, DocType n)
+  {
+    /*
+    EqA: Equip {
+      points: {
+        a: ZoneCo2Sensor
+        b: ZoneCo2Sensor { foo }
+      }
+    }
+
+    EqAX: EqA {
+      points: {
+        c: DischargeAirTempSensor
+      }
+    }
+    */
+
+    points := n.slots.getChecked("points").slots
+
+    a := points.getChecked("a")
+    verifyEq(a.type.qname, "ph.points::ZoneCo2Sensor")
+    verifyEq(a.slots.size, 0)
+    verifyEq(a.parent.qname, "hx.test.xeto::EqA.points")
+
+    b := points.getChecked("b")
+    verifyEq(b.type.qname, "ph.points::ZoneCo2Sensor")
+    verifyEq(b.slots.size, 1)
+    verifyEq(b.slots["foo"].type.name, "Marker")
+    verifyEq(b.parent.qname, "hx.test.xeto::EqA.points")
+
+    c := points.getChecked("c")
+    verifyEq(c.type.qname, "ph.points::DischargeAirTempSensor")
+    verifyEq(c.slots.size, 0)
+    verifyEq(c.parent, null)
   }
 }
 
