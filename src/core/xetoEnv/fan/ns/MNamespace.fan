@@ -431,7 +431,7 @@ abstract const class MNamespace : LibNamespace
     libs.each |lib| { lib.eachInstance(f) }
   }
 
-  override Void eachInstanceThatIs(Spec type, |Dict| f)
+  override Void eachInstanceThatIs(Spec type, |Dict, Spec| f)
   {
     eachInstance |x|
     {
@@ -439,7 +439,7 @@ abstract const class MNamespace : LibNamespace
       if (xSpecRef == null) return
       xSpec := spec(xSpecRef.id, false)
       if (xSpec == null) return
-      if (xSpec.isa(type)) f(x)
+      if (xSpec.isa(type)) f(x, xSpec)
     }
   }
 
