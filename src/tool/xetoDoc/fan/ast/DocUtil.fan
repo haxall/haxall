@@ -7,6 +7,7 @@
 //
 
 using xetoEnv
+using haystack::Ref
 
 **
 ** Documentation utilities
@@ -33,5 +34,12 @@ const class DocUtil
             .addRange(qname, colons+2..-1)
             .toStr.toUri
   }
+
+  // Standard icon refs
+
+  static const Ref libIcon      := Ref("ion.icons::package")
+  static const Ref typeIcon     := Ref("ion.icons::aperture")
+  static const Ref globalIcon   := Ref("ion.icons::tag")
+  static const Ref instanceIcon := Ref("ion.icons::at-sign")
 }
 
