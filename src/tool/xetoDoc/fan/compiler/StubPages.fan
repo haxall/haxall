@@ -34,7 +34,9 @@ internal class StubPages: Step
       // globals
       lib.globals.each |x|
       {
-        add(PageEntry.makeSpec(x, DocPageType.global))
+        entry := PageEntry.makeSpec(x, DocPageType.global)
+        entry.summaryType = genTypeRef(x.type)
+        add(entry)
       }
 
       // instances

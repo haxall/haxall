@@ -13,10 +13,11 @@
 const class DocSummary
 {
   ** Constructor
-  new make(DocLink link, DocBlock text)
+  new make(DocLink link, DocBlock text, DocTypeRef? type := null)
   {
     this.link = link
     this.text = text
+    this.type = type
   }
 
   ** Title and hyperlink
@@ -24,6 +25,9 @@ const class DocSummary
 
   ** Formatted summary text
   const DocBlock text
+
+  ** Optional type ref used for some summaries (such as globals)s
+  const DocTypeRef? type
 
   ** Debug string
   override Str toStr() { "$link.dis: $text" }
@@ -42,6 +46,7 @@ const class DocSummary
     obj.ordered = true
     obj["link"] = link.encode
     obj["text"] = text.encode
+    obj.addNotNull("type", type?.encode)
     return obj
   }
 
@@ -57,7 +62,8 @@ const class DocSummary
   {
     link := DocLink.decode(obj.getChecked("link"))
     text := DocBlock.decode(obj.getChecked("text"))
-    return make(link, text)
+    type := DocTypeRef.decode(obj.get("type"))
+    return make(link, text, type)
   }
 
 }

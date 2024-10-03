@@ -75,6 +75,9 @@ class PageEntry
   ** Link to this page
   const DocLink link
 
+  ** If we want to add type into lib summary (globals)
+  DocTypeRef? summaryType
+
   ** Meta for the page (lib meta, spec meta, instance itself)
   const Dict meta
 

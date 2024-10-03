@@ -109,6 +109,12 @@ class DocTest : AbstractXetoTest
     verifySummaries(n.globals,   lib.globals)
     verifySummaries(n.instances, lib.instances)
 
+    // verify global summary has type
+    g := n.globals[0]
+    verifyEq(g.link.dis, "globalTag")
+    verifyEq(g.type.qname, "sys::Str")
+
+    // DocLib.depends
     verifyEq(n.depends.size, lib.depends.size)
     d1 := n.depends.find { it.lib.name == "ph" }
     d2 := lib.depends.find { it.name == "ph" }

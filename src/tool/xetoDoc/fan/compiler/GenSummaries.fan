@@ -27,7 +27,7 @@ internal class GenSummaries : Step
   {
     link := entry.link
     text := parse(entry.meta["doc"] as Str ?: "")
-    return DocSummary(link, text)
+    return DocSummary(link, text, entry.summaryType)
   }
 
   DocBlock parse(Obj? doc)
