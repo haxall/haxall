@@ -36,8 +36,9 @@ const class DocLink
   }
 
   ** Decode from JSON object tree
-  static DocLink decode(Str:Obj obj)
+  static DocLink? decode([Str:Obj]? obj)
   {
+    if (obj == null) return null
     uri := Uri.fromStr(obj.getChecked("uri"))
     dis := obj.getChecked("dis")
     return make(uri, dis)

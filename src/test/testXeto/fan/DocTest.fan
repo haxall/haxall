@@ -135,6 +135,12 @@ class DocTest : AbstractXetoTest
   {
     verifySpec(entry, spec, n)
     verifyEq(n.pageType, DocPageType.type)
+
+    siteRef := n.slots.getChecked("siteRef")
+    verifyEq(siteRef.parent.qname, "ph::Equip")
+    verifyEq(siteRef.base.dis, "ph::siteRef")
+    verifyEq(siteRef.base.uri, `/ph/_siteRef`)
+    verifyEq(siteRef.type.qname, "sys::Ref")
   }
 
   Void verifyGlobal(PageEntry entry, Spec spec, DocGlobal n)

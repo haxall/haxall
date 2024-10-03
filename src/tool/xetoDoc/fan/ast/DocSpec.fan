@@ -190,13 +190,14 @@ const class DocSlot : DocSpec
   static const Str:DocSlot empty := Str:DocSlot[:]
 
   ** Constructor
-  new make(Str name, DocBlock doc, DocDict meta, DocTypeRef type, DocTypeRef? parent, Str:DocSlot slots)
+  new make(Str name, DocBlock doc, DocDict meta, DocTypeRef type, DocTypeRef? parent, DocLink? base, Str:DocSlot slots)
   {
     this.name   = name
     this.doc    = doc
     this.meta   = meta
     this.type   = type
     this.parent = parent
+    this.base   = base
     this.slots  = slots
   }
 
@@ -215,6 +216,9 @@ const class DocSlot : DocSpec
   ** Declared parent type if inherited, null if declared in containing type
   const DocTypeRef? parent
 
+  ** Link to base used when this slot base is from global slot
+  const DocLink? base
+
   ** Child slots on this type
   const Str:DocSlot slots
 
@@ -226,6 +230,7 @@ const class DocSlot : DocSpec
     obj["doc"]   = doc.encode
     obj["type"]  = type.encode
     obj.addNotNull("parent", parent?.encode)
+    obj.addNotNull("base", base?.encode)
     obj.addNotNull("meta", meta.encode)
     obj.addNotNull("slots", DocSlot.encodeMap(slots))
     return obj
@@ -244,9 +249,10 @@ const class DocSlot : DocSpec
     doc    := DocBlock.decode(obj.get("doc"))
     type   := DocTypeRef.decode(obj.getChecked("type"))
     parent := DocTypeRef.decode(obj.get("parent"))
+    base   := DocLink.decode(obj.get("base"))
     meta   := DocDict.decode(obj.get("meta"))
     slots  := DocSlot.decodeMap(obj.get("slots"))
-    return make(name, doc, meta, type, parent, slots)
+    return make(name, doc, meta, type, parent, base, slots)
   }
 
   ** Decode map keyed by name

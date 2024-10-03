@@ -169,10 +169,20 @@ internal class GenPages: Step
     meta    := genDict(slot.metaOwn)
     typeRef := genTypeRef(slot)
     parent  := slot.parent === parentType ? null : DocSimpleTypeRef(slot.parent.qname)
+    base    := genSlotBase(slot)
     slots   := genSlots(slot)
-    return DocSlot(slot.name, doc, meta, typeRef, parent, slots)
+    return DocSlot(slot.name, doc, meta, typeRef, parent, base, slots)
   }
 
+
+  DocLink? genSlotBase(Spec slot)
+  {
+    base := slot.base
+    if (base == null || !base.isGlobal) return null
+    dis := base.qname
+    uri := DocUtil.specToUri(base)
+    return DocLink(uri, dis)
+  }
 
   DocDict genDict(Dict d)
   {
