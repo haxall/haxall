@@ -18,7 +18,7 @@ const class DocTypeGraph
   static const DocTypeGraph empty := make(DocTypeRef[,], null)
 
   ** Constructor
-  new make(DocTypeRef[] types, Int[][]? edges)
+  new make(DocTypeRef[] types, DocTypeGraphEdge[]? edges)
   {
     this.types = types
     this.edges = edges
@@ -29,7 +29,7 @@ const class DocTypeGraph
 
   ** This is a list of edges for each type aligned by list index
   ** Used only for supertypes, not subtypes
-  const Int[][]? edges
+  const DocTypeGraphEdge[]? edges
 
   ** Encode to a JSON object tree
   [Str:Obj]? encode()
@@ -38,7 +38,7 @@ const class DocTypeGraph
     acc := Str:Obj[:]
     acc.ordered = true
     acc["types"] = types.map |x| { x.encode }
-    acc.addNotNull("edges", edges)
+    acc.addNotNull("edges", DocTypeGraphEdge.encodeList(edges))
     return acc
   }
 
@@ -47,8 +47,86 @@ const class DocTypeGraph
   {
     if (obj == null) return empty
     types := ((List)obj.getChecked("types")).map |x| { DocTypeRef.decode(x) }
-    edges := obj["edges"]
+    edges := DocTypeGraphEdge.decodeList(obj["edges"])
     return make(types, edges)
   }
+}
+
+**************************************************************************
+** DocTypeGraphEdge
+**************************************************************************
+
+@Js
+const class DocTypeGraphEdge
+{
+  ** Edge for sys::Obj
+  static const DocTypeGraphEdge obj := make(DocTypeGraphEdgeMode.obj, Int[,])
+
+  ** Constructor
+  new make(DocTypeGraphEdgeMode mode, Int[] types)
+  {
+    this.mode  = mode
+    this.types = types
+  }
+
+  ** Type of edge in the graph
+  const DocTypeGraphEdgeMode mode
+
+  ** Type index or index this edge references
+  const Int[] types
+
+  ** Encode
+  override Str toStr() { encode }
+
+  ** Encode list of edges
+  static Str[]? encodeList(DocTypeGraphEdge[]? list)
+  {
+    if (list == null) return null
+    return list.map |x| { x.encode }
+  }
+
+  ** Encode to string
+  Str encode()
+  {
+    s := StrBuf()
+    s.capacity = mode.name.size + 2*types.size
+    s.add(mode)
+    types.each |index| { s.addChar(' ').add(index) }
+    return s.toStr
+  }
+
+  ** Encode list of edges
+  static DocTypeGraphEdge[]? decodeList(Str[]? list)
+  {
+    if (list == null) return null
+    return list.map |x| { decode(x) }
+  }
+
+  ** Decode from string
+  static DocTypeGraphEdge decode(Str s)
+  {
+    try
+    {
+      toks := s.split
+      mode := DocTypeGraphEdgeMode.fromStr(toks[0])
+      types := toks[1..-1].map |tok| { tok.toInt }
+      return make(mode, types)
+    }
+    catch(Err e) throw ParseErr("DocTypeGraphEdge: $s")
+  }
+
+}
+
+**************************************************************************
+** DocTypeGraphEdgeMode
+**************************************************************************
+
+@Js
+enum class DocTypeGraphEdgeMode
+{
+  obj,
+  base,
+  and,
+  or
 }
 

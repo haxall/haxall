@@ -252,10 +252,12 @@ class DocTest : AbstractXetoTest
     */
 
     x := n.supertypes
-    e0a := x.edges[0][0]
-    e0b := x.edges[0][1]
+    e := x.edges[0]
+    verifyEq(e.mode, DocTypeGraphEdgeMode.and)
+    verifyEq(e.types.size, 2)
+    e0a := e.types[0]
+    e0b := e.types[1]
     verifyEq(x.types[0].name, "AB")
-    verifyEq(x.edges[0].size, 2)
     verifyEq(x.types[e0a].name, "A")
     verifyEq(x.types[e0b].name, "B")
   }

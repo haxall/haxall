@@ -67,19 +67,25 @@ internal class GenPages: Step
     doGenSupertypes(acc, x)
     types := acc.keys.map |qname->DocTypeRef| { DocSimpleTypeRef(qname) }
 
-    edges := Int[][,]
+    edges := DocTypeGraphEdge[,]
     acc.each |index, qname|
     {
-      edges.add(toSupertypeBaseIndex(acc, ns.spec(qname)))
+      edges.add(toSupertypeEdge(acc, ns.spec(qname)))
     }
     return DocTypeGraph(types, edges)
   }
 
-  Int[] toSupertypeBaseIndex(Str:Int qnameToIndex, Spec spec)
+  DocTypeGraphEdge toSupertypeEdge(Str:Int qnameToIndex, Spec spec)
   {
-    if (spec.base == null) return Int#.emptyList
-    if (!spec.isCompound) return [qnameToIndex.getChecked(spec.base.qname)]
-    return spec.ofs.map |x->Int| { qnameToIndex.getChecked(x.qname) }
+    if (spec.base == null) return DocTypeGraphEdge.obj
+    if (!spec.isCompound)
+    {
+      index := qnameToIndex.getChecked(spec.base.qname)
+      return DocTypeGraphEdge(DocTypeGraphEdgeMode.base, [index])
+    }
+    mode := spec.isOr ? DocTypeGraphEdgeMode.or : DocTypeGraphEdgeMode.and
+    indexes := spec.ofs.map |x->Int| { qnameToIndex.getChecked(x.qname) }
+    return DocTypeGraphEdge(mode, indexes)
   }
 
   Void doGenSupertypes(Str:Int acc, Spec? x)
