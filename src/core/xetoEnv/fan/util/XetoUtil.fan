@@ -176,6 +176,8 @@ const class XetoUtil
     if (n == "pragma") return true
     if (n == "index") return true
     if (n.startsWith("doc-")) return true
+    if (n.startsWith("_")) return true
+    if (n.startsWith("~")) return true
     return false
   }
 

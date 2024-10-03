@@ -115,7 +115,7 @@ const class DocSimpleTypeRef : DocTypeRef
   }
 
   ** URI to this type
-  Uri uri() { DocUtil.qnameToUri(qname) }
+  Uri uri() { DocUtil.typeToUri(qname) }
 
   ** Qualified name of the type
   const override Str qname

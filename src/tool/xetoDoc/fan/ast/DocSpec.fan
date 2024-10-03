@@ -39,9 +39,6 @@ abstract const class DocSpecPage : DocSpec, DocPage
     this.meta  = meta
   }
 
-  ** URI relative to base dir to page
-  override Uri uri() { DocUtil.qnameToUri(qname) }
-
   ** Qualified name of this spec
   const Str qname
 
@@ -94,6 +91,9 @@ const class DocType : DocSpecPage
 
   ** Page type
   override DocPageType pageType() { DocPageType.type }
+
+  ** URI relative to base dir to page
+  override Uri uri() { DocUtil.typeToUri(qname) }
 
   ** Super type or null if this is 'sys::Obj'
   const DocTypeRef? base
@@ -153,6 +153,9 @@ const class DocGlobal : DocSpecPage
 
   ** Page type
   override DocPageType pageType() { DocPageType.global }
+
+  ** URI relative to base dir to page
+  override Uri uri() { DocUtil.globalToUri(qname) }
 
   ** Encode to a JSON object tree
   override Str:Obj encode()

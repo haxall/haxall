@@ -6,6 +6,7 @@
 //   24 Sep 2024  Brian Frank  Creation
 //
 
+using xeto
 using xetoEnv
 using haystack::Ref
 
@@ -21,16 +22,40 @@ const class DocUtil
     "/${libName}/index".toUri
   }
 
+  ** Convert spec name to its normalized URI
+  static Uri specToUri(Spec spec)
+  {
+    spec.isGlobal ? globalToUri(spec.qname) : typeToUri(spec.qname)
+  }
+
+  ** Convert type spec qualilfied name to its normalized URI
+  static Uri typeToUri(Str qname)
+  {
+    qnameToUri(qname, false)
+  }
+
+  ** Convert global spec qualilfied name to its normalized URI
+  static Uri globalToUri(Str qname)
+  {
+    qnameToUri(qname, true)
+  }
+
+  ** Convert instance qualified name to its normalized URI
+  static Uri instanceToUri(Str qname)
+  {
+    qnameToUri(qname, false)
+  }
+
   ** Convert spec or instance qualified name to its normalized URI
-  static Uri qnameToUri(Str qname)
+  private static Uri qnameToUri(Str qname, Bool isGlobal)
   {
     // TODO: we are going to have to deal with lower vs upper case names on file systems
-    colons := qname.index("::")
-    if (colons == null) return "/${qname}".toUri
+    colons := qname.index("::") ?: throw Err("Not qname: $qname")
     s := StrBuf(qname.size + 3)
     return s.addChar('/')
             .addRange(qname, 0..<colons)
             .addChar('/')
+            .add(isGlobal ? "_" : "")
             .addRange(qname, colons+2..-1)
             .toStr.toUri
   }

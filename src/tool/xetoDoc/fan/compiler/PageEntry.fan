@@ -34,7 +34,7 @@ class PageEntry
   {
     this.key      = DocCompiler.key(x)
     this.def      = x
-    this.uri      = DocUtil.qnameToUri(x.qname)
+    this.uri      = DocUtil.specToUri(x)
     this.dis      = x.name
     this.pageType = pageType
     this.meta     = x.meta
@@ -50,7 +50,7 @@ class PageEntry
 
     this.key      = DocCompiler.key(x)
     this.def      = x
-    this.uri      = DocUtil.qnameToUri(qname)
+    this.uri      = DocUtil.instanceToUri(qname)
     this.dis      = name
     this.pageType = DocPageType.instance
     this.meta     = x
