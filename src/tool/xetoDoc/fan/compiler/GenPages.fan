@@ -43,10 +43,16 @@ internal class GenPages: Step
       it.name      = x.name
       it.doc       = genDoc(x.meta["doc"])
       it.meta      = genDict(x.meta)
+      it.depends   = genDepends(x)
       it.types     = summaries(typesToDoc(x))
       it.globals   = summaries(x.globals)
       it.instances = summaries(x.instances)
     }
+  }
+
+  DocLibDepend[] genDepends(Lib lib)
+  {
+    lib.depends.map |x| { DocLibDepend(DocLibRef(x.name), x.versions) }
   }
 
   DocType genType(PageEntry entry, Spec x)

@@ -108,6 +108,11 @@ class DocTest : AbstractXetoTest
     verifySummaries(n.types,     docTypes)
     verifySummaries(n.globals,   lib.globals)
     verifySummaries(n.instances, lib.instances)
+
+    verifyEq(n.depends.size, lib.depends.size)
+    d1 := n.depends.find { it.lib.name == "ph" }
+    d2 := lib.depends.find { it.name == "ph" }
+    verifyEq(d1.versions.toStr, d2.versions.toStr)
   }
 
   Void verifySpec(PageEntry entry, Spec spec, DocSpecPage n)

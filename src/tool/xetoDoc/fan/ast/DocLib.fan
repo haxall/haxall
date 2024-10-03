@@ -6,6 +6,7 @@
 //   22 Sep 2024  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -29,6 +30,9 @@ const class DocLib : DocPage
   ** Metadata
   const DocDict meta
 
+  ** Dependencies
+  const DocLibDepend[] depends
+
   ** Page type
   override DocPageType pageType() { DocPageType.lib }
 
@@ -43,6 +47,7 @@ const class DocLib : DocPage
     obj["page"] = pageType.name
     obj["name"] = name
     obj["doc"]  = doc.encode
+    obj["depends"] = DocLibDepend.encodeList(depends)
     obj["meta"] = meta.encode
     obj.addNotNull("types",     DocSummary.encodeList(types))
     obj.addNotNull("globals",   DocSummary.encodeList(globals))
@@ -57,6 +62,7 @@ const class DocLib : DocPage
     {
       it.name      = obj.getChecked("name")
       it.doc       = DocBlock.decode(obj.get("doc"))
+      it.depends   = DocLibDepend.decodeList(obj["depends"])
       it.meta      = DocDict.decode(obj.get("meta"))
       it.types     = DocSummary.decodeList(obj["types"])
       it.globals   = DocSummary.decodeList(obj["globals"])
@@ -72,6 +78,58 @@ const class DocLib : DocPage
 
   ** Instances defined in this library
   const DocSummary[] instances
+}
+
+**************************************************************************
+** DocLibDepend
+**************************************************************************
+
+@Js
+const class DocLibDepend
+{
+  ** Constructor
+  new make(DocLibRef lib, LibDependVersions versions)
+  {
+    this.lib      = lib
+    this.versions = versions
+  }
+
+  ** Library
+  const DocLibRef lib
+
+  ** Dependency version requirements
+  const LibDependVersions versions
+
+  ** Decode list
+  static Obj[] encodeList(DocLibDepend[] list)
+  {
+    list.map |x| { x.encode }
+  }
+
+  ** Encode to a JSON object tree
+  Str:Obj encode()
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
+    acc["lib"] = lib.encode
+    acc["versions"] = versions.toStr
+    return acc
+  }
+
+  ** Decode list
+  static DocLibDepend[] decodeList(Obj[]? list)
+  {
+    if (list == null) return DocLibDepend#.emptyList
+    return list.map |x| { decode(x) }
+  }
+
+  ** Decode from JSON object tree
+  static DocLibDepend decode(Str:Obj obj)
+  {
+    lib := DocLibRef.decode(obj.getChecked("lib"))
+    versions := LibDependVersions.fromStr(obj.getChecked("versions"))
+    return make(lib, versions)
+  }
 }
 
 **************************************************************************
