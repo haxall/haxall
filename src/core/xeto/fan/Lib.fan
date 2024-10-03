@@ -61,6 +61,9 @@ const mixin Lib : Dict
   ** Lookup an instance dict by its simple name
   abstract Dict? instance(Str name, Bool checked := true)
 
+  ** Iterate the instances
+  @NoDoc abstract Void eachInstance(|Dict| f)
+
   ** Is this the 'sys' library
   @NoDoc abstract Bool isSys()
 

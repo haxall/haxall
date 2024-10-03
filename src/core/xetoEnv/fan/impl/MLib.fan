@@ -110,6 +110,11 @@ const final class MLib
     return null
   }
 
+  Void eachInstance(|Dict| f)
+  {
+    instancesMap.each(f)
+  }
+
   override Str toStr() { name }
 
 //////////////////////////////////////////////////////////////////////////
@@ -234,6 +239,8 @@ const final class XetoLib : Lib, haystack::Dict
   override Dict[] instances() { m.instances }
 
   override Dict? instance(Str name, Bool checked := true) { m.instance(name, checked) }
+
+  override Void eachInstance(|Dict| f) { m.eachInstance(f) }
 
   override Bool isSys() { m.isSys }
 

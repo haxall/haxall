@@ -428,9 +428,18 @@ abstract const class MNamespace : LibNamespace
 
   override Void eachInstance(|Dict| f)
   {
-    libs.each |lib|
+    libs.each |lib| { lib.eachInstance(f) }
+  }
+
+  override Void eachInstanceThatIs(Spec type, |Dict| f)
+  {
+    eachInstance |x|
     {
-      lib.instances.each |x| { f(x) }
+      xSpecRef := x["spec"] as Ref
+      if (xSpecRef == null) return
+      xSpec := spec(xSpecRef.id, false)
+      if (xSpec == null) return
+      if (xSpec.isa(type)) f(x)
     }
   }
 

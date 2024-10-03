@@ -223,6 +223,9 @@ const mixin LibNamespace
   ** Iterate all the instances
   abstract Void eachInstance(|Dict| f)
 
+  ** Iterate instances that are nominally typed by given spec
+  @NoDoc abstract Void eachInstanceThatIs(Spec type, |Dict| f)
+
 //////////////////////////////////////////////////////////////////////////
 // Reflection
 //////////////////////////////////////////////////////////////////////////
