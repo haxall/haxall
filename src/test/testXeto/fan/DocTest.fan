@@ -116,6 +116,8 @@ class DocTest : AbstractXetoTest
     verifyEq(n.qname,    spec.qname)
     verifyEq(n.name,     spec.name)
     verifyEq(n.libName,  spec.lib.name)
+    verifyEq(n.lib.name, spec.lib.name)
+    verifyEq(n.lib.uri,  "/${spec.lib.name}/index".toUri)
   }
 
   Void verifyTypeSpec(PageEntry entry, Spec spec, DocType n)
@@ -134,6 +136,8 @@ class DocTest : AbstractXetoTest
   {
     verifyPage(entry, n)
     verifyEq(n.pageType, DocPageType.instance)
+    verifyEq(n.lib.name, n.libName)
+    verifyEq(n.lib.uri,  "/${n.libName}/index".toUri)
   }
 
 

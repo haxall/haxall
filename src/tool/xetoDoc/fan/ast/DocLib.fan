@@ -32,6 +32,9 @@ const class DocLib : DocPage
   ** Page type
   override DocPageType pageType() { DocPageType.lib }
 
+  ** Library for this page (or null if top-level indexing)
+  override DocLibRef? lib() { DocLibRef(name) }
+
   ** Encode to a JSON object tree
   override Str:Obj encode()
   {
@@ -69,5 +72,34 @@ const class DocLib : DocPage
 
   ** Instances defined in this library
   const DocSummary[] instances
+}
+
+**************************************************************************
+** DocLibRef
+**************************************************************************
+
+@Js
+const class DocLibRef
+{
+  ** Constructor
+  new make(Str name) { this.name = name }
+
+  ** Library dotted name
+  const Str name
+
+  ** URI to this libraries index page
+  Uri uri() { DocUtil.libToUri(name) }
+
+  ** Encode to a JSON object tree
+  Obj encode()
+  {
+    name
+  }
+
+  ** Decode from JSON object tree
+  static DocLibRef decode(Str s)
+  {
+    make(s)
+  }
 }
 

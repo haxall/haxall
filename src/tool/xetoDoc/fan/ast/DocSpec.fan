@@ -51,6 +51,9 @@ abstract const class DocSpecPage : DocSpec, DocPage
   ** Simple name of this instance
   once override Str name() { XetoUtil.qnameToName(qname) }
 
+  ** Library for this page
+  override DocLibRef? lib() { DocLibRef(libName) }
+
   ** Documentation text
   const override DocBlock doc
 

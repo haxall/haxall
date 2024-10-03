@@ -14,8 +14,11 @@ using util
 @Js
 const mixin DocPage
 {
-  ** URI relative to base dir to page
+  ** URI relative to base dir for page
   abstract Uri uri()
+
+  ** Library for this page (or null if top-level indexing)
+  abstract DocLibRef? lib()
 
   ** Enumerated type of this node
   abstract DocPageType pageType()

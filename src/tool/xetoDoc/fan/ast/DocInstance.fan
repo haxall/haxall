@@ -36,6 +36,9 @@ const class DocInstance : DocPage
   ** Page type
   override DocPageType pageType() { DocPageType.instance }
 
+  ** Library for this page
+  override DocLibRef? lib() { DocLibRef(libName) }
+
   ** Instance dictionary
   const DocDict instance
 
