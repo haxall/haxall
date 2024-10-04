@@ -55,9 +55,14 @@ const class PasswordStore
   ** Get a password by its key or return null if not found.
   Str? get(Str key)
   {
+    // first check for key
     val := cache[key]
-    if (val == null && idPrefix != null && key.startsWith(idPrefix))
-      val = cache[key[idPrefix.size..-1]]
+
+    // if not found, check relativized key
+    if (val == null)
+      val = cache[key = relKey(key)]
+
+    // return decoded password if found
     if (val == null) return null
     return decode(val)
   }
@@ -65,18 +70,32 @@ const class PasswordStore
   ** Set a password by its key.
   Void set(Str key, Str val)
   {
-    // relative key if necessary
-    if (idPrefix != null && key.startsWith(idPrefix))
-      key = key[idPrefix.size..-1]
-
+    // always relativize new passwords
+    key = relKey(key)
     actor.send(msg(PasswordStoreMsgType.set, key, encode(val))).get(timeout)
   }
 
   ** Remove a password by its key.
   Void remove(Str key)
   {
-    if (cache[key] != null)
+    // first check for unrelativized key
+    val := cache[key]
+
+    // check by relativized key
+    if (val == null)
+      val = cache[key = relKey(key)]
+
+    // remove the password associated with this key if found
+    if (val != null)
       actor.send(msg(PasswordStoreMsgType.remove, key)).get(timeout)
+  }
+
+  ** Relativize a key by stripping the leading idPrefix (if configured)
+  private Str relKey(Str key)
+  {
+    if (idPrefix != null && key.startsWith(idPrefix))
+      return key[idPrefix.size..-1]
+    return key
   }
 
   ** Read the password props file into an in-memory buffer
