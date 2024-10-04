@@ -23,6 +23,9 @@ abstract const class DocTypeRef
   ** Return simple name
   Str name() { XetoUtil.qnameToName(qname) }
 
+  ** URI to this core type
+  abstract Uri uri()
+
   ** Return if this is a Maybe type
   abstract Bool isMaybe()
 
@@ -115,7 +118,7 @@ const class DocSimpleTypeRef : DocTypeRef
   }
 
   ** URI to this type
-  Uri uri() { DocUtil.typeToUri(qname) }
+  override Uri uri() { DocUtil.typeToUri(qname) }
 
   ** Qualified name of the type
   const override Str qname
@@ -151,6 +154,8 @@ const class DocOfTypeRef : DocTypeRef
   }
 
   const DocTypeRef base
+
+  override Uri uri() { base.uri }
 
   override Str qname() { base.qname }
 
@@ -191,6 +196,9 @@ abstract const class DocCompoundTypeRef : DocTypeRef
 
   ** Compound types
   override const DocTypeRef[]? ofs
+
+  ** Return sys::And or sys::Or
+  override Uri uri() { DocUtil.typeToUri(qname) }
 
   ** Return if this is a Maybe type
   override const Bool isMaybe
