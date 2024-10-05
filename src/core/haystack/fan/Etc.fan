@@ -1033,6 +1033,14 @@ const class Etc
   }
 
   **
+  ** Return if tag name starts with "__" as escaped name
+  **
+  static Bool isEscapedTagName(Str n)
+  {
+    n.size > 3 && n[0] == '_' && n[1] == '_'
+  }
+
+  **
   ** Escape tag name into "__{utf-8 hex}" format
   **
   static Str escapeTagName(Str n)

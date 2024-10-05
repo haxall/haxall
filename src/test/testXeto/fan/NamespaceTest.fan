@@ -153,7 +153,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(ph.depends[0].name, "sys")
     verifyEq(ph.depends[0].versions.toStr, "" + curVersion.major + "." + curVersion.minor + ".x")
 
-    entity    := verifyLibType(ns, ph, "Entity",   ns.spec("sys::Dict"))
+    entity    := ns.spec("sys::Entity")
     equip     := verifyLibType(ns, ph, "Equip",    entity)
     meter     := verifyLibType(ns, ph, "Meter",    equip)
     elecMeter := verifyLibType(ns, ph, "ElecMeter",meter)

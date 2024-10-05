@@ -209,7 +209,7 @@ internal class GenPH : AbstractGenCmd
     entityDef := ns.def("entity")
     entities := ns.findDefs |def| { ns.fits(def, entityDef) }
     entities.sort |a, b| { a.name <=> b.name }
-    entities.moveTo(entityDef, 0)
+    entities.removeSame(entityDef)
 
     write(`entities.xeto`) |out|
     {
