@@ -55,9 +55,9 @@ internal class XMeta
     acc := Etc.dictToMap(spec.meta)
 
     // build list of parent specs to check (don't take and/or into account yet)
-    instanceNames := Str[,]
-    for (p := spec; p != null; p = p.base)
-      instanceNames.add(instanceName(p))
+    instanceNames := Str:Str[:]
+    instanceNames.ordered = true
+    addInheritanceInstanceNames(instanceNames, spec)
 
     // walk the instanceNames from the spec itself down to Obj
     instanceNames.each |instanceName|
@@ -116,6 +116,16 @@ internal class XMeta
 
     // return wraper MEnumXMeta instance
     return MEnumXMeta(spec.enum, self, byKey)
+  }
+
+  private Void addInheritanceInstanceNames(Str:Str acc, Spec x)
+  {
+    name := instanceName(x)
+    acc[name] = name
+    if (x.isCompound && x.isAnd)
+      x.ofs.each |of| { addInheritanceInstanceNames(acc, of) }
+    else if (x.base != null)
+      addInheritanceInstanceNames(acc, x.base)
   }
 
   private Str instanceName(Spec spec)
