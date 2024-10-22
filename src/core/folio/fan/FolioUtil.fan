@@ -60,6 +60,17 @@ const class FolioUtil
 
     // check kind
     kind := Kind.fromVal(val, false) ?: throw InvalidTagValErr("Unsupported tag type: $val.typeof")
+    if (!kind.canStore) throw InvalidTagValErr("Unsupported tag type: $val.typeof [$kind]")
+
+    // recursion checks (not doing grid)
+    if (kind.isList)
+    {
+      ((List)val).each |x| { checkTagVal("", x) }
+    }
+    else if (kind.isDict)
+    {
+      ((Dict)val).each |x| { checkTagVal("", x) }
+    }
 
     // Str/Uri limits
     if (kind === Kind.str && val.toStr.size > maxStrSize) throw InvalidTagValErr("Tag '$name' has Str value > $maxStrSize chars")
@@ -568,3 +579,4 @@ internal enum class DiffTagRuleType
   persistentOnly,
   transientOnly
 }
+

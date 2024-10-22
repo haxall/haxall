@@ -317,6 +317,9 @@ const abstract class Kind
   ** Icon alias name to use for this kind's values
   @NoDoc Str icon() { defSymbol.name }
 
+  ** Return if this kind can be stored in the Folio database as tag value
+  @NoDoc virtual Bool canStore() { true }
+
 //////////////////////////////////////////////////////////////////////////
 // Encoding
 //////////////////////////////////////////////////////////////////////////
@@ -372,6 +375,7 @@ internal const final class NAKind : Kind
   override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { "NA" }
   override Str valToAxon(Obj val) { "na()" }
   override Obj defVal() { NA.val }
+  override Bool canStore() { false }
 }
 
 @Js
@@ -534,6 +538,7 @@ internal const final class XStrKind : Kind
   override Bool isXStr() { true }
   override Str valToJson(Obj val) { x := (XStr)val; return "x:$x.type:$x.val" }
   override Str valToAxon(Obj val) { x := (XStr)val; return "xstr($x.type.toCode, $x.val.toCode)" }
+  override Bool canStore() { false }
 }
 
 @Js
@@ -555,6 +560,7 @@ internal const final class SpanKind : Kind
   override Str valToJson(Obj val) { "x:Span:$val" }
   override Str valToAxon(Obj val) { ((Span)val).toCode }
   override Str valToDis(Obj val, Dict meta := Etc.emptyDict)  { ((Span)val).dis }
+  override Bool canStore() { false }
 }
 
 **************************************************************************

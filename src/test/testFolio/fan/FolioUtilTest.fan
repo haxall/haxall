@@ -48,6 +48,10 @@ class FolioUtilTest : HaystackTest
     verifyErr(InvalidTagValErr#) { FolioUtil.checkTagVal("name", "bad tag") }
     verifyErr(InvalidTagValErr#) { FolioUtil.checkTagVal("foo", Uri(s1000+"x")) }
     verifyErr(InvalidTagValErr#) { FolioUtil.checkTagVal("foo", s32K+"x") }
+    verifyErr(InvalidTagValErr#) { FolioUtil.checkTagVal("foo", this) }
+    verifyErr(InvalidTagValErr#) { FolioUtil.checkTagVal("foo", Span.today) }
+    verifyErr(InvalidTagValErr#) { FolioUtil.checkTagVal("foo", [Span.today]) }
+    verifyErr(InvalidTagValErr#) { FolioUtil.checkTagVal("foo", Etc.dict1("span", Span.today)) }
     FolioUtil.checkTagVal("foo", Uri(s1000))
     FolioUtil.checkTagVal("foo", s32K)
 
@@ -601,3 +605,4 @@ class FolioUtilTest : HaystackTest
   }
 
 }
+
