@@ -317,6 +317,24 @@ const class TaskFuncs
     return dur
   }
 
+  ** Send empty message to tasks
+  @NoDoc @Axon { admin = true }
+  static Obj? taskRunAction(Obj taskIds)
+  {
+    tasks := (Task[])Etc.toIds(taskIds).map |id->Task| { toTask(id) }
+    futures := (Future[])tasks.map |task| { taskSend(task, Etc.dict0) }
+    return "Sent to $tasks.size tasks"
+  }
+
+  ** Implementation for taskSendAction Axon wrapper
+  @NoDoc @Axon { admin = true }
+  static Obj? taskCancelAction(Obj taskIds)
+  {
+    tasks := (Task[])Etc.toIds(taskIds).map |id->Task| { toTask(id) }
+    tasks.each |task| { taskCancel(task) }
+    return "Cancelled $tasks.size tasks"
+  }
+
   ** Implementation for taskSendAction Axon wrapper
   @NoDoc @Axon { admin = true }
   static Obj? taskDoSendAction(Obj taskIds, Str msg)

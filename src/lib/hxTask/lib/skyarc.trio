@@ -45,7 +45,9 @@ src:
   view:    { inherit:"table" }
   search:  { input var kind:"Str" defVal:"" }
   details: { disKey:"ui::details" action:"taskDebugDetails" select }
+  run:     { disKey:"ui::run" action:"taskRunAction" select multi }
   send:    { disKey:"ui::send" action:"taskSendAction" select multi }
+  cancel:  { disKey:"ui::cancel" action:"taskCancelAction" select multi }
   restart: { disKey:"ui::restart" action:"taskRestart" select confirm:{dis:"Restart Task?" details:"This will discard all pending messages and reset statistics"}}
   pool:    { disKey:"ui::actorPool" action:"taskDebugPool" }
   menu:    { action:"uiContextMenu" }
@@ -96,5 +98,4 @@ msg_defVal:
 src:
   (taskIds, msg) => taskDoSendAction(taskIds, msg)
 -------------------------------------------------------------------------
-
 
