@@ -1700,6 +1700,9 @@ class CoreLibTest : HaystackTest
     verifyEval("""eval("3 + 4")""", n(7))
     verifyEval("""do x: eval("today"); x(); end""", Date.today)
 
+    verifyEval("""evalToFunc("today").call""", Date.today)
+    verifyEval("""(evalToFunc("x=>x*x"))(4)""", n(16))
+
     verifyEval("""call("today")""", Date.today)
     verifyEval("""call("today", null)""", Date.today)
     verifyEval("""call("today", [])""", Date.today)
