@@ -68,7 +68,10 @@ const class CryptoFuncs
       row   := entryToRow(entry, alias)
       if (row != null) rows.add(row)
     }
-    return Etc.makeDictsGrid(null, rows)
+
+    keys := Etc.makeDictsGrid(null, rows)
+
+    return cryptoStdDisplay(keys)
   }
 
   ** Add certificate chain for a URI to the trust store.
@@ -79,9 +82,12 @@ const class CryptoFuncs
     rec   := Etc.toRec(dict)
     alias := toAlias(rec->alias)
     uri   := (Uri)rec->uri
+    check := rec.has("check")
 
     if (alias.isEmpty) alias = Buf.random(6).toBase64Uri
-    certs := Crypto.cur.loadCertsForUri(uri)
+    rawCerts := Crypto.cur.loadCertsForUri(uri)
+
+    certs := sortRootToEndEntity(rawCerts)
 
     aliases := Str:Cert[:]
     certs.each |cert, i|
@@ -95,12 +101,100 @@ const class CryptoFuncs
     rows := Dict[,]
     aliases.each |cert, entryAlias|
     {
-      ks.setTrust(entryAlias, cert)
-      entry := ks.get(entryAlias)
-      rows.add(entryToRow(entry, entryAlias))
+      if (!check && (cert.isCA || cert.isSelfSigned))
+      {
+        ks.setTrust(entryAlias, cert)
+        entry := ks.get(entryAlias)
+        rows.add(entryToRow(entry, entryAlias))
+      }
+      else rows.add(entryToRow(cert, entryAlias))
     }
 
     return Etc.makeDictsGrid(null, rows)
+  }
+
+  ** Retrieve certificate chain for a URI without adding to trust store.
+  @NoDoc @Axon { su = true }
+  static Grid cryptoCheckUri(Uri uri)
+  {
+    opts := Etc.makeDict3("alias", "check",
+                          "uri", uri,
+                          "check", Marker.val)
+
+    chain := cryptoTrustUri(opts).sortCol("alias")
+
+    return cryptoStdDisplay(chain)
+  }
+
+  ** Display crypto grids with an easier to read standard column order
+  @NoDoc
+  private static Grid cryptoStdDisplay(Grid input)
+  {
+    cols := input.colNames
+    preferredOrder := ["id", "alias", "ca", "selfSigned", "notAfter", "keyAlg", "keySize", "subject", "issuer"]
+    sorted := preferredOrder.intersection(cols)
+    sorted.each |c, i| { cols = cols.moveTo(c, i)}
+
+    hidden := Etc.makeDict1("hidden", Marker.val)
+
+    return input.reorderCols(cols).addColMeta("id", hidden)
+  }
+
+  ** Attempt to sort the certificate chain from Root to End Entity.
+  **
+  ** Certificates that are not part of the chain are put after the End Entity.
+  **
+  ** If unable to complete the chain, then certificates are returned in
+  ** the order they were provided
+  @NoDoc
+  private static List sortRootToEndEntity(List serverCerts)
+  {
+    if (serverCerts.size == 1) return serverCerts
+
+    roots := serverCerts.findAll |Cert c->Bool| { return c.isCA && c.isSelfSigned }
+
+    if (roots.size == 0 || roots.size > 1) return serverCerts
+
+    serverCerts.removeAll(roots)
+    Cert rootCA := roots[0]
+    chain := [rootCA]
+    certsNotInChain := [,]
+
+    if (serverCerts.size > 0)
+    {
+      endEntitys := serverCerts.findAll |Cert c->Bool| { return !c.isCA && !c.isSelfSigned }
+
+      if (endEntitys.size == 0 || endEntitys.size > 1) return serverCerts
+
+      serverCerts.removeAll(endEntitys)
+      Cert endEntity := endEntitys[0]
+
+      if (serverCerts.size > 0)
+      {
+        intermediateCAs := Cert[,]
+        Cert? ca := serverCerts.find |Cert c->Bool| { return c.subject == endEntity.issuer }
+        count := 0
+        while (ca != null && count < 10)
+        {
+          intermediateCAs.insert(0, ca)
+          serverCerts.remove(ca)
+          count++
+          ca = serverCerts.find |Cert c->Bool| { return c.subject == ca.issuer }
+        }
+        if (serverCerts.size > 0) certsNotInChain = serverCerts
+        if (endEntity.issuer != rootCA.subject && intermediateCAs[0].issuer != rootCA.subject) return serverCerts
+        chain.addAll(intermediateCAs)
+      }
+      else
+      {
+        if (endEntity.issuer != rootCA.subject) return serverCerts
+      }
+
+      chain.add(endEntity)
+      chain.addAll(certsNotInChain)
+    }
+
+    return chain
   }
 
   ** Delete a list of entries
@@ -144,9 +238,10 @@ const class CryptoFuncs
   ** Add a private key and cert chain entry.
   ** Can also trust a single certificate if no priv key is supplied.
   @NoDoc @Axon { su = true }
-  static Obj? cryptoAddCert(Str alias, Str pem)
+  static Obj? cryptoAddCert(Str alias, Str pem, Bool force := false)
   {
     alias = toAlias(alias)
+    if (ks.containsAlias(alias) && !force) throw Err("Entry with alias $alias already exists. Use force option to overwrite.")
     crypto := Crypto.cur
     PrivKey? privKey := null
     Cert[] chain := [,]
@@ -174,7 +269,7 @@ const class CryptoFuncs
     return alias
   }
 
-  private static Dict? entryToRow(KeyStoreEntry entry, Str? alias := null)
+  private static Dict? entryToRow(Obj entry, Str? alias := null)
   {
     tags := Str:Obj["cryptoEntry": Marker.val]
 
@@ -195,6 +290,13 @@ const class CryptoFuncs
       cert = ((TrustEntry)entry).cert
       tags["trusted"] = Marker.val
     }
+    else if (entry is Cert)
+    {
+      cert = entry
+      tags["pem"] = cert.toStr
+      if (cert.isSelfSigned) tags["selfSigned"] = Marker.val
+      if (cert.isCA) tags["ca"] = Marker.val
+    }
     else throw ArgErr("Unrecognized entry: ${entry.typeof}")
 
     // add cert tags
@@ -203,8 +305,11 @@ const class CryptoFuncs
     tags["certType"] = cert.certType
     try
     {
+      key := cert.pub
       tags["notBefore"] = cert->notBefore
       tags["notAfter"]  = cert->notAfter
+      tags["keyAlg"] = key.algorithm
+      tags["keySize"] = Number.makeInt(key.keySize).toLocale("#")
     }
     catch (Err ignore) { }
 
