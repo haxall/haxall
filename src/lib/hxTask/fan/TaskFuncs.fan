@@ -60,7 +60,7 @@ const class TaskFuncs
       .addCol("queuePeak")
       .addCol("evalNum")
       .addCol("evalTotalTime")
-      .addCol("evalAvglTime")
+      .addCol("evalAvgTime")
       .addCol("evalLastTime")
       .addCol("fault")
     lib.tasks.each |t|
