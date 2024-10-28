@@ -1391,6 +1391,17 @@ class CoreLibTest : HaystackTest
     verifyEq(eval(x+""".get(0).rowToList"""), Obj?["andy",    n(10), null, m])
     verifyEq(eval(x+""".get(1).rowToList"""), Obj?["brian",   n(30), null, m])
     verifyEq(eval(x+""".get(2).rowToList"""), Obj?["charles", n(20), m,    null])
+
+    // gridReplace
+   grid = eval(Str<|[{a:na(), b:34},
+                     {a:0,    b:na()}]
+                     .toGrid.gridReplace(na(), "?")|>)
+    verifyEq(grid.size, 2)
+    verifyEq(grid.colNames, ["a", "b"])
+    verifyEq(grid[0]->a, "?")
+    verifyEq(grid[0]->b, n(34))
+    verifyEq(grid[1]->a, n(0))
+    verifyEq(grid[1]->b, "?")
   }
 
   Void testColKinds()

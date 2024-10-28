@@ -344,6 +344,63 @@ class GridTest : HaystackTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Replace
+//////////////////////////////////////////////////////////////////////////
+
+  Void testReplace()
+  {
+    // original
+    grid := g(
+      Str<|ver:"3.0" foo:"bar"
+           a f,  c dis:"C", d,  e
+           "a",  1,         N,  NA
+           "b",  4,         N,  "a"
+           "c",  N,         N,  "a"
+           "d",  2,         4,  NA
+           |>)
+
+    a := grid.replace(null, n(0))
+    verifyGridEq(a, g(
+      Str<|ver:"3.0" foo:"bar"
+           a f,  c dis:"C", d,  e
+           "a",  1,         0,  NA
+           "b",  4,         0,  "a"
+           "c",  0,         0,  "a"
+           "d",  2,         4,  NA
+           |>))
+
+    a = grid.replace(n(4), null)
+    verifyGridEq(a, g(
+      Str<|ver:"3.0" foo:"bar"
+           a f,  c dis:"C", d,  e
+           "a",  1,         N,  NA
+           "b",  N,         N,  "a"
+           "c",  N,         N,  "a"
+           "d",  2,         N,  NA
+           |>))
+
+    a = grid.replace(NA.val, "-")
+    verifyGridEq(a, g(
+      Str<|ver:"3.0" foo:"bar"
+           a f,  c dis:"C", d,  e
+           "a",  1,         N,  "-"
+           "b",  4,         N,  "a"
+           "c",  N,         N,  "a"
+           "d",  2,         4,  "-"
+           |>))
+
+    a = grid.replace("a", "!")
+    verifyGridEq(a, g(
+      Str<|ver:"3.0" foo:"bar"
+           a f,  c dis:"C", d,  e
+           "!",  1,         N,  NA
+           "b",  4,         N,  "!"
+           "c",  N,         N,  "!"
+           "d",  2,         4,  NA
+           |>))
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Commit
 //////////////////////////////////////////////////////////////////////////
 
@@ -783,3 +840,4 @@ class GridTest : HaystackTest
   }
 
 }
+

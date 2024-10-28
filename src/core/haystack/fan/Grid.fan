@@ -425,11 +425,35 @@ const mixin Grid
   }
 
   ** Map each row to a list of values.
-  @NoDoc Obj?[] mapToList(|Row,Int->Obj?| f)
+  Obj?[] mapToList(|Row,Int->Obj?| f)
   {
     Obj?[] list := List.make(f.returns, size)
     each |row, i| { list.add(f(row, i)) }
     return list
+  }
+
+  ** Replace every cell with the given 'from' value with the 'to' value.
+  ** The resulting grid has the same grid and col meta.  Replacement comparison
+  ** is by via Fantom equality via '==' operator, so it will only replace
+  ** scalar values or null.
+  Grid replace(Obj? from, Obj? to)
+  {
+    cols := this.cols
+    gb := GridBuilder().copyMetaAndCols(this)
+    try gb.capacity = size; catch (Err e) {}
+    this.each |row|
+    {
+      cells := Obj?[,]
+      cells.capacity = cols.size
+      cols.each |col|
+      {
+        val := row.val(col)
+        if (val == from) val = to
+        cells.add(val)
+      }
+      gb.addRow(cells)
+    }
+    return gb.toGrid
   }
 
   **

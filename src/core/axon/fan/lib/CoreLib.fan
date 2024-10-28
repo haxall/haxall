@@ -1424,6 +1424,16 @@ const class CoreLib
     }
   }
 
+  ** Replace every grid cell with the given 'from' value with the 'to' value.
+  ** The resulting grid has the same grid and col meta.  Replacement comparison
+  ** is by via equality via '==' operator, so it will only replace
+  ** scalar values or null.
+  **
+  ** Example:
+  **   grid.gridReplace(null, 0)   // replace all null cells with zero
+  **   grid.gridReplace(na(), 0)   // replace all NA cells with zero
+  @Axon static Grid gridReplace(Grid grid, Obj? from, Obj? to) { grid.replace(from, to) }
+
   ** Swizzle utility
   @NoDoc static Obj? swizzleRefsVal(Ref:Ref oldToNewIds, Obj? v)
   {
