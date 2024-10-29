@@ -63,5 +63,40 @@ class CheckTest : AbstractXetoTest
     verifyEq(actual, Str[,].addAll(expect))
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Patterns
+//////////////////////////////////////////////////////////////////////////
+
+  Void testPatterns()
+  {
+    verifyPattern("sys::Date", "2024-10-08", true)
+    verifyPattern("sys::Date", "2024-10-8",  false)
+    verifyPattern("sys::Date", "2024-10-x8", false)
+    verifyPattern("sys::Date", "24-10-18",   false)
+
+    verifyPattern("sys::Time", "12:34:54",     true)
+    verifyPattern("sys::Time", "12:34:54.123", true)
+    verifyPattern("sys::Time", "12:34:54.x",   false)
+    verifyPattern("sys::Time", "12:34:5",      false)
+    verifyPattern("sys::Time", "12:34:5",      false)
+    verifyPattern("sys::Time", "12:34",        false)
+    verifyPattern("sys::Time", "12:34:qq",     false)
+
+    verifyPattern("sys::DateTime", "2024-10-29T09:38:21-04:00 New_York",     true)
+    verifyPattern("sys::DateTime", "2024-10-29T09:38:21.295-04:00 New_York", true)
+    verifyPattern("sys::DateTime", "2024-10-29T09:38:2.295-04:00 New_York",  false)
+    verifyPattern("sys::DateTime", "2024-10-29 09:38:22.295-04:00 New_York", false)
+    verifyPattern("sys::DateTime", "2024-10-29T9:38:22.295-04:00 New_York",  false)
+  }
+
+  Void verifyPattern(Str qname, Str s, Bool expect)
+  {
+    ns := sysNamespace
+    re := Regex(ns.spec(qname).meta->pattern)
+    actual := re.matches(s)
+    // echo(">> $re $s | $actual ?= $expect")
+    verifyEq(actual, expect, s)
+  }
+
 }
 

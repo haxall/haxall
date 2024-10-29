@@ -131,7 +131,7 @@ verifyType:
   base: "sys::Scalar"
   meta:
     doc: "sys::Str ISO 8601 date as year, month, day: '2011-06-07'"
-    pattern: "sys::Str \\d\\d\\d\\d-\\d\\d-\\d\\d"
+    pattern: "sys::Str \\d{4}-\\d{2}-\\d{2}"
     sealed: "sys::Marker"
     val: "sys::Date 2000-01-01"
 ---
@@ -142,7 +142,7 @@ verifyType:
   base: "sys::Scalar"
   meta:
     doc: "sys::Str ISO 8601 time as hour, minute, seconds: '09:51:27.354'"
-    pattern: "sys::Str \\d\\d:\\d\\d:\\d\\d(\\.\\d+)*"
+    pattern: "sys::Str \\d{2}:\\d{2}:\\d{2}(\\.\\d+)*"
     sealed: "sys::Marker"
     val: "sys::Time 00:00:00"
 ---
@@ -153,7 +153,7 @@ verifyType:
   base: "sys::Scalar"
   meta:
     doc: "sys::Str  ISO 8601 timestamp followed by timezone identifier"
-    pattern: "sys::Str \\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(\\.\\d+)*[Z+-][\\d:]*[ ]*[-+a-zA-Z_\\d]*"
+    pattern: "sys::Str \\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)*[Z+-][\\d:]*[ ]*[-+a-zA-Z_\\d]*"
     sealed: "sys::Marker"
     val: "sys::DateTime 2000-01-01T00:00:00Z UTC"
 ---
