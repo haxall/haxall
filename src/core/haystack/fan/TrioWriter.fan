@@ -89,7 +89,12 @@ class TrioWriter : GridWriter
       if (v === Marker.val) { out.printLine(n); return }
       v = normVal(v)
       out.print(n).writeChar(':')
-      kind := Kind.fromVal(v)
+      kind := Kind.fromVal(v, false)
+      if (kind == null)
+      {
+        out.printLine(XStr.encode(v).toStr)
+        return
+      }
       if (kind !== Kind.str)
       {
         if (kind.isCollection)
@@ -244,3 +249,4 @@ class TrioWriter : GridWriter
   private Bool needSep
   private Bool noSort
 }
+
