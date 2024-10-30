@@ -85,7 +85,7 @@ abstract class Exporter
 
   const MNamespace ns             // namespace
   const Dict opts                 // options
-  private OutStream out           // output stream
+  protected OutStream out         // output stream
   Int indentation                 // current level of indentation
 }
 

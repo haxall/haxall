@@ -15,7 +15,7 @@ internal class ExportRdf : ExportCmd
 {
   override Str name() { "export-rdf" }
 
-  override Str summary() { "Export xeto to RDF" }
+  override Str summary() { "Export Xeto to RDF" }
 
   override Exporter initExporter(LibNamespace ns, OutStream out)
   {
