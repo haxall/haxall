@@ -67,7 +67,7 @@ abstract class HaystackTest : Test
   private const static AtomicRef nsDefaultRef := AtomicRef()
 
   ** Verify two Dictts have same name/val pairs
-  Void verifyDictEq(Dict a, Obj b)
+  Void verifyDictEq(Dict a, Obj b, Str? msg := null)
   {
     if (b isnot Dict) b = Etc.makeDict(b)
 
@@ -78,7 +78,8 @@ abstract class HaystackTest : Test
     {
       try
       {
-        verifyValEq(v, bd[n])
+        nmsg := msg == null ? n : "$msg -> $n"
+        verifyValEq(v, bd[n], nmsg)
       }
       catch (TestErr e)
       {
@@ -187,35 +188,35 @@ abstract class HaystackTest : Test
   **    - Ref.dis
   **    - Dict
   **    - Grid
-  Void verifyValEq(Obj? a, Obj? b)
+  Void verifyValEq(Obj? a, Obj? b, Str? msg := null)
   {
-    if (a is Ref && b is Ref)   return verifyRefEq(a, b)
-    if (a is List && b is List) return verifyListEq(a, b)
-    if (a is Dict && b is Dict) return verifyDictEq(a, b)
+    if (a is Ref && b is Ref)   return verifyRefEq(a, b, msg)
+    if (a is List && b is List) return verifyListEq(a, b, msg)
+    if (a is Dict && b is Dict) return verifyDictEq(a, b, msg)
     if (a is Grid && b is Grid) return verifyGridEq(a, b)
-    if (a is Buf && b is Buf)   return verifyBufEq(a, b)
-    verifyEq(a, b)
+    if (a is Buf && b is Buf)   return verifyBufEq(a, b, msg)
+    verifyEq(a, b, msg)
   }
 
   ** Verify two Refs are equal for both id and dis
-  Void verifyRefEq(Ref a, Ref b)
+  Void verifyRefEq(Ref a, Ref b, Str? msg := null)
   {
-    verifyEq(a.id, b.id)
-    verifyEq(a.dis, b.dis)
+    verifyEq(a.id, b.id, msg)
+    verifyEq(a.dis, b.dis, msg)
   }
 
   ** Verify contents of two lists using `verifyValEq`
-  virtual Void verifyListEq(List a, List b)
+  virtual Void verifyListEq(List a, List b, Str? msg := null)
   {
-    verifyEq(a.typeof, b.typeof)
-    verifyEq(a.size, b.size)
-    a.each |v, i| { verifyValEq(v, b[i]) }
+    verifyEq(a.typeof, b.typeof, msg)
+    verifyEq(a.size, b.size, msg)
+    a.each |v, i| { verifyValEq(v, b[i], msg) }
   }
 
   ** Verify two buffers are equal
-  @NoDoc Void verifyBufEq(Buf a, Buf b)
+  @NoDoc Void verifyBufEq(Buf a, Buf b, Str? msg := null)
   {
-    verifyEq(a.toHex, b.toHex)
+    verifyEq(a.toHex, b.toHex, msg)
   }
 
   ** Verify grid row ids match given ids
@@ -237,3 +238,4 @@ abstract class HaystackTest : Test
     verify(true)
   }
 }
+

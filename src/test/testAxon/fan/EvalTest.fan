@@ -938,16 +938,16 @@ class EvalTest : AxonTest
     flexList = false
   }
 
-  override Void verifyListEq(List a, List b)
+  override Void verifyListEq(List a, List b, Str? msg := null)
   {
     if (flexList)
     {
       verifyEq(a.size, b.size)
-      a.each |v, i| { verifyValEq(v, b[i]) }
+      a.each |v, i| { verifyValEq(v, b[i], msg) }
     }
     else
     {
-      super.verifyListEq(a, b)
+      super.verifyListEq(a, b, msg)
     }
   }
 
