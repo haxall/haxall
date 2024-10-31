@@ -20,3 +20,14 @@
   exit @exit: {text:"Exit"}
 }
 
+@coerce: {
+  int: Int "1"
+  float: Float "2"
+  dur: Duration "3min"
+  num: Number "4kW"
+  version: Version "1.2.3"
+  date: Date "2024-10-31"
+  list: List { Int "4" }
+  dict: Dict { x: Int "4" }
+}
+

@@ -47,16 +47,19 @@ class GridExporter : Exporter
 
   override This lib(Lib lib)
   {
-    if (filetype.name == "trio")
-      add(lib.meta)
-    else
-      meta = lib.meta
+    add(libMeta(lib))
 
     lib.specs.each |x| { spec(x) }
 
     nonNestedInstances(lib).each |x| { instance(x) }
 
     return this
+  }
+
+  private Dict libMeta(Lib lib)
+  {
+    dict := (haystack::Dict)lib
+    return Etc.dictRemove(dict, "loaded")
   }
 
   override This spec(Spec spec)
@@ -104,7 +107,7 @@ class GridExporter : Exporter
 
   private Void add(Dict x)
   {
-    dicts.add(x)
+    dicts.add(Etc.dictToHaystack(x))
   }
 
   Grid toGrid()

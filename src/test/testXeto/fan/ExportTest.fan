@@ -24,6 +24,13 @@ class ExportTest : AbstractXetoTest
     def := Etc.dict0
     eff := Etc.dict1("effective", m)
 
+    lib := ns.lib("hx.test.xeto")
+    depends := lib.depends.map |x| { Etc.dict2("lib", x.name, "versions", x.versions.toStr) }
+    verifyGridExport(ns, def, "lib:hx.test.xeto", ["id":lib._id, "version":lib.version.toStr,
+      "doc":lib->doc, "depends": depends, "fantomPodName":"testXeto", "spec":Ref("sys::Lib"),
+      "org":Etc.dict3("dis", "Haxall", "uri", `https://haxall.io/`, "spec", Ref("sys::LibOrg"))
+    ])
+
     /*
     // Test spec
     Alpha : Dict {
@@ -100,7 +107,7 @@ class ExportTest : AbstractXetoTest
     verifyGridExport(ns, def, "test-b", ["beta":m])
 
     // instance - nested dicts no id
-   verifyGridExport(ns, def, "toolbar1", ["save":Etc.dict1("text","Save"), "exit":Etc.dict1("text","Exit")])
+    verifyGridExport(ns, def, "toolbar1", ["save":Etc.dict1("text","Save"), "exit":Etc.dict1("text","Exit")])
 
     // instance - nested instances with id
     g := gridExport(ns, def)
@@ -111,6 +118,13 @@ class ExportTest : AbstractXetoTest
     verifyGridExport(ns, def, "toolbar2", [
       "save":Etc.dict2("id", Ref("hx.test.xeto::save"), "text", "Save"),
       "exit":Etc.dict2("id", Ref("hx.test.xeto::exit"), "text", "Exit"),
+      ])
+
+    // instance - toHaystack coercion
+    verifyGridExport(ns, def, "coerce", [
+      "int":n(1), "float":n(2), "dur":n(3, "min"), "num":n(4, "kW"),
+      "date":Date("2024-10-31"), "version":"1.2.3",
+      "list":Obj?[n(4)], "dict":Etc.dict1("x", n(4))
       ])
   }
 
@@ -124,13 +138,13 @@ class ExportTest : AbstractXetoTest
 
   Dict verifyGridExport(LibNamespace ns, Dict opts, Str relId, Str:Obj expect)
   {
-     grid := gridExport(ns, opts)
-     id := Ref("hx.test.xeto::$relId")
-     expect = expect.dup.set("id", id)
-     row := grid.find |r| { r["id"] == id } ?: throw Err("missing: $id")
-//echo(">>> $row")
-     verifyDictEq(row, expect)
-     return row
-   }
+    grid := gridExport(ns, opts)
+    id := Ref(relId.contains(":") ? relId : "hx.test.xeto::$relId")
+    expect = expect.dup.set("id", id)
+    row := grid.find |r| { r["id"] == id } ?: throw Err("missing: $id")
+    //echo; echo(">>>>"); row.each |v, n| { echo("$n = $v [$v.typeof]") }
+    verifyDictEq(row, expect)
+    return row
+  }
 }
 
