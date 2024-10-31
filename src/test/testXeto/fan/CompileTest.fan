@@ -423,6 +423,9 @@ class CompileTest : AbstractXetoTest
 
     a := verifyLibInstance(lib, spec, "alice",
       ["person":m, "first":"Alice", "last":"Smith", "born": Date("1980-06-15"), "boss":b->id, "obj":"string", "_0":n1, "n2":n2])
+
+    verifySame(n1, a->_0)
+    verifySame(n2, a->n2)
   }
 
   Dict verifyLibInstance(Lib lib, Spec spec, Str name, Str:Obj expect)

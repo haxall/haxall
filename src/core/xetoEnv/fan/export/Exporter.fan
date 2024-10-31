@@ -11,6 +11,7 @@ using util
 using xeto
 using xeto::Lib
 using haystack::Dict
+using haystack::Ref
 
 **
 ** Exporter
@@ -29,6 +30,7 @@ abstract class Exporter
     this.out         = out
     this.opts        = opts
     this.indentation = XetoUtil.optInt(opts, "indent", 0)
+    this.isEffective = XetoUtil.optBool(opts, "effective", false)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -85,6 +87,8 @@ abstract class Exporter
 
   const MNamespace ns             // namespace
   const Dict opts                 // options
+  const Bool isEffective          // options
+  const Ref specRef := Ref("sys::Spec")
   protected OutStream out         // output stream
   Int indentation                 // current level of indentation
 }

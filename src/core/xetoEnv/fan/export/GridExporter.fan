@@ -8,8 +8,9 @@
 
 using xeto
 using xeto::Lib
-using haystack::Dict
 using haystack
+using haystack::Dict
+using haystack::Ref
 
 **
 ** GridExporter turns xeto data into Haystack grid then uses
@@ -51,40 +52,70 @@ class GridExporter : Exporter
     else
       meta = lib.meta
 
-    lib.specs.each |x| { addSpec(x) }
+    lib.specs.each |x| { spec(x) }
 
-    lib.instances.each |x| { add(x) }
+    lib.instances.each |x| { instance(x) }
 
     return this
   }
 
   override This spec(Spec spec)
   {
-    addSpec(spec)
+    add(specToDict(spec))
     return this
+  }
+
+  private Dict specToDict(Spec x)
+  {
+    meta := isEffective ? x.meta : x.metaOwn
+    slots := isEffective ? x.slots : x.slotsOwn
+
+    acc := Str:Obj[:]
+    acc.ordered = true
+    acc["id"] = x._id
+    if (x.isType) acc.addNotNull("base", x.base?._id)
+    else acc["type"] = x.type._id
+    acc["spec"] = specRef
+    meta.each |v, n| { acc[n] = v }
+
+    if (!slots.isEmpty)
+    {
+      slotsAcc := Str:Obj[:]
+      slotsAcc.ordered = true
+      x.slots.each |slot|
+      {
+        slotsAcc[slot.name] = specToDict(slot)
+      }
+      acc["slots"] = Etc.dictFromMap(slotsAcc)
+    }
+
+    return Etc.makeDict(acc)
   }
 
   override This instance(Dict instance)
   {
-    add(instance)
+    // turn nested instances with an id to refs
+    dict := instance.map |v|
+    {
+      nestedId := (v as Dict)?.get("id") as Ref
+      if (nestedId != null && ns.instance(nestedId.id, false) != null)
+        return nestedId
+      return v
+    }
+    add(dict)
+    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Definitions
 //////////////////////////////////////////////////////////////////////////
 
-  private This addSpec(Spec x)
-  {
-    add((Dict)x)
-  }
-
-  private This add(Dict x)
+  private Void add(Dict x)
   {
     dicts.add(x)
-    return this
   }
 
-  private Grid toGrid()
+  Grid toGrid()
   {
     Etc.makeDictsGrid(meta, dicts)
   }

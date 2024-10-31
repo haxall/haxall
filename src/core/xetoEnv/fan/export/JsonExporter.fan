@@ -26,7 +26,6 @@ class JsonExporter : Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
   {
-    this.isEffective = XetoUtil.optBool(opts, "effective", false)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -231,9 +230,7 @@ class JsonExporter : Exporter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private Ref specRef := Ref("sys::Spec")
   private Bool[] firsts := Bool[true]    // object state stack
   private Bool lastWasEnd
-  private Bool isEffective
 }
 

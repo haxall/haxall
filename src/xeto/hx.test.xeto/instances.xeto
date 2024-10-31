@@ -10,3 +10,13 @@
 
 @test-b: {beta}
 
+@toolbar1: {
+  save: {text:"Save"}
+  exit: {text:"Exit"}
+}
+
+@toolbar2: {
+  save @save: {text:"Save"}
+  exit @exit: {text:"Exit"}
+}
+
