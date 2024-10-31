@@ -685,6 +685,42 @@ const class Etc
     return def
   }
 
+  ** Coerce a value to one of the Haystack types.  Recursively coerce
+  ** dicts and lists.  This method does not support grids.
+  ** Options:
+  **   - checked: marker to throw err for non-haystack values; coerce otherwise
+  static Obj? toHaystack(Obj? val, Dict? opts := null)
+  {
+    if (val == null) return null
+
+    // check kind
+    kind := Kind.fromVal(val, false)
+    if (kind != null)
+    {
+      if (kind.isDict) return dictToHaystack(val, opts)
+      if (kind.isList) return ((List)val).map |x| { toHaystack(x, opts) }
+      if (kind.isGrid) throw UnsupportedErr("Cannot use toHaystack with grid")
+      return val
+    }
+
+    // not haystack type, check if we need to raise exception
+    if (opts !=null && opts.has("checked"))
+      throw NotHaystackErr("Invalid haystack type: $val [$val.typeof]")
+
+    // special coercions
+    if (val is Num) return Number(((Num)val).toFloat)
+    if (val is Duration) return Number.makeDuration(val, null)
+
+    // coerce to string
+    return val.toStr
+  }
+
+  ** Coerce dict to Haystack types, see `toHaystack`.
+  static Dict dictToHaystack(Dict dict, Dict? opts := null)
+  {
+    dict.map |x| { toHaystack(x, opts) }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Values
 //////////////////////////////////////////////////////////////////////////

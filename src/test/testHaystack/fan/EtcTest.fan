@@ -884,6 +884,53 @@ class EtcTest : HaystackTest
     verifyGridEq(Etc.gridFlatten([a, b, c]), abc)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Etc.toHaystack
+//////////////////////////////////////////////////////////////////////////
+
+  Void testToHaystack()
+  {
+    verifyEq(Etc.toHaystack(null), null)
+    verifyToHaystack("str", null)
+    verifyToHaystack(`uri`, null)
+    verifyToHaystack(Date.today, null)
+    verifyToHaystack(Time.now, null)
+    verifyToHaystack(DateTime.now, null)
+    verifyToHaystack(Ref.gen, null)
+    verifyToHaystack(true, null)
+    verifyToHaystack(Marker.val, null)
+    verifyToHaystack(Remove.val, null)
+    verifyToHaystack(NA.val, null)
+
+    verifyToHaystack([123], Obj?[n(123)])
+    verifyToHaystack(Etc.dict1("x", [123]), Etc.dict1("x", Obj?[n(123)]))
+
+    verifyToHaystack(123, n(123))
+    verifyToHaystack(45f, n(45f))
+    verifyToHaystack(30sec, n(30, "sec"))
+
+    verifyToHaystack(this, this.toStr)
+    verifyToHaystack(Version("1.2"), "1.2")
+
+    verifyErr(UnsupportedErr#) { Etc.toHaystack(Etc.makeMapGrid(null, ["foo":"bar"])) }
+  }
+
+  Void verifyToHaystack(Obj v, Obj? expect)
+  {
+    check := Etc.dict1("checked", m)
+    a := Etc.toHaystack(v)
+    if (expect == null)
+    {
+      verifySame(a, v)
+      verifySame(Etc.toHaystack(v, check), v)
+    }
+    else
+    {
+      verifyValEq(a, expect)
+      verifyErr(NotHaystackErr#) { Etc.toHaystack(v, check) }
+    }
+
+  }
 
 }
 
