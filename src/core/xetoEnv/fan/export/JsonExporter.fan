@@ -11,6 +11,7 @@ using xeto::Lib
 using haystack::Dict
 using haystack::Etc
 using haystack::Marker
+using haystack::Number
 using haystack::Ref
 
 **
@@ -60,14 +61,15 @@ class JsonExporter : Exporter
 
   override This instance(Dict instance)
   {
-    prop(instance.id.id).obj
+    relId := XetoUtil.qnameToName(instance.id.id)
+    prop(relId).obj
 
     spec := instance["spec"]
     if (spec != null) dictPair("spec", spec)
 
     instance.each |v, n|
     {
-      if (n == "id" || n == "spec") return
+      if (n == "spec") return
       dictPair(n, v)
     }
 
@@ -92,6 +94,7 @@ class JsonExporter : Exporter
   private This doSpec(Str name, Spec spec, Int depth)
   {
     prop(name).obj
+    prop("id").val(spec._id).propEnd
     prop("spec").val(specRef).propEnd
     if (spec.isType) specBase(spec)
     else specType(spec)
@@ -140,6 +143,7 @@ class JsonExporter : Exporter
     if (x is Dict) return dict(x)
     if (x is List) return list(x)
     if (x === Marker.val) return str("\u2713")
+    if (x is Float) return str(Number.make(x).toStr)
     return str(x.toStr)
   }
 

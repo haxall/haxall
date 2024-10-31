@@ -6,6 +6,7 @@
 //   31 Oct 2024  Brian Frank  Halloween!
 //
 
+using util
 using xeto
 using xetoEnv
 using haystack
@@ -18,7 +19,7 @@ using haystack::Ref
 @Js
 class ExportTest : AbstractXetoTest
 {
-  Void testGrid()
+  Void test()
   {
     ns := createNamespace(["hx.test.xeto"])
     def := Etc.dict0
@@ -26,7 +27,7 @@ class ExportTest : AbstractXetoTest
 
     lib := ns.lib("hx.test.xeto")
     depends := lib.depends.map |x| { Etc.dict2("lib", x.name, "versions", x.versions.toStr) }
-    verifyGridExport(ns, def, "lib:hx.test.xeto", ["id":lib._id, "version":lib.version.toStr,
+    verifyExport(ns, def, "lib:hx.test.xeto", ["id":lib._id, "version":lib.version.toStr,
       "doc":lib->doc, "depends": depends, "fantomPodName":"testXeto", "spec":Ref("sys::Lib"),
       "org":Etc.dict3("dis", "Haxall", "uri", `https://haxall.io/`, "spec", Ref("sys::LibOrg"))
     ])
@@ -36,7 +37,7 @@ class ExportTest : AbstractXetoTest
     Alpha : Dict {
     }
     */
-    verifyGridExport(ns, def, "Alpha", ["base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "doc":"Test spec"])
+    verifyExport(ns, def, "Alpha", ["base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "doc":"Test spec"])
 
     /*
     // A
@@ -44,7 +45,7 @@ class ExportTest : AbstractXetoTest
       x: Str
     }
     */
-    verifyGridExport(ns, def, "A", ["base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "doc":"A",
+    verifyExport(ns, def, "A", ["base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "doc":"A",
        "q":Date("2024-01-01"), "foo":"A", "bar":"A",
        "slots":Etc.makeDict([
           "x": Etc.makeDict(
@@ -59,7 +60,7 @@ class ExportTest : AbstractXetoTest
       z: Str
     }
     */
-    verifyGridExport(ns, def, "C", ["base":Ref("hx.test.xeto::A"), "spec":Ref("sys::Spec"),
+    verifyExport(ns, def, "C", ["base":Ref("hx.test.xeto::A"), "spec":Ref("sys::Spec"),
        "slots":Etc.makeDict([
           "z": Etc.makeDict(
             ["id":Ref("hx.test.xeto::C.z"), "type":Ref("sys::Str"),
@@ -73,7 +74,7 @@ class ExportTest : AbstractXetoTest
       z: Str
     }
     */
-    verifyGridExport(ns, eff, "C", ["base":Ref("hx.test.xeto::A"), "spec":Ref("sys::Spec"), "doc":"A",
+    verifyExport(ns, eff, "C", ["base":Ref("hx.test.xeto::A"), "spec":Ref("sys::Spec"), "doc":"A",
        "q":Date("2024-01-01"), "foo":"A", "bar":"A",
        "slots":Etc.makeDict([
           "x": Etc.makeDict(
@@ -95,7 +96,7 @@ class ExportTest : AbstractXetoTest
     }
     */
     /*
-    verifyGridExport(ns, def, "EqA", ["base":Ref("ph::Equip"), "spec":Ref("sys::Spec"), "doc":"Equip with points",
+    verifyExport(ns, def, "EqA", ["base":Ref("ph::Equip"), "spec":Ref("sys::Spec"), "doc":"Equip with points",
        "slots":Etc.makeDict([
           "points": Etc.makeDict([,
           ])
@@ -104,10 +105,10 @@ class ExportTest : AbstractXetoTest
     */
 
     // instance - simple
-    verifyGridExport(ns, def, "test-b", ["beta":m])
+    verifyExport(ns, def, "test-b", ["beta":m])
 
     // instance - nested dicts no id
-    verifyGridExport(ns, def, "toolbar1", ["save":Etc.dict1("text","Save"), "exit":Etc.dict1("text","Exit")])
+    verifyExport(ns, def, "toolbar1", ["save":Etc.dict1("text","Save"), "exit":Etc.dict1("text","Exit")])
 
     // instance - nested instances with id
     g := gridExport(ns, def)
@@ -115,28 +116,70 @@ class ExportTest : AbstractXetoTest
     verifyNull(g.find |r| { r["id"]?.toStr == "hx.test.xeto::exit" })
     verifyNotNull(g.find |r| { r["id"]?.toStr == "hx.test.xeto::toolbar1" })
     verifyNotNull(g.find |r| { r["id"]?.toStr == "hx.test.xeto::toolbar2" })
-    verifyGridExport(ns, def, "toolbar2", [
+    verifyExport(ns, def, "toolbar2", [
       "save":Etc.dict2("id", Ref("hx.test.xeto::save"), "text", "Save"),
       "exit":Etc.dict2("id", Ref("hx.test.xeto::exit"), "text", "Exit"),
       ])
 
     // instance - toHaystack coercion
-    verifyGridExport(ns, def, "coerce", [
+    verifyExport(ns, def, "coerce", [
       "int":n(1), "float":n(2), "dur":n(3, "min"), "num":n(4, "kW"),
       "date":Date("2024-10-31"), "version":"1.2.3",
       "list":Obj?[n(4)], "dict":Etc.dict1("x", n(4))
       ])
   }
 
-  Grid gridExport(LibNamespace ns, Dict opts)
+  Void verifyExport(LibNamespace ns, Dict opts, Str relId, Str:Obj expect)
   {
-    trio := this.ns.filetype("trio")
-    e := GridExporter(ns, Buf().out, opts, trio)
-    e.lib(ns.lib("hx.test.xeto"))
-    return e.toGrid
+    verifyGridExport(ns, opts, relId, expect)
+    verifyJsonExport(ns, opts, relId, expect)
   }
 
-  Dict verifyGridExport(LibNamespace ns, Dict opts, Str relId, Str:Obj expect)
+  private Void verifyJsonExport(LibNamespace ns, Dict opts, Str relId, Str:Obj expect)
+  {
+    if (relId.startsWith("lib:"))
+    {
+      relId = "pragma"
+      expect.remove("spec")
+      expect.remove("id")
+    }
+    else
+    {
+      expect["id"] = "hx.test.xeto::$relId"
+    }
+
+    doc := jsonExport(ns, opts)
+    lib := (Str:Obj?)doc.getChecked("hx.test.xeto")
+    a := (Str:Obj?)lib.getChecked(relId)
+    b := (Str:Obj?)toJson(expect)
+    if (a == b) return verifyEq(a, b)
+
+    echo("FAIL: verifyJsonExport")
+    echo(JsonOutStream.prettyPrintToStr(a))
+    echo("Fields:")
+    a.each |av, n|
+    {
+      bv := b[n]
+      if (av != bv) echo("  $n: $av [$av.typeof] != $bv [${bv?.typeof}]")
+    }
+    b.each |bv, n|
+    {
+      av := a[n]
+      if (av == null) echo(" $n: null != $bv [${bv?.typeof}]")
+    }
+    fail
+  }
+
+  private Obj toJson(Obj v)
+  {
+    if (v is Dict) v = Etc.dictToMap(v)
+    if (v is List) return ((List)v).map |x| { toJson(x) }
+    if (v is Map) return ((Map)v).map |x| { toJson(x) }
+    if (v is Marker) return "\u2713"
+    return v.toStr
+  }
+
+  private Void verifyGridExport(LibNamespace ns, Dict opts, Str relId, Str:Obj expect)
   {
     grid := gridExport(ns, opts)
     id := Ref(relId.contains(":") ? relId : "hx.test.xeto::$relId")
@@ -145,6 +188,24 @@ class ExportTest : AbstractXetoTest
     //echo; echo(">>>>"); row.each |v, n| { echo("$n = $v [$v.typeof]") }
     verifyDictEq(row, expect)
     return row
+  }
+
+  private Str:Obj? jsonExport(LibNamespace ns, Dict opts)
+  {
+    buf := Buf()
+    e := JsonExporter(ns, buf.out, opts)
+    e.start.lib(ns.lib("hx.test.xeto")).end
+    str := buf.flip.readAllStr
+    doc := JsonInStream(str.in).readJson
+    return doc
+  }
+
+  private Grid gridExport(LibNamespace ns, Dict opts)
+  {
+    trio := this.ns.filetype("trio")
+    e := GridExporter(ns, Buf().out, opts, trio)
+    e.lib(ns.lib("hx.test.xeto"))
+    return e.toGrid
   }
 }
 
