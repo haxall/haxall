@@ -56,6 +56,35 @@ const class CryptoFuncs
 // Internal
 //////////////////////////////////////////////////////////////////////////
 
+  @NoDoc @Axon { su = true }
+  static Grid cryptoLocal(Str? type)
+  {
+    //cx := Context.cur
+    t := type ?: "all"
+    f := ""
+    switch(type)
+    {
+      case "cryptoTrust":     f = "trusted"
+      case "cryptoPrivKey":   f = "bundle"
+      case "all":
+      default:                f = "cryptoEntry"
+    }
+    return cryptoReadAllKeys.filter(Filter.fromStr(f))
+  }
+
+  @NoDoc @Axon { su = true }
+  static Grid cryptoCheckAction(Obj dict)
+  {
+    Uri uri := ``
+    if (dict is Uri) uri = dict
+    else if (dict is Grid) uri = Etc.toRec(dict)["uri"]
+    else if (dict is Dict) uri = ((Dict)dict)["uri"]
+    else if (dict is Str) uri = Uri.fromStr(dict)
+    else throw ArgErr("Invalid input: $dict")
+
+    return cryptoCheckUri(uri).addMeta(Etc.makeDict1("view", "table"))
+  }
+
   ** Read keystore as a grid
   @NoDoc @Axon { su = true }
   static Grid cryptoReadAllKeys()
