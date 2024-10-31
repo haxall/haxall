@@ -95,14 +95,34 @@ class ExportTest : AbstractXetoTest
       }
     }
     */
-    /*
     verifyExport(ns, def, "EqA", ["base":Ref("ph::Equip"), "spec":Ref("sys::Spec"), "doc":"Equip with points",
        "slots":Etc.makeDict([
-          "points": Etc.makeDict([,
+          "points": Etc.makeDict([
+             "id":Ref("hx.test.xeto::EqA.points"),
+             "type":Ref("sys::Query"),
+             "spec":Ref("sys::Spec"),
+             "slots": Etc.makeDict([
+               "a": Etc.makeDict([
+                 "id":Ref("hx.test.xeto::EqA.points.a"),
+                 "type":Ref("ph.points::ZoneCo2Sensor"),
+                 "spec":Ref("sys::Spec")
+               ]),
+               "b": Etc.makeDict([
+                 "id":Ref("hx.test.xeto::EqA.points.b"),
+                 "type":Ref("ph.points::ZoneCo2Sensor"),
+                 "spec":Ref("sys::Spec"),
+                 "slots": Etc.makeDict([
+                    "foo": Etc.makeDict([
+                      "id":Ref("hx.test.xeto::EqA.points.b.foo"),
+                      "spec":Ref("sys::Spec"),
+                      "type":Ref("sys::Marker"),
+                   ])
+                 ])
+               ])
+             ])
           ])
        ])
     ])
-    */
 
     // instance - simple
     verifyExport(ns, def, "test-b", ["beta":m])
@@ -157,17 +177,31 @@ class ExportTest : AbstractXetoTest
     echo("FAIL: verifyJsonExport")
     echo(JsonOutStream.prettyPrintToStr(a))
     echo("Fields:")
+    printDiff(a, b)
+    fail
+  }
+
+  private Void printDiff(Str:Obj? a, Str:Obj? b, Str path := "")
+  {
     a.each |av, n|
     {
       bv := b[n]
-      if (av != bv) echo("  $n: $av [$av.typeof] != $bv [${bv?.typeof}]")
+      if (av != bv)
+      {
+        if (av is Map && bv is Map)
+        {
+          echo(" $path/$n maps not equal")
+          printDiff(av, bv, "$path/$n")
+        }
+        else
+          echo("  $path/$n: $av [$av.typeof] != $bv [${bv?.typeof}]")
+      }
     }
     b.each |bv, n|
     {
       av := a[n]
-      if (av == null) echo(" $n: null != $bv [${bv?.typeof}]")
+      if (av == null) echo(" $path/$n: null != $bv [${bv?.typeof}]")
     }
-    fail
   }
 
   private Obj toJson(Obj v)
