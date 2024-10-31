@@ -64,14 +64,15 @@ class GridExporter : Exporter
 
   override This spec(Spec spec)
   {
-    add(specToDict(spec))
+    add(specToDict(spec, 0))
     return this
   }
 
-  private Dict specToDict(Spec x)
+  private Dict specToDict(Spec x, Int depth)
   {
-    meta := isEffective ? x.meta : x.metaOwn
-    slots := isEffective ? x.slots : x.slotsOwn
+    effective := this.isEffective && depth <= 1
+    meta := effective ? x.meta : x.metaOwn
+    slots := effective ? x.slots : x.slotsOwn
 
     acc := Str:Obj[:]
     acc.ordered = true
@@ -87,7 +88,7 @@ class GridExporter : Exporter
       slotsAcc.ordered = true
       slots.each |slot|
       {
-        slotsAcc[slot.name] = specToDict(slot)
+        slotsAcc[slot.name] = specToDict(slot, depth+1)
       }
       acc["slots"] = Etc.dictFromMap(slotsAcc)
     }

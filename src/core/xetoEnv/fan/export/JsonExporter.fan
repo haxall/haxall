@@ -46,7 +46,7 @@ class JsonExporter : Exporter
   {
     prop(lib.name).obj
     libPragma(lib)
-    lib.specs.each |x| { doSpec(x.name, x) }
+    lib.specs.each |x| { doSpec(x.name, x, 0) }
     nonNestedInstances(lib).each |x| { instance(x) }
     objEnd.propEnd
     return this
@@ -54,7 +54,7 @@ class JsonExporter : Exporter
 
   override This spec(Spec spec)
   {
-    doSpec(spec.qname, spec)
+    doSpec(spec.qname, spec, 0)
     return this
   }
 
@@ -89,14 +89,15 @@ class JsonExporter : Exporter
   }
 
   ** Spec implementation with given qname or name
-  private This doSpec(Str name, Spec spec)
+  private This doSpec(Str name, Spec spec, Int depth)
   {
     prop(name).obj
     prop("spec").val(specRef).propEnd
     if (spec.isType) specBase(spec)
     else specType(spec)
-    meta(isEffective ? spec.meta : spec.metaOwn)
-    slots(isEffective ? spec.slots : spec.slotsOwn)
+    effective := this.isEffective && depth <= 1
+    meta(effective  ? spec.meta  : spec.metaOwn)
+    slots(effective ? spec.slots : spec.slotsOwn, depth)
     objEnd.propEnd
     return this
   }
@@ -115,11 +116,11 @@ class JsonExporter : Exporter
   }
 
   ** Spec slots
-  private This slots(SpecSlots slots)
+  private This slots(SpecSlots slots, Int depth)
   {
     if (slots.isEmpty) return this
     prop("slots").obj
-    slots.each |slot| { doSpec(slot.name, slot) }
+    slots.each |slot| { doSpec(slot.name, slot, depth+1) }
     objEnd.propEnd
     return this
   }
