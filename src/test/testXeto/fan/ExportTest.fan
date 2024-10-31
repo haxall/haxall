@@ -47,6 +47,38 @@ class ExportTest : AbstractXetoTest
      ])
 
     /*
+    own
+    C : A {
+      z: Str
+    }
+    */
+    verifyGridExport(ns, def, "C", ["base":Ref("hx.test.xeto::A"), "spec":Ref("sys::Spec"),
+       "slots":Etc.makeDict([
+          "z": Etc.makeDict(
+            ["id":Ref("hx.test.xeto::C.z"), "type":Ref("sys::Str"),
+            "spec":Ref("sys::Spec")])
+       ])
+     ])
+
+    /*
+    effective
+    C : A {
+      z: Str
+    }
+    */
+    verifyGridExport(ns, eff, "C", ["base":Ref("hx.test.xeto::A"), "spec":Ref("sys::Spec"), "doc":"A",
+       "q":Date("2024-01-01"), "foo":"A", "bar":"A",
+       "slots":Etc.makeDict([
+          "x": Etc.makeDict(
+            ["id":Ref("hx.test.xeto::A.x"), "type":Ref("sys::Str"),
+            "spec":Ref("sys::Spec"), "doc":"x slot", "val":""]),
+          "z": Etc.makeDict(
+            ["id":Ref("hx.test.xeto::C.z"), "type":Ref("sys::Str"),
+            "spec":Ref("sys::Spec"), "val":"", "doc":"Unicode string of characters"])
+       ])
+     ])
+
+    /*
     // Equip with points
     EqA: Equip {
       points: {
@@ -86,7 +118,7 @@ class ExportTest : AbstractXetoTest
      id := Ref("hx.test.xeto::$relId")
      expect = expect.dup.set("id", id)
      row := grid.find |r| { r["id"] == id } ?: throw Err("missing: $id")
-     // echo(">>> $row")
+//echo(">>> $row")
      verifyDictEq(row, expect)
      return row
    }

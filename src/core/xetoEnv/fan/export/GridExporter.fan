@@ -82,7 +82,7 @@ class GridExporter : Exporter
     {
       slotsAcc := Str:Obj[:]
       slotsAcc.ordered = true
-      x.slots.each |slot|
+      slots.each |slot|
       {
         slotsAcc[slot.name] = specToDict(slot)
       }
