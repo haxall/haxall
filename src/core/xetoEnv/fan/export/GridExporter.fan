@@ -54,7 +54,7 @@ class GridExporter : Exporter
 
     lib.specs.each |x| { spec(x) }
 
-    lib.instances.each |x| { instance(x) }
+    nonNestedInstances(lib).each |x| { instance(x) }
 
     return this
   }
@@ -94,15 +94,7 @@ class GridExporter : Exporter
 
   override This instance(Dict instance)
   {
-    // turn nested instances with an id to refs
-    dict := instance.map |v|
-    {
-      nestedId := (v as Dict)?.get("id") as Ref
-      if (nestedId != null && ns.instance(nestedId.id, false) != null)
-        return nestedId
-      return v
-    }
-    add(dict)
+    add(instance)
     return this
   }
 

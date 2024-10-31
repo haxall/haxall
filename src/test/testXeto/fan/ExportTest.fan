@@ -99,22 +99,32 @@ class ExportTest : AbstractXetoTest
     // instance - simple
     verifyGridExport(ns, def, "test-b", ["beta":m])
 
-    // instance - nested dicts
+    // instance - nested dicts no id
    verifyGridExport(ns, def, "toolbar1", ["save":Etc.dict1("text","Save"), "exit":Etc.dict1("text","Exit")])
 
-    // instance - nested instances uses ref indirection
-    save := verifyGridExport(ns, def, "save", ["text":"Save"])
-    exit := verifyGridExport(ns, def, "exit", ["text":"Exit"])
-    verifyGridExport(ns, def, "toolbar2", ["save":save.id, "exit":exit.id])
+    // instance - nested instances with id
+    g := gridExport(ns, def)
+    verifyNull(g.find |r| { r["id"]?.toStr == "hx.test.xeto::save" })
+    verifyNull(g.find |r| { r["id"]?.toStr == "hx.test.xeto::exit" })
+    verifyNotNull(g.find |r| { r["id"]?.toStr == "hx.test.xeto::toolbar1" })
+    verifyNotNull(g.find |r| { r["id"]?.toStr == "hx.test.xeto::toolbar2" })
+    verifyGridExport(ns, def, "toolbar2", [
+      "save":Etc.dict2("id", Ref("hx.test.xeto::save"), "text", "Save"),
+      "exit":Etc.dict2("id", Ref("hx.test.xeto::exit"), "text", "Exit"),
+      ])
   }
 
-  Dict verifyGridExport(LibNamespace ns, Dict opts, Str relId, Str:Obj expect)
+  Grid gridExport(LibNamespace ns, Dict opts)
   {
     trio := this.ns.filetype("trio")
     e := GridExporter(ns, Buf().out, opts, trio)
     e.lib(ns.lib("hx.test.xeto"))
-    grid := e.toGrid
+    return e.toGrid
+  }
 
+  Dict verifyGridExport(LibNamespace ns, Dict opts, Str relId, Str:Obj expect)
+  {
+     grid := gridExport(ns, opts)
      id := Ref("hx.test.xeto::$relId")
      expect = expect.dup.set("id", id)
      row := grid.find |r| { r["id"] == id } ?: throw Err("missing: $id")

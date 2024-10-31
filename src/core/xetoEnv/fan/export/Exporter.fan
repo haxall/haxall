@@ -52,6 +52,36 @@ abstract class Exporter
   ** Export one instance
   abstract This instance(Dict instance)
 
+  ** Iterate all the lib instances which are not nested
+  internal Dict[] nonNestedInstances(Lib lib)
+  {
+    instances := lib.instances
+    if (instances.isEmpty) return instances
+
+    // first build map of all instances
+    acc := Ref:Dict[:]
+    instances.each |x| { acc[x->id] = x }
+
+    // now recursively walk thru removing nested instances
+    instances.each |x| { removeNested(acc, x, 0) }
+
+    return acc.vals
+  }
+
+  private static Void removeNested(Ref:Dict acc, Dict x, Int level)
+  {
+    if (level > 0)
+    {
+       id := x["id"] as Ref
+       if (id != null) acc.remove(id)
+    }
+
+    x.each |v|
+    {
+      if (v is Dict) removeNested(acc, v, level+1)
+    }
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Write Utils
 //////////////////////////////////////////////////////////////////////////

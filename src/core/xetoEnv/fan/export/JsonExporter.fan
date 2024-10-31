@@ -47,7 +47,7 @@ class JsonExporter : Exporter
     prop(lib.name).obj
     libPragma(lib)
     lib.specs.each |x| { doSpec(x.name, x) }
-    lib.instances.each |x| { instance(x) }
+    nonNestedInstances(lib).each |x| { instance(x) }
     objEnd.propEnd
     return this
   }
