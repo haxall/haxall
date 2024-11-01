@@ -538,7 +538,6 @@ internal const final class XStrKind : Kind
   override Bool isXStr() { true }
   override Str valToJson(Obj val) { x := (XStr)val; return "x:$x.type:$x.val" }
   override Str valToAxon(Obj val) { x := (XStr)val; return "xstr($x.type.toCode, $x.val.toCode)" }
-  override Bool canStore() { false }
 }
 
 @Js
@@ -560,7 +559,6 @@ internal const final class SpanKind : Kind
   override Str valToJson(Obj val) { "x:Span:$val" }
   override Str valToAxon(Obj val) { ((Span)val).toCode }
   override Str valToDis(Obj val, Dict meta := Etc.emptyDict)  { ((Span)val).dis }
-  override Bool canStore() { false }
 }
 
 **************************************************************************

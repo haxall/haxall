@@ -561,6 +561,56 @@ class BasicTest : AbstractFolioTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Kinds
+//////////////////////////////////////////////////////////////////////////
+
+  Void testKinds() { allImpls }
+  Void doTestKinds()
+  {
+    open
+
+    verifyKind(Marker.val)
+    verifyKind(true)
+    verifyKind(n(123, "ft"))
+    verifyKind("string")
+    verifyKind(Ref("abc-123"))
+    verifyKind(`uri`)
+    verifyKind(Date.today)
+    verifyKind(Time.now)
+    verifyKind(DateTime.now.floor(1sec))
+    verifyKind([n(1), "foo"])
+    verifyKind(Etc.dict2("a", n(1), "bar", "foo"))
+    verifyKind(Etc.makeMapGrid(["x":m], ["y":n(123)]))
+    verifyKind(Symbol("foo"))
+    verifyKind(Span(Date.today))
+    verifyKind(Obj?[Span(Date.today)])
+    verifyKind(XStr("Foo", "bar"))
+
+    verifyKindErr(NA.val)
+    verifyKindErr(Version("23"))
+    verifyKindErr(Buf().print("bad"))
+    verifyKindErr(DateSpan.today)
+
+    close
+  }
+
+  Void verifyKind(Obj val)
+  {
+    // echo("## verifyKind $val [$val.typeof]")
+    rec := addRec(["foo":val])
+    verifyValEq(readById(rec.id)->foo, val)
+    commit(rec, ["bar":val])
+    verifyValEq(readById(rec.id)->bar, val)
+  }
+
+  Void verifyKindErr(Obj val)
+  {
+    verifyErr(InvalidTagValErr#) { addRec(["foo":val]) }
+    rec := addRec(["dis":"safe"])
+    verifyErr(InvalidTagValErr#) { commit(rec, ["bar":val]) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Hooks
 //////////////////////////////////////////////////////////////////////////
 
