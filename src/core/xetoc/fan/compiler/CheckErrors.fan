@@ -126,6 +126,9 @@ internal class CheckErrors : Step
         err("Slot '$slot.name' type '$slotType' conflicts inherited slot '$base.qname' of type '$baseType'", slot.loc)
     }
 
+    // choices can have only markers
+    if (slot.parent.isChoice && !slot.ctype.isMarker)
+      err("Choice slot '$slot.name' must be marker type", slot.loc)
   }
 
   Void checkSlotVal(ASpec slot)

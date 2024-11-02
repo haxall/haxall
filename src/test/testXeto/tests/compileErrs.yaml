@@ -215,6 +215,16 @@ verifyErrs: |
   Number 3Wh must have unit of 'kWh'
   Unit 'ft' must be 'power' not 'length'
 ---
+name: "enumInherit"
+compileLib: |
+  X: Enum {
+    a <key:"dup">
+    b <key:"b">
+    c <key:"dup">
+  }
+verifyErrs: |
+  Duplicate enum key: dup
+---
 name: "enumChecks"
 compileLib: |
   A: Enum { foo }
@@ -246,5 +256,14 @@ verifyErrs: |
   Invalid key 'bad2' for enum type 'temp::Color'
   Invalid key 'tx' for enum type 'temp::State'
   Invalid key 'va' for enum type 'temp::State'
+---
+name: "choiceChecks"
+compileLib: |
+  A: Choice { a: Str }
+  B: A { b }
+  C: A { c1, c2:Number }
+verifyErrs: |
+  Choice slot 'a' must be marker type
+  Choice slot 'c2' must be marker type
 ---
 
