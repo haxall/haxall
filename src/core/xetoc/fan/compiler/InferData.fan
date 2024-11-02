@@ -14,20 +14,19 @@ using xetoEnv
 ** Walk thru all the dict AST spec meta and instances and add inferred types/tags.
 ** Once complete every AData instance must have its typeRef set.
 **
+** We run this in two passes: first to infer lib/spec meta; then for instances.
 **
-internal class InferData : Step
+**
+internal abstract class InferData : Step
 {
-  override Void run()
+  Void infer(ANode node)
   {
-    ast.walkTopDown |node|
-    {
-      if (node.nodeType === ANodeType.spec)     curSpec = node
-      if (node.nodeType === ANodeType.dict)     inferDict(node)
-      if (node.nodeType === ANodeType.instance) inferInstance(node)
-      if (node.nodeType === ANodeType.scalar)   inferScalar(node)
-      if (node.nodeType === ANodeType.specRef)  inferRef(node)
-      if (node.nodeType === ANodeType.dataRef)  inferRef(node)
-    }
+    if (node.nodeType === ANodeType.spec)     curSpec = node
+    if (node.nodeType === ANodeType.dict)     inferDict(node)
+    if (node.nodeType === ANodeType.instance) inferInstance(node)
+    if (node.nodeType === ANodeType.scalar)   inferScalar(node)
+    if (node.nodeType === ANodeType.specRef)  inferRef(node)
+    if (node.nodeType === ANodeType.dataRef)  inferRef(node)
   }
 
   private Void inferInstance(AInstance dict)
@@ -132,5 +131,29 @@ internal class InferData : Step
   const Ref refDefVal := haystack::Ref("x")
 
   private ASpec? curSpec
+}
+
+**************************************************************************
+** InferMeta
+**************************************************************************
+
+internal class InferMeta : InferData
+{
+  override Void run()
+  {
+    ast.walkMetaTopDown |node| { infer(node) }
+  }
+}
+
+**************************************************************************
+** InferInstances
+**************************************************************************
+
+internal class InferInstances : InferData
+{
+  override Void run()
+  {
+    ast.walkInstancesTopDown |node| { infer(node) }
+  }
 }
 

@@ -15,14 +15,11 @@ using xetoEnv
 ** in the abstract syntax tree as their assembly value.  We use this
 ** step to finalize the ASpec.metaOwn dict.
 **
-internal class Reify : Step
+** We run this in two passes: first to reify lib/spec meta; then for instances.
+**
+internal abstract class Reify : Step
 {
-  override Void run()
-  {
-    ast.walkBottomUp |x| { reify(x) }
-  }
-
-  private Void reify(ANode node)
+  Void reify(ANode node)
   {
     switch (node.nodeType)
     {
@@ -169,6 +166,30 @@ internal class Reify : Step
   private Obj? reifySpecRef(ASpecRef x)
   {
     x.deref.id
+  }
+}
+
+**************************************************************************
+** ReifyMeta
+**************************************************************************
+
+internal class ReifyMeta : Reify
+{
+  override Void run()
+  {
+    ast.walkMetaBottomUp |node| { reify(node)  }
+  }
+}
+
+**************************************************************************
+** ReifyInstances
+**************************************************************************
+
+internal class ReifyInstances : Reify
+{
+  override Void run()
+  {
+    ast.walkInstancesBottomUp |node| { reify(node) }
   }
 }
 

@@ -30,6 +30,18 @@ internal abstract class ADoc : ANode
   ** Lookup top level instance data
   AData? instance(Str name) { instances.get(name) }
 
+  ** Walk lib and spec meta top-down (we also walk ASpecs themselves)
+  abstract Void walkMetaTopDown(|ANode| f)
+
+  ** Walk lib and spec meta bottom-down (we also walk ASpecs themselves)
+  abstract Void walkMetaBottomUp(|ANode| f)
+
+  ** Walk only instances top-down
+  abstract Void walkInstancesTopDown(|ANode| f)
+
+  ** Walk only instances bottom-up
+  abstract Void walkInstancesBottomUp(|ANode| f)
+
 }
 
 **************************************************************************
@@ -54,6 +66,14 @@ internal class ADataDoc : ADoc
   override Void walkBottomUp(|ANode| f) { root.walkBottomUp(f) } // don't walk myself
 
   override Void walkTopDown(|ANode| f) { root.walkTopDown(f) } // don't walk myself
+
+  override Void walkMetaTopDown(|ANode| f) {}
+
+  override Void walkMetaBottomUp(|ANode| f) {}
+
+  override Void walkInstancesTopDown(|ANode| f) { walkTopDown(f) }
+
+  override Void walkInstancesBottomUp(|ANode| f) { walkBottomUp(f) }
 
   override Void dump(OutStream out := Env.cur.out, Str indent := "") { root.dump(out, indent) }
 

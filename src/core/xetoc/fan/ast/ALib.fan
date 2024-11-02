@@ -58,9 +58,8 @@ internal class ALib : ADoc
   ** Tree walk
   override Void walkBottomUp(|ANode| f)
   {
-    meta.walkBottomUp(f)
-    tops.each |x| { x.walkBottomUp(f) }
-    instances.each |x| { if (!x.isNested) x.walkBottomUp(f) }
+    walkMetaBottomUp(f)
+    walkInstancesBottomUp(f)
     f(this)
   }
 
@@ -68,8 +67,29 @@ internal class ALib : ADoc
   override Void walkTopDown(|ANode| f)
   {
     f(this)
+    walkMetaTopDown(f)
+    walkInstancesTopDown(f)
+  }
+
+  override Void walkMetaBottomUp(|ANode| f)
+  {
+    meta.walkBottomUp(f)
+    tops.each |x| { x.walkBottomUp(f) }
+  }
+
+  override Void walkMetaTopDown(|ANode| f)
+  {
     meta.walkTopDown(f)
     tops.each |x| { x.walkTopDown(f) }
+  }
+
+  override Void walkInstancesBottomUp(|ANode| f)
+  {
+    instances.each |x| { if (!x.isNested) x.walkBottomUp(f) }
+  }
+
+  override Void walkInstancesTopDown(|ANode| f)
+  {
     instances.each |x| { if (!x.isNested) x.walkTopDown(f) }
   }
 
