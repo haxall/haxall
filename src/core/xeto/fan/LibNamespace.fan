@@ -256,12 +256,10 @@ const mixin LibNamespace
   **   - 'id': Ref tag to include in new instance
   abstract Obj? instantiate(Spec spec, Dict? opts := null)
 
-  ** Given an instance and choice base type, return the selected choice.
-  ** If instance has zero or more than one choice, then return null or
-  ** raise an exception based on the checked flag.
-  ** Example:
-  **   choiceOf({hot, water, point}, Fluid)  >>  HotWater
-  @NoDoc abstract Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
+  ** Return choice API for given spec. Callers should prefer the slot
+  ** over the type since the slot determines maybe and multi-choice flags.
+  ** Raise exception if `Spec.isChoice` is false.
+  abstract SpecChoice choice(Spec spec)
 
 //////////////////////////////////////////////////////////////////////////
 // Interfaces

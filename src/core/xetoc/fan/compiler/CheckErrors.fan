@@ -250,9 +250,15 @@ internal class CheckErrors : Step
   Void checkDict(ADict x)
   {
     spec := x.ctype
+
     x.map.each |v, n|
     {
       checkData(v, spec.cslot(n, false))
+    }
+
+    spec.cslots |slot|
+    {
+      if (slot.ctype.isChoice) checkDictChoice(x, slot)
     }
   }
 
@@ -271,6 +277,16 @@ internal class CheckErrors : Step
 
   Void checkDataRef(ADataRef x)
   {
+  }
+
+  Void checkDictChoice(ADict x, CSpec slot)
+  {
+    /* TODO
+    CheckChoice.check(x.asm, slot) |msg|
+    {
+      err(msg, x.loc)
+    }
+    */
   }
 
 }

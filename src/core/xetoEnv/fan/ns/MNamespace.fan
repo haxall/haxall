@@ -518,9 +518,9 @@ abstract const class MNamespace : LibNamespace
     XetoUtil.instantiate(this, spec, opts ?: Etc.dict0)
   }
 
-  override Spec? choiceOf(Dict instance, Spec choice, Bool checked := true)
+  override SpecChoice choice(Spec spec)
   {
-    XetoUtil.choiceOf(this, instance, choice, checked)
+    MChoice(this, spec)
   }
 
 //////////////////////////////////////////////////////////////////////////

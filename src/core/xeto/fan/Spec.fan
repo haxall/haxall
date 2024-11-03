@@ -86,6 +86,10 @@ const mixin Spec : Dict
   ** Return enum item meta.  Raise exception if `isEnum` is false.
   abstract SpecEnum enum()
 
+  ** Return if this is a spec that inherits from 'sys::Choice'.
+  ** See `LibNamespace.choice` to access `SpecChoice` API.
+  abstract Bool isChoice()
+
 //////////////////////////////////////////////////////////////////////////
 // NoDoc
 //////////////////////////////////////////////////////////////////////////
@@ -123,9 +127,6 @@ const mixin Spec : Dict
 
   ** Inherits from 'sys::Marker' without considering And/Or
   @NoDoc abstract Bool isMarker()
-
-  ** Inherits from 'sys::Choice' without considering And/Or
-  @NoDoc abstract Bool isChoice()
 
   ** Inherits from 'sys::Dict' without considering And/Or
   @NoDoc abstract Bool isDict()

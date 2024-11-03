@@ -266,4 +266,20 @@ verifyErrs: |
   Choice slot 'a' must be marker type
   Choice slot 'c2' must be marker type
 ---
+name: "choiceInstances"
+compileLib: |
+  Color: Choice
+  Red: Color { red }
+  Blue: Color { blue }
+  Green: Color { green }
+
+  Car: { color: Color }
+
+  @a: Car {}
+  @b: Car {red}
+  @c: Car {red,blue}
+verifyErrs: |
+  Instance '@a' missing required choice 'temp::Color'
+  Instance '@c' has conflicting choice 'temp::Color': 'Red', 'Blue'
+---
 

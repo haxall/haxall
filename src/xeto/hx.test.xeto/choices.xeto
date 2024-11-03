@@ -1,0 +1,38 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   3 Nov 2024  Brian Frank  Creation
+//
+
+Color: Choice
+
+Red: Color { red }
+LightRed: Red { light }
+DarkRed: Red { dark }
+
+Blue: Color { blue }
+LightBlue: Blue { dark }
+DarkBlue: Blue { dark}
+
+CarA: {
+  color: Color
+}
+
+CarB: {
+  color: Color?
+}
+
+CarC: {
+  color: Color <multiChoice>
+}
+
+CarD: {
+  color: Color? <multiChoice>
+}
+
+CarE: CarD {
+  color: Color <foo>  // inherits from CarD.color
+}
+

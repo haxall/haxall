@@ -486,7 +486,7 @@ const class XetoFuncs
   **
   @Axon static Spec? choiceOf(Obj instance, Spec choice, Bool checked := true)
   {
-    curContext.xeto.choiceOf(Etc.toRec(instance), choice, checked)
+    curContext.xeto.choice(choice).selection(Etc.toRec(instance), checked)
   }
 
   **
