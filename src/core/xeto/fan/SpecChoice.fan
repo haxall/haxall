@@ -26,11 +26,19 @@ const mixin SpecChoice
   ** Return if the choice slot allows multiple selections
   abstract Bool isMultiChoice()
 
-  ** Return all choice selections the given instance implements
-  ** without regard to validation.
-  abstract Spec[] selections(Dict instance)
+  ** Return all choice selections the given instance implements.
+  **   - one selection => return list of one
+  **   - zero selections + isMaybe is true => return empty list
+  **   - zero selections + isMaybe is false + checked is false => return empty list
+  **   - zero selections + isMaybe is false + checked is true => raise exception
+  **   - multiple selections + isMultiChoice is false + checked is false => return all
+  **   - multiple selections + isMultiChoice is false + checked is true => raise exception
+  **   - multiple selections + isMultiChoice is true + checked is true => return all
+  abstract Spec[] selections(Dict instance, Bool checked := true)
 
-  ** Return single choice selection or null with validation.
+  ** Return single choice selection considering validation rules.
+  ** This method is a semantically equivalent to:
+  **    selections(instance, checked).first
   abstract Spec? selection(Dict instance, Bool checked := true)
 }
 

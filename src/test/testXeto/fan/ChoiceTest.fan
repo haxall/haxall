@@ -20,7 +20,7 @@ using haystack::Ref
 class ChoiceTest : AbstractXetoTest
 {
 
-  Void testChoiceOf()
+  Void test()
   {
     ns := createNamespace(["sys", "ph", "hx.test.xeto"])
     lib := ns.lib("hx.test.xeto")
@@ -58,6 +58,22 @@ class ChoiceTest : AbstractXetoTest
      verifyChoice(ns, slotC, "m")
      verifyChoice(ns, slotD, "?m")
      verifyChoice(ns, slotE, "m")
+
+     // select - one match
+     all      := [color, slotA, slotB, slotC, slotD, slotE]
+     instance := ["red":m, "dark":m]
+     expect   := Spec[redd]
+     all.each |spec| { verifySelections(ns, spec, instance, expect) }
+
+     // select - zero matches
+     instance = [:]
+     expect = Spec[,]
+     all.each |spec| { verifySelections(ns, spec, instance, expect) }
+
+     // select - multiple matches
+     instance = ["red":m, "light":m, "dark":m]
+     expect = Spec[redd, redl]
+     all.each |spec| { verifySelections(ns, spec, instance, expect) }
   }
 
   Void verifyIsChoice(Spec spec, Bool expect)
@@ -74,6 +90,54 @@ class ChoiceTest : AbstractXetoTest
     verifySame(c.type, spec.type)
     verifyEq(c.isMaybe, flags.contains("?"))
     verifyEq(c.isMultiChoice, flags.contains("m"))
+  }
+
+  Void verifySelections(LibNamespace ns, Spec spec, Str:Obj tags, Spec[] expect)
+  {
+    c := ns.choice(spec)
+    instance := Etc.makeDict(tags)
+    actual := c.selections(instance, false)
+    // echo("-- $spec | $instance | $actual ?= $expect")
+    verifyEq(actual.size, expect.size)
+
+    // one match
+    if (expect.size == 1)
+    {
+      verifySame(actual[0], expect[0])
+      verifySame(c.selection(instance), expect[0])
+    }
+
+    // zero matches
+    else if (expect.size == 0)
+    {
+      verifyEq(c.selection(instance, false), null)
+      if (c.isMaybe)
+      {
+        verifyEq(c.selections(instance), Spec[,])
+        verifyEq(c.selection(instance), null)
+      }
+      else
+      {
+        verifyErr(Err#) { c.selections(instance) }
+        verifyErr(Err#) { c.selection(instance) }
+      }
+    }
+
+    // multiple matches
+    else
+    {
+      verifyEq(actual, expect)
+      if (c.isMultiChoice)
+      {
+        verifyEq(c.selections(instance), expect)
+        verifyEq(c.selection(instance), actual.first)
+      }
+      else
+      {
+        verifyErr(Err#) { c.selections(instance) }
+        verifyErr(Err#) { c.selection(instance) }
+      }
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

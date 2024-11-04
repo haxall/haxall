@@ -35,7 +35,7 @@ const final class MChoice : SpecChoice
 
   override const Bool isMultiChoice
 
-  override Spec[] selections(Dict instance)
+  override Spec[] selections(Dict instance, Bool checked := true)
   {
     acc := Spec[,]
     ns.eachType |x|
@@ -55,22 +55,29 @@ const final class MChoice : SpecChoice
       acc = acc.findAll |XetoSpec x->Bool| { x.m.slots.size == maxSize }
     }
 
-    // if exactly one
-    return acc
+    // if not checked then return list
+    if (!checked) return acc
+
+    // check for size
+    if (acc.size == 1)
+    {
+      return acc
+    }
+    else if (acc.size == 0)
+    {
+      if (isMaybe) return acc
+      else throw Err("Choice not implemented by instance: $type")
+    }
+    else
+    {
+      if (isMultiChoice) return acc
+      else throw Err("Multiple choices implemented by instance: $type $acc")
+    }
   }
 
   override Spec? selection(Dict instance, Bool checked := true)
   {
-    acc := selections(instance)
-
-    if (acc.size == 1) return acc.first
-
-    if (checked)
-    {
-      if (acc.isEmpty) throw Err("Choice not implemented by instance: $type")
-      else throw Err("Multiple choices implemented by instance: $type $acc")
-    }
-    return null
+    selections(instance, checked).first
   }
 
   ** Return if instance has all the given tags of the given choice
