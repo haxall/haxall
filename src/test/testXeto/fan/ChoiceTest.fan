@@ -105,6 +105,7 @@ class ChoiceTest : AbstractXetoTest
     {
       verifySame(actual[0], expect[0])
       verifySame(c.selection(instance), expect[0])
+      verifyValidate(ns, spec, instance, [,])
     }
 
     // zero matches
@@ -115,11 +116,13 @@ class ChoiceTest : AbstractXetoTest
       {
         verifyEq(c.selections(instance), Spec[,])
         verifyEq(c.selection(instance), null)
+        verifyValidate(ns, spec, instance, [,])
       }
       else
       {
         verifyErr(Err#) { c.selections(instance) }
         verifyErr(Err#) { c.selection(instance) }
+        verifyValidate(ns, spec, instance, ["Instance missing required choice '$spec.qname'"])
       }
     }
 
@@ -131,13 +134,23 @@ class ChoiceTest : AbstractXetoTest
       {
         verifyEq(c.selections(instance), expect)
         verifyEq(c.selection(instance), actual.first)
+        verifyValidate(ns, spec, instance, [,])
       }
       else
       {
         verifyErr(Err#) { c.selections(instance) }
         verifyErr(Err#) { c.selection(instance) }
+        names := actual.join(", ") { it.name }
+        verifyValidate(ns, spec, instance, ["Instance has conflicting choice '$spec.qname': $names"])
       }
     }
+  }
+
+  Void verifyValidate(LibNamespace ns, Spec spec, Dict instance, Str[] errs)
+  {
+    type := spec.parent
+    if (type == null) return
+    verifyFitsExplain(ns, instance, type, errs)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -129,6 +129,8 @@ internal class Fitter
   {
     slotType := slot.type
 
+    if (slotType.isChoice) return fitsChoice(dict, slot)
+
     if (slotType.isQuery) return fitsQuery(dict, slot)
 
     val := dict.get(slot.name, null)
@@ -143,6 +145,17 @@ internal class Fitter
     if (!valFits) return explainInvalidSlotType(val, slot)
 
     return true
+  }
+
+  private Bool? fitsChoice(Dict dict, Spec slot)
+  {
+    selection := XetoSpec[,]
+    cslot := (CSpec)slot
+    MChoice.findSelections(ns, cslot, dict, selection)
+    Str? err := null
+    MChoice.validate(cslot, selection) |msg| { err = msg }
+    if (err == null) return true
+    return explainChoiceErr(slot, err)
   }
 
   private Bool? fitsQuery(Dict dict, Spec query)
@@ -206,6 +219,8 @@ internal class Fitter
 
   virtual Bool explainAmbiguousQueryConstraint(Str ofDis, Spec constraint, Dict[] matches) { false }
 
+  virtual Bool explainChoiceErr(Spec slot, Str msg) { false }
+
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
@@ -261,6 +276,12 @@ internal class ExplainFitter : Fitter
   override Bool explainInvalidSlotType(Obj val, Spec slot)
   {
     log("Invalid value type for '$slot.name' - '${val.typeof}' does not fit '$slot.type'")
+
+  }
+
+  override Bool explainChoiceErr(Spec slot, Str msg)
+  {
+    log(msg)
   }
 
   private Bool log(Str msg)
