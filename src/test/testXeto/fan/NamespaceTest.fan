@@ -661,6 +661,9 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(lib.version, version)
     verifySame(lib.name, ns.names.toName(ns.names.toCode(name)))
 
+    verifyEq(lib.hasXMeta, name == "hx.test.xeto")
+    verifyEq(lib.hasMarkdown, false)
+
     verifyEq(lib._id, Ref("lib:$name"))
     verifySame(lib->id, lib._id)
     verifyEq(lib["loaded"], Marker.val)

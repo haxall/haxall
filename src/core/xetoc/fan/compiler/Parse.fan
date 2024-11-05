@@ -94,34 +94,42 @@ internal class Parse : Step
 
   private Void parseDir(File input, ALib lib)
   {
+    hasMarkdown := false
+    MLibFiles? files := null
+
     if (input.ext == "xetolib")
     {
       zip := Zip.read(input.in)
-      files := Uri[,]
+      list := Uri[,]
       try
       {
         zip.readEach |f|
         {
           if (f.ext == "xeto") parseFile(f, lib)
-          else if (f.name != "meta.props") files.add(f.uri)
+          else if (f.name != "meta.props") list.add(f.uri)
+          if (f.ext == "md") hasMarkdown = true
         }
       }
       finally zip.close
-      lib.files = ZipLibFiles(input, files)
+      files = ZipLibFiles(input, list)
     }
     else if (input.isDir)
     {
       dirList(input).each |sub|
       {
         if (sub.ext == "xeto") parseFile(sub, lib)
+        if (sub.ext == "md") hasMarkdown = true
       }
-      lib.files = DirLibFiles(input)
+      files = DirLibFiles(input)
     }
     else
     {
       parseFile(input, lib)
-      lib.files = EmptyLibFiles.val
+      files = EmptyLibFiles.val
     }
+
+    lib.files = files
+    if (hasMarkdown) lib.flags = lib.flags.or(MLibFlags.hasMarkdown)
   }
 
   private Void parseFile(File input, ADoc doc)

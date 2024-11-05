@@ -70,6 +70,9 @@ const mixin Lib : Dict
   ** Does this library contain extended meta instances
   @NoDoc abstract Bool hasXMeta()
 
+  ** Does this library contain markdown resource files
+  @NoDoc abstract Bool hasMarkdown()
+
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 

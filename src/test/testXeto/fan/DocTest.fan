@@ -28,8 +28,9 @@ class DocTest : AbstractXetoTest
 
   Void testBasics()
   {
-    ns := createNamespace(["ph.points", "hx.test.xeto"])
+    ns := createNamespace(["ph.points", "hx.test.xeto", "doc.xeto"])
     lib := ns.lib("hx.test.xeto")
+    docLib := ns.lib("doc.xeto")
     compiler = DocCompiler { it.ns = ns; it.libs = [lib]; it.outDir = tempDir }
     compiler.compile
 
@@ -79,6 +80,9 @@ class DocTest : AbstractXetoTest
     entry = compiler.pages.getChecked(spec.qname)
     verifyPoints(spec, entry.page)
     verifyPoints(spec, roundtrip(entry))
+
+    // docLib
+    verifyEq(docLib.hasMarkdown, true)
   }
 
   DocPage roundtrip(PageEntry entry)
