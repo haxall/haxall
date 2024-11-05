@@ -18,7 +18,7 @@ using haystack::UnknownSpecErr
 ** LibNamespace implementation base class
 **
 @Js
-abstract const class MNamespace : LibNamespace
+abstract const class MNamespace : LibNamespace, CNamespace
 {
   new make(MNamespace? base, NameTable names, LibVersion[] versions, |This->XetoLib|? loadSys)
   {
@@ -572,6 +572,19 @@ abstract const class MNamespace : LibNamespace
       return XetoUtil.genAstLib(libOrSpec, isOwn, opts)
     else
       return XetoUtil.genAstSpec(libOrSpec, isOwn, opts)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// CNamespace
+//////////////////////////////////////////////////////////////////////////
+
+  override Void eachSubtype(CSpec ctype, |CSpec| f)
+  {
+    type := (Spec)ctype
+    eachType |x|
+    {
+      if (x.isa(type)) f((XetoSpec)x)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

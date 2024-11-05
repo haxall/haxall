@@ -281,12 +281,10 @@ internal class CheckErrors : Step
 
   Void checkDictChoice(ADict x, CSpec slot)
   {
-    /* TODO
-    CheckChoice.check(x.asm, slot) |msg|
+    MChoice.check(cns, slot, x.asm) |msg|
     {
       err(msg, x.loc)
     }
-    */
   }
 
 }

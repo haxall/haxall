@@ -10,7 +10,7 @@ using util
 using xeto
 
 **
-** Implementation of SpecChoice
+** Implementation of SpecChoice and validation utilities
 **
 @Js
 const final class MChoice : SpecChoice
@@ -18,31 +18,60 @@ const final class MChoice : SpecChoice
   internal new make(LibNamespace ns, XetoSpec spec)
   {
     if (!spec.isChoice) throw UnsupportedErr("Spec is not choice: $spec.qname")
-    this.ns            = ns
-    this.spec          = spec
-    this.type          = spec.type
-    this.isMaybe       = spec.isMaybe
-    this.isMultiChoice = spec.meta.has("multiChoice")
+    this.ns   = ns
+    this.spec = spec
   }
 
-  const LibNamespace ns
+//////////////////////////////////////////////////////////////////////////
+// SpecChoice
+//////////////////////////////////////////////////////////////////////////
 
-  override const Spec spec
+  const MNamespace ns
 
-  override const Spec type
+  override const XetoSpec spec
 
-  override const Bool isMaybe
+  override Spec type() { spec.type }
 
-  override const Bool isMultiChoice
+  override Bool isMaybe() { maybe(spec) }
+
+  override Bool isMultiChoice() { multiChoice(spec) }
 
   override Spec[] selections(Dict instance, Bool checked := true)
   {
-    acc := Spec[,]
-    ns.eachType |x|
+    selections := XetoSpec[,]
+    findSelections(ns, spec, instance, selections)
+    if (checked) validate(spec, selections) |err| { throw Err(err) }
+    return selections
+  }
+
+  override Spec? selection(Dict instance, Bool checked := true)
+  {
+    selections(instance, checked).first
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Compiler
+//////////////////////////////////////////////////////////////////////////
+
+  ** Validation called by XetoCompiler in CheckErrors
+  static Void check(CNamespace ns, CSpec spec, Dict instance, |Str| onErr)
+  {
+    selections := CSpec[,]
+    findSelections(ns, spec, instance, selections)
+    validate(spec, selections, onErr)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Implemention (for both MNamespace and XetoCompiler)
+//////////////////////////////////////////////////////////////////////////
+
+  ** Find all the choice selections for instance
+  static Void findSelections(CNamespace ns, CSpec spec, Dict instance, Obj[] acc)
+  {
+    ns.eachSubtype(spec.ctype) |x|
     {
-      if (!x.isa(type)) return
-      if (x.slots.isEmpty) return
-      if (hasChoiceMarkers(instance, x)) acc.add(x)
+      if (!x.hasSlots) return
+      if (xhasChoiceMarkers(instance, x)) acc.add(x)
     }
 
     // TODO: for now just compare on number of tags so that {hot, water}
@@ -51,43 +80,44 @@ const final class MChoice : SpecChoice
     if (acc.size > 1)
     {
       maxSize := 0
-      acc.each |XetoSpec x| { maxSize = maxSize.max(x.m.slots.size) }
-      acc = acc.findAll |XetoSpec x->Bool| { x.m.slots.size == maxSize }
-    }
-
-    // if not checked then return list
-    if (!checked) return acc
-
-    // check for size
-    if (acc.size == 1)
-    {
-      return acc
-    }
-    else if (acc.size == 0)
-    {
-      if (isMaybe) return acc
-      else throw Err("Choice not implemented by instance: $type")
-    }
-    else
-    {
-      if (isMultiChoice) return acc
-      else throw Err("Multiple choices implemented by instance: $type $acc")
+//      acc.each |CSpec x| { maxSize = maxSize.max(x.m.slots.size) }
+//      acc = acc.findAll |XetoSpec x->Bool| { x.m.slots.size == maxSize }
     }
   }
 
-  override Spec? selection(Dict instance, Bool checked := true)
+  ** Validate given selections for an instance based on maybe/multi-choice flags
+  static Void validate(CSpec spec, CSpec[] selections, |Str| onErr)
   {
-    selections(instance, checked).first
+    // if exactly one selection - always valid
+    if (selections.size == 1) return
+
+    // if zero selections - only valid if maybe type
+    if (selections.size == 0)
+    {
+      if (maybe(spec)) return
+      onErr("Instance missing required choice '$spec'")
+      return
+    }
+
+    // multiple choices - only valid if multiChoice
+    if (multiChoice(spec)) return
+    onErr("Instance has conflicting choice '$spec': " + selections.join(", ") { it.name })
   }
 
-  ** Return if instance has all the given tags of the given choice
-  static Bool hasChoiceMarkers(Dict instance, Spec choice)
+  ** Return if instance has all the given marker tags of the given choice
+  static Bool xhasChoiceMarkers(Dict instance, CSpec choice)
   {
-    r := choice.slots.eachWhile |slot|
+    r := choice.cslotsWhile |slot|
     {
       instance.has(slot.name) ? null : "break"
     }
     return r == null
   }
+
+  ** Is the given spec a maybe type
+  static Bool maybe(CSpec spec) { spec.isMaybe }
+
+  ** Does given spec define the multiChoice flag
+  static Bool multiChoice(CSpec spec) { spec.cmeta.has("multiChoice") }
 }
 

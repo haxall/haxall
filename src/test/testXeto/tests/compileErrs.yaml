@@ -279,7 +279,7 @@ compileLib: |
   @b: Car {red}
   @c: Car {red,blue}
 verifyErrs: |
-  Instance '@a' missing required choice 'temp::Color'
-  Instance '@c' has conflicting choice 'temp::Color': 'Red', 'Blue'
+  Instance missing required choice 'temp::Car.color'
+  Instance has conflicting choice 'temp::Car.color': Red, Blue
 ---
 

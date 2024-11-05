@@ -71,6 +71,7 @@ internal class RSpec : CSpec, NameDictReader
   override MNameDict cmeta() { meta ?: throw Err(name) }
   override CSpec? cslot(Str name, Bool checked := true) { throw UnsupportedErr() }
   override Void cslots(|CSpec, Str| f) { slots.each |s| { f((CSpec)s, s.name) } }
+  override Obj? cslotsWhile(|CSpec, Str->Obj?| f) { slots.eachWhile |s| { f((CSpec)s, s.name) } }
   override CSpec? cenum(Str key, Bool checked := true) { throw UnsupportedErr() }
   override Bool cisa(CSpec x) { XetoUtil.isa(this, x) }
   override CSpec[]? cofs

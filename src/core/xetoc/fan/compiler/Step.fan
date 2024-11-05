@@ -22,6 +22,8 @@ abstract internal class Step
 
   MNamespace? ns() { compiler.ns }
 
+  CNamespace cns() { compiler.cns }
+
   NameTable names() { compiler.names }
 
   MFactories factories() { ns.factories }

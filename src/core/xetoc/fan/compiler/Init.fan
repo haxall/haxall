@@ -26,6 +26,9 @@ internal abstract class Init : Step
     input := compiler.input
     if (input == null) throw err("Compiler input not configured", FileLoc.inputs)
     if (!input.exists) throw err("Input file not found: $input", FileLoc.inputs)
+
+    // initialize AST namespace instance
+    compiler.cns = ANamespace(this)
   }
 
   virtual Bool nsRequired() { true }

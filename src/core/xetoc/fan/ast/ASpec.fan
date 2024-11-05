@@ -288,6 +288,13 @@ internal class ASpec : ANode, CSpec
     cslotsRef.each(f)
   }
 
+  ** Iterate the effective slots
+  override Obj? cslotsWhile(|CSpec, Str->Obj?| f)
+  {
+    if (cslotsRef == null) throw NotReadyErr(qname)
+    return cslotsRef.eachWhile(f)
+  }
+
   ** Effective slots configured in InheritSlots
   [Str:CSpec]? cslotsRef
 
