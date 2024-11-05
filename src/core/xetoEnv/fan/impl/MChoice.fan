@@ -38,9 +38,9 @@ const final class MChoice : SpecChoice
 
   override Spec[] selections(Dict instance, Bool checked := true)
   {
-    selections := XetoSpec[,]
+    selections := Spec[,]
     findSelections(ns, spec, instance, selections)
-    if (checked) validate(spec, selections) |err| { throw Err(err) }
+    if (checked) validate(spec, (Obj)selections) |err| { throw Err(err) }
     return selections
   }
 
@@ -68,21 +68,18 @@ const final class MChoice : SpecChoice
   ** Find all the choice selections for instance
   static Void findSelections(CNamespace ns, CSpec spec, Dict instance, Obj[] acc)
   {
+    // find all the matches first
     ns.eachSubtype(spec.ctype) |x|
     {
       if (!x.hasSlots) return
       if (xhasChoiceMarkers(instance, x)) acc.add(x)
     }
 
-    // TODO: for now just compare on number of tags so that {hot, water}
-    // trumps {water}. But that isn't correct because {naturalGas, hot, water}
-    // would actually be incorrect with multiple matches
-    if (acc.size > 1)
-    {
-      maxSize := 0
-//      acc.each |CSpec x| { maxSize = maxSize.max(x.m.slots.size) }
-//      acc = acc.findAll |XetoSpec x->Bool| { x.m.slots.size == maxSize }
-    }
+    // if we have more than one matches then strip supertypes such
+    // that HotWater hides Water
+    if (acc.size <= 1) return
+    temp := XetoUtil.excludeSupertypes(acc)
+    acc.clear.addAll(temp)
   }
 
   ** Validate given selections for an instance based on maybe/multi-choice flags

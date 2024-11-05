@@ -12,6 +12,8 @@ using xeto::Dict
 using xeto::Lib
 using xetoEnv::MDictMerge1
 using xetoEnv::MLogRec
+using xetoEnv::XetoSpec
+using xetoEnv::XetoUtil
 using haystack::Ref
 using haystack
 using axon
@@ -645,19 +647,11 @@ const class XetoFuncs
   {
     // first pass is fit each type
     ns := cx.xeto
-    matches := specs.findAll |spec| { ns.fits(cx, rec, spec, opts) }
+    XetoSpec[] matches := specs.findAll |spec| { ns.fits(cx, rec, spec, opts) }
 
     // second pass is to remove supertypes so we only
     // return the most specific subtype
-    best := Spec[,]
-    matches.each |spec|
-    {
-      // check if this type has subtypes in our match list
-      hasSubtypes := matches.any |x| { x !== spec && x.isa(spec) }
-
-      // add it to our best accumulator only if no subtypes
-      if (!hasSubtypes) best.add(spec)
-    }
+    XetoSpec[] best := XetoUtil.excludeSupertypes(matches)
 
     // return most specific matches sorted
     return best.sort

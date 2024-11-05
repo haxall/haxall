@@ -320,6 +320,25 @@ const class XetoUtil
     return false
   }
 
+  ** Given a list of specs, remove any specs that are
+  ** supertypes of other specs in this same list:
+  **   [Equip, Meter, ElecMeter, Vav]  => ElecMeter, Vav
+  static CSpec[] excludeSupertypes(CSpec[] list)
+  {
+    if (list.size <= 1) return list.dup
+
+    acc := List(list.of, list.size)
+    list.each |spec|
+    {
+      // check if this type has subtypes in our match list
+      hasSubtypes := list.any |x| { x !== spec && x.cisa(spec) }
+
+      // add it to our best accumulator only if no subtypes
+      if (!hasSubtypes) acc.add(spec)
+    }
+    return acc
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Derive
 //////////////////////////////////////////////////////////////////////////

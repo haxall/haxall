@@ -156,18 +156,32 @@ class ChoiceTest : AbstractXetoTest
     verifyPhenomenon(ns, ["naturalGas":m], "ph::Liquid", null)
     verifyPhenomenon(ns, ["water":m], "ph::Fluid", "ph::Water")
     verifyPhenomenon(ns, ["water":m, "hot":m], "ph::Fluid", "ph::HotWater")
-
-    // TODO
-    //verifyPhenomenon(ns, ["water":m, "hot":m, "naturalGas":m], "ph::Fluid", null)
+    verifyPhenomenon(ns, ["domestic":m, "water":m], "ph::Fluid", "ph::DomesticWater")
+    verifyPhenomenon(ns, ["water":m, "hot":m, "naturalGas":m], "ph::Fluid", ["ph::HotWater", "ph::NaturalGas"])
   }
 
-  Void verifyPhenomenon(LibNamespace ns, Str:Obj tags, Str qname, Str? expect)
+  Void verifyPhenomenon(LibNamespace ns, Str:Obj tags, Str qname, Obj? expect)
   {
     spec := ns.spec(qname)
     c := ns.choice(spec)
-    actual := c.selection(dict(tags), false)
-    // echo("--> $tags choiceOf $c => $actual ?= $expect")
-    verifyEq(actual?.qname, expect)
+    if (expect == null)
+    {
+      actual := c.selection(dict(tags), false)
+      verifyEq(actual, null)
+    }
+    else if (expect is Str)
+    {
+      actual := c.selection(dict(tags), false)
+      // echo("--> $tags choiceOf $c => $actual ?= $expect")
+      verifyEq(actual.qname, expect)
+    }
+    else
+    {
+      actual := c.selections(dict(tags), false)
+      // echo("--> $tags choiceOf $c => $actual ?= $expect")
+      verifyEq(actual.map |x->Str| { x.qname }, expect)
+    }
+
   }
 }
 
