@@ -7,6 +7,7 @@
 //
 
 using util
+using xetoEnv
 
 **
 ** Parse all source files into AST nodes
@@ -96,14 +97,17 @@ internal class Parse : Step
     if (input.ext == "xetolib")
     {
       zip := Zip.read(input.in)
+      files := Uri[,]
       try
       {
         zip.readEach |f|
         {
           if (f.ext == "xeto") parseFile(f, lib)
+          else if (f.name != "meta.props") files.add(f.uri)
         }
       }
       finally zip.close
+      lib.files = ZipLibFiles(input, files)
     }
     else if (input.isDir)
     {
@@ -111,10 +115,12 @@ internal class Parse : Step
       {
         if (sub.ext == "xeto") parseFile(sub, lib)
       }
+      lib.files = DirLibFiles(input)
     }
     else
     {
       parseFile(input, lib)
+      lib.files = EmptyLibFiles.val
     }
   }
 

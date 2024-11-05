@@ -40,6 +40,9 @@ internal class ALib : ADoc
   ** XetoLib instance - we backpatch the "m" field in Assemble step
   const override XetoLib asm
 
+  ** Files support (set in Parse)
+  LibFiles? files
+
   ** From pragma (set in ProcessPragma)
   ADict? meta
 

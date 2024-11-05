@@ -17,7 +17,7 @@ using haystack::UnknownSpecErr
 @Js
 const final class MLib
 {
-  new make(FileLoc loc, Int nameCode, Str name, MNameDict meta, Int flags, Version version, MLibDepend[] depends, Str:Spec specsMap, Str:Dict instancesMap)
+  new make(FileLoc loc, Int nameCode, Str name, MNameDict meta, Int flags, Version version, MLibDepend[] depends, Str:Spec specsMap, Str:Dict instancesMap, MLibFiles files)
   {
     this.loc          = loc
     this.nameCode     = nameCode
@@ -30,6 +30,7 @@ const final class MLib
     this.depends      = depends
     this.specsMap     = specsMap
     this.instancesMap = instancesMap
+    this.files        = files
   }
 
   const FileLoc loc
@@ -51,6 +52,8 @@ const final class MLib
   const Str:Spec specsMap
 
   const Str:Dict instancesMap
+
+  const MLibFiles files
 
   once Spec[] specs()
   {
@@ -245,6 +248,8 @@ const final class XetoLib : Lib, haystack::Dict
   override Bool isSys() { m.isSys }
 
   override Bool hasXMeta() { m.hasFlag(MLibFlags.hasXMeta )}
+
+  override LibFiles files() { m.files }
 
   override final Bool isEmpty() { false }
 

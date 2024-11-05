@@ -46,7 +46,7 @@ internal class RemoteLoader
     tops      := loadTops
     instances := reifyInstances
 
-    m := MLib(loc, libNameCode, libName, libMeta, flags, version, depends, tops, instances)
+    m := MLib(loc, libNameCode, libName, libMeta, flags, version, depends, tops, instances, UnsupportedLibFiles.val)
     XetoLib#m->setConst(lib, m)
     return lib
   }

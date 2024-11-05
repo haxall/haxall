@@ -73,5 +73,31 @@ const mixin Lib : Dict
   ** File location of definition or unknown
   @NoDoc abstract FileLoc loc()
 
+  ** Access all the resource files contained by this library.  Resources
+  ** are any files included in the libs's zip file excluding xeto files.
+  ** This API is only available in server environments.
+  abstract LibFiles files()
+
+}
+
+**************************************************************************
+** LibFiles
+**************************************************************************
+
+**
+** Access to file resources packaged with library.
+**
+@Js
+const mixin LibFiles
+{
+  ** Return if this API is supported, will be false in browser environments.
+  abstract Bool isSupported()
+
+  ** List resource files in this library.
+  abstract Uri[] list()
+
+  ** Look up a resource file in this library and read via callback
+  ** function.  The URI must be path absolute.
+  abstract Void read(Uri uri, |Err?, InStream?| f)
 }
 

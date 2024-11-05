@@ -61,7 +61,7 @@ internal class OutputZip : Step
     // if directory recurse
     if (file.isDir)
     {
-      dirList(file).each |kid| { writeToZip(zip, path + kid.name, kid) }
+      dirList(file).each |kid| { writeToZip(zip, path + "/" + kid.name, kid) }
       return
     }
 

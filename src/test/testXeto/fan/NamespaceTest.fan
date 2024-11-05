@@ -132,6 +132,16 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(or.isAnd, false)
     verifyEq(or.isOr, false)
     verifyEq(marker.isMarker, true)
+
+    // files
+    verifyEq(sys.files.isSupported, !ns.isRemote)
+    if (!ns.isRemote)
+    {
+      verifyEq(sys.files.list, Uri[,])
+      Err? err := null
+      sys.files.read(`bad`) |e,i| { err = e }
+      verifyEq(err?.typeof, UnresolvedErr#)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -189,6 +199,16 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(ns.isAllLoaded, true)
     verifySame(ns.unqualifiedType("Str"), ns.spec("sys::Str"))
     verifySame(ns.unqualifiedType("Equip"), ns.spec("ph::Equip"))
+
+    // files
+    verifyEq(ph.files.isSupported, !ns.isRemote)
+    if (!ns.isRemote)
+    {
+      verifyEq(ph.files.list, Uri[,])
+      Err? err := null
+      ph.files.read(`bad`) |e,i| { err = e }
+      verifyEq(err?.typeof, UnresolvedErr#)
+    }
   }
 
   Void verifyFeatureInstance(Dict dict, Str:Obj expect)
@@ -249,8 +269,31 @@ class NamespaceTest : AbstractXetoTest
     verifyDictEq(ab.metaOwn, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB"])
     verifyDictEq(ab.meta, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB",
       "q":Date("2024-01-01"), "r":Date("2024-02-01"), "foo":"A", "bar":"A", ])
-  }
 
+    // files
+    files := lib.files
+    verifyEq(files.isSupported, !ns.isRemote)
+    if (!ns.isRemote)
+    {
+      verifyEq(files.list, [`/res/a.txt`, `/res/subdir/b.txt`])
+
+      Obj? res := null
+      files.read(`bad`) |err,in| { res = err }
+      verifyEq(res?.typeof, UnresolvedErr#)
+
+      res = null
+      files.read(`/lib.xeto`) |err,in| { res = err }
+      verifyEq(res?.typeof, UnresolvedErr#)
+
+      res = null
+      files.read(`/res/a.txt`) |err,in| { res = in.readAllStr.trim }
+      verifyEq(res, "alpha")
+
+      res = null
+      files.read(`/res/subdir/b.txt`) |err,in| { res = in.readAllStr.trim }
+      verifyEq(res, "beta")
+    }
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // NameTable
