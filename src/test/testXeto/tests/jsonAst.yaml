@@ -16,26 +16,31 @@ compileLib: |
   Bar: Scalar <sealed> "default"
 verifyJsonAst: |
   {
-    "type": "sys::Lib",
-    "doc": "Test lib",
-    "version": "1.2.3",
-    "depends": [
-      {
-        "lib": "sys"
-      }
-    ],
-    "slots": {
-      "Bar": {
-        "base": "sys::Scalar",
-        "doc": "Bar doc",
-        "sealed": "marker",
-        "val": "default"
-      },
-      "Foo": {
-        "base": "sys::Scalar",
-        "doc": "Foo doc"
-      }
+  "temp": {
+    "pragma": {
+      "version": "1.2.3",
+      "doc": "Test lib",
+      "depends": [
+        {
+          "lib": "sys"
+        }
+      ]
+    },
+    "Bar": {
+      "id": "temp::Bar",
+      "spec": "sys::Spec",
+      "base": "sys::Scalar",
+      "sealed": "✓",
+      "doc": "Bar doc",
+      "val": "default"
+    },
+    "Foo": {
+      "id": "temp::Foo",
+      "spec": "sys::Spec",
+      "base": "sys::Scalar",
+      "doc": "Foo doc"
     }
+  }
   }
 ---
 name: "dicts"
@@ -53,36 +58,45 @@ compileLib: |
   }
 verifyJsonAst: |
   {
-    "type": "sys::Lib",
-    "doc": "Test lib",
-    "version": "1.2.3",
-    "depends": [
-      {
-        "lib": "sys"
-      },
-      {
-        "lib": "ph"
-      }
-    ],
-    "slots": {
-      "Foo": {
-        "base": "sys::Dict",
-        "doc": "Foo doc",
-        "slots": {
-          "bar": {
-            "type": "sys::Marker"
-          },
-          "baz": {
-            "type": "sys::Str",
-            "val": "baz default"
-          },
-          "qux": {
-            "type": "sys::Date",
-            "maybe": "marker"
-          }
+  "temp": {
+    "pragma": {
+      "version": "1.2.3",
+      "doc": "Test lib",
+      "depends": [
+        {
+          "lib": "sys"
+        },
+        {
+          "lib": "ph"
+        }
+      ]
+    },
+    "Foo": {
+      "id": "temp::Foo",
+      "spec": "sys::Spec",
+      "base": "sys::Dict",
+      "doc": "Foo doc",
+      "slots": {
+        "bar": {
+          "id": "temp::Foo.bar",
+          "spec": "sys::Spec",
+          "type": "sys::Marker"
+        },
+        "baz": {
+          "id": "temp::Foo.baz",
+          "spec": "sys::Spec",
+          "type": "sys::Str",
+          "val": "baz default"
+        },
+        "qux": {
+          "id": "temp::Foo.qux",
+          "spec": "sys::Spec",
+          "type": "sys::Date",
+          "maybe": "✓"
         }
       }
     }
+  }
   }
 ---
 

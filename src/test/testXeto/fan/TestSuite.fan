@@ -11,6 +11,7 @@ using yaml
 using xeto
 using xeto::Dict
 using xeto::Lib
+using xetoEnv
 using haystack
 using haystack::Ref
 
@@ -177,7 +178,7 @@ class DataTestCase
   Void compileLib(Str src)
   {
     this.libRef = compile |opts| { ns.compileLib(src, opts) }
-    if (runner.verbose && libRef != null) ns.print(ns.genAst(libRef), Env.cur.out, Etc.dict1("json", Marker.val))
+    if (runner.verbose && libRef != null) echo(genAst(libRef))
     //env.print(libRef)
   }
 
@@ -256,10 +257,12 @@ class DataTestCase
 
   Void verifyJsonAst(Str expect)
   {
-    s := StrBuf()
-    ns.print(ns.genAst(lib), s.out, Etc.dict1("json", Marker.val))
-    actual := s.toStr
+    actual := genAst(lib)
 
+    s := actual.index("\"temp")
+    e := actual.index("\"", s+1)
+    name := actual[s..<e]
+    actual = actual.replace(name, "\"temp")
     // echo(actual)
 
     // verify its actually Json
@@ -586,6 +589,13 @@ class DataTestCase
         echo("   " + s)
       }
     }
+  }
+
+  Str genAst(Lib lib)
+  {
+    buf := StrBuf()
+    JsonExporter(ns, buf.out, Etc.dict0).start.lib(lib).end
+    return buf.toStr
   }
 
 //////////////////////////////////////////////////////////////////////////

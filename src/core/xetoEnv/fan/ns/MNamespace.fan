@@ -564,16 +564,6 @@ abstract const class MNamespace : LibNamespace, CNamespace
     Printer(this, out, opts ?: Etc.dict0).print(val)
   }
 
-  override Dict genAst(Obj libOrSpec, Dict? opts := null)
-  {
-    if (opts == null) opts = Etc.dict0
-    isOwn := opts.has("own")
-    if (libOrSpec is Lib)
-      return XetoUtil.genAstLib(libOrSpec, isOwn, opts)
-    else
-      return XetoUtil.genAstSpec(libOrSpec, isOwn, opts)
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // CNamespace
 //////////////////////////////////////////////////////////////////////////
