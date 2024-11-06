@@ -197,7 +197,7 @@ class DocTest : AbstractXetoTest
     verifySummaryText(n.text, entry.meta["doc"])
   }
 
-  Void verifySummaryText(DocBlock n, Str? doc)
+  Void verifySummaryText(DocMarkdown n, Str? doc)
   {
     if (doc == null) doc = ""
     // echo("-- $n.text.toCode")

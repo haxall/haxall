@@ -25,7 +25,7 @@ const class DocLib : DocPage
   const Str name
 
   ** Summary documentation for library
-  const DocBlock doc
+  const DocMarkdown doc
 
   ** Metadata
   const DocDict meta
@@ -62,7 +62,7 @@ const class DocLib : DocPage
     DocLib
     {
       it.name      = obj.getChecked("name")
-      it.doc       = DocBlock.decode(obj.get("doc"))
+      it.doc       = DocMarkdown.decode(obj.get("doc"))
       it.depends   = DocLibDepend.decodeList(obj["depends"])
       it.meta      = DocDict.decode(obj.get("meta"))
       it.types     = DocSummary.decodeList(obj["types"])

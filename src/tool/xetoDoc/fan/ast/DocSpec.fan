@@ -18,7 +18,7 @@ abstract const class DocSpec
   abstract Str name()
 
   ** Documentation text
-  abstract DocBlock doc()
+  abstract DocMarkdown doc()
 
   ** Effective metadata
   abstract DocDict meta()
@@ -32,7 +32,7 @@ abstract const class DocSpec
 abstract const class DocSpecPage : DocSpec, DocPage
 {
   ** Constructor
-  new make(Str qname, DocBlock doc, DocDict meta)
+  new make(Str qname, DocMarkdown doc, DocDict meta)
   {
     this.qname = qname
     this.doc   = doc
@@ -52,7 +52,7 @@ abstract const class DocSpecPage : DocSpec, DocPage
   override DocLibRef? lib() { DocLibRef(libName) }
 
   ** Documentation text
-  const override DocBlock doc
+  const override DocMarkdown doc
 
   ** Effective meta data
   const override DocDict meta
@@ -81,7 +81,7 @@ abstract const class DocSpecPage : DocSpec, DocPage
 const class DocType : DocSpecPage
 {
   ** Constructor
-  new make(Str qname, DocBlock doc, DocDict meta, DocTypeRef? base, DocTypeGraph supertypes, DocTypeGraph subtypes, Str:DocSlot slots) : super(qname, doc, meta)
+  new make(Str qname, DocMarkdown doc, DocDict meta, DocTypeRef? base, DocTypeGraph supertypes, DocTypeGraph subtypes, Str:DocSlot slots) : super(qname, doc, meta)
   {
     this.base = base
     this.supertypes = supertypes
@@ -122,7 +122,7 @@ const class DocType : DocSpecPage
   static DocType doDecode(Str:Obj obj)
   {
     qname      := obj.getChecked("qname")
-    doc        := DocBlock.decode(obj.get("doc"))
+    doc        := DocMarkdown.decode(obj.get("doc"))
     meta       := DocDict.decode(obj.get("meta"))
     base       := DocTypeRef.decode(obj.get("base"))
     supertypes := DocTypeGraph.decode(obj.get("supertypes"))
@@ -143,7 +143,7 @@ const class DocType : DocSpecPage
 const class DocGlobal : DocSpecPage
 {
   ** Constructor
-  new make(Str qname, DocBlock doc, DocDict meta, DocTypeRef type) : super(qname, doc, meta)
+  new make(Str qname, DocMarkdown doc, DocDict meta, DocTypeRef type) : super(qname, doc, meta)
   {
     this.type = type
   }
@@ -169,7 +169,7 @@ const class DocGlobal : DocSpecPage
   static DocGlobal doDecode(Str:Obj obj)
   {
     qname := obj.getChecked("qname")
-    doc   := DocBlock.decode(obj.get("doc"))
+    doc   := DocMarkdown.decode(obj.get("doc"))
     meta  := DocDict.decode(obj.get("meta"))
     type  := DocTypeRef.decode(obj.getChecked("type"))
     return DocGlobal(qname, doc, meta, type)
@@ -190,7 +190,7 @@ const class DocSlot : DocSpec
   static const Str:DocSlot empty := Str:DocSlot[:]
 
   ** Constructor
-  new make(Str name, DocBlock doc, DocDict meta, DocTypeRef type, DocTypeRef? parent, DocLink? base, Str:DocSlot slots)
+  new make(Str name, DocMarkdown doc, DocDict meta, DocTypeRef type, DocTypeRef? parent, DocLink? base, Str:DocSlot slots)
   {
     this.name   = name
     this.doc    = doc
@@ -205,7 +205,7 @@ const class DocSlot : DocSpec
   override const Str name
 
   ** Documentation for this slot
-  override const DocBlock doc
+  override const DocMarkdown doc
 
   ** Declared own meta
   override const DocDict meta
@@ -246,7 +246,7 @@ const class DocSlot : DocSpec
   ** Decode from a JSON object tree
   static DocSlot decode(Str name, Str:Obj obj)
   {
-    doc    := DocBlock.decode(obj.get("doc"))
+    doc    := DocMarkdown.decode(obj.get("doc"))
     type   := DocTypeRef.decode(obj.getChecked("type"))
     parent := DocTypeRef.decode(obj.get("parent"))
     base   := DocLink.decode(obj.get("base"))

@@ -30,10 +30,10 @@ internal class GenSummaries : Step
     return DocSummary(link, text, entry.summaryType)
   }
 
-  DocBlock parse(Obj? doc)
+  DocMarkdown parse(Obj? doc)
   {
-    if (doc == null || doc == "") return DocBlock.empty
-    return DocBlock(parseFirstSentence(doc.toStr))
+    if (doc == null || doc == "") return DocMarkdown.empty
+    return DocMarkdown(parseFirstSentence(doc.toStr))
   }
 
   static Str parseFirstSentence(Str t)

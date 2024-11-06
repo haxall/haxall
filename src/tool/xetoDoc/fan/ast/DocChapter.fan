@@ -15,7 +15,7 @@ using xetoEnv
 const class DocChapter : DocPage
 {
   ** Constructor
-  new make(Str qname, DocBlock doc)
+  new make(Str qname, DocMarkdown doc)
   {
     this.qname = qname
     this.doc   = doc
@@ -40,7 +40,7 @@ const class DocChapter : DocPage
   override DocLibRef? lib() { DocLibRef(libName) }
 
   ** Markdown
-  const DocBlock doc
+  const DocMarkdown doc
 
   ** Encode to a JSON object tree
   override Str:Obj encode()
@@ -57,7 +57,7 @@ const class DocChapter : DocPage
   static DocChapter doDecode(Str:Obj obj)
   {
     qname := obj.getChecked("qname")
-    doc   := DocBlock.decode(obj.getChecked("doc"))
+    doc   := DocMarkdown.decode(obj.getChecked("doc"))
     return make(qname, doc)
   }
 

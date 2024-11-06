@@ -7,34 +7,34 @@
 //
 
 **
-** DocBlock is a formatted block of text.
+** DocMarkdown is a block of text formatted in markdown.
 **
 @Js
-const class DocBlock
+const class DocMarkdown
 {
   ** Empty string
-  static const DocBlock empty := make("")
+  static const DocMarkdown empty := make("")
 
   ** Constructor
   new make(Str text) { this.text = text }
 
-  ** TODO: just wrap plain text string for now
+  ** Raw markdown text
   const Str text
 
   ** Debug string
   override Str toStr() { text }
 
-  ** Encode to a JSON object tree
+  ** Encode to JSON as string literal
   Obj encode()
   {
     text
   }
 
-  ** Decode from JSON object tree
-  static DocBlock decode(Obj? obj)
+  ** Decode from JSON string literal
+  static DocMarkdown decode(Obj? obj)
   {
     if (obj == null) return empty
-    return DocBlock(obj.toStr)
+    return DocMarkdown(obj.toStr)
   }
 }
 

@@ -223,16 +223,16 @@ internal class GenPages: Step
     return DocScalar(type, x.toStr)
   }
 
-  DocBlock genSpecDoc(Spec x)
+  DocMarkdown genSpecDoc(Spec x)
   {
     genDoc(x.meta["doc"])
   }
 
-  DocBlock genDoc(Obj? doc)
+  DocMarkdown genDoc(Obj? doc)
   {
     str := doc as Str ?: ""
-    if (str.isEmpty) return DocBlock.empty
-    return DocBlock(str)
+    if (str.isEmpty) return DocMarkdown.empty
+    return DocMarkdown(str)
   }
 }
 
