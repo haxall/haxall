@@ -85,7 +85,7 @@ class AbstractXetoTest : HaystackTest
 
   Void verifyFitsExplain(LibNamespace ns, Obj? val, Spec spec, Str[] expected)
   {
-    cx := TextContext()
+    cx := TestContext()
     hits := XetoLogRec[,]
     explain := |XetoLogRec rec| { hits.add(rec) }
     opts := Etc.dict1("explain", Unsafe(explain))
@@ -123,11 +123,11 @@ class AbstractXetoTest : HaystackTest
 }
 
 **************************************************************************
-** TextContext
+** TestContext
 **************************************************************************
 
 @Js
-class TextContext : XetoContext
+class TestContext : XetoContext
 {
   override Dict? xetoReadById(Obj id) { null }
   override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
