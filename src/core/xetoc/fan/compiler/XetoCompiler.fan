@@ -176,6 +176,12 @@ internal class XetoCompiler
     return err
   }
 
+  ** Log err message under slot name
+  XetoCompilerErr errSlot(CSpec slot, Str msg, FileLoc loc, Err? cause := null)
+  {
+    err("Slot '$slot.name': $msg", loc, cause)
+  }
+
   ** Log err message with two locations of duplicate identifiers
   XetoCompilerErr err2(Str msg, FileLoc loc1, FileLoc loc2, Err? cause := null)
   {

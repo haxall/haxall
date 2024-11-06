@@ -50,7 +50,7 @@ internal class Fitter
     }
 
     // no joy
-    return explainNoFit(a, b)
+    return explainInvalidType(b, a)
   }
 
   private Bool specFitsStruct(Spec a, Spec b)
@@ -84,7 +84,7 @@ internal class Fitter
     // check nominal typing
     if (valType.isa(type)) return true
 
-    return explainNoFit(valType, type)
+    return explainInvalidType(type, valType)
   }
 
   private Bool fitsEnum(Str val, Spec enum)
@@ -141,8 +141,9 @@ internal class Fitter
       return explainMissingSlot(slot)
     }
 
-    valFits := Fitter(ns, cx, opts).valFits(val, slotType)
-    if (!valFits) return explainInvalidSlotType(val, slot)
+    push(slot)
+    valFits(val, slotType)
+    pop
 
     return true
   }
@@ -204,16 +205,30 @@ internal class Fitter
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Slots
+//////////////////////////////////////////////////////////////////////////
+
+  ** Currently in a slot?
+  Bool inSlot() { !slotStack.isEmpty }
+
+  ** Current slot name or null
+  Str? slotName() { slotStack.peek }
+
+  ** Push slot onto the stack
+  Void push(Spec slot) { slotStack.push(slot.name) }
+
+  ** Pop slot from stack
+  Void pop() { slotStack.pop }
+
+//////////////////////////////////////////////////////////////////////////
 // Lint Explain
 //////////////////////////////////////////////////////////////////////////
 
   virtual Bool explainNoType(Obj? val) { false }
 
-  virtual Bool explainNoFit(Spec valType, Spec type) { false }
+  virtual Bool explainInvalidType(Spec type, Spec valType) { false }
 
   virtual Bool explainMissingSlot(Spec slot) { false }
-
-  virtual Bool explainInvalidSlotType(Obj val, Spec slot) { false }
 
   virtual Bool explainMissingQueryConstraint(Str ofDis, Spec constraint) { false }
 
@@ -230,6 +245,7 @@ internal class Fitter
   private const Dict opts
   private const Bool isGraph
   private XetoContext cx
+  private Str[] slotStack := [,]
 }
 
 **************************************************************************
@@ -239,7 +255,7 @@ internal class Fitter
 @Js
 internal class ExplainFitter : Fitter
 {
-  new make(MNamespace ns,  XetoContext cx, Dict opts, |XetoLogRec| cb)
+  new make(MNamespace ns, XetoContext cx, Dict opts, |XetoLogRec| cb)
     : super(ns, cx, opts, false)
   {
     this.cb = cb
@@ -250,9 +266,13 @@ internal class ExplainFitter : Fitter
     log("Value not mapped to data type [${val?.typeof}]")
   }
 
-  override Bool explainNoFit(Spec valType, Spec type)
+  override Bool explainInvalidType(Spec type, Spec valType)
   {
-    log("Type '$valType' does not fit '$type'")
+    if (inSlot)
+      log("Slot type is '$type', value type is '$valType'")
+    else
+      log("Type '$valType' does not fit '$type'")
+    return false
   }
 
   override Bool explainMissingSlot(Spec slot)
@@ -273,11 +293,6 @@ internal class ExplainFitter : Fitter
     log("Ambiguous match for $ofDis: " + constraintToDis(constraint) + " [" + recsToDis(matches) + "]")
   }
 
-  override Bool explainInvalidSlotType(Obj val, Spec slot)
-  {
-    log("Slot '$slot.name': Slot type is '$slot.type', value type is '${val.typeof}'")
-  }
-
   override Bool explainChoiceErr(Spec slot, Str msg)
   {
     log(msg)
@@ -285,6 +300,7 @@ internal class ExplainFitter : Fitter
 
   private Bool log(Str msg)
   {
+    if (inSlot) msg = "Slot '$slotName': $msg"
     cb(MLogRec(LogLevel.err, msg, FileLoc.unknown, null))
     return false
   }

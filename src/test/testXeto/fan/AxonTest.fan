@@ -381,7 +381,7 @@ class AxonTest : AbstractAxonTest
       ])
 
     verifyFitsExplain(Str<|fitsExplain({a:"x", b}, FitsExplain1)|>, [
-      "Invalid value type for 'b' - 'haystack::Marker' does not fit 'sys::Str'",
+      "Slot 'b': Slot type is 'sys::Str', value type is 'sys::Marker'",
       ])
   }
 

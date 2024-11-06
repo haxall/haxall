@@ -29,11 +29,15 @@ class ValidateTest : AbstractXetoTest
            str: Str
          }|>
 
+    // all ok
     verifyValidate(src, ["num":n(123), "str":"hi"], [,])
 
-    verifyValidate(src, ["num":"bad", "str":"xxx"], [
+    // invalid types
+    verifyValidate(src, ["num":"bad", "str":n(123)], [
         "Invalid 'sys::Number' string value: \"bad\"
          Slot 'num': Slot type is 'sys::Number', value type is 'sys::Str'",
+
+        "Slot 'str': Slot type is 'sys::Str', value type is 'sys::Number'",
       ])
   }
 

@@ -247,6 +247,15 @@ internal class CheckErrors : Step
     }
   }
 
+  Void checkScalar(AScalar x, CSpec? slot)
+  {
+    spec := slot ?: x.ctype
+    CheckScalar.check(spec, x.asm) |msg|
+    {
+      err(msg, x.loc)
+    }
+  }
+
   Void checkDict(ADict x)
   {
     spec := x.ctype
@@ -258,16 +267,28 @@ internal class CheckErrors : Step
 
     spec.cslots |slot|
     {
-      if (slot.ctype.isChoice) checkDictChoice(x, slot)
+      checkDictSlot(x, slot)
     }
   }
 
-  Void checkScalar(AScalar x, CSpec? slot)
+  Void checkDictSlot(ADict x, CSpec slot)
   {
-    spec := slot ?: x.ctype
-    CheckScalar.check(spec, x.asm) |msg|
+    if (slot.ctype.isChoice) return checkDictChoice(x, slot)
+
+    val := x.get(slot.name)
+    if (val == null)
     {
-      err(msg, x.loc)
+      // we don't check for missing slots in compiler,
+      // instances automatically inherit from their spec
+      return
+    }
+
+    valType := val.ctype
+    if (!valType.cisa(slot.ctype) && !x.isMeta)
+    {
+      // TODO
+      if (valType.qname != "sys::Str")
+        errSlot(slot, "Slot type is '$slot.ctype', value type is '$valType'", x.loc)
     }
   }
 
