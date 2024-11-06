@@ -102,5 +102,11 @@ const mixin LibFiles
   ** Look up a resource file in this library and read via callback
   ** function.  The URI must be path absolute.
   abstract Void read(Uri uri, |Err?, InStream?| f)
+
+  ** Convenience to read file to in-memory buffer
+  abstract Buf readBuf(Uri uri)
+
+  ** Convenience to read file to in-memory string
+  abstract Str readStr(Uri uri)
 }
 

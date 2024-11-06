@@ -292,6 +292,11 @@ class NamespaceTest : AbstractXetoTest
       res = null
       files.read(`/res/subdir/b.txt`) |err,in| { res = in.readAllStr.trim }
       verifyEq(res, "beta")
+
+      verifyEq(files.readStr(`/res/subdir/b.txt`).trim, "beta")
+      verifyEq(files.readBuf(`/res/subdir/b.txt`).readAllStr.trim, "beta")
+
+      verifyErr(UnresolvedErr#) { files.readStr(`/bad.txt`) }
     }
   }
 

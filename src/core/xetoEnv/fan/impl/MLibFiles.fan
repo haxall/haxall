@@ -17,6 +17,27 @@ using haystack::UnknownSpecErr
 @Js
 abstract const class MLibFiles : LibFiles
 {
+  override Buf readBuf(Uri uri)
+  {
+    Buf? val
+    read(uri) |err, in|
+    {
+      if (err != null) throw err
+      val = in.readAllBuf
+    }
+    return val
+  }
+
+  override Str readStr(Uri uri)
+  {
+    Str? val
+    read(uri) |err, in|
+    {
+      if (err != null) throw err
+      val = in.readAllStr
+    }
+    return val
+  }
 }
 
 **************************************************************************
