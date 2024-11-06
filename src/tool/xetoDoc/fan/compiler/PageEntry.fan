@@ -24,6 +24,7 @@ class PageEntry
     this.key      = DocCompiler.key(x)
     this.def      = x
     this.uri      = DocUtil.libToUri(x.name)
+    this.lib      = x
     this.dis      = x.name
     this.pageType = DocPageType.lib
     this.meta     = x.meta
@@ -36,6 +37,7 @@ class PageEntry
     this.key      = DocCompiler.key(x)
     this.def      = x
     this.uri      = DocUtil.specToUri(x)
+    this.lib      = x.lib
     this.dis      = x.name
     this.pageType = pageType
     this.meta     = x.meta
@@ -43,7 +45,7 @@ class PageEntry
   }
 
   ** Constructor for instance
-  new makeInstance(Dict x)
+  new makeInstance(Lib lib, Dict x)
   {
     qname   := x.id.id
     libName := XetoUtil.qnameToLib(qname)
@@ -52,6 +54,7 @@ class PageEntry
     this.key      = DocCompiler.key(x)
     this.def      = x
     this.uri      = DocUtil.instanceToUri(qname)
+    this.lib      = lib
     this.dis      = name
     this.pageType = DocPageType.instance
     this.meta     = x
@@ -65,6 +68,7 @@ class PageEntry
     qname := lib.name + "::" + name
 
     this.key      = qname
+    this.lib      = lib
     this.def      = markdown
     this.uri      = DocUtil.chapterToUri(qname)
     this.dis      = name
@@ -81,6 +85,9 @@ class PageEntry
 
   ** URI relative to base dir to page with ".json" extension
   Uri uriJson() { `${uri}.json` }
+
+  ** If page is under a lib
+  const Lib lib
 
   ** Display name for this page
   const Str dis
@@ -107,6 +114,9 @@ class PageEntry
   ** Get the page
   DocPage page() { pageRef ?: throw NotReadyErr(dis) }
   internal DocPage? pageRef
+
+  ** This is the index.md file for lib pages
+  Str? mdIndex
 
   ** Debug string
   override Str toStr() { "$uri.toCode $dis [$pageType]" }

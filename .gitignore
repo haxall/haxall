@@ -11,6 +11,7 @@ fan.props
 
 # doc/
 /doc/
+/doc-xeto/
 
 # var/
 /var/
@@ -29,3 +30,4 @@ __pycache__/
 
 # docker bind-mount
 /dbs/
+

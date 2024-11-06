@@ -52,6 +52,7 @@ const class DocLib : DocPage
     obj.addNotNull("types",     DocSummary.encodeList(types))
     obj.addNotNull("globals",   DocSummary.encodeList(globals))
     obj.addNotNull("instances", DocSummary.encodeList(instances))
+    obj.addNotNull("chapters",  DocSummary.encodeList(chapters))
     return obj
   }
 
@@ -67,6 +68,7 @@ const class DocLib : DocPage
       it.types     = DocSummary.decodeList(obj["types"])
       it.globals   = DocSummary.decodeList(obj["globals"])
       it.instances = DocSummary.decodeList(obj["instances"])
+      it.chapters  = DocSummary.decodeList(obj["chapters"])
     }
   }
 
@@ -78,6 +80,9 @@ const class DocLib : DocPage
 
   ** Instances defined in this library
   const DocSummary[] instances
+
+  ** Chapters defined in this library
+  const DocSummary[] chapters
 }
 
 **************************************************************************

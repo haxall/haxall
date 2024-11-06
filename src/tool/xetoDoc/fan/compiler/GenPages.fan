@@ -48,6 +48,7 @@ internal class GenPages: Step
       it.types     = summaries(typesToDoc(x))
       it.globals   = summaries(x.globals)
       it.instances = summaries(x.instances)
+      it.chapters  = chapterSummaries(x)
     }
   }
 

@@ -17,20 +17,20 @@ internal class StubPages: Step
 {
   override Void run()
   {
-    acc := Str:PageEntry[:]
-    compiler.libs.each |lib| { stubLib(acc, lib) }
-    compiler.pages = acc
+    compiler.libs.each |lib| { stubLib(lib) }
+    compiler.pages = byKey
   }
 
-  Void stubLib(Str:PageEntry acc, Lib lib)
+  Void stubLib(Lib lib)
   {
     // lib id
-    add(acc, PageEntry.makeLib(lib))
+    libDoc := PageEntry.makeLib(lib)
+    add(libDoc)
 
     // type ids
     typesToDoc(lib).each |x|
     {
-      add(acc, PageEntry.makeSpec(x, DocPageType.type))
+      add(PageEntry.makeSpec(x, DocPageType.type))
     }
 
     // globals
@@ -38,13 +38,13 @@ internal class StubPages: Step
     {
       entry := PageEntry.makeSpec(x, DocPageType.global)
       entry.summaryType = genTypeRef(x.type)
-      add(acc, entry)
+      add(entry)
     }
 
     // instances
     lib.instances.each |x|
     {
-      add(acc, PageEntry.makeInstance(x))
+      add(PageEntry.makeInstance(lib, x))
     }
 
     // chapters
@@ -55,16 +55,23 @@ internal class StubPages: Step
         if (uri.ext == "md")
         {
           markdown := lib.files.readStr(uri)
-          add(acc, PageEntry.makeChapter(lib, uri, markdown))
+          if (uri.name == "index.md")
+            libDoc.mdIndex = markdown
+          else
+            add(PageEntry.makeChapter(lib, uri, markdown))
         }
       }
     }
   }
 
-  Void add(Str:PageEntry acc, PageEntry entry)
+  Void add(PageEntry entry)
   {
-    acc.add(entry.key, entry)
+    // verify no duplicates by key nor by uri
+    byKey.add(entry.key, entry)
+    byUri.add(entry.uri, entry)
   }
 
+  Str:PageEntry byKey := [:]
+  Uri:PageEntry byUri := [:]
 }
 

@@ -164,7 +164,7 @@ internal class DocCmd : SrcLibCmd
     libs := vers.map |v->Lib| { ns.lib(v.name) }
 
     // output directory
-    outDir := this.outDir ?: Env.cur.workDir + `xeto-doc/`
+    outDir := this.outDir ?: Env.cur.workDir + `doc-xeto/`
 
     // compile
     c := DocCompiler
