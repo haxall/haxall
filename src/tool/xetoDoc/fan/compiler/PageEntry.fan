@@ -9,6 +9,7 @@
 using util
 using xeto
 using xetoEnv
+using haystack::Etc
 using haystack::Dict
 
 **
@@ -57,6 +58,21 @@ class PageEntry
     this.link     = DocLink(uri, dis)
   }
 
+  ** Constructor for chapter
+  new makeChapter(Lib lib, Uri file, Str markdown)
+  {
+    name  := file.basename
+    qname := lib.name + "::" + name
+
+    this.key      = qname
+    this.def      = markdown
+    this.uri      = DocUtil.chapterToUri(qname)
+    this.dis      = name
+    this.pageType = DocPageType.chapter
+    this.meta     = Etc.dict0
+    this.link     = DocLink(uri, dis)
+  }
+
   ** Unique key for mapping libs, specs, instancs
   const Str key
 
@@ -81,7 +97,7 @@ class PageEntry
   ** Meta for the page (lib meta, spec meta, instance itself)
   const Dict meta
 
-  ** Definition as Lib, Spec, or Dict instance
+  ** Definition as Lib, Spec, Dict instance, or chapter markdown Str
   const Obj def
 
   ** Get the summary

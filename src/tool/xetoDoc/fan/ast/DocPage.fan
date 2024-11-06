@@ -36,6 +36,7 @@ const mixin DocPage
       case DocPageType.type:     return DocType.doDecode(obj)
       case DocPageType.global:   return DocGlobal.doDecode(obj)
       case DocPageType.instance: return DocInstance.doDecode(obj)
+      case DocPageType.chapter:  return DocChapter.doDecode(obj)
       default:                   throw Err("Unknown page type: $pageType")
     }
   }
@@ -60,6 +61,7 @@ enum class DocPageType
   lib,
   type,
   global,
-  instance
+  instance,
+  chapter
 }
 

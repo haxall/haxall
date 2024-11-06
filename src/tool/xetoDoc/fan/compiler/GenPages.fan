@@ -32,6 +32,7 @@ internal class GenPages: Step
       case DocPageType.type:     return genType(entry, entry.def)
       case DocPageType.global:   return genGlobal(entry, entry.def)
       case DocPageType.instance: return genInstance(entry, entry.def)
+      case DocPageType.chapter:  return genChapter(entry, entry.def)
       default: throw Err(entry.pageType.name)
     }
   }
@@ -182,6 +183,11 @@ internal class GenPages: Step
     dis := base.qname
     uri := DocUtil.specToUri(base)
     return DocLink(uri, dis)
+  }
+
+  DocChapter genChapter(PageEntry entry, Str markdown)
+  {
+    DocChapter(entry.key, genDoc(markdown))
   }
 
   DocDict genDict(Dict d)

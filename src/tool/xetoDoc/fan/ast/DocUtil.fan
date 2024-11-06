@@ -46,6 +46,12 @@ const class DocUtil
     qnameToUri(qname, false)
   }
 
+  ** Convert chaoter qualified name to its normalized URI
+  static Uri chapterToUri(Str qname)
+  {
+    qnameToUri(qname, false)
+  }
+
   ** Convert spec or instance qualified name to its normalized URI
   private static Uri qnameToUri(Str qname, Bool isGlobal)
   {
@@ -66,5 +72,6 @@ const class DocUtil
   static const Ref typeIcon     := Ref("ion.icons::aperture")
   static const Ref globalIcon   := Ref("ion.icons::tag")
   static const Ref instanceIcon := Ref("ion.icons::at-sign")
+  static const Ref chapterIcon  := Ref("ion.icons::sticky-note")
 }
 

@@ -18,34 +18,52 @@ internal class StubPages: Step
   override Void run()
   {
     acc := Str:PageEntry[:]
-    add := |PageEntry entry| { acc.add(entry.key, entry) }
+    compiler.libs.each |lib| { stubLib(acc, lib) }
+    compiler.pages = acc
+  }
 
-    compiler.libs.each |lib|
+  Void stubLib(Str:PageEntry acc, Lib lib)
+  {
+    // lib id
+    add(acc, PageEntry.makeLib(lib))
+
+    // type ids
+    typesToDoc(lib).each |x|
     {
-      // lib id
-      add(PageEntry.makeLib(lib))
+      add(acc, PageEntry.makeSpec(x, DocPageType.type))
+    }
 
-      // type ids
-      typesToDoc(lib).each |x|
-      {
-        add(PageEntry.makeSpec(x, DocPageType.type))
-      }
+    // globals
+    lib.globals.each |x|
+    {
+      entry := PageEntry.makeSpec(x, DocPageType.global)
+      entry.summaryType = genTypeRef(x.type)
+      add(acc, entry)
+    }
 
-      // globals
-      lib.globals.each |x|
-      {
-        entry := PageEntry.makeSpec(x, DocPageType.global)
-        entry.summaryType = genTypeRef(x.type)
-        add(entry)
-      }
+    // instances
+    lib.instances.each |x|
+    {
+      add(acc, PageEntry.makeInstance(x))
+    }
 
-      // instances
-      lib.instances.each |x|
+    // chapters
+    if (lib.hasMarkdown)
+    {
+      lib.files.list.each |uri|
       {
-        add(PageEntry.makeInstance(x))
+        if (uri.ext == "md")
+        {
+          markdown := lib.files.readStr(uri)
+          add(acc, PageEntry.makeChapter(lib, uri, markdown))
+        }
       }
     }
-    compiler.pages = acc
+  }
+
+  Void add(Str:PageEntry acc, PageEntry entry)
+  {
+    acc.add(entry.key, entry)
   }
 
 }

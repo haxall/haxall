@@ -30,14 +30,20 @@ class DocTest : AbstractXetoTest
   {
     ns := createNamespace(["ph.points", "hx.test.xeto", "doc.xeto"])
     lib := ns.lib("hx.test.xeto")
-    docLib := ns.lib("doc.xeto")
-    compiler = DocCompiler { it.ns = ns; it.libs = [lib]; it.outDir = tempDir }
+    docXeto := ns.lib("doc.xeto")
+    compiler = DocCompiler { it.ns = ns; it.libs = [lib, docXeto]; it.outDir = tempDir }
     compiler.compile
 
-    // lib
+    // lib - hx.test.xeto
     entry := compiler.pages[lib.name]
-    verifyLib(entry, lib, entry.page)
-    verifyLib(entry, lib, roundtrip(entry))
+    verifyHxLib(entry, lib, entry.page)
+    verifyHxLib(entry, lib, roundtrip(entry))
+
+    // lib - doc.xeto
+    verifyEq(docXeto.hasMarkdown, true)
+    entry = compiler.pages.getChecked(docXeto.name)
+    verifyDocLib(entry, docXeto, entry.page)
+    verifyDocLib(entry, docXeto, roundtrip(entry))
 
     // type
     spec := lib.spec("EqA")
@@ -81,8 +87,10 @@ class DocTest : AbstractXetoTest
     verifyPoints(spec, entry.page)
     verifyPoints(spec, roundtrip(entry))
 
-    // docLib
-    verifyEq(docLib.hasMarkdown, true)
+    // chapter
+    entry = compiler.pages.getChecked("doc.xeto::Namespaces")
+    verifyChapter(entry.page)
+    verifyChapter(roundtrip(entry))
   }
 
   DocPage roundtrip(PageEntry entry)
@@ -112,6 +120,11 @@ class DocTest : AbstractXetoTest
     verifySummaries(n.types,     docTypes)
     verifySummaries(n.globals,   lib.globals)
     verifySummaries(n.instances, lib.instances)
+  }
+
+  Void verifyHxLib(PageEntry entry, Lib lib, DocLib n)
+  {
+    verifyLib(entry, lib, n)
 
     // verify global summary has type
     g := n.globals[0]
@@ -123,6 +136,11 @@ class DocTest : AbstractXetoTest
     d1 := n.depends.find { it.lib.name == "ph" }
     d2 := lib.depends.find { it.name == "ph" }
     verifyEq(d1.versions.toStr, d2.versions.toStr)
+  }
+
+  Void verifyDocLib(PageEntry entry, Lib lib, DocLib n)
+  {
+    verifyLib(entry, lib, n)
   }
 
   Void verifySpec(PageEntry entry, Spec spec, DocSpecPage n)
@@ -342,6 +360,12 @@ class DocTest : AbstractXetoTest
     verifyEq(c.type.qname, "ph.points::DischargeAirTempSensor")
     verifyEq(c.slots.size, 0)
     verifyEq(c.parent, null)
+  }
+
+  Void verifyChapter(DocChapter c)
+  {
+    verifyEq(c.qname, "doc.xeto::Namespaces")
+    verifyEq(c.doc.text.contains("A namespace is defined by a list"), true)
   }
 }
 
