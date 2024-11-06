@@ -6,6 +6,8 @@
 //   22 Sep 2024  Brian Frank  Creation
 //
 
+using markdown
+
 **
 ** DocMarkdown is a block of text formatted in markdown.
 **
@@ -35,6 +37,13 @@ const class DocMarkdown
   {
     if (obj == null) return empty
     return DocMarkdown(obj.toStr)
+  }
+
+  ** Return this text as HTML
+  Str html()
+  {
+    doc := Parser.builder.build.parse(text)
+    return HtmlRenderer.builder.build.render(doc)
   }
 }
 

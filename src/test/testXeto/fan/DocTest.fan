@@ -163,6 +163,9 @@ class DocTest : AbstractXetoTest
     verifyEq(siteRef.base.dis, "ph::siteRef")
     verifyEq(siteRef.base.uri, `/ph/_siteRef`)
     verifyEq(siteRef.type.qname, "sys::Ref")
+
+    verifyEq(n.doc.text, "Equip with *points*")
+    verifyEq(n.doc.html.trim, "<p>Equip with <em>points</em></p>")
   }
 
   Void verifyGlobal(PageEntry entry, Spec spec, DocGlobal n)
@@ -366,6 +369,7 @@ class DocTest : AbstractXetoTest
   {
     verifyEq(c.qname, "doc.xeto::Namespaces")
     verifyEq(c.doc.text.contains("A namespace is defined by a list"), true)
+    verifyEq(c.doc.html.contains("<pre><code>xmeta-"), true)
   }
 }
 
