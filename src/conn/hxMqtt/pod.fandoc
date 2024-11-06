@@ -134,3 +134,48 @@ taskExpr:
   logInfo("mqttTask", ioReadStr(obs->payload))
 end
 <pre
+
+MQTT Points [#points]
+**********************
+Due to the open nature of MQTT payloads, the MQTT basic connector does not include
+direct support for points like there are for other connectors. In order to use
+values from an MQTT topic subscription, `obsMqtt` tasks can use different approaches
+based on the message format and requirements:
+
+1. Make transient commits to the `curVal` and `curStatus` tags of a point record and
+allow the `hisCollectCov` or `hisCollectInterval` configuration to trend the data
+1. Use `hisWrite()` to directly write historical data to a point record
+
+Since there is no standard format for an MQTT message payload the `obsMqtt` task
+must get the value(s) out of the message and determine what point record to
+commit/write the values to.
+
+There could be several ways to determe the point record to write to. One way could
+simply be using the topic the message is published to and storing the topic
+on the point record.
+
+For example, imagine each published message has this format:
+
+pre>
+{
+  "theValue": "79.6",
+  "sensor": "temperature",
+  "unit": "°F"
+}
+<pre
+
+Then one way to configure the task is shown below:
+
+pre>
+obsMqtt
+obsMqttConnRef: @myMqttConn
+obsMqttTopic: "#"
+mqttQos: 2
+taskExpr:
+(obs) => do
+  msg: ioReadJson(obs->payload, {safeNames})
+  myPoint: read(myMqttTopic == obs->topic, false)
+  if (myPoint != null)
+    diff(myPoint, {curVal:parseNumber(msg->theValue).as(msg->unit), curStatus:"ok"}, {transient}).commit
+end
+<pre
