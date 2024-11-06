@@ -32,7 +32,8 @@ class ValidateTest : AbstractXetoTest
     verifyValidate(src, ["num":n(123), "str":"hi"], [,])
 
     verifyValidate(src, ["num":"bad", "str":"xxx"], [
-        "Invalid 'sys::Number' value: \"bad\"",
+        "Invalid 'sys::Number' string value: \"bad\"
+         Slot 'num': Slot type is 'sys::Number', value type is 'sys::Str'",
       ])
   }
 
@@ -94,6 +95,7 @@ class ValidateTest : AbstractXetoTest
   ** Verify actual errors from compiler/fits against expected results
   Void verifyErrs(Str title, XetoLogRec[] actual, Str[] expect)
   {
+    isCompileTime := title.startsWith("Compile")
     if (isDebug)
     {
       echo("\n-- $title [$actual.size]")
@@ -104,6 +106,7 @@ class ValidateTest : AbstractXetoTest
     {
       a := arec.msg
       e := expect.getSafe(i) ?: "-"
+      if (e.contains("\n")) e = e.splitLines[isCompileTime ? 0 : 1]
       if (a != e)
       {
         echo("FAIL: $a")

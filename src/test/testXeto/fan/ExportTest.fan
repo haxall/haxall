@@ -95,7 +95,7 @@ class ExportTest : AbstractXetoTest
       }
     }
     */
-    verifyExport(ns, def, "EqA", ["base":Ref("ph::Equip"), "spec":Ref("sys::Spec"), "doc":"Equip with points",
+    verifyExport(ns, def, "EqA", ["base":Ref("ph::Equip"), "spec":Ref("sys::Spec"), "doc":"Equip with *points*",
        "slots":Etc.makeDict([
           "points": Etc.makeDict([
              "id":Ref("hx.test.xeto::EqA.points"),

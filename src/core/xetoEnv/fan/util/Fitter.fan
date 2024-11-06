@@ -275,8 +275,7 @@ internal class ExplainFitter : Fitter
 
   override Bool explainInvalidSlotType(Obj val, Spec slot)
   {
-    log("Invalid value type for '$slot.name' - '${val.typeof}' does not fit '$slot.type'")
-
+    log("Slot '$slot.name': Slot type is '$slot.type', value type is '${val.typeof}'")
   }
 
   override Bool explainChoiceErr(Spec slot, Str msg)

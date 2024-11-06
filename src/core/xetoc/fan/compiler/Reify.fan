@@ -136,7 +136,7 @@ internal abstract class Reify : Step
       fantom := factory.decodeScalar(x.str, false)
       if (fantom == null)
       {
-        err("Invalid '$type.qname' value: $x.str.toCode", x.loc)
+        err("Invalid '$type.qname' string value: $x.str.toCode", x.loc)
         fantom = x.str
       }
 
