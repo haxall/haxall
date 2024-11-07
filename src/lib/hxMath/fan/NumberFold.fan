@@ -19,7 +19,7 @@ internal class NumberFold
   Int size
   FloatArray array := FloatArray.makeF8(1024)
   Unit? unit
-
+  
   @Operator Float get(Int index) { array[index] }
 
   Bool isEmpty() { size == 0 }
@@ -56,14 +56,13 @@ internal class NumberFold
     return (a+b)/2f
   }
 
-  //general percentile method 
-  sys::Float percentile(sys::Float perc) {
-    if (perc < 0f || perc > 1f) {
-        throw Err("Percentile must be between 0 and 1")
-    }
-    if (isEmpty) {
-        throw Err("NumberFold is empty")
-    }
+  //percentile method 
+  Float? perc := null 
+  Float percentile() 
+  {
+    if (perc == null) {throw Err("Percentile must be a number")}
+    if (perc < 0f || perc > 1f) { throw Err("Percentile must be between 0 and 1")}
+    if (isEmpty) { throw Err("NumberFold is empty") }
     array.sort(0..<size) //sort array 
 
     if (size == 1) { return array[0] }
@@ -73,22 +72,17 @@ internal class NumberFold
     k := i.toInt    // floor of i
     d := i - k      // diff between true i and floor Int
 
-    //return indexed perc number
-    //interpolate if needed
-    if (k >= size - 1) {
-        return array[k].toFloat
-    } else {
+    //return indexed perc number, interpolate if needed
+    if (k >= size - 1) 
+    { 
+      return array[k].toFloat 
+    } 
+    else 
+    {
         a := array[k]
         b := array[k + 1]
         return (a * (1 - d) + b * d).toFloat
     }
-}
-
-  Float percentile1() { percentile(0.01f) }
-  Float percentile5() { percentile(0.05f) }
-  Float percentile25() { percentile(0.25f) }
-  Float percentile75() { percentile(0.75f) }
-  Float percentile95() { percentile(0.95f) }
-  Float percentile99() { percentile(0.99f) }
+  }
 
 }
