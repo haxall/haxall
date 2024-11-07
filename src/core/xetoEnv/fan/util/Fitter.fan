@@ -68,48 +68,51 @@ internal class Fitter
 // Instance Fits
 //////////////////////////////////////////////////////////////////////////
 
-  Bool valFits(Obj? val, Spec type)
+  Bool valFits(Obj? val, Spec spec)
   {
     // get type for value
     valType := ns.specOf(val, false)
-    if (valType == null) return explainNoType(val)
+    if (valType == null)
+      return explainNoType(val)
 
     // check structurally typing
-    if (val is Dict && type.isa(ns.sys.dict))
-      return fitsStruct(val, type)
+    if (val is Dict && spec.isa(ns.sys.dict))
+      return fitsStruct(val, spec)
 
-    // check enums
-    if (type.isEnum && val is Str) return fitsEnum(val, type)
+    // check that type matches
+    if (!valTypeFits(spec.type, valType))
+      return explainInvalidType(spec.type, valType)
 
-    // check nominal typing
+    // check value against spec meta
+    fits := true
+    CheckVal.check((CSpec)spec, val) |msg|
+    {
+      fits = explainValErr(spec, msg)
+    }
+    return fits
+  }
+
+  private Bool valTypeFits(Spec type, Spec valType)
+  {
+    // check if fits by nominal typing
     if (valType.isa(type)) return true
 
     // if type is a non-sys scalar, then allow string
-    if (val is Str && type.isScalar && allowStrScalar(type)) return true
+    if (type.isScalar && valType.qname == "sys::Str" && allowStrScalar(type)) return true
 
-    return explainInvalidType(type, valType)
+    return false
   }
 
   private Bool allowStrScalar(Spec type)
   {
-    // don't allow strings for any sys types which have Fantom types
-    if (type.lib.isSys) return false
+    // don't allow strings for any sys types which have Fantom types except unit
+    if (type.lib.isSys)
+    {
+      if (type.name == "Unit") return true
+      return false
+    }
 
     return true
-  }
-
-  private Bool fitsEnum(Str val, Spec enum)
-  {
-    // first match slot name without key
-    slot := enum.slot(val, false)
-    if (slot != null && slot.meta.missing("key")) return true
-
-    // iterate slots to find key
-    r := enum.slots.eachWhile |x|
-    {
-      x.meta["key"] as Str == val ? "found": null
-    }
-    return r != null
   }
 
   private Bool fitsStruct(Dict dict, Spec type)
@@ -155,16 +158,7 @@ internal class Fitter
         return explainMissingSlot(slot)
       }
 
-      fits := valFits(val, slotType)
-      if (slotType.isScalar)
-      {
-        CheckScalar.check((CSpec)slot, val) |msg|
-        {
-          fits = explainScalarErr(slot, msg)
-        }
-      }
-
-      return fits
+      return valFits(val, slot)
     }
     finally
     {
@@ -258,7 +252,7 @@ internal class Fitter
 
   virtual Bool explainAmbiguousQueryConstraint(Str ofDis, Spec constraint, Dict[] matches) { false }
 
-  virtual Bool explainScalarErr(Spec slot, Str msg) { false }
+  virtual Bool explainValErr(Spec slot, Str msg) { false }
 
   virtual Bool explainChoiceErr(Spec slot, Str msg) { false }
 
@@ -319,7 +313,7 @@ internal class ExplainFitter : Fitter
     log("Ambiguous match for $ofDis: " + constraintToDis(constraint) + " [" + recsToDis(matches) + "]")
   }
 
-  override Bool explainScalarErr(Spec slot, Str msg)
+  override Bool explainValErr(Spec slot, Str msg)
   {
     log(msg)
   }

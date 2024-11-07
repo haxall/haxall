@@ -11,13 +11,64 @@ using xeto
 using haystack::Number
 
 **
-** Validation for scalar values against a spec type and meta
+** Validation for values against a spec type and meta
 **
 @Js
-const class CheckScalar
+const class CheckVal
 {
 
+//////////////////////////////////////////////////////////////////////////
+// Val
+//////////////////////////////////////////////////////////////////////////
+
   static Void check(CSpec spec, Obj x, |Str| onErr)
+  {
+    if (spec.isScalar) return checkScalar(spec, x, onErr)
+    if (spec.isList) return checkList(spec, x, onErr)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// List
+//////////////////////////////////////////////////////////////////////////
+
+  static Void checkList(CSpec spec, Obj obj, |Str| onErr)
+  {
+    x := obj as List
+
+    // should not happen, but just in case
+    if (x == null)
+    {
+      onErr("Not list type: $obj.typeof")
+      return
+    }
+
+    // check non-empty
+    nonEmpty := spec.cmeta.get("nonEmpty")
+    if (nonEmpty != null && x.isEmpty)
+    {
+      onErr("List must be non-empty")
+    }
+
+    // minSize
+    minSize := toInt(spec.cmeta.get("minSize"))
+    if (minSize != null && x.size < minSize)
+    {
+      onErr("List size $x.size < minSize $minSize")
+    }
+
+    // maxSize
+    maxSize := toInt(spec.cmeta.get("maxSize"))
+    if (maxSize != null && x.size > maxSize)
+    {
+      onErr("List size $x.size > maxSize $maxSize")
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Scalar
+//////////////////////////////////////////////////////////////////////////
+
+  static Void checkScalar(CSpec spec, Obj x, |Str| onErr)
   {
     if (x is Number) return checkNumber(spec, x, onErr)
     if (spec.ctype.isEnum) return checkEnum(spec, x, onErr)

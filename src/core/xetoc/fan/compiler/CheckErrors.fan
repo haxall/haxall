@@ -163,7 +163,7 @@ internal class CheckErrors : Step
       if (x.meta.has(name)) err("Spec '$x.name' cannot use reserved meta tag '$name'", x.loc)
     }
 
-    checkDict(x.meta)
+    checkDict(x.meta, null)
   }
 
   Void checkQuery(ASpec x)
@@ -182,7 +182,7 @@ internal class CheckErrors : Step
     if (name.startsWith("xmeta-"))
       checkXMeta(lib, name, x)
 
-    checkDict(x)
+    checkDict(x, null)
   }
 
   Void checkXMeta(ALib lib, Str name, ADict x)
@@ -240,7 +240,7 @@ internal class CheckErrors : Step
   {
     switch (x.nodeType)
     {
-      case ANodeType.dict: checkDict(x)
+      case ANodeType.dict: checkDict(x, slot)
       case ANodeType.scalar: checkScalar(x, slot)
       case ANodeType.specRef: checkSpecRef(x)
       case ANodeType.dataRef: checkDataRef(x)
@@ -250,24 +250,36 @@ internal class CheckErrors : Step
   Void checkScalar(AScalar x, CSpec? slot)
   {
     spec := slot ?: x.ctype
-    CheckScalar.check(spec, x.asm) |msg|
+    CheckVal.checkScalar(spec, x.asm) |msg|
     {
       errSlot(slot, msg, x.loc)
     }
   }
 
-  Void checkDict(ADict x)
+  Void checkDict(ADict x, CSpec? slot)
   {
     spec := x.ctype
+
+    if (spec.isList) checkList(x, slot)
 
     x.map.each |v, n|
     {
       checkData(v, spec.cslot(n, false))
     }
 
-    spec.cslots |slot|
+    spec.cslots |specSlot|
     {
-      checkDictSlot(x, slot)
+      checkDictSlot(x, specSlot)
+    }
+  }
+
+  Void checkList(ADict x, CSpec? slot)
+  {
+    spec := slot ?: x.ctype
+    list := (Obj?[])x.asm
+    CheckVal.checkList(spec, list) |msg|
+    {
+      errSlot(slot, msg, x.loc)
     }
   }
 

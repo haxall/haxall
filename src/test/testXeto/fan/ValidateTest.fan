@@ -130,6 +130,39 @@ class ValidateTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Lists
+//////////////////////////////////////////////////////////////////////////
+
+  Void testList()
+  {
+    src :=
+    Str<|Foo: {
+           a: List<of:Str, nonEmpty>
+           b: List<of:Str, minSize:1, maxSize:3>
+         }
+         |>
+
+    // all ok
+    ok := ["a":["1"], "b":["1"]]
+    verifyValidate(src, ok, [,])
+
+    // empty
+    verifyValidate(src, ok.dup.setAll(["a":Str[,]]), [
+      "Slot 'a': List must be non-empty",
+    ])
+
+    // minSize
+    verifyValidate(src, ok.dup.setAll(["b":Str[,]]), [
+      "Slot 'b': List size 0 < minSize 1",
+    ])
+
+    // maxSize
+    verifyValidate(src, ok.dup.setAll(["b":["1", "2", "3", "4"]]), [
+      "Slot 'b': List size 4 > maxSize 3",
+    ])
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Enums
 //////////////////////////////////////////////////////////////////////////
 
