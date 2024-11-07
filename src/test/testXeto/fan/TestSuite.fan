@@ -259,10 +259,7 @@ class DataTestCase
   {
     actual := genAst(lib)
 
-    s := actual.index("\"temp")
-    e := actual.index("\"", s+1)
-    name := actual[s..<e]
-    actual = actual.replace(name, "\"temp")
+    actual = AbstractXetoTest.normTempLibName(actual)
     // echo(actual)
 
     // verify its actually Json

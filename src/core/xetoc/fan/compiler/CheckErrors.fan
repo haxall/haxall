@@ -252,7 +252,7 @@ internal class CheckErrors : Step
     spec := slot ?: x.ctype
     CheckScalar.check(spec, x.asm) |msg|
     {
-      err(msg, x.loc)
+      errSlot(slot, msg, x.loc)
     }
   }
 

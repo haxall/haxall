@@ -142,10 +142,17 @@ internal class Fitter
     }
 
     push(slot)
-    valFits(val, slotType)
+    fits := valFits(val, slotType)
+    if (slotType.isScalar)
+    {
+      CheckScalar.check((CSpec)slot, val) |msg|
+      {
+        fits = explainScalarErr(slot, msg)
+      }
+    }
     pop
 
-    return true
+    return fits
   }
 
   private Bool? fitsChoice(Dict dict, Spec slot)
@@ -234,6 +241,8 @@ internal class Fitter
 
   virtual Bool explainAmbiguousQueryConstraint(Str ofDis, Spec constraint, Dict[] matches) { false }
 
+  virtual Bool explainScalarErr(Spec slot, Str msg) { false }
+
   virtual Bool explainChoiceErr(Spec slot, Str msg) { false }
 
 //////////////////////////////////////////////////////////////////////////
@@ -291,6 +300,11 @@ internal class ExplainFitter : Fitter
   override Bool explainAmbiguousQueryConstraint(Str ofDis, Spec constraint, Dict[] matches)
   {
     log("Ambiguous match for $ofDis: " + constraintToDis(constraint) + " [" + recsToDis(matches) + "]")
+  }
+
+  override Bool explainScalarErr(Spec slot, Str msg)
+  {
+    log(msg)
   }
 
   override Bool explainChoiceErr(Spec slot, Str msg)
