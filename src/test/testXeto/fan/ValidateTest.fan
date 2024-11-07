@@ -78,27 +78,54 @@ class ValidateTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Regex
+// Strs
 //////////////////////////////////////////////////////////////////////////
 
-  Void testRegex()
+  Void testStrs()
   {
     src :=
     Str<|Foo: {
            a: Str <pattern:"\\d{4}-\\d{2}-\\d{2}">
            b: MyDate
+           c: Str <nonEmpty>
+           d: MyNonEmpty
+           e: Str <minSize:2, maxSize:4>
+           f: MySizeStr
          }
 
          MyDate: Scalar <pattern:"\\d{4}-\\d{2}-\\d{2}">
+
+         MyNonEmpty: Scalar <nonEmpty>
+
+         MySizeStr: Scalar <minSize:2, maxSize:4>
          |>
 
     // all ok
-    verifyValidate(src, ["a":"2024-11-07", "b":"1234-56-78"], [,])
+    ok := ["a":"2024-11-07", "b":"1234-56-78", "c":"!", "d":"!", "e":"ab", "f":"abce"]
+    verifyValidate(src, ok, [,])
 
     // bad pattern
-    verifyValidate(src, ["a":"2024-11-7", "b":"1234_56_78"], [
+    verifyValidate(src, ok.dup.setAll(["a":"2024-11-7", "b":"1234_56_78"]), [
       "Slot 'a': String encoding does not match pattern for 'temp::Foo.a'",
       "Slot 'b': String encoding does not match pattern for 'temp::MyDate'",
+    ])
+
+    // empty
+    verifyValidate(src, ok.dup.setAll(["c":"", "d":" "]), [
+      "Slot 'c': String must be non-empty for 'temp::Foo.c'",
+      "Slot 'd': String must be non-empty for 'temp::MyNonEmpty'",
+    ])
+
+    // minSize
+    verifyValidate(src, ok.dup.setAll(["e":"", "f":"1"]), [
+      "Slot 'e': String size 0 < minSize 2",
+      "Slot 'f': String size 1 < minSize 2",
+    ])
+
+    // maxSize
+    verifyValidate(src, ok.dup.setAll(["e":"12345", "f":"123456"]), [
+      "Slot 'e': String size 5 > maxSize 4",
+      "Slot 'f': String size 6 > maxSize 4",
     ])
   }
 

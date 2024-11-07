@@ -138,13 +138,54 @@ const class CheckScalar
     {
       if (!Regex(pattern).matches(x))
       {
-        // report type if it has the pattern, slot otherwise
-        patternSpec := spec
-        if (spec.ctype.cmeta.get("pattern") == pattern) patternSpec = spec.ctype
-        onErr("String encoding does not match pattern for '$patternSpec'")
+        errType := errTypeForMeta(spec, "pattern", pattern)
+        onErr("String encoding does not match pattern for '$errType'")
       }
+    }
+
+    // check non-empty
+    nonEmpty := spec.cmeta.get("nonEmpty")
+    if (nonEmpty != null && x.trim.isEmpty)
+    {
+      errType := errTypeForMeta(spec, "nonEmpty", nonEmpty)
+      onErr("String must be non-empty for '$errType'")
+    }
+
+    // minSize
+    minSize := toInt(spec.cmeta.get("minSize"))
+    if (minSize != null && x.size < minSize)
+    {
+      onErr("String size $x.size < minSize $minSize")
+    }
+
+    // maxSize
+    maxSize := toInt(spec.cmeta.get("maxSize"))
+    if (maxSize != null && x.size > maxSize)
+    {
+      onErr("String size $x.size > maxSize $maxSize")
     }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  ** Coerce value to integer
+  static Int? toInt(Obj? v)
+  {
+    if (v is Int) return v
+    if (v is Number) return ((Number)v).toInt
+    return null
+  }
+
+  ** Given a meta key and value, determine if we should report error
+  ** using the slot or the type based on who defines the meta key
+  static Str errTypeForMeta(CSpec spec, Str key, Obj val)
+  {
+    if (spec.ctype.cmeta.get(key) == val)
+      return spec.ctype.qname
+    else
+      return spec.qname
+  }
 }
 
