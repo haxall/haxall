@@ -21,7 +21,12 @@ const class CheckScalar
   {
     if (x is Number) return checkNumber(spec, x, onErr)
     if (spec.ctype.isEnum) return checkEnum(spec, x, onErr)
+    if (x is Str) return checkStr(spec, x, onErr)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Number
+//////////////////////////////////////////////////////////////////////////
 
   static Void checkNumber(CSpec spec, Number x, |Str| onErr)
   {
@@ -90,6 +95,10 @@ const class CheckScalar
     unitToQuantity = acc
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Enum
+//////////////////////////////////////////////////////////////////////////
+
   static Void checkEnum(CSpec spec, Obj x, |Str| onErr)
   {
     // value must be string key or mapped by factory to Enum
@@ -113,7 +122,29 @@ const class CheckScalar
         if (q != unitQuantity) onErr("Unit '$key' must be '$q' not '$unitQuantity'")
       }
     }
-
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Str
+//////////////////////////////////////////////////////////////////////////
+
+  static Void checkStr(CSpec spec, Str x, |Str| onErr)
+  {
+    if (!spec.isScalar) return
+
+    // check regex pattern
+    pattern := spec.cmeta.get("pattern") as Str
+    if (pattern != null)
+    {
+      if (!Regex(pattern).matches(x))
+      {
+        // report type if it has the pattern, slot otherwise
+        patternSpec := spec
+        if (spec.ctype.cmeta.get("pattern") == pattern) patternSpec = spec.ctype
+        onErr("String encoding does not match pattern for '$patternSpec'")
+      }
+    }
+  }
+
 }
 

@@ -78,6 +78,31 @@ class ValidateTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Regex
+//////////////////////////////////////////////////////////////////////////
+
+  Void testRegex()
+  {
+    src :=
+    Str<|Foo: {
+           a: Str <pattern:"\\d{4}-\\d{2}-\\d{2}">
+           b: MyDate
+         }
+
+         MyDate: Scalar <pattern:"\\d{4}-\\d{2}-\\d{2}">
+         |>
+
+    // all ok
+    verifyValidate(src, ["a":"2024-11-07", "b":"1234-56-78"], [,])
+
+    // bad pattern
+    verifyValidate(src, ["a":"2024-11-7", "b":"1234_56_78"], [
+      "Slot 'a': String encoding does not match pattern for 'temp::Foo.a'",
+      "Slot 'b': String encoding does not match pattern for 'temp::MyDate'",
+    ])
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Enums
 //////////////////////////////////////////////////////////////////////////
 

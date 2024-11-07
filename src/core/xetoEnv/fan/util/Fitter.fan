@@ -84,7 +84,18 @@ internal class Fitter
     // check nominal typing
     if (valType.isa(type)) return true
 
+    // if type is a non-sys scalar, then allow string
+    if (val is Str && type.isScalar && allowStrScalar(type)) return true
+
     return explainInvalidType(type, valType)
+  }
+
+  private Bool allowStrScalar(Spec type)
+  {
+    // don't allow strings for any sys types which have Fantom types
+    if (type.lib.isSys) return false
+
+    return true
   }
 
   private Bool fitsEnum(Str val, Spec enum)
