@@ -57,8 +57,7 @@ internal class NumberFold
   }
 
   //percentile method 
-  Float? perc := null 
-  Float percentile() 
+  Float percentile(Float? perc) 
   {
     if (perc == null) {throw Err("Percentile must be a number")}
     if (perc < 0f || perc > 1f) { throw Err("Percentile must be between 0 and 1")}
@@ -79,9 +78,9 @@ internal class NumberFold
     } 
     else 
     {
-        a := array[k]
-        b := array[k + 1]
-        return (a * (1 - d) + b * d).toFloat
+      a := array[k]
+      b := array[k + 1]
+      return (a * (1 - d) + b * d).toFloat
     }
   }
 
