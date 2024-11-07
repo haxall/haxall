@@ -4,7 +4,7 @@
 //
 // History:
 //   28 Dec 2010   Brian Frank   Creation
-//
+//   7  Nov 2024   James Gessel  Added percentile func testing
 
 using haystack
 using hx
@@ -83,17 +83,30 @@ class MathTest : HxTest
 
     // Test cases for RMSE and MBE provided by PNL
 
-    //           list                       mean          median RMSE-0        RMSE-1        MBE-0          MBE-1
-    //           ----------------------     ------------  ------ ------        -------       -----          -----
-    verifyFolds("[]",                       null,         null,  null,         null,         null,          null)
-    verifyFolds("[na()]",                   NA.val,       NA.val,NA.val,       NA.val,       NA.val,        NA.val)
-    verifyFolds("[null]",                   null,         null,  null,         null,         null,          null)
-    verifyFolds("[2]",                      2f,           2f,    0f,           null,         0f,            null)
-    verifyFolds("[1, 4]",                   2.5f,         2.5f,  1.060660172f, 2.121320344f, 0f,            0f)
-    verifyFolds("[4, 2, 7]",                4.333333333f, 4f,    1.201850425f, 1.802775638f, 0.3333333333f, 0.5f)
-    verifyFolds("[4, na(), 7]",             NA.val,       NA.val,NA.val,       NA.val,       NA.val,        NA.val)
-    verifyFolds("[-3, 4, 10, 11, 6, 4]",    5.333333333f, 5f,    1.885618083f, 2.2627417f,   0.3333333333f, 0.4f)
-    verifyFolds("[-3, 4, 10, 2, 11, 6, 2]", 4.57142857f,  4f,    1.726149425f, 2.013840996f, 0.571428571f,  0.666666667f)
+    //           list                       mean          median   RMSE-0        RMSE-1        MBE-0          MBE-1
+    //           ----------------------     ------------  ------   ------        -------       -----          -----
+    verifyFolds("[]",                       null,         null,    null,         null,         null,          null)
+    verifyFolds("[na()]",                   NA.val,       NA.val,  NA.val,       NA.val,       NA.val,        NA.val)
+    verifyFolds("[null]",                   null,         null,    null,         null,         null,          null)
+    verifyFolds("[2]",                      2f,           2f,      0f,           null,         0f,            null)
+    verifyFolds("[1, 4]",                   2.5f,         2.5f,    1.060660172f, 2.121320344f, 0f,            0f)
+    verifyFolds("[4, 2, 7]",                4.333333333f, 4f,      1.201850425f, 1.802775638f, 0.3333333333f, 0.5f)
+    verifyFolds("[4, na(), 7]",             NA.val,       NA.val,  NA.val,       NA.val,       NA.val,        NA.val)
+    verifyFolds("[-3, 4, 10, 11, 6, 4]",    5.333333333f, 5f,      1.885618083f, 2.2627417f,   0.3333333333f, 0.4f)
+    verifyFolds("[-3, 4, 10, 2, 11, 6, 2]", 4.57142857f,  4f,      1.726149425f, 2.013840996f, 0.571428571f,  0.666666667f)
+    
+// ercentile folds                                percentile1  percentile5  percentile25  percentile75  percentile95  percentile99
+//                                                ----------  -----------  ------------  ------------  ------------  ------------
+verifyPercentileFolds("[]",                       null,       null,         null,         null,         null,         null)
+verifyPercentileFolds("[na()]",                   NA.val,     NA.val,       NA.val,       NA.val,       NA.val,       NA.val)
+verifyPercentileFolds("[null]",                   null,       null,         null,         null,         null,         null)
+verifyPercentileFolds("[1, 4]",                   1.03f,      1.15f,        1.75f,        3.25f,        3.85f,        3.97f)
+verifyPercentileFolds("[2]",                      2f,         2f,           2f,           2f,           2f,           2f)
+verifyPercentileFolds("[4, 2, 7]",                2.04f,      2.2f,         3f,           5.5f,         6.7f,         6.94f)
+verifyPercentileFolds("[4, na(), 7]",             NA.val,     NA.val,       NA.val,       NA.val,       NA.val,       NA.val)
+verifyPercentileFolds("[-3, 4, 10, 11, 6, 4]",    -2.65f,     -1.25f,       4f,           9f,           10.75f,       10.95f)
+verifyPercentileFolds("[-3, 4, 10, 2, 11, 6, 2]", -2.7f,     -1.5f,         2f,           8f,           10.7f,        10.94f)
+
   }
 
   Void verifyFolds(Str list, Obj? mean, Obj? median, Obj? rmse0, Obj? rmse1, Obj? mbe0, Obj? mbe1)
@@ -104,6 +117,16 @@ class MathTest : HxTest
     verifyFoldEq("${list}.fold(rootMeanSquareErr(_, _, 1))", rmse1)
     verifyFoldEq("${list}.fold(meanBiasErr)", mbe0)
     verifyFoldEq("${list}.fold(meanBiasErr(_,_,1))", mbe1)
+  }
+
+  Void verifyPercentileFolds(Str list, Obj? percentile1, Obj? percentile5, Obj? percentile25, Obj? percentile75, Obj? percentile95, Obj? percentile99)
+  {
+    verifyFoldEq("${list}.fold(percentile1)",  percentile1)
+    verifyFoldEq("${list}.fold(percentile5)",  percentile5)
+    verifyFoldEq("${list}.fold(percentile25)", percentile25)
+    verifyFoldEq("${list}.fold(percentile75)", percentile75)
+    verifyFoldEq("${list}.fold(percentile95)", percentile95)
+    verifyFoldEq("${list}.fold(percentile99)", percentile99)
   }
 
   Void verifyFoldEq(Str axon, Obj? expected)
