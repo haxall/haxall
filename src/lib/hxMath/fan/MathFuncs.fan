@@ -308,9 +308,9 @@ const class MathFuncs
   static Obj? percentile(Number perc) 
   {
     // make sure number is either 0-1 or 1-100
-    // 1 defaults to 1% and not 100% 
-    if (perc > Number(1)) {perc = perc / Number(100)}
-    if (perc > Number(1)) throw Err("Number must be between 0.0-1.0 OR 1-100")
+    // 1 defaults to 100% and not 100% 
+    if (perc >= Number(1)) {perc = perc / Number(100)}
+    if (perc >  Number(1)) throw Err("Number must be between 0.0-1.0 OR 1-100")
 
     //this needs to return an axon::Fn equivalent to percentileCalc(_,_,perc)
     axon::Fn wrapper := AxonContext.curAxon.evalToFunc("percentileCalc(_,_,${perc})")
