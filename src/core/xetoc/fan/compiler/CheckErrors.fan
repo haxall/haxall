@@ -304,7 +304,7 @@ internal class CheckErrors : Step
   {
     MChoice.check(cns, slot, x.asm) |msg|
     {
-      err(msg, x.loc)
+      errSlot(slot, msg, x.loc)
     }
   }
 

@@ -127,32 +127,38 @@ internal class Fitter
 
   private Bool? fitsSlot(Dict dict, Spec slot)
   {
-    slotType := slot.type
-
-    if (slotType.isChoice) return fitsChoice(dict, slot)
-
-    if (slotType.isQuery) return fitsQuery(dict, slot)
-
-    val := dict.get(slot.name, null)
-
-    if (val == null)
-    {
-      if (slot.isMaybe) return null
-      return explainMissingSlot(slot)
-    }
-
     push(slot)
-    fits := valFits(val, slotType)
-    if (slotType.isScalar)
+    try
     {
-      CheckScalar.check((CSpec)slot, val) |msg|
-      {
-        fits = explainScalarErr(slot, msg)
-      }
-    }
-    pop
+      slotType := slot.type
 
-    return fits
+      if (slotType.isChoice) return fitsChoice(dict, slot)
+
+      if (slotType.isQuery) return fitsQuery(dict, slot)
+
+      val := dict.get(slot.name, null)
+
+      if (val == null)
+      {
+        if (slot.isMaybe) return null
+        return explainMissingSlot(slot)
+      }
+
+      fits := valFits(val, slotType)
+      if (slotType.isScalar)
+      {
+        CheckScalar.check((CSpec)slot, val) |msg|
+        {
+          fits = explainScalarErr(slot, msg)
+        }
+      }
+
+      return fits
+    }
+    finally
+    {
+      pop
+    }
   }
 
   private Bool? fitsChoice(Dict dict, Spec slot)
@@ -287,9 +293,9 @@ internal class ExplainFitter : Fitter
   override Bool explainMissingSlot(Spec slot)
   {
     if (slot.type.isMarker)
-      return log("Missing required marker '$slot.name'")
+      return log("Missing required marker")
     else
-      return log("Missing required slot '$slot.name'")
+      return log("Missing required slot")
   }
 
   override Bool explainMissingQueryConstraint(Str ofDis, Spec constraint)

@@ -47,6 +47,37 @@ class ValidateTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Numbers
+//////////////////////////////////////////////////////////////////////////
+
+  Void testNumbers()
+  {
+    src :=
+    Str<|Foo: {
+           a: Number <minVal:Number 10, maxVal:Number 20, quantity:"length">
+           b: Number <quantity:"power">
+           c: Number <unit:"kW", maxVal:100>
+         }
+         |>
+
+    // all ok
+    verifyValidate(src, ["a":n(10, "ft"), "b":n(2, "W"), "c":n(3, "kW")], [,])
+
+    // range errors
+    verifyValidate(src, ["a":n(21, "m"), "b":n(2, "W"), "c":n(100.4f, "kW")], [
+      "Slot 'a': Number 21m > maxVal 20",
+      "Slot 'c': Number 100.4kW > maxVal 100",
+    ])
+
+    // unit errors
+    verifyValidate(src, ["a":n(20, "min"), "b":n(2, "kWh"), "c":n(3, "W")], [
+      "Slot 'a': Number must be 'length' unit; 'min' has quantity of 'time'",
+      "Slot 'b': Number must be 'power' unit; 'kWh' has quantity of 'energy'",
+      "Slot 'c': Number 3W must have unit of 'kW'",
+    ])
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Enums
 //////////////////////////////////////////////////////////////////////////
 
@@ -70,6 +101,35 @@ class ValidateTest : AbstractXetoTest
       "Slot 'c': Invalid key 'x' for enum type 'temp::Color'",
       "Slot 'p': Invalid key 'bankBranch' for enum type 'ph::PrimaryFunction'",
       "Slot 's': Invalid key 'y' for enum type 'ph::CurStatus'",
+    ])
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Choices
+//////////////////////////////////////////////////////////////////////////
+
+  Void testChoices()
+  {
+    src :=
+    Str<|Foo: Dict {
+           a: DuctSection
+           b: PipeSection?
+           c: HeatingProcess <multiChoice>
+         }
+         |>
+
+    // all ok
+    verifyValidate(src, ["discharge":m, "hotWaterHeating":m, "natualGasHeating":m], [,])
+
+    // missing required
+    verifyValidate(src, [:], [
+      "Slot 'a': Missing required choice 'ph::DuctSection'",
+      "Slot 'c': Missing required choice 'ph::HeatingProcess'",
+    ])
+
+    // conflicting
+    verifyValidate(src, ["discharge":m, "return":m, "elecHeating":m, "hotWaterHeating":m,], [
+      "Slot 'a': Conflicting choice 'ph::DuctSection': DischargeDuct, ReturnDuct",
     ])
   }
 
