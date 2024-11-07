@@ -298,16 +298,20 @@ const class MathFuncs
   ** Fold a series of numbers into a percentile *sample*:
   **
   ** 
-  ** Example:
+  ** Examples:
   **   [0,25,50,75,100].fold(percentile(75  )) => 75
   **   [0,25,50,75,100].fold(percentile(75% )) => 75
   **   [0,25,50,75,100].fold(percentile(0.75)) => 75
+  **   [0,25,50,75,100].fold(percentile(1))    => 1 // 1 is treated as 1%, not 100%
   **
   @Axon { meta = ["foldOn":"Number", "disKey":"ui::percentile"] }
   static Obj? percentile(Number perc) 
   {
+    // make sure number is either 0-1 or 1-100
+    // 1 defaults to 1% and not 100% 
     if (perc > Number(1)) {perc = perc / Number(100)}
     if (perc > Number(1)) throw Err("Number must be between 0.0-1.0 OR 1-100")
+
     //this needs to return an axon::Fn equivalent to percentileCalc(_,_,perc)
     axon::Fn wrapper := AxonContext.curAxon.evalToFunc("percentileCalc(_,_,${perc})")
     return wrapper as axon::Fn
@@ -321,11 +325,10 @@ const class MathFuncs
     if (val === NA.val || acc === NA.val) return NA.val
     fold := acc as NumberFold
     if (val === CoreLib.foldStart) return NumberFold()
-    if (val !== CoreLib.foldEnd)  return fold.add(val)
-    if (fold.isEmpty) return null
+    if (val !== CoreLib.foldEnd)   return fold.add(val)
+    if (fold.isEmpty)              return null
 
-    fold.perc = perc.toFloat
-    Number? out := Number(fold.percentile, fold.unit)
+    Number? out := Number(fold.percentile(perc.toFloat), fold.unit)
     return out 
   }
 
