@@ -92,13 +92,13 @@ const final class MChoice : SpecChoice
     if (selections.size == 0)
     {
       if (maybe(spec)) return
-      onErr("Instance missing required choice '$spec'")
+      onErr("Missing required choice '$spec.ctype'")
       return
     }
 
     // multiple choices - only valid if multiChoice
     if (multiChoice(spec)) return
-    onErr("Instance has conflicting choice '$spec': " + selections.join(", ") { it.name })
+    onErr("Conflicting choice '$spec.ctype': " + selections.join(", ") { it.name })
   }
 
   ** Return if instance has all the given marker tags of the given choice

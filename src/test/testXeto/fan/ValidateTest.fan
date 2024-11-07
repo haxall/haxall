@@ -21,7 +21,12 @@ using haystack::Ref
 @Js
 class ValidateTest : AbstractXetoTest
 {
-  Void testBasics()
+
+//////////////////////////////////////////////////////////////////////////
+// Types
+//////////////////////////////////////////////////////////////////////////
+
+  Void testTypes()
   {
     src :=
     Str<|Foo: Dict {
@@ -42,13 +47,101 @@ class ValidateTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Numbers
+//////////////////////////////////////////////////////////////////////////
+
+  Void testNumbers()
+  {
+    src :=
+    Str<|Foo: {
+           a: Number <minVal:Number 10, maxVal:Number 20, quantity:"length">
+           b: Number <quantity:"power">
+           c: Number <unit:"kW", maxVal:100>
+         }
+         |>
+
+    // all ok
+    verifyValidate(src, ["a":n(10, "ft"), "b":n(2, "W"), "c":n(3, "kW")], [,])
+
+    // range errors
+    verifyValidate(src, ["a":n(21, "m"), "b":n(2, "W"), "c":n(100.4f, "kW")], [
+      "Slot 'a': Number 21m > maxVal 20",
+      "Slot 'c': Number 100.4kW > maxVal 100",
+    ])
+
+    // unit errors
+    verifyValidate(src, ["a":n(20, "min"), "b":n(2, "kWh"), "c":n(3, "W")], [
+      "Slot 'a': Number must be 'length' unit; 'min' has quantity of 'time'",
+      "Slot 'b': Number must be 'power' unit; 'kWh' has quantity of 'energy'",
+      "Slot 'c': Number 3W must have unit of 'kW'",
+    ])
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Enums
+//////////////////////////////////////////////////////////////////////////
+
+  Void testEnums()
+  {
+    src :=
+    Str<|Foo: Dict {
+           c: Color
+           p: PrimaryFunction
+           s: CurStatus
+         }
+
+         Color: Enum { red, blue }
+         |>
+
+    // all ok
+    verifyValidate(src, ["s":"down", "p":"Bank Branch", "c":"red"], [,])
+
+    // bad keys
+    verifyValidate(src, ["c":"x", "p":"bankBranch", "s":"y"], [
+      "Slot 'c': Invalid key 'x' for enum type 'temp::Color'",
+      "Slot 'p': Invalid key 'bankBranch' for enum type 'ph::PrimaryFunction'",
+      "Slot 's': Invalid key 'y' for enum type 'ph::CurStatus'",
+    ])
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Choices
+//////////////////////////////////////////////////////////////////////////
+
+  Void testChoices()
+  {
+    src :=
+    Str<|Foo: Dict {
+           a: DuctSection
+           b: PipeSection?
+           c: HeatingProcess <multiChoice>
+         }
+         |>
+
+    // all ok
+    verifyValidate(src, ["discharge":m, "hotWaterHeating":m, "natualGasHeating":m], [,])
+
+    // missing required
+    verifyValidate(src, [:], [
+      "Slot 'a': Missing required choice 'ph::DuctSection'",
+      "Slot 'c': Missing required choice 'ph::HeatingProcess'",
+    ])
+
+    // conflicting
+    verifyValidate(src, ["discharge":m, "return":m, "elecHeating":m, "hotWaterHeating":m,], [
+      "Slot 'a': Conflicting choice 'ph::DuctSection': DischargeDuct, ReturnDuct",
+    ])
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Verify
 //////////////////////////////////////////////////////////////////////////
 
   ** Verify both compile time and fits time for spec called Foo in src
   Void verifyValidate(Str src, Str:Obj tags, Str[] expect)
   {
-    instance := Etc.makeDict(tags)
+    instance := toInstance(tags)
+    src = srcAddPragma(src)
     verifyCompileTime(src, instance, expect)
     verifyFitsTime(src, instance, expect)
   }
@@ -85,8 +178,9 @@ class ValidateTest : AbstractXetoTest
     spec := lib.spec("Foo")
     errs := XetoLogRec[,]
     opts := logOpts("explain", errs)
-    nsTest.fits(TestContext(), instance, spec, opts)
+    fits := nsTest.fits(TestContext(), instance, spec, opts)
     verifyErrs("Fits Time", errs, expect)
+    verifyEq(fits, errs.isEmpty)
   }
 
   ** Create opts with log to use for both compiler and fits
@@ -108,7 +202,7 @@ class ValidateTest : AbstractXetoTest
 
     actual.each |arec, i|
     {
-      a := arec.msg
+      a := normTempLibName(arec.msg)
       e := expect.getSafe(i) ?: "-"
       if (e.contains("\n")) e = e.splitLines[isCompileTime ? 0 : 1]
       if (a != e)
@@ -119,6 +213,25 @@ class ValidateTest : AbstractXetoTest
       verifyEq(a, e)
     }
     verifyEq(actual.size, expect.size)
+  }
+
+  ** To instance with tags sorted alphabetically
+  private Dict toInstance(Str:Obj tags)
+  {
+    names := tags.keys.sort
+    acc := Str:Obj[:] { ordered = true }
+    names.each |n| { acc[n] = tags[n] }
+    return Etc.makeDict(acc)
+  }
+
+  ** Add pragma with depends
+  private Str srcAddPragma(Str src)
+  {
+    """pragma: Lib <
+         version: "0.0.0"
+         depends: { {lib:"sys"}, {lib:"ph"} }
+       >
+       """ + src
   }
 
   ** Append @x instance to the soruce
@@ -134,7 +247,7 @@ class ValidateTest : AbstractXetoTest
   ** Namespace to use
   once LibNamespace nsTest()
   {
-    createNamespace(["sys"])
+    createNamespace(["sys", "ph"])
   }
 
   ** Verbose debug flag

@@ -120,6 +120,20 @@ class AbstractXetoTest : HaystackTest
     }
     verifyEq(names.size, 0, names.keys.toStr)
   }
+
+  static Str normTempLibName(Str str)
+  {
+    prefix := "\"temp"
+    s := str.index(prefix) ?: str.index(prefix = "'temp")
+    if (s == null) return str
+
+    e := s+5
+    while (str[e].isDigit) e++
+
+    name := str[s..<e]
+    return str.replace(name, prefix)
+  }
+
 }
 
 **************************************************************************

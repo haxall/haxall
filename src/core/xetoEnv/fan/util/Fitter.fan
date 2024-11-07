@@ -127,25 +127,38 @@ internal class Fitter
 
   private Bool? fitsSlot(Dict dict, Spec slot)
   {
-    slotType := slot.type
-
-    if (slotType.isChoice) return fitsChoice(dict, slot)
-
-    if (slotType.isQuery) return fitsQuery(dict, slot)
-
-    val := dict.get(slot.name, null)
-
-    if (val == null)
-    {
-      if (slot.isMaybe) return null
-      return explainMissingSlot(slot)
-    }
-
     push(slot)
-    valFits(val, slotType)
-    pop
+    try
+    {
+      slotType := slot.type
 
-    return true
+      if (slotType.isChoice) return fitsChoice(dict, slot)
+
+      if (slotType.isQuery) return fitsQuery(dict, slot)
+
+      val := dict.get(slot.name, null)
+
+      if (val == null)
+      {
+        if (slot.isMaybe) return null
+        return explainMissingSlot(slot)
+      }
+
+      fits := valFits(val, slotType)
+      if (slotType.isScalar)
+      {
+        CheckScalar.check((CSpec)slot, val) |msg|
+        {
+          fits = explainScalarErr(slot, msg)
+        }
+      }
+
+      return fits
+    }
+    finally
+    {
+      pop
+    }
   }
 
   private Bool? fitsChoice(Dict dict, Spec slot)
@@ -234,6 +247,8 @@ internal class Fitter
 
   virtual Bool explainAmbiguousQueryConstraint(Str ofDis, Spec constraint, Dict[] matches) { false }
 
+  virtual Bool explainScalarErr(Spec slot, Str msg) { false }
+
   virtual Bool explainChoiceErr(Spec slot, Str msg) { false }
 
 //////////////////////////////////////////////////////////////////////////
@@ -278,9 +293,9 @@ internal class ExplainFitter : Fitter
   override Bool explainMissingSlot(Spec slot)
   {
     if (slot.type.isMarker)
-      return log("Missing required marker '$slot.name'")
+      return log("Missing required marker")
     else
-      return log("Missing required slot '$slot.name'")
+      return log("Missing required slot")
   }
 
   override Bool explainMissingQueryConstraint(Str ofDis, Spec constraint)
@@ -291,6 +306,11 @@ internal class ExplainFitter : Fitter
   override Bool explainAmbiguousQueryConstraint(Str ofDis, Spec constraint, Dict[] matches)
   {
     log("Ambiguous match for $ofDis: " + constraintToDis(constraint) + " [" + recsToDis(matches) + "]")
+  }
+
+  override Bool explainScalarErr(Spec slot, Str msg)
+  {
+    log(msg)
   }
 
   override Bool explainChoiceErr(Spec slot, Str msg)

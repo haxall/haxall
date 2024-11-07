@@ -252,7 +252,7 @@ internal class CheckErrors : Step
     spec := slot ?: x.ctype
     CheckScalar.check(spec, x.asm) |msg|
     {
-      err(msg, x.loc)
+      errSlot(slot, msg, x.loc)
     }
   }
 
@@ -304,7 +304,7 @@ internal class CheckErrors : Step
   {
     MChoice.check(cns, slot, x.asm) |msg|
     {
-      err(msg, x.loc)
+      errSlot(slot, msg, x.loc)
     }
   }
 

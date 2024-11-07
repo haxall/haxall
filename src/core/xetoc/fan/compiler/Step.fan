@@ -52,7 +52,7 @@ abstract internal class Step
 
   XetoCompilerErr err(Str msg, FileLoc loc, Err? err := null) { compiler.err(msg, loc, err) }
 
-  XetoCompilerErr errSlot(CSpec slot, Str msg, FileLoc loc, Err? err := null) { compiler.errSlot(slot, msg, loc, err) }
+  XetoCompilerErr errSlot(CSpec? slot, Str msg, FileLoc loc, Err? err := null) { compiler.errSlot(slot, msg, loc, err) }
 
   XetoCompilerErr err2(Str msg, FileLoc loc1, FileLoc loc2, Err? err := null) { compiler.err2(msg, loc1, loc2, err) }
 

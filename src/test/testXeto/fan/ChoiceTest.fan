@@ -122,7 +122,7 @@ class ChoiceTest : AbstractXetoTest
       {
         verifyErr(Err#) { c.selections(instance) }
         verifyErr(Err#) { c.selection(instance) }
-        verifyValidate(ns, spec, instance, ["Instance missing required choice '$spec.qname'"])
+        verifyValidate(ns, spec, instance, ["Slot '$spec.name': Missing required choice '$spec.type'"])
       }
     }
 
@@ -141,7 +141,7 @@ class ChoiceTest : AbstractXetoTest
         verifyErr(Err#) { c.selections(instance) }
         verifyErr(Err#) { c.selection(instance) }
         names := actual.join(", ") { it.name }
-        verifyValidate(ns, spec, instance, ["Instance has conflicting choice '$spec.qname': $names"])
+        verifyValidate(ns, spec, instance, ["Slot '$spec.name': Conflicting choice '$spec.type': $names"])
       }
     }
   }

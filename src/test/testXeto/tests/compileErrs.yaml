@@ -200,20 +200,20 @@ compileLib: |
   @err1e: Foo { e:"ft" }
 
 verifyErrs: |
-  Number 21m > maxVal 20
-  Number 0ft < minVal 10
-  Number must be 'length' unit; no unit specified
-  Number must be 'length' unit; '_count' has no quantity
-  Number must be 'length' unit; 'kW' has quantity of 'power'
-  Number -21kW < minVal -20kW
-  Number -9kW > maxVal -10kW
-  Number -15W has invalid unit, minVal requires 'kW'
-  Number 12 has invalid unit, maxVal requires 'kW'
-  Number 12% has invalid unit, maxVal requires 'kW'
-  Number 3 must have unit of 'kWh'
-  Number 3% must have unit of 'kWh'
-  Number 3Wh must have unit of 'kWh'
-  Unit 'ft' must be 'power' not 'length'
+  Slot 'a': Number 21m > maxVal 20
+  Slot 'a': Number 0ft < minVal 10
+  Slot 'a': Number must be 'length' unit; no unit specified
+  Slot 'a': Number must be 'length' unit; '_count' has no quantity
+  Slot 'a': Number must be 'length' unit; 'kW' has quantity of 'power'
+  Slot 'b': Number -21kW < minVal -20kW
+  Slot 'b': Number -9kW > maxVal -10kW
+  Slot 'b': Number -15W has invalid unit, minVal requires 'kW'
+  Slot 'c': Number 12 has invalid unit, maxVal requires 'kW'
+  Slot 'c': Number 12% has invalid unit, maxVal requires 'kW'
+  Slot 'd': Number 3 must have unit of 'kWh'
+  Slot 'd': Number 3% must have unit of 'kWh'
+  Slot 'd': Number 3Wh must have unit of 'kWh'
+  Slot 'e': Unit 'ft' must be 'power' not 'length'
 ---
 name: "enumInherit"
 compileLib: |
@@ -253,9 +253,9 @@ compileLib: |
   @e: Car { color:"blue", st: "TX", ok }
 verifyErrs: |
   Invalid key 'bad1' for enum type 'temp::Color'
-  Invalid key 'bad2' for enum type 'temp::Color'
+  Slot 'color': Invalid key 'bad2' for enum type 'temp::Color'
   Invalid key 'tx' for enum type 'temp::State'
-  Invalid key 'va' for enum type 'temp::State'
+  Slot 'st': Invalid key 'va' for enum type 'temp::State'
 ---
 name: "choiceChecks"
 compileLib: |
@@ -279,7 +279,7 @@ compileLib: |
   @b: Car {red}
   @c: Car {red,blue}
 verifyErrs: |
-  Instance missing required choice 'temp::Car.color'
-  Instance has conflicting choice 'temp::Car.color': Red, Blue
+  Slot 'color': Missing required choice 'temp::Color'
+  Slot 'color': Conflicting choice 'temp::Color': Red, Blue
 ---
 
