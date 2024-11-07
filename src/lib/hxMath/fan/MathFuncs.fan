@@ -297,50 +297,37 @@ const class MathFuncs
   **
   ** Fold a series of numbers into a percentile *sample*:
   **
+  ** 
   ** Example:
-  **   [1,3,4,7,9].fold(percentile75)
+  **   [0,25,50,75,100].fold(percentile(75  )) => 75
+  **   [0,25,50,75,100].fold(percentile(75% )) => 75
+  **   [0,25,50,75,100].fold(percentile(0.75)) => 75
   **
+  @Axon { meta = ["foldOn":"Number", "disKey":"ui::percentile"] }
+  static Obj? percentile(Number perc) 
+  {
+    if (perc > Number(1)) {perc = perc / Number(100)}
+    if (perc > Number(1)) throw Err("Number must be between 0.0-1.0 OR 1-100")
+    //this needs to return an axon::Fn equivalent to percentileCalc(_,_,perc)
+    axon::Fn wrapper := AxonContext.curAxon.evalToFunc("percentileCalc(_,_,${perc})")
+    return wrapper as axon::Fn
+  }
 
-  static Obj? percentile(Obj? val, Obj? acc, Str perc) {
+  //the above func is a wrapper which takes a number percent and calls
+  //this which does the calcs
+  @NoDoc @Axon
+  static Obj? percentileCalc(Obj? val, Obj? acc, Number perc) 
+  {
     if (val === NA.val || acc === NA.val) return NA.val
     fold := acc as NumberFold
     if (val === CoreLib.foldStart) return NumberFold()
     if (val !== CoreLib.foldEnd)  return fold.add(val)
     if (fold.isEmpty) return null
 
-    Number? out := null 
-    if (perc=="1")  out = Number(fold.percentile1,  fold.unit)
-    if (perc=="5")  out = Number(fold.percentile5,  fold.unit)
-    if (perc=="25") out = Number(fold.percentile25, fold.unit)
-    if (perc=="75") out = Number(fold.percentile75, fold.unit)
-    if (perc=="95") out = Number(fold.percentile95, fold.unit)
-    if (perc=="99") out = Number(fold.percentile99, fold.unit)
-    if (out==null) throw Err("Must be 1,5,25,75,95,99")
+    fold.perc = perc.toFloat
+    Number? out := Number(fold.percentile, fold.unit)
     return out 
   }
-
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::percentile1"] }
-  static Obj? percentile1(Obj? val, Obj? acc) { percentile(val, acc, "1") } 
-
-
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::percentile5"] }
-  static Obj? percentile5(Obj? val, Obj? acc) { percentile(val, acc, "5") } 
-
-
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::percentile25"] }
-  static Obj? percentile25(Obj? val, Obj? acc) { percentile(val, acc, "25") } 
-
-
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::percentile75"] }
-  static Obj? percentile75(Obj? val, Obj? acc) { percentile(val, acc, "75") } 
-
-
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::percentile95"] }
-  static Obj? percentile95(Obj? val, Obj? acc) { percentile(val, acc, "95") } 
-
-
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::percentile99"] }
-  static Obj? percentile99(Obj? val, Obj? acc) { percentile(val, acc, "99") } 
 
 //////////////////////////////////////////////////////////////////////////
 // Matrix
