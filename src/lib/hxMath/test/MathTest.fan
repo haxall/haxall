@@ -121,12 +121,12 @@ verifyPercentileFolds("[-3, 4, 10, 2, 11, 6, 2]", -2.7f,     -1.5f,         2f, 
 
   Void verifyPercentileFolds(Str list, Obj? percentile1, Obj? percentile5, Obj? percentile25, Obj? percentile75, Obj? percentile95, Obj? percentile99)
   {
-    verifyFoldEq("${list}.fold(percentile1)",  percentile1)
-    verifyFoldEq("${list}.fold(percentile5)",  percentile5)
-    verifyFoldEq("${list}.fold(percentile25)", percentile25)
-    verifyFoldEq("${list}.fold(percentile75)", percentile75)
-    verifyFoldEq("${list}.fold(percentile95)", percentile95)
-    verifyFoldEq("${list}.fold(percentile99)", percentile99)
+    verifyFoldEq("${list}.fold(percentile(${Number(0.01f)}) )",  percentile1)
+    verifyFoldEq("${list}.fold(percentile(${Number(5.0f)}) )",   percentile5 )
+    verifyFoldEq("${list}.fold(percentile(${Number(0.25f)}) )",  percentile25 )
+    verifyFoldEq("${list}.fold(percentile(${Number(0.75f)}) )",  percentile75 )
+    verifyFoldEq("${list}.fold(percentile(95%) )",               percentile95 )
+    verifyFoldEq("${list}.fold(percentile(${Number(0.99f)}) )",  percentile99 )
   }
 
   Void verifyFoldEq(Str axon, Obj? expected)
