@@ -232,6 +232,7 @@ class ValidateTest : AbstractXetoTest
            c: Ref<of:Bar>
            d: MultiRef<of:Bar>
            e: MultiRef?<of:Bar>
+           equipRef: Ref?<of:Equip>
          }
 
          Bar: Dict {}
@@ -239,21 +240,26 @@ class ValidateTest : AbstractXetoTest
          @to-foo-1: Foo {}
          @to-bar-1: Bar {}
          @to-bar-2: Bar {}
+         @to-eq-1: AcElecMeter {}
          |>
 
     refFoo  := Ref("to-foo-1")
     refBar  := Ref("to-bar-1")
     refBar2 := Ref("to-bar-2")
     refBars := [refBar, refBar2]
-    refErr1  := Ref("to-err-1")
-    refErr2  := Ref("to-err-2")
-    refErr3  := Ref("to-err-3")
-    refErr4  := Ref("to-err-4")
-    refErr5  := Ref("to-err-5")
+    refEq1  := Ref("to-eq-1")
+    refEqX  := Ref("to-eq-x")
+    refErr1 := Ref("to-err-1")
+    refErr2 := Ref("to-err-2")
+    refErr3 := Ref("to-err-3")
+    refErr4 := Ref("to-err-4")
+    refErr5 := Ref("to-err-5")
 
     recs[refFoo]  = Etc.makeDict(["id":refFoo,  "spec":Ref("temp::Foo")])
     recs[refBar]  = Etc.makeDict(["id":refBar,  "spec":Ref("temp::Bar")])
     recs[refBar2] = Etc.makeDict(["id":refBar2, "spec":Ref("temp::Bar")])
+    recs[refEq1]  = Etc.makeDict(["id":refEq1,  "spec":Ref("ph::AcElecMeter")])
+    recs[refEqX]  = Etc.makeDict(["id":refEq1,  "spec":Ref("bad.lib::BadSpec")])
 
     // all ok
     ok := Str:Obj["a":refFoo, "c":refBar, "d":refBar]
@@ -285,10 +291,15 @@ class ValidateTest : AbstractXetoTest
     ])
 
     // invalid target types
-    verifyValidate(src, ["a":refFoo, "b":refFoo, "c":refFoo, "d":[refBar2, refFoo], "e":refFoo], [
+    verifyValidate(src, ["a":refFoo, "b":refFoo, "c":refFoo, "d":[refBar2, refFoo], "e":refFoo, "equipRef":refEq1], [
       "Slot 'c': Ref target must be 'temp::Bar', target is 'temp::Foo'",
       "Slot 'd': Ref target must be 'temp::Bar', target is 'temp::Foo'",
       "Slot 'e': Ref target must be 'temp::Bar', target is 'temp::Foo'",
+    ])
+
+    // target type not found (only in fitter)
+    verifyFitsTime(srcAddPragma(src), toInstance(ok.dup.set("equipRef", refEqX)), [
+      "Slot 'equipRef': Ref target spec not found: 'bad.lib::BadSpec'",
     ])
   }
 
@@ -357,6 +368,7 @@ class ValidateTest : AbstractXetoTest
     cx.recs = recs.map |d->Dict|
     {
       specRef := d->spec.toStr
+      if (!specRef.contains("temp")) return d
       specName := XetoUtil.qnameToName(specRef)
       return Etc.dictSet(d, "spec", Ref("$lib.name::$specName"))
     }

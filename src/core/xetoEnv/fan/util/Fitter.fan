@@ -312,10 +312,14 @@ internal class Fitter
       // short circuit if qnames match exactly (useful for testing too)
       if (targetSpecRef.id == of.qname) return true
 
-// TODO: resolve target to check inheritance
+      // resolve target spec (allow testing code to fall thru to next check)
+      targetSpec := ns.spec(targetSpecRef.id, false)
+      if (targetSpec == null && !targetSpecRef.id.startsWith("temp"))
+        return explainValErr(spec, "Ref target spec not found: '$targetSpecRef'")
 
-      // target error
-      return explainValErr(spec, "Ref target must be '$of.qname', target is '$targetSpecRef'")
+      // check target type
+      if (targetSpec == null || !targetSpec.isa(of))
+        return explainValErr(spec, "Ref target must be '$of.qname', target is '$targetSpecRef'")
     }
 
     return true
