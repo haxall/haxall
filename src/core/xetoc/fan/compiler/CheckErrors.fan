@@ -86,21 +86,27 @@ internal class CheckErrors : Step
   Void checkCompoundType(ASpec x)
   {
     CSpec? dict := null
+    CSpec? list := null
     CSpec? scalar := null
 
     x.cofs.each |of|
     {
       // keep track of flags
       if (of.isDict)   dict = of
+      if (of.isList)   list = of
       if (of.isScalar) scalar = of
 
       // check standard inheritance rules
       checkCanInheritFrom(x, of, x.loc)
     }
 
-    // check invalid combinations
-    if (dict != null && scalar != null)
-      err("Compound type cannot inherit from scalar '$scalar.name' and dict '$dict.name'", x.loc)
+    // check invalid AND combinations
+    if (x.isAnd)
+    {
+      if (scalar != null && dict != null) err("Cannot And scalar '$scalar.name' and dict '$dict.name'", x.loc)
+      if (scalar != null && list != null) err("Cannot And scalar '$scalar.name' and list '$list.name'", x.loc)
+      if (dict != null && list != null)   err("Cannot And dict '$dict.name' and list '$list.name'", x.loc)
+    }
   }
 
   Void checkCanInheritFrom(ASpec x, CSpec base, FileLoc loc)
@@ -154,6 +160,10 @@ internal class CheckErrors : Step
       else
         err("Slot '$slot.name' type '$slotType' conflicts inherited slot '$base.qname' of type '$baseType'", slot.loc)
     }
+
+    // lists cannot have slots
+    if (slot.parent.isList)
+      err("List specs cannot define slots", slot.loc)
 
     // choices can have only markers
     if (slot.parent.isChoice && !slot.ctype.isMarker)
@@ -310,7 +320,11 @@ internal class CheckErrors : Step
     {
       errSlot(slot, msg, x.loc)
     }
+
+    named := x.map.any |v, n| { !XetoUtil.isAutoName(n) }
+    if (named) errSlot(slot, "List cannot contain named items", x.loc)
   }
+
 
   Void checkDictSlot(ADict x, CSpec slot)
   {

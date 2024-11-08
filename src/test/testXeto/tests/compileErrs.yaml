@@ -122,11 +122,14 @@ compileLib: |
   E: Uri & Scalar
   F: Scalar & Enum2
   G: MyScalar & MyDict
-  H: MyScalar | MyDict
+  H: MyScalar | Dict
+  I: MyScalar & List
+  J: MyList & MyDict
 
   /* helper types */
   MyScalar: Scalar
   MyDict: Dict
+  MyList: List<of:Str>
   Enum1: Enum { a, b }
   Enum2: Enum { a, b }
 verifyErrs: |
@@ -136,8 +139,9 @@ verifyErrs: |
   Cannot inherit from Enum type 'Enum1'
   Cannot inherit from sealed type 'Uri'
   Cannot inherit from Enum type 'Enum2'
-  Compound type cannot inherit from scalar 'MyScalar' and dict 'MyDict'
-  Compound type cannot inherit from scalar 'MyScalar' and dict 'MyDict'
+  Cannot And scalar 'MyScalar' and dict 'MyDict'
+  Cannot And scalar 'MyScalar' and list 'List'
+  Cannot And dict 'MyDict' and list 'MyList'
 ---
 name: "wrongInheritType"
 compileLib: |
@@ -231,6 +235,23 @@ verifyErrs: |
   Slot 'd': Number 3% must have unit of 'kWh'
   Slot 'd': Number 3Wh must have unit of 'kWh'
   Slot 'e': Unit 'ft' must be 'power' not 'length'
+---
+name: "listChecks"
+compileLib: |
+  A: List {
+    a: Str
+  }
+  B: A & Scalar
+  C: Foo & A
+  Foo: Dict
+  @x: Dict {
+    list: List { a:"x" }
+  }
+verifyErrs: |
+  List specs cannot define slots
+  Cannot And scalar 'Scalar' and list 'A'
+  Cannot And dict 'Foo' and list 'A'
+  List cannot contain named items
 ---
 name: "enumInherit"
 compileLib: |
