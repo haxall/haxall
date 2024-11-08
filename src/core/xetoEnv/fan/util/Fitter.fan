@@ -105,10 +105,11 @@ internal class Fitter
 
   private Bool allowStrScalar(Spec type)
   {
-    // don't allow strings for any sys types which have Fantom types except unit
+    // don't allow strings for any sys types that have fantom types
     if (type.lib.isSys)
     {
-      if (type.name == "Unit") return true
+      // although we have Unit/TimeZone, in Haystack we just use Str
+      if (type.name == "Unit" || type.name == "TimeZone") return true
       return false
     }
 

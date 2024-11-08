@@ -52,8 +52,8 @@ internal class CheckErrors : Step
   Void checkTop(ASpec x)
   {
     checkTopName(x)
-    checkSpec(x)
     checkTypeInherit(x)
+    checkSpec(x)
   }
 
   Void checkTopName(ASpec x)
@@ -71,27 +71,56 @@ internal class CheckErrors : Step
     if (x.base == null) return // Obj
     base := x.cbase
 
-    // enums are effectively sealed even in same lib
-    if (base.isEnum)
-      return err("Cannot inherit from Enum type '$base.name'", x.loc)
-
-    // cannot subtype from sealed types in external libs
-    // Note: we allow this in cases like <of:Ref<of:Site>>
-    if (base.cmeta.has("sealed") && !base.isAst && !x.parsedSyntheticRef)
-      return err("Cannot inherit from sealed type '$base.name'", x.loc)
+    // check inheritance from base
+    checkCanInheritFrom(x, base, x.loc)
 
     // cannot subtype from And/Or without using & or |
     if ((x.isAnd || x.isOr) && !x.parsedCompound)
       return err("Cannot directly inherit from compound type '$base.name'", x.loc)
+
+    // check compount types
+    if (x.parsedCompound)
+      checkCompoundType(x)
   }
+
+  Void checkCompoundType(ASpec x)
+  {
+    CSpec? dict := null
+    CSpec? scalar := null
+
+    x.cofs.each |of|
+    {
+      // keep track of flags
+      if (of.isDict)   dict = of
+      if (of.isScalar) scalar = of
+
+      // check standard inheritance rules
+      checkCanInheritFrom(x, of, x.loc)
+    }
+
+    // check invalid combinations
+    if (dict != null && scalar != null)
+      err("Compound type cannot inherit from scalar '$scalar.name' and dict '$dict.name'", x.loc)
+  }
+
+  Void checkCanInheritFrom(ASpec x, CSpec base, FileLoc loc)
+  {
+    // enums are effectively sealed even in same lib
+    if (base.isEnum)
+      return err("Cannot inherit from Enum type '$base.name'", loc)
+
+    // cannot subtype from sealed types in external libs
+    // Note: we allow this in cases like <of:Ref<of:Site>>
+    if (base.cmeta.has("sealed") && !base.isAst && !x.parsedSyntheticRef)
+      return err("Cannot inherit from sealed type '$base.name'", loc)
+  }
+
 
   Void checkSpec(ASpec x)
   {
-    checkMeta(x)
-    if (x.isQuery)
-      checkQuery(x)
-    else
-      checkSlots(x)
+    checkSpecMeta(x)
+    if (x.isQuery) return checkSpecQuery(x)
+    checkSlots(x)
   }
 
   Void checkSlots(ASpec x)
@@ -154,7 +183,7 @@ internal class CheckErrors : Step
     }
   }
 
-  Void checkMeta(ASpec x)
+  Void checkSpecMeta(ASpec x)
   {
     if (x.meta == null) return
 
@@ -166,7 +195,7 @@ internal class CheckErrors : Step
     checkDict(x.meta, null)
   }
 
-  Void checkQuery(ASpec x)
+  Void checkSpecQuery(ASpec x)
   {
   }
 

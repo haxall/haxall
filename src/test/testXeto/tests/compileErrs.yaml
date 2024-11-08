@@ -114,13 +114,30 @@ verifyErrs: |
 ---
 name: "checkTypeInherit"
 compileLib: |
+  /* test cases */
   A: Str
   B: And
   C: sys::Or
+  D: Enum1
+  E: Uri & Scalar
+  F: Scalar & Enum2
+  G: MyScalar & MyDict
+  H: MyScalar | MyDict
+
+  /* helper types */
+  MyScalar: Scalar
+  MyDict: Dict
+  Enum1: Enum { a, b }
+  Enum2: Enum { a, b }
 verifyErrs: |
   Cannot inherit from sealed type 'Str'
   Cannot directly inherit from compound type 'And'
   Cannot directly inherit from compound type 'Or'
+  Cannot inherit from Enum type 'Enum1'
+  Cannot inherit from sealed type 'Uri'
+  Cannot inherit from Enum type 'Enum2'
+  Compound type cannot inherit from scalar 'MyScalar' and dict 'MyDict'
+  Compound type cannot inherit from scalar 'MyScalar' and dict 'MyDict'
 ---
 name: "wrongInheritType"
 compileLib: |
