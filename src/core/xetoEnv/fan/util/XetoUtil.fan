@@ -425,6 +425,7 @@ const class XetoUtil
       if (slot.isQuery) return
       if (slot.isFunc) return
       if (slot.type === ns.sys.ref && slot.name != "enum") return // fill-in siteRef, equipRef, etc
+      if (slot.name == "enum") return acc.setNotNull("enum", instantiateEnumDefault(slot))
       acc[slot.name] = instantiate(ns, slot, opts)
     }
 
@@ -446,6 +447,14 @@ const class XetoUtil
       return instantiateGraph(ns, spec, opts, dict)
     else
       return dict
+  }
+
+  private static Obj? instantiateEnumDefault(XetoSpec slot)
+  {
+    val := slot.get("val")
+    if (val is Ref) return val
+    if (val is Str && !val.toStr.isEmpty) return val
+    return null
   }
 
   private static Obj instantiateScalar(MNamespace ns, XetoSpec spec, Dict meta)

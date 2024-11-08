@@ -156,5 +156,36 @@ class EnumTest : AbstractXetoTest
     verifyEnumFlags(x)
     verifyDictEq(x.meta, meta)
   }
+
+  Void testPhPoints()
+  {
+    ns := createNamespace(["ph.points"])
+
+    /*
+    WeatherCondPoint : WeatherPoint & EnumPoint {
+      weatherCond
+      enum: Obj? <def:WeatherCondEnum>
+    }
+
+    OccupiedPoint : BoolPoint <abstract> {
+      occupied
+      enum: Obj? <val:OccupiedEnum>
+    }
+
+    OccupiedEnum : Enum { unoccupied, occupied }
+    */
+
+    cond := ns.spec("ph::WeatherCondEnum")
+    condSlot := ns.spec("ph.points::WeatherCondPoint.enum")
+    condVal := condSlot.meta.get("val")
+    // echo("-- $condSlot | $condVal [$condVal.typeof]")
+    verifyEq(condVal, cond._id)
+
+    occ := ns.spec("ph.points::OccupiedEnum")
+    occSlot := ns.spec("ph.points::OccupiedPoint.enum")
+    occVal := occSlot.meta.get("val")
+    // echo("-- $occSlot | $occVal [$occVal.typeof]")
+    verifyEq(occVal, occ._id)
+  }
 }
 
