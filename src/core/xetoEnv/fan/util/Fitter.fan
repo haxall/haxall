@@ -303,6 +303,21 @@ internal class Fitter
     if (target == null)
       return explainValErr(spec, "Unresolved ref @$ref.id")
 
+    if (of != null)
+    {
+      targetSpecRef := target["spec"] as Ref
+      if (targetSpecRef == null)
+        return explainValErr(spec, "Ref target missing spec tag: @$ref.id")
+
+      // short circuit if qnames match exactly (useful for testing too)
+      if (targetSpecRef.id == of.qname) return true
+
+// TODO: resolve target to check inheritance
+
+      // target error
+      return explainValErr(spec, "Ref target must be '$of.qname', target is '$targetSpecRef'")
+    }
+
     return true
   }
 

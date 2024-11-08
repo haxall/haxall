@@ -304,6 +304,8 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Obj? cslotsWhile(|CSpec, Str->Obj?| f) { m.slots.map.eachWhile(f) }
 
+  override final XetoSpec? cof()  { of(false) }
+
   override final XetoSpec[]? cofs()  { ofs(false) }
 
   override final Type fantomType() { m.fantomType }

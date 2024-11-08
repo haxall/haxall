@@ -319,6 +319,15 @@ internal class ASpec : ANode, CSpec
     XetoUtil.isa(this, that)
   }
 
+  ** Extract 'of' type ref from AST model
+  override once CSpec? cof()
+  {
+    if (meta == null) return null
+    x := meta.get("of") as ASpecRef
+    if (x == null) return null
+    return x.deref
+  }
+
   ** Extract 'ofs' list of type refs from AST model
   override once CSpec[]? cofs()
   {

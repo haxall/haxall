@@ -74,6 +74,7 @@ internal class RSpec : CSpec, NameDictReader
   override Obj? cslotsWhile(|CSpec, Str->Obj?| f) { slots.eachWhile |s| { f((CSpec)s, s.name) } }
   override CSpec? cenum(Str key, Bool checked := true) { throw UnsupportedErr() }
   override Bool cisa(CSpec x) { XetoUtil.isa(this, x) }
+  override CSpec? cof
   override CSpec[]? cofs
   override Str toStr() { name }
   override MSpecArgs args := MSpecArgs.nil  // TODO

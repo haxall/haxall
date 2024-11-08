@@ -343,6 +343,9 @@ internal class CheckErrors : Step
       valType := val.ctype
       if (!valTypeFits(slot.ctype, valType, val.asm))
         errSlot(slot, "Slot type is '$slot.ctype', value type is '$valType'", x.loc)
+
+      if (slot.isRef || slot.isMultiRef)
+        checkRefTarget(slot, val)
     }
   }
 
@@ -362,6 +365,26 @@ internal class CheckErrors : Step
     }
 
     return false
+  }
+
+  Void checkRefTarget(CSpec slot, AData val)
+  {
+    of := slot.cof
+    if (of == null) return true
+
+    if (val is ADataRef)
+    {
+      instance := ((ADataRef)val).deref
+      if (!instance.ctype.cisa(of))
+        errSlot(slot, "Ref target must be '$of.qname', target is '$instance.ctype'", val.loc)
+      return
+    }
+
+    if (val is ADict)
+    {
+      ((ADict)val).each |item| { checkRefTarget(slot, item) }
+      return
+    }
   }
 
   Void checkSpecRef(ASpecRef x)

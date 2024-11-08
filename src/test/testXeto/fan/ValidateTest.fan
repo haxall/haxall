@@ -251,9 +251,9 @@ class ValidateTest : AbstractXetoTest
     refErr4  := Ref("to-err-4")
     refErr5  := Ref("to-err-5")
 
-    recs[refFoo]  = Etc.makeDict(["id":refFoo,  "spec":"Foo"])
-    recs[refBar]  = Etc.makeDict(["id":refBar,  "spec":"Bar"])
-    recs[refBar2] = Etc.makeDict(["id":refBar2, "spec":"Bar"])
+    recs[refFoo]  = Etc.makeDict(["id":refFoo,  "spec":Ref("temp::Foo")])
+    recs[refBar]  = Etc.makeDict(["id":refBar,  "spec":Ref("temp::Bar")])
+    recs[refBar2] = Etc.makeDict(["id":refBar2, "spec":Ref("temp::Bar")])
 
     // all ok
     ok := Str:Obj["a":refFoo, "c":refBar, "d":refBar]
@@ -261,7 +261,7 @@ class ValidateTest : AbstractXetoTest
     verifyValidate(src, ok.dup.setAll(["d":refBars]), [,])
 
     // invalid multiref types
-    verifyValidate(src, ok.dup.setAll(["d":n(123), "e":[n(123)]]), [
+    verifyValidate(src, ok.dup.setAll(["d":n(123), "e":[n(123)], "u":refFoo]), [
       "Slot 'd': Slot type is 'sys::MultiRef', value type is 'sys::Number'",
       "Slot 'e': Slot type is 'sys::MultiRef', value type is 'sys::List'",
     ])
@@ -282,6 +282,13 @@ class ValidateTest : AbstractXetoTest
 
       "Unresolved instance: to-err-5
        Slot 'u': Unresolved ref @to-err-5",
+    ])
+
+    // invalid target types
+    verifyValidate(src, ["a":refFoo, "b":refFoo, "c":refFoo, "d":[refBar2, refFoo], "e":refFoo], [
+      "Slot 'c': Ref target must be 'temp::Bar', target is 'temp::Foo'",
+      "Slot 'd': Ref target must be 'temp::Bar', target is 'temp::Foo'",
+      "Slot 'e': Ref target must be 'temp::Bar', target is 'temp::Foo'",
     ])
   }
 
@@ -347,7 +354,12 @@ class ValidateTest : AbstractXetoTest
   TestContext initContext(Lib lib)
   {
     cx := TestContext()
-    cx.recs = recs
+    cx.recs = recs.map |d->Dict|
+    {
+      specRef := d->spec.toStr
+      specName := XetoUtil.qnameToName(specRef)
+      return Etc.dictSet(d, "spec", Ref("$lib.name::$specName"))
+    }
     return cx
   }
 
