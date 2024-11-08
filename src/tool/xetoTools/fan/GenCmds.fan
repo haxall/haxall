@@ -19,24 +19,44 @@ internal abstract class AbstractGenCmd : XetoCmd
   abstract File outDir()
 
   ** Write given file under phDir
-  Void write(Uri file, |OutStream| cb)
+  Void write(Uri uri, |OutStream| cb)
   {
-    info("write [$file]")
-    f := outDir + file
-    out := f.out
-    try
+    buf := StrBuf()
+    out := buf.out
+    out.printLine("//")
+    out.printLine("// Copyright (c) 2011-2024, Project-Haystack")
+    out.printLine("// Licensed under the Academic Free License version 3.0")
+    out.printLine("// Auto-generated $ts")
+    out.printLine("//")
+    out.printLine
+    cb(out)
+    contents := buf.toStr
+
+    // check if file has changed
+    file := outDir + uri
+    if (isFileChanged(file, contents))
     {
-      out.printLine("//")
-      out.printLine("// Copyright (c) 2011-2024, Project-Haystack")
-      out.printLine("// Licensed under the Academic Free License version 3.0")
-      out.printLine("// Auto-generated $ts")
-      out.printLine("//")
-      out.printLine
-      cb(out)
+      info("write [$file.osPath]")
+      file.out.print(contents).close
     }
-    finally out.close
+    else
+    {
+      info(" skip [$file.osPath]")
+    }
   }
 
+  static Bool isFileChanged(File file, Str newContents)
+  {
+    if (!file.exists) return true
+    oldContents := file.readAllStr
+    tsLine := 3
+    newLines := newContents.trim.splitLines
+    oldLines := oldContents.trim.splitLines
+    if (!newLines[tsLine].contains("Auto-generated")) throw Err()
+    newLines.removeRange(0..tsLine)
+    oldLines.removeRange(0..tsLine)
+    return newLines != oldLines
+  }
 
   ** Write doc comment
   Void writeDoc(OutStream out, Def def)
