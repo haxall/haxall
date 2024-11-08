@@ -159,7 +159,16 @@ internal class GenPH : AbstractGenCmd
     {
       return toEnumTypeName(tag)
     }
+    if (tag.name.endsWith("Ref") && multiRefs.contains(tag.name))
+    {
+      return "MultiRef"
+    }
     return ns.defToKind(tag).name
+  }
+
+  private once Str[] multiRefs()
+  {
+    ["systemRef"].toImmutable
   }
 
   private Str toEnumTypeName(Def tag)

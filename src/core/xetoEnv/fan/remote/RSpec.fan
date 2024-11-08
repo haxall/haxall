@@ -84,6 +84,8 @@ internal class RSpec : CSpec, NameDictReader
   override Int flags
   override Bool isScalar()    { hasFlag(MSpecFlags.scalar) }
   override Bool isMarker()    { hasFlag(MSpecFlags.marker) }
+  override Bool isRef()       { hasFlag(MSpecFlags.ref) }
+  override Bool isMultiRef()  { hasFlag(MSpecFlags.multiRef) }
   override Bool isChoice()    { hasFlag(MSpecFlags.choice) }
   override Bool isDict()      { hasFlag(MSpecFlags.dict) }
   override Bool isList()      { hasFlag(MSpecFlags.list) }

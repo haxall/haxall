@@ -224,6 +224,8 @@ internal class InheritSlots : Step
       {
         case "Marker":    flags = flags.or(MSpecFlags.marker)
         case "Scalar":    flags = flags.or(MSpecFlags.scalar)
+        case "Ref":       flags = flags.or(MSpecFlags.ref)
+        case "MultiRef":  flags = flags.or(MSpecFlags.multiRef)
         case "Choice":    flags = flags.or(MSpecFlags.choice)
         case "Dict":      flags = flags.or(MSpecFlags.dict)
         case "List":      flags = flags.or(MSpecFlags.list)

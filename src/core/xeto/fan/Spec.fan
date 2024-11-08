@@ -129,6 +129,12 @@ const mixin Spec : Dict
   ** Inherits from 'sys::Marker' without considering And/Or
   @NoDoc abstract Bool isMarker()
 
+  ** Inherits from 'sys::Ref' without considering And/Or
+  @NoDoc abstract Bool isRef()
+
+  ** Inherits from 'sys::MultiRef' without considering And/Or
+  @NoDoc abstract Bool isMultiRef()
+
   ** Inherits from 'sys::Dict' without considering And/Or
   @NoDoc abstract Bool isDict()
 

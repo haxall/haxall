@@ -197,6 +197,15 @@ class SpecTest : AbstractXetoTest
     verifyIsa(ns, "sys::Scalar", "sys::Scalar", true)
     verifyIsa(ns, "sys::Scalar", "sys::Str",    false)
 
+    verifyIsa(ns, "sys::Marker", "sys::Scalar", true)
+
+    verifyIsa(ns, "sys::Ref", "sys::Scalar", true)
+    verifyIsa(ns, "sys::Ref", "sys::Ref", true)
+
+    verifyIsa(ns, "sys::MultiRef", "sys::Obj", true)
+    verifyIsa(ns, "sys::MultiRef", "sys::Ref", false)
+    verifyIsa(ns, "sys::MultiRef", "sys::MultiRef", true)
+
     verifyIsa(ns, "sys::Str", "sys::Obj",    true)
     verifyIsa(ns, "sys::Str", "sys::Scalar", true)
     verifyIsa(ns, "sys::Str", "sys::Str",    true)
@@ -357,7 +366,7 @@ class SpecTest : AbstractXetoTest
 
     equipSlots := [
       "id:Ref", "equip:Marker",
-      "equipRef:Ref?", "siteRef:Ref", "spaceRef:Ref?", "systemRef:Ref?",
+      "equipRef:Ref?", "siteRef:Ref", "spaceRef:Ref?", "systemRef:MultiRef?",
       "parentEquips:Query", "childEquips:Query", "points:Query"]
     meterSlots       := equipSlots.dup.addAll(["meter:Marker", "meterScope:MeterScope?", "submeterOf:Ref?"])
     elecMeterSlots   := meterSlots.dup.add("elec:Marker")
@@ -374,7 +383,7 @@ class SpecTest : AbstractXetoTest
       "equipRef:Ref", "his:Marker?", "kind:Kind",
       "maxVal:Number?", "minVal:Number?",
       "pointFunction:PointFunction?", "pointQuantity:PointQuantity?", "pointSubject:PointSubject?",
-      "siteRef:Ref", "spaceRef:Ref?", "systemRef:Ref?",
+      "siteRef:Ref", "spaceRef:Ref?", "systemRef:MultiRef?",
       "tz:TimeZone?", "unit:Unit?", "writable:Marker?",
       "equips:Query"]
     numPtSlots := ptSlots.dup.set(ptSlots.findIndex { it == "unit:Unit?"}, "unit:Unit")

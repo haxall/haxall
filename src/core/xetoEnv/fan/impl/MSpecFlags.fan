@@ -14,13 +14,15 @@ const class MSpecFlags
   static const Int maybe       := 0x0001
   static const Int marker      := 0x0002
   static const Int scalar      := 0x0004
-  static const Int choice      := 0x0008
-  static const Int dict        := 0x0010
-  static const Int list        := 0x0020
-  static const Int query       := 0x0040
-  static const Int func        := 0x0080
-  static const Int interface   := 0x0100
-  static const Int comp        := 0x0200
+  static const Int ref         := 0x0008
+  static const Int multiRef    := 0x0010
+  static const Int choice      := 0x0020
+  static const Int dict        := 0x0040
+  static const Int list        := 0x0080
+  static const Int query       := 0x0100
+  static const Int func        := 0x0200
+  static const Int interface   := 0x0400
+  static const Int comp        := 0x0800
   static const Int inheritMask := 0xFFFF
 
   // non-inherited flags

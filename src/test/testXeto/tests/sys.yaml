@@ -108,7 +108,7 @@ verifyType:
   name: "Ref"
   base: "sys::Scalar"
   meta:
-    doc: "sys::Str Reference to another dict."
+    doc: "sys::Str Reference to another dict.  The 'of' meta defines target type"
     pattern: "sys::Str [a-zA-Z\\d\\._~]*"
     sealed: "sys::Marker"
     val: "sys::Ref x"

@@ -57,6 +57,7 @@ class NamespaceTest : AbstractXetoTest
     str    := verifyLibType(ns, sys, "Str",      scalar, "")
     uri    := verifyLibType(ns, sys, "Uri",      scalar, ``)
     ref    := verifyLibType(ns, sys, "Ref",      scalar, ref("x"))
+    mref   := verifyLibType(ns, sys, "MultiRef", obj)
     time   := verifyLibType(ns, sys, "Time",     scalar, Time.defVal)
     date   := verifyLibType(ns, sys, "Date",     scalar, Date.defVal)
     dt     := verifyLibType(ns, sys, "DateTime", scalar, DateTime.defVal)
@@ -67,7 +68,7 @@ class NamespaceTest : AbstractXetoTest
     lib    := verifyLibType(ns, sys, "Lib",      dict)
     org    := verifyLibType(ns, sys, "LibOrg",   dict)
     and    := verifyLibType(ns, sys, "And",      obj)
-    or     := verifyLibType(ns, sys, "Or",      obj)
+    or     := verifyLibType(ns, sys, "Or",       obj)
 
     // types
     verifyEq(sys.types.isEmpty, false)
@@ -88,7 +89,7 @@ class NamespaceTest : AbstractXetoTest
     specOf := verifySlot(ns, spec, "of", ref)
     verifyEq(specOf.qname, "sys::Spec.of")
     verifySame(specOf.parent, spec)
-    verifyEq(specOf["doc"], "Item type for parameterized Seq, Query, and Ref specs")
+    verifyEq(specOf["doc"], "Item type for parameterized Seq/Query; target type for Ref/MultiRef")
     verifyEq(specOf["maybe"], m)
     verifyEq(specOf["of"], Ref("sys::Spec"))
     verifySame(specOf.of, spec)
@@ -132,6 +133,9 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(or.isAnd, false)
     verifyEq(or.isOr, false)
     verifyEq(marker.isMarker, true)
+    verifyEq(ref.isRef, true)
+    verifyEq(mref.isRef, false)
+    verifyEq(mref.isMultiRef, true)
 
     // files
     verifyEq(sys.files.isSupported, !ns.isRemote)

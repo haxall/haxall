@@ -266,21 +266,23 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final CSpec? cenum(Str key, Bool checked := true) { m.enum.spec(key, checked) as CSpec }
 
-  override final Bool isNone()    { m.hasFlag(MSpecFlags.none) }
-  override final Bool isSelf()    { m.hasFlag(MSpecFlags.self) }
-  override final Bool isMaybe()   { m.hasFlag(MSpecFlags.maybe) }
-  override final Bool isScalar()  { m.hasFlag(MSpecFlags.scalar) }
-  override final Bool isMarker()  { m.hasFlag(MSpecFlags.marker) }
-  override final Bool isChoice()  { m.hasFlag(MSpecFlags.choice) }
-  override final Bool isDict()    { m.hasFlag(MSpecFlags.dict) }
-  override final Bool isList()    { m.hasFlag(MSpecFlags.list) }
-  override final Bool isQuery()   { m.hasFlag(MSpecFlags.query) }
-  override final Bool isFunc()    { m.hasFlag(MSpecFlags.func) }
+  override final Bool isNone()      { m.hasFlag(MSpecFlags.none) }
+  override final Bool isSelf()      { m.hasFlag(MSpecFlags.self) }
+  override final Bool isMaybe()     { m.hasFlag(MSpecFlags.maybe) }
+  override final Bool isScalar()    { m.hasFlag(MSpecFlags.scalar) }
+  override final Bool isMarker()    { m.hasFlag(MSpecFlags.marker) }
+  override final Bool isRef()       { m.hasFlag(MSpecFlags.ref) }
+  override final Bool isMultiRef()  { m.hasFlag(MSpecFlags.multiRef) }
+  override final Bool isChoice()    { m.hasFlag(MSpecFlags.choice) }
+  override final Bool isDict()      { m.hasFlag(MSpecFlags.dict) }
+  override final Bool isList()      { m.hasFlag(MSpecFlags.list) }
+  override final Bool isQuery()     { m.hasFlag(MSpecFlags.query) }
+  override final Bool isFunc()      { m.hasFlag(MSpecFlags.func) }
   override final Bool isInterface() { m.hasFlag(MSpecFlags.interface) }
-  override final Bool isComp()    { m.hasFlag(MSpecFlags.comp) }
-  override final Bool isEnum()    { m.hasFlag(MSpecFlags.enum) }
-  override final Bool isAnd()     { m.hasFlag(MSpecFlags.and) }
-  override final Bool isOr()      { m.hasFlag(MSpecFlags.or) }
+  override final Bool isComp()      { m.hasFlag(MSpecFlags.comp) }
+  override final Bool isEnum()      { m.hasFlag(MSpecFlags.enum) }
+  override final Bool isAnd()       { m.hasFlag(MSpecFlags.and) }
+  override final Bool isOr()        { m.hasFlag(MSpecFlags.or) }
 
   override final Bool isAst() { false }
 

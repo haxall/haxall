@@ -110,6 +110,12 @@ mixin CSpec : CNode
   ** Inherits from 'sys::Marker' without considering And/Or
   abstract Bool isMarker()
 
+  ** Inherits from 'sys::Ref' without considering And/Or
+  abstract Bool isRef()
+
+  ** Inherits from 'sys::MultiRef' without considering And/Or
+  abstract Bool isMultiRef()
+
   ** Inherits from 'sys::Choice' without considering And/Or
   abstract Bool isChoice()
 
