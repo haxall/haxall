@@ -116,7 +116,7 @@ internal class Fitter
     if (type.lib.isSys)
     {
       // although we have Unit/TimeZone, in Haystack we just use Str
-      if (type.name == "Unit" || type.name == "TimeZone") return true
+      if (type.name == "Unit" || type.name == "TimeZone" || type.name == "Filter") return true
       return false
     }
 
