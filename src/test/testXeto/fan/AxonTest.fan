@@ -425,7 +425,7 @@ class AxonTest : AbstractAxonTest
   {
     ns := initNamespace(["ph"])
 
-    site := addRec(["id":Ref("site"), "site":m])
+    site := addRec(["id":Ref("site"), "spec":Ref("ph::Site"), "site":m])
     ahu := addRec(["id":Ref("ahu"), "dis":"AHU", "ahu":m, "equip":m, "siteRef":site.id])
     rtu := addRec(["id":Ref("rtu"), "dis":"RTU", "ahu":m, "rtu":m, "equip":m, "siteRef":site.id])
     meter := addRec(["id":Ref("meter"), "dis":"Meter", "ahu":m, "meter":m, "equip":m, "siteRef":site.id])
@@ -454,15 +454,15 @@ class AxonTest : AbstractAxonTest
   {
     ns := initNamespace(["ph"])
 
-    site := addRec(["id":Ref("site"), "site":m])
+    site := addRec(["id":Ref("site"), "spec":Ref("ph::Site"), "site":m])
 
-    ahu       := addRec(["id":Ref("ahu"), "dis":"AHU", "ahu":m, "equip":m, "siteRef":site.id])
-      mode    := addRec(["id":Ref("mode"), "dis":"Mode", "hvacMode":m, "kind":"Str","point":m, "equipRef":ahu.id, "siteRef":site.id])
-      dduct   := addRec(["id":Ref("dduct"), "dis":"Discharge Duct", "discharge":m, "duct":m, "equip":m, "equipRef":ahu.id, "siteRef":site.id])
-        dtemp := addRec(["id":Ref("dtemp"), "dis":"Discharge Temp", "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":dduct.id, "siteRef":site.id])
-        dflow := addRec(["id":Ref("dflow"), "dis":"Discharge Flow", "discharge":m, "flow":m, "kind":"Number", "point":m, "equipRef":dduct.id, "siteRef":site.id])
-        dfan  := addRec(["id":Ref("dfan"), "dis":"Discharge Fan", "discharge":m, "fan":m, "equip":m, "equipRef":dduct.id, "siteRef":site.id])
-         drun := addRec(["id":Ref("drun"), "dis":"Discharge Fan Run", "discharge":m, "fan":m, "run":m, "kind":"Bool", "point":m, "equipRef":dfan.id, "siteRef":site.id])
+    ahu       := addRec(["id":Ref("ahu"),   "dis":"AHU", "spec":Ref("ph::Ahu"), "ahu":m, "equip":m, "siteRef":site.id])
+      mode    := addRec(["id":Ref("mode"),  "dis":"Mode",             "spec":Ref("ph::Point"), "hvacMode":m, "kind":"Str","point":m, "equipRef":ahu.id, "siteRef":site.id])
+      dduct   := addRec(["id":Ref("dduct"), "dis":"Discharge Duct",   "spec":Ref("ph::Point"), "discharge":m, "duct":m, "equip":m, "equipRef":ahu.id, "siteRef":site.id])
+        dtemp := addRec(["id":Ref("dtemp"), "dis":"Discharge Temp",   "spec":Ref("ph::Point"), "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":dduct.id, "siteRef":site.id])
+        dflow := addRec(["id":Ref("dflow"), "dis":"Discharge Flow",   "spec":Ref("ph::Point"), "discharge":m, "flow":m, "kind":"Number", "point":m, "equipRef":dduct.id, "siteRef":site.id])
+        dfan  := addRec(["id":Ref("dfan"),  "dis":"Discharge Fan",    "spec":Ref("ph::Point"), "discharge":m, "fan":m, "equip":m, "equipRef":dduct.id, "siteRef":site.id])
+         drun := addRec(["id":Ref("drun"),  "dis":"Discharge Fan Run","spec":Ref("ph::Point"), "discharge":m, "fan":m, "run":m, "kind":"Bool", "point":m, "equipRef":dfan.id, "siteRef":site.id])
 
     // Point.equips
     verifyQuery(mode,  "ph::Point.equips", [ahu])
@@ -540,8 +540,9 @@ class AxonTest : AbstractAxonTest
   {
     // no options
     expr := "queryAll($rec.id.toCode, spec($query.toCode))"
-    // echo("-- $expr")
+echo("-- $expr")
     Grid actual := eval(expr)
+actual.dump
     origActual := actual
     x := actual.sortDis.mapToList { it.dis }.join(",")
     y := Etc.sortDictsByDis(expect).join(",") { it.dis }

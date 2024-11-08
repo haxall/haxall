@@ -199,7 +199,9 @@ internal class Fitter
 
   private Bool checkNonSlotVal(Spec spec, Str name, Obj val)
   {
-    if (val is Ref && name != "id") return doCheckRefTarget(spec, null, val)
+    if (val is Ref && name != "id" && name != "spec")
+      return doCheckRefTarget(spec, null, val)
+
     return true
   }
 
