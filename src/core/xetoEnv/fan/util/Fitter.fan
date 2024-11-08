@@ -80,7 +80,7 @@ internal class Fitter
       return fitsStruct(val, spec)
 
     // check that type matches
-    if (!valTypeFits(spec.type, valType))
+    if (!valTypeFits(spec.type, valType, val))
       return explainInvalidType(spec.type, valType)
 
     // check value against spec meta
@@ -92,13 +92,20 @@ internal class Fitter
     return fits
   }
 
-  private Bool valTypeFits(Spec type, Spec valType)
+  private Bool valTypeFits(Spec type, Spec valType, Obj val)
   {
     // check if fits by nominal typing
     if (valType.isa(type)) return true
 
     // if type is a non-sys scalar, then allow string
     if (type.isScalar && valType.qname == "sys::Str" && allowStrScalar(type)) return true
+
+    // MultiRef may be either Ref or Ref[]
+    if (type.isMultiRef)
+    {
+      if (val is Ref) return true
+      if (val is List) return ((List)val).all |x| { x is Ref }
+    }
 
     return false
   }

@@ -499,7 +499,7 @@ class Printer
       xeto(v, true).nl
     }
     indentation--
-    bracket("}")
+    indent.bracket("}")
     return this
   }
 

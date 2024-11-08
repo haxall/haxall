@@ -324,13 +324,30 @@ internal class CheckErrors : Step
       return
     }
 
-    valType := val.ctype
-    if (!valType.cisa(slot.ctype) && !x.isMeta)
+    if (!x.isMeta)
     {
-      // TODO
-      if (valType.qname != "sys::Str")
+      valType := val.ctype
+      if (!valTypeFits(slot.ctype, valType, val.asm))
         errSlot(slot, "Slot type is '$slot.ctype', value type is '$valType'", x.loc)
     }
+  }
+
+  Bool valTypeFits(CSpec type, CSpec valType, Obj val)
+  {
+    // check if fits by nominal typing
+    if (valType.cisa(type)) return true
+
+    // TODO
+    if (valType.qname == "sys::Str") return true
+
+    // MultiRef may be either Ref or Ref[]
+    if (type.isMultiRef)
+    {
+      if (val is Ref) return true
+      if (val is List) return ((List)val).all |x| { x is Ref }
+    }
+
+    return false
   }
 
   Void checkSpecRef(ASpecRef x)

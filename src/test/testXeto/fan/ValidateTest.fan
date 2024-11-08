@@ -32,17 +32,20 @@ class ValidateTest : AbstractXetoTest
     Str<|Foo: Dict {
            num: Number
            str: Str
+           ref: Ref
          }|>
 
     // all ok
-    verifyValidate(src, ["num":n(123), "str":"hi"], [,])
+    verifyValidate(src, ["num":n(123), "str":"hi", "ref":Ref("x")], [,])
 
     // invalid types
-    verifyValidate(src, ["num":"bad", "str":n(123)], [
+    verifyValidate(src, ["num":"bad", "str":n(123), "ref":n(123)], [
         "Invalid 'sys::Number' string value: \"bad\"
          Slot 'num': Slot type is 'sys::Number', value type is 'sys::Str'",
 
         "Slot 'str': Slot type is 'sys::Str', value type is 'sys::Number'",
+
+        "Slot 'ref': Slot type is 'sys::Ref', value type is 'sys::Number'",
       ])
   }
 
@@ -215,6 +218,47 @@ class ValidateTest : AbstractXetoTest
     // conflicting
     verifyValidate(src, ["discharge":m, "return":m, "elecHeating":m, "hotWaterHeating":m,], [
       "Slot 'a': Conflicting choice 'ph::DuctSection': DischargeDuct, ReturnDuct",
+    ])
+  }
+
+
+//////////////////////////////////////////////////////////////////////////
+// Refs
+//////////////////////////////////////////////////////////////////////////
+
+  Void testRefs()
+  {
+    src :=
+    Str<|Foo: Dict {
+           a: Ref
+           b: Ref?
+           c: Ref<of:Bar>
+           d: MultiRef<of:Bar>
+           e: MultiRef?<of:Bar>
+         }
+
+         Bar: Dict {}
+
+         @to-foo-1: Foo {}
+         @to-bar-1: Bar {}
+         @to-bar-2: Bar {}
+         |>
+
+    refFoo  := Ref("to-foo-1")
+    refBar  := Ref("to-bar-1")
+    refBar2 := Ref("to-bar-2")
+    refBars := [refBar, refBar2]
+    refErr  := Ref("to-err")
+
+    // all ok
+    ok := Str:Obj["a":refFoo, "c":refBar, "d":refBar]
+    verifyValidate(src, ok, [,])
+    verifyValidate(src, ok.dup.setAll(["d":refBars]), [,])
+
+    // invalid multiref types
+    verifyValidate(src, ok.dup.setAll(["d":n(123), "e":[n(123)]]), [
+      "Slot 'd': Slot type is 'sys::MultiRef', value type is 'sys::Number'",
+      "Slot 'e': Slot type is 'sys::MultiRef', value type is 'sys::List'",
     ])
   }
 
