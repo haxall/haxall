@@ -71,6 +71,7 @@ const final class MChoice : SpecChoice
     // find all the matches first
     ns.eachSubtype(spec.ctype) |x|
     {
+      if (!x.isChoice) return
       if (!x.hasSlots) return
       if (xhasChoiceMarkers(instance, x)) acc.add(x)
     }

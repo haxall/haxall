@@ -65,6 +65,13 @@ class ChoiceTest : AbstractXetoTest
      expect   := Spec[redd]
      all.each |spec| { verifySelections(ns, spec, instance, expect) }
 
+     // select - one match with non-choice marker
+     all      = [color, slotA, slotB, slotC, slotD, slotE]
+     instance = ["red":m, "plusDict":m]
+     expect   = Spec[red]
+     all.each |spec| { verifySelections(ns, spec, instance, expect) }
+
+
      // select - zero matches
      instance = [:]
      expect = Spec[,]
@@ -74,6 +81,20 @@ class ChoiceTest : AbstractXetoTest
      instance = ["red":m, "light":m, "dark":m]
      expect = Spec[redd, redl]
      all.each |spec| { verifySelections(ns, spec, instance, expect) }
+
+     // verify compound types are not choices in my test case
+     choice  := ns.spec("sys::Choice")
+     redPlus := ns.spec("hx.test.xeto::RedPlus")
+     verifyEq(redPlus.isa(choice), true)
+     verifyEq(redPlus.isChoice, false)
+
+     // verify compound types are not choices in ph.points
+     sensor  := ns.spec("ph::Sensor")
+     ats     := ns.spec("ph.points::AirTempSensor")
+     verifyEq(ats.isa(choice), true)
+     verifyEq(ats.isa(sensor), true)
+     verifyEq(sensor.isChoice, true)
+     verifyEq(ats.isChoice, false)
   }
 
   Void verifyIsChoice(Spec spec, Bool expect)

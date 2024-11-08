@@ -14,7 +14,7 @@ DarkRed: Red { dark }
 
 Blue: Color { blue }
 LightBlue: Blue { dark }
-DarkBlue: Blue { dark}
+DarkBlue: Blue { dark }
 
 CarA: {
   color: Color
@@ -35,4 +35,9 @@ CarD: {
 CarE: CarD {
   color: Color <foo>  // inherits from CarD.color
 }
+
+// not color choice
+RedPlus: PlusDict & Red
+
+PlusDict: { plusDict }
 
