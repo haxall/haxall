@@ -143,9 +143,10 @@ class AbstractXetoTest : HaystackTest
 @Js
 class TestContext : XetoContext
 {
-  override Dict? xetoReadById(Obj id) { null }
+  override Dict? xetoReadById(Obj id) { recs.get(id) }
   override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
   override Bool xetoIsSpec(Str spec, Dict rec) { false }
+  Ref:Dict recs := [:]
 }
 
 **************************************************************************

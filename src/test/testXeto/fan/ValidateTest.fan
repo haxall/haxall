@@ -32,11 +32,10 @@ class ValidateTest : AbstractXetoTest
     Str<|Foo: Dict {
            num: Number
            str: Str
-           ref: Ref
          }|>
 
     // all ok
-    verifyValidate(src, ["num":n(123), "str":"hi", "ref":Ref("x")], [,])
+    verifyValidate(src, ["num":n(123), "str":"hi"], [,])
 
     // invalid types
     verifyValidate(src, ["num":"bad", "str":n(123), "ref":n(123)], [
@@ -44,8 +43,6 @@ class ValidateTest : AbstractXetoTest
          Slot 'num': Slot type is 'sys::Number', value type is 'sys::Str'",
 
         "Slot 'str': Slot type is 'sys::Str', value type is 'sys::Number'",
-
-        "Slot 'ref': Slot type is 'sys::Ref', value type is 'sys::Number'",
       ])
   }
 
@@ -248,7 +245,15 @@ class ValidateTest : AbstractXetoTest
     refBar  := Ref("to-bar-1")
     refBar2 := Ref("to-bar-2")
     refBars := [refBar, refBar2]
-    refErr  := Ref("to-err")
+    refErr1  := Ref("to-err-1")
+    refErr2  := Ref("to-err-2")
+    refErr3  := Ref("to-err-3")
+    refErr4  := Ref("to-err-4")
+    refErr5  := Ref("to-err-5")
+
+    recs[refFoo]  = Etc.makeDict(["id":refFoo,  "spec":"Foo"])
+    recs[refBar]  = Etc.makeDict(["id":refBar,  "spec":"Bar"])
+    recs[refBar2] = Etc.makeDict(["id":refBar2, "spec":"Bar"])
 
     // all ok
     ok := Str:Obj["a":refFoo, "c":refBar, "d":refBar]
@@ -259,6 +264,24 @@ class ValidateTest : AbstractXetoTest
     verifyValidate(src, ok.dup.setAll(["d":n(123), "e":[n(123)]]), [
       "Slot 'd': Slot type is 'sys::MultiRef', value type is 'sys::Number'",
       "Slot 'e': Slot type is 'sys::MultiRef', value type is 'sys::List'",
+    ])
+
+    // unresolved refs (in compiler this happens in Resolve step)
+    verifyValidate(src, ["a":refErr1, "b":refErr2, "c":refErr3, "d":[refBar2, refErr4, refBar], "u":refErr5], [
+      "Unresolved instance: to-err-1
+       Slot 'a': Unresolved ref @to-err-1",
+
+      "Unresolved instance: to-err-2
+       Slot 'b': Unresolved ref @to-err-2",
+
+      "Unresolved instance: to-err-3
+       Slot 'c': Unresolved ref @to-err-3",
+
+      "Unresolved instance: to-err-4
+       Slot 'd': Unresolved ref @to-err-4",
+
+      "Unresolved instance: to-err-5
+       Slot 'u': Unresolved ref @to-err-5",
     ])
   }
 
@@ -307,7 +330,8 @@ class ValidateTest : AbstractXetoTest
     spec := lib.spec("Foo")
     errs := XetoLogRec[,]
     opts := logOpts("explain", errs)
-    fits := nsTest.fits(TestContext(), instance, spec, opts)
+    cx   := initContext(lib)
+    fits := nsTest.fits(cx, instance, spec, opts)
     verifyErrs("Fits Time", errs, expect)
     verifyEq(fits, errs.isEmpty)
   }
@@ -317,6 +341,14 @@ class ValidateTest : AbstractXetoTest
   {
     logger := |XetoLogRec rec| { acc.add(rec) }
     return Etc.dict1(key, Unsafe(logger))
+  }
+
+  ** Create opts with log to use for both compiler and fits
+  TestContext initContext(Lib lib)
+  {
+    cx := TestContext()
+    cx.recs = recs
+    return cx
   }
 
   ** Verify actual errors from compiler/fits against expected results
@@ -381,5 +413,9 @@ class ValidateTest : AbstractXetoTest
 
   ** Verbose debug flag
   Bool isDebug  := true
+
+  ** TestContext recs for target resolution
+  Ref:Dict recs := [:]
+
 }
 

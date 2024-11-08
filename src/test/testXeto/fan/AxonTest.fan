@@ -340,13 +340,21 @@ class AxonTest : AbstractAxonTest
     verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor}, DischargeAirTempSensor)|>, false)
     verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point}, DischargeAirTempSensor)|>, false)
     verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point, kind:"Number", unit:"°F"}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point, kind:"Number", unit:"°F", equipRef:@y, siteRef:@z}, DischargeAirTempSensor)|>, true)
+    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point, kind:"Number", unit:"°F", equipRef:@y, siteRef:@z}, DischargeAirTempSensor)|>, false)
+    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point, kind:"Number", unit:"°F", equipRef:@y, siteRef:@z}, DischargeAirTempSensor, {ignoreRefs})|>, true)
   }
 
   Void verifyFits(Str expr, Bool expect)
   {
     // echo("-- $expr => $expect")
-    verifyEval(expr, expect)
+    res := eval(expr)
+    if (res != expect)
+    {
+      echo("FAIL: $expr")
+      grid := (Grid)eval(expr.replace("fits(", "fitsExplain("))
+      grid.dump
+    }
+    verifyEq(res, expect)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -369,7 +377,7 @@ class AxonTest : AbstractAxonTest
       "Slot 'site': Missing required marker"
       ])
 
-    verifyFitsExplain(Str<|fitsExplain({id:@x, ahu, equip, siteRef:@s}, Ahu)|>, [,])
+    verifyFitsExplain(Str<|fitsExplain({id:@x, ahu, equip, siteRef:@s}, Ahu, {ignoreRefs})|>, [,])
     verifyFitsExplain(Str<|fitsExplain({id:@x}, Ahu)|>, [
       "Slot 'equip': Missing required marker",
       "Slot 'siteRef': Missing required slot",

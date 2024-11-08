@@ -506,6 +506,7 @@ const class XetoFuncs
   **
   ** Options:
   **   - 'graph': marker to also check graph of references such as required points
+  **   - 'ignoreRefs': marker to not validate if refs exist or match target spec
   **
   ** Examples:
   **    fits("foo", Str)               >>  true

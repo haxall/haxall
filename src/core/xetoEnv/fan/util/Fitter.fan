@@ -27,6 +27,7 @@ internal class Fitter
     this.failFast = failFast
     this.opts = opts
     this.isGraph = opts.has("graph")
+    this.ignoreRefs = opts.has("ignoreRefs")
     this.cx = cx
   }
 
@@ -89,7 +90,15 @@ internal class Fitter
     {
       fits = explainValErr(spec, msg)
     }
-    return fits
+    if (!fits) return false
+
+    // ref targets
+    if (spec.isRef || spec.isMultiRef || val is Ref)
+    {
+      if (!checkRefTarget(spec, val)) return false
+    }
+
+    return true
   }
 
   private Bool valTypeFits(Spec type, Spec valType, Obj val)
@@ -140,6 +149,20 @@ internal class Fitter
       if (failFast && matchFail) return false
     }
 
+    // check values that don't have slot defs
+    dict.each |v, n|
+    {
+      // if there is a slot we already checked it above
+      if (slots.has(n)) return
+
+      // check value
+      push(n)
+      try
+        if (!checkNonSlotVal(type, n, v)) matchFail = true
+      finally
+        pop
+    }
+
     // must have no fails
     if (matchFail) return false
 
@@ -149,7 +172,7 @@ internal class Fitter
 
   private Bool? fitsSlot(Dict dict, Spec slot)
   {
-    push(slot)
+    push(slot.name)
     try
     {
       slotType := slot.type
@@ -172,6 +195,12 @@ internal class Fitter
     {
       pop
     }
+  }
+
+  private Bool checkNonSlotVal(Spec spec, Str name, Obj val)
+  {
+    if (val is Ref && name != "id") return doCheckRefTarget(spec, null, val)
+    return true
   }
 
   private Bool? fitsChoice(Dict dict, Spec slot)
@@ -230,6 +259,53 @@ internal class Fitter
     return explainAmbiguousQueryConstraint(ofDis, constraint, matches)
   }
 
+  private Bool checkRefTarget(Spec spec, Obj val)
+  {
+    // don't check if ignoreRefs option specified
+    if (ignoreRefs) return true
+
+    // don't do this for id
+    if (spec.name == "id") return true
+
+    // expected target type
+    of := spec.of(false)
+
+    // Ref value
+    if (val is Ref) return doCheckRefTarget(spec, of, val)
+
+    // List of Refs value
+    if (val is List)
+    {
+      result := true
+      ((List)val).each |x|
+      {
+        ref := x as Ref
+        if (ref == null)
+        {
+          explainValErr(spec, "Expect Ref in List<of:Ref>: $x [$x.typeof]")
+          result = false
+        }
+        else
+        {
+          xok := doCheckRefTarget(spec, of, ref)
+          if (!xok) result = false
+        }
+      }
+      return result
+    }
+
+    return explainValErr(spec, "Expecting Ref or List<of:Ref>: $val [$val.typeof]")
+  }
+
+  private Bool doCheckRefTarget(Spec spec, Spec? of, Ref ref)
+  {
+    target := cx.xetoReadById(ref)
+    if (target == null)
+      return explainValErr(spec, "Unresolved ref @$ref.id")
+
+    return true
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Slots
 //////////////////////////////////////////////////////////////////////////
@@ -241,7 +317,7 @@ internal class Fitter
   Str? slotName() { slotStack.peek }
 
   ** Push slot onto the stack
-  Void push(Spec slot) { slotStack.push(slot.name) }
+  Void push(Str slotName) { slotStack.push(slotName) }
 
   ** Pop slot from stack
   Void pop() { slotStack.pop }
@@ -272,6 +348,7 @@ internal class Fitter
   private const Bool failFast
   private const Dict opts
   private const Bool isGraph
+  private const Bool ignoreRefs
   private XetoContext cx
   private Str[] slotStack := [,]
 }
