@@ -31,3 +31,22 @@
   dict: Dict { x: Int "4" }
 }
 
+// List instance checks
+
+TestEquipRefList: List<of:Ref<of:Equip>>
+
+/* TODO
+DictWithEquipRefs: {
+  testEquipRefs: TestEquipRefList
+}
+
+@eq-1: Ahu {}
+@eq-2: AcElecMeter {}
+@instance-with-equipRefs: DictWithEquipRefs {
+  testEquipRefs: TestEquipRefList {
+    @eq-1
+    @eq-2
+  }
+}
+*/
+

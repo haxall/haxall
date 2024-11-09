@@ -316,12 +316,31 @@ internal class CheckErrors : Step
   {
     spec := slot ?: x.ctype
     list := (Obj?[])x.asm
+
+    // check spec meta notEmpty, minSize, maxSize
     CheckVal.checkList(spec, list) |msg|
     {
       errSlot(slot, msg, x.loc)
     }
 
-    named := x.map.any |v, n| { !XetoUtil.isAutoName(n) }
+    // determine if we need to check item type against of
+    of := spec.cof
+    if (spec.name == "ofs") of = null
+    if (spec.isMultiRef)  of = null
+    while (of != null && XetoUtil.isAutoName(of.name))
+      of = of?.cbase
+
+    // walk thru each item and check auto-name and pptionally item type
+    named := false
+    x.map.each |v, n|
+    {
+      if (!XetoUtil.isAutoName(n)) named = true
+      if (of != null && !v.ctype.cisa(of))
+      {
+        if (v.ctype.qname != "sys::Str") // TODO we should have coerced strings
+          errSlot(slot, "List item type is '$of', item type is '$v.ctype'", v.loc)
+      }
+    }
     if (named) errSlot(slot, "List cannot contain named items", x.loc)
   }
 

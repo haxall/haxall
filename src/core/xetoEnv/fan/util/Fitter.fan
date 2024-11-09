@@ -76,9 +76,13 @@ internal class Fitter
     if (valType == null)
       return explainNoType(val)
 
-    // check structurally typing
+    // check dict using structural typing
     if (val is Dict && spec.isa(ns.sys.dict))
       return fitsStruct(val, spec)
+
+    // check list using structural typing
+    if (val is List && spec.isa(ns.sys.list))
+      return fitsList(val, spec)
 
     // check that type matches
     if (!valTypeFits(spec.type, valType, val))
@@ -195,6 +199,41 @@ internal class Fitter
     {
       pop
     }
+  }
+
+  private Bool fitsList(Obj?[] list, Spec spec)
+  {
+    // always check spec meta
+    fits := true
+    CheckVal.checkList((CSpec)spec, list) |err|
+    {
+      fits = explainValErr(spec, err)
+    }
+
+    // if no item type, then it fits!
+    of := spec.of(false)
+    while (of != null && XetoUtil.isAutoName(of.name))
+      of = of?.base
+    if (of == null) return fits
+
+    // check every item
+    list.each |v|
+    {
+      if (v == null)
+      {
+        if (!of.isMaybe)
+         fits = explainValErr(spec, "List type cannot contain nulls")
+      }
+      else
+      {
+        valType := ns.specOf(v, false)
+        if (valType == null)
+          fits = explainValErr(spec, "List item type is '$of', item type is unknown [$v.typeof]")
+        else if (!valType.isa(of))
+          fits = explainValErr(spec, "List item type is '$of', item type is '$valType'")
+      }
+    }
+    return fits
   }
 
   private Bool checkNonSlotVal(Spec spec, Str name, Obj val)

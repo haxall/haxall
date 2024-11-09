@@ -139,11 +139,15 @@ class ValidateTest : AbstractXetoTest
     Str<|Foo: {
            a: List<of:Str, nonEmpty>
            b: List<of:Str, minSize:1, maxSize:3>
+           c: List<of:Number>
+           d: UriList?
          }
+
+         UriList: List<of:Uri>
          |>
 
     // all ok
-    ok := ["a":["1"], "b":["1"]]
+    ok := ["a":["1"], "b":["1"], "c":[,]]
     verifyValidate(src, ok, [,])
 
     // empty
@@ -159,6 +163,19 @@ class ValidateTest : AbstractXetoTest
     // maxSize
     verifyValidate(src, ok.dup.setAll(["b":["1", "2", "3", "4"]]), [
       "Slot 'b': List size 4 > maxSize 3",
+    ])
+
+    // item types
+    verifyValidate(src, ok.dup.set("c", [n(123), Etc.dict0, 123, `uri`]), [
+      "Slot 'c': List item type is 'sys::Number', item type is 'sys::Dict'",
+      "Slot 'c': List item type is 'sys::Number', item type is 'sys::Uri'",
+    ])
+
+    // item types using list subtype, for compile-time we require nominal
+    // typing but for fits-time we allow structure typing
+    verifyFitsTime(src, ok.dup.set("d", [`uri1`, n(123), Etc.dict0, `uri2`]), [
+      "Slot 'd': List item type is 'sys::Uri', item type is 'sys::Number'",
+      "Slot 'd': List item type is 'sys::Uri', item type is 'sys::Dict'",
     ])
   }
 
@@ -233,6 +250,7 @@ class ValidateTest : AbstractXetoTest
            d: MultiRef<of:Bar>
            e: MultiRef?<of:Bar>
            equipRef: Ref?<of:Equip>
+           f: TestEquipRefList?
          }
 
          Bar: Dict {}
@@ -241,6 +259,7 @@ class ValidateTest : AbstractXetoTest
          @to-bar-1: Bar {}
          @to-bar-2: Bar {}
          @to-eq-1: AcElecMeter {}
+         @to-eq-2: Ahu {}
          |>
 
     refFoo  := Ref("to-foo-1")
@@ -248,6 +267,7 @@ class ValidateTest : AbstractXetoTest
     refBar2 := Ref("to-bar-2")
     refBars := [refBar, refBar2]
     refEq1  := Ref("to-eq-1")
+    refEq2  := Ref("to-eq-2")
     refEqX  := Ref("to-eq-x")
     refErr1 := Ref("to-err-1")
     refErr2 := Ref("to-err-2")
@@ -259,6 +279,7 @@ class ValidateTest : AbstractXetoTest
     recs[refBar]  = Etc.makeDict(["id":refBar,  "spec":Ref("temp::Bar")])
     recs[refBar2] = Etc.makeDict(["id":refBar2, "spec":Ref("temp::Bar")])
     recs[refEq1]  = Etc.makeDict(["id":refEq1,  "spec":Ref("ph::AcElecMeter")])
+    recs[refEq2]  = Etc.makeDict(["id":refEq2,  "spec":Ref("ph::Ahu")])
     recs[refEqX]  = Etc.makeDict(["id":refEq1,  "spec":Ref("bad.lib::BadSpec")])
 
     // all ok
@@ -304,16 +325,17 @@ class ValidateTest : AbstractXetoTest
     ])
 
     // ref type is spec (only in fitter)
-    verifyFitsTime(src, toInstance(ok.dup.set("equipRef", Ref("ph::Site"))), [
+    verifyFitsTime(src, ok.dup.set("equipRef", Ref("ph::Site")), [
       "Slot 'equipRef': Ref target must be 'ph::Equip', target is 'sys::Spec'",
     ])
 
     // target type not found (only in fitter)
-    verifyFitsTime(src, toInstance(ok.dup.set("equipRef", refEqX).set("enum", Ref("ph::WeatherCondEnum"))), [
+    verifyFitsTime(src, ok.dup.set("equipRef", refEqX).set("enum", Ref("ph::WeatherCondEnum")), [
       "Slot 'equipRef': Ref target spec not found: 'bad.lib::BadSpec'",
     ])
 
-
+    // list of refs
+    verifyFitsTime(src, ok.dup.set("f", [refEq1, refEq2]), [,])
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -355,9 +377,10 @@ class ValidateTest : AbstractXetoTest
   }
 
   ** Verify the instance checked using fits after lib src is compiled
-  Void verifyFitsTime(Str src, Dict instance, Str[] expect)
+  Void verifyFitsTime(Str src, Obj instance, Str[] expect)
   {
     src = srcAddPragma(src)
+    instance = toInstance(instance)
     lib  := nsTest.compileLib(src)
     spec := lib.spec("Foo")
     errs := XetoLogRec[,]
@@ -415,8 +438,10 @@ class ValidateTest : AbstractXetoTest
   }
 
   ** To instance with tags sorted alphabetically
-  private Dict toInstance(Str:Obj tags)
+  private Dict toInstance(Obj x)
   {
+    if (x is Dict) return x
+    tags := (Str:Obj)x
     names := tags.keys.sort
     acc := Str:Obj[:] { ordered = true }
     names.each |n| { acc[n] = tags[n] }
@@ -428,7 +453,7 @@ class ValidateTest : AbstractXetoTest
   {
     """pragma: Lib <
          version: "0.0.0"
-         depends: { {lib:"sys"}, {lib:"ph"} }
+         depends: { {lib:"sys"}, {lib:"ph"}, {lib:"hx.test.xeto"} }
        >
        """ + src
   }
@@ -446,7 +471,7 @@ class ValidateTest : AbstractXetoTest
   ** Namespace to use
   once LibNamespace nsTest()
   {
-    createNamespace(["sys", "ph"])
+    createNamespace(["sys", "ph", "hx.test.xeto"])
   }
 
   ** TestContext recs for target resolution
