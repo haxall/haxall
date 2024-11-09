@@ -339,9 +339,7 @@ class AxonTest : AbstractAxonTest
     verifyFits(Str<|fits({id:@x, discharge, air, temp, point}, DischargeAirTempSensor)|>, false)
     verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor}, DischargeAirTempSensor)|>, false)
     verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point, kind:"Number", unit:"°F"}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point, kind:"Number", unit:"°F", equipRef:@y, siteRef:@z}, DischargeAirTempSensor)|>, false)
-    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point, kind:"Number", unit:"°F", equipRef:@y, siteRef:@z}, DischargeAirTempSensor, {ignoreRefs})|>, true)
+    verifyFits(Str<|fits({id:@x, discharge, air, temp, sensor, point, kind:"Number", unit:"°F"}, DischargeAirTempSensor)|>, true)
   }
 
   Void verifyFits(Str expr, Bool expect)
@@ -540,9 +538,9 @@ class AxonTest : AbstractAxonTest
   {
     // no options
     expr := "queryAll($rec.id.toCode, spec($query.toCode))"
-echo("-- $expr")
+    // echo("-- $expr")
     Grid actual := eval(expr)
-actual.dump
+    // actual.dump
     origActual := actual
     x := actual.sortDis.mapToList { it.dis }.join(",")
     y := Etc.sortDictsByDis(expect).join(",") { it.dis }

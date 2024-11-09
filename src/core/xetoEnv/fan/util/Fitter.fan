@@ -301,9 +301,20 @@ internal class Fitter
 
   private Bool doCheckRefTarget(Spec spec, Spec? of, Ref ref)
   {
-    target := cx.xetoReadById(ref)
-    if (target == null)
-      return explainValErr(spec, "Unresolved ref @$ref.id")
+    Dict? target := null
+    if(ref.id.contains("::"))
+    {
+      // read spec/instance
+      target = ns.spec(ref.id, false)
+      if (target == null)
+        target = ns.instance(ref.id, false)
+    }
+    else
+    {
+      // read from context
+      target = cx.xetoReadById(ref)
+    }
+    if (target == null) return explainValErr(spec, "Unresolved ref @$ref.id")
 
     if (of != null)
     {

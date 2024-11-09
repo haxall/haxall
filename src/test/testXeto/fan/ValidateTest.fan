@@ -297,10 +297,23 @@ class ValidateTest : AbstractXetoTest
       "Slot 'e': Ref target must be 'temp::Bar', target is 'temp::Foo'",
     ])
 
+    // invalid target types in lib
+    verifyValidate(src, ["a":refFoo, "b":refFoo, "c":Ref("ph::op:about"), "d":[refBar2, Ref("ph::filetype:json")]], [
+      "Slot 'c': Ref target must be 'temp::Bar', target is 'ph::Op'",
+      "Slot 'd': Ref target must be 'temp::Bar', target is 'ph::Filetype'",
+    ])
+
+    // ref type is spec (only in fitter)
+    verifyFitsTime(src, toInstance(ok.dup.set("equipRef", Ref("ph::Site"))), [
+      "Slot 'equipRef': Ref target must be 'ph::Equip', target is 'sys::Spec'",
+    ])
+
     // target type not found (only in fitter)
-    verifyFitsTime(srcAddPragma(src), toInstance(ok.dup.set("equipRef", refEqX)), [
+    verifyFitsTime(src, toInstance(ok.dup.set("equipRef", refEqX).set("enum", Ref("ph::WeatherCondEnum"))), [
       "Slot 'equipRef': Ref target spec not found: 'bad.lib::BadSpec'",
     ])
+
+
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -311,7 +324,6 @@ class ValidateTest : AbstractXetoTest
   Void verifyValidate(Str src, Str:Obj tags, Str[] expect)
   {
     instance := toInstance(tags)
-    src = srcAddPragma(src)
     verifyCompileTime(src, instance, expect)
     verifyFitsTime(src, instance, expect)
   }
@@ -320,6 +332,7 @@ class ValidateTest : AbstractXetoTest
   Void verifyCompileTime(Str src, Dict instance, Str[] expect)
   {
     // rewrite source to include the instance
+    src = srcAddPragma(src)
     src = srcAppendInstance(src, instance)
 
     if (isDebug)
@@ -344,6 +357,7 @@ class ValidateTest : AbstractXetoTest
   ** Verify the instance checked using fits after lib src is compiled
   Void verifyFitsTime(Str src, Dict instance, Str[] expect)
   {
+    src = srcAddPragma(src)
     lib  := nsTest.compileLib(src)
     spec := lib.spec("Foo")
     errs := XetoLogRec[,]
@@ -435,11 +449,11 @@ class ValidateTest : AbstractXetoTest
     createNamespace(["sys", "ph"])
   }
 
-  ** Verbose debug flag
-  Bool isDebug  := true
-
   ** TestContext recs for target resolution
   Ref:Dict recs := [:]
+
+  ** Verbose debug flag
+  Bool isDebug  := false
 
 }
 

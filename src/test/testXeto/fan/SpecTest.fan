@@ -380,10 +380,10 @@ class SpecTest : AbstractXetoTest
     ptSlots := [
       "id:Ref",
       "point:Marker", "cur:Marker?", "enum:Obj?",
-      "equipRef:Ref", "his:Marker?", "kind:Kind",
+      "equipRef:Ref?", "his:Marker?", "kind:Kind",
       "maxVal:Number?", "minVal:Number?",
       "pointFunction:PointFunction?", "pointQuantity:PointQuantity?", "pointSubject:PointSubject?",
-      "siteRef:Ref", "spaceRef:Ref?", "systemRef:MultiRef?",
+      "siteRef:Ref?", "spaceRef:Ref?", "systemRef:MultiRef?",
       "tz:TimeZone?", "unit:Unit?", "writable:Marker?",
       "equips:Query"]
     numPtSlots := ptSlots.dup.set(ptSlots.findIndex { it == "unit:Unit?"}, "unit:Unit")
