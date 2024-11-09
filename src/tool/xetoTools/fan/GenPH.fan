@@ -375,13 +375,14 @@ internal class GenPH : AbstractGenCmd
   {
     if (tag.name == "id") return false
 
-    if (tag.name == "siteRef") return false
-
     if (entity.name == "point")
     {
-      if (tag.name == "equipRef") return false
       if (tag.name == "kind") return false
+      return true
     }
+
+    if (tag.name == "siteRef") return false
+
 
     return true
   }
