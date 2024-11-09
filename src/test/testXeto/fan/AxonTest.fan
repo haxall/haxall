@@ -458,10 +458,10 @@ class AxonTest : AbstractAxonTest
 
     ahu       := addRec(["id":Ref("ahu"),   "dis":"AHU", "spec":Ref("ph::Ahu"), "ahu":m, "equip":m, "siteRef":site.id])
       mode    := addRec(["id":Ref("mode"),  "dis":"Mode",             "spec":Ref("ph::Point"), "hvacMode":m, "kind":"Str","point":m, "equipRef":ahu.id, "siteRef":site.id])
-      dduct   := addRec(["id":Ref("dduct"), "dis":"Discharge Duct",   "spec":Ref("ph::Point"), "discharge":m, "duct":m, "equip":m, "equipRef":ahu.id, "siteRef":site.id])
+      dduct   := addRec(["id":Ref("dduct"), "dis":"Discharge Duct",   "spec":Ref("ph::Equip"), "discharge":m, "duct":m, "equip":m, "equipRef":ahu.id, "siteRef":site.id])
         dtemp := addRec(["id":Ref("dtemp"), "dis":"Discharge Temp",   "spec":Ref("ph::Point"), "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":dduct.id, "siteRef":site.id])
         dflow := addRec(["id":Ref("dflow"), "dis":"Discharge Flow",   "spec":Ref("ph::Point"), "discharge":m, "flow":m, "kind":"Number", "point":m, "equipRef":dduct.id, "siteRef":site.id])
-        dfan  := addRec(["id":Ref("dfan"),  "dis":"Discharge Fan",    "spec":Ref("ph::Point"), "discharge":m, "fan":m, "equip":m, "equipRef":dduct.id, "siteRef":site.id])
+        dfan  := addRec(["id":Ref("dfan"),  "dis":"Discharge Fan",    "spec":Ref("ph::Equip"), "discharge":m, "fan":m, "equip":m, "equipRef":dduct.id, "siteRef":site.id])
          drun := addRec(["id":Ref("drun"),  "dis":"Discharge Fan Run","spec":Ref("ph::Point"), "discharge":m, "fan":m, "run":m, "kind":"Bool", "point":m, "equipRef":dfan.id, "siteRef":site.id])
 
     // Point.equips
@@ -502,7 +502,7 @@ class AxonTest : AbstractAxonTest
      verifyQueryNamed(ahu, ahu1.slot("points"), ["temp":dtemp, "flow":dflow, "fan":drun])
 
      // verify fitsExplain for missing points
-     ahuX := addRec(["id":Ref("x"), "equip":m, "siteRef":site.id])
+     ahuX := addRec(["id":Ref("x"), "spec":Ref("ph::Ahu"), "equip":m, "siteRef":site.id])
      verifyQueryFitsExplain(ahuX, ahu1, [
        "Slot 'points': Missing required Point: temp",
        "Slot 'points': Missing required Point: flow",
@@ -514,8 +514,8 @@ class AxonTest : AbstractAxonTest
       ])
 
      // ambiguous matches
-     d1 := addRec(["id":Ref("d1"), "dis":"Temp 1", "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
-     d2 := addRec(["id":Ref("d2"), "dis":"Temp 2", "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
+     d1 := addRec(["id":Ref("d1"), "dis":"Temp 1", "spec":Ref("ph::Point"), "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
+     d2 := addRec(["id":Ref("d2"), "dis":"Temp 2", "spec":Ref("ph::Point"), "discharge":m, "temp":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
      verifyQueryFitsExplain(ahuX, ahu1, [
        "Slot 'points': Ambiguous match for Point: temp [$d1.id.toZinc, $d2.id.toZinc]",
        "Slot 'points': Missing required Point: flow",
@@ -528,8 +528,8 @@ class AxonTest : AbstractAxonTest
 
      // ambiguous matches for optional point
      rt.db.commit(Diff(d1, null, Diff.remove))
-     p1 := addRec(["id":Ref("p1"), "dis":"Pressure 1", "discharge":m, "pressure":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
-     p2 := addRec(["id":Ref("p2"), "dis":"Pressure 2", "discharge":m, "pressure":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
+     p1 := addRec(["id":Ref("p1"), "dis":"Pressure 1", "spec":Ref("ph::Point"), "discharge":m, "pressure":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
+     p2 := addRec(["id":Ref("p2"), "dis":"Pressure 2", "spec":Ref("ph::Point"), "discharge":m, "pressure":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
      verifyQueryFitsExplain(ahuX, ahu2, [
        "Slot 'points': Missing required Point: ${lib.name}::DFlow",
        "Slot 'points': Ambiguous match for Point: ${lib.name}::DPressure [$p1.id.toZinc, $p2.id.toZinc]",
