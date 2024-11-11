@@ -107,12 +107,12 @@ class MathTest : HxTest
   }
 
   @HxRuntimeTest
-  Void testQuantileFolds() 
+  Void testQuantileFolds()
   {
     rt.libs.add("math")
 
-    // quantile folds                               quantile1_linear    quantile70_linear  quantile70_nearest  quantile70_lower    quantile70_higher    quantile70_midpoint    
-    //                                              ----------          -----------        -----------         ------------        ------------         ------------           
+    // quantile folds                               quantile1_linear    quantile70_linear  quantile70_nearest  quantile70_lower    quantile70_higher    quantile70_midpoint
+    //                                              ----------          -----------        -----------         ------------        ------------         ------------
     verifyQuantileFolds("[]",                       null,               null,              null,                null,              null,                null                  )
     verifyQuantileFolds("[na()]",                   NA.val,             NA.val,            NA.val,              NA.val,            NA.val,              NA.val                )
     verifyQuantileFolds("[null]",                   null,               null,              null,                null,              null,                null                  )

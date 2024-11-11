@@ -56,14 +56,10 @@ internal class NumberFold
     return (a+b)/2f
   }
 
-  //quantile method 
-  //  todo 
-  //    -update median to use 'quantile' at 50% to 
-  //     take advantage of methods 
-
-  Float quantile(Float? perc, Str? method) 
+  //quantile method
+  Float quantile(Float? perc, Str? method)
   {
-    
+
     if (size == 1) { return array[0] }
     array.sort(0..<size)
 
@@ -72,13 +68,15 @@ internal class NumberFold
     k := i.toInt    // floor of i
     d := i - k      // diff between true i and floor Int
 
-    //handle each method 
-    if      (method=="lower")    return array[k].toFloat 
-    else if (method=="higher")   return array[k+1]
-    else if (method=="nearest")  return array[i.round.toInt]
-    else if (method=="midpoint") return ((array[k] + array[(k + 1).min(size - 1)]) / 2).toFloat
-    else if (method=="linear")   return (array[k] + (array[(k + 1).min(size - 1)] - array[k]) * d).toFloat
-    else throw Err("Unexpected method type")
+    //handle each method
+    switch(method)
+    {
+      case "lower":    return array[k].toFloat
+      case "higher":   return array[k + 1]
+      case "nearest":  return array[i.round.toInt]
+      case "midpoint": return ((array[k] + array[(k + 1).min(size - 1)]) / 2).toFloat
+      case "linear":   return (array[k] + (array[(k + 1).min(size - 1)] - array[k]) * d).toFloat
+      default: throw Err("Unexpected method type")
+    }
   }
-
 }
