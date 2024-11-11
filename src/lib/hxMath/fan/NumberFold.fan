@@ -19,7 +19,7 @@ internal class NumberFold
   Int size
   FloatArray array := FloatArray.makeF8(1024)
   Unit? unit
-  
+
   @Operator Float get(Int index) { array[index] }
 
   Bool isEmpty() { size == 0 }
