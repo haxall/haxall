@@ -4,7 +4,7 @@
 //
 // History:
 //   28 Dec 2010   Brian Frank   Creation
-//   7  Nov 2024   James Gessel  Added percentile func testing
+//
 
 using haystack
 using hx
@@ -83,30 +83,17 @@ class MathTest : HxTest
 
     // Test cases for RMSE and MBE provided by PNL
 
-    //           list                       mean          median   RMSE-0        RMSE-1        MBE-0          MBE-1
-    //           ----------------------     ------------  ------   ------        -------       -----          -----
-    verifyFolds("[]",                       null,         null,    null,         null,         null,          null)
-    verifyFolds("[na()]",                   NA.val,       NA.val,  NA.val,       NA.val,       NA.val,        NA.val)
-    verifyFolds("[null]",                   null,         null,    null,         null,         null,          null)
-    verifyFolds("[2]",                      2f,           2f,      0f,           null,         0f,            null)
-    verifyFolds("[1, 4]",                   2.5f,         2.5f,    1.060660172f, 2.121320344f, 0f,            0f)
-    verifyFolds("[4, 2, 7]",                4.333333333f, 4f,      1.201850425f, 1.802775638f, 0.3333333333f, 0.5f)
-    verifyFolds("[4, na(), 7]",             NA.val,       NA.val,  NA.val,       NA.val,       NA.val,        NA.val)
-    verifyFolds("[-3, 4, 10, 11, 6, 4]",    5.333333333f, 5f,      1.885618083f, 2.2627417f,   0.3333333333f, 0.4f)
-    verifyFolds("[-3, 4, 10, 2, 11, 6, 2]", 4.57142857f,  4f,      1.726149425f, 2.013840996f, 0.571428571f,  0.666666667f)
-    
-// ercentile folds                                percentile1  percentile5  percentile25  percentile75  percentile95  percentile99
-//                                                ----------  -----------  ------------  ------------  ------------  ------------
-verifyPercentileFolds("[]",                       null,       null,         null,         null,         null,         null)
-verifyPercentileFolds("[na()]",                   NA.val,     NA.val,       NA.val,       NA.val,       NA.val,       NA.val)
-verifyPercentileFolds("[null]",                   null,       null,         null,         null,         null,         null)
-verifyPercentileFolds("[1, 4]",                   1.03f,      1.15f,        1.75f,        3.25f,        3.85f,        3.97f)
-verifyPercentileFolds("[2]",                      2f,         2f,           2f,           2f,           2f,           2f)
-verifyPercentileFolds("[4, 2, 7]",                2.04f,      2.2f,         3f,           5.5f,         6.7f,         6.94f)
-verifyPercentileFolds("[4, na(), 7]",             NA.val,     NA.val,       NA.val,       NA.val,       NA.val,       NA.val)
-verifyPercentileFolds("[-3, 4, 10, 11, 6, 4]",    -2.65f,     -1.25f,       4f,           9f,           10.75f,       10.95f)
-verifyPercentileFolds("[-3, 4, 10, 2, 11, 6, 2]", -2.7f,     -1.5f,         2f,           8f,           10.7f,        10.94f)
-
+    //           list                       mean          median RMSE-0        RMSE-1        MBE-0          MBE-1
+    //           ----------------------     ------------  ------ ------        -------       -----          -----
+    verifyFolds("[]",                       null,         null,  null,         null,         null,          null)
+    verifyFolds("[na()]",                   NA.val,       NA.val,NA.val,       NA.val,       NA.val,        NA.val)
+    verifyFolds("[null]",                   null,         null,  null,         null,         null,          null)
+    verifyFolds("[2]",                      2f,           2f,    0f,           null,         0f,            null)
+    verifyFolds("[1, 4]",                   2.5f,         2.5f,  1.060660172f, 2.121320344f, 0f,            0f)
+    verifyFolds("[4, 2, 7]",                4.333333333f, 4f,    1.201850425f, 1.802775638f, 0.3333333333f, 0.5f)
+    verifyFolds("[4, na(), 7]",             NA.val,       NA.val,NA.val,       NA.val,       NA.val,        NA.val)
+    verifyFolds("[-3, 4, 10, 11, 6, 4]",    5.333333333f, 5f,    1.885618083f, 2.2627417f,   0.3333333333f, 0.4f)
+    verifyFolds("[-3, 4, 10, 2, 11, 6, 2]", 4.57142857f,  4f,    1.726149425f, 2.013840996f, 0.571428571f,  0.666666667f)
   }
 
   Void verifyFolds(Str list, Obj? mean, Obj? median, Obj? rmse0, Obj? rmse1, Obj? mbe0, Obj? mbe1)
@@ -119,14 +106,36 @@ verifyPercentileFolds("[-3, 4, 10, 2, 11, 6, 2]", -2.7f,     -1.5f,         2f, 
     verifyFoldEq("${list}.fold(meanBiasErr(_,_,1))", mbe1)
   }
 
-  Void verifyPercentileFolds(Str list, Obj? percentile1, Obj? percentile5, Obj? percentile25, Obj? percentile75, Obj? percentile95, Obj? percentile99)
+  @HxRuntimeTest
+  Void testQuantileFolds() 
   {
-    verifyFoldEq("${list}.fold(percentile(${Number(0.01f)}) )",  percentile1)
-    verifyFoldEq("${list}.fold(percentile(${Number(5.0f)}) )",   percentile5 )
-    verifyFoldEq("${list}.fold(percentile(${Number(0.25f)}) )",  percentile25 )
-    verifyFoldEq("${list}.fold(percentile(${Number(0.75f)}) )",  percentile75 )
-    verifyFoldEq("${list}.fold(percentile(95%) )",               percentile95 )
-    verifyFoldEq("${list}.fold(percentile(${Number(0.99f)}) )",  percentile99 )
+    rt.libs.add("math")
+
+    // quantile folds                               quantile1_linear    quantile70_linear  quantile70_nearest  quantile70_lower    quantile70_higher    quantile70_midpoint    
+    //                                              ----------          -----------        -----------         ------------        ------------         ------------           
+    verifyQuantileFolds("[]",                       null,               null,              null,                null,              null,                null                  )
+    verifyQuantileFolds("[na()]",                   NA.val,             NA.val,            NA.val,              NA.val,            NA.val,              NA.val                )
+    verifyQuantileFolds("[null]",                   null,               null,              null,                null,              null,                null                  )
+    verifyQuantileFolds("[1, 4]",                   1.03f,              3.099999f,         4f,                  1f,                4f,                  2.5f                  )
+    verifyQuantileFolds("[2]",                      2f,                 2f,                2f,                  2f,                2f,                  2f                    )
+    verifyQuantileFolds("[4, 2, 7]",                2.04f,              5.2f,              4f,                  4f,                7f,                  5.5f                  )
+    verifyQuantileFolds("[4, na(), 7]",             NA.val,             NA.val,            NA.val,              NA.val,            NA.val,              NA.val                )
+    verifyQuantileFolds("[-3, 4, 10, 11, 6, 4]",    -2.65f,             8f,                10f,                 6f,                10f,                 8f                    )
+    verifyQuantileFolds("[-3, 4, 10, 2, 11, 6, 2]", -2.7f,              6.8f,              6f,                  6f,                10f,                 8f                    )
+    verifyQuantileFolds("[10,10,10,25,100]",        10f,                22f,               25f,                 10f,               25f,                 17.5f                 )
+  }
+
+  Void verifyQuantileFolds(Str list, Obj? quantile1_linear, Obj? quantile70_linear, Obj? quantile70_nearest, Obj? quantile70_lower, Obj? quantile70_higher, Obj? quantile70_midpoint)
+  {
+    verifyFoldEq("${list}.fold(quantile(${Number(0.01f)}) )",  quantile1_linear)
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"linear\") )",   quantile70_linear )
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"lower\") )",   quantile70_lower )
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"higher\") )",   quantile70_higher )
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"midpoint\") )",   quantile70_midpoint )
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"nearest\") )",   quantile70_nearest )
+
+    verifyErr(axon::EvalErr#) {x := eval("[10,10,10,25,100].fold(quantile(0.7, \"notafunc\"))" )}
+    verifyErr(axon::EvalErr#) {x := eval("[10,10,10,25,100].fold(quantile)")}
   }
 
   Void verifyFoldEq(Str axon, Obj? expected)

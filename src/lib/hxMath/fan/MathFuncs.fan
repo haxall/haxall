@@ -4,7 +4,6 @@
 //
 // History:
 //   28 Dec 2010   Brian Frank   Creation
-//   7  Nov 2024   James Gessel  Add percentile folding funcs
 
 using math
 using util
@@ -295,32 +294,45 @@ const class MathFuncs
 
 
   **
-  ** Fold a series of numbers into a percentile *sample*:
+  ** Computes the p*th* quantile of a list of numbers, according to 
+  ** the specified interpolation method. 
   **
+  ** Supported methods
+  **  - **Linear** (default): Interpolates proportionally between the two closest values
+  **  - **Nearest** (default): Rounds to the nearest data point
+  **  - **Lower** (default): Rounds to the nearest lower data point
+  **  - **Higher** (default): Rounds to the nearest higher data point
+  **  - **Midpoint** (default): Averages two nearest values
   ** 
-  ** Examples:
-  **   [0,25,50,75,100].fold(percentile(75  )) => 75
-  **   [0,25,50,75,100].fold(percentile(75% )) => 75
-  **   [0,25,50,75,100].fold(percentile(0.75)) => 75
-  **   [0,25,50,75,100].fold(percentile(1))    => 1 // 1 is treated as 1%, not 100%
-  **
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::percentile"] }
-  static Obj? percentile(Number perc) 
-  {
-    // make sure number is either 0-1 or 1-100
-    // 1 defaults to 100% and not 100% 
-    if (perc >= Number(1)) {perc = perc / Number(100)}
-    if (perc >  Number(1)) throw Err("Number must be between 0.0-1.0 OR 1-100")
+  ** Usage: [1,2,3].fold(quantile(p, method))
 
-    //this needs to return an axon::Fn equivalent to percentileCalc(_,_,perc)
-    axon::Fn wrapper := AxonContext.curAxon.evalToFunc("percentileCalc(_,_,${perc})")
+  ** Examples:
+  **   [10,10,10,25,100].fold(quantile(0.7 )) => 22 //default to linear 
+  **   [10,10,10,25,100].fold(quantile(0.7, "nearest")) => 25
+  **   [10,10,10,25,100].fold(quantile(0.7, "lower")) => 10
+  **   [10,10,10,25,100].fold(quantile(0.7, "higher")) => 25
+  **   [10,10,10,25,100].fold(quantile(0.7, "linear")) => 22 //same as no arg
+  **   [10,10,10,25,100].fold(quantile(0.7, "midpoint")) => 17.5
+  **
+  @Axon { meta = ["foldOn":"Number", "disKey":"ui::quantile"] }
+  static Obj? quantile(Number perc, Str? method := "linear") 
+  {
+    //check boundaries 
+    //if (perc == null)                         throw ArgErr("Quantile must be a number, not null")
+    if (perc < Number(0) || perc > Number(1)) throw ArgErr("Number must be between 0-1")
+
+    //default to linear method 
+    if (!["linear","nearest","higher","lower","midpoint"].contains(method)) throw ArgErr("Invalid method")
+
+    //this needs to return an axon::Fn equivalent to quantileFold(_,_,perc)
+    axon::Fn wrapper := AxonContext.curAxon.evalToFunc("quantileFold(_,_,${perc}, \"${method}\")")
     return wrapper as axon::Fn
   }
 
   //the above func is a wrapper which takes a number percent and calls
   //this which does the calcs
   @NoDoc @Axon
-  static Obj? percentileCalc(Obj? val, Obj? acc, Number perc) 
+  static Obj? quantileFold(Obj? val, Obj? acc, Number perc, Str method) 
   {
     if (val === NA.val || acc === NA.val) return NA.val
     fold := acc as NumberFold
@@ -328,7 +340,7 @@ const class MathFuncs
     if (val !== CoreLib.foldEnd)   return fold.add(val)
     if (fold.isEmpty)              return null
 
-    Number? out := Number(fold.percentile(perc.toFloat), fold.unit)
+    Number? out := Number(fold.quantile(perc.toFloat, method), fold.unit)
     return out 
   }
 

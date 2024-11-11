@@ -4,7 +4,6 @@
 //
 // History:
 //   29 Feb 2012   Brian Frank   Creation
-//   7  Nov 2024   James Gessel  Add percentile funcs
 
 using haystack
 using util
@@ -56,32 +55,29 @@ internal class NumberFold
     return (a+b)/2f
   }
 
-  //percentile method 
-  Float percentile(Float? perc) 
+  //quantile method 
+  //  todo 
+  //    -update median to use 'quantile' at 50% to 
+  //     take advantage of methods 
+
+  Float quantile(Float? perc, Str? method) 
   {
-    if (perc == null) {throw Err("Percentile must be a number")}
-    if (perc < 0f || perc > 1f) { throw Err("Percentile must be between 0 and 1")}
-    if (isEmpty) { throw Err("NumberFold is empty") }
-    array.sort(0..<size) //sort array 
-
+    
     if (size == 1) { return array[0] }
+    array.sort(0..<size)
 
-    //get index of percentile 
+    //get rank (index of quantile)
     i := perc * (size - 1).toFloat
     k := i.toInt    // floor of i
     d := i - k      // diff between true i and floor Int
 
-    //return indexed perc number, interpolate if needed
-    if (k >= size - 1) 
-    { 
-      return array[k].toFloat 
-    } 
-    else 
-    {
-      a := array[k]
-      b := array[k + 1]
-      return (a * (1 - d) + b * d).toFloat
-    }
+    //handle each method 
+    if      (method=="lower")    return array[k].toFloat 
+    else if (method=="higher")   return array[k+1]
+    else if (method=="nearest")  return array[i.round.toInt]
+    else if (method=="midpoint") return ((array[k] + array[(k + 1).min(size - 1)]) / 2).toFloat
+    else if (method=="linear")   return (array[k] + (array[(k + 1).min(size - 1)] - array[k]) * d).toFloat
+    else throw Err("Unexpected method type")
   }
 
 }
