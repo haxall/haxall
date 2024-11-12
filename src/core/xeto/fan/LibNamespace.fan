@@ -156,6 +156,9 @@ const mixin LibNamespace
   ** the `libsAllAsync` call to fully load all libraries into memory.
   abstract Lib[] libs()
 
+  ** Iterate only the libs that are currently loaded.
+  abstract Void eachLibLoaded(|Lib| f)
+
   ** Load all libraries asynchronosly.  Once this operation completes
   ** successfully the `isAllLoaded` method will return 'true' and the
   ** `libs` method may be used even in JS environments.  Note that an
@@ -216,11 +219,10 @@ const mixin LibNamespace
   ** of all libs with instances named "xmeta-{lib}-{spec}-enum".
   abstract SpecEnum? xmetaEnum(Str qname, Bool checked := true)
 
-  ** Iterate all the top-level types in all the libs.
-  ** Raise exception is not fully loaded.
+  ** Iterate all the top-level types in loaded libs.
   abstract Void eachType(|Spec| f)
 
-  ** Iterate all the instances
+  ** Iterate all the instances in loaded libs
   abstract Void eachInstance(|Dict| f)
 
   ** Iterate instances that are nominally typed by given spec.
