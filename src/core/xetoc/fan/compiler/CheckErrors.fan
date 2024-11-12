@@ -315,7 +315,13 @@ internal class CheckErrors : Step
   Void checkList(ADict x, CSpec? slot)
   {
     spec := slot ?: x.ctype
-    list := (Obj?[])x.asm
+    list := x.asm as List
+
+    if (list == null)
+    {
+      echo("WARN: need to checkList on $x.asm`.typeof")
+      return
+    }
 
     // check spec meta notEmpty, minSize, maxSize
     CheckVal.checkList(spec, list) |msg|
