@@ -110,6 +110,14 @@ const abstract class Filter
     return GlobSearchFilter(pattern)
   }
 
+  ** Create search filter from the standard 'search' option.
+  @NoDoc static Filter? searchFromOpts(Dict? opts)
+  {
+    pattern := (opts?.get("search") as Str ?: "").trim
+    if (pattern.isEmpty) return null
+    return search(pattern)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Parse
 //////////////////////////////////////////////////////////////////////////
