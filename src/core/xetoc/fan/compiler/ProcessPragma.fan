@@ -70,7 +70,7 @@ internal class ProcessPragma : Step
   {
     ns.libs.map |lib->MLibDepend|
     {
-      MLibDepend(lib.name,MLibDependVersions.wildcard, FileLoc.synthetic)
+      MLibDepend(lib.name, LibDependVersions.wildcard, FileLoc.synthetic)
     }
   }
 
