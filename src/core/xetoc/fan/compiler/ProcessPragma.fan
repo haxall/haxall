@@ -94,7 +94,7 @@ internal class ProcessPragma : Step
     if (acc.isEmpty)
     {
       if (isLib) err("Must specify 'sys' in depends", pragma.loc)
-      acc["sys"] = MLibDepend("sys", MLibDependVersions.wildcard, FileLoc.synthetic)
+      acc["sys"] = MLibDepend("sys", LibDependVersions.wildcard, FileLoc.synthetic)
     }
 
     return acc.vals
@@ -112,7 +112,7 @@ internal class ProcessPragma : Step
     if (libName == null) return err("Depend missing lib name", loc)
 
     // get versions
-    MLibDependVersions? versions := MLibDependVersions.wildcard
+    LibDependVersions? versions := LibDependVersions.wildcard
     versionsObj := dict.get("versions")
     if (versionsObj != null)
     {
