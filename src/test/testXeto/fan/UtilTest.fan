@@ -633,6 +633,50 @@ class UtilTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Common Supertype
+//////////////////////////////////////////////////////////////////////////
+
+  Void testCommonSuper()
+  {
+    ns := createNamespace(["ph", "ph.points"])
+
+    verifyCommonSuper(ns, ["sys::Date", "sys::Str"], "sys::Scalar")
+    verifyCommonSuper(ns, ["sys::Dict", "sys::List"], "sys::Seq")
+    verifyCommonSuper(ns, ["sys::Unit", "ph::CurStatus"], "sys::Enum")
+    verifyCommonSuper(ns, ["sys::Unit", "ph::Meter"], "sys::Obj")
+
+    verifyCommonSuper(ns, ["ph::Meter", "ph::Meter"], "ph::Meter")
+    verifyCommonSuper(ns, ["ph::ElecMeter", "ph::Meter"], "ph::Meter")
+    verifyCommonSuper(ns, ["ph::AcElecMeter", "ph::Meter"], "ph::Meter")
+    verifyCommonSuper(ns, ["ph::AcElecMeter", "ph::Equip"], "ph::Equip")
+    verifyCommonSuper(ns, ["ph::AcElecMeter", "ph::Ahu"], "ph::Equip")
+    verifyCommonSuper(ns, ["ph::AcElecMeter", "ph::Room"], "sys::Entity")
+
+    verifyCommonSuper(ns, ["ph.points::DischargeAirTempSensor",
+                           "ph.points::ReturnAirTempSensor"],
+                           "ph.points::AirTempSensor")
+
+    verifyCommonSuper(ns, ["ph.points::DischargeAirTempSensor",
+                           "ph.points::ReturnAirPressureSensor"],
+                           "ph.points::NumberPoint")
+  }
+
+  Void verifyCommonSuper(LibNamespace ns, Str[] qnames, Str expect)
+  {
+    specs := qnames.map |qname->Spec| { ns.spec(qname) }
+    // echo("==> $specs")
+    actual := XetoUtil.commonSupertype(specs)
+    // echo("  > $actual ?= $expect")
+    verifyEq(actual.qname, expect)
+
+    specs.reverse
+    // echo("==> $specs")
+    actual = XetoUtil.commonSupertype(specs)
+    // echo("  > $actual ?= $expect")
+    verifyEq(actual.qname, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Tags
 //////////////////////////////////////////////////////////////////////////
 

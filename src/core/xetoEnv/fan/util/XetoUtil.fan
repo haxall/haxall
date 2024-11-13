@@ -339,6 +339,34 @@ const class XetoUtil
     return acc
   }
 
+  ** Given a list of specs, find the most specific common
+  ** supertype they all share.
+  static Spec commonSupertype(Spec[] specs)
+  {
+    if (specs.isEmpty) throw ArgErr("Must pass at least one spec")
+    if (specs.size == 1) return specs[0]
+    best := specs.first
+    specs.eachRange(1..-1) |spec|
+    {
+      best = commonSupertypeBetween(best, spec)
+    }
+    return best
+  }
+
+  ** Find the most common supertype between two specs.
+  ** In the case of and/or types we only work first ofs
+  static Spec commonSupertypeBetween(Spec a, Spec b)
+  {
+    if (a === b) return a
+    if (a.isa(b)) return b
+    if (b.isa(a)) return a
+    if (a.base == null) return a
+    if (b.base == null) return b
+    abase := a.isCompound ? a.ofs.first : a.base
+    bbase := b.isCompound ? b.ofs.first : b.base
+    return commonSupertypeBetween(abase, bbase)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Derive
 //////////////////////////////////////////////////////////////////////////
