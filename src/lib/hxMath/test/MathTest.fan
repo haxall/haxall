@@ -106,6 +106,38 @@ class MathTest : HxTest
     verifyFoldEq("${list}.fold(meanBiasErr(_,_,1))", mbe1)
   }
 
+  @HxRuntimeTest
+  Void testQuantileFolds()
+  {
+    rt.libs.add("math")
+
+    // quantile folds                               quantile1_linear    quantile70_linear  quantile70_nearest  quantile70_lower    quantile70_higher    quantile70_midpoint
+    //                                              ----------          -----------        -----------         ------------        ------------         ------------
+    verifyQuantileFolds("[]",                       null,               null,              null,                null,              null,                null                  )
+    verifyQuantileFolds("[na()]",                   NA.val,             NA.val,            NA.val,              NA.val,            NA.val,              NA.val                )
+    verifyQuantileFolds("[null]",                   null,               null,              null,                null,              null,                null                  )
+    verifyQuantileFolds("[1, 4]",                   1.03f,              3.099999f,         4f,                  1f,                4f,                  2.5f                  )
+    verifyQuantileFolds("[2]",                      2f,                 2f,                2f,                  2f,                2f,                  2f                    )
+    verifyQuantileFolds("[4, 2, 7]",                2.04f,              5.2f,              4f,                  4f,                7f,                  5.5f                  )
+    verifyQuantileFolds("[4, na(), 7]",             NA.val,             NA.val,            NA.val,              NA.val,            NA.val,              NA.val                )
+    verifyQuantileFolds("[-3, 4, 10, 11, 6, 4]",    -2.65f,             8f,                10f,                 6f,                10f,                 8f                    )
+    verifyQuantileFolds("[-3, 4, 10, 2, 11, 6, 2]", -2.7f,              6.8f,              6f,                  6f,                10f,                 8f                    )
+    verifyQuantileFolds("[10,10,10,25,100]",        10f,                22f,               25f,                 10f,               25f,                 17.5f                 )
+  }
+
+  Void verifyQuantileFolds(Str list, Obj? quantile1_linear, Obj? quantile70_linear, Obj? quantile70_nearest, Obj? quantile70_lower, Obj? quantile70_higher, Obj? quantile70_midpoint)
+  {
+    verifyFoldEq("${list}.fold(quantile(${Number(0.01f)}) )",  quantile1_linear)
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"linear\") )",   quantile70_linear )
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"lower\") )",   quantile70_lower )
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"higher\") )",   quantile70_higher )
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"midpoint\") )",   quantile70_midpoint )
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"nearest\") )",   quantile70_nearest )
+
+    verifyErr(axon::EvalErr#) {x := eval("[10,10,10,25,100].fold(quantile(0.7, \"notafunc\"))" )}
+    verifyErr(axon::EvalErr#) {x := eval("[10,10,10,25,100].fold(quantile)")}
+  }
+
   Void verifyFoldEq(Str axon, Obj? expected)
   {
     Obj? actual := eval(axon)

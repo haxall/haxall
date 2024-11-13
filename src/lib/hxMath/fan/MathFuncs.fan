@@ -293,6 +293,78 @@ const class MathFuncs
     return Number(stdDev, fold.unit)
   }
 
+
+  **
+  ** Computes the p*th* quantile of a list of numbers, according to the specified interpolation method.
+  ** The value p must be a number between 0.0 to 1.0.
+  **
+  **  - **linear** (default): Interpolates proportionally between the two closest values
+  **  - **nearest**: Rounds to the nearest data point
+  **  - **lower**: Rounds to the nearest lower data point
+  **  - **higher**: Rounds to the nearest higher data point
+  **  - **midpoint**: Averages two nearest values
+  **
+  ** Usage: [1,2,3].fold(quantile(p, method))
+  **
+  ** Examples:
+  **   [10,10,10,25,100].fold(quantile(0.7 )) => 22 //default to linear
+  **   [10,10,10,25,100].fold(quantile(0.7, "nearest")) => 25
+  **   [10,10,10,25,100].fold(quantile(0.7, "lower")) => 10
+  **   [10,10,10,25,100].fold(quantile(0.7, "higher")) => 25
+  **   [10,10,10,25,100].fold(quantile(0.7, "linear")) => 22 //same as no arg
+  **   [10,10,10,25,100].fold(quantile(0.7, "midpoint")) => 17.5
+  **
+  ** Detailed Logic:
+  **    p: percentile (decimal 0-1)
+  **    n: list size
+  **    rank: p * (n-1) // this is the index of the percentile in your list
+  **    // if rank is an integer, return list[rank]
+  **    // if rank is not an integer, interpolate via one of the above methods (illustrated below in examples)
+  **
+  **    [1,2,3,4,5].percentile(0.5) => 3 // rank=2 is an int so we can index[2] directly
+  **
+  **    [10,10,10, 25, 100].percentile(0.7, method)
+  **      rank = (0.7 * 4) => 2.8
+  **
+  **      //adjust rank based on method
+  **      nearest =  index[3]                // => 25
+  **      lower =    index[2]                // => 10
+  **      higher =   index[3]                // => 25
+  **
+  **      //or interpolate for these methods
+  **
+  **      //takes the 2 closest indices and calculates midpoint
+  **      midpoint = (25-10)/2 + 10          // => 17.5
+  **
+  **      //takes the 2 closest indices and calculates weighted average
+  **      linear =   (0.2 * 10) + (0.8 * 25) // => 22
+  **
+  @Axon { meta = ["foldOn":"Number", "disKey":"ui::quantile"] }
+  static Obj? quantile(Number perc, Str? method := "linear")
+  {
+    //check boundaries
+    if (perc < Number(0) || perc > Number(1)) throw ArgErr("Number must be between 0-1")
+
+    //this needs to return an axon::Fn equivalent to quantileFold(_,_,perc)
+    axon::Fn wrapper := AxonContext.curAxon.evalToFunc("quantileFold(_,_,${perc}, \"${method}\")")
+    return wrapper as axon::Fn
+  }
+
+  //the above func is a wrapper which takes a number percent and calls
+  //this which does the calcs
+  @NoDoc @Axon
+  static Obj? quantileFold(Obj? val, Obj? acc, Number perc, Str method)
+  {
+    if (val === NA.val || acc === NA.val) return NA.val
+    fold := acc as NumberFold
+    if (val === CoreLib.foldStart) return NumberFold()
+    if (val !== CoreLib.foldEnd)   return fold.add(val)
+    if (fold.isEmpty)              return null
+
+    Number? out := Number(fold.quantile(perc.toFloat, method), fold.unit)
+    return out
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Matrix
 //////////////////////////////////////////////////////////////////////////

@@ -56,4 +56,27 @@ internal class NumberFold
     return (a+b)/2f
   }
 
+  //quantile method
+  Float quantile(Float? perc, Str? method)
+  {
+
+    if (size == 1) { return array[0] }
+    array.sort(0..<size)
+
+    //get rank (index of quantile)
+    i := perc * (size - 1).toFloat
+    k := i.toInt    // floor of i
+    d := i - k      // diff between true i and floor Int
+
+    //handle each method
+    switch(method)
+    {
+      case "lower":    return array[k].toFloat
+      case "higher":   return array[k + 1]
+      case "nearest":  return array[i.round.toInt]
+      case "midpoint": return ((array[k] + array[(k + 1).min(size - 1)]) / 2).toFloat
+      case "linear":   return (array[k] + (array[(k + 1).min(size - 1)] - array[k]) * d).toFloat
+      default: throw Err("Unexpected method type")
+    }
+  }
 }
