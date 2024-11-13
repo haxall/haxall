@@ -339,15 +339,15 @@ const class MathFuncs
   **      //takes the 2 closest indices and calculates weighted average
   **      linear =   (0.2 * 10) + (0.8 * 25) // => 22
   **
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::quantile"] }
-  static Obj? quantile(Number perc, Str? method := "linear")
+  @Axon
+  static Obj? quantile(Number percent, Str method := "linear")
   {
     //check boundaries
-    if (perc < Number(0) || perc > Number(1)) throw ArgErr("Number must be between 0-1")
+    perc := percent.toFloat
+    if (perc < 0f || perc > 1f) throw ArgErr("Percent must be between 0-1")
 
     //this needs to return an axon::Fn equivalent to quantileFold(_,_,perc)
-    axon::Fn wrapper := AxonContext.curAxon.evalToFunc("quantileFold(_,_,${perc}, \"${method}\")")
-    return wrapper as axon::Fn
+    return AxonContext.curAxon.evalToFunc("quantileFold(_,_,${percent}, \"${method}\")")
   }
 
   //the above func is a wrapper which takes a number percent and calls
@@ -570,3 +570,4 @@ const class MathFuncs
   }
 
 }
+

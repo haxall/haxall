@@ -57,9 +57,8 @@ internal class NumberFold
   }
 
   //quantile method
-  Float quantile(Float? perc, Str? method)
+  Float quantile(Float perc, Str? method)
   {
-
     if (size == 1) { return array[0] }
     array.sort(0..<size)
 
@@ -76,7 +75,8 @@ internal class NumberFold
       case "nearest":  return array[i.round.toInt]
       case "midpoint": return ((array[k] + array[(k + 1).min(size - 1)]) / 2).toFloat
       case "linear":   return (array[k] + (array[(k + 1).min(size - 1)] - array[k]) * d).toFloat
-      default: throw Err("Unexpected method type")
+      default: throw Err("Unexpected method type: $method")
     }
   }
 }
+
