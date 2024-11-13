@@ -156,14 +156,6 @@ abstract const class MNamespace : LibNamespace, CNamespace
     return libsRef.val
   }
 
-  override Void eachLibLoaded(|Lib| f)
-  {
-    entriesList.each |entry|
-    {
-      if (entry.status.isOk) f(entry.get)
-    }
-  }
-
   override Void libsAllAsync(|Err?, Lib[]?| f)
   {
     libs := libsRef.val as Lib[]
@@ -428,7 +420,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   override Void eachType(|Spec| f)
   {
-    eachLibLoaded |lib|
+    eachLibForIter |lib|
     {
       lib.types.each |type| { f(type) }
     }
@@ -436,7 +428,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   override Void eachInstance(|Dict| f)
   {
-    eachLibLoaded |lib|
+    eachLibForIter |lib|
     {
       lib.eachInstance(f)
     }
@@ -451,6 +443,21 @@ abstract const class MNamespace : LibNamespace, CNamespace
       xSpec := spec(xSpecRef.id, false)
       if (xSpec == null) return
       if (xSpec.isa(type)) f(x, xSpec)
+    }
+  }
+
+  Void eachLibForIter(|Lib| f)
+  {
+    if (!isRemote)
+    {
+      libs.each(f)
+    }
+    else
+    {
+      entriesList.each |entry|
+      {
+        if (entry.status.isOk) f(entry.get)
+      }
     }
   }
 
