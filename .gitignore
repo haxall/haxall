@@ -28,6 +28,9 @@ fan.props
 venv/
 __pycache__/
 
+# npm
+npm/
+
 # docker bind-mount
 /dbs/
 
