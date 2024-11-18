@@ -309,7 +309,7 @@ internal class Parser
       {
         slot = parseNamedSpec(parent, doc)
       }
-      else if (cur === Token.id && curVal.toStr[0].isLower)
+      else if (isCurMarkerSpec)
       {
         slot = parseMarkerSpec(parent, doc)
       }
@@ -327,6 +327,19 @@ internal class Parser
     // close "}"
     consume(Token.rbrace)
     return acc
+  }
+
+  private Bool isCurMarkerSpec()
+  {
+    // must be lower case identifiers
+    if (cur !== Token.id) return false
+    if (!curVal.toStr[0].isLower) return false
+
+    // must not be qname for spec
+    if (peek === Token.dot) return false
+    if (peek === Token.doubleColon) return false
+
+    return true
   }
 
   private Void parseSpecHeredocs(ASpec spec)
