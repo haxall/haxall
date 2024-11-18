@@ -68,23 +68,21 @@ else
     cur := subject as Dict
     while (true)
     {
-      cur = matchVia(cur, of, via)
+      cur = traverseVia(cur, of, via)
       if (cur == null) break
-      acc.add(cur)
+      if (fits(cur, of)) acc.add(cur) // can traverse over refs that don't match type
       if (!multiHop) break
     }
     return acc
   }
 
-  private Dict? matchVia(Dict subject, Spec of, Str via)
+  private Dict? traverseVia(Dict subject, Spec of, Str via)
   {
     ref := subject.get(via, null)
     if (ref == null) return null
 
     rec := cx.xetoReadById(ref)
     if (rec == null) return rec
-
-    if (!fits(rec, of)) return null
 
     return rec
   }
