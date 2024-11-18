@@ -236,7 +236,7 @@ abstract const class Folio
   ** Convenience for `commitAll` with a single diff.
   Diff commit(Diff diff)
   {
-    checkWrite.doCommitAllAsync([diff], cxCommitInfo).diff
+    checkWrite.doCommitAllSync([diff], cxCommitInfo).diff
   }
 
   ** Apply a list of diffs to the database in batch.  Either all the
@@ -249,7 +249,7 @@ abstract const class Folio
   ** unless 'Diff.force' configured.
   Diff[] commitAll(Diff[] diffs)
   {
-    checkWrite.doCommitAllAsync(diffs, cxCommitInfo).diffs
+    checkWrite.doCommitAllSync(diffs, cxCommitInfo).diffs
   }
 
   ** Convenience for `commitAllAsync` with a single diff.
@@ -270,6 +270,12 @@ abstract const class Folio
     recs := readAllList(Filter.has("trash"), Etc.makeDict1("trash", Marker.val))
     diffs := recs.map |rec->Diff| { Diff(rec, null, Diff.remove.or(Diff.force)) }
     return commitAllAsync(diffs)
+  }
+
+  ** Subclass implementation of commitAll (default routes to doCommitAllAsync)
+  @NoDoc virtual protected FolioFuture doCommitAllSync(Diff[] diffs, Obj? cxInfo)
+  {
+    doCommitAllAsync(diffs, cxInfo)
   }
 
   ** Subclass implementation of commitAllAsync
