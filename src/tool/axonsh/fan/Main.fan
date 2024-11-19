@@ -7,6 +7,7 @@
 //
 
 using axon
+using util
 
 **
 ** Axon shell command line interface program
@@ -73,16 +74,19 @@ class Main
 
   private Int printVersion()
   {
+    props := Str:Obj[:] { ordered = true }
+    props["axon.version"] = typeof.pod.version.toStr
+    AbstractMain.runtimeProps(props)
+
+    out := Env.cur.out
     out.printLine
     out.printLine("Axon Shell")
+    out.printLine("Copyright (c) 2022-${Date.today.year}, SkyFoundry LLC")
+    out.printLine("Licensed under the Academic Free License version 3.0")
     out.printLine
-    out.printLine("axon.version:  " + typeof.pod.version)
-    out.printLine("java.version:  " + Env.cur.vars["java.version"])
-    out.printLine("java.vm.name:  " + Env.cur.vars["java.vm.name"])
-    out.printLine("java.home:     " + Env.cur.vars["java.home"])
-    out.printLine("fan.version:   " + Pod.find("sys").version)
-    out.printLine("fan.home:      " + Env.cur.homeDir.osPath)
+    AbstractMain.printProps(props, ["out":out])
     out.printLine
+
     return 0
   }
 

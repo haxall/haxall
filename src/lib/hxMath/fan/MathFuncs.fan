@@ -304,7 +304,8 @@ const class MathFuncs
   **  - **higher**: Rounds to the nearest higher data point
   **  - **midpoint**: Averages two nearest values
   **
-  ** Usage: [1,2,3].fold(quantile(p, method))
+  ** Usage:
+  **   [1,2,3].fold(quantile(p, method))
   **
   ** Examples:
   **   [10,10,10,25,100].fold(quantile(0.7 )) => 22 //default to linear

@@ -142,25 +142,20 @@ internal class VersionCli : HxCli
   override Str summary() { "Print version info" }
   override Int run()
   {
-    env := Env.cur
-    envPath := [env.workDir]
-    if (env is PathEnv) envPath = ((PathEnv)env).path
+    props := Str:Obj[:] { ordered = true }
+    props["hx.version"] = typeof.pod.version.toStr
+    runtimeProps(props)
 
-    printLine
+    out := Env.cur.out
+    out.printLine
     printLine("Haxall CLI")
     printLine("Copyright (c) 2009-${Date.today.year}, SkyFoundry LLC")
     printLine("Licensed under the Academic Free License version 3.0")
-    printLine
-    printLine("hx.version:       " + typeof.pod.version)
-    printLine("java.version:     " + Env.cur.vars["java.version"])
-    printLine("java.vm.name:     " + Env.cur.vars["java.vm.name"])
-    printLine("java.vm.vendor:   " + Env.cur.vars["java.vm.vendor"])
-    printLine("java.vm.version:  " + Env.cur.vars["java.vm.version"])
-    printLine("java.home:        " + Env.cur.vars["java.home"])
-    printLine("fan.version:      " + Pod.find("sys").version)
-    printLine("fan.platform:     " + Env.cur.platform)
-    printLine("fan.env.path:     " + envPath.join(", ") { it.osPath })
-    printLine
+    out.printLine
+    printProps(props, ["out":out])
+    out.printLine
+    return 0
+
     return 0
   }
 }
