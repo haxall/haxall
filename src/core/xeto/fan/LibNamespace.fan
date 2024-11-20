@@ -60,6 +60,7 @@ const mixin LibNamespace
       "axon",
       "ion",
       "ion.actions",
+      "ion.events",
       "ion.icons",
       "ion.inputs",
       "ion.form",
