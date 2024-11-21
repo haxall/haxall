@@ -168,11 +168,13 @@ const class FolioFlatFile : Folio
 
   private CommitFolioRes onCommit(Diff[] diffs, Obj? cxInfo)
   {
-
     // map diffs to commit handlers
     newMod := DateTime.nowUtc(null)
     commits := FolioFlatFileCommit[,]
-    diffs.each |diff| { commits.add(FolioFlatFileCommit(this, diff, newMod, cxInfo)) }
+    diffs.each |diff| {
+      nm := (newMod <= diff.oldMod) ? diff.oldMod + 1ms : newMod
+      commits.add(FolioFlatFileCommit(this, diff, nm, cxInfo))
+    }
 
     // verify all commits upfront and call pre-commit
     hooks := this.hooks
