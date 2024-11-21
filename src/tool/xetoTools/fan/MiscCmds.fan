@@ -56,6 +56,26 @@ internal class HelpCmd : XetoCmd
 }
 
 **************************************************************************
+** EnvCmd
+**************************************************************************
+
+internal class EnvCmd : XetoCmd
+{
+  override Str name() { "env" }
+
+  override Str summary() { "Print environment and lib path info" }
+
+  override Int run()
+  {
+    out := Env.cur.out
+    out.printLine
+    printProps(XetoEnv.cur.debugProps, ["out":out])
+    out.printLine
+    return 0
+  }
+}
+
+**************************************************************************
 ** VersionCmd
 **************************************************************************
 
