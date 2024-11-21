@@ -18,9 +18,9 @@ using haystack::UnknownLibErr
 **
 const class FileRepo : LibRepo
 {
-  new make(File[] path := Env.cur.path)
+  new make(XetoEnv env := XetoEnv.cur)
   {
-    this.path = path
+    this.env = env
     rescan
   }
 
@@ -28,7 +28,7 @@ const class FileRepo : LibRepo
 
   const Log log := Log.get("xeto")
 
-  const File[] path
+  const XetoEnv env
 
   internal FileRepoScan scan() { scanRef.val }
   private const AtomicRef scanRef := AtomicRef()
@@ -37,7 +37,7 @@ const class FileRepo : LibRepo
 
   override This rescan()
   {
-    scanRef.val = FileRepoScanner(log, names, path).scan
+    scanRef.val = FileRepoScanner(log, names, env.path).scan
     return this
   }
 

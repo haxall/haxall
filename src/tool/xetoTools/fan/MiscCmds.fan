@@ -70,7 +70,6 @@ internal class VersionCmd : XetoCmd
   override Int run()
   {
     props := Str:Obj[:] { ordered = true }
-    props["xeto.version"] = typeof.pod.version.toStr
     runtimeProps(props)
 
     out := Env.cur.out
@@ -80,6 +79,8 @@ internal class VersionCmd : XetoCmd
     out.printLine("Licensed under the Academic Free License version 3.0")
     out.printLine
     printProps(props, ["out":out])
+    out.printLine
+    printProps(XetoEnv.cur.debugProps, ["out":out])
     out.printLine
     return 0
   }

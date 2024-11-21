@@ -5,6 +5,7 @@ Thumbs.db
 .DS_Store
 *.log
 fan.props
+xeto.props
 
 # lib/
 /lib/
