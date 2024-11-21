@@ -231,7 +231,7 @@ internal const class StandardFactoryLoader : SpecFactoryLoader
 }
 
 **************************************************************************
-** Factory Implementations
+** Special Factories
 **************************************************************************
 
 @Js
@@ -304,6 +304,10 @@ internal const class StrFactory : ScalarSpecFactory
   override Obj? decodeScalar(Str str, Bool checked := true) { str }
 }
 
+**************************************************************************
+** Scalar Factories
+**************************************************************************
+
 @Js
 internal const class BoolFactory : ScalarSpecFactory
 {
@@ -320,31 +324,10 @@ internal const class BufFactory : ScalarSpecFactory
 }
 
 @Js
-internal const class IntFactory : ScalarSpecFactory
+internal const class CompLayoutFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Int.fromStr(str, 10, checked) }
-}
-
-@Js
-internal const class FilterFactory : ScalarSpecFactory
-{
-  new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Filter.fromStr(str, checked) }
-}
-
-@Js
-internal const class FloatFactory : ScalarSpecFactory
-{
-  new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Float.fromStr(str, checked) }
-}
-
-@Js
-internal const class DurationFactory : ScalarSpecFactory
-{
-  new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Duration.fromStr(str, checked) }
+  override Obj? decodeScalar(Str str, Bool checked := true) { CompLayout.fromStr(str, checked) }
 }
 
 @Js
@@ -352,13 +335,6 @@ internal const class DateFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Date.fromStr(str, checked) }
-}
-
-@Js
-internal const class TimeFactory : ScalarSpecFactory
-{
-  new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Time.fromStr(str, checked) }
 }
 
 @Js
@@ -374,31 +350,30 @@ internal const class DateTimeFactory : ScalarSpecFactory
 }
 
 @Js
-internal const class TimeZoneFactory : ScalarSpecFactory
+internal const class DurationFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { TimeZone.fromStr(str, checked) }
+  override Obj? decodeScalar(Str str, Bool checked := true) { Duration.fromStr(str, checked) }
+}
+@Js
+internal const class FilterFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Filter.fromStr(str, checked) }
 }
 
 @Js
-internal const class UnitFactory : ScalarSpecFactory
+internal const class FloatFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Unit.fromStr(str, checked) }
+  override Obj? decodeScalar(Str str, Bool checked := true) { Float.fromStr(str, checked) }
 }
 
 @Js
-internal const class UriFactory : ScalarSpecFactory
+internal const class IntFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Uri.fromStr(str, checked) }
-}
-
-@Js
-internal const class NumberFactory : ScalarSpecFactory
-{
-  new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Number.fromStr(str, checked) }
+  override Obj? decodeScalar(Str str, Bool checked := true) { Int.fromStr(str, 10, checked) }
 }
 
 @Js
@@ -406,6 +381,13 @@ internal const class LibDependVersionsFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { LibDependVersions.fromStr(str, checked) }
+}
+
+@Js
+internal const class NumberFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Number.fromStr(str, checked) }
 }
 
 @Js
@@ -429,13 +411,37 @@ internal const class SpanModeFactory : ScalarSpecFactory
   override Obj? decodeScalar(Str str, Bool checked := true) { SpanMode.fromStr(str, checked) }
 }
 
-
 @Js
-internal const class CompLayoutFactory : ScalarSpecFactory
+internal const class TimeFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { CompLayout.fromStr(str, checked) }
+  override Obj? decodeScalar(Str str, Bool checked := true) { Time.fromStr(str, checked) }
 }
+
+@Js
+internal const class TimeZoneFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { TimeZone.fromStr(str, checked) }
+}
+
+@Js
+internal const class UnitFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Unit.fromStr(str, checked) }
+}
+
+@Js
+internal const class UriFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Uri.fromStr(str, checked) }
+}
+
+**************************************************************************
+** Dict Factories
+**************************************************************************
 
 @Js
 internal const class LinkFactory : DictSpecFactory
