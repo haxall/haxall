@@ -10,12 +10,14 @@
 using concurrent
 using xeto
 using haystack::Etc
+using haystack::Filter
 using haystack::Marker
 using haystack::NA
 using haystack::Number
 using haystack::Remove
 using haystack::Ref
 using haystack::Span
+using haystack::SpanMode
 
 **
 ** MFactories is used to handle the lookup tables for SpecFactory
@@ -66,7 +68,8 @@ const class MFactories
   }
 
   ** Default scalar factory
-  const SpecFactory scalar := StrFactory(Str#)
+//  const SpecFactory scalar := GenericScalarFactory()
+const SpecFactory scalar := StrFactory()
 
   ** Default dict factory
   const SpecFactory dict := DictFactory()
@@ -116,34 +119,40 @@ internal const class SysFactoryLoader : SpecFactoryLoader
   {
     sys := Pod.find("sys")
     hay := Pod.find("haystack")
+    str := StrFactory()
     return [
 
       // sys pod
-      "Obj":      ObjFactory(sys.type("Obj")),
-      "Str":      StrFactory(sys.type("Str")),
-      "Bool":     BoolFactory(sys.type("Bool")),
-      "Int":      IntFactory(sys.type("Int")),
-      "Float":    FloatFactory(sys.type("Float")),
-      "Duration": DurationFactory(sys.type("Duration")),
-      "Date":     DateFactory(sys.type("Date")),
-      "Time":     TimeFactory(sys.type("Time")),
-      "DateTime": DateTimeFactory(sys.type("DateTime")),
-      "TimeZone": TimeZoneFactory(sys.type("TimeZone")),
-      "Unit":     UnitFactory(sys.type("Unit")),
-      "Uri":      UriFactory(sys.type("Uri")),
-      "Version":  ScalarSpecFactory(sys.type("Version")),
+      "Obj":          ObjFactory(sys.type("Obj")),
+      "Bool":         BoolFactory(sys.type("Bool")),
+      "Buf":          BufFactory(sys.type("Buf")),
+      "Float":        FloatFactory(sys.type("Float")),
+      "Int":          IntFactory(sys.type("Int")),
+      "Date":         DateFactory(sys.type("Date")),
+      "DateTime":     DateTimeFactory(sys.type("DateTime")),
+      "Duration":     DurationFactory(sys.type("Duration")),
+      "Str":          str,
+      "Time":         TimeFactory(sys.type("Time")),
+      "TimeZone":     TimeZoneFactory(sys.type("TimeZone")),
+      "Unit":         UnitFactory(sys.type("Unit")),
+      "UnitQuantity": str,
+      "Uri":          UriFactory(sys.type("Uri")),
+      "Version":      ScalarSpecFactory(sys.type("Version")),
 
       // xeto pod
-      "Func":     InterfaceSpecFactory(Function#),
-      "Spec":     DictFactory(Spec#),
+      "Func":         InterfaceSpecFactory(Function#),
+      "Spec":         DictFactory(Spec#),
+      "LibDependVersions": LibDependVersionsFactory(LibDependVersions#),
 
       // haystack pod
+      "Filter":   FilterFactory(hay.type("Filter")),
       "Marker":   SingletonFactory(hay.type("Marker"), Marker.val),
       "None":     SingletonFactory(hay.type("Remove"), Remove.val, "none"),
       "NA":       SingletonFactory(hay.type("NA"),     NA.val, "na"),
       "Number":   NumberFactory(hay.type("Number")),
       "Ref":      RefFactory(hay.type("Ref")),
       "Span":     SpanFactory(hay.type("Span")),
+      "SpanMode": SpanModeFactory(hay.type("SpanMode")),
       "List":     ListFactory(),
       "Dict":     DictFactory(),
     ]
@@ -231,6 +240,7 @@ internal const class ObjFactory : SpecFactory
   new make(Type type) { this.type = type }
   const override Type type
   override Bool isScalar() { false }
+  override Bool isGenericScalar() { false }
   override Bool isDict() { false }
   override Bool isList() { false }
   override Bool isInterface() { false }
@@ -280,9 +290,17 @@ internal const class SingletonFactory : ScalarSpecFactory
 }
 
 @Js
+internal const class GenericScalarFactory : ScalarSpecFactory
+{
+  new make() : super(Scalar#) {}
+  override Bool isGenericScalar() { true }
+  override Obj? decodeScalar(Str str, Bool checked := true) { throw UnsupportedErr() }
+}
+
+@Js
 internal const class StrFactory : ScalarSpecFactory
 {
-  new make(Type type) : super(type) {}
+  new make() : super(Str#) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { str }
 }
 
@@ -294,10 +312,25 @@ internal const class BoolFactory : ScalarSpecFactory
 }
 
 @Js
+internal const class BufFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Buf.fromBase64(str) }
+  override Str encodeScalar(Obj v) { ((Buf)v).toBase64Uri }
+}
+
+@Js
 internal const class IntFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Int.fromStr(str, 10, checked) }
+}
+
+@Js
+internal const class FilterFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { Filter.fromStr(str, checked) }
 }
 
 @Js
@@ -369,6 +402,13 @@ internal const class NumberFactory : ScalarSpecFactory
 }
 
 @Js
+internal const class LibDependVersionsFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { LibDependVersions.fromStr(str, checked) }
+}
+
+@Js
 internal const class RefFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
@@ -381,6 +421,14 @@ internal const class SpanFactory : ScalarSpecFactory
   new make(Type type) : super(type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Span.fromStr(str, TimeZone.cur, checked) }
 }
+
+@Js
+internal const class SpanModeFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { SpanMode.fromStr(str, checked) }
+}
+
 
 @Js
 internal const class CompLayoutFactory : ScalarSpecFactory

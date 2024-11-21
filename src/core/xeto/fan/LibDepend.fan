@@ -214,6 +214,16 @@ internal const class MLibDependVersions : LibDependVersions
   const Int b1  // end minor
   const Int b2  // end patch
 
+  override Int hash()
+  {
+    toStr.hash
+  }
+
+  override Bool equals(Obj? that)
+  {
+    that is MLibDependVersions && this.toStr == that.toStr
+  }
+
   override Str toStr()
   {
     s := StrBuf()

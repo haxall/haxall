@@ -447,7 +447,7 @@ class Printer
     }
 
     if (x isnot Str) qname(spec).sp
-    return w(x.toStr.toCode)
+    return w(spec.factory.encodeScalar(x).toCode)
   }
 
   ** Print dict in Xeto text format

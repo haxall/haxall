@@ -24,7 +24,7 @@ class IOTest : AbstractXetoTest
 
   Void test()
   {
-    ns := createNamespace(["sys", "ph"])
+    ns := createNamespace(["sys", "ph", "hx.test.xeto"])
     server = TestServer(ns)
     client = TestClient(server).boot
 
@@ -54,7 +54,9 @@ class IOTest : AbstractXetoTest
     verifyIO(-1235678903)
     verifyIO(123f)
     verifyIO(123min)
+    verifyIO(Buf().print("foobar"))
     verifyIO(Version("1.2.3"))
+    verifyIO(Unit("kW"))
     verifyIO(Etc.dict0)
     verifyIO(Etc.dict1("foo", m))
     verifyIO(Etc.dict2("foo", m, "bar", n(123)))
@@ -62,8 +64,16 @@ class IOTest : AbstractXetoTest
     verifyIO(Obj?["a"])
     verifyIO(Obj?["a", n(123)])
     verifyIO(Obj?["a", null, n(123)])
-    verifyIO(haystack::Coord(12f, -34f))
-    verifyIO(haystack::Symbol("foo-bar"))
+    verifyIO(Coord(12f, -34f))
+    verifyIO(Symbol("foo-bar"))
+    verifyIO(Span.today)
+    verifyIO(Span(Date("2024-11-21")))
+    verifyIO(SpanMode.lastMonth)
+    verifyIO(Filter("a and b"))
+    verifyIO(LibDependVersions("4.5.x"))
+
+// TODO
+// verifyIO(Scalar("hx.test.xeto::ScalarB", "beta"))
 
     a := ns.instantiate(ns.spec("ph::AcElecMeter"))
     b := dict(["spec":Ref("ph::Rtu"), "dis":"RTU", "equip":m, "ahu":m, "rtu":m])
@@ -94,6 +104,8 @@ class IOTest : AbstractXetoTest
     server.io.writer(buf.out).writeVal(val)
     // echo("--> $val [$buf.size bytes]")
     x := client.io.reader(buf.flip.in).readVal
+if (!Etc.eq(val, x)) echo("WARN: $val [$val.typeof] != $x [$x.typeof]")
+else
     verifyValEq(val, x)
 
     // Xeto format does not support null

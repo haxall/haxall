@@ -24,6 +24,9 @@ abstract const class SpecFactory
   ** Is this a scalar factory that handles decodeScalar and encodeScalar
   abstract Bool isScalar()
 
+  ** Is this a spec that encodes and decodes using Scalar wrapper
+  abstract Bool isGenericScalar()
+
   ** Is this a dict (or component) factory that handles decodeDict
   abstract Bool isDict()
 
@@ -76,6 +79,8 @@ abstract const class DictSpecFactory : SpecFactory
 
   override Bool isScalar() { false }
 
+  override Bool isGenericScalar() { false }
+
   override Bool isDict() { true }
 
   override Bool isList() { false }
@@ -125,6 +130,8 @@ abstract const class ListSpecFactory : SpecFactory
 
   override Bool isScalar() { false }
 
+  override Bool isGenericScalar() { false }
+
   override Bool isDict() { false }
 
   override Bool isList() { true }
@@ -161,6 +168,8 @@ const class ScalarSpecFactory : SpecFactory
   const override Type type
 
   override Bool isScalar() { true }
+
+  override Bool isGenericScalar() { false }
 
   override Bool isDict() { false }
 
@@ -205,6 +214,8 @@ const class InterfaceSpecFactory : SpecFactory
   const override Type type
 
   override Bool isScalar() { false }
+
+  override Bool isGenericScalar() { false }
 
   override Bool isDict() { false }
 

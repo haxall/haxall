@@ -1,0 +1,17 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   21 Nov 2024  Brian Frank  Creation
+//
+
+ScalarA: Scalar "a-default"
+
+ScalarB: ScalarA "b-default"
+
+@scalars: Dict {
+  a: ScalarA "alpha"
+  b: ScalarB "beta"
+}
+

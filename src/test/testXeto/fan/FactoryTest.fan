@@ -41,7 +41,13 @@ class FactoryTest : AbstractXetoTest
     verifyScalar(ns, "sys::NA",       NA.val)
     verifyScalar(ns, "sys::Number",   Number(80, Unit("%")))
     verifyScalar(ns, "sys::Ref",      Ref("abc"))
+    verifyScalar(ns, "sys::Unit",     Unit("%"))
     verifyScalar(ns, "sys::Span",     Span.today)
+    verifyScalar(ns, "sys::SpanMode", SpanMode.lastYear)
+    verifyScalar(ns, "sys::Version",  Version("3.5"))
+    verifyScalar(ns, "sys::Buf",      Buf().print("xyz"), Buf#)
+    verifyScalar(ns, "sys::Filter",   Filter("a and b"), Filter#)
+    verifyScalar(ns, "sys::LibDependVersions", LibDependVersions("6.x.x"), LibDependVersions#)
 
     verifySame(ns.spec("sys::Obj").fantomType, Obj#)
     verifySame(ns.spec("sys::Dict").fantomType, Dict#)
@@ -91,15 +97,46 @@ class FactoryTest : AbstractXetoTest
     //verifyScalar("ph::XStr", XStr("Foo", "bar"))
   }
 
+  Void testHxTest()
+  {
+    ns := createNamespace(["hx.test.xeto"])
+
+// TODO
+return
+
+    spec := ns.spec("hx.test.xeto::ScalarA")
+    factory := spec.factory
+    verifyEq(factory.type, Scalar#)
+    verifyEq(factory.isScalar, true)
+    verifyEq(factory.isGenericScalar, true)
+
+    dict := ns.instance("hx.test.xeto::scalars")
+    // dict.each |v, n|{ echo("$n = $v [$v.typeof]") }
+
+    Scalar a := dict["a"]
+    verifyEq(a.qname, "hx.test.xeto::ScalarA")
+    verifyEq(a.val, "alpha")
+    verifyEq(a, Scalar("hx.test.xeto::ScalarA", "alpha"))
+    verifyNotEq(a, Scalar("bad", "alpha"))
+    verifyNotEq(a, Scalar("hx.test.xeto::ScalarA", "bad"))
+
+    Scalar b := dict["b"]
+    verifyEq(b.qname, "hx.test.xeto::ScalarB")
+    verifyEq(b.val, "beta")
+    verifyEq(b, Scalar("hx.test.xeto::ScalarB", "beta"))
+    verifyNotEq(b, Scalar("bad", "beta"))
+    verifyNotEq(b, Scalar("hx.test.xeto::ScalarB", "bad"))
+  }
+
   Void verifyScalar(LibNamespace ns, Str qname, Obj val, Type? type := val.typeof)
   {
     spec := ns.spec(qname)
+    // echo("\n---> $spec | $spec.factory | $spec.fantomType")
     verifySame(spec.factory.type, type)
-    // echo("---> $spec | $spec.factory | $spec.fantomType")
     s := spec.factory.encodeScalar(val)
     v := spec.factory.decodeScalar(s)
     // echo("::: $type <=> $spec | $v")
-    verifyEq(v, val)
+    verifyValEq(v, val)
     verifySame(ns.specOf(v), spec)
     verifySame(ns.specOf(v.typeof), spec)
     verifySame(spec.fantomType, type)

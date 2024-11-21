@@ -133,7 +133,9 @@ internal abstract class Reify : Step
     {
       type := x.ctype
       factory := type.factory
-      fantom := factory.decodeScalar(x.str, false)
+      fantom := factory.isGenericScalar ?
+                Scalar(x.ctype.qname, x.str) :
+                factory.decodeScalar(x.str, false)
       if (fantom == null)
       {
         err("Invalid '$type.qname' string value: $x.str.toCode", x.loc)

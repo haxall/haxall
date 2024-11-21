@@ -489,6 +489,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
     }
 
     // fallbacks
+    if (val is Scalar) return spec(((Scalar)val).qname, checked)
     if (type.fits(List#)) return sys.list
     if (type.fits(Grid#)) return sys.grid
 
