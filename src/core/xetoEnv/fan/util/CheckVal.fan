@@ -116,7 +116,7 @@ const class CheckVal
         onErr("Number $x must have unit of '$reqUnit'")
     }
 
-    quantity := meta["quantity"] as Str
+    quantity := meta["quantity"]
     if (quantity != null)
     {
       if (unit == null)
@@ -125,7 +125,7 @@ const class CheckVal
       }
       else
       {
-        q := unitToQuantity[unit]
+        q := UnitQuantity.unitToQuantity[unit]
         if (q == null)
           onErr("Number must be '$quantity' unit; '$unit' has no quantity")
         else if (q != quantity)
@@ -133,17 +133,6 @@ const class CheckVal
 
       }
     }
-  }
-
-  static const Unit:Str unitToQuantity
-  static
-  {
-    acc := Unit:Str[:]
-    Unit.quantities.each |q|
-    {
-      Unit.quantity(q).each |u| { acc[u] = q }
-    }
-    unitToQuantity = acc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -167,7 +156,7 @@ const class CheckVal
     // special handling for unit
     if (enum.qname == "sys::Unit")
     {
-      q := spec.cmeta["quantity"] as Str
+      q := spec.cmeta["quantity"]
       if (q != null)
       {
         unitQuantity := item.cmeta["quantity"]

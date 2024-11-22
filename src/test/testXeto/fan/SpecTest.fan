@@ -130,8 +130,8 @@ class SpecTest : AbstractXetoTest
     spec = ns.spec("ph::area")
     doc = spec.meta["doc"]
     verifyXMeta(ns, spec,
-      ["doc":doc, "val":n(0), "quantity":"area"],
-      ["doc":doc, "val":n(0), "quantity":"area", "editor":"AreaEditor", "foo":m])
+      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area],
+      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area, "editor":"AreaEditor", "foo":m])
 
     // Vav (inherited from Equip)
     spec = ns.spec("ph::Vav")

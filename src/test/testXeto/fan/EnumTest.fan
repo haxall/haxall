@@ -157,6 +157,26 @@ class EnumTest : AbstractXetoTest
     verifyDictEq(x.meta, meta)
   }
 
+  Void testUnitQuantity()
+  {
+    ns := LibNamespace.system
+
+    fan  := UnitQuantity.vals.map |x->Str| { x.name }
+    verifyEq(fan[0], "dimensionless")
+    fan = fan[1..-1]
+
+    // verify we keep fantom UnitQuanity in-sync with xeto definition
+    xeto := ns.spec("sys::UnitQuantity").slots.names
+    xeto.each |n, i|
+    {
+      verifyEq(n, fan.getSafe(i))
+    }
+    verifyEq(xeto.size, fan.size)
+
+    u := ns.spec("sys::Unit.meter")
+    verifyEq(u.meta["quantity"], UnitQuantity.length)
+  }
+
   Void testPhPoints()
   {
     ns := createNamespace(["ph.points"])

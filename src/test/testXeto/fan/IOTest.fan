@@ -57,6 +57,7 @@ class IOTest : AbstractXetoTest
     verifyIO(Buf().print("foobar"))
     verifyIO(Version("1.2.3"))
     verifyIO(Unit("kW"))
+    verifyIO(UnitQuantity.volume)
     verifyIO(Etc.dict0)
     verifyIO(Etc.dict1("foo", m))
     verifyIO(Etc.dict2("foo", m, "bar", n(123)))
@@ -71,9 +72,7 @@ class IOTest : AbstractXetoTest
     verifyIO(SpanMode.lastMonth)
     verifyIO(Filter("a and b"))
     verifyIO(LibDependVersions("4.5.x"))
-
-// TODO
-// verifyIO(Scalar("hx.test.xeto::ScalarB", "beta"))
+    verifyIO(Scalar("hx.test.xeto::ScalarB", "beta"))
 
     a := ns.instantiate(ns.spec("ph::AcElecMeter"))
     b := dict(["spec":Ref("ph::Rtu"), "dis":"RTU", "equip":m, "ahu":m, "rtu":m])

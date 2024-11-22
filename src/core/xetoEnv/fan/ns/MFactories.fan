@@ -116,32 +116,33 @@ internal const class SysFactoryLoader : SpecFactoryLoader
 {
   override Str:SpecFactory load(Str libName, Str[] specNames)
   {
-    sys := Pod.find("sys")
-    hay := Pod.find("haystack")
-    str := StrFactory()
+    sys  := Pod.find("sys")
+    xeto := Pod.find("xeto")
+    hay  := Pod.find("haystack")
+    str  := StrFactory()
     return [
 
       // sys pod
-      "Obj":          ObjFactory(sys.type("Obj")),
-      "Bool":         BoolFactory(sys.type("Bool")),
-      "Buf":          BufFactory(sys.type("Buf")),
-      "Float":        FloatFactory(sys.type("Float")),
-      "Int":          IntFactory(sys.type("Int")),
-      "Date":         DateFactory(sys.type("Date")),
-      "DateTime":     DateTimeFactory(sys.type("DateTime")),
-      "Duration":     DurationFactory(sys.type("Duration")),
-      "Str":          str,
-      "Time":         TimeFactory(sys.type("Time")),
-      "TimeZone":     TimeZoneFactory(sys.type("TimeZone")),
-      "Unit":         UnitFactory(sys.type("Unit")),
-      "UnitQuantity": str,
-      "Uri":          UriFactory(sys.type("Uri")),
-      "Version":      ScalarSpecFactory(sys.type("Version")),
+      "Obj":      ObjFactory(sys.type("Obj")),
+      "Bool":     BoolFactory(sys.type("Bool")),
+      "Buf":      BufFactory(sys.type("Buf")),
+      "Float":    FloatFactory(sys.type("Float")),
+      "Int":      IntFactory(sys.type("Int")),
+      "Date":     DateFactory(sys.type("Date")),
+      "DateTime": DateTimeFactory(sys.type("DateTime")),
+      "Duration": DurationFactory(sys.type("Duration")),
+      "Str":      str,
+      "Time":     TimeFactory(sys.type("Time")),
+      "TimeZone": TimeZoneFactory(sys.type("TimeZone")),
+      "Unit":     UnitFactory(sys.type("Unit")),
+      "Uri":      UriFactory(sys.type("Uri")),
+      "Version":  ScalarSpecFactory(sys.type("Version")),
 
       // xeto pod
-      "Func":         InterfaceSpecFactory(Function#),
-      "Spec":         DictFactory(Spec#),
-      "LibDependVersions": LibDependVersionsFactory(LibDependVersions#),
+      "Func":              InterfaceSpecFactory(xeto.type("Function")),
+      "LibDependVersions": LibDependVersionsFactory(xeto.type("LibDependVersions")),
+      "Spec":              DictFactory(xeto.type("Spec")),
+      "UnitQuantity":      UnitQuantityFactory(xeto.type("UnitQuantity")),
 
       // haystack pod
       "Filter":   FilterFactory(hay.type("Filter")),
@@ -429,6 +430,13 @@ internal const class UnitFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Unit.fromStr(str, checked) }
+}
+
+@Js
+internal const class UnitQuantityFactory : ScalarSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Obj? decodeScalar(Str str, Bool checked := true) { UnitQuantity.fromStr(str, checked) }
 }
 
 @Js
