@@ -68,8 +68,7 @@ const class MFactories
   }
 
   ** Default scalar factory
-//  const SpecFactory scalar := GenericScalarFactory()
-const SpecFactory scalar := StrFactory()
+  const SpecFactory scalar := GenericScalarFactory()
 
   ** Default dict factory
   const SpecFactory dict := DictFactory()

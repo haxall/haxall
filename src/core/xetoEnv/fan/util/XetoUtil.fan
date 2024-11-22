@@ -480,16 +480,17 @@ const class XetoUtil
   private static Obj? instantiateEnumDefault(XetoSpec slot)
   {
     val := slot.get("val")
+    if (val == null) return null
     if (val is Ref) return val
-    if (val is Str && !val.toStr.isEmpty) return val
+    s := val.toStr // TODO: handle Scalar
+    if (!s.isEmpty) return s
     return null
   }
 
   private static Obj instantiateScalar(MNamespace ns, XetoSpec spec, Dict meta)
   {
-    x := meta["val"]
-    if (x != null) return x
-    x = spec.type.meta["val"]
+    x := meta["val"] ?: spec.type.meta["val"]
+    if (x is Scalar) x = x.toStr // TODO: handle Scalar
     if (x != null) return x
     return ""
   }

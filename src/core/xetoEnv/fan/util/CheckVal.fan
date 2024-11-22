@@ -72,7 +72,7 @@ const class CheckVal
   {
     if (x is Number) return checkNumber(spec, x, onErr)
     if (spec.ctype.isEnum) return checkEnum(spec, x, onErr)
-    if (x is Str) return checkStr(spec, x, onErr)
+    if (x is Str || x is Scalar) return checkStr(spec, x.toStr, onErr)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -152,8 +152,9 @@ const class CheckVal
 
   static Void checkEnum(CSpec spec, Obj x, |Str| onErr)
   {
-    // value must be string key or mapped by factory to Enum
+    // value must be string key, Scalar, or mapped by factory to Enum
     key := x as Str
+    if (key == null) key = (x as Scalar)?.val
     if (key == null) key = (x as Enum)?.name
     if (key == null) key = (x as Unit)?.symbol
     if (key == null) return onErr("Invalid enum value type, $x.typeof not Str")

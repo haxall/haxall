@@ -34,7 +34,7 @@ class EnumTest : AbstractXetoTest
      verifyEq(e.base.qname, "sys::Enum")
      verifyEq(e.base.isEnum, false)
      verifyEq(e.meta["sealed"], Marker.val)
-     verifyEq(e.meta["val"], "diamonds")
+     verifyEq(e.meta["val"], Scalar(e.qname, "diamonds"))
      verifySame(e.enum, e.enum)
      verifyEq(e.enum.keys, ["diamonds", "clubs", "hearts", "spades"])
      verifyEnumFlags(e)
@@ -72,7 +72,7 @@ class EnumTest : AbstractXetoTest
 
      verifyEq(e.isEnum, true)
      verifyEq(e.meta["sealed"], Marker.val)
-     verifyEq(e.meta["val"], "Diamonds!")
+     verifyEq(e.meta["val"], Scalar(e.qname, "Diamonds!"))
      verifySame(e.enum, e.enum)
      verifyEq(e.enum.keys, ["Diamonds!", "Clubs!", "Hearts!", "Spades!"])
      verifyEnumFlags(e)
@@ -111,7 +111,7 @@ class EnumTest : AbstractXetoTest
      verifyEq(e.isEnum, true)
      verifyEq(e.meta["foo"], Marker.val)
      verifyEq(e.meta["sealed"], Marker.val)
-     verifyEq(e.meta["val"], "diamonds")
+     verifyEq(e.meta["val"], Scalar(e.qname, "diamonds"))
      verifyEnumFlags(e)
      verifyEnumItem(e, "diamonds", ["foo":m, "color":"r", "doc":"Red diamonds"])
      verifyEnumItem(e, "clubs",    ["foo":m, "color":"b", "doc":"Black clubs"])
@@ -134,8 +134,8 @@ class EnumTest : AbstractXetoTest
      c := lib.type("Car")
      a := lib.instance("a")
      b := lib.instance("b")
-     verifyDictEq(a, ["id":Ref("${lib.name}::a"), "spec":c._id, "color":"red"])
-     verifyDictEq(b, ["id":Ref("${lib.name}::b"), "spec":c._id, "color":"blue"])
+     verifyDictEq(a, ["id":Ref("${lib.name}::a"), "spec":c._id, "color":Scalar(e.qname, "red")])
+     verifyDictEq(b, ["id":Ref("${lib.name}::b"), "spec":c._id, "color":Scalar(e.qname, "blue")])
   }
 
   Void verifyEnumFlags(Spec enum)
