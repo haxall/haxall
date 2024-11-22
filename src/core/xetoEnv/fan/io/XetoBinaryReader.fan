@@ -16,6 +16,7 @@ using haystack::Remove
 using haystack::Number
 using haystack::Ref
 using haystack::Coord
+using haystack::Span
 using haystack::Symbol
 using haystack::Dict
 using haystack::Grid
@@ -24,8 +25,12 @@ using haystack::GridBuilder
 **
 ** Reader for Xeto binary encoding of specs and data
 **
-** NOTE: this encoding is not backward/forward compatible - it only
-** works with XetoBinaryWriter of the same version
+** This encoding does not provide full fidelity with Xeto model.  Most
+** scalars are encoded as just a string.  However it does support some
+** types not supported by Haystack fidelity level such as Int, Float, Buf.
+**
+** NOTE: this encoding is not backward/forward compatible - it only works
+** with XetoBinaryReader of the same version; do not use for persistent data
 **
 @Js
 class XetoBinaryReader : XetoBinaryConst, NameDictReader
@@ -281,6 +286,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlSpecRef:      return readSpecRef // resolve to Spec later
       case ctrlList:         return readList
       case ctrlGrid:         return readGrid
+      case ctrlSpan:         return readSpan
       case ctrlVersion:      return readVersion
       case ctrlCoord:        return readCoord
       case ctrlSymbol:       return readSymbol
@@ -396,6 +402,11 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       gb.addRow(cells)
     }
     return gb.toGrid
+  }
+
+  private Span readSpan()
+  {
+    Span(readUtf)
   }
 
   private Version readVersion()

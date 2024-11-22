@@ -52,8 +52,9 @@ mixin XetoBinaryConst
   static const Int ctrlSpecRef      := 24
   static const Int ctrlList         := 25
   static const Int ctrlGrid         := 26
-  static const Int ctrlVersion      := 27
-  static const Int ctrlCoord        := 28
-  static const Int ctrlSymbol       := 29
+  static const Int ctrlSpan         := 27
+  static const Int ctrlVersion      := 28
+  static const Int ctrlCoord        := 29
+  static const Int ctrlSymbol       := 30
 }
 

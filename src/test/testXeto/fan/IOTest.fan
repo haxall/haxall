@@ -28,6 +28,7 @@ class IOTest : AbstractXetoTest
     server = TestServer(ns)
     client = TestClient(server).boot
 
+    // full fideltity scalars
     verifyIO(null)
     verifyIO(Marker.val)
     verifyIO(NA.val)
@@ -56,24 +57,29 @@ class IOTest : AbstractXetoTest
     verifyIO(123min)
     verifyIO(Buf().print("foobar"))
     verifyIO(Version("1.2.3"))
-    verifyIO(Unit("kW"))
-    verifyIO(UnitQuantity.volume)
     verifyIO(Etc.dict0)
     verifyIO(Etc.dict1("foo", m))
     verifyIO(Etc.dict2("foo", m, "bar", n(123)))
-    verifyIO(Obj?[,])
-    verifyIO(Obj?["a"])
-    verifyIO(Obj?["a", n(123)])
-    verifyIO(Obj?["a", null, n(123)])
     verifyIO(Coord(12f, -34f))
     verifyIO(Symbol("foo-bar"))
     verifyIO(Span.today)
     verifyIO(Span(Date("2024-11-21")))
-    verifyIO(SpanMode.lastMonth)
-    verifyIO(Filter("a and b"))
-    verifyIO(LibDependVersions("4.5.x"))
-    verifyIO(Scalar("hx.test.xeto::ScalarB", "beta"))
 
+    // loss of fideltity scalars
+    verifyIO(Unit("kW"), false)
+    verifyIO(UnitQuantity.volume, false)
+    verifyIO(SpanMode.lastMonth, false)
+    verifyIO(Filter("a and b"), false)
+    verifyIO(LibDependVersions("4.5.x"), false)
+    verifyIO(Scalar("hx.test.xeto::ScalarB", "beta"), false)
+
+    // lists
+    verifyIO(Obj?[,])
+    verifyIO(Obj?["a"])
+    verifyIO(Obj?["a", n(123)])
+    verifyIO(Obj?["a", null, n(123)])
+
+    // dicts
     a := ns.instantiate(ns.spec("ph::AcElecMeter"))
     b := dict(["spec":Ref("ph::Rtu"), "dis":"RTU", "equip":m, "ahu":m, "rtu":m])
     verifyIO(a)
@@ -88,6 +94,7 @@ class IOTest : AbstractXetoTest
     verifyIO([a, b])
     verifyIO(["foo", n(123), a, b])
 
+    // grid
     g := Etc.makeMapsGrid(["meta":"val"], [
         ["dis":"A", "foo":n(123)],
         ["dis":"B", "bar":m]
@@ -96,16 +103,22 @@ class IOTest : AbstractXetoTest
     verifyIO(g)
   }
 
-  Void verifyIO(Obj? val)
+  Void verifyIO(Obj? val, Bool fullFidelity := true)
   {
     // binary format
     buf := Buf()
     server.io.writer(buf.out).writeVal(val)
     // echo("--> $val [$buf.size bytes]")
     x := client.io.reader(buf.flip.in).readVal
-if (!Etc.eq(val, x)) echo("WARN: $val [$val.typeof] != $x [$x.typeof]")
-else
-    verifyValEq(val, x)
+    if (fullFidelity)
+    {
+      verifyValEq(val, x)
+    }
+    else
+    {
+      //echo("Loss of fidelity: $x [$x.typeof]")
+      verifyEq(x, val.toStr)
+    }
 
     // Xeto format does not support null
     if (val == null) return null

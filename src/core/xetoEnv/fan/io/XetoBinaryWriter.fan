@@ -15,14 +15,19 @@ using haystack::Remove
 using haystack::Number
 using haystack::Ref
 using haystack::Coord
+using haystack::Span
 using haystack::Symbol
 using haystack::Grid
 
 **
-** Writer for Xeto binary encoding of specs and data
+** Writer for Xeto binary encoding of specs and data.
 **
-** NOTE: this encoding is not backward/forward compatible - it only
-** works with XetoBinaryReader of the same version
+** This encoding does not provide full fidelity with Xeto model.  Most
+** scalars are encoded as just a string.  However it does support some
+** types not supported by Haystack fidelity level such as Int, Float, Buf.
+**
+** NOTE: this encoding is not backward/forward compatible - it only works
+** with XetoBinaryReader of the same version; do not use for persistent data
 **
 @Js
 class XetoBinaryWriter : XetoBinaryConst
@@ -228,6 +233,7 @@ class XetoBinaryWriter : XetoBinaryConst
     if (type === Uri#)      return writeUri(val)
     if (type === Coord#)    return writeCoord(val)
     if (val is Grid)        return writeGrid(val)
+    if (val is Span)        return writeSpan(val)
     if (val is Symbol)      return writeSymbol(val)
 
     // non-haystack
@@ -236,7 +242,7 @@ class XetoBinaryWriter : XetoBinaryConst
     if (type === Duration#) return writeDuration(val)
     if (type === Version#)  return writeVersion(val)
 
-    // assume scalar string value
+    // assume scalar string value with loss of fidelity
     writeStr(val.toStr)
   }
 
@@ -364,6 +370,13 @@ class XetoBinaryWriter : XetoBinaryConst
     write(ctrlBuf)
     writeVarInt(buf.size)
     out.writeBuf(buf.seek(0))
+    return this
+  }
+
+  private This writeSpan(Span span)
+  {
+    out.write(ctrlSpan)
+    out.writeUtf(span.toStr)
     return this
   }
 
