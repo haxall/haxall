@@ -399,6 +399,9 @@ internal class RemoteLoader
     // skip if already mapped as Fantom string
     if (spec.factory.type === Str#) return
 
+    // for remote namespaces, leave generic scalars as strings
+    if (spec.factory.isGenericScalar) return
+
     try
     {
       // decode string to its scalar fantom instance
