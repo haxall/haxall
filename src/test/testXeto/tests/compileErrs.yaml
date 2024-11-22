@@ -140,8 +140,10 @@ verifyErrs: |
   Cannot inherit from sealed type 'Uri'
   Cannot inherit from Enum type 'Enum2'
   Cannot And scalar 'MyScalar' and dict 'MyDict'
+  Cannot inherit from sealed type 'List'
   Cannot And scalar 'MyScalar' and list 'List'
   Cannot And dict 'MyDict' and list 'MyList'
+  Cannot inherit from sealed type 'List'
 ---
 name: "wrongInheritType"
 compileLib: |
@@ -240,7 +242,7 @@ name: "listChecks"
 compileLib: |
   A: List {
     a: Str
-  }
+   }
   B: A & Scalar
   C: Foo & A
   Foo: Dict
@@ -248,6 +250,7 @@ compileLib: |
     list: List { a:"x" }
   }
 verifyErrs: |
+  Cannot inherit from sealed type 'List'
   List specs cannot define slots
   Cannot And scalar 'Scalar' and list 'A'
   Cannot And dict 'Foo' and list 'A'

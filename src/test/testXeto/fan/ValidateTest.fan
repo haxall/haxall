@@ -140,10 +140,8 @@ class ValidateTest : AbstractXetoTest
            a: List<of:Str, nonEmpty>
            b: List<of:Str, minSize:1, maxSize:3>
            c: List<of:Number>
-           d: UriList?
+           d: List?<of:Uri>
          }
-
-         UriList: List<of:Uri>
          |>
 
     // all ok
@@ -250,7 +248,7 @@ class ValidateTest : AbstractXetoTest
            d: MultiRef<of:Bar>
            e: MultiRef?<of:Bar>
            equipRef: Ref?<of:Equip>
-           f: TestEquipRefList?
+           f: List?<of:Ref<of:Equip>>
          }
 
          Bar: Dict {}

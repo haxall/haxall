@@ -123,17 +123,17 @@ verifySpecIs:
   - {a: "test::Foo", b: "sys::Number", expect: false}
   - {a: "test::Foo", b: "sys::Seq",    expect: false}
 ---
-name: "maybeList"
+name: "maybeDict"
 compileLib: |
-  Foo: List? <of:Str>
+  Foo: Dict? <of:Str>
 verifySpecIs:
   - {a: "test::Foo", b: "sys::Obj",    expect: true}
   - {a: "test::Foo", b: "sys::Seq",    expect: true}
-  - {a: "test::Foo", b: "sys::List",   expect: true}
+  - {a: "test::Foo", b: "sys::List",   expect: false}
   - {a: "test::Foo", b: "sys::None",   expect: true}
   - {a: "test::Foo", b: "sys::Scalar", expect: false}
   - {a: "test::Foo", b: "sys::Str",    expect: false}
-  - {a: "test::Foo", b: "sys::Dict",   expect: false}
+  - {a: "test::Foo", b: "sys::Dict",   expect: true}
 ---
 name: "maybeCustom"
 compileLib: |
