@@ -16,6 +16,7 @@ using hxFolio
 **
 abstract class FolioTestImpl
 {
+
   AbstractFolioTest? test
 
   ** Implementation name for output
@@ -26,6 +27,10 @@ abstract class FolioTestImpl
 
   ** Open the folio implementation
   abstract Folio open(FolioConfig config)
+
+//////////////////////////////////////////////////////////////////////////
+// Feature Overrides
+//////////////////////////////////////////////////////////////////////////
 
   ** Verify Dict.dis
   virtual Void verifyDictDis(Dict r, Str expect)
@@ -39,6 +44,10 @@ abstract class FolioTestImpl
   {
     verifyEq(id.dis, expect)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
 
   Void verifyEq(Obj? a, Obj? b, Str? msg := null)      { test.verifyEq(a, b, msg) }
   Void verifyNotEq(Obj? a, Obj? b, Str? msg := null)   { test.verifyNotEq(a, b, msg) }

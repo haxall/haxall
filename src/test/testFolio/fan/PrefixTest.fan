@@ -11,9 +11,9 @@ using haystack
 using folio
 
 **
-** Namespace testing
+** Prefix testing
 **
-class NsTest : AbstractFolioTest
+class PrefixTest : AbstractFolioTest
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ class NsTest : AbstractFolioTest
 //////////////////////////////////////////////////////////////////////////
 
 
-  Void test() { fullImpls }
+  Void test() { runImpls }
   Void doTest()
   {
     verifyErr(ArgErr#) { open(toConfig("bad ns:")) }
