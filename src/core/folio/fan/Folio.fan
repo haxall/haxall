@@ -188,6 +188,17 @@ abstract const class Folio
     checkRead.doReadAll(filter, opts).dicts
   }
 
+  ** Read by id whether rec is in trash or not
+  @NoDoc Dict? readByIdTrash(Ref? id, Bool checked := true)
+  {
+    // optimize for common path
+    rec := readById(id, false)
+    if (rec != null) return rec
+
+    // route to readAll with trash options
+    return doReadAll(Filter.eq("id", id), optsLimit1AndTrash).dict(checked)
+  }
+
   ** Read all records matching filter.
   @NoDoc Obj? readAllEach(Filter filter, Dict? opts, |Dict| f)
   {
@@ -213,7 +224,10 @@ abstract const class Folio
   @NoDoc protected abstract Obj? doReadAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
 
   ** Options constant for {limit:1}
-  private const static Dict optsLimit1 := Etc.makeDict(["limit":Number(1)])
+  private const static Dict optsLimit1 := Etc.dict1("limit", Number(1))
+
+  ** Options constant for {limit:1, trash}
+  private const static Dict optsLimit1AndTrash := Etc.dict2("limit", Number(1), "trash", Marker.val)
 
   ** Read only persistent tags for given rec id
   @NoDoc virtual Dict? readByIdPersistentTags(Ref id, Bool checked := true) { throw UnsupportedErr() }

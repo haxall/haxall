@@ -501,6 +501,24 @@ class BasicTest : AbstractFolioTest
     set = folio.readAll(Filter("num >= 3"))
     verifyRecIds(set, [cId])
 
+    // readById
+    verifyReadById(aId, a)
+    verifyReadById(bId, b)
+    verifyReadById(cId, c)
+    verifyReadById(dId, null)
+
+    // verify can use read
+    verifyDictEq(folio.readAllList(Filter.eq("id", d.id), Etc.dict1("trash", m)).first, d)
+
+    // verify readByIdTrash
+    verifyDictEq(folio.readByIdTrash(aId), a)
+    verifyDictEq(folio.readByIdTrash(bId), b)
+    verifyDictEq(folio.readByIdTrash(cId), c)
+    verifyDictEq(folio.readByIdTrash(dId), d)
+    verifyEq(folio.readByIdTrash(Ref.gen, false), null)
+    verifyErr(UnknownRecErr#) { folio.readByIdTrash(Ref.gen) }
+    verifyErr(UnknownRecErr#) { folio.readByIdTrash(Ref.gen, true) }
+
     // get all tags/vals (trash should be filtered out)
     /*
     verifyReadAllTagNames("id",
@@ -528,6 +546,19 @@ class BasicTest : AbstractFolioTest
       Diff(b, ["trash":Marker.val]),
       Diff(c, ["trash":Marker.val]),
       Diff(d, ["trash":Remove.val])])
+      d = folio.readById(dId)
+
+    // readById
+    verifyReadById(aId, a)
+    verifyReadById(bId, null)
+    verifyReadById(cId, null)
+    verifyReadById(dId, d)
+
+    // verify readByIdTrash
+    verifyEq(folio.readByIdTrash(aId).id, aId)
+    verifyEq(folio.readByIdTrash(bId).id, bId)
+    verifyEq(folio.readByIdTrash(cId).id, cId)
+    verifyEq(folio.readByIdTrash(dId).id, dId)
 
     // trash filtered
     set = folio.readAll(Filter("num"))

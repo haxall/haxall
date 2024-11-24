@@ -79,11 +79,11 @@ const class FolioFlatFile : Folio
     dicts.size = ids.size
     ids.each |id, i|
     {
-      rec := map.get(id)
+      rec := map.get(id) as Dict
       if (rec == null && id.isRel && idPrefix != null)
         rec = map.get(id.toAbs(idPrefix))
 
-      if (rec != null)
+      if (rec != null && rec.missing("trash"))
         dicts[i] = rec
       else if (errMsg.isEmpty)
         errMsg = id.toStr

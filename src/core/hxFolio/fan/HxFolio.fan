@@ -154,9 +154,10 @@ const class HxFolio : Folio
     dicts.size = ids.size
     ids.each |id, i|
     {
-      dict := index.dict(id, false)
-      if (dict != null)
+      rec := index.rec(id, false)
+      if (rec != null && !rec.isTrash)
       {
+        dict := rec.dict
         if (cx != null && !cx.canRead(dict))
           errMsg = "No read permission: $id.toStr"
         else

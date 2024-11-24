@@ -121,6 +121,26 @@ class AbstractFolioTest : HaystackTest
     folio.readById(id)
   }
 
+  Void verifyReadById(Ref id, Dict? expect)
+  {
+    if (expect != null)
+    {
+      verifyDictEq(folio.readById(id), expect)
+      verifyDictEq(folio.readById(id, false), expect)
+      verifyDictEq(folio.readById(id, true), expect)
+      verifyDictEq(folio.readByIdsList([id]).first, expect)
+    }
+    else
+    {
+      verifyEq(folio.readById(id, false), null)
+      verifyEq(folio.readByIdsList([id], false), Dict?[null])
+      verifyErr(UnknownRecErr#) { folio.readById(id) }
+      verifyErr(UnknownRecErr#) { folio.readById(id, true) }
+      verifyErr(UnknownRecErr#) { folio.readByIdsList([id]) }
+      verifyErr(UnknownRecErr#) { folio.readByIdsList([id], true) }
+    }
+  }
+
   Dict addRec(Str:Obj tags)
   {
     id := tags["id"]
@@ -167,3 +187,4 @@ const class HxFolioTestImpl : FolioTestImpl
   override Bool isFull() { true }
   override Folio open(AbstractFolioTest t, FolioConfig c) { HxFolio.open(c) }
 }
+
