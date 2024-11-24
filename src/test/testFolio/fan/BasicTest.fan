@@ -681,7 +681,7 @@ class BasicTest : AbstractFolioTest
     verifyEq(folio.readCount(Filter("dis==\"x\"")), 0)
     verifyEq(folio.readCount(Filter("dis==\"y\"")), 0)
 
-    if (isHisSupported)
+    if (impl.supportsHis)
     {
       tz := TimeZone("New_York")
       pt := folio.commit(Diff.makeAdd(["dis":"pt", "his":m, "point":m, "tz":tz.name, "kind":"Number"])).newRec

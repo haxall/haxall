@@ -22,15 +22,15 @@ abstract class FolioTestImpl
   ** Implementation name for output
   abstract Str name()
 
-  ** I
-  abstract Bool isFull()
-
   ** Open the folio implementation
   abstract Folio open(FolioConfig config)
 
 //////////////////////////////////////////////////////////////////////////
 // Feature Overrides
 //////////////////////////////////////////////////////////////////////////
+
+  ** Does the implementation support the history API
+  virtual Bool supportsHis() { true }
 
   ** Verify Dict.dis
   virtual Void verifyDictDis(Dict r, Str expect)
@@ -63,8 +63,6 @@ class FolioFlatFileTestImpl : FolioTestImpl
 {
   override Str name() { "flatfile" }
 
-  override Bool isFull() { false }
-
   override Folio open(FolioConfig c) { FolioFlatFile.open(c) }
 
   // don't support disMacro
@@ -72,6 +70,9 @@ class FolioFlatFileTestImpl : FolioTestImpl
 
   // don't support disMacro
   override Void verifyIdDis(Ref id, Str expect) {}
+
+  // don't support history API
+  override Bool supportsHis() { false }
 }
 
 **************************************************************************
@@ -81,8 +82,6 @@ class FolioFlatFileTestImpl : FolioTestImpl
 class HxFolioTestImpl : FolioTestImpl
 {
   override Str name() { "hx" }
-
-  override Bool isFull() { true }
 
   override Folio open(FolioConfig c) { HxFolio.open(c) }
 }

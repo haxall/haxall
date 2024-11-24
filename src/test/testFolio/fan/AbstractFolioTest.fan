@@ -39,26 +39,21 @@ class AbstractFolioTest : HaystackTest
     tempDir.delete
   }
 
-  FolioTestImpl? curImpl
+  FolioTestImpl? impl
 
   Void runImpls()
   {
     impls.each |impl| { runImpl(impl) }
   }
 
-  Void fullImpls()
-  {
-    impls.each |impl| { if (impl.isFull) runImpl(impl) }
-  }
-
   Void runImpl(FolioTestImpl impl)
   {
     doMethod := typeof.method("do" + curTestMethod.name.capitalize)
     echo("-- Run:  $doMethod($impl.name) ...")
-    curImpl = impl
+    this.impl = impl
     doMethod.callOn(this, [,])
     teardown
-    curImpl = null
+    this.impl = null
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -72,7 +67,7 @@ class AbstractFolioTest : HaystackTest
   {
     if (folio != null) throw Err("Folio is already open!")
     if (config == null) config = toConfig
-    folioRef = curImpl.open(config)
+    folioRef = impl.open(config)
     return folio
   }
 
@@ -99,19 +94,6 @@ class AbstractFolioTest : HaystackTest
     return open(config)
   }
 
-  Bool isHisSupported()
-  {
-    try
-    {
-      folio.his
-      return true
-    }
-    catch (UnsupportedErr e)
-    {
-      return false
-    }
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Folio Utils
 //////////////////////////////////////////////////////////////////////////
@@ -128,13 +110,13 @@ class AbstractFolioTest : HaystackTest
     else
     {
       // route to implementation
-      curImpl.verifyDictDis(r, dis)
+      impl.verifyDictDis(r, dis)
     }
   }
 
   Void verifyIdDis(Ref id, Str dis)
   {
-    curImpl.verifyIdDis(id, dis)
+    impl.verifyIdDis(id, dis)
   }
 
   Dict readById(Ref id)

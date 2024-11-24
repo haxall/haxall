@@ -20,9 +20,11 @@ class HisTest  : AbstractFolioTest
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
-  Void testBasics() { fullImpls }
+  Void testBasics() { runImpls }
   Void doTestBasics()
   {
+    if (!impl.supportsHis) return
+
     open
 
     // bad write rec configuration
@@ -143,9 +145,11 @@ class HisTest  : AbstractFolioTest
 // Config
 //////////////////////////////////////////////////////////////////////////
 
-  Void testConfig() { fullImpls }
+  Void testConfig() { runImpls }
   Void doTestConfig()
   {
+    if (!impl.supportsHis) return
+
     open
 
     // create rec with couple items
@@ -230,3 +234,4 @@ class HisTest  : AbstractFolioTest
     verifyEq(a.size, b.size)
   }
 }
+
