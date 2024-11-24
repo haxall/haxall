@@ -20,7 +20,7 @@ class DisTest : AbstractFolioTest
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
-  Void test() { fullImpls }
+  Void test() { runImpls }
   Void doTest()
   {
     f := open
@@ -30,70 +30,72 @@ class DisTest : AbstractFolioTest
     b := addRec(["id":Ref("B-ID"), "disMacro":"\$aRef \$navName", "aRef":a.id, "navName":"B-0"])
     c := addRec(["id":Ref("C-ID"), "disMacro":"\$bRef \$navName", "bRef":b.id, "navName":"C-0"])
     d := addRec(["id":Ref("D-ID"), "disMacro":"\$cRef \$navName", "cRef":c.id, "navName":"D-0"])
-    verifyDis(a, "A-0")
-    verifyDis(b, "A-0 B-0")
-    verifyDis(c, "A-0 B-0 C-0")
-    verifyDis(d, "A-0 B-0 C-0 D-0")
+    verifyDictDis(a, "A-0")
+    verifyDictDis(b, "A-0 B-0")
+    verifyDictDis(c, "A-0 B-0 C-0")
+    verifyDictDis(d, "A-0 B-0 C-0 D-0")
 
     // update a and verify it ripples thru
     a = commit(a, ["dis":"A-1"])
     syncDis
-    verifyDis(a, "A-1")
-    verifyDis(b, "A-1 B-0")
-    verifyDis(c, "A-1 B-0 C-0")
-    verifyDis(d, "A-1 B-0 C-0 D-0")
+    verifyEq(a.dis, "A-1")
+    verifyEq(a.id.dis, "A-1")
+    verifyDictDis(a, "A-1")
+    verifyDictDis(b, "A-1 B-0")
+    verifyDictDis(c, "A-1 B-0 C-0")
+    verifyDictDis(d, "A-1 B-0 C-0 D-0")
 
     // update b and verify it ripples
     b = commit(b, ["navName":"B-1"])
     syncDis
-    verifyDis(a, "A-1")
-    verifyDis(b, "A-1 B-1")
-    verifyDis(c, "A-1 B-1 C-0")
-    verifyDis(d, "A-1 B-1 C-0 D-0")
+    verifyDictDis(a, "A-1")
+    verifyDictDis(b, "A-1 B-1")
+    verifyDictDis(c, "A-1 B-1 C-0")
+    verifyDictDis(d, "A-1 B-1 C-0 D-0")
 
     // update c and verify it ripples
     c = commit(c, ["navName":"C-1"])
     syncDis
-    verifyDis(a, "A-1")
-    verifyDis(b, "A-1 B-1")
-    verifyDis(c, "A-1 B-1 C-1")
-    verifyDis(d, "A-1 B-1 C-1 D-0")
+    verifyDictDis(a, "A-1")
+    verifyDictDis(b, "A-1 B-1")
+    verifyDictDis(c, "A-1 B-1 C-1")
+    verifyDictDis(d, "A-1 B-1 C-1 D-0")
 
     // update d
     d = commit(d, ["navName":"D-1"])
     syncDis
-    verifyDis(a, "A-1")
-    verifyDis(b, "A-1 B-1")
-    verifyDis(c, "A-1 B-1 C-1")
-    verifyDis(d, "A-1 B-1 C-1 D-1")
+    verifyDictDis(a, "A-1")
+    verifyDictDis(b, "A-1 B-1")
+    verifyDictDis(c, "A-1 B-1 C-1")
+    verifyDictDis(d, "A-1 B-1 C-1 D-1")
 
     // change bRef on c
     bx := addRec(["id":Ref("BX-ID"), "dis":"BX-0"])
     c = commit(c, ["bRef":bx.id])
     syncDis
-    verifyDis(a,  "A-1")
-    verifyDis(b,  "A-1 B-1")
-    verifyDis(bx, "BX-0")
-    verifyDis(c,  "BX-0 C-1")
-    verifyDis(d,  "BX-0 C-1 D-1")
+    verifyDictDis(a,  "A-1")
+    verifyDictDis(b,  "A-1 B-1")
+    verifyDictDis(bx, "BX-0")
+    verifyDictDis(c,  "BX-0 C-1")
+    verifyDictDis(d,  "BX-0 C-1 D-1")
 
     // update bX to point to a
     bx = commit(bx, ["dis":Remove.val, "disMacro":"\$aRef \$navName", "aRef":a.id, "navName":"BX-1"])
     syncDis
-    verifyDis(a,  "A-1")
-    verifyDis(b,  "A-1 B-1")
-    verifyDis(bx, "A-1 BX-1")
-    verifyDis(c,  "A-1 BX-1 C-1")
-    verifyDis(d,  "A-1 BX-1 C-1 D-1")
+    verifyDictDis(a,  "A-1")
+    verifyDictDis(b,  "A-1 B-1")
+    verifyDictDis(bx, "A-1 BX-1")
+    verifyDictDis(c,  "A-1 BX-1 C-1")
+    verifyDictDis(d,  "A-1 BX-1 C-1 D-1")
 
     // update bx to point to itself
     bx = commit(bx, ["aRef":bx.id, "navName":"NN"])
     syncDis
-    verifyDis(a,  "A-1")
-    verifyDis(b,  "A-1 B-1")
-    verifyDis(c,  "BX-ID NN C-1")
-    verifyDis(d,  "BX-ID NN C-1 D-1")
-    verifyEq(folio.readById(bx.id).id.dis, "BX-ID NN")
+    verifyDictDis(a,  "A-1")
+    verifyDictDis(b,  "A-1 B-1")
+    verifyDictDis(c,  "BX-ID NN C-1")
+    verifyDictDis(d,  "BX-ID NN C-1 D-1")
+    verifyIdDis(folio.readById(bx.id).id, "BX-ID NN")
 
     // batch change: update a, b, and c.bRef
     folio.commitAll([
@@ -101,26 +103,26 @@ class DisTest : AbstractFolioTest
       Diff(b, ["navName":"B-2"], Diff.force),
       Diff(c, ["bRef":b.id, "navName":"C-2"], Diff.force)])
     syncDis
-    verifyDis(a,  "A-2")
-    verifyDis(b,  "A-2 B-2")
-    verifyDis(c,  "A-2 B-2 C-2")
-    verifyDis(d,  "A-2 B-2 C-2 D-1")
-    verifyEq(folio.readById(bx.id).id.dis, "BX-ID NN")
+    verifyDictDis(a,  "A-2")
+    verifyDictDis(b,  "A-2 B-2")
+    verifyDictDis(c,  "A-2 B-2 C-2")
+    verifyDictDis(d,  "A-2 B-2 C-2 D-1")
+    verifyIdDis(folio.readById(bx.id).id, "BX-ID NN")
 
     // reopen and test again
     reopen
-    verifyDis(a,  "A-2")
-    verifyDis(b,  "A-2 B-2")
-    verifyDis(c,  "A-2 B-2 C-2")
-    verifyDis(d,  "A-2 B-2 C-2 D-1")
-    verifyEq(folio.readById(bx.id).id.dis, "BX-ID NN")
+    verifyDictDis(a,  "A-2")
+    verifyDictDis(b,  "A-2 B-2")
+    verifyDictDis(c,  "A-2 B-2 C-2")
+    verifyDictDis(d,  "A-2 B-2 C-2 D-1")
+    verifyIdDis(folio.readById(bx.id).id, "BX-ID NN")
 
     // delete b
     removeRec(b)
     syncDis
-    verifyDis(a,  "A-2")
-    verifyDis(c,  "B-ID C-2")
-    verifyDis(d,  "B-ID C-2 D-1")
+    verifyDictDis(a, "A-2")
+    verifyDictDis(c, "B-ID C-2")
+    verifyDictDis(d, "B-ID C-2 D-1")
   }
 
   Void syncDis()
@@ -128,12 +130,7 @@ class DisTest : AbstractFolioTest
     Actor.sleep(10ms)
   }
 
-  Void verifyDis(Dict r, Str dis)
-  {
-    r = folio.readById(r.id)
-    verifyEq(r.dis, dis)
-    verifyEq(r.id.dis, dis)
-  }
+
 
 }
 

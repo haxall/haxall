@@ -247,11 +247,9 @@ Trash [#trash]
 **************
 Records are moved into the *trash bin* by adding the `trash` marker
 tag.  Trash recs continue to operate in the database just like any other
-record except they are not included in any filtered queries unless
-an explicit '{trash}' option is used. Note that funcs that work with
-id refs like `readById()` and `readLink()` will return trashed recs. Also,
-Haystack filters that filter only by 'id' (e.g. 'id == @ref') are optimized to use
-`readById()` and will also return trashed recs.
+record except they are not included in any read operations unless an
+explicit '{trash}' option is used (note the currently only readAll allows
+options to read trash).
 
 Concurrency Control [#concurrency]
 **********************************

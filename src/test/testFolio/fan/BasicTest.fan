@@ -20,7 +20,7 @@ class BasicTest : AbstractFolioTest
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
-  Void testBasics() { allImpls }
+  Void testBasics() { runImpls }
   Void doTestBasics()
   {
     // initial state
@@ -358,7 +358,7 @@ class BasicTest : AbstractFolioTest
 // Filters
 //////////////////////////////////////////////////////////////////////////
 
-  Void testFilters() { fullImpls }
+  Void testFilters() { runImpls }
   Void doTestFilters()
   {
     open
@@ -404,7 +404,7 @@ class BasicTest : AbstractFolioTest
 // Remove Tag
 //////////////////////////////////////////////////////////////////////////
 
-  Void testRemoveTags() { allImpls }
+  Void testRemoveTags() { runImpls }
   Void doTestRemoveTags()
   {
     f := open
@@ -428,7 +428,7 @@ class BasicTest : AbstractFolioTest
 // Read Opts
 //////////////////////////////////////////////////////////////////////////
 
-  Void testReadOpts() { allImpls }
+  Void testReadOpts() { runImpls }
   Void doTestReadOpts()
   {
     open
@@ -484,7 +484,7 @@ class BasicTest : AbstractFolioTest
 // Trash
 //////////////////////////////////////////////////////////////////////////
 
-  Void testTrash() { allImpls }
+  Void testTrash() { runImpls }
   Void doTestTrash()
   {
     open
@@ -595,7 +595,7 @@ class BasicTest : AbstractFolioTest
 // Kinds
 //////////////////////////////////////////////////////////////////////////
 
-  Void testKinds() { allImpls }
+  Void testKinds() { runImpls }
   Void doTestKinds()
   {
     open
@@ -645,7 +645,7 @@ class BasicTest : AbstractFolioTest
 // Hooks
 //////////////////////////////////////////////////////////////////////////
 
-  Void testHooks() { allImpls }
+  Void testHooks() { runImpls }
   Void doTestHooks()
   {
     open

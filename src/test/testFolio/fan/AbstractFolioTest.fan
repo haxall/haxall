@@ -22,15 +22,15 @@ class AbstractFolioTest : HaystackTest
 // Test
 //////////////////////////////////////////////////////////////////////////
 
-  static const FolioTestImpl[] impls
-  static
+  FolioTestImpl[] impls()
   {
-    list := [FolioFlatFileTestImpl(), HxFolioTestImpl()]
+    acc := [FolioFlatFileTestImpl(), HxFolioTestImpl()]
     try
-      list.addNotNull(Type.find("testSkyarcd::Folio3TestImpl", false)?.make)
+      acc.addNotNull(Type.find("testSkyarcd::Folio3TestImpl", false)?.make)
     catch (Err e)
       e.trace
-    impls = list
+    acc.each |impl| { impl.test = this }
+    return acc
   }
 
   override Void teardown()
@@ -41,7 +41,7 @@ class AbstractFolioTest : HaystackTest
 
   FolioTestImpl? curImpl
 
-  Void allImpls()
+  Void runImpls()
   {
     impls.each |impl| { runImpl(impl) }
   }
@@ -72,7 +72,7 @@ class AbstractFolioTest : HaystackTest
   {
     if (folio != null) throw Err("Folio is already open!")
     if (config == null) config = toConfig
-    folioRef = curImpl.open(this, config)
+    folioRef = curImpl.open(config)
     return folio
   }
 
@@ -115,6 +115,27 @@ class AbstractFolioTest : HaystackTest
 //////////////////////////////////////////////////////////////////////////
 // Folio Utils
 //////////////////////////////////////////////////////////////////////////
+
+  Void verifyDictDis(Dict r, Str dis)
+  {
+    r = folio.readById(r.id)
+    if (r.missing("disMacro"))
+    {
+      // we expect all implementations to handle non-macro updates
+      verifyEq(r.dis, dis)
+      verifyEq(r.id.dis, dis)
+    }
+    else
+    {
+      // route to implementation
+      curImpl.verifyDictDis(r, dis)
+    }
+  }
+
+  Void verifyIdDis(Ref id, Str dis)
+  {
+    curImpl.verifyIdDis(id, dis)
+  }
 
   Dict readById(Ref id)
   {
@@ -161,30 +182,5 @@ class AbstractFolioTest : HaystackTest
     folio.commit(Diff.make(folio.readById(rec.id), null, Diff.remove))
   }
 
-}
-
-**************************************************************************
-** FolioTestImpl
-**************************************************************************
-
-abstract const class FolioTestImpl
-{
-  abstract Str name()
-  abstract Bool isFull()
-  abstract Folio open(AbstractFolioTest t, FolioConfig config)
-}
-
-const class FolioFlatFileTestImpl : FolioTestImpl
-{
-  override Str name() { "flatfile" }
-  override Bool isFull() { false }
-  override Folio open(AbstractFolioTest t, FolioConfig c) { FolioFlatFile.open(c) }
-}
-
-const class HxFolioTestImpl : FolioTestImpl
-{
-  override Str name() { "hx" }
-  override Bool isFull() { true }
-  override Folio open(AbstractFolioTest t, FolioConfig c) { HxFolio.open(c) }
 }
 
