@@ -17,7 +17,13 @@ using hxFolio
 abstract class FolioTestImpl
 {
 
-  AbstractFolioTest? test
+  ** Current test
+  AbstractFolioTest test() { testRef ?: throw Err("Not associated with test") }
+  internal AbstractFolioTest? testRef
+
+  ** Folio instance
+  Folio folio() { folioRef ?: throw Err("Folio is not open") }
+  internal Folio? folioRef
 
   ** Implementation name for output
   abstract Str name()
@@ -25,12 +31,60 @@ abstract class FolioTestImpl
   ** Open the folio implementation
   abstract Folio open(FolioConfig config)
 
+  ** Close the current database
+  virtual Void close()
+  {
+    folio.close
+    folioRef = null
+  }
+
+  ** Close and delete current database
+  virtual Void teardown()
+  {
+    folioRef?.close
+    test.tempDir.delete
+    folioRef = null
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Feature Overrides
 //////////////////////////////////////////////////////////////////////////
 
+  ** Does the implementation support transient commits
+  virtual Bool supportsTransient() { true }
+
   ** Does the implementation support the history API
   virtual Bool supportsHis() { true }
+
+  ** Verify record a is the same b.  If the implementation supports
+  ** an in-memory cache then they should be the same instance in memory,
+  ** otherwise they should be the same by tag values
+  virtual Void verifyRecSame(Dict? a, Dict? b)
+  {
+    verifySame(a, b)
+  }
+
+  ** Verify the current version of Folio is greater than prev.
+  ** Return new version
+  virtual Int verifyCurVerChange(Int prev)
+  {
+    folio.sync
+    cur := folio.curVer
+    // echo("~~ verifyCurVerChange $cur ?> $prev")
+    verify(cur > prev)
+    return cur
+  }
+
+  ** Verify the current version the same as prev.
+  ** Return new version
+  Int verifyCurVerNoChange(Int prev)
+  {
+    folio.sync
+    cur := folio.curVer
+    // echo("~~ verifyCurVerNoChange $cur ?= $prev")
+    verifyEq(cur, prev)
+    return prev
+  }
 
   ** Verify Dict.dis
   virtual Void verifyDictDis(Dict r, Str expect)
@@ -49,6 +103,7 @@ abstract class FolioTestImpl
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
+  Void verify(Bool c, Str? msg := null)                { test.verify(c, msg) }
   Void verifyEq(Obj? a, Obj? b, Str? msg := null)      { test.verifyEq(a, b, msg) }
   Void verifyNotEq(Obj? a, Obj? b, Str? msg := null)   { test.verifyNotEq(a, b, msg) }
   Void verifySame(Obj? a, Obj? b, Str? msg := null)    { test.verifySame(a, b, msg) }

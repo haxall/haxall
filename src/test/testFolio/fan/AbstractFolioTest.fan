@@ -25,18 +25,21 @@ class AbstractFolioTest : HaystackTest
   FolioTestImpl[] impls()
   {
     acc := [FolioFlatFileTestImpl(), HxFolioTestImpl()]
-    try
-      acc.addNotNull(Type.find("testSkyarcd::Folio3TestImpl", false)?.make)
-    catch (Err e)
-      e.trace
-    acc.each |impl| { impl.test = this }
+    Env.cur.index("testFolio.impl").each |qname|
+    {
+      try
+        acc.addNotNull(Type.find(qname).make)
+      catch (Err e)
+        e.trace
+    }
+    acc.each |impl| { impl.testRef = this }
     return acc
   }
 
   override Void teardown()
   {
-    if (folio != null) close
-    tempDir.delete
+    impl?.teardown
+    impl = null
   }
 
   FolioTestImpl? impl
@@ -60,15 +63,14 @@ class AbstractFolioTest : HaystackTest
 // Folio Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
-  virtual Folio? folio() { folioRef }
-  Folio? folioRef
+  virtual Folio folio() { impl.folio }
 
   virtual Folio open(FolioConfig? config := null)
   {
-    if (folio != null) throw Err("Folio is already open!")
+    if (impl.folioRef != null) throw Err("Folio is already open!")
     if (config == null) config = toConfig
-    folioRef = impl.open(config)
-    return folio
+    impl.folioRef = impl.open(config)
+    return impl.folio
   }
 
   FolioConfig toConfig(Str? idPrefix := null)
@@ -83,9 +85,7 @@ class AbstractFolioTest : HaystackTest
 
   Void close()
   {
-   if (folio == null) throw Err("Folio not open!")
-   folio.close
-   folioRef = null
+    impl.close
   }
 
   Folio reopen(FolioConfig? config := null)
@@ -97,6 +97,21 @@ class AbstractFolioTest : HaystackTest
 //////////////////////////////////////////////////////////////////////////
 // Folio Utils
 //////////////////////////////////////////////////////////////////////////
+
+  Void verifyRecSame(Dict? a, Dict? b)
+  {
+    impl.verifyRecSame(a, b)
+  }
+
+  Int verifyCurVerChange(Int prev)
+  {
+    impl.verifyCurVerChange(prev)
+  }
+
+  Int verifyCurVerNoChange(Int prev)
+  {
+    impl.verifyCurVerNoChange(prev)
+  }
 
   Void verifyDictDis(Dict r, Str dis)
   {
