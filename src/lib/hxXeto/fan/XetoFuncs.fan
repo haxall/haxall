@@ -82,6 +82,10 @@ const class XetoFuncs
   ** the [dict]`xeto::Spec` representation.  If not found raise
   ** exception or return null based on checked flag.
   **
+  ** NOTE: returns the same Spec instance as returned by `xeto::LibNamespace`.
+  ** The spec meta is modeled using full fidelity and *not* haystack fidelity.
+  ** Use `specMeta` to normalize to haystack fidelity for use inside Axon.
+  **
   ** Examples:
   **   spec("ph::Meter")         // type string
   **   spec(@ph::Meter)          // type id
@@ -105,6 +109,10 @@ const class XetoFuncs
   ** dict representation for filtering supports a "slots" tag on each spec
   ** with a Dict of the effective slots name.  This allows filtering slots
   ** using the syntax 'slots->someName'.
+  **
+  ** NOTE: returns the same Spec instances as returned by `xeto::LibNamespace`.
+  ** The spec meta is modeled using full fidelity and *not* haystack fidelity.
+  ** Use `specMeta` to normalize to haystack fidelity for use inside Axon.
   **
   ** Examples:
   **   specs()                  // specs in using scope
@@ -180,7 +188,7 @@ const class XetoFuncs
   ** Load or lookup a instance from a Xeto library by its string or ref qname
   ** as a Dict. If not found raise exception or return null based on checked flag.
   **
-  ** NOTE: this function returns the instances using Haystack level fidelity
+  ** NOTE: this function returns the instance using Haystack level fidelity
   **
   ** Examples:
   **   instance("icons::apple")             // qname string
@@ -361,18 +369,22 @@ const class XetoFuncs
   **
   ** Get the spec's effective declared meta-data as dict.
   **
+  ** NOTE: this function returns the meta using haystack level fidelity
+  **
   ** Examples:
   **   specMeta(Date)  >>  {sealed, val:2000-01-01, doc:"...", pattern:"..."}
   **
-  @Axon static Dict specMeta(Spec spec) { spec.meta }
+  @Axon static Dict specMeta(Spec spec) { XetoUtil.toHaystack(spec.meta) }
 
   **
   ** Get the spec's own declared meta-data as dict.
   **
+  ** NOTE: this function returns the meta using haystack level fidelity
+  **
   ** Examples:
   **   specMetaOwn(Date)  >>  {sealed, val:2000-01-01, doc:"...", pattern:"..."}
   **
-  @Axon static Dict specMetaOwn(Spec spec) { spec.metaOwn }
+  @Axon static Dict specMetaOwn(Spec spec) { XetoUtil.toHaystack(spec.metaOwn) }
 
   **
   ** Get the spec's declared children slots as dict of Specs.

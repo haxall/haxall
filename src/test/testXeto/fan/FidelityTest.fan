@@ -85,19 +85,37 @@ return  // TODO
     if (debug) echo("   > ah = $v [$v.typeof]")
     verifyValEq(v, hay)
 
-    // Axon instantiate
+    // Axon spec (does not normalize to Haystack)
+    Spec axonS := eval("""spec("hx.test.xeto::Fidelity.${slot}")""")
+    v = axonS.get("val")
+    if (debug) echo("   > xs = $v [$v.typeof]")
+    verifyValEq(v, full)
+
+    // Axon specMeta (haystack fidelity)
+    Dict axonM := eval("""spec("hx.test.xeto::Fidelity.${slot}").specMeta""")
+    v = axonM.get("val")
+    if (debug) echo("   > xd = $v [$v.typeof]")
+    verifyValEq(v, hay)
+
+    // Axon specMeta (haystack fidelity)
+    axonM = eval("""spec("hx.test.xeto::Fidelity.${slot}").specMetaOwn""")
+    v = axonM.get("val")
+    if (debug) echo("   > xd = $v [$v.typeof]")
+    verifyValEq(v, hay)
+
+    // Axon instantiate (haystack fidelity)
     Dict axonI := eval("""spec("hx.test.xeto::Fidelity").instantiate""")
     v = axonI[slot]
     if (debug) echo("   > xi = $v [$v.typeof]")
     verifyValEq(v, hay)
 
-    // Axon instance
+    // Axon instance (haystack fidelity)
     Dict axonA := eval("""instance("hx.test.xeto::fidelityA")""")
     v = axonA[slot]
     if (debug) echo("   > xa = $v [$v.typeof]")
     verifyValEq(v, hay)
 
-    // Axon instances
+    // Axon instances (haystack fidelity)
     Dict axonB := eval("""instances().find(x => x->id.toStr == "hx.test.xeto::fidelityB")""")
     v = axonB[slot]
     if (debug) echo("   > xb = $v [$v.typeof]")
