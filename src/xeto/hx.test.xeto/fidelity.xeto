@@ -1,0 +1,59 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   25 Nov 2024  Brian Frank  Creation
+//
+
+Fidelity: {
+  bool: Bool "true"
+  int: Int 123
+  float: Float 72
+  number: Number 90kW
+  str: "hello"
+  ref: Ref "fidelity"
+  uri: Uri "file.txt"
+  date: Date "2024-11-25"
+  time: Time "14:30:00"
+  dateTime: DateTime "2024-11-25T10:24:35-05:00 New_York"
+  span: Span "2024-11-25"
+
+  tz: TimeZone "Chicago"
+  unit: Unit "meter"
+  unitQuantity: UnitQuantity "electricCurrentDensity"
+  spanMode: SpanMode "yesterday"
+  version: Version "4.0.9"
+
+  scalarA: ScalarA "alpha"
+  scalarB: ScalarB "bravo"
+}
+
+// This instance inherits defaults from spec
+@fidelityA: Fidelity {
+}
+
+// This instance duplicates the spec tags
+@fidelityB: {
+  bool: Bool "true"
+  int: Int 123
+  float: Float 72
+  number: Number 90kW
+  str: "hello"
+  ref: Ref "fidelity"
+  uri: Uri "file.txt"
+  date: Date "2024-11-25"
+  time: Time "14:30:00"
+  dateTime: DateTime "2024-11-25T10:24:35-05:00 New_York"
+  span: Span "2024-11-25"
+
+  tz: TimeZone "Chicago"
+  unit: Unit "meter"
+  unitQuantity: UnitQuantity "electricCurrentDensity"
+  spanMode: SpanMode "yesterday"
+  version: Version "4.0.9"
+
+  scalarA: ScalarA "alpha"
+  scalarB: ScalarB "bravo"
+}
+

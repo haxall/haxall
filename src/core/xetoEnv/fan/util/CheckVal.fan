@@ -146,6 +146,7 @@ const class CheckVal
     if (key == null) key = (x as Scalar)?.val
     if (key == null) key = (x as Enum)?.name
     if (key == null) key = (x as Unit)?.symbol
+    if (key == null) key = (x as TimeZone)?.name
     if (key == null) return onErr("Invalid enum value type, $x.typeof not Str")
 
     // verify key maps to enum item
