@@ -96,16 +96,23 @@ class AxonTest : AbstractAxonTest
     verifyReflect("LibOrg", ns.type("sys::LibOrg"))
 
     // instance
-    verifySame(eval("""instance("hx.test.xeto::test-a")"""), ns.instance("hx.test.xeto::test-a"))
-    verifySame(eval("""instance(@hx.test.xeto::test-a)"""), ns.instance("hx.test.xeto::test-a"))
-    verifySame(eval("""instance(@bad::one, false)"""), null)
+    verifyDictEq(eval("""instance("hx.test.xeto::test-a")"""), ns.instance("hx.test.xeto::test-a"))
+    verifyDictEq(eval("""instance(@hx.test.xeto::test-a)"""), ns.instance("hx.test.xeto::test-a"))
+    verifyEq(eval("""instance(@bad::one, false)"""), null)
 
     // instances
     allInstances := Dict[,]
-    ns.libs.each |lib| { lib.instances.each |x| { allInstances.add(x) } }
+    ns.libs.each |lib|
+    {
+      lib.instances.each |x|
+      {
+        allInstances.add(toHay(x))
+      }
+    }
+
     verifyDictsEq(eval("""instances()"""), allInstances)
-    verifyDictsEq(eval("""do x: specLib("hx.test.xeto"); instances(x); end"""), ns.lib("hx.test.xeto").instances)
-    verifyDictsEq(eval("""specLib("hx.test.xeto").instances"""), ns.lib("hx.test.xeto").instances)
+    verifyDictsEq(eval("""do x: specLib("hx.test.xeto"); instances(x); end"""), toHay(ns.lib("hx.test.xeto").instances))
+    verifyDictsEq(eval("""specLib("hx.test.xeto").instances"""), toHay(ns.lib("hx.test.xeto").instances))
     verifyDictsEq(eval("""[specLib("hx.test.xeto")].instances(alpha)"""), [ns.instance("hx.test.xeto::test-a")])
   }
 

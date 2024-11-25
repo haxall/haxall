@@ -180,6 +180,8 @@ const class XetoFuncs
   ** Load or lookup a instance from a Xeto library by its string or ref qname
   ** as a Dict. If not found raise exception or return null based on checked flag.
   **
+  ** NOTE: this function returns the instances using Haystack level fidelity
+  **
   ** Examples:
   **   instance("icons::apple")             // qname string
   **   instance(@icons::apple)              // qname Ref id
@@ -188,7 +190,7 @@ const class XetoFuncs
   **
   @Axon static Dict? instance(Obj qname, Bool checked := true)
   {
-    curContext.xeto.instance(qname.toStr, checked)
+    XetoUtil.toHaystack(curContext.xeto.instance(qname.toStr, checked))
   }
 
   **
@@ -201,12 +203,19 @@ const class XetoFuncs
   **
   ** If the filter is null, then it filters the instances from the scope.
   **
+  ** NOTE: this function returns the instances using Haystack level fidelity
+  **
   ** Examples:
   **   instances()                  // all instances in scope
   **   specLib("icons").instances   // instances in a given library
   **   instances(null, a and b)     // filter instances with filter expression
   **
   @Axon static Dict[] instances(Expr scope := Literal.nullVal, Expr filter := Literal.nullVal)
+  {
+    doInstances(scope, filter).map |x->Dict| { XetoUtil.toHaystack(x) }
+  }
+
+  private static Dict[] doInstances(Expr scope := Literal.nullVal, Expr filter := Literal.nullVal)
   {
     cx := curContext
 
@@ -271,8 +280,14 @@ const class XetoFuncs
   ** can be instantiated via the '{graph}' option in which case a Dict[] is
   ** returned.  In graph mode an 'id' is generated for recs for cross-linking.
   **
+  ** Also see `xeto::LibNamespace.instantiate`.
+  **
+  ** NOTE: this function forces the 'haystack' option to force all
+  ** non-Haystack scalars to be simple strings.
+  **
   ** Options:
   **   - 'graph': marker tag to instantiate a graph of recs
+  **   - 'abstract': marker to supress error if spec is abstract
   **
   ** Examples:
   **   // evaluates to 2000-01-01
@@ -286,7 +301,7 @@ const class XetoFuncs
   **
   @Axon static Obj? instantiate(Spec spec, Dict? opts := null)
   {
-    curContext.xeto.instantiate(spec, opts)
+    curContext.xeto.instantiate(spec, Etc.dictSet(opts, "haystack", Marker.val))
   }
 
 //////////////////////////////////////////////////////////////////////////

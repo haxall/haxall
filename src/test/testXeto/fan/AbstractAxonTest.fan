@@ -10,6 +10,7 @@ using xeto
 using haystack
 using haystack::Dict
 using haystack::Ref
+using xetoEnv
 using axon
 using folio
 using hx
@@ -66,6 +67,11 @@ abstract class AbstractAxonTest : HxTest
       if (err.cause == null) fail("EvalErr.cause is null: $expr")
       verifyErr(errType) { throw err.cause }
     }
+  }
+
+  Obj? toHay(Obj? x)
+  {
+    XetoUtil.toHaystack(x)
   }
 
 }

@@ -9,6 +9,7 @@
 using util
 using xeto
 using haystack::Etc
+using haystack::Kind
 using haystack::Marker
 using haystack::Number
 using haystack::Ref
@@ -411,6 +412,25 @@ const class XetoUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Fidelity
+//////////////////////////////////////////////////////////////////////////
+
+  ** Convert Xeto full level fidelity to a Haystack fidelity
+  static Obj? toHaystack(Obj? x)
+  {
+    if (x == null) return x
+    kind := Kind.fromVal(x, false)
+    if (kind != null)
+    {
+      if (kind.isDict) return ((Dict)x).map |v, n| { toHaystack(v) }
+      if (kind.isList) return ((List)x).map |v| { toHaystack(v) }
+      return x
+    }
+    if (x is Num) return Number.makeNum(x)
+    return x.toStr
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Instantiate
 //////////////////////////////////////////////////////////////////////////
 
@@ -421,7 +441,7 @@ const class XetoUtil
     if (meta.has("abstract") && opts.missing("abstract")) throw Err("Spec is abstract: $spec.qname")
 
     if (spec.isNone) return null
-    if (spec.type.isScalar) return instantiateScalar(ns, spec, meta)
+    if (spec.type.isScalar) return instantiateScalar(ns, spec, meta, opts)
     if (spec === ns.sys.dict) return Etc.dict0
     if (spec.isList)
     {
@@ -487,12 +507,14 @@ const class XetoUtil
     return null
   }
 
-  private static Obj instantiateScalar(MNamespace ns, XetoSpec spec, Dict meta)
+  private static Obj instantiateScalar(MNamespace ns, XetoSpec spec, Dict meta, Dict opts)
   {
+    hay := optBool(opts, "haystack", false)
     x := meta["val"] ?: spec.type.meta["val"]
     if (x is Scalar) x = x.toStr // TODO: handle Scalar
-    if (x != null) return x
-    return ""
+    if (x == null) x = ""
+    if (hay) x = toHaystack(x)
+    return x
   }
 
   private static Dict[] instantiateGraph(MNamespace ns, XetoSpec spec, Dict opts, Dict dict)

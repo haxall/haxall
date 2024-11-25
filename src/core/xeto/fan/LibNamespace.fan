@@ -257,6 +257,7 @@ const mixin LibNamespace
   **   - 'graph': marker tag to instantiate graph of recs (will auto-generate ids)
   **   - 'abstract': marker to supress error if spec is abstract
   **   - 'id': Ref tag to include in new instance
+  **   - 'haystack': marker tag to use Haystack level data fidelity
   abstract Obj? instantiate(Spec spec, Dict? opts := null)
 
   ** Return choice API for given spec. Callers should prefer the slot

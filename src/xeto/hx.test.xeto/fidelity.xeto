@@ -20,7 +20,7 @@ Fidelity: {
   span: Span "2024-11-25"
 
   tz: TimeZone "Chicago"
-  unit: Unit "meter"
+  unit: Unit "ft"
   unitQuantity: UnitQuantity "electricCurrentDensity"
   spanMode: SpanMode "yesterday"
   version: Version "4.0.9"
@@ -48,7 +48,7 @@ Fidelity: {
   span: Span "2024-11-25"
 
   tz: TimeZone "Chicago"
-  unit: Unit "meter"
+  unit: Unit "ft"
   unitQuantity: UnitQuantity "electricCurrentDensity"
   spanMode: SpanMode "yesterday"
   version: Version "4.0.9"
