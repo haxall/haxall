@@ -228,7 +228,34 @@ class JsonExporter : Exporter
   ** String literal
   private This str(Str s)
   {
-    w(s.toCode)
+    wc('"')
+    s.each |char|
+    {
+      if (char <= 0x7f)
+      {
+        switch (char)
+        {
+          case '\b': wc('\\').wc('b')
+          case '\f': wc('\\').wc('f')
+          case '\n': wc('\\').wc('n')
+          case '\r': wc('\\').wc('r')
+          case '\t': wc('\\').wc('t')
+          case '\\': wc('\\').wc('\\')
+          case '"':  wc('\\').wc('"')
+          default:
+            if (char < 0x20)
+              wc('\\').wc('u').w(char.toHex(4))
+            else
+              wc(char)
+        }
+      }
+      else
+      {
+        wc('\\').wc('u').w(char.toHex(4))
+      }
+    }
+    wc('"')
+    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
