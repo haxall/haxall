@@ -163,6 +163,7 @@ internal class GenPH : AbstractGenCmd
     {
       return "MultiRef"
     }
+    if (tag.name == "version") return "Version"
     return ns.defToKind(tag).name
   }
 
