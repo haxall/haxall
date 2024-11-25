@@ -511,7 +511,6 @@ const class XetoUtil
   {
     hay := optBool(opts, "haystack", false)
     x := meta["val"] ?: spec.type.meta["val"]
-    if (x is Scalar) x = x.toStr // TODO: handle Scalar
     if (x == null) x = ""
     if (hay) x = toHaystack(x)
     return x

@@ -43,7 +43,6 @@ class FidelityTest : AbstractAxonTest
     verifyFidelity(ns, "spanMode", SpanMode.yesterday, "yesterday")
     verifyFidelity(ns, "version", Version("4.0.9"), "4.0.9")
 
-return  // TODO
     verifyFidelity(ns, "scalarA", Scalar("hx.test.xeto::ScalarA", "alpha"), "alpha")
     verifyFidelity(ns, "scalarB", Scalar("hx.test.xeto::ScalarB", "bravo"), "bravo")
   }
