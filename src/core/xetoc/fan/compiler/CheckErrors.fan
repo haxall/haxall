@@ -366,7 +366,9 @@ internal class CheckErrors : Step
     {
       valType := val.ctype
       if (!valTypeFits(slot.ctype, valType, val.asm))
+      {
         errSlot(slot, "Slot type is '$slot.ctype', value type is '$valType'", x.loc)
+      }
 
       if (slot.isRef || slot.isMultiRef)
         checkRefTarget(slot, val)
@@ -377,9 +379,6 @@ internal class CheckErrors : Step
   {
     // check if fits by nominal typing
     if (valType.cisa(type)) return true
-
-    // TODO
-    if (valType.qname == "sys::Str") return true
 
     // MultiRef may be either Ref or Ref[]
     if (type.isMultiRef)

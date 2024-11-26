@@ -130,7 +130,8 @@ internal abstract class InferData : Step
     val := cspec.cmeta.get("val")
     if (val == null) return
     if (val == refDefVal) return
-    dict.set(slot.name, AScalar(dict.loc, null, val.toStr, val))
+    type := inferDictSlotType(dict.loc, slot)
+    dict.set(slot.name, AScalar(dict.loc, type, val.toStr, val))
   }
 
   private ASpecRef inferDictSlotType(FileLoc loc, CSpec slot)
