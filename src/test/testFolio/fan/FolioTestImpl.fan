@@ -77,7 +77,7 @@ abstract class FolioTestImpl
 
   ** Verify the current version the same as prev.
   ** Return new version
-  Int verifyCurVerNoChange(Int prev)
+  virtual Int verifyCurVerNoChange(Int prev)
   {
     folio.sync
     cur := folio.curVer
