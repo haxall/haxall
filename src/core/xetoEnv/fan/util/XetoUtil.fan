@@ -510,7 +510,7 @@ const class XetoUtil
     val := slot.get("val")
     if (val == null) return null
     if (val is Ref) return val
-    s := val.toStr // TODO: handle Scalar
+    s := val.toStr
     if (!s.isEmpty) return s
     return null
   }

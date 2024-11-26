@@ -99,12 +99,6 @@ internal class InheritSlots : Step
     // if already inferred
     if (x.base != null) return x.base
 
-    // first try to inherit from parent spec's inherited slot
-    /* TODO
-    base := inferBaseInherited(x)
-    if (base != null) return base
-    */
-
     // infer base from global slot
     base := inferBaseGlobal(x)
     if (base != null) return base
@@ -112,20 +106,6 @@ internal class InheritSlots : Step
     // try to infer from the explicit type if available
     return x.typeRef?.deref
   }
-
-  ** Attempt to infer base from parent type's inherited slots
-  ** NOTE: this code gets used in deeply nested specs
-  /* TODO
-  private CSpec? inferBaseInherited(ASpec x)
-  {
-    if (x.parent?.ctype != null)
-    {
-      p := x.parent.ctype.cslot(x.name, false)
-      if (p != null) return p
-    }
-    return null
-  }
-  */
 
   ** Attempt to infer base from global slots
   private CSpec? inferBaseGlobal(ASpec x)
