@@ -457,9 +457,9 @@ const class XetoUtil
     if (meta.has("abstract") && opts.missing("abstract")) throw Err("Spec is abstract: $spec.qname")
 
     if (spec.isNone) return null
-    if (spec.type.isScalar) return instantiateScalar(ns, spec, meta, opts)
+    if (spec.type.isScalar) return instantiateScalar(ns, spec, opts)
     if (spec === ns.sys.dict) return Etc.dict0
-    if (spec.isList) return instantiateList(ns, spec, meta, opts)
+    if (spec.isList) return instantiateList(ns, spec, opts)
 
     isGraph := opts.has("graph")
 
@@ -515,7 +515,7 @@ const class XetoUtil
     return null
   }
 
-  private static List instantiateList(MNamespace ns, XetoSpec spec, Dict meta, Dict opts)
+  private static List instantiateList(MNamespace ns, XetoSpec spec, Dict opts)
   {
     of := spec.of(false)
     listOf := of == null ? Obj# : of.fantomType
@@ -535,10 +535,10 @@ const class XetoUtil
     return acc.toImmutable
   }
 
-  private static Obj instantiateScalar(MNamespace ns, XetoSpec spec, Dict meta, Dict opts)
+  private static Obj instantiateScalar(MNamespace ns, XetoSpec spec, Dict opts)
   {
     hay := optBool(opts, "haystack", false)
-    x := meta["val"] ?: spec.type.meta["val"]
+    x := spec.meta["val"] ?: spec.type.meta["val"]
     if (x == null) x = ""
     if (hay) x = toHaystack(x)
     return x
