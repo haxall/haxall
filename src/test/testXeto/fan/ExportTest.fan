@@ -26,7 +26,7 @@ class ExportTest : AbstractXetoTest
     eff := Etc.dict1("effective", m)
 
     lib := ns.lib("hx.test.xeto")
-    depends := lib.depends.map |x| { Etc.dict2("lib", x.name, "versions", x.versions.toStr) }
+    depends := lib.depends.map |x| { Etc.dict3("lib", x.name, "versions", x.versions.toStr, "spec", Ref("sys::LibDepend")) }
     verifyExport(ns, def, "lib:hx.test.xeto", ["id":lib._id, "version":lib.version.toStr,
       "doc":lib->doc, "depends": depends, "fantomPodName":"testXeto", "spec":Ref("sys::Lib"),
       "org":Etc.dict3("dis", "Haxall", "uri", `https://haxall.io/`, "spec", Ref("sys::LibOrg"))
@@ -219,7 +219,7 @@ class ExportTest : AbstractXetoTest
     id := Ref(relId.contains(":") ? relId : "hx.test.xeto::$relId")
     expect = expect.dup.set("id", id)
     row := grid.find |r| { r["id"] == id } ?: throw Err("missing: $id")
-    //echo; echo(">>>>"); row.each |v, n| { echo("$n = $v [$v.typeof]") }
+    // echo; echo(">>>>"); row.each |v, n| { echo("$n = $v [$v.typeof]") }
     verifyDictEq(row, expect)
     return row
   }

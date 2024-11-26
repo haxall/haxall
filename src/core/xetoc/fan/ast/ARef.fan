@@ -91,6 +91,11 @@ internal class ASpecRef : ARef
   ** Dereference the resolved type spec
   CSpec deref() { resolvedRef ?: throw NotReadyErr(toStr) }
 
+  ** We smuggle the slots 'of' meta in via this field since we want
+  ** deref to be the type, not the slot.  But on some situations such as
+  ** inferring list items we still need this from the declaring slot
+  CSpec? of
+
   ** Resolved spec
   private CSpec? resolvedRef
 
@@ -138,5 +143,4 @@ internal class ADataRef : ARef
   ** Assembled instance
   Ref? asmRef := null
 }
-
 

@@ -73,9 +73,22 @@ internal abstract class InferData : Step
 
     // walk thru the spec slots and infer type/value
     spec := dict.ctype
+
+    // infer slots
     spec.cslots |slot|
     {
       inferDictSlot(dict, slot)
+    }
+
+    // infer values from parameterized of
+    of := dict.typeRef?.of
+    if (of != null)
+    {
+      dict.each |item|
+      {
+        if (item.typeRef == null)
+          item.typeRef = ASpecRef(item.loc, of)
+      }
     }
   }
 
@@ -91,7 +104,7 @@ internal abstract class InferData : Step
     if (cur != null)
     {
       if (cur.typeRef == null)
-        cur.typeRef = ASpecRef(cur.loc, inferDictSlotType(slot))
+        cur.typeRef = inferDictSlotType(cur.loc, slot)
       return
     }
 
@@ -120,11 +133,13 @@ internal abstract class InferData : Step
     dict.set(slot.name, AScalar(dict.loc, null, val.toStr, val))
   }
 
-  private CSpec inferDictSlotType(CSpec slot)
+  private ASpecRef inferDictSlotType(FileLoc loc, CSpec slot)
   {
     type := slot.ctype
-    if (type.isSelf && curSpec != null) return curSpec.ctype
-    return type
+    if (type.isSelf && curSpec != null) type = curSpec.ctype
+    ref := ASpecRef(loc, type)
+    ref.of = slot.cof // smuggle parameterized 'of' into ASpecRef
+    return ref
   }
 
   const Ref refDefVal := haystack::Ref("x")

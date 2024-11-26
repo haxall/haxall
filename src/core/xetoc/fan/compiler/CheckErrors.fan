@@ -343,8 +343,7 @@ internal class CheckErrors : Step
       if (!XetoUtil.isAutoName(n)) named = true
       if (of != null && !v.ctype.cisa(of))
       {
-        if (v.ctype.qname != "sys::Str") // TODO we should have coerced strings
-          errSlot(slot, "List item type is '$of', item type is '$v.ctype'", v.loc)
+        errSlot(slot, "List item type is '$of', item type is '$v.ctype'", v.loc)
       }
     }
     if (named) errSlot(slot, "List cannot contain named items", x.loc)

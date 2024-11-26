@@ -31,3 +31,11 @@
   dict: Dict { x: Int "4" }
 }
 
+ListOfTest: {
+  a: List? <of:Date>
+}
+
+@lists: ListOfTest {
+  a: {"2024-11-26", "2024-11-27"}
+}
+
