@@ -422,12 +422,28 @@ const class XetoUtil
     kind := Kind.fromVal(x, false)
     if (kind != null)
     {
-      if (kind.isDict) return ((Dict)x).map |v, n| { toHaystack(v) }
-      if (kind.isList) return ((List)x).map |v| { toHaystack(v) }
+      if (kind.isDict) return toHaystackDict(x)
+      if (kind.isList) return toHaystackList(x)
       return x
     }
     if (x is Num) return Number.makeNum(x)
     return x.toStr
+  }
+
+  ** Convert Xeto full level fidelity to a Haystack fidelity
+  static Dict toHaystackDict(Dict x)
+  {
+    x.map |v, n| { toHaystack(v) }
+  }
+
+  ** Convert Xeto full level fidelity to a Haystack fidelity
+  static List toHaystackList(List x)
+  {
+    of := Obj#
+    if (x.of.isNullable) of = of.toNullable
+    acc := List(of, x.size)
+    x.each |v| { acc.add(toHaystack(v)) }
+    return acc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -443,14 +459,7 @@ const class XetoUtil
     if (spec.isNone) return null
     if (spec.type.isScalar) return instantiateScalar(ns, spec, meta, opts)
     if (spec === ns.sys.dict) return Etc.dict0
-    if (spec.isList)
-    {
-      of := spec.of(false)
-      if (of == null) return Etc.list0
-      listOf := of.fantomType
-      if (of.isMaybe) listOf = of.base.fantomType.toNullable
-      return List(listOf, 0).toImmutable
-    }
+    if (spec.isList) return instantiateList(ns, spec, meta, opts)
 
     isGraph := opts.has("graph")
 
@@ -468,7 +477,6 @@ const class XetoUtil
 
     spec.slots.each |slot|
     {
-      if (slot.isMaybe) return
       if (slot.isMaybe) return
       if (slot.isQuery) return
       if (slot.isFunc) return
@@ -505,6 +513,26 @@ const class XetoUtil
     s := val.toStr // TODO: handle Scalar
     if (!s.isEmpty) return s
     return null
+  }
+
+  private static List instantiateList(MNamespace ns, XetoSpec spec, Dict meta, Dict opts)
+  {
+    of := spec.of(false)
+    listOf := of == null ? Obj# : of.fantomType
+    if (of != null && of.isMaybe) listOf = of.base.fantomType.toNullable
+    acc := List(listOf, 0)
+    val := spec.meta["val"] as List
+    if (val != null)
+    {
+      hay := optBool(opts, "haystack", false)
+      acc.capacity = val.size
+      val.each |v|
+      {
+        if (hay) v = toHaystack(v)
+        acc.add(v)
+      }
+    }
+    return acc.toImmutable
   }
 
   private static Obj instantiateScalar(MNamespace ns, XetoSpec spec, Dict meta, Dict opts)

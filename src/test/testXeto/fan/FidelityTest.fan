@@ -26,7 +26,7 @@ class FidelityTest : AbstractAxonTest
   {
     ns := initNamespace(["ph", "ph.points", "hx.test.xeto"])
 
-    verifyFidelity(ns, "bool",  true, true, true)
+    verifyFidelity(ns, "bool",  true, true)
     verifyFidelity(ns, "int",   123, n(123), 123f)
     verifyFidelity(ns, "float", 72f, n(72f), 72f)
     verifyFidelity(ns, "number", n(90, "kW"), n(90, "kW"), "90kW")
@@ -45,9 +45,11 @@ class FidelityTest : AbstractAxonTest
 
     verifyFidelity(ns, "scalarA", Scalar("hx.test.xeto::ScalarA", "alpha"), "alpha")
     verifyFidelity(ns, "scalarB", Scalar("hx.test.xeto::ScalarB", "bravo"), "bravo")
+
+    verifyFidelity(ns, "numbers", Obj[2, 3f, n(4)], Obj[n(2), n(3), n(4)])
   }
 
-  Void verifyFidelity(LibNamespace ns, Str slot, Obj full, Obj hay, Obj json := hay)
+  Void verifyFidelity(LibNamespace ns, Str slot, Obj full, Obj hay, Obj json := hay) // not using json now
   {
     spec := ns.spec("hx.test.xeto::Fidelity")
     a    := ns.instance("hx.test.xeto::fidelityA")

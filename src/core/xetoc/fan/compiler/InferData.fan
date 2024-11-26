@@ -101,12 +101,11 @@ internal abstract class InferData : Step
     // we don't infer slots from interfaces
     if (slot.cparent.isInterface) return
 
-    // we haven't run InheritMeta yet, so this is awkward....
-    // TODO: we need to run InheritMeta before Reify
+    // if slot is defined in the lib itself
     CSpec cspec := slot
     if (slot.isAst)
     {
-      val := ((ASpec)slot).metaGet("val") as AScalar
+      val := ((ASpec)slot).metaGet("val") as AData
       if (val != null)
       {
         dict.set(slot.name, val)

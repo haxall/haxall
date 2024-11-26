@@ -568,7 +568,7 @@ class NamespaceTest : AbstractXetoTest
     verifyInstantiate(ns, "sys::Unit",     "%")
 
     verifyInstantiate(ns, "sys::Dict", dict0)
-    verifyInstantiate(ns, "sys::List", Obj?[,])
+    verifyInstantiate(ns, "sys::List", Obj[,])
 
     verifyInstantiate(ns, "ph::Meter", ["dis":"Meter", "spec":Ref("ph::Meter"), "equip":m, "meter":m])
     verifyInstantiate(ns, "ph::ElecMeter", ["dis":"ElecMeter", "spec":Ref("ph::ElecMeter"), "equip":m, "meter":m, "elec":m])

@@ -27,6 +27,8 @@ Fidelity: {
 
   scalarA: ScalarA "alpha"
   scalarB: ScalarB "bravo"
+
+  numbers: List <val:List { Int 2, Float 3, Number 4 }>
 }
 
 // This instance inherits defaults from spec
@@ -55,5 +57,7 @@ Fidelity: {
 
   scalarA: ScalarA "alpha"
   scalarB: ScalarB "bravo"
+
+  numbers: List { Int 2, Float 3, Number 4 }
 }
 

@@ -162,7 +162,7 @@ internal class CheckErrors : Step
     }
 
     // lists cannot have slots
-    if (slot.parent.isList)
+    if (slot.parent.isList && !XetoUtil.isAutoName(slot.name))
       err("List specs cannot define slots", slot.loc)
 
     // choices can have only markers
