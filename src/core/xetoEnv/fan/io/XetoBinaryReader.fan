@@ -260,37 +260,38 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   {
     switch (ctrl)
     {
-      case ctrlNull:         return null
-      case ctrlMarker:       return Marker.val
-      case ctrlNA:           return NA.val
-      case ctrlRemove:       return Remove.val
-      case ctrlTrue:         return true
-      case ctrlFalse:        return false
-      case ctrlName:         return names.toName(readName)
-      case ctrlStr:          return readUtf
-      case ctrlNumberNoUnit: return readNumberNoUnit
-      case ctrlNumberUnit:   return readNumberUnit
-      case ctrlInt2:         return in.readS2
-      case ctrlInt8:         return in.readS8
-      case ctrlFloat8:       return readF8
-      case ctrlDuration:     return Duration(in.readS8)
-      case ctrlUri:          return readUri
-      case ctrlRef:          return readRef
-      case ctrlDate:         return readDate
-      case ctrlTime:         return readTime
-      case ctrlDateTime:     return readDateTime
-      case ctrlBuf:          return readBuf
-      case ctrlEmptyDict:    return Etc.dict0
-      case ctrlNameDict:     return readNameDict
-      case ctrlGenericDict:  return readGenericDict
-      case ctrlSpecRef:      return readSpecRef // resolve to Spec later
-      case ctrlList:         return readList
-      case ctrlGrid:         return readGrid
-      case ctrlSpan:         return readSpan
-      case ctrlVersion:      return readVersion
-      case ctrlCoord:        return readCoord
-      case ctrlSymbol:       return readSymbol
-      default:               throw IOErr("obj ctrl 0x$ctrl.toHex")
+      case ctrlNull:          return null
+      case ctrlMarker:        return Marker.val
+      case ctrlNA:            return NA.val
+      case ctrlRemove:        return Remove.val
+      case ctrlTrue:          return true
+      case ctrlFalse:         return false
+      case ctrlName:          return names.toName(readName)
+      case ctrlStr:           return readUtf
+      case ctrlNumberNoUnit:  return readNumberNoUnit
+      case ctrlNumberUnit:    return readNumberUnit
+      case ctrlInt2:          return in.readS2
+      case ctrlInt8:          return in.readS8
+      case ctrlFloat8:        return readF8
+      case ctrlDuration:      return Duration(in.readS8)
+      case ctrlUri:           return readUri
+      case ctrlRef:           return readRef
+      case ctrlDate:          return readDate
+      case ctrlTime:          return readTime
+      case ctrlDateTime:      return readDateTime
+      case ctrlBuf:           return readBuf
+      case ctrlEmptyDict:     return Etc.dict0
+      case ctrlNameDict:      return readNameDict
+      case ctrlGenericDict:   return readGenericDict
+      case ctrlSpecRef:       return readSpecRef // resolve to Spec later
+      case ctrlList:          return readList
+      case ctrlGrid:          return readGrid
+      case ctrlSpan:          return readSpan
+      case ctrlVersion:       return readVersion
+      case ctrlCoord:         return readCoord
+      case ctrlGenericScalar: return readGenericScalar
+      case ctrlTypedScalar:   return readTypedScalar
+      default:                throw IOErr("obj ctrl 0x$ctrl.toHex")
     }
   }
 
@@ -349,9 +350,30 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     Coord.fromStr(readUtf)
   }
 
-  private Symbol readSymbol()
+  private Scalar readGenericScalar()
   {
-    Symbol.fromStr(readUtf)
+    qname := readUtf
+    val   := readUtf
+    return Scalar(qname, val)
+  }
+
+  private Obj readTypedScalar()
+  {
+    qname := readUtf
+    str   := readUtf
+    type := Type.find(qname)
+    fromStr := toTypedScalarDecoder(type)
+    return fromStr.call(str)
+  }
+
+  private Method toTypedScalarDecoder(Type type)
+  {
+    for (Type? x := type; x != null; x = x.base)
+    {
+      fromStr := x.method("fromStr", false)
+      if (fromStr != null) return fromStr
+    }
+    throw Err("Scalar type missing fromStr method: $type.qname")
   }
 
   private MNameDict readNameDict()

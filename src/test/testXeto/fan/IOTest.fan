@@ -66,12 +66,12 @@ class IOTest : AbstractXetoTest
     verifyIO(Span(Date("2024-11-21")))
 
     // loss of fideltity scalars
-    verifyIO(Unit("kW"), false)
-    verifyIO(UnitQuantity.volume, false)
-    verifyIO(SpanMode.lastMonth, false)
-    verifyIO(Filter("a and b"), false)
-    verifyIO(LibDependVersions("4.5.x"), false)
-    verifyIO(Scalar("hx.test.xeto::ScalarB", "beta"), false)
+    verifyIO(Unit("kW"))
+    verifyIO(UnitQuantity.volume)
+    verifyIO(SpanMode.lastMonth)
+    verifyIO(Filter("a and b"))
+    verifyIO(LibDependVersions("4.5.x"))
+    verifyIO(Scalar("hx.test.xeto::ScalarB", "beta"))
 
     // lists
     verifyIO(Obj?[,])
@@ -103,22 +103,14 @@ class IOTest : AbstractXetoTest
     verifyIO(g)
   }
 
-  Void verifyIO(Obj? val, Bool fullFidelity := true)
+  Void verifyIO(Obj? val)
   {
     // binary format
     buf := Buf()
     server.io.writer(buf.out).writeVal(val)
     // echo("--> $val [$buf.size bytes]")
     x := client.io.reader(buf.flip.in).readVal
-    if (fullFidelity)
-    {
-      verifyValEq(val, x)
-    }
-    else
-    {
-      //echo("Loss of fidelity: $x [$x.typeof]")
-      verifyEq(x, val.toStr)
-    }
+    verifyValEq(val, x)
 
     // Xeto format does not support null
     if (val == null) return null

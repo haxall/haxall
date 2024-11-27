@@ -123,6 +123,6 @@ class FidelityTest : AbstractAxonTest
     verifyValEq(v, hay)
   }
 
-  const Bool debug := true
+  const Bool debug := false
 }
 

@@ -109,7 +109,7 @@ const class MLibDepend : LibDepend
 @Js
 internal const class MLibDependVersions : LibDependVersions
 {
-  static new fromStr(Str s, Bool checked)
+  static new fromStr(Str s, Bool checked := true)
   {
     try
     {

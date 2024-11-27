@@ -234,7 +234,7 @@ class XetoBinaryWriter : XetoBinaryConst
     if (type === Coord#)    return writeCoord(val)
     if (val is Grid)        return writeGrid(val)
     if (val is Span)        return writeSpan(val)
-    if (val is Symbol)      return writeSymbol(val)
+    if (type === Scalar#)   return writeGenericScalar(val)
 
     // non-haystack
     if (type === Int#)      return writeInt(val)
@@ -242,8 +242,7 @@ class XetoBinaryWriter : XetoBinaryConst
     if (type === Duration#) return writeDuration(val)
     if (type === Version#)  return writeVersion(val)
 
-    // assume scalar string value with loss of fidelity
-    writeStr(val.toStr)
+    writeTypedScalar(val)
   }
 
   private Void writeNull()
@@ -396,10 +395,19 @@ class XetoBinaryWriter : XetoBinaryConst
     return this
   }
 
-  private This writeSymbol(Symbol symbol)
+  private This writeGenericScalar(Scalar val)
   {
-    out.write(ctrlSymbol)
-    out.writeUtf(symbol.toStr)
+    out.write(ctrlGenericScalar)
+    out.writeUtf(val.qname)
+    out.writeUtf(val.val)
+    return this
+  }
+
+  private This writeTypedScalar(Obj val)
+  {
+    out.write(ctrlTypedScalar)
+    out.writeUtf(val.typeof.qname)
+    out.writeUtf(val.toStr)
     return this
   }
 

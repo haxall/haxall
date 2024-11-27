@@ -13,7 +13,7 @@ using concurrent
 ** native Fantom class we can use to track their type.
 **
 @Js
-const class Scalar
+const final class Scalar
 {
   ** Construct for spec qname and string value
   new make(Str qname, Str val)
