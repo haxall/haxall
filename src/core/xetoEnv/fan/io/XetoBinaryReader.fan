@@ -280,17 +280,18 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlTime:          return readTime
       case ctrlDateTime:      return readDateTime
       case ctrlBuf:           return readBuf
+      case ctrlGenericScalar: return readGenericScalar
+      case ctrlTypedScalar:   return readTypedScalar
       case ctrlEmptyDict:     return Etc.dict0
       case ctrlNameDict:      return readNameDict
       case ctrlGenericDict:   return readGenericDict
+      case ctrlTypedDict:     return readTypedDict
       case ctrlSpecRef:       return readSpecRef // resolve to Spec later
       case ctrlList:          return readList
       case ctrlGrid:          return readGrid
       case ctrlSpan:          return readSpan
       case ctrlVersion:       return readVersion
       case ctrlCoord:         return readCoord
-      case ctrlGenericScalar: return readGenericScalar
-      case ctrlTypedScalar:   return readTypedScalar
       default:                throw IOErr("obj ctrl 0x$ctrl.toHex")
     }
   }
@@ -383,6 +384,19 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   }
 
   private Dict readGenericDict()
+  {
+    readDictTags
+  }
+
+  private Dict readTypedDict()
+  {
+    qname := readUtf
+    tags := readDictTags
+    type := Type.find(qname)
+    return type.make([tags])
+  }
+
+  private Dict readDictTags()
   {
     acc := Str:Obj[:]
     while (true)

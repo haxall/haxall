@@ -94,6 +94,11 @@ class IOTest : AbstractXetoTest
     verifyIO([a, b])
     verifyIO(["foo", n(123), a, b])
 
+    // typed dict
+    c := TestVal.makeNumber(n(45), "ok")
+    x := verifyIO(c)
+    verifySame(x.typeof, c.typeof)
+
     // grid
     g := Etc.makeMapsGrid(["meta":"val"], [
         ["dis":"A", "foo":n(123)],
@@ -103,21 +108,22 @@ class IOTest : AbstractXetoTest
     verifyIO(g)
   }
 
-  Void verifyIO(Obj? val)
+  Obj? verifyIO(Obj? val)
   {
     // binary format
     buf := Buf()
     server.io.writer(buf.out).writeVal(val)
     // echo("--> $val [$buf.size bytes]")
-    x := client.io.reader(buf.flip.in).readVal
-    verifyValEq(val, x)
+    binary := client.io.reader(buf.flip.in).readVal
+    // echo("  > $binary | ${binary?.typeof}")
+    verifyValEq(val, binary)
 
     // Xeto format does not support null
-    if (val == null) return null
+    if (val == null) return binary
     list := val as Obj?[]
     if (list != null)
     {
-      if (list.contains(null)) return
+      if (list.contains(null)) return binary
       if (!list.isEmpty && list.all { it is xeto::Dict })
         val = xeto::Dict[,].addAll(list)
       else
@@ -125,7 +131,7 @@ class IOTest : AbstractXetoTest
     }
 
     // for now don't try to map grids to Xeto text format...
-    if (val is Grid) return
+    if (val is Grid) return binary
 
     // xeto text format
     ns := server.ns
@@ -133,7 +139,7 @@ class IOTest : AbstractXetoTest
     ns.writeData(buf.out, val)
     str := buf.flip.readAllStr
     opts := dict1("externRefs", m)
-    x = server.ns.compileData(str, opts)
+    x := server.ns.compileData(str, opts)
     verifyValEq(val, x)
 
     // compileDicts
@@ -152,6 +158,7 @@ class IOTest : AbstractXetoTest
     {
       verifyErr(IOErr#) { ns.compileDicts(str, opts) }
     }
+    return binary
   }
 }
 

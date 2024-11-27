@@ -413,11 +413,19 @@ class XetoBinaryWriter : XetoBinaryConst
 
   Void writeDict(Dict d)
   {
-    if (d.isEmpty)      return write(ctrlEmptyDict)
-    if (d is NameDict)  return writeNameDict(d)
-    if (d is MNameDict) return writeNameDict(((MNameDict)d).wrapped)
-    if (d is XetoSpec)  return writeSpecRefVal(d)
-    return writeGenericDict(d)
+    if (d.isEmpty)        return write(ctrlEmptyDict)
+    if (d is NameDict)    return writeNameDict(d)
+    if (d is MNameDict)   return writeNameDict(((MNameDict)d).wrapped)
+    if (d is XetoSpec)    return writeSpecRefVal(d)
+    if (isGenericDict(d)) return writeGenericDict(d)
+    return writeTypedDict(d)
+  }
+
+  private Bool isGenericDict(Dict d)
+  {
+    podName := d.typeof.pod.name
+    if (podName == "haystack") return true
+    return false
   }
 
   private Void writeSpecRefVal(XetoSpec spec)
@@ -441,6 +449,18 @@ class XetoBinaryWriter : XetoBinaryConst
   private Void writeGenericDict(Dict dict)
   {
     write(ctrlGenericDict)
+    writeDictTags(dict)
+  }
+
+  private Void writeTypedDict(Dict dict)
+  {
+    write(ctrlTypedDict)
+    out.writeUtf(dict.typeof.qname)
+    writeDictTags(dict)
+  }
+
+  private Void writeDictTags(Dict dict)
+  {
     dict.each |v, n|
     {
       writeStr(n)

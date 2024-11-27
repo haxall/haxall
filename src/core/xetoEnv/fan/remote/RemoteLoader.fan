@@ -44,7 +44,6 @@ internal class RemoteLoader
     version   := libMeta->version
     depends   := loadDepends
     tops      := loadTops
-    instances := reifyInstances
 
     m := MLib(loc, libNameCode, libName, libMeta, flags, version, depends, tops, instances, UnsupportedLibFiles.val)
     XetoLib#m->setConst(lib, m)
@@ -71,60 +70,6 @@ internal class RemoteLoader
     id := x.id.id
     name := id[id.index(":")+2..-1]
     instances.add(name, x)
-  }
-
-  Str:Dict reifyInstances()
-  {
-    instances.map |x->Dict| { reifyInstance(x) }
-  }
-
-  Dict reifyInstance(Dict x)
-  {
-    reifyDict(x)
-  }
-
-  private Dict reifyDict(Dict x)
-  {
-    specRef := x["spec"] as Ref
-    if (specRef == null) return x
-
-    // resolve dict spec
-    spec := resolveStr(specRef.id, false)
-    if (spec == null) return x
-
-    // check if this dict contains nested dicts that need to be reified
-    if (hasNestedDict(x))
-    {
-      // reify nested dict by recursing thru collections; this isn't
-      // ideal and would be nice to when reading the instances out but
-      // that happens before we have CSpec
-      x = Etc.dictMap(x) |v, n| { reifyVal(v) }
-    }
-
-    // decode from factory
-    return spec.factory.decodeDict(x)
-  }
-
-  private Obj reifyVal(Obj val)
-  {
-    if (val is Dict) return reifyDict(val)
-    if (val is List) return ((List)val).map |item| { reifyVal(item) }
-    return val
-  }
-
-  private Bool hasNestedDict(Obj v)
-  {
-    dict := v as Dict
-    if (dict != null)
-    {
-      if (dict.has("spec")) return true
-      return Etc.dictAny(dict) |kid| { hasNestedDict(kid) }
-    }
-    if (v is List)
-    {
-      ((List)v).any |item| { hasNestedDict(v) }
-    }
-    return false
   }
 
 //////////////////////////////////////////////////////////////////////////

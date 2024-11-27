@@ -46,16 +46,17 @@ mixin XetoBinaryConst
   static const Int ctrlTime          := 18
   static const Int ctrlDateTime      := 19
   static const Int ctrlBuf           := 20
-  static const Int ctrlEmptyDict     := 21
-  static const Int ctrlNameDict      := 22
-  static const Int ctrlGenericDict   := 23
-  static const Int ctrlSpecRef       := 24
-  static const Int ctrlList          := 25
-  static const Int ctrlGrid          := 26
-  static const Int ctrlSpan          := 27
-  static const Int ctrlVersion       := 28
-  static const Int ctrlCoord         := 29
-  static const Int ctrlGenericScalar := 30
-  static const Int ctrlTypedScalar   := 31
+  static const Int ctrlGenericScalar := 21
+  static const Int ctrlTypedScalar   := 22
+  static const Int ctrlEmptyDict     := 23
+  static const Int ctrlNameDict      := 24
+  static const Int ctrlGenericDict   := 25
+  static const Int ctrlTypedDict     := 26
+  static const Int ctrlSpecRef       := 27
+  static const Int ctrlList          := 28
+  static const Int ctrlGrid          := 29
+  static const Int ctrlSpan          := 30
+  static const Int ctrlVersion       := 31
+  static const Int ctrlCoord         := 32
 }
 
