@@ -323,4 +323,22 @@ verifyErrs: |
   Slot 'color': Missing required choice 'temp::Color'
   Slot 'color': Conflicting choice 'temp::Color': Red, Blue
 ---
+name: "finalVal"
+compileLib: |
+  Foo: {
+    a: Str "A"
+    b: Str "B"
+    c: Str <fixed> "C"
+  }
+
+  Bar: Foo {
+    b: Str <fixed> "Boo"
+  }
+
+  @ok: Foo { a:"alpha", b:"beta", c:"C" }
+  @errC: Foo { a:"alpha", b:"beta", c:"charlie" }
+  @errB: Bar { a:"alpha", b:"beta", c:"C" }
+verifyErrs: |
+  Slot 'c': Must have fixed value 'C'
+  Slot 'b': Must have fixed value 'Boo'
 

@@ -9,6 +9,7 @@
 using util
 using xeto
 using haystack::Number
+using haystack::Etc
 
 **
 ** Validation for values against a spec type and meta
@@ -23,15 +24,27 @@ const class CheckVal
 
   static Void check(CSpec spec, Obj x, |Str| onErr)
   {
+    checkFixed(spec, x, onErr)
     if (spec.isScalar) return checkScalar(spec, x, onErr)
     if (spec.isList) return checkList(spec, x, onErr)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Final
+//////////////////////////////////////////////////////////////////////////
+
+  private static Void checkFixed(CSpec spec, Obj x, |Str| onErr)
+  {
+    if (spec.cmeta.missing("fixed")) return
+    val := spec.cmeta.get("val")
+    if (!Etc.eq(val, x)) onErr("Must have fixed value '$val'")
   }
 
 //////////////////////////////////////////////////////////////////////////
 // List
 //////////////////////////////////////////////////////////////////////////
 
-  static Void checkList(CSpec spec, Obj obj, |Str| onErr)
+  private static Void checkList(CSpec spec, Obj obj, |Str| onErr)
   {
     x := obj as List
 
@@ -68,7 +81,7 @@ const class CheckVal
 // Scalar
 //////////////////////////////////////////////////////////////////////////
 
-  static Void checkScalar(CSpec spec, Obj x, |Str| onErr)
+  private static Void checkScalar(CSpec spec, Obj x, |Str| onErr)
   {
     if (x is Number) return checkNumber(spec, x, onErr)
     if (spec.ctype.isEnum) return checkEnum(spec, x, onErr)
@@ -79,7 +92,7 @@ const class CheckVal
 // Number
 //////////////////////////////////////////////////////////////////////////
 
-  static Void checkNumber(CSpec spec, Number x, |Str| onErr)
+  private static Void checkNumber(CSpec spec, Number x, |Str| onErr)
   {
     meta := spec.cmeta
     unit := x.unit
@@ -139,7 +152,7 @@ const class CheckVal
 // Enum
 //////////////////////////////////////////////////////////////////////////
 
-  static Void checkEnum(CSpec spec, Obj x, |Str| onErr)
+  private static Void checkEnum(CSpec spec, Obj x, |Str| onErr)
   {
     // value must be string key, Scalar, or mapped by factory to Enum
     key := x as Str
@@ -170,7 +183,7 @@ const class CheckVal
 // Str
 //////////////////////////////////////////////////////////////////////////
 
-  static Void checkStr(CSpec spec, Str x, |Str| onErr)
+  private static Void checkStr(CSpec spec, Str x, |Str| onErr)
   {
     if (!spec.isScalar) return
 

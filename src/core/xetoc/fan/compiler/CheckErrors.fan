@@ -289,7 +289,7 @@ internal class CheckErrors : Step
   Void checkScalar(AScalar x, CSpec? slot)
   {
     spec := slot ?: x.ctype
-    CheckVal.checkScalar(spec, x.asm) |msg|
+    CheckVal.check(spec, x.asm) |msg|
     {
       errSlot(slot, msg, x.loc)
     }
@@ -324,7 +324,7 @@ internal class CheckErrors : Step
     }
 
     // check spec meta notEmpty, minSize, maxSize
-    CheckVal.checkList(spec, list) |msg|
+    CheckVal.check(spec, list) |msg|
     {
       errSlot(slot, msg, x.loc)
     }

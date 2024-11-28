@@ -41,9 +41,31 @@ class ValidateTest : AbstractXetoTest
     verifyValidate(src, ["num":"bad", "str":n(123), "ref":n(123)], [
         "Invalid 'sys::Number' string value: \"bad\"
          Slot 'num': Slot type is 'sys::Number', value type is 'sys::Str'",
-
         "Slot 'str': Slot type is 'sys::Str', value type is 'sys::Number'",
       ])
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Fixed
+//////////////////////////////////////////////////////////////////////////
+
+  Void testFixed()
+  {
+    src :=
+    Str<|Foo: {
+           n: Number <fixed> 123kW
+           u: Unit <fixed> "%"
+         }
+         |>
+
+    // all ok
+    verifyValidate(src, ["n":n(123, "kW"), "u":Unit("%"), ], [,])
+
+    // range errors
+    verifyValidate(src, ["n":n(123, "W"), "u":Unit("A")], [
+      "Slot 'n': Must have fixed value '123kW'",
+      "Slot 'u': Must have fixed value '%'",
+    ])
   }
 
 //////////////////////////////////////////////////////////////////////////

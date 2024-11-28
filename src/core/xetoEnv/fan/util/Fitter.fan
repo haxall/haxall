@@ -205,7 +205,7 @@ internal class Fitter
   {
     // always check spec meta
     fits := true
-    CheckVal.checkList((CSpec)spec, list) |err|
+    CheckVal.check((CSpec)spec, list) |err|
     {
       fits = explainValErr(spec, err)
     }
