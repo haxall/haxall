@@ -408,6 +408,17 @@ abstract const class MNamespace : LibNamespace, CNamespace
     return null
   }
 
+  override Spec? global(Str name, Bool checked := true)
+  {
+    match := libs.eachWhile |lib|
+    {
+      lib.global(name, false)
+    }
+    if (match != null) return match
+    if (checked) throw UnknownSpecErr(name)
+    return null
+  }
+
   override Dict? xmeta(Str qname, Bool checked := true)
   {
     XMeta(this).xmeta(qname, checked)

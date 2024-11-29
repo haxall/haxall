@@ -203,6 +203,15 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(ns.isAllLoaded, true)
     verifySame(ns.unqualifiedType("Str"), ns.spec("sys::Str"))
     verifySame(ns.unqualifiedType("Equip"), ns.spec("ph::Equip"))
+    verifyEq(ns.unqualifiedType("FooBarBazBad", false), null)
+    verifyErr(UnknownTypeErr#) { ns.unqualifiedType("FooBarBazBad") }
+    verifyErr(UnknownTypeErr#) { ns.unqualifiedType("FooBarBazBad", true) }
+
+    // global
+    verifySame(ns.global("site"), ns.spec("ph::site"))
+    verifySame(ns.global("badOne", false), null)
+    verifyErr(UnknownSpecErr#) { ns.global("badOne") }
+    verifyErr(UnknownSpecErr#) { ns.global("badOne", true) }
 
     // files
     verifyEq(ph.files.isSupported, !ns.isRemote)
