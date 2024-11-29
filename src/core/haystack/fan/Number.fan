@@ -45,16 +45,42 @@ const final class Number
   ** Parse from a string according to zinc syntax
   static new fromStr(Str s, Bool checked := true)
   {
-    msg := "invalid format"
-    try
+    parse(s, false, checked)
+  }
+
+  ** Parse from a string but require unit to be only the unit symbol
+  @NoDoc static new fromStrStrictUnit(Str s, Bool checked := true)
+  {
+    parse(s, true, checked)
+  }
+
+  ** Common code for fromStr and fromStrStrictUnit
+  private static Number? parse(Str s, Bool strictUnit, Bool checked)
+  {
+    msg := "Invalid format"
+    c := s.getSafe(0)
+    if (c.isDigit || (c == '-' && s.getSafe(1).isDigit))
     {
-      c := s[0]
-      if (c.isDigit || c == '-' || c == 'I' || c == 'N')
-        return ZincReader(s.in).readVal
+      try
+      {
+        tokenizer := HaystackTokenizer(s.in)
+        tokenizer.strictUnit = strictUnit
+        tokenizer.next
+        val := tokenizer.val
+        if (tokenizer.next !== HaystackToken.eof) throw Err("Extra tokens")
+        if (s[-1].isSpace) throw Err("Extra trailing space")
+        if (val is Number) return val
+      }
+      catch (Err e)
+      {
+        msg = e.msg
+      }
     }
-    catch (Err e)
+    else
     {
-      msg = e.msg
+      if (s == "INF")  return Number.posInf
+      if (s == "-INF") return Number.negInf
+      if (s == "NaN")  return Number.nan
     }
     if (checked) throw ParseErr("Number $s.toCode ($msg)")
     return null
@@ -562,3 +588,4 @@ const final class Number
   private const Unit? unitRef
 
 }
+

@@ -103,6 +103,9 @@ class HaystackTokenizer
   ** Factory for value creation and interning
   @NoDoc HaystackFactory factory := HaystackFactory()
 
+  ** Only parse number units that are unit symbol
+  @NoDoc Bool strictUnit
+
 //////////////////////////////////////////////////////////////////////////
 // Token Productions
 //////////////////////////////////////////////////////////////////////////
@@ -227,6 +230,7 @@ class HaystackTokenizer
       if (float == null) throw err("Invalid Number literal '$floatStr'")
       unit  := Number.loadUnit(unitStr, false)
       if (unit == null) throw err("Invalid unit name '$unitStr' [" + unitStr.toCode('"', true) + "]")
+      if (strictUnit && unitStr != unit.symbol) throw err("Must use normalized unit key '$unit.symbol'")
       this.val = factory.makeNumber(float, unit)
     }
     return HaystackToken.num

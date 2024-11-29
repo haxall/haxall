@@ -14,9 +14,9 @@ using haystack
 @Js
 class NumberTest : HaystackTest
 {
-  const Unit sec := Unit("s")
+  const Unit sec := Unit("sec")
   const Unit min := Unit("min")
-  const Unit hr  := Unit("h")
+  const Unit hr  := Unit("hr")
   const Unit meter  := Unit("m")
   const Unit km  := Unit("km")
   const Unit F   := Unit("fahrenheit")
@@ -41,7 +41,30 @@ class NumberTest : HaystackTest
     verifyEq(Number.fromStr("-INF"), Number.negInf)
     verifyEq(Number.fromStr("NaN"), Number.nan)
     verifyEq(Number.fromStr("100"), Number.makeInt(100))
+    verifyEq(Number.fromStr("100_000"), Number.makeInt(100_000))
     verifyEq(Number.fromStr("-100"), Number.makeInt(-100))
+    verifyEq(Number.fromStr("2.4kW"), Number(2.4f, Unit("kW")))
+    verifyEq(Number.fromStr("-2.4%"), Number(-2.4f, Unit("%")))
+
+    verifyErr(ParseErr#) { x := Number.fromStr("") }
+    verifyErr(ParseErr#) { x := Number.fromStr("-") }
+    verifyErr(ParseErr#) { x := Number.fromStr("foo") }
+    verifyErr(ParseErr#) { x := Number.fromStr("`file`") }
+    verifyErr(ParseErr#) { x := Number.fromStr("-x") }
+    verifyErr(ParseErr#) { x := Number.fromStr("2badone") }
+    verifyErr(ParseErr#) { x := Number.fromStr("2 foo") }
+    verifyErr(ParseErr#) { x := Number.fromStr("2 ") }
+
+    // fromStr w/ unit symbol variations
+    verifyEq(Number.fromStr("6sec"), Number(6, sec))
+    verifyEq(Number.fromStr("6s"), Number(6, sec))
+    verifyEq(Number.fromStr("6second"), Number(6, sec))
+
+    // fromStrStrictUnit w/ unit symbol variations
+    verifyEq(Number.fromStrStrictUnit("6sec"), Number(6, sec))
+    verifyEq(Number.fromStrStrictUnit("6s", false), null)
+    verifyErr(ParseErr#) { x := Number.fromStrStrictUnit("6s") }
+    verifyErr(ParseErr#) { x := Number.fromStrStrictUnit("6second", true) }
   }
 
   Void testNegate()
@@ -312,8 +335,8 @@ class NumberTest : HaystackTest
 
     verifyEq(n(120, "min").toLocale, "2hr")
     verifyEq(n(60, "sec").toLocale, "1min")
-    verifyEq(n(60, "sec").toLocale("0.0"), "60.0s")
-    verifyEq(n(60, "sec").toLocale("0.0 (U)"), "60.0 (s)")
+    verifyEq(n(60, "sec").toLocale("0.0"), "60.0sec")
+    verifyEq(n(60, "sec").toLocale("0.0 (U)"), "60.0 (sec)")
     verifyEq(n(40, "day").toLocale, "40day")
     verifyEq(n(2, "mo").toLocale, "2mo")
     verifyEq(n(4, "yr").toLocale, "4yr")
@@ -363,3 +386,4 @@ class NumberTest : HaystackTest
   }
 
 }
+
