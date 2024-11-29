@@ -203,7 +203,7 @@ const class CheckVal
     if (nonEmpty != null && x.trim.isEmpty)
     {
       errType := errTypeForMeta(spec, "nonEmpty", nonEmpty)
-      onErr("String must be non-empty for '$errType'")
+      onErr("String must be non-empty")
     }
 
     // minSize

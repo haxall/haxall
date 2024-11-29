@@ -134,8 +134,8 @@ class ValidateTest : AbstractXetoTest
 
     // empty
     verifyValidate(src, ok.dup.setAll(["c":"", "d":" "]), [
-      "Slot 'c': String must be non-empty for 'temp::Foo.c'",
-      "Slot 'd': String must be non-empty for 'temp::MyNonEmpty'",
+      "Slot 'c': String must be non-empty",
+      "Slot 'd': String must be non-empty",
     ])
 
     // minSize

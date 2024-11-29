@@ -1,0 +1,29 @@
+#
+# Tests for misc checks
+#
+
+
+---
+name: "durationsSpecs"
+compileLib: |
+  Foo: {
+     a: Number<unit:"sec">
+     b: Number<unit:"s">
+     c: Number<unit:"second">
+  }
+verifyErrs: |
+  Invalid 'sys::Unit' string value: "s"
+  Invalid 'sys::Unit' string value: "second"
+---
+name: "durationsInstances"
+compileLib: |
+  @x: Dict {
+    x: Number 2sec
+    y: Number 3s
+    z: Number 4second
+  }
+verifyErrs: |
+  Invalid 'sys::Number' string value: "3s"
+  Invalid 'sys::Number' string value: "4second"
+---
+

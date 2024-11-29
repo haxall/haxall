@@ -40,7 +40,7 @@ class CheckTest : AbstractXetoTest
     // Quantity
     verifyScalar("Number", n(123, "kW"), Str<|quantity:"power"|>, [,])
     verifyScalar("Number", n(123),       Str<|quantity:"power"|>, ["Number must be 'power' unit; no unit specified"])
-    verifyScalar("Number", n(123, "s"),  Str<|quantity:"power"|>, ["Number must be 'power' unit; 's' has quantity of 'time'"])
+    verifyScalar("Number", n(123, "s"),  Str<|quantity:"power"|>, ["Number must be 'power' unit; 'sec' has quantity of 'time'"])
     verifyScalar("Number", n(123, "%"),  Str<|quantity:"power"|>, ["Number must be 'power' unit; '%' has quantity of 'dimensionless'"])
     verifyScalar("Number", n(123, "_x"), Str<|quantity:"power"|>, ["Number must be 'power' unit; '_x' has no quantity"])
   }

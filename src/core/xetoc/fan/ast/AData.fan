@@ -124,7 +124,9 @@ internal class ADict : AData
   ** Is this library or spec meta
   const Bool isMeta
 
-  ** TODO: shim to type this dict as a list of
+  ** TODO: we should be able to infer this from the list type, but
+  ** its probably going to require some rework especially in bootstrap
+  ** compile of sys; for now we keep it as a simple hack
   Type? listOf
 
   ** Map of dict tag name/value pairs
@@ -222,3 +224,4 @@ internal class AInstance : ADict, CInstance
   override haystack::Ref id() { get("id")?.asm ?: throw NotReadyErr() }
 
 }
+

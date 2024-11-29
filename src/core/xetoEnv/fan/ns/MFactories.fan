@@ -387,7 +387,7 @@ internal const class LibDependVersionsFactory : ScalarSpecFactory
 internal const class NumberFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Number.fromStr(str, checked) }
+  override Obj? decodeScalar(Str str, Bool checked := true) { Number.fromStrStrictUnit(str, checked) }
 }
 
 @Js
@@ -429,7 +429,15 @@ internal const class TimeZoneFactory : ScalarSpecFactory
 internal const class UnitFactory : ScalarSpecFactory
 {
   new make(Type type) : super(type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { Unit.fromStr(str, checked) }
+  override Obj? decodeScalar(Str str, Bool checked := true)
+  {
+    // only the primary symbol is allowed
+    unit := Unit.fromStr(str, false)
+    if (unit != null && unit.symbol != str) unit = null
+    if (unit != null) return unit
+    if (checked) throw ParseErr("Invalid unit symbol: $str")
+    return null
+  }
 }
 
 @Js
