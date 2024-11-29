@@ -594,9 +594,10 @@ internal class GenPH : AbstractGenCmd
       out.printLine(
       Str<|// File format type definition
            Filetype: Feature {
-             filetype       // Filetype marker
-             fileExt: Str?  // Filename extension such as "csv"
-             mime:    Str?  // Mime type formatted as "type/subtype"
+             filetype         // Filetype marker
+             fileExt:   Str?  // Filename extension such as "csv"
+             mime:      Str?  // Mime type formatted as "type/subtype"
+             wikipedia: Uri?  // Wikipedia link
            }
            |>)
       ns.filetypes.each |x| { writeFeatureInstance(out, x) }
