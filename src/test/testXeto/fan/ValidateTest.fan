@@ -359,6 +359,35 @@ class ValidateTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Globals
+//////////////////////////////////////////////////////////////////////////
+
+  Void testGlobals()
+  {
+    // test ph global
+    src :=
+    Str<|Foo: Dict
+         |>
+
+    // invalid target types in lib
+    verifyValidate(src, ["site":Date.today], [
+      "Slot 'site': Global slot type is 'sys::Marker', value type is 'sys::Date'",
+      ])
+
+    // global in lib AST
+    src =
+    Str<|Foo: Dict
+         baz: Number
+         |>
+
+
+    // invalid target types in lib
+    verifyCompileTime(src, toInstance(["baz":Uri("file.txt")]), [
+      "Slot 'baz': Global slot type is 'sys::Number', value type is 'sys::Uri'",
+      ])
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Verify
 //////////////////////////////////////////////////////////////////////////
 

@@ -86,7 +86,7 @@ internal class Fitter
 
     // check that type matches
     if (!valTypeFits(spec.type, valType, val))
-      return explainInvalidType(spec.type, valType)
+      return explainInvalidType(spec, valType)
 
     // check value against spec meta
     fits := true
@@ -162,9 +162,17 @@ internal class Fitter
       // check value
       push(n)
       try
+      {
+        // check globals
+        if (!checkSlotAgainstGlobals(type, n, v)) matchFail = true
+
+        // check non slot
         if (!checkNonSlotVal(type, n, v)) matchFail = true
+      }
       finally
+      {
         pop
+      }
     }
 
     // must have no fails
@@ -234,6 +242,14 @@ internal class Fitter
       }
     }
     return fits
+  }
+
+  private Bool checkSlotAgainstGlobals(Spec spec, Str name, Obj val)
+  {
+    global := ns.global(name, false)
+    if (global == null) return true
+
+    return valFits(val, global)
   }
 
   private Bool checkNonSlotVal(Spec spec, Str name, Obj val)
@@ -399,7 +415,7 @@ internal class Fitter
 
   virtual Bool explainNoType(Obj? val) { false }
 
-  virtual Bool explainInvalidType(Spec type, Spec valType) { false }
+  virtual Bool explainInvalidType(Spec spec, Spec valType) { false }
 
   virtual Bool explainMissingSlot(Spec slot) { false }
 
@@ -442,9 +458,12 @@ internal class ExplainFitter : Fitter
     log("Value not mapped to data type [${val?.typeof}]")
   }
 
-  override Bool explainInvalidType(Spec type, Spec valType)
+  override Bool explainInvalidType(Spec spec, Spec valType)
   {
-    if (inSlot)
+    type := spec.type
+    if (spec.isGlobal)
+      log("Global slot type is '$type', value type is '$valType'")
+    else if (inSlot)
       log("Slot type is '$type', value type is '$valType'")
     else
       log("Type '$valType' does not fit '$type'")

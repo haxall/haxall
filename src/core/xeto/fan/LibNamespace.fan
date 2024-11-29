@@ -203,9 +203,8 @@ const mixin LibNamespace
   ** fully loaded.  Raise exception if ambiguous types regardless of checked flag.
   @NoDoc abstract Spec? unqualifiedType(Str name, Bool checked := true)
 
-  ** Resolve unqualified global spec name against all libs.  Raise exception if not
-  ** fully loaded.  If ambiguous globals then select the first one ordered by
-  ** lib dependency order.
+  ** Resolve unqualified global spec name against all loaded libs.
+  ** If ambiguous globals then select the first one ordered by lib depend order.
   @NoDoc abstract Spec? global(Str name, Bool checked := true)
 
   ** Lookup the extended meta for the given spec qname.  This is a merge

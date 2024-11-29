@@ -314,6 +314,7 @@ internal class CheckErrors : Step
     x.map.each |v, n|
     {
       checkData(v, spec.cslot(n, false))
+      if (!x.isMeta) checkDictSlotAgainstGlobals(n, v)
     }
 
     spec.cslots |specSlot|
@@ -346,7 +347,7 @@ internal class CheckErrors : Step
     while (of != null && XetoUtil.isAutoName(of.name))
       of = of?.cbase
 
-    // walk thru each item and check auto-name and pptionally item type
+    // walk thru each item and check auto-name and optionally item type
     named := false
     x.map.each |v, n|
     {
@@ -358,7 +359,6 @@ internal class CheckErrors : Step
     }
     if (named) errSlot(slot, "List cannot contain named items", x.loc)
   }
-
 
   Void checkDictSlot(ADict x, CSpec slot)
   {
@@ -384,6 +384,22 @@ internal class CheckErrors : Step
         checkRefTarget(slot, val)
     }
   }
+
+  Void checkDictSlotAgainstGlobals(Str name, AData val)
+  {
+    if (isSys) return
+    if (XetoUtil.isAutoName(name)) return
+
+    global := cns.global(name)
+    if (global == null) return
+
+    valType := val.ctype
+    if (!valTypeFits(global.ctype, valType, val))
+    {
+      err("Slot '$name': Global slot type is '$global.ctype', value type is '$val.ctype'", val.loc)
+    }
+  }
+
 
   Bool valTypeFits(CSpec type, CSpec valType, Obj val)
   {

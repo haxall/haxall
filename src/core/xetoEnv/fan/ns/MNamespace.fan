@@ -410,9 +410,9 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   override Spec? global(Str name, Bool checked := true)
   {
-    match := libs.eachWhile |lib|
+    match :=  entriesList.eachWhile |entry|
     {
-      lib.global(name, false)
+      entry.status.isOk ? entry.get.global(name, false) : null
     }
     if (match != null) return match
     if (checked) throw UnknownSpecErr(name)
