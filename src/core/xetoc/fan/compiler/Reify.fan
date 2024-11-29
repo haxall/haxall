@@ -103,9 +103,7 @@ internal abstract class Reify : Step
 
   private Obj[] reifyRawList(ADict x, CSpec type)
   {
-    // TODO: lists not being typed correctly
     of := x.listOf ?: Obj#
-
     list := List(of, x.size)
     x.each |obj| { list.add(reifyDictVal(obj)) }
     return list.toImmutable

@@ -165,7 +165,7 @@ internal class ASpec : ANode, CSpec
     first := specs[0]
     loc := first.loc
     list := ADict(loc, sys.list)
-    list.listOf = Ref#  // TODO: should come thru via Xeto
+    list.listOf = Ref#
     specs.each |spec, i|
     {
       list.set(c.autoName(i), spec)

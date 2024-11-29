@@ -139,6 +139,7 @@ internal class CheckErrors : Step
   {
     checkSpec(x)
     checkSlotType(x)
+    checkSlotMeta(x)
     checkSlotVal(x)
   }
 
@@ -168,6 +169,15 @@ internal class CheckErrors : Step
     // choices can have only markers
     if (slot.parent.isChoice && !slot.ctype.isMarker)
       err("Choice slot '$slot.name' must be marker type", slot.loc)
+  }
+
+  Void checkSlotMeta(ASpec slot)
+  {
+    if (slot.meta == null) return
+
+    hasVal := slot.meta.get("val") != null
+    if (hasVal && slot.base != null && slot.base.cmeta.has("fixed"))
+      err("Slot '$slot.name' is fixed and cannot declare new default value", slot.loc)
   }
 
   Void checkSlotVal(ASpec slot)
