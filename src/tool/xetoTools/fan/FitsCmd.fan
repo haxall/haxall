@@ -77,26 +77,26 @@ internal class FitsCmd : XetoCmd
     optsMap["explain"] = Unsafe(logger)
     opts := Etc.makeDict(optsMap)
 
-/*
     recs.each |rec|
     {
+      id := rec._id
+
       specTag := rec["spec"] as Ref
       if (specTag == null)
       {
-        logger(MLogRec(LogLevel.err, "Missing 'spec' ref tag", FileLoc.unknown, null))
+        logger(XetoLogRec(LogLevel.err, id, "Missing 'spec' ref tag", FileLoc.unknown, null))
         return
       }
 
       spec := ns.spec(specTag.id, false)
       if (spec == null)
       {
-        logger(MLogRec(LogLevel.err, "Unknown 'spec' ref: $specTag", FileLoc.unknown, null))
+        logger(XetoLogRec(LogLevel.err, id, "Unknown 'spec' ref: $specTag", FileLoc.unknown, null))
         return
       }
 
       ns.fits(FitsCmdContext(this), rec, spec, opts)
     }
-*/
   }
 
 //////////////////////////////////////////////////////////////////////////

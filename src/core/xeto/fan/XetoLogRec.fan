@@ -15,6 +15,15 @@ using util
 @NoDoc @Js
 const mixin XetoLogRec
 {
+  ** Constructor for default implementation
+  static new make(LogLevel level, Ref? id, Str msg, FileLoc loc, Err? err)
+  {
+    MXetoLogRec(level, id, msg, loc, err)
+  }
+
+  ** Identifier of data record if applicable
+  abstract Ref? id()
+
   ** Severity level of the issue
   abstract LogLevel level()
 
@@ -27,3 +36,36 @@ const mixin XetoLogRec
   ** Exception that caused the issue if applicable
   abstract Err? err()
 }
+
+**************************************************************************
+** MXetoLogRec
+**************************************************************************
+
+@Js
+const class MXetoLogRec : XetoLogRec
+{
+  new make(LogLevel level, Ref? id, Str msg, FileLoc loc,Err? err)
+  {
+    this.level = level
+    this.id    = id
+    this.msg   = msg
+    this.loc   = loc
+    this.err   = err
+  }
+
+  const override LogLevel level
+  const override Ref? id
+  const override Str msg
+  const override FileLoc loc
+  const override Err? err
+
+  override Str toStr()
+  {
+    s := StrBuf()
+    if (id != null) s.add("@").add(id).add(" ")
+    s.add(level.name.upper).add(": ").add(msg)
+    if (!loc.isUnknown) s.add(" [").add(loc).add("]")
+    return s.toStr
+  }
+}
+

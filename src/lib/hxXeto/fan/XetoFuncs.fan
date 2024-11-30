@@ -11,7 +11,6 @@ using xeto
 using xeto::Dict
 using xeto::Lib
 using xetoEnv::MDictMerge1
-using xetoEnv::MLogRec
 using xetoEnv::XetoSpec
 using xetoEnv::XetoUtil
 using haystack::Ref
@@ -600,19 +599,20 @@ const class XetoFuncs
       hits.clear
 
       // lookup record's declared spec if spec param is null
+      recId := rec.get("id") as Ref
       recSpec := spec
       if (recSpec == null)
       {
         specTag := rec["spec"] as Ref
         if (specTag == null)
         {
-          hits.add(MLogRec(LogLevel.err, "Missing 'spec' ref tag", FileLoc.unknown, null))
+          hits.add(XetoLogRec(LogLevel.err, recId, "Missing 'spec' ref tag", FileLoc.unknown, null))
         }
         else
         {
           recSpec = ns.spec(specTag.id, false)
           if (recSpec == null)
-            hits.add(MLogRec(LogLevel.err, "Unknown 'spec' ref: $specTag", FileLoc.unknown, null))
+            hits.add(XetoLogRec(LogLevel.err, recId, "Unknown 'spec' ref: $specTag", FileLoc.unknown, null))
         }
       }
 

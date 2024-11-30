@@ -32,16 +32,16 @@ abstract class XetoLog
   static new makeLog(Log log) { XetoWrapperLog(log) }
 
   ** Report info level
-  Void info(Str msg) { log(LogLevel.info, msg, FileLoc.unknown, null) }
+  Void info(Str msg) { log(LogLevel.info, null, msg, FileLoc.unknown, null) }
 
   ** Report warning level
-  Void warn(Str msg, FileLoc loc, Err? err := null) { log(LogLevel.warn, msg, loc, err) }
+  Void warn(Str msg, FileLoc loc, Err? err := null) { log(LogLevel.warn, null, msg, loc, err) }
 
   ** Report err level
-  Void err(Str msg, FileLoc loc, Err? err := null) { log(LogLevel.err, msg, loc, err) }
+  Void err(Str msg, FileLoc loc, Err? err := null) { log(LogLevel.err, null, msg, loc, err) }
 
   ** Report log message
-  abstract Void log(LogLevel level, Str msg, FileLoc loc, Err? cause)
+  abstract Void log(LogLevel level, Ref? id, Str msg, FileLoc loc, Err? cause)
 }
 
 **************************************************************************
@@ -53,7 +53,7 @@ class XetoOutStreamLog : XetoLog
 {
   new make(OutStream out) { this.out = out }
 
-  override Void log(LogLevel level, Str msg,  FileLoc loc, Err? err)
+  override Void log(LogLevel level, Ref? id, Str msg,  FileLoc loc, Err? err)
   {
     if (loc !== FileLoc.unknown) out.print(loc).print(": ")
     if (level == LogLevel.warn) out.print("WARN ")
@@ -75,7 +75,7 @@ class XetoWrapperLog : XetoLog
 
   const Log wrap
 
-  override Void log(LogLevel level, Str msg,  FileLoc loc, Err? err)
+  override Void log(LogLevel level, Ref? id, Str msg,  FileLoc loc, Err? err)
   {
     wrap.log(LogRec(DateTime.now, level, wrap.name, msg, err))
   }
@@ -90,41 +90,11 @@ class XetoCallbackLog : XetoLog
 {
   new make(|XetoLogRec| cb) { this.cb = cb }
 
-  override Void log(LogLevel level, Str msg,  FileLoc loc, Err? err)
+  override Void log(LogLevel level, Ref? id, Str msg,  FileLoc loc, Err? err)
   {
-    cb(MLogRec(level, msg, loc, err))
+    cb(XetoLogRec(level, id, msg, loc, err))
   }
 
   private |XetoLogRec| cb
 }
-
-**************************************************************************
-** MLogRec
-**************************************************************************
-
-@Js
-const class MLogRec : XetoLogRec
-{
-  new make(LogLevel level, Str msg, FileLoc loc, Err? err)
-  {
-    this.level = level
-    this.msg   = msg
-    this.loc   = loc
-    this.err   = err
-  }
-
-  const override LogLevel level
-  const override Str msg
-  const override FileLoc loc
-  const override Err? err
-
-  override Str toStr()
-  {
-    s := StrBuf()
-    s.add(level.name.upper).add(": ").add(msg)
-    if (!loc.isUnknown) s.add(" [").add(loc).add("]")
-    return s.toStr
-  }
-}
-
 

@@ -78,7 +78,10 @@ internal class Fitter
 
     // check dict using structural typing
     if (val is Dict && spec.isa(ns.sys.dict))
+    {
+      this.curId = ((Dict)val).get("id") as Ref
       return fitsStruct(val, spec)
+    }
 
     // check list using structural typing
     if (val is List && spec.isa(ns.sys.list))
@@ -431,6 +434,7 @@ internal class Fitter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  Ref? curId
   private const MNamespace ns
   private const Bool failFast
   private const Dict opts
@@ -501,7 +505,7 @@ internal class ExplainFitter : Fitter
   private Bool log(Str msg)
   {
     if (inSlot) msg = "Slot '$slotName': $msg"
-    cb(MLogRec(LogLevel.err, msg, FileLoc.unknown, null))
+    cb(XetoLogRec(LogLevel.err, curId, msg, FileLoc.unknown, null))
     return false
   }
 
