@@ -8,6 +8,8 @@
 
 using util
 using xeto
+using haystack
+using haystack::Dict
 
 **
 ** Xeto CLI command plugin.  To create:
@@ -68,6 +70,23 @@ abstract class XetoCmd : AbstractMain
 
   ** Single line summary of the command for help
   abstract Str summary()
+
+//////////////////////////////////////////////////////////////////////////
+// Read Input
+//////////////////////////////////////////////////////////////////////////
+
+  ** Read an input file of dicts from any format
+  Dict[] readInputFile(File? file)
+  {
+    if (file == null || !file.exists) throw Err("Input file does not exist: $file")
+    switch (file.ext)
+    {
+      case "trio": return TrioReader(file.in).readAllDicts
+      case "zinc": return ZincReader(file.in).readGrid.toRows
+      case "json": return JsonReader(file.in).readGrid.toRows
+      default: throw Err("Unsupported input file extension: $file")
+    }
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
