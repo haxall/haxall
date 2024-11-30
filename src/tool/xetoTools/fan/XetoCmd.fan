@@ -72,7 +72,7 @@ abstract class XetoCmd : AbstractMain
   abstract Str summary()
 
 //////////////////////////////////////////////////////////////////////////
-// Read Input
+// I/O
 //////////////////////////////////////////////////////////////////////////
 
   ** Read an input file of dicts from any format
@@ -82,10 +82,28 @@ abstract class XetoCmd : AbstractMain
     switch (file.ext)
     {
       case "trio": return TrioReader(file.in).readAllDicts
-      case "zinc": return ZincReader(file.in).readGrid.toRows
-      case "json": return JsonReader(file.in).readGrid.toRows
+      case "zinc": return Etc.toRecs(ZincReader(file.in).readVal)
+      case "json": return Etc.toRecs(JsonReader(file.in).readVal)
       default: throw Err("Unsupported input file extension: $file")
     }
+  }
+
+  ** Output grid to given file extension
+  Void writeOutputFile(File file, Grid grid)
+  {
+    buf := StrBuf()
+    out := buf.out
+    switch (file.ext)
+    {
+      case "trio": TrioWriter(out).writeGrid(grid).close
+      case "zinc": ZincWriter(out).writeGrid(grid).close
+      case "json": JsonWriter(out).writeGrid(grid).close
+      default: throw Err("Unsupported input file extension: $file")
+    }
+    str := buf.toStr
+
+    file.out.print(str).close
+    echo("Wrote Output [$file.osPath]")
   }
 
 //////////////////////////////////////////////////////////////////////////

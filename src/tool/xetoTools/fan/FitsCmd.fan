@@ -9,8 +9,9 @@
 using util
 using xeto
 using xetoEnv
-using haystack::Etc
-using haystack::Marker
+using haystack
+using haystack::Dict
+using haystack::Ref
 
 internal class FitsCmd : XetoCmd
 {
@@ -18,8 +19,28 @@ internal class FitsCmd : XetoCmd
 
   override Str summary() { "Validate input data against configured specs" }
 
-  @Arg { help = "Input file" }
+  @Opt { help = "Check graph of query references such as required points" }
+  Bool graph
+
+  @Opt { help = "Ignore if refs resolve to valid target in input data set" }
+  Bool ignoreRefs
+
+  @Opt { help = "Output file or if stdout if omitted (must have zinc, trio, json extension)" }
+  File? outFile
+
+  @Arg { help = "Input file (must have zinc, trio, json extension)" }
   File? input
+
+  override Int usage(OutStream out := Env.cur.out)
+  {
+    super.usage(out)
+    out.printLine("Examples:")
+    out.printLine("  xeto $name recs.zinc            // Validate Zinc input file")
+    out.printLine("  xeto $name recs.json            // Validate Hayson input file")
+    out.printLine("  xeto $name recs.trio            // Validate Trio input file")
+    out.printLine("  xeto $name recs.trio -graph     // Validate graph queries")
+    return 1
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Run
@@ -30,6 +51,7 @@ internal class FitsCmd : XetoCmd
     readInput
     loadNamespace
     runFits
+    writeOutput
     return 0
   }
 
@@ -57,7 +79,7 @@ internal class FitsCmd : XetoCmd
   private Void loadNamespace()
   {
     this.ns = LibRepo.cur.createFromData(recs)
-    echo("Namesapce [$ns.libs.size libs")
+    echo("Load Namesapce [$ns.libs.size libs]")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -67,24 +89,24 @@ internal class FitsCmd : XetoCmd
   private Void runFits()
   {
     this.hits = XetoLogRec[,]
-    logger := |XetoLogRec rec|
-    {
-      echo("~~ $rec")
-      hits.add(rec)
-    }
+    logger := |XetoLogRec rec| { hits.add(rec) }
 
     optsMap := Str:Obj[:]
     optsMap["explain"] = Unsafe(logger)
+    if (graph) optsMap["graph"] = Marker.val
+    if (ignoreRefs) optsMap["ignoreRefs"] = Marker.val
     opts := Etc.makeDict(optsMap)
 
     recs.each |rec|
     {
       id := rec._id
+      startSize := hits.size
 
       specTag := rec["spec"] as Ref
       if (specTag == null)
       {
         logger(XetoLogRec(LogLevel.err, id, "Missing 'spec' ref tag", FileLoc.unknown, null))
+        numErr++
         return
       }
 
@@ -92,11 +114,57 @@ internal class FitsCmd : XetoCmd
       if (spec == null)
       {
         logger(XetoLogRec(LogLevel.err, id, "Unknown 'spec' ref: $specTag", FileLoc.unknown, null))
+        numErr++
         return
       }
 
       ns.fits(FitsCmdContext(this), rec, spec, opts)
+
+      if (hits.size == startSize)
+        numOk++
+      else
+        numErr++
     }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Write Ouput
+//////////////////////////////////////////////////////////////////////////
+
+  private Void writeOutput()
+  {
+    if (outFile == null)
+      writeConsole(Console.cur)
+    else
+      writeFile
+  }
+
+  private Void writeConsole(Console con)
+  {
+    table := Obj[][,]
+    table.add(["id", "dis", "msg"])
+    hits.each |hit|
+    {
+      table.add([hit.id.id, hit.id.dis, hit.msg])
+    }
+
+    con.info("")
+    con.table(table)
+    con.info("")
+    con.info("Num recs ok:  $numOk")
+    con.info("Num recs err: $numErr")
+    con.info("")
+  }
+
+  private Void writeFile()
+  {
+    gb := GridBuilder()
+    gb.addCol("id").addCol("msg")
+    hits.each |hit|
+    {
+      gb.addRow2(hit.id, hit.msg)
+    }
+    writeOutputFile(outFile, gb.toGrid)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -107,6 +175,9 @@ internal class FitsCmd : XetoCmd
   internal [Ref:Dict]? recsById     // readInput
   internal LibNamespace? ns         // loadNamespace
   internal XetoLogRec[]? hits       // runFits
+  private Int numOk                 // runFits
+  private Int numErr                // runFits
+
 }
 
 **************************************************************************
@@ -117,11 +188,11 @@ internal class FitsCmdContext : XetoContext
 {
   new make(FitsCmd cmd) { this.cmd = cmd }
 
-  override Dict? xetoReadById(Obj id)  { cmd.recsById.get(id) }
+  override xeto::Dict? xetoReadById(Obj id)  { cmd.recsById.get(id) }
 
-  override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f)  { throw Err() }
+  override Obj? xetoReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f)  { throw Err() }
 
-  override Bool xetoIsSpec(Str spec, Dict rec) { throw Err() }
+  override Bool xetoIsSpec(Str spec, xeto::Dict rec) { throw Err() }
 
   FitsCmd cmd
 }
