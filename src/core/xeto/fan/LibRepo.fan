@@ -82,5 +82,9 @@ const mixin LibRepo
   ** Rescan file system if this is a local repo
   @NoDoc abstract This rescan()
 
+  ** Given a set of a records with a 'spec' tag, determine which libs
+  ** are used and resolve them to libs and build a namespace.
+  @NoDoc abstract LibNamespace createFromData(Dict[] recs)
+
 }
 

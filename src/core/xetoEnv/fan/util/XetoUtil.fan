@@ -159,6 +159,22 @@ const class XetoUtil
     return acc.vals
   }
 
+  ** Convert a list of dicts with "spec" tag to unique lib names
+  static Str[] dataToLibs(Dict[] recs)
+  {
+    // get all unique lib names
+    acc := Str:Str[:]
+    recs.each |row|
+    {
+      spec := row["spec"] as Ref
+      if (spec == null) return
+      libName := XetoUtil.qnameToLib(spec.toStr)
+      if (libName == null) return
+      acc[libName] = libName
+    }
+    return acc.keys
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Reserved Names
 //////////////////////////////////////////////////////////////////////////

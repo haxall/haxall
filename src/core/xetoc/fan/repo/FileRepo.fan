@@ -130,5 +130,12 @@ const class FileRepo : LibRepo
     return ns
   }
 
+  override LibNamespace createFromData(Dict[] recs)
+  {
+    libNames := XetoUtil.dataToLibs(recs)
+    versions := libNames.map |libName->LibVersion| { latest(libName) }
+    return build(versions)
+  }
+
 }
 
