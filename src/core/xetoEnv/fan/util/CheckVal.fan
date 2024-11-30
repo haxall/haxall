@@ -36,8 +36,15 @@ const class CheckVal
   private static Void checkFixed(CSpec spec, Obj x, |Str| onErr)
   {
     if (spec.cmeta.missing("fixed")) return
-    val := spec.cmeta.get("val")
-    if (!Etc.eq(val, x)) onErr("Must have fixed value '$val'")
+
+    expect := spec.cmeta.get("val")
+    if (Etc.eq(expect, x)) return
+
+    // TODO: need to wire this thru
+    expect = XetoUtil.toHaystack(expect)
+    if (Etc.eq(expect, x)) return
+
+    onErr("Must have fixed value '$expect'")
   }
 
 //////////////////////////////////////////////////////////////////////////

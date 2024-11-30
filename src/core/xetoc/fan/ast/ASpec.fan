@@ -316,7 +316,9 @@ internal class ASpec : ANode, CSpec
   ** This is the same behavior as Spec.isa, just using CSpec (XetoSpec or AST)
   override Bool cisa(CSpec that)
   {
-    XetoUtil.isa(this, that)
+    if (XetoUtil.isa(this, that)) return true
+    if (this.qname == that.qname) return true
+    return false
   }
 
   ** Extract 'of' type ref from AST model

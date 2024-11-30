@@ -372,7 +372,11 @@ internal class Fitter
       // read from context
       target = cx.xetoReadById(ref)
     }
-    if (target == null) return explainValErr(spec, "Unresolved ref @$ref.id")
+    if (target == null)
+    {
+      if (ignoreRefs) return true
+      return explainValErr(spec, "Unresolved ref @$ref.id")
+    }
 
     if (of != null)
     {
