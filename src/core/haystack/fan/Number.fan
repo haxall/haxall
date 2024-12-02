@@ -49,7 +49,7 @@ const final class Number
   }
 
   ** Parse from a string but require unit to be only the unit symbol
-  @NoDoc static Number fromStrStrictUnit(Str s, Bool checked := true)
+  @NoDoc static Number? fromStrStrictUnit(Str s, Bool checked := true)
   {
     parse(s, true, checked)
   }

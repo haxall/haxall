@@ -220,11 +220,6 @@ internal class CompFactory
   ** Reify the given value
   private Obj reify(Spec? slot, Obj v)
   {
-    // check for scalar slot - this might need to happen instantiate
-    // TODO: once we fix fidelity....
-    if (slot != null && slot.isScalar && v is Str && !slot.factory.isGenericScalar)
-      v = slot.factory.decodeScalar(v)
-
     // swizzle refs
     if (v is Ref)  return swizzleRef(v)
 

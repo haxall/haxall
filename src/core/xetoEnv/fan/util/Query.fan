@@ -32,8 +32,6 @@ internal class Query
     // verify its a query
     if (!query.isQuery)
     {
-if (query.base.isQuery) echo("TODO: fix inheritance: $query")
-else
       throw ArgErr("Spec is not Query type: $query.qname")
     }
 
