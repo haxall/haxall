@@ -588,9 +588,13 @@ const class XetoFuncs
     cx := curContext
     ns := cx.xeto
     hits := XetoLogRec[,]
-    explain := |XetoLogRec rec| { hits.add(rec) }
-    opts = Etc.dictSet(opts, "explain", Unsafe(explain))
     gb := GridBuilder().addCol("id").addCol("msg")
+
+    // massage opts dict to include built-in opts
+    optsMap := Etc.dictToMap(opts)
+    optsMap["explain"] = Unsafe(|XetoLogRec rec| { hits.add(rec) })
+    optsMap["haystack"] = Marker.val // force haystack level fidelity
+    opts = Etc.dictFromMap(optsMap)
 
     // walk thru each rec
     Etc.toRecs(recs).each |rec, i|

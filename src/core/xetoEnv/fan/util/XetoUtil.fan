@@ -271,6 +271,13 @@ const class XetoUtil
     throw Err("Expecting |XetoLogRec| func for $name.toCode [$x.typeof]")
   }
 
+  ** Standard option to fidellity level mapping
+  static XetoFidelity optFidelity(Dict? opts)
+  {
+    if (optBool(opts, "haystack", false)) return XetoFidelity.haystack
+    return XetoFidelity.full
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Meta
 //////////////////////////////////////////////////////////////////////////
@@ -497,12 +504,11 @@ const class XetoUtil
     val := spec.meta["val"] as List
     if (val != null)
     {
-      hay := optBool(opts, "haystack", false)
+      fidelity := optFidelity(opts)
       acc.capacity = val.size
       val.each |v|
       {
-        if (hay) v = toHaystack(v)
-        acc.add(v)
+        acc.add(fidelity.coerce(v))
       }
     }
     return acc.toImmutable
@@ -537,6 +543,27 @@ const class XetoUtil
     }
 
     return graph
+  }
+}
+
+**************************************************************************
+** XetoFidelity
+**************************************************************************
+
+** Data fidelity and type erasure level
+@Js
+enum class XetoFidelity
+{
+  full,
+  haystack,
+  json
+
+  ** Coerce value to the proper level of data fidelity
+  Obj? coerce(Obj? x)
+  {
+    if (this === haystack) return XetoUtil.toHaystack(x)
+    if (this === json) throw Err("JSON fidelity not used yet")
+    return x
   }
 }
 

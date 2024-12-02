@@ -19,10 +19,20 @@ const class CheckVal
 {
 
 //////////////////////////////////////////////////////////////////////////
+// Constructor
+//////////////////////////////////////////////////////////////////////////
+
+  new make(Dict opts)
+  {
+    this.opts = opts
+    this.fidelity = XetoUtil.optFidelity(opts)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Val
 //////////////////////////////////////////////////////////////////////////
 
-  static Void check(CSpec spec, Obj x, |Str| onErr)
+  Void check(CSpec spec, Obj x, |Str| onErr)
   {
     checkFixed(spec, x, onErr)
     if (spec.isScalar) return checkScalar(spec, x, onErr)
@@ -33,17 +43,24 @@ const class CheckVal
 // Final
 //////////////////////////////////////////////////////////////////////////
 
-  private static Void checkFixed(CSpec spec, Obj x, |Str| onErr)
+  private Void checkFixed(CSpec spec, Obj x, |Str| onErr)
   {
     if (spec.cmeta.missing("fixed")) return
 
+    // get the expected fixed value
     expect := spec.cmeta.get("val")
+
+    // check if actual matches expected fixed value
     if (Etc.eq(expect, x)) return
 
-    // TODO: need to wire this thru
-    expect = XetoUtil.toHaystack(expect)
-    if (Etc.eq(expect, x)) return
+    // narrow expected value if using less than full fidelity
+    narrow := fidelity.coerce(expect)
+    if (narrow !== expect)
+    {
+      if (Etc.eq(narrow, x)) return
+    }
 
+    // no joy
     onErr("Must have fixed value '$expect'")
   }
 
@@ -88,7 +105,7 @@ const class CheckVal
 // Scalar
 //////////////////////////////////////////////////////////////////////////
 
-  private static Void checkScalar(CSpec spec, Obj x, |Str| onErr)
+  private Void checkScalar(CSpec spec, Obj x, |Str| onErr)
   {
     if (x is Number) return checkNumber(spec, x, onErr)
     if (spec.ctype.isEnum) return checkEnum(spec, x, onErr)
@@ -159,7 +176,7 @@ const class CheckVal
 // Enum
 //////////////////////////////////////////////////////////////////////////
 
-  private static Void checkEnum(CSpec spec, Obj x, |Str| onErr)
+  private Void checkEnum(CSpec spec, Obj x, |Str| onErr)
   {
     // value must be string key, Scalar, or mapped by factory to Enum
     key := x as Str
@@ -249,5 +266,13 @@ const class CheckVal
     else
       return spec.qname
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
+
+  const Dict opts
+  const XetoFidelity fidelity
+
 }
 

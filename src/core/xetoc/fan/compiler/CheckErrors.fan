@@ -8,7 +8,7 @@
 
 using util
 using xeto
-using haystack::Number
+using haystack::Etc
 using xetoEnv
 
 **
@@ -299,7 +299,7 @@ internal class CheckErrors : Step
   Void checkScalar(AScalar x, CSpec? slot)
   {
     spec := slot ?: x.ctype
-    CheckVal.check(spec, x.asm) |msg|
+    checkVal.check(spec, x.asm) |msg|
     {
       errSlot(slot, msg, x.loc)
     }
@@ -335,7 +335,7 @@ internal class CheckErrors : Step
     }
 
     // check spec meta notEmpty, minSize, maxSize
-    CheckVal.check(spec, list) |msg|
+    checkVal.check(spec, list) |msg|
     {
       errSlot(slot, msg, x.loc)
     }
@@ -452,5 +452,6 @@ internal class CheckErrors : Step
     }
   }
 
+  const CheckVal checkVal := CheckVal(Etc.dict0)
 }
 

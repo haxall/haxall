@@ -58,7 +58,7 @@ class CheckTest : AbstractXetoTest
     spec := lib.type("Foo").slot("x")
 
     actual := Str[,]
-    CheckVal.check((CSpec)spec, val) |err| { actual.add(err) }
+    CheckVal(Etc.dict0).check((CSpec)spec, val) |err| { actual.add(err) }
     // echo(actual.join("\n"))
     verifyEq(actual, Str[,].addAll(expect))
   }

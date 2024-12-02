@@ -93,6 +93,7 @@ internal class FitsCmd : XetoCmd
 
     optsMap := Str:Obj[:]
     optsMap["explain"] = Unsafe(logger)
+    optsMap["haystack"] = Marker.val // force use for haystack level fidelity
     if (graph) optsMap["graph"] = Marker.val
     if (ignoreRefs) optsMap["ignoreRefs"] = Marker.val
     opts := Etc.makeDict(optsMap)

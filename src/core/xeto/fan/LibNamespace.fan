@@ -244,6 +244,7 @@ const mixin LibNamespace
   ** Options:
   **   - 'graph': marker to also check graph of references such as required points
   **   - 'ignoreRefs': marker to ignore if refs resolve to valid target
+  **   - 'haystack': marker tag to use Haystack level data fidelity
   abstract Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)
 
   ** Return if spec 'a' fits spec 'b' based on structural typing.

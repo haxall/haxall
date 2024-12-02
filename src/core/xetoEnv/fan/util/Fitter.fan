@@ -28,6 +28,7 @@ internal class Fitter
     this.opts = opts
     this.isGraph = opts.has("graph")
     this.ignoreRefs = opts.has("ignoreRefs")
+    this.checkVal = CheckVal(opts)
     this.cx = cx
   }
 
@@ -93,7 +94,7 @@ internal class Fitter
 
     // check value against spec meta
     fits := true
-    CheckVal.check((CSpec)spec, val) |msg|
+    checkVal.check((CSpec)spec, val) |msg|
     {
       fits = explainValErr(spec, msg)
     }
@@ -216,7 +217,7 @@ internal class Fitter
   {
     // always check spec meta
     fits := true
-    CheckVal.check((CSpec)spec, list) |err|
+    checkVal.check((CSpec)spec, list) |err|
     {
       fits = explainValErr(spec, err)
     }
@@ -444,6 +445,7 @@ internal class Fitter
   private const Dict opts
   private const Bool isGraph
   private const Bool ignoreRefs
+  private const CheckVal checkVal
   private XetoContext cx
   private Str[] slotStack := [,]
 }
