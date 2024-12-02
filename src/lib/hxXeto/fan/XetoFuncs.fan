@@ -701,7 +701,7 @@ const class XetoFuncs
   ** must be a Spec typed as a 'sys::Query'.  Also see `queryAll`.
   **
   ** Example:
-  **   read(point).query(Point.equip)
+  **   read(point).query(spec("ph::Point.equips"))
   **
   @Axon static Dict? query(Obj subject, Spec spec, Bool checked := true)
   {
