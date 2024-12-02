@@ -571,11 +571,6 @@ abstract const class MNamespace : LibNamespace, CNamespace
 // Compile
 //////////////////////////////////////////////////////////////////////////
 
-  override Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
-  {
-    XetoUtil.derive(this, name, base, meta, slots)
-  }
-
   override Dict[] compileDicts(Str src, Dict? opts := null)
   {
     val := compileData(src, opts)

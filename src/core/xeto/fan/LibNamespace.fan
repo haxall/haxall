@@ -287,11 +287,6 @@ const mixin LibNamespace
 // Compile
 //////////////////////////////////////////////////////////////////////////
 
-  ** Derive a new spec from the given base type, additional meta, and
-  ** slots.  The spec is not associated with any library and a synthetic
-  ** qname is generated.  This feature is subject to change or removal.
-  @NoDoc abstract Spec derive(Str name, Spec base, Dict meta, [Str:Spec]? slots := null)
-
   ** Compile Xeto source code into a temp library.  All dependencies are
   ** resolved against this namespace.  Raise exception if there are any
   ** syntax or semantic errors.

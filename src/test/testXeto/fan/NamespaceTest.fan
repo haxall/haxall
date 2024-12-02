@@ -498,66 +498,6 @@ class NamespaceTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Derive
-//////////////////////////////////////////////////////////////////////////
-
-  Void testDerive()
-  {
-    ns := createNamespace(["sys"])
-    obj := ns.type("sys::Obj")
-    scalar := ns.type("sys::Scalar")
-    marker := ns.type("sys::Marker")
-    str := ns.type("sys::Str")
-    list := ns.type("sys::List")
-    dict := ns.type("sys::Dict")
-    m := Marker.val
-
-    verifyDerive(ns, "foo", list, dict0, null)
-    verifyDerive(ns, "foo", list, dict1("bar", m), null)
-    verifyDerive(ns, "foo", list, dict2("bar", m, "baz", "hi"), Str:Spec[:])
-    verifyDerive(ns, "foo", dict, dict0, ["foo":marker])
-    verifyDerive(ns, "foo", dict, dict1("bar", m), ["foo":marker, "dis":str])
-    verifyDerive(ns, "foo", dict, dict1("maybe", m), null)
-
-    verifyDeriveErr(ns, "foo bar", scalar, dict0, null, "Invalid spec name: foo bar")
-    verifyDeriveErr(ns, "foo", scalar, dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::Scalar")
-    verifyDeriveErr(ns, "foo", list, dict0, ["foo":marker], "Cannot add slots to non-dict type: sys::List")
-  }
-
-  Void verifyDerive(LibNamespace ns, Str name, Spec base, Dict meta, [Str:Spec]? slots)
-  {
-    x := ns.derive(name, base, meta, slots)
-
-    verifyEq(x.name, name)
-    verifyEq(x.parent, null)
-    verifyEq(x.qname.startsWith("derived"), true)
-    verifyEq(x.qname.endsWith("::$name"), true)
-    verifyDictEq(x.metaOwn, meta)
-    verifyEq(x.isMaybe, meta.has("maybe"))
-
-    if (slots == null || slots.isEmpty)
-    {
-      verifyEq(x.slotsOwn.isEmpty, true)
-    }
-    else
-    {
-      slots.each |eslot, n|
-      {
-        aslot := x.slotsOwn.get(n)
-        verifyEq(aslot.name, n)
-        verifySame(aslot.parent, x)
-        verifySame(aslot.base, eslot)
-      }
-      x.slotsOwn.each |s| { verifySame(s.base, slots[s.name]) }
-    }
-  }
-
-  Void verifyDeriveErr(LibNamespace ns, Str name, Spec base, Dict meta, [Str:Spec]? slots, Str msg)
-  {
-    verifyErrMsg(ArgErr#, msg) { ns.derive(name, base, meta, slots) }
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Instantiate
 //////////////////////////////////////////////////////////////////////////
 

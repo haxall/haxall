@@ -165,24 +165,6 @@ const class MSpec
 }
 
 **************************************************************************
-** MDerivedSpec
-**************************************************************************
-
-@Js
-internal const class MDerivedSpec : MSpec
-{
-  static const AtomicInt counter := AtomicInt()
-
-  new make(XetoSpec? parent, Int nameCode, Str name, XetoSpec base, MNameDict meta, MSlots slots, Int flags)
-    : super(FileLoc.synthetic, parent, nameCode, name, base, base.type, meta, meta, slots, slots, flags, MSpecArgs.nil) // TODO: meta vs metaOwn, slots vs slotsOwn
-  {
-    this.qname = "derived" + counter.getAndIncrement + "::" + name
-  }
-
-  const override Str qname
-}
-
-**************************************************************************
 ** XetoSpec
 **************************************************************************
 

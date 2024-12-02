@@ -385,49 +385,6 @@ const class XetoUtil
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Derive
-//////////////////////////////////////////////////////////////////////////
-
-  ** Dervice a new spec from the given base, meta, and map
-  static Spec derive(MNamespace ns, Str name, XetoSpec base, Dict meta, [Str:Spec]? slots)
-  {
-    // sanity checking
-    if (!isSpecName(name)) throw ArgErr("Invalid spec name: $name")
-    if (!base.isDict)
-    {
-      if (slots != null && !slots.isEmpty) throw ArgErr("Cannot add slots to non-dict type: $base")
-    }
-
-    spec := XetoSpec()
-    nameCode :=ns.names.add(name)
-    name = ns.names.toName(nameCode)
-    m := MDerivedSpec(null, nameCode, name, base, MNameDict(ns.names.dictDict(meta)), deriveSlots(ns, spec, slots), deriveFlags(base, meta))
-    XetoSpec#m->setConst(spec, m)
-    return spec
-  }
-
-  private static Int deriveFlags(XetoSpec base, Dict meta)
-  {
-    flags := base.m.flags
-    if (meta.has("maybe")) flags = flags.or(MSpecFlags.maybe)
-    return flags
-  }
-
-  private static MSlots deriveSlots(MNamespace ns, XetoSpec parent, [Str:Spec]? slotsMap)
-  {
-    if (slotsMap == null || slotsMap.isEmpty) return MSlots.empty
-
-    derivedMap := slotsMap.map |XetoSpec base, Str name->XetoSpec|
-    {
-      nameCode := ns.names.add(name)
-      name = ns.names.toName(nameCode)
-      return XetoSpec(MDerivedSpec(parent, nameCode, name, base, base.m.meta, base.m.slots, base.m.flags))
-    }
-
-    return MSlots(ns.names.dictMap(derivedMap))
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Fidelity
 //////////////////////////////////////////////////////////////////////////
 
