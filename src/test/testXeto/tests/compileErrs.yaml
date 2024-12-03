@@ -207,6 +207,35 @@ verifyErrs: |
   Slot 'f' of's type 'sys::Obj' conflicts global slot 'temp::f' of's type 'sys::Number'
   Slot 'g' of's type 'sys::Date' conflicts global slot 'temp::g' of's type 'sys::Number'
 ---
+name: "covariance"
+compileLib: |
+  Foo: {
+    a: Number
+    b: Number <minVal:10, maxVal: 20>
+    c: Number <unit:"kW">
+    d: Number <quantity:"energy">
+  }
+
+  Bad: Foo {
+    a: Scalar
+    b: Number <minVal:3, maxVal: 18>
+    c: Number <unit:"W">
+    d: Number <quantity:"power">
+  }
+
+  Ok: Foo {
+    a: Duration
+    b: Number <minVal:11, maxVal: 19>
+    c: Number <unit:"kW">
+    d: Number <quantity:"energy">
+  }
+verifyErrs: |
+  Slot 'a' type 'sys::Scalar' conflicts inherited slot 'temp::Foo.a' of type 'sys::Number'
+  Slot 'b' minVal '3.0' conflicts inherited slot 'temp::Foo.b' minVal '10.0'
+  Slot 'b' maxVal '18.0' conflicts inherited slot 'temp::Foo.b' maxVal '20.0'
+  Slot 'c' unit 'W' conflicts inherited slot 'temp::Foo.c' unit 'kW'
+  Slot 'd' quantity 'power' conflicts inherited slot 'temp::Foo.d' quantity 'energy'
+---
 name: "numberChecksInstance"
 compileLib: |
   Foo: {

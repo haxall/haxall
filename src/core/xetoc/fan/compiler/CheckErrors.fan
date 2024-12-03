@@ -140,17 +140,37 @@ internal class CheckErrors : Step
 
     // verify type is covariant
     if (!xType.cisa(bType))
-    {
       errCovariant(x, "type '$xType' conflicts", "of type '$bType'")
-    }
 
-    // verify of is covariant
+    // check "of"
     xOf := x.cof
     bOf := b.cof
     if (xOf != null && bOf != null && !xOf.cisa(bOf))
-    {
       errCovariant(x, "of's type '$xOf' conflicts", "of's type '$bOf'")
-    }
+
+    // check "minVal"
+    xMinVal := XetoUtil.toFloat(x.cmeta.get("minVal"))
+    bMinVal := XetoUtil.toFloat(b.cmeta.get("minVal"))
+    if (xMinVal != null && bMinVal != null && xMinVal < bMinVal)
+      errCovariant(x, "minVal '$xMinVal' conflicts", "minVal '$bMinVal'")
+
+    // check "maxVal"
+    xMaxVal := XetoUtil.toFloat(x.cmeta.get("maxVal"))
+    bMaxVal := XetoUtil.toFloat(b.cmeta.get("maxVal"))
+    if (xMinVal != null && bMinVal != null && xMinVal < bMinVal)
+      errCovariant(x, "maxVal '$xMaxVal' conflicts", "maxVal '$bMaxVal'")
+
+    // check "quantity"
+    xQuantity := x.cmeta.get("quantity")
+    bQuantity := b.cmeta.get("quantity")
+    if (xQuantity != bQuantity && bQuantity != null)
+      errCovariant(x, "quantity '$xQuantity' conflicts", "quantity '$bQuantity'")
+
+    // check "unit"
+    xUnit:= x.cmeta.get("unit")
+    bUnit := b.cmeta.get("unit")
+    if (xUnit != bUnit && bUnit != null)
+      errCovariant(x, "unit '$xUnit' conflicts", "unit '$bUnit'")
   }
 
   Void errCovariant(ASpec x, Str msg1, Str msg2)
