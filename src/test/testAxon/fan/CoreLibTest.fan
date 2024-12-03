@@ -241,7 +241,7 @@ class CoreLibTest : HaystackTest
     verifyEval(Str<|48hr.format|>, "2day")
     verifyEval(Str<|(-3min).format|>, "-3min")
     verifyEval(Str<|(-48hr).format|>, "-2day")
-    verifyEval(Str<|(-48hr).format("0.0")|>, "-48.0h")
+    verifyEval(Str<|(-48hr).format("0.0")|>, "-48.0hr")
     verifyEval(Str<|6kilogram.format|>, "6kg")
     verifyEval(Str<|12$.format|>, "\$12.00")
     verifyEval(Str<|(-12$).format|>, "-\$12.00")
