@@ -126,7 +126,7 @@ internal class RemoteLoader
 
     // fallback to dict/scalar factory
     isScalar := MSpecFlags.scalar.and(x.flags) != 0
-    return isScalar ? ns.factories.scalar : ns.factories.dict
+    return isScalar ? GenericScalarFactory(x.qname) : ns.factories.dict
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -343,9 +343,6 @@ internal class RemoteLoader
 
     // skip if already mapped as Fantom string
     if (spec.factory.type === Str#) return
-
-    // for remote namespaces, leave generic scalars as strings
-    if (spec.factory.isGenericScalar) return
 
     try
     {

@@ -10,6 +10,7 @@ using xeto
 using xeto::Dict
 using haystack
 using haystack::Ref
+using xetoEnv
 
 **
 ** FactoryTest
@@ -101,14 +102,11 @@ class FactoryTest : AbstractXetoTest
   {
     ns := createNamespace(["hx.test.xeto"])
 
-// TODO
-return
-
     spec := ns.spec("hx.test.xeto::ScalarA")
-    factory := spec.factory
+    factory := (GenericScalarFactory)spec.factory
     verifyEq(factory.type, Scalar#)
     verifyEq(factory.isScalar, true)
-    verifyEq(factory.isGenericScalar, true)
+    verifyEq(factory.qname, "hx.test.xeto::ScalarA")
 
     dict := ns.instance("hx.test.xeto::scalars")
     // dict.each |v, n|{ echo("$n = $v [$v.typeof]") }

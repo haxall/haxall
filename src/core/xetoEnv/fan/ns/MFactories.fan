@@ -67,9 +67,6 @@ const class MFactories
     loadersMap.set(libName, loader)
   }
 
-  ** Default scalar factory
-  const SpecFactory scalar := GenericScalarFactory()
-
   ** Default dict factory
   const SpecFactory dict := DictFactory()
 
@@ -240,7 +237,6 @@ internal const class ObjFactory : SpecFactory
   new make(Type type) { this.type = type }
   const override Type type
   override Bool isScalar() { false }
-  override Bool isGenericScalar() { false }
   override Bool isDict() { false }
   override Bool isList() { false }
   override Bool isInterface() { false }
@@ -290,11 +286,11 @@ internal const class SingletonFactory : ScalarSpecFactory
 }
 
 @Js
-internal const class GenericScalarFactory : ScalarSpecFactory
+const class GenericScalarFactory : ScalarSpecFactory
 {
-  new make() : super(Scalar#) {}
-  override Bool isGenericScalar() { true }
-  override Obj? decodeScalar(Str str, Bool checked := true) { throw UnsupportedErr() }
+  new make(Str qname) : super(Scalar#) { this.qname = qname }
+  const Str qname
+  override Obj? decodeScalar(Str str, Bool checked := true) { Scalar(qname, str) }
 }
 
 @Js

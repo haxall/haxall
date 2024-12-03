@@ -9,6 +9,7 @@
 using util
 using xeto
 using haystack
+using xetoEnv
 
 **
 ** Load and assign a SpecFactory to each AType in the AST
@@ -71,7 +72,7 @@ internal class LoadFactories : Step
     if (spec.factoryRef == null)
     {
       if (spec.isScalar)
-        spec.factoryRef = factories.scalar
+        spec.factoryRef = GenericScalarFactory(spec.ctype.qname)
       else
         spec.factoryRef = factories.dict
     }

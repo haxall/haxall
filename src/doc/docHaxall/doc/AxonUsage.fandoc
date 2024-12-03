@@ -16,7 +16,7 @@ Common functions for working with strings: `capitalize()`, `contains()`, `decapi
   "num=" + 3                     >>  "num=3"  // use '+' for concat
   "hi world".isEmpty             >>  false
   "hi world".size                >>  8
-  "hi world"[5]                  >>  114      // unicode char for 'w'
+  "hi world"[5]                  >>  114      // unicode char for 'r'
   "hi world"[3..-2]              >>  "worl"   // get with range is slice
   "root toot".index("oo")        >>  1
   "root toot".indexr("oo")       >>  6
