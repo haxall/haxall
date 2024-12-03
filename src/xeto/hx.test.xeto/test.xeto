@@ -71,7 +71,7 @@ InstantiateA: {
 }
 
 // Global tag example. Sentence two
-globalTag: Str
+globalTag: Str <minSize:3>
 
 Sigs: {
   a: Str

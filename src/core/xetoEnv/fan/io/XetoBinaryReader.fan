@@ -25,10 +25,6 @@ using haystack::GridBuilder
 **
 ** Reader for Xeto binary encoding of specs and data
 **
-** This encoding does not provide full fidelity with Xeto model.  Most
-** scalars are encoded as just a string.  However it does support some
-** types not supported by Haystack fidelity level such as Int, Float, Buf.
-**
 ** NOTE: this encoding is not backward/forward compatible - it only works
 ** with XetoBinaryReader of the same version; do not use for persistent data
 **

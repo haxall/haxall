@@ -370,20 +370,26 @@ class ValidateTest : AbstractXetoTest
          |>
 
     // invalid target types in lib
-    verifyValidate(src, ["site":Date.today], [
+    verifyValidate(src, ["globalTag":"x", "site":Date.today], [
+      "Slot 'globalTag': String size 1 < minSize 3",
       "Slot 'site': Global slot type is 'sys::Marker', value type is 'sys::Date'",
       ])
 
     // global in lib AST
     src =
     Str<|Foo: Dict
-         baz: Number
+         baz: Number <quantity:"length", minVal:0>
          |>
 
 
     // invalid target types in lib
     verifyCompileTime(src, toInstance(["baz":Uri("file.txt")]), [
       "Slot 'baz': Global slot type is 'sys::Number', value type is 'sys::Uri'",
+      ])
+
+    // invalid target types in lib
+    verifyCompileTime(src, toInstance(["baz":n(123, "°C")]), [
+      "Slot 'baz': Number must be 'length' unit; '°C' has quantity of 'temperature'",
       ])
   }
 

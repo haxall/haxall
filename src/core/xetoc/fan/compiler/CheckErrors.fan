@@ -397,6 +397,12 @@ internal class CheckErrors : Step
     if (!valTypeFits(global.ctype, valType, val))
     {
       err("Slot '$name': Global slot type is '$global.ctype', value type is '$val.ctype'", val.loc)
+      return
+    }
+
+    checkVal.check(global, val.asm) |msg|
+    {
+      errSlot(global, msg, val.loc)
     }
   }
 
