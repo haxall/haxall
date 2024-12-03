@@ -162,6 +162,18 @@ internal class CheckErrors : Step
         err("Slot '$slot.name' type '$slotType' conflicts inherited slot '$base.qname' of type '$baseType'", slot.loc)
     }
 
+    // verify of is covariant
+    of := slot.cof
+    baseOf := base.cof
+    if (of != null && baseOf != null && of !== baseOf && !of.cisa(baseOf))
+    {
+      if (slot.base.isGlobal)
+        err("Slot '$slot.name' of's type '$of' conflicts global slot '$base.qname' of's type '$baseOf'", slot.loc)
+      else
+        err("Slot '$slot.name' of's type '$of' conflicts inherted slot '$base.qname' of's type '$baseOf'", slot.loc)
+    }
+
+
     // lists cannot have slots
     if (slot.parent.isList && !XetoUtil.isAutoName(slot.name))
       err("List specs cannot define slots", slot.loc)

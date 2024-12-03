@@ -147,16 +147,32 @@ verifyErrs: |
 ---
 name: "wrongInheritType"
 compileLib: |
+  Person: Dict
+  Boss: Person
+  Dog: Dict
+
   Foo: {
     x:Date
     y:Number
+    a:List<of:Number>
+    b:Ref<of:Person>
   }
+
   Bar: Foo {
     x:Str
     y:Int  // ok
+    a:List<of:Obj>
+    b:Ref<of:Dog>
+  }
+
+  Ok: Foo {
+    a:List<of:Int>
+    b:Ref<of:Boss>
   }
 verifyErrs: |
   Slot 'x' type 'sys::Str' conflicts inherited slot 'temp::Foo.x' of type 'sys::Date'
+  Slot 'a' of's type 'sys::Obj' conflicts inherted slot 'temp::Foo.a' of's type 'sys::Number'
+  Slot 'b' of's type 'temp::Dog' conflicts inherted slot 'temp::Foo.b' of's type 'temp::Person'
 ---
 name: "wrongGlobalType"
 compileLib: |
@@ -170,6 +186,8 @@ compileLib: |
   c: Marker
   d: Date
   e: Dict
+  f: List<of:Number>
+  g: List<of:Number>
   Bar: {
     a
     b: Int // ok
@@ -177,6 +195,8 @@ compileLib: |
     c: {}
     d: {foo}
     e: "wrong"
+    f: List<of:Obj>
+    g: List<of:Date>
   }
 verifyErrs: |
   Slot 'a' type 'sys::Marker' conflicts global slot 'temp::a' of type 'sys::Str'
@@ -184,6 +204,8 @@ verifyErrs: |
   Scalar slot 'c' of type 'sys::Marker' cannot have slots
   Scalar slot 'd' of type 'sys::Date' cannot have slots
   Non-scalar slot 'e' of type 'sys::Dict' cannot have scalar value
+  Slot 'f' of's type 'sys::Obj' conflicts global slot 'temp::f' of's type 'sys::Number'
+  Slot 'g' of's type 'sys::Date' conflicts global slot 'temp::g' of's type 'sys::Number'
 ---
 name: "numberChecksInstance"
 compileLib: |
