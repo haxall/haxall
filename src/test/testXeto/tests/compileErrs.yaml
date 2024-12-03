@@ -171,8 +171,8 @@ compileLib: |
   }
 verifyErrs: |
   Slot 'x' type 'sys::Str' conflicts inherited slot 'temp::Foo.x' of type 'sys::Date'
-  Slot 'a' of's type 'sys::Obj' conflicts inherted slot 'temp::Foo.a' of's type 'sys::Number'
-  Slot 'b' of's type 'temp::Dog' conflicts inherted slot 'temp::Foo.b' of's type 'temp::Person'
+  Slot 'a' of's type 'sys::Obj' conflicts inherited slot 'temp::Foo.a' of's type 'sys::Number'
+  Slot 'b' of's type 'temp::Dog' conflicts inherited slot 'temp::Foo.b' of's type 'temp::Person'
 ---
 name: "wrongGlobalType"
 compileLib: |

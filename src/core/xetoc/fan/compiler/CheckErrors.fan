@@ -125,8 +125,42 @@ internal class CheckErrors : Step
   Void checkSpec(ASpec x)
   {
     checkSpecMeta(x)
+    checkCovariant(x)
     if (x.isQuery) return checkSpecQuery(x)
     checkSlots(x)
+  }
+
+
+  Void checkCovariant(ASpec x)
+  {
+    b := x.base
+    if (b == null) return
+    xType := x.ctype
+    bType := b.ctype
+
+    // verify type is covariant
+    if (!xType.cisa(bType))
+    {
+      errCovariant(x, "type '$xType' conflicts", "of type '$bType'")
+    }
+
+    // verify of is covariant
+    xOf := x.cof
+    bOf := b.cof
+    if (xOf != null && bOf != null && !xOf.cisa(bOf))
+    {
+      errCovariant(x, "of's type '$xOf' conflicts", "of's type '$bOf'")
+    }
+  }
+
+  Void errCovariant(ASpec x, Str msg1, Str msg2)
+  {
+    if (x.isSlot && x.base.isGlobal)
+      err("Slot '$x.name' $msg1 global slot '$x.base.qname' $msg2", x.loc)
+    else if (x.isSlot)
+      err("Slot '$x.name' $msg1 inherited slot '$x.base.qname' $msg2", x.loc)
+    else
+      err("Type '$x.name' $msg1 inherited type '$x.base.qname' $msg2", x.loc)
   }
 
   Void checkSlots(ASpec x)
@@ -147,32 +181,6 @@ internal class CheckErrors : Step
   {
     // don't run these checks for enum items
     if (slot.parent.isEnum) return
-
-    // get base type (inherited or global slot)
-    base := slot.base
-    baseType := base.ctype
-
-    // verify slot type is covariant
-    slotType := slot.ctype
-    if (!slotType.cisa(baseType))
-    {
-      if (slot.base.isGlobal)
-        err("Slot '$slot.name' type '$slotType' conflicts global slot '$base.qname' of type '$baseType'", slot.loc)
-      else
-        err("Slot '$slot.name' type '$slotType' conflicts inherited slot '$base.qname' of type '$baseType'", slot.loc)
-    }
-
-    // verify of is covariant
-    of := slot.cof
-    baseOf := base.cof
-    if (of != null && baseOf != null && of !== baseOf && !of.cisa(baseOf))
-    {
-      if (slot.base.isGlobal)
-        err("Slot '$slot.name' of's type '$of' conflicts global slot '$base.qname' of's type '$baseOf'", slot.loc)
-      else
-        err("Slot '$slot.name' of's type '$of' conflicts inherted slot '$base.qname' of's type '$baseOf'", slot.loc)
-    }
-
 
     // lists cannot have slots
     if (slot.parent.isList && !XetoUtil.isAutoName(slot.name))

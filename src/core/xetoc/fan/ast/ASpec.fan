@@ -66,6 +66,9 @@ internal class ASpec : ANode, CSpec
   ** Are we compiling sys itself
   override Bool isSys() { lib.isSys }
 
+  ** Is this a slot spec
+  Bool isSlot() { parent != null }
+
   ** Name code in names table
   const Int nameCode
 
