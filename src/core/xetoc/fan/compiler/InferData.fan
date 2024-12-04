@@ -80,7 +80,7 @@ internal abstract class InferData : Step
   private Void inferMetaSlot(ADict dict, Str name, AData val)
   {
     // resolve to global meta
-    global := cns.globalMeta(name)
+    global := cns.globalMeta(name, val.loc)
 
     // if not found then report error
     if (global == null)

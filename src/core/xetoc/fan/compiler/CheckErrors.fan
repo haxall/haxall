@@ -430,7 +430,7 @@ internal class CheckErrors : Step
     if (isSys) return
     if (XetoUtil.isAutoName(name)) return
 
-    global := cns.globalSlot(name)
+    global := cns.globalSlot(name, val.loc)
     if (global == null) return
 
     valType := val.ctype

@@ -80,7 +80,14 @@ internal class RemoteLoader
   {
     obj := libMeta["depends"]
     if (obj == null) return MLibDepend#.emptyList
-    list := (Obj?[])obj
+    list := obj as List
+
+// TODO: nuke all of this soon...
+if (list == null)
+{
+  list = Obj[,]
+  ((Dict)obj).each |v, n| { list.add(v) }
+}
 
     acc := MLibDepend[,]
     acc.capacity = list.size

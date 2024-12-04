@@ -21,34 +21,50 @@ internal class ANamespace : CNamespace
     this.ns = step.ns
   }
 
-  CSpec? globalMeta(Str name)
+  CSpec? globalMeta(Str name, FileLoc loc)
   {
-    doGlobal(globalMetas, name)
+    doGlobal(globalMetas, name, true, loc)
   }
 
-  CSpec? globalSlot(Str name)
+  CSpec? globalSlot(Str name, FileLoc loc)
   {
-    doGlobal(globalSlots, name)
+    doGlobal(globalSlots, name, false, loc)
   }
 
-  private CSpec? doGlobal(Str:Obj acc, Str name)
+  private CSpec? doGlobal(Str:Obj acc, Str name, Bool meta, FileLoc loc)
   {
     g := acc[name]
     if (g != null) return g as CSpec
-    g = findGlobal(name)
+    g = findGlobal(name, meta, loc)
     acc[name] = g ?: "not-found"
     return g as CSpec
   }
 
-  private CSpec? findGlobal(Str name)
+  private CSpec? findGlobal(Str name, Bool meta, FileLoc loc)
   {
-    if (ns != null)
+    // walk thru my lib and dependencies
+    acc := CSpec[,]
+
+    // check my own lib
+    mine := compiler.lib?.tops?.get(name)
+    if (mine != null && mine.isGlobal && mine.isMeta == meta) acc.add(mine)
+
+    // check my dependencies
+    compiler.depends.libs.each |lib|
     {
-      global := ns.global(name, false)
-      if (global != null) return (CSpec)global
+      g := lib.global(name, false) as CSpec
+      if (g != null && g.isMeta == meta) acc.add(g)
     }
 
-    return compiler.lib?.top(name)
+    // no global slots by this name
+    if (acc.isEmpty) return null
+
+    // exactly one
+    if (acc.size == 1) return acc.first
+
+    // duplicate global slots with this name
+    compiler.err("Duplicate global slots: " + acc.join(", "), loc)
+    return null
   }
 
   override Void eachSubtype(CSpec type, |CSpec| f)
