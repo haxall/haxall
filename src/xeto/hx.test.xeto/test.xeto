@@ -73,6 +73,9 @@ InstantiateA: {
 // Global tag example. Sentence two
 globalTag: Str <minSize:3>
 
+// Meta global
+testMetaTag: Str <meta>
+
 Sigs: {
   a: Str
   b: Str?

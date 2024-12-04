@@ -180,6 +180,10 @@ internal class InheritSlots : Step
         else
           flags = flags.or(MSpecFlags.maybe)
       }
+
+      // check global meta
+      if (x.isGlobal && x.meta.has("meta"))
+        flags = flags.or(MSpecFlags.meta)
     }
 
     // if my base is compound type
@@ -198,6 +202,7 @@ internal class InheritSlots : Step
   {
     flags := 0
     if (x.metaHas("maybe")) flags = flags.or(MSpecFlags.maybe)
+    if (x.metaHas("meta"))  flags = flags.or(MSpecFlags.meta)
     for (ASpec? p := x; p != null; p = p.base)
     {
       switch (p.name)

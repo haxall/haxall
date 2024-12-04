@@ -29,6 +29,9 @@ class GlobalSlotTest : AbstractXetoTest
       Str<|// Person global slot marker
            person: Marker <foo>
 
+           // Global meta
+           xGlobalMeta: Marker <meta>
+
            // Person spec
            Person: Dict { person }
            |>)
@@ -36,11 +39,12 @@ class GlobalSlotTest : AbstractXetoTest
      marker := ns.spec("sys::Marker")
 
      g := lib.spec("person")
+     x := lib.spec("xGlobalMeta")
      t := lib.spec("Person")
      m := t.slot("person")
 
      // Lib.top lookups
-     verifyEq(lib.specs, Spec[t, g])
+     verifyEq(lib.specs, Spec[t, g, x])
      verifyEq(lib.specs.isImmutable, true)
      verifyEq(lib.spec("Bad", false), null)
      verifyErr(UnknownSpecErr#) { lib.spec("Bad") }
@@ -49,7 +53,8 @@ class GlobalSlotTest : AbstractXetoTest
      // Lib.global lookups
      verifyEq(g.isType, false)
      verifyEq(g.isGlobal, true)
-     verifyEq(lib.globals, Spec[g])
+     verifyEq(g.isMeta, false)
+     verifyEq(lib.globals, Spec[g, x])
      verifyEq(lib.globals.isImmutable, true)
      verifyEq(g.base, marker)
      verifyEq(g.type, marker)
@@ -58,9 +63,21 @@ class GlobalSlotTest : AbstractXetoTest
      verifyErr(UnknownSpecErr#) { lib.type("person") }
      verifyErr(UnknownSpecErr#) { lib.type("person", true) }
 
+     // Lib.global meta lookups
+     verifyEq(x.isType, false)
+     verifyEq(x.isGlobal, true)
+     verifyEq(x.isMeta, true)
+     verifyEq(x.base, marker)
+     verifyEq(x.type, marker)
+     verifySame(lib.global("xGlobalMeta"), x)
+     verifyEq(lib.type("xGlobalMeta", false), null)
+     verifyErr(UnknownSpecErr#) { lib.type("xGlobalMeta") }
+     verifyErr(UnknownSpecErr#) { lib.type("xGlobalMeta", true) }
+
      // Lib.type lookups
      verifyEq(t.isType, true)
      verifyEq(t.isGlobal, false)
+     verifyEq(t.isMeta, false)
      verifyEq(lib.types, Spec[t])
      verifyEq(lib.types.isImmutable, true)
      verifySame(lib.type("Person"), t)

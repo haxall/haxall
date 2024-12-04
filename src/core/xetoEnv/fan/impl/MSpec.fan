@@ -248,6 +248,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final CSpec? cenum(Str key, Bool checked := true) { m.enum.spec(key, checked) as CSpec }
 
+  override final Bool isMeta()      { m.hasFlag(MSpecFlags.meta) }
   override final Bool isNone()      { m.hasFlag(MSpecFlags.none) }
   override final Bool isSelf()      { m.hasFlag(MSpecFlags.self) }
   override final Bool isMaybe()     { m.hasFlag(MSpecFlags.maybe) }

@@ -111,6 +111,9 @@ const mixin Spec : Dict
   ** Is this a top level global slot spec
   @NoDoc abstract Bool isGlobal()
 
+  ** Is this a top level meta global space
+  @NoDoc abstract Bool isMeta()
+
   ** Is this the 'sys::None' spec itself
   @NoDoc abstract Bool isNone()
 

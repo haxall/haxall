@@ -137,6 +137,9 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(mref.isRef, false)
     verifyEq(mref.isMultiRef, true)
 
+    // meta globals
+    verifyGlobalMeta(ns, sys, "doc")
+
     // files
     verifyEq(sys.files.isSupported, !ns.isRemote)
     if (!ns.isRemote)
@@ -282,6 +285,9 @@ class NamespaceTest : AbstractXetoTest
     verifyDictEq(ab.metaOwn, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB"])
     verifyDictEq(ab.meta, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB",
       "q":Date("2024-01-01"), "r":Date("2024-02-01"), "foo":"A", "bar":"A", ])
+
+    // global meta
+    verifyGlobalMeta(ns, lib, "testMetaTag")
 
     // files
     files := lib.files
@@ -674,6 +680,16 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(type.isType, true)
     verifyEq(type["val"], val)
     return type
+  }
+
+  Spec verifyGlobalMeta(LibNamespace ns, Lib lib, Str name)
+  {
+    spec := lib.global(name)
+    verifySame(ns.spec("$lib.name::$name"), spec)
+    verifyEq(spec.isGlobal, true)
+    verifyEq(spec.isMeta, true)
+    verifyEq(spec.isType, false)
+    return spec
   }
 
   Spec verifySlot(LibNamespace ns, Spec parent, Str name, Spec type)
