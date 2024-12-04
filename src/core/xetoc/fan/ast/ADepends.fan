@@ -25,14 +25,14 @@ internal class ADepends
 //////////////////////////////////////////////////////////////////////////
 
   ** Lookup global slot for given slot name
-  CSpec? resolveGlobal(Str name, FileLoc loc)
+  CSpec? resolveGlobalSlot(Str name, FileLoc loc)
   {
     if (!globals.containsKey(name))
-      globals[name] = doResolveGlobal(name, loc)
+      globals[name] = doResolveGlobalSlot(name, loc)
     return globals[name]
   }
 
-  private CSpec? doResolveGlobal(Str name, FileLoc loc)
+  private CSpec? doResolveGlobalSlot(Str name, FileLoc loc)
   {
     // walk thru my lib and dependencies
     acc := CSpec[,]
@@ -44,7 +44,8 @@ internal class ADepends
     // check my dependencies
     libs.each |lib|
     {
-      acc.addNotNull(lib.global(name, false) as CSpec)
+      g := lib.global(name, false) as CSpec
+      if (g != null && !g.isMeta) acc.addNotNull(g)
     }
 
     // no global slots by this name

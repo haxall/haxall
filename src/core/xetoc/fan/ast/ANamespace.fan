@@ -21,16 +21,26 @@ internal class ANamespace : CNamespace
     this.ns = step.ns
   }
 
-  CSpec? global(Str name)
+  CSpec? globalMeta(Str name)
   {
-    g := globals[name]
+    doGlobal(globalMetas, name)
+  }
+
+  CSpec? globalSlot(Str name)
+  {
+    doGlobal(globalSlots, name)
+  }
+
+  private CSpec? doGlobal(Str:Obj acc, Str name)
+  {
+    g := acc[name]
     if (g != null) return g as CSpec
-    g = doGlobal(name)
-    globals[name] = g ?: "not-found"
+    g = findGlobal(name)
+    acc[name] = g ?: "not-found"
     return g as CSpec
   }
 
-  private CSpec? doGlobal(Str name)
+  private CSpec? findGlobal(Str name)
   {
     if (ns != null)
     {
@@ -59,6 +69,7 @@ internal class ANamespace : CNamespace
 
   const MNamespace? ns
   XetoCompiler compiler
-  Str:Obj globals := [:]
+  Str:Obj globalMetas := [:]
+  Str:Obj globalSlots := [:]
 }
 

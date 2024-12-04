@@ -127,9 +127,9 @@ internal abstract class Reify : Step
     if (x.isAsm) return x.asm
 
     // map to Fantom type to parse
+    type := x.ctype
     try
     {
-      type := x.ctype
       factory := type.factory
       fantom := factory.decodeScalar(x.str, false)
       if (fantom == null)
@@ -143,7 +143,7 @@ internal abstract class Reify : Step
     }
     catch (Err e)
     {
-      err("Cannot decode scalar: $e", x.loc)
+      err("Cannot decode scalar '$type': $e", x.loc)
       return x.asmRef = "error"
     }
   }

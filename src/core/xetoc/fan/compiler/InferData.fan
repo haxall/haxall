@@ -38,7 +38,10 @@ internal abstract class InferData : Step
 
   private Void inferDict(ADict dict)
   {
-    inferDictSlots(dict)
+    if (dict.isMeta)
+      inferMetaSlots(dict)
+    else
+      inferDictSlots(dict)
   }
 
   private Void inferScalar(AScalar scalar)
@@ -64,6 +67,47 @@ internal abstract class InferData : Step
     ref := compiler.makeRef(id, null)
     if (dict.has("id")) err("Named dict cannot have explicit id tag", loc)
     dict.set("id", AScalar(loc, sys.ref, id, ref))
+  }
+
+  private Void inferMetaSlots(ADict dict)
+  {
+    dict.each |v, n|
+    {
+      inferMetaSlot(dict, n, v)
+    }
+  }
+
+  private Void inferMetaSlot(ADict dict, Str name, AData val)
+  {
+    // resolve to global meta
+    global := cns.globalMeta(name)
+
+    // if not found then report error
+    if (global == null)
+    {
+      // in my implementation these are ok and not formally defined
+      if (name == "fantomPodName") return
+
+      // log error for meta tags not defined
+//echo("WARN: Meta data tag '$name' is not formally defined [$val.loc]")
+      return
+    }
+
+    // if already typed, skip
+    if (val.typeRef != null) return
+
+    // if meta tag is self, then use parent spec type
+    type := global.ctype
+    if (type.isSelf)
+    {
+      if (dict.metaParent == null)
+        err("Unexpected self meta '$name' outside of spec", dict.loc)
+      else
+        type = dict.metaParent.ctype
+    }
+
+    // type the meta tag using global type
+    val.typeRef = ASpecRef(val.loc, type)
   }
 
   private Void inferDictSlots(ADict dict)

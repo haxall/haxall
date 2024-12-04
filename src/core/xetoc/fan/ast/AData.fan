@@ -124,6 +124,9 @@ internal class ADict : AData
   ** Is this library or spec meta
   const Bool isMeta
 
+  ** If this is spec meta, the parent spec
+  ASpec? metaParent
+
   ** TODO: we should be able to infer this from the list type, but
   ** its probably going to require some rework especially in bootstrap
   ** compile of sys; for now we keep it as a simple hack

@@ -117,7 +117,7 @@ internal class InheritSlots : Step
     if (x.parent.isQuery) return null
 
      // check for global slot within dependencies
-     global := depends.resolveGlobal(x.name, x.loc)
+     global := depends.resolveGlobalSlot(x.name, x.loc)
      if (global == null) return null
 
      // don't use meta globals

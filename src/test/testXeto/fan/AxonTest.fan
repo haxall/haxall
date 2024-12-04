@@ -85,7 +85,6 @@ class AxonTest : AbstractAxonTest
     verifyDictsEq(eval("""specs(null, abstract)"""), allTypes.findAll |x| { x.has("abstract") })
     verifyDictsEq(eval("""specs(null, abstract)"""),allTypes.findAll |x| { x.has("abstract") })
     verifyDictsEq(eval("""specs(null, base==@sys::Seq)"""), allTypes.findAll |x| { x.base?.qname == "sys::Seq" })
-    verifyDictsEq(eval("""specs(null, slots->of)"""), Spec[ns.spec("sys::Spec")])
     verifyDictsEq(eval("""specLib("ph").specs(slots->vav)"""), [ns.spec("ph::Vav")])
     verifyDictsEq(eval("""[specLib("ph")].specs(slots->vav)"""), [ns.spec("ph::Vav")])
 

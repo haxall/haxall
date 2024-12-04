@@ -122,6 +122,7 @@ internal class ASpec : ANode, CSpec
   ADict metaInit()
   {
     if (meta == null) meta = ADict(this.loc, compiler.sys.spec, true)
+    meta.metaParent = this
     return this.meta
   }
 
