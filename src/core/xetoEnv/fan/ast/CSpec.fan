@@ -107,6 +107,9 @@ mixin CSpec : CNode
   ** Is maybe flag set
   abstract Bool isMaybe()
 
+  ** Is meta flag set
+  abstract Bool isMeta()
+
   ** Inherits from 'sys::Scalar' without considering And/Or
   abstract Bool isScalar()
 

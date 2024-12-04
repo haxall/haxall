@@ -30,18 +30,23 @@ class GlobalSlotTest : AbstractXetoTest
            person: Marker <foo>
 
            // Global meta
-           xGlobalMeta: Marker <meta>
+           xTest: Marker <meta>
 
            // Person spec
-           Person: Dict { person }
+           Person: Dict {
+             person
+             xTest:Str
+           }
            |>)
 
      marker := ns.spec("sys::Marker")
+     str    := ns.spec("sys::Str")
 
-     g := lib.spec("person")
-     x := lib.spec("xGlobalMeta")
-     t := lib.spec("Person")
-     m := t.slot("person")
+     g     := lib.spec("person")
+     x     := lib.spec("xTest")
+     t     := lib.spec("Person")
+     slotm := t.slot("person")
+     slotx := t.slot("xTest")
 
      // Lib.top lookups
      verifyEq(lib.specs, Spec[t, g, x])
@@ -69,10 +74,10 @@ class GlobalSlotTest : AbstractXetoTest
      verifyEq(x.isMeta, true)
      verifyEq(x.base, marker)
      verifyEq(x.type, marker)
-     verifySame(lib.global("xGlobalMeta"), x)
-     verifyEq(lib.type("xGlobalMeta", false), null)
-     verifyErr(UnknownSpecErr#) { lib.type("xGlobalMeta") }
-     verifyErr(UnknownSpecErr#) { lib.type("xGlobalMeta", true) }
+     verifySame(lib.global("xTest"), x)
+     verifyEq(lib.type("xTest", false), null)
+     verifyErr(UnknownSpecErr#) { lib.type("xTest") }
+     verifyErr(UnknownSpecErr#) { lib.type("xTest", true) }
 
      // Lib.type lookups
      verifyEq(t.isType, true)
@@ -85,10 +90,15 @@ class GlobalSlotTest : AbstractXetoTest
      verifyErr(UnknownSpecErr#) { lib.global("Person", true) }
 
      // verify Person.person is derived from global person
-     verifySame(m.base, g)
-     verifySame(m.type, marker)
-     verifyEq(m.meta["doc"], "Person global slot marker")
-     verifyEq(m.meta["foo"], Marker.val)
+     verifySame(slotm.base, g)
+     verifySame(slotm.type, marker)
+     verifyEq(slotm.meta["doc"], "Person global slot marker")
+     verifyEq(slotm.meta["foo"], Marker.val)
+
+     // verify Person.xMeta is **not** derived from global meta xTest
+     verifySame(slotx.base, str)
+     verifySame(slotx.type, str)
+     verifyEq(slotx.meta["doc"], "Unicode string of characters")
   }
 
 //////////////////////////////////////////////////////////////////////////
