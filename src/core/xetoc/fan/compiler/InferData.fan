@@ -107,7 +107,7 @@ internal abstract class InferData : Step
     }
 
     // type the meta tag using global type
-    val.typeRef = ASpecRef(val.loc, type)
+    val.typeRef = inferDictSlotType(val.loc, global)
   }
 
   private Void inferDictSlots(ADict dict)
@@ -151,9 +151,6 @@ internal abstract class InferData : Step
         cur.typeRef = inferDictSlotType(cur.loc, slot)
       return
     }
-
-    // we don't infer meta dict slots, that is handled in InheritMeta
-    if (dict.isMeta) return
 
     // we don't infer slots from interfaces
     if (slot.cparent.isInterface) return
