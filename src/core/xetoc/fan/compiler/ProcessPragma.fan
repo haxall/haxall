@@ -63,6 +63,8 @@ internal class ProcessPragma : Step
       return ver
     }
 
+    scalar.asmRef = ver
+
     return ver
   }
 
@@ -105,7 +107,7 @@ internal class ProcessPragma : Step
 
 
     // make this list the assembled value
-    depends := acc.vals
+    depends := acc.vals.toImmutable
     alist.asmRef = depends
 
     return depends

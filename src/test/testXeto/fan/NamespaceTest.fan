@@ -163,7 +163,6 @@ class NamespaceTest : AbstractXetoTest
 
     // lib basics
     ph := verifyLibBasics(ns, "ph", curVersion)
-    verifySame(ph.meta->depends, ph.depends)
     verifyEq(ph.depends.size, 1)
     verifyEq(ph.depends[0].name, "sys")
     verifyEq(ph.depends[0].versions.toStr, "" + curVersion.major + "." + curVersion.minor + ".x")
@@ -622,6 +621,11 @@ class NamespaceTest : AbstractXetoTest
     verifySame(ns.lib(name), lib)
     verifyEq(lib.name, name)
     verifyEq(lib.version, version)
+    verifySame(lib.meta->version, lib.version)
+    if (name == "sys")
+      verifyEq(lib.meta["depends"], null)
+    else
+      verifySame(lib.meta->depends, lib.depends)
     verifySame(lib.name, ns.names.toName(ns.names.toCode(name)))
 
     verifyEq(lib.hasXMeta, name == "hx.test.xeto")
