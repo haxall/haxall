@@ -356,7 +356,7 @@ internal class ASpec : ANode, CSpec
   override Bool isOr() { base != null && base.isSys && base.name == "Or" }
 
   ** Inheritance flags computed in InheritSlots
-  override Int flags
+  override Int flags := -1
 
   override Bool isScalar()    { hasFlag(MSpecFlags.scalar) }
   override Bool isMarker()    { hasFlag(MSpecFlags.marker) }
@@ -382,8 +382,7 @@ internal class ASpec : ANode, CSpec
 
   Bool hasFlag(Int flag)
   {
-// TODO: we are using flags before they are ready and need this check
-//    if (flags < 0) throw Err("Flags not set yet: $qname")
+    if (flags < 0) throw Err("Flags not set yet: $qname")
     return flags.and(flag) != 0
   }
 

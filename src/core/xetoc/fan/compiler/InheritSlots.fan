@@ -62,19 +62,29 @@ internal class InheritSlots : Step
   private Void doInherit(ASpec spec)
   {
     // special handling for sys::Obj
-    if (spec.isObj) { spec.cslotsRef = noSlots; return }
+    if (spec.isObj)
+    {
+      spec.flags = 0
+      spec.cslotsRef = noSlots
+      return
+    }
 
     // infer the base we inherit from (may be null)
     spec.base = inferBase(spec)
 
     // now infer the type of the spec
-    spec.typeRef = inferType(spec)
+    explicitTypeRef := spec.typeRef != null
+    if (!explicitTypeRef) spec.typeRef = inferType(spec)
 
     // if we couldn't infer base before, then use type as base
     if (spec.base == null) spec.base = spec.typeRef.deref
 
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
+
+    // if base is maybe and my own type is not then clear maybe flag
+    if (explicitTypeRef && spec.base.isMaybe && !spec.metaHas("maybe"))
+      spec.metaSetNone("maybe")
 
     // special handling for Enums
     if (isEnum(spec)) return inheritEnum(spec)
@@ -120,9 +130,6 @@ internal class InheritSlots : Step
      global := cns.globalSlot(x.name, x.loc)
      if (global == null) return null
 
-     // don't use meta globals
-     if (global.isMeta) return null
-
      return global
   }
 
@@ -137,14 +144,7 @@ internal class InheritSlots : Step
   ASpecRef inferType(ASpec x)
   {
     // if already specified use it
-    if (x.typeRef != null)
-    {
-      // if base is maybe and my own type is not then clear maybe flag
-      if (x.base != null && x.base.isMaybe && !x.metaHas("maybe"))
-        x.metaSetNone("maybe")
-
-      return x.typeRef
-    }
+    if (x.typeRef != null) return x.typeRef
 
     // infer type from base
     if (x.base != null) return ASpecRef(x.loc, x.base.ctype)

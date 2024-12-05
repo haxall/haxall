@@ -45,9 +45,9 @@ internal class ANamespace : CNamespace
     // walk thru my lib and dependencies
     acc := CSpec[,]
 
-    // check my own lib
+    // check my own lib (don't use flags, use meta AST directly)
     mine := compiler.lib?.tops?.get(name)
-    if (mine != null && mine.isGlobal && mine.isMeta == meta) acc.add(mine)
+    if (mine != null && mine.isGlobal && mine.metaHas("meta") == meta) acc.add(mine)
 
     // check my dependencies
     compiler.depends.libs.each |lib|

@@ -93,7 +93,7 @@ internal abstract class InferData : Step
       if (dict.isLibMeta && XetoUtil.libMetaReservedTags.contains(name)) return
 
       // log error for meta tags not defined
-echo("WARN: Meta data tag '$name' is not formally defined [$val.loc]")
+//echo("WARN: Meta data tag '$name' is not formally defined [$val.loc]")
       return
     }
 
