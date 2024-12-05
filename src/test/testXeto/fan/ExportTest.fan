@@ -115,7 +115,8 @@ class ExportTest : AbstractXetoTest
                     "foo": Etc.makeDict([
                       "id":Ref("hx.test.xeto::EqA.points.b.foo"),
                       "spec":Ref("sys::Spec"),
-                      "type":Ref("sys::Marker"),
+                      "type":Ref("sys::Str"),
+                      "val":"!",
                    ])
                  ])
                ])

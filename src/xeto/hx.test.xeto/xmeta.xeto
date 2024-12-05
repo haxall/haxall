@@ -14,7 +14,7 @@
   doc: "no take"
   val: 123
   editor: "AreaEditor"
-  foo
+  foo: "hello"
 }
 
 @xmeta-ph-Equip: {

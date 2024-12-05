@@ -127,7 +127,7 @@ class DocTest : AbstractXetoTest
     verifyLib(entry, lib, n)
 
     // verify global summary has type
-    g := n.globals[0]
+    g := n.globals.find { it.link.dis == "globalTag" } ?: throw Err()
     verifyEq(g.link.dis, "globalTag")
     verifyEq(g.type.qname, "sys::Str")
 
@@ -335,7 +335,7 @@ class DocTest : AbstractXetoTest
     EqA: Equip {
       points: {
         a: ZoneCo2Sensor
-        b: ZoneCo2Sensor { foo }
+        b: ZoneCo2Sensor { foo:"!" }
       }
     }
 
@@ -356,7 +356,7 @@ class DocTest : AbstractXetoTest
     b := points.getChecked("b")
     verifyEq(b.type.qname, "ph.points::ZoneCo2Sensor")
     verifyEq(b.slots.size, 1)
-    verifyEq(b.slots["foo"].type.name, "Marker")
+    verifyEq(b.slots["foo"].type.name, "Str")
     verifyEq(b.parent.qname, "hx.test.xeto::EqA.points")
 
     c := points.getChecked("c")

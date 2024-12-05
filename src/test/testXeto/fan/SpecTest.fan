@@ -27,7 +27,15 @@ class SpecTest : AbstractXetoTest
     ns := createNamespace(["sys"])
 
     lib := ns.compileLib(
-      Str<|Foo: Dict <a:"A", b:"B">
+      Str<|a: Str <meta>
+           b: Str <meta>
+           c: Str <meta>
+           d: Str <meta>
+           e: Str <meta>
+           f: Str <meta>
+           g: Str <meta>
+
+           Foo: Dict <a:"A", b:"B">
            Bar: Foo <b:"B2", c:"C"> { qux: Str <e:"E", f:"F"> "x" }
            Baz: Bar <c:"C2", d:"D"> { qux: Str <f:"F2", g:"G"> "y" }
            |>)
@@ -131,7 +139,7 @@ class SpecTest : AbstractXetoTest
     doc = spec.meta["doc"]
     verifyXMeta(ns, spec,
       ["doc":doc, "val":n(0), "quantity":UnitQuantity.area],
-      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area, "editor":"AreaEditor", "foo":m])
+      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area, "editor":"AreaEditor", "foo":"hello"])
 
     // Vav (inherited from Equip)
     spec = ns.spec("ph::Vav")
@@ -406,7 +414,7 @@ class SpecTest : AbstractXetoTest
     verifyEq(a.slot("foo", false), null)
     b := eqA.slot("points").slot("b")
     verifyEq(b.slot("co2")["val"], Marker.val)
-    verifyEq(b.slot("foo")["val"], Marker.val)
+    verifyEq(b.slot("foo")["val"], "!")
   }
 
   Void verifySlots(Spec t, Str[] expected)
