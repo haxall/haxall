@@ -88,8 +88,12 @@ internal abstract class InferData : Step
       // in my implementation these are ok and not formally defined
       if (name == "fantomPodName") return
 
+      // if this is reserved slot, then we will flag in CheckErrors
+      if (dict.isSpecMeta && XetoUtil.specMetaReservedTags.contains(name)) return
+      if (dict.isLibMeta && XetoUtil.libMetaReservedTags.contains(name)) return
+
       // log error for meta tags not defined
-//echo("WARN: Meta data tag '$name' is not formally defined [$val.loc]")
+echo("WARN: Meta data tag '$name' is not formally defined [$val.loc]")
       return
     }
 
@@ -100,10 +104,11 @@ internal abstract class InferData : Step
     type := global.ctype
     if (type.isSelf)
     {
-      if (dict.metaParent == null)
+      parentSpec := dict.metaParent as ASpec
+      if (parentSpec == null)
         err("Unexpected self meta '$name' outside of spec", dict.loc)
       else
-        type = dict.metaParent.ctype
+        type = parentSpec.ctype
     }
 
     // type the meta tag using global type

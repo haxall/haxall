@@ -24,6 +24,7 @@ internal class ProcessPragma : Step
       // for libs the pragma defines the depends
       lib.meta = compiler.pragma
       lib.version = toVersion
+      pragma.metaParent = lib
       compiler.depends.list = pragmaToDepends
     }
     else

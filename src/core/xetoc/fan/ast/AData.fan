@@ -124,8 +124,14 @@ internal class ADict : AData
   ** Is this library or spec meta
   const Bool isMeta
 
-  ** If this is spec meta, the parent spec
-  ASpec? metaParent
+  ** Is the library metadata
+  Bool isLibMeta() { metaParent is ALib }
+
+  ** Is spec metadata
+  Bool isSpecMeta() { metaParent is ASpec }
+
+  ** If this is spec meta, the parent ALib or ASpec
+  ANode? metaParent
 
   ** TODO: we should be able to infer this from the list type, but
   ** its probably going to require some rework especially in bootstrap

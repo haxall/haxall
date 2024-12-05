@@ -217,6 +217,8 @@ class CompileTest : AbstractXetoTest
 
               line 4
               ---
+
+            bar: Str <meta>
            |>)
     foo := lib.type("Foo")
 
@@ -237,7 +239,11 @@ class CompileTest : AbstractXetoTest
                 line a
               line b
                 line c
-              --- |>)
+              ---
+
+              bar: Str <meta>
+              baz: Str <meta>
+              |>)
     foo = lib.type("Foo")
 
     verifyHeredoc(foo, "bar",
@@ -516,6 +522,11 @@ class CompileTest : AbstractXetoTest
            F: D {
              foo: Number <f, baz:"hi">
            }
+
+           a: Marker <meta>
+           c: Marker <meta>
+           f: Marker <meta>
+           baz: Str <meta>
            |>)
 
     // env.print(lib)
@@ -604,6 +615,11 @@ class CompileTest : AbstractXetoTest
             B : A <baz:None "none"> {
               foo: Date <qux:None "none">
             }
+
+            foo: Obj <meta>
+            bar: Obj <meta>
+            baz: Obj <meta>
+            qux: Obj <meta>
            |>)
 
     // env.print(lib)
@@ -658,7 +674,9 @@ class CompileTest : AbstractXetoTest
             }
             B12 : B1 & B2 {
             }
-           |>)
+
+            x: Marker <meta>
+         |>)
 
     // lib.tops.each |x| { env.print(x) }
 
@@ -724,6 +742,11 @@ class CompileTest : AbstractXetoTest
             }
 
             Bar: {}
+
+            x: Obj <meta>
+            y: Obj <meta>
+            z: Obj <meta>
+            qux: Obj <meta>
            |>)
 
     foo := lib.type("Foo")

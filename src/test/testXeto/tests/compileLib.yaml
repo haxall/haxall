@@ -14,13 +14,13 @@ verifyTypes:
 ---
 name: "metaMarker"
 compileLib: |
-  Foo: Dict <bar>
+  Foo: Dict <abstract>
 verifyTypes:
   Foo:
     base: "sys::Dict"
     meta:
       doc: "inherit"
-      bar: "sys::Marker"
+      abstract: "sys::Marker"
 ---
 name: "metaDoc"
 compileLib: |
@@ -35,14 +35,15 @@ verifyTypes:
 name: "metaComplex"
 compileLib: |
   // Foo doc
-  Foo: Dict <bar, baz:"hi!">
+  Foo: Dict <abstract, x:"hi!">
+  x: Str <meta>
 verifyTypes:
   Foo:
     base: "sys::Dict"
     meta:
       doc: "sys::Str Foo doc"
-      bar: "sys::Marker"
-      baz: "sys::Str hi!"
+      abstract: "sys::Marker"
+      x: "sys::Str hi!"
 ---
 name: "slotMarker"
 compileLib: |
@@ -65,6 +66,9 @@ compileLib: |
     bar: Marker <baz>
     qux: Str <corge : "garply", waldo: Date "2023-03-05">
   }
+  baz: Marker <meta>
+  corge: Str <meta>
+  waldo: Date <meta>
 verifyTypes:
   Foo:
     base: "sys::Dict"
@@ -92,6 +96,9 @@ compileLib: |
     // qux doc
     qux: Str <corge : "garply", waldo: Date "2023-03-05">
   }
+  baz: Marker <meta>
+  corge: Str <meta>
+  waldo: Date <meta>
 verifyTypes:
   Foo:
     base: "sys::Dict"
@@ -118,6 +125,7 @@ compileLib: |
     bar: Date <qux> "2023-02-05"
   }
   B : A
+  qux: Marker <meta>
 verifyTypes:
   A:
     base: "sys::Dict"
@@ -146,6 +154,8 @@ compileLib: |
   B : A {
     bar: Date <baz>
   }
+  baz: Marker <meta>
+  qux: Marker <meta>
 verifyTypes:
   A:
     base: "sys::Dict"

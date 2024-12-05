@@ -27,7 +27,7 @@ class GlobalSlotTest : AbstractXetoTest
 
     lib := ns.compileLib(
       Str<|// Person global slot marker
-           person: Marker <foo>
+           person: Marker <xTest>
 
            // Global meta
            xTest: Marker <meta>
@@ -93,7 +93,7 @@ class GlobalSlotTest : AbstractXetoTest
      verifySame(slotm.base, g)
      verifySame(slotm.type, marker)
      verifyEq(slotm.meta["doc"], "Person global slot marker")
-     verifyEq(slotm.meta["foo"], Marker.val)
+     verifyEq(slotm.meta["xTest"], Marker.val)
 
      // verify Person.xMeta is **not** derived from global meta xTest
      verifySame(slotx.base, str)
@@ -127,6 +127,12 @@ class GlobalSlotTest : AbstractXetoTest
            Rux: Qux {
              c: Marker <rux>
            }
+
+           foo: Marker <meta>
+           bar: Marker <meta>
+           baz: Marker <meta>
+           qux: Marker <meta>
+           rux: Marker <meta>
            |>)
 
      str    := ns.spec("sys::Str")
