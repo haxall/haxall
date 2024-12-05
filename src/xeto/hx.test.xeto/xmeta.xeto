@@ -7,28 +7,22 @@
 //
 
 @xmeta-ph-Site: {
-  testIcon: "building"
+  foo: "building"
 }
 
 @xmeta-ph-area: {
   doc: "no take"
   val: 123
-  editor: "AreaEditor"
-  foo: "hello"
+  foo: "AreaEditor"
+  bar: "hello"
 }
 
 @xmeta-ph-Equip: {
-  testIcon: "Device"
+  qux: "Device"
 }
 
-/*
-@xmeta-hx.test.xeto-Bad: { foo }
-@xmeta-foobar-Bad: { foo }
-@xmeta-ph-Bad: { foo }
-*/
-
 @xmeta-ph-CurStatus: {
-  self: "_self_"
+  qux: "_self_"
 }
 
 @xmeta-ph-CurStatus-enum: {

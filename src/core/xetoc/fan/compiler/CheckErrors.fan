@@ -328,7 +328,7 @@ internal class CheckErrors : Step
         if (XetoUtil.isReservedSpecMetaName(n))
           err("Reserved xmeta tag '$n'", v.loc)
         else
-          echo("WARN: Undefined xmeta tag '$n'")
+          err("Undefined xmeta tag '$n'", v.loc)
       }
     }
 

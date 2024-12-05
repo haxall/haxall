@@ -132,21 +132,21 @@ class SpecTest : AbstractXetoTest
     doc := spec.meta["doc"]
     verifyXMeta(ns, spec,
       ["doc":doc],
-      ["doc":doc, "testIcon":"building"])
+      ["doc":doc, "foo":"building"])
 
     // area (global spec)
     spec = ns.spec("ph::area")
     doc = spec.meta["doc"]
     verifyXMeta(ns, spec,
       ["doc":doc, "val":n(0), "quantity":UnitQuantity.area],
-      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area, "editor":"AreaEditor", "foo":"hello"])
+      ["doc":doc, "val":n(0), "quantity":UnitQuantity.area, "foo":"AreaEditor", "bar":"hello"])
 
     // Vav (inherited from Equip)
     spec = ns.spec("ph::Vav")
     doc = spec.meta["doc"]
     verifyXMeta(ns, spec,
       ["doc":doc],
-      ["doc":doc, "testIcon":"Device"])
+      ["doc":doc, "qux":"Device"])
   }
 
   Void verifyXMeta(LibNamespace ns, Spec spec, Str:Obj meta, Str:Obj xmeta)
@@ -172,7 +172,7 @@ class SpecTest : AbstractXetoTest
     e := ns.xmetaEnum("ph::CurStatus")
 
     doc := spec.meta["doc"]
-    verifyDictEq(e.xmeta, Etc.dictToMap(spec.meta).set("self", "_self_"))
+    verifyDictEq(e.xmeta, Etc.dictToMap(spec.meta).set("qux", "_self_"))
     verifyDictEq(e.xmeta("ok"), Etc.dictToMap(e.spec("ok").meta).set("color", "green"))
     verifyDictEq(e.xmeta("down"), Etc.dictToMap(e.spec("down").meta).set("color", "yellow"))
     verifyDictEq(e.xmeta("disabled"), e.spec("disabled").meta)
