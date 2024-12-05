@@ -112,6 +112,16 @@ verifyErrs: |
   Reserved xmeta tag 'base'
   Reserved xmeta tag 'slots'
 ---
+name: "metaDups"
+compileLib: |
+  abstract: Str <meta>
+  base: Str <meta>
+  instances: Str <meta>
+verifyErrs: |
+  Duplicate global metas: temp::abstract, sys::abstract
+  Reserved meta tag 'base'
+  Reserved meta tag 'instances'
+---
 
 ##########################################################################
 ## CheckErrors
@@ -238,6 +248,20 @@ verifyErrs: |
   Non-scalar slot 'e' of type 'sys::Dict' cannot have scalar value
   Slot 'f' of's type 'sys::Obj' conflicts global slot 'temp::f' of's type 'sys::Number'
   Slot 'g' of's type 'sys::Date' conflicts global slot 'temp::g' of's type 'sys::Number'
+---
+name: "dupGlobals"
+compileLib: |
+  pragma: Lib <
+      doc: "Test lib"
+      version: "1.2.3"
+      depends: { {lib:"sys"}, {lib:"ph"} }
+    >
+  area: Str
+  site: Str
+  equip: Str <meta> // Ok
+verifyErrs: |
+  Duplicate global slots: temp::area, ph::area
+  Duplicate global slots: temp::site, ph::site
 ---
 name: "covariance"
 compileLib: |

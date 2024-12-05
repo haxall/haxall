@@ -63,7 +63,10 @@ internal class ANamespace : CNamespace
     if (acc.size == 1) return acc.first
 
     // duplicate global slots with this name
-    compiler.err("Duplicate global slots: " + acc.join(", "), loc)
+    if (meta)
+      compiler.err("Duplicate global metas: " + acc.join(", "), loc)
+    else
+      compiler.err("Duplicate global slots: " + acc.join(", "), loc)
     return null
   }
 

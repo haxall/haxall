@@ -57,6 +57,8 @@ internal class CheckErrors : Step
     checkTopName(x)
     checkTypeInherit(x)
     checkSpec(x)
+    if (x.isGlobal)
+      checkGlobal(x)
   }
 
   Void checkTopName(ASpec x)
@@ -259,6 +261,19 @@ internal class CheckErrors : Step
     }
 
     checkDict(x.meta, null)
+  }
+
+  Void checkGlobal(ASpec x)
+  {
+    // calling ANamespace.globalXXX forces us to report duplicates
+    if (x.isMeta)
+      cns.globalMeta(x.name, x.loc)
+    else
+      cns.globalSlot(x.name, x.loc)
+
+    // check reserved name
+    if (x.isMeta && XetoUtil.isReservedMetaName(x.name))
+      err("Reserved meta tag '$x.name'", x.loc)
   }
 
   Void checkSpecQuery(ASpec x)
