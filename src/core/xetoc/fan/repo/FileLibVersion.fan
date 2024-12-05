@@ -8,6 +8,7 @@
 
 using concurrent
 using xeto
+using xetoEnv
 
 **
 ** LibVersion implementation for FileRepo
@@ -91,7 +92,7 @@ const class FileLibVersion : LibVersion
     sp := s.index(" ") ?: throw ParseErr("Invalid depend: $s")
     n  := s[0..<sp].trim
     v  := LibDependVersions(s[sp+1..-1])
-    return LibDepend(n, v)
+    return MLibDepend(n, v)
   }
 }
 

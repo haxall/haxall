@@ -137,6 +137,7 @@ internal const class SysFactoryLoader : SpecFactoryLoader
 
       // xeto pod
       "Func":              InterfaceSpecFactory(xeto.type("Function")),
+      "LibDepend":         LibDependFactory(xeto.type("LibDepend")),
       "LibDependVersions": LibDependVersionsFactory(xeto.type("LibDependVersions")),
       "Spec":              DictFactory(xeto.type("Spec")),
       "UnitQuantity":      UnitQuantityFactory(xeto.type("UnitQuantity")),
@@ -453,6 +454,13 @@ internal const class UriFactory : ScalarSpecFactory
 **************************************************************************
 ** Dict Factories
 **************************************************************************
+
+@Js
+internal const class LibDependFactory : DictSpecFactory
+{
+  new make(Type type) : super(type) {}
+  override Dict decodeDict(Dict xeto, Bool checked := true) { MLibDepend(xeto) }
+}
 
 @Js
 internal const class LinkFactory : DictSpecFactory

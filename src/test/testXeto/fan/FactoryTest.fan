@@ -54,6 +54,7 @@ class FactoryTest : AbstractXetoTest
     verifySame(ns.spec("sys::Dict").fantomType, Dict#)
     verifySame(ns.spec("sys::Spec").fantomType, Spec#)
     verifySame(ns.spec("sys::LibOrg").fantomType, Dict#)
+    verifySame(ns.spec("sys::LibDepend").fantomType, LibDepend#)
   }
 
   Void testSysComp()

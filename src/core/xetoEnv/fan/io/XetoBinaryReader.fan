@@ -116,7 +116,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     depends.capacity = dependsSize
     dependsSize.times
     {
-      depends.add(LibDepend(names.toName(readName)))
+      depends.add(MLibDepend(names.toName(readName)))
     }
 
     return RemoteLibVersion(name, version, depends)

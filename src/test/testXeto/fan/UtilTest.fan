@@ -491,6 +491,25 @@ class UtilTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// LibDepend
+//////////////////////////////////////////////////////////////////////////
+
+  Void testLibDepend()
+  {
+    verifyLibDepend("foo", LibDependVersions("3.x.x"))
+  }
+
+  Void verifyLibDepend(Str name, LibDependVersions vers)
+  {
+    x := LibDepend(name, vers)
+    verifySame(x->lib, name)
+    verifySame(x->versions, vers)
+    verifyEq(x->spec, Ref("sys::LibDepend"))
+    verifySame(x->spec, x.get("spec"))
+    verifyDictEq((haystack::Dict)x, ["lib":name, "versions":vers, "spec":Ref("sys::LibDepend")])
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Etc.link
 //////////////////////////////////////////////////////////////////////////
 

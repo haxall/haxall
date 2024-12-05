@@ -12,12 +12,12 @@ using util
 ** Xeto library dependency as name and version constraints
 **
 @Js
-const mixin LibDepend
+const mixin LibDepend : Dict
 {
   ** Construct with name and version constraints
   static new make(Str name, LibDependVersions versions := LibDependVersions.wildcard)
   {
-    MLibDepend(name, versions, FileLoc.unknown)
+    Slot.findMethod("xetoEnv::MLibDepend.makeFields").call(name, versions, FileLoc.unknown)
   }
 
   ** Library name of dependency
@@ -74,29 +74,6 @@ const mixin LibDependVersions
 
   ** Return if the given version satisifies this instance's constraints
   abstract Bool contains(Version version)
-}
-
-**************************************************************************
-** MLibDepend
-**************************************************************************
-
-**
-** Implementation for LibDepend
-**
-@NoDoc @Js
-const class MLibDepend : LibDepend
-{
-  new make(Str name, LibDependVersions versions, FileLoc loc)
-  {
-    this.name = name
-    this.versions = versions
-    this.loc = loc
-  }
-
-  const override Str name
-  const override LibDependVersions versions
-  override Str toStr() { "$name $versions" }
-  const FileLoc loc
 }
 
 **************************************************************************
