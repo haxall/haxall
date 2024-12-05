@@ -127,6 +127,7 @@ internal class GenPH : AbstractGenCmd
     if (n == "notInherited") return true
     if (n == "tagOn") return true
     if (n == "transient") return true
+    if (n == "depends") return true
 
     // relationships
     if (n == "relationship") return true
