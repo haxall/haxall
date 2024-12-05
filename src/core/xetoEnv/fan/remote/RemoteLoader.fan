@@ -42,7 +42,7 @@ internal class RemoteLoader
     loadFactories
 
     version   := libMeta->version
-    depends   := loadDepends
+    depends   := libMeta["depends"] ?: MLibDepend#.emptyList
     tops      := loadTops
 
     m := MLib(loc, libNameCode, libName, libMeta, flags, version, depends, tops, instances, UnsupportedLibFiles.val)
@@ -70,16 +70,6 @@ internal class RemoteLoader
     id := x.id.id
     name := id[id.index(":")+2..-1]
     instances.add(name, x)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Lib Depends
-//////////////////////////////////////////////////////////////////////////
-
-  private MLibDepend[] loadDepends()
-  {
-    // should come thru as typed LibDepend instances
-    libMeta["depends"] ?: MLibDepend#.emptyList
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -14,6 +14,22 @@ using haystack
 @Js
 class HisItemTest : HaystackTest
 {
+  Void testBasics()
+  {
+    ts := DateTime.now
+    val := n(123)
+    item := HisItem(ts, val)
+    verifyDictEq(item, ["ts":ts, "val":val])
+    verifySame(item->ts, ts)
+    verifySame(item->val, val)
+
+    item = HisItem(ts, null)
+    verifyDictEq(item, ["ts":ts])
+    verifySame(item->ts, ts)
+    verifySame(item["val"], null)
+    verifyErr(UnknownNameErr#) { item->val }
+    verifyErr(UnknownNameErr#) { item->hash }
+  }
 
   Void testBinaryIO()
   {
@@ -69,3 +85,4 @@ class HisItemTest : HaystackTest
   }
 
 }
+

@@ -59,6 +59,13 @@ const final class HisItem : Dict
 
   override Bool missing(Str name) { !has(name) }
 
+  override Obj? trap(Str name, Obj?[]? args := null)
+  {
+    v := get(name)
+    if (v != null) return v
+    throw UnknownNameErr(name)
+  }
+
   override Void each(|Obj, Str| f)
   {
     f(ts, "ts")
@@ -235,3 +242,4 @@ const final class HisItem : Dict
   private static const Int ctrlStr     := 0x05   // new string value (next bytes are Java/Fantom UTF-8 string)
   private static const Int ctrlStrPrev := 0x06   // previous string value (next four bytes are index)
 }
+
