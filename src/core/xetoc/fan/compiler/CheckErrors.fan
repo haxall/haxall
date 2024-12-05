@@ -39,9 +39,12 @@ internal class CheckErrors : Step
 
   Void checkLibMeta(ALib x)
   {
-    XetoUtil.libMetaReservedTags.each |name|
+    x.meta.each |v, n|
     {
-      if (x.meta.has(name)) err("Lib '$x.name' cannot use reserved meta tag '$name'", x.loc)
+      if (XetoUtil.isReservedLibMetaName(n))
+      {
+        err("Reserverd lib meta tag '$n'", x.loc)
+      }
     }
   }
 
@@ -247,9 +250,12 @@ internal class CheckErrors : Step
   {
     if (x.meta == null) return
 
-    XetoUtil.specMetaReservedTags.each |name|
+    x.meta.each |v, n|
     {
-      if (x.meta.has(name)) err("Spec '$x.name' cannot use reserved meta tag '$name'", x.loc)
+      if (XetoUtil.isReservedSpecMetaName(n))
+      {
+        err("Reserved spec meta tag '$n'", x.loc)
+      }
     }
 
     checkDict(x.meta, null)
@@ -309,6 +315,21 @@ internal class CheckErrors : Step
       spec = depend.spec(specName[0..-6], false)
       if (spec != null && !spec.isEnum)
         return err("Enum xmeta for $name for non-enum type", x.loc)
+      return
+    }
+
+    // check that all xmeta tags are formally defined
+    x.each |v, n|
+    {
+      if (n == "id") return
+      global := cns.globalMeta(n, v.loc)
+      if (global == null)
+      {
+        if (XetoUtil.isReservedSpecMetaName(n))
+          err("Reserved xmeta tag '$n'", v.loc)
+        else
+          echo("WARN: Undefined xmeta tag '$n'")
+      }
     }
 
     if (spec == null)

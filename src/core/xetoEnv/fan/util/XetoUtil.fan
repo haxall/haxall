@@ -198,19 +198,38 @@ const class XetoUtil
     return false
   }
 
-  static const Str[] libMetaReservedTags := [
-    // used right now
-    "id", "spec", "loaded",
-    // future proofing
-    "data", "instances", "name", "lib", "loc", "slots", "specs", "types", "xeto"
-  ]
+  ** Is the given name a reserved lib meta tag
+  static Bool isReservedLibMetaName(Str n)
+  {
+    reservedLibMetaNames.containsKey(n)
+  }
 
-  static const Str[] specMetaReservedTags := [
+  ** Is the given name a reserved spec meta tag
+  static Bool isReservedSpecMetaName(Str n)
+  {
+    reservedSpecMetaNames.containsKey(n)
+  }
+
+  private static once Str:Str reservedLibMetaNames()
+  {
+    Str:Str[:].setList([
+      // used right now
+      "id", "spec", "loaded",
+      // future proofing
+      "data", "instances", "name", "lib", "loc", "slots", "specs", "types", "xeto"
+    ])
+  }
+
+  private static once Str:Str reservedSpecMetaNames()
+  {
+    Str:Str[:].setList([
     // used right now
     "id", "base", "type", "spec", "slots",
     // future proofing
     "class", "is", "lib", "loc", "name", "parent", "qname", "super", "supers", "version", "xeto"
-  ]
+    ])
+  }
+
 
 //////////////////////////////////////////////////////////////////////////
 // Dirs

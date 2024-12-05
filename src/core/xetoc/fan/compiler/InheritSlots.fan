@@ -46,6 +46,7 @@ internal class InheritSlots : Step
     if (stack.containsSame(spec) && !isSys)
     {
       err("Cyclic inheritance: $spec.name", spec.loc)
+      spec.flags = 0
       spec.cslotsRef = noSlots
     }
 

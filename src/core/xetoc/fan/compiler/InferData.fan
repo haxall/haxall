@@ -89,11 +89,11 @@ internal abstract class InferData : Step
       if (name == "fantomPodName") return
 
       // if this is reserved slot, then we will flag in CheckErrors
-      if (dict.isSpecMeta && XetoUtil.specMetaReservedTags.contains(name)) return
-      if (dict.isLibMeta && XetoUtil.libMetaReservedTags.contains(name)) return
+      if (dict.isSpecMeta && XetoUtil.isReservedSpecMetaName(name)) return
+      if (dict.isLibMeta && XetoUtil.isReservedLibMetaName(name)) return
 
       // log error for meta tags not defined
-//echo("WARN: Meta data tag '$name' is not formally defined [$val.loc]")
+      err("Undefined meta tag '$name'", val.loc)
       return
     }
 

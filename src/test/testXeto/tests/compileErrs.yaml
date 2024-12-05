@@ -70,6 +70,50 @@ verifyErrs: |
 ---
 
 ##########################################################################
+## Metas (InferData and CheckErrors)
+##########################################################################
+
+---
+name: "reservedMeta"
+compileLib: |
+  Foo: Dict <id:"x", base:"x", type:"x", spec:"x", slots:"x", lib:"x", loc:"x">
+verifyErrs: |
+  Reserved spec meta tag 'id'
+  Reserved spec meta tag 'base'
+  Reserved spec meta tag 'type'
+  Reserved spec meta tag 'spec'
+  Reserved spec meta tag 'slots'
+  Reserved spec meta tag 'lib'
+  Reserved spec meta tag 'loc'
+---
+name: "metaNotDefined"
+compileLib: |
+  Foo: Dict <foo> {
+    a: Str <bar, qux:"xxx">
+  }
+  c: Date <baz>
+verifyErrs: |
+  Undefined meta tag 'foo'
+  Undefined meta tag 'bar'
+  Undefined meta tag 'qux'
+  Undefined meta tag 'baz'
+---
+name: "xmetaNotDefined"
+compileLib: |
+  @xmeta-sys-Str: {
+    foo
+    bar: "xxx"
+    base: "xxx"
+    slots: "xxx"
+  }
+verifyErrs: |
+  Undefined xmeta tag 'foo'
+  Undefined xmeta tag 'bar'
+  Reserved xmeta tag 'base'
+  Reserved xmeta tag 'slots'
+---
+
+##########################################################################
 ## CheckErrors
 ##########################################################################
 
@@ -99,18 +143,6 @@ compileLib: |
 verifyErrs: |
   Spec 'foo' conflicts with instance of the same name
   Spec 'Bar' conflicts with instance of the same name
----
-name: "reservedMeta"
-compileLib: |
-  Foo: Dict <id:"x", base:"x", type:"x", spec:"x", slots:"x", lib:"x", loc:"x">
-verifyErrs: |
-  Spec 'Foo' cannot use reserved meta tag 'id'
-  Spec 'Foo' cannot use reserved meta tag 'base'
-  Spec 'Foo' cannot use reserved meta tag 'type'
-  Spec 'Foo' cannot use reserved meta tag 'spec'
-  Spec 'Foo' cannot use reserved meta tag 'slots'
-  Spec 'Foo' cannot use reserved meta tag 'lib'
-  Spec 'Foo' cannot use reserved meta tag 'loc'
 ---
 name: "checkTypeInherit"
 compileLib: |
