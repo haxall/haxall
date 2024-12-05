@@ -78,26 +78,37 @@ internal class ProcessPragma : Step
   {
     if (isSys) return MLibDepend#.emptyList
 
+    list := toDependsList(pragma.get("depends"))
+
+    if (list != null && !list.isEmpty) return list
+
+    if (isLib) err("Must specify 'sys' in depends", pragma.loc)
+    return [MLibDepend("sys", LibDependVersions.wildcard, FileLoc.synthetic)]
+  }
+
+  private MLibDepend[]? toDependsList(AData? val)
+  {
+    if (val == null) return null
+
+    // depends list must be respresented in AST as ADict
+    alist := val as ADict
+    if (alist == null)
+    {
+      err("Depends must be a list", val.loc)
+      return null
+    }
+
+    // map list items to MLibDepend objects
     acc := Str:MLibDepend[:]
     acc.ordered = true
+    alist.each |obj| { toDepend(acc, obj) }
 
-    list := pragma.get("depends")
-    if (list != null)
-    {
-      if (list isnot ADict)
-        err("Depends must be a list", list.loc)
-      else
-        ((ADict)list).each |obj| { toDepend(acc, obj) }
-    }
 
-    // if not specified, assume just sys
-    if (acc.isEmpty)
-    {
-      if (isLib) err("Must specify 'sys' in depends", pragma.loc)
-      acc["sys"] = MLibDepend("sys", LibDependVersions.wildcard, FileLoc.synthetic)
-    }
+    // make this list the assembled value
+    depends := acc.vals
+    alist.asmRef = depends
 
-    return acc.vals
+    return depends
   }
 
   private Void toDepend(Str:MLibDepend acc, AData obj)

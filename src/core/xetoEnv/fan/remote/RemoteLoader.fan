@@ -78,27 +78,8 @@ internal class RemoteLoader
 
   private MLibDepend[] loadDepends()
   {
-    obj := libMeta["depends"]
-    if (obj == null) return MLibDepend#.emptyList
-    list := obj as List
-
-// TODO: nuke all of this soon...
-if (list == null)
-{
-  list = Obj[,]
-  ((Dict)obj).each |v, n| { list.add(v) }
-}
-
-    acc := MLibDepend[,]
-    acc.capacity = list.size
-    list.each |MNameDict x|
-    {
-      name := x->lib
-      vers := LibDependVersions.wildcard
-      if (x.has("versions")) vers = LibDependVersions.fromStr(x->versions.toStr, true)
-      acc.add(MLibDepend(name, vers, loc))
-    }
-    return acc
+    // should come thru as typed LibDepend instances
+    libMeta["depends"] ?: MLibDepend#.emptyList
   }
 
 //////////////////////////////////////////////////////////////////////////

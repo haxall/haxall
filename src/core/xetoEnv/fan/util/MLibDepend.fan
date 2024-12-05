@@ -17,7 +17,7 @@ using haystack::Ref
 @NoDoc @Js
 const class MLibDepend : Dict, LibDepend
 {
-  new makeFields(Str name, LibDependVersions versions := LibDependVersions.wildcard, FileLoc loc := FileLoc.unknown)
+  new makeFields(Str name, LibDependVersions versions := LibDependVersions.wildcard, FileLoc loc := FileLoc.synthetic)
   {
     this.name = name
     this.versions = versions
@@ -27,8 +27,8 @@ const class MLibDepend : Dict, LibDepend
   new make(Dict dict)
   {
     name = dict->lib
-    versions = dict->versions
-    loc = FileLoc.unknown
+    versions = dict["versions"] ?: LibDependVersions.wildcard
+    loc = FileLoc.synthetic
   }
 
   static once Ref specRef() { Ref("sys::LibDepend") }
