@@ -75,11 +75,6 @@ const class MLibDepend : Dict, LibDepend
     return null
   }
 
-  override This map(|Obj val, Str n->Obj| f)
-  {
-    makeFields(f(name, "lib"), f(versions, "versions"), loc)
-  }
-
   override Str toStr() { "$name $versions" }
 }
 

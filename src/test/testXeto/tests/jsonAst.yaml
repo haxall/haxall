@@ -23,6 +23,7 @@ verifyJsonAst: |
       "depends": [
         {
           "lib": "sys",
+          "versions": "x.x.x",
           "spec": "sys::LibDepend"
         }
       ]
@@ -66,10 +67,12 @@ verifyJsonAst: |
       "depends": [
         {
           "lib": "sys",
+          "versions": "x.x.x",
           "spec": "sys::LibDepend"
         },
         {
           "lib": "ph",
+          "versions": "x.x.x",
           "spec": "sys::LibDepend"
         }
       ]

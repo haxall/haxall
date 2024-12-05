@@ -20,7 +20,7 @@ const mixin LibDepend : Dict
     Slot.findMethod("xetoEnv::MLibDepend.makeFields").call(name, versions, FileLoc.unknown)
   }
 
-  ** Library name of dependency
+  ** Library dotted name
   abstract Str name()
 
   ** Version constraints that satisify this dependency
