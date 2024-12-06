@@ -1,0 +1,28 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   6 Dec 2024  Brian Frank  Creation
+//
+
+q: Date <meta>
+r: Date <meta>
+s: Date <meta>
+foo: Str <meta>
+bar: Str <meta>
+qux: Str <meta>
+
+
+metaQ: Marker <meta>
+metaR: Marker <meta, noInherit>
+
+MetaInheritA: Dict <metaQ, metaR> {
+  x: Str <metaQ, metaR>
+  y: Str <metaQ, metaR>
+}
+
+MetaInheritB: MetaInheritA {
+  y: Str
+}
+

@@ -40,13 +40,6 @@ NestedEq: Equip {
   }
 }
 
-q: Date <meta>
-r: Date <meta>
-s: Date <meta>
-foo: Str <meta>
-bar: Str <meta>
-qux: Str <meta>
-
 // A
 A: Dict <q: Date "2024-01-01", foo:"A", bar:"A"> {
   x: Str  // x slot

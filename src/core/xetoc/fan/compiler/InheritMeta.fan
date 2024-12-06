@@ -69,30 +69,42 @@ internal class InheritMeta : Step
 
   private Int computedInherited(Str:Obj acc, ASpec spec, CSpec base)
   {
-    if (spec.isAnd) return computeUnion(acc, spec.cofs)
+    if (spec.isAnd) return computeUnion(acc, spec.cofs, spec.loc)
     if (spec.isOr)  return computeIntersection(acc, spec.cofs)
-    return computeFromBase(acc, base)
+    return computeFromBase(acc, base, spec.loc)
   }
 
-  private Int computeFromBase(Str:Obj acc, CSpec base)
+  private Int computeFromBase(Str:Obj acc, CSpec base, FileLoc loc)
   {
     baseSize := 0
     base.cmeta.each |v, n|
     {
       baseSize++
-      if (XetoUtil.isMetaInherited(base, n) && acc[n] == null) acc[n] = v
+      if (isInherited(base, n, loc) && acc[n] == null) acc[n] = v
     }
     return baseSize
   }
 
-  private Int computeUnion(Str:Obj acc, CSpec[]? ofs)
+  private Bool isInherited(CSpec base, Str name, FileLoc loc)
+  {
+    if (name == "val") return !base.isEnum
+
+    metaSpec := cns.metaSpec(name, loc)
+    if (metaSpec == null) return true
+
+    if (metaSpec.cmetaHas("noInherit")) return false
+
+    return true
+  }
+
+  private Int computeUnion(Str:Obj acc, CSpec[]? ofs, FileLoc loc)
   {
     if (ofs == null) return 0
     baseSize := 0
     ofs.each |of|
     {
       if (of.isAst) inherit(of)
-      baseSize += computeFromBase(acc, of)
+      baseSize += computeFromBase(acc, of, loc)
     }
     return baseSize
   }

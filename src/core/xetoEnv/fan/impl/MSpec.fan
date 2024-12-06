@@ -282,6 +282,8 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final MNameDict cmeta() { m.meta }
 
+  override final Bool cmetaHas(Str name) { m.meta.has(name) }
+
   override final CSpec? cslot(Str n, Bool c := true) { m.slot(n, c) }
 
   override final Void cslots(|CSpec, Str| f) { m.slots.map.each(f) }

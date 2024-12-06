@@ -291,6 +291,13 @@ internal class ASpec : ANode, CSpec
   override MNameDict cmeta() { cmetaRef ?: throw NotReadyErr(qname) }
   MNameDict? cmetaRef
 
+  ** Effective meta has
+  override Bool cmetaHas(Str name)
+  {
+    if (cmetaRef != null) return cmetaRef.has(name)
+    return metaHas(name)
+  }
+
   ** Is there one or more effective slots
   override Bool hasSlots()
   {

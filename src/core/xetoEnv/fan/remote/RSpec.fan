@@ -66,6 +66,7 @@ internal class RSpec : CSpec, NameDictReader
   override CSpec? cbase
   override CSpec? cparent() { parent }
   override MNameDict cmeta() { meta ?: throw Err(name) }
+  override Bool cmetaHas(Str name) { cmeta.has(name) }
   override CSpec? cslot(Str name, Bool checked := true) { throw UnsupportedErr() }
   override Void cslots(|CSpec, Str| f) { slots.each |s| { f((CSpec)s, s.name) } }
   override Obj? cslotsWhile(|CSpec, Str->Obj?| f) { slots.eachWhile |s| { f((CSpec)s, s.name) } }
