@@ -164,9 +164,11 @@ class MCompSpi : CompSpi
     if (slot == null) return null
 
     // map value to spec
+    /* TODO
     valSpec := val is Comp ? ((Comp)val).spec : cs.ns.specOf(val)
     if (!isValidSlotVal(slot, val, valSpec))
       throw InvalidChangeErr("Invalid type for $slot.qname: $slot.type != $valSpec")
+    */
   }
 
   static Bool isValidSlotVal(Spec slot, Obj val, Spec valSpec)
