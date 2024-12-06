@@ -92,6 +92,25 @@ const mixin Spec : Dict
   abstract Bool isChoice()
 
 //////////////////////////////////////////////////////////////////////////
+// Flavor
+//////////////////////////////////////////////////////////////////////////
+
+  ** Flavor: type, global, meta, or slot
+  @NoDoc abstract SpecFlavor flavor()
+
+  ** Is this a top level type spec
+  @NoDoc abstract Bool isType()
+
+  ** Is this a top level global slot spec
+  @NoDoc abstract Bool isGlobal()
+
+  ** Is this a top level meta global space
+  @NoDoc abstract Bool isMeta()
+
+  ** Is this a slot under a parent
+  @NoDoc abstract Bool isSlot()
+
+//////////////////////////////////////////////////////////////////////////
 // NoDoc
 //////////////////////////////////////////////////////////////////////////
 
@@ -104,15 +123,6 @@ const mixin Spec : Dict
   ** Return the Fantom type used to represent this spec.
   ** Convenience for 'factory.type'.
   @NoDoc abstract Type fantomType()
-
-  ** Is this a top level type spec
-  @NoDoc abstract Bool isType()
-
-  ** Is this a top level global slot spec
-  @NoDoc abstract Bool isGlobal()
-
-  ** Is this a top level meta global space
-  @NoDoc abstract Bool isMeta()
 
   ** Is this the 'sys::None' spec itself
   @NoDoc abstract Bool isNone()

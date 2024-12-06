@@ -86,7 +86,7 @@ class NamespaceTest : AbstractXetoTest
     orgUri := verifySlot(ns, org, "uri", uri)
 
     // of: Spec?
-    of := verifyGlobalMeta(ns, sys, "of", ref)
+    of := verifyMeta(ns, sys, "of", ref)
     verifyEq(of.qname, "sys::of")
     verifySame(of.parent, null)
     verifyEq(of["doc"], "Item type for parameterized Seq/Query; target type for Ref/MultiRef")
@@ -94,7 +94,7 @@ class NamespaceTest : AbstractXetoTest
     verifySame(of.of, spec)
 
     // ofs: List? <of:Ref<of:Spec>>
-    ofs := verifyGlobalMeta(ns, sys, "ofs", list)
+    ofs := verifyMeta(ns, sys, "ofs", list)
     ofsOfRef := (Ref)ofs["of"]
     verifyEq(ofs.qname, "sys::ofs")
     verifyEq(ofs["doc"], "Types used in compound types like And and Or")
@@ -134,8 +134,8 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(mref.isRef, false)
     verifyEq(mref.isMultiRef, true)
 
-    // meta globals
-    verifyGlobalMeta(ns, sys, "doc", str)
+    // meta specs
+    verifyMeta(ns, sys, "doc", str)
 
     // files
     verifyEq(sys.files.isSupported, !ns.isRemote)
@@ -283,8 +283,11 @@ class NamespaceTest : AbstractXetoTest
     verifyDictEq(ab.meta, ["doc":"AB", "ofs":abOfs, "s":Date("2024-03-01"), "qux":"AB",
       "q":Date("2024-01-01"), "r":Date("2024-02-01"), "foo":"A", "bar":"A", ])
 
-    // global meta
-    verifyGlobalMeta(ns, lib, "testMetaTag", ns.spec("sys::Str"))
+    // global spec
+    verifyGlobal(ns, lib, "globalTag", ns.spec("sys::Str"))
+
+    // meta spec
+    verifyMeta(ns, lib, "testMetaTag", ns.spec("sys::Str"))
 
     // files
     files := lib.files
@@ -679,20 +682,30 @@ class NamespaceTest : AbstractXetoTest
     verifySame(type.base, base)
     verifyEq(type.toStr, type.qname)
     verifySame(ns.specOf(type), ns.type("sys::Spec"))
-    verifyEq(type.isType, true)
+    verifyFlavor(type, SpecFlavor.type)
     verifyEq(type["val"], val)
     return type
   }
 
-  Spec verifyGlobalMeta(LibNamespace ns, Lib lib, Str name, Spec type)
+  Spec verifyGlobal(LibNamespace ns, Lib lib, Str name, Spec type)
   {
     spec := lib.global(name)
     verifySame(ns.spec("$lib.name::$name"), spec)
     verifySame(spec.lib, lib)
     verifyEq(spec.parent, null)
-    verifyEq(spec.isGlobal, true)
-    verifyEq(spec.isMeta, true)
-    verifyEq(spec.isType, false)
+    verifyFlavor(spec, SpecFlavor.global)
+    verifySame(spec.type, type)
+    verifySame(spec.base, type)
+    return spec
+  }
+
+  Spec verifyMeta(LibNamespace ns, Lib lib, Str name, Spec type)
+  {
+    spec := lib.global(name)
+    verifySame(ns.spec("$lib.name::$name"), spec)
+    verifySame(spec.lib, lib)
+    verifyEq(spec.parent, null)
+    verifyFlavor(spec, SpecFlavor.meta)
     verifySame(spec.type, type)
     verifySame(spec.base, type)
     return spec
@@ -714,7 +727,7 @@ class NamespaceTest : AbstractXetoTest
     verifySame(slot.type, type)
     verifySame(slot.base, type)
     verifySame(ns.specOf(slot), ns.type("sys::Spec"))
-    verifyEq(slot.isType, false)
+    verifyFlavor(slot, SpecFlavor.slot)
     return slot
   }
 

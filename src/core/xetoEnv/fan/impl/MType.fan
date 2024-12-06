@@ -31,7 +31,7 @@ const final class MType : MSpec
 
   const override haystack::Ref id
 
-  override Bool isType() { true }
+  override SpecFlavor flavor() { SpecFlavor.type }
 
   override const SpecFactory factory
 

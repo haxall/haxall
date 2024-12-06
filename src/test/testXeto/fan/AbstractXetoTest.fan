@@ -83,6 +83,19 @@ class AbstractXetoTest : HaystackTest
     sysNamespace.compileDicts(s, opts)
   }
 
+  Void verifyFlavor(Spec spec, SpecFlavor expect)
+  {
+    verifySame(spec.flavor, expect)
+    verifyEq(spec.isType,   expect.isType)
+    verifyEq(spec.isGlobal, expect.isGlobal)
+    verifyEq(spec.isMeta,   expect.isMeta)
+    verifyEq(spec.isSlot,   expect.isSlot)
+    if (expect.isSlot)
+      verifyNotNull(spec.parent)
+    else
+      verifyNull(spec.parent)
+  }
+
   Void verifyFitsExplain(LibNamespace ns, Obj? val, Spec spec, Str[] expected)
   {
     cx := TestContext()

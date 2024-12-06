@@ -153,9 +153,9 @@ const class MSpec
 // Flags
 //////////////////////////////////////////////////////////////////////////
 
-  virtual Bool isType() { false }
+  virtual SpecFlavor flavor() { SpecFlavor.slot }
 
-  virtual Bool isGlobal() { false }
+  Bool isType() { flavor.isType }
 
   Bool hasFlag(Int flag) { flags.and(flag) != 0 }
 
@@ -238,17 +238,18 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Spec[]? ofs(Bool checked := true)  { m.args.ofs(checked) }
 
-  override final Bool isType() { m.isType }
-
-  override final Bool isGlobal() { m.isGlobal }
-
   override final Bool isSys() { lib.isSys }
 
   override final SpecEnum enum() { m.enum }
 
   override final CSpec? cenum(Str key, Bool checked := true) { m.enum.spec(key, checked) as CSpec }
 
-  override final Bool isMeta()      { m.hasFlag(MSpecFlags.meta) }
+  override final SpecFlavor flavor() { m.flavor }
+  override final Bool isType()       { flavor.isType }
+  override final Bool isGlobal()     { flavor.isGlobal }
+override final Bool isMeta() { m.hasFlag(MSpecFlags.meta) }
+  override final Bool isSlot()       { flavor.isSlot }
+
   override final Bool isNone()      { m.hasFlag(MSpecFlags.none) }
   override final Bool isSelf()      { m.hasFlag(MSpecFlags.self) }
   override final Bool isMaybe()     { m.hasFlag(MSpecFlags.maybe) }

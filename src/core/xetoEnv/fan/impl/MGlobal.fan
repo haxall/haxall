@@ -30,7 +30,7 @@ const final class MGlobal : MSpec
 
   const override haystack::Ref id
 
-  override Bool isGlobal() { true }
+  override SpecFlavor flavor() { SpecFlavor.global }
 
   override Str toStr() { qname }
 }
