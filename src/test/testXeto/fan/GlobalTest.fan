@@ -11,10 +11,10 @@ using xeto
 using haystack
 
 **
-** GlobalSlotTest
+** GlobalTest
 **
 @Js
-class GlobalSlotTest : AbstractXetoTest
+class GlobalTest : AbstractXetoTest
 {
 
 //////////////////////////////////////////////////////////////////////////
