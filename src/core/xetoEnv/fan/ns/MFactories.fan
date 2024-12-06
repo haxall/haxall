@@ -240,7 +240,6 @@ internal const class ObjFactory : SpecFactory
   const override Type type
   override Bool isScalar() { false }
   override Bool isDict() { false }
-  override Bool isInterface() { false }
   override Dict decodeDict(Dict xeto, Bool checked := true) { throw UnsupportedErr("Obj") }
   override Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr("Obj")  }
   override Str encodeScalar(Obj val) { throw UnsupportedErr("Obj") }

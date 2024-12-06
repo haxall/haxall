@@ -503,6 +503,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
     if (val is Scalar) return spec(((Scalar)val).qname, checked)
     if (type.fits(List#)) return sys.list
     if (type.fits(Grid#)) return sys.grid
+    if (type.fits(Function#)) return sys.func
 
     // if we didn't find a match and we aren't fully
     // loaded, then do a full load and try again

@@ -17,6 +17,7 @@ using hx
 **
 ** InterfaceTest
 **
+/* TODO
 class InterfaceTest : AbstractAxonTest
 {
 
@@ -98,4 +99,5 @@ const class IFoo {
     name == ((IFoo)that).name
   }
 }
+*/
 

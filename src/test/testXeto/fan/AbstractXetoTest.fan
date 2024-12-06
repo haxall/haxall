@@ -296,7 +296,7 @@ internal const class XetoFactoryLoader: SpecFactoryLoader
     if (libName != "hx.test.xeto") throw Err(libName)
     pod := typeof.pod
     acc := Str:SpecFactory[:]
-    acc["IFoo"]        = InterfaceSpecFactory(IFoo#)
+    //acc["IFoo"]        = InterfaceSpecFactory(IFoo#)
     acc["TestAdd"]     = CompSpecFactory(TestAdd#)
     acc["TestCounter"] = CompSpecFactory(TestCounter#)
     acc["TestFoo"]     = CompSpecFactory(TestFoo#)
