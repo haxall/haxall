@@ -45,30 +45,30 @@ const class MSys
     this.query    = x.get("Query")
   }
 
-  const XetoType obj
-  const XetoType none
-  const XetoType self
-  const XetoType seq
-  const XetoType list
-  const XetoType dict
-  const XetoType grid
-  const XetoType lib
-  const XetoType spec
-  const XetoType scalar
-  const XetoType marker
-  const XetoType bool
-  const XetoType str
-  const XetoType uri
-  const XetoType number
-  const XetoType int
-  const XetoType duration
-  const XetoType date
-  const XetoType time
-  const XetoType dateTime
-  const XetoType ref
-  const XetoType enum
-  const XetoType and
-  const XetoType or
-  const XetoType query
+  const XetoSpec obj
+  const XetoSpec none
+  const XetoSpec self
+  const XetoSpec seq
+  const XetoSpec list
+  const XetoSpec dict
+  const XetoSpec grid
+  const XetoSpec lib
+  const XetoSpec spec
+  const XetoSpec scalar
+  const XetoSpec marker
+  const XetoSpec bool
+  const XetoSpec str
+  const XetoSpec uri
+  const XetoSpec number
+  const XetoSpec int
+  const XetoSpec duration
+  const XetoSpec date
+  const XetoSpec time
+  const XetoSpec dateTime
+  const XetoSpec ref
+  const XetoSpec enum
+  const XetoSpec and
+  const XetoSpec or
+  const XetoSpec query
 }
 

@@ -354,7 +354,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
 // Lookups
 //////////////////////////////////////////////////////////////////////////
 
-  override XetoType? type(Str qname, Bool checked := true)
+  override XetoSpec? type(Str qname, Bool checked := true)
   {
     colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
     libName := qname[0..<colon]

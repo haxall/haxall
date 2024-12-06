@@ -17,10 +17,10 @@ using haystack::Dict
 @Js
 internal class RSpec : CSpec, NameDictReader
 {
-  new make(Str libName, XetoSpec asm, RSpec? parent, Int nameCode, Str name)
+  new make(Str libName, RSpec? parent, Int nameCode, Str name)
   {
     this.libName  = libName
-    this.asm      = asm
+    this.asm      = XetoSpec()
     this.parent   = parent
     this.isType   = parent == null && !name[0].isLower
     this.isGlobal = parent == null && name[0].isLower

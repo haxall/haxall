@@ -15,7 +15,7 @@ using xeto
 @Js
 const final class MType : MSpec
 {
-  new make(FileLoc loc, XetoLib lib, Str qname, Int nameCode, Str name, XetoType? base, XetoType self, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args, SpecFactory factory)
+  new make(FileLoc loc, XetoLib lib, Str qname, Int nameCode, Str name, XetoSpec? base, XetoSpec self, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args, SpecFactory factory)
     : super(loc, null, nameCode, name, base, self, meta, metaOwn, slots, slotsOwn, flags, args)
   {
     this.lib       = lib
@@ -45,18 +45,5 @@ const final class MType : MSpec
   private const MEnum? enumRef
 
   override Str toStr() { qname }
-}
-
-**************************************************************************
-** XetoType
-**************************************************************************
-
-**
-** XetoType is the referential proxy for MType
-**
-@Js
-const class XetoType : XetoSpec
-{
-  new make() : super() {}
 }
 

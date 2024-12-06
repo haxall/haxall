@@ -33,7 +33,6 @@ internal class ASpec : ANode, CSpec
     this.flavor   = toFlavor(parent, name)
     this.nameCode = names.add(name)
     this.name     = names.toName(nameCode) // intern
-    this.asm      = parent == null ? XetoType() : XetoSpec()
   }
 
   private static SpecFlavor toFlavor(ASpec? parent, Str name)
@@ -96,7 +95,7 @@ internal class ASpec : ANode, CSpec
   override once haystack::Ref id() { haystack::Ref(qname, null) }
 
   ** XetoSpec for this spec - we backpatch the "m" field in Assemble step
-  const override XetoSpec asm
+  const override XetoSpec asm := XetoSpec()
 
   ** String returns qname
   override Str toStr() { qname }

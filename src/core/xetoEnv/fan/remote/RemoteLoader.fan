@@ -53,7 +53,7 @@ internal class RemoteLoader
   RSpec addTop(Int nameCode)
   {
     name := names.toName(nameCode)
-    x := RSpec(libName, XetoType(), null, nameCode, name)
+    x := RSpec(libName, null, nameCode, name)
     tops.add(name, x)
     return x
   }
@@ -61,7 +61,7 @@ internal class RemoteLoader
   RSpec makeSlot(RSpec parent, Int nameCode)
   {
     name := names.toName(nameCode)
-    x := RSpec(libName, XetoSpec(), parent, nameCode, name)
+    x := RSpec(libName, parent, nameCode, name)
     return x
   }
 
@@ -113,7 +113,7 @@ internal class RemoteLoader
 
   private Str:XetoSpec loadTops()
   {
-    specs := tops.map |x->XetoType| { loadSpec(x).asm }
+    specs := tops.map |x->XetoSpec| { loadSpec(x).asm }
     specs.each |spec| { reifySpecMeta(spec) }
     return specs
   }

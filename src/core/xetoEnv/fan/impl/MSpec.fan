@@ -17,7 +17,7 @@ using xeto
 @Js
 const class MSpec
 {
-  new make(FileLoc loc, XetoSpec? parent, Int nameCode, Str name, XetoSpec? base, XetoType type, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
+  new make(FileLoc loc, XetoSpec? parent, Int nameCode, Str name, XetoSpec? base, XetoSpec type, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
   {
     this.loc      = loc
     this.nameCode = nameCode
@@ -47,7 +47,7 @@ const class MSpec
 
   virtual Str qname() { parent.qname + "." + name }
 
-  const XetoType type
+  const XetoSpec type
 
   const XetoSpec? base
 
