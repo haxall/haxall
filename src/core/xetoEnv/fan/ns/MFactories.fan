@@ -70,10 +70,12 @@ const class MFactories
   ** Default dict factory
   const SpecFactory dict := DictFactory()
 
-  ** Map fantom type to its spec (called by MEnv.specOf)
-  Spec? typeToSpec(Type type)
+  ** Map fantom type to its spec (called by specOf)
+  Spec? typeToSpec(LibNamespace ns, Type type)
   {
-    typeToSpecMap.get(type.qname)
+    qname := typeToSpecMap.get(type.qname)
+    if (qname == null) return null
+    return ns.spec(qname, false)
   }
 
   ** Map spec to its fantom type (called by Spec.fantomType)
@@ -82,11 +84,11 @@ const class MFactories
     specToTypeMap.get(qname)
   }
 
-  ** Map Fantom type to its spec (called during LoadFactories)
-  Void map(Type type, Str qnameSpec, Spec spec)
+  ** Map Fantom type to its spec qname
+  Void map(Type type, Str qnameSpec)
   {
     qnameType := type.qname
-    if (typeToSpecMap[qnameType] == null) typeToSpecMap.set(qnameType, spec)
+    if (typeToSpecMap[qnameType] == null) typeToSpecMap.set(qnameType, qnameSpec)
     specToTypeMap.set(qnameSpec, type)
   }
 
@@ -100,8 +102,8 @@ const class MFactories
     }
   }
 
-  private const ConcurrentMap typeToSpecMap := ConcurrentMap()
-  private const ConcurrentMap specToTypeMap := ConcurrentMap()
+  private const ConcurrentMap typeToSpecMap := ConcurrentMap() // qname:qname
+  private const ConcurrentMap specToTypeMap := ConcurrentMap() // qname:Type
 }
 
 **************************************************************************

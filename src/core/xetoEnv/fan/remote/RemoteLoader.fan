@@ -97,7 +97,7 @@ internal class RemoteLoader
       custom := factories?.get(x.name)
       if (custom != null)
       {
-        ns.factories.map(custom.type, x.qname, x.asm)
+        ns.factories.map(custom.type, x.qname)
         return custom
       }
     }

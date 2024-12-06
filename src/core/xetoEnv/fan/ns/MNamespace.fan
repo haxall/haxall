@@ -493,9 +493,9 @@ abstract const class MNamespace : LibNamespace, CNamespace
     type := val as Type ?: val.typeof
     for (Type? p := type; p.base != null; p = p.base)
     {
-      spec := factories.typeToSpec(p)
+      spec := factories.typeToSpec(this, p)
       if (spec != null) return spec
-      spec = p.mixins.eachWhile |m| { factories.typeToSpec(m) }
+      spec = p.mixins.eachWhile |m| { factories.typeToSpec(this, m) }
       if (spec != null) return spec
     }
 

@@ -59,7 +59,7 @@ internal class LoadFactories : Step
       if (custom != null)
       {
         spec.factoryRef = custom
-        factories.map(custom.type, spec.qname, spec.asm)
+        factories.map(custom.type, spec.qname)
         return
       }
     }
