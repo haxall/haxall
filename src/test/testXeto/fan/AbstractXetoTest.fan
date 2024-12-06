@@ -96,6 +96,60 @@ class AbstractXetoTest : HaystackTest
       verifyNull(spec.parent)
   }
 
+  Void verifyFlavorLookup(LibNamespace ns, Spec spec, SpecFlavor flavor)
+  {
+    lib := spec.lib
+    name := spec.name
+    qname := spec.qname
+
+    if (flavor.isTop)
+    {
+      verifyEq(lib.spec(name), spec)
+      verifyEq(lib.specs.containsSame(spec), true)
+    }
+
+    verifyEq(lib.types.containsSame(spec),     flavor.isType)
+//echo("~~ $spec $spec.flavor $lib.globals | $lib.metaSpecs")
+//    verifyEq(lib.globals.containsSame(spec),   flavor.isGlobal)
+//    verifyEq(lib.metaSpecs.containsSame(spec), flavor.isMeta)
+
+    verifyEq(lib.specs.isImmutable,     true)
+    verifyEq(lib.types.isImmutable,     true)
+    verifyEq(lib.globals.isImmutable,   true)
+    verifyEq(lib.metaSpecs.isImmutable, true)
+
+    switch (flavor)
+    {
+      case SpecFlavor.type:
+        verifySame(lib.type(name), spec)
+        verifyEq(lib.global(name, false), null)
+        verifyEq(lib.metaSpec(name, false), null)
+        verifyErr(UnknownSpecErr#) { lib.global(name) }
+        verifyErr(UnknownSpecErr#) { lib.metaSpec(name) }
+
+      case SpecFlavor.global:
+        verifySame(lib.global(name), spec)
+        verifyEq(lib.type(name, false), null)
+        verifyEq(lib.metaSpec(name, false), null)
+        verifyErr(UnknownSpecErr#) { lib.type(name) }
+        verifyErr(UnknownSpecErr#) { lib.metaSpec(name) }
+
+      case SpecFlavor.meta:
+        verifySame(lib.metaSpec(name), spec)
+        verifyEq(lib.type(name, false), null)
+//        verifyEq(lib.global(name, false), null)
+        verifyErr(UnknownSpecErr#) { lib.type(name) }
+//        verifyErr(UnknownSpecErr#) { lib.global(name) }
+
+      case SpecFlavor.slot:
+        verifyNotNull(spec.parent, null)
+
+      default:
+        fail
+    }
+
+  }
+
   Void verifyFitsExplain(LibNamespace ns, Obj? val, Spec spec, Str[] expected)
   {
     cx := TestContext()

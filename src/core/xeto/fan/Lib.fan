@@ -55,6 +55,12 @@ const mixin Lib : Dict
   ** Lookup a top level global slot spec in this library by simple name
   abstract Spec? global(Str name, Bool checked := true)
 
+  ** List the top level meta specs
+  abstract Spec[] metaSpecs()
+
+  ** Lookup a top level meta spec in this library by simple name
+  abstract Spec? metaSpec(Str name, Bool checked := true)
+
   ** List the instance data dicts declared in this library
   abstract Dict[] instances()
 

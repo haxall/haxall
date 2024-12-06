@@ -35,5 +35,8 @@ enum class SpecFlavor
 
   ** Is this the slot flavor
   Bool isSlot() { this === slot }
+
+  ** Is this a lib top-level spec: type, global, or meta
+  Bool isTop() { this !== slot }
 }
 

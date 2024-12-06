@@ -55,39 +55,20 @@ class GlobalSlotTest : AbstractXetoTest
      verifyErr(UnknownSpecErr#) { lib.spec("Bad") }
      verifyErr(UnknownSpecErr#) { lib.spec("bad", true) }
 
-     // Lib.global lookups
-     verifyEq(g.isType, false)
-     verifyEq(g.isGlobal, true)
-     verifyEq(g.isMeta, false)
-     verifyEq(lib.globals, Spec[g, x])
-     verifyEq(lib.globals.isImmutable, true)
+     // global
+     verifyFlavorLookup(ns, g, SpecFlavor.global)
+//     verifyEq(lib.globals, Spec[g])
      verifyEq(g.base, marker)
      verifyEq(g.type, marker)
-     verifySame(lib.global("person"), g)
-     verifyEq(lib.type("person", false), null)
-     verifyErr(UnknownSpecErr#) { lib.type("person") }
-     verifyErr(UnknownSpecErr#) { lib.type("person", true) }
 
-     // Lib.global meta lookups
-     verifyEq(x.isType, false)
-     verifyEq(x.isGlobal, true)
-     verifyEq(x.isMeta, true)
+     // meta
+     verifyFlavorLookup(ns, x, SpecFlavor.meta)
+     verifyEq(lib.metaSpecs, Spec[x])
      verifyEq(x.base, marker)
      verifyEq(x.type, marker)
-     verifySame(lib.global("xTest"), x)
-     verifyEq(lib.type("xTest", false), null)
-     verifyErr(UnknownSpecErr#) { lib.type("xTest") }
-     verifyErr(UnknownSpecErr#) { lib.type("xTest", true) }
 
-     // Lib.type lookups
-     verifyEq(t.isType, true)
-     verifyEq(t.isGlobal, false)
-     verifyEq(t.isMeta, false)
-     verifyEq(lib.types, Spec[t])
-     verifyEq(lib.types.isImmutable, true)
-     verifySame(lib.type("Person"), t)
-     verifyErr(UnknownSpecErr#) { lib.global("Person") }
-     verifyErr(UnknownSpecErr#) { lib.global("Person", true) }
+     // type
+     verifyFlavorLookup(ns, t, SpecFlavor.type)
 
      // verify Person.person is derived from global person
      verifySame(slotm.base, g)

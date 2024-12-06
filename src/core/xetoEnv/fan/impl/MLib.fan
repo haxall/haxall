@@ -97,6 +97,19 @@ const final class MLib
     return null
   }
 
+  once Spec[] metaSpecs()
+  {
+    specs.findAll |x| { x.isMeta }.toImmutable
+  }
+
+  Spec? metaSpec(Str name, Bool checked := true)
+  {
+    top := spec(name, checked)
+    if (top != null && top.isMeta) return top
+    if (checked) throw UnknownSpecErr(this.name + "::" + name)
+    return null
+  }
+
   once Dict[] instances()
   {
     if (instancesMap.isEmpty)
@@ -239,6 +252,10 @@ const final class XetoLib : Lib, haystack::Dict
   override Spec[] globals() { m.globals }
 
   override Spec? global(Str name, Bool checked := true) { m.global(name, checked) }
+
+  override Spec[] metaSpecs() { m.metaSpecs }
+
+  override Spec? metaSpec(Str name, Bool checked := true) { m.metaSpec(name, checked) }
 
   override Dict[] instances() { m.instances }
 

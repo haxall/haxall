@@ -682,7 +682,7 @@ class NamespaceTest : AbstractXetoTest
     verifySame(type.base, base)
     verifyEq(type.toStr, type.qname)
     verifySame(ns.specOf(type), ns.type("sys::Spec"))
-    verifyFlavor(type, SpecFlavor.type)
+    verifyFlavorLookup(ns, type, SpecFlavor.type)
     verifyEq(type["val"], val)
     return type
   }
@@ -693,7 +693,7 @@ class NamespaceTest : AbstractXetoTest
     verifySame(ns.spec("$lib.name::$name"), spec)
     verifySame(spec.lib, lib)
     verifyEq(spec.parent, null)
-    verifyFlavor(spec, SpecFlavor.global)
+    verifyFlavorLookup(ns, spec, SpecFlavor.global)
     verifySame(spec.type, type)
     verifySame(spec.base, type)
     return spec
@@ -705,7 +705,7 @@ class NamespaceTest : AbstractXetoTest
     verifySame(ns.spec("$lib.name::$name"), spec)
     verifySame(spec.lib, lib)
     verifyEq(spec.parent, null)
-    verifyFlavor(spec, SpecFlavor.meta)
+    verifyFlavorLookup(ns, spec, SpecFlavor.meta)
     verifySame(spec.type, type)
     verifySame(spec.base, type)
     return spec
@@ -727,7 +727,7 @@ class NamespaceTest : AbstractXetoTest
     verifySame(slot.type, type)
     verifySame(slot.base, type)
     verifySame(ns.specOf(slot), ns.type("sys::Spec"))
-    verifyFlavor(slot, SpecFlavor.slot)
+    verifyFlavorLookup(ns, slot, SpecFlavor.slot)
     return slot
   }
 
