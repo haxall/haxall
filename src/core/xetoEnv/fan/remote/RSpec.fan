@@ -35,6 +35,7 @@ internal class RSpec : CSpec, NameDictReader
   RSpec? parent { private set }
   const override Bool isType
   const override Bool isGlobal
+  const override Bool isMeta // TODO
 
   // decoded by XetoBinaryReader
   RSpecRef? baseIn
@@ -91,7 +92,6 @@ internal class RSpec : CSpec, NameDictReader
   override Bool isDict()      { hasFlag(MSpecFlags.dict) }
   override Bool isList()      { hasFlag(MSpecFlags.list) }
   override Bool isMaybe()     { hasFlag(MSpecFlags.maybe) }
-  override Bool isMeta()      { hasFlag(MSpecFlags.meta) }
   override Bool isQuery()     { hasFlag(MSpecFlags.query) }
   override Bool isFunc()      { hasFlag(MSpecFlags.func) }
   override Bool isInterface() { hasFlag(MSpecFlags.interface) }

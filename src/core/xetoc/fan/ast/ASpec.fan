@@ -30,9 +30,17 @@ internal class ASpec : ANode, CSpec
     this.lib      = lib
     this.parent   = parent
     this.qname    = parent == null ? "${lib.name}::$name" : "${parent.qname}.$name"
+    this.flavor   = toFlavor(parent, name)
     this.nameCode = names.add(name)
     this.name     = names.toName(nameCode) // intern
     this.asm      = parent == null ? XetoType() : XetoSpec()
+  }
+
+  private static SpecFlavor toFlavor(ASpec? parent, Str name)
+  {
+    if (parent != null)  return SpecFlavor.slot
+    if (name[0].isLower) return SpecFlavor.global
+    return SpecFlavor.type
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -54,14 +62,20 @@ internal class ASpec : ANode, CSpec
   ** Parent spec or null if this is top-level spec
   ASpec? parent { private set }
 
+  ** Flavor for spec
+  SpecFlavor flavor
+
   ** Is this a library top level spec
-  Bool isTop() { parent == null }
+  Bool isTop() { flavor.isTop }
 
   ** Is this a top-level type
-  override Bool isType() { isTop && !name[0].isLower }
+  override Bool isType() { flavor.isType }
 
   ** Is this a top-level global slot
-  override Bool isGlobal() { isTop && name[0].isLower }
+  override Bool isGlobal() { flavor.isGlobal }
+
+  ** Is this a top-level meta spec
+  override Bool isMeta() { flavor.isMeta }
 
   ** Are we compiling sys itself
   override Bool isSys() { lib.isSys }
@@ -341,7 +355,7 @@ internal class ASpec : ANode, CSpec
     list := meta.get("ofs") as ADict
     if (list == null) return null
     acc := CSpec[,]
-    list.map.each |x| { acc.add(((ASpecRef)x).deref) }
+    list.each |x| { acc.add(((ASpecRef)x).deref) }
     return acc.ro
   }
 
@@ -366,7 +380,6 @@ internal class ASpec : ANode, CSpec
   override Bool isDict()      { hasFlag(MSpecFlags.dict) }
   override Bool isList()      { hasFlag(MSpecFlags.list) }
   override Bool isMaybe()     { hasFlag(MSpecFlags.maybe) }
-  override Bool isMeta()      { hasFlag(MSpecFlags.meta) }
   override Bool isQuery()     { hasFlag(MSpecFlags.query) }
   override Bool isFunc()      { hasFlag(MSpecFlags.func) }
   override Bool isInterface() { hasFlag(MSpecFlags.interface) }

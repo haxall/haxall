@@ -701,7 +701,7 @@ class NamespaceTest : AbstractXetoTest
 
   Spec verifyMeta(LibNamespace ns, Lib lib, Str name, Spec type)
   {
-    spec := lib.global(name)
+    spec := lib.metaSpec(name)
     verifySame(ns.spec("$lib.name::$name"), spec)
     verifySame(spec.lib, lib)
     verifyEq(spec.parent, null)

@@ -23,37 +23,37 @@ internal class ANamespace : CNamespace
 
   CSpec? globalMeta(Str name, FileLoc loc)
   {
-    doGlobal(globalMetas, name, true, loc)
+    doGlobal(globalMetas, name, SpecFlavor.meta, loc)
   }
 
   CSpec? globalSlot(Str name, FileLoc loc)
   {
-    doGlobal(globalSlots, name, false, loc)
+    doGlobal(globalSlots, name, SpecFlavor.global, loc)
   }
 
-  private CSpec? doGlobal(Str:Obj acc, Str name, Bool meta, FileLoc loc)
+  private CSpec? doGlobal(Str:Obj acc, Str name, SpecFlavor flavor, FileLoc loc)
   {
     g := acc[name]
     if (g != null) return g as CSpec
-    g = findGlobal(name, meta, loc)
+    g = findGlobal(name, flavor, loc)
     acc[name] = g ?: "not-found"
     return g as CSpec
   }
 
-  private CSpec? findGlobal(Str name, Bool meta, FileLoc loc)
+  private CSpec? findGlobal(Str name, SpecFlavor flavor, FileLoc loc)
   {
     // walk thru my lib and dependencies
     acc := CSpec[,]
 
-    // check my own lib (don't use flags, use meta AST directly)
+    // check my own lib
     mine := compiler.lib?.tops?.get(name)
-    if (mine != null && mine.isGlobal && mine.metaHas("meta") == meta) acc.add(mine)
+    if (mine != null && mine.flavor === flavor) acc.add(mine)
 
     // check my dependencies
     compiler.depends.libs.each |lib|
     {
-      g := lib.global(name, false) as CSpec
-      if (g != null && g.isMeta == meta) acc.add(g)
+      g := lib.spec(name, false)
+      if (g != null && g.flavor === flavor) acc.add((CSpec)g)
     }
 
     // no global slots by this name
@@ -63,7 +63,7 @@ internal class ANamespace : CNamespace
     if (acc.size == 1) return acc.first
 
     // duplicate global slots with this name
-    if (meta)
+    if (flavor.isMeta)
       compiler.err("Duplicate global metas: " + acc.join(", "), loc)
     else
       compiler.err("Duplicate global slots: " + acc.join(", "), loc)

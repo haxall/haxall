@@ -476,6 +476,10 @@ internal class Parser
       // add to map
       add("name", x.map, name, val)
 
+      // check for meta flavor
+      if (name == "meta" && x.isSpecMeta)
+        ((ASpec)x.metaParent).flavor = SpecFlavor.meta
+
       // check for comma or newline
       parseCommaOrNewline("Expecting end of dict tag", closeToken)
     }

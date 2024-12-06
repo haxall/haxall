@@ -387,7 +387,7 @@ internal class CheckErrors : Step
 
     if (spec.isList) checkList(x, slot)
 
-    x.map.each |v, n|
+    x.each |v, n|
     {
       checkData(v, spec.cslot(n, false))
       if (!x.isMeta) checkDictSlotAgainstGlobals(n, v)
@@ -425,7 +425,7 @@ internal class CheckErrors : Step
 
     // walk thru each item and check auto-name and optionally item type
     named := false
-    x.map.each |v, n|
+    x.each |v, n|
     {
       if (!XetoUtil.isAutoName(n)) named = true
       if (of != null && !v.ctype.cisa(of))

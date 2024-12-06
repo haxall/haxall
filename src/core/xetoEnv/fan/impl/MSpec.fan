@@ -247,7 +247,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override final SpecFlavor flavor() { m.flavor }
   override final Bool isType()       { flavor.isType }
   override final Bool isGlobal()     { flavor.isGlobal }
-override final Bool isMeta() { m.hasFlag(MSpecFlags.meta) }
+  override final Bool isMeta()       { flavor.isMeta }
   override final Bool isSlot()       { flavor.isSlot }
 
   override final Bool isNone()      { m.hasFlag(MSpecFlags.none) }
