@@ -38,6 +38,7 @@ internal class RSpec : CSpec, NameDictReader
   RSpecRef? typeIn
   NameDict? metaOwnIn
   NameDict? metaIn
+  Str[]? metaInheritedIn
   RSpec[]? slotsOwnIn
   RSpecRef[]? slotsInheritedIn
 

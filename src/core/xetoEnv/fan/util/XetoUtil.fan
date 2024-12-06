@@ -320,16 +320,7 @@ const class XetoUtil
 // Meta
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return if base is inherited
-  static Bool isMetaInherited(CSpec base, Str name)
-  {
-    // we need to make this use reflection at some point
-    if (name == "abstract") return false
-    if (name == "sealed") return false
-    if (name == "val") return !base.isEnum
-    return true
-  }
-
+  ** Merge in own meta with special handling for Remove
   static Void addOwnMeta(Str:Obj acc, Dict own)
   {
     if (own.isEmpty) return

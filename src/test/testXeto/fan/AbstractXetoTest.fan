@@ -51,9 +51,17 @@ class AbstractXetoTest : HaystackTest
     verifyEq(client.ns.isRemote, true)
     client.ns.libsAllAsync |e, x|
     {
-      if (e != null) throw e
-      verifyEq(x.size, server.ns.versions.size)
-      f(client.ns)
+      try
+      {
+        if (e != null) throw e
+        verifyEq(x.size, server.ns.versions.size)
+        f(client.ns)
+      }
+      catch (Err e2)
+      {
+        e2.trace
+        fail
+      }
     }
   }
 

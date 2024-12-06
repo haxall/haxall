@@ -143,6 +143,7 @@ class XetoBinaryWriter : XetoBinaryConst
     writeSpecRef(m.base)
     writeSpecRef(m.isType ? null : m.type)
     writeNameDict(m.metaOwn.wrapped)
+    writeInheritedMetaNames(x)
     writeOwnSlots(x)
     writeVarInt(m.flags)
     if (!x.isCompound && !x.isNone) write(XetoBinaryConst.specOwnOnly)
@@ -154,6 +155,16 @@ class XetoBinaryWriter : XetoBinaryConst
       writeNameDict(m.meta.wrapped)
       writeInheritedSlotRefs(x)
     }
+  }
+
+  private Void writeInheritedMetaNames(XetoSpec x)
+  {
+    own := x.metaOwn
+    x.meta.each |v, n|
+    {
+      if (own.missing(n)) writeStr(n)
+    }
+    writeStr("")
   }
 
   private Void writeOwnSlots(XetoSpec x)

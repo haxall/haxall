@@ -205,21 +205,21 @@ internal class RemoteLoader
     // if we included effective meta from compound types use it
     if (x.metaIn != null) return resolveMeta(x.metaIn)
 
-    // compute meta we inherit from base
-    baseSize := 0
-    acc := Str:Obj[:]
-    x.base.cmeta.each |v, n|
+    own     := x.metaOwn         // my own meta
+    base    := x.base.cmeta      // base spec meta
+    inherit := x.metaInheritedIn // names to inherit from base
+
+    // optimize when we can just reuse base
+    if (own.isEmpty)
     {
-      baseSize++
-      if (XetoUtil.isMetaInherited(x.base, n)) acc[n] = v
+      baseSize := 0
+      base.each |v| { baseSize++ }
+      if (baseSize == inherit.size) return base
     }
 
-    // if no meta of my own and I inherited all the meta
-    // from base, reuse the base.meta dict instance
-    own := x.metaOwn
-    if (acc.size == baseSize && own.isEmpty) return x.base.cmeta
-
-    // merge in my own meta
+    // create effective meta from inherited names from base and my own
+    acc := Str:Obj[:]
+    inherit.each |n| { acc[n] = base.trap(n) }
     XetoUtil.addOwnMeta(acc, own)
 
     return MNameDict(names.dictMap(acc))

@@ -155,17 +155,30 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Void readSpec(RemoteLoader loader, RSpec x)
   {
-    x.flavor     = SpecFlavor.vals[read]
-    x.baseIn     = readSpecRef
-    x.typeIn     = readSpecRef
-    x.metaOwnIn  = ((MNameDict)readMeta).wrapped
-    x.slotsOwnIn = readOwnSlots(loader, x)
-    x.flags      = readVarInt
+    x.flavor          = SpecFlavor.vals[read]
+    x.baseIn          = readSpecRef
+    x.typeIn          = readSpecRef
+    x.metaOwnIn       = ((MNameDict)readMeta).wrapped
+    x.metaInheritedIn = readInheritedMetaNames(loader, x)
+    x.slotsOwnIn      = readOwnSlots(loader, x)
+    x.flags           = readVarInt
     if (read == XetoBinaryConst.specInherited)
     {
       x.metaIn = ((MNameDict)readMeta).wrapped
       x.slotsInheritedIn = readInheritedSlotRefs
     }
+  }
+
+  private Str[] readInheritedMetaNames(RemoteLoader loader, RSpec x)
+  {
+    acc := Str[,]
+    while (true)
+    {
+      n := readVal.toStr
+      if (n.isEmpty) break
+      acc.add(n)
+    }
+    return acc
   }
 
   private RSpec[]? readOwnSlots(RemoteLoader loader, RSpec parent)

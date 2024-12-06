@@ -24,8 +24,6 @@ class MetaTest : AbstractXetoTest
 
   private Void doTestHxTestLib(LibNamespace ns)
   {
-if (ns.isRemote) return  // TODO
-
     lib := ns.lib("hx.test.xeto")
     q := lib.metaSpec("metaQ")
     r := lib.metaSpec("metaR")
@@ -50,7 +48,7 @@ if (ns.isRemote) return  // TODO
     keys := Etc.dictNames(x.meta)
     keys.remove("doc")
     keys.remove("val")
-    // echo(">> $x.qname $keys ?= $expect")
+    // echo("\n>> $x.qname $keys ?= $expect")
     verifyEq(keys.sort.join(","), expect.join(",") { it.name })
   }
 
