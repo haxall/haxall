@@ -139,6 +139,7 @@ class XetoBinaryWriter : XetoBinaryConst
   {
     m := x.m
     writeName(m.nameCode)
+    write(m.flavor.ordinal)
     writeSpecRef(m.base)
     writeSpecRef(m.isType ? null : m.type)
     writeNameDict(m.metaOwn.wrapped)

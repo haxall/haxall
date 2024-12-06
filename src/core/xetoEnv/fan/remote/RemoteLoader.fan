@@ -92,7 +92,7 @@ internal class RemoteLoader
   private SpecFactory assignFactory(RSpec x)
   {
     // check for custom factory if x is a type
-    if (x.isType)
+    if (x.flavor.isType)
     {
       custom := factories?.get(x.name)
       if (custom != null)
@@ -144,14 +144,18 @@ internal class RemoteLoader
     }
 
     MSpec? m
-    if (x.isType)
+    if (x.flavor.isType)
     {
       x.factoryRef = assignFactory(x)
       m = MType(loc, lib, qname(x), x.nameCode, x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, x.factory)
     }
-    else if (x.isGlobal)
+    else if (x.flavor.isGlobal)
     {
       m = MGlobal(loc, lib, qname(x), x.nameCode, x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+    }
+    else if (x.flavor.isMeta)
+    {
+      m = MMetaSpec(loc, lib, qname(x), x.nameCode, x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
     else
     {

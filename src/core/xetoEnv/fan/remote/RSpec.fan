@@ -22,8 +22,6 @@ internal class RSpec : CSpec, NameDictReader
     this.libName  = libName
     this.asm      = XetoSpec()
     this.parent   = parent
-    this.isType   = parent == null && !name[0].isLower
-    this.isGlobal = parent == null && name[0].isLower
     this.name     = name
     this.nameCode = nameCode
   }
@@ -33,11 +31,9 @@ internal class RSpec : CSpec, NameDictReader
   const override Str name
   const Int nameCode
   RSpec? parent { private set }
-  const override Bool isType
-  const override Bool isGlobal
-  const override Bool isMeta // TODO
 
   // decoded by XetoBinaryReader
+  override SpecFlavor flavor := SpecFlavor.slot
   RSpecRef? baseIn
   RSpecRef? typeIn
   NameDict? metaOwnIn

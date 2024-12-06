@@ -180,7 +180,7 @@ internal class CheckErrors : Step
 
   Void errCovariant(ASpec x, Str msg1, Str msg2)
   {
-    if (x.isSlot && x.base.isGlobal)
+    if (x.isSlot && x.base.flavor.isGlobal)
       err("Slot '$x.name' $msg1 global slot '$x.base.qname' $msg2", x.loc)
     else if (x.isSlot)
       err("Slot '$x.name' $msg1 inherited slot '$x.base.qname' $msg2", x.loc)

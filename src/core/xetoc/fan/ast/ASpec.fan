@@ -62,19 +62,19 @@ internal class ASpec : ANode, CSpec
   ASpec? parent { private set }
 
   ** Flavor for spec
-  SpecFlavor flavor
+  override SpecFlavor flavor
 
   ** Is this a library top level spec
   Bool isTop() { flavor.isTop }
 
-  ** Is this a top-level type
-  override Bool isType() { flavor.isType }
+  ** Is flavor type
+  Bool isType() { flavor.isType }
 
-  ** Is this a top-level global slot
-  override Bool isGlobal() { flavor.isGlobal }
+  ** Is flavor global
+  Bool isGlobal() { flavor.isGlobal }
 
-  ** Is this a top-level meta spec
-  override Bool isMeta() { flavor.isMeta }
+  ** Is flavor meta
+  Bool isMeta() { flavor.isMeta }
 
   ** Are we compiling sys itself
   override Bool isSys() { lib.isSys }

@@ -155,6 +155,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Void readSpec(RemoteLoader loader, RSpec x)
   {
+    x.flavor     = SpecFlavor.vals[read]
     x.baseIn     = readSpecRef
     x.typeIn     = readSpecRef
     x.metaOwnIn  = ((MNameDict)readMeta).wrapped

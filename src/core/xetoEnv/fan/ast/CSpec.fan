@@ -77,11 +77,8 @@ mixin CSpec : CNode
   ** Is this spec in the 'sys' library
   abstract Bool isSys()
 
-  ** Is this a top-level type spec
-  abstract Bool isType()
-
-  ** Is this a top-level global slot spec
-  abstract Bool isGlobal()
+  ** Flavor: type, global, meta, slot
+  abstract SpecFlavor flavor()
 
   ** Is this the sys::None spec
   abstract Bool isNone()
@@ -106,9 +103,6 @@ mixin CSpec : CNode
 
   ** Is maybe flag set
   abstract Bool isMaybe()
-
-  ** Is meta flag set
-  abstract Bool isMeta()
 
   ** Inherits from 'sys::Scalar' without considering And/Or
   abstract Bool isScalar()
