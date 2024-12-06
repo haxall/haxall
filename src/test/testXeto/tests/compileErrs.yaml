@@ -118,7 +118,7 @@ compileLib: |
   base: Str <meta>
   instances: Str <meta>
 verifyErrs: |
-  Duplicate global metas: temp::abstract, sys::abstract
+  Duplicate meta specs: temp::abstract, sys::abstract
   Reserved meta tag 'base'
   Reserved meta tag 'instances'
 ---
@@ -260,8 +260,8 @@ compileLib: |
   site: Str
   equip: Str <meta> // Ok
 verifyErrs: |
-  Duplicate global slots: temp::area, ph::area
-  Duplicate global slots: temp::site, ph::site
+  Duplicate global specs: temp::area, ph::area
+  Duplicate global specs: temp::site, ph::site
 ---
 name: "covariance"
 compileLib: |

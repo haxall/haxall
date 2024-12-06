@@ -79,11 +79,11 @@ internal abstract class InferData : Step
 
   private Void inferMetaSlot(ADict dict, Str name, AData val)
   {
-    // resolve to global meta
-    global := cns.globalMeta(name, val.loc)
+    // resolve to meta spec
+    metaSpec := cns.metaSpec(name, val.loc)
 
     // if not found then report error
-    if (global == null)
+    if (metaSpec == null)
     {
       // in my implementation these are ok and not formally defined
       if (name == "fantomPodName") return
@@ -101,7 +101,7 @@ internal abstract class InferData : Step
     if (val.typeRef != null) return
 
     // if meta tag is self, then use parent spec type
-    type := global.ctype
+    type := metaSpec.ctype
     if (type.isSelf)
     {
       parentSpec := dict.metaParent as ASpec
@@ -112,7 +112,7 @@ internal abstract class InferData : Step
     }
 
     // type the meta tag using global type
-    val.typeRef = inferDictSlotType(val.loc, global)
+    val.typeRef = inferDictSlotType(val.loc, metaSpec)
   }
 
   private Void inferDictSlots(ADict dict)

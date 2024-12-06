@@ -57,8 +57,12 @@ internal class CheckErrors : Step
     checkTopName(x)
     checkTypeInherit(x)
     checkSpec(x)
-    if (x.isGlobal)
+    if (x.isType)
+      checkType(x)
+    else if (x.isGlobal)
       checkGlobal(x)
+    else if (x.isMeta)
+      checkMetaSpec(x)
   }
 
   Void checkTopName(ASpec x)
@@ -263,16 +267,23 @@ internal class CheckErrors : Step
     checkDict(x.meta, null)
   }
 
+  Void checkType(ASpec x)
+  {
+  }
+
   Void checkGlobal(ASpec x)
   {
-    // calling ANamespace.globalXXX forces us to report duplicates
-    if (x.isMeta)
-      cns.globalMeta(x.name, x.loc)
-    else
-      cns.globalSlot(x.name, x.loc)
+    // calling ANamespace.global forces us to report duplicates
+    cns.global(x.name, x.loc)
+  }
+
+  Void checkMetaSpec(ASpec x)
+  {
+    // calling ANamespace.metaSpec forces us to report duplicates
+    cns.metaSpec(x.name, x.loc)
 
     // check reserved name
-    if (x.isMeta && XetoUtil.isReservedMetaName(x.name))
+    if (XetoUtil.isReservedMetaName(x.name))
       err("Reserved meta tag '$x.name'", x.loc)
   }
 
@@ -337,8 +348,8 @@ internal class CheckErrors : Step
     x.each |v, n|
     {
       if (n == "id") return
-      global := cns.globalMeta(n, v.loc)
-      if (global == null)
+      metaSpec := cns.metaSpec(n, v.loc)
+      if (metaSpec == null)
       {
         if (XetoUtil.isReservedSpecMetaName(n))
           err("Reserved xmeta tag '$n'", v.loc)
@@ -466,7 +477,7 @@ internal class CheckErrors : Step
     if (isSys) return
     if (XetoUtil.isAutoName(name)) return
 
-    global := cns.globalSlot(name, val.loc)
+    global := cns.global(name, val.loc)
     if (global == null) return
 
     valType := val.ctype

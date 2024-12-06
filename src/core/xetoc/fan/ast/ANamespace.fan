@@ -21,26 +21,26 @@ internal class ANamespace : CNamespace
     this.ns = step.ns
   }
 
-  CSpec? globalMeta(Str name, FileLoc loc)
+  CSpec? metaSpec(Str name, FileLoc loc)
   {
-    doGlobal(globalMetas, name, SpecFlavor.meta, loc)
+    top(metaSpecs, name, SpecFlavor.meta, loc)
   }
 
-  CSpec? globalSlot(Str name, FileLoc loc)
+  CSpec? global(Str name, FileLoc loc)
   {
-    doGlobal(globalSlots, name, SpecFlavor.global, loc)
+    top(globals, name, SpecFlavor.global, loc)
   }
 
-  private CSpec? doGlobal(Str:Obj acc, Str name, SpecFlavor flavor, FileLoc loc)
+  private CSpec? top(Str:Obj acc, Str name, SpecFlavor flavor, FileLoc loc)
   {
     g := acc[name]
     if (g != null) return g as CSpec
-    g = findGlobal(name, flavor, loc)
+    g = findTop(name, flavor, loc)
     acc[name] = g ?: "not-found"
     return g as CSpec
   }
 
-  private CSpec? findGlobal(Str name, SpecFlavor flavor, FileLoc loc)
+  private CSpec? findTop(Str name, SpecFlavor flavor, FileLoc loc)
   {
     // walk thru my lib and dependencies
     acc := CSpec[,]
@@ -63,10 +63,7 @@ internal class ANamespace : CNamespace
     if (acc.size == 1) return acc.first
 
     // duplicate global slots with this name
-    if (flavor.isMeta)
-      compiler.err("Duplicate global metas: " + acc.join(", "), loc)
-    else
-      compiler.err("Duplicate global slots: " + acc.join(", "), loc)
+    compiler.err("Duplicate $flavor specs: " + acc.join(", "), loc)
     return null
   }
 
@@ -88,7 +85,7 @@ internal class ANamespace : CNamespace
 
   const MNamespace? ns
   XetoCompiler compiler
-  Str:Obj globalMetas := [:]
-  Str:Obj globalSlots := [:]
+  Str:Obj metaSpecs := [:]
+  Str:Obj globals := [:]
 }
 

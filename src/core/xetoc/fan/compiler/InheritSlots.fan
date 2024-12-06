@@ -128,7 +128,7 @@ internal class InheritSlots : Step
     if (x.parent.isQuery) return null
 
      // check for global slot within dependencies
-     global := cns.globalSlot(x.name, x.loc)
+     global := cns.global(x.name, x.loc)
      if (global == null) return null
 
      return global
