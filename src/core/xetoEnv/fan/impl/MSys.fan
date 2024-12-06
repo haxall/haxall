@@ -24,6 +24,7 @@ const class MSys
     this.seq      = x.get("Seq")
     this.dict     = x.get("Dict")
     this.list     = x.get("List")
+    this.func     = x.get("Func")
     this.grid     = x.get("Grid")
     this.lib      = x.get("Lib")
     this.spec     = x.get("Spec")
@@ -49,8 +50,9 @@ const class MSys
   const XetoSpec none
   const XetoSpec self
   const XetoSpec seq
-  const XetoSpec list
   const XetoSpec dict
+  const XetoSpec list
+  const XetoSpec func
   const XetoSpec grid
   const XetoSpec lib
   const XetoSpec spec

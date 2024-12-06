@@ -61,26 +61,30 @@ internal abstract class Reify : Step
     isList := type.isList
     Obj? asm
     if (isList)
-      asm = reifyRawList(x, type)
-    else
-      asm = reifyRawDict(x, type)
-
-    // if there is a factory registered, then decode to another Fantom type
-    factory := type.factory
-    Obj? fantom
-    Err? err
-    try
-      fantom = isList ? factory.decodeList(asm, false) : factory.decodeDict(asm, false)
-    catch (Err e)
-      err = e
-
-    if (fantom != null)
     {
-      asm = fantom
+      asm = reifyRawList(x, type)
     }
     else
     {
-      this.err("Cannot instantiate '$type.qname' dict as Fantom class '$type.factory.type'", x.loc, err)
+      asm = reifyRawDict(x, type)
+
+      // if there is a factory registered, then decode to another Fantom type
+      factory := type.factory
+      Obj? fantom
+      Err? err
+      try
+        fantom = factory.decodeDict(asm, false)
+      catch (Err e)
+        err = e
+
+      if (fantom != null)
+      {
+        asm = fantom
+      }
+      else
+      {
+        this.err("Cannot instantiate '$type.qname' dict as Fantom class '$type.factory.type'", x.loc, err)
+      }
     }
 
     return x.asmRef = asm

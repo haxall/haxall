@@ -27,17 +27,11 @@ abstract const class SpecFactory
   ** Is this a dict (or component) factory that handles decodeDict
   abstract Bool isDict()
 
-  ** Is this a list factory that handles decodeList
-  abstract Bool isList()
-
   ** Is this an interface factory that is only for its type (no decoding)
   abstract Bool isInterface()
 
   ** Decode a Xeto dict of name/value pairs to a Fantom Dict instance
   abstract Dict decodeDict(Dict xeto, Bool checked := true)
-
-  ** Decode a Xeto list of objects to a Fantom wrapper instance
-  abstract Obj decodeList(Obj?[] xeto, Bool checked := true)
 
   ** Decode a scalar Xeto string to a Fantom instance
   abstract Obj? decodeScalar(Str xeto, Bool checked := true)
@@ -78,14 +72,7 @@ abstract const class DictSpecFactory : SpecFactory
 
   override Bool isDict() { true }
 
-  override Bool isList() { false }
-
   override Bool isInterface() { false }
-
-  override final Obj decodeList(Obj?[] xeto, Bool checked := true)
-  {
-    throw UnsupportedErr("Dict cannot decode to list")
-  }
 
   override final Obj? decodeScalar(Str xeto, Bool checked := true)
   {
@@ -127,8 +114,6 @@ abstract const class ListSpecFactory : SpecFactory
 
   override Bool isDict() { false }
 
-  override Bool isList() { true }
-
   override Bool isInterface() { false }
 
   override final Dict decodeDict(Dict xeto, Bool checked := true)
@@ -164,18 +149,11 @@ const class ScalarSpecFactory : SpecFactory
 
   override Bool isDict() { false }
 
-  override Bool isList() { false }
-
   override Bool isInterface() { false }
 
   override final Dict decodeDict(Dict xeto, Bool checked := true)
   {
     throw UnsupportedErr("Scalar cannot decode to dict")
-  }
-
-  override final Obj decodeList(Obj?[] xeto, Bool checked := true)
-  {
-    throw UnsupportedErr("Scalar cannot decode to list")
   }
 
   override Obj? decodeScalar(Str xeto, Bool checked := true)
@@ -208,18 +186,11 @@ const class InterfaceSpecFactory : SpecFactory
 
   override Bool isDict() { false }
 
-  override Bool isList() { false }
-
   override Bool isInterface() { true }
 
   override Dict decodeDict(Dict xeto, Bool checked := true)
   {
     throw UnsupportedErr("Interface cannot decode to dict")
-  }
-
-  override final Obj decodeList(Obj?[] xeto, Bool checked := true)
-  {
-    throw UnsupportedErr("Interface cannot decode to list")
   }
 
   override Obj? decodeScalar(Str xeto, Bool checked := true)

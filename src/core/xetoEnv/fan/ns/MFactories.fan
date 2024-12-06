@@ -153,7 +153,6 @@ internal const class SysFactoryLoader : SpecFactoryLoader
       "Ref":      RefFactory(hay.type("Ref")),
       "Span":     SpanFactory(hay.type("Span")),
       "SpanMode": SpanModeFactory(hay.type("SpanMode")),
-      "List":     ListFactory(),
       "Dict":     DictFactory(),
     ]
   }
@@ -241,10 +240,8 @@ internal const class ObjFactory : SpecFactory
   const override Type type
   override Bool isScalar() { false }
   override Bool isDict() { false }
-  override Bool isList() { false }
   override Bool isInterface() { false }
   override Dict decodeDict(Dict xeto, Bool checked := true) { throw UnsupportedErr("Obj") }
-  override Obj decodeList(Obj?[] xeto, Bool checked := true) { throw UnsupportedErr("Obj") }
   override Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr("Obj")  }
   override Str encodeScalar(Obj val) { throw UnsupportedErr("Obj") }
 }
@@ -263,14 +260,6 @@ const class ImplDictFactory : DictSpecFactory
   new make(Type type) : super(type) { impl = type.pod.type("M" + type.name) }
   const Type impl
   override Dict decodeDict(Dict xeto, Bool checked := true) { impl.make([xeto]) }
-}
-
-@Js
-internal const class ListFactory : ListSpecFactory
-{
-  new make() : super(List#) {}
-  new makeWith(Type type) : super.make(type) {}
-  override Obj decodeList(Obj?[] xeto, Bool checked := true) { xeto }
 }
 
 @Js
