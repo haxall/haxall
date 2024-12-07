@@ -299,39 +299,10 @@ internal const class TestBindingLoader : SpecBindingLoader
   }
 }
 
-**************************************************************************
-** XetoFactoryLoader
-**************************************************************************
-
-@Js
-internal const class XetoFactoryLoader: SpecFactoryLoader
-{
-  override Str:SpecFactory load(Str libName, Str[] specNames)
-  {
-    if (libName != "hx.test.xeto") throw Err(libName)
-    pod := typeof.pod
-    acc := Str:SpecFactory[:]
-    //acc["IFoo"]        = InterfaceSpecFactory(IFoo#)
-    acc["TestAdd"]     = CompSpecFactory(TestAdd#)
-    acc["TestCounter"] = CompSpecFactory(TestCounter#)
-    acc["TestFoo"]     = CompSpecFactory(TestFoo#)
-    acc["TestVal"]     = TestValSpecFactory(TestVal#)
-    return acc
-  }
-}
-
 @Js
 internal const class TestValBinding : DictBinding
 {
   new make(Str spec, Type type) : super(spec, type) {}
   override Dict decodeDict(Dict xeto) { TestVal(xeto) }
-}
-
-
-@Js
-internal const class TestValSpecFactory : DictSpecFactory
-{
-  new make(Type type) : super(type) {}
-  override Dict decodeDict(Dict xeto, Bool checked := true) { TestVal(xeto) }
 }
 

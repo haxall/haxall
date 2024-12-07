@@ -85,9 +85,6 @@ internal abstract class InferData : Step
     // if not found then report error
     if (metaSpec == null)
     {
-      // in my implementation these are ok and not formally defined
-      if (name == "fantomPodName") return
-
       // if this is reserved slot, then we will flag in CheckErrors
       if (dict.isSpecMeta && XetoUtil.isReservedSpecMetaName(name)) return
       if (dict.isLibMeta && XetoUtil.isReservedLibMetaName(name)) return

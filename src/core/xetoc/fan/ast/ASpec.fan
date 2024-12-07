@@ -277,10 +277,6 @@ internal class ASpec : ANode, CSpec
     return null
   }
 
-  ** Factory for spec type (set in LoadFactories)
-  SpecFactory factory() { factoryRef ?: throw NotReadyErr(qname) }
-  SpecFactory? factoryRef
-
   ** Binding (set in LoadBindings)
   override SpecBinding binding() { bindingRef ?: throw NotReadyErr(qname) }
   SpecBinding? bindingRef

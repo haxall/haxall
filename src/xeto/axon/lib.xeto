@@ -17,6 +17,5 @@ pragma: Lib <
    dis: "Haxall"
    uri: "https://haxall.io/"
   }
-  fantomPodName: "axon"
 >
 
