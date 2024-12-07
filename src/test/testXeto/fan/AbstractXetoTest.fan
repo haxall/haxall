@@ -289,6 +289,26 @@ const class TestClient : RemoteLibLoader
 **************************************************************************
 
 @Js
+internal const class TestBindingLoader : SpecBindingLoader
+{
+  override Void load(SpecBindings acc, Str libName, CSpec[] specs)
+  {
+    acc.add(TestValBinding("$libName::TestVal", TestVal#))
+
+    /*
+    //acc["IFoo"]        = InterfaceSpecFactory(IFoo#)
+    acc["TestAdd"]     = CompSpecFactory(TestAdd#)
+    acc["TestCounter"] = CompSpecFactory(TestCounter#)
+    acc["TestFoo"]     = CompSpecFactory(TestFoo#)
+    */
+  }
+}
+
+**************************************************************************
+** XetoFactoryLoader
+**************************************************************************
+
+@Js
 internal const class XetoFactoryLoader: SpecFactoryLoader
 {
   override Str:SpecFactory load(Str libName, Str[] specNames)
@@ -304,6 +324,14 @@ internal const class XetoFactoryLoader: SpecFactoryLoader
     return acc
   }
 }
+
+@Js
+internal const class TestValBinding : DictBinding
+{
+  new make(Str spec, Type type) : super(spec, type) {}
+  override Dict decodeDict(Dict xeto) { TestVal(xeto) }
+}
+
 
 @Js
 internal const class TestValSpecFactory : DictSpecFactory

@@ -21,66 +21,174 @@ using haystack::SpanMode
 using haystack::Symbol
 
 **
-** Bindings initialization
+** Registry of mapping between Xeto specs and Fantom types for the VM
 **
 @Js
-class BindingsInit
+const class SpecBindings
 {
-  static Void init(SpecBindings acc)
+  ** Current bindings for the VM
+  static SpecBindings cur()
+  {
+    cur := curRef.val as SpecBindings
+    if (cur != null) return cur
+    curRef.compareAndSet(null, make)
+    return curRef.val
+  }
+  private static const AtomicRef curRef := AtomicRef()
+
+  ** Constructor
+  new make()
+  {
+    initLoaders
+    initBindings
+  }
+
+  ** Build registry of lib name to loader type:
+  **
+  **   index = ["xeto.bindings": "libName loaderType"]
+  **
+  ** Loader type is qname of SpecBindingLoader or we support
+  ** the special key "ion" for IonBindingLoader
+  private Void initLoaders()
+  {
+    Env.cur.index("xeto.bindings").each |str|
+    {
+      try
+      {
+        toks := str.split
+        libName := toks[0]
+        loaderType := toks[1]
+        loaders.set(libName, loaderType)
+      }
+      catch (Err e) echo("ERR: Cannot init BindingLoader: $str\n  $e")
+    }
+  }
+
+  ** Setup the builtin bindings for sys, sys.comp, and ph
+  private Void initBindings()
   {
     sys  := Pod.find("sys")
     xeto := Pod.find("xeto")
     hay  := Pod.find("haystack")
 
     // sys pod
-    add(acc, ObjBinding       (sys.type("Obj")))
-    add(acc, BoolBinding      (sys.type("Bool")))
-    add(acc, BufBinding       (sys.type("Buf")))
-    add(acc, FloatBinding     (sys.type("Float")))
-    add(acc, DateBinding      (sys.type("Date")))
-    add(acc, DateTimeBinding  (sys.type("DateTime")))
-    add(acc, DurationBinding  (sys.type("Duration")))
-    add(acc, IntBinding       (sys.type("Int")))
-    add(acc, StrBinding       (sys.type("Str")))
-    add(acc, TimeBinding      (sys.type("Time")))
-    add(acc, TimeZoneBinding  (sys.type("TimeZone")))
-    add(acc, UnitBinding      (sys.type("Unit")))
-    add(acc, UriBinding       (sys.type("Uri")))
-    add(acc, VersionBinding   (sys.type("Version")))
+    add(ObjBinding       (sys.type("Obj")))
+    add(BoolBinding      (sys.type("Bool")))
+    add(BufBinding       (sys.type("Buf")))
+    add(FloatBinding     (sys.type("Float")))
+    add(DateBinding      (sys.type("Date")))
+    add(DateTimeBinding  (sys.type("DateTime")))
+    add(DurationBinding  (sys.type("Duration")))
+    add(IntBinding       (sys.type("Int")))
+    add(StrBinding       (sys.type("Str")))
+    add(TimeBinding      (sys.type("Time")))
+    add(TimeZoneBinding  (sys.type("TimeZone")))
+    add(UnitBinding      (sys.type("Unit")))
+    add(UriBinding       (sys.type("Uri")))
+    add(VersionBinding   (sys.type("Version")))
 
     // xeto pod
-    add(acc, CompLayoutBinding         (xeto.type("CompLayout")))
-    add(acc, LibDependBinding          (xeto.type("LibDepend")))
-    add(acc, LibDependVersionsBinding  (xeto.type("LibDependVersions")))
-    add(acc, LinkBinding               (xeto.type("Link")))
-    add(acc, LinksBinding              (xeto.type("Links")))
-    add(acc, SpecDictBinding           (xeto.type("Spec")))
-    add(acc, UnitQuantityBinding       (xeto.type("UnitQuantity")))
+    add(CompLayoutBinding         (xeto.type("CompLayout")))
+    add(LibDependBinding          (xeto.type("LibDepend")))
+    add(LibDependVersionsBinding  (xeto.type("LibDependVersions")))
+    add(LinkBinding               (xeto.type("Link")))
+    add(LinksBinding              (xeto.type("Links")))
+    add(SpecDictBinding           (xeto.type("Spec")))
+    add(UnitQuantityBinding       (xeto.type("UnitQuantity")))
 
     // haystack pod
-    add(acc, CoordBinding     (hay.type("Coord")))
-    add(acc, FilterBinding    (hay.type("Filter")))
-    add(acc, MarkerBinding    (hay.type("Marker")))
-    add(acc, NoneBinding      (hay.type("Remove")))
-    add(acc, NABinding        (hay.type("NA")))
-    add(acc, NumberBinding    (hay.type("Number")))
-    add(acc, RefBinding       (hay.type("Ref")))
-    add(acc, SpanBinding      (hay.type("Span")))
-    add(acc, SpanModeBinding  (hay.type("SpanMode")))
-    add(acc, SymbolBinding    (hay.type("Symbol")))
+    add(CoordBinding     (hay.type("Coord")))
+    add(FilterBinding    (hay.type("Filter")))
+    add(MarkerBinding    (hay.type("Marker")))
+    add(NoneBinding      (hay.type("Remove")))
+    add(NABinding        (hay.type("NA")))
+    add(NumberBinding    (hay.type("Number")))
+    add(RefBinding       (hay.type("Ref")))
+    add(SpanBinding      (hay.type("Span")))
+    add(SpanModeBinding  (hay.type("SpanMode")))
+    add(SymbolBinding    (hay.type("Symbol")))
 
     // dict fallback
-    add(acc, DictBinding("sys::Dict", hay.type("Dict")))
+    add(dict)
   }
 
-  static Void add(SpecBindings acc, SpecBinding b)
+  ** Dict fallback
+  const DictBinding dict := DictBinding("sys::Dict")
+
+  ** List all bindings installed
+  SpecBinding[] list()
   {
-    acc.add(b)
+    specMap.vals(SpecBinding#)
   }
+
+  ** Lookup a binding for a spec qname
+  SpecBinding? forSpec(Str qname)
+  {
+    specMap.get(qname)
+  }
+
+  ** Lookup a binding for a type
+  SpecBinding? forType(Type type)
+  {
+    typeMap.get(type.qname)
+  }
+
+  ** Add new spec binding
+  Void add(SpecBinding b)
+  {
+    specMap.getOrAdd(b.spec, b)
+    typeMap.getOrAdd(b.type.qname, b)
+  }
+
+  ** Return if we need to call load for given library name
+  Bool needsLoad(Str libName, Version version)
+  {
+    loaders.containsKey(libName) && !loaded.containsKey(loadKey(libName, version))
+  }
+
+  ** Load bindings for given library
+  Void load(Str libName, Version version, CSpec[] specs)
+  {
+    // check if we have a loader
+    loaderType := loaders.get(libName)
+    if (loaderType == null) return
+
+    // mark this lib/version so we don't load it again
+    loadKey := loadKey(libName, version)
+    loaded.set(loadKey, loadKey)
+
+    // instantiate it
+    loader := (SpecBindingLoader)Type.find(loaderType).make
+
+    // delegate to loader
+    loader.load(this, libName, specs)
+  }
+
+  ** Load key to ensure we only load bindings per lib/version once
+  private Str loadKey(Str libName, Version version)
+  {
+    "$libName $version"
+  }
+
+  private const ConcurrentMap loaders := ConcurrentMap() // libName -> loader qname
+  private const ConcurrentMap loaded  := ConcurrentMap() // "$libName $version"
+  private const ConcurrentMap specMap := ConcurrentMap() // qname -> qname
+  private const ConcurrentMap typeMap := ConcurrentMap() // qname -> Type
 }
 
 **************************************************************************
-** Special Bindings
+** SpecBindingLoader
+**************************************************************************
+
+@Js
+abstract const class SpecBindingLoader
+{
+  ** Add Xeto to Fantom bindings for the given library
+  abstract Void load(SpecBindings acc, Str libName, CSpec[] specs)
+}
+
+**************************************************************************
+** Base and Special Bindings
 **************************************************************************
 
 @Js
@@ -94,6 +202,35 @@ internal const class ObjBinding : SpecBinding
   override Dict decodeDict(Dict xeto) { throw UnsupportedErr("Obj") }
   override Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr("Obj")  }
   override Str encodeScalar(Obj val) { throw UnsupportedErr("Obj") }
+}
+
+@Js
+const class DictBinding : SpecBinding
+{
+  new make(Str spec, Type type := Dict#) { this.spec = spec; this.type = type }
+  const override Str spec
+  const override Type type
+  override Bool isScalar() { false }
+  override Bool isDict() { true }
+  override Dict decodeDict(Dict xeto) { xeto }
+  override final Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr(spec) }
+  override final Str encodeScalar(Obj val) { throw UnsupportedErr(spec) }
+}
+
+@Js
+const class ScalarBinding : SpecBinding
+{
+  new make(Str spec, Type type) { this.spec = spec; this.type = type }
+  const override Str spec
+  const override Type type
+  override Bool isScalar() { true }
+  override Bool isDict() { false }
+  override final Dict decodeDict(Dict xeto)  { throw UnsupportedErr(spec) }
+  override Obj? decodeScalar(Str xeto, Bool checked := true)
+  {
+    type.method("fromStr", checked)?.call(xeto, checked)
+  }
+  override Str encodeScalar(Obj val) { val.toStr }
 }
 
 @Js
@@ -129,7 +266,6 @@ const class GenericScalarBinding : ScalarBinding
   new make(Str spec) : super(spec, Scalar#) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { Scalar(spec, str) }
 }
-
 
 **************************************************************************
 ** Scalar Bindings
