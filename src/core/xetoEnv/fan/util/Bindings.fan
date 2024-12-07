@@ -215,6 +215,39 @@ const class SpecBindingLoader
 
   ** Add Xeto to Fantom bindings for the spec if applicable
   virtual Void loadSpec(SpecBindings acc, CSpec spec) {}
+
+  ** Default behavior for loading spec via pod reflection
+  Bool loadSpecReflect(SpecBindings acc, Pod pod, CSpec spec)
+  {
+    // lookup Fantom type with same name
+    type := pod.type(spec.name, false)
+    if (type == null) return false
+
+    // clone CompBindings with this spec/type
+    compBase := spec.cbase.binding as CompBinding
+    if (compBase != null)
+    {
+      acc.add(compBase.clone(spec.qname, type))
+      return true
+    }
+
+    // assume Dict mixins are MDictImpl
+    if (type.fits(Dict#))
+    {
+      acc.add(ImplDictBinding(spec.qname,type))
+      return true
+    }
+
+    // enums are scalars
+    if (type.fits(Enum#))
+    {
+      acc.add(ScalarBinding(spec.qname, type))
+      return true
+    }
+
+    // no joy
+    return false
+  }
 }
 
 **************************************************************************
@@ -230,19 +263,7 @@ const class PodBindingLoader : SpecBindingLoader
 
   override Void loadSpec(SpecBindings acc, CSpec spec)
   {
-    // lookup Fantom type with same name
-    type := pod.type(spec.name, false)
-    if (type == null) return
-
-    // clone CompBindings with this spec/type
-    compBase := spec.cbase.binding as CompBinding
-    if (compBase != null) return acc.add(compBase.clone(spec.qname, type))
-
-    // assume Dict mixins are MDictImpl
-    if (type.fits(Dict#)) return acc.add(ImplDictBinding(spec.qname,type))
-
-    // enums are scalars
-    if (type.fits(Enum#)) return acc.add(ScalarBinding(spec.qname, type))
+    loadSpecReflect(acc, pod, spec)
   }
 }
 
