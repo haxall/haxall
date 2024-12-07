@@ -278,11 +278,11 @@ internal class ASpec : ANode, CSpec
   }
 
   ** Factory for spec type (set in LoadFactories)
-  override SpecFactory factory() { factoryRef ?: throw NotReadyErr(qname) }
+  SpecFactory factory() { factoryRef ?: throw NotReadyErr(qname) }
   SpecFactory? factoryRef
 
   ** Binding (set in LoadBindings)
-  SpecBinding binding() { bindingRef ?: throw NotReadyErr(qname) }
+  override SpecBinding binding() { bindingRef ?: throw NotReadyErr(qname) }
   SpecBinding? bindingRef
 
   ** Declared meta (set in Reify)

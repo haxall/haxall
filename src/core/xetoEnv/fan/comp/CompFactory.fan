@@ -242,8 +242,8 @@ internal class CompFactory
     v = v.map |kid| { reify(null, kid) }
 
     // decode to fantom type
-    if (spec != null && spec.factory.isDict)
-      return spec.factory.decodeDict(v)
+    if (spec != null && spec.binding.isDict)
+      return spec.binding.decodeDict(v)
 
     return v
   }

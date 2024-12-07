@@ -31,6 +31,7 @@ class FactoryTest : AbstractXetoTest
     verifyScalarBinding("sys::Float", Float#, 123f)
     verifyScalarBinding("sys::Number", Number#, n(123, "kW"))
     verifyScalarBinding("sys::Unit", Unit#, Unit("kW"))
+    verifyScalarBinding("sys::Marker", Marker#, Marker.val)
   }
 
   Void verifyScalarBinding(Str spec, Type type, Obj v)
@@ -133,10 +134,10 @@ class FactoryTest : AbstractXetoTest
     ns := createNamespace(["hx.test.xeto"])
 
     spec := ns.spec("hx.test.xeto::ScalarA")
-    factory := (GenericScalarFactory)spec.factory
-    verifyEq(factory.type, Scalar#)
-    verifyEq(factory.isScalar, true)
-    verifyEq(factory.qname, "hx.test.xeto::ScalarA")
+    binding := (GenericScalarBinding)spec.binding
+    verifyEq(binding.type, Scalar#)
+    verifyEq(binding.isScalar, true)
+    verifyEq(binding.spec, "hx.test.xeto::ScalarA")
 
     dict := ns.instance("hx.test.xeto::scalars")
     // dict.each |v, n|{ echo("$n = $v [$v.typeof]") }
@@ -159,10 +160,10 @@ class FactoryTest : AbstractXetoTest
   Void verifyScalar(LibNamespace ns, Str qname, Obj val, Type? type := val.typeof)
   {
     spec := ns.spec(qname)
-    // echo("\n---> $spec | $spec.factory | $spec.fantomType")
-    verifySame(spec.factory.type, type)
-    s := spec.factory.encodeScalar(val)
-    v := spec.factory.decodeScalar(s)
+    // echo("\n---> $spec | $spec.binding | $spec.fantomType")
+    verifySame(spec.binding.type, type)
+    s := spec.binding.encodeScalar(val)
+    v := spec.binding.decodeScalar(s)
     // echo("::: $type <=> $spec | $v")
     verifyValEq(v, val)
     verifySame(ns.specOf(v), spec)

@@ -23,7 +23,6 @@ abstract const class MNamespace : LibNamespace, CNamespace
   new make(MNamespace? base, NameTable names, LibVersion[] versions, |This->XetoLib|? loadSys)
   {
     this.base = base
-    this.factories = base?.factories ?: MFactories()
     if (base != null)
     {
       // must reuse same name table
@@ -491,11 +490,12 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
     // look in Fantom class hiearchy
     type := val as Type ?: val.typeof
+    bindings := SpecBindings.cur
     for (Type? p := type; p.base != null; p = p.base)
     {
-      spec := factories.typeToSpec(this, p)
+      spec := bindings.forTypeToSpec(this, p)
       if (spec != null) return spec
-      spec = p.mixins.eachWhile |m| { factories.typeToSpec(this, m) }
+      spec = p.mixins.eachWhile |m| { bindings.forTypeToSpec(this, m) }
       if (spec != null) return spec
     }
 
@@ -618,7 +618,6 @@ abstract const class MNamespace : LibNamespace, CNamespace
 //////////////////////////////////////////////////////////////////////////
 
   const MSys sys
-  const MFactories factories
   internal const MLibEntry[] entriesList  // orderd by depends
   private const Str:MLibEntry entriesMap
   private const AtomicRef libsRef := AtomicRef()

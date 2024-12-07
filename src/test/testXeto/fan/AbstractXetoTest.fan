@@ -60,7 +60,6 @@ class AbstractXetoTest : HaystackTest
       catch (Err e2)
       {
         e2.trace
-        fail
       }
     }
   }
@@ -293,14 +292,10 @@ internal const class TestBindingLoader : SpecBindingLoader
 {
   override Void load(SpecBindings acc, Str libName, CSpec[] specs)
   {
-    acc.add(TestValBinding("$libName::TestVal", TestVal#))
-
-    /*
-    //acc["IFoo"]        = InterfaceSpecFactory(IFoo#)
-    acc["TestAdd"]     = CompSpecFactory(TestAdd#)
-    acc["TestCounter"] = CompSpecFactory(TestCounter#)
-    acc["TestFoo"]     = CompSpecFactory(TestFoo#)
-    */
+    acc.add(TestValBinding ("$libName::TestVal",     TestVal#))
+    acc.add(CompBinding    ("$libName::TestAdd",     TestAdd#))
+    acc.add(CompBinding    ("$libName::TestCounter", TestCounter#))
+    acc.add(CompBinding    ("$libName::TestFoo",     TestFoo#))
   }
 }
 

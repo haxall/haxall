@@ -505,8 +505,8 @@ const class XetoUtil
     }
 
     dict := Etc.dictFromMap(acc)
-    if (spec.factory.isDict)
-      dict = spec.factory.decodeDict(dict)
+    if (spec.binding.isDict)
+      dict = spec.binding.decodeDict(dict)
 
     if (opts.has("graph"))
       return instantiateGraph(ns, spec, opts, dict)

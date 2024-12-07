@@ -69,7 +69,7 @@ const class MSpec
 
   override Str toStr() { qname }
 
-  virtual SpecFactory factory() { type.factory }
+  virtual SpecBinding binding() { type.binding }
 
   virtual MEnum enum() { throw UnsupportedErr("Spec is not enum: $qname") }
 
@@ -161,7 +161,7 @@ const class MSpec
 
   const Int flags
 
-  Type fantomType() { factory.type }
+  Type fantomType() { binding.type }
 }
 
 **************************************************************************
@@ -214,7 +214,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final FileLoc loc() { m.loc }
 
-  override final SpecFactory factory() { m.factory }
+  override final SpecBinding binding() { m.binding }
 
   override final Bool isEmpty() { false }
 

@@ -50,7 +50,7 @@ internal class RSpec : CSpec, NameDictReader
   MNameDict? meta
   MSlots? slotsOwn
   MSlots? slots
-  SpecFactory? factoryRef
+  SpecBinding? bindingRef
 
   override Bool hasSlots() { !slots.isEmpty }
 
@@ -62,7 +62,7 @@ internal class RSpec : CSpec, NameDictReader
     return libName + "::" + name
   }
   override haystack::Ref id() { throw UnsupportedErr() }
-  override SpecFactory factory() { factoryRef ?: throw Err("Factory not assigned") }
+  override SpecBinding binding() { bindingRef ?: throw Err("Binding not assigned") }
   override CSpec ctype() { type }
   override CSpec? cbase
   override CSpec? cparent() { parent }

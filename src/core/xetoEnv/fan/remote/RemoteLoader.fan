@@ -30,6 +30,7 @@ internal class RemoteLoader
     this.libName     = names.toName(libNameCode)
     this.libNameCode = libNameCode
     this.libMeta     = libMeta
+    this.libVersion  = libMeta->version
     this.flags       = flags
   }
 
@@ -39,13 +40,12 @@ internal class RemoteLoader
 
   XetoLib loadLib()
   {
-    loadFactories
+    loadBindings
 
-    version   := libMeta->version
-    depends   := libMeta["depends"] ?: MLibDepend#.emptyList
-    tops      := loadTops
+    depends := libMeta["depends"] ?: MLibDepend#.emptyList
+    tops    := loadTops
 
-    m := MLib(loc, libNameCode, libName, libMeta, flags, version, depends, tops, instances, UnsupportedLibFiles.val)
+    m := MLib(loc, libNameCode, libName, libMeta, flags, libVersion, depends, tops, instances, UnsupportedLibFiles.val)
     XetoLib#m->setConst(lib, m)
     return lib
   }
@@ -76,35 +76,27 @@ internal class RemoteLoader
 // Factories
 //////////////////////////////////////////////////////////////////////////
 
-  private Void loadFactories()
+  private Void loadBindings()
   {
     // check if this library registers a new factory loader
-    ns.factories.install(libName, libMeta)
-
-    // find a loader for our library
-    loader := ns.factories.loader(libName)
-    if (loader == null) return
-
-    // if we have a loader, give it my type names to map to factories
-    factories = loader.load(libName, tops.keys)
+    libVersion := libMeta->version
+    if (bindings.needsLoad(libName, libVersion))
+    {
+      types := CSpec[,]
+      tops.each |x| { if (x.flavor.isType) types.add(x) }
+      bindings.load(libName, libVersion, types)
+    }
   }
 
-  private SpecFactory assignFactory(RSpec x)
+  private SpecBinding assignBinding(RSpec x)
   {
     // check for custom factory if x is a type
-    if (x.flavor.isType)
-    {
-      custom := factories?.get(x.name)
-      if (custom != null)
-      {
-        ns.factories.map(custom.type, x.qname)
-        return custom
-      }
-    }
+    b := bindings.forSpec(x.qname)
+    if (b != null) return b
 
     // fallback to dict/scalar factory
     isScalar := MSpecFlags.scalar.and(x.flags) != 0
-    return isScalar ? GenericScalarFactory(x.qname) : ns.factories.dict
+    return isScalar ? GenericScalarBinding(x.qname) : bindings.dict
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -146,8 +138,8 @@ internal class RemoteLoader
     MSpec? m
     if (x.flavor.isType)
     {
-      x.factoryRef = assignFactory(x)
-      m = MType(loc, lib, qname(x), x.nameCode, x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, x.factory)
+      x.bindingRef = assignBinding(x)
+      m = MType(loc, lib, qname(x), x.nameCode, x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, x.binding)
     }
     else if (x.flavor.isGlobal)
     {
@@ -324,12 +316,12 @@ internal class RemoteLoader
     if (val == null || val isnot Str) return
 
     // skip if already mapped as Fantom string
-    if (spec.factory.type === Str#) return
+    if (spec.binding.type === Str#) return
 
     try
     {
       // decode string to its scalar fantom instance
-      val = spec.factory.decodeScalar(val.toStr, true)
+      val = spec.binding.decodeScalar(val.toStr, true)
 
       // use setConst to update the const meta/metaOwn fields
       mspec := spec.m
@@ -409,9 +401,10 @@ internal class RemoteLoader
   const Str libName
   const Int libNameCode
   const MNameDict libMeta
+  const Version libVersion
+  const SpecBindings bindings := SpecBindings.cur
   const Int flags
   private Str:RSpec tops := [:]              // addTops
   private Str:Dict instances := [:]          // addInstance (unreified)
-  private [Str:SpecFactory]? factories       // loadFactories
 }
 

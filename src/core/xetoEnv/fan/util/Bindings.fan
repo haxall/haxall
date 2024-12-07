@@ -51,6 +51,8 @@ const class SpecBindings
   ** the special key "ion" for IonBindingLoader
   private Void initLoaders()
   {
+try
+{
     Env.cur.index("xeto.bindings").each |str|
     {
       try
@@ -62,6 +64,11 @@ const class SpecBindings
       }
       catch (Err e) echo("ERR: Cannot init BindingLoader: $str\n  $e")
     }
+}
+catch (Err e)
+{
+  echo("WARN: Cannot read Env.cur.index: $e")
+}
   }
 
   ** Setup the builtin bindings for sys, sys.comp, and ph
@@ -108,7 +115,8 @@ const class SpecBindings
     add(SpanModeBinding  (hay.type("SpanMode")))
     add(SymbolBinding    (hay.type("Symbol")))
 
-    // dict fallback
+    // fallbacks
+    add(CompBinding("sys.comp::Comp", xeto.type("Comp")))
     add(dict)
   }
 
@@ -131,6 +139,14 @@ const class SpecBindings
   SpecBinding? forType(Type type)
   {
     typeMap.get(type.qname)
+  }
+
+  ** Lookup a binding for a type and if found attempt to resolve to spec
+  Spec? forTypeToSpec(LibNamespace ns, Type type)
+  {
+    binding := forType(type)
+    if (binding == null) return null
+    return ns.spec(binding.spec, false)
   }
 
   ** Add new spec binding
@@ -231,6 +247,12 @@ const class ScalarBinding : SpecBinding
     type.method("fromStr", checked)?.call(xeto, checked)
   }
   override Str encodeScalar(Obj val) { val.toStr }
+}
+
+@Js
+const class CompBinding : DictBinding
+{
+  new make(Str spec, Type type) : super(spec, type) {}
 }
 
 @Js
@@ -350,7 +372,7 @@ internal const class IntBinding : ScalarBinding
 @Js
 internal const class LibDependVersionsBinding : ScalarBinding
 {
-  new make(Type type) : super("sys::LibDependVersion", type) {}
+  new make(Type type) : super("sys::LibDependVersions", type) {}
   override Obj? decodeScalar(Str str, Bool checked := true) { LibDependVersions.fromStr(str, checked) }
 }
 
@@ -363,7 +385,7 @@ internal const class MarkerBinding : SingletonBinding
 @Js
 internal const class NABinding : SingletonBinding
 {
-  new make(Type type) : super("sys::NA", type, NA.val) {}
+  new make(Type type) : super("sys::NA", type, NA.val, "na") {}
 }
 
 @Js
@@ -411,7 +433,7 @@ internal const class StrBinding : ScalarBinding
 internal const class SymbolBinding : ScalarBinding
 {
   new make(Type type) : super("ph::Symbol", type) {}
-  override Obj? decodeScalar(Str str, Bool checked := true) { str }
+  override Obj? decodeScalar(Str str, Bool checked := true) { Symbol.fromStr(str) }
 }
 
 @Js

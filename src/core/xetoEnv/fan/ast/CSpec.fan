@@ -34,8 +34,8 @@ mixin CSpec : CNode
   ** Ref for qualified name
   abstract override haystack::Ref id()
 
-  ** Factory for spec type
-  abstract SpecFactory factory()
+  ** Binding for spec type
+  abstract SpecBinding binding()
 
   ** Type of the spec or if this a type then return self
   abstract CSpec ctype()

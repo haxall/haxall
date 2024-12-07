@@ -68,12 +68,12 @@ internal abstract class Reify : Step
     {
       asm = reifyRawDict(x, type)
 
-      // if there is a factory registered, then decode to another Fantom type
-      factory := type.factory
+      // use binding to potentially decode to another Fantom type
+      binding := type.binding
       Obj? fantom
       Err? err
       try
-        fantom = factory.decodeDict(asm, false)
+        fantom = binding.decodeDict(asm)
       catch (Err e)
         err = e
 
@@ -83,7 +83,7 @@ internal abstract class Reify : Step
       }
       else
       {
-        this.err("Cannot instantiate '$type.qname' dict as Fantom class '$type.factory.type'", x.loc, err)
+        this.err("Cannot instantiate '$type.qname' dict as Fantom class '$binding.type'", x.loc, err)
       }
     }
 
@@ -134,8 +134,8 @@ internal abstract class Reify : Step
     type := x.ctype
     try
     {
-      factory := type.factory
-      fantom := factory.decodeScalar(x.str, false)
+      binding := type.binding
+      fantom := binding.decodeScalar(x.str, false)
       if (fantom == null)
       {
         err("Invalid '$type.qname' string value: $x.str.toCode", x.loc)

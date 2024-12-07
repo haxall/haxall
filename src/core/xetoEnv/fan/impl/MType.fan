@@ -15,14 +15,14 @@ using xeto
 @Js
 const final class MType : MSpec
 {
-  new make(FileLoc loc, XetoLib lib, Str qname, Int nameCode, Str name, XetoSpec? base, XetoSpec self, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args, SpecFactory factory)
+  new make(FileLoc loc, XetoLib lib, Str qname, Int nameCode, Str name, XetoSpec? base, XetoSpec self, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args, SpecBinding binding)
     : super(loc, null, nameCode, name, base, self, meta, metaOwn, slots, slotsOwn, flags, args)
   {
     this.lib       = lib
     this.qname     = qname
     this.id        = haystack::Ref(qname, null)
     this.type      = self
-    this.factory   = factory
+    this.binding   = binding
   }
 
   const override XetoLib lib
@@ -33,7 +33,7 @@ const final class MType : MSpec
 
   override SpecFlavor flavor() { SpecFlavor.type }
 
-  override const SpecFactory factory
+  override const SpecBinding binding
 
   override MEnum enum()
   {

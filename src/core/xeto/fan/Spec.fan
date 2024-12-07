@@ -118,10 +118,10 @@ const mixin Spec : Dict
   @NoDoc abstract FileLoc loc()
 
   ** Mapping between this spec and its Fantom representation
-  @NoDoc abstract SpecFactory factory()
+  @NoDoc abstract SpecBinding binding()
 
   ** Return the Fantom type used to represent this spec.
-  ** Convenience for 'factory.type'.
+  ** Convenience for 'binding.type'.
   @NoDoc abstract Type fantomType()
 
   ** Is this the 'sys::None' spec itself
