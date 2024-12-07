@@ -79,14 +79,9 @@ internal class RemoteLoader
   private Void loadBindings()
   {
     // check if this library registers a new factory loader
-    libVersion := libMeta->version
     if (bindings.needsLoad(libName, libVersion))
     {
-      loader := bindings.load(libName, libVersion)
-      tops.each |x|
-      {
-        if (x.flavor.isType) loader.loadSpec(bindings, x)
-      }
+      this.bindingLoader = bindings.load(libName, libVersion)
     }
   }
 
@@ -95,6 +90,14 @@ internal class RemoteLoader
     // check for custom factory if x is a type
     b := bindings.forSpec(x.qname)
     if (b != null) return b
+
+    // route to loader for this spec
+    // NOTE: relies that x.base is already bound in inheritance order
+    if (bindingLoader != null)
+    {
+      b = bindingLoader.loadSpec(bindings, x)
+      if (b != null) return b
+    }
 
     // fallback to dict/scalar factory
     isScalar := MSpecFlags.scalar.and(x.flags) != 0
@@ -404,9 +407,10 @@ internal class RemoteLoader
   const Int libNameCode
   const MNameDict libMeta
   const Version libVersion
-  const SpecBindings bindings := SpecBindings.cur
   const Int flags
   private Str:RSpec tops := [:]              // addTops
   private Str:Dict instances := [:]          // addInstance (unreified)
+  private const SpecBindings bindings := SpecBindings.cur
+  private SpecBindingLoader? bindingLoader
 }
 

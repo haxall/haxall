@@ -64,7 +64,7 @@ internal class RSpec : CSpec, NameDictReader
   override haystack::Ref id() { throw UnsupportedErr() }
   override SpecBinding binding() { bindingRef ?: throw Err("Binding not assigned") }
   override CSpec ctype() { type }
-  override CSpec? cbase
+  override CSpec? cbase() { base }
   override CSpec? cparent() { parent }
   override MNameDict cmeta() { meta ?: throw Err(name) }
   override Bool cmetaHas(Str name) { cmeta.has(name) }

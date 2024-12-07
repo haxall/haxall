@@ -58,8 +58,7 @@ internal class LoadBindings : Step
     // if we have loader try to load for this spec
     if (loader != null)
     {
-      loader.loadSpec(bindings, spec)
-      b = bindings.forSpec(spec.qname)
+      b = loader.loadSpec(bindings, spec)
       if (b != null) return b
     }
 

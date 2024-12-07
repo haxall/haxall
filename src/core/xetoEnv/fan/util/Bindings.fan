@@ -150,10 +150,11 @@ catch (Err e)
   }
 
   ** Add new spec binding
-  Void add(SpecBinding b)
+  SpecBinding add(SpecBinding b)
   {
-    specMap.getOrAdd(b.spec, b)
-    typeMap.getOrAdd(b.type.qname, b)
+    b = specMap.getOrAdd(b.spec, b)
+    b = typeMap.getOrAdd(b.type.qname, b)
+    return b
   }
 
   ** Return if we need to call load for given library name
@@ -214,39 +215,27 @@ const class SpecBindingLoader
   virtual Void loadLib(SpecBindings acc, Str libName) {}
 
   ** Add Xeto to Fantom bindings for the spec if applicable
-  virtual Void loadSpec(SpecBindings acc, CSpec spec) {}
+  virtual SpecBinding? loadSpec(SpecBindings acc, CSpec spec) { null }
 
   ** Default behavior for loading spec via pod reflection
-  Bool loadSpecReflect(SpecBindings acc, Pod pod, CSpec spec)
+  SpecBinding? loadSpecReflect(SpecBindings acc, Pod pod, CSpec spec)
   {
     // lookup Fantom type with same name
     type := pod.type(spec.name, false)
-    if (type == null) return false
+    if (type == null) return null
 
     // clone CompBindings with this spec/type
     compBase := spec.cbase.binding as CompBinding
-    if (compBase != null)
-    {
-      acc.add(compBase.clone(spec.qname, type))
-      return true
-    }
+    if (compBase != null) return acc.add(compBase.clone(spec.qname, type))
 
     // assume Dict mixins are MDictImpl
-    if (type.fits(Dict#))
-    {
-      acc.add(ImplDictBinding(spec.qname,type))
-      return true
-    }
+    if (type.fits(Dict#)) return acc.add(ImplDictBinding(spec.qname,type))
 
     // enums are scalars
-    if (type.fits(Enum#))
-    {
-      acc.add(ScalarBinding(spec.qname, type))
-      return true
-    }
+    if (type.fits(Enum#)) return acc.add(ScalarBinding(spec.qname, type))
 
     // no joy
-    return false
+    return null
   }
 }
 
@@ -261,7 +250,7 @@ const class PodBindingLoader : SpecBindingLoader
 
   const Pod pod
 
-  override Void loadSpec(SpecBindings acc, CSpec spec)
+  override SpecBinding? loadSpec(SpecBindings acc, CSpec spec)
   {
     loadSpecReflect(acc, pod, spec)
   }
