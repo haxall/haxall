@@ -51,12 +51,17 @@ internal class LoadBindings : Step
 
   private SpecBinding resolveBinding(ASpec spec)
   {
-    // call loader for this spec
-    if (loader != null) loader.loadSpec(bindings, spec)
-
     // lookup custom registered factory
     b := bindings.forSpec(spec.qname)
     if (b != null) return b
+
+    // if we have loader try to load for this spec
+    if (loader != null)
+    {
+      loader.loadSpec(bindings, spec)
+      b = bindings.forSpec(spec.qname)
+      if (b != null) return b
+    }
 
     // use base;s binding if inheritable (we process in inheritance order)
     b = spec.base.binding
