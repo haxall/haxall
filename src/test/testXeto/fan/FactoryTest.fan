@@ -19,6 +19,35 @@ using xetoEnv
 class FactoryTest : AbstractXetoTest
 {
 
+//////////////////////////////////////////////////////////////////////////
+// Bindings
+//////////////////////////////////////////////////////////////////////////
+
+  Void testBindings()
+  {
+    // echo(SpecBindings.cur.list.sort.join("\n"))
+    verifyScalarBinding("sys::Bool", Bool#, true)
+    verifyScalarBinding("sys::Int", Int#, 123)
+    verifyScalarBinding("sys::Float", Float#, 123f)
+    verifyScalarBinding("sys::Number", Number#, n(123, "kW"))
+    verifyScalarBinding("sys::Unit", Unit#, Unit("kW"))
+  }
+
+  Void verifyScalarBinding(Str spec, Type type, Obj v)
+  {
+    reg := SpecBindings.cur
+    b := reg.forSpec(spec) ?: throw Err()
+    verifySame(reg.forType(type), b)
+    verifySame(b.type, type)
+    verifyEq(b.spec, spec)
+    verifyValEq(b.decodeScalar(v.toStr), v)
+    verifyValEq(b.decodeScalar("bad bad", false), null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Sys
+//////////////////////////////////////////////////////////////////////////
+
   Void testSys()
   {
     verifyLocalAndRemote(["sys"]) |ns| { doTestSys(ns) }
