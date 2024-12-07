@@ -24,12 +24,16 @@ using xetoEnv
 **   - flags
 **   - cslotsRef
 **
+** We also use this step to create a list of types orderd by inheritance
+** for subsequent steps to use in lib.types.
+**
 internal class InheritSlots : Step
 {
   override Void run()
   {
     lib.tops.each |spec| { inherit(spec) }
     bombIfErr
+    lib.typesRef = types
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -67,6 +71,7 @@ internal class InheritSlots : Step
     {
       spec.flags = 0
       spec.cslotsRef = noSlots
+      types.add(spec)
       return
     }
 
@@ -82,6 +87,9 @@ internal class InheritSlots : Step
 
     // if base is in my AST, then recursively process it first
     if (spec.base.isAst) inherit(spec.base)
+
+    // keep track of type now that inheritance has been processed
+    if (spec.isType) types.add(spec)
 
     // if base is maybe and my own type is not then clear maybe flag
     if (explicitTypeRef && spec.base.isMaybe && !spec.metaHas("maybe"))
@@ -467,5 +475,6 @@ internal class InheritSlots : Step
 
   private ASpec[] stack := [,]
   private Str:CSpec? globals := [:]
+  private ASpec[] types := [,]
 }
 

@@ -58,14 +58,9 @@ internal class ALib : ADoc
   ** Lookup top level spec
   ASpec? top(Str name) { tops.get(name) }
 
-  ** List type specs
-  ASpec[] types()
-  {
-    acc := ASpec[,]
-    acc.capacity = tops.size
-    tops.each |v| { if (v.isType) acc.add(v) }
-    return acc
-  }
+  ** List type specs ordered by inheritance (set in InheritSlots)
+  ASpec[] types() { typesRef ?: throw NotReadyErr(name) }
+  ASpec[]? typesRef
 
   ** Tree walk
   override Void walkBottomUp(|ANode| f)

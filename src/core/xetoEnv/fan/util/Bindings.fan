@@ -218,6 +218,7 @@ internal const class ObjBinding : SpecBinding
   override Dict decodeDict(Dict xeto) { throw UnsupportedErr("Obj") }
   override Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr("Obj")  }
   override Str encodeScalar(Obj val) { throw UnsupportedErr("Obj") }
+  override Bool isInheritable() { false }
 }
 
 @Js
@@ -231,6 +232,7 @@ const class DictBinding : SpecBinding
   override Dict decodeDict(Dict xeto) { xeto }
   override final Obj? decodeScalar(Str xeto, Bool checked := true) { throw UnsupportedErr(spec) }
   override final Str encodeScalar(Obj val) { throw UnsupportedErr(spec) }
+  override Bool isInheritable() { true }
 }
 
 @Js
@@ -247,6 +249,7 @@ const class ScalarBinding : SpecBinding
     type.method("fromStr", checked)?.call(xeto, checked)
   }
   override Str encodeScalar(Obj val) { val.toStr }
+  override Bool isInheritable() { false }
 }
 
 @Js

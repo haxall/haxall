@@ -35,29 +35,33 @@ internal class LoadBindings : Step
 
   private Void assignBindings()
   {
-    lib.tops.each |spec|
+    // types in inheritance order
+    lib.types.each |spec|
     {
-      assignBinding(spec)
+      spec.bindingRef = resolveBinding(spec)
+    }
+
+    // rest of tops
+    lib.tops.each |top|
+    {
+      if (top.bindingRef == null)
+        top.bindingRef = top.ctype.binding
     }
   }
 
-  private Void assignBinding(ASpec spec)
+  private SpecBinding resolveBinding(ASpec spec)
   {
     // lookup custom registered factory
-    spec.bindingRef = bindings.forSpec(spec.qname)
+    b := bindings.forSpec(spec.qname)
+    if (b != null) return b
 
-    // bind to type
-    if (spec.bindingRef == null)
-      spec.bindingRef = bindings.forSpec(spec.ctype.qname)
+    // use base;s binding if inheritable (we process in inheritance order)
+    b = spec.base.binding
+    if (b.isInheritable) return b
 
     // install default dict/scalar factory
-    if (spec.bindingRef == null)
-    {
-      if (spec.isScalar)
-        spec.bindingRef = GenericScalarBinding(spec.ctype.qname)
-      else
-        spec.bindingRef = bindings.dict
-    }
+    if (spec.isScalar) return GenericScalarBinding(spec.ctype.qname)
+    return bindings.dict
   }
 
 }

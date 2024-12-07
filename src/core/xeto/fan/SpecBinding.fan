@@ -37,6 +37,9 @@ abstract const class SpecBinding
   ** Encode a Fantom scalar instance to its Xeto string encoding
   abstract Str encodeScalar(Obj val)
 
+  ** Should this binding be inherited into subtypes
+  abstract Bool isInheritable()
+
   ** Debug string
   override Str toStr() { "$spec | $type" }
 }
