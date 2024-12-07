@@ -47,8 +47,8 @@ const class SpecBindings
   **
   **   index = ["xeto.bindings": "libName loaderType"]
   **
-  ** Loader type is qname of SpecBindingLoader or we support
-  ** the special key "ion" for IonBindingLoader
+  ** The loaderType is qname of SpecBindingLoader Fantom class
+  ** or if is a pod name we load via PodBindingLoader
   private Void initLoaders()
   {
 try
@@ -163,21 +163,32 @@ catch (Err e)
   }
 
   ** Load bindings for given library
-  Void load(Str libName, Version version, CSpec[] specs)
+  SpecBindingLoader load(Str libName, Version version)
   {
     // check if we have a loader
-    loaderType := loaders.get(libName)
-    if (loaderType == null) return
+    loaderType := loaders.get(libName) as Str
+    if (loaderType == null) return SpecBindingLoader()
 
     // mark this lib/version so we don't load it again
     loadKey := loadKey(libName, version)
     loaded.set(loadKey, loadKey)
 
-    // instantiate it
-    loader := (SpecBindingLoader)Type.find(loaderType).make
+    // create loader from SpecLoader qname or pod name
+    SpecBindingLoader? loader
+    if (loaderType.contains("::"))
+    {
+      loader = Type.find(loaderType).make
+    }
+    else
+    {
+      loader = PodBindingLoader(Pod.find(loaderType))
+    }
 
-    // delegate to loader
-    loader.load(this, libName, specs)
+    // load at the library level
+    loader.loadLib(this, libName)
+
+    // return loader to caller to load individual specs
+    return loader
   }
 
   ** Load key to ensure we only load bindings per lib/version once
@@ -197,10 +208,42 @@ catch (Err e)
 **************************************************************************
 
 @Js
-abstract const class SpecBindingLoader
+const class SpecBindingLoader
 {
   ** Add Xeto to Fantom bindings for the given library
-  abstract Void load(SpecBindings acc, Str libName, CSpec[] specs)
+  virtual Void loadLib(SpecBindings acc, Str libName) {}
+
+  ** Add Xeto to Fantom bindings for the spec if applicable
+  virtual Void loadSpec(SpecBindings acc, CSpec spec) {}
+}
+
+**************************************************************************
+** PodBindingLoader
+**************************************************************************
+
+@Js
+const class PodBindingLoader : SpecBindingLoader
+{
+  new make(Pod pod) { this.pod = pod }
+
+  const Pod pod
+
+  override Void loadSpec(SpecBindings acc, CSpec spec)
+  {
+    // lookup Fantom type with same name
+    type := pod.type(spec.name, false)
+    if (type == null) return
+
+    // clone CompBindings with this spec/type
+    compBase := spec.cbase.binding as CompBinding
+    if (compBase != null) return acc.add(compBase.clone(spec.qname, type))
+
+    // assume Dict mixins are MDictImpl
+    if (type.fits(Dict#)) return acc.add(ImplDictBinding(spec.qname,type))
+
+    // enums are scalars
+    if (type.fits(Enum#)) return acc.add(ScalarBinding(spec.qname, type))
+  }
 }
 
 **************************************************************************
@@ -256,6 +299,7 @@ const class ScalarBinding : SpecBinding
 const class CompBinding : DictBinding
 {
   new make(Str spec, Type type) : super(spec, type) {}
+  virtual This clone(Str spec, Type type) { make(spec, type) }
 }
 
 @Js

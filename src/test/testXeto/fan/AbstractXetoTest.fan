@@ -290,7 +290,7 @@ const class TestClient : RemoteLibLoader
 @Js
 internal const class TestBindingLoader : SpecBindingLoader
 {
-  override Void load(SpecBindings acc, Str libName, CSpec[] specs)
+  override Void loadLib(SpecBindings acc, Str libName)
   {
     acc.add(TestValBinding ("$libName::TestVal",     TestVal#))
     acc.add(CompBinding    ("$libName::TestAdd",     TestAdd#))

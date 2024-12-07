@@ -82,9 +82,11 @@ internal class RemoteLoader
     libVersion := libMeta->version
     if (bindings.needsLoad(libName, libVersion))
     {
-      types := CSpec[,]
-      tops.each |x| { if (x.flavor.isType) types.add(x) }
-      bindings.load(libName, libVersion, types)
+      loader := bindings.load(libName, libVersion)
+      tops.each |x|
+      {
+        if (x.flavor.isType) loader.loadSpec(bindings, x)
+      }
     }
   }
 

@@ -29,7 +29,7 @@ internal class LoadBindings : Step
   {
     if (bindings.needsLoad(lib.name, lib.version))
     {
-      bindings.load(lib.name, lib.version, lib.types)
+      loader = bindings.load(lib.name, lib.version)
     }
   }
 
@@ -51,6 +51,9 @@ internal class LoadBindings : Step
 
   private SpecBinding resolveBinding(ASpec spec)
   {
+    // call loader for this spec
+    if (loader != null) loader.loadSpec(bindings, spec)
+
     // lookup custom registered factory
     b := bindings.forSpec(spec.qname)
     if (b != null) return b
@@ -64,5 +67,6 @@ internal class LoadBindings : Step
     return bindings.dict
   }
 
+  private SpecBindingLoader? loader
 }
 
