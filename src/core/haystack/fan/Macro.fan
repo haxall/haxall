@@ -12,7 +12,7 @@
 @NoDoc @Js
 class Macro
 {
-  new make(Str pattern, Dict scope)
+  new make(Str pattern, Dict scope := Etc.dict0)
   {
     this.pattern = pattern
     this.scope = scope
@@ -25,8 +25,9 @@ class Macro
     return this.varNames.unique
   }
 
-  Str apply()
+  Str apply(|Str->Str|? resolve := null)
   {
+    resBuf.clear
     size := pattern.size
     for (i:=0; i<size; ++i)
     {
@@ -39,7 +40,7 @@ class Macro
         // check if end of expression, in which case evaluate
         if (isEndOfExpr(c))
         {
-          resBuf.add(eval(exprBuf.toStr))
+          resBuf.add(eval(exprBuf.toStr, resolve))
           doContinue := mode != exprSimple
           mode = norm
           if (doContinue) continue
@@ -73,7 +74,7 @@ class Macro
     if (mode != norm)
     {
       expr := exprBuf.toStr
-      if (mode == exprSimple) resBuf.add(eval(expr))
+      if (mode == exprSimple) resBuf.add(eval(expr, resolve))
       else if (mode == exprLocale) resBuf.add("\$<").add(expr)
       else resBuf.add("\${").add(expr)
     }
@@ -81,7 +82,7 @@ class Macro
     return resBuf.toStr
   }
 
-  private Str eval(Str expr)
+  private Str eval(Str expr, |Str->Str|? resolve)
   {
     try
     {
@@ -96,7 +97,7 @@ class Macro
       if (varNames != null && !expr.isEmpty) varNames.add(expr)
 
       // assume tag name from scope
-      val := scope[expr]
+      val := resolve == null ? scope[expr] : resolve(expr)
       if (val is Ref) return refToDis(val)
       return val.toStr
     }
@@ -141,5 +142,4 @@ class Macro
   StrBuf exprBuf := StrBuf()  // expression buffer
   Str[]? varNames             // only if calling vars()
 }
-
 

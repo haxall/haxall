@@ -765,6 +765,11 @@ class EtcTest : HaystackTest
     verifyMacro(Str<|$<haystack::justNow|>,   scope, Str<|$<haystack::justNow|>)
     verifyMacro(Str<|$<bad::name>|>,  scope, Str<|$<bad::name>|>)
     verifyMacro(Str<|$<haystack::bad>|>,   scope, Str<|$<haystack::bad>|>)
+
+    // with callback
+    m := Macro(Str<|$foo / ${bar}|>)
+    s := m.apply |v| { v.upper }
+    verifyEq(s, "FOO / BAR")
   }
 
   Void verifyMacro(Str pattern, Dict scope, Str expected, Str[] vars := Str[,])
