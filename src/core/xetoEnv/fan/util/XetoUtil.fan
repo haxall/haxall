@@ -201,19 +201,19 @@ const class XetoUtil
   ** Is the given name a reserved lib meta tag
   static Bool isReservedLibMetaName(Str n)
   {
-    reservedLibMetaNames.containsKey(n)
+    reservedLibMetaNames.containsKey(n) || n.startsWith("xeto")
   }
 
   ** Is the given name a reserved spec meta tag
   static Bool isReservedSpecMetaName(Str n)
   {
-    reservedSpecMetaNames.containsKey(n)
+    reservedSpecMetaNames.containsKey(n) || n.startsWith("xeto")
   }
 
   ** Is the given name a reserved lib or spec meta tag
   static Bool isReservedMetaName(Str n)
   {
-    isReservedSpecMetaName(n) || isReservedLibMetaName(n)
+    isReservedSpecMetaName(n) || isReservedLibMetaName(n) || n.startsWith("xeto")
   }
 
   private static once Str:Str reservedLibMetaNames()
@@ -230,9 +230,9 @@ const class XetoUtil
   {
     Str:Str[:].setList([
     // used right now
-    "id", "base", "type", "spec", "slots",
+    "id", "base", "type", "spec", "slot", "slots",
     // future proofing
-    "class", "is", "lib", "loc", "name", "parent", "qname", "super", "supers", "xeto"
+    "class", "def", "is", "lib", "loc", "name", "parent", "qname", "super", "supers", "xeto"
     ])
   }
 

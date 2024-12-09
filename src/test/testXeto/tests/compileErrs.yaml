@@ -76,7 +76,7 @@ verifyErrs: |
 ---
 name: "reservedMeta"
 compileLib: |
-  Foo: Dict <id:"x", base:"x", type:"x", spec:"x", slots:"x", lib:"x", loc:"x">
+  Foo: Dict <id:"x", base:"x", type:"x", spec:"x", slots:"x", lib:"x", loc:"x", xetoFoo:"x">
 verifyErrs: |
   Reserved spec meta tag 'id'
   Reserved spec meta tag 'base'
@@ -85,6 +85,7 @@ verifyErrs: |
   Reserved spec meta tag 'slots'
   Reserved spec meta tag 'lib'
   Reserved spec meta tag 'loc'
+  Reserved spec meta tag 'xetoFoo'
 ---
 name: "metaNotDefined"
 compileLib: |
@@ -117,10 +118,12 @@ compileLib: |
   abstract: Str <meta>
   base: Str <meta>
   instances: Str <meta>
+  xetoFooBar: Marker <meta>
 verifyErrs: |
   Duplicate meta specs: temp::abstract, sys::abstract
   Reserved meta tag 'base'
   Reserved meta tag 'instances'
+  Reserved meta tag 'xetoFooBar'
 ---
 
 ##########################################################################
