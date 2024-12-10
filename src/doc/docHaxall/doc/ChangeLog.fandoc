@@ -6,8 +6,33 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
-*Build 3.1.11 (working)*
-mqtt: allow configuration of sessionExpiryInterval
+*Build 3.1.11 (9 Dec 2024)*
+- Filter comparison of Numbers now requires same unit
+- Xeto fits/fitsExplain defaults to tags only, new graph option
+- Xeto validation for refs and target types
+- Xeto validation for choices
+- Xeto validation for value using spec meta
+- Axon remove support for Xeto spec definition within language
+- Axon remove support for Xeto slot spec references
+- Axon AST dict for calls renamed target to func
+- Axon remove dot call support when first arg is filter #8099
+- Axon support for interface based dispatch
+- Axon support for interface static methods
+- Axon support for interface constructors
+- Axon move xetoReload to hx lib
+- New Axon funcs: gridReplace, evalToFunc, isDuration, isHisGrid, quantile
+- Updated elec phase tags - PH #1109
+- New synthetic ontology - PH #1125
+- Redesign Java reflection code to use double checked locking
+- Add HTTP setting for maxThreads
+- Support for escaped tag names with leading two underbars
+- Tweak %RH conversion ratio to match %
+- Tighten up Folio tag value storage checks
+- Fix for using SHA384 and SHA512 for hmac
+- Fix to prevent keys from getting added with an empty alias
+- Support for adding EC Keys through the CLI
+- Fix readById, readByIds to not return records with trash tag
+- Mqtt: allow configuration of sessionExpiryInterval
 
 *Build 3.1.10 (23 Apr 2024)*
 - Xeto new LibRepo and LibNamespae APIs replace XetoEnv
