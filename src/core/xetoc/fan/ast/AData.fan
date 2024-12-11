@@ -10,6 +10,7 @@
 using util
 using xeto
 using xetoEnv
+using haystack::Ref
 
 **
 ** Base class for AST data instances
@@ -204,9 +205,10 @@ internal class ADict : AData
 internal class AInstance : ADict, CInstance
 {
   ** Constructor
-  new make(FileLoc loc, ASpecRef? type, AName name, Bool isNested) : super(loc, type)
+  new make(FileLoc loc, Ref id, ASpecRef? type, AName name, Bool isNested) : super(loc, type)
   {
     this.name = name
+    this.id = id
     this.isNested = isNested
   }
 
@@ -230,7 +232,8 @@ internal class AInstance : ADict, CInstance
   override Bool isAst() { true }
 
   ** Return scalar id
-  override haystack::Ref id() { get("id")?.asm ?: throw NotReadyErr() }
+  override const Ref id
+
 
 }
 

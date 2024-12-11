@@ -58,15 +58,10 @@ internal abstract class InferData : Step
 
   private Void inferId(AInstance dict)
   {
-    // make id qualified if this is lib data
-    id := dict.name.toStr
-    if (isLib) id = lib.name + "::" + id
-
     // add "id" tag with Ref scalar value
     loc := dict.loc
-    ref := compiler.makeRef(id, null)
     if (dict.has("id")) err("Named dict cannot have explicit id tag", loc)
-    dict.set("id", AScalar(loc, sys.ref, id, ref))
+    dict.set("id", AScalar(loc, sys.ref, dict.id.toStr, dict.id))
   }
 
   private Void inferMetaSlots(ADict dict)

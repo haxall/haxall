@@ -9,6 +9,7 @@
 
 using util
 using xeto
+using haystack::Ref
 
 **
 ** Parser for the Xeto data type language
@@ -24,6 +25,7 @@ internal class Parser
   {
     this.step = step
     this.compiler = step.compiler
+    this.libName = compiler.libName
     this.doc = doc
     this.isDataFile = doc.nodeType == ANodeType.dataDoc
     this.sys = step.sys
@@ -379,7 +381,8 @@ internal class Parser
     consume
 
     type := parseTypeRef
-    dict := AInstance(curToLoc, type, name, isNested)
+    idStr := libName == null ? name.name : "${libName}::${name.name}"
+    dict := AInstance(curToLoc, Ref(idStr), type, name, isNested)
     if (cur !== Token.lbrace) throw err("Expecting '{' to start named instance dict")
     parseDict(type, Token.lbrace, Token.rbrace, dict)
 
@@ -741,6 +744,7 @@ internal class Parser
 
   private Step step
   private XetoCompiler compiler
+  private Str? libName
   private ASys sys
   private FileLoc fileLoc
   private Tokenizer tokenizer
