@@ -590,7 +590,7 @@ class BasicTest : AbstractFolioTest
     verifyKind(true)
     verifyKind(n(123, "ft"))
     verifyKind("string")
-    verifyKind(Ref("abc-123"))
+    verifyKind(Ref("abc-123"), "siteRef")
     verifyKind(`uri`)
     verifyKind(Date.today)
     verifyKind(Time.now)
@@ -600,7 +600,7 @@ class BasicTest : AbstractFolioTest
     verifyKind(Etc.makeMapGrid(["x":m], ["y":n(123)]))
     verifyKind(Symbol("foo"))
     verifyKind(Span(Date.today))
-    verifyKind(Obj?[Span(Date.today)])
+    verifyKind([Span(Date.today)])
     verifyKind(XStr("Foo", "bar"))
 
     verifyKindErr(NA.val)
@@ -611,13 +611,13 @@ class BasicTest : AbstractFolioTest
     close
   }
 
-  Void verifyKind(Obj val)
+  Void verifyKind(Obj val, Str name := "foo")
   {
-    // echo("## verifyKind $val [$val.typeof]")
-    rec := addRec(["foo":val])
-    verifyValEq(readById(rec.id)->foo, val)
-    commit(rec, ["bar":val])
-    verifyValEq(readById(rec.id)->bar, val)
+    // echo("## verifyKind $name = $val [$val.typeof]")
+    rec := addRec([name:val])
+    verifyValEq(readById(rec.id).get(name), val)
+    commit(rec, [name+"2":val])
+    verifyValEq(readById(rec.id).get(name+"2"), val)
   }
 
   Void verifyKindErr(Obj val)
