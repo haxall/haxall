@@ -516,6 +516,7 @@ class NamespaceTest : AbstractXetoTest
     verifyInstantiate(ns, "sys::Number",   n(0))
     verifyInstantiate(ns, "sys::Int",      n(0))
     verifyInstantiate(ns, "sys::Ref",      Ref("x"))
+    verifyInstantiate(ns, "sys::MultiRef", Ref[,])
     verifyInstantiate(ns, "sys::Date",     Date.defVal)
     verifyInstantiate(ns, "sys::Time",     Time.defVal)
     verifyInstantiate(ns, "sys::DateTime", DateTime.defVal)

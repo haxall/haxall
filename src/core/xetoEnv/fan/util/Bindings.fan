@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using util
 using xeto
 using haystack::Coord
 using haystack::Etc
@@ -51,8 +52,6 @@ const class SpecBindings
   ** or if is a pod name we load via PodBindingLoader
   private Void initLoaders()
   {
-try
-{
     Env.cur.index("xeto.bindings").each |str|
     {
       try
@@ -64,11 +63,6 @@ try
       }
       catch (Err e) echo("ERR: Cannot init BindingLoader: $str\n  $e")
     }
-}
-catch (Err e)
-{
-  echo("WARN: Cannot read Env.cur.index: $e")
-}
   }
 
   ** Setup the builtin bindings for sys, sys.comp, and ph
@@ -176,13 +170,21 @@ catch (Err e)
 
     // create loader from SpecLoader qname or pod name
     SpecBindingLoader? loader
-    if (loaderType.contains("::"))
+    try
     {
-      loader = Type.find(loaderType).make
+      if (loaderType.contains("::"))
+      {
+        loader = Type.find(loaderType).make
+      }
+      else
+      {
+        loader = PodBindingLoader(Pod.find(loaderType))
+      }
     }
-    else
+    catch (Err e)
     {
-      loader = PodBindingLoader(Pod.find(loaderType))
+      warn("SpecBindings cannot load xeto lib '$libName': $e")
+      return SpecBindingLoader()
     }
 
     // load at the library level
@@ -196,6 +198,12 @@ catch (Err e)
   private Str loadKey(Str libName, Version version)
   {
     "$libName $version"
+  }
+
+  ** Log warning
+  private Void warn(Str msg)
+  {
+    Console.cur.warn(msg)
   }
 
   private const ConcurrentMap loaders := ConcurrentMap() // libName -> loader qname

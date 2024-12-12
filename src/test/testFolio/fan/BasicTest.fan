@@ -600,7 +600,7 @@ class BasicTest : AbstractFolioTest
     verifyKind(Etc.makeMapGrid(["x":m], ["y":n(123)]))
     verifyKind(Symbol("foo"))
     verifyKind(Span(Date.today))
-    verifyKind([Span(Date.today)])
+    verifyKind(Span[Span(Date.today)])
     verifyKind(XStr("Foo", "bar"))
 
     verifyKindErr(NA.val)

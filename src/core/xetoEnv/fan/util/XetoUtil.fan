@@ -469,6 +469,7 @@ const class XetoUtil
     if (spec.type.isScalar) return instantiateScalar(ns, spec, opts)
     if (spec === ns.sys.dict) return Etc.dict0
     if (spec.isList) return instantiateList(ns, spec, opts)
+    if (spec.isMultiRef) return Ref#.emptyList
 
     isGraph := opts.has("graph")
 
