@@ -54,7 +54,8 @@ const class HxFolio : Folio
      "store":   store,
      "dis":     disMgr,
      "stats":   stats,
-     "backup":  stats]
+     "backup":  backup,
+    ]
   }
 
 //////////////////////////////////////////////////////////////////////////
