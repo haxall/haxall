@@ -16,6 +16,31 @@ using haystack::Ref
 @Js
 const class DocUtil
 {
+  ** Convert normalized doc URI to view id
+  static Ref viewUriToRef(Uri uri)
+  {
+    Ref(uri.toStr[1..-1].replace("/", "::"))
+  }
+
+  ** Convert view id to normalized doc URI
+  static Uri viewRefToUri(Str base, Ref id)
+  {
+    s := StrBuf()
+    s.add(base)
+    if (!base.endsWith("/")) s.add("/")
+    str := id.id
+    colons := str.index("::")
+    if (colons == null)
+    {
+      s.add(str).add("/index")
+    }
+    else
+    {
+      s.add(str[0..<colons]).add("/").add(str[colons+2..-1])
+    }
+    return s.toStr.toUri
+  }
+
   ** Lib name to the library index page
   static Uri libToUri(Str libName)
   {
