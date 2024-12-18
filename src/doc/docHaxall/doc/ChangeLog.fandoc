@@ -6,6 +6,8 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
+*Build 3.1.11 Patches *
+
 *Build 3.1.11 (9 Dec 2024)*
 - Filter comparison of Numbers now requires same unit
 - Xeto fits/fitsExplain defaults to tags only, new graph option
