@@ -21,18 +21,7 @@ const class FileMgr : HxFolioMgr, FolioFile
 
   override Dict create(Dict rec, |OutStream| f)
   {
-    // TODO: should we do spec validation; if so how?
-    // create the folio rec for this file. force it to have File spec
-    id := rec.get("id") ?: Ref.gen
-    rec = Etc.dictRemove(rec, "id")
-    rec = Etc.dictSet(rec, "spec", "File")
-    rec = folio.commit(Diff.makeAdd(rec, id)).newRec
-
-    // create the local file
-    file.write(id, f)
-
-    // return the newly created folio rec
-    return rec
+    file.create(rec, f)
   }
 
   override Obj? read(Ref id, |InStream->Obj?| f)
@@ -42,11 +31,6 @@ const class FileMgr : HxFolioMgr, FolioFile
 
   override Void write(Ref id, |OutStream| f)
   {
-    // TODO: spec validation?
-    // ensure there is a rec in folio with this id
-    rec := folio.readById(id)
-
-    // then we can write it
     file.write(id, f)
   }
 

@@ -74,7 +74,31 @@ const class LocalFolioFile
   const Folio folio
   const File dir
 
+  Dict create(Dict rec, |OutStream| f)
+  {
+    // create the folio rec for this file
+    id := rec.get("id") ?: Ref.gen
+    rec = Etc.dictRemove(rec, "id")
+    rec = Etc.dictSet(rec, "spec", "File")
+    rec = folio.commit(Diff.makeAdd(rec, id)).newRec
+
+    // now write the file
+    doWrite(id, f)
+
+    // return the newly created folio rec
+    return rec
+  }
+
   Void write(Ref id, |OutStream| f)
+  {
+    // do a read to ensure there is a file rec (TODO: validation?)
+    rec := folio.readById(id)
+
+    // then we can write it
+    doWrite(id, f)
+  }
+
+  private Void doWrite(Ref id, |OutStream| f)
   {
     out := localFile(id).out
     try
