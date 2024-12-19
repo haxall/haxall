@@ -86,6 +86,9 @@ const class HxFolio : Folio
   ** History manager
   override const HisMgr his
 
+  ** File manager
+  override FolioFile file() { throw UnsupportedErr() }
+
   ** Managers by name
   internal const Str:HxFolioMgr mgrsByName
 

@@ -36,7 +36,7 @@ const class FolioFlatFile : Folio
   private new make(FolioConfig config, File file, ConcurrentMap map)
     : super(config)
   {
-    this.file = file
+    this.flatFile = file
     this.map = map
     this.passwords = PasswordStore.open(dir+`passwords.props`, config)
     this.actor = Actor(config.pool) |msg| { onReceive(msg) }
@@ -46,7 +46,7 @@ const class FolioFlatFile : Folio
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  @NoDoc const File file
+  @NoDoc const File flatFile
   @NoDoc const override PasswordStore passwords
   private const Actor actor
 
@@ -143,6 +143,8 @@ const class FolioFlatFile : Folio
 
   @NoDoc override FolioBackup backup() { throw UnsupportedErr() }
 
+  @NoDoc override FolioFile file() { throw UnsupportedErr() }
+
 //////////////////////////////////////////////////////////////////////////
 // ConcurrentHashMap
 //////////////////////////////////////////////////////////////////////////
@@ -220,7 +222,7 @@ const class FolioFlatFile : Folio
     recs := (Dict[])map.vals(Dict#)
 
     // flush to file
-    out := file.out
+    out := flatFile.out
     FolioFlatFileWriter(this, out).writeAllDicts(recs)
     out.sync.close
   }
