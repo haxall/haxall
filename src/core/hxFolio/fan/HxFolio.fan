@@ -43,6 +43,7 @@ const class HxFolio : Folio
     this.stats      = StatsMgr(this)
     this.backup     = BackupMgr(this)
     this.his        = HisMgr(this)
+    this.file       = FileMgr(this)
     this.mgrsByName = initMgrsByName
     disMgr.updateAll.get(null)
   }
@@ -55,6 +56,7 @@ const class HxFolio : Folio
      "dis":     disMgr,
      "stats":   stats,
      "backup":  backup,
+     "file":    file,
     ]
   }
 
@@ -87,7 +89,7 @@ const class HxFolio : Folio
   override const HisMgr his
 
   ** File manager
-  override FolioFile file() { throw UnsupportedErr() }
+  override const FileMgr file
 
   ** Managers by name
   internal const Str:HxFolioMgr mgrsByName

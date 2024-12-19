@@ -116,6 +116,7 @@ internal enum class MsgId
   testSleep,
   close,
   commit,
+  fileDelete,
   hisWrite,
   storeAdd,
   storeUpdate(true),
