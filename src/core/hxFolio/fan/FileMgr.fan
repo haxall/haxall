@@ -50,13 +50,7 @@ const class FileMgr : HxFolioMgr, FolioFile
 
   private Obj? onDelete(Ref id)
   {
-    // delete the file itself first
     file.delete(id)
-
-    // remove the rec if file delete successful
-    rec := folio.readById(id, false)
-    if (rec != null) folio.commit(Diff(rec, null, Diff.remove))
-
     return FileDeleteRes(id)
   }
 }

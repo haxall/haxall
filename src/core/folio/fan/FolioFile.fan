@@ -121,7 +121,15 @@ const class LocalFolioFile
       in.close
   }
 
-  Void delete(Ref id) { localFile(id).delete }
+  Void delete(Ref id)
+  {
+    // remove the rec if file delete successful
+    rec := folio.readById(id, false)
+    if (rec != null) folio.commit(Diff(rec, null, Diff.remove))
+
+    // then delete the file in local file system
+    localFile(id).delete
+  }
 
   ** Get the local file for this id
   private File localFile(Ref id)
