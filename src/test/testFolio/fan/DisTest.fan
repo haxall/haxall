@@ -30,6 +30,7 @@ class DisTest : AbstractFolioTest
     b := addRec(["id":Ref("B-ID"), "disMacro":"\$aRef \$navName", "aRef":a.id, "navName":"B-0"])
     c := addRec(["id":Ref("C-ID"), "disMacro":"\$bRef \$navName", "bRef":b.id, "navName":"C-0"])
     d := addRec(["id":Ref("D-ID"), "disMacro":"\$cRef \$navName", "cRef":c.id, "navName":"D-0"])
+    syncDis
     verifyDictDis(a, "A-0")
     verifyDictDis(b, "A-0 B-0")
     verifyDictDis(c, "A-0 B-0 C-0")
@@ -127,10 +128,7 @@ class DisTest : AbstractFolioTest
 
   Void syncDis()
   {
-    Actor.sleep(10ms)
+    Actor.sleep(200ms)
   }
-
-
-
 }
 
