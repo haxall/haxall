@@ -264,7 +264,7 @@ internal class CheckErrors : Step
       }
     }
 
-    checkDict(x.meta, null)
+    checkDict(x.meta, true, null)
   }
 
   Void checkType(ASpec x)
@@ -300,10 +300,14 @@ internal class CheckErrors : Step
     if (XetoUtil.isReservedInstanceName(name))
       err("Instance name '$name' is reserved", x.loc)
 
+    isXMeta := false
     if (name.startsWith("xmeta-"))
+    {
+      isXMeta = true
       checkXMeta(lib, name, x)
+    }
 
-    checkDict(x, null)
+    checkDict(x, isXMeta, null)
   }
 
   Void checkXMeta(ALib lib, Str name, ADict x)
@@ -376,7 +380,7 @@ internal class CheckErrors : Step
   {
     switch (x.nodeType)
     {
-      case ANodeType.dict: checkDict(x, slot)
+      case ANodeType.dict: checkDict(x, ((ADict)x).isMeta, slot)
       case ANodeType.scalar: checkScalar(x, slot)
       case ANodeType.specRef: checkSpecRef(x)
       case ANodeType.dataRef: checkDataRef(x)
@@ -392,7 +396,7 @@ internal class CheckErrors : Step
     }
   }
 
-  Void checkDict(ADict x, CSpec? slot)
+  Void checkDict(ADict x, Bool isMetaOrXMeta, CSpec? slot)
   {
     spec := x.ctype
 
@@ -401,7 +405,7 @@ internal class CheckErrors : Step
     x.each |v, n|
     {
       checkData(v, spec.cslot(n, false))
-      if (!x.isMeta) checkDictSlotAgainstGlobals(n, v)
+      if (!isMetaOrXMeta) checkDictSlotAgainstGlobals(n, v)
     }
 
     spec.cslots |specSlot|
