@@ -488,6 +488,11 @@ internal const class TestRepo : LibRepo
     throw UnsupportedErr()
   }
 
+  override LibNamespace createFromNames(Str[] names)
+  {
+    throw UnsupportedErr()
+  }
+
   override LibNamespace createFromData(xeto::Dict[] recs)
   {
     throw UnsupportedErr()

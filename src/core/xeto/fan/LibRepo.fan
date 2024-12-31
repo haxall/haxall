@@ -82,9 +82,14 @@ const mixin LibRepo
   ** Rescan file system if this is a local repo
   @NoDoc abstract This rescan()
 
+  ** Given a list of library names, map to latest versions, solve
+  ** their dependency graph and create a namespace.
+  @NoDoc abstract LibNamespace createFromNames(Str[] names)
+
   ** Given a set of a records with a 'spec' tag, determine which libs
   ** are used and resolve them to libs and build a namespace.
   @NoDoc abstract LibNamespace createFromData(Dict[] recs)
+
 
 }
 

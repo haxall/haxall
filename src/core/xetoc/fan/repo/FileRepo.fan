@@ -130,6 +130,13 @@ const class FileRepo : LibRepo
     return ns
   }
 
+  override LibNamespace createFromNames(Str[] names)
+  {
+    depends := names.map |n->LibDepend| { LibDepend(n) }
+    vers    := solveDepends(depends)
+    return createNamespace(vers)
+  }
+
   override LibNamespace createFromData(Dict[] recs)
   {
     libNames := XetoUtil.dataToLibs(recs)
