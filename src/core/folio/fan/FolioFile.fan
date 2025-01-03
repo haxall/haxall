@@ -77,15 +77,17 @@ const class LocalFolioFile
     // sanity check that a rec doesn't already exist
     if (folio.readById(id, false) != null) throw ArgErr("Rec with id '${id}' already exists")
 
+    // create the folio rec
+    rec = Etc.dictMerge(rec, ["id":Remove.val, "spec": Ref("sys::File")])
+    rec = folio.commit(Diff.makeAdd(rec, id)).newRec
+
     // write the file
     doWrite(id, f)
 
-    // create the folio rec and return it - must use 2 commits
-    // since we can't do an Diff.makeAdd() with flags, and we
-    // can't do Diff.make() with an id
-    rec = Etc.dictMerge(rec, ["id":Remove.val, "spec": Ref("File")])
-    rec = folio.commit(Diff.makeAdd(rec, id)).newRec
-    rec = folio.commit(Diff.make(rec, ["fileSize":fileSize(id)], Diff.bypassRestricted)).newRec
+    // now update the file size
+    rec = ((Diff)commitFileSizeAsync(rec).get(30sec)->first).newRec
+
+    // return rec with computed file size
     return rec
   }
 
@@ -98,7 +100,7 @@ const class LocalFolioFile
     doWrite(id, f)
 
     // commit the change to fileSize async
-    folio.commitAsync(Diff(rec, ["fileSize": fileSize(id)], Diff.bypassRestricted))
+    commitFileSizeAsync(rec)
   }
 
   private Void doWrite(Ref id, |OutStream| f)
@@ -127,14 +129,23 @@ const class LocalFolioFile
   {
     // delete the file with the given id in order to "clear" it
     // this works because a read on a non-existent file is 0-byte result
-    localFile(id).delete
+    this.delete(id)
 
     // update the file size
     rec := folio.readById(id, false)
-    if (rec != null)
-    {
-      folio.commitAsync(Diff(rec, ["fileSize": fileSize(id)], Diff.bypassRestricted))
-    }
+    if (rec != null) commitFileSizeAsync(rec)
+  }
+
+  ** Delete the file on disk
+  Void delete(Ref id)
+  {
+    localFile(id).delete
+  }
+
+  ** Utility to compute the file size and commit it to the rec async
+  private FolioFuture commitFileSizeAsync(Dict rec)
+  {
+    folio.commitAsync(Diff(rec, ["fileSize": fileSize(rec.id)], Diff.bypassRestricted))
   }
 
   ** Get the local file for this id
@@ -149,7 +160,7 @@ const class LocalFolioFile
   private Number? fileSize(Ref id)
   {
     size := localFile(id).size
-    return size == null ? null : Number(size)
+    return size == null ? null : Number(size, Number.byte)
   }
 
   ** normalize the ref for consistency

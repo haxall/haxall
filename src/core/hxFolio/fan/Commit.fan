@@ -271,7 +271,7 @@ internal class Commit
     folio.disMgr.updateAll
 
     // remove file
-    if (isFile(dict)) folio.file.clear(dict.id)
+    if (isFile(dict)) folio.file.onRemove(dict.id)
   }
 
   ** Chokepoint to determine if a rec is a file

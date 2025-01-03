@@ -38,4 +38,10 @@ const class FileMgr : HxFolioMgr, FolioFile
   {
     file.clear(id)
   }
+
+  ** Callback when the file rec with the given id is deleted from folio
+  @NoDoc Void onRemove(Ref id)
+  {
+    file.delete(id)
+  }
 }

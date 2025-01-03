@@ -20,6 +20,7 @@ class FileMgrTest : WhiteboxTest
     open
 
     id := Ref("test-file")
+    byte := Number.byte
     rec := Etc.makeDict([
       "id":   id,
       "mime": "text/plain",
@@ -30,20 +31,20 @@ class FileMgrTest : WhiteboxTest
     text := "this is a file!"
     rec = folio.file.create(rec) |OutStream out| { out.writeChars(text) }
     verifyEq(rec.id, id)
-    verifyEq(n(text.size), rec["fileSize"])
+    verifyEq(n(text.size, byte), rec["fileSize"])
     verifyEq(text, folio.file.read(id) |in| { in.readAllStr })
 
     // write
     text = "modified!"
     folio.file.write(id) |out| { out.writeChars(text) }
     folio.sync
-    verifyEq(n(text.size), folio.readById(id)["fileSize"])
+    verifyEq(n(text.size, byte), folio.readById(id)["fileSize"])
     verifyEq(text, folio.file.read(id) |in| { in.readAllStr })
 
     // clear
     folio.file.clear(id)
     folio.sync
-    verifyEq(Number.zero, folio.readById(id)["fileSize"])
+    verifyEq(Number(0, byte), folio.readById(id)["fileSize"])
     verifyEq("", folio.file.read(id) |in| { in.readAllStr })
 
     // removing the rec deletes the file.
@@ -55,7 +56,7 @@ class FileMgrTest : WhiteboxTest
       text   = "delete me"
       folio.file.write(id) |out| { out.writeChars(text) }
       folio.sync
-      verifyEq(n(text.size), folio.readById(id)["fileSize"])
+      verifyEq(n(text.size, byte), folio.readById(id)["fileSize"])
       verifyEq(text, folio.file.read(id) |in| { in.readAllStr })
       filesDir.walk |f| { if (!f.isDir) ++count }
       verify(count > 0)
