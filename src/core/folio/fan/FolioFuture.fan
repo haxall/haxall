@@ -187,11 +187,3 @@ const final class BackupFolioRes : FolioRes
   override const Obj? val
   override Int count() { 1 }
 }
-
-@NoDoc
-const final class FileDeleteRes : FolioRes
-{
-  new make(Ref id) { this.val = id }
-  override const Obj? val
-  override Int count() { 1 }
-}

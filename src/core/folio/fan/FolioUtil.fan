@@ -549,6 +549,8 @@ internal const class DiffTagRule
       "curErr":      transientOnly,
       "curSource":   transientOnly,
 
+      "fileSize":    restricted,
+
       "writeVal":    transientOnly,
       "writeLevel":  transientOnly,
       "writeStatus": transientOnly,

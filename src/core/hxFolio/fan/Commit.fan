@@ -269,7 +269,13 @@ internal class Commit
 
     // update dis strings
     folio.disMgr.updateAll
+
+    // remove file
+    if (isFile(dict)) folio.file.clear(dict.id)
   }
+
+  ** Chokepoint to determine if a rec is a file
+  static Bool isFile(Dict d) { true }
 
 //////////////////////////////////////////////////////////////////////////
 // Field

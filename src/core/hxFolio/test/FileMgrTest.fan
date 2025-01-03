@@ -21,24 +21,53 @@ class FileMgrTest : WhiteboxTest
 
     id := Ref("test-file")
     rec := Etc.makeDict([
-      "id":    id,
+      "id":   id,
       "mime": "text/plain",
-      "spec": "File",
+      "spec": Ref("sys::File"),
     ])
-    rec = folio.file.create(rec) |OutStream out| {
-      out.writeChars("this is a file!")
-    }
+
+    // create
+    text := "this is a file!"
+    rec = folio.file.create(rec) |OutStream out| { out.writeChars(text) }
     verifyEq(rec.id, id)
+    verifyEq(n(text.size), rec["fileSize"])
+    verifyEq(text, folio.file.read(id) |in| { in.readAllStr })
 
-    verifyEq("this is a file!",
-      folio.file.read(id) |in| { in.readAllStr })
+    // write
+    text = "modified!"
+    folio.file.write(id) |out| { out.writeChars(text) }
+    folio.sync
+    verifyEq(n(text.size), folio.readById(id)["fileSize"])
+    verifyEq(text, folio.file.read(id) |in| { in.readAllStr })
 
-    folio.file.write(id) |out| { out.writeChars("modified!") }
-    verifyEq("modified!",
-      folio.file.read(id) |in| { in.readAllStr })
+    // clear
+    folio.file.clear(id)
+    folio.sync
+    verifyEq(Number.zero, folio.readById(id)["fileSize"])
+    verifyEq("", folio.file.read(id) |in| { in.readAllStr })
 
-    folio.file.delete(id).get
-    verifyErr(ArgErr#) { folio.file.read(id) |in| { null } }
-    verifyErr(ArgErr#) { folio.file.read(Ref("does-not-exist")) |in| { null } }
+    // removing the rec deletes the file.
+    // making use of internal implementation details to verify this. see LocalFolioFile
+    filesDir := folio.dir.plus(`../files/`)
+    try
+    {
+      count := 0
+      text   = "delete me"
+      folio.file.write(id) |out| { out.writeChars(text) }
+      folio.sync
+      verifyEq(n(text.size), folio.readById(id)["fileSize"])
+      verifyEq(text, folio.file.read(id) |in| { in.readAllStr })
+      filesDir.walk |f| { if (!f.isDir) ++count }
+      verify(count > 0)
+      folio.commit(Diff(folio.readById(id), null, Diff.remove))
+      folio.sync
+      count = 0
+      filesDir.walk |f| { if (!f.isDir) ++count }
+      verifyEq(0, count)
+    }
+    finally filesDir.delete
+
+    // reading a file that doesn't exist should be 0 bytes
+    verifyEq(0, folio.file.read(Ref("does-not-exist")) |in| { in.readAllBuf }->size)
   }
 }

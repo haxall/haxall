@@ -34,23 +34,8 @@ const class FileMgr : HxFolioMgr, FolioFile
     file.write(id, f)
   }
 
-  override FolioFuture delete(Ref id)
+  override Void clear(Ref id)
   {
-    FolioFuture.makeAsync(send(Msg(MsgId.fileDelete, id)))
-  }
-
-  override internal Obj? onReceive(Msg msg)
-  {
-    switch (msg.id)
-    {
-      case MsgId.fileDelete: return onDelete(msg.a)
-    }
-    return super.onReceive(msg)
-  }
-
-  private Obj? onDelete(Ref id)
-  {
-    file.delete(id)
-    return FileDeleteRes(id)
+    file.clear(id)
   }
 }

@@ -46,13 +46,8 @@ const mixin FolioFile
   ** <pre
   abstract Void write(Ref id, |OutStream| f)
 
-  ** Delete the folio rec and file with the given id. Returns a `FolioFuture`
-  ** that will be completed after both the file and rec have been deleted.
-  **
-  ** pre>
-  ** folio.file.delete(rec.id).get
-  ** <pre
-  abstract FolioFuture delete(Ref id)
+  ** Clear the contents of the file with the given id (make it 0-bytes).
+  abstract Void clear(Ref id)
 }
 
 **
@@ -76,26 +71,34 @@ const class LocalFolioFile
 
   Dict create(Dict rec, |OutStream| f)
   {
-    // create the folio rec for this file
+    // get the id
     id := rec.get("id") ?: Ref.gen
-    rec = Etc.dictRemove(rec, "id")
-    rec = Etc.dictSet(rec, "spec", "File")
-    rec = folio.commit(Diff.makeAdd(rec, id)).newRec
 
-    // now write the file
+    // sanity check that a rec doesn't already exist
+    if (folio.readById(id, false) != null) throw ArgErr("Rec with id '${id}' already exists")
+
+    // write the file
     doWrite(id, f)
 
-    // return the newly created folio rec
+    // create the folio rec and return it - must use 2 commits
+    // since we can't do an Diff.makeAdd() with flags, and we
+    // can't do Diff.make() with an id
+    rec = Etc.dictMerge(rec, ["id":Remove.val, "spec": Ref("File")])
+    rec = folio.commit(Diff.makeAdd(rec, id)).newRec
+    rec = folio.commit(Diff.make(rec, ["fileSize":fileSize(id)], Diff.bypassRestricted)).newRec
     return rec
   }
 
   Void write(Ref id, |OutStream| f)
   {
-    // do a read to ensure there is a file rec (TODO: validation?)
+    // do a read to ensure there is a file rec
     rec := folio.readById(id)
 
     // then we can write it
     doWrite(id, f)
+
+    // commit the change to fileSize async
+    folio.commitAsync(Diff(rec, ["fileSize": fileSize(id)], Diff.bypassRestricted))
   }
 
   private Void doWrite(Ref id, |OutStream| f)
@@ -111,24 +114,27 @@ const class LocalFolioFile
   {
     // the file must exist
     file := localFile(id)
-    if (!file.exists) throw ArgErr("File not found: ${file.name}")
 
-    // read it
-    in := file.in
+    // if file doesn't exist use 0-byte input stream
+    in := file.exists ? file.in : Buf(0).in
     try
       return f(in)
     finally
       in.close
   }
 
-  Void delete(Ref id)
+  Void clear(Ref id)
   {
-    // remove the rec if file delete successful
-    rec := folio.readById(id, false)
-    if (rec != null) folio.commit(Diff(rec, null, Diff.remove))
-
-    // then delete the file in local file system
+    // delete the file with the given id in order to "clear" it
+    // this works because a read on a non-existent file is 0-byte result
     localFile(id).delete
+
+    // update the file size
+    rec := folio.readById(id, false)
+    if (rec != null)
+    {
+      folio.commitAsync(Diff(rec, ["fileSize": fileSize(id)], Diff.bypassRestricted))
+    }
   }
 
   ** Get the local file for this id
@@ -137,6 +143,13 @@ const class LocalFolioFile
     // always use normalized id
     id = norm(id)
     return dir.plus(`b${(id.hash.abs % 1024)}/${id}`)
+  }
+
+  ** Get the file size as a Number
+  private Number? fileSize(Ref id)
+  {
+    size := localFile(id).size
+    return size == null ? null : Number(size)
   }
 
   ** normalize the ref for consistency
