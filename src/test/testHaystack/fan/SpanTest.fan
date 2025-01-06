@@ -163,6 +163,7 @@ class SpanTest : HaystackTest
     verifyRelAlign(Span(start-2day, end), true,  SpanMode.abs)
     verifyRelAlign(Span(start+1ms, end),  false, SpanMode.abs)
     verifyRelAlign(Span(start, end-1ms),  false, SpanMode.abs)
+
   }
 
   Void verifyRelAlign(Span span, Bool alignsToDates, SpanMode mode)
@@ -174,6 +175,32 @@ class SpanTest : HaystackTest
     verifyEq(span.alignsToQuarter, mode.name.contains("Quarter"))
     verifyEq(span.alignsToYear,    mode.name.contains("Year"))
   }
+
+//////////////////////////////////////////////////////////////////////////
+// SpanModePeriod
+//////////////////////////////////////////////////////////////////////////
+
+ Void testSpanModePeriod()
+ {
+    verifySame(SpanMode.today.period,       SpanModePeriod.day)
+    verifySame(SpanMode.yesterday.period,   SpanModePeriod.day)
+
+    verifySame(SpanMode.lastWeek.period,    SpanModePeriod.week)
+    verifySame(SpanMode.thisWeek.period,    SpanModePeriod.week)
+    verifySame(SpanMode.pastWeek.period,    SpanModePeriod.week)
+
+    verifySame(SpanMode.thisMonth.period,   SpanModePeriod.month)
+    verifySame(SpanMode.lastMonth.period,   SpanModePeriod.month)
+    verifySame(SpanMode.pastMonth.period,   SpanModePeriod.month)
+
+    verifySame(SpanMode.thisQuarter.period, SpanModePeriod.quarter)
+    verifySame(SpanMode.lastQuarter.period, SpanModePeriod.quarter)
+    verifySame(SpanMode.pastQuarter.period, SpanModePeriod.quarter)
+
+    verifySame(SpanMode.thisYear.period,    SpanModePeriod.year)
+    verifySame(SpanMode.lastYear.period,    SpanModePeriod.year)
+    verifySame(SpanMode.pastYear.period,    SpanModePeriod.year)
+ }
 
 //////////////////////////////////////////////////////////////////////////
 // Contains
@@ -395,3 +422,4 @@ class SpanTest : HaystackTest
       return Date.fromStr(d).midnight(tz)
   }
 }
+
