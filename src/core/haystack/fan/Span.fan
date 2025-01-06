@@ -492,21 +492,27 @@ const final class Span
 @Js
 enum class SpanMode
 {
-  abs,
-  today,
-  yesterday,
-  thisWeek,
-  lastWeek,
-  pastWeek,
-  thisMonth,
-  lastMonth,
-  pastMonth,
-  thisQuarter,
-  lastQuarter,
-  pastQuarter,
-  thisYear,
-  lastYear,
-  pastYear
+  abs         (SpanModePeriod.abs),
+  today       (SpanModePeriod.day),
+  yesterday   (SpanModePeriod.day),
+  thisWeek    (SpanModePeriod.week),
+  lastWeek    (SpanModePeriod.week),
+  pastWeek    (SpanModePeriod.week),
+  thisMonth   (SpanModePeriod.month),
+  lastMonth   (SpanModePeriod.month),
+  pastMonth   (SpanModePeriod.month),
+  thisQuarter (SpanModePeriod.quarter),
+  lastQuarter (SpanModePeriod.quarter),
+  pastQuarter (SpanModePeriod.quarter),
+  thisYear    (SpanModePeriod.year),
+  lastYear    (SpanModePeriod.year),
+  pastYear    (SpanModePeriod.year)
+
+  ** Private constructor
+  private new make(SpanModePeriod period)
+  {
+    this.period = period
+  }
 
   ** Is this an absolute mode
   Bool isAbs() { this == abs }
@@ -516,4 +522,18 @@ enum class SpanMode
 
   ** Display name for relative period
   Str dis() { typeof.pod.locale(name) }
+
+  ** Period for this mode: day, week, month, quarter, year
+  @NoDoc const SpanModePeriod period
 }
+
+**************************************************************************
+** SpanModePeriod
+**************************************************************************
+
+@NoDoc @Js
+enum class SpanModePeriod
+{
+  abs, day, week, month, quarter, year
+}
+
