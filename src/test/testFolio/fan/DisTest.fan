@@ -128,6 +128,7 @@ class DisTest : AbstractFolioTest
   Void syncDis()
   {
     Actor.sleep(10ms)
+    folio.sync(null, "dis")
   }
 
 
