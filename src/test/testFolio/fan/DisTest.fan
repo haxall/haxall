@@ -37,7 +37,7 @@ class DisTest : AbstractFolioTest
 
     // update a and verify it ripples thru
     a = commit(a, ["dis":"A-1"])
-    syncDis
+    folio.sync(null, "dis")
     verifyEq(a.dis, "A-1")
     verifyEq(a.id.dis, "A-1")
     verifyDictDis(a, "A-1")
@@ -47,7 +47,7 @@ class DisTest : AbstractFolioTest
 
     // update b and verify it ripples
     b = commit(b, ["navName":"B-1"])
-    syncDis
+    folio.sync(null, "dis")
     verifyDictDis(a, "A-1")
     verifyDictDis(b, "A-1 B-1")
     verifyDictDis(c, "A-1 B-1 C-0")
@@ -55,7 +55,7 @@ class DisTest : AbstractFolioTest
 
     // update c and verify it ripples
     c = commit(c, ["navName":"C-1"])
-    syncDis
+    folio.sync(null, "dis")
     verifyDictDis(a, "A-1")
     verifyDictDis(b, "A-1 B-1")
     verifyDictDis(c, "A-1 B-1 C-1")
@@ -63,7 +63,7 @@ class DisTest : AbstractFolioTest
 
     // update d
     d = commit(d, ["navName":"D-1"])
-    syncDis
+    folio.sync(null, "dis")
     verifyDictDis(a, "A-1")
     verifyDictDis(b, "A-1 B-1")
     verifyDictDis(c, "A-1 B-1 C-1")
@@ -72,7 +72,7 @@ class DisTest : AbstractFolioTest
     // change bRef on c
     bx := addRec(["id":Ref("BX-ID"), "dis":"BX-0"])
     c = commit(c, ["bRef":bx.id])
-    syncDis
+    folio.sync(null, "dis")
     verifyDictDis(a,  "A-1")
     verifyDictDis(b,  "A-1 B-1")
     verifyDictDis(bx, "BX-0")
@@ -81,7 +81,7 @@ class DisTest : AbstractFolioTest
 
     // update bX to point to a
     bx = commit(bx, ["dis":Remove.val, "disMacro":"\$aRef \$navName", "aRef":a.id, "navName":"BX-1"])
-    syncDis
+    folio.sync(null, "dis")
     verifyDictDis(a,  "A-1")
     verifyDictDis(b,  "A-1 B-1")
     verifyDictDis(bx, "A-1 BX-1")
@@ -90,7 +90,7 @@ class DisTest : AbstractFolioTest
 
     // update bx to point to itself
     bx = commit(bx, ["aRef":bx.id, "navName":"NN"])
-    syncDis
+    folio.sync(null, "dis")
     verifyDictDis(a,  "A-1")
     verifyDictDis(b,  "A-1 B-1")
     verifyDictDis(c,  "BX-ID NN C-1")
@@ -102,7 +102,7 @@ class DisTest : AbstractFolioTest
       Diff(a, ["dis":"A-2"], Diff.force),
       Diff(b, ["navName":"B-2"], Diff.force),
       Diff(c, ["bRef":b.id, "navName":"C-2"], Diff.force)])
-    syncDis
+    folio.sync(null, "dis")
     verifyDictDis(a,  "A-2")
     verifyDictDis(b,  "A-2 B-2")
     verifyDictDis(c,  "A-2 B-2 C-2")
@@ -119,18 +119,10 @@ class DisTest : AbstractFolioTest
 
     // delete b
     removeRec(b)
-    syncDis
+    folio.sync(null, "dis")
     verifyDictDis(a, "A-2")
     verifyDictDis(c, "B-ID C-2")
     verifyDictDis(d, "B-ID C-2 D-1")
   }
-
-  Void syncDis()
-  {
-    Actor.sleep(10ms)
-  }
-
-
-
 }
 
