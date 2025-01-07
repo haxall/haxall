@@ -106,10 +106,37 @@ abstract class IOHandle
   }
 
   **
-  ** Process input stream and guarnatee closed.
+  ** Process the input stream and guarantee closed.
   ** Return result of function f.
   **
-  Obj? withIn(|InStream in->Obj?| f)
+  abstract Obj? withIn(|InStream in->Obj?| f)
+
+  **
+  ** Process the output stream and guarantee closed.
+  ** Returns 'null' or a sub-class specific result after the write is completed.
+  **
+  abstract Obj? withOut(|OutStream out| f)
+
+  **
+  ** Read entire input stream into memory as buffer
+  **
+  virtual Buf inToBuf() { withIn |in| { in.readAllBuf } }
+}
+
+**************************************************************************
+** DirectIO
+**************************************************************************
+
+**
+** DirectIO allows for direct access to the input and output streams.
+**
+** The public API is still `withIn` and `withOut` but this class provides
+** a convenient pattern for IOHandles that have this type of access to their
+** I/O streams.
+**
+internal abstract class DirectIO : IOHandle
+{
+  final override Obj? withIn(|InStream in->Obj?| f)
   {
     in := this.in
     try
@@ -118,11 +145,7 @@ abstract class IOHandle
       in.close
   }
 
-  **
-  ** Process input stream and guarnatee closed.
-  ** Return null.
-  **
-  virtual Obj? withOut(|OutStream out| f)
+  final override Obj? withOut(|OutStream out| f)
   {
     out := this.out
     try
@@ -132,25 +155,14 @@ abstract class IOHandle
     return withOutResult
   }
 
-  **
-  ** Open handle as an input stream.
-  **
+  ** Get direct access to the input stream for this handle
   abstract InStream in()
 
-  **
-  ** Open handle as an output stream.
-  **
+  ** Get direct access to the output stream for this handle.
   abstract OutStream out()
 
-  **
-  ** Result from withOut
-  **
-  internal virtual Obj? withOutResult() { null }
-
-  **
-  ** Read entire input stream into memory as buffer
-  **
-  virtual Buf inToBuf() { withIn |in| { in.readAllBuf } }
+  ** Result from `withOut`. Defaults to null
+  virtual Obj? withOutResult() { null }
 }
 
 **************************************************************************
@@ -196,23 +208,22 @@ internal class CharsetHandle : IOHandle
 {
   new make(IOHandle h, Charset charset) { this.handle = h; this.charset = charset }
 
-  override InStream in()
+  override Obj? withIn(|InStream in->Obj?| f)
   {
-    in := handle.in
-    in.charset = charset
-    return in
+    handle.withIn |in->Obj?|
+    {
+      in.charset = charset
+      return f(in)
+    }
   }
 
-  override OutStream out()
+  override Obj? withOut(|OutStream out| f)
   {
-    out := handle.out
-    out.charset = charset
-    return out
-  }
-
-  override Obj? withOutResult()
-  {
-    handle.withOutResult
+    handle.withOut |out|
+    {
+      out.charset = charset
+      f(out)
+    }
   }
 
   IOHandle handle
@@ -223,7 +234,7 @@ internal class CharsetHandle : IOHandle
 ** StrHandle
 **************************************************************************
 
-internal class StrHandle : IOHandle
+internal class StrHandle : DirectIO
 {
   new make(Str s) { this.str = s }
   const Str str
@@ -238,7 +249,7 @@ internal class StrHandle : IOHandle
 ** BufHandle
 **************************************************************************
 
-internal class BufHandle : IOHandle
+internal class BufHandle : DirectIO
 {
   new make(Buf buf) { this.buf = buf }
   Buf buf { private set }
@@ -252,7 +263,7 @@ internal class BufHandle : IOHandle
 ** FileHandle
 **************************************************************************
 
-internal class FileHandle : IOHandle
+internal class FileHandle : DirectIO
 {
   new make(File file)
   {
@@ -290,7 +301,7 @@ internal class FileHandle : IOHandle
 ** BinHandle
 **************************************************************************
 
-internal class BinHandle : IOHandle
+internal class BinHandle : DirectIO
 {
   new make(HxRuntime rt, Dict rec, Str tag)
   {
@@ -313,7 +324,7 @@ internal class BinHandle : IOHandle
 ** ZipEntryHandle
 **************************************************************************
 
-internal class ZipEntryHandle : IOHandle
+internal class ZipEntryHandle : DirectIO
 {
   new make(File file, Uri path)
   {
@@ -346,15 +357,35 @@ internal class GZipEntryHandle : IOHandle
 {
   new make(IOHandle handle) { this.handle = handle }
   IOHandle handle
-  override InStream in() { Zip.gzipInStream(handle.in) }
-  override OutStream out() { Zip.gzipOutStream(handle.out) }
+  override Obj? withIn(|InStream->Obj?| f)
+  {
+    handle.withIn |in->Obj?|
+    {
+      zipIn := Zip.gzipInStream(in)
+      try
+        return f(zipIn)
+      finally
+        zipIn.close
+    }
+  }
+  override Obj? withOut(|OutStream| f)
+  {
+    handle.withOut |out|
+    {
+      zipOut := Zip.gzipOutStream(out)
+      try
+        f(zipOut)
+      finally
+        zipOut.close
+    }
+  }
 }
 
 **************************************************************************
 ** FanHandle
 **************************************************************************
 
-internal class FanHandle : IOHandle
+internal class FanHandle : DirectIO
 {
   new make(Uri uri) { this.uri = uri }
   const Uri uri
@@ -384,7 +415,7 @@ internal class FanHandle : IOHandle
 ** HttpHandle
 **************************************************************************
 
-internal class HttpHandle : IOHandle
+internal class HttpHandle : DirectIO
 {
   new make(Uri uri) { this.uri = uri }
   const Uri uri
@@ -398,7 +429,7 @@ internal class HttpHandle : IOHandle
 ** FtpHandle
 **************************************************************************
 
-internal class FtpHandle : IOHandle
+internal class FtpHandle : DirectIO
 {
   new make(HxRuntime rt, Uri uri) { this.rt = rt; this.uri = uri }
   const HxRuntime rt
@@ -461,16 +492,18 @@ internal class SkipHandle : IOHandle
     this.opts = opts
   }
 
-  override OutStream out() { throw UnsupportedErr("Cannot write to ioSkip handle")  }
+  override Obj? withOut(|OutStream| f) { throw UnsupportedErr("Cannot write to ioSkip handle") }
 
-  override InStream in()
+  override Obj? withIn(|InStream->Obj?| f)
   {
-    in := handle.in
-    if (opts.has("bom"))   skipBom(in)
-    if (opts.has("bytes")) skipBytes(in, toInt("bytes"))
-    if (opts.has("chars")) skipChars(in, toInt("chars"))
-    if (opts.has("lines")) skipLines(in, toInt("lines"))
-    return in
+    handle.withIn |in->Obj?|
+    {
+      if (opts.has("bom"))   skipBom(in)
+      if (opts.has("bytes")) skipBytes(in, toInt("bytes"))
+      if (opts.has("chars")) skipChars(in, toInt("chars"))
+      if (opts.has("lines")) skipLines(in, toInt("lines"))
+      return f(in)
+    }
   }
 
   private Void skipBytes(InStream in, Int num)

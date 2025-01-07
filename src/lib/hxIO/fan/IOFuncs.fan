@@ -229,7 +229,7 @@ const class IOFuncs
   @Axon { admin = true }
   static Str ioReadStr(Obj? handle)
   {
-    toHandle(handle).in.readAllStr
+    toHandle(handle).withIn |in| { in.readAllStr }
   }
 
   **
@@ -279,7 +279,7 @@ const class IOFuncs
       }
     }
 
-    return io.in.readAllLines
+    return io.withIn |in| { in.readAllLines }
   }
 
   ** For each line of the given source stream call the given function
