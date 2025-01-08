@@ -71,14 +71,6 @@ const class IOFuncs
     toHandle(handle).toAppend
   }
 
-  ** Convert a record to an I/O handle which may be used to read/write folio files.
-  @Axon { admin = true }
-  static Obj ioFile(Obj rec)
-  {
-    cx := curContext
-    return IOHandle.fromDict(cx.rt, Etc.toRec(rec))
-  }
-
   **
   ** **DEPRECATED**: bin files will be removed in a future version of SkySpark.
   **

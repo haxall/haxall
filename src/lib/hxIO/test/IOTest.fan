@@ -398,9 +398,6 @@ class IOTest : HxTest
     eval("""ioWriteStr("folio file test!", readById(${rec.id.toCode}))""")
     text := eval("""readById(${rec.id.toCode}).ioReadStr()""")
     verifyEq(text, "folio file test!")
-    eval("""ioWriteStr("file foo!", readById(${rec.id.toCode}).ioFile)""")
-    text = eval("""ioFile(${rec.id.toCode}).ioReadStr()""")
-    verifyEq(text, "file foo!")
 
     // bins (SkySpark only)
     if (rt.platform.isSkySpark)
