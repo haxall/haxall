@@ -93,6 +93,7 @@ internal const class DotCall : Call
     target := args.first.eval(cx)
 
     // check if we should dispatch as interface method
+    /*
     if (target != null)
     {
       method := cx.xeto.interfaceMethodOn(target, funcName)
@@ -105,6 +106,7 @@ internal const class DotCall : Call
         return method.callOn(target, methodArgs)
       }
     }
+    */
 
     // evaluate as global function, but wrap target as
     // literal to ensure it is evaluated exactly once
