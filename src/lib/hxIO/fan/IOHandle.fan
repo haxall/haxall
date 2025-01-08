@@ -10,6 +10,7 @@ using web
 using ftp
 using haystack
 using hx
+using folio
 
 **
 ** IOHandle is the standard handle used to open an input/output stream.
@@ -33,7 +34,7 @@ abstract class IOHandle
     if (h is IOHandle) return h
     if (h is Str)      return StrHandle(h)
     if (h is Uri)      return fromUri(rt, h)
-    if (h is Dict)     return fromDict(rt, h, "file")
+    if (h is Dict)     return fromDict(rt, h)
     if (h is Buf)      return BufHandle(h)
     throw ArgErr("Cannot obtain IO handle from ${h?.typeof}")
   }
@@ -48,16 +49,33 @@ abstract class IOHandle
     return FileHandle(rt.file.resolve(uri))
   }
 
-  internal static IOHandle fromDict(HxRuntime rt, Dict rec, Str tag)
+  ** Get an IOHandle from a Dict rec. If a tag is specified, then the the
+  ** rec is treated as a Bin (deprecated feature). For backwards compatibility
+  ** if a null tag is specified, we check if the rec has a 'file' Bin tag; if it
+  ** does we treat it as a Bin. In all other cases the rec is a folio file.
+  internal static IOHandle fromDict(HxRuntime rt, Dict rec, Str? tag := null)
   {
     // if {zipEntry, file: <ioHandle>, path: <Uri>}
     if (rec.has("zipEntry"))
       return ZipEntryHandle(fromObj(rt, rec->file).toFile("ioZipEntry"), rec->path)
 
-    id  := rec["id"] as Ref
+    // must have valid id
+    id := rec["id"] as Ref
+    if (id == null) throw ArgErr("Dict has missing/invalid 'id' tag")
+
+    // check for explicit bin tag
+    if (tag != null) return tryBin(rt, rec, tag)
+
+    // check for implicit 'file' Bin, otherwise return a folio file handle
+    return tryBin(rt, rec, "file", false) ?: FolioFileHandle(rt, rec)
+  }
+
+  private static BinHandle? tryBin(HxRuntime rt, Dict rec, Str tag, Bool checked := true)
+  {
     bin := rec[tag] as Bin
-    if (id ==  null || bin == null) throw ArgErr("Dict has missing/incorrect 'id' and '$tag' tags")
-    return BinHandle(rt, rec, tag)
+    if (bin != null) return BinHandle(rt, rec, tag)
+    if (checked) throw ArgErr("Dict '${tag}' tag is not a Bin")
+    return null
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -295,6 +313,33 @@ internal class FileHandle : DirectIO
     return acc
   }
   override DirItem info() { DirItem(file.uri, file) }
+}
+
+**************************************************************************
+** FolioFileHandle
+**************************************************************************
+
+internal class FolioFileHandle : IOHandle
+{
+  new make(HxRuntime rt, Dict rec)
+  {
+    this.folio = rt.db
+    this.rec   = rec
+  }
+
+  const Folio folio
+  const Dict rec
+
+  override Obj? withIn(|InStream->Obj?| f)
+  {
+    folio.file.read(rec.id, f)
+  }
+
+  override Obj? withOut(|OutStream| f)
+  {
+    folio.file.write(rec.id, f)
+    return null
+  }
 }
 
 **************************************************************************

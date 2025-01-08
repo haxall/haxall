@@ -393,12 +393,21 @@ class IOTest : HxTest
     verifyErr(EvalErr#) { eval("ioReadStr(`fan://ioExt/badfile.txt`)") }
     verifyErr(EvalErr#) { eval("ioReadStr(`fan://badPodFooBar/badfile.txt`)") }
 
+    // folio file
+    rec := addRec(["file":m, "folio":m])
+    eval("""ioWriteStr("folio file test!", readById(${rec.id.toCode}))""")
+    text := eval("""readById(${rec.id.toCode}).ioReadStr()""")
+    verifyEq(text, "folio file test!")
+    eval("""ioWriteStr("file foo!", readById(${rec.id.toCode}).ioFile)""")
+    text = eval("""ioFile(${rec.id.toCode}).ioReadStr()""")
+    verifyEq(text, "file foo!")
+
     // bins (SkySpark only)
     if (rt.platform.isSkySpark)
     {
       f := addRec(["file": Bin("text/plain")])
       eval("""ioWriteStr("bin test!", readById($f.id.toCode))""")
-      text := eval("""readById($f.id.toCode).ioReadStr()""")
+      text = eval("""readById($f.id.toCode).ioReadStr()""")
       verifyEq(text, "bin test!")
 
       // bin (foo)
