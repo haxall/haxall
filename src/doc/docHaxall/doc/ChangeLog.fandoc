@@ -7,6 +7,8 @@
 **************************************************************************
 
 *Build 3.1.12 (working)*
+- FolioFile API
+- hxIO support for folio files
 
 *Build 3.1.11 (9 Dec 2024)*
 - Filter comparison of Numbers now requires same unit

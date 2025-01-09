@@ -34,6 +34,8 @@ the following:
   - Uri with 'fan://' scheme will read files bundled in pods
   - Uri with 'http://' or 'https://' scheme will read using HTTP GET request (readonly)
   - Uri with 'ftp://' or 'ftps://' scheme will retreive using [FTP]`lib-io::doc#ftp`
+  - any Dict can be used as an IOHandle. Data will be stored in Folio keyed off the
+    'id' of the rec. The data will be removed when the rec is deleted from folio.
 
 The default charset used by all I/O handles is "UTF-8".  You can wrap any of the
 handles above with the `ioCharset` function to specify an alternate charset.
