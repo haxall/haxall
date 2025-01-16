@@ -50,26 +50,32 @@ const mixin FolioFile
   abstract Void clear(Ref id)
 }
 
+**************************************************************************
+** MFolioFile
+**************************************************************************
+
 **
-** Break out the implementation for local file storage so that
-** it can be easily re-used.
-**
-** Files are hashed into a directory buckets so they aren't all in one
-** big directory.
+** Base class for implementations of `FolioFile`. There is additional internal
+** API needed by implementations that should not be exposed in the public API.
 **
 @NoDoc
-const class LocalFolioFile
+const abstract class MFolioFile : FolioFile
 {
   new make(Folio folio)
   {
     this.folio = folio
-    this.dir = folio.dir.plus(`../files/`)
   }
 
+  ** Folio instance
   const Folio folio
-  const File dir
 
-  Dict create(Dict rec, |OutStream| f)
+  ** Delete the file from storage. This is low-level I/O operation only
+  ** and will not make any changes to folio recs.
+  abstract Void delete(Ref id)
+
+  ** Utility to ensure the rec is properly tagged during create. Returns
+  ** the updated rec with updated tags.
+  protected Dict createRec(Dict rec)
   {
     // get the id
     id := rec.get("id") ?: Ref.gen
@@ -81,8 +87,41 @@ const class LocalFolioFile
     rec = Etc.dictMerge(rec, ["id":Remove.val, "spec": Ref("sys::File")])
     rec = folio.commit(Diff.makeAdd(rec, id)).newRec
 
+    return rec
+  }
+
+  ** Utility to normalize the ref for consistency
+  protected static Ref norm(Ref id) { id.toProjRel }
+}
+
+**************************************************************************
+** LocalFolioFile
+**************************************************************************
+
+**
+** Break out the implementation for local file storage so that
+** it can be easily re-used.
+**
+** Files are hashed into a directory buckets so they aren't all in one
+** big directory.
+**
+@NoDoc
+const class LocalFolioFile : MFolioFile
+{
+  new make(Folio folio) : super(folio)
+  {
+    this.dir = folio.dir.plus(`../files/`)
+  }
+
+  const File dir
+
+  override Dict create(Dict rec, |OutStream| f)
+  {
+    // ensure initial rec is properly created
+    rec = createRec(rec)
+
     // write the file
-    doWrite(id, f)
+    doWrite(rec.id, f)
 
     // now update the file size
     rec = ((Diff)commitFileSizeAsync(rec).get(30sec)->first).newRec
@@ -91,7 +130,7 @@ const class LocalFolioFile
     return rec
   }
 
-  Void write(Ref id, |OutStream| f)
+  override Void write(Ref id, |OutStream| f)
   {
     // do a read to ensure there is a file rec
     rec := folio.readById(id)
@@ -112,7 +151,7 @@ const class LocalFolioFile
       out.close
   }
 
-  Obj? read(Ref id, |InStream->Obj?| f)
+  override Obj? read(Ref id, |InStream->Obj?| f)
   {
     // the file must exist
     file := localFile(id)
@@ -125,7 +164,7 @@ const class LocalFolioFile
       in.close
   }
 
-  Void clear(Ref id)
+  override Void clear(Ref id)
   {
     // delete the file with the given id in order to "clear" it
     // this works because a read on a non-existent file is 0-byte result
@@ -137,7 +176,7 @@ const class LocalFolioFile
   }
 
   ** Delete the file on disk
-  Void delete(Ref id)
+  override Void delete(Ref id)
   {
     localFile(id).delete
   }
@@ -162,7 +201,4 @@ const class LocalFolioFile
     size := localFile(id).size
     return size == null ? null : Number(size, Number.byte)
   }
-
-  ** normalize the ref for consistency
-  private static Ref norm(Ref id) { id.toProjRel }
 }

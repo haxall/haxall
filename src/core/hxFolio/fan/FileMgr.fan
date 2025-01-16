@@ -17,7 +17,7 @@ const class FileMgr : HxFolioMgr, FolioFile
     this.file = LocalFolioFile(folio)
   }
 
-  private const LocalFolioFile file
+  private const MFolioFile file
 
   override Dict create(Dict rec, |OutStream| f)
   {
