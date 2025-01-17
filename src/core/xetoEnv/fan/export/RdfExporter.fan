@@ -77,6 +77,7 @@ class RdfExporter : Exporter
     w("  a owl:Class ;").nl
     labelAndDoc(x)
 
+    // supertype
     if (x.base != null)
       w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
 
@@ -85,6 +86,13 @@ class RdfExporter : Exporter
     w("    a owl:Class ;").nl
     w("    ] ;").nl
     */
+
+    // markers
+    x.slots.each |slot|
+    {
+      if (slot.isMarker && slot.base.isGlobal) w("  :hasMarker ").w(slot.base.qname).w(" ;").nl
+    }
+
     w(".").nl
     return this
   }
