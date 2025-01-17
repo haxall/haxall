@@ -24,7 +24,7 @@ doc:
 def: ^connTuningRef
 is: ^ref
 of: ^connTuning
-tagOn: [^conn, ^connPoint]
+tagOn: [^conn, ^connPoint, ^lib]
 doc:
   Reference to a tuning configuration defined by a `connTuning` rec.
   See `docHaxall::ConnTuning#connTuning`

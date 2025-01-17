@@ -120,7 +120,7 @@ You can use the `to` function to convert between units:
   65°F.to(1°C)     >>  18.333 °C
   2000m².to(1ft²)  >>  21,527.83 ft²
   100kWh.to(1BTU)  >>  341,280.104 BTU
-  100kWh.to(1L)    >>  Incovertable units: kWh and L
+  100kWh.to(1L)    >>  Inconvertable units: kWh and L
 
 The scalar value of the to-unit is ignored, but by convention we use "1".
 Or you can use the unit string as follows:
