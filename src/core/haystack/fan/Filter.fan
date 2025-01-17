@@ -321,6 +321,9 @@ internal const abstract class SimpleFilter : Filter
         }
       }
 
+      // if list then it must have been list of refs checked above
+      if (val is List) return false
+
       // use null as the match value (not found)
       val = null
     }

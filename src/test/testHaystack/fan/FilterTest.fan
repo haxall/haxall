@@ -486,8 +486,8 @@ class FilterTest : HaystackTest
     dId := Ref("d")
     a := Etc.makeDict(["dis":"a", "str":"q",        "ref":aId])
     b := Etc.makeDict(["dis":"b", "str":["q"],      "ref":[aId]])
-    c := Etc.makeDict(["dis":"c", "str":["q", "r"], "ref":[aId, bId]])
-    d := Etc.makeDict(["dis":"d", "str":"q",        "ref":[bId, cId]])
+    c := Etc.makeDict(["dis":"c", "str":["q", "r"], "ref":[aId, bId], "air":m])
+    d := Etc.makeDict(["dis":"d", "str":"q",        "ref":[bId, cId], "water":m])
     e := Etc.makeDict(["dis":"e", "refx":cId])
     f := Etc.makeDict(["dis":"f", "refx":[cId]])
     g := Etc.makeDict(["dis":"g", "refx":[dId]])
@@ -505,6 +505,9 @@ class FilterTest : HaystackTest
     verifyInclude(recs, Str<|refx->dis=="c"|>, [e, f, h])
     verifyInclude(recs, Str<|refx->ref|>,      [e, f, g, h])
     verifyInclude(recs, Str<|refx->ref==@a|>,  [e, f, h])
+    verifyInclude(recs, Str<|refx->air|>,      [e, f, h])
+    verifyInclude(recs, Str<|refx->water|>,    [g, h])
+    verifyInclude(recs, Str<|not refx->air|>,  [a, b, c, d, g, h], false) // not e/f
   }
 
   Void testIncludeDateTime()
@@ -539,7 +542,7 @@ class FilterTest : HaystackTest
 
   }
 
-  Void verifyInclude(Dict[] recs, Str filter, Dict[] expected)
+  Void verifyInclude(Dict[] recs, Str filter, Dict[] expected, Bool testNoPath := true)
   {
     f := Filter(filter)
     pather := |Ref r->Dict?| { recs.find |x| { x->dis == r.id } }
@@ -549,11 +552,14 @@ class FilterTest : HaystackTest
     actual.each |r, i| { verifySame(r, expected[i]) }
 
     // test out null pather
-    noPath := recs.findAll |r| { f.matches(r, HaystackContext.nil) }
-    if (filter.contains("->") && !filter.startsWith("ts->"))
-      verifyEq(noPath.size, filter.contains("thru") ? 1 : 0)
-    else
-      verifyEq(noPath, actual)
+    if (testNoPath)
+    {
+      noPath := recs.findAll |r| { f.matches(r, HaystackContext.nil) }
+      if (filter.contains("->") && !filter.startsWith("ts->"))
+        verifyEq(noPath.size, filter.contains("thru") ? 1 : 0)
+      else
+        verifyEq(noPath, actual)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
