@@ -32,6 +32,8 @@ const final class MChoice : SpecChoice
 
   override Spec type() { spec.type }
 
+  override Str toStr() { spec.qname }
+
   override Bool isMaybe() { maybe(spec) }
 
   override Bool isMultiChoice() { multiChoice(spec) }
@@ -39,7 +41,7 @@ const final class MChoice : SpecChoice
   override Spec[] selections(Dict instance, Bool checked := true)
   {
     selections := Spec[,]
-    findSelections(ns, spec, instance, selections)
+    doFindSelections(choiceSubtypes, spec, instance, selections)
     if (checked) validate(spec, (Obj)selections) |err| { throw Err(err) }
     return selections
   }
@@ -47,6 +49,11 @@ const final class MChoice : SpecChoice
   override Spec? selection(Dict instance, Bool checked := true)
   {
     selections(instance, checked).first
+  }
+
+  private once CSpec[] choiceSubtypes()
+  {
+    findChoiceSubtypes(ns, spec).toImmutable
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,15 +72,33 @@ const final class MChoice : SpecChoice
 // Implemention (for both MNamespace and XetoCompiler)
 //////////////////////////////////////////////////////////////////////////
 
-  ** Find all the choice selections for instance
-  static Void findSelections(CNamespace ns, CSpec spec, Dict instance, Obj[] acc)
+  ** Get all the choice subtypes to use for checking
+  static Obj[] findChoiceSubtypes(CNamespace ns, CSpec spec)
   {
-    // find all the matches first
+    acc := Obj[,]
     ns.eachSubtype(spec.ctype) |x|
     {
       if (!x.isChoice) return
       if (!x.hasSlots) return
-      if (xhasChoiceMarkers(instance, x)) acc.add(x)
+      acc.add(x)
+    }
+    return acc
+  }
+
+  ** Find all the choice selections for instance
+  static Void findSelections(CNamespace ns, CSpec spec, Dict instance, Obj[] acc)
+  {
+    subtypes := findChoiceSubtypes(ns, spec)
+    return doFindSelections(subtypes, spec, instance, acc)
+  }
+
+  ** Find all the choice selections for instance
+  static Void doFindSelections(CSpec[] subtypes, CSpec spec, Dict instance, Obj[] acc)
+  {
+    // find all the matches first
+    subtypes.each |x|
+    {
+      if (hasChoiceMarkers(instance, x)) acc.add(x)
     }
 
     // if we have more than one matches then strip supertypes such
@@ -103,7 +128,7 @@ const final class MChoice : SpecChoice
   }
 
   ** Return if instance has all the given marker tags of the given choice
-  static Bool xhasChoiceMarkers(Dict instance, CSpec choice)
+  static Bool hasChoiceMarkers(Dict instance, CSpec choice)
   {
     r := choice.cslotsWhile |slot|
     {
