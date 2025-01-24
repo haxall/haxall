@@ -202,7 +202,7 @@ internal class Resolve : Step
   private Obj? resolveInDepend(ARef ref, Str name, XetoLib depend)
   {
     ref.nodeType === ANodeType.specRef ?
-      depend.type(name, false) :
+      depend.spec(name, false) :
       wrapInstance(depend.instance(name, false))
   }
 
