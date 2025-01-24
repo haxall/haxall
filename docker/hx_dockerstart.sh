@@ -13,6 +13,12 @@ else
     cd dbs
 fi
 
+init_db () {
+  if [ -n "$HAXALL_ROOT_USER" ]; do
+    fan hx init -headless "$DB_NAME" -suUser "${HAXALL_ROOT_USER:-su}" -suPass "${HAXALL_ROOT_PASSWORD}"
+  else
+    fan hx init -headless "$DB_NAME"
+}
 
 # The following runs hx init with the given database name from build argument DB_NAME (default is "var").
 # It can be changed when doing docker compose commands like so: --build-arg DB_NAME=example
@@ -21,7 +27,7 @@ if [ -d "$DB_NAME" ]; then
     # The directory exists, but is EMPTY. 
     if [ -z "$(ls -A "$DB_NAME")" ]; then
         echo "$DB_NAME is empty, running hx init..."
-        fan hx init -headless "$DB_NAME"
+        init_db
     # The directory exists, and is NOT empty.
     else
         echo "$DB_NAME already exists." && echo "If you want to modify your superuser account or the HTTP port, run the 'fan hx init' command again on the same directory, like so:" && echo "fan hx init $DB_NAME"
@@ -29,7 +35,7 @@ if [ -d "$DB_NAME" ]; then
 # The directory does not exist.
 else
     echo "$DB_NAME does not exist, running hx init..."
-    fan hx init -headless "$DB_NAME"
+    init_db
 fi
 
 # This runs haxall after creating the database. Any errors here are likely caused by the bind-mounted database being edited on the local file system by the host. 
