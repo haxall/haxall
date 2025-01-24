@@ -14,7 +14,7 @@ else
 fi
 
 init_db () {
-  if [ -n "$HAXALL_ROOT_USER" ]; do
+  if [ -n "HAXALL_ROOT_PASSWORD" ]; do
     fan hx init -headless "$DB_NAME" -suUser "${HAXALL_ROOT_USER:-su}" -suPass "${HAXALL_ROOT_PASSWORD}"
   else
     fan hx init -headless "$DB_NAME"
