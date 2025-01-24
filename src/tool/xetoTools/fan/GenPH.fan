@@ -326,6 +326,7 @@ internal class GenPH : AbstractGenCmd
     name == "airQualityZonePoints" ||
 
     name == "phenomenon" ||
+    name == "quantity"   ||
     name == "substance"  ||
     name == "fluid"      ||
     name == "liquid"     ||
