@@ -187,7 +187,9 @@ internal class GenPH : AbstractGenCmd
 
   private Str toChoiceTypeName(Def def)
   {
-    XetoUtil.dottedToCamel(def.name, '-').capitalize
+    simplify := choiceSimplify(def)
+    if (simplify != null) return simplify
+    return XetoUtil.dottedToCamel(def.name, '-').capitalize
   }
 
   private Str toTagMeta(Def def, Kind kind)
@@ -496,6 +498,9 @@ internal class GenPH : AbstractGenCmd
 
   private Void writeChoice(OutStream out, Def def)
   {
+    // skip choices that used of like pipeFluid
+    if (choiceSimplify(def) != null) return
+
     specName := toChoiceTypeName(def)
     baseName := "Choice"
 
@@ -587,6 +592,14 @@ internal class GenPH : AbstractGenCmd
 
     // air-velocity returns "air, velocity"
     return "$part1, $part2"
+  }
+
+  private Str? choiceSimplify(Def def)
+  {
+    // these choices now just use their of
+    of := def["of"]
+    if (of != null) return of.toStr.capitalize
+    return null
   }
 
 //////////////////////////////////////////////////////////////////////////

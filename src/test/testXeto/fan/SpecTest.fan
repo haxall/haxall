@@ -266,8 +266,8 @@ class SpecTest : AbstractXetoTest
     verifyIsa(ns, "ph::Phenomenon",    "sys::Choice",    true)
     verifyIsa(ns, "ph::Fluid",         "sys::Choice",    true)
     verifyIsa(ns, "ph::Fluid",         "ph::Phenomenon", true)
-    verifyIsa(ns, "ph::PipeFluid",     "sys::Choice",    true)
-    verifyIsa(ns, "ph::PipeFluid",     "ph::Fluid",      true)
+    verifyIsa(ns, "ph::Water",         "sys::Choice",    true)
+    verifyIsa(ns, "ph::Water",         "ph::Fluid",      true)
   }
 
   Spec verifyIsa(LibNamespace ns, Str an, Str bn, Bool expect, Bool expectMethod := expect)
@@ -390,7 +390,7 @@ class SpecTest : AbstractXetoTest
       "point:Marker", "cur:Marker?", "enum:Obj?",
       "equipRef:Ref?", "his:Marker?", "kind:Kind",
       "maxVal:Number?", "minVal:Number?",
-      "pointFunction:PointFunction?", "pointQuantity:PointQuantity?", "pointSubject:PointSubject?",
+      "pointFunction:PointFunction?", "pointQuantity:Quantity?", "pointSubject:Phenomenon?",
       "siteRef:Ref?", "spaceRef:Ref?", "systemRef:MultiRef?",
       "tz:TimeZone?", "unit:Unit?", "writable:Marker?",
       "equips:Query"]
