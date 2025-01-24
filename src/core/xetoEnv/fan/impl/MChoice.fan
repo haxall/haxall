@@ -41,16 +41,22 @@ const final class MChoice : SpecChoice
   override Spec[] selections(Dict instance, Bool checked := true)
   {
     selections := Spec[,]
-    doFindSelections(choiceSubtypes, spec, instance, selections)
+    doFindSelections(choiceSubtypes, instance, selections)
     if (checked) validate(spec, (Obj)selections) |err| { throw Err(err) }
     return selections
   }
 
   override Spec? selection(Dict instance, Bool checked := true)
   {
-    selections(instance, checked).first
+    // if checked then find all selections and validate;
+    // otherwise we can optimize to just find first match
+    if (checked)
+      return selections(instance, checked).first
+    else
+      return doFindSelection(choiceSubtypes, instance) as Spec
   }
 
+  ** Cache the choice subtype computation because its really expensive
   private once CSpec[] choiceSubtypes()
   {
     findChoiceSubtypes(ns, spec).toImmutable
@@ -89,11 +95,21 @@ const final class MChoice : SpecChoice
   static Void findSelections(CNamespace ns, CSpec spec, Dict instance, Obj[] acc)
   {
     subtypes := findChoiceSubtypes(ns, spec)
-    return doFindSelections(subtypes, spec, instance, acc)
+    return doFindSelections(subtypes, instance, acc)
+  }
+
+  ** Find first match selection. This is an optimization used used for
+  ** an unchecked selection that lets us avoid a bunch of extra computation
+  static CSpec? doFindSelection(CSpec[] subtypes, Dict instance)
+  {
+    subtypes.find |x|
+    {
+      hasChoiceMarkers(instance, x)
+    }
   }
 
   ** Find all the choice selections for instance
-  static Void doFindSelections(CSpec[] subtypes, CSpec spec, Dict instance, Obj[] acc)
+  static Void doFindSelections(CSpec[] subtypes, Dict instance, Obj[] acc)
   {
     // find all the matches first
     subtypes.each |x|
