@@ -14,15 +14,16 @@ else
 fi
 
 init_db () {
-  if [ -n "HAXALL_ROOT_PASSWORD" ]; do
-    fan hx init -headless "$DB_NAME" -suUser "${HAXALL_ROOT_USER:-su}" -suPass "${HAXALL_ROOT_PASSWORD}"
-  else
-    fan hx init -headless "$DB_NAME"
+    if [ -n "$HAXALL_ROOT_PASSWORD" ]; then
+        fan hx init -headless "$DB_NAME" -suUser "${HAXALL_ROOT_USER:-su}" -suPass "${HAXALL_ROOT_PASSWORD}"
+    else
+        fan hx init -headless "$DB_NAME"
+    fi
 }
 
 # The following runs hx init with the given database name from build argument DB_NAME (default is "var").
 # It can be changed when doing docker compose commands like so: --build-arg DB_NAME=example
-# It is stored under an ENV variable of same name (BD_NAME) created during the dockerfile build context, and persists after. 
+# It is stored under an ENV variable of same name (DB_NAME) created during the dockerfile build context, and persists after.
 if [ -d "$DB_NAME" ]; then
     # The directory exists, but is EMPTY. 
     if [ -z "$(ls -A "$DB_NAME")" ]; then
