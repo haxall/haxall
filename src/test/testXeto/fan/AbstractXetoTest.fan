@@ -49,6 +49,22 @@ class AbstractXetoTest : HaystackTest
     client := TestClient(server)
     client.boot
     verifyEq(client.ns.isRemote, true)
+
+    // check lib lookup
+    cns := client.ns
+    libs.each |n|
+    {
+      if (n == "sys") return
+      verifyEq(cns.libStatus(n), LibStatus.notLoaded)
+      verifyEq(cns.hasLib(n), true)
+      verifyEq(cns.lib(n, false), null)
+      verifyErr(UnsupportedErr #) { cns.lib(n) }
+      verifyErr(UnsupportedErr #) { cns.lib(n, true) }
+      verifyEq(cns.libStatus(n), LibStatus.notLoaded)
+      if (n == "ph") verifyEq(client.ns.spec("ph::Site", false), null)
+    }
+
+    // load all and invoke callback
     client.ns.libsAllAsync |e, x|
     {
       try

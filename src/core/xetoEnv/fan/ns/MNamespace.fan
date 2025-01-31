@@ -142,7 +142,18 @@ abstract const class MNamespace : LibNamespace, CNamespace
       if (checked) throw UnknownLibErr(name)
       return null
     }
-    if (e.status.isNotLoaded) loadSyncWithDepends(e)
+    if (e.status.isNotLoaded)
+    {
+      if (isRemote)
+      {
+        if (checked) throw UnsupportedErr("Must use libAsync [$e.version]")
+        return null
+      }
+      else
+      {
+        loadSyncWithDepends(e)
+      }
+    }
     if (e.status.isOk) return e.get
     throw e.err ?: Err("$name [$e.status]")
   }

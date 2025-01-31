@@ -144,10 +144,8 @@ const mixin LibNamespace
   ** environment, then the library will be compiled on its first access.
   ** If the library cannot be compiled then an exception is always raised
   ** regardless of checked flag.  If this is a JS environment then the
-  ** library must already have been loaded, otherwise raise exception
-  ** regardless of checked flag.  The checked flag only returns null if
-  ** the library is not defined by this namespace.  Use `libAsync` to
-  ** load a library in JS environment.
+  ** library must already have been loaded, otherwise raise exception if
+  ** checked is true.  Use `libAsync` to load a library in JS environment.
   abstract Lib? lib(Str name, Bool checked := true)
 
   ** List all libraries.  On first call, this will force all libraries to
@@ -192,11 +190,11 @@ const mixin LibNamespace
   **   - type: "foo.bar::Baz"
   **   - global: "foo.bar::baz"
   **   - slot: "foo.bar::Baz.qux"
-   ** If the spec's lib is not loaded, it is loaded synchronously.
+   ** See `lib()` for behavior if the spec's lib is not loaded.
   abstract Spec? spec(Str qname, Bool checked := true)
 
   ** Get or load instance by the given qualified name
-  ** If the instance's lib is not loaded, it is loaded synchronously.
+   ** See `lib()` for behavior if the instances's lib is not loaded.
   abstract Dict? instance(Str qname, Bool checked := true)
 
   ** Resolve unqualified type name against all libs.  Raise exception if not
