@@ -34,6 +34,7 @@ class Build : BuildPod
                "xetoEnv @{hx.depend}",
                "xetoDoc @{hx.depend}",
                "haystack @{hx.depend}",
+               "axon @{hx.depend}",
                "def @{hx.depend}",
                "defc @{hx.depend}"]
     srcDirs = [`fan/`]

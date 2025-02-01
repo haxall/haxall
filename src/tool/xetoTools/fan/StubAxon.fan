@@ -8,6 +8,7 @@
 
 using util
 using haystack
+using axon
 
 internal class StubAxon : XetoCmd
 {
@@ -29,6 +30,9 @@ internal class StubAxon : XetoCmd
     type := toFantomType(pod)
     if (type != null) reflectType(acc, type)
 
+    // trio functions
+    reflectTrioFiles(acc, pod)
+
     acc.sort
     writeAll(Env.cur.out, acc)
 
@@ -41,7 +45,14 @@ internal class StubAxon : XetoCmd
 
   Type? toFantomType(Pod pod)
   {
+    // specials
     if (pod.name == "axon") return pod.type("CoreLib")
+
+    // SkySpark extension
+    prefix := pod.name + "::"
+    ext := Env.cur.index("skyarc.lib").find { it.startsWith(prefix) }
+    if (ext != null) return Type.find(ext)
+
     return null
   }
 
@@ -51,13 +62,13 @@ internal class StubAxon : XetoCmd
     {
       if (!m.isPublic) return
       if (m.parent !== type) return
-      facet := m.facet(axonFacetType, false)
+      facet := m.facet(Axon#, false)
       if (facet == null) return
       acc.add(reflectMethod(m, facet))
     }
   }
 
-  StubFunc reflectMethod(Method method, Obj facet)
+  StubFunc reflectMethod(Method method, Axon facet)
   {
     // lookup method by name or _name
     name := method.name
@@ -67,7 +78,7 @@ internal class StubAxon : XetoCmd
 
     // meta
     meta := Str:Obj[:]
-    facet.typeof.method("decode").call(facet) |n, v|
+    facet.decode |n, v|
     {
       meta[n] = v
     }
@@ -85,7 +96,7 @@ internal class StubAxon : XetoCmd
     returns := reflectParam("returns", method.returns)
 
     // function stub
-    return StubFunc(name, doc, Etc.makeDict(meta), params, returns)
+    return StubFunc(name, doc, Etc.makeDict(meta), params, returns, null)
   }
 
   private StubParam reflectParam(Str name, Type type)
@@ -135,24 +146,76 @@ internal class StubAxon : XetoCmd
       out.print(">")
     }
 
-    out.printLine(" {")
+    out.print(" { ")
 
-    func.params.each |p| { writeParam(out, p) }
-    writeParam(out, func.returns)
+    first := true
+    func.params.each |p| { first = writeParam(out, p, first) }
+    first = writeParam(out, func.returns, first)
 
-    out.printLine("}")
+    out.printLine(" }")
+
+    if (func.axon != null)
+    {
+      out.printLine("  --- axon")
+      func.axon.splitLines.each |line| { out.printLine("  $line") }
+      out.printLine("  ---")
+    }
   }
 
-  Void writeParam(OutStream out, StubParam p)
+  Bool writeParam(OutStream out, StubParam p, Bool first)
   {
-    out.printLine("  $p.name: $p.type")
+    if (!first) out.print(", ")
+    out.print("$p.name: $p.type")
+    return false
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Fields
+// Trio
 //////////////////////////////////////////////////////////////////////////
 
-  private Type axonFacetType := Type.find("axon::Axon")
+  private Void reflectTrioFiles(StubFunc[] acc, Pod pod)
+  {
+    pod.files.each |f|
+    {
+      if (f.pathStr.startsWith("/lib/") && f.ext == "trio")
+        reflectTrioFile(acc, f)
+    }
+  }
+
+  private Void reflectTrioFile(StubFunc[] acc, File f)
+  {
+    recs := TrioReader(f.in).readAllDicts
+    loc := Loc(f.pathStr)
+    recs.each |rec|
+    {
+      if (rec.has("func")) acc.addNotNull(reflectTrioFunc(loc, rec))
+    }
+  }
+
+  private StubFunc? reflectTrioFunc(Loc loc, Dict rec)
+  {
+    name := rec["name"] as Str ?: throw Err("Func missing name: $rec")
+    axon := rec["src"] as Str ?: throw Err("Func missing axon: $name")
+
+    meta := Str:Obj[:]
+    doc := ""
+    rec.each |v, n|
+    {
+      if (n == "name") return
+      if (n == "src") return
+      if (n == "func") return
+      if (n == "doc") { doc = v.toStr; return }
+      meta[n] = v
+    }
+
+    // parse function to get param names
+    parser := Parser(loc, axon.in)
+    fn := parser.parseTop(name)
+    params := fn.params.map |p->StubParam| { StubParam(p.name, "Obj?") }
+    returns := StubParam("returns", "Obj?")
+
+    return StubFunc(name, doc, Etc.makeDict(meta), params, returns, axon)
+  }
 }
 
 **************************************************************************
@@ -161,13 +224,14 @@ internal class StubAxon : XetoCmd
 
 internal class StubFunc
 {
-  new make(Str name, Str doc, Dict meta, StubParam[] params, StubParam returns)
+  new make(Str name, Str doc, Dict meta, StubParam[] params, StubParam returns, Str? axon)
   {
     this.name    = name
     this.doc     = doc
     this.meta    = meta
     this.params  = params
     this.returns = returns
+    this.axon    = axon
   }
 
   override Str toStr()
@@ -180,6 +244,7 @@ internal class StubFunc
   const Dict meta
   const StubParam[] params
   const StubParam returns
+  const Str? axon
 }
 
 internal const class StubParam
