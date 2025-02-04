@@ -17,7 +17,7 @@ internal class GenPH : AbstractGenCmd
 {
   override Str name() { "gen-ph" }
 
-  override Str summary() { "Compile haystack defs into xeto ph lib" }
+  override Str summary() { "Generate Xeto ph lib source code from Haystack 4 defs" }
 
   @Opt { help = "Directory to output" }
   override File outDir := (Env.cur.workDir + `../xeto/src/xeto/ph/`).normalize

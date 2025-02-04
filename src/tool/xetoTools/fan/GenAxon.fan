@@ -10,11 +10,11 @@ using util
 using haystack
 using axon
 
-internal class StubAxon : XetoCmd
+internal class GenAxon : XetoCmd
 {
-  override Str name() { "stub-axon" }
+  override Str name() { "gen-axon" }
 
-  override Str summary() { "Generate axon xeto funcs from trio and fantom" }
+  override Str summary() { "Generate Xeto func specs from Axon defined by Trio/Fantom" }
 
   @Arg { help = "Pod name to compile" }
   Str? podName

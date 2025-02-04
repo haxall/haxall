@@ -97,7 +97,7 @@ internal class GenTz: AbstractGenCmd
 {
   override Str name() { "gen-tz" }
 
-  override Str summary() { "Compile timezone db into sys::TimeZone" }
+  override Str summary() { "Generate Xeto sys 'tz.xeto' source code" }
 
   @Opt { help = "Directory to output" }
   override File outDir := (Env.cur.workDir + `../xeto/src/xeto/sys/`).normalize
@@ -138,7 +138,7 @@ internal class GenUnits : AbstractGenCmd
 {
   override Str name() { "gen-units" }
 
-  override Str summary() { "Compile unit db into sys::Unit" }
+  override Str summary() { "Generate Xeto sys 'unit.xeto' source code" }
 
   @Opt { help = "Directory to output" }
   override File outDir := (Env.cur.workDir + `../xeto/src/xeto/sys/`).normalize
