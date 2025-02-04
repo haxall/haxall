@@ -566,20 +566,6 @@ abstract const class MNamespace : LibNamespace, CNamespace
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Interfaces
-//////////////////////////////////////////////////////////////////////////
-
-  override Method? interfaceMethod(Spec spec, Str methodName)
-  {
-    interfaces.method(spec, methodName)
-  }
-
-  override Method? interfaceMethodOn(Obj target, Str methodName)
-  {
-    interfaces.methodOn(target, methodName)
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Compile
 //////////////////////////////////////////////////////////////////////////
 
@@ -632,7 +618,6 @@ abstract const class MNamespace : LibNamespace, CNamespace
   internal const MLibEntry[] entriesList  // orderd by depends
   private const Str:MLibEntry entriesMap
   private const AtomicRef libsRef := AtomicRef()
-  private const MInterfaces interfaces := MInterfaces(this)
 }
 
 **************************************************************************

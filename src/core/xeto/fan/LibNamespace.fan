@@ -269,20 +269,6 @@ const mixin LibNamespace
   abstract SpecChoice choice(Spec spec)
 
 //////////////////////////////////////////////////////////////////////////
-// Interfaces
-//////////////////////////////////////////////////////////////////////////
-
-  ** Map spec and method name to interface Fantom method.  Return null
-  ** if spec/name does not map to valid interface function.  This call
-  ** does **not** check if method is instance/static.
-  @NoDoc abstract Method? interfaceMethod(Spec spec, Str methodName)
-
-  ** Map target object and method name to a interface spec Fantom method.
-  ** Return null if target/name does not map to a valid interface function.
-  ** This call does **not** check if method is instance/static.
-  @NoDoc abstract Method? interfaceMethodOn(Obj target, Str methodName)
-
-//////////////////////////////////////////////////////////////////////////
 // Compile
 //////////////////////////////////////////////////////////////////////////
 

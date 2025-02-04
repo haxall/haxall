@@ -160,9 +160,6 @@ const mixin Spec : Dict
   ** Inherits from 'sys::Func' without considering And/Or
   @NoDoc abstract Bool isFunc()
 
-  ** Inherits from 'sys::Interface' without considering And/Or
-  @NoDoc abstract Bool isInterface()
-
   ** Inherits from 'sys.comp::Comp' without considering And/Or
   @NoDoc abstract Bool isComp()
 

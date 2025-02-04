@@ -156,10 +156,13 @@ internal const class StaticCall : Call
   override Obj? eval(AxonContext cx)
   {
     // now use reflection on Fantom type
+    /*
     method := cx.xeto.interfaceMethod(typeRef.eval(cx), funcName)
     if (method == null) throw UnknownSlotErr("${typeRef}.${funcName}")
     if (!method.isStatic && !method.isCtor) throw Err("Cannot call instance method as static: $method.qname")
     return method.callList(evalArgs(cx))
+    */
+    throw Err("Not supported")
   }
 
   override Printer print(Printer out)

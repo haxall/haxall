@@ -149,9 +149,6 @@ internal abstract class InferData : Step
       return
     }
 
-    // we don't infer slots from interfaces
-    if (slot.cparent.isInterface) return
-
     // if slot is defined in the lib itself
     CSpec cspec := slot
     if (slot.isAst)
