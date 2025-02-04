@@ -45,11 +45,12 @@ class RdfExporter : Exporter
 
   override This lib(Lib lib)
   {
+    this.isSys = lib.name == "sys"
     prefixDefs(lib)
     ontologyDef(lib)
     lib.types.each |x| { if (!XetoUtil.isAutoName(x.name)) cls(x) }
     lib.globals.each |x| { global(x) }
-    if (lib.name == "sys") sysDefs
+    if (isSys) sysDefs
     return this
   }
 
@@ -90,11 +91,17 @@ class RdfExporter : Exporter
     // markers
     x.slots.each |slot|
     {
-      if (slot.isMarker && slot.base.isGlobal) w("  :hasMarker ").w(slot.base.qname).w(" ;").nl
+      if (slot.isMarker && slot.base.isGlobal) hasMarker(slot)
     }
 
     w(".").nl
     return this
+  }
+
+  private Void hasMarker(Spec slot)
+  {
+    prop := isSys ? ":hasMarker" : "sys:hasMarker"
+    w("  ").w(prop).w(" ").qname(slot.base.qname).w(" ;").nl
   }
 
   private This enum(Spec x)
@@ -237,5 +244,6 @@ class RdfExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 
   const Spec refSpec
+  private Bool isSys
 }
 
