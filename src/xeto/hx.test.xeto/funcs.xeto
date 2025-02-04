@@ -1,0 +1,10 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   4 Feb 2025  Brian Frank  Creation
+//
+
+add: Func { a: Number, b: Number, returns: Number }
+

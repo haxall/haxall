@@ -91,6 +91,9 @@ const mixin Spec : Dict
   ** false.  See `LibNamespace.choice` to access `SpecChoice` API.
   abstract Bool isChoice()
 
+  ** Return if this a `FuncSpec` that models a function signature
+  abstract Bool isFunc()
+
 //////////////////////////////////////////////////////////////////////////
 // Flavor
 //////////////////////////////////////////////////////////////////////////
@@ -156,9 +159,6 @@ const mixin Spec : Dict
 
   ** Inherits from 'sys::Query' without considering And/Or
   @NoDoc abstract Bool isQuery()
-
-  ** Inherits from 'sys::Func' without considering And/Or
-  @NoDoc abstract Bool isFunc()
 
   ** Inherits from 'sys.comp::Comp' without considering And/Or
   @NoDoc abstract Bool isComp()
