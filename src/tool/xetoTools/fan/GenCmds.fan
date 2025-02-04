@@ -24,7 +24,7 @@ internal abstract class AbstractGenCmd : XetoCmd
     buf := StrBuf()
     out := buf.out
     out.printLine("//")
-    out.printLine("// Copyright (c) 2011-2024, Project-Haystack")
+    out.printLine("// Copyright (c) 2011-2025, Project-Haystack")
     out.printLine("// Licensed under the Academic Free License version 3.0")
     out.printLine("// Auto-generated $ts")
     out.printLine("//")
@@ -85,7 +85,8 @@ internal abstract class AbstractGenCmd : XetoCmd
     name = name.replace("/", " ")
     return Etc.toTagName(name)
   }
-  private const Str ts := DateTime.now.toLocale("DD-MMM-YYYY")
+
+  const Str ts := DateTime.now.toLocale("DD-MMM-YYYY")
 
 }
 
@@ -184,5 +185,31 @@ internal class GenUnits : AbstractGenCmd
 
     return 0
   }
+}
+
+**************************************************************************
+** GenWriter
+**************************************************************************
+
+class GenWriter
+{
+  new make(File file) { this.file = file }
+
+  const File file
+
+  This w(Obj x) { buf.add(x); return this }
+
+  This str(Obj? x) { if (x == null) x = ""; return w(x.toStr.toCode); }
+
+  This nl() { w("\n") }
+
+  Void close()
+  {
+    //echo("\n### $file.osPath ###\n$buf\n")
+    echo("Output [$file.osPath]")
+    file.out.print(buf.toStr).close
+  }
+
+  StrBuf buf := StrBuf()
 }
 

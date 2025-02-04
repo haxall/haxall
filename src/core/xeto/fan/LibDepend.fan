@@ -72,6 +72,20 @@ const mixin LibDependVersions
     MLibDependVersions.makeWildcard(v.major, v.minor, v.build)
   }
 
+  ** Map from Fantom depend syntax
+  @NoDoc static new fromFantomDepend(Depend d)
+  {
+    if (d.isSimple)
+    {
+      v := d.version(0)
+      return fromStr("" + v.major + "." + (v.minor ?: "x") +"." +(v.build ?: "x"))
+    }
+    else
+    {
+      throw Err("TODO: $d")
+    }
+  }
+
   ** Return if the given version satisifies this instance's constraints
   abstract Bool contains(Version version)
 }
