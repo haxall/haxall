@@ -403,5 +403,9 @@ internal class ASpec : ANode, CSpec
     return flags.and(flag) != 0
   }
 
+  Bool isInterfaceSlot()
+  {
+    parent != null && parent.isInterface
+  }
 }
 

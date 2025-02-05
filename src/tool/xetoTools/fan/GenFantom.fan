@@ -225,7 +225,7 @@ internal class FantomGenWriter : GenWriter
 
   This sig(Type t)
   {
-    w(t.name)
+    w("fan.").w(t.pod.name).w("::").w(t.name)
   }
 }
 
