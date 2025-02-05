@@ -39,16 +39,17 @@ internal class HelpCmd : XetoCmd
 
     // show summary for all commands; find longest command name
     cmds := list
+    Str[] names := cmds.map |cmd->Str| { cmd.names.join(", ") }
     maxName := 4
-    cmds.each |cmd| { maxName = maxName.max(cmd.name.size) }
+    names.each |n| { maxName = maxName.max(n.size) }
 
     // print help
     printLine
     printLine("Xeto CLI Tools:")
     printLine
-    list.each |cmd|
+    list.each |cmd, i|
     {
-      printLine(cmd.name.padr(maxName) + "  " + cmd.summary)
+      printLine(names[i].padr(maxName) + "  " + cmd.summary)
     }
     printLine
     return 0

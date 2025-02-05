@@ -16,7 +16,7 @@ internal class GenFantom : AbstractGenCmd
 
   override Str summary() { "Generate Xeto lib of interfaces for Fantom pods" }
 
-  @Opt { help = "Base directory to use output of '{workDir}/src/xeto/fan.{pod}'" }
+  @Opt { help = "Base directory to contain 'src/xeto'" }
   File workDir := Env.cur.workDir
 
   @Arg { help = "Pod name to compile" }
@@ -42,6 +42,7 @@ internal class GenFantom : AbstractGenCmd
     genLibMeta(pod)
     pod.types.dup.sort.each |type| { genType(type) }
     if (pod.name == "sys") genSys
+    echo("Generated '$pod.name' $numFiles files [$outDir.osPath]")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -171,6 +172,7 @@ internal class GenFantom : AbstractGenCmd
 
   FantomGenWriter open(Uri filename)
   {
+    numFiles++
     file := outDir + filename
     out := FantomGenWriter(file)
     out.w("// Auto-generated ").w(ts).nl
@@ -210,6 +212,7 @@ internal class GenFantom : AbstractGenCmd
 //////////////////////////////////////////////////////////////////////////
 
   override File outDir := Env.cur.workDir
+  Int numFiles
 }
 
 **************************************************************************

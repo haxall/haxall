@@ -206,7 +206,7 @@ class GenWriter
   Void close()
   {
     //echo("\n### $file.osPath ###\n$buf\n")
-    echo("Output [$file.osPath]")
+    //echo("Output [$file.osPath]")
     file.out.print(buf.toStr).close
   }
 

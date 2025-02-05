@@ -96,6 +96,8 @@ internal class BuildCmd : SrcLibCmd
 {
   override Str name() { "build" }
 
+  override Str[] aliases() { ["b"] }
+
   override Str summary() { "Compile xeto source to xetolib" }
 
   override Int process(LibRepo repo, LibVersion[] vers)

@@ -65,6 +65,9 @@ abstract class XetoCmd : AbstractMain
   ** Command name alises/shortcuts
   virtual Str[] aliases() { Str[,] }
 
+  ** Name and aliases
+  Str[] names() { [name].addAll(aliases) }
+
   ** Run the command.  Return zero on success
   abstract override Int run()
 
