@@ -29,6 +29,10 @@ class FuncTest : AbstractXetoTest
     f := lib.spec("add")
     verifyEq(f.isGlobal, true)
     verifyEq(f.isFunc, true)
+
+    c:= lib.type("MyClass")
+    verifyEq(c.isType, true)
+    verifyEq(c.isInterface, true)
   }
 }
 

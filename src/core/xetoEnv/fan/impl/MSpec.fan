@@ -262,6 +262,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override final Bool isList()      { m.hasFlag(MSpecFlags.list) }
   override final Bool isQuery()     { m.hasFlag(MSpecFlags.query) }
   override final Bool isFunc()      { m.hasFlag(MSpecFlags.func) }
+  override final Bool isInterface() { m.hasFlag(MSpecFlags.interface) }
   override final Bool isComp()      { m.hasFlag(MSpecFlags.comp) }
   override final Bool isEnum()      { m.hasFlag(MSpecFlags.enum) }
   override final Bool isAnd()       { m.hasFlag(MSpecFlags.and) }

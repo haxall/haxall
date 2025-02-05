@@ -8,3 +8,5 @@
 
 add: Func { a: Number, b: Number, returns: Number }
 
+MyClass: Interface
+
