@@ -280,6 +280,9 @@ internal class InheritSlots : Step
   {
     base.cslots |slot|
     {
+      // we don't inherit constructors
+      if (spec.isInterface && slot.cmetaHas("new")) return
+
       // re-autoname to cleanly inherit from multiple types
       name := slot.name
       if (XetoUtil.isAutoName(name)) name = compiler.autoName(autoCount++)

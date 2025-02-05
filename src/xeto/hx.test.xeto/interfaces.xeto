@@ -10,9 +10,14 @@ add: Func { a: Number, b: Number, returns: Number }
 
 InterfaceA: Interface {
   m1: Func <new> { returns: Self }
+  m9: Func <new> { returns: Self }
+
   s1: Func <static> { returns: Obj }
+  s9: Func <static> { returns: Obj }
+
   i1: Func { returns: Obj }
   i2: Func <virtual> { returns: Str }
+  i9: Func <virtual> { returns: Str }
 }
 
 InterfaceB: InterfaceA {
