@@ -20,8 +20,8 @@ internal class GenFantom : AbstractGenCmd
   @Opt { help = "Base directory to contain 'src/xeto'" }
   File workDir := Env.cur.workDir
 
-  @Arg { help = "Pod name to compile" }
-  Str? podName
+  @Arg { help = "Pod names to compile" }
+  Str[]? podNames
 
 //////////////////////////////////////////////////////////////////////////
 // Run
@@ -29,17 +29,17 @@ internal class GenFantom : AbstractGenCmd
 
   override Int run()
   {
-    if (podName == null) throw Err("No pod name specified")
-    pod := Pod.find(podName)
+    if (podNames == null || podNames.isEmpty) throw Err("No pod names specified")
 
-    genPod(pod)
+    pods := podNames.map |n->Pod| { Pod.find(n) }
+    pods.each |pod| { genPod(pod) }
 
     return 0
   }
 
   private Void genPod(Pod pod)
   {
-    outDir = workDir +`src/xeto/fan.$podName/`
+    outDir = workDir +`src/xeto/fan.$pod.name/`
     genLibMeta(pod)
     pod.types.dup.sort.each |type| { genType(type) }
     if (pod.name == "sys") genSys
@@ -63,7 +63,7 @@ internal class GenFantom : AbstractGenCmd
     pod.depends.each |d|
     {
       versions := LibDependVersions.fromFantomDepend(d)
-      out.w("    { lib: ").str(d.name).w(", versions: ").str(versions).w(" }").nl
+      out.w("    { lib: ").str("fan.${d.name}").w(", versions: ").str(versions).w(" }").nl
     }
     out.w("  }").nl
 
@@ -119,7 +119,7 @@ internal class GenFantom : AbstractGenCmd
     if (type.isSynthetic) return true
     if (type.hasFacet(NoDoc#)) return true
     if (type.isInternal) return true
-    if (type.fits(Test#)) return true
+    if (type.fits(Test#) && type.qname != "sys::Test") return true
     return false
  }
 
