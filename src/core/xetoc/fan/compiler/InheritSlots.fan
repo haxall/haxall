@@ -326,6 +326,13 @@ internal class InheritSlots : Step
   ** Override the base slot from an inherited type
   private ASpec overrideSlot(CSpec base, ASpec slot)
   {
+    if (slot.isInterfaceSlot)
+    {
+      // interfaces don't override constructor and static slots
+      if (base.cmetaHas("new")) return slot
+      if (base.cmetaHas("static")) return slot
+    }
+
     slot.base = base
 
     val := slot.val

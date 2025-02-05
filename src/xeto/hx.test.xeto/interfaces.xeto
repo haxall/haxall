@@ -1,0 +1,22 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   4 Feb 2025  Brian Frank  Creation
+//
+
+add: Func { a: Number, b: Number, returns: Number }
+
+InterfaceA: Interface {
+  m1: Func <new> { returns: Self }
+  s1: Func <static> { returns: Obj }
+  i1: Func { returns: Obj }
+}
+
+InterfaceB: InterfaceA {
+  m1: Func <new> { returns: Self }
+  s1: Func <static> { returns: Str }
+  i1: Func { returns: Str }
+}
+

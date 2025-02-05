@@ -17,87 +17,45 @@ using hx
 **
 ** InterfaceTest
 **
-/* TODO
-class InterfaceTest : AbstractAxonTest
+class InterfaceTest : AbstractXetoTest
 {
-
-//////////////////////////////////////////////////////////////////////////
-// Basics
-//////////////////////////////////////////////////////////////////////////
-
-  @HxRuntimeTest
-  Void testBasics()
+  Void testNamespace()
   {
-    initNamespace(["ph", "ph.points", "hx.test.xeto"])
+    verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestNamespace(ns) }
+  }
 
-    // factory mapping
-    a := xns.spec("hx.test.xeto::IFoo")
+  private Void doTestNamespace(LibNamespace ns)
+  {
+if (ns.isRemote) return
+    lib :=  ns.lib("hx.test.xeto")
+
+    func := ns.spec("sys::Func")
+
+    a := lib.type("InterfaceA")
+    verifyEq(a.isType, true)
     verifyEq(a.isInterface, true)
-    verifyEq(a.fantomType, IFoo#)
 
-    // static methods
-    verifyEval("IFoo.staticStr", "hi static!")
-    verifyEval("IFoo.staticStr()", "hi static!")
-    verifyEval("IFoo.staticAdd(30, 40)", n(70))
-    verifyEval("hx.test.xeto::IFoo.staticStr()", "hi static!")
-    verifyEval("hx.test.xeto::IFoo.staticAdd(30, 40)", n(70))
+    b := lib.type("InterfaceB")
+    verifyEq(b.isType, true)
+    verifyEq(b.isInterface, true)
 
-    // constructor - make with no arg
-    expect := IFoo()
-    verifyEval("IFoo.make", expect)
-    verifyEval("IFoo.make()", expect)
-    verifyEval("hx.test.xeto::IFoo.make", expect)
-    verifyEval("hx.test.xeto::IFoo.make()", expect)
-    verifyEval("IFoo()", expect)
-    verifyEval("hx.test.xeto::IFoo()", expect)
+    // ctors do *not* override from supertype
+    am1 := a.slot("m1")
+    bm1 := b.slot("m1")
+    verifyEq(am1.base, func)
+    verifyEq(bm1.base, func)
 
-    // constructor - make with arg
-    expect = IFoo("baz")
-    verifyEval("""IFoo.make("baz")""", expect)
-    verifyEval("""IFoo("baz")""", expect)
-    verifyEval("""hx.test.xeto::IFoo.make("baz")""", expect)
-    verifyEval("""hx.test.xeto::IFoo("baz")""", expect)
+    // static do *not* override from supertype
+    as1 := a.slot("s1")
+    bs1 := b.slot("s1")
+    verifyEq(as1.base, func)
+    verifyEq(bs1.base, func)
 
-    // instance methods
-    verifyEval("""IFoo().str""", "hi noname!")
-    verifyEval("""IFoo().add(3, 4)""", "noname 7")
-    verifyEval("""IFoo("brian").str""", "hi brian!")
-    verifyEval("""IFoo("brian").add(3, 4)""", "brian 7")
-
-    // verify dict+interface doesn't treat slots as defaults
-    i := xns.instance("hx.test.xeto::ifoo-and-dict")
-    verifyDictEq(i, ["id":i->id, "spec":i->spec, "text":"hi"])
+    // instance slots *do* override from supertype
+    ai1 := a.slot("i1")
+    bi1 := b.slot("i1")
+    verifyEq(ai1.base, func)
+    verifySame(bi1.base, ai1)
   }
 }
-
-**************************************************************************
-** IFoo
-**************************************************************************
-
-@Js
-const class IFoo {
-
-  static IFoo axonMakeIFoo(Str name := "noname") { make(name) }
-
-  new make(Str name := "noname") { this.name = name }
-
-  const Str name
-
-  static Str staticStr() { "hi static!" }
-  static Number staticAdd(Number a, Number b) { a + b }
-
-  Str str() { "hi $name!" }
-  Str add(Number a, Number b) { "$name " + (a + b) }
-
-  override Int hash()
-  {
-    name.hash
-  }
-
-  override Bool equals(Obj? that)
-  {
-    name == ((IFoo)that).name
-  }
-}
-*/
 

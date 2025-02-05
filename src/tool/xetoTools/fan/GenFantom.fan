@@ -177,8 +177,14 @@ internal class GenFantom : AbstractGenCmd
       else out.w(", ")
       out.w(p.name).w(": ").sig(p.type)
     }
+
     if (!first) out.w(", ")
-    out.w("returns: ").sig(x.returns).w(" }\n")
+    out.w("returns: ")
+    if (x.isCtor)
+      out.w("fan.sys::This")
+    else
+      out.sig(x.returns)
+    out.w(" }\n")
   }
 
   Str:Obj toFieldMeta(Field x)
