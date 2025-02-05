@@ -148,7 +148,7 @@ internal class CheckErrors : Step
     bType := b.ctype
 
     // verify type is covariant
-    if (!xType.cisa(bType))
+    if (!xType.cisa(bType) && !isFieldOverrideOfMethod(b, x))
       errCovariant(x, "type '$xType' conflicts", "of type '$bType'")
 
     // check "of"
@@ -180,6 +180,19 @@ internal class CheckErrors : Step
     bUnit := b.cmeta.get("unit")
     if (xUnit != bUnit && bUnit != null)
       errCovariant(x, "unit '$xUnit' conflicts", "unit '$bUnit'")
+  }
+
+  Bool isFieldOverrideOfMethod(CSpec b, ASpec x)
+  {
+    // we allow a field to override a method if it matches base func return type
+    isOverride := x.isInterfaceSlot && b.ctype.isFunc && !x.ctype.isFunc
+    if (!isOverride) return false
+
+    // check that x type is covariant to b func returns type
+    bReturns := b.cslot("returns")?.ctype
+    if (!x.ctype.cisa(bReturns))
+      err("Type mismatch in field '$x.name' override of method: $x.ctype != $bReturns", x.loc)
+    return true
   }
 
   Void errCovariant(ASpec x, Str msg1, Str msg2)

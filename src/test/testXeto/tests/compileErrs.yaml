@@ -456,4 +456,17 @@ verifyErrs: |
   Slot 'c' is fixed and cannot declare new default value
   Slot 'c': Must have fixed value 'C'
   Slot 'b': Must have fixed value 'Boo'
+---
+name: "fieldMethodOverride"
+compileLib: |
+  A: Interface {
+    x: Func { returns: Number }
+    y: Func { returns: Number }
+  }
+  B: A {
+    x: Int
+    y: Date
+  }
+verifyErrs: |
+  Type mismatch in field 'y' override of method: sys::Date != sys::Number
 
