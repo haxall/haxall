@@ -12,15 +12,15 @@ name: "cycle1"
 compileLib: |
   Foo: Foo
 verifyErrs: |
-  Cyclic inheritance: Foo
+  Cyclic inheritance: temp::Foo
 ---
 name: "cycle2"
 compileLib: |
   Foo: Bar
   Bar: Foo
 verifyErrs: |
-  Cyclic inheritance: Foo
-  Cyclic inheritance: Bar
+  Cyclic inheritance: temp::Foo
+  Cyclic inheritance: temp::Bar
 ---
 name: "cycle3"
 compileLib: |
@@ -28,9 +28,9 @@ compileLib: |
   Bar: Baz
   Baz: Foo
 verifyErrs: |
-  Cyclic inheritance: Foo
-  Cyclic inheritance: Bar
-  Cyclic inheritance: Baz
+  Cyclic inheritance: temp::Foo
+  Cyclic inheritance: temp::Bar
+  Cyclic inheritance: temp::Baz
 ---
 name: "conflictSlots1"
 compileLib: |

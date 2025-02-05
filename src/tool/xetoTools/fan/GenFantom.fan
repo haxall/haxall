@@ -267,6 +267,8 @@ internal class FantomGenWriter : GenWriter
   This sig(Type t)
   {
     w("fan.").w(t.pod.name).w("::").w(t.name)
+    if (t.isNullable) w("?")
+    return this
   }
 
   This meta(Str:Obj acc)

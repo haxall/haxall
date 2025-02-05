@@ -47,9 +47,11 @@ internal class InheritSlots : Step
     if (spec.cslotsRef != null) return
 
     // check for cyclic inheritance
+    // NOTE: this isn't quite right for OO interfaces and is recursing
+    // into method signatures and casuing false cyclic inheritance errors
     if (stack.containsSame(spec) && !isSys && !spec.isInterfaceSlot)
     {
-      err("Cyclic inheritance: $spec.name", spec.loc)
+      err("Cyclic inheritance: $spec.qname", spec.loc)
       spec.flags = 0
       spec.cslotsRef = noSlots
     }
