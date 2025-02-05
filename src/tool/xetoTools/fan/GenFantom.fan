@@ -8,6 +8,7 @@
 
 using util
 using haystack::Dict
+using haystack::Marker
 using xeto
 
 internal class GenFantom : AbstractGenCmd
@@ -85,21 +86,22 @@ internal class GenFantom : AbstractGenCmd
 // Types
 //////////////////////////////////////////////////////////////////////////
 
-  private Void genType(Type type)
+  private Void genType(Type x)
   {
-    if (skipType(type)) return
+    if (skipType(x)) return
 
-    out := open(`${type.name}.xeto`)
+    out := open(`${x.name}.xeto`)
 
-    genDoc(out, type.doc, "")
-    out.w(type.name).w(": ")
-    base := type.base
+    genDoc(out, x.doc, "")
+    out.w(x.name).w(": ")
+    base := x.base
     if (base != null) out.sig(base)
     else out.w("Interface")
-    type.mixins.each |m| { out.w(" & ").sig(m) }
+    x.mixins.each |m| { out.w(" & ").sig(m) }
 
+    out.meta(toTypeMeta(x))
 
-    slots := type.slots.findAll |slot| { slot.parent === type }
+    slots := x.slots.findAll |slot| { slot.parent === x }
     slots.sort
     if (slots.isEmpty) out.nl
     else
@@ -120,6 +122,15 @@ internal class GenFantom : AbstractGenCmd
     if (type.fits(Test#)) return true
     return false
  }
+
+  Str:Obj toTypeMeta(Type x)
+  {
+    acc := Str:Obj[:] { ordered = true }
+    if (x.isAbstract) acc["abstract"] = Marker.val
+    if (x.isConst)    acc["const"] = Marker.val
+    if (x.isFinal)    acc["sealed"] = Marker.val
+    return acc
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Slot
@@ -150,11 +161,15 @@ internal class GenFantom : AbstractGenCmd
   Void genField(FantomGenWriter out, Field x)
   {
     out.sig(x.type)
+    out.meta(toFieldMeta(x))
+    out.nl
   }
 
   Void genMethod(FantomGenWriter out, Method x)
   {
-    out.w("Func { ")
+    out.w("sys::Func")
+    out.meta(toMethodMeta(x))
+    out.w(" { ")
     first := true
     x.params.each |p|
     {
@@ -164,6 +179,26 @@ internal class GenFantom : AbstractGenCmd
     }
     if (!first) out.w(", ")
     out.w("returns: ").sig(x.returns).w(" }\n")
+  }
+
+  Str:Obj toFieldMeta(Field x)
+  {
+    acc := Str:Obj[:] { ordered = true }
+    if (x.isAbstract) acc["abstract"] = Marker.val
+    if (x.isConst)    acc["const"] = Marker.val
+    if (x.isStatic)   acc["static"] = Marker.val
+    if (x.isVirtual)  acc["virtual"] = Marker.val
+    return acc
+  }
+
+  Str:Obj toMethodMeta(Method x)
+  {
+    acc := Str:Obj[:] { ordered = true }
+    if (x.isAbstract) acc["abstract"] = Marker.val
+    if (x.isCtor) acc["new"] = Marker.val
+    else if (x.isStatic) acc["static"] = Marker.val
+    if (x.isVirtual)  acc["virtual"] = Marker.val
+    return acc
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -226,6 +261,22 @@ internal class FantomGenWriter : GenWriter
   This sig(Type t)
   {
     w("fan.").w(t.pod.name).w("::").w(t.name)
+  }
+
+  This meta(Str:Obj acc)
+  {
+    if (acc.isEmpty) return this
+    w(" <")
+    first := true
+    acc.each |v, n|
+    {
+      if (first) first = false
+      else w(", ")
+      w(n)
+      if (v !== Marker.val) w(": ").str(v)
+    }
+    w(">")
+    return this
   }
 }
 
