@@ -147,6 +147,9 @@ class CompSpace : AbstractCompSpace
     CompFactory.create(this, dicts)
   }
 
+  ** Create post-proessing
+  virtual Void onCreate(Comp comp) {}
+
   ** Initialize server provider interface for given instance
   override CompSpi initSpi(CompObj c, Spec? spec)
   {
