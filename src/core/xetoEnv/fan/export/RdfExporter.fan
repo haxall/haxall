@@ -26,7 +26,6 @@ class RdfExporter : Exporter
 
   new make(MNamespace ns, OutStream out, Dict opts) : super(ns, out, opts)
   {
-    this.refSpec = ns.spec("sys::Ref")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -122,7 +121,7 @@ class RdfExporter : Exporter
   private This global(Spec x)
   {
     if (x.isMarker) return globalMarker(x)
-    if (x.isa(refSpec)) return globalRef(x)
+    if (x.isRef || x.isMultiRef) return globalRef(x)
     return globalProp(x)
   }
 
@@ -137,7 +136,7 @@ class RdfExporter : Exporter
 
   private This globalRef(Spec x)
   {
-    of := x.of(false)?.qname ?: "sys::Dict"
+    of := x.of(false)?.qname ?: "sys::Entity"
     qname(x.qname).nl
     w("  a owl:ObjectProperty ;").nl
     labelAndDoc(x)
@@ -148,7 +147,21 @@ class RdfExporter : Exporter
 
   private This globalProp(Spec x)
   {
+    qname(x.qname).nl
+    w("  a rdf:Property ;").nl
+    w("  a owl:DataProperty ;").nl
+    labelAndDoc(x)
+    type := globalType(x.type)
+    if (type != null) w("  rdfs:range ").w(type).w(" ;").nl
+    w(".").nl
     return this
+  }
+
+  private Str? globalType(Spec type)
+  {
+    if (type.qname == "sys::Str") return "xsd:string"
+    if (type.qname == "sys::Int") return "xsd:integer"
+    return null
   }
 
   private This labelAndDoc(Spec x)
@@ -243,7 +256,6 @@ class RdfExporter : Exporter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const Spec refSpec
   private Bool isSys
 }
 
