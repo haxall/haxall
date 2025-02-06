@@ -115,7 +115,7 @@ internal abstract class InferData : Step
     // walk thru the spec slots and infer type/value
     spec := dict.ctype
 
-    // infer slots
+    // infer slots from specs
     spec.cslots |slot|
     {
       inferDictSlot(dict, slot)
@@ -131,7 +131,16 @@ internal abstract class InferData : Step
           item.typeRef = ASpecRef(item.loc, of)
       }
     }
-  }
+
+    // infer any non-type dict name/value pairs from globals
+    dict.map.each |v, n|
+    {
+      if (v.typeRef != null) return
+      global := cns.global(n, v.loc)
+      if (global == null) return
+      v.typeRef = inferDictSlotType(v.loc, global.ctype)
+    }
+ }
 
   private Void inferDictSlot(ADict dict, CSpec slot)
   {

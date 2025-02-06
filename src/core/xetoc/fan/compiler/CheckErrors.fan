@@ -498,7 +498,7 @@ internal class CheckErrors : Step
     if (global == null) return
 
     valType := val.ctype
-    if (!valTypeFits(global.ctype, valType, val))
+    if (!valTypeFits(global.ctype, valType, val.asm))
     {
       err("Slot '$name': Global slot type is '$global.ctype', value type is '$val.ctype'", val.loc)
       return
