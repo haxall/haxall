@@ -86,6 +86,11 @@ class PrefixTest : AbstractFolioTest
     close
 
     // close and reopen with different ns
+    if (!impl.supportsIdPrefixRename)
+    {
+      echo("   <Prefix id rename unsupported>")
+      return
+    }
     open(toConfig("xyz:"))
     a = folio.readById(Ref(a.id.segs.last.body))
     b = folio.readById(Ref(b.id.segs.last.body))

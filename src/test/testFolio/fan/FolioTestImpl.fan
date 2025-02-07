@@ -56,6 +56,9 @@ abstract class FolioTestImpl
   ** Does the implementation support the history API
   virtual Bool supportsHis() { true }
 
+  ** Does the implementation support re-opening with different id prefix
+  virtual Bool supportsIdPrefixRename() { true }
+
   ** Verify record a is the same b.  If the implementation supports
   ** an in-memory cache then they should be the same instance in memory,
   ** otherwise they should be the same by tag values
