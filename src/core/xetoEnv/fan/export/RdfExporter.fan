@@ -49,6 +49,7 @@ class RdfExporter : Exporter
     ontologyDef(lib)
     lib.types.each |x| { if (!XetoUtil.isAutoName(x.name)) cls(x) }
     lib.globals.each |x| { global(x) }
+    lib.instances.each |x| { instance(x) }
     if (isSys) sysDefs
     return this
   }
@@ -58,11 +59,6 @@ class RdfExporter : Exporter
     if (spec.isType) return cls(spec)
     if (spec.isGlobal) return global(spec)
     throw Err(spec.name)
-  }
-
-  override This instance(Dict instance)
-  {
-    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -186,6 +182,60 @@ class RdfExporter : Exporter
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Instances
+//////////////////////////////////////////////////////////////////////////
+
+  override This instance(Dict instance)
+  {
+    spec := ns.specOf(instance)
+    dis := instance.dis
+
+    markers := Str:Spec[:]
+    refs    := Str:Spec[:]
+    vals    := Str:Spec[:]
+    instance.each |v, n|
+    {
+      if (n == "id") return
+      if (n == "dis" || n == "disMacro") return
+
+      slot := ns.global(n, false)
+      if (slot == null) return
+
+      if (v == Marker.val) markers[n] = slot
+      else if (v is Ref) refs[n] = slot
+      else vals[n] = slot
+    }
+
+    id(instance.id).nl
+    w("  rdf:type ").qname(spec.qname).w(" ;").nl
+    w("  rdfs:label ").literal(dis).w(" ;").nl
+    markers.keys.sort.each |n| { instanceMarker(instance, n, markers[n]) }
+    refs.keys.sort.each |n| { instanceRef(instance, n, refs[n]) }
+    vals.keys.sort.each |n| { instanceVal(instance, n, vals[n]) }
+    w(".").nl
+    return this
+  }
+
+  private Void instanceMarker(Dict instance, Str name, Spec slot)
+  {
+    w("  sys:hasMarker ").qname(slot.qname).w(" ;").nl
+  }
+
+  private Void instanceRef(Dict instance, Str name, Spec slot)
+  {
+    ref := instance[name]
+    if (ref == null) return
+    w("  ").qname(slot.qname).w(" ").id(ref).w(" ;").nl
+  }
+
+  private Void instanceVal(Dict instance, Str name, Spec slot)
+  {
+    val := instance[name]
+    if (val == null) return
+    w("  ").qname(slot.qname).w(" ").literal(val.toStr).w(" ;").nl
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
@@ -244,6 +294,12 @@ class RdfExporter : Exporter
   private This qname(Str qname)
   {
     w(qname.replace("::", ":"))
+  }
+
+  ** Output Xeto lib::name qualified name
+  private This id(Ref id)
+  {
+    w(id.toStr.replace("::", ":"))
   }
 
   ** Quoted string literal
