@@ -94,6 +94,9 @@ const mixin Spec : Dict
   ** Return if this a `FuncSpec` that models a function signature
   abstract Bool isFunc()
 
+  ** Return function specific APIs.  Raise exception if `isFunc` is false.
+  abstract SpecFunc func()
+
 //////////////////////////////////////////////////////////////////////////
 // Flavor
 //////////////////////////////////////////////////////////////////////////

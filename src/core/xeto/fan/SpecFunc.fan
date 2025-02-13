@@ -10,10 +10,10 @@ using concurrent
 using util
 
 **
-** FuncSpec models a 'sys::Func' spec that models a function signature
+** Function specific APIS for 'sys::Func' specs
 **
 @Js
-const mixin FuncSpec : Spec
+const mixin SpecFunc
 {
   ** Number of parameters
   abstract Int arity()

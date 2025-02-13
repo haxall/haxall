@@ -73,6 +73,16 @@ const class MSpec
 
   virtual MEnum enum() { throw UnsupportedErr("Spec is not enum: $qname") }
 
+  MFunc func()
+  {
+    if (funcRef != null) return funcRef
+    if (!hasFlag(MSpecFlags.func)) throw UnsupportedErr("Spec is not func: $qname")
+    // must be ok if dups by multiple threads
+    MSpec#funcRef->setConst(this, MFunc.init(this))
+    return funcRef
+  }
+  private const MFunc? funcRef
+
 //////////////////////////////////////////////////////////////////////////
 // Dict Representation
 //////////////////////////////////////////////////////////////////////////
@@ -243,6 +253,8 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override final SpecEnum enum() { m.enum }
 
   override final CSpec? cenum(Str key, Bool checked := true) { m.enum.spec(key, checked) as CSpec }
+
+  override final SpecFunc func() { m.func }
 
   override final SpecFlavor flavor() { m.flavor }
   override final Bool isType()       { flavor.isType }
