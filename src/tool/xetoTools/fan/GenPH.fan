@@ -534,12 +534,20 @@ internal class GenPH : AbstractGenCmd
 
     ns.subtypes(def).each |sub|
     {
-      tag := sub.symbol.type.isConjunct ? sub.symbol.part(1) : sub.name
-      subName := tag.capitalize + suffix
-      writeDoc(out, sub)
-      out.printLine("$subName: $specName { $tag }")
-      out.printLine
+      writeChoiceItem(out, specName, suffix, sub)
     }
+  }
+
+  private Void writeChoiceItem(OutStream out, Str base, Str suffix, Def x)
+  {
+    tag := x.symbol.type.isConjunct ? x.symbol.part(1) : x.name
+    name := tag.capitalize + suffix
+    writeDoc(out, x)
+    out.printLine("$name: $base { $tag }")
+    out.printLine
+
+    suffix = name
+    ns.subtypes(x).each |sub| { writeChoiceItem(out, name, suffix, sub) }
   }
 
   private Void writeChoiceTaxonomy(Def def)
