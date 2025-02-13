@@ -15,7 +15,7 @@ using xeto
 @Js
 const final class MFunc : SpecFunc
 {
-  static MFunc init(MSpec spec)
+  static MFunc init(Spec spec)
   {
     Spec? returns
     params := Spec[,]
@@ -26,19 +26,47 @@ const final class MFunc : SpecFunc
       else
         params.add(slot)
     }
-    return make(params, returns)
+    return make(spec, params, returns)
   }
 
-  private new make(Spec[] params, Spec returns)
+  private new make(Spec spec, Spec[] params, Spec returns)
   {
+    this.spec = spec
     this.params = params
     this.returns = returns
   }
+
+  const Spec spec
 
   override const Spec[] params
 
   override const Spec returns
 
   override Int arity() { params.size }
+
+  override Obj? axon(Bool checked := true)
+  {
+    // if cached already
+    if (axonRef != null) return axonRef
+
+    // attempt to parse/reflect
+    fn := axonPlugin.parse(spec)
+    if (fn != null)
+    {
+      // must be ok if dups by multiple threads
+      MFunc#axonRef->setConst(this, fn)
+      return fn
+    }
+
+    // not found
+    if (checked) throw UnsupportedErr("Func not avail in Axon: $spec.qname")
+    return null
+  }
+  private const Obj? axonRef
+
+  static once XetoAxonPlugin axonPlugin()
+  {
+    Type.find("axon::XetoPlugin").make
+  }
 }
 

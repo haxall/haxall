@@ -7,6 +7,9 @@
 //
 
 add: Func { a: Number, b: Number, returns: Number }
+  --- axon
+  a + b
+  ---
 
 InterfaceA: Interface {
   m1: Func <new> { returns: Self }

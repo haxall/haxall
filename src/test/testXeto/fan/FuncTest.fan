@@ -8,8 +8,10 @@
 
 using util
 using xeto
-using xeto::Dict
+using haystack::Ref
+using haystack::Dict
 using haystack
+using axon
 
 **
 ** FuncTest
@@ -40,6 +42,71 @@ class FuncTest : AbstractXetoTest
     verifyEq(f.func.params[0].name, "a"); verifySame(f.func.params[0].type, num)
     verifyEq(f.func.params[1].name, "b"); verifySame(f.func.params[1].type, num)
     verifySame(f.func.returns.type, num)
+
+    Fn a := f.func.axon
+    verifySame(f.func.axon, a)
+    verifyEq(a.params.size, 2)
+    verifyEq(a.params[0].name, "a")
+    verifyEq(a.params[1].name, "b")
+    cx := TextAxonContext(ns)
+    verifyEq(a.call(cx, [n(3), n(5)]), n(8))
   }
+}
+
+**************************************************************************
+** TextAxonContext
+**************************************************************************
+
+@Js
+class TextAxonContext : AxonContext
+{
+
+  new make(LibNamespace ns) { this.xeto = ns }
+
+//////////////////////////////////////////////////////////////////////////
+// XetoContext
+//////////////////////////////////////////////////////////////////////////
+
+  override xeto::Dict? xetoReadById(Obj id) { throw unsupported }
+
+  override Obj? xetoReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f) { throw unsupported }
+
+//////////////////////////////////////////////////////////////////////////
+// HaystackContext
+//////////////////////////////////////////////////////////////////////////
+
+  override Dict? deref(Ref id) { throw unsupported }
+
+  override once FilterInference inference() { throw unsupported }
+
+  override Dict toDict() { Etc.dict0 }
+
+//////////////////////////////////////////////////////////////////////////
+// AxonContext
+//////////////////////////////////////////////////////////////////////////
+
+  override Namespace ns() { throw unsupported }
+
+  override const LibNamespace xeto
+
+  override Fn? findTop(Str name, Bool checked := true)
+  {
+    throw unsupported
+  }
+
+  override Dict? trapRef(Ref id, Bool checked := true)
+  {
+    throw unsupported
+  }
+
+  ** Evaluate an expression or if a filter then readAll convenience
+  /*
+  @NoDoc override Obj? evalOrReadAll(Str src)
+  {
+    throw unsupported
+  }
+  */
+
+  Err unsupported() { UnsupportedErr("TestAxonContext") }
 }
 

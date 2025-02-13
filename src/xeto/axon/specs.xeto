@@ -8,3 +8,6 @@
 
 AxonFunc: Dict
 
+// Axon source code for a function
+axon: Str <meta>
+

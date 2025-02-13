@@ -23,5 +23,22 @@ const mixin SpecFunc
 
   ** Return type
   abstract Spec returns()
+
+  ** Get this spec as an 'axon::Fn' instance
+  @NoDoc abstract Obj? axon(Bool checked := true)
+}
+
+**************************************************************************
+** XetoAxonPlugin
+**************************************************************************
+
+**
+** Plugin for axon function support
+**
+@NoDoc @Js
+const abstract class XetoAxonPlugin
+{
+  ** Parse or reflect spec to an 'axon::Fn'
+  abstract Obj? parse(Spec s)
 }
 
