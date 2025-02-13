@@ -34,7 +34,16 @@ class FuncTest : AbstractXetoTest
     verifyEq(num.isFunc, false)
     verifyErr(UnsupportedErr#) { num.func }
 
-    f := lib.spec("add")
+
+    verifyAdd(ns, lib.spec("add1"), true)
+    verifyAdd(ns, lib.spec("add2"), true)
+    verifyAdd(ns, lib.spec("add3"), false)
+  }
+
+  private Void verifyAdd(LibNamespace ns, Spec f, Bool hasAxon)
+  {
+    num := ns.spec("sys::Number")
+
     verifyEq(f.isGlobal, true)
     verifyEq(f.isFunc, true)
     verifyEq(f.func.arity, 2)
@@ -42,6 +51,12 @@ class FuncTest : AbstractXetoTest
     verifyEq(f.func.params[0].name, "a"); verifySame(f.func.params[0].type, num)
     verifyEq(f.func.params[1].name, "b"); verifySame(f.func.params[1].type, num)
     verifySame(f.func.returns.type, num)
+
+    if (!hasAxon)
+    {
+      verifyErr(UnsupportedErr#) { f.func.axon }
+      return
+    }
 
     Fn a := f.func.axon
     verifySame(f.func.axon, a)
@@ -51,6 +66,19 @@ class FuncTest : AbstractXetoTest
     cx := TextAxonContext(ns)
     verifyEq(a.call(cx, [n(3), n(5)]), n(8))
   }
+}
+
+**************************************************************************
+** TextAxonContext
+**************************************************************************
+
+@Js
+class TestAxonFuncs
+{
+  @Axon static Number add2(Number a, Number b) { a + b }
+
+  // not available
+  static Number add3(Number a, Number b) { a + b }
 }
 
 **************************************************************************

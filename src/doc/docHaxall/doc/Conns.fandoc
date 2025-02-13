@@ -34,6 +34,7 @@ Haxall provides a rich library of ready to use connectors:
   - [Modbus]`lib-modbus::doc`: client support for TCP and RTU modbus protocols
   - [oBIX]`lib-obix::doc`: client and server support for oBIX XML protocol
   - [Sedona]`lib-sedona::doc`: client support for the Sedona Sox protocol
+  - [Ecobee]`lib-ecobee::doc`: connect to Ecobee thermostats
   - [Nest]`lib-nest::doc`: connect to Google smart device management including Nest thermostats
 
 SkySpark includes the following additional connectors:
