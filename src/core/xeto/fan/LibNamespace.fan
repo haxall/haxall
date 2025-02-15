@@ -56,6 +56,7 @@ const mixin LibNamespace
   @NoDoc static Str[] defaultSystemLibNames()
   {
     ["sys",
+      "sys.api",
       "sys.comp",
       "axon",
       "ion",

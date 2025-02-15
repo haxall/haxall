@@ -73,7 +73,7 @@ const final class MLib
 
   once Spec[] types()
   {
-    specs.findAll |x| { x.isType }.toImmutable
+    specs.findAll |x| { x.isType && x.name[0] != '_' }.toImmutable
   }
 
   Spec? type(Str name, Bool checked := true)
