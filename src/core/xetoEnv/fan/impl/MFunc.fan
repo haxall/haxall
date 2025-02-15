@@ -44,6 +44,26 @@ const final class MFunc : SpecFunc
 
   override Int arity() { params.size }
 
+  override Obj? api(Bool checked := true)
+  {
+    // if cached already
+    if (apiRef != null) return apiRef
+
+    // attempt to parse/reflect
+    api := ApiBindings.cur.load(spec)
+    if (api != null)
+    {
+      // must be ok if dups by multiple threads
+      MFunc#apiRef->setConst(this, api)
+      return api
+    }
+
+    // not found
+    if (checked) throw UnsupportedErr("Func not avail as API: $spec.qname")
+    return null
+  }
+  private const Obj? apiRef
+
   override Obj? axon(Bool checked := true)
   {
     // if cached already

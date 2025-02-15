@@ -18,7 +18,7 @@ const class XetoPlugin : XetoAxonPlugin
   {
     // init Xeto lib => Fantom qname bindings
     bindings := Str:Str[:]
-    Env.cur.index("axon.bindings").each |str|
+    Env.cur.index("xeto.axon").each |str|
     {
       try
       {

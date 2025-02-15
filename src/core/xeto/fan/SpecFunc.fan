@@ -24,6 +24,9 @@ const mixin SpecFunc
   ** Return type
   abstract Spec returns()
 
+  ** Get this spec as an 'xetoEnv::ApiFunc' instance
+  @NoDoc abstract Obj? api(Bool checked := true)
+
   ** Get this spec as an 'axon::Fn' instance
   @NoDoc abstract Obj? axon(Bool checked := true)
 }

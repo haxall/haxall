@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetoEnv
 using haystack::Ref
 using haystack::Dict
 using haystack
@@ -28,29 +29,36 @@ class FuncTest : AbstractXetoTest
   {
     lib := ns.lib("hx.test.xeto")
 
+    // non-func
     num := ns.spec("sys::Number")
     verifyEq(num.isGlobal, false)
     verifyEq(num.isType, true)
     verifyEq(num.isFunc, false)
     verifyErr(UnsupportedErr#) { num.func }
 
+    // Api - ping1
+    f := lib.spec("ping1")
+    verifyGlobalFunc(ns, f, [,], "sys::Date")
+    verifyEq(f.func.api is ApiFunc, true)
+    verifyEq(f.func.api->call(ApiReq()), Date.today)
 
-    verifyAdd(ns, lib.spec("add1"), true)
-    verifyAdd(ns, lib.spec("add2"), true)
-    verifyAdd(ns, lib.spec("add3"), false)
+    // Api - ping2 (missing facet)
+    f = lib.spec("ping2")
+    verifyGlobalFunc(ns, f, [,], "sys::Date")
+    verifyEq(f.func.api(false), null)
+    verifyErr(UnsupportedErr#) { f.func.api }
+
+    // Axon
+    verifyAxonAdd(ns, lib.spec("add1"), true)
+    verifyAxonAdd(ns, lib.spec("add2"), true)
+    verifyAxonAdd(ns, lib.spec("add3"), false)
   }
 
-  private Void verifyAdd(LibNamespace ns, Spec f, Bool hasAxon)
+  private Void verifyAxonAdd(LibNamespace ns, Spec f, Bool hasAxon)
   {
     num := ns.spec("sys::Number")
 
-    verifyEq(f.isGlobal, true)
-    verifyEq(f.isFunc, true)
-    verifyEq(f.func.arity, 2)
-    verifyEq(f.func.params.size, 2)
-    verifyEq(f.func.params[0].name, "a"); verifySame(f.func.params[0].type, num)
-    verifyEq(f.func.params[1].name, "b"); verifySame(f.func.params[1].type, num)
-    verifySame(f.func.returns.type, num)
+    verifyGlobalFunc(ns, f, ["a: sys::Number", "b: sys::Number"], "sys::Number")
 
     if (!hasAxon)
     {
@@ -66,19 +74,46 @@ class FuncTest : AbstractXetoTest
     cx := TextAxonContext(ns)
     verifyEq(a.call(cx, [n(3), n(5)]), n(8))
   }
+
+  private Void verifyGlobalFunc(LibNamespace ns, Spec f, Str[] params, Str ret)
+  {
+    verifyEq(f.isGlobal, true)
+    verifyEq(f.isFunc, true)
+    verifyEq(f.func.arity, params.size)
+    verifyEq(f.func.params.size, params.size)
+    f.func.params.each |p, i|
+    {
+      verifyEq("$p.name: $p.type", params[i])
+      verifySame(p.type, ns.spec(p.type.qname))
+    }
+    verifyEq(f.func.returns.type.qname, ret)
+  }
 }
 
 **************************************************************************
-** TextAxonContext
+** TextAxon
 **************************************************************************
 
 @Js
-class TestAxonFuncs
+class TestAxon
 {
   @Axon static Number add2(Number a, Number b) { a + b }
 
   // not available
   static Number add3(Number a, Number b) { a + b }
+}
+
+**************************************************************************
+** TextApi
+**************************************************************************
+
+@Js
+class TestApi
+{
+  @XetoApi static Date ping1(ApiReq req) { Date.today }
+
+  // not available
+  static Date ping2(ApiReq req) { Date.today }
 }
 
 **************************************************************************

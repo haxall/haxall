@@ -42,7 +42,8 @@ class Build : BuildPod
     srcDirs = [`fan/`]
     index   = [
       "xeto.bindings": "hx.test.xeto testXeto::TestBindingLoader",
-      "axon.bindings": "hx.test.xeto testXeto::TestAxonFuncs"
+      "xeto.api":      "hx.test.xeto testXeto::TestApi",
+      "xeto.axon":     "hx.test.xeto testXeto::TestAxon"
     ]
   }
 }

@@ -12,6 +12,7 @@ pragma: Lib <
   depends: {
     { lib: "sys", versions: "0.1.x" }
     { lib: "sys.comp", versions: "0.1.x" }
+    { lib: "sys.api", versions: "0.1.x" }
     { lib: "ph", versions: "0.1.x" }
     { lib: "ph.points", versions: "0.1.x" }
     { lib: "axon" }
