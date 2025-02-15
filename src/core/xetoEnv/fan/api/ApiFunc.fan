@@ -12,7 +12,6 @@ using util
 **
 ** ApiFunc implements one network API function endpoint
 **
-@Js
 const mixin ApiFunc
 {
   ** Invoke API request
@@ -24,14 +23,13 @@ const mixin ApiFunc
 **************************************************************************
 
 ** Facet applied to Fantom methods to bind them to a Xeto API spec
-@Js facet class XetoApi {}
+facet class XetoApi {}
 
 **************************************************************************
 ** ApiReq
 **************************************************************************
 
 ** ApiFunc request payload
-@Js
 class ApiReq
 {
 }
@@ -41,7 +39,6 @@ class ApiReq
 **************************************************************************
 
 ** ApiFunc implementation bound to a Fantom method
-@Js
 internal const class FantomApiFunc : ApiFunc
 {
   new make(Method method)

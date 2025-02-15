@@ -13,7 +13,7 @@ using xeto
 ** Implementation of SpecFunc
 **
 @Js
-const final class MFunc : SpecFunc
+const class MFunc : SpecFunc
 {
   static MFunc init(Spec spec)
   {
@@ -26,10 +26,10 @@ const final class MFunc : SpecFunc
       else
         params.add(slot)
     }
-    return make(spec, params, returns)
+    return MFuncFactory.cur.create(spec, params, returns)
   }
 
-  private new make(Spec spec, Spec[] params, Spec returns)
+  internal new make(Spec spec, Spec[] params, Spec returns)
   {
     this.spec = spec
     this.params = params
@@ -46,23 +46,9 @@ const final class MFunc : SpecFunc
 
   override Obj? api(Bool checked := true)
   {
-    // if cached already
-    if (apiRef != null) return apiRef
-
-    // attempt to parse/reflect
-    api := ApiBindings.cur.load(spec)
-    if (api != null)
-    {
-      // must be ok if dups by multiple threads
-      MFunc#apiRef->setConst(this, api)
-      return api
-    }
-
-    // not found
-    if (checked) throw UnsupportedErr("Func not avail as API: $spec.qname")
+    if (checked) throw UnsupportedErr("APIs not supported in JS: $spec.qname")
     return null
   }
-  private const Obj? apiRef
 
   override Obj? axon(Bool checked := true)
   {
@@ -88,5 +74,67 @@ const final class MFunc : SpecFunc
   {
     Type.find("axon::XetoPlugin").make
   }
+}
+
+**************************************************************************
+** MFuncFactory
+**************************************************************************
+
+@Js
+internal const class MFuncFactory
+{
+  ** Hook to create either MFunc or MServerFunc for JS vs Java
+  virtual MFunc create(Spec spec, Spec[] params, Spec returns)
+  {
+    MFunc(spec, params, returns)
+  }
+
+  static const MFuncFactory cur
+  static
+  {
+    if (Env.cur.runtime == "js")
+      cur = make
+    else
+      cur = Type.find("xetoEnv::MServerFuncFactory").make
+  }
+}
+
+internal const class MServerFuncFactory : MFuncFactory
+{
+  override MFunc create(Spec spec, Spec[] params, Spec returns)
+  {
+    MServerFunc(spec, params, returns)
+  }
+}
+
+**************************************************************************
+** MServerFunc
+**************************************************************************
+
+** Subclass of MFunc used on server without JS support
+const final class MServerFunc : MFunc
+{
+  internal new make(Spec spec, Spec[] params, Spec returns) : super(spec, params, returns) {}
+
+  override Obj? api(Bool checked := true)
+  {
+    // if cached already
+    if (apiRef != null) return apiRef
+
+    // attempt to parse/reflect
+    api := ApiBindings.cur.load(spec)
+    if (api != null)
+    {
+      // must be ok if dups by multiple threads
+      MServerFunc#apiRef->setConst(this, api)
+      return api
+    }
+
+    // not found
+    if (checked) throw UnsupportedErr("Func not avail as API: $spec.qname")
+    return null
+  }
+  private const Obj? apiRef
+
 }
 

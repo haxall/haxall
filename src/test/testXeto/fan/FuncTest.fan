@@ -15,10 +15,10 @@ using haystack
 using axon
 
 **
-** FuncTest
+** FuncAxonTest
 **
 @Js
-class FuncTest : AbstractXetoTest
+class FuncAxonTest : AbstractXetoTest
 {
   Void testNamespace()
   {
@@ -36,25 +36,13 @@ class FuncTest : AbstractXetoTest
     verifyEq(num.isFunc, false)
     verifyErr(UnsupportedErr#) { num.func }
 
-    // Api - ping1
-    f := lib.spec("ping1")
-    verifyGlobalFunc(ns, f, [,], "sys::Date")
-    verifyEq(f.func.api is ApiFunc, true)
-    verifyEq(f.func.api->call(ApiReq()), Date.today)
-
-    // Api - ping2 (missing facet)
-    f = lib.spec("ping2")
-    verifyGlobalFunc(ns, f, [,], "sys::Date")
-    verifyEq(f.func.api(false), null)
-    verifyErr(UnsupportedErr#) { f.func.api }
-
     // Axon
-    verifyAxonAdd(ns, lib.spec("add1"), true)
-    verifyAxonAdd(ns, lib.spec("add2"), true)
-    verifyAxonAdd(ns, lib.spec("add3"), false)
+    verifyAdd(ns, lib.spec("add1"), true)
+    verifyAdd(ns, lib.spec("add2"), true)
+    verifyAdd(ns, lib.spec("add3"), false)
   }
 
-  private Void verifyAxonAdd(LibNamespace ns, Spec f, Bool hasAxon)
+  private Void verifyAdd(LibNamespace ns, Spec f, Bool hasAxon)
   {
     num := ns.spec("sys::Number")
 
@@ -75,18 +63,37 @@ class FuncTest : AbstractXetoTest
     verifyEq(a.call(cx, [n(3), n(5)]), n(8))
   }
 
-  private Void verifyGlobalFunc(LibNamespace ns, Spec f, Str[] params, Str ret)
+}
+
+**************************************************************************
+** FuncApiTest
+**************************************************************************
+
+**
+** FuncApiTest
+**
+class FuncApiTest : AbstractXetoTest
+{
+  Void testNamespace()
   {
-    verifyEq(f.isGlobal, true)
-    verifyEq(f.isFunc, true)
-    verifyEq(f.func.arity, params.size)
-    verifyEq(f.func.params.size, params.size)
-    f.func.params.each |p, i|
-    {
-      verifyEq("$p.name: $p.type", params[i])
-      verifySame(p.type, ns.spec(p.type.qname))
-    }
-    verifyEq(f.func.returns.type.qname, ret)
+    verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestNamespace(ns) }
+  }
+
+  private Void doTestNamespace(LibNamespace ns)
+  {
+    lib := ns.lib("hx.test.xeto")
+
+    // Api - ping1
+    f := lib.spec("ping1")
+    verifyGlobalFunc(ns, f, [,], "sys::Date")
+    verifyEq(f.func.api is ApiFunc, true)
+    verifyEq(f.func.api->call(ApiReq()), Date.today)
+
+    // Api - ping2 (missing facet)
+    f = lib.spec("ping2")
+    verifyGlobalFunc(ns, f, [,], "sys::Date")
+    verifyEq(f.func.api(false), null)
+    verifyErr(UnsupportedErr#) { f.func.api }
   }
 }
 
@@ -107,7 +114,6 @@ class TestAxon
 ** TextApi
 **************************************************************************
 
-@Js
 class TestApi
 {
   @XetoApi static Date ping1(ApiReq req) { Date.today }

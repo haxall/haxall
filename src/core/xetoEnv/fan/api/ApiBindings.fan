@@ -12,7 +12,6 @@ using xeto
 **
 ** ApiBindings maps API functions to Fantom implementation methods
 **
-@Js
 internal const class ApiBindings
 {
   ** Current bindings for the VM

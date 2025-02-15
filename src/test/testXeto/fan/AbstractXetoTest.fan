@@ -221,6 +221,20 @@ class AbstractXetoTest : HaystackTest
     return str.replace(name, prefix)
   }
 
+  Void verifyGlobalFunc(LibNamespace ns, Spec f, Str[] params, Str ret)
+  {
+    verifyEq(f.isGlobal, true)
+    verifyEq(f.isFunc, true)
+    verifyEq(f.func.arity, params.size)
+    verifyEq(f.func.params.size, params.size)
+    f.func.params.each |p, i|
+    {
+      verifyEq("$p.name: $p.type", params[i])
+      verifySame(p.type, ns.spec(p.type.qname))
+    }
+    verifyEq(f.func.returns.type.qname, ret)
+  }
+
 }
 
 **************************************************************************
