@@ -144,8 +144,7 @@ class RdfExporter : Exporter
   private This globalProp(Spec x)
   {
     qname(x.qname).nl
-    w("  a rdf:Property ;").nl
-    w("  a owl:DataProperty ;").nl
+    w("  a owl:DatatypeProperty ;").nl
     labelAndDoc(x)
     type := globalType(x.type)
     if (type != null) w("  rdfs:range ").w(type).w(" ;").nl
@@ -187,6 +186,12 @@ class RdfExporter : Exporter
 
   override This instance(Dict instance)
   {
+    id := instance.id
+
+    // TODO - just hide op/filetype instances for now
+    if (id.toStr.startsWith("ph::op:")) return this
+    if (id.toStr.startsWith("ph::filetype:")) return this
+
     spec := ns.specOf(instance)
     dis := instance.dis
 
@@ -206,7 +211,7 @@ class RdfExporter : Exporter
       else vals[n] = slot
     }
 
-    id(instance.id).nl
+    this.id(id).nl
     w("  rdf:type ").qname(spec.qname).w(" ;").nl
     w("  rdfs:label ").literal(dis).w(" ;").nl
     markers.keys.sort.each |n| { instanceMarker(instance, n, markers[n]) }
