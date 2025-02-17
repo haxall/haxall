@@ -806,3 +806,20 @@ class TestAdd : CompObj
   }
 }
 
+**************************************************************************
+** TestNumberAdd
+**************************************************************************
+
+@Js
+class TestNumberAdd : CompObj
+{
+  override Void onExecute(CompContext cx)
+  {
+    in1 := get("in1") as Number ?: Number.zero
+    in2 := get("in2") as Number ?: Number.zero
+    out := in1 + in2
+    //echo("~~ execute $this => $in1 + $in2 = $out")
+    set("out", out)
+  }
+}
+

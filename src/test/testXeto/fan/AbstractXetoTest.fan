@@ -323,6 +323,7 @@ internal const class TestBindingLoader : SpecBindingLoader
     acc.add(CompBinding    ("$libName::TestAdd",     TestAdd#))
     acc.add(CompBinding    ("$libName::TestCounter", TestCounter#))
     acc.add(CompBinding    ("$libName::TestFoo",     TestFoo#))
+    acc.add(CompBinding    ("$libName::TestNumberAdd", TestNumberAdd#))
   }
 }
 

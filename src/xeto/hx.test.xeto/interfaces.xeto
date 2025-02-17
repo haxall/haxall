@@ -33,6 +33,26 @@ add2: Func { a: Number, b: Number, returns: Number }
 // add in Fantom, but not allowed
 add3: Func { a: Number, b: Number, returns: Number }
 
+// add in comp blocks
+add4: Func { a: Number, b: Number, returns: Number }
+  --- axonComp
+  @root: Comp {
+    a @a: Var {}
+    b @b: Var {}
+    returns: Var {
+      links: {
+        val: Link { fromRef: @add, fromSlot: "out"  }
+      }
+    }
+    @add: TestNumberAdd {
+      links: {
+        in1: Link { fromRef: @a, fromSlot: "val" }
+        in2: Link { fromRef: @b, fromSlot: "val" }
+      }
+    }
+  }
+  ---
+
 //////////////////////////////////////////////////////////////////////////
 // Interfaces
 //////////////////////////////////////////////////////////////////////////

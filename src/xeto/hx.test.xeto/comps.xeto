@@ -15,6 +15,12 @@ TestAdd : Comp {
   out: TestVal
 }
 
+TestNumberAdd : Comp {
+  in1: Number
+  in2: Number
+  out: Number
+}
+
 TestRamp : Comp {
   out: TestVal
 }

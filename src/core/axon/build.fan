@@ -30,6 +30,7 @@ class Build : BuildPod
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
                "xeto @{hx.depend}",
+               "xetoEnv @{hx.depend}",
                "haystack @{hx.depend}"]
     srcDirs = [`fan/`,
                `fan/ast/`,
@@ -46,3 +47,4 @@ class Build : BuildPod
   }
 
 }
+

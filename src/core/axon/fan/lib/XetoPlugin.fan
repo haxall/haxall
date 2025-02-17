@@ -36,8 +36,12 @@ const class XetoPlugin : XetoAxonPlugin
   {
     // first try axon source
     meta := spec.meta
-    src := meta["axon"] as Str
-    if (src != null) return parseAxon(spec, meta, src)
+    code := meta["axon"] as Str
+    if (code  != null) return parseAxon(spec, meta, code)
+
+    // second try axonComp xeto source
+    comp := meta["axonComp"] as Str
+    if (comp != null) return parseComp(spec, meta, comp)
 
     // next try to Fantom reflection
     fantom := bindings[spec.lib.name]
@@ -64,6 +68,11 @@ const class XetoPlugin : XetoAxonPlugin
     return Parser(Loc(spec.qname), s.toStr.in).parseTop(spec.name, meta)
   }
 
+  private Fn? parseComp(Spec spec, Dict meta, Str src)
+  {
+    return CompFn(spec.name, meta, toParams(spec), src)
+  }
+
   private Fn? reflectFantom(Spec spec, Dict meta, Str qname)
   {
     // resolve type from bindings
@@ -79,6 +88,11 @@ const class XetoPlugin : XetoAxonPlugin
     if (!method.hasFacet(Axon#)) return null
 
     return FantomFn.reflectMethod(method, name, meta, null)
+  }
+
+  private FnParam[] toParams(Spec spec)
+  {
+    spec.func.params.map |p->FnParam| { FnParam(p.name) }
   }
 
   const Str:Str bindings

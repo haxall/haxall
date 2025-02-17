@@ -8,6 +8,9 @@
 
 AxonFunc: Dict
 
-// Axon source code for a function
+// Axon source code string
 axon: Str <meta>
+
+// Axon block component graph as Xeto source string
+axonComp: Str <meta>
 

@@ -37,9 +37,10 @@ class FuncAxonTest : AbstractXetoTest
     verifyErr(UnsupportedErr#) { num.func }
 
     // Axon
-    verifyAdd(ns, lib.spec("add1"), true)
-    verifyAdd(ns, lib.spec("add2"), true)
-    verifyAdd(ns, lib.spec("add3"), false)
+    verifyAdd(ns, lib.spec("add1"), true)  // Axon
+    verifyAdd(ns, lib.spec("add2"), true)  // Fantom
+    verifyAdd(ns, lib.spec("add3"), false) // not allowed
+    if (!ns.isRemote) verifyAdd(ns, lib.spec("add4"), true) // Xeto component graph
   }
 
   private Void verifyAdd(LibNamespace ns, Spec f, Bool hasAxon)
