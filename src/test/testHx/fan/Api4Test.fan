@@ -23,24 +23,68 @@ class Api4Test : ApiTest
   {
     init
     doPing
+    doEval
     cleanup
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Ping
+//////////////////////////////////////////////////////////////////////////
 
   Void doPing()
   {
     verifyPing(a)
-    //verifyPing(b)
-    //verifyPing(c)
+    verifyPing(b)
+    verifyPing(c)
   }
 
   private Void verifyPing(Client c)
   {
-    x := c.toWebClient(`sys.ping`)
-echo(">>> $x.reqUri")
-    str := x.getStr
-echo(str)
+    dict := call(c, "sys.ping", [:]) as Dict
+    ts := (DateTime)dict->time
+    verifyEq(ts.date, Date.today)
+    verifyEq(ts.tz, TimeZone.cur)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Eval
+//////////////////////////////////////////////////////////////////////////
+
+  Void doEval()
+  {
+    verifyEval(a)
+    verifyEval(b)
+    verifyEval(c)
+  }
+
+  private Void verifyEval(Client c)
+  {
+    verifyCall(c, "hx.eval", ["expr":"today()"], Date.today)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  Void verifyCall(Client c, Str op, Obj args, Obj? expect)
+  {
+    actual := call(c, op, args)
+    verifyEq(actual, expect)
+  }
+
+  Obj? call(Client c, Str op, Obj args)
+  {
+    // TODO: just temp solution
+    x := c.toWebClient(op.toUri)
+    req := StrBuf()
+    JsonWriter(req.out).writeVal(Etc.makeDict(args))
+    if (debug) { echo(">>>>"); echo(req) }
+    x.postStr(req.toStr)
+    res := x.resIn.readAllStr
+    if (debug) { echo("<<<<"); echo(res) }
+    return JsonReader(res.in).readVal
+  }
+
+  const Bool debug := false
 }
 

@@ -20,5 +20,11 @@ class HxCoreApis
   {
     Etc.dict1("time", DateTime.now)
   }
+
+  ** Implementation of 'hx.api::eval'
+  @HxApi static Obj? eval(HxApiReq req)
+  {
+    req.context.eval(req.args->expr)
+  }
 }
 

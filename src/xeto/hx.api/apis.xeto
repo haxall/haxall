@@ -1,0 +1,14 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   18 Feb 2025  Brian Frank  Creation
+//
+
+// Evaluate axon expression
+eval: Api {
+  // Expression to evaluate
+  expr: Str
+}
+

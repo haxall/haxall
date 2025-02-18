@@ -1,13 +1,13 @@
 //
-// Copyright (c) 2024, SkyFoundry LLC
+// Copyright (c) 2025, SkyFoundry LLC
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   21 Sep 2023  Brian Frank  Creation
+//   18 Feb 2025  Brian Frank  Creation
 //
 
 pragma: Lib <
-  doc: "Axon scripting engine"
+  doc: "Haxall network APIs"
   version: "0.1.1"
   depends: {
     { lib: "sys", versions: "0.1.x" }
