@@ -14,8 +14,8 @@ using haystack::Dict
 **
 ** TypeRef is a spec type lookup either by qualified or unqualified name
 **
-@Js
-internal const class TypeRef : Expr
+@NoDoc @Js
+const class TypeRef : Expr
 {
   new make(Loc loc, Str? lib, Str name)
   {

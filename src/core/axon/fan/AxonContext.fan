@@ -68,6 +68,9 @@ abstract class AxonContext : HaystackContext
   ** Evaluate an expression or if a filter then readAll convenience
   @NoDoc virtual Obj? evalOrReadAll(Str src) { throw UnsupportedErr() }
 
+  ** Foreign function interface plugin to map Axon to Fantom or other languages
+  @NoDoc virtual AxonFFI? ffi() { null }
+
 /////////////////////////////////////////////////////////////////////////////
 // Eval
 //////////////////////////////////////////////////////////////////////////
