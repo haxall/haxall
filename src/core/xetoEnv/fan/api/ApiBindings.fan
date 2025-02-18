@@ -42,10 +42,11 @@ internal const class ApiBindings
       catch (Err e) echo("ERR: Cannot init axon.binding: $str\n  $e")
     }
     this.bindings = bindings
+    this.facet = Type.find("hx::HxApi")
   }
 
   ** Lookup implementation for given spec or return null
-  ApiFunc? load(Spec spec)
+  Method? load(Spec spec)
   {
     // lookup fantom class
     clsName := bindings[spec.lib.name]
@@ -57,13 +58,14 @@ internal const class ApiBindings
     if (method == null) return null
 
     // ensure it has facet and is static
-    if (!method.hasFacet(XetoApi#)) return null
+    if (!method.hasFacet(facet)) return null
     if (!method.isStatic) return null
 
     // bind it
-    return FantomApiFunc(method)
+    return method
   }
 
   const Str:Str bindings   // lib name to Fantom class
+  const Type facet
 }
 

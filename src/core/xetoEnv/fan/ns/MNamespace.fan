@@ -420,7 +420,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   override Spec? global(Str name, Bool checked := true)
   {
-    match :=  entriesList.eachWhile |entry|
+    match := entriesList.eachWhile |entry|
     {
       entry.status.isOk ? entry.get.global(name, false) : null
     }
@@ -428,6 +428,45 @@ abstract const class MNamespace : LibNamespace, CNamespace
     if (checked) throw UnknownSpecErr(name)
     return null
   }
+
+  override Spec? api(Str opName, Bool checked := true)
+  {
+    // try cache
+    func := apiCache.get(opName)
+    if (func != null) return func
+
+    // parse to "lib.func" and try "lib.api::func" and "lib::func"
+    func = findApi(opName)
+    if (func != null)
+    {
+      apiCache[opName] = func
+      return func
+    }
+
+    // no joy
+    if (checked) throw UnknownSpecErr("API $opName.toCode")
+    return null
+  }
+
+  private Spec? findApi(Str op)
+  {
+    dot := op.indexr(".")
+    if (dot == null || dot == 0 || dot == op.size-1) return null
+
+    libName  := op[0..<dot]
+    funcName := op[dot+1..-1]
+
+    lib := this.lib(libName+".api", false)
+    if (lib == null) lib = this.lib(libName, false)
+    if (lib == null) return null
+
+    func := lib.global(funcName, false)
+    if (func == null) return null
+    if (!func.isFunc) return null
+    return func
+  }
+
+  private const ConcurrentMap apiCache := ConcurrentMap()
 
   override Dict? xmeta(Str qname, Bool checked := true)
   {

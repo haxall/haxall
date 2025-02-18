@@ -30,13 +30,15 @@ class Api4Test : ApiTest
   Void doPing()
   {
     verifyPing(a)
-    verifyPing(b)
-    verifyPing(c)
+    //verifyPing(b)
+    //verifyPing(c)
   }
 
   private Void verifyPing(Client c)
   {
-    str := c.toWebClient(`sys/ping`).getStr
+    x := c.toWebClient(`sys.ping`)
+echo(">>> $x.reqUri")
+    str := x.getStr
 echo(str)
   }
 

@@ -206,6 +206,9 @@ const mixin LibNamespace
   ** If ambiguous globals then select the first one ordered by lib depend order.
   @NoDoc abstract Spec? global(Str name, Bool checked := true)
 
+  ** Map HTTP API operation name such as "sys.ping" to "sys.api::ping"
+  @NoDoc abstract Spec? api(Str opName, Bool checked := true)
+
   ** Lookup the extended meta for the given spec qname.  This is a merge
   ** of the spec's own meta along with any instance dicts in the namespace
   ** with a local id of "xmeta-{lib}-{spec}".  Only libs currently loaded are

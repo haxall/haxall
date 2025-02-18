@@ -13,6 +13,7 @@ using haystack::Ref
 using haystack::Dict
 using haystack
 using axon
+using hx
 
 **
 ** FuncAxonTest
@@ -87,8 +88,8 @@ class FuncApiTest : AbstractXetoTest
     // Api - ping1
     f := lib.spec("ping1")
     verifyGlobalFunc(ns, f, [,], "sys::Date")
-    verifyEq(f.func.api is ApiFunc, true)
-    verifyEq(f.func.api->call(ApiReq()), Date.today)
+    verifyEq(f.func.api is Method, true)
+    verifyEq(f.func.api->call(null), Date.today)
 
     // Api - ping2 (missing facet)
     f = lib.spec("ping2")
@@ -117,10 +118,10 @@ class TestAxon
 
 class TestApi
 {
-  @XetoApi static Date ping1(ApiReq req) { Date.today }
+  @HxApi static Date ping1(HxApiReq? req) { Date.today }
 
   // not available
-  static Date ping2(ApiReq req) { Date.today }
+  static Date ping2(HxApiReq? req) { Date.today }
 }
 
 **************************************************************************

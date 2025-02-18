@@ -39,7 +39,14 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
       cx.timeout = HxContext.timeoutDef
       Actor.locals[Etc.cxActorLocalsKey] = cx
 
-      // map operation to Axon function
+      // if opName has dot then its Haxall 4.x xeto style
+      if (opName.contains("."))
+      {
+        HxApiReq.service(req, res, opName, cx)
+        return
+      }
+
+      // otherwise map to op def for Haxall 3.x legacy style
       opDef := cx.ns.def("op:$opName", false)
       if (opDef == null) return res.sendErr(404)
 

@@ -45,7 +45,9 @@ class Build : BuildPod
     index =
     [
       "ph.lib": "hx",
-      "hx.cli": ["hx::HelpCli", "hx::VersionCli"]
+      "hx.cli": ["hx::HelpCli", "hx::VersionCli"],
+      "xeto.api": "sys.api hx::HxCoreApis"
     ]
   }
 }
+
