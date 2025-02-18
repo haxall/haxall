@@ -13,7 +13,7 @@ using axon
 using folio
 
 **
-** Base class for HTTP API operation processing
+** Base class for Haxall 3.x style HTTP API operation processing
 **
 abstract class HxApiOp
 {
@@ -653,5 +653,4 @@ internal class HxPointWriteOp : HxApiOp
     return Etc.makeEmptyGrid(Etc.makeDict1("ok", Marker.val))
   }
 }
-
 
