@@ -21,18 +21,33 @@ class FantomTest : HaystackTest
     verifyEval(Str<|today()|>, Date.today)
     verifyEval(Str<|format(Date.today, "D-MMM-YY")|>, Date.today.toLocale("D-MMM-YY"))
 
-    // static Fantom slots
+    // static Fantom methods
     verifyEval(Str<|Date.today|>, Date.today)
     verifyEval(Str<|sys::Date.today|>, Date.today)
     verifyEval(Str<|Date.fromStr("2024-04-21")|>, Date("2024-04-21"))
     verifyEval(Str<|sys::Date.fromStr("2024-04-21")|>, Date("2024-04-21"))
-    verifyEval(Str<|Float.posInf|>, Float.posInf)
-    verifyEval(Str<|sys::Float.posInf|>, Float.posInf)
 
-    // instance Fantom slots
-    verifyEval(Str<|FantomEx.make.foo|>, "foo!")
+    // static Fantom fields
+    verifyEval(Str<|FantomEx.sx|>, "static field")
+    verifyEval(Str<|testAxon::FantomEx.sx|>, "static field")
+
+    // instance Fantom method
     verifyEval(Str<|FantomEx.make.bar|>, "bar!")
     verifyEval(Str<|FantomEx.make.add1(4, 5)|>, n(9))
+
+    // instance fields
+    verifyEval(Str<|FantomEx.make.foo|>, "foo!")
+
+    // coercion out of Fantom
+    verifyEval(Str<|Float.posInf|>, Number.posInf)
+    verifyEval(Str<|Int.fromStr("3")|>, n(3))
+    verifyEval(Str<|Float.fromStr("3")|>, n(3))
+    verifyEval(Str<|Duration.fromStr("3min")|>, n(3, "min"))
+
+    // coercion into Fantom
+    verifyEval(Str<|Int.fromStr("abc", 16)|>, n(0xabc))
+    verifyEval(Str<|FantomEx.add2(3, 5)|>, n(8))
+    verifyEval(Str<|FantomEx.add3(3sec, 5sec)|>, n(8, "sec"))
 
     // errors
     verifyErrMsg(UnknownTypeErr#, "Bad") { eval("Bad.foo") }
@@ -44,7 +59,7 @@ class FantomTest : HaystackTest
   Void verifyEval(Str expr, Obj? expect)
   {
     actual := eval(expr)
-    //echo("-- $expr | $actual ?= $expect")
+    echo("-- $expr | $actual ?= $expect")
     verifyEq(actual, expect)
   }
 
@@ -65,6 +80,9 @@ class FantomEx
   Str foo  := "foo!"
   Str bar() { "bar!" }
   Number add1(Number a, Number b) { a + b }
+  static Float add2(Int a, Float b) { b + a }
+  static Duration add3(Duration a, Duration b) { b + a }
+  static const Str sx := "static field"
 }
 
 **************************************************************************

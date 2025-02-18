@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using haystack
 
 **
 ** AxonFFI foreign function interface to bind Axon calls to Fantom
@@ -39,11 +40,11 @@ const class FantomAxonFFI : AxonFFI
     slot := resolve(type).slot(name)
     if (slot.isField)
     {
-      return ((Field)slot).get(null)
+      return get(slot, null)
     }
     else
     {
-      return ((Method)slot).callOn(null, args)
+      return call(slot, null, args)
     }
   }
 
@@ -54,14 +55,56 @@ const class FantomAxonFFI : AxonFFI
     if (slot.isField)
     {
       if (args.isEmpty)
-        return ((Field)slot).get(target)
+        return get(slot, target)
       else
         throw Err("Invalid args to field set: $slot")
     }
     else
     {
-      return ((Method)slot).callOn(target, args)
+      return call(slot, target, args)
     }
+  }
+
+  private Obj? get(Field f, Obj? target)
+  {
+    coerceFromFantom(f.get(target))
+  }
+
+  private Obj? call(Method m, Obj? target, Obj?[] args)
+  {
+    params := m.params
+    args.each |arg, i| { args[i] = coerceToFantom(arg, params.getSafe(i)?.type) }
+    return coerceFromFantom(m.callOn(target, args))
+  }
+
+  private Obj? coerceToFantom(Obj? x, Type? type)
+  {
+    if (type == Int#)
+    {
+      if (x is Number) return ((Number)x).toInt
+      return x
+    }
+
+    if (type == Float#)
+    {
+      if (x is Number) return ((Number)x).toFloat
+      return x
+    }
+
+    if (type == Duration#)
+    {
+      if (x is Number) return ((Number)x).toDuration
+      return x
+    }
+
+    return x
+  }
+
+  private Obj? coerceFromFantom(Obj? x)
+  {
+    if (x is Num) return Number.makeNum(x)
+    if (x is Duration) return Number.makeDuration(x, null)
+    return x
   }
 
   private Type resolve(TypeRef ref)
