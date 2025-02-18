@@ -92,21 +92,14 @@ internal const class DotCall : Call
     // evaluate first arg as target object
     target := args.first.eval(cx)
 
-    // check if we should dispatch as interface method
-    /*
-    if (target != null)
+    // if FFI is installed it is always dispatched as OO method
+    if (target != null && cx.ffi != null)
     {
-      method := cx.xeto.interfaceMethodOn(target, funcName)
-      if (method != null)
-      {
-        if (method.isStatic || method.isCtor) throw Err("Cannot call static method as instance: $method.qname")
-        methodArgs := Obj?[,]
-        methodArgs.capacity = args.size - 1
-        args.eachRange(1..-1) |arg| { methodArgs.add(arg.eval(cx)) }
-        return method.callOn(target, methodArgs)
-      }
+      ffiArgs := Obj?[,]
+      ffiArgs.capacity = args.size-1
+      args.eachRange(1..-1) |arg| { ffiArgs.add(arg.eval(cx)) }
+      return cx.ffi.callDot(cx, target, funcName, ffiArgs)
     }
-    */
 
     // evaluate as global function, but wrap target as
     // literal to ensure it is evaluated exactly once

@@ -14,8 +14,11 @@ using concurrent
 @Js @NoDoc
 abstract const class AxonFFI
 {
-  ** Invok
+  ** Static call on type
   abstract Obj? callStatic(AxonContext cx, TypeRef type, Str name, Obj?[] args)
+
+  ** Instance call on this object
+  abstract Obj? callDot(AxonContext cx, Obj? target, Str name, Obj?[] args)
 }
 
 **************************************************************************
@@ -33,7 +36,32 @@ const class FantomAxonFFI : AxonFFI
 
   override Obj? callStatic(AxonContext cx, TypeRef type, Str name, Obj?[] args)
   {
-    resolve(type).method(name).callOn(null, args)
+    slot := resolve(type).slot(name)
+    if (slot.isField)
+    {
+      return ((Field)slot).get(null)
+    }
+    else
+    {
+      return ((Method)slot).callOn(null, args)
+    }
+  }
+
+  override Obj? callDot(AxonContext cx, Obj? target, Str name, Obj?[] args)
+  {
+    if (target == null) throw NullErr("Dot call on null target: $name")
+    slot := target.typeof.slot(name)
+    if (slot.isField)
+    {
+      if (args.isEmpty)
+        return ((Field)slot).get(target)
+      else
+        throw Err("Invalid args to field set: $slot")
+    }
+    else
+    {
+      return ((Method)slot).callOn(target, args)
+    }
   }
 
   private Type resolve(TypeRef ref)
