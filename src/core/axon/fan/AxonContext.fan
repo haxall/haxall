@@ -53,6 +53,9 @@ abstract class AxonContext : HaystackContext
   ** Xeto namespace
   virtual LibNamespace xeto() { ns.xeto }
 
+  ** Resolve global variable/top-level function
+  @NoDoc virtual Obj? global(Str name, Bool checked := true) { findTop(name, checked) }
+
   ** Find top-level function by qname or name
   @NoDoc abstract Fn? findTop(Str name, Bool checked := true)
 
@@ -242,9 +245,9 @@ abstract class AxonContext : HaystackContext
     frame := varFrame(name)
     if (frame != null) return frame.get(name)
 
-    // resolve top-level function
-    top := findTop(name, false)
-    if (top != null) return top
+    // resolve to global variable/top-level function
+    global := global(name, false)
+    if (global != null) return global
 
     throw EvalErr("Unknown symbol '$name'", this, loc)
   }
