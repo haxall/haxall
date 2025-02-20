@@ -407,10 +407,11 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   override Spec? unqualifiedType(Str name, Bool checked := true)
   {
+    if (!isRemote) loadAllSync
     acc := Spec[,]
-    libs.each |lib|
+    entriesList.each |entry|
     {
-      acc.addNotNull(lib.type(name, false))
+      if (entry.status.isOk) acc.addNotNull(entry.get.type(name, false))
     }
     if (acc.size == 1) return acc[0]
     if (acc.size > 1) throw Err("Ambiguous types for '$name' $acc")
@@ -420,6 +421,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   override Spec? global(Str name, Bool checked := true)
   {
+    if (!isRemote) loadAllSync
     match := entriesList.eachWhile |entry|
     {
       entry.status.isOk ? entry.get.global(name, false) : null
