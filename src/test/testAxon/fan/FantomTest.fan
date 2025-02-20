@@ -48,6 +48,9 @@ class FantomTest : HaystackTest
     verifyEval(Str<|Int.fromStr("abc", 16)|>, n(0xabc))
     verifyEval(Str<|FantomEx.add2(3, 5)|>, n(8))
     verifyEval(Str<|FantomEx.add3(3sec, 5sec)|>, n(8, "sec"))
+    verifyEval(Str<|FantomEx.filter(Point)|>, Filter("Point"))
+    verifyEval(Str<|FantomEx.filter(foo==3)|>, Filter("foo==3"))
+    verifyEval(Str<|FantomEx.filter(FooBar and mark and foo==3)|>, Filter("FooBar and mark and foo==3"))
 
     // errors
     verifyErrMsg(UnknownTypeErr#, "Bad") { eval("Bad.foo") }
@@ -59,7 +62,7 @@ class FantomTest : HaystackTest
   Void verifyEval(Str expr, Obj? expect)
   {
     actual := eval(expr)
-    echo("-- $expr | $actual ?= $expect")
+    //echo("-- $expr | $actual ?= $expect")
     verifyEq(actual, expect)
   }
 
@@ -83,6 +86,8 @@ class FantomEx
   static Float add2(Int a, Float b) { b + a }
   static Duration add3(Duration a, Duration b) { b + a }
   static const Str sx := "static field"
+
+  static Filter filter(Filter filter) { filter }
 }
 
 **************************************************************************

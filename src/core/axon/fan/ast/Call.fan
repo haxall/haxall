@@ -95,10 +95,7 @@ internal const class DotCall : Call
     // if FFI is installed it is always dispatched as OO method
     if (target != null && cx.ffi != null)
     {
-      ffiArgs := Obj?[,]
-      ffiArgs.capacity = args.size-1
-      args.eachRange(1..-1) |arg| { ffiArgs.add(arg.eval(cx)) }
-      return cx.ffi.callDot(cx, target, funcName, ffiArgs)
+      return cx.ffi.callDot(cx, target, funcName, args[1..-1])
     }
 
     // evaluate as global function, but wrap target as
@@ -150,7 +147,7 @@ internal const class StaticCall : Call
   {
     // static calls route to FFI if installed
     ffi := cx.ffi ?: throw UnsupportedErr("Static call: ${typeRef}.$funcName")
-    return ffi.callStatic(cx, typeRef, funcName, evalArgs(cx))
+    return ffi.callStatic(cx, typeRef, funcName, args)
   }
 
   override Printer print(Printer out)

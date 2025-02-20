@@ -16,10 +16,10 @@ using haystack
 abstract const class AxonFFI
 {
   ** Static call on type
-  abstract Obj? callStatic(AxonContext cx, TypeRef type, Str name, Obj?[] args)
+  abstract Obj? callStatic(AxonContext cx, TypeRef type, Str name, Expr[] args)
 
   ** Instance call on this object
-  abstract Obj? callDot(AxonContext cx, Obj? target, Str name, Obj?[] args)
+  abstract Obj? callDot(AxonContext cx, Obj? target, Str name, Expr[] args)
 }
 
 **************************************************************************
@@ -35,7 +35,7 @@ const class FantomAxonFFI : AxonFFI
     this.types = ConcurrentMap()
   }
 
-  override Obj? callStatic(AxonContext cx, TypeRef type, Str name, Obj?[] args)
+  override Obj? callStatic(AxonContext cx, TypeRef type, Str name, Expr[] args)
   {
     slot := resolve(type).slot(name)
     if (slot.isField)
@@ -44,11 +44,11 @@ const class FantomAxonFFI : AxonFFI
     }
     else
     {
-      return call(slot, null, args)
+      return call(cx, slot, null, args)
     }
   }
 
-  override Obj? callDot(AxonContext cx, Obj? target, Str name, Obj?[] args)
+  override Obj? callDot(AxonContext cx, Obj? target, Str name, Expr[] args)
   {
     if (target == null) throw NullErr("Dot call on null target: $name")
     slot := target.typeof.slot(name)
@@ -61,7 +61,7 @@ const class FantomAxonFFI : AxonFFI
     }
     else
     {
-      return call(slot, target, args)
+      return call(cx, slot, target, args)
     }
   }
 
@@ -70,15 +70,24 @@ const class FantomAxonFFI : AxonFFI
     coerceFromFantom(f.get(target))
   }
 
-  private Obj? call(Method m, Obj? target, Obj?[] args)
+  private Obj? call(AxonContext cx, Method m, Obj? target, Expr[] argExprs)
   {
     params := m.params
-    args.each |arg, i| { args[i] = coerceToFantom(arg, params.getSafe(i)?.type) }
+    args := argExprs.map |argExpr, i|
+    {
+      coerceToFantom(cx, argExpr, params.getSafe(i)?.type)
+    }
+
     return coerceFromFantom(m.callOn(target, args))
   }
 
-  private Obj? coerceToFantom(Obj? x, Type? type)
+  private Obj? coerceToFantom(AxonContext cx, Expr expr, Type? type)
   {
+    // use Fantom type to lazily eval filters
+    if (type == Filter#) return expr.evalToFilter(cx)
+
+    x := expr.eval(cx)
+
     if (type == Int#)
     {
       if (x is Number) return ((Number)x).toInt
