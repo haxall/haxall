@@ -48,9 +48,10 @@ class FantomTest : HaystackTest
     verifyEval(Str<|Int.fromStr("abc", 16)|>, n(0xabc))
     verifyEval(Str<|FantomEx.add2(3, 5)|>, n(8))
     verifyEval(Str<|FantomEx.add3(3sec, 5sec)|>, n(8, "sec"))
-    verifyEval(Str<|FantomEx.filter(Point)|>, Filter("Point"))
-    verifyEval(Str<|FantomEx.filter(foo==3)|>, Filter("foo==3"))
-    verifyEval(Str<|FantomEx.filter(FooBar and mark and foo==3)|>, Filter("FooBar and mark and foo==3"))
+    verifyEval(Str<|FantomEx.filter1(Point)|>, Filter("Point"))
+    verifyEval(Str<|FantomEx.filter1(foo==3)|>, Filter("foo==3"))
+    verifyEval(Str<|FantomEx.filter1(FooBar and mark and foo==3)|>, Filter("FooBar and mark and foo==3"))
+    verifyEval(Str<|FantomEx.filter2(FooBar and mark and foo==3)|>, Filter("FooBar and mark and foo==3"))
 
     // errors
     verifyErrMsg(UnknownTypeErr#, "Bad") { eval("Bad.foo") }
@@ -87,7 +88,8 @@ class FantomEx
   static Duration add3(Duration a, Duration b) { b + a }
   static const Str sx := "static field"
 
-  static Filter filter(Filter filter) { filter }
+  static Filter filter1(Filter x) { x }
+  static Filter filter2(Str filter) { Filter(filter) }
 }
 
 **************************************************************************

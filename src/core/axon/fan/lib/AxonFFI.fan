@@ -75,37 +75,44 @@ const class FantomAxonFFI : AxonFFI
     params := m.params
     args := argExprs.map |argExpr, i|
     {
-      coerceToFantom(cx, argExpr, params.getSafe(i)?.type)
+      coerceToFantom(cx, argExpr, params.getSafe(i))
     }
 
     return coerceFromFantom(m.callOn(target, args))
   }
 
-  private Obj? coerceToFantom(AxonContext cx, Expr expr, Type? type)
+  private Obj? coerceToFantom(AxonContext cx, Expr expr, Param? p)
   {
+    // if no Fantom parameter, then no coercion
+    if (p == null) return expr.eval(cx)
+    name := p.name
+    type := p.type
+
     // use Fantom type to lazily eval filters
     if (type == Filter#) return expr.evalToFilter(cx)
+    if (name == "filter") return expr.evalToFilter(cx).toStr
 
+    // evaluate
     x := expr.eval(cx)
 
+    // coerce Fantom Int/Float/Duration -> Number
     if (type == Int#)
     {
       if (x is Number) return ((Number)x).toInt
       return x
     }
-
     if (type == Float#)
     {
       if (x is Number) return ((Number)x).toFloat
       return x
     }
-
     if (type == Duration#)
     {
       if (x is Number) return ((Number)x).toDuration
       return x
     }
 
+    // return raw value
     return x
   }
 
