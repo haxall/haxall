@@ -188,7 +188,27 @@ class CompileTest : AbstractXetoTest
 
            |>)
 
+    // with tabs
+    verifyMultiLineStr(
+      Str<|Str """a
+                  \tb
+                  \t\tc
+                  """|>,
+      """a
+         \tb
+         \t\tc
+         """)
 
+    verifyMultiLineStr(
+      """\tStr \"\"\"a
+         \t        b
+         \t         c
+         \t       \"\"\"
+         """,
+      """a
+          b
+           c
+         """)
   }
 
   Void verifyMultiLineStr(Str src, Str expect)
@@ -227,6 +247,21 @@ class CompileTest : AbstractXetoTest
              line 2
 
            line 4|>)
+
+    lib = ns.compileLib(
+       """Foo: {}
+          \t--- bar
+          \tline 1
+          \t line 2
+          \t---
+          bar: Str <meta>
+          """)
+
+    foo = lib.type("Foo")
+
+    verifyHeredoc(foo, "bar",
+      """line 1
+          line 2""")
 
     lib = ns.compileLib(
        Str<|Foo: {}
