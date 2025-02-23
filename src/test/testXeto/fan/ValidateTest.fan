@@ -394,6 +394,34 @@ class ValidateTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Protocol
+//////////////////////////////////////////////////////////////////////////
+
+  Void testProtocol()
+  {
+    ns := createNamespace(["ph.protocol"])
+
+    // quick tests for protocol regex
+
+    // bacnet
+    re := Regex(ns.spec("ph.protocol::BacnetAddr.addr").meta["pattern"])
+    verifyEq(re.matches("AO123"), true)
+    verifyEq(re.matches("ao123"), false)
+    verifyEq(re.matches("AO"), false)
+    verifyEq(re.matches("123"), false)
+    verifyEq(re.matches("ABCD9"), true)
+    verifyEq(re.matches("LAV9X"), false)
+
+    re = Regex(ns.spec("ph.protocol::ModbusAddr.addr").meta["pattern"])
+    verifyEq(re.matches("40000"),  true)
+    verifyEq(re.matches("41234"),  true)
+    verifyEq(re.matches("41abcd"), false)
+    verifyEq(re.matches("4123"),   false)
+    verifyEq(re.matches("412345"), false)
+    verifyEq(re.matches("51234"),  false)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Verify
 //////////////////////////////////////////////////////////////////////////
 
