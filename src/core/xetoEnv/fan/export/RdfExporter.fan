@@ -104,12 +104,21 @@ class RdfExporter : Exporter
     qname(x.qname).nl
     w("  a rdfs:Datatype ;").nl
     labelAndDoc(x)
-    w("  owl:oneOf (").nl
+    w(".").nl
+
+    qnameShape(x.qname).nl
+    w("  a sh:NodeShape ;").nl
+    w("  sh:targetClass ").qname(x.qname).w(" ;").nl
+    w("  sh:property [").nl
+    w("    sh:path rdf:value ;").nl
+    w("    sh:in (").nl
     x.enum.each |spec, key|
     {
-      w("    ").literal(key).w("^^rdf:PlainLiteral").nl
+      w("    ").literal(key).nl
     }
-    w("  )").nl
+    w("    ) ;").nl
+    w("    sh:message ").literal("Must one of the $x.name enum values").w("@en ;").nl
+    w("  ]").nl
     w(".").nl
     return this
   }
@@ -156,6 +165,7 @@ class RdfExporter : Exporter
   {
     if (type.qname == "sys::Str") return "xsd:string"
     if (type.qname == "sys::Int") return "xsd:integer"
+    if (type.isEnum) return qnameToUri(type.qname)
     return null
   }
 
@@ -295,16 +305,28 @@ class RdfExporter : Exporter
     w(libName)
   }
 
+  ** Turn Xeto qname into RDF URI
+  static Str qnameToUri(Str qname)
+  {
+    qname.replace("::", ":")
+  }
+
   ** Output Xeto lib::name qualified name
   private This qname(Str qname)
   {
-    w(qname.replace("::", ":"))
+    w(qnameToUri(qname))
+  }
+
+  ** Output Xeto lib::name qualified name with "Shape" suffix
+  private This qnameShape(Str qname)
+  {
+    this.qname(qname).w("Shape")
   }
 
   ** Output Xeto lib::name qualified name
   private This id(Ref id)
   {
-    w(id.toStr.replace("::", ":"))
+    w(qnameToUri(id.toStr))
   }
 
   ** Quoted string literal
