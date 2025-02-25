@@ -35,5 +35,6 @@ internal const class CInstanceWrap : CInstance
   override haystack::Ref id() { w->id }
   override CSpec ctype() { spec }
   override Obj asm() { id }
+  override Str toStr() { id.toStr }
 }
 
