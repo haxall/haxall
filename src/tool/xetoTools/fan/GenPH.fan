@@ -504,18 +504,6 @@ internal class GenPH : AbstractGenCmd
     specName := toChoiceTypeName(def)
     baseName := "Choice"
 
-    // special cases for suffix such as LeavingPipe instead of just Leaving
-    suffix := ""
-    switch (specName)
-    {
-      case "AhuZoneDelivery":  suffix = "Ahu"
-      case "ChillerMechanism": suffix = "Chiller"
-      case "DuctSection":      suffix = "Duct"
-      case "PipeSection":      suffix = "Pipe"
-      case "VavAirCircuit":    suffix = "Vav"
-      case "VavModulation":    suffix = "Vav"
-    }
-
     section := "//////////////////////////////////////////////////////////////////////////"
     out.printLine(section)
     out.printLine("// $specName")
@@ -532,22 +520,44 @@ internal class GenPH : AbstractGenCmd
 
     if (of != null) return
 
-    ns.subtypes(def).each |sub|
+    subtypes(def).each |sub|
     {
-      writeChoiceItem(out, specName, suffix, sub)
+      writeChoiceItem(out, specName, sub)
     }
   }
 
-  private Void writeChoiceItem(OutStream out, Str base, Str suffix, Def x)
+  private Void writeChoiceItem(OutStream out, Str base, Def x)
   {
     tag := x.symbol.type.isConjunct ? x.symbol.part(1) : x.name
-    name := tag.capitalize + suffix
+    name := toChoiceSubTypeName(base, tag.capitalize)
     writeDoc(out, x)
     out.printLine("$name: $base { $tag }")
     out.printLine
 
-    suffix = name
-    ns.subtypes(x).each |sub| { writeChoiceItem(out, name, suffix, sub) }
+    subtypes(x).each |sub| { writeChoiceItem(out, name, sub) }
+  }
+
+  private Str toChoiceSubTypeName(Str base, Str name)
+  {
+    switch (base)
+    {
+      case "AhuZoneDelivery": name = name[0..-5]
+      case "AirVolumeAdjustability": name = name[0..-10]
+      case "AtesDesign":     name = name[4..-1]
+      case "CondenserLoop":  name = name[9..-5]
+      case "CoolingProcess": name = name[0..-8]
+      case "DuctConfig":     name = name[0..-5]
+      case "DuctDeck":       name = name[0..-5]
+      case "HeatingProcess": name = name[0..-8]
+      case "MeterScope":     if (name == "SiteMeter") return "SiteMeterScope"
+      case "PfScope":        name = name[2..-1]
+      case "PfStandard":     name = name[2..-1]
+      case "PhaseCount":     name = name[0..-6]
+      case "PlantLoop":      name = name[0..-5]
+      case "SimScenario":    name = name[3..-1]
+    }
+
+    return name + base
   }
 
   private Void writeChoiceTaxonomy(Def def)
@@ -608,6 +618,14 @@ internal class GenPH : AbstractGenCmd
     of := def["of"]
     if (of != null) return of.toStr.capitalize
     return null
+  }
+
+
+  Def[] subtypes(Def def)
+  {
+    subtypes := ns.subtypes(def)
+    subtypes.sort |a, b| { a.name <=> b.name }
+    return subtypes
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -680,7 +698,6 @@ internal class GenPH : AbstractGenCmd
     out.printLine("}")
     out.printLine
   }
-
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
