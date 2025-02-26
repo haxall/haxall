@@ -117,7 +117,7 @@ class RdfExporter : Exporter
       w("    ").literal(key).nl
     }
     w("    ) ;").nl
-    w("    sh:message ").literal("Must one of the $x.name enum values").w("@en ;").nl
+    w("    sh:message ").literal("Must be one of the $x.name enum values").w("@en ;").nl
     w("  ]").nl
     w(".").nl
     return this
@@ -263,6 +263,7 @@ class RdfExporter : Exporter
     w("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .").nl
     w("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .").nl
     w("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .").nl
+    w("@prefix sh: <http://www.w3.org/ns/shacl#> .").nl
     lib.depends.each |x| { prefixDef(ns.lib(x.name)) }
     prefixDef(lib)
     nl
