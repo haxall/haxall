@@ -89,11 +89,9 @@ class ChoiceTest : AbstractXetoTest
      verifyEq(redPlus.isChoice, false)
 
      // verify compound types are not choices in ph.points
-     sensor  := ns.spec("ph::Sensor")
+     sensor  := ns.spec("ph.points::SensorPoint")
      ats     := ns.spec("ph.points::AirTempSensor")
-     verifyEq(ats.isa(choice), true)
      verifyEq(ats.isa(sensor), true)
-     verifyEq(sensor.isChoice, true)
      verifyEq(ats.isChoice, false)
   }
 
@@ -182,7 +180,7 @@ class ChoiceTest : AbstractXetoTest
   {
     ns := createNamespace(["sys", "ph"])
 
-    verifyPhenomenon(ns, ["discharge":m], "ph::DuctSection", "ph::DischargeDuct")
+    verifyPhenomenon(ns, ["discharge":m], "ph::DuctSection", "ph::DischargeDuctSection")
     verifyPhenomenon(ns, ["foo":m], "ph::DuctSection", null)
     verifyPhenomenon(ns, ["elec":m], "ph::Phenomenon", "ph::Elec")
     verifyPhenomenon(ns, ["elec":m, "dc":m], "ph::Phenomenon", "ph::DcElec")

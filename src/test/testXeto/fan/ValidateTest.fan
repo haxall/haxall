@@ -251,7 +251,7 @@ class ValidateTest : AbstractXetoTest
 
     // conflicting
     verifyValidate(src, ["discharge":m, "return":m, "elecHeating":m, "hotWaterHeating":m,], [
-      "Slot 'a': Conflicting choice 'ph::DuctSection': DischargeDuct, ReturnDuct",
+      "Slot 'a': Conflicting choice 'ph::DuctSection': DischargeDuctSection, ReturnDuctSection",
     ])
   }
 
@@ -399,12 +399,12 @@ class ValidateTest : AbstractXetoTest
 
   Void testProtocol()
   {
-    ns := createNamespace(["ph.protocol"])
+    ns := createNamespace(["ph.protocols"])
 
     // quick tests for protocol regex
 
     // bacnet
-    re := Regex(ns.spec("ph.protocol::BacnetAddr.addr").meta["pattern"])
+    re := Regex(ns.spec("ph.protocols::BacnetAddr.addr").meta["pattern"])
     verifyEq(re.matches("AO123"), true)
     verifyEq(re.matches("ao123"), false)
     verifyEq(re.matches("AO"), false)
@@ -412,7 +412,7 @@ class ValidateTest : AbstractXetoTest
     verifyEq(re.matches("ABCD9"), true)
     verifyEq(re.matches("LAV9X"), false)
 
-    re = Regex(ns.spec("ph.protocol::ModbusAddr.addr").meta["pattern"])
+    re = Regex(ns.spec("ph.protocols::ModbusAddr.addr").meta["pattern"])
     verifyEq(re.matches("40000"),  true)
     verifyEq(re.matches("41234"),  true)
     verifyEq(re.matches("41abcd"), false)

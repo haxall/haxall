@@ -247,7 +247,7 @@ class SpecTest : AbstractXetoTest
 
     s := verifyIsa(ns, "ph.points::AirFlowSensor", "sys::And", true)
     verifyIsa(ns, "ph.points::AirFlowSensor", "ph::Point", true)
-    verifyIsa(ns, "ph.points::AirFlowSensor", "ph::Sensor", true)
+    verifyIsa(ns, "ph.points::AirFlowSensor", "ph.points::SensorPoint", true)
     verifyIsa(ns, "ph.points::AirFlowSensor", "sys::Dict", true, false)
     verifyEq(s.isAnd, true)
 
@@ -262,7 +262,7 @@ class SpecTest : AbstractXetoTest
     verifyEq(s.isAnd, false)
 
     verifyIsa(ns, "ph::DuctSection",   "sys::Choice",    true)
-    verifyIsa(ns, "ph::DischargeDuct", "sys::Choice",    true)
+    verifyIsa(ns, "ph::DischargeDuctSection", "sys::Choice",    true)
     verifyIsa(ns, "ph::Phenomenon",    "sys::Choice",    true)
     verifyIsa(ns, "ph::Fluid",         "sys::Choice",    true)
     verifyIsa(ns, "ph::Fluid",         "ph::Phenomenon", true)

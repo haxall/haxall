@@ -327,7 +327,7 @@ class AxonTest : AbstractAxonTest
     verifyFits(Str<|fits("Bool", Kind)|>, true)
     verifyFits(Str<|fits({discharge}, Choice)|>, false)
     verifyFits(Str<|fits({discharge}, DuctSection)|>, false)
-    verifyFits(Str<|fits({discharge}, DischargeDuct)|>, true)
+    verifyFits(Str<|fits({discharge}, DischargeDuctSection)|>, true)
     // TODO: to fit these, we need to namespace to look for all subtypes
     // verifyFits(Str<|fits({water}, Substance)|>, true)
     // verifyFits(Str<|fits({water}, Fluid)|>, true)

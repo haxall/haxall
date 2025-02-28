@@ -537,8 +537,8 @@ const class XetoFuncs
   ** Examples:
   **    fits("foo", Str)               >>  true
   **    fits(123, Str)                 >>  false
-  **    fits({equip}, Equip)           >>  true
-  **    fits({equip}, Site)            >>  false
+  **    fits(equipRec, Equip)          >>  true
+  **    fits(equipRec, Site)           >>  false
   **    fits(vav, MyVavSpec)           >> validate tags only
   **    fits(vav, MyVavSpec, {graph})  >> validate tags and required points
   **
