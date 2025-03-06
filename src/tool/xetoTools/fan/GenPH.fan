@@ -213,6 +213,10 @@ internal class GenPH : AbstractGenCmd
       if (of != null && !of.endsWith("-output"))
         return "<of:" + XetoUtil.dottedToCamel(of.toStr, '-').capitalize + ">"
     }
+    if (def.has("transient"))
+    {
+      return "<transient>"
+    }
     return ""
   }
 
