@@ -295,9 +295,12 @@ class CompSpace : AbstractCompSpace
   ** This method should be called at periodically to execute components
   ** and check timers.  The frequency this method is called determines
   ** the smallest timer increment.  For example if its called every 100ms
-  ** then timers will only fire as fast as 100ms.
-  Void execute(CompContext cx)
+  ** then timers will only fire as fast as 100ms. The current context
+  ** must be an CompContext.
+  Void execute()
   {
+    cx := CompContext.curComp
+
     // if the component tree has been modified, we need to rebuild
     if (timersNeedUpdate)
     {

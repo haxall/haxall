@@ -682,7 +682,11 @@ class CompTest: AbstractXetoTest
 
   Void execute(CompSpace cs, DateTime now)
   {
-    cs.execute(MCompContext(now))
+    TestAxonContext(cs.ns).asCur |cx|
+    {
+      cx.now = now
+      cs.execute
+    }
   }
 
   Void verifyExecuteCounter(TestCounter c, Int out)
@@ -785,7 +789,7 @@ class TestFoo : CompObj
 class TestCounter : CompObj
 {
   override Duration? onExecuteFreq() { 1min }
-  override Void onExecute(CompContext cx)
+  override Void onExecute()
   {
     TestVal old := get("out")
     TestVal out := TestVal(old.val + Number.one)
@@ -801,7 +805,7 @@ class TestCounter : CompObj
 @Js
 class TestAdd : CompObj
 {
-  override Void onExecute(CompContext cx)
+  override Void onExecute()
   {
     TestVal in1 := get("in1")
     TestVal in2 := get("in2")
@@ -818,7 +822,7 @@ class TestAdd : CompObj
 @Js
 class TestNumberAdd : CompObj
 {
-  override Void onExecute(CompContext cx)
+  override Void onExecute()
   {
     in1 := get("in1") as Number ?: Number.zero
     in2 := get("in2") as Number ?: Number.zero

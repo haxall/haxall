@@ -6,6 +6,7 @@
 //   4 Feb 2025  Brian Frank  Creation
 //
 
+using concurrent
 using util
 using xeto
 using xetoEnv
@@ -61,8 +62,10 @@ class FuncAxonTest : AbstractXetoTest
     verifyEq(a.params.size, 2)
     verifyEq(a.params[0].name, "a")
     verifyEq(a.params[1].name, "b")
-    cx := TextAxonContext(ns)
-    verifyEq(a.call(cx, [n(3), n(5)]), n(8))
+    TestAxonContext(ns).asCur |cx|
+    {
+      verifyEq(a.call(cx, [n(3), n(5)]), n(8))
+    }
   }
 
 }
@@ -125,12 +128,19 @@ class TestApi
 }
 
 **************************************************************************
-** TextAxonContext
+** TestAxonContext
 **************************************************************************
 
 @Js
-class TextAxonContext : AxonContext
+class TestAxonContext : AxonContext
 {
+
+  Void asCur(|This| f)
+  {
+    Actor.locals[actorLocalsKey] = this
+    f(this)
+    Actor.locals.remove(actorLocalsKey)
+  }
 
   new make(LibNamespace ns) { this.xeto = ns }
 
@@ -141,6 +151,12 @@ class TextAxonContext : AxonContext
   override xeto::Dict? xetoReadById(Obj id) { throw unsupported }
 
   override Obj? xetoReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f) { throw unsupported }
+
+//////////////////////////////////////////////////////////////////////////
+// CompContext
+//////////////////////////////////////////////////////////////////////////
+
+  override DateTime now := DateTime.now
 
 //////////////////////////////////////////////////////////////////////////
 // HaystackContext

@@ -139,7 +139,8 @@ mixin Comp
   @NoDoc virtual Void onUnmount() {}
 
   ** Callback to recompute component state.
-  virtual Void onExecute(CompContext cx) {}
+  ** This is always called within a CompContext.
+  virtual Void onExecute() {}
 
   ** How often should this component have its onExecute callback invoked.
   ** Return null if this component has no time based computation.

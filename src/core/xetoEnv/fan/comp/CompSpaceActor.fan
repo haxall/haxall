@@ -161,8 +161,10 @@ Actor.locals[CompSpace.actorKey] = cs
   private This onExecute(CompSpaceActorState state, Dict opts)
   {
     cx := initExecuteContext(opts)
-    state.cs.execute(cx)
+    Actor.locals[ActorContext.actorLocalsKey] = cx
+    state.cs.execute
     checkHouseKeeping(state, cx.now)
+    Actor.locals.remove(ActorContext.actorLocalsKey)
     return this
   }
 

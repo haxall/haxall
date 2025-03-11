@@ -409,7 +409,7 @@ class MCompSpi : CompSpi
     pullLinks
     try
     {
-      comp.onExecute(cx)
+      comp.onExecute
     }
     catch (Err e)
     {
