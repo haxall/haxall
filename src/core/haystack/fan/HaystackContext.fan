@@ -78,4 +78,3 @@ mixin HaystackFunc
   abstract Obj? haystackCall(HaystackContext cx, Obj?[] args)
 }
 
-

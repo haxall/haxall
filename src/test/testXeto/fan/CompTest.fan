@@ -661,23 +661,28 @@ class CompTest: AbstractXetoTest
 
     // initial executes do trigger until 1min in
     ts := DateTime.now - 1day
-    cs.execute(ts)
-    cs.execute(ts + 59sec)
+    execute(cs, ts)
+    execute(cs, ts + 59sec)
     verifyExecuteCounter(a, 0)
     verifyExecuteCounter(b, 0)
     verifyExecuteAdd(c, 0, 0, 0)
 
     // execute +1min; counters trigger once
-    cs.execute(ts + 1min)
+    execute(cs, ts + 1min)
     verifyExecuteCounter(a, 1)
     verifyExecuteCounter(b, 1)
     verifyExecuteAdd(c, 1, 1, 2)
 
     // execute +2min; counters trigger twice
-    cs.execute(ts + 2min)
+    execute(cs, ts + 2min)
     verifyExecuteCounter(a, 2)
     verifyExecuteCounter(b, 2)
     verifyExecuteAdd(c, 2, 2, 4)
+  }
+
+  Void execute(CompSpace cs, DateTime now)
+  {
+    cs.execute(MCompContext(now))
   }
 
   Void verifyExecuteCounter(TestCounter c, Int out)

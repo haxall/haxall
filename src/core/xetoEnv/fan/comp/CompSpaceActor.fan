@@ -59,9 +59,9 @@ const class CompSpaceActor : Actor
   }
 
   ** Call `CompSpace.execute`
-  Future execute(DateTime now := DateTime.now(null))
+  Future execute(Dict opts := Etc.dict0)
   {
-    send(ActorMsg("execute", now))
+    send(ActorMsg("execute", opts))
   }
 
   ** BlockView feed subscribe; return Grid
@@ -133,6 +133,12 @@ Actor.locals[CompSpace.actorKey] = cs
     throw Err("Unknown msg id: $msg")
   }
 
+  ** Subclass hook to create context for execute
+  protected virtual CompContext initExecuteContext(Dict opts)
+  {
+    MCompContext(opts["now"] as DateTime ?: DateTime.now)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // CompSpace Management
 //////////////////////////////////////////////////////////////////////////
@@ -152,10 +158,11 @@ Actor.locals[CompSpace.actorKey] = cs
     return this
   }
 
-  private This onExecute(CompSpaceActorState state, DateTime now)
+  private This onExecute(CompSpaceActorState state, Dict opts)
   {
-    state.cs.execute(now)
-    checkHouseKeeping(state, now)
+    cx := initExecuteContext(opts)
+    state.cs.execute(cx)
+    checkHouseKeeping(state, cx.now)
     return this
   }
 
@@ -394,5 +401,16 @@ internal class CompSpaceFeed
 
   ** Debug string
   override Str toStr() { "$cookie lastPollVer=$lastPollVer" }
+}
+
+**************************************************************************
+** MCompContext - simple implementation
+**************************************************************************
+
+@NoDoc @Js
+class MCompContext : CompContext
+{
+  new make(DateTime now) { this.now = now }
+  const override DateTime now
 }
 

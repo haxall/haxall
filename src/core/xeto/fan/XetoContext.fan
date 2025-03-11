@@ -6,11 +6,13 @@
 //   17 Mar 2023  Brian Frank  Creation
 //
 
+using concurrent
+
 **
 ** XetoContext is used to pass contextual state to XetoEnv operations.
 **
 @Js
-mixin XetoContext
+mixin XetoContext : ActorContext
 {
   ** Read a data record by id or return null
   @NoDoc abstract Dict? xetoReadById(Obj id)

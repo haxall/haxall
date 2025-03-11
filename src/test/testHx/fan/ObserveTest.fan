@@ -193,11 +193,11 @@ class ObserveTest : HxTest
   {
     doTestCommits
     cx := makeContext
-    Actor.locals[Etc.cxActorLocalsKey] = cx
+    Actor.locals[ActorContext.actorLocalsKey] = cx
     try
       doTestCommits
     finally
-      Actor.locals.remove(Etc.cxActorLocalsKey)
+      Actor.locals.remove(ActorContext.actorLocalsKey)
   }
 
   private Void doTestCommits()
@@ -557,3 +557,4 @@ internal const class TestObserver : Actor, Observer
   Void clear() { msgsRef.val = Obj#.emptyList }
   const AtomicRef msgsRef := AtomicRef(Obj#.emptyList)
 }
+

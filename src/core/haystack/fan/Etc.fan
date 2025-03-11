@@ -1800,8 +1800,8 @@ const class Etc
   ** If explicit context not passed then resolve from actor local
   private static HaystackContext curContext(HaystackContext? cx)
   {
-    if (cx == null) cx = Actor.locals[cxActorLocalsKey] as HaystackContext
-    if (cx == null) throw Err("No context available")
+    if (cx == null) cx = Actor.locals[ActorContext.actorLocalsKey] as HaystackContext
+    if (cx == null) throw ContextUnavailableErr("No context available")
     return cx
   }
 
@@ -1901,8 +1901,8 @@ const class Etc
   ** Timestamp format to match build.tsKey
   @NoDoc static const Str tsKeyFormat := "YYMMDDhhmmss"
 
-  ** Actor.locals key for AxonContext, FolioContext, and Context
-  @NoDoc const static Str cxActorLocalsKey := "cx"
+  @NoDoc @Deprecated { msg = "Use ActorContext.actorLocalsKey" }
+  const static Str cxActorLocalsKey := "cx"
 
 }
 

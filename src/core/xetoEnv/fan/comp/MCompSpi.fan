@@ -402,7 +402,7 @@ class MCompSpi : CompSpi
   }
 
   ** Execute the component
-  internal Void checkExecute(MCompContext cx)
+  internal Void checkExecute(CompContext cx)
   {
     if (!needsExecute) return
     needsExecute = false

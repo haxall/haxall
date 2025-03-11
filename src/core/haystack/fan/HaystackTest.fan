@@ -48,10 +48,10 @@ abstract class HaystackTest : Test
       {
         if (ns == null)
         {
-          oldcx := Actor.locals[Etc.cxActorLocalsKey]
-          Actor.locals.remove(Etc.cxActorLocalsKey)
+          oldcx := Actor.locals[ActorContext.actorLocalsKey]
+          Actor.locals.remove(ActorContext.actorLocalsKey)
           ns = Type.find("hxd::HxdTestSpi").method("boot").callOn(null, [this])->ns
-          Actor.locals.addNotNull(Etc.cxActorLocalsKey, oldcx)
+          Actor.locals.addNotNull(ActorContext.actorLocalsKey, oldcx)
        }
       }
       catch (Err e) {}

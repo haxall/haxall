@@ -334,11 +334,11 @@ const class Task : Actor, Observer, HxTask
     }
 
     // execute expr within our job context
-    Actor.locals[Etc.cxActorLocalsKey] = cx
+    Actor.locals[ActorContext.actorLocalsKey] = cx
     try
       return doEval(expr, cx, msg)
     finally
-      Actor.locals.remove(Etc.cxActorLocalsKey)
+      Actor.locals.remove(ActorContext.actorLocalsKey)
   }
 
   private Obj? doEval(Expr expr, HxContext cx, Obj? msg)
@@ -463,5 +463,4 @@ internal enum class TaskStatus
   doneOk,
   doneErr
 }
-
 

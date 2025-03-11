@@ -44,7 +44,7 @@ const class CompFn : TopFn
     }
 
     // execute once
-    cs.execute
+    cs.execute(cx)
 
     // get returns
     ret := root.get("returns") as Comp

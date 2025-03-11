@@ -223,8 +223,12 @@ class CompObj : Comp
 ** Context for Comp.onExecute
 **
 @Js
-mixin CompContext
+mixin CompContext : ActorContext
 {
+  ** Current context for actor thread
+  ** NOTE: this will be replaced by just ActorContext.cur in 4.0
+  @NoDoc static CompContext? curComp(Bool checked := true) { curx(checked) }
+
   ** Current DateTime to use; might be simulated
   abstract DateTime now()
 }

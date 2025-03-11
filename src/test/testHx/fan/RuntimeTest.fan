@@ -214,7 +214,7 @@ class RuntimeTest : HxTest
     verifyEq(cx.eval("sqrt(16)"), n(4))
 
     // verify funcs thru Fantom APIs
-    Actor.locals[Etc.cxActorLocalsKey] = cx
+    Actor.locals[ActorContext.actorLocalsKey] = cx
     rec := addRec(["dis":"Test"])
     verifySame(HxCoreFuncs.readById(rec.id), rec)
     HxCoreFuncs.commit(Diff(rec, ["foo":m]))

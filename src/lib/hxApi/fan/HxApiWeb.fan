@@ -37,7 +37,7 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
       cx := rt.user.authenticate(req, res)
       if (cx == null) return
       cx.timeout = HxContext.timeoutDef
-      Actor.locals[Etc.cxActorLocalsKey] = cx
+      Actor.locals[ActorContext.actorLocalsKey] = cx
 
       // if opName has dot then its Haxall 4.x xeto style
       if (opName.contains("."))
@@ -67,7 +67,7 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
     }
     finally
     {
-      Actor.locals.remove(Etc.cxActorLocalsKey)
+      Actor.locals.remove(ActorContext.actorLocalsKey)
       Actor.locals.remove("hxApiOp.spi")
     }
   }

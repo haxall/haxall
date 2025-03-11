@@ -13,15 +13,15 @@ using haystack
 ** FolioContext is used to plug-in access control checks
 **
 @NoDoc
-mixin FolioContext
+mixin FolioContext : ActorContext
 {
 
   ** Current context for actor thread
   @NoDoc static FolioContext? curFolio(Bool checked := true)
   {
-    cx := Actor.locals[Etc.cxActorLocalsKey]
+    cx := Actor.locals[actorLocalsKey]
     if (cx != null) return cx
-    if (checked) throw Err("No FolioContext available")
+    if (checked) throw ContextUnavailableErr("No FolioContext available")
     return null
   }
 
@@ -36,3 +36,4 @@ mixin FolioContext
   ** This is typically the User instance.
   abstract Obj? commitInfo()
 }
+

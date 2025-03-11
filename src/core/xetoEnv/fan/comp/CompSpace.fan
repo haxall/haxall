@@ -296,7 +296,7 @@ class CompSpace : AbstractCompSpace
   ** and check timers.  The frequency this method is called determines
   ** the smallest timer increment.  For example if its called every 100ms
   ** then timers will only fire as fast as 100ms.
-  Void execute(DateTime now := DateTime.now(null))
+  Void execute(CompContext cx)
   {
     // if the component tree has been modified, we need to rebuild
     if (timersNeedUpdate)
@@ -309,10 +309,9 @@ class CompSpace : AbstractCompSpace
 each |comp| { if (comp.onExecuteFreq == null) ((MCompSpi)comp.spi).needsExecute = true }
 
     // walk thru timed components to set needExecute flag
-    timed.each |spi| { spi.checkTimer(now) }
+    timed.each |spi| { spi.checkTimer(cx.now) }
 
     // now walk thru every component that has been triggered to execute
-    cx := MCompContext(now)
     each |comp| { ((MCompSpi)comp.spi).checkExecute(cx) }
   }
 
@@ -363,16 +362,5 @@ each |comp| { if (comp.onExecuteFreq == null) ((MCompSpi)comp.spi).needsExecute 
   private MCompSpi[] timed := MCompSpi#.emptyList
   private Int compCounter := 0
   private Int curVer
-}
-
-**************************************************************************
-** MCompContext
-**************************************************************************
-
-@Js
-internal class MCompContext : CompContext
-{
-  new make(DateTime now) { this.now = now }
-  const override DateTime now
 }
 

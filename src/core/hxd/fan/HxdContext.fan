@@ -48,7 +48,7 @@ class HxdContext : HxContext
   ** Current Haxall context for actor thread
   @NoDoc static HxdContext? cur(Bool checked := true)
   {
-    cx := Actor.locals[Etc.cxActorLocalsKey]
+    cx := Actor.locals[ActorContext.actorLocalsKey]
     if (cx != null) return cx
     if (checked) throw ContextUnavailableErr("No HxContext available")
     return null

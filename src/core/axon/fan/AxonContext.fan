@@ -17,7 +17,7 @@ using haystack::Ref
 ** AxonContext manages the environment of an Axon evaluation
 **
 @Js
-abstract class AxonContext : HaystackContext
+abstract class AxonContext : HaystackContext, CompContext
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -27,10 +27,7 @@ abstract class AxonContext : HaystackContext
   ** Current context for actor thread
   @NoDoc static AxonContext? curAxon(Bool checked := true)
   {
-    cx := Actor.locals[Etc.cxActorLocalsKey]
-    if (cx != null) return cx
-    if (checked) throw Err("No AxonContext available")
-    return null
+    curx(checked)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -52,6 +49,9 @@ abstract class AxonContext : HaystackContext
 
   ** Xeto namespace
   virtual LibNamespace xeto() { ns.xeto }
+
+  ** CompContext current time
+  override once DateTime now() { DateTime.now(null) }
 
   ** Resolve global variable/top-level function
   @NoDoc virtual Obj? global(Str name, Bool checked := true) { findTop(name, checked) }

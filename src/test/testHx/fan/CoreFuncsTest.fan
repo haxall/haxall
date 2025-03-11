@@ -296,7 +296,7 @@ class CoreFuncsTest : HxTest
   Void verifyToRec(Obj? val, Dict? expected)
   {
     cx := makeContext
-    Actor.locals[Etc.cxActorLocalsKey] = cx
+    Actor.locals[ActorContext.actorLocalsKey] = cx
     if (expected != null)
     {
       actual := Etc.toRec(val)
@@ -311,13 +311,13 @@ class CoreFuncsTest : HxTest
         verifyErr(CoerceErr#) { Etc.toRec(val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toRec").call(cx, [val]) }
     }
-    Actor.locals.remove(Etc.cxActorLocalsKey)
+    Actor.locals.remove(ActorContext.actorLocalsKey)
   }
 
   Void verifyToRecs(Obj? val, Dict[]? expected)
   {
     cx := makeContext
-    Actor.locals[Etc.cxActorLocalsKey] = cx
+    Actor.locals[ActorContext.actorLocalsKey] = cx
     if (expected != null)
     {
       actual := Etc.toRecs(val)
@@ -332,13 +332,13 @@ class CoreFuncsTest : HxTest
         verifyErr(CoerceErr#) { Etc.toRecs(val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toRecList").call(cx, [val]) }
     }
-    Actor.locals.remove(Etc.cxActorLocalsKey)
+    Actor.locals.remove(ActorContext.actorLocalsKey)
   }
 
   Void verifyToDateSpan(Obj? val, DateSpan? expected)
   {
     cx := makeContext
-    Actor.locals[Etc.cxActorLocalsKey] = cx
+    Actor.locals[ActorContext.actorLocalsKey] = cx
     if (expected != null)
     {
       actual := Etc.toDateSpan(val)
@@ -350,7 +350,7 @@ class CoreFuncsTest : HxTest
       verifyErr(CoerceErr#) { Etc.toDateSpan(val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toDateSpan").call(cx, [val]) }
     }
-    Actor.locals.remove(Etc.cxActorLocalsKey)
+    Actor.locals.remove(ActorContext.actorLocalsKey)
     verifyToSpan(val, null, expected?.toSpan(TimeZone.cur))
     verifyToSpan(val, TimeZone("London"), expected?.toSpan(TimeZone("London")))
   }
@@ -358,7 +358,7 @@ class CoreFuncsTest : HxTest
   Void verifyToSpan(Obj? val, TimeZone? tz, Span? expected)
   {
     cx := makeContext
-    Actor.locals[Etc.cxActorLocalsKey] = cx
+    Actor.locals[ActorContext.actorLocalsKey] = cx
     if (expected != null)
     {
       actual := Etc.toSpan(val, tz)
@@ -376,7 +376,7 @@ class CoreFuncsTest : HxTest
       verifyErr(CoerceErr#) { Etc.toSpan(val) }
       verifyErr(EvalErr#) { cx.evalToFunc("toSpan").call(cx, [val]) }
     }
-    Actor.locals.remove(Etc.cxActorLocalsKey)
+    Actor.locals.remove(ActorContext.actorLocalsKey)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -770,3 +770,4 @@ class CoreFuncsTest : HxTest
   static Dict d(Obj x) { Etc.makeDict(x) }
 
 }
+

@@ -76,7 +76,7 @@ class SqlDispatch : ConnDispatch
   private Grid evalSyncHisExpr(ConnPoint point, Str exprStr, DateTime start, DateTime end)
   {
     cx := rt.context.create(evalUser)
-    Actor.locals[Etc.cxActorLocalsKey] = cx
+    Actor.locals[ActorContext.actorLocalsKey] = cx
     try
     {
       // get expr as 3 parameter function
@@ -87,7 +87,7 @@ class SqlDispatch : ConnDispatch
       if (result isnot Grid) throw Err("sqlSyncHisExpr returned invalid result type: ${result?.typeof}")
       return result
     }
-    finally Actor.locals.remove(Etc.cxActorLocalsKey)
+    finally Actor.locals.remove(ActorContext.actorLocalsKey)
   }
 
   once HxUser evalUser()

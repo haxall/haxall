@@ -636,7 +636,7 @@ class BasicTest : AbstractFolioTest
   {
     open
     cx := TestContext("user")
-    Actor.locals[Etc.cxActorLocalsKey] = cx
+    Actor.locals[ActorContext.actorLocalsKey] = cx
 
     t := TestHooks()
     folio.hooks = t
@@ -686,7 +686,7 @@ class BasicTest : AbstractFolioTest
       verifySame(t.cxInfoRef.val, cx.commitInfo)
     }
 
-    Actor.locals.remove(Etc.cxActorLocalsKey)
+    Actor.locals.remove(ActorContext.actorLocalsKey)
   }
 
   internal Void verifyHooks(TestHooks t, FolioContext cx, Diff[] preExpected, Diff[] postExpected)
