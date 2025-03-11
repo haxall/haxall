@@ -172,11 +172,10 @@ class AbstractXetoTest : HaystackTest
 
   Void verifyFitsExplain(LibNamespace ns, Obj? val, Spec spec, Str[] expected)
   {
-    cx := TestContext()
     hits := XetoLogRec[,]
     explain := |XetoLogRec rec| { hits.add(rec) }
     opts := Etc.dict1("explain", Unsafe(explain))
-    ns.fits(cx, val, spec, opts)
+    ns.fits(val, spec, opts)
     if (expected.size != hits.size)
     {
       echo("FAIL verifyFitsExplain $val $spec [$hits.size != $expected.size]")
@@ -244,6 +243,13 @@ class AbstractXetoTest : HaystackTest
 @Js
 class TestContext : XetoContext
 {
+  Void asCur(|This| f)
+  {
+    Actor.locals[actorLocalsKey] = this
+    f(this)
+    Actor.locals.remove(actorLocalsKey)
+  }
+
   override Dict? xetoReadById(Obj id) { recs.get(id) }
   override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
   override Bool xetoIsSpec(Str spec, Dict rec) { false }

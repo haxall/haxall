@@ -6,6 +6,7 @@
 //   30 Nov 2024  Brian Frank  Creation
 //
 
+using concurrent
 using util
 using xeto
 using xetoEnv
@@ -119,7 +120,10 @@ internal class FitsCmd : XetoCmd
         return
       }
 
-      ns.fits(FitsCmdContext(this), rec, spec, opts)
+      cx := FitsCmdContext(this)
+      Actor.locals[ActorContext.actorLocalsKey] = cx
+      ns.fits(rec, spec, opts)
+      Actor.locals.remove(ActorContext.actorLocalsKey)
 
       if (hits.size == startSize)
         numOk++

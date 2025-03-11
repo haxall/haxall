@@ -468,10 +468,12 @@ class ValidateTest : AbstractXetoTest
     spec := lib.spec("Foo")
     errs := XetoLogRec[,]
     opts := logOpts("explain", errs)
-    cx   := initContext(lib)
-    fits := nsTest.fits(cx, instance, spec, opts)
-    verifyErrs("Fits Time", errs, expect)
-    verifyEq(fits, errs.isEmpty)
+    initContext(lib).asCur |cx|
+    {
+      fits := nsTest.fits(instance, spec, opts)
+      verifyErrs("Fits Time", errs, expect)
+      verifyEq(fits, errs.isEmpty)
+    }
   }
 
   ** Create opts with log to use for both compiler and fits

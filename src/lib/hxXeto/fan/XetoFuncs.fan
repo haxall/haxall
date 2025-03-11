@@ -544,8 +544,7 @@ const class XetoFuncs
   **
   @Axon static Bool fits(Obj? val, Spec spec, Dict? opts := null)
   {
-    cx := curContext
-    return cx.xeto.fits(cx, val, spec, opts)
+    curContext.xeto.fits(val, spec, opts)
   }
 
   **
@@ -621,7 +620,7 @@ const class XetoFuncs
       }
 
       // call fits explain with this rec
-      if (recSpec != null) ns.fits(cx, rec, recSpec, opts)
+      if (recSpec != null) ns.fits(rec, recSpec, opts)
 
       // if we had hits, then add to our result grid
       if (!hits.isEmpty)
@@ -679,7 +678,7 @@ const class XetoFuncs
   {
     // first pass is fit each type
     ns := cx.xeto
-    XetoSpec[] matches := specs.findAll |spec| { ns.fits(cx, rec, spec, opts) }
+    XetoSpec[] matches := specs.findAll |spec| { ns.fits(rec, spec, opts) }
 
     // second pass is to remove supertypes so we only
     // return the most specific subtype
@@ -707,7 +706,7 @@ const class XetoFuncs
   {
     cx := curContext
     subjectRec := Etc.toRec(subject)
-    hit := cx.xeto.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit| { hit }
+    hit := cx.xeto.queryWhile(subjectRec, spec, Etc.dict0) |hit| { hit }
     if (hit != null) return hit
     if (checked) throw UnknownRecErr("@$subjectRec.id $spec.qname")
     return null
@@ -739,7 +738,7 @@ const class XetoFuncs
     cx := curContext
     acc := Dict[,]
     subjectRec := Etc.toRec(subject)
-    cx.xeto.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
+    cx.xeto.queryWhile(subjectRec, spec, Etc.dict0) |hit|
     {
       acc.add(hit)
       if (acc.size >= limit) return "break"
@@ -781,13 +780,13 @@ const class XetoFuncs
     ns := cx.xeto
     subjectRec := Etc.toRec(subject)
     acc := Str:Dict[:]
-    ns.queryWhile(cx, subjectRec, spec, Etc.dict0) |hit|
+    ns.queryWhile(subjectRec, spec, Etc.dict0) |hit|
     {
       spec.slots.eachWhile |slot|
       {
         name := slot.name
         if (acc[name] != null) return null // already matched
-        if (ns.fits(cx, hit, slot)) return acc[name] = hit
+        if (ns.fits(hit, slot)) return acc[name] = hit
         return null
       }
       return null

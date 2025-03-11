@@ -14,6 +14,10 @@ using concurrent
 @Js
 mixin XetoContext : ActorContext
 {
+  ** Current context for actor thread
+  ** NOTE: this will be replaced by just ActorContext.cur in 4.0
+  @NoDoc static XetoContext? curXeto(Bool checked := true) { curx(checked) }
+
   ** Read a data record by id or return null
   @NoDoc abstract Dict? xetoReadById(Obj id)
 

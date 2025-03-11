@@ -570,10 +570,11 @@ abstract const class MNamespace : LibNamespace, CNamespace
     return null
   }
 
-  override Bool fits(XetoContext cx, Obj? val, Spec spec, Dict? opts := null)
+  override Bool fits(Obj? val, Spec spec, Dict? opts := null)
   {
     if (opts == null) opts = Etc.dict0
     explain := XetoUtil.optLog(opts, "explain")
+    cx := XetoContext.curx(false) ?: NilXetoContext.val
     if (explain == null)
       return Fitter(this, cx, opts).valFits(val, spec)
     else
@@ -591,9 +592,10 @@ abstract const class MNamespace : LibNamespace, CNamespace
       return ExplainFitter(this, cx, opts, explain).specFits(a, b)
   }
 
-  override Obj? queryWhile(XetoContext cx, Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
+  override Obj? queryWhile(Dict subject, Spec query, Dict? opts, |Dict->Obj?| f)
   {
-    Query(this, cx, opts).query(subject, query).eachWhile(f)
+    cx := XetoContext.curx(false) ?: NilXetoContext.val
+    return Query(this, cx, opts).query(subject, query).eachWhile(f)
   }
 
   override Obj? instantiate(Spec spec, Dict? opts := null)
