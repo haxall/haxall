@@ -373,7 +373,7 @@ class SpecTest : AbstractXetoTest
     phx := ns.lib("ph.points")
 
     equipSlots := [
-      "id:Ref", "equip:Marker",
+      "id:Ref", "spec:Ref?", "equip:Marker",
       "equipRef:Ref?", "siteRef:Ref", "spaceRef:Ref?", "systemRef:MultiRef?",
       "parentEquips:Query", "childEquips:Query", "points:Query"]
     meterSlots       := equipSlots.dup.addAll(["meter:Marker", "meterScope:MeterScope?", "submeterOf:Ref?"])
@@ -386,7 +386,7 @@ class SpecTest : AbstractXetoTest
     verifySlots(ph.type("AcElecMeter"), acElecMeterSlots)
 
     ptSlots := [
-      "id:Ref",
+      "id:Ref", "spec:Ref?",
       "point:Marker", "cur:Marker?", "enum:Obj?",
       "equipRef:Ref?", "his:Marker?", "kind:Kind",
       "maxVal:Number?", "minVal:Number?",
