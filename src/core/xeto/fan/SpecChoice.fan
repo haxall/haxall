@@ -41,6 +41,10 @@ const mixin SpecChoice
   **    selections(instance, checked).first
   abstract Spec? selection(Dict instance, Bool checked := true)
 
+  ** List the choice direct subtypes of given base (defaults to root choice).
+  ** This method can be used to efficiently build choice taxonomy tree.
+  abstract Spec[] subtypes(Spec base := spec)
+
   ** Marker names for given choice
   @NoDoc static Str[] markers(Spec spec)
   {

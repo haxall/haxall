@@ -46,6 +46,17 @@ const final class MChoice : SpecChoice
     return selections
   }
 
+  override Spec[] subtypes(Spec base := spec)
+  {
+    acc := Spec[,]
+    choiceSubtypes.each |CSpec cx|
+    {
+      x := (Spec)cx
+      if (x.base === base) acc.add(x)
+    }
+    return acc
+  }
+
   override Spec? selection(Dict instance, Bool checked := true)
   {
     // if checked then find all selections and validate;

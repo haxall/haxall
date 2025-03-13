@@ -49,7 +49,15 @@ class ChoiceTest : AbstractXetoTest
     verifyIsChoice(carD,  false); verifyIsChoice(slotD, true)
     verifyIsChoice(carE,  false); verifyIsChoice(slotE, true)
 
-     // SpecChoice
+     // subtypes
+     c := ns.choice(color)
+     verifySame(c.spec, color)
+     verifyEq(c.subtypes, Spec[blue, red])
+     verifyEq(c.subtypes(blue), Spec[blued, bluel])
+     verifyEq(c.subtypes(bluel), Spec[,])
+     verifyEq(c.subtypes(red), Spec[redd, redl])
+     verifyEq(c.subtypes(redd), Spec[,])
+
      verifyErr(UnsupportedErr#) { ns.choice(carB) }
      verifyChoice(ns, color, "")
      verifyChoice(ns, red, "")
