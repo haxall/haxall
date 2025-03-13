@@ -40,5 +40,13 @@ const mixin SpecChoice
   ** This method is a semantically equivalent to:
   **    selections(instance, checked).first
   abstract Spec? selection(Dict instance, Bool checked := true)
+
+  ** Marker names for given choice
+  @NoDoc static Str[] markers(Spec spec)
+  {
+    acc := Str[,]
+    spec.slots.each |slot| { if (slot.isMarker) acc.add(slot.name) }
+    return acc
+  }
 }
 

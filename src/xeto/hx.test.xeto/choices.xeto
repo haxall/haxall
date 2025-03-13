@@ -13,7 +13,7 @@ LightRed: Red { light }
 DarkRed: Red { dark }
 
 Blue: Color { blue }
-LightBlue: Blue { dark }
+LightBlue: Blue { light }
 DarkBlue: Blue { dark }
 
 CarA: {

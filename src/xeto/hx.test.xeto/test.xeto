@@ -10,6 +10,12 @@
 Alpha : Dict {
 }
 
+// Extend site for testing data
+TestSite: Site {
+  metro: Str?
+  color: Color?
+}
+
 // Equip with *points*
 EqA: Equip {
   points: {
