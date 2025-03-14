@@ -462,14 +462,14 @@ abstract const class WrapDict : Dict
 }
 
 **************************************************************************
-** ReflectDict
+** FieldDict
 **************************************************************************
 
 **
-** Dict that defines its tags as fields
+** Dict that defines its tags as fields via reflection
 **
 @NoDoc @Js
-abstract const class ReflectDict : Dict
+abstract const class FieldDict : Dict
 {
   override Bool isEmpty() { false }
 
