@@ -139,6 +139,14 @@ Actor.locals[CompSpace.actorKey] = cs
     MCompContext(opts["now"] as DateTime ?: DateTime.now)
   }
 
+  ** Subclass hook to do any pre-processing before the component space is executed.
+  ** Can return "state" that will be passed to the postExecute().
+  protected virtual Obj? beforeExecute(CompSpace cs) { null }
+
+  ** Subclass hook to do any post-processing after the componet spacde is executed.
+  ** The state from beforeExecute() will be passed.
+  protected virtual Void afterExecute(CompSpace cs, Obj? state) { }
+
 //////////////////////////////////////////////////////////////////////////
 // CompSpace Management
 //////////////////////////////////////////////////////////////////////////
@@ -160,11 +168,19 @@ Actor.locals[CompSpace.actorKey] = cs
 
   private This onExecute(CompSpaceActorState state, Dict opts)
   {
+    // invoke sub-class hook for any pre-processing
+    cs := state.cs
+    s  := beforeExecute(cs)
+
+    // execute the component space
     cx := initExecuteContext(opts)
     Actor.locals[ActorContext.actorLocalsKey] = cx
-    state.cs.execute
+    cs.execute
     checkHouseKeeping(state, cx.now)
     Actor.locals.remove(ActorContext.actorLocalsKey)
+
+    // invoke sub-class hook for any post-processing
+    afterExecute(cs, s)
     return this
   }
 
