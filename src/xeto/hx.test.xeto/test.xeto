@@ -14,6 +14,7 @@ Alpha : Dict {
 TestSite: Site {
   metro: Str?
   color: Color?
+  heatProc: HeatingProcess? <multiChoice>
 }
 
 // Equip with *points*

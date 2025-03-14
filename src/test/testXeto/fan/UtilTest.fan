@@ -19,6 +19,56 @@ class UtilTest : AbstractXetoTest
 {
 
 //////////////////////////////////////////////////////////////////////////
+// Reflect
+//////////////////////////////////////////////////////////////////////////
+
+  Void testReflect()
+  {
+    ns := createNamespace(["sys", "ph", "hx.test.xeto"])
+
+    id   := Ref("s")
+    spec := ns.spec("hx.test.xeto::TestSite")
+    mod  := DateTime.nowUtc
+    site := ["id":id, "spec":spec._id, "dis":"A", "site":m, "geoCity":"Richmond", "geoState":"VA",
+      "geoCountry":"US", "tz":"New_York", "area":n(1000), "foo":m,
+      "qux":"!", "mod":mod, "dark":m, "blue":m,
+      "fuelOilHeating":m, "elecHeating":m]
+    rec := Etc.makeDict(site)
+
+    r := ns.reflect(rec)
+    // r.dump
+    n := 0
+    verifyReflectSlot(r, "id",         "sys::Entity.id", id); n++
+    verifyReflectSlot(r, "spec",       "sys::Entity.spec", spec._id); n++
+    verifyReflectSlot(r, "dis",        "ph::dis", "A"); n++
+    verifyReflectSlot(r, "site",       "ph::Site.site", m); n++
+    verifyReflectSlot(r, "geoCity",    "ph::geoCity", "Richmond"); n++
+    verifyReflectSlot(r, "geoState",   "ph::geoState", "VA"); n++
+    verifyReflectSlot(r, "geoCountry", "ph::geoCountry", "US"); n++
+    verifyReflectSlot(r, "tz",         "ph::Site.tz", "New_York"); n++
+    verifyReflectSlot(r, "area",       "ph::Site.area", Number(1000)); n++
+    verifyReflectSlot(r, "foo",        "sys::Marker", m); n++
+    verifyReflectSlot(r, "qux",        "sys::Str", "!"); n++
+    verifyReflectSlot(r, "mod",        "sys::DateTime", mod); n++
+    verifyReflectSlot(r, "color",      "hx.test.xeto::TestSite.color", Ref[Ref("hx.test.xeto::DarkBlue")]); n++
+    verifyReflectSlot(r, "heatProc",   "hx.test.xeto::TestSite.heatProc", Ref[Ref("ph::ElecHeatingProcess"), Ref("ph::FuelOilHeatingProcess")]); n++
+    verifyReflectSlot(r, "primaryFunction",   "ph::Site.primaryFunction", null); n++
+    verifyReflectSlot(r, "yearBuilt",         "ph::Site.yearBuilt", null); n++
+    verifyReflectSlot(r, "weatherStationRef", "ph::Site.weatherStationRef", null); n++
+    verifyReflectSlot(r, "metro",             "hx.test.xeto::TestSite.metro", null); n++
+    verifyEq(r.slots.size, n)
+  }
+
+  Void verifyReflectSlot(ReflectDict r, Str n, Str qname, Obj? v)
+  {
+    s := r.slot(n)
+    verifyEq(r.slots.contains(s), true)
+    verifyEq(s.name, n)
+    verifyEq(s.spec.qname, qname)
+    verifyEq(s.val, v)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // IsLibName
 //////////////////////////////////////////////////////////////////////////
 

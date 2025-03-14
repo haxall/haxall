@@ -608,6 +608,11 @@ abstract const class MNamespace : LibNamespace, CNamespace
     MChoice(this, spec)
   }
 
+  override ReflectDict reflect(Dict rec, Spec? spec := null)
+  {
+    MReflectDict(this, rec, spec ?: specOf(rec))
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Compile
 //////////////////////////////////////////////////////////////////////////

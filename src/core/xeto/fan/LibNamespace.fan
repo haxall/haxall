@@ -273,6 +273,14 @@ const mixin LibNamespace
   ** Raise exception if `Spec.isChoice` is false.
   abstract SpecChoice choice(Spec spec)
 
+  ** Analyze the subject dict and return its slot types. Use the given
+  ** spec or if null, then use 'spec' tag on dict itself.  Reflection
+  ** performs the following normalization:
+  **   - maps every name/value pair to a ReflectSlot
+  **   - maps every slot from spec (even if not defined by dict)
+  **   - normalizes choice slots into ReflectSlot and hides markers
+  @NoDoc abstract ReflectDict reflect(Dict subject, Spec? spec := null)
+
 //////////////////////////////////////////////////////////////////////////
 // Compile
 //////////////////////////////////////////////////////////////////////////
