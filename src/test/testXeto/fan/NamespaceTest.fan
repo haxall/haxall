@@ -171,7 +171,8 @@ class NamespaceTest : AbstractXetoTest
     equip     := verifyLibType(ns, ph, "Equip",    entity)
     meter     := verifyLibType(ns, ph, "Meter",    equip)
     elecMeter := verifyLibType(ns, ph, "ElecMeter",meter)
-    site      := verifyLibType(ns, ph, "Site",     entity)
+    geoPlace  := verifyLibType(ns, ph, "GeoPlace", entity)
+    site      := verifyLibType(ns, ph, "Site",     geoPlace)
 
     water := ph.global("water")
     verifySame(ns.spec("ph::water"), water)

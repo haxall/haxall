@@ -42,9 +42,9 @@ class UtilTest : AbstractXetoTest
     verifyReflectSlot(r, "spec",       "sys::Entity.spec", spec._id); n++
     verifyReflectSlot(r, "dis",        "ph::dis", "A"); n++
     verifyReflectSlot(r, "site",       "ph::Site.site", m); n++
-    verifyReflectSlot(r, "geoCity",    "ph::geoCity", "Richmond"); n++
-    verifyReflectSlot(r, "geoState",   "ph::geoState", "VA"); n++
-    verifyReflectSlot(r, "geoCountry", "ph::geoCountry", "US"); n++
+    verifyReflectSlot(r, "geoCity",    "ph::GeoPlace.geoCity", "Richmond"); n++
+    verifyReflectSlot(r, "geoState",   "ph::GeoPlace.geoState", "VA"); n++
+    verifyReflectSlot(r, "geoCountry", "ph::GeoPlace.geoCountry", "US"); n++
     verifyReflectSlot(r, "tz",         "ph::Site.tz", "New_York"); n++
     verifyReflectSlot(r, "area",       "ph::Site.area", Number(1000)); n++
     verifyReflectSlot(r, "foo",        "sys::Marker", m); n++
@@ -55,6 +55,12 @@ class UtilTest : AbstractXetoTest
     verifyReflectSlot(r, "primaryFunction",   "ph::Site.primaryFunction", null); n++
     verifyReflectSlot(r, "yearBuilt",         "ph::Site.yearBuilt", null); n++
     verifyReflectSlot(r, "weatherStationRef", "ph::Site.weatherStationRef", null); n++
+    verifyReflectSlot(r, "geoAddr",           "ph::GeoPlace.geoAddr", null); n++
+    verifyReflectSlot(r, "geoCoord",          "ph::GeoPlace.geoCoord", null); n++
+    verifyReflectSlot(r, "geoCounty",         "ph::GeoPlace.geoCounty", null); n++
+    verifyReflectSlot(r, "geoElevation",      "ph::GeoPlace.geoElevation", null); n++
+    verifyReflectSlot(r, "geoPostalCode",     "ph::GeoPlace.geoPostalCode", null); n++
+    verifyReflectSlot(r, "geoStreet",         "ph::GeoPlace.geoStreet", null); n++
     verifyReflectSlot(r, "metro",             "hx.test.xeto::TestSite.metro", null); n++
     verifyEq(r.slots.size, n)
   }

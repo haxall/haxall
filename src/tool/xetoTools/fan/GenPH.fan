@@ -229,6 +229,7 @@ internal class GenPH : AbstractGenCmd
     // get all the entity defs
     entityDef := ns.def("entity")
     entities := ns.findDefs |def| { ns.fits(def, entityDef) }
+    entities.add(ns.def("geoPlace"))
     entities.sort |a, b| { a.name <=> b.name }
     entities.removeSame(entityDef)
 
@@ -267,6 +268,9 @@ internal class GenPH : AbstractGenCmd
   private Str toEntityType(Def def)
   {
     if (def.name == "entity") return "Dict"
+    if (def.name == "geoPlace") return "Entity"
+    if (def.name == "site") return "GeoPlace"
+    if (def.name == "weatherStation") return "GeoPlace"
     supers := def["is"] as Symbol[]
     return toEntityName(ns.def(supers.first.toStr))
   }
@@ -277,7 +281,7 @@ internal class GenPH : AbstractGenCmd
     name := symbol.name
 
     // make space/equip/point abstract
-    special := name == "space" || name == "equip" || name == "point" || name.endsWith("-point")
+    special := name == "space" || name == "equip" || name == "point" || name.endsWith("-point") || name == "geoPlace"
 
     if (!isAbstract(name) && !special) return
 
@@ -290,6 +294,8 @@ internal class GenPH : AbstractGenCmd
     name := symbol.name
 
     if (isAbstract(name)) return
+
+    if (name == "geoPlace") return
 
     if (symbol.type.isTag)
     {
