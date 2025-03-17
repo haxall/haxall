@@ -86,7 +86,7 @@ const class MReflectDict : ReflectDict
   override Void dump(Console con := Console.cur)
   {
     con.group("ReflectDict $subject.dis.toCode [$spec]")
-    slots.each |slot| { con.info(slot) }
+    slots.each |slot| { con.info(slot.toStr) }
     con.groupEnd
   }
 

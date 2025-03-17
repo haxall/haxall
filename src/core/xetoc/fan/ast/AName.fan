@@ -82,16 +82,18 @@ internal const class APathName  : AName
 
   override Bool isPath() { true }
 
-  override Str name() { path.last }
+  override Str name() { encode(false) }
 
   override Int size() { path.size }
 
   override Str nameAt(Int i) { path[i] }
 
-  override Str toStr()
+  override Str toStr() { encode(isQualified) }
+
+  private Str encode(Bool qname)
   {
     s := StrBuf()
-    if (isQualified) s.add(lib).add("::")
+    if (qname) s.add(lib).add("::")
     path.each |n, i| { if (i > 0) s.addChar('.'); s.add(n) }
     return s.toStr
   }
