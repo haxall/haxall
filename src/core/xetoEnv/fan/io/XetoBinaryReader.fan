@@ -402,7 +402,8 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   {
     qname := readUtf
     tags := readDictTags
-    type := Type.find(qname)
+    type := Type.find(qname, false)
+    if (type == null) return tags
     return type.make([tags])
   }
 
