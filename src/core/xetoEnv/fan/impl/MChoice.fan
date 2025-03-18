@@ -96,7 +96,6 @@ const final class MChoice : SpecChoice
     ns.eachSubtype(spec.ctype) |x|
     {
       if (!x.isChoice) return
-      if (!x.hasSlots) return
       acc.add(x)
     }
     return acc
@@ -157,6 +156,7 @@ const final class MChoice : SpecChoice
   ** Return if instance has all the given marker tags of the given choice
   static Bool hasChoiceMarkers(Dict instance, CSpec choice)
   {
+    if (!choice.hasSlots) return false // skip abstract choice
     r := choice.cslotsWhile |slot|
     {
       instance.has(slot.name) ? null : "break"
