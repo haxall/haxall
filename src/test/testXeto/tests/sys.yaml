@@ -81,6 +81,7 @@ verifyType:
     doc: "sys::Str Unitless integer number"
     sealed: "sys::Marker"
     val: "sys::Int 0"
+    unitless: "sys::Marker"
 ---
 name: "duration"
 loadLib: "sys"
@@ -91,6 +92,7 @@ verifyType:
     doc: "sys::Str  Number with a unit of time"
     sealed: "sys::Marker"
     val: "sys::Duration 0sec"
+    quantity: "sys::UnitQuantity time"
 ---
 name: "uri"
 loadLib: "sys"
