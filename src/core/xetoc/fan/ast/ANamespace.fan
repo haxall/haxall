@@ -67,7 +67,7 @@ internal class ANamespace : CNamespace
     return null
   }
 
-  override Void ceachSubtype(CSpec type, |CSpec| f)
+  override Void ceachTypeThatIs(CSpec type, |CSpec| f)
   {
     // iterate types from imported namespace only
     // if base type is not in the AST being compiled

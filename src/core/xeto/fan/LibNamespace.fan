@@ -232,7 +232,7 @@ const mixin LibNamespace
   ** In remote namespace this only iterates loaded libs.
   abstract Void eachInstance(|Dict| f)
 
-  ** Iterate all the subtypes of given type
+  ** Iterate all the direct subtypes of given type
   ** In remote namespace this only iterates loaded libs.
   abstract Void eachSubtype(Spec base, |Spec| f)
 

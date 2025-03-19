@@ -363,6 +363,29 @@ class SpecTest : AbstractXetoTest
    }
 
 //////////////////////////////////////////////////////////////////////////
+// Subtypes
+//////////////////////////////////////////////////////////////////////////
+
+  Void testSubtypes()
+  {
+    ns := createNamespace(["ph", "hx.test.xeto"])
+
+    base := ns.spec("ph::AirHandlingEquip")
+    acc := Spec[,]
+    ns.eachSubtype(base) |x| { acc.add(x) }
+    verifyEq(acc.size, 2)
+    verifyEq(acc[0].name, "Ahu")
+    verifyEq(acc[1].name, "Fcu")
+
+    base = ns.spec("hx.test.xeto::A")
+    acc = Spec[,]
+    ns.eachSubtype(base) |x| { acc.add(x) }
+    verifyEq(acc.size, 2)
+    verifyEq(acc[0].name, "AB")
+    verifyEq(acc[1].name, "C")
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Reflection
 //////////////////////////////////////////////////////////////////////////
 

@@ -492,7 +492,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
   {
     eachType |x|
     {
-      if (x.isa(base)) f(x)
+      if (XetoUtil.isDirectSubtype(x, base)) f(x)
     }
   }
 
@@ -647,9 +647,13 @@ abstract const class MNamespace : LibNamespace, CNamespace
 // CNamespace
 //////////////////////////////////////////////////////////////////////////
 
-  override Void ceachSubtype(CSpec ctype, |CSpec| f)
+  override Void ceachTypeThatIs(CSpec ctype, |CSpec| f)
   {
-    eachSubtype((Spec)ctype) |spec| { f((CSpec)spec) }
+    type := (Spec)ctype
+    eachType |x|
+    {
+      if (x.isa(type)) f((CSpec)x)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -337,6 +337,18 @@ const class XetoUtil
 // Is-A
 //////////////////////////////////////////////////////////////////////////
 
+  ** Return if a is a direct subtype of b
+  static Bool isDirectSubtype(Spec a, Spec b)
+  {
+    if (a.base === b) return true
+    if (a.isAnd)
+    {
+      ofs := a.ofs(false)
+      return ofs != null && ofs.any |x| { x === b }
+    }
+    return false
+  }
+
   ** Return if a is-a b
   static Bool isa(CSpec a, CSpec b, Bool isTop := true)
   {

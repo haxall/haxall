@@ -15,7 +15,7 @@ using util
 @Js
 mixin CNamespace
 {
-  ** Iterate each subtype of given type that returns true for 'isa(type)'
-  abstract Void ceachSubtype(CSpec type, |CSpec| f)
+  ** Iterate each type type that returns true for 'isa(type)'
+  abstract Void ceachTypeThatIs(CSpec type, |CSpec| f)
 }
 
