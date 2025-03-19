@@ -488,6 +488,14 @@ abstract const class MNamespace : LibNamespace, CNamespace
     }
   }
 
+  override Void eachSubtype(Spec base, |Spec| f)
+  {
+    eachType |x|
+    {
+      if (x.isa(base)) f(x)
+    }
+  }
+
   override Void eachInstance(|Dict| f)
   {
     eachLibForIter |lib|
@@ -639,13 +647,9 @@ abstract const class MNamespace : LibNamespace, CNamespace
 // CNamespace
 //////////////////////////////////////////////////////////////////////////
 
-  override Void eachSubtype(CSpec ctype, |CSpec| f)
+  override Void ceachSubtype(CSpec ctype, |CSpec| f)
   {
-    type := (Spec)ctype
-    eachType |x|
-    {
-      if (x.isa(type)) f((XetoSpec)x)
-    }
+    eachSubtype((Spec)ctype) |spec| { f((CSpec)spec) }
   }
 
 //////////////////////////////////////////////////////////////////////////

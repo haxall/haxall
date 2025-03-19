@@ -93,7 +93,7 @@ const final class MChoice : SpecChoice
   static Obj[] findChoiceSubtypes(CNamespace ns, CSpec spec)
   {
     acc := Obj[,]
-    ns.eachSubtype(spec.ctype) |x|
+    ns.ceachSubtype(spec.ctype) |x|
     {
       if (!x.isChoice) return
       acc.add(x)

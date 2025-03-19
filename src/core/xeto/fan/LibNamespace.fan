@@ -232,6 +232,10 @@ const mixin LibNamespace
   ** In remote namespace this only iterates loaded libs.
   abstract Void eachInstance(|Dict| f)
 
+  ** Iterate all the subtypes of given type
+  ** In remote namespace this only iterates loaded libs.
+  abstract Void eachSubtype(Spec base, |Spec| f)
+
   ** Iterate instances that are nominally typed by given spec.
   ** The callback function includes the resolve spec for the instance.
   @NoDoc abstract Void eachInstanceThatIs(Spec type, |Dict, Spec| f)
