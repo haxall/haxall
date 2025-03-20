@@ -41,6 +41,16 @@ const class MValidateReport : ValidateReport
 
   override const Int numWarns
 
+  override ValidateItem[] itemsForSubject(Dict subject)
+  {
+    items.findAll |x| { x.subject === subject }
+  }
+
+  override ValidateItem[] itemsForSlot(Dict subject, Str slot)
+  {
+    items.findAll |x| { x.subject === subject && x.isSlotMatch(slot) }
+  }
+
   override Void dump(Console con := Console.cur)
   {
     con.group("ValidateReport [$numErrs errs, $numWarns warns]")
@@ -68,6 +78,14 @@ const class MValidateItem : ValidateItem
   override const Dict subject
   override const Str? slot
   override const Str msg
+
+  Bool isSlotMatch(Str name)
+  {
+    if (slot == null) return false
+    if (slot == name) return true
+    if (slot.contains(".")) return slot.startsWith(name) && slot.getSafe(name.size) == '.'
+    return false
+  }
 
   override Str toStr()
   {

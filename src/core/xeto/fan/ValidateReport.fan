@@ -20,6 +20,12 @@ const mixin ValidateReport
   ** List all validation items
   abstract ValidateItem[] items()
 
+  ** List all validation items for given subject
+  abstract ValidateItem[] itemsForSubject(Dict subject)
+
+  ** List all validation items for given subject and slot name
+  abstract ValidateItem[] itemsForSlot(Dict subject, Str slot)
+
   ** If there one or more error level items
   abstract Bool hasErrs()
 
@@ -76,5 +82,17 @@ enum class ValidateLevel
 
   ** Is this the 'warn' enum value
   Bool isWarn() { this === warn }
+
+  ** Max level from items or null if items is empty
+  static ValidateLevel? max(ValidateItem[] items)
+  {
+    ValidateLevel? max := null
+    items.each |item|
+    {
+      if (max == null || item.level.ordinal > max.ordinal)
+        max = item.level
+    }
+    return max
+  }
 }
 
