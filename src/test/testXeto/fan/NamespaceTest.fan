@@ -428,6 +428,34 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownRecErr#) { ns.instance("hx.test.xeto::badOne") }
     verifyErr(UnknownRecErr#) { ns.instance("hx.test.xeto::badOne", true) }
     verifyErr(UnknownRecErr#) { ns.instance("badOne::badOne") }
+
+    // eachType
+    types := Spec[,]
+    ns.eachType |t| { types.add(t) }
+    verifyEq(types.containsSame(ns.spec("sys::Str")), true)
+    verifyEq(types.containsSame(ns.spec("ph::Equip")), true)
+
+    // eachTypeWhile
+    verifyEq(types.size > 100, true)
+    typesWhile := Spec[,]
+    r := ns.eachTypeWhile |t| { typesWhile.add(t); return typesWhile.size == 100 ? "break" : null }
+    verifyEq(r, "break")
+    verifyEq(typesWhile.size, 100)
+
+    // eachInstance
+    instances := Dict[,]
+    ns.eachInstance |i| { instances.add(i) }
+    verifyEq(instances.containsSame(ns.instance("hx.test.xeto::test-a")), true)
+
+    // hasSubtype
+    verifyEq(ns.hasSubtypes(ns.spec("sys::Str")), false)
+    verifyEq(ns.hasSubtypes(ns.spec("ph::Equip")), true)
+
+    // eachSubtypes
+    subtypes := Spec[,]
+    ns.eachSubtype(ns.spec("ph::Equip")) |x| { subtypes.add(x) }
+    verifyEq(subtypes.containsSame(ns.spec("ph::AirTerminalUnit")), true)
+    verifyEq(subtypes.containsSame(ns.spec("ph::Vav")), false)
   }
 
 //////////////////////////////////////////////////////////////////////////

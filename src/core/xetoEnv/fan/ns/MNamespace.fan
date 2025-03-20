@@ -488,12 +488,29 @@ abstract const class MNamespace : LibNamespace, CNamespace
     }
   }
 
+  override Obj? eachTypeWhile(|Spec->Obj?| f)
+  {
+    eachLibForIterWhile |lib|
+    {
+      lib.types.eachWhile |type| { f(type) }
+    }
+  }
+
   override Void eachSubtype(Spec base, |Spec| f)
   {
     eachType |x|
     {
       if (XetoUtil.isDirectSubtype(x, base)) f(x)
     }
+  }
+
+  override Bool hasSubtypes(Spec base)
+  {
+    r := eachTypeWhile |x|
+    {
+      XetoUtil.isDirectSubtype(x, base) ? "yes" : null
+    }
+    return r != null
   }
 
   override Void eachInstance(|Dict| f)
@@ -527,6 +544,24 @@ abstract const class MNamespace : LibNamespace, CNamespace
       entriesList.each |entry|
       {
         if (entry.status.isOk) f(entry.get)
+      }
+    }
+  }
+
+  Obj? eachLibForIterWhile(|Lib->Obj?| f)
+  {
+    if (!isRemote)
+    {
+      return libs.eachWhile(f)
+    }
+    else
+    {
+      return entriesList.eachWhile |entry|
+      {
+        if (entry.status.isOk)
+          return f(entry.get)
+        else
+          return null
       }
     }
   }
