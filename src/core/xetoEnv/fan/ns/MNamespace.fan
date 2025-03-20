@@ -622,6 +622,53 @@ abstract const class MNamespace : LibNamespace, CNamespace
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Validation
+//////////////////////////////////////////////////////////////////////////
+
+  override ValidateReport validate(Obj? val, Spec? spec := null, Dict? opts := null)
+  {
+    // TODO: reuse existing fitsExplain
+    items := MValidateItem[,]
+    subject := val as Dict ?: Etc.dict0
+    logger := |XetoLogRec x| { items.add(logRecToItem(subject, x)) }
+
+    opts = Etc.dictSet(opts, "explain", Unsafe(logger))
+    fits(subject, spec, opts)
+
+    return MValidateReport(Dict[subject], items)
+  }
+
+  override ValidateReport validateAll(Dict[] subjects, Dict? opts := null)
+  {
+    // TODO: reuse existing fitsExplain
+    items := MValidateItem[,]
+    Dict? subject
+    logger := |XetoLogRec x| { items.add(logRecToItem(subject, x)) }
+
+    opts = Etc.dictSet(opts, "explain", Unsafe(logger))
+    subjects.each |x| { subject = x; fits(x, specOf(x), opts) }
+
+    return MValidateReport(subjects, items)
+  }
+
+  private MValidateItem logRecToItem(Dict subject, XetoLogRec x)
+  {
+    level := x.level === LogLevel.err ? ValidateLevel.err : ValidateLevel.warn
+    msg   := x->msg.toStr
+    path  := Str#.emptyList
+
+    if (msg.startsWith("Slot '"))
+    {
+      end := msg.index("':")
+      pathStr := msg[6..<end]
+      path = [pathStr]
+      msg = msg[end+1..-1]
+    }
+
+    return MValidateItem(level, subject, path, msg)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Compile
 //////////////////////////////////////////////////////////////////////////
 

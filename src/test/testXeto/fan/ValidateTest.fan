@@ -473,6 +473,9 @@ class ValidateTest : AbstractXetoTest
       fits := nsTest.fits(instance, spec, opts)
       verifyErrs("Fits Time", errs, expect)
       verifyEq(fits, errs.isEmpty)
+
+      r := nsTest.validate(instance, spec, opts)
+      verifyEq(r.items.size, errs.size)
     }
   }
 
