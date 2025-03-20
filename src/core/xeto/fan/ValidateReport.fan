@@ -50,8 +50,9 @@ const mixin ValidateItem
   ** non-dict value then this is an empty dict.
   abstract Dict subject()
 
-  ** Slot path to value or empty list if on subject itself
-  abstract Str[] slotPath()
+  ** Slot of subject or null if on subject itself.
+  ** This is dotted path if item is on a nested dict in the subject.
+  abstract Str? slot()
 
   ** Free-form message for validation error
   abstract Str msg()

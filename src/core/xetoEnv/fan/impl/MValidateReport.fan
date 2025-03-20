@@ -56,17 +56,17 @@ const class MValidateReport : ValidateReport
 @Js
 const class MValidateItem : ValidateItem
 {
-  new make(ValidateLevel level, Dict subject, Str[] slotPath, Str msg)
+  new make(ValidateLevel level, Dict subject, Str? slot, Str msg)
   {
-    this.level    = level
-    this.subject  = subject
-    this.slotPath = slotPath
-    this.msg      = msg
+    this.level   = level
+    this.subject = subject
+    this.slot    = slot
+    this.msg     = msg
   }
 
   override const ValidateLevel level
   override const Dict subject
-  override const Str[] slotPath
+  override const Str? slot
   override const Str msg
 
   override Str toStr()
@@ -75,7 +75,7 @@ const class MValidateItem : ValidateItem
     s.add(level)
     id := subject["id"]
     if (id != null) s.add(" @").add(id)
-    if (!slotPath.isEmpty) s.add(" ").add(slotPath.join("."))
+    if (slot != null) s.add(" '").add(slot).add("'")
     s.add(" ").add(msg)
     return s.toStr
   }

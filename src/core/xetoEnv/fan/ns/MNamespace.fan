@@ -627,20 +627,21 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   override ValidateReport validate(Obj? val, Spec? spec := null, Dict? opts := null)
   {
-    // TODO: reuse existing fitsExplain
+    // TODO: for now reuse existing fitsExplain
     items := MValidateItem[,]
     subject := val as Dict ?: Etc.dict0
     logger := |XetoLogRec x| { items.add(logRecToItem(subject, x)) }
 
     opts = Etc.dictSet(opts, "explain", Unsafe(logger))
-    fits(subject, spec, opts)
+    if (spec == null) spec = specOf(val)
+    fits(val, spec, opts)
 
     return MValidateReport(Dict[subject], items)
   }
 
   override ValidateReport validateAll(Dict[] subjects, Dict? opts := null)
   {
-    // TODO: reuse existing fitsExplain
+    // TODO: for now reuse existing fitsExplain
     items := MValidateItem[,]
     Dict? subject
     logger := |XetoLogRec x| { items.add(logRecToItem(subject, x)) }
@@ -655,17 +656,16 @@ abstract const class MNamespace : LibNamespace, CNamespace
   {
     level := x.level === LogLevel.err ? ValidateLevel.err : ValidateLevel.warn
     msg   := x->msg.toStr
-    path  := Str#.emptyList
+    slot  := null
 
     if (msg.startsWith("Slot '"))
     {
-      end := msg.index("':")
-      pathStr := msg[6..<end]
-      path = [pathStr]
-      msg = msg[end+1..-1]
+      end := msg.index("': ")
+      slot = msg[6..<end]
+      msg  = msg[end+3..-1]
     }
 
-    return MValidateItem(level, subject, path, msg)
+    return MValidateItem(level, subject, slot, msg)
   }
 
 //////////////////////////////////////////////////////////////////////////

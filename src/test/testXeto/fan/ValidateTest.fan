@@ -23,6 +23,41 @@ class ValidateTest : AbstractXetoTest
 {
 
 //////////////////////////////////////////////////////////////////////////
+// Scalars
+//////////////////////////////////////////////////////////////////////////
+
+  Void testScalars()
+  {
+    verifyScalarErr(Date.today, "sys::Date", null)
+    verifyScalarErr("foo", "sys::Date", "Type 'sys::Str' does not fit 'sys::Date'")
+
+    verifyScalarErr("123-89-4567", "hx.test.xeto::TestSsn", null)
+    verifyScalarErr("123-xx-4567", "hx.test.xeto::TestSsn", "String encoding does not match pattern for 'hx.test.xeto::TestSsn'")
+  }
+
+  Void verifyScalarErr(Obj? val, Str qname, Str? expect)
+  {
+    r := nsTest.validate(val, nsTest.spec(qname))
+
+    if (expect == null)
+    {
+      verifyEq(r.hasErrs, false)
+      verifyEq(r.numErrs, 0)
+      verifyEq(r.items.size, 0)
+      return
+    }
+
+    verifyEq(r.numErrs, 1)
+    verifyEq(r.hasErrs, true)
+
+    item := r.items.first
+    verifySame(item.level, ValidateLevel.err)
+    verifySame(item.subject, Etc.dict0)
+    verifyEq(item.slot, null)
+    verifyEq(item.msg, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Types
 //////////////////////////////////////////////////////////////////////////
 
@@ -193,7 +228,7 @@ class ValidateTest : AbstractXetoTest
 
     // item types using list subtype, for compile-time we require nominal
     // typing but for fits-time we allow structure typing
-    verifyFitsTime(src, ok.dup.set("d", [`uri1`, n(123), Etc.dict0, `uri2`]), [
+    verifyRunTime(src, ok.dup.set("d", [`uri1`, n(123), Etc.dict0, `uri2`]), [
       "Slot 'd': List item type is 'sys::Uri', item type is 'sys::Number'",
       "Slot 'd': List item type is 'sys::Uri', item type is 'sys::Dict'",
     ])
@@ -345,17 +380,17 @@ class ValidateTest : AbstractXetoTest
     ])
 
     // ref type is spec (only in fitter)
-    verifyFitsTime(src, ok.dup.set("equipRef", Ref("ph::Site")), [
+    verifyRunTime(src, ok.dup.set("equipRef", Ref("ph::Site")), [
       "Slot 'equipRef': Ref target must be 'ph::Equip', target is 'sys::Spec'",
     ])
 
     // target type not found (only in fitter)
-    verifyFitsTime(src, ok.dup.set("equipRef", refEqX).set("enum", Ref("ph::WeatherCondEnum")), [
+    verifyRunTime(src, ok.dup.set("equipRef", refEqX).set("enum", Ref("ph::WeatherCondEnum")), [
       "Slot 'equipRef': Ref target spec not found: 'bad.lib::BadSpec'",
     ])
 
     // list of refs
-    verifyFitsTime(src, ok.dup.set("f", [refEq1, refEq2]), [,])
+    verifyRunTime(src, ok.dup.set("f", [refEq1, refEq2]), [,])
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -430,7 +465,7 @@ class ValidateTest : AbstractXetoTest
   {
     instance := toInstance(tags)
     verifyCompileTime(src, instance, expect)
-    verifyFitsTime(src, instance, expect)
+    verifyRunTime(src, instance, expect)
   }
 
   ** Verify the instance bundled in the library source at compile time
@@ -456,11 +491,11 @@ class ValidateTest : AbstractXetoTest
     catch (Err e)
       {}
 
-    verifyErrs("Compile Time", errs, expect)
+    verifyErrs("Compile Time", instance, null, errs, expect)
   }
 
-  ** Verify the instance checked using fits after lib src is compiled
-  Void verifyFitsTime(Str src, Obj instance, Str[] expect)
+  ** Verify the instance checked using fits/validate after lib src is compiled
+  Void verifyRunTime(Str src, Obj instance, Str[] expect)
   {
     src = srcAddPragma(src)
     instance = toInstance(instance)
@@ -470,12 +505,11 @@ class ValidateTest : AbstractXetoTest
     opts := logOpts("explain", errs)
     initContext(lib).asCur |cx|
     {
-      fits := nsTest.fits(instance, spec, opts)
-      verifyErrs("Fits Time", errs, expect)
-      verifyEq(fits, errs.isEmpty)
-
       r := nsTest.validate(instance, spec, opts)
-      verifyEq(r.items.size, errs.size)
+
+      fits := nsTest.fits(instance, spec, opts)
+      verifyErrs("Fits Time", instance, r, errs, expect)
+      verifyEq(fits, errs.isEmpty)
     }
   }
 
@@ -501,7 +535,7 @@ class ValidateTest : AbstractXetoTest
   }
 
   ** Verify actual errors from compiler/fits against expected results
-  Void verifyErrs(Str title, XetoLogRec[] actual, Str[] expect)
+  Void verifyErrs(Str title, Obj instance, ValidateReport? r, XetoLogRec[] actual, Str[] expect)
   {
     isCompileTime := title.startsWith("Compile")
     if (isDebug)
@@ -510,6 +544,7 @@ class ValidateTest : AbstractXetoTest
       echo(actual.join("\n"))
     }
 
+    normExpect := Str[,]
     actual.each |arec, i|
     {
       a := normTempLibName(arec.msg)
@@ -521,8 +556,34 @@ class ValidateTest : AbstractXetoTest
         echo("      $e")
       }
       verifyEq(a, e)
+      normExpect.add(e)
     }
+
     verifyEq(actual.size, expect.size)
+
+    if (r != null)
+    {
+      verifyEq(r.items.size, normExpect.size)
+      r.items.each |item, i| { verifyItem(instance, item, normExpect[i]) }
+    }
+  }
+
+  private Void verifyItem(Obj instance, ValidateItem actual, Str expect)
+  {
+    level := ValidateLevel.err
+    msg   := expect
+    slot  := null
+    if (msg.startsWith("Slot '"))
+    {
+      end := msg.index("':")
+      slot = msg[6..<end]
+      msg  = msg[end+2..-1].trim
+    }
+
+    verifySame(actual.level, level)
+    verifySame(actual.subject, instance as Dict ?: Etc.dict0)
+    verifyEq(actual.slot, slot)
+    verifyEq(normTempLibName(actual.msg), msg)
   }
 
   ** To instance with tags sorted alphabetically
