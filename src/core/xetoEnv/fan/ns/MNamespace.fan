@@ -405,6 +405,38 @@ abstract const class MNamespace : LibNamespace, CNamespace
     return null
   }
 
+  override Void specAsync(Str qname, |Err?, Spec?| f)
+  {
+    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
+
+    libName := qname[0..<colon]
+    name := qname[colon+2..-1]
+
+    libAsync(libName) |err, lib|
+    {
+      if (err != null) return f(err, null)
+      spec := lib.spec(name, false)
+      if (spec == null) return f(UnknownSpecErr(qname), null)
+      f(null, spec)
+    }
+  }
+
+  override Void instanceAsync(Str qname, |Err?, Dict?| f)
+  {
+    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
+
+    libName := qname[0..<colon]
+    name := qname[colon+2..-1]
+
+    libAsync(libName) |err, lib|
+    {
+      if (err != null) return f(err, null)
+      instance := lib.instance(name, false)
+      if (instance == null) return f(haystack::UnknownRecErr(qname), null)
+      f(null, instance)
+    }
+  }
+
   override Spec? unqualifiedType(Str name, Bool checked := true)
   {
     if (!isRemote) loadAllSync

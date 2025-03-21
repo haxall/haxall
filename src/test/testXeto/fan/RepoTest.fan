@@ -11,6 +11,7 @@ using xeto
 using xeto::Lib
 using xetoEnv
 using haystack
+using haystack::Dict
 using haystack::Ref
 
 **
@@ -250,6 +251,37 @@ class RepoTest : AbstractXetoTest
     verifySame(ns.spec("sys::Str").lib, ns.sysLib)
     verifySame(ns.type("ph::Point").lib, ph)
     verifySame(ns.spec("ph::Point.point").lib, ph)
+
+    // specAsync
+    ns = repo.createNamespace([phVer, sysVer])
+    verifyEq(ns.libStatus("ph"), LibStatus.notLoaded)
+    Err? err
+    Spec? spec
+    ns.specAsync("ph::Equip") |e, s| { err = e; spec = s }
+    verifyEq(ns.libStatus("ph"), LibStatus.ok)
+    verifyEq(err, null)
+    verifySame(spec, ns.spec("ph::Equip"))
+    ns.specAsync("bad.lib::Equip") |e, s| { err = e; spec = s }
+    verifyEq(err?.toStr, "haystack::UnknownLibErr: bad.lib")
+    verifyEq(spec, null)
+    ns.specAsync("ph::BadType") |e, s| { err = e; spec = s }
+    verifyEq(err?.toStr, "haystack::UnknownSpecErr: ph::BadType")
+    verifyEq(spec, null)
+
+    // instanceAsync
+    ns = repo.createNamespace([phVer, sysVer])
+    verifyEq(ns.libStatus("ph"), LibStatus.notLoaded)
+    Dict? inst
+    ns.instanceAsync("ph::filetype:csv") |e, x| { err = e; inst = x }
+    verifyEq(ns.libStatus("ph"), LibStatus.ok)
+    verifyEq(err, null)
+    verifySame(inst, ns.instance("ph::filetype:csv"))
+    ns.instanceAsync("bad.lib::foo") |e, x| { err = e; inst = x }
+    verifyEq(err?.toStr, "haystack::UnknownLibErr: bad.lib")
+    verifyEq(inst, null)
+    ns.instanceAsync("ph::bad-instance") |e, x| { err = e; inst = x }
+    verifyEq(err?.toStr, "haystack::UnknownRecErr: ph::bad-instance")
+    verifyEq(inst, null)
   }
 
 //////////////////////////////////////////////////////////////////////////
