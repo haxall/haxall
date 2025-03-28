@@ -104,9 +104,8 @@ const class FantomFn : TopFn
   override Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)
   {
     oldCx := AxonContext.curAxon(false)
-    setCx := oldCx == null
+    setCx := cx !== oldCx
     if (setCx) Actor.locals.set(AxonContext.actorLocalsKey, cx)
-    else if (oldCx != null && oldCx !== cx) throw Err("Mismatched contexts: $oldCx != $cx")
 
     // security check
     cx.checkCall(this)
@@ -118,7 +117,13 @@ const class FantomFn : TopFn
     catch (Err e)
       throw EvalErr("Func failed: $sig; args: ${argsToStr(args)}\n  $e", cx, callLoc, e)
     finally
-      if (setCx) Actor.locals.remove(AxonContext.actorLocalsKey)
+      if (setCx)
+      {
+        if (oldCx == null)
+          Actor.locals.remove(AxonContext.actorLocalsKey)
+        else
+          Actor.locals.set(AxonContext.actorLocalsKey, oldCx)
+      }
   }
 
   override Obj? doCall(AxonContext cx, Obj?[] args)
