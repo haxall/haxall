@@ -67,8 +67,6 @@ class RdfExporter : Exporter
 
   private This cls(Spec x)
   {
-    if (x.isEnum) return enum(x)
-
     qname(x.qname).nl
     w("  a owl:Class ;").nl
     labelAndDoc(x)
@@ -77,11 +75,12 @@ class RdfExporter : Exporter
     if (x.base != null)
       w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
 
-    /*
-    w("  owl:equivalentClass [").nl
-    w("    a owl:Class ;").nl
-    w("    ] ;").nl
-    */
+    if (x.isEnum)
+    {
+      w(".").nl
+      enum(x)
+      return this
+    }
 
     // markers
     x.slots.each |slot|
@@ -102,24 +101,24 @@ class RdfExporter : Exporter
   private This enum(Spec x)
   {
     qname(x.qname).nl
-    w("  a rdfs:Datatype ;").nl
+    w("  a owl:Class ;").nl
+    //w("  a ").qname(x.qname).w(" ;").nl
+    w("  a sh::NodeShape ;").nl
     labelAndDoc(x)
+    w("  rdfs::subClassOf ").qname(x.base.qname).w("; ").nl
     w(".").nl
 
-    qnameShape(x.qname).nl
-    w("  a sh:NodeShape ;").nl
-    w("  sh:targetClass ").qname(x.qname).w(" ;").nl
-    w("  sh:property [").nl
-    w("    sh:path rdf:value ;").nl
-    w("    sh:in (").nl
-    x.enum.each |spec, key|
+    x.enum.each |item, key|
     {
-      w("    ").literal(key).nl
+      uri := qnameToUri(x.qname) + "-" + item.name
+      w(uri).nl
+      w("  a owl:Class ;").nl
+      w("  a ").w(uri).w(" ;").nl
+      w("  a sh::NodeShape ;").nl
+      w("  rdfs::label ").literal(key).w("; ").nl
+      w("  rdfs::subClassOf ").qname(x.qname).w("; ").nl
+      w(".").nl
     }
-    w("    ) ;").nl
-    w("    sh:message ").literal("Must be one of the $x.name enum values").w("@en ;").nl
-    w("  ]").nl
-    w(".").nl
     return this
   }
 
