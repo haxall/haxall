@@ -1,0 +1,27 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   1 Apr 2025  Brian Frank  Creation
+//
+
+InstantiateA: {
+  listRef: List<of:Ref>
+  listRefNullable: List<of:Ref?>
+  a: Str "alpha-a"
+  b: Str? "bravo-a"
+  c: Str?
+  d: Str?
+}
+
+InstantiateB: InstantiateA {
+  a: "alpha-b"
+  b: "bravo-b"
+  c: "charlie-b"
+}
+
+InstantiateC: InstantiateB {
+  d: "delta-c"
+}
+

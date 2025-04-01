@@ -499,9 +499,7 @@ const class XetoUtil
 
     spec.slots.each |slot|
     {
-      if (slot.isMaybe) return
-      if (slot.isQuery) return
-      if (slot.isFunc) return
+      if (!instantiateSlot(slot)) return
       if (slot.type === ns.sys.ref && slot.name != "enum") return // fill-in siteRef, equipRef, etc
       if (slot.name == "enum") return acc.setNotNull("enum", instantiateEnumDefault(slot))
       acc[slot.name] = instantiate(ns, slot, opts)
@@ -525,6 +523,23 @@ const class XetoUtil
       return instantiateGraph(ns, spec, opts, dict)
     else
       return dict
+  }
+
+  private static Bool instantiateSlot(Spec slot)
+  {
+    if (slot.isQuery) return false
+    if (slot.isFunc) return false
+    if (slot.isMaybe)
+    {
+      // the rule for maybe types is that slot definition
+      // itself must define a default value
+      ownMeta := slot.metaOwn
+      if (slot.metaOwn.has("val"))
+        return true
+      else
+        return false
+    }
+    return true
   }
 
   private static Obj? instantiateEnumDefault(XetoSpec slot)

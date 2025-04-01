@@ -565,8 +565,28 @@ class NamespaceTest : AbstractXetoTest
     verifyInstantiate(ns, "ashrae.g36::G36ReheatVav", ["dis":"G36ReheatVav", "spec":Ref("ashrae.g36::G36ReheatVav"), "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m])
 
     instantiateA := ns.spec("hx.test.xeto::InstantiateA")
-    verifyEq(ns.instantiate(instantiateA)->listRef, Ref[,])
-    verifyEq(ns.instantiate(instantiateA)->listRefNullable, Ref?[,])
+    instantiateB := ns.spec("hx.test.xeto::InstantiateB")
+    instantiateC := ns.spec("hx.test.xeto::InstantiateC")
+
+    Dict dict := ns.instantiate(instantiateA)
+    verifyEq(dict->listRef, Ref[,])
+    verifyEq(dict->listRefNullable, Ref?[,])
+    verifyEq(dict["a"], "alpha-a")
+    verifyEq(dict["b"], "bravo-a")
+    verifyEq(dict["c"], null)
+    verifyEq(dict["d"], null)
+
+    dict = ns.instantiate(instantiateB)
+    verifyEq(dict["a"], "alpha-b")
+    verifyEq(dict["b"], "bravo-b")
+    verifyEq(dict["c"], "charlie-b")
+    verifyEq(dict["d"], null)
+
+    dict = ns.instantiate(instantiateC)
+    verifyEq(dict["a"], "alpha-b")
+    verifyEq(dict["b"], "bravo-b")
+    verifyEq(dict["c"], "charlie-b")
+    verifyEq(dict["d"], "delta-c")
 
     x := Ref("x")
     verifyInstantiateGraph(ns, "ashrae.g36::G36ReheatVav", [
