@@ -107,11 +107,10 @@ internal class CompFactory
     acc.ordered = true
     acc["id"] = newId(init?.slots)
 
-    // first fill in with default slot values
-    children = initSlots(spec, acc, children, ns.instantiate(spec))
-
-    // overwrite with slots passed in
-    if (init != null) children = initSlots(spec, acc, children, init.slots)
+    // first fill in with default slot values, merge in init slots
+    slots := ns.instantiate(spec)
+    slots = Etc.dictMerge(slots, init?.slots)
+    children = initSlots(spec, acc, children, slots)
 
     // reify functions that map to methods
     spec.slots.each |slot|
