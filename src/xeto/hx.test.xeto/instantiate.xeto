@@ -13,15 +13,19 @@ InstantiateA: {
   b: Str? "bravo-a"
   c: Str?
   d: Str?
+  icon: Ref?
 }
 
 InstantiateB: InstantiateA {
   a: "alpha-b"
   b: "bravo-b"
   c: "charlie-b"
+  icon: @icon-b
 }
 
 InstantiateC: InstantiateB {
   d: "delta-c"
 }
+
+@icon-b: Dict {}
 

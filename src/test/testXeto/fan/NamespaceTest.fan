@@ -575,18 +575,21 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(dict["b"], "bravo-a")
     verifyEq(dict["c"], null)
     verifyEq(dict["d"], null)
+    verifyEq(dict["icon"], null)
 
     dict = ns.instantiate(instantiateB)
     verifyEq(dict["a"], "alpha-b")
     verifyEq(dict["b"], "bravo-b")
     verifyEq(dict["c"], "charlie-b")
     verifyEq(dict["d"], null)
+    verifyEq(dict["icon"], Ref("hx.test.xeto::icon-b"))
 
     dict = ns.instantiate(instantiateC)
     verifyEq(dict["a"], "alpha-b")
     verifyEq(dict["b"], "bravo-b")
     verifyEq(dict["c"], "charlie-b")
     verifyEq(dict["d"], "delta-c")
+    verifyEq(dict["icon"], Ref("hx.test.xeto::icon-b"))
 
     x := Ref("x")
     verifyInstantiateGraph(ns, "ashrae.g36::G36ReheatVav", [

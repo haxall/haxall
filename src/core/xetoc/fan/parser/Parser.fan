@@ -283,6 +283,12 @@ internal class Parser
       return
     }
 
+    if (cur === Token.ref)
+    {
+      spec.metaSet("val", parseDataRef)
+      return
+    }
+
     if (cur === Token.lbrace)
     {
       parseSpecSlots(spec)

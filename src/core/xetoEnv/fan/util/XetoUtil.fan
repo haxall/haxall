@@ -500,7 +500,6 @@ const class XetoUtil
     spec.slots.each |slot|
     {
       if (!instantiateSlot(slot)) return
-      if (slot.type === ns.sys.ref && slot.name != "enum") return // fill-in siteRef, equipRef, etc
       if (slot.name == "enum") return acc.setNotNull("enum", instantiateEnumDefault(slot))
       acc[slot.name] = instantiate(ns, slot, opts)
     }
@@ -538,6 +537,12 @@ const class XetoUtil
         return true
       else
         return false
+    }
+    if (slot.isRef)
+    {
+      // don't default non-null ref slots to Ref default value "x"
+      val := slot.get("val") as Ref
+      if (val?.id == "x") return false
     }
     return true
   }
