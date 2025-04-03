@@ -62,6 +62,7 @@ const mixin LibNamespace
       "hx.api",
       "ion",
       "ion.actions",
+      "ion.card",
       "ion.icons",
       "ion.inputs",
       "ion.form",
