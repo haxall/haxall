@@ -17,26 +17,14 @@ using haystack::UnknownSpecErr
 @Js
 abstract const class MLibFiles : LibFiles
 {
-  override Buf readBuf(Uri uri)
-  {
-    Buf? val
-    read(uri) |err, in|
-    {
-      if (err != null) throw err
-      val = in.readAllBuf
-    }
-    return val
-  }
+  override Bool isSupported() { true }
 
-  override Str readStr(Uri uri)
+  static Bool include(File f)
   {
-    Str? val
-    read(uri) |err, in|
-    {
-      if (err != null) throw err
-      val = in.readAllStr
-    }
-    return val
+    if (f.isDir) return false
+    if (f.ext == "xeto") return false
+    if (f.name.startsWith(".")) return false
+    return true
   }
 }
 
@@ -52,7 +40,7 @@ const class UnsupportedLibFiles : MLibFiles
 
   override Bool isSupported() { false }
   override Uri[] list() { throw UnsupportedErr() }
-  override Void read(Uri uri, |Err?,InStream?| f) { throw UnsupportedErr() }
+  override File? get(Uri uri, Bool checked := true) { throw UnsupportedErr()  }
 }
 
 **************************************************************************
@@ -64,10 +52,12 @@ const class EmptyLibFiles : MLibFiles
 {
   static const EmptyLibFiles val := make
   private new make() {}
-
-  override Bool isSupported() { true }
   override Uri[] list() { Uri#.emptyList }
-  override Void read(Uri uri, |Err?,InStream?| f) { f(UnresolvedErr(uri.toStr), null) }
+  override File? get(Uri uri, Bool checked := true)
+  {
+    if (checked) throw UnresolvedErr(uri.toStr)
+    return null
+  }
 }
 
 **************************************************************************
@@ -81,54 +71,31 @@ const class DirLibFiles : MLibFiles
 
   const File dir
 
-  override Bool isSupported() { true }
-
   override once Uri[] list()
   {
-    acc := Uri[,]
+    map.keys.sort.toImmutable
+  }
+
+  override File? get(Uri uri, Bool checked := true)
+  {
+    f := map.get(uri)
+    if (f != null) return f
+    if (checked) throw UnresolvedErr(uri.toStr)
+    return null
+  }
+
+  private once Uri:File map()
+  {
+    acc := Uri:File[:]
     dir.walk |f|
     {
-      if (f.isDir) return
-      if (f.ext == "xeto") return
-      if (f.name.startsWith(".")) return
+      if (!include(f)) return
       rel := f.uri.toStr[dir.toStr.size-1..-1].toUri
-      acc.add(rel)
+      acc.add(rel, f)
     }
-    acc.sort
     return acc.toImmutable
   }
 
-  override Void read(Uri uri, |Err?,InStream?| f)
-  {
-    // make sure uri is in our list for security
-    if (list.contains(uri))
-    {
-      // lookup file
-      file := dir + uri.relTo(`/`)
-      if (file.exists)
-      {
-        doRead(file, f)
-        return
-      }
-    }
-
-    // callback with unresolved err
-    f(UnresolvedErr(uri.toStr), null)
-  }
-
-  private Void doRead(File file, |Err?,InStream?| f)
-  {
-    InStream? in := null
-    try
-    {
-      try
-        f(null, in = file.in)
-      catch (Err e)
-        f(e, null)
-    }
-    catch (Err e) { }
-    finally { in?.close }
-  }
 }
 
 **************************************************************************
@@ -146,33 +113,23 @@ const class ZipLibFiles : MLibFiles
 
   const File zipFile
 
-  override Bool isSupported() { true }
-
   override const Uri[] list
 
-  override Void read(Uri uri, |Err?,InStream?| f)
+  override File? get(Uri uri, Bool checked := true)
   {
-    if (list.contains(uri))
-      doRead(uri, f)
-    else
-      f(UnresolvedErr(uri.toStr), null)
-  }
-
-  private Void doRead(Uri uri, |Err?,InStream?| f)
-  {
+    // not ideal reading whole file into memory, but it
+    // lets not worry about keeping the zip file open
     Zip? zip
     try
     {
-      InStream? in
-      try
-      {
-        zip = Zip.open(zipFile)
-        in = zip.contents.getChecked(uri).in // should exist b/c we already checked
-      }
-      catch (Err e) { f(e, null); return }
-      f(null, in)
+      zip = Zip.open(zipFile)
+      file := zip.contents.get(uri)
+      if (file != null && include(file)) return file.readAllBuf.toFile(uri)
+      if (checked) throw UnresolvedErr(uri.toStr)
+      return null
     }
     finally { zip?.close }
   }
+
 }
 

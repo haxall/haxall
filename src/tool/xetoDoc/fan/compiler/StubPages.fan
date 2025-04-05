@@ -54,7 +54,7 @@ internal class StubPages: Step
       {
         if (uri.ext == "md")
         {
-          markdown := lib.files.readStr(uri)
+          markdown := lib.files.get(uri).readAllStr
           if (uri.name == "index.md")
             libDoc.mdIndex = markdown
           else

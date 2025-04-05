@@ -105,6 +105,7 @@ internal class Parse : Step
       {
         zip.readEach |f|
         {
+          if (f.isDir) return
           if (f.ext == "xeto") parseFile(f, lib)
           else if (f.name != "meta.props") list.add(f.uri)
           if (f.ext == "md") hasMarkdown = true

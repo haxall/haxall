@@ -142,9 +142,9 @@ class NamespaceTest : AbstractXetoTest
     if (!ns.isRemote)
     {
       verifyEq(sys.files.list, Uri[,])
-      Err? err := null
-      sys.files.read(`bad`) |e,i| { err = e }
-      verifyEq(err?.typeof, UnresolvedErr#)
+      verifyEq(sys.files.get(`bad`, false), null)
+      verifyErr(UnresolvedErr#) { sys.files.get(`bad`) }
+      verifyErr(UnresolvedErr#) { sys.files.get(`bad`, true) }
     }
   }
 
@@ -219,9 +219,9 @@ class NamespaceTest : AbstractXetoTest
     if (!ns.isRemote)
     {
       verifyEq(ph.files.list, Uri[,])
-      Err? err := null
-      ph.files.read(`bad`) |e,i| { err = e }
-      verifyEq(err?.typeof, UnresolvedErr#)
+      verifyEq(ph.files.get(`bad`, false), null)
+      verifyErr(UnresolvedErr#) { ph.files.get(`bad`) }
+      verifyErr(UnresolvedErr#) { ph.files.get(`bad`, true) }
     }
   }
 
@@ -295,28 +295,21 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(files.isSupported, !ns.isRemote)
     if (!ns.isRemote)
     {
+echo("### $files [$files.typeof]")
       verifyEq(files.list, [`/res/a.txt`, `/res/subdir/b.txt`])
 
-      Obj? res := null
-      files.read(`bad`) |err,in| { res = err }
-      verifyEq(res?.typeof, UnresolvedErr#)
+      verifyEq(files.get(`bad`, false), null)
+      verifyErr(UnresolvedErr#) { files.get(`bad`) }
+      verifyErr(UnresolvedErr#) { files.get(`bad`, true) }
 
-      res = null
-      files.read(`/lib.xeto`) |err,in| { res = err }
-      verifyEq(res?.typeof, UnresolvedErr#)
+      verifyEq(files.get(`/lib.xeto`, false), null)
+      verifyErr(UnresolvedErr#) { files.get(`/lib.xeto`) }
 
-      res = null
-      files.read(`/res/a.txt`) |err,in| { res = in.readAllStr.trim }
+      res := files.get(`/res/a.txt`).readAllStr.trim
       verifyEq(res, "alpha")
 
-      res = null
-      files.read(`/res/subdir/b.txt`) |err,in| { res = in.readAllStr.trim }
+      res = files.get(`/res/subdir/b.txt`).readAllStr.trim
       verifyEq(res, "beta")
-
-      verifyEq(files.readStr(`/res/subdir/b.txt`).trim, "beta")
-      verifyEq(files.readBuf(`/res/subdir/b.txt`).readAllStr.trim, "beta")
-
-      verifyErr(UnresolvedErr#) { files.readStr(`/bad.txt`) }
     }
   }
 
