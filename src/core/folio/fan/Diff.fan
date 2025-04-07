@@ -45,11 +45,11 @@ const class Diff
   }
 
   ** Make a Diff to add a new record into the database.
-  new makeAdd(Obj? changes, Ref id := Ref.gen)
+  new makeAdd(Obj? changes, Ref id := Ref.gen, Int flags := 0)
   {
     this.id = id
     this.changes = Etc.makeDict(changes)
-    this.flags = add
+    this.flags = add.or(flags)
 
     if (this.changes.has("id"))
       throw DiffErr("makeAdd cannot specify 'id' tag")
