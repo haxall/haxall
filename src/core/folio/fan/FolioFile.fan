@@ -84,7 +84,8 @@ const abstract class MFolioFile : FolioFile
     if (folio.readById(id, false) != null) throw ArgErr("Rec with id '${id}' already exists")
 
     // create the folio rec
-    rec = Etc.dictMerge(rec, ["id":Remove.val, "spec": Ref("sys::File")])
+    rec = Etc.dictRemove(rec, "id")
+    if (rec["spec"] isnot Ref) rec = Etc.dictSet(rec, "spec", Ref("sys::File"))
     rec = folio.commit(Diff.makeAdd(rec, id)).newRec
 
     return rec
