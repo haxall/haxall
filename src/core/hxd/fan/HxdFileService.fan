@@ -11,6 +11,7 @@ using haystack
 using folio
 using hx
 using hxFolio
+using util
 
 **
 ** HxdHisService provides simple wrapper around Folio as the
@@ -47,9 +48,9 @@ internal const class HxdFileService : HxFileService
 ** HxdFile
 **************************************************************************
 
-internal const class HxdFile : File
+internal const class HxdFile : SyntheticFile
 {
-  new makeNew(HxdFileService service, Uri uri, File file) : super(uri)
+  new makeNew(HxdFileService service, Uri uri, File file) : super.make(uri)
   {
     this.service = service
     this.file = file
