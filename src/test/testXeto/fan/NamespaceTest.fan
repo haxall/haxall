@@ -295,7 +295,6 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(files.isSupported, !ns.isRemote)
     if (!ns.isRemote)
     {
-echo("### $files [$files.typeof]")
       verifyEq(files.list, [`/res/a.txt`, `/res/subdir/b.txt`])
 
       verifyEq(files.get(`bad`, false), null)

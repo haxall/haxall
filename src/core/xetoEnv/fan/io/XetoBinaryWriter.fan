@@ -94,10 +94,10 @@ class XetoBinaryWriter : XetoBinaryConst
   private Void writeLibVersion(LibVersion v)
   {
     writeI4(magicLibVer)
-    writeName(names.toCode(v.name))
+    writeName(v.name)
     writeVersion(v.version)
     writeVarInt(v.depends.size)
-    v.depends.each |d| { writeName(names.toCode(d.name)) }
+    v.depends.each |d| { writeName(d.name) }
   }
 
   private Void writeBootLibs(MNamespace ns, Str[] list)
@@ -121,7 +121,7 @@ class XetoBinaryWriter : XetoBinaryConst
   Void writeLib(XetoLib lib)
   {
     writeI4(magicLib)
-    writeName(lib.m.nameCode)
+    writeName(lib.name)
     writeNameDict(lib.m.meta.wrapped)
     writeVarInt(lib.m.flags)
     writeSpecs(lib)
@@ -131,14 +131,15 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private Void writeSpecs(XetoLib lib)
   {
+    specs := lib.specs
+    writeVarInt(specs.size)
     lib.specs.each |x| { writeSpec(x) }
-    writeVarInt(-1)
   }
 
   private Void writeSpec(XetoSpec x)
   {
     m := x.m
-    writeName(m.nameCode)
+    writeName(m.name)
     write(m.flavor.ordinal)
     writeSpecRef(m.base)
     writeSpecRef(m.isType ? null : m.type)
@@ -192,15 +193,15 @@ class XetoBinaryWriter : XetoBinaryConst
     if (spec.parent == null)
     {
       write(1)
-      writeName(spec.m.lib.m.nameCode)
-      writeName(spec.m.nameCode)
+      writeName(spec.lib.name)
+      writeName(spec.name)
     }
     else if (spec.parent.parent == null)
     {
       write(2)
-      writeName(spec.m.lib.m.nameCode)
-      writeName(spec.m.parent.m.nameCode)
-      writeName(spec.m.nameCode)
+      writeName(spec.lib.name)
+      writeName(spec.parent.name)
+      writeName(spec.name)
     }
     else
     {
@@ -209,15 +210,16 @@ class XetoBinaryWriter : XetoBinaryConst
         path.add(x.name)
       path.reverse
       write(path.size + 1)
-      writeName(spec.m.lib.m.nameCode)
-      path.each |n| { writeName(names.toCode(n)) }
+      writeName(spec.m.lib.name)
+      path.each |n| { writeName(n) }
     }
   }
 
   private Void writeInstances(XetoLib lib)
   {
+    instances := lib.m.instancesMap
+    writeVarInt(instances.size)
     lib.m.instancesMap.each |x| { writeDict(x) }
-    write(0)  // end with control byte zero
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -284,6 +286,7 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private Void writeStr(Str s)
   {
+    /* TODO-NAMETABLE
     nameCode := names.toCode(s)
     if (nameCode > 0 && nameCode <= maxNameCode)
     {
@@ -292,9 +295,10 @@ class XetoBinaryWriter : XetoBinaryConst
     }
     else
     {
+    */
       write(ctrlStr)
       writeUtf(s)
-    }
+    //}
   }
 
   private This writeNumber(Number val)
@@ -453,7 +457,7 @@ class XetoBinaryWriter : XetoBinaryConst
     writeVarInt(size)
     for (i := 0; i<size; ++i)
     {
-      writeName(dict.nameAt(i))
+      writeName(names.toName(dict.nameAt(i)))
       writeVal(dict.valAt(i))
     }
   }
@@ -511,9 +515,11 @@ class XetoBinaryWriter : XetoBinaryConst
     }
   }
 
-  private Void writeName(Int nameCode)
+  private Void writeName(Str name)
   {
-    if (nameCode <= maxNameCode)
+    /* TODO-NAMETABLE
+    nameCode := names.toCode(name)
+    if (nameCode <= maxNameCode && nameCode != 0)
     {
       writeVarInt(nameCode)
     }
@@ -521,8 +527,10 @@ class XetoBinaryWriter : XetoBinaryConst
     {
       out.write(0)
       writeVarInt(nameCode)
-      out.writeUtf(names.toName(nameCode))
+      out.writeUtf(name)
     }
+    */
+    out.writeUtf(name)
   }
 
 //////////////////////////////////////////////////////////////////////////

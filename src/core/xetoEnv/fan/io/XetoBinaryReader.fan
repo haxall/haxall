@@ -135,20 +135,20 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     meta      := readMeta
     flags     := readVarInt
     loader    := RemoteLoader(ns, nameCode, meta, flags)
-    readTops(loader)
+    readSpecs(loader)
     readInstances(loader)
     verifyU4(magicLibEnd, "magicLibEnd")
 
     return loader.loadLib
   }
 
-  private Void readTops(RemoteLoader loader)
+  private Void readSpecs(RemoteLoader loader)
   {
-    while (true)
+    count := readVarInt
+    count.times
     {
-      nameCode := readName
-      if (nameCode < 0) break
-      x := loader.addTop(nameCode)
+      name := readName
+      x := loader.addTop(name)
       readSpec(loader, x)
     }
   }
@@ -241,11 +241,10 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Void readInstances(RemoteLoader loader)
   {
-    while (true)
+    count := readVarInt
+    count.times
     {
-      ctrl := read
-      if (ctrl == 0) break
-      Dict x := doReadVal(ctrl)
+      Dict x := readVal
       loader.addInstance(x)
     }
   }
@@ -263,11 +262,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   override Obj? readVal()
   {
-    doReadVal(in.readU1)
-  }
-
-  private Obj? doReadVal(Int ctrl)
-  {
+    ctrl := in.readU1
     switch (ctrl)
     {
       case ctrlNull:          return null
@@ -467,6 +462,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   override Int readName()
   {
+    /* TODO-NAMETABLE
     code := readVarInt
     if (code != 0) return code
 
@@ -474,6 +470,9 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     name := readUtf
     names.set(code, name) // is now sparse
     return code
+    */
+    name := readUtf
+    return names.add(name)
   }
 
 //////////////////////////////////////////////////////////////////////////
