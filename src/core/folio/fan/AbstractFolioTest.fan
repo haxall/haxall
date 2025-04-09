@@ -42,7 +42,7 @@ class AbstractFolioTest : HaystackTest
 
   FolioTestImpl? impl
 
-  Void runImpls()
+  virtual Void runImpls()
   {
     impls.each |impl| { runImpl(impl) }
   }
@@ -236,6 +236,12 @@ abstract class FolioTestImpl
 
   ** Does the implementation support re-opening with different id prefix
   virtual Bool supportsIdPrefixRename() { true }
+
+  ** Does the implementation support FolioX APIS
+  virtual Bool supportsFolioX() { false }
+
+  ** Does the implementation support spark index APIs
+  virtual Bool supportsSparkIndex() { supportsFolioX }
 
   ** Verify record a is the same b.  If the implementation supports
   ** an in-memory cache then they should be the same instance in memory,
