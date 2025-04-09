@@ -32,5 +32,7 @@ class Build : BuildPod
                "folio @{hx.depend}",
                "hxFolio @{hx.depend}"]
     srcDirs = [`fan/`]
+    index   = ["testFolio.impl": ["testFolio::FolioFlatFileTestImpl", "testFolio::HxFolioTestImpl"]]
   }
 }
+
