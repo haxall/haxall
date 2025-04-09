@@ -68,7 +68,8 @@ class RdfExporter : Exporter
   private This cls(Spec x)
   {
     qname(x.qname).nl
-    w("  a owl:Class ;").nl
+    w("  a sys:Class ;").nl
+    if (isShape(x)) w("  a sh::NodeShape ;").nl
     labelAndDoc(x)
 
     // supertype
@@ -92,6 +93,12 @@ class RdfExporter : Exporter
     return this
   }
 
+  private Bool isShape(Spec x)
+  {
+    if (x.isEnum) return true
+    return false
+  }
+
   private Void hasMarker(Spec slot)
   {
     prop := isSys ? ":hasMarker" : "sys:hasMarker"
@@ -100,19 +107,11 @@ class RdfExporter : Exporter
 
   private This enum(Spec x)
   {
-    qname(x.qname).nl
-    w("  a owl:Class ;").nl
-    //w("  a ").qname(x.qname).w(" ;").nl
-    w("  a sh::NodeShape ;").nl
-    labelAndDoc(x)
-    w("  rdfs::subClassOf ").qname(x.base.qname).w("; ").nl
-    w(".").nl
-
     x.enum.each |item, key|
     {
       uri := qnameToUri(x.qname) + "-" + item.name
       w(uri).nl
-      w("  a owl:Class ;").nl
+      w("  a sys:Class ;").nl
       w("  a ").w(uri).w(" ;").nl
       w("  a sh::NodeShape ;").nl
       w("  rdfs::label ").literal(key).w("; ").nl
@@ -181,7 +180,14 @@ class RdfExporter : Exporter
   private This sysDefs()
   {
     w(
-    Str<|sys:hasMarker
+    Str<|sys:Class
+           a rdfs:Class ;
+           a sh:NodeShape ;
+           rdfs:comment "Xeto meta class" ;
+           rdfs:label "Class"@en ;
+           rdfs:subClassOf rdfs:Class ;
+         .
+         sys:hasMarker
            a owl:ObjectProperty ;
            rdfs:label "Has Marker"@en ;
            rdfs:range sys:Marker ;
