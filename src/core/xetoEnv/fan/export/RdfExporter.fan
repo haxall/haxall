@@ -56,6 +56,7 @@ class RdfExporter : Exporter
 
   override This spec(Spec spec)
   {
+    this.isSys = spec.lib.name == "sys"
     if (spec.isType) return cls(spec)
     if (spec.isGlobal) return global(spec)
     throw Err(spec.name)
@@ -70,12 +71,12 @@ class RdfExporter : Exporter
     qname(x.qname).nl
     w("  a sys:Class ;").nl
     if (isShape(x)) w("  a sh::NodeShape ;").nl
+    if (isSelfInstance(x)) w("  a ").qname(x.qname).w(" ;").nl
+    if (x.base != null) w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
+
     labelAndDoc(x)
 
-    // supertype
-    if (x.base != null)
-      w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
-
+    // expand enum items as self-referential class/instances
     if (x.isEnum)
     {
       w(".").nl
@@ -84,18 +85,38 @@ class RdfExporter : Exporter
     }
 
     // markers
-    x.slots.each |slot|
+    x.slotsOwn.each |s|
     {
-      if (slot.isMarker && slot.base.isGlobal) hasMarker(slot)
+      if (s.isMarker && s.base.isGlobal) hasMarker(s)
     }
 
     w(".").nl
+
+    // slot properties
+    x.slotsOwn.each |s|
+    {
+      if (s.isMarker) return
+      slot(s)
+    }
+
     return this
   }
 
   private Bool isShape(Spec x)
   {
     if (x.isEnum) return true
+    if (x.isChoice) return true
+    return false
+  }
+
+  private Bool isSelfInstance(Spec x)
+  {
+    if (x.isChoice)
+    {
+      // Choice and first level of Choice inheritance are not
+      if (x.base.lib.name == "sys") return false
+      return true
+    }
     return false
   }
 
@@ -123,12 +144,21 @@ class RdfExporter : Exporter
 
   private This global(Spec x)
   {
-    if (x.isMarker) return globalMarker(x)
-    if (x.isRef || x.isMultiRef) return globalRef(x)
-    return globalProp(x)
+    prop(x)
   }
 
-  private This globalMarker(Spec x)
+  private This slot(Spec x)
+  {
+    prop(x)
+  }
+
+  private This prop(Spec x)
+  {
+    if (x.isMarker) return propMarker(x)
+    return propVal(x)
+  }
+
+  private This propMarker(Spec x)
   {
     qname(x.qname).nl
     w("  a sys:Marker ;").nl
@@ -137,33 +167,27 @@ class RdfExporter : Exporter
     return this
   }
 
-  private This globalRef(Spec x)
-  {
-    of := x.of(false)?.qname ?: "sys::Entity"
-    qname(x.qname).nl
-    w("  a owl:ObjectProperty ;").nl
-    labelAndDoc(x)
-    w("  rdfs:range ").qname(of).w(" ;").nl
-    w(".").nl
-    return this
-  }
-
-  private This globalProp(Spec x)
+  private This propVal(Spec x)
   {
     qname(x.qname).nl
-    w("  a owl:DatatypeProperty ;").nl
+    w("  a rdf:Property ;").nl
+    if (!x.base.isType)
+      w("  rdfs::subClassOf ").qname(x.base.qname).w("; ").nl
     labelAndDoc(x)
-    type := globalType(x.type)
+    type := globalType(x)
     if (type != null) w("  rdfs:range ").w(type).w(" ;").nl
     w(".").nl
     return this
   }
 
-  private Str? globalType(Spec type)
+  private Str? globalType(Spec x)
   {
+    type := x.type
     if (type.qname == "sys::Str") return "xsd:string"
     if (type.qname == "sys::Int") return "xsd:integer"
     if (type.isEnum) return qnameToUri(type.qname)
+    if (type.isChoice) return qnameToUri(type.qname)
+    if (type.isRef || type.isMultiRef) return x.of(false)?.qname ?: "sys::Entity"
     return null
   }
 
@@ -188,7 +212,7 @@ class RdfExporter : Exporter
            rdfs:subClassOf rdfs:Class ;
          .
          sys:hasMarker
-           a owl:ObjectProperty ;
+           a rdf:Property ;
            rdfs:label "Has Marker"@en ;
            rdfs:range sys:Marker ;
          .
@@ -208,7 +232,7 @@ class RdfExporter : Exporter
     if (id.toStr.startsWith("ph::filetype:")) return this
 
     spec := ns.specOf(instance)
-    dis := instance.dis
+    dis := instance.dis.trim
 
     markers := Str:Spec[:]
     refs    := Str:Spec[:]
@@ -218,8 +242,9 @@ class RdfExporter : Exporter
       if (n == "id") return
       if (n == "dis" || n == "disMacro") return
 
-      slot := ns.global(n, false)
+      slot := spec.slot(n, false) ?: ns.global(n, false)
       if (slot == null) return
+      if (slot.isChoice) return // handled below
 
       if (v == Marker.val) markers[n] = slot
       else if (v is Ref) refs[n] = slot
@@ -232,6 +257,7 @@ class RdfExporter : Exporter
     markers.keys.sort.each |n| { instanceMarker(instance, n, markers[n]) }
     refs.keys.sort.each |n| { instanceRef(instance, n, refs[n]) }
     vals.keys.sort.each |n| { instanceVal(instance, n, vals[n]) }
+    spec.slots.each |s| { if (s.isChoice) instanceChoice(instance, s) }
     w(".").nl
     return this
   }
@@ -253,6 +279,15 @@ class RdfExporter : Exporter
     val := instance[name]
     if (val == null) return
     w("  ").qname(slot.qname).w(" ").literal(val.toStr).w(" ;").nl
+  }
+
+  private Void instanceChoice(Dict instance, Spec slot)
+  {
+    selected := ns.choice(slot).selections(instance, false)
+    selected.each |x|
+    {
+      w("  ").qname(slot.qname).w(" ").qname(x.qname).w(" ;").nl
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
