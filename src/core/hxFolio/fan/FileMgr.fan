@@ -19,29 +19,5 @@ const class FileMgr : HxFolioMgr, FolioFile
 
   private const MFolioFile file
 
-  override Dict create(Dict rec, |OutStream| f)
-  {
-    file.create(rec, f)
-  }
-
-  override Obj? read(Ref id, |InStream->Obj?| f)
-  {
-    file.read(id, f)
-  }
-
-  override Void write(Ref id, |OutStream| f)
-  {
-    file.write(id, f)
-  }
-
-  override Void clear(Ref id)
-  {
-    file.clear(id)
-  }
-
-  ** Callback when the file rec with the given id is deleted from folio
-  @NoDoc Void onRemove(Ref id)
-  {
-    file.delete(id)
-  }
+  override File? get(Ref id, Bool checked := true) { file.get(id, checked) }
 }

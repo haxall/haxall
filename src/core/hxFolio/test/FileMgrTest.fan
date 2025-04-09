@@ -15,60 +15,51 @@ using folio
 **
 class FileMgrTest : WhiteboxTest
 {
+  static const Unit byte := Number.byte
+
   Void test()
   {
     open
 
     id := Ref("test-file")
-    byte := Number.byte
-    rec := Etc.makeDict([
+    rec := addRec([
       "id":   id,
       "mime": "text/plain",
       "spec": Ref("sys::File"),
     ])
 
-    // create
-    text := "this is a file!"
-    rec = folio.file.create(rec) |OutStream out| { out.writeChars(text) }
-    verifyEq(rec.id, id)
+    // init and force the file to be empty
+    file := folio.file.get(rec.id, false)
+    verifyNotNull(file)
+    file.delete
+    verifyFalse(file.exists)
+
+    // writes
+    verifyWrite(id, "this is a file!")
+    verifyWrite(id, "modified!")
+
+    // reading a deleted file throws IOErr
+    file.delete
+    verifyFalse(file.exists)
+    verifyErr(IOErr#) { file.withIn(null) |in| { in.readAllStr } }
+
+    // removing the rec also removes the backing file
+    file = verifyWrite(id, "now i'm gonna delete the rec")
+    folio.commit(Diff(folio.readById(id), null, Diff.remove))
+    folio.sync
+    verifyFalse(file.exists)
+    verifyNull(folio.file.get(id, false))
+  }
+
+  private File verifyWrite(Ref id, Str text)
+  {
+    file := folio.file.get(id)
+    file.withOut(null) |out| { out.writeChars(text) }
+    folio.sync
+    rec  := readById(id)
+    verify(file.exists)
     verifyEq(n(text.size, byte), rec["fileSize"])
-    verifyEq(text, folio.file.read(id) |in| { in.readAllStr })
-
-    // write
-    text = "modified!"
-    folio.file.write(id) |out| { out.writeChars(text) }
-    folio.sync
-    verifyEq(n(text.size, byte), folio.readById(id)["fileSize"])
-    verifyEq(text, folio.file.read(id) |in| { in.readAllStr })
-
-    // clear
-    folio.file.clear(id)
-    folio.sync
-    verifyEq(Number(0, byte), folio.readById(id)["fileSize"])
-    verifyEq("", folio.file.read(id) |in| { in.readAllStr })
-
-    // removing the rec deletes the file.
-    // making use of internal implementation details to verify this. see LocalFolioFile
-    filesDir := folio.dir.plus(`../files/`)
-    try
-    {
-      count := 0
-      text   = "delete me"
-      folio.file.write(id) |out| { out.writeChars(text) }
-      folio.sync
-      verifyEq(n(text.size, byte), folio.readById(id)["fileSize"])
-      verifyEq(text, folio.file.read(id) |in| { in.readAllStr })
-      filesDir.walk |f| { if (!f.isDir) ++count }
-      verify(count > 0)
-      folio.commit(Diff(folio.readById(id), null, Diff.remove))
-      folio.sync
-      count = 0
-      filesDir.walk |f| { if (!f.isDir) ++count }
-      verifyEq(0, count)
-    }
-    finally filesDir.delete
-
-    // reading a file that doesn't exist should be 0 bytes
-    verifyEq(0, folio.file.read(Ref("does-not-exist")) |in| { in.readAllBuf }->size)
+    verifyEq(text, file.withIn(null) |in| { in.readAllStr })
+    return file
   }
 }

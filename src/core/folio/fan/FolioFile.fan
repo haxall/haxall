@@ -6,58 +6,42 @@
 //  12 Dec 2024  Matthew Giannini Creation
 //
 
+using util
 using haystack
 
 **
-** FolioFile provides APIs associated with storing files in folio. Folio itself
-** only stores a rec with information about the file. Implementations will typically
-** store the actual file contents to the local filesystem or cloud.
+** FolioFile provides an API for storing file data associated with a rec
+** in Folio. Folio stores a rec that describes metadata about the file.
+** Implementations will typically store the actual file contents
+** to the local filesystem or cloud.
+**
+** Files stored in a FolioFile implementation have certain constraints. You
+** can only read and write them using `File.withIn` and `File.withOut` respectively.
+** You will get an `IOErr` if you attempt to use `File.in` or `File.out`. After a write
+** to a file, the corresponding rec in Folio will asynchronously be updated to add
+** the 'fileSize' tag (size in bytes).
+**
+** `File.exists` will only return 'true' if the backing file exists; that is, it
+** has been written to. `File.delete` will delete the backing file, but will not
+** delete the corresponding rec in Folio.
+**
+** When a file rec is removed from Folio, it's backing file is also removed from the
+** backing store.
 **
 @NoDoc
 const mixin FolioFile
 {
-  ** Create a new file in folio. The callback will be invoked with an
-  ** `OutStream` that can be used to write contents to the file. The new folio
-  ** rec for this file is returned.
+  ** Get the backing [file]`File` for the rec with the given id. If there is
+  ** no rec with the given id, through an error if checked, or return null.
   **
-  ** pre>
-  ** rec := Etc.makeDict(["spec":"File"])
-  ** rec = folio.file.create(rec) |out| { out.writeChars("Hello, FolioFile!") }
-  ** <pre
-  abstract Dict create(Dict rec, |OutStream| f)
-
-  ** Reads the file with the given id. The callback will be invoked with
-  ** an `InStream` that can be used to read the file. The result of the callback
-  ** is returned.
-  **
-  ** pre>
-  ** contents := folio.file.read(rec.id) |in| { in.readAllStr }
-  ** <pre
-  abstract Obj? read(Ref id, |InStream->Obj?| f)
-
-  ** Write to an existing file with the given id. The callback will be invoked
-  ** with an 'OutStream' that can be used to write contents to the file. The existing
-  ** file will be overwritten.
-  **
-  ** It is an error to call this method for a file id that has not been created yet.
-  **
-  ** pre>
-  ** folio.file.write(rec.id) |out| { out.writeChars("new content") }
-  ** <pre
-  abstract Void write(Ref id, |OutStream| f)
-
-  ** Clear the contents of the file with the given id (make it 0-bytes).
-  abstract Void clear(Ref id)
+  ** See `FolioFile` for more details about working with the backing file.
+  abstract File? get(Ref id, Bool checked := true)
 }
 
 **************************************************************************
 ** MFolioFile
 **************************************************************************
 
-**
-** Base class for implementations of `FolioFile`. There is additional internal
-** API needed by implementations that should not be exposed in the public API.
-**
 @NoDoc
 const abstract class MFolioFile : FolioFile
 {
@@ -69,30 +53,34 @@ const abstract class MFolioFile : FolioFile
   ** Folio instance
   const Folio folio
 
-  ** Delete the file from storage. This is low-level I/O operation only
-  ** and will not make any changes to folio recs.
-  abstract Void delete(Ref id)
-
-  ** Utility to ensure the rec is properly tagged during create. Returns
-  ** the updated rec with updated tags.
-  protected Dict createRec(Dict rec)
-  {
-    // get the id
-    id := rec.get("id") ?: Ref.gen
-
-    // sanity check that a rec doesn't already exist
-    if (folio.readById(id, false) != null) throw ArgErr("Rec with id '${id}' already exists")
-
-    // create the folio rec
-    rec = Etc.dictRemove(rec, "id")
-    if (rec["spec"] isnot Ref) rec = Etc.dictSet(rec, "spec", Ref("sys::File"))
-    rec = folio.commit(Diff.makeAdd(rec, id)).newRec
-
-    return rec
-  }
-
   ** Utility to normalize the ref for consistency
   protected static Ref norm(Ref id) { id.toProjRel }
+
+  override File? get(Ref id, Bool checked := true)
+  {
+    id = norm(id)
+
+    // lookup rec
+    rec  := folio.readById(id, false)
+    if (rec == null) return onErr(id, checked, "Folio rec not found")
+
+    // should we build one ourselves?
+    // // check spec
+    // spec := rec.get("spec") as Ref
+    // if (spec == null) return onErr(id, checked, "Folio rec is missing spec")
+
+    return toFile(id)
+  }
+
+  ** Sub-class hook to make a file instance for the rec with this id.
+  protected abstract File toFile(Ref id)
+
+  ** Handle checked errors
+  protected File? onErr(Ref id, Bool checked, Str msg)
+  {
+    if (checked) throw Err("${msg}: ${id}")
+    return null
+  }
 }
 
 **************************************************************************
@@ -114,92 +102,273 @@ const class LocalFolioFile : MFolioFile
     this.dir = folio.dir.plus(`../files/`)
   }
 
+  ** Root directory for storing files
   const File dir
 
-  override Dict create(Dict rec, |OutStream| f)
+  protected override File toFile(Ref id)
   {
-    // ensure initial rec is properly created
-    rec = createRec(rec)
+    LocalRecFile(this, id)
+  }
+}
 
-    // write the file
-    doWrite(rec.id, f)
+**************************************************************************
+** RecFile
+**************************************************************************
 
-    // now update the file size
-    rec = ((Diff)commitFileSizeAsync(rec).get(30sec)->first).newRec
-
-    // return rec with computed file size
-    return rec
+** Utility base class for a rec file.
+@NoDoc
+const abstract class RecFile : SyntheticFile
+{
+  ** Make a RecFile for the rec with this id. It is assumed that
+  ** the id is already fully normalized.
+  new make(Folio folio, Ref id) : super(`${id}`)
+  {
+    this.folio = folio
+    this.id    = id
   }
 
-  override Void write(Ref id, |OutStream| f)
+  protected const Folio folio
+  const Ref id
+  Dict? rec(Bool checked := true) { folio.readById(id, checked) }
+
+  ** Sub-types must provide an implementation that adheres to FolioFile semantics
+  override abstract Bool exists()
+
+  ** The default implementation gets the 'fileSize' from the folio rec if it is set
+  override Int? size()
   {
-    // do a read to ensure there is a file rec
-    rec := folio.readById(id)
-
-    // then we can write it
-    doWrite(id, f)
-
-    // commit the change to fileSize async
-    commitFileSizeAsync(rec)
+    (rec(false)?.get("fileSize") as Number)?.toInt
   }
 
-  private Void doWrite(Ref id, |OutStream| f)
+  ** The default implementation gets the 'mod' from the folio rec
+  override DateTime? modified
   {
-    out := localFile(id).out
-    try
-      f(out)
-    finally
-      out.close
+    get { rec(false)?.get("mod") as DateTime }
+    set { }
   }
 
-  override Obj? read(Ref id, |InStream->Obj?| f)
+  final override File plus(Uri uri, Bool checkSlash := true)
   {
-    // the file must exist
-    file := localFile(id)
+    // always return a non-existent file if this is used
+    SyntheticFile(this.uri.plus(uri))
+  }
 
-    // if file doesn't exist use 0-byte input stream
-    in := file.exists ? file.in : Buf(0).in
+  override File create()
+  {
+    if (!exists) withIn(null) |in| { null }
+    return this
+  }
+
+  final override Void delete()
+  {
+    onDelete
+    commitFileSizeAsync(0)
+  }
+
+  ** sub-class hook to handle backing file deletion.
+  protected abstract Void onDelete()
+
+  final override Obj? withIn([Str:Obj]? opts, |InStream->Obj?| f)
+  {
+    // we need to override this so that we can route to an internal method
+    // of getting an input stream
+    bufSize := 4096
+    if (opts != null)
+    {
+      bufSize = opts.get("bufSize", bufSize)
+    }
+    in := this.makeInStream(bufSize, opts)
     try
       return f(in)
     finally
       in.close
   }
 
-  override Void clear(Ref id)
+  final override Void withOut([Str:Obj]? opts, |OutStream| f)
   {
-    // delete the file with the given id in order to "clear" it
-    // this works because a read on a non-existent file is 0-byte result
-    this.delete(id)
+    // we need to override this so that we can route to an internal method
+    // of getting an output stream
+    append  := false
+    bufSize := 4096
+    if (opts != null)
+    {
+      append  = opts.get("append", append)
+      bufSize = opts.get("bufSize", bufSize)
+    }
+
+    // read the rec to ensure it exists
+    out := this.makeOutStream(append, bufSize, opts)
+    try
+      f(out)
+    finally
+      out.close
 
     // update the file size
-    rec := folio.readById(id, false)
-    if (rec != null) commitFileSizeAsync(rec)
+    size := append ? (this.size ?: 0) : 0
+    size += out.bytesWritten
+    commitFileSizeAsync(size)
   }
 
-  ** Delete the file on disk
-  override Void delete(Ref id)
+  protected FolioFuture? commitFileSizeAsync(Int bytes)
   {
-    localFile(id).delete
+    rec  := this.rec(false)
+    if (rec == null) return null
+
+    diff := Diff(rec, ["fileSize": Number(bytes, Number.byte)], Diff.bypassRestricted)
+    return folio.commitAsync(diff)
   }
 
-  ** Utility to compute the file size and commit it to the rec async
-  private FolioFuture commitFileSizeAsync(Dict rec)
+  ** sub-class hook to get the internal InStream to use for reading since File.in
+  ** is not allowed for rec files
+  protected abstract InStream makeInStream(Int bufferSize, [Str:Obj]? opts)
+
+  ** sub-class hook to get the internal OutStream to sue for writing since File.out
+  ** is not allowed for rec files
+  protected abstract ChunkedOutStream makeOutStream(Bool append, Int bufferSize, [Str:Obj]? opts)
+}
+
+**************************************************************************
+** LocalRecFile
+**************************************************************************
+
+internal const class LocalRecFile : RecFile
+{
+  new make(LocalFolioFile folioFile, Ref id) : super(folioFile.folio, id)
   {
-    folio.commitAsync(Diff(rec, ["fileSize": fileSize(rec.id)], Diff.bypassRestricted))
+    this.localFile = folioFile.dir.plus(`b${id.hash.abs %1024}/${id}`)
   }
 
-  ** Get the local file for this id
-  private File localFile(Ref id)
+  private const File localFile
+
+  override Bool exists()
   {
-    // always use normalized id
-    id = norm(id)
-    return dir.plus(`b${(id.hash.abs % 1024)}/${id}`)
+    localFile.exists
   }
 
-  ** Get the file size as a Number
-  private Number? fileSize(Ref id)
+  override DateTime? modified
   {
-    size := localFile(id).size
-    return size == null ? null : Number(size, Number.byte)
+    get { localFile.modified }
+    set { }
+  }
+
+  override Void onDelete()
+  {
+    localFile.delete
+  }
+
+  override InStream makeInStream(Int bufferSize, [Str:Obj]? opts)
+  {
+    localFile.in(bufferSize)
+  }
+
+  override ChunkedOutStream makeOutStream(Bool append, Int bufferSize, [Str:Obj]? opts)
+  {
+    ChunkedOutStream(localFile.out(append, bufferSize))
+  }
+}
+
+**************************************************************************
+** ChunkedOutStream
+**************************************************************************
+
+** ChunkedOutStream buffers up writes in-memory to a certain chunk size before
+** flushing them to output. This allows us to track important stats about the
+** output - notably the number of bytes and chunks written.
+**
+** If constructed with a non-null OutputStream, all chunks will be written to that
+** output stream. However, we manage that instead of delegating that responsibility to
+** the OutStream base class. We need to do this because OutStream will not route
+** all write operations through write or writeBuf if a wrapped OutStream is supplied.
+@NoDoc
+class ChunkedOutStream : OutStream
+{
+  new make(OutStream? out, [Str:Obj?] opts := [:]) : super(null)
+  {
+    this.out       = out
+    this.chunkSize = opts["chunkSize"] ?: (5 * 1024 * 1024)
+    this.chunk     = Buf(chunkSize)
+  }
+
+  ** We internally handle writes to the wrapped out stream
+  protected OutStream? out { private set }
+
+  ** Number of bytes written by this output stream
+  Int bytesWritten := 0 { private set }
+
+  Int chunksWritten := 0 { private set }
+
+  ** How large of a chunk to hold in memory before flushing to the output stream
+  private const Int chunkSize
+
+  ** The chunk
+  private Buf chunk
+
+  ** How much room is left in the current chunk
+  private Int chunkRoom() { chunk.size - chunkSize }
+
+  final override This write(Int byte)
+  {
+    chunk.write(byte)
+    return flushIfNeeded
+  }
+
+  final override This writeBuf(Buf buf, Int n := buf.remaining)
+  {
+    while (n > 0)
+    {
+      num := chunkRoom.min(n)
+      buf.readBufFully(chunk, num)
+      n -= num
+      flushIfNeeded
+    }
+    return this
+  }
+
+  ** Only flushes a full chunk
+  private This flushIfNeeded()
+  {
+    chunk.size == chunkSize ? flushChunk : this
+  }
+
+  private This flushChunk()
+  {
+    // sanity check
+    if (chunk.size > chunkSize) throw IOErr("Chunk grew!")
+    if (chunk.isEmpty) return this
+
+    // remember chunk size because it gets cleared
+    bytes := chunk.size
+    writeChunk(chunk.seek(0))
+
+    // update state
+    bytesWritten += bytes
+    chunksWritten++
+    chunk.clear
+
+    return this
+  }
+
+  ** Must be overridden to write the chunk if a wrapped output stream was
+  ** not supplied in the constructor.
+  protected virtual Void writeChunk(Buf chunk)
+  {
+    if (out == null) throw IOErr("Not constructed with a wrapped OutStream")
+    out.writeBuf(chunk).flush
+  }
+
+  ** Flushes any partial chunk and closes the stream (and any wrapped stream)
+  override Bool close()
+  {
+    try
+    {
+      flushChunk
+      this.out?.close
+    }
+    catch (Err err)
+    {
+      err.trace
+      return false
+    }
+    return true
   }
 }

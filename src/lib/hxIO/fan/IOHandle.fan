@@ -332,12 +332,12 @@ internal class FolioFileHandle : IOHandle
 
   override Obj? withIn(|InStream->Obj?| f)
   {
-    folio.file.read(rec.id, f)
+    folio.file.get(rec.id).withIn(null, f)
   }
 
   override Obj? withOut(|OutStream| f)
   {
-    folio.file.write(rec.id, f)
+    folio.file.get(rec.id).withOut(null, f)
     return null
   }
 }
