@@ -130,7 +130,7 @@ class RdfExporter : Exporter
   {
     x.enum.each |item, key|
     {
-      uri := qnameToUri(x.qname) + "-" + item.name
+      uri := enumItemUri(item)
       w(uri).nl
       w("  a sys:Class ;").nl
       w("  a ").w(uri).w(" ;").nl
@@ -140,6 +140,11 @@ class RdfExporter : Exporter
       w(".").nl
     }
     return this
+  }
+
+  private Str enumItemUri(Spec item)
+  {
+    qnameToUri(item.qname)
   }
 
   private This global(Spec x)
@@ -236,6 +241,7 @@ class RdfExporter : Exporter
 
     markers := Str:Spec[:]
     refs    := Str:Spec[:]
+    enums   := Str:Spec[:]
     vals    := Str:Spec[:]
     instance.each |v, n|
     {
@@ -246,8 +252,10 @@ class RdfExporter : Exporter
       if (slot == null) return
       if (slot.isChoice) return // handled below
 
-      if (v == Marker.val) markers[n] = slot
-      else if (v is Ref) refs[n] = slot
+      type := slot.type
+      if (v == Marker.val)  markers[n] = slot
+      else if (v is Ref)    refs[n] = slot
+      else if (type.isEnum) enums[n] = slot
       else vals[n] = slot
     }
 
@@ -255,8 +263,9 @@ class RdfExporter : Exporter
     w("  rdf:type ").qname(spec.qname).w(" ;").nl
     w("  rdfs:label ").literal(dis).w(" ;").nl
     markers.keys.sort.each |n| { instanceMarker(instance, n, markers[n]) }
-    refs.keys.sort.each |n| { instanceRef(instance, n, refs[n]) }
-    vals.keys.sort.each |n| { instanceVal(instance, n, vals[n]) }
+    refs.keys.sort.each  |n| { instanceRef(instance, n, refs[n]) }
+    enums.keys.sort.each |n| { instanceEnum(instance, n, enums[n]) }
+    vals.keys.sort.each  |n| { instanceVal(instance, n, vals[n]) }
     spec.slots.each |s| { if (s.isChoice) instanceChoice(instance, s) }
     w(".").nl
     return this
@@ -272,6 +281,15 @@ class RdfExporter : Exporter
     ref := instance[name]
     if (ref == null) return
     w("  ").qname(slot.qname).w(" ").id(ref).w(" ;").nl
+  }
+
+  private Void instanceEnum(Dict instance, Str name, Spec slot)
+  {
+    key := instance[name]?.toStr
+    if (key == null) return
+    item := slot.type.enum.spec(key, false)
+    if (item == null) return
+    w("  ").qname(slot.qname).w(" ").w(enumItemUri(item)).w(" ;").nl
   }
 
   private Void instanceVal(Dict instance, Str name, Spec slot)
