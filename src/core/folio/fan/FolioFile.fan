@@ -155,7 +155,7 @@ const abstract class RecFile : SyntheticFile
 
   override File create()
   {
-    if (!exists) withIn(null) |in| { null }
+    if (!exists) withOut(null) |out| { }
     return this
   }
 
