@@ -304,7 +304,7 @@ class ChunkedOutStream : OutStream
   private Buf chunk
 
   ** How much room is left in the current chunk
-  private Int chunkRoom() { chunk.size - chunkSize }
+  private Int chunkRoom() { chunkSize - chunk.size }
 
   final override This write(Int byte)
   {
