@@ -54,7 +54,12 @@ const abstract class MFolioFile : FolioFile
   const Folio folio
 
   ** Utility to normalize the ref for consistency
-  protected static Ref norm(Ref id) { id.toProjRel }
+  protected static Ref norm(Ref id)
+  {
+    id = id.toProjRel
+    id = Ref(Etc.toFileName(id.id))
+    return id
+  }
 
   override File? get(Ref id, Bool checked := true)
   {
