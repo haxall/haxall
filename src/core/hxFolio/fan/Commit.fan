@@ -262,7 +262,7 @@ internal class Commit
     dict := rec.persistent
 
     // remove file
-    if (isFile(dict)) folio.file.get(dict.id, false)?.delete
+    folio.file.get(dict.id, false)?.delete
 
     // clear Ref.dis
     rec.id.disVal = null
@@ -273,9 +273,6 @@ internal class Commit
     // update dis strings
     folio.disMgr.updateAll
   }
-
-  ** Chokepoint to determine if a rec is a file
-  static Bool isFile(Dict d) { true }
 
 //////////////////////////////////////////////////////////////////////////
 // Field

@@ -8,6 +8,9 @@
 
 using util
 using haystack
+using haystack::Ref
+using haystack::Dict
+using xeto
 
 **
 ** FolioFile provides an API for storing file data associated with a rec
@@ -69,13 +72,16 @@ const abstract class MFolioFile : FolioFile
     rec  := folio.readById(id, false)
     if (rec == null) return onErr(id, checked, "Folio rec not found")
 
-    // should we build one ourselves?
-    // // check spec
-    // spec := rec.get("spec") as Ref
-    // if (spec == null) return onErr(id, checked, "Folio rec is missing spec")
+    // check spec
+    spec := rec.get("spec") as Ref
+    if (spec == null) return onErr(id, checked, "Folio rec is missing spec")
+    if (!xeto.spec(spec.id).isa(xeto.spec("sys::File"))) return onErr(id, checked, "Folior rec is not Xeto sys::File")
 
     return toFile(id)
   }
+
+  ** Get the xeto namespace
+  LibNamespace xeto() { LibNamespace.system }
 
   ** Sub-class hook to make a file instance for the rec with this id.
   protected abstract File toFile(Ref id)
