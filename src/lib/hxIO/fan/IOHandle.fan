@@ -281,7 +281,7 @@ internal class BufHandle : DirectIO
 ** FileHandle
 **************************************************************************
 
-internal class FileHandle : DirectIO
+internal class FileHandle : IOHandle
 {
   new make(File file)
   {
@@ -297,9 +297,17 @@ internal class FileHandle : DirectIO
   const Bool append
   override File toFile(Str func) { file }
   override IOHandle toAppend() { makeAppend(file) }
-  override InStream in() { file.in }
-  override OutStream out() { file.out(append) }
-  override Obj? withOutResult() { Etc.makeDict(["size":Number.makeInt(file.size ?: 0)]) }
+  override Obj? withIn(|InStream->Obj?| f)
+  {
+    file.withIn(null, f)
+  }
+  override Obj? withOut(|OutStream| f)
+  {
+    [Str:Obj]?  opts := null
+    if (append) opts = ["append": true]
+    file.withOut(opts, f)
+    return Etc.makeDict(["size":Number.makeInt(file.size ?: 0)])
+  }
   override DirItem[] dir()
   {
     kids := file.list
