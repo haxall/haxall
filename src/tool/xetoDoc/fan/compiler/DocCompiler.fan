@@ -93,7 +93,8 @@ class DocCompiler
       }
       t2 := Duration.now
       duration = t2 - t1
-      //info("Compiled xeto docs ${duration.toLocale} [$outDir.osPath]")
+      if (outDir != null)
+        info("Compiled docs $numFiles files in ${duration.toLocale} [$outDir.osPath]")
       return this
     }
     catch (XetoCompilerErr e)
@@ -175,6 +176,7 @@ class DocCompiler
   Duration? duration                  // run
   [Str:PageEntry]? pages              // StubPages
   File[] files := [,]                 // WriteJson if generating in-mem
+  Int numFiles                        // WriteJson if generating to outDir
   private Str[] autoNames := [,]      // autoName
 }
 

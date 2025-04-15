@@ -18,8 +18,11 @@ using haystack
 **
 internal abstract class SrcLibCmd : XetoCmd
 {
-  @Opt { help = "All source libs in working dir" }
+  @Opt { help = "All source libs in repo" }
   Bool all
+
+  @Opt { help = "All source libs under working directory (default)" }
+  Bool allWork
 
   @Opt { help = "All source libs under given directory" }
   File? allIn
@@ -35,24 +38,27 @@ internal abstract class SrcLibCmd : XetoCmd
   {
     repo := LibRepo.cur
 
-    // no flags defaults to all
+    // no flags defaults to allWork
     if (libs == null && allIn == null)
-      all = true
+      allWork = true
 
-    // all flag uses all in working dir
-    if (all) allIn = Env.cur.workDir
+    if (allWork) allIn = Env.cur.workDir
 
-    // allIn diectory
-    if (allIn != null)
+    // all or allIn diectory
+    if (all || allIn != null)
     {
       vers := LibVersion[,]
-      inOsPath := allIn.normalize.pathStr
+      inOsPath := allIn?.normalize?.pathStr
       repo.libs.each |libName|
       {
         ver := repo.latest(libName, false)
-        if (ver == null) return ver
+        if (ver == null) return null
+
         f := ver.file(false)
-        if (f != null && ver.isSrc && f.normalize.pathStr.startsWith(inOsPath))
+        if (f == null) return
+        if (!ver.isSrc) return
+
+        if (all || f.normalize.pathStr.startsWith(inOsPath))
           vers.add(ver)
       }
 
