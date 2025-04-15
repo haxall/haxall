@@ -34,8 +34,9 @@ using xeto
 @NoDoc
 const mixin FolioFile
 {
-  ** Get the backing [file]`File` for the rec with the given id. If there is
-  ** no rec with the given id, through an error if checked, or return null.
+  ** Get the backing [file]`File` for the rec with the given id. If 'checked'
+  ** is true, throw an error if the rec doesn't exist in folio, or if the rec
+  ** is not a xeto 'sys::File'. Otherwise, return null.
   **
   ** See `FolioFile` for more details about working with the backing file.
   abstract File? get(Ref id, Bool checked := true)
@@ -72,10 +73,16 @@ const abstract class MFolioFile : FolioFile
     rec  := folio.readById(id, false)
     if (rec == null) return onErr(id, checked, "Folio rec not found")
 
-    // check spec
-    spec := rec.get("spec") as Ref
-    if (spec == null) return onErr(id, checked, "Folio rec is missing spec")
-    if (!xeto.spec(spec.id).isa(xeto.spec("sys::File"))) return onErr(id, checked, "Folior rec is not Xeto sys::File")
+    // check rec has spec tag
+    specRef := rec.get("spec") as Ref
+    if (specRef == null) return onErr(id, checked, "Missing 'spec' tag")
+
+    // lookup the spec
+    spec := xeto.spec(specRef.id, false)
+    if (spec == null) return onErr(id, checked, "Spec '${specRef}' not found")
+
+    // check if it is a xeto file
+    if (!spec.isa(xeto.spec("sys::File"))) return onErr(id, checked, "Spec ${spec} is not a sys::File")
 
     return toFile(id)
   }
