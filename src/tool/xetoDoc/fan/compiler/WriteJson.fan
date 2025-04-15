@@ -43,6 +43,7 @@ internal class WriteJson : Step
   {
     file := compiler.outDir + entry.uriJson.relTo(`/`)
     file.out.print(json).close
+    compiler.numFiles++
   }
 }
 
