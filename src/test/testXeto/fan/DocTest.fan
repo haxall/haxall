@@ -91,6 +91,25 @@ class DocTest : AbstractXetoTest
     entry = compiler.pages.getChecked("doc.xeto::Namespaces")
     verifyChapter(entry.page)
     verifyChapter(roundtrip(entry))
+
+    // tags
+    verifySame(DocTag("lib"), DocTags.lib)
+    verifySame(DocTag("type"), DocTags.type)
+    verifyEq(DocTag("foobar").name, "foobar")
+
+    // search
+    search := DocSearch { it.pattern = "q"; it.hits = [
+      DocSummary(DocLink(`/foo`, "Foo"), DocMarkdown("summary"), [DocTags.chapter, DocTags.lib]),
+      DocSummary(DocLink(`/bar`, "Bar"), DocMarkdown("here")),
+    ]}
+    search = roundtripMem(search)
+    // echo(JsonOutStream.prettyPrintToStr(search.encode))
+    verifyEq(search.pattern, "q")
+    verifyEq(search.hits.size, 2)
+    verifyEq(search.hits[0].tags.size, 2)
+    verifyEq(search.hits[1].tags.size, 0)
+    verifySame(search.hits[0].tags[0], DocTags.chapter)
+    verifySame(search.hits[0].tags[1], DocTags.lib)
   }
 
   DocPage roundtrip(PageEntry entry)
@@ -99,6 +118,14 @@ class DocTest : AbstractXetoTest
     json := file.readAllStr
     // echo("\n#### rountrip $entry.uri\n$json")
     obj  := JsonInStream(json.in).readJson
+    return DocPage.decode(obj)
+  }
+
+  DocPage roundtripMem(DocPage p)
+  {
+    buf := StrBuf()
+    JsonOutStream(buf.out).writeJson(p.encode)
+    obj := JsonInStream(buf.toStr.in).readJson
     return DocPage.decode(obj)
   }
 

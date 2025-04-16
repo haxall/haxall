@@ -13,10 +13,11 @@
 const class DocSummary
 {
   ** Constructor
-  new make(DocLink link, DocMarkdown text, DocTypeRef? type := null)
+  new make(DocLink link, DocMarkdown text, DocTag[]? tags := null, DocTypeRef? type := null)
   {
     this.link = link
     this.text = text
+    this.tags = tags ?: DocTag#.emptyList
     this.type = type
   }
 
@@ -25,6 +26,9 @@ const class DocSummary
 
   ** Formatted summary text
   const DocMarkdown text
+
+  ** Tags to annotate this summary
+  const DocTag[] tags
 
   ** Optional type ref used for some summaries (such as globals)
   const DocTypeRef? type
@@ -46,6 +50,7 @@ const class DocSummary
     obj.ordered = true
     obj["link"] = link.encode
     obj["text"] = text.encode
+    obj.addNotNull("tags", DocTag.encodeList(tags))
     obj.addNotNull("type", type?.encode)
     return obj
   }
@@ -62,8 +67,9 @@ const class DocSummary
   {
     link := DocLink.decode(obj.getChecked("link"))
     text := DocMarkdown.decode(obj.getChecked("text"))
+    tags := DocTag.decodeList(obj.get("tags"))
     type := DocTypeRef.decode(obj.get("type"))
-    return make(link, text, type)
+    return make(link, text, tags, type)
   }
 
 }
