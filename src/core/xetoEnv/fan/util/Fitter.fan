@@ -145,17 +145,20 @@ internal class Fitter
     slots := type.slots
     if (type.isChoice && slots.isEmpty) return false
 
-
     matchFail := false  // did we have any failed matches
-    matchSucc := false  // did we have any success matches
+    matchSucc := 0      // num of success matches
+    matchId   := false
     slots.each |slot|
     {
       match := fitsSlot(dict, slot)
       if (match == null) return // null means we just skipped optional slot
-      if (match) matchSucc = true
+      if (match) { matchSucc++; if (slot.name == "id") matchId = true }
       else matchFail = true
       if (failFast && matchFail) return false
     }
+
+    // we don't consider only Entity.id a valid match
+    if (matchSucc == 1 && matchId) matchSucc = 0
 
     // check values that don't have slot defs
     dict.each |v, n|
@@ -183,7 +186,7 @@ internal class Fitter
     if (matchFail) return false
 
     // must have at least one success unless type is sys::Dict itself
-    return matchSucc || type === ns.sys.dict
+    return matchSucc > 0 || type === ns.sys.dict
   }
 
   private Bool? fitsSlot(Dict dict, Spec slot)

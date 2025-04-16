@@ -58,6 +58,7 @@ const mixin LibNamespace
     ["sys",
       "sys.api",
       "sys.comp",
+      "sys.files",
       "axon",
       "hx.api",
       "ion",
