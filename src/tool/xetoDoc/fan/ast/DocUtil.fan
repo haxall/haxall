@@ -16,18 +16,16 @@ using haystack::Ref
 @Js
 const class DocUtil
 {
-  ** Convert normalized doc URI to view id
-  static Ref viewUriToRef(Uri uri)
+  ** Convert normalized doc URI to Ref
+  static Ref uriToRef(Uri uri)
   {
     Ref(uri.toStr[1..-1].replace("/", "::"))
   }
 
-  ** Convert view id to normalized doc URI
-  static Uri viewRefToUri(Str base, Ref id)
+  ** Convert Ref to normalized doc URI
+  static Uri refToUri(Ref id)
   {
-    s := StrBuf()
-    s.add(base)
-    if (!base.endsWith("/")) s.add("/")
+    s := StrBuf().add("/")
     str := id.id
     colons := str.index("::")
     if (colons == null)
