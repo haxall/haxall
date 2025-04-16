@@ -109,7 +109,7 @@ internal class CompFactory
 
     // first fill in with default slot values, merge in init slots
     slots := ns.instantiate(spec)
-    slots = Etc.dictMerge(slots, init?.slots)
+    slots = mergeSlots(slots, init?.slots)
     children = initSlots(spec, acc, children, slots)
 
     // reify functions that map to methods
@@ -131,6 +131,17 @@ internal class CompFactory
     }
 
     return spi
+  }
+
+  ** Do ordered slot merge
+  private Dict mergeSlots(Dict slots, Dict? init)
+  {
+    if (init == null) return slots
+    acc := Str:Obj[:]
+    acc.ordered = true
+    slots.each |v, n| { acc[n] = v }
+    init.each |v, n| { acc[n] = v }
+    return Etc.dictFromMap(acc)
   }
 
   private [Str:Comp]? initSlots(Spec spec, Str:Obj acc, [Str:Comp]? children, Dict slots)
