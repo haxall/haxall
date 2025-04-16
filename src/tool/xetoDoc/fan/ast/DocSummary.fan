@@ -26,7 +26,7 @@ const class DocSummary
   ** Formatted summary text
   const DocMarkdown text
 
-  ** Optional type ref used for some summaries (such as globals)s
+  ** Optional type ref used for some summaries (such as globals)
   const DocTypeRef? type
 
   ** Debug string
