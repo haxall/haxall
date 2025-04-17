@@ -32,6 +32,7 @@ const mixin DocPage
     pageType := DocPageType.fromStr(obj.getChecked("page"))
     switch (pageType)
     {
+      case DocPageType.index:    return DocIndex.doDecode(obj)
       case DocPageType.lib:      return DocLib.doDecode(obj)
       case DocPageType.type:     return DocType.doDecode(obj)
       case DocPageType.global:   return DocGlobal.doDecode(obj)
@@ -59,6 +60,7 @@ const mixin DocPage
 @Js
 enum class DocPageType
 {
+  index,
   lib,
   type,
   global,
