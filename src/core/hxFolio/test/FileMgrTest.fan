@@ -24,8 +24,7 @@ class FileMgrTest : WhiteboxTest
     id := Ref("test-file")
     rec := addRec([
       "id":   id,
-      "mime": "text/plain",
-      "spec": Ref("sys::File"),
+      "spec": Ref("sys.files::PlainTextFile"),
     ])
 
     // init and force the file to be empty
