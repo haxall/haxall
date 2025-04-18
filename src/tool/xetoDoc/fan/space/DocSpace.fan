@@ -6,6 +6,7 @@
 //   17 Apr 2025  Brian Frank  Creation
 //
 
+using web
 using xeto
 using haystack
 using haystack::Dict
@@ -16,63 +17,73 @@ using haystack::Dict
 **
 const mixin DocSpace
 {
-  ** Get the index page
-  abstract DocIndex index()
+  ** Resolve doc page file in this space.
+  **
+  ** Standard URIs which must be handled:
+  **   - /index: top level index
+  **   - /{lib}/index: library level index
+  **   - /{lib}/{doc}: spec and instance level pages
+  **   - /search?q={pattern}: search
+  abstract DocFile? resolve(Uri uri, Bool checked := true)
 
   ** Search the given pattern and return search page
-  abstract DocSearch search(Str pattern, Dict opts)
+  abstract DocFile search(Str pattern, Dict opts)
 }
 
 **************************************************************************
-** DocSearchIndexer
+** FileDocSpace
 **************************************************************************
 
 **
-** DocSearchCrawler is used to crawl the AST and generate callbacks
-** that be used to build a text index on the documentation
+** Implementation of DocSpace that resolves URIs to the local
+** file system of pre-compiled JSON files.  Search is not supported.
 **
-/* TODO
-@Js
-mixin DocSearchIndexer
+const class FileDocSpace : DocSpace
 {
-  ** Start indexing of a unique documentation or doc section
-  virtual Void startDoc(DocSummary summary) { echo("\n--- $summary") }
-
-  ** Index given text for current document
-  virtual Void add(DocSearchIndexMode mode, Str text) { echo("$mode $text") }
-
-  ** End indexing the current document
-  virtual Void endDoc() { echo("---") }
-}
-
-**************************************************************************
-** DocSearchIndexMode
-**************************************************************************
-
-**
-** DocSearchIndexMode is used to indicate how to index text
-**
-@Js
-const class DocSearchIndexMode
-{
-  static const DocSearchIndexMode qname := make(0.9f, true)
-
-  ** Constructor
-  new make(Float w, Bool u) {weight = w; unscanned = u}
-
-  ** Weight from 0.0 to 1.0
-  const Float weight := 0.2f
-
-  ** Do not scan the text, rather index it raw (like a qname)
-  const Bool unscanned
-
-  ** Debug string
-  override Str toStr()
+  ** Construt with root dir that contains lib directories
+  new make(File dir)
   {
-    s := weight.toStr
-    if (unscanned) s += " unscanned"
-    return s
+    this.dir = dir
+    this.dirNormPath = dir.normalize.pathStr
+  }
+
+  ** Root directory
+  const File dir
+
+  const Str dirNormPath
+
+  ** Resolve uri to a doc file ending in ".json"
+  override DocFile? resolve(Uri uri, Bool checked := true)
+  {
+    // extract two level path
+    libName := uri.path.getSafe(0) ?: "_not_found_"
+    docName := uri.path.getSafe(1)
+
+    // special handling for search
+    if (libName == "search")
+      return search(uri.queryStr ?: "", Etc.dict0)
+
+    // build file path under dir
+    path := docName == null ? "${libName}.json" : "${libName}/${docName}.json"
+
+    // resolve to file
+    file := dir + path.toUri
+    if (file.exists && !file.isDir && file.normalize.pathStr.startsWith(dirNormPath))
+      return DocDiskFile(uri, file)
+
+    // no joy
+    if (checked) throw UnresolvedErr(uri.toStr)
+    return null
+  }
+
+  ** Return unsupported page
+  override DocFile search(Str pattern, Dict opts)
+  {
+    page := DocSearch {
+      it.pattern = pattern
+      it.hits = [DocSummary(DocLink(`sys/index`, "Not Avail"), DocMarkdown("Doc search unavailable"))]
+    }
+    return DocMemFile(page)
   }
 }
-*/
 

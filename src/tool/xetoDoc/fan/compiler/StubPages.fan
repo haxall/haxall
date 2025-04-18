@@ -17,8 +17,10 @@ internal class StubPages: Step
 {
   override Void run()
   {
+    add(PageEntry.makeIndex)
     compiler.libs.each |lib| { stubLib(lib) }
     compiler.pages = byKey
+    compiler.libPages = libPages
   }
 
   Void stubLib(Lib lib)
@@ -69,9 +71,11 @@ internal class StubPages: Step
     // verify no duplicates by key nor by uri
     byKey.add(entry.key, entry)
     byUri.add(entry.uri, entry)
+    if (entry.pageType === DocPageType.lib) libPages.add(entry)
   }
 
   Str:PageEntry byKey := [:]
   Uri:PageEntry byUri := [:]
+  PageEntry[] libPages := [,]
 }
 

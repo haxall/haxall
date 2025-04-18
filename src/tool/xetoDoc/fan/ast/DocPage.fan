@@ -43,7 +43,21 @@ const mixin DocPage
     }
   }
 
-   ** Dump to JSON
+  ** Encode to JSON file
+  File encodeToFile()
+  {
+    buf := Buf()
+    JsonOutStream(buf.out).writeJson(encode)
+    return buf.toFile(uri)
+  }
+
+  ** Decode from JSON file
+  static DocPage decodeFromFile(File file)
+  {
+    file.withIn(null) |in| { decode(JsonInStream(in).readJson) }
+  }
+
+  ** Dump to JSON
   Void dump(OutStream out := Env.cur.out)
   {
     out.print(JsonOutStream.prettyPrintToStr(encode))

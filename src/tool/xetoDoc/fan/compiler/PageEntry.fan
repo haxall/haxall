@@ -17,6 +17,18 @@ using haystack::Dict
 **
 class PageEntry
 {
+  ** Constructor for top level index
+  new makeIndex()
+  {
+    this.key      = "index"
+    this.def      = "index"
+    this.uri      = DocUtil.indexUri
+    this.lib      = null
+    this.dis      = "Doc Index"
+    this.pageType = DocPageType.index
+    this.meta     = Etc.dict0
+    this.link     = DocLink(uri, dis)
+  }
 
   ** Constructor for lib
   new makeLib(Lib x)
@@ -87,7 +99,7 @@ class PageEntry
   Uri uriJson() { `${uri}.json` }
 
   ** If page is under a lib
-  const Lib lib
+  const Lib? lib
 
   ** Display name for this page
   const Str dis

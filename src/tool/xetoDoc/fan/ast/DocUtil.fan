@@ -39,6 +39,12 @@ const class DocUtil
     return s.toStr.toUri
   }
 
+  ** Top level index page
+  static Uri indexUri()
+  {
+    `/index`
+  }
+
   ** Lib name to the library index page
   static Uri libToUri(Str libName)
   {

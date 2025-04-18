@@ -18,10 +18,17 @@ internal class GenPages: Step
 {
   override Void run()
   {
+    PageEntry? index
     eachPage |PageEntry entry|
     {
-      entry.pageRef = genPage(entry)
+      if (entry.pageType == DocPageType.index)
+        index = entry
+      else
+        entry.pageRef = genPage(entry)
     }
+
+    // do index last
+    index.pageRef = genIndex(index)
   }
 
   DocPage genPage(PageEntry entry)
@@ -34,6 +41,24 @@ internal class GenPages: Step
       case DocPageType.instance: return genInstance(entry, entry.def)
       case DocPageType.chapter:  return genChapter(entry, entry.def)
       default: throw Err(entry.pageType.name)
+    }
+  }
+
+  DocIndex genIndex(PageEntry entry)
+  {
+    DocIndex
+    {
+      it.uri    = entry.uri
+      it.title  = entry.dis
+      it.groups = [DocIndexGroup("Libs", genLibSummaries)]
+    }
+  }
+
+  private DocSummary[] genLibSummaries()
+  {
+    compiler.libPages.map |x->DocSummary|
+    {
+      DocSummary(x.link, ((DocLib)x.pageRef).doc.summary)
     }
   }
 

@@ -175,6 +175,7 @@ class DocCompiler
   XetoCompilerErr[] errs := [,]       // err
   Duration? duration                  // run
   [Str:PageEntry]? pages              // StubPages
+  PageEntry[]? libPages               // StubPages
   File[] files := [,]                 // WriteJson if generating in-mem
   Int numFiles                        // WriteJson if generating to outDir
   private Str[] autoNames := [,]      // autoName
