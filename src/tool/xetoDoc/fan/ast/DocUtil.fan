@@ -19,7 +19,15 @@ const class DocUtil
   ** Convert normalized doc URI to Ref
   static Ref uriToRef(Uri uri)
   {
-    Ref(uri.toStr[1..-1].replace("/", "::"))
+    // search::{base64}
+    if (uri.path.getSafe(0) == "search")
+    {
+      q := uri.query["q"] ?: ""
+      if (q.isEmpty) return Ref("search")
+      return Ref("search::" + q.toBuf.toBase64Uri)
+    }
+
+    return Ref(uri.toStr[1..-1].replace("/", "::"))
   }
 
   ** Convert Ref to normalized doc URI
@@ -30,11 +38,16 @@ const class DocUtil
     colons := str.index("::")
     if (colons == null)
     {
-      s.add(str).add("/index")
+      s.add(str)
     }
     else
     {
-      s.add(str[0..<colons]).add("/").add(str[colons+2..-1])
+      libName := str[0..<colons]
+      docName := str[colons+2..-1]
+      if (libName == "search")
+        s.add(libName).add("?q=").add(Buf.fromBase64(docName).readAllStr)
+      else
+        s.add(libName).add("/").add(docName)
     }
     return s.toStr.toUri
   }
@@ -43,6 +56,12 @@ const class DocUtil
   static Uri indexUri()
   {
     `/index`
+  }
+
+  ** Search uri
+  static Uri searchUri(Str pattern)
+  {
+    "/search?q=".plus(Uri.escapeToken(pattern, Uri.sectionQuery)).toUri
   }
 
   ** Lib name to the library index page
@@ -97,6 +116,7 @@ const class DocUtil
 
   // Standard icon refs
 
+  static const Ref indexIcon    := Ref("ion.icons::list")
   static const Ref libIcon      := Ref("ion.icons::package")
   static const Ref typeIcon     := Ref("ion.icons::aperture")
   static const Ref globalIcon   := Ref("ion.icons::tag")

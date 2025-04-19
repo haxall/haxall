@@ -398,5 +398,25 @@ class DocTest : AbstractXetoTest
     verifyEq(c.doc.text.contains("A namespace is defined by a list"), true)
     verifyEq(c.doc.html.contains("<pre><code>xmeta-"), true)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Util
+//////////////////////////////////////////////////////////////////////////
+
+  Void testUtil()
+  {
+    verifyUriToRef(`/index`)
+    verifyUriToRef(`/acme.foo`)
+    verifyUriToRef(`/acme.foo/Baz`)
+    verifyUriToRef(`/search`)
+    verifyUriToRef(`/search?q=foo bar`)
+  }
+
+  Void verifyUriToRef(Uri uri)
+  {
+    id := DocUtil.uriToRef(uri)
+    verifyEq(uri, DocUtil.refToUri(id))
+  }
+
 }
 
