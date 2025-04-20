@@ -526,8 +526,9 @@ const class XetoUtil
 
   private static Bool instantiateSlot(Spec slot)
   {
-    if (slot.isQuery) return false
-    if (slot.isFunc) return false
+    if (slot.isQuery)  return false
+    if (slot.isFunc)   return false
+    if (slot.isChoice) return false // TODO: not sure about this one...
     if (slot.isMaybe)
     {
       // the rule for maybe types is that slot definition

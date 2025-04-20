@@ -559,6 +559,7 @@ class NamespaceTest : AbstractXetoTest
     instantiateA := ns.spec("hx.test.xeto::InstantiateA")
     instantiateB := ns.spec("hx.test.xeto::InstantiateB")
     instantiateC := ns.spec("hx.test.xeto::InstantiateC")
+    carA         := ns.spec("hx.test.xeto::CarA")
 
     Dict dict := ns.instantiate(instantiateA)
     verifyEq(dict->listRef, Ref[,])
@@ -582,6 +583,10 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(dict["c"], "charlie-b")
     verifyEq(dict["d"], "delta-c")
     verifyEq(dict["icon"], Ref("hx.test.xeto::icon-b"))
+
+    dict = ns.instantiate(carA)
+    verifyEq(dict["color"], null)  // verif we skip choices, at least for now
+    verifyDictEq(dict, ["spec":Ref("hx.test.xeto::CarA"), "dis":"CarA"])
 
     x := Ref("x")
     verifyInstantiateGraph(ns, "ashrae.g36::G36ReheatVav", [
