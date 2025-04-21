@@ -107,6 +107,15 @@ const class DocType : DocSpecPage
   ** Child slots on this type
   const Str:DocSlot slots
 
+  ** Iterate only my own slots
+  Void eachSlotOwn(|DocSlot| f)
+  {
+    slots.each |slot|
+    {
+      if (slot.parent == null) f(slot)
+    }
+  }
+
   ** Encode to a JSON object tree
   override Str:Obj encode()
   {

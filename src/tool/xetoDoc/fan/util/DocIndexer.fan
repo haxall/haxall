@@ -1,0 +1,154 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   21 Apr 2025  Brian Frank  Creation
+//
+
+using web
+using xeto
+using haystack
+using haystack::Dict
+
+**
+** DocIndexer is used to crawl the AST of documents to generate a search index
+**
+abstract class DocIndexer
+{
+
+//////////////////////////////////////////////////////////////////////////
+// Pages
+//////////////////////////////////////////////////////////////////////////
+
+  ** Index an entire space
+  virtual Void addSpace(DocSpace space)
+  {
+    space.eachPage |page| { addPage(page) }
+  }
+
+  ** Add page to index
+  virtual Void addPage(DocPage page)
+  {
+    switch (page.pageType)
+    {
+      case DocPageType.index:    return
+      case DocPageType.lib:      addLib(page)
+      case DocPageType.type:     addType(page)
+      case DocPageType.global:   addGlobal(page)
+      case DocPageType.instance: addInstance(page)
+      case DocPageType.chapter:  addChapter(page)
+      case DocPageType.search:   return
+      default:                   throw Err(page.pageType.toStr)
+    }
+  }
+
+  ** Add DocLib page to index
+  virtual Void addLib(DocLib x)
+  {
+    doAdd(x.uri, DocIndexerSectionType.lib, [x.name], x.name, x.doc)
+  }
+
+  ** Add DocType page to index
+  virtual Void addType(DocType x)
+  {
+    doAdd(x.uri, DocIndexerSectionType.type, [x.qname, x.name], x.qname, x.doc)
+    x.eachSlotOwn |slot| { addSlot(x, slot) }
+  }
+
+  ** Add DocSlot section to index
+  virtual Void addSlot(DocType parent, DocSlot slot)
+  {
+    uri   := parent.uri + `#${slot.name}`
+    qname := parent.qname + "." + slot.name
+    doAdd(uri, DocIndexerSectionType.slot, [qname, slot.name], qname, slot.doc)
+  }
+
+  ** Add DocGlobal page to index
+  virtual Void addGlobal(DocGlobal x)
+  {
+    doAdd(x.uri, DocIndexerSectionType.global, [x.qname, x.name], x.qname, x.doc)
+  }
+
+  ** Add DocInstance page to index
+  virtual Void addInstance(DocInstance x)
+  {
+    doAdd(x.uri, DocIndexerSectionType.instance, [x.qname, x.name], x.qname, DocMarkdown.empty)
+  }
+
+  ** Add DocChapter page to index
+  virtual Void addChapter(DocChapter x)
+  {
+    //doAdd(x.uri, DocIndexerSectionType.instance, [x.qname, x.name], x.qname, DocMarkdown.empty)
+  }
+
+  private Void doAdd(Uri uri, DocIndexerSectionType type, Str[] keys, Str title, DocMarkdown body)
+  {
+    add(DocIndexerSection {
+      it.uri   = uri
+      it.type  = type
+      it.keys  = keys
+      it.title = title
+      it.body  = body.plain
+    })
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Abstract
+//////////////////////////////////////////////////////////////////////////
+
+  ** Add section to index
+  abstract Void add(DocIndexerSection section)
+}
+
+**************************************************************************
+** DocIndexerSection
+**************************************************************************
+
+**
+** DocIndexerSection is one directly addressable section
+**
+const class DocIndexerSection
+{
+  ** It-block constructor
+  new make(|This| f) { f(this) }
+
+  ** Section identifier (might have fragment identifier)
+  const Uri uri
+
+  ** Section type for boost weighting
+  const DocIndexerSectionType type
+
+  ** Exact keywords such as qnames to index **without** parsing text
+  const Str[] keys
+
+  ** Title to index with parsing; should also be shown on retrevial
+  const Str title
+
+  ** Body of section to index with parsing
+  const Str body
+
+  ** Debug string
+  override Str toStr() { "$uri $type $keys $title" }
+}
+
+**************************************************************************
+** DocIndexerSectionType
+**************************************************************************
+
+**
+** DocIndexerSectionType
+**
+enum class DocIndexerSectionType
+{
+  lib,
+  type,
+  global,
+  slot,
+  instance,
+  chapter,
+  h1,
+  h2,
+  h3
+}
+

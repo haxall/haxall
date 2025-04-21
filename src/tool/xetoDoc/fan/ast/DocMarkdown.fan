@@ -54,6 +54,12 @@ const class DocMarkdown
     return HtmlRenderer.builder.build.render(doc)
   }
 
+  ** Return this text as plain text to be used for search indexing
+  Str plain()
+  {
+    text
+  }
+
   static Str parseFirstSentence(Str t)
   {
     // this logic isn't exactly like firstSentence because we clip at colon

@@ -6,7 +6,7 @@
 //   17 Apr 2025  Brian Frank  Creation
 //
 
-using web
+using util
 using xeto
 using haystack
 using haystack::Dict
@@ -25,6 +25,9 @@ const mixin DocSpace
   **   - /{lib}/{doc}: spec and instance level pages
   **   - /search?q={pattern}: search
   abstract DocFile? resolve(Uri uri, Bool checked := true)
+
+  ** Iterate all the pages in the spage
+  abstract Void eachPage(|DocPage| f)
 
   ** Search the given pattern and return search page
   abstract DocFile search(Str pattern, Dict opts)
@@ -74,6 +77,24 @@ const class FileDocSpace : DocSpace
     // no joy
     if (checked) throw UnresolvedErr(uri.toStr)
     return null
+  }
+
+  ** Iterate all the pages in the spage
+  override Void eachPage(|DocPage| f) { doEachPage(dir, 0, f) }
+  private Void doEachPage(File file, Int level, |DocPage| f)
+  {
+    if (file.isDir)
+    {
+      if (level > 1) return
+      file.list.each |kid| { doEachPage(kid, level+1, f) }
+    }
+    else if (file.ext == "json")
+    {
+      try
+        f(DocPage.decodeFromFile(file))
+      catch (Err e)
+        Console.cur.err("${typeof}.eachPage [$file.osPath]", e)
+    }
   }
 
   ** Return unsupported page
