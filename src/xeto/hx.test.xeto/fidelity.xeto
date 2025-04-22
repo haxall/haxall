@@ -12,7 +12,7 @@ Fidelity: {
   float: Float 72
   number: Number 90kW
   str: "hello"
-  ref: Ref "fidelity"
+  ref: Ref "hx.test.xeto::fidelityA"
   uri: Uri "file.txt"
   date: Date "2024-11-25"
   time: Time "14:30:00"
@@ -42,7 +42,7 @@ Fidelity: {
   float: Float 72
   number: Number 90kW
   str: "hello"
-  ref: Ref "fidelity"
+  ref: Ref "hx.test.xeto::fidelityA"
   uri: Uri "file.txt"
   date: Date "2024-11-25"
   time: Time "14:30:00"
