@@ -46,13 +46,13 @@ abstract class DocIndexer
   ** Add DocLib page to index
   virtual Void addLib(DocLib x)
   {
-    doAdd(x.uri, DocIndexerSectionType.lib, [x.name], x.name, x.doc)
+    doAdd(x.uri, x.lib, DocIndexerSectionType.lib, [x.name], x.name, x.doc)
   }
 
   ** Add DocType page to index
   virtual Void addType(DocType x)
   {
-    doAdd(x.uri, DocIndexerSectionType.type, [x.qname, x.name], x.qname, x.doc)
+    doAdd(x.uri, x.lib, DocIndexerSectionType.type, [x.qname, x.name], x.qname, x.doc)
     x.eachSlotOwn |slot| { addSlot(x, slot) }
   }
 
@@ -61,19 +61,19 @@ abstract class DocIndexer
   {
     uri   := parent.uri + `#${slot.name}`
     qname := parent.qname + "." + slot.name
-    doAdd(uri, DocIndexerSectionType.slot, [qname, slot.name], qname, slot.doc)
+    doAdd(uri, parent.lib, DocIndexerSectionType.slot, [qname, slot.name], qname, slot.doc)
   }
 
   ** Add DocGlobal page to index
   virtual Void addGlobal(DocGlobal x)
   {
-    doAdd(x.uri, DocIndexerSectionType.global, [x.qname, x.name], x.qname, x.doc)
+    doAdd(x.uri, x.lib, DocIndexerSectionType.global, [x.qname, x.name], x.qname, x.doc)
   }
 
   ** Add DocInstance page to index
   virtual Void addInstance(DocInstance x)
   {
-    doAdd(x.uri, DocIndexerSectionType.instance, [x.qname, x.name], x.qname, DocMarkdown.empty)
+    doAdd(x.uri, x.lib, DocIndexerSectionType.instance, [x.qname, x.name], x.qname, DocMarkdown.empty)
   }
 
   ** Add DocChapter page to index
@@ -82,10 +82,11 @@ abstract class DocIndexer
     //doAdd(x.uri, DocIndexerSectionType.instance, [x.qname, x.name], x.qname, DocMarkdown.empty)
   }
 
-  private Void doAdd(Uri uri, DocIndexerSectionType type, Str[] keys, Str title, DocMarkdown body)
+  private Void doAdd(Uri uri, DocLibRef? lib, DocIndexerSectionType type, Str[] keys, Str title, DocMarkdown body)
   {
     add(DocIndexerSection {
       it.uri   = uri
+      it.lib   = lib
       it.type  = type
       it.keys  = keys
       it.title = title
@@ -115,6 +116,9 @@ const class DocIndexerSection
 
   ** Section identifier (might have fragment identifier)
   const Uri uri
+
+  ** Library version if section is under a library
+  const DocLibRef? lib
 
   ** Section type for boost weighting
   const DocIndexerSectionType type

@@ -15,8 +15,9 @@ using xetoEnv
 const class DocInstance : DocPage
 {
   ** Constructor
-  new make(Str qname, DocDict instance)
+  new make(DocLibRef lib, Str qname, DocDict instance)
   {
+    this.lib      = lib
     this.qname    = qname
     this.instance = instance
   }
@@ -37,7 +38,7 @@ const class DocInstance : DocPage
   override DocPageType pageType() { DocPageType.instance }
 
   ** Library for this page
-  override DocLibRef? lib() { DocLibRef(libName) }
+  override const DocLibRef? lib
 
   ** Instance dictionary
   const DocDict instance
@@ -48,6 +49,7 @@ const class DocInstance : DocPage
     obj := Str:Obj[:]
     obj.ordered     = true
     obj["page"]     = pageType.name
+    obj["lib"]      = lib.encode
     obj["qname"]    = qname
     obj["instance"] = instance.encode
     return obj
@@ -56,9 +58,10 @@ const class DocInstance : DocPage
   ** Decode from a JSON object tree
   static DocInstance doDecode(Str:Obj obj)
   {
+    lib      := DocLibRef.decode(obj.getChecked("lib"))
     qname    := obj.getChecked("qname")
     instance := DocDict.decode(obj.getChecked("instance"))
-    return make(qname, instance)
+    return make(lib, qname, instance)
   }
 
 }

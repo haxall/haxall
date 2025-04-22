@@ -101,6 +101,9 @@ class PageEntry
   ** If page is under a lib
   const Lib? lib
 
+  ** Doc lib reference
+  once DocLibRef? libRef() { lib == null ? null : DocLibRef(lib.name, lib.version) }
+
   ** Display name for this page
   const Str dis
 

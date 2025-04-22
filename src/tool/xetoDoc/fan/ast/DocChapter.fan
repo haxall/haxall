@@ -15,8 +15,9 @@ using xetoEnv
 const class DocChapter : DocPage
 {
   ** Constructor
-  new make(Str qname, DocMarkdown doc)
+  new make(DocLibRef lib, Str qname, DocMarkdown doc)
   {
+    this.lib   = lib
     this.qname = qname
     this.doc   = doc
   }
@@ -37,7 +38,7 @@ const class DocChapter : DocPage
   override DocPageType pageType() { DocPageType.chapter }
 
   ** Library for this page
-  override DocLibRef? lib() { DocLibRef(libName) }
+  override const DocLibRef? lib
 
   ** Markdown
   const DocMarkdown doc
@@ -48,17 +49,19 @@ const class DocChapter : DocPage
     obj := Str:Obj[:]
     obj.ordered  = true
     obj["page"]  = pageType.name
+    obj["lib"]   = lib.encode
     obj["qname"] = qname
-    obj["doc"]   =doc.encode
+    obj["doc"]   = doc.encode
     return obj
   }
 
   ** Decode from a JSON object tree
   static DocChapter doDecode(Str:Obj obj)
   {
+    lib   := DocLibRef.decode(obj.getChecked("lib"))
     qname := obj.getChecked("qname")
     doc   := DocMarkdown.decode(obj.getChecked("doc"))
-    return make(qname, doc)
+    return make(lib, qname, doc)
   }
 
 }

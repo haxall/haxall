@@ -67,6 +67,7 @@ internal class GenPages: Step
     DocLib
     {
       it.name      = x.name
+      it.version   = x.version
       it.doc       = genDoc(x.meta["doc"])
       it.meta      = genDict(x.meta)
       it.depends   = genDepends(x)
@@ -79,7 +80,7 @@ internal class GenPages: Step
 
   DocLibDepend[] genDepends(Lib lib)
   {
-    lib.depends.map |x| { DocLibDepend(DocLibRef(x.name), x.versions) }
+    lib.depends.map |x| { DocLibDepend(DocLibRef(x.name, null), x.versions) }
   }
 
   DocType genType(PageEntry entry, Spec x)
@@ -90,7 +91,7 @@ internal class GenPages: Step
     slots      := genSlots(x)
     supertypes := genSupertypes(x)
     subtypes   := genSubtypes(x)
-    return DocType(x.qname, doc, meta, base, supertypes, subtypes, slots)
+    return DocType(entry.libRef, x.qname, doc, meta, base, supertypes, subtypes, slots)
   }
 
   DocTypeGraph genSupertypes(Spec x)
@@ -157,14 +158,14 @@ internal class GenPages: Step
     doc := genSpecDoc(x)
     meta  := genDict(x.meta)
     type := genTypeRef(x.type)
-    return DocGlobal(x.qname, doc, meta, type)
+    return DocGlobal(entry.libRef, x.qname, doc, meta, type)
   }
 
   DocInstance genInstance(PageEntry entry, Dict x)
   {
     qname    := x.id.id
     instance := genDict(x)
-    return DocInstance(qname, instance)
+    return DocInstance(entry.libRef, qname, instance)
   }
 
   Str:DocSlot genSlots(Spec spec)
@@ -213,7 +214,7 @@ internal class GenPages: Step
 
   DocChapter genChapter(PageEntry entry, Str markdown)
   {
-    DocChapter(entry.key, genDoc(markdown))
+    DocChapter(entry.libRef, entry.key, genDoc(markdown))
   }
 
   DocDict genDict(Dict d)

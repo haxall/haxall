@@ -24,6 +24,9 @@ const class DocLib : DocPage
   ** Dotted name for library
   const Str name
 
+  ** Library version
+  const Version version
+
   ** Summary documentation for library
   const DocMarkdown doc
 
@@ -37,18 +40,19 @@ const class DocLib : DocPage
   override DocPageType pageType() { DocPageType.lib }
 
   ** Library for this page (or null if top-level indexing)
-  override DocLibRef? lib() { DocLibRef(name) }
+  override DocLibRef? lib() { DocLibRef(name, version) }
 
   ** Encode to a JSON object tree
   override Str:Obj encode()
   {
     obj := Str:Obj[:]
-    obj.ordered = true
-    obj["page"] = pageType.name
-    obj["name"] = name
-    obj["doc"]  = doc.encode
+    obj.ordered    = true
+    obj["page"]    = pageType.name
+    obj["name"]    = name
+    obj["version"] = version.toStr
+    obj["doc"]     = doc.encode
     obj["depends"] = DocLibDepend.encodeList(depends)
-    obj["meta"] = meta.encode
+    obj["meta"]    = meta.encode
     obj.addNotNull("types",     DocSummary.encodeList(types))
     obj.addNotNull("globals",   DocSummary.encodeList(globals))
     obj.addNotNull("instances", DocSummary.encodeList(instances))
@@ -62,6 +66,7 @@ const class DocLib : DocPage
     DocLib
     {
       it.name      = obj.getChecked("name")
+      it.version   = Version.fromStr(obj.getChecked("version"))
       it.doc       = DocMarkdown.decode(obj.get("doc"))
       it.depends   = DocLibDepend.decodeList(obj["depends"])
       it.meta      = DocDict.decode(obj.get("meta"))
@@ -145,10 +150,13 @@ const class DocLibDepend
 const class DocLibRef
 {
   ** Constructor
-  new make(Str name) { this.name = name }
+  new make(Str name, Version? version) { this.name = name; this.version = version }
 
   ** Library dotted name
   const Str name
+
+  ** Version if available
+  const Version? version
 
   ** URI to this libraries index page
   Uri uri() { DocUtil.libToUri(name) }
@@ -156,13 +164,17 @@ const class DocLibRef
   ** Encode to a JSON object tree
   Obj encode()
   {
-    name
+    version == null ? name : "$name-$version"
   }
 
   ** Decode from JSON object tree
   static DocLibRef decode(Str s)
   {
-    make(s)
+    toks := s.split('-', false)
+    if (toks.size == 1)
+      return make(toks[0], null)
+    else
+      return make(toks[0], Version.fromStr(toks[1]))
   }
 }
 

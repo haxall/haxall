@@ -32,8 +32,9 @@ abstract const class DocSpec
 abstract const class DocSpecPage : DocSpec, DocPage
 {
   ** Constructor
-  new make(Str qname, DocMarkdown doc, DocDict meta)
+  new make(DocLibRef lib, Str qname, DocMarkdown doc, DocDict meta)
   {
+    this.lib   = lib
     this.qname = qname
     this.doc   = doc
     this.meta  = meta
@@ -49,7 +50,7 @@ abstract const class DocSpecPage : DocSpec, DocPage
   once override Str name() { XetoUtil.qnameToName(qname) }
 
   ** Library for this page
-  override DocLibRef? lib() { DocLibRef(libName) }
+  override const DocLibRef? lib
 
   ** Documentation text
   const override DocMarkdown doc
@@ -63,6 +64,7 @@ abstract const class DocSpecPage : DocSpec, DocPage
     obj := Str:Obj[:]
     obj.ordered  = true
     obj["page"]  = pageType.name
+    obj["lib"]   = lib.encode
     obj["qname"] = qname
     obj["doc"]   = doc.encode
     obj.addNotNull("meta", meta.encode)
@@ -81,7 +83,7 @@ abstract const class DocSpecPage : DocSpec, DocPage
 const class DocType : DocSpecPage
 {
   ** Constructor
-  new make(Str qname, DocMarkdown doc, DocDict meta, DocTypeRef? base, DocTypeGraph supertypes, DocTypeGraph subtypes, Str:DocSlot slots) : super(qname, doc, meta)
+  new make(DocLibRef lib, Str qname, DocMarkdown doc, DocDict meta, DocTypeRef? base, DocTypeGraph supertypes, DocTypeGraph subtypes, Str:DocSlot slots) : super(lib, qname, doc, meta)
   {
     this.base = base
     this.supertypes = supertypes
@@ -130,6 +132,7 @@ const class DocType : DocSpecPage
   ** Decode from a JSON object tree
   static DocType doDecode(Str:Obj obj)
   {
+    lib        := DocLibRef.decode(obj.getChecked("lib"))
     qname      := obj.getChecked("qname")
     doc        := DocMarkdown.decode(obj.get("doc"))
     meta       := DocDict.decode(obj.get("meta"))
@@ -137,7 +140,7 @@ const class DocType : DocSpecPage
     supertypes := DocTypeGraph.decode(obj.get("supertypes"))
     subtypes   := DocTypeGraph.decode(obj.get("subtypes"))
     slots      := DocSlot.decodeMap(obj.get("slots"))
-    return DocType(qname, doc, meta, base, supertypes, subtypes, slots)
+    return DocType(lib, qname, doc, meta, base, supertypes, subtypes, slots)
   }
 }
 
@@ -152,7 +155,7 @@ const class DocType : DocSpecPage
 const class DocGlobal : DocSpecPage
 {
   ** Constructor
-  new make(Str qname, DocMarkdown doc, DocDict meta, DocTypeRef type) : super(qname, doc, meta)
+  new make(DocLibRef lib, Str qname, DocMarkdown doc, DocDict meta, DocTypeRef type) : super(lib, qname, doc, meta)
   {
     this.type = type
   }
@@ -177,11 +180,12 @@ const class DocGlobal : DocSpecPage
   ** Decode from a JSON object tree
   static DocGlobal doDecode(Str:Obj obj)
   {
+    lib   := DocLibRef.decode(obj.getChecked("lib"))
     qname := obj.getChecked("qname")
     doc   := DocMarkdown.decode(obj.get("doc"))
     meta  := DocDict.decode(obj.get("meta"))
     type  := DocTypeRef.decode(obj.getChecked("type"))
-    return DocGlobal(qname, doc, meta, type)
+    return DocGlobal(lib, qname, doc, meta, type)
  }
 }
 
