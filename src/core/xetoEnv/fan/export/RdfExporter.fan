@@ -180,7 +180,7 @@ class RdfExporter : Exporter
       w("  rdfs::subClassOf ").qname(x.base.qname).w("; ").nl
     labelAndDoc(x)
     type := globalType(x)
-    if (type != null) w("  rdfs:range ").w(type).w(" ;").nl
+    // if (type != null) w("  rdfs:range ").w(type).w(" ;").nl
     w(".").nl
     return this
   }
@@ -192,7 +192,7 @@ class RdfExporter : Exporter
     if (type.qname == "sys::Int") return "xsd:integer"
     if (type.isEnum) return qnameToUri(type.qname)
     if (type.isChoice) return qnameToUri(type.qname)
-    if (type.isRef || type.isMultiRef) return x.of(false)?.qname ?: "sys::Entity"
+    if (type.isRef || type.isMultiRef) return x.of(false)?.qname ?: "sys:Entity"
     return null
   }
 
@@ -391,7 +391,19 @@ class RdfExporter : Exporter
   ** Quoted string literal
   private This literal(Str s)
   {
-    w(s.toCode.replace(Str<|\$|>, Str<|$|>))
+    lines := s.splitLines
+    if (lines.size <= 1)
+    {
+      w(lines[0].toCode('"').replace(Str<|\$|>, Str<|$|>))
+    }
+    else
+    {
+      indent := "    "
+      w(Str<|"""|>).nl
+      lines.each |line| { w(indent).w(line.toCode(null).replace(Str<|\$|>, Str<|$|>)).nl }
+      w("    ").w(Str<|"""|>)
+    }
+    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
