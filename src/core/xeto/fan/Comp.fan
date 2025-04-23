@@ -97,6 +97,13 @@ mixin Comp
     return this
   }
 
+  ** Add a slot if value is not null. If name is null one is auto-generated.
+  This addNotNull(Obj? val, Str? name := null)
+  {
+    if (val != null) add(val, name)
+    return this
+  }
+
   ** Remove a slot by name.  Do nothing is name isn't mapped.
   This remove(Str name)
   {
