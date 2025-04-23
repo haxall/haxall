@@ -149,6 +149,18 @@ const abstract class RecFile : SyntheticFile
   const Ref id
   Dict? rec(Bool checked := true) { folio.readById(id, checked) }
 
+  ** Resolve the mime type from the rec's spec
+  override MimeType? mimeType()
+  {
+    try
+    {
+      specRef  := rec.get("spec") as Ref
+      fileSpec := LibNamespace.system.spec(specRef.id)
+      return MimeType(fileSpec.meta["mimeType"] ?: "", false)
+    }
+    catch (Err err) return null
+  }
+
   ** Sub-types must provide an implementation that adheres to FolioFile semantics
   override abstract Bool exists()
 

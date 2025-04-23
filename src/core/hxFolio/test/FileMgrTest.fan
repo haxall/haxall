@@ -37,6 +37,9 @@ class FileMgrTest : WhiteboxTest
     verifyWrite(id, "this is a file!")
     verifyWrite(id, "modified!")
 
+    // mimeType
+    verifyEq(file.mimeType, MimeType.forExt("txt"))
+
     // reading a deleted file throws IOErr
     file.delete
     verifyFalse(file.exists)
