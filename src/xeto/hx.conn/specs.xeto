@@ -1,0 +1,12 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   23 Apr 2025  Brian Frank  Creation
+//
+
+// Connector for communication to a remote system.
+// See `docHaxall::Conns`
+Conn: Entity <abstract>
+
