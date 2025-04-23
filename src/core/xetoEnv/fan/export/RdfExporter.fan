@@ -221,7 +221,14 @@ class RdfExporter : Exporter
            rdfs:label "Has Marker"@en ;
            rdfs:range sys:Marker ;
          .
-         |>)
+         sys:HasMarkerShape
+           a sh:NodeShape ;
+           sh:targetSubjectsOf sys:hasMarker ;
+           sh:property [
+              sh:path sys:hasMarker ;
+              sh:class sys:Marker ;
+           ] .
+  |>)
   }
 
 //////////////////////////////////////////////////////////////////////////
