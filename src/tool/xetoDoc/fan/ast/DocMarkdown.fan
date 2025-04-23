@@ -50,14 +50,19 @@ const class DocMarkdown
   ** Return this text as HTML
   Str html()
   {
-    doc := Parser.builder.build.parse(text)
-    return HtmlRenderer.builder.build.render(doc)
+    HtmlRenderer.builder.build.render(parse)
   }
 
   ** Return this text as plain text to be used for search indexing
   Str plain()
   {
-    text
+    TextRenderer.builder.build.render(parse)
+  }
+
+  ** Parse into markdown
+  Node parse()
+  {
+    Parser.builder.build.parse(text)
   }
 
   static Str parseFirstSentence(Str t)

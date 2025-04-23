@@ -6,7 +6,7 @@
 //   21 Apr 2025  Brian Frank  Creation
 //
 
-using web
+using markdown
 using xeto
 using haystack
 using haystack::Dict
@@ -79,10 +79,30 @@ abstract class DocIndexer
   ** Add DocChapter page to index
   virtual Void addChapter(DocChapter x)
   {
-    //doAdd(x.uri, DocIndexerSectionType.instance, [x.qname, x.name], x.qname, DocMarkdown.empty)
+    // index chapter qname/name itself
+    doAdd(x.uri, x.lib, DocIndexerSectionType.chapter, [x.qname, x.name], x.name, "")
+
+    // parse markdown and find all headings
+    doc := x.doc.parse
+    headings := doc.findAll { it is Heading }
+
+    // find all the content between each heading and render it is a plaintext
+    renderer := TextRenderer()
+    headings.each |Heading heading, i|
+    {
+      // get all the text between headings
+      bodyDoc := Document()
+      Node.eachBetween(heading, headings.getSafe(i+1)) |node| { bodyDoc.appendChild(node) }
+
+      uri   := x.uri // TODO: add frag
+      type  := DocIndexerSectionType.heading(heading.level)
+      title := renderer.render(heading)
+      body  := renderer.render(bodyDoc)
+      doAdd(uri, x.lib, type, Str#.emptyList, title, body)
+    }
   }
 
-  private Void doAdd(Uri uri, DocLibRef? lib, DocIndexerSectionType type, Str[] keys, Str title, DocMarkdown body)
+  private Void doAdd(Uri uri, DocLibRef? lib, DocIndexerSectionType type, Str[] keys, Str title, Obj body)
   {
     add(DocIndexerSection {
       it.uri   = uri
@@ -90,7 +110,7 @@ abstract class DocIndexer
       it.type  = type
       it.keys  = keys
       it.title = title
-      it.body  = body.plain
+      it.body  = body as Str ?: ((DocMarkdown)body).plain
     })
   }
 
@@ -154,5 +174,13 @@ enum class DocIndexerSectionType
   h1,
   h2,
   h3
+
+  static DocIndexerSectionType heading(Int level)
+  {
+    if (level == 1) return h1
+    if (level == 2) return h2
+    return h3
+  }
+
 }
 
