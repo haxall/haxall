@@ -21,12 +21,6 @@ abstract class DocIndexer
 // Pages
 //////////////////////////////////////////////////////////////////////////
 
-  ** Index an entire space
-  virtual Void addSpace(DocSpace space)
-  {
-    space.eachPage |page| { addPage(page) }
-  }
-
   ** Add page to index
   virtual Void addPage(DocPage page)
   {

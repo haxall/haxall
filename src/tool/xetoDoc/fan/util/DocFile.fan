@@ -24,6 +24,9 @@ const mixin DocFile
 
   ** Access an in-memory AST, this might decode on each call
   abstract DocPage page()
+
+  ** Debug string
+  override Str toStr() { "$typeof.name `$uri`" }
 }
 
 **************************************************************************

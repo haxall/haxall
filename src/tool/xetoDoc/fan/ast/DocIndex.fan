@@ -23,13 +23,13 @@ const class DocIndex : DocPage
   override DocLibRef? lib() { null }
 
   ** URI relative to base dir to page
-  override const Uri uri
+  override const Uri uri := DocUtil.indexUri
 
   ** Page type
   override DocPageType pageType() { DocPageType.index }
 
   ** Page title
-  const Str title
+  const Str title := "Doc Index"
 
   ** Doc index groups
   const DocIndexGroup[] groups
