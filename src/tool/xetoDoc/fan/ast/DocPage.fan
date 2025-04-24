@@ -43,12 +43,18 @@ const mixin DocPage
     }
   }
 
-  ** Encode to JSON file
-  File encodeToFile()
+  ** Encode to an in-memory buffer
+  Buf encodeToBuf()
   {
     buf := Buf()
     JsonOutStream(buf.out).writeJson(encode)
-    return buf.toFile(uri)
+    return buf.flip
+  }
+
+  ** Encode to JSON file
+  File encodeToFile()
+  {
+    encodeToBuf.toFile(uri)
   }
 
   ** Decode from JSON file
