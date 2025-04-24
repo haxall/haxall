@@ -35,60 +35,60 @@ class DocTest : AbstractXetoTest
     compiler.compile
 
     // lib - hx.test.xeto
-    entry := compiler.pages[lib.name]
+    entry := compiler.entries[lib.name]
     verifyHxLib(entry, lib, entry.page)
     verifyHxLib(entry, lib, roundtrip(entry))
 
     // lib - doc.xeto
     verifyEq(docXeto.hasMarkdown, true)
-    entry = compiler.pages.getChecked(docXeto.name)
+    entry = compiler.entries.getChecked(docXeto.name)
     verifyDocLib(entry, docXeto, entry.page)
     verifyDocLib(entry, docXeto, roundtrip(entry))
 
     // type
     spec := lib.spec("EqA")
-    entry = compiler.pages.getChecked(spec.qname)
+    entry = compiler.entries.getChecked(spec.qname)
     verifyTypeSpec(entry, spec, entry.page)
     verifyTypeSpec(entry, spec, roundtrip(entry))
 
     // global
     spec = lib.spec("globalTag")
-    entry = compiler.pages.getChecked(spec.qname)
+    entry = compiler.entries.getChecked(spec.qname)
     verifyGlobal(entry, spec, entry.page)
     verifyGlobal(entry, spec, roundtrip(entry))
 
     // instance
     Dict inst := lib.instance("test-a")
-    entry = compiler.pages.getChecked(inst.id.toStr)
+    entry = compiler.entries.getChecked(inst.id.toStr)
     verifyInstance(entry, inst, entry.page)
     verifyInstance(entry, inst, roundtrip(entry))
 
     // type sigs
     spec = lib.spec("Sigs")
-    entry = compiler.pages.getChecked(spec.qname)
+    entry = compiler.entries.getChecked(spec.qname)
     verifyTypeRefs(spec, entry.page)
     verifyTypeRefs(spec, roundtrip(entry))
 
     // supertypes
     spec = lib.spec("AB")
-    entry = compiler.pages.getChecked(spec.qname)
+    entry = compiler.entries.getChecked(spec.qname)
     verifySupertypes(spec, entry.page)
     verifySupertypes(spec, roundtrip(entry))
 
     // subtypes
     spec = lib.spec("A")
-    entry = compiler.pages.getChecked(spec.qname)
+    entry = compiler.entries.getChecked(spec.qname)
     verifySubtypes(spec, entry.page)
     verifySubtypes(spec, roundtrip(entry))
 
     // nested queries with points
     spec = lib.spec("EqAX")
-    entry = compiler.pages.getChecked(spec.qname)
+    entry = compiler.entries.getChecked(spec.qname)
     verifyPoints(spec, entry.page)
     verifyPoints(spec, roundtrip(entry))
 
     // chapter
-    entry = compiler.pages.getChecked("doc.xeto::Namespaces")
+    entry = compiler.entries.getChecked("doc.xeto::Namespaces")
     verifyChapter(entry.page)
     verifyChapter(roundtrip(entry))
 
@@ -221,7 +221,7 @@ class DocTest : AbstractXetoTest
 
   Void verifySummary(DocSummary n, Obj def)
   {
-    entry := compiler.page(def)
+    entry := compiler.entry(def)
     verifyEq(n.link.uri, entry.uri)
     verifyEq(n.link.dis, entry.dis)
     verifySummaryText(n.text, entry.meta["doc"])

@@ -31,7 +31,7 @@ abstract internal class Step
 
   Void eachPage(|PageEntry| f)
   {
-    compiler.pages.each(f)
+    compiler.entries.each(f)
   }
 
   Spec[] typesToDoc(Lib lib)
@@ -42,7 +42,7 @@ abstract internal class Step
   PageEntry[] chapters(Lib lib)
   {
     acc := PageEntry[,]
-    compiler.pages.each |page|
+    compiler.entries.each |page|
     {
       if (page.pageType == DocPageType.chapter && page.lib == lib)
         acc.add(page)
@@ -55,14 +55,14 @@ abstract internal class Step
     chapters(lib).map |x->DocSummary| { x.summary }
   }
 
-  PageEntry page(Obj x)
+  PageEntry entry(Obj x)
   {
-    compiler.page(x)
+    compiler.entry(x)
   }
 
   DocSummary summary(Obj x)
   {
-    page(x).summary
+    entry(x).summary
   }
 
   DocSummary[] summaries(Obj[] list)

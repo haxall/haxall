@@ -17,6 +17,7 @@ internal class WriteJson : Step
 {
   override Void run()
   {
+    if (compiler.outDir == null) return
     eachPage |entry|
     {
       writePage(entry)

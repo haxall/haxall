@@ -68,7 +68,9 @@ class DocCompiler
 // Pipelines
 //////////////////////////////////////////////////////////////////////////
 
-  ** Compile input directory to library
+  ** Compile:
+  **   - if outDir is non-null, write pages to JSON files
+  **   - otherwise compile to in-memory AST DocPages
   This compile()
   {
     run([
@@ -141,10 +143,25 @@ class DocCompiler
     return err
   }
 
-  ** Lookup page entry for lib, spec, instance
-  PageEntry page(Obj def)
+  ** Get all DocPages
+  once DocPage[] pages()
   {
-    pages.getChecked(key(def))
+    acc := DocPage[,]
+    acc.capacity = entries.size
+    entries.each |entry| { acc.add(entry.page) }
+    return acc.toImmutable
+  }
+
+  ** Get all DocPages for given lib
+  DocPage[] pagesForLib(Str libName)
+  {
+    pages.findAll |page| { page.lib?.name == libName }
+  }
+
+  ** Lookup page entry for lib, spec, instance
+  PageEntry entry(Obj def)
+  {
+    entries.getChecked(key(def))
   }
 
   ** Get page entry key for lib, spec, instance
@@ -174,8 +191,8 @@ class DocCompiler
 
   XetoCompilerErr[] errs := [,]       // err
   Duration? duration                  // run
-  [Str:PageEntry]? pages              // StubPages
-  PageEntry[]? libPages               // StubPages
+  [Str:PageEntry]? entries            // StubPages
+  PageEntry[]? libEntries             // StubPages
   File[] files := [,]                 // WriteJson if generating in-mem
   Int numFiles                        // WriteJson if generating to outDir
   private Str[] autoNames := [,]      // autoName

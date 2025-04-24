@@ -56,7 +56,7 @@ internal class GenPages: Step
 
   private DocSummary[] genLibSummaries()
   {
-    compiler.libPages.map |x->DocSummary|
+    compiler.libEntries.map |x->DocSummary|
     {
       DocSummary(x.link, ((DocLib)x.pageRef).doc.summary)
     }
