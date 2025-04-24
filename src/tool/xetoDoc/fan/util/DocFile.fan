@@ -59,6 +59,12 @@ const class DocDiskFile : DocFile
     this.file = file
   }
 
+  new makeBuf(Uri uri, Buf buf)
+  {
+    this.uri = uri
+    this.file = buf.toFile(uri)
+  }
+
   const override Uri uri
 
   const override File file
