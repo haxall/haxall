@@ -56,10 +56,11 @@ internal class GenPages: Step
 
   private DocSummary[] genLibSummaries()
   {
-    compiler.libEntries.map |x->DocSummary|
+    DocSummary[] summaries := compiler.libEntries.map |x->DocSummary|
     {
       DocSummary(x.link, ((DocLib)x.pageRef).doc.summary)
     }
+    return summaries.sort |a, b| { a.link.dis <=> b.link.dis }
   }
 
   DocLib genLib(PageEntry entry, Lib x)
