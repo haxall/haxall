@@ -44,6 +44,9 @@ abstract const class DocTypeRef
   ** Compound types or null if not applicable
   virtual DocTypeRef[]? ofs() { null }
 
+  ** Return if this is a query (requires sys::Query to be sealed)
+  virtual Bool isQuery() { qname == "sys::Query" }
+
   ** Encode to a JSON object tree
   abstract Obj encode()
 

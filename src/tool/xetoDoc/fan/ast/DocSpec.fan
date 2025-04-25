@@ -6,6 +6,7 @@
 //   22 Sep 2024  Brian Frank  Creation
 //
 
+using haystack
 using xetoEnv
 
 **
@@ -234,6 +235,25 @@ const class DocSlot : DocSpec
 
   ** Child slots on this type
   const Str:DocSlot slots
+
+  ** Attempt to turn this slots default into a value (not accurate fidelity)
+  Obj? toVal()
+  {
+    if (type.qname == "sys::Marker") return Marker.val
+    val := meta.get("val") as DocVal
+    if (val != null) return val.toVal
+    if (!slots.isEmpty) return toDict
+    return null
+  }
+
+  private Dict toDict()
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
+    acc["spec"] = Ref(type.qname)
+    slots.each |slot| { acc.addNotNull(slot.name, slot.toVal) }
+    return Etc.dictFromMap(acc)
+  }
 
   ** Encode to a JSON object tree
   Str:Obj encode()

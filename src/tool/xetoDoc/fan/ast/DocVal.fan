@@ -36,6 +36,9 @@ abstract const class DocVal
   ** Type of this value
   abstract DocTypeRef type()
 
+  ** Attempt to turn this slots default into a value (not accurate fidelity)
+  virtual Obj? toVal() { null }
+
   ** Encode to a JSON object tree
   Obj? encodeVal()
   {
@@ -90,6 +93,19 @@ const class DocScalar : DocVal
 
   ** Return this
   override DocScalar asScalar() { this }
+
+  ** Attempt to turn this value into Fantom object (not accurate fidelity)
+  override Obj? toVal() { doVal ?: scalar }
+  private Obj? doVal()
+  {
+    switch (type.qname)
+    {
+      case "sys::Number": return Number.fromStr(scalar, false)
+      case "sys::Date":   return Date.fromStr(scalar, false)
+      case "sys::Time":   return Time.fromStr(scalar, false)
+    }
+    return null
+  }
 }
 
 **************************************************************************
