@@ -50,7 +50,7 @@ const class DocMarkdown
   ** Return this text as HTML
   Str html()
   {
-    HtmlRenderer.builder.build.render(parse)
+    Xetodoc.toHtml(text, null)
   }
 
   ** Return this text as plain text to be used for search indexing
