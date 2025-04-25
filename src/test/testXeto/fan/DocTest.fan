@@ -12,6 +12,7 @@ using xeto::Lib
 using xetoEnv
 using haystack
 using haystack::Dict
+using haystack::Ref
 using xetoDoc
 
 **
@@ -410,6 +411,7 @@ class DocTest : AbstractXetoTest
     verifyUriToRef(`/acme.foo/Baz`)
     verifyUriToRef(`/search`)
     verifyUriToRef(`/search?q=foo bar`)
+    verifyEq(DocUtil.uriToRef(`/foo/bar#baz`), Ref("foo::bar"))
   }
 
   Void verifyUriToRef(Uri uri)

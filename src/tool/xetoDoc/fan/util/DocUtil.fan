@@ -27,7 +27,11 @@ const class DocUtil
       return Ref("search::" + q.toBuf.toBase64Uri)
     }
 
-    return Ref(uri.toStr[1..-1].replace("/", "::"))
+    str := uri.toStr[1..-1]
+    if (uri.frag != null) str = str[0..<str.index("#")]
+    str = str.replace("/", "::")
+
+    return Ref(str)
   }
 
   ** Convert Ref to normalized doc URI

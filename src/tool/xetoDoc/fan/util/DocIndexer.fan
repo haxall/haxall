@@ -88,7 +88,7 @@ abstract class DocIndexer
       bodyDoc := Document()
       Node.eachBetween(heading, headings.getSafe(i+1)) |node| { bodyDoc.appendChild(node) }
 
-      uri   := x.uri // TODO: add frag
+      uri   := x.uri + `#${heading.anchor}`
       type  := DocIndexerSectionType.heading(heading.level)
       title := renderer.render(heading)
       body  := renderer.render(bodyDoc)
