@@ -31,6 +31,9 @@ const class DocSearch : DocPage
   ** Search pattern
   const Str pattern
 
+  ** Additional info to display about search or empty string
+  const Str info := ""
+
   ** Search hits
   const DocSummary[] hits
 
@@ -41,6 +44,7 @@ const class DocSearch : DocPage
     obj.ordered = true
     obj["page"]    = pageType.name
     obj["pattern"] = pattern
+    obj["info"]    = info
     obj["hits"]    = DocSummary.encodeList(hits)
     return obj
   }
@@ -51,6 +55,7 @@ const class DocSearch : DocPage
     DocSearch
     {
       it.pattern = obj.getChecked("pattern")
+      it.info    = obj["info"] as Str ?: ""
       it.hits    = DocSummary.decodeList(obj.getChecked("hits"))
     }
   }
