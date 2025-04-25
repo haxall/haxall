@@ -159,15 +159,27 @@ const class DocIndexerSection
 **
 enum class DocIndexerSectionType
 {
-  lib,
-  type,
-  global,
-  slot,
-  instance,
-  chapter,
-  h1,
-  h2,
-  h3
+  lib      (0.8f),
+  type     (0.7f),
+  global   (0.6f),
+  slot     (0.1f),
+  instance (0.0f),
+  chapter  (1.0f),
+  h1       (0.90f),
+  h2       (0.91f),
+  h3       (0.92f)
+
+  private new make(Float weight)
+  {
+    this.weight = weight
+    this.tag    = (name[0] == 'h' && name.size == 2) ? "chapter" : name
+  }
+
+  ** Boost weight from 1.0 (most important) to 0.0 (least important)
+  const Float weight
+
+  ** Best tag to use for section type
+  const Str tag
 
   static DocIndexerSectionType heading(Int level)
   {
