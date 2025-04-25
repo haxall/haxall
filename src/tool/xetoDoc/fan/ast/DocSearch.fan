@@ -45,7 +45,7 @@ const class DocSearch : DocPage
     obj["page"]    = pageType.name
     obj["pattern"] = pattern
     obj["info"]    = info
-    obj["hits"]    = DocSummary.encodeList(hits)
+    obj.addNotNull("hits", DocSummary.encodeList(hits))
     return obj
   }
 
@@ -56,7 +56,7 @@ const class DocSearch : DocPage
     {
       it.pattern = obj.getChecked("pattern")
       it.info    = obj["info"] as Str ?: ""
-      it.hits    = DocSummary.decodeList(obj.getChecked("hits"))
+      it.hits    = DocSummary.decodeList(obj["hits"])
     }
   }
 }
