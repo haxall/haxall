@@ -1588,6 +1588,16 @@ const class Etc
     throw CoerceErr("Cannot convert to ids: ${val?.typeof}")
   }
 
+  ** Recursively walk any value type to find ids.
+  @NoDoc static Void walkRefs(Obj? val, |Ref| f)
+  {
+    if (val == null) return
+    if (val is Ref)  { f(val); return }
+    if (val is List) { ((List)val).each |x| { walkRefs(x, f) }; return }
+    if (val is Dict) { ((Dict)val).each |x| { walkRefs(x, f) }; return }
+    if (val is Grid) { ((Grid)val).each |x| { walkRefs(x, f) }; return }
+  }
+
   **
   ** Coerce a value to a record Dict:
   **   - Row or Dict returns itself

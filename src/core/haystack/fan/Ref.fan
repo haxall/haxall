@@ -209,6 +209,9 @@ final const class Ref : xeto::Ref
   ** Null ref has id value of "null"?
   Bool isNull() { id == "null" }
 
+  ** Is this a spec ref with double colons
+  Bool isSpec() { id.contains("::") }
+
   ** Return if the string is a valid Ref identifier or error message if not
   internal static Str? isIdErr(Str n)
   {

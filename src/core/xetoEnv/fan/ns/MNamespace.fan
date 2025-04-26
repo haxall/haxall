@@ -699,6 +699,9 @@ abstract const class MNamespace : LibNamespace, CNamespace
     subject := val as Dict ?: Etc.dict0
     logger := |XetoLogRec x| { items.add(logRecToItem(subject, x)) }
 
+    cx := ActorContext.curx(false) as XetoContext
+    if (cx == null) Console.cur.warn("Must call LibNamespace.validate within XetoContext")
+
     opts = Etc.dictSet(opts, "explain", Unsafe(logger))
     if (spec == null) spec = specOf(val)
     fits(val, spec, opts)
