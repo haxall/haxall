@@ -19,6 +19,13 @@ using haystack::Remove
 ** Instantiator implements LibNamespace.instantiate with support
 ** for templating, graph instantiate, and pluggable options
 **
+** Options expanded from LibNamespace.instantiate for private use:
+**   - 'graph': Marker tag to instantiate graph of recs (will auto-generate ids)
+**   - 'abstract': marker to supress error if spec is abstract
+**   - 'id': Ref tag to include in new instance
+**   - 'haystack': marker tag to use Haystack level data fidelity
+**   - 'graphInclude': map of Str:Str of qnames to explicitly include in graph
+**
 @Js
 class Instantiator
 {
@@ -191,12 +198,14 @@ class Instantiator
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate a graph with queries
-  Dict[] graph(XetoSpec spec, Dict dict)
+  Dict[] graph(XetoSpec spec, Dict root)
   {
     oldParent := this.parent
-    this.parent  = dict
+    this.parent  = root
     graph := Dict[,]
-    graph.add(dict)
+    graph.add(root)
+
+    include := opts["graphInclude"] as Str:Str
 
     // recursively add constrained query children
     spec.slots.each |slot|
@@ -205,6 +214,7 @@ class Instantiator
       if (slot.slots.isEmpty) return
       slot.slots.each |x|
       {
+        if (include != null && !include.containsKey(x.qname)) return
         kids := instantiate(x)
         if (kids isnot List) return
         graph.addAll(kids)
