@@ -675,7 +675,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   override Obj? instantiate(Spec spec, Dict? opts := null)
   {
-    XetoUtil.instantiate(this, spec, opts ?: Etc.dict0)
+    Instantiator(this, opts ?: Etc.dict0).instantiate(spec)
   }
 
   override SpecChoice choice(Spec spec)
