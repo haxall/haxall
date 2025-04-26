@@ -14,6 +14,8 @@ pragma: Lib <
     { lib: "sys.comp", versions: "0.1.x" }
     { lib: "sys.api", versions: "0.1.x" }
     { lib: "ph", versions: "0.1.x" }
+    { lib: "ph.attrs", versions: "0.1.x" }
+    { lib: "ph.protocols", versions: "0.1.x" }
     { lib: "ph.points", versions: "0.1.x" }
     { lib: "axon" }
   }

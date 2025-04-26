@@ -28,7 +28,7 @@ class AxonTest : AbstractAxonTest
   Void testSpecExpr()
   {
     // simple
-    ns := initNamespace(["ph", "ph.points", "hx.test.xeto", "hx.test.xeto.deep"])
+    ns := initNamespace(["ph", "ph.points", "ph.attrs", "ph.protocols", "hx.test.xeto", "hx.test.xeto.deep"])
     verifySpecRef(Str<|Str|>, "sys::Str")
     verifySpecRef(Str<|Dict|>, "sys::Dict")
     verifySpecRef(Str<|Point|>, "ph::Point")
@@ -57,7 +57,7 @@ class AxonTest : AbstractAxonTest
   @HxRuntimeTest
   Void testReflect()
   {
-    ns := initNamespace(["ph", "ph.points", "hx.test.xeto"])
+    ns := initNamespace(["ph", "ph.points", "ph.attrs", "ph.protocols", "hx.test.xeto"])
 
     // specLib
     verifySame(eval("""specLib("ph.points")"""), ns.lib("ph.points"))
@@ -368,7 +368,7 @@ class AxonTest : AbstractAxonTest
   @HxRuntimeTest
   Void testFitsExplain()
   {
-    ns := initNamespace(["ph", "ph.points", "hx.test.xeto"])
+    ns := initNamespace(["ph", "ph.points","ph.attrs", "ph.protocols", "hx.test.xeto"])
 
     verifyFitsExplain(Str<|fitsExplain({}, Dict)|>, [,])
 

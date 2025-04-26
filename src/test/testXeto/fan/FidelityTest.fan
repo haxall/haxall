@@ -24,7 +24,7 @@ class FidelityTest : AbstractAxonTest
   @HxRuntimeTest
   Void test()
   {
-    ns := initNamespace(["ph", "ph.points", "hx.test.xeto"])
+    ns := initNamespace(["ph", "ph.points", "ph.attrs", "ph.protocols", "hx.test.xeto"])
 
     verifyFidelity(ns, "bool",  true, true)
     verifyFidelity(ns, "int",   123, n(123), 123f)
