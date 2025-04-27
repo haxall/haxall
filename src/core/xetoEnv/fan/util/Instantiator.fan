@@ -39,6 +39,9 @@ class Instantiator
     this.fidelity = XetoUtil.optFidelity(opts)
     this.parent   = opts["parent"] as Dict
     this.isGraph  = opts.has("graph")
+    this.graphInclude = opts["graphInclude"] as Str:Str
+    this.addTestTag = opts["addTestTag"] as Str
+    initConnOpts
   }
 
   ** Instantiate default value of spec
@@ -116,6 +119,7 @@ class Instantiator
     addDis(acc, spec)
     addSlots(acc, spec)
     addParentRefs(acc)
+    if (addTestTag != null) acc[addTestTag] = Marker.val
     dict := Etc.dictFromMap(acc)
 
     // decode to Fantom type
@@ -250,10 +254,7 @@ class Instantiator
   ** Instantiate a graph with queries
   Dict[] graph(XetoSpec spec, Dict root)
   {
-    // graph only options
     if (!isGraph) throw Err("must set graph opt")
-    this.graphInclude = opts["graphInclude"] as Str:Str
-    initConnOpts
 
     // push parent onto stack
     oldParent := this.parent
@@ -393,6 +394,7 @@ class Instantiator
   const Dict opts
   const XetoFidelity fidelity
   const Bool isGraph
+  const Str? addTestTag
   private Dict? parent
   private [Str:Str]? graphInclude
   private Ref? connId
