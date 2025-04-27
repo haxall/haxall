@@ -204,9 +204,25 @@ class Instantiator
     if (parentId == null) return
 
     // TODO: temp hack for equip/point common use case
-    if (parent.has("equip"))   acc["equipRef"] = parentId
-    if (parent.has("site"))    acc["siteRef"]  = parentId
-    if (parent.has("siteRef")) acc["siteRef"]  = parent["siteRef"]
+    checkParentRef(acc, parentId, "site")
+    checkParentRef(acc, parentId, "system")
+    checkParentRef(acc, parentId, "space")
+    checkParentRef(acc, parentId, "equip")
+  }
+
+  private Void checkParentRef(Str:Obj acc, Ref parentId, Str tag)
+  {
+    refTag := tag + "Ref"
+    if (parent.has(tag))
+    {
+      // site -> siteRef=parentId
+      acc[refTag] = parentId
+    }
+    else if (parent.has(refTag))
+    {
+      // siteRef -> siteRef=parent.siteRef
+      acc[refTag] = parent.get(refTag)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
