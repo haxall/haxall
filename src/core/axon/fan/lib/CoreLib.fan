@@ -1416,12 +1416,13 @@ const class CoreLib
   {
     oldToNewIds := Ref:Ref[:]
     grid.each |r| { oldToNewIds[r.id] = Ref.gen }
-    return grid.map |r|
-    {
-      map := Str:Obj?[:]
-      r.each |v, n| { map[n] = swizzleRefsVal(oldToNewIds, v) }
-      return Etc.makeDict(map)
-    }
+    return swizzleRefsVal(oldToNewIds, grid)
+  }
+
+  ** Swizzle utility
+  @NoDoc static Obj? swizzleRefsVal(Ref:Ref oldToNewIds, Obj? v)
+  {
+    Etc.mapRefs(v) |x| { oldToNewIds.get(x, x) }
   }
 
   ** Replace every grid cell with the given 'from' value with the 'to' value.
@@ -1433,15 +1434,6 @@ const class CoreLib
   **   grid.gridReplace(null, 0)   // replace all null cells with zero
   **   grid.gridReplace(na(), 0)   // replace all NA cells with zero
   @Axon static Grid gridReplace(Grid grid, Obj? from, Obj? to) { grid.replace(from, to) }
-
-  ** Swizzle utility
-  @NoDoc static Obj? swizzleRefsVal(Ref:Ref oldToNewIds, Obj? v)
-  {
-    if (v == null) return null
-    if (v is Ref) return oldToNewIds.get(v, v)
-    if (v is List) return ((List)v).map |x| { swizzleRefsVal(oldToNewIds, x) }
-    return v
-  }
 
 //////////////////////////////////////////////////////////////////////////
 // Numeric Stuff

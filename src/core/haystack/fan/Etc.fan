@@ -1588,16 +1588,6 @@ const class Etc
     throw CoerceErr("Cannot convert to ids: ${val?.typeof}")
   }
 
-  ** Recursively walk any value type to find ids.
-  @NoDoc static Void walkRefs(Obj? val, |Ref| f)
-  {
-    if (val == null) return
-    if (val is Ref)  { f(val); return }
-    if (val is List) { ((List)val).each |x| { walkRefs(x, f) }; return }
-    if (val is Dict) { ((Dict)val).each |x| { walkRefs(x, f) }; return }
-    if (val is Grid) { ((Grid)val).each |x| { walkRefs(x, f) }; return }
-  }
-
   **
   ** Coerce a value to a record Dict:
   **   - Row or Dict returns itself
@@ -1663,6 +1653,27 @@ const class Etc
   {
     cx = curContext(cx)
     return ids.map |id->Dict| { cx.deref(id) ?: throw UnknownRecErr("Cannot read id: $id.toCode") }
+  }
+
+  ** Recursively walk any haystack value type to find ids.
+  @NoDoc static Void eachRef(Obj? val, |Ref| f)
+  {
+    if (val == null) return
+    if (val is Ref)  { f(val); return }
+    if (val is List) { ((List)val).each |x| { eachRef(x, f) }; return }
+    if (val is Dict) { ((Dict)val).each |x| { eachRef(x, f) }; return }
+    if (val is Grid) { ((Grid)val).each |x| { eachRef(x, f) }; return }
+  }
+
+  ** Recursively walk any haystack value type to map ids.
+  @NoDoc static Obj? mapRefs(Obj? val, |Ref->Ref| f)
+  {
+    if (val == null) return null
+    if (val is Ref)  return f(val)
+    if (val is List) return ((List)val).map |v| { mapRefs(v, f) }
+    if (val is Dict) return Etc.dictMap(val) |v| { mapRefs(v, f) }
+    if (val is Grid) return ((Grid)val).map |row| { mapRefs(row, f) }
+    return val
   }
 
   **

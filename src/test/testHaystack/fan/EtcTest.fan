@@ -836,6 +836,51 @@ class EtcTest : HaystackTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Ref Iteration
+//////////////////////////////////////////////////////////////////////////
+
+ Void testRefIteration()
+ {
+   none := Ref?[,]
+   a := Ref("a")
+   b := Ref("b")
+   c := Ref("c")
+
+   verifyRefIteration(null,      none)
+   verifyRefIteration("x",       none)
+   verifyRefIteration(m,         none)
+   verifyRefIteration(n(123),    none)
+   verifyRefIteration(["foo"],   none)
+   verifyRefIteration(Etc.dict0, none)
+
+   dictBC := Etc.dict3("b", b, "c", c, "x", m)
+   verifyRefIteration(a, [a])
+   verifyRefIteration(dictBC, [b, c])
+   verifyRefIteration(dictBC, [b, c])
+   verifyRefIteration(["x", dictBC], [b, c])
+   verifyRefIteration(Etc.dict1("list", ["x", dictBC]), [b, c])
+
+   g := Etc.makeMapGrid(null, ["c1":[a], "c2":dictBC])
+   g = verifyRefIteration(g, [a, b, c])
+   verifyEq(g[0]->c1, Obj?[Ref("_a")])
+   verifyDictEq(g[0]->c2, Etc.dict3("b", Ref("_b"), "c", Ref("_c"), "x", m))
+ }
+
+ Obj? verifyRefIteration(Obj? x, Ref[] expect)
+ {
+   acc := Ref?[,]
+   Etc.eachRef(x) |id| { acc.add(id) }
+   verifyValEq(acc, expect)
+
+   m := Etc.mapRefs(x) |id| { Ref("_" + id) }
+   acc.clear
+   Etc.eachRef(m) |id| { acc.add(id) }
+   verifyValEq(acc, expect.map |id->Ref?| { Ref("_"+id) })
+
+   return m
+ }
+
+//////////////////////////////////////////////////////////////////////////
 // Grid Flatten
 //////////////////////////////////////////////////////////////////////////
 
