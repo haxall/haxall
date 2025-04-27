@@ -1,0 +1,19 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   26 Apr 2025  Brian Frank  Creation
+//
+
+TemplateA : Ahu {
+  attrs: Query {
+    ElecAcVoltAttr { val: 24V }
+    ManufacturerAttr { val: "Test"}
+  }
+  points: {
+    ZoneAirTempSensor { bacnetAddr: BacnetAddr { addr: "AI3" } }
+    ZoneAirHumiditySensor  { bacnetAddr: BacnetAddr { addr: "AI4" } }
+  }
+}
+

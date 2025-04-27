@@ -624,11 +624,12 @@ class NamespaceTest : AbstractXetoTest
   Void verifyInstantiate(LibNamespace ns, Str qname, Obj? expect, Obj? opts := null)
   {
     spec := ns.spec(qname)
+
     opts = Etc.dictSet(Etc.makeDict(opts), "haystack", m)
     actual := ns.instantiate(spec, opts)
     // echo("-- $qname: $actual ?= $expect")
     if (expect is Map)
-      verifyDictEq(actual, expect)
+      verifyInstantiateDictEq(ns, actual, expect)
     else
       verifyValEq(actual, expect)
   }
@@ -659,8 +660,25 @@ class NamespaceTest : AbstractXetoTest
     actual.each |a, i|
     {
       e := expect[i]
-      verifyDictEq(a, e)
+      verifyInstantiateDictEq(ns, a, e)
     }
+  }
+
+  Void verifyInstantiateDictEq(LibNamespace ns, Dict actual, Str:Obj expect)
+  {
+    // swizzle point dis -> navName, disMacro
+    spec    := ns.spec(actual->spec.toStr)
+    isPoint := spec.isa(ns.spec("ph::Point"))
+    isEquip := spec.isa(ns.spec("ph::Equip"))
+    if (isPoint || isEquip)
+    {
+      expect = expect.dup
+      dis := expect.getChecked("dis")
+      expect.remove("dis")
+      expect.add("navName", dis)
+      expect.add("disMacro", isEquip ? Str<|$siteRef $navName|> : Str<|$equipRef $navName|>)
+    }
+    verifyDictEq(actual, expect)
   }
 
 //////////////////////////////////////////////////////////////////////////

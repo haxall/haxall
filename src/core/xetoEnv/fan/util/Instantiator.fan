@@ -129,9 +129,24 @@ class Instantiator
   ** Try to add reasonable default display tag
   private Void addDis(Str:Obj acc, Spec spec)
   {
-    // add dis if not a dict slot
+    // don't add display if a slot dict value
     isSlot := spec.parent != null && !spec.parent.isQuery
-    if (!isSlot) acc["dis"] = XetoUtil.isAutoName(spec.name) ? spec.base.name : spec.name
+    if (isSlot) return
+
+    // generate default display name
+    dis := XetoUtil.isAutoName(spec.name) ? spec.base.name : spec.name
+
+    // if spec has siteRef, then assume we are doing navName
+    if (spec.slot("siteRef", false) != null)
+    {
+      parentRef   := isPoint(spec) ? "equipRef" : "siteRef"
+      acc["navName"]  = dis
+      acc["disMacro"] = "\$$parentRef \$navName"
+    }
+    else
+    {
+      acc["dis"] = dis
+    }
   }
 
   ** Add slots
@@ -167,6 +182,7 @@ class Instantiator
       val := slot.get("val") as Ref
       if (val?.id == "x") return true
     }
+    if (slot.name.endsWith("Addr")) return true // TODO
     return false
   }
 
@@ -202,29 +218,51 @@ class Instantiator
   {
     oldParent := this.parent
     this.parent  = root
-    graph := Dict[,]
-    graph.add(root)
-
-    include := opts["graphInclude"] as Str:Str
+    acc := Dict[,]
+    acc.add(root)
 
     // recursively add constrained query children
     spec.slots.each |slot|
     {
       if (!slot.isQuery) return
       if (slot.slots.isEmpty) return
-      slot.slots.each |x|
-      {
-        if (include != null && !include.containsKey(x.qname)) return
-        kids := instantiate(x)
-        if (kids isnot List) return
-        graph.addAll(kids)
-      }
+      addGraphQuery(acc, slot)
     }
 
     this.parent = oldParent
 
-    return graph
+    return acc
   }
+
+  private Void addGraphQuery(Dict[] acc, Spec query)
+  {
+    // TODO: need to treat attrs specially
+    if (query.name == "attrs") return
+
+    include := opts["graphInclude"] as Str:Str
+
+    query.slots.each |x|
+    {
+      if (include != null && !include.containsKey(x.qname)) return
+      kids := instantiate(x)
+      if (kids isnot List) return
+      acc.addAll(kids)
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  ** Is given spec a subtype of ph::Point
+  Bool isPoint(Spec spec) { pointSpec !=null && spec.isa(pointSpec) }
+
+  ** Spec for ph::Point
+  once Spec? pointSpec() { ns.spec("ph::Point", false) }
+
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
 
   const MNamespace ns
   const Dict opts
