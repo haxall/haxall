@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using haystack::Dict
 using haystack::Etc
 using haystack::Kind
 using haystack::Marker
@@ -24,7 +25,9 @@ using haystack::Remove
 **   - 'abstract': marker to supress error if spec is abstract
 **   - 'id': Ref tag to include in new instance
 **   - 'haystack': marker tag to use Haystack level data fidelity
+** Extended:
 **   - 'graphInclude': map of Str:Str of qnames to explicitly include in graph
+**   - 'conn': connector to bind, must be dict of '{id:@x, addrSpec:@FooAddr}'
 **
 @Js
 class Instantiator
@@ -51,17 +54,8 @@ class Instantiator
     if (spec.isMultiRef)      return Ref#.emptyList
     if (spec === ns.sys.dict) return Etc.dict0
 
-    // build up dict tags
-    acc := Str:Obj[:] { it.ordered = true }
-    addId(acc)
-    addSpec(acc, spec)
-    addDis(acc, spec)
-    addSlots(acc, spec)
-    addParentRefs(acc)
-    dict := Etc.dictFromMap(acc)
-
-    // decode to Fantom type
-    if (spec.binding.isDict) dict = spec.binding.decodeDict(dict)
+    // create dict
+    dict := dict(spec)
 
     // graph vs dict
     if (isGraph)
@@ -112,6 +106,25 @@ class Instantiator
 // Dicts
 //////////////////////////////////////////////////////////////////////////
 
+  ** Instantiate a dict
+  private Dict dict(XetoSpec spec)
+  {
+    // build up dict tags
+    acc := Str:Obj[:] { it.ordered = true }
+    addId(acc)
+    addSpec(acc, spec)
+    addDis(acc, spec)
+    addSlots(acc, spec)
+    addParentRefs(acc)
+    dict := Etc.dictFromMap(acc)
+
+    // decode to Fantom type
+    if (fidelity.isFull && spec.binding.isDict)
+      dict = spec.binding.decodeDict(dict)
+
+    return dict
+  }
+
   ** Add id if specified in opts or we are generating graph
   private Void addId(Str:Obj acc)
   {
@@ -154,14 +167,14 @@ class Instantiator
   {
     spec.slots.each |s|
     {
-      if (skipSlot(s)) return
+      if (skipSlot(spec, s)) return
       if (s.name == "enum") return acc.setNotNull("enum", enumDefault(s))
       acc.setNotNull(s.name, instantiate(s))
     }
   }
 
   ** Determine if we should skip a spec slot for instantiation purposes
-  private Bool skipSlot(Spec slot)
+  private Bool skipSlot(Spec parent, Spec slot)
   {
     if (slot.isQuery)  return true
     if (slot.isFunc)   return true
@@ -176,13 +189,18 @@ class Instantiator
       else
         return true
     }
+
+    // ref
     if (slot.isRef)
     {
       // don't default non-null ref slots to Ref default value "x"
       val := slot.get("val") as Ref
       if (val?.id == "x") return true
     }
-    if (slot.name.endsWith("Addr")) return true // TODO
+
+    // skip FooAddr slots in a point (handled via conn)
+    if (isPoint(parent) && isAddr(slot.type)) return true
+
     return false
   }
 
@@ -232,12 +250,18 @@ class Instantiator
   ** Instantiate a graph with queries
   Dict[] graph(XetoSpec spec, Dict root)
   {
+    // graph only options
+    if (!isGraph) throw Err("must set graph opt")
+    this.graphInclude = opts["graphInclude"] as Str:Str
+    initConnOpts
+
+    // push parent onto stack
     oldParent := this.parent
     this.parent  = root
-    acc := Dict[,]
-    acc.add(root)
 
     // recursively add constrained query children
+    acc := Dict[,]
+    acc.add(root)
     spec.slots.each |slot|
     {
       if (!slot.isQuery) return
@@ -245,25 +269,104 @@ class Instantiator
       addGraphQuery(acc, slot)
     }
 
+    // restore parent from stack
     this.parent = oldParent
 
     return acc
   }
 
+  ** Instantiate graph entities within given query
   private Void addGraphQuery(Dict[] acc, Spec query)
   {
     // TODO: need to treat attrs specially
     if (query.name == "attrs") return
 
-    include := opts["graphInclude"] as Str:Str
-
     query.slots.each |x|
     {
-      if (include != null && !include.containsKey(x.qname)) return
-      kids := instantiate(x)
-      if (kids isnot List) return
-      acc.addAll(kids)
+      addGraphQuerySlot(acc, x)
     }
+  }
+
+  ** Instantiate one or zeor graph entity for given query slot
+  private Void addGraphQuerySlot(Dict[] acc, Spec x)
+  {
+    // chck if we should skip it
+    if (skipQuerySlot(x)) return null
+
+    // instantiate as entities - graph mode will return Dict[]
+    kids := instantiate(x) as List
+    if (kids == null) return null
+
+    // post-process first child only (only first maps to slot spec)
+    kids.each |kid, i|
+    {
+      if (i == 0) kid = postProcessGraphQuerySlot(x, kid)
+      acc.add(kid)
+    }
+  }
+
+  ** Should we skip given query slot
+  private Bool skipQuerySlot(Spec x)
+  {
+    if (graphInclude != null && !graphInclude.containsKey(x.qname)) return true
+    return false
+  }
+
+  ** Post processing for query
+  private Dict postProcessGraphQuerySlot(Spec recSlot, Dict rec)
+  {
+    // add connector info
+    if (connId != null && isPoint(recSlot))
+      rec = addConnAddr(recSlot, rec)
+
+    return rec
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Connector
+//////////////////////////////////////////////////////////////////////////
+
+  ** Init options: conn:{id, addrSpec}
+  private Void initConnOpts()
+  {
+    c := opts["conn"] as Dict
+    if (c == null) return
+
+    // resolve required id tag
+    this.connId = c.get("id") ?: throw Err("opts conn missing id")
+
+    // resolve required addrSpec tag
+    addrSpecId := c.get("addrSpec") as Ref ?: throw Err("opts conn missing addrSpec")
+    this.connAddrSpec = ns.spec(addrSpecId.toStr)
+  }
+
+  ** Add connector tags
+  private Dict addConnAddr(Spec ptSlot, Dict rec)
+  {
+    // find addr slot prototype
+    Spec? addrSlot := null
+    ptSlot.slots.each |x| { if (x.isa(connAddrSpec)) addrSlot = x }
+    if (addrSlot == null) return rec
+
+    // instantiate it
+    addr := dict(addrSlot)
+    addrVal := addr["addr"]
+    if (addrVal == null) return rec
+
+    // map to protocol specific tags
+    name := connAddrSpec.name[0..-5].decapitalize
+    markerTag  := name + "Point"
+    connRefTag := name + "ConnRef"
+    curTag     := name + "Cur"
+
+    acc := Etc.dictToMap(rec)
+    acc[markerTag]  = Marker.val
+    acc[connRefTag] = connId
+    acc[curTag]     = addrVal
+
+    // TODO: special handling for bacnet, modbus, etc
+
+    return Etc.dictFromMap(acc)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -273,8 +376,14 @@ class Instantiator
   ** Is given spec a subtype of ph::Point
   Bool isPoint(Spec spec) { pointSpec !=null && spec.isa(pointSpec) }
 
+  ** Is given spec a subtype of ph.protocols::ProtocolAddr
+  Bool isAddr(Spec spec) { addrSpec !=null && spec.isa(addrSpec) }
+
   ** Spec for ph::Point
   once Spec? pointSpec() { ns.spec("ph::Point", false) }
+
+  ** Spec for ph.protocols::ProtocolAddr
+  once Spec? addrSpec() { ns.spec("ph.protocols::ProtocolAddr", false) }
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
@@ -284,6 +393,9 @@ class Instantiator
   const Dict opts
   const XetoFidelity fidelity
   const Bool isGraph
-  Dict? parent
+  private Dict? parent
+  private [Str:Str]? graphInclude
+  private Ref? connId
+  private Spec? connAddrSpec
 }
 

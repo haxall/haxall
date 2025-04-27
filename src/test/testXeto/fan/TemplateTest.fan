@@ -121,13 +121,42 @@ class TemplateTest : AbstractXetoTest
       "equipRef":eqId,
       "unit":"%RH", "kind":"Number", "spec":zah._id],
       "zone,air,humidity,sensor,point")
+
+    // instantiate with connector
+    conn := Etc.makeDict(["id":Ref("bc"), "addrSpec":Ref("ph.protocols::BacnetAddr")])
+    opts = Etc.makeDict(["haystack":m, "graph":m, "conn":conn])
+    recs = ns.instantiate(specA, opts)
+    eqId = recs[0].id
+    verifyEq(recs.size, 3)
+    verifyTemplate(recs[0], [
+      "navName":"TemplateA",
+      "disMacro":"\$siteRef \$navName",
+      "spec":specA._id],
+      "ahu,equip")
+    verifyTemplate(recs[1], [
+      "navName":"ZoneAirTempSensor",
+      "disMacro":"\$equipRef \$navName",
+      "equipRef":eqId,
+      "bacnetPoint":m,
+      "bacnetConnRef":conn.id,
+      "bacnetCur":"AI3",
+      "unit":"°F", "kind":"Number", "spec":zat._id],
+      "zone,air,temp,sensor,point")
+    verifyTemplate(recs[2], [
+      "navName":"ZoneAirHumiditySensor",
+      "disMacro":"\$equipRef \$navName",
+      "equipRef":eqId,
+      "bacnetPoint":m,
+      "bacnetConnRef":conn.id,
+      "bacnetCur":"AI4",
+      "unit":"%RH", "kind":"Number", "spec":zah._id],
+      "zone,air,humidity,sensor,point")
   }
 
   Void verifyTemplate(Dict rec, Str:Obj expect, Str markers)
   {
-echo
-echo("---> $rec.dis")
-Etc.dictDump(rec)
+    // echo; echo("---> $rec.dis"); Etc.dictDump(rec)
+
     expect.set("id", rec.id)
     markers.split(',').each |n| { expect.set(n, Marker.val) }
 
