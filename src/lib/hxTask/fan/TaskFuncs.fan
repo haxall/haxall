@@ -59,8 +59,9 @@ const class TaskFuncs
       .addCol("queueSize")
       .addCol("queuePeak")
       .addCol("evalNum")
-      .addCol("evalTotalTime")
-      .addCol("evalAvgTime")
+      .addCol("evalTotalDur")
+      .addCol("evalAvgDur")
+      .addCol("evalLastDur")
       .addCol("evalLastTime")
       .addCol("fault")
     lib.tasks.each |t|
@@ -76,8 +77,9 @@ const class TaskFuncs
         Number(t.queueSize),
         Number(t.queuePeak),
         Number(t.evalNum),
-        Number.makeDuration(Duration(t.evalTotalTicks)),
-        Number.makeDuration(Duration(t.evalAvgTicks)),
+        Number.makeDuration(Duration(t.evalTotalDur)),
+        Number.makeDuration(Duration(t.evalAvgDur)),
+        Number.makeDuration(Duration(t.evalLastDur)),
         t.evalNum == 0 ? null : DateTime.now(null) - Duration(Duration.nowTicks - t.evalLastTime),
         t.fault
       ])
