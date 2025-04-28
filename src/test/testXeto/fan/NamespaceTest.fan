@@ -575,7 +575,7 @@ class NamespaceTest : AbstractXetoTest
     verifyInstantiate(ns, "ph::ElecMeter", ["dis":"ElecMeter", "spec":Ref("ph::ElecMeter"), "equip":m, "meter":m, "elec":m])
     verifyInstantiate(ns, "ph::AcElecMeter", ["dis":"AcElecMeter", "spec":Ref("ph::AcElecMeter"), "equip":m, "meter":m, "elec":m, "ac":m])
 
-    verifyInstantiate(ns, "ph::Meter", ["id":Ref("foo"), "dis":"Meter", "spec":Ref("ph::Meter"), "equip":m, "meter":m], ["id":Ref("foo")])
+    verifyInstantiate(ns, "ph::Meter", ["id":Ref("foo", "Meter"), "dis":"Meter", "spec":Ref("ph::Meter"), "equip":m, "meter":m], ["id":Ref("foo")])
 
     verifyInstantiate(ns, "ph.points::DischargeAirTempSensor", ["dis":"DischargeAirTempSensor", "spec":Ref("ph.points::DischargeAirTempSensor"),  "discharge":m, "air":m, "temp":m, "sensor":m, "point":m, "kind":"Number", "unit":"°F"])
     verifyInstantiate(ns, "ashrae.g36::G36ReheatVav", ["dis":"G36ReheatVav", "spec":Ref("ashrae.g36::G36ReheatVav"), "equip":m, "vav":m, "hotWaterHeating":m, "singleDuct":m])

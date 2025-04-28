@@ -164,6 +164,10 @@ class Instantiator
     {
       acc["dis"] = dis
     }
+
+    // update id with display name
+    id := acc["id"] as Ref
+    if (id != null) id.disVal = dis
   }
 
   ** Add slots
