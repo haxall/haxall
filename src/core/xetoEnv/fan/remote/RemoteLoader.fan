@@ -241,13 +241,19 @@ internal class RemoteLoader
     // simple single base class solution
     acc := Str:XetoSpec[:]
     acc.ordered = true
+
+    autoCount := 0
     x.base.cslots |slot|
     {
-      if (acc[slot.name] == null) acc[slot.name] = slot.asm
+      name := slot.name
+      if (XetoUtil.isAutoName(name)) name = XetoUtil.autoName(autoCount++)
+      if (acc[name] == null) acc[name] = slot.asm
     }
     x.slotsOwn.each |slot|
     {
-      acc[slot.name] = slot
+      name := slot.name
+      if (XetoUtil.isAutoName(name)) name = XetoUtil.autoName(autoCount++)
+      acc[name] = slot
     }
     return MSlots(names.dictMap(acc))
   }

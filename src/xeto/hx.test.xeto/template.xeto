@@ -12,13 +12,22 @@ TemplateA : Ahu {
     ManufacturerAttr { val: "Test"}
   }
   points: {
-    ZoneAirTempSensor      {
+    ZoneAirTempSensor {
       ModbusAddr { addr: "16474", encoding: "s2", scale: "0.01" }
       BacnetAddr { addr: "AI3" }
     }
-    ZoneAirHumiditySensor  {
+    ZoneAirHumiditySensor {
       ModbusAddr { addr: "16477", encoding: "u2", scale: "0.1" }
       BacnetAddr { addr: "AI4" }
+    }
+  }
+}
+
+TemplateB : TemplateA {
+  points: {
+    ZoneCo2Sensor {
+      ModbusAddr { addr: "16478" }
+      BacnetAddr { addr: "AI5" }
     }
   }
 }

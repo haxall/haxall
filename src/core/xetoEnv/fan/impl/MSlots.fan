@@ -55,12 +55,12 @@ const final class MSlots : SpecSlots
     return acc
   }
 
-  override Void each(|Spec| f)
+  override Void each(|Spec,Str| f)
   {
     map.each(f)
   }
 
-  override Obj? eachWhile(|Spec->Obj?| f)
+  override Obj? eachWhile(|Spec,Str->Obj?| f)
   {
     map.eachWhile(f)
   }
@@ -102,3 +102,4 @@ internal const class MSlotsDict : Dict
   override Obj? eachWhile(|Obj, Str->Obj?| f) { slots.map.eachWhile(f) }
   override Obj? trap(Str n, Obj?[]? a := null) { slots.get(n, true) }
 }
+
