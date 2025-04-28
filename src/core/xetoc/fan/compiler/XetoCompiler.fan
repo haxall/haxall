@@ -193,16 +193,7 @@ internal class XetoCompiler
   }
 
   ** Generate an auto name of "_0", "_1", etc
-  Str autoName(Int i)
-  {
-    // optimize to reuse "_0", "_1", etc per compilation
-    if (i < autoNames.size) return autoNames[i]
-    if (i != autoNames.size) throw Err(i.toStr)
-    s := i.toStr
-    n := StrBuf(1+s.size).addChar('_').add(s).toStr
-    autoNames.add(n)
-    return n
-  }
+  Str autoName(Int i) { XetoUtil.autoName(i) }
 
   ** Make an interned ref
   Ref makeRef(Str id, Str? dis)
@@ -231,7 +222,6 @@ internal class XetoCompiler
   internal ADict? pragma               // Parse
   internal Dict? json                  // JSON output
   internal Bool externRefs             // allow unresolved refs to compile
-  private Str[] autoNames := [,]       // autoName
   private Str:Ref internRefs := [:]    // makeRef
 }
 

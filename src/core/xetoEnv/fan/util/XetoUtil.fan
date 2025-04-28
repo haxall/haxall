@@ -6,6 +6,7 @@
 //   25 Feb 2023  Brian Frank  Creation
 //
 
+using concurrent
 using util
 using xeto
 using haystack::Etc
@@ -467,6 +468,23 @@ const class XetoUtil
     return acc
   }
 
+
+  ** Generate an auto name of "_0", "_1", etc.
+  ** This method must be called in incrementing order
+  static Str autoName(Int i)
+  {
+    // check cache
+    autoNames := (Str[])autoNamesRef.val
+    if (i < autoNames.size) return autoNames[i]
+    if (i != autoNames.size) throw ArgErr("Out of order: $i")
+
+    // build new one and cache
+    s := i.toStr
+    n := StrBuf(1+s.size).addChar('_').add(s).toStr
+    autoNamesRef.val = autoNames.dup.add(n).toImmutable
+    return n
+  }
+  private const static AtomicRef autoNamesRef := AtomicRef(Str[,].toImmutable)
 }
 
 **************************************************************************
