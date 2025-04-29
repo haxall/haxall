@@ -34,6 +34,11 @@ abstract internal class Step
     compiler.entries.each(f)
   }
 
+  Void eachLib(|PageEntry| f)
+  {
+    compiler.libEntries.each(f)
+  }
+
   Spec[] typesToDoc(Lib lib)
   {
     lib.types.findAll |t| { !XetoUtil.isAutoName(t.name) }
@@ -50,9 +55,19 @@ abstract internal class Step
     return acc
   }
 
+  PageEntry? chapter(Lib lib, Str name)
+  {
+    compiler.entries.find |page|
+    {
+      page.pageType == DocPageType.chapter && page.lib == lib  && page.uri.name == name
+    }
+  }
+
   DocSummary[] chapterSummaries(Lib lib)
   {
-    chapters(lib).map |x->DocSummary| { x.summary }
+    list := chapters(lib)
+    list.sort |a, b| { a.order <=> b.order }
+    return list.map |x->DocSummary| { x.summary }
   }
 
   PageEntry entry(Obj x)

@@ -131,7 +131,10 @@ class PageEntry
   internal DocPage? pageRef
 
   ** This is the index.md file for lib pages
-  Str? mdIndex
+  DocMarkdown? mdIndex
+
+  ** Used for sorting chapters
+  internal Int order
 
   ** Debug string
   override Str toStr() { "$uri.toCode $dis [$pageType]" }
