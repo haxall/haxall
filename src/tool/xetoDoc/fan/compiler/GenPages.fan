@@ -46,21 +46,7 @@ internal class GenPages: Step
 
   DocIndex genIndex(PageEntry entry)
   {
-    DocIndex
-    {
-      it.uri    = entry.uri
-      it.title  = entry.dis
-      it.groups = [DocIndexGroup("Libs", genLibSummaries)]
-    }
-  }
-
-  private DocSummary[] genLibSummaries()
-  {
-    DocSummary[] summaries := compiler.libEntries.map |x->DocSummary|
-    {
-      DocSummary(x.link, ((DocLib)x.pageRef).doc.summary)
-    }
-    return summaries.sort |a, b| { a.link.dis <=> b.link.dis }
+    DocIndex.makeForNamespace(ns)
   }
 
   DocLib genLib(PageEntry entry, Lib x)

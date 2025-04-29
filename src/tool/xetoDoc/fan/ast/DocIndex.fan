@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xeto::Lib
 using haystack
 using haystack::Dict
 
@@ -16,6 +17,45 @@ using haystack::Dict
 @Js
 const class DocIndex : DocPage
 {
+  ** Simple default implementation (at least for now)
+  static DocIndex makeForNamespace(LibNamespace ns)
+  {
+    // build doc summary for each lib and assign to a group name
+    acc := Str:DocSummary[][:]
+    ns.libs.each |lib|
+    {
+      link := DocLink(DocUtil.libToUri(lib.name), lib.name)
+      doc  := DocMarkdown(lib.meta["doc"] ?: "")
+      summary := DocSummary(link, doc)
+
+      groupName := toGroupName(lib)
+      groupList := acc[groupName]
+      if (groupList == null) acc[groupName] = groupList = DocSummary[,]
+      groupList.add(summary)
+    }
+
+    // flatten groups
+    groupNames := acc.keys.sort
+    ["doc", "sys", "ph"].eachr |n| { groupNames.moveTo(n, 0) }
+    groups := DocIndexGroup[,]
+    groupNames.each |n| { groups.add(DocIndexGroup(n, acc[n])) }
+
+    return make {
+      it.uri    = DocUtil.indexUri
+      it.title  = "Doc Index"
+      it.groups = groups
+    }
+  }
+
+  private static Str toGroupName(Lib lib)
+  {
+    name := lib.name
+    toks := name.split('.', false)
+    if (toks.size == 1) return name
+    if (toks[0] == "cc") return toks[0] + "." + toks[1]
+    return toks[0]
+  }
+
   ** Constructor
   new make(|This| f) { f(this) }
 
