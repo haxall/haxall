@@ -150,6 +150,22 @@ const final class MChoice : SpecChoice
 
     // multiple choices - only valid if multiChoice
     if (multiChoice(spec)) return
+
+    // TODO: allow air for other gases such as "air co2" for concentrations
+    if (selections.size == 2)
+    {
+      // check if we have air as one choice
+      airIndex := selections.findIndex { it.qname == "ph::Air" }
+      if (airIndex != null)
+      {
+        // if one of the other choices is a gas then allow it
+        otherIndex := airIndex == 0 ? 1 : 0
+        other := selections[otherIndex]
+        for (CSpec? x := other; x != null; x = x.cbase)
+          if (x.qname == "ph::Gas") return
+      }
+    }
+
     onErr("Conflicting choice '$spec.ctype': " + selections.join(", ") { it.name })
   }
 
