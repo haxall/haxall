@@ -587,13 +587,18 @@ const class XetoFuncs
     cx := curContext
     ns := cx.xeto
     hits := XetoLogRec[,]
-    gb := GridBuilder().addCol("id").addCol("msg")
+    gb := GridBuilder()
+            .addCol("id")
+            .addCol("recId", Etc.dict1("hidden", Marker.val))
+            .addCol("status")
+            .addCol("msg")
 
     // massage opts dict to include built-in opts
     optsMap := Etc.dictToMap(opts)
     optsMap["explain"] = Unsafe(|XetoLogRec rec| { hits.add(rec) })
     optsMap["haystack"] = Marker.val // force haystack level fidelity
     opts = Etc.dictFromMap(optsMap)
+    showOk := opts.has("showOk")
 
     // walk thru each rec
     Etc.toRecs(recs).each |rec, i|
@@ -623,11 +628,20 @@ const class XetoFuncs
       if (recSpec != null) ns.fits(rec, recSpec, opts)
 
       // if we had hits, then add to our result grid
-      if (!hits.isEmpty)
+      id := rec["id"] as Ref ?: Ref("_$i")
+      if (hits.isEmpty)
       {
-        id := rec["id"] as Ref ?: Ref("_$i")
-        gb.addRow2(id, hits.size == 1 ? "1 error" : "$hits.size errors")
-        hits.each |hit| { gb.addRow2(id, hit.msg) }
+        if (showOk)
+          gb.addRow([id, id, "ok", "0 errors"])
+      }
+      else
+      {
+        gb.addRow([id, id, "err", hits.size == 1 ? "1 error" : "$hits.size errors"])
+        hits.each |hit, hiti|
+        {
+          hitId := Ref("$id-$hiti", id.disVal)
+          gb.addRow([hitId, id, "err", hit.msg])
+        }
       }
     }
 
