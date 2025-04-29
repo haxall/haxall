@@ -223,6 +223,38 @@ const class Etc
   }
 
   **
+  ** Create a Dict with up to six optional values
+  **
+  @NoDoc static Dict dictx(Str? n0, Obj? v0,
+                           Str? n1 := null, Obj? v1 := null,
+                           Str? n2 := null, Obj? v2 := null,
+                           Str? n3 := null, Obj? v3 := null,
+                           Str? n4 := null, Obj? v4 := null,
+                           Str? n5 := null, Obj? v5 := null)
+  {
+    x := Obj[,]
+    x.capacity = 16
+    if (n0 != null && v0 != null) x.add(n0).add(v0)
+    if (n1 != null && v1 != null) x.add(n1).add(v1)
+    if (n2 != null && v2 != null) x.add(n2).add(v2)
+    if (n3 != null && v3 != null) x.add(n3).add(v3)
+    if (n4 != null && v4 != null) x.add(n4).add(v4)
+    if (n5 != null && v5 != null) x.add(n5).add(v5)
+
+    switch (x.size)
+    {
+      case 0:  return emptyDict
+      case 2:  return Dict1(x[0], x[1])
+      case 4:  return Dict2(x[0], x[1], x[2], x[3])
+      case 6:  return Dict3(x[0], x[1], x[2], x[3], x[4], x[5])
+      case 8:  return Dict4(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7])
+      case 10: return Dict5(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9])
+      case 12: return Dict6(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10], x[11])
+      default: throw Err()
+    }
+  }
+
+  **
   ** Create a Dict from a map of name/value pairs.  Result will automatically
   ** optimize to create one of the fixed sizes if six or less pairs.
   **

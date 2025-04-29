@@ -178,6 +178,25 @@ class EtcTest : HaystackTest
 
     // test different sizes
     (1..10).each  |i| { verifyDictSize(i) }
+
+    // dictx
+    100.times
+    {
+      n := Str?[,]
+      v := Obj?[,]
+      acc := Str:Obj[:]
+      6.times |i|
+      {
+        ni := (0..100).random < 70 ? "n_$i" : null
+        vi := (0..100).random < 70 ? Number(i*100) : null
+        n.add(ni)
+        v.add(vi)
+        if (ni != null && vi != null) acc[ni] = vi
+      }
+      a := Etc.dictx(n[0], v[0], n[1], v[1], n[2], v[2], n[3], v[3], n[4], v[4], n[5], v[5])
+      e := Etc.dictFromMap(acc)
+      verifyDictEq(a, e)
+    }
   }
 
   private Void verifyDictSize(Int size)
@@ -226,6 +245,18 @@ class EtcTest : HaystackTest
       case 4:   verifyFixedDict(4, Etc.dict4("a", n(0), "b", n(1), "c", n(2), "d", n(3)), dict)
       case 5:   verifyFixedDict(5, Etc.dict5("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4)), dict)
       case 6:   verifyFixedDict(6, Etc.dict6("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4), "f", n(5)), dict)
+      default:  verifyEq(dict.typeof.qname, "haystack::NotNullMapDict")
+    }
+
+    // try out dictx
+    switch (size)
+    {
+      case 1:   verifyFixedDict(1, Etc.dictx("a", n(0)), dict)
+      case 2:   verifyFixedDict(2, Etc.dictx("a", n(0), "b", n(1)), dict)
+      case 3:   verifyFixedDict(3, Etc.dictx("a", n(0), "b", n(1), "c", n(2)), dict)
+      case 4:   verifyFixedDict(4, Etc.dictx("a", n(0), "b", n(1), "c", n(2), "d", n(3)), dict)
+      case 5:   verifyFixedDict(5, Etc.dictx("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4)), dict)
+      case 6:   verifyFixedDict(6, Etc.dictx("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4), "f", n(5)), dict)
       default:  verifyEq(dict.typeof.qname, "haystack::NotNullMapDict")
     }
   }
