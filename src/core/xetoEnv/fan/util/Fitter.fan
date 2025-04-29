@@ -287,7 +287,16 @@ internal class Fitter
     if (query.slots.isEmpty) return null
 
     // run the query to get matching extent
-    extent := Query(ns, cx, opts).query(dict, query)
+    Dict[]? extent
+    try
+    {
+      extent = Query(ns, cx, opts).query(dict, query)
+    }
+    catch (Err e)
+    {
+      echo("ERROR: fitsQuery: $query\n$e")
+      return null
+    }
 
     // use query.of as explain name
     ofDis := query.of(false)?.name ?: query.name
