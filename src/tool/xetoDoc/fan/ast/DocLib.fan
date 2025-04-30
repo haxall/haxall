@@ -42,6 +42,9 @@ const class DocLib : DocPage
   ** Library for this page (or null if top-level indexing)
   override DocLibRef? lib() { DocLibRef(name, version) }
 
+  ** Readme markdown if available
+  const DocMarkdown readme := DocMarkdown.empty
+
   ** Encode to a JSON object tree
   override Str:Obj encode()
   {
@@ -57,6 +60,7 @@ const class DocLib : DocPage
     obj.addNotNull("globals",   DocSummary.encodeList(globals))
     obj.addNotNull("instances", DocSummary.encodeList(instances))
     obj.addNotNull("chapters",  DocSummary.encodeList(chapters))
+    if (!readme.isEmpty) obj["readme"] = readme.encode
     return obj
   }
 
@@ -74,6 +78,7 @@ const class DocLib : DocPage
       it.globals   = DocSummary.decodeList(obj["globals"])
       it.instances = DocSummary.decodeList(obj["instances"])
       it.chapters  = DocSummary.decodeList(obj["chapters"])
+      it.readme    = DocMarkdown.decode(obj["readme"])
     }
   }
 

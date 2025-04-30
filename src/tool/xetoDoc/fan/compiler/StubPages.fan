@@ -56,9 +56,15 @@ internal class StubPages: Step
       {
         if (uri.ext == "md")
         {
+          // read markdown as string
           markdown := lib.files.get(uri).readAllStr
-          if (uri.name == "index.md")
+
+          // special handling for index.md and readme.md
+          n := uri.name.lower
+          if (n == "index.md")
             libDoc.mdIndex = DocMarkdown(markdown)
+          else if (n == "readme.md")
+            libDoc.readme = DocMarkdown(markdown)
           else
             add(PageEntry.makeChapter(lib, uri, markdown))
         }

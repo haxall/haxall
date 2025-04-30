@@ -62,6 +62,7 @@ internal class GenPages: Step
       it.globals   = summaries(x.globals)
       it.instances = summaries(x.instances)
       it.chapters  = chapterSummaries(x)
+      it.readme    = entry.readme ?: DocMarkdown.empty
     }
   }
 

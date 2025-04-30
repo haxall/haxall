@@ -133,6 +133,9 @@ class PageEntry
   ** This is the index.md file for lib pages
   DocMarkdown? mdIndex
 
+  ** Readme.md for lib pages
+  DocMarkdown? readme
+
   ** Used for sorting chapters
   internal Int order
 

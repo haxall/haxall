@@ -23,6 +23,9 @@ const class DocMarkdown
   ** Raw markdown text
   const Str text
 
+  ** Is this the empty string
+  Bool isEmpty() { text.isEmpty }
+
   ** Debug string
   override Str toStr() { text }
 
