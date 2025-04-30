@@ -57,6 +57,13 @@ class Instantiator
     if (spec.isMultiRef)      return Ref#.emptyList
     if (spec === ns.sys.dict) return Etc.dict0
 
+    // special handling for Obj
+    if (spec.type === ns.sys.obj)
+    {
+       val := spec["val"]
+       if (val != null) return val
+    }
+
     // create dict
     dict := dict(spec)
 
