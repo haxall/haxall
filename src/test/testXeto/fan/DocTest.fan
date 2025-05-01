@@ -94,9 +94,9 @@ class DocTest : AbstractXetoTest
     verifyChapter(roundtrip(entry))
 
     // tags
-    verifySame(DocTag("lib"), DocTags.lib)
-    verifySame(DocTag("type"), DocTags.type)
-    verifyEq(DocTag("foobar").name, "foobar")
+    verifySame(DocTag.intern("lib"), DocTags.lib)
+    verifySame(DocTag.intern("type"), DocTags.type)
+    verifyEq(DocTag.intern("foobar").name, "foobar")
 
     // search
     search := DocSearch { it.pattern = "q"; it.hits = [

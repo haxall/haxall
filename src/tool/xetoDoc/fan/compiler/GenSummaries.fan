@@ -66,7 +66,7 @@ internal class GenSummaries : Step
         if (node is Heading)
         {
           text := textRend.render(node)
-          tags = [DocTag.makeCustom(text)]
+          tags = [DocTag.intern(text)]
         }
         else if (node is ListBlock)
         {

@@ -42,9 +42,6 @@ const class DocLib : DocPage
   ** Library for this page (or null if top-level indexing)
   override DocLibRef? lib() { DocLibRef(name, version) }
 
-  ** Readme markdown if available
-  const DocMarkdown readme := DocMarkdown.empty
-
   ** Encode to a JSON object tree
   override Str:Obj encode()
   {
@@ -56,6 +53,7 @@ const class DocLib : DocPage
     obj["doc"]     = doc.encode
     obj["depends"] = DocLibDepend.encodeList(depends)
     obj["meta"]    = meta.encode
+    obj.addNotNull("tags",      DocTag.encodeList(tags))
     obj.addNotNull("types",     DocSummary.encodeList(types))
     obj.addNotNull("globals",   DocSummary.encodeList(globals))
     obj.addNotNull("instances", DocSummary.encodeList(instances))
@@ -73,6 +71,7 @@ const class DocLib : DocPage
       it.version   = Version.fromStr(obj.getChecked("version"))
       it.doc       = DocMarkdown.decode(obj.get("doc"))
       it.depends   = DocLibDepend.decodeList(obj["depends"])
+      it.tags      = DocTag.decodeList(obj.get("tags"))
       it.meta      = DocDict.decode(obj.get("meta"))
       it.types     = DocSummary.decodeList(obj["types"])
       it.globals   = DocSummary.decodeList(obj["globals"])
@@ -81,6 +80,9 @@ const class DocLib : DocPage
       it.readme    = DocMarkdown.decode(obj["readme"])
     }
   }
+
+  ** Tags to annotate this summary
+  const DocTag[] tags
 
   ** Top-level type specs defined in this library
   const DocSummary[] types
@@ -93,6 +95,9 @@ const class DocLib : DocPage
 
   ** Chapters defined in this library
   const DocSummary[] chapters
+
+  ** Readme markdown if available
+  const DocMarkdown readme := DocMarkdown.empty
 }
 
 **************************************************************************

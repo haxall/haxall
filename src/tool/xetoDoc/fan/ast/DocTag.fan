@@ -6,26 +6,37 @@
 //   16 Apr 2025  Brian Frank  Creation
 //
 
+using haystack::Ref
+
 **
 ** DocTag is used to annotate search hit summaries
 **
 @Js
 const class DocTag
 {
-  ** Create by name
-  static new fromStr(Str name)
+  ** Create custom tag
+  static DocTag intern(Str name, Int? count := null)
   {
-    DocTags.byName.get(name) ?: makeCustom(name)
+    if (count == null)
+    {
+      predefined := DocTags.byName.get(name)
+      if (predefined != null) return predefined
+    }
+    return make(name, count)
   }
 
-  ** Create custom tag
-  static DocTag makeCustom(Str name) { doMake(name) }
-
   ** Internal constructor
-  internal new doMake(Str name) { this.name = name }
+  internal new make(Str name, Int? count := null)
+  {
+    this.name = name
+    this.count = count
+  }
 
   ** Tag name
   const Str name
+
+  ** Count if applicable
+  const Int? count
 
   ** Return tag name
   override Str toStr() { name }
@@ -43,6 +54,7 @@ const class DocTag
     obj := Str:Obj[:]
     obj.ordered = true
     obj["name"] = name
+    obj.addNotNull("count", count)
     return obj
   }
 
@@ -57,9 +69,13 @@ const class DocTag
   static DocTag? decode([Str:Obj]? obj)
   {
     if (obj == null) return null
-    name := obj.getChecked("name")
-    return fromStr(name)
+    name  := obj.getChecked("name")
+    count := obj.get("count")?.toStr?.toInt
+    return intern(name, count)
   }
+
+  ** Icon to use for this tag
+  Ref icon() { DocUtil.tagToIcon(name) }
 }
 
 **************************************************************************
@@ -72,12 +88,14 @@ const class DocTag
 @Js
 const class DocTags
 {
-  static const DocTag lib      := DocTag.makeCustom("lib")
-  static const DocTag type     := DocTag.makeCustom("type")
-  static const DocTag global   := DocTag.makeCustom("global")
-  static const DocTag slot     := DocTag.makeCustom("slot")
-  static const DocTag instance := DocTag.makeCustom("instance")
-  static const DocTag chapter  := DocTag.makeCustom("chapter")
+  static const DocTag lib      := DocTag("lib")
+  static const DocTag type     := DocTag("type")
+  static const DocTag global   := DocTag("global")
+  static const DocTag slot     := DocTag("slot")
+  static const DocTag instance := DocTag("instance")
+  static const DocTag chapter  := DocTag("chapter")
+  static const DocTag sys      := DocTag("sys")
+  static const DocTag ph       := DocTag("ph")
 
   static once Str:DocTag byName()
   {

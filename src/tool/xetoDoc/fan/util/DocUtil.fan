@@ -16,6 +16,11 @@ using haystack::Ref
 @Js
 const class DocUtil
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Uris
+//////////////////////////////////////////////////////////////////////////
+
   ** Convert normalized doc URI to Ref
   static Ref uriToRef(Uri uri)
   {
@@ -118,7 +123,61 @@ const class DocUtil
             .toStr.toUri
   }
 
-  // Standard icon refs
+//////////////////////////////////////////////////////////////////////////
+// Tags support
+//////////////////////////////////////////////////////////////////////////
+
+  ** Generate tags for given library
+  static DocTag[] genTags(Lib lib, Lib? ph)
+  {
+    acc := DocTag[,]
+
+    // categories
+    cats := lib.meta["categories"] as List
+    if (cats != null) cats.each |n| { acc.add(DocTag.intern(n.toStr)) }
+
+    // ph rollups
+    if (ph != null)
+    {
+      equip := ph.spec("Equip"); equips := 0
+      point := ph.spec("Point"); points := 0
+      lib.types.each |t|
+      {
+        if (t.isa(point)) points++
+        else if (t.isa(equip)) equips++
+      }
+      if (equips > 0) acc.add(DocTag("equips", equips))
+      if (points > 0) acc.add(DocTag("points", points))
+    }
+
+    // overall rollups
+    if (lib.specs.size     > 0) acc.add(DocTag("specs",     lib.specs.size))
+    if (lib.globals.size   > 0) acc.add(DocTag("globals",   lib.globals.size))
+    if (lib.metaSpecs.size > 0) acc.add(DocTag("metas",     lib.metaSpecs.size))
+    if (lib.instances.size > 0) acc.add(DocTag("instances", lib.instances.size))
+
+    return acc
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Standard icon refs
+//////////////////////////////////////////////////////////////////////////
+
+  static Ref tagToIcon(Str name)
+  {
+    switch (name)
+    {
+      case "specs":     return typeIcon
+      case "globals":   return globalIcon
+      case "metas":     return globalIcon
+      case "instances": return instanceIcon
+      case "sys":       return sysIcon
+      case "equips":    return equipIcon
+      case "points":    return pointIcon
+      case "elec":      return elecIcon
+      default:          return tagIcon
+    }
+  }
 
   static const Ref indexIcon    := Ref("ion.icons::list")
   static const Ref libIcon      := Ref("ion.icons::package")
@@ -126,5 +185,10 @@ const class DocUtil
   static const Ref globalIcon   := Ref("ion.icons::tag")
   static const Ref instanceIcon := Ref("ion.icons::at-sign")
   static const Ref chapterIcon  := Ref("ion.icons::sticky-note")
+  static const Ref equipIcon    := Ref("ion.icons::hard-drive")
+  static const Ref pointIcon    := Ref("ion.icons:::circle-dot")
+  static const Ref sysIcon      := Ref("ion.icons::power")
+  static const Ref elecIcon     := Ref("ion.icons::zap")
+  static const Ref tagIcon      := Ref("ion.icons::tag")
 }
 
