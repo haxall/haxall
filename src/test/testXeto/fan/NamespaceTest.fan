@@ -34,7 +34,7 @@ class NamespaceTest : AbstractXetoTest
   private Void doTestSysLib(LibNamespace ns)
   {
     // lib basics
-    sys := verifyLibBasics(ns, "sys", curVersion)
+    sys := verifyLibBasics(ns, "sys", curVersion, ["sys"])
     verifySame(ns.lib("sys"), sys)
     verifyEq(sys.name, "sys")
     verifyEq(sys.version, curVersion)
@@ -162,7 +162,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(ns.isAllLoaded, ns.isRemote)
 
     // lib basics
-    ph := verifyLibBasics(ns, "ph", curVersion)
+    ph := verifyLibBasics(ns, "ph", curVersion, ["ph"])
     verifyEq(ph.depends.size, 1)
     verifyEq(ph.depends[0].name, "sys")
     verifyEq(ph.depends[0].versions.toStr, "" + curVersion.major + "." + curVersion.minor + ".x")
@@ -242,7 +242,7 @@ class NamespaceTest : AbstractXetoTest
   private Void doTestHxTestLib(LibNamespace ns)
   {
     // lib basics
-    lib := verifyLibBasics(ns, "hx.test.xeto", curVersion)
+    lib := verifyLibBasics(ns, "hx.test.xeto", curVersion, ["haxall"])
 
     a  := lib.type("A");  ax := a.slot("x")
     b  := lib.type("B");  by := b.slot("y")
@@ -343,8 +343,8 @@ class NamespaceTest : AbstractXetoTest
   Void testNameTable()
   {
     ns  := createNamespace(["sys", "ph"])
-    sys := verifyLibBasics(ns, "sys", curVersion)
-    ph  := verifyLibBasics(ns, "ph", curVersion)
+    sys := verifyLibBasics(ns, "sys", curVersion, ["sys"])
+    ph  := verifyLibBasics(ns, "ph", curVersion, ["ph"])
     str := sys.type("Str")
     org := sys.type("LibOrg")
     ref := sys.type("Ref")
@@ -709,7 +709,7 @@ class NamespaceTest : AbstractXetoTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  Lib verifyLibBasics(LibNamespace ns, Str name, Version version)
+  Lib verifyLibBasics(LibNamespace ns, Str name, Version version, Str[] categories)
   {
     lib := ns.lib(name)
 
@@ -730,6 +730,9 @@ class NamespaceTest : AbstractXetoTest
     verifySame(lib->id, lib._id)
     verifyEq(lib["loaded"], Marker.val)
     verifyEq(lib["spec"], Ref("sys::Lib"))
+
+    cats := lib.meta["categories"] as List
+    verifyEq(Str[,].addAll(cats), categories)
 
     asDict := Etc.dictMerge(lib.meta, [
       "id":lib._id,

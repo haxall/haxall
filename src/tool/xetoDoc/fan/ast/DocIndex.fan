@@ -26,7 +26,9 @@ const class DocIndex : DocPage
     {
       link := DocLink(DocUtil.libToUri(lib.name), lib.name)
       doc  := DocMarkdown(lib.meta["doc"] ?: "")
-      summary := DocSummary(link, doc)
+      cats := (Obj?[])(lib.meta["categories"] as List ?: Obj#.emptyList)
+      tags := cats.map |n->DocTag| { DocTag.makeCustom(n) }
+      summary := DocSummary(link, doc, tags)
 
       groupName := toGroupName(lib)
       groupList := acc[groupName]

@@ -13,6 +13,7 @@ pragma: Lib <
     { lib: "sys", versions: "0.1.x" }
     { lib: "sys.api", versions: "0.1.x" }
   }
+  categories: {"haxall"}
   org: {
    dis: "Haxall"
    uri: "https://haxall.io/"

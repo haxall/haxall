@@ -12,6 +12,7 @@ pragma: Lib <
   depends: {
     { lib: "sys", versions: "0.1.x" }
   }
+  categories: {"haxall"}
   org: {
    dis: "Haxall"
    uri: "https://haxall.io/"

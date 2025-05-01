@@ -19,6 +19,7 @@ pragma: Lib <
     { lib: "ph.points", versions: "0.1.x" }
     { lib: "axon" }
   }
+  categories: {"haxall"}
   org: {
    dis: "Haxall"
    uri: "https://haxall.io/"
