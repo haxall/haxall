@@ -85,13 +85,13 @@ const class DocUtil
     spec.isGlobal ? globalToUri(spec.qname) : typeToUri(spec.qname)
   }
 
-  ** Convert type spec qualilfied name to its normalized URI
+  ** Convert type spec qualified name to its normalized URI
   static Uri typeToUri(Str qname)
   {
     qnameToUri(qname, false)
   }
 
-  ** Convert global spec qualilfied name to its normalized URI
+  ** Convert global spec qualified name to its normalized URI
   static Uri globalToUri(Str qname)
   {
     qnameToUri(qname, true)
