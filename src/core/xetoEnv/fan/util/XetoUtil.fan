@@ -82,20 +82,33 @@ const class XetoUtil
   }
 
   ** Generate an auto name of "_0", "_1", etc.
-  ** This method must be called in incrementing order
+  ** This method must be called in incrementing order for a given thread
   static Str autoName(Int i)
   {
     // check cache
     autoNames := (Str[])autoNamesRef.val
     if (i < autoNames.size) return autoNames[i]
-    if (i != autoNames.size) throw ArgErr("Out of order: $i")
 
-    // build new one and cache
-    s := i.toStr
-    n := StrBuf(1+s.size).addChar('_').add(s).toStr
-    autoNamesRef.val = autoNames.dup.add(n).toImmutable
-    return n
+    // lock, try again, and add new one
+    autoNameLock.lock
+    try
+    {
+      // check again
+      autoNames = (Str[])autoNamesRef.val
+      if (i < autoNames.size) return autoNames[i]
+
+      //  i should be size
+      if (i != autoNames.size) throw ArgErr("Out of order: $i")
+
+      // build new one and cache
+      s := i.toStr
+      n := StrBuf(1+s.size).addChar('_').add(s).toStr
+      autoNamesRef.val = autoNames.dup.add(n).toImmutable
+      return n
+    }
+    finally autoNameLock.unlock
   }
+  private const static Lock autoNameLock := Lock.makeReentrant
   private const static AtomicRef autoNamesRef := AtomicRef(Str[,].toImmutable)
 
   ** Convert "fooBarBaz" or "FooBarBaz" to "foo.bar.baz".
