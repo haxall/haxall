@@ -52,21 +52,17 @@ internal class StubPages: Step
     // chapters
     if (lib.hasMarkdown)
     {
-      lib.files.list.each |uri|
+      DocUtil.libEachMarkdownFile(lib) |uri, special|
       {
-        if (uri.ext == "md")
-        {
-          // read markdown as string
-          markdown := lib.files.get(uri).readAllStr
+        // read markdown as string
+        markdown := lib.files.get(uri).readAllStr
 
-          // special handling for index.md and readme.md
-          n := uri.name.lower
-          if (n == "index.md")
-            libDoc.mdIndex = DocMarkdown(markdown)
-          else if (n == "readme.md")
-            libDoc.readme = DocMarkdown(markdown)
-          else
-            add(PageEntry.makeChapter(lib, uri, markdown))
+        // special handling for index.md and readme.md
+        switch (special)
+        {
+          case "index":  libDoc.mdIndex = DocMarkdown(markdown)
+          case "readme": libDoc.readme  = DocMarkdown(markdown)
+          default:       add(PageEntry.makeChapter(lib, uri, markdown))
         }
       }
     }

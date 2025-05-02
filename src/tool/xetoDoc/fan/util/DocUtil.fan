@@ -150,13 +150,36 @@ const class DocUtil
       if (points > 0) acc.add(DocTag("points", points))
     }
 
-    // overall rollups
+    // overall defs
     if (lib.specs.size     > 0) acc.add(DocTag("specs",     lib.specs.size))
     if (lib.globals.size   > 0) acc.add(DocTag("globals",   lib.globals.size))
     if (lib.metaSpecs.size > 0) acc.add(DocTag("metas",     lib.metaSpecs.size))
     if (lib.instances.size > 0) acc.add(DocTag("instances", lib.instances.size))
 
+    // chapters
+    numChapters := libNumChapters(lib)
+    if (numChapters > 0) acc.add(DocTag("chapters", numChapters))
+
     return acc
+  }
+
+  static Int libNumChapters(Lib lib)
+  {
+    count := 0
+    libEachMarkdownFile(lib) |uri, special| { if (special == null) count++ }
+    return count
+  }
+
+  static Void libEachMarkdownFile(Lib lib, |Uri uri, Str? special| f)
+  {
+    lib.files.list.each |uri|
+    {
+      if (uri.ext != "md") return
+      n := uri.name.lower
+      if (n == "index.md") f(uri, "index")
+      else if (n == "readme.md") f(uri, "readme")
+      else f(uri, null)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -171,6 +194,7 @@ const class DocUtil
       case "globals":   return globalIcon
       case "metas":     return globalIcon
       case "instances": return instanceIcon
+      case "chapters":  return chapterIcon
       case "sys":       return sysIcon
       case "equips":    return equipIcon
       case "points":    return pointIcon
@@ -186,7 +210,7 @@ const class DocUtil
   static const Ref instanceIcon := Ref("ion.icons::at-sign")
   static const Ref chapterIcon  := Ref("ion.icons::sticky-note")
   static const Ref equipIcon    := Ref("ion.icons::hard-drive")
-  static const Ref pointIcon    := Ref("ion.icons:::circle-dot")
+  static const Ref pointIcon    := Ref("ion.icons::circle-dot")
   static const Ref sysIcon      := Ref("ion.icons::power")
   static const Ref elecIcon     := Ref("ion.icons::zap")
   static const Ref tagIcon      := Ref("ion.icons::tag")
