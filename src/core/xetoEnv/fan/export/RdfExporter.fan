@@ -167,10 +167,17 @@ class RdfExporter : Exporter
       return this
     }
 
-    // hasMarkers
+    // slots are either hasMarker, or property shapes
+    props := Spec[,]
     x.slotsOwn.each |s|
     {
       if (s.isMarker) hasMarker(s)
+      else props.add(s)
+    }
+    if (!props.isEmpty)
+    {
+      w("  sh:targetClass ").qname(x.qname).w(" ;").nl
+      props.each |s| { propShape(s) }
     }
 
     w(".").nl
@@ -199,6 +206,35 @@ class RdfExporter : Exporter
   {
     prop := isSys ? ":hasMarker" : "sys:hasMarker"
     w("  ").w(prop).w(" ").qname(slot.qname).w(" ;").nl
+  }
+
+  private Void propShape(Spec slot)
+  {
+    // build constraints
+    sh := Str:Obj[:]
+    sh.ordered = true
+
+    // value type
+    type := slot.type
+    if (type.isEnum || type.isChoice)
+    {
+      sh["class"] = qnameToUri(type.qname)
+    }
+    else
+    {
+      // all scalars map to string for now
+      sh["datatype"] = "xsd:string"
+    }
+
+    // cardinality minCount/maxCount
+    if (!slot.isMaybe) sh["minCount"] = "1"
+    sh["maxCount"] = "1"
+
+    // write property shape
+    w("  sh:property [").nl
+    w("    sh:path ").qname(slot.qname).w(" ;").nl
+    sh.each |v, n| { w("    sh:").w(n).w(" ").w(v).w(" ;").nl }
+    w("  ] ;").nl
   }
 
   private This enum(Spec x)
@@ -392,12 +428,6 @@ class RdfExporter : Exporter
   private This qname(Str qname)
   {
     w(qnameToUri(qname))
-  }
-
-  ** Output Xeto lib::name qualified name with "Shape" suffix
-  private This qnameShape(Str qname)
-  {
-    this.qname(qname).w("Shape")
   }
 
   ** Output Xeto lib::name qualified name
