@@ -16,6 +16,11 @@ using haystack::Ref
 **
 ** RDF Turtle Exporter
 **
+** TODO
+**   - mapping all scalars to xsd:string
+**   - list and dict slots not supported
+**   - query constraints not implemented
+**
 @Js
 class RdfExporter : Exporter
 {
@@ -204,6 +209,7 @@ class RdfExporter : Exporter
 
   private Void hasMarker(Spec slot)
   {
+    if (slot.isMaybe) return // what to do here?
     prop := isSys ? ":hasMarker" : "sys:hasMarker"
     w("  ").w(prop).w(" ").qname(slot.qname).w(" ;").nl
   }
@@ -213,12 +219,25 @@ class RdfExporter : Exporter
     // build constraints
     sh := Str:Obj[:]
     sh.ordered = true
+    hasMinCount := !slot.isMaybe
+    hasMaxCount := true
 
     // value type
     type := slot.type
-    if (type.isEnum || type.isChoice)
+    if (type.isRef || type.isMultiRef)
+    {
+      of := slot.of(false)?.qname ?: "sys::Entity"
+      sh["class"] = qnameToUri(of)
+      if (type.isMultiRef) hasMaxCount = false
+    }
+    else if (type.isEnum)
     {
       sh["class"] = qnameToUri(type.qname)
+    }
+    else if (type.isChoice)
+    {
+      sh["class"] = qnameToUri(type.qname)
+      if (slot.meta.has("multiChoice")) hasMaxCount = false
     }
     else
     {
@@ -227,8 +246,8 @@ class RdfExporter : Exporter
     }
 
     // cardinality minCount/maxCount
-    if (!slot.isMaybe) sh["minCount"] = "1"
-    sh["maxCount"] = "1"
+    if (hasMinCount) sh["minCount"] = "1"
+    if (hasMaxCount) sh["maxCount"] = "1"
 
     // write property shape
     w("  sh:property [").nl
