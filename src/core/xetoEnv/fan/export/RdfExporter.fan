@@ -142,13 +142,21 @@ class RdfExporter : Exporter
   private This cls(Spec x)
   {
     qname(x.qname).nl
+
+    // classes
     w("  a sys:Class ;").nl
     w("  a rdfs:Class ;").nl
-    if (isShape(x)) w("  a sh::NodeShape ;").nl
+
+    // choices (and enums) are instances of themselves;
+    // everything is also a SHACL shape
     if (isSelfInstance(x)) w("  a ").qname(x.qname).w(" ;").nl
+    else w("  a sh::NodeShape ;").nl
+
+    // supertype
     if (x.base != null) w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
     else  w("  rdfs:subClassOf rdfs:Resource ;").nl
 
+    // label and comment properties
     labelAndDoc(x)
 
     // expand enum items as self-referential class/instances
@@ -159,7 +167,7 @@ class RdfExporter : Exporter
       return this
     }
 
-    // markers
+    // hasMarkers
     x.slotsOwn.each |s|
     {
       if (s.isMarker && s.base.isGlobal) hasMarker(s)
@@ -167,21 +175,13 @@ class RdfExporter : Exporter
 
     w(".").nl
 
-    // slot properties
+    // generate slot properties
     x.slotsOwn.each |s|
     {
-      if (s.isMarker) return
       slot(s)
     }
 
     return this
-  }
-
-  private Bool isShape(Spec x)
-  {
-    if (x.isEnum) return true
-    if (x.isChoice) return true
-    return false
   }
 
   private Bool isSelfInstance(Spec x)
@@ -209,7 +209,6 @@ class RdfExporter : Exporter
       w(uri).nl
       w("  a sys:Class ;").nl
       w("  a ").w(uri).w(" ;").nl
-      w("  a sh::NodeShape ;").nl
       w("  rdfs::label ").literal(key).w("; ").nl
       w("  rdfs::subClassOf ").qname(x.qname).w("; ").nl
       w(".").nl
