@@ -20,16 +20,14 @@ const class DocIndex : DocPage
   ** Simple default implementation (at least for now)
   static DocIndex makeForNamespace(LibNamespace ns)
   {
-    // lookup ph lib
-    ph := ns.lib("ph", false)
-
     // build doc summary for each lib and assign to a group name
     acc := Str:DocSummary[][:]
-    ns.libs.each |lib|
+    libs := ns.libs.dup.sort
+    libs.each |lib|
     {
       link := DocLink(DocUtil.libToUri(lib.name), lib.name)
       doc  := DocMarkdown(lib.meta["doc"] ?: "")
-      tags := DocUtil.genTags(lib, ph)
+      tags := DocUtil.genTags(ns, lib)
       summary := DocSummary(link, doc, tags)
 
       groupName := toGroupName(lib)

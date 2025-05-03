@@ -128,7 +128,7 @@ const class DocUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Generate tags for given library
-  static DocTag[] genTags(Lib lib, Lib? ph)
+  static DocTag[] genTags(LibNamespace ns, Lib lib)
   {
     acc := DocTag[,]
 
@@ -136,19 +136,19 @@ const class DocUtil
     cats := lib.meta["categories"] as List
     if (cats != null) cats.each |n| { acc.add(DocTag.intern(n.toStr)) }
 
-    // ph rollups
-    if (ph != null)
+    // specific types rollups
+    comp  := ns.spec("sys.comp::Comp", false); comps := 0
+    equip := ns.spec("ph::Equip", false); equips := 0
+    point := ns.spec("ph::Point", false); points := 0
+    lib.types.each |t|
     {
-      equip := ph.spec("Equip"); equips := 0
-      point := ph.spec("Point"); points := 0
-      lib.types.each |t|
-      {
-        if (t.isa(point)) points++
-        else if (t.isa(equip)) equips++
-      }
-      if (equips > 0) acc.add(DocTag("equips", equips))
-      if (points > 0) acc.add(DocTag("points", points))
+      if (comp  != null && t.isa(comp))  comps++
+      if (equip != null && t.isa(equip)) equips++
+      if (point != null && t.isa(point)) points++
     }
+    if (comps  > 0) acc.add(DocTag("comps",  comps))
+    if (equips > 0) acc.add(DocTag("equips", equips))
+    if (points > 0) acc.add(DocTag("points", points))
 
     // overall defs
     if (lib.specs.size     > 0) acc.add(DocTag("specs",     lib.specs.size))
@@ -196,6 +196,7 @@ const class DocUtil
       case "instances": return instanceIcon
       case "chapters":  return chapterIcon
       case "sys":       return sysIcon
+      case "comps" :    return compIcon
       case "equips":    return equipIcon
       case "points":    return pointIcon
       case "elec":      return elecIcon
@@ -209,6 +210,7 @@ const class DocUtil
   static const Ref globalIcon   := Ref("ion.icons::tag")
   static const Ref instanceIcon := Ref("ion.icons::at-sign")
   static const Ref chapterIcon  := Ref("ion.icons::sticky-note")
+  static const Ref compIcon     := Ref("ion.icons::component")
   static const Ref equipIcon    := Ref("ion.icons::hard-drive")
   static const Ref pointIcon    := Ref("ion.icons::circle-dot")
   static const Ref sysIcon      := Ref("ion.icons::power")

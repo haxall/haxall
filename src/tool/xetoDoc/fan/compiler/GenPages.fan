@@ -58,7 +58,7 @@ internal class GenPages: Step
       it.doc       = genDoc(x.meta["doc"])
       it.meta      = genDict(x.meta)
       it.depends   = genDepends(x)
-      it.tags      = DocUtil.genTags(x, ph)
+      it.tags      = DocUtil.genTags(ns, x)
       it.types     = summaries(typesToDoc(x))
       it.globals   = summaries(x.globals)
       it.instances = summaries(x.instances)
@@ -250,6 +250,5 @@ internal class GenPages: Step
     return DocMarkdown(str)
   }
 
-  once Lib? ph() { ns.lib("ph") }
 }
 
