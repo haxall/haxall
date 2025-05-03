@@ -45,12 +45,20 @@ class RdfExporter : Exporter
   override This lib(Lib lib)
   {
     this.isSys = lib.name == "sys"
+    types := lib.types
+
     prefixDefs(lib)
     ontologyDef(lib)
-    lib.types.each |x| { if (!XetoUtil.isAutoName(x.name)) cls(x) }
+
+    if (isSys)
+    {
+      sysDefs
+      types = types.dup.moveTo(types.find { it.name == "Obj" }, 0)
+    }
+
+    types.each |x| { if (!XetoUtil.isAutoName(x.name)) cls(x) }
     lib.globals.each |x| { global(x) }
     lib.instances.each |x| { instance(x) }
-    if (isSys) sysDefs
     return this
   }
 
@@ -63,6 +71,71 @@ class RdfExporter : Exporter
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Preludes
+//////////////////////////////////////////////////////////////////////////
+
+  ** Generate prefixes for libraries dependencies
+  private Void prefixDefs(Lib lib)
+  {
+    w("# baseURI: ").w(libUri(lib)).nl
+    nl
+    w("@prefix owl: <http://www.w3.org/2002/07/owl#> .").nl
+    w("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .").nl
+    w("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .").nl
+    w("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .").nl
+    w("@prefix sh: <http://www.w3.org/ns/shacl#> .").nl
+    lib.depends.each |x| { prefixDef(ns.lib(x.name)) }
+    prefixDef(lib)
+    nl
+  }
+
+  ** Generate prefix declaration for given library
+  private Void prefixDef(Lib lib)
+  {
+    w("@prefix ").prefix(lib.name).w(": <").w(libUri(lib)).w("#> .").nl
+  }
+
+  ** Generate ontology def
+  private Void ontologyDef(Lib lib)
+  {
+    w("<").w(libUri(lib)).w("> a owl:Ontology ;").nl
+    w("rdfs:label \"").w(lib.name).w(" Ontology\"@en ;")
+    if (!lib.depends.isEmpty)
+    {
+      nl.w("owl:imports ")
+      lib.depends.each |x, i|
+      {
+        if (i > 0) w(",").nl.w(Str.spaces(12))
+        w("<").w(libUri(ns.lib(x.name))).w(">")
+      }
+    }
+    nl.w(".").nl
+    nl
+  }
+
+  ** Extra definitions in the sys library
+  private This sysDefs()
+  {
+    w(
+    Str<|sys:Class
+           a rdfs:Class ;
+           a sh:NodeShape ;
+           rdfs:comment "Xeto meta class" ;
+           rdfs:label "Class"@en ;
+           rdfs:subClassOf rdfs:Class ;
+         .
+         sys:HasMarkerShape
+           a sh:NodeShape ;
+           sh:targetSubjectsOf sys:hasMarker ;
+           sh:property [
+              sh:path sys:hasMarker ;
+              sh:class sys:Marker ;
+           ]
+           .
+  |>)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Definitions
 //////////////////////////////////////////////////////////////////////////
 
@@ -70,9 +143,11 @@ class RdfExporter : Exporter
   {
     qname(x.qname).nl
     w("  a sys:Class ;").nl
+    w("  a rdfs:Class ;").nl
     if (isShape(x)) w("  a sh::NodeShape ;").nl
     if (isSelfInstance(x)) w("  a ").qname(x.qname).w(" ;").nl
     if (x.base != null) w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
+    else  w("  rdfs:subClassOf rdfs:Resource ;").nl
 
     labelAndDoc(x)
 
@@ -205,32 +280,6 @@ class RdfExporter : Exporter
     return this
   }
 
-  ** Extra definitions in the sys library
-  private This sysDefs()
-  {
-    w(
-    Str<|sys:Class
-           a rdfs:Class ;
-           a sh:NodeShape ;
-           rdfs:comment "Xeto meta class" ;
-           rdfs:label "Class"@en ;
-           rdfs:subClassOf rdfs:Class ;
-         .
-         sys:hasMarker
-           a rdf:Property ;
-           rdfs:label "Has Marker"@en ;
-           rdfs:range sys:Marker ;
-         .
-         sys:HasMarkerShape
-           a sh:NodeShape ;
-           sh:targetSubjectsOf sys:hasMarker ;
-           sh:property [
-              sh:path sys:hasMarker ;
-              sh:class sys:Marker ;
-           ] .
-  |>)
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Instances
 //////////////////////////////////////////////////////////////////////////
@@ -318,45 +367,6 @@ class RdfExporter : Exporter
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
-
-  ** Generate prefixes for libraries dependencies
-  private Void prefixDefs(Lib lib)
-  {
-    w("# baseURI: ").w(libUri(lib)).nl
-    nl
-    w("@prefix owl: <http://www.w3.org/2002/07/owl#> .").nl
-    w("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .").nl
-    w("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .").nl
-    w("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .").nl
-    w("@prefix sh: <http://www.w3.org/ns/shacl#> .").nl
-    lib.depends.each |x| { prefixDef(ns.lib(x.name)) }
-    prefixDef(lib)
-    nl
-  }
-
-  ** Generate prefix declaration for given library
-  private Void prefixDef(Lib lib)
-  {
-    w("@prefix ").prefix(lib.name).w(": <").w(libUri(lib)).w("#> .").nl
-  }
-
-  ** Generate ontology def
-  private Void ontologyDef(Lib lib)
-  {
-    w("<").w(libUri(lib)).w("> a owl:Ontology ;").nl
-    w("rdfs:label \"").w(lib.name).w(" Ontology\"@en ;")
-    if (!lib.depends.isEmpty)
-    {
-      nl.w("owl:imports ")
-      lib.depends.each |x, i|
-      {
-        if (i > 0) w(",").nl.w(Str.spaces(12))
-        w("<").w(libUri(ns.lib(x.name))).w(">")
-      }
-    }
-    nl.w(".").nl
-    nl
-  }
 
   ** Convert library to its RDF URI
   private Str libUri(Lib lib)
