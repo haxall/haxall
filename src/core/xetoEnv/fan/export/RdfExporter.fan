@@ -170,7 +170,7 @@ class RdfExporter : Exporter
     // hasMarkers
     x.slotsOwn.each |s|
     {
-      if (s.isMarker && s.base.isGlobal) hasMarker(s)
+      if (s.isMarker) hasMarker(s)
     }
 
     w(".").nl
@@ -198,7 +198,7 @@ class RdfExporter : Exporter
   private Void hasMarker(Spec slot)
   {
     prop := isSys ? ":hasMarker" : "sys:hasMarker"
-    w("  ").w(prop).w(" ").qname(slot.base.qname).w(" ;").nl
+    w("  ").w(prop).w(" ").qname(slot.qname).w(" ;").nl
   }
 
   private This enum(Spec x)
@@ -223,7 +223,9 @@ class RdfExporter : Exporter
 
   private This global(Spec x)
   {
-    prop(x)
+    // don't generate globals, just class properties
+    // prop(x)
+    return this
   }
 
   private This slot(Spec x)
