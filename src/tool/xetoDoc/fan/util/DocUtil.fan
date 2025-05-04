@@ -109,10 +109,20 @@ const class DocUtil
     qnameToUri(qname, false)
   }
 
+  ** Convert normalized URI back to qname or null if not a spec/instance
+  static Str? qnameFromUri(Uri uri)
+  {
+    if (uri.path.size != 2) return null
+    l := uri.path[0]
+    n := uri.path[1]
+    if (n.size >= 2 && n.startsWith("_") && !n[1].isDigit) n = n[1..-1]
+    return "$l::$n"
+  }
+
   ** Convert spec or instance qualified name to its normalized URI
   private static Uri qnameToUri(Str qname, Bool isGlobal)
   {
-    // TODO: we are going to have to deal with lower vs upper case names on file systems
+    // have to deal with lower vs upper case names on file systems
     colons := qname.index("::") ?: throw Err("Not qname: $qname")
     s := StrBuf(qname.size + 3)
     return s.addChar('/')
