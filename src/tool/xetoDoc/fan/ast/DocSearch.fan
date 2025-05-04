@@ -28,6 +28,9 @@ const class DocSearch : DocPage
   ** Page type
   override DocPageType pageType() { DocPageType.search }
 
+  ** Title
+  override Str title() { "Search" }
+
   ** Search pattern
   const Str pattern
 

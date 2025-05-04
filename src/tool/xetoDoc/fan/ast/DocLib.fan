@@ -39,6 +39,9 @@ const class DocLib : DocPage
   ** Page type
   override DocPageType pageType() { DocPageType.lib }
 
+  ** Title
+  override Str title() { name }
+
   ** Library for this page (or null if top-level indexing)
   override DocLibRef? lib() { DocLibRef(name, version) }
 

@@ -71,7 +71,7 @@ const class DocIndex : DocPage
   override DocPageType pageType() { DocPageType.index }
 
   ** Page title
-  const Str title := "Doc Index"
+  const override Str title := "Doc Index"
 
   ** Doc index groups
   const DocIndexGroup[] groups

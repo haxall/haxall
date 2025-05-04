@@ -41,6 +41,9 @@ abstract const class DocSpecPage : DocSpec, DocPage
     this.meta  = meta
   }
 
+  ** Title
+  override Str title() { qname }
+
   ** Qualified name of this spec
   const Str qname
 

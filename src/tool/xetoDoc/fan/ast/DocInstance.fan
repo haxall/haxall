@@ -25,6 +25,9 @@ const class DocInstance : DocPage
   ** URI relative to base dir to page
   override Uri uri() { DocUtil.instanceToUri(qname) }
 
+  ** Title
+  override Str title() { qname }
+
   ** Qualified name of this instance
   const Str qname
 

@@ -25,6 +25,9 @@ const class DocChapter : DocPage
   ** URI relative to base dir to page
   override Uri uri() { DocUtil.chapterToUri(qname) }
 
+  ** Title
+  override Str title() { name }
+
   ** Qualified name of this chapter
   const Str qname
 

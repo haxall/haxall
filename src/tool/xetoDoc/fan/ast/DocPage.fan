@@ -23,6 +23,9 @@ const mixin DocPage
   ** Enumerated type of this node
   abstract DocPageType pageType()
 
+  ** Title
+  abstract Str title()
+
   ** Encode to a JSON object tree
   abstract Str:Obj encode()
 
