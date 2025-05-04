@@ -129,9 +129,9 @@ class CompSpace : AbstractCompSpace
 //////////////////////////////////////////////////////////////////////////
 
   ** Convenience to create new default component instance from spec.
-  Comp createSpec(Spec spec)
+  Comp createSpec(Spec spec, Dict dict := Etc.dict0)
   {
-    create(Etc.makeDict1("spec", spec._id))
+    create(Etc.dictSet(dict, "spec", spec._id))
   }
 
   ** Create new component instance from dict state.
