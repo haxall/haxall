@@ -26,6 +26,9 @@ const mixin DocPage
   ** Title
   abstract Str title()
 
+  ** Source code location within xetolib file if applicable
+  virtual FileLoc? srcLoc() { null }
+
   ** Encode to a JSON object tree
   abstract Str:Obj encode()
 

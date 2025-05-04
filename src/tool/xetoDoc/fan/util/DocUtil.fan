@@ -6,6 +6,7 @@
 //   24 Sep 2024  Brian Frank  Creation
 //
 
+using util
 using xeto
 using xetoEnv
 using haystack::Ref
@@ -131,6 +132,27 @@ const class DocUtil
             .add(isGlobal ? "_" : "")
             .addRange(qname, colons+2..-1)
             .toStr.toUri
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Source Locations
+//////////////////////////////////////////////////////////////////////////
+
+  ** Spec location
+  static FileLoc? srcLocDecode(Str:Obj obj)
+  {
+    s := obj["srcLoc"]
+    if (s == null) return null
+    return FileLoc.parse(s)
+  }
+
+  ** Spec location
+  static FileLoc srcLoc(Spec x)
+  {
+    lib := x.lib.loc.file
+    rel := x.loc.file
+    if (rel.startsWith(lib)) rel = rel[lib.size..-1]
+    return FileLoc(rel, x.loc.line, x.loc.col)
   }
 
 //////////////////////////////////////////////////////////////////////////

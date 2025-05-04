@@ -74,13 +74,14 @@ internal class GenPages: Step
 
   DocType genType(PageEntry entry, Spec x)
   {
+    srcLoc     := DocUtil.srcLoc(x)
     doc        := genSpecDoc(x)
     meta       := genDict(x.meta)
     base       := x.isCompound ? genTypeRef(x) : genTypeRef(x.base)
     slots      := genSlots(x)
     supertypes := genSupertypes(x)
     subtypes   := genSubtypes(x)
-    return DocType(entry.libRef, x.qname, doc, meta, base, supertypes, subtypes, slots)
+    return DocType(entry.libRef, x.qname, srcLoc, doc, meta, base, supertypes, subtypes, slots)
   }
 
   DocTypeGraph genSupertypes(Spec x)
@@ -144,10 +145,11 @@ internal class GenPages: Step
 
   DocGlobal genGlobal(PageEntry entry, Spec x)
   {
-    doc := genSpecDoc(x)
-    meta  := genDict(x.meta)
-    type := genTypeRef(x.type)
-    return DocGlobal(entry.libRef, x.qname, doc, meta, type)
+    srcLoc := DocUtil.srcLoc(x)
+    doc    := genSpecDoc(x)
+    meta   := genDict(x.meta)
+    type   := genTypeRef(x.type)
+    return DocGlobal(entry.libRef, x.qname, srcLoc, doc, meta, type)
   }
 
   DocInstance genInstance(PageEntry entry, Dict x)
