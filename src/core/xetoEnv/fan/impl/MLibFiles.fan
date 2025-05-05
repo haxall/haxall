@@ -124,7 +124,8 @@ const class ZipLibFiles : MLibFiles
     {
       zip = Zip.open(zipFile)
       file := zip.contents.get(uri)
-      if (file != null && include(file)) return file.readAllBuf.toFile(uri)
+      allow := include(file) || uri.ext == "xeto" // use this to read source too
+      if (file != null && allow) return file.readAllBuf.toFile(uri)
       if (checked) throw UnresolvedErr(uri.toStr)
       return null
     }
