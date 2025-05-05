@@ -41,6 +41,7 @@ class DumpExporter : Exporter
 
   override This end()
   {
+    nl
     return this
   }
 
