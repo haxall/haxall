@@ -15,8 +15,11 @@ class Main
 {
   static Int main(Str[] args)
   {
-    // lookup command
+    // special handling for help/version without cluttering up help listing
     if (args.isEmpty || args.first == "-?" || args.first == "-help" || args.first == "--help") args = ["help"]
+    else if (args.first == "-version" || args.first == "--version") args = ["version"]
+
+    // lookup command
     cmdName := args.first
     cmd := XetoCmd.find(cmdName)
     if (cmd == null)
