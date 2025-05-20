@@ -60,12 +60,12 @@ internal const class PacketWriterActor : DataCodec
 
     try
     {
+      // trace
+      trace(packet, buf)
+
       transport.send(buf)
 
       client.lastPacketSent.val = Duration.nowTicks
-
-      // trace
-      trace(packet, buf)
     }
     catch (IOErr err)
     {

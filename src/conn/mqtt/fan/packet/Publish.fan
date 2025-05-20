@@ -206,7 +206,7 @@ internal const class PubAck : PubFlowPacket
   {
   }
 
-  override const PacketType type := PacketType.puback
+  override PacketType type() { PacketType.puback }
 }
 
 **************************************************************************
@@ -227,7 +227,7 @@ internal const class PubRec : PubFlowPacket
   {
   }
 
-  override const PacketType type := PacketType.pubrec
+  override PacketType type() { PacketType.pubrec }
 }
 
 **************************************************************************
@@ -249,7 +249,7 @@ internal const class PubRel : PubFlowPacket
     if (flags != packetFlags) throw MqttErr("Invalid packet flags: ${flags.toRadix(2,8)}")
   }
 
-  override const PacketType type := PacketType.pubrel
+  override PacketType type() { PacketType.pubrel }
 
   protected override Int packetFlags() { 0x02 }
 }
@@ -272,5 +272,5 @@ internal const class PubComp : PubFlowPacket
   {
   }
 
-  override const PacketType type := PacketType.pubcomp
+  override PacketType type() { PacketType.pubcomp }
 }

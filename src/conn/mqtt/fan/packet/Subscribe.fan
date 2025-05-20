@@ -64,7 +64,7 @@ internal const class Subscribe : ControlPacket
       throw ArgErr("# topics ($topics.size) != # options ($opts.size)")
   }
 
-  override const PacketType type := PacketType.subscribe
+  override PacketType type() { PacketType.subscribe }
 
 //////////////////////////////////////////////////////////////////////////
 // Subscribe
@@ -146,7 +146,7 @@ internal const class SubAck : ControlPacket
       throw ArgErr("There must be at least one return code")
   }
 
-  override const PacketType type := PacketType.suback
+  override PacketType type() { PacketType.suback }
 
 //////////////////////////////////////////////////////////////////////////
 // SubAck
