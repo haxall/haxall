@@ -31,7 +31,6 @@ class PointUtil
 
     // safely get unit from point's unit tag
     unit := Number.loadUnit(pt["unit"] as Str ?: "", false)
-    if (unit == null) return val
 
     // if number provided is unitless, then use point's unit
     if (num.unit == null) return Number(num.toFloat, unit)
