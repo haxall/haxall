@@ -155,7 +155,7 @@ class RdfExporter : Exporter
     // choices (and enums) are instances of themselves;
     // everything is also a SHACL shape
     if (isSelfInstance(x)) w("  a ").qname(x.qname).w(" ;").nl
-    else w("  a sh::NodeShape ;").nl
+    else w("  a sh:NodeShape ;").nl
 
     // supertype
     if (x.base != null) w("  rdfs:subClassOf ").qname(x.base.qname).w(" ;").nl
@@ -264,8 +264,8 @@ class RdfExporter : Exporter
       w(uri).nl
       w("  a sys:Class ;").nl
       w("  a ").w(uri).w(" ;").nl
-      w("  rdfs::label ").literal(key).w("; ").nl
-      w("  rdfs::subClassOf ").qname(x.qname).w("; ").nl
+      w("  rdfs:label ").literal(key).w("; ").nl
+      w("  rdfs:subClassOf ").qname(x.qname).w("; ").nl
       w(".").nl
     }
     return this
@@ -308,7 +308,7 @@ class RdfExporter : Exporter
     qname(x.qname).nl
     w("  a rdf:Property ;").nl
     if (!x.base.isType)
-      w("  rdfs::subClassOf ").qname(x.base.qname).w("; ").nl
+      w("  rdfs:subClassOf ").qname(x.base.qname).w("; ").nl
     labelAndDoc(x)
     type := globalType(x)
     // if (type != null) w("  rdfs:range ").w(type).w(" ;").nl
