@@ -67,8 +67,10 @@ Authentication [#auth]
 ======================
 By default, the connector will attempt to connect to the MQTT broker anonymously.
 
-If the broker requires a username and password, you can set the `username` and
-`password` tags on the conn rec.
+If the broker requires a username and password, set the `username` tag on the conn
+rec and then call `passwordSet` with the conn rec's id to set the password:
+
+  passwordsSet(@mqttConnId, "password")
 
 Some MQTT brokers require client certificate authentication over TLS. To configure client
 certificate authentication, set the `mqttCertAlias` tag to the alias in the crypto manager
