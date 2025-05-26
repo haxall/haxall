@@ -38,6 +38,8 @@ internal const class RemoteLibVersion : LibVersion
 
   override Bool isSrc() { false }
 
+  override Void eachSrcFile(|File| f) {}
+
   override Str toStr() { "$name-$version" }
 
   override const LibDepend[] depends

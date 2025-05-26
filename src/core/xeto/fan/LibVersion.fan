@@ -49,6 +49,9 @@ const mixin LibVersion
   ** False means this version was loaded from xetolib zip file.
   @NoDoc abstract Bool isSrc()
 
+  ** Iterate every ".xeto" source file in this library
+  @NoDoc abstract Void eachSrcFile(|File| f)
+
   ** Order a list of versions by their dependencies.  Raise exception if
   ** the given list does not satisify all the internal dependencies or
   ** has circular dependencies.

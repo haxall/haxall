@@ -50,6 +50,22 @@ const class FileLibVersion : LibVersion
 
   override Bool isSrc() { fileRef.isDir }
 
+  override Void eachSrcFile(|File| cb)
+  {
+    if (isSrc)
+    {
+      file.walk |f| { if (f.ext == "xeto") cb(f) }
+    }
+    else
+    {
+      zip := Zip.open(file)
+      try
+        zip.contents.each |f| { if (f.ext == "xeto") cb(f) }
+      finally
+        zip.close
+    }
+  }
+
   override Str toStr() { "$name-$version" }
 
   override LibDepend[] depends()

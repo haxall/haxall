@@ -40,6 +40,7 @@ class RepoTest : AbstractXetoTest
       }
       verifySame(versions.last, repo.latest(lib))
     }
+
   }
 
   Void verifyVersion(LibRepo repo, Str name, LibVersion v)
@@ -206,6 +207,12 @@ class RepoTest : AbstractXetoTest
     verifyEq(sys.version, sysVer.version)
     verifyEq(ns.libs, Lib[sys])
     verifySame(ns.libs, ns.libs)
+
+    files := File[,]
+    sysVer.eachSrcFile |f| { files.add(f) }
+    fileNames := files.sort.join(",") { it.name }
+    verifyEq(fileNames, "lib.xeto,libmeta.xeto,meta.xeto,timezones.xeto,types.xeto,units.xeto")
+
 
     //
     // sys and ph
@@ -555,6 +562,7 @@ internal const class TestLibVersion : LibVersion
   override const LibDepend[] depends
   override Str doc() { "" }
   override Bool isSrc() { false }
+  override Void eachSrcFile(|File| f) {}
   override File? file(Bool checked := true) { throw UnsupportedErr() }
   override Str toStr() { "$name-$version" }
 }
