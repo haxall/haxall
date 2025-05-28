@@ -139,6 +139,7 @@ class MqttDispatch : ConnDispatch, ClientListener
       .qos((cfg["mqttQos"] as Number)?.toInt ?: Number.zero)
       .retain((cfg["mqttRetain"] as Bool) == true)
       .expiryInterval(cfg["mqttExpiryInterval"])
+      .addUserProps(userPropsFromDict(cfg["mqttUserProps"] as Dict))
       .send
       .get
   }
@@ -272,5 +273,15 @@ class MqttDispatch : ConnDispatch, ClientListener
     if (v == null) v = MqttConst.sessionExpiresOnClose
     else if (v == -1sec) v = MqttConst.sessionNeverExpires
     return v
+  }
+
+  private static StrPair[] userPropsFromDict(Dict? props)
+  {
+    StrPair[] pairs := [,]
+    props?.each |value, name| {
+      pairs = pairs.add(StrPair(name, value))
+    }
+
+    return pairs
   }
 }
