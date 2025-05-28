@@ -268,7 +268,7 @@ class MqttDispatch : ConnDispatch, ClientListener
 
   private Duration toSessionExpiryInterval()
   {
-    v := rec["mqttSessionExpiryInterval"] as Duration
+    v := (rec["mqttSessionExpiryInterval"] as Number)?.toDuration
     if (v == null) v = MqttConst.sessionExpiresOnClose
     else if (v == -1sec) v = MqttConst.sessionNeverExpires
     return v
