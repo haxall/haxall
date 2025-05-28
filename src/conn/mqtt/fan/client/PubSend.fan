@@ -98,7 +98,7 @@ final class PubSend
   ** (**MQTT 5 only**)
   This addUserProps(StrPair[] props)
   {
-    userProps = userProps.addAll(props)
+    userProps.addAll(props)
     return this
   }
 

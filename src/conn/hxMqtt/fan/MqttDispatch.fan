@@ -279,9 +279,8 @@ class MqttDispatch : ConnDispatch, ClientListener
   {
     StrPair[] pairs := [,]
     props?.each |value, name| {
-      pairs = pairs.add(StrPair(name, value))
+      pairs.add(StrPair(name, value))
     }
-
     return pairs
   }
 }
