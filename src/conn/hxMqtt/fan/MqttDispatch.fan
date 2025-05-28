@@ -138,7 +138,7 @@ class MqttDispatch : ConnDispatch, ClientListener
       .payload(payload)
       .qos((cfg["mqttQos"] as Number)?.toInt ?: Number.zero)
       .retain((cfg["mqttRetain"] as Bool) == true)
-      .expiryInterval(cfg["mqttExpiryInterval"])
+      .expiryInterval((cfg["mqttExpiryInterval"] as Number)?.toDuration)
       .send
       .get
   }
