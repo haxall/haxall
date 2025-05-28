@@ -29,7 +29,7 @@ const class MqttFuncs
   ** This is only supported in MQTT 5.
   **
   ** pre>
-  ** read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2})
+  ** read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2, mqttExpiryInterval: 30min})
   ** <pre
   @Axon { admin = true }
   static Obj? mqttPublish(Obj conn, Str topic, Obj payload, Dict cfg := Etc.emptyDict)
