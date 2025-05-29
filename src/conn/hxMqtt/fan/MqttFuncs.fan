@@ -27,9 +27,11 @@ const class MqttFuncs
   ** If not specified, then 'false' is used. See `mqttRetain`.
   ** - 'mqttExpiryInterval': Sets the expiry interval for the message as a Duration.
   ** This is only supported in MQTT 5.
+  ** - 'mqttUserProps': A Dict of user properties to include in the message.
+  ** This is only supported in MQTT 5.
   **
   ** pre>
-  ** read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2, mqttExpiryInterval: 30min})
+  ** read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2, mqttExpiryInterval: 30min, mqttUserProps: {key: "value"}})
   ** <pre
   @Axon { admin = true }
   static Obj? mqttPublish(Obj conn, Str topic, Obj payload, Dict cfg := Etc.emptyDict)
