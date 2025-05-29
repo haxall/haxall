@@ -96,9 +96,18 @@ final class PubSend
   ** Add user properties to send with the publish. This method
   ** may be called more than once to add multiple user properties
   ** (**MQTT 5 only**)
-  This addUserProps(StrPair[] props)
+  This addUserProps(Str:Str props)
   {
-    userProps.addAll(props)
+    props.each |Str name, Str value| {addUserProp(name, value)}
+    return this
+  }
+
+  ** Add a user property to send with the publish. This method
+  ** may be called more than once to add multiple user properties
+  ** (**MQTT 5 only**)
+  This addUserProp(Str name, Str value)
+  {
+    userProps.add(StrPair(name, value))
     return this
   }
 

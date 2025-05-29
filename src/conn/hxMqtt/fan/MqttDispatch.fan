@@ -275,12 +275,10 @@ class MqttDispatch : ConnDispatch, ClientListener
     return v
   }
 
-  private static StrPair[] userPropsFromDict(Dict? props)
+  private static Str:Str userPropsFromDict(Dict? dict)
   {
-    StrPair[] pairs := [,]
-    props?.each |value, name| {
-      pairs.add(StrPair(name, value))
-    }
-    return pairs
+    props := Str:Str[:]
+    dict?.each |value, name| {props[name] = value.toStr}
+    return props
   }
 }
