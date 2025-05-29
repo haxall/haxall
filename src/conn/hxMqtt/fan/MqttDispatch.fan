@@ -139,7 +139,7 @@ class MqttDispatch : ConnDispatch, ClientListener
       .qos((cfg["mqttQos"] as Number)?.toInt ?: Number.zero)
       .retain((cfg["mqttRetain"] as Bool) == true)
       .expiryInterval((cfg["mqttExpiryInterval"] as Number)?.toDuration)
-      .addUserProps(userPropsFromDict(cfg["mqttUserProps"] as Dict))
+      .userProps(userPropsFromDict(cfg["mqttUserProps"] as Dict))
       .send
       .get
   }

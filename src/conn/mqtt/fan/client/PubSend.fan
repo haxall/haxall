@@ -31,7 +31,7 @@ final class PubSend
 
   private [Field:Obj?] fields := [:]
 
-  private StrPair[] userProps := [,]
+  private StrPair[] propPairs := [,]
 
 //////////////////////////////////////////////////////////////////////////
 // Builder
@@ -96,9 +96,9 @@ final class PubSend
   ** Add user properties to send with the publish. This method
   ** may be called more than once to add multiple user properties
   ** (**MQTT 5 only**)
-  This addUserProps(Str:Str props)
+  This userProps(Str:Str props)
   {
-    props.each |Str name, Str value| {userProp(name, value)}
+    props.each |Str value, Str name| {userProp(name, value)}
     return this
   }
 
@@ -107,7 +107,7 @@ final class PubSend
   ** (**MQTT 5 only**)
   This userProp(Str name, Str value)
   {
-    userProps.add(StrPair(name, value))
+    propPairs.add(StrPair(name, value))
     return this
   }
 
@@ -130,7 +130,7 @@ final class PubSend
   {
     if (this._topic == null) throw ArgErr("No topic configured")
 
-    fields[Message#userProps] = this.userProps.toImmutable
+    fields[Message#userProps] = this.propPairs.toImmutable
     setter := Field.makeSetFunc(this.fields)
     msg    := Message#.make([setter])
 
