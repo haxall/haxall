@@ -186,9 +186,11 @@ class TrioReader : GridReader
       // time (allow a bit of fudge)
       if (s.size > 3 && (s[1] == ':' || s[2] == ':'))
       {
-        if (s[1] == ':') s = "0$s"
-        if (s.size == 5) s = "$s:00"
-        return factory.makeTime(s) ?: s
+        sx := s
+        if (sx[1] == ':') sx = "0$sx"
+        if (sx.size == 5) sx = "$sx:00"
+        time := factory.makeTime(sx)
+        return time != null ? time : s
       }
 
       // try as number
@@ -308,3 +310,4 @@ class TrioReader : GridReader
   private Str? name
   private Obj? val
 }
+

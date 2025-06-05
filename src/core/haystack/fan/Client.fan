@@ -37,7 +37,9 @@ class Client
     SocketConfig? socketConfig := opts?.get("socketConfig") as SocketConfig
     if (socketConfig == null)
     {
-      timeout := opts?.get("timeout", opts?.get("receiveTimeout")) as Duration ?: 1min
+      timeout := opts?.get("timeout") as Duration
+      if (timeout == null) timeout = opts?.get("receiveTimeout") as Duration
+      if (timeout == null) timeout = 1min
       socketConfig = SocketConfig.cur.setTimeouts(timeout)
     }
 
@@ -358,3 +360,4 @@ mixin HaystackClientAuth
   ** Prepare a client with the appropiate authentication headers
   abstract WebClient prepare(WebClient client)
 }
+

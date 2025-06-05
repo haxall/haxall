@@ -54,8 +54,8 @@ const class TypedDict : Dict
       // convenience for Int/Duration fields
       if (field.type == Int# && val is Number)
         val = ((Number)val).toInt
-      else if (field.type == Duration# && val is Number)
-        val = ((Number)val).toDuration(false) ?: val
+      else if (field.type == Duration# && val is Number && ((Number)val).isDuration)
+        val = ((Number)val).toDuration
       else if (field.type == Bool# && val === Marker.val)
         val = true
 

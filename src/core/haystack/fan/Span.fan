@@ -84,6 +84,9 @@ const final class Span
     if (mode.isAbs) throw ArgErr("Mode not relative: $mode")
     today := now.date
     tz := now.tz
+    Weekday? sow
+    Date? first
+    Date? start
     switch (mode)
     {
       case SpanMode.today:
@@ -93,14 +96,14 @@ const final class Span
         return makeDates(mode, today.minus(1day), today, tz)
 
       case SpanMode.thisWeek:
-        sow := Weekday.localeStartOfWeek
-        start := today
+        sow = Weekday.localeStartOfWeek
+        start = today
         while (start.weekday !== sow) start = start - 1day
         return makeDates(mode, start, start.plus(7day), tz)
 
       case SpanMode.lastWeek:
-        sow := Weekday.localeStartOfWeek
-        start := today
+        sow = Weekday.localeStartOfWeek
+        start = today
         while (start.weekday !== sow) start = start - 1day
         start = start - 7day
         return makeDates(mode, start, start.plus(7day), tz)
@@ -109,11 +112,11 @@ const final class Span
         return makeDates(mode, today - 7day, today, tz)
 
       case SpanMode.thisMonth:
-        first := today.firstOfMonth
+        first = today.firstOfMonth
         return makeDates(mode, first, first.lastOfMonth.plus(1day), tz)
 
       case SpanMode.lastMonth:
-        first := today.firstOfMonth.minus(1day).firstOfMonth
+        first = today.firstOfMonth.minus(1day).firstOfMonth
         return makeDates(mode, first, first.lastOfMonth.plus(1day), tz)
 
       case SpanMode.pastMonth:

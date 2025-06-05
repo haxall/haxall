@@ -659,7 +659,7 @@ class FreeFormParser : HaystackParser
     if (cur.literal) return curVal
     if (cur == HaystackToken.id)
     {
-      switch (curVal)
+      switch (curVal.toStr)
       {
         case "true":  return true
         case "false": return false
