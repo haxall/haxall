@@ -87,7 +87,8 @@ internal abstract class Reify : Step
       }
     }
 
-    return x.asmRef = asm
+    x.asmRef = asm
+    return asm
   }
 
   private Dict reifyRawDict(ADict x, CSpec type)
@@ -143,13 +144,14 @@ internal abstract class Reify : Step
       }
 
       // echo("___ reifyScalar $type => $factory.typeof | $fantom [$fantom.typeof]")
-      return x.asmRef = fantom
+      x.asmRef = fantom
     }
     catch (Err e)
     {
       err("Cannot decode scalar '$type': $e", x.loc)
-      return x.asmRef = "error"
+      x.asmRef = "error"
     }
+    return x.asmRef
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -159,6 +161,7 @@ internal abstract class Reify : Step
   private Obj? reifyDataRef(ADataRef x)
   {
      x.asmRef = x.isResolved ? x.deref.id : compiler.makeRef(x.toStr, x.dis)
+     return x.asmRef
   }
 
 //////////////////////////////////////////////////////////////////////////

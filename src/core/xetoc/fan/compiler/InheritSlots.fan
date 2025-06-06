@@ -161,7 +161,8 @@ internal class InheritSlots : Step
     if (x.base != null) return ASpecRef(x.loc, x.base.ctype)
 
     // scalars default to str and everything else to dict
-    return x.typeRef = x.val == null ? sys.dict : sys.str
+    x.typeRef = x.val == null ? sys.dict : sys.str
+    return x.typeRef
   }
 
 //////////////////////////////////////////////////////////////////////////
