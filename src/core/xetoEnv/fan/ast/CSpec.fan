@@ -102,7 +102,7 @@ mixin CSpec : CNode
   abstract Bool isOr()
 
   ** Does this spec directly inherits from And/Or and define 'ofs'
-  Bool isCompound() { (isAnd || isOr) && cofs != null }
+  virtual Bool isCompound() { (isAnd || isOr) && cofs != null }
 
   ** Is maybe flag set
   abstract Bool isMaybe()

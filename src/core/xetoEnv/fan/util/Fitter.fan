@@ -154,7 +154,7 @@ internal class Fitter
       if (match == null) return // null means we just skipped optional slot
       if (match) { matchSucc++; if (slot.name == "id") matchId = true }
       else matchFail = true
-      if (failFast && matchFail) return false
+      if (failFast && matchFail) return
     }
 
     // we don't consider only Entity.id a valid match

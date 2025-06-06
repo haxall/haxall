@@ -127,6 +127,7 @@ const class BrioConsts
 
   private static BrioConsts loadJs()
   {
+    __noJava := true
     version := Version.fromStr(BrioConstsFile.version)
 
     byCode := Str[,] { capacity = 1000 }

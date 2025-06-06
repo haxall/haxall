@@ -279,6 +279,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
   override final Bool isEnum()      { m.hasFlag(MSpecFlags.enum) }
   override final Bool isAnd()       { m.hasFlag(MSpecFlags.and) }
   override final Bool isOr()        { m.hasFlag(MSpecFlags.or) }
+  override final Bool isCompound()  { CSpec.super.isCompound }
 
   override final Bool isAst() { false }
 
@@ -304,7 +305,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final XetoSpec? cof()  { of(false) }
 
-  override final XetoSpec[]? cofs()  { ofs(false) }
+  override final XetoSpec[]? cofs()  { ofs(false) as Obj }
 
   override final Type fantomType() { m.fantomType }
 
