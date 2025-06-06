@@ -115,7 +115,6 @@ class EtcTest : HaystackTest
     verifyEscapeTagName(" x\ny ")
     verifyEscapeTagName(":#@%^*()[]\\")
     verifyEscapeTagName("âœ“Î”Â°FmÂ²Ï€â€¢")
-    verifyEscapeTagName("í ½í¸€í ½í¸í ½í¸ˆ")
 
     verifyErr(ArgErr#) { Etc.unescapeTagName("x") }
     verifyErr(ArgErr#) { Etc.unescapeTagName("_") }

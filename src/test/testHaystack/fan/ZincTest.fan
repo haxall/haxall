@@ -617,7 +617,7 @@ class ZincTest : HaystackTest
         {
           verifyEq(sr.has(col.name), true)
           verifyEq(sr.missing(col.name), false)
-          if (!isNaN && tv isnot Grid) verifyEq(sr.trap(col.name, null), tv)
+          if (!isNaN && tv isnot Grid) verifyEq(sr.trap(col.name), tv)
           verifyNotNull(rowEach[col.name])
           verifyNotNull(rowEachNames[col.name])
         }
@@ -625,7 +625,7 @@ class ZincTest : HaystackTest
         {
           verifyEq(sr.has(col.name), false)
           verifyEq(sr.missing(col.name), true)
-          verifyErr(UnknownNameErr#) { sr.trap(col.name, null) }
+          verifyErr(UnknownNameErr#) { sr.trap(col.name) }
           verifyNull(rowEach[col.name])
           verifyNull(rowEachNames[col.name])
         }

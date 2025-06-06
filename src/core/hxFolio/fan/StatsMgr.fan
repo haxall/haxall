@@ -104,7 +104,7 @@ internal const class StatsCountAndTicks
 {
   Void add(Int ticks) { countRef.incrementAndGet; ticksRef.addAndGet(ticks) }
 
-  Void clear() { countRef.val = ticksRef.val = 0 }
+  Void clear() { countRef.val = 0; ticksRef.val = 0 }
 
   override Str toStr() { "$count ($totalTime | $avgTime)"  }
 

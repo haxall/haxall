@@ -49,6 +49,8 @@ public final class BackupMonitor extends FanObj
 //////////////////////////////////////////////////////////////////////////
 
   public final Type typeof() { return typeof; }
+
+  public static Type typeof$() { return typeof; }
   private static final Type typeof = Type.find("hxStore::BackupMonitor");
 
   public final Store store() { return store; }
@@ -392,3 +394,4 @@ public final class BackupMonitor extends FanObj
   int progressWritten;       // writePageFiles (num blob pages written)
   Func onComplete;           // callback
 }
+

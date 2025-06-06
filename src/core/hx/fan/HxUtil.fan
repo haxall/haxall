@@ -205,6 +205,8 @@ internal class HxThreadDump
 
   Str toThread(Int id)
   {
+    __noJava := true
+
     ThreadInfo[] infos := bean.dumpAllThreads(true, true)
     info := infos.find |info| { info.getThreadId == id }
     if (info == null) return "ThreadDump: id not found: $id"
@@ -214,6 +216,8 @@ internal class HxThreadDump
 
   private Str? dump(Bool deadlocksOnly)
   {
+    __noJava := true
+
     // get all threads
     ThreadInfo[] infos := bean.dumpAllThreads(true, true)
     HxThread[] threads := infos.map |info->HxThread| { HxThread(bean, info) }
@@ -250,6 +254,8 @@ internal class HxThreadDump
 
   private Void dumpStack(HxThread t)
   {
+    __noJava := true
+
     StackTraceElement[] elems := t.info.getStackTrace
     if (elems.isEmpty) return
 
@@ -296,5 +302,4 @@ internal class HxThread
   const Str name
   const Duration cpu
 }
-
 

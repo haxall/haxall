@@ -232,7 +232,6 @@ const class PasswordStore
       s.addChar(ch)
     }
     return s.toStr
-    return ""
   }
 
   private static const Int[] rands :=
@@ -285,5 +284,4 @@ internal const class PasswordStoreMsg
   const Obj? a
   const Obj? b
 }
-
 

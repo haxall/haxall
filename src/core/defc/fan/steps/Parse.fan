@@ -59,8 +59,6 @@ internal class Parse : DefCompilerStep
     a := lib.input.adapt(compiler, dict, loc)
     if (a == null) return
     return parseDef(lib, a, loc)
-
-    err("Rec missing 'def' and 'defx'", loc)
   }
 
   private Void parseDef(CLib lib, Dict dict, CLoc loc)

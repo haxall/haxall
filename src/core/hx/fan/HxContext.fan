@@ -26,7 +26,7 @@ abstract class HxContext : AxonContext, FolioContext
   ** Current Haxall context for actor thread
   @NoDoc static HxContext? curHx(Bool checked := true)
   {
-    cx := Actor.locals[Etc.cxActorLocalsKey]
+    cx := ActorContext.curx(false)
     if (cx != null) return cx
     if (checked) throw ContextUnavailableErr("No HxContext available")
     return null

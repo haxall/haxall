@@ -30,6 +30,8 @@ public final class Blob extends FanObj
   Blob(long handle) { this.store = null; this.handle = handle; } // just for testing
 
   public final Type typeof() { return typeof; }
+
+  public static Type typeof$() { return typeof; }
   static final Type typeof = Type.find("hxStore::Blob");
 
   public final Store store() { return store; }
@@ -320,3 +322,4 @@ public final class Blob extends FanObj
   int pageId;           // data page pageId
   Object stash;         // application data
 }
+

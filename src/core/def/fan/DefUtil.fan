@@ -96,7 +96,8 @@ class DefUtil
       if (line.isEmpty) return
       if (line.startsWith("-"))
       {
-        colon := line.index(":") ?: throw Err("Expecting '-key: doc', not: $line")
+        colon := line.index(":")
+        if (colon == null) throw Err("Expecting '-key: doc', not: $line")
         key = line[1..<colon].trim
         doc = line[colon+1..-1].trim
       }

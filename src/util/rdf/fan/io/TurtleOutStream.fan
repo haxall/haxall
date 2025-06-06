@@ -196,8 +196,6 @@
     {
       ch.isAlphaNum || ch == '_' || ch == '.' || ch == '-'
     }
-
-    return true
   }
 
   ** Validate the blank node and return it if it is valid; otherwise raise `ArgErr`.
@@ -209,3 +207,4 @@
   }
 
 }
+

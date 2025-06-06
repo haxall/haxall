@@ -40,7 +40,7 @@ abstract class HxTest : HaystackTest
   ** If '@HxRuntimeTest' configured then close down `rt`
   override Void teardown()
   {
-    Actor.locals.remove(Etc.cxActorLocalsKey)
+    Actor.locals.remove(ActorContext.actorLocalsKey)
     if (rtRef != null) rtStop
     tempDir.delete
   }
@@ -222,7 +222,4 @@ abstract class HxTestSpi
   abstract HxContext makeContext(HxUser? user)
   abstract Void forceSteadyState(HxRuntime rt)
 }
-
-
-
 

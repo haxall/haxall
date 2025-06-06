@@ -154,7 +154,6 @@ internal class VersionCli : HxCli
     out.printLine
     printProps(props, ["out":out])
     out.printLine
-    return 0
 
     return 0
   }

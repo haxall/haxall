@@ -30,6 +30,8 @@ public final class BlobMeta extends FanObj
   }
 
   public final Type typeof() { return typeof; }
+
+  public static Type typeof$() { return typeof; }
   private static final Type typeof = Type.find("hxStore::BlobMeta");
 
   public final long size()
@@ -118,3 +120,4 @@ public final class BlobMeta extends FanObj
 
   final byte[] buf;
 }
+

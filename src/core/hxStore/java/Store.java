@@ -68,6 +68,8 @@ public final class Store extends FanObj
   public final LockFile lockFile() { return lockFile; }
 
   public final Type typeof() { return typeof; }
+
+  public static Type typeof$() { return typeof; }
   private static final Type typeof = Type.find("hxStore::Store");
 
   public final String toStr() { return "Store[" + dir + "]"; }

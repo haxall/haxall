@@ -62,6 +62,7 @@ internal class GenDocEnv : DefCompilerStep
     return defs.map |def->DocDef|
     {
       def.doc = addDefDoc(genDef(lib, def))
+      return def.doc
     }
   }
 
@@ -125,6 +126,7 @@ internal class GenDocEnv : DefCompilerStep
         it.docName    = c.docName
         it.implements = mapDefs(c.implements)
       }
+      return c.doc
     }
 
     // backpatch children on DocProto
@@ -207,3 +209,4 @@ internal class GenDocEnv : DefCompilerStep
   private Str:DocSpace spacesMap := [:]
   private Str:DocDef defsMap := [:]
 }
+
