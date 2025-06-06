@@ -43,7 +43,7 @@ class FileMgrTest : WhiteboxTest
     // reading a deleted file throws IOErr
     file.delete
     verifyFalse(file.exists)
-    verifyErr(IOErr#) { file.withIn(null) |in| { in.readAllStr } }
+    verifyErr(IOErr#) { file.withIn |in| { in.readAllStr } }
 
     // removing the rec also removes the backing file
     file = verifyWrite(id, "now i'm gonna delete the rec")
@@ -56,12 +56,13 @@ class FileMgrTest : WhiteboxTest
   private File verifyWrite(Ref id, Str text)
   {
     file := folio.file.get(id)
-    file.withOut(null) |out| { out.writeChars(text) }
+    file.withOut |out| { out.writeChars(text) }
     folio.sync
     rec  := readById(id)
     verify(file.exists)
     verifyEq(n(text.size, byte), rec["fileSize"])
-    verifyEq(text, file.withIn(null) |in| { in.readAllStr })
+    verifyEq(text, file.withIn |in| { in.readAllStr })
     return file
   }
 }
+

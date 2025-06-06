@@ -790,7 +790,8 @@ class Parser
     // build up list of names from end back to start
     names := Str[,]
     names.add(lastName)
-    while (true)
+    flag := true
+    while (flag)
     {
       if (base.type === ExprType.var)
       {

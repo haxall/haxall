@@ -66,7 +66,7 @@ const mixin DocPage
   ** Decode from JSON file
   static DocPage decodeFromFile(File file)
   {
-    file.withIn(null) |in| { decode(JsonInStream(in).readJson) }
+    file.withIn |in| { decode(JsonInStream(in).readJson) }
   }
 
   ** Dump to JSON

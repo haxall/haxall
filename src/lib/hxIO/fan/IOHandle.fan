@@ -299,13 +299,22 @@ internal class FileHandle : IOHandle
   override IOHandle toAppend() { makeAppend(file) }
   override Obj? withIn(|InStream->Obj?| f)
   {
-    file.withIn(null, f)
+    file.withIn(f)
   }
   override Obj? withOut(|OutStream| f)
   {
-    [Str:Obj]?  opts := null
-    if (append) opts = ["append": true]
-    file.withOut(opts, f)
+    if (append)
+    {
+      out := file.out(true)
+      try
+        f(out)
+      finally
+        out.close
+    }
+    else
+    {
+      file.withOut(f)
+    }
     return Etc.makeDict(["size":Number.makeInt(file.size ?: 0)])
   }
   override DirItem[] dir()
@@ -340,12 +349,12 @@ internal class FolioFileHandle : IOHandle
 
   override Obj? withIn(|InStream->Obj?| f)
   {
-    folio.file.get(rec.id).withIn(null, f)
+    folio.file.get(rec.id).withIn(f)
   }
 
   override Obj? withOut(|OutStream| f)
   {
-    folio.file.get(rec.id).withOut(null, f)
+    folio.file.get(rec.id).withOut(f)
     return null
   }
 }

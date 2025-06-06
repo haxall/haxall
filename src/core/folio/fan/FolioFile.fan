@@ -185,7 +185,7 @@ const abstract class RecFile : SyntheticFile
 
   override File create()
   {
-    if (!exists) withOut(null) |out| { }
+    if (!exists) withOut |out| { }
     return this
   }
 
@@ -198,44 +198,26 @@ const abstract class RecFile : SyntheticFile
   ** sub-class hook to handle backing file deletion.
   protected abstract Void onDelete()
 
-  final override Obj? withIn([Str:Obj]? opts, |InStream->Obj?| f)
+  final override Obj? withIn(|InStream->Obj?| f)
   {
-    // we need to override this so that we can route to an internal method
-    // of getting an input stream
-    bufSize := 4096
-    if (opts != null)
-    {
-      bufSize = opts.get("bufSize", bufSize)
-    }
-    in := this.makeInStream(bufSize, opts)
+    in := this.makeInStream()
     try
       return f(in)
     finally
       in.close
   }
 
-  final override Void withOut([Str:Obj]? opts, |OutStream| f)
+  final override Void withOut(|OutStream| f)
   {
-    // we need to override this so that we can route to an internal method
-    // of getting an output stream
-    append  := false
-    bufSize := 4096
-    if (opts != null)
-    {
-      append  = opts.get("append", append)
-      bufSize = opts.get("bufSize", bufSize)
-    }
-
     // read the rec to ensure it exists
-    out := this.makeOutStream(append, bufSize, opts)
+    out := this.makeOutStream()
     try
       f(out)
     finally
       out.close
 
     // update the file size
-    size := append ? (this.size ?: 0) : 0
-    size += out.bytesWritten
+    size := out.bytesWritten
     commitFileSizeAsync(size)
   }
 
@@ -250,11 +232,11 @@ const abstract class RecFile : SyntheticFile
 
   ** sub-class hook to get the internal InStream to use for reading since File.in
   ** is not allowed for rec files
-  protected abstract InStream makeInStream(Int bufferSize, [Str:Obj]? opts)
+  protected abstract InStream makeInStream()
 
   ** sub-class hook to get the internal OutStream to sue for writing since File.out
   ** is not allowed for rec files
-  protected abstract ChunkedOutStream makeOutStream(Bool append, Int bufferSize, [Str:Obj]? opts)
+  protected abstract ChunkedOutStream makeOutStream()
 }
 
 **************************************************************************
@@ -286,14 +268,14 @@ internal const class LocalRecFile : RecFile
     localFile.delete
   }
 
-  override InStream makeInStream(Int bufferSize, [Str:Obj]? opts)
+  override InStream makeInStream()
   {
-    localFile.in(bufferSize)
+    localFile.in
   }
 
-  override ChunkedOutStream makeOutStream(Bool append, Int bufferSize, [Str:Obj]? opts)
+  override ChunkedOutStream makeOutStream()
   {
-    ChunkedOutStream(localFile.out(append, bufferSize))
+    ChunkedOutStream(localFile.out)
   }
 }
 
@@ -402,3 +384,4 @@ class ChunkedOutStream : OutStream
     return true
   }
 }
+
