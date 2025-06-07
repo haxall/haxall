@@ -112,10 +112,11 @@ const class HxdServiceRegistry : HxServiceRegistry
 
   override HxService[] getAll(Type type)
   {
-    map[type] ?: HxService#.emptyList
+    map[type] ?: emptyList
   }
+
+  private static const HxService[] emptyList := HxService[,]
 
   private const Type:HxService[] map
 }
-
 

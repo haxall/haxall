@@ -40,6 +40,8 @@ public final class NameTable extends FanObj
 //////////////////////////////////////////////////////////////////////////
 
   public final Type typeof() { return typeof; }
+
+  public static final Type typeof$() { return typeof; }
   private static final Type typeof = Type.find("xeto::NameTable");
 
   public final String toStr() { return "NameTable"; }

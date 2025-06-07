@@ -14,6 +14,9 @@ using haystack::Ref
 @Js
 const class DocTag
 {
+  ** Empty list of tags
+  static const DocTag[] emptyList := DocTag[,]
+
   ** Create custom tag
   static DocTag intern(Str name, Int? count := null)
   {

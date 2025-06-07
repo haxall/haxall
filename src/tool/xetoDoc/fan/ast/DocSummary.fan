@@ -17,7 +17,7 @@ const class DocSummary
   {
     this.link = link
     this.text = text
-    this.tags = tags ?: DocTag#.emptyList
+    this.tags = tags ?: DocTag.emptyList
     this.type = type
   }
 

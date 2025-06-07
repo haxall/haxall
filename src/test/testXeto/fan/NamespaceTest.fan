@@ -672,7 +672,11 @@ class NamespaceTest : AbstractXetoTest
       acc := Str:Obj[:]
       a.each |v, n|
       {
-        if (v is Ref) v = swizzle[v] ?: v
+        if (v is Ref)
+        {
+          sref := swizzle[v]
+          if (sref != null) v = sref
+        }
         acc[n] = v
       }
       return Etc.makeDict(acc)

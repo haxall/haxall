@@ -210,7 +210,12 @@ class AbstractXetoTest : HaystackTest
   static Str normTempLibName(Str str)
   {
     prefix := "\"temp"
-    s := str.index(prefix) ?: str.index(prefix = "'temp")
+    s := str.index(prefix)
+    if (s == null)
+    {
+      prefix = "'temp"
+      s = str.index(prefix)
+    }
     if (s == null) return str
 
     e := s+5
