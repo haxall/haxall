@@ -1,4 +1,5 @@
 #!/bin/bash
 
 . "${0%/*}/fanlaunch"
-fanlaunch Fan xetoTools "$@"
+fanlaunch Fan xeto "$@"
+

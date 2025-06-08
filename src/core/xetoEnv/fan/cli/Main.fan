@@ -13,7 +13,9 @@ using util
 **
 class Main
 {
-  static Int main(Str[] args)
+  static Int main(Str[] args) { doMain(args) }
+
+  static Int doMain(Str[] args)
   {
     // special handling for help/version without cluttering up help listing
     if (args.isEmpty || args.first == "-?" || args.first == "-help" || args.first == "--help") args = ["help"]

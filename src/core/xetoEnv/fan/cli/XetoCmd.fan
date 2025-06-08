@@ -37,6 +37,16 @@ abstract class XetoCmd : AbstractMain
       if (t.fits(XetoCmd#) && !t.isAbstract) acc.add(t.make)
     }
 
+    // xetoTools pod
+    xetoTools := Pod.find("xetoTools", false)
+    if (xetoTools != null)
+    {
+      xetoTools.types.each |t|
+      {
+        if (t.fits(XetoCmd#) && !t.isAbstract) acc.add(t.make)
+      }
+    }
+
     // other pods via index
     Env.cur.index("xeto.cmd").each |qname|
     {

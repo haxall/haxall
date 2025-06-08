@@ -48,8 +48,8 @@ class Build : BuildGroup
   {
     // build xeto and haxall repo xetolibs
     xetoDir := Env.cur.path.find |d| { d.name == "xeto" } ?: throw Err("Xeto repo not in path")
-    Type.find("xetoTools::Main").make->main(["build", "-allIn", xetoDir.osPath])
-    Type.find("xetoTools::Main").make->main(["build", "-all"])
+    Type.find("xeto::Main").make->main(["build", "-allIn", xetoDir.osPath])
+    Type.find("xeto::Main").make->main(["build", "-all"])
   }
 
 //////////////////////////////////////////////////////////////////////////
