@@ -161,7 +161,7 @@ public final class Store extends FanObj
   {
     if (file == null) return (BackupMonitor)backupRef.get();
 
-    if (opts == null) opts = new Map(Sys.StrType, Sys.ObjType);
+    if (opts == null) opts = Map.make(Sys.StrType, Sys.ObjType);
 
     BackupMonitor backup = new BackupMonitor(this, file, opts);
     if (!backupRef.compareAndSet(null, backup))

@@ -142,7 +142,7 @@ public final class BackupMonitor extends FanObj
 
   private void writeBackupMeta() throws Exception
   {
-    Map props = new Map(Sys.StrType, Sys.StrType);
+    Map props = Map.make(Sys.StrType, Sys.StrType);
     props.ordered(true);
     props.set("version",   typeof().pod().version().toString())
          .set("ts",        DateTime.now().toStr())
