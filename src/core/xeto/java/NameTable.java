@@ -294,7 +294,7 @@ public final class NameTable extends FanObj
     return FanObj.toImmutable(v);
   }
 
-  private static final FuncType eachFuncType = new FuncType(new Type[] { Sys.ObjType, Sys.StrType }, Sys.ObjType);
+  private static final Type eachFuncType = Type.makeFunc(new Type[] { Sys.ObjType, Sys.StrType }, Sys.ObjType);
 
   static final class DictEachAcc extends Func.Indirect2
   {
