@@ -250,7 +250,7 @@ public class PageMgr
   synchronized void gcFreeze()
   {
     gcFreezeCount++;
-    if (gcQueue == null) gcQueue = new List(Sys.ObjType, 64);
+    if (gcQueue == null) gcQueue = List.make(Sys.ObjType, 64);
   }
 
   /** Garbage collection unfreeze */
@@ -422,3 +422,4 @@ public class PageMgr
   private List gcQueue;
   private int gcFreezeCount;
 }
+
