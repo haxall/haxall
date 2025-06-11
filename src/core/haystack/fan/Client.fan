@@ -159,39 +159,6 @@ class Client
   }
 
   **
-  ** Evaluate a list of expressions.  The req parameter must be
-  ** 'Str[]' of Axon expressions or a correctly formatted `haystack::Grid`
-  ** with 'expr' column.
-  **
-  ** A separate grid is returned for each row in the request.  If checked
-  ** is false, then this call does *not* automatically check for error
-  ** grids - client code must individual check each grid for partial
-  ** failures using `haystack::Grid.isErr`.  If checked is true and one of the
-  ** requests failed, then raise `haystack::CallErr` for first failure.
-  **
-  ** NOTE: this method is deprecated and should be used anymore
-  **
-  @Deprecated @NoDoc Grid[] evalAll(Obj req, Bool checked := true)
-  {
-    // construct grid request
-    reqGrid := req as Grid
-    if (reqGrid == null)
-    {
-      if (req isnot List) throw ArgErr("Expected Grid or Str[]")
-      reqGrid = Etc.makeListGrid(null, "expr", null, req)
-    }
-
-    // make request and parse response
-    reqStr := gridToStr(reqGrid)
-    resStr := doCall("evalAll", reqStr)
-    res := ZincReader(resStr.in).readGrids
-
-    // check for errors
-    if (checked) res.each |g| { if (g.isErr) throw CallErr(g) }
-    return res
-  }
-
-  **
   ** Commit a set of diffs.  The req parameter must be a grid
   ** with a "commit" tag in the grid.meta.  The rows are the
   ** items to commit.  Return result as Grid or or raise `haystack::CallErr`

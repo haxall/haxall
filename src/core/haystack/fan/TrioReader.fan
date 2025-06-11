@@ -96,15 +96,6 @@ class TrioReader : GridReader
     return Etc.makeDict(tags)
   }
 
-  @NoDoc @Deprecated { msg = "Use readAllDicts" }
-  Dict[] readAllRecs() { readAllDicts }
-
-  @NoDoc @Deprecated { msg = "Use readDict" }
-  Dict? readRec() { readDict(false) }
-
-  @NoDoc @Deprecated { msg = "Use eachDict" }
-  Void eachRec(|Dict| f) { eachDict(f) }
-
 //////////////////////////////////////////////////////////////////////////
 // Support
 //////////////////////////////////////////////////////////////////////////

@@ -171,12 +171,6 @@ class TrioWriter : GridWriter
     }
   }
 
-  @NoDoc @Deprecated { msg = "Use writeDict" }
-  This writeRec(Dict dict) { writeDict(dict) }
-
-  @NoDoc @Deprecated { msg = "Use writeAllDicts" }
-  This writeAllRecs(Dict[] dicts) { writeAllDicts(dicts) }
-
   @NoDoc static Bool useQuotes(Str s)
   {
     if (s.isEmpty) return true

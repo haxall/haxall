@@ -147,13 +147,6 @@ const abstract class Filter
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** Deprecated - use `matches`
-  @Deprecated { msg = "Use matches" }
-  Bool include(Dict r, |Ref->Dict?|? pather)
-  {
-    doMatches(r, pather == null ? HaystackContext.nil : PatherContext(pather))
-  }
-
   ** Return if the specified record matches this filter.
   ** Pass a context object to enable def aware features and to path
   ** through refs via the '->' operator.
