@@ -394,7 +394,7 @@ class IOTest : HxTest
     verifyErr(EvalErr#) { eval("ioReadStr(`fan://badPodFooBar/badfile.txt`)") }
 
     // folio file
-    rec := addRec(["file":m, "folio":m])
+    rec := addRec(["file":m, "folio":m, "spec":Ref("sys::File")])
     eval("""ioWriteStr("folio file test!", readById(${rec.id.toCode}))""")
     text := eval("""readById(${rec.id.toCode}).ioReadStr()""")
     verifyEq(text, "folio file test!")
