@@ -33,7 +33,7 @@ internal abstract const class Instr
     const Str name
     const Obj? val
 
-    override Dict encode() { Etc.makeDict2("def",name, "v",toVal(val)) }
+    override Dict encode() { Etc.dict2x("def",name, "v",toVal(val)) }
 
     private static Obj? toVal(Obj? val)
     {
@@ -66,3 +66,4 @@ internal const class EvalInstr : Instr
 
   override Dict encode() { Etc.makeDict1("eval", expr) }
 }
+

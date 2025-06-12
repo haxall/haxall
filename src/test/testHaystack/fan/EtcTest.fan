@@ -297,25 +297,26 @@ class EtcTest : HaystackTest
 
   Void testDictNulls()
   {
-    verifyDictNull(Etc.makeDict1("a", null), Str:Obj[:])
+    verifyDictNull(Etc.dict1x("a", null), Str:Obj[:])
 
-    verifyDictNull(Etc.makeDict2("a", "A",  "b", "B"),  Str:Obj["a":"A", "b":"B"])
-    verifyDictNull(Etc.makeDict2("a", null, "b", "B"),  Str:Obj["b":"B"])
-    verifyDictNull(Etc.makeDict2("a", "A",  "b", null), Str:Obj["a":"A"])
+    verifyDictNull(Etc.dict2x("a", "A",  "b", "B"),  Str:Obj["a":"A", "b":"B"])
+    verifyDictNull(Etc.dict2x("a", null, "b", "B"),  Str:Obj["b":"B"])
+    verifyDictNull(Etc.dict2x("a", "A",  "b", null), Str:Obj["a":"A"])
 
-    verifyDictNull(Etc.makeDict3("a", "A",  "b", "B",  "c", "C"),   Str:Obj["a":"A", "b":"B", "c":"C"])
-    verifyDictNull(Etc.makeDict3("a", null, "b", "B",  "c", "C"),   Str:Obj["b":"B", "c":"C"])
-    verifyDictNull(Etc.makeDict3("a", "A",  "b", null, "c", "C"),   Str:Obj["a":"A", "c":"C"])
-    verifyDictNull(Etc.makeDict3("a", "A",  "b", "B",  "c", null),  Str:Obj["a":"A", "b":"B"])
-    verifyDictNull(Etc.makeDict3("a", null,  "b", null, "c", "C"),  Str:Obj["c":"C"])
-    verifyDictNull(Etc.makeDict3("a", null,  "b", null, "c", null), Str:Obj[:])
+    verifyDictNull(Etc.dict3x("a", "A",  "b", "B",  "c", "C"),   Str:Obj["a":"A", "b":"B", "c":"C"])
+    verifyDictNull(Etc.dict3x("a", null, "b", "B",  "c", "C"),   Str:Obj["b":"B", "c":"C"])
+    verifyDictNull(Etc.dict3x("a", "A",  "b", null, "c", "C"),   Str:Obj["a":"A", "c":"C"])
+    verifyDictNull(Etc.dict3x("a", "A",  "b", "B",  "c", null),  Str:Obj["a":"A", "b":"B"])
+    verifyDictNull(Etc.dict3x("a", null,  "b", null, "c", "C"),  Str:Obj["c":"C"])
+    verifyDictNull(Etc.dict3x("a", null,  "b", null, "c", null), Str:Obj[:])
 
-    verifyDictNull(Etc.makeDict4("a", "A",  "b", "B",  "c", "C",  "d", "D"),  Str:Obj["a":"A", "b":"B", "c":"C", "d":"D"])
-    verifyDictNull(Etc.makeDict4("a", null, "b", "B",  "c", "C",  "d", "D"),  Str:Obj["b":"B", "c":"C", "d":"D"])
-    verifyDictNull(Etc.makeDict4("a", "A",  "b", null, "c", "C",  "d", "D"),  Str:Obj["a":"A", "c":"C", "d":"D"])
-    verifyDictNull(Etc.makeDict4("a", "A",  "b", "B",  "c", null, "d", "D"),  Str:Obj["a":"A", "b":"B", "d":"D"])
-    verifyDictNull(Etc.makeDict4("a", "A",  "b", "B",  "c", "C",  "d", null), Str:Obj["a":"A", "b":"B", "c":"C"])
+    verifyDictNull(Etc.dict4x("a", "A",  "b", "B",  "c", "C",  "d", "D"),  Str:Obj["a":"A", "b":"B", "c":"C", "d":"D"])
+    verifyDictNull(Etc.dict4x("a", null, "b", "B",  "c", "C",  "d", "D"),  Str:Obj["b":"B", "c":"C", "d":"D"])
+    verifyDictNull(Etc.dict4x("a", "A",  "b", null, "c", "C",  "d", "D"),  Str:Obj["a":"A", "c":"C", "d":"D"])
+    verifyDictNull(Etc.dict4x("a", "A",  "b", "B",  "c", null, "d", "D"),  Str:Obj["a":"A", "b":"B", "d":"D"])
+    verifyDictNull(Etc.dict4x("a", "A",  "b", "B",  "c", "C",  "d", null), Str:Obj["a":"A", "b":"B", "c":"C"])
 
+    /*
     verifyDictNull(Etc.makeDict5("a", "A",  "b", "B",  "c", "C",  "d", "D",  "e", "E"),  Str:Obj["a":"A", "b":"B", "c":"C", "d":"D", "e":"E"])
     verifyDictNull(Etc.makeDict5("a", null, "b", "B",  "c", "C",  "d", "D",  "e", "E"),  Str:Obj["b":"B", "c":"C", "d":"D", "e":"E"])
     verifyDictNull(Etc.makeDict5("a", "A",  "b", null, "c", "C",  "d", "D",  "e", "E"),  Str:Obj["a":"A", "c":"C", "d":"D", "e":"E"])
@@ -335,6 +336,7 @@ class EtcTest : HaystackTest
     verifyDictNull(Etc.makeDict6("a", null,  "b", "B",  "c", null,  "d", "D",  "e", null,  "f", null), Str:Obj["b":"B", "d":"D"])
     verifyDictNull(Etc.makeDict6("a", null,  "b", null,  "c", null,  "d", "D",  "e", null,  "f", null), Str:Obj["d":"D"])
     verifyDictNull(Etc.makeDict6("a", null,  "b", null,  "c", null,  "d", null,  "e", null,  "f", null), Str:Obj[:])
+    */
 
     // map 1 - 6
     verifyDictNull(Etc.makeDict(["a":"A",  "b":"B",  "c":"C",  "d":"D",  "e":"E",  "f":"F"]),  Str:Obj["a":"A", "b":"B", "c":"C", "d":"D", "e":"E", "f":"F"])

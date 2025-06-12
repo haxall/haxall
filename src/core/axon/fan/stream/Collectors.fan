@@ -122,7 +122,7 @@ class GridCollector : Collector
   override Void onData(Obj? data)
   {
     // coerce every data to dict
-    row := data as Dict ?: Etc.makeDict1("val", data)
+    row := data as Dict ?: Etc.dict1x("val", data)
 
     // keep track of all columns seen
     row.each |v, n| { if (cols[n] == null) cols.add(n, n) }
@@ -203,6 +203,4 @@ class GridCollector : Collector
   private Str[]? keepCols
   private Bool keepColsOrdered
 }
-
-
 

@@ -163,7 +163,7 @@ const class Etc
   }
 
   **
-  ** Create a Dict with one name/value pair
+  ** Create a Dict with one non-nullable name/value pair
   **
   static Dict dict1(Str n, Obj v)
   {
@@ -171,7 +171,7 @@ const class Etc
   }
 
   **
-  ** Create a Dict with two name/value pairs
+  ** Create a Dict with two non-nullable name/value pairs
   **
   static Dict dict2(Str n0, Obj v0, Str n1, Obj v1)
   {
@@ -179,7 +179,7 @@ const class Etc
   }
 
   **
-  ** Create a Dict with three name/value pairs
+  ** Create a Dict with three non-nullable name/value pairs
   **
   static Dict dict3(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2)
   {
@@ -187,7 +187,7 @@ const class Etc
   }
 
   **
-  ** Create a Dict with four name/value pairs
+  ** Create a Dict with four non-nullable name/value pairs
   **
   static Dict dict4(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3)
   {
@@ -195,7 +195,7 @@ const class Etc
   }
 
   **
-  ** Create a Dict with five name/value pairs
+  ** Create a Dict with five non-nullable name/value pairs
   **
   static Dict dict5(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4)
   {
@@ -203,7 +203,7 @@ const class Etc
   }
 
   **
-  ** Create a Dict with six name/value pairs
+  ** Create a Dict with six non-nullable name/value pairs
   **
   static Dict dict6(Str n0, Obj v0, Str n1, Obj v1, Str n2, Obj v2, Str n3, Obj v3, Str n4, Obj v4, Str n5, Obj v5)
   {
@@ -211,14 +211,55 @@ const class Etc
   }
 
   **
-  ** Create a Dict with up to six optional values
+  ** Create a Dict with one optional value
   **
-  static Dict dictx(Str? n0, Obj? v0,
-                    Str? n1 := null, Obj? v1 := null,
-                    Str? n2 := null, Obj? v2 := null,
-                    Str? n3 := null, Obj? v3 := null,
-                    Str? n4 := null, Obj? v4 := null,
-                    Str? n5 := null, Obj? v5 := null)
+  @NoDoc static Dict dict1x(Str n0, Obj? v0)
+  {
+    v0 == null ? dict0 : dict1(n0, v0)
+  }
+
+  **
+  ** Create a Dict with two optional values
+  **
+  @NoDoc static Dict dict2x(Str n0, Obj? v0, Str n1, Obj? v1)
+  {
+    if (v0 == null) return dict1x(n1, v1)
+    if (v1 == null) return dict1x(n0, v0)
+    return dict2(n0, v0, n1, v1)
+  }
+
+  **
+  ** Create a Dict with three optional values
+  **
+  @NoDoc static Dict dict3x(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2)
+  {
+    if (v0 == null) return dict2x(n1, v1, n2, v2)
+    if (v1 == null) return dict2x(n0, v0, n2, v2)
+    if (v2 == null) return dict2x(n0, v0, n1, v1)
+    return dict3(n0, v0, n1, v1, n2, v2)
+  }
+
+  **
+  ** Create a Dict with four optional values
+  **
+  @NoDoc static Dict dict4x(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3)
+  {
+    if (v0 == null) return dict3x(n1, v1, n2, v2, n3, v3)
+    if (v1 == null) return dict3x(n0, v0, n2, v2, n3, v3)
+    if (v2 == null) return dict3x(n0, v0, n1, v1, n3, v3)
+    if (v3 == null) return dict3x(n0, v0, n1, v1, n2, v2)
+    return dict4(n0, v0, n1, v1, n2, v2, n3, v3)
+  }
+
+  **
+  ** Create a Dict with up to six optional name/value pairs
+  **
+  @NoDoc static Dict dictx(Str? n0, Obj? v0,
+                           Str? n1 := null, Obj? v1 := null,
+                           Str? n2 := null, Obj? v2 := null,
+                           Str? n3 := null, Obj? v3 := null,
+                           Str? n4 := null, Obj? v4 := null,
+                           Str? n5 := null, Obj? v5 := null)
   {
     x := Obj[,]
     x.capacity = 16
