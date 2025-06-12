@@ -401,6 +401,11 @@ class EtcTest : HaystackTest
     verifyEq(d.typeof.qname, "haystack::Dict1")
     verifyDictEq(d, ["x":n(3)])
 
+    verifySame(Etc.dictSet(d, "y", null), d)
+    verifyDictEq(d, ["x":n(3)])
+
+    verifySame(Etc.dictSet(null, "y", null), Etc.dict0)
+
     d = Etc.dictSet(d, "x", n(4))
     verifyEq(d.typeof.qname, "haystack::Dict1")
     verifyDictEq(d, ["x":n(4)])

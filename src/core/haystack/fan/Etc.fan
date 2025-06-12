@@ -28,9 +28,9 @@ const class Etc
   static Dict emptyDict() { EmptyDict.val }
 
   **
-  ** Empty Str:Obj? map
+  ** Empty Str:Obj map
   **
-  @NoDoc static const Str:Obj? emptyTags := [:]
+  @NoDoc static const Str:Obj emptyTags := [:]
 
   **
   ** Make a Dict instance where 'val' is one of the following:
@@ -57,7 +57,7 @@ const class Etc
   {
     if (map.isEmpty) return emptyDict
 
-    if (map.size > 6 || dictIterateNulls) return MapDict(map)
+    if (map.size > 6) return MapDict(map)
 
     i := 0
     Str? n0; Str? n1; Str? n2; Str? n3; Str? n4; Str? n5
@@ -401,35 +401,11 @@ const class Etc
     return map
   }
 
-  ** Flag to have Axon iterate Dict null values.  Starting in 3.1.7 we
-  ** made semantic change to not iterate nulls, but this is backdoor
-  ** hook to keep old behavior for grid rows just in case.
-  @NoDoc static const Bool dictIterateNulls := false
-  static
-  {
-    try
-    {
-      dictIterateNulls = Etc#.pod.config("dictIterateNulls") == "true"
-      if (dictIterateNulls)
-      {
-        echo("~~")
-        echo("~~ Haystack dict iterate null turned on!!!")
-        echo("~~")
-      }
-    }
-    catch (Err e) e.trace
-  }
-
   **
   ** Iterate dict name/value pairs
   **
   @NoDoc static Void dictEach(Dict d, |Obj? v, Str n| f)
   {
-    if (dictIterateNulls)
-    {
-      if (d is Row) return rowEach(d, f, false)
-      if (d is MapDict) return ((MapDict)d).tags.each(f)
-    }
     d.each(f)
   }
 
@@ -438,12 +414,7 @@ const class Etc
   **
   @NoDoc static Obj? dictEachWhile(Dict d, |Obj? v, Str n->Obj?| f)
   {
-    if (dictIterateNulls)
-    {
-      if (d is Row) return rowEach(d, f, true)
-      if (d is MapDict) return ((MapDict)d).tags.eachWhile(f)
-    }
-    return d.eachWhile(f)
+    d.eachWhile(f)
   }
 
   ** Iterate all row cells including null
@@ -578,19 +549,21 @@ const class Etc
 
   **
   ** Set a name/val pair in an existing dict or d is null then
-  ** create a new dict with given name/val pair.
+  ** create a new dict with given name/val pair. If val is null
+  ** return d.
   **
   static Dict dictSet(Dict? d, Str name, Obj? val)
   {
-    if ((d == null || d.isEmpty) && !dictIterateNulls) return makeDict1(name, val)
-    map := Str:Obj?[:]
+    if (val == null) return d ?: Etc.emptyDict
+    if (d == null || d.isEmpty) return dict1(name, val)
+    map := Str:Obj[:]
     if (d != null)
     {
       if (d is Row) map.ordered = true
       dictEach(d) |v, n| { map[n] = v }
     }
     map[name] = val
-    return makeDict(map)
+    return dictFromMap(map)
   }
 
   **
