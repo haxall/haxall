@@ -425,7 +425,7 @@ class IOTest : HaystackTest
 
   Void verifyJson(Obj? val, Str? json)
   {
-    opts := Etc.makeDict1("v3", Marker.val)
+    opts := Etc.dict1("v3", Marker.val)
     // read from source
     if (json != null)
     {
@@ -483,3 +483,4 @@ class IOTest : HaystackTest
     verifyValEq(val, actual)
   }
 }
+

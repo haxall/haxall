@@ -62,7 +62,7 @@ abstract const class ConnLib : HxLib, HxConnLib
 
   @NoDoc override Dict connFeatures()
   {
-    (modelRef.val as ConnModel)?.features ?: Etc.makeDict1("name", name)
+    (modelRef.val as ConnModel)?.features ?: Etc.dict1("name", name)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -170,7 +170,7 @@ abstract const class ConnLib : HxLib, HxConnLib
 //////////////////////////////////////////////////////////////////////////
 
   ** Create default point tuning configuration for this library
-  virtual ConnTuning tuningDefault() { ConnTuning(Etc.makeDict1("id", Ref("${name}-default"))) }
+  virtual ConnTuning tuningDefault() { ConnTuning(Etc.dict1("id", Ref("${name}-default"))) }
 
   ** Library level callback to process a connector learn.  The default
   ** operation dispatches to the connector actor, performs an open,
@@ -236,5 +236,4 @@ const class ConnSettings : TypedDict
     return maxThreads.clamp(1, 5000)
   }
 }
-
 

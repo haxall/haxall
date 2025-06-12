@@ -333,7 +333,7 @@ internal const class WatchesObservable : Observable
       // fire event for currently watched recs
       recs := rt.db.readAllList(sub.filter).findAll |rec| { rt.watch.isWatched(rec.id) }
       if (!recs.isEmpty)
-        sub.send(makeObservation(DateTime.now, Etc.makeDict2("subType", "watch", "recs", recs)))
+        sub.send(makeObservation(DateTime.now, Etc.dict2("subType", "watch", "recs", recs)))
     }
     return sub
   }
@@ -349,7 +349,7 @@ internal const class WatchesObservable : Observable
     {
       matches := sub.filter == null ? recs : recs.findAll |rec| { sub.include(rec) }
       if (matches.isEmpty) return
-      obs := makeObservation(ts, Etc.makeDict2("subType", subType, "recs", matches))
+      obs := makeObservation(ts, Etc.dict2("subType", subType, "recs", matches))
       sub.send(obs)
     }
     return null

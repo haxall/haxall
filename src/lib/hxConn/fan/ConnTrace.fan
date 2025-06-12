@@ -152,8 +152,8 @@ const final class ConnTraceMsg
   {
     gb := GridBuilder()
     gb.setMeta(meta)
-    gb.addCol("ts", Etc.makeDict1("format", "hh:mm:ss.fff"))
-      .addCol("connTraceType", Etc.makeDict1("dis", "type"))
+    gb.addCol("ts", Etc.dict1("format", "hh:mm:ss.fff"))
+      .addCol("connTraceType", Etc.dict1("dis", "type"))
       .addCol("msg")
       .addCol("arg")
     list.each |x|

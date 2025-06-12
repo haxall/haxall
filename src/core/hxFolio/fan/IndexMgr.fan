@@ -144,7 +144,7 @@ internal const class IndexMgr : HxFolioMgr
 
     // compute result
     span := Span(toWrite.first.ts, toWrite.last.ts)
-    result := Etc.makeDict2("count", Number(toWrite.size), "span", span)
+    result := Etc.dict2("count", Number(toWrite.size), "span", span)
 
     // fire hooks event
     folio.hooks.postHisWrite(HisEvent(rec.dict, result, cxInfo))
@@ -202,5 +202,4 @@ internal const class IndexMgr : HxFolioMgr
 
   internal const ConcurrentMap byId    // mutate only by Commit on this thread
 }
-
 

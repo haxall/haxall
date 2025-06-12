@@ -661,7 +661,7 @@ const class IOFuncs
     grid := toDataGrid(val)
     return toHandle(handle).withOut |out|
     {
-      TurtleWriter(out, Etc.makeDict1("ns", curContext.ns)).writeGrid(grid)
+      TurtleWriter(out, Etc.dict1("ns", curContext.ns)).writeGrid(grid)
     }
   }
 
@@ -673,7 +673,7 @@ const class IOFuncs
     grid := toDataGrid(val)
     return toHandle(handle).withOut |out|
     {
-      JsonLdWriter(out, Etc.makeDict1("ns", curContext.ns)).writeGrid(grid)
+      JsonLdWriter(out, Etc.dict1("ns", curContext.ns)).writeGrid(grid)
     }
   }
 

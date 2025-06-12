@@ -44,7 +44,7 @@ class StreamTest : AxonTest
     verifyStream("[1, 2, 3, 4].stream.findAll(v=>v.isEven).map(v=>v*2).collect", Obj?[n(4), n(8)])
 
     // filter
-    verifyStream("[{v:1}, null, {v:2}, {v:3}].stream.filter(v <= 2).collect", Obj?[Etc.makeDict1("v", n(1)), Etc.makeDict1("v", n(2))])
+    verifyStream("[{v:1}, null, {v:2}, {v:3}].stream.filter(v <= 2).collect", Obj?[Etc.dict1("v", n(1)), Etc.dict1("v", n(2))])
 
     // limit
     verifyStream("[1, 2, 3, 4].stream.limit(10).collect", Obj?[n(1), n(2), n(3), n(4)])
@@ -248,3 +248,4 @@ class StreamTest : AxonTest
   }
 
 }
+

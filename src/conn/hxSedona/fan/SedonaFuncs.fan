@@ -85,7 +85,7 @@ const class SedonaFuncs
     ]
 
     b := GridBuilder()
-    b.addCol("id", Etc.makeDict1("hidden", Marker.val))
+    b.addCol("id", Etc.dict1("hidden", Marker.val))
     b.addCol("name")
     b.addCol("checksum")
     b.addColNames(cols)
@@ -225,3 +225,4 @@ const class SedonaFuncs
   private static HxContext curContext() { HxContext.curHx }
 
 }
+

@@ -132,12 +132,12 @@ internal class WriteMgr : PointMgr
     if (val == null) val = Remove.val
     curTracks := rec.has("curTracksWrite")
     if (curTracks)
-       return Etc.makeDict4(
+       return Etc.dict4(
                     "curVal",     val,
                     "curStatus",  "ok",
                     "writeVal",   val,
                     "writeLevel", level)
-       return Etc.makeDict2(
+       return Etc.dict2(
                     "writeVal", val,
                     "writeLevel", level)
   }
@@ -205,3 +205,4 @@ internal class WriteMgr : PointMgr
   private Bool needFirstFire := true
   private Ref:WriteRec points := [:]
 }
+

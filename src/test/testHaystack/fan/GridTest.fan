@@ -297,7 +297,7 @@ class GridTest : HaystackTest
 
      // verify empty grid maps to itself
      empty := GridBuilder().setMeta(["foo":m]).addCol("bar", ["baz":m]).toGrid
-     verifySame(empty.map |r| { Etc.makeDict1("wrong", m) }, empty)
+     verifySame(empty.map |r| { Etc.dict1("wrong", m) }, empty)
      verifySame(empty.flatMap |r| { Dict[,] }, empty)
   }
 
@@ -648,7 +648,7 @@ class GridTest : HaystackTest
            |>))
 
     // Grid.addCols w/ sparse cells
-    verifyGridEq(x.addCols(Etc.makeMapGrid(Etc.makeDict1("foo", Marker.val), ["x":n(1), "y":n(2)])), g(
+    verifyGridEq(x.addCols(Etc.makeMapGrid(Etc.dict1("foo", Marker.val), ["x":n(1), "y":n(2)])), g(
       Str<|ver:"3.0" m1:1 m2:20 m3:30
            bx mb dis:"B",x,y
            @1 "_1",1,2

@@ -38,7 +38,7 @@ class CsvReader : GridReader
 
     // build as grid
     gb := GridBuilder()
-    colNames.each |n, i| { gb.addCol(n, Etc.makeDict1("orig", origNames[i])) }
+    colNames.each |n, i| { gb.addCol(n, Etc.dict1("orig", origNames[i])) }
     rows.each |row, i| { gb.addRow(row) }
     return gb.toGrid
   }

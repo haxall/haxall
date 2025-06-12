@@ -92,7 +92,7 @@ const mixin Grid
     if (val == null && meta.has("more"))
     {
       val = Etc.emptyDict
-      if (meta.has("limit")) val = Etc.makeDict1("dis", "Limit exceeded: " + this.meta["limit"])
+      if (meta.has("limit")) val = Etc.dict1("dis", "Limit exceeded: " + this.meta["limit"])
     }
     if (val == null)
     {

@@ -82,7 +82,7 @@ const class CryptoFuncs
     else if (dict is Str) uri = Uri.fromStr(dict)
     else throw ArgErr("Invalid input: $dict")
 
-    return cryptoCheckUri(uri).addMeta(Etc.makeDict1("view", "table"))
+    return cryptoCheckUri(uri).addMeta(Etc.dict1("view", "table"))
   }
 
   ** Read keystore as a grid
@@ -146,9 +146,9 @@ const class CryptoFuncs
   @NoDoc @Axon { su = true }
   static Grid cryptoCheckUri(Uri uri)
   {
-    opts := Etc.makeDict3("alias", "check",
-                          "uri", uri,
-                          "check", Marker.val)
+    opts := Etc.dict3("alias", "check",
+                      "uri", uri,
+                      "check", Marker.val)
 
     chain := cryptoTrustUri(opts).sortCol("alias")
 
@@ -164,7 +164,7 @@ const class CryptoFuncs
     sorted := preferredOrder.intersection(cols)
     sorted.each |c, i| { cols = cols.moveTo(c, i)}
 
-    hidden := Etc.makeDict1("hidden", Marker.val)
+    hidden := Etc.dict1("hidden", Marker.val)
 
     return input.reorderCols(cols).addColMeta("id", hidden)
   }
@@ -354,7 +354,7 @@ const class CryptoFuncs
   ** Coerce value to an alias
   private static Str toAlias(Obj? val)
   {
-    if (val is Str) 
+    if (val is Str)
     {
       if (((Str)val).trimToNull == null) throw Err("Alias cannot be empty")
       return val
@@ -377,3 +377,4 @@ const class CryptoFuncs
     HxContext.curHx.rt.services.crypto.keystore
   }
 }
+

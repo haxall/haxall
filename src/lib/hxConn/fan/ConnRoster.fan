@@ -102,7 +102,7 @@ internal const final class ConnRoster
     if (model.hasWrite)
     {
       lib.observe("obsPointWrites",
-        Etc.makeDict1("obsFilter", model.connRefTag),
+        Etc.dict1("obsFilter", model.connRefTag),
         ConnLib#onPointWrite)
     }
   }
@@ -382,3 +382,4 @@ internal const final class ConnRoster
   private const ConcurrentMap pointsById := ConcurrentMap()
 
 }
+

@@ -132,7 +132,7 @@ class QueryTest : WhiteboxTest
     statsA := folio.stats.reads.count
 
     // readAllList
-    opts := trash ? Etc.makeDict1("trash", m) : null
+    opts := trash ? Etc.dict1("trash", m) : null
     filter := Filter(filterStr)
     list := folio.readAllList(filter, opts)
     // echo(">> $filter $list.size ?= $expected.size")
@@ -301,3 +301,4 @@ internal class QueryTestContext : FolioContext
   override  Bool canWrite(Dict rec) { true }
   override Obj? commitInfo() { null }
 }
+

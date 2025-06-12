@@ -172,7 +172,7 @@ const final class CommitFolioRes : FolioRes
 @NoDoc
 const final class HisWriteFolioRes : FolioRes
 {
-  static const HisWriteFolioRes empty := make(Etc.makeDict1("count", Number.zero))
+  static const HisWriteFolioRes empty := make(Etc.dict1("count", Number.zero))
   new make(Dict dict) { this.dict = dict }
   override Obj? val()  { dict }
   override Int count() { (dict["count"] as Number ?: Number.zero).toInt }
@@ -183,7 +183,8 @@ const final class HisWriteFolioRes : FolioRes
 @NoDoc
 const final class BackupFolioRes : FolioRes
 {
-  new make() { this.val = Etc.makeDict1("dis", "Backup complete") }
+  new make() { this.val = Etc.dict1("dis", "Backup complete") }
   override const Obj? val
   override Int count() { 1 }
 }
+

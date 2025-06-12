@@ -34,7 +34,7 @@ internal abstract class GenGrid : DefCompilerStep
     // check if we have a callback or we are writing to disk
     uri := `${baseName}.${filetype.fileExt}`
     onFile := compiler.onDocFile
-    opts := Etc.makeDict1("ns", c.ns)
+    opts := Etc.dict1("ns", c.ns)
     if (onFile != null)
     {
       info("Generating $filetype.dis $baseName.capitalize in-memory")

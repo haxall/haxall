@@ -139,7 +139,7 @@ internal class DemoMgr : PointMgr
   {
     writeVal := rec["writeVal"]
     if (writeVal != null) val = writeVal
-    db.commitAsync(Diff(rec, Etc.makeDict2("curVal", val, "curStatus", "ok"), Diff.forceTransient))
+    db.commitAsync(Diff(rec, Etc.dict2("curVal", val, "curStatus", "ok"), Diff.forceTransient))
   }
 
   Int cycle    // current demo cycle

@@ -185,7 +185,7 @@ const class PointFuncs
   static Obj? pointOverride(Obj point, Obj? val, Number? duration := null)
   {
     if (val != null && duration != null)
-      val = Etc.makeDict2("val", val, "duration", duration.toDuration)
+      val = Etc.dict2("val", val, "duration", duration.toDuration)
     return pointWrite(point, val, level8, null)
   }
 
@@ -247,7 +247,7 @@ const class PointFuncs
 
     // wrap val for overrides with a duration
     if (level.toInt == 8 && val != null && duration != null)
-      val = Etc.makeDict2("val", val, "duration", duration.toDuration)
+      val = Etc.dict2("val", val, "duration", duration.toDuration)
 
     return lib.writeMgr.write(rec, val, level.toInt, cx.user.dis, Etc.emptyDict).get(timeout)
   }
@@ -426,5 +426,4 @@ const class PointFuncs
   internal static const Number level8   := Number(8)
   internal static const Number levelDef := Number(17)
 }
-
 

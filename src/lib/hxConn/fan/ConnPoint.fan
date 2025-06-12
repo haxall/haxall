@@ -300,7 +300,7 @@ const final class ConnPoint : HxConnPoint
     s := ConnPointHisState.updateOk(this, items, span)
     hisStateRef.val = s
     updateHisTags(s)
-    return Etc.makeDict2("id", id, "num", Number(items.size))
+    return Etc.dict2("id", id, "num", Number(items.size))
   }
 
   ** Update his sync with given error
@@ -309,7 +309,7 @@ const final class ConnPoint : HxConnPoint
     s := ConnPointHisState.updateErr(this, err)
     hisStateRef.val = s
     updateHisTags(s)
-    return Etc.makeDict2("id", id, "err", err.toStr)
+    return Etc.dict2("id", id, "err", err.toStr)
   }
 
   ** Update hisState to pending (just transient tag, not state)
@@ -561,3 +561,4 @@ internal const final class ConnPointConfig
   }
 
 }
+

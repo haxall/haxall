@@ -81,7 +81,7 @@ class DefUtil
   {
     if (list.isEmpty) return emptyEnum
     acc := Str:Dict[:] { ordered = true }
-    list.each |key| { acc.add(key, Etc.makeDict1("name", key)) }
+    list.each |key| { acc.add(key, Etc.dict1("name", key)) }
     return acc
   }
 
@@ -105,7 +105,7 @@ class DefUtil
       {
         doc = doc + "\n" + line
       }
-      acc[key] = Etc.makeDict2("name", key, "doc", doc)
+      acc[key] = Etc.dict2("name", key, "doc", doc)
     }
     return acc
   }
@@ -115,7 +115,7 @@ class DefUtil
     acc := Str:Dict[:] { ordered = true }
     keys := enum.splitLines
     if (keys.size == 1) keys = enum.split(',')
-    keys.each |key| { acc.add(key, Etc.makeDict1("name", key)) }
+    keys.each |key| { acc.add(key, Etc.dict1("name", key)) }
     return acc
   }
 

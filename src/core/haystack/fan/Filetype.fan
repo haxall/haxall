@@ -85,7 +85,7 @@ const mixin Filetype : Def
         if (mimeVersion == "3") v3 = true
         if (mimeVersion == "4") v3 = false
       }
-      if (v3) return Etc.dictMerge(arg, Etc.makeDict2("ns", ns, "v3", Marker.val))
+      if (v3) return Etc.dictMerge(arg, Etc.dict2("ns", ns, "v3", Marker.val))
     }
     return Etc.dictSet(arg, "ns", ns)
   }
@@ -100,3 +100,4 @@ const mixin Filetype : Def
   Bool isView() { name == "pdf" || name == "svg" || name == "html" }
 
 }
+

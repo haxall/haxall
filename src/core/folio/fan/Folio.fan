@@ -284,7 +284,7 @@ abstract const class Folio
   ** Remove all records with the trash tag
   @NoDoc FolioFuture commitRemoveTrashAsync()
   {
-    recs := readAllList(Filter.has("trash"), Etc.makeDict1("trash", Marker.val))
+    recs := readAllList(Filter.has("trash"), Etc.dict1("trash", Marker.val))
     diffs := recs.map |rec->Diff| { Diff(rec, null, Diff.remove.or(Diff.force)) }
     return commitAllAsync(diffs)
   }

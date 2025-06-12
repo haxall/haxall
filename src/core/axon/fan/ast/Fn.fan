@@ -269,7 +269,7 @@ const class FnParam
 
   Dict encode()
   {
-    def == null ? Etc.makeDict1("name", name) : Etc.makeDict2("name", name, "def", def.encode)
+    def == null ? Etc.dict1("name", name) : Etc.dict2("name", name, "def", def.encode)
   }
 
   Void print(Printer out)
@@ -297,5 +297,4 @@ internal const class ReturnErr : Err
   static Obj? getVal() { Actor.locals.remove("axon.returnVal") }
   static Void putVal(Obj? v) { Actor.locals["axon.returnVal"] = v }
 }
-
 

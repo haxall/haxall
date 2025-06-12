@@ -150,8 +150,8 @@ class CoreFuncsTest : HxTest
   @HxRuntimeTest
   Void testCoercion()
   {
-    d1 := Etc.makeDict1("id", Ref("d1"))
-    d2 := Etc.makeDict1("id", Ref("d2"))
+    d1 := Etc.dict1("id", Ref("d1"))
+    d2 := Etc.dict1("id", Ref("d2"))
     g0 := Etc.emptyGrid
     g1 := Etc.makeDictGrid(null, d1)
     r  := addRec(["dis":"rec in db"])

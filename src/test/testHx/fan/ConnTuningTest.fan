@@ -131,7 +131,7 @@ class ConnTuningTest : HxTest
     sync(c)
     verifyEq(lib.point(pt.id).tuning.id, t5id)
     verifyEq(lib.point(pt.id).tuning.staleTime, 5min)
-    verifyDictEq(lib.point(pt.id).tuning.rec, Etc.makeDict1("id", t5id))
+    verifyDictEq(lib.point(pt.id).tuning.rec, Etc.dict1("id", t5id))
 
     // now fill in t5
     t5 := addRec(["id":t5id, "dis":"T-5", "connTuning":m, "staleTime":n(123, "sec")])
@@ -516,3 +516,4 @@ class ConnTuningTest : HxTest
     rt.sync
   }
 }
+

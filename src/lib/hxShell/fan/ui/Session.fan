@@ -35,7 +35,7 @@ const class Session
   ** Convenience for `call` to the eval op
   ApiCallFuture eval(Str expr)
   {
-    call("eval", Etc.makeDictGrid(null, Etc.makeDict1("expr", expr)))
+    call("eval", Etc.makeDictGrid(null, Etc.dict1("expr", expr)))
   }
 
   ** Make a Haystack API call
@@ -108,3 +108,4 @@ class ApiCallFuture
   private Func? cbOk
   private Func? cbErr := |Grid g| { ShellDialog.openErrGrid(g) }
 }
+

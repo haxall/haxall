@@ -56,7 +56,7 @@ const final class ConnTuningRoster
   {
     t := byId.get(id)
     if (t != null) return t
-    t = ConnTuning(Etc.makeDict1("id", id))
+    t = ConnTuning(Etc.dict1("id", id))
     t = byId.getOrAdd(id, t)
     return t
   }
@@ -187,3 +187,4 @@ internal const class ConnTuningConfig
   const Bool writeOnOpen
   const Bool writeOnStart
 }
+

@@ -27,7 +27,7 @@ internal const final class ConnCommitter
     m := managed
     if (m[n0] == v0) return
 
-    changes := Etc.makeDict1(
+    changes := Etc.dict1(
       n0, v0 ?: Remove.val)
 
     commit(lib, rec, changes)
@@ -39,7 +39,7 @@ internal const final class ConnCommitter
     m := managed
     if (m[n0] == v0 && m[n1] == v1) return
 
-    changes := Etc.makeDict2(
+    changes := Etc.dict2(
       n0, v0 ?: Remove.val,
       n1, v1 ?: Remove.val)
 
@@ -52,7 +52,7 @@ internal const final class ConnCommitter
     m := managed
     if (m[n0] == v0 && m[n1] == v1 && m[n2] == v2) return
 
-    changes := Etc.makeDict3(
+    changes := Etc.dict3(
       n0, v0 ?: Remove.val,
       n1, v1 ?: Remove.val,
       n2, v2 ?: Remove.val)
@@ -101,3 +101,4 @@ internal const final class ConnCommitter
     }
   }
 }
+

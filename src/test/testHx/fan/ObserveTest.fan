@@ -340,8 +340,8 @@ class ObserveTest : HxTest
     f := addRec(["dis":"F", "bar":m])
 
     x := TestObserver(); xs := rt.obs.get("obsWatches").subscribe(x, Etc.emptyDict)
-    y := TestObserver(); ys := rt.obs.get("obsWatches").subscribe(y, Etc.makeDict1("obsFilter", "foo"))
-    z := TestObserver(); zs := rt.obs.get("obsWatches").subscribe(z, Etc.makeDict1("obsFilter", "bar"))
+    y := TestObserver(); ys := rt.obs.get("obsWatches").subscribe(y, Etc.dict1("obsFilter", "foo"))
+    z := TestObserver(); zs := rt.obs.get("obsWatches").subscribe(z, Etc.dict1("obsFilter", "bar"))
     clear := |->| { x.clear; y.clear; z.clear }
 
     verifyWatch(x, null, null)
@@ -420,7 +420,7 @@ class ObserveTest : HxTest
     b1 := addRec(["dis":"B", "bar":m])
 
     x := TestObserver(); xs := rt.obs.get("obsCurVals").subscribe(x, Etc.emptyDict)
-    y := TestObserver(); ys := rt.obs.get("obsCurVals").subscribe(y, Etc.makeDict1("obsFilter", "foo"))
+    y := TestObserver(); ys := rt.obs.get("obsCurVals").subscribe(y, Etc.dict1("obsFilter", "foo"))
     verifyEq(xs.observable.name, "obsCurVals")
     clear := |->| { x.clear; y.clear }
 
@@ -482,7 +482,7 @@ class ObserveTest : HxTest
     b := addRec(["dis":"B", "bar":m, "point":m, "his":m, "kind":"Number", "tz":tz.name])
 
     x := TestObserver(); xs := rt.obs.get("obsHisWrites").subscribe(x, Etc.emptyDict)
-    y := TestObserver(); ys := rt.obs.get("obsHisWrites").subscribe(y, Etc.makeDict1("obsFilter", "foo"))
+    y := TestObserver(); ys := rt.obs.get("obsHisWrites").subscribe(y, Etc.dict1("obsFilter", "foo"))
     verifyEq(xs.observable.name, "obsHisWrites")
     clear := |->| { x.clear; y.clear }
 

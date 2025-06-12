@@ -33,7 +33,7 @@ class TaskTest : HxTest
 
     rt.libs.remove("task")
 
-    lib = (TaskLib)rt.libs.add("task", Etc.makeDict1("maxThreads", n(123)))
+    lib = (TaskLib)rt.libs.add("task", Etc.dict1("maxThreads", n(123)))
     verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
     verifyEq(lib.rec.maxThreads, 123)
     verifyEq(lib.rec->maxThreads, n(123))
@@ -465,3 +465,4 @@ class TaskTest : HxTest
     verifyEq(actual, expected)
   }
 }
+

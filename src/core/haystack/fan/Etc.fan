@@ -95,33 +95,30 @@ const class Etc
   ** Make a Dict with one name/value pair.
   ** Backward compatibility only for nullable values, use `dict1` now.
   **
+  @Deprecated { msg = "Use dict1" }
   static Dict makeDict1(Str n, Obj? v)
   {
-    if (v == null) return emptyDict
-    return Dict1.make1(n, v)
+    v == null ? dict0 : Dict1.make1(n, v)
   }
 
   **
   ** Make a Dict with two name/value pairs.
   ** Backward compatibility only for nullable values, use `dict2` now.
   **
+  @Deprecated { msg = "Use dict2" }
   static Dict makeDict2(Str n0, Obj? v0, Str n1, Obj? v1)
   {
-    if (v0 == null) return makeDict1(n1, v1)
-    if (v1 == null) return makeDict1(n0, v0)
-    return Dict2.make2(n0, v0, n1, v1)
+    dictx(n0, v0, n1, v1)
   }
 
   **
   ** Make a Dict with three name/value pairs.
   ** Backward compatibility only for nullable values, use `dict3` now.
   **
+  @Deprecated { msg = "Use dict3" }
   static Dict makeDict3(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2)
   {
-    if (v0 == null) return makeDict2(n1, v1, n2, v2)
-    if (v1 == null) return makeDict2(n0, v0, n2, v2)
-    if (v2 == null) return makeDict2(n0, v0, n1, v1)
-    return Dict3.make3(n0, v0, n1, v1, n2, v2)
+    dictx(n0, v0, n1, v1, n2, v2)
   }
 
   **
@@ -130,11 +127,7 @@ const class Etc
   **
   static Dict makeDict4(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3)
   {
-    if (v0 == null) return makeDict3(n1, v1, n2, v2, n3, v3)
-    if (v1 == null) return makeDict3(n0, v0, n2, v2, n3, v3)
-    if (v2 == null) return makeDict3(n0, v0, n1, v1, n3, v3)
-    if (v3 == null) return makeDict3(n0, v0, n1, v1, n2, v2)
-    return Dict4.make4(n0, v0, n1, v1, n2, v2, n3, v3)
+    dictx(n0, v0, n1, v1, n2, v2, n3, v3)
   }
 
   **
@@ -143,12 +136,7 @@ const class Etc
   **
   static Dict makeDict5(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3, Str n4, Obj? v4)
   {
-    if (v0 == null) return makeDict4(n1, v1, n2, v2, n3, v3, n4, v4)
-    if (v1 == null) return makeDict4(n0, v0, n2, v2, n3, v3, n4, v4)
-    if (v2 == null) return makeDict4(n0, v0, n1, v1, n3, v3, n4, v4)
-    if (v3 == null) return makeDict4(n0, v0, n1, v1, n2, v2, n4, v4)
-    if (v4 == null) return makeDict4(n0, v0, n1, v1, n2, v2, n3, v3)
-    return Dict5.make5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4)
+    dictx(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4)
   }
 
   **
@@ -225,12 +213,12 @@ const class Etc
   **
   ** Create a Dict with up to six optional values
   **
-  @NoDoc static Dict dictx(Str? n0, Obj? v0,
-                           Str? n1 := null, Obj? v1 := null,
-                           Str? n2 := null, Obj? v2 := null,
-                           Str? n3 := null, Obj? v3 := null,
-                           Str? n4 := null, Obj? v4 := null,
-                           Str? n5 := null, Obj? v5 := null)
+  static Dict dictx(Str? n0, Obj? v0,
+                    Str? n1 := null, Obj? v1 := null,
+                    Str? n2 := null, Obj? v2 := null,
+                    Str? n3 := null, Obj? v3 := null,
+                    Str? n4 := null, Obj? v4 := null,
+                    Str? n5 := null, Obj? v5 := null)
   {
     x := Obj[,]
     x.capacity = 16

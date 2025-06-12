@@ -42,7 +42,7 @@ internal const final class ConnPointHisState
       }
 
       // write history items with clip span option
-      pt.lib.rt.his.write(rec, items, Etc.makeDict1("clip", span))
+      pt.lib.rt.his.write(rec, items, Etc.dict1("clip", span))
 
       return makeOk(old, lastItems.toStr)
     }

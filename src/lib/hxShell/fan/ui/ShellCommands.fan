@@ -83,7 +83,7 @@ internal class ShellCommands : FlexBox
     aux := sel.size == 1 ? "Selection: " + sel[0].dis : "Selection: $sel.size records"
     ShellDialog.confirm("Move recs to trash?", aux) |->|
     {
-      rows := sel.map |r->Dict| { Etc.makeDict3("id", r.id, "mod", r->mod, "trash", Marker.val) }
+      rows := sel.map |r->Dict| { Etc.dict3("id", r.id, "mod", r->mod, "trash", Marker.val) }
       req := Etc.makeDictsGrid(["commit":"update"], rows)
       sh.session.call("commit", req).onOk |res| { sh.refresh }
     }

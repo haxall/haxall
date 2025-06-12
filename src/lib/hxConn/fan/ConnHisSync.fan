@@ -88,7 +88,7 @@ using folio
   private Void trace(Str msg, Int progress)
   {
     if (task == null) return
-    task.progress(Etc.makeDict2("msg", msg, "progress", Number(progress, Number.percent)))
+    task.progress(Etc.dict2("msg", msg, "progress", Number(progress, Number.percent)))
   }
 
   private HxContext cxRef
@@ -145,5 +145,4 @@ internal class ConnSyncHis : AbstractSyncHis
   }
 
 }
-
 

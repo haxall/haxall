@@ -344,7 +344,7 @@ internal class HisCollectRec
 
     this.status = statusOk
     this.err = null
-    commit(mgr, Etc.makeDict2("hisStatus", statusOk, "hisErr", Remove.val))
+    commit(mgr, Etc.dict2("hisStatus", statusOk, "hisErr", Remove.val))
   }
 
   private Void updateStatusErr(HisCollectMgr mgr, Str err)
@@ -354,7 +354,7 @@ internal class HisCollectRec
 
     this.status = statusFault
     this.err = err
-    commit(mgr, Etc.makeDict2("hisStatus", statusFault, "hisErr", err))
+    commit(mgr, Etc.dict2("hisStatus", statusFault, "hisErr", err))
   }
 
   private Void commit(HisCollectMgr mgr, Dict changes)
@@ -470,3 +470,4 @@ internal class HisCollectItem
 **************************************************************************
 
 internal enum class HisCollectItemState { pending, wroteVal, wroteNA, skipped }
+

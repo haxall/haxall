@@ -602,7 +602,7 @@ class AxonTest : AbstractAxonTest
     verifyEq(grid.size, 0)
 
     // now verify with graph option
-    opts := Etc.makeDict1("graph", Marker.val)
+    opts := Etc.dict1("graph", Marker.val)
     grid = cx.evalToFunc("fitsExplain").call(cx, [subject, spec, opts])
 
     // echo; echo("-- $subject | $spec"); grid.dump

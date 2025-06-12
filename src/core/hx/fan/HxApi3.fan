@@ -119,7 +119,7 @@ internal class HxDefsOp : HxApiOp
       if (acc.size >= limit) { incomplete = true; return }
       acc.add(def)
     }
-    meta := incomplete ? Etc.makeDict2("incomplete", Marker.val, "limit", Number(limit)) : Etc.emptyDict
+    meta := incomplete ? Etc.dict2("incomplete", Marker.val, "limit", Number(limit)) : Etc.emptyDict
     return Etc.makeDictsGrid(meta, acc)
   }
 
@@ -341,7 +341,7 @@ internal class HxNavOp : HxApiOp
     watch.addAll(ids)
 
     // return recs - must return row for each requested id (so don't use Etc)
-    resMeta := Etc.makeDict2("watchId", watch.id, "lease", Number.makeDuration(watch.lease, null))
+    resMeta := Etc.dict2("watchId", watch.id, "lease", Number.makeDuration(watch.lease, null))
     recs := cx.rt.db.readByIdsList(ids, false)
     colNames := Etc.dictsNames(recs)
     gb := GridBuilder()
@@ -403,7 +403,7 @@ internal class HxWatchPollOp : HxApiOp
     // poll as refresh or cov
     watch := cx.rt.watch.get(watchId)
     recs := refresh ? watch.poll(Duration.defVal) : watch.poll
-    resMeta := Etc.makeDict1("watchId", watchId)
+    resMeta := Etc.dict1("watchId", watchId)
     if (curValSub)
     {
       return GridBuilder()
@@ -647,10 +647,10 @@ internal class HxPointWriteOp : HxApiOp
 
     // if have timed override
     if (val != null && level.toInt == 8 && dur != null)
-      val = Etc.makeDict2("val", val, "duration", dur.toDuration)
+      val = Etc.dict2("val", val, "duration", dur.toDuration)
 
     cx.rt.pointWrite.write(rec, val, level.toInt, who).get(30sec)
-    return Etc.makeEmptyGrid(Etc.makeDict1("ok", Marker.val))
+    return Etc.makeEmptyGrid(Etc.dict1("ok", Marker.val))
   }
 }
 
