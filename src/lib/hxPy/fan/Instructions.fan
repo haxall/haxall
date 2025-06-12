@@ -51,7 +51,7 @@ internal abstract const class Instr
 
     const Str code
 
-    override Dict encode() { Etc.makeDict1("exec", code) }
+    override Dict encode() { Etc.dict1("exec", code) }
   }
 
 **************************************************************************
@@ -64,6 +64,6 @@ internal const class EvalInstr : Instr
 
   const Str expr
 
-  override Dict encode() { Etc.makeDict1("eval", expr) }
+  override Dict encode() { Etc.dict1("eval", expr) }
 }
 

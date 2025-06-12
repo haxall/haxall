@@ -47,7 +47,7 @@ class DictTest : HaystackTest
     verifyEq(x["int"], null)
     verifyErr(UnknownNameErr#) { x->int }
 
-    x = TypedDictTest(Etc.makeDict4("int", n(3), "num", n(4, "kW"), "dur", n(5, "hr"), "bool", m))
+    x = TypedDictTest(Etc.dict4("int", n(3), "num", n(4, "kW"), "dur", n(5, "hr"), "bool", m))
     verifyEq(x.int, 3)
     verifyEq(x.num, n(4, "kW"))
     verifyEq(x.dur, 5hr)
@@ -61,7 +61,7 @@ class DictTest : HaystackTest
 
     errs := Str[,]
     onErr := |Str e| { errs.add(e) }
-    x = TypedDictTest(Etc.makeDict4("int", "bad", "num", "bad", "dur", n(5), "bool", true), onErr)
+    x = TypedDictTest(Etc.dict4("int", "bad", "num", "bad", "dur", n(5), "bool", true), onErr)
     // echo(errs.join("\n"))
     verifyEq(errs.size, 3)
     verifyEq(x.int, 99)
@@ -87,3 +87,4 @@ internal const class TypedDictTest : TypedDict
   @TypedTag const Duration dur := 99sec
   @TypedTag const Bool bool
 }
+

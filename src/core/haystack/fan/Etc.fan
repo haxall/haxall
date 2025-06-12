@@ -125,6 +125,7 @@ const class Etc
   ** Make a Dict with four name/value pairs.
   ** Backward compatibility only for nullable values, use `dict4` now.
   **
+  @Deprecated { msg = "Use dict4" }
   static Dict makeDict4(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3)
   {
     dictx(n0, v0, n1, v1, n2, v2, n3, v3)
@@ -134,6 +135,7 @@ const class Etc
   ** Make a Dict with five name/value pairs.
   ** Backward compatibility only for nullable values, use `dict5` now.
   **
+  @Deprecated { msg = "Use dict5" }
   static Dict makeDict5(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3, Str n4, Obj? v4)
   {
     dictx(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4)
@@ -143,15 +145,10 @@ const class Etc
   ** Make a Dict with six name/value pairs.
   ** Backward compatibility only for nullable values, use `dict6` now.
   **
+  @Deprecated { msg = "Use dict6" }
   static Dict makeDict6(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3, Str n4, Obj? v4, Str n5, Obj? v5)
   {
-    if (v0 == null) return makeDict5(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5)
-    if (v1 == null) return makeDict5(n0, v0, n2, v2, n3, v3, n4, v4, n5, v5)
-    if (v2 == null) return makeDict5(n0, v0, n1, v1, n3, v3, n4, v4, n5, v5)
-    if (v3 == null) return makeDict5(n0, v0, n1, v1, n2, v2, n4, v4, n5, v5)
-    if (v4 == null) return makeDict5(n0, v0, n1, v1, n2, v2, n3, v3, n5, v5)
-    if (v5 == null) return makeDict5(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4)
-    return Dict6.make6(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5)
+    dictx(n0, v0, n1, v1, n2, v2, n3, v3, n4, v4, n5, v5)
   }
 
   **
@@ -223,8 +220,8 @@ const class Etc
   **
   @NoDoc static Dict dict2x(Str n0, Obj? v0, Str n1, Obj? v1)
   {
-    if (v0 == null) return dict1x(n1, v1)
     if (v1 == null) return dict1x(n0, v0)
+    if (v0 == null) return dict1x(n1, v1)
     return dict2(n0, v0, n1, v1)
   }
 
@@ -233,9 +230,9 @@ const class Etc
   **
   @NoDoc static Dict dict3x(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2)
   {
-    if (v0 == null) return dict2x(n1, v1, n2, v2)
-    if (v1 == null) return dict2x(n0, v0, n2, v2)
     if (v2 == null) return dict2x(n0, v0, n1, v1)
+    if (v1 == null) return dict2x(n0, v0, n2, v2)
+    if (v0 == null) return dict2x(n1, v1, n2, v2)
     return dict3(n0, v0, n1, v1, n2, v2)
   }
 
@@ -244,10 +241,10 @@ const class Etc
   **
   @NoDoc static Dict dict4x(Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2, Str n3, Obj? v3)
   {
-    if (v0 == null) return dict3x(n1, v1, n2, v2, n3, v3)
-    if (v1 == null) return dict3x(n0, v0, n2, v2, n3, v3)
-    if (v2 == null) return dict3x(n0, v0, n1, v1, n3, v3)
     if (v3 == null) return dict3x(n0, v0, n1, v1, n2, v2)
+    if (v2 == null) return dict3x(n0, v0, n1, v1, n3, v3)
+    if (v1 == null) return dict3x(n0, v0, n2, v2, n3, v3)
+    if (v0 == null) return dict3x(n1, v1, n2, v2, n3, v3)
     return dict4(n0, v0, n1, v1, n2, v2, n3, v3)
   }
 
