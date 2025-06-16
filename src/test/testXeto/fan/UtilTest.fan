@@ -175,6 +175,13 @@ class UtilTest : AbstractXetoTest
     verifyEq(XetoUtil.qnameToLib("::Y"), null)
     verifyEq(XetoUtil.qnameToLib("x::Y"), "x")
     verifyEq(XetoUtil.qnameToLib("foo.bar::file:csv"), "foo.bar")
+
+    // qnameToSlotPath
+    verifyEq(XetoUtil.qnameToSlotPath("foo.bar"), null)
+    verifyEq(XetoUtil.qnameToSlotPath("foo.bar::Bar"), null)
+    verifyEq(XetoUtil.qnameToSlotPath("foo.bar::Bar.x"), "x")
+    verifyEq(XetoUtil.qnameToSlotPath("foo.bar::Bar.x.y"), "x.y")
+    verifyEq(XetoUtil.qnameToSlotPath("foo.bar::Bar.x.y.z"), "x.y.z")
   }
 
 //////////////////////////////////////////////////////////////////////////

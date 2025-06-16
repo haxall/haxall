@@ -177,6 +177,17 @@ const class XetoUtil
     return s[0..<colon]
   }
 
+  ** Convert "foo.bar::Baz.x.y.z" to "x.y.z" or null.
+  static Str? qnameToSlotPath(Obj qname)
+  {
+    s := qname.toStr
+    colon := s.index(":")
+    if (colon == null || colon < 1 || colon+2 >= s.size || s[colon+1] != ':') return null
+    dot := s.index(".", colon+1)
+    if (dot == null) return null
+    return s[dot+1..-1]
+  }
+
   ** Convert a list of Str or Ref qnames into the unique list of libraries
   static Str[] qnamesToLibs(Obj[] qnames)
   {
