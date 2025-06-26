@@ -91,7 +91,7 @@ const mixin Spec : Dict
   ** false.  See `LibNamespace.choice` to access `SpecChoice` API.
   abstract Bool isChoice()
 
-  ** Return if this a `FuncSpec` that models a function signature
+  ** Return if this a `SpecFunc` that models a function signature
   abstract Bool isFunc()
 
   ** Return function specific APIs.  Raise exception if `isFunc` is false.

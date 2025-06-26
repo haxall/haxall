@@ -193,14 +193,14 @@ const mixin LibNamespace
   **   - type: "foo.bar::Baz"
   **   - global: "foo.bar::baz"
   **   - slot: "foo.bar::Baz.qux"
-   ** See `lib()` for behavior if the spec's lib is not loaded.
+   ** See `lib` for behavior if the spec's lib is not loaded.
   abstract Spec? spec(Str qname, Bool checked := true)
 
   ** Lookup a spec async in the case the lib is not loaded yet.
   abstract Void specAsync(Str qname, |Err?, Spec?| f)
 
   ** Get or load instance by the given qualified name
-   ** See `lib()` for behavior if the instances's lib is not loaded.
+   ** See `lib` for behavior if the instances's lib is not loaded.
   abstract Dict? instance(Str qname, Bool checked := true)
 
   ** Lookup an instance async in the case the lib is not loaded yet.
