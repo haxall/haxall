@@ -221,7 +221,7 @@ const final class Span
   override Str toStr()
   {
     if (mode.isRel) return mode.name
-    if (alignsToDates)
+    if (alignsToDates && start != end)
     {
       if (alignsToDay) return start.date.toStr
       return "$start.date,$end.date"
@@ -314,7 +314,7 @@ const final class Span
   ** Does span align to a single day
   @NoDoc Bool alignsToDay()
   {
-    alignsToDates && numDays == 1
+    alignsToDates && numDays <= 1
   }
 
   ** Does span align to a single week starting on

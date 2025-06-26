@@ -34,9 +34,16 @@ class SpanTest : HaystackTest
     verifyAbs(ts("2013-07-01"), ts("2013-10-01"), "quarter", "Q3 2013")
     verifyAbs(ts("2013-10-01"), ts("2014-01-01"), "quarter", "Q4 2013")
     verifyAbs(ts("2013-01-01"), ts("2014-01-01"), "year",    "2013")
-    verifyAbs(ts("2013-01-01"), ts("2015-01-01"), "dates",   "1-Jan-2013..31-Dec-2014")
+    verifyAbs(ts("2013-01-01"), ts("2015-01-01"), "days",    "1-Jan-2013..31-Dec-2014")
 
-    s := Span(Date("2023-05-15"), TimeZone("Chicago"))
+    // zero day at midnight
+    s := verifyAbs(ts("2025-06-25"), ts("2025-06-25"), "day", "25-Jun-2025")
+    dates := Date?[,]
+    s.eachDay |d| { dates.add(d) }
+    verifyEq(dates, [Date("2025-06-25")])
+
+    // day + timezone
+    s = Span(Date("2023-05-15"), TimeZone("Chicago"))
     verifyEq(s.start, DateTime("2023-05-15T00:00:00-05:00 Chicago"))
     verifyEq(s.end, DateTime("2023-05-16T00:00:00-05:00 Chicago"))
 
@@ -45,7 +52,7 @@ class SpanTest : HaystackTest
     verifyErr(ArgErr#) { x := Span(DateTime.now - 1day, DateTime.nowUtc) }
   }
 
-  Void verifyAbs(DateTime start, DateTime end, Str align, Str dis, TimeZone tz := this.tz)
+  Span verifyAbs(DateTime start, DateTime end, Str align, Str dis, TimeZone tz := this.tz)
   {
     span := Span(start, end)
     verifySame(span.mode, SpanMode.abs)
@@ -62,6 +69,8 @@ class SpanTest : HaystackTest
     verifyEq(span.alignsToMonth,   align == "month")
     verifyEq(span.alignsToQuarter, align == "quarter")
     verifyEq(span.alignsToYear,    align == "year")
+
+    return span
   }
 
 //////////////////////////////////////////////////////////////////////////
