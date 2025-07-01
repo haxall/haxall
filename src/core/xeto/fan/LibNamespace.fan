@@ -64,7 +64,6 @@ const mixin LibNamespace
       "ion",
       "ion.actions",
       "ion.card",
-      "ion.icons",
       "ion.inputs",
       "ion.form",
       "ion.styles",

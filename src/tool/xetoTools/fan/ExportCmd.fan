@@ -37,7 +37,7 @@ internal abstract class ExportCmd : XetoCmd
     out.printLine("  ph.points-1.0.43            // specific version of lib")
     out.printLine("  ph.points::RunCmd           // latest version of spec")
     out.printLine("  ph.points-1.0.43::RunCmd    // specific version of spec")
-    out.printLine("  ion.icons::apple            // instance in a lib")
+    out.printLine("  ion.actions::save           // instance in a lib")
     out.printLine("Examples:")
     out.printLine("  xeto $name sys                   // latest version of lib")
     out.printLine("  xeto $name sys-1.0.3             // specific lib version")
