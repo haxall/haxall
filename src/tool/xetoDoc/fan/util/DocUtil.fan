@@ -218,7 +218,7 @@ const class DocUtil
 // Standard icon refs
 //////////////////////////////////////////////////////////////////////////
 
-  static Ref tagToIcon(Str name)
+  static Str tagToIcon(Str name)
   {
     switch (name)
     {
@@ -236,17 +236,17 @@ const class DocUtil
     }
   }
 
-  static const Ref indexIcon    := Ref("ion.icons::list")
-  static const Ref libIcon      := Ref("ion.icons::package")
-  static const Ref typeIcon     := Ref("ion.icons::aperture")
-  static const Ref globalIcon   := Ref("ion.icons::tag")
-  static const Ref instanceIcon := Ref("ion.icons::at-sign")
-  static const Ref chapterIcon  := Ref("ion.icons::sticky-note")
-  static const Ref compIcon     := Ref("ion.icons::component")
-  static const Ref equipIcon    := Ref("ion.icons::hard-drive")
-  static const Ref pointIcon    := Ref("ion.icons::circle-dot")
-  static const Ref sysIcon      := Ref("ion.icons::power")
-  static const Ref elecIcon     := Ref("ion.icons::zap")
-  static const Ref tagIcon      := Ref("ion.icons::tag")
+  static const Str indexIcon    := "list"
+  static const Str libIcon      := "package"
+  static const Str typeIcon     := "spec"
+  static const Str globalIcon   := "tag"
+  static const Str instanceIcon := "at-sign"
+  static const Str chapterIcon  := "sticky-note"
+  static const Str compIcon     := "component"
+  static const Str equipIcon    := "hard-drive"
+  static const Str pointIcon    := "circle-dot"
+  static const Str sysIcon      := "power"
+  static const Str elecIcon     := "zap"
+  static const Str tagIcon      := "tag"
 }
 

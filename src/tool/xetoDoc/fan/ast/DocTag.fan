@@ -78,7 +78,7 @@ const class DocTag
   }
 
   ** Icon to use for this tag
-  Ref icon() { DocUtil.tagToIcon(name) }
+  Str icon() { DocUtil.tagToIcon(name) }
 }
 
 **************************************************************************
