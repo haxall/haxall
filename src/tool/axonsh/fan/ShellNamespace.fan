@@ -32,7 +32,7 @@ const class ShellNamespace : MBuiltNamespace
 
   const ShellRuntime rt
 
-  const LibRepo repo := LibRepo.cur
+  const LibRepo repo := XetoEnv.cur.repo
 
   const AtomicRef xetoRef := AtomicRef(createDefaultNamespace)
 

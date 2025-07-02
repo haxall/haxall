@@ -12,6 +12,7 @@ using util
 **
 ** XetoEnv models the server side file system search path.
 **
+@Js
 abstract const class XetoEnv
 {
 
@@ -33,6 +34,10 @@ abstract const class XetoEnv
 //////////////////////////////////////////////////////////////////////////
 // API
 //////////////////////////////////////////////////////////////////////////
+
+  ** Repository of all installed xeto libs. This is only available
+  ** on server environments, will raise exception in a browser.
+  abstract LibRepo repo()
 
   ** Home directory where xeto software is installed
   abstract File homeDir()

@@ -10,31 +10,12 @@ using concurrent
 
 **
 ** Library repository is a database of Xeto libs.  A repository
-** might provide access to multiple versions per library.
+** might provide access to multiple versions per library.  Use
+** 'XetoEnv.repo' to get the VMs default repo.
 **
 @Js
 const mixin LibRepo
 {
-  ** Current default repository for the VM
-  static LibRepo cur()
-  {
-    repo := curRef.val as LibRepo
-    if (repo != null) return repo
-    try
-      curRef.compareAndSet(null, Type.find("xetoc::FileRepo").make)
-    catch
-      throw Err("LibRepo not available for runtime")
-    return curRef.val
-  }
-  private static const AtomicRef curRef := AtomicRef()
-
-  ** Install the default repo only if one is not currently installed
-  @NoDoc
-  static Void install(LibRepo repo)
-  {
-    curRef.compareAndSet(null, repo)
-  }
-
   ** List the library names installed in the repository.
   abstract Str[] libs()
 

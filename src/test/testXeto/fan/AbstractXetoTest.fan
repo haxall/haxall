@@ -88,7 +88,7 @@ class AbstractXetoTest : HaystackTest
     if (libs.size == 1 && libs[0] == "sys")
       return sysNamespace
 
-    return LibRepo.cur.createFromNames(libs)
+    return XetoEnv.cur.repo.createFromNames(libs)
   }
 
   Obj? compileData(Str s, Dict? opts := null)

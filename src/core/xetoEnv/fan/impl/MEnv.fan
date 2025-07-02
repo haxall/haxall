@@ -21,7 +21,7 @@ const class MEnv : XetoEnv
 
   static XetoEnv init()
   {
-    //if (cwd == null) cwd = File(`./`).normalize
+    // Fantom environment home dir
     homeDir := Env.cur.homeDir
 
     // first try using xeto.props
@@ -81,11 +81,14 @@ const class MEnv : XetoEnv
   {
     this.mode = mode
     this.path = path
+    this.repo = Type.find("xetoc::FileRepo").make([this])
   }
 
 //////////////////////////////////////////////////////////////////////////
 // XetoEnv
 //////////////////////////////////////////////////////////////////////////
+
+  override const LibRepo repo
 
   override File homeDir() { path.last }
 

@@ -485,7 +485,7 @@ const class HxCoreFuncs
 
    cx := curContext
    ns := cx.xeto
-   repo := LibRepo.cur
+   repo := XetoEnv.cur.repo
    system := LibNamespace.system
    repo.libs.each |libName|
    {
@@ -521,7 +521,7 @@ const class HxCoreFuncs
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
 
     // solve the dependency graph
-    repo := LibRepo.cur
+    repo := XetoEnv.cur.repo
     depends := list.map |n->LibDepend| { LibDepend(n) }
     vers := repo.solveDepends(depends)
 

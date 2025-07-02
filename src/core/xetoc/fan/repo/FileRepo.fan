@@ -17,7 +17,7 @@ using xetoEnv
 **
 const class FileRepo : LibRepo
 {
-  new make(XetoEnv env := XetoEnv.cur)
+  new make(XetoEnv env)
   {
     this.env = env
     rescan

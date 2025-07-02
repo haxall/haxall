@@ -58,7 +58,7 @@ internal abstract class ExportCmd : XetoCmd
     if (!checkArgs) return 1
 
     // find targets
-    repo := LibRepo.cur
+    repo := XetoEnv.cur.repo
     targets := findTargets(repo)
     if (verbose)
     {

@@ -42,7 +42,7 @@ const mixin LibNamespace
   ** Default system namesapce used across all Haxall based platforms
   private static LibNamespace createSystem()
   {
-    repo := LibRepo.cur
+    repo := XetoEnv.cur.repo
     libs := defaultSystemLibNames
     vers := LibVersion[,]
     libs.each |libName|
@@ -76,7 +76,7 @@ const mixin LibNamespace
   ** system namespace from the project's using records.
   @NoDoc static LibNamespace createSystemOverlay(Dict[] usings, Log log)
   {
-    repo := LibRepo.cur
+    repo := XetoEnv.cur.repo
     system := LibNamespace.system
     acc := Str:LibVersion[:]
     usings.each |rec|

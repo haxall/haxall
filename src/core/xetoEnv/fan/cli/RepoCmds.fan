@@ -31,7 +31,7 @@ internal class RepoCmd : XetoCmd
   override Int run()
   {
     // find libs to list
-    repo := LibRepo.cur
+    repo := XetoEnv.cur.repo
     libNames := this.libs ?: repo.libs
     echo
 

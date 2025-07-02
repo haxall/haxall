@@ -486,7 +486,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(a.versions[1].name, "ph")
 
     // no duplicates
-    repo := LibRepo.cur
+    repo := XetoEnv.cur.repo
     a.versions.each |v|
     {
       verifyErr(Err#) { repo.createOverlayNamespace(a, [v]) }

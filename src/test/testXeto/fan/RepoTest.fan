@@ -24,8 +24,8 @@ class RepoTest : AbstractXetoTest
 
   Void testBasics()
   {
-    repo := LibRepo.cur
-    verifySame(repo, LibRepo.cur)
+    repo := XetoEnv.cur.repo
+    verifySame(repo, XetoEnv.cur.repo)
 
     libs := repo.libs
     verifySame(repo.libs, libs)
@@ -185,7 +185,7 @@ class RepoTest : AbstractXetoTest
     //
     // sys only
     //
-    repo := LibRepo.cur
+    repo := XetoEnv.cur.repo
     LibVersion sysVer := repo.latest("sys")
     ns := repo.createNamespace([sysVer])
     sysNs := ns
@@ -350,7 +350,7 @@ class RepoTest : AbstractXetoTest
 
   LibNamespace initAllLoaded()
   {
-    repo := LibRepo.cur
+    repo := XetoEnv.cur.repo
     LibVersion sysVer      := repo.latest("sys")
     LibVersion phVer       := repo.latest("ph")
     LibVersion phPointsVer := repo.latest("ph.points")

@@ -34,7 +34,7 @@ abstract class SrcLibCmd : XetoCmd
 
   override Int run()
   {
-    repo := LibRepo.cur
+    repo := XetoEnv.cur.repo
 
     // no flags defaults to allWork
     if (libs == null && allIn == null)
