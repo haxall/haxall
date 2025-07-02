@@ -49,10 +49,7 @@ const mixin Dict
   ** but apply the specified closure to generate new values.
   @NoDoc virtual This map(|Obj val, Str name->Obj| f)
   {
-    acc := Str:Obj[:]
-    each |v, n| { acc[n] = f(v, n) }
-// TODO
-return Slot.findMethod("haystack::Etc.dictFromMap").call(acc)
+    XetoEnv.cur.dictMap(this, f)
   }
 
   ** Get display string for dict or the given tag.  If 'name'
@@ -62,10 +59,7 @@ return Slot.findMethod("haystack::Etc.dictFromMap").call(acc)
   ** 'name' is not defined by this dict, then return 'def'.
   virtual Str? dis(Str? name := null, Str? def := "")
   {
-// TODO
-    // if name is null
-//    if (name == null) return Etc.dictToDis(this, def)
-if (name == null) return Slot.findMethod("haystack::Etc.dictToDis").call(this, def)
+    if (name == null) return XetoEnv.cur.dictDis(this, def)
 
     // get the value, if null return the def
     val := get(name)

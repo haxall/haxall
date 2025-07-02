@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using haystack
 
 **
 ** MEnv is the base for XetoEnv implementations.  We
@@ -22,6 +23,18 @@ abstract const class MEnv : XetoEnv
       return BrowserEnv()
     else
       return Slot.findMethod("xetoEnv::ServerEnv.initPath").call
+  }
+
+  override Str dictDis(Dict x, Str? def)
+  {
+    Etc.dictToDis(x, def)
+  }
+
+  override Dict dictMap(Dict x, |Obj val, Str name->Obj| f)
+  {
+    acc := Str:Obj[:]
+    x.each |v, n| { acc[n] = f(v, n) }
+    return Etc.dictFromMap(acc)
   }
 }
 
