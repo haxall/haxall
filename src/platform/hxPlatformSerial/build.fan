@@ -29,6 +29,7 @@ class Build : BuildPod
                ]
     depends = ["sys @{fan.depend}",
                "concurrent @{fan.depend}",
+               "xeto @{hx.depend}",
                "haystack @{hx.depend}",
                "axon @{hx.depend}",
                "hx @{hx.depend}",
@@ -38,3 +39,4 @@ class Build : BuildPod
     index   = ["ph.lib": "platformSerial"]
   }
 }
+

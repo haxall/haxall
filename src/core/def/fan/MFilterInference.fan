@@ -6,6 +6,7 @@
 //   11 Aug 2020  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -93,3 +94,4 @@ internal class MFilterInferenceSymbol
   const Symbol symbol
   private Symbol[] descendants
 }
+

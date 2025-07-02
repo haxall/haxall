@@ -6,6 +6,7 @@
 //   8 Mar 2032  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using hx
 
@@ -43,5 +44,4 @@ internal const class ShellUserAccess : HxUserAccess
 {
   override Bool canPointWriteAtLevel(Int level) { true }
 }
-
 

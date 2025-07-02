@@ -6,6 +6,7 @@
 //   15 May 2012  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using hx
 using hxConn
@@ -418,3 +419,4 @@ internal const class SoxCompListener : SoxComponentListener
     conn.send(HxMsg("updateCur", pointId))
   }
 }
+

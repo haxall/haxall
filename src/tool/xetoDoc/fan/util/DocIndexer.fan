@@ -9,7 +9,6 @@
 using markdown
 using xeto
 using haystack
-using haystack::Dict
 
 **
 ** DocIndexer is used to crawl the AST of documents to generate a search index

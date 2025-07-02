@@ -9,7 +9,6 @@
 
 using util
 using xeto
-using haystack::Ref
 
 **
 ** Parser for the Xeto data type language

@@ -9,18 +9,7 @@
 using concurrent
 using util
 using xeto
-using haystack::Etc
-using haystack::Marker
-using haystack::NA
-using haystack::Remove
-using haystack::Number
-using haystack::Ref
-using haystack::Coord
-using haystack::Span
-using haystack::Symbol
-using haystack::Dict
-using haystack::Grid
-using haystack::GridBuilder
+using haystack
 
 **
 ** Reader for Xeto binary encoding of specs and data
@@ -411,7 +400,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       if (name.isEmpty) break
       acc[name] = readVal
     }
-    return haystack::Etc.dictFromMap(acc)
+    return Etc.dictFromMap(acc)
   }
 
   private Obj?[] readList()

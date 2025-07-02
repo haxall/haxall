@@ -7,12 +7,6 @@
 //
 
 using xeto
-using xeto::Lib
-using haystack::Dict
-using haystack::Etc
-using haystack::Marker
-using haystack::Number
-using haystack::Ref
 
 **
 ** Debug dump Exporter

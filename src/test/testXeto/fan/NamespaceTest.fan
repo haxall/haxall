@@ -8,10 +8,8 @@
 
 using util
 using xeto
-using xeto::Dict
 using xeto::Lib
 using haystack
-using haystack::Ref
 
 **
 ** NamespaceTest
@@ -381,8 +379,8 @@ class NamespaceTest : AbstractXetoTest
     verifySame(m, Marker.val)
     verifySame(na, NA.val)
     verifySame(none, Remove.val)
-    verifyEq(ref("foo"), haystack::Ref("foo", null))
-    verifyValEq(ref("foo", "Foo"), haystack::Ref("foo", "Foo"))
+    verifyEq(ref("foo"), Ref("foo", null))
+    verifyValEq(ref("foo", "Foo"), Ref("foo", "Foo"))
     verifySame(dict0, Etc.emptyDict)
     verifyDictEq(dict1("a", "A"), ["a":"A"])
   }
@@ -666,7 +664,7 @@ class NamespaceTest : AbstractXetoTest
 
     // replace actual generated ids with the test ids we used
     swizzle := Ref:Ref[:]
-    actual.each |a, i| { swizzle[a._id] = expect[i].get("id") }
+    actual.each |a, i| { swizzle[a.id] = expect[i].get("id") }
     actual = actual.map |a->Dict|
     {
       acc := Str:Obj[:]
@@ -730,8 +728,8 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(lib.hasXMeta, name == "hx.test.xeto")
     verifyEq(lib.hasMarkdown, false)
 
-    verifyEq(lib._id, Ref("lib:$name"))
-    verifySame(lib->id, lib._id)
+    verifyEq(lib.id, Ref("lib:$name"))
+    verifySame(lib->id, lib.id)
     verifyEq(lib["loaded"], Marker.val)
     verifyEq(lib["spec"], Ref("sys::Lib"))
 
@@ -739,10 +737,10 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(Str[,].addAll(cats), categories)
 
     asDict := Etc.dictMerge(lib.meta, [
-      "id":lib._id,
+      "id":lib.id,
       "spec":Ref("sys::Lib"),
       "loaded":m])
-    verifyDictEq((haystack::Dict)lib, asDict)
+    verifyDictEq((Dict)lib, asDict)
 
     Lib? async := null
     ns.libAsync(name) |e, x| { async = x }
@@ -770,11 +768,11 @@ class NamespaceTest : AbstractXetoTest
     verifySame(type.name, ns.names.toName(ns.names.toCode(name)))
 
     // id
-    verifyRefEq(((haystack::Dict)type).id, Ref(type.qname))
-    verifyRefEq(type._id, Ref(type.qname))
-    verifySame(type._id, type._id)
-    verifySame(type["id"], type._id)
-    verifySame(type->id, type._id)
+    verifyRefEq(((Dict)type).id, Ref(type.qname))
+    verifyRefEq(type.id, Ref(type.qname))
+    verifySame(type.id, type.id)
+    verifySame(type["id"], type.id)
+    verifySame(type->id, type.id)
 
     verifySame(lib.type(name), type)
     verifySame(type.type, type)

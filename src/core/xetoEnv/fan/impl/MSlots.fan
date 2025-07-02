@@ -7,8 +7,6 @@
 //
 
 using xeto
-using haystack::Dict
-using haystack::UnknownNameErr
 
 **
 ** Implementation of SpecSlots

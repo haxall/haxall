@@ -7,7 +7,7 @@
 //
 
 using concurrent
-using xeto::Link
+using xeto
 
 **************************************************************************
 ** EmptyDict
@@ -519,7 +519,7 @@ abstract const class FieldDict : Dict
 **************************************************************************
 
 @Js
-internal const class MLink : WrapDict, xeto::Link
+internal const class MLink : WrapDict, Link
 {
   static once Ref specRef() { Ref("sys.comp::Link") }
   new make(Dict wrapped) : super(wrapped)
@@ -537,7 +537,7 @@ internal const class MLink : WrapDict, xeto::Link
 **************************************************************************
 
 @Js
-internal const class MLinks : WrapDict, xeto::Links
+internal const class MLinks : WrapDict, Links
 {
   static once Ref specRef() { Ref("sys.comp::Links") }
   static once MLinks empty() { make(Etc.dict1("spec", specRef)) }

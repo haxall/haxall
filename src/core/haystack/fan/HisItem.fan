@@ -8,6 +8,8 @@
 //    9 Mar 2009  Brian Frank  Refactor for 3.0
 //
 
+using xeto
+
 **
 ** HisItem is a timestamp/value pair.
 **

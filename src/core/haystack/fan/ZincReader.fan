@@ -7,6 +7,8 @@
 //   28 Dec 2009  Brian Frank  DataReader => ZincReader
 //
 
+using xeto
+
 **
 ** Read Haystack data in [Zinc]`docHaystack::Zinc` format.
 **
@@ -370,3 +372,4 @@ class ZincReader : GridReader
   private Obj? peekVal         // next token value
   private Int peekLine         // next token line number
 }
+

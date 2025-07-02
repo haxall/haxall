@@ -10,6 +10,7 @@ using concurrent
 using crypto
 using inet
 using mqtt
+using xeto
 using haystack
 using hx
 using hxConn
@@ -282,3 +283,4 @@ class MqttDispatch : ConnDispatch, ClientListener
     return props
   }
 }
+

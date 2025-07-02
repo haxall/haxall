@@ -10,7 +10,7 @@
 using util
 using xeto
 using xetoEnv
-using haystack::Remove
+using haystack
 
 **
 ** AST spec
@@ -92,7 +92,7 @@ internal class ASpec : ANode, CSpec
   const override Str qname
 
   ** Ref of qualified name
-  override once haystack::Ref id() { haystack::Ref(qname, null) }
+  override once Ref id() { Ref(qname, null) }
 
   ** XetoSpec for this spec - we backpatch the "m" field in Assemble step
   const override XetoSpec asm := XetoSpec()

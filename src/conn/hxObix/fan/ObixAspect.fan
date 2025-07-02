@@ -8,6 +8,7 @@
 
 using web
 using obix
+using xeto
 using haystack
 using hx
 using hxConn
@@ -275,3 +276,4 @@ class ObixHistoryQuery : ObixProxy
   }
 
 }
+

@@ -8,6 +8,7 @@
 
 using concurrent
 using inet
+using xeto
 using haystack
 
 **************************************************************************
@@ -262,3 +263,4 @@ internal const class EvalActor : Actor
     return session.sendBrio(instrs.map |instr->Dict| { instr.encode })
   }
 }
+

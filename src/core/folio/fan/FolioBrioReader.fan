@@ -7,6 +7,7 @@
 //   10 Nov 2020  Brian Frank  Pull from folio3 for reuse
 //
 
+using xeto
 using haystack
 
 **

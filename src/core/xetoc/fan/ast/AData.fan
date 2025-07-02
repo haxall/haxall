@@ -10,7 +10,7 @@
 using util
 using xeto
 using xetoEnv
-using haystack::Ref
+using haystack
 
 **
 ** Base class for AST data instances
@@ -64,7 +64,7 @@ internal class AScalar : AData
   override Obj asm() { asmRef ?: throw NotReadyErr(str) }
 
   ** Is this the none singleton
-  override Bool isNone() { asmRef === haystack::Remove.val }
+  override Bool isNone() { asmRef === Remove.val }
 
   ** Assembled value set in Reify
   Obj? asmRef

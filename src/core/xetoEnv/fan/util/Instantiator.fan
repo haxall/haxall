@@ -8,13 +8,7 @@
 
 using util
 using xeto
-using haystack::Dict
-using haystack::Etc
-using haystack::Kind
-using haystack::Marker
-using haystack::Number
-using haystack::Ref
-using haystack::Remove
+using haystack
 
 **
 ** Instantiator implements LibNamespace.instantiate with support
@@ -147,7 +141,7 @@ class Instantiator
   ** Always add the spec tag
   private Void addSpec(Str:Obj acc, Spec spec)
   {
-    acc["spec"] = spec.type._id
+    acc["spec"] = spec.type.id
   }
 
   ** Try to add reasonable default display tag

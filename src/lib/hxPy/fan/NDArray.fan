@@ -6,6 +6,7 @@
 //   14 Sep 2021  Matthew Giannini  Creation
 //
 
+using xeto
 using haystack
 using math
 using hxMath
@@ -54,3 +55,4 @@ using hxMath
     return Type.find("hxMath::MatrixGrid").method("makeMatrix").call(Etc.emptyDict, matrix)
   }
 }
+

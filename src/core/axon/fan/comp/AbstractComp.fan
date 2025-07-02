@@ -6,7 +6,9 @@
 //   26 Jul 2019  Brian Frank  Creation
 //
 
+using xeto
 using haystack
+using axon::Comp
 
 **
 ** AbstractComp is base class for Fantom components.

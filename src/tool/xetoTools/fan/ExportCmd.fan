@@ -9,8 +9,7 @@
 using util
 using xeto
 using xetoEnv
-using haystack::Etc
-using haystack::Marker
+using haystack
 
 internal abstract class ExportCmd : XetoCmd
 {

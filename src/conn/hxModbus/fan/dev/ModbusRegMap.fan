@@ -9,6 +9,7 @@
 
 using concurrent
 using util
+using xeto
 using haystack
 using hx
 
@@ -164,3 +165,4 @@ const class ModbusRegMap
   private const DateTime modified
   private const Str:ModbusReg byName
 }
+

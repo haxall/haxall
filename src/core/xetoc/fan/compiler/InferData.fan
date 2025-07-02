@@ -188,7 +188,7 @@ internal abstract class InferData : Step
     return ref
   }
 
-  const Ref refDefVal := haystack::Ref("x")
+  const Ref refDefVal := Ref("x")
 
   private ASpec? curSpec
 }

@@ -6,6 +6,9 @@
 //   29 Nov 2018  Brian Frank  Creation
 //
 
+using xeto
+using haystack::Lib
+
 **
 ** Namespace models a symbolic namespace of defs
 **
@@ -24,7 +27,7 @@ const mixin Namespace
   @NoDoc abstract Str tsKey()
 
   ** Xeto namespace
-  @NoDoc abstract xeto::LibNamespace xeto()
+  @NoDoc abstract LibNamespace xeto()
 
 //////////////////////////////////////////////////////////////////////////
 // Defs

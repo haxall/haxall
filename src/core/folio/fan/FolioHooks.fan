@@ -7,7 +7,7 @@
 //   11 Aug 2020  Brian Frank  Rename FolioTracker to FolioHooks, add ns
 //
 
-using xeto::LibNamespace
+using xeto
 using haystack
 
 **

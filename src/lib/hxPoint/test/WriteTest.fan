@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using obs
 using folio
@@ -325,3 +326,4 @@ internal const class TestObserver : Actor, Observer
   Void clear() { sync; msgsRef.val = Obj#.emptyList }
   const AtomicRef msgsRef := AtomicRef(Obj#.emptyList)
 }
+

@@ -43,7 +43,7 @@ const class MSpec
 
   const XetoSpec? parent
 
-  virtual haystack::Ref id() { haystack::Ref(qname) }
+  virtual Ref id() { Ref(qname) }
 
   virtual Str qname() { parent.qname + "." + name }
 
@@ -87,7 +87,7 @@ const class MSpec
 // Dict Representation
 //////////////////////////////////////////////////////////////////////////
 
-  const static Ref specSpecRef := haystack::Ref("sys::Spec")
+  const static Ref specSpecRef := Ref("sys::Spec")
 
   Obj? get(Str name, Obj? def := null)
   {
@@ -182,7 +182,7 @@ const class MSpec
 ** XetoSpec is the referential proxy for MSpec
 **
 @Js
-const class XetoSpec : Spec, haystack::Dict, CSpec
+const class XetoSpec : Spec, Dict, CSpec
 {
   new make() {}
 
@@ -192,9 +192,7 @@ const class XetoSpec : Spec, haystack::Dict, CSpec
 
   override final Spec? parent() { m.parent }
 
-  override final haystack::Ref id() { m.id }
-
-  override final haystack::Ref _id() { m.id }
+  override final Ref id() { m.id }
 
   override final Str name() { m.name }
 

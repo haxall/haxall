@@ -6,6 +6,7 @@
 //   3 Dec 2021  Brian Frank   Creation
 //
 
+using xeto
 using haystack
 using axon
 using hx
@@ -234,3 +235,4 @@ class HxCoreLibTest : HxTest
     return r
   }
 }
+

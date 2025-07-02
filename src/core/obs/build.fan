@@ -31,6 +31,7 @@ class Build : BuildPod
                "concurrent @{fan.depend}",
                "util @{fan.depend}",
                "web @{fan.depend}",
+               "xeto @{hx.depend}",
                "haystack @{hx.depend}",
                ]
     srcDirs = [`fan/`]
@@ -42,3 +43,4 @@ class Build : BuildPod
     ]
   }
 }
+

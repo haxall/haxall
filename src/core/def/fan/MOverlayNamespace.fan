@@ -7,7 +7,9 @@
 //
 
 using concurrent
+using xeto
 using haystack
+using haystack::Lib
 
 **
 ** MOverlayNamespace is used to wrap a base namespace and add an

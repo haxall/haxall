@@ -6,6 +6,7 @@
 //   25 May 2021  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using hx
 
@@ -54,5 +55,4 @@ internal const class HxUserAccessImpl : HxUserAccess
   const HxUser user
   override Bool canPointWriteAtLevel(Int level) { user.isAdmin }
 }
-
 

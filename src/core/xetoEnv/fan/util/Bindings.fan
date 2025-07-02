@@ -9,17 +9,7 @@
 using concurrent
 using util
 using xeto
-using haystack::Coord
-using haystack::Etc
-using haystack::Filter
-using haystack::Marker
-using haystack::NA
-using haystack::Number
-using haystack::Remove
-using haystack::Ref
-using haystack::Span
-using haystack::SpanMode
-using haystack::Symbol
+using haystack
 
 **
 ** Registry of mapping between Xeto specs and Fantom types for the VM
@@ -94,6 +84,7 @@ const class SpecBindings
     add(LibDependVersionsBinding  (xeto.type("LibDependVersions")))
     add(LinkBinding               (xeto.type("Link")))
     add(LinksBinding              (xeto.type("Links")))
+    add(RefBinding                (xeto.type("Ref")))
     add(SpecDictBinding           (xeto.type("Spec")))
     add(UnitQuantityBinding       (xeto.type("UnitQuantity")))
 
@@ -104,7 +95,6 @@ const class SpecBindings
     add(NoneBinding      (hay.type("Remove")))
     add(NABinding        (hay.type("NA")))
     add(NumberBinding    (hay.type("Number")))
-    add(RefBinding       (hay.type("Ref")))
     add(SpanBinding      (hay.type("Span")))
     add(SpanModeBinding  (hay.type("SpanMode")))
     add(SymbolBinding    (hay.type("Symbol")))

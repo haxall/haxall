@@ -9,8 +9,6 @@
 using xeto
 using xeto::Lib
 using haystack
-using haystack::Dict
-using haystack::Ref
 
 **
 ** GridExporter turns xeto data into Haystack grid then uses
@@ -58,8 +56,7 @@ class GridExporter : Exporter
 
   private Dict libMeta(Lib lib)
   {
-    dict := (haystack::Dict)lib
-    return Etc.dictRemove(dict, "loaded")
+    Etc.dictRemove(lib, "loaded")
   }
 
   override This spec(Spec spec)
@@ -76,9 +73,9 @@ class GridExporter : Exporter
 
     acc := Str:Obj[:]
     acc.ordered = true
-    acc["id"] = x._id
-    if (x.isType) acc.addNotNull("base", x.base?._id)
-    else acc["type"] = x.type._id
+    acc["id"] = x.id
+    if (x.isType) acc.addNotNull("base", x.base?.id)
+    else acc["type"] = x.type.id
     acc["spec"] = specRef
     meta.each |v, n| { acc[n] = v }
 

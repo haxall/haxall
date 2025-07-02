@@ -25,7 +25,7 @@ native final const class NameDict  : Dict
   override Bool isEmpty()
 
   ** Get the 'id' tag as a Ref or raise exception
-  override Ref _id()
+  override Ref id()
 
   ** Get the value for the given name or 'def' if name not mapped
   @Operator override Obj? get(Str name, Obj? def := null)

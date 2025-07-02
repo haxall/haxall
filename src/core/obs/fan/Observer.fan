@@ -7,7 +7,7 @@
 //
 
 using concurrent
-using haystack
+using xeto
 
 **
 ** Observer is an actor which subscribes to an observable's data items
@@ -30,6 +30,4 @@ const mixin Observer
   @NoDoc virtual Obj? toSyncMsg() { null }
 
 }
-
-
 

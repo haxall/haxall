@@ -6,6 +6,7 @@
 //   11 Nov 2010  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using axon
 using hx
@@ -483,3 +484,4 @@ class IOTest : HxTest
   }
 
 }
+

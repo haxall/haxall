@@ -9,13 +9,7 @@
 using concurrent
 using util
 using xeto
-using haystack::Etc
-using haystack::Kind
-using haystack::Marker
-using haystack::Number
-using haystack::Ref
-using haystack::Remove
-using haystack::UnknownNameErr
+using haystack
 
 **
 ** Utility functions

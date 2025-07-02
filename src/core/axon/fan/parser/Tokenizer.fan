@@ -7,6 +7,7 @@
 //   29 Aug 2009  Brian Frank  Repurpose from old rec/query/change model
 //
 
+using xeto
 using haystack
 
 **

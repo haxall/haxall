@@ -6,6 +6,7 @@
 //   04 Aug 2009  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 **************************************************************************
@@ -618,3 +619,4 @@ internal const class Div : BinaryMath
   override ExprType type() { ExprType.div }
   override Obj? evalNumber(Number a, Number b, AxonContext cx) { a / b }
 }
+

@@ -7,10 +7,8 @@
 //
 
 using util
-using haystack
-using haystack::Ref
-using haystack::Dict
 using xeto
+using haystack
 
 **
 ** FolioFile provides an API for storing file data associated with a rec

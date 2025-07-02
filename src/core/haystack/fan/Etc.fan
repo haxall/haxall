@@ -7,9 +7,7 @@
 //
 
 using concurrent
-using xeto::CompLayout
-using xeto::Link
-using xeto::Links
+using xeto
 
 **
 ** Etc is the utility methods for Haystack.

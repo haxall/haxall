@@ -8,8 +8,8 @@
 
 using util
 using xeto
-using haystack::Marker
-using haystack::UnknownSpecErr
+using xeto::Lib
+using haystack
 
 **
 ** Implementation of Lib wrapped by XetoLib
@@ -22,7 +22,7 @@ const final class MLib
     this.loc          = loc
     this.nameCode     = nameCode
     this.name         = name
-    this.id           = haystack::Ref(StrBuf(4+name.size).add("lib:").add(name).toStr, null)
+    this.id           = Ref(StrBuf(4+name.size).add("lib:").add(name).toStr, null)
     this.isSys        = name == "sys"
     this.meta         = meta
     this.flags        = flags
@@ -122,7 +122,7 @@ const final class MLib
   {
     instance := instancesMap[name]
     if (instance != null) return instance
-    if (checked) throw haystack::UnknownRecErr(this.name + "::" + name)
+    if (checked) throw UnknownRecErr(this.name + "::" + name)
     return null
   }
 
@@ -137,7 +137,7 @@ const final class MLib
 // Dict Representation
 //////////////////////////////////////////////////////////////////////////
 
-  const static Ref libSpecRef := haystack::Ref("sys::Lib")
+  const static Ref libSpecRef := Ref("sys::Lib")
 
   Obj? get(Str name, Obj? def := null)
   {
@@ -225,13 +225,11 @@ const class MLibFlags
 ** XetoLib is the referential proxy for MLib
 **
 @Js
-const final class XetoLib : Lib, haystack::Dict
+const final class XetoLib : Lib, Dict
 {
   override FileLoc loc() { m.loc }
 
-  override haystack::Ref id() { m.id }
-
-  override haystack::Ref _id() { m.id }
+  override Ref id() { m.id }
 
   override Str name() { m.name }
 

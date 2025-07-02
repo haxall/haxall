@@ -6,9 +6,7 @@
 //   7 Jun 2021  Brian Frank  Creation
 //
 
-using xeto::LibRepo
-using xeto::LibNamespace
-using xeto::LibDepend
+using xeto
 using haystack
 using axon
 using folio

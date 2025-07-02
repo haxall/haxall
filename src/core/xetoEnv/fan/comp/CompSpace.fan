@@ -10,8 +10,6 @@ using concurrent
 using util
 using xeto
 using haystack
-using haystack::Dict
-using haystack::Ref
 
 **
 ** CompSpace manages a tree of components.  It is the base class for
@@ -131,7 +129,7 @@ class CompSpace : AbstractCompSpace
   ** Convenience to create new default component instance from spec.
   Comp createSpec(Spec spec, Dict dict := Etc.dict0)
   {
-    create(Etc.dictSet(dict, "spec", spec._id))
+    create(Etc.dictSet(dict, "spec", spec.id))
   }
 
   ** Create new component instance from dict state.
@@ -340,10 +338,10 @@ each |comp| { if (comp.onExecuteFreq == null) ((MCompSpi)comp.spi).needsExecute 
 //////////////////////////////////////////////////////////////////////////
 
   ** Generate new id
-  internal haystack::Ref genId()
+  internal Ref genId()
   {
     compCounter++
-    return haystack::Ref(""+compCounter)
+    return Ref(""+compCounter)
   }
 
   ** Log error

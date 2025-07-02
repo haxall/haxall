@@ -8,7 +8,6 @@
 
 using xeto
 using haystack
-using haystack::Dict
 
 **
 ** DocSearch displays a page of search results

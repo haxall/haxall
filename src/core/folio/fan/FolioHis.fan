@@ -6,6 +6,7 @@
 //   6 Sep 2017  Brian Frank  Break out of Folio
 //
 
+using xeto
 using haystack
 
 **
@@ -55,6 +56,4 @@ const mixin FolioHis
   abstract FolioFuture write(Ref id, HisItem[] items, Dict? opts := null)
 
 }
-
-
 

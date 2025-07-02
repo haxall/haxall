@@ -10,6 +10,8 @@
 //  19 Feb 2016  Brian Frank  Move to haystack, remove Axon dependency
 //
 
+using xeto
+
 **
 ** Filter models a declarative predicate for selecting dicts.
 ** See `docHaystack::Filters` for details.

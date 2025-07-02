@@ -6,6 +6,7 @@
 //   25 Feb 2015   Brian Frank   Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -301,3 +302,4 @@ class MatrixTest : HaystackTest
     */
   }
 }
+

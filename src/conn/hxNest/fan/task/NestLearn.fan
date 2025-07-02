@@ -6,6 +6,7 @@
 //   01 Feb 2022  Matthew Giannini  Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -181,3 +182,4 @@ internal class PointBuilder
 
   Dict finish() { Etc.makeDict(tags) }
 }
+

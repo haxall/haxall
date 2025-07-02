@@ -8,7 +8,6 @@
 
 using xeto
 using haystack
-using haystack::Dict
 
 **
 ** DocFile represents a documentation page which can be accessed as

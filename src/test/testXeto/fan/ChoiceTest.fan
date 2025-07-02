@@ -10,8 +10,6 @@ using util
 using xeto
 using xetoEnv
 using haystack
-using haystack::Dict
-using haystack::Ref
 
 **
 ** ChoiceTest

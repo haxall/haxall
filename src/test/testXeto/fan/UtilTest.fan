@@ -9,7 +9,6 @@
 using xeto
 using xetoEnv
 using haystack
-using haystack::Ref
 
 **
 ** UtilTest
@@ -29,7 +28,7 @@ class UtilTest : AbstractXetoTest
     id   := Ref("s")
     spec := ns.spec("hx.test.xeto::TestSite")
     mod  := DateTime.nowUtc
-    site := ["id":id, "spec":spec._id, "dis":"A", "site":m, "geoCity":"Richmond", "geoState":"VA",
+    site := ["id":id, "spec":spec.id, "dis":"A", "site":m, "geoCity":"Richmond", "geoState":"VA",
       "geoCountry":"US", "tz":"New_York", "area":n(1000), "foo":m,
       "qux":"!", "mod":mod, "dark":m, "blue":m,
       "fuelOilHeating":m, "elecHeating":m]
@@ -39,7 +38,7 @@ class UtilTest : AbstractXetoTest
     // r.dump
     n := 0
     verifyReflectSlot(r, "id",         "sys::Entity.id", id); n++
-    verifyReflectSlot(r, "spec",       "sys::Entity.spec", spec._id); n++
+    verifyReflectSlot(r, "spec",       "sys::Entity.spec", spec.id); n++
     verifyReflectSlot(r, "dis",        "ph::dis", "A"); n++
     verifyReflectSlot(r, "site",       "ph::Site.site", m); n++
     verifyReflectSlot(r, "geoCity",    "ph::GeoPlace.geoCity", "Richmond"); n++
@@ -270,7 +269,7 @@ class UtilTest : AbstractXetoTest
   Void testNameDict()
   {
     t := NameTable()
-    id := haystack::Ref.gen
+    id := Ref.gen
     Spec? spec := null
     if (Env.cur.runtime != "js")
       spec = createNamespace(["sys", "ph"]).spec("ph::Site")
@@ -347,11 +346,11 @@ class UtilTest : AbstractXetoTest
     // id
     if (expect["id"] != null)
     {
-      verifySame(d._id, expect["id"])
+      verifySame(d.id, expect["id"])
     }
     else
     {
-      verifyErr(UnresolvedErr#) { d._id }
+      verifyErr(UnresolvedErr#) { d.id }
     }
 
     // get, getByCode, has, missing, trap
@@ -569,7 +568,7 @@ class UtilTest : AbstractXetoTest
     verifySame(x->versions, vers)
     verifyEq(x->spec, Ref("sys::LibDepend"))
     verifySame(x->spec, x.get("spec"))
-    verifyDictEq((haystack::Dict)x, ["lib":name, "versions":vers, "spec":Ref("sys::LibDepend")])
+    verifyDictEq((Dict)x, ["lib":name, "versions":vers, "spec":Ref("sys::LibDepend")])
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -605,7 +604,7 @@ class UtilTest : AbstractXetoTest
     tags["spec"] = link->spec
     if (!fromRef.isNull) tags["fromRef"]  = fromRef
     if (fromSlot != "-") tags["fromSlot"] = fromSlot
-    verifyDictEq((haystack::Dict)link, tags)
+    verifyDictEq((Dict)link, tags)
 
     // verify Link.map returns same instance
     mapped := link.map |v, n| { v }

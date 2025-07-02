@@ -7,8 +7,9 @@
 //    1 Feb 2022  Brian Frank  Redesign for Haxall
 //
 
-using haystack
 using concurrent
+using xeto
+using haystack
 using hx
 using hxConn
 
@@ -236,3 +237,4 @@ class SqlConnTest : HxTest
     DateTime(y, Month.vals[m-1], d, h, min, 0, 0, tz)
   }
 }
+

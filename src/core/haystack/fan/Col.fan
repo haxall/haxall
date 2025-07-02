@@ -6,6 +6,7 @@
 //   22 Dec 2009  Brian Frank  Creation
 //
 
+using xeto
 
 **
 ** Column of a Grid
@@ -43,3 +44,4 @@ abstract const class Col
   **
   override final Str toStr() { name }
 }
+

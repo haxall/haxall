@@ -7,7 +7,9 @@
 //
 
 using concurrent
+using xeto
 using haystack
+using axon::Comp
 
 **
 ** CompDef implementation
@@ -42,3 +44,4 @@ internal const class MCompDef : CompDef
 
   private const Str:MCellDef cellsMap
 }
+

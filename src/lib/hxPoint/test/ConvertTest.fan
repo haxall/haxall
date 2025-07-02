@@ -6,6 +6,7 @@
 //   23 Aug 2013  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using concurrent
 using folio

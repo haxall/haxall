@@ -7,9 +7,7 @@
 //
 
 using xeto
-using xeto::Dict
 using haystack
-using haystack::Ref
 using xetoEnv
 
 **
@@ -102,7 +100,7 @@ class FactoryTest : AbstractXetoTest
       Str<|sys.comp::Links {
              c: sys.comp::Link { fromRef:"a", fromSlot:"b" }
            }|>)
-    verifyDictsEq((haystack::Dict[])(Obj)links.listOn("c"), [link])
+    verifyDictsEq((Dict[])(Obj)links.listOn("c"), [link])
     verifyEq(ns.specOf(links), ns.spec("sys.comp::Links"))
 
     // Links - list
@@ -114,7 +112,7 @@ class FactoryTest : AbstractXetoTest
              }
            }|>)
     link2 := Etc.link(Ref("x"), "b")
-    verifyDictsEq((haystack::Dict[])(Obj)links.listOn("c"), [link, link2])
+    verifyDictsEq((Dict[])(Obj)links.listOn("c"), [link, link2])
     verifyEq(ns.specOf(links), ns.spec("sys.comp::Links"))
   }
 

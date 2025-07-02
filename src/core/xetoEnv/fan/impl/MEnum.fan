@@ -8,7 +8,7 @@
 
 using util
 using xeto
-using haystack::UnknownNameErr
+using haystack
 
 **
 ** Implementation of SpecEnum

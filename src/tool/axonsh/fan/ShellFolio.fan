@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using folio
 
@@ -232,3 +233,4 @@ internal class DisMacro : Macro
   const ShellFolio db
   override Str refToDis(Ref ref) { db.toDis(ref) }
 }
+

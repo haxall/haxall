@@ -6,7 +6,7 @@
 //   8 May 2023  Brian Frank  Creation
 //
 
-using haystack
+using xeto
 
 **
 ** Platform service provider interface for basic functionality
@@ -27,3 +27,4 @@ const mixin PlatformSpi
   ** section names: sw, hw, os, java.
   abstract Dict[] info()
 }
+

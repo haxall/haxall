@@ -6,6 +6,7 @@
 //   28 Dec 2010   Brian Frank   Creation
 //
 
+using xeto
 using haystack
 using hx
 
@@ -176,3 +177,4 @@ class MathTest : HxTest
     verifyEq(r->ymax, n(3))
   }
 }
+

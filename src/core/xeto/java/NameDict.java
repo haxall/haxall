@@ -24,7 +24,7 @@ public abstract class NameDict extends FanObj implements Dict
   public static final Type typeof$() { return typeof; }
   private static final Type typeof = Type.find("xeto::NameDict");
 
-  public Ref _id()
+  public Ref id()
   {
     Object val = get(table.idCode, null);
     if (val != null) return (Ref)val;
@@ -52,6 +52,13 @@ public abstract class NameDict extends FanObj implements Dict
   public abstract Object eachWhile(Func f);
 
   public abstract NameDict map(Func f);
+
+  public String dis() { return dis(null, null); }
+  public String dis(String name) { return dis(name, null); }
+  public String dis(String name, String def)
+  {
+    return "TODO";
+  }
 
   public long fixedSize() { return size(); }
 

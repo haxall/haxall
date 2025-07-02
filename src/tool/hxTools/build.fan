@@ -29,6 +29,7 @@ class Build : BuildPod
                "concurrent @{fan.depend}",
                "crypto @{fan.depend}",
                "util @{fan.depend}",
+               "xeto @{hx.depend}",
                "haystack @{hx.depend}",
                "def @{hx.depend}",
                "folio @{hx.depend}",
@@ -49,3 +50,4 @@ class Build : BuildPod
     ]
   }
 }
+

@@ -8,7 +8,7 @@
 
 using util
 using xeto
-using haystack::Etc
+using haystack
 using xetoEnv
 
 **

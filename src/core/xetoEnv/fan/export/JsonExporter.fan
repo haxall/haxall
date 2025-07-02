@@ -8,11 +8,7 @@
 
 using xeto
 using xeto::Lib
-using haystack::Dict
-using haystack::Etc
-using haystack::Marker
-using haystack::Number
-using haystack::Ref
+using haystack
 
 **
 ** JSON Exporter
@@ -94,7 +90,7 @@ class JsonExporter : Exporter
   private This doSpec(Str name, Spec spec, Int depth)
   {
     prop(name).obj
-    prop("id").val(spec._id).propEnd
+    prop("id").val(spec.id).propEnd
     prop("spec").val(specRef).propEnd
     if (spec.isType) specBase(spec)
     else specType(spec)

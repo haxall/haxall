@@ -9,7 +9,6 @@
 using xeto
 using xeto::Lib
 using haystack
-using haystack::Dict
 
 **
 ** DocIndex is a top level index or appendix page

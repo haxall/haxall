@@ -9,7 +9,6 @@
 
 using util
 using xeto
-using haystack::Ref
 using xetoEnv
 
 **

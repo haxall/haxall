@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using folio
 using hx
@@ -829,3 +830,4 @@ internal final class ConnMgr
   private Bool openForPing
   internal ConnPoint[] pointsInWatch := [,]
 }
+

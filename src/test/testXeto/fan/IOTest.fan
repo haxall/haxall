@@ -8,10 +8,8 @@
 
 using util
 using xeto
-using xeto::Dict
 using xetoEnv
 using haystack
-using haystack::Ref
 
 **
 ** IOTest tests ability to serialize specs/data over Xeto text and binary I/O
@@ -46,9 +44,9 @@ class IOTest : AbstractXetoTest
     verifyIO(Time.now)
     verifyIO(DateTime.now)
     verifyIO(DateTime("2023-11-17T07:46:32.573-05:00 New_York"))
-    verifyIO(haystack::Ref("foo"))
-    verifyIO(haystack::Ref("foo-bar:baz~qux"))
-    verifyIO(haystack::Ref("foo", "Foo Dis"))
+    verifyIO(Ref("foo"))
+    verifyIO(Ref("foo-bar:baz~qux"))
+    verifyIO(Ref("foo", "Foo Dis"))
     verifyIO(123)
     verifyIO(-32_000)
     verifyIO(123567890)

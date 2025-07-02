@@ -6,26 +6,12 @@
 //   29 Aug 2009  Brian Frank  Creation
 //
 
-**
-** UnknownNameErr is thrown when `Dict.trap` or `Grid.col` fails
-** to resolve a name.
-**
-@Js const class UnknownNameErr : Err
-{
-  ** Construct with message and optional cause.
-  new make(Str? msg, Err? cause := null) : super(msg, cause) {}
-}
+using xeto
 
 **
 ** Invalid lookup for definition
 **
 @Js @NoDoc const class UnknownDefErr : Err
-{
-  new make(Str msg, Err? cause := null) : super(msg, cause) {}
-}
-
-** Invalid lookup for DataSpec
-@Js @NoDoc const class UnknownSpecErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
@@ -38,14 +24,6 @@
 
 ** Invalid lookup for file type
 @Js @NoDoc const class UnknownFiletypeErr : Err
-{
-  new make(Str msg, Err? cause := null) : super(msg, cause) {}
-}
-
-**
-** Invalid lookup for library module
-**
-@Js @NoDoc const class UnknownLibErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }

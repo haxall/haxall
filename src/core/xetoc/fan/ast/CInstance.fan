@@ -32,7 +32,7 @@ internal const class CInstanceWrap : CInstance
   const Dict w
   const XetoSpec spec
   override Bool isAst() { false }
-  override haystack::Ref id() { w->id }
+  override Ref id() { w->id }
   override CSpec ctype() { spec }
   override Obj asm() { id }
   override Str toStr() { id.toStr }

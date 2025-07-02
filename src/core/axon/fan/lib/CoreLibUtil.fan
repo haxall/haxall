@@ -7,6 +7,7 @@
 //   22 Apr 2016  Brian Frank  Initial 3.0 port from GridUtil
 //
 
+using xeto
 using haystack
 
 **

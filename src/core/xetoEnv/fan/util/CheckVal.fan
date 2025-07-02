@@ -8,8 +8,7 @@
 
 using util
 using xeto
-using haystack::Number
-using haystack::Etc
+using haystack
 
 **
 ** Validation for values against a spec type and meta

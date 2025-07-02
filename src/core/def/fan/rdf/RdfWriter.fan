@@ -7,7 +7,9 @@
 //
 
 using rdf
+using xeto
 using haystack
+using haystack::Lib
 
 **
 ** Base class for RDF writers
@@ -431,3 +433,4 @@ using haystack
       : Iri(refBaseUri, id)
   }
 }
+

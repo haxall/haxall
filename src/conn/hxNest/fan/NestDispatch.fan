@@ -6,6 +6,7 @@
 //   28 Jan 2022  Matthew Giannini  Creation
 //
 
+using xeto
 using haystack
 using hx
 using hxConn
@@ -77,3 +78,4 @@ class NestDispatch : ConnDispatch
     NestLearn(this, arg).run
   }
 }
+

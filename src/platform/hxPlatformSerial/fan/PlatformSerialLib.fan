@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using hx
 
@@ -112,3 +113,4 @@ const class PlatformSerialLib : HxLib
     return null
   }
 }
+

@@ -11,8 +11,6 @@ using util
 using xeto
 using xetoEnv
 using haystack
-using haystack::Dict
-using haystack::Ref
 
 internal class FitsCmd : XetoCmd
 {
@@ -101,7 +99,7 @@ internal class FitsCmd : XetoCmd
 
     recs.each |rec|
     {
-      id := rec._id
+      id := rec.id
       startSize := hits.size
 
       specTag := rec["spec"] as Ref

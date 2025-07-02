@@ -10,8 +10,6 @@ using concurrent
 using util
 using xeto
 using xetoEnv
-using haystack::Ref
-using haystack::Dict
 using haystack
 using axon
 using hx

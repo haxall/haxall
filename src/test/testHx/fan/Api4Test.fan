@@ -8,6 +8,7 @@
 
 using concurrent
 using inet
+using xeto
 using haystack
 using auth
 using axon

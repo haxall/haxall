@@ -8,8 +8,6 @@
 //
 
 using xeto
-using haystack::Dict
-using haystack::Ref
 using haystack
 
 **

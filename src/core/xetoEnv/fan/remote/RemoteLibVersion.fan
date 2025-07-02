@@ -9,7 +9,6 @@
 using util
 using concurrent
 using xeto
-using haystack::UnknownLibErr
 
 **
 ** RemoteLibVersion

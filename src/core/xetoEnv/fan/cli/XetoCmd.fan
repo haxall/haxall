@@ -9,7 +9,6 @@
 using util
 using xeto
 using haystack
-using haystack::Dict
 
 **
 ** Xeto CLI command plugin.  To create:

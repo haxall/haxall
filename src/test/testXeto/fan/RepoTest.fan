@@ -11,8 +11,6 @@ using xeto
 using xeto::Lib
 using xetoEnv
 using haystack
-using haystack::Dict
-using haystack::Ref
 
 **
 ** RepoTest
@@ -269,10 +267,10 @@ class RepoTest : AbstractXetoTest
     verifyEq(err, null)
     verifySame(spec, ns.spec("ph::Equip"))
     ns.specAsync("bad.lib::Equip") |e, s| { err = e; spec = s }
-    verifyEq(err?.toStr, "haystack::UnknownLibErr: bad.lib")
+    verifyEq(err?.toStr, "xeto::UnknownLibErr: bad.lib")
     verifyEq(spec, null)
     ns.specAsync("ph::BadType") |e, s| { err = e; spec = s }
-    verifyEq(err?.toStr, "haystack::UnknownSpecErr: ph::BadType")
+    verifyEq(err?.toStr, "xeto::UnknownSpecErr: ph::BadType")
     verifyEq(spec, null)
 
     // instanceAsync
@@ -284,7 +282,7 @@ class RepoTest : AbstractXetoTest
     verifyEq(err, null)
     verifySame(inst, ns.instance("ph::filetype:csv"))
     ns.instanceAsync("bad.lib::foo") |e, x| { err = e; inst = x }
-    verifyEq(err?.toStr, "haystack::UnknownLibErr: bad.lib")
+    verifyEq(err?.toStr, "xeto::UnknownLibErr: bad.lib")
     verifyEq(inst, null)
     ns.instanceAsync("ph::bad-instance") |e, x| { err = e; inst = x }
     verifyEq(err?.toStr, "haystack::UnknownRecErr: ph::bad-instance")

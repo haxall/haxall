@@ -9,6 +9,7 @@
 using concurrent
 using crypto
 using inet
+using xeto
 using haystack
 using axon
 using web

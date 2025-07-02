@@ -6,6 +6,7 @@
 //   17 May 2012  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using [java] fanx.interop
 using [java] sedona::Constants
@@ -114,3 +115,4 @@ class SedonaUtil
     return s.toStr
   }
 }
+

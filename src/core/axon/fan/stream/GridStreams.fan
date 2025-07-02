@@ -6,8 +6,8 @@
 //   3 Aug 2019  Brian Frank  Creation
 //
 
+using xeto
 using haystack
-
 
 @Js
 internal class GridStream : SourceStream
@@ -197,3 +197,4 @@ internal class RemoveColsStream : GridTransformStream
 
   private Str[] cols
 }
+

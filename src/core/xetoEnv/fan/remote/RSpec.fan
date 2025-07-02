@@ -9,7 +9,6 @@
 using util
 using concurrent
 using xeto
-using haystack::Dict
 
 **
 ** RSpec is the remote loader AST of a spec during decoding phase
@@ -61,7 +60,7 @@ internal class RSpec : CSpec, NameDictReader
     if (parent != null) return parent.qname + "." + name
     return libName + "::" + name
   }
-  override haystack::Ref id() { throw UnsupportedErr() }
+  override Ref id() { throw UnsupportedErr() }
   override SpecBinding binding() { bindingRef ?: throw Err("Binding not assigned") }
   override CSpec ctype() { type }
   override CSpec? cbase() { base }

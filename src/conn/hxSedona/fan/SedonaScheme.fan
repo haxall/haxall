@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using hxConn
 using [java]java.net
@@ -78,3 +79,4 @@ internal const class DefaultSedonaScheme : SedonaScheme
     Etc.makeEmptyGrid
   }
 }
+

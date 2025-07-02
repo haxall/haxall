@@ -8,6 +8,7 @@
 
 using dom
 using domkit
+using xeto
 using haystack
 
 **
@@ -241,3 +242,4 @@ internal class ShellDialog : Dialog
     elem?.tagName == "textarea"
   }
 }
+

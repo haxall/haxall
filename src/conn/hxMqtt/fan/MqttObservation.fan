@@ -6,6 +6,7 @@
 //   05 Jan 2022  Matthew Giannini  Creation
 //
 
+using xeto
 using haystack
 using obs
 using mqtt
@@ -81,3 +82,4 @@ const class MqttObservation : Observation
     return m.isEmpty ? Etc.emptyDict : Etc.makeDict(m)
   }
 }
+

@@ -8,6 +8,7 @@
 
 using obix
 using xml
+using xeto
 using haystack
 using hx
 

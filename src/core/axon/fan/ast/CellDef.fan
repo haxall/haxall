@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 
 **
@@ -24,10 +25,4 @@ const mixin CellDef : Dict
   ** Cell index into CompDef.cells
   @NoDoc abstract Int index()
 }
-
-
-
-
-
-
 

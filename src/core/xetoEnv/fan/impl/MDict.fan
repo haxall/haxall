@@ -15,7 +15,7 @@ using xeto
 
 ** Wrap dict with one extra name/value pair
 @NoDoc @Js
-const class MDictMerge1 : haystack::Dict
+const class MDictMerge1 : Dict
 {
   new make(Dict wrapped, Str n0, Obj v0)
   {
@@ -67,3 +67,4 @@ const class MDictMerge1 : haystack::Dict
     return wrapped.trap(n, a)
   }
 }
+

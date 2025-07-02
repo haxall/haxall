@@ -8,7 +8,6 @@
 
 using util
 using xeto
-using haystack::Dict
 
 **
 ** Fitter

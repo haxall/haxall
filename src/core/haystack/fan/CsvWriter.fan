@@ -7,6 +7,7 @@
 //
 
 using util
+using xeto
 
 **
 ** Write Haystack data in [CSV]`docHaystack::Csv` format.
@@ -161,3 +162,4 @@ class CsvWriter : GridWriter
   private CsvOutStream out
 
 }
+

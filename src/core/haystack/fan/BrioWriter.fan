@@ -6,6 +6,8 @@
 //   26 Nov 2015  Brian Frank  Creation
 //
 
+using xeto
+
 **
 ** BrioWriter serializes Haystack data using a binary format.
 **

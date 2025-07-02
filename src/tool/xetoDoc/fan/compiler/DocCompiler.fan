@@ -169,7 +169,7 @@ class DocCompiler
   {
     if (def is Spec) return ((Spec)def).qname
     if (def is Lib)  return ((Lib)def).name
-    if (def is Dict) return ((Dict)def)._id.id
+    if (def is Dict) return ((Dict)def).id.id
     throw Err("Cannot derive key: $def [$def.typeof]")
   }
 

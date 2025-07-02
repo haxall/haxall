@@ -10,6 +10,7 @@
 using concurrent
 using inet
 using web
+using xeto
 
 **
 ** Client manages a network connection to a haystack server.

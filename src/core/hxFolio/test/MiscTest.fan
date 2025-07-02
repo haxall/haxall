@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using folio
 
@@ -92,3 +93,4 @@ class MiscTest : WhiteboxTest
   }
 
 }
+

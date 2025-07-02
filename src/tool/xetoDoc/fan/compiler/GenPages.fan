@@ -9,7 +9,6 @@
 using util
 using xeto
 using xetoEnv
-using haystack::Dict
 
 **
 ** Generate DocPage for each entry

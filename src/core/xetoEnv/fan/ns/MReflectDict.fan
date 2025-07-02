@@ -8,7 +8,6 @@
 
 using util
 using xeto
-using haystack::Dict
 
 **
 ** ReflectDict implementation
@@ -40,7 +39,7 @@ const class MReflectDict : ReflectDict
 
       // store choice "tag" as Spec[]
       // note: this code doesn't consider multiChoice validation
-      tags[n] = selections.map |spec->haystack::Ref| { spec._id }
+      tags[n] = selections.map |spec->Ref| { spec.id }
 
       // remove markers
       selections.each |sel|

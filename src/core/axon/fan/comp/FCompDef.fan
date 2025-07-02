@@ -7,7 +7,9 @@
 //
 
 using concurrent
+using xeto
 using haystack
+using axon::Comp
 
 **
 ** FCompDef is CompDef for Fantom comps which subclass AbstractComp
@@ -54,3 +56,4 @@ internal const class FCompDef : CompDef
 
   private const Str:FCellDef cellsMap
 }
+

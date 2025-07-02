@@ -9,7 +9,6 @@
 using util
 using xeto
 using haystack
-using haystack::Ref
 
 **
 ** EnumTest
@@ -136,8 +135,8 @@ class EnumTest : AbstractXetoTest
      c := lib.type("Car")
      a := lib.instance("a")
      b := lib.instance("b")
-     verifyDictEq(a, ["id":Ref("${lib.name}::a"), "spec":c._id, "color":Scalar(e.qname, "red")])
-     verifyDictEq(b, ["id":Ref("${lib.name}::b"), "spec":c._id, "color":Scalar(e.qname, "blue")])
+     verifyDictEq(a, ["id":Ref("${lib.name}::a"), "spec":c.id, "color":Scalar(e.qname, "red")])
+     verifyDictEq(b, ["id":Ref("${lib.name}::b"), "spec":c.id, "color":Scalar(e.qname, "blue")])
   }
 
   Void verifyEnumFlags(Spec enum)
@@ -201,13 +200,13 @@ class EnumTest : AbstractXetoTest
     condSlot := ns.spec("ph.points::WeatherCondPoint.enum")
     condVal := condSlot.meta.get("val")
     // echo("-- $condSlot | $condVal [$condVal.typeof]")
-    verifyEq(condVal, cond._id)
+    verifyEq(condVal, cond.id)
 
     occ := ns.spec("ph.points::OccupiedEnum")
     occSlot := ns.spec("ph.points::OccupiedPoint.enum")
     occVal := occSlot.meta.get("val")
     // echo("-- $occSlot | $occVal [$occVal.typeof]")
-    verifyEq(occVal, occ._id)
+    verifyEq(occVal, occ.id)
   }
 }
 

@@ -6,6 +6,7 @@
 //   25 Jun 2021  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -102,5 +103,4 @@ enum class CommitObservationAction
   updated,
   removed
 }
-
 

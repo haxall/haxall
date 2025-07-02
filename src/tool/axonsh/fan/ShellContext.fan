@@ -9,8 +9,6 @@
 using util
 using xeto
 using haystack
-using haystack::Dict
-using haystack::Ref
 using xetoEnv::Printer
 using axon
 using def

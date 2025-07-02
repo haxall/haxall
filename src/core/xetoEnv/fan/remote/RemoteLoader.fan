@@ -9,9 +9,7 @@
 using util
 using concurrent
 using xeto
-using haystack::Dict
-using haystack::Etc
-
+using haystack
 **
 ** RemoteLoader is used to load a library serialized over a network
 **

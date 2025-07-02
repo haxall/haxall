@@ -7,6 +7,7 @@
 //
 
 using web
+using xeto
 
 **
 ** WebOpUtil implements the standard logic for reading requests and
@@ -147,3 +148,4 @@ using web
 
   private static const MimeType mimeZinc := MimeType("text/zinc; charset=utf-8")
 }
+

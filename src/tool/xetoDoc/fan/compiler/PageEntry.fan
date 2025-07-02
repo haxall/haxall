@@ -8,9 +8,9 @@
 
 using util
 using xeto
+using xeto::Lib
 using xetoEnv
-using haystack::Etc
-using haystack::Dict
+using haystack
 
 **
 ** PageEntry is the working data for a DocPage

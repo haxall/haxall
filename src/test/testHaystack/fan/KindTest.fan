@@ -6,6 +6,7 @@
 //   14 Jan 2016  Brian Frank  Create
 //
 
+using xeto
 using haystack
 
 **
@@ -244,3 +245,4 @@ class KindTest : HaystackTest
   }
 
 }
+

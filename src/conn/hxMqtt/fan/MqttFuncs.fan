@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using axon
 using hx
@@ -41,3 +42,4 @@ const class MqttFuncs
     return MqttLib.cur.conn(Etc.toId(conn)).send(msg).get
   }
 }
+

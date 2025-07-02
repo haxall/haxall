@@ -6,7 +6,7 @@
 //   10 Aug 2020  Brian Frank  Creation
 //
 
-using xeto::XetoContext
+using xeto
 
 **
 ** HaystackContext defines an environment of defs and data
@@ -21,13 +21,13 @@ mixin HaystackContext : XetoContext
   ** Return true if the given rec is nominally an instance of the given
   ** spec.  This is used by haystack Filters with a spec name.  The spec
   ** name may be qualified or unqualified.
-  @NoDoc override Bool xetoIsSpec(Str spec, xeto::Dict rec) { false }
+  @NoDoc override Bool xetoIsSpec(Str spec, Dict rec) { false }
 
   ** Read a data record by id or return null
-  @NoDoc override xeto::Dict? xetoReadById(Obj id) { deref(id) }
+  @NoDoc override Dict? xetoReadById(Obj id) { deref(id) }
 
   ** Read all the records that match given haystack filter
-  @NoDoc override Obj? xetoReadAllEachWhile(Str filter, |xeto::Dict->Obj?| f) { null }
+  @NoDoc override Obj? xetoReadAllEachWhile(Str filter, |Dict->Obj?| f) { null }
 
   ** Dereference an id to an record dict or null if unresolved
   @NoDoc abstract Dict? deref(Ref id)

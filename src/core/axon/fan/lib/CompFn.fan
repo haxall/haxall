@@ -8,6 +8,7 @@
 
 using haystack
 using concurrent
+using xeto
 using xeto::Comp
 using xetoEnv
 

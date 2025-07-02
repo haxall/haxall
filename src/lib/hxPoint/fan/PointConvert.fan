@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 
 **
@@ -1129,3 +1130,4 @@ internal const class ThermistorItem
   const Float ohms
   const Float degF
 }
+

@@ -9,8 +9,6 @@
 using util
 using xeto
 using haystack
-using haystack::Dict
-using haystack::Ref
 
 **
 ** TemplateTest
@@ -37,19 +35,19 @@ class TemplateTest : AbstractXetoTest
     verifyTemplate(recs[0], [
       "navName":"TemplateA",
       "disMacro":"\$siteRef \$navName",
-      "spec":specA._id],
+      "spec":specA.id],
       "ahu,equip")
     verifyTemplate(recs[1], [
       "navName":"ZoneAirTempSensor",
       "disMacro":"\$equipRef \$navName",
       "equipRef":eqId,
-      "unit":"°F", "kind":"Number", "spec":zat._id],
+      "unit":"°F", "kind":"Number", "spec":zat.id],
       "zone,air,temp,sensor,point")
     verifyTemplate(recs[2], [
       "navName":"ZoneAirHumiditySensor",
       "disMacro":"\$equipRef \$navName",
       "equipRef":eqId,
-      "unit":"%RH", "kind":"Number", "spec":zah._id],
+      "unit":"%RH", "kind":"Number", "spec":zah.id],
       "zone,air,humidity,sensor,point")
 
     // instantiate with site + graphInclude
@@ -63,14 +61,14 @@ class TemplateTest : AbstractXetoTest
       "navName":"TemplateA",
       "disMacro":"\$siteRef \$navName",
       "siteRef":s.id,
-      "spec":specA._id],
+      "spec":specA.id],
       "ahu,equip")
     verifyTemplate(recs[1], [
       "navName":"ZoneAirHumiditySensor",
       "disMacro":"\$equipRef \$navName",
       "siteRef":s.id,
       "equipRef":eqId,
-      "unit":"%RH", "kind":"Number", "spec":zah._id],
+      "unit":"%RH", "kind":"Number", "spec":zah.id],
       "zone,air,humidity,sensor,point")
 
 
@@ -85,7 +83,7 @@ class TemplateTest : AbstractXetoTest
       "disMacro":"\$siteRef \$navName",
       "siteRef":s.id,
       "spaceRef":sp.id,
-      "spec":specA._id],
+      "spec":specA.id],
       "ahu,equip")
     verifyTemplate(recs[1], [
       "navName":"ZoneAirHumiditySensor",
@@ -93,7 +91,7 @@ class TemplateTest : AbstractXetoTest
       "siteRef":s.id,
       "spaceRef":sp.id,
       "equipRef":eqId,
-      "unit":"%RH", "kind":"Number", "spec":zah._id],
+      "unit":"%RH", "kind":"Number", "spec":zah.id],
       "zone,air,humidity,sensor,point")
 
     // instantiate with equip that has siteRef, spaceRef, and systemRef
@@ -110,7 +108,7 @@ class TemplateTest : AbstractXetoTest
       "spaceRef":sp.id,
       "systemRef":[sys.id],
       "equipRef":peq.id,
-      "spec":specA._id],
+      "spec":specA.id],
       "ahu,equip")
     verifyTemplate(recs[1], [
       "navName":"ZoneAirHumiditySensor",
@@ -119,7 +117,7 @@ class TemplateTest : AbstractXetoTest
       "spaceRef":sp.id,
       "systemRef":[sys.id],
       "equipRef":eqId,
-      "unit":"%RH", "kind":"Number", "spec":zah._id],
+      "unit":"%RH", "kind":"Number", "spec":zah.id],
       "zone,air,humidity,sensor,point")
 
     // instantiate with connector
@@ -131,7 +129,7 @@ class TemplateTest : AbstractXetoTest
     verifyTemplate(recs[0], [
       "navName":"TemplateA",
       "disMacro":"\$siteRef \$navName",
-      "spec":specA._id],
+      "spec":specA.id],
       "ahu,equip")
     verifyTemplate(recs[1], [
       "navName":"ZoneAirTempSensor",
@@ -140,7 +138,7 @@ class TemplateTest : AbstractXetoTest
       "bacnetPoint":m,
       "bacnetConnRef":conn.id,
       "bacnetCur":"AI3",
-      "unit":"°F", "kind":"Number", "spec":zat._id],
+      "unit":"°F", "kind":"Number", "spec":zat.id],
       "zone,air,temp,sensor,point")
     verifyTemplate(recs[2], [
       "navName":"ZoneAirHumiditySensor",
@@ -149,7 +147,7 @@ class TemplateTest : AbstractXetoTest
       "bacnetPoint":m,
       "bacnetConnRef":conn.id,
       "bacnetCur":"AI4",
-      "unit":"%RH", "kind":"Number", "spec":zah._id],
+      "unit":"%RH", "kind":"Number", "spec":zah.id],
       "zone,air,humidity,sensor,point")
   }
 

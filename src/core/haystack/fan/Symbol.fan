@@ -6,6 +6,8 @@
 //   9 Jan 2019  Brian Frank  Creation
 //
 
+using xeto
+
 **
 ** Symbol is a name to a def in the meta-model namespace
 **
@@ -239,3 +241,4 @@ internal const class KeySymbol : Symbol
 
   override Bool hasTerm(Dict dict) { false }
 }
+

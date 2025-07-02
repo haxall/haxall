@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 
 **
 ** GridBuilder is used to build up an immutable `Grid`.  To use first

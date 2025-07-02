@@ -6,6 +6,7 @@
 //   29 Aug 2009  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using axon
 
@@ -188,3 +189,4 @@ class TokenizerTest : Test
 
   static Number n(Num val, Obj? unit := null) { HaystackTest.n(val, unit) }
 }
+

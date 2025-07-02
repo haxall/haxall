@@ -6,6 +6,7 @@
 //   6 Jul 2011  Andy Frank  Creation
 //
 
+using xeto
 using haystack
 
 @Js
@@ -367,3 +368,4 @@ internal class ExcelOutStream : OutStream
 
   private Int sheet := 1
 }
+

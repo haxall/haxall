@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 
 **
 ** TypedDict wraps a dict that maps tags to statically typed fields.

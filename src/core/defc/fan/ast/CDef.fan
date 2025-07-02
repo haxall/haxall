@@ -6,6 +6,7 @@
 //   26 Dec 2018  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using def
 
@@ -221,3 +222,4 @@ class CPair
   override Str toStr() { "$name: $val" }
 
 }
+

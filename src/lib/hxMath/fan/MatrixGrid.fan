@@ -6,6 +6,7 @@
 //   25 Feb 2015   Brian Frank   Creation
 //
 
+using xeto
 using haystack
 using math
 using util
@@ -282,3 +283,4 @@ internal const class MatrixRow : Row
   const Int index // row index
   override Obj? val(Col col) { grid.number(index, ((MatrixCol)col).index) }
 }
+

@@ -33,6 +33,7 @@ class Build : BuildPod
                 "xml @{fan.depend}",
                 "auth @{hx.depend}",
                 "obix @{hx.depend}",
+                "xeto @{hx.depend}",
                 "haystack @{hx.depend}",
                 "axon @{hx.depend}",
                 "folio @{hx.depend}",

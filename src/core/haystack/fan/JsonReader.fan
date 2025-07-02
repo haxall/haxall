@@ -7,6 +7,7 @@
 //
 
 using util
+using xeto
 
 **
 ** Read Haystack data in [JSON]`docHaystack::Json` format.
@@ -400,3 +401,4 @@ class JsonV3Parser : JsonParser
     return Ref.make(s[2..<space], s[space+1..-1])
   }
 }
+

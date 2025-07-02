@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using folio
 using hx
@@ -183,3 +184,4 @@ internal const class ConnServiceLibData
   const HxConnLib[] list := [,]
   const Str:HxConnLib byName := [:]
 }
+

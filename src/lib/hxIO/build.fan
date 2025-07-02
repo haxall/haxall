@@ -31,6 +31,7 @@ class Build : BuildPod
                 "axon @{hx.depend}",
                 "folio @{hx.depend}",
                 "ftp @{hx.depend}",
+                "xeto @{hx.depend}",
                 "haystack @{hx.depend}",
                 "def @{hx.depend}",
                 "hx @{hx.depend}",
@@ -41,3 +42,4 @@ class Build : BuildPod
     index   = ["ph.lib": "io"]
   }
 }
+

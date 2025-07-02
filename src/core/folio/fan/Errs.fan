@@ -6,6 +6,7 @@
 //   8 Feb 2009  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 ** Invalid record id

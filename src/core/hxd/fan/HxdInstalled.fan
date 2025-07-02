@@ -6,6 +6,7 @@
 //   25 May 2021  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using hx
 
@@ -204,6 +205,4 @@ internal class HxdInstalledBuilder
   Log log := Log.get("hxd")
   Str:HxdInstalledLib map := [:]
 }
-
-
 

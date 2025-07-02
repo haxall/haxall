@@ -6,6 +6,7 @@
 //   24 Jun 2009  Brian Frank  Create
 //
 
+using xeto
 using haystack
 
 **

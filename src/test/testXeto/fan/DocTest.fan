@@ -11,8 +11,6 @@ using xeto
 using xeto::Lib
 using xetoEnv
 using haystack
-using haystack::Dict
-using haystack::Ref
 using xetoDoc
 
 **

@@ -32,7 +32,7 @@ mixin CSpec : CNode
   abstract CSpec? cparent()
 
   ** Ref for qualified name
-  abstract override haystack::Ref id()
+  abstract override Ref id()
 
   ** Binding for spec type
   abstract SpecBinding binding()
@@ -152,6 +152,6 @@ mixin CNode
   abstract Obj asm()
 
   ** Qualified name as Ref
-  abstract haystack::Ref id()
+  abstract Ref id()
 }
 

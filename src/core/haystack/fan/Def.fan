@@ -6,6 +6,9 @@
 //   8 Oct 2018  Brian Frank  Creation
 //
 
+using xeto
+using haystack::Lib
+
 **
 ** Def models a definition dictionary
 **
@@ -21,3 +24,4 @@ const mixin Def : Dict
   ** Library which scopes this definition
   @NoDoc abstract Lib lib()
 }
+

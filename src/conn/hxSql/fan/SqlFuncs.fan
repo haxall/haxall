@@ -10,6 +10,7 @@
 using concurrent
 using sql::Col as SqlCol
 using sql::Row as SqlRow
+using xeto
 using haystack
 using axon
 using hx
@@ -236,3 +237,4 @@ const class SqlFuncs
 
   private static HxContext curContext() { HxContext.curHx }
 }
+

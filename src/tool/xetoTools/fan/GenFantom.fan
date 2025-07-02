@@ -7,9 +7,8 @@
 //
 
 using util
-using haystack::Dict
-using haystack::Marker
 using xeto
+using haystack
 
 internal class GenFantom : AbstractGenCmd
 {

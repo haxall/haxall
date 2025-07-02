@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using folio
 
@@ -133,3 +134,4 @@ internal class DisMgrMacro : Macro
   Ref:Str cache
   override Str refToDis(Ref ref) { mgr.toDis(cache, ref) }
 }
+

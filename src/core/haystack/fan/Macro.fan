@@ -6,6 +6,8 @@
 //   30 Oct 2012  Brian Frank  Hurricane Sandy!
 //
 
+using xeto
+
 **
 ** Macro is used to process macro strings for `Etc.macro`.
 **

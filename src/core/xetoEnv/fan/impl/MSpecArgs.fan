@@ -20,13 +20,13 @@ const class MSpecArgs
 
   virtual XetoSpec? of(Bool checked)
   {
-    if (checked) throw haystack::UnknownNameErr("Missing 'of' meta")
+    if (checked) throw UnknownNameErr("Missing 'of' meta")
     return null
   }
 
   virtual XetoSpec[]? ofs(Bool checked)
   {
-    if (checked) throw haystack::UnknownNameErr("Missing 'ofs' meta")
+    if (checked) throw UnknownNameErr("Missing 'ofs' meta")
     return null
   }
 }
@@ -60,3 +60,4 @@ const class MSpecArgsOfs : MSpecArgs
   const XetoSpec[] val
   override XetoSpec[]? ofs(Bool checked) { val }
 }
+

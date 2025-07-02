@@ -8,12 +8,8 @@
 
 using util
 using xeto
-using xeto::Dict
 using xeto::Lib
-using xetoEnv::MDictMerge1
-using xetoEnv::XetoSpec
-using xetoEnv::XetoUtil
-using haystack::Ref
+using xetoEnv
 using haystack
 using axon
 using hx

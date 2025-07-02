@@ -6,7 +6,7 @@
 //   9 May 2023  Brian Frank  Creation
 //
 
-using haystack
+using xeto
 
 **
 ** Platform service provider interface for IP network config
@@ -40,3 +40,4 @@ const mixin PlatformNetworkSpi
   ** See class header for modeling details.
   abstract Void interfaceSet(Dict config)
 }
+

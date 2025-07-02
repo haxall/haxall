@@ -7,8 +7,8 @@
 //
 
 using concurrent
+using xeto
 using haystack
-using xeto::Spec
 using def
 using folio
 

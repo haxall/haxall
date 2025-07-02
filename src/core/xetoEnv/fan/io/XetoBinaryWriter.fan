@@ -9,15 +9,7 @@
 using concurrent
 using util
 using xeto
-using haystack::Marker
-using haystack::NA
-using haystack::Remove
-using haystack::Number
-using haystack::Ref
-using haystack::Coord
-using haystack::Span
-using haystack::Symbol
-using haystack::Grid
+using haystack
 
 **
 ** Writer for Xeto binary encoding of specs and data.

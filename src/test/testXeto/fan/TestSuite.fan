@@ -9,11 +9,9 @@
 using util
 using yaml
 using xeto
-using xeto::Dict
 using xeto::Lib
 using xetoEnv
 using haystack
-using haystack::Ref
 
 **
 ** TestSuite runs all the declartive tests captured in YAML files.

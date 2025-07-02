@@ -7,6 +7,8 @@
 //   28 Dec 2009  Brian Frank  DataWriter => ZincWriter
 //
 
+using xeto
+
 **
 ** Write Haystack data in [Zinc]`docHaystack::Zinc` format.
 **
@@ -222,3 +224,4 @@ class ZincWriter : GridWriter
   @NoDoc Int ver := 3
   private OutStream out
 }
+

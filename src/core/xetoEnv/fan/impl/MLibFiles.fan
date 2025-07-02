@@ -8,8 +8,7 @@
 
 using util
 using xeto
-using haystack::Marker
-using haystack::UnknownSpecErr
+using haystack
 
 **
 ** Implementation of LibFiles

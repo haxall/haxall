@@ -9,7 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Dict
 
 **
 ** TypeRef is a spec type lookup either by qualified or unqualified name

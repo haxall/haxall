@@ -10,6 +10,7 @@ using [java]java.lang::Thread as JavaThread
 using [java]java.lang.management
 using [java]java.lang::StackTraceElement
 
+using xeto
 using haystack
 using axon
 using def

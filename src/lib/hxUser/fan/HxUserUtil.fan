@@ -7,6 +7,7 @@
 //
 
 using web
+using xeto
 using haystack
 using auth
 using folio
@@ -91,3 +92,4 @@ const class HxUserUtil
     }
   }
 }
+

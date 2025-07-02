@@ -30,6 +30,7 @@ class Build : BuildPod
                "inet @{fan.depend}",
                "web @{fan.depend}",
                "wisp @{fan.depend}",
+               "xeto @{hx.depend}",
                "haystack @{hx.depend}",
                "axon @{hx.depend}",
                "hx @{hx.depend}"]
@@ -38,3 +39,4 @@ class Build : BuildPod
     index   = ["ph.lib": "http"]
   }
 }
+

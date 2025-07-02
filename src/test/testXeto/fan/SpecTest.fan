@@ -66,12 +66,12 @@ class SpecTest : AbstractXetoTest
 
     // spec itself is effective meta + built-in tags
     self := effective.dup
-    self["id"] = s._id
+    self["id"] = s.id
     self["spec"] = ref("sys::Spec")
     if (s.isType)
-      self.addNotNull("base", s.base?._id)
+      self.addNotNull("base", s.base?.id)
     else
-      self["type"] = s.type._id
+      self["type"] = s.type.id
     verifyMetaDict(s, self)
   }
 
@@ -359,7 +359,7 @@ class SpecTest : AbstractXetoTest
      verifySame(fooBar.type.base, and)
      verifyEq(fooBar.isa(and), true)
      verifyEq(fooBar.ofs, Spec[foo,bar])
-     verifyEq(fooBar["ofs"], [foo._id, bar._id])
+     verifyEq(fooBar["ofs"], [foo.id, bar.id])
    }
 
 //////////////////////////////////////////////////////////////////////////
@@ -429,7 +429,7 @@ class SpecTest : AbstractXetoTest
     verifySlots(phx.type("DischargeAirFlowSensor"), dafsSlots)
 
     cond := phx.type("WeatherCondPoint")
-    verifyEq(cond.slot("enum")["val"], haystack::Ref("ph::WeatherCondEnum"))
+    verifyEq(cond.slot("enum")["val"], Ref("ph::WeatherCondEnum"))
 
     eqA := ns.spec("hx.test.xeto::EqA")
     a := eqA.slot("points").slot("a")

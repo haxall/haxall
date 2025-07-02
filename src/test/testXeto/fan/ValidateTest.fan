@@ -12,8 +12,6 @@ using xeto::Lib
 using xetoEnv
 using xetoc
 using haystack
-using haystack::Dict
-using haystack::Ref
 
 **
 ** ValidateTest

@@ -6,7 +6,7 @@
 //   16 Apr 2025  Brian Frank  Creation
 //
 
-using haystack::Ref
+using xeto
 
 **
 ** DocTag is used to annotate search hit summaries

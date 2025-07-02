@@ -7,7 +7,9 @@
 //
 
 using concurrent
+using xeto
 using haystack
+using haystack::Lib
 using folio
 using hx
 
@@ -270,3 +272,4 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
   }
 
 }
+

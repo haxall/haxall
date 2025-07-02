@@ -10,7 +10,7 @@
 using concurrent
 using web
 using haystack
-using haystack::Client
+using xeto
 using obix
 using folio
 using hx
@@ -782,3 +782,4 @@ class ObixTest : HxTest
     lib.conn(conn.id).sync
   }
 }
+

@@ -9,11 +9,9 @@
 using xeto
 
 **
-** MNameDict is used to wrap a NameDict so it can be a haystack::Dict.
-** Eventually once we get rid of haystack::Dict this class can go away.
-**
+** TODO: don't need this
 @Js
-const class MNameDict : haystack::Dict
+const class MNameDict : Dict
 {
   static const MNameDict empty := make(NameDict.empty)
 
@@ -39,3 +37,4 @@ const class MNameDict : haystack::Dict
   override Obj? trap(Str n, Obj?[]? a := null) { wrapped.trap(n, a) }
 
 }
+

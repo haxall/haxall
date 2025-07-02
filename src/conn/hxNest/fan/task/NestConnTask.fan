@@ -6,6 +6,7 @@
 //   31 Jan 2022  Matthew Giannini  Creation
 //
 
+using xeto
 using haystack
 using hxConn
 
@@ -84,3 +85,4 @@ internal const class NestTraitRef
 
   override Str toStr() { "${deviceId}:${trait}.${field}" }
 }
+

@@ -6,6 +6,7 @@
 //   29 Jan 2019  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -273,5 +274,4 @@ const class ManualInput : CompilerInput
   override Str toStr() { "ManualInput [$pod]" }
 
 }
-
 

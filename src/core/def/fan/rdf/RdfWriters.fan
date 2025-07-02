@@ -7,6 +7,7 @@
 //
 
 using rdf
+using xeto
 using haystack
 
 **
@@ -28,3 +29,4 @@ using haystack
   {
   }
 }
+

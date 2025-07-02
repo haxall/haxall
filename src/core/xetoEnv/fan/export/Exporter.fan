@@ -9,9 +9,6 @@
 using concurrent
 using util
 using xeto
-using xeto::Lib
-using haystack::Dict
-using haystack::Ref
 
 **
 ** Exporter

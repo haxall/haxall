@@ -9,8 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Dict
-using haystack::Ref
 
 **
 ** CompSpaceActor is used to encapsulate a CompSpace and provide

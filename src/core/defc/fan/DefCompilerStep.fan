@@ -7,6 +7,7 @@
 //    9 Jan 2019  Brian Frank  Redesign
 //
 
+using xeto
 using haystack
 using def
 
@@ -89,3 +90,4 @@ abstract class DefCompilerStep
 
 
 }
+

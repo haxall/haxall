@@ -6,7 +6,9 @@
 //   6 Dec 2018  Brian Frank  Creation
 //
 
+using xeto
 using haystack
+using haystack::Lib
 
 **
 ** MQuick caches commonly used defs for quick access.  Quick constants

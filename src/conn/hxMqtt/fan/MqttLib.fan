@@ -6,6 +6,7 @@
 //   03 Jan 2022  Matthew Giannini  Creation
 //
 
+using xeto
 using haystack
 using hx
 using hxd
@@ -109,3 +110,4 @@ internal const class MqttSubscription : Subscription
   ** Does this subscription match the given topic
   Bool accept(Str topic) { Topic.matches(topic, filter) }
 }
+

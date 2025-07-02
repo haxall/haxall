@@ -6,6 +6,7 @@
 //   14 Jul 2021  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using concurrent
 using folio
@@ -251,3 +252,4 @@ class RosterTest : HxTest
   }
 
 }
+

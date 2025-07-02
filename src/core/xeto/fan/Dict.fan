@@ -3,7 +3,9 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   16 Jan 2023  Brian Frank  Creation
+//   22 Dec 2009  Brian Frank  Creation
+//   16 Jan 2023  Brian Frank  Mirror in xeto pod
+//    2 Jul 2025  Brian Frank  Move from haystack to xeto
 //
 
 **
@@ -12,9 +14,11 @@
 @Js
 const mixin Dict
 {
-  // Get the 'id' tag as a Ref or raise exception
-  // TODO: this can't be id yet without breaking backward binary compatibility
-  abstract Ref _id()
+  ** Get the 'id' tag as a Ref or raise CastErr/UnknownNameErr
+  virtual Ref id()
+  {
+    get("id", null) ?: throw UnknownNameErr("id")
+  }
 
   ** Return if the there are no name/value pairs
   abstract Bool isEmpty()
@@ -43,7 +47,35 @@ const mixin Dict
 
   ** Create a new instance of this dict with the same names,
   ** but apply the specified closure to generate new values.
-  abstract This map(|Obj val, Str name->Obj| f)
+  @NoDoc virtual This map(|Obj val, Str name->Obj| f)
+  {
+    acc := Str:Obj[:]
+    each |v, n| { acc[n] = f(v, n) }
+// TODO
+return Slot.findMethod("haystack::Etc.dictFromMap").call(acc)
+  }
 
+  ** Get display string for dict or the given tag.  If 'name'
+  ** is null, then return display text for the entire dict
+  ** using `Etc.dictToDis`.  If 'name' is non-null then format
+  ** the tag value using its appropiate 'toLocale' method.  If
+  ** 'name' is not defined by this dict, then return 'def'.
+  virtual Str? dis(Str? name := null, Str? def := "")
+  {
+// TODO
+    // if name is null
+//    if (name == null) return Etc.dictToDis(this, def)
+if (name == null) return Slot.findMethod("haystack::Etc.dictToDis").call(this, def)
+
+    // get the value, if null return the def
+    val := get(name)
+    if (val == null) return def
+
+    // fallback to Kind to get a suitable default display value
+return Slot.findMethod("haystack::Kind.fromType").call(val.typeof)->valToDis(val)
+  }
+
+  ** Return string for debugging only
+  //override Str toStr() { Etc.dictToStr(this) }
 }
 

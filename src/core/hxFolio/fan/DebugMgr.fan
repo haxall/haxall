@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using folio
 using hxStore
@@ -70,3 +71,4 @@ using hxStore
     folio.store.debugDump(out)
   }
 }
+

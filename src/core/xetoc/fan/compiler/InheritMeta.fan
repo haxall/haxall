@@ -9,7 +9,7 @@
 using util
 using xeto
 using xetoEnv
-using haystack::Remove
+using haystack
 
 **
 ** InheritMeta computes the effective meta for all the specs

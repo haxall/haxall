@@ -7,7 +7,9 @@
 //
 
 using concurrent
+using xeto
 using haystack
+using haystack::Lib
 
 **
 ** DefBuilder is used to build up the Def and Namespace instances.

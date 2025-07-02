@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using xeto
 
 **
 ** HaystackTest provides convenience methods for testing

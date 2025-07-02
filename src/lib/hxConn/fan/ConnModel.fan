@@ -7,6 +7,7 @@
 //   22 Jun 2021  Brian Frank  Redesign for Haxall
 //
 
+using xeto
 using haystack
 using hx
 
@@ -178,6 +179,4 @@ const final class ConnModel
   ** Does this connector support history synchronization
   const Bool hasHis
 }
-
-
 

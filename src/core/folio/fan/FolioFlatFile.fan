@@ -6,8 +6,9 @@
 //   28 Dec 2015  Brian Frank  Creation
 //
 
-using haystack
 using concurrent
+using xeto
+using haystack
 
 **
 ** FolioFlatFile is a simple `Folio` implementation backed by

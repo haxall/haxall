@@ -9,8 +9,9 @@
 using concurrent
 using util
 using xeto
+using xeto::Lib
 using xetoEnv
-using haystack::Etc
+using haystack
 
 **
 ** LocalNamespace compiles its libs from a repo

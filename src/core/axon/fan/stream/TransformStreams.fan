@@ -6,6 +6,7 @@
 //   3 Aug 2019  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -167,12 +168,4 @@ internal class FilterStream : TransformStream
 
   private const Filter filter
 }
-
-
-
-
-
-
-
-
 

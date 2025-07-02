@@ -9,8 +9,7 @@
 using concurrent
 using web
 using util
-using xeto::LibRepo
-using xeto::LibVersion
+using xeto
 using haystack
 using folio
 using hx

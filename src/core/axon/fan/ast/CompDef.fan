@@ -7,7 +7,9 @@
 //
 
 using concurrent
+using xeto
 using haystack
+using axon::Comp
 
 **
 ** CompDef data flow component definition
@@ -111,3 +113,4 @@ const abstract class CompDef : TopFn
 
 
 }
+

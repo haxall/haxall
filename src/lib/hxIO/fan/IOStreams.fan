@@ -6,6 +6,7 @@
 //   13 Sep 2019  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using hx
 using axon
@@ -62,3 +63,4 @@ internal class IOStreamCsvStream : SourceStream
   private Obj? handle
   private Obj? opts
 }
+

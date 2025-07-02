@@ -6,6 +6,7 @@
 //   02 Feb 2022  Matthew Giannini  Creation
 //
 
+using xeto
 using haystack
 using hxConn
 
@@ -138,3 +139,4 @@ internal abstract class EcobeeConnTask
 
   override Str toStr() { selectKey == null ? prop : "${prop}[$selectKey=$selectVal]" }
 }
+

@@ -9,10 +9,8 @@
 using concurrent
 using util
 using xeto
-using haystack::Etc
-using haystack::Grid
-using haystack::UnknownLibErr
-using haystack::UnknownSpecErr
+using xeto::Lib
+using haystack
 
 **
 ** LibNamespace implementation base class
@@ -401,7 +399,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
     instance := lib(libName, false)?.instance(name, false)
 
     if (instance != null) return instance
-    if (checked) throw haystack::UnknownRecErr(qname)
+    if (checked) throw UnknownRecErr(qname)
     return null
   }
 
@@ -432,7 +430,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
     {
       if (err != null) return f(err, null)
       instance := lib.instance(name, false)
-      if (instance == null) return f(haystack::UnknownRecErr(qname), null)
+      if (instance == null) return f(UnknownRecErr(qname), null)
       f(null, instance)
     }
   }

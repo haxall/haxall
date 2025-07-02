@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 
 **
@@ -147,3 +148,4 @@ class BOverlayLib
   internal Def[] defs := [,]
   internal Str:Def defsMap := [:]
 }
+

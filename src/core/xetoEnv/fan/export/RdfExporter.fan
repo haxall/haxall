@@ -8,10 +8,7 @@
 
 using xeto
 using xeto::Lib
-using haystack::Dict
-using haystack::Etc
-using haystack::Marker
-using haystack::Ref
+using haystack
 
 **
 ** RDF Turtle Exporter

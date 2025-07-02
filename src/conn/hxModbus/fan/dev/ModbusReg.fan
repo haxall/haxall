@@ -7,6 +7,7 @@
 //   14 Jan 2022  Matthew Giannini  Redesign for Haxall
 //
 
+using xeto
 using haystack
 
 **
@@ -493,3 +494,4 @@ using haystack
 
   private static const Int[] ops := ['+', '-', '*', '/']
 }
+

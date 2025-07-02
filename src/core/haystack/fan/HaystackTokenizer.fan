@@ -8,6 +8,8 @@
 //   13 Jan 2016  Brian Frank  Repurpose from Axon parser
 //
 
+using xeto
+
 **
 ** Stream based tokenizer for Haystack formats such as Zinc and Filters
 **

@@ -9,10 +9,8 @@
 using concurrent
 using util
 using xeto
-using xeto::Dict
 using xeto::Lib
 using haystack
-using haystack::Ref
 using xetoEnv
 
 **

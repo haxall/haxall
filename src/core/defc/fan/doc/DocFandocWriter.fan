@@ -7,6 +7,7 @@
 //
 
 using fandoc
+using xeto
 using haystack
 
 **
@@ -100,3 +101,4 @@ internal class DocFandocWriter : HtmlDocWriter
   private Bool inPreZinc
 
 }
+

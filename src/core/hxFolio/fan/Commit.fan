@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using folio
 using hxStore
@@ -315,3 +316,4 @@ internal class CommitEvent : FolioCommitEvent
   override Dict? oldRec
   override Obj? cxInfo
 }
+

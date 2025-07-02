@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using folio
 using hxStore
@@ -117,3 +118,4 @@ internal class HisEvent : FolioHisEvent
   override const Dict result
   override const Obj? cxInfo
 }
+

@@ -6,6 +6,8 @@
 //   21 Jun 2010  Brian Frank  Creation
 //
 
+using xeto
+
 **
 ** Read Haystack data in [Trio]`docHaystack::Trio` format.
 **

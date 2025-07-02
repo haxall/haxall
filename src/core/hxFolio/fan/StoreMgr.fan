@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using folio
 using hxStore
@@ -104,3 +105,4 @@ internal const class StoreMgr : HxFolioMgr
   }
 
 }
+

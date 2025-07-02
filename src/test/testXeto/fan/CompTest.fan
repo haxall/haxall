@@ -10,8 +10,6 @@ using concurrent
 using xeto
 using xetoEnv
 using haystack
-using haystack::Dict
-using haystack::Ref
 
 **
 ** CheckTest
@@ -58,7 +56,7 @@ class CompTest: AbstractXetoTest
 
     // create empty add
     TestAdd add := cs.createSpec(addSpec)
-    verifyEq(add["spec"], addSpec._id)
+    verifyEq(add["spec"], addSpec.id)
     verifyEq(add["in1"], TestVal(0, ""))
     verifyEq(add["in2"], TestVal(0, ""))
     verifyEq(add["out"], TestVal(0, ""))
@@ -68,11 +66,11 @@ class CompTest: AbstractXetoTest
     a    := (Comp)c->a
     nest := (Comp)c->nest
     b    := (Comp)nest->b
-    verifySame(c["spec"], composite._id)
+    verifySame(c["spec"], composite.id)
     verifyEq(c["descr"], "test descr")
     verifyEq(c["dur"], 5min)
     verifyCompEq(c, ["dis":"TestComposite", "id":c.id,
-      "spec":composite._id, "descr":"test descr", "dur":5min,
+      "spec":composite.id, "descr":"test descr", "dur":5min,
       "a":a, "nest":nest])
 
     // verify it created a (one level child)
@@ -80,7 +78,7 @@ class CompTest: AbstractXetoTest
     verifyEq(a.name, "a")
     verifySame(c.child("a"), a)
     verifyCompEq(a, ["dis":"TestAdd", "id":a.id,
-      "spec":addSpec._id, "in1":TestVal(7), "in2":TestVal(5), "out":TestVal(0)])
+      "spec":addSpec.id, "in1":TestVal(7), "in2":TestVal(5), "out":TestVal(0)])
 
     // verify it created b (two level child)
     verifySame(nest.parent, c)
@@ -89,7 +87,7 @@ class CompTest: AbstractXetoTest
     verifySame(c.child("nest"), nest)
     verifySame(nest.child("b"), b)
     verifyCompEq(b, ["dis":"TestAdd", "id":b.id,
-      "spec":addSpec._id, "in1":TestVal(17), "in2":TestVal(15), "out":TestVal(0)])
+      "spec":addSpec.id, "in1":TestVal(17), "in2":TestVal(15), "out":TestVal(0)])
 
     // verify unmounted
     verifyEq(c.name, "")

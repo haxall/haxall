@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using hx
 
@@ -51,3 +52,4 @@ const class SerialPort
   internal const AtomicRef rtRef := AtomicRef(null)
   internal const AtomicRef ownerRef := AtomicRef(null)
 }
+

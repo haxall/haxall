@@ -10,8 +10,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Dict
-using haystack::Ref
 
 **
 ** AxonContext manages the environment of an Axon evaluation

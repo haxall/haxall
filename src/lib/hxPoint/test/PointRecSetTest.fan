@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using axon
 using folio
@@ -311,3 +312,4 @@ class PointRecSetTest : HxTest
   }
 
 }
+

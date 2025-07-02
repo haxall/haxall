@@ -31,6 +31,7 @@ class Build : BuildPod
                "dom @{fan.depend}",
                "domkit @{fan.depend}",
                "web @{fan.depend}",
+               "xeto @{hx.depend}",
                "haystack @{hx.depend}",
                "axon @{hx.depend}",
                "hx @{hx.depend}"]
@@ -40,3 +41,4 @@ class Build : BuildPod
     index   = ["ph.lib": "hxShell"]
   }
 }
+

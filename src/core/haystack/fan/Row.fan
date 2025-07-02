@@ -6,6 +6,8 @@
 //   22 Dec 2009  Brian Frank  Creation
 //
 
+using xeto
+
 **
 ** Row of a Grid.  Row also implements the Dict mixin to
 ** expose all of the columns as name/value pairs.

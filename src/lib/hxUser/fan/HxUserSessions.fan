@@ -8,6 +8,7 @@
 
 using concurrent
 using web
+using xeto
 using haystack
 using auth
 using axon
@@ -161,5 +162,4 @@ const class HxUserSession : HxSession
   static Str genKey(Str prefix) { prefix + Buf.random(32).toBase64Uri + "-" + keyCounter.incrementAndGet.toHex }
   private static const AtomicInt keyCounter := AtomicInt()
 }
-
 

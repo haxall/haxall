@@ -9,6 +9,7 @@
 using concurrent
 using util
 using docker
+using xeto
 using haystack
 using hx
 
@@ -410,3 +411,4 @@ internal const class DockerMgrActor : Actor, HxDockerService
     else return val
   }
 }
+

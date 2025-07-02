@@ -7,7 +7,7 @@
 //
 
 using web
-using xeto::Spec
+using xeto
 using haystack
 
 **

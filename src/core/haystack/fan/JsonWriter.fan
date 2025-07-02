@@ -7,6 +7,7 @@
 //
 
 using util
+using xeto
 
 **
 ** Write Haystack data in [JSON]`docHaystack::Json` format.
@@ -389,3 +390,4 @@ class JsonWriter : GridWriter
   }
 
 }
+

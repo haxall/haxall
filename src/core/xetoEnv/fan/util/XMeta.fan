@@ -8,11 +8,8 @@
 
 using util
 using xeto
-using haystack::Etc
-using haystack::Marker
-using haystack::Ref
-using haystack::Remove
-using haystack::UnknownNameErr
+using xeto::Lib
+using haystack
 
 **
 ** Extended meta computation

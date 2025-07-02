@@ -29,6 +29,7 @@ class Build : BuildPod
                 "concurrent @{fan.depend}",
                 "crypto @{fan.depend}",
                 "inet @{fan.depend}",
+                "xeto @{hx.depend}",
                 "haystack @{hx.depend}",
                 "axon @{hx.depend}",
                 "hx @{hx.depend}"]
@@ -37,3 +38,4 @@ class Build : BuildPod
     index   = ["ph.lib": "crypto"]
   }
 }
+

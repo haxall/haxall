@@ -6,6 +6,7 @@
 //   02 Feb 2022  Matthew Giannini  Creation
 //
 
+using xeto
 using haystack
 using hx
 using hxConn

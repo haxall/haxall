@@ -8,6 +8,7 @@
 //   18 Feb 2016  Brian Frank  Move from proj => testHaystack
 //
 
+using xeto
 using haystack
 
 **

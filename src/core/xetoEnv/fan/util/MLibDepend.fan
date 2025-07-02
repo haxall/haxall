@@ -8,8 +8,6 @@
 
 using util
 using xeto
-using haystack::Dict
-using haystack::Ref
 
 **
 ** Implementation for LibDepend

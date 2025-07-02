@@ -18,17 +18,17 @@ const final class MGlobal : MSpec
   new make(FileLoc loc, XetoLib lib, Str qname, Int nameCode, Str name, XetoSpec? base, XetoSpec self, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
     : super(loc, null, nameCode, name, base, self, meta, metaOwn, slots, slotsOwn, flags, args)
   {
-    this.lib       = lib
-    this.qname     = qname
-    this.id        = haystack::Ref(qname, null)
-    this.type      = self
+    this.lib   = lib
+    this.qname = qname
+    this.id    = Ref(qname, null)
+    this.type  = self
   }
 
   const override XetoLib lib
 
   const override Str qname
 
-  const override haystack::Ref id
+  const override Ref id
 
   override SpecFlavor flavor() { SpecFlavor.global }
 

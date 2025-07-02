@@ -8,6 +8,7 @@
 
 using dom
 using domkit
+using xeto
 using haystack
 
 **
@@ -62,3 +63,4 @@ internal const class ShellState
   This setSelection(Dict[] sel) { make(expr, grid, viewType, sel) }
 
 }
+

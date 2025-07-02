@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 
 **
@@ -200,3 +201,4 @@ internal class MPrototyper
   private Obj:Obj processed := [:]
   private Dict[] results := [,]
 }
+

@@ -8,8 +8,6 @@
 
 using xeto
 using haystack
-using haystack::Dict
-using haystack::Ref
 using xetoEnv
 using axon
 using folio

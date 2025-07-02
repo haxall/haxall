@@ -6,6 +6,7 @@
 //   14 Apr 2022  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -24,3 +25,4 @@ const class HxUserSettings : TypedDict
   const Int maxSessions := 250
 
 }
+

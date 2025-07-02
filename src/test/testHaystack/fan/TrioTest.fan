@@ -6,6 +6,7 @@
 //   21 Jun 2010  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 **
@@ -316,3 +317,4 @@ class TrioTest : HaystackTest
 
   Dict d(Obj x) { Etc.makeDict(x) }
 }
+

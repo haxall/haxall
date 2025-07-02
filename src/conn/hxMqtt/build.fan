@@ -31,6 +31,7 @@ class Build : BuildPod
                 "crypto @{fan.depend}",
                 "inet @{fan.depend}",
                 "mqtt @{hx.depend}",
+                "xeto @{hx.depend}",
                 "haystack @{hx.depend}",
                 "axon @{hx.depend}",
                 "folio @{hx.depend}",
@@ -44,3 +45,4 @@ class Build : BuildPod
     index   = ["ph.lib": "mqtt"]
   }
 }
+

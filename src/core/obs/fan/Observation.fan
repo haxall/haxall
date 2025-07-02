@@ -6,6 +6,7 @@
 //   10 Apr 2020  Brian Frank  COVID-19!
 //
 
+using xeto
 using haystack
 
 **
@@ -84,5 +85,4 @@ internal const class MObservation : Observation
     type.toStr + " @ " + ts.toLocale("hh:mm:ss")
   }
 }
-
 

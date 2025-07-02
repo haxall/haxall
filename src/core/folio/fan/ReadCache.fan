@@ -7,6 +7,7 @@
 //   05 Jan 2016  Brian Frank  Refactor for 3.0
 //
 
+using xeto
 using haystack
 
 **
@@ -81,5 +82,4 @@ using haystack
   private Ref:Dict byId := [:]
   internal Int misses  // for testing
 }
-
 

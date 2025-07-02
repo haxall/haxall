@@ -20,7 +20,7 @@ const final class MType : MSpec
   {
     this.lib       = lib
     this.qname     = qname
-    this.id        = haystack::Ref(qname, null)
+    this.id        = Ref(qname, null)
     this.type      = self
     this.binding   = binding
   }
@@ -29,7 +29,7 @@ const final class MType : MSpec
 
   const override Str qname
 
-  const override haystack::Ref id
+  const override Ref id
 
   override SpecFlavor flavor() { SpecFlavor.type }
 

@@ -6,6 +6,8 @@
 //   22 Dec 2009  Brian Frank  Creation
 //
 
+using xeto
+
 **
 ** Two dimensional tabular data structure composed of Cols and Rows.
 ** Grids may be created by factory methods on `Etc` or using `GridBuilder`.

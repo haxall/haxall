@@ -11,6 +11,7 @@
 using inet
 using obix
 using auth
+using xeto
 using haystack
 using hx
 using hxConn
@@ -379,3 +380,4 @@ class ObixDispatch : ConnDispatch
   Uri:ConnPoint watchUris := [:]
   Bool isNiagara
 }
+

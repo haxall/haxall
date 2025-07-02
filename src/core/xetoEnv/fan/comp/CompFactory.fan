@@ -9,8 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Dict
-using haystack::Ref
 
 **
 ** CompFactory is a temporary object used to create a swizzled
@@ -220,7 +218,7 @@ internal class CompFactory
   }
 
   ** Generate a fresh new id for a component
-  private haystack::Ref genId()
+  private Ref genId()
   {
     cs.genId
   }

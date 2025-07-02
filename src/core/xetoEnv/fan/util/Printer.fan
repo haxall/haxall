@@ -9,12 +9,8 @@
 using concurrent
 using util
 using xeto
-using haystack::Grid
-using haystack::Marker
-using haystack::NA
-using haystack::Number
-using haystack::Ref
-using haystack::Remove
+using xeto::Lib
+using haystack
 
 **
 ** Pretty printer
@@ -53,7 +49,7 @@ class Printer
     if (opts.has("json")) return json(v).nl
     if (opts.has("text")) return w(v?.toStr ?: "")
 
-    dict := v as haystack::Dict // TODO
+    dict := v as Dict
     if (dict != null && dict.has("id"))
       comment("// $dict.id.toZinc").nl
 

@@ -28,6 +28,7 @@ class Build : BuildPod
                ]
     depends  = ["sys @{fan.depend}",
                 "concurrent @{fan.depend}",
+                "xeto @{hx.depend}",
                 "haystack @{hx.depend}",
                 "axon @{hx.depend}",
                 "folio @{hx.depend}",
@@ -39,3 +40,4 @@ class Build : BuildPod
     index   = ["ph.lib": "haystack"]
   }
 }
+

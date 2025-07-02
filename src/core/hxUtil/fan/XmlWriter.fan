@@ -6,6 +6,7 @@
 //   16 Apr 2011  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 
 @NoDoc
@@ -161,3 +162,4 @@ class XmlWriter : GridWriter
   private OutStream out
 
 }
+

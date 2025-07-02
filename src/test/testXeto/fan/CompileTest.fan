@@ -8,10 +8,8 @@
 
 using util
 using xeto
-using xeto::Dict
 using xeto::Lib
 using haystack
-using haystack::Ref
 
 **
 ** CompileTest
@@ -614,9 +612,9 @@ class CompileTest : AbstractXetoTest
     {
       switch (n)
       {
-        case "id":   verifyEq(v, s._id)
+        case "id":   verifyEq(v, s.id)
         case "spec": verifyEq(v, ref("sys::Spec"))
-        case "type": verifyEq(v, s.type._id)
+        case "type": verifyEq(v, s.type.id)
         default:     verifyEq(meta[n], v, n)
       }
     }

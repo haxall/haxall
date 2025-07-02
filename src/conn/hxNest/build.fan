@@ -30,6 +30,7 @@ class Build : BuildPod
                 "concurrent @{fan.depend}",
                 "web @{fan.depend}",
                 "util @{fan.depend}",
+                "xeto @{hx.depend}",
                 "haystack @{hx.depend}",
                 "axon @{hx.depend}",
                 "folio @{hx.depend}",
@@ -46,3 +47,4 @@ class Build : BuildPod
     index   = ["ph.lib": "nest"]
   }
 }
+

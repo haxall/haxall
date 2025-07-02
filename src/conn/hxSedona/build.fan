@@ -33,6 +33,7 @@ class Build : BuildPod
                 "web @{fan.depend}",
                 "xml @{fan.depend}",
                 "sedona 1.2.28",
+                "xeto @{hx.depend}",
                 "haystack @{hx.depend}",
                 "axon @{hx.depend}",
                 "folio @{hx.depend}",

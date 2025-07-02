@@ -6,6 +6,7 @@
 //   15 Oct 2021  Matthew Giannini  Creation
 //
 
+using xeto
 using haystack
 using hx
 
@@ -63,3 +64,4 @@ const class DockerSettings : TypedDict
   }
   const Str? ioDirMount := null
 }
+

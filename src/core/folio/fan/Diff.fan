@@ -7,6 +7,7 @@
 //   9 Nov 2015  Brian Frank  Copy from proj
 //
 
+using xeto
 using haystack
 
 **

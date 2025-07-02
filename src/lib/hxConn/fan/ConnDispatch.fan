@@ -6,6 +6,7 @@
 //   29 Dec 2021  Brian Frank  Creation
 //
 
+using xeto
 using haystack
 using folio
 using hx
@@ -222,3 +223,4 @@ abstract class ConnDispatch
   ** Callback when point is removed from this connector
   virtual Void onPointRemoved(ConnPoint pt) {}
 }
+

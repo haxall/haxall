@@ -6,6 +6,8 @@
 //   7 Feb 2019  Brian Frank  Creation
 //
 
+using xeto
+
 **
 ** Reflection is the analysis of a Dict into the list of Defs it implements
 **
@@ -42,3 +44,4 @@ const mixin Reflection
   ** Flatten defs as grid
   abstract Grid toGrid()
 }
+

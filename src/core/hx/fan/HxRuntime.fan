@@ -8,6 +8,7 @@
 
 using concurrent
 using web
+using xeto
 using haystack
 using obs
 using folio
@@ -102,5 +103,4 @@ const mixin HxRuntimeLibs
   ** Return status grid of enabled libs
   @NoDoc abstract Grid status()
 }
-
 

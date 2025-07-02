@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 
 **
@@ -68,3 +69,4 @@ const class FolioConfig
     echo("  opts     = $opts")
   }
 }
+
