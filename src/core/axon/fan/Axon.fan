@@ -6,6 +6,7 @@
 //   18 Apr 2010  Brian Frank  Refactor axon vs axond
 //
 
+using xeto
 using haystack
 
 **
@@ -43,3 +44,4 @@ facet class Axon : Define
     }
   }
 }
+

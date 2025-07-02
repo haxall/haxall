@@ -7,6 +7,7 @@
 //
 
 using obix
+using xeto
 using haystack
 using hxConn
 
@@ -470,3 +471,4 @@ internal class ObixNiagaraMoreHisQuery : ObixLearnMore
 
   new make(ObixNiagaraObj p, Uri u, ObixObj a) : super(p, u, a) {}
 }
+

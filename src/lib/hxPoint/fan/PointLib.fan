@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using obs
 using folio
@@ -119,5 +120,4 @@ const class PointLib : HxLib
   internal const WriteMgrActor writeMgr
   internal const DemoMgrActor demoMgr
 }
-
 

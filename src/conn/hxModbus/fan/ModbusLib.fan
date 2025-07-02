@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using hx
 using hxConn
@@ -75,3 +76,4 @@ const class ModbusLib : ConnLib
     this.conn(Etc.toId(conn)).send(HxMsg("modbus.write", reg, val)).get
   }
 }
+
