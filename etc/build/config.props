@@ -5,7 +5,7 @@
 //   26 Mar 2026  Brian Frank  Creation
 //
 
-buildVersion=3.1.12
-hx.depend=3.1.12
+buildVersion=4.0.0
+hx.depend=4.0.0
 fan.depend=1.0
 
