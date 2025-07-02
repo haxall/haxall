@@ -35,22 +35,26 @@ abstract const class XetoEnv
 // API
 //////////////////////////////////////////////////////////////////////////
 
-  ** Repository of all installed xeto libs. This is only available
-  ** on server environments, will raise exception in a browser.
+  ** Repository of all installed xeto libs.
+  ** Not available in browser environemnts.
   abstract LibRepo repo()
 
   ** Home directory where xeto software is installed
+  ** Not available in browser environemnts.
   abstract File homeDir()
 
   ** Working directory - first directory in the path.  The workDir
   ** is used as default location for 'xeto init' to create new libs.
+  ** Not available in browser environemnts.
   abstract File workDir()
 
   ** Default install directory for 'xeto install'.
   ** Default is the `workDir`
+  ** Not available in browser environemnts.
   abstract File installDir()
 
   ** List of paths to search for libraries in both lib and src format
+  ** Not available in browser environemnts.
   abstract File[] path()
 
 //////////////////////////////////////////////////////////////////////////
@@ -61,24 +65,10 @@ abstract const class XetoEnv
   @NoDoc abstract Str mode()
 
   ** Debug props
-  @NoDoc Str:Str debugProps()
-  {
-    acc := Str:Obj[:]
-    acc.ordered = true
-    acc["xeto.version"] = typeof.pod.version.toStr
-    acc["xeto.mode"] = mode
-    acc["xeto.workDir"] = workDir.osPath
-    acc["xeto.homeDir"] = homeDir.osPath
-    acc["xeto.installDir"] = installDir.osPath
-    acc["xeto.path"] = path.map |f->Str| { f.osPath }
-    return acc
-  }
+  @NoDoc abstract Str:Str debugProps()
 
   ** Debug dump
-  @NoDoc Void dump(OutStream out := Env.cur.out)
-  {
-    AbstractMain.printProps(debugProps, ["out":out])
-  }
+  @NoDoc abstract Void dump(OutStream out := Env.cur.out)
 
   ** Main to debug dump
   @NoDoc static Void main() { echo; cur.dump; echo }

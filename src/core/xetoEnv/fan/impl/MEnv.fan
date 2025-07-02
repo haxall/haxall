@@ -10,16 +10,65 @@ using util
 using xeto
 
 **
-** MEnv is the implementation of XetoEnv
+** MEnv is the base for XetoEnv implementations.  We
+** have a ServerEnv and ClientEnv.
 **
-const class MEnv : XetoEnv
+@Js
+abstract const class MEnv : XetoEnv
+{
+  static XetoEnv init()
+  {
+    if (Env.cur.runtime == "js")
+      return BrowserEnv()
+    else
+      return Slot.findMethod("xetoEnv::ServerEnv.initPath").call
+  }
+}
+
+**************************************************************************
+** JsEnv
+**************************************************************************
+
+**
+** Browser client based environment
+**
+@Js
+const class BrowserEnv : MEnv
+{
+  override LibRepo repo() { throw unavailErr() }
+
+  override File homeDir() { throw unavailErr() }
+
+  override File workDir() { throw unavailErr() }
+
+  override File installDir() { throw unavailErr() }
+
+  override File[] path() { throw unavailErr() }
+
+  override Str mode() { "browser" }
+
+  override Str:Str debugProps() { Str:Obj[:] }
+
+  override Void dump(OutStream out := Env.cur.out) {}
+
+  static Err unavailErr() { Err("Not available in browser") }
+}
+
+**************************************************************************
+** ServerEnv
+**************************************************************************
+
+**
+** Server side environment with a file system based repo
+**
+const class ServerEnv : MEnv
 {
 
 //////////////////////////////////////////////////////////////////////////
 // Init
 //////////////////////////////////////////////////////////////////////////
 
-  static XetoEnv init()
+  static XetoEnv initPath()
   {
     // Fantom environment home dir
     homeDir := Env.cur.homeDir
@@ -98,7 +147,28 @@ const class MEnv : XetoEnv
 
   override const File[] path
 
+//////////////////////////////////////////////////////////////////////////
+// Debug
+//////////////////////////////////////////////////////////////////////////
+
   override const Str mode
 
+  override Str:Str debugProps()
+  {
+    acc := Str:Obj[:]
+    acc.ordered = true
+    acc["xeto.version"] = typeof.pod.version.toStr
+    acc["xeto.mode"] = mode
+    acc["xeto.workDir"] = workDir.osPath
+    acc["xeto.homeDir"] = homeDir.osPath
+    acc["xeto.installDir"] = installDir.osPath
+    acc["xeto.path"] = path.map |f->Str| { f.osPath }
+    return acc
+  }
+
+  override Void dump(OutStream out := Env.cur.out)
+  {
+    AbstractMain.printProps(debugProps, ["out":out])
+  }
 }
 
