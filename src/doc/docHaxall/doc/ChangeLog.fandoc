@@ -6,6 +6,8 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
+*Patches 3.1.12*
+
 *Build 3.1.12 (26 Jun 2025)*
 - FolioFile API
 - hxIO support for folio files
