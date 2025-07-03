@@ -96,7 +96,7 @@ internal class TestContext : AxonContext
 
   override Dict toDict() { Etc.emptyDict }
 
-  override DefNamespace ns() { test.ns }
+  override DefNamespace ns() { test.defs }
 
   override Fn? findTop(Str name, Bool checked := true)
   {

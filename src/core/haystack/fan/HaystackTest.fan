@@ -30,9 +30,9 @@ abstract class HaystackTest : Test
   ** Convenience for `Marker.val`
   static const Marker m := Marker.val
 
-  ** Access test namespace.  We assume running in a
+  ** Access test def namespace.  We assume running in a
   ** SkySpark test environment and route to ProjTest
-  @NoDoc virtual DefNamespace ns()
+  @NoDoc virtual DefNamespace defs()
   {
     ns := nsDefaultRef.val as DefNamespace
     if (ns == null)

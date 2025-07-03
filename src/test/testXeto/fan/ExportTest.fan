@@ -235,7 +235,7 @@ class ExportTest : AbstractXetoTest
 
   private Grid gridExport(LibNamespace ns, Dict opts)
   {
-    trio := this.ns.filetype("trio")
+    trio := defs.filetype("trio")
     e := GridExporter(ns, Buf().out, opts, trio)
     e.lib(ns.lib("hx.test.xeto"))
     return e.toGrid

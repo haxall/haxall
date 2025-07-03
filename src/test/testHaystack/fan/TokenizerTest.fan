@@ -215,7 +215,7 @@ class TokenizerTest : HaystackTest
 
   Void verifyFreeForm(Str s, Str:Obj? expected)
   {
-    actual := FreeFormParser(ns, s).parse
+    actual := FreeFormParser(defs, s).parse
     // echo("-- $s"); echo("   $actual")
     verifyDictEq(actual, expected)
   }
