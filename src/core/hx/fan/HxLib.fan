@@ -9,7 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Lib
 using obs
 
 **
@@ -58,7 +57,7 @@ abstract const class HxLib
   Str name() { spi.name }
 
   ** Definition meta data.  Not available in constructor.
-  @NoDoc virtual Lib def() { spi.def }
+  @NoDoc virtual DefLib def() { spi.def }
 
   ** Database record which enables this library and stores settings.
   ** This field may be overridden with a `haystack::TypedDict` subclass.
@@ -165,7 +164,7 @@ const mixin HxLibSpi
 {
   abstract HxRuntime rt()
   abstract Str name()
-  abstract Lib def()
+  abstract DefLib def()
   abstract Dict rec()
   abstract Log log()
   abstract Uri webUri()

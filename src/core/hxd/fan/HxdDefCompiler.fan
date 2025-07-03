@@ -9,7 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Lib
 using axon
 using folio
 using hx
@@ -258,7 +257,7 @@ const class HxdOverlayCompiler
     b := BOverlayLib(base, meta)
     rt.db.readAll(Filter.has("def")).each |rec| { addRecDef(b, rec) }
 
-    return MOverlayNamespace(base, MOverlayLib(b), HxdXetoGetter(rt), |Lib lib->Bool| { true })
+    return MOverlayNamespace(base, MOverlayLib(b), HxdXetoGetter(rt), |DefLib lib->Bool| { true })
   }
 
   private Void addRecDef(BOverlayLib b, Dict rec)
@@ -318,10 +317,10 @@ internal const class HxdXetoGetter : XetoGetter
 
   const HxdRuntime rt
 
-  override once xeto::LibNamespace get()
+  override once LibNamespace get()
   {
     usings := rt.db.readAllList(Filter.has("using"))
-    return xeto::LibNamespace.createSystemOverlay(usings, rt.log)
+    return LibNamespace.createSystemOverlay(usings, rt.log)
   }
 
 }

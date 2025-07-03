@@ -9,13 +9,12 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Lib
 
 **
 ** Lib implementation
 **
 @NoDoc @Js
-const class MLib : MDef, Lib
+const class MLib : MDef, DefLib
 {
   new make(BDef b) : super(b)
   {
@@ -43,7 +42,7 @@ internal const class MLibFeature : MFeature
 {
   new make(BFeature b) : super(b) {}
 
-  override Type defType() { Lib# }
+  override Type defType() { DefLib# }
 
   override MDef createDef(BDef b) { MLib(b) }
 

@@ -9,7 +9,6 @@
 using rdf
 using xeto
 using haystack
-using haystack::Lib
 
 **
 ** Base class for RDF writers
@@ -37,7 +36,7 @@ using haystack::Lib
   private Namespace ns
 
   ** Maps symbol libraries that are used in the grid.
-  protected [Str:Lib] libs := [:]
+  protected [Str:DefLib] libs := [:]
 
   ** If specified in the grid meta, this namespace will be used for
   ** Refs instead of generating blank nodes.

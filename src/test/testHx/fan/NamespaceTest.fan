@@ -9,7 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Lib
 using axon
 using hx
 
@@ -58,7 +57,7 @@ class NamespaceTest : HxTest
 
   }
 
-  Lib verifyLib(Str name, Pod pod, Uri baseUri)
+  DefLib verifyLib(Str name, Pod pod, Uri baseUri)
   {
     def := verifyLibDef(name, pod.version, baseUri)
     lib := rt.lib(name)

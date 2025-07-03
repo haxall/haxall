@@ -10,7 +10,6 @@
 using util
 using xeto
 using haystack
-using haystack::Lib
 using def
 using defc
 using xetoEnv
@@ -717,6 +716,6 @@ internal class GenPH : AbstractGenCmd
 //////////////////////////////////////////////////////////////////////////
 
   private Namespace? ns    // compileNamespace
-  private Lib? ph          // compileNamespace
+  private DefLib? ph       // compileNamespace
 }
 

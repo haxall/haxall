@@ -86,7 +86,7 @@ internal class ShellTableModel : TableModel
     for (rowi := 0; rowi<maxRow; ++rowi)
     {
       row := grid[rowi]
-      text := row.disOf(col)
+      text := row.disOf(col) ?: ""
       textw := cm.width(text)
       prefw = prefw.max(textw)
     }
@@ -113,7 +113,7 @@ internal class ShellTableModel : TableModel
     col  := cols[c]
     row  := grid[r]
     val  := row.val(col)
-    text := row.disOf(col)
+    text := row.disOf(col) ?: ""
 
     if (c == 0) text = ShellTable.infoIcon + text
 

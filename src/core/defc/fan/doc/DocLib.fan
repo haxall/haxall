@@ -19,7 +19,7 @@ const class DocLib : DocSpace
 {
   internal new make(|This| f) { f(this) }
 
-  const Lib def
+  const DefLib def
 
   const Str name
 

@@ -8,7 +8,6 @@
 
 using xeto
 using haystack
-using haystack::Lib
 
 **
 ** MQuick caches commonly used defs for quick access.  Quick constants
@@ -48,7 +47,7 @@ const class MQuick
     this.choice   = ns.def("choice")
   }
 
-  const Lib ph
+  const DefLib ph
 
   const Def val
   const Def marker

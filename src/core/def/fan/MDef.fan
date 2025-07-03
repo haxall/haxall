@@ -9,7 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Lib
 
 **
 ** Def implementation
@@ -41,7 +40,7 @@ const class MDef : Def
   override Str name() { symbol.name }
 
   ** Declaring lib
-  override Lib lib() { libRef.val }
+  override DefLib lib() { libRef.val }
   internal const AtomicRef libRef
 
   ** Wrapped normalized meta data

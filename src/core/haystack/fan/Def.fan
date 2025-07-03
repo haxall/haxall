@@ -7,7 +7,6 @@
 //
 
 using xeto
-using haystack::Lib
 
 **
 ** Def models a definition dictionary
@@ -22,6 +21,6 @@ const mixin Def : Dict
   abstract Str name()
 
   ** Library which scopes this definition
-  @NoDoc abstract Lib lib()
+  @NoDoc abstract DefLib lib()
 }
 

@@ -9,7 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Lib
 using obs
 using folio
 using hx
@@ -72,7 +71,7 @@ const class HxdLibSpi : Actor, HxLibSpi
 
   const Type? type
 
-  override Lib def() { rt.ns.lib(name) }
+  override DefLib def() { rt.ns.lib(name) }
 
   override Dict rec() { recRef.val }
   private const AtomicRef recRef

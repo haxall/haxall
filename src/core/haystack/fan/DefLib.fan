@@ -7,10 +7,10 @@
 //
 
 **
-** Lib models the scope of a symbolic definition
+** DefLib models a def library
 **
 @NoDoc @Js
-const mixin Lib : Def
+const mixin DefLib : Def
 {
   ** Integer index key which matches Space.libs order
   @NoDoc abstract Int index()

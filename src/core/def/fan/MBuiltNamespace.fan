@@ -9,7 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Lib
 
 **
 ** Namespace implementation created from DefBuilder
@@ -82,9 +81,9 @@ const class MBuiltNamespace : MNamespace
     return null
   }
 
-  override const Lib[] libsList
+  override const DefLib[] libsList
 
-  override Lib? lib(Str name, Bool checked := true)
+  override DefLib? lib(Str name, Bool checked := true)
   {
     f := libsMap[name]
     if (f != null) return f
@@ -108,7 +107,7 @@ const class MBuiltNamespace : MNamespace
 
   internal const Str:Def defsMap
   internal const Str:Feature featuresMap
-  internal const Str:Lib libsMap
+  internal const Str:DefLib libsMap
   internal const Str:Filetype filetypesMap
 }
 

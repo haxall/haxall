@@ -9,7 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Lib
 
 **
 ** DefBuilder is used to build up the Def and Namespace instances.
@@ -100,8 +99,8 @@ class DefBuilder
   Namespace build()
   {
     // walk thru all libs and assign MLib ref
-    libsMap := Str:Lib[:]
-    libsList := Lib[,]
+    libsMap := Str:DefLib[:]
+    libsList := DefLib[,]
     this.libs.each |blib|
     {
       // get def by name
@@ -159,8 +158,8 @@ class BNamespace
   [Str:Def]? defsMap
   Feature[]? features
   [Str:Feature]? featuresMap
-  Lib[]? libs
-  [Str:Lib]? libsMap
+  DefLib[]? libs
+  [Str:DefLib]? libsMap
   Filetype[]? filetypes
   [Str:Filetype]? filetypesMap
   XetoGetter? xetoGetter

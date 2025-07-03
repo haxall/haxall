@@ -9,7 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Lib
 using folio
 using hx
 
@@ -142,7 +141,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
       lib = arg
       if (lib.rt !== rt) throw ArgErr("HxLib has different rt")
     }
-    else if (arg is Lib)
+    else if (arg is DefLib)
     {
       lib = get(((Lib)arg).name)
     }

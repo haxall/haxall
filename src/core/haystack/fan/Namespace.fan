@@ -7,7 +7,6 @@
 //
 
 using xeto
-using haystack::Lib
 
 **
 ** Namespace models a symbolic namespace of defs
@@ -62,10 +61,10 @@ const mixin Namespace
   @NoDoc abstract Bool isFeature(Def def)
 
   ** List libs in the scope sorted by name
-  @NoDoc abstract Lib[] libsList()
+  @NoDoc abstract DefLib[] libsList()
 
   ** Resolve lib by simple name.
-  @NoDoc abstract Lib? lib(Str name, Bool checked := true)
+  @NoDoc abstract DefLib? lib(Str name, Bool checked := true)
 
   ** List file types
   @NoDoc abstract Filetype[] filetypes()

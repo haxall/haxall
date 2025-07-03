@@ -9,7 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using haystack::Lib
 
 **
 ** MOverlayNamespace is used to wrap a base namespace and add an
@@ -42,7 +41,7 @@ const class MOverlayNamespace : MNamespace
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(Namespace base, MOverlayLib? olib, XetoGetter xetoGetter, |Lib->Bool| enabled)
+  new make(Namespace base, MOverlayLib? olib, XetoGetter xetoGetter, |DefLib->Bool| enabled)
   {
     ref := AtomicRef(this)
     this.base        = base
@@ -50,12 +49,12 @@ const class MOverlayNamespace : MNamespace
     this.xetoGetter   = xetoGetter
     this.enabled     = base.libsList.map |lib->Bool| { enabled(lib) }
     this.libsList    = toLibsList(base, this.enabled, olib)
-    this.libsMap     = Str:Lib[:].addList(this.libsList) { it.name }
+    this.libsMap     = Str:DefLib[:].addList(this.libsList) { it.name }
     this.features    = base.features.map |MFeature f->Feature| { f.overlay(ref) }
     this.featuresMap = Str:Feature[:].addList(this.features) { it.name }
   }
 
-  private static Lib[] toLibsList(Namespace base, Bool[] enabled, MOverlayLib? olib)
+  private static DefLib[] toLibsList(Namespace base, Bool[] enabled, MOverlayLib? olib)
   {
     acc := base.libsList.findAll |lib| { enabled[lib.index] }
     if (olib != null) acc.add(olib)
@@ -73,7 +72,7 @@ const class MOverlayNamespace : MNamespace
   internal const MOverlayLib? olib
 
   ** Return if given library is enabled by this overlay
-  Bool isEnabled(Lib lib) { enabled[lib.index] }
+  Bool isEnabled(DefLib lib) { enabled[lib.index] }
   private const Bool[] enabled
 
 //////////////////////////////////////////////////////////////////////////
@@ -146,9 +145,9 @@ const class MOverlayNamespace : MNamespace
     return null
   }
 
-  override const Lib[] libsList
+  override const DefLib[] libsList
 
-  override Lib? lib(Str name, Bool checked := true)
+  override DefLib? lib(Str name, Bool checked := true)
   {
     f := libsMap[name]
     if (f != null) return f
@@ -170,7 +169,7 @@ const class MOverlayNamespace : MNamespace
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  internal const Str:Lib libsMap
+  internal const Str:DefLib libsMap
   internal const Str:Feature featuresMap
 }
 
