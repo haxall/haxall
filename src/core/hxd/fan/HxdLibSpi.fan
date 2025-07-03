@@ -71,7 +71,7 @@ const class HxdLibSpi : Actor, HxLibSpi
 
   const Type? type
 
-  override DefLib def() { rt.ns.lib(name) }
+  override DefLib def() { rt.defs.lib(name) }
 
   override Dict rec() { recRef.val }
   private const AtomicRef recRef

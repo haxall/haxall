@@ -72,7 +72,7 @@ class HxdContext : HxContext
 
   override const HxdRuntime rt
 
-  override DefNamespace defs() { rt.ns }
+  override DefNamespace defs() { rt.defs }
 
   override Folio db() { rt.db }
 

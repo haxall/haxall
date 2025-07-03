@@ -48,7 +48,7 @@ class Api3Test : ApiTest
   private Void verifyAbout(Client c)
   {
     about := c.about
-    verifyEq(about->haystackVersion,      rt.ns.lib("ph").version.toStr)
+    verifyEq(about->haystackVersion,      rt.defs.lib("ph").version.toStr)
     verifyEq(about->whoami,               c.auth->user)
     verifyEq(about->tz,                   TimeZone.cur.name)
     verifyEq(about->productName,          rt.platform.productName)

@@ -28,14 +28,14 @@ abstract class AbstractAxonTest : HxTest
 
     // sync
     rt.sync
-    ns := rt.ns.xeto
+    ns := rt.defs.xeto
     verifySame(ns.sysLib, LibNamespace.system.sysLib)
     return ns
   }
 
   LibNamespace xns()
   {
-    rt.ns.xeto
+    rt.defs.xeto
   }
 
   Void verifyEval(Str expr, Obj? expect)

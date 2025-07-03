@@ -25,7 +25,7 @@ const class ShellRuntime : HxRuntime, ShellStdServices
     this.platform = HxPlatform(Etc.dict1("axonsh", Marker.val))
     this.config   = HxConfig(Etc.dict0)
     this.db       = ShellFolio(FolioConfig { it.name = this.name; it.dir = this.dir })
-    this.ns       = ShellNamespace.init(this)
+    this.defs     = ShellNamespace.init(this)
   }
 
   override const Str name
@@ -42,7 +42,7 @@ const class ShellRuntime : HxRuntime, ShellStdServices
 
   override const Folio db
 
-  override const ShellNamespace ns
+  override const ShellNamespace defs
 
   override Dict meta() { Etc.dict0 }
 

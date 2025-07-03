@@ -24,7 +24,7 @@ const final class ConnModel
     this.name = lib.name
     prefix := name
 
-    ns := lib.rt.ns
+    ns := lib.rt.defs
     libDef := lib.def
     connDef := def(ns, lib, "${prefix}Conn")
     features := connDef["connFeatures"] as Dict ?: Etc.emptyDict

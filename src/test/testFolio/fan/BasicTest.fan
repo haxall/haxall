@@ -745,7 +745,7 @@ internal const class TestHooks : FolioHooks
 
   const AtomicRef cxInfoRef := AtomicRef()
 
-  override DefNamespace? ns(Bool checked := true) { throw UnsupportedErr() }
+  override DefNamespace? defs(Bool checked := true) { throw UnsupportedErr() }
 
   override Void preCommit(FolioCommitEvent e)
   {

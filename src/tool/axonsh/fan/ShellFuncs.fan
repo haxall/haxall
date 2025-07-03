@@ -160,7 +160,7 @@ const class ShellFuncs
 
     if (name != null)
     {
-      cx.rt.ns.addUsing(name, out)
+      cx.rt.defs.addUsing(name, out)
       return noEcho
     }
 

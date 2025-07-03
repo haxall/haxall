@@ -88,7 +88,7 @@ internal const class ShellXetoGetter : XetoGetter
 
   const ShellRuntime rt
 
-  override LibNamespace get() { rt.ns.xetoRef.val }
+  override LibNamespace get() { rt.defs.xetoRef.val }
 }
 
 **************************************************************************

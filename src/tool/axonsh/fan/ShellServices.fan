@@ -79,7 +79,7 @@ internal const class ShellContextService : HxContextService
 
   override HxContext createSession(HxSession session) { throw UnsupportedErr() }
 
-  override Void xetoReload() { rt.ns.xetoReload }
+  override Void xetoReload() { rt.defs.xetoReload }
 }
 
 **************************************************************************

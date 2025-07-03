@@ -21,18 +21,18 @@ using xeto
 //////////////////////////////////////////////////////////////////////////
 
   ** Namespace to use for filetypes
-  abstract DefNamespace ns()
+  abstract DefNamespace defs()
 
   ** Lookup filetype for the given mime type or null
   virtual Filetype? toFiletype(MimeType mime)
   {
-    ns.filetype(mime.noParams.toStr, false)
+    defs.filetype(mime.noParams.toStr, false)
   }
 
   ** Get reader/writer options
   virtual Dict ioOpts(Filetype filetype, MimeType mime)
   {
-    filetype.ioOpts(ns, mime, Etc.emptyDict, Etc.emptyDict)
+    filetype.ioOpts(defs, mime, Etc.emptyDict, Etc.emptyDict)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -133,7 +133,7 @@ using xeto
   {
     // check for filetype in query string for easy testing
     queryFiletype := req.uri.query["filetype"] ?: req.uri.query["format"]
-    if (queryFiletype != null) return ns.filetype(queryFiletype).mimeType
+    if (queryFiletype != null) return defs.filetype(queryFiletype).mimeType
 
     // if not specified or anything accepted default to text/plain (Zinc)
     accept := req.headers["Accept"]

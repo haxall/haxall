@@ -19,10 +19,10 @@ using haystack
 const mixin FolioHooks
 {
   ** Def namespace if available
-  abstract DefNamespace? ns(Bool checked := true)
+  abstract DefNamespace? defs(Bool checked := true)
 
   ** Xeto namespace if available
-  virtual LibNamespace? xeto(Bool checked := true) { ns(false)?.xeto }
+  virtual LibNamespace? xeto(Bool checked := true) { defs(false)?.xeto }
 
   ** Callback before diff is committed during verify
   ** phase. An exception will cancel entire commit.
@@ -90,7 +90,7 @@ abstract class FolioHisEvent
 **
 internal const class NilHooks : FolioHooks
 {
-  override DefNamespace? ns(Bool checked := true) { if (checked) throw UnsupportedErr("Namespace not availble"); return null }
+  override DefNamespace? defs(Bool checked := true) { if (checked) throw UnsupportedErr("Namespace not availble"); return null }
   override Void preCommit(FolioCommitEvent event) {}
   override Void postCommit(FolioCommitEvent event) {}
   override Void postHisWrite(FolioHisEvent event) {}

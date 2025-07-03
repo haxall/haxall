@@ -87,7 +87,7 @@ internal class Query : HaystackContext
 
   override once FilterInference inference()
   {
-    ns := folio.hooks.ns(false)
+    ns := folio.hooks.defs(false)
     if (ns != null) return MFilterInference(ns)
     return FilterInference.nil
   }

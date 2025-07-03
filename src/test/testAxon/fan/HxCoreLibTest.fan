@@ -59,7 +59,7 @@ class HxCoreLibTest : HxTest
     {
       row := g.find |r| { r->def.toStr == name }
       verifyNotNull(row, name)
-      verifyDictEq(row, rt.ns.def(name))
+      verifyDictEq(row, rt.defs.def(name))
     }
 
     missing.each |name|

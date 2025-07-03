@@ -20,7 +20,7 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
 
   override const HxLib lib
 
-  override DefNamespace ns() { lib.rt.ns }
+  override DefNamespace defs() { lib.rt.defs }
 
   override Void onService()
   {
@@ -51,7 +51,7 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
       if (opDef == null) return res.sendErr(404)
 
       // instantiate subclass of HxApiOp
-      Actor.locals["hxApiOp.spi"] = HxApiOpSpiImpl(ns, opDef)
+      Actor.locals["hxApiOp.spi"] = HxApiOpSpiImpl(defs, opDef)
       typeName := opDef["typeName"] as Str ?: throw Err("Op missing typeName: $opName")
       op := (HxApiOp)Type.find(typeName).make
 
@@ -119,9 +119,9 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
 
 internal const class HxApiOpSpiImpl : WebOpUtil, HxApiOpSpi
 {
-  new make(DefNamespace ns, Def def)
+  new make(DefNamespace defs, Def def)
   {
-    this.ns  = ns
+    this.defs = defs
     this.name = def.name
     this.def  = def
   }
@@ -145,7 +145,7 @@ internal const class HxApiOpSpiImpl : WebOpUtil, HxApiOpSpi
     doWriteRes(req, res, grid)
   }
 
-  override const DefNamespace ns
+  override const DefNamespace defs
   override const Str name
   override const Def def
 }

@@ -101,7 +101,7 @@ class RuntimeTest : HxTest
 
     // verify core lib
     core := rt.lib("hx")
-    verifySame(rt.ns.def("func:read").lib, core.def)
+    verifySame(rt.defs.def("func:read").lib, core.def)
 
     // cannot add hxTestB because it depends on hxTestA
     errLibName := rt.typeof.pod.name == "hxd" ? "HxLib" : "Ext"
@@ -148,9 +148,9 @@ class RuntimeTest : HxTest
     verifyEq(rt.libs.has(name), true)
 
     verifyEq(lib.name, name)
-    verifySame(lib.def, rt.ns.lib(name))
+    verifySame(lib.def, rt.defs.lib(name))
     verifyEq(lib.def->def, Symbol("lib:$name"))
-    verifySame(rt.ns.lib(name), lib.def)
+    verifySame(rt.defs.lib(name), lib.def)
 
     // only in hxd environments
     rec := read("ext==$name.toCode", false)
@@ -170,9 +170,9 @@ class RuntimeTest : HxTest
 
     verifyEq(read("ext==$name.toCode", false), null)
 
-    verifyEq(rt.ns.lib(name, false), null)
-    verifyErr(UnknownLibErr#) { rt.ns.lib(name) }
-    verifyErr(UnknownLibErr#) { rt.ns.lib(name, true) }
+    verifyEq(rt.defs.lib(name, false), null)
+    verifyErr(UnknownLibErr#) { rt.defs.lib(name) }
+    verifyErr(UnknownLibErr#) { rt.defs.lib(name, true) }
   }
 
 //////////////////////////////////////////////////////////////////////////
