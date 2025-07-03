@@ -891,7 +891,7 @@ const mixin Grid
     this.each |row, i|
     {
       name := "v" + i
-      dis := row.dis(srcKeyCol.name, name)
+      dis := row.disOf(srcKeyCol) ?: name
       gb.addCol(name, ["dis":dis])
     }
 
@@ -988,7 +988,7 @@ const mixin Grid
     if (val === Marker.val) return "M"
     if (val === Remove.val) return "R"
     if (val is DateTime && c.meta["format"] == null) return ((DateTime)val).toLocale("DD-MMM-YY hh:mm")
-    s := r.dis(c.name)
+    s := r.disOf(c)
     return s
   }
 }

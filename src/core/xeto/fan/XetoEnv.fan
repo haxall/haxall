@@ -62,7 +62,10 @@ abstract const class XetoEnv
 //////////////////////////////////////////////////////////////////////////
 
   ** Implementation for Dict.dis
-  @NoDoc abstract Str dictDis(Dict x, Str? def)
+  @NoDoc abstract Str dictDis(Dict x)
+
+  ** Implementation for Dict.toStr
+  @NoDoc abstract Str dictToStr(Dict x)
 
   ** Implementation for Dict.map
   @NoDoc abstract Dict dictMap(Dict x, |Obj,Str->Obj| f)

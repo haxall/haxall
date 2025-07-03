@@ -165,7 +165,7 @@ class Printer
         }
         else
         {
-          cells.add(row.dis(c.name))
+          cells.add(row.disOf(c))
         }
       }
       table.add(cells)

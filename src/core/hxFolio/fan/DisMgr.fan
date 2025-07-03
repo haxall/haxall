@@ -108,7 +108,7 @@ internal const class DisMgr : HxFolioMgr
       disMacro := dict.get("disMacro", null) as Str
       return disMacro != null ?
              DisMgrMacro(disMacro, dict, this, cache).apply :
-             dict.dis(null, null)
+             dict.dis
     }
 
     // use id itself

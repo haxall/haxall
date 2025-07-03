@@ -198,7 +198,7 @@ const class ShellFolio : Folio
     disMacro := rec.get("disMacro", null) as Str
     dis := disMacro != null ?
            DisMacro(disMacro, rec, this).apply :
-           rec.dis(null, null)
+           rec.dis
     id.disVal = dis
     return dis
   }

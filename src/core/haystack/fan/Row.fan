@@ -26,26 +26,15 @@ abstract const class Row : Dict
   abstract Obj? val(Col col)
 
   **
-  ** Get display string for dict or the given tag.  The Row
-  ** implementation follows all the same rules as `Dict.dis`
-  ** with following enhancements:
+  ** Get display string for the given column, if value is null then return null.
+  ** If the column meta defines a "format"* pattern, then it is used to format
+  ** the value via the appropiate 'toLocale' method.
   **
-  ** If the column meta defines a "format" pattern, then it
-  ** is used to format the value via the appropiate 'toLocale'
-  ** method.
-  **
-  override Str? dis(Str? name := null, Str? def := "")
+  Str? disOf(Col col)
   {
-    // if name is null
-    if (name == null) return Etc.dictToDis(this, def)
-
-    // find the column, if not found return def
-    col := grid.col(name, false)
-    if (col == null) return def
-
-    // get the value, if null return the def
+    // get the value, if null return the null
     val := this.val(col)
-    if (val == null) return def
+    if (val == null) return null
 
     // fallback to Kind to get a suitable default display value
     kind := Kind.fromType(val.typeof, false)

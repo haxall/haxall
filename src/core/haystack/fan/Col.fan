@@ -27,7 +27,7 @@ abstract const class Col
   **
   ** Display name for columm which is 'meta.dis(null, name)'
   **
-  Str dis() { meta.dis(null, name) }
+  Str dis() { Etc.dictToDis(meta, name) }
 
   **
   ** Equality is based on reference

@@ -25,9 +25,14 @@ abstract const class MEnv : XetoEnv
       return Slot.findMethod("xetoEnv::ServerEnv.initPath").call
   }
 
-  override Str dictDis(Dict x, Str? def)
+  override Str dictDis(Dict x)
   {
-    Etc.dictToDis(x, def)
+    Etc.dictToDis(x, null) ?: x.toStr
+  }
+
+  override Str dictToStr(Dict x)
+  {
+    Etc.dictToStr(x)
   }
 
   override Dict dictMap(Dict x, |Obj val, Str name->Obj| f)

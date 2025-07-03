@@ -2293,15 +2293,23 @@ const class CoreLib
 // Parsing and Formatting
 //////////////////////////////////////////////////////////////////////////
 
-  ** Get display string for dict or the given tag.  If 'name'
-  ** is null, then return display text for the entire dict
-  ** using `haystack::Etc.dictToDis`.  If 'name' is non-null then format
-  ** the tag value using its appropiate 'toLocale' method.
-  ** Also see `haystack::Dict.dis`.
-  @Axon static Str dis(Dict? dict, Str? name := null, Str? def := "")
+  ** Get display string for dict or the given tag:
+  **  - if dict is null return "null"
+  **  - if 'name' is null then return `xeto::Dict.dis`
+  **  - if dict is a Row then return `haystack::Row.disOf` or def
+  **  - fallback `haystack::Etc.valToDis`
+  @Axon static Str dis(Dict? dict, Str? name := null, Str def := "")
   {
     if (dict == null) return "null"
-    return dict.dis(name, def)
+    if (name == null) return dict.dis
+    if (dict is Row)
+    {
+      row := (Row)dict
+      col := row.grid.col(name, false)
+      if (col == null) return def
+      return row.disOf(col) ?: def
+    }
+    return Etc.valToDis(dict[name], null, true)
   }
 
   ** Get a relative display name.  If the child display name

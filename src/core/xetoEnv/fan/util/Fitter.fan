@@ -540,9 +540,7 @@ internal class ExplainFitter : Fitter
     for (i := 0; i<recs.size; ++i)
     {
       rec := recs[i]
-      str := "@" + rec->id
-      dis := ((Dict)rec).dis
-      if (dis != null) str += " $dis.toCode"
+      str := "@" + rec->id + " " + ((Dict)rec).dis.toCode
       s.join(str, ", ")
       if (s.size > 50 && i+1<recs.size)
         return s.add(", ${recs.size - i - 1} more ...").toStr

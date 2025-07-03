@@ -593,25 +593,20 @@ class ZincTest : HaystackTest
         // dis
         if (tv is Grid)
         {
-          verifyEq(sr.dis(col.name), "<<Nested Grid>>")
+          verifyEq(sr.disOf(col), "<<Nested Grid>>")
         }
         else if (tv != null)
         {
           kind := Kind.fromType(tv.typeof, false)
           if (kind != null)
-            verifyEq(sr.dis(col.name), kind.valToDis(tv))
+            verifyEq(sr.disOf(col), kind.valToDis(tv))
           else
-            verifyEq(sr.dis(col.name), tv.toStr)
+            verifyEq(sr.disOf(col), tv.toStr)
         }
         else
         {
-          verifyEq(sr.dis(col.name), "")
-          verifyEq(sr.dis(col.name, "?!"), "?!")
-          verifyEq(sr.dis(col.name, null), null)
+          verifyEq(sr.disOf(col), null)
         }
-        verifyEq(sr.dis("badBad"), "")
-        verifyEq(sr.dis("badBad", "na"), "na")
-        verifyEq(sr.dis("badBad", null), null)
 
         // has/missing
         if (tv != null)
@@ -689,7 +684,8 @@ class ZincTest : HaystackTest
  {
    Ref ref := row[tag]
    // echo("==> $ref.id $ref.dis ?= $id $dis")
-   if (row is Row) verifyEq(((Row)row).dis(tag), dis ?: id)
+   x := row as Row
+   if (x != null) verifyEq(x.disOf(x.grid.col(tag)), dis ?: id)
    verifyEq(ref.id, id)
    verifyEq(ref.disVal, dis)
  }

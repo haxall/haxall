@@ -657,8 +657,7 @@ class EtcTest : HaystackTest
   {
     id := Ref.gen
 
-    verifyEq(Etc.emptyDict.dis, "")
-    verifyEq(Etc.emptyDict.dis(null, "!"), "!")
+    verifyEq(Etc.emptyDict.dis, "{}")
 
     verifyToDis(["disMacro":Str<|$equipRef $navName|>, "equipRef":Ref("e", "RTU"),
                  "navName":"Fan"], "RTU Fan")

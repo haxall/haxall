@@ -39,7 +39,7 @@ class GridTest : HaystackTest
 
      // Row.dis
      verifyEq(g[1].dis, "b")
-     verifyEq(g[1].dis("num"), "2")
+     verifyEq(g[1].disOf(g.col("num")), "2")
 
      // conveniences
      verifyEq(g.ids, Ref[Ref("a"), Ref("b")])
@@ -59,10 +59,10 @@ class GridTest : HaystackTest
            3,2013-09-03,13:45,T
            |>)
 
-     verifyEq(g[0].dis("num"), "3.00")
-     verifyEq(g[0].dis("date"), "03/09/2013")
-     verifyEq(g[0].dis("time"), "1345")
-     verifyEq(g[0].dis("bool"), "on")
+     verifyEq(g[0].disOf(g.col("num")), "3.00")
+     verifyEq(g[0].disOf(g.col("date")), "03/09/2013")
+     verifyEq(g[0].disOf(g.col("time")), "1345")
+     verifyEq(g[0].disOf(g.col("bool")), "on")
    }
 
 //////////////////////////////////////////////////////////////////////////

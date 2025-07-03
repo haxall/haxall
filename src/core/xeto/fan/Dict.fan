@@ -52,24 +52,17 @@ const mixin Dict
     XetoEnv.cur.dictMap(this, f)
   }
 
-  ** Get display string for dict or the given tag.  If 'name'
-  ** is null, then return display text for the entire dict
-  ** using `Etc.dictToDis`.  If 'name' is non-null then format
-  ** the tag value using its appropiate 'toLocale' method.  If
-  ** 'name' is not defined by this dict, then return 'def'.
-  virtual Str? dis(Str? name := null, Str? def := "")
+  ** Get display string for the dict.  The default routes
+  ** to `haystack::Etc.dictToDis` or fallback on `toStr`.
+  virtual Str dis()
   {
-    if (name == null) return XetoEnv.cur.dictDis(this, def)
-
-    // get the value, if null return the def
-    val := get(name)
-    if (val == null) return def
-
-    // fallback to Kind to get a suitable default display value
-return Slot.findMethod("haystack::Kind.fromType").call(val.typeof)->valToDis(val)
+    XetoEnv.cur.dictDis(this)
   }
 
   ** Return string for debugging only
-  //override Str toStr() { Etc.dictToStr(this) }
+  override Str toStr()
+  {
+    XetoEnv.cur.dictToStr(this)
+  }
 }
 
