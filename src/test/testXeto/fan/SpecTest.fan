@@ -43,7 +43,7 @@ class SpecTest : AbstractXetoTest
      // env.print(lib)
 
      obj := ns.spec("sys::Obj")
-     verifyEq(obj.get("base", "_"), "_")
+     verifyEq(obj.get("base"), null)
      verifyEq(obj.has("base"), false)
      verifyEq(obj.missing("base"), true)
      verifyEq(obj.has("type"), false)

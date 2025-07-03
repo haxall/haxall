@@ -57,7 +57,7 @@ const class MDef : Def
 // Dict
 //////////////////////////////////////////////////////////////////////////
 
-  @Operator override Obj? get(Str n, Obj? def := null) { meta.get(n, def) }
+  @Operator override Obj? get(Str n) { meta.get(n) }
   override Bool isEmpty() { false }
   override Bool has(Str n) { meta.has(n) }
   override Bool missing(Str n) { meta.missing(n) }

@@ -681,9 +681,9 @@ class Printer
 // Options
 //////////////////////////////////////////////////////////////////////////
 
-  Obj? opt(Str name, Obj? def := null)
+  Obj? opt(Str name)
   {
-    opts.get(name, def)
+    opts.get(name)
   }
 
   Bool optBool(Str name, Bool def)
@@ -698,7 +698,7 @@ class Printer
 
   PrinterSpecMode optSpecMode()
   {
-    v := opt("spec", null)
+    v := opt("spec")
     if (v != null) return PrinterSpecMode.fromStr(v)
     v = opts.eachWhile |ignore, n| { PrinterSpecMode.fromStr(n, false) }
     if (v != null) return v

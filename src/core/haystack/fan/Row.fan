@@ -56,15 +56,14 @@ abstract const class Row : Dict
   override Bool isEmpty() { false }
 
   **
-  ** Get the column `val` by name.  If column name doesn't
-  ** exist or if the column value is null, then return 'def'.
+  ** Get the column `val` by name or null
   **
   @Operator
-  override Obj? get(Str name, Obj? def := null)
+  override Obj? get(Str name)
   {
     col := grid.col(name, false)
-    if (col == null) return def
-    return val(col) ?: def
+    if (col == null) return null
+    return val(col)
   }
 
   **

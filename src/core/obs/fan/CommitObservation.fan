@@ -49,7 +49,7 @@ const class CommitObservation : Observation
 
   override Bool isEmpty() { false }
 
-  @Operator override Obj? get(Str name, Obj? def := null)
+  @Operator override Obj? get(Str name)
   {
     switch (name)
     {
@@ -59,8 +59,8 @@ const class CommitObservation : Observation
       case "id":      return id
       case "newRec":  return newRec
       case "oldRec":  return oldRec
-      case "user":    return user ?: def
-      default:        return def
+      case "user":    return user
+      default:        return null
     }
   }
 
@@ -70,7 +70,7 @@ const class CommitObservation : Observation
 
   override Obj? trap(Str name, Obj?[]? args := null)
   {
-    get(name, null) ?: throw UnknownNameErr(name)
+    get(name) ?: throw UnknownNameErr(name)
   }
 
   override Void each(|Obj, Str| f)

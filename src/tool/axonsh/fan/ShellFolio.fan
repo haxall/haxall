@@ -195,7 +195,7 @@ const class ShellFolio : Folio
   {
     id := rec.id
     id.disVal = id.id // in case of circular macros
-    disMacro := rec.get("disMacro", null) as Str
+    disMacro := rec.get("disMacro") as Str
     dis := disMacro != null ?
            DisMacro(disMacro, rec, this).apply :
            rec.dis

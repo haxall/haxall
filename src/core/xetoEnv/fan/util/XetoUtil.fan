@@ -338,7 +338,7 @@ const class XetoUtil
   static |XetoLogRec|? optLog(Dict? opts, Str name)
   {
     if (opts == null) return null
-    x := opts.get(name, null)
+    x := opts.get(name)
     if (x == null) return null
     if (x is Unsafe) x = ((Unsafe)x).val
     if (x is Func) return x

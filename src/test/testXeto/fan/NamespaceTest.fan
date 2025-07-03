@@ -542,8 +542,7 @@ class NamespaceTest : AbstractXetoTest
 
     verifyEq(d.has("badOne"), false)
     verifyEq(d.missing("badOne"), true)
-    verifyEq(d.get("badOne", null), null)
-    verifyEq(d.get("badOne", "foo"), "foo")
+    verifyEq(d.get("badOne"), null)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -50,11 +50,11 @@ const final class HisItem : Dict
 
   override Bool isEmpty() { false }
 
-  @Operator override Obj? get(Str name, Obj? def := null)
+  @Operator override Obj? get(Str name)
   {
     if (name == "ts")  return ts
     if (name == "val") return val
-    return def
+    return null
   }
 
   override Bool has(Str name) { name == "ts" || name == "val" }

@@ -105,7 +105,7 @@ internal const class DisMgr : HxFolioMgr
     if (rec != null)
     {
       dict := rec.dict
-      disMacro := dict.get("disMacro", null) as Str
+      disMacro := dict.get("disMacro") as Str
       return disMacro != null ?
              DisMgrMacro(disMacro, dict, this, cache).apply :
              dict.dis

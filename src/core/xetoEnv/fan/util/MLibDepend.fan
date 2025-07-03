@@ -39,12 +39,12 @@ const class MLibDepend : Dict, LibDepend
 
   override Bool isEmpty() { false }
 
-  @Operator override Obj? get(Str n, Obj? def := null)
+  @Operator override Obj? get(Str n)
   {
     if (n == "lib")  return name
     if (n == "versions") return versions
     if (n == "spec") return specRef
-    return def
+    return null
   }
 
   override Bool has(Str n) { n == "lib" || n == "versions" || n == "spec" }

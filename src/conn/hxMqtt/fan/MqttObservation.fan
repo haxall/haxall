@@ -36,7 +36,7 @@ const class MqttObservation : Observation
 
   override Bool isEmpty() { false }
 
-  @Operator override Obj? get(Str name, Obj? def := null)
+  @Operator override Obj? get(Str name)
   {
     switch (name)
     {
@@ -45,7 +45,7 @@ const class MqttObservation : Observation
       case "topic":     return topic
       case "payload":   return payload
       case "userProps": return userProps
-      default:          return def
+      default:          return null
     }
   }
 
@@ -55,7 +55,7 @@ const class MqttObservation : Observation
 
   override Obj? trap(Str name, Obj?[]? args := null)
   {
-    get(name, null) ?: throw UnknownNameErr(name)
+    get(name) ?: throw UnknownNameErr(name)
   }
 
   override Void each(|Obj, Str| f)

@@ -139,12 +139,12 @@ const final class MLib
 
   const static Ref libSpecRef := Ref("sys::Lib")
 
-  Obj? get(Str name, Obj? def := null)
+  Obj? get(Str name)
   {
     if (name == "id")     return id
     if (name == "spec")   return libSpecRef
     if (name == "loaded") return Marker.val
-    return meta.get(name, def)
+    return meta.get(name)
   }
 
   Bool has(Str name)
@@ -181,7 +181,7 @@ const final class MLib
 
   override Obj? trap(Str name, Obj?[]? args := null)
   {
-    val := get(name, null)
+    val := get(name)
     if (val != null) return val
     return meta.trap(name, args)
   }
@@ -271,7 +271,7 @@ const final class XetoLib : Lib, Dict
 
   override final Bool isEmpty() { false }
 
-  @Operator override final Obj? get(Str n, Obj? d := null) { m.get(n, d) }
+  @Operator override final Obj? get(Str n) { m.get(n) }
 
   override final Bool has(Str n) { m.has(n) }
 

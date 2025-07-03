@@ -92,7 +92,7 @@ internal const class MSlotsDict : Dict
 
   const MSlots slots
 
-  @Operator override Obj? get(Str n, Obj? def := null) { slots.get(n, false) ?: def }
+  @Operator override Obj? get(Str n) { slots.get(n, false) }
   override Bool isEmpty() { slots.isEmpty }
   override Bool has(Str n) { slots.get(n, false) != null }
   override Bool missing(Str n) {  slots.get(n, false) == null }

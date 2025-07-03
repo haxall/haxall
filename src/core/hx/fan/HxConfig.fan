@@ -30,7 +30,7 @@ const class HxConfig
   Bool has(Str name) { meta.has(name) }
 
   ** Convenience for 'meta.get'
-  Obj? get(Str name, Obj? def := null) { meta.get(name, def) }
+  Obj? get(Str name) { meta.get(name) }
 
   ** Construct an service provider interface instance from given key
   Obj makeSpi(Str key)

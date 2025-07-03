@@ -89,19 +89,19 @@ const class MSpec
 
   const static Ref specSpecRef := Ref("sys::Spec")
 
-  Obj? get(Str name, Obj? def := null)
+  Obj? get(Str name)
   {
     if (name == "id")   return id
     if (name == "spec") return specSpecRef
     if (isType)
     {
-      if (name == "base") return base?.id ?: def
+      if (name == "base") return base?.id
     }
     else
     {
       if (name == "type") return type.id
     }
-    return meta.get(name, def)
+    return meta.get(name)
   }
 
   Bool has(Str name)
@@ -154,7 +154,7 @@ const class MSpec
 
   override Obj? trap(Str name, Obj?[]? args := null)
   {
-    val := get(name, null)
+    val := get(name)
     if (val != null) return val
     return meta.trap(name, args)
   }
@@ -226,7 +226,7 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final Bool isEmpty() { false }
 
-  @Operator override final Obj? get(Str n, Obj? d := null) { m.get(n, d) }
+  @Operator override final Obj? get(Str n) { m.get(n) }
 
   override final Bool has(Str n) { m.has(n) }
 

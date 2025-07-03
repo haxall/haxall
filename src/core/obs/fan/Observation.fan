@@ -54,11 +54,11 @@ internal const class MObservation : Observation
 
   override Bool isEmpty() { false }
 
-  @Operator override Obj? get(Str name, Obj? def := null)
+  @Operator override Obj? get(Str name)
   {
     if (name == "type") return type
     if (name == "ts")   return ts
-    return more.get(name, def)
+    return more.get(name)
   }
 
   override Obj? trap(Str name, Obj?[]? args := null)

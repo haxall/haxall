@@ -199,7 +199,7 @@ internal class Fitter
 
       if (slotType.isQuery) return fitsQuery(dict, slot)
 
-      val := dict.get(slot.name, null)
+      val := dict.get(slot.name)
 
       if (val == null)
       {

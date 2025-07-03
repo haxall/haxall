@@ -49,8 +49,8 @@ class MqttDispatch : ConnDispatch, ClientListener
       it.serverUri     = uriVal
       it.version       = verVal
       it.clientId      = clientId
-      it.maxRetry      = rec.get("mqttMaxRetry", Number.zero)->toInt
-      it.retryInterval = rec.get("mqttRetryInterval", Number(10sec))->toDuration
+      it.maxRetry      = (rec.get("mqttMaxRetry") ?: Number.zero)->toInt
+      it.retryInterval = (rec.get("mqttRetryInterval") ?: Number(10sec))->toDuration
       it.socketConfig  = SocketConfig.cur.copy {
         it.keystore       = this.mqttKey
         it.connectTimeout = 10sec

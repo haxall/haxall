@@ -18,7 +18,7 @@ internal const class EmptyDict : Dict
 {
   static const EmptyDict val := EmptyDict()
   override Bool isEmpty() { true }
-  override Obj? get(Str key, Obj? def := null) { def }
+  override Obj? get(Str name) { null }
   override Bool has(Str name) { false }
   override Bool missing(Str name) { true }
   override Void each(|Obj, Str| f) {}
@@ -37,9 +37,9 @@ internal const class MapDict : Dict
   new make(Str:Obj? tags) { this.tags = tags }
   const Str:Obj? tags
   override Bool isEmpty() { tags.isEmpty }
-  override Obj? get(Str n, Obj? def := null) { tags.get(n, def) }
-  override Bool has(Str n) { tags.get(n, null) != null }
-  override Bool missing(Str n) { tags.get(n, null) == null }
+  override Obj? get(Str n) { tags.get(n) }
+  override Bool has(Str n) { tags.get(n) != null }
+  override Bool missing(Str n) { tags.get(n) == null }
   override Void each(|Obj, Str| f)
   {
     tags.each |v, n|
@@ -72,7 +72,7 @@ internal const class NotNullMapDict : Dict
   new make(Str:Obj tags) { this.tags = tags }
   const Str:Obj tags
   override Bool isEmpty() { tags.isEmpty }
-  override Obj? get(Str n, Obj? def := null) { tags.get(n, def) }
+  override Obj? get(Str n) { tags.get(n, null) }
   override Bool has(Str n) { tags.get(n, null) != null }
   override Bool missing(Str n) { tags.get(n, null) == null }
   override Void each(|Obj, Str| f) { tags.each(f) }
@@ -93,11 +93,11 @@ internal const class NotNullMapDict : Dict
 internal abstract const class DictX : Dict
 {
   override final Bool isEmpty() { false }
-  override final Bool has(Str name) { get(name, null) != null }
-  override final Bool missing(Str name) { get(name, null) == null }
+  override final Bool has(Str name) { get(name) != null }
+  override final Bool missing(Str name) { get(name) == null }
   override final Obj? trap(Str name, Obj?[]? args := null)
   {
-    val := get(name, null)
+    val := get(name)
     if (val != null) return val
     throw UnknownNameErr(name)
   }
@@ -115,10 +115,10 @@ internal const class Dict1 : DictX
     this.n0 = n0; this.v0 = v0
   }
 
-  override Obj? get(Str name, Obj? def := null)
+  override Obj? get(Str name)
   {
     if (name == n0) return v0
-    return def
+    return null
   }
 
   override Void each(|Obj,Str| f)
@@ -155,11 +155,11 @@ internal const class Dict2 : DictX
     this.n1 = n1; this.v1 = v1
   }
 
-  override Obj? get(Str name, Obj? def := null)
+  override Obj? get(Str name)
   {
     if (name == n0) return v0
     if (name == n1) return v1
-    return def
+    return null
   }
 
   override Void each(|Obj,Str| f)
@@ -202,12 +202,12 @@ internal const class Dict3 : DictX
     this.n2 = n2; this.v2 = v2
   }
 
-  override Obj? get(Str name, Obj? def := null)
+  override Obj? get(Str name)
   {
     if (name == n0) return v0
     if (name == n1) return v1
     if (name == n2) return v2
-    return def
+    return null
   }
 
   override Void each(|Obj,Str| f)
@@ -256,13 +256,13 @@ internal const class Dict4 : DictX
     this.n3 = n3; this.v3 = v3
   }
 
-  override Obj? get(Str name, Obj? def := null)
+  override Obj? get(Str name)
   {
     if (name == n0) return v0
     if (name == n1) return v1
     if (name == n2) return v2
     if (name == n3) return v3
-    return def
+    return null
   }
 
   override Void each(|Obj,Str| f)
@@ -317,14 +317,14 @@ internal const class Dict5 : DictX
     this.n4 = n4; this.v4 = v4
   }
 
-  override Obj? get(Str name, Obj? def := null)
+  override Obj? get(Str name)
   {
     if (name == n0) return v0
     if (name == n1) return v1
     if (name == n2) return v2
     if (name == n3) return v3
     if (name == n4) return v4
-    return def
+    return null
   }
 
   override Void each(|Obj,Str| f)
@@ -385,7 +385,7 @@ internal const class Dict6 : DictX
     this.n5 = n5; this.v5 = v5
   }
 
-  override Obj? get(Str name, Obj? def := null)
+  override Obj? get(Str name)
   {
     if (name == n0) return v0
     if (name == n1) return v1
@@ -393,7 +393,7 @@ internal const class Dict6 : DictX
     if (name == n3) return v3
     if (name == n4) return v4
     if (name == n5) return v5
-    return def
+    return null
   }
 
   override Void each(|Obj,Str| f)
@@ -451,7 +451,7 @@ abstract const class WrapDict : Dict
 {
   new make(Dict wrapped) { this.wrapped = normalize(wrapped) }
   const Dict wrapped
-  @Operator override Obj? get(Str n, Obj? def := null) { wrapped.get(n, def) }
+  @Operator override Obj? get(Str n) { wrapped.get(n) }
   override Bool isEmpty() { wrapped.isEmpty }
   override Bool has(Str n) { wrapped.has(n) }
   override Bool missing(Str n) { wrapped.missing(n) }
@@ -473,15 +473,15 @@ abstract const class FieldDict : Dict
 {
   override Bool isEmpty() { false }
 
-  override Bool has(Str n) { get(n, null) != null }
+  override Bool has(Str n) { get(n) != null }
 
-  override Bool missing(Str n) { get(n, null) == null }
+  override Bool missing(Str n) { get(n) == null }
 
-  override Obj? get(Str n, Obj? def := null)
+  override Obj? get(Str n)
   {
     field := typeof.field(n, false)
-    if (field != null && !field.isStatic) return field.get(this) ?: def
-    return def
+    if (field != null && !field.isStatic) return field.get(this)
+    return null
   }
 
   override Void each(|Obj val, Str name| f)
@@ -508,7 +508,7 @@ abstract const class FieldDict : Dict
 
   override Obj? trap(Str n, Obj?[]? args := null)
   {
-    v := get(n, null)
+    v := get(n)
     if (v != null) return v
     throw UnknownNameErr(n)
   }

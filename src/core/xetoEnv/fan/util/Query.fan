@@ -76,7 +76,7 @@ internal class Query
 
   private Dict? traverseVia(Dict subject, Spec of, Str via)
   {
-    ref := subject.get(via, null)
+    ref := subject.get(via)
     if (ref == null) return null
 
     rec := cx.xetoReadById(ref)

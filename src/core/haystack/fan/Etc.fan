@@ -820,13 +820,13 @@ const class Etc
   static Str? dictToDis(Dict dict, Str? def := "")
   {
     Obj? d
-    d = dict.get("dis", null);       if (d != null) return d.toStr
-    d = dict.get("disMacro", null);  if (d != null) return macro(d.toStr, dict)
-    d = dict.get("disKey", null);    if (d != null) return disKey(d)
-    d = dict.get("name", null);      if (d != null) return d.toStr
-    d = dict.get("def", null);       if (d != null) return d.toStr
-    d = dict.get("tag", null);       if (d != null) return d.toStr
-    id := dict.get("id", null) as Ref; if (id != null) return id.dis
+    d = dict.get("dis");       if (d != null) return d.toStr
+    d = dict.get("disMacro");  if (d != null) return macro(d.toStr, dict)
+    d = dict.get("disKey");    if (d != null) return disKey(d)
+    d = dict.get("name");      if (d != null) return d.toStr
+    d = dict.get("def");       if (d != null) return d.toStr
+    d = dict.get("tag");       if (d != null) return d.toStr
+    id := dict.get("id") as Ref; if (id != null) return id.dis
     return def
   }
 

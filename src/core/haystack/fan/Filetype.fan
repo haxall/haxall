@@ -93,10 +93,10 @@ const mixin Filetype : Def
   }
 
   ** File extension to use (without dot)
-  Str fileExt() { get("fileExt", name) }
+  Str fileExt() { get("fileExt") ?: name }
 
   ** Logical icon name
-  Str icon() { get("icon", "question") }
+  Str icon() { get("icon") ?: "question" }
 
   ** Is this a format that supports view aware exports (versus data only export)
   Bool isView() { name == "pdf" || name == "svg" || name == "html" }

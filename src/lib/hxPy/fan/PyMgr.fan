@@ -315,7 +315,7 @@ internal class PyDockerSession : PySession
 
     // run docker container
     key    := Uuid()
-    level  := ((Str)opts.get("logLevel", "WARN" )).upper
+    level  := (opts.get("logLevel")?.toStr ?: "WARN").upper
     net    := opts.get("network")
     port   := (opts.get("port") as Number)?.toInt ?: findOpenPort
     hostConfig := Str:Obj?[

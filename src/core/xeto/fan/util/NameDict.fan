@@ -28,7 +28,7 @@ native final const class NameDict  : Dict
   override Ref id()
 
   ** Get the value for the given name or 'def' if name not mapped
-  @Operator override Obj? get(Str name, Obj? def := null)
+  @Operator override Obj? get(Str name)
 
   ** Return true if this dictionary contains given name
   override Bool has(Str name)

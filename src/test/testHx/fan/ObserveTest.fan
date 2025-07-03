@@ -310,7 +310,6 @@ class ObserveTest : HxTest
     verifyEq(actual.get("type"), expected->type)
     verifyEq(actual.get("subType"), expected->subType)
     verifyEq(actual.get("foo"), null)
-    verifyEq(actual.get("foo", "-"), "-")
     verifyErr(UnknownNameErr#) { actual->foo }
 
     return expected

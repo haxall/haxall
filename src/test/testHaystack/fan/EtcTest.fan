@@ -286,7 +286,6 @@ class EtcTest : HaystackTest
 
     map["fooBar"] = "xxx"
     verifyEq(d.get("fooBar"), null)
-    verifyEq(d.get("fooBar", 8), 8)
     verifyEq(d.has("fooBar"), false)
     verifyEq(d.missing("fooBar"), true)
     verifyErr(UnknownNameErr#) { d->fooBar }

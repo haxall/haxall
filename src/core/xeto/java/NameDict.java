@@ -41,8 +41,6 @@ public abstract class NameDict extends FanObj implements Dict
 
   public Object get(String name) { return get(table.code(name), null); }
 
-  public Object get(String name, Object def) { return get(table.code(name), def); }
-
   public final Object getByCode(long code) { return get((int)code, null); }
 
   public abstract Object get(int name, Object def);
@@ -65,7 +63,7 @@ public abstract class NameDict extends FanObj implements Dict
   public final Object trap(String name) { return trap(name, (List)null); }
   public final Object trap(String name, List args)
   {
-    Object val = get(name, null);
+    Object val = get(name);
     if (val != null) return val;
     throw UnresolvedErr.make(name);
   }

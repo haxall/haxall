@@ -78,7 +78,7 @@ const class WriteObservation : Observation
 
   override Bool isEmpty() { false }
 
-  @Operator override Obj? get(Str name, Obj? def := null)
+  @Operator override Obj? get(Str name)
   {
     switch (name)
     {
@@ -92,17 +92,17 @@ const class WriteObservation : Observation
       case "who":     return who
       case "opts":    return opts
       case "first":   return first
-      default:        return def
+      default:        return null
     }
   }
 
-  override Bool has(Str name) { get(name, null) != null }
+  override Bool has(Str name) { get(name) != null }
 
   override Bool missing(Str name) { !has(name) }
 
   override Obj? trap(Str name, Obj?[]? args := null)
   {
-    get(name, null) ?: throw UnknownNameErr(name)
+    get(name) ?: throw UnknownNameErr(name)
   }
 
   override Void each(|Obj, Str| f)

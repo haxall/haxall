@@ -160,7 +160,7 @@ internal const class QueryOpts
 
   private static Int toLimit(Dict opts)
   {
-    optLimit := opts.get("limit", "not-found")
+    optLimit := opts.get("limit")
     if (optLimit is Number)
       return ((Number)optLimit).toInt
     else

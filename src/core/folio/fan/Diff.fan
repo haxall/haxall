@@ -169,10 +169,10 @@ const class Diff
 //////////////////////////////////////////////////////////////////////////
 
   ** Get tag value from old record or null.
-  Obj? getOld(Str tag, Obj? def := null) { oldRec?.get(tag, def) }
+  Obj? getOld(Str tag) { oldRec?.get(tag) }
 
   ** Get tag value from new record or null.
-  Obj? getNew(Str tag, Obj? def := null) { newRec?.get(tag, def) }
+  Obj? getNew(Str tag) { newRec?.get(tag) }
 
   ** String representation
   override Str toStr()

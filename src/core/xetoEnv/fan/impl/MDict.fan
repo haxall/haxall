@@ -28,10 +28,10 @@ const class MDictMerge1 : Dict
   const Str n0
   const Obj v0
 
-  @Operator override Obj? get(Str n, Obj? def := null)
+  @Operator override Obj? get(Str n)
   {
     if (n == n0) return v0
-    return wrapped.get(n, def)
+    return wrapped.get(n)
   }
 
   override Bool isEmpty()

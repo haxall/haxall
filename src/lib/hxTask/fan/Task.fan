@@ -131,7 +131,7 @@ const class Task : Actor, Observer, HxTask
   override Bool isEmpty() { rec.isEmpty }
 
   @Operator
-  override Obj? get(Str name, Obj? def := null) { rec.get(name, def) }
+  override Obj? get(Str name) { rec.get(name) }
 
   override Bool has(Str name) { rec.has(name) }
 

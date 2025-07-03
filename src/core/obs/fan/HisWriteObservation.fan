@@ -38,7 +38,7 @@ const class HisWriteObservation : Observation
 
   override Bool isEmpty() { false }
 
-  @Operator override Obj? get(Str name, Obj? def := null)
+  @Operator override Obj? get(Str name)
   {
     switch (name)
     {
@@ -48,8 +48,8 @@ const class HisWriteObservation : Observation
       case "rec":   return rec
       case "count": return count
       case "span":  return span
-      case "user":  return user ?: def
-      default:      return def
+      case "user":  return user
+      default:      return null
     }
   }
 
@@ -59,7 +59,7 @@ const class HisWriteObservation : Observation
 
   override Obj? trap(Str name, Obj?[]? args := null)
   {
-    get(name, null) ?: throw UnknownNameErr(name)
+    get(name) ?: throw UnknownNameErr(name)
   }
 
   override Void each(|Obj, Str| f)

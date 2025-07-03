@@ -17,14 +17,14 @@ const mixin Dict
   ** Get the 'id' tag as a Ref or raise CastErr/UnknownNameErr
   virtual Ref id()
   {
-    get("id", null) ?: throw UnknownNameErr("id")
+    get("id") ?: throw UnknownNameErr("id")
   }
 
   ** Return if the there are no name/value pairs
   abstract Bool isEmpty()
 
-  ** Get the value for the given name or 'def' if name not mapped
-  @Operator abstract Obj? get(Str name, Obj? def := null)
+  ** Get the value for the given name or 'null' if name not mapped
+  @Operator abstract Obj? get(Str name)
 
   ** Return true if this dictionary contains given name
   abstract Bool has(Str name)

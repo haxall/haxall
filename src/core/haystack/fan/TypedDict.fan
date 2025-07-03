@@ -77,7 +77,7 @@ const class TypedDict : Dict
   private const Dict metaRef
 
   ** Get a tag from wrapped dict
-  @Operator override Obj? get(Str n, Obj? def := null) { meta.get(n, def) }
+  @Operator override Obj? get(Str n) { meta.get(n) }
 
   ** Return if wrapped dict is empty
   override Bool isEmpty() { meta.isEmpty }

@@ -69,7 +69,7 @@ class ObixDispatch : ConnDispatch
     client.log = log
     client.socketConfig = sockConfig
     client.readLobby
-    isNiagara = rec.get("productName", "").toStr.contains("Niagara")
+    isNiagara = (rec.get("productName") ?: "").toStr.contains("Niagara")
   }
 
   override Void onClose()

@@ -359,7 +359,6 @@ class UtilTest : AbstractXetoTest
     {
       verifyEq(d.get(n), v)
       verifyEq(x.get(n), v)
-      verifyEq(d.get(n, "bad"), v)
       verifyEq(d.has(n), true)
       verifyEq(d.missing(n), false)
       verifyEq(d.trap(n), v)
@@ -403,7 +402,6 @@ class UtilTest : AbstractXetoTest
 
     // missing
     verifyEq(d.get("bad"), null)
-    verifyEq(d.get("bad", "def"), "def")
     verifyEq(d.has("bad"), false)
     verifyEq(d.missing("bad"), true)
 
