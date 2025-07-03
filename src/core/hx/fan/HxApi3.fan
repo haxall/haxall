@@ -124,7 +124,7 @@ internal class HxDefsOp : HxApiOp
     return Etc.makeDictsGrid(meta, acc)
   }
 
-  virtual Void eachDef(HxContext cx, |Def| f) { cx.ns.eachDef(f) }
+  virtual Void eachDef(HxContext cx, |Def| f) { cx.defs.eachDef(f) }
 }
 
 **************************************************************************
@@ -133,7 +133,7 @@ internal class HxDefsOp : HxApiOp
 
 internal class HxFiletypesOp : HxDefsOp
 {
-  override Void eachDef(HxContext cx, |Def| f) { cx.ns.filetypes.each(f) }
+  override Void eachDef(HxContext cx, |Def| f) { cx.defs.filetypes.each(f) }
 }
 
 **************************************************************************
@@ -142,7 +142,7 @@ internal class HxFiletypesOp : HxDefsOp
 
 internal class HxLibsOp : HxDefsOp
 {
-  override Void eachDef(HxContext cx, |Def| f) { cx.ns.libsList.each(f) }
+  override Void eachDef(HxContext cx, |Def| f) { cx.defs.libsList.each(f) }
 }
 
 **************************************************************************
@@ -151,7 +151,7 @@ internal class HxLibsOp : HxDefsOp
 
 internal class HxOpsOp : HxDefsOp
 {
-  override Void eachDef(HxContext cx, |Def| f) { cx.ns.feature("op").eachDef(f) }
+  override Void eachDef(HxContext cx, |Def| f) { cx.defs.feature("op").eachDef(f) }
 }
 
 **************************************************************************

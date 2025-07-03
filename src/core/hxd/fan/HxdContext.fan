@@ -72,7 +72,7 @@ class HxdContext : HxContext
 
   override const HxdRuntime rt
 
-  override DefNamespace ns() { rt.ns }
+  override DefNamespace defs() { rt.ns }
 
   override Folio db() { rt.db }
 
@@ -89,7 +89,7 @@ class HxdContext : HxContext
   override Dict about()
   {
     tags := Str:Obj?[:] { ordered = true }
-    tags["haystackVersion"] = ns.lib("ph").version.toStr
+    tags["haystackVersion"] = defs.lib("ph").version.toStr
     tags["serverName"]      = Env.cur.host
     tags["serverBootTime"]  = DateTime.boot
     tags["serverTime"]      = DateTime.now
@@ -127,7 +127,7 @@ class HxdContext : HxContext
   @NoDoc override Dict? deref(Ref id) { db.readById(id, false) }
 
   ** Return inference engine used for def aware filter queries
-  @NoDoc override once FilterInference inference() { MFilterInference(ns) }
+  @NoDoc override once FilterInference inference() { MFilterInference(defs) }
 
   ** Return contextual data as dict
   @NoDoc override Dict toDict()
@@ -162,7 +162,7 @@ class HxdContext : HxContext
   ** Find top-level function by qname or name
   @NoDoc override Fn? findTop(Str name, Bool checked := true)
   {
-    def := ns.def("func:${name}", false)
+    def := defs.def("func:${name}", false)
     if (def == null)
     {
       if (checked) throw UnknownFuncErr(name)

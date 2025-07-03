@@ -588,7 +588,7 @@ const class HxCoreFuncs
     gb.addCol("observable").addCol("subscriptions").addCol("doc")
     cx.rt.obs.list.each |o|
     {
-      doc := cx.ns.def(o.name, false)?.get("doc") ?: ""
+      doc := cx.defs.def(o.name, false)?.get("doc") ?: ""
       gb.addRow([o.name, Number(o.subscriptions.size), doc])
     }
     return gb.toGrid

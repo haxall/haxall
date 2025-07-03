@@ -43,10 +43,10 @@ abstract class AxonContext : HaystackContext, CompContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Definition namespace
-  abstract DefNamespace ns()
+  abstract DefNamespace defs()
 
   ** Xeto namespace
-  virtual LibNamespace xeto() { ns.xeto }
+  virtual LibNamespace xeto() { defs.xeto }
 
   ** CompContext current time
   override once DateTime now() { DateTime.now(null) }

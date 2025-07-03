@@ -1981,47 +1981,47 @@ const class CoreLib
   ** representation.
   @Axon static Def? def(Obj symbol, Bool checked := true)
   {
-    symbol as Def ?: AxonContext.curAxon.ns.def(symbol.toStr, checked)
+    symbol as Def ?: AxonContext.curAxon.defs.def(symbol.toStr, checked)
   }
 
   ** List all definitions in the context namespace as Def[].
   @Axon static Def[] defs()
   {
-    AxonContext.curAxon.ns.defs.sort
+    AxonContext.curAxon.defs.defs.sort
   }
 
   ** List tag definitions in the context namespace as Def[].
   @Axon static Def[] tags()
   {
-    defs := AxonContext.curAxon.ns.findDefs |d| { d.symbol.type.isTag }
+    defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isTag }
     return defs.sort
   }
 
   ** List term definitions (tags and conjuncts) in the context namespace as Def[].
   @Axon static Def[] terms()
   {
-    defs := AxonContext.curAxon.ns.findDefs |d| { d.symbol.type.isTerm }
+    defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isTerm }
     return defs.sort
   }
 
   ** List conjunct definitions in the context namespace as Def[].
   @Axon static Def[] conjuncts()
   {
-    defs := AxonContext.curAxon.ns.findDefs |d| { d.symbol.type.isConjunct }
+    defs := AxonContext.curAxon.defs.findDefs |d| { d.symbol.type.isConjunct }
     return defs.sort
   }
 
   ** List the lib definitions in the context namespace as Def[].
   @Axon static Def[] libs()
   {
-    AxonContext.curAxon.ns.feature("lib").defs.sort
+    AxonContext.curAxon.defs.feature("lib").defs.sort
   }
 
   ** Return declared supertypes of the given def.  The result
   ** is effectively the resolved defs of the "is" meta tag.
   @NoDoc @Axon static Def[] supertypes(Obj d)
   {
-    AxonContext.curAxon.ns.supertypes(def(d))
+    AxonContext.curAxon.defs.supertypes(def(d))
   }
 
   ** Return all declared subtypes of the given def.  This is
@@ -2029,13 +2029,13 @@ const class CoreLib
   ** Feature keys are not included in results.
   @NoDoc @Axon static Def[] subtypes(Obj d)
   {
-    AxonContext.curAxon.ns.subtypes(def(d))
+    AxonContext.curAxon.defs.subtypes(def(d))
   }
 
   ** Return if the given def has subtypes.
   @NoDoc @Axon static Bool hasSubtypes(Obj d)
   {
-    AxonContext.curAxon.ns.hasSubtypes(def(d))
+    AxonContext.curAxon.defs.hasSubtypes(def(d))
   }
 
   ** Return a flatten list of all supertypes of the given def.  This
@@ -2043,46 +2043,46 @@ const class CoreLib
   ** complete set of all defs implemented by the given def.
   @NoDoc @Axon static Def[] inheritance(Obj d)
   {
-    AxonContext.curAxon.ns.inheritance(def(d))
+    AxonContext.curAxon.defs.inheritance(def(d))
   }
 
   ** Return list of defs for given association on the parent.
   ** Association define ontological relationships between definitions.
   @NoDoc @Axon static Def[] associations(Obj parent, Obj association)
   {
-    AxonContext.curAxon.ns.associations(def(parent), def(association))
+    AxonContext.curAxon.defs.associations(def(parent), def(association))
   }
 
   ** Return list of tags to apply to implement the given def
   @NoDoc @Axon static Def[] implement(Obj d)
   {
-    AxonContext.curAxon.ns.implement(def(d))
+    AxonContext.curAxon.defs.implement(def(d))
   }
 
   ** Reflect the given subject dict into the list of its implemented Def[]
   @NoDoc @Axon static Def[] reflect(Dict dict)
   {
-    AxonContext.curAxon.ns.reflect(dict).defs
+    AxonContext.curAxon.defs.reflect(dict).defs
   }
 
   ** Generate a child prototype for the given parent dict.  This call
   ** will automatically apply childrenFlatten tags and parent refs.
   @NoDoc @Axon Dict proto(Dict parent, Dict proto)
   {
-    AxonContext.curAxon.ns.proto(parent, proto)
+    AxonContext.curAxon.defs.proto(parent, proto)
   }
 
   ** Generate a list of children prototypes for the given parent
   ** dict based on all its reflected defs.
   @NoDoc @Axon static Dict[] protos(Dict parent)
   {
-    AxonContext.curAxon.ns.protos(parent)
+    AxonContext.curAxon.defs.protos(parent)
   }
 
   ** Return timestamp of the current namespace
   @NoDoc @Axon static DateTime nsTimestamp()
   {
-    AxonContext.curAxon.ns.ts
+    AxonContext.curAxon.defs.ts
   }
 
 //////////////////////////////////////////////////////////////////////////

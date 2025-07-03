@@ -575,9 +575,9 @@ const class IOFuncs
     cx := curContext
     if (arg == null) arg = Etc.emptyDict
     if (cx.rt.platform.isShell) return Etc.emptyDict
-    filetype := cx.ns.filetype("json")
+    filetype := cx.defs.filetype("json")
     settings := cx.rt.lib("io").rec
-    return filetype.ioOpts(cx.ns, null, arg, settings)
+    return filetype.ioOpts(cx.defs, null, arg, settings)
   }
 
   **
@@ -661,7 +661,7 @@ const class IOFuncs
     grid := toDataGrid(val)
     return toHandle(handle).withOut |out|
     {
-      TurtleWriter(out, Etc.dict1("ns", curContext.ns)).writeGrid(grid)
+      TurtleWriter(out, Etc.dict1("ns", curContext.defs)).writeGrid(grid)
     }
   }
 
@@ -673,7 +673,7 @@ const class IOFuncs
     grid := toDataGrid(val)
     return toHandle(handle).withOut |out|
     {
-      JsonLdWriter(out, Etc.dict1("ns", curContext.ns)).writeGrid(grid)
+      JsonLdWriter(out, Etc.dict1("ns", curContext.defs)).writeGrid(grid)
     }
   }
 

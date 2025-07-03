@@ -47,7 +47,7 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
       }
 
       // otherwise map to op def for Haxall 3.x legacy style
-      opDef := cx.ns.def("op:$opName", false)
+      opDef := cx.defs.def("op:$opName", false)
       if (opDef == null) return res.sendErr(404)
 
       // instantiate subclass of HxApiOp

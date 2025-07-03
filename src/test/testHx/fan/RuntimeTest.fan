@@ -202,8 +202,8 @@ class RuntimeTest : HxTest
   {
     // verify via Axon eval
     cx := makeContext
-    verifyEq(cx.ns.def("func:today").lib.name, "axon")
-    verifyEq(cx.ns.def("func:libAdd").lib.name, "hx")
+    verifyEq(cx.defs.def("func:today").lib.name, "axon")
+    verifyEq(cx.defs.def("func:libAdd").lib.name, "hx")
     verifyEq(cx.eval("today()"), Date.today)
 
     // sysmod functions
@@ -211,7 +211,7 @@ class RuntimeTest : HxTest
 
     // add library
     cx.eval("libAdd(\"math\")")
-    verifyEq(cx.ns.def("func:sqrt").lib.name, "math")
+    verifyEq(cx.defs.def("func:sqrt").lib.name, "math")
     verifyEq(cx.eval("sqrt(16)"), n(4))
 
     // verify funcs thru Fantom APIs

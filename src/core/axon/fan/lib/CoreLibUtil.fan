@@ -69,7 +69,7 @@ internal const class CoreLibUtil
 
     // iterate the namespace: skip nodoc and filter mismatches
     acc := Dict[,]
-    cx.ns.feature("func").eachDef |def|
+    cx.defs.feature("func").eachDef |def|
     {
       if (def.has("nodoc")) return
       if (filter != null && !filter.matches(def, cx)) return
@@ -166,7 +166,7 @@ internal const class CoreLibUtil
   private static Dict fnToDict(AxonContext cx, TopFn fn)
   {
     dict := fn.meta
-    if (dict.missing("lib")) dict = cx.ns.def("func:${fn.name}")
+    if (dict.missing("lib")) dict = cx.defs.def("func:${fn.name}")
     return Etc.dictRemove(dict, "src")
   }
 }

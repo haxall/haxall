@@ -181,7 +181,7 @@ class ShellContext : HxContext
   override const ShellRuntime rt
 
   ** Def namespace
-  override DefNamespace ns() { rt.ns }
+  override DefNamespace defs() { rt.ns }
 
   ** In-memory folio database
   override ShellFolio db() { rt.db }
@@ -223,7 +223,7 @@ class ShellContext : HxContext
   override Dict? deref(Ref id) { db.readById(id, false) }
 
   ** Return inference engine used for def aware filter queries
-  override once FilterInference inference() { MFilterInference(ns) }
+  override once FilterInference inference() { MFilterInference(defs) }
 
   ** Return contextual data as dict
   override Dict toDict()

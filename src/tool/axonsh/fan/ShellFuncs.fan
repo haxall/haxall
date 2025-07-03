@@ -165,7 +165,7 @@ const class ShellFuncs
     }
 
     out.printLine
-    cx.ns.xeto.versions.sort.each |x| { out.printLine("$x.name [$x.version]") }
+    cx.xeto.versions.sort.each |x| { out.printLine("$x.name [$x.version]") }
     out.printLine
     return noEcho
   }

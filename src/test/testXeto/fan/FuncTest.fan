@@ -170,7 +170,7 @@ class TestAxonContext : AxonContext
 // AxonContext
 //////////////////////////////////////////////////////////////////////////
 
-  override DefNamespace ns() { throw unsupported }
+  override DefNamespace defs() { throw unsupported }
 
   override const LibNamespace xeto
 
