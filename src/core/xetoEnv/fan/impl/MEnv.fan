@@ -19,7 +19,7 @@ abstract const class MEnv : XetoEnv
 {
   static XetoEnv init()
   {
-    if (Env.cur.runtime == "js")
+    if (Env.cur.isBrowser)
       return BrowserEnv()
     else
       return Slot.findMethod("xetoEnv::ServerEnv.initPath").call
