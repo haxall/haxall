@@ -57,7 +57,7 @@ class CProto
     return s.toStr
   }
 
-  ** Prototype tags from Namespace.proto
+  ** Prototype tags from DefNamespace.proto
   const Dict dict
 
   ** Unique hash key without regard to tag ordering

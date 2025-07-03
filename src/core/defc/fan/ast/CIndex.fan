@@ -94,15 +94,15 @@ class CIndex
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Namespace
+// DefNamespace
 //////////////////////////////////////////////////////////////////////////
 
   Bool hasProtos() { protosRef != null }
   CProto[] protos() { protosRef ?: throw Err("Protos not avail") }
   internal CProto[]? protosRef
 
-  Namespace ns() { nsRef ?: throw Err("Namespace not avail") }
-  internal Namespace? nsRef
+  DefNamespace ns() { nsRef ?: throw Err("Namespace not avail") }
+  internal DefNamespace? nsRef
 
   CDef[] nsMap(Def[] list)
   {

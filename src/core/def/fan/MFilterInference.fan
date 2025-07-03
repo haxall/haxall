@@ -23,7 +23,7 @@ using haystack
 class MFilterInference : FilterInference
 {
   ** Constructor
-  new make(Namespace ns) { this.ns = ns }
+  new make(DefNamespace ns) { this.ns = ns }
 
   ** Return if subject is-a type - if the given symbol
   ** implements the term or any of is descendants
@@ -44,7 +44,7 @@ class MFilterInference : FilterInference
     return cur.matches(subject)
   }
 
-  private const Namespace ns
+  private const DefNamespace ns
   private MFilterInferenceSymbol? cur
   private MFilterInferenceSymbol[] cache := [,]
 }
@@ -57,13 +57,13 @@ class MFilterInference : FilterInference
 internal class MFilterInferenceSymbol
 {
   ** Construct support instance for given namespace and def
-  new make(Namespace ns, Symbol symbol)
+  new make(DefNamespace ns, Symbol symbol)
   {
     this.symbol = symbol
     this.descendants = findDescendants(ns, symbol)
   }
 
-  private static Symbol[] findDescendants(Namespace ns, Symbol symbol)
+  private static Symbol[] findDescendants(DefNamespace ns, Symbol symbol)
   {
     // lookup def and if not found we just use symbol itself
     def := ns.def(symbol.toStr, false)
@@ -78,7 +78,7 @@ internal class MFilterInferenceSymbol
     return acc.vals
   }
 
-  private static Void doFindDescendants(Str:Symbol acc, Namespace ns, Def def)
+  private static Void doFindDescendants(Str:Symbol acc, DefNamespace ns, Def def)
   {
     key := def.symbol.toStr
     if (acc.containsKey(key)) return

@@ -55,7 +55,7 @@ class DefCompiler
   ** Default input libraries
   CompilerInput[] inputs := CompilerInput.makeDefaults
 
-  ** Factory to use for building Namespace and Features
+  ** Factory to use for building DefNamespace and Features
   DefFactory factory := DefFactory()
 
   ** Factory to create DefDocEnv if generating documentation
@@ -74,8 +74,8 @@ class DefCompiler
     runBackend([,]).index
   }
 
-  ** Compile to a Namespace instance
-  Namespace compileNamespace()
+  ** Compile to a DefNamespace instance
+  DefNamespace compileNamespace()
   {
     runBackend(DefCompilerStep[,]).ns
   }
@@ -262,7 +262,7 @@ class DefCompiler
   internal CSymbol:CLib libs := [:]     // Scan
   internal Str:DocPod manuals := [:]    // Scan
   internal CIndex? index                // Index
-  Namespace? ns                         // GenNamespace
+  DefNamespace? ns                      // GenNamespace
   DefDocEnv? docEnv                     // GenDocEnv
   internal Grid? defsGrid               // GenDefsGrid
   internal Grid? protosGrid             // GenProtosGrid

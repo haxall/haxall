@@ -181,7 +181,7 @@ class ShellContext : HxContext
   override const ShellRuntime rt
 
   ** Def namespace
-  override Namespace ns() { rt.ns }
+  override DefNamespace ns() { rt.ns }
 
   ** In-memory folio database
   override ShellFolio db() { rt.db }

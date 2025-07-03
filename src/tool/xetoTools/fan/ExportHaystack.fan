@@ -37,7 +37,7 @@ internal abstract class ExportHaystack : ExportCmd
     t.toStr + ".${filetype.fileExt}"
   }
 
-  once Namespace defns()
+  once DefNamespace defns()
   {
     // TODO: use defc until convert everything over to xeto
     DefCompiler().compileNamespace

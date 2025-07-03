@@ -45,7 +45,7 @@ const class MFeature : Feature
   const Str prefix
 
   ** Parent namespace
-  Namespace ns() { nsRef.val }
+  DefNamespace ns() { nsRef.val }
   private const AtomicRef nsRef
 
 //////////////////////////////////////////////////////////////////////////

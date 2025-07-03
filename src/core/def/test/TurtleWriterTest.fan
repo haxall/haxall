@@ -3,17 +3,17 @@ using haystack
 class TurtleWriterTest : Test
 {
   Buf b := Buf()
-  TurtleWriter turtle(Namespace ns := compile, Buf buf := b)
+  TurtleWriter turtle(DefNamespace ns := compile, Buf buf := b)
   {
     TurtleWriter(buf.clear.out, Etc.makeDict1("ns", ns))
   }
 
-  JsonLdWriter jsonld(Namespace ns := compile, Buf buf := b)
+  JsonLdWriter jsonld(DefNamespace ns := compile, Buf buf := b)
   {
     JsonLdWriter(buf.clear.out, Etc.makeDict1("ns", ns))
   }
 
-  Namespace compile()
+  DefNamespace compile()
   {
     c := Type.find("defc::DefCompiler").make
     c->log->level = LogLevel.err
@@ -48,3 +48,4 @@ class TurtleWriterTest : Test
 
   }
 }
+

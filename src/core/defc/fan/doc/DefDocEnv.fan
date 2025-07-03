@@ -39,7 +39,7 @@ const class DefDocEnv : DocEnv
 //////////////////////////////////////////////////////////////////////////
 
   ** Underlying namespace of defs
-  const Namespace ns
+  const DefNamespace ns
 
   ** Timestamp when docs generated
   const DateTime ts
@@ -366,7 +366,8 @@ const class DefDocEnv : DocEnv
 class DefDocEnvInit
 {
   new make(|This| f) { f(this) }
-  Namespace ns
+  DefNamespace ns
   Str:DocSpace spacesMap
   Str:DocDef defsMap
 }
+

@@ -24,7 +24,7 @@ using haystack
   {
     if (opts == null) opts = Etc.emptyDict
     this.out = out
-    this.ns  = opts["ns"] as Namespace ?: throw ArgErr("Opts must include ns")
+    this.ns  = opts["ns"] as DefNamespace ?: throw ArgErr("Opts must include ns")
     out.setNs("owl", "http://www.w3.org/2002/07/owl#")
   }
 
@@ -33,7 +33,7 @@ using haystack
 //////////////////////////////////////////////////////////////////////////
 
   private RdfOutStream out
-  private Namespace ns
+  private DefNamespace ns
 
   ** Maps symbol libraries that are used in the grid.
   protected [Str:DefLib] libs := [:]

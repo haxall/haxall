@@ -41,7 +41,7 @@ const mixin HxRuntime : HxStdServices
   abstract File dir()
 
   ** Namespace of definitions
-  abstract Namespace ns()
+  abstract DefNamespace ns()
 
   ** Folio database for this runtime
   abstract Folio db()

@@ -11,7 +11,7 @@ using xeto
 using haystack
 
 **
-** Generator for Namespace.proto
+** Generator for DefNamespace.proto
 **
 @NoDoc @Js
 internal class MPrototyper

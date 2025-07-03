@@ -32,9 +32,9 @@ abstract class HaystackTest : Test
 
   ** Access test namespace.  We assume running in a
   ** SkySpark test environment and route to ProjTest
-  @NoDoc virtual Namespace ns()
+  @NoDoc virtual DefNamespace ns()
   {
-    ns := nsDefaultRef.val as Namespace
+    ns := nsDefaultRef.val as DefNamespace
     if (ns == null)
     {
       // try as SkySpark environment first

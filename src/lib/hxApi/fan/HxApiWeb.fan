@@ -20,7 +20,7 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
 
   override const HxLib lib
 
-  override Namespace ns() { lib.rt.ns }
+  override DefNamespace ns() { lib.rt.ns }
 
   override Void onService()
   {
@@ -119,7 +119,7 @@ const class HxApiWeb : HxLibWeb, WebOpUtil
 
 internal const class HxApiOpSpiImpl : WebOpUtil, HxApiOpSpi
 {
-  new make(Namespace ns, Def def)
+  new make(DefNamespace ns, Def def)
   {
     this.ns  = ns
     this.name = def.name
@@ -145,7 +145,7 @@ internal const class HxApiOpSpiImpl : WebOpUtil, HxApiOpSpi
     doWriteRes(req, res, grid)
   }
 
-  override const Namespace ns
+  override const DefNamespace ns
   override const Str name
   override const Def def
 }

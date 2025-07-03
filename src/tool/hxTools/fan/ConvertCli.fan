@@ -85,6 +85,6 @@ internal class ConvertCli : HxCli
   private Dict nsOpts() {  Etc.dict1("ns", ns) }
 
   // TODO
-  private Namespace ns() { throw Err("Namespace formats not supported yet") }
+  private DefNamespace ns() { throw Err("Namespace formats not supported yet") }
 }
 

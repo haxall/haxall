@@ -87,7 +87,7 @@ const final class ConnModel
     this.features = Etc.makeDict(f)
   }
 
-  private static Def? def(Namespace ns, ConnLib lib, Str symbol, Bool checked := true)
+  private static Def? def(DefNamespace ns, ConnLib lib, Str symbol, Bool checked := true)
   {
     def := ns.def(symbol, false)
     if (def == null)

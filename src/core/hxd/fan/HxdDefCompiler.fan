@@ -233,7 +233,7 @@ internal const class FuncCompReflectInput : FuncReflectInput
 
 const class HxdOverlayCompiler
 {
-  new make(HxdRuntime rt, Namespace base)
+  new make(HxdRuntime rt, DefNamespace base)
   {
     this.rt = rt
     this.base = base
@@ -242,11 +242,11 @@ const class HxdOverlayCompiler
   }
 
   const HxdRuntime rt
-  const Namespace base
+  const DefNamespace base
   const Log log
   const Symbol libSymbol
 
-  Namespace compileNamespace()
+  DefNamespace compileNamespace()
   {
     acc := Str:Obj[:]
     acc["def"] = libSymbol

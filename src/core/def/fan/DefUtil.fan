@@ -132,7 +132,7 @@ class DefUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Iterate each tag def in given term
-  static Void eachTag(Namespace ns, Def term, |Def| f)
+  static Void eachTag(DefNamespace ns, Def term, |Def| f)
   {
     if (term.symbol.type.isConjunct)
     {
@@ -149,7 +149,7 @@ class DefUtil
   }
 
   ** Tags to add to implement given def
-  static Def[] implement(Namespace ns, Def def)
+  static Def[] implement(DefNamespace ns, Def def)
   {
     // add myself
     acc := Str:Def[:] { ordered = true }
@@ -263,7 +263,7 @@ class DefUtil
   ** The unique base types in the given def list.  Any defs which have
   ** one of their supertypes in the list are excluded. For example given
   ** a list of 'equip,ahu,vav' return just 'equip'
-  static Def[] findBaseDefs(Namespace ns, Def[] defs)
+  static Def[] findBaseDefs(DefNamespace ns, Def[] defs)
   {
     bySymbol := Str:Def[:].setList(defs) { it.symbol.toStr }
     return defs.exclude |def|
@@ -273,14 +273,14 @@ class DefUtil
   }
 
   ** Resolve a single Symbol/Str to a Def or return null if any error
-  static Def? resolve(Namespace ns, Obj? val)
+  static Def? resolve(DefNamespace ns, Obj? val)
   {
     if (val == null) return null
     return ns.def(val.toStr, false)
   }
 
   ** Resolve list of Symbol/Str keys to Def[].  Silently ignore errors.
-  static Def[] resolveList(Namespace ns, Obj? val)
+  static Def[] resolveList(DefNamespace ns, Obj? val)
   {
     if (val == null) return Def#.emptyList
     acc := Def[,]

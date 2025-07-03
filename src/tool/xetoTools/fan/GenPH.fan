@@ -715,7 +715,7 @@ internal class GenPH : AbstractGenCmd
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private Namespace? ns    // compileNamespace
+  private DefNamespace? ns // compileNamespace
   private DefLib? ph       // compileNamespace
 }
 

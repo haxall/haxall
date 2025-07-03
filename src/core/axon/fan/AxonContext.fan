@@ -43,7 +43,7 @@ abstract class AxonContext : HaystackContext, CompContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Definition namespace
-  abstract Namespace ns()
+  abstract DefNamespace ns()
 
   ** Xeto namespace
   virtual LibNamespace xeto() { ns.xeto }

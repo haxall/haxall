@@ -21,7 +21,7 @@ using xeto
 //////////////////////////////////////////////////////////////////////////
 
   ** Namespace to use for filetypes
-  abstract Namespace ns()
+  abstract DefNamespace ns()
 
   ** Lookup filetype for the given mime type or null
   virtual Filetype? toFiletype(MimeType mime)

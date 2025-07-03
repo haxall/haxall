@@ -53,7 +53,7 @@ const class MOverlayLib : MLib
 @NoDoc @Js
 class BOverlayLib
 {
-  new make(Namespace base, Dict meta)
+  new make(DefNamespace base, Dict meta)
   {
     // verify "lib:foo" key
     symbol := (Symbol)meta->def
@@ -141,7 +141,7 @@ class BOverlayLib
     return MDef(b)
   }
 
-  internal const Namespace base
+  internal const DefNamespace base
   internal const Symbol symbol
   internal const Dict meta
   internal const AtomicRef libRef := AtomicRef()

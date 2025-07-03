@@ -26,7 +26,7 @@ abstract class DefCompilerStep
 
   CIndexEtc etc() { compiler.index.etc }
 
-  Namespace ns() { compiler.ns }
+  DefNamespace ns() { compiler.ns }
 
   DefDocEnv docEnv() { compiler.docEnv }
 

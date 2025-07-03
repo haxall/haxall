@@ -41,7 +41,7 @@ const class MOverlayNamespace : MNamespace
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(Namespace base, MOverlayLib? olib, XetoGetter xetoGetter, |DefLib->Bool| enabled)
+  new make(DefNamespace base, MOverlayLib? olib, XetoGetter xetoGetter, |DefLib->Bool| enabled)
   {
     ref := AtomicRef(this)
     this.base        = base
@@ -54,7 +54,7 @@ const class MOverlayNamespace : MNamespace
     this.featuresMap = Str:Feature[:].addList(this.features) { it.name }
   }
 
-  private static DefLib[] toLibsList(Namespace base, Bool[] enabled, MOverlayLib? olib)
+  private static DefLib[] toLibsList(DefNamespace base, Bool[] enabled, MOverlayLib? olib)
   {
     acc := base.libsList.findAll |lib| { enabled[lib.index] }
     if (olib != null) acc.add(olib)
@@ -82,7 +82,7 @@ const class MOverlayNamespace : MNamespace
   override MQuick quick() { base.quick }
 
 //////////////////////////////////////////////////////////////////////////
-// Namespace
+// DefNamespace
 //////////////////////////////////////////////////////////////////////////
 
   override const XetoGetter xetoGetter

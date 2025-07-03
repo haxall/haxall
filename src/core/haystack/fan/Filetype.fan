@@ -73,7 +73,7 @@ const mixin Filetype : Def
   **  - mime: if HTTP op, can be used to pick version fallbacks
   **  - arg: explicit opts argument such as ioReadJson options
   **  - settings: library settings used to change global defaults
-  Dict ioOpts(Namespace ns, MimeType? mime, Dict arg, Dict settings)
+  Dict ioOpts(DefNamespace ns, MimeType? mime, Dict arg, Dict settings)
   {
     if (name == "json")
     {

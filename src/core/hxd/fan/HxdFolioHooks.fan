@@ -26,7 +26,7 @@ const class HxdFolioHooks : FolioHooks
   const Folio db
 
   ** Def namespace is available
-  override Namespace? ns(Bool checked := true) { rt.ns }
+  override DefNamespace? ns(Bool checked := true) { rt.ns }
 
   ** Callback before diff is committed during verify
   ** phase. An exception will cancel entire commit.

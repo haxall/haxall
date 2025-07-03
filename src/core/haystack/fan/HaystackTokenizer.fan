@@ -607,9 +607,9 @@ class HaystackFactory
 @NoDoc @Js
 class FreeFormParser : HaystackParser
 {
-  new make(Namespace ns, Str s) : super(s) { this.ns = ns }
+  new make(DefNamespace ns, Str s) : super(s) { this.ns = ns }
 
-  const Namespace ns
+  const DefNamespace ns
 
   Dict parse()
   {

@@ -11,7 +11,7 @@ using xeto
 using haystack
 
 **
-** Namespace implementation created from DefBuilder
+** DefNamespace implementation created from DefBuilder
 **
 @NoDoc @Js
 const class MBuiltNamespace : MNamespace
@@ -43,7 +43,7 @@ const class MBuiltNamespace : MNamespace
   override const MQuick quick
 
 //////////////////////////////////////////////////////////////////////////
-// Namespace
+// DefNamespace
 //////////////////////////////////////////////////////////////////////////
 
   override const XetoGetter xetoGetter

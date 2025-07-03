@@ -11,10 +11,10 @@ using xeto
 using haystack
 
 **
-** Namespace implementation base class
+** DefNamespace implementation base class
 **
 @NoDoc @Js
-abstract const class MNamespace : Namespace
+abstract const class MNamespace : DefNamespace
 {
 
 //////////////////////////////////////////////////////////////////////////

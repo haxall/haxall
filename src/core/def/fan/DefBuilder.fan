@@ -11,7 +11,7 @@ using xeto
 using haystack
 
 **
-** DefBuilder is used to build up the Def and Namespace instances.
+** DefBuilder is used to build up the Def and DefNamespace instances.
 ** This API does **not** perform validation or error checking.
 **
 @NoDoc @Js
@@ -96,7 +96,7 @@ class DefBuilder
 //////////////////////////////////////////////////////////////////////////
 
   ** Build into a def namespace
-  Namespace build()
+  DefNamespace build()
   {
     // walk thru all libs and assign MLib ref
     libsMap := Str:DefLib[:]

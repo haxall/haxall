@@ -127,7 +127,7 @@ class CDef
   internal Bool isInherited
 
   ** Actual def from namespace
-  Def actual(Namespace ns)
+  Def actual(DefNamespace ns)
   {
     if (actualRef == null) actualRef = ns.def(symbol.toStr)
     return actualRef

@@ -9,10 +9,10 @@
 using xeto
 
 **
-** Namespace models a symbolic namespace of defs
+** DefNamespace models a symbolic namespace of defs
 **
 @Js
-const mixin Namespace
+const mixin DefNamespace
 {
 
 //////////////////////////////////////////////////////////////////////////

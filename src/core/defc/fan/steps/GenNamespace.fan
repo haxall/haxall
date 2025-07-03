@@ -11,7 +11,7 @@ using haystack
 using def
 
 **
-** Generate Namespace instance from index
+** Generate DefNamespace instance from index
 **
 internal class GenNamespace : DefCompilerStep
 {

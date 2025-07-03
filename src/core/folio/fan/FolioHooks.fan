@@ -19,7 +19,7 @@ using haystack
 const mixin FolioHooks
 {
   ** Def namespace if available
-  abstract Namespace? ns(Bool checked := true)
+  abstract DefNamespace? ns(Bool checked := true)
 
   ** Xeto namespace if available
   virtual LibNamespace? xeto(Bool checked := true) { ns(false)?.xeto }
@@ -90,7 +90,7 @@ abstract class FolioHisEvent
 **
 internal const class NilHooks : FolioHooks
 {
-  override Namespace? ns(Bool checked := true) { if (checked) throw UnsupportedErr("Namespace not availble"); return null }
+  override DefNamespace? ns(Bool checked := true) { if (checked) throw UnsupportedErr("Namespace not availble"); return null }
   override Void preCommit(FolioCommitEvent event) {}
   override Void postCommit(FolioCommitEvent event) {}
   override Void postHisWrite(FolioHisEvent event) {}

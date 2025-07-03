@@ -81,14 +81,14 @@ const class HxdRuntime : HxRuntime
   override const File dir
 
   ** Namespace of definitions
-  override Namespace ns()
+  override DefNamespace ns()
   {
     // lazily compile as needed
-    overlay := nsOverlayRef.val as Namespace
+    overlay := nsOverlayRef.val as DefNamespace
     if (overlay == null)
     {
       // lazily recompile base
-      base := nsBaseRef.val as Namespace
+      base := nsBaseRef.val as DefNamespace
       if (base == null)
         nsBaseRef.val = base = HxdDefCompiler(this).compileNamespace
 
