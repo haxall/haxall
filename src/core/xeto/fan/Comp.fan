@@ -67,16 +67,6 @@ mixin Comp
     throw ArgErr("Unsupported args to trap")
   }
 
-  ** Call a method slot synchronously. If slot is not found then silently
-  ** ignore and return null. If slot is defined but not a Function or the
-  ** Function must be called asynchronously then raise exception.
-  Obj? call(Str name, Obj? arg := null) { spi.call(name, arg)  }
-
-  ** Call a method slot asynchronously. If slot is not found then
-  ** silently ignore and return null. If slot is defined but not an
-  ** Function then raise exception.
-  Void callAsync(Str name, Obj? arg, |Err?, Obj?| cb) { spi.callAsync(name, arg, cb)  }
-
 //////////////////////////////////////////////////////////////////////////
 // Updates
 //////////////////////////////////////////////////////////////////////////
@@ -115,29 +105,12 @@ mixin Comp
 // Callbacks
 //////////////////////////////////////////////////////////////////////////
 
-  ** Callback when a slot is modified.  The newVal is null if the slot
-  ** was removed.
-  Void onChange(Str name, |This self, Obj? newVal| cb) { spi.onChange(name, cb) }
+  ** Callback when a slot is modified on this instance.
+  ** Value is null if slot removed.
+  virtual Void onChange(Str name, Obj? newVal) {}
 
-  ** Callback when a method is called. This is an observer callback
-  ** only and will not determine the result value of calling a method.
-  Void onCall(Str name, |This self, Obj? arg| cb) { spi.onCall(name, cb) }
-
-  ** Remove an onChange callback
-  Void onChangeRemove(Str name, Func cb) { spi.onChangeRemove(name, cb) }
-
-  ** Remove an onCall callback
-  Void onCallRemove(Str name, Func cb) { spi.onCallRemove(name, cb) }
-
-  ** Special onChange callback to handle built-in logic, called before onChange.
-  @NoDoc virtual Void onChangePre(Str name, Obj? newVal) {}
-
-  ** Callback on instance itself when a slot is modified. Value is null
-  ** if slot removed.
-  virtual Void onChangeThis(Str name, Obj? newVal) {}
-
-  ** Callback on instance itself when a call is invoked.
-  virtual Void onCallThis(Str name, Obj? arg) {}
+  ** Special onChange callback to handle built-in framework logic, called before onChange.
+  @NoDoc virtual Void onChangeFw(Str name, Obj? newVal) {}
 
   ** Callback whem mounted into a component space
   @NoDoc virtual Void onMount() {}
@@ -277,8 +250,6 @@ mixin CompSpi
   abstract Bool missing(Str name)
   abstract Void each(|Obj val, Str name| f)
   abstract Obj? eachWhile(|Obj val, Str name->Obj?| f)
-  abstract Obj? call(Str name, Obj? arg)
-  abstract Void callAsync(Str name, Obj? arg, |Err?, Obj?| cb)
   abstract Links links()
   abstract Void set(Str name, Obj? val)
   abstract Void add(Obj val, Str? name)
@@ -291,10 +262,6 @@ mixin CompSpi
   abstract Bool hasChild(Str name)
   abstract Comp? child(Str name, Bool checked)
   abstract Void eachChild(|Comp,Str| f)
-  abstract Void onChange(Str name, |Comp, Obj?| cb)
-  abstract Void onCall(Str name, |Comp, Obj?| cb)
-  abstract Void onChangeRemove(Str name, Func cb)
-  abstract Void onCallRemove(Str name, Func cb)
   abstract Void dump(Console con, Obj? opts)
 }
 

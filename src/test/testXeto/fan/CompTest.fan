@@ -274,6 +274,7 @@ class CompTest: AbstractXetoTest
 // Methods
 //////////////////////////////////////////////////////////////////////////
 
+/* TODO: removed Jul-25, not 100% sure yet though
   Void testMethods()
   {
     c := TestFoo()
@@ -341,6 +342,7 @@ class CompTest: AbstractXetoTest
     verifyEq(c.call("method3", "reflect again"), "method3 called: reflect again")
     verifyEq(c["last"], "reflect again")
   }
+*/
 
 //////////////////////////////////////////////////////////////////////////
 // Ver
@@ -421,13 +423,10 @@ class CompTest: AbstractXetoTest
     debug := |s| {} //echo(s) }
 
     // listener
-    a1 := null
-    acb1 := |self, v| { a1 = v; debug("a1=$v") }
-    c.onChange("a", acb1)
     c.set("a", "1")
-    verifyEq(a1, "1")
-    verifyEq(c.onChangeThisLast, "a = 1")
+    verifyEq(c.onChangeLast, "a = 1")
 
+/* TODO: removed Jul-25, not 100% sure yet though
     // remove with wrong name
     c.onChangeRemove("foo", acb1)
     c.set("a", "2")
@@ -560,6 +559,7 @@ class CompTest: AbstractXetoTest
     verifyEq(n, "2nd")
     c.remove("newone")
     verifyEq(n, null)
+*/
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -765,17 +765,11 @@ class TestFoo : CompObj
     return "methodUnsafe called: $s"
   }
 
-  Str? onChangeThisLast
-  Str? onCallThisLast
+  Str? onChangeLast
 
-  override Void onCallThis(Str n, Obj? v)
+  override Void onChange(Str n, Obj? v)
   {
-    onCallThisLast = "$n = $v"
-  }
-
-  override Void onChangeThis(Str n, Obj? v)
-  {
-    onChangeThisLast = "$n = $v"
+    onChangeLast = "$n = $v"
   }
 }
 

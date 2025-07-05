@@ -82,44 +82,6 @@ class MCompSpi : CompSpi
     slots.eachWhile(f)
   }
 
-  override Obj? call(Str name, Obj? arg)
-  {
-    // check for func slot value
-    val := get(name)
-
-    // if slot not defined, then return null
-    if (val == null) return null
-
-    // call as CompFunc
-    func := val as Function ?: throw Err("Slot $name.toCode is not Function [$val.typeof]")
-    r := func.call(comp, arg)
-
-    // callbacks
-    called(name, arg)
-
-    return r
-  }
-
-  override Void callAsync(Str name, Obj? arg, |Err?,Obj?| cb)
-  {
-    // check for func slot value
-    val := get(name)
-
-    // if slot not defined, then return null
-    if (val == null)
-    {
-      cb(null, null)
-      return
-    }
-
-    // call as CompAsyncFunc
-    func := val as Function ?: throw Err("Slot $name.toCode is not Function [$val.typeof]")
-    func.callAsync(comp, arg, cb)
-
-    // callbacks
-    called(name, arg)
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Updates
 //////////////////////////////////////////////////////////////////////////
@@ -255,49 +217,6 @@ class MCompSpi : CompSpi
 // Callbacks
 //////////////////////////////////////////////////////////////////////////
 
-  override Void onChange(Str name, |Comp, Obj?| cb)
-  {
-    if (listeners == null) listeners = CompListeners()
-    listeners.onChangeAdd(name, cb)
-  }
-
-  override Void onCall(Str name, |Comp, Obj?| cb)
-  {
-    if (listeners == null) listeners = CompListeners()
-    listeners.onCallAdd(name, cb)
-  }
-
-  override Void onChangeRemove(Str name, Func cb)
-  {
-    if (listeners == null) return
-    listeners.onChangeRemove(name, cb)
-  }
-
-  override Void onCallRemove(Str name, Func cb)
-  {
-    if (listeners == null) return
-    listeners.onCallRemove(name, cb)
-  }
-
-  // choke point for calls
-  private Void called(Str name, Obj? arg)
-  {
-    // invoke
-    try
-    {
-      // standard callback
-      comp.onCallThis(name, arg)
-
-      // listeners
-      if (listeners != null) listeners.fireOnCall(comp, name, arg)
-    }
-    catch (Err e)
-    {
-      echo("ERROR: $this onCall")
-      e.trace
-    }
-  }
-
   // choke point for all slot changes
   private Void changed(Str name, Obj? newVal)
   {
@@ -305,16 +224,13 @@ class MCompSpi : CompSpi
     try
     {
       // special callback
-      comp.onChangePre(name, newVal)
+      comp.onChangeFw(name, newVal)
 
       // standard callback
-      comp.onChangeThis(name, newVal)
+      comp.onChange(name, newVal)
 
       // space level callback
       if (isMounted) cs.change(this, name, newVal)
-
-      // listeners
-      if (listeners != null) listeners.fireOnChange(comp, name, newVal)
     }
     catch (Err e)
     {
@@ -489,7 +405,6 @@ class MCompSpi : CompSpi
   internal Str nameRef := ""
   internal Bool needsExecute
   private Str:Obj slots
-  private CompListeners? listeners
   private Int lastOnTimer
 }
 
