@@ -145,8 +145,7 @@ internal abstract class InferData : Step
         global = cns.global(n, v.loc)
       if (global == null) return
 
-      if (v.nodeType == ANodeType.scalar && global.ctype.isScalar)
-        v.typeRef = inferDictSlotType(v.loc, global.ctype)
+      v.typeRef = inferDictSlotType(v.loc, global.ctype)
     }
  }
 
