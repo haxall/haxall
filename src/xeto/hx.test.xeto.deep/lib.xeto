@@ -11,6 +11,7 @@ pragma: Lib <
   version: "0.1.1"
   depends: {
     { lib: "sys", versions: "0.1.x" }
+    { lib: "hx.test.xeto", versions: "0.1.x" }
   }
   categories: {"haxall"}
   org: {

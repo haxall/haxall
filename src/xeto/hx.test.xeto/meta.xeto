@@ -16,13 +16,14 @@ qux: Str <meta>
 
 metaQ: Marker <meta>
 metaR: Marker <meta, noInherit>
+metaNum: Number <meta>
 
 MetaInheritA: Dict <metaQ, metaR> {
   x: Str <metaQ, metaR>
   y: Str <metaQ, metaR>
 }
 
-MetaInheritB: MetaInheritA {
+MetaInheritB: MetaInheritA <metaNum:"123"> {
   y: Str
 }
 

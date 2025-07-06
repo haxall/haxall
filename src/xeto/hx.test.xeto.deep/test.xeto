@@ -11,3 +11,12 @@ Beta : Dict {
 }
 
 
+@norm-instance: Dict {
+  metaNum:"987"
+}
+
+@xmeta-hx.test.xeto-Alpha: {
+  metaQ
+  metaNum: "456"
+}
+

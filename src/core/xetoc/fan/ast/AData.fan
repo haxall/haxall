@@ -193,6 +193,9 @@ internal class ADict : AData
     }
     out.print(indent).print(isMeta ? ">" : "}")
   }
+
+  ** Is this an xmeta instance
+  virtual Bool isXMeta() { false }
 }
 
 **************************************************************************
@@ -234,6 +237,7 @@ internal class AInstance : ADict, CInstance
   ** Return scalar id
   override const Ref id
 
-
+  ** Is this an xmeta instance
+  override Bool isXMeta() { name.name.startsWith("xmeta-") }
 }
 

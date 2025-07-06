@@ -136,8 +136,15 @@ internal abstract class InferData : Step
     dict.map.each |v, n|
     {
       if (v.typeRef != null) return
-      global := cns.global(n, v.loc)
+
+      // if dict is xmeta then infer from meta, otherwise global
+      CSpec? global
+      if (dict.isXMeta)
+        global = cns.metaSpec(n, v.loc)
+      else
+        global = cns.global(n, v.loc)
       if (global == null) return
+
       if (v.nodeType == ANodeType.scalar && global.ctype.isScalar)
         v.typeRef = inferDictSlotType(v.loc, global.ctype)
     }

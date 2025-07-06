@@ -308,17 +308,13 @@ internal class CheckErrors : Step
 // Instances
 //////////////////////////////////////////////////////////////////////////
 
-  Void checkInstance(ALib lib, Str name, AData x)
+  Void checkInstance(ALib lib, Str name, AInstance x)
   {
     if (XetoUtil.isReservedInstanceName(name))
       err("Instance name '$name' is reserved", x.loc)
 
-    isXMeta := false
-    if (name.startsWith("xmeta-"))
-    {
-      isXMeta = true
-      checkXMeta(lib, name, x)
-    }
+    isXMeta := x.isXMeta
+    if (isXMeta) checkXMeta(lib, name, x)
 
     checkDict(x, isXMeta, null)
   }
