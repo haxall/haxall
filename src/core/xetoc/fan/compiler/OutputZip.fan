@@ -26,6 +26,7 @@ internal class OutputZip : Step
     try
     {
       writeMeta(zip, "/meta.props")
+      writeBuildVars(zip, "/build.props") // must be before xeto files
       writeToZip(zip, "", srcDir)
     }
     finally zip.close
@@ -51,6 +52,13 @@ internal class OutputZip : Step
     meta["depends"] = depends.list.join(";")
     meta["doc"]     = lib.meta.getStr("doc") ?: ""
     zip.writeNext(path.toUri).writeProps(meta).close
+  }
+
+  private Void writeBuildVars(Zip zip, Str path)
+  {
+    vars := compiler.usedBuildVars
+    if (vars.isEmpty) return
+    zip.writeNext(path.toUri).writeProps(vars).close
   }
 
   private Void writeToZip(Zip zip, Str path, File file)

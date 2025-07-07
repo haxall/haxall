@@ -52,7 +52,7 @@ internal class Parse : Step
     doc := ADataDoc(compiler, FileLoc(input))
 
     // parse into root
-    parseFile(input, doc)
+    parseFile(input, doc, Str:Str[:])
     bombIfErr
 
     // data does not support a pragma (at least not yet); so
@@ -101,12 +101,14 @@ internal class Parse : Step
     {
       zip := Zip.read(input.in)
       list := Uri[,]
+      buildVars :=  Str:Str[:]
       try
       {
         zip.readEach |f|
         {
           if (f.isDir) return
-          if (f.ext == "xeto") parseFile(f, lib)
+          if (f.ext == "xeto") parseFile(f, lib, buildVars)
+          else if (f.name == "build.props") buildVars = f.readProps
           else if (f.name != "meta.props") list.add(f.uri)
           if (f.ext == "md") hasMarkdown = true
         }
@@ -118,14 +120,14 @@ internal class Parse : Step
     {
       dirList(input).each |sub|
       {
-        if (sub.ext == "xeto") parseFile(sub, lib)
+        if (sub.ext == "xeto") parseFile(sub, lib, compiler.srcBuildVars)
         if (sub.ext == "md") hasMarkdown = true
       }
       files = DirLibFiles(input)
     }
     else
     {
-      parseFile(input, lib)
+      parseFile(input, lib, compiler.srcBuildVars)
       files = EmptyLibFiles.val
     }
 
@@ -133,12 +135,12 @@ internal class Parse : Step
     if (hasMarkdown) lib.flags = lib.flags.or(MLibFlags.hasMarkdown)
   }
 
-  private Void parseFile(File input, ADoc doc)
+  private Void parseFile(File input, ADoc doc, Str:Str buildVars)
   {
     loc := FileLoc(input)
     try
     {
-      Parser(this, loc, input.readAllStr, doc).parseFile
+      Parser(this, loc, input.readAllStr, doc, buildVars).parseFile
     }
     catch (FileLocErr e)
     {

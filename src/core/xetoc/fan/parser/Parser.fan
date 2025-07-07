@@ -20,7 +20,7 @@ internal class Parser
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(Step step, FileLoc fileLoc, Str fileStr, ADoc doc)
+  new make(Step step, FileLoc fileLoc, Str fileStr, ADoc doc, Str:Str buildVars)
   {
     this.step = step
     this.compiler = step.compiler
@@ -31,6 +31,7 @@ internal class Parser
     this.fileLoc = fileLoc
     this.tokenizer = Tokenizer(fileStr) { it.keepComments = true }
     this.cur = this.peek = Token.eof
+    this.buildVars = buildVars
     consume
     consume
   }
@@ -429,12 +430,8 @@ internal class Parser
     val := curVal.toStr
     if (isBuildVar(type))
     {
-      type = null
-      var := compiler.env.buildVars.get(val)
-      if (var != null)
-        val = var
-      else
-        compiler.err("Unknown build var $val.toCode", curToLoc)
+      type = null              // clear to use inferred type
+      val = evalBuildVar(val)  // map name to scalar string value
     }
 
     x := AScalar(curToLoc, type, val)
@@ -448,6 +445,24 @@ internal class Parser
   private Bool isBuildVar(ASpecRef? type)
   {
     type != null && type.name.name == "BuildVar"
+  }
+
+  ** Evaluate build variable
+  private Str evalBuildVar(Str name)
+  {
+    // lookup from vars passed to my constructor; in xetolib
+    // these are packaged into the zip at compile time, otherwise
+    // they are defined by the XetoEnv
+    val := buildVars.get(name)
+    if (val == null)
+    {
+      compiler.err("Unknown build var $val.toCode", curToLoc)
+      return name
+    }
+
+    // keep track of build vars used
+    compiler.usedBuildVars[name] = val
+    return val
   }
 
   ** Parse a dict data value
@@ -777,6 +792,7 @@ internal class Parser
   private ADoc doc
   private ALib? libRef
   private Bool isDataFile
+  private Str:Str buildVars
 
   private Token cur      // current token
   private Obj? curVal    // current token value

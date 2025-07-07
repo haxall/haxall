@@ -24,8 +24,9 @@ internal class XetoCompiler
   ** Constructor
   new make()
   {
-    this.sys     = ASys()
+    this.sys = ASys()
     this.depends = ADepends(this)
+    this.usedBuildVars = [:]
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -55,6 +56,9 @@ internal class XetoCompiler
 
   ** Are we building a xetolib zip
   Bool isBuild() { build != null }
+
+  ** Build vars from source environment
+  Str:Str srcBuildVars() { env.buildVars }
 
 //////////////////////////////////////////////////////////////////////////
 // Options
@@ -222,6 +226,7 @@ internal class XetoCompiler
   internal ALib? lib                   // Parse (compileLib only)
   internal ADataDoc? data              // Parse (compileData only)
   internal ADict? pragma               // Parse
+  internal Str:Str usedBuildVars       // Parse (build vars used by lib)
   internal Dict? json                  // JSON output
   internal Bool externRefs             // allow unresolved refs to compile
   private Str:Ref internRefs := [:]    // makeRef
