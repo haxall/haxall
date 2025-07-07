@@ -6,7 +6,25 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
-*Build 4.0.1 (working)*
+*Build 4.0.2 (working)*
+
+*Build 4.0.1 (7 Jul 2025)*
+- Move haystack::Dict -> xeto::Dict
+- Move haystack::Marker -> xeto::Marker
+- Move haystack::Ref -> xeto::Ref
+- Move haystack::UnknownNameErr -> xeto::UnknownNameErr
+- Move haystack::UnknownLibErr -> xeto::UnknownLibErr
+- Move haystack::UnknownSpecErr -> xeto::UnknownSpecErr
+- Dict.dis simplified, add Row.disOf
+- Dict.get default parameter removed
+- Move LibRepo.cur -> XetoEnv.cur.repo
+- Rename haystack::Namespace -> DefNamespace
+- Rename haystack::Lib -> DefLib
+- Rename axon::AxonContext.ns -> defs
+- Rename hx::HxRuntime.ns -> defs
+- Rename haystack::HaystackTest.ns -> defs
+- Project Haystack defs 4.0.0
+- Xeto libs now versioned as 5.0.0
 
 *Build 3.1.12 (26 Jun 2025)*
 - FolioFile API
