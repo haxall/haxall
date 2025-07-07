@@ -66,7 +66,6 @@ const mixin LibNamespace
       "ion.card",
       "ion.inputs",
       "ion.form",
-      "ion.styles",
       "ion.misc",
       "ion.table",
       "ion.ux"]
