@@ -38,6 +38,9 @@ internal class XetoCompiler
   ** Names table to use
   NameTable? names
 
+  ** Environment
+  XetoEnv env := XetoEnv.cur
+
   ** Logging
   XetoLog log := XetoLog.makeOutStream
 

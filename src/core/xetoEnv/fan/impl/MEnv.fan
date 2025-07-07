@@ -63,6 +63,8 @@ const class BrowserEnv : MEnv
 
   override File[] path() { throw unavailErr() }
 
+  override Str:Str buildVars() { throw unavailErr() }
+
   override Str mode() { "browser" }
 
   override Str:Str debugProps() { Str:Obj[:] }
@@ -148,14 +150,11 @@ const class ServerEnv : MEnv
   {
     this.mode = mode
     this.path = path
-    this.repo = Type.find("xetoc::FileRepo").make([this])
   }
 
 //////////////////////////////////////////////////////////////////////////
 // XetoEnv
 //////////////////////////////////////////////////////////////////////////
-
-  override const LibRepo repo
 
   override File homeDir() { path.last }
 
@@ -164,6 +163,29 @@ const class ServerEnv : MEnv
   override File installDir() { path.first }
 
   override const File[] path
+
+  override once Str:Str buildVars()
+  {
+    acc := Str:Str[:]
+    acc.ordered = true
+    path.eachr |path|
+    {
+      f := path + `src/xeto/build.props`
+      if (!f.exists) return
+      try
+      {
+        acc.setAll(f.readProps)
+      }
+      catch (Err e) Console.cur.err("ERROR: cannot parse $f", e)
+    }
+    return acc.toImmutable
+  }
+
+  override once LibRepo repo()
+  {
+    // lazily create after construction
+    Type.find("xetoc::FileRepo").make([this])
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Debug
@@ -181,6 +203,7 @@ const class ServerEnv : MEnv
     acc["xeto.homeDir"] = homeDir.osPath
     acc["xeto.installDir"] = installDir.osPath
     acc["xeto.path"] = path.map |f->Str| { f.osPath }
+    acc["xeto.buildVars"] = buildVars
     return acc
   }
 

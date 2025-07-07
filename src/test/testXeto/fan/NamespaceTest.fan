@@ -241,6 +241,10 @@ class NamespaceTest : AbstractXetoTest
   {
     // lib basics
     lib := verifyLibBasics(ns, "hx.test.xeto", curVersion, ["haxall"])
+    verifyEq(lib.meta["org"]->dis, "Haxall")
+    verifyEq(lib.meta["org"]->uri, `https://haxall.io/`)
+    verifyEq(lib.meta["vcs"]->type, "git")
+    verifyEq(lib.meta["vcs"]->uri,  `https://github.com/haxall/haxall`)
 
     a  := lib.type("A");  ax := a.slot("x")
     b  := lib.type("B");  by := b.slot("y")

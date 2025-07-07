@@ -425,9 +425,29 @@ internal class Parser
   ** Parse a scalar data value
   private AScalar parseScalar(ASpecRef? type)
   {
-    x := AScalar(curToLoc, type, curVal)
+    // check for BuildVar and replace at parse time
+    val := curVal.toStr
+    if (isBuildVar(type))
+    {
+      type = null
+      var := compiler.env.buildVars.get(val)
+      if (var != null)
+        val = var
+      else
+        compiler.err("Unknown build var $val.toCode", curToLoc)
+    }
+
+    x := AScalar(curToLoc, type, val)
     consume
     return x
+  }
+
+  ** Is the given type sys::BuildVar. Note we are checking by simple
+  ** name before type resolution is run, so you cannot use the type
+  ** name "BuildVar" in any other lib except for sys
+  private Bool isBuildVar(ASpecRef? type)
+  {
+    type != null && type.name.name == "BuildVar"
   }
 
   ** Parse a dict data value

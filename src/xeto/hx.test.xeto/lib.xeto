@@ -21,8 +21,12 @@ pragma: Lib <
   }
   categories: {"haxall"}
   org: {
-   dis: "Haxall"
-   uri: "https://haxall.io/"
+   dis: BuildVar "hx.org.dis"
+   uri: BuildVar "hx.org.uri"
+  }
+  vcs: {
+    type: BuildVar "hx.vcs.type"
+    uri:  BuildVar "hx.vcs.uri"
   }
 >
 
