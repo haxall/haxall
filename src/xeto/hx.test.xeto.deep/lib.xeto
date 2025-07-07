@@ -14,6 +14,7 @@ pragma: Lib <
     { lib: "hx.test.xeto", versions: BuildVar "hx.depend" }
   }
   categories: {"haxall"}
+  license: BuildVar "hx.license"
   org: {
    dis: BuildVar "hx.org.dis"
    uri: BuildVar "hx.org.uri"

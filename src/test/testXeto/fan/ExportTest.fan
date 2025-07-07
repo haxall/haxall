@@ -26,7 +26,9 @@ class ExportTest : AbstractXetoTest
     lib := ns.lib("hx.test.xeto")
     depends := lib.depends.map |x| { Etc.dict3("lib", x.name, "versions", x.versions.toStr, "spec", Ref("sys::LibDepend")) }
     verifyExport(ns, def, "lib:hx.test.xeto", ["id":lib.id, "version":lib.version.toStr,
-      "doc":lib->doc, "depends": depends, "spec":Ref("sys::Lib"), "categories":Obj?["haxall"],
+      "doc":lib->doc, "depends": depends, "spec":Ref("sys::Lib"),
+      "categories":Obj?["haxall"],
+      "license":"AFL-3.0",
       "org":Etc.dict3("dis", "Haxall", "uri", `https://haxall.io/`, "spec", Ref("sys::LibOrg")),
       "vcs":Etc.dict3("type", "git", "uri", `https://github.com/haxall/haxall`, "spec", Ref("sys::LibVcs")),
     ])

@@ -20,6 +20,7 @@ pragma: Lib <
     { lib: "axon",         versions: BuildVar "hx.depend" }
   }
   categories: {"haxall"}
+  license: BuildVar "hx.license"
   org: {
    dis: BuildVar "hx.org.dis"
    uri: BuildVar "hx.org.uri"
