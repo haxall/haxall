@@ -18,7 +18,8 @@ using haystack
 class NamespaceTest : AbstractXetoTest
 {
 
-  static Version curVersion() { Version("0.1.1") }
+  Version phVersion() { Version("5.0.0") }
+  Version hxVersion() { typeof.pod.version }
 
 //////////////////////////////////////////////////////////////////////////
 // Sys Lib
@@ -32,14 +33,14 @@ class NamespaceTest : AbstractXetoTest
   private Void doTestSysLib(LibNamespace ns)
   {
     // lib basics
-    sys := verifyLibBasics(ns, "sys", curVersion, ["sys"])
+    sys := verifyLibBasics(ns, "sys", phVersion, ["sys"])
     verifySame(ns.lib("sys"), sys)
     verifyEq(sys.name, "sys")
-    verifyEq(sys.version, curVersion)
+    verifyEq(sys.version, phVersion)
     verifySame(ns.sysLib, sys)
 
     // verify lib meta inference
-    verifyEq(sys.meta["version"], curVersion)
+    verifyEq(sys.meta["version"], phVersion)
     sysOrg := sys.meta["org"] as Dict
     verifyEq(sysOrg->dis, "Project Haystack")
     verifyEq(sysOrg->uri, `https://project-haystack.org/`)
@@ -160,10 +161,10 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(ns.isAllLoaded, ns.isRemote)
 
     // lib basics
-    ph := verifyLibBasics(ns, "ph", curVersion, ["ph"])
+    ph := verifyLibBasics(ns, "ph", phVersion, ["ph"])
     verifyEq(ph.depends.size, 1)
     verifyEq(ph.depends[0].name, "sys")
-    verifyEq(ph.depends[0].versions.toStr, "" + curVersion.major + "." + curVersion.minor + ".x")
+    verifyEq(ph.depends[0].versions.toStr, phVersion.toStr)
 
     entity    := ns.spec("sys::Entity")
     equip     := verifyLibType(ns, ph, "Equip",    entity)
@@ -240,7 +241,7 @@ class NamespaceTest : AbstractXetoTest
   private Void doTestHxTestLib(LibNamespace ns)
   {
     // lib basics
-    lib := verifyLibBasics(ns, "hx.test.xeto", curVersion, ["haxall"])
+    lib := verifyLibBasics(ns, "hx.test.xeto", hxVersion, ["haxall"])
     verifyEq(lib.meta["org"]->dis, "Haxall")
     verifyEq(lib.meta["org"]->uri, `https://haxall.io/`)
     verifyEq(lib.meta["vcs"]->type, "git")
@@ -345,8 +346,8 @@ class NamespaceTest : AbstractXetoTest
   Void testNameTable()
   {
     ns  := createNamespace(["sys", "ph"])
-    sys := verifyLibBasics(ns, "sys", curVersion, ["sys"])
-    ph  := verifyLibBasics(ns, "ph", curVersion, ["ph"])
+    sys := verifyLibBasics(ns, "sys", phVersion, ["sys"])
+    ph  := verifyLibBasics(ns, "ph",  phVersion, ["ph"])
     str := sys.type("Str")
     org := sys.type("LibOrg")
     ref := sys.type("Ref")

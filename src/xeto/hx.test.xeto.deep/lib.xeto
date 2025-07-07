@@ -8,15 +8,19 @@
 
 pragma: Lib <
   doc: "Haxall test library"
-  version: "0.1.1"
+  version: BuildVar "hx.version"
   depends: {
-    { lib: "sys", versions: "0.1.x" }
-    { lib: "hx.test.xeto", versions: "0.1.x" }
+    { lib: "sys",          versions: BuildVar "ph.depend" }
+    { lib: "hx.test.xeto", versions: BuildVar "hx.depend" }
   }
   categories: {"haxall"}
   org: {
-   dis: "Haxall"
-   uri: "https://haxall.io/"
+   dis: BuildVar "hx.org.dis"
+   uri: BuildVar "hx.org.uri"
+  }
+  vcs: {
+    type: BuildVar "hx.vcs.type"
+    uri:  BuildVar "hx.vcs.uri"
   }
 >
 
