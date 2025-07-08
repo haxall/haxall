@@ -13,21 +13,22 @@ using haystack
 using obs
 using folio
 using hx
+using hx4
 
 **
-** HxExtSpi implementation
+** ExtSpi implementation
 **
-const class MHxExtSpi : Actor, HxExtSpi
+const class MExtSpi : Actor, ExtSpi
 {
 
 //////////////////////////////////////////////////////////////////////////
 // Factory
 //////////////////////////////////////////////////////////////////////////
 
-  ** Instantiate the HxExt
-  static HxExt instantiate(MHxProj proj, Lib lib, Dict settings)
+  ** Instantiate the Ext
+  static Ext instantiate(MProj proj, Lib lib, Dict settings)
   {
-    spi := MHxExtSpi(proj, lib, settings)
+    spi := MExtSpi(proj, lib, settings)
     Actor.locals["hx.spi"]  = spi
     try
     {
@@ -41,12 +42,12 @@ const class MHxExtSpi : Actor, HxExtSpi
     }
   }
 
-  private static HxExt doInstantiate(MHxExtSpi spi)
+  private static Ext doInstantiate(MExtSpi spi)
   {
     spi.type.make
   }
 
-  private new make(MHxProj proj, Lib lib, Dict settings) : super(proj.extActorPool)
+  private new make(MProj proj, Lib lib, Dict settings) : super(proj.extActorPool)
   {
     this.proj        = proj
     this.name        = lib.name
@@ -56,13 +57,13 @@ const class MHxExtSpi : Actor, HxExtSpi
   }
 
 //////////////////////////////////////////////////////////////////////////
-// HxExtSpi Implementation
+// ExtSpi Implementation
 //////////////////////////////////////////////////////////////////////////
 
-  HxExt lib() { extRef.val }
+  Ext ext() { extRef.val }
   private const AtomicRef extRef := AtomicRef()
 
-  override const HxProj proj
+  override const Proj proj
 
   override const Str name
 
@@ -129,9 +130,9 @@ const class MHxExtSpi : Actor, HxExtSpi
     {
       if (!isRunning) return null
       try
-        lib.onHouseKeeping
+        ext.onHouseKeeping
       catch (Err e)
-        log.err("HxExt.onHouseKeeping", e)
+        log.err("Ext.onHouseKeeping", e)
       scheduleHouseKeeping
       return null
     }
@@ -150,11 +151,11 @@ const class MHxExtSpi : Actor, HxExtSpi
     }
     catch (Err e)
     {
-      log.err("HxExt callback", e)
+      log.err("Ext callback", e)
       throw e
     }
 
-    return lib.onReceive(msg)
+    return ext.onReceive(msg)
   }
 
   private Obj? onStart()
@@ -162,11 +163,11 @@ const class MHxExtSpi : Actor, HxExtSpi
     isRunningRef.val = true
     try
     {
-      lib.onStart
+      ext.onStart
     }
     catch (Err e)
     {
-      log.err("HxExt.onStart", e)
+      log.err("Ext.onStart", e)
       toStatus("fault", e.toStr)
     }
     return null
@@ -178,33 +179,33 @@ const class MHxExtSpi : Actor, HxExtSpi
     scheduleHouseKeeping
 
     // onReady callback
-    lib.onReady
+    ext.onReady
 
     return null
   }
 
   private Obj? onSteadyState()
   {
-    lib.onSteadyState
+    ext.onSteadyState
     return null
   }
 
   private Obj? onUnready()
   {
     isRunningRef.val = false
-    lib.onUnready
+    ext.onUnready
     return null
   }
 
   private Obj? onStop()
   {
-    lib.onStop
+    ext.onStop
     return null
   }
 
   private Obj? onSettings()
   {
-    lib.onSettings
+    ext.onSettings
     return null
   }
 
@@ -219,19 +220,10 @@ throw Err("TODO")
 
   private Void scheduleHouseKeeping()
   {
-    freq := lib.houseKeepingFreq
+    freq := ext.houseKeepingFreq
     if (freq != null) sendLater(freq, houseKeepingMsg)
   }
 
   private static const HxMsg houseKeepingMsg := HxMsg("houseKeeping")
-}
-
-**************************************************************************
-** ResHxLib
-**************************************************************************
-
-** ResHxLib is a stub for libraries without a Fantom class
-const class ResHxLib : HxLib
-{
 }
 

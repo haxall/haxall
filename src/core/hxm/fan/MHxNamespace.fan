@@ -10,14 +10,15 @@ using xeto
 using haystack
 using folio
 using hx
+using hx4
 using xetoc
 
 **
 ** HxNamespace implementation
 **
-const class MHxNamespace : LocalNamespace, HxNamespace
+const class MNamespace : LocalNamespace, Namespace
 {
-  static MHxNamespace load(FileRepo repo, Str[] required)
+  static MNamespace load(FileRepo repo, Str[] required)
   {
     // we only use latest version for required
     requiredDepends := required.map |n->LibDepend|

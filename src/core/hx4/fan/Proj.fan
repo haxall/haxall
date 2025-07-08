@@ -13,9 +13,9 @@ using haystack
 using folio
 
 **
-** HxProj is the API to work with a project database
+** Proj is the API to work with a project database
 **
-const mixin HxProj
+const mixin Proj
 {
   ** Project name
   abstract Str name()
@@ -30,30 +30,30 @@ const mixin HxProj
   abstract File dir()
 
   ** Xeto namespace
-  abstract HxNamespace ns()
+  abstract Namespace ns()
 
   ** Folio database
   abstract Folio db()
 
   ** Extension managment APIs
-  abstract HxProjExts exts()
+  abstract ProjExts exts()
 }
 
 **************************************************************************
-** HxProjExts
+** ProjExts
 **************************************************************************
 
 **
 ** Project extension management
 **
-const mixin HxProjExts
+const mixin ProjExts
 {
   ** List of extensions currently enabled sorted by name
-  abstract HxExt[] list()
+  abstract Ext[] list()
 
   ** Lookup an extension by name.  If not found then
   ** return null or raise UnknownExtErr based on checked flag.
-  abstract HxExt? get(Str name, Bool checked := true)
+  abstract Ext? get(Str name, Bool checked := true)
 
   ** Check if there is an enabled extension with given name
   abstract Bool has(Str name)

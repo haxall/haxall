@@ -12,41 +12,42 @@ using xeto
 using haystack
 using folio
 using hx
+using hx4
 
 **
-** HxProjExts implementation
+** ProjExts implementation
 **
-const class MHxProjExts : Actor, HxProjExts
+const class MProjExts : Actor, ProjExts
 {
-  new make(MHxProj proj, Str[] required) : super(proj.extActorPool)
+  new make(MProj proj, Str[] required) : super(proj.extActorPool)
   {
     this.proj      = proj
     this.required  = required
     this.actorPool = this.pool
 
-listRef.val = HxExt[,].toImmutable
-mapRef.val = Str:HxExt[:].toImmutable
+listRef.val = Ext[,].toImmutable
+mapRef.val = Str:Ext[:].toImmutable
   }
 
-  const MHxProj proj
+  const MProj proj
 
   override const ActorPool actorPool
 
   const Str[] required
 
-  override HxExt[] list() { listRef.val }
+  override Ext[] list() { listRef.val }
   private const AtomicRef listRef := AtomicRef()
 
   override Bool has(Str name) { map.containsKey(name) }
 
-  override HxExt? get(Str name, Bool checked := true)
+  override Ext? get(Str name, Bool checked := true)
   {
     lib := map[name]
     if (lib != null) return lib
     if (checked) throw UnknownExtErr(name)
     return null
   }
-  internal Str:HxExt map() { mapRef.val }
+  internal Str:Ext map() { mapRef.val }
   private const AtomicRef mapRef := AtomicRef()
 
   override Grid status()
@@ -55,7 +56,7 @@ mapRef.val = Str:HxExt[:].toImmutable
     gb.addCol("name").addCol("libStatus").addCol("statusMsg")
     list.each |lib|
     {
-      spi := (MHxExtSpi)lib.spi
+      spi := (MExtSpi)lib.spi
       gb.addRow([lib.name, spi.status, spi.statusMsg])
     }
     return gb.toGrid

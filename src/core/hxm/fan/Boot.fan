@@ -10,11 +10,12 @@ using xeto
 using haystack
 using folio
 using hx
+using hx4
 
 **
 ** Base class for all bootstrap project loaders
 **
-abstract class HxBoot
+abstract class Boot
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,7 +70,7 @@ abstract class HxBoot
 //////////////////////////////////////////////////////////////////////////
 
   ** Initialize the project but do not start it
-  MHxProj init()
+  MProj init()
   {
     this.ns   = initNamespace
     this.db   = initFolio
@@ -82,9 +83,9 @@ abstract class HxBoot
 //////////////////////////////////////////////////////////////////////////
 
   ** Create project namespace
-  virtual HxNamespace initNamespace()
+  virtual Namespace initNamespace()
   {
-    MHxNamespace.load(xetoEnv.repo, requiredLibs)
+    MNamespace.load(xetoEnv.repo, requiredLibs)
   }
 
   ** Open project folio database
@@ -96,14 +97,14 @@ abstract class HxBoot
     // setup the tags we want for projMeta
     tags := ["projMeta": Marker.val, "version": version.toStr]
 
-    // update rec and set back to projMeta field so HxdRuntime can init itself
+    // update rec and and return it
     return initRec("projMeta", db.read(Filter.has("projMeta"), false), tags)
   }
 
   ** Create HxProj implementation
-  virtual MHxProj initProj()
+  virtual MProj initProj()
   {
-    MHxProj(this)
+    MProj(this)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -131,7 +132,7 @@ abstract class HxBoot
 // Internal Fields
 //////////////////////////////////////////////////////////////////////////
 
-  internal MHxNamespace? ns
+  internal MNamespace? ns
   internal Folio? db
   internal Dict? meta
 }

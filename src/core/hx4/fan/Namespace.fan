@@ -9,9 +9,9 @@
 using xeto
 
 **
-** HxNamespace adds Haxall specific APIs to the core Xeto namespace
+** Namespace adds Haxall specific APIs to the core Xeto namespace
 **
-const mixin HxNamespace : LibNamespace
+const mixin Namespace : LibNamespace
 {
 }
 

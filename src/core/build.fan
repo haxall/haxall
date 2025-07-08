@@ -28,6 +28,7 @@ class Build : BuildGroup
       `obs/build.fan`,
       `folio/build.fan`,
       `hx/build.fan`,
+      `hx4/build.fan`,
       `hxStore/build.fan`,
       `hxFolio/build.fan`,
       `hxm/build.fan`,

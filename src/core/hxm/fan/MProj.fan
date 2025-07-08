@@ -11,13 +11,14 @@ using xeto
 using haystack
 using folio
 using hx
+using hx4
 
 **
-** HxProj implementation
+** Proj implementation
 **
-const class MHxProj : HxProj
+const class MProj : Proj
 {
-  new make(HxBoot boot)
+  new make(Boot boot)
   {
     this.name         = boot.name
     this.id           = Ref("p:$name", name)
@@ -26,7 +27,7 @@ const class MHxProj : HxProj
     this.ns           = boot.ns
     this.db           = boot.db
     this.extActorPool = ActorPool { it.name = "$this.name-ExtPool" }
-    this.exts         = MHxProjExts(this, boot.requiredLibs)
+    this.exts         = MProjExts(this, boot.requiredLibs)
   }
 
 
@@ -34,9 +35,9 @@ const class MHxProj : HxProj
   const override Ref id
   const override Dict meta
   const override File dir
-  const override HxNamespace ns
+  const override Namespace ns
   const override Folio db
-  const override HxProjExts exts
+  const override ProjExts exts
   const ActorPool extActorPool
   override final Str toStr() { name }
 }

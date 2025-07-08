@@ -11,11 +11,12 @@ using concurrent
 using xeto
 using folio
 using obs
+using hx
 
 **
 ** Base class for all Haxall service extensions
 **
-abstract const class HxExt
+abstract const class Ext
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -25,7 +26,7 @@ abstract const class HxExt
   ** Subclasses must declare public no-arg constructor
   new make()
   {
-    this.spiRef = Actor.locals["hx.spi"] as HxExtSpi ?: throw Err("Invalid make context")
+    this.spiRef = Actor.locals["hx.spi"] as ExtSpi ?: throw Err("Invalid make context")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,7 +43,7 @@ abstract const class HxExt
   override final Str toStr() { name }
 
   ** Project
-  virtual HxProj proj() { spi.proj }
+  virtual Proj proj() { spi.proj }
 
   ** Programmatic name of the extension
   Str name() { spi.name }
@@ -54,8 +55,8 @@ abstract const class HxExt
   Log log() { spi.log }
 
   ** Service provider interface
-  @NoDoc virtual HxExtSpi spi() { spiRef }
-  @NoDoc const HxExtSpi spiRef
+  @NoDoc virtual ExtSpi spi() { spiRef }
+  @NoDoc const ExtSpi spiRef
 
 //////////////////////////////////////////////////////////////////////////
 // Observables
@@ -127,16 +128,16 @@ abstract const class HxExt
 }
 
 **************************************************************************
-** HxExtSpi
+** ExtSpi
 **************************************************************************
 
 **
-** HxExt service provider interface
+** Ext service provider interface
 **
 @NoDoc
-const mixin HxExtSpi
+const mixin ExtSpi
 {
-  abstract HxProj proj()
+  abstract Proj proj()
   abstract Str name()
   abstract Dict settings()
   abstract Log log()

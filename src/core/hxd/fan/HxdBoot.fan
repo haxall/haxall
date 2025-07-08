@@ -18,7 +18,7 @@ using hxFolio
 **
 ** Bootstrap loader for Haxall daemon
 **
-class NewHxdBoot : hxm::HxBoot
+class NewBoot : hxm::Boot
 {
   new make(File dir) : super("sys", dir) {}
 
@@ -43,7 +43,7 @@ class Main
   static Void main(Str[] args)
   {
     dir := `/work/haxall/var/`.toFile
-    boot := NewHxdBoot(dir)
+    boot := NewBoot(dir)
     proj := boot.init
 
     echo("~~> Booted! $proj.id.toZinc [$proj.ns.typeof]")
