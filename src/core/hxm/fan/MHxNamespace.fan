@@ -1,0 +1,37 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//    8 Jul 2025  Brian Frank  Creation
+//
+
+using xeto
+using haystack
+using folio
+using hx
+using xetoc
+
+**
+** HxNamespace implementation
+**
+const class MHxNamespace : LocalNamespace, HxNamespace
+{
+  static MHxNamespace load(FileRepo repo, Str[] required)
+  {
+    // we only use latest version for required
+    requiredDepends := required.map |n->LibDepend|
+    {
+      latest := repo.latest(n, false) ?: throw Err("Missing required boot lib: $n")
+      return LibDepend(latest)
+    }
+
+    // solve depends
+    versions := repo.solveDepends(requiredDepends)
+
+    return make(LocalNamespaceInit(repo, versions, null, repo.names))
+  }
+
+  new make(LocalNamespaceInit init) : super(init) {}
+}
+

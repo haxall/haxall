@@ -18,6 +18,46 @@ using hxFolio
 **
 ** Bootstrap loader for Haxall daemon
 **
+class NewHxdBoot : hxm::HxBoot
+{
+  new make(File dir) : super("sys", dir) {}
+
+  override Version version() { typeof.pod.version }
+
+  const override Log log := Log.get("hxd")
+
+  override Folio initFolio()
+  {
+    config := FolioConfig
+    {
+      it.name = "haxall"
+      it.dir  = this.dir + `db/`
+      it.pool = ActorPool { it.name = "Hxd-Folio" }
+    }
+    return HxFolio.open(config)
+  }
+}
+
+class Main
+{
+  static Void main(Str[] args)
+  {
+    dir := `/work/haxall/var/`.toFile
+    boot := NewHxdBoot(dir)
+    proj := boot.init
+
+    echo("~~> Booted! $proj.id.toZinc [$proj.ns.typeof]")
+    echo(proj.ns.libs.join("\n"))
+    echo("--> ")
+    proj.db.readAll(Filter("ext")).dump
+    echo("--> ")
+    echo(proj.db.read(Filter("projMeta")))
+  }
+}
+
+**
+** Bootstrap loader for Haxall daemon
+**
 class HxdBoot
 {
 

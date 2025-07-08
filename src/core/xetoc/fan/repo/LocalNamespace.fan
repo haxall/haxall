@@ -104,19 +104,19 @@ const class LocalNamespace : MNamespace
 
 const class LocalNamespaceInit
 {
-  new make(MNamespace? base, NameTable names, LibVersion[] versions, LibRepo repo, [Str:File]? build)
+  new make(LibRepo repo, LibVersion[] versions, MNamespace? base := null, NameTable names := NameTable(), [Str:File]? build := null)
   {
+    this.repo     = repo
+    this.versions = versions
     this.base     = base
     this.names    = names
-    this.versions = versions
-    this.repo     = repo
     this.build    = build
   }
 
+  const LibRepo repo
+  const LibVersion[] versions
   const MNamespace? base
   const NameTable names
-  const LibVersion[] versions
-  const LibRepo repo
   const [Str:File]? build
 }
 

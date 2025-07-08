@@ -20,6 +20,12 @@ const mixin LibDepend : Dict
     Slot.findMethod("xetoEnv::MLibDepend.makeFields").call(name, versions, FileLoc.unknown)
   }
 
+  ** Construct from exact LibVersion
+  static new makeExact(LibVersion v)
+  {
+    make(v.name, LibDependVersions(v.version))
+  }
+
   ** Library dotted name
   abstract Str name()
 

@@ -92,12 +92,12 @@ const class FileRepo : LibRepo
 
   override LibNamespace createNamespace(LibVersion[] libs)
   {
-    makeNamespace(null, names, libs, this, null)
+    makeNamespace(libs, null, null)
   }
 
   override LibNamespace createOverlayNamespace(LibNamespace base, LibVersion[] libs)
   {
-    makeNamespace(base, names, libs, this, null)
+    makeNamespace(libs, base, null)
   }
 
   override LibNamespace build(LibVersion[] build)
@@ -117,7 +117,7 @@ const class FileRepo : LibRepo
     build.each |v| { buildFiles[v.name] = XetoUtil.srcToLibZip(v) }
 
     // create namespace and force all libs to be compiled
-    ns := makeNamespace(null, names, libs, this, buildFiles)
+    ns := makeNamespace(libs, null, buildFiles)
     ns.libs
 
     // report which libs could not be compiled
@@ -143,10 +143,10 @@ const class FileRepo : LibRepo
     return build(versions)
   }
 
-  private LibNamespace makeNamespace(MNamespace? base, NameTable names, LibVersion[] versions, LibRepo repo, [Str:File]? build)
+  private LibNamespace makeNamespace(LibVersion[] versions, MNamespace? base, [Str:File]? build)
   {
-    init := LocalNamespaceInit(base, names, versions, repo, build)
-    return LocalNamespace(init) //base, names, versions, repo, build)
+    init := LocalNamespaceInit(this, versions, base, names, build)
+    return LocalNamespace(init)
   }
 
 }
