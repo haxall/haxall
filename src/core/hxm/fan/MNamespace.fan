@@ -34,5 +34,20 @@ const class MNamespace : LocalNamespace, Namespace
   }
 
   new make(LocalNamespaceInit init) : super(init) {}
+
+  override once NamespaceExts exts()
+  {
+    ext := spec("hx::Ext")
+    acc := Str:ExtDef[:]
+    libs.each |lib|
+    {
+      lib.specs.each |spec|
+      {
+        if (spec.isa(ext) && spec.meta.missing("abstract"))
+          acc[spec.qname] = MExtDef(spec)
+      }
+    }
+    return MExtDefs(acc)
+  }
 }
 

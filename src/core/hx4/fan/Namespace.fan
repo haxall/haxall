@@ -13,5 +13,26 @@ using xeto
 **
 const mixin Namespace : LibNamespace
 {
+  ** Extension definitions
+  abstract NamespaceExts exts()
+}
+
+**************************************************************************
+** NamespaceDef
+**************************************************************************
+
+**
+** NamespaceDef is base type for a namespace based definitions
+**
+const mixin NamespaceDef
+{
+  ** Spec for this definition
+  abstract Spec spec()
+
+  ** Spec qname
+  abstract Str qname()
+
+  ** Return qname
+  abstract override Str toStr()
 }
 

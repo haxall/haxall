@@ -62,6 +62,7 @@ abstract class Boot
     [
     "sys",
     "sys.files",
+    "hx",
     ]
   }
 

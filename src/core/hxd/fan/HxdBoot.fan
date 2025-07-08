@@ -54,6 +54,11 @@ class Main
     echo(proj.db.read(Filter("projMeta")))
     echo("exts --> $proj.exts $proj.exts.list.size")
     echo(proj.exts.list.join("\n"))
+    echo("defs --> $proj.ns.exts")
+    proj.ns.exts.list.each |d|
+    {
+      echo("  $d $d.fantomType")
+    }
   }
 }
 
