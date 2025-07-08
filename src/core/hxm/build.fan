@@ -26,9 +26,11 @@ class Build : BuildPod
                "vcs.name":     "Git",
                "vcs.uri":      "https://github.com/haxall/haxall"]
     depends = ["sys @{fan.depend}",
+               "concurrent @{fan.depend}",
                "xeto @{hx.depend}",
                "xetoc @{hx.depend}",
                "haystack @{hx.depend}",
+               "obs @{hx.depend}",
                "folio @{hx.depend}",
                "hx @{hx.depend}"]
     srcDirs = [`fan/`]

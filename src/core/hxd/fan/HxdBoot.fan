@@ -48,10 +48,12 @@ class Main
 
     echo("~~> Booted! $proj.id.toZinc [$proj.ns.typeof]")
     echo(proj.ns.libs.join("\n"))
-    echo("--> ")
+    echo("ext recs --> ")
     proj.db.readAll(Filter("ext")).dump
-    echo("--> ")
+    echo("projMeta --> ")
     echo(proj.db.read(Filter("projMeta")))
+    echo("exts --> $proj.exts $proj.exts.list.size")
+    echo(proj.exts.list.join("\n"))
   }
 }
 

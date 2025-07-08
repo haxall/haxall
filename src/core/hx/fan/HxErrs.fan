@@ -6,6 +6,18 @@
 //   22 Jul 2021  Brian Frank  Creation
 //
 
+** Unknown extension
+@NoDoc const class UnknownExtErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+
+** Unknown message received
+@NoDoc const class UnknownMsgErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+
 ** Unknown watch
 @NoDoc const class UnknownWatchErr : Err
 {
