@@ -24,9 +24,6 @@ const class MProjExts : Actor, ProjExts
     this.proj      = proj
     this.required  = required
     this.actorPool = this.pool
-
-listRef.val = Ext[,].toImmutable
-mapRef.val = Str:Ext[:].toImmutable
   }
 
   const MProj proj
@@ -53,14 +50,40 @@ mapRef.val = Str:Ext[:].toImmutable
   override Grid status()
   {
     gb := GridBuilder()
-    gb.addCol("name").addCol("libStatus").addCol("statusMsg")
-    list.each |lib|
+    gb.addCol("qname").addCol("libStatus").addCol("statusMsg")
+    list.each |ext|
     {
-      spi := (MExtSpi)lib.spi
-      gb.addRow([lib.name, spi.status, spi.statusMsg])
+      spi := (MExtSpi)ext.spi
+      gb.addRow([ext.qname, spi.status, spi.statusMsg])
     }
     return gb.toGrid
   }
 
+  Void init(ExtDef[] defs)
+  {
+    map := Str:Ext[:]
+    defs.each |def|
+    {
+      try
+      {
+        // instantiate the HxExt
+        settings := Etc.dict0
+        ext := MExtSpi.instantiate(proj, def, settings)
+        map.add(ext.qname, ext)
+      }
+      catch (Err e)
+      {
+        proj.log.err("Cannot init ext: $def.qname", e)
+      }
+    }
+
+    // build lookup tables
+    list := map.vals
+    list.sort |a, b| { a.qname <=> b.qname }
+
+    // save lookup tables
+    this.listRef.val = list.toImmutable
+    this.mapRef.val = map.toImmutable
+  }
 }
 

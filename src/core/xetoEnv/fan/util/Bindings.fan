@@ -63,7 +63,7 @@ const class SpecBindings
     hay  := Pod.find("haystack")
 
     // sys pod
-    add(ObjBinding       (sys.type("Obj")))
+    add(ObjBinding       ("sys::Obj", sys.type("Obj")))
     add(BoolBinding      (sys.type("Bool")))
     add(BufBinding       (sys.type("Buf")))
     add(FloatBinding     (sys.type("Float")))
@@ -232,6 +232,9 @@ const class SpecBindingLoader
     // enums are scalars
     if (type.fits(Enum#)) return acc.add(ScalarBinding(spec.qname, type))
 
+    // check for hx::Ext
+    if (type.name.endsWith("Ext")) return acc.add(ObjBinding(spec.qname, type))
+
     // no joy
     return null
   }
@@ -261,7 +264,7 @@ const class PodBindingLoader : SpecBindingLoader
 @Js
 internal const class ObjBinding : SpecBinding
 {
-  new make(Type type) { this.spec = type.qname; this.type = type }
+  new make(Str spec, Type type) { this.spec = spec; this.type = type }
   const override Str spec
   const override Type type
   override Bool isScalar() { false }

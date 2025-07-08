@@ -34,19 +34,19 @@ abstract const class Ext
 //////////////////////////////////////////////////////////////////////////
 
   ** Identity hash
-  override final Int hash() { name.hash }
+  override final Int hash() { qname.hash }
 
   ** Equality is based on reference equality
   override final Bool equals(Obj? that) { this === that }
 
-  ** Return `name`
-  override final Str toStr() { name }
+  ** Return `qname`
+  override final Str toStr() { qname }
 
   ** Project
   virtual Proj proj() { spi.proj }
 
-  ** Programmatic name of the extension
-  Str name() { spi.name }
+  ** Qualified name of the extension's spec
+  Str qname() { spi.qname }
 
   ** Settings or empty dict
   virtual Dict settings() { spi.settings }
@@ -138,7 +138,7 @@ abstract const class Ext
 const mixin ExtSpi
 {
   abstract Proj proj()
-  abstract Str name()
+  abstract Str qname()
   abstract Dict settings()
   abstract Log log()
   abstract Bool isRunning()

@@ -44,7 +44,7 @@ class Main
   {
     dir := `/work/haxall/var/`.toFile
     boot := NewBoot(dir)
-    proj := boot.init
+    proj := boot.init.start
 
     echo("~~> Booted! $proj.id.toZinc [$proj.ns.typeof]")
     echo(proj.ns.libs.join("\n"))
@@ -59,6 +59,8 @@ class Main
     {
       echo("  $d $d.fantomType")
     }
+
+    proj.stop
   }
 }
 

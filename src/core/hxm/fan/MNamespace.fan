@@ -18,7 +18,7 @@ using xetoc
 **
 const class MNamespace : LocalNamespace, Namespace
 {
-  static MNamespace load(FileRepo repo, Str[] required)
+  static MNamespace load(FileRepo repo, Str[] required, Log log)
   {
     // we only use latest version for required
     requiredDepends := required.map |n->LibDepend|
@@ -30,10 +30,15 @@ const class MNamespace : LocalNamespace, Namespace
     // solve depends
     versions := repo.solveDepends(requiredDepends)
 
-    return make(LocalNamespaceInit(repo, versions, null, repo.names))
+    return make(LocalNamespaceInit(repo, versions, null, repo.names), log)
   }
 
-  new make(LocalNamespaceInit init) : super(init) {}
+  new make(LocalNamespaceInit init, Log log) : super(init)
+  {
+    this.log = log
+  }
+
+  const Log log
 
   override once NamespaceExts exts()
   {
@@ -44,7 +49,12 @@ const class MNamespace : LocalNamespace, Namespace
       lib.specs.each |spec|
       {
         if (spec.isa(ext) && spec.meta.missing("abstract"))
-          acc[spec.qname] = MExtDef(spec)
+        {
+          if (!spec.name.endsWith("Ext"))
+            return log.err("Ext name must end with Ext: $spec")
+          else
+            acc[spec.qname] = MExtDef(spec)
+        }
       }
     }
     return MExtDefs(acc)

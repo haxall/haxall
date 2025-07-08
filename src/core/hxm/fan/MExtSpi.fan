@@ -26,9 +26,9 @@ const class MExtSpi : Actor, ExtSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate the Ext
-  static Ext instantiate(MProj proj, Lib lib, Dict settings)
+  static Ext instantiate(MProj proj, ExtDef def, Dict settings)
   {
-    spi := MExtSpi(proj, lib, settings)
+    spi := MExtSpi(proj, def, settings)
     Actor.locals["hx.spi"]  = spi
     try
     {
@@ -47,12 +47,12 @@ const class MExtSpi : Actor, ExtSpi
     spi.type.make
   }
 
-  private new make(MProj proj, Lib lib, Dict settings) : super(proj.extActorPool)
+  private new make(MProj proj, ExtDef def, Dict settings) : super(proj.extActorPool)
   {
     this.proj        = proj
-    this.name        = lib.name
-    this.type        = Type.find("TODO")
-    this.log         = Log.get(name)
+    this.qname       = def.qname
+    this.type        = def.fantomType
+    this.log         = Log.get(def.spec.name)
     this.settingsRef = AtomicRef(typedRec(settings))
   }
 
@@ -65,7 +65,7 @@ const class MExtSpi : Actor, ExtSpi
 
   override const Proj proj
 
-  override const Str name
+  override const Str qname
 
   const Type type
 

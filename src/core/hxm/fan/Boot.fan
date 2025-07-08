@@ -86,7 +86,7 @@ abstract class Boot
   ** Create project namespace
   virtual Namespace initNamespace()
   {
-    MNamespace.load(xetoEnv.repo, requiredLibs)
+    MNamespace.load(xetoEnv.repo, requiredLibs, log)
   }
 
   ** Open project folio database

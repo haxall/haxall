@@ -55,3 +55,20 @@ const class MExtDefs : NamespaceExts
   const Str:MExtDef map
 }
 
+**************************************************************************
+** Dummy code
+**************************************************************************
+
+const class FooExt : Ext
+{
+  override Void onStart()
+  {
+    log.info("starting!!")
+  }
+
+  override Void onStop()
+  {
+    log.info("stopping!!")
+  }
+}
+
