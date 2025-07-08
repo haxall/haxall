@@ -988,7 +988,7 @@ const mixin Grid
     if (val === Marker.val) return "M"
     if (val === Remove.val) return "R"
     if (val is DateTime && c.meta["format"] == null) return ((DateTime)val).toLocale("DD-MMM-YY hh:mm")
-    s := r.disOf(c)
+    s := r.disOf(c) ?: ""
     return s
   }
 }
