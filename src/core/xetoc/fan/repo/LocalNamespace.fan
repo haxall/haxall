@@ -18,11 +18,11 @@ using haystack
 **
 const class LocalNamespace : MNamespace
 {
-  new make(MNamespace? base, NameTable names, LibVersion[] versions, LibRepo repo, [Str:File]? build)
-    : super(base, names, versions, null)
+  new make(LocalNamespaceInit init)
+    : super(init.base, init.names, init.versions, null)
   {
-    this.repo  = repo
-    this.build = build
+    this.repo  = init.repo
+    this.build = init.build
   }
 
   const LibRepo repo
@@ -95,5 +95,28 @@ const class LocalNamespace : MNamespace
   }
 
   private const AtomicInt compileCount := AtomicInt()
+}
+
+
+**************************************************************************
+** LocalNamespaceInit
+**************************************************************************
+
+const class LocalNamespaceInit
+{
+  new make(MNamespace? base, NameTable names, LibVersion[] versions, LibRepo repo, [Str:File]? build)
+  {
+    this.base     = base
+    this.names    = names
+    this.versions = versions
+    this.repo     = repo
+    this.build    = build
+  }
+
+  const MNamespace? base
+  const NameTable names
+  const LibVersion[] versions
+  const LibRepo repo
+  const [Str:File]? build
 }
 

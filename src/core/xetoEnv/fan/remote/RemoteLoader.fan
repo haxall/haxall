@@ -307,7 +307,7 @@ internal class RemoteLoader
     }
     else
     {
-      return ns.spec(qname, checked)
+      return ns.spec(qname, checked) as CSpec
     }
   }
 

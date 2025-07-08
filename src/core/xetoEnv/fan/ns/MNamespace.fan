@@ -81,7 +81,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   const override NameTable names
 
-  const override MNamespace? base
+  const override LibNamespace? base
 
   override Bool isOverlay() { base != null }
 
@@ -362,7 +362,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
 // Lookups
 //////////////////////////////////////////////////////////////////////////
 
-  override XetoSpec? type(Str qname, Bool checked := true)
+  override Spec? type(Str qname, Bool checked := true)
   {
     colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
     libName := qname[0..<colon]
@@ -373,7 +373,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
     return null
   }
 
-  override XetoSpec? spec(Str qname, Bool checked := true)
+  override Spec? spec(Str qname, Bool checked := true)
   {
     colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
 
