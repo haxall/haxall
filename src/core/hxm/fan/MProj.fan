@@ -18,7 +18,7 @@ using hx4
 **
 const class MProj : Proj
 {
-  new make(Boot boot)
+  new make(ProjBoot boot)
   {
     this.name      = boot.name
     this.id        = Ref("p:$name", name)
@@ -26,8 +26,8 @@ const class MProj : Proj
     this.meta      = boot.meta
     this.ns        = boot.ns
     this.db        = boot.db
+    this.libs      = boot.libs
     this.actorPool = ActorPool { it.name = "$this.name-ExtPool" }
-    this.libs      = MProjLibs(this)
     this.exts      = MProjExts(this)
     this.log       = Log.get(name)
     exts.init(ns.exts.list)

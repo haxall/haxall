@@ -21,9 +21,10 @@ const class MNamespace : LocalNamespace, Namespace
   static MNamespace load(FileRepo repo, Str[] required, Log log)
   {
     // we only use latest version for required
-    requiredDepends := required.map |n->LibDepend|
+    requiredDepends := required.mapNotNull |n->LibDepend?|
     {
-      latest := repo.latest(n, false) ?: throw Err("Missing required boot lib: $n")
+      latest := repo.latest(n, false)
+      if (latest == null) return null
       return LibDepend(latest)
     }
 

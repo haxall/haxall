@@ -10,24 +10,82 @@
 using concurrent
 using xeto
 using haystack
-using folio
 using hx
 using hx4
 
 **
 ** ProjLibs implementation
 **
-const class MProjLibs : Actor, ProjLibs
+const class MProjLibs : ProjLibs
 {
-  new make(MProj proj) : super(proj.actorPool)
+
+//////////////////////////////////////////////////////////////////////////
+// Init
+//////////////////////////////////////////////////////////////////////////
+
+  static MProjLibs init(ProjBoot boot)
   {
-    this.proj = proj
+    log := boot.log
+    repo := boot.xetoEnv.repo
+
+    // boot libs are defined by boot loader
+    bootLibs := initLibs(repo, log, ProjLibState.boot, boot.bootLibs)
+
+    // proj libs are defined in "libs.txt"
+    fb := boot.nsfb
+    projLibNames := fb.read("libs.txt").readAllLines.findAll |line|
+    {
+      line = line.trim
+      return !line.isEmpty && !line.startsWith("//")
+    }
+
+    // resolve the project lib names
+    projLibs := initLibs(repo, log, ProjLibState.enabled, projLibNames)
+
+    // build map
+    acc := Str:MProjLib[:]
+    projLibs.each |x| { acc[x.name] = x }
+    bootLibs.each |x| { acc[x.name] = x } // trumps proj libs
+
+    // create instance
+    return make(fb, acc)
   }
 
-  const MProj proj
+  private static MProjLib[] initLibs(LibRepo repo, Log log, ProjLibState state, Str[] names)
+  {
+    acc := MProjLib[,]
+    names.each |n|
+    {
+      x := repo.latest(n, false)
+      if (x == null)
+      {
+        if (state.isBoot)
+          log.err("Boot lib not found: $n")
+        else
+          log.err("Proj lib not found: $n")
+        acc.add(MProjLib(n, null, "", ProjLibState.notFound))
+      }
+      else
+      {
+        acc.add(MProjLib(n, x.version, x.doc, state))
+      }
+    }
+    return acc
+  }
 
-  override ProjLib[] list() { listRef.val }
-  private const AtomicRef listRef := AtomicRef()
+  private new make(FileBase fb, Str:MProjLib map)
+  {
+    this.fb = fb
+    this.mapRef.val = map.toImmutable
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// ProjLibs
+//////////////////////////////////////////////////////////////////////////
+
+  const FileBase fb
+
+  override ProjLib[] list() { map.vals.sort }
 
   override Bool has(Str name) { map.containsKey(name) }
 
@@ -56,6 +114,35 @@ const class MProjLibs : Actor, ProjLibs
     }
     return gb.toGrid
   }
+
+}
+
+**************************************************************************
+** MProjLib
+**************************************************************************
+
+const class MProjLib : ProjLib
+{
+  new make(Str name, Version? version, Str doc, ProjLibState state)
+  {
+    this.name    = name
+    this.version = version
+    this.doc     = doc
+    this.state   = state
+  }
+
+  override const Str name
+  override const Version? version
+  override const Str doc
+  override const ProjLibState state
+  override Int compare(Obj that)
+  {
+    a := this
+    b := (ProjLib)that
+    if (a.state == b.state) return a.name <=> b.name
+    return a.state <=> b.state
+  }
+  override Str toStr() { "$name [$state]" }
 
 }
 

@@ -13,9 +13,9 @@ using hx
 using hx4
 
 **
-** Base class for all bootstrap project loaders
+** Project bootstrap project loader
 **
-abstract class Boot
+abstract class ProjBoot
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -57,12 +57,13 @@ abstract class Boot
   virtual XetoEnv xetoEnv() { XetoEnv.cur }
 
   ** List of xeto lib names which are required to be installed.
-  virtual Str[] requiredLibs()
+  virtual Str[] bootLibs()
   {
     [
     "sys",
     "sys.files",
     "hx",
+    "bad.one"
     ]
   }
 
@@ -73,6 +74,8 @@ abstract class Boot
   ** Initialize the project but do not start it
   MProj init()
   {
+    this.nsfb = initNamespaceFileBase
+    this.libs = initProjLibs
     this.ns   = initNamespace
     this.db   = initFolio
     this.meta = initMeta
@@ -80,13 +83,27 @@ abstract class Boot
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Overrides
+// Steps
 //////////////////////////////////////////////////////////////////////////
+
+  ** Init file base used to manage the lib namespace
+  virtual DiskFileBase initNamespaceFileBase()
+  {
+    nsDir := this.dir + `ns/`
+    if (!nsDir.exists) throw Err("Lib ns dir not found: $nsDir.osPath")
+    return DiskFileBase(nsDir)
+  }
+
+  ** Init project lib manager
+  virtual MProjLibs initProjLibs()
+  {
+    MProjLibs.init(this)
+  }
 
   ** Create project namespace
   virtual Namespace initNamespace()
   {
-    MNamespace.load(xetoEnv.repo, requiredLibs, log)
+    MNamespace.load(xetoEnv.repo, bootLibs, log)
   }
 
   ** Open project folio database
@@ -133,8 +150,10 @@ abstract class Boot
 // Internal Fields
 //////////////////////////////////////////////////////////////////////////
 
-  internal MNamespace? ns
-  internal Folio? db
-  internal Dict? meta
+  internal FileBase? nsfb         // initNamespaceFileBase
+  internal MProjLibs? libs        // initProjLibs
+  internal MNamespace? ns         // initNamespace
+  internal Folio? db              // initFolio
+  internal Dict? meta             // initMeta
 }
 

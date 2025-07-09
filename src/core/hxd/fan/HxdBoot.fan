@@ -18,7 +18,7 @@ using hxFolio
 **
 ** Bootstrap loader for Haxall daemon
 **
-class NewBoot : hxm::Boot
+class NewBoot : hxm::ProjBoot
 {
   new make(File dir) : super("sys", dir) {}
 
@@ -59,6 +59,8 @@ class Main
     {
       echo("  $d $d.fantomType")
     }
+    echo("libs --> $proj.libs.list.size")
+    proj.libs.list.each |x| { echo(x) }
 
     proj.stop
   }
