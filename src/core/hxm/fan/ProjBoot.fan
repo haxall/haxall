@@ -63,7 +63,6 @@ abstract class ProjBoot
     "sys",
     "sys.files",
     "hx",
-    "bad.one"
     ]
   }
 
