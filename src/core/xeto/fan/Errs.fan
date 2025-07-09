@@ -9,7 +9,7 @@
 
 ** UnknownNameErr is thrown when `Dict.trap` or `Grid.col` fails
 ** to resolve a name.
-@Js const class UnknownNameErr : Err
+@Js @NoDoc const class UnknownNameErr : Err
 {
   ** Construct with message and optional cause.
   new make(Str? msg, Err? cause := null) : super(msg, cause) {}
@@ -25,5 +25,14 @@
 @Js @NoDoc const class UnknownLibErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+
+**
+** DependErr indicates a missing dependency
+**
+@Js @NoDoc const class DependErr : Err
+{
+  ** Construct with message and optional cause.
+  new make(Str? msg, Err? cause := null) : super(msg, cause) {}
 }
 

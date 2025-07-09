@@ -91,15 +91,6 @@ using xeto
 }
 
 **
-** DependErr indicates a missing dependency
-**
-@Js const class DependErr : Err
-{
-  ** Construct with message and optional cause.
-  new make(Str? msg, Err? cause := null) : super(msg, cause) {}
-}
-
-**
 ** CallErr is raised when a server returns an error grid from
 ** a client call to a REST operation.
 **

@@ -66,7 +66,7 @@ const mixin LibVersion
       {
         m := byName[d.name]
         if (m == null || !d.versions.contains(m.version))
-          throw makeDependErr("$x dependency: $d [$m]")
+          throw DependErr("$x dependency: $d [$m]")
       }
     }
 
@@ -78,14 +78,11 @@ const mixin LibVersion
     {
       // find next that doesn't have depends in left list
       i := left.findIndex |x| { noDependsInLeft(left, x) }
-      if (i == null) throw makeDependErr("Circular depends")
+      if (i == null) throw DependErr("Circular depends")
       ordered.add(left.removeAt(i));
     }
     return ordered
   }
-
-  // TODO: change Err to DependErr when we move from haystack
-  private static Err makeDependErr(Str msg) { Type.find("haystack::DependErr").make([msg]) }
 
   private static Bool noDependsInLeft(LibVersion[] left, LibVersion x)
   {
