@@ -36,22 +36,37 @@ const class SpecBindings
 
   ** Build registry of lib name to loader type:
   **
-  **   index = ["xeto.bindings": "libName loaderType"]
+  **   // use pod loader
+  **   index = ["xeto.bindings": "libName"]
+  **
+  **   // use specific SpecBindingLoader class
+  **   index = ["xeto.bindings": "libName ion::XetoBindingLoader"]
   **
   ** The loaderType is qname of SpecBindingLoader Fantom class
   ** or if is a pod name we load via PodBindingLoader
   private Void initLoaders()
   {
-    Env.cur.index("xeto.bindings").each |str|
+    Env.cur.indexByPodName("xeto.bindings").each |list, podName|
     {
-      try
+      list.each |str|
       {
-        toks := str.split
-        libName := toks[0]
-        loaderType := toks[1]
-        loaders.set(libName, loaderType)
+        try
+        {
+          toks := str.split
+          libName := toks[0]
+          if (toks.size == 1)
+          {
+            // lib -> podName
+            loaders.set(libName, podName)
+          }
+          else
+          {
+            // lib -> fantom type
+            loaders.set(libName, toks[1])
+          }
+        }
+        catch (Err e) echo("ERR: Cannot init BindingLoader: $podName: $str\n  $e")
       }
-      catch (Err e) echo("ERR: Cannot init BindingLoader: $str\n  $e")
     }
   }
 

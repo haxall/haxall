@@ -36,7 +36,7 @@ class Build : BuildPod
                "hx4 @{hx.depend}"]
     srcDirs = [`fan/`]
     docApi  = false
-    index   = ["xeto.bindings": "hx hxm"]
+    index   = ["xeto.bindings": "hx"]
   }
 }
 
