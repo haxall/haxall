@@ -20,63 +20,13 @@ const class MProjLibs : ProjLibs
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Init
+// Construction
 //////////////////////////////////////////////////////////////////////////
 
-  static MProjLibs init(ProjBoot boot)
+  new make(ProjBoot boot)
   {
-    log := boot.log
-    repo := boot.xetoEnv.repo
-
-    // boot libs are defined by boot loader
-    bootLibs := initLibs(repo, log, ProjLibState.boot, boot.bootLibs)
-
-    // proj libs are defined in "libs.txt"
-    fb := boot.nsfb
-    projLibNames := fb.read("libs.txt").readAllLines.findAll |line|
-    {
-      line = line.trim
-      return !line.isEmpty && !line.startsWith("//")
-    }
-
-    // resolve the project lib names
-    projLibs := initLibs(repo, log, ProjLibState.enabled, projLibNames)
-
-    // build map
-    acc := Str:MProjLib[:]
-    projLibs.each |x| { acc[x.name] = x }
-    bootLibs.each |x| { acc[x.name] = x } // trumps proj libs
-
-    // create instance
-    return make(fb, acc)
-  }
-
-  private static MProjLib[] initLibs(LibRepo repo, Log log, ProjLibState state, Str[] names)
-  {
-    acc := MProjLib[,]
-    names.each |n|
-    {
-      x := repo.latest(n, false)
-      if (x == null)
-      {
-        if (state.isBoot)
-          log.err("Boot lib not found: $n")
-        else
-          log.err("Proj lib not found: $n")
-        acc.add(MProjLib(n, null, "", ProjLibState.notFound))
-      }
-      else
-      {
-        acc.add(MProjLib(n, x.version, x.doc, state))
-      }
-    }
-    return acc
-  }
-
-  private new make(FileBase fb, Str:MProjLib map)
-  {
-    this.fb = fb
-    this.mapRef.val = map.toImmutable
+    this.fb = boot.nsfb
+    this.bootLibNames = boot.bootLibs
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -84,6 +34,8 @@ const class MProjLibs : ProjLibs
 //////////////////////////////////////////////////////////////////////////
 
   const FileBase fb
+
+  const Str[] bootLibNames
 
   override ProjLib[] list() { map.vals.sort }
 
@@ -96,8 +48,8 @@ const class MProjLibs : ProjLibs
     if (checked) throw UnknownExtErr(name)
     return null
   }
-  internal Str:ProjLib map() { mapRef.val }
-  private const AtomicRef mapRef := AtomicRef()
+  internal Str:MProjLib map() { mapRef.val }
+  internal const AtomicRef mapRef := AtomicRef() // updated by MNamespace.load
 
   override ProjLib[] installed()
   {
@@ -107,14 +59,23 @@ const class MProjLibs : ProjLibs
   override Grid status(Bool installed := false)
   {
     gb := GridBuilder()
-    gb.addCol("name").addCol("state").addCol("version").addCol("doc")
+    gb.addCol("name").addCol("status").addCol("version").addCol("more")
     list.each |x|
     {
-      gb.addRow([x.name, x.state.name, x.version.toStr, x.doc])
+      gb.addRow([x.name, x.status.name, x.version?.toStr, x.doc ?: x.err?.toStr])
     }
     return gb.toGrid
   }
 
+  Str[] readProjLibNames()
+  {
+    // proj libs are defined in "libs.txt"
+    return fb.read("libs.txt").readAllLines.findAll |line|
+    {
+      line = line.trim
+      return !line.isEmpty && !line.startsWith("//")
+    }
+  }
 }
 
 **************************************************************************
@@ -123,26 +84,40 @@ const class MProjLibs : ProjLibs
 
 const class MProjLib : ProjLib
 {
-  new make(Str name, Version? version, Str doc, ProjLibState state)
+  internal new makeOk(Str name, Bool isBoot, LibVersion v)
   {
     this.name    = name
-    this.version = version
-    this.doc     = doc
-    this.state   = state
+    this.isBoot  = isBoot
+    this.status  = ProjLibStatus.ok
+    this.version = v.version
+    this.doc     = v.doc
+  }
+
+  internal new makeErr(Str name, Bool isBoot, ProjLibStatus status, Err err)
+  {
+    this.name   = name
+    this.isBoot = isBoot
+    this.status = status
+    this.err    = err
   }
 
   override const Str name
+  override const Bool isBoot
+  override const ProjLibStatus status
   override const Version? version
-  override const Str doc
-  override const ProjLibState state
+  override const Str? doc
+  override const Err? err
+
+  override Str toStr() { "$name [$status]" }
+
   override Int compare(Obj that)
   {
     a := this
     b := (ProjLib)that
-    if (a.state == b.state) return a.name <=> b.name
-    return a.state <=> b.state
+    cmp := a.status <=> b.status
+    if (cmp != 0) return cmp
+    return a.name <=> b.name
   }
-  override Str toStr() { "$name [$state]" }
 
 }
 

@@ -24,7 +24,7 @@ class ProjTest : HxTest
   Void test()
   {
     // setup
-    projLibs := ["ph", "ph.points", "ph.equips", "bad.proj"]
+    projLibs := ["ph", "ashrae.g36", "bad.proj"]
     dir := tempDir
     dir.plus(`ns/libs.txt`).out.print(projLibs.join("\n")).close
 
@@ -43,27 +43,38 @@ class ProjTest : HxTest
     verifySame(p.meta, p.read("projMeta"))
 
     // initial libs
-    boot.bootLibs.each |n| { verifyProjLib(p, n, "boot") }
-    projLibs.each |n| { verifyProjLib(p, n, "enabled") }
+    boot.bootLibs.each |n|
+    {
+      s := n.startsWith("bad.") ? "notFound" : "ok"
+      verifyProjLib(p, n, true, s)
+    }
+    projLibs.each |n|
+    {
+      s := n.startsWith("bad.") ? "notFound" : "ok"
+      if (n == "ashrae.g36") s = "err"
+      verifyProjLib(p, n, false, s)
+    }
   }
 
-  Void verifyProjLib(Proj p, Str n, Str state)
+  Void verifyProjLib(Proj p, Str n, Bool isBoot, Str status)
   {
     x := p.libs.get(n)
-    // echo("~~ $x.name $x.version $x.state")
-    bad := n.startsWith("bad.")
+    // echo("~~ $x.name [$x.status]  $x.err")
     verifySame(p.libs.list.find { it.name == n }, x)
     verifyEq(x.name, n)
-    verifyEq(x.state.name, bad ? "notFound" : state)
-    if (!bad)
+    verifyEq(x.isBoot, isBoot)
+    verifyEq(x.status.name, status)
+    if (status == "ok")
     {
       lib := p.ns.lib(n)
       verifyEq(p.ns.libStatus(n), LibStatus.ok)
-      verifyEq(lib.version, x.version)
+      verifyEq(x.version, lib.version)
+      verifyEq(x.doc, p.ns.version(n).doc)
     }
     else
     {
       verifyEq(p.ns.lib(n, false), null)
+      verifyNotNull(x.err)
     }
   }
 }

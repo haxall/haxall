@@ -86,7 +86,7 @@ const mixin LibVersion
       {
         m := byName[d.name]
         if (m == null || !d.versions.contains(m.version))
-          errs.add(DependErr("$x dependency: $d [$m]", null, d.name))
+          errs.add(DependErr("$x dependency: $d [$m]", null, x.name))
       }
     }
 

@@ -43,30 +43,34 @@ const mixin ProjLib
   ** Dotted library name
   abstract Str name()
 
-  ** Latest version which is used by Haxall or null if not found
-  abstract Version? version()
+  ** Is this a boot lib that cannot be uninstalled
+  abstract Bool isBoot()
 
-  ** Enable state of the lib
-  abstract ProjLibState state()
+  ** Status of the lib
+  abstract ProjLibStatus status()
+
+  ** Lastest version in use or installed
+  @NoDoc abstract Version? version()
 
   ** Summary documentation
-  @NoDoc abstract Str doc()
+  @NoDoc abstract Err? err()
+
+  ** Summary documentation
+  @NoDoc abstract Str? doc()
 }
 
 **************************************************************************
-** ProjLibState
+** ProjLibStatus
 **************************************************************************
 
 **
-** ProjLibState is install status of a ProjLib
+** ProjLib status
 **
-enum class ProjLibState
+enum class ProjLibStatus
 {
-  boot,
-  enabled,
+  ok,
+  err,
   notFound,
   disabled
-
-  @NoDoc Bool isBoot() { this === boot }
 }
 

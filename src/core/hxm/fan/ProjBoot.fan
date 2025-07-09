@@ -96,13 +96,13 @@ abstract class ProjBoot
   ** Init project lib manager
   virtual MProjLibs initProjLibs()
   {
-    MProjLibs.init(this)
+    MProjLibs(this)
   }
 
   ** Create project namespace
-  virtual Namespace initNamespace()
+  virtual ProjNamespace initNamespace()
   {
-    MNamespace.load(xetoEnv.repo, libs.list, log)
+    ProjNamespace.load(xetoEnv.repo, log, libs)
   }
 
   ** Open project folio database
@@ -151,7 +151,7 @@ abstract class ProjBoot
 
   internal FileBase? nsfb         // initNamespaceFileBase
   internal MProjLibs? libs        // initProjLibs
-  internal MNamespace? ns         // initNamespace
+  internal ProjNamespace? ns      // initNamespace
   internal Folio? db              // initFolio
   internal Dict? meta             // initMeta
 }
