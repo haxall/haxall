@@ -18,18 +18,17 @@ using xetoc
 **
 const class MNamespace : LocalNamespace, Namespace
 {
-  static MNamespace load(FileRepo repo, Str[] required, Log log)
+  static MNamespace load(FileRepo repo, MProjLib[] libs, Log log)
   {
-    // we only use latest version for required
-    requiredDepends := required.mapNotNull |n->LibDepend?|
+    versions := LibVersion[,]
+    versions.capacity = libs.size
+    libs.each |x|
     {
-      latest := repo.latest(n, false)
-      if (latest == null) return null
-      return LibDepend(latest)
+      if (x.version == null) return
+      v := repo.version(x.name, x.version, false)
+      if (v == null) return log.err("Proj lib was removed: $x.name")
+      versions.add(v)
     }
-
-    // solve depends
-    versions := repo.solveDepends(requiredDepends)
 
     return make(LocalNamespaceInit(repo, versions, null, repo.names), log)
   }
