@@ -36,3 +36,10 @@
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
+
+** Thrown when trying to uninstall a boot lib
+@NoDoc const class CannotRemoveBootLibErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+

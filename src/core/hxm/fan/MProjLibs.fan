@@ -108,13 +108,8 @@ const class MProjLibs : ProjLibs
 
   private Void doAdd(Str[] names)
   {
-    // verify no dup names
-    dupNames := Str:Str[:]
-    names.each |n|
-    {
-      if (dupNames[n] != null) throw DuplicateNameErr(n)
-      dupNames[n] = n
-    }
+    // check dup names were not passed in to keep things clean
+    checkDupNames(names)
 
     // remove names already installed or check they exists
     map := this.map
@@ -129,22 +124,57 @@ const class MProjLibs : ProjLibs
     }
     if (toAddVers.isEmpty) return
 
-    // build list of all current and to add
-    newProjLibNameMap := Str:Str[:]
+    // build list of all current plus to-add
+    newProjLibs := Str:Str[:]
     allVers := Str:LibVersion[:]
     map.each |x|
     {
       n := x.name
-      if (!x.isBoot) newProjLibNameMap[n] = n
+      if (!x.isBoot) newProjLibs[n] = n
       if (x.status.isOk) allVers[n] = repo.version(n, x.version)
     }
     toAddVers.each |x|
     {
       n := x.name
-      newProjLibNameMap[n] = n
+      newProjLibs[n] = n
       allVers.add(n, x)
     }
 
+    // check depends, reload ns, save libs.txt
+    reloadNewProjLibs(allVers, newProjLibs)
+  }
+
+  private Void doRemove(Str[] names)
+  {
+    // check dup names were not passed in to keep things clean
+    nameMap := checkDupNames(names)
+
+    // build list of all current minus to-remove
+    newProjLibs := Str:Str[:]
+    allVers := Str:LibVersion[:]
+    map.each |x|
+    {
+      n := x.name
+
+      // check if a lib to remove
+      isRemove := nameMap.containsKey(n)
+      if (isRemove)
+      {
+        if (x.isBoot) throw CannotRemoveBootLibErr(n)
+        return
+      }
+
+      // update our lists
+      if (!x.isBoot) newProjLibs[n] = n
+      if (x.status.isOk) allVers[n] = repo.version(n, x.version)
+    }
+
+    // check depends, reload ns, save libs.txt
+    reloadNewProjLibs(allVers, newProjLibs)
+  }
+
+  private Void reloadNewProjLibs(Str:LibVersion allVers, Str:Str newProjLibNameMap)
+  {
     // verify that the new all LibVersions have met depends
     LibVersion.orderByDepends(allVers.vals)
 
@@ -156,9 +186,15 @@ const class MProjLibs : ProjLibs
     writeProjLibNames(newProjLibNames)
   }
 
-  private Void doRemove(Str[] names)
+  private Str:Str checkDupNames(Str[] names)
   {
-    throw Err("TODO")
+    map := Str:Str[:]
+    names.each |n|
+    {
+      if (map[n] != null) throw DuplicateNameErr(n)
+      else map[n] = n
+    }
+    return map
   }
 
 //////////////////////////////////////////////////////////////////////////

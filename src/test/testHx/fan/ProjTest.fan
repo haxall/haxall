@@ -49,7 +49,7 @@ class ProjTest : HxTest
     p.libs.addAll(Str[,])
     verifyProjLibs(p, bootLibs, projLibs, ["ashrae.g36"])
 
-    // verify errors
+    // add - verify errors
     verifyErr(DuplicateNameErr#) { p.libs.addAll(["ph.points", "ph.points"]) }
     verifyErr(UnknownLibErr#) { p.libs.add("bad.bad.bad") }
     verifyErr(DependErr#) { p.libs.add("hx.test.xeto") }
@@ -64,6 +64,20 @@ class ProjTest : HxTest
     p = TestProjBoot(tempDir).init
     verifyProjLibs(p, bootLibs, projLibs, [,])
     //dumpLibs(p)
+
+    // remove - errors
+    verifyErr(DuplicateNameErr#) { p.libs.removeAll(["ph.points", "ph.points"]) }
+    verifyErr(DependErr#) { p.libs.remove("ph.points") }
+    verifyErr(CannotRemoveBootLibErr#) { p.libs.removeAll(["ashrae.g36", "sys"]) }
+
+    // remove g36
+    p.libs.remove("ashrae.g36")
+    projLibs.remove("ashrae.g36")
+
+    // re-boot and verify libs were persisted
+    p.db.close
+    p = TestProjBoot(tempDir).init
+    verifyProjLibs(p, bootLibs, projLibs, [,])
   }
 
   Void dumpLibs(Proj p)
