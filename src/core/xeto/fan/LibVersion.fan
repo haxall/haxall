@@ -57,6 +57,26 @@ const mixin LibVersion
   ** has circular dependencies.
   static LibVersion[] orderByDepends(LibVersion[] libs)
   {
+    ordered := LibVersion[,]
+    errs := DependErr[,]
+    solveDepends(libs, ordered, errs)
+    if (!errs.isEmpty) throw errs.first
+    return ordered
+  }
+
+  ** Order a list of versions by their dependencies.  Raise exception if
+  ** the given list does not satisify all the internal dependencies or
+  ** has circular dependencies.
+  @NoDoc static DependErr[] checkDepends(LibVersion[] libs)
+  {
+    ordered := LibVersion[,]
+    errs := DependErr[,]
+    solveDepends(libs, ordered, errs)
+    return errs
+  }
+
+  private static Void solveDepends(LibVersion[] libs, LibVersion[] ordered, DependErr[] errs)
+  {
     // check internal version constraints
     byName := Str:LibVersion[:]
     libs.each |x| { byName.add(x.name, x) }
@@ -66,22 +86,24 @@ const mixin LibVersion
       {
         m := byName[d.name]
         if (m == null || !d.versions.contains(m.version))
-          throw DependErr("$x dependency: $d [$m]")
+          errs.add(DependErr("$x dependency: $d [$m]", null, d.name))
       }
     }
 
     // sort by dependency order
     left := libs.dup.sort
-    ordered := LibVersion[,]
     ordered.capacity = libs.size
     while (!left.isEmpty)
     {
       // find next that doesn't have depends in left list
       i := left.findIndex |x| { noDependsInLeft(left, x) }
-      if (i == null) throw DependErr("Circular depends")
-      ordered.add(left.removeAt(i));
+      if (i == null)
+      {
+        left.each |x| { errs.add(DependErr("Circular depends", null, x.name)) }
+        return
+      }
+      else ordered.add(left.removeAt(i));
     }
-    return ordered
   }
 
   private static Bool noDependsInLeft(LibVersion[] left, LibVersion x)

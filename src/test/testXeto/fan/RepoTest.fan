@@ -86,26 +86,35 @@ class RepoTest : AbstractXetoTest
 
     verifyErrMsg(DependErr#, "Circular depends")
     {
-      verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.circular")
+      verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.circular", ["cc.circular"])
     }
 
     verifyErrMsg(DependErr#, "cc.noSolve-10.0.10 dependency: ph 9.x.x [ph-3.0.9]")
     {
-      verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.noSolve")
+      verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.noSolve", ["ph"])
     }
   }
 
-  Void verifyOrderByDepends(LibRepo repo, Str names)
+  Void verifyOrderByDepends(LibRepo repo, Str names, Str[] expectErrs := [,])
   {
     LibVersion[] libs := names.split(',').map |x->LibVersion| { repo.latest(x) }
     (libs.size * 2).times
     {
       shuffled := libs.dup.shuffle
+
+      // -- LibVersion.checkDepends --
+      actualErrs := LibVersion.checkDepends(shuffled)
+      // echo("~~~ $names"); echo(actualErrs.join("\n") { "$it $it.name" })
+      verifyEq(actualErrs.size, expectErrs.size)
+      actualErrs.each |x, i| { verifyEq(x.name, expectErrs[i]) }
+
+      // -- LibVersion.orderByDepends --
       sorted := LibVersion.orderByDepends(shuffled)
       sortedNames := sorted.join(", ") { it.name }
       // echo("~~> " + shuffled.join(", ") { it.name })
       // echo("  > $sortedNames")
       verifyEq(sortedNames, names)
+
     }
   }
 

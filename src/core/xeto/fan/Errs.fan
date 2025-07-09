@@ -33,6 +33,7 @@
 @Js @NoDoc const class DependErr : Err
 {
   ** Construct with message and optional cause.
-  new make(Str? msg, Err? cause := null) : super(msg, cause) {}
+  new make(Str? msg, Err? cause := null, Str? name := null) : super(msg, cause) { this.name = name }
+  const Str? name
 }
 
