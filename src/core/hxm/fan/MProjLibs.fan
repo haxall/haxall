@@ -10,6 +10,7 @@
 using concurrent
 using xeto
 using haystack
+using xetoc
 using hx
 using hx4
 
@@ -27,15 +28,24 @@ const class MProjLibs : ProjLibs
   {
     this.fb = boot.nsfb
     this.bootLibNames = boot.bootLibs
+    this.repo = boot.repo
+    this.log = boot.log
+    reload(readProjLibNames)
   }
 
 //////////////////////////////////////////////////////////////////////////
-// ProjLibs
+// Lookup
 //////////////////////////////////////////////////////////////////////////
 
   const FileBase fb
 
+  const Log log
+
+  const FileRepo repo
+
   const Str[] bootLibNames
+
+  ProjNamespace ns() { nsRef.val }
 
   override ProjLib[] list() { map.vals.sort }
 
@@ -49,7 +59,6 @@ const class MProjLibs : ProjLibs
     return null
   }
   internal Str:MProjLib map() { mapRef.val }
-  internal const AtomicRef mapRef := AtomicRef() // updated by MNamespace.load
 
   override ProjLib[] installed()
   {
@@ -67,6 +76,95 @@ const class MProjLibs : ProjLibs
     return gb.toGrid
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Modification
+//////////////////////////////////////////////////////////////////////////
+
+  override Void add(Str name) { addAll([name]) }
+
+  override Void addAll(Str[] names)
+  {
+    if (names.isEmpty) return
+    lock.lock
+    try
+      doAdd(names)
+    finally
+      lock.unlock
+  }
+
+  override Void remove(Str name) { removeAll([name]) }
+
+  override Void removeAll(Str[] names)
+  {
+    if (names.isEmpty) return
+    lock.lock
+    try
+      doRemove(names)
+    finally
+      lock.unlock
+  }
+
+  private const Lock lock := Lock.makeReentrant
+
+  private Void doAdd(Str[] names)
+  {
+    // verify no dup names
+    dupNames := Str:Str[:]
+    names.each |n|
+    {
+      if (dupNames[n] != null) throw DuplicateNameErr(n)
+      dupNames[n] = n
+    }
+
+    // remove names already installed or check they exists
+    map := this.map
+    toAddVers := Str:LibVersion[:]
+    repo := XetoEnv.cur.repo
+    names.each |n|
+    {
+      cur := map[n]
+      if (cur != null) return
+      ver := repo.latest(n)
+      toAddVers.add(n, ver)
+    }
+    if (toAddVers.isEmpty) return
+
+    // build list of all current and to add
+    newProjLibNameMap := Str:Str[:]
+    allVers := Str:LibVersion[:]
+    map.each |x|
+    {
+      n := x.name
+      if (!x.isBoot) newProjLibNameMap[n] = n
+      if (x.status.isOk) allVers[n] = repo.version(n, x.version)
+    }
+    toAddVers.each |x|
+    {
+      n := x.name
+      newProjLibNameMap[n] = n
+      allVers.add(n, x)
+    }
+
+    // verify that the new all LibVersions have met depends
+    LibVersion.orderByDepends(allVers.vals)
+
+    // now we are ready, rebuild our projLibNames list
+    newProjLibNames := newProjLibNameMap.vals.sort
+    reload(newProjLibNames)
+
+    // update our libs.txt file
+    writeProjLibNames(newProjLibNames)
+  }
+
+  private Void doRemove(Str[] names)
+  {
+    throw Err("TODO")
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// File I/O
+//////////////////////////////////////////////////////////////////////////
+
   Str[] readProjLibNames()
   {
     // proj libs are defined in "libs.txt"
@@ -76,6 +174,85 @@ const class MProjLibs : ProjLibs
       return !line.isEmpty && !line.startsWith("//")
     }
   }
+
+  Void writeProjLibNames(Str[] names)
+  {
+    buf := Buf()
+    buf.capacity = names.size * 16
+    buf.printLine("// " + DateTime.now.toLocale)
+    names.each |n| { buf.printLine(n) }
+
+    // proj libs are defined in "libs.txt"
+    fb.write("libs.txt", buf)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Reload
+//////////////////////////////////////////////////////////////////////////
+
+  private Void reload(Str[] projLibNames)
+  {
+    // first find an installed LibVersion for each lib
+    vers := Str:LibVersion[:]
+    nameToIsBoot := Str:Bool[:]
+    projLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToIsBoot[n] = false }
+    bootLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToIsBoot[n] = true }
+
+    // check depends and remove libs with a dependency error
+    versToUse := vers.dup
+    dependErrs := Str:Err[:]
+    LibVersion.checkDepends(vers.vals).each |err|
+    {
+      n := err.name
+      dependErrs[n] = err
+      versToUse.remove(n)
+    }
+
+    // at this point should we should have a safe versions list to create namespace
+    ns := ProjNamespace(LocalNamespaceInit(repo, versToUse.vals, null, repo.names), log)
+    ns.libs // force sync load
+
+    // now update MProjLibs map of MProjLib
+    acc := Str:MProjLib[:]
+    nameToIsBoot.each |isBoot, n|
+    {
+      // check if we have lib installed
+      ver := vers[n]
+      if (ver == null)
+      {
+        acc[n] = MProjLib.makeErr(n, isBoot, ProjLibStatus.notFound, UnknownLibErr("Lib is not installed"))
+        return
+      }
+
+      // check if we had dependency error
+      dependErr := dependErrs[n]
+      if (dependErr != null)
+      {
+        acc[n] = MProjLib.makeErr(n, isBoot, ProjLibStatus.err, dependErr)
+        return
+      }
+
+      // check status of lib in namespace itself
+      libStatus := ns.libStatus(n)
+      if (!libStatus.isOk)
+      {
+        acc[n] = MProjLib.makeErr(n, isBoot, ProjLibStatus.err, ns.libErr(n) ?: Err("Lib status not ok: $libStatus"))
+        return
+      }
+
+      // this lib is ok and loaded
+      acc[n] = MProjLib.makeOk(n, isBoot, ver)
+    }
+
+    // update my libs and ns
+    this.nsRef.val = ns
+    this.mapRef.val = acc.toImmutable
+  }
+
+  // updated by reload
+  private const AtomicRef nsRef := AtomicRef()
+  private const AtomicRef mapRef := AtomicRef()
+
 }
 
 **************************************************************************

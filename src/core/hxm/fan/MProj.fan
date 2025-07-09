@@ -24,7 +24,6 @@ const class MProj : Proj
     this.id        = Ref("p:$name", name)
     this.dir       = boot.dir
     this.meta      = boot.meta
-    this.ns        = boot.ns
     this.db        = boot.db
     this.libs      = boot.libs
     this.actorPool = ActorPool { it.name = "$this.name-ExtPool" }
@@ -41,11 +40,12 @@ const class MProj : Proj
   const override Ref id
   const override Dict meta
   const override File dir
-  const override Namespace ns
   const override Folio db
   const override MProjLibs libs
   const override MProjExts exts
   override final Str toStr() { name }
+
+  override Namespace ns() { libs.ns }
 
   const Log log
   const ActorPool actorPool

@@ -11,6 +11,7 @@ using haystack
 using folio
 using hx
 using hx4
+using xetoc
 
 **
 ** Project bootstrap project loader
@@ -54,7 +55,7 @@ abstract class ProjBoot
   abstract Log log()
 
   ** Xeto environment
-  virtual XetoEnv xetoEnv() { XetoEnv.cur }
+  virtual FileRepo repo() { XetoEnv.cur.repo }
 
   ** List of xeto lib names which are required to be installed.
   virtual Str[] bootLibs()
@@ -75,7 +76,6 @@ abstract class ProjBoot
   {
     this.nsfb = initNamespaceFileBase
     this.libs = initProjLibs
-    this.ns   = initNamespace
     this.db   = initFolio
     this.meta = initMeta
     return initProj
@@ -97,12 +97,6 @@ abstract class ProjBoot
   virtual MProjLibs initProjLibs()
   {
     MProjLibs(this)
-  }
-
-  ** Create project namespace
-  virtual ProjNamespace initNamespace()
-  {
-    ProjNamespace.load(xetoEnv.repo, log, libs)
   }
 
   ** Open project folio database

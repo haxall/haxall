@@ -70,6 +70,7 @@ const class DiskFileBase : FileBase
   override Void write(Str name, Buf buf)
   {
     f := dir + name.toUri
+    buf.seek(0)
     if (buf.isEmpty) throw ArgErr("Cannot write empty file: $name")
     f.withOut |out| { out.writeBuf(buf) }
   }

@@ -30,6 +30,7 @@ class ProjTest : HxTest
 
     // boot project
     boot := TestProjBoot(tempDir)
+    bootLibs := boot.bootLibs
     p := boot.init
 
     // verify initial state
@@ -41,17 +42,50 @@ class ProjTest : HxTest
     verifyEq(p.meta->version, boot.version.toStr)
     verifySame(p.meta, p.readById(p.meta.id))
     verifySame(p.meta, p.read("projMeta"))
+    verifyProjLibs(p, bootLibs, projLibs, ["ashrae.g36"])
 
-    // initial libs
-    boot.bootLibs.each |n|
+    // add lib already there, add empty list
+    p.libs.add("ph")
+    p.libs.addAll(Str[,])
+    verifyProjLibs(p, bootLibs, projLibs, ["ashrae.g36"])
+
+    // verify errors
+    verifyErr(DuplicateNameErr#) { p.libs.addAll(["ph.points", "ph.points"]) }
+    verifyErr(UnknownLibErr#) { p.libs.add("bad.bad.bad") }
+    verifyErr(DependErr#) { p.libs.add("hx.test.xeto") }
+
+    // add new lib 'ph.points' which fills 'g36' depend
+    p.libs.add("ph.points")
+    projLibs.add("ph.points")
+    verifyProjLibs(p, bootLibs, projLibs, [,])
+
+    // re-boot project and verify libs were persisted
+    p.db.close
+    p = TestProjBoot(tempDir).init
+    verifyProjLibs(p, bootLibs, projLibs, [,])
+    //dumpLibs(p)
+  }
+
+  Void dumpLibs(Proj p)
+  {
+    echo(p.dir.plus(`ns/libs.txt`).readAllStr)
+    p.libs.status.dump
+    p.ns.dump
+  }
+
+  Void verifyProjLibs(Proj p, Str[] bootLibs, Str[] projLibs, Str[] errs)
+  {
+    bootLibs.each |n|
     {
       s := n.startsWith("bad.") ? "notFound" : "ok"
+      if (errs.contains(n)) s = "err"
       verifyProjLib(p, n, true, s)
     }
+
     projLibs.each |n|
     {
       s := n.startsWith("bad.") ? "notFound" : "ok"
-      if (n == "ashrae.g36") s = "err"
+      if (errs.contains(n)) s = "err"
       verifyProjLib(p, n, false, s)
     }
   }
