@@ -20,15 +20,16 @@ const class MProj : Proj
 {
   new make(Boot boot)
   {
-    this.name         = boot.name
-    this.id           = Ref("p:$name", name)
-    this.dir          = boot.dir
-    this.meta         = boot.meta
-    this.ns           = boot.ns
-    this.db           = boot.db
-    this.extActorPool = ActorPool { it.name = "$this.name-ExtPool" }
-    this.exts         = MProjExts(this, boot.requiredLibs)
-    this.log          = Log.get(name)
+    this.name      = boot.name
+    this.id        = Ref("p:$name", name)
+    this.dir       = boot.dir
+    this.meta      = boot.meta
+    this.ns        = boot.ns
+    this.db        = boot.db
+    this.actorPool = ActorPool { it.name = "$this.name-ExtPool" }
+    this.libs      = MProjLibs(this)
+    this.exts      = MProjExts(this)
+    this.log       = Log.get(name)
     exts.init(ns.exts.list)
   }
 
@@ -42,11 +43,12 @@ const class MProj : Proj
   const override File dir
   const override Namespace ns
   const override Folio db
+  const override MProjLibs libs
   const override MProjExts exts
   override final Str toStr() { name }
 
   const Log log
-  const ActorPool extActorPool
+  const ActorPool actorPool
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
@@ -97,7 +99,7 @@ const class MProj : Proj
     Future.waitForAll(futures)
 
     // kill actor pools
-    extActorPool.kill
+    actorPool.kill
   }
 
 

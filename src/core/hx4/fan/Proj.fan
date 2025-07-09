@@ -29,14 +29,43 @@ const mixin Proj
   ** Base directory for project
   abstract File dir()
 
-  ** Xeto namespace
-  abstract Namespace ns()
-
   ** Folio database
   abstract Folio db()
 
-  ** Extension managment APIs
+  ** Xeto namespace
+  abstract Namespace ns()
+
+  ** Xeto library managment APIs
+  abstract ProjLibs libs()
+
+  ** Extension management APIs
   abstract ProjExts exts()
+}
+
+**************************************************************************
+** ProjLibs
+**************************************************************************
+
+**
+** Project Xeto namespace library management
+**
+const mixin ProjLibs
+{
+  ** List of Xeto libraries installed in the project
+  abstract ProjLib[] list()
+
+  ** Lookup an project library by name.  If not found then
+  ** return null or raise UnknownLibErr based on checked flag.
+  abstract ProjLib? get(Str name, Bool checked := true)
+
+  ** Check if there is an enabled library with given name
+  abstract Bool has(Str name)
+
+  ** List all the libs installed
+  abstract ProjLib[] installed()
+
+  ** Return status grid of project libs
+  @NoDoc abstract Grid status(Bool installed := false)
 }
 
 **************************************************************************
@@ -48,15 +77,15 @@ const mixin Proj
 **
 const mixin ProjExts
 {
-  ** List of extensions currently enabled sorted by name
+  ** List of extensions currently enabled sorted by qname
   abstract Ext[] list()
 
-  ** Lookup an extension by name.  If not found then
+  ** Lookup an extension by spec qname.  If not found then
   ** return null or raise UnknownExtErr based on checked flag.
-  abstract Ext? get(Str name, Bool checked := true)
+  abstract Ext? get(Str qname, Bool checked := true)
 
   ** Check if there is an enabled extension with given name
-  abstract Bool has(Str name)
+  abstract Bool has(Str qname)
 
   ** Actor thread pool to use for extension background processing
   abstract ActorPool actorPool()

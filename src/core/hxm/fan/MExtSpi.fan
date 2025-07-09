@@ -47,7 +47,7 @@ const class MExtSpi : Actor, ExtSpi
     spi.type.make
   }
 
-  private new make(MProj proj, ExtDef def, Dict settings) : super(proj.extActorPool)
+  private new make(MProj proj, ExtDef def, Dict settings) : super(proj.actorPool)
   {
     this.proj        = proj
     this.qname       = def.qname

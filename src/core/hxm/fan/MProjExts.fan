@@ -19,18 +19,15 @@ using hx4
 **
 const class MProjExts : Actor, ProjExts
 {
-  new make(MProj proj, Str[] required) : super(proj.extActorPool)
+  new make(MProj proj) : super(proj.actorPool)
   {
     this.proj      = proj
-    this.required  = required
     this.actorPool = this.pool
   }
 
   const MProj proj
 
   override const ActorPool actorPool
-
-  const Str[] required
 
   override Ext[] list() { listRef.val }
   private const AtomicRef listRef := AtomicRef()
