@@ -87,7 +87,8 @@ const class MProjLibs : ProjLibs
 
   const Str[] bootLibNames
 
-  const ProjSpecs specs := MProjSpecs(this)
+  virtual ProjSpecs specs() { specsRef }
+  const MProjSpecs specsRef := MProjSpecs(this)
 
   ProjNamespace ns() { nsRef.val }
 

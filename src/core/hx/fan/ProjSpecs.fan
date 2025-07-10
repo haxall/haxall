@@ -16,6 +16,9 @@ const mixin ProjSpecs
   ** Get the project lib
   abstract Lib lib()
 
+  ** Read source code for given project spec
+  abstract Str? read(Str name, Bool checked := true)
+
   ** Add new spec to project and reload namespace
   abstract Spec add(Str name, Str body)
 

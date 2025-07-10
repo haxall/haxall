@@ -63,15 +63,17 @@ class ProjTest : HxTest
     specA := p.specs.add("SpecA", "Dict { dis: Str }")
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Dict")
+    verifyEq(p.specs.read("SpecA"), "Dict { dis: Str }")
     verifyProjSpecs(p, ["SpecA"])
 
     // add errors
-    verifyErr(ArgErr#) { p.specs.add("SpecA", "Dict { foo: Str }") }
+    verifyErr(DuplicateNameErr#) { p.specs.add("SpecA", "Dict { foo: Str }") }
 
     // update spec
     specA = p.specs.update("SpecA", "Scalar")
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Scalar")
+    verifyEq(p.specs.read("SpecA"), "Scalar")
     verifyProjSpecs(p, ["SpecA"])
 
     // update errors

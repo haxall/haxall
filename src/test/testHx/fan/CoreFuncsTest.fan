@@ -483,6 +483,35 @@ class CoreFuncsTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// ProjSpecs
+//////////////////////////////////////////////////////////////////////////
+
+  @HxRuntimeTest
+  Void testProjSpecs()
+  {
+    // add
+    Spec spec := eval("""projSpecAdd("Foo", "Dict{}")""")
+    verifySame(spec, rt.ns.spec("proj::Foo"))
+    verifySame(spec.base, rt.ns.spec("sys::Dict"))
+
+    // update
+    spec = eval("""projSpecUpdate("Foo", "Scalar")""")
+    verifySame(spec, rt.ns.spec("proj::Foo"))
+    verifySame(spec.base, rt.ns.spec("sys::Scalar"))
+
+    // read
+    src := eval("""projSpecRead("Foo")""")
+    verifyEq(src, "Scalar")
+    verifyEq(eval("""projSpecRead("Bad", false)"""), null)
+    verifyEvalErr("""projSpecRead("Bad")""", UnknownSpecErr#)
+    verifyEvalErr("""projSpecRead("Bad", true)""", UnknownSpecErr#)
+
+    // remove
+    eval("""projSpecRemove("Foo")""")
+    verifyEq(rt.ns.spec("proj::Foo", false), null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Filters
 //////////////////////////////////////////////////////////////////////////
 

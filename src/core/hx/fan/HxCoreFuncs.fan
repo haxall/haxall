@@ -459,7 +459,7 @@ const class HxCoreFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Using Spec Libs
+// Namespace
 //////////////////////////////////////////////////////////////////////////
 
   ** Reload all the Xeto libraries
@@ -506,6 +506,39 @@ const class HxCoreFuncs
     if (names is Str) names = Str[names]
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
     curContext.rt.shimLibs.removeAll(list)
+    return "removed"
+  }
+
+  ** Read source code for a project level spec by name:
+  **   projSpecRead("MySpec")
+  @Axon { admin = true }
+  static Str? projSpecRead(Str name, Bool checked := true)
+  {
+    curContext.rt.specs.read(name, checked)
+  }
+
+  ** Add a project level spec by name and update namespace:
+  **   projSpecAdd("MySpec", "Dict { dis: Str }")
+  @Axon { admin = true }
+  static Obj projSpecAdd(Str name, Str body)
+  {
+    curContext.rt.specs.add(name, body)
+  }
+
+  ** Update a project level spec by name and update namespace:
+  **   projSpecUpdate("MySpec", "Dict { dis: Str }")
+  @Axon { admin = true }
+  static Obj projSpecUpdate(Str name, Str body)
+  {
+    curContext.rt.specs.update(name, body)
+  }
+
+  ** Remove a project level spec by name and update namespace:
+  **   projSpecRemove("MySpec")
+  @Axon { admin = true }
+  static Obj projSpecRemove(Str name)
+  {
+    curContext.rt.specs.remove(name)
     return "removed"
   }
 
