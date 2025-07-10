@@ -463,22 +463,22 @@ class CoreFuncsTest : HxTest
   Void testLibs()
   {
     // initial state
-    verifyEq(rt.lib("math", false), null)
+    verifyEq(rt.libsOld.get("math", false), null)
 
     // add
     rec := eval("libAddOld(\"math\")")
-    verifyEq(rt.lib("math").rec, rec)
+    verifyEq(rt.libsOld.get("math").rec, rec)
 
     Grid status := eval("libStatusOld()")
     verifyDictEq(status.find { it->name == "math" }, ["name":"math", "libStatus":"ok"])
 
     // remove
     eval("libRemoveOld(\"math\")")
-    verifyEq(rt.lib("math", false), null)
+    verifyEq(rt.libsOld.get("math", false), null)
 
     // add again
     rec = eval("libAddOld(\"math\", {foo})")
-    verifyEq(rt.lib("math").rec, rec)
+    verifyEq(rt.libsOld.get("math").rec, rec)
     verifyEq(rec->foo, Marker.val)
   }
 

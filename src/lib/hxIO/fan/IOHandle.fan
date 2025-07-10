@@ -530,7 +530,7 @@ internal class FtpHandle : DirectIO
   FtpClient open(Uri uri)
   {
     key := uri.plus(`/`).toStr
-    log := rt.lib("io").log
+    log := rt.libsOld.get("io").log
     cred := rt.db.passwords.get(key) ?: "anonymous:"
     colon := cred.index(":")
     if (colon == null) throw Err("ftp credentials not 'user:pass' - $cred.toCode")

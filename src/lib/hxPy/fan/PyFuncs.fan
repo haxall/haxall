@@ -18,7 +18,7 @@ using hx
 const class PyFuncs
 {
 
-  static private PyLib lib() { HxContext.curHx.rt.lib("py") }
+  static private PyLib lib() { HxContext.curHx.rt.libsOld.get("py") }
 
 //////////////////////////////////////////////////////////////////////////
 // PySession

@@ -192,7 +192,7 @@ const class ObixFuncs
 
   internal static Obj? dispatch(HxContext cx, Obj conn, HxMsg msg)
   {
-    lib := (ObixLib)cx.rt.lib("obix")
+    lib := (ObixLib)cx.rt.libsOld.get("obix")
     return lib.conn(Etc.toId(conn)).sendSync(msg)
   }
 

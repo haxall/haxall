@@ -24,7 +24,7 @@ const class PyLib : HxLib
   ** Convenience to get the PyLib instance from the current context.
   static PyLib? cur(Bool checked := true)
   {
-    HxContext.curHx.rt.lib("py", checked)
+    HxContext.curHx.rt.libsOld.get("py", checked)
   }
 
   ** Process manager

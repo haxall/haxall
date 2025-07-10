@@ -418,7 +418,7 @@ const class HxCoreFuncs
   @Axon { admin = true }
   static Dict libAddOld(Str name, Dict? tags := null)
   {
-    curContext.rt.libs.add(name, tags ?: Etc.emptyDict).rec
+    curContext.rt.libsOld.add(name, tags ?: Etc.emptyDict).rec
   }
 
   ** Disable a library by name in the runtime:
@@ -427,7 +427,7 @@ const class HxCoreFuncs
   @Axon { admin = true }
   static Obj? libRemoveOld(Obj name)
   {
-    curContext.rt.libs.remove(name)
+    curContext.rt.libsOld.remove(name)
     return "removed"
   }
 
@@ -438,7 +438,7 @@ const class HxCoreFuncs
   @Axon { admin = true }
   static Grid libStatusOld()
   {
-    curContext.rt.libs.status
+    curContext.rt.libsOld.status
   }
 
   ** Grid of installed services.  Format of the grid is subject to change.
@@ -468,7 +468,7 @@ const class HxCoreFuncs
   {
     cx := HxContext.curHx
     isShell := cx.rt.platform.isShell
-    log := isShell ? Log.get("xeto") : cx.rt.lib("xeto").log
+    log := isShell ? Log.get("xeto") : cx.rt.libsOld.get("xeto").log
     log.info("libReload [$cx.user.username]")
     cx.rt.shimLibs.reload
     return isShell ? "_no_echo_" : "reloaded"

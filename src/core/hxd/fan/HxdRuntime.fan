@@ -40,7 +40,7 @@ const class HxdRuntime : HxRuntime
     this.installedRef  = AtomicRef(HxdInstalled.build)
     this.libsActorPool = ActorPool { it.name = "Hxd-Lib" }
     this.hxdActorPool  = ActorPool { it.name = "Hxd-Runtime" }
-    this.libs          = HxdRuntimeLibs(this, boot.requiredLibs)
+    this.libsOld       = HxdRuntimeLibs(this, boot.requiredLibs)
     this.backgroundMgr = HxdBackgroundMgr(this)
     this.context       = HxdContextService(this)
     this.watch         = HxdWatchService(this)
@@ -53,7 +53,7 @@ const class HxdRuntime : HxRuntime
   ** Called after constructor to init libs
   This init(HxdBoot boot)
   {
-    libs.init(boot.removeUnknownLibs)
+    libsOld.init(boot.removeUnknownLibs)
     obs.init
     return this
   }
@@ -121,7 +121,7 @@ const class HxdRuntime : HxRuntime
 
   ** Service registry
   override HxdServiceRegistry services() { servicesRef.val ?: throw Err("Services not avail yet") }
-  internal Void servicesRebuild() { servicesRef.val = HxdServiceRegistry(this, libs.list) }
+  internal Void servicesRebuild() { servicesRef.val = HxdServiceRegistry(this, libsOld.list) }
   private const AtomicRef servicesRef := AtomicRef(null)
 
   // HxStdServices conveniences
@@ -138,11 +138,8 @@ const class HxdRuntime : HxRuntime
   override HxPointWriteService pointWrite() { services.pointWrite }
   override HxConnService conn() { services.conn }
 
-  ** Lookup a library by name
-  override HxLib? lib(Str name, Bool checked := true) { libs.get(name, checked) }
-
   ** Library managment
-  override const HxdRuntimeLibs libs
+  override const HxdRuntimeLibs libsOld
 
   ** Has the runtime has reached steady state.
   override Bool isSteadyState() { stateStateRef.val }
@@ -193,11 +190,11 @@ const class HxdRuntime : HxRuntime
     isRunningRef.val = true
 
     // onStart callback
-    futures := libs.list.map |lib->Future| { ((HxdLibSpi)lib.spi).start }
+    futures := libsOld.list.map |lib->Future| { ((HxdLibSpi)lib.spi).start }
     Future.waitForAll(futures)
 
     // onReady callback
-    futures = libs.list.map |lib->Future| { ((HxdLibSpi)lib.spi).ready }
+    futures = libsOld.list.map |lib->Future| { ((HxdLibSpi)lib.spi).ready }
     Future.waitForAll(futures)
 
     // kick off background processing
@@ -216,11 +213,11 @@ const class HxdRuntime : HxRuntime
     isRunningRef.val = false
 
     // onUnready callback
-    futures := libs.list.map |lib->Future| { ((HxdLibSpi)lib.spi).unready }
+    futures := libsOld.list.map |lib->Future| { ((HxdLibSpi)lib.spi).unready }
     Future.waitForAll(futures)
 
     // onStop callback
-    futures = libs.list.map |lib->Future| { ((HxdLibSpi)lib.spi).stop }
+    futures = libsOld.list.map |lib->Future| { ((HxdLibSpi)lib.spi).stop }
     Future.waitForAll(futures)
 
     // kill actor pools

@@ -114,8 +114,8 @@ class ConnTuningTest : HxTest
     verifyTuning(fw, lib, pt, t3, 3sec)
 
     // restart and verify everything gets wired up correctly
-    rt.libs.remove("haystack")
-    rt.libs.remove("conn")
+    rt.libsOld.remove("haystack")
+    rt.libsOld.remove("conn")
     fw = addLib("conn")
     lib = addLib("haystack", ["connTuningRef":t1.id])
     sync(c)

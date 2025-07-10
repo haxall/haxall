@@ -38,7 +38,7 @@ class ConnTest : HxTest
   Void verifyModel(Str libName, Str flags)
   {
     prefix := libName
-    lib := (ConnLib)rt.libs.add(libName)
+    lib := (ConnLib)rt.libsOld.add(libName)
     lib.spi.sync
 
     m := lib.model
@@ -121,14 +121,14 @@ class ConnTest : HxTest
       [p1, p2, p4])
 
     // remove sql lib
-    rt.libs.remove("sql")
+    rt.libsOld.remove("sql")
     verifyService(
       ["haystack"],
       [c1, c2],
       [p1, p2])
 
     // remove haystack lib
-    rt.libs.remove("haystack")
+    rt.libsOld.remove("haystack")
     verifyService(
       Str[,],
       [,],
@@ -529,7 +529,7 @@ class ConnTest : HxTest
     verifyWatched(conn4, [p4a, p4b])
 
     // now restart lib
-    rt.libs.remove(lib)
+    rt.libsOld.remove(lib)
     lib = addLib("haystack")
     rt.sync
     verifyRoster(lib,
@@ -884,7 +884,7 @@ class ConnTest : HxTest
       ])
 
     // restart
-    rt.libs.remove(lib)
+    rt.libsOld.remove(lib)
     lib = addLib(name)
     rt.sync
     c1 = lib.conn(c1rec.id)

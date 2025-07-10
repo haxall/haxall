@@ -420,7 +420,7 @@ const class PointFuncs
   private static HxContext curContext() { HxContext.curHx }
 
   ** Lookup PointLib for context
-  private static PointLib lib(HxContext cx) { cx.rt.lib("point") }
+  private static PointLib lib(HxContext cx) { cx.rt.libsOld.get("point") }
 
   internal static const Duration timeout := 30sec
   internal static const Number level1   := Number(1)

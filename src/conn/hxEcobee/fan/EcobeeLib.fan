@@ -17,6 +17,7 @@ const class EcobeeLib : ConnLib
 {
   static EcobeeLib? cur(Bool checked := true)
   {
-    HxContext.curHx.rt.lib("ecobee", checked)
+    HxContext.curHx.rt.libsOld.get("ecobee", checked)
   }
 }
+

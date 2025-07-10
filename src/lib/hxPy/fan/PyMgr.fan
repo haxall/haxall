@@ -23,7 +23,7 @@ internal const class PyMgr : Actor
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(PyLib lib, |This|? f := null) : super(lib.rt.libs.actorPool)
+  new make(PyLib lib, |This|? f := null) : super(lib.rt.libsOld.actorPool)
   {
     f?.call(this)
     this.lib = lib

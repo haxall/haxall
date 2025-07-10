@@ -81,7 +81,7 @@ const class PlatformFuncs
 
   private static PlatformLib lib(HxContext cx := curContext)
   {
-    cx.rt.lib("platform")
+    cx.rt.libsOld.get("platform")
   }
 }
 

@@ -21,7 +21,7 @@ const class MqttLib : ConnLib
 {
   static MqttLib? cur(Bool checked := true)
   {
-    HxContext.curHx.rt.lib("mqtt", checked)
+    HxContext.curHx.rt.libsOld.get("mqtt", checked)
   }
 
   internal const MqttObservable mqtt := MqttObservable(this)

@@ -59,7 +59,7 @@ abstract class ApiTest : HxTest
     if (rt.platform.isSkySpark) addLib("his")
     addLib("point")
 
-    try { rt.libs.add("http") } catch (Err e) {}
+    try { rt.libsOld.add("http") } catch (Err e) {}
     this.uri = rt.http.siteUri + rt.http.apiUri
     verifyNotEq(rt.http.typeof, NilHttpService#)
 

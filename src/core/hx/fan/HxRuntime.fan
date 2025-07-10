@@ -58,11 +58,8 @@ const mixin HxRuntime : HxStdServices
   ** Runtime level meta data stored in the `projMeta` database record
   abstract Dict meta()
 
-  ** Lookup a library by name.  Convenience for 'libs.get'.
-  abstract HxLib? lib(Str name, Bool checked := true)
-
   ** Library managment APIs
-  abstract HxRuntimeLibs libs()
+  abstract HxRuntimeLibs libsOld()
 
   ** Service registry
   abstract HxServiceRegistry services()

@@ -100,10 +100,10 @@ abstract const class ConnLib : HxLib, HxConnLib
   override Void onStart()
   {
     // must have PointLib installed
-    pointLibRef.val = (PointLib)rt.lib("point")
+    pointLibRef.val = (PointLib)rt.libsOld.get("point")
 
     // must have ConnFwLib installed
-    fw :=  (ConnFwLib)rt.lib("conn")
+    fw :=  (ConnFwLib)rt.libsOld.get("conn")
     fwRef.val = fw
     fw.service.addLib(this)
 

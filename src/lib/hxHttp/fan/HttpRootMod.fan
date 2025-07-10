@@ -40,8 +40,8 @@ internal const class HttpRootMod : WebMod
     }
 
     // lookup lib as hxFoo and foo
-    lib := rt.lib("hx"+libName.capitalize, false)
-    if (lib == null) lib = rt.lib(libName, false)
+    lib := rt.libsOld.get("hx"+libName.capitalize, false)
+    if (lib == null) lib = rt.libsOld.get(libName, false)
     if (lib == null) return res.sendErr(404)
 
     // check if it supports HxLibWeb
@@ -54,5 +54,4 @@ internal const class HttpRootMod : WebMod
     libWeb.onService
   }
 }
-
 

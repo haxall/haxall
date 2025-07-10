@@ -46,7 +46,7 @@ const class HxdObsService : Actor, HxObsService
   internal Void init()
   {
     // runtine lib observables
-    rt.libs.list.each |lib| { addLib(lib) }
+    rt.libsOld.list.each |lib| { addLib(lib) }
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -47,10 +47,11 @@ class HxdTestSpi : HxTestSpi
   override HxLib addLib(Str libName, Str:Obj? tags)
   {
     rt := (HxdRuntime)test.rt
-    if (rt.lib(libName, false) != null) return rt.lib(libName)
+    x := rt.libsOld.get(libName, false)
+    if (x != null) return x
     lib := rt.installed.lib(libName)
     lib.depends.each |d| { addLib(d, Str:Obj[:]) }
-    return rt.libs.add(libName, Etc.makeDict(tags))
+    return rt.libsOld.add(libName, Etc.makeDict(tags))
   }
 
   override HxUser addUser(Str user, Str pass, Str:Obj? tags)

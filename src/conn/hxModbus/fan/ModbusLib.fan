@@ -20,7 +20,7 @@ const class ModbusLib : ConnLib
 {
   static ModbusLib? cur(Bool checked := true)
   {
-    HxContext.curHx.rt.lib("modbus", checked)
+    HxContext.curHx.rt.libsOld.get("modbus", checked)
   }
 
   override Void onStart()

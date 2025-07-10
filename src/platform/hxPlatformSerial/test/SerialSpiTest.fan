@@ -56,8 +56,8 @@ class SerialSpiTest : HxTest
   @HxRuntimeTest
   Void testSpi()
   {
-    PlatformSerialLib? lib := rt.libs.get("platformSerial", false)
-    if (lib == null) lib = rt.libs.add("platformSerial")
+    PlatformSerialLib? lib := rt.libsOld.get("platformSerial", false)
+    if (lib == null) lib = rt.libsOld.add("platformSerial")
 
     // initial state
     s := lib.port("test")

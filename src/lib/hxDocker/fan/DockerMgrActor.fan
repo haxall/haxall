@@ -23,7 +23,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(DockerLib lib) : super(lib.rt.libs.actorPool)
+  new make(DockerLib lib) : super(lib.rt.libsOld.actorPool)
   {
     this.lib = lib
   }

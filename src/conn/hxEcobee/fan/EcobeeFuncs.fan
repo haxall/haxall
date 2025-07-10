@@ -19,5 +19,6 @@ const class EcobeeFuncs
   ** Utility to get the current HxContext
   private static HxContext curHx() { HxContext.curHx }
 
-  private static EcobeeLib lib(HxContext cx := curHx) { cx.rt.lib("ecobee") }
+  private static EcobeeLib lib(HxContext cx := curHx) { cx.rt.libsOld.get("ecobee") }
 }
+

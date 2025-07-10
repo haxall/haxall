@@ -27,7 +27,7 @@ const class CryptoLib : HxLib, HxCryptoService
   new make()
   {
     this.dir      = rt.dir.plus(`crypto/`).create
-    this.keystore = CryptoKeyStore(rt.libs.actorPool, dir, log, actorTimeout)
+    this.keystore = CryptoKeyStore(rt.libsOld.actorPool, dir, log, actorTimeout)
   }
 
   private Duration actorTimeout()
@@ -99,5 +99,4 @@ const class CryptoLib : HxLib, HxCryptoService
     System.setProperty("javax.net.ssl.trustStorePassword", "changeit")
   }
 }
-
 

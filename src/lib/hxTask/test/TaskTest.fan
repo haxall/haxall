@@ -32,9 +32,9 @@ class TaskTest : HxTest
     verifyEq(lib.rec.maxThreads, 50)
     verifyEq(lib.rec["maxThreads"], null)
 
-    rt.libs.remove("task")
+    rt.libsOld.remove("task")
 
-    lib = (TaskLib)rt.libs.add("task", Etc.dict1("maxThreads", n(123)))
+    lib = (TaskLib)rt.libsOld.add("task", Etc.dict1("maxThreads", n(123)))
     verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
     verifyEq(lib.rec.maxThreads, 123)
     verifyEq(lib.rec->maxThreads, n(123))
@@ -164,7 +164,7 @@ class TaskTest : HxTest
     verifyErr(NotTaskContextErr#) { rt.task.cur(true) }
 
     // stop lib and verify everything is cleaned up
-    rt.libs.remove("task")
+    rt.libsOld.remove("task")
     rt.sync
     verifyEq(lib.pool.isStopped, true)
     verifyKilled(aTask); verifyUnsubscribed(sched, aTask)
@@ -427,7 +427,7 @@ class TaskTest : HxTest
 
   Task verifyTask(Task task, Str type, Str status, Str? fault := null)
   {
-    lib := (TaskLib)rt.lib("task")
+    lib := (TaskLib)rt.libsOld.get("task")
     verifySame(lib.task(task.id), task)
     verifyEq(task.type.name, type)
     verifyEq(task.status.name, status)

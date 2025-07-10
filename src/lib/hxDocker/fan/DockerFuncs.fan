@@ -20,7 +20,7 @@ const class DockerFuncs
   private static HxContext curHx() { HxContext.curHx }
 
   ** Lookup DockerLib for context
-  private static DockerLib lib(HxContext cx := curHx) { cx.rt.lib("docker") }
+  private static DockerLib lib(HxContext cx := curHx) { cx.rt.libsOld.get("docker") }
 
 //////////////////////////////////////////////////////////////////////////
 // Views

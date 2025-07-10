@@ -31,7 +31,7 @@ const final class Conn : Actor, HxConn
     this.libRef      = lib
     this.idRef       = rec.id
     this.configRef   = AtomicRef(ConnConfig(lib, rec))
-    this.traceRef    = ConnTrace(lib.rt.libs.actorPool)
+    this.traceRef    = ConnTrace(lib.rt.libsOld.actorPool)
     this.pollModeRef = lib.model.pollMode
   }
 

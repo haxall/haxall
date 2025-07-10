@@ -89,7 +89,7 @@ internal const class HxdBackgroundMgr : Actor
   {
     rt.log.info("Steady state")
     rt.stateStateRef.val = true
-    rt.libs.list.each |lib| { ((HxdLibSpi)lib.spi).steadyState }
+    rt.libsOld.list.each |lib| { ((HxdLibSpi)lib.spi).steadyState }
   }
 
   private Duration steadyStateConfig()
@@ -109,3 +109,4 @@ internal const class HxdBackgroundMgr : Actor
   const Duration freq := 100ms
   const AtomicInt startTicks := AtomicInt(0)
 }
+

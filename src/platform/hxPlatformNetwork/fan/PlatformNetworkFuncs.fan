@@ -96,7 +96,7 @@ const class PlatformNetworkFuncs
 
   private static PlatformNetworkLib lib(HxContext cx := curContext)
   {
-    cx.rt.lib("platformNetwork")
+    cx.rt.libsOld.get("platformNetwork")
   }
 }
 

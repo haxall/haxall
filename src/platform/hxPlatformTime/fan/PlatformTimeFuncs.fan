@@ -80,7 +80,7 @@ const class PlatformTimeFuncs
 
   private static PlatformTimeLib lib(HxContext cx := curContext)
   {
-    cx.rt.lib("platformTime")
+    cx.rt.libsOld.get("platformTime")
   }
 }
 
