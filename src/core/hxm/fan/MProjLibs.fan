@@ -40,6 +40,8 @@ const class ShimNamespaceMgr : MProjLibs, ShimLibs
       repo.latest(n, false) != null
     }
   }
+
+  const override MProjSpecs specs := MProjSpecs(this)
 }
 
 
@@ -59,6 +61,7 @@ const class MProjLibs : ProjLibs
     this.bootLibNames = boot.bootLibs
     this.repo = boot.repo
     this.log = boot.log
+    this.version = boot.version
     doReload(readProjLibNames)
   }
 
@@ -68,6 +71,7 @@ const class MProjLibs : ProjLibs
     this.repo = XetoEnv.cur.repo
     this.log = Log.get("xeto")
     this.bootLibNames = bootLibNames
+    this.version = typeof.pod.version
     doReload(readProjLibNames)
   }
 
@@ -75,11 +79,13 @@ const class MProjLibs : ProjLibs
 // Lookup
 //////////////////////////////////////////////////////////////////////////
 
-  const FileBase fb
+  const DiskFileBase fb
 
   const Log log
 
   const FileRepo repo
+
+  const Version version
 
   const Str[] bootLibNames
 
@@ -251,7 +257,8 @@ const class MProjLibs : ProjLibs
   private Void reloadNewProjLibs(Str:LibVersion allVers, Str:Str newProjLibNameMap)
   {
     // verify that the new all LibVersions have met depends
-    LibVersion.orderByDepends(allVers.vals)
+    vers := allVers.vals
+    LibVersion.orderByDepends(vers)
 
     // now we are ready, rebuild our projLibNames list
     newProjLibNames := newProjLibNameMap.vals.sort
@@ -297,6 +304,21 @@ const class MProjLibs : ProjLibs
     fb.write("libs.txt", buf)
   }
 
+  Void writePragma(LibVersion[] vers)
+  {
+    // TODO: temp shim
+    buf := Buf()
+    buf.printLine("// Project library")
+    buf.printLine("pragma: Lib <")
+    buf.printLine("  version: $version.toStr.toCode")
+    buf.printLine("  depends: {")
+    vers.each |ver| { buf.printLine("    {lib:$ver.name.toCode}") }
+    buf.printLine("  }")
+    buf.printLine(">")
+    fb.write("lib.xeto", buf)
+    // echo(fb.read("lib.xeto").readAllStr)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Reload
 //////////////////////////////////////////////////////////////////////////
@@ -320,7 +342,10 @@ const class MProjLibs : ProjLibs
     }
 
     // at this point should we should have a safe versions list to create namespace
-    ns := ProjNamespace(LocalNamespaceInit(repo, versToUse.vals, null, repo.names), log)
+    nsVers := versToUse.vals
+    writePragma(nsVers)
+    nsVers.add(FileLibVersion.makeProj(fb.dir, version))
+    ns := ProjNamespace(LocalNamespaceInit(repo, nsVers, null, repo.names), log)
     ns.libs // force sync load
 
     // now update MProjLibs map of MProjLib

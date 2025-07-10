@@ -34,6 +34,15 @@ const class FileLibVersion : LibVersion
     this.fileRef = file
   }
 
+  new makeProj(File dir, Version version)
+  {
+    this.name       = XetoUtil.projLibName
+    this.version    = version
+    this.fileRef    = dir
+    this.docRef     = "Project library"
+    this.dependsRef = LibDepend#.emptyList
+  }
+
   override const Str name
 
   override const Version version

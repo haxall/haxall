@@ -43,6 +43,9 @@ const mixin HxRuntime : HxStdServices
   ** Xeto lib namespace
   abstract Namespace ns()
 
+  ** Project spec management
+  ProjSpecs specs() { shimLibs.specs }
+
   ** Temp shim
   abstract ShimLibs shimLibs()
 
@@ -87,6 +90,7 @@ const mixin ShimLibs
   abstract Void clear()
   abstract Void reload()
   abstract Grid status(Dict? opts := null)
+  abstract ProjSpecs specs()
 }
 
 **************************************************************************

@@ -89,6 +89,9 @@ class ProjTest : HxTest
 
   Void verifyProjLibs(Proj p, Str[] bootLibs, Str[] projLibs, Str[] errs)
   {
+    verifySame(p.ns.projLib.name, "proj")
+    verifySame(p.ns.lib("proj"), p.ns.projLib)
+
     bootLibs.each |n|
     {
       s := n.startsWith("bad.") ? "notFound" : "ok"
