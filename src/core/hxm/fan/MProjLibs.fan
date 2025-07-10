@@ -10,6 +10,7 @@
 using concurrent
 using xeto
 using haystack
+using xetoEnv
 using xetoc
 using hx
 using hx4
@@ -136,6 +137,20 @@ const class MProjLibs : ProjLibs
     // build grid
     gb := GridBuilder()
     gb.addCol("name").addCol("libStatus").addCol("boot").addCol("version").addCol("doc").addCol("err")
+
+    // add row for proj lib
+    pxName := XetoUtil.projLibName
+    pxVer:= ns.version(pxName, false)
+    if (pxVer != null) gb.addRow([
+      pxName,
+      ns.libStatus(pxName)?.toStr ?: "err",
+      null,
+      pxVer?.version?.toStr,
+      pxVer?.doc,
+      ns.libErr(pxName),
+    ])
+
+    // add rest of the rows
     libs.each |x|
     {
       gb.addRow([

@@ -462,15 +462,15 @@ const class HxCoreFuncs
 // Namespace
 //////////////////////////////////////////////////////////////////////////
 
-  ** Reload all the Xeto libraries
+  ** Reload all the xeto libraries in project
   @Axon { su = true }
-  static Obj? xetoReload()
+  static Obj? libReload()
   {
     cx := HxContext.curHx
     isShell := cx.rt.platform.isShell
     log := isShell ? Log.get("xeto") : cx.rt.lib("xeto").log
-    log.info("xetoReload [$cx.user.username]")
-    cx.rt.context.xetoReload
+    log.info("libReload [$cx.user.username]")
+    cx.rt.shimLibs.reload
     return isShell ? "_no_echo_" : "reloaded"
   }
 
