@@ -13,6 +13,9 @@ using xeto
 **
 const mixin ProjSpecs
 {
+  ** Get the project lib
+  abstract Lib lib()
+
   ** Add new spec to project and reload namespace
   abstract Spec add(Str name, Str body)
 

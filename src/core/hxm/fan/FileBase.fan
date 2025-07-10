@@ -26,6 +26,9 @@ abstract const class FileBase
 
   ** Write a file by name.  Cannot write empty buf
   abstract Void write(Str name, Buf buf)
+
+  ** Delete a file by name.
+  abstract Void delete(Str name)
 }
 
 **************************************************************************
@@ -73,6 +76,12 @@ const class DiskFileBase : FileBase
     buf.seek(0)
     if (buf.isEmpty) throw ArgErr("Cannot write empty file: $name")
     f.withOut |out| { out.writeBuf(buf) }
+  }
+
+  override Void delete(Str name)
+  {
+    f := dir + name.toUri
+    f.delete
   }
 }
 

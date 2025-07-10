@@ -21,12 +21,9 @@ const class ProjNamespace : LocalNamespace, Namespace
   internal new make(LocalNamespaceInit init, Log log) : super(init)
   {
     this.log = log
-    this.projLib = lib("proj")
   }
 
   const Log log
-
-  override const Lib projLib
 
   once NamespaceExts exts()
   {

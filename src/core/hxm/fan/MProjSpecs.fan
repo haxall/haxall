@@ -25,19 +25,37 @@ const class MProjSpecs : ProjSpecs
 
   const MProjLibs libs
 
+  override Lib lib()
+  {
+    libs.ns.lib("proj")
+  }
+
   override Spec add(Str name, Str body)
   {
-    throw Err("TODO")
+    if (lib.spec(name, false) != null) throw ArgErr("Spec already exists: $name")
+    return doUpdate(name, body)
   }
 
   override Spec update(Str name, Str body)
   {
-    throw Err("TODO")
+    lib.spec(name)
+    return doUpdate(name, body)
   }
 
   override Void remove(Str name)
   {
-    throw Err("TODO")
+    libs.fb.delete("${name}.xeto")
+    libs.reload
+  }
+
+  private Spec doUpdate(Str name, Str body)
+  {
+    buf := Buf()
+    buf.capacity = name.size + 16 + body.size
+    buf.print(name).print(": ").printLine(body)
+    libs.fb.write("${name}.xeto", buf)
+    libs.reload
+    return lib.spec(name)
   }
 }
 

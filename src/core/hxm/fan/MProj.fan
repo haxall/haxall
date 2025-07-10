@@ -47,6 +47,7 @@ const class MProj : Proj
   const override MProjExts exts
   override final Str toStr() { name }
 
+  override ProjSpecs specs() { libs.specs }
   override Namespace ns() { libs.ns }
 
   const Log log

@@ -59,10 +59,29 @@ class ProjTest : HxTest
     projLibs.add("ph.points")
     verifyProjLibs(p, bootLibs, projLibs, [,])
 
-    // re-boot project and verify libs were persisted
+    // add spec
+    specA := p.specs.add("SpecA", "Dict { dis: Str }")
+    verifyEq(specA.qname, "proj::SpecA")
+    verifyEq(specA.base.qname, "sys::Dict")
+    verifyProjSpecs(p, ["SpecA"])
+
+    // add errors
+    verifyErr(ArgErr#) { p.specs.add("SpecA", "Dict { foo: Str }") }
+
+    // update spec
+    specA = p.specs.update("SpecA", "Scalar")
+    verifyEq(specA.qname, "proj::SpecA")
+    verifyEq(specA.base.qname, "sys::Scalar")
+    verifyProjSpecs(p, ["SpecA"])
+
+    // update errors
+    verifyErr(UnknownSpecErr#) { p.specs.update("SpecX", "Dict { foo: Str }") }
+
+    // re-boot project and verify libs/specs were persisted
     p.db.close
     p = TestProjBoot(tempDir).init
     verifyProjLibs(p, bootLibs, projLibs, [,])
+    verifyProjSpecs(p, ["SpecA"])
     //dumpLibs(p)
 
     // remove - errors
@@ -74,10 +93,15 @@ class ProjTest : HxTest
     p.libs.remove("ashrae.g36")
     projLibs.remove("ashrae.g36")
 
+    // remove specs
+    p.specs.remove("SpecA")
+    verifyProjSpecs(p, Str[,])
+
     // re-boot and verify libs were persisted
     p.db.close
     p = TestProjBoot(tempDir).init
     verifyProjLibs(p, bootLibs, projLibs, [,])
+    verifyProjSpecs(p, Str[,])
   }
 
   Void dumpLibs(Proj p)
@@ -89,8 +113,8 @@ class ProjTest : HxTest
 
   Void verifyProjLibs(Proj p, Str[] bootLibs, Str[] projLibs, Str[] errs)
   {
-    verifySame(p.ns.projLib.name, "proj")
-    verifySame(p.ns.lib("proj"), p.ns.projLib)
+    verifySame(p.specs.lib.name, "proj")
+    verifySame(p.specs.lib, p.ns.lib("proj"))
 
     bootLibs.each |n|
     {
@@ -126,6 +150,17 @@ class ProjTest : HxTest
     {
       verifyEq(p.ns.lib(n, false), null)
       verifyNotNull(x.err)
+    }
+  }
+
+  Void verifyProjSpecs(Proj p, Str[] names)
+  {
+    Str[] actualNames := p.specs.lib.specs.map |s->Str| { s.name }
+    verifyEq(actualNames.sort, names.sort)
+    names.each |n|
+    {
+      spec := p.ns.spec("proj::$n")
+      verifySame(spec.lib, p.specs.lib)
     }
   }
 }

@@ -40,8 +40,6 @@ const class ShimNamespaceMgr : MProjLibs, ShimLibs
       repo.latest(n, false) != null
     }
   }
-
-  const override MProjSpecs specs := MProjSpecs(this)
 }
 
 
@@ -89,7 +87,11 @@ const class MProjLibs : ProjLibs
 
   const Str[] bootLibNames
 
+  const ProjSpecs specs := MProjSpecs(this)
+
   ProjNamespace ns() { nsRef.val }
+
+  Str[] projLibNames() { projLibNamesRef.val }
 
   override ProjLib[] list() { map.vals }
 
@@ -182,7 +184,7 @@ const class MProjLibs : ProjLibs
 
   override Void reload()
   {
-    echo("TODO MProjLib.reload")
+    doReload(projLibNames)
   }
 
   private const Lock lock := Lock.makeReentrant
@@ -383,11 +385,13 @@ const class MProjLibs : ProjLibs
     // update my libs and ns
     this.nsRef.val = ns
     this.mapRef.val = acc.toImmutable
+    this.projLibNamesRef.val = projLibNames.toImmutable
   }
 
   // updated by reload
   private const AtomicRef nsRef := AtomicRef()
   private const AtomicRef mapRef := AtomicRef()
+  private const AtomicRef projLibNamesRef := AtomicRef()
 
 }
 

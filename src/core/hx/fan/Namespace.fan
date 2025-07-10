@@ -13,9 +13,6 @@ using xeto
 **
 const mixin Namespace : LibNamespace
 {
-  ** Get the project lib
-  abstract Lib projLib()
-
   ** Extension definitions
   //abstract NamespaceExts exts()
 }

@@ -44,6 +44,9 @@ const mixin Proj
   ** Xeto library managment APIs
   abstract ProjLibs libs()
 
+  ** Project library spec managment APIs
+  abstract ProjSpecs specs()
+
   ** Extension management APIs
   abstract ProjExts exts()
 
