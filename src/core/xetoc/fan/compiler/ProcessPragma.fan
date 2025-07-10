@@ -8,7 +8,7 @@
 
 using util
 using xeto
-using xetoEnv
+using xetom
 
 **
 ** Extract lib metadata from pragma and set fields:

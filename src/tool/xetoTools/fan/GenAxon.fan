@@ -10,7 +10,7 @@ using util
 using xeto
 using haystack
 using axon
-using xetoEnv
+using xetom
 
 internal class GenAxon : XetoCmd
 {

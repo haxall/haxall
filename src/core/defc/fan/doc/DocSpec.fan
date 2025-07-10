@@ -8,8 +8,6 @@
 
 using compilerDoc
 using xeto
-using xeto::Dict
-using xeto::Lib
 using haystack
 
 /* TODO
@@ -413,3 +411,4 @@ class DataTypeDocRenderer : DocSpecRenderer
   private Str:CFandoc slotDocs := [:]
 }
 */
+

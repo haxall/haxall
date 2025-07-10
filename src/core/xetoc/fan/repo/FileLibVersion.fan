@@ -8,7 +8,7 @@
 
 using concurrent
 using xeto
-using xetoEnv
+using xetom
 
 **
 ** LibVersion implementation for FileRepo

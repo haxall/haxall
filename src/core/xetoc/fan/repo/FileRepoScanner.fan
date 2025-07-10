@@ -9,7 +9,7 @@
 using concurrent
 using util
 using xeto
-using xetoEnv
+using xetom
 
 **
 ** FileRepoScanner walks thru the Fantom env path to find all the

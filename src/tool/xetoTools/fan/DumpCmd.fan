@@ -8,9 +8,8 @@
 
 using util
 using xeto
-using xeto::LibNamespace
 using haystack
-using xetoEnv
+using xetom
 
 internal class DumpCmd : ExportCmd
 {

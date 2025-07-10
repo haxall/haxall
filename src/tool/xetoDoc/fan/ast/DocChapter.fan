@@ -6,7 +6,7 @@
 //   6 Nov 2024  Brian Frank  Creation
 //
 
-using xetoEnv
+using xetom
 
 **
 ** DocChapter is a page of a markdown document

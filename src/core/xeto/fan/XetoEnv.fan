@@ -26,7 +26,7 @@ abstract const class XetoEnv
   static
   {
     try
-      curRef = Slot.findMethod("xetoEnv::MEnv.init").call
+      curRef = Slot.findMethod("xetom::MEnv.init").call
     catch (Err e)
       Console.cur.err("Cannot init XetoEnv", e)
   }

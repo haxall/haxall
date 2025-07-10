@@ -9,8 +9,7 @@
 using util
 using yaml
 using xeto
-using xeto::Lib
-using xetoEnv
+using xetom
 using haystack
 
 **

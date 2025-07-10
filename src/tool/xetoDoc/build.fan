@@ -32,7 +32,7 @@ class Build : BuildPod
                "markdown @{fan.depend}",
                "web @{fan.depend}",
                "xeto @{hx.depend}",
-               "xetoEnv @{hx.depend}",
+               "xetom @{hx.depend}",
                "haystack @{hx.depend}"]
     srcDirs = [`fan/ast/`,
                `fan/compiler/`,

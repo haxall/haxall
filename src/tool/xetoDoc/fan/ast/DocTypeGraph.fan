@@ -6,7 +6,7 @@
 //   27 Sep 2024  Brian Frank  Creation
 //
 
-using xetoEnv
+using xetom
 
 **
 ** DocTypeGraph models supertype/subtype inheritance graph of a type

@@ -9,7 +9,7 @@
 using concurrent
 using util
 using xeto
-using xetoEnv
+using xetom
 
 **
 ** FileRepo is a file system based repo that uses the the Fantom path to

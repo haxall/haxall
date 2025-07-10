@@ -8,7 +8,7 @@
 
 using util
 using xeto
-using xetoEnv
+using xetom
 
 **
 ** Document is top-level AST node - either a ALib or ADataDoc

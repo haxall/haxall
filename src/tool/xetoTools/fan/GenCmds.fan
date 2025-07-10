@@ -8,7 +8,7 @@
 
 using util
 using haystack
-using xetoEnv
+using xetom
 
 **
 ** AbstractGenCmd

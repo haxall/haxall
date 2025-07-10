@@ -16,7 +16,7 @@ class Main
   static Int main(Str[] args)
   {
     // use doMain to avoid java transpile reflection issues
-    Slot.findMethod("xetoEnv::Main.doMain").callOn(null, [args])
+    Slot.findMethod("xetom::Main.doMain").callOn(null, [args])
   }
 }
 

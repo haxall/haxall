@@ -9,7 +9,6 @@
 using fandoc
 using compilerDoc
 using xeto
-using xeto::Lib
 using haystack
 using def
 

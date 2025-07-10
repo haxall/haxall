@@ -8,10 +8,9 @@
 
 using util
 using xeto
-using xeto::LibNamespace
 using haystack
 using defc
-using xetoEnv
+using xetom
 
 internal abstract class ExportHaystack : ExportCmd
 {

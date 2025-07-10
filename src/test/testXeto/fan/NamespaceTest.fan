@@ -8,7 +8,6 @@
 
 using util
 using xeto
-using xeto::Lib
 using haystack
 
 **
@@ -371,7 +370,7 @@ class NamespaceTest : AbstractXetoTest
 
   Void verifyNameDict(LibNamespace ns, Dict meta)
   {
-    verifyEq(meta.typeof.qname, "xetoEnv::MNameDict")
+    verifyEq(meta.typeof.qname, "xetom::MNameDict")
     meta.each |v, n| { verifyNameTable(ns, n) }
   }
 
@@ -815,7 +814,7 @@ class NamespaceTest : AbstractXetoTest
   Spec verifySlot(LibNamespace ns, Spec parent, Str name, Spec type)
   {
     slot := parent.slotOwn(name)
-    verifyEq(slot.typeof.qname, "xetoEnv::XetoSpec") // not type
+    verifyEq(slot.typeof.qname, "xetom::XetoSpec") // not type
     verifySame(slot.parent, parent)
     verifyEq(slot.name, name)
     verifyEq(slot.qname, parent.qname + "." + name)

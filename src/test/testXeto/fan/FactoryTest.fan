@@ -7,8 +7,8 @@
 //
 
 using xeto
+using xetom
 using haystack
-using xetoEnv
 
 **
 ** FactoryTest

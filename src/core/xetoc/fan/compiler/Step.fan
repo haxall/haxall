@@ -9,7 +9,7 @@
 
 using util
 using xeto
-using xetoEnv
+using xetom
 
 **
 ** Base class for XetoCompiler steps

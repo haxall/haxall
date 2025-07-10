@@ -8,7 +8,7 @@
 
 using util
 using xeto
-using xetoEnv
+using xetom
 using haystack
 
 internal abstract class ExportCmd : XetoCmd

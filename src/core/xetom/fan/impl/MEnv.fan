@@ -22,7 +22,7 @@ abstract const class MEnv : XetoEnv
     if (Env.cur.isBrowser)
       return BrowserEnv()
     else
-      return Slot.findMethod("xetoEnv::ServerEnv.initPath").call
+      return Slot.findMethod("xetom::ServerEnv.initPath").call
   }
 
   override Str dictDis(Dict x)

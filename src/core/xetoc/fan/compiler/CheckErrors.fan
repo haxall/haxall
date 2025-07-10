@@ -9,7 +9,7 @@
 using util
 using xeto
 using haystack
-using xetoEnv
+using xetom
 
 **
 ** CheckErrors is run late in the pipeline to perform AST validation

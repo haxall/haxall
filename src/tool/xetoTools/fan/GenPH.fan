@@ -12,7 +12,7 @@ using xeto
 using haystack
 using def
 using defc
-using xetoEnv
+using xetom
 
 internal class GenPH : AbstractGenCmd
 {

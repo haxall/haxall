@@ -9,7 +9,7 @@
 using util
 using xeto
 using haystack
-using xetoEnv
+using xetom
 
 **
 ** DocSpec is the base class documentation all specs: types, globals, and slots

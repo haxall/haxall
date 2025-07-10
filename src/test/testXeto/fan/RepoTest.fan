@@ -8,8 +8,7 @@
 
 using util
 using xeto
-using xeto::Lib
-using xetoEnv
+using xetom
 using haystack
 
 **
@@ -91,7 +90,7 @@ class RepoTest : AbstractXetoTest
 
     verifyErrMsg(DependErr#, "cc.noSolve-10.0.10 dependency: ph 9.x.x [ph-3.0.9]")
     {
-      verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.noSolve", ["ph"])
+      verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.noSolve", ["cc.noSolve"])
     }
   }
 

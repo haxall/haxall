@@ -10,7 +10,7 @@
 using util
 using xeto
 using haystack
-using xetoEnv
+using xetom
 
 **
 ** Load and assign a SpecBinding to each type in the AST

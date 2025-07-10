@@ -10,7 +10,7 @@ using haystack
 using concurrent
 using xeto
 using xeto::Comp
-using xetoEnv
+using xetom
 
 **
 ** CompFn is an Axon function backed by a Xeto component blocks

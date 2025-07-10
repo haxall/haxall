@@ -95,7 +95,7 @@ internal const class MFuncFactory
     if (Env.cur.runtime == "js")
       cur = make
     else
-      cur = Type.find("xetoEnv::MServerFuncFactory").make
+      cur = Type.find("xetom::MServerFuncFactory").make
   }
 }
 

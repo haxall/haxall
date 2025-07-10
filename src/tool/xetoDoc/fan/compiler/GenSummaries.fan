@@ -10,7 +10,7 @@ using util
 using markdown
 using markdown::Link
 using xeto
-using xetoEnv
+using xetom
 
 **
 ** Generate summaries for every page

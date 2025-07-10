@@ -8,11 +8,9 @@
 
 using web
 using xeto
-using xeto::Dict
-using xeto::Lib
 using haystack
 using axon
-using xetoEnv::Printer
+using xetom::Printer
 using folio
 
 **

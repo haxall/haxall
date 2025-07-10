@@ -9,9 +9,8 @@
 using concurrent
 using util
 using xeto
-using xeto::Lib
+using xetom
 using haystack
-using xetoEnv
 
 **
 ** AbstractXetoTest

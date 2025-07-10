@@ -9,7 +9,7 @@
 using concurrent
 using util
 using xeto
-using xetoEnv
+using xetom
 using haystack
 
 internal class FitsCmd : XetoCmd

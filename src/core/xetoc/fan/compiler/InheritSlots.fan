@@ -8,7 +8,7 @@
 //
 
 using util
-using xetoEnv
+using xetom
 
 **
 ** InheritSlots walks all the specs:

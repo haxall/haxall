@@ -8,7 +8,7 @@
 
 using util
 using xeto
-using xetoEnv
+using xetom
 
 **
 ** AST dependencies and imported namespace handling

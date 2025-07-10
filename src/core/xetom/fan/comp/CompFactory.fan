@@ -38,7 +38,7 @@ internal class CompFactory
   ** Process a graph operation with single instance via actor local
   private static Obj? process(CompSpace cs, Bool reentrant, |This->Obj?| f)
   {
-    actorKey := "xetoEnv::cf"
+    actorKey := "xetom::cf"
 
     // if already inside a factory operation then resuse it
     cur := Actor.locals.get(actorKey)

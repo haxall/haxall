@@ -6,7 +6,7 @@
 //   22 Sep 2024  Brian Frank  Creation
 //
 
-using xetoEnv
+using xetom
 
 **
 ** DocInstance is the documentation for an instance in a lib

@@ -7,9 +7,9 @@
 //
 
 using util
-using xeto::LibNamespace
+using xeto
+using xetom
 using haystack
-using xetoEnv
 
 internal class ExportRdf : ExportCmd
 {

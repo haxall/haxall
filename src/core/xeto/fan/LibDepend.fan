@@ -17,7 +17,7 @@ const mixin LibDepend : Dict
   ** Construct with name and version constraints
   static new make(Str name, LibDependVersions versions := LibDependVersions.wildcard)
   {
-    Slot.findMethod("xetoEnv::MLibDepend.makeFields").call(name, versions, FileLoc.unknown)
+    Slot.findMethod("xetom::MLibDepend.makeFields").call(name, versions, FileLoc.unknown)
   }
 
   ** Construct from exact LibVersion

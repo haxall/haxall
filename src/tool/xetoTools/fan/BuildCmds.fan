@@ -8,9 +8,8 @@
 
 using util
 using xeto
-using xeto::Lib
 using haystack
-using xetoEnv
+using xetom
 using xetoDoc
 
 **************************************************************************

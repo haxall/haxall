@@ -8,7 +8,7 @@
 
 using util
 using xeto
-using xetoEnv
+using xetom
 
 **
 ** Walk thru all the dict AST spec meta and instances and add inferred types/tags.

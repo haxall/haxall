@@ -9,7 +9,7 @@
 
 using util
 using xeto
-using xetoEnv
+using xetom
 
 **
 ** AST for reference to either a type or an instance

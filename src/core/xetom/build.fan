@@ -10,14 +10,14 @@
 using build
 
 **
-** Build: xeto
+** Build: xetom
 **
 class Build : BuildPod
 {
   new make()
   {
-    podName = "xetoEnv"
-    summary = "Xeto environment implementation"
+    podName = "xetom"
+    summary = "Xeto implementation"
     meta    = ["org.name":     "SkyFoundry",
                "org.uri":      "https://skyfoundry.com/",
                "proj.name":    "Haxall",
