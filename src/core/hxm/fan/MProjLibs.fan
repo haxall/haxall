@@ -85,7 +85,7 @@ const class MProjLibs : ProjLibs
 
   ProjNamespace ns() { nsRef.val }
 
-  override ProjLib[] list() { map.vals.sort }
+  override ProjLib[] list() { map.vals }
 
   override Bool has(Str name) { map.containsKey(name) }
 
@@ -100,16 +100,43 @@ const class MProjLibs : ProjLibs
 
   override ProjLib[] installed()
   {
-    return ProjLib[,]
+    acc := this.map.dup
+    repo.libs.each |n|
+    {
+      if (acc[n] != null) return
+      v := repo.latest(n)
+      acc[n] = MProjLib.makeDisabled(v)
+    }
+    return acc.vals
   }
 
-  override Grid status(Bool installed := false)
+  override Grid status(Dict? opts := null)
   {
-    gb := GridBuilder()
-    gb.addCol("name").addCol("status").addCol("version").addCol("more")
-    list.each |x|
+    // use list or installed base on opts
+    if (opts == null) opts = Etc.dict0
+    libs := opts.has("installed") ? installed : list
+
+    // sort based on status, then name
+    libs.sort |a, b|
     {
-      gb.addRow([x.name, x.status.name, x.version?.toStr, x.doc ?: x.err?.toStr])
+      cmp := a.status <=> b.status
+      if (cmp != 0) return cmp
+      return a.name <=> b.name
+    }
+
+    // build grid
+    gb := GridBuilder()
+    gb.addCol("name").addCol("libStatus").addCol("boot").addCol("version").addCol("doc").addCol("err")
+    libs.each |x|
+    {
+      gb.addRow([
+        x.name,
+        x.status.name,
+        Marker.fromBool(x.isBoot),
+        x.version?.toStr,
+        x.doc,
+        x.err?.toStr,
+      ])
     }
     return gb.toGrid
   }
@@ -350,6 +377,15 @@ const class MProjLib : ProjLib
     this.name    = name
     this.isBoot  = isBoot
     this.status  = ProjLibStatus.ok
+    this.version = v.version
+    this.doc     = v.doc
+  }
+
+  internal new makeDisabled(LibVersion v)
+  {
+    this.name    = v.name
+    this.isBoot  = false
+    this.status  = ProjLibStatus.disabled
     this.version = v.version
     this.doc     = v.doc
   }

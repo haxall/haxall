@@ -469,7 +469,7 @@ class CoreFuncsTest : HxTest
     rec := eval("libAddOld(\"math\")")
     verifyEq(rt.lib("math").rec, rec)
 
-    Grid status := eval("libStatus()")
+    Grid status := eval("libStatusOld()")
     verifyDictEq(status.find { it->name == "math" }, ["name":"math", "libStatus":"ok"])
 
     // remove

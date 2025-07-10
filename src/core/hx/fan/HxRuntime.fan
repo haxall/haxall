@@ -86,6 +86,7 @@ const mixin ShimLibs
   abstract Void removeAll(Str[] names)
   abstract Void clear()
   abstract Void reload()
+  abstract Grid status(Dict? opts := null)
 }
 
 **************************************************************************

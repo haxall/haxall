@@ -436,7 +436,7 @@ const class HxCoreFuncs
   **  - libStatus: status enumeration string
   **  - statusMsg: additional message string or null
   @Axon { admin = true }
-  static Grid libStatus()
+  static Grid libStatusOld()
   {
     curContext.rt.libs.status
   }
@@ -474,108 +474,39 @@ const class HxCoreFuncs
     return isShell ? "_no_echo_" : "reloaded"
   }
 
-  ** Get the list of installed Xeto libs and their current enable status.
-  @NoDoc @Axon
-  static Grid usingStatus()
+  ** Return grid of enabled xeto libs and their current status.
+  ** Columns:
+  **  - name: library name string
+  **  - libStatus: status enumeration string
+  **  - other cols subject to change
+  @Axon
+  static Grid libStatus(Dict? opts := null)
   {
-    gb := GridBuilder()
-    gb.addCol("name")
-      .addCol("libStatus")
-      .addCol("enabled")
-      .addCol("version")
-      .addCol("doc")
-
-   cx := curContext
-   ns := cx.ns
-   repo := XetoEnv.cur.repo
-   system := LibNamespace.system
-   repo.libs.each |libName|
-   {
-     status := ns.libStatus(libName, false)?.name ?: "disabled"
-     enabledVer := ns.version(libName, false)
-     isSys := libName == "sys"
-     isEnabled := enabledVer != null
-     ver := enabledVer ?: repo.latest(libName)
-
-     gb.addRow([
-       libName,
-       status,
-       system.version(libName, false) != null ? "boot" : Marker.fromBool(isEnabled),
-       ver.version.toStr,
-       ver.doc,
-       ])
-    }
-
-    return gb.toGrid.sort |a, b|
-    {
-      aEnableKey := a["enabled"]?.toStr ?: "z"
-      bEnableKey := b["enabled"]?.toStr ?: "z"
-      if (aEnableKey == bEnableKey) return a->name <=> b->name
-      return aEnableKey <=> bEnableKey
-    }
+    curContext.rt.shimLibs.status(opts)
   }
 
-  ** Enable one or more Xeto libs by dotted names
-  @NoDoc @Axon { admin = true }
-  static Obj usingAdd(Obj names)
+  ** Enable one or more Xeto libs by name:
+  **   libAdd("ph.points")
+  **   libAdd(["ph.points", "ph.equips"])
+  @Axon { admin = true }
+  static Obj libAdd(Obj names)
   {
     if (names is Str) names = Str[names]
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
-
-    // solve the dependency graph
-    repo := XetoEnv.cur.repo
-    depends := list.map |n->LibDepend| { LibDepend(n) }
-    vers := repo.solveDepends(depends)
-
-    // create add diff for every using statement we need
-    cx := curContext
-    diffs := Diff[,]
-    vers.each |ver|
-    {
-      libName := ver.name
-      if (libName == "sys") return
-      rec := cx.db.read(Filter.eq("using", libName), false)
-      if (rec == null) diffs.add(Diff.makeAdd(["using":libName]))
-    }
-
-    // commit the new using recs
-    cx.db.commitAll(diffs)
-    return list
+    curContext.rt.shimLibs.addAll(list)
+    return "added"
   }
 
-  ** Disable or more Xeto libs by qname
-  @NoDoc @Axon { admin = true }
-  static Obj usingRemove(Obj names)
+  ** Disable or more Xeto libs by name
+  **   libRemove("ph.points")
+  **   libRemove(["ph.points", "ph.equips"])
+  @Axon { admin = true }
+  static Obj libRemove(Obj names)
   {
     if (names is Str) names = Str[names]
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
-
-    // ensure that removing libs won't break dependencies
-    cx := curContext
-    ns := cx.ns
-    ns.versions.each |v|
-    {
-      if (list.contains(v.name)) return
-      v.depends.each |d|
-      {
-        if (list.contains(d.name))
-        {
-          throw DependErr("Removing $d.name.toCode would break depends for $v.name.toCode")
-        }
-      }
-    }
-
-    // build remove diff for each using rec
-    diffs := Diff[,]
-    list.each |libName|
-    {
-      rec := cx.db.read(Filter.eq("using", libName), false)
-      if (rec != null) diffs.add(Diff(rec, null, Diff.remove))
-    }
-
-    // commit them
-    cx.db.commitAll(diffs)
-    return list
+    curContext.rt.shimLibs.removeAll(list)
+    return "removed"
   }
 
 //////////////////////////////////////////////////////////////////////////

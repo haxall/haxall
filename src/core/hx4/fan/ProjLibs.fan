@@ -48,7 +48,7 @@ const mixin ProjLibs
   abstract Void reload()
 
   ** Return status grid of project libs
-  @NoDoc abstract Grid status(Bool installed := false)
+  @NoDoc abstract Grid status(Dict? opts := null)
 }
 
 **************************************************************************
