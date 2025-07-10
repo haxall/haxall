@@ -40,6 +40,12 @@ const mixin HxRuntime : HxStdServices
   ** this directory in a sub-directory named 'db/'.
   abstract File dir()
 
+  ** Xeto lib namespace
+  abstract Namespace ns()
+
+  ** Temp shim
+  abstract ShimLibs shimLibs()
+
   ** Namespace of definitions
   abstract DefNamespace defs()
 
@@ -69,6 +75,17 @@ const mixin HxRuntime : HxStdServices
 
   ** Configuration options defined at bootstrap
   @NoDoc abstract HxConfig config()
+}
+
+
+const mixin ShimLibs
+{
+  abstract Void add(Str name)
+  abstract Void addAll(Str[] names)
+  abstract Void remove(Str n)
+  abstract Void removeAll(Str[] names)
+  abstract Void clear()
+  abstract Void reload()
 }
 
 **************************************************************************

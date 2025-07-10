@@ -7,7 +7,7 @@
 //
 
 ** Unknown extension
-@NoDoc const class UnknownExtErr : Err
+@NoDoc @Js const class UnknownExtErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }

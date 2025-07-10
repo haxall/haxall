@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using xeto
 using haystack
 using folio
 using hx
@@ -24,6 +25,9 @@ const class HxdFolioHooks : FolioHooks
 
   ** Parent database instance
   const Folio db
+
+  ** Xeto namespace is available
+  override LibNamespace? ns(Bool checked := true) { rt.ns }
 
   ** Def namespace is available
   override DefNamespace? defs(Bool checked := true) { rt.defs }
@@ -87,11 +91,6 @@ const class HxdFolioHooks : FolioHooks
     if (diff.getOld("def") != null || diff.getNew("def") != null)
     {
       rt.nsOverlayRecompile
-    }
-
-    if (diff.getOld("using") != null || diff.getNew("using") != null)
-    {
-      rt.nsBaseRecompile
     }
 
     rt.obs.commit(diff, user)

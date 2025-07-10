@@ -19,7 +19,8 @@ class Build : BuildGroup
       `hxTools/build.fan`,
       `xetoDoc/build.fan`,
       `xetoTools/build.fan`,
-      `axonsh/build.fan`,
+// TODO
+      //`axonsh/build.fan`,
     ]
   }
 }

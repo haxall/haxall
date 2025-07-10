@@ -38,6 +38,9 @@ abstract class HxContext : AxonContext, FolioContext
   ** Runtime associated with this context
   abstract HxRuntime rt()
 
+  ** Project namespace
+  abstract override Namespace ns()
+
   ** Folio database for the runtime
   abstract Folio db()
 

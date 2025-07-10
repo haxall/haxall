@@ -42,11 +42,11 @@ abstract class AxonContext : HaystackContext, CompContext
 // Overrides
 //////////////////////////////////////////////////////////////////////////
 
+  ** Xeto namespace
+  abstract LibNamespace ns()
+
   ** Definition namespace
   abstract DefNamespace defs()
-
-  ** Xeto namespace
-  virtual LibNamespace xeto() { defs.xeto }
 
   ** CompContext current time
   override once DateTime now() { DateTime.now(null) }
@@ -126,11 +126,11 @@ abstract class AxonContext : HaystackContext, CompContext
     {
       if (xetoIsSpecCache == null) xetoIsSpecCache = Str:Spec[:]
       spec = specName.contains("::") ?
-             xeto.type(specName) :
-             xeto.unqualifiedType(specName)
+             ns.type(specName) :
+             ns.unqualifiedType(specName)
       xetoIsSpecCache[specName] = spec
     }
-    return xeto.specOf(rec).isa(spec)
+    return ns.specOf(rec).isa(spec)
   }
 
 //////////////////////////////////////////////////////////////////////////

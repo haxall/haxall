@@ -13,6 +13,7 @@ using haystack
 using folio
 using obs
 using hx
+using hxm
 
 **
 ** Haxall daemon implementation of HxRuntime
@@ -46,6 +47,7 @@ const class HxdRuntime : HxRuntime
     this.obs           = HxdObsService(this)
     this.file          = HxdFileService(this)
     this.his           = HxdHisService(this)
+    this.shimLibs      = ShimNamespaceMgr.init(dir)
   }
 
   ** Called after constructor to init libs
@@ -55,6 +57,14 @@ const class HxdRuntime : HxRuntime
     obs.init
     return this
   }
+
+//////////////////////////////////////////////////////////////////////////
+// TODO Shims
+//////////////////////////////////////////////////////////////////////////
+
+  override Namespace ns() { shimLibs.ns }
+
+  const override ShimNamespaceMgr shimLibs
 
 //////////////////////////////////////////////////////////////////////////
 // HxRuntime

@@ -257,7 +257,7 @@ const class HxdOverlayCompiler
     b := BOverlayLib(base, meta)
     rt.db.readAll(Filter.has("def")).each |rec| { addRecDef(b, rec) }
 
-    return MOverlayNamespace(base, MOverlayLib(b), HxdXetoGetter(rt), |DefLib lib->Bool| { true })
+    return MOverlayNamespace(base, MOverlayLib(b), |DefLib lib->Bool| { true })
   }
 
   private Void addRecDef(BOverlayLib b, Dict rec)
@@ -305,23 +305,5 @@ const class HxdOverlayCompiler
   {
     log.err("$msg [$rec.id.toCode]", err)
   }
-}
-
-**************************************************************************
-** HxdXetoGetter
-**************************************************************************
-
-internal const class HxdXetoGetter : XetoGetter
-{
-  new make(HxdRuntime rt) { this.rt = rt }
-
-  const HxdRuntime rt
-
-  override once LibNamespace get()
-  {
-    usings := rt.db.readAllList(Filter.has("using"))
-    return LibNamespace.createSystemOverlay(usings, rt.log)
-  }
-
 }
 

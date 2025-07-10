@@ -397,7 +397,7 @@ const class IOFuncs
   {
     toHandle(handle).withIn |in|
     {
-      HxContext.curHx.xeto.compileData(in.readAllStr, opts)
+      HxContext.curHx.ns.compileData(in.readAllStr, opts)
     }
   }
 
@@ -410,7 +410,7 @@ const class IOFuncs
   {
     return toHandle(handle).withOut |out|
     {
-      HxContext.curHx.xeto.writeData(out, val, opts)
+      HxContext.curHx.ns.writeData(out, val, opts)
     }
   }
 

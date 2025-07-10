@@ -11,6 +11,7 @@ using concurrent
 using xeto
 using haystack
 using folio
+using hx
 
 **
 ** Proj is the API to work with a project database

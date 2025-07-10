@@ -63,7 +63,7 @@ internal class Query : HaystackContext
 
   @NoDoc override Bool xetoIsSpec(Str specName, xeto::Dict rec)
   {
-    ns := folio.hooks.xeto(false)
+    ns := folio.hooks.ns(false)
     if (ns == null) return false
 
     // cache the spec since it can be fairly expensive to lookup

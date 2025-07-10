@@ -18,57 +18,6 @@ using hxFolio
 **
 ** Bootstrap loader for Haxall daemon
 **
-class NewBoot : hxm::ProjBoot
-{
-  new make(File dir) : super("sys", dir) {}
-
-  override Version version() { typeof.pod.version }
-
-  const override Log log := Log.get("hxd")
-
-  override Folio initFolio()
-  {
-    config := FolioConfig
-    {
-      it.name = "haxall"
-      it.dir  = this.dir + `db/`
-      it.pool = ActorPool { it.name = "Hxd-Folio" }
-    }
-    return HxFolio.open(config)
-  }
-}
-
-class Main
-{
-  static Void main(Str[] args)
-  {
-    dir := `/work/haxall/var/`.toFile
-    boot := NewBoot(dir)
-    proj := boot.init.start
-
-    echo("~~> Booted! $proj.id.toZinc [$proj.ns.typeof]")
-    echo(proj.ns.libs.join("\n"))
-    echo("ext recs --> ")
-    proj.db.readAll(Filter("ext")).dump
-    echo("projMeta --> ")
-    echo(proj.db.read(Filter("projMeta")))
-    echo("exts --> $proj.exts $proj.exts.list.size")
-    echo(proj.exts.list.join("\n"))
-    echo("defs --> $proj.ns.exts")
-    proj.ns.exts.list.each |d|
-    {
-      echo("  $d $d.fantomType")
-    }
-    echo("libs --> $proj.libs.list.size")
-    proj.libs.list.each |x| { echo(x) }
-
-    proj.stop
-  }
-}
-
-**
-** Bootstrap loader for Haxall daemon
-**
 class HxdBoot
 {
 

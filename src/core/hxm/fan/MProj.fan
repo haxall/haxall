@@ -29,7 +29,9 @@ const class MProj : Proj
     this.actorPool = ActorPool { it.name = "$this.name-ExtPool" }
     this.exts      = MProjExts(this)
     this.log       = Log.get(name)
-    exts.init(ns.exts.list)
+
+
+    exts.init(((ProjNamespace)ns).exts.list)
   }
 
 //////////////////////////////////////////////////////////////////////////

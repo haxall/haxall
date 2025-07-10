@@ -14,7 +14,7 @@ using xeto
 const mixin Namespace : LibNamespace
 {
   ** Extension definitions
-  abstract NamespaceExts exts()
+  //abstract NamespaceExts exts()
 }
 
 **************************************************************************

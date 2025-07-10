@@ -140,7 +140,7 @@ class TestAxonContext : AxonContext
     Actor.locals.remove(actorLocalsKey)
   }
 
-  new make(LibNamespace ns) { this.xeto = ns }
+  new make(LibNamespace ns) { this.ns = ns }
 
 //////////////////////////////////////////////////////////////////////////
 // XetoContext
@@ -172,7 +172,7 @@ class TestAxonContext : AxonContext
 
   override DefNamespace defs() { throw unsupported }
 
-  override const LibNamespace xeto
+  override LibNamespace ns
 
   override Fn? findTop(Str name, Bool checked := true)
   {

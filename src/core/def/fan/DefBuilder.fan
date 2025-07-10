@@ -25,9 +25,6 @@ class DefBuilder
   ** Pluggable factory
   DefFactory factory := DefFactory()
 
-  ** Lazily Xeto namespace getter
-  XetoGetter xetoGetter := DefXetoGetter()
-
   ** Add new def with normalized meta
   Void addDef(Dict meta, Obj? aux := null)
   {
@@ -120,7 +117,6 @@ class DefBuilder
 
     // initialize namespace builder stub
     b := BNamespace()
-    b.xetoGetter = xetoGetter
     b.ref = nsRef
     b.defsMap = defs
     b.features = features.vals.sort
@@ -162,7 +158,6 @@ class BNamespace
   [Str:DefLib]? libsMap
   Filetype[]? filetypes
   [Str:Filetype]? filetypesMap
-  XetoGetter? xetoGetter
 }
 
 **************************************************************************

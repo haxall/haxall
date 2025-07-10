@@ -96,6 +96,8 @@ internal class TestContext : AxonContext
 
   override Dict toDict() { Etc.emptyDict }
 
+  override LibNamespace ns() { throw UnsupportedErr() }
+
   override DefNamespace defs() { test.defs }
 
   override Fn? findTop(Str name, Bool checked := true)

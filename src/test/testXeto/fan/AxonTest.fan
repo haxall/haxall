@@ -43,7 +43,7 @@ class AxonTest : AbstractAxonTest
     cx := makeContext
     Spec x := cx.eval(expr)
     // echo(":::REF:::: $expr => $x [$x.typeof]")
-    verifySame(cx.defs.xeto, xns)
+    verifySame(cx.ns, xns)
     verifySame(x, xns.spec(qname))
     return x
   }

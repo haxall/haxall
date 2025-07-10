@@ -484,7 +484,7 @@ const class HxCoreFuncs
       .addCol("doc")
 
    cx := curContext
-   ns := cx.xeto
+   ns := cx.ns
    repo := XetoEnv.cur.repo
    system := LibNamespace.system
    repo.libs.each |libName|
@@ -550,7 +550,7 @@ const class HxCoreFuncs
 
     // ensure that removing libs won't break dependencies
     cx := curContext
-    ns := cx.xeto
+    ns := cx.ns
     ns.versions.each |v|
     {
       if (list.contains(v.name)) return

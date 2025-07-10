@@ -7,6 +7,7 @@
 //
 
 using xeto
+using hx
 
 **
 ** Extension definition

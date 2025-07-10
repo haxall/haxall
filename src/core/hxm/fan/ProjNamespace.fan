@@ -25,7 +25,7 @@ const class ProjNamespace : LocalNamespace, Namespace
 
   const Log log
 
-  override once NamespaceExts exts()
+  once NamespaceExts exts()
   {
     ext := spec("hx::Ext")
     acc := Str:ExtDef[:]

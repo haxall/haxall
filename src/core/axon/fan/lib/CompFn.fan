@@ -32,7 +32,7 @@ const class CompFn : TopFn
   override Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)
   {
     // create component space from xeto
-    ns := cx.xeto
+    ns := cx.ns
     cs := CompSpace(ns).load(xeto)
 
     // map input args to Var components by parameter name

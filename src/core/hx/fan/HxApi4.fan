@@ -38,7 +38,7 @@ class HxApiReq
   static Void service(WebReq req, WebRes res, Str op, HxContext cx)
   {
     // resolve to api function
-    spec := cx.xeto.api(op, false)
+    spec := cx.ns.api(op, false)
     if (spec == null) return res.sendErr(404)
 
     // resolve sped to its implementation method

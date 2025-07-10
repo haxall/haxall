@@ -34,14 +34,14 @@ const class TypeRef : Expr
   override Spec? eval(AxonContext cx)
   {
     // qualified type
-    if (lib != null) return cx.xeto.lib(lib).type(name)
+    if (lib != null) return cx.ns.lib(lib).type(name)
 
     // try local varaible definition
     local := cx.getVar(name) as Spec
     if (local != null) return local
 
     // resolve from usings
-    return cx.xeto.unqualifiedType(name)
+    return cx.ns.unqualifiedType(name)
   }
 
   override Printer print(Printer out)

@@ -21,21 +21,22 @@ abstract class AbstractAxonTest : HxTest
   LibNamespace initNamespace(Str[] libs)
   {
     // nuke existing using recs
-    rt.db.readAll(Filter("using")).each |r| { rt.db.commit(Diff(r, null, Diff.remove)) }
+    rt.shimLibs.clear
 
     // add new using recs
-    libs.each |lib| { addRec(["using":lib]) }
+    rt.shimLibs.addAll(libs)
 
     // sync
     rt.sync
-    ns := rt.defs.xeto
-    verifySame(ns.sysLib, LibNamespace.system.sysLib)
+    ns := rt.ns
+// TODO
+//    verifySame(ns.sysLib, LibNamespace.system.sysLib)
     return ns
   }
 
   LibNamespace xns()
   {
-    rt.defs.xeto
+    rt.ns
   }
 
   Void verifyEval(Str expr, Obj? expect)

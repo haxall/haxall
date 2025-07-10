@@ -14,6 +14,35 @@ using xetoc
 using hx
 using hx4
 
+** Temp shim
+const class ShimNamespaceMgr : MProjLibs, ShimLibs
+{
+  static ShimNamespaceMgr init(File topDir)
+  {
+    dir := topDir + `ns/`
+    libsTxt := dir + `libs.txt`
+    if (!libsTxt.exists) libsTxt.out.printLine("// Stub $DateTime.now").close
+    mgr := make(dir)
+    // echo(">>> load shim"); mgr.ns.dump
+    return mgr
+  }
+
+  private new make(File dir) : super.makeShim(dir, shimBootLibNames)
+  {
+  }
+
+  static once Str[] shimBootLibNames()
+  {
+    repo := XetoEnv.cur.repo
+    names := LibNamespace.defaultSystemLibNames
+    return names.findAll |n|
+    {
+      repo.latest(n, false) != null
+    }
+  }
+}
+
+
 **
 ** ProjLibs implementation
 **
@@ -30,7 +59,16 @@ const class MProjLibs : ProjLibs
     this.bootLibNames = boot.bootLibs
     this.repo = boot.repo
     this.log = boot.log
-    reload(readProjLibNames)
+    doReload(readProjLibNames)
+  }
+
+  new makeShim(File dir, Str[] bootLibNames)
+  {
+    this.fb = DiskFileBase(dir)
+    this.repo = XetoEnv.cur.repo
+    this.log = Log.get("xeto")
+    this.bootLibNames = bootLibNames
+    doReload(readProjLibNames)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -102,6 +140,16 @@ const class MProjLibs : ProjLibs
       doRemove(names)
     finally
       lock.unlock
+  }
+
+  override Void clear()
+  {
+    echo("TODO MProjLib.clear")
+  }
+
+  override Void reload()
+  {
+    echo("TODO MProjLib.reload")
   }
 
   private const Lock lock := Lock.makeReentrant
@@ -180,7 +228,7 @@ const class MProjLibs : ProjLibs
 
     // now we are ready, rebuild our projLibNames list
     newProjLibNames := newProjLibNameMap.vals.sort
-    reload(newProjLibNames)
+    doReload(newProjLibNames)
 
     // update our libs.txt file
     writeProjLibNames(newProjLibNames)
@@ -226,7 +274,7 @@ const class MProjLibs : ProjLibs
 // Reload
 //////////////////////////////////////////////////////////////////////////
 
-  private Void reload(Str[] projLibNames)
+  private Void doReload(Str[] projLibNames)
   {
     // first find an installed LibVersion for each lib
     vers := Str:LibVersion[:]

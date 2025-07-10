@@ -25,7 +25,6 @@ const class MBuiltNamespace : MNamespace
   new make(BNamespace b)
   {
     b.ref.val = this
-    this.xetoGetter   = b.xetoGetter
     this.defsMap      = b.defsMap
     this.features     = b.features
     this.featuresMap  = b.featuresMap
@@ -45,8 +44,6 @@ const class MBuiltNamespace : MNamespace
 //////////////////////////////////////////////////////////////////////////
 // DefNamespace
 //////////////////////////////////////////////////////////////////////////
-
-  override const XetoGetter xetoGetter
 
   override Def? def(Str symbol, Bool checked := true)
   {

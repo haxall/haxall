@@ -41,6 +41,12 @@ const mixin ProjLibs
   ** Raise exception if removing lib would cause a dependency error.
   abstract Void removeAll(Str[] names)
 
+  ** Remove all project libs; just for testing
+  @NoDoc abstract Void clear()
+
+  ** Reload all libs from disk
+  abstract Void reload()
+
   ** Return status grid of project libs
   @NoDoc abstract Grid status(Bool installed := false)
 }
