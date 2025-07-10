@@ -499,15 +499,20 @@ class CoreFuncsTest : HxTest
     verifySame(spec, rt.ns.spec("proj::Foo"))
     verifySame(spec.base, rt.ns.spec("sys::Scalar"))
 
+    // rename
+    spec = eval("""projSpecRename("Foo", "Bar")""")
+    verifySame(spec, rt.ns.spec("proj::Bar"))
+    verifySame(spec.base, rt.ns.spec("sys::Scalar"))
+
     // read
-    src := eval("""projSpecRead("Foo")""")
+    src := eval("""projSpecRead("Bar")""")
     verifyEq(src, "Scalar")
     verifyEq(eval("""projSpecRead("Bad", false)"""), null)
     verifyEvalErr("""projSpecRead("Bad")""", UnknownSpecErr#)
     verifyEvalErr("""projSpecRead("Bad", true)""", UnknownSpecErr#)
 
     // remove
-    eval("""projSpecRemove("Foo")""")
+    eval("""projSpecRemove("Bar")""")
     verifyEq(rt.ns.spec("proj::Foo", false), null)
   }
 

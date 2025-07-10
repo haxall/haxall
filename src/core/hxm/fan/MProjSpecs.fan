@@ -45,7 +45,7 @@ const class MProjSpecs : ProjSpecs
 
   override Spec add(Str name, Str body)
   {
-    if (lib.spec(name, false) != null) throw DuplicateNameErr("Spec already exists: $name")
+    if (read(name, false) != null) throw DuplicateNameErr("Spec already exists: $name")
     return doUpdate(name, body)
   }
 
@@ -53,6 +53,15 @@ const class MProjSpecs : ProjSpecs
   {
     lib.spec(name)
     return doUpdate(name, body)
+  }
+
+  override Spec rename(Str oldName, Str newName)
+  {
+    body := read(oldName)
+    if (read(newName, false) != null) throw DuplicateNameErr("Spec already exists: $newName")
+    write(newName, body)
+    remove(oldName)
+    return lib.spec(newName)
   }
 
   override Void remove(Str name)
@@ -63,12 +72,17 @@ const class MProjSpecs : ProjSpecs
 
   private Spec doUpdate(Str name, Str body)
   {
+    write(name, body)
+    libs.reload
+    return lib.spec(name)
+  }
+
+  private Void write(Str name, Str body)
+  {
     buf := Buf()
     buf.capacity = name.size + 16 + body.size
     buf.print(name).print(": ").print(body)
     libs.fb.write("${name}.xeto", buf)
-    libs.reload
-    return lib.spec(name)
   }
 }
 

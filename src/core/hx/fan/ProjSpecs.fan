@@ -25,6 +25,9 @@ const mixin ProjSpecs
   ** Update source for given project spec and reload namespace
   abstract Spec update(Str name, Str body)
 
+  ** Rename project spec and reload namespace
+  abstract Spec rename(Str oldName, Str newName)
+
   ** Remove given project spec and reload namespace
   abstract Void remove(Str name)
 }

@@ -533,6 +533,14 @@ const class HxCoreFuncs
     curContext.rt.specs.update(name, body)
   }
 
+  ** Rename a project level spec and update namespace:
+  **   projSpecRename("OldName", "NewName")
+  @Axon { admin = true }
+  static Obj projSpecRename(Str oldName, Str newName)
+  {
+    curContext.rt.specs.rename(oldName, newName)
+  }
+
   ** Remove a project level spec by name and update namespace:
   **   projSpecRemove("MySpec")
   @Axon { admin = true }

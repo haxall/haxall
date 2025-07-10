@@ -61,10 +61,11 @@ class ProjTest : HxTest
 
     // add spec
     specA := p.specs.add("SpecA", "Dict { dis: Str }")
+    specB := p.specs.add("SpecB", "Dict { dis: Str }")
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Dict")
     verifyEq(p.specs.read("SpecA"), "Dict { dis: Str }")
-    verifyProjSpecs(p, ["SpecA"])
+    verifyProjSpecs(p, ["SpecA", "SpecB"])
 
     // add errors
     verifyErr(DuplicateNameErr#) { p.specs.add("SpecA", "Dict { foo: Str }") }
@@ -74,7 +75,7 @@ class ProjTest : HxTest
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Scalar")
     verifyEq(p.specs.read("SpecA"), "Scalar")
-    verifyProjSpecs(p, ["SpecA"])
+    verifyProjSpecs(p, ["SpecA", "SpecB"])
 
     // update errors
     verifyErr(UnknownSpecErr#) { p.specs.update("SpecX", "Dict { foo: Str }") }
@@ -83,7 +84,7 @@ class ProjTest : HxTest
     p.db.close
     p = TestProjBoot(tempDir).init
     verifyProjLibs(p, bootLibs, projLibs, [,])
-    verifyProjSpecs(p, ["SpecA"])
+    verifyProjSpecs(p, ["SpecA", "SpecB"])
     //dumpLibs(p)
 
     // remove - errors
@@ -95,15 +96,27 @@ class ProjTest : HxTest
     p.libs.remove("ashrae.g36")
     projLibs.remove("ashrae.g36")
 
+    // rename specs
+    specA = p.specs.rename("SpecA", "NewSpecA")
+    verifyEq(specA.qname, "proj::NewSpecA")
+    verifyEq(specA.base.qname, "sys::Scalar")
+    verifyEq(p.specs.read("NewSpecA"), "Scalar")
+    verifyProjSpecs(p, ["NewSpecA", "SpecB"])
+
+    // rename errors
+    verifyErr(UnknownSpecErr#) { p.specs.rename("Bad", "NewBad") }
+    verifyErr(DuplicateNameErr#) { p.specs.rename("NewSpecA", "SpecB") }
+    verifyProjSpecs(p, ["NewSpecA", "SpecB"])
+
     // remove specs
-    p.specs.remove("SpecA")
-    verifyProjSpecs(p, Str[,])
+    p.specs.remove("NewSpecA")
+    verifyProjSpecs(p, ["SpecB"])
 
     // re-boot and verify libs were persisted
     p.db.close
     p = TestProjBoot(tempDir).init
     verifyProjLibs(p, bootLibs, projLibs, [,])
-    verifyProjSpecs(p, Str[,])
+    verifyProjSpecs(p, ["SpecB"])
   }
 
   Void dumpLibs(Proj p)
