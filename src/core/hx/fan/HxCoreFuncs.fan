@@ -413,17 +413,19 @@ const class HxCoreFuncs
   }
 
   ** Enable a library by name in the runtime:
-  **   libAdd("mqtt")
+  **   libAddOld("mqtt")
+  ** TODO: deprecated and will be removed in 4.0
   @Axon { admin = true }
-  static Dict libAdd(Str name, Dict? tags := null)
+  static Dict libAddOld(Str name, Dict? tags := null)
   {
     curContext.rt.libs.add(name, tags ?: Etc.emptyDict).rec
   }
 
   ** Disable a library by name in the runtime:
-  **   libRemove("mqtt")
+  **   libRemoveOld("mqtt")
+  ** TODO: deprecated and will be removed in 4.0
   @Axon { admin = true }
-  static Obj? libRemove(Obj name)
+  static Obj? libRemoveOld(Obj name)
   {
     curContext.rt.libs.remove(name)
     return "removed"

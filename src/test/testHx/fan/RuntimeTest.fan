@@ -203,14 +203,14 @@ class RuntimeTest : HxTest
     // verify via Axon eval
     cx := makeContext
     verifyEq(cx.defs.def("func:today").lib.name, "axon")
-    verifyEq(cx.defs.def("func:libAdd").lib.name, "hx")
+    verifyEq(cx.defs.def("func:commit").lib.name, "hx")
     verifyEq(cx.eval("today()"), Date.today)
 
     // sysmod functions
     verifyEq(cx.eval("cryptoReadAllKeys().col(\"alias\").name"), "alias")
 
     // add library
-    cx.eval("libAdd(\"math\")")
+    cx.eval("libAddOld(\"math\")")
     verifyEq(cx.defs.def("func:sqrt").lib.name, "math")
     verifyEq(cx.eval("sqrt(16)"), n(4))
 

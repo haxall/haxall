@@ -466,18 +466,18 @@ class CoreFuncsTest : HxTest
     verifyEq(rt.lib("math", false), null)
 
     // add
-    rec := eval("libAdd(\"math\")")
+    rec := eval("libAddOld(\"math\")")
     verifyEq(rt.lib("math").rec, rec)
 
     Grid status := eval("libStatus()")
     verifyDictEq(status.find { it->name == "math" }, ["name":"math", "libStatus":"ok"])
 
     // remove
-    eval("libRemove(\"math\")")
+    eval("libRemoveOld(\"math\")")
     verifyEq(rt.lib("math", false), null)
 
     // add again
-    rec = eval("libAdd(\"math\", {foo})")
+    rec = eval("libAddOld(\"math\", {foo})")
     verifyEq(rt.lib("math").rec, rec)
     verifyEq(rec->foo, Marker.val)
   }
