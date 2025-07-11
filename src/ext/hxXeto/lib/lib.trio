@@ -9,10 +9,7 @@
 --------------------------------------------------------------------------
 def: ^lib:xeto
 depends: [^lib:ph, ^lib:axon, ^lib:hx]
-typeName:"hxXeto::XetoLib"
-doc: "Xeto spec and data function library"
+typeName:"hxXeto::XetoExt"
+doc: "Xeto spec and data functions"
 --------------------------------------------------------------------------
-
-
-
 
