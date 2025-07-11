@@ -69,6 +69,7 @@ class ProjTest : HxTest
 
     // add errors
     verifyErr(DuplicateNameErr#) { p.specs.add("SpecA", "Dict { foo: Str }") }
+    verifyErr(NameErr#) { p.specs.add("Bad Name", "Dict { foo: Str }") }
 
     // update spec
     specA = p.specs.update("SpecA", "Scalar")
@@ -106,6 +107,7 @@ class ProjTest : HxTest
     // rename errors
     verifyErr(UnknownSpecErr#) { p.specs.rename("Bad", "NewBad") }
     verifyErr(DuplicateNameErr#) { p.specs.rename("NewSpecA", "SpecB") }
+    verifyErr(NameErr#) { p.specs.rename("NewSpecA", "Bad Name") }
     verifyProjSpecs(p, ["NewSpecA", "SpecB"])
 
     // remove specs

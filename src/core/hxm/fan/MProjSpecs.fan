@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetom
 using haystack
 using xetoc
 using hx
@@ -60,20 +61,22 @@ const class MProjSpecs : ProjSpecs
 
   override Spec add(Str name, Str body)
   {
-    if (read(name, false) != null) throw DuplicateNameErr("Spec already exists: $name")
+    checkName(name)
+    checkExists(name, false)
     return doUpdate(name, body)
   }
 
   override Spec update(Str name, Str body)
   {
-    read(name)
+    checkExists(name, true)
     return doUpdate(name, body)
   }
 
   override Spec rename(Str oldName, Str newName)
   {
+    checkName(newName)
+    checkExists(newName, false)
     body := read(oldName)
-    if (read(newName, false) != null) throw DuplicateNameErr("Spec already exists: $newName")
     write(newName, body)
     remove(oldName)
     return lib.spec(newName)
@@ -97,6 +100,29 @@ const class MProjSpecs : ProjSpecs
     buf := writeFormat(name, body)
     fb.write("${name}.xeto", buf)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Checks
+//////////////////////////////////////////////////////////////////////////
+
+  private Void checkName(Str name)
+  {
+    if (!XetoUtil.isSpecName(name)) throw NameErr("Invalid spec name $name.toCode")
+  }
+
+  private Void checkExists(Str name, Bool expect)
+  {
+    actual := fb.exists("${name}.xeto")
+    if (actual == expect) return
+    if (actual)
+      throw DuplicateNameErr("Spec already exists: $name")
+    else
+      throw UnknownSpecErr(name)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Formatting
+//////////////////////////////////////////////////////////////////////////
 
   private Str readFormat(Str name, Buf buf)
   {

@@ -7,11 +7,6 @@
 //
 
 using concurrent
-using xeto
-using haystack
-using folio
-using hx
-using hx4
 
 **
 ** FileBase is a simple map of text files keyed by name stored to disk.
@@ -20,6 +15,9 @@ abstract const class FileBase
 {
   ** List file names
   abstract Str[] list()
+
+  ** Check if file name exists
+  abstract Bool exists(Str name)
 
   ** Read a file by name
   abstract Buf? read(Str name, Bool checked := true)
@@ -56,6 +54,12 @@ const class DiskFileBase : FileBase
       acc[name] = name
     }
     return acc.keys
+  }
+
+  override Bool exists(Str name)
+  {
+    f := dir + name.toUri
+    return f.exists
   }
 
   override Buf? read(Str name, Bool checked := true)
