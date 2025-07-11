@@ -25,7 +25,10 @@ internal class ProcessPragma : Step
       lib.meta = compiler.pragma
       lib.version = toVersion
       pragma.metaParent = lib
-      compiler.depends.list = pragmaToDepends
+      if (lib.name == XetoUtil.projLibName)
+        compiler.depends.list = nsToDepends
+      else
+        compiler.depends.list = pragmaToDepends
     }
     else
     {
@@ -71,9 +74,10 @@ internal class ProcessPragma : Step
 
   private MLibDepend[] nsToDepends()
   {
-    ns.libs.map |lib->MLibDepend|
+    ns.versions.mapNotNull |lib->MLibDepend?|
     {
-      MLibDepend(lib.name, LibDependVersions.wildcard, FileLoc.synthetic)
+      if (compiler.libName == lib.name) return null
+      return MLibDepend(lib.name, LibDependVersions.wildcard, FileLoc.synthetic)
     }
   }
 

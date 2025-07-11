@@ -69,11 +69,15 @@ internal class Parse : Step
     // remove object named "pragma" from root
     pragma := lib.tops.remove("pragma")
 
+    // for special "proj" lib we use libs.txt
+    if (pragma == null && lib.name == XetoUtil.projLibName)
+      pragma = synthetizeProjLibPragma(lib)
+
     // if not found
     if (pragma == null)
     {
       // libs must have pragma
-      err("Lib '$compiler.libName' missing  pragma", lib.loc)
+      err("Lib '$compiler.libName' missing pragma", lib.loc)
       return null
     }
 
@@ -152,6 +156,17 @@ internal class Parse : Step
       err(e.toStr, loc, e)
       return null
     }
+  }
+
+  private ASpec? synthetizeProjLibPragma(ALib lib)
+  {
+    // generate stub pragma
+    loc := FileLoc.synthetic
+    pragma := ASpec(loc, lib, null, "pragma")
+    pragma.typeRef = ASpecRef(loc, ASimpleName(null, "Lib"))
+    meta := pragma.metaInit
+    meta.set("version", AScalar(loc, null, "0.0.0"))
+    return pragma
   }
 }
 

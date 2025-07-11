@@ -129,9 +129,10 @@ const class MProjLibs : ProjLibs
     if (opts == null) opts = Etc.dict0
     libs := opts.has("installed") ? installed : list
 
-    // sort based on status, then name
+    // sort based on boot, then status, then name
     libs.sort |a, b|
     {
+      if (a.isBoot != b.isBoot) return a.isBoot ? -1 : +1
       cmp := a.status <=> b.status
       if (cmp != 0) return cmp
       return a.name <=> b.name
@@ -198,12 +199,12 @@ const class MProjLibs : ProjLibs
 
   override Void clear()
   {
-    echo("TODO MProjLib.clear")
+    doReload(Str[,])
   }
 
   override Void reload()
   {
-    doReload(projLibNames)
+    doReload(readProjLibNames)
   }
 
   private const Lock lock := Lock.makeReentrant
@@ -325,21 +326,6 @@ const class MProjLibs : ProjLibs
     fb.write("libs.txt", buf)
   }
 
-  Void writePragma(LibVersion[] vers)
-  {
-    // TODO: temp shim
-    buf := Buf()
-    buf.printLine("// Project library")
-    buf.printLine("pragma: Lib <")
-    buf.printLine("  version: $version.toStr.toCode")
-    buf.printLine("  depends: {")
-    vers.each |ver| { buf.printLine("    {lib:$ver.name.toCode}") }
-    buf.printLine("  }")
-    buf.printLine(">")
-    fb.write("lib.xeto", buf)
-    // echo(fb.read("lib.xeto").readAllStr)
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Reload
 //////////////////////////////////////////////////////////////////////////
@@ -364,7 +350,6 @@ const class MProjLibs : ProjLibs
 
     // at this point should we should have a safe versions list to create namespace
     nsVers := versToUse.vals
-    writePragma(nsVers)
     nsVers.add(FileLibVersion.makeProj(fb.dir, version))
     ns := ProjNamespace(LocalNamespaceInit(repo, nsVers, null, repo.names), log)
     ns.libs // force sync load
