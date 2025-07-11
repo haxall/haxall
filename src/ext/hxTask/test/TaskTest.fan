@@ -27,14 +27,14 @@ class TaskTest : HxTest
   @HxRuntimeTest
   Void testSettings()
   {
-    lib := (TaskLib)addLib("task")
+    lib := (TaskExt)addLib("task")
     verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
     verifyEq(lib.rec.maxThreads, 50)
     verifyEq(lib.rec["maxThreads"], null)
 
     rt.libsOld.remove("task")
 
-    lib = (TaskLib)rt.libsOld.add("task", Etc.dict1("maxThreads", n(123)))
+    lib = (TaskExt)rt.libsOld.add("task", Etc.dict1("maxThreads", n(123)))
     verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
     verifyEq(lib.rec.maxThreads, 123)
     verifyEq(lib.rec->maxThreads, n(123))
@@ -60,7 +60,7 @@ class TaskTest : HxTest
   @HxRuntimeTest
   Void testBasics()
   {
-    lib := (TaskLib)addLib("task")
+    lib := (TaskExt)addLib("task")
     sync
     lib.spi.sync
 
@@ -189,7 +189,7 @@ class TaskTest : HxTest
   @HxRuntimeTest
   Void testLocals()
   {
-    lib := (TaskLib)addLib("task")
+    lib := (TaskExt)addLib("task")
 
     t := addTaskRec("T",
       """ (msg) => do
@@ -222,7 +222,7 @@ class TaskTest : HxTest
   @HxRuntimeTest
   Void testCancel()
   {
-    lib := (TaskLib)addLib("task")
+    lib := (TaskExt)addLib("task")
 
     // setup a task that loops with sleep call
     addFuncRec("testIt",
@@ -262,7 +262,7 @@ class TaskTest : HxTest
   @HxRuntimeTest
   Void testAdjuncts()
   {
-    lib := (TaskLib)addLib("task")
+    lib := (TaskExt)addLib("task")
 
     t := addTaskRec("T1",
       """ (msg) => do
@@ -309,7 +309,7 @@ class TaskTest : HxTest
       return
     }
 
-    lib := (TaskLib)addLib("task")
+    lib := (TaskExt)addLib("task")
 
     a := addRec(["dis":"A", "site":m, "foo":m])
     b := addRec(["dis":"B", "site":m])
@@ -427,7 +427,7 @@ class TaskTest : HxTest
 
   Task verifyTask(Task task, Str type, Str status, Str? fault := null)
   {
-    lib := (TaskLib)rt.libsOld.get("task")
+    lib := (TaskExt)rt.libsOld.get("task")
     verifySame(lib.task(task.id), task)
     verifyEq(task.type.name, type)
     verifyEq(task.status.name, status)

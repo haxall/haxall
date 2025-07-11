@@ -27,40 +27,40 @@ const class Task : Actor, Observer, HxTask
   static Task? cur() { Actor.locals["task.cur"] }
 
   ** Create task for given record
-  static new makeRec(TaskLib lib, Dict rec)
+  static new makeRec(TaskExt ext, Dict rec)
   {
     try
     {
       // sanity check
-      if (rec.missing("task")) return makeFault(lib, rec, "Missing 'task' tag")
+      if (rec.missing("task")) return makeFault(ext, rec, "Missing 'task' tag")
 
       // disabled
-      if (rec.has("disabled")) return makeFault(lib, rec, "Task is disabled", TaskType.disabled)
+      if (rec.has("disabled")) return makeFault(ext, rec, "Task is disabled", TaskType.disabled)
 
       // parse taskExpr
       exprVal := rec["taskExpr"]
-      if (exprVal == null) return makeFault(lib, rec, "Missing 'taskExpr' tag")
-      if (exprVal isnot Str) return makeFault(lib, rec, "Invalid type 'taskExpr' tag, must be Str")
+      if (exprVal == null) return makeFault(ext, rec, "Missing 'taskExpr' tag")
+      if (exprVal isnot Str) return makeFault(ext, rec, "Invalid type 'taskExpr' tag, must be Str")
       Expr? expr
       try
         expr = Parser(Loc("taskExpr"), exprVal.toStr.in).parse
       catch (Err e)
-        return makeFault(lib, rec, "Invalid expr: $e")
+        return makeFault(ext, rec, "Invalid expr: $e")
 
       // valid record task
-      return makeOk(lib, rec, expr)
+      return makeOk(ext, rec, expr)
     }
     catch (Err e)
     {
-      return makeFault(lib, rec, "Internal error: $e")
+      return makeFault(ext, rec, "Internal error: $e")
     }
   }
 
   ** Construct for record with valid config
-  private new makeOk(TaskLib lib, Dict rec, Expr expr)
-    : super.make(lib.pool)
+  private new makeOk(TaskExt ext, Dict rec, Expr expr)
+    : super.make(ext.pool)
   {
-    this.lib  = lib
+    this.ext  = ext
     this.id   = rec.id
     this.rec  = rec
     this.type = TaskType.rec
@@ -68,10 +68,10 @@ const class Task : Actor, Observer, HxTask
   }
 
   ** Construct for record with faulty config
-  private new makeFault(TaskLib lib, Dict rec, Str fault, TaskType type := TaskType.fault)
-    : super.make(lib.pool)
+  private new makeFault(TaskExt ext, Dict rec, Str fault, TaskType type := TaskType.fault)
+    : super.make(ext.pool)
   {
-    this.lib   = lib
+    this.ext   = ext
     this.id    = rec.id
     this.rec   = rec
     this.type  = type
@@ -81,10 +81,10 @@ const class Task : Actor, Observer, HxTask
   }
 
   ** Constructor ephemeral expr called from taskRun
-  new makeEphemeral(TaskLib lib, Expr expr)
-    : super.make(lib.pool)
+  new makeEphemeral(TaskExt ext, Expr expr)
+    : super.make(ext.pool)
   {
-    this.lib  = lib
+    this.ext  = ext
     this.id   = Ref("ephemeral-$ephemeralCounter.getAndIncrement", expr.toStr)
     this.rec  = Etc.emptyDict
     this.type = TaskType.ephemeral
@@ -97,7 +97,7 @@ const class Task : Actor, Observer, HxTask
 //////////////////////////////////////////////////////////////////////////
 
   ** Parent library
-  const TaskLib lib
+  const TaskExt ext
 
   ** Unique id - either rec id or ephemeral auto-generated id
   override const Ref id
@@ -333,7 +333,7 @@ const class Task : Actor, Observer, HxTask
     isCancelled.val = false
 
     // create context which checks cancel flag during heartbeat callback
-    cx := lib.rt.context.create(lib.user)
+    cx := ext.rt.context.create(ext.user)
     cx.heartbeatFunc = |->|
     {
       if (isCancelled.val || isKilled.val) throw CancelledErr()
@@ -376,7 +376,7 @@ const class Task : Actor, Observer, HxTask
       if (!type.isRec) return
 
       // check if the rec has any of the observeFoo tags
-      observable := lib.rt.obs.list.find |o| { rec.has(o.name) }
+      observable := ext.rt.obs.list.find |o| { rec.has(o.name) }
       if (observable == null) return
 
       // create subscription using rec itself as the config
@@ -395,7 +395,7 @@ const class Task : Actor, Observer, HxTask
     try
       s.unsubscribe
     catch (Err e)
-      lib.log.err("Task.unsubscribe: $dis", e)
+      ext.log.err("Task.unsubscribe: $dis", e)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -418,7 +418,7 @@ const class Task : Actor, Observer, HxTask
     try
       adjunct.onKill
     catch (Err e)
-      lib.log.err("Task.adjunctOnKill: $dis", e)
+      ext.log.err("Task.adjunctOnKill: $dis", e)
   }
 
 //////////////////////////////////////////////////////////////////////////

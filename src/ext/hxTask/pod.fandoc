@@ -1,5 +1,5 @@
 **************************************************************************
-** title:      TaskLib
+** title:      TaskExt
 ** author:     Brian Frank
 ** created:    17 Apr 2020
 ** copyright:  Copyright (c) 2020, SkyFoundry LLC, Licensed under the AFL v3.0
@@ -330,5 +330,4 @@ The 'fault' column is the error message if the task has a configuration error.
 
 Note that all statistics such as 'errNum' and 'evalNum' are reset to zero
 when the task is [restarted]`ext-task::doc#lifecycle` due to a configuration change.
-
 

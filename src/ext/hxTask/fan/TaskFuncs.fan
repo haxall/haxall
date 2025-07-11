@@ -47,7 +47,7 @@ const class TaskFuncs
     return grid
   }
 
-  internal static Grid tasksGrid(TaskLib lib, Obj? meta, Int ticks)
+  internal static Grid tasksGrid(TaskExt ext, Obj? meta, Int ticks)
   {
     gb := GridBuilder()
     gb.setMeta(meta)
@@ -65,7 +65,7 @@ const class TaskFuncs
       .addCol("evalLastDur")
       .addCol("evalLastTime")
       .addCol("fault")
-    lib.tasks.each |t|
+    ext.tasks.each |t|
     {
       if (t.ticks < ticks) return
       gb.addRow([
@@ -412,8 +412,8 @@ const class TaskFuncs
   ** Current context
   private static HxContext curContext() { HxContext.curHx }
 
-  ** Lookup TaskLib for context
-  private static TaskLib lib(HxContext cx) { cx.rt.libsOld.get("task") }
+  ** Lookup TaskExt for context
+  private static TaskExt lib(HxContext cx) { cx.rt.libsOld.get("task") }
 }
 
 **************************************************************************
@@ -433,18 +433,18 @@ internal const class TestTaskAdjunct : HxTaskAdjunct
 
 @NoDoc const class TasksFeed : HxFeed
 {
-  new make(HxContext cx, TaskLib lib, Filter? search) : super(cx)
+  new make(HxContext cx, TaskExt ext, Filter? search) : super(cx)
   {
-    this.lib = lib
+    this.ext = ext
     this.search = search
   }
-  const TaskLib lib
+  const TaskExt ext
   const Filter? search
   const AtomicInt lastPollTicks := AtomicInt(Duration.nowTicks)
   override Grid? poll(HxContext cx)
   {
     // poll for tasks which have ver updated since last poll ticks
-    grid := TaskFuncs.tasksGrid(lib, null, lastPollTicks.val)
+    grid := TaskFuncs.tasksGrid(ext, null, lastPollTicks.val)
     if (search != null) grid = grid.filter(search, cx)
     lastPollTicks.val = Duration.nowTicks
     return grid

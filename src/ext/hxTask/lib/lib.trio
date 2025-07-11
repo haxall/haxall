@@ -9,7 +9,7 @@
 --------------------------------------------------------------------------
 def: ^lib:task
 depends: [^lib:ph, ^lib:obs, ^lib:axon, ^lib:hx, ^lib:skyarc]
-typeName:"hxTask::TaskLib"
+typeName:"hxTask::TaskExt"
 doc: "Async task engine"
 --------------------------------------------------------------------------
 
