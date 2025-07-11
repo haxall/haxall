@@ -11,9 +11,9 @@ using xeto
 using hx
 
 **
-** Python library.
+** Python extension.
 **
-const class PyLib : Ext
+const class PyExt : Ext
 {
   ** Construction
   new make()
@@ -21,8 +21,8 @@ const class PyLib : Ext
     this.mgr = PyMgr(this)
   }
 
-  ** Convenience to get the PyLib instance from the current context.
-  static PyLib? cur(Bool checked := true)
+  ** Convenience to get the PyExt instance from the current context.
+  static PyExt? cur(Bool checked := true)
   {
     HxContext.curHx.rt.libsOld.get("py", checked)
   }

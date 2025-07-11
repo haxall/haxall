@@ -10,6 +10,7 @@
 def: ^lib:py
 icon: "python"
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc, ^lib:math, ^lib:docker]
-typeName:"hxPy::PyLib"
+typeName:"hxPy::PyExt"
 doc: "Python inter-process communication"
 --------------------------------------------------------------------------
+

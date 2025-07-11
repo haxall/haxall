@@ -23,14 +23,14 @@ internal const class PyMgr : Actor
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(PyLib lib, |This|? f := null) : super(lib.rt.libsOld.actorPool)
+  new make(PyExt ext, |This|? f := null) : super(ext.rt.libsOld.actorPool)
   {
     f?.call(this)
-    this.lib = lib
+    this.ext = ext
   }
 
-  internal const PyLib lib
-  private Log log() { lib.log }
+  internal const PyExt ext
+  private Log log() { ext.log }
   private const ConcurrentMap sessions := ConcurrentMap()
   private const AtomicBool running := AtomicBool(true)
 
@@ -56,7 +56,7 @@ internal const class PyMgr : Actor
   {
     try
     {
-      tasks := (HxTaskService?)lib.rt.services.get(HxTaskService#)
+      tasks := (HxTaskService?)ext.rt.services.get(HxTaskService#)
       return tasks.adjunct |->HxTaskAdjunct| { createSession(opts) }
     }
     catch (Err err)
@@ -142,7 +142,7 @@ internal const class PyMgrSession : PySession, HxTaskAdjunct
   PySession session() { ((Unsafe)sessionRef.val).val }
   private const AtomicRef sessionRef := AtomicRef()
 
-  private Log log() { mgr.lib.log }
+  private Log log() { mgr.ext.log }
 
   private Bool isClosed() { sessionRef.val == null }
 
@@ -154,7 +154,7 @@ internal const class PyMgrSession : PySession, HxTaskAdjunct
   {
     if (!isClosed) throw Err("Already open")
 
-    docker := mgr.lib.rt.services.get(HxDockerService#)
+    docker := mgr.ext.rt.services.get(HxDockerService#)
     s := PyDockerSession(docker, opts)
     sessionRef.val = Unsafe(s)
     return this

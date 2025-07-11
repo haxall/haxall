@@ -18,7 +18,7 @@ using hx
 const class PyFuncs
 {
 
-  static private PyLib lib() { HxContext.curHx.rt.libsOld.get("py") }
+  static private PyExt ext() { HxContext.curHx.rt.libsOld.get("py") }
 
 //////////////////////////////////////////////////////////////////////////
 // PySession
@@ -41,7 +41,7 @@ const class PyFuncs
   @Axon{ admin=true }
   static PySession py(Dict? opts := null)
   {
-    lib.openSession(opts)
+    ext.openSession(opts)
   }
 
   ** Set the timeout for `pyEval()`.
@@ -80,7 +80,7 @@ const class PyFuncs
     }
     finally
     {
-      try { py.close } catch (Err ignore) { lib.log.debug("Failed to close python session", ignore) }
+      try { py.close } catch (Err ignore) { ext.log.debug("Failed to close python session", ignore) }
     }
   }
 }
