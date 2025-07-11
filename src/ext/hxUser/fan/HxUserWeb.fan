@@ -16,9 +16,9 @@ using hx
 **
 const class HxUserWeb : ExtWeb
 {
-  new make(HxUserLib lib) : super(lib) { this.lib = lib }
+  new make(HxUserLib ext) : super(ext) { this.ext = ext }
 
-  const override HxUserLib lib
+  const override HxUserLib ext
 
   override Void onService()
   {
@@ -103,7 +103,7 @@ const class HxUserWeb : ExtWeb
 
   private Void onAuth()
   {
-    HxUserAuthServerContext(lib).onService(req, res)
+    HxUserAuthServerContext(ext).onService(req, res)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -112,10 +112,10 @@ const class HxUserWeb : ExtWeb
 
   private Void onLogout()
   {
-    cx := lib.authenticate(req, res)
+    cx := ext.authenticate(req, res)
     if (cx == null) return
-    lib.sessions.close(cx.session)
-    res.redirect(lib.loginUri)
+    ext.sessions.close(cx.session)
+    res.redirect(ext.loginUri)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -16,14 +16,14 @@ using hx
 **
 const class HxShellWeb : ExtWeb
 {
-  new make(Ext lib) : super(lib)
+  new make(Ext ext) : super(ext)
   {
-    this.lib     = lib
+    this.ext     = ext
     this.title   = "" + rt.platform.productName + " Shell"
     this.favicon = rt.platform.faviconUri
   }
 
-  override const Ext lib
+  override const Ext ext
 
   const Str title
 

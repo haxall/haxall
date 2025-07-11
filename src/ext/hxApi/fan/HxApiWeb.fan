@@ -16,11 +16,11 @@ using hx
 **
 const class HxApiWeb : ExtWeb, WebOpUtil
 {
-  new make(Ext lib) : super(lib) { this.lib = lib }
+  new make(Ext ext) : super(ext) { this.ext = ext }
 
-  override const Ext lib
+  override const Ext ext
 
-  override DefNamespace defs() { lib.rt.defs }
+  override DefNamespace defs() { ext.rt.defs }
 
   override Void onService()
   {
@@ -81,7 +81,7 @@ const class HxApiWeb : ExtWeb, WebOpUtil
     if (path.size == 1) return path[0]
     if (path.size == 2)
     {
-      cluster := lib.rt.services.get(HxClusterService#, false) as HxClusterService
+      cluster := ext.rt.services.get(HxClusterService#, false) as HxClusterService
       if (cluster != null && path[0] == cluster.nodeId.segs[0].body)
         return path[1]
     }
@@ -104,7 +104,7 @@ const class HxApiWeb : ExtWeb, WebOpUtil
   ** Write error response
   private Grid toErrGrid(Err err, Obj? meta := null)
   {
-    if (lib.rec.has("disableErrTrace"))
+    if (ext.rec.has("disableErrTrace"))
     {
       meta = Etc.makeDict(meta)
       meta = Etc.dictSet(meta, "errTrace", "${err}\n  Trace disabled")

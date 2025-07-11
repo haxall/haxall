@@ -16,17 +16,17 @@ using web
 abstract const class ExtWeb : WebMod
 {
   ** Subclass constructor
-  protected new make(Ext lib) { this.libRef = lib }
+  protected new make(Ext ext) { this.extRef = ext }
 
   ** Runtime for parent library
-  virtual HxRuntime rt() { libRef.rt }
+  virtual HxRuntime rt() { extRef.rt }
 
   ** Parent library.  Subclasses can override this method to be covariant.
-  virtual Ext lib() { libRef }
-  private const Ext libRef
+  virtual Ext ext() { extRef }
+  private const Ext extRef
 
   ** Base uri for this library's endpoint such as "/myLib/"
-  Uri uri() { lib.spi.webUri }
+  Uri uri() { ext.spi.webUri }
 
   ** Is the unsupported no-up default instance
   @NoDoc virtual Bool isUnsupported() { false }
