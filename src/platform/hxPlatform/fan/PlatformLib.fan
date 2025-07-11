@@ -13,7 +13,7 @@ using hx
 **
 ** Platform support for basic functionality
 **
-const class PlatformLib : HxLib
+const class PlatformLib : Ext
 {
 
   new make()
@@ -24,3 +24,4 @@ const class PlatformLib : HxLib
   internal const PlatformSpi platformSpi
 
 }
+

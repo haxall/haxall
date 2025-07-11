@@ -44,7 +44,7 @@ class HxdTestSpi : HxTestSpi
     ((HxdRuntime)rt).stop
   }
 
-  override HxLib addLib(Str libName, Str:Obj? tags)
+  override Ext addLib(Str libName, Str:Obj? tags)
   {
     rt := (HxdRuntime)test.rt
     x := rt.libsOld.get(libName, false)

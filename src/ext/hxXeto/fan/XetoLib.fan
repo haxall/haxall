@@ -11,8 +11,7 @@ using hx
 **
 ** Xeto function library
 **
-const class XetoLib : HxLib
+const class XetoLib : Ext
 {
 }
-
 

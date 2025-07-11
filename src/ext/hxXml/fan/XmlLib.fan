@@ -11,8 +11,7 @@ using hx
 **
 ** XML function library
 **
-const class XmlLib : HxLib
+const class XmlLib : Ext
 {
 }
-
 

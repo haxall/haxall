@@ -18,7 +18,7 @@ using hx
 **
 ** User athentication and session management
 **
-const class HxUserLib : HxLib, HxUserService
+const class HxUserLib : Ext, HxUserService
 {
   ** Web servicing
   override const HxUserWeb web := HxUserWeb(this)
@@ -114,7 +114,7 @@ const class HxUserLib : HxLib, HxUserService
   }
 
 //////////////////////////////////////////////////////////////////////////
-// HxLib Lifecycle
+// Ext Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
   ** Start callback - all libs are created and registered

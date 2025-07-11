@@ -16,9 +16,9 @@ using hx
 **
 const class HxApiWeb : HxLibWeb, WebOpUtil
 {
-  new make(HxLib lib) : super(lib) { this.lib = lib }
+  new make(Ext lib) : super(lib) { this.lib = lib }
 
-  override const HxLib lib
+  override const Ext lib
 
   override DefNamespace defs() { lib.rt.defs }
 

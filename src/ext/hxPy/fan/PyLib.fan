@@ -13,7 +13,7 @@ using hx
 **
 ** Python library.
 **
-const class PyLib : HxLib
+const class PyLib : Ext
 {
   ** Construction
   new make()

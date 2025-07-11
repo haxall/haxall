@@ -11,7 +11,7 @@ using hx
 **
 ** I/O function library
 **
-const class IOLib : HxLib, HxIOService
+const class IOLib : Ext, HxIOService
 {
   override HxService[] services() { [this] }
 
@@ -26,5 +26,4 @@ const class IOLib : HxLib, HxIOService
   }
 
 }
-
 

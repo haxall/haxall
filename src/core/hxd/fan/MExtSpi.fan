@@ -21,11 +21,11 @@ const class MExtSpi : Actor, ExtSpi
 {
 
 //////////////////////////////////////////////////////////////////////////
-// HxLib Factory
+// Ext Factory
 //////////////////////////////////////////////////////////////////////////
 
-  ** Instantiate the HxLib for given def and database rec
-  static HxLib instantiate(HxdRuntime rt, HxdInstalledLib install, Dict rec)
+  ** Instantiate the Ext for given def and database rec
+  static Ext instantiate(HxdRuntime rt, HxdInstalledLib install, Dict rec)
   {
     spi := MExtSpi(rt, install, rec)
     Actor.locals["hx.spi"]  = spi
@@ -41,9 +41,9 @@ const class MExtSpi : Actor, ExtSpi
     }
   }
 
-  private static HxLib doInstantiate(MExtSpi spi)
+  private static Ext doInstantiate(MExtSpi spi)
   {
-    spi.type == null ? ResHxLib() : spi.type.make
+    spi.type == null ? ResExt() : spi.type.make
   }
 
   private new make(HxdRuntime rt, HxdInstalledLib install, Dict rec) : super(rt.libsActorPool)
@@ -58,10 +58,10 @@ const class MExtSpi : Actor, ExtSpi
   }
 
 //////////////////////////////////////////////////////////////////////////
-// HxLibSpi Implementation
+// ExtSpi Implementation
 //////////////////////////////////////////////////////////////////////////
 
-  HxLib lib() { libRef.val }
+  Ext lib() { libRef.val }
   private const AtomicRef libRef := AtomicRef()
 
   override const HxRuntime rt
@@ -152,7 +152,7 @@ const class MExtSpi : Actor, ExtSpi
       try
         lib.onHouseKeeping
       catch (Err e)
-        log.err("HxLib.onHouseKeeping", e)
+        log.err("Ext.onHouseKeeping", e)
       scheduleHouseKeeping
       return null
     }
@@ -171,7 +171,7 @@ const class MExtSpi : Actor, ExtSpi
     }
     catch (Err e)
     {
-      log.err("HxLib callback", e)
+      log.err("Ext callback", e)
       throw e
     }
 
@@ -187,7 +187,7 @@ const class MExtSpi : Actor, ExtSpi
     }
     catch (Err e)
     {
-      log.err("HxLib.onStart", e)
+      log.err("Ext.onStart", e)
       toStatus("fault", e.toStr)
     }
     return null
@@ -248,11 +248,11 @@ const class MExtSpi : Actor, ExtSpi
 
 
 **************************************************************************
-** ResHxLib
+** ResExt
 **************************************************************************
 
-** ResHxLib is a stub for libraries without a Fantom class
-const class ResHxLib : HxLib
+** ResExt is a stub for libraries without a Fantom class
+const class ResExt : Ext
 {
 }
 
@@ -262,17 +262,17 @@ const class ResHxLib : HxLib
 
 internal const class HxdLibActorObserver : Observer
 {
-  new make(HxLib lib, Actor actor)
+  new make(Ext lib, Actor actor)
   {
     this.lib = lib
     this.actor = actor
     this.meta = Etc.emptyDict
   }
 
-  const HxLib lib
+  const Ext lib
   override const Dict meta
   override const Actor actor
-  override Str toStr() { "HxLib $lib.name" }
+  override Str toStr() { "Ext $lib.name" }
 }
 
 **************************************************************************
@@ -281,7 +281,7 @@ internal const class HxdLibActorObserver : Observer
 
 internal const class HxdLibMethodObserver : Observer
 {
-  new make(HxLib lib, Method method)
+  new make(Ext lib, Method method)
   {
     this.lib = lib
     this.actor = (MExtSpi)lib.spi
@@ -289,13 +289,13 @@ internal const class HxdLibMethodObserver : Observer
     this.meta = Etc.emptyDict
   }
 
-  const HxLib lib
+  const Ext lib
   const Method method
   override const Dict meta
   override const Actor actor
   override Obj toActorMsg(Observation msg) { HxMsg("obs", this, msg) }
   override Obj? toSyncMsg() { HxMsg("sync") }
-  override Str toStr() { "HxLib $lib.name" }
+  override Str toStr() { "Ext $lib.name" }
 
   Obj? call(Obj? msg)
   {

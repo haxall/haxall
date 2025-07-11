@@ -67,7 +67,7 @@ const class HxdObsService : Actor, HxObsService
     return null
   }
 
-  internal Void addLib(HxLib lib)
+  internal Void addLib(Ext lib)
   {
     try
     {
@@ -80,7 +80,7 @@ const class HxdObsService : Actor, HxObsService
     catch (Err e) log.err("${lib.typeof}.observables", e)
   }
 
-  internal Void removeLib(HxLib lib)
+  internal Void removeLib(Ext lib)
   {
     try
     {

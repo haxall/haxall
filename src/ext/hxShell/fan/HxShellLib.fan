@@ -11,9 +11,8 @@ using hx
 **
 ** Axon shell user interface
 **
-const class HxShellLib : HxLib
+const class HxShellLib : Ext
 {
   override const HxShellWeb web := HxShellWeb(this)
 }
-
 

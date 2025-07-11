@@ -27,13 +27,13 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
   Void init(Bool removeUnknown)
   {
     // init libs from database ext records
-    map := Str:HxLib[:]
+    map := Str:Ext[:]
     installed := rt.installed
     rt.db.readAllList(Filter.has("ext")).each |rec|
     {
       try
       {
-        // instantiate the HxLib
+        // instantiate the Ext
         name := (Str)rec->ext
         install := installed.lib(name)
         lib := MExtSpi.instantiate(rt, install, rec)
@@ -79,7 +79,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     }
 
     // build remaining lookup tables
-    list := HxLib[,]
+    list := Ext[,]
     map.each |lib| { list.add(lib) }
     list.sort |a, b| { a.name <=> b.name }
 
@@ -97,22 +97,22 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
 
   const Str[] required
 
-  override HxLib[] list() { listRef.val }
-  private const AtomicRef listRef := AtomicRef(HxLib[,].toImmutable)
+  override Ext[] list() { listRef.val }
+  private const AtomicRef listRef := AtomicRef(Ext[,].toImmutable)
 
   override Bool has(Str name) { map.containsKey(name) }
 
-  override HxLib? get(Str name, Bool checked := true)
+  override Ext? get(Str name, Bool checked := true)
   {
     lib := map[name]
     if (lib != null) return lib
     if (checked) throw UnknownLibErr(name)
     return null
   }
-  internal Str:HxLib map() { mapRef.val }
-  private const AtomicRef mapRef := AtomicRef(Str:HxLib[:].toImmutable)
+  internal Str:Ext map() { mapRef.val }
+  private const AtomicRef mapRef := AtomicRef(Str:Ext[:].toImmutable)
 
-  HxLib? getType(Type type, Bool checked := true)
+  Ext? getType(Type type, Bool checked := true)
   {
     lib := list.find |lib| { lib.typeof.fits(type) }
     if (lib != null) return lib
@@ -120,7 +120,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     return null
   }
 
-  override HxLib add(Str name, Dict tags := Etc.emptyDict)
+  override Ext add(Str name, Dict tags := Etc.emptyDict)
   {
     // lookup installed lib callers thread
     install := rt.installed.lib(name)
@@ -135,11 +135,11 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
   override Void remove(Obj arg)
   {
     // check argument on caller's thread
-    HxLib? lib
-    if (arg is HxLib)
+    Ext? lib
+    if (arg is Ext)
     {
       lib = arg
-      if (lib.rt !== rt) throw ArgErr("HxLib has different rt")
+      if (lib.rt !== rt) throw ArgErr("Ext has different rt")
     }
     else if (arg is DefLib)
     {
@@ -187,17 +187,17 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     }
   }
 
-  private HxLib onAdd(HxdInstalledLib install, Dict extraTags)
+  private Ext onAdd(HxdInstalledLib install, Dict extraTags)
   {
     // check for dup
     name := install.name
     dup := get(name, false)
-    if (dup != null) throw Err("HxLib $name.toCode already exists")
+    if (dup != null) throw Err("Ext $name.toCode already exists")
 
     // check depends
     install.depends.each |d|
     {
-      if (get(d, false) == null) throw DependErr("HxLib $name.toCode missing dependency on $d.toCode")
+      if (get(d, false) == null) throw DependErr("Ext $name.toCode missing dependency on $d.toCode")
     }
 
     // add to db
@@ -206,7 +206,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     tags["ext"] = name
     rec := rt.db.commit(Diff(null, tags, Diff.add.or(Diff.bypassRestricted))).newRec
 
-    // instantiate the HxLib
+    // instantiate the Ext
     lib := MExtSpi.instantiate(rt, install, rec)
 
     // register in lookup data structures
@@ -238,7 +238,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     list.each |x|
     {
       if (x.def.depends.any |symbol| { symbol.name == name })
-        throw DependErr("HxLib $x.name.toCode has dependency on $name.toCode")
+        throw DependErr("Ext $x.name.toCode has dependency on $name.toCode")
     }
 
     // unregister observables

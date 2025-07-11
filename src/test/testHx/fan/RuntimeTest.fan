@@ -104,7 +104,7 @@ class RuntimeTest : HxTest
     verifySame(rt.defs.def("func:read").lib, core.def)
 
     // cannot add hxTestB because it depends on hxTestA
-    errLibName := rt.typeof.pod.name == "hxd" ? "HxLib" : "Ext"
+    errLibName := rt.typeof.pod.name == "hxd" ? "Ext" : "Ext"
     verifyErrMsg(DependErr#, "$errLibName \"hxTestB\" missing dependency on \"hxTestA\"") { rt.libsOld.add("hxTestB") }
     verifyLibDisabled("hxTestB")
 
@@ -140,7 +140,7 @@ class RuntimeTest : HxTest
     verifyEq(a.isRunning, false)
   }
 
-  private HxLib verifyLibEnabled(Str name)
+  private Ext verifyLibEnabled(Str name)
   {
     lib := rt.libsOld.get(name)
     verifySame(rt.libsOld.get(name), lib)
@@ -227,7 +227,7 @@ class RuntimeTest : HxTest
 ** HxTestLibA
 **************************************************************************
 
-const class HxTestALib : HxLib
+const class HxTestALib : Ext
 {
   const AtomicRef traces := AtomicRef("")
 
@@ -246,7 +246,7 @@ const class HxTestALib : HxLib
 ** HxTestLibB
 **************************************************************************
 
-const class HxTestBLib : HxLib
+const class HxTestBLib : Ext
 {
 }
 

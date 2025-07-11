@@ -13,7 +13,7 @@ using hx
 **
 ** Platform support for IP network config
 **
-const class PlatformNetworkLib : HxLib
+const class PlatformNetworkLib : Ext
 {
 
   new make()
@@ -24,3 +24,4 @@ const class PlatformNetworkLib : HxLib
   internal const PlatformNetworkSpi platformSpi
 
 }
+

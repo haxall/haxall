@@ -105,7 +105,7 @@ const class FuncDef : MDef
 
 internal const class HxdLibInput : LibInput
 {
-  new make(HxLib lib)
+  new make(Ext lib)
   {
     this.name     = lib.name
     this.lib      = lib
@@ -116,7 +116,7 @@ internal const class HxdLibInput : LibInput
   }
 
   const Str name
-  const HxLib lib
+  const Ext lib
   const MExtSpi spi
   const override CLoc loc
   const HxdInstalledLib install

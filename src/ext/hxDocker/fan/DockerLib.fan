@@ -13,7 +13,7 @@ using hx
 **
 ** Docker image management
 **
-const class DockerLib : HxLib
+const class DockerLib : Ext
 {
   new make()
   {

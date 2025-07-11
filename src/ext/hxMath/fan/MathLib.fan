@@ -11,8 +11,7 @@ using hx
 **
 ** Math function library
 **
-const class MathLib : HxLib
+const class MathLib : Ext
 {
 }
-
 

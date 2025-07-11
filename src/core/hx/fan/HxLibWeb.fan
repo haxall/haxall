@@ -10,20 +10,20 @@ using concurrent
 using web
 
 **
-** HxLib plugin to add web servicing capability.
+** Ext plugin to add web servicing capability.
 ** See `docHaxall::Libs#web`.
 **
 abstract const class HxLibWeb : WebMod
 {
   ** Subclass constructor
-  protected new make(HxLib lib) { this.libRef = lib }
+  protected new make(Ext lib) { this.libRef = lib }
 
   ** Runtime for parent library
   virtual HxRuntime rt() { libRef.rt }
 
   ** Parent library.  Subclasses can override this method to be covariant.
-  virtual HxLib lib() { libRef }
-  private const HxLib libRef
+  virtual Ext lib() { libRef }
+  private const Ext libRef
 
   ** Base uri for this library's endpoint such as "/myLib/"
   Uri uri() { lib.spi.webUri }
@@ -39,7 +39,7 @@ abstract const class HxLibWeb : WebMod
 
 internal const class UnsupportedHxLibWeb : HxLibWeb
 {
-  new make(HxLib lib) : super(lib) {}
+  new make(Ext lib) : super(lib) {}
   override Bool isUnsupported() { true }
   override Void onService() { res.sendErr(404) }
 }

@@ -145,7 +145,7 @@ abstract class HxTest : HaystackTest
   }
 
   ** Add a library and all its depdenencies to the runtime.
-  HxLib addLib(Str libName, Str:Obj? tags := Str:Obj?[:])
+  Ext addLib(Str libName, Str:Obj? tags := Str:Obj?[:])
   {
     lib := spi.addLib(libName, tags)
     rt.sync
@@ -219,7 +219,7 @@ abstract class HxTestSpi
   abstract HxRuntime start(Dict projMeta)
   abstract Void stop(HxRuntime rt)
   abstract HxUser addUser(Str user, Str pass, Str:Obj? tags)
-  abstract HxLib addLib(Str libName, Str:Obj? tags)
+  abstract Ext addLib(Str libName, Str:Obj? tags)
   abstract HxContext makeContext(HxUser? user)
   abstract Void forceSteadyState(HxRuntime rt)
 }

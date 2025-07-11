@@ -18,7 +18,7 @@ using obs
 **
 ** Registry for service APIs by type.  Service APIs implement
 ** the `HxService` mixin and are published by libraries enabled
-** in the runtime using `HxLib.services`.
+** in the runtime using `Ext.services`.
 **
 const mixin HxServiceRegistry : HxStdServices
 {
@@ -563,7 +563,7 @@ const mixin HxConn
 const mixin HxConnPoint
 {
   ** Parent connector library
-  abstract HxLib lib()
+  abstract Ext lib()
 
   ** Parent connector
   abstract HxConn conn()

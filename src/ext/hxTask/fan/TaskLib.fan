@@ -16,7 +16,7 @@ using hx
 **
 ** Async task engine library
 **
-const class TaskLib : HxLib, HxTaskService
+const class TaskLib : Ext, HxTaskService
 {
   ** Construction
   new make()

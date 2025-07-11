@@ -17,7 +17,7 @@ using hx
 ** Connector framework library
 **
 @NoDoc
-const class ConnFwLib : HxLib
+const class ConnFwLib : Ext
 {
   ** Publish HxConnRegistryService
   override HxService[] services() { [service] }

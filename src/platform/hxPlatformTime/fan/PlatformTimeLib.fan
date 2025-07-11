@@ -13,7 +13,7 @@ using hx
 **
 ** Platform support for date and time
 **
-const class PlatformTimeLib : HxLib
+const class PlatformTimeLib : Ext
 {
 
   new make()
@@ -24,3 +24,4 @@ const class PlatformTimeLib : HxLib
   internal const PlatformTimeSpi platformSpi
 
 }
+

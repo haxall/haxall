@@ -15,7 +15,7 @@ using obs
 **
 ** Base class for all Haxall extensions.
 **
-abstract const class HxLib
+abstract const class Ext
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ abstract const class HxLib
   ** Initialize a feed from a subscription request for this library
   @NoDoc virtual HxFeed feedInit(Dict req, HxContext cx)
   {
-    throw Err("HxLib does not support feedInit: $name")
+    throw Err("Ext does not support feedInit: $name")
   }
 
   ** Service provider interface

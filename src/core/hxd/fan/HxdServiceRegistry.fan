@@ -16,7 +16,7 @@ using hx
 const class HxdServiceRegistry : HxServiceRegistry
 {
   ** Construct for list of enabled libs
-  new make(HxdRuntime rt, HxLib[] libs)
+  new make(HxdRuntime rt, Ext[] libs)
   {
     map := Type:HxService[][:]
     serviceType := HxService#
