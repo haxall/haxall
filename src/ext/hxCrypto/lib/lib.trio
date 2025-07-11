@@ -9,11 +9,8 @@
 --------------------------------------------------------------------------
 def: ^lib:crypto
 depends: [^lib:ph, ^lib:axon, ^lib:hx]
-typeName:"hxCrypto::CryptoLib"
+typeName:"hxCrypto::CryptoExt"
 noSkyarc
 doc: "Cryptographic certificate and key pair management"
 --------------------------------------------------------------------------
-
-
-
 

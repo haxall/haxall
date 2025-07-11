@@ -18,7 +18,7 @@ using [java] java.lang::System
 **
 ** Cryptographic certificate and key pair management
 **
-const class CryptoLib : Ext, HxCryptoService
+const class CryptoExt : Ext, HxCryptoService
 {
 //////////////////////////////////////////////////////////////////////////
 // Construction
