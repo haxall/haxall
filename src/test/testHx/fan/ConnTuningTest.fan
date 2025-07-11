@@ -61,7 +61,7 @@ class ConnTuningTest : HxTest
     c   := addRec(["dis":"C", "haystackConn":m])
     pt  := addRec(["dis":"Pt", "point":m, "haystackConnRef":c.id, "kind":"Number"])
     fw  := (ConnFwLib)addLib("conn")
-    lib := (ConnLib)addLib("haystack")
+    lib := (ConnExt)addLib("haystack")
 
     // verify tuning registry in ConnFwLib
     verifyTunings(fw, [t1, t2, t3])
@@ -74,7 +74,7 @@ class ConnTuningTest : HxTest
     t4 = commit(t4, ["connTuning":Remove.val])
     verifyTunings(fw, [t1, t2, t3])
 
-    // verify ConnLib, Conn, ConnPoint tuning....
+    // verify ConnExt, Conn, ConnPoint tuning....
 
     // starting off we are using lib defaults
     verifyEq(lib.tuning.id.toStr, "haystack-default")
@@ -158,7 +158,7 @@ class ConnTuningTest : HxTest
     }
   }
 
-  Void verifyTuning(ConnFwLib fw, ConnLib lib, Dict ptRec, Dict tuningRec, Duration staleTime)
+  Void verifyTuning(ConnFwLib fw, ConnExt lib, Dict ptRec, Dict tuningRec, Duration staleTime)
   {
     pt := lib.point(ptRec.id)
     t  := fw.tunings.get(tuningRec.id)

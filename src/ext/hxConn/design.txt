@@ -10,7 +10,7 @@ Overview
 ========
 The following is summary of key classes:
 
-- ConnLib: base class for connectors; implementations subclass this
+- ConnExt: base class for connectors; implementations subclass this
 - ConnRoster: maintains lookup tables and add/update/remove callbacks for conns and points
 - Conn: final const class wrapper for connector recs; is actor for all messaging
 - ConnPoint: final const class wrapper for point recs
@@ -28,8 +28,8 @@ by any thread.  But these data structures are owned and mutated soley by one act
 ConnRoster is responsible for the data structures used to index Conn and ConnPoint
 instances.  It provides hashmaps to lookup conns and points by id and flattened
 lists.  ConnRoster monitors the database for its conns and points using obsCommits.
-These observation events are managed on the ConnLib actor itself.  We also
-use the ConnRoster and ConnLib actor for the obsWatches and obsPointWrite eventing.
+These observation events are managed on the ConnExt actor itself.  We also
+use the ConnRoster and ConnExt actor for the obsWatches and obsPointWrite eventing.
 
 Each connector rec is mapped to a Conn instance which is itself an actor used
 to manage all internal state.  ConnRoster strictly manages create/adds for the
@@ -40,5 +40,4 @@ connUpdated, pointAdded, pointUpdated, and pointRemoved.
 The data structures for tuning recs are managed by ConnTuningRoster.  There
 is only one instance of this class which is owned by ConnFwLib.  The tuning
 roster monitors the database using obsCommits on the ConnFwLib actor.
-
 

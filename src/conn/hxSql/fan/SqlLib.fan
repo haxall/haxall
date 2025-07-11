@@ -16,7 +16,7 @@ using hxConn
 **
 ** SQL connector library
 **
-const class SqlLib : ConnLib
+const class SqlLib : ConnExt
 {
   static SqlClient doOpen(Conn c)
   {
@@ -52,5 +52,4 @@ const class SqlLib : ConnLib
     return s.toStr
   }
 }
-
 

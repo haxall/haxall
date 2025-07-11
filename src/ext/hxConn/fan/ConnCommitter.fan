@@ -23,7 +23,7 @@ internal const final class ConnCommitter
   private const AtomicRef managedRef := AtomicRef(Etc.emptyDict)
 
   ** Make a forced transient commit for one tag
-  Void commit1(ConnLib lib, Dict rec, Str n0, Obj? v0)
+  Void commit1(ConnExt ext, Dict rec, Str n0, Obj? v0)
   {
     m := managed
     if (m[n0] == v0) return
@@ -31,11 +31,11 @@ internal const final class ConnCommitter
     changes := Etc.dict1(
       n0, v0 ?: Remove.val)
 
-    commit(lib, rec, changes)
+    commit(ext, rec, changes)
   }
 
   ** Make a forced transient commit for two tags
-  Void commit2(ConnLib lib, Dict rec, Str n0, Obj? v0, Str n1, Obj? v1)
+  Void commit2(ConnExt ext, Dict rec, Str n0, Obj? v0, Str n1, Obj? v1)
   {
     m := managed
     if (m[n0] == v0 && m[n1] == v1) return
@@ -44,11 +44,11 @@ internal const final class ConnCommitter
       n0, v0 ?: Remove.val,
       n1, v1 ?: Remove.val)
 
-    commit(lib, rec, changes)
+    commit(ext, rec, changes)
   }
 
   ** Make a forced transient commit for three tags
-  Void commit3(ConnLib lib, Dict rec, Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2)
+  Void commit3(ConnExt ext, Dict rec, Str n0, Obj? v0, Str n1, Obj? v1, Str n2, Obj? v2)
   {
     m := managed
     if (m[n0] == v0 && m[n1] == v1 && m[n2] == v2) return
@@ -58,11 +58,11 @@ internal const final class ConnCommitter
       n1, v1 ?: Remove.val,
       n2, v2 ?: Remove.val)
 
-    commit(lib, rec, changes)
+    commit(ext, rec, changes)
   }
 
   ** Choke point for folio commit
-  private Void commit(ConnLib lib, Dict rec, Dict changes)
+  private Void commit(ConnExt ext, Dict rec, Dict changes)
   {
     // update managed tags (bit more optimized than Etc.dictMerge)
     acc := Etc.dictToMap(managed)
@@ -77,7 +77,7 @@ internal const final class ConnCommitter
     // back up; maybe eventually do something more sophisticated
     try
     {
-      lib.rt.db.commit(Diff(rec, changes, Diff.forceTransient))
+      ext.rt.db.commit(Diff(rec, changes, Diff.forceTransient))
     }
     catch (ShutdownErr e)
     {
@@ -86,7 +86,7 @@ internal const final class ConnCommitter
     catch (Err e)
     {
       // don't report if record has been removed
-      newRec := lib.rt.db.readById(rec.id, false)
+      newRec := ext.rt.db.readById(rec.id, false)
       if (newRec == null || newRec.has("trash")) return
       throw e
     }

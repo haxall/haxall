@@ -13,7 +13,7 @@ using folio
 using hx
 using hxConn
 
-const class ConnTestLib : ConnLib
+const class ConnTestLib : ConnExt
 {
 }
 

@@ -14,7 +14,7 @@ using hxConn
 **
 ** Obix connector
 **
-const class ObixLib : ConnLib
+const class ObixLib : ConnExt
 {
 
   ** Publish server side APIs

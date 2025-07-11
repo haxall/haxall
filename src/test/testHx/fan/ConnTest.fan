@@ -38,7 +38,7 @@ class ConnTest : HxTest
   Void verifyModel(Str libName, Str flags)
   {
     prefix := libName
-    lib := (ConnLib)rt.libsOld.add(libName)
+    lib := (ConnExt)rt.libsOld.add(libName)
     lib.spi.sync
 
     m := lib.model
@@ -168,7 +168,7 @@ class ConnTest : HxTest
   @HxRuntimeTest
   Void testUtil()
   {
-    lib := (ConnLib)addLib("haystack")
+    lib := (ConnExt)addLib("haystack")
     c1 := addRec(["dis":"C1", "haystackConn":m])
     c2 := addRec(["dis":"C2", "haystackConn":m])
     c3 := addRec(["dis":"C3", "haystackConn":m])
@@ -208,7 +208,7 @@ class ConnTest : HxTest
   Void testTrace()
   {
     // empty roster
-    lib := (ConnLib)addLib("haystack")
+    lib := (ConnExt)addLib("haystack")
     rec := addRec(["dis":"Test Conn", "haystackConn":m])
     rt.sync
     c := lib.conn(rec.id)
@@ -311,7 +311,7 @@ class ConnTest : HxTest
   Void testRoster()
   {
     // empty roster
-    lib := (ConnLib)addLib("haystack")
+    lib := (ConnExt)addLib("haystack")
     verifyRoster(lib, [,])
 
     // add connector
@@ -551,7 +551,7 @@ class ConnTest : HxTest
     verifyWatched(conn4, [p4a, p4b], [p4b])
   }
 
-  Void verifyRoster(ConnLib lib, Dict[][] expected)
+  Void verifyRoster(ConnExt lib, Dict[][] expected)
   {
     // echo; lib->roster->dump
     conns := lib.conns
@@ -607,7 +607,7 @@ class ConnTest : HxTest
     verifyErr(UnknownConnErr#) { lib.conn(Ref.gen, true) }
   }
 
-  Void verifyPoints(ConnLib lib, ConnPoint[] actual, Dict[] expected, Bool sort)
+  Void verifyPoints(ConnExt lib, ConnPoint[] actual, Dict[] expected, Bool sort)
   {
     if (sort) actual = actual.dup.sort |a, b| { a.dis <=> b.dis }
     verifyEq(actual.size, expected.size)
@@ -673,7 +673,7 @@ class ConnTest : HxTest
   @HxRuntimeTest
   Void testConfig()
   {
-    lib := (ConnLib)addLib("haystack")
+    lib := (ConnExt)addLib("haystack")
 
     // conn with defaults
     cr := addRec(["dis":"TestConn", "haystackConn":m])
@@ -776,7 +776,7 @@ class ConnTest : HxTest
     name := "modbus"
     connTag := name + "Conn"
     connTagRef := name + "ConnRef"
-    lib := (ConnLib)addLib(name)
+    lib := (ConnExt)addLib(name)
 
     // setup connectors
     c1rec := addRec(["dis":"C1", connTag:m])

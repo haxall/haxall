@@ -34,9 +34,9 @@ const final class ConnTuningRoster
   }
 
   ** Get tuning for library level or fallback to library specific default
-  internal ConnTuning forLib(ConnLib lib)
+  internal ConnTuning forLib(ConnExt ext)
   {
-    forRec(lib.rec) ?: lib.tuningDefault
+    forRec(ext.rec) ?: ext.tuningDefault
   }
 
   ** Get or stub a ConnTuning instance to use for the given

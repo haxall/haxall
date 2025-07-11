@@ -17,7 +17,7 @@ using mqtt
 **
 ** MQTT connector library
 **
-const class MqttLib : ConnLib
+const class MqttLib : ConnExt
 {
   static MqttLib? cur(Bool checked := true)
   {

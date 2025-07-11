@@ -19,23 +19,23 @@ using hx
 const final class ConnModel
 {
   ** Construct for given lib
-  @NoDoc new make(ConnLib lib)
+  @NoDoc new make(ConnExt ext)
   {
-    this.name = lib.name
+    this.name = ext.name
     prefix := name
 
-    ns := lib.rt.defs
-    libDef := lib.def
-    connDef := def(ns, lib, "${prefix}Conn")
+    ns := ext.rt.defs
+    libDef := ext.def
+    connDef := def(ns, ext, "${prefix}Conn")
     features := connDef["connFeatures"] as Dict ?: Etc.emptyDict
 
     // check tag/func defs
     this.connTag    = connDef.name
-    this.connRefTag = def(ns, lib, "${prefix}ConnRef").name
-    this.pointTag   = def(ns, lib, "${prefix}Point").name
+    this.connRefTag = def(ns, ext, "${prefix}ConnRef").name
+    this.pointTag   = def(ns, ext, "${prefix}Point").name
 
     // cur tags
-    curTagDef := def(ns, lib, "${prefix}Cur", false)
+    curTagDef := def(ns, ext, "${prefix}Cur", false)
     if (curTagDef != null)
     {
       this.curTag     = curTagDef.name
@@ -43,16 +43,16 @@ const final class ConnModel
     }
 
     // write addr
-    writeTagDef := def(ns, lib, "${prefix}Write", false)
+    writeTagDef := def(ns, ext, "${prefix}Write", false)
     if (writeTagDef != null)
     {
       this.writeTag      = writeTagDef.name
       this.writeTagType  = toAddrType(writeTagDef)
-      this.writeLevelTag = def(ns, lib, "${prefix}WriteLevel", false)?.name
+      this.writeLevelTag = def(ns, ext, "${prefix}WriteLevel", false)?.name
     }
 
     // his addr
-    hisTagDef := def(ns, lib, "${prefix}His", false)
+    hisTagDef := def(ns, ext, "${prefix}His", false)
     if (hisTagDef != null)
     {
       this.hisTag     = hisTagDef.name
@@ -69,13 +69,13 @@ const final class ConnModel
     // polling tags
     if (pollMode === ConnPollMode.manual)
     {
-      pollFreqTagDef := def(ns, lib, "${prefix}PollFreq")
+      pollFreqTagDef := def(ns, ext, "${prefix}PollFreq")
       this.pollFreqTag     = pollFreqTagDef.name
       this.pollFreqDefault = (pollFreqTagDef["val"] as Number)?.toDuration ?: 10sec
     }
 
     // helper classes
-    this.dispatchType = lib.typeof.pod.type(name.capitalize + "Dispatch")
+    this.dispatchType = ext.typeof.pod.type(name.capitalize + "Dispatch")
 
     // dict for features
     f := Str:Obj[:]
@@ -87,7 +87,7 @@ const final class ConnModel
     this.features = Etc.makeDict(f)
   }
 
-  private static Def? def(DefNamespace ns, ConnLib lib, Str symbol, Bool checked := true)
+  private static Def? def(DefNamespace ns, ConnExt ext, Str symbol, Bool checked := true)
   {
     def := ns.def(symbol, false)
     if (def == null)
@@ -95,7 +95,7 @@ const final class ConnModel
       if (checked) throw Err("Missing required def: $symbol")
       return null
     }
-    if (def.lib !== ns.lib(lib.name)) throw Err("Def in wrong lib: $symbol [$def.lib != $lib.def]")
+    if (def.lib !== ns.lib(ext.name)) throw Err("Def in wrong lib: $symbol [$def.lib != $ext.def]")
     return def
   }
 

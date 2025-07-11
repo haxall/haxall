@@ -18,7 +18,7 @@ using hxPoint
 ** Connector library base class.
 ** See `docHaxall::CustomConns#connLib`.
 **
-abstract const class ConnLib : Ext, HxConnExt
+abstract const class ConnExt : Ext, HxConnExt
 {
   ** Constructor
   new make()

@@ -24,7 +24,7 @@ internal const final class ConnRoster
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(ConnLib lib) { this.lib = lib }
+  new make(ConnExt ext) { this.ext = ext }
 
 //////////////////////////////////////////////////////////////////////////
 // Lookups
@@ -71,47 +71,47 @@ internal const final class ConnRoster
     initConns
 
     // subscribe to connector rec commits
-    lib.observe("obsCommits",
+    ext.observe("obsCommits",
       Etc.makeDict([
         "obsAdds":    Marker.val,
         "obsUpdates": Marker.val,
         "obsRemoves": Marker.val,
         "syncable":   Marker.val,
         "obsFilter":  model.connTag
-      ]), ConnLib#onConnEvent)
+      ]), ConnExt#onConnEvent)
 
     // subscribe to connector point commits
-    lib.observe("obsCommits",
+    ext.observe("obsCommits",
       Etc.makeDict([
         "obsAdds":    Marker.val,
         "obsUpdates": Marker.val,
         "obsRemoves": Marker.val,
         "syncable":   Marker.val,
         "obsFilter":  "point and $model.connRefTag"
-      ]), ConnLib#onPointEvent)
+      ]), ConnExt#onPointEvent)
 
     // subscribe to connector point watches
     if (model.hasCur)
     {
-      lib.observe("obsWatches",
+      ext.observe("obsWatches",
         Etc.makeDict([
           "obsFilter": "point and $model.connRefTag"
-        ]), ConnLib#onPointWatch)
+        ]), ConnExt#onPointWatch)
     }
 
     // subscribe to point writes
     if (model.hasWrite)
     {
-      lib.observe("obsPointWrites",
+      ext.observe("obsPointWrites",
         Etc.dict1("obsFilter", model.connRefTag),
-        ConnLib#onPointWrite)
+        ConnExt#onPointWrite)
     }
   }
 
   private Void initConns()
   {
-    filter := Filter.has(lib.model.connTag)
-    lib.rt.db.readAllEach(filter, Etc.emptyDict) |rec|
+    filter := Filter.has(ext.model.connTag)
+    ext.rt.db.readAllEach(filter, Etc.emptyDict) |rec|
     {
       onConnAdded(rec)
     }
@@ -140,18 +140,18 @@ internal const final class ConnRoster
   private Void onConnAdded(Dict rec)
   {
     // create connector instance
-    conn := Conn(lib, rec)
+    conn := Conn(ext, rec)
 
     // add it to my lookup tables
-    service := lib.fw.service
+    service := ext.fw.service
     connsById.add(conn.id, conn)
     updateConnsList
     service.addConn(conn)
 
     // find any points already created bound to this connector
-    filter := Filter.has("point").and(Filter.eq(lib.model.connRefTag, conn.id))
+    filter := Filter.has("point").and(Filter.eq(ext.model.connRefTag, conn.id))
     pointsList := ConnPoint[,]
-    lib.rt.db.readAllEach(filter, Etc.emptyDict) |pointRec|
+    ext.rt.db.readAllEach(filter, Etc.emptyDict) |pointRec|
     {
       point := ConnPoint(conn, pointRec)
       pointsList.add(point)
@@ -179,7 +179,7 @@ internal const final class ConnRoster
     conn.kill
 
     // remove all its points from lookup tables
-    service := lib.fw.service
+    service := ext.fw.service
     conn.points.each |pt|
     {
       service.removePoint(pt)
@@ -239,7 +239,7 @@ internal const final class ConnRoster
     // add to lookup tables
     pointsById.add(point.id, point)
     updateConnPoints(conn)
-    lib.fw.service.addPoint(point)
+    ext.fw.service.addPoint(point)
     conn.send(HxMsg("pointAdded", point))
   }
 
@@ -283,7 +283,7 @@ internal const final class ConnRoster
     // remove from lookup tables
     pointsById.remove(id)
     updateConnPoints(point.conn)
-    lib.fw.service.removePoint(point)
+    ext.fw.service.removePoint(point)
     point.conn.send(HxMsg("pointRemoved", point))
   }
 
@@ -300,7 +300,7 @@ internal const final class ConnRoster
 
   private Ref pointConnRef(Dict rec)
   {
-    rec[lib.model.connRefTag] as Ref ?: Ref.nullRef
+    rec[ext.model.connRefTag] as Ref ?: Ref.nullRef
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -356,7 +356,7 @@ internal const final class ConnRoster
 
   Void removeAll()
   {
-    service := lib.fw.service
+    service := ext.fw.service
     pointsById.each |pt| { service.removePoint(pt) }
     connsById.each |c| { service.removeConn(c) }
     updateConnsList
@@ -364,7 +364,7 @@ internal const final class ConnRoster
 
   Void dump()
   {
-    echo("--- $lib.name roster [$connsById.size conns, $pointsById.size points] ---")
+    echo("--- $ext.name roster [$connsById.size conns, $pointsById.size points] ---")
     conns := conns.dup.sort |a, b| { a.dis <=> b.dis }
     conns.each |c|
     {
@@ -377,7 +377,7 @@ internal const final class ConnRoster
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const ConnLib lib
+  private const ConnExt ext
   private const AtomicRef connsList := AtomicRef(Conn#.emptyList)
   private const ConcurrentMap connsById := ConcurrentMap()
   private const ConcurrentMap pointsById := ConcurrentMap()

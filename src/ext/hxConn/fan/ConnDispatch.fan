@@ -38,7 +38,7 @@ abstract class ConnDispatch
   Folio db() { connRef.db }
 
   ** Parent library
-  virtual ConnLib lib() { connRef.ext }
+  virtual ConnExt ext() { connRef.ext }
 
   ** Parent connector
   Conn conn() { connRef }
@@ -147,9 +147,9 @@ abstract class ConnDispatch
   ** The 'learn' value is passed back to this function to get the next
   ** level of the tree.  A null arg should return the root of the learn tree.
   **
-  ** Also see `ConnLib.onLearn` which provides the top-level callback
+  ** Also see `ConnExt.onLearn` which provides the top-level callback
   ** for learn.  If your learn implementation does not require an open
-  ** connection, then use the 'ConnLib' level callback.  By default that
+  ** connection, then use the 'ConnExt' level callback.  By default that
   ** callback will dispatch a message to Conn actor, perform `open`, and
   ** then invoke this callback.
   **

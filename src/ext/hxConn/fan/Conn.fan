@@ -25,7 +25,7 @@ const final class Conn : Actor, HxConn
 //////////////////////////////////////////////////////////////////////////
 
   ** Internal constructor
-  internal new make(ConnLib ext, Dict rec)
+  internal new make(ConnExt ext, Dict rec)
     : super.makeCoalescing(ext.connActorPool, toCoalesceKey, toCoalesce)
   {
     this.extRef      = ext
@@ -67,8 +67,8 @@ const final class Conn : Actor, HxConn
   Folio db() { extRef.rt.db }
 
   ** Parent connector library
-  override ConnLib ext() { extRef }
-  private const ConnLib extRef
+  override ConnExt ext() { extRef }
+  private const ConnExt extRef
 
   ** PointExt
   @NoDoc PointExt pointExt() { extRef.pointExt }
@@ -225,7 +225,7 @@ const final class Conn : Actor, HxConn
   ** Invoke the learn request
   @NoDoc override Future learnAsync(Obj? arg := null)
   {
-    // route to ConnLib first so connectors can implement
+    // route to ConnExt first so connectors can implement
     // learn without a dispatch to connector/openLinger
     ext.onLearn(this, arg)
   }
@@ -438,9 +438,9 @@ internal const class ConnThreadDebug
 ** ConnConfig models current state of rec dict
 internal const final class ConnConfig
 {
-  new make(ConnLib lib, Dict rec)
+  new make(ConnExt ext, Dict rec)
   {
-    model := lib.model
+    model := ext.model
 
     this.rec           = rec
     this.dis           = rec.dis
@@ -449,7 +449,7 @@ internal const final class ConnConfig
     this.openRetryFreq = Etc.dictGetDuration(rec, "connOpenRetryFreq", 10sec).max(1sec)
     this.pingFreq      = Etc.dictGetDuration(rec, "connPingFreq", null)?.max(1sec)
     this.linger        = Etc.dictGetDuration(rec, "connLinger", 30sec).max(0sec)
-    this.tuning        = lib.tunings.forRec(rec)
+    this.tuning        = ext.tunings.forRec(rec)
     if (model.pollFreqTag != null)
       this.pollFreq = Etc.dictGetDuration(rec, model.pollFreqTag, model.pollFreqDefault).max(100ms)
   }

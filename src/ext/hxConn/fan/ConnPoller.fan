@@ -16,12 +16,12 @@ using haystack
 **
 internal const class ConnPoller : Actor
 {
-  internal new make(ConnLib lib) : super(lib.rt.libsOld.actorPool)
+  internal new make(ConnExt ext) : super(ext.rt.libsOld.actorPool)
   {
-    this.lib = lib
+    this.ext = ext
   }
 
-  const ConnLib lib
+  const ConnExt ext
 
   Void onStart() { send(checkMsg) }
 
@@ -32,9 +32,9 @@ internal const class ConnPoller : Actor
     try
       check
     catch (Err e)
-      if (lib.isRunning) lib.log.err("ConnPoller.receive", e)
+      if (ext.isRunning) ext.log.err("ConnPoller.receive", e)
 
-    if (lib.isRunning) sendLater(checkFreq, checkMsg)
+    if (ext.isRunning) sendLater(checkFreq, checkMsg)
     return null
   }
 
@@ -42,7 +42,7 @@ internal const class ConnPoller : Actor
   private Void check()
   {
     now := Duration.nowTicks
-    lib.conns.each |conn|
+    ext.conns.each |conn|
     {
       // if not at our deadline skip
       pollNext := conn.pollNext.val

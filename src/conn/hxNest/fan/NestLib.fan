@@ -13,7 +13,7 @@ using hxConn
 **
 ** Nest connector library
 **
-const class NestLib : ConnLib
+const class NestLib : ConnExt
 {
   static NestLib? cur(Bool checked := true)
   {

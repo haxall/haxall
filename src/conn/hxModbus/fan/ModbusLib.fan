@@ -16,7 +16,7 @@ using hxConn
 **
 ** Modbus connector library
 **
-const class ModbusLib : ConnLib
+const class ModbusLib : ConnExt
 {
   static ModbusLib? cur(Bool checked := true)
   {

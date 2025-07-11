@@ -13,7 +13,7 @@ using hxConn
 **
 ** Ecobee connector library
 **
-const class EcobeeLib : ConnLib
+const class EcobeeLib : ConnExt
 {
   static EcobeeLib? cur(Bool checked := true)
   {

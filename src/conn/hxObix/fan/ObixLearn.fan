@@ -151,7 +151,7 @@ internal class ObixLearn
 
   private Void fixIcons()
   {
-    baseUri := conn.lib.web.uri.toStr + "icon/${conn.id}"
+    baseUri := conn.ext.web.uri.toStr + "icon/${conn.id}"
     objs.each |obj|
     {
       if (obj.icon != null && obj.icon.toStr.startsWith("/"))

@@ -40,7 +40,7 @@ internal final class ConnMgr
   const ConnVars vars
   HxRuntime rt() { conn.rt }
   Folio db() { conn.db }
-  ConnLib lib() { conn.ext }
+  ConnExt ext() { conn.ext }
   Ref id() { conn.id }
   Dict rec() { conn.rec }
   Str dis() { conn.dis }
@@ -202,7 +202,7 @@ internal final class ConnMgr
     try
     {
       vars.updateState(state)
-      conn.committer.commit1(lib, rec, "connState", state.name)
+      conn.committer.commit1(ext, rec, "connState", state.name)
     }
     catch (ShutdownErr e) {}
     catch (Err e)
@@ -274,7 +274,7 @@ internal final class ConnMgr
   {
     // update config
     oldConfig := conn.config
-    newConfig := ConnConfig(lib, newRec)
+    newConfig := ConnConfig(ext, newRec)
     conn.setConfig(this, newConfig)
 
     // handle disable transition
@@ -317,7 +317,7 @@ internal final class ConnMgr
   private Obj? onPointUpdated(ConnPoint pt, Dict newRec)
   {
     oldConfig := pt.config
-    newConfig := ConnPointConfig(lib, newRec)
+    newConfig := ConnPointConfig(ext, newRec)
     pt.setConfig(this, newConfig)
 
     // handle transitions which require status update
@@ -483,7 +483,7 @@ internal final class ConnMgr
   private Void checkWriteOnOpen()
   {
     // short circuit if connector doesn't even support writes
-    if (!lib.model.hasWrite) return
+    if (!ext.model.hasWrite) return
 
     // iterate all the points
     conn.points.each |pt|
@@ -806,7 +806,7 @@ internal final class ConnMgr
     // update my status
     statusModified := vars.status !== status
     vars.updateStatus(status, state)
-    conn.committer.commit3(lib, rec, "connStatus", status.name, "connState", state.name, "connErr", errStr)
+    conn.committer.commit3(ext, rec, "connStatus", status.name, "connState", state.name, "connErr", errStr)
 
     // if we changed the status, then update points
     if (statusModified || forcePoints)

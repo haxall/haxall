@@ -20,7 +20,7 @@ class EcobeeDispatch : ConnDispatch
 
   new make(Obj arg) : super(arg) {}
 
-  private EcobeeLib ecobeeLib() { lib }
+  private EcobeeLib ecobeeLib() { ext }
 
   internal Ecobee? client
 

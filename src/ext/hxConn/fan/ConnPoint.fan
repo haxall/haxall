@@ -38,7 +38,7 @@ const final class ConnPoint : HxConnPoint
 //////////////////////////////////////////////////////////////////////////
 
   ** Parent connector library
-  override ConnLib ext() { connRef.ext }
+  override ConnExt ext() { connRef.ext }
 
   ** Parent connector
   override Conn conn() { connRef }
@@ -466,9 +466,9 @@ const final class ConnPoint : HxConnPoint
 ** ConnPointConfig models current state of rec dict
 internal const final class ConnPointConfig
 {
-  new make(ConnLib lib, Dict rec)
+  new make(ConnExt ext, Dict rec)
   {
-    model := lib.model
+    model := ext.model
 
     this.rec  = rec
     this.dis  = rec.dis
@@ -486,7 +486,7 @@ internal const final class ConnPointConfig
       this.tz             = rec.has("tz") ? FolioUtil.hisTz(rec) : TimeZone.cur
       this.unit           = FolioUtil.hisUnit(rec)
       this.kind           = FolioUtil.hisKind(rec)
-      this.tuning         = lib.tunings.forRec(rec)
+      this.tuning         = ext.tunings.forRec(rec)
       this.curCalibration = rec["curCalibration"] as Number
       this.curConvert     = toConvert(rec, "curConvert")
       this.writeConvert   = toConvert(rec, "writeConvert")
