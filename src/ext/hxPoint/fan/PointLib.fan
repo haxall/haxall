@@ -17,7 +17,7 @@ using hx
 **
 ** Point historization and writable support
 **
-const class PointLib : Ext
+const class PointExt : Ext
 {
   new make()
   {

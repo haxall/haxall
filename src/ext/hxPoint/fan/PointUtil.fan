@@ -42,20 +42,20 @@ class PointUtil
   }
 
   ** Get the standard point details string
-  static Str pointDetails(PointLib lib, Dict pt, Bool isTop)
+  static Str pointDetails(PointExt ext, Dict pt, Bool isTop)
   {
     // connector details
     if (isTop)
     {
       // for 3.1.0 we are using old connector framework so a result
       // from this will include the summary, his collect, and write info
-      cp := lib.rt.conn.point(pt.id, false)
+      cp := ext.rt.conn.point(pt.id, false)
       if (cp != null) return cp.details
     }
 
     // send messages to managers
-    ws := lib.writeMgr.details(pt.id)
-    hs := lib.hisCollectMgr.details(pt.id)
+    ws := ext.writeMgr.details(pt.id)
+    hs := ext.hisCollectMgr.details(pt.id)
 
     // format as string
     s := StrBuf()

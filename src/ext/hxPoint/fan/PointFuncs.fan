@@ -225,7 +225,7 @@ const class PointFuncs
     if (level == null) throw ArgErr("level arg is null")
     if (who == null) who = cx.user.dis
     if (opts == null) opts = Etc.emptyDict
-    return lib(cx).writeMgr.write(Etc.toRec(point), val, level.toInt, who, opts).get(timeout)
+    return ext(cx).writeMgr.write(Etc.toRec(point), val, level.toInt, who, opts).get(timeout)
   }
 
   **
@@ -239,7 +239,7 @@ const class PointFuncs
 
     // first make sure user can read this point
     cx := curContext
-    lib := lib(cx)
+    ext := ext(cx)
     rec := cx.db.readById(Etc.toId(point))
 
     // now check access permissions
@@ -250,7 +250,7 @@ const class PointFuncs
     if (level.toInt == 8 && val != null && duration != null)
       val = Etc.dict2("val", val, "duration", duration.toDuration)
 
-    return lib.writeMgr.write(rec, val, level.toInt, cx.user.dis, Etc.emptyDict).get(timeout)
+    return ext.writeMgr.write(rec, val, level.toInt, cx.user.dis, Etc.emptyDict).get(timeout)
   }
 
   **
@@ -265,7 +265,7 @@ const class PointFuncs
   @Axon
   static Grid pointWriteArray(Obj point)
   {
-    lib(curContext).writeMgr.arrayById(Etc.toId(point))
+    ext(curContext).writeMgr.arrayById(Etc.toId(point))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -286,9 +286,9 @@ const class PointFuncs
   static Obj? pointConvert(Obj? pt, Str convert, Obj? val)
   {
     cx := curContext
-    lib := lib(cx)
+    ext := ext(cx)
     rec := pt == null ? Etc.emptyDict : Etc.toRec(pt)
-    return PointConvert.fromStr(convert).convert(lib, rec, val)
+    return PointConvert.fromStr(convert).convert(ext, rec, val)
   }
 
   **
@@ -305,7 +305,7 @@ const class PointFuncs
   {
     cx  := curContext
     rec := Etc.toRec(point)
-    return PointUtil.pointDetails(lib(cx), rec, true)
+    return PointUtil.pointDetails(ext(cx), rec, true)
   }
 
   ** Return grid of thermistor table names as grid with one 'name' column
@@ -319,9 +319,9 @@ const class PointFuncs
   ** This call forces a refresh of the definitions.
   @Axon static Grid enumDefs()
   {
-    lib := lib(curContext)
-    lib.rt.sync
-    enums := lib.enums
+    ext := ext(curContext)
+    ext.rt.sync
+    enums := ext.enums
     gb := GridBuilder()
     gb.setMeta(enums.meta)
     gb.addCol("id").addCol("size")
@@ -333,9 +333,9 @@ const class PointFuncs
   ** This call forces a refresh of the definitions.
   @Axon static Grid? enumDef(Str id, Bool checked := true)
   {
-    lib := lib(curContext)
-    lib.rt.sync
-    return lib.enums.get(id, checked)?.grid
+    ext := ext(curContext)
+    ext.rt.sync
+    return ext.enums.get(id, checked)?.grid
   }
 
   **
@@ -402,14 +402,14 @@ const class PointFuncs
   @Axon { admin = true }
   static Obj? hisCollectWriteAll(Number? timeout := null)
   {
-    lib(curContext).hisCollectMgr.writeAll.get(timeout?.toDuration)
+    ext(curContext).hisCollectMgr.writeAll.get(timeout?.toDuration)
   }
 
   ** Force history collector to recreate its watch
   @NoDoc @Axon { su = true }
   static Obj? hisCollectReset(Number? timeout := null)
   {
-    lib(curContext).hisCollectMgr.reset.get(timeout?.toDuration)
+    ext(curContext).hisCollectMgr.reset.get(timeout?.toDuration)
   }
 
   ** Legacy support
@@ -419,8 +419,8 @@ const class PointFuncs
   ** Current context
   private static HxContext curContext() { HxContext.curHx }
 
-  ** Lookup PointLib for context
-  private static PointLib lib(HxContext cx) { cx.rt.libsOld.get("point") }
+  ** Lookup PointExt for context
+  private static PointExt ext(HxContext cx) { cx.rt.libsOld.get("point") }
 
   internal static const Duration timeout := 30sec
   internal static const Number level1   := Number(1)

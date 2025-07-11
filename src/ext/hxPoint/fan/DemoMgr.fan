@@ -16,7 +16,7 @@ using folio
 **
 internal const class DemoMgrActor : PointMgrActor
 {
-  new make(PointLib lib) : super(lib, 1sec, DemoMgr#) {}
+  new make(PointExt ext) : super(ext, 1sec, DemoMgr#) {}
 }
 
 **************************************************************************
@@ -29,7 +29,7 @@ internal const class DemoMgrActor : PointMgrActor
 **
 internal class DemoMgr : PointMgr
 {
-  new make(PointLib lib) : super(lib) { this.db = lib.rt.db }
+  new make(PointExt ext) : super(ext) { this.db = ext.rt.db }
 
   const Folio db
 
@@ -50,7 +50,7 @@ internal class DemoMgr : PointMgr
       if (rec.has("curTracksWrite")) return
       if (rec.has("point") && rec["weatherStationRef"] is Ref) return
       if (rec.has("schedule") || rec.has("calendar")) return
-      if (lib.rt.conn.isPoint(rec.id)) return
+      if (ext.rt.conn.isPoint(rec.id)) return
 
       // process the point
       try

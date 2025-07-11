@@ -17,12 +17,12 @@ using hx
 **
 class ConvertTest : HxTest
 {
-  PointLib? lib
+  PointExt? ext
 
   @HxRuntimeTest
   Void test()
   {
-    this.lib = addLib("point")
+    this.ext = addLib("point")
     doCache
     doEnums
     doParse
@@ -79,29 +79,29 @@ class ConvertTest : HxTest
 
      rt.sync
 
-     list := lib.enums.list
+     list := ext.enums.list
      verifyEq(list.size, 3)
      verifyEq(list[0].id, "alpha"); verifyEq(list[0].size, 3)
      verifyEq(list[1].id, "beta");  verifyEq(list[1].size, 4)
      verifyEq(list[2].id, "gamma"); verifyEq(list[2].size, 4)
 
-     verifyEq(lib.enums.get("bad", false), null)
-     verifyErr(UnknownNameErr#) { lib.enums.get("bad") }
+     verifyEq(ext.enums.get("bad", false), null)
+     verifyErr(UnknownNameErr#) { ext.enums.get("bad") }
 
-     e := lib.enums.get("alpha")
+     e := ext.enums.get("alpha")
      verifyEnumDef(e, "off",  0)
      verifyEnumDef(e, "slow", 1)
      verifyEnumDef(e, "fast", 2)
      verifyEnumBad(e)
 
-     e = lib.enums.get("beta")
+     e = ext.enums.get("beta")
      verifyEnumDef(e, "negOne", -1)
      verifyEnumDef(e, "seven", 7)
      verifyEnumDef(e, "five", 5)
      verifyEnumDef(e, "nine", 9)
 
      verifyEnumBad(e)
-     e = lib.enums.get("gamma")
+     e = ext.enums.get("gamma")
      verifyEq(e.nameToCode("a"), n(-1))
      verifyEq(e.nameToCode("x"), n(-1))
      verifyEq(e.nameToCode("b"), n(9))
@@ -359,7 +359,7 @@ class ConvertTest : HxTest
     }
     else
     {
-      q := c.convert(lib, rec, in)
+      q := c.convert(ext, rec, in)
       // echo("     $in [${in?.typeof}] ==> $out [${out?.typeof}]")
       verifyEq(q, out)
     }
@@ -407,8 +407,8 @@ class ConvertTest : HxTest
 
     // errors
     c = PointConvert("°C => km")
-    verifyErr(Err#) { c.convert(lib, rec, n(4f)) }
-    verifyErr(UnitErr#) { c.convert(lib, rec, n(4f, "m")) }
+    verifyErr(Err#) { c.convert(ext, rec, n(4f)) }
+    verifyErr(UnitErr#) { c.convert(ext, rec, n(4f, "m")) }
     verifyErr(ParseErr#) { x := PointConvert("foo=>m") }
     verifyErr(ParseErr#) { x := PointConvert("m=>foo") }
     verifyErr(ParseErr#) { x := PointConvert("as()") }
@@ -420,11 +420,11 @@ class ConvertTest : HxTest
     UnitConvert c := PointConvert.fromStr(s)
     rec := Etc.emptyDict
     verifyConvert(c, rec, null, null)
-    Number to := c.convert(lib, rec, n(from))
+    Number to := c.convert(ext, rec, n(from))
     // echo("$c | $from => $to")
     verifyEq(to.unit, c.to)
     verify(expected.approx(to.toFloat))
-    to = c.convert(lib, rec, n(from, c.from))
+    to = c.convert(ext, rec, n(from, c.from))
     verifyEq(to.unit, c.to)
     verify(expected.approx(to.toFloat))
   }
@@ -545,9 +545,9 @@ class ConvertTest : HxTest
     degC := Number.F.convertTo(degF, Number.C)
     verifyConvert(c, rec, n(ohms), n(degF, Number.F))
     rec = Etc.makeDict(["unit": "°C"])
-    verifyEq(c.convert(lib, rec, n(ohms))->toLocale("#.000"), n(degC, Number.C).toLocale("#.000"))
+    verifyEq(c.convert(ext, rec, n(ohms))->toLocale("#.000"), n(degC, Number.C).toLocale("#.000"))
     rec = Etc.makeDict(["unit": "celsius"])
-    verifyEq(c.convert(lib, rec, n(ohms))->toLocale("#.000"), n(degC, Number.C).toLocale("#.000"))
+    verifyEq(c.convert(ext, rec, n(ohms))->toLocale("#.000"), n(degC, Number.C).toLocale("#.000"))
     verifyConvert(c, rec, null, null)
   }
 
@@ -597,11 +597,11 @@ class ConvertTest : HxTest
    {
      if (expected is Type)
      {
-       verifyErr(expected) { c.convert(lib, rec, val) }
+       verifyErr(expected) { c.convert(ext, rec, val) }
      }
      else
      {
-       actual := c.convert(lib, rec, val)
+       actual := c.convert(ext, rec, val)
        // echo("  :: $actual ?= $expected")
        verifyEq(actual, expected)
      }

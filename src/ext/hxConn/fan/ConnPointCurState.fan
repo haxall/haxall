@@ -29,7 +29,7 @@ internal const final class ConnPointCurState
 
       // check if we have a conversions
       if (pt.curConvert != null)
-        val = pt.curConvert.convert(pt.ext.pointLib, pt.rec, raw)
+        val = pt.curConvert.convert(pt.ext.pointExt, pt.rec, raw)
 
       // check if we have calibration
       if (pt.curCalibration != null)

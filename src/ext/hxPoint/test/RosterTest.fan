@@ -17,7 +17,7 @@ using hx
 **
 class RosterTest : HxTest
 {
-  PointLib? lib
+  PointExt? ext
 
   @HxRuntimeTest
   Void test()
@@ -35,8 +35,8 @@ class RosterTest : HxTest
     addRec(["dis":"Cov", "point":m, "his":m, "tz":"New_York", "hisCollectCov":m])
 
     // now add library
-    this.lib = addLib("point")
-    this.lib.spi.sync
+    this.ext = addLib("point")
+    this.ext.spi.sync
     sync
 
     // run tests
@@ -52,8 +52,8 @@ class RosterTest : HxTest
   Void verifyEnumMeta()
   {
     // initial setup has one alpha enum def
-    verifyEq(lib.enums.list.size, 1)
-    e := lib.enums.get("alpha")
+    verifyEq(ext.enums.list.size, 1)
+    e := ext.enums.get("alpha")
     verifyEnumDef(e, "off",  0)
     verifyEnumDef(e, "slow", 1)
     verifyEnumDef(e, "fast", 2)
@@ -71,20 +71,20 @@ class RosterTest : HxTest
                      "two",2|>])
     sync
 
-    verifyEq(lib.enums.list.size, 2)
-    e = lib.enums.get("alpha")
+    verifyEq(ext.enums.list.size, 2)
+    e = ext.enums.get("alpha")
     verifyEnumDef(e, "xoff",  0)
     verifyEnumDef(e, "xslow", 1)
     verifyEnumDef(e, "xfast", 2)
 
-    e = lib.enums.get("beta")
+    e = ext.enums.get("beta")
     verifyEnumDef(e, "one",  1)
     verifyEnumDef(e, "two", 2)
 
     // trash the enumMeta record
     commit(rt.db.read(Filter("enumMeta")), ["trash":m])
     rt.sync
-    verifyEq(lib.enums.list.size, 0)
+    verifyEq(ext.enums.list.size, 0)
   }
 
   Void verifyEnumDef(EnumDef e, Str name, Int code)
@@ -153,7 +153,7 @@ class RosterTest : HxTest
     verifyErrMsg(Err#, "Not writable point: $id.toZinc") { writeArray(id) }
   }
 
-  Grid writeArray(Ref id) { lib.writeMgr.arrayById(id) }
+  Grid writeArray(Ref id) { ext.writeMgr.arrayById(id) }
 
 //////////////////////////////////////////////////////////////////////////
 // HisCollect
@@ -216,7 +216,7 @@ class RosterTest : HxTest
 
   Void verifyHisCollect(Ref id, Duration? interval, Bool cov)
   {
-    details := lib.hisCollectMgr.details(id)
+    details := ext.hisCollectMgr.details(id)
     // echo("\n----$id.dis | $details")
     verifyNotNull(details)
     lines := details.splitLines
@@ -229,7 +229,7 @@ class RosterTest : HxTest
 
   Void verifyNotHisCollect(Ref id)
   {
-    details := lib.hisCollectMgr.details(id)
+    details := ext.hisCollectMgr.details(id)
     verifyNull(details)
     verifyEq(rt.watch.isWatched(id), false)
   }
@@ -248,7 +248,7 @@ class RosterTest : HxTest
   private Void sync()
   {
     rt.sync
-    lib.hisCollectMgr.forceCheck
+    ext.hisCollectMgr.forceCheck
   }
 
 }

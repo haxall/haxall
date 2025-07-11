@@ -201,7 +201,7 @@ internal class HisCollectRec
     // write to historian; checks are sync, write to disk is async
     try
     {
-      mgr.lib.rt.his.write(rec, toWrite, Etc.emptyDict)
+      mgr.ext.rt.his.write(rec, toWrite, Etc.emptyDict)
       writeErr = null
     }
     catch (Err e)
@@ -227,7 +227,7 @@ internal class HisCollectRec
   {
     try
     {
-      settings := mgr.lib.rec
+      settings := mgr.ext.rec
 
       // save current state of record
       this.rec = rec
@@ -325,7 +325,7 @@ internal class HisCollectRec
       this.covRateLimit = rateLimit
 
       // check hisCollectNA
-      this.collectNA = mgr.lib.hisCollectNA || rec.has("hisCollectNA")
+      this.collectNA = mgr.ext.hisCollectNA || rec.has("hisCollectNA")
 
       // at this point configuration is correct, but if we have a write error
       // we want to use hisStatus and hisErr to indicate that all is not right here
@@ -360,7 +360,7 @@ internal class HisCollectRec
 
   private Void commit(HisCollectMgr mgr, Dict changes)
   {
-    rec = mgr.lib.rt.db.commit(Diff(rec, changes, Diff.forceTransient)).newRec
+    rec = mgr.ext.rt.db.commit(Diff(rec, changes, Diff.forceTransient)).newRec
   }
 
 //////////////////////////////////////////////////////////////////////////

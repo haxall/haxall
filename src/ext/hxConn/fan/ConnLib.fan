@@ -39,8 +39,8 @@ abstract const class ConnLib : Ext, HxConnExt
   private const AtomicRef fwRef := AtomicRef()
 
   ** PointLib instance
-  @NoDoc PointLib pointLib() { pointLibRef.val }
-  private const AtomicRef pointLibRef := AtomicRef()
+  @NoDoc PointExt pointExt() { pointExtRef.val }
+  private const AtomicRef pointExtRef := AtomicRef()
 
   ** Model which defines tags and functions for this connector.
   ** The model is not available until after the library has started.
@@ -100,7 +100,7 @@ abstract const class ConnLib : Ext, HxConnExt
   override Void onStart()
   {
     // must have PointLib installed
-    pointLibRef.val = (PointLib)rt.libsOld.get("point")
+    pointExtRef.val = (PointExt)rt.libsOld.get("point")
 
     // must have ConnFwLib installed
     fw :=  (ConnFwLib)rt.libsOld.get("conn")

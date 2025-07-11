@@ -45,7 +45,7 @@ const abstract class PointConvert
   private static const ConcurrentMap cache := ConcurrentMap()
 
   ** Perform the conversion
-  abstract Obj? convert(PointLib lib, Dict rec, Obj? val)
+  abstract Obj? convert(PointExt ext, Dict rec, Obj? val)
 }
 
 **************************************************************************
@@ -305,10 +305,10 @@ internal const class PipelineConvert : PointConvert
 {
   new make(PointConvert[] p) { this.pipeline = p }
   override Str toStr() { pipeline.join(" ") }
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     for (i:=0; i<pipeline.size; ++i)
-      val = pipeline[i].convert(lib, rec, val)
+      val = pipeline[i].convert(ext, rec, val)
     return val
   }
   const PointConvert[] pipeline
@@ -325,7 +325,7 @@ internal abstract const class MathConvert : PointConvert
   abstract Str symbol()
   abstract Float doConvert(Float f)
   override Str toStr() { "$symbol $x" }
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num :=(Number)val
@@ -372,7 +372,7 @@ internal abstract const class BitConvert : PointConvert
   abstract Str symbol()
   abstract Int doConvert(Int i)
   override Str toStr() { "$symbol 0x$x.toHex" }
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -424,7 +424,7 @@ internal const class ElvisConvert : PointConvert
   new make(Obj? x) { this.x = x }
   const Obj? x
   override Str toStr() { "?: $x" }
-  override Obj? convert(PointLib lib, Dict rec, Obj? v) { v ?: x }
+  override Obj? convert(PointExt ext, Dict rec, Obj? v) { v ?: x }
 }
 
 **************************************************************************
@@ -444,7 +444,7 @@ internal const class UnitConvert : PointConvert
 
   override Str toStr() { "$from => $to" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -466,7 +466,7 @@ internal const class ToStrConvert : PointConvert
 
   override Str toStr() { "toStr()" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return "null"
     return val.toStr
@@ -484,7 +484,7 @@ internal const class AsConvert : PointConvert
     if (args.size != 1) throw ParseErr("Invalid num args: $args.size, expected 1")
     this.to = Unit(args.first, false) ?: throw ParseErr("Unknown unit: $args.first")
   }
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -507,7 +507,7 @@ internal const class InvertConvert : PointConvert
 
   override Str toStr() { "invert()" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     return ((Bool)val).not
@@ -530,7 +530,7 @@ internal const class PowConvert : PointConvert
 
   override Str toStr() { "pow($exp)" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -556,7 +556,7 @@ internal const class MinConvert : PointConvert
 
   override Str toStr() { "min($limit)" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -582,7 +582,7 @@ internal const class MaxConvert : PointConvert
 
   override Str toStr() { "max($limit)" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -614,7 +614,7 @@ internal const class ResetConvert : PointConvert
 
   override Str toStr() { "reset($inLo,$inHi,$outLo,$outHi)" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -647,7 +647,7 @@ internal const class U2SwapEndianConvert : PointConvert
 
   override Str toStr() { "u2SwapEndian()" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -671,7 +671,7 @@ internal const class U4SwapEndianConvert : PointConvert
 
   override Str toStr() { "u4SwapEndian()" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -702,10 +702,10 @@ internal abstract const class EnumConvert : PointConvert
   const Bool checked
   override const Str toStr
 
-  override final Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override final Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
-    def := enumId == "self" ? EnumDef(rec->enum) : lib.enums.get(enumId)
+    def := enumId == "self" ? EnumDef(rec->enum) : ext.enums.get(enumId)
     return doConvert(def, val)
   }
 
@@ -758,7 +758,7 @@ internal const class NumberToBoolConvert : PointConvert
 
   override Str toStr() { "numberToBool()" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -791,7 +791,7 @@ internal const class NumberToStrConvert : PointConvert
 
   const override Str toStr
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -828,7 +828,7 @@ internal const class BoolToNumberConvert : PointConvert
 
   override Str toStr() { "boolToNumber($falseVal,$trueVal)" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     if (val == true) return trueVal
@@ -891,7 +891,7 @@ internal const class StrToBoolConvert : PointConvert
   const Str[] trueStrs
   const override Str toStr
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     s := val.toStr
@@ -919,7 +919,7 @@ internal const class StrToNumberConvert : PointConvert
   const Bool checked
   override const Str toStr
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     if (val is Number) return val
@@ -943,7 +943,7 @@ internal const class HexToNumberConvert : PointConvert
   const Bool checked
   override const Str toStr
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     i := Int.fromStr(val.toStr, 16, checked)
@@ -965,7 +965,7 @@ internal const class NumberToHexConvert : PointConvert
 
   override Str toStr() { "numberToHex()" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val
@@ -986,7 +986,7 @@ internal const class LowerConvert : PointConvert
 
   override Str toStr() { "lower()" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     return val.toStr.lower
@@ -1006,7 +1006,7 @@ internal const class UpperConvert : PointConvert
 
   override Str toStr() { "upper()" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     return val.toStr.upper
@@ -1028,7 +1028,7 @@ internal const class StrReplaceConvert : PointConvert
 
   override Str toStr() { "strReplace(from, to)" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     return val.toStr.replace(from, to)
@@ -1084,7 +1084,7 @@ internal const class ThermistorConvert : PointConvert
 
   override Str toStr() { "thermistor($name)" }
 
-  override Obj? convert(PointLib lib, Dict rec, Obj? val)
+  override Obj? convert(PointExt ext, Dict rec, Obj? val)
   {
     if (val == null) return null
     num := (Number)val

@@ -19,7 +19,7 @@ using hx
 **
 internal const class WriteMgrActor : PointMgrActor, HxPointWriteService
 {
-  new make(PointLib lib) : super(lib, 4sec, WriteMgr#) {}
+  new make(PointExt ext) : super(ext, 4sec, WriteMgr#) {}
 
   const WriteObservable observable := WriteObservable()
 
@@ -72,7 +72,7 @@ internal const class WriteMgrActor : PointMgrActor, HxPointWriteService
 **
 internal class WriteMgr : PointMgr
 {
-  new make(PointLib lib) : super(lib) {}
+  new make(PointExt ext) : super(ext) {}
 
   override Obj? onReceive(HxMsg msg)
   {
@@ -157,7 +157,7 @@ internal class WriteMgr : PointMgr
   internal Void fireObservation(WriteRec writeRec, Obj? val, Number level, Obj? who, Dict? opts, Bool effectiveChange, Bool first)
   {
     // short circuit if observable has no subscriptions
-    observable := lib.writeMgr.observable
+    observable := ext.writeMgr.observable
     if (!observable.hasSubscriptions) return
 
     // we have two potential events; for normal subscribers we are sending an

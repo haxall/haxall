@@ -19,7 +19,7 @@ using hx
 **
 internal const class HisCollectMgrActor : PointMgrActor
 {
-  new make(PointLib lib) : super(lib, 100ms, HisCollectMgr#) {}
+  new make(PointExt ext) : super(ext, 100ms, HisCollectMgr#) {}
 
   Future writeAll() { send(HxMsg("writeAll")) }
 
@@ -35,7 +35,7 @@ internal const class HisCollectMgrActor : PointMgrActor
 **
 internal class HisCollectMgr : PointMgr
 {
-  new make(PointLib lib) : super(lib)
+  new make(PointExt ext) : super(ext)
   {
     // init top of the minute
     nextTopOfMin = DateTime.now(null).floor(1min) + 1min
@@ -112,7 +112,7 @@ internal class HisCollectMgr : PointMgr
     // state so that connectors have a chance to initiate their
     // polling/subscriptions so the data is ready to begin logging
     // once steady state is reached
-    if (!lib.rt.isSteadyState) return
+    if (!ext.rt.isSteadyState) return
 
     // iterate all our points
     recs.each |rec|

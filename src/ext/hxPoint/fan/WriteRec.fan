@@ -177,7 +177,7 @@ internal class WriteRec
     catch (ShutdownErr e)
       { /* ignore */ }
     catch (Err e)
-      mgr.lib.log.err("writeSink", e)
+      mgr.ext.log.err("writeSink", e)
     return true
   }
 

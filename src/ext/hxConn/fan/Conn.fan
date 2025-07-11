@@ -70,8 +70,8 @@ const final class Conn : Actor, HxConn
   override ConnLib ext() { extRef }
   private const ConnLib extRef
 
-  ** PointLib library
-  @NoDoc PointLib pointLib() { extRef.pointLib }
+  ** PointExt
+  @NoDoc PointExt pointExt() { extRef.pointExt }
 
   ** Record id
   override Ref id() { idRef }

@@ -22,14 +22,14 @@ using hx
 **
 internal abstract class PointMgr
 {
-  new make(PointLib lib)
+  new make(PointExt ext)
   {
-    this.lib = lib
-    this.rt  = lib.rt
-    this.log = lib.log
+    this.ext = ext
+    this.rt  = ext.rt
+    this.log = ext.log
   }
 
-  const PointLib lib
+  const PointExt ext
   const HxRuntime rt
   const Log log
 
@@ -60,15 +60,15 @@ internal abstract class PointMgr
 **
 internal const class PointMgrActor : Actor
 {
-  new make(PointLib lib, Duration checkFreq, Type mgrType) : super(lib.rt.libsOld.actorPool)
+  new make(PointExt ext, Duration checkFreq, Type mgrType) : super(ext.rt.libsOld.actorPool)
   {
-    this.lib       = lib
+    this.ext       = ext
     this.checkFreq = checkFreq
     this.mgrType   = mgrType
-    this.log       = lib.log
+    this.log       = ext.log
   }
 
-  const PointLib lib
+  const PointExt ext
   const Duration checkFreq
   const Type mgrType
   const Log log
@@ -91,7 +91,7 @@ internal const class PointMgrActor : Actor
   override Obj? receive(Obj? msg)
   {
     // fault
-    if (lib.spi.isFault) return null
+    if (ext.spi.isFault) return null
 
     // init manager on first message
     mgr := Actor.locals["pm"] as PointMgr
@@ -99,7 +99,7 @@ internal const class PointMgrActor : Actor
     {
       if (!isRunning) return null
       try
-        Actor.locals["pm"] = mgr = this.mgrType.make([lib])
+        Actor.locals["pm"] = mgr = this.mgrType.make([ext])
       catch (Err e)
         log.err("Init manager $mgrType", e)
     }

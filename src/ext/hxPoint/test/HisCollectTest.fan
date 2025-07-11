@@ -20,34 +20,34 @@ class HisCollectTest : HxTest
   @HxRuntimeTest
   Void testConfig()
   {
-    PointLib lib := addLib("point")
+    PointExt ext := addLib("point")
 
-    verifyConfig(lib, ["hisCollectInterval":n(20, "min"), "kind":"Number"],
+    verifyConfig(ext, ["hisCollectInterval":n(20, "min"), "kind":"Number"],
       "20min (0hr, 20min, 0sec)", "null", "1min", "null")
 
-    verifyConfig(lib, ["hisCollectInterval":n(1, "hr"), "kind":"Bool"],
+    verifyConfig(ext, ["hisCollectInterval":n(1, "hr"), "kind":"Bool"],
       "1hr (1hr, 0min, 0sec)", "null", "1sec", "null")
 
-    verifyConfig(lib, ["hisCollectInterval":n(10, "sec"), "kind":"Str", "hisCollectWriteFreq":n(10, "min")],
+    verifyConfig(ext, ["hisCollectInterval":n(10, "sec"), "kind":"Str", "hisCollectWriteFreq":n(10, "min")],
       "10sec (0hr, 0min, 10sec)", "null", "1sec", "10min")
 
-    verifyConfig(lib, ["hisCollectCov":m, "kind":"Bool"],
+    verifyConfig(ext, ["hisCollectCov":m, "kind":"Bool"],
       "null (0hr, 0min, 0sec)", "marker", "1sec", "null")
 
-    verifyConfig(lib, ["hisCollectCov":m, "kind":"Bool", "hisCollectCovRateLimit":n(5, "sec")],
+    verifyConfig(ext, ["hisCollectCov":m, "kind":"Bool", "hisCollectCovRateLimit":n(5, "sec")],
       "null (0hr, 0min, 0sec)", "marker", "5sec", "null")
 
-    verifyConfig(lib, ["hisCollectCov":n(1, "kW"), "kind":"Number", "hisCollectCovRateLimit":n(7, "sec"), "hisCollectWriteFreq":n(15, "min")],
+    verifyConfig(ext, ["hisCollectCov":n(1, "kW"), "kind":"Number", "hisCollectCovRateLimit":n(7, "sec"), "hisCollectWriteFreq":n(15, "min")],
       "null (0hr, 0min, 0sec)", "1kW", "7sec", "15min")
 
-    verifyConfig(lib, ["hisCollectInterval":n(10, "sec"), "hisCollectCov":n(1, "kW"), "kind":"Number", "hisCollectCovRateLimit":n(7, "sec")],
+    verifyConfig(ext, ["hisCollectInterval":n(10, "sec"), "hisCollectCov":n(1, "kW"), "kind":"Number", "hisCollectCovRateLimit":n(7, "sec")],
       "10sec (0hr, 0min, 10sec)", "1kW", "7sec", "null")
 
-    verifyConfig(lib, ["hisCollectInterval":n(20, "sec"), "hisCollectCov":n(1, "kW"), "kind":"Number"],
+    verifyConfig(ext, ["hisCollectInterval":n(20, "sec"), "hisCollectCov":n(1, "kW"), "kind":"Number"],
       "20sec (0hr, 0min, 20sec)", "1kW", "2sec", "null")
   }
 
-  Void verifyConfig(PointLib lib, Str:Obj ptTags, Str interval, Str cov, Str rateLimit, Str writeFreq)
+  Void verifyConfig(PointExt ext, Str:Obj ptTags, Str interval, Str cov, Str rateLimit, Str writeFreq)
   {
     pt := addRec(ptTags.dup.addAll(["dis":"Point", "point":m, "his":m, "tz":"Chicago"]))
 
@@ -68,10 +68,11 @@ class HisCollectTest : HxTest
     verifyEq(findLine("covRateLimit"), rateLimit)
     verifyEq(findLine("writeFreq"), writeFreq)
 
-    lib.hisCollectMgr.forceCheck
+    ext.hisCollectMgr.forceCheck
     watch := rt.watch.list.first ?: throw Err("no watch!")
     verifyEq(watch.dis, "HisCollect")
     verifyEq(watch.list.contains(pt.id), true)
   }
 
 }
+

@@ -37,7 +37,7 @@ internal const final class ConnPointHisState
         for (i := 0; i<items.size; ++i)
         {
           oldItem := items[i]
-          items[i] = HisItem(oldItem.ts, convert.convert(pt.ext.pointLib, rec, oldItem.val))
+          items[i] = HisItem(oldItem.ts, convert.convert(pt.ext.pointExt, rec, oldItem.val))
         }
       }
 

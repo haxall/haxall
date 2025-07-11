@@ -444,7 +444,7 @@ const final class ConnPoint : HxConnPoint
 
     try
     {
-      more := PointUtil.pointDetails(conn.pointLib, rec, false)
+      more := PointUtil.pointDetails(conn.pointExt, rec, false)
       s.add(more)
     }
     catch (Err e) conn.log.err("pointDetails", e)
