@@ -117,6 +117,19 @@ class ProjTest : HxTest
     p = TestProjBoot(tempDir).init
     verifyProjLibs(p, bootLibs, projLibs, [,])
     verifyProjSpecs(p, ["SpecB"])
+
+    // test specs with comments
+    src := """
+              // this is a comment
+              // and another line
+
+              Dict { newOne: Str }
+
+              """
+    specA = p.specs.add("SpecAnotherA", src)
+    verifyEq(specA.qname, "proj::SpecAnotherA")
+    verifyEq(p.specs.read(specA.name), src.splitLines.findAll { !it.isEmpty }.join("\n").trim)
+    verifyProjSpecs(p, ["SpecAnotherA", "SpecB"])
   }
 
   Void dumpLibs(Proj p)

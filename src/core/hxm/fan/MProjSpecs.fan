@@ -53,12 +53,7 @@ const class MProjSpecs : ProjSpecs
   override Str? read(Str name, Bool checked := true)
   {
     buf := fb.read("${name}.xeto", false)
-    if (buf != null)
-    {
-      src := buf.readAllStr
-      colon := src.index(": ") ?: throw Err("Unexpected src $name.toCode: $src")
-      return src[colon+2..-1]
-    }
+    if (buf != null) return readFormat(name, buf)
     if (checked) throw UnknownSpecErr("proj::$name")
     return null
   }
@@ -99,10 +94,53 @@ const class MProjSpecs : ProjSpecs
 
   private Void write(Str name, Str body)
   {
+    buf := writeFormat(name, body)
+    fb.write("${name}.xeto", buf)
+  }
+
+  private Str readFormat(Str name, Buf buf)
+  {
+    sb := StrBuf()
+    sb.capacity = buf.size
+    prelude := true
+    buf.eachLine |line|
+    {
+      if (prelude && line.trim.isEmpty) return
+      if (!sb.isEmpty) sb.add("\n")
+      if (prelude)
+      {
+        if (line.startsWith("//")) { sb.add(line); return }
+        colon := line.index(":") ?: throw Err("Malformed proj spec: $line")
+        line = line[colon+1..-1].trim
+        prelude = false
+      }
+      sb.add(line)
+    }
+    return sb.toStr
+  }
+
+  private Buf writeFormat(Str name, Str body)
+  {
     buf := Buf()
     buf.capacity = name.size + 16 + body.size
-    buf.print(name).print(": ").print(body)
-    fb.write("${name}.xeto", buf)
+    prelude := true
+    body.splitLines.each |line|
+    {
+      line = line.trimEnd
+      if (prelude)
+      {
+        line = line.trimStart
+        if (line.isEmpty) return
+        if (!line.startsWith("//"))
+        {
+          buf.print(name).print(": ")
+          prelude = false
+        }
+      }
+      buf.printLine(line)
+    }
+    while (!buf.isEmpty && buf[-1] == '\n') buf.size = buf.size - 1
+    return buf
   }
 }
 
