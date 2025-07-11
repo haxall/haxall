@@ -9,11 +9,8 @@
 --------------------------------------------------------------------------
 def: ^lib:hxShell
 depends: [^lib:ph, ^lib:hx]
-typeName:"hxShell::HxShellLib"
+typeName:"hxShell::HxShellExt"
 nodoc
 doc: "Axon shell user interface"
 --------------------------------------------------------------------------
-
-
-
 

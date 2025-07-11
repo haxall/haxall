@@ -77,14 +77,14 @@ const class HxShellWeb : ExtWeb
   private Void onCss()
   {
     pack := FilePack(FilePack.toAppCssFiles(pods))
-    //lib.log.info("shell.css [" + pack.buf.size.toLocale("B") + "]")
+    //ext.log.info("shell.css [" + pack.buf.size.toLocale("B") + "]")
     pack.onService
   }
 
   private Void onJs()
   {
     pack := FilePack(FilePack.toAppJsFiles(pods))
-    //lib.log.info("shell.js [" + pack.buf.size.toLocale("B") + "]")
+    //ext.log.info("shell.js [" + pack.buf.size.toLocale("B") + "]")
     pack.onService
   }
 
