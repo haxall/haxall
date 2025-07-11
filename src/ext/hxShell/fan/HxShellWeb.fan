@@ -14,7 +14,7 @@ using hx
 **
 ** Web handling
 **
-const class HxShellWeb : HxLibWeb
+const class HxShellWeb : ExtWeb
 {
   new make(Ext lib) : super(lib)
   {

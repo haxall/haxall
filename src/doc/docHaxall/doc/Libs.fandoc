@@ -223,7 +223,7 @@ Web [#web]
 **********
 To add HTTP handling to your lib:
 
-  1. Create a subclass of `hx::HxLibWeb`
+  1. Create a subclass of `hx::ExtWeb`
   2. Override `hx::HxLib.web` with an instance of your subclass
 
 Here is a very simple example:
@@ -233,7 +233,7 @@ Here is a very simple example:
     override const FooWeb web := FooWeb(this)
   }
 
-  const class FooWeb : HxLibWeb
+  const class FooWeb : ExtWeb
   {
     new make(FooLib lib) : super(lib) {}
 

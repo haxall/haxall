@@ -18,7 +18,7 @@ const class ObixLib : ConnLib
 {
 
   ** Publish server side APIs
-  override const HxLibWeb web := ObixLibWeb(this)
+  override const ExtWeb web := ObixLibWeb(this)
 
 }
 
@@ -29,7 +29,7 @@ const class ObixLib : ConnLib
 **
 ** ObixLibWeb is used to route to ObixWebMod
 **
-internal const class ObixLibWeb : HxLibWeb
+internal const class ObixLibWeb : ExtWeb
 {
   new make(ObixLib lib) : super(lib) {  this.mod = ObixWebMod(lib) }
   const ObixWebMod mod

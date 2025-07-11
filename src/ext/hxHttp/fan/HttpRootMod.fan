@@ -44,11 +44,11 @@ internal const class HttpRootMod : WebMod
     if (lib == null) lib = rt.libsOld.get(libName, false)
     if (lib == null) return res.sendErr(404)
 
-    // check if it supports HxLibWeb
+    // check if it supports ExtWeb
     libWeb := lib.web
     if (libWeb.isUnsupported) return res.sendErr(404)
 
-    // dispatch to lib's HxLibWeb instance
+    // dispatch to lib's ExtWeb instance
     req.mod = libWeb
     req.modBase = req.modBase + `$libName/`
     libWeb.onService

@@ -44,22 +44,22 @@ abstract const class Ext
   ** Runtime
   virtual HxRuntime rt() { spi.rt }
 
-  ** Programmatic name of the library
+  ** Programmatic name of the extension
   Str name() { spi.name }
 
   ** Definition meta data.  Not available in constructor.
   @NoDoc virtual DefLib def() { spi.def }
 
-  ** Database record which enables this library and stores settings.
+  ** Database record which enables this extension and stores settings.
   ** This field may be overridden with a `haystack::TypedDict` subclass.
   ** Also see `docHaxall::Libs#settings`.
   virtual Dict rec() { spi.rec}
 
-  ** Logger to use for this library
+  ** Logger to use for this extension
   Log log() { spi.log }
 
-  ** Web service handling for this library
-  virtual HxLibWeb web() { UnsupportedHxLibWeb(this) }
+  ** Web service handling for this extension
+  virtual ExtWeb web() { UnsupportedExtWeb(this) }
 
   ** Return list of services this library publishes.  This callback
   ** is made during initialization and each time a lib is added/removed

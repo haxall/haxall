@@ -14,7 +14,7 @@ using hx
 **
 ** User library web servicing
 **
-const class HxUserWeb : HxLibWeb
+const class HxUserWeb : ExtWeb
 {
   new make(HxUserLib lib) : super(lib) { this.lib = lib }
 

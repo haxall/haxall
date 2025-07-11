@@ -13,7 +13,7 @@ using web
 ** Ext plugin to add web servicing capability.
 ** See `docHaxall::Libs#web`.
 **
-abstract const class HxLibWeb : WebMod
+abstract const class ExtWeb : WebMod
 {
   ** Subclass constructor
   protected new make(Ext lib) { this.libRef = lib }
@@ -34,10 +34,10 @@ abstract const class HxLibWeb : WebMod
 }
 
 **************************************************************************
-** UnsupportedHxLibWeb
+** UnsupportedExtWeb
 **************************************************************************
 
-internal const class UnsupportedHxLibWeb : HxLibWeb
+internal const class UnsupportedExtWeb : ExtWeb
 {
   new make(Ext lib) : super(lib) {}
   override Bool isUnsupported() { true }
