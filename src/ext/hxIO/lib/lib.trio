@@ -9,10 +9,7 @@
 --------------------------------------------------------------------------
 def: ^lib:io
 depends: [^lib:ph, ^lib:axon, ^lib:hx]
-typeName:"hxIO::IOLib"
-doc: "I/O function library"
+typeName:"hxIO::IOExt"
+doc: "I/O function extension"
 --------------------------------------------------------------------------
-
-
-
 

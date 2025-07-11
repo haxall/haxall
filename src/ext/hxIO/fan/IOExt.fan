@@ -9,9 +9,9 @@
 using hx
 
 **
-** I/O function library
+** I/O functions
 **
-const class IOLib : Ext, HxIOService
+const class IOExt : Ext, HxIOService
 {
   override HxService[] services() { [this] }
 
