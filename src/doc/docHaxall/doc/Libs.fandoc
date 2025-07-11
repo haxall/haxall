@@ -9,7 +9,7 @@
 Overview [#overview]
 ********************
 Libraries or *libs* are the fundamental unit of modularity in the
-Haxall architecture.  All Haxall libs are proper [Haystack libs]`docHaystack::Namespaces#libs`
+Haxall architecture.  All Haxall libs are proper [Haystack libs]`docHaystack::Namespaces`
 packaged as Fantom [pods]`docLang::Pods`.
 
 Libs package one or more of the following features into a named, versioned module:
@@ -255,7 +255,7 @@ as records in the runtime database with the 'ext' tag.  You cannot directly
 add nor remove an ext record, but rather must instead use dedicated APIs.
 
 Lib management in Fantom:
-  - `hx::HxRuntime.libs`: access to `hx::HxRuntimeLibs`
+  - `hx::HxRuntime.libsOld`: access to `hx::HxRuntimeLibs`
   - `hx::HxRuntimeLibs.list`: list the enabled libs
   - `hx::HxRuntimeLibs.get`: lookup a lib by name
   - `hx::HxRuntimeLibs.add`: enable an lib by name

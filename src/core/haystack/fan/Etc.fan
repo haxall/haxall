@@ -416,7 +416,7 @@ const class Etc
 
   **
   ** Convert a Dict to a read/write map.  This method is expensive,
-  ** when possible you should instead use `Dict.each`.
+  ** when possible you should instead use `xeto::Dict.each`.
   **
   static Str:Obj? dictToMap(Dict? d)
   {
@@ -999,8 +999,8 @@ const class Etc
     catch (Err e) return key
   }
 
-  ** Convert arbitary value to dispaly using Kind.valToDis
-  @NoDoc static Str valToDis(Obj? val, Dict? meta := null, Bool clip := true)
+  ** Convert arbitary value to dispaly
+  static Str valToDis(Obj? val, Dict? meta := null, Bool clip := true)
   {
     if (val == null) return ""
     kind := Kind.fromVal(val, false)

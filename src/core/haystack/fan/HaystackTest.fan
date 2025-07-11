@@ -27,7 +27,7 @@ abstract class HaystackTest : Test
     return Number(val.toFloat, unit)
   }
 
-  ** Convenience for `Marker.val`
+  ** Convenience for `xeto::Marker.val`
   static const Marker m := Marker.val
 
   ** Access test def namespace.  We assume running in a

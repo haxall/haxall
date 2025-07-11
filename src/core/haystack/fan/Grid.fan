@@ -244,7 +244,7 @@ const mixin Grid
   }
 
   **
-  ** Sort using `Etc.compareDis` and `Dict.dis`.
+  ** Sort using `Etc.compareDis` and `xeto::Dict.dis`.
   **
   Grid sortDis()
   {

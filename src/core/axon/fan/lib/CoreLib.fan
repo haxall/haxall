@@ -1071,7 +1071,7 @@ const class CoreLib
 // Dict
 //////////////////////////////////////////////////////////////////////////
 
-  ** Get the marker value singleton `haystack::Marker.val`
+  ** Get the marker value singleton `xeto::Marker.val`
   @Axon static Marker marker() { Marker.val }
 
   ** Get the remove value singleton `haystack::Remove.val`
@@ -2923,7 +2923,7 @@ const class CoreLib
   ** Generate a new unique Ref identifier
   @Axon static Ref refGen() { Ref.gen }
 
-  ** Given a ref return `haystack::Ref.dis`
+  ** Given a ref return `xeto::Ref.dis`
   @Axon static Str refDis(Ref ref) { ref.dis }
 
   ** Given an absolute ref, return its project name.  If the ref

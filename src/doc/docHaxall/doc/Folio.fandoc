@@ -87,9 +87,9 @@ Tags are the name/value pairs stored in a record.  The name of a tag must
 follow the standard rules for [Naming]`#naming`.  The value of the tag is
 any of the Haystack [kinds]`docHaystack::Kinds`:
 one of the following scalar types:
-  - [Marker]`haystack::Marker`: indicates the tag is used solely to mark
+  - [Marker]`xeto::Marker`: indicates the tag is used solely to mark
     the record; markers are typically used to assign the record into a "type"
-  - [Ref]`haystack::Ref`: identifier for Folio records
+  - [Ref]`xeto::Ref`: identifier for Folio records
   - [Bool]`sys::Bool`: true of false
   - [Number]`haystack::Number`: 64-bit floating point number with optional `Units`
   - [Str]`sys::Str`: unicode string
@@ -101,7 +101,7 @@ one of the following scalar types:
   - [Coord]`haystack::Coord`: geographic coordinate in latitude/longitude
   - [XStr]`haystack::XStr`: extended type string
   - [List]`sys::List`: linear sequence of zero or more items
-  - [Dict]`haystack::Dict`: nested dict of name/value pairs
+  - [Dict]`xeto::Dict`: nested dict of name/value pairs
   - [Grid]`haystack::Grid`: nested two dimensional grid
 
 Note that although Bool is supported, convention is to use presence of
