@@ -6,7 +6,7 @@
 //   10 Jul 2025  Brian Frank  Creation
 //
 
-using concurrent
+using util
 using xeto
 using haystack
 using xetoc
@@ -21,18 +21,38 @@ const class MProjSpecs : ProjSpecs
   new make(MProjLibs libs)
   {
     this.libs = libs
+    this.fb   = libs.fb
   }
 
   const MProjLibs libs
+
+  const DiskFileBase fb
 
   override Lib lib()
   {
     libs.ns.lib("proj")
   }
 
+  override Str? libErrMsg()
+  {
+    err := libs.ns.libErr("proj")
+    if (err == null) return null
+    if (err is FileLocErr) return ((FileLocErr)err).loc.toFilenameOnly.toStr + ": " + err.msg
+    return err.toStr
+  }
+
+  override Str[] list()
+  {
+    fb.list.mapNotNull |n->Str?|
+    {
+      if (n == "lib.xeto") return null // TODO
+      return n.endsWith(".xeto") ? n[0..-6] : null
+    }
+  }
+
   override Str? read(Str name, Bool checked := true)
   {
-    buf := libs.fb.read("${name}.xeto", false)
+    buf := fb.read("${name}.xeto", false)
     if (buf != null)
     {
       src := buf.readAllStr
@@ -51,7 +71,7 @@ const class MProjSpecs : ProjSpecs
 
   override Spec update(Str name, Str body)
   {
-    lib.spec(name)
+    read(name)
     return doUpdate(name, body)
   }
 
@@ -66,7 +86,7 @@ const class MProjSpecs : ProjSpecs
 
   override Void remove(Str name)
   {
-    libs.fb.delete("${name}.xeto")
+    fb.delete("${name}.xeto")
     libs.reload
   }
 
@@ -82,7 +102,7 @@ const class MProjSpecs : ProjSpecs
     buf := Buf()
     buf.capacity = name.size + 16 + body.size
     buf.print(name).print(": ").print(body)
-    libs.fb.write("${name}.xeto", buf)
+    fb.write("${name}.xeto", buf)
   }
 }
 

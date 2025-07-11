@@ -61,6 +61,7 @@ const class MProjLibs : ProjLibs
     this.repo = boot.repo
     this.log = boot.log
     this.version = boot.version
+    this.specsRef = MProjSpecs(this)
     doReload(readProjLibNames)
   }
 
@@ -71,6 +72,7 @@ const class MProjLibs : ProjLibs
     this.log = Log.get("xeto")
     this.bootLibNames = bootLibNames
     this.version = typeof.pod.version
+    this.specsRef = MProjSpecs(this)
     doReload(readProjLibNames)
   }
 
@@ -88,8 +90,9 @@ const class MProjLibs : ProjLibs
 
   const Str[] bootLibNames
 
+  const MProjSpecs specsRef
+
   virtual ProjSpecs specs() { specsRef }
-  const MProjSpecs specsRef := MProjSpecs(this)
 
   ProjNamespace ns() { nsRef.val }
 
@@ -147,7 +150,7 @@ const class MProjLibs : ProjLibs
       null,
       pxVer?.version?.toStr,
       pxVer?.doc,
-      ns.libErr(pxName),
+      specs.libErrMsg,
     ])
 
     // add rest of the rows

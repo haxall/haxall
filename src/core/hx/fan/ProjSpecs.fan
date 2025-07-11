@@ -16,6 +16,12 @@ const mixin ProjSpecs
   ** Get the project lib
   abstract Lib lib()
 
+  ** Get simple error message to use if project lib is in error
+  @NoDoc abstract Str? libErrMsg()
+
+  ** List the spec names defined
+  abstract Str[] list()
+
   ** Read source code for given project spec
   abstract Str? read(Str name, Bool checked := true)
 

@@ -171,6 +171,7 @@ class ProjTest : HxTest
   Void verifyProjSpecs(Proj p, Str[] names)
   {
     Str[] actualNames := p.specs.lib.specs.map |s->Str| { s.name }
+    verifyEq(p.specs.list.dup.sort, names.sort)
     verifyEq(actualNames.sort, names.sort)
     names.each |n|
     {
