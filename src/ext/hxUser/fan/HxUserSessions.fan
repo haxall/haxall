@@ -20,13 +20,13 @@ using hx
 **
 const class HxUserSessions
 {
-  new make(HxUserLib lib) { this.lib = lib }
+  new make(HxUserExt ext) { this.ext = ext }
 
   ** Parent library
-  const HxUserLib lib
+  const HxUserExt ext
 
   ** Logger to use for session login/logout
-  Log log() { lib.log }
+  Log log() { ext.log }
 
   ** List active sessions
   HxUserSession[] list() { byKey.vals(HxUserSession#) }
@@ -61,7 +61,7 @@ const class HxUserSessions
   ** Choke point for opening a session
   private HxUserSession doOpen(HxUserSession session)
   {
-    if (byKey.size >= lib.rec.maxSessions && !session.user.isSu)
+    if (byKey.size >= ext.rec.maxSessions && !session.user.isSu)
       throw AuthErr("Max sessions exceeded", "Max sessions exceeded", 503)
     byKey.add(session.key, session)
     return session
@@ -77,7 +77,7 @@ const class HxUserSessions
   ** Cleanup expired sessions
   Void onHouseKeeping()
   {
-    lease := (lib.rec["sessionTimeout"] as Number)?.toDuration(false) ?: 1hr
+    lease := (ext.rec["sessionTimeout"] as Number)?.toDuration(false) ?: 1hr
     now := Duration.now
     list.each |session|
     {

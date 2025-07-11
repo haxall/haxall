@@ -16,17 +16,17 @@ using hx
 **
 internal class HxUserAuth
 {
-  new make(HxUserLib lib, WebReq req, WebRes res)
+  new make(HxUserExt ext, WebReq req, WebRes res)
   {
-    this.rt = lib.rt
-    this.lib = lib
+    this.rt  = ext.rt
+    this.ext = ext
     this.req = req
     this.res = res
   }
 
   const HxRuntime rt
 
-  const HxUserLib lib
+  const HxUserExt ext
 
   WebReq req { private set }
 
@@ -53,7 +53,7 @@ internal class HxUserAuth
     if (res.isCommitted) return null
 
     // not authenticated, redirect to login page
-    res.redirect(lib.loginUri)
+    res.redirect(ext.loginUri)
     return null
   }
 
@@ -61,7 +61,7 @@ internal class HxUserAuth
   private HxContext authenticated(HxUserSession session)
   {
     // refresh session and construct context
-    user := session.isCluster ? session.user : lib.read(session.user.id)
+    user := session.isCluster ? session.user : ext.read(session.user.id)
     session.touch(user)
     cx := rt.context.createSession(session)
     cx.stash["attestKey"] = session.attestKey
@@ -72,11 +72,11 @@ internal class HxUserAuth
   private HxUserSession? checkCookie()
   {
     // check if session cookie was passed in request
-    key := req.cookies[lib.cookieName]
+    key := req.cookies[ext.cookieName]
     if (key == null) return null
 
     // check if cookie maps to a live session
-    session := lib.sessions.get(key, false)
+    session := ext.sessions.get(key, false)
     if (session == null) return null
 
     // check if we have a attestation key
@@ -110,11 +110,11 @@ internal class HxUserAuth
   {
     // if the Authorization header specified use standard auth pipeline
     if (req.headers.containsKey("Authorization"))
-      return HxUserAuthServerContext(lib).onService(req, res)
+      return HxUserAuthServerContext(ext).onService(req, res)
 
     // auto login superuser for testing
-    if (lib.noAuth)
-      return lib.login(req, res, HxUserImpl(rt.db.read(Filter("user and userRole==\"su\""))))
+    if (ext.noAuth)
+      return ext.login(req, res, HxUserImpl(rt.db.read(Filter("user and userRole==\"su\""))))
 
     // redirect to login
     return null
@@ -132,7 +132,7 @@ internal class HxUserAuth
     if (username == null) return null
 
     // lookup session
-    session := lib.sessions.get(sessionKey, false)
+    session := ext.sessions.get(sessionKey, false)
     if (session != null)
     {
       // verify username matches this session
@@ -155,7 +155,7 @@ internal class HxUserAuth
       user := cluster.stashedUser(node, username)
 
       // create cluster session
-      session = lib.sessions.openCluster(req, sessionKey, attestKey, user)
+      session = ext.sessions.openCluster(req, sessionKey, attestKey, user)
       return session
     }
   }
@@ -168,17 +168,17 @@ internal class HxUserAuth
 
 internal class HxUserAuthServerContext : AuthServerContext
 {
-  new make(HxUserLib lib) { this.rt = lib.rt; this.lib = lib }
+  new make(HxUserExt ext) { this.rt = ext.rt; this.ext = ext }
 
   const HxRuntime rt
 
-  const HxUserLib lib
+  const HxUserExt ext
 
-  override Log log() { lib.log }
+  override Log log() { ext.log }
 
   override AuthUser? userByUsername(Str username)
   {
-    user := lib.read(username, false)
+    user := ext.read(username, false)
     if (user == null) return AuthUser.genFake(username)
 
     msg := HxUserUtil.dictToAuthMsg(user.meta->userAuth)
@@ -187,19 +187,19 @@ internal class HxUserAuthServerContext : AuthServerContext
 
   override Obj? sessionByAuthToken(Str authToken)
   {
-    lib.sessions.get(authToken, false)
+    ext.sessions.get(authToken, false)
   }
 
   override Str? userSecret()
   {
-    hxUser := lib.read(user.username, false)
+    hxUser := ext.read(user.username, false)
     if (hxUser == null) return null
     return rt.db.passwords.get(hxUser.id.id)
   }
 
   override Str login()
   {
-    lib.login(req, res, lib.read(user.username)).key
+    ext.login(req, res, ext.read(user.username)).key
   }
 
   override Void onAuthErr(AuthErr err)

@@ -11,7 +11,7 @@ using haystack
 using hx
 
 **
-** HxUserLib implementation of HxUSer
+** HxUserExt implementation of HxUSer
 **
 const class HxUserImpl : HxUser
 {

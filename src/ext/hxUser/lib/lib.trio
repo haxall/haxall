@@ -9,11 +9,8 @@
 --------------------------------------------------------------------------
 def: ^lib:hxUser
 depends: [^lib:ph, ^lib:axon, ^lib:hx]
-typeName:"hxUser::HxUserLib"
+typeName:"hxUser::HxUserExt"
 noSkyarc
-doc: "Haxall auth and user management library"
+doc: "Haxall auth and user management"
 --------------------------------------------------------------------------
-
-
-
 

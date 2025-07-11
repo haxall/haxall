@@ -16,9 +16,9 @@ using hx
 **
 const class HxUserWeb : ExtWeb
 {
-  new make(HxUserLib ext) : super(ext) { this.ext = ext }
+  new make(HxUserExt ext) : super(ext) { this.ext = ext }
 
-  const override HxUserLib ext
+  const override HxUserExt ext
 
   override Void onService()
   {
