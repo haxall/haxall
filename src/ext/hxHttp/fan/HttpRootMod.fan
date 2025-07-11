@@ -19,10 +19,10 @@ using hx
 **
 internal const class HttpRootMod : WebMod
 {
-  new make(HttpLib lib) { this.rt = lib.rt; this.lib = lib }
+  new make(HttpExt ext) { this.rt = ext.rt; this.ext = ext }
 
   const HxRuntime rt
-  const HttpLib lib
+  const HttpExt ext
 
   override Void onService()
   {

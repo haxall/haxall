@@ -19,14 +19,14 @@ using hx
 **
 internal const class HttpErrMod : WebMod
 {
-  new make(HttpLib lib) { this.lib = lib }
+  new make(HttpExt ext) { this.ext = ext }
 
-  const HttpLib lib
+  const HttpExt ext
 
   override Void onService()
   {
     err := (Err)req.stash["err"]
-    errTrace := lib.rec.disableErrTrace ? err.toStr : err.traceToStr
+    errTrace := ext.rec.disableErrTrace ? err.toStr : err.traceToStr
 
     res.headers["Content-Type"] = "text/html; charset=utf-8"
     res.out.html
@@ -40,7 +40,4 @@ internal const class HttpErrMod : WebMod
      .htmlEnd
   }
 }
-
-
-
 

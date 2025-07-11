@@ -9,11 +9,8 @@
 --------------------------------------------------------------------------
 def: ^lib:http
 depends: [^lib:ph, ^lib:axon, ^lib:hx]
-typeName:"hxHttp::HttpLib"
+typeName:"hxHttp::HttpExt"
 noSkyarc
 doc: "HTTP service handling library"
 --------------------------------------------------------------------------
-
-
-
 
