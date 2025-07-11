@@ -9,10 +9,7 @@
 --------------------------------------------------------------------------
 def: ^lib:xml
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:io]
-typeName:"hxXml::XmlLib"
+typeName:"hxXml::XmlExt"
 doc: "XML function library"
 --------------------------------------------------------------------------
-
-
-
 
