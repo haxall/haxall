@@ -25,14 +25,14 @@ const final class Conn : Actor, HxConn
 //////////////////////////////////////////////////////////////////////////
 
   ** Internal constructor
-  internal new make(ConnLib lib, Dict rec)
-    : super.makeCoalescing(lib.connActorPool, toCoalesceKey, toCoalesce)
+  internal new make(ConnLib ext, Dict rec)
+    : super.makeCoalescing(ext.connActorPool, toCoalesceKey, toCoalesce)
   {
-    this.libRef      = lib
+    this.extRef      = ext
     this.idRef       = rec.id
-    this.configRef   = AtomicRef(ConnConfig(lib, rec))
-    this.traceRef    = ConnTrace(lib.rt.libsOld.actorPool)
-    this.pollModeRef = lib.model.pollMode
+    this.configRef   = AtomicRef(ConnConfig(ext, rec))
+    this.traceRef    = ConnTrace(ext.rt.libsOld.actorPool)
+    this.pollModeRef = ext.model.pollMode
   }
 
   internal Void start()
@@ -61,17 +61,17 @@ const final class Conn : Actor, HxConn
 //////////////////////////////////////////////////////////////////////////
 
   ** Runtime system
-  HxRuntime rt() { libRef.rt }
+  HxRuntime rt() { extRef.rt }
 
   ** Runtime database
-  Folio db() { libRef.rt.db }
+  Folio db() { extRef.rt.db }
 
   ** Parent connector library
-  override ConnLib lib() { libRef }
-  private const ConnLib libRef
+  override ConnLib ext() { extRef }
+  private const ConnLib extRef
 
   ** PointLib library
-  @NoDoc PointLib pointLib() { libRef.pointLib }
+  @NoDoc PointLib pointLib() { extRef.pointLib }
 
   ** Record id
   override Ref id() { idRef }
@@ -82,7 +82,7 @@ const final class Conn : Actor, HxConn
   private const ConnTrace traceRef
 
   ** Log for this connector
-  Log log() { libRef.log }
+  Log log() { extRef.log }
 
   ** Debug string
   override Str toStr() { "Conn [$id.toZinc]" }
@@ -112,7 +112,7 @@ const final class Conn : Actor, HxConn
   Duration linger() { config.linger }
 
   ** Conn tuning configuration to use for this connector.
-  ConnTuning tuning() { config.tuning ?: lib.tuning }
+  ConnTuning tuning() { config.tuning ?: ext.tuning }
 
   ** Library specific connector data.  This value is managed by the
   ** connector actor via `ConnDispatch.setConnData`.
@@ -147,7 +147,7 @@ const final class Conn : Actor, HxConn
   ** Get the point managed by this connector via its point rec id.
   ConnPoint? point(Ref id, Bool checked := true)
   {
-    pt := lib.roster.point(id, false) as ConnPoint
+    pt := ext.roster.point(id, false) as ConnPoint
     if (pt != null && pt.conn === this) return pt
     if (checked) throw UnknownConnPointErr("Connector point not found: $id.toZinc")
     return null
@@ -227,7 +227,7 @@ const final class Conn : Actor, HxConn
   {
     // route to ConnLib first so connectors can implement
     // learn without a dispatch to connector/openLinger
-    lib.onLearn(this, arg)
+    ext.onLearn(this, arg)
   }
 
   ** Actor messages are routed to `ConnDispatch`
@@ -239,11 +239,11 @@ const final class Conn : Actor, HxConn
     {
       try
       {
-        Actor.locals["mgr"] = mgr = ConnMgr(this, lib.model.dispatchType)
+        Actor.locals["mgr"] = mgr = ConnMgr(this, ext.model.dispatchType)
       }
       catch (Err e)
       {
-        log.err("Cannot initialize  ${lib.model.dispatchType}", e)
+        log.err("Cannot initialize  ${ext.model.dispatchType}", e)
         throw e
       }
     }
@@ -322,7 +322,7 @@ const final class Conn : Actor, HxConn
     s.add("""id:             $id
              dis:            $dis
              rt:             $rt.platform.hostModel [$rt.version]
-             lib:            $lib.typeof [$lib.typeof.pod.version]
+             ext:            $ext.typeof [$ext.typeof.pod.version]
              timeout:        $timeout
              openRetryFreq:  $openRetryFreq
              pingFreq:       $pingFreq
@@ -345,15 +345,15 @@ const final class Conn : Actor, HxConn
     s.add("\n")
     committer.details(s)
 
-    extra := lib.onConnDetails(this).trim
+    extra := ext.onConnDetails(this).trim
     if (!extra.isEmpty) s.add("\n").add(extra).add("\n")
 
     s.add("\n")
     detailsThreadDebug(s, threadDebugRef.val)
 
     s.add("\n")
-    s.add(lib.typeof.name+".")
-    lib.connActorPool->dump(s.out)
+    s.add(ext.typeof.name+".")
+    ext.connActorPool->dump(s.out)
 
     return s.toStr
   }

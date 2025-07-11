@@ -274,7 +274,7 @@ const class ConnFwFuncs
     meta := Str:Obj[
       "conn": c.rec,
       "enabled": c.trace.isEnabled,
-      "icon": c.lib.icon,
+      "icon": c.ext.icon,
       ]
 
     // read the trace, setup feed, and map to grid
@@ -314,7 +314,7 @@ const class ConnFwFuncs
   ** Return exception to use for using classic connector
   private static Err classicConnErr(HxConn c)
   {
-    Err("$c.lib.name connector uses classic framework [$c.rec.dis]")
+    Err("$c.ext.name connector uses classic framework [$c.rec.dis]")
   }
 }
 

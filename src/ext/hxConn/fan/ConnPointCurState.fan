@@ -29,7 +29,7 @@ internal const final class ConnPointCurState
 
       // check if we have a conversions
       if (pt.curConvert != null)
-        val = pt.curConvert.convert(pt.lib.pointLib, pt.rec, raw)
+        val = pt.curConvert.convert(pt.ext.pointLib, pt.rec, raw)
 
       // check if we have calibration
       if (pt.curCalibration != null)
@@ -150,3 +150,4 @@ internal const final class ConnPointCurState
   const Int numUpdates
   const Bool quickPoll
 }
+

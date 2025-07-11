@@ -18,7 +18,7 @@ using hxPoint
 ** Connector library base class.
 ** See `docHaxall::CustomConns#connLib`.
 **
-abstract const class ConnLib : Ext, HxConnLib
+abstract const class ConnLib : Ext, HxConnExt
 {
   ** Constructor
   new make()
@@ -48,12 +48,12 @@ abstract const class ConnLib : Ext, HxConnLib
   private const AtomicRef modelRef := AtomicRef()
 
 //////////////////////////////////////////////////////////////////////////
-// HxConnLib
+// HxConnExt
 //////////////////////////////////////////////////////////////////////////
 
   @NoDoc override Str icon() { def.get("icon") ?: "conn" }
 
-  @NoDoc override Str libDis() { def.get("dis") ?: (Pod.find("ui", false)?.locale(name, null) ?: name.capitalize) }
+  @NoDoc override Str extDis() { def.get("dis") ?: (Pod.find("ui", false)?.locale(name, null) ?: name.capitalize) }
 
   @NoDoc override const Str connTag := this.name + "Conn"
 
@@ -105,7 +105,7 @@ abstract const class ConnLib : Ext, HxConnLib
     // must have ConnFwLib installed
     fw :=  (ConnFwLib)rt.libsOld.get("conn")
     fwRef.val = fw
-    fw.service.addLib(this)
+    fw.service.addExt(this)
 
     // update library level tuning default
     tuningRef.val = tunings.forLib(this)
@@ -129,7 +129,7 @@ abstract const class ConnLib : Ext, HxConnLib
     if (rt.isRunning)
     {
       roster.removeAll
-      fw.service.removeLib(this)
+      fw.service.removeExt(this)
     }
 
     // shutdown actor pool

@@ -38,7 +38,7 @@ abstract class ConnDispatch
   Folio db() { connRef.db }
 
   ** Parent library
-  virtual ConnLib lib() { connRef.lib }
+  virtual ConnLib lib() { connRef.ext }
 
   ** Parent connector
   Conn conn() { connRef }

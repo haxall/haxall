@@ -136,9 +136,9 @@ class ConnTest : HxTest
 
     // verify bad
     c := rt.conn
-    verifyEq(c.lib("bad", false), null)
-    verifyErr(UnknownConnLibErr#) { c.lib("bad") }
-    verifyErr(UnknownConnLibErr#) { c.lib("bad", true) }
+    verifyEq(c.ext("bad", false), null)
+    verifyErr(UnknownConnExtErr#) { c.ext("bad") }
+    verifyErr(UnknownConnExtErr#) { c.ext("bad", true) }
     verifyEq(c.conn(Ref.gen, false), null)
     verifyErr(UnknownConnErr#) { c.conn(Ref.gen) }
     verifyErr(UnknownConnErr#) { c.conn(Ref.gen, true) }
@@ -156,7 +156,7 @@ class ConnTest : HxTest
     echo("  conns:  " + c.conns.join(",") { it.rec.dis })
     echo("  points: " + c.points.join(",") { it.rec.dis })
     */
-    verifyEq(c.libs.map |x->Str| { x.name }, libs)
+    verifyEq(c.exts.map |x->Str| { x.name }, libs)
     verifyEq(c.conns.map {it.rec.dis} .sort, conns.map {it.dis})
     verifyEq(c.points.map {it.rec.dis} .sort, points.map {it.dis})
   }
@@ -572,7 +572,7 @@ class ConnTest : HxTest
       exAllPoints.addAll(exPts)
 
       // connector
-      verifySame(c.lib, lib)
+      verifySame(c.ext, lib)
       verifyRecEq(c.rec, exRec)
       verifyEq(c.id, exRec.id)
       verifyEq(c.dis, exRec.dis)
@@ -901,7 +901,7 @@ class ConnTest : HxTest
   ConnPollBucket[] verifyBuckets(Conn c, ConnPollBucket[]? old, Obj[][] expected)
   {
     rt.sync
-    c.lib.spi.sync
+    c.ext.spi.sync
     c.sync
 
     if (false)
@@ -1172,8 +1172,8 @@ class ConnTest : HxTest
     rt.sync
 
     // lookup connectors
-    Conn ch := rt.conn.conn(chId); verifyEq(ch.lib.name, "haystack")
-    Conn co := rt.conn.conn(coId); verifyEq(co.lib.name, "obix")
+    Conn ch := rt.conn.conn(chId); verifyEq(ch.ext.name, "haystack")
+    Conn co := rt.conn.conn(coId); verifyEq(co.ext.name, "obix")
 
     // lookup haystack version of points
     p1h := ch.point(p1Id); verifySame(p1h.conn, ch)
@@ -1184,8 +1184,8 @@ class ConnTest : HxTest
     p2o := co.point(p2Id); verifySame(p1o.conn, co)
 
     // verify proj wide lookup based on pref
-    verifyEq(rt.conn.point(p1Id).lib.name, "haystack")
-    verifyEq(rt.conn.point(p2Id).lib.name, "obix")
+    verifyEq(rt.conn.point(p1Id).ext.name, "haystack")
+    verifyEq(rt.conn.point(p2Id).ext.name, "obix")
     verifySame(rt.conn.point(p1Id), p1h)
     verifySame(rt.conn.point(p2Id), p2o)
 

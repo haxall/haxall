@@ -29,7 +29,7 @@ const final class ConnPoint : HxConnPoint
   {
     this.connRef   = conn
     this.idRef     = rec.id
-    this.configRef = AtomicRef(ConnPointConfig(conn.lib, rec))
+    this.configRef = AtomicRef(ConnPointConfig(conn.ext, rec))
     this.isWatchedRef.val = conn.rt.watch.isWatched(id)
   }
 
@@ -38,7 +38,7 @@ const final class ConnPoint : HxConnPoint
 //////////////////////////////////////////////////////////////////////////
 
   ** Parent connector library
-  override ConnLib lib() { connRef.lib }
+  override ConnLib ext() { connRef.ext }
 
   ** Parent connector
   override Conn conn() { connRef }
@@ -165,7 +165,7 @@ const final class ConnPoint : HxConnPoint
   {
     s := ConnPointCurState.updateStale(this)
     curStateRef.val = s
-    committer.commit1(lib, rec, "curStatus", s.status.name)
+    committer.commit1(ext, rec, "curStatus", s.status.name)
   }
 
   ** Set or clear the quick poll flag
@@ -204,7 +204,7 @@ const final class ConnPoint : HxConnPoint
     {
       err = ConnStatus.toErrStr(s.err)
     }
-    committer.commit3(lib, rec, "curStatus", status.name, "curVal", val, "curErr", err)
+    committer.commit3(ext, rec, "curStatus", status.name, "curVal", val, "curErr", err)
   }
 
   ** Cur value state storage and handling
@@ -286,7 +286,7 @@ const final class ConnPoint : HxConnPoint
       err = ConnStatus.toErrStr(s.err)
       level = ConnUtil.levelToNumber(s.level)
     }
-    committer.commit2(lib, rec, "writeStatus", status.name, "writeErr", err)
+    committer.commit2(ext, rec, "writeStatus", status.name, "writeErr", err)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -316,7 +316,7 @@ const final class ConnPoint : HxConnPoint
   ** Update hisState to pending (just transient tag, not state)
   internal Void updateHisPending()
   {
-    committer.commit1(lib, rec, "hisStatus", "pending")
+    committer.commit1(ext, rec, "hisStatus", "pending")
   }
 
   ** History sync state
@@ -348,7 +348,7 @@ const final class ConnPoint : HxConnPoint
     {
       err = ConnStatus.toErrStr(s.err)
     }
-    committer.commit2(lib, rec, "hisStatus", status.name, "hisErr", err)
+    committer.commit2(ext, rec, "hisStatus", status.name, "hisErr", err)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -378,12 +378,12 @@ const final class ConnPoint : HxConnPoint
   ** Debug details
   @NoDoc override Str details()
   {
-    model := lib.model
+    model := ext.model
     s := StrBuf()
     s.add("""id:             $id
              dis:            $dis
-             rt:             $lib.rt.platform.hostModel [$lib.rt.version]
-             lib:            $lib.typeof [$lib.typeof.pod.version]
+             rt:             $ext.rt.platform.hostModel [$ext.rt.version]
+             ext:            $ext.typeof [$ext.typeof.pod.version]
              conn:           $conn.dis [$conn.id] $conn.status
              kind:           $kind
              tz:             $tz
@@ -401,10 +401,10 @@ const final class ConnPoint : HxConnPoint
     s.add("\n")
     committer.details(s)
 
-    extra := lib.onPointDetails(this).trim
+    extra := ext.onPointDetails(this).trim
     if (!extra.isEmpty) s.add("\n").add(extra).add("\n")
 
-    watches := lib.rt.watch.listOn(id)
+    watches := ext.rt.watch.listOn(id)
     s.add("""
              Watches ($watches.size)
              =============================

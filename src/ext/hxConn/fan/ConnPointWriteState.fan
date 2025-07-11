@@ -189,7 +189,7 @@ const class ConnWriteInfo
   internal new convert(ConnWriteInfo orig, ConnPoint pt)
   {
     this.raw     = orig.val
-    this.val     = pt.writeConvert.convert(pt.lib.pointLib, pt.rec, orig.val)
+    this.val     = pt.writeConvert.convert(pt.ext.pointLib, pt.rec, orig.val)
     this.level   = orig.level
     this.isFirst = orig.isFirst
     this.who     = orig.who

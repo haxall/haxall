@@ -37,12 +37,12 @@ internal const final class ConnPointHisState
         for (i := 0; i<items.size; ++i)
         {
           oldItem := items[i]
-          items[i] = HisItem(oldItem.ts, convert.convert(pt.lib.pointLib, rec, oldItem.val))
+          items[i] = HisItem(oldItem.ts, convert.convert(pt.ext.pointLib, rec, oldItem.val))
         }
       }
 
       // write history items with clip span option
-      pt.lib.rt.his.write(rec, items, Etc.dict1("clip", span))
+      pt.ext.rt.his.write(rec, items, Etc.dict1("clip", span))
 
       return makeOk(old, lastItems.toStr)
     }

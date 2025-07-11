@@ -40,7 +40,7 @@ internal final class ConnMgr
   const ConnVars vars
   HxRuntime rt() { conn.rt }
   Folio db() { conn.db }
-  ConnLib lib() { conn.lib }
+  ConnLib lib() { conn.ext }
   Ref id() { conn.id }
   Dict rec() { conn.rec }
   Str dis() { conn.dis }

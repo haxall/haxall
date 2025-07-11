@@ -474,10 +474,10 @@ const class NilPointWriteService : HxPointWriteService
 const mixin HxConnService : HxService
 {
   ** List of installed connector libraries
-  abstract HxConnLib[] libs()
+  abstract HxConnExt[] exts()
 
   ** Lookup of installed connector library by name
-  abstract HxConnLib? lib(Str name, Bool checked := true)
+  abstract HxConnExt? ext(Str name, Bool checked := true)
 
   ** List of connectors across all installed libraries
   abstract HxConn[] conns()
@@ -499,16 +499,16 @@ const mixin HxConnService : HxService
 }
 
 **
-** HxConnLib models a subtype of ConnLib which models a specific protocol
+** HxConnExt models a subtype of ConnExt which models a specific protocol
 **
 @NoDoc
-const mixin HxConnLib
+const mixin HxConnExt
 {
   ** Library name
   abstract Str name()
 
   ** Display name to use for connector library
-  abstract Str libDis()
+  abstract Str extDis()
 
   ** Icon logical name to use for this connector type library
   abstract Str icon()
@@ -532,8 +532,8 @@ const mixin HxConnLib
 @NoDoc
 const mixin HxConn
 {
-  ** Parent connector library
-  abstract HxConnLib lib()
+  ** Parent connector extension
+  abstract HxConnExt ext()
 
   ** Record id
   abstract Ref id()
@@ -563,7 +563,7 @@ const mixin HxConn
 const mixin HxConnPoint
 {
   ** Parent connector library
-  abstract Ext lib()
+  abstract Ext ext()
 
   ** Parent connector
   abstract HxConn conn()
@@ -583,8 +583,8 @@ const mixin HxConnPoint
 @NoDoc
 const class NilConnService : HxConnService
 {
-  override HxConnLib[] libs() { HxConnLib#.emptyList }
-  override HxConnLib? lib(Str name, Bool checked := true) { get(checked) }
+  override HxConnExt[] exts() { HxConnExt#.emptyList }
+  override HxConnExt? ext(Str name, Bool checked := true) { get(checked) }
   override HxConn[] conns() { HxConn#.emptyList }
   override HxConn? conn(Ref id, Bool checked := true) { get(checked) }
   override Bool isConn(Ref id) { false }

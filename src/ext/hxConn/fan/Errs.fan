@@ -22,7 +22,7 @@ const class RemoteStatusErr : Err
 }
 
 @NoDoc
-const class UnknownConnLibErr : Err
+const class UnknownConnExtErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
@@ -50,3 +50,4 @@ const class NotOpenLibErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
+
