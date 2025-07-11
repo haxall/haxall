@@ -14,7 +14,7 @@ using hx
 **
 ** HTTP API web service handling
 **
-const class HxApiWeb : ExtWeb, WebOpUtil
+const class ApiWeb : ExtWeb, WebOpUtil
 {
   new make(Ext ext) : super(ext) { this.ext = ext }
 

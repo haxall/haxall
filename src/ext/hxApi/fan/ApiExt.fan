@@ -11,8 +11,8 @@ using hx
 **
 ** Haystack HTTP API service handling
 **
-const class HxApiLib : Ext
+const class ApiExt : Ext
 {
-  override const HxApiWeb web := HxApiWeb(this)
+  override const ApiWeb web := ApiWeb(this)
 }
 
