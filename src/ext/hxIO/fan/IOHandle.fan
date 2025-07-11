@@ -50,11 +50,8 @@ abstract class IOHandle
     return FileHandle(rt.file.resolve(uri))
   }
 
-  ** Get an IOHandle from a Dict rec. If a tag is specified, then the the
-  ** rec is treated as a Bin (deprecated feature). For backwards compatibility
-  ** if a null tag is specified, we check if the rec has a 'file' Bin tag; if it
-  ** does we treat it as a Bin. In all other cases the rec is a folio file.
-  internal static IOHandle fromDict(HxRuntime rt, Dict rec, Str? tag := null)
+  ** Get an IOHandle from a Dict rec
+  internal static IOHandle fromDict(HxRuntime rt, Dict rec)
   {
     // if {zipEntry, file: <ioHandle>, path: <Uri>}
     if (rec.has("zipEntry"))
@@ -64,19 +61,8 @@ abstract class IOHandle
     id := rec["id"] as Ref
     if (id == null) throw ArgErr("Dict has missing/invalid 'id' tag")
 
-    // check for explicit bin tag
-    if (tag != null) return tryBin(rt, rec, tag)
-
-    // check for implicit 'file' Bin, otherwise return a folio file handle
-    return tryBin(rt, rec, "file", false) ?: FolioFileHandle(rt, rec)
-  }
-
-  private static BinHandle? tryBin(HxRuntime rt, Dict rec, Str tag, Bool checked := true)
-  {
-    bin := rec[tag] as Bin
-    if (bin != null) return BinHandle(rt, rec, tag)
-    if (checked) throw ArgErr("Dict '${tag}' tag is not a Bin")
-    return null
+    // return a folio file handle
+    return FolioFileHandle(rt, rec)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -358,29 +344,6 @@ internal class FolioFileHandle : IOHandle
     folio.file.get(rec.id).withOut(f)
     return null
   }
-}
-
-**************************************************************************
-** BinHandle
-**************************************************************************
-
-internal class BinHandle : DirectIO
-{
-  new make(HxRuntime rt, Dict rec, Str tag)
-  {
-    try
-    {
-      this.proj = rt->proj
-      this.rec  = rec
-      this.tag  = tag
-    }
-    catch (UnknownSlotErr e) throw Err("Cannot use bin files outside of SkySpark")
-  }
-  const Obj proj
-  const Dict rec
-  const Str tag
-  override InStream in() { proj->readBin(rec, tag) }
-  override OutStream out() { proj->writeBin(rec, tag, null) }
 }
 
 **************************************************************************

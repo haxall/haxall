@@ -71,19 +71,6 @@ const class IOFuncs
     toHandle(handle).toAppend
   }
 
-  **
-  ** **DEPRECATED**: bin files will be removed in a future version of SkySpark.
-  **
-  ** Convert a record and a bin tag name to an I/O handle
-  ** which may used to read/write the specified bin.
-  **
-  @NoDoc @Deprecated @Axon { admin = true }
-  static Obj ioBin(Obj rec, Str tag)
-  {
-    cx := curContext
-    return IOHandle.fromDict(cx.rt, Etc.toRec(rec), tag)
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // File Management
 //////////////////////////////////////////////////////////////////////////
