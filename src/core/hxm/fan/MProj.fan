@@ -27,11 +27,11 @@ const class MProj : Proj
     this.db        = boot.db
     this.libs      = boot.libs
     this.actorPool = ActorPool { it.name = "$this.name-ExtPool" }
-    this.exts      = MProjExts(this)
+//    this.exts      = MProjExts(this)
     this.log       = Log.get(name)
 
 
-    exts.init(((ProjNamespace)ns).exts.list)
+//    exts.init(((ProjNamespace)ns).exts.list)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ const class MProj : Proj
   const override File dir
   const override Folio db
   const override MProjLibs libs
-  const override MProjExts exts
+//  const override MProjExts exts
   override final Str toStr() { name }
 
   override ProjSpecs specs() { libs.specs }
@@ -83,6 +83,7 @@ const class MProj : Proj
   Bool isRunning() { isRunningRef.val }
 
   ** Start project (blocks until all exts fully started)
+  /*
   This start()
   {
     // this method can only be called once
@@ -125,7 +126,7 @@ const class MProj : Proj
 
     // kill actor pools
     actorPool.kill
-  }
+  }*/
 
 
   private const AtomicBool isRunningRef := AtomicBool()

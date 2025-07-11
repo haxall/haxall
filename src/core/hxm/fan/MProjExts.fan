@@ -17,6 +17,7 @@ using hx4
 **
 ** ProjExts implementation
 **
+/*
 const class MProjExts : Actor, ProjExts
 {
   new make(MProj proj) : super(proj.actorPool)
@@ -83,4 +84,5 @@ const class MProjExts : Actor, ProjExts
     this.mapRef.val = map.toImmutable
   }
 }
+*/
 

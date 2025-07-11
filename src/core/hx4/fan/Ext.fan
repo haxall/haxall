@@ -13,6 +13,7 @@ using folio
 using obs
 using hx
 
+/*
 **
 ** Base class for all Haxall service extensions
 **
@@ -147,4 +148,5 @@ const mixin ExtSpi
   abstract Bool isFault()
   abstract Void toStatus(Str status, Str msg)
 }
+*/
 

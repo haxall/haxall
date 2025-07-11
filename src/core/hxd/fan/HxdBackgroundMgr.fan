@@ -11,6 +11,7 @@ using haystack
 using obs
 using folio
 using hx
+using hxm
 
 **
 ** HxdBackgroundMgr
@@ -89,7 +90,7 @@ internal const class HxdBackgroundMgr : Actor
   {
     rt.log.info("Steady state")
     rt.stateStateRef.val = true
-    rt.libsOld.list.each |lib| { ((HxdLibSpi)lib.spi).steadyState }
+    rt.libsOld.list.each |lib| { ((MExtSpi)lib.spi).steadyState }
   }
 
   private Duration steadyStateConfig()

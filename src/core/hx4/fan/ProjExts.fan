@@ -15,6 +15,7 @@ using folio
 **
 ** Project extension management
 **
+/*
 const mixin ProjExts
 {
   ** List of extensions currently enabled sorted by qname
@@ -33,4 +34,5 @@ const mixin ProjExts
   ** Return status grid of enabled extensions
   @NoDoc abstract Grid status()
 }
+*/
 

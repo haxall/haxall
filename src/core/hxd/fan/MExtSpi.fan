@@ -4,6 +4,7 @@
 //
 // History:
 //   20 May 2021  Brian Frank  Creation
+//    8 Jul 2025  Brian Frank  Redesign from HxdLibSpi
 //
 
 using concurrent
@@ -14,9 +15,9 @@ using folio
 using hx
 
 **
-** Haxall daemon HxLib service provider implementation
+** Ext service provider implementation
 **
-const class HxdLibSpi : Actor, HxLibSpi
+const class MExtSpi : Actor, ExtSpi
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,7 +27,7 @@ const class HxdLibSpi : Actor, HxLibSpi
   ** Instantiate the HxLib for given def and database rec
   static HxLib instantiate(HxdRuntime rt, HxdInstalledLib install, Dict rec)
   {
-    spi := HxdLibSpi(rt, install, rec)
+    spi := MExtSpi(rt, install, rec)
     Actor.locals["hx.spi"]  = spi
     try
     {
@@ -40,7 +41,7 @@ const class HxdLibSpi : Actor, HxLibSpi
     }
   }
 
-  private static HxLib doInstantiate(HxdLibSpi spi)
+  private static HxLib doInstantiate(MExtSpi spi)
   {
     spi.type == null ? ResHxLib() : spi.type.make
   }
@@ -245,6 +246,7 @@ const class HxdLibSpi : Actor, HxLibSpi
   private static const HxMsg houseKeepingMsg := HxMsg("houseKeeping")
 }
 
+
 **************************************************************************
 ** ResHxLib
 **************************************************************************
@@ -282,7 +284,7 @@ internal const class HxdLibMethodObserver : Observer
   new make(HxLib lib, Method method)
   {
     this.lib = lib
-    this.actor = (HxdLibSpi)lib.spi
+    this.actor = (MExtSpi)lib.spi
     this.method = method
     this.meta = Etc.emptyDict
   }

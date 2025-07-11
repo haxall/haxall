@@ -59,6 +59,7 @@ const class MExtDefs : NamespaceExts
 ** Dummy code
 **************************************************************************
 
+/*
 const class FooExt : Ext
 {
   override Void onStart()
@@ -71,4 +72,5 @@ const class FooExt : Ext
     log.info("stopping!!")
   }
 }
+*/
 

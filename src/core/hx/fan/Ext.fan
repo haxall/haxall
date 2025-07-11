@@ -4,6 +4,7 @@
 //
 // History:
 //   18 May 2021  Brian Frank  Creation
+//    8 Jul 2025  Brian Frank  Redesign from HxLib
 //
 
 using concurrent
@@ -12,17 +13,7 @@ using haystack
 using obs
 
 **
-** Base class for all Haxall library runtime instances.  All Haxall libs
-** must be standard Haystack 4 libs.  This class is used to model the
-** instance of the library within a `HxRuntime` to provide runtime services.
-**
-** To create a new library:
-**   1. Create a pod with a standard Haystack 4 "lib/lib.trio" definition
-**   2. Register the lib name using the indexed prop "ph.lib"
-**   3. Create subclass of HxLib
-**   4. Ensure your lib definition has 'typeName' tag for subclass qname
-**
-** Also see `docHaxall::Libs`.
+** Base class for all Haxall extensions.
 **
 abstract const class HxLib
 {
@@ -34,7 +25,7 @@ abstract const class HxLib
   ** Framework use only. Subclasses must declare public no-arg constructor.
   new make()
   {
-    this.spiRef = Actor.locals["hx.spi"] as HxLibSpi ?: throw Err("Invalid make context")
+    this.spiRef = Actor.locals["hx.spi"] as ExtSpi ?: throw Err("Invalid make context")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -82,8 +73,8 @@ abstract const class HxLib
   }
 
   ** Service provider interface
-  @NoDoc virtual HxLibSpi spi() { spiRef }
-  @NoDoc const HxLibSpi spiRef
+  @NoDoc virtual ExtSpi spi() { spiRef }
+  @NoDoc const ExtSpi spiRef
 
 //////////////////////////////////////////////////////////////////////////
 // Observables
@@ -153,14 +144,14 @@ abstract const class HxLib
 }
 
 **************************************************************************
-** HxLibSpi
+** ExtSpi
 **************************************************************************
 
 **
-** HxLib service provider interface
+** Ext service provider interface
 **
 @NoDoc
-const mixin HxLibSpi
+const mixin ExtSpi
 {
   abstract HxRuntime rt()
   abstract Str name()

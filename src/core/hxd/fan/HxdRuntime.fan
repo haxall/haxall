@@ -190,11 +190,11 @@ const class HxdRuntime : HxRuntime
     isRunningRef.val = true
 
     // onStart callback
-    futures := libsOld.list.map |lib->Future| { ((HxdLibSpi)lib.spi).start }
+    futures := libsOld.list.map |lib->Future| { ((MExtSpi)lib.spi).start }
     Future.waitForAll(futures)
 
     // onReady callback
-    futures = libsOld.list.map |lib->Future| { ((HxdLibSpi)lib.spi).ready }
+    futures = libsOld.list.map |lib->Future| { ((MExtSpi)lib.spi).ready }
     Future.waitForAll(futures)
 
     // kick off background processing
@@ -213,11 +213,11 @@ const class HxdRuntime : HxRuntime
     isRunningRef.val = false
 
     // onUnready callback
-    futures := libsOld.list.map |lib->Future| { ((HxdLibSpi)lib.spi).unready }
+    futures := libsOld.list.map |lib->Future| { ((MExtSpi)lib.spi).unready }
     Future.waitForAll(futures)
 
     // onStop callback
-    futures = libsOld.list.map |lib->Future| { ((HxdLibSpi)lib.spi).stop }
+    futures = libsOld.list.map |lib->Future| { ((MExtSpi)lib.spi).stop }
     Future.waitForAll(futures)
 
     // kill actor pools

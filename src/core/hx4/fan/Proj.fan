@@ -48,7 +48,7 @@ const mixin Proj
   abstract ProjSpecs specs()
 
   ** Extension management APIs
-  abstract ProjExts exts()
+  //abstract ProjExts exts()
 
 //////////////////////////////////////////////////////////////////////////
 // Folio Conveniences

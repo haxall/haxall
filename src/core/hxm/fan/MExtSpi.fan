@@ -18,6 +18,7 @@ using hx4
 **
 ** ExtSpi implementation
 **
+/*
 const class MExtSpi : Actor, ExtSpi
 {
 
@@ -26,7 +27,7 @@ const class MExtSpi : Actor, ExtSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate the Ext
-  static Ext instantiate(MProj proj, ExtDef def, Dict settings)
+  static HxExt instantiate(MProj proj, ExtDef def, Dict settings)
   {
     spi := MExtSpi(proj, def, settings)
     Actor.locals["hx.spi"]  = spi
@@ -226,4 +227,5 @@ throw Err("TODO")
 
   private static const HxMsg houseKeepingMsg := HxMsg("houseKeeping")
 }
+*/
 

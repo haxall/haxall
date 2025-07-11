@@ -117,7 +117,7 @@ internal const class HxdLibInput : LibInput
 
   const Str name
   const HxLib lib
-  const HxdLibSpi spi
+  const MExtSpi spi
   const override CLoc loc
   const HxdInstalledLib install
   const File metaFile

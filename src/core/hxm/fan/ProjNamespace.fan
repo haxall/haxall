@@ -25,6 +25,7 @@ const class ProjNamespace : LocalNamespace, Namespace
 
   const Log log
 
+/*
   once NamespaceExts exts()
   {
     ext := spec("hx::Ext")
@@ -44,5 +45,6 @@ const class ProjNamespace : LocalNamespace, Namespace
     }
     return MExtDefs(acc)
   }
+*/
 }
 

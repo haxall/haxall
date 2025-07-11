@@ -36,7 +36,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
         // instantiate the HxLib
         name := (Str)rec->ext
         install := installed.lib(name)
-        lib := HxdLibSpi.instantiate(rt, install, rec)
+        lib := MExtSpi.instantiate(rt, install, rec)
         map.add(name, lib)
       }
       catch (UnknownLibErr e)
@@ -66,7 +66,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
       try
       {
         // check if all the dependenices are met
-        install := ((HxdLibSpi)lib.spi).install
+        install := ((MExtSpi)lib.spi).install
         unmet := install.depends.findAll |d| { !map.containsKey(d) }
         if (unmet.isEmpty) return
 
@@ -170,7 +170,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     gb.addCol("name").addCol("libStatus").addCol("statusMsg")
     list.each |lib|
     {
-      spi := (HxdLibSpi)lib.spi
+      spi := (MExtSpi)lib.spi
       gb.addRow([lib.name, spi.status, spi.statusMsg])
     }
     return gb.toGrid
@@ -207,7 +207,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     rec := rt.db.commit(Diff(null, tags, Diff.add.or(Diff.bypassRestricted))).newRec
 
     // instantiate the HxLib
-    lib := HxdLibSpi.instantiate(rt, install, rec)
+    lib := MExtSpi.instantiate(rt, install, rec)
 
     // register in lookup data structures
     listRef.val = list.dup.add(lib).sort(|x, y| { x.name <=> y.name }).toImmutable
@@ -220,7 +220,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     rt.obs.addLib(lib)
 
     // call onStart, onReady asynchronously
-    spi := (HxdLibSpi)lib.spi
+    spi := (MExtSpi)lib.spi
     spi.start
     spi.ready
     if (rt.isSteadyState) spi.steadyState
@@ -245,7 +245,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     rt.obs.removeLib(lib)
 
     // call onUnready, onStop asynchronously
-    spi := (HxdLibSpi)lib.spi
+    spi := (MExtSpi)lib.spi
     spi.unready
     spi.stop
 
