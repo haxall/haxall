@@ -497,7 +497,7 @@ const class HxCoreFuncs
     return "added"
   }
 
-  ** Disable or more Xeto libs by name
+  ** Disable or more Xeto libs by name:
   **   libRemove("ph.points")
   **   libRemove(["ph.points", "ph.equips"])
   @Axon { admin = true }

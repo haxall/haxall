@@ -6,7 +6,18 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
-*Build 4.0.2 (working)*
+*Build 4.0.2 (11 Jul 2025)*
+- Add AxonContext.ns
+- Add HxRuntime.ns
+- Remove AxonContext.xeto (nodoc)
+- Remove DefsNamespace.xeto (nodoc)
+- Move haystack::DependErr -> xeto::DependErr (nodoc)
+- Rename pod xetoEnv -> xetom
+- HxRuntime.libs -> libsOld (remove lib in favor of libsOld.get)
+- Axon rename xetoReload -> libReload
+- Axon remove libAdd, libRemove, libStatus funcs
+- Fully remove deprecated Bin file support
+- Temp removal of axonsh
 
 *Build 4.0.1 (7 Jul 2025)*
 - Move haystack::Dict -> xeto::Dict
