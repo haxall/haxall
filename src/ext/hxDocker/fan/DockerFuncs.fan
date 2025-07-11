@@ -12,15 +12,15 @@ using hx
 using axon
 
 **
-** Docker lib Axon functions
+** Docker extension Axon functions
 **
 const class DockerFuncs
 {
   ** Current context
   private static HxContext curHx() { HxContext.curHx }
 
-  ** Lookup DockerLib for context
-  private static DockerLib lib(HxContext cx := curHx) { cx.rt.libsOld.get("docker") }
+  ** Lookup DockerExt for context
+  private static DockerExt ext(HxContext cx := curHx) { cx.rt.libsOld.get("docker") }
 
 //////////////////////////////////////////////////////////////////////////
 // Views
@@ -29,7 +29,7 @@ const class DockerFuncs
   @Axon { admin=true }
   static Grid dockerListImages()
   {
-    lib.dockerMgr.listImages
+    ext.dockerMgr.listImages
   }
 
   @Axon { admin=true }
@@ -38,7 +38,7 @@ const class DockerFuncs
     meta := Str:Obj?[:]
     cx := HxContext.curHx
     if (curHx.feedIsEnabled) curHx.feedAdd(DockerContainerFeed(cx), meta)
-    return lib.dockerMgr.listContainers.setMeta(meta)
+    return ext.dockerMgr.listContainers.setMeta(meta)
   }
 
   // @Axon { admin=true }
@@ -68,7 +68,7 @@ const class DockerFuncs
   //   {
   //     try
   //     {
-  //       res := lib.dockerMgr.stopContainer(ref.id)
+  //       res := ext.dockerMgr.stopContainer(ref.id)
   //       gb.addDictRow(Etc.makeDict([
   //         "id":         ref,
   //         "statusCode": res.statusCode,
@@ -92,7 +92,7 @@ const class DockerFuncs
   @Axon { admin=true }
   static Dict dockerDeleteContainer(Obj id)
   {
-    lib.dockerMgr.deleteContainer(toRef(id).id)
+    ext.dockerMgr.deleteContainer(toRef(id).id)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ const class DockerFuncs
   @Axon { admin=true }
   static Str dockerRun(Str image, Obj config := Etc.emptyDict)
   {
-    lib.dockerMgr.run(image, config).id
+    ext.dockerMgr.run(image, config).id
   }
 
 //////////////////////////////////////////////////////////////////////////

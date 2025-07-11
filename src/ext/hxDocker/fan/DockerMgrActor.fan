@@ -23,14 +23,14 @@ internal const class DockerMgrActor : Actor, HxDockerService
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(DockerLib lib) : super(lib.rt.libsOld.actorPool)
+  new make(DockerExt ext) : super(ext.rt.libsOld.actorPool)
   {
-    this.lib = lib
+    this.ext = ext
   }
 
-  const DockerLib lib
+  const DockerExt ext
 
-  private Log log() { lib.log }
+  private Log log() { ext.log }
 
   private const AtomicBool running := AtomicBool(true)
   private const ConcurrentMap containers := ConcurrentMap()
@@ -131,11 +131,11 @@ internal const class DockerMgrActor : Actor, HxDockerService
     CreateContainerCmd cmd := decodeCmd(config, CreateContainerCmd#)
 
     // force single bind for io/ directory
-    ioDir := lib.rt.dir.plus(`io/`)
-    if (lib.rec.ioDirMount?.trimToNull != null)
+    ioDir := ext.rt.dir.plus(`io/`)
+    if (ext.rec.ioDirMount?.trimToNull != null)
     {
       // handle custom configuration
-      ioDir = lib.rec.ioDirMount.toUri.plusSlash.toFile
+      ioDir = ext.rec.ioDirMount.toUri.plusSlash.toFile
     }
     // overwrite any binds (noughty-noughty) and only expose io/
     cmd.hostConfig.withBinds([
@@ -334,7 +334,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
     if (!running.val) throw Err("The Docker service is stopped")
 
     // check if docker daemon is specified in the settings
-    host := lib.rec.dockerDaemon?.trimToNull
+    host := ext.rec.dockerDaemon?.trimToNull
 
     return DockerConfig
     {
