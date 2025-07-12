@@ -1,5 +1,5 @@
 **************************************************************************
-** title:      SedonaLib
+** title:      SedonaExt
 ** author:     Brian Frank
 ** created:    3 Feb 2022
 ** copyright:  Copyright (c) 2022, SkyFoundry LLC
@@ -58,6 +58,4 @@ be stored in the following file:
 
 If running SkySpark, then manifests may be managed under the Sedona Manifests
 view under the Connectors app.
-
-
 

@@ -9,7 +9,8 @@
 --------------------------------------------------------------------------
 def: ^lib:sedona
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
-typeName:"hxSedona::SedonaLib"
+typeName:"hxSedona::SedonaExt"
 icon: "sedona"
 doc: "Sedona Sox connector"
 --------------------------------------------------------------------------
+

@@ -17,7 +17,7 @@ using [java]sedona.xml
 **
 ** Sedona Extension
 **
-const class SedonaLib : ConnExt
+const class SedonaExt : ConnExt
 {
 
   static

@@ -78,7 +78,7 @@ const class SedonaFuncs
   @NoDoc @Axon { admin = true }
   static Grid sedonaKitManifests()
   {
-    lib := curContext.rt.libsOld.get("sedona")
+    ext := curContext.rt.libsOld.get("sedona")
 
     cols := [
       "hasNatives", "doc", "version",
@@ -113,7 +113,7 @@ const class SedonaFuncs
           }
           catch (Err err)
           {
-            lib.log.err("Cannot parse manifest: $f.osPath", err)
+            ext.log.err("Cannot parse manifest: $f.osPath", err)
           }
         }
       }
@@ -217,8 +217,8 @@ const class SedonaFuncs
   ** Dispatch a message to the given connector and return result
   private static Obj? dispatch(HxContext cx, Obj conn, HxMsg msg)
   {
-    lib := (SedonaLib)cx.rt.libsOld.get("sedona")
-    r := lib.conn(Etc.toId(conn)).sendSync(msg)
+    ext := (SedonaExt)cx.rt.libsOld.get("sedona")
+    r := ext.conn(Etc.toId(conn)).sendSync(msg)
     return r
   }
 
