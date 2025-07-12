@@ -9,9 +9,8 @@
 --------------------------------------------------------------------------
 def: ^lib:obix
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
-typeName:"hxObix::ObixLib"
+typeName:"hxObix::ObixExt"
 icon: "obix"
 doc: "oBIX connector"
 --------------------------------------------------------------------------
-
 

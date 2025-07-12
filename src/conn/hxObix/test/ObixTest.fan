@@ -20,7 +20,7 @@ using hx
 **
 class ObixTest : HxTest
 {
-  ObixLib? lib
+  ObixExt? lib
   ObixClient? client
   Uri? lobbyUri
 
@@ -105,7 +105,7 @@ class ObixTest : HxTest
 
   Void verifyLobby()
   {
-    lib := (ObixLib)rt.libsOld.get("obix")
+    lib := (ObixExt)rt.libsOld.get("obix")
     projApiUri := rt.http.siteUri + rt.http.apiUri
     lobbyUri = projApiUri + lib.web.uri
 

@@ -14,24 +14,24 @@ using hxConn
 **
 ** Obix connector
 **
-const class ObixLib : ConnExt
+const class ObixExt : ConnExt
 {
 
   ** Publish server side APIs
-  override const ExtWeb web := ObixLibWeb(this)
+  override const ExtWeb web := ObixExtWeb(this)
 
 }
 
 **************************************************************************
-** ObixLibWeb
+** ObixExtWeb
 **************************************************************************
 
 **
-** ObixLibWeb is used to route to ObixWebMod
+** ObixExtWeb is used to route to ObixWebMod
 **
-internal const class ObixLibWeb : ExtWeb
+internal const class ObixExtWeb : ExtWeb
 {
-  new make(ObixLib lib) : super(lib) {  this.mod = ObixWebMod(lib) }
+  new make(ObixExt ext) : super(ext) {  this.mod = ObixWebMod(ext) }
   const ObixWebMod mod
   override Void onService() { mod.onService }
 }

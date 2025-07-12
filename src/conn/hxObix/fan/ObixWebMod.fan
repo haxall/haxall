@@ -25,18 +25,18 @@ const class ObixWebMod : ObixMod
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(ObixLib lib) : super.make
+  new make(ObixExt ext) : super.make
     ([
-      "serverName":     lib.rt.name,
-      "vendorName":     lib.rt.platform.vendorName,
-      "vendorUrl":      lib.rt.platform.vendorUri,
-      "productName":    lib.rt.platform.productName,
-      "productUrl":     lib.rt.platform.productUri,
-      "productVersion": lib.typeof.pod.version.toStr,
+      "serverName":     ext.rt.name,
+      "vendorName":     ext.rt.platform.vendorName,
+      "vendorUrl":      ext.rt.platform.vendorUri,
+      "productName":    ext.rt.platform.productName,
+      "productUrl":     ext.rt.platform.productUri,
+      "productVersion": ext.typeof.pod.version.toStr,
     ])
   {
-    this.rt = lib.rt
-    this.lib = lib
+    this.rt = ext.rt
+    this.ext = ext
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ const class ObixWebMod : ObixMod
 
   const HxRuntime rt
 
-  const ObixLib lib
+  const ObixExt ext
 
 //////////////////////////////////////////////////////////////////////////
 // Service
