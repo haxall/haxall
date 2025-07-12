@@ -48,14 +48,13 @@ const class HxdRuntime : HxRuntime
     this.file          = HxdFileService(this)
     this.his           = HxdHisService(this)
     this.libs          = MProjLibs.shim(dir)
-    this.exts          = MProjExts(this)
+    this.exts          = MProjExts(this, libsOld.actorPool)
   }
 
   ** Called after constructor to init libs
   This init(HxdBoot boot)
   {
     libsOld.init(boot.removeUnknownLibs)
-    exts.init
     obs.init
     return this
   }

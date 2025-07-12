@@ -13,29 +13,66 @@ using haystack
 using obs
 using folio
 using hx
-using hx4
+
+
+const class HxdInstalledLib
+{
+  new make(Str name, Pod pod, Dict meta)
+  {
+    this.name  = name
+    this.pod   = pod
+    this.meta  = meta
+  }
+
+  const Str name
+  const Pod pod
+  const Dict meta
+
+  Type? type()
+  {
+    typeName := meta["typeName"] as Str
+    if (typeName == null) return null
+    return Type.find(typeName)
+  }
+
+  Str[] depends()
+  {
+    Symbol.toList(meta["depends"]).map |x->Str|
+    {
+      if (!x.toStr.startsWith("lib:")) throw Err("Invalid depend: $x")
+      return x.name
+    }
+  }
+
+  File metaFile()
+  {
+    pod.file(`/lib/lib.trio`)
+  }
+
+  override Str toStr() { name }
+}
+
 
 **
 ** ExtSpi implementation
 **
-/*
 const class MExtSpi : Actor, ExtSpi
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Factory
+// Ext Factory
 //////////////////////////////////////////////////////////////////////////
 
-  ** Instantiate the Ext
-  static HxExt instantiate(MProj proj, ExtDef def, Dict settings)
+  ** Instantiate the Ext for given def and database rec
+  static Ext instantiate(HxRuntime rt, HxdInstalledLib install, Dict rec, ActorPool pool)
   {
-    spi := MExtSpi(proj, def, settings)
+    spi := MExtSpi(rt, install, rec, pool)
     Actor.locals["hx.spi"]  = spi
     try
     {
-      ext := doInstantiate(spi)
-      spi.extRef.val = ext
-      return ext
+      lib := doInstantiate(spi)
+      spi.libRef.val = lib
+      return lib
     }
     finally
     {
@@ -45,35 +82,43 @@ const class MExtSpi : Actor, ExtSpi
 
   private static Ext doInstantiate(MExtSpi spi)
   {
-    spi.type.make
+    spi.type == null ? ResExt() : spi.type.make
   }
 
-  private new make(MProj proj, ExtDef def, Dict settings) : super(proj.actorPool)
+  private new make(HxRuntime rt, HxdInstalledLib install, Dict rec, ActorPool pool) : super(pool)
   {
-    this.proj        = proj
-    this.qname       = def.qname
-    this.type        = def.fantomType
-    this.log         = Log.get(def.spec.name)
-    this.settingsRef = AtomicRef(typedRec(settings))
+    this.rt      = rt
+    this.name    = install.name
+    this.install = install
+    this.type    = install.type
+    this.log     = Log.get(name)
+    this.recRef  = AtomicRef(typedRec(rec))
+    this.webUri  = ("/" + (name.startsWith("hx") ? name[2..-1].decapitalize : name) + "/").toUri
   }
 
 //////////////////////////////////////////////////////////////////////////
 // ExtSpi Implementation
 //////////////////////////////////////////////////////////////////////////
 
-  Ext ext() { extRef.val }
-  private const AtomicRef extRef := AtomicRef()
+  Ext lib() { libRef.val }
+  private const AtomicRef libRef := AtomicRef()
 
-  override const Proj proj
+  override const HxRuntime rt
 
-  override const Str qname
+  override const Str name
 
-  const Type type
+  const HxdInstalledLib install
 
-  override Dict settings() { settingsRef.val }
-  private const AtomicRef settingsRef
+  const Type? type
+
+  override DefLib def() { rt.defs.lib(name) }
+
+  override Dict rec() { recRef.val }
+  private const AtomicRef recRef
 
   override const Log log
+
+  override const Uri webUri
 
   override Actor actor() { this }
 
@@ -94,13 +139,23 @@ const class MExtSpi : Actor, ExtSpi
   private const AtomicRef statusMsgRef := AtomicRef(null)
 
 //////////////////////////////////////////////////////////////////////////
-// Background Processing
+// Observables
 //////////////////////////////////////////////////////////////////////////
 
-  override Void sync(Duration? timeout := 30sec)
+  override Subscription[] subscriptions() { subscriptionsRef.val }
+  private const AtomicRef subscriptionsRef := AtomicRef(Subscription#.emptyList)
+
+  override Subscription observe(Str name, Dict config, Obj callback)
   {
-    send((HxMsg("sync"))).get(timeout)
+    observer := callback is Actor ? HxdLibActorObserver(lib, callback) : HxdLibMethodObserver(lib, callback)
+    sub := rt.obs.get(name).subscribe(observer, config)
+    subscriptionsRef.val = subscriptions.dup.add(sub).toImmutable
+    return sub
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Background Processing
+//////////////////////////////////////////////////////////////////////////
 
   Future start() { send(HxMsg("start"))  }
 
@@ -112,15 +167,18 @@ const class MExtSpi : Actor, ExtSpi
 
   Future stop() { send(HxMsg("stop")) }
 
-  Void update(Dict settings)
+  override Void sync(Duration? timeout := 30sec) { send((HxMsg("sync"))).get(timeout) }
+
+  Void update(Dict rec)
   {
-    settingsRef.val = typedRec(settings)
-    send(HxMsg("settings", null))
+    recRef.val = typedRec(rec)
+    send(HxMsg("recUpdate", null))
   }
 
   Dict typedRec(Dict dict)
   {
-    recType := type.method("settings").returns
+    if (type == null) return dict
+    recType := type.method("rec").returns
     if (recType.name == "Dict") return dict
     return TypedDict.create(recType, dict) |warn| { log.warn(warn) }
   }
@@ -131,7 +189,7 @@ const class MExtSpi : Actor, ExtSpi
     {
       if (!isRunning) return null
       try
-        ext.onHouseKeeping
+        lib.onHouseKeeping
       catch (Err e)
         log.err("Ext.onHouseKeeping", e)
       scheduleHouseKeeping
@@ -143,7 +201,7 @@ const class MExtSpi : Actor, ExtSpi
     {
       if (msg.id === "obs")         return onObs(msg)
       if (msg.id === "sync")        return "synced"
-      if (msg.id === "settings")    return onSettings
+      if (msg.id === "recUpdate")   return onRecUpdate
       if (msg.id === "start")       return onStart
       if (msg.id === "ready")       return onReady
       if (msg.id === "steadyState") return onSteadyState
@@ -156,7 +214,7 @@ const class MExtSpi : Actor, ExtSpi
       throw e
     }
 
-    return ext.onReceive(msg)
+    return lib.onReceive(msg)
   }
 
   private Obj? onStart()
@@ -164,7 +222,7 @@ const class MExtSpi : Actor, ExtSpi
     isRunningRef.val = true
     try
     {
-      ext.onStart
+      lib.onStart
     }
     catch (Err e)
     {
@@ -180,40 +238,39 @@ const class MExtSpi : Actor, ExtSpi
     scheduleHouseKeeping
 
     // onReady callback
-    ext.onReady
+    lib.onReady
 
     return null
   }
 
   private Obj? onSteadyState()
   {
-    ext.onSteadyState
+    lib.onSteadyState
     return null
   }
 
   private Obj? onUnready()
   {
     isRunningRef.val = false
-    ext.onUnready
+    lib.onUnready
     return null
   }
 
   private Obj? onStop()
   {
-    ext.onStop
+    lib.onStop
     return null
   }
 
-  private Obj? onSettings()
+  private Obj? onRecUpdate()
   {
-    ext.onSettings
+    lib.onRecUpdate
     return null
   }
 
   private Obj? onObs(HxMsg msg)
   {
-throw Err("TODO")
-//    ((HxdLibMethodObserver)msg.a).call(msg.b)
+    ((HxdLibMethodObserver)msg.a).call(msg.b)
   }
 
   override Bool isRunning() { isRunningRef.val }
@@ -221,11 +278,71 @@ throw Err("TODO")
 
   private Void scheduleHouseKeeping()
   {
-    freq := ext.houseKeepingFreq
+    freq := lib.houseKeepingFreq
     if (freq != null) sendLater(freq, houseKeepingMsg)
   }
 
   private static const HxMsg houseKeepingMsg := HxMsg("houseKeeping")
 }
-*/
+
+
+**************************************************************************
+** ResExt
+**************************************************************************
+
+** ResExt is a stub for libraries without a Fantom class
+const class ResExt : Ext
+{
+}
+
+**************************************************************************
+** HxdLibActorObserver
+**************************************************************************
+
+internal const class HxdLibActorObserver : Observer
+{
+  new make(Ext lib, Actor actor)
+  {
+    this.lib = lib
+    this.actor = actor
+    this.meta = Etc.emptyDict
+  }
+
+  const Ext lib
+  override const Dict meta
+  override const Actor actor
+  override Str toStr() { "Ext $lib.name" }
+}
+
+**************************************************************************
+** HxdLibMethodObserver
+**************************************************************************
+
+internal const class HxdLibMethodObserver : Observer
+{
+  new make(Ext lib, Method method)
+  {
+    this.lib = lib
+    this.actor = (MExtSpi)lib.spi
+    this.method = method
+    this.meta = Etc.emptyDict
+  }
+
+  const Ext lib
+  const Method method
+  override const Dict meta
+  override const Actor actor
+  override Obj toActorMsg(Observation msg) { HxMsg("obs", this, msg) }
+  override Obj? toSyncMsg() { HxMsg("sync") }
+  override Str toStr() { "Ext $lib.name" }
+
+  Obj? call(Obj? msg)
+  {
+    try
+      method.callOn(lib, [msg])
+    catch (Err e)
+      lib.log.err("${lib.typeof}.observe", e)
+    return null
+  }
+}
 

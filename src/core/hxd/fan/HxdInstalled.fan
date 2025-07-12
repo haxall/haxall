@@ -9,6 +9,7 @@
 using xeto
 using haystack
 using hx
+using hxm
 
 **
 ** Model of what libs are installed in the host system
@@ -50,6 +51,7 @@ const class HxdInstalled
 ** HxdInstalledLib
 **************************************************************************
 
+/*
 const class HxdInstalledLib
 {
   internal new make(Str name, Pod pod, Dict meta)
@@ -86,6 +88,7 @@ const class HxdInstalledLib
 
   override Str toStr() { name }
 }
+*/
 
 **************************************************************************
 ** HxdInstalledBuilder

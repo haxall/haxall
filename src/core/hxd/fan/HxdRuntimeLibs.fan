@@ -11,6 +11,7 @@ using xeto
 using haystack
 using folio
 using hx
+using hxm
 
 **
 ** HxdRuntimeLibs manages the runtime lib registry
@@ -36,7 +37,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
         // instantiate the Ext
         name := (Str)rec->ext
         install := installed.lib(name)
-        lib := MExtSpi.instantiate(rt, install, rec)
+        lib := MExtSpi.instantiate(rt, install, rec, actorPool)
         map.add(name, lib)
       }
       catch (UnknownLibErr e)
@@ -207,7 +208,7 @@ const class HxdRuntimeLibs : Actor, HxRuntimeLibs
     rec := rt.db.commit(Diff(null, tags, Diff.add.or(Diff.bypassRestricted))).newRec
 
     // instantiate the Ext
-    lib := MExtSpi.instantiate(rt, install, rec)
+    lib := MExtSpi.instantiate(rt, install, rec, actorPool)
 
     // register in lookup data structures
     listRef.val = list.dup.add(lib).sort(|x, y| { x.name <=> y.name }).toImmutable

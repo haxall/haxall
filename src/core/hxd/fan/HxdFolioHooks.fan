@@ -11,6 +11,7 @@ using xeto
 using haystack
 using folio
 using hx
+using hxm
 
 **
 ** Haxall daemon hooks into the Folio database
