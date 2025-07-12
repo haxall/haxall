@@ -116,7 +116,7 @@ class RuntimeTest : HxTest
     // add hxTestA
     forceSteadyState
     verifyEq(rt.isSteadyState, true)
-    a := rt.libsOld.add("hxTestA") as HxTestALib
+    a := rt.libsOld.add("hxTestA") as HxTestAExt
     verifyLibEnabled("hxTestA")
     verifySame(rt.libsOld.get("hxTestA"), a)
     verifyEq(a.traces.val, "onStart[true]\nonReady[true]\nonSteadyState\n")
@@ -227,7 +227,7 @@ class RuntimeTest : HxTest
 ** HxTestLibA
 **************************************************************************
 
-const class HxTestALib : Ext
+const class HxTestAExt : Ext
 {
   const AtomicRef traces := AtomicRef("")
 
@@ -246,7 +246,7 @@ const class HxTestALib : Ext
 ** HxTestLibB
 **************************************************************************
 
-const class HxTestBLib : Ext
+const class HxTestBExt : Ext
 {
 }
 

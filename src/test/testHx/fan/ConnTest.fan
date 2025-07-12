@@ -941,7 +941,7 @@ class ConnTest : HxTest
   @HxRuntimeTest
   Void testStatus()
   {
-    lib := (ConnTestLib)addLib("connTest")
+    lib := (ConnTestExt)addLib("connTest")
     c1rec := addRec(["dis":"C1", "connTestConn":m])
     c2rec := addRec(["dis":"C2", "connTestConn":m, "disabled":m])
     forceSteadyState
@@ -1086,7 +1086,7 @@ class ConnTest : HxTest
   @HxRuntimeTest
   Void testWrites()
   {
-    lib := (ConnTestLib)addLib("connTest")
+    lib := (ConnTestExt)addLib("connTest")
     cr := addRec(["dis":"C1", "connTestConn":m])
     p1 := addRec(["dis":"P1", "point":m, "writable":m, "connTestWrite":"1", "connTestConnRef":cr.id, "kind":"Number"])
     p2 := addRec(["dis":"P2", "point":m, "writable":m, "connTestWrite":"2", "connTestConnRef":cr.id, "kind":"Number"])
