@@ -34,8 +34,8 @@ abstract const class ConnExt : Ext, HxConnExt
   ** Settings record
   override ConnSettings rec() { super.rec }
 
-  ** ConnFwLib instance
-  @NoDoc ConnFwLib fw() { fwRef.val }
+  ** ConnFwExt instance
+  @NoDoc ConnFwExt fw() { fwRef.val }
   private const AtomicRef fwRef := AtomicRef()
 
   ** PointLib instance
@@ -102,8 +102,8 @@ abstract const class ConnExt : Ext, HxConnExt
     // must have PointLib installed
     pointExtRef.val = (PointExt)rt.libsOld.get("point")
 
-    // must have ConnFwLib installed
-    fw :=  (ConnFwLib)rt.libsOld.get("conn")
+    // must have ConnFwExt installed
+    fw :=  (ConnFwExt)rt.libsOld.get("conn")
     fwRef.val = fw
     fw.service.addExt(this)
 

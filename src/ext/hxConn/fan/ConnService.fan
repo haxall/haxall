@@ -15,7 +15,7 @@ using hx
 **
 ** ConnService manages the project wide database of connector libraries,
 ** connectors, and points.  The service implementation is registered by
-** the ConnFwLib.  It uses only the mixins (not the concrete classes) so
+** the ConnFwExt.  It uses only the mixins (not the concrete classes) so
 ** that can be used by both the new and classic connector framework as
 ** a single registry to provide a consistent UI.
 **
@@ -27,7 +27,7 @@ const class ConnService : HxConnService
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  internal new make(ConnFwLib fw) { this.fw = fw }
+  internal new make(ConnFwExt fw) { this.fw = fw }
 
 //////////////////////////////////////////////////////////////////////////
 // HxConnService - Libs
@@ -151,7 +151,7 @@ const class ConnService : HxConnService
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const ConnFwLib fw
+  private const ConnFwExt fw
   private const AtomicRef extDataRef := AtomicRef(ConnServiceExtData.makeEmpty)
   private const ConcurrentMap connsById := ConcurrentMap()
   private const ConcurrentMap pointsById := ConcurrentMap()

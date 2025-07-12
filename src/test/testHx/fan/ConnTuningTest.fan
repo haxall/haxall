@@ -60,10 +60,10 @@ class ConnTuningTest : HxTest
     t3  := addRec(["connTuning":m, "dis":"T-3", "staleTime":n(3, "sec")])
     c   := addRec(["dis":"C", "haystackConn":m])
     pt  := addRec(["dis":"Pt", "point":m, "haystackConnRef":c.id, "kind":"Number"])
-    fw  := (ConnFwLib)addLib("conn")
+    fw  := (ConnFwExt)addLib("conn")
     lib := (ConnExt)addLib("haystack")
 
-    // verify tuning registry in ConnFwLib
+    // verify tuning registry in ConnFwExt
     verifyTunings(fw, [t1, t2, t3])
     t4 := addRec(["connTuning":m, "dis":"T-4", "staleTime":n(4, "sec")])
     verifyTunings(fw, [t1, t2, t3, t4])
@@ -143,7 +143,7 @@ class ConnTuningTest : HxTest
     verifySame(lib.point(pt.id).tuning.rec, t5)
   }
 
-  Void verifyTunings(ConnFwLib fw, Dict[] expected)
+  Void verifyTunings(ConnFwExt fw, Dict[] expected)
   {
     rt.sync
     actual := fw.tunings.list.dup.sort |a, b| { a.dis <=> b.dis }
@@ -158,7 +158,7 @@ class ConnTuningTest : HxTest
     }
   }
 
-  Void verifyTuning(ConnFwLib fw, ConnExt lib, Dict ptRec, Dict tuningRec, Duration staleTime)
+  Void verifyTuning(ConnFwExt fw, ConnExt lib, Dict ptRec, Dict tuningRec, Duration staleTime)
   {
     pt := lib.point(ptRec.id)
     t  := fw.tunings.get(tuningRec.id)
@@ -174,7 +174,7 @@ class ConnTuningTest : HxTest
   @HxRuntimeTest
   Void testTimes()
   {
-    lib := (ConnTestLib)addLib("connTest")
+    lib := (ConnTestExt)addLib("connTest")
     t := addRec(["connTuning":m, "dis":"T"])
     cr := addRec(["dis":"C1", "connTestConn":m])
     pt := addRec(["dis":"Pt", "point":m, "writable":m, "connTestWrite":"a", "connTestConnRef":cr.id, "connTuningRef":t.id, "kind":"Number", "writeConvert":"*10"])

@@ -38,6 +38,6 @@ with the Conn actor itself.  The roster will send the Conn actor messages for
 connUpdated, pointAdded, pointUpdated, and pointRemoved.
 
 The data structures for tuning recs are managed by ConnTuningRoster.  There
-is only one instance of this class which is owned by ConnFwLib.  The tuning
-roster monitors the database using obsCommits on the ConnFwLib actor.
+is only one instance of this class which is owned by ConnFwExt.  The tuning
+roster monitors the database using obsCommits on the ConnFwExt actor.
 
