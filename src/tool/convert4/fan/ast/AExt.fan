@@ -47,6 +47,7 @@ class AExt
 
   new make(Ast ast, APod pod, Str oldName, AExtType type, Dict meta)
   {
+    this.ast        = ast
     this.pod        = pod
     this.oldName    = oldName
     this.libName    = oldNameToLibName(ast, oldName)
@@ -55,6 +56,7 @@ class AExt
     this.xetoSrcDir = ast.xetoSrcDir + `${libName}/`
   }
 
+  Ast ast { private }
   APod pod { private set }
   const Str oldName
   const Str libName

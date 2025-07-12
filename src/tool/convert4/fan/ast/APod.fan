@@ -19,7 +19,7 @@ class APod
     dir := buildFile.parent
     name := dir.name
 
-    pod := make(name, dir, buildFile)
+    pod := make(ast, name, dir, buildFile)
 
     AExt.scan(ast, pod)
 
@@ -27,13 +27,15 @@ class APod
     return pod
   }
 
-  new make(Str name, File dir, File buildFile)
+  new make(Ast ast, Str name, File dir, File buildFile)
   {
+    this.ast       = ast
     this.name      = name
     this.dir       = dir
     this.buildFile = buildFile
   }
 
+  Ast ast { private }
   const Str name
   const File dir
   const File buildFile

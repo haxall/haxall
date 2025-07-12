@@ -39,11 +39,8 @@ const class HxdInstalled
   ** Test main
   static Void main()
   {
-    list := build.map.vals.sort
-    list.each |x|
-    {
-      echo("$x [$x.pod] depends:$x.depends")
-    }
+    list := build.map.vals.mapNotNull |x| { x.type }.sort
+    echo(list.join("\n"))
   }
 
   private const Str:HxdInstalledLib map

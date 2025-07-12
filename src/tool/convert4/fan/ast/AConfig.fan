@@ -16,14 +16,18 @@ class AConfig
 {
   static AConfig load()
   {
+    env := Env.cur
     pod := AConfig#.pod
     return make {
-      libPrefix = pod.config("libPrefix", "hx")
+      libPrefix       = pod.config("libPrefix", "hx")
+      templateLibXeto = env.findFile(`etc/convert4/template-lib.xeto`).readAllStr
     }
   }
 
   new make(|This| f) { f(this) }
 
   Str libPrefix := "hx"
+
+  Str templateLibXeto
 }
 
