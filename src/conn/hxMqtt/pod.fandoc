@@ -1,5 +1,5 @@
 **************************************************************************
-** title:      MqttLib
+** title:      MqttExt
 ** author:     Matthew Giannini
 ** created:    17 Jan 2022
 ** copyright:  Copyright (c) 2022, SkyFoundry LLC
@@ -181,3 +181,4 @@ taskExpr:
     diff(myPoint, {curVal:parseNumber(msg->theValue).as(msg->unit), curStatus:"ok"}, {transient}).commit
 end
 <pre
+

@@ -39,7 +39,7 @@ const class MqttFuncs
   {
     payload = (payload as Str)?.toBuf ?: throw Err("TODO payload: $payload.typeof")
     msg := HxMsg("mqtt.pub", topic, payload, cfg)
-    return MqttLib.cur.conn(Etc.toId(conn)).send(msg).get
+    return MqttExt.cur.conn(Etc.toId(conn)).send(msg).get
   }
 }
 

@@ -17,9 +17,9 @@ using mqtt
 **
 ** MQTT connector library
 **
-const class MqttLib : ConnExt
+const class MqttExt : ConnExt
 {
-  static MqttLib? cur(Bool checked := true)
+  static MqttExt? cur(Bool checked := true)
   {
     HxContext.curHx.rt.libsOld.get("mqtt", checked)
   }
@@ -40,16 +40,16 @@ const class MqttLib : ConnExt
 
 internal const class MqttObservable : Observable
 {
-  new make(MqttLib lib) { this.lib = lib }
+  new make(MqttExt ext) { this.ext = ext }
 
-  const MqttLib lib
+  const MqttExt ext
 
   override Str name() { "obsMqtt" }
 
   protected override Subscription onSubscribe(Observer observer, Dict config)
   {
     connRef := config["obsMqttConnRef"] as Ref ?: throw Err("obsMqttConnRef not configured")
-    conn    := lib.conn(connRef)
+    conn    := ext.conn(connRef)
     // subscribe async
     conn.send(HxMsg("mqtt.sub", config))
     return MqttSubscription(this, observer, config)
@@ -58,14 +58,14 @@ internal const class MqttObservable : Observable
   protected override Void onUnsubscribe(Subscription s)
   {
     sub  := (MqttSubscription)s
-    conn := lib.conn(sub.connRef, false)
+    conn := ext.conn(sub.connRef, false)
     if (conn == null) return
     // unsubscribe async
     try
       conn.send(HxMsg("mqtt.unsub", sub))
     catch (Err err)
     {
-      if (lib.isRunning) throw err
+      if (ext.isRunning) throw err
     }
   }
 

@@ -32,7 +32,7 @@ class MqttDispatch : ConnDispatch, ClientListener
 
   protected MqttClient? client
 
-  protected MqttLib mqttLib() { ext }
+  protected MqttExt mqttLib() { ext }
 
 //////////////////////////////////////////////////////////////////////////
 // Open/Ping/Close
