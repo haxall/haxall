@@ -47,7 +47,7 @@ const class HxdRuntime : HxRuntime
     this.obs           = HxdObsService(this)
     this.file          = HxdFileService(this)
     this.his           = HxdHisService(this)
-    this.shimLibs      = ShimNamespaceMgr.init(dir)
+    this.libs          = MProjLibs.shim(dir)
   }
 
   ** Called after constructor to init libs
@@ -57,14 +57,6 @@ const class HxdRuntime : HxRuntime
     obs.init
     return this
   }
-
-//////////////////////////////////////////////////////////////////////////
-// TODO Shims
-//////////////////////////////////////////////////////////////////////////
-
-  override Namespace ns() { shimLibs.ns }
-
-  const override ShimNamespaceMgr shimLibs
 
 //////////////////////////////////////////////////////////////////////////
 // HxRuntime
@@ -90,6 +82,22 @@ const class HxdRuntime : HxRuntime
   ** this directory in a sub-directory named 'db/'.
   override const File dir
 
+  ** Runtime level meta data stored in the `projMeta` database record
+  override Dict meta() { metaRef.val }
+  internal const AtomicRef metaRef
+
+  ** Database for this runtime
+  override const Folio db
+
+  ** Project xeto library management
+  override const MProjLibs libs
+
+  ** Xeto lib namespace
+  override Namespace ns() { libs.ns }
+
+  ** Project spec management
+  override ProjSpecs specs() { libs.specs }
+
   ** Namespace of definitions
   override DefNamespace defs()
   {
@@ -111,13 +119,6 @@ const class HxdRuntime : HxRuntime
   internal Void nsOverlayRecompile() { this.nsOverlayRef.val = null }
   private const AtomicRef nsBaseRef := AtomicRef()    // base from installed libs
   private const AtomicRef nsOverlayRef := AtomicRef() // rec overlay
-
-  ** Database for this runtime
-  override const Folio db
-
-  ** Runtime level meta data stored in the `projMeta` database record
-  override Dict meta() { metaRef.val }
-  internal const AtomicRef metaRef
 
   ** Service registry
   override HxdServiceRegistry services() { servicesRef.val ?: throw Err("Services not avail yet") }

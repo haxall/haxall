@@ -21,10 +21,10 @@ abstract class AbstractAxonTest : HxTest
   LibNamespace initNamespace(Str[] libs)
   {
     // nuke existing using recs
-    rt.shimLibs.clear
+    rt.libs.clear
 
     // add new using recs
-    rt.shimLibs.addAll(libs)
+    rt.libs.addAll(libs)
 
     // sync
     rt.sync

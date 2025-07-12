@@ -13,23 +13,19 @@ using haystack
 using xetom
 using xetoc
 using hx
-using hx4
 
-** Temp shim
-const class ShimNamespaceMgr : MProjLibs, ShimLibs
+**
+** ProjLibs implementation
+**
+const class MProjLibs : ProjLibs
 {
-  static ShimNamespaceMgr init(File topDir)
+
+  static MProjLibs shim(File topDir)
   {
     dir := topDir + `ns/`
     libsTxt := dir + `libs.txt`
     if (!libsTxt.exists) libsTxt.out.printLine("// Stub $DateTime.now").close
-    mgr := make(dir)
-    // echo(">>> load shim"); mgr.ns.dump
-    return mgr
-  }
-
-  private new make(File dir) : super.makeShim(dir, shimBootLibNames)
-  {
+    return makeShim(dir, shimBootLibNames)
   }
 
   static once Str[] shimBootLibNames()
@@ -41,14 +37,6 @@ const class ShimNamespaceMgr : MProjLibs, ShimLibs
       repo.latest(n, false) != null
     }
   }
-}
-
-
-**
-** ProjLibs implementation
-**
-const class MProjLibs : ProjLibs
-{
 
 //////////////////////////////////////////////////////////////////////////
 // Construction

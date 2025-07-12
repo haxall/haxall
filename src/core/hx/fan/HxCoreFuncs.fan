@@ -470,7 +470,7 @@ const class HxCoreFuncs
     isShell := cx.rt.platform.isShell
     log := isShell ? Log.get("xeto") : cx.rt.libsOld.get("xeto").log
     log.info("libReload [$cx.user.username]")
-    cx.rt.shimLibs.reload
+    cx.rt.libs.reload
     return isShell ? "_no_echo_" : "reloaded"
   }
 
@@ -482,7 +482,7 @@ const class HxCoreFuncs
   @Axon
   static Grid libStatus(Dict? opts := null)
   {
-    curContext.rt.shimLibs.status(opts)
+    curContext.rt.libs.status(opts)
   }
 
   ** Enable one or more Xeto libs by name:
@@ -493,7 +493,7 @@ const class HxCoreFuncs
   {
     if (names is Str) names = Str[names]
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
-    curContext.rt.shimLibs.addAll(list)
+    curContext.rt.libs.addAll(list)
     return "added"
   }
 
@@ -505,7 +505,7 @@ const class HxCoreFuncs
   {
     if (names is Str) names = Str[names]
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
-    curContext.rt.shimLibs.removeAll(list)
+    curContext.rt.libs.removeAll(list)
     return "removed"
   }
 
