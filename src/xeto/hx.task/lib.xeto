@@ -23,5 +23,9 @@ pragma: Lib <
     type: BuildVar "hx.vcs.type"
     uri:  BuildVar "hx.vcs.uri"
   }
+  libExt: TaskExt
 >
+
+// Async task engine extension
+TaskExt: Ext
 
