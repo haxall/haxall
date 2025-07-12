@@ -17,16 +17,15 @@ using hx4
 **
 ** ProjExts implementation
 **
-/*
 const class MProjExts : Actor, ProjExts
 {
-  new make(MProj proj) : super(proj.actorPool)
+  new make(HxRuntime proj, ActorPool actorPool) : super(actorPool)
   {
     this.proj      = proj
-    this.actorPool = this.pool
+    this.actorPool = actorPool
   }
 
-  const MProj proj
+  const HxRuntime proj
 
   override const ActorPool actorPool
 
@@ -51,8 +50,8 @@ const class MProjExts : Actor, ProjExts
     gb.addCol("qname").addCol("libStatus").addCol("statusMsg")
     list.each |ext|
     {
-      spi := (MExtSpi)ext.spi
-      gb.addRow([ext.qname, spi.status, spi.statusMsg])
+      //spi := (MExtSpi)ext.spi
+      //gb.addRow([ext.qname, spi.status, spi.statusMsg])
     }
     return gb.toGrid
   }
@@ -66,23 +65,22 @@ const class MProjExts : Actor, ProjExts
       {
         // instantiate the HxExt
         settings := Etc.dict0
-        ext := MExtSpi.instantiate(proj, def, settings)
-        map.add(ext.qname, ext)
+//        ext := MExtSpi.instantiate(proj, def, settings)
+//        map.add(ext.qname, ext)
       }
       catch (Err e)
       {
-        proj.log.err("Cannot init ext: $def.qname", e)
+//        proj.log.err("Cannot init ext: $def.qname", e)
       }
     }
 
     // build lookup tables
     list := map.vals
-    list.sort |a, b| { a.qname <=> b.qname }
+    list.sort |a, b| { a.name <=> b.name }
 
     // save lookup tables
     this.listRef.val = list.toImmutable
     this.mapRef.val = map.toImmutable
   }
 }
-*/
 

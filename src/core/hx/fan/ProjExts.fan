@@ -4,7 +4,7 @@
 //
 // History:
 //   18 May 2021  Brian Frank  Creation
-//    8 Jul 2025  Brian Frank  Redesign from HxRuntime
+//    8 Jul 2025  Brian Frank  Redesign from HxRuntimeLibs
 //
 
 using concurrent
@@ -15,18 +15,17 @@ using folio
 **
 ** Project extension management
 **
-/*
 const mixin ProjExts
 {
-  ** List of extensions currently enabled sorted by qname
+  ** List of extensions currently enabled
   abstract Ext[] list()
 
-  ** Lookup an extension by spec qname.  If not found then
+  ** Lookup an extension by lib name.  If not found then
   ** return null or raise UnknownExtErr based on checked flag.
-  abstract Ext? get(Str qname, Bool checked := true)
+  abstract Ext? get(Str name, Bool checked := true)
 
-  ** Check if there is an enabled extension with given name
-  abstract Bool has(Str qname)
+  ** Check if there is an enabled extension with given lib name
+  abstract Bool has(Str name)
 
   ** Actor thread pool to use for extension background processing
   abstract ActorPool actorPool()
@@ -34,5 +33,4 @@ const mixin ProjExts
   ** Return status grid of enabled extensions
   @NoDoc abstract Grid status()
 }
-*/
 

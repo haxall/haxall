@@ -48,12 +48,14 @@ const class HxdRuntime : HxRuntime
     this.file          = HxdFileService(this)
     this.his           = HxdHisService(this)
     this.libs          = MProjLibs.shim(dir)
+    this.exts          = MProjExts(this)
   }
 
   ** Called after constructor to init libs
   This init(HxdBoot boot)
   {
     libsOld.init(boot.removeUnknownLibs)
+    exts.init
     obs.init
     return this
   }
@@ -97,6 +99,9 @@ const class HxdRuntime : HxRuntime
 
   ** Project spec management
   override ProjSpecs specs() { libs.specs }
+
+  ** Project extensions
+  override const MProjExts exts
 
   ** Namespace of definitions
   override DefNamespace defs()

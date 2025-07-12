@@ -58,6 +58,9 @@ const mixin HxRuntime : HxStdServices
   ** Namespace of definitions
   abstract DefNamespace defs()
 
+  ** Project extensions
+  abstract ProjExts exts()
+
   ** Library managment APIs
   abstract HxRuntimeLibs libsOld()
 
