@@ -27,9 +27,10 @@ class AConfig
     }
 
     return make {
-      it.libPrefix       = pod.config("libPrefix", "hx")
+      it.libPrefix       = props.get("libPrefix", "hx")
       it.templateLibXeto = env.findFile(`etc/convert4/template-lib.xeto`).readAllStr
       it.dependVersions  = dependVersions
+      it.ignore          = props.get("ignore", "").split(',').findAll { !it.isEmpty }
     }
   }
 
@@ -40,5 +41,7 @@ class AConfig
   Str templateLibXeto
 
   Str:Str dependVersions
+
+  Str[] ignore
 }
 

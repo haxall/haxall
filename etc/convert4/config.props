@@ -2,7 +2,11 @@
 // Config: convert4
 //
 
+// prefix to add to turn old def lib/ext names into xeto lib names
 libPrefix=hx
+
+// ignore list of old def lib names
+ignore=axon,hx
 
 // depend versions by lib prefix
 depend.sys=BuildVar "ph.depend"

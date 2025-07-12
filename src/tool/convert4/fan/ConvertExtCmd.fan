@@ -30,6 +30,8 @@ internal class ConvertExtCmd : ConvertCmd
 
   Void genExt(AExt ext)
   {
+    if (ast.config.ignore.contains(ext.oldName)) return
+
     con.group("- Generating [$ext.libName]...")
     genLibXeto(ext)
     con.groupEnd
