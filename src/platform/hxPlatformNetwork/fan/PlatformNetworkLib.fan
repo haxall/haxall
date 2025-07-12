@@ -13,7 +13,7 @@ using hx
 **
 ** Platform support for IP network config
 **
-const class PlatformNetworkLib : Ext
+const class PlatformNetworkExt : Ext
 {
 
   new make()

@@ -21,7 +21,7 @@ const class PlatformTimeFuncs
   @Axon { su = true }
   static Void platformTimeSet(DateTime ts)
   {
-    lib.platformSpi.timeSet(ts)
+    ext.platformSpi.timeSet(ts)
   }
 
   ** Get the list of network time protocol server addresses as
@@ -29,7 +29,7 @@ const class PlatformTimeFuncs
   @Axon { su = true }
   static Str[]? platformTimeNtpServersGet()
   {
-    lib.platformSpi.ntpServersGet
+    ext.platformSpi.ntpServersGet
   }
 
   ** Set the list of network time protocol server addresses as
@@ -37,7 +37,7 @@ const class PlatformTimeFuncs
   @Axon { su = true }
   static Void platformTimeNtpServersSet(Str[] addresses)
   {
-    lib.platformSpi.ntpServersSet(addresses)
+    ext.platformSpi.ntpServersSet(addresses)
   }
 
   ** Return grid of summary information used to populate UI.
@@ -45,17 +45,17 @@ const class PlatformTimeFuncs
   @NoDoc @Axon { su = true }
   static Grid platformTimeInfo()
   {
-    cx := curContext
-    lib := lib(cx)
+    cx  := curContext
+    ext := ext(cx)
     now := DateTime.now
-    gb := GridBuilder().addCol("dis").addCol("val").addCol("icon").addCol("edit")
+    gb  := GridBuilder().addCol("dis").addCol("val").addCol("icon").addCol("edit")
 
     gb.addRow(["Time", "___", "clock", "time"])
     gb.addRow(["Time", now.time.toLocale, null, null])
     gb.addRow(["Date", now.date.toLocale, null, null])
     gb.addRow(["TimeZone", now.tz.name, null, null])
 
-    ntp := lib.platformSpi.ntpServersGet
+    ntp := ext.platformSpi.ntpServersGet
     if (ntp != null)
     {
       gb.addRow(["NTP", "___", "cloud", "ntp"])
@@ -78,7 +78,7 @@ const class PlatformTimeFuncs
     HxContext.curHx
   }
 
-  private static PlatformTimeLib lib(HxContext cx := curContext)
+  private static PlatformTimeExt ext(HxContext cx := curContext)
   {
     cx.rt.libsOld.get("platformTime")
   }

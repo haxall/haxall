@@ -10,7 +10,8 @@
 def: ^lib:platformNetwork
 icon: "network"
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc]
-typeName:"hxPlatformNetwork::PlatformNetworkLib"
+typeName:"hxPlatformNetwork::PlatformNetworkExt"
 noSkyarc
 doc: "Platform support for IP network config"
 --------------------------------------------------------------------------
+

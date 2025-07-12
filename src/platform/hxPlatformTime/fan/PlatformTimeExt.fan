@@ -13,7 +13,7 @@ using hx
 **
 ** Platform support for date and time
 **
-const class PlatformTimeLib : Ext
+const class PlatformTimeExt : Ext
 {
 
   new make()

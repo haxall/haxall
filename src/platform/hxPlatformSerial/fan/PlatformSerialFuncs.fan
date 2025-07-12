@@ -23,7 +23,7 @@ const class PlatformSerialFuncs
   {
     gb := GridBuilder()
     gb.addCol("name").addCol("device").addCol("connState").addCol("proj").addCol("owner")
-    lib.ports.each |p|
+    ext.ports.each |p|
     {
       gb.addRow([p.name, p.device, p.isOpen ? "open" : "closed", p.rt?.name, p.owner?.id])
     }
@@ -32,6 +32,6 @@ const class PlatformSerialFuncs
 
   private static HxContext curContext() { HxContext.curHx }
 
-  private static PlatformSerialLib lib() {  curContext.rt.libsOld.get("platformSerial") }
+  private static PlatformSerialExt ext() {  curContext.rt.libsOld.get("platformSerial") }
 }
 

@@ -22,7 +22,7 @@ const class PlatformNetworkFuncs
   @Axon { su = true }
   static Dict platformNetworkInterfaceGet(Str name)
   {
-    lib.platformSpi.interfaces.find { it->name == name } ?: throw Err("Unknown interface: $name")
+    ext.platformSpi.interfaces.find { it->name == name } ?: throw Err("Unknown interface: $name")
   }
 
   ** Write the configure of an IP interface.  The config must
@@ -31,7 +31,7 @@ const class PlatformNetworkFuncs
   @Axon { su = true }
   static Obj? platformNetworkInterfaceSet(Dict config)
   {
-    lib.platformSpi.interfaceSet(config)
+    ext.platformSpi.interfaceSet(config)
     return config
   }
 
@@ -40,12 +40,12 @@ const class PlatformNetworkFuncs
   @NoDoc @Axon { su = true }
   static Grid platformNetworkInfo()
   {
-    cx := curContext
-    lib := lib(cx)
+    cx  := curContext
+    ext := ext(cx)
     now := DateTime.now
-    gb := GridBuilder().addCol("dis").addCol("val").addCol("icon").addCol("edit").addCol("name")
+    gb  := GridBuilder().addCol("dis").addCol("val").addCol("icon").addCol("edit").addCol("name")
 
-    lib.platformSpi.interfaces.each |d|
+    ext.platformSpi.interfaces.each |d|
     {
       gb.addRow([d.dis, "___", infoIcon(d->type), d->type, d->name])
       d.each |v, n|
@@ -94,7 +94,7 @@ const class PlatformNetworkFuncs
     HxContext.curHx
   }
 
-  private static PlatformNetworkLib lib(HxContext cx := curContext)
+  private static PlatformNetworkExt ext(HxContext cx := curContext)
   {
     cx.rt.libsOld.get("platformNetwork")
   }

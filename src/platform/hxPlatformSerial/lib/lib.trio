@@ -10,7 +10,8 @@
 def: ^lib:platformSerial
 icon: "conn"
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc]
-typeName:"hxPlatformSerial::PlatformSerialLib"
+typeName:"hxPlatformSerial::PlatformSerialExt"
 noSkyarc
 doc: "Platform support for serial ports"
 --------------------------------------------------------------------------
+

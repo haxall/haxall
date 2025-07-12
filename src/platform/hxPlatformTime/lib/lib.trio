@@ -10,7 +10,8 @@
 def: ^lib:platformTime
 icon: "clock"
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc]
-typeName:"hxPlatformTime::PlatformTimeLib"
+typeName:"hxPlatformTime::PlatformTimeExt"
 noSkyarc
 doc: "Platform support for data and time"
 --------------------------------------------------------------------------
+

@@ -10,7 +10,8 @@
 def: ^lib:platform
 icon: "cpu"
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:skyarc]
-typeName:"hxPlatform::PlatformLib"
+typeName:"hxPlatform::PlatformExt"
 noSkyarc
 doc: "Platform support for basic functionality "
 --------------------------------------------------------------------------
+

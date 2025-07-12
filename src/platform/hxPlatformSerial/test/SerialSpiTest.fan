@@ -56,27 +56,27 @@ class SerialSpiTest : HxTest
   @HxRuntimeTest
   Void testSpi()
   {
-    PlatformSerialLib? lib := rt.libsOld.get("platformSerial", false)
-    if (lib == null) lib = rt.libsOld.add("platformSerial")
+    PlatformSerialExt? ext := rt.libsOld.get("platformSerial", false)
+    if (ext == null) ext = rt.libsOld.add("platformSerial")
 
     // initial state
-    s := lib.port("test")
-    verifyEq(lib.ports.size, 1)
-    verifyNotNull(lib.ports.indexSame(s))
-    verifyStatus(lib, s, "test", "/test", null)
-    verifyEq(lib.port("badone", false), null)
-    verifyErr(UnknownSerialPortErr#) { lib.port("badone") }
+    s := ext.port("test")
+    verifyEq(ext.ports.size, 1)
+    verifyNotNull(ext.ports.indexSame(s))
+    verifyStatus(ext, s, "test", "/test", null)
+    verifyEq(ext.port("badone", false), null)
+    verifyErr(UnknownSerialPortErr#) { ext.port("badone") }
 
     // open a port
     conn := addRec(["dis":"MyConn"])
     cfg := SerialConfig { it.name = "test" }
-    p := lib.open(rt, conn, cfg)
+    p := ext.open(rt, conn, cfg)
     verifyPort(p, cfg, false)
-    verifyStatus(lib, s, "test", "/test", conn)
+    verifyStatus(ext, s, "test", "/test", conn)
 
     // open errors
-    verifyErr(SerialPortAlreadyOpenErr#) { lib.open(rt, conn, SerialConfig { it.name = "test" } ) }
-    verifyErr(UnknownSerialPortErr#) { lib.open(rt, conn, SerialConfig { it.name = "foobar" } ) }
+    verifyErr(SerialPortAlreadyOpenErr#) { ext.open(rt, conn, SerialConfig { it.name = "test" } ) }
+    verifyErr(UnknownSerialPortErr#) { ext.open(rt, conn, SerialConfig { it.name = "foobar" } ) }
 
     // verify serialPorts()
     grid := (Grid)eval("platformSerialPorts()")
@@ -89,10 +89,10 @@ class SerialSpiTest : HxTest
     // close the port
     p.close
     verifyPort(p, cfg, true)
-    verifyStatus(lib, s, "test", "/test", null)
+    verifyStatus(ext, s, "test", "/test", null)
   }
 
-  Void verifyStatus(PlatformSerialLib lib, SerialPort p, Str n, Str d, Dict? owner)
+  Void verifyStatus(PlatformSerialExt ext, SerialPort p, Str n, Str d, Dict? owner)
   {
     verifyEq(p.name,     n)
     verifyEq(p.device,   d)
@@ -104,7 +104,7 @@ class SerialSpiTest : HxTest
     Grid grid := eval("platformSerialPorts()")
     // grid.dump
 
-    verifyEq(grid.size, lib.ports.size)
+    verifyEq(grid.size, ext.ports.size)
     row := grid.find |r| { r->name == n }
     verifyEq(row["device"], d)
     verifyEq(row["status"], owner == null ? "closed" : "open")
