@@ -31,9 +31,9 @@ using hxPlatformSerial
   static ModbusLink get(Uri uri) { ModbusLinkMgr.cur.open(uri) }
 
   ** Never call this!
-  @NoDoc internal new make(ActorPool pool, ModbusLib lib, Uri uri)
+  @NoDoc internal new make(ActorPool pool, ModbusExt ext, Uri uri)
   {
-    this.lib   = lib
+    this.ext   = ext
     this.uri   = uri
     this.name  = "ModbusLink-$uri"
     this.actor = Actor(pool) |m| { actorReceive(m) }
@@ -111,14 +111,14 @@ using hxPlatformSerial
         case "modbus-tcp":    tx = ModbusTcpTransport(IpAddr(uri.host),    uri.port, dev.timeout)
         case "modbus-rtutcp": tx = ModbusRtuTcpTransport(IpAddr(uri.host), uri.port, dev.timeout)
         case "modbus-rtu":
-          serial := lib.rt.libsOld.get("platformSerial", false) as PlatformSerialExt
+          serial := ext.rt.libsOld.get("platformSerial", false) as PlatformSerialExt
           if (serial == null) throw FaultErr("RTU not supported")
           config := SerialConfig.fromStr(uri.host)
-          tx = ModbusRtuTransport(serial.open(lib.rt, lib.rec, config))
+          tx = ModbusRtuTransport(serial.open(ext.rt, ext.rec, config))
 
         default: throw FaultErr("Invalid scheme: $uri.scheme")
       }
-      tx.log = lib.log
+      tx.log = ext.log
       Actor.locals["m"] = master = ModbusMaster(tx)
     }
     master.open
@@ -229,7 +229,7 @@ using hxPlatformSerial
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const ModbusLib lib
+  private const ModbusExt ext
   private const Uri uri
   private const Str name
   private const Actor actor
@@ -242,9 +242,9 @@ using hxPlatformSerial
 @NoDoc internal const class ModbusLinkMgr
 {
   ** Init ModbusLinkMgr if needed.
-  static Void init(ModbusLib lib)
+  static Void init(ModbusExt ext)
   {
-    if (curRef.val == null) curRef.val = ModbusLinkMgr(lib)
+    if (curRef.val == null) curRef.val = ModbusLinkMgr(ext)
   }
 
   ** Stop the link manager. It can no longer be used after this
@@ -266,9 +266,9 @@ using hxPlatformSerial
   private static const AtomicRef curRef := AtomicRef(null)
 
   ** Private ctor.
-  private new make(ModbusLib lib)
+  private new make(ModbusExt ext)
   {
-    this.lib   = lib
+    this.ext   = ext
     this.pool  = ActorPool { name="ModbusLink" }
     this.actor = Actor(pool) |m| { actorReceive(m) }
     this.actor.sendLater(pollFreq, poll)
@@ -290,7 +290,7 @@ using hxPlatformSerial
       case "open":
         Uri uri := m.a
         link := map[uri]
-        if (link == null) map[uri] = link = ModbusLink(pool, lib, uri)
+        if (link == null) map[uri] = link = ModbusLink(pool, ext, uri)
         return link
 
       case "poll":
@@ -318,7 +318,7 @@ using hxPlatformSerial
   private const Duration pollFreq  := 1min
   private const Int staleTime := 1min.ticks
 
-  private const ModbusLib lib
+  private const ModbusExt ext
   private const ActorPool pool
   private const Actor actor
 }

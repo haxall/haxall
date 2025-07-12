@@ -16,9 +16,9 @@ using hxConn
 **
 ** Modbus connector library
 **
-const class ModbusLib : ConnExt
+const class ModbusExt : ConnExt
 {
-  static ModbusLib? cur(Bool checked := true)
+  static ModbusExt? cur(Bool checked := true)
   {
     HxContext.curHx.rt.libsOld.get("modbus", checked)
   }

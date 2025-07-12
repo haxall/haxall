@@ -53,7 +53,7 @@ const class ModbusFuncs
   static Grid modbusRead(Obj conn, Obj regs)
   {
     list := regs as Str[] ?: Str[regs]
-    return ModbusLib.cur.read(conn, list)
+    return ModbusExt.cur.read(conn, list)
   }
 
   **
@@ -62,7 +62,7 @@ const class ModbusFuncs
   @Axon { admin = true }
   static Void modbusWrite(Obj conn, Str reg, Obj val)
   {
-    ModbusLib.cur.write(conn, reg, val)
+    ModbusExt.cur.write(conn, reg, val)
   }
 
 
@@ -177,3 +177,4 @@ const class ModbusFuncs
     return dir
   }
 }
+
