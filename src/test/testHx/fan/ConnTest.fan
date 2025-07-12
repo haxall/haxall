@@ -1190,16 +1190,16 @@ class ConnTest : HxTest
     verifySame(rt.conn.point(p2Id), p2o)
 
     // verify details
-    verifyDupDetails("""connDetails($p1Id.toCode)""", "HaystackLib")
-    verifyDupDetails("""connDetails($p2Id.toCode)""", "ObixLib")
-    verifyDupDetails("""connPointsVia($p1Id.toCode, "haystack").connDetails""", "HaystackLib")
-    verifyDupDetails("""connPointsVia($p2Id.toCode, "haystack").connDetails""", "HaystackLib")
-    verifyDupDetails("""connPointsVia($p1Id.toCode, "obix").connDetails""", "ObixLib")
-    verifyDupDetails("""connPointsVia($p2Id.toCode, "obix").connDetails""", "ObixLib")
-    verifyDupDetails("""readById($p1Id.toCode).connPointsVia($chId.toCode).connDetails""", "HaystackLib")
-    verifyDupDetails("""readById($p2Id.toCode).connPointsVia($chId.toCode).connDetails""", "HaystackLib")
-    verifyDupDetails("""readByIds([$p1Id.toCode]).connPointsVia($coId.toCode).connDetails""", "ObixLib")
-    verifyDupDetails("""readByIds([$p2Id.toCode]).connPointsVia($coId.toCode).connDetails""", "ObixLib")
+    verifyDupDetails("""connDetails($p1Id.toCode)""", "HaystackExt")
+    verifyDupDetails("""connDetails($p2Id.toCode)""", "ObixExt")
+    verifyDupDetails("""connPointsVia($p1Id.toCode, "haystack").connDetails""", "HaystackExt")
+    verifyDupDetails("""connPointsVia($p2Id.toCode, "haystack").connDetails""", "HaystackExt")
+    verifyDupDetails("""connPointsVia($p1Id.toCode, "obix").connDetails""", "ObixExt")
+    verifyDupDetails("""connPointsVia($p2Id.toCode, "obix").connDetails""", "ObixExt")
+    verifyDupDetails("""readById($p1Id.toCode).connPointsVia($chId.toCode).connDetails""", "HaystackExt")
+    verifyDupDetails("""readById($p2Id.toCode).connPointsVia($chId.toCode).connDetails""", "HaystackExt")
+    verifyDupDetails("""readByIds([$p1Id.toCode]).connPointsVia($coId.toCode).connDetails""", "ObixExt")
+    verifyDupDetails("""readByIds([$p2Id.toCode]).connPointsVia($coId.toCode).connDetails""", "ObixExt")
   }
 
   private Void verifyDupDetails(Str expr, Str contains)
