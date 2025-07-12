@@ -27,18 +27,20 @@ const class MProjExts : Actor, ProjExts
 
   const HxRuntime proj
 
+  const Log log := Log.get("projExts") // TODO
+
   override const ActorPool actorPool
 
   override Ext[] list() { listRef.val }
   private const AtomicRef listRef := AtomicRef()
 
-  override Bool has(Str name) { map.containsKey(name) }
+  override Bool has(Str qname) { map.containsKey(qname) }
 
-  override Ext? get(Str name, Bool checked := true)
+  override Ext? get(Str qname, Bool checked := true)
   {
-    lib := map[name]
-    if (lib != null) return lib
-    if (checked) throw UnknownExtErr(name)
+    ext := map[qname]
+    if (ext != null) return ext
+    if (checked) throw UnknownExtErr(qname)
     return null
   }
   internal Str:Ext map() { mapRef.val }
@@ -56,27 +58,21 @@ const class MProjExts : Actor, ProjExts
     return gb.toGrid
   }
 
-  Void init(ExtDef[] defs)
+  Void init()
   {
     map := Str:Ext[:]
-    defs.each |def|
+
+    // walk all the namespace libs
+    ns := proj.ns
+    ns.libs.each |lib|
     {
-      try
-      {
-        // instantiate the HxExt
-        settings := Etc.dict0
-//        ext := MExtSpi.instantiate(proj, def, settings)
-//        map.add(ext.qname, ext)
-      }
-      catch (Err e)
-      {
-//        proj.log.err("Cannot init ext: $def.qname", e)
-      }
+      ext := MExtSpi.instantiate(this, lib)
+      if (ext != null) map.add(ext.qname, ext)
     }
 
     // build lookup tables
     list := map.vals
-    list.sort |a, b| { a.name <=> b.name }
+    list.sort |a, b| { a.qname <=> b.qname }
 
     // save lookup tables
     this.listRef.val = list.toImmutable

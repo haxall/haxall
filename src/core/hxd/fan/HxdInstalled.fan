@@ -51,7 +51,6 @@ const class HxdInstalled
 ** HxdInstalledLib
 **************************************************************************
 
-/*
 const class HxdInstalledLib
 {
   internal new make(Str name, Pod pod, Dict meta)
@@ -88,7 +87,7 @@ const class HxdInstalledLib
 
   override Str toStr() { name }
 }
-*/
+
 
 **************************************************************************
 ** HxdInstalledBuilder
@@ -143,7 +142,7 @@ internal class HxdInstalledBuilder
     }
   }
 
-  private HxdInstalledLib mapLib(Str name, Pod pod)
+  static HxdInstalledLib mapLib(Str name, Pod pod)
   {
     // parse lib.trio file
     file := toMetaFile(name, pod)
@@ -167,7 +166,7 @@ internal class HxdInstalledBuilder
     return HxdInstalledLib(name, pod, meta)
   }
 
-  private Dict normMeta(Str name, Pod pod, Dict meta)
+  static Dict normMeta(Str name, Pod pod, Dict meta)
   {
     acc := Etc.dictToMap(meta)
 
@@ -191,12 +190,12 @@ internal class HxdInstalledBuilder
     return Etc.makeDict(acc)
   }
 
-  private File toMetaFile(Str name, Pod pod)
+  static File toMetaFile(Str name, Pod pod)
   {
     pod.file(`/lib/lib.trio`, false) ?: throw Err("Pod missing /lib/lib.trio")
   }
 
-  private Obj[] normDepends(Obj[] depends)
+  static Obj[] normDepends(Obj[] depends)
   {
     // exclude skyarc as optional dependency
     depends.findAll |d| { d.toStr != "lib:skyarc" }

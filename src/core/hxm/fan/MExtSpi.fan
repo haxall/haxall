@@ -9,49 +9,11 @@
 
 using concurrent
 using xeto
+using xetom
 using haystack
 using obs
 using folio
 using hx
-
-
-const class HxdInstalledLib
-{
-  new make(Str name, Pod pod, Dict meta)
-  {
-    this.name  = name
-    this.pod   = pod
-    this.meta  = meta
-  }
-
-  const Str name
-  const Pod pod
-  const Dict meta
-
-  Type? type()
-  {
-    typeName := meta["typeName"] as Str
-    if (typeName == null) return null
-    return Type.find(typeName)
-  }
-
-  Str[] depends()
-  {
-    Symbol.toList(meta["depends"]).map |x->Str|
-    {
-      if (!x.toStr.startsWith("lib:")) throw Err("Invalid depend: $x")
-      return x.name
-    }
-  }
-
-  File metaFile()
-  {
-    pod.file(`/lib/lib.trio`)
-  }
-
-  override Str toStr() { name }
-}
-
 
 **
 ** ExtSpi implementation
@@ -63,58 +25,89 @@ const class MExtSpi : Actor, ExtSpi
 // Ext Factory
 //////////////////////////////////////////////////////////////////////////
 
-  ** Instantiate the Ext for given def and database rec
-  static Ext instantiate(HxRuntime rt, HxdInstalledLib install, Dict rec, ActorPool pool)
+  ** Instantiate the Ext for given lib if available
+  static Ext? instantiate(MProjExts exts, Lib lib)
   {
-    spi := MExtSpi(rt, install, rec, pool)
-    Actor.locals["hx.spi"]  = spi
+    // check for libExt meta
+    ref := lib.meta["libExt"] as Ref
+    if (ref == null) return null
+
+    // try rest in try block...
+    log  := exts.log
     try
     {
-      lib := doInstantiate(spi)
-      spi.libRef.val = lib
-      return lib
+      // lookup the spec
+      spec := exts.proj.ns.spec(ref.id, false)
+      if (spec == null) { log.warn("Unknown lib ext spec: $ref"); return null }
+
+      // verify type
+      type := spec.fantomType
+      if (type.name == "Dict") { log.warn("Missing fantom type binding: $spec"); return null }
+
+      // read settings
+      settings := Etc.dict0
+
+      // create spi instance
+      spi := MExtSpi(exts.proj, spec, type, settings, exts.actorPool)
+
+      // instantiate fantom type
+      Ext? ext
+      Actor.locals["hx.spi"] = spi
+      try
+        ext = spi.fantomType.make
+      finally
+        Actor.locals.remove("hx.spi")
+
+      // bind spi to ext instance
+      spi.extRef.val = ext
+
+      // done!
+      return ext
     }
-    finally
+    catch (Err e)
     {
-      Actor.locals.remove("hx.spi")
+      log.err("Cannot init ext: $ref", e)
+      return null
     }
   }
 
-  private static Ext doInstantiate(MExtSpi spi)
+  private new make(HxRuntime proj, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
   {
-    spi.type == null ? ResExt() : spi.type.make
-  }
+// TODO
+name = type.pod.name
+if (name.startsWith("hx") && !(name == "hxApi" || name == "hxUser"))
+  name = name[2..-1].decapitalize
 
-  private new make(HxRuntime rt, HxdInstalledLib install, Dict rec, ActorPool pool) : super(pool)
-  {
-    this.rt      = rt
-    this.name    = install.name
-    this.install = install
-    this.type    = install.type
-    this.log     = Log.get(name)
-    this.recRef  = AtomicRef(typedRec(rec))
-    this.webUri  = ("/" + (name.startsWith("hx") ? name[2..-1].decapitalize : name) + "/").toUri
+    this.rt          = proj
+    this.qname       = spec.qname
+    this.log         = Log.get(name)
+    this.fantomType  = type
+    this.settingsRef = AtomicRef(typedRec(settings))
+    this.webUri      = ("/" + (name.startsWith("hx") ? name[2..-1].decapitalize : name) + "/").toUri
+
   }
 
 //////////////////////////////////////////////////////////////////////////
 // ExtSpi Implementation
 //////////////////////////////////////////////////////////////////////////
 
-  Ext lib() { libRef.val }
-  private const AtomicRef libRef := AtomicRef()
+// TODO
+override const Str name
+override DefLib def() { rt.defs.lib(name) }
+
+  Ext ext() { extRef.val }
+  private const AtomicRef extRef := AtomicRef()
 
   override const HxRuntime rt
 
-  override const Str name
+  override const Str qname
 
-  const HxdInstalledLib install
+  const Type fantomType
 
-  const Type? type
+  override Spec spec() { rt.ns.spec(qname) }
 
-  override DefLib def() { rt.defs.lib(name) }
-
-  override Dict rec() { recRef.val }
-  private const AtomicRef recRef
+  override Dict rec() { settingsRef.val }
+  private const AtomicRef settingsRef
 
   override const Log log
 
@@ -147,7 +140,7 @@ const class MExtSpi : Actor, ExtSpi
 
   override Subscription observe(Str name, Dict config, Obj callback)
   {
-    observer := callback is Actor ? HxdLibActorObserver(lib, callback) : HxdLibMethodObserver(lib, callback)
+    observer := callback is Actor ? ExtActorObserver(ext, callback) : ExtMethodObserver(ext, callback)
     sub := rt.obs.get(name).subscribe(observer, config)
     subscriptionsRef.val = subscriptions.dup.add(sub).toImmutable
     return sub
@@ -169,16 +162,15 @@ const class MExtSpi : Actor, ExtSpi
 
   override Void sync(Duration? timeout := 30sec) { send((HxMsg("sync"))).get(timeout) }
 
-  Void update(Dict rec)
+  Void update(Dict settings)
   {
-    recRef.val = typedRec(rec)
+    settingsRef.val = typedRec(settings)
     send(HxMsg("recUpdate", null))
   }
 
   Dict typedRec(Dict dict)
   {
-    if (type == null) return dict
-    recType := type.method("rec").returns
+    recType := fantomType.method("rec").returns
     if (recType.name == "Dict") return dict
     return TypedDict.create(recType, dict) |warn| { log.warn(warn) }
   }
@@ -189,7 +181,7 @@ const class MExtSpi : Actor, ExtSpi
     {
       if (!isRunning) return null
       try
-        lib.onHouseKeeping
+        ext.onHouseKeeping
       catch (Err e)
         log.err("Ext.onHouseKeeping", e)
       scheduleHouseKeeping
@@ -214,7 +206,7 @@ const class MExtSpi : Actor, ExtSpi
       throw e
     }
 
-    return lib.onReceive(msg)
+    return ext.onReceive(msg)
   }
 
   private Obj? onStart()
@@ -222,7 +214,7 @@ const class MExtSpi : Actor, ExtSpi
     isRunningRef.val = true
     try
     {
-      lib.onStart
+      ext.onStart
     }
     catch (Err e)
     {
@@ -238,39 +230,39 @@ const class MExtSpi : Actor, ExtSpi
     scheduleHouseKeeping
 
     // onReady callback
-    lib.onReady
+    ext.onReady
 
     return null
   }
 
   private Obj? onSteadyState()
   {
-    lib.onSteadyState
+    ext.onSteadyState
     return null
   }
 
   private Obj? onUnready()
   {
     isRunningRef.val = false
-    lib.onUnready
+    ext.onUnready
     return null
   }
 
   private Obj? onStop()
   {
-    lib.onStop
+    ext.onStop
     return null
   }
 
   private Obj? onRecUpdate()
   {
-    lib.onRecUpdate
+    ext.onRecUpdate
     return null
   }
 
   private Obj? onObs(HxMsg msg)
   {
-    ((HxdLibMethodObserver)msg.a).call(msg.b)
+    ((ExtMethodObserver)msg.a).call(msg.b)
   }
 
   override Bool isRunning() { isRunningRef.val }
@@ -278,70 +270,60 @@ const class MExtSpi : Actor, ExtSpi
 
   private Void scheduleHouseKeeping()
   {
-    freq := lib.houseKeepingFreq
+    freq := ext.houseKeepingFreq
     if (freq != null) sendLater(freq, houseKeepingMsg)
   }
 
   private static const HxMsg houseKeepingMsg := HxMsg("houseKeeping")
 }
 
-
 **************************************************************************
-** ResExt
+** ExtActorObserver
 **************************************************************************
 
-** ResExt is a stub for libraries without a Fantom class
-const class ResExt : Ext
+internal const class ExtActorObserver : Observer
 {
-}
-
-**************************************************************************
-** HxdLibActorObserver
-**************************************************************************
-
-internal const class HxdLibActorObserver : Observer
-{
-  new make(Ext lib, Actor actor)
+  new make(Ext ext, Actor actor)
   {
-    this.lib = lib
+    this.ext   = ext
     this.actor = actor
-    this.meta = Etc.emptyDict
+    this.meta  = Etc.emptyDict
   }
 
-  const Ext lib
+  const Ext ext
   override const Dict meta
   override const Actor actor
-  override Str toStr() { "Ext $lib.name" }
+  override Str toStr() { "Ext $ext.qname" }
 }
 
 **************************************************************************
-** HxdLibMethodObserver
+** ExtMethodObserver
 **************************************************************************
 
-internal const class HxdLibMethodObserver : Observer
+internal const class ExtMethodObserver : Observer
 {
-  new make(Ext lib, Method method)
+  new make(Ext ext, Method method)
   {
-    this.lib = lib
-    this.actor = (MExtSpi)lib.spi
+    this.ext    = ext
+    this.actor  = (MExtSpi)ext.spi
     this.method = method
-    this.meta = Etc.emptyDict
+    this.meta   = Etc.emptyDict
   }
 
-  const Ext lib
+  const Ext ext
   const Method method
   override const Dict meta
   override const Actor actor
   override Obj toActorMsg(Observation msg) { HxMsg("obs", this, msg) }
   override Obj? toSyncMsg() { HxMsg("sync") }
-  override Str toStr() { "Ext $lib.name" }
+  override Str toStr() { "Ext $ext.qname" }
 
   Obj? call(Obj? msg)
   {
     try
-      method.callOn(lib, [msg])
+      method.callOn(ext, [msg])
     catch (Err e)
-      lib.log.err("${lib.typeof}.observe", e)
+      ext.log.err("${ext.typeof}.observe", e)
     return null
   }
 }

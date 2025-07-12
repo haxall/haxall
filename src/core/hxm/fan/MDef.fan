@@ -16,6 +16,7 @@ using hx4
 **
 ** NamespaceDef implementation
 **
+/*
 abstract const class MDef : NamespaceDef
 {
   new make(Spec spec)
@@ -27,4 +28,5 @@ abstract const class MDef : NamespaceDef
   override final Str qname() { spec.qname }
   override final Str toStr() { spec.qname }
 }
+*/
 

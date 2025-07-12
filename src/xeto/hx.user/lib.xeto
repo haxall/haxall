@@ -7,7 +7,7 @@
 //
 
 pragma: Lib <
-  doc: "Haxall auth and user management"
+  doc: "Authentication and user management"
   version: BuildVar "hx.version"
   depends: {
     { lib: "sys", versions: BuildVar "ph.depend" }
@@ -23,5 +23,9 @@ pragma: Lib <
     type: BuildVar "hx.vcs.type"
     uri:  BuildVar "hx.vcs.uri"
   }
+  libExt: HxUserExt
 >
+
+// Authentication and user management
+HxUserExt: Ext
 

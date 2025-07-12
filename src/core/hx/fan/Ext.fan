@@ -44,16 +44,20 @@ abstract const class Ext
   ** Runtime
   virtual HxRuntime rt() { spi.rt }
 
-  ** Programmatic name of the extension
-  Str name() { spi.name }
+  ** Qualifed name of this extensions spec
+  Str qname() { spi.qname }
 
-  ** Definition meta data.  Not available in constructor.
-  @NoDoc virtual DefLib def() { spi.def }
+  ** Xeto spec for this extension
+  Spec spec() { spi.spec }
 
-  ** Database record which enables this extension and stores settings.
-  ** This field may be overridden with a `haystack::TypedDict` subclass.
-  ** Also see `docHaxall::Libs#settings`.
-  virtual Dict rec() { spi.rec}
+** TODO
+@Deprecated @NoDoc virtual DefLib def() { spi.def }
+
+**TODO
+Str name() { spi.name }
+
+  ** Settings for the extension
+  virtual Dict rec() { spi.rec }
 
   ** Logger to use for this extension
   Log log() { spi.log }
@@ -154,8 +158,10 @@ abstract const class Ext
 const mixin ExtSpi
 {
   abstract HxRuntime rt()
-  abstract Str name()
-  abstract DefLib def()
+abstract Str name()
+abstract DefLib def()
+  abstract Str qname()
+  abstract Spec spec()
   abstract Dict rec()
   abstract Log log()
   abstract Uri webUri()

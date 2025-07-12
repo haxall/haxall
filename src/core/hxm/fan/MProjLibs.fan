@@ -339,7 +339,7 @@ const class MProjLibs : ProjLibs
     // at this point should we should have a safe versions list to create namespace
     nsVers := versToUse.vals
     nsVers.add(FileLibVersion.makeProj(fb.dir, version))
-    ns := ProjNamespace(LocalNamespaceInit(repo, nsVers, null, repo.names), log)
+    ns := ProjNamespace(LocalNamespaceInit(repo, nsVers, null, repo.names))
     ns.libs // force sync load
 
     // now update MProjLibs map of MProjLib
@@ -378,7 +378,14 @@ const class MProjLibs : ProjLibs
     this.nsRef.val = ns
     this.mapRef.val = acc.toImmutable
     this.projLibNamesRef.val = projLibNames.toImmutable
+
+// TODO
+rt := rtRef.val as HxRuntime
+if (rt != null) rt.recompileDefs
   }
+
+// TODO
+const AtomicRef rtRef := AtomicRef()
 
   // updated by reload
   private const AtomicRef nsRef := AtomicRef()

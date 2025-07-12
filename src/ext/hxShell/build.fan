@@ -38,7 +38,7 @@ class Build : BuildPod
     srcDirs = [`fan/`, `fan/ui/`]
     resDirs = [`lib/`, `res/css/`]
     docApi  = false
-    index   = ["ph.lib": "hxShell"]
+    index   = ["xeto.bindings": "hx.shell", "ph.lib": "hxShell"]
   }
 }
 

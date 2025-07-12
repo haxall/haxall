@@ -40,7 +40,6 @@ const class HxdRuntime : HxRuntime
     this.installedRef  = AtomicRef(HxdInstalled.build)
     this.libsActorPool = ActorPool { it.name = "Hxd-Lib" }
     this.hxdActorPool  = ActorPool { it.name = "Hxd-Runtime" }
-    this.libsOld       = HxdRuntimeLibs(this, boot.requiredLibs)
     this.backgroundMgr = HxdBackgroundMgr(this)
     this.context       = HxdContextService(this)
     this.watch         = HxdWatchService(this)
@@ -48,13 +47,15 @@ const class HxdRuntime : HxRuntime
     this.file          = HxdFileService(this)
     this.his           = HxdHisService(this)
     this.libs          = MProjLibs.shim(dir)
-    this.exts          = MProjExts(this, libsOld.actorPool)
+    this.exts          = MProjExts(this, libsActorPool)
+libs.rtRef.val = this
   }
 
   ** Called after constructor to init libs
   This init(HxdBoot boot)
   {
-    libsOld.init(boot.removeUnknownLibs)
+    exts.init
+    servicesRebuild
     obs.init
     return this
   }
@@ -112,13 +113,14 @@ const class HxdRuntime : HxRuntime
       // lazily recompile base
       base := nsBaseRef.val as DefNamespace
       if (base == null)
-        nsBaseRef.val = base = HxdDefCompiler(this).compileNamespace
+        nsBaseRef.val = base = ProjDefCompiler(this).compileNamespace
 
       // compile overlay
-      nsOverlayRef.val = overlay = HxdOverlayCompiler(this, base).compileNamespace
+      nsOverlayRef.val = overlay = base // TODO ProjOverlayCompiler(this, base).compileNamespace
     }
     return overlay
   }
+override Void recompileDefs() { nsBaseRecompile }
   internal Void nsBaseRecompile() { this.nsBaseRef.val = null; this.nsOverlayRef.val = null }
   internal Void nsOverlayRecompile() { this.nsOverlayRef.val = null }
   private const AtomicRef nsBaseRef := AtomicRef()    // base from installed libs
@@ -142,9 +144,6 @@ const class HxdRuntime : HxRuntime
   override HxTaskService task() { services.task }
   override HxPointWriteService pointWrite() { services.pointWrite }
   override HxConnService conn() { services.conn }
-
-  ** Library managment
-  override const HxdRuntimeLibs libsOld
 
   ** Has the runtime has reached steady state.
   override Bool isSteadyState() { stateStateRef.val }
@@ -172,7 +171,7 @@ const class HxdRuntime : HxRuntime
   private const AtomicRef installedRef
 
   ** Logging
-  const Log log
+  override const Log log
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle

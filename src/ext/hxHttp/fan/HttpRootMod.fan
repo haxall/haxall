@@ -39,9 +39,14 @@ internal const class HttpRootMod : WebMod
       return res.redirect(`/shell`)
     }
 
-    // lookup lib as hxFoo and foo
-    lib := rt.libsOld.get("hx"+libName.capitalize, false)
-    if (lib == null) lib = rt.libsOld.get(libName, false)
+    // TODO
+    x := "hx." + libName + "::" + libName.capitalize +"Ext"
+    lib := rt.exts.get(x, false)
+    if (lib == null)
+    {
+      x = "hx." + libName + "::Hx" + libName.capitalize +"Ext"
+      lib = rt.exts.get(x, false)
+    }
     if (lib == null) return res.sendErr(404)
 
     // check if it supports ExtWeb

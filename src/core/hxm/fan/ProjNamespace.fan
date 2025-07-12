@@ -18,33 +18,6 @@ using xetoc
 **
 const class ProjNamespace : LocalNamespace, Namespace
 {
-  internal new make(LocalNamespaceInit init, Log log) : super(init)
-  {
-    this.log = log
-  }
-
-  const Log log
-
-/*
-  once NamespaceExts exts()
-  {
-    ext := spec("hx::Ext")
-    acc := Str:ExtDef[:]
-    libs.each |lib|
-    {
-      lib.specs.each |spec|
-      {
-        if (spec.isa(ext) && spec.meta.missing("abstract"))
-        {
-          if (!spec.name.endsWith("Ext"))
-            return log.err("Ext name must end with Ext: $spec")
-          else
-            acc[spec.qname] = MExtDef(spec)
-        }
-      }
-    }
-    return MExtDefs(acc)
-  }
-*/
+  internal new make(LocalNamespaceInit init) : super(init) {}
 }
 

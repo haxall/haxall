@@ -35,7 +35,7 @@ class Build : BuildPod
                 "hx @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "crypto"]
+    index   = ["xeto.bindings": "hx.crypto", "ph.lib": "crypto"]
   }
 }
 

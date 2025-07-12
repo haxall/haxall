@@ -36,15 +36,21 @@ class RuntimeTest : HxTest
     y := rt.db.readById(x.id)
     verifyEq(y.dis, "It works!")
 
-    // test that required libs are enabled
-    verifyEq(rt.libsOld.get("ph").name, "ph")
-    verifyEq(rt.libsOld.list.containsSame(rt.libsOld.get("ph")), true)
+    // test that required exts are enabled
+    ext := rt.exts.get("hx.crypto::CryptoExt")
+    verifyEq(ext.qname, "hx.crypto::CryptoExt")
+    verifyEq(rt.exts.list.containsSame(ext), true)
+    verifySame(rt.libsOld.get("crypto"), ext)
 
     // test some methods
     verifyEq(rt.http.siteUri.isAbs, true)
     verifyEq(rt.http.siteUri.scheme == "http" || rt.http.siteUri.scheme == "https", true)
     verifyEq(rt.http.apiUri.isAbs, false)
     verifyEq(rt.http.apiUri.isDir, true)
+
+    // verify legacy defs
+    verifyEq(rt.defs.def("lib:ph")->def, Symbol("lib:ph"))
+    verifyEq(rt.defs.def("lib:crypto")->def, Symbol("lib:crypto"))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -210,7 +216,7 @@ class RuntimeTest : HxTest
     verifyEq(cx.eval("cryptoReadAllKeys().col(\"alias\").name"), "alias")
 
     // add library
-    cx.eval("libAddOld(\"math\")")
+    cx.eval("libAdd(\"hx.math\")")
     verifyEq(cx.defs.def("func:sqrt").lib.name, "math")
     verifyEq(cx.eval("sqrt(16)"), n(4))
 

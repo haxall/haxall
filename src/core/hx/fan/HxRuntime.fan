@@ -27,6 +27,9 @@ const mixin HxRuntime : HxStdServices
   ** Runtime version
   abstract Version version()
 
+  ** Log for project level logging
+  abstract Log log()
+
   ** Running flag.  On startup this flag transitions to true before calling
   ** ready and start on all the libraries.  On shutdown this flag transitions
   ** to false before calling unready and stop on all the libraries.
@@ -62,7 +65,7 @@ const mixin HxRuntime : HxStdServices
   abstract ProjExts exts()
 
   ** Library managment APIs
-  abstract HxRuntimeLibs libsOld()
+  HxRuntimeLibs libsOld() { HxRuntimeLibs(this) }
 
   ** Service registry
   abstract HxServiceRegistry services()
@@ -78,38 +81,48 @@ const mixin HxRuntime : HxStdServices
 
   ** Configuration options defined at bootstrap
   @NoDoc abstract HxConfig config()
+
+** TODO
+abstract Void recompileDefs()
 }
 
 **************************************************************************
 ** HxRuntimeLibs
 **************************************************************************
 
-**
-** Haxall runtime library management APIs
-**
-const mixin HxRuntimeLibs
+** TODO: shim for old lib APIs
+const class HxRuntimeLibs
 {
-  ** List of libs currently enabled sorted by name
-  abstract Ext[] list()
+  new make(HxRuntime rt) { this.rt = rt }
 
-  ** Lookup an enabled lib by name.  If not found then
-  ** return null or raise UnknownLibErr based on checked flag.
-  abstract Ext? get(Str name, Bool checked := true)
+  const HxRuntime rt
 
-  ** Check if there is an enabled lib with given name
-  abstract Bool has(Str name)
+  Ext[] list() { rt.exts.list }
 
-  ** Enable a library in the runtime
-  abstract Ext add(Str name, Dict tags := Etc.emptyDict)
+  Ext? get(Str name, Bool checked := true) { rt.exts.get(fixName(name), checked) }
 
-  ** Disable a library from the runtime.  The lib arg may
-  ** be a Ext instace, Lib definition, or Str name.
-  abstract Void remove(Obj lib)
+  Bool has(Str name) { rt.exts.has(fixName(name)) }
 
-  ** Actor thread pool to use for libraries
-  abstract ActorPool actorPool()
+  ActorPool actorPool() { rt.exts.actorPool }
 
-  ** Return status grid of enabled libs
-  @NoDoc abstract Grid status()
+  Grid status() { rt.exts.status }
+
+  Ext add(Str name, Dict tags := Etc.emptyDict)
+  {
+    echo("TODO: old lib add: $name")
+    throw Err("TODO")
+  }
+
+  Void remove(Obj lib)
+  {
+    echo("TODO: old lib remove: $lib")
+  }
+
+
+  Str fixName(Str name)
+  {
+    "hx." + name + "::" + name.capitalize + "Ext"
+  }
+
 }
 

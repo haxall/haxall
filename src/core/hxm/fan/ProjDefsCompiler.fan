@@ -4,6 +4,7 @@
 //
 // History:
 //   19 May 2021  Brian Frank  Creation
+//   12 Jul 2025  Brian Frank  Redesign for 4.0
 //
 
 using concurrent
@@ -12,32 +13,100 @@ using haystack
 using axon
 using folio
 using hx
-using hxm::MExtSpi
 using def
 using defc
 
-/*
 **
-** Haxall definition compiler
+** Project definition compiler
 **
-class HxdDefCompiler : DefCompiler
+class ProjDefCompiler : DefCompiler
 {
-  new make(HxdRuntime rt)
+  new make(HxRuntime rt)
   {
-    this.rt = rt
-    this.log = rt.log
-    this.factory = HxdDefFactory()
-    this.inputs = rt.libsOld.list.map |lib->HxdLibInput| { HxdLibInput(lib) }
+    this.log     = rt.log
+    this.factory = ProjDefFactory()
+    this.inputs  = buildInputs(rt)
   }
 
-  const HxdRuntime rt
+  internal ProjLibInput[] buildInputs(HxRuntime rt)
+  {
+    acc := Str:ProjLibInput[:]
+
+    // include base def libs
+    "ph,phScience,phIoT,phIct,hx,obs,axon".split(',').each |name|
+    {
+      pod  := Pod.find(name)
+      meta := podToMeta(pod)
+      acc.add(name, ProjLibInput(name, pod, meta))
+    }
+
+    // map xeto libs to def pods
+    rt.ns.libs.each |lib|
+    {
+      if (acc[lib.name] != null) return
+      input := xetoToInput(rt, lib)
+      if (input != null && acc[input.name] == null)
+        acc[input.name] = input
+    }
+
+    return acc.vals
+  }
+
+  internal ProjLibInput? xetoToInput(HxRuntime rt, Lib lib)
+  {
+    try
+    {
+      pod := xetoToPod(lib.name)
+      if (pod == null) return null
+
+      meta := podToMeta(pod)
+      def := meta->def.toStr["lib:".size..-1]
+      return ProjLibInput(def, pod, meta)
+    }
+    catch (Err e)
+    {
+      log.err("Cannot map xeto libto defs [$lib]", e)
+      return null
+    }
+  }
+
+  Pod? xetoToPod(Str n)
+  {
+    if (n.startsWith("hx."))
+    {
+      hxName := "hx" + n[3..-1].capitalize
+      pod := Pod.find(hxName, false)
+      if (pod != null) return pod
+    }
+
+    return null
+  }
+
+  Dict? podToMeta(Pod pod)
+  {
+    // check for lib.trio meta file
+    libFile := pod.file(`/lib/lib.trio`, false)
+    if (libFile == null)
+    {
+      echo("WARN: no lib.trio found in pod [$pod.name]")
+      return null
+    }
+
+    meta := CompilerInput.parseLibMetaFile(this, libFile) as Dict
+    if (meta != null)
+    {
+      if (meta.missing("version")) meta = Etc.dictSet(meta, "version", pod.version.toStr)
+      if (meta.missing("baseUri")) meta = Etc.dictSet(meta, "baseUri", `/def/${meta->def}`)
+    }
+    return meta
+  }
 }
 
 **************************************************************************
-** HxdDefFactory
+** ProjDefFactory
 **************************************************************************
 
-internal const class HxdDefFactory : DefFactory
+internal const class ProjDefFactory : DefFactory
 {
   override MFeature createFeature(BFeature b)
   {
@@ -102,30 +171,27 @@ const class FuncDef : MDef
 }
 
 **************************************************************************
-** HxdLibInput
+** ProjLibInput
 **************************************************************************
 
-internal const class HxdLibInput : LibInput
+internal const class ProjLibInput : LibInput
 {
-  new make(Ext ext)
+  new make(Str name, Pod pod, Dict meta)
   {
-    this.name     = ext.name
-    this.ext      = ext
-    this.install  = HxdInstalledLib(ext)
-    this.metaFile = install.metaFile
-    this.loc      = CLoc(ext.qname)
+    this.name = name
+    this.pod  = pod
+    this.meta = meta
+    this.loc  = CLoc(pod.name)
   }
 
   const Str name
-  const Ext ext
+  const Pod pod
+  const Dict meta
   const override CLoc loc
-  const HxdInstalledLib install
-  const File metaFile
-  Pod pod() { install.pod }
 
   override Obj scanMeta(DefCompiler c)
   {
-    install.meta
+    meta
   }
 
   override File[] scanFiles(DefCompiler c)
@@ -153,7 +219,7 @@ internal const class HxdLibInput : LibInput
   override ReflectInput[] scanReflects(DefCompiler c)
   {
     // check for FooLib -> FooFuncs class
-    typeName := install.meta["typeName"] as Str
+    typeName := meta["typeName"] as Str
     if (typeName != null)
     {
       funcsType := Type.find(typeName[0..-4]+"Funcs", false)
@@ -210,30 +276,13 @@ internal const class FuncMethodsReflectInput : FuncReflectInput
   }
 }
 
-** FuncCompReflectInput reflects AbstractComp class to Axon component
-/* TODO
-internal const class FuncCompReflectInput : FuncReflectInput
-{
-  new make(Type type) : super(type, null) {}
-
-  override Type? typeFacet() { Axon# }
-
-  override Symbol toSymbol(Slot? slot) { Symbol("func:" + type.name.decapitalize) }
-
-  override Void onDef(Slot? slot, CDef def)
-  {
-    def.aux = AbstractComp.reflect(type)
-  }
-}
-*/
-
 **************************************************************************
-** HxdOverlayLib
+** ProjOverlayLib
 **************************************************************************
 
-const class HxdOverlayCompiler
+const class ProjOverlayLib
 {
-  new make(HxdRuntime rt, DefNamespace base)
+  new make(HxRuntime rt, DefNamespace base)
   {
     this.rt = rt
     this.base = base
@@ -241,7 +290,7 @@ const class HxdOverlayCompiler
     this.libSymbol = Symbol("lib:hx_db")
   }
 
-  const HxdRuntime rt
+  const HxRuntime rt
   const DefNamespace base
   const Log log
   const Symbol libSymbol
@@ -306,5 +355,4 @@ const class HxdOverlayCompiler
     log.err("$msg [$rec.id.toCode]", err)
   }
 }
-*/
 

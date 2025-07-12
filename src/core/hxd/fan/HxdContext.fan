@@ -13,6 +13,7 @@ using def
 using axon
 using folio
 using hx
+using hxm
 
 **
 ** Haxall daemon implementation of HxContextService

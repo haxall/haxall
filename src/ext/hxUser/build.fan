@@ -10,7 +10,7 @@
 using build
 
 **
-** Build: hxd
+** Build: hxUser
 **
 class Build : BuildPod
 {
@@ -40,10 +40,7 @@ class Build : BuildPod
     resDirs = [`lib/`, `locale/`, `res/`]
     docApi  = false
 
-    index =
-    [
-      "ph.lib": ["hxUser"],
-    ]
+    index = ["xeto.bindings": "hx.user", "ph.lib": "hxUser"]
   }
 }
 
