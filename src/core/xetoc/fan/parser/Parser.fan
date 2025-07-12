@@ -456,7 +456,7 @@ internal class Parser
     val := buildVars.get(name)
     if (val == null)
     {
-      compiler.err("Unknown build var $val.toCode", curToLoc)
+      compiler.err("Unknown build var $name.toCode", curToLoc)
       return name
     }
 

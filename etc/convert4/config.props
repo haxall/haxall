@@ -4,3 +4,9 @@
 
 libPrefix=hx
 
+// depend versions by lib prefix
+depend.sys=BuildVar "ph.depend"
+depend.ph=BuildVar "ph.depend"
+depend.hx=BuildVar "hx.depend"
+depend.ion=BuildVar "ion.depend"
+

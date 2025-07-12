@@ -9,9 +9,7 @@
 pragma: Lib <
   doc: "$doc"
   version: BuildVar "hx.version"
-  depends: {
-    $depends
-  }
+  depends: $depends
   categories: {"haxall"}
   license: BuildVar "hx.license"
   org: {

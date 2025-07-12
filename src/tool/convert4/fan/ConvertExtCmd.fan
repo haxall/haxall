@@ -55,7 +55,7 @@ internal class ConvertExtCmd : ConvertCmd
     src := macro.apply |var| { vars[var] }
 
     // write out
-//    f.out.print(src).close
+    f.out.print(src).close
   }
 
   Str resolveLibXetoVar(AExt ext, Str var)
@@ -65,9 +65,27 @@ internal class ConvertExtCmd : ConvertCmd
       case "date":    return Date.today.toLocale("D MMM YYYY")
       case "year":    return Date.today.toLocale("YYYY")
       case "doc":     return ext.meta["doc"] ?: "todo"
-      case "depends": return ""
+      case "depends": return resolveDepends(ext)
     }
     throw Err("Unknown lib.xeto template var: $var")
+  }
+
+  private Str resolveDepends(AExt ext)
+  {
+    s := StrBuf().add("{\n")
+    addDepend(s, "sys")
+    if (ext.libName != "hx") addDepend(s, "hx")
+    s.add("  }")
+    return s.toStr
+  }
+
+  private Void addDepend(StrBuf s, Str name)
+  {
+    prefix := name.split('.').first
+    versions := ast.config.dependVersions[prefix]
+    s.add("    { lib: $name.toCode")
+    if (versions != null) s.add(", versions: $versions")
+    s.add(" }\n")
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -18,9 +18,18 @@ class AConfig
   {
     env := Env.cur
     pod := AConfig#.pod
+    props := pod.props(`config.props`, 0ms)
+
+    dependVersions := Str:Str[:]
+    props.each |v, n|
+    {
+      if (n.startsWith("depend.")) dependVersions.set(n[7..-1], v)
+    }
+
     return make {
-      libPrefix       = pod.config("libPrefix", "hx")
-      templateLibXeto = env.findFile(`etc/convert4/template-lib.xeto`).readAllStr
+      it.libPrefix       = pod.config("libPrefix", "hx")
+      it.templateLibXeto = env.findFile(`etc/convert4/template-lib.xeto`).readAllStr
+      it.dependVersions  = dependVersions
     }
   }
 
@@ -29,5 +38,7 @@ class AConfig
   Str libPrefix := "hx"
 
   Str templateLibXeto
+
+  Str:Str dependVersions
 }
 
