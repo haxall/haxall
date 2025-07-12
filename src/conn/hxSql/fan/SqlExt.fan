@@ -16,7 +16,7 @@ using hxConn
 **
 ** SQL connector library
 **
-const class SqlLib : ConnExt
+const class SqlExt : ConnExt
 {
   static SqlClient doOpen(Conn c)
   {

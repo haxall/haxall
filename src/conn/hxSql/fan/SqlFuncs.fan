@@ -173,7 +173,7 @@ const class SqlFuncs
   private static Obj? withConn(Obj conn, |sql::SqlConn->Obj?| f)
   {
     conn = curContext.rt.conn.conn(Etc.toId(conn))
-    db := SqlLib.doOpen(conn)
+    db := SqlExt.doOpen(conn)
     try
       return f(db)
     finally

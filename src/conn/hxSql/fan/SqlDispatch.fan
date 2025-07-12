@@ -25,7 +25,7 @@ class SqlDispatch : ConnDispatch
 
   override Void onOpen()
   {
-    this.client = SqlLib.doOpen(conn)
+    this.client = SqlExt.doOpen(conn)
   }
 
   override Void onClose()
