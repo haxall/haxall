@@ -9,11 +9,8 @@
 --------------------------------------------------------------------------
 def: ^lib:haystack
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
-typeName:"hxHaystack::HaystackLib"
+typeName:"hxHaystack::HaystackExt"
 icon: "haystack"
 doc: "Haystack HTTP API connector"
 --------------------------------------------------------------------------
-
-
-
 

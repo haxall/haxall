@@ -592,9 +592,9 @@ class HaystackConnTest : HxTest
 
   Void syncConn()
   {
-    lib := (HaystackLib)rt.libsOld.get("haystack")
+    ext := (HaystackExt)rt.libsOld.get("haystack")
     rt.sync
-    lib.conn(conn.id).sync
+    ext.conn(conn.id).sync
   }
 
 //////////////////////////////////////////////////////////////////////////

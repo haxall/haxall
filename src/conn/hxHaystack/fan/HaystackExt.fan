@@ -13,7 +13,7 @@ using hxConn
 **
 ** Haystack connector library
 **
-const class HaystackLib : ConnExt
+const class HaystackExt : ConnExt
 {
   override Str onConnDetails(Conn c)
   {
