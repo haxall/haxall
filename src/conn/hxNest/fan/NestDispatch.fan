@@ -20,7 +20,7 @@ class NestDispatch : ConnDispatch
 
   new make(Obj arg) : super(arg) {}
 
-  private NestLib nestLib() { ext }
+  private NestExt nestLib() { ext }
 
   internal Nest? client
 

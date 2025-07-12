@@ -10,6 +10,7 @@
 def: ^lib:nest
 icon: "nest"
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
-typeName:"hxNest::NestLib"
+typeName:"hxNest::NestExt"
 doc: "Google Nest connector"
 --------------------------------------------------------------------------
+

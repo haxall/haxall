@@ -13,9 +13,9 @@ using hxConn
 **
 ** Nest connector library
 **
-const class NestLib : ConnExt
+const class NestExt : ConnExt
 {
-  static NestLib? cur(Bool checked := true)
+  static NestExt? cur(Bool checked := true)
   {
     HxContext.curHx.rt.libsOld.get("nest", checked)
   }
