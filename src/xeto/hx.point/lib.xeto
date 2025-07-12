@@ -7,7 +7,7 @@
 //
 
 pragma: Lib <
-  doc: "Connector framework"
+  doc: "Point historization and writable support"
   version: BuildVar "hx.version"
   depends: {
     { lib: "sys", versions: BuildVar "ph.depend" }

@@ -7,7 +7,7 @@
 //
 
 pragma: Lib <
-  doc: "Connector framework"
+  doc: "Observable data stream framework"
   version: BuildVar "hx.version"
   depends: {
     { lib: "sys", versions: BuildVar "ph.depend" }

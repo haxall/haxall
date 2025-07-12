@@ -3,15 +3,15 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   18 Feb 2025  Brian Frank  Creation
+//   12 Jul 2025  Brian Frank  Creation
 //
 
 pragma: Lib <
-  doc: "Haxall network APIs"
+  doc: "Haxall Haystack HTTP API extension"
   version: BuildVar "hx.version"
   depends: {
-    { lib: "sys",     versions: BuildVar "ph.depend" }
-    { lib: "sys.api", versions: BuildVar "ph.depend" }
+    { lib: "sys", versions: BuildVar "ph.depend" }
+    { lib: "hx", versions: BuildVar "hx.depend" }
   }
   categories: {"haxall"}
   license: BuildVar "hx.license"

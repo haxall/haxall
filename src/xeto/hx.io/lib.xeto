@@ -7,7 +7,7 @@
 //
 
 pragma: Lib <
-  doc: "Connector framework"
+  doc: "I/O function extension"
   version: BuildVar "hx.version"
   depends: {
     { lib: "sys", versions: BuildVar "ph.depend" }

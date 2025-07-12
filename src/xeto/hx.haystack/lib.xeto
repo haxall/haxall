@@ -7,7 +7,7 @@
 //
 
 pragma: Lib <
-  doc: "Connector framework"
+  doc: "Haystack HTTP API connector"
   version: BuildVar "hx.version"
   depends: {
     { lib: "sys", versions: BuildVar "ph.depend" }

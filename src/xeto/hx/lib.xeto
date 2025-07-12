@@ -10,7 +10,7 @@ pragma: Lib <
   doc: "Haxall framework"
   version: BuildVar "hx.version"
   depends: {
-    { lib: "sys",     versions: BuildVar "ph.depend" }
+    { lib: "sys", versions: BuildVar "ph.depend" }
   }
   categories: {"haxall"}
   license: BuildVar "hx.license"
