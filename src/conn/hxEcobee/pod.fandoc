@@ -1,5 +1,5 @@
 **************************************************************************
-** title:      EcobeeLib
+** title:      EcobeeExt
 ** author:     Matthew Giannini
 ** created:    08 Feb 2022
 ** copyright:  Copyright (c) 2022, SkyFoundry LLC
@@ -175,3 +175,4 @@ polling for API changes should be limited to once every 3 minutes. The connector
 this for your. Even if your connector is configured with a `pollTime` of less than
 3 minutes, the connector will only attempt to sync current data values at 3 minute
 intervals.
+

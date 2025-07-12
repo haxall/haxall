@@ -13,9 +13,9 @@ using hxConn
 **
 ** Ecobee connector library
 **
-const class EcobeeLib : ConnExt
+const class EcobeeExt : ConnExt
 {
-  static EcobeeLib? cur(Bool checked := true)
+  static EcobeeExt? cur(Bool checked := true)
   {
     HxContext.curHx.rt.libsOld.get("ecobee", checked)
   }
