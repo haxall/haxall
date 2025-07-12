@@ -6,9 +6,11 @@
 //   18 Feb 2025  Brian Frank  Creation
 //
 
+/*
 // Evaluate axon expression
 eval: Api {
   // Expression to evaluate
   expr: Str
 }
+*/
 
