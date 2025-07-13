@@ -53,9 +53,6 @@ const mixin HxStdServices
   ** Observable APIs
   abstract HxObsService obs()
 
-  ** Watch subscription APIs
-  abstract HxWatchService watch()
-
   ** HTTP APIs
   abstract HxHttpService http()
 
@@ -126,48 +123,6 @@ const mixin HxObsService : HxService
 
   ** Get the schedule observable
   @NoDoc abstract ScheduleObservable schedule()
-}
-
-**************************************************************************
-** HxWatchService
-**************************************************************************
-
-**
-** Watch subscription APIs
-**
-const mixin HxWatchService : HxService
-{
-  ** List the watches currently open for this runtime.
-  ** Also see `docHaxall::Watches#fantom`.
-  abstract HxWatch[] list()
-
-  ** Return list of watches currently subscribed to the given id,
-  ** or return empty list if the given id is not in any watches.
-  abstract HxWatch[] listOn(Ref id)
-
-  ** Find an open watch by its identifier.  If  not found
-  ** then throw Err or return null based on checked flag.
-  ** Also see `docHaxall::Watches#fantom`.
-  abstract HxWatch? get(Str id, Bool checked := true)
-
-  ** Open a new watch with given display string for debugging.
-  ** Also see `docHaxall::Watches#fantom`.
-  abstract HxWatch open(Str dis)
-
-  ** Return if given record id is under at least one watch
-  abstract Bool isWatched(Ref id)
-
-  ** Close expired watches
-  @NoDoc abstract Void checkExpires()
-
-  ** Return debug grid.  Columns:
-  **   - watchId: watch id
-  **   - dis: watch dis
-  **   - created: timestamp when watch was created
-  **   - lastRenew: timestamp of last lease renewal
-  **   - lastPoll: timestamp of last poll
-  **   - size: number of records in watch
-  @NoDoc abstract Grid debugGrid()
 }
 
 **************************************************************************

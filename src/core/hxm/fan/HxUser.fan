@@ -12,7 +12,7 @@ using haystack
 using hx
 
 **
-** HxUser is default implementation of User
+** Haxall default implementation of User
 **
 const class HxUser : User
 {

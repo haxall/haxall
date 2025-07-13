@@ -13,14 +13,14 @@ using xeto
 using haystack
 
 **
-** HxWatch is a subscription to a set of records in a project database.
+** Watch is a subscription to a set of records in a project database.
 ** It provides an efficient mechanism to poll for changes.
 ** Also see `docHaxall::Watches#fantom`.
 **
-const abstract class HxWatch
+const abstract class Watch
 {
-  ** Runtime associated with this watch
-  abstract Proj rt()
+  ** Project associated with this watch
+  abstract Proj proj()
 
   ** Debug display string used during 'watchOpen'
   abstract Str dis()
@@ -121,7 +121,49 @@ const abstract class HxWatch
   override final Bool equals(Obj? that) { this === that }
 
   ** Debug string
-  override final Str toStr() { "Watch-$rt.name-$id" }
+  override final Str toStr() { "Watch-$proj.name-$id" }
 
+}
+
+**************************************************************************
+** ProjWatches
+**************************************************************************
+
+**
+** Watch subscription APIs
+**
+const mixin ProjWatches
+{
+  ** List the watches currently open for this runtime.
+  ** Also see `docHaxall::Watches#fantom`.
+  abstract Watch[] list()
+
+  ** Return list of watches currently subscribed to the given id,
+  ** or return empty list if the given id is not in any watches.
+  abstract Watch[] listOn(Ref id)
+
+  ** Find an open watch by its identifier.  If  not found
+  ** then throw Err or return null based on checked flag.
+  ** Also see `docHaxall::Watches#fantom`.
+  abstract Watch? get(Str id, Bool checked := true)
+
+  ** Open a new watch with given display string for debugging.
+  ** Also see `docHaxall::Watches#fantom`.
+  abstract Watch open(Str dis)
+
+  ** Return if given record id is under at least one watch
+  abstract Bool isWatched(Ref id)
+
+  ** Close expired watches
+  @NoDoc abstract Void checkExpires()
+
+  ** Return debug grid.  Columns:
+  **   - watchId: watch id
+  **   - dis: watch dis
+  **   - created: timestamp when watch was created
+  **   - lastRenew: timestamp of last lease renewal
+  **   - lastPoll: timestamp of last poll
+  **   - size: number of records in watch
+  @NoDoc abstract Grid debugGrid()
 }
 

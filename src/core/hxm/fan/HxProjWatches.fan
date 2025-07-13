@@ -12,23 +12,20 @@ using xeto
 using haystack
 using folio
 using hx
-using hxm
-using hxFolio
 
 **
-** HxdWatchService manages the watches in the daemon runtime
+** Implementation for ProjWatches
 **
-internal const class HxdWatchService : HxWatchService
+internal const class HxProjWatches : ProjWatches
 {
 
 //////////////////////////////////////////////////////////////////////////
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxProj rt)
+  new make(HxProj proj)
   {
-    this.rt   = rt
-    this.db   = rt.db
+    this.proj = proj
     this.byId = ConcurrentMap()
   }
 
@@ -36,26 +33,25 @@ internal const class HxdWatchService : HxWatchService
 // Lookup Tables
 //////////////////////////////////////////////////////////////////////////
 
-  const HxProj rt       // parent runtime
-  const HxFolio db          // requires access to Rec
-  const ConcurrentMap byId  // Str:HxdWatch
+  const HxProj proj          // parent project
+  const ConcurrentMap byId   // Str:HxWatch
 
-  override HxdWatch[] list()
+  override HxWatch[] list()
   {
-    byId.vals(HxdWatch#)
+    byId.vals(HxWatch#)
   }
 
-  override HxdWatch[] listOn(Ref id)
+  override HxWatch[] listOn(Ref id)
   {
-    acc := HxdWatch[,]
-    byId.each |HxdWatch w|
+    acc := HxWatch[,]
+    byId.each |HxWatch w|
     {
       if (w.refs.get(id) != null) acc.add(w)
     }
     return acc
   }
 
-  override HxdWatch? get(Str id, Bool checked := true)
+  override HxWatch? get(Str id, Bool checked := true)
   {
     w := byId.get(id)
     if (w != null) return w
@@ -63,24 +59,25 @@ internal const class HxdWatchService : HxWatchService
     return null
   }
 
-  override HxdWatch open(Str dis)
+  override HxWatch open(Str dis)
   {
-    w := HxdWatch(this, dis)
+    w := HxWatch(this, dis)
     byId.add(w.id, w)
     return w
   }
 
   override Bool isWatched(Ref id)
   {
-    rec := db.rec(id, false)
-    return rec != null && rec.numWatches.val > 0
+//    rec := proj.db.rec(id, false)
+//    return rec != null && rec.numWatches.val > 0
+throw Err("TODO")
   }
 
   override Void checkExpires()
   {
-    toExpire := HxdWatch[,]
+    toExpire := HxWatch[,]
     now := Duration.now
-    byId.each |HxdWatch w|
+    byId.each |HxWatch w|
     {
       if (w.lastRenew + w.lease < now) toExpire.add(w)
     }
@@ -109,12 +106,12 @@ internal const class HxdWatchService : HxWatchService
 }
 
 **************************************************************************
-** HxdWatch
+** HxWatch
 **************************************************************************
 
-internal const class HxdWatch : HxWatch
+internal const class HxWatch : Watch
 {
-  new make(HxdWatchService service, Str dis)
+  new make(HxProjWatches service, Str dis)
   {
     this.service = service
     this.dis     = dis
@@ -123,13 +120,13 @@ internal const class HxdWatch : HxWatch
     this.refs    = ConcurrentMap()
   }
 
-  const HxdWatchService service
+  const HxProjWatches service
   const override Str dis
   const override Str id
   const Int created
-  const ConcurrentMap refs  // Ref:HxdWatchRef
+  const ConcurrentMap refs  // Ref:HxWatchRef
 
-  override HxProj rt() { service.rt }
+  override HxProj proj() { service.proj }
 
   override Ref[] list()
   {
@@ -160,14 +157,16 @@ internal const class HxdWatch : HxWatch
     lastRenewRef.val = now
 
     acc := Dict[,]
-    refs.each |HxdWatchRef r|
+    refs.each |HxWatchRef r|
     {
       if (!r.ok) return
+/*
       rec := service.db.rec(r.id, false)
       if (rec != null && rec.ticks > t.ticks)
       {
         acc.add(rec.dict)
       }
+*/
     }
     return acc
   }
@@ -189,9 +188,10 @@ internal const class HxdWatch : HxWatch
       if (refs[id] != null) return
 
       // lookup rec and verify ok = found and canRead
+/*
       rec := service.db.rec(id, false)
       ok := rec != null && (cx == null || cx.canRead(rec.dict))
-      refs[id] = HxdWatchRef(id, ok)
+      refs[id] = HxWatchRef(id, ok)
 
       // if ok, then see if this is a first watch
       if (ok)
@@ -203,10 +203,11 @@ internal const class HxdWatch : HxWatch
           firstRecs.add(rec.dict)
         }
       }
+*/
     }
 // TODO
-obs := (HxdObsService)rt.obs
-    if (firstRecs != null) obs.watches.fireWatch(firstRecs)
+//obs := (HxObsService)proj.obs
+//    if (firstRecs != null) obs.watches.fireWatch(firstRecs)
   }
 
   override Void removeAll(Ref[] ids)
@@ -215,7 +216,8 @@ obs := (HxdObsService)rt.obs
     Dict[]? lastRecs
     ids.each |id|
     {
-      wr := refs.remove(id) as HxdWatchRef
+/* TODO
+      wr := refs.remove(id) as HxWatchRef
       if (wr == null || !wr.ok) return
       rec := service.db.rec(id, false)
       if (rec != null)
@@ -227,10 +229,11 @@ obs := (HxdObsService)rt.obs
           lastRecs.add(rec.dict)
         }
       }
+*/
     }
 // TODO
-obs := (HxdObsService)rt.obs
-    if (lastRecs != null) obs.watches.fireUnwatch(lastRecs)
+//obs := (HxObsService)rt.obs
+//    if (lastRecs != null) obs.watches.fireUnwatch(lastRecs)
   }
 
   override Void set(Ref[] ids)
@@ -268,10 +271,10 @@ obs := (HxdObsService)rt.obs
 }
 
 **************************************************************************
-** HxdWatchRef
+** HxWatchRef
 **************************************************************************
 
-internal const class HxdWatchRef
+internal const class HxWatchRef
 {
   new make(Ref id, Bool ok) { this.id = id; this.ok = ok }
   const Ref id

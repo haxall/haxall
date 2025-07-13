@@ -42,7 +42,7 @@ class WatchTest : HxTest
     verify(w.lastPoll > t-200ms); verify(w.lastPoll < Duration.now)
     verify(w.lastRenew > t-200ms); verify(w.lastRenew < Duration.now)
     verifyEq(w.isClosed, false)
-    verifyEq(HxWatch[,].addAll(rt.watch.list),[w])
+    verifyEq(Watch[,].addAll(rt.watch.list),[w])
     verifySame(rt.watch.get(w.id), w)
     verifyEq(w.list, Ref[,])
     verifyEq(w.isEmpty, true)
@@ -70,7 +70,7 @@ class WatchTest : HxTest
     verifyEq(w.list.sort, [aId, bId].sort)
 
     // isWatched / watchesOn
-    none := HxWatch[,]
+    none := Watch[,]
     verifyWatches(Ref.gen, none)
     verifyWatches(aId, [w])
     verifyWatches(bId, [w])
@@ -183,7 +183,7 @@ class WatchTest : HxTest
     verifySame(rt.watch.get(w4.id, false), null)
   }
 
-  Void verifyWatches(Ref id, HxWatch[] expected)
+  Void verifyWatches(Ref id, Watch[] expected)
   {
     verifyEq(rt.watch.isWatched(id), !expected.isEmpty)
 

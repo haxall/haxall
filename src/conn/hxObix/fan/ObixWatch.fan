@@ -17,7 +17,7 @@ using hx
 **
 class ObixWatch : ObixModWatch
 {
-  new make(ObixWebMod mod, HxWatch watch)
+  new make(ObixWebMod mod, Watch watch)
   {
     this.mod = mod
     this.watch = watch
@@ -25,7 +25,7 @@ class ObixWatch : ObixModWatch
   }
 
   const ObixWebMod mod
-  const HxWatch watch
+  const Watch watch
   const Uri recsUri
 
   override Str id() { watch.id }
@@ -52,7 +52,7 @@ class ObixWatch : ObixModWatch
     watch.addAll(validIds)
 
     // read ids successfully added to watch to get recs as grid
-    recList := watch.rt.db.readByIdsList(watch.list, false)
+    recList := watch.proj.db.readByIdsList(watch.list, false)
 
     // map recs by id
     recsById := Ref:Dict?[:]

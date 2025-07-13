@@ -170,6 +170,6 @@ internal class HisCollectMgr : PointMgr
   private Int refreshVer                    // folio.curVer of last refresh
   private Int refreshTicks                  // ticks for last refresh
   private DateTime nextTopOfMin             // next top-of-minute
-  private HxWatch? watch                    // watch
+  private Watch? watch                      // watch
 }
 
