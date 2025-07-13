@@ -31,7 +31,7 @@ const class ModbusRegMap
   ** Raise an error if not configured correctly or CSV cannot be
   ** loaded.
   **
-  static ModbusRegMap fromConn(HxRuntime rt, Dict rec)
+  static ModbusRegMap fromConn(Proj rt, Dict rec)
   {
     uri := rec["modbusRegMapUri"] as Uri ?: throw FaultErr("Missing modbusRegMapUri tag")
     file := uriToFile(rt, uri)
@@ -39,7 +39,7 @@ const class ModbusRegMap
     return fromFile(file)
   }
 
-  internal static File uriToFile(HxRuntime rt, Uri uri)
+  internal static File uriToFile(Proj rt, Uri uri)
   {
     if (uri.scheme == "fan") return uri.get
     if (!uri.isPathAbs) return rt.dir.plus(`$uri`)

@@ -21,7 +21,7 @@ internal const class HttpRootMod : WebMod
 {
   new make(HttpExt ext) { this.rt = ext.rt; this.ext = ext }
 
-  const HxRuntime rt
+  const Proj rt
   const HttpExt ext
 
   override Void onService()

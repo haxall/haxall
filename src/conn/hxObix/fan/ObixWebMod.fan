@@ -43,7 +43,7 @@ const class ObixWebMod : ObixMod
 // Lib
 //////////////////////////////////////////////////////////////////////////
 
-  const HxRuntime rt
+  const Proj rt
 
   const ObixExt ext
 
@@ -101,7 +101,7 @@ const class ObixWebMod : ObixMod
   ** Tunnel thru to get icon file:
   **   {base}/icon/{connId}/{uri}
   **
-  private Void icon(HxRuntime proj)
+  private Void icon(Proj proj)
   {
     // only support GET
     if (req.method != "GET") { res.sendErr(501); return }

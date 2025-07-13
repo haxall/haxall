@@ -30,7 +30,7 @@ internal abstract class PointMgr
   }
 
   const PointExt ext
-  const HxRuntime rt
+  const Proj rt
   const Log log
 
   abstract Void onCheck()

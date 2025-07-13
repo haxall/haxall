@@ -51,14 +51,14 @@ abstract class HxTest : HaystackTest
 //////////////////////////////////////////////////////////////////////////
 
   ** Test runtime if '@HxRuntimeTest' configured on test method
-  HxRuntime? rt(Bool checked := true)
+  Proj? rt(Bool checked := true)
   {
     if (rtRef != null || !checked) return rtRef
     throw Err("Runtime not started (ensure $curTestMethod marked @HxRuntimeTest)")
   }
 
   ** Reference for `rt`
-  @NoDoc HxRuntime? rtRef
+  @NoDoc Proj? rtRef
 
   ** Start a test runtime which is accessible via `rt` method.
   @NoDoc virtual Void rtStart()
@@ -216,11 +216,11 @@ abstract class HxTestSpi
 {
   new make(HxTest test) { this.test = test }
   HxTest test { private set }
-  abstract HxRuntime start(Dict projMeta)
-  abstract Void stop(HxRuntime rt)
+  abstract Proj start(Dict projMeta)
+  abstract Void stop(Proj rt)
   abstract HxUser addUser(Str user, Str pass, Str:Obj? tags)
   abstract Ext addLib(Str libName, Str:Obj? tags)
   abstract HxContext makeContext(HxUser? user)
-  abstract Void forceSteadyState(HxRuntime rt)
+  abstract Void forceSteadyState(Proj rt)
 }
 

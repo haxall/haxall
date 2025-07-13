@@ -42,7 +42,7 @@ abstract const class Ext
   override final Str toStr() { name }
 
   ** Runtime
-  virtual HxRuntime rt() { spi.rt }
+  virtual Proj rt() { spi.rt }
 
   ** Library dotted name that identifies the extension
   Str name() { spi.name }
@@ -151,7 +151,7 @@ abstract const class Ext
 @NoDoc
 const mixin ExtSpi
 {
-  abstract HxRuntime rt()
+  abstract Proj rt()
   abstract Str name()
   abstract Spec spec()
   abstract Dict rec()

@@ -45,7 +45,7 @@ abstract const class HxFeed
   const Str key
 
   ** Runtime reference
-  const HxRuntime rt
+  const Proj rt
 
   ** Debug string
   override Str toStr() { "$typeof.name $key" }
@@ -95,7 +95,7 @@ abstract const class HxFeed
 const class HxFeedInit
 {
   new make(|This| f) { f(this) }
-  const HxRuntime rt
+  const Proj rt
   const Str viewId
   const Str key
   const Log log

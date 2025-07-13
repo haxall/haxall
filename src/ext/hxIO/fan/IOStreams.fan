@@ -38,7 +38,7 @@ internal class IOStreamLinesStream : SourceStream
     }
   }
 
-  HxRuntime rt() { ((HxContext)cx).rt }
+  Proj rt() { ((HxContext)cx).rt }
 
   private Obj? handle
 }

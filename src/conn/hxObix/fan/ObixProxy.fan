@@ -44,8 +44,8 @@ abstract class ObixProxy
   ** URI relative to ObixWebMod
   const Uri uri
 
-  ** Runtime associated with this proxy
-  HxRuntime rt() { lobby.mod.rt }
+  ** Project associated with this proxy
+  Proj rt() { lobby.mod.rt }
 
   ** Get child proxy by name, or null
   virtual ObixProxy? get(Str name) { null }

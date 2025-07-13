@@ -51,7 +51,7 @@ const class PlatformSerialExt : Ext
 
   ** Open a serial port with the given configuration.
   ** Raise an error if the port is already bound to another owner.
-  SerialSocket open(HxRuntime rt, Dict owner, SerialConfig config)
+  SerialSocket open(Proj rt, Dict owner, SerialConfig config)
   {
     ((Unsafe)spi.actor.send(HxMsg("open", rt, owner, config)).get(timeout)).val
   }
@@ -76,7 +76,7 @@ const class PlatformSerialExt : Ext
     }
   }
 
-  private Unsafe doOpen(HxRuntime rt, Dict owner, SerialConfig config)
+  private Unsafe doOpen(Proj rt, Dict owner, SerialConfig config)
   {
     // sanity check owner is in project
     rec := rt.db.readById(owner.id, false)

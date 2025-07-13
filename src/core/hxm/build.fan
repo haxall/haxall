@@ -37,8 +37,7 @@ class Build : BuildPod
                "def @{hx.depend}",
                "defc @{hx.depend}",
                "folio @{hx.depend}",
-               "hx @{hx.depend}",
-               "hx4 @{hx.depend}"]
+               "hx @{hx.depend}"]
     srcDirs = [`fan/`]
     docApi  = false
     index   = ["xeto.bindings": "hx"]

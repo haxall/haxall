@@ -20,7 +20,7 @@ using haystack
 const abstract class HxWatch
 {
   ** Runtime associated with this watch
-  abstract HxRuntime rt()
+  abstract Proj rt()
 
   ** Debug display string used during 'watchOpen'
   abstract Str dis()

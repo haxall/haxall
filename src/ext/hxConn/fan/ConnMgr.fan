@@ -38,7 +38,7 @@ internal final class ConnMgr
 
   const Conn conn
   const ConnVars vars
-  HxRuntime rt() { conn.rt }
+  Proj rt() { conn.rt }
   Folio db() { conn.db }
   ConnExt ext() { conn.ext }
   Ref id() { conn.id }

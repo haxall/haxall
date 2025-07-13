@@ -31,10 +31,10 @@ abstract class ConnDispatch
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** Runtime system
-  HxRuntime rt() { connRef.rt }
+  ** Project
+  Proj rt() { connRef.rt }
 
-  ** Runtime database
+  ** Project database
   Folio db() { connRef.db }
 
   ** Parent library

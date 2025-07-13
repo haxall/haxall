@@ -12,20 +12,19 @@ using xeto
 using haystack
 using folio
 using hx
-using hx4
 
 **
 ** ProjExts implementation
 **
 const class MProjExts : Actor, ProjExts
 {
-  new make(HxRuntime proj, ActorPool actorPool) : super(actorPool)
+  new make(Proj proj, ActorPool actorPool) : super(actorPool)
   {
     this.proj      = proj
     this.actorPool = actorPool
   }
 
-  const HxRuntime proj
+  const Proj proj
 
   override const ActorPool actorPool
 

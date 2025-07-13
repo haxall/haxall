@@ -53,7 +53,7 @@ const class PlatformFuncs
     matches.each |r| { gb.addRow([r["dis"], r["val"], null]) }
   }
 
-  private static Dict[] platformInfoDefaults(HxRuntime rt)
+  private static Dict[] platformInfoDefaults(Proj rt)
   {
     env := Env.cur.vars
     now := DateTime.now

@@ -10,7 +10,6 @@ using xeto
 using haystack
 using folio
 using hx
-using hx4
 using xetoc
 
 **
@@ -115,7 +114,8 @@ abstract class ProjBoot
   ** Create HxProj implementation
   virtual MProj initProj()
   {
-    MProj(this)
+    //MProj(this)
+throw Err("TODO")
   }
 
 //////////////////////////////////////////////////////////////////////////

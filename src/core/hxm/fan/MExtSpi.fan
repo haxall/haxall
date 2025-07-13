@@ -71,7 +71,7 @@ const class MExtSpi : Actor, ExtSpi
     }
   }
 
-  private new make(HxRuntime proj, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
+  private new make(Proj proj, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
   {
     this.rt          = proj
     this.name        = spec.lib.name
@@ -90,7 +90,7 @@ const class MExtSpi : Actor, ExtSpi
   Ext ext() { extRef.val }
   private const AtomicRef extRef := AtomicRef()
 
-  override const HxRuntime rt
+  override const Proj rt
 
   override const Str name
 

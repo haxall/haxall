@@ -10,7 +10,6 @@ using xeto
 using haystack
 using folio
 using hx
-using hx4
 using xetoc
 
 **

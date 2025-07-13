@@ -24,7 +24,7 @@ internal class HxUserAuth
     this.res = res
   }
 
-  const HxRuntime rt
+  const Proj rt
 
   const HxUserExt ext
 
@@ -170,7 +170,7 @@ internal class HxUserAuthServerContext : AuthServerContext
 {
   new make(HxUserExt ext) { this.rt = ext.rt; this.ext = ext }
 
-  const HxRuntime rt
+  const Proj rt
 
   const HxUserExt ext
 

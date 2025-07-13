@@ -28,7 +28,7 @@ const final class ConnUtil
 
   ** Given list of point ids, group them by conn invoke callback function.
   ** Note this method does not filter out duplictes if the same id is passed.
-  static Void eachConnInPointIds(HxRuntime rt, ConnPoint[] points, |Conn, ConnPoint[]| f)
+  static Void eachConnInPointIds(Proj rt, ConnPoint[] points, |Conn, ConnPoint[]| f)
   {
     if (points.isEmpty) return
 

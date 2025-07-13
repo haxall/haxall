@@ -19,7 +19,7 @@ class HxdTestSpi : HxTestSpi
 {
   new make(HxTest test) : super(test) {}
 
-  static HxRuntime boot(File dir, Dict projMeta := Etc.emptyDict)
+  static Proj boot(File dir, Dict projMeta := Etc.emptyDict)
   {
     boot := HxdBoot
     {
@@ -34,12 +34,12 @@ class HxdTestSpi : HxTestSpi
     return boot.init.start
   }
 
-  override HxRuntime start(Dict projMeta)
+  override Proj start(Dict projMeta)
   {
     boot(test.tempDir, projMeta)
   }
 
-  override Void stop(HxRuntime rt)
+  override Void stop(Proj rt)
   {
     ((HxdRuntime)rt).stop
   }
@@ -70,7 +70,7 @@ throw Err("TODO")
     return HxdContext(test.rt, user, null)
   }
 
-  override Void forceSteadyState(HxRuntime rt)
+  override Void forceSteadyState(Proj rt)
   {
     ((HxdRuntime)test.rt).backgroundMgr.forceSteadyState
   }

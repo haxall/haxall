@@ -11,12 +11,11 @@ using xeto
 using haystack
 using folio
 using hx
-using hx4
 
 **
 ** Proj implementation
 **
-const class MProj : Proj
+abstract const class MProj : Proj
 {
   new make(ProjBoot boot)
   {
@@ -39,7 +38,7 @@ const class MProj : Proj
 //////////////////////////////////////////////////////////////////////////
 
   const override Str name
-  const override Ref id
+const Ref id
   const override Dict meta
   const override File dir
   const override Folio db
@@ -50,13 +49,14 @@ const class MProj : Proj
   override ProjSpecs specs() { libs.specs }
   override Namespace ns() { libs.ns }
 
-  const Log log
+  const override Log log
   const ActorPool actorPool
 
 //////////////////////////////////////////////////////////////////////////
 // Folio Conveniences
 //////////////////////////////////////////////////////////////////////////
 
+/*
   override Dict? readById(Ref? id, Bool checked := true) { db.readById(id, checked) }
 
   override Grid readByIds(Ref[] ids, Bool checked := true) { db.readByIds(ids, checked) }
@@ -74,13 +74,14 @@ const class MProj : Proj
   override Diff commit(Diff diff) { db.commit(diff) }
 
   override Diff[] commitAll(Diff[] diffs) { db.commitAll(diffs) }
+*/
 
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 
   ** If the project currently running
-  Bool isRunning() { isRunningRef.val }
+  override Bool isRunning() { isRunningRef.val }
 
   ** Start project (blocks until all exts fully started)
   /*

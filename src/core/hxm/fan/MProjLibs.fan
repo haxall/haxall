@@ -380,7 +380,7 @@ const class MProjLibs : ProjLibs
     this.projLibNamesRef.val = projLibNames.toImmutable
 
 // TODO
-rt := rtRef.val as HxRuntime
+rt := rtRef.val as Proj
 if (rt != null) rt.recompileDefs
   }
 

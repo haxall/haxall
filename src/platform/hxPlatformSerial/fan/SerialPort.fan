@@ -41,7 +41,7 @@ const class SerialPort
   Bool isClosed() { owner == null }
 
    ** HxRuntime of the `owner` if port is open or null if closed
-  HxRuntime? rt() { rtRef.val }
+  Proj? rt() { rtRef.val }
 
   ** Current record which opened and owns the port or null if closed.
   Dict? owner() { ownerRef.val }

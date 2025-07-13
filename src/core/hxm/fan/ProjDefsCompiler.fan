@@ -21,14 +21,14 @@ using defc
 **
 class ProjDefCompiler : DefCompiler
 {
-  new make(HxRuntime rt)
+  new make(Proj rt)
   {
     this.log     = rt.log
     this.factory = ProjDefFactory()
     this.inputs  = buildInputs(rt)
   }
 
-  internal ProjLibInput[] buildInputs(HxRuntime rt)
+  internal ProjLibInput[] buildInputs(Proj rt)
   {
     acc := Str:ProjLibInput[:]
 
@@ -52,7 +52,7 @@ class ProjDefCompiler : DefCompiler
     return acc.vals
   }
 
-  internal ProjLibInput? xetoToInput(HxRuntime rt, Lib lib)
+  internal ProjLibInput? xetoToInput(Proj rt, Lib lib)
   {
     try
     {
@@ -282,7 +282,7 @@ internal const class FuncMethodsReflectInput : FuncReflectInput
 
 const class ProjOverlayLib
 {
-  new make(HxRuntime rt, DefNamespace base)
+  new make(Proj rt, DefNamespace base)
   {
     this.rt = rt
     this.base = base
@@ -290,7 +290,7 @@ const class ProjOverlayLib
     this.libSymbol = Symbol("lib:hx_db")
   }
 
-  const HxRuntime rt
+  const Proj rt
   const DefNamespace base
   const Log log
   const Symbol libSymbol

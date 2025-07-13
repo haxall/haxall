@@ -30,7 +30,7 @@ abstract class IOHandle
   **   - sys::Dict
   **   - sys::Buf
   **
-  static IOHandle fromObj(HxRuntime rt, Obj? h)
+  static IOHandle fromObj(Proj rt, Obj? h)
   {
     if (h is IOHandle) return h
     if (h is Str)      return StrHandle(h)
@@ -40,7 +40,7 @@ abstract class IOHandle
     throw ArgErr("Cannot obtain IO handle from ${h?.typeof}")
   }
 
-  internal static IOHandle fromUri(HxRuntime rt, Uri uri)
+  internal static IOHandle fromUri(Proj rt, Uri uri)
   {
     if (uri.scheme == "http")  return HttpHandle(uri)
     if (uri.scheme == "https") return HttpHandle(uri)
@@ -51,7 +51,7 @@ abstract class IOHandle
   }
 
   ** Get an IOHandle from a Dict rec
-  internal static IOHandle fromDict(HxRuntime rt, Dict rec)
+  internal static IOHandle fromDict(Proj rt, Dict rec)
   {
     // if {zipEntry, file: <ioHandle>, path: <Uri>}
     if (rec.has("zipEntry"))
@@ -325,7 +325,7 @@ internal class FileHandle : IOHandle
 
 internal class FolioFileHandle : IOHandle
 {
-  new make(HxRuntime rt, Dict rec)
+  new make(Proj rt, Dict rec)
   {
     this.folio = rt.db
     this.rec   = rec
@@ -457,8 +457,8 @@ internal class HttpHandle : DirectIO
 
 internal class FtpHandle : DirectIO
 {
-  new make(HxRuntime rt, Uri uri) { this.rt = rt; this.uri = uri }
-  const HxRuntime rt
+  new make(Proj rt, Uri uri) { this.rt = rt; this.uri = uri }
+  const Proj rt
   const Uri uri
   override Void create()
   {

@@ -76,7 +76,7 @@ using hxConn
   }
 
   ** Load register map from URI.
-  private static ModbusRegMap loadRegMap(HxRuntime rt, Uri uri)
+  private static ModbusRegMap loadRegMap(Proj rt, Uri uri)
   {
     file := ModbusRegMap.uriToFile(rt, uri)
     if (!file.exists) throw FaultErr("File not found for modbusRegMapUri: $uri")

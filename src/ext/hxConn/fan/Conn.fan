@@ -61,7 +61,7 @@ const final class Conn : Actor, HxConn
 //////////////////////////////////////////////////////////////////////////
 
   ** Runtime system
-  HxRuntime rt() { extRef.rt }
+  Proj rt() { extRef.rt }
 
   ** Runtime database
   Folio db() { extRef.rt.db }

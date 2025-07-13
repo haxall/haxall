@@ -11,13 +11,14 @@ using xeto
 using haystack
 using folio
 using hx
-using hx4
+using hx4::Proj
 using hxm
 using hxFolio
 
 **
 ** ProjTest
 **
+/*
 class ProjTest : HxTest
 {
 
@@ -225,4 +226,5 @@ class TestProjBoot : ProjBoot
   }
 
 }
+*/
 

@@ -53,7 +53,7 @@ class HxdBoot
 
   **
   ** Misc configuration tags used to customize the system.
-  ** This dict is available via HxRuntime.config.
+  ** This dict is available via Proj.config.
   ** Standard keys:
   **   - noAuth: Marker to disable authentication and use superuser
   **   - test: Marker for HxTest runtime

@@ -42,7 +42,7 @@ const mixin HxServiceRegistry : HxStdServices
 
 **
 ** Lookups for the standard built-in services supported by all runtimes.
-** This mixin is implemented by both `HxServiceRegistry` and `HxRuntime`,
+** This mixin is implemented by both `HxServiceRegistry` and `Proj`,
 ** but by convention client code should access services the runtime.
 **
 const mixin HxStdServices

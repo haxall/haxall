@@ -14,9 +14,9 @@ using obs
 using folio
 
 **
-** HxRuntime is the top level coordinator of a Haxall server.
+** Proj manages a project database
 **
-const mixin HxRuntime : HxStdServices
+const mixin Proj : HxStdServices
 {
   ** Programatic name of the runtime. This string is always a valid tag name.
   abstract Str name()
