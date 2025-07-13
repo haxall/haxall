@@ -12,12 +12,12 @@ using xeto
 using haystack
 
 **
-** HxPlatform models the meta data of the platform running Haxall.  Note
+** Platform models the meta data of the platform running Haxall.  Note
 ** this API provides readonly summary information about the platform.  Actual
 ** integration to configure the platform is handled in pluggable libraries
 ** such as 'hxPlatform', 'hxPlatformSerial', etc.
 **
-const class HxPlatform
+const class Platform
 {
   ** Construct with meta data dict
   new make(Dict meta)

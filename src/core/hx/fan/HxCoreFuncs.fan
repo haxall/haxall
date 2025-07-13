@@ -421,7 +421,7 @@ const class HxCoreFuncs
   static Obj? libReload()
   {
     cx := Context.cur
-    isShell := cx.rt.platform.isShell
+    isShell := cx.sys.platform.isShell
     log := isShell ? Log.get("xeto") : cx.rt.ext("hx.xeto").log
     log.info("libReload [$cx.user.username]")
     cx.rt.libs.reload

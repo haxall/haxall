@@ -749,9 +749,9 @@ throw Err("TODO")
     verifyEq(cx.user.isAdmin, true)
 
     d := (Dict)cx.eval("about()")
-    verifyEq(d->productName, rt.platform.productName)
-    verifyEq(d->productUri, rt.platform.productUri)
-    verifyEq(d->productVersion, rt.platform.productVersion)
+    verifyEq(d->productName, sys.platform.productName)
+    verifyEq(d->productUri, sys.platform.productUri)
+    verifyEq(d->productVersion, sys.platform.productVersion)
 
     d = (Dict)cx.eval("context()")
     verifyEq(d->userRef, cx.user.id)

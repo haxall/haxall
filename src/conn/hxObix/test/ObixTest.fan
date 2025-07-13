@@ -57,7 +57,7 @@ class ObixTest : HxTest
 
   Void buildProj()
   {
-    if (proj.platform.isSkySpark)
+    if (sys.platform.isSkySpark)
       addLib("his")
     else
       addLib("http")
@@ -130,8 +130,8 @@ class ObixTest : HxTest
     verifyEq(about.contract.toStr, "obix:About")
     verifyEq(about.get("obixVersion").val, "1.1")
     verifyEq(about.get("serverName").val,  proj.name)
-    verifyEq(about.get("vendorName").val,  proj.platform.vendorName)
-    verifyEq(about.get("productName").val, proj.platform.productName)
+    verifyEq(about.get("vendorName").val,  sys.platform.vendorName)
+    verifyEq(about.get("productName").val, sys.platform.productName)
     verifyEq(about.get("tz").val,          TimeZone.cur.fullName)
   }
 

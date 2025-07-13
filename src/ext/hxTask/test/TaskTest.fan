@@ -386,7 +386,7 @@ echo("####")
     verifyDictEq(sites[1], b)
 
     // xquery has full access
-    if (proj.platform.isSkySpark)
+    if (sys.platform.isSkySpark)
     {
       sites = (Grid)eval("taskSend($id2.toCode, {}).futureWaitFor.futureGet.sortDis")
       verifyEq(sites.size, 2)

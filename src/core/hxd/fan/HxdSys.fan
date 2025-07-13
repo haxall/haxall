@@ -27,6 +27,8 @@ const class HxdSys : HxProj, Sys
 
   override Sys sys() { this }
 
+  override const Platform platform := Platform(Etc.dict0) // TODO
+
   override const ICryptoExt crypto
   override const IHttpExt http
   override const IUserExt user

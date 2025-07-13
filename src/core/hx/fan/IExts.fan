@@ -14,78 +14,6 @@ using haystack
 using axon
 using web
 
-**
-** Registry for service APIs by type.  Service APIs implement
-** the `HxService` mixin and are published by libraries enabled
-** in the runtime using `Ext.services`.
-**
-/*
-
-const mixin HxServiceRegistry : HxStdServices
-{
-  ** List the registered service types
-  abstract Type[] list()
-
-  ** Lookup a service installed for the given type.  If multiple
-  ** services are installed for the given type, then its indeterminate
-  ** which is returned.  If the service is not found then raise
-  ** UnknownServiceErr or return null based on the check flag.
-  abstract HxService? get(Type type, Bool checked := true)
-
-  ** Lookup all services installed for the given type.  Return an
-  ** empty list if no services are registered for given type.
-  abstract HxService[] getAll(Type type)
-}
-
-**************************************************************************
-** HxStdServices
-**************************************************************************
-
-**
-** Lookups for the standard built-in services supported by all runtimes.
-** This mixin is implemented by both `HxServiceRegistry` and `Proj`,
-** but by convention client code should access services the runtime.
-**
-const mixin HxStdServices
-{
-  ** HTTP APIs
-  abstract HxHttpService http()
-
-  ** User management APIs
-  abstract HxUserService user()
-
-  ** Cryptographic certificate and key pair management APIs
-  @NoDoc abstract HxCryptoService crypto()
-
-  ** File resolution APIs
-  @NoDoc abstract HxFileService file()
-
-  ** I/O APIs
-  @NoDoc abstract HxIOService io()
-
-  ** Task APIs to run Axon in the background
-  @NoDoc abstract HxTaskService task()
-
-  ** Point historization service or no-op if not supported
-  @NoDoc abstract HxHisService his()
-
-  ** Point write service or no-op if point library is not enabled
-  @NoDoc abstract HxPointWriteService pointWrite()
-
-  ** Connector service or no-op if connector framework not installed
-  @NoDoc abstract HxConnService conn()
-}
-
-**************************************************************************
-** HxService
-**************************************************************************
-
-**
-** HxService is a marker interface used to indicate a service API.
-**
-const mixin HxService {}
-
-*/
 
 **************************************************************************
 ** IHttpExt
@@ -555,7 +483,6 @@ const mixin HxDockerContainer
   ** Get the network endpoint settings for the docker network with the given name
   abstract HxDockerEndpoint? network(Str name)
 }
-
 
 **
 ** Models a Docker container network endpoint

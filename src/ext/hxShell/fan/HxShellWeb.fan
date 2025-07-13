@@ -19,8 +19,8 @@ const class HxShellWeb : ExtWeb
   new make(Ext ext) : super(ext)
   {
     this.ext     = ext
-    this.title   = "" + proj.platform.productName + " Shell"
-    this.favicon = proj.platform.faviconUri
+    this.title   = "" + ext.sys.platform.productName + " Shell"
+    this.favicon = ext.sys.platform.faviconUri
   }
 
   override const Ext ext

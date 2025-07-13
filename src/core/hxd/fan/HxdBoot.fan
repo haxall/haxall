@@ -162,7 +162,6 @@ class HxdBoot
     if (rt != null) return rt
     initArgs
     initWebMode
-    initPlatform
     initLic
     openDatabase
     initMeta
@@ -213,11 +212,6 @@ class HxdBoot
   private Void initWebMode()
   {
     WebJsMode.setCur(WebJsMode.es)
-  }
-
-  private Void initPlatform()
-  {
-    platformRef = HxPlatform(Etc.makeDict(platform.findNotNull))
   }
 
   private Void initLic()
@@ -288,7 +282,7 @@ throw Err("TODO")
 
   internal Folio? db
   internal HxProj? rt
-  internal HxPlatform? platformRef
+  internal Platform? platformRef
 }
 
 **************************************************************************

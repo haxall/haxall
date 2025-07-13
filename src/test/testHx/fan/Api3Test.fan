@@ -51,10 +51,10 @@ class Api3Test : ApiTest
     verifyEq(about->haystackVersion,      rt.defs.lib("ph").version.toStr)
     verifyEq(about->whoami,               c.auth->user)
     verifyEq(about->tz,                   TimeZone.cur.name)
-    verifyEq(about->productName,          rt.platform.productName)
-    verifyEq(about->productVersion,       rt.platform.productVersion)
-    verifyEq(about->vendorName,           rt.platform.vendorName)
-    verifyEq(about->vendorUri,            rt.platform.vendorUri)
+    verifyEq(about->productName,          sys.platform.productName)
+    verifyEq(about->productVersion,       sys.platform.productVersion)
+    verifyEq(about->vendorName,           sys.platform.vendorName)
+    verifyEq(about->vendorUri,            sys.platform.vendorUri)
     verifyEq(about->serverName,           Env.cur.host)
     verifyEq(about->serverTime->date,     Date.today)
     verifyEq(about->serverBootTime->date, Date.today)
@@ -172,7 +172,7 @@ class Api3Test : ApiTest
   Void doGets()
   {
     // these ops are ok
-    verifyEq(callAsGet("about").first->productName, rt.platform.productName)
+    verifyEq(callAsGet("about").first->productName, sys.platform.productName)
     verifyEq(callAsGet("defs").size, c.call("defs").size)
     verifyEq(callAsGet("libs").size, c.call("libs").size)
     verifyEq(callAsGet("filetypes").size, c.call("filetypes").size)
@@ -205,7 +205,7 @@ class Api3Test : ApiTest
 
   Void doNav()
   {
-    if (rt.platform.isSkySpark) return
+    if (sys.platform.isSkySpark) return
 
     Grid g := c.call("nav", Etc.makeMapGrid(null, Str:Obj[:]))
     verifyEq(g.size, 3)

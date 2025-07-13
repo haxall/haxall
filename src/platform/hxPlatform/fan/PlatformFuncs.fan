@@ -35,7 +35,7 @@ const class PlatformFuncs
   static Grid platformInfo()
   {
     cx := curContext
-    info := platformInfoDefaults(cx.rt)
+    info := platformInfoDefaults(cx.sys)
             .addAll(ext(cx).platformSpi.info)
     gb := GridBuilder().addCol("dis").addCol("val").addCol("icon")
     platformInfoSection(gb, info, "sw",   "Software", "host")
@@ -53,13 +53,13 @@ const class PlatformFuncs
     matches.each |r| { gb.addRow([r["dis"], r["val"], null]) }
   }
 
-  private static Dict[] platformInfoDefaults(Proj rt)
+  private static Dict[] platformInfoDefaults(Sys sys)
   {
     env := Env.cur.vars
     now := DateTime.now
     return [
-      pi("sw",     "Name",     rt.platform.productName),
-      pi("sw",     "Version",  rt.platform.productVersion),
+      pi("sw",     "Name",     sys.platform.productName),
+      pi("sw",     "Version",  sys.platform.productVersion),
       pi("sw",     "Time",     now.time.toLocale + " " + now.date.toLocale + now.tz.name),
       pi("sw",     "Uptime",   Duration.uptime.toLocale),
       pi("os",     "Name",     env["os.name"] + " " + env["os.arch"]),

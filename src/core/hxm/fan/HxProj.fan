@@ -29,7 +29,6 @@ abstract const class HxProj : Proj
   {
     this.name          = boot.name
     this.version       = boot.version
-    this.platform      = HxPlatform(Etc.dict0) // TODO
     this.config        = HxConfig(Etc.dict0)   // TODO
     this.dir           = boot.dir
     this.db            = boot.db
@@ -70,9 +69,6 @@ init(boot)
 
   ** Runtime version
   override const Version version
-
-  ** Host platform metadata
-  override const HxPlatform platform := HxPlatform(Etc.dict0)
 
   ** Configuration options defined at bootstrap
   override const HxConfig config
