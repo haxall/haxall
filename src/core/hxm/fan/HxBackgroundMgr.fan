@@ -11,20 +11,19 @@ using haystack
 using obs
 using folio
 using hx
-using hxm
 
 **
-** HxdBackgroundMgr
+** HxBackgroundMgr
 **
-internal const class HxdBackgroundMgr : Actor
+internal const class HxBackgroundMgr : Actor
 {
 
-  new make(HxProj rt) : super(rt.hxdActorPool)
+  new make(HxProj proj) : super(proj.hxdActorPool)
   {
-    this.rt  = rt
+    this.proj = proj
   }
 
-  const HxProj rt
+  const HxProj proj
 
   Void start()
   {
@@ -41,7 +40,7 @@ internal const class HxdBackgroundMgr : Actor
   override Obj? receive(Obj? msg)
   {
     // if daemon shutdown we are all done
-    if (!rt.isRunning) return null
+    if (!proj.isRunning) return null
 
     // dispatch message
     if (msg === checkMsg) return onCheck
@@ -59,15 +58,13 @@ internal const class HxdBackgroundMgr : Actor
 
     // update now cached DateTime
     now := DateTime.now(null)
-// TODO
-//    rt.nowRef.val = now
-echo("BackgroundMgr update now")
+    proj.nowRef.val = now
 
     // check schedules
-    rt.obs.schedule.check(now)
+    proj.obs.schedule.check(now)
 
     // check watches
-    rt.watch.checkExpires
+    proj.watch.checkExpires
 
     return null
   }
@@ -80,7 +77,7 @@ echo("BackgroundMgr update now")
 
   private Void checkSteadyState()
   {
-    if (rt.isSteadyState) return
+    if (proj.isSteadyState) return
 
     config := steadyStateConfig
     elapsed := Duration.nowTicks - startTicks.val
@@ -90,19 +87,16 @@ echo("BackgroundMgr update now")
 
   private Void transitionToSteadyState()
   {
-    rt.log.info("Steady state")
-echo("TODO: transition to steady state")
-// TODO
-//    rt.stateStateRef.val = true
-//
-    rt.exts.list.each |ext| { ((HxExtSpi)ext.spi).steadyState }
+    proj.log.info("Steady state")
+    proj.stateStateRef.val = true
+    proj.exts.list.each |ext| { ((HxExtSpi)ext.spi).steadyState }
   }
 
   private Duration steadyStateConfig()
   {
     Duration? x
     try
-      x = (rt.meta["steadyState"] as Number)?.toDuration
+      x = (proj.meta["steadyState"] as Number)?.toDuration
     catch (Err e)
       {}
     if (x == null) x = 10sec

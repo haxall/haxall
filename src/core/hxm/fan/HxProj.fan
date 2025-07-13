@@ -38,7 +38,7 @@ const class HxProj : Proj
     this.metaRef       = AtomicRef(boot.meta)
     this.libsActorPool = ActorPool { it.name = "Hx-Exts" }
     this.hxdActorPool  = ActorPool { it.name = "Hx-Runtime" }
-//    this.backgroundMgr = HxdBackgroundMgr(this)
+    this.backgroundMgr = HxBackgroundMgr(this)
 //    this.context       = HxdContextService(this)
 //    this.file          = HxdFileService(this)
 //    this.his           = HxdHisService(this)
@@ -55,7 +55,7 @@ init(boot)
   {
     exts.init
     servicesRef.val = boot.initServices(this, exts.list)
-//    obs.init
+    obs.init
     return this
   }
 
@@ -178,7 +178,7 @@ override  HxHisService his() { services.his }
   }
 
   ** Background tasks
-//  internal const HxdBackgroundMgr backgroundMgr
+  internal const HxBackgroundMgr backgroundMgr
 
   ** Logging
   override const Log log
@@ -235,7 +235,7 @@ override  HxHisService his() { services.his }
     Future.waitForAll(futures)
 
     // kick off background processing
-//    backgroundMgr.start
+    backgroundMgr.start
 
     return this
   }
