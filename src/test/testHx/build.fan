@@ -35,7 +35,6 @@ class Build : BuildPod
                "obs @{hx.depend}",
                "folio @{hx.depend}",
                "hx @{hx.depend}",
-               "hx4 @{hx.depend}",
                "hxm @{hx.depend}",
                "hxFolio @{hx.depend}",
                "hxConn @{hx.depend}"]

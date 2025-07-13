@@ -13,6 +13,7 @@ using haystack
 using folio
 using hx
 using hxd
+using hxm
 using hxFolio
 using hxUser
 
@@ -181,34 +182,34 @@ internal class InitCli : HxCli
     rt.db.close
   }
 
-  private Void initHttpPort(HxdRuntime rt)
+  private Void initHttpPort(HxProj proj)
   {
-    rec := rt.db.read(Filter(Str<|ext=="http"|>))
+    rec := proj.db.read(Filter(Str<|ext=="http"|>))
     port := Number(httpPort)
     if (rec["httpPort"] != port)
     {
-      rt.log.info("Update httpPort [$port]")
-      rt.db.commit(Diff(rec, ["httpPort":port]))
+      proj.log.info("Update httpPort [$port]")
+      proj.db.commit(Diff(rec, ["httpPort":port]))
     }
     if (httpsDisable && rec["httpsEnabled"] == true)
     {
-      rt.log.info("Disable https")
-      rt.db.commit(Diff(rec, ["httpsEnabled":Remove.val]))
+      proj.log.info("Disable https")
+      proj.db.commit(Diff(rec, ["httpsEnabled":Remove.val]))
     }
   }
 
-  private Void initSu(HxdRuntime rt)
+  private Void initSu(HxProj proj)
   {
-    rec := rt.db.read(Filter("username==$suUser.toCode"), false)
+    rec := proj.db.read(Filter("username==$suUser.toCode"), false)
     if (rec == null)
     {
-      rt.log.info("Create su [$suUser.toCode]")
-      HxUserUtil.addUser(rt.db, suUser, suPass, ["userRole":"su"])
+      proj.log.info("Create su [$suUser.toCode]")
+      HxUserUtil.addUser(proj.db, suUser, suPass, ["userRole":"su"])
     }
     else
     {
-      rt.log.info("Update su $suUser.toCode")
-      HxUserUtil.updatePassword(rt.db, rec, suPass)
+      proj.log.info("Update su $suUser.toCode")
+      HxUserUtil.updatePassword(proj.db, rec, suPass)
     }
   }
 

@@ -13,7 +13,63 @@ using xeto
 using haystack
 using folio
 using hx
+using hxm
 using hxFolio
+
+class NewHxdBoot : HxBoot
+{
+  new make(File dir) : super("sys", dir)
+  {
+  }
+
+  override Log log := Log.get("hxd")
+
+  override Version version := typeof.pod.version
+
+  **
+  ** Misc configuration tags used to customize the system.
+  ** This dict is available via Proj.config.
+  ** Standard keys:
+  **   - noAuth: Marker to disable authentication and use superuser
+  **   - test: Marker for HxTest runtime
+  **   - platformSpi: Str qname for hxPlatform::PlatformSpi class
+  **   - platformSerialSpi: Str qname for hxPlatformSerial::PlatformSerialSpi class
+  **   - hxLic: license Str or load from lic/xxx.trio
+  **
+  Str:Obj? config := [:]
+
+  override Folio initFolio()
+  {
+    config := FolioConfig
+    {
+      it.name = "haxall"
+      it.dir  = this.dir + `db/`
+      it.pool = ActorPool { it.name = "Hxd-Folio" }
+    }
+    return HxFolio.open(config)
+  }
+
+  ** Initialize and kick off the runtime
+  Int run()
+  {
+    // initialize project
+    proj := init
+
+    // install shutdown handler
+// TODO
+//    Env.cur.addShutdownHook(proj.shutdownHook)
+
+    // startup proj
+    proj.start
+    Actor.sleep(Duration.maxVal)
+    return 0
+  }
+
+  override HxServiceRegistry initServices(HxProj proj, Ext[] exts)
+  {
+    HxdServiceRegistry(proj, exts)
+  }
+}
 
 **
 ** Bootstrap loader for Haxall daemon
@@ -100,8 +156,8 @@ class HxdBoot
 // Public
 //////////////////////////////////////////////////////////////////////////
 
-  ** Initialize an instance of HxdRuntime but do not start it
-  HxdRuntime init()
+  ** Initialize an instance of HxProj but do not start it
+  HxProj init()
   {
     if (rt != null) return rt
     initArgs
@@ -189,7 +245,7 @@ class HxdBoot
     tags := ["projMeta": Marker.val, "version": version.toStr]
     projMeta.each |v, n| { tags[n] = v }
 
-    // update rec and set back to projMeta field so HxdRuntime can init itself
+    // update rec and set back to projMeta field so HxProj can init itself
     projMeta = initRec("projMeta", db.read(Filter.has("projMeta"), false), tags)
   }
 
@@ -220,9 +276,10 @@ class HxdBoot
     }
   }
 
-  virtual HxdRuntime initRuntime()
+  virtual HxProj initRuntime()
   {
-    HxdRuntime(this).init(this)
+//    HxProj(this).init(this)
+throw Err("TODO")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -230,7 +287,7 @@ class HxdBoot
 //////////////////////////////////////////////////////////////////////////
 
   internal Folio? db
-  internal HxdRuntime? rt
+  internal HxProj? rt
   internal HxPlatform? platformRef
 }
 
@@ -253,7 +310,7 @@ internal class RunCli : HxCli
 
   override Int run()
   {
-    boot := HxdBoot { it.dir = this.dir }
+    boot := NewHxdBoot(dir)
     if (noAuth) boot.config["noAuth"] = Marker.val
     return boot.run
   }

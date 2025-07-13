@@ -15,6 +15,7 @@ using hx
 **
 ** Proj implementation
 **
+/* TODO
 abstract const class MProj : Proj
 {
   new make(ProjBoot boot)
@@ -134,4 +135,5 @@ const Ref id
   private const AtomicBool isStarted := AtomicBool()
   private const AtomicBool isStopped  := AtomicBool()
 }
+*/
 

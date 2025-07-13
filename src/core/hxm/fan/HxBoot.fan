@@ -13,9 +13,9 @@ using hx
 using xetoc
 
 **
-** Project bootstrap project loader
+** Haxall bootstrap project loader
 **
-abstract class ProjBoot
+abstract class HxBoot
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ abstract class ProjBoot
 //////////////////////////////////////////////////////////////////////////
 
   ** Initialize the project but do not start it
-  MProj init()
+  HxProj init()
   {
     this.nsfb = initNamespaceFileBase
     this.libs = initProjLibs
@@ -112,11 +112,13 @@ abstract class ProjBoot
   }
 
   ** Create HxProj implementation
-  virtual MProj initProj()
+  virtual HxProj initProj()
   {
-    //MProj(this)
-throw Err("TODO")
+    HxProj(this)
   }
+
+** TODO
+  abstract HxServiceRegistry initServices(HxProj proj, Ext[] exts)
 
 //////////////////////////////////////////////////////////////////////////
 // Utils

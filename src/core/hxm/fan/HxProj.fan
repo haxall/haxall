@@ -4,21 +4,20 @@
 //
 // History:
 //   19 May 2021  Brian Frank  Creation
+//    8 Jul 2025  Brian Frank  Refactoring for 4.0
 //
 
 using concurrent
-using web
 using xeto
 using haystack
 using folio
 using obs
 using hx
-using hxm
 
 **
-** Haxall daemon implementation of Proj
+** Haxall implementation of Proj
 **
-const class HxdRuntime : Proj
+const class HxProj : Proj
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,37 +25,37 @@ const class HxdRuntime : Proj
 //////////////////////////////////////////////////////////////////////////
 
   ** Boot constructor
-  new make(HxdBoot boot)
+  new make(HxBoot boot)
   {
-    this.name          = Etc.toTagName(boot.name ?: boot.dir.name)
+    this.name          = boot.name
     this.version       = boot.version
-    this.platform      = boot.platformRef
-    this.config        = HxConfig(Etc.makeDict(boot.config))
+    this.platform      = HxPlatform(Etc.dict0) // TODO
+    this.config        = HxConfig(Etc.dict0)   // TODO
     this.dir           = boot.dir
     this.db            = boot.db
-    this.db.hooks      = HxdFolioHooks(this)
+//    this.db.hooks      = HxdFolioHooks(this)
     this.log           = boot.log
-    this.metaRef       = AtomicRef(boot.projMeta)
-    this.installedRef  = AtomicRef(HxdInstalled.build)
-    this.libsActorPool = ActorPool { it.name = "Hxd-Lib" }
-    this.hxdActorPool  = ActorPool { it.name = "Hxd-Runtime" }
-    this.backgroundMgr = HxdBackgroundMgr(this)
-    this.context       = HxdContextService(this)
-    this.watch         = HxdWatchService(this)
-    this.obs           = HxdObsService(this)
-    this.file          = HxdFileService(this)
-    this.his           = HxdHisService(this)
+    this.metaRef       = AtomicRef(boot.meta)
+    this.libsActorPool = ActorPool { it.name = "Hx-Exts" }
+    this.hxdActorPool  = ActorPool { it.name = "Hx-Runtime" }
+//    this.backgroundMgr = HxdBackgroundMgr(this)
+//    this.context       = HxdContextService(this)
+//    this.watch         = HxdWatchService(this)
+//    this.obs           = HxdObsService(this)
+//    this.file          = HxdFileService(this)
+//    this.his           = HxdHisService(this)
     this.libs          = MProjLibs.shim(dir)
     this.exts          = MProjExts(this, libsActorPool)
 libs.rtRef.val = this
+init(boot)
   }
 
   ** Called after constructor to init libs
-  This init(HxdBoot boot)
+  This init(HxBoot boot)
   {
     exts.init
-    servicesRebuild
-    obs.init
+    servicesRef.val = boot.initServices(this, exts.list)
+//    obs.init
     return this
   }
 
@@ -73,8 +72,8 @@ libs.rtRef.val = this
   ** Runtime version
   override const Version version
 
-  ** Platform hosting the runtime
-  override const HxPlatform platform
+  ** Host platform metadata
+  override const HxPlatform platform := HxPlatform(Etc.dict0)
 
   ** Configuration options defined at bootstrap
   override const HxConfig config
@@ -130,16 +129,24 @@ override Void recompileDefs() { nsBaseRecompile }
   private const AtomicRef nsOverlayRef := AtomicRef() // rec overlay
 
   ** Service registry
-  override HxdServiceRegistry services() { servicesRef.val ?: throw Err("Services not avail yet") }
-  internal Void servicesRebuild() { servicesRef.val = HxdServiceRegistry(this, exts.list) }
+override HxServiceRegistry services() { servicesRef.val ?: throw Err("Services not avail yet") }
+//  override HxdServiceRegistry services() { servicesRef.val ?: throw Err("Services not avail yet") }
+//  internal Void servicesRebuild() { servicesRef.val = HxdServiceRegistry(this, exts.list) }
   private const AtomicRef servicesRef := AtomicRef(null)
 
   // HxStdServices conveniences
-  override const HxdContextService context
-  override const HxdObsService obs
+/*
+  override const HxContextService context
+  override const HxObsService obs
   override const HxWatchService watch
   override const HxFileService file
   override const HxHisService his
+*/
+override HxContextService context() { services.context }
+override HxObsService obs() { services.obs }
+override HxWatchService watch() { services.watch }
+override HxFileService file() { services.file }
+override  HxHisService his() { services.his }
   override HxCryptoService crypto() { services.crypto }
   override HxHttpService http() { services.http }
   override HxUserService user() { services.user }
@@ -162,16 +169,12 @@ override Void recompileDefs() { nsBaseRecompile }
   override This sync(Duration? timeout := 30sec)
   {
     db.sync(timeout)
-    obs.sync(timeout)
+//    obs.sync(timeout)
     return this
   }
 
   ** Background tasks
-  internal const HxdBackgroundMgr backgroundMgr
-
-  ** Installed lib pods on the host system
-  HxdInstalled installed() { installedRef.val }
-  private const AtomicRef installedRef
+//  internal const HxdBackgroundMgr backgroundMgr
 
   ** Logging
   override const Log log
@@ -205,7 +208,7 @@ override Void recompileDefs() { nsBaseRecompile }
     Future.waitForAll(futures)
 
     // kick off background processing
-    backgroundMgr.start
+//    backgroundMgr.start
 
     return this
   }

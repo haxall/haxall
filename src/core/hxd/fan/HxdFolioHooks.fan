@@ -19,10 +19,10 @@ using hxm
 const class HxdFolioHooks : FolioHooks
 {
   ** Constructor
-  new make(HxdRuntime rt) { this.rt = rt; this.db = rt.db }
+  new make(HxProj rt) { this.rt = rt; this.db = rt.db }
 
   ** Parent runtime instance
-  const HxdRuntime rt
+  const HxProj rt
 
   ** Parent database instance
   const Folio db
@@ -67,7 +67,9 @@ const class HxdFolioHooks : FolioHooks
     // observation; otherwise short circut all other code
     if (diff.isTransient)
     {
-      if (diff.isCurVal) rt.obs.curVal(diff)
+// TODO
+obs := (HxdObsService)rt.obs
+//      if (diff.isCurVal) rt.obs.curVal(diff)
       return
     }
 
@@ -85,22 +87,27 @@ const class HxdFolioHooks : FolioHooks
 
       if (diff.id == rt.meta.id)
       {
-        rt.metaRef.val = diff.newRec
+echo("TODO: metaRef")
+//        rt.metaRef.val = diff.newRec
       }
     }
 
     if (diff.getOld("def") != null || diff.getNew("def") != null)
     {
-      rt.nsOverlayRecompile
+//      rt.nsOverlayRecompile
     }
 
-    rt.obs.commit(diff, user)
+// TODO
+obs := (HxdObsService)rt.obs
+    obs.commit(diff, user)
   }
 
   ** Callback after his write.  Result is same dict returned from future.
   override Void postHisWrite(FolioHisEvent e)
   {
-    rt.obs.hisWrite(e.rec, e.result, e.cxInfo as HxUser)
+// TODO
+obs := (HxdObsService)rt.obs
+    obs.hisWrite(e.rec, e.result, e.cxInfo as HxUser)
   }
 }
 

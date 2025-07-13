@@ -11,6 +11,7 @@ using xeto
 using haystack
 using folio
 using hx
+using hxm
 
 **
 ** Haxall daemon HxTest service provider implementation
@@ -41,7 +42,7 @@ class HxdTestSpi : HxTestSpi
 
   override Void stop(Proj rt)
   {
-    ((HxdRuntime)rt).stop
+    ((HxProj)rt).stop
   }
 
   override Ext addLib(Str libName, Str:Obj? tags)
@@ -49,7 +50,7 @@ class HxdTestSpi : HxTestSpi
 echo("XXXX TEST $libName")
 throw Err("TODO")
 /*
-    rt := (HxdRuntime)test.rt
+    rt := (HxProj)test.rt
     x := rt.libsOld.get(libName, false)
     if (x != null) return x
     lib := rt.installed.lib(libName)
@@ -72,7 +73,8 @@ throw Err("TODO")
 
   override Void forceSteadyState(Proj rt)
   {
-    ((HxdRuntime)test.rt).backgroundMgr.forceSteadyState
+//    ((HxProj)test.rt).backgroundMgr.forceSteadyState
+throw Err("TODO")
   }
 }
 

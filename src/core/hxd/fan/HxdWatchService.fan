@@ -12,6 +12,7 @@ using xeto
 using haystack
 using folio
 using hx
+using hxm
 using hxFolio
 
 **
@@ -24,7 +25,7 @@ internal const class HxdWatchService : HxWatchService
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxdRuntime rt)
+  new make(HxProj rt)
   {
     this.rt   = rt
     this.db   = rt.db
@@ -35,7 +36,7 @@ internal const class HxdWatchService : HxWatchService
 // Lookup Tables
 //////////////////////////////////////////////////////////////////////////
 
-  const HxdRuntime rt       // parent runtime
+  const HxProj rt       // parent runtime
   const HxFolio db          // requires access to Rec
   const ConcurrentMap byId  // Str:HxdWatch
 
@@ -128,7 +129,7 @@ internal const class HxdWatch : HxWatch
   const Int created
   const ConcurrentMap refs  // Ref:HxdWatchRef
 
-  override HxdRuntime rt() { service.rt }
+  override HxProj rt() { service.rt }
 
   override Ref[] list()
   {
@@ -203,7 +204,9 @@ internal const class HxdWatch : HxWatch
         }
       }
     }
-    if (firstRecs != null) rt.obs.watches.fireWatch(firstRecs)
+// TODO
+obs := (HxdObsService)rt.obs
+    if (firstRecs != null) obs.watches.fireWatch(firstRecs)
   }
 
   override Void removeAll(Ref[] ids)
@@ -225,7 +228,9 @@ internal const class HxdWatch : HxWatch
         }
       }
     }
-    if (lastRecs != null) rt.obs.watches.fireUnwatch(lastRecs)
+// TODO
+obs := (HxdObsService)rt.obs
+    if (lastRecs != null) obs.watches.fireUnwatch(lastRecs)
   }
 
   override Void set(Ref[] ids)

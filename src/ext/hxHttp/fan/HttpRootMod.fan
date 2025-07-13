@@ -40,13 +40,8 @@ internal const class HttpRootMod : WebMod
     }
 
     // TODO
-    x := "hx." + libName + "::" + libName.capitalize +"Ext"
+    x := "hx." + libName
     lib := proj.exts.get(x, false)
-    if (lib == null)
-    {
-      x = "hx." + libName + "::Hx" + libName.capitalize +"Ext"
-      lib = proj.exts.get(x, false)
-    }
     if (lib == null) return res.sendErr(404)
 
     // check if it supports ExtWeb

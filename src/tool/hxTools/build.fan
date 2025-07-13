@@ -34,6 +34,7 @@ class Build : BuildPod
                "def @{hx.depend}",
                "folio @{hx.depend}",
                "hx @{hx.depend}",
+               "hxm @{hx.depend}",
                "hxd @{hx.depend}",
                "hxFolio @{hx.depend}",
                "hxUser @{hx.depend}"]

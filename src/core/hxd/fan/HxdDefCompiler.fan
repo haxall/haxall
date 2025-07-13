@@ -22,7 +22,7 @@ using defc
 **
 class HxdDefCompiler : DefCompiler
 {
-  new make(HxdRuntime rt)
+  new make(HxProj rt)
   {
     this.rt = rt
     this.log = rt.log
@@ -30,7 +30,7 @@ class HxdDefCompiler : DefCompiler
     this.inputs = rt.libsOld.list.map |lib->HxdLibInput| { HxdLibInput(lib) }
   }
 
-  const HxdRuntime rt
+  const HxProj rt
 }
 
 **************************************************************************
@@ -233,7 +233,7 @@ internal const class FuncCompReflectInput : FuncReflectInput
 
 const class HxdOverlayCompiler
 {
-  new make(HxdRuntime rt, DefNamespace base)
+  new make(HxProj rt, DefNamespace base)
   {
     this.rt = rt
     this.base = base
@@ -241,7 +241,7 @@ const class HxdOverlayCompiler
     this.libSymbol = Symbol("lib:hx_db")
   }
 
-  const HxdRuntime rt
+  const HxProj rt
   const DefNamespace base
   const Log log
   const Symbol libSymbol

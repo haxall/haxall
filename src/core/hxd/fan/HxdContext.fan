@@ -20,9 +20,9 @@ using hxm
 **
 const class HxdContextService : HxContextService
 {
-  new make(HxdRuntime rt) { this.rt = rt }
+  new make(HxProj proj) { this.rt = proj }
 
-  const HxdRuntime rt
+  const HxProj rt
 
   override HxContext create(HxUser user) { HxdContext(rt, user, null) }
 
@@ -57,7 +57,7 @@ class HxdContext : HxContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  @NoDoc new make(HxdRuntime proj, HxUser user, HxSession? session)
+  @NoDoc new make(HxProj proj, HxUser user, HxSession? session)
   {
     this.proj = proj
     this.user = user
@@ -68,7 +68,7 @@ class HxdContext : HxContext
 // HxContext
 //////////////////////////////////////////////////////////////////////////
 
-  override const HxdRuntime proj
+  override const HxProj proj
 
   override Namespace ns() { rt.ns }
 

@@ -11,6 +11,7 @@ using xeto
 using haystack
 using folio
 using hx
+using hxm
 using hxFolio
 
 **
@@ -20,9 +21,9 @@ using hxFolio
 **
 internal const class HxdHisService : HxHisService
 {
-  new make(HxdRuntime rt) { this.rt = rt }
+  new make(HxProj rt) { this.rt = rt }
 
-  const HxdRuntime rt
+  const HxProj rt
 
   override Void read(Dict pt, Span? span, Dict? opts, |HisItem| f)
   {

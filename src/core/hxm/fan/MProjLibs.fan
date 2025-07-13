@@ -42,7 +42,7 @@ const class MProjLibs : ProjLibs
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(ProjBoot boot)
+  new make(HxBoot boot)
   {
     this.fb = boot.nsfb
     this.bootLibNames = boot.bootLibs

@@ -19,12 +19,12 @@ using hxm
 internal const class HxdBackgroundMgr : Actor
 {
 
-  new make(HxdRuntime rt) : super(rt.hxdActorPool)
+  new make(HxProj rt) : super(rt.hxdActorPool)
   {
     this.rt  = rt
   }
 
-  const HxdRuntime rt
+  const HxProj rt
 
   Void start()
   {
@@ -59,7 +59,9 @@ internal const class HxdBackgroundMgr : Actor
 
     // update now cached DateTime
     now := DateTime.now(null)
-    rt.nowRef.val = now
+// TODO
+//    rt.nowRef.val = now
+echo("BackgroundMgr update now")
 
     // check schedules
     rt.obs.schedule.check(now)
@@ -89,7 +91,10 @@ internal const class HxdBackgroundMgr : Actor
   private Void transitionToSteadyState()
   {
     rt.log.info("Steady state")
-    rt.stateStateRef.val = true
+echo("TODO: transition to steady state")
+// TODO
+//    rt.stateStateRef.val = true
+//
     rt.exts.list.each |ext| { ((MExtSpi)ext.spi).steadyState }
   }
 

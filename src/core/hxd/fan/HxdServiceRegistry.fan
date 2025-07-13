@@ -9,6 +9,7 @@
 using concurrent
 using haystack
 using hx
+using hxm
 
 **
 ** HxdServiceRegistry
@@ -16,7 +17,7 @@ using hx
 const class HxdServiceRegistry : HxServiceRegistry
 {
   ** Construct for list of enabled libs
-  new make(HxdRuntime rt, Ext[] libs)
+  new make(HxProj rt, Ext[] libs)
   {
     map := Type:HxService[][:]
     serviceType := HxService#
@@ -38,11 +39,20 @@ const class HxdServiceRegistry : HxServiceRegistry
     }
 
     // these are built-in without using a lib
+    /*
     map[HxContextService#] = HxService[rt.context]
     map[HxObsService#]     = HxService[rt.obs]
     map[HxWatchService#]   = HxService[rt.watch]
     map[HxFileService#]    = HxService[rt.file]
     map[HxHisService#]     = HxService[rt.his]
+    */
+
+    map[HxContextService#] = HxService[HxdContextService(rt)]
+    map[HxObsService#]     = HxService[HxdObsService(rt)]
+    map[HxWatchService#]   = HxService[HxdWatchService(rt)]
+    map[HxFileService#]    = HxService[HxdFileService(rt)]
+    map[HxHisService#]     = HxService[HxdHisService(rt)]
+
 
     // we might need to stub http since its not added by default in tests
     if (map[HxHttpService#] == null)

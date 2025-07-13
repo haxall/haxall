@@ -79,8 +79,8 @@ const class MExtSpi : Actor, ExtSpi
     this.log         = Log.get(name)
     this.fantomType  = type
     this.settingsRef = AtomicRef(typedRec(settings))
-    this.webUri      = ("/" + (name.startsWith("hx") ? name[2..-1].decapitalize : name) + "/").toUri
-
+// TODO
+this.webUri      = ("/" + (name.startsWith("hx") ? name[3..-1].decapitalize : name) + "/").toUri
   }
 
 //////////////////////////////////////////////////////////////////////////

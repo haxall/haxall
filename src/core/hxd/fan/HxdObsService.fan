@@ -13,6 +13,7 @@ using haystack
 using obs
 using folio
 using hx
+using hxm
 
 **
 ** HxdObserveMgr
@@ -24,7 +25,7 @@ const class HxdObsService : Actor, HxObsService
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxdRuntime rt) : super(rt.hxdActorPool)
+  new make(HxProj rt) : super(rt.hxdActorPool)
   {
     this.rt  = rt
     this.log = rt.db.log
@@ -53,7 +54,7 @@ const class HxdObsService : Actor, HxObsService
 // Lookup Tables
 //////////////////////////////////////////////////////////////////////////
 
-  const HxdRuntime rt
+  const HxProj rt
 
   const Log log
 
@@ -276,16 +277,18 @@ const class HxdObsService : Actor, HxObsService
 
 internal const class CommitsObservable : Observable
 {
-  new make(HxdRuntime rt) { this.rt = rt }
+  new make(HxProj rt) { this.rt = rt }
 
-  const HxdRuntime rt
+  const HxProj rt
 
   override Str name() { "obsCommits" }
 
   override Subscription onSubscribe(Observer observer, Dict config)
   {
     sub := CommitsSubscription(this, observer, config)
-    if (sub.addOnInit) rt.obs.sendAddOnInit(sub)
+// TODO
+obs := (HxdObsService)rt.obs
+    if (sub.addOnInit) obs.sendAddOnInit(sub)
     return sub
   }
 }
@@ -320,9 +323,9 @@ internal const class CommitsSubscription : RecSubscription
 
 internal const class WatchesObservable : Observable
 {
-  new make(HxdRuntime rt) { this.rt = rt }
+  new make(HxProj rt) { this.rt = rt }
 
-  const HxdRuntime rt
+  const HxProj rt
 
   override Str name() { "obsWatches" }
 

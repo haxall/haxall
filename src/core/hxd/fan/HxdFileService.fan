@@ -10,6 +10,7 @@ using concurrent
 using haystack
 using folio
 using hx
+using hxm
 using hxFolio
 using util
 
@@ -20,9 +21,9 @@ using util
 **
 internal const class HxdFileService : HxFileService
 {
-  new make(HxdRuntime rt) { this.rt = rt }
+  new make(HxProj rt) { this.rt = rt }
 
-  const HxdRuntime rt
+  const HxProj rt
 
   override File resolve(Uri uri)
   {
@@ -141,3 +142,4 @@ internal const class HxdFile : SyntheticFile
 
   override OutStream out(Bool append := false, Int? bufferSize := 4096) { file.out(append, bufferSize) }
 }
+
