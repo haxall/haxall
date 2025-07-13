@@ -112,10 +112,7 @@ abstract class HxBoot
   }
 
   ** Create HxProj implementation
-  virtual HxProj initProj()
-  {
-    HxProj(this)
-  }
+  abstract HxProj initProj()
 
 ** TODO
   abstract HxServiceRegistry initServices(HxProj proj, Ext[] exts)

@@ -286,7 +286,7 @@ internal const class CommitsObservable : Observable
   override Subscription onSubscribe(Observer observer, Dict config)
   {
     sub := CommitsSubscription(this, observer, config)
-    if (sub.addOnInit) proj.obs.sendAddOnInit(sub)
+    if (sub.addOnInit) proj.obsRef.sendAddOnInit(sub)
     return sub
   }
 }

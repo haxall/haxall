@@ -4,10 +4,9 @@
 //
 // History:
 //   18 May 2021  Brian Frank  Creation
+//    8 Jul 2025  Brian Frank  Redesign from HxRuntime
 //
 
-using concurrent
-using web
 using xeto
 using haystack
 using obs
@@ -18,6 +17,9 @@ using folio
 **
 const mixin Proj : HxStdServices
 {
+  ** Reference to system project (in Haxall daemon it is always this)
+  abstract Sys sys()
+
   ** Programatic name of the runtime. This string is always a valid tag name.
   abstract Str name()
 

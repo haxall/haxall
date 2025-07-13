@@ -17,7 +17,7 @@ using hx
 **
 ** Haxall implementation of Proj
 **
-const class HxProj : Proj
+abstract const class HxProj : Proj
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,20 +42,20 @@ const class HxProj : Proj
 //    this.context       = HxdContextService(this)
 //    this.file          = HxdFileService(this)
 //    this.his           = HxdHisService(this)
-    this.libs          = HxProjLibs.shim(dir)
-    this.exts          = HxProjExts(this, libsActorPool)
-    this.watch         = HxProjWatches(this)
-    this.obs           = HxProjObservables(this)
-libs.rtRef.val = this
+    this.libsRef        = HxProjLibs.shim(dir)
+    this.extsRef        = HxProjExts(this, libsActorPool)
+    this.watchRef       = HxProjWatches(this)
+    this.obsRef         = HxProjObservables(this)
+libsRef.rtRef.val = this
 init(boot)
   }
 
   ** Called after constructor to init libs
   This init(HxBoot boot)
   {
-    exts.init
+    extsRef.init
     servicesRef.val = boot.initServices(this, exts.list)
-    obs.init
+    obsRef.init
     return this
   }
 
@@ -91,25 +91,29 @@ init(boot)
   override const Folio db
 
   ** Project xeto library management
-  override const HxProjLibs libs
+  override ProjLibs libs() { libsRef }
+  const HxProjLibs libsRef
 
   ** Xeto lib namespace
-  override Namespace ns() { libs.ns }
+  override Namespace ns() { libsRef.ns }
 
   ** Project spec management
-  override ProjSpecs specs() { libs.specs }
+  override ProjSpecs specs() { libsRef.specs }
 
   ** Convenience for 'exts.get' to lookup extension by lib dotted name
   override Ext? ext(Str name, Bool checked := true) { exts.get(name, checked) }
 
   ** Project extensions
-  override const HxProjExts exts
+  override ProjExts exts() { extsRef }
+  const HxProjExts extsRef
 
   ** Project watch management
-  override const ProjWatches watch
+  override ProjWatches watch() { watchRef }
+  internal const HxProjWatches watchRef
 
   ** Project observable management
-  override const HxProjObservables obs
+  override ProjObservables obs() { obsRef }
+  const HxProjObservables obsRef
 
   ** Namespace of definitions
   override DefNamespace defs()
@@ -172,7 +176,7 @@ override  HxHisService his() { services.his }
   override This sync(Duration? timeout := 30sec)
   {
     db.sync(timeout)
-    obs.sync(timeout)
+    obsRef.sync(timeout)
     return this
   }
 

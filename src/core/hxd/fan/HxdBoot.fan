@@ -69,6 +69,11 @@ class NewHxdBoot : HxBoot
   {
     HxdServiceRegistry(proj, exts)
   }
+
+  override HxProj initProj()
+  {
+    HxdSys(this)
+  }
 }
 
 **
