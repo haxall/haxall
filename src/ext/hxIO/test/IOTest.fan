@@ -17,11 +17,11 @@ using hx
 class IOTest : HxTest
 {
 
-  @HxRuntimeTest
+  @HxTestProj
   Void test()
   {
     addLib("io")
-    projDir := rt.dir
+    projDir := proj.dir
 
     // bad handles
     verifyErr(EvalErr#) { eval("ioReadStr(`test.txt`)") }
@@ -401,7 +401,7 @@ class IOTest : HxTest
     verifyEq(text, "folio file test!")
 
     // bins (SkySpark only)
-    if (rt.platform.isSkySpark)
+    if (sys.platform.isSkySpark)
     {
       f := addRec(["file": Bin("text/plain")])
       eval("""ioWriteStr("bin test!", readById($f.id.toCode))""")
@@ -438,7 +438,7 @@ class IOTest : HxTest
     eval(expr)
 
     // read with Fantom
-    in := rt.dir.plus(`io/charset.txt`).in
+    in := proj.dir.plus(`io/charset.txt`).in
     in.charset = Charset(charset)
     verifyEq(in.readAllStr, unicode)
     in.close
@@ -447,15 +447,15 @@ class IOTest : HxTest
     verifyEq(eval("ioReadStr(ioCharset(`io/charset.txt`, $charset.toCode))"), unicode)
   }
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testBufHandle()
   {
     buf := Buf()
-    h := IOHandle.fromObj(rt, buf)
+    h := IOHandle.fromObj(proj, buf)
     verify(h is BufHandle)
     res := h.withOut |out| { out.writeChars("Foo") }
     verifyEq(res->size, n(3))
-    h = IOHandle.fromObj(rt, buf.flip)
+    h = IOHandle.fromObj(proj, buf.flip)
     s := h.withIn |in| { in.readAllStr }
     verifyEq(s, "Foo")
   }

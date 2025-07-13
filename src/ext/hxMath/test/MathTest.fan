@@ -15,10 +15,10 @@ using hx
 **
 class MathTest : HxTest
 {
-  @HxRuntimeTest
+  @HxTestProj
   Void test()
   {
-    rt.libs.add("hx.math")
+    proj.libs.add("hx.math")
 
     // constants
     verifyEq(eval("pi()"), Number(Float.pi))
@@ -77,10 +77,10 @@ class MathTest : HxTest
     verifyFitLinearRegression
   }
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testFolds()
   {
-    rt.libs.add("hx.math")
+    proj.libs.add("hx.math")
 
     // Test cases for RMSE and MBE provided by PNL
 
@@ -107,10 +107,10 @@ class MathTest : HxTest
     verifyFoldEq("${list}.fold(meanBiasErr(_,_,1))", mbe1)
   }
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testQuantileFolds()
   {
-    rt.libs.add("hx.math")
+    proj.libs.add("hx.math")
 
     // quantile folds                               quantile1_linear    quantile70_linear  quantile70_nearest  quantile70_lower    quantile70_higher    quantile70_midpoint
     //                                              ----------          -----------        -----------         ------------        ------------         ------------

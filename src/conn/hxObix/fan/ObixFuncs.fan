@@ -157,7 +157,7 @@ const class ObixFuncs
     name = name.replace("\$20", "-")
     saveUri := `io/points-${name}.zinc`
     echo("Save grid `$saveUri`")
-    ZincWriter(c.rt.dir.plus(saveUri).out).writeGrid(grid).close
+    ZincWriter(c.proj.dir.plus(saveUri).out).writeGrid(grid).close
 
     return grid
   }
@@ -192,7 +192,7 @@ const class ObixFuncs
 
   internal static Obj? dispatch(Context cx, Obj conn, HxMsg msg)
   {
-    ext := (ObixExt)cx.rt.ext("hx.obix")
+    ext := (ObixExt)cx.proj.ext("hx.obix")
     return ext.conn(Etc.toId(conn)).sendSync(msg)
   }
 

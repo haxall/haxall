@@ -24,7 +24,7 @@ class TaskTest : HxTest
 // Settings
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testSettings()
   {
     lib := (TaskExt)addLib("task")
@@ -32,7 +32,7 @@ class TaskTest : HxTest
     verifyEq(lib.rec.maxThreads, 50)
     verifyEq(lib.rec["maxThreads"], null)
 
-    rt.libs.remove("task")
+    proj.libs.remove("task")
 
 echo("####")
 echo("####")
@@ -41,20 +41,20 @@ echo("####")
 echo("####")
 
 /*
-    lib = (TaskExt)rt.libsOld.add("task", Etc.dict1("maxThreads", n(123)))
+    lib = (TaskExt)proj.libsOld.add("task", Etc.dict1("maxThreads", n(123)))
     verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
     verifyEq(lib.rec.maxThreads, 123)
     verifyEq(lib.rec->maxThreads, n(123))
 
     commit(lib.rec, ["maxThreads":n(987)])
-    rt.sync
+    proj.sync
     verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
     verifyEq(lib.rec.maxThreads, 987)
     verifyEq(lib.rec->maxThreads, n(987))
 
     lib.log.level = LogLevel.err
     commit(lib.rec, ["maxThreads":"bad"])
-    rt.sync
+    proj.sync
     verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
     verifyEq(lib.rec.maxThreads, 50)
     verifyEq(lib.rec->maxThreads,"bad")
@@ -65,7 +65,7 @@ echo("####")
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testBasics()
   {
     lib := (TaskExt)addLib("task")
@@ -99,9 +99,9 @@ echo("####")
 
     // verify subscriptions
     forceSteadyState
-    verifyEq(rt.isSteadyState, true)
+    verifyEq(proj.isSteadyState, true)
     sync
-    sched := rt.obs.get("obsSchedule")
+    sched := proj.obs.get("obsSchedule")
     verifyEq(sched.subscriptions.size, 6)
     verifySubscribed(sched, aTask)
     verifySubscribed(sched, bTask)
@@ -167,13 +167,13 @@ echo("####")
     verifyDictEq(eval("""taskRun(x=>x, {foo}).futureGet"""), ["foo":m])
 
     // test service
-    verifyEq(rt.exts.task.run(Parser(Loc.eval, "(msg)=>msg+100".in).parse, n(7)).get, n(107))
-    verifyEq(rt.exts.task.cur(false), null)
-    verifyErr(NotTaskContextErr#) { rt.exts.task.cur(true) }
+    verifyEq(proj.exts.task.run(Parser(Loc.eval, "(msg)=>msg+100".in).parse, n(7)).get, n(107))
+    verifyEq(proj.exts.task.cur(false), null)
+    verifyErr(NotTaskContextErr#) { proj.exts.task.cur(true) }
 
     // stop lib and verify everything is cleaned up
-    rt.libs.remove("hx.task")
-    rt.sync
+    proj.libs.remove("hx.task")
+    proj.sync
     verifyEq(lib.pool.isStopped, true)
     verifyKilled(aTask); verifyUnsubscribed(sched, aTask)
     verifyKilled(bTask); verifyUnsubscribed(sched, bTask)
@@ -187,14 +187,14 @@ echo("####")
     verifyEq(sched.subscriptions.size, 0)
 
     // test service
-    verifyErr(UnknownServiceErr#) { rt.exts.task }
+    verifyErr(UnknownServiceErr#) { proj.exts.task }
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Locals
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testLocals()
   {
     lib := (TaskExt)addLib("task")
@@ -227,7 +227,7 @@ echo("####")
 // Test Cancel
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testCancel()
   {
     lib := (TaskExt)addLib("task")
@@ -267,7 +267,7 @@ echo("####")
 // Adjuncts
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testAdjuncts()
   {
     lib := (TaskExt)addLib("task")
@@ -304,12 +304,12 @@ echo("####")
 // User
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testUser()
   {
     // this test is only run in SkySpark right now because
     // hxd doesn't support user access filters
-    if (!rt.platform.isSkySpark)
+    if (!sys.platform.isSkySpark)
     {
       echo("   ##")
       echo("   ## Skip until hxd supports access filters")
@@ -343,7 +343,7 @@ echo("####")
     ///////////////////////////////////////////////////////
 
     verifySame(lib.user, lib.userFallback)
-    verifyEq(lib.user.meta["projAccessFilter"], "name==$rt.name.toCode")
+    verifyEq(lib.user.meta["projAccessFilter"], "name==$proj.name.toCode")
 
     // synthetic can read both sites
     sites := (Grid)eval("taskSend($id1.toCode, {}).futureWaitFor.futureGet.sortDis")
@@ -375,7 +375,7 @@ echo("####")
     // task-{proj}
     ///////////////////////////////////////////////////////
 
-    u2 := addUser("task-${rt.name}", "pass", ["userRole":"admin"])
+    u2 := addUser("task-${proj.name}", "pass", ["userRole":"admin"])
     lib.refreshUser
     verifyEq(lib.user.id, u2.id)
 
@@ -386,7 +386,7 @@ echo("####")
     verifyDictEq(sites[1], b)
 
     // xquery has full access
-    if (rt.platform.isSkySpark)
+    if (proj.platform.isSkySpark)
     {
       sites = (Grid)eval("taskSend($id2.toCode, {}).futureWaitFor.futureGet.sortDis")
       verifyEq(sites.size, 2)
@@ -398,7 +398,7 @@ echo("####")
     // task-{proj} as su falls back to synthetic
     ///////////////////////////////////////////////////////
 
-    u2 = addUser("task-${rt.name}", "pass", ["userRole":"su"])
+    u2 = addUser("task-${proj.name}", "pass", ["userRole":"su"])
     lib.refreshUser
     verifySame(lib.user, lib.userFallback)
 
@@ -417,14 +417,14 @@ echo("####")
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  Void sync() { rt.sync }
+  Void sync() { proj.sync }
 
   Dict addFuncRec(Str name, Str src, Str:Obj? tags := Str:Obj?[:])
   {
     tags["def"] = Symbol("func:$name")
     tags["src"]  = src
     r := addRec(tags)
-    rt.sync
+    proj.sync
     return r
   }
 
@@ -435,7 +435,7 @@ echo("####")
 
   Task verifyTask(Task task, Str type, Str status, Str? fault := null)
   {
-    ext := (TaskExt)rt.ext("hx.task")
+    ext := (TaskExt)proj.ext("hx.task")
     verifySame(ext.task(task.id), task)
     verifyEq(task.type.name, type)
     verifyEq(task.status.name, status)

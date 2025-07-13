@@ -23,7 +23,7 @@ class CoreFuncsTest : HxTest
 // Folio
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testFolio()
   {
     // create test database
@@ -148,7 +148,7 @@ class CoreFuncsTest : HxTest
 // Coercions (toRec, toRecId, etc)
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testCoercion()
   {
     d1 := Etc.dict1("id", Ref("d1"))
@@ -384,7 +384,7 @@ class CoreFuncsTest : HxTest
 // Diff
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testDiff()
   {
     db := rt.db
@@ -435,7 +435,7 @@ class CoreFuncsTest : HxTest
 // Commit
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testCommit()
   {
     db := rt.db
@@ -459,7 +459,7 @@ class CoreFuncsTest : HxTest
 // Libs
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testLibs()
   {
   /*
@@ -489,7 +489,7 @@ throw Err("TODO")
 // ProjSpecs
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testProjSpecs()
   {
     // add
@@ -523,7 +523,7 @@ throw Err("TODO")
 // Filters
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testFilters()
   {
     a := addRec(["dis":"andy",    "x":n(10)])
@@ -588,7 +588,7 @@ throw Err("TODO")
 // Strip Uncommittable
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testStripUncommittable()
   {
     db := rt.db
@@ -619,7 +619,7 @@ throw Err("TODO")
 // Streams
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testStreams()
   {
     db := rt.db
@@ -679,7 +679,7 @@ throw Err("TODO")
 // Watches
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testWatches()
   {
     // create test database
@@ -741,7 +741,7 @@ throw Err("TODO")
 // Misc
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testMisc()
   {
     cx := makeContext

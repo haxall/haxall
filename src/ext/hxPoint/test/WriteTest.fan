@@ -19,7 +19,7 @@ using hx
 class WriteTest : HxTest
 {
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testWrites()
   {
     PointExt ext := addLib("point")
@@ -46,7 +46,7 @@ class WriteTest : HxTest
     verifyWrite(ext, pt, n(80), 8, [8:n(80), 14: n(140), 17:n(170)])
 
     // add curTracksWrite
-    pt = rt.db.commit(Diff(rt.db.readById(pt.id), ["curTracksWrite":m])).newRec
+    pt = proj.commit(Diff(proj.readById(pt.id), ["curTracksWrite":m])).newRec
 
     // emergency 1
     eval("pointEmergencyOverride($ptId, 10)")
@@ -72,12 +72,12 @@ class WriteTest : HxTest
 
   Grid verifyWrite(PointExt ext, Dict pt, Obj? val, Int level, Int:Obj? levels)
   {
-    rt.sync
-    pt = rt.db.readById(pt.id)
+    proj.sync
+    pt = proj.readById(pt.id)
     if (pt.missing("writeLevel"))
     {
-      rt.db.sync
-      pt = rt.db.readById(pt.id)
+      proj.db.sync
+      pt = proj.readById(pt.id)
     }
 
     // echo("==> $val @ $level  ?=  " + pt["writeVal"] + " @ " + pt["writeLevel"] + " | " + pt["curVal"] + " @ " + pt["curStatus"])
@@ -118,7 +118,7 @@ class WriteTest : HxTest
       }
     }
 
-    verifyGridEq(g, rt.exts.point.pointArray(pt))
+    verifyGridEq(g, proj.exts.point.pointArray(pt))
 
     return g
   }
@@ -127,7 +127,7 @@ class WriteTest : HxTest
 // Observable
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest { meta = "steadyState: 500ms" }
+  @HxTestProj { meta = "steadyState: 500ms" }
   Void testObservable()
   {
     PointExt ext := addLib("point")
@@ -140,14 +140,14 @@ class WriteTest : HxTest
     obsX := TestObserver()
     obsY := TestObserver()
 
-    rt.obs.get("obsPointWrites").subscribe(obsA, Etc.makeDict([:]))
-    rt.obs.get("obsPointWrites").subscribe(obsB, Etc.makeDict(["obsAllWrites":m]))
-    rt.obs.get("obsPointWrites").subscribe(obsX, Etc.makeDict(["obsFilter":"dis==\"X\""]))
-    rt.obs.get("obsPointWrites").subscribe(obsY, Etc.makeDict(["obsFilter":"dis==\"Y\""]))
+    proj.obs.get("obsPointWrites").subscribe(obsA, Etc.makeDict([:]))
+    proj.obs.get("obsPointWrites").subscribe(obsB, Etc.makeDict(["obsAllWrites":m]))
+    proj.obs.get("obsPointWrites").subscribe(obsX, Etc.makeDict(["obsFilter":"dis==\"X\""]))
+    proj.obs.get("obsPointWrites").subscribe(obsY, Etc.makeDict(["obsFilter":"dis==\"Y\""]))
 
     reset := |->|
     {
-      rt.sync
+      proj.sync
       obsA.clear
       obsB.clear
       obsX.clear
@@ -157,7 +157,7 @@ class WriteTest : HxTest
     // verify no events received before steady state
     try
     {
-      verifyEq(rt.isSteadyState, false)
+      verifyEq(proj.isSteadyState, false)
       eval("pointWrite($x.id.toCode, 987, 16, \"test-16\")")
 
       verifyObs(obsA, x, null, -1, "")
@@ -167,7 +167,7 @@ class WriteTest : HxTest
     }
     catch (TestErr e)
     {
-      if (rt.isSteadyState)
+      if (proj.isSteadyState)
       {
         echo("***WARN*** reached steady state before expected")
         return null
@@ -175,8 +175,8 @@ class WriteTest : HxTest
       throw e
     }
 
-    while (!rt.isSteadyState) Actor.sleep(10ms)
-    rt.sync
+    while (!proj.isSteadyState) Actor.sleep(10ms)
+    proj.sync
     ext.writeMgr.forceCheck
 
     // verify first event

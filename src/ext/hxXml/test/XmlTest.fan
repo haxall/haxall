@@ -16,7 +16,7 @@ using hx
 class XmlTest : HxTest
 {
 
-  @HxRuntimeTest
+  @HxTestProj
   Void test()
   {
     addLib("xml")
@@ -72,5 +72,4 @@ class XmlTest : HxTest
   }
 
 }
-
 

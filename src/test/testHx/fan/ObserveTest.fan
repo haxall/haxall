@@ -23,7 +23,7 @@ class ObserveTest : HxTest
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testBasics()
   {
     // built-in only
@@ -189,7 +189,7 @@ class ObserveTest : HxTest
 // Commits
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testCommits()
   {
     doTestCommits
@@ -329,7 +329,7 @@ class ObserveTest : HxTest
 // Watch
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testWatch()
   {
     a := addRec(["dis":"A", "foo":m])
@@ -413,7 +413,7 @@ class ObserveTest : HxTest
 // CurVals
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testCurVals()
   {
     a1 := addRec(["dis":"A", "foo":m])
@@ -474,7 +474,7 @@ class ObserveTest : HxTest
 // HisWrites
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testHisWrites()
   {
     tz := TimeZone("New_York")

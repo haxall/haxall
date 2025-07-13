@@ -19,7 +19,7 @@ using hx
 **
 class Api4Test : ApiTest
 {
-  @HxRuntimeTest
+  @HxTestProj
   Void test()
   {
     init

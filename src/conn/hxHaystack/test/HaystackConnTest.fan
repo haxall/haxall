@@ -31,7 +31,7 @@ class HaystackConnTest : HxTest
   Dict? conn
   Dict? hisSyncF
 
-  @HxRuntimeTest { meta = "steadyState: 10ms" }
+  @HxTestProj { meta = "steadyState: 10ms" }
   Void test()
   {
     init
@@ -53,7 +53,7 @@ class HaystackConnTest : HxTest
   Void init()
   {
     // libs
-    if (rt.platform.isSkySpark)
+    if (sys.platform.isSkySpark)
       addLib("his")
     else
       addLib("http")
@@ -118,18 +118,18 @@ class HaystackConnTest : HxTest
     // create connector
     uri := sys.http.siteUri + sys.http.apiUri
     conn = addRec(["haystackConn":Marker.val, "uri":uri, "username":"hay", "haystackPollFreq":n(10, "ms")])
-    rt.db.passwords.set(conn.id.toStr, "foo")
-    rt.sync
+    proj.db.passwords.set(conn.id.toStr, "foo")
+    proj.sync
 
     // verify ping (returns rec)
     r := eval("read(haystackConn).haystackPing.futureGet") as Dict
     verifyEq(r.id, conn.id)
-    verifyEq(r->productName, rt.platform.productName)
+    verifyEq(r->productName, sys.platform.productName)
     conn = readById(conn.id)
     verifyEq(conn->connStatus,     "ok")
-    verifyEq(conn->productName,    rt.platform.productName)
-    verifyEq(conn->productVersion, rt.version.toStr)
-    verifyEq(conn->vendorName,     rt.platform.vendorName)
+    verifyEq(conn->productName,    sys.platform.productName)
+    verifyEq(conn->productVersion, sys.version.toStr)
+    verifyEq(conn->vendorName,     sys.platform.vendorName)
     verifyEq(conn->tz,             TimeZone.cur.name)
 
     // with conn id
@@ -240,7 +240,7 @@ class HaystackConnTest : HxTest
                        "point": Marker.val, "unit":"kW", "kind":"Number"])
 
     // sync
-    rt.sync
+    proj.sync
     eval("readAll(haystackCur).haystackSyncCur")
     syncConn
     verifyCur(proxy1,  false)
@@ -253,7 +253,7 @@ class HaystackConnTest : HxTest
     verifyCur(proxyE3, null ,"fault", "sys::Err: point unit != updateCurOk unit: kW != \u00B0F")
 
     // verify haystackSyncCur setup temp watch on server side
-    watches := rt.watch.list
+    watches := proj.watch.list
     verifyEq(watches.size, 1)
     verifyEq(watches.first.list.dup.sort, Ref[pt1.id, pt2.id, pt3.id, Ref.fromStr(proxyE2->haystackCur)].sort)
 
@@ -264,9 +264,9 @@ class HaystackConnTest : HxTest
     verifyCur(proxy2, n(88f, "fahrenheit"), "ok")
 
     // close all watches to start fresh
-    verifyEq(rt.watch.list.size, 2)
-    rt.watch.list.each |w| { w.close }
-    verifyEq(rt.watch.list.size, 0)
+    verifyEq(proj.watch.list.size, 2)
+    proj.watch.list.each |w| { w.close }
+    verifyEq(proj.watch.list.size, 0)
 
     // clear proxies
     resetCur(proxy1)
@@ -278,13 +278,13 @@ class HaystackConnTest : HxTest
     resetCur(proxyE2)
 
     // now setup watch on the proxies
-    clientWatch := rt.watch.open("test")
+    clientWatch := proj.watch.open("test")
     clientWatch.addAll([proxy1.id, proxyE1.id, proxyE2.id])
     Actor.sleep(100ms)
     syncConn
 
     // verify that watches got setup on server side
-    watches = rt.watch.list
+    watches = proj.watch.list
     verifyEq(watches.size, 2)
     serverWatch := watches.find |x| { x !== clientWatch }
     verifyEq(serverWatch.list.dup.sort, [pt1.id, badRef].sort)
@@ -361,7 +361,7 @@ class HaystackConnTest : HxTest
   {
     r = readById(r.id)
     // echo("--> verifyCur " + r.dis + " " + r["curVal"] + " @ " + r["curStatus"] + " err=" +  r["curErr"])
-    // echo(rt.conn.point(r.id).details)
+    // echo(proj.conn.point(r.id).details)
     verifyEq(r["curVal"], val)
     verifyEq(r["curStatus"], status)
     verifyEq(r["curErr"], err)
@@ -399,7 +399,7 @@ class HaystackConnTest : HxTest
                        "writable":Marker.val, "point": Marker.val, "unit":"%", "kind":"Number"])
 
      // make sure we are at steady state
-     while (!rt.isSteadyState) Actor.sleep(10ms)
+     while (!proj.isSteadyState) Actor.sleep(10ms)
 
      // get stuff setup
      eval("pointOverride($bad1.id.toCode,  1)")
@@ -592,8 +592,8 @@ class HaystackConnTest : HxTest
 
   Void syncConn()
   {
-    ext := (HaystackExt)rt.ext("hx.haystack")
-    rt.sync
+    ext := (HaystackExt)proj.ext("hx.haystack")
+    proj.sync
     ext.conn(conn.id).sync
   }
 
@@ -604,7 +604,7 @@ class HaystackConnTest : HxTest
   Void verifyInvokeAction()
   {
     // we don't have invokeAction in Haxall right now
-    if (!rt.platform.isSkySpark) return
+    if (!sys.platform.isSkySpark) return
 
     // create rec with action
     r := addRec(["dis":"Action", "count":n(1), "msg1": "", "msg2":"", "actions":
@@ -650,9 +650,7 @@ class HaystackConnTest : HxTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  Sys sys() { rt.sys }
-
-  IHisExt hisExt() { rt.exts.his }
+  IHisExt hisExt() { proj.exts.his }
 
   static HisItem item(DateTime ts, Obj? val)
   {

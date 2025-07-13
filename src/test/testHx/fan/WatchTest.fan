@@ -19,7 +19,7 @@ using hx
 class WatchTest : HxTest
 {
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testLifecycle()
   {
     t := Duration.now

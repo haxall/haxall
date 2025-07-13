@@ -19,7 +19,7 @@ class ConvertTest : HxTest
 {
   PointExt? ext
 
-  @HxRuntimeTest
+  @HxTestProj
   Void test()
   {
     this.ext = addLib("point")
@@ -57,7 +57,7 @@ class ConvertTest : HxTest
 
   Void doEnums()
   {
-    rt.db.commit(Diff.makeAdd(["enumMeta":Marker.val, "notMeta":"foo",
+    proj.commit(Diff.makeAdd(["enumMeta":Marker.val, "notMeta":"foo",
       "alpha": Str<|ver:"3.0"
                     name
                     "off"
@@ -77,7 +77,7 @@ class ConvertTest : HxTest
                     "b",9
                     "b",10|>.in).readGrid]))
 
-     rt.sync
+     proj.sync
 
      list := ext.enums.list
      verifyEq(list.size, 3)

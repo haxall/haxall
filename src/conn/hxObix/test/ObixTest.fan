@@ -37,7 +37,7 @@ class ObixTest : HxTest
   Dict? conn
   Dict? hisSyncF
 
-  @HxRuntimeTest
+  @HxTestProj
   Void test()
   {
     buildProj
@@ -57,7 +57,7 @@ class ObixTest : HxTest
 
   Void buildProj()
   {
-    if (rt.platform.isSkySpark)
+    if (proj.platform.isSkySpark)
       addLib("his")
     else
       addLib("http")
@@ -105,8 +105,8 @@ class ObixTest : HxTest
 
   Void verifyLobby()
   {
-    lib := (ObixExt)rt.ext("hx.obix")
-    projApiUri := rt.sys.http.siteUri + rt.sys.http.apiUri
+    lib := (ObixExt)proj.ext("hx.obix")
+    projApiUri := proj.sys.http.siteUri + proj.sys.http.apiUri
     lobbyUri = projApiUri + lib.web.uri
 
     // first use a haystack client to authenticate
@@ -129,9 +129,9 @@ class ObixTest : HxTest
     verifyEq(about.href, lobbyUri + `about/`)
     verifyEq(about.contract.toStr, "obix:About")
     verifyEq(about.get("obixVersion").val, "1.1")
-    verifyEq(about.get("serverName").val,  rt.name)
-    verifyEq(about.get("vendorName").val,  rt.platform.vendorName)
-    verifyEq(about.get("productName").val, rt.platform.productName)
+    verifyEq(about.get("serverName").val,  proj.name)
+    verifyEq(about.get("vendorName").val,  proj.platform.vendorName)
+    verifyEq(about.get("productName").val, proj.platform.productName)
     verifyEq(about.get("tz").val,          TimeZone.cur.fullName)
   }
 
@@ -307,7 +307,7 @@ class ObixTest : HxTest
   {
     // create connector
     conn = addRec(["obixConn":Marker.val, "obixLobby":lobbyUri, "username":"alice", "obixPollFreq":n(10, "ms")])
-    rt.db.passwords.set(conn.id.toStr, "secret")
+    proj.db.passwords.set(conn.id.toStr, "secret")
 
     // verify ping
     r := eval("read(obixConn).obixPing.futureGet")
@@ -316,8 +316,8 @@ class ObixTest : HxTest
     // echo(lib.conn(conn.id).details)
     verifyEq(conn->connStatus, "ok")
     verifyEq(conn->connState,  "open")
-    verifyEq(conn->vendorName,  rt.platform.vendorName)
-    verifyEq(conn->productName, rt.platform.productName)
+    verifyEq(conn->vendorName,  sys.platform.vendorName)
+    verifyEq(conn->productName, sys.platform.productName)
     verifyEq(conn->tz,          TimeZone.cur.name)
 
     // with conn id
@@ -518,9 +518,9 @@ class ObixTest : HxTest
     verifyEq(vals[0].get("foo").val, "again")
 
     // remove watch
-    verifyNotNull(rt.watch.get(w.href.path[-1]))
+    verifyNotNull(proj.watch.get(w.href.path[-1]))
     res = client.invoke(w.get("delete").normalizedHref, ObixObj {})
-    verifyNull(rt.watch.get(w.href.path[-1], false))
+    verifyNull(proj.watch.get(w.href.path[-1], false))
 
     // poll with removed watch
     try
@@ -542,13 +542,13 @@ class ObixTest : HxTest
     verifyEq(obj.get("pollRefresh").elemName, "op")
     verifyEq(obj.get("pollRefresh").elemName, "op")
 
-    w := rt.watch.get(obj.href.path[-1])
+    w := proj.watch.get(obj.href.path[-1])
     verifyEq(w.lease, obj.get("lease").val)
   }
 
   private Void verifyWatchIds(ObixObj obj, Dict[] recs)
   {
-    w := rt.watch.get(obj.href.path[-1])
+    w := proj.watch.get(obj.href.path[-1])
     ids := w.list.sort.findAll |id| { id.toStr != "badone" }
     verifyEq(ids, recs.map|r->Ref|{r.id}.sort)
   }
@@ -592,7 +592,7 @@ class ObixTest : HxTest
     // add watch on three proxies
     commit(readById(this.pt1.id), ["curVal":false], Diff.transient)
     commit(readById(this.pt2.id), ["curVal":n(555)], Diff.transient)
-    w := rt.watch.open("test")
+    w := proj.watch.open("test")
     w.addAll([p1.id, p2.id, px.id])
     sync
     // verify proxies
@@ -601,9 +601,9 @@ class ObixTest : HxTest
     px = readById(px.id); verifyEq(px["curStatus"], "fault"); verifyEq(px["curVal"], null)
 
     // verify server points
-    verifyEq(rt.watch.list.size, 2)
-    verifyEq(rt.watch.isWatched(this.pt1.id), true)
-    verifyEq(rt.watch.isWatched(this.pt2.id), true)
+    verifyEq(proj.watch.list.size, 2)
+    verifyEq(proj.watch.isWatched(this.pt1.id), true)
+    verifyEq(proj.watch.isWatched(this.pt2.id), true)
 
     // make some changes
     pt1 = commit(this.pt1, ["curVal":true], Diff.transient)
@@ -630,28 +630,28 @@ class ObixTest : HxTest
     sync
 
     // verify server points
-    verifyEq(rt.watch.list.size, 2)
-    verifyEq(rt.watch.isWatched(pt1.id), false)
-    verifyEq(rt.watch.isWatched(pt2.id), true)
+    verifyEq(proj.watch.list.size, 2)
+    verifyEq(proj.watch.isWatched(pt1.id), false)
+    verifyEq(proj.watch.isWatched(pt2.id), true)
 
     // close watch and verify closed on server side
     w.close
     sync
-    verifyEq(rt.watch.list.size, 0)
-    verifyEq(rt.watch.isWatched(pt1.id), false)
-    verifyEq(rt.watch.isWatched(pt2.id), false)
+    verifyEq(proj.watch.list.size, 0)
+    verifyEq(proj.watch.isWatched(pt1.id), false)
+    verifyEq(proj.watch.isWatched(pt2.id), false)
 
     // reopen watch
     pt1 = commit(pt1, ["curVal":false, "curStatus":"ok"], Diff.transient)
     pt2 = commit(pt2, ["curVal":n(987, "m"), "curStatus":"ok"], Diff.transient)
-    w = rt.watch.open("test 2")
+    w = proj.watch.open("test 2")
     w.addAll([p1.id, p2.id])
     sync
     p1 = readById(p1.id); verifyEq(p1["curStatus"], "ok"); verifyEq(p1["curVal"], false)
     p2 = readById(p2.id); verifyEq(p2["curStatus"], "ok"); verifyEq(p2["curVal"], n(987, "m"))
 
     // find server side watch and force a close to simulate lease expired
-    serverWatch := rt.watch.list.find |x| { x !== w }
+    serverWatch := proj.watch.list.find |x| { x !== w }
     verifyEq(serverWatch.dis.startsWith("Obix Server:"), true, serverWatch.dis)
     serverWatch.close
 
@@ -685,10 +685,10 @@ class ObixTest : HxTest
     verifyEq(op.in.toStr, "obix:WritePointIn")
 
     // verify before any writes
-    rt.ext("hx.point")
-    rt.sync
+    proj.ext("hx.point")
+    proj.sync
     eval("pointSetDef($pt3.id.toCode, 0)")
-    rt.sync
+    proj.sync
     pt3 = readById(pt3.id)
     verifyEq(pt3["writeVal"], n(0))
     verifyEq(pt3["writeLevel"], n(17))
@@ -696,21 +696,21 @@ class ObixTest : HxTest
     // perform write
     writeUri := href(`rec/${pt3.id}/writePoint`)
     client.invoke(writeUri, ObixObj { ObixObj { name="value"; val = 932f },})
-    rt.sync
+    proj.sync
     pt3 = readById(pt3.id)
     verifyEq(pt3["writeVal"], n(932))
     verifyEq(pt3["writeLevel"], n(13))
 
     // now write null/auto
     client.invoke(writeUri, ObixObj { ObixObj { name="value"; val = null },})
-    rt.sync
+    proj.sync
     pt3 = readById(pt3.id)
     verifyEq(pt3["writeVal"], n(0))
     verifyEq(pt3["writeLevel"], n(17))
 
     // verify going thru proxy
     eval("""obixInvoke($conn.id.toCode, `$writeUri`, "<obj><real name='value' val='423'/></obj>")""")
-    rt.sync
+    proj.sync
     pt3 = readById(pt3.id)
     verifyEq(pt3["writeVal"], n(423))
     verifyEq(pt3["writeLevel"], n(13))
@@ -760,7 +760,7 @@ class ObixTest : HxTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  IHisExt hisExt() { rt.exts.his }
+  IHisExt hisExt() { proj.exts.his }
 
   static HisItem item(DateTime ts, Obj? val)
   {
@@ -780,7 +780,7 @@ class ObixTest : HxTest
 
   Void sync()
   {
-    rt.sync
+    proj.sync
     lib.conn(conn.id).sync
   }
 }

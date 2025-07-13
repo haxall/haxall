@@ -18,7 +18,7 @@ using hx
 class NamespaceTest : HxTest
 {
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testBasics()
   {
     // project haystack

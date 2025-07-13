@@ -27,7 +27,7 @@ class SqlConnTest : HxTest
   Dict? sqlTestInit()
   {
     addLib("sql")
-    if (rt.platform.isSkySpark) addLib("his")
+    if (sys.platform.isSkySpark) addLib("his")
 
     // configure one
     sqlPod := Pod.find("sql")
@@ -38,14 +38,14 @@ class SqlConnTest : HxTest
             "username": sqlPod.config("test.username"),
             "sqlSyncHisExpr": "testSyncHis"])
 
-    rt.db.passwords.set(conn.id.toStr, sqlPod.config("test.password"))
+    proj.db.passwords.set(conn.id.toStr, sqlPod.config("test.password"))
 
     grid := (Grid)eval("read(sqlConn).sqlTables()")
     verifyEq(grid.cols[0].name, "name")
     grid = eval("sqlTables($conn.id.toCode)")
     verifyEq(grid.cols[0].name, "name")
 
-    rt.sync
+    proj.sync
 
     return conn
   }
@@ -54,7 +54,7 @@ class SqlConnTest : HxTest
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testBasics()
   {
     // setup (with basic pre/post setup checks)
@@ -115,7 +115,7 @@ class SqlConnTest : HxTest
 // Sync His
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testSyncHis()
   {
     conn := sqlTestInit
@@ -203,14 +203,14 @@ class SqlConnTest : HxTest
     tags["def"] = Symbol("func:$name")
     tags["src"]  = src
     r := addRec(tags)
-    rt.sync
+    proj.sync
     return r
   }
 
   Void verifyHis(Dict pt, Obj?[][] expected)
   {
     items := HisItem[,]
-    rt.exts.his.read(pt, null, null) |item| { items.add(item) }
+    proj.exts.his.read(pt, null, null) |item| { items.add(item) }
 
     verifyEq(items.size, expected.size)
     items.each |item, i|
@@ -229,7 +229,7 @@ class SqlConnTest : HxTest
 
   Void sync(Dict conn)
   {
-    rt.sync
+    proj.sync
   }
 
   static DateTime dt(Int y, Int m, Int d, Int h, Int min, TimeZone tz := TimeZone.utc)

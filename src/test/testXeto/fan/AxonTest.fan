@@ -22,7 +22,7 @@ class AxonTest : AbstractAxonTest
 // SpecsExpr
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testSpecExpr()
   {
     // simple
@@ -52,7 +52,7 @@ class AxonTest : AbstractAxonTest
 // Reflection Funcs
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testReflect()
   {
     ns := initNamespace(["ph", "ph.points", "ph.attrs", "ph.protocols", "hx.test.xeto"])
@@ -129,7 +129,7 @@ class AxonTest : AbstractAxonTest
 // SpecOf function
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testSpecOf()
   {
     ns := initNamespace(["ph"])
@@ -149,7 +149,7 @@ class AxonTest : AbstractAxonTest
 // SpecIs function
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testSpecIs()
   {
     verifySpecIs(Str<|specIs(Str, Obj)|>,    true)
@@ -182,7 +182,7 @@ class AxonTest : AbstractAxonTest
 // Is function
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testIs()
   {
     verifyIs(Str<|is("hi", Str)|>,    true)
@@ -213,7 +213,7 @@ class AxonTest : AbstractAxonTest
 // Filter Is
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testFilterIs()
   {
     ns := initNamespace(["ph"])
@@ -244,7 +244,7 @@ class AxonTest : AbstractAxonTest
 // Folio ReadAll
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testFolioReadAll()
   {
     ns := initNamespace(["ph"])
@@ -264,7 +264,7 @@ class AxonTest : AbstractAxonTest
 
   Void verifyFolioReadAll(Str filter, Dict[] expect)
   {
-    actual := rt.db.readAll(Filter(filter)).sortDis
+    actual := proj.readAll(filter).sortDis
     a := actual.toRows.join(",") { it.dis }
     e := expect.join(",") { it.dis }
     // echo("-- $filter | $a ?= $e")
@@ -275,7 +275,7 @@ class AxonTest : AbstractAxonTest
 // SpecFits function
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testSpecFits()
   {
     ns := initNamespace(["ph"])
@@ -298,7 +298,7 @@ class AxonTest : AbstractAxonTest
 // Fits function
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testFits()
   {
     // run all the is tests with fits
@@ -363,7 +363,7 @@ class AxonTest : AbstractAxonTest
 // Fits function
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testFitsExplain()
   {
     ns := initNamespace(["ph", "ph.points","ph.attrs", "ph.protocols", "hx.test.xeto"])
@@ -422,7 +422,7 @@ class AxonTest : AbstractAxonTest
 // FitsMatchAll
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testFitsMatchAll()
   {
     ns := initNamespace(["ph"])
@@ -451,7 +451,7 @@ class AxonTest : AbstractAxonTest
 // Query
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testQuery()
   {
     ns := initNamespace(["ph"])
@@ -529,7 +529,7 @@ class AxonTest : AbstractAxonTest
       ])
 
      // ambiguous matches for optional point
-     rt.db.commit(Diff(d1, null, Diff.remove))
+     proj.commit(Diff(d1, null, Diff.remove))
      p1 := addRec(["id":Ref("p1"), "dis":"Pressure 1", "spec":Ref("ph::Point"), "discharge":m, "pressure":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
      p2 := addRec(["id":Ref("p2"), "dis":"Pressure 2", "spec":Ref("ph::Point"), "discharge":m, "pressure":m, "kind":"Number", "point":m, "equipRef":ahuX.id, "siteRef":site.id])
      verifyQueryFitsExplain(ahuX, ahu2, [

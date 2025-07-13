@@ -24,7 +24,7 @@ class RuntimeTest : HxTest
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testBasics()
   {
     // name
@@ -59,7 +59,7 @@ class RuntimeTest : HxTest
 // Basics
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest { meta =
+  @HxTestProj { meta =
     Str<|dis: "My Test"
          steadyState: 100ms
          fooBar|> }
@@ -98,7 +98,7 @@ class RuntimeTest : HxTest
 //////////////////////////////////////////////////////////////////////////
 
 /* TODO
-  @HxRuntimeTest
+  @HxTestProj
   Void testLibMgr()
   {
     verifyLibEnabled("ph")
@@ -188,7 +188,7 @@ class RuntimeTest : HxTest
 // Services
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testServices()
   {
     // makeSyntheticUser
@@ -206,7 +206,7 @@ class RuntimeTest : HxTest
 // Axon
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testAxon()
   {
     // verify via Axon eval

@@ -22,7 +22,7 @@ class HxCoreLibTest : HxTest
 // Defs
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testDefs()
   {
     verifyDefsInclude("defs()", ["elec", "elec-meter", "func:now"], [,])
@@ -59,7 +59,7 @@ class HxCoreLibTest : HxTest
     {
       row := g.find |r| { r->def.toStr == name }
       verifyNotNull(row, name)
-      verifyDictEq(row, rt.defs.def(name))
+      verifyDictEq(row, proj.defs.def(name))
     }
 
     missing.each |name|
@@ -73,7 +73,7 @@ class HxCoreLibTest : HxTest
 // Funcs Tests
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testFunc()
   {
     x := addFuncRec("x", "(a, b: true) => a + b", ["foo":Marker.val, "doc":"x hi!"])
@@ -104,7 +104,7 @@ class HxCoreLibTest : HxTest
     verifyEval("isFunc(3)",     false)
   }
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testCurFunc()
   {
     x := addFuncRec("x", "() => curFunc()")
@@ -121,7 +121,7 @@ class HxCoreLibTest : HxTest
     verifyEval("y()->lib", projLib)
   }
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testCompDef()
   {
     src :=
@@ -147,7 +147,7 @@ class HxCoreLibTest : HxTest
     verifyGridEq(g, eval("""readById($x.id.toCode).compDef"""))
   }
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testParams()
   {
     addFuncRec("foo", "(a, b: true) => a + b")
@@ -178,7 +178,7 @@ class HxCoreLibTest : HxTest
 
   Symbol projLib()
   {
-    rt.platform.isSkySpark ? Symbol("lib:proj_test") : Symbol("lib:hx_db")
+    sys.platform.isSkySpark ? Symbol("lib:proj_test") : Symbol("lib:hx_db")
   }
 
   Void verifyParam(Grid grid, Int i, Str name, Obj? def)
@@ -187,7 +187,7 @@ class HxCoreLibTest : HxTest
     verifyEq(grid[i]["def"], def)
   }
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testFuncOverride()
   {
     verifyEval("100.toHex", "64")
@@ -231,7 +231,7 @@ class HxCoreLibTest : HxTest
     tags["name"] = name
     tags["src"]  = src
     r := addRec(tags)
-    rt.sync
+    proj.sync
     return r
   }
 }

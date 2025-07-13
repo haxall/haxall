@@ -18,7 +18,7 @@ using hx
 **
 class FidelityTest : AbstractAxonTest
 {
-  @HxRuntimeTest
+  @HxTestProj
   Void test()
   {
     ns := initNamespace(["ph", "ph.points", "ph.attrs", "ph.protocols", "hx.test.xeto"])

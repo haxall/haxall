@@ -14,10 +14,10 @@ using folio
 **
 ** HxTest is a base class for writing Haxall tests which provide
 ** access to a booted runtime instance.  Annotate test methods which
-** require a runtime with `HxRuntimeTest`.  This class uses the 'hxd'
+** require a runtime with `HxTestProj`.  This class uses the 'hxd'
 ** implementation for its runtime.
 **
-**   @HxRuntimeTest
+**   @HxTestProj
 **   Void testBasics()
 **   {
 **     x := addRec(["dis":"It works!"])
@@ -32,40 +32,49 @@ abstract class HxTest : HaystackTest
 // Test Setup
 //////////////////////////////////////////////////////////////////////////
 
-  ** If '@HxRuntimeTest' configured then open `rt`
+  ** If '@HxTestProj' configured then open `rt`
   override Void setup()
   {
-    if (curTestMethod.hasFacet(HxRuntimeTest#)) rtStart
+    if (curTestMethod.hasFacet(HxTestProj#)) projStart
   }
 
-  ** If '@HxRuntimeTest' configured then close down `rt`
+  ** If '@HxTestProj' configured then close down `rt`
   override Void teardown()
   {
     Actor.locals.remove(ActorContext.actorLocalsKey)
-    if (rtRef != null) rtStop
+    if (projRef != null) projStop
     tempDir.delete
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Runtime (@HxRuntimeTest)
+// Runtime (@HxTestProj)
 //////////////////////////////////////////////////////////////////////////
 
-  ** Test runtime if '@HxRuntimeTest' configured on test method
-  Proj? rt(Bool checked := true)
+  ** TODO
+  @Deprecated Proj? rt(Bool checked := true) { proj(checked) }
+
+  ** Get system if '@HxTestProj' configured on test method
+  Sys? sys(Bool checked := true)
   {
-    if (rtRef != null || !checked) return rtRef
-    throw Err("Runtime not started (ensure $curTestMethod marked @HxRuntimeTest)")
+    proj(checked)?.sys
   }
 
-  ** Reference for `rt`
-  @NoDoc Proj? rtRef
+  ** Test project if '@HxTestProj' configured on test method
+  Proj? proj(Bool checked := true)
+  {
+    if (projRef != null || !checked) return projRef
+    throw Err("Runtime not started (ensure $curTestMethod marked @HxTestProj)")
+  }
+
+  ** Reference for `proj`
+  @NoDoc Proj? projRef
 
   ** Start a test runtime which is accessible via `rt` method.
-  @NoDoc virtual Void rtStart()
+  @NoDoc virtual Void projStart()
   {
-    if (rtRef != null) throw Err("Runtime already started!")
+    if (projRef != null) throw Err("Runtime already started!")
     projMeta := Etc.emptyDict
-    facet := curTestMethod.facet(HxRuntimeTest#, false) as HxRuntimeTest
+    facet := curTestMethod.facet(HxTestProj#, false) as HxTestProj
     if (facet != null && facet.meta != null)
     {
       if (facet.meta is Str)
@@ -73,22 +82,22 @@ abstract class HxTest : HaystackTest
       else
         projMeta = Etc.makeDict((Str:Obj)facet.meta)
     }
-    rtRef = spi.start(projMeta)
+    projRef = spi.start(projMeta)
   }
 
   ** Stop test runtime
-  @NoDoc virtual Void rtStop()
+  @NoDoc virtual Void projStop()
   {
-    if (rtRef == null) throw Err("Runtime not started!")
-    spi.stop(rtRef)
-    rtRef = null
+    if (projRef == null) throw Err("Runtime not started!")
+    spi.stop(projRef)
+    projRef = null
   }
 
   ** Stop, then restart test runtime
-  @NoDoc virtual Void rtRestart()
+  @NoDoc virtual Void projRestart()
   {
-    rtStop
-    rtStart
+    projStop
+    projStart
   }
 
   ** Service provider interface
@@ -110,19 +119,19 @@ abstract class HxTest : HaystackTest
   ** Convenience for 'read' on `rt`
   Dict? read(Str filter, Bool checked := true)
   {
-    rt.db.read(Filter(filter), checked)
+    proj.db.read(Filter(filter), checked)
   }
 
   ** Convenience for 'readById' on `rt`
   Dict? readById(Ref id, Bool checked := true)
   {
-    rt.db.readById(id, checked)
+    proj.db.readById(id, checked)
   }
 
   ** Convenience for commit to `rt`
   Dict? commit(Dict rec, Obj? changes, Int flags := 0)
   {
-    rt.db.commit(Diff.make(rec, changes, flags)).newRec
+    proj.db.commit(Diff.make(rec, changes, flags)).newRec
   }
 
   ** Add a record to `rt` using the given map of tags.
@@ -141,14 +150,14 @@ abstract class HxTest : HaystackTest
     {
       id = Ref.gen
     }
-    return rt.db.commit(Diff.makeAdd(tags, id)).newRec
+    return proj.db.commit(Diff.makeAdd(tags, id)).newRec
   }
 
   ** Add a library and all its depdenencies to the runtime.
   Ext addLib(Str libName, Str:Obj? tags := Str:Obj?[:])
   {
     lib := spi.addLib(libName, tags)
-    rt.sync
+    proj.sync
     lib.spi.sync
     return lib
   }
@@ -163,14 +172,14 @@ abstract class HxTest : HaystackTest
   ** Generate a ref to for the runtime database with proper prefix
   @NoDoc Ref genRef(Str id := Ref.gen.id)
   {
-    if (rt.db.idPrefix != null) id = rt.db.idPrefix + id
+    if (proj.db.idPrefix != null) id = proj.db.idPrefix + id
     return Ref(id)
   }
 
   ** Force transition to steady state
   @NoDoc Void forceSteadyState()
   {
-    spi.forceSteadyState(rt)
+    spi.forceSteadyState(proj)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -192,13 +201,13 @@ abstract class HxTest : HaystackTest
 }
 
 **************************************************************************
-** HxRuntimeTest
+** HxTestProj
 **************************************************************************
 
 **
-** Annotates a `HxTest` method to setup a test runtime instance
+** Annotates a `HxTest` method to setup a test project
 **
-facet class HxRuntimeTest
+facet class HxTestProj
 {
   ** Database meta data encoded as a Trio string
   const Obj? meta

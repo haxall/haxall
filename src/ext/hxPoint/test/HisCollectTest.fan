@@ -17,7 +17,7 @@ using hx
 class HisCollectTest : HxTest
 {
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testConfig()
   {
     PointExt ext := addLib("point")
@@ -51,7 +51,7 @@ class HisCollectTest : HxTest
   {
     pt := addRec(ptTags.dup.addAll(["dis":"Point", "point":m, "his":m, "tz":"Chicago"]))
 
-    rt.sync
+    proj.sync
 
     str := eval("pointDetails($pt.id.toCode)").toStr
     // echo("\n--- $ptTags"); echo(str)
@@ -69,7 +69,7 @@ class HisCollectTest : HxTest
     verifyEq(findLine("writeFreq"), writeFreq)
 
     ext.hisCollectMgr.forceCheck
-    watch := rt.watch.list.first ?: throw Err("no watch!")
+    watch := proj.watch.list.first ?: throw Err("no watch!")
     verifyEq(watch.dis, "HisCollect")
     verifyEq(watch.list.contains(pt.id), true)
   }

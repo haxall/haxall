@@ -76,10 +76,10 @@ const class PlatformSerialExt : ExtObj
     }
   }
 
-  private Unsafe doOpen(Proj rt, Dict owner, SerialConfig config)
+  private Unsafe doOpen(Proj proj, Dict owner, SerialConfig config)
   {
     // sanity check owner is in project
-    rec := rt.db.readById(owner.id, false)
+    rec := proj.db.readById(owner.id, false)
     if (rec == null) throw ArgErr("Owner is not rec in runtime: $owner.id")
 
     // lookup port and ensure is available
@@ -91,7 +91,7 @@ const class PlatformSerialExt : ExtObj
     socket.onClose = |SerialSocket s| { this.close(s) }
 
     // update internal state
-    serialPort.rtRef.val = rt
+    serialPort.projRef.val = proj
     serialPort.ownerRef.val = owner
     socket.isClosedRef.val = false
 
@@ -103,7 +103,7 @@ const class PlatformSerialExt : ExtObj
     serialPort := this.port(socket.name)
 
     // manage internal state
-    serialPort.rtRef.val = null
+    serialPort.projRef.val = null
     serialPort.ownerRef.val = null
     socket.isClosedRef.val = true
 

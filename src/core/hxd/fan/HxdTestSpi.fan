@@ -61,14 +61,14 @@ throw Err("TODO")
 
   override HxUser addUser(Str user, Str pass, Str:Obj? tags)
   {
-    Slot.findMethod("hxUser::HxUserUtil.addUser").call(test.rt.db, user, pass, tags)
+    Slot.findMethod("hxUser::HxUserUtil.addUser").call(test.proj.db, user, pass, tags)
   }
 
   override Context makeContext(User? user)
   {
     if (user == null)
-      user = test.rt.sys.user.makeSyntheticUser("test", ["userRole":"su"])
-    return Context(test.rt, user)
+      user = test.proj.sys.user.makeSyntheticUser("test", ["userRole":"su"])
+    return Context(test.proj, user)
   }
 
   override Void forceSteadyState(Proj rt)

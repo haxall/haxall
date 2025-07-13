@@ -51,7 +51,7 @@ class ConnTuningTest : HxTest
 // Roster
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testRoster()
   {
     // initial setup
@@ -171,7 +171,7 @@ class ConnTuningTest : HxTest
 // Times
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testTimes()
   {
     lib := (ConnTestExt)addLib("connTest")

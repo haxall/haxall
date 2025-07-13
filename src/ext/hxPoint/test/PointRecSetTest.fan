@@ -19,7 +19,7 @@ using hx
 class PointRecSetTest : HxTest
 {
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testSets()
   {
     // ext
@@ -151,7 +151,7 @@ class PointRecSetTest : HxTest
 // ToOccupied
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   virtual Void testToOccupied()
   {
     addLib("point")
@@ -182,7 +182,7 @@ class PointRecSetTest : HxTest
 
     // site
     occS = commit(occS, ["sitePoint":m])
-    rt.sync
+    proj.sync
     verifytoOccupied(s, occS)
 
     // equip-A
@@ -266,7 +266,7 @@ class PointRecSetTest : HxTest
 // MatchPointVal
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testMatchPointVal()
   {
     addLib("point")

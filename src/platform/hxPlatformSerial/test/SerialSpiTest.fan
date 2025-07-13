@@ -53,11 +53,11 @@ class SerialSpiTest : HxTest
 // Spi
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testSpi()
   {
-    PlatformSerialExt? ext := rt.ext("hx.platform.serial", false)
-    if (ext == null) ext = rt.exts.add("hx.platform.serial")
+    PlatformSerialExt? ext := proj.ext("hx.platform.serial", false)
+    if (ext == null) ext = proj.exts.add("hx.platform.serial")
 
     // initial state
     s := ext.port("test")
@@ -70,13 +70,13 @@ class SerialSpiTest : HxTest
     // open a port
     conn := addRec(["dis":"MyConn"])
     cfg := SerialConfig { it.name = "test" }
-    p := ext.open(rt, conn, cfg)
+    p := ext.open(proj, conn, cfg)
     verifyPort(p, cfg, false)
     verifyStatus(ext, s, "test", "/test", conn)
 
     // open errors
-    verifyErr(SerialPortAlreadyOpenErr#) { ext.open(rt, conn, SerialConfig { it.name = "test" } ) }
-    verifyErr(UnknownSerialPortErr#) { ext.open(rt, conn, SerialConfig { it.name = "foobar" } ) }
+    verifyErr(SerialPortAlreadyOpenErr#) { ext.open(proj, conn, SerialConfig { it.name = "test" } ) }
+    verifyErr(UnknownSerialPortErr#) { ext.open(proj, conn, SerialConfig { it.name = "foobar" } ) }
 
     // verify serialPorts()
     grid := (Grid)eval("platformSerialPorts()")
@@ -98,7 +98,7 @@ class SerialSpiTest : HxTest
     verifyEq(p.device,   d)
     verifyEq(p.isOpen,   owner != null)
     verifyEq(p.isClosed, owner == null)
-    verifyEq(p.rt,       owner == null ? null : this.rt)
+    verifyEq(p.proj,     owner == null ? null : this.proj)
     verifyValEq(p.owner, owner)
 
     Grid grid := eval("platformSerialPorts()")
@@ -108,7 +108,7 @@ class SerialSpiTest : HxTest
     row := grid.find |r| { r->name == n }
     verifyEq(row["device"], d)
     verifyEq(row["status"], owner == null ? "closed" : "open")
-    verifyEq(row["proj"],   owner == null ? null : rt.name)
+    verifyEq(row["proj"],   owner == null ? null : proj.name)
     verifyEq(row["owner"],  owner == null ? null : owner.id)
   }
 

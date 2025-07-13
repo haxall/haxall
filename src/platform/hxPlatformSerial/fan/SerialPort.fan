@@ -40,8 +40,8 @@ const class SerialPort
   ** Is this serial port current closed and unused
   Bool isClosed() { owner == null }
 
-   ** HxRuntime of the `owner` if port is open or null if closed
-  Proj? rt() { rtRef.val }
+   ** Oroject of the `owner` if port is open or null if closed
+  Proj? proj() { projRef.val }
 
   ** Current record which opened and owns the port or null if closed.
   Dict? owner() { ownerRef.val }
@@ -49,7 +49,7 @@ const class SerialPort
   ** Debug string
   override Str toStr() { "SerialPort $name.toCode [$device]" }
 
-  internal const AtomicRef rtRef := AtomicRef(null)
+  internal const AtomicRef projRef := AtomicRef(null)
   internal const AtomicRef ownerRef := AtomicRef(null)
 }
 

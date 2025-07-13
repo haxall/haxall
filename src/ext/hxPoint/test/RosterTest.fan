@@ -19,7 +19,7 @@ class RosterTest : HxTest
 {
   PointExt? ext
 
-  @HxRuntimeTest
+  @HxTestProj
   Void test()
   {
     // initial recs
@@ -59,7 +59,7 @@ class RosterTest : HxTest
     verifyEnumDef(e, "fast", 2)
 
     // make a change to alpha and add beta
-    commit(rt.db.read(Filter("enumMeta")), [
+    commit(proj.db.read(Filter("enumMeta")), [
        "alpha": Str<|ver:"3.0"
                      name
                      "xoff"
@@ -82,8 +82,8 @@ class RosterTest : HxTest
     verifyEnumDef(e, "two", 2)
 
     // trash the enumMeta record
-    commit(rt.db.read(Filter("enumMeta")), ["trash":m])
-    rt.sync
+    commit(proj.db.read(Filter("enumMeta")), ["trash":m])
+    proj.sync
     verifyEq(ext.enums.list.size, 0)
   }
 
@@ -99,8 +99,8 @@ class RosterTest : HxTest
 
   Void verifyWritables()
   {
-    a := rt.db.read(Filter("dis==\"A\""))
-    w := rt.db.read(Filter("dis==\"W\""))
+    a := proj.db.read(Filter("dis==\"A\""))
+    w := proj.db.read(Filter("dis==\"W\""))
 
     // initial writable point
     array := verifyWritable(w.id, n(123), 17)
@@ -135,11 +135,11 @@ class RosterTest : HxTest
 
   Grid verifyWritable(Ref id, Obj? val, Int level)
   {
-    rec := rt.db.readById(id)
+    rec := proj.readById(id)
     if (rec.missing("writeLevel"))
     {
-      rt.db.sync
-      rec = rt.db.readById(id)
+      proj.db.sync
+      rec = proj.readById(id)
     }
     verifyEq(rec["writeVal"], val)
     verifyEq(rec["writeLevel"], n(level))
@@ -161,9 +161,9 @@ class RosterTest : HxTest
 
   Void verifyHisCollects()
   {
-    int := rt.db.read(Filter("dis==\"Int\""))
-    cov := rt.db.read(Filter("dis==\"Cov\""))
-    a := rt.db.read(Filter("dis==\"A\""))
+    int := proj.read("dis==\"Int\"")
+    cov := proj.read("dis==\"Cov\"")
+    a := proj.read("dis==\"A\"")
 
     verifyHisCollect(int.id, 10sec, false)
     verifyHisCollect(cov.id, null, true)
@@ -224,19 +224,19 @@ class RosterTest : HxTest
     covLine := lines.find { it.startsWith("cov:")  }
     verifyEq(intLine.contains(interval?.toStr ?: "_x_"), interval != null)
     verifyEq(covLine.contains("marker"), cov)
-    verifyEq(rt.watch.isWatched(id), true)
+    verifyEq(proj.watch.isWatched(id), true)
   }
 
   Void verifyNotHisCollect(Ref id)
   {
     details := ext.hisCollectMgr.details(id)
     verifyNull(details)
-    verifyEq(rt.watch.isWatched(id), false)
+    verifyEq(proj.watch.isWatched(id), false)
   }
 
   Void verifyHisCollectWatch(Dict[] recs)
   {
-    watch := rt.watch.list.first ?: throw Err("no watch")
+    watch := proj.watch.list.first ?: throw Err("no watch")
     verifyEq(watch.dis, "HisCollect")
     verifyEq(recs.map |r->Ref| { r.id }.sort, watch.list.dup.sort)
   }
@@ -247,7 +247,7 @@ class RosterTest : HxTest
 
   private Void sync()
   {
-    rt.sync
+    proj.sync
     ext.hisCollectMgr.forceCheck
   }
 

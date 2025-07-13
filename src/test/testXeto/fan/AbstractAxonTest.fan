@@ -21,14 +21,14 @@ abstract class AbstractAxonTest : HxTest
   LibNamespace initNamespace(Str[] libs)
   {
     // nuke existing using recs
-    rt.libs.clear
+    proj.libs.clear
 
     // add new using recs
-    rt.libs.addAll(libs)
+    proj.libs.addAll(libs)
 
     // sync
-    rt.sync
-    ns := rt.ns
+    proj.sync
+    ns := proj.ns
 // TODO
 //    verifySame(ns.sysLib, LibNamespace.system.sysLib)
     return ns
@@ -36,7 +36,7 @@ abstract class AbstractAxonTest : HxTest
 
   LibNamespace xns()
   {
-    rt.ns
+    proj.ns
   }
 
   Void verifyEval(Str expr, Obj? expect)

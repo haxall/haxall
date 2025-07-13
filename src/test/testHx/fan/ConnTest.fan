@@ -25,7 +25,7 @@ class ConnTest : HxTest
 // Model
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testModel()
   {
     addLib("conn")
@@ -60,7 +60,7 @@ class ConnTest : HxTest
 // Service
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testService()
   {
     // empty
@@ -167,7 +167,7 @@ class ConnTest : HxTest
 // Util
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testUtil()
   {
     lib := (ConnExt)addLib("haystack")
@@ -206,7 +206,7 @@ class ConnTest : HxTest
 // Trace
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testTrace()
   {
     // empty roster
@@ -309,7 +309,7 @@ class ConnTest : HxTest
 // Roster
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testRoster()
   {
     // empty roster
@@ -672,7 +672,7 @@ class ConnTest : HxTest
 // Config
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testConfig()
   {
     lib := (ConnExt)addLib("haystack")
@@ -772,7 +772,7 @@ class ConnTest : HxTest
 // Test Poll Buckets
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testBuckets()
   {
     name := "modbus"
@@ -940,7 +940,7 @@ class ConnTest : HxTest
 // Test Status
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testStatus()
   {
     lib := (ConnTestExt)addLib("connTest")
@@ -1085,7 +1085,7 @@ class ConnTest : HxTest
 // Writes
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testWrites()
   {
     lib := (ConnTestExt)addLib("connTest")
@@ -1156,7 +1156,7 @@ class ConnTest : HxTest
 // Dup Conns
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testDupConns()
   {
     addLib("conn")

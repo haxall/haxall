@@ -25,7 +25,7 @@ const class PlatformSerialFuncs
     gb.addCol("name").addCol("device").addCol("connState").addCol("proj").addCol("owner")
     ext.ports.each |p|
     {
-      gb.addRow([p.name, p.device, p.isOpen ? "open" : "closed", p.rt?.name, p.owner?.id])
+      gb.addRow([p.name, p.device, p.isOpen ? "open" : "closed", p.proj?.name, p.owner?.id])
     }
     return gb.toGrid
   }

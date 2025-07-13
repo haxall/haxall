@@ -23,7 +23,7 @@ class ServiceTest : HxTest
 // Registry
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testRegistry()
   {
     // not found stuff
@@ -88,7 +88,7 @@ fail
 // File
 //////////////////////////////////////////////////////////////////////////
 
-  @HxRuntimeTest
+  @HxTestProj
   Void testFile()
   {
     rt.dir.plus(`io/`).create
