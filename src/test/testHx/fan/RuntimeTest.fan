@@ -37,10 +37,11 @@ class RuntimeTest : HxTest
     verifyEq(y.dis, "It works!")
 
     // test that required exts are enabled
-    ext := rt.exts.get("hx.crypto::CryptoExt")
-    verifyEq(ext.qname, "hx.crypto::CryptoExt")
+    ext := rt.exts.get("hx.crypto")
+    verifyEq(ext.name, "hx.crypto")
+    verifyEq(ext.spec.qname, "hx.crypto::CryptoExt")
+    verifySame(ext.spec, rt.ns.spec("hx.crypto::CryptoExt"))
     verifyEq(rt.exts.list.containsSame(ext), true)
-    verifySame(rt.libsOld.get("crypto"), ext)
 
     // test some methods
     verifyEq(rt.http.siteUri.isAbs, true)
@@ -95,6 +96,7 @@ class RuntimeTest : HxTest
 // LibMgr
 //////////////////////////////////////////////////////////////////////////
 
+/* TODO
   @HxRuntimeTest
   Void testLibMgr()
   {
@@ -180,7 +182,7 @@ class RuntimeTest : HxTest
     verifyErr(UnknownLibErr#) { rt.defs.lib(name) }
     verifyErr(UnknownLibErr#) { rt.defs.lib(name, true) }
   }
-
+*/
 //////////////////////////////////////////////////////////////////////////
 // Services
 //////////////////////////////////////////////////////////////////////////

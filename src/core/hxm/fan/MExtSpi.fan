@@ -73,12 +73,8 @@ const class MExtSpi : Actor, ExtSpi
 
   private new make(HxRuntime proj, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
   {
-// TODO
-name = type.pod.name
-if (name.startsWith("hx") && !(name == "hxApi" || name == "hxUser"))
-  name = name[2..-1].decapitalize
-
     this.rt          = proj
+    this.name        = spec.lib.name
     this.qname       = spec.qname
     this.log         = Log.get(name)
     this.fantomType  = type
@@ -91,16 +87,14 @@ if (name.startsWith("hx") && !(name == "hxApi" || name == "hxUser"))
 // ExtSpi Implementation
 //////////////////////////////////////////////////////////////////////////
 
-// TODO
-override const Str name
-override DefLib def() { rt.defs.lib(name) }
-
   Ext ext() { extRef.val }
   private const AtomicRef extRef := AtomicRef()
 
   override const HxRuntime rt
 
-  override const Str qname
+  override const Str name
+
+  const Str qname
 
   const Type fantomType
 
@@ -293,7 +287,7 @@ internal const class ExtActorObserver : Observer
   const Ext ext
   override const Dict meta
   override const Actor actor
-  override Str toStr() { "Ext $ext.qname" }
+  override Str toStr() { "Ext $ext.name" }
 }
 
 **************************************************************************
@@ -316,7 +310,7 @@ internal const class ExtMethodObserver : Observer
   override const Actor actor
   override Obj toActorMsg(Observation msg) { HxMsg("obs", this, msg) }
   override Obj? toSyncMsg() { HxMsg("sync") }
-  override Str toStr() { "Ext $ext.qname" }
+  override Str toStr() { "Ext $ext.name" }
 
   Obj? call(Obj? msg)
   {

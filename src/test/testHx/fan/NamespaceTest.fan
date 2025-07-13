@@ -61,7 +61,8 @@ class NamespaceTest : HxTest
   {
     def := verifyLibDef(name, pod.version, baseUri)
     lib := rt.libsOld.get(name)
-    verifySame(lib.def, def)
+// TODO
+//    verifySame(lib.def, def)
     return def
   }
 

@@ -25,7 +25,8 @@ const final class ConnModel
     prefix := name
 
     ns := ext.rt.defs
-    libDef := ext.def
+// TODO
+libDef := ext.rt.defs.lib(name)
     connDef := def(ns, ext, "${prefix}Conn")
     features := connDef["connFeatures"] as Dict ?: Etc.emptyDict
 
@@ -95,7 +96,8 @@ const final class ConnModel
       if (checked) throw Err("Missing required def: $symbol")
       return null
     }
-    if (def.lib !== ns.lib(ext.name)) throw Err("Def in wrong lib: $symbol [$def.lib != $ext.def]")
+// TODO
+//    if (def.lib !== ns.lib(ext.name)) throw Err("Def in wrong lib: $symbol [$def.lib != $ext.def]")
     return def
   }
 

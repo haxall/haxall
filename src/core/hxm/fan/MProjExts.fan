@@ -27,9 +27,9 @@ const class MProjExts : Actor, ProjExts
 
   const HxRuntime proj
 
-  const Log log := Log.get("projExts") // TODO
-
   override const ActorPool actorPool
+
+  Log log() { proj.log }
 
   override Ext[] list() { listRef.val }
   private const AtomicRef listRef := AtomicRef()
@@ -52,8 +52,8 @@ const class MProjExts : Actor, ProjExts
     gb.addCol("qname").addCol("libStatus").addCol("statusMsg")
     list.each |ext|
     {
-      //spi := (MExtSpi)ext.spi
-      //gb.addRow([ext.qname, spi.status, spi.statusMsg])
+      spi := (MExtSpi)ext.spi
+      gb.addRow([ext.name, spi.status, spi.statusMsg])
     }
     return gb.toGrid
   }
@@ -67,12 +67,12 @@ const class MProjExts : Actor, ProjExts
     ns.libs.each |lib|
     {
       ext := MExtSpi.instantiate(this, lib)
-      if (ext != null) map.add(ext.qname, ext)
+      if (ext != null) map.add(ext.name, ext)
     }
 
     // build lookup tables
     list := map.vals
-    list.sort |a, b| { a.qname <=> b.qname }
+    list.sort |a, b| { a.name <=> b.name }
 
     // save lookup tables
     this.listRef.val = list.toImmutable

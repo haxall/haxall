@@ -44,17 +44,11 @@ abstract const class Ext
   ** Runtime
   virtual HxRuntime rt() { spi.rt }
 
-  ** Qualifed name of this extensions spec
-  Str qname() { spi.qname }
+  ** Library dotted name that identifies the extension
+  Str name() { spi.name }
 
   ** Xeto spec for this extension
   Spec spec() { spi.spec }
-
-** TODO
-@Deprecated @NoDoc virtual DefLib def() { spi.def }
-
-**TODO
-Str name() { spi.name }
 
   ** Settings for the extension
   virtual Dict rec() { spi.rec }
@@ -158,9 +152,7 @@ Str name() { spi.name }
 const mixin ExtSpi
 {
   abstract HxRuntime rt()
-abstract Str name()
-abstract DefLib def()
-  abstract Str qname()
+  abstract Str name()
   abstract Spec spec()
   abstract Dict rec()
   abstract Log log()
