@@ -16,16 +16,16 @@ using hx
 **
 ** ProjSpecs implementation
 **
-const class MProjSpecs : ProjSpecs
+const class HxProjSpecs : ProjSpecs
 {
 
-  new make(MProjLibs libs)
+  new make(HxProjLibs libs)
   {
     this.libs = libs
     this.fb   = libs.fb
   }
 
-  const MProjLibs libs
+  const HxProjLibs libs
 
   const DiskFileBase fb
 

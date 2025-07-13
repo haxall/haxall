@@ -17,10 +17,10 @@ using hx
 **
 ** ProjLibs implementation
 **
-const class MProjLibs : ProjLibs
+const class HxProjLibs : ProjLibs
 {
 
-  static MProjLibs shim(File topDir)
+  static HxProjLibs shim(File topDir)
   {
     dir := topDir + `ns/`
     libsTxt := dir + `libs.txt`
@@ -49,7 +49,7 @@ const class MProjLibs : ProjLibs
     this.repo = boot.repo
     this.log = boot.log
     this.version = boot.version
-    this.specsRef = MProjSpecs(this)
+    this.specsRef = HxProjSpecs(this)
     doReload(readProjLibNames)
   }
 
@@ -60,7 +60,7 @@ const class MProjLibs : ProjLibs
     this.log = Log.get("xeto")
     this.bootLibNames = bootLibNames
     this.version = typeof.pod.version
-    this.specsRef = MProjSpecs(this)
+    this.specsRef = HxProjSpecs(this)
     doReload(readProjLibNames)
   }
 
@@ -78,7 +78,7 @@ const class MProjLibs : ProjLibs
 
   const Str[] bootLibNames
 
-  const MProjSpecs specsRef
+  const HxProjSpecs specsRef
 
   virtual ProjSpecs specs() { specsRef }
 
@@ -97,7 +97,7 @@ const class MProjLibs : ProjLibs
     if (checked) throw UnknownExtErr(name)
     return null
   }
-  internal Str:MProjLib map() { mapRef.val }
+  internal Str:HxProjLib map() { mapRef.val }
 
   override ProjLib[] installed()
   {
@@ -106,7 +106,7 @@ const class MProjLibs : ProjLibs
     {
       if (acc[n] != null) return
       v := repo.latest(n)
-      acc[n] = MProjLib.makeDisabled(v)
+      acc[n] = HxProjLib.makeDisabled(v)
     }
     return acc.vals
   }
@@ -342,15 +342,15 @@ const class MProjLibs : ProjLibs
     ns := ProjNamespace(LocalNamespaceInit(repo, nsVers, null, repo.names))
     ns.libs // force sync load
 
-    // now update MProjLibs map of MProjLib
-    acc := Str:MProjLib[:]
+    // now update HxProjLibs map of HxProjLib
+    acc := Str:HxProjLib[:]
     nameToIsBoot.each |isBoot, n|
     {
       // check if we have lib installed
       ver := vers[n]
       if (ver == null)
       {
-        acc[n] = MProjLib.makeErr(n, isBoot, ProjLibStatus.notFound, UnknownLibErr("Lib is not installed"))
+        acc[n] = HxProjLib.makeErr(n, isBoot, ProjLibStatus.notFound, UnknownLibErr("Lib is not installed"))
         return
       }
 
@@ -358,7 +358,7 @@ const class MProjLibs : ProjLibs
       dependErr := dependErrs[n]
       if (dependErr != null)
       {
-        acc[n] = MProjLib.makeErr(n, isBoot, ProjLibStatus.err, dependErr)
+        acc[n] = HxProjLib.makeErr(n, isBoot, ProjLibStatus.err, dependErr)
         return
       }
 
@@ -366,12 +366,12 @@ const class MProjLibs : ProjLibs
       libStatus := ns.libStatus(n)
       if (!libStatus.isOk)
       {
-        acc[n] = MProjLib.makeErr(n, isBoot, ProjLibStatus.err, ns.libErr(n) ?: Err("Lib status not ok: $libStatus"))
+        acc[n] = HxProjLib.makeErr(n, isBoot, ProjLibStatus.err, ns.libErr(n) ?: Err("Lib status not ok: $libStatus"))
         return
       }
 
       // this lib is ok and loaded
-      acc[n] = MProjLib.makeOk(n, isBoot, ver)
+      acc[n] = HxProjLib.makeOk(n, isBoot, ver)
     }
 
     // update my libs and ns
@@ -395,10 +395,10 @@ const AtomicRef rtRef := AtomicRef()
 }
 
 **************************************************************************
-** MProjLib
+** HxProjLib
 **************************************************************************
 
-const class MProjLib : ProjLib
+const class HxProjLib : ProjLib
 {
   internal new makeOk(Str name, Bool isBoot, LibVersion v)
   {

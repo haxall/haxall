@@ -42,7 +42,7 @@ const class HxProj : Proj
 //    this.context       = HxdContextService(this)
 //    this.file          = HxdFileService(this)
 //    this.his           = HxdHisService(this)
-    this.libs          = MProjLibs.shim(dir)
+    this.libs          = HxProjLibs.shim(dir)
     this.exts          = HxProjExts(this, libsActorPool)
     this.watch         = HxProjWatches(this)
     this.obs           = HxProjObservables(this)
@@ -91,7 +91,7 @@ init(boot)
   override const Folio db
 
   ** Project xeto library management
-  override const MProjLibs libs
+  override const HxProjLibs libs
 
   ** Xeto lib namespace
   override Namespace ns() { libs.ns }

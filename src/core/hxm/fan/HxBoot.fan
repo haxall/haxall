@@ -93,9 +93,9 @@ abstract class HxBoot
   }
 
   ** Init project lib manager
-  virtual MProjLibs initProjLibs()
+  virtual HxProjLibs initProjLibs()
   {
-    MProjLibs(this)
+    HxProjLibs(this)
   }
 
   ** Open project folio database
@@ -146,7 +146,7 @@ abstract class HxBoot
 //////////////////////////////////////////////////////////////////////////
 
   internal FileBase? nsfb         // initNamespaceFileBase
-  internal MProjLibs? libs        // initProjLibs
+  internal HxProjLibs? libs       // initProjLibs
   internal ProjNamespace? ns      // initNamespace
   internal Folio? db              // initFolio
   internal Dict? meta             // initMeta
