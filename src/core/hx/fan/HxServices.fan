@@ -47,9 +47,6 @@ const mixin HxServiceRegistry : HxStdServices
 **
 const mixin HxStdServices
 {
-  ** Context factory service
-  abstract HxContextService context()
-
   ** HTTP APIs
   abstract HxHttpService http()
 
@@ -86,22 +83,6 @@ const mixin HxStdServices
 ** HxService is a marker interface used to indicate a service API.
 **
 const mixin HxService {}
-
-**************************************************************************
-** HxContextService
-**************************************************************************
-
-**
-** Context factory service
-**
-const mixin HxContextService : HxService
-{
-  ** Create new context for given user
-  abstract HxContext create(User user)
-
-  ** Create new context for given session
-  @NoDoc abstract HxContext createSession(UserSession session)
-}
 
 **************************************************************************
 ** HxObsService

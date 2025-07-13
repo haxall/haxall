@@ -64,7 +64,7 @@ internal class HxUserAuth
     // refresh session and construct context
     user := session.isCluster ? session.user : ext.read(session.user.id)
     session.touch(user)
-    cx := proj.context.createSession(session)
+    cx := HxContext(proj, session)
     cx.stash["attestKey"] = session.attestKey
     return cx
   }

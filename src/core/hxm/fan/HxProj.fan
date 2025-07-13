@@ -148,7 +148,6 @@ override HxServiceRegistry services() { servicesRef.val ?: throw Err("Services n
   override const HxFileService file
   override const HxHisService his
 */
-override HxContextService context() { services.context }
 override HxFileService file() { services.file }
 override  HxHisService his() { services.his }
   override HxCryptoService crypto() { services.crypto }
