@@ -18,16 +18,14 @@ const class HxShellWeb : ExtWeb
 {
   new make(Ext ext) : super(ext)
   {
-    this.ext     = ext
-    this.title   = "" + ext.sys.platform.productName + " Shell"
-    this.favicon = ext.sys.platform.faviconUri
+    this.ext = ext
   }
 
   override const Ext ext
 
-  const Str title
+  Str title() { ext.sys.platform.productName + " Shell" }
 
-  const Uri favicon
+  Uri favicon() { ext.sys.platform.faviconUri }
 
   override Void onService()
   {
