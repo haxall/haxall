@@ -17,13 +17,10 @@ using hx
 **
 ** HTTP service handling
 **
-const class HttpExt : ExtObj, HxHttpService
+const class HttpExt : ExtObj, IHttpExt
 {
   WispService wisp() { wispRef.val }
   private const AtomicRef wispRef := AtomicRef(null)
-
-  ** Publish the HxHttpService
-  override HxService[] services() { [this] }
 
   ** Settings record
   override HttpSettings rec() { super.rec }
@@ -59,7 +56,7 @@ const class HttpExt : ExtObj, HxHttpService
     settings      := this.rec
     addr          := settings.addr?.trimToNull == null ? null : IpAddr(settings.addr)
     httpsEnabled  := settings.httpsEnabled
-    httpsKeyStore := proj.crypto.httpsKey(false)
+    httpsKeyStore := sys.crypto.httpsKey(false)
     socketConfig  := SocketConfig.cur.copy { it.keystore = httpsKeyStore }
 
     if (httpsEnabled && httpsKeyStore == null)

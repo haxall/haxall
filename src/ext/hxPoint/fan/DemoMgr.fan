@@ -50,7 +50,7 @@ internal class DemoMgr : PointMgr
       if (rec.has("curTracksWrite")) return
       if (rec.has("point") && rec["weatherStationRef"] is Ref) return
       if (rec.has("schedule") || rec.has("calendar")) return
-      if (ext.proj.conn.isPoint(rec.id)) return
+      if (ext.proj.exts.conn.isPoint(rec.id)) return
 
       // process the point
       try

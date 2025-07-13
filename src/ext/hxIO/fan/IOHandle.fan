@@ -47,7 +47,7 @@ abstract class IOHandle
     if (uri.scheme == "ftp")   return FtpHandle(proj, uri)
     if (uri.scheme == "ftps")  return FtpHandle(proj, uri)
     if (uri.scheme == "fan")   return FanHandle(uri)
-    return FileHandle(proj.file.resolve(uri))
+    return FileHandle(proj.exts.file.resolve(uri))
   }
 
   ** Get an IOHandle from a Dict rec

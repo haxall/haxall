@@ -25,6 +25,9 @@ const mixin Ext
   ** Use proj now
   //@Deprecated virtual Proj rt() { proj }
 
+  ** System
+  Sys sys() { spi.proj.sys }
+
   ** Project
   virtual Proj proj() { spi.proj }
 
@@ -42,11 +45,6 @@ const mixin Ext
 
   ** Web service handling for this extension
   virtual ExtWeb web() { UnsupportedExtWeb(this) }
-
-  ** Return list of services this library publishes.  This callback
-  ** is made during initialization and each time a lib is added/removed
-  ** from the runtime.
-  virtual HxService[] services() { HxService#.emptyList }
 
   ** Initialize a feed from a subscription request for this library
   @NoDoc virtual HxFeed feedInit(Dict req, Context cx)

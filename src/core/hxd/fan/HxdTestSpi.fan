@@ -67,7 +67,7 @@ throw Err("TODO")
   override Context makeContext(User? user)
   {
     if (user == null)
-      user = test.rt.user.makeSyntheticUser("test", ["userRole":"su"])
+      user = test.rt.sys.user.makeSyntheticUser("test", ["userRole":"su"])
     return Context(test.rt, user)
   }
 

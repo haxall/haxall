@@ -37,6 +37,9 @@ const final class ConnPoint : HxConnPoint
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
+  ** Parent project
+  internal Proj proj() { connRef.ext.proj }
+
   ** Parent connector library
   override ConnExt ext() { connRef.ext }
 

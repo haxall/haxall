@@ -96,7 +96,7 @@ internal class HxCloseOp : HxApiOp
 {
   override Grid onRequest(Grid req, Context cx)
   {
-    cx.rt.user.closeSession(cx.session)
+    cx.sys.user.closeSession(cx.session)
     return Etc.emptyGrid
   }
 }
@@ -450,7 +450,7 @@ internal class HxHisReadOp : HxApiOp
     ]
 
     gb := GridBuilder().setMeta(meta).addCol("ts").addCol("val")
-    cx.rt.his.read(rec, span, req.meta) |item|
+    cx.proj.exts.his.read(rec, span, req.meta) |item|
     {
       if (item.ts < span.start) return
       if (item.ts >= span.end) return
@@ -516,7 +516,7 @@ internal class HxHisReadOp : HxApiOp
 
   private Void readBatch(Grid req, Context cx, Dict rec, Span span, |DateTime, Obj val| f)
   {
-    cx.rt.his.read(rec, span, req.meta) |item|
+    cx.proj.exts.his.read(rec, span, req.meta) |item|
     {
       if (item.ts < span.start) return
       if (item.ts >= span.end) return
@@ -617,7 +617,7 @@ internal class HxHisWriteOp : HxApiOp
 
     // perform write
     opts := req.meta
-    cx.rt.his.write(rec, items, opts)
+    cx.proj.exts.his.write(rec, items, opts)
   }
 }
 
@@ -636,7 +636,7 @@ internal class HxPointWriteOp : HxApiOp
 
     // if reading level will be null
     level := reqRow["level"] as Number
-    if (level == null) return cx.rt.pointWrite.array(rec)
+    if (level == null) return cx.proj.exts.point.pointArray(rec)
 
     // handlw write
     cx.checkAdmin("pointWrite op")
@@ -650,7 +650,7 @@ internal class HxPointWriteOp : HxApiOp
     if (val != null && level.toInt == 8 && dur != null)
       val = Etc.dict2("val", val, "duration", dur.toDuration)
 
-    cx.rt.pointWrite.write(rec, val, level.toInt, who).get(30sec)
+    cx.proj.exts.point.pointWrite(rec, val, level.toInt, who).get(30sec)
     return Etc.makeEmptyGrid(Etc.dict1("ok", Marker.val))
   }
 }

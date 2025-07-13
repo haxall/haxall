@@ -89,7 +89,7 @@ class ObixTest : HxTest
     {
       (1..28).each |day| { items.add(item(dt(2010, mon, day, 12, 0, tz), (mon * day).toFloat)) }
     }
-    rt.his.write(h, items)
+    hisExt.write(h, items)
 
     // history
     tz = TimeZone("Denver")
@@ -100,13 +100,13 @@ class ObixTest : HxTest
     {
       (1..28).each |day| { items.add(item(dt(2010, mon, day, 12, 0, tz), (mon * day).isOdd)) }
     }
-    rt.his.write(h, items)
+    hisExt.write(h, items)
   }
 
   Void verifyLobby()
   {
     lib := (ObixExt)rt.ext("hx.obix")
-    projApiUri := rt.http.siteUri + rt.http.apiUri
+    projApiUri := rt.sys.http.siteUri + rt.sys.http.apiUri
     lobbyUri = projApiUri + lib.web.uri
 
     // first use a haystack client to authenticate
@@ -288,7 +288,7 @@ class ObixTest : HxTest
 
     // read items
     items := HisItem[,]
-    rt.his.read(rec, s == null ? null : Span(s, e), null) |item| { items.add(item) }
+    hisExt.read(rec, s == null ? null : Span(s, e), null) |item| { items.add(item) }
     if (limit != null) items = items[0..<limit]
 
     // verify items
@@ -351,15 +351,15 @@ class ObixTest : HxTest
     verifyEq(hisSyncF->hisStart, hisF->hisStart)
     verifyEq(hisSyncF->hisEnd,   hisF->hisEnd)
     verifyEq(hisSyncF->hisStatus, "ok")
-    a := HisItem[,]; rt.his.read(hisF, null, null) |item| { a.add(item) }
-    b := HisItem[,]; rt.his.read(hisSyncF, null, null) |item| { b.add(item) }
+    a := HisItem[,]; hisExt.read(hisF, null, null) |item| { a.add(item) }
+    b := HisItem[,]; hisExt.read(hisSyncF, null, null) |item| { b.add(item) }
     verifyEq(a, b)
     verifyEq(a.first.val->unit, Unit("fahrenheit"))
     verifyEq(b.first.val->unit, Unit("fahrenheit"))
 
     // add new items to hisF
     tz := TimeZone("Chicago")
-    rt.his.write(hisF,
+    hisExt.write(hisF,
       [
         item(dt(2010, 5, 1, 1, 0, tz), 110f),
         item(dt(2010, 5, 1, 2, 0, tz), 120f),
@@ -381,8 +381,8 @@ class ObixTest : HxTest
     verifyEq(hisSyncF->hisStart, hisF->hisStart)
     verifyEq(hisSyncF->hisEnd,   dt(2010, 5, 1, 5, 0, tz))
     verifyEq(hisSyncF->hisSize,  n(-3) + hisF->hisSize) // don't have May 2nd yet
-    a.clear; rt.his.read(hisF, null, null) |item| { a.add(item) }
-    b.clear; rt.his.read(hisSyncF, null, null) |item| { b.add(item) }
+    a.clear; hisExt.read(hisF, null, null) |item| { a.add(item) }
+    b.clear; hisExt.read(hisSyncF, null, null) |item| { b.add(item) }
     verifyEq(a.size - 3, b.size)
     verifyEq(a[0..-4], b)
 
@@ -395,8 +395,8 @@ class ObixTest : HxTest
     verifyEq(hisSyncF->hisSize,  hisF->hisSize)
     verifyEq(hisSyncF->hisStart, hisF->hisStart)
     verifyEq(hisSyncF->hisEnd,   hisF->hisEnd)
-    a.clear; rt.his.read(hisF, null, null) |item| { a.add(item) }
-    b.clear; rt.his.read(hisSyncF, null, null) |item| { b.add(item) }
+    a.clear; hisExt.read(hisF, null, null) |item| { a.add(item) }
+    b.clear; hisExt.read(hisSyncF, null, null) |item| { b.add(item) }
     verifyEq(a, b)
   }
 
@@ -759,6 +759,8 @@ class ObixTest : HxTest
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  IHisExt hisExt() { rt.exts.his }
 
   static HisItem item(DateTime ts, Obj? val)
   {

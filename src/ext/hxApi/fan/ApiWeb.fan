@@ -34,7 +34,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
       if (opName == null) return res.sendErr(404)
 
       // authenticate user
-      cx := proj.user.authenticate(req, res)
+      cx := ext.sys.user.authenticate(req, res)
       if (cx == null) return
       cx.timeout = Context.timeoutDef
       Actor.locals[ActorContext.actorLocalsKey] = cx
@@ -81,7 +81,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
     if (path.size == 1) return path[0]
     if (path.size == 2)
     {
-      cluster := ext.proj.services.get(HxClusterService#, false) as HxClusterService
+      cluster := ext.sys.cluster(false)
       if (cluster != null && path[0] == cluster.nodeId.segs[0].body)
         return path[1]
     }

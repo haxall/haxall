@@ -17,6 +17,7 @@ using hxConn
 **
 ** ConnTest
 **
+/* TODO
 class ConnTest : HxTest
 {
 
@@ -1230,4 +1231,5 @@ class ConnTest : HxTest
   }
 
 }
+*/
 

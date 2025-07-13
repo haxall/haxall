@@ -31,6 +31,8 @@ abstract class ApiTest : HxTest
   Dict? siteC
   Dict? eqA1
 
+  Sys sys() { rt.sys }
+
 //////////////////////////////////////////////////////////////////////////
 // Tops
 //////////////////////////////////////////////////////////////////////////
@@ -59,9 +61,10 @@ abstract class ApiTest : HxTest
     if (rt.platform.isSkySpark) addLib("his")
     addLib("point")
 
-    try { rt.libs.add("hx.http") } catch (Err e) {}
-    this.uri = rt.http.siteUri + rt.http.apiUri
-    verifyNotEq(rt.http.typeof, NilHttpService#)
+    try { sys.libs.add("hx.http") } catch (Err e) {}
+    this.uri = sys.http.siteUri + sys.http.apiUri
+//    verifyNotEq(rt.http.typeof, NilHttpService#)
+fail
 
     // setup user accounts
     addUser("alice",   "a-secret", ["userRole":"op"])
@@ -108,7 +111,7 @@ abstract class ApiTest : HxTest
 
   Void verifySiteUri(Uri expected)
   {
-    verifyEq(rt.http.siteUri, expected)
+    verifyEq(rt.sys.http.siteUri, expected)
     verifyEq(eval("httpSiteUri()"), expected)
   }
 

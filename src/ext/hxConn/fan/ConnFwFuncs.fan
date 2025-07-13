@@ -32,7 +32,7 @@ const class ConnFwFuncs
   {
     cx := curContext
     id := Etc.toId(conn)
-    c := cx.rt.conn.conn(id, false)
+    c := cx.rt.exts.conn.conn(id, false)
     if (c isnot Conn)
     {
       if (!checked) return Dict#.emptyList
@@ -142,7 +142,7 @@ const class ConnFwFuncs
     if (obj is ConnPoint) return ((ConnPoint)obj).details
     cx := curContext
     id := Etc.toId(obj)
-    return cx.rt.conn.point(id, false)?.details ?: cx.rt.conn.conn(id).details
+    return cx.rt.exts.conn.point(id, false)?.details ?: cx.rt.exts.conn.conn(id).details
   }
 
   **
@@ -186,12 +186,12 @@ const class ConnFwFuncs
       return ((List)points).map |x->ConnPoint|
       {
         if (x is ConnPoint) return x
-        return cx.rt.conn.point(Etc.toId(x))
+        return cx.rt.exts.conn.point(Etc.toId(x))
       }
     }
     return Etc.toIds(points).map |id->ConnPoint|
     {
-      return cx.rt.conn.point(id)
+      return cx.rt.exts.conn.point(id)
     }
   }
 
@@ -245,7 +245,7 @@ const class ConnFwFuncs
   @Axon { admin = true }
   static Void connTraceDisableAll()
   {
-    curContext.rt.conn.conns.each |hx|
+    curContext.rt.exts.conn.conns.each |hx|
     {
       c := hx as Conn
       if (c != null) c.trace.disable
@@ -301,7 +301,7 @@ const class ConnFwFuncs
   ** Coerce conn to a HxConn instance (new or old framework)
   private static HxConn toHxConn(Obj conn)
   {
-    curContext.rt.conn.conn(Etc.toId(conn), true)
+    curContext.rt.exts.conn.conn(Etc.toId(conn), true)
   }
 
   ** Coerce conn to a Conn instance (new framework only)

@@ -16,7 +16,7 @@ using hx
 **
 ** Async task engine library
 **
-const class TaskExt : ExtObj, HxTaskService
+const class TaskExt : ExtObj, ITaskExt
 {
   ** Construction
   new make()
@@ -24,9 +24,6 @@ const class TaskExt : ExtObj, HxTaskService
     this.pool = ActorPool { it.name = "${proj.name}-Task"; it.maxThreads = rec.maxThreads }
     this.tasksById = ConcurrentMap()
   }
-
-  ** Publish HxTaskService
-  override HxService[] services() { [this] }
 
   ** Settings record
   override TaskSettings rec() { super.rec }
@@ -169,8 +166,8 @@ const class TaskExt : ExtObj, HxTaskService
 
   internal Void refreshUser()
   {
-    user := proj.user.read("task-${proj.name}", false)
-    if (user == null) user = proj.user.read("task", false)
+    user := sys.user.read("task-${proj.name}", false)
+    if (user == null) user = sys.user.read("task", false)
     if (user == null) user = userFallback
     if (user.isSu)
     {
@@ -182,7 +179,7 @@ const class TaskExt : ExtObj, HxTaskService
 
   once User userFallback()
   {
-    proj.user.makeSyntheticUser("task", ["projAccessFilter":"name==${proj.name.toCode}"])
+    sys.user.makeSyntheticUser("task", ["projAccessFilter":"name==${proj.name.toCode}"])
   }
 
   private Void cleanupEphemerals()

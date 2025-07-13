@@ -282,29 +282,30 @@ internal const class FuncMethodsReflectInput : FuncReflectInput
 
 const class ProjOverlayLib
 {
-  new make(Proj rt, DefNamespace base)
+  new make(Proj proj, DefNamespace base)
   {
-    this.rt = rt
-    this.base = base
-    this.log = rt.log
+    this.proj      = proj
+    this.base      = base
+    this.log       = proj.log
     this.libSymbol = Symbol("lib:hx_db")
   }
 
-  const Proj rt
+  const Proj proj
   const DefNamespace base
   const Log log
   const Symbol libSymbol
 
   DefNamespace compileNamespace()
   {
+    sys := proj.sys
     acc := Str:Obj[:]
     acc["def"] = libSymbol
-    acc["baseUri"] = rt.http.siteUri + `def/hx_db/`
-    acc["version"] = rt.version.toStr
+    acc["baseUri"] = sys.http.siteUri + `def/hx_db/`
+    acc["version"] = sys.version.toStr
     meta := Etc.makeDict(acc)
 
     b := BOverlayLib(base, meta)
-    rt.db.readAll(Filter.has("def")).each |rec| { addRecDef(b, rec) }
+    proj.db.readAll(Filter.has("def")).each |rec| { addRecDef(b, rec) }
 
     return MOverlayNamespace(base, MOverlayLib(b), |DefLib lib->Bool| { true })
   }

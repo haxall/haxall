@@ -27,7 +27,7 @@ class ServiceTest : HxTest
   Void testRegistry()
   {
     // not found stuff
-    verifyServiceNotFound(Str#)
+//    verifyServiceNotFound(Str#)
 
     // verify HxStdServices
 // TODO
@@ -35,6 +35,7 @@ class ServiceTest : HxTest
 //    verifySame(rt.watch, rt.services.watch); verifySame(verifyService(WatchService#), rt.watch)
 //    verifySame(rt.user,  rt.services.user);  verifySame(verifyService(HxUserService#), rt.user)
 
+/*
     // pointWrite defaults to nil implementation
     if (rt.libs.get("hx.point", false) != null) rt.libs.remove("hx.point")
     verifySame(rt.pointWrite.typeof, NilPointWriteService#)
@@ -54,8 +55,11 @@ class ServiceTest : HxTest
     verifySame(rt.pointWrite.typeof, NilPointWriteService#)
     verifySame(rt.pointWrite, rt.services.pointWrite)
     verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
+*/
+fail
   }
 
+/*
   Obj verifyService(Type t)
   {
     service := rt.services.get(t)
@@ -78,6 +82,7 @@ class ServiceTest : HxTest
     grid := (Grid)eval("services()")
     verifyNull(grid.find |r| { r->type == t.qname })
   }
+*/
 
 //////////////////////////////////////////////////////////////////////////
 // File
@@ -131,7 +136,7 @@ class ServiceTest : HxTest
 
   File verifyFileResolve(Uri uri, Bool exists)
   {
-    f := rt.file.resolve(uri)
+    f := rt.exts.file.resolve(uri)
     verifyEq(f.uri, normUri(uri))
     verifyEq(f.isDir, uri.isDir)
     verifyEq(f.exists, exists)
@@ -151,7 +156,7 @@ class ServiceTest : HxTest
   {
     try
     {
-      f := rt.file.resolve(uri)
+      f := rt.exts.file.resolve(uri)
       verify(!f.exists)
     }
     catch (UnsupportedErr e)

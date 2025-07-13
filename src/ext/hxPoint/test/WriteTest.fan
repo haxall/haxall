@@ -118,7 +118,7 @@ class WriteTest : HxTest
       }
     }
 
-    verifyGridEq(g, rt.pointWrite.array(pt))
+    verifyGridEq(g, rt.exts.point.pointArray(pt))
 
     return g
   }

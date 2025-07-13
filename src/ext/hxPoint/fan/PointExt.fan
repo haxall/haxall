@@ -17,7 +17,7 @@ using hx
 **
 ** Point historization and writable support
 **
-const class PointExt : ExtObj
+const class PointExt : ExtObj, IPointExt
 {
   new make()
   {
@@ -28,11 +28,12 @@ const class PointExt : ExtObj
     observables   = [writeMgr.observable]
   }
 
+  override Grid pointArray(Dict point) { writeMgr.array(point) }
+
+  override Future pointWrite(Dict point, Obj? val, Int level, Obj who, Dict? opts := null) { writeMgr.write(point, val, level, who, opts) }
+
   ** Return list of observables this library publishes
   override const Observable[] observables
-
-  ** Publish the HxPointWriteService
-  override HxService[] services() { [writeMgr] }
 
   ** Should we collect bad data as NA or just omit it
   Bool hisCollectNA() { rec.has("hisCollectNA") }

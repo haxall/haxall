@@ -93,7 +93,7 @@ class SqlDispatch : ConnDispatch
 
   once User evalUser()
   {
-    proj.user.makeSyntheticUser("sqlHisSync", ["projAccessFilter":"name==${proj.name.toCode}"])
+    proj.sys.user.makeSyntheticUser("sqlHisSync", ["projAccessFilter":"name==${proj.name.toCode}"])
   }
 
   private SqlClient? client

@@ -13,13 +13,14 @@ using xeto
 using haystack
 using axon
 using web
-using obs
 
 **
 ** Registry for service APIs by type.  Service APIs implement
 ** the `HxService` mixin and are published by libraries enabled
 ** in the runtime using `Ext.services`.
 **
+/*
+
 const mixin HxServiceRegistry : HxStdServices
 {
   ** List the registered service types
@@ -84,33 +85,16 @@ const mixin HxStdServices
 **
 const mixin HxService {}
 
-**************************************************************************
-** HxObsService
-**************************************************************************
-
-**
-** Observable APIs
-**
-const mixin HxObsService : HxService
-{
-  ** List the published observables for the runtime
-  abstract Observable[] list()
-
-  ** Lookup a observable for the runtime by name.
-  abstract Observable? get(Str name, Bool checked := true)
-
-  ** Get the schedule observable
-  @NoDoc abstract ScheduleObservable schedule()
-}
+*/
 
 **************************************************************************
-** HxHttpService
+** IHttpExt
 **************************************************************************
 
 **
-** HTTP APIs
+** HTTP extension
 **
-const mixin HxHttpService : HxService
+const mixin IHttpExt : Ext
 {
   ** Public HTTP or HTTPS URI of this host.  This is always
   ** an absolute URI such 'https://acme.com/'
@@ -124,6 +108,7 @@ const mixin HxHttpService : HxService
   @NoDoc abstract WebMod? root(Bool checked := true)
 }
 
+/*
 @NoDoc
 const class NilHttpService : HxHttpService
 {
@@ -131,15 +116,16 @@ const class NilHttpService : HxHttpService
   override Uri apiUri() { `/api/` }
   override WebMod? root(Bool checked := true) { if (checked) throw UnsupportedErr(); return null }
 }
+*/
 
 **************************************************************************
-** HxUserService
+** IUserExt
 **************************************************************************
 
 **
-** User management APIs
+** User management extension
 **
-const mixin HxUserService : HxService
+const mixin IUserExt : Ext
 {
   ** Lookup a user by username.  If not found then raise
   ** exception or return null based on the checked flag.
@@ -158,14 +144,14 @@ const mixin HxUserService : HxService
 }
 
 **************************************************************************
-** HxCryptoService
+** ICryptoExt
 **************************************************************************
 
 **
 ** Cryptographic certificate and key pair management
 **
 @NoDoc
-const mixin HxCryptoService : HxService
+const mixin ICryptoExt : Ext
 {
   ** The keystore to store all trusted keys and certificates
   abstract KeyStore keystore()
@@ -187,14 +173,14 @@ const mixin HxCryptoService : HxService
 }
 
 **************************************************************************
-** HxFileService
+** IFileExt
 **************************************************************************
 
 **
 ** File APIs
 **
 @NoDoc
-const mixin HxFileService : HxService
+const mixin IFileExt : Ext
 {
   **
   ** Resolve a virtual file system URI.  If the uri does not resolve
@@ -207,14 +193,14 @@ const mixin HxFileService : HxService
 }
 
 **************************************************************************
-** HxClusterService
+** IClusterExt
 **************************************************************************
 
 **
 ** Arcbeam cluster service
 **
 @NoDoc
-const mixin HxClusterService : HxService
+const mixin IClusterExt : Ext
 {
   ** Local node id
   abstract Ref nodeId()
@@ -224,14 +210,14 @@ const mixin HxClusterService : HxService
 }
 
 **************************************************************************
-** HxIOService
+** IIOExt
 **************************************************************************
 
 **
 ** I/O APIs
 **
 @NoDoc
-const mixin HxIOService : HxService
+const mixin IIOExt : Ext
 {
   **
   ** Read from an I/O handle.  The callback is invoked with the input stream
@@ -250,14 +236,14 @@ const mixin HxIOService : HxService
 }
 
 **************************************************************************
-** HxTaskService
+** ITaskExt
 **************************************************************************
 
 **
 ** Task APIs to run Axon in the background
 **
 @NoDoc
-const mixin HxTaskService : HxService
+const mixin ITaskExt : Ext
 {
   ** Get the currently running task
   abstract HxTask? cur(Bool checked := true)
@@ -298,14 +284,14 @@ const mixin HxTaskAdjunct
 }
 
 **************************************************************************
-** HxHisService
+** IHisExt
 **************************************************************************
 
 **
 ** Point historization APIs
 **
 @NoDoc
-const mixin HxHisService : HxService
+const mixin IHisExt : Ext
 {
   **
   ** Read the history items stored for given point.  If span is
@@ -327,6 +313,7 @@ const mixin HxHisService : HxService
   abstract Future write(Dict pt, HisItem[] items, Dict? opts := null)
 }
 
+/*
 @NoDoc const class NilHisService : HxHisService
 {
   override Void read(Dict pt, Span? span, Dict? opts, |HisItem| f)
@@ -338,16 +325,17 @@ const mixin HxHisService : HxService
     throw UnsupportedErr("Using NilHisService")
   }
 }
+*/
 
 **************************************************************************
-** HxPointWriteService
+** IPointExt
 **************************************************************************
 
 **
-** HxPointWriteService is used to override writable points.
+** Point extension is used to override writable points.
 **
 @NoDoc
-const mixin HxPointWriteService : HxService
+const mixin IPointExt : Ext
 {
   **
   ** Set a writable point's priority array value at the given level.
@@ -356,15 +344,16 @@ const mixin HxPointWriteService : HxService
   ** information about which user or application is writing to this
   ** priorirty array level.
   **
-  abstract Future write(Dict point, Obj? val, Int level, Obj who, Dict? opts := null)
+  abstract Future pointWrite(Dict point, Obj? val, Int level, Obj who, Dict? opts := null)
 
   **
   ** Get current state of a writable points priority array.  The result
   ** is a grid with 17 rows including a 'level' and 'val' column.
   **
-  abstract Grid array(Dict point)
+  abstract Grid pointArray(Dict point)
 }
 
+/*
 @NoDoc
 const class NilPointWriteService : HxPointWriteService
 {
@@ -378,17 +367,18 @@ const class NilPointWriteService : HxPointWriteService
     Etc.emptyGrid
   }
 }
+*/
 
 **************************************************************************
-** HxConnService
+** IConnExt
 **************************************************************************
 
 **
-** HxConnService manages the roster of enabled connector libraries,
+** Connector extension manages the roster of enabled connector libraries,
 ** connectors, and points.
 **
 @NoDoc
-const mixin HxConnService : HxService
+const mixin IConnExt : Ext
 {
   ** List of installed connector libraries
   abstract HxConnExt[] exts()
@@ -497,6 +487,7 @@ const mixin HxConnPoint
   abstract Str details()
 }
 
+/*
 @NoDoc
 const class NilConnService : HxConnService
 {
@@ -515,11 +506,13 @@ const class NilConnService : HxConnService
     return null
   }
 }
+*/
 
 **************************************************************************
 ** HxDockerService
 **************************************************************************
 
+/* TODO
 **
 ** HxDockerService manages Docker containers
 **
@@ -582,4 +575,5 @@ const mixin HxDockerEndpoint
   ** The IPv6 address
   abstract IpAddr? ip6()
 }
+*/
 

@@ -434,7 +434,7 @@ class ConnTuningTest : HxTest
 
   Dict verifyWrite(Dict rec, Str status, Obj? tagVal, Int? tagLevel, Obj? lastVal, Int? lastLevel)
   {
-    Conn c := rt.conn.point(rec.id).conn
+    Conn c := rt.exts.conn.point(rec.id).conn
     rec = readById(rec.id)
     last := c.send(HxMsg("lastWrite", rec.id)).get(1sec)
     // echo("-- $rec.dis " + rec["writeStatus"] + " " + rec["writeVal"] + " @ " + rec["writeLevel"] + " | last=$last | " + rec["writeErr"])
@@ -450,7 +450,7 @@ class ConnTuningTest : HxTest
 
   Void verifyWriteDebug(Dict rec, Bool writePending, Str writeLastInfo)
   {
-    lines       := rt.conn.point(rec.id).details.splitLines
+    lines       := rt.exts.conn.point(rec.id).details.splitLines
     linePending := lines.find |x| { x.contains("writePending:") }
     lineLastInfo:= lines.find |x| { x.contains("writeLastInfo:") }
     // echo("-- $rec.dis $linePending | $lineLastInfo")
@@ -460,7 +460,7 @@ class ConnTuningTest : HxTest
 
   Dict verifyCurVal(Dict rec, Obj? val, Str status)
   {
-    Conn c := rt.conn.point(rec.id).conn
+    Conn c := rt.exts.conn.point(rec.id).conn
     c.sync
 
     rec = readById(rec.id)
@@ -476,12 +476,12 @@ class ConnTuningTest : HxTest
 
   Duration lastCurTime(Dict pt)
   {
-    Duration.make(rt.conn.point(pt.id)->curState->lastUpdate)
+    Duration.make(rt.exts.conn.point(pt.id)->curState->lastUpdate)
   }
 
   Duration lastWriteTime(Dict pt)
   {
-    Duration.make(rt.conn.point(pt.id)->writeState->lastUpdate)
+    Duration.make(rt.exts.conn.point(pt.id)->writeState->lastUpdate)
   }
 
   Int numWrites(Conn c)
@@ -491,7 +491,7 @@ class ConnTuningTest : HxTest
 
   Void write(Conn c, Dict rec, Obj? val, Int level)
   {
-    rt.pointWrite.write(rec, val, level, "test").get
+    rt.exts.point.pointWrite(rec, val, level, "test").get
     sync(c)
   }
 
@@ -508,7 +508,7 @@ class ConnTuningTest : HxTest
     if (c is Conn)
       ((Conn)c).sync
     else
-      ((Conn)rt.conn.conn(Etc.toId(c))).sync
+      ((Conn)rt.exts.conn.conn(Etc.toId(c))).sync
   }
 
   Void forceHouseKeeping(Conn c)

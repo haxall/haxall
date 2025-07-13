@@ -18,7 +18,7 @@ const class HttpFuncs
 {
   ** Primary HTTP or HTTPS Uri - see `hx::HxHttpService.siteUri`
   @Axon
-  static Uri httpSiteUri() { curContext.rt.http.siteUri }
+  static Uri httpSiteUri() { curContext.sys.http.siteUri }
 
   ** Current context
   private static Context curContext() { Context.cur }

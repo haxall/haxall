@@ -43,11 +43,12 @@ class RuntimeTest : HxTest
     verifySame(ext.spec, rt.ns.spec("hx.crypto::CryptoExt"))
     verifyEq(rt.exts.list.containsSame(ext), true)
 
-    // test some methods
-    verifyEq(rt.http.siteUri.isAbs, true)
-    verifyEq(rt.http.siteUri.scheme == "http" || rt.http.siteUri.scheme == "https", true)
-    verifyEq(rt.http.apiUri.isAbs, false)
-    verifyEq(rt.http.apiUri.isDir, true)
+    // test some method
+    http := rt.sys.http
+    verifyEq(http.siteUri.isAbs, true)
+    verifyEq(http.siteUri.scheme == "http" || rt.sys.http.siteUri.scheme == "https", true)
+    verifyEq(http.apiUri.isAbs, false)
+    verifyEq(http.apiUri.isDir, true)
 
     // verify legacy defs
     verifyEq(rt.defs.def("lib:ph")->def, Symbol("lib:ph"))
@@ -191,14 +192,14 @@ class RuntimeTest : HxTest
   Void testServices()
   {
     // makeSyntheticUser
-    u := rt.user.makeSyntheticUser("FooBar", ["bar":"baz"])
+    u := rt.sys.user.makeSyntheticUser("FooBar", ["bar":"baz"])
     if (rt.platform.isSkySpark)
       verifyEq(u.id, Ref("u:FooBar"))
     else
       verifyEq(u.id, Ref("FooBar"))
     verifyEq(u.username, "FooBar")
     verifyEq(u.meta["bar"], "baz")
-    verifyErr(ParseErr#) { rt.user.makeSyntheticUser("Foo Bar", ["bar":"baz"]) }
+    verifyErr(ParseErr#) { rt.sys.user.makeSyntheticUser("Foo Bar", ["bar":"baz"]) }
   }
 
 //////////////////////////////////////////////////////////////////////////

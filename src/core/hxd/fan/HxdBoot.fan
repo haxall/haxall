@@ -65,11 +65,6 @@ class NewHxdBoot : HxBoot
     return 0
   }
 
-  override HxServiceRegistry initServices(HxProj proj, Ext[] exts)
-  {
-    HxdServiceRegistry(proj, exts)
-  }
-
   override HxProj initProj()
   {
     HxdSys(this)

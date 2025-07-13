@@ -167,9 +167,9 @@ echo("####")
     verifyDictEq(eval("""taskRun(x=>x, {foo}).futureGet"""), ["foo":m])
 
     // test service
-    verifyEq(rt.task.run(Parser(Loc.eval, "(msg)=>msg+100".in).parse, n(7)).get, n(107))
-    verifyEq(rt.task.cur(false), null)
-    verifyErr(NotTaskContextErr#) { rt.task.cur(true) }
+    verifyEq(rt.exts.task.run(Parser(Loc.eval, "(msg)=>msg+100".in).parse, n(7)).get, n(107))
+    verifyEq(rt.exts.task.cur(false), null)
+    verifyErr(NotTaskContextErr#) { rt.exts.task.cur(true) }
 
     // stop lib and verify everything is cleaned up
     rt.libs.remove("hx.task")
@@ -187,7 +187,7 @@ echo("####")
     verifyEq(sched.subscriptions.size, 0)
 
     // test service
-    verifyErr(UnknownServiceErr#) { rt.task }
+    verifyErr(UnknownServiceErr#) { rt.exts.task }
   }
 
 //////////////////////////////////////////////////////////////////////////

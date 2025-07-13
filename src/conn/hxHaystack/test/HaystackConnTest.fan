@@ -92,7 +92,7 @@ class HaystackConnTest : HxTest
     {
       (1..28).each |day| { items.add(item(dt(2010, mon, day, 12, 0, tz), (mon * day).toFloat)) }
     }
-    rt.his.write(h, items)
+    hisExt.write(h, items)
 
     // bool his
     tz = TimeZone("Denver")
@@ -103,7 +103,7 @@ class HaystackConnTest : HxTest
     {
       (1..28).each |day| { items.add(item(dt(2010, mon, day, 12, 0, tz), (mon * day).isOdd)) }
     }
-    rt.his.write(h, items)
+    hisExt.write(h, items)
 
     // writable point
     ptw = addRec(["dis":"Point-W", "name":"ptw", "point":m, "writable":m, "kind":"Number", "unit":"%"])
@@ -116,7 +116,7 @@ class HaystackConnTest : HxTest
   Void verifyConn()
   {
     // create connector
-    uri := rt.http.siteUri + rt.http.apiUri
+    uri := sys.http.siteUri + sys.http.apiUri
     conn = addRec(["haystackConn":Marker.val, "uri":uri, "username":"hay", "haystackPollFreq":n(10, "ms")])
     rt.db.passwords.set(conn.id.toStr, "foo")
     rt.sync
@@ -501,7 +501,7 @@ class HaystackConnTest : HxTest
   {
     span := rangeToSpan(rec, range)
     items := HisItem[,]
-    rt.his.read(rec, span, null) |item|
+    hisExt.read(rec, span, null) |item|
     {
       if (span.contains(item.ts)) items.add(item)
     }
@@ -539,8 +539,8 @@ class HaystackConnTest : HxTest
     verifyEq(hisSyncF->hisEnd,   hisF->hisEnd)
     verifyEq(hisSyncF["hisStatus"], "ok")
     verifyEq(hisSyncF["hisErr"], null)
-    a := HisItem[,]; rt.his.read(hisF, null, null) |item| { a.add(item) }
-    b := HisItem[,]; rt.his.read(hisSyncF, null, null) |item| { b.add(item) }
+    a := HisItem[,]; hisExt.read(hisF, null, null) |item| { a.add(item) }
+    b := HisItem[,]; hisExt.read(hisSyncF, null, null) |item| { b.add(item) }
     verifyEq(a, b)
     verifyEq(a.first.val->unit, Unit("fahrenheit"))
     verifyEq(b.first.val->unit, Unit("fahrenheit"))
@@ -548,7 +548,7 @@ class HaystackConnTest : HxTest
 
     // add new items to hisF
     tz := TimeZone("Chicago")
-    rt.his.write(hisF,
+    hisExt.write(hisF,
       [
         item(dt(2010, 5, 1, 1, 0, tz), 110f),
         item(dt(2010, 5, 1, 2, 0, tz), 120f),
@@ -570,8 +570,8 @@ class HaystackConnTest : HxTest
     verifyEq(hisSyncF->hisSize,  n(-3) + hisF->hisSize) // don't have May 2nd yet
     verifyEq(hisSyncF->hisStart, hisF->hisStart)
     verifyEq(hisSyncF->hisEnd,   dt(2010, 5, 1, 5, 0, tz))
-    a.clear; rt.his.read(hisF, null, null) |item| { a.add(item) }
-    b.clear; rt.his.read(hisSyncF, null, null) |item| { b.add(item) }
+    a.clear; hisExt.read(hisF, null, null) |item| { a.add(item) }
+    b.clear; hisExt.read(hisSyncF, null, null) |item| { b.add(item) }
     verifyEq(a.size - 3, b.size)
     verifyEq(a[0..-4], b)
 
@@ -584,8 +584,8 @@ class HaystackConnTest : HxTest
     verifyEq(hisSyncF->hisSize,  hisF->hisSize)
     verifyEq(hisSyncF->hisStart, hisF->hisStart)
     verifyEq(hisSyncF->hisEnd,   hisF->hisEnd)
-    a.clear; rt.his.read(hisF, null, null) |item| { a.add(item) }
-    b.clear; rt.his.read(hisSyncF, null, null) |item| { b.add(item) }
+    a.clear; hisExt.read(hisF, null, null) |item| { a.add(item) }
+    b.clear; hisExt.read(hisSyncF, null, null) |item| { b.add(item) }
     verifyEq(a.size, b.size)
     verifyEq(a, b)
   }
@@ -649,6 +649,10 @@ class HaystackConnTest : HxTest
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  Sys sys() { rt.sys }
+
+  IHisExt hisExt() { rt.exts.his }
 
   static HisItem item(DateTime ts, Obj? val)
   {

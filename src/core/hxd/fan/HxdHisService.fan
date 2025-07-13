@@ -19,6 +19,7 @@ using hxFolio
 ** implementation of the HxHisService.  Unlike SkySpark is does
 ** not currently support totalization, computed histories, etc.
 **
+/* TODO
 internal const class HxdHisService : HxHisService
 {
   new make(HxProj rt) { this.rt = rt }
@@ -36,4 +37,5 @@ internal const class HxdHisService : HxHisService
   }
 
 }
+*/
 

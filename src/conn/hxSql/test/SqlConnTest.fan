@@ -210,7 +210,7 @@ class SqlConnTest : HxTest
   Void verifyHis(Dict pt, Obj?[][] expected)
   {
     items := HisItem[,]
-    rt.his.read(pt, null, null) |item| { items.add(item) }
+    rt.exts.his.read(pt, null, null) |item| { items.add(item) }
 
     verifyEq(items.size, expected.size)
     items.each |item, i|

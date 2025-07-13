@@ -24,7 +24,7 @@ using folio
   new make(Context cx, Obj[] points, Obj? span)
   {
     this.cxRef     = cx
-    this.task      = cx.rt.services.get(HxTaskService#, false)
+    this.task      = cx.rt.exts.task(false)
     this.num       = points.size
     this.pointsRef = points
     this.span      = span
@@ -94,7 +94,7 @@ using folio
 
   private Context cxRef
   private ConnPoint[] pointsRef
-  private HxTaskService? task
+  private ITaskExt? task
   private Obj? span
   private const Int num
   private Int numOk

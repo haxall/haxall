@@ -128,7 +128,7 @@ const class SedonaFuncs
   {
     uris.each |uri|
     {
-      file := curContext.rt.file.resolve(uri)
+      file := curContext.proj.exts.file.resolve(uri)
       try
       {
         elem     := xmlParse(file)

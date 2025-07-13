@@ -412,23 +412,6 @@ const class HxCoreFuncs
     curContext.rt.isSteadyState
   }
 
-  ** Grid of installed services.  Format of the grid is subject to change.
-  @Axon { admin = true }
-  static Grid services()
-  {
-    services := curContext.rt.services
-    gb := GridBuilder()
-    gb.addCol("type").addCol("qname")
-    services.list.each |type|
-    {
-      services.getAll(type).each |service|
-      {
-        gb.addRow2(type.qname, service.typeof.qname)
-      }
-    }
-    return gb.toGrid
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Namespace
 //////////////////////////////////////////////////////////////////////////

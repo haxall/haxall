@@ -12,5 +12,18 @@
 **
 const mixin Sys : Proj
 {
+
+  ** Cluster system extension
+  @NoDoc abstract IClusterExt? cluster(Bool checked := true)
+
+  ** Crypto system extension
+  @NoDoc abstract ICryptoExt crypto()
+
+  ** HTTP system extension
+  abstract IHttpExt http()
+
+  ** User management system extension
+  abstract IUserExt user()
+
 }
 

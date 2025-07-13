@@ -375,7 +375,7 @@ const class CryptoFuncs
   ** Convenience to get keystore from context
   private static KeyStore ks()
   {
-    Context.cur.proj.services.crypto.keystore
+    Context.cur.sys.crypto.keystore
   }
 }
 

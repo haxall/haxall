@@ -54,7 +54,6 @@ init(boot)
   This init(HxBoot boot)
   {
     extsRef.init
-    servicesRef.val = boot.initServices(this, exts.list)
     obsRef.init
     return this
   }
@@ -137,30 +136,6 @@ override Void recompileDefs() { nsBaseRecompile }
   internal Void nsOverlayRecompile() { this.nsOverlayRef.val = null }
   private const AtomicRef nsBaseRef := AtomicRef()    // base from installed libs
   private const AtomicRef nsOverlayRef := AtomicRef() // rec overlay
-
-  ** Service registry
-override HxServiceRegistry services() { servicesRef.val ?: throw Err("Services not avail yet") }
-//  override HxdServiceRegistry services() { servicesRef.val ?: throw Err("Services not avail yet") }
-//  internal Void servicesRebuild() { servicesRef.val = HxdServiceRegistry(this, exts.list) }
-  private const AtomicRef servicesRef := AtomicRef(null)
-
-  // HxStdServices conveniences
-/*
-  override const HxContextService context
-  override const HxObsService obs
-  override const HxWatchService watch
-  override const HxFileService file
-  override const HxHisService his
-*/
-override HxFileService file() { services.file }
-override  HxHisService his() { services.his }
-  override HxCryptoService crypto() { services.crypto }
-  override HxHttpService http() { services.http }
-  override HxUserService user() { services.user }
-  override HxIOService io() { services.io }
-  override HxTaskService task() { services.task }
-  override HxPointWriteService pointWrite() { services.pointWrite }
-  override HxConnService conn() { services.conn }
 
   ** Has the runtime has reached steady state.
   override Bool isSteadyState() { stateStateRef.val }

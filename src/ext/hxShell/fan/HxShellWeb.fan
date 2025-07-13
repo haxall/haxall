@@ -31,7 +31,7 @@ const class HxShellWeb : ExtWeb
 
   override Void onService()
   {
-    cx := proj.user.authenticate(req, res)
+    cx := ext.sys.user.authenticate(req, res)
     if (cx == null) return
 
     if (!cx.user.isSu) return res.sendErr(403)
@@ -52,7 +52,7 @@ const class HxShellWeb : ExtWeb
 
     env := Str:Str[:]
     env["main"]              = "hxShell::Shell.main"
-    env["hxShell.api"]       = cx.rt.http.apiUri.toStr
+    env["hxShell.api"]       = cx.sys.http.apiUri.toStr
     env["hxShell.attestKey"] = cx.session.attestKey
     env["hxShell.user"]      = ZincWriter.valToStr(cx.user.meta)
 

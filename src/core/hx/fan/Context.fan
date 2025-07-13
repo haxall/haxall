@@ -65,6 +65,9 @@ new makeTemp(Proj proj, User user, UserSession session)
 
 virtual Proj rt() { proj }
 
+  ** System project
+  virtual Sys sys() { projRef.sys }
+
   ** Project associated with this context
   virtual Proj proj() { projRef }
   private const Proj projRef

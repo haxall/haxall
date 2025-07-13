@@ -11,9 +11,8 @@ using hx
 **
 ** I/O functions
 **
-const class IOExt : ExtObj, HxIOService
+const class IOExt : ExtObj, IIOExt
 {
-  override HxService[] services() { [this] }
 
   override Obj? read(Obj? handle, |InStream->Obj?| f)
   {

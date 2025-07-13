@@ -19,6 +19,7 @@ using util
 ** implementation of the HxHisService.  Unlike SkySpark is does
 ** not currently support totalization, computed histories, etc.
 **
+/* TODO
 internal const class HxdFileService : HxFileService
 {
   new make(HxProj rt) { this.rt = rt }
@@ -142,4 +143,5 @@ internal const class HxdFile : SyntheticFile
 
   override OutStream out(Bool append := false, Int? bufferSize := 4096) { file.out(append, bufferSize) }
 }
+*/
 

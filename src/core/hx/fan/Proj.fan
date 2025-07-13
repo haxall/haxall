@@ -15,7 +15,7 @@ using folio
 **
 ** Proj manages a project database
 **
-const mixin Proj : HxStdServices
+const mixin Proj
 {
   ** Reference to system project (in Haxall daemon it is always this)
   abstract Sys sys()
@@ -68,9 +68,6 @@ const mixin Proj : HxStdServices
 
   ** Project extensions
   abstract ProjExts exts()
-
-  ** Service registry
-  abstract HxServiceRegistry services()
 
   ** Block until currently queued background processing completes
   abstract This sync(Duration? timeout := 30sec)

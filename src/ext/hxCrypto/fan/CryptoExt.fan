@@ -18,7 +18,7 @@ using [java] java.lang::System
 **
 ** Cryptographic certificate and key pair management
 **
-const class CryptoExt : ExtObj, HxCryptoService
+const class CryptoExt : ExtObj, ICryptoExt
 {
 //////////////////////////////////////////////////////////////////////////
 // Construction
@@ -40,9 +40,6 @@ const class CryptoExt : ExtObj, HxCryptoService
 //////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
-
-  ** Publish the HxCryptoService
-  override HxService[] services() { [this] }
 
   ** Directory for crypto keystore file
   const File dir

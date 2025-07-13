@@ -19,7 +19,7 @@ using hxm
 **
 ** User athentication and session management
 **
-const class HxUserExt : ExtObj, HxUserService
+const class HxUserExt : ExtObj, IUserExt
 {
   ** Web servicing
   override const HxUserWeb web := HxUserWeb(this)
@@ -42,9 +42,6 @@ const class HxUserExt : ExtObj, HxUserService
   ** Session cookie name
   Str cookieName() { cookieNameRef.val }
   private const AtomicRef cookieNameRef := AtomicRef()
-
-  ** Publish myself as the HxUserService
-  override HxService[] services() { [this] }
 
 //////////////////////////////////////////////////////////////////////////
 // HxUserService
@@ -105,7 +102,7 @@ const class HxUserExt : ExtObj, HxUserService
     overrides[Cookie#sameSite] = null
 
     // if the public facing HTTP server is using HTTPS then force secure flag
-    if (proj.http.siteUri.scheme == "https") overrides[Cookie#secure] = true
+    if (sys.http.siteUri.scheme == "https") overrides[Cookie#secure] = true
 
     // construct the session cookie
     cookie := Cookie.makeSession(cookieName, session.key, overrides)
@@ -122,7 +119,7 @@ const class HxUserExt : ExtObj, HxUserService
   override Void onStart()
   {
     // set cookie name so its unique per http port
-    cookieNameRef.val = "hx-session-" + (proj.http.siteUri.port ?: 80)
+    cookieNameRef.val = "hx-session-" + (sys.http.siteUri.port ?: 80)
   }
 
   ** Run house keeping couple times a minute

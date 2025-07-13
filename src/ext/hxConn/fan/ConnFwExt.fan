@@ -19,8 +19,6 @@ using hx
 @NoDoc
 const class ConnFwExt : ExtObj
 {
-  ** Publish HxConnRegistryService
-  override HxService[] services() { [service] }
 
   ** Lookup tables for all conn libs, connectors, and points
   const ConnService service := ConnService(this)

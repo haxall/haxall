@@ -151,7 +151,7 @@ internal class HxUserAuth
       if (node == null || attestKey == null) return null
 
       // get user which cached using cluster stashing
-      cluster := proj.services.get(HxClusterService#, false) as HxClusterService
+      cluster := ext.sys.cluster(false)
       if (cluster == null) return null
       user := cluster.stashedUser(node, username)
 
