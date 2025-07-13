@@ -15,7 +15,7 @@ using folio
 **
 ** Haxall execution and security context.
 **
-abstract class HxContext : AxonContext, FolioContext
+class HxContext : AxonContext, FolioContext
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -32,28 +32,103 @@ abstract class HxContext : AxonContext, FolioContext
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
+  ** Constructor for project and user
+  new make(Proj proj, HxUser user)
+  {
+    this.projRef    = proj
+    this.userRef    = user
+    this.sessionRef = session
+  }
+
+  ** Constructor for session
+  new makeSession(Proj proj, HxSession session)
+  {
+    this.projRef    = proj
+    this.userRef    = session.user
+    this.sessionRef = session
+  }
+
+** TODO
+new makeTemp(Proj proj, HxUser user, HxSession session)
+{
+  this.projRef    = proj
+  this.userRef    = user
+  this.sessionRef = session
+}
+
+//////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
 virtual Proj rt() { proj }
 
   ** Project associated with this context
-  abstract Proj proj()
+  virtual Proj proj() { projRef }
+  private const Proj projRef
+
+  ** Folio database for the project
+  Folio db() { proj.db }
 
   ** Project namespace
-  abstract override Namespace ns()
+  override Namespace ns() { proj.ns }
 
-  ** Folio database for the runtime
-  abstract Folio db()
+  ** Project legacy defs
+  override DefNamespace defs() { proj.defs }
 
   ** User account associated with this context
-  abstract HxUser user()
+  HxUser user() { userRef }
+  private const HxUser userRef
 
   ** Authentication session associated with this context if applicable
-  abstract HxSession? session(Bool checked := true)
+  HxSession? session(Bool checked := true)
+  {
+    if (sessionRef != null) return sessionRef
+    if (checked) throw SessionUnavailableErr("Context not associated with a session")
+    return null
+  }
+  private const HxSession? sessionRef
 
   ** About data to use for HTTP API
-  @NoDoc abstract Dict about()
+  @NoDoc virtual Dict about()
+  {
+    tags := Str:Obj?[:] { ordered = true }
+    tags["haystackVersion"] = defs.lib("ph").version.toStr
+    tags["serverName"]      = Env.cur.host
+    tags["serverBootTime"]  = DateTime.boot
+    tags["serverTime"]      = DateTime.now
+    tags["productName"]     = rt.platform.productName
+    tags["productUri"]      = rt.platform.productUri
+    tags["productVersion"]  = rt.platform.productVersion
+    tags["tz"]              = TimeZone.cur.name
+    tags["vendorName"]      = rt.platform.vendorName
+    tags["vendorUri"]       = rt.platform.vendorUri
+    tags["whoami"]          = user.username
+    return Etc.makeDict(tags)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// HaystackContext
+//////////////////////////////////////////////////////////////////////////
+
+  ** Dereference an id to an record dict or null if unresolved
+  @NoDoc override Dict? deref(Ref id) { db.readById(id, false) }
+
+  ** Return inference engine used for def aware filter queries
+  @NoDoc override once FilterInference inference() { throw UnsupportedErr() }
+
+  ** Return contextual data as dict
+  @NoDoc override Dict toDict()
+  {
+    tags := Str:Obj[:]
+    tags["locale"] = Locale.cur.toStr
+    tags["username"] = user.username
+    tags["userRef"] = user.id
+    if (timeout != null) tags["timeout"] = Number(timeout, Number.mins)
+    return Etc.dictMerge(super.toDict, tags)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Security
@@ -71,6 +146,43 @@ virtual Proj rt() { proj }
   {
     if (!user.isAdmin)
       throw PermissionErr("Missing 'admin' permission: $action")
+  }
+
+  ** Return if context has read access to given record
+  @NoDoc override Bool canRead(Dict rec) { true }
+
+  ** Return if context has write (update/delete) access to given record
+  @NoDoc override Bool canWrite(Dict rec) { user.isAdmin && canRead(rec) }
+
+  ** Return an immutable thread safe object which will be passed thru
+  ** the commit process and available via the FolioHooks callbacks.
+  ** This is typically the User instance.  HxContext always returns user.
+  @NoDoc override Obj? commitInfo() { user }
+
+//////////////////////////////////////////////////////////////////////////
+// AxonContext
+//////////////////////////////////////////////////////////////////////////
+
+  ** Find top-level function by qname or name
+  @NoDoc override Fn? findTop(Str name, Bool checked := true)
+  {
+    def := defs.def("func:${name}", false)
+    if (def == null)
+    {
+      if (checked) throw UnknownFuncErr(name)
+      return null
+    }
+    // TODO
+    return def.typeof.method("expr").callOn(def, null)
+  }
+
+ ** Evaluate an expression or if a filter then readAll convenience
+  @NoDoc override Obj? evalOrReadAll(Str src)
+  {
+    expr := parse(src)
+    filter := expr.evalToFilter(this, false)
+    if (filter != null) return rt.db.readAll(filter)
+    return expr.eval(this)
   }
 
 //////////////////////////////////////////////////////////////////////////

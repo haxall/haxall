@@ -68,7 +68,7 @@ throw Err("TODO")
   {
     if (user == null)
       user = test.rt.user.makeSyntheticUser("test", ["userRole":"su"])
-    return HxdContext(test.rt, user, null)
+    return HxContext(test.rt, user)
   }
 
   override Void forceSteadyState(Proj rt)

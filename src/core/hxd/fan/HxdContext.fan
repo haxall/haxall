@@ -24,9 +24,9 @@ const class HxdContextService : HxContextService
 
   const HxProj rt
 
-  override HxContext create(HxUser user) { HxdContext(rt, user, null) }
+  override HxContext create(HxUser user) { HxContext(rt, user) }
 
-  override HxContext createSession(HxSession session) { HxdContext(rt, session.user, session) }
+  override HxContext createSession(HxSession session) { HxContext(rt, session) }
 }
 
 **************************************************************************
@@ -36,6 +36,7 @@ const class HxdContextService : HxContextService
 **
 ** Haxall daemon implementation of HxContext
 **
+/*
 class HxdContext : HxContext
 {
 
@@ -186,4 +187,6 @@ class HxdContext : HxContext
     return expr.eval(this)
   }
 }
+
+*/
 
