@@ -56,7 +56,7 @@ class SedonaDispatch : ConnDispatch
       host   := uri.host ?: ""
       port   := uri.port ?: 1876
       user   := rec["username"] ?: ""
-      pass   := rt.db.passwords.get(id.toStr) ?: ""
+      pass   := proj.db.passwords.get(id.toStr) ?: ""
 
       scheme = SedonaScheme.schemes.find |s| { uriScheme == s.uriScheme }
       if (scheme == null) throw FaultErr("Unsupported scheme: '$uriScheme'")

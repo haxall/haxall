@@ -73,7 +73,7 @@ const class MExtSpi : Actor, ExtSpi
 
   private new make(Proj proj, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
   {
-    this.rt          = proj
+    this.proj        = proj
     this.name        = spec.lib.name
     this.qname       = spec.qname
     this.log         = Log.get(name)
@@ -90,7 +90,7 @@ const class MExtSpi : Actor, ExtSpi
   Ext ext() { extRef.val }
   private const AtomicRef extRef := AtomicRef()
 
-  override const Proj rt
+  override const Proj proj
 
   override const Str name
 
@@ -98,7 +98,7 @@ const class MExtSpi : Actor, ExtSpi
 
   const Type fantomType
 
-  override Spec spec() { rt.ns.spec(qname) }
+  override Spec spec() { proj.ns.spec(qname) }
 
   override Dict rec() { settingsRef.val }
   private const AtomicRef settingsRef
@@ -135,7 +135,7 @@ const class MExtSpi : Actor, ExtSpi
   override Subscription observe(Str name, Dict config, Obj callback)
   {
     observer := callback is Actor ? ExtActorObserver(ext, callback) : ExtMethodObserver(ext, callback)
-    sub := rt.obs.get(name).subscribe(observer, config)
+    sub := proj.obs.get(name).subscribe(observer, config)
     subscriptionsRef.val = subscriptions.dup.add(sub).toImmutable
     return sub
   }

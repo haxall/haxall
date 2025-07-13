@@ -35,8 +35,10 @@ abstract class HxContext : AxonContext, FolioContext
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** Runtime associated with this context
-  abstract Proj rt()
+virtual Proj rt() { proj }
+
+  ** Project associated with this context
+  abstract Proj proj()
 
   ** Project namespace
   abstract override Namespace ns()

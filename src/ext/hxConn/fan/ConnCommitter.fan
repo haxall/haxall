@@ -77,7 +77,7 @@ internal const final class ConnCommitter
     // back up; maybe eventually do something more sophisticated
     try
     {
-      ext.rt.db.commit(Diff(rec, changes, Diff.forceTransient))
+      ext.proj.db.commit(Diff(rec, changes, Diff.forceTransient))
     }
     catch (ShutdownErr e)
     {
@@ -86,7 +86,7 @@ internal const final class ConnCommitter
     catch (Err e)
     {
       // don't report if record has been removed
-      newRec := ext.rt.db.readById(rec.id, false)
+      newRec := ext.proj.db.readById(rec.id, false)
       if (newRec == null || newRec.has("trash")) return
       throw e
     }

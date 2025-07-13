@@ -24,13 +24,13 @@ internal abstract class PointMgr
 {
   new make(PointExt ext)
   {
-    this.ext = ext
-    this.rt  = ext.rt
-    this.log = ext.log
+    this.ext  = ext
+    this.proj = ext.proj
+    this.log  = ext.log
   }
 
   const PointExt ext
-  const Proj rt
+  const Proj proj
   const Log log
 
   abstract Void onCheck()
@@ -60,7 +60,7 @@ internal abstract class PointMgr
 **
 internal const class PointMgrActor : Actor
 {
-  new make(PointExt ext, Duration checkFreq, Type mgrType) : super(ext.rt.exts.actorPool)
+  new make(PointExt ext, Duration checkFreq, Type mgrType) : super(ext.proj.exts.actorPool)
   {
     this.ext       = ext
     this.checkFreq = checkFreq

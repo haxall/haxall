@@ -333,7 +333,7 @@ const class Task : Actor, Observer, HxTask
     isCancelled.val = false
 
     // create context which checks cancel flag during heartbeat callback
-    cx := ext.rt.context.create(ext.user)
+    cx := ext.proj.context.create(ext.user)
     cx.heartbeatFunc = |->|
     {
       if (isCancelled.val || isKilled.val) throw CancelledErr()
@@ -376,7 +376,7 @@ const class Task : Actor, Observer, HxTask
       if (!type.isRec) return
 
       // check if the rec has any of the observeFoo tags
-      observable := ext.rt.obs.list.find |o| { rec.has(o.name) }
+      observable := ext.proj.obs.list.find |o| { rec.has(o.name) }
       if (observable == null) return
 
       // create subscription using rec itself as the config

@@ -112,7 +112,7 @@ internal class HisCollectMgr : PointMgr
     // state so that connectors have a chance to initiate their
     // polling/subscriptions so the data is ready to begin logging
     // once steady state is reached
-    if (!ext.rt.isSteadyState) return
+    if (!ext.proj.isSteadyState) return
 
     // iterate all our points
     recs.each |rec|
@@ -161,7 +161,7 @@ internal class HisCollectMgr : PointMgr
 
   private Void openWatch()
   {
-    watch = rt.watch.open("HisCollect")
+    watch = proj.watch.open("HisCollect")
     watch.lease = 1hr
     watch.addAll(points.keys)
   }

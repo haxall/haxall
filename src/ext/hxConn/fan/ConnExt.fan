@@ -25,7 +25,7 @@ abstract const class ConnExt : Ext, HxConnExt
   {
     this.connActorPool = ActorPool
     {
-      it.name = "$rt.name-$this.name.capitalize"
+      it.name = "$proj.name-$this.name.capitalize"
       it.maxThreads = rec.effectiveMaxThreads
     }
     this.poller = ConnPoller(this)
@@ -100,10 +100,10 @@ abstract const class ConnExt : Ext, HxConnExt
   override Void onStart()
   {
     // must have PointLib installed
-    pointExtRef.val = (PointExt)rt.ext("hx.point")
+    pointExtRef.val = (PointExt)proj.ext("hx.point")
 
     // must have ConnFwExt installed
-    fw :=  (ConnFwExt)rt.ext("hx.conn")
+    fw :=  (ConnFwExt)proj.ext("hx.conn")
     fwRef.val = fw
     fw.service.addExt(this)
 
@@ -126,7 +126,7 @@ abstract const class ConnExt : Ext, HxConnExt
   {
     // unregister the lib and all its conns and points,
     // but only if this a remove and not a shutdown
-    if (rt.isRunning)
+    if (proj.isRunning)
     {
       roster.removeAll
       fw.service.removeExt(this)

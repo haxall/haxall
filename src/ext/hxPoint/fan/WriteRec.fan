@@ -118,7 +118,7 @@ internal class WriteRec
 
     // fire observations only after steady state is reached;
     // steady state is when we uniformly fire off all initial writes
-    if (mgr.rt.isSteadyState)
+    if (mgr.proj.isSteadyState)
       mgr.fireObservation(this, val, levelNums[level-1], who, opts, effectiveChange, false)
 
     return val
@@ -145,7 +145,7 @@ internal class WriteRec
   private Void persist(WriteMgr mgr, Str tag, Obj? val)
   {
     if (rec[tag] == val) return
-    rec = mgr.rt.db.commit(Diff(rec, Etc.dict1(tag, val ?: Remove.val), Diff.force)).newRec
+    rec = mgr.proj.db.commit(Diff(rec, Etc.dict1(tag, val ?: Remove.val), Diff.force)).newRec
   }
 
   ** Update effective value and level.  Return true if there is an effective

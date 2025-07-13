@@ -18,7 +18,7 @@ const class PlatformExt : Ext
 
   new make()
   {
-    this.platformSpi = rt.config.makeSpi("platformSpi")
+    this.platformSpi = proj.config.makeSpi("platformSpi")
   }
 
   internal const PlatformSpi platformSpi

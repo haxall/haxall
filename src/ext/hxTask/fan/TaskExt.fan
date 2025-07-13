@@ -21,7 +21,7 @@ const class TaskExt : Ext, HxTaskService
   ** Construction
   new make()
   {
-    this.pool = ActorPool { it.name = "${rt.name}-Task"; it.maxThreads = rec.maxThreads }
+    this.pool = ActorPool { it.name = "${proj.name}-Task"; it.maxThreads = rec.maxThreads }
     this.tasksById = ConcurrentMap()
   }
 
@@ -135,7 +135,7 @@ const class TaskExt : Ext, HxTaskService
   private Task spawn(Task task)
   {
     tasksById.add(task.id, task)
-    if (rt.isSteadyState) task.subscribe
+    if (proj.isSteadyState) task.subscribe
     return task
   }
 
@@ -169,8 +169,8 @@ const class TaskExt : Ext, HxTaskService
 
   internal Void refreshUser()
   {
-    user := rt.user.read("task-${rt.name}", false)
-    if (user == null) user = rt.user.read("task", false)
+    user := proj.user.read("task-${proj.name}", false)
+    if (user == null) user = proj.user.read("task", false)
     if (user == null) user = userFallback
     if (user.isSu)
     {
@@ -182,7 +182,7 @@ const class TaskExt : Ext, HxTaskService
 
   once HxUser userFallback()
   {
-    rt.user.makeSyntheticUser("task", ["projAccessFilter":"name==${rt.name.toCode}"])
+    proj.user.makeSyntheticUser("task", ["projAccessFilter":"name==${proj.name.toCode}"])
   }
 
   private Void cleanupEphemerals()

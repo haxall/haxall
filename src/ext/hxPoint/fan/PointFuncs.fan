@@ -320,7 +320,7 @@ const class PointFuncs
   @Axon static Grid enumDefs()
   {
     ext := ext(curContext)
-    ext.rt.sync
+    ext.proj.sync
     enums := ext.enums
     gb := GridBuilder()
     gb.setMeta(enums.meta)
@@ -334,7 +334,7 @@ const class PointFuncs
   @Axon static Grid? enumDef(Str id, Bool checked := true)
   {
     ext := ext(curContext)
-    ext.rt.sync
+    ext.proj.sync
     return ext.enums.get(id, checked)?.grid
   }
 

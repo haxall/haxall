@@ -111,7 +111,7 @@ internal const final class ConnRoster
   private Void initConns()
   {
     filter := Filter.has(ext.model.connTag)
-    ext.rt.db.readAllEach(filter, Etc.emptyDict) |rec|
+    ext.proj.db.readAllEach(filter, Etc.emptyDict) |rec|
     {
       onConnAdded(rec)
     }
@@ -151,7 +151,7 @@ internal const final class ConnRoster
     // find any points already created bound to this connector
     filter := Filter.has("point").and(Filter.eq(ext.model.connRefTag, conn.id))
     pointsList := ConnPoint[,]
-    ext.rt.db.readAllEach(filter, Etc.emptyDict) |pointRec|
+    ext.proj.db.readAllEach(filter, Etc.emptyDict) |pointRec|
     {
       point := ConnPoint(conn, pointRec)
       pointsList.add(point)

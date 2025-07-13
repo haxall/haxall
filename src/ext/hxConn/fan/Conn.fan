@@ -31,7 +31,7 @@ const final class Conn : Actor, HxConn
     this.extRef      = ext
     this.idRef       = rec.id
     this.configRef   = AtomicRef(ConnConfig(ext, rec))
-    this.traceRef    = ConnTrace(ext.rt.exts.actorPool)
+    this.traceRef    = ConnTrace(ext.proj.exts.actorPool)
     this.pollModeRef = ext.model.pollMode
   }
 
@@ -60,11 +60,11 @@ const final class Conn : Actor, HxConn
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** Runtime system
-  Proj rt() { extRef.rt }
+  ** Project
+  Proj proj() { extRef.proj }
 
-  ** Runtime database
-  Folio db() { extRef.rt.db }
+  ** Project database
+  Folio db() { extRef.proj.db }
 
   ** Parent connector library
   override ConnExt ext() { extRef }
@@ -321,7 +321,7 @@ const final class Conn : Actor, HxConn
     s := StrBuf()
     s.add("""id:             $id
              dis:            $dis
-             rt:             $rt.platform.hostModel [$rt.version]
+             proj:           $proj.platform.hostModel [$proj.version]
              ext:            $ext.typeof [$ext.typeof.pod.version]
              timeout:        $timeout
              openRetryFreq:  $openRetryFreq

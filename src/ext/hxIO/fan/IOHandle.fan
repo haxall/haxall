@@ -30,39 +30,39 @@ abstract class IOHandle
   **   - sys::Dict
   **   - sys::Buf
   **
-  static IOHandle fromObj(Proj rt, Obj? h)
+  static IOHandle fromObj(Proj proj, Obj? h)
   {
     if (h is IOHandle) return h
     if (h is Str)      return StrHandle(h)
-    if (h is Uri)      return fromUri(rt, h)
-    if (h is Dict)     return fromDict(rt, h)
+    if (h is Uri)      return fromUri(proj, h)
+    if (h is Dict)     return fromDict(proj, h)
     if (h is Buf)      return BufHandle(h)
     throw ArgErr("Cannot obtain IO handle from ${h?.typeof}")
   }
 
-  internal static IOHandle fromUri(Proj rt, Uri uri)
+  internal static IOHandle fromUri(Proj proj, Uri uri)
   {
     if (uri.scheme == "http")  return HttpHandle(uri)
     if (uri.scheme == "https") return HttpHandle(uri)
-    if (uri.scheme == "ftp")   return FtpHandle(rt, uri)
-    if (uri.scheme == "ftps")  return FtpHandle(rt, uri)
+    if (uri.scheme == "ftp")   return FtpHandle(proj, uri)
+    if (uri.scheme == "ftps")  return FtpHandle(proj, uri)
     if (uri.scheme == "fan")   return FanHandle(uri)
-    return FileHandle(rt.file.resolve(uri))
+    return FileHandle(proj.file.resolve(uri))
   }
 
   ** Get an IOHandle from a Dict rec
-  internal static IOHandle fromDict(Proj rt, Dict rec)
+  internal static IOHandle fromDict(Proj proj, Dict rec)
   {
     // if {zipEntry, file: <ioHandle>, path: <Uri>}
     if (rec.has("zipEntry"))
-      return ZipEntryHandle(fromObj(rt, rec->file).toFile("ioZipEntry"), rec->path)
+      return ZipEntryHandle(fromObj(proj, rec->file).toFile("ioZipEntry"), rec->path)
 
     // must have valid id
     id := rec["id"] as Ref
     if (id == null) throw ArgErr("Dict has missing/invalid 'id' tag")
 
     // return a folio file handle
-    return FolioFileHandle(rt, rec)
+    return FolioFileHandle(proj, rec)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -325,9 +325,9 @@ internal class FileHandle : IOHandle
 
 internal class FolioFileHandle : IOHandle
 {
-  new make(Proj rt, Dict rec)
+  new make(Proj proj, Dict rec)
   {
-    this.folio = rt.db
+    this.folio = proj.db
     this.rec   = rec
   }
 
@@ -457,8 +457,8 @@ internal class HttpHandle : DirectIO
 
 internal class FtpHandle : DirectIO
 {
-  new make(Proj rt, Uri uri) { this.rt = rt; this.uri = uri }
-  const Proj rt
+  new make(Proj proj, Uri uri) { this.proj = proj; this.uri = uri }
+  const Proj proj
   const Uri uri
   override Void create()
   {
@@ -472,7 +472,7 @@ internal class FtpHandle : DirectIO
     if (uri.isDir)
     {
       // recursively delete the directory
-      dir().each |item| { FtpHandle(rt, item.uri).delete }
+      dir().each |item| { FtpHandle(proj, item.uri).delete }
       open(uri).rmdir(uri)
     }
     else open(uri).delete(uri)
@@ -493,8 +493,8 @@ internal class FtpHandle : DirectIO
   FtpClient open(Uri uri)
   {
     key := uri.plus(`/`).toStr
-    log := rt.ext("hx.io").log
-    cred := rt.db.passwords.get(key) ?: "anonymous:"
+    log := proj.ext("hx.io").log
+    cred := proj.db.passwords.get(key) ?: "anonymous:"
     colon := cred.index(":")
     if (colon == null) throw Err("ftp credentials not 'user:pass' - $cred.toCode")
     user := cred[0..<colon]

@@ -30,7 +30,7 @@ const final class ConnPoint : HxConnPoint
     this.connRef   = conn
     this.idRef     = rec.id
     this.configRef = AtomicRef(ConnPointConfig(conn.ext, rec))
-    this.isWatchedRef.val = conn.rt.watch.isWatched(id)
+    this.isWatchedRef.val = conn.proj.watch.isWatched(id)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -382,7 +382,7 @@ const final class ConnPoint : HxConnPoint
     s := StrBuf()
     s.add("""id:             $id
              dis:            $dis
-             rt:             $ext.rt.platform.hostModel [$ext.rt.version]
+             rt:             $ext.proj.platform.hostModel [$ext.proj.version]
              ext:            $ext.typeof [$ext.typeof.pod.version]
              conn:           $conn.dis [$conn.id] $conn.status
              kind:           $kind
@@ -404,7 +404,7 @@ const final class ConnPoint : HxConnPoint
     extra := ext.onPointDetails(this).trim
     if (!extra.isEmpty) s.add("\n").add(extra).add("\n")
 
-    watches := ext.rt.watch.listOn(id)
+    watches := ext.proj.watch.listOn(id)
     s.add("""
              Watches ($watches.size)
              =============================

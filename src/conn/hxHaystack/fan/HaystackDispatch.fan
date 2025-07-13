@@ -500,7 +500,7 @@ class HaystackDispatch : ConnDispatch
 
   private Grid callPointWrite(ConnPoint point, Obj id, Number writeLevel, Obj? val, Str? schedule)
   {
-    reqWho := "$rt.name :: $point.dis"
+    reqWho := "$proj.name :: $point.dis"
     map := ["id":id, "level":writeLevel, "who":reqWho]
     if (val != null) map["val"] = val
     if (schedule != null) map["schedule"] = schedule

@@ -18,13 +18,13 @@ internal class HxUserAuth
 {
   new make(HxUserExt ext, WebReq req, WebRes res)
   {
-    this.rt  = ext.rt
-    this.ext = ext
-    this.req = req
-    this.res = res
+    this.proj = ext.proj
+    this.ext  = ext
+    this.req  = req
+    this.res  = res
   }
 
-  const Proj rt
+  const Proj proj
 
   const HxUserExt ext
 
@@ -63,7 +63,7 @@ internal class HxUserAuth
     // refresh session and construct context
     user := session.isCluster ? session.user : ext.read(session.user.id)
     session.touch(user)
-    cx := rt.context.createSession(session)
+    cx := proj.context.createSession(session)
     cx.stash["attestKey"] = session.attestKey
     return cx
   }
@@ -114,7 +114,7 @@ internal class HxUserAuth
 
     // auto login superuser for testing
     if (ext.noAuth)
-      return ext.login(req, res, HxUserImpl(rt.db.read(Filter("user and userRole==\"su\""))))
+      return ext.login(req, res, HxUserImpl(proj.db.read(Filter("user and userRole==\"su\""))))
 
     // redirect to login
     return null
@@ -150,7 +150,7 @@ internal class HxUserAuth
       if (node == null || attestKey == null) return null
 
       // get user which cached using cluster stashing
-      cluster := rt.services.get(HxClusterService#, false) as HxClusterService
+      cluster := proj.services.get(HxClusterService#, false) as HxClusterService
       if (cluster == null) return null
       user := cluster.stashedUser(node, username)
 
@@ -168,9 +168,9 @@ internal class HxUserAuth
 
 internal class HxUserAuthServerContext : AuthServerContext
 {
-  new make(HxUserExt ext) { this.rt = ext.rt; this.ext = ext }
+  new make(HxUserExt ext) { this.proj = ext.proj; this.ext = ext }
 
-  const Proj rt
+  const Proj proj
 
   const HxUserExt ext
 
@@ -194,7 +194,7 @@ internal class HxUserAuthServerContext : AuthServerContext
   {
     hxUser := ext.read(user.username, false)
     if (hxUser == null) return null
-    return rt.db.passwords.get(hxUser.id.id)
+    return proj.db.passwords.get(hxUser.id.id)
   }
 
   override Str login()

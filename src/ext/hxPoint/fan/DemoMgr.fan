@@ -29,7 +29,7 @@ internal const class DemoMgrActor : PointMgrActor
 **
 internal class DemoMgr : PointMgr
 {
-  new make(PointExt ext) : super(ext) { this.db = ext.rt.db }
+  new make(PointExt ext) : super(ext) { this.db = ext.proj.db }
 
   const Folio db
 
@@ -50,7 +50,7 @@ internal class DemoMgr : PointMgr
       if (rec.has("curTracksWrite")) return
       if (rec.has("point") && rec["weatherStationRef"] is Ref) return
       if (rec.has("schedule") || rec.has("calendar")) return
-      if (ext.rt.conn.isPoint(rec.id)) return
+      if (ext.proj.conn.isPoint(rec.id)) return
 
       // process the point
       try

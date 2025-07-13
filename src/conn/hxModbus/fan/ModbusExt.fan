@@ -37,7 +37,7 @@ const class ModbusExt : ConnExt
 
   override Future onLearn(Conn conn, Obj? arg)
   {
-    regMap := ModbusRegMap.fromConn(rt, conn.rec)
+    regMap := ModbusRegMap.fromConn(proj, conn.rec)
     tagMap := Str:Str[:]
     regMap.regs.each |reg|
     {

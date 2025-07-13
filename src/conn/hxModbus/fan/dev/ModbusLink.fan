@@ -111,10 +111,10 @@ using hxPlatformSerial
         case "modbus-tcp":    tx = ModbusTcpTransport(IpAddr(uri.host),    uri.port, dev.timeout)
         case "modbus-rtutcp": tx = ModbusRtuTcpTransport(IpAddr(uri.host), uri.port, dev.timeout)
         case "modbus-rtu":
-          serial := ext.rt.ext("hx.platform.serial", false) as PlatformSerialExt
+          serial := ext.proj.ext("hx.platform.serial", false) as PlatformSerialExt
           if (serial == null) throw FaultErr("RTU not supported")
           config := SerialConfig.fromStr(uri.host)
-          tx = ModbusRtuTransport(serial.open(ext.rt, ext.rec, config))
+          tx = ModbusRtuTransport(serial.open(ext.proj, ext.rec, config))
 
         default: throw FaultErr("Invalid scheme: $uri.scheme")
       }

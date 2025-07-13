@@ -24,9 +24,9 @@ const final class ConnModel
     this.name = ext.name
     prefix := name
 
-    ns := ext.rt.defs
+    ns := ext.proj.defs
 // TODO
-libDef := ext.rt.defs.lib(name)
+libDef := ext.proj.defs.lib(name)
     connDef := def(ns, ext, "${prefix}Conn")
     features := connDef["connFeatures"] as Dict ?: Etc.emptyDict
 

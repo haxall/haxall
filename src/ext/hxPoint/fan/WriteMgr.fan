@@ -84,7 +84,7 @@ internal class WriteMgr : PointMgr
   override Void onCheck()
   {
     // check if we need to issue the first write observations
-    if (needFirstFire && rt.isSteadyState)
+    if (needFirstFire && proj.isSteadyState)
     {
       needFirstFire = false
       fireFirstObservations
@@ -125,7 +125,7 @@ internal class WriteMgr : PointMgr
     // decide which tags to update and commit
     rec := writeRec.rec
     changes := sinkChanges(rec, val, level)
-    rt.db.commitAsync(Diff(rec, changes, Diff.forceTransient))
+    proj.db.commitAsync(Diff(rec, changes, Diff.forceTransient))
   }
 
   private Dict sinkChanges(Dict rec, Obj? val, Number level)

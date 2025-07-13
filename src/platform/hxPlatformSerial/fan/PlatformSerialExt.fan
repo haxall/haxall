@@ -23,7 +23,7 @@ const class PlatformSerialExt : Ext
 
   new make()
   {
-    this.platformSpi = rt.config.makeSpi("platformSerialSpi")
+    this.platformSpi = proj.config.makeSpi("platformSerialSpi")
 
     // learn ports once and cache them for quick lookup
     this.portsMap  = Str:SerialPort[:] { ordered = true }.addList(platformSpi.ports) { it.name }

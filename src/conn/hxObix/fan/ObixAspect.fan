@@ -142,7 +142,7 @@ class ObixWritableOp : ObixProxy
     val := ObixUtil.toVal(arg.get("value"))
 
     // write the point
-    rt.pointWrite.write(rec, val, level.toInt, "oBIX client").get(10sec)
+    proj.pointWrite.write(rec, val, level.toInt, "oBIX client").get(10sec)
     return ObixObj()
   }
 }
@@ -235,7 +235,7 @@ class ObixHistoryQuery : ObixProxy
     // perform query and build up result
     count := 0
     data := ObixObj { name = "data"; elemName = "list"; of = Contract([`#RecordProto`, `obix:HistoryRecord`]) }
-    rt.his.read(rec, span, null) |item|
+    proj.his.read(rec, span, null) |item|
     {
       if (count >= limit) return
       ++count

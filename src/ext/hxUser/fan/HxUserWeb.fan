@@ -54,7 +54,7 @@ const class HxUserWeb : ExtWeb
     loginLabel     := "$<login.login>"
     loggingInLabel := "$<login.loggingIn>"
     badCredsLabel  := "$<login.invalidUsernamePassword>"
-    logoUri        := rt.platform.logoUri
+    logoUri        := proj.platform.logoUri
     loginUri       := uri+`auth`
     redirectUri    := `/`
 

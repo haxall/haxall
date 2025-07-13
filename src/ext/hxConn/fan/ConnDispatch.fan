@@ -32,7 +32,7 @@ abstract class ConnDispatch
 //////////////////////////////////////////////////////////////////////////
 
   ** Project
-  Proj rt() { connRef.rt }
+  Proj proj() { connRef.proj }
 
   ** Project database
   Folio db() { connRef.db }

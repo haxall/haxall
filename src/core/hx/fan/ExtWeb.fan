@@ -19,7 +19,7 @@ abstract const class ExtWeb : WebMod
   protected new make(Ext ext) { this.extRef = ext }
 
   ** Runtime for parent library
-  virtual Proj rt() { extRef.rt }
+  virtual Proj proj() { extRef.proj }
 
   ** Parent library.  Subclasses can override this method to be covariant.
   virtual Ext ext() { extRef }

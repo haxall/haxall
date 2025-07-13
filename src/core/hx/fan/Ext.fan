@@ -41,8 +41,11 @@ abstract const class Ext
   ** Return `name`
   override final Str toStr() { name }
 
-  ** Runtime
-  virtual Proj rt() { spi.rt }
+  ** Use proj now
+  //@Deprecated virtual Proj rt() { proj }
+
+  ** Project
+  virtual Proj proj() { spi.proj }
 
   ** Library dotted name that identifies the extension
   Str name() { spi.name }
@@ -151,7 +154,7 @@ abstract const class Ext
 @NoDoc
 const mixin ExtSpi
 {
-  abstract Proj rt()
+  abstract Proj proj()
   abstract Str name()
   abstract Spec spec()
   abstract Dict rec()

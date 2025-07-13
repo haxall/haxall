@@ -66,7 +66,7 @@ using hxConn
     {
       it.uri    = uri
       it.slave  = slave->toInt
-      it.regMap = loadRegMap(conn.rt, regUri)
+      it.regMap = loadRegMap(conn.proj, regUri)
       it.forceWriteMultiple = fwm
       it.readTimeout  = toDuration(rec, "modbusReadTimeout", conn.timeout)
       it.writeTimeout = toDuration(rec, "modbusWriteTimeout", conn.timeout)

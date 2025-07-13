@@ -30,7 +30,7 @@ const class HxUserExt : Ext, HxUserService
   override HxUserSettings rec() { super.rec }
 
   ** Auto login a configured superuser account for testing
-  const Bool noAuth := rt.config.has("noAuth")
+  const Bool noAuth := proj.config.has("noAuth")
 
   ** URI for login page
   const Uri loginUri := web.uri + `login`
@@ -54,8 +54,8 @@ const class HxUserExt : Ext, HxUserService
   override HxUser? read(Obj username, Bool checked := true)
   {
     rec := username is Ref ?
-           rt.db.readById(username, false) :
-           rt.db.read(Filter.eq("username", username.toStr).and(Filter.has("user")), false)
+           proj.db.readById(username, false) :
+           proj.db.read(Filter.eq("username", username.toStr).and(Filter.has("user")), false)
     if (rec != null) return HxUserImpl(rec)
     if (checked) throw UnknownRecErr("User not found: $username")
     return null
@@ -104,7 +104,7 @@ const class HxUserExt : Ext, HxUserService
     overrides[Cookie#sameSite] = null
 
     // if the public facing HTTP server is using HTTPS then force secure flag
-    if (rt.http.siteUri.scheme == "https") overrides[Cookie#secure] = true
+    if (proj.http.siteUri.scheme == "https") overrides[Cookie#secure] = true
 
     // construct the session cookie
     cookie := Cookie.makeSession(cookieName, session.key, overrides)
@@ -121,7 +121,7 @@ const class HxUserExt : Ext, HxUserService
   override Void onStart()
   {
     // set cookie name so its unique per http port
-    cookieNameRef.val = "hx-session-" + (rt.http.siteUri.port ?: 80)
+    cookieNameRef.val = "hx-session-" + (proj.http.siteUri.port ?: 80)
   }
 
   ** Run house keeping couple times a minute

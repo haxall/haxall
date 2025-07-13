@@ -255,7 +255,7 @@ class MqttDispatch : ConnDispatch, ClientListener
   {
     alias := rec["mqttCertAlias"] as Str
     if (alias == null) return null
-    entry := rt.services.crypto.keystore.get(alias) as PrivKeyEntry
+    entry := proj.services.crypto.keystore.get(alias) as PrivKeyEntry
     return Crypto.cur.loadKeyStore.set("mqtt", entry)
   }
 

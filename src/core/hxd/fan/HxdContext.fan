@@ -57,9 +57,9 @@ class HxdContext : HxContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  @NoDoc new make(HxdRuntime rt, HxUser user, HxSession? session)
+  @NoDoc new make(HxdRuntime proj, HxUser user, HxSession? session)
   {
-    this.rt = rt
+    this.proj = proj
     this.user = user
     this.sessionRef = session
   }
@@ -68,7 +68,7 @@ class HxdContext : HxContext
 // HxContext
 //////////////////////////////////////////////////////////////////////////
 
-  override const HxdRuntime rt
+  override const HxdRuntime proj
 
   override Namespace ns() { rt.ns }
 

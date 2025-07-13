@@ -17,12 +17,12 @@ const class IOExt : Ext, HxIOService
 
   override Obj? read(Obj? handle, |InStream->Obj?| f)
   {
-    IOHandle.fromObj(rt, handle).withIn(f)
+    IOHandle.fromObj(proj, handle).withIn(f)
   }
 
   override Obj? write(Obj? handle, |OutStream| f)
   {
-    IOHandle.fromObj(rt, handle).withOut(f)
+    IOHandle.fromObj(proj, handle).withOut(f)
   }
 
 }

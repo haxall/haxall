@@ -201,7 +201,7 @@ internal class HisCollectRec
     // write to historian; checks are sync, write to disk is async
     try
     {
-      mgr.ext.rt.his.write(rec, toWrite, Etc.emptyDict)
+      mgr.ext.proj.his.write(rec, toWrite, Etc.emptyDict)
       writeErr = null
     }
     catch (Err e)
@@ -360,7 +360,7 @@ internal class HisCollectRec
 
   private Void commit(HisCollectMgr mgr, Dict changes)
   {
-    rec = mgr.ext.rt.db.commit(Diff(rec, changes, Diff.forceTransient)).newRec
+    rec = mgr.ext.proj.db.commit(Diff(rec, changes, Diff.forceTransient)).newRec
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -23,7 +23,7 @@ internal const class PyMgr : Actor
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(PyExt ext, |This|? f := null) : super(ext.rt.exts.actorPool)
+  new make(PyExt ext, |This|? f := null) : super(ext.proj.exts.actorPool)
   {
     f?.call(this)
     this.ext = ext
@@ -56,7 +56,7 @@ internal const class PyMgr : Actor
   {
     try
     {
-      tasks := (HxTaskService?)ext.rt.services.get(HxTaskService#)
+      tasks := (HxTaskService?)ext.proj.services.get(HxTaskService#)
       return tasks.adjunct |->HxTaskAdjunct| { createSession(opts) }
     }
     catch (Err err)
@@ -154,7 +154,7 @@ internal const class PyMgrSession : PySession, HxTaskAdjunct
   {
     if (!isClosed) throw Err("Already open")
 
-    docker := mgr.ext.rt.services.get(HxDockerService#)
+    docker := mgr.ext.proj.services.get(HxDockerService#)
     s := PyDockerSession(docker, opts)
     sessionRef.val = Unsafe(s)
     return this

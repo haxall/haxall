@@ -59,7 +59,7 @@ const class HttpExt : Ext, HxHttpService
     settings      := this.rec
     addr          := settings.addr?.trimToNull == null ? null : IpAddr(settings.addr)
     httpsEnabled  := settings.httpsEnabled
-    httpsKeyStore := rt.crypto.httpsKey(false)
+    httpsKeyStore := proj.crypto.httpsKey(false)
     socketConfig  := SocketConfig.cur.copy { it.keystore = httpsKeyStore }
 
     if (httpsEnabled && httpsKeyStore == null)

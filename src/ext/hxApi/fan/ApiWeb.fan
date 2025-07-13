@@ -20,7 +20,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
 
   override const Ext ext
 
-  override DefNamespace defs() { ext.rt.defs }
+  override DefNamespace defs() { ext.proj.defs }
 
   override Void onService()
   {
@@ -34,7 +34,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
       if (opName == null) return res.sendErr(404)
 
       // authenticate user
-      cx := rt.user.authenticate(req, res)
+      cx := proj.user.authenticate(req, res)
       if (cx == null) return
       cx.timeout = HxContext.timeoutDef
       Actor.locals[ActorContext.actorLocalsKey] = cx
@@ -81,7 +81,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
     if (path.size == 1) return path[0]
     if (path.size == 2)
     {
-      cluster := ext.rt.services.get(HxClusterService#, false) as HxClusterService
+      cluster := ext.proj.services.get(HxClusterService#, false) as HxClusterService
       if (cluster != null && path[0] == cluster.nodeId.segs[0].body)
         return path[1]
     }

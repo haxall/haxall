@@ -27,15 +27,15 @@ const class ObixWebMod : ObixMod
 
   new make(ObixExt ext) : super.make
     ([
-      "serverName":     ext.rt.name,
-      "vendorName":     ext.rt.platform.vendorName,
-      "vendorUrl":      ext.rt.platform.vendorUri,
-      "productName":    ext.rt.platform.productName,
-      "productUrl":     ext.rt.platform.productUri,
+      "serverName":     ext.proj.name,
+      "vendorName":     ext.proj.platform.vendorName,
+      "vendorUrl":      ext.proj.platform.vendorUri,
+      "productName":    ext.proj.platform.productName,
+      "productUrl":     ext.proj.platform.productUri,
       "productVersion": ext.typeof.pod.version.toStr,
     ])
   {
-    this.rt = ext.rt
+    this.proj = ext.proj
     this.ext = ext
   }
 
@@ -43,7 +43,7 @@ const class ObixWebMod : ObixMod
 // Lib
 //////////////////////////////////////////////////////////////////////////
 
-  const Proj rt
+  const Proj proj
 
   const ObixExt ext
 
@@ -82,13 +82,13 @@ const class ObixWebMod : ObixMod
 
   override ObixModWatch watchOpen()
   {
-    w := rt.watch.open("Obix Server: $req.remoteAddr")
+    w := proj.watch.open("Obix Server: $req.remoteAddr")
     return ObixWatch(this, w)
   }
 
   override ObixModWatch? watch(Str id)
   {
-    w := rt.watch.get(id, false)
+    w := proj.watch.get(id, false)
     if (w == null) return null
     return ObixWatch(this, w)
   }
@@ -109,14 +109,14 @@ const class ObixWebMod : ObixMod
     // lookup record
     uri := req.modRel
     id := Ref.fromStr(uri.path.getSafe(1) ?: "", false)
-    rec := rt.db.readById(id, false)
+    rec := proj.db.readById(id, false)
     if (rec == null) { blankIcon; return }
 
     // gather required obix fields
     // TODO: this doesn't use latest authentication strategy
     Uri obixLobby := rec->obixLobby
     Str username  := rec->username
-    Str password  := rt.db.passwords.get(rec.id.toStr) ?: ""
+    Str password  := proj.db.passwords.get(rec.id.toStr) ?: ""
 
     // make GET request to obix service
     iconUri := obixLobby + uri.getRangeToPathAbs(2..-1)

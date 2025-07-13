@@ -23,7 +23,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(DockerExt ext) : super(ext.rt.exts.actorPool)
+  new make(DockerExt ext) : super(ext.proj.exts.actorPool)
   {
     this.ext = ext
   }
@@ -131,7 +131,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
     CreateContainerCmd cmd := decodeCmd(config, CreateContainerCmd#)
 
     // force single bind for io/ directory
-    ioDir := ext.rt.dir.plus(`io/`)
+    ioDir := ext.proj.dir.plus(`io/`)
     if (ext.rec.ioDirMount?.trimToNull != null)
     {
       // handle custom configuration

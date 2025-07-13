@@ -38,7 +38,7 @@ internal final class ConnMgr
 
   const Conn conn
   const ConnVars vars
-  Proj rt() { conn.rt }
+  Proj proj() { conn.proj }
   Folio db() { conn.db }
   ConnExt ext() { conn.ext }
   Ref id() { conn.id }
@@ -385,7 +385,7 @@ internal final class ConnMgr
   private Bool isQuickPoll(Int nowTicks, ConnPoint pt)
   {
     if (conn.pollMode !== ConnPollMode.buckets) return false
-    if (!rt.isSteadyState) return false
+    if (!proj.isSteadyState) return false
     curState := pt.curState
     if (curState.lastUpdate <= 0) return true
     return nowTicks - curState.lastUpdate > pt.tuning.pollTime.ticks
@@ -547,7 +547,7 @@ internal final class ConnMgr
     // writeMaxTime - check for rewrite
     if (tuning.writeMaxTime != null)
     {
-      if (now.ticks - pt.writeState.lastUpdate >= tuning.writeMaxTime.ticks && rt.isSteadyState)
+      if (now.ticks - pt.writeState.lastUpdate >= tuning.writeMaxTime.ticks && proj.isSteadyState)
       {
         sendWrite(pt, last.asMaxTime)
         return
@@ -741,7 +741,7 @@ internal final class ConnMgr
     now := Duration.nowTicks
     if (now - vars.lastPing <= pingFreq.ticks) return
     if (now - vars.lastAttempt <= pingFreq.ticks) return
-    if (!rt.isSteadyState) return
+    if (!proj.isSteadyState) return
     ping
   }
 

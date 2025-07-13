@@ -45,7 +45,7 @@ abstract class ObixProxy
   const Uri uri
 
   ** Project associated with this proxy
-  Proj rt() { lobby.mod.rt }
+  Proj proj() { lobby.mod.proj }
 
   ** Get child proxy by name, or null
   virtual ObixProxy? get(Str name) { null }
@@ -124,7 +124,7 @@ class ObixRecs : ObixProxy
   {
     // try resolve rec by id or sys name
     id := Ref.fromStr(name, false)
-    Dict? rec := id != null ? rt.db.readById(id, false) : rt.db.read(Filter.eq("name", name), false)
+    Dict? rec := id != null ? proj.db.readById(id, false) : proj.db.read(Filter.eq("name", name), false)
     if (rec != null) return ObixRec(this, name, rec)
     return null
   }
@@ -179,7 +179,7 @@ class ObixFilter : ObixProxy
 
     filter := uri.name
 
-    rt.db.readAllList(Filter(filter)).each |rec|
+    proj.db.readAllList(Filter(filter)).each |rec|
     {
       list.add(ObixObj
       {

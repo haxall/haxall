@@ -76,7 +76,7 @@ class SqlDispatch : ConnDispatch
 
   private Grid evalSyncHisExpr(ConnPoint point, Str exprStr, DateTime start, DateTime end)
   {
-    cx := rt.context.create(evalUser)
+    cx := proj.context.create(evalUser)
     Actor.locals[ActorContext.actorLocalsKey] = cx
     try
     {
@@ -93,7 +93,7 @@ class SqlDispatch : ConnDispatch
 
   once HxUser evalUser()
   {
-    rt.user.makeSyntheticUser("sqlHisSync", ["projAccessFilter":"name==${rt.name.toCode}"])
+    proj.user.makeSyntheticUser("sqlHisSync", ["projAccessFilter":"name==${proj.name.toCode}"])
   }
 
   private SqlClient? client

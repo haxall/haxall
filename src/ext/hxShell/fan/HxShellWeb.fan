@@ -19,8 +19,8 @@ const class HxShellWeb : ExtWeb
   new make(Ext ext) : super(ext)
   {
     this.ext     = ext
-    this.title   = "" + rt.platform.productName + " Shell"
-    this.favicon = rt.platform.faviconUri
+    this.title   = "" + proj.platform.productName + " Shell"
+    this.favicon = proj.platform.faviconUri
   }
 
   override const Ext ext
@@ -31,7 +31,7 @@ const class HxShellWeb : ExtWeb
 
   override Void onService()
   {
-    cx := rt.user.authenticate(req, res)
+    cx := proj.user.authenticate(req, res)
     if (cx == null) return
 
     if (!cx.user.isSu) return res.sendErr(403)

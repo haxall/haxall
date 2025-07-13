@@ -19,9 +19,9 @@ using hx
 **
 internal const class HttpRootMod : WebMod
 {
-  new make(HttpExt ext) { this.rt = ext.rt; this.ext = ext }
+  new make(HttpExt ext) { this.proj = ext.proj; this.ext = ext }
 
-  const Proj rt
+  const Proj proj
   const HttpExt ext
 
   override Void onService()
@@ -41,11 +41,11 @@ internal const class HttpRootMod : WebMod
 
     // TODO
     x := "hx." + libName + "::" + libName.capitalize +"Ext"
-    lib := rt.exts.get(x, false)
+    lib := proj.exts.get(x, false)
     if (lib == null)
     {
       x = "hx." + libName + "::Hx" + libName.capitalize +"Ext"
-      lib = rt.exts.get(x, false)
+      lib = proj.exts.get(x, false)
     }
     if (lib == null) return res.sendErr(404)
 

@@ -26,8 +26,8 @@ const class CryptoExt : Ext, HxCryptoService
 
   new make()
   {
-    this.dir      = rt.dir.plus(`crypto/`).create
-    this.keystore = CryptoKeyStore(rt.exts.actorPool, dir, log, actorTimeout)
+    this.dir      = proj.dir.plus(`crypto/`).create
+    this.keystore = CryptoKeyStore(proj.exts.actorPool, dir, log, actorTimeout)
   }
 
   private Duration actorTimeout()
@@ -86,7 +86,7 @@ const class CryptoExt : Ext, HxCryptoService
   override Void onStart()
   {
     // crypto dir gets deleted in test mode, so use jvm truststore for tests
-    if (rt.config.isTest) return
+    if (proj.config.isTest) return
 
     // set the default truststore to use for all sockets
     SocketConfig.setCur(SocketConfig {
