@@ -70,7 +70,7 @@ const class HxUserExt : Ext, HxUserService
   }
 
   ** Close the given authentication session
-  override Void closeSession(HxSession session)
+  override Void closeSession(UserSession session)
   {
     sessions.close(session)
   }

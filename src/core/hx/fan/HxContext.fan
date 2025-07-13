@@ -44,7 +44,7 @@ class HxContext : AxonContext, FolioContext
   }
 
   ** Constructor for session
-  new makeSession(Proj proj, HxSession session)
+  new makeSession(Proj proj, UserSession session)
   {
     this.projRef    = proj
     this.userRef    = session.user
@@ -52,7 +52,7 @@ class HxContext : AxonContext, FolioContext
   }
 
 ** TODO
-new makeTemp(Proj proj, User user, HxSession session)
+new makeTemp(Proj proj, User user, UserSession session)
 {
   this.projRef    = proj
   this.userRef    = user
@@ -83,13 +83,13 @@ virtual Proj rt() { proj }
   private const User userRef
 
   ** Authentication session associated with this context if applicable
-  HxSession? session(Bool checked := true)
+  UserSession? session(Bool checked := true)
   {
     if (sessionRef != null) return sessionRef
     if (checked) throw SessionUnavailableErr("Context not associated with a session")
     return null
   }
-  private const HxSession? sessionRef
+  private const UserSession? sessionRef
 
   ** About data to use for HTTP API
   @NoDoc virtual Dict about()

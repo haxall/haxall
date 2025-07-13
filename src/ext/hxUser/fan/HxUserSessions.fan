@@ -96,7 +96,7 @@ const class HxUserSessions
 **
 ** Authenticated user session
 **
-const class HxUserSession : HxSession
+const class HxUserSession : UserSession
 {
   ** Constructor
   internal new make(WebReq req, Str key, Str attestKey, HxUser user, |This|? f := null)

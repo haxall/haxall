@@ -26,7 +26,7 @@ const class HxdContextService : HxContextService
 
   override HxContext create(User user) { HxContext(rt, user) }
 
-  override HxContext createSession(HxSession session) { HxContext(rt, session) }
+  override HxContext createSession(UserSession session) { HxContext(rt, session) }
 }
 
 **************************************************************************

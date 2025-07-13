@@ -106,7 +106,7 @@ const mixin HxContextService : HxService
   abstract HxContext create(User user)
 
   ** Create new context for given session
-  @NoDoc abstract HxContext createSession(HxSession session)
+  @NoDoc abstract HxContext createSession(UserSession session)
 }
 
 **************************************************************************
@@ -218,26 +218,10 @@ const mixin HxUserService : HxService
   abstract HxContext? authenticate(WebReq req, WebRes res)
 
   ** Close the given authentication session
-  @NoDoc abstract Void closeSession(HxSession session)
+  @NoDoc abstract Void closeSession(UserSession session)
 
   ** Create synthetic user.  The tags arg may be a dict or a map.
   @NoDoc abstract User makeSyntheticUser(Str username, Obj? tags := null)
-}
-
-**
-** User authentication session
-**
-@Js
-const mixin HxSession
-{
-  ** Unique identifier for session
-  abstract Str key()
-
-  ** Attestation session key used as secondary verification of cookie key
-  abstract Str attestKey()
-
-  ** Authenticated user associated with the sesssion
-  abstract User user()
 }
 
 **************************************************************************

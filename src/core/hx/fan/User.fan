@@ -45,6 +45,26 @@ const mixin User
 }
 
 **************************************************************************
+** Session
+**************************************************************************
+
+**
+** User authentication session
+**
+@Js
+const mixin UserSession
+{
+  ** Unique identifier for session
+  abstract Str key()
+
+  ** Attestation session key used as secondary verification of cookie key
+  abstract Str attestKey()
+
+  ** Authenticated user associated with the sesssion
+  abstract User user()
+}
+
+**************************************************************************
 ** UserAccess
 **************************************************************************
 
