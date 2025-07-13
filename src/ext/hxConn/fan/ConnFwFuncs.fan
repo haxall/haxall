@@ -168,7 +168,7 @@ const class ConnFwFuncs
     // string is library name
     if (libOrConn is Str)
     {
-      ext := (ConnExt)cx.rt.libsOld.get(libOrConn)
+      ext := (ConnExt)cx.rt.exts.get(libOrConn)
       return pointIds.map |id->ConnPoint| { ext.point(id) }
     }
 

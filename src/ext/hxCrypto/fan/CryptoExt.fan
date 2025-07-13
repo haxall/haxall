@@ -27,7 +27,7 @@ const class CryptoExt : Ext, HxCryptoService
   new make()
   {
     this.dir      = rt.dir.plus(`crypto/`).create
-    this.keystore = CryptoKeyStore(rt.libsOld.actorPool, dir, log, actorTimeout)
+    this.keystore = CryptoKeyStore(rt.exts.actorPool, dir, log, actorTimeout)
   }
 
   private Duration actorTimeout()

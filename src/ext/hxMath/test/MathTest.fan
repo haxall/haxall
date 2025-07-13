@@ -18,7 +18,7 @@ class MathTest : HxTest
   @HxRuntimeTest
   Void test()
   {
-    rt.libsOld.add("math")
+    rt.libs.add("hx.math")
 
     // constants
     verifyEq(eval("pi()"), Number(Float.pi))
@@ -80,7 +80,7 @@ class MathTest : HxTest
   @HxRuntimeTest
   Void testFolds()
   {
-    rt.libsOld.add("math")
+    rt.libs.add("hx.math")
 
     // Test cases for RMSE and MBE provided by PNL
 
@@ -110,7 +110,7 @@ class MathTest : HxTest
   @HxRuntimeTest
   Void testQuantileFolds()
   {
-    rt.libsOld.add("math")
+    rt.libs.add("hx.math")
 
     // quantile folds                               quantile1_linear    quantile70_linear  quantile70_nearest  quantile70_lower    quantile70_higher    quantile70_midpoint
     //                                              ----------          -----------        -----------         ------------        ------------         ------------

@@ -32,6 +32,6 @@ const class PlatformSerialFuncs
 
   private static HxContext curContext() { HxContext.curHx }
 
-  private static PlatformSerialExt ext() {  curContext.rt.libsOld.get("platformSerial") }
+  private static PlatformSerialExt ext() {  curContext.rt.ext("hx.platform.serial") }
 }
 

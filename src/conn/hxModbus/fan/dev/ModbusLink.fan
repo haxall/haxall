@@ -111,7 +111,7 @@ using hxPlatformSerial
         case "modbus-tcp":    tx = ModbusTcpTransport(IpAddr(uri.host),    uri.port, dev.timeout)
         case "modbus-rtutcp": tx = ModbusRtuTcpTransport(IpAddr(uri.host), uri.port, dev.timeout)
         case "modbus-rtu":
-          serial := ext.rt.libsOld.get("platformSerial", false) as PlatformSerialExt
+          serial := ext.rt.ext("hx.platform.serial", false) as PlatformSerialExt
           if (serial == null) throw FaultErr("RTU not supported")
           config := SerialConfig.fromStr(uri.host)
           tx = ModbusRtuTransport(serial.open(ext.rt, ext.rec, config))

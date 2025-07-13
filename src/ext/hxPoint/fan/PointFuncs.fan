@@ -420,7 +420,7 @@ const class PointFuncs
   private static HxContext curContext() { HxContext.curHx }
 
   ** Lookup PointExt for context
-  private static PointExt ext(HxContext cx) { cx.rt.libsOld.get("point") }
+  private static PointExt ext(HxContext cx) { cx.rt.ext("hx.point") }
 
   internal static const Duration timeout := 30sec
   internal static const Number level1   := Number(1)

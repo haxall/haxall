@@ -56,8 +56,8 @@ class SerialSpiTest : HxTest
   @HxRuntimeTest
   Void testSpi()
   {
-    PlatformSerialExt? ext := rt.libsOld.get("platformSerial", false)
-    if (ext == null) ext = rt.libsOld.add("platformSerial")
+    PlatformSerialExt? ext := rt.ext("hx.platform.serial", false)
+    if (ext == null) ext = rt.exts.add("hx.platform.serial")
 
     // initial state
     s := ext.port("test")

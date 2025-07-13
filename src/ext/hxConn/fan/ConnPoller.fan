@@ -16,7 +16,7 @@ using haystack
 **
 internal const class ConnPoller : Actor
 {
-  internal new make(ConnExt ext) : super(ext.rt.libsOld.actorPool)
+  internal new make(ConnExt ext) : super(ext.rt.exts.actorPool)
   {
     this.ext = ext
   }

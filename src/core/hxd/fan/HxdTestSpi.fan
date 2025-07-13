@@ -46,12 +46,16 @@ class HxdTestSpi : HxTestSpi
 
   override Ext addLib(Str libName, Str:Obj? tags)
   {
+echo("XXXX TEST $libName")
+throw Err("TODO")
+/*
     rt := (HxdRuntime)test.rt
     x := rt.libsOld.get(libName, false)
     if (x != null) return x
     lib := rt.installed.lib(libName)
     lib.depends.each |d| { addLib(d, Str:Obj[:]) }
     return rt.libsOld.add(libName, Etc.makeDict(tags))
+*/
   }
 
   override HxUser addUser(Str user, Str pass, Str:Obj? tags)

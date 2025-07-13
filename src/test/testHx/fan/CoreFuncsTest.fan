@@ -462,6 +462,7 @@ class CoreFuncsTest : HxTest
   @HxRuntimeTest
   Void testLibs()
   {
+  /*
     // initial state
     verifyEq(rt.libsOld.get("math", false), null)
 
@@ -480,6 +481,8 @@ class CoreFuncsTest : HxTest
     rec = eval("libAddOld(\"math\", {foo})")
     verifyEq(rt.libsOld.get("math").rec, rec)
     verifyEq(rec->foo, Marker.val)
+*/
+throw Err("TODO")
   }
 
 //////////////////////////////////////////////////////////////////////////

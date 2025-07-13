@@ -100,10 +100,10 @@ abstract const class ConnExt : Ext, HxConnExt
   override Void onStart()
   {
     // must have PointLib installed
-    pointExtRef.val = (PointExt)rt.libsOld.get("point")
+    pointExtRef.val = (PointExt)rt.ext("hx.point")
 
     // must have ConnFwExt installed
-    fw :=  (ConnFwExt)rt.libsOld.get("conn")
+    fw :=  (ConnFwExt)rt.ext("hx.conn")
     fwRef.val = fw
     fw.service.addExt(this)
 

@@ -100,6 +100,9 @@ libs.rtRef.val = this
   ** Project spec management
   override ProjSpecs specs() { libs.specs }
 
+  ** Convenience for 'exts.get' to lookup extension by lib dotted name
+  override Ext? ext(Str name, Bool checked := true) { exts.get(name, checked) }
+
   ** Project extensions
   override const MProjExts exts
 
@@ -128,7 +131,7 @@ override Void recompileDefs() { nsBaseRecompile }
 
   ** Service registry
   override HxdServiceRegistry services() { servicesRef.val ?: throw Err("Services not avail yet") }
-  internal Void servicesRebuild() { servicesRef.val = HxdServiceRegistry(this, libsOld.list) }
+  internal Void servicesRebuild() { servicesRef.val = HxdServiceRegistry(this, exts.list) }
   private const AtomicRef servicesRef := AtomicRef(null)
 
   // HxStdServices conveniences
@@ -194,11 +197,11 @@ override Void recompileDefs() { nsBaseRecompile }
     isRunningRef.val = true
 
     // onStart callback
-    futures := libsOld.list.map |lib->Future| { ((MExtSpi)lib.spi).start }
+    futures := exts.list.map |lib->Future| { ((MExtSpi)lib.spi).start }
     Future.waitForAll(futures)
 
     // onReady callback
-    futures = libsOld.list.map |lib->Future| { ((MExtSpi)lib.spi).ready }
+    futures = exts.list.map |lib->Future| { ((MExtSpi)lib.spi).ready }
     Future.waitForAll(futures)
 
     // kick off background processing
@@ -217,11 +220,11 @@ override Void recompileDefs() { nsBaseRecompile }
     isRunningRef.val = false
 
     // onUnready callback
-    futures := libsOld.list.map |lib->Future| { ((MExtSpi)lib.spi).unready }
+    futures := exts.list.map |lib->Future| { ((MExtSpi)lib.spi).unready }
     Future.waitForAll(futures)
 
     // onStop callback
-    futures = libsOld.list.map |lib->Future| { ((MExtSpi)lib.spi).stop }
+    futures = exts.list.map |lib->Future| { ((MExtSpi)lib.spi).stop }
     Future.waitForAll(futures)
 
     // kill actor pools

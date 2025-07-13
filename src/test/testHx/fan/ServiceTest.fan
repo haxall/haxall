@@ -35,21 +35,21 @@ class ServiceTest : HxTest
     verifySame(rt.user,  rt.services.user);  verifySame(verifyService(HxUserService#), rt.user)
 
     // pointWrite defaults to nil implementation
-    if (rt.libsOld.get("point", false) != null) rt.libsOld.remove("point")
+    if (rt.libs.get("hx.point", false) != null) rt.libs.remove("hx.point")
     verifySame(rt.pointWrite.typeof, NilPointWriteService#)
     verifySame(rt.pointWrite, rt.services.pointWrite)
     verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
 
     // add point lib and ensure it becomes implementation
-    rt.libsOld.add("point")
-    verifyNotNull(rt.libsOld.get("point", false))
+    rt.libs.add("hx.point")
+    verifyNotNull(rt.libs.get("hx.point", false))
     verifySame(rt.pointWrite.typeof.name, "WriteMgrActor")
     verifySame(rt.pointWrite, rt.services.pointWrite)
     verifySame(verifyService(HxPointWriteService#), rt.pointWrite)
 
     // remove point lib and pointWrite falls back to nil implementation
-    rt.libsOld.remove("point")
-    verifyNull(rt.libsOld.get("point", false))
+    rt.libs.remove("hx.point")
+    verifyNull(rt.libs.get("hx.point", false))
     verifySame(rt.pointWrite.typeof, NilPointWriteService#)
     verifySame(rt.pointWrite, rt.services.pointWrite)
     verifySame(verifyService(HxPointWriteService#), rt.pointWrite)

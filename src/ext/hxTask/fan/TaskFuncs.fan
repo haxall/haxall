@@ -413,7 +413,7 @@ const class TaskFuncs
   private static HxContext curContext() { HxContext.curHx }
 
   ** Lookup TaskExt for context
-  private static TaskExt lib(HxContext cx) { cx.rt.libsOld.get("task") }
+  private static TaskExt lib(HxContext cx) { cx.rt.ext("hx.task") }
 }
 
 **************************************************************************

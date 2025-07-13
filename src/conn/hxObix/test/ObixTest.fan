@@ -105,7 +105,7 @@ class ObixTest : HxTest
 
   Void verifyLobby()
   {
-    lib := (ObixExt)rt.libsOld.get("obix")
+    lib := (ObixExt)rt.ext("hx.obix")
     projApiUri := rt.http.siteUri + rt.http.apiUri
     lobbyUri = projApiUri + lib.web.uri
 
@@ -685,7 +685,7 @@ class ObixTest : HxTest
     verifyEq(op.in.toStr, "obix:WritePointIn")
 
     // verify before any writes
-    rt.libsOld.get("point")
+    rt.ext("hx.point")
     rt.sync
     eval("pointSetDef($pt3.id.toCode, 0)")
     rt.sync

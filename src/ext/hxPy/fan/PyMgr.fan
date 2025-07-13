@@ -23,7 +23,7 @@ internal const class PyMgr : Actor
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(PyExt ext, |This|? f := null) : super(ext.rt.libsOld.actorPool)
+  new make(PyExt ext, |This|? f := null) : super(ext.rt.exts.actorPool)
   {
     f?.call(this)
     this.ext = ext

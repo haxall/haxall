@@ -96,7 +96,7 @@ const class PlatformNetworkFuncs
 
   private static PlatformNetworkExt ext(HxContext cx := curContext)
   {
-    cx.rt.libsOld.get("platformNetwork")
+    cx.rt.ext("hx.platform.network")
   }
 }
 

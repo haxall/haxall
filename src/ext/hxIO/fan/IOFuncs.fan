@@ -563,7 +563,7 @@ const class IOFuncs
     if (arg == null) arg = Etc.emptyDict
     if (cx.rt.platform.isShell) return Etc.emptyDict
     filetype := cx.defs.filetype("json")
-    settings := cx.rt.libsOld.get("io").rec
+    settings := cx.rt.ext("hx.io").rec
     return filetype.ioOpts(cx.defs, null, arg, settings)
   }
 

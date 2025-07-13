@@ -17,7 +17,7 @@ const class EcobeeExt : ConnExt
 {
   static EcobeeExt? cur(Bool checked := true)
   {
-    HxContext.curHx.rt.libsOld.get("ecobee", checked)
+    HxContext.curHx.rt.ext("hx.ecobee", checked)
   }
 }
 

@@ -58,6 +58,13 @@ const class MProjExts : Actor, ProjExts
     return gb.toGrid
   }
 
+  override Ext add(Str name, Dict? settings := null)
+  {
+    proj.libs.add(name)
+    // TODO settings
+    return get(name)
+  }
+
   Void init()
   {
     map := Str:Ext[:]

@@ -60,7 +60,7 @@ internal abstract class PointMgr
 **
 internal const class PointMgrActor : Actor
 {
-  new make(PointExt ext, Duration checkFreq, Type mgrType) : super(ext.rt.libsOld.actorPool)
+  new make(PointExt ext, Duration checkFreq, Type mgrType) : super(ext.rt.exts.actorPool)
   {
     this.ext       = ext
     this.checkFreq = checkFreq

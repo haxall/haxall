@@ -61,11 +61,11 @@ const mixin HxRuntime : HxStdServices
   ** Namespace of definitions
   abstract DefNamespace defs()
 
+  ** Convenience for 'exts.get' to lookup extension by lib dotted name
+  abstract Ext? ext(Str name, Bool checked := true)
+
   ** Project extensions
   abstract ProjExts exts()
-
-  ** Library managment APIs
-  HxRuntimeLibs libsOld() { HxRuntimeLibs(this) }
 
   ** Service registry
   abstract HxServiceRegistry services()
@@ -84,45 +84,5 @@ const mixin HxRuntime : HxStdServices
 
 ** TODO
 abstract Void recompileDefs()
-}
-
-**************************************************************************
-** HxRuntimeLibs
-**************************************************************************
-
-** TODO: shim for old lib APIs
-const class HxRuntimeLibs
-{
-  new make(HxRuntime rt) { this.rt = rt }
-
-  const HxRuntime rt
-
-  Ext[] list() { rt.exts.list }
-
-  Ext? get(Str name, Bool checked := true) { rt.exts.get(fixName(name), checked) }
-
-  Bool has(Str name) { rt.exts.has(fixName(name)) }
-
-  ActorPool actorPool() { rt.exts.actorPool }
-
-  Grid status() { rt.exts.status }
-
-  Ext add(Str name, Dict tags := Etc.emptyDict)
-  {
-    echo("TODO: old lib add: $name")
-    throw Err("TODO")
-  }
-
-  Void remove(Obj lib)
-  {
-    echo("TODO: old lib remove: $lib")
-  }
-
-
-  Str fixName(Str name)
-  {
-    "hx." + name + "::" + name.capitalize + "Ext"
-  }
-
 }
 

@@ -21,7 +21,7 @@ const class MqttExt : ConnExt
 {
   static MqttExt? cur(Bool checked := true)
   {
-    HxContext.curHx.rt.libsOld.get("mqtt", checked)
+    HxContext.curHx.rt.ext("hx.mqtt", checked)
   }
 
   internal const MqttObservable mqtt := MqttObservable(this)

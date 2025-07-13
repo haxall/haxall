@@ -20,7 +20,7 @@ const class DockerFuncs
   private static HxContext curHx() { HxContext.curHx }
 
   ** Lookup DockerExt for context
-  private static DockerExt ext(HxContext cx := curHx) { cx.rt.libsOld.get("docker") }
+  private static DockerExt ext(HxContext cx := curHx) { cx.rt.ext("docker") }
 
 //////////////////////////////////////////////////////////////////////////
 // Views

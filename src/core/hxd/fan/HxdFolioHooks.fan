@@ -79,7 +79,7 @@ const class HxdFolioHooks : FolioHooks
       libName := newRec["ext"] as Str
       if (libName != null)
       {
-        lib := rt.libsOld.get(libName, false)
+        lib := rt.exts.get(libName, false)
         if (lib != null) ((MExtSpi)lib.spi).update(newRec)
       }
 

@@ -412,35 +412,6 @@ const class HxCoreFuncs
     curContext.rt.isSteadyState
   }
 
-  ** Enable a library by name in the runtime:
-  **   libAddOld("mqtt")
-  ** TODO: deprecated and will be removed in 4.0
-  @Axon { admin = true }
-  static Dict libAddOld(Str name, Dict? tags := null)
-  {
-    curContext.rt.libsOld.add(name, tags ?: Etc.emptyDict).rec
-  }
-
-  ** Disable a library by name in the runtime:
-  **   libRemoveOld("mqtt")
-  ** TODO: deprecated and will be removed in 4.0
-  @Axon { admin = true }
-  static Obj? libRemoveOld(Obj name)
-  {
-    curContext.rt.libsOld.remove(name)
-    return "removed"
-  }
-
-  ** Return grid of enabled libs and their current status.  Columns:
-  **  - name: library name string
-  **  - libStatus: status enumeration string
-  **  - statusMsg: additional message string or null
-  @Axon { admin = true }
-  static Grid libStatusOld()
-  {
-    curContext.rt.libsOld.status
-  }
-
   ** Grid of installed services.  Format of the grid is subject to change.
   @Axon { admin = true }
   static Grid services()
@@ -468,7 +439,7 @@ const class HxCoreFuncs
   {
     cx := HxContext.curHx
     isShell := cx.rt.platform.isShell
-    log := isShell ? Log.get("xeto") : cx.rt.libsOld.get("xeto").log
+    log := isShell ? Log.get("xeto") : cx.rt.ext("hx.xeto").log
     log.info("libReload [$cx.user.username]")
     cx.rt.libs.reload
     return isShell ? "_no_echo_" : "reloaded"
