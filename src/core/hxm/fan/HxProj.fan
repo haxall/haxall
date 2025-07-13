@@ -47,6 +47,7 @@ const class HxProj : Proj
     this.libs          = MProjLibs.shim(dir)
     this.exts          = MProjExts(this, libsActorPool)
     this.watch         = HxProjWatches(this)
+    this.obs           = HxProjObservables(this)
 libs.rtRef.val = this
 init(boot)
   }
@@ -106,8 +107,11 @@ init(boot)
   ** Project extensions
   override const MProjExts exts
 
-  ** Project watches
+  ** Project watch management
   override const ProjWatches watch
+
+  ** Project observable management
+  override const HxProjObservables obs
 
   ** Namespace of definitions
   override DefNamespace defs()
@@ -147,7 +151,6 @@ override HxServiceRegistry services() { servicesRef.val ?: throw Err("Services n
   override const HxHisService his
 */
 override HxContextService context() { services.context }
-override HxObsService obs() { services.obs }
 override HxFileService file() { services.file }
 override  HxHisService his() { services.his }
   override HxCryptoService crypto() { services.crypto }

@@ -68,7 +68,7 @@ const class HxdFolioHooks : FolioHooks
     if (diff.isTransient)
     {
 // TODO
-obs := (HxdObsService)rt.obs
+//obs := (HxdObsService)rt.obs
 //      if (diff.isCurVal) rt.obs.curVal(diff)
       return
     }
@@ -98,16 +98,16 @@ echo("TODO: metaRef")
     }
 
 // TODO
-obs := (HxdObsService)rt.obs
-    obs.commit(diff, user)
+//obs := (HxdObsService)rt.obs
+//    obs.commit(diff, user)
   }
 
   ** Callback after his write.  Result is same dict returned from future.
   override Void postHisWrite(FolioHisEvent e)
   {
 // TODO
-obs := (HxdObsService)rt.obs
-    obs.hisWrite(e.rec, e.result, e.cxInfo as HxUser)
+//obs := (HxdObsService)rt.obs
+//    obs.hisWrite(e.rec, e.result, e.cxInfo as HxUser)
   }
 }
 

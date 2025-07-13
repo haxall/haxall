@@ -48,7 +48,6 @@ const class HxdServiceRegistry : HxServiceRegistry
     */
 
     map[HxContextService#] = HxService[HxdContextService(rt)]
-    map[HxObsService#]     = HxService[HxdObsService(rt)]
     map[HxFileService#]    = HxService[HxdFileService(rt)]
     map[HxHisService#]     = HxService[HxdHisService(rt)]
 
@@ -69,7 +68,6 @@ const class HxdServiceRegistry : HxServiceRegistry
     this.map  = map
 
     this.context    = get(HxContextService#)
-    this.obs        = get(HxObsService#)
     this.crypto     = get(HxCryptoService#)
     this.httpRef    = get(HxHttpService#, false)
     this.user       = get(HxUserService#)
@@ -84,8 +82,6 @@ const class HxdServiceRegistry : HxServiceRegistry
   override const Type[] list
 
   override const HxdContextService context
-
-  override const HxdObsService obs
 
   override const HxFileService file
 

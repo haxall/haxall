@@ -5,6 +5,7 @@
 // History:
 //   13 Apr 2020  Brian Frank  Creation
 //   25 Jun 2021  Brian Frank  Refactor for Haxall
+//   13 Jul 2025  Brian Frank  Refactor for 4.0
 //
 
 using concurrent
@@ -13,12 +14,11 @@ using haystack
 using obs
 using folio
 using hx
-using hxm
 
 **
-** HxdObserveMgr
+** Implementation for ProjWatches
 **
-const class HxdObsService : Actor, HxObsService
+const class HxProjObservables : Actor, ProjObservables
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -277,18 +277,16 @@ const class HxdObsService : Actor, HxObsService
 
 internal const class CommitsObservable : Observable
 {
-  new make(HxProj rt) { this.rt = rt }
+  new make(HxProj proj) { this.proj = proj }
 
-  const HxProj rt
+  const HxProj proj
 
   override Str name() { "obsCommits" }
 
   override Subscription onSubscribe(Observer observer, Dict config)
   {
     sub := CommitsSubscription(this, observer, config)
-// TODO
-obs := (HxdObsService)rt.obs
-    if (sub.addOnInit) obs.sendAddOnInit(sub)
+    if (sub.addOnInit) proj.obs.sendAddOnInit(sub)
     return sub
   }
 }

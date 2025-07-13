@@ -50,9 +50,6 @@ const mixin HxStdServices
   ** Context factory service
   abstract HxContextService context()
 
-  ** Observable APIs
-  abstract HxObsService obs()
-
   ** HTTP APIs
   abstract HxHttpService http()
 
