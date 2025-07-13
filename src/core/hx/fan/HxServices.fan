@@ -103,7 +103,7 @@ const mixin HxService {}
 const mixin HxContextService : HxService
 {
   ** Create new context for given user
-  abstract HxContext create(HxUser user)
+  abstract HxContext create(User user)
 
   ** Create new context for given session
   @NoDoc abstract HxContext createSession(HxSession session)
@@ -210,7 +210,7 @@ const mixin HxUserService : HxService
 {
   ** Lookup a user by username.  If not found then raise
   ** exception or return null based on the checked flag.
-  abstract HxUser? read(Obj username, Bool checked := true)
+  abstract User? read(Obj username, Bool checked := true)
 
   ** Authenticate a web request and return a context.  If request
   ** is not authenticated then redirect to login page and return null.
@@ -221,7 +221,7 @@ const mixin HxUserService : HxService
   @NoDoc abstract Void closeSession(HxSession session)
 
   ** Create synthetic user.  The tags arg may be a dict or a map.
-  @NoDoc abstract HxUser makeSyntheticUser(Str username, Obj? tags := null)
+  @NoDoc abstract User makeSyntheticUser(Str username, Obj? tags := null)
 }
 
 **
@@ -237,7 +237,7 @@ const mixin HxSession
   abstract Str attestKey()
 
   ** Authenticated user associated with the sesssion
-  abstract HxUser user()
+  abstract User user()
 }
 
 **************************************************************************
@@ -303,7 +303,7 @@ const mixin HxClusterService : HxService
   abstract Ref nodeId()
 
   ** Lookup stashed user for given node and username or raise StashSyncErr
-  abstract HxUser stashedUser(Obj node, Str username)
+  abstract User stashedUser(Obj node, Str username)
 }
 
 **************************************************************************

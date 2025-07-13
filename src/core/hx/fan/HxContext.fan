@@ -36,7 +36,7 @@ class HxContext : AxonContext, FolioContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor for project and user
-  new make(Proj proj, HxUser user)
+  new make(Proj proj, User user)
   {
     this.projRef    = proj
     this.userRef    = user
@@ -52,7 +52,7 @@ class HxContext : AxonContext, FolioContext
   }
 
 ** TODO
-new makeTemp(Proj proj, HxUser user, HxSession session)
+new makeTemp(Proj proj, User user, HxSession session)
 {
   this.projRef    = proj
   this.userRef    = user
@@ -79,8 +79,8 @@ virtual Proj rt() { proj }
   override DefNamespace defs() { proj.defs }
 
   ** User account associated with this context
-  HxUser user() { userRef }
-  private const HxUser userRef
+  User user() { userRef }
+  private const User userRef
 
   ** Authentication session associated with this context if applicable
   HxSession? session(Bool checked := true)

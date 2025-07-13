@@ -35,7 +35,8 @@ class Build : BuildPod
                "defc @{hx.depend}",
                "axon @{hx.depend}",
                "folio @{hx.depend}",
-               "hx @{hx.depend}"]
+               "hx @{hx.depend}",
+               "hxm @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`, `locale/`, `res/`]
     docApi  = false

@@ -64,7 +64,7 @@ throw Err("TODO")
     Slot.findMethod("hxUser::HxUserUtil.addUser").call(test.rt.db, user, pass, tags)
   }
 
-  override HxContext makeContext(HxUser? user)
+  override HxContext makeContext(User? user)
   {
     if (user == null)
       user = test.rt.user.makeSyntheticUser("test", ["userRole":"su"])

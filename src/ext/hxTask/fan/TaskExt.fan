@@ -156,7 +156,7 @@ const class TaskExt : Ext, HxTaskService
     tasksById.remove(task.id)
   }
 
-  HxUser user() { userRef.val }
+  User user() { userRef.val }
   private const AtomicRef userRef := AtomicRef()
 
   override Duration? houseKeepingFreq() { 17sec }
@@ -180,7 +180,7 @@ const class TaskExt : Ext, HxTaskService
     userRef.val = user
   }
 
-  once HxUser userFallback()
+  once User userFallback()
   {
     proj.user.makeSyntheticUser("task", ["projAccessFilter":"name==${proj.name.toCode}"])
   }

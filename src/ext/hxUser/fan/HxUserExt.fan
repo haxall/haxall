@@ -14,6 +14,7 @@ using auth
 using axon
 using folio
 using hx
+using hxm
 
 **
 ** User athentication and session management
@@ -56,7 +57,7 @@ const class HxUserExt : Ext, HxUserService
     rec := username is Ref ?
            proj.db.readById(username, false) :
            proj.db.read(Filter.eq("username", username.toStr).and(Filter.has("user")), false)
-    if (rec != null) return HxUserImpl(rec)
+    if (rec != null) return HxUser(rec)
     if (checked) throw UnknownRecErr("User not found: $username")
     return null
   }
@@ -80,7 +81,7 @@ const class HxUserExt : Ext, HxUserService
     extraTags := Etc.makeDict(extra)
     tags := ["id": Ref(username), "username":username, "userRole":"admin", "mod":DateTime.nowUtc, "synthetic":Marker.val]
     extraTags.each |v, n| { tags[n] = v }
-    return HxUserImpl(Etc.makeDict(tags))
+    return HxUser(Etc.makeDict(tags))
   }
 
 //////////////////////////////////////////////////////////////////////////

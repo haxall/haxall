@@ -4,6 +4,7 @@
 //
 // History:
 //   25 May 2021  Brian Frank  Creation
+//   13 Jul 2025  Brian Frank  Refactor from hxUser
 //
 
 using xeto
@@ -11,9 +12,9 @@ using haystack
 using hx
 
 **
-** HxUserExt implementation of HxUSer
+** HxUser is default implementation of User
 **
-const class HxUserImpl : HxUser
+const class HxUser : User
 {
   new make(Dict meta)
   {
@@ -23,7 +24,7 @@ const class HxUserImpl : HxUser
     this.dis      = meta["dis"] ?: username
     this.email    = meta["email"] as Str
     this.mod      = meta->mod
-    this.access   = HxUserAccessImpl(this)
+    this.access   = HxUserAccess(this)
 
     switch (meta["userRole"])
     {
@@ -46,10 +47,10 @@ const class HxUserImpl : HxUser
 }
 
 **************************************************************************
-** HxUserAccessImpl
+** HxUserAccess
 **************************************************************************
 
-internal const class HxUserAccessImpl : HxUserAccess
+const class HxUserAccess : UserAccess
 {
   new make(HxUser user) { this.user = user }
   const HxUser user

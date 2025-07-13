@@ -91,7 +91,7 @@ class SqlDispatch : ConnDispatch
     finally Actor.locals.remove(ActorContext.actorLocalsKey)
   }
 
-  once HxUser evalUser()
+  once User evalUser()
   {
     proj.user.makeSyntheticUser("sqlHisSync", ["projAccessFilter":"name==${proj.name.toCode}"])
   }

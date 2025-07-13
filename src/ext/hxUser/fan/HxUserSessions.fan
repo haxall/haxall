@@ -14,6 +14,7 @@ using auth
 using axon
 using folio
 using hx
+using hxm
 
 **
 ** Authenticated user session management

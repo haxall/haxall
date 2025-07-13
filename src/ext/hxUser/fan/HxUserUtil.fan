@@ -12,6 +12,7 @@ using haystack
 using auth
 using folio
 using hx
+using hxm
 
 **
 ** User library utilities
@@ -38,7 +39,7 @@ const class HxUserUtil
     rec := db.commit(Diff.makeAdd(tags)).newRec
     db.passwords.set(rec.id.id, secret)
 
-    return HxUserImpl(rec)
+    return HxUser(rec)
   }
 
   ** Set given name/val pair if not already defined

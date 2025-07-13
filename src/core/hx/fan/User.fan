@@ -11,10 +11,10 @@ using axon
 using folio
 
 **
-** Haxall user account
+** User account
 **
 @Js
-const mixin HxUser
+const mixin User
 {
   ** Ref identifier
   abstract Ref id()
@@ -41,15 +41,15 @@ const mixin HxUser
    @NoDoc abstract DateTime mod()
 
   ** Access control APIs
-  @NoDoc abstract HxUserAccess access()
+  @NoDoc abstract UserAccess access()
 }
 
 **************************************************************************
-** HxUserAccess
+** UserAccess
 **************************************************************************
 
 @Js @NoDoc
-const mixin HxUserAccess
+const mixin UserAccess
 {
   ** Can the given user override level 1, 8, or 17 (relinquish default)
   abstract Bool canPointWriteAtLevel(Int level)

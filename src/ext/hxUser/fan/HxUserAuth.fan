@@ -10,6 +10,7 @@ using web
 using auth
 using haystack
 using hx
+using hxm
 
 **
 ** User library authentication pipeline.
@@ -114,7 +115,7 @@ internal class HxUserAuth
 
     // auto login superuser for testing
     if (ext.noAuth)
-      return ext.login(req, res, HxUserImpl(proj.db.read(Filter("user and userRole==\"su\""))))
+      return ext.login(req, res, HxUser(proj.db.read(Filter("user and userRole==\"su\""))))
 
     // redirect to login
     return null
