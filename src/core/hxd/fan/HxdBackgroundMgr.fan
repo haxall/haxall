@@ -95,7 +95,7 @@ echo("TODO: transition to steady state")
 // TODO
 //    rt.stateStateRef.val = true
 //
-    rt.exts.list.each |ext| { ((MExtSpi)ext.spi).steadyState }
+    rt.exts.list.each |ext| { ((HxExtSpi)ext.spi).steadyState }
   }
 
   private Duration steadyStateConfig()

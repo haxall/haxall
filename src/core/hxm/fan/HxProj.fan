@@ -40,12 +40,10 @@ const class HxProj : Proj
     this.hxdActorPool  = ActorPool { it.name = "Hx-Runtime" }
 //    this.backgroundMgr = HxdBackgroundMgr(this)
 //    this.context       = HxdContextService(this)
-//    this.watch         = HxdWatchService(this)
-//    this.obs           = HxdObsService(this)
 //    this.file          = HxdFileService(this)
 //    this.his           = HxdHisService(this)
     this.libs          = MProjLibs.shim(dir)
-    this.exts          = MProjExts(this, libsActorPool)
+    this.exts          = HxProjExts(this, libsActorPool)
     this.watch         = HxProjWatches(this)
     this.obs           = HxProjObservables(this)
 libs.rtRef.val = this
@@ -105,7 +103,7 @@ init(boot)
   override Ext? ext(Str name, Bool checked := true) { exts.get(name, checked) }
 
   ** Project extensions
-  override const MProjExts exts
+  override const HxProjExts exts
 
   ** Project watch management
   override const ProjWatches watch
@@ -175,7 +173,7 @@ override  HxHisService his() { services.his }
   override This sync(Duration? timeout := 30sec)
   {
     db.sync(timeout)
-//    obs.sync(timeout)
+    obs.sync(timeout)
     return this
   }
 
@@ -229,11 +227,11 @@ override  HxHisService his() { services.his }
     isRunningRef.val = true
 
     // onStart callback
-    futures := exts.list.map |lib->Future| { ((MExtSpi)lib.spi).start }
+    futures := exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).start }
     Future.waitForAll(futures)
 
     // onReady callback
-    futures = exts.list.map |lib->Future| { ((MExtSpi)lib.spi).ready }
+    futures = exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).ready }
     Future.waitForAll(futures)
 
     // kick off background processing
@@ -252,11 +250,11 @@ override  HxHisService his() { services.his }
     isRunningRef.val = false
 
     // onUnready callback
-    futures := exts.list.map |lib->Future| { ((MExtSpi)lib.spi).unready }
+    futures := exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).unready }
     Future.waitForAll(futures)
 
     // onStop callback
-    futures = exts.list.map |lib->Future| { ((MExtSpi)lib.spi).stop }
+    futures = exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).stop }
     Future.waitForAll(futures)
 
     // kill actor pools

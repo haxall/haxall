@@ -16,7 +16,7 @@ using hx
 **
 ** ProjExts implementation
 **
-const class MProjExts : Actor, ProjExts
+const class HxProjExts : Actor, ProjExts
 {
   new make(Proj proj, ActorPool actorPool) : super(actorPool)
   {
@@ -51,7 +51,7 @@ const class MProjExts : Actor, ProjExts
     gb.addCol("qname").addCol("libStatus").addCol("statusMsg")
     list.each |ext|
     {
-      spi := (MExtSpi)ext.spi
+      spi := (HxExtSpi)ext.spi
       gb.addRow([ext.name, spi.status, spi.statusMsg])
     }
     return gb.toGrid
@@ -72,7 +72,7 @@ const class MProjExts : Actor, ProjExts
     ns := proj.ns
     ns.libs.each |lib|
     {
-      ext := MExtSpi.instantiate(this, lib)
+      ext := HxExtSpi.instantiate(this, lib)
       if (ext != null) map.add(ext.name, ext)
     }
 

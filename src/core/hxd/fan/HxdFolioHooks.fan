@@ -82,7 +82,7 @@ const class HxdFolioHooks : FolioHooks
       if (libName != null)
       {
         lib := rt.exts.get(libName, false)
-        if (lib != null) ((MExtSpi)lib.spi).update(newRec)
+        if (lib != null) ((HxExtSpi)lib.spi).update(newRec)
       }
 
       if (diff.id == rt.meta.id)

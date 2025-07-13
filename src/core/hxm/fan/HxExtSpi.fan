@@ -18,7 +18,7 @@ using hx
 **
 ** ExtSpi implementation
 **
-const class MExtSpi : Actor, ExtSpi
+const class HxExtSpi : Actor, ExtSpi
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ const class MExtSpi : Actor, ExtSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate the Ext for given lib if available
-  static ExtObj? instantiate(MProjExts exts, Lib lib)
+  static ExtObj? instantiate(HxProjExts exts, Lib lib)
   {
     // check for libExt meta
     ref := lib.meta["libExt"] as Ref
@@ -48,7 +48,7 @@ const class MExtSpi : Actor, ExtSpi
       settings := Etc.dict0
 
       // create spi instance
-      spi := MExtSpi(exts.proj, spec, type, settings, exts.actorPool)
+      spi := HxExtSpi(exts.proj, spec, type, settings, exts.actorPool)
 
       // instantiate fantom type
       ExtObj? ext
@@ -299,7 +299,7 @@ internal const class ExtMethodObserver : Observer
   new make(Ext ext, Method method)
   {
     this.ext    = ext
-    this.actor  = (MExtSpi)ext.spi
+    this.actor  = (HxExtSpi)ext.spi
     this.method = method
     this.meta   = Etc.emptyDict
   }

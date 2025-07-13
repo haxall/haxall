@@ -12,7 +12,6 @@ using haystack
 using axon
 using folio
 using hx
-using hxm::MExtSpi
 using def
 using defc
 
