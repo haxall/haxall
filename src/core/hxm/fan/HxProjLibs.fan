@@ -82,7 +82,7 @@ const class HxProjLibs : ProjLibs
 
   virtual ProjSpecs specs() { specsRef }
 
-  ProjNamespace ns() { nsRef.val }
+  HxNamespace ns() { nsRef.val }
 
   Str[] projLibNames() { projLibNamesRef.val }
 
@@ -339,7 +339,7 @@ const class HxProjLibs : ProjLibs
     // at this point should we should have a safe versions list to create namespace
     nsVers := versToUse.vals
     nsVers.add(FileLibVersion.makeProj(fb.dir, version))
-    ns := ProjNamespace(LocalNamespaceInit(repo, nsVers, null, repo.names))
+    ns := HxNamespace(LocalNamespaceInit(repo, nsVers, null, repo.names))
     ns.libs // force sync load
 
     // now update HxProjLibs map of HxProjLib

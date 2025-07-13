@@ -121,7 +121,7 @@ init(boot)
       // lazily recompile base
       base := nsBaseRef.val as DefNamespace
       if (base == null)
-        nsBaseRef.val = base = ProjDefCompiler(this).compileNamespace
+        nsBaseRef.val = base = HxDefCompiler(this).compileNamespace
 
       // compile overlay
       nsOverlayRef.val = overlay = base // TODO ProjOverlayCompiler(this, base).compileNamespace

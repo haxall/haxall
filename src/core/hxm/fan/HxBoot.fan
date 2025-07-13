@@ -147,7 +147,7 @@ abstract class HxBoot
 
   internal FileBase? nsfb         // initNamespaceFileBase
   internal HxProjLibs? libs       // initProjLibs
-  internal ProjNamespace? ns      // initNamespace
+  internal HxNamespace? ns        // initNamespace
   internal Folio? db              // initFolio
   internal Dict? meta             // initMeta
 }

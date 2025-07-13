@@ -15,7 +15,7 @@ using xetoc
 **
 ** Namespace implementation
 **
-const class ProjNamespace : LocalNamespace, Namespace
+const class HxNamespace : LocalNamespace, Namespace
 {
   internal new make(LocalNamespaceInit init) : super(init) {}
 }

@@ -17,9 +17,9 @@ using def
 using defc
 
 **
-** Project definition compiler
+** Haxall default implementation of definition compiler
 **
-class ProjDefCompiler : DefCompiler
+class HxDefCompiler : DefCompiler
 {
   new make(Proj rt)
   {
