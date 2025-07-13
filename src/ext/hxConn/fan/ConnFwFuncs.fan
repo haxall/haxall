@@ -178,7 +178,7 @@ const class ConnFwFuncs
   }
 
   ** To list of connector points as id or result of connPointsVia
-  private static ConnPoint[] toPoints(Obj points, HxContext cx)
+  private static ConnPoint[] toPoints(Obj points, Context cx)
   {
     if (points is ConnPoint) return ConnPoint[points]
     if (points is List)
@@ -265,7 +265,7 @@ const class ConnFwFuncs
   static Grid connTrace(Obj conn, Dict? opts := null)
   {
     // map arg to connector
-    cx := HxContext.curHx
+    cx := Context.cur
     id := Etc.toId(conn)
     if (id.isNull) return Etc.emptyGrid
     c  := toConn(id)
@@ -296,7 +296,7 @@ const class ConnFwFuncs
   }
 
   ** Current context
-  private static HxContext curContext() { HxContext.curHx }
+  private static Context curContext() { Context.cur }
 
   ** Coerce conn to a HxConn instance (new or old framework)
   private static HxConn toHxConn(Obj conn)

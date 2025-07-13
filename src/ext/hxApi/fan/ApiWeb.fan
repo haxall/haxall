@@ -36,7 +36,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
       // authenticate user
       cx := proj.user.authenticate(req, res)
       if (cx == null) return
-      cx.timeout = HxContext.timeoutDef
+      cx.timeout = Context.timeoutDef
       Actor.locals[ActorContext.actorLocalsKey] = cx
 
       // if opName has dot then its Haxall 4.x xeto style

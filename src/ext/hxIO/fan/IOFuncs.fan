@@ -384,7 +384,7 @@ const class IOFuncs
   {
     toHandle(handle).withIn |in|
     {
-      HxContext.curHx.ns.compileData(in.readAllStr, opts)
+      Context.cur.ns.compileData(in.readAllStr, opts)
     }
   }
 
@@ -397,7 +397,7 @@ const class IOFuncs
   {
     return toHandle(handle).withOut |out|
     {
-      HxContext.curHx.ns.writeData(out, val, opts)
+      Context.cur.ns.writeData(out, val, opts)
     }
   }
 
@@ -977,9 +977,9 @@ const class IOFuncs
   }
 
   ** Current context
-  internal static HxContext curContext()
+  internal static Context curContext()
   {
-    HxContext.curHx
+    Context.cur
   }
 }
 

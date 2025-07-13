@@ -16,9 +16,6 @@ using axon
 **
 const class EcobeeFuncs
 {
-  ** Utility to get the current HxContext
-  private static HxContext curHx() { HxContext.curHx }
-
-  private static EcobeeExt ext(HxContext cx := curHx) { cx.rt.ext("hx.ecobee") }
+  private static EcobeeExt ext(Context cx := Context.cur) { cx.proj.ext("hx.ecobee") }
 }
 

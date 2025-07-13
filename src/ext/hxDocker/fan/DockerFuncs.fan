@@ -16,11 +16,9 @@ using axon
 **
 const class DockerFuncs
 {
-  ** Current context
-  private static HxContext curHx() { HxContext.curHx }
 
   ** Lookup DockerExt for context
-  private static DockerExt ext(HxContext cx := curHx) { cx.proj.ext("docker") }
+  private static DockerExt ext(Context cx := Context.cur) { cx.proj.ext("docker") }
 
 //////////////////////////////////////////////////////////////////////////
 // Views
@@ -36,8 +34,8 @@ const class DockerFuncs
   static Grid dockerListContainers()
   {
     meta := Str:Obj?[:]
-    cx := HxContext.curHx
-    if (curHx.feedIsEnabled) curHx.feedAdd(DockerContainerFeed(cx), meta)
+    cx := Context.cur
+    if (cx.feedIsEnabled) cx.feedAdd(DockerContainerFeed(cx), meta)
     return ext.dockerMgr.listContainers.setMeta(meta)
   }
 
@@ -123,7 +121,7 @@ const class DockerFuncs
 
 internal const class DockerContainerFeed : HxFeed
 {
-  new make(HxContext cx) : super(cx) {}
-  override Grid? poll(HxContext cx) { DockerFuncs.dockerListContainers }
+  new make(Context cx) : super(cx) {}
+  override Grid? poll(Context cx) { DockerFuncs.dockerListContainers }
 }
 

@@ -89,12 +89,12 @@ const class PlatformNetworkFuncs
     Etc.dict3("section", section, "dis", dis, "val", val)
   }
 
-  private static HxContext curContext()
+  private static Context curContext()
   {
-    HxContext.curHx
+    Context.cur
   }
 
-  private static PlatformNetworkExt ext(HxContext cx := curContext)
+  private static PlatformNetworkExt ext(Context cx := curContext)
   {
     cx.rt.ext("hx.platform.network")
   }

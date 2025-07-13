@@ -49,7 +49,7 @@ const mixin Ext
   virtual HxService[] services() { HxService#.emptyList }
 
   ** Initialize a feed from a subscription request for this library
-  @NoDoc virtual HxFeed feedInit(Dict req, HxContext cx)
+  @NoDoc virtual HxFeed feedInit(Dict req, Context cx)
   {
     throw Err("Ext does not support feedInit: $name")
   }

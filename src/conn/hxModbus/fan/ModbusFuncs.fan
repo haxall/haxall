@@ -19,8 +19,8 @@ using hxConn
 **
 const class ModbusFuncs
 {
-  ** Utility to get the current HxContext
-  private static HxContext cx() { HxContext.curHx }
+  ** Utility to get the current Context
+  private static Context cx() { Context.cur }
 
   ** Deprecated - use `connPing()`
   @Deprecated @Axon { admin = true }
@@ -170,7 +170,7 @@ const class ModbusFuncs
   }
 
   ** Get the register map storage directory
-  private static File regMapDir(HxContext cx)
+  private static File regMapDir(Context cx)
   {
     dir := cx.rt.dir + `data/modbus/`
     if (!dir.exists) dir.create

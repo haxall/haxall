@@ -31,7 +31,7 @@ abstract class HxApiOp
   Def def() { spi.def }
 
   ** Process an HTTP service call to this op
-  virtual Void onService(WebReq req, WebRes res, HxContext cx)
+  virtual Void onService(WebReq req, WebRes res, Context cx)
   {
     // parse request grid; if readReq returns null
     // then an error has already been returned
@@ -47,7 +47,7 @@ abstract class HxApiOp
 
   ** Process parsed request.  Default implentation
   ** attempts to eval an Axon function of the same name.
-  abstract Grid onRequest(Grid req, HxContext cx)
+  abstract Grid onRequest(Grid req, Context cx)
 
   ** Return if this operation can be called with GET method.
   @NoDoc virtual Bool isGetAllowed()
@@ -82,7 +82,7 @@ const mixin HxApiOpSpi
 
 internal class HxAboutOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     Etc.makeDictGrid(null, HxCoreFuncs.about)
   }
@@ -94,7 +94,7 @@ internal class HxAboutOp : HxApiOp
 
 internal class HxCloseOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     cx.rt.user.closeSession(cx.session)
     return Etc.emptyGrid
@@ -107,7 +107,7 @@ internal class HxCloseOp : HxApiOp
 
 internal class HxDefsOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     opts := req.first as Dict ?: Etc.emptyDict
     limit := (opts["limit"] as Number)?.toInt ?: Int.maxVal
@@ -124,7 +124,7 @@ internal class HxDefsOp : HxApiOp
     return Etc.makeDictsGrid(meta, acc)
   }
 
-  virtual Void eachDef(HxContext cx, |Def| f) { cx.defs.eachDef(f) }
+  virtual Void eachDef(Context cx, |Def| f) { cx.defs.eachDef(f) }
 }
 
 **************************************************************************
@@ -133,7 +133,7 @@ internal class HxDefsOp : HxApiOp
 
 internal class HxFiletypesOp : HxDefsOp
 {
-  override Void eachDef(HxContext cx, |Def| f) { cx.defs.filetypes.each(f) }
+  override Void eachDef(Context cx, |Def| f) { cx.defs.filetypes.each(f) }
 }
 
 **************************************************************************
@@ -142,7 +142,7 @@ internal class HxFiletypesOp : HxDefsOp
 
 internal class HxLibsOp : HxDefsOp
 {
-  override Void eachDef(HxContext cx, |Def| f) { cx.defs.libsList.each(f) }
+  override Void eachDef(Context cx, |Def| f) { cx.defs.libsList.each(f) }
 }
 
 **************************************************************************
@@ -151,7 +151,7 @@ internal class HxLibsOp : HxDefsOp
 
 internal class HxOpsOp : HxDefsOp
 {
-  override Void eachDef(HxContext cx, |Def| f) { cx.defs.feature("op").eachDef(f) }
+  override Void eachDef(Context cx, |Def| f) { cx.defs.feature("op").eachDef(f) }
 }
 
 **************************************************************************
@@ -160,7 +160,7 @@ internal class HxOpsOp : HxDefsOp
 
 internal class HxReadOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     if (req.isEmpty) throw Err("Request grid is empty")
 
@@ -187,7 +187,7 @@ internal class HxReadOp : HxApiOp
 
 internal class HxEvalOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     if (req.isEmpty) throw Err("Request grid is empty")
     expr := (Str)req.first->expr
@@ -201,7 +201,7 @@ internal class HxEvalOp : HxApiOp
 
 internal class HxCommitOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     if (!cx.user.isAdmin) throw PermissionErr("Missing 'admin' permission: commit")
     mode := req.meta->commit
@@ -214,7 +214,7 @@ internal class HxCommitOp : HxApiOp
     }
   }
 
-  private Grid onAdd(Grid req, HxContext cx)
+  private Grid onAdd(Grid req, Context cx)
   {
     diffs := Diff[,]
     req.each |row|
@@ -232,7 +232,7 @@ internal class HxCommitOp : HxApiOp
     return Etc.makeDictsGrid(null, newRecs)
   }
 
-  private Grid onUpdate(Grid req, HxContext cx)
+  private Grid onUpdate(Grid req, Context cx)
   {
     flags := 0
     if (req.meta.has("force"))     flags = flags.or(Diff.force)
@@ -254,7 +254,7 @@ internal class HxCommitOp : HxApiOp
     return Etc.makeDictsGrid(null, newRecs)
   }
 
-  private Grid onRemove(Grid req, HxContext cx)
+  private Grid onRemove(Grid req, Context cx)
   {
     flags := Diff.remove
     if (req.meta.has("force")) flags = flags.or(Diff.force)
@@ -272,7 +272,7 @@ internal class HxCommitOp : HxApiOp
 
 internal class HxNavOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     // check if we have nav function defined and if so use it
     func := cx.findTop("nav", false)
@@ -323,7 +323,7 @@ internal class HxNavOp : HxApiOp
 
 @NoDoc class HxWatchSubOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     // lookup or create watch
     watchId := req.meta["watchId"] as Str
@@ -369,7 +369,7 @@ internal class HxNavOp : HxApiOp
 
 @NoDoc class HxWatchUnsubOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     // parse reqeust
     watchId := req.meta["watchId"] as Str ?: throw Err("Missing meta.watchId")
@@ -394,7 +394,7 @@ internal class HxNavOp : HxApiOp
 
 internal class HxWatchPollOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     // parse reqeust
     watchId := req.meta["watchId"] as Str ?: throw Err("Missing meta.watchId")
@@ -427,7 +427,7 @@ internal class HxWatchPollOp : HxApiOp
 
 internal class HxHisReadOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     if (req.isEmpty) throw Err("Request grid is empty")
     if (req.meta.has("range"))
@@ -436,7 +436,7 @@ internal class HxHisReadOp : HxApiOp
       return onSingle(req, cx)
   }
 
-  private Grid onSingle(Grid req, HxContext cx)
+  private Grid onSingle(Grid req, Context cx)
   {
     reqRow := req[0]
     rec := cx.db.readById(reqRow.id)
@@ -459,7 +459,7 @@ internal class HxHisReadOp : HxApiOp
     return gb.toGrid
   }
 
-  private Grid onBatch(Grid req, HxContext cx)
+  private Grid onBatch(Grid req, Context cx)
   {
     // read all the records
     recs := Dict[,]
@@ -514,7 +514,7 @@ internal class HxHisReadOp : HxApiOp
     return gb.toGrid
   }
 
-  private Void readBatch(Grid req, HxContext cx, Dict rec, Span span, |DateTime, Obj val| f)
+  private Void readBatch(Grid req, Context cx, Dict rec, Span span, |DateTime, Obj val| f)
   {
     cx.rt.his.read(rec, span, req.meta) |item|
     {
@@ -567,7 +567,7 @@ internal class HxHisReadOp : HxApiOp
 
 internal class HxHisWriteOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     // check security
     cx.checkAdmin("hisWrite op")
@@ -581,12 +581,12 @@ internal class HxHisWriteOp : HxApiOp
     return Etc.emptyGrid
   }
 
-  private Void onSingle(Grid req, HxContext cx)
+  private Void onSingle(Grid req, Context cx)
   {
     write(req, cx, req.meta.id, req.col("ts"), req.col("val"))
   }
 
-  private Void onBatch(Grid req, HxContext cx)
+  private Void onBatch(Grid req, Context cx)
   {
     tsCol := req.cols[0]
     if (tsCol.name != "ts") throw Err("First col must be named 'ts', not '$tsCol.name'")
@@ -598,7 +598,7 @@ internal class HxHisWriteOp : HxApiOp
     }
   }
 
-  private Void write(Grid req, HxContext cx, Ref id, Col tsCol, Col valCol)
+  private Void write(Grid req, Context cx, Ref id, Col tsCol, Col valCol)
   {
     // lookup history record
     rec := cx.db.readById(id)
@@ -627,7 +627,7 @@ internal class HxHisWriteOp : HxApiOp
 
 internal class HxPointWriteOp : HxApiOp
 {
-  override Grid onRequest(Grid req, HxContext cx)
+  override Grid onRequest(Grid req, Context cx)
   {
     // parse request
     if (req.size != 1) throw Err("Request grid must have 1 row")

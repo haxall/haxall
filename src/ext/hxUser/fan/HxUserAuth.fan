@@ -35,7 +35,7 @@ internal class HxUserAuth
 
   ** Authenticate the request and return a new context.  If request
   ** is not authenticated then redirect to login and return null.
-  HxContext? authenticate()
+  Context? authenticate()
   {
     // check for tunnel cluster authentication
     s := checkCluster
@@ -59,12 +59,12 @@ internal class HxUserAuth
   }
 
   ** Called when request maps to an authenticated session
-  private HxContext authenticated(HxUserSession session)
+  private Context authenticated(HxUserSession session)
   {
     // refresh session and construct context
     user := session.isCluster ? session.user : ext.read(session.user.id)
     session.touch(user)
-    cx := HxContext(proj, session)
+    cx := Context(proj, session)
     cx.stash["attestKey"] = session.attestKey
     return cx
   }

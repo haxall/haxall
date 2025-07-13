@@ -286,7 +286,7 @@ class ObserveTest : HxTest
     {
       expected = commitExpected(actual, expected)
 
-      cx := HxContext.curHx(false)
+      cx := Context.cur(false)
       if (cx != null)
         expected = Etc.dictSet(expected, "user", cx.user.meta)
 

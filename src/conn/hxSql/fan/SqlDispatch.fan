@@ -76,7 +76,7 @@ class SqlDispatch : ConnDispatch
 
   private Grid evalSyncHisExpr(ConnPoint point, Str exprStr, DateTime start, DateTime end)
   {
-    cx := HxContext(proj, evalUser)
+    cx := Context(proj, evalUser)
     Actor.locals[ActorContext.actorLocalsKey] = cx
     try
     {

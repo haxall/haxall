@@ -410,10 +410,10 @@ const class TaskFuncs
   }
 
   ** Current context
-  private static HxContext curContext() { HxContext.curHx }
+  private static Context curContext() { Context.cur }
 
   ** Lookup TaskExt for context
-  private static TaskExt lib(HxContext cx) { cx.rt.ext("hx.task") }
+  private static TaskExt lib(Context cx) { cx.proj.ext("hx.task") }
 }
 
 **************************************************************************
@@ -433,7 +433,7 @@ internal const class TestTaskAdjunct : HxTaskAdjunct
 
 @NoDoc const class TasksFeed : HxFeed
 {
-  new make(HxContext cx, TaskExt ext, Filter? search) : super(cx)
+  new make(Context cx, TaskExt ext, Filter? search) : super(cx)
   {
     this.ext = ext
     this.search = search
@@ -441,7 +441,7 @@ internal const class TestTaskAdjunct : HxTaskAdjunct
   const TaskExt ext
   const Filter? search
   const AtomicInt lastPollTicks := AtomicInt(Duration.nowTicks)
-  override Grid? poll(HxContext cx)
+  override Grid? poll(Context cx)
   {
     // poll for tasks which have ver updated since last poll ticks
     grid := TaskFuncs.tasksGrid(ext, null, lastPollTicks.val)

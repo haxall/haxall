@@ -24,7 +24,7 @@ abstract const class HxFeed
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor - must safe not perform any I/O or multi-threading!
-  new make(HxContext cx)
+  new make(Context cx)
   {
     init := cx.feedInit
 
@@ -58,19 +58,19 @@ abstract const class HxFeed
 //////////////////////////////////////////////////////////////////////////
 
   ** Subscribe and return initial data
-  virtual Obj subscribe(Dict req, HxContext cx)
+  virtual Obj subscribe(Dict req, Context cx)
   {
     throw UnsupportedErr("${typeof}.subscribe")
   }
 
   ** Poll for new data or null if no new data
-  abstract Obj? poll(HxContext cx)
+  abstract Obj? poll(Context cx)
 
   ** Unsubscribe and cleanup resources
   virtual Void unsubscribe() {}
 
   ** Invoke an call operation on a feed
-  virtual Obj? call(Dict req, HxContext cx)
+  virtual Obj? call(Dict req, Context cx)
   {
     throw UnsupportedErr("${typeof}.call")
   }

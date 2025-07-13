@@ -202,7 +202,7 @@ const class HaystackFuncs
   }
 
 
-  private static Str serializeVar(HxContext cx, Obj? val)
+  private static Str serializeVar(Context cx, Obj? val)
   {
     try
     {
@@ -232,7 +232,7 @@ const class HaystackFuncs
   }
 
   ** Dispatch a message to the given connector and return result
-  private static Obj? dispatch(HxContext cx, Obj conn, HxMsg msg)
+  private static Obj? dispatch(Context cx, Obj conn, HxMsg msg)
   {
     ext := (HaystackExt)cx.rt.ext("hx.haystack")
     r := ext.conn(Etc.toId(conn)).sendSync(msg)
@@ -240,7 +240,7 @@ const class HaystackFuncs
   }
 
   ** Current context
-  private static HxContext curContext() { HxContext.curHx }
+  private static Context curContext() { Context.cur }
 
 }
 

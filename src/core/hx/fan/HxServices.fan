@@ -147,8 +147,8 @@ const mixin HxUserService : HxService
 
   ** Authenticate a web request and return a context.  If request
   ** is not authenticated then redirect to login page and return null.
-  ** Session information is available via `hx::HxContext.session`.
-  abstract HxContext? authenticate(WebReq req, WebRes res)
+  ** Session information is available via `hx::Context.session`.
+  abstract Context? authenticate(WebReq req, WebRes res)
 
   ** Close the given authentication session
   @NoDoc abstract Void closeSession(UserSession session)

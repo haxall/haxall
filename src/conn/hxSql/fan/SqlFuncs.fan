@@ -235,6 +235,6 @@ const class SqlFuncs
     return val
   }
 
-  private static HxContext curContext() { HxContext.curHx }
+  private static Context curContext() { Context.cur }
 }
 

@@ -64,11 +64,11 @@ throw Err("TODO")
     Slot.findMethod("hxUser::HxUserUtil.addUser").call(test.rt.db, user, pass, tags)
   }
 
-  override HxContext makeContext(User? user)
+  override Context makeContext(User? user)
   {
     if (user == null)
       user = test.rt.user.makeSyntheticUser("test", ["userRole":"su"])
-    return HxContext(test.rt, user)
+    return Context(test.rt, user)
   }
 
   override Void forceSteadyState(Proj rt)

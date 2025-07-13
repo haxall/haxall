@@ -64,7 +64,7 @@ const class HxUserExt : ExtObj, HxUserService
 
   ** Authenticate a web request and return a context.  If request
   ** is not authenticated then redirect to login page and return null.
-  override HxContext? authenticate(WebReq req, WebRes res)
+  override Context? authenticate(WebReq req, WebRes res)
   {
     HxUserAuth(this, req, res).authenticate
   }

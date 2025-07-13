@@ -73,12 +73,12 @@ const class PlatformTimeFuncs
     Etc.dict3("section", section, "dis", dis, "val", val)
   }
 
-  private static HxContext curContext()
+  private static Context curContext()
   {
-    HxContext.curHx
+    Context.cur
   }
 
-  private static PlatformTimeExt ext(HxContext cx := curContext)
+  private static PlatformTimeExt ext(Context cx := curContext)
   {
     cx.rt.ext("hx.platform.time")
   }

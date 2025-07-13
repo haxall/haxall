@@ -19,7 +19,7 @@ using folio
 const class IOUtil
 {
   ** Convert I/O handle to a file
-  static File toFile(HxContext cx, Obj obj, Str debugAction)
+  static File toFile(Context cx, Obj obj, Str debugAction)
   {
     return IOHandle.fromObj(cx.rt, obj).toFile(debugAction)
   }
@@ -39,7 +39,7 @@ const class IOUtil
 
 internal class IOCsvReader
 {
-  new make(HxContext cx, Obj handle, Dict? opts)
+  new make(Context cx, Obj handle, Dict? opts)
   {
     this.cx        = cx
     this.handle    = handle
@@ -156,7 +156,7 @@ internal class IOCsvReader
     IOHandle.fromObj(cx.rt, handle)
   }
 
-  private HxContext cx
+  private Context cx
   private Obj handle
   private const Dict opts
   private const Bool noHeader

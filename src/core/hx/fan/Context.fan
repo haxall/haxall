@@ -15,19 +15,19 @@ using folio
 **
 ** Haxall execution and security context.
 **
-class HxContext : AxonContext, FolioContext
+class Context : AxonContext, FolioContext
 {
 
 //////////////////////////////////////////////////////////////////////////
 // Current
 //////////////////////////////////////////////////////////////////////////
 
-  ** Current Haxall context for actor thread
-  @NoDoc static HxContext? curHx(Bool checked := true)
+  ** Current context for actor thread
+  @NoDoc static Context? cur(Bool checked := true)
   {
     cx := ActorContext.curx(false)
     if (cx != null) return cx
-    if (checked) throw ContextUnavailableErr("No HxContext available")
+    if (checked) throw ContextUnavailableErr("No Context available")
     return null
   }
 
@@ -156,7 +156,7 @@ virtual Proj rt() { proj }
 
   ** Return an immutable thread safe object which will be passed thru
   ** the commit process and available via the FolioHooks callbacks.
-  ** This is typically the User instance.  HxContext always returns user.
+  ** This is typically the User instance.  Context always returns user.
   @NoDoc override Obj? commitInfo() { user }
 
 //////////////////////////////////////////////////////////////////////////

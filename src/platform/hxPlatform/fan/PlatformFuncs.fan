@@ -74,12 +74,12 @@ const class PlatformFuncs
     Etc.dict3("section", section, "dis", dis, "val", val)
   }
 
-  private static HxContext curContext()
+  private static Context curContext()
   {
-    HxContext.curHx
+    Context.cur
   }
 
-  private static PlatformExt ext(HxContext cx := curContext)
+  private static PlatformExt ext(Context cx := curContext)
   {
     cx.rt.ext("hx.platform")
   }

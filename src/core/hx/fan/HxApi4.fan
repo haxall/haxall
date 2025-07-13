@@ -35,7 +35,7 @@ facet class IonApi {}
 class HxApiReq
 {
   ** Service an API endpoint call
-  static Void service(WebReq req, WebRes res, Str op, HxContext cx)
+  static Void service(WebReq req, WebRes res, Str op, Context cx)
   {
     // resolve to api function
     spec := cx.ns.api(op, false)
@@ -72,7 +72,7 @@ class HxApiReq
   }
 
   ** Constructor
-  protected new make(WebReq req, WebRes res, Spec spec, Dict args, HxContext cx)
+  protected new make(WebReq req, WebRes res, Spec spec, Dict args, Context cx)
   {
     this.reqRef  = req
     this.resRef  = res
@@ -94,12 +94,12 @@ class HxApiReq
   Dict args() { argsRef }
 
   ** Context
-  HxContext context() { cxRef }
+  Context context() { cxRef }
 
   private WebReq reqRef
   private WebRes resRef
   private const Spec specRef
   private const Dict argsRef
-  private HxContext cxRef
+  private Context cxRef
 }
 

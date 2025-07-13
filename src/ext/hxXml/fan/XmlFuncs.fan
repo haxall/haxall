@@ -26,7 +26,7 @@ const class XmlFuncs
   @Axon { admin = true }
   static XElem xmlRead(Obj? handle)
   {
-    HxContext.curHx.rt.io.read(handle) |in| { XParser(in).parseDoc.root }
+    Context.cur.rt.io.read(handle) |in| { XParser(in).parseDoc.root }
   }
 
   **
@@ -161,5 +161,4 @@ const class XmlFuncs
   static XElem[] xmlElems(XElem elem) { elem.elems }
 
 }
-
 

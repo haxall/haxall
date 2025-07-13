@@ -175,7 +175,7 @@ const class HxUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Get current context
-  private static HxContext curContext() { HxContext.curHx }
+  private static Context curContext() { Context.cur }
 }
 
 **************************************************************************

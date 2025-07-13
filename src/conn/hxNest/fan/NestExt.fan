@@ -17,7 +17,7 @@ const class NestExt : ConnExt
 {
   static NestExt? cur(Bool checked := true)
   {
-    HxContext.curHx.rt.ext("hx.nest", checked)
+    Context.cur.proj.ext("hx.nest", checked)
   }
 }
 

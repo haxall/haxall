@@ -30,7 +30,7 @@
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
-** Thrown by HxContext.session when not in a session
+** Thrown by Context.session when not in a session
 @NoDoc const class SessionUnavailableErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}

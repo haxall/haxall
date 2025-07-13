@@ -283,7 +283,7 @@ internal const class ConnTraceLog : Log
 
 internal const class ConnTraceFeed : HxFeed
 {
-  new make(HxContext cx, ConnTrace trace, DateTime ts, Dict? opts)
+  new make(Context cx, ConnTrace trace, DateTime ts, Dict? opts)
     : super(cx)
   {
     this.trace = trace
@@ -293,7 +293,7 @@ internal const class ConnTraceFeed : HxFeed
   const ConnTrace trace
   const AtomicRef ts
   const Dict? opts
-  override Grid? poll(HxContext cx)
+  override Grid? poll(Context cx)
   {
     list := trace.readSince(ts.val)
     if (!list.isEmpty)

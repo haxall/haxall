@@ -21,7 +21,7 @@ using folio
 @NoDoc abstract class AbstractSyncHis
 {
   ** Constructor
-  new make(HxContext cx, Obj[] points, Obj? span)
+  new make(Context cx, Obj[] points, Obj? span)
   {
     this.cxRef     = cx
     this.task      = cx.rt.services.get(HxTaskService#, false)
@@ -49,7 +49,7 @@ using folio
   }
 
   ** Context for sync
-  virtual HxContext cx() { cxRef }
+  virtual Context cx() { cxRef }
 
   ** Points to sync
   virtual Obj[] points() { pointsRef }
@@ -92,7 +92,7 @@ using folio
     task.progress(Etc.dict2("msg", msg, "progress", Number(progress, Number.percent)))
   }
 
-  private HxContext cxRef
+  private Context cxRef
   private ConnPoint[] pointsRef
   private HxTaskService? task
   private Obj? span
@@ -111,7 +111,7 @@ using folio
 **
 internal class ConnSyncHis : AbstractSyncHis
 {
-  new make(HxContext cx, ConnPoint[] points, Obj? span)
+  new make(Context cx, ConnPoint[] points, Obj? span)
     : super(cx, points, span)
   {
   }

@@ -16,7 +16,7 @@ using hx
 **
 internal class PointRecSet
 {
-  new make(Obj? recs, HxContext cx := HxContext.curHx)
+  new make(Obj? recs, Context cx := Context.cur)
   {
     this.recs = Etc.toRecs(recs, cx)
     this.cx   = cx
@@ -72,6 +72,6 @@ internal class PointRecSet
   }
 
   private Dict[] recs
-  private HxContext cx
+  private Context cx
 }
 

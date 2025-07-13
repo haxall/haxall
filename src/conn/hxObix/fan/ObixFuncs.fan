@@ -190,13 +190,13 @@ const class ObixFuncs
   }
   */
 
-  internal static Obj? dispatch(HxContext cx, Obj conn, HxMsg msg)
+  internal static Obj? dispatch(Context cx, Obj conn, HxMsg msg)
   {
     ext := (ObixExt)cx.rt.ext("hx.obix")
     return ext.conn(Etc.toId(conn)).sendSync(msg)
   }
 
-  private static HxContext curContext() { HxContext.curHx }
+  private static Context curContext() { Context.cur }
 
 }
 

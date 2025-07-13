@@ -46,7 +46,7 @@ const class HxShellWeb : ExtWeb
     }
   }
 
-  private Void onHtml(HxContext cx)
+  private Void onHtml(Context cx)
   {
     if (req.method != "GET") { res.sendErr(501); return }
 

@@ -215,7 +215,7 @@ const class SedonaFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Dispatch a message to the given connector and return result
-  private static Obj? dispatch(HxContext cx, Obj conn, HxMsg msg)
+  private static Obj? dispatch(Context cx, Obj conn, HxMsg msg)
   {
     ext := (SedonaExt)cx.rt.ext("hx.sedona")
     r := ext.conn(Etc.toId(conn)).sendSync(msg)
@@ -223,7 +223,7 @@ const class SedonaFuncs
   }
 
   ** Current context
-  private static HxContext curContext() { HxContext.curHx }
+  private static Context curContext() { Context.cur }
 
 }
 

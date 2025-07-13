@@ -81,7 +81,7 @@ class PointUtil
   }
 
   ** Implementation for the toOccupied function
-  static Dict? toOccupied(Dict r, Bool checked, HxContext cx)
+  static Dict? toOccupied(Dict r, Bool checked, Context cx)
   {
     occupied := Filter("occupied")
 
@@ -140,7 +140,7 @@ class PointUtil
   }
 
   ** Check for occupied point in parent spaceRef or return null
-  private static Dict? toParentSpaceOccupied(Dict r, HxContext cx)
+  private static Dict? toParentSpaceOccupied(Dict r, Context cx)
   {
     spaceRef := r["spaceRef"] as Ref
     if (spaceRef == null) return null
@@ -148,7 +148,7 @@ class PointUtil
   }
 
   ** Check for occupied point in parent equipRef or return null
-  private static Dict? toParentEquipOccupied(Dict r, HxContext cx)
+  private static Dict? toParentEquipOccupied(Dict r, Context cx)
   {
     equipRef := r["equipRef"] as Ref
     if (equipRef == null) return null

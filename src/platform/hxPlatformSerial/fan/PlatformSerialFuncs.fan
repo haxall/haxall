@@ -30,7 +30,7 @@ const class PlatformSerialFuncs
     return gb.toGrid
   }
 
-  private static HxContext curContext() { HxContext.curHx }
+  private static Context curContext() { Context.cur }
 
   private static PlatformSerialExt ext() {  curContext.rt.ext("hx.platform.serial") }
 }

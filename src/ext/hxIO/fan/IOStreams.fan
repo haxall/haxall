@@ -25,7 +25,7 @@ internal class IOStreamLinesStream : SourceStream
 
   override Void onStart(Signal sig)
   {
-    IOHandle.fromObj(rt, handle).withIn |in|
+    IOHandle.fromObj(proj, handle).withIn |in|
     {
       while (true)
       {
@@ -38,7 +38,7 @@ internal class IOStreamLinesStream : SourceStream
     }
   }
 
-  Proj rt() { ((HxContext)cx).rt }
+  Proj proj() { ((Context)cx).proj }
 
   private Obj? handle
 }

@@ -437,7 +437,7 @@ const class HxCoreFuncs
   @Axon { su = true }
   static Obj? libReload()
   {
-    cx := HxContext.curHx
+    cx := Context.cur
     isShell := cx.rt.platform.isShell
     log := isShell ? Log.get("xeto") : cx.rt.ext("hx.xeto").log
     log.info("libReload [$cx.user.username]")
@@ -679,7 +679,7 @@ const class HxCoreFuncs
   static Str threadDump() { HxUtil.threadDumpAll }
 
   ** Get current context
-  private static HxContext curContext() { HxContext.curHx }
+  private static Context curContext() { Context.cur }
 }
 
 **************************************************************************
@@ -696,7 +696,7 @@ internal class ReadAllStream : SourceStream
 
   override Void onStart(Signal sig)
   {
-    cx := (HxContext)this.cx
+    cx := (Context)this.cx
     cx.db.readAllEachWhile(filter, Etc.emptyDict) |rec->Obj?|
     {
       submit(rec)
@@ -721,7 +721,7 @@ internal class ReadByIdsStream : SourceStream
 
   override Void onStart(Signal sig)
   {
-    cx := (HxContext)this.cx
+    cx := (Context)this.cx
     ids.eachWhile |id|
     {
       rec := cx.db.readById(id, checked)
@@ -750,7 +750,7 @@ internal class CommitStream : TerminalStream
     if (data == null) return
 
     // back pressure
-    cx := (HxContext)this.cx
+    cx := (Context)this.cx
     count++
     if (count % 100 == 0) cx.db.sync
 
@@ -762,7 +762,7 @@ internal class CommitStream : TerminalStream
   override Obj? onRun()
   {
     // block until folio queues processed
-    cx := (HxContext)this.cx
+    cx := (Context)this.cx
     cx.db.sync
 
     return Number(count)

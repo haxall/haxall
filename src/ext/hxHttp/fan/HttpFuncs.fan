@@ -21,6 +21,7 @@ const class HttpFuncs
   static Uri httpSiteUri() { curContext.rt.http.siteUri }
 
   ** Current context
-  private static HxContext curContext() { HxContext.curHx }
+  private static Context curContext() { Context.cur }
 
 }
+
