@@ -235,7 +235,7 @@ class RuntimeTest : HxTest
 ** HxTestLibA
 **************************************************************************
 
-const class HxTestAExt : Ext
+const class HxTestAExt : ExtObj
 {
   const AtomicRef traces := AtomicRef("")
 
@@ -254,7 +254,7 @@ const class HxTestAExt : Ext
 ** HxTestLibB
 **************************************************************************
 
-const class HxTestBExt : Ext
+const class HxTestBExt : ExtObj
 {
 }
 

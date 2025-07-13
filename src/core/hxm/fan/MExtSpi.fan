@@ -26,7 +26,7 @@ const class MExtSpi : Actor, ExtSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate the Ext for given lib if available
-  static Ext? instantiate(MProjExts exts, Lib lib)
+  static ExtObj? instantiate(MProjExts exts, Lib lib)
   {
     // check for libExt meta
     ref := lib.meta["libExt"] as Ref
@@ -51,7 +51,7 @@ const class MExtSpi : Actor, ExtSpi
       spi := MExtSpi(exts.proj, spec, type, settings, exts.actorPool)
 
       // instantiate fantom type
-      Ext? ext
+      ExtObj? ext
       Actor.locals["hx.spi"] = spi
       try
         ext = spi.fantomType.make
@@ -87,7 +87,7 @@ this.webUri      = ("/" + (name.startsWith("hx") ? name[3..-1].decapitalize : na
 // ExtSpi Implementation
 //////////////////////////////////////////////////////////////////////////
 
-  Ext ext() { extRef.val }
+  ExtObj ext() { extRef.val }
   private const AtomicRef extRef := AtomicRef()
 
   override const Proj proj

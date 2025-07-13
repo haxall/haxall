@@ -13,7 +13,7 @@ using hx
 **
 ** Docker image management
 **
-const class DockerExt : Ext
+const class DockerExt : ExtObj
 {
   new make()
   {

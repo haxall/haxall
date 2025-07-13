@@ -13,33 +13,14 @@ using haystack
 using obs
 
 **
-** Base class for all Haxall extensions.
+** Extension
 **
-abstract const class Ext
+const mixin Ext
 {
-
-//////////////////////////////////////////////////////////////////////////
-// Construction
-//////////////////////////////////////////////////////////////////////////
-
-  ** Framework use only. Subclasses must declare public no-arg constructor.
-  new make()
-  {
-    this.spiRef = Actor.locals["hx.spi"] as ExtSpi ?: throw Err("Invalid make context")
-  }
 
 //////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
-
-  ** Identity hash
-  override final Int hash() { super.hash }
-
-  ** Equality is based on reference equality
-  override final Bool equals(Obj? that) { this === that }
-
-  ** Return `name`
-  override final Str toStr() { name }
 
   ** Use proj now
   //@Deprecated virtual Proj rt() { proj }
@@ -74,8 +55,7 @@ abstract const class Ext
   }
 
   ** Service provider interface
-  @NoDoc virtual ExtSpi spi() { spiRef }
-  @NoDoc const ExtSpi spiRef
+  @NoDoc abstract ExtSpi spi()
 
 //////////////////////////////////////////////////////////////////////////
 // Observables
@@ -142,6 +122,34 @@ abstract const class Ext
   {
     throw UnsupportedErr("Unknown msg: $msg")
   }
+}
+
+**************************************************************************
+** ExtObj
+**************************************************************************
+
+**
+** Base class for all `Ext` implementations
+**
+abstract const class ExtObj : Ext
+{
+  ** All subclasses must declare public no-arg constructor.
+  new make()
+  {
+    this.spi = Actor.locals["hx.spi"] as ExtSpi ?: throw Err("Invalid make context")
+  }
+
+  ** Identity hash
+  override final Int hash() { super.hash }
+
+  ** Equality is based on reference equality
+  override final Bool equals(Obj? that) { this === that }
+
+  ** Return `name`
+  override final Str toStr() { name }
+
+  @NoDoc
+  const override ExtSpi spi
 }
 
 **************************************************************************

@@ -13,7 +13,7 @@ using hx
 **
 ** Python extension.
 **
-const class PyExt : Ext
+const class PyExt : ExtObj
 {
   ** Construction
   new make()

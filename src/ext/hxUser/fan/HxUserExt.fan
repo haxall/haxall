@@ -19,7 +19,7 @@ using hxm
 **
 ** User athentication and session management
 **
-const class HxUserExt : Ext, HxUserService
+const class HxUserExt : ExtObj, HxUserService
 {
   ** Web servicing
   override const HxUserWeb web := HxUserWeb(this)

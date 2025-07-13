@@ -17,7 +17,7 @@ using hx
 **
 ** HTTP service handling
 **
-const class HttpExt : Ext, HxHttpService
+const class HttpExt : ExtObj, HxHttpService
 {
   WispService wisp() { wispRef.val }
   private const AtomicRef wispRef := AtomicRef(null)

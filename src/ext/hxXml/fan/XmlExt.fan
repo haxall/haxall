@@ -11,7 +11,7 @@ using hx
 **
 ** XML function library
 **
-const class XmlExt : Ext
+const class XmlExt : ExtObj
 {
 }
 

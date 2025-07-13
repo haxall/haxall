@@ -11,7 +11,7 @@ using hx
 **
 ** I/O functions
 **
-const class IOExt : Ext, HxIOService
+const class IOExt : ExtObj, HxIOService
 {
   override HxService[] services() { [this] }
 

@@ -14,7 +14,7 @@ using hx
 **
 ** Platform support for serial ports
 **
-const class PlatformSerialExt : Ext
+const class PlatformSerialExt : ExtObj
 {
 
 //////////////////////////////////////////////////////////////////////////

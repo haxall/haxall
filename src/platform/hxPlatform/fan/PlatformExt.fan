@@ -13,7 +13,7 @@ using hx
 **
 ** Platform support for basic functionality
 **
-const class PlatformExt : Ext
+const class PlatformExt : ExtObj
 {
 
   new make()
