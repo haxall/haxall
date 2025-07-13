@@ -180,6 +180,29 @@ override  HxHisService his() { services.his }
   override const Log log
 
 //////////////////////////////////////////////////////////////////////////
+// Folio Conveniences
+//////////////////////////////////////////////////////////////////////////
+
+  override Dict? readById(Ref? id, Bool checked := true) { db.readById(id, checked) }
+
+  override Grid readByIds(Ref[] ids, Bool checked := true) { db.readByIds(ids, checked) }
+
+  override Dict?[] readByIdsList(Ref[] ids, Bool checked := true) { db.readByIdsList(ids, checked) }
+
+  override Int readCount(Str filter) { db.readCount(Filter(filter)) }
+
+  override Dict? read(Str filter, Bool checked := true) { db.read(Filter(filter), checked) }
+
+  override Grid readAll(Str filter, Dict? opts := null) { db.readAll(Filter(filter), opts) }
+
+  override Dict[] readAllList(Str filter, Dict? opts := null) { db.readAllList(Filter(filter), opts) }
+
+  override Diff commit(Diff diff) { db.commit(diff) }
+
+  override Diff[] commitAll(Diff[] diffs) { db.commitAll(diffs) }
+
+
+//////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
 

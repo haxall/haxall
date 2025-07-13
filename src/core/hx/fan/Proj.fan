@@ -89,7 +89,6 @@ abstract Void recompileDefs()
 // Folio Conveniences
 //////////////////////////////////////////////////////////////////////////
 
-  /*
   ** Convenience for `readByIds`
   abstract Dict? readById(Ref? id, Bool checked := true)
 
@@ -134,6 +133,6 @@ abstract Void recompileDefs()
   ** for the given change set then ConcurrentChangeErr is thrown
   ** unless 'Diff.force' configured.
   abstract Diff[] commitAll(Diff[] diffs)
-  */
+
 }
 
