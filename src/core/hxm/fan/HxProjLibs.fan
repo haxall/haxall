@@ -383,9 +383,6 @@ const class HxProjLibs : ProjLibs
     this.mapRef.val = acc.toImmutable
     this.projLibNamesRef.val = projLibNames.toImmutable
 
-echo(">>> build libs")
-status.dump
-
     // notify project
 if (proj == null) log.info("TODO NEED PROJ IN PROJ LIBS")
 else

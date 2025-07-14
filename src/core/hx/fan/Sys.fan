@@ -13,26 +13,38 @@
 const mixin Sys : Proj
 {
 
+//////////////////////////////////////////////////////////////////////////
+// Identity
+//////////////////////////////////////////////////////////////////////////
+
   ** Platform hosting the runtime
   abstract Platform platform()
 
   ** System version
   abstract Version version()
 
-  ** Cluster system extension
+ ** Configuration options defined at bootstrap
+  @NoDoc abstract SysConfig config()
+
+//////////////////////////////////////////////////////////////////////////
+// Exts
+//////////////////////////////////////////////////////////////////////////
+
+  ** Cluster system extension (optional)
   @NoDoc abstract IClusterExt? cluster(Bool checked := true)
 
-  ** Crypto system extension
+  ** Crypto system extension (required)
   @NoDoc abstract ICryptoExt crypto()
 
-  ** HTTP system extension
+  ** HTTP system extension (required)
   abstract IHttpExt http()
 
-  ** User management system extension
+  ** Project management (required)
+  abstract IProjExt proj()
+
+  ** User management system extension (required)
   abstract IUserExt user()
 
-  ** Configuration options defined at bootstrap
-  @NoDoc abstract SysConfig config()
 
 }
 

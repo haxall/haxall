@@ -62,6 +62,23 @@ class HxdBoot : HxBoot
   **
   Str:Obj? config := [:]
 
+  ** List of xeto lib names which are required to be installed.
+  override Str[] bootLibs()
+  {
+    [
+    "sys",
+    "sys.api",
+    "sys.files",
+    "axon",
+    "hx",
+    "hx.api",
+    "hx.crypto",
+    "hxd.proj",
+    "hx.http",
+    "hx.user",
+    ]
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // HxBoot Overrides
 //////////////////////////////////////////////////////////////////////////

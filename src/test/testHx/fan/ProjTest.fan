@@ -1,9 +1,10 @@
 //
-// Copyright (c) 2025, SkyFoundry LLC
+// Copyright (c) 2021, SkyFoundry LLC
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   9 Jul 2025 Brian Frank  Creation for new 4.0 design
+//   20 May 2021  Brian Frank  Creation
+//    9 Jul 2025  Brian Frank  Updates for new 4.0 design
 //
 
 using concurrent
@@ -12,16 +13,20 @@ using haystack
 using folio
 using hx
 using hxm
+using hxd
 using hxFolio
 
 **
 ** ProjTest
 **
-/*
 class ProjTest : HxTest
 {
 
-  Void test()
+//////////////////////////////////////////////////////////////////////////
+// Boot
+//////////////////////////////////////////////////////////////////////////
+
+  Void testBoot()
   {
     // setup
     projLibs := ["ph", "ashrae.g36", "bad.proj"]
@@ -29,7 +34,7 @@ class ProjTest : HxTest
     dir.plus(`ns/libs.txt`).out.print(projLibs.join("\n")).close
 
     // boot project
-    boot := TestProjBoot(tempDir)
+    boot := TestSysBoot(tempDir)
     bootLibs := boot.bootLibs
     p := boot.init
 
@@ -37,12 +42,24 @@ class ProjTest : HxTest
     verifyEq(p.name, boot.name)
     verifyRefEq(p.id, Ref("p:$boot.name", boot.name))
     verifyEq(p.dir, dir)
+    verifySame(p.sys, p)
+    verifyEq(p.isSys, true)
+    verifyEq(p.sys.platform.productName, "Test Product")
+    verifyEq(p.sys.config.get("testConfig"), "foo")
     verifyEq(p.isRunning, false)
     verifyEq(p.meta->projMeta, Marker.val)
     verifyEq(p.meta->version, boot.version.toStr)
     verifySame(p.meta, p.readById(p.meta.id))
     verifySame(p.meta, p.read("projMeta"))
     verifyProjLibs(p, bootLibs, projLibs, ["ashrae.g36"])
+
+    // verify system required libs
+    verifySame(p.sys.crypto.spec.lib, p.ns.lib("hx.crypto"))
+    verifySame(p.sys.http.spec.lib,   p.ns.lib("hx.http"))
+    verifySame(p.sys.user.spec.lib,   p.ns.lib("hx.user"))
+    verifySame(p.sys.proj.spec.lib,   p.ns.lib("hxd.proj"))
+    verifySame(p.sys.proj.get("sys"), p)
+    verifySame(p.sys.proj.list, Proj#.emptyList)
 
     // add lib already there, add empty list
     p.libs.add("ph")
@@ -83,7 +100,7 @@ class ProjTest : HxTest
 
     // re-boot project and verify libs/specs were persisted
     p.db.close
-    p = TestProjBoot(tempDir).init
+    p = TestSysBoot(tempDir).init
     verifyProjLibs(p, bootLibs, projLibs, [,])
     verifyProjSpecs(p, ["SpecA", "SpecB"])
     //dumpLibs(p)
@@ -116,7 +133,7 @@ class ProjTest : HxTest
 
     // re-boot and verify libs were persisted
     p.db.close
-    p = TestProjBoot(tempDir).init
+    p = TestSysBoot(tempDir).init
     verifyProjLibs(p, bootLibs, projLibs, [,])
     verifyProjSpecs(p, ["SpecB"])
 
@@ -134,11 +151,13 @@ class ProjTest : HxTest
     verifyProjSpecs(p, ["SpecAnotherA", "SpecB"])
   }
 
-  Void dumpLibs(Proj p)
+  Void dump(Proj p)
   {
+    echo("#### $p.name ####")
     echo(p.dir.plus(`ns/libs.txt`).readAllStr)
-    p.libs.status.dump
     p.ns.dump
+    p.libs.status.dump
+    p.exts.status.dump
   }
 
   Void verifyProjLibs(Proj p, Str[] bootLibs, Str[] projLibs, Str[] errs)
@@ -197,16 +216,16 @@ class ProjTest : HxTest
 }
 
 **************************************************************************
-** TestProjBoot
+** TestSysBoot
 **************************************************************************
 
-class TestProjBoot : ProjBoot
+class TestSysBoot : HxdBoot
 {
-  new make(File dir) : super("test", dir) {}
-
-  override const Log log := Log.get("test")
-
-  override const Version version := Version("1.2.3")
+  new make(File dir) : super(dir)
+  {
+    log = Log.get("test")
+    version = Version("1.2.3")
+  }
 
   override Str[] bootLibs()
   {
@@ -224,6 +243,15 @@ class TestProjBoot : ProjBoot
     return HxFolio.open(config)
   }
 
+  override Platform initPlatform()
+  {
+    Platform(Etc.makeDict(["productName":"Test Product"]))
+  }
+
+  override SysConfig initConfig()
+  {
+    SysConfig(Etc.makeDict(["testConfig":"foo"]))
+  }
+
 }
-*/
 

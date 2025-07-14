@@ -14,15 +14,21 @@ using haystack
 using axon
 using web
 
+**
+** Base class for system level only extensions
+**
+const mixin SysExt : Ext
+{
+}
 
 **************************************************************************
 ** IHttpExt
 **************************************************************************
 
 **
-** HTTP extension
+** HTTP system extension
 **
-const mixin IHttpExt : Ext
+const mixin IHttpExt : SysExt
 {
   ** Public HTTP or HTTPS URI of this host.  This is always
   ** an absolute URI such 'https://acme.com/'
@@ -36,24 +42,32 @@ const mixin IHttpExt : Ext
   @NoDoc abstract WebMod? root(Bool checked := true)
 }
 
-/*
+**************************************************************************
+** IProjExt
+**************************************************************************
+
+**
+** Project management system extension
+**
 @NoDoc
-const class NilHttpService : HxHttpService
+const mixin IProjExt : SysExt
 {
-  override Uri siteUri() { `http://localhost:8080/` }
-  override Uri apiUri() { `/api/` }
-  override WebMod? root(Bool checked := true) { if (checked) throw UnsupportedErr(); return null }
+  ** Lookup a project by Ref id or Str name.  If the id is not
+  ** formatted as "p:" then raise exception regardless of checked flag.
+  abstract Proj? get(Obj id, Bool checked := true)
+
+  ** List all accessible projects (exclude sys)
+  abstract Proj[] list()
 }
-*/
 
 **************************************************************************
 ** IUserExt
 **************************************************************************
 
 **
-** User management extension
+** User management system extension
 **
-const mixin IUserExt : Ext
+const mixin IUserExt : SysExt
 {
   ** Lookup a user by username.  If not found then raise
   ** exception or return null based on the checked flag.
@@ -79,7 +93,7 @@ const mixin IUserExt : Ext
 ** Cryptographic certificate and key pair management
 **
 @NoDoc
-const mixin ICryptoExt : Ext
+const mixin ICryptoExt : SysExt
 {
   ** The keystore to store all trusted keys and certificates
   abstract KeyStore keystore()
@@ -128,7 +142,7 @@ const mixin IFileExt : Ext
 ** Arcbeam cluster service
 **
 @NoDoc
-const mixin IClusterExt : Ext
+const mixin IClusterExt : SysExt
 {
   ** Local node id
   abstract Ref nodeId()
@@ -241,20 +255,6 @@ const mixin IHisExt : Ext
   abstract Future write(Dict pt, HisItem[] items, Dict? opts := null)
 }
 
-/*
-@NoDoc const class NilHisService : HxHisService
-{
-  override Void read(Dict pt, Span? span, Dict? opts, |HisItem| f)
-  {
-  }
-
-  override Future write(Dict pt, HisItem[] items, Dict? opts := null)
-  {
-    throw UnsupportedErr("Using NilHisService")
-  }
-}
-*/
-
 **************************************************************************
 ** IPointExt
 **************************************************************************
@@ -280,22 +280,6 @@ const mixin IPointExt : Ext
   **
   abstract Grid pointArray(Dict point)
 }
-
-/*
-@NoDoc
-const class NilPointWriteService : HxPointWriteService
-{
-  override Future write(Dict point, Obj? val, Int level, Obj who, Dict? opts := null)
-  {
-    Future.makeCompletable.complete(null)
-  }
-
-  override Grid array(Dict point)
-  {
-    Etc.emptyGrid
-  }
-}
-*/
 
 **************************************************************************
 ** IConnExt
@@ -414,27 +398,6 @@ const mixin HxConnPoint
   ** Debug details
   abstract Str details()
 }
-
-/*
-@NoDoc
-const class NilConnService : HxConnService
-{
-  override HxConnExt[] exts() { HxConnExt#.emptyList }
-  override HxConnExt? ext(Str name, Bool checked := true) { get(checked) }
-  override HxConn[] conns() { HxConn#.emptyList }
-  override HxConn? conn(Ref id, Bool checked := true) { get(checked) }
-  override Bool isConn(Ref id) { false }
-  override HxConnPoint[] points() { HxConnPoint#.emptyList }
-  override HxConnPoint? point(Ref id, Bool checked := true) { get(checked) }
-  override Bool isPoint(Ref id) { false }
-
-  private Obj? get(Bool checked)
-  {
-    if (checked) throw Err("no connectors installed")
-    return null
-  }
-}
-*/
 
 **************************************************************************
 ** HxDockerService

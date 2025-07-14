@@ -17,8 +17,19 @@ using folio
 **
 const mixin Proj
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Identity
+//////////////////////////////////////////////////////////////////////////
+
   ** Reference to system project (in Haxall daemon it is always this)
   abstract Sys sys()
+
+  ** Return if this is the system project itself
+  abstract Bool isSys()
+
+  ** Project id which is always formatted as "p:{name}"
+  abstract Ref id()
 
   ** Programatic name of the project. This string is always a valid tag name.
   abstract Str name()

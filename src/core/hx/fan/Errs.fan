@@ -6,6 +6,12 @@
 //   22 Jul 2021  Brian Frank  Creation
 //
 
+** Unknown project
+@NoDoc const class UnknownProjErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+
 ** Unknown extension
 @NoDoc @Js const class UnknownExtErr : Err
 {

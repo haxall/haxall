@@ -16,7 +16,7 @@ using hx
 **
 ** Haxall base implementation of Sys
 **
-abstract const class HxSys : HxProj, Sys
+const class HxSys : HxProj, Sys
 {
   new make(HxBoot boot) : super(boot)
   {
@@ -29,12 +29,15 @@ abstract const class HxSys : HxProj, Sys
 
   override Sys sys() { this }
 
+  override Bool isSys() { true }
+
   override const Platform platform
 
   override const SysConfig config
 
   override ICryptoExt crypto() { exts.getByType(ICryptoExt#) }
   override IHttpExt http()     { exts.getByType(IHttpExt#) }
+  override IProjExt proj()     { exts.getByType(IProjExt#) }
   override IUserExt user()     { exts.getByType(IUserExt#) }
   override IClusterExt? cluster(Bool checked := true) { exts.getByType(IClusterExt#, checked) }
 

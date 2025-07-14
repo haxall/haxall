@@ -45,7 +45,10 @@ class Build : BuildPod
     srcDirs = [`fan/`]
     docApi  = false
 
-    index = [ "hx.cli": "hxd::RunCli" ]
+    index = [
+      "hx.cli": "hxd::RunCli",
+      "xeto.bindings": "hxd.proj"
+    ]
   }
 }
 

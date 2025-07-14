@@ -51,7 +51,7 @@ abstract class HxTest : HaystackTest
 //////////////////////////////////////////////////////////////////////////
 
   ** TODO
-  @Deprecated Proj? rt(Bool checked := true) { proj(checked) }
+  /*@Deprecated */Proj? rt(Bool checked := true) { proj(checked) }
 
   ** Get system if '@HxTestProj' configured on test method
   Sys? sys(Bool checked := true)

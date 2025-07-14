@@ -23,8 +23,18 @@ const class HxUtil
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Folio
+// Project
 //////////////////////////////////////////////////////////////////////////
+
+  ** Check and return "p:name" id as simple name
+  @NoDoc static Str projIdToName(Ref id)
+  {
+    seg := id.segs.first
+    if (id.segs.size == 1 && seg.scheme == RefSchemes.proj)
+      return seg.body
+    else
+      throw ArgErr("Not a project id: $id")
+  }
 
   ** Implementation for readAllTagNames function
   internal static Grid readAllTagNames(Folio db, Filter filter)

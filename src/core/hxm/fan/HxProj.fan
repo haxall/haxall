@@ -28,6 +28,7 @@ abstract const class HxProj : Proj
   new make(HxBoot boot)
   {
     this.name          = boot.name
+    this.id            = Ref("p:$name", name)
     this.dir           = boot.dir
     this.db            = boot.db
 // TODO
@@ -55,13 +56,19 @@ abstract const class HxProj : Proj
 // Proj
 //////////////////////////////////////////////////////////////////////////
 
-  ** Runtime name
+  ** Return false by default
+  override Bool isSys() { false }
+
+  ** If formatted as "p:name"
+  override const Ref id
+
+  ** Project name
   override const Str name
 
-  ** Runtime display name
+  ** Project display name
   override Str dis() { meta["dis"] ?: name }
 
-  ** Runtime project directory.  It the root directory of all project
+  ** Project directory.  It the root directory of all project
   ** oriented operational files.  The folio database is stored under
   ** this directory in a sub-directory named 'db/'.
   override const File dir
