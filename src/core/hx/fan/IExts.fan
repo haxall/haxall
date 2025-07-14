@@ -73,16 +73,19 @@ const mixin IUserExt : SysExt
   ** exception or return null based on the checked flag.
   abstract User? read(Obj username, Bool checked := true)
 
-  ** Authenticate a web request and return a context.  If request
+  ** Authenticate a web request and return a session.  If request
   ** is not authenticated then redirect to login page and return null.
-  ** Session information is available via `hx::Context.session`.
-  abstract Context? authenticate(WebReq req, WebRes res)
+  abstract UserSession? authenticate(WebReq req, WebRes res)
 
   ** Close the given authentication session
   @NoDoc abstract Void closeSession(UserSession session)
 
   ** Create synthetic user.  The tags arg may be a dict or a map.
   @NoDoc abstract User makeSyntheticUser(Str username, Obj? tags := null)
+
+  ** Configured max sessions
+  @NoDoc abstract Int maxSessions()
+
 }
 
 **************************************************************************

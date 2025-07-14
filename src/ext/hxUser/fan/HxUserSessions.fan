@@ -21,10 +21,10 @@ using hxm
 **
 const class HxUserSessions
 {
-  new make(HxUserExt ext) { this.ext = ext }
+  new make(IUserExt ext) { this.ext = ext }
 
   ** Parent library
-  const HxUserExt ext
+  const IUserExt ext
 
   ** Logger to use for session login/logout
   Log log() { ext.log }
@@ -62,7 +62,7 @@ const class HxUserSessions
   ** Choke point for opening a session
   private HxUserSession doOpen(HxUserSession session)
   {
-    if (byKey.size >= ext.rec.maxSessions && !session.user.isSu)
+    if (byKey.size >= ext.maxSessions && !session.user.isSu)
       throw AuthErr("Max sessions exceeded", "Max sessions exceeded", 503)
     byKey.add(session.key, session)
     return session

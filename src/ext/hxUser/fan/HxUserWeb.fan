@@ -112,9 +112,9 @@ const class HxUserWeb : ExtWeb
 
   private Void onLogout()
   {
-    cx := ext.authenticate(req, res)
-    if (cx == null) return
-    ext.sessions.close(cx.session)
+    session := ext.authenticate(req, res)
+    if (session == null) return
+    ext.sessions.close(session)
     res.redirect(ext.loginUri)
   }
 

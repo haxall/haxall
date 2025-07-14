@@ -61,7 +61,7 @@ const class HxUserExt : ExtObj, IUserExt
 
   ** Authenticate a web request and return a context.  If request
   ** is not authenticated then redirect to login page and return null.
-  override Context? authenticate(WebReq req, WebRes res)
+  override UserSession? authenticate(WebReq req, WebRes res)
   {
     HxUserAuth(this, req, res).authenticate
   }
@@ -80,6 +80,9 @@ const class HxUserExt : ExtObj, IUserExt
     extraTags.each |v, n| { tags[n] = v }
     return HxUser(Etc.makeDict(tags))
   }
+
+  ** Configured max sessions
+  override Int maxSessions() { rec.maxSessions }
 
 //////////////////////////////////////////////////////////////////////////
 // Session

@@ -34,8 +34,9 @@ const class ApiWeb : ExtWeb, WebOpUtil
       if (opName == null) return res.sendErr(404)
 
       // authenticate user
-      cx := ext.sys.user.authenticate(req, res)
-      if (cx == null) return
+      session := ext.sys.user.authenticate(req, res)
+      if (session == null) return
+      cx := Context(ext.proj, session)
       cx.timeout = Context.timeoutDef
       Actor.locals[ActorContext.actorLocalsKey] = cx
 
