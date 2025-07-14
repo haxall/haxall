@@ -15,7 +15,7 @@ using obs
 using hx
 
 **
-** Haxall implementation of Proj
+** Haxall base implementation of Proj
 **
 abstract const class HxProj : Proj
 {

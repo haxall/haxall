@@ -16,85 +16,28 @@ using hx
 using hxm
 using hxFolio
 
-class NewHxdBoot : HxBoot
-{
-  new make(File dir) : super("sys", dir)
-  {
-  }
-
-  override Log log := Log.get("hxd")
-
-  override Version version := typeof.pod.version
-
-  **
-  ** Misc configuration tags used to customize the system.
-  ** This dict is available via Proj.config.
-  ** Standard keys:
-  **   - noAuth: Marker to disable authentication and use superuser
-  **   - test: Marker for HxTest runtime
-  **   - platformSpi: Str qname for hxPlatform::PlatformSpi class
-  **   - platformSerialSpi: Str qname for hxPlatformSerial::PlatformSerialSpi class
-  **   - hxLic: license Str or load from lic/xxx.trio
-  **
-  Str:Obj? config := [:]
-
-  override Folio initFolio()
-  {
-    config := FolioConfig
-    {
-      it.name = "haxall"
-      it.dir  = this.dir + `db/`
-      it.pool = ActorPool { it.name = "Hxd-Folio" }
-    }
-    return HxFolio.open(config)
-  }
-
-  ** Initialize and kick off the runtime
-  Int run()
-  {
-    // initialize project
-    proj := init
-
-    // install shutdown handler
-// TODO
-//    Env.cur.addShutdownHook(proj.shutdownHook)
-
-    // startup proj
-    proj.start
-    Actor.sleep(Duration.maxVal)
-    return 0
-  }
-
-  override HxProj initProj()
-  {
-    HxdSys(this)
-  }
-}
-
 **
 ** Bootstrap loader for Haxall daemon
 **
-class HxdBoot
+class HxdBoot : HxBoot
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
+  ** Constructor
+  new make(File dir) : super("sys", dir) {}
 
 //////////////////////////////////////////////////////////////////////////
 // Configuration
 //////////////////////////////////////////////////////////////////////////
 
-  ** Runtime version
-  Version version := typeof.pod.version
+  ** Logging
+  override Log log := Log.get("hxd")
 
-  ** Name of the runtime, if omitted it defaults to dir.name
-  Str? name
-
-  ** Runtime database dir (must set before booting)
-  File? dir
-
-  ** Flag to create a new database if it doesn't already exist
-  Bool create := false
-
-  ** Logger to use for bootstrap
-  Log log := Log.get("hxd")
+  ** Version
+  override Version version := typeof.pod.version
 
   **
   ** Platform meta:
@@ -119,110 +62,11 @@ class HxdBoot
   **
   Str:Obj? config := [:]
 
-  **
-  ** Tags define in the projMeta singleton record
-  **
-  Dict projMeta := Etc.emptyDict
-
-  **
-  ** List of lib names which are required to be installed.
-  **
-  Str[] requiredLibs := [
-    "ph",
-    "phScience",
-    "phIoT",
-    "phIct",
-    "hx",
-    "obs",
-    "axon",
-    "xeto",
-    "crypto",
-    "http",
-    "hxApi",
-    "hxShell",
-    "hxUser",
-    "io",
-    "task",
-    "point",
-  ]
-
-  **
-  ** This flag will remove any lib not installed from the local database
-  ** during bootstrap.
-  **
-  Bool removeUnknownLibs := false
-
 //////////////////////////////////////////////////////////////////////////
-// Public
+// HxBoot Overrides
 //////////////////////////////////////////////////////////////////////////
 
-  ** Initialize an instance of HxProj but do not start it
-  HxProj init()
-  {
-    if (rt != null) return rt
-    initArgs
-    initWebMode
-    initLic
-    openDatabase
-    initMeta
-    initLibs
-    rt = initRuntime
-    return rt
-  }
-
-  ** Initialize and kick off the runtime
-  Int run()
-  {
-    // initialize runtime instance
-    init
-
-    // install shutdown handler
-    Env.cur.addShutdownHook(rt.shutdownHook)
-
-    // startup runtime
-    rt.start
-    Actor.sleep(Duration.maxVal)
-    return 0
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Internals
-//////////////////////////////////////////////////////////////////////////
-
-  private Void initArgs()
-  {
-    // validate and normalize dir
-    if (dir == null) throw ArgErr("Must set 'dir' field")
-    if (!dir.isDir) dir = dir.uri.plusSlash.toFile
-    dir = dir.normalize
-    if (!create)
-    {
-      if (!dir.exists) throw ArgErr("Dir does not exist: $dir")
-      if (!dir.plus(`db/folio.index`).exists) throw ArgErr("Dir missing database files: $dir")
-    }
-
-    if (config.containsKey("noAuth"))
-    {
-      echo("##")
-      echo("## NO AUTH - authentication is disabled!!!!")
-      echo("##")
-    }
-  }
-
-  private Void initWebMode()
-  {
-    WebJsMode.setCur(WebJsMode.es)
-  }
-
-  private Void initLic()
-  {
-    // try to load license file from lic/ if not explicitly configured
-    if (config["hxLic"] != null) return
-    file := dir.plus(`lic/`).listFiles.find |x| { x.ext == "trio" }
-    if (file != null) config["hxLic"] = file.readAllStr
-  }
-
-  private Void openDatabase()
+  override Folio initFolio()
   {
     config := FolioConfig
     {
@@ -230,59 +74,59 @@ class HxdBoot
       it.dir  = this.dir + `db/`
       it.pool = ActorPool { it.name = "Hxd-Folio" }
     }
-    this.db = HxFolio.open(config)
+    return HxFolio.open(config)
   }
 
-  private Void initMeta()
+  override Platform initPlatform()
   {
-    // setup the tags we want for projMeta
-    tags := ["projMeta": Marker.val, "version": version.toStr]
-    projMeta.each |v, n| { tags[n] = v }
-
-    // update rec and set back to projMeta field so HxProj can init itself
-    projMeta = initRec("projMeta", db.read(Filter.has("projMeta"), false), tags)
+    Platform(Etc.makeDict(platform.findNotNull))
   }
 
-  private Void initLibs()
+  override SysConfig initConfig()
   {
-    requiredLibs.each |libName| { initLib(libName) }
-  }
-
-  private Void initLib(Str name)
-  {
-    tags := ["ext":name, "dis":"lib:$name"]
-    initRec("lib [$name]", db.read(Filter.eq("ext", name), false), tags)
-  }
-
-  private Dict initRec(Str summary, Dict? rec, Str:Obj changes := [:])
-  {
-    if (rec == null)
+    if (config.containsKey("noAuth"))
     {
-      log.info("Create $summary")
-      return db.commit(Diff(null, changes, Diff.add.or(Diff.bypassRestricted))).newRec
+      echo("##")
+      echo("## NO AUTH - authentication is disabled!!!!")
+      echo("##")
     }
-    else
-    {
-      changes = changes.findAll |v, n| { rec[n] != v }
-      if (changes.isEmpty) return rec
-      log.info("Update $summary")
-      return db.commit(Diff(rec, changes)).newRec
-    }
+
+    initConfigLic
+    return SysConfig(Etc.makeDict(config.findNotNull))
   }
 
-  virtual HxProj initRuntime()
+  private Void initConfigLic()
   {
-//    HxProj(this).init(this)
-throw Err("TODO")
+    // try to load license file from lic/ if not explicitly configured
+    if (config["hxLic"] != null) return
+    file := dir.plus(`lic/`).listFiles.find |x| { x.ext == "trio" }
+    if (file != null) config["hxLic"] = file.readAllStr
+  }
+
+  override HxProj initProj()
+  {
+    HxdSys(this)
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Internal Fields
+// Run
 //////////////////////////////////////////////////////////////////////////
 
-  internal Folio? db
-  internal HxProj? rt
-  internal Platform? platformRef
+  ** Initialize and kick off the runtime
+  Int run()
+  {
+    // initialize project
+    proj := init
+
+    // install shutdown handler
+// TODO
+//    Env.cur.addShutdownHook(proj.shutdownHook)
+
+    // startup proj
+    proj.start
+    Actor.sleep(Duration.maxVal)
+    return 0
+  }
 }
 
 **************************************************************************
@@ -304,7 +148,7 @@ internal class RunCli : HxCli
 
   override Int run()
   {
-    boot := NewHxdBoot(dir)
+    boot := HxdBoot(dir)
     if (noAuth) boot.config["noAuth"] = Marker.val
     return boot.run
   }

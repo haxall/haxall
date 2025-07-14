@@ -22,6 +22,7 @@ class HxdTestSpi : HxTestSpi
 
   static Proj boot(File dir, Dict projMeta := Etc.emptyDict)
   {
+    /*
     boot := HxdBoot
     {
       it.dir = dir
@@ -33,6 +34,8 @@ class HxdTestSpi : HxTestSpi
       it.log.level = LogLevel.warn
     }
     return boot.init.start
+    */
+    throw Err("TODO")
   }
 
   override Proj start(Dict projMeta)

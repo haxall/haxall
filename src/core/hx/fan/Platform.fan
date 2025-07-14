@@ -6,10 +6,8 @@
 //   14 Jun 2021  Brian Frank  Creation
 //
 
-using concurrent
-using web
 using xeto
-using haystack
+using util
 
 **
 ** Platform models the meta data of the platform running Haxall.  Note
@@ -71,5 +69,14 @@ const class Platform
   ** Host model
   virtual Str hostModel() { meta["hostModel"] as Str ?: productName + " (" + Env.cur.vars["os.name"] + ")" }
 
+  ** Debug dump
+  @NoDoc Void dump(Console con := Console.cur)
+  {
+    typeof.methods.each |m|
+    {
+      if (m.parent === typeof && !m.isStatic && m.params.isEmpty)
+        con.info("$m.name: " + m.callOn(this, null))
+    }
+  }
 }
 

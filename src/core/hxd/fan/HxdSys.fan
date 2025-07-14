@@ -16,24 +16,10 @@ using folio
 using hx
 using hxm
 
-const class HxdSys : HxProj, Sys
+const class HxdSys : HxSys
 {
-  new make(NewHxdBoot boot) : super(boot)
+  new make(HxdBoot boot) : super(boot)
   {
-    this.version = boot.version
   }
-
-  override const Version version
-
-  override Sys sys() { this }
-
-  override const Platform platform := Platform(Etc.dict0) // TODO
-
-  override const SysConfig config := SysConfig(Etc.dict0)
-
-  override ICryptoExt crypto() { exts.getByType(ICryptoExt#) }
-  override IHttpExt http()     { exts.getByType(IHttpExt#) }
-  override IUserExt user()     { exts.getByType(IUserExt#) }
-  override IClusterExt? cluster(Bool checked := true) { exts.getByType(IClusterExt#, checked) }
 }
 

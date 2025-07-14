@@ -6,9 +6,8 @@
 //   23 Jun 2021  Brian Frank  Creation
 //
 
-using concurrent
-using web
 using xeto
+using util
 
 **
 ** SysConfig models bootstrap configuration options
@@ -40,5 +39,14 @@ const class SysConfig
 
   ** Is this a test system?
   virtual Bool isTest() { meta.has("test") }
+
+  ** Debug dump
+  @NoDoc Void dump(Console con := Console.cur)
+  {
+    meta.each |v, n|
+    {
+      con.info("$n: $v")
+    }
+  }
 }
 

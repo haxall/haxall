@@ -169,6 +169,7 @@ internal class InitCli : HxCli
 
   private Void createDatabase()
   {
+    /*
     boot := HxdBoot()
     {
       it.dir = this.dir
@@ -180,6 +181,8 @@ internal class InitCli : HxCli
     initHttpPort(rt)
     initSu(rt)
     rt.db.close
+    */
+throw Err("TODO")
   }
 
   private Void initHttpPort(HxProj proj)

@@ -114,6 +114,12 @@ abstract class HxBoot
   ** Create HxProj implementation
   abstract HxProj initProj()
 
+  ** Create Platform for HxSys
+  abstract Platform initPlatform()
+
+  ** Create SysConfig for HxSys
+  abstract SysConfig initConfig()
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
