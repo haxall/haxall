@@ -74,7 +74,7 @@ const class Platform
   {
     typeof.methods.each |m|
     {
-      if (m.parent === typeof && !m.isStatic && m.params.isEmpty)
+      if (m.parent != Obj# && !m.isStatic && !m.isCtor && m.params.isEmpty)
         con.info("$m.name: " + m.callOn(this, null))
     }
   }

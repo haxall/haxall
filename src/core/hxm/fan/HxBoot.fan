@@ -115,10 +115,10 @@ abstract class HxBoot
   abstract HxProj initProj()
 
   ** Create Platform for HxSys
-  abstract Platform initPlatform()
+  virtual Platform initPlatform() { throw UnsupportedErr() }
 
   ** Create SysConfig for HxSys
-  abstract SysConfig initConfig()
+  virtual SysConfig initConfig() { throw UnsupportedErr() }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils

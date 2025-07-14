@@ -23,7 +23,7 @@ const mixin Ext
 //////////////////////////////////////////////////////////////////////////
 
   ** System
-  Sys sys() { spi.proj.sys }
+  virtual Sys sys() { spi.proj.sys }
 
   ** Project
   virtual Proj proj() { spi.proj }
