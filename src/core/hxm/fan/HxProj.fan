@@ -195,7 +195,7 @@ abstract const class HxProj : Proj
   override Bool isRunning() { isRunningRef.val }
 
   ** Start runtime (blocks until all libs fully started)
-  virtual This start()
+  This start()
   {
     // this method can only be called once
     if (isStarted.getAndSet(true)) return this
@@ -206,6 +206,9 @@ abstract const class HxProj : Proj
     // onStart callback
     futures := exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).start }
     Future.waitForAll(futures)
+
+    // Synchronously startup all projects
+    startProjs
 
     // onReady callback
     futures = exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).ready }
@@ -218,7 +221,7 @@ abstract const class HxProj : Proj
   }
 
   ** Shutdown the system (blocks until all modules stop)
-  virtual Void stop()
+  Void stop()
   {
     // this method can only be called once
     if (isStopped.getAndSet(true)) return this
@@ -230,6 +233,9 @@ abstract const class HxProj : Proj
     futures := exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).unready }
     Future.waitForAll(futures)
 
+    // Synchronously shutdown all projects
+    stopProjs
+
     // onStop callback
     futures = exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).stop }
     Future.waitForAll(futures)
@@ -238,6 +244,12 @@ abstract const class HxProj : Proj
     libsActorPool.kill
     hxdActorPool.kill
   }
+
+  ** Callback for systems to open/start projects
+  protected virtual Void startProjs() {}
+
+  ** Callback for systems to stop/close projects
+  protected virtual Void stopProjs() {}
 
   ** Function that calls stop
   const |->| shutdownHook := |->| { stop }

@@ -136,8 +136,7 @@ class HxdBoot : HxBoot
     proj := init
 
     // install shutdown handler
-// TODO
-//    Env.cur.addShutdownHook(proj.shutdownHook)
+    Env.cur.addShutdownHook(proj.shutdownHook)
 
     // startup proj
     proj.start

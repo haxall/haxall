@@ -145,8 +145,8 @@ abstract class HxBoot
 // Internal Fields
 //////////////////////////////////////////////////////////////////////////
 
-  internal FileBase? nsfb         // initNamespaceFileBase
-  internal Folio? db              // initFolio
-  internal Dict? meta             // initMeta
+  FileBase? nsfb         // initNamespaceFileBase
+  Folio? db              // initFolio
+  Dict? meta             // initMeta
 }
 
