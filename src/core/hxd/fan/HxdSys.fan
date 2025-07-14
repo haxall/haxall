@@ -29,6 +29,8 @@ const class HxdSys : HxProj, Sys
 
   override const Platform platform := Platform(Etc.dict0) // TODO
 
+  override const SysConfig config := SysConfig(Etc.dict0)
+
   override const ICryptoExt crypto
   override const IHttpExt http
   override const IUserExt user

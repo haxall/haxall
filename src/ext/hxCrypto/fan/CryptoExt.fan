@@ -83,7 +83,7 @@ const class CryptoExt : ExtObj, ICryptoExt
   override Void onStart()
   {
     // crypto dir gets deleted in test mode, so use jvm truststore for tests
-    if (proj.config.isTest) return
+    if (sys.config.isTest) return
 
     // set the default truststore to use for all sockets
     SocketConfig.setCur(SocketConfig {

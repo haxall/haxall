@@ -28,5 +28,8 @@ const mixin Sys : Proj
   ** User management system extension
   abstract IUserExt user()
 
+  ** Configuration options defined at bootstrap
+  @NoDoc abstract SysConfig config()
+
 }
 

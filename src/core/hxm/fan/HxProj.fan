@@ -29,7 +29,6 @@ abstract const class HxProj : Proj
   {
     this.name          = boot.name
     this.version       = boot.version
-    this.config        = HxConfig(Etc.dict0)   // TODO
     this.dir           = boot.dir
     this.db            = boot.db
 //    this.db.hooks      = HxdFolioHooks(this)
@@ -69,9 +68,6 @@ init(boot)
 
   ** Runtime version
   override const Version version
-
-  ** Configuration options defined at bootstrap
-  override const HxConfig config
 
   ** Runtime project directory.  It the root directory of all project
   ** oriented operational files.  The folio database is stored under

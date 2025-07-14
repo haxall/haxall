@@ -18,7 +18,7 @@ const class PlatformNetworkExt : ExtObj
 
   new make()
   {
-    this.platformSpi = proj.config.makeSpi("platformNetworkSpi")
+    this.platformSpi = sys.config.makeSpi("platformNetworkSpi")
   }
 
   internal const PlatformNetworkSpi platformSpi

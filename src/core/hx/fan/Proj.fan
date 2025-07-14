@@ -75,9 +75,6 @@ const mixin Proj
   ** interacting with external systems.  See `docHaxall::Runtime#steadyState`.
   abstract Bool isSteadyState()
 
-  ** Configuration options defined at bootstrap
-  @NoDoc abstract HxConfig config()
-
 ** TODO
 abstract Void recompileDefs()
 

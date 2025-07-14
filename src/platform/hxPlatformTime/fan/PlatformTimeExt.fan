@@ -18,7 +18,7 @@ const class PlatformTimeExt : ExtObj
 
   new make()
   {
-    this.platformSpi = proj.config.makeSpi("platformTimeSpi")
+    this.platformSpi = sys.config.makeSpi("platformTimeSpi")
   }
 
   internal const PlatformTimeSpi platformSpi

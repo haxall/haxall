@@ -31,7 +31,7 @@ const class HxUserExt : ExtObj, IUserExt
   override HxUserSettings rec() { super.rec }
 
   ** Auto login a configured superuser account for testing
-  const Bool noAuth := proj.config.has("noAuth")
+  const Bool noAuth := sys.config.has("noAuth")
 
   ** URI for login page
   const Uri loginUri := web.uri + `login`

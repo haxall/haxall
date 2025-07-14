@@ -11,12 +11,12 @@ using web
 using xeto
 
 **
-** HxBootConfig models bootstrap configuration options
+** SysConfig models bootstrap configuration options
 **
 ** NOTE: this API is subject to change
 **
 @NoDoc
-const class HxConfig
+const class SysConfig
 {
   ** Construct with meta data dict
   new make(Dict meta) { this.metaRef = meta }
