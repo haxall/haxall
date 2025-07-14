@@ -38,7 +38,7 @@ const class SysConfig
     return Type.find(qname).make
   }
 
-  ** Is this a test runtime?
+  ** Is this a test system?
   virtual Bool isTest() { meta.has("test") }
 }
 

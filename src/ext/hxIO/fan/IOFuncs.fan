@@ -561,7 +561,7 @@ const class IOFuncs
   {
     cx := curContext
     if (arg == null) arg = Etc.emptyDict
-    if (cx.sys.platform.isShell) return Etc.emptyDict
+    if (cx.sys.platform.isAxonShell) return Etc.emptyDict
     filetype := cx.defs.filetype("json")
     settings := cx.rt.ext("hx.io").rec
     return filetype.ioOpts(cx.defs, null, arg, settings)

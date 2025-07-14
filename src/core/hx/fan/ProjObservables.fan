@@ -14,10 +14,10 @@ using obs
 **
 const mixin ProjObservables
 {
-  ** List the published observables for the runtime
+  ** List the published observables for the project
   abstract Observable[] list()
 
-  ** Lookup a observable for the runtime by name.
+  ** Lookup a observable for the project by name.
   abstract Observable? get(Str name, Bool checked := true)
 
   ** Get the schedule observable

@@ -28,27 +28,22 @@ abstract const class HxProj : Proj
   new make(HxBoot boot)
   {
     this.name          = boot.name
-    this.version       = boot.version
     this.dir           = boot.dir
     this.db            = boot.db
+// TODO
 //    this.db.hooks      = HxdFolioHooks(this)
     this.log           = boot.log
     this.metaRef       = AtomicRef(boot.meta)
     this.libsActorPool = ActorPool { it.name = "Hx-Exts" }
     this.hxdActorPool  = ActorPool { it.name = "Hx-Runtime" }
     this.backgroundMgr = HxBackgroundMgr(this)
-//    this.context       = HxdContextService(this)
-//    this.file          = HxdFileService(this)
-//    this.his           = HxdHisService(this)
-    this.libsRef        = HxProjLibs.shim(dir)
-    this.extsRef        = HxProjExts(this, libsActorPool)
-    this.watchRef       = HxProjWatches(this)
-    this.obsRef         = HxProjObservables(this)
-libsRef.rtRef.val = this
-init(boot)
+    this.libsRef       = HxProjLibs(this, boot)
+    this.extsRef       = HxProjExts(this, libsActorPool)
+    this.watchRef      = HxProjWatches(this)
+    this.obsRef        = HxProjObservables(this)
   }
 
-  ** Called after constructor to init libs
+  ** Called after constructor to init extensions
   This init(HxBoot boot)
   {
     extsRef.init
@@ -65,9 +60,6 @@ init(boot)
 
   ** Runtime display name
   override Str dis() { meta["dis"] ?: name }
-
-  ** Runtime version
-  override const Version version
 
   ** Runtime project directory.  It the root directory of all project
   ** oriented operational files.  The folio database is stored under
@@ -119,11 +111,11 @@ init(boot)
         nsBaseRef.val = base = HxDefCompiler(this).compileNamespace
 
       // compile overlay
+// TODO
       nsOverlayRef.val = overlay = base // TODO ProjOverlayCompiler(this, base).compileNamespace
     }
     return overlay
   }
-override Void recompileDefs() { nsBaseRecompile }
   internal Void nsBaseRecompile() { this.nsBaseRef.val = null; this.nsOverlayRef.val = null }
   internal Void nsOverlayRecompile() { this.nsOverlayRef.val = null }
   private const AtomicRef nsBaseRef := AtomicRef()    // base from installed libs
@@ -175,7 +167,6 @@ override Void recompileDefs() { nsBaseRecompile }
 
   override Diff[] commitAll(Diff[] diffs) { db.commitAll(diffs) }
 
-
 //////////////////////////////////////////////////////////////////////////
 // Lifecycle
 //////////////////////////////////////////////////////////////////////////
@@ -188,7 +179,7 @@ override Void recompileDefs() { nsBaseRecompile }
   override Bool isRunning() { isRunningRef.val }
 
   ** Start runtime (blocks until all libs fully started)
-  This start()
+  virtual This start()
   {
     // this method can only be called once
     if (isStarted.getAndSet(true)) return this
@@ -211,7 +202,7 @@ override Void recompileDefs() { nsBaseRecompile }
   }
 
   ** Shutdown the system (blocks until all modules stop)
-  Void stop()
+  virtual Void stop()
   {
     // this method can only be called once
     if (isStopped.getAndSet(true)) return this
@@ -238,6 +229,17 @@ override Void recompileDefs() { nsBaseRecompile }
   private const AtomicBool isRunningRef := AtomicBool()
   private const AtomicBool isStarted := AtomicBool()
   private const AtomicBool isStopped  := AtomicBool()
+
+//////////////////////////////////////////////////////////////////////////
+// Overrides
+//////////////////////////////////////////////////////////////////////////
+
+  ** Called when the libs are modified
+  virtual Void onLibsModified()
+  {
+log.info("TODO: libs are modified!")
+    nsBaseRecompile
+  }
 
 }
 

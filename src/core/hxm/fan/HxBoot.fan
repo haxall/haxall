@@ -61,8 +61,15 @@ abstract class HxBoot
   {
     [
     "sys",
+    "sys.api",
+    "sys.comp",
     "sys.files",
+    "axon",
     "hx",
+    "hx.api",
+    "hx.crypto",
+    "hx.http",
+    "hx.user",
     ]
   }
 
@@ -74,10 +81,9 @@ abstract class HxBoot
   HxProj init()
   {
     this.nsfb = initNamespaceFileBase
-    this.libs = initProjLibs
     this.db   = initFolio
     this.meta = initMeta
-    return initProj
+    return initProj.init(this)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -90,12 +96,6 @@ abstract class HxBoot
     nsDir := this.dir + `ns/`
     if (!nsDir.exists) throw Err("Lib ns dir not found: $nsDir.osPath")
     return DiskFileBase(nsDir)
-  }
-
-  ** Init project lib manager
-  virtual HxProjLibs initProjLibs()
-  {
-    HxProjLibs(this)
   }
 
   ** Open project folio database
@@ -140,8 +140,6 @@ abstract class HxBoot
 //////////////////////////////////////////////////////////////////////////
 
   internal FileBase? nsfb         // initNamespaceFileBase
-  internal HxProjLibs? libs       // initProjLibs
-  internal HxNamespace? ns        // initNamespace
   internal Folio? db              // initFolio
   internal Dict? meta             // initMeta
 }

@@ -113,7 +113,7 @@ const mixin IFileExt : Ext
   **
   ** Resolve a virtual file system URI.  If the uri does not resolve
   ** to a file, then return a File instance where exists returns false.
-  ** All runtimes must support a sandboxed directory accessed via the
+  ** All projects must support a sandboxed directory accessed via the
   ** relative path "io/".  The current context is used for permission
   ** checking.
   **

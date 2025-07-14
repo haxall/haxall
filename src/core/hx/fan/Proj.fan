@@ -20,14 +20,11 @@ const mixin Proj
   ** Reference to system project (in Haxall daemon it is always this)
   abstract Sys sys()
 
-  ** Programatic name of the runtime. This string is always a valid tag name.
+  ** Programatic name of the project. This string is always a valid tag name.
   abstract Str name()
 
-  ** Display name of the runtime.
+  ** Display name of the project.
   abstract Str dis()
-
-  ** Runtime version
-  abstract Version version()
 
   ** Log for project level logging
   abstract Log log()
@@ -37,15 +34,15 @@ const mixin Proj
   ** to false before calling unready and stop on all the libraries.
   abstract Bool isRunning()
 
-  ** Runtime project directory.  It the root directory of all project
-  ** oriented operational files.  The folio database is stored under
-  ** this directory in a sub-directory named 'db/'.
+  ** Project directory.  It the root directory of all project oriented
+  ** operational files.  The folio database is stored under this directory
+  ** in a sub-directory named 'db/', and namespace support in 'ns/'
   abstract File dir()
 
-  ** Runtime level meta data stored in the `projMeta` database record
+  ** Project metadata stored in the `projMeta` database record
   abstract Dict meta()
 
-  ** Folio database for this runtime
+  ** Folio database for this project
   abstract Folio db()
 
   ** Xeto lib namespace
@@ -69,14 +66,11 @@ const mixin Proj
   ** Block until currently queued background processing completes
   abstract This sync(Duration? timeout := 30sec)
 
-  ** Has the runtime has reached steady state.  Steady state is reached
-  ** after a configurable wait period elapses after the runtime is
+  ** Has the project has reached steady state.  Steady state is reached
+  ** after a configurable wait period elapses after the project is
   ** fully loaded.  This gives internal services time to spin up before
   ** interacting with external systems.  See `docHaxall::Runtime#steadyState`.
   abstract Bool isSteadyState()
-
-** TODO
-abstract Void recompileDefs()
 
   ** Watch subscriptions
   abstract ProjWatches watch()

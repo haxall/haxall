@@ -16,6 +16,9 @@ const mixin Sys : Proj
   ** Platform hosting the runtime
   abstract Platform platform()
 
+  ** System version
+  abstract Version version()
+
   ** Cluster system extension
   @NoDoc abstract IClusterExt? cluster(Bool checked := true)
 

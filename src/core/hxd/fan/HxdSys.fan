@@ -20,10 +20,10 @@ const class HxdSys : HxProj, Sys
 {
   new make(NewHxdBoot boot) : super(boot)
   {
-    this.crypto = exts.getByType(ICryptoExt#)
-    this.http   = exts.getByType(IHttpExt#)
-    this.user   = exts.getByType(IUserExt#)
+    this.version = boot.version
   }
+
+  override const Version version
 
   override Sys sys() { this }
 
@@ -31,9 +31,9 @@ const class HxdSys : HxProj, Sys
 
   override const SysConfig config := SysConfig(Etc.dict0)
 
-  override const ICryptoExt crypto
-  override const IHttpExt http
-  override const IUserExt user
+  override ICryptoExt crypto() { exts.getByType(ICryptoExt#) }
+  override IHttpExt http()     { exts.getByType(IHttpExt#) }
+  override IUserExt user()     { exts.getByType(IUserExt#) }
   override IClusterExt? cluster(Bool checked := true) { exts.getByType(IClusterExt#, checked) }
 }
 

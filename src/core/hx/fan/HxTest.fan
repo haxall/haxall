@@ -13,9 +13,9 @@ using folio
 
 **
 ** HxTest is a base class for writing Haxall tests which provide
-** access to a booted runtime instance.  Annotate test methods which
-** require a runtime with `HxTestProj`.  This class uses the 'hxd'
-** implementation for its runtime.
+** access to a booted project instance.  Annotate test methods which
+** require a project with `HxTestProj`.  This class uses the 'hxd'
+** implementation for its project.
 **
 **   @HxTestProj
 **   Void testBasics()
@@ -47,7 +47,7 @@ abstract class HxTest : HaystackTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Runtime (@HxTestProj)
+// Proj (@HxTestProj)
 //////////////////////////////////////////////////////////////////////////
 
   ** TODO
@@ -63,16 +63,16 @@ abstract class HxTest : HaystackTest
   Proj? proj(Bool checked := true)
   {
     if (projRef != null || !checked) return projRef
-    throw Err("Runtime not started (ensure $curTestMethod marked @HxTestProj)")
+    throw Err("Proj not started (ensure $curTestMethod marked @HxTestProj)")
   }
 
   ** Reference for `proj`
   @NoDoc Proj? projRef
 
-  ** Start a test runtime which is accessible via `rt` method.
+  ** Start a test project which is accessible via `proj` method.
   @NoDoc virtual Void projStart()
   {
-    if (projRef != null) throw Err("Runtime already started!")
+    if (projRef != null) throw Err("Proj already started!")
     projMeta := Etc.emptyDict
     facet := curTestMethod.facet(HxTestProj#, false) as HxTestProj
     if (facet != null && facet.meta != null)
@@ -85,15 +85,15 @@ abstract class HxTest : HaystackTest
     projRef = spi.start(projMeta)
   }
 
-  ** Stop test runtime
+  ** Stop test project
   @NoDoc virtual Void projStop()
   {
-    if (projRef == null) throw Err("Runtime not started!")
+    if (projRef == null) throw Err("Proj not started!")
     spi.stop(projRef)
     projRef = null
   }
 
-  ** Stop, then restart test runtime
+  ** Stop, then restart test project
   @NoDoc virtual Void projRestart()
   {
     projStop
@@ -153,7 +153,7 @@ abstract class HxTest : HaystackTest
     return proj.db.commit(Diff.makeAdd(tags, id)).newRec
   }
 
-  ** Add a library and all its depdenencies to the runtime.
+  ** Add a library and all its depdenencies to the project.
   Ext addLib(Str libName, Str:Obj? tags := Str:Obj?[:])
   {
     lib := spi.addLib(libName, tags)
@@ -169,7 +169,7 @@ abstract class HxTest : HaystackTest
     spi.addUser(user, pass, tags)
   }
 
-  ** Generate a ref to for the runtime database with proper prefix
+  ** Generate a ref to for the project database with proper prefix
   @NoDoc Ref genRef(Str id := Ref.gen.id)
   {
     if (proj.db.idPrefix != null) id = proj.db.idPrefix + id

@@ -23,7 +23,6 @@ const class Platform
   new make(Dict meta)
   {
     this.metaRef = meta
-    this.isShell = meta.has("axonsh")
   }
 
   ** Meta data
@@ -38,6 +37,12 @@ const class Platform
 
   ** Is this the full SkySpark runtime
   virtual Bool isSkySpark() { false }
+
+  ** Is this the axon shell
+  @NoDoc virtual Bool isAxonShell() { false }
+
+  ** Is this cloud SaaS
+  @NoDoc virtual Bool isXetoBase() { false }
 
   ** Relative URI to the SVG logo
   virtual Uri logoUri() { meta["logoUri"] as Uri ?: `/hxUser/logo.svg` }
@@ -65,9 +70,6 @@ const class Platform
 
   ** Host model
   virtual Str hostModel() { meta["hostModel"] as Str ?: productName + " (" + Env.cur.vars["os.name"] + ")" }
-
-  ** Is this the axon shell
-  @NoDoc const Bool isShell
 
 }
 

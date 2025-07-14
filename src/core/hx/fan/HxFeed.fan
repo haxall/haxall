@@ -27,7 +27,7 @@ abstract const class HxFeed
   {
     init := cx.feedInit
 
-    this.rt     = init.rt
+    this.proj   = init.proj
     this.viewId = init.viewId
     this.key    = init.key
     this.log    = init.log
@@ -43,8 +43,8 @@ abstract const class HxFeed
   ** Key to uniquely identifies the feed
   const Str key
 
-  ** Runtime reference
-  const Proj rt
+  ** Project reference
+  const Proj proj
 
   ** Debug string
   override Str toStr() { "$typeof.name $key" }
@@ -94,7 +94,7 @@ abstract const class HxFeed
 const class HxFeedInit
 {
   new make(|This| f) { f(this) }
-  const Proj rt
+  const Proj proj
   const Str viewId
   const Str key
   const Log log

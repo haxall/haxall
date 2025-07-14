@@ -18,7 +18,7 @@ using haystack
 **
 const mixin ProjWatches
 {
-  ** List the watches currently open for this runtime.
+  ** List the watches currently open for this project.
   ** Also see `docHaxall::Watches#fantom`.
   abstract Watch[] list()
 

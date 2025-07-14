@@ -22,9 +22,6 @@ const mixin Ext
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** Use proj now
-  //@Deprecated virtual Proj rt() { proj }
-
   ** System
   Sys sys() { spi.proj.sys }
 
@@ -92,15 +89,15 @@ const mixin Ext
   ** This is called on dedicated background actor.
   virtual Void onReady() {}
 
-  ** Callback before we stop the runtime
+  ** Callback before we stop the project
   ** This is called on dedicated background actor.
   virtual Void onUnready() {}
 
-  ** Callback when library is stopped.
+  ** Callback when extension is stopped.
   ** This is called on dedicated background actor.
   virtual Void onStop() {}
 
-  ** Callback when runtime reaches steady state.
+  ** Callback when extension reaches steady state.
   ** This is called on dedicated background actor.
   virtual Void onSteadyState() {}
 

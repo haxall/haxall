@@ -38,21 +38,6 @@ const class HxProjLibs : ProjLibs
     }
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Construction
-//////////////////////////////////////////////////////////////////////////
-
-  new make(HxBoot boot)
-  {
-    this.fb = boot.nsfb
-    this.bootLibNames = boot.bootLibs
-    this.repo = boot.repo
-    this.log = boot.log
-    this.version = boot.version
-    this.specsRef = HxProjSpecs(this)
-    doReload(readProjLibNames)
-  }
-
   new makeShim(File dir, Str[] bootLibNames)
   {
     this.fb = DiskFileBase(dir)
@@ -65,8 +50,27 @@ const class HxProjLibs : ProjLibs
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
+  new make(HxProj proj, HxBoot boot)
+  {
+    this.proj = proj
+    this.fb = boot.nsfb
+    this.bootLibNames = boot.bootLibs
+    this.repo = boot.repo
+    this.log = boot.log
+    this.version = boot.version
+    this.specsRef = HxProjSpecs(this)
+    doReload(readProjLibNames)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Lookup
 //////////////////////////////////////////////////////////////////////////
+
+// TODO: must not be nullable
+  const HxProj? proj
 
   const DiskFileBase fb
 
@@ -379,13 +383,14 @@ const class HxProjLibs : ProjLibs
     this.mapRef.val = acc.toImmutable
     this.projLibNamesRef.val = projLibNames.toImmutable
 
-// TODO
-rt := rtRef.val as Proj
-if (rt != null) rt.recompileDefs
-  }
+echo(">>> build libs")
+status.dump
 
-// TODO
-const AtomicRef rtRef := AtomicRef()
+    // notify project
+if (proj == null) log.info("TODO NEED PROJ IN PROJ LIBS")
+else
+    this.proj.onLibsModified
+  }
 
   // updated by reload
   private const AtomicRef nsRef := AtomicRef()

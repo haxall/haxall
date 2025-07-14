@@ -321,7 +321,7 @@ const final class Conn : Actor, HxConn
     s := StrBuf()
     s.add("""id:             $id
              dis:            $dis
-             proj:           $ext.sys.platform.hostModel [$proj.version]
+             proj:           $ext.sys.platform.hostModel [$ext.sys.version]
              ext:            $ext.typeof [$ext.typeof.pod.version]
              timeout:        $timeout
              openRetryFreq:  $openRetryFreq
