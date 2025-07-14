@@ -50,10 +50,28 @@ const final class Conn : Actor, HxConn
     return null
   }
 
-  private const static |HxMsg a, HxMsg b->HxMsg| toCoalesce := |HxMsg a, HxMsg b->HxMsg|
+  private const static |HxMsg original, HxMsg incoming->HxMsg| toCoalesce := |HxMsg original, HxMsg incoming->HxMsg|
   {
-    // last write wins, previous queued up writes are discarded
-    return b
+    // Not all write messages are equal. All writes that originate from an observed `onPointWrite` callback 
+    // must always take precedence over writes that originate from a `minTime`, `maxTime`, or `onOpen`.
+    // A write from `onPointWrite` always contains the newest value to write whilst other writes rewrite
+    // the current value. Without this, problems can arise from the point framework that won't
+    // send any write changes to the connector framework. The point framework thinks its successfully 
+    // submitted the last write value whereby the last write message it submitted may have vanished 
+    // because of coalescing.
+
+    if (original.id == "write" && 
+      incoming.id == "write" && 
+      ((ConnWriteInfo)original.b).isFromPointWrite && 
+      !((ConnWriteInfo)incoming.b).isFromPointWrite)
+    {
+        // Original wins if it's from an `onPointWrite()` callback and incoming is not from `onPointWrite()`.
+        return original
+    }
+    
+
+    // If all else fails, incoming message wins.
+    return incoming
   }
 
 //////////////////////////////////////////////////////////////////////////
