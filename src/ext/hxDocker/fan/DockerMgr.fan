@@ -4,6 +4,7 @@
 //
 // History:
 //   19 Oct 2021  Matthew Giannini  Creation
+//   15 Jul 2025  Matthew Giannini  Refactor for Haxall 4.0
 //
 
 using concurrent
@@ -14,9 +15,9 @@ using haystack
 using hx
 
 **
-** DockerMgrActor implements the `HxDockerService`
+** DockerMgr provides primary interface for working with Docker.
 **
-internal const class DockerMgrActor : Actor, HxDockerService
+final const class DockerMgr : Actor
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -39,15 +40,22 @@ internal const class DockerMgrActor : Actor, HxDockerService
   private Str[] ids() { containers.keys(Str#) }
 
 //////////////////////////////////////////////////////////////////////////
-// HxDockerService
+// Mgr
 //////////////////////////////////////////////////////////////////////////
 
-  override Future runAsync(Str image, Obj config)
+  ** Run a Docker iamge using the given container configuration. Returns
+  ** the `DockerContainer` that was created.
+  DockerContainer run(Str image, Obj config) { runAsync(image, config).get }
+
+  ** Async version of `run`.  Returns a Future that is completed
+  ** with the container once it is started.
+  Future runAsync(Str image, Obj config)
   {
     send(HxMsg("run", image, config))
   }
 
-  override Dict deleteContainer(Str id)
+  ** Kill the container with the given id and then remove it.
+  Dict deleteContainer(Str id)
   {
     res := send(HxMsg("deleteContainer", id)).get
     return resToDict(Ref(id), res)
@@ -83,7 +91,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
     switch (msg.id)
     {
       case "run":              return onRun(msg.a, msg.b)
-      case "endpointSettings": return onEndpointSettings(msg.a, msg.b)
+      // case "endpointSettings": return onEndpointSettings(msg.a, msg.b)
       case "stopContainer":    return onStopContainer(msg.a)
       case "deleteContainer":  return onDeleteContainer(msg.a)
       case "shutdown":         return onShutdown
@@ -95,7 +103,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
 // Run
 //////////////////////////////////////////////////////////////////////////
 
-  private HxDockerContainer onRun(Str image, Obj config)
+  private DockerContainer onRun(Str image, Obj config)
   {
     // TODO:SECURITY: check image is accessible
 
@@ -121,7 +129,7 @@ internal const class DockerMgrActor : Actor, HxDockerService
       .withFilters(Filters().withFilter("id", [id]).build)
       .exec.first
 
-    return MHxDockerContainer(container)
+    return container
   }
 
   ** Decodes json into CreateContainerCmd. It overwrites any volume binds
@@ -153,19 +161,19 @@ internal const class DockerMgrActor : Actor, HxDockerService
 // Endpoint Settings
 //////////////////////////////////////////////////////////////////////////
 
-  private HxDockerEndpoint? onEndpointSettings(Str id, Str network)
-  {
-    containers := client.listContainers
-      .withFilters(Filters().withFilter("id", [checkManaged(id)]).build)
-      .exec
-    if (containers.isEmpty) throw Err("No container with id $id")
-    if (containers.size > 1) throw Err("Multiple containers with id $id: ${containers.size}")
+  // private HxDockerEndpoint? onEndpointSettings(Str id, Str network)
+  // {
+  //   containers := client.listContainers
+  //     .withFilters(Filters().withFilter("id", [checkManaged(id)]).build)
+  //     .exec
+  //   if (containers.isEmpty) throw Err("No container with id $id")
+  //   if (containers.size > 1) throw Err("Multiple containers with id $id: ${containers.size}")
 
-    endpoint := containers.first.network(network)
-    if (endpoint == null) return null
+  //   endpoint := containers.first.network(network)
+  //   if (endpoint == null) return null
 
-    return MHxDockerEndpoint(endpoint)
-  }
+  //   return MHxDockerEndpoint(endpoint)
+  // }
 
 //////////////////////////////////////////////////////////////////////////
 // List Images

@@ -11,7 +11,9 @@ using inet
 using util
 using xeto
 using haystack
+using docker
 using hx
+using hxDocker
 
 **
 ** PyMgr
@@ -56,7 +58,7 @@ internal const class PyMgr : Actor
   {
     try
     {
-      tasks := (HxTaskService?)ext.proj.services.get(HxTaskService#)
+      tasks := (ITaskExt)ext.proj.ext("hx.task")
       return tasks.adjunct |->HxTaskAdjunct| { createSession(opts) }
     }
     catch (Err err)
@@ -154,7 +156,7 @@ internal const class PyMgrSession : PySession, HxTaskAdjunct
   {
     if (!isClosed) throw Err("Already open")
 
-    docker := mgr.ext.proj.services.get(HxDockerService#)
+    docker := (DockerExt)mgr.ext.proj.ext("hx.docker")
     s := PyDockerSession(docker, opts)
     sessionRef.val = Unsafe(s)
     return this
@@ -277,9 +279,9 @@ internal class PyDockerSession : PySession
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxDockerService dockerService, Dict opts)
+  new make(DockerExt dockerExt, Dict opts)
   {
-    this.dockerService = dockerService
+    this.dockerExt = dockerExt
     this.opts = opts
 
     // Create an un-opened HxpySession. It will be lazily opened on the first eval()
@@ -290,8 +292,11 @@ internal class PyDockerSession : PySession
     if (t != null) session.timeout(t.toDuration)
   }
 
-  ** The Docker service
-  private const HxDockerService dockerService
+  ** The Docker Ext
+  private const DockerExt dockerExt
+
+  ** Convenience to get docker manager
+  private DockerMgr dockerMgr() { dockerExt.mgr }
 
   ** Session options
   private const Dict opts
@@ -303,7 +308,7 @@ internal class PyDockerSession : PySession
   private Bool isInitialized := false
 
   ** Docker container spawned by this session
-  internal HxDockerContainer? container := null
+  internal DockerContainer? container := null
 
 //////////////////////////////////////////////////////////////////////////
 // Open
@@ -332,11 +337,11 @@ internal class PyDockerSession : PySession
 
     // find the image to run and start it
     errs := Err[,]
-    this.container = priorityImageNames(opts).eachWhile |image->HxDockerContainer?|
+    this.container = priorityImageNames(opts).eachWhile |image->DockerContainer?|
     {
       try
       {
-        return dockerService.run(image, config)
+        return dockerMgr.run(image, config)
       }
       catch (Err err)
       {
@@ -356,7 +361,7 @@ internal class PyDockerSession : PySession
     host := "localhost"
     if (net != null)
     {
-      host = container.network(net).ip.toStr
+      host = container.network(net).ipv4.toStr
     }
 
     // now connect the HxpySession with retries. retry is necessary because the
@@ -478,7 +483,7 @@ internal class PyDockerSession : PySession
     {
       if (this.container != null)
       {
-        dockerService.deleteContainer(container.id)
+        dockerMgr.deleteContainer(container.id)
         this.container = null
       }
     }

@@ -17,21 +17,19 @@ const class DockerExt : ExtObj
 {
   new make()
   {
-    dockerMgr = DockerMgrActor(this)
+    mgr = DockerMgr(this)
   }
 
   ** Settings record
   override DockerSettings rec() { super.rec }
 
-  internal const DockerMgrActor dockerMgr
-
-  ** Publish the HxDockerService
-  override HxService[] services() { [dockerMgr] }
+  ** Docker manager
+  const DockerMgr mgr
 
   ** Stop callback
   override Void onStop()
   {
-    dockerMgr.shutdown
+    mgr.shutdown
   }
 }
 

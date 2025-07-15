@@ -24,7 +24,7 @@ xeto.props
 /src/xeto/fan.*/
 
 # var/
-/var/
+/var*/
 
 # temp
 /tmp/

@@ -36,7 +36,7 @@ class Build : BuildPod
                 "axon @{hx.depend}",
                 "docker @{hx.depend}",
                ]
-    srcDirs = [`fan/`, `fan/model/`]
+    srcDirs = [`fan/`]
     resDirs = [`lib/`]
     index   = ["ph.lib": "docker"]
   }

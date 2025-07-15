@@ -27,7 +27,7 @@ const class DockerFuncs
   @Axon { admin=true }
   static Grid dockerListImages()
   {
-    ext.dockerMgr.listImages
+    ext.mgr.listImages
   }
 
   @Axon { admin=true }
@@ -36,7 +36,7 @@ const class DockerFuncs
     meta := Str:Obj?[:]
     cx := Context.cur
     if (cx.feedIsEnabled) cx.feedAdd(DockerContainerFeed(cx), meta)
-    return ext.dockerMgr.listContainers.setMeta(meta)
+    return ext.mgr.listContainers.setMeta(meta)
   }
 
   // @Axon { admin=true }
@@ -90,7 +90,7 @@ const class DockerFuncs
   @Axon { admin=true }
   static Dict dockerDeleteContainer(Obj id)
   {
-    ext.dockerMgr.deleteContainer(toRef(id).id)
+    ext.mgr.deleteContainer(toRef(id).id)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ const class DockerFuncs
   @Axon { admin=true }
   static Str dockerRun(Str image, Obj config := Etc.emptyDict)
   {
-    ext.dockerMgr.run(image, config).id
+    ext.mgr.run(image, config).id
   }
 
 //////////////////////////////////////////////////////////////////////////
