@@ -33,6 +33,8 @@ class AExt
     oldName := def["lib:".size..-1]
     ext := make(ast, pod, oldName, AExtType.hx, meta)
     pod.exts.add(ext)
+
+    AFunc.scanExt(ast, ext)
   }
 
   static Str oldNameToLibName(Ast ast, Str oldName)
@@ -63,6 +65,8 @@ class AExt
   const AExtType type
   const Dict meta
   const File xetoSrcDir
+
+  AFunc[] funcs := [,]
 
   override Str toStr() { "$oldName [$type]" }
 }

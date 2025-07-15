@@ -40,6 +40,7 @@ class APod
   const File dir
   const File buildFile
   AExt[] exts := [,]
+  Str? fantomFuncType
 
   override Str toStr() { name }
 

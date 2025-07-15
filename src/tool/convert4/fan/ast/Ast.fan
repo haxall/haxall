@@ -46,6 +46,24 @@ class Ast
     return acc
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Tables
+//////////////////////////////////////////////////////////////////////////
+
+  Str[][] podsTable()
+  {
+    rows := Str[][,]
+    rows.add(["name", "ext", "type", "dir", "fantomFuncs"])
+    pods.each |pod|
+    {
+      pod.exts.each |ext|
+      {
+        rows.add([pod.name, ext.oldName, ext.type, pod.dir, pod.fantomFuncType])
+      }
+    }
+    return rows
+  }
+
   Str[][] extsTable()
   {
     rows := Str[][,]
@@ -57,14 +75,51 @@ class Ast
     return rows
   }
 
+  Str[][] funcsTable()
+  {
+    rows := Str[][,]
+    rows.add(["qname", "sig"])
+    exts.each |ext|
+    {
+      ext.funcs.each |f|
+      {
+        qname := ext.oldName + "::" + f.name
+        rows.add([qname, f.sig])
+      }
+    }
+    return rows
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Dumps
+//////////////////////////////////////////////////////////////////////////
+
   Void dump(Console con := Console.cur)
+  {
+    dumpPods(con)
+    dumpExts(con)
+    dumpFuncs(con)
+  }
+
+  Void dumpPods(Console con := Console.cur)
   {
     con.info("")
     con.info("### Pods [$pods.size] ###")
-    pods.sort.each |pod| { pod.dump(con) }
+    con.table(podsTable)
+  }
+
+  Void dumpExts(Console con := Console.cur)
+  {
     con.info("")
     con.info("### Exts [$exts.size] ###")
     con.table(extsTable)
+  }
+
+  Void dumpFuncs(Console con := Console.cur)
+  {
+    con.info("")
+    con.info("### Funcs ###")
+    con.table(funcsTable)
   }
 
 }

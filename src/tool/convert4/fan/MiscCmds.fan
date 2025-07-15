@@ -94,11 +94,27 @@ internal class DumpCmd : ConvertCmd
 
   override Str summary() { "Dump status of source environment" }
 
+  @Opt { help = "Dump pods" }
+  Bool pods := false
+
+  @Opt { help = "Dump extensions" }
+  Bool exts := false
+
+  @Opt { help = "Dump functions" }
+  Bool funcs := false
+
+  @Opt { help = "Dump everything" }
+  Bool all := false
+
   @Arg Str[] commandName := [,]
 
   override Int run()
   {
-    Ast().scan(Env.cur.workDir).dump
+    ast := Ast().scan(Env.cur.workDir)
+    if (all) { ast.dump; return 0 }
+    if (pods)  ast.dumpPods
+    if (exts)  ast.dumpExts
+    if (funcs) ast.dumpFuncs
     return 0
   }
 }
