@@ -47,13 +47,13 @@ internal class ANamespace : CNamespace
 
     // check my own lib
     mine := compiler.lib?.tops?.get(name)
-    if (mine != null && mine.flavor === flavor) acc.add(mine)
+    if (mine != null && mine.flavor === flavor && isTop(mine)) acc.add(mine)
 
     // check my dependencies
     compiler.depends.libs.each |lib|
     {
-      g := lib.spec(name, false)
-      if (g != null && g.flavor === flavor) acc.add((CSpec)g)
+      g := lib.spec(name, false) as CSpec
+      if (g != null && g.flavor === flavor && isTop(g)) acc.add(g)
     }
 
     // no global slots by this name
@@ -65,6 +65,13 @@ internal class ANamespace : CNamespace
     // duplicate global slots with this name
     compiler.err("Duplicate $flavor specs: " + acc.join(", "), loc)
     return null
+  }
+
+  private Bool isTop(CSpec s)
+  {
+    // we don't have the isFunc flag in AST yet...
+    if (!s.isAst && s.isFunc) return false
+    return true
   }
 
   override Void ceachTypeThatIs(CSpec type, |CSpec| f)
