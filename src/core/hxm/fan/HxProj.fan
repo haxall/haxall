@@ -269,5 +269,8 @@ log.info("TODO: libs are modified!")
     nsBaseRecompile
   }
 
+  ** Cache for ion project cache
+  const override AtomicRef ion := AtomicRef()
+
 }
 

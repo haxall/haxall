@@ -7,6 +7,7 @@
 //    8 Jul 2025  Brian Frank  Redesign from HxRuntime
 //
 
+using concurrent
 using xeto
 using haystack
 using obs
@@ -137,6 +138,13 @@ const mixin Proj
   ** for the given change set then ConcurrentChangeErr is thrown
   ** unless 'Diff.force' configured.
   abstract Diff[] commitAll(Diff[] diffs)
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  ** Cache for ion project cache
+  @NoDoc abstract AtomicRef ion()
 
 }
 
