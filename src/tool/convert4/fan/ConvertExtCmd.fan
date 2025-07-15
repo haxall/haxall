@@ -66,7 +66,7 @@ internal class ConvertExtCmd : ConvertCmd
 
     // write out
     file := ext.xetoSrcDir + `lib.xeto`
-    write("Lib xeto", file, header+body)
+    write("Lib xeto", file, header+"\n"+body)
   }
 
   private Str? resolveLibXetoVar(AExt ext, Str name)
@@ -128,7 +128,7 @@ internal class ConvertExtCmd : ConvertCmd
       if (comma) s.add(", ")
       genParam(s, p)
     }
-    s.add(" }\n\n")
+    s.add(" }\n")
   }
 
   Void genParam(StrBuf s, AParam p)
@@ -182,7 +182,7 @@ internal class ConvertExtCmd : ConvertCmd
   Str genHeader()
   {
     s := genMacro(ast.config.templateHeader) |n| { null }
-    return s.trim + "\n\n"
+    return s.trim + "\n"
   }
 
   Str genMacro(Str template, |Str->Str?| resolve)

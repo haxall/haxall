@@ -19,11 +19,11 @@ class AFunc
   static Void scanExt(Ast ast, AExt ext)
   {
     // look for Fantom class
-    typeName := ext.oldName.capitalize + "Funcs"
-    if (ext.oldName == "axon") typeName = "CoreFuncs"
-    if (ext.oldName == "hx")   typeName = "HxCoreFuncs"
-    if (ext.oldName == "io")   typeName = "IOFuncs"
-    typeFile := ext.pod.dir + `fan/${typeName}.fan`
+    path := ext.oldName.capitalize + "Funcs.fan"
+    if (ext.oldName == "axon") path = "lib/CoreLib.fan"
+    if (ext.oldName == "hx")   path = "HxCoreFuncs.fan"
+    if (ext.oldName == "io")   path = "IOFuncs.fan"
+    typeFile := ext.pod.dir + `fan/${path}`
     if (typeFile.exists)
     {
       try
@@ -40,7 +40,7 @@ class AFunc
   static Void scanFantom(Ast ast, AExt ext, File file)
   {
     typeName := file.basename
-    ext.pod.fantomFuncType = typeName
+    ext.fantomFuncType = typeName
     qname := ext.pod.name + "::" + typeName
 
     type := Type.find(qname)
@@ -71,20 +71,39 @@ class AFunc
     if (method.hasFacet(NoDoc#)) meta["nodoc"] = Marker.val
 
     // params
-    params := method.params.map |p->AParam|
-    {
-      paramName := p.name
-      if (paramName == "returns") paramName = "_returns"
-      paramType := AType(p.type)
-      paramDef := null // TODO
-      return AParam(paramName, paramType, paramDef)
-    }
+    params := method.params.map |p->AParam| { reflectParam(method, p) }
 
     // returns
-    returns := AParam("returns", AType(method.returns), null)
+    returnType := method.returns
+    if (returnType.name == "Void") returnType = Obj?#
+    returns := AParam("returns", AType.map(returnType), null)
 
     // function stub
     return AFunc(name, doc, Etc.makeDict(meta), params, returns)
+  }
+
+  static AParam reflectParam(Method method, Param p)
+  {
+    name := p.name
+    if (name == "returns") name = "_returns"
+
+    type := p.type
+    if (p.type.name == "Expr")
+    {
+      if (name.endsWith("Expr")) name = name[0..-5]
+      if (name == "filter") type = Filter#
+      else if (name == "checked") type = Bool#
+      else if (name == "opts") type = Dict?#
+      else if (name == "tagName") type = Str#
+      else if (name == "val") type = Obj?#
+      else if (name == "locale") type = Str#
+      else if (name == "expr") type = Obj?#
+      else echo("WARN: unhandled lazy param: $method $name")
+    }
+
+    def := null // TODO
+
+    return AParam(name, AType.map(type), def)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -152,11 +171,28 @@ const class AParam
 
 const class AType
 {
-  new makeType(Type type)
+  static AType map(Type type)
   {
-    sig := type.name
+    // specials
+    sig := mapSpecial(type.qname) ?: type.name
     if (type.isNullable) sig = sig + "?"
-    this.sig = sig
+    return make(sig)
+  }
+
+  static Str? mapSpecial(Str qname)
+  {
+    switch(qname)
+    {
+      case "axon::Fn":           return "Func"
+      case "haystack::Col":      return "Obj"
+      case "haystack::Row":      return "Obj"
+      case "haystack::Coord":    return "Obj"
+      case "haystack::DateSpan": return "Obj"
+      case "haystack::Symbol":   return "Obj"
+      case "haystack::Remove":   return "Obj"
+      case "haystack::Def":      return "Obj"
+    }
+    return null
   }
 
   new make(Str sig) { this.sig = sig }

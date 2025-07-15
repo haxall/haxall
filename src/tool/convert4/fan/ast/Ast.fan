@@ -59,7 +59,7 @@ class Ast
     {
       pod.exts.each |ext|
       {
-        rows.add([pod.name, ext.oldName, ext.type, pod.dir, pod.fantomFuncType])
+        rows.add([pod.name, ext.oldName, ext.type, pod.dir, ext.fantomFuncType])
       }
     }
     return rows

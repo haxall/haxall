@@ -1,0 +1,23 @@
+//
+// Copyright (c) 2024, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   21 Sep 2023  Brian Frank  Creation
+//
+
+// Axon source code string
+axon: Str <meta>
+
+// Axon block component graph as Xeto source string
+axonComp: Str <meta>
+
+// Requires admin permission
+admin: Str <meta>
+
+// Requires superuser permission
+su: Str <meta>
+
+// Registers a function as folding a given value type
+foldOn: Str <meta, nodoc>
+

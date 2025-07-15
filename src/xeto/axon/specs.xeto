@@ -6,11 +6,6 @@
 //   21 Sep 2023  Brian Frank  Creation
 //
 
+// TODO: this is temp!
 AxonFunc: Dict
-
-// Axon source code string
-axon: Str <meta>
-
-// Axon block component graph as Xeto source string
-axonComp: Str <meta>
 

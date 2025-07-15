@@ -39,6 +39,7 @@ class AExt
 
   static Str oldNameToLibName(Ast ast, Str oldName)
   {
+    if (oldName == "axon") return "axon"
     prefix  := ast.config.libPrefix
     if (prefix == oldName) return oldName
     start := prefix + "."
@@ -66,6 +67,7 @@ class AExt
   const Dict meta
   const File xetoSrcDir
 
+  Str? fantomFuncType
   AFunc[] funcs := [,]
 
   override Str toStr() { "$oldName [$type]" }
