@@ -16,9 +16,9 @@ using hx
 **
 const class ApiWeb : ExtWeb, WebOpUtil
 {
-  new make(Ext ext) : super(ext) { this.ext = ext }
+  new make(Ext ext) : super(ext) { this.sys = ext.sys }
 
-  override const Ext ext
+  const Sys sys
 
   override DefNamespace defs() { ext.proj.defs }
 
@@ -28,17 +28,34 @@ const class ApiWeb : ExtWeb, WebOpUtil
     res := this.res
     try
     {
-      // map the relative path to an opName
+      // path must be /api/{projName}/...
       path := req.modRel.path
-      opName := pathToOpName(path)
-      if (opName == null) return res.sendErr(404)
+      if (path.size < 2) return res.sendErr(404)
+      projName := path[0]
+
+      // lookup project
+      proj := sys.proj.get(projName, false)
+      if (proj == null) return res.sendErr(404, "Proj not found")
+
+      // handle web socket requests
+      if (req.headers["Upgrade"] == "websocket")
+      {
+        if (path.size != 1) return res.sendErr(404)
+        //return onWebSocket(req, res, proj)
+        ext.log.warn("onWebSocket upgrade [$proj]")
+        return res.sendErr(426)
+      }
 
       // authenticate user
-      session := ext.sys.user.authenticate(req, res)
+      session := sys.user.authenticate(req, res)
       if (session == null) return
-      cx := Context(ext.proj, session)
+      cx := Context(proj, session)
       cx.timeout = Context.timeoutDef
-      Actor.locals[ActorContext.actorLocalsKey] = cx
+      Actor.locals[Context.actorLocalsKey] = cx
+
+      // anything else must be /api/{projName}/{opName}/...
+      if (path.size < 2) return res.sendErr(404)
+      opName := path[1]
 
       // if opName has dot then its Haxall 4.x xeto style
       if (opName.contains("."))
