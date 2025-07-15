@@ -37,6 +37,7 @@ class ProjTest : HxTest
     boot := TestSysBoot(tempDir)
     bootLibs := boot.bootLibs
     p := boot.init
+    baseExts := ["hx.api", "hx.crypto", "hx.http", "hx.user", "hxd.proj"]
 
     // verify initial state
     verifyEq(p.name, boot.name)
@@ -52,6 +53,7 @@ class ProjTest : HxTest
     verifySame(p.meta, p.readById(p.meta.id))
     verifySame(p.meta, p.read("projMeta"))
     verifyProjLibs(p, bootLibs, projLibs, ["ashrae.g36"])
+    verifyProjExts(p, baseExts)
 
     // verify system required libs
     verifySame(p.sys.crypto.spec.lib, p.ns.lib("hx.crypto"))
@@ -65,6 +67,7 @@ class ProjTest : HxTest
     p.libs.add("ph")
     p.libs.addAll(Str[,])
     verifyProjLibs(p, bootLibs, projLibs, ["ashrae.g36"])
+    verifyProjExts(p, baseExts)
 
     // add - verify errors
     verifyErr(DuplicateNameErr#) { p.libs.addAll(["ph.points", "ph.points"]) }
@@ -149,6 +152,14 @@ class ProjTest : HxTest
     verifyEq(specA.qname, "proj::SpecAnotherA")
     verifyEq(p.specs.read(specA.name), src.splitLines.findAll { !it.isEmpty }.join("\n").trim)
     verifyProjSpecs(p, ["SpecAnotherA", "SpecB"])
+
+    // add new ext
+echo("#")
+echo("# TODO Ext updates not working yet...")
+echo("#")
+    p.exts.add("hx.shell")
+    verifyProjLibs(p, bootLibs, projLibs.dup.add("hx.shell"), [,])
+    verifyProjExts(p, baseExts.dup.add("hx.shell"))
   }
 
   Void dump(Proj p)
@@ -213,6 +224,22 @@ class ProjTest : HxTest
       verifySame(spec.lib, p.specs.lib)
     }
   }
+
+  Void verifyProjExts(Proj p, Str[] names)
+  {
+    list := p.exts.list
+    verifyEq(list.map |x->Str| { x.name }.sort.join(","), names.sort.join(","))
+
+    webRoutes := Str:ExtWeb[:]
+    list.each |x|
+    {
+      r := x.web.routeName
+      if (!r.isEmpty) webRoutes[r] = x.web
+    }
+    verifyEq(p.exts.webRoutes, webRoutes)
+    verifyEq(p.exts.webRoutes.isImmutable, true)
+    verifySame(p.exts.webRoutes, p.exts.webRoutes)
+  }
 }
 
 **************************************************************************
@@ -229,7 +256,10 @@ class TestSysBoot : HxdBoot
 
   override Str[] bootLibs()
   {
-    super.bootLibs.dup.addAll(["bad.boot"])
+    acc := super.bootLibs.dup
+    acc.remove("hx.shell")
+    acc.addAll(["bad.boot"])
+    return acc
   }
 
   override Folio initFolio()

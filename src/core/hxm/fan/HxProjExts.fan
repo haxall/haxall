@@ -63,6 +63,9 @@ const class HxProjExts : Actor, ProjExts
     list.findAll { it.typeof.fits(type) }
   }
 
+  override Str:ExtWeb webRoutes() { webRoutesRef.val }
+  private const AtomicRef webRoutesRef := AtomicRef()
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
@@ -98,13 +101,30 @@ const class HxProjExts : Actor, ProjExts
       if (ext != null) map.add(ext.name, ext)
     }
 
-    // build lookup tables
+    update(map)
+  }
+
+  private Void update(Str:Ext map)
+  {
+    // build sorted list
     list := map.vals
     list.sort |a, b| { a.name <=> b.name }
+
+    // map web routes
+    webRoutes := Str:ExtWeb[:]
+    list.each |ext|
+    {
+      web := ext.web
+      routeName := web.routeName
+      if (routeName.isEmpty || web.isUnsupported) return
+      if (webRoutes[routeName] != null) log.warn("Duplicte ext routes: $routeName")
+      else webRoutes[routeName] = web
+    }
 
     // save lookup tables
     this.listRef.val = list.toImmutable
     this.mapRef.val = map.toImmutable
+    this.webRoutesRef.val = webRoutes.toImmutable
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -28,6 +28,11 @@ abstract const class ExtWeb : WebMod
   ** Base uri for this library's endpoint such as "/myLib/"
   Uri uri() { ext.spi.webUri }
 
+  ** Get the route name for this web extension. By default its
+  ** the last name in the dotted lib path.  This must be a valid
+  ** path name (must not contain slashes).
+  virtual Str routeName() { ext.name.split('.').last }
+
   ** Is the unsupported no-up default instance
   @NoDoc virtual Bool isUnsupported() { false }
 
@@ -40,6 +45,7 @@ abstract const class ExtWeb : WebMod
 internal const class UnsupportedExtWeb : ExtWeb
 {
   new make(Ext lib) : super(lib) {}
+  override Str routeName() { "" }
   override Bool isUnsupported() { true }
   override Void onService() { res.sendErr(404) }
 }

@@ -37,6 +37,9 @@ const mixin ProjExts
   ** Lookup all extensions that implement given type.
   @NoDoc abstract Ext[] getAllByType(Type type)
 
+  ** Map of web route names to extension web modules
+  @NoDoc abstract Str:ExtWeb webRoutes()
+
   ** Check if there is an enabled extension with given lib name
   abstract Bool has(Str name)
 

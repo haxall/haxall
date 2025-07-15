@@ -19,9 +19,9 @@ using hx
 **
 internal const class HttpRootMod : WebMod
 {
-  new make(HttpExt ext) { this.proj = ext.proj; this.ext = ext }
+  new make(HttpExt ext) { this.sys = ext.sys; this.ext = ext }
 
-  const Proj proj
+  const Sys sys
   const HttpExt ext
 
   override Void onService()
@@ -29,29 +29,24 @@ internal const class HttpRootMod : WebMod
     req := this.req
     res := this.res
 
-    // use first level of my path to lookup lib
-    libName := req.modRel.path.first ?: ""
+    // use first level of my path to lookup route
+    routeName := req.modRel.path.first ?: ""
 
     // if name is empty, redirect
-    if (libName.isEmpty)
+    if (routeName.isEmpty)
     {
       // redirect to shell as the built-in UI
       return res.redirect(`/shell`)
     }
 
     // TODO
-    x := "hx." + libName
-    lib := proj.exts.get(x, false)
-    if (lib == null) return res.sendErr(404)
+    mod := sys.exts.webRoutes.get(routeName)
+    if (mod == null) return res.sendErr(404)
 
-    // check if it supports ExtWeb
-    libWeb := lib.web
-    if (libWeb.isUnsupported) return res.sendErr(404)
-
-    // dispatch to lib's ExtWeb instance
-    req.mod = libWeb
-    req.modBase = req.modBase + `$libName/`
-    libWeb.onService
+    // dispatch to web mod
+    req.mod = mod
+    req.modBase = req.modBase + `$routeName/`
+    mod.onService
   }
 }
 

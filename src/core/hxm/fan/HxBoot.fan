@@ -57,21 +57,7 @@ abstract class HxBoot
   virtual FileRepo repo() { XetoEnv.cur.repo }
 
   ** List of xeto lib names which are required to be installed.
-  virtual Str[] bootLibs()
-  {
-    [
-    "sys",
-    "sys.api",
-    "sys.comp",
-    "sys.files",
-    "axon",
-    "hx",
-    "hx.api",
-    "hx.crypto",
-    "hx.http",
-    "hx.user",
-    ]
-  }
+  abstract Str[] bootLibs()
 
 //////////////////////////////////////////////////////////////////////////
 // Public
