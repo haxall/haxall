@@ -333,11 +333,17 @@ const class HxProjLibs : ProjLibs
     // check depends and remove libs with a dependency error
     versToUse := vers.dup
     dependErrs := Str:Err[:]
-    LibVersion.checkDepends(vers.vals).each |err|
+    while (true)
     {
-      n := err.name
-      dependErrs[n] = err
-      versToUse.remove(n)
+      errs := LibVersion.checkDepends(versToUse.vals)
+      if (errs.isEmpty) break
+      errs.each |err|
+      {
+        n := err.name
+        dependErrs[n] = err
+        versToUse.remove(n)
+        log.warn("Cannot load: $n.toCode: $err")
+      }
     }
 
     // at this point should we should have a safe versions list to create namespace

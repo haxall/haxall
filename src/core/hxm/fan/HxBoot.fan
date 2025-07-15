@@ -59,6 +59,21 @@ abstract class HxBoot
   ** List of xeto lib names which are required to be installed.
   abstract Str[] bootLibs()
 
+  ** List all the core libs required for basic Ion user interface
+  virtual Str[] ionLibs()
+  {
+    [
+    "ion",
+    "ion.actions",
+    "ion.card",
+    "ion.inputs",
+    "ion.form",
+    "ion.misc",
+    "ion.table",
+    "ion.ux",
+    ]
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Public
 //////////////////////////////////////////////////////////////////////////
