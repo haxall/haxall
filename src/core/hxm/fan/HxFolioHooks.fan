@@ -11,27 +11,23 @@ using xeto
 using haystack
 using folio
 using hx
-using hxm
 
 **
-** Haxall daemon hooks into the Folio database
+** Haxall project hooks into the Folio database
 **
-const class HxdFolioHooks : FolioHooks
+const class HxFolioHooks : FolioHooks
 {
   ** Constructor
-  new make(HxProj rt) { this.rt = rt; this.db = rt.db }
+  new make(HxProj proj) { this.proj = proj }
 
-  ** Parent runtime instance
-  const HxProj rt
-
-  ** Parent database instance
-  const Folio db
+  ** Parent project instance
+  const HxProj proj
 
   ** Xeto namespace is available
-  override LibNamespace? ns(Bool checked := true) { rt.ns }
+  override LibNamespace? ns(Bool checked := true) { proj.ns }
 
   ** Def namespace is available
-  override DefNamespace? defs(Bool checked := true) { rt.defs }
+  override DefNamespace? defs(Bool checked := true) { proj.defs }
 
   ** Callback before diff is committed during verify
   ** phase. An exception will cancel entire commit.
@@ -43,17 +39,18 @@ const class HxdFolioHooks : FolioHooks
     if (diff.isUpdate)
     {
       // cannot trash projMeta
-      if (diff.id == rt.meta.id && diff.changes.has("trash")) throw CommitErr("Cannot trash projMeta rec")
+      if (diff.id == proj.meta.id && diff.changes.has("trash")) throw CommitErr("Cannot trash projMeta rec")
     }
     else if (diff.isRemove)
     {
-      rec := db.readById(diff.id, false) ?: Etc.emptyDict
+      // TODO: should not need this anymore...
+      rec := proj.readById(diff.id, false) ?: Etc.emptyDict
 
       // cannot directly remove a library
       if (rec.has("ext") && !diff.isBypassRestricted) throw CommitErr("Must use libRemove to remove lib rec")
 
       // cannot remove projMeta ever
-      if (diff.id == rt.meta.id) throw CommitErr("Cannot remove projMeta rec")
+      if (diff.id == proj.meta.id) throw CommitErr("Cannot remove projMeta rec")
     }
   }
 
@@ -81,11 +78,11 @@ const class HxdFolioHooks : FolioHooks
       libName := newRec["ext"] as Str
       if (libName != null)
       {
-        lib := rt.exts.get(libName, false)
+        lib := proj.exts.get(libName, false)
         if (lib != null) ((HxExtSpi)lib.spi).update(newRec)
       }
 
-      if (diff.id == rt.meta.id)
+      if (diff.id == proj.meta.id)
       {
 echo("TODO: metaRef")
 //        rt.metaRef.val = diff.newRec
@@ -97,17 +94,13 @@ echo("TODO: metaRef")
 //      rt.nsOverlayRecompile
     }
 
-// TODO
-//obs := (HxdObsService)rt.obs
-//    obs.commit(diff, user)
+    proj.obsRef.commit(diff, user)
   }
 
   ** Callback after his write.  Result is same dict returned from future.
   override Void postHisWrite(FolioHisEvent e)
   {
-// TODO
-//obs := (HxdObsService)rt.obs
-//    obs.hisWrite(e.rec, e.result, e.cxInfo as HxUser)
+    proj.obsRef.hisWrite(e.rec, e.result, e.cxInfo as HxUser)
   }
 }
 

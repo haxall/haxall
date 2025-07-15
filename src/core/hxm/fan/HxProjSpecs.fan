@@ -46,8 +46,7 @@ const class HxProjSpecs : ProjSpecs
   {
     fb.list.mapNotNull |n->Str?|
     {
-      if (n == "lib.xeto") return null // TODO
-      return n.endsWith(".xeto") ? n[0..-6] : null
+      n.endsWith(".xeto") ? n[0..-6] : null
     }
   }
 

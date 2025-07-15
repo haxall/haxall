@@ -31,8 +31,7 @@ abstract const class HxProj : Proj
     this.id            = Ref("p:$name", name)
     this.dir           = boot.dir
     this.db            = boot.db
-// TODO
-//    this.db.hooks      = HxdFolioHooks(this)
+    this.db.hooks      = HxFolioHooks(this)
     this.log           = boot.log
     this.metaRef       = AtomicRef(boot.meta)
     this.libsActorPool = ActorPool { it.name = "Hx-Exts" }
