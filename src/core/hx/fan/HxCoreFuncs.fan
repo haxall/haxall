@@ -413,7 +413,7 @@ const class HxCoreFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Namespace
+// Projects Libs
 //////////////////////////////////////////////////////////////////////////
 
   ** Reload all the xeto libraries in project
@@ -436,7 +436,7 @@ const class HxCoreFuncs
   @Axon
   static Grid libStatus(Dict? opts := null)
   {
-    curContext.rt.libs.status(opts)
+    curContext.proj.libs.status(opts)
   }
 
   ** Enable one or more Xeto libs by name:
@@ -447,7 +447,7 @@ const class HxCoreFuncs
   {
     if (names is Str) names = Str[names]
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
-    curContext.rt.libs.addAll(list)
+    curContext.proj.libs.addAll(list)
     return "added"
   }
 
@@ -459,9 +459,39 @@ const class HxCoreFuncs
   {
     if (names is Str) names = Str[names]
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
-    curContext.rt.libs.removeAll(list)
+    curContext.proj.libs.removeAll(list)
     return "removed"
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Projects Exts
+//////////////////////////////////////////////////////////////////////////
+
+  ** Return grid of enabled extensions and their current status.
+  ** Columns:
+  **  - name: library name of extension
+  **  - extStatus: status enumeration string
+  **  - other cols subject to change
+  @Axon
+  static Grid extStatus()
+  {
+    curContext.proj.exts.status
+  }
+
+  ** Report installed web routes as grid
+  @NoDoc @Axon
+  static Grid extWebRoutes()
+  {
+    routes := curContext.proj.exts.webRoutes
+    gb := GridBuilder()
+    gb.addCol("route").addCol("ext")
+    routes.keys.sort.each |name| { gb.addRow2(`/$name`, routes[name].ext.name) }
+    return gb.toGrid
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Projects Specs
+//////////////////////////////////////////////////////////////////////////
 
   ** Read source code for a project level spec by name:
   **   projSpecRead("MySpec")
