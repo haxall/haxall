@@ -191,6 +191,7 @@ const class AType
       case "haystack::Symbol":   return "Obj"
       case "haystack::Remove":   return "Obj"
       case "haystack::Def":      return "Obj"
+      case "folio::Diff":        return "Obj"
     }
     return null
   }
