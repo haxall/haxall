@@ -27,5 +27,5 @@ pragma: Lib <
 >
 
 // API service handling
-ApiExt: Ext
+ApiExt: SysExt
 

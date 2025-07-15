@@ -27,5 +27,5 @@ pragma: Lib <
 >
 
 // API service handling
-CryptoExt: Ext
+CryptoExt: SysExt
 

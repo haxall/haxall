@@ -6,9 +6,9 @@
 //   8 Jul 2025  Brian Frank  Creation
 //
 
-// Extension definition; tags define settings
+// Extension definition
 Ext: Dict <abstract>
 
-// Dummy extension
-FooExt: Ext
+// System level extension
+SysExt: Ext <abstract>
 

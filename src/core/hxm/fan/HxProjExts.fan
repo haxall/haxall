@@ -73,11 +73,11 @@ const class HxProjExts : Actor, ProjExts
   override Grid status()
   {
     gb := GridBuilder()
-    gb.addCol("qname").addCol("libStatus").addCol("statusMsg")
+    gb.addCol("qname").addCol("libStatus").addCol("fantomType").addCol("statusMsg")
     list.each |ext|
     {
       spi := (HxExtSpi)ext.spi
-      gb.addRow([ext.name, spi.status, spi.statusMsg])
+      gb.addRow([ext.name, spi.status, ext.typeof.toStr, spi.statusMsg])
     }
     return gb.toGrid
   }

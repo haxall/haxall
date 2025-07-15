@@ -63,6 +63,7 @@ abstract class HxBoot
   virtual Str[] ionLibs()
   {
     [
+    "hx.ion",
     "ion",
     "ion.actions",
     "ion.card",
