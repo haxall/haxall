@@ -348,7 +348,7 @@ const class HxProjLibs : ProjLibs
 
     // at this point should we should have a safe versions list to create namespace
     nsVers := versToUse.vals
-    nsVers.add(FileLibVersion.makeProj(fb.dir, version))
+//    nsVers.add(FileLibVersion.makeProj(fb.dir, version))
     ns := HxNamespace(LocalNamespaceInit(repo, nsVers, null, repo.names))
     ns.libs // force sync load
 
