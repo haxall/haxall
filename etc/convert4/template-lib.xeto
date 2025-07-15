@@ -1,11 +1,3 @@
-//
-// Copyright (c) $year, SkyFoundry LLC
-// Licensed under the Academic Free License version 3.0
-//
-// History:
-//   $date  Brian Frank  Creation
-//
-
 pragma: Lib <
   doc: "$doc"
   version: BuildVar "hx.version"

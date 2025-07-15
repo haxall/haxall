@@ -106,6 +106,17 @@ class AFunc
   const AParam[] params
   const AParam returns
 
+  Void eachSlot(|AParam, Bool needComma| f)
+  {
+    comma := false
+    params.each |p|
+    {
+      f(p, comma)
+      comma = true
+    }
+    f(returns, comma)
+  }
+
   override Str toStr() { name }
 
   Str sig()

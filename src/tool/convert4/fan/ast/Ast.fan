@@ -43,6 +43,7 @@ class Ast
   {
     acc := AExt[,]
     pods.each |pod| { acc.addAll(pod.exts) }
+    acc.sort
     return acc
   }
 

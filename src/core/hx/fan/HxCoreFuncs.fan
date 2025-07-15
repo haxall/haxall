@@ -538,6 +538,7 @@ const class HxCoreFuncs
 // Observables
 //////////////////////////////////////////////////////////////////////////
 
+  // Return grid of observables registered in current project
   @NoDoc @Axon { admin = true }
   static Grid observables()
   {
@@ -552,6 +553,7 @@ const class HxCoreFuncs
     return gb.toGrid
   }
 
+  // Return grid of observable subscriptions in current project
   @NoDoc @Axon { admin = true }
   static Grid subscriptions()
   {

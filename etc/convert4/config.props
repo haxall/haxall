@@ -5,7 +5,7 @@
 // prefix to add to turn old def lib/ext names into xeto lib names
 libPrefix=hx
 
-// ignore list of old def lib names
+// ignore list of old ext names
 ignore=axon,hx
 
 // depend versions by lib prefix

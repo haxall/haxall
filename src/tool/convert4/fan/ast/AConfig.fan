@@ -28,6 +28,7 @@ class AConfig
 
     return make {
       it.libPrefix       = props.get("libPrefix", "hx")
+      it.templateHeader  = env.findFile(`etc/convert4/template-header.xeto`).readAllStr
       it.templateLibXeto = env.findFile(`etc/convert4/template-lib.xeto`).readAllStr
       it.dependVersions  = dependVersions
       it.ignore          = props.get("ignore", "").split(',').findAll { !it.isEmpty }
@@ -37,6 +38,8 @@ class AConfig
   new make(|This| f) { f(this) }
 
   Str libPrefix := "hx"
+
+  Str templateHeader
 
   Str templateLibXeto
 
