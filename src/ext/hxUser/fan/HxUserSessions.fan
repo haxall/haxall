@@ -76,9 +76,8 @@ const class HxUserSessions
   }
 
   ** Cleanup expired sessions
-  Void onHouseKeeping()
+  Void onHouseKeeping(Duration lease)
   {
-    lease := (ext.rec["sessionTimeout"] as Number)?.toDuration(false) ?: 1hr
     now := Duration.now
     list.each |session|
     {

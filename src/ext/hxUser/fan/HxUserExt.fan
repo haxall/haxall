@@ -129,7 +129,11 @@ const class HxUserExt : ExtObj, IUserExt
   override Duration? houseKeepingFreq() { 17sec }
 
   ** Cleanup expired sessions
-  override Void onHouseKeeping() { sessions.onHouseKeeping }
+  override Void onHouseKeeping()
+  {
+    lease := (rec["sessionTimeout"] as Number)?.toDuration(false) ?: 1hr
+    sessions.onHouseKeeping(lease)
+  }
 
 }
 
