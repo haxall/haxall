@@ -222,7 +222,8 @@ const class XetoUtil
   static Bool isReservedSpecName(Str n)
   {
     if (n == "pragma") return true
-    if (n == "index") return true
+    if (n == "top") return true
+    if (n == "toc") return true
     return false
   }
 
@@ -230,7 +231,8 @@ const class XetoUtil
   static Bool isReservedInstanceName(Str n)
   {
     if (n == "pragma") return true
-    if (n == "index") return true
+    if (n == "top") return true
+    if (n == "toc") return true
     if (n.startsWith("doc-")) return true
     if (n.startsWith("_")) return true
     if (n.startsWith("~")) return true

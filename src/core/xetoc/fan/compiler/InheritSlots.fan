@@ -134,6 +134,9 @@ internal class InheritSlots : Step
     // don't process top-level types/globals
     if (x.isTop) return null
 
+    // don't process func params
+    if (x.parent.isFunc) return null
+
     // don't process constrained query slots
     if (x.parent.isQuery) return null
 
