@@ -10,11 +10,12 @@ using xeto
 using haystack
 using axon
 using folio
+using hx
 
 **
 ** Haxall core "hx" axon functions supported by all runtimes
 **
-const class HxCoreFuncs
+const class HxFuncs
 {
 
 //////////////////////////////////////////////////////////////////////////

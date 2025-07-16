@@ -37,7 +37,7 @@ const class HxUtil
   }
 
   ** Implementation for readAllTagNames function
-  internal static Grid readAllTagNames(Folio db, Filter filter)
+  @NoDoc  static Grid readAllTagNames(Folio db, Filter filter)
   {
     acc := Str:TagNameUsage[:]
     db.readAllEachWhile(filter, Etc.emptyDict) |rec|
@@ -60,7 +60,7 @@ const class HxUtil
   }
 
   ** Implementation for readAllTagVals function
-  internal static Obj[] readAllTagVals(Folio db, Filter filter, Str tagName)
+  @NoDoc static Obj[] readAllTagVals(Folio db, Filter filter, Str tagName)
   {
     acc := Obj:Obj[:]
     db.readAllEachWhile(filter, Etc.emptyDict) |rec|

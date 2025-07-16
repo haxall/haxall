@@ -84,7 +84,8 @@ internal class HxAboutOp : HxApiOp
 {
   override Grid onRequest(Grid req, Context cx)
   {
-    Etc.makeDictGrid(null, HxCoreFuncs.about)
+throw Err("TODO")
+    //Etc.makeDictGrid(null, HxCoreFuncs.about)
   }
 }
 

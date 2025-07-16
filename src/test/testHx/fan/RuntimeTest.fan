@@ -13,6 +13,7 @@ using axon
 using obs
 using folio
 using hx
+using hxm
 
 **
 ** RuntimeTest
@@ -226,9 +227,9 @@ class RuntimeTest : HxTest
     // verify funcs thru Fantom APIs
     Actor.locals[ActorContext.actorLocalsKey] = cx
     rec := addRec(["dis":"Test"])
-    verifySame(HxCoreFuncs.readById(rec.id), rec)
-    HxCoreFuncs.commit(Diff(rec, ["foo":m]))
-    verifyEq(HxCoreFuncs.readById(rec.id)->foo, m)
+    verifySame(HxFuncs.readById(rec.id), rec)
+    HxFuncs.commit(Diff(rec, ["foo":m]))
+    verifyEq(HxFuncs.readById(rec.id)->foo, m)
   }
 }
 

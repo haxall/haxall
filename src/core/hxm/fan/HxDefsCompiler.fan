@@ -229,7 +229,7 @@ internal const class ProjLibInput : LibInput
 
     // specials
     if (name == "axon") return [FuncMethodsReflectInput(CoreLib#, null)]
-    if (name == "hx") return [FuncMethodsReflectInput(HxCoreFuncs#, null)]
+    if (name == "hx") return [FuncMethodsReflectInput(HxFuncs#, null)]
 
     // none
     return ReflectInput#.emptyList
