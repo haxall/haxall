@@ -154,7 +154,7 @@ const class MathFuncs
   @Axon { meta = ["foldOn":"Number", "disKey":"ui::mean"] }
   static Obj? mean(Obj? val, Obj? acc)
   {
-    CoreLib.avg(val, acc)
+    AxonFuncs.avg(val, acc)
   }
 
   **
@@ -171,8 +171,8 @@ const class MathFuncs
   {
     if (val === NA.val || acc === NA.val) return NA.val
     fold := acc as NumberFold
-    if (val === CoreLib.foldStart) return NumberFold()
-    if (val !== CoreLib.foldEnd)  return fold.add(val)
+    if (val === AxonFuncs.foldStart) return NumberFold()
+    if (val !== AxonFuncs.foldEnd)  return fold.add(val)
     if (fold.isEmpty) return null
     return Number(fold.median, fold.unit)
   }
@@ -193,8 +193,8 @@ const class MathFuncs
   {
     if (val === NA.val || acc === NA.val) return NA.val
     fold := acc as NumberFold
-    if (val === CoreLib.foldStart) return NumberFold()
-    if (val !== CoreLib.foldEnd)  return fold.add(val)
+    if (val === AxonFuncs.foldStart) return NumberFold()
+    if (val !== AxonFuncs.foldEnd)  return fold.add(val)
 
     // this function came from PNL, but I'm not sure its
     // quite correct because it uses median as the "truth"
@@ -236,8 +236,8 @@ const class MathFuncs
   {
     if (val === NA.val || acc === NA.val) return NA.val
     fold := acc as NumberFold
-    if (val === CoreLib.foldStart) return NumberFold()
-    if (val !== CoreLib.foldEnd)  return fold.add(val)
+    if (val === AxonFuncs.foldStart) return NumberFold()
+    if (val !== AxonFuncs.foldEnd)  return fold.add(val)
 
     // this function came from PNL, but I'm not sure its
     // quite correct because it uses median as the "truth"
@@ -275,8 +275,8 @@ const class MathFuncs
   {
     if (val === NA.val || acc === NA.val) return NA.val
     fold := acc as NumberFold
-    if (val === CoreLib.foldStart) return NumberFold()
-    if (val !== CoreLib.foldEnd)  return fold.add(val)
+    if (val === AxonFuncs.foldStart) return NumberFold()
+    if (val !== AxonFuncs.foldEnd)  return fold.add(val)
 
     // compute mean
     if (fold.isEmpty) return null
@@ -359,8 +359,8 @@ const class MathFuncs
   {
     if (val === NA.val || acc === NA.val) return NA.val
     fold := acc as NumberFold
-    if (val === CoreLib.foldStart) return NumberFold()
-    if (val !== CoreLib.foldEnd)   return fold.add(val)
+    if (val === AxonFuncs.foldStart) return NumberFold()
+    if (val !== AxonFuncs.foldEnd)   return fold.add(val)
     if (fold.isEmpty)              return null
 
     Number? out := Number(fold.quantile(perc.toFloat, method), fold.unit)

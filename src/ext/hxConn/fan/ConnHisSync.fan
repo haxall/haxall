@@ -80,7 +80,7 @@ using folio
       // note that the span might have a timezone different than the
       // point's timezone, but we actually allow that in situations where
       // we must query the remote system in a different timezone
-      x = CoreLib.toSpan(this.span, tz.name)
+      x = AxonFuncs.toSpan(this.span, tz.name)
     }
     return x
   }

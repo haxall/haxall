@@ -1381,8 +1381,8 @@ class CoreLibTest : HaystackTest
     verifyEq(grid.get(4)->name, "charles")
     verifyEq(grid.get(5)->name, "brian")
     emptyGrid := Etc.makeEmptyGrid
-    verifySame(CoreLib.addRows(grid, emptyGrid), grid)
-    verifySame(CoreLib.addRows(emptyGrid, Etc.makeEmptyGrid), emptyGrid)
+    verifySame(AxonFuncs.addRows(grid, emptyGrid), grid)
+    verifySame(AxonFuncs.addRows(emptyGrid, Etc.makeEmptyGrid), emptyGrid)
 
     // colToList
     verifyEq(eval(x+""".sort("name").colToList("name")"""), Obj?["andy", "brian", "charles"])
@@ -1421,7 +1421,7 @@ class CoreLibTest : HaystackTest
            >>
            |>.in).readGrid
 
-    r := CoreLib.gridColKinds(g)
+    r := AxonFuncs.gridColKinds(g)
 
     verifyEq(r.cols.size, 3)
     verifyEq(r[0]->name, "a"); verifyEq(r[0]->kind, "Str"); verifyEq(r[0]->count, n(2))
@@ -1485,13 +1485,13 @@ class CoreLibTest : HaystackTest
     gb.addCol("a", ["am":m]).addCol("b", ["bm":m])
     grid := gb.toGrid
 
-    verifyGridEq(CoreLib.addRows(grid, [Etc.emptyDict]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.emptyDict]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm
              N,    N
              |>))
 
-    verifyGridEq(CoreLib.addRows(grid, [Etc.dict2("a", "x", "c", "y")]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict2("a", "x", "c", "y")]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm, c
              "x",  N,     "y"
@@ -1505,14 +1505,14 @@ class CoreLibTest : HaystackTest
     gb.addRow([null, "b0"])
     grid = gb.toGrid
 
-    verifyGridEq(CoreLib.addRows(grid, [Etc.emptyDict]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.emptyDict]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm
              N,     "b0"
              N,     N
              |>))
 
-    verifyGridEq(CoreLib.addRows(grid, [Etc.dict2("a", "x", "b", "y"), Etc.emptyDict, Etc.dict1("c", "z")]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict2("a", "x", "b", "y"), Etc.emptyDict, Etc.dict1("c", "z")]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm,  c
              N,     "b0",  N
@@ -1528,14 +1528,14 @@ class CoreLibTest : HaystackTest
     gb.addRow(["a0", "b0"])
     grid = gb.toGrid
 
-    verifyGridEq(CoreLib.addRows(grid, [Etc.emptyDict]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.emptyDict]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm
              "a0", "b0"
              N,    N
              |>))
 
-    verifyGridEq(CoreLib.addRows(grid, [Etc.emptyDict, Etc.dict1("a", "x")]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.emptyDict, Etc.dict1("a", "x")]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm
              "a0", "b0"
@@ -1543,7 +1543,7 @@ class CoreLibTest : HaystackTest
              "x",  N
              |>))
 
-    verifyGridEq(CoreLib.addRows(grid, [Etc.dict2("b", "x", "c", "y"), Etc.emptyDict, Etc.dict1("a", "z")]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict2("b", "x", "c", "y"), Etc.emptyDict, Etc.dict1("a", "z")]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm, c
              "a0", "b0", N
@@ -1555,19 +1555,19 @@ class CoreLibTest : HaystackTest
     // start off with empty grid to ensure 'empty' col is stripped
     grid = Etc.makeEmptyGrid(["foo":"bar"])
 
-    verifyGridEq(CoreLib.addRows(grid, [Etc.emptyDict]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.emptyDict]),
       g(Str<|ver:"3.0" foo:"bar"
              empty
              N
              |>))
 
-    verifyGridEq(CoreLib.addRows(grid, [Etc.dict1("a", "x")]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict1("a", "x")]),
       g(Str<|ver:"3.0" foo:"bar"
              a
              "x"
              |>))
 
-    verifyGridEq(CoreLib.addRows(CoreLib.addRows(grid, [Etc.emptyDict]), [Etc.dict1("a", "x")]),
+    verifyGridEq(AxonFuncs.addRows(AxonFuncs.addRows(grid, [Etc.emptyDict]), [Etc.dict1("a", "x")]),
       g(Str<|ver:"3.0" foo:"bar"
              a
              N
@@ -1575,7 +1575,7 @@ class CoreLibTest : HaystackTest
              |>))
 
     // don't strip empty if it has non-null cells
-    verifyGridEq(CoreLib.addRows(grid, [Etc.dict2("empty", "x", "foo", "bar")]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict2("empty", "x", "foo", "bar")]),
       g(Str<|ver:"3.0" foo:"bar"
              empty, foo
              "x",   "bar"
@@ -1644,12 +1644,12 @@ class CoreLibTest : HaystackTest
     verifyToAxonCode(Etc.makeDict(["a b":m, "x y": Coord(1f, 2f), "b":[true, null, "x"]]))
     verifyToAxonCode(Span.today)
     verifyToAxonCode(Span(Date.today.minus(3day).midnight, Date.today.midnight))
-    verifyErr(UnsupportedErr#) { CoreLib.toAxonCode(Etc.makeMapGrid(null, ["foo":"bar"])) }
+    verifyErr(UnsupportedErr#) { AxonFuncs.toAxonCode(Etc.makeMapGrid(null, ["foo":"bar"])) }
   }
 
   Void verifyToAxonCode(Obj? val)
   {
-    s := CoreLib.toAxonCode(val)
+    s := AxonFuncs.toAxonCode(val)
     // echo("### $s")
     verifyValEq(val, eval(s))
   }
@@ -1739,7 +1739,7 @@ class CoreLibTest : HaystackTest
            @2,@1,@2,N,"x"
            @3,N,N,N,[@1, N, "x", @3]
            |>.in).readGrid
-    g = CoreLib.swizzleRefs(g)
+    g = AxonFuncs.swizzleRefs(g)
     r1 := g[0].id
     r2 := g[1].id
     r3 := g[2].id

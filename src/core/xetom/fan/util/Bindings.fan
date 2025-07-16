@@ -308,7 +308,6 @@ const class PodBindingLoader : SpecBindingLoader
     libExt := lib.meta["libExt"]?.toStr
     base := libExt != null ? XetoUtil.qnameToName(libExt) : XetoUtil.lastDottedName(lib.name).capitalize
     typeName := base + "Funcs"
-if (lib.name == "axon") typeName = "CoreLib"
     type := pod.type(typeName, false)
 echo("~~> $spec.lib base=$base -> $typeName -> $type")
     if (type == null) return null

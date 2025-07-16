@@ -226,7 +226,7 @@ const class HaystackFuncs
   {
     if (range == null) return "today"
     if (range is Str)  return range
-    dates := CoreLib.toDateSpan(range)
+    dates := AxonFuncs.toDateSpan(range)
     if (dates.numDays == 1) return dates.start.toStr
     return "$dates.start,$dates.end"
   }

@@ -11,10 +11,10 @@ using xeto
 using haystack
 
 **
-** System library
+** Axon library functions
 **
 @Js
-const class CoreLib
+const class AxonFuncs
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -313,7 +313,7 @@ const class CoreLib
   **   readAll(site).sort((a, b) => a->area <=> b->area)
   @Axon static Obj? sort(Obj val, Obj? sorter := null)
   {
-    CoreLibUtil.sort(val, sorter, true)
+    AxonFuncsUtil.sort(val, sorter, true)
   }
 
   ** Sort a grid by row display name - see `haystack::Grid.sortDis`
@@ -327,7 +327,7 @@ const class CoreLib
   ** like `sort` except sorts in reverse.
   @Axon static Obj? sortr(Obj val, Obj? sorter := null)
   {
-    CoreLibUtil.sort(val, sorter, false)
+    AxonFuncsUtil.sort(val, sorter, false)
   }
 
   ** Iterate the items of a collection:
@@ -750,7 +750,7 @@ const class CoreLib
   **
   ** Example:
   **   readAll(site).gridColKinds
-  @Axon static Grid gridColKinds(Grid grid) { CoreLibUtil.gridColKinds(grid) }
+  @Axon static Grid gridColKinds(Grid grid) { AxonFuncsUtil.gridColKinds(grid) }
 
   private static Func toGridIterator(Fn fn)
   {
@@ -2097,7 +2097,7 @@ const class CoreLib
   @NoDoc @Axon
   static Grid params(Fn fn)
   {
-    CoreLibUtil.params(AxonContext.curAxon, fn)
+    AxonFuncsUtil.params(AxonContext.curAxon, fn)
   }
 
   ** Find a top-level function by name or by reference and return its tags.
@@ -2109,7 +2109,7 @@ const class CoreLib
   @Axon
   static Dict? func(Obj name, Bool checked := true)
   {
-    CoreLibUtil.func(AxonContext.curAxon, name, checked)
+    AxonFuncsUtil.func(AxonContext.curAxon, name, checked)
   }
 
   ** Find all the top-levels functions in the current project
@@ -2123,7 +2123,7 @@ const class CoreLib
   @Axon
   static Grid funcs(Expr filterExpr := Literal.nullVal)
   {
-    CoreLibUtil.funcs(AxonContext.curAxon, filterExpr)
+    AxonFuncsUtil.funcs(AxonContext.curAxon, filterExpr)
   }
 
   ** Return component definition.  The result is a grid where each row
@@ -2135,14 +2135,14 @@ const class CoreLib
   @Axon
   static Grid? compDef(Obj name, Bool checked := true)
   {
-    CoreLibUtil.compDef(AxonContext.curAxon, name, checked)
+    AxonFuncsUtil.compDef(AxonContext.curAxon, name, checked)
   }
 
   ** Get the current top-level function's tags.
   @Axon
   static Dict curFunc()
   {
-    CoreLibUtil.curFunc(AxonContext.curAxon)
+    AxonFuncsUtil.curFunc(AxonContext.curAxon)
   }
 
 //////////////////////////////////////////////////////////////////////////

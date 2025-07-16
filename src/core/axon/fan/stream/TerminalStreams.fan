@@ -202,12 +202,12 @@ internal class FoldStream : TerminalStream
 
   override Void onPreRun()
   {
-    acc = func.call(cx, args.set(0, CoreLib.foldStart).set(1, acc))
+    acc = func.call(cx, args.set(0, AxonFuncs.foldStart).set(1, acc))
   }
 
   override Obj? onRun()
   {
-    func.call(cx, args.set(0, CoreLib.foldEnd).set(1, acc))
+    func.call(cx, args.set(0, AxonFuncs.foldEnd).set(1, acc))
   }
 
   private const Fn func
@@ -310,5 +310,4 @@ internal class AllStream : TerminalStream
   private const Fn func
   private Bool result := true
 }
-
 

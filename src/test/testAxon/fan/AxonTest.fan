@@ -88,7 +88,7 @@ internal class TestContext : AxonContext
 
   HaystackTest test
 
-  static const Str:Fn core := FantomFn.reflectType(CoreLib#)
+  static const Str:Fn core := FantomFn.reflectType(AxonFuncs#)
 
   override Dict? deref(Ref id) { null }
 

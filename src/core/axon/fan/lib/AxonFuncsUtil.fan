@@ -11,10 +11,10 @@ using xeto
 using haystack
 
 **
-** Utilities for CoreLib
+** Utilities for AxonFuncs
 **
 @Js
-internal const class CoreLibUtil
+internal const class AxonFuncsUtil
 {
   static Obj? sort(Obj val, Obj? sorter, Bool ascending)
   {
@@ -41,7 +41,7 @@ internal const class CoreLibUtil
       if (func != null)  return ascending ? grid.sort(func) : grid.sortr(func)
     }
 
-    throw CoreLib.argErr("sort", val)
+    throw AxonFuncs.argErr("sort", val)
   }
 
   static Grid gridColKinds(Grid g)
