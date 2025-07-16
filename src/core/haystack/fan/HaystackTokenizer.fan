@@ -367,16 +367,36 @@ class HaystackTokenizer
       case '\\':  consume; return '\\'
     }
 
-    // check for uxxxx
+    // check for \uxxxx or \u{x}
     if (cur == 'u')
     {
       consume
-      n3 := cur.fromDigit(16); consume
-      n2 := cur.fromDigit(16); consume
-      n1 := cur.fromDigit(16); consume
-      n0 := cur.fromDigit(16); consume
-      if (n3 == null || n2 == null || n1 == null || n0 == null) throw err("Invalid hex value for \\uxxxx")
-      return n3.shiftl(12).or(n2.shiftl(8)).or(n1.shiftl(4)).or(n0)
+      if (cur == '{')
+      {
+        consume
+        ch := 0
+        numDigits := 0
+        while (cur != '}')
+        {
+          i := cur.fromDigit(16)
+          numDigits++
+          if (i == null) throw err("Invalid hex value for \\u{x}")
+          ch = ch.shiftl(4).or(i)
+          consume
+        }
+        if (numDigits == 0 || numDigits > 6) throw err("Invalid number of hex digits for \\u{x}")
+        consume
+        return ch
+      }
+      else
+      {
+        n3 := cur.fromDigit(16); consume
+        n2 := cur.fromDigit(16); consume
+        n1 := cur.fromDigit(16); consume
+        n0 := cur.fromDigit(16); consume
+        if (n3 == null || n2 == null || n1 == null || n0 == null) throw err("Invalid hex value for \\uxxxx")
+        return n3.shiftl(12).or(n2.shiftl(8)).or(n1.shiftl(4)).or(n0)
+      }
     }
 
     throw err("Invalid escape sequence")
