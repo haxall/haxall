@@ -80,7 +80,7 @@ class TokenizerTest : HaystackTest
     verifyToks(Str<|""|>,  [str, ""])
     verifyToks(Str<|"x y"|>,  [str, "x y"])
     verifyToks(Str<|"x\"y"|>,  [str, "x\"y"])
-    verifyToks(Str<|"_\u012f \n \t \\_"|>,  [str, "_\u012f \n \t \\_"])
+    verifyToks(Str<|"_\u012f \n \t \\_ \u{1f973}"|>,  [str, "_\u012f \n \t \\_ \u{1f973}"])
 
     // date
     verifyToks("2009-10-04", [date, Date(2009, Month.oct, 4)])

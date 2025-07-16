@@ -88,7 +88,7 @@ class CompileTest : AbstractXetoTest
     // single lines
     verifyMultiLineStr(Str<|Str """"""|>, "")
     verifyMultiLineStr(Str<|Str """x"""|>, "x")
-    verifyMultiLineStr(Str<|Str """\u2022"""|>, "\u2022")
+    verifyMultiLineStr(Str<|Str """\u2022 \u{1f973}"""|>, "\u2022 \u{1f973}")
     verifyMultiLineStr(Str<|Str """ """|>, " ")
 
     // newlines
