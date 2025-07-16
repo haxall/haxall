@@ -19,50 +19,32 @@ abstract class HxBoot
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Constructor
-//////////////////////////////////////////////////////////////////////////
-
-  ** Constructor
-  new make(Str name, File dir)
-  {
-    // validate and normalize dir
-    if (!dir.isDir) dir = dir.uri.plusSlash.toFile
-    dir = dir.normalize
-    if (!dir.exists) throw ArgErr("Dir does not exist: $dir")
-
-    // valid name
-    if (!Etc.isTagName(name)) throw ArgErr("Invalid proj name: $name")
-
-    this.name = name
-    this.dir  = dir
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Configuration
 //////////////////////////////////////////////////////////////////////////
 
-  ** Project name
-  const Str name
+  ** Are we running create or init
+  Bool isCreate { private set }
 
-  ** Project directory
-  const File dir
+  ** Project name (required)
+  Str? name { set { checkLock; &name = it } }
+
+  ** Project directory (required)
+  File? dir { set { checkLock; &dir = it } }
+
+  ** Logger to use for bootstrap (required)
+  Log? log
 
   ** System version
-  abstract Version version()
+  Version version := typeof.pod.version
 
-  ** Logger to use for bootstrap
-  abstract Log log()
+  ** Xeto repo to use
+  FileRepo repo := XetoEnv.cur.repo
 
-  ** Xeto environment
-  virtual FileRepo repo() { XetoEnv.cur.repo }
-
-  ** List of xeto lib names which are required to be installed.
-  abstract Str[] bootLibs()
+  ** List of xeto lib names which are implicitly enabled as boot libs
+  Str[] bootLibs := [,]
 
   ** List all the core libs required for basic Ion user interface
-  virtual Str[] ionLibs()
-  {
-    [
+  Str[] ionLibs := [
     "hx.ion",
     "ion",
     "ion.actions",
@@ -72,20 +54,93 @@ abstract class HxBoot
     "ion.misc",
     "ion.table",
     "ion.ux",
-    ]
-  }
+  ]
+
+  **
+  ** Platform meta:
+  **   - logoUri: URI to an SVG logo image
+  **   - productName: Str name for about op
+  **   - productVersion: Str version for about op
+  **   - productUri: Uri to product home page
+  **   - vendorName: Str name for about op
+  **   - vendorUri: Uri to vendor home page
+  **
+  Str:Obj? platform := [:]
+
+  **
+  ** Misc configuration tags used to customize the system.
+  ** This dict is available via Proj.config.
+  ** Standard keys:
+  **   - noAuth: Marker to disable authentication and use superuser
+  **   - test: Marker for HxTest runtime
+  **   - platformSpi: Str qname for hxPlatform::PlatformSpi class
+  **   - platformSerialSpi: Str qname for hxPlatformSerial::PlatformSerialSpi class
+  **   - hxLic: license Str or load from lic/xxx.trio
+  **
+  Str:Obj? config := [:]
 
 //////////////////////////////////////////////////////////////////////////
 // Public
 //////////////////////////////////////////////////////////////////////////
 
+  ** Create a new project
+  Void create()
+  {
+    isCreate = true
+    check
+  }
+
   ** Initialize the project but do not start it
   HxProj init()
   {
+    isCreate = false
+    check
     this.nsfb = initNamespaceFileBase
     this.db   = initFolio
     this.meta = initMeta
     return initProj.init(this)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Check
+//////////////////////////////////////////////////////////////////////////
+
+  ** Check inputs and raise exception
+  virtual Void check()
+  {
+    checkName
+    checkDir
+    locked = true
+    checkLog
+  }
+
+  ** Check name if valid project name
+  virtual Void checkName()
+  {
+    if (name == null) throw Err("Must set name")
+    HxUtil.checkProjName(name)
+  }
+
+  ** Check dir is configured and normalized
+  virtual Void checkDir()
+  {
+    if (dir == null) throw Err("Must set dir")
+    if (!dir.isDir) dir = dir.uri.plusSlash.toFile
+    dir = dir.normalize
+    if (isCreate)
+    {
+      if (dir.exists) throw ArgErr("Dir already exists: $dir")
+    }
+    else
+    {
+      if (!dir.exists) throw ArgErr("Dir does not exist: $dir")
+    }
+  }
+
+  ** Check log is configured
+  virtual Void checkLog()
+  {
+    if (log == null) throw Err("Must set log")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -113,14 +168,26 @@ abstract class HxBoot
     return initRec("projMeta", db.read(Filter.has("projMeta"), false), tags)
   }
 
-  ** Create HxProj implementation
-  abstract HxProj initProj()
-
   ** Create Platform for HxSys
-  virtual Platform initPlatform() { throw UnsupportedErr() }
+  virtual Platform initPlatform()
+  {
+    Platform(Etc.makeDict(platform.findNotNull))
+  }
 
   ** Create SysConfig for HxSys
-  virtual SysConfig initConfig() { throw UnsupportedErr() }
+  virtual SysConfig initConfig()
+  {
+    if (config.containsKey("noAuth"))
+    {
+      echo("##")
+      echo("## NO AUTH - authentication is disabled!!!!")
+      echo("##")
+    }
+    return SysConfig(Etc.makeDict(config.findNotNull))
+  }
+
+  ** Create HxProj implementation
+  abstract HxProj initProj()
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
@@ -143,10 +210,17 @@ abstract class HxBoot
     }
   }
 
+  ** Check lock ensures that key fields cannot be changed after validation
+  private Void checkLock()
+  {
+    if (locked) throw ArgErr("Cannot change field after validation")
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Internal Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private Bool locked    // initInputs
   FileBase? nsfb         // initNamespaceFileBase
   Folio? db              // initFolio
   Dict? meta             // initMeta

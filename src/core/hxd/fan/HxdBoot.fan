@@ -27,62 +27,33 @@ class HxdBoot : HxBoot
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(File dir) : super("sys", dir) {}
-
-//////////////////////////////////////////////////////////////////////////
-// Configuration
-//////////////////////////////////////////////////////////////////////////
-
-  ** Logging
-  override Log log := Log.get("hxd")
-
-  ** Version
-  override Version version := typeof.pod.version
-
-  **
-  ** Platform meta:
-  **   - logoUri: URI to an SVG logo image
-  **   - productName: Str name for about op
-  **   - productVersion: Str version for about op
-  **   - productUri: Uri to product home page
-  **   - vendorName: Str name for about op
-  **   - vendorUri: Uri to vendor home page
-  **
-  Str:Obj? platform := [:]
-
-  **
-  ** Misc configuration tags used to customize the system.
-  ** This dict is available via Proj.config.
-  ** Standard keys:
-  **   - noAuth: Marker to disable authentication and use superuser
-  **   - test: Marker for HxTest runtime
-  **   - platformSpi: Str qname for hxPlatform::PlatformSpi class
-  **   - platformSerialSpi: Str qname for hxPlatformSerial::PlatformSerialSpi class
-  **   - hxLic: license Str or load from lic/xxx.trio
-  **
-  Str:Obj? config := [:]
-
-  ** List of xeto lib names which are required to be installed.
-  override Str[] bootLibs()
+  new make()
   {
-    [
-    "sys",
-    "sys.api",
-    "sys.comp",
-    "sys.files",
-    "axon",
-    "hx",
-    "hx.api",
-    "hx.crypto",
-    "hxd.proj",
-    "hx.http",
-    "hx.user",
+    this.log = Log.get("hxd")
+    this.bootLibs = [
+      "sys",
+      "sys.api",
+      "sys.comp",
+      "sys.files",
+      "axon",
+      "hx",
+      "hx.api",
+      "hx.crypto",
+      "hxd.proj",
+      "hx.http",
+      "hx.user",
     ]
   }
 
 //////////////////////////////////////////////////////////////////////////
 // HxBoot Overrides
 //////////////////////////////////////////////////////////////////////////
+
+  override Void checkName()
+  {
+    if (name == null) this.name = "sys"
+    else super.checkName
+  }
 
   override Folio initFolio()
   {
@@ -95,22 +66,10 @@ class HxdBoot : HxBoot
     return HxFolio.open(config)
   }
 
-  override Platform initPlatform()
-  {
-    Platform(Etc.makeDict(platform.findNotNull))
-  }
-
   override SysConfig initConfig()
   {
-    if (config.containsKey("noAuth"))
-    {
-      echo("##")
-      echo("## NO AUTH - authentication is disabled!!!!")
-      echo("##")
-    }
-
     initConfigLic
-    return SysConfig(Etc.makeDict(config.findNotNull))
+    return super.initConfig
   }
 
   private Void initConfigLic()
@@ -165,7 +124,7 @@ internal class RunCli : HxCli
 
   override Int run()
   {
-    boot := HxdBoot(dir)
+    boot := HxdBoot { it.dir = this.dir }
     if (noAuth) boot.config["noAuth"] = Marker.val
     return boot.run
   }

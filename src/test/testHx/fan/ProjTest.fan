@@ -60,7 +60,7 @@ class ProjTest : HxTest
     verifySame(p.sys.http.spec.lib,   p.ns.lib("hx.http"))
     verifySame(p.sys.user.spec.lib,   p.ns.lib("hx.user"))
     verifySame(p.sys.proj.spec.lib,   p.ns.lib("hxd.proj"))
-    verifySame(p.sys.proj.get("sys"), p)
+    verifySame(p.sys.proj.get(p.name), p)
     verifySame(p.sys.proj.list, Proj#.emptyList)
 
     // add lib already there, add empty list
@@ -248,18 +248,14 @@ echo("#")
 
 class TestSysBoot : HxdBoot
 {
-  new make(File dir) : super(dir)
+  new make(File dir)
   {
-    log = Log.get("test")
-    version = Version("1.2.3")
-  }
-
-  override Str[] bootLibs()
-  {
-    acc := super.bootLibs.dup
-    acc.remove("hx.shell")
-    acc.addAll(["bad.boot"])
-    return acc
+    this.name = "test"
+    this.dir = dir
+    this.log = Log.get("test")
+    this.version = Version("1.2.3")
+    this.bootLibs.remove("hx.shell")
+    this.bootLibs.add("bad.boot")
   }
 
   override Folio initFolio()

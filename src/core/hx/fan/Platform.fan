@@ -43,10 +43,10 @@ const class Platform
   @NoDoc virtual Bool isXetoBase() { false }
 
   ** Relative URI to the SVG logo
-  virtual Uri logoUri() { meta["logoUri"] as Uri ?: `/hxUser/logo.svg` }
+  virtual Uri logoUri() { meta["logoUri"] as Uri ?: `/user/logo.svg` }
 
   ** Relative URI to favicon.png image
-  virtual Uri faviconUri() { meta["faviconUri"] as Uri ?: `/hxUser/favicon.png` }
+  virtual Uri faviconUri() { meta["faviconUri"] as Uri ?: `/user/favicon.png` }
 
   ** Product name for about op
   virtual Str productName() { meta["productName"] as Str ?: "Haxall" }
