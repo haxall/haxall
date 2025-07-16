@@ -211,6 +211,14 @@ const class XetoUtil
     return acc.keys
   }
 
+  ** Convert a lib name like "foo.bar.baz" to "baz"
+  static Str lastDottedName(Str n)
+  {
+    dot := n.indexr(".")
+    if (dot == null) return n
+    return n[dot+1..-1]
+  }
+
   ** Project lib name
   static const Str projLibName := "proj"
 

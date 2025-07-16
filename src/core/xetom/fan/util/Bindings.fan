@@ -280,9 +280,6 @@ const class PodBindingLoader : SpecBindingLoader
   new make(Pod pod)
   {
     this.pod = pod
-
-// TODO
-if (pod.name == "axon") this.fantomFuncsType = pod.type("CoreLib")
   }
 
   const Pod pod
@@ -296,16 +293,34 @@ if (pod.name == "axon") this.fantomFuncsType = pod.type("CoreLib")
 
   override Thunk loadThunk(Spec spec)
   {
-    if (fantomFuncsType != null)
-    {
-      name := spec.name
-      method := fantomFuncsType.method(name, false)
-      if (method == null) method = fantomFuncsType.method("_" + name, false)
-      if (method != null && method.hasFacet(axonFacetType)) // TODO: check facet
-        return StaticMethodThunk(method)
-      throw UnsupportedErr("No method mapped: $name")
-    }
+    // check for fantom method thunk
+    thunk := loadThunkFantom(spec)
+    if (thunk != null) return thunk
+
     throw UnsupportedErr("No funcs registered for pod: $pod.name")
+  }
+
+  private Thunk? loadThunkFantom(Spec spec)
+  {
+    // resolve fantom type BaseFuncs where base is spec name
+    // of the libExt otherwise the last name of the dotted lib name
+    lib := spec.lib
+    libExt := lib.meta["libExt"]?.toStr
+    base := libExt != null ? XetoUtil.qnameToName(libExt) : XetoUtil.lastDottedName(lib.name).capitalize
+    typeName := base + "Funcs"
+if (lib.name == "axon") typeName = "CoreLib"
+    type := pod.type(typeName, false)
+echo("~~> $spec.lib base=$base -> $typeName -> $type")
+    if (type == null) return null
+
+    // method name is same as func; special cases handled with _name
+    funcName := spec.name
+    method := type.method(funcName, false) ?: type.method("_" + funcName, false)
+    if (method == null) return null
+
+    // verify method has facet
+    if (!method.hasFacet(axonFacetType)) throw Err("Method missing @Api facet: $method.qname")
+    return StaticMethodThunk(method)
   }
 
 // TODO: facet for check
