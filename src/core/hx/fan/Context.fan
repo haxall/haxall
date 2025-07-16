@@ -40,7 +40,6 @@ class Context : AxonContext, FolioContext
   {
     this.projRef    = proj
     this.userRef    = user
-    this.sessionRef = session
   }
 
   ** Constructor for session

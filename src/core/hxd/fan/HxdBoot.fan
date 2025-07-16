@@ -92,8 +92,8 @@ class HxdBoot : HxBoot
   ** Initialize and kick off the runtime
   Int run()
   {
-    // initialize project
-    proj := init
+    // load project
+    proj := load
 
     // install shutdown handler
     Env.cur.addShutdownHook(proj.shutdownHook)

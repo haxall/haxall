@@ -20,22 +20,21 @@ class HxdTestSpi : HxTestSpi
 {
   new make(HxTest test) : super(test) {}
 
-  static Proj boot(File dir, Dict projMeta := Etc.emptyDict)
+  static Proj boot(File dir, Dict projMeta := Etc.dict0)
   {
-    /*
+if (!projMeta.isEmpty) throw Err("TODO")
+    dir.delete
     boot := HxdBoot
     {
+      it.name = "test"
       it.dir = dir
-      it.projMeta = projMeta
-      it.create = true
+//      it.projMeta = projMeta
       it.config["test"] = Marker.val
       it.config["platformSerialSpi"] = "hxPlatformSerial::TestSerialSpi"
-      it.requiredLibs.remove("http")
+      it.bootLibs.remove("http")
       it.log.level = LogLevel.warn
     }
-    return boot.init.start
-    */
-    throw Err("TODO")
+    return boot.create.load.start
   }
 
   override Proj start(Dict projMeta)
@@ -76,8 +75,8 @@ throw Err("TODO")
 
   override Void forceSteadyState(Proj rt)
   {
-//    ((HxProj)test.rt).backgroundMgr.forceSteadyState
 throw Err("TODO")
+//    ((HxProj)test.rt).backgroundMgr.forceSteadyState
   }
 }
 

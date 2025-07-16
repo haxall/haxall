@@ -36,7 +36,7 @@ class ProjTest : HxTest
     // boot project
     boot := TestSysBoot(tempDir)
     bootLibs := boot.bootLibs
-    p := boot.init
+    p := boot.load
     baseExts := ["hx.api", "hx.crypto", "hx.http", "hx.user", "hxd.proj"]
 
     // verify initial state
@@ -103,7 +103,7 @@ class ProjTest : HxTest
 
     // re-boot project and verify libs/specs were persisted
     p.db.close
-    p = TestSysBoot(tempDir).init
+    p = TestSysBoot(tempDir).load
     verifyProjLibs(p, bootLibs, projLibs, [,])
     verifyProjSpecs(p, ["SpecA", "SpecB"])
     //dumpLibs(p)
@@ -136,7 +136,7 @@ class ProjTest : HxTest
 
     // re-boot and verify libs were persisted
     p.db.close
-    p = TestSysBoot(tempDir).init
+    p = TestSysBoot(tempDir).load
     verifyProjLibs(p, bootLibs, projLibs, [,])
     verifyProjSpecs(p, ["SpecB"])
 

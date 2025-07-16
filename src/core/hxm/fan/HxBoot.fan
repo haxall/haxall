@@ -13,7 +13,7 @@ using hx
 using xetoc
 
 **
-** Haxall bootstrap project loader
+** Haxall project bootstrap is used to create or boot a project
 **
 abstract class HxBoot
 {
@@ -22,8 +22,11 @@ abstract class HxBoot
 // Configuration
 //////////////////////////////////////////////////////////////////////////
 
-  ** Are we running create or init
+  ** Are we running create or load
   Bool isCreate { private set }
+
+  ** Are we running create or load
+  Bool isLoad() { !isCreate }
 
   ** Project name (required)
   Str? name { set { checkLock; &name = it } }
@@ -42,6 +45,11 @@ abstract class HxBoot
 
   ** List of xeto lib names which are implicitly enabled as boot libs
   Str[] bootLibs := [,]
+
+  ** Initial libs for create
+  Str[] createLibs := [
+     "hx.xeto"
+  ]
 
   ** List all the core libs required for basic Ion user interface
   Str[] ionLibs := [
@@ -80,18 +88,41 @@ abstract class HxBoot
   Str:Obj? config := [:]
 
 //////////////////////////////////////////////////////////////////////////
-// Public
+// Create
 //////////////////////////////////////////////////////////////////////////
 
   ** Create a new project
-  Void create()
+  This create()
   {
     isCreate = true
     check
+    this.nsfb = initNamespaceFileBase
+    createNamespace(this.nsfb)
+    createFolio
+    return this
   }
 
-  ** Initialize the project but do not start it
-  HxProj init()
+  ** Create namespace directory
+  virtual Void createNamespace(FileBase fb)
+  {
+    libsTxt := "# Created $DateTime.now.toLocale\n" +  createLibs.join("\n")
+    fb.write("libs.txt", libsTxt.toBuf)
+  }
+
+  ** Create folio
+  virtual Void createFolio()
+  {
+    this.db = initFolio
+    initMeta
+    db.close
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Load
+//////////////////////////////////////////////////////////////////////////
+
+  ** Load the project but do not start it
+  HxProj load()
   {
     isCreate = false
     check
@@ -108,10 +139,11 @@ abstract class HxBoot
   ** Check inputs and raise exception
   virtual Void check()
   {
+    if (checked) return
     checkName
     checkDir
-    locked = true
     checkLog
+    checked = true
   }
 
   ** Check name if valid project name
@@ -151,7 +183,7 @@ abstract class HxBoot
   virtual DiskFileBase initNamespaceFileBase()
   {
     nsDir := this.dir + `ns/`
-    if (!nsDir.exists) throw Err("Lib ns dir not found: $nsDir.osPath")
+    if (isLoad && !nsDir.exists) throw Err("Lib ns dir not found: $nsDir.osPath")
     return DiskFileBase(nsDir)
   }
 
@@ -213,14 +245,14 @@ abstract class HxBoot
   ** Check lock ensures that key fields cannot be changed after validation
   private Void checkLock()
   {
-    if (locked) throw ArgErr("Cannot change field after validation")
+    if (checked) throw ArgErr("Cannot change field after validation")
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Internal Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private Bool locked    // initInputs
+  private Bool checked   // check
   FileBase? nsfb         // initNamespaceFileBase
   Folio? db              // initFolio
   Dict? meta             // initMeta
