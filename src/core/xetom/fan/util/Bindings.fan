@@ -309,7 +309,7 @@ const class PodBindingLoader : SpecBindingLoader
     base := libExt != null ? XetoUtil.qnameToName(libExt) : XetoUtil.lastDottedName(lib.name).capitalize
     typeName := base + "Funcs"
     type := pod.type(typeName, false)
-echo("~~> $spec.lib base=$base -> $typeName -> $type")
+    // echo("~~> $spec.lib base=$base -> $typeName -> $type")
     if (type == null) return null
 
     // method name is same as func; special cases handled with _name

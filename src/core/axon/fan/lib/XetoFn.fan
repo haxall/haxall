@@ -24,9 +24,21 @@ const class XetoFn : TopFn
 
   const Spec xeto
 
-  override Obj? doCall(AxonContext cx, Obj?[] args)
+  override Bool isNative() { true }
+
+  override Obj? callLazy(AxonContext cx, Expr[] args, Loc loc)
   {
-    xeto.func.thunk.callList(args)
+// TODO: total hack to get over lazy args
+    thunk := xeto.func.thunk
+    if (thunk is StaticMethodThunk)
+    {
+      fn := FantomFn.reflectMethod(((StaticMethodThunk)thunk).method, xeto.name, xeto.meta, null)
+      return fn.callLazy(cx, args, loc)
+    }
+    else
+    {
+      throw Err("TODO")
+    }
   }
 
 }

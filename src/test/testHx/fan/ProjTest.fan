@@ -175,10 +175,15 @@ echo("#")
     verifyEq(p.ns.libStatus("axon"), LibStatus.ok)
     verifyEq(p.ns.libStatus("hx"),   LibStatus.ok)
 
+    // now simple one
     cx := makeContext
-echo(">> "+cx.eval("today()"))
     verifyEq(cx.eval("today()"), Date.today)
+
+    // as maps to _as
     verifyEq(cx.eval("as(3, 1ft)"), n(3, "ft"))
+
+    // read is lazy
+    verifyDictEq(cx.eval("read(projMeta)"), p.meta)
   }
 
 //////////////////////////////////////////////////////////////////////////
