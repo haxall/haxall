@@ -168,17 +168,13 @@ virtual Proj rt() { proj }
   ** Find top-level function by qname or name
   @NoDoc override Fn? findTop(Str name, Bool checked := true)
   {
-    def := defs.def("func:${name}", false)
-    if (def == null)
-    {
-      if (checked) throw UnknownFuncErr(name)
-      return null
-    }
-    // TODO
-    return def.typeof.method("expr").callOn(def, null)
+    spec := ns.func(name, false)
+    if (spec != null) return XetoFn(spec)
+    if (checked) throw UnknownFuncErr(name)
+    return null
   }
 
- ** Evaluate an expression or if a filter then readAll convenience
+  ** Evaluate an expression or if a filter then readAll convenience
   @NoDoc override Obj? evalOrReadAll(Str src)
   {
     expr := parse(src)

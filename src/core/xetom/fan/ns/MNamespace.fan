@@ -443,10 +443,48 @@ abstract const class MNamespace : LibNamespace, CNamespace
       if (entry.status.isOk) acc.addNotNull(entry.get.type(name, false))
     }
     if (acc.size == 1) return acc[0]
-    if (acc.size > 1) throw Err("Ambiguous types for '$name' $acc")
+    if (acc.size > 1) throw AmbiguousSpecErr("Ambiguous types for '$name' $acc")
     if (checked) throw UnknownTypeErr(name)
     return null
   }
+
+  override Spec? func(Str name, Bool checked := true)
+  {
+    map := funcMapRef.val as Str:Obj
+    if (map == null) funcMapRef.val = map = loadFuncMap
+    func := map[name]
+    if (func != null)
+    {
+      if (func === funcAmbiguousErr) throw AmbiguousSpecErr("Ambiguous func for '$name'")
+      return func
+    }
+    if (checked) throw UnknownSpecErr(name)
+    return null
+  }
+
+  private Str:Obj loadFuncMap()
+  {
+    // we build cache of funcs by name since they are hot path
+    acc := Str:Obj[:]
+    if (!isRemote) loadAllSync
+    entriesList.each |entry|
+    {
+      if (!entry.status.isOk) return
+      entry.get.globals.each |spec|
+      {
+        if (!spec.isFunc) return
+        name := spec.name
+        dup := acc[name]
+        if (dup == null)
+          acc[name] = spec
+        else
+          acc[name] = funcAmbiguousErr
+      }
+    }
+    return acc.toImmutable
+  }
+  private const AtomicRef funcMapRef := AtomicRef()
+  private const static Str funcAmbiguousErr := "__ambiguous__"
 
   override Spec? global(Str name, Bool checked := true)
   {

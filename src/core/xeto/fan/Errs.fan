@@ -15,8 +15,14 @@
   new make(Str? msg, Err? cause := null) : super(msg, cause) {}
 }
 
-** Invalid lookup for DataSpec
+** Invalid lookup for spec
 @Js @NoDoc const class UnknownSpecErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+
+** Lookup for unqualified name resolved in multiple matches
+@Js @NoDoc const class AmbiguousSpecErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }

@@ -41,6 +41,7 @@ class Build : BuildPod
                ]
     resDirs = [`lib/`]
     index = [
+      "xeto.bindings": "axon",
       "ph.lib": "axon",
       "def.compDefLoader": "axon::FuncDefLoader"
     ]

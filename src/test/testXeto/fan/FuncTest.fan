@@ -45,6 +45,7 @@ class FuncAxonTest : AbstractXetoTest
 
   private Void verifyAdd(LibNamespace ns, Spec f, Bool hasAxon)
   {
+  /*
     num := ns.spec("sys::Number")
 
     verifyGlobalFunc(ns, f, ["a: sys::Number", "b: sys::Number"], "sys::Number")
@@ -64,6 +65,8 @@ class FuncAxonTest : AbstractXetoTest
     {
       verifyEq(a.call(cx, [n(3), n(5)]), n(8))
     }
+    */
+throw Err("TODO")
   }
 
 }
@@ -84,6 +87,7 @@ class FuncApiTest : AbstractXetoTest
 
   private Void doTestNamespace(LibNamespace ns)
   {
+  /*
     lib := ns.lib("hx.test.xeto")
 
     // Api - ping1
@@ -97,6 +101,8 @@ class FuncApiTest : AbstractXetoTest
     verifyGlobalFunc(ns, f, [,], "sys::Date")
     verifyEq(f.func.api(false), null)
     verifyErr(UnsupportedErr#) { f.func.api }
+    */
+    throw Err("TODO")
   }
 }
 

@@ -148,6 +148,12 @@ const class SpecBindings
     return ns.spec(binding.spec, false)
   }
 
+  ** Map thunk for given spec or raise exception
+  Thunk thunk(Spec spec)
+  {
+    loadLib(spec.lib).loadThunk(spec)
+  }
+
   ** Add new spec binding
   SpecBinding add(SpecBinding b)
   {
@@ -160,6 +166,12 @@ const class SpecBindings
   Bool needsLoad(Str libName, Version version)
   {
     loaders.containsKey(libName) && !loaded.containsKey(loadKey(libName, version))
+  }
+
+  ** Load bindings for given library
+  SpecBindingLoader loadLib(Lib lib)
+  {
+    load(lib.name, lib.version)
   }
 
   ** Load bindings for given library
@@ -224,10 +236,10 @@ const class SpecBindings
 @Js
 const class SpecBindingLoader
 {
-  ** Add Xeto to Fantom bindings for the given library
+  ** Map Xeto to Fantom bindings for the given library
   virtual Void loadLib(SpecBindings acc, Str libName) {}
 
-  ** Add Xeto to Fantom bindings for the spec if applicable
+  ** Map Xeto to Fantom bindings for the spec if applicable
   virtual SpecBinding? loadSpec(SpecBindings acc, CSpec spec) { null }
 
   ** Default behavior for loading spec via pod reflection
@@ -253,6 +265,9 @@ const class SpecBindingLoader
     // no joy
     return null
   }
+
+  ** Resolve thunk for given spec
+  virtual Thunk loadThunk(Spec spec) { throw UnsupportedErr("Thunks not supported") }
 }
 
 **************************************************************************
@@ -262,14 +277,39 @@ const class SpecBindingLoader
 @Js
 const class PodBindingLoader : SpecBindingLoader
 {
-  new make(Pod pod) { this.pod = pod }
+  new make(Pod pod)
+  {
+    this.pod = pod
+
+// TODO
+if (pod.name == "axon") this.fantomFuncsType = pod.type("CoreLib")
+  }
 
   const Pod pod
+
+  const Type? fantomFuncsType
 
   override SpecBinding? loadSpec(SpecBindings acc, CSpec spec)
   {
     loadSpecReflect(acc, pod, spec)
   }
+
+  override Thunk loadThunk(Spec spec)
+  {
+    if (fantomFuncsType != null)
+    {
+      name := spec.name
+      method := fantomFuncsType.method(name, false)
+      if (method == null) method = fantomFuncsType.method("_" + name, false)
+      if (method != null && method.hasFacet(axonFacetType)) // TODO: check facet
+        return StaticMethodThunk(method)
+      throw UnsupportedErr("No method mapped: $name")
+    }
+    throw UnsupportedErr("No funcs registered for pod: $pod.name")
+  }
+
+// TODO: facet for check
+once Type axonFacetType() { Type.find("axon::Axon") }
 }
 
 **************************************************************************

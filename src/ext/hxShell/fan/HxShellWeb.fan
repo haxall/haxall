@@ -52,7 +52,7 @@ const class HxShellWeb : ExtWeb
 
     env := Str:Str[:]
     env["main"]              = "hxShell::Shell.main"
-    env["hxShell.api"]       = cx.sys.http.apiUri.toStr
+    env["hxShell.api"]       = "/api/${cx.proj.name}/"
     env["hxShell.attestKey"] = cx.session.attestKey
     env["hxShell.user"]      = ZincWriter.valToStr(cx.user.meta)
 

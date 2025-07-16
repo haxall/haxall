@@ -212,6 +212,10 @@ const mixin LibNamespace
   ** fully loaded.  Raise exception if ambiguous types regardless of checked flag.
   @NoDoc abstract Spec? unqualifiedType(Str name, Bool checked := true)
 
+  ** Resolve unqualified function name against loaded libs.  Raise exception if not
+  ** fully loaded.  Raise exception if ambiguous funcs regardless of checked flag.
+  @NoDoc abstract Spec? func(Str name, Bool checked := true)
+
   ** Resolve unqualified global spec name against all loaded libs.
   ** If ambiguous globals then select the first one ordered by lib depend order.
   @NoDoc abstract Spec? global(Str name, Bool checked := true)

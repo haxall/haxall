@@ -34,8 +34,7 @@ const mixin IHttpExt : SysExt
   ** an absolute URI such 'https://acme.com/'
   abstract Uri siteUri()
 
-  ** URI on this host to the Haystack HTTP API.  This is always
-  ** a host relative URI which end withs a slash such '/api/'.
+  ** TODO: bad!
   abstract Uri apiUri()
 
   ** Root web module
@@ -401,3 +400,4 @@ const mixin HxConnPoint
   ** Debug details
   abstract Str details()
 }
+

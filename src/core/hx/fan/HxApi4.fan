@@ -37,6 +37,8 @@ class HxApiReq
   ** Service an API endpoint call
   static Void service(WebReq req, WebRes res, Str op, Context cx)
   {
+throw Err("TODO")
+/*
     // resolve to api function
     spec := cx.ns.api(op, false)
     if (spec == null) return res.sendErr(404)
@@ -68,7 +70,7 @@ class HxApiReq
       res.headers["Content-Type"] = "application/json"
       JsonWriter(res.out).writeVal(Etc.dict2("status", "error", "msg", e.toStr))
     }
-
+*/
   }
 
   ** Constructor

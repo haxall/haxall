@@ -24,25 +24,58 @@ const mixin SpecFunc
   ** Return type
   abstract Spec returns()
 
-  ** Get this spec as a method annotated with '@HxApi' facet
-  ** that takes an 'hx::HxApiReq' parameter.
-  @NoDoc abstract Obj? api(Bool checked := true)
-
-  ** Get this spec as an 'axon::Fn' instance
-  @NoDoc abstract Obj? axon(Bool checked := true)
+  ** Get the thunk used to call this function
+  abstract Thunk thunk()
 }
 
 **************************************************************************
-** XetoAxonPlugin
+** Thunk
 **************************************************************************
 
 **
-** Plugin for axon function support
+** Thunk wraps a function implementation
+**
+@Js
+const mixin Thunk
+{
+  ** Call the function with given args
+  abstract Obj? callList(Obj?[]? args := null)
+
+  ** Call function with up to 8 params
+  abstract Obj? call(Obj? a := null, Obj? b := null, Obj? c := null, Obj? d := null,
+                     Obj? e := null, Obj? f := null, Obj? g := null, Obj? h := null)
+
+  ** Empty arg list
+  @NoDoc static const Obj?[] noArgs := Obj?[,]
+}
+
+**************************************************************************
+** StaticMethodThunk
+**************************************************************************
+
+**
+** StaticMethodThunk
 **
 @NoDoc @Js
-const abstract class XetoAxonPlugin
+const class StaticMethodThunk : Thunk
 {
-  ** Parse or reflect spec to an 'axon::Fn'
-  abstract Obj? parse(Spec s)
+  new make(Method m)
+  {
+    if (!m.isStatic) throw ArgErr()
+    this.method = m
+  }
+
+  const Method method
+
+  override Obj? callList(Obj?[]? args := null)
+  {
+    method.callList(args ?: noArgs)
+  }
+
+  override Obj? call(Obj? a := null, Obj? b := null, Obj? c := null, Obj? d := null,
+                     Obj? e := null, Obj? f := null, Obj? g := null, Obj? h := null)
+  {
+    method.call(a, b, c, d, e, f, g, h)
+  }
 }
 

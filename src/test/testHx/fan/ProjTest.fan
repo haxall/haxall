@@ -162,6 +162,29 @@ echo("#")
     verifyProjExts(p, baseExts.dup.add("hx.shell"))
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Axon
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testAxon()
+  {
+    p := proj
+    verifyEq(p.name, "test")
+    verifyEq(p.isRunning, true)
+    verifyEq(p.ns.libStatus("axon"), LibStatus.ok)
+    verifyEq(p.ns.libStatus("hx"),   LibStatus.ok)
+
+    cx := makeContext
+echo(">> "+cx.eval("today()"))
+    verifyEq(cx.eval("today()"), Date.today)
+    verifyEq(cx.eval("as(3, 1ft)"), n(3, "ft"))
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
   Void dump(Proj p)
   {
     echo("#### $p.name ####")
