@@ -20,35 +20,6 @@ using hx
 const class HxProjLibs : ProjLibs
 {
 
-  static HxProjLibs shim(File topDir)
-  {
-    dir := topDir + `ns/`
-    libsTxt := dir + `libs.txt`
-    if (!libsTxt.exists) libsTxt.out.printLine("// Stub $DateTime.now").close
-    return makeShim(dir, shimBootLibNames)
-  }
-
-  static once Str[] shimBootLibNames()
-  {
-    repo := XetoEnv.cur.repo
-    names := LibNamespace.defaultSystemLibNames
-    return names.findAll |n|
-    {
-      repo.latest(n, false) != null
-    }
-  }
-
-  new makeShim(File dir, Str[] bootLibNames)
-  {
-    this.fb = DiskFileBase(dir)
-    this.repo = XetoEnv.cur.repo
-    this.log = Log.get("xeto")
-    this.bootLibNames = bootLibNames
-    this.version = typeof.pod.version
-    this.specsRef = HxProjSpecs(this)
-    doReload(readProjLibNames)
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Construction
 //////////////////////////////////////////////////////////////////////////
@@ -69,8 +40,7 @@ const class HxProjLibs : ProjLibs
 // Lookup
 //////////////////////////////////////////////////////////////////////////
 
-// TODO: must not be nullable
-  const HxProj? proj
+  const HxProj proj
 
   const DiskFileBase fb
 
@@ -390,8 +360,6 @@ const class HxProjLibs : ProjLibs
     this.projLibNamesRef.val = projLibNames.toImmutable
 
     // notify project
-if (proj == null) log.info("TODO NEED PROJ IN PROJ LIBS")
-else
     this.proj.onLibsModified
   }
 
