@@ -452,12 +452,9 @@ abstract const class MNamespace : LibNamespace, CNamespace
   {
     map := funcMapRef.val as Str:Obj
     if (map == null) funcMapRef.val = map = loadFuncMap
-    func := map[name]
-    if (func != null)
-    {
-      if (func === funcAmbiguousErr) throw AmbiguousSpecErr("Ambiguous func for '$name'")
-      return func
-    }
+    entry := map[name]
+    if (entry != null)
+      return entry as Spec ?:throw AmbiguousSpecErr("Ambiguous func for '$name' $entry")
     if (checked) throw UnknownSpecErr(name)
     return null
   }
@@ -476,15 +473,20 @@ abstract const class MNamespace : LibNamespace, CNamespace
         name := spec.name
         dup := acc[name]
         if (dup == null)
+        {
           acc[name] = spec
+        }
         else
-          acc[name] = funcAmbiguousErr
+        {
+          list := dup as Spec[] ?: Spec[dup]
+          list.add(spec)
+          acc[name] = list
+        }
       }
     }
     return acc.toImmutable
   }
   private const AtomicRef funcMapRef := AtomicRef()
-  private const static Str funcAmbiguousErr := "__ambiguous__"
 
   override Spec? global(Str name, Bool checked := true)
   {
