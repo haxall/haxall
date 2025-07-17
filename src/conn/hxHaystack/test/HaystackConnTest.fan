@@ -663,8 +663,6 @@ class HaystackConnTest : HxTest
     DateTime(y, Month.vals[m-1], d, h, min, 0, 0, tz)
   }
 
-  Grid evalToGrid(Str axon) { eval(axon) }
-
   Void verifyEvalErr(Str axon, Type? errType)
   {
     expr := Parser(Loc.eval, axon.in).parse

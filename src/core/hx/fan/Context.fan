@@ -23,13 +23,26 @@ class Context : AxonContext, FolioContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Current context for actor thread
-  @NoDoc static Context? cur(Bool checked := true)
+  static Context? cur(Bool checked := true)
   {
     cx := ActorContext.curx(false)
     if (cx != null) return cx
     if (checked) throw ContextUnavailableErr("No Context available")
     return null
   }
+
+  ** Run function using this Context as the current one.
+  ** This method automatically saves/restore the existing context.
+  @NoDoc Obj? asCur(|Context->Obj?| f)
+  {
+    old := Actor.locals[actorLocalsKey]
+    Actor.locals[actorLocalsKey] = this
+    try
+      return f(this)
+    finally
+      Actor.locals[actorLocalsKey] = old
+  }
+
 
 //////////////////////////////////////////////////////////////////////////
 // Construction
@@ -49,14 +62,6 @@ class Context : AxonContext, FolioContext
     this.userRef    = session.user
     this.sessionRef = session
   }
-
-** TODO
-new makeTemp(Proj proj, User user, UserSession session)
-{
-  this.projRef    = proj
-  this.userRef    = user
-  this.sessionRef = session
-}
 
 //////////////////////////////////////////////////////////////////////////
 // Identity
@@ -79,6 +84,9 @@ virtual Proj rt() { proj }
 
   ** Project legacy defs
   override DefNamespace defs() { proj.defs }
+
+  ** Convenience to lookup an extension in project
+  Ext ext(Str name, Bool checked := true) { proj.exts.get(name, checked) }
 
   ** User account associated with this context
   User user() { userRef }

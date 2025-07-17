@@ -16,9 +16,7 @@ using hx
 **
 const class ApiWeb : ExtWeb, WebOpUtil
 {
-  new make(Ext ext) : super(ext) { this.sys = ext.sys }
-
-  const Sys sys
+  new make(Ext ext) : super(ext) {}
 
   override DefNamespace defs() { ext.proj.defs }
 

@@ -198,6 +198,9 @@ abstract class HxTest : HaystackTest
   {
     makeContext(null).eval(axon)
   }
+
+  ** Evaluate axon expression to a Grid
+  @NoDoc Grid evalToGrid(Str axon) { eval(axon) }
 }
 
 **************************************************************************
