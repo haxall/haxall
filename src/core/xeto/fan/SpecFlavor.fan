@@ -30,19 +30,19 @@ enum class SpecFlavor
   ** Is this the type flavor
   Bool isType() { this === type }
 
-  ** Is this the global flavor
+  ** Is this the top-level global slot flavor
   Bool isGlobal() { this === global }
 
-  ** Is this the func flavor
+  ** Is this a top-level func flavor
   Bool isFunc() { this === func }
 
-  ** Is this the meta flavor
+  ** Is this the meta spec flavor
   Bool isMeta() { this === meta }
 
   ** Is this the slot flavor
   Bool isSlot() { this === slot }
 
-  ** Is this a lib top-level spec: type, global, or meta
+  ** Is this a lib top-level spec: type, global, func,  or meta
   Bool isTop() { this !== slot }
 }
 

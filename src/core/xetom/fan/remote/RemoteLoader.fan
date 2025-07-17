@@ -146,6 +146,10 @@ internal class RemoteLoader
     {
       m = MGlobal(loc, lib, qname(x), x.nameCode, x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
+    else if (x.flavor.isFunc)
+    {
+      m = MTopFunc(loc, lib, qname(x), x.nameCode, x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+    }
     else if (x.flavor.isMeta)
     {
       m = MMetaSpec(loc, lib, qname(x), x.nameCode, x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)

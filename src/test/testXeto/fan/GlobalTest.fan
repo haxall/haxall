@@ -32,24 +32,31 @@ class GlobalTest : AbstractXetoTest
            // Global meta
            xTest: Marker <meta>
 
+           // function
+           randx: Func { returns: Int }
+
            // Person spec
            Person: Dict {
              person
              xTest:Str
+             method: Func { returns: Str }
            }
            |>)
 
      marker := ns.spec("sys::Marker")
      str    := ns.spec("sys::Str")
+     func   := ns.spec("sys::Func")
 
      g     := lib.spec("person")
      x     := lib.spec("xTest")
+     f     := lib.spec("randx")
      t     := lib.spec("Person")
      slotm := t.slot("person")
      slotx := t.slot("xTest")
+     slotf := t.slot("method")
 
      // Lib.top lookups
-     verifyEq(lib.specs, Spec[t, g, x])
+     verifyEq(lib.specs, Spec[t, g, f, x])
      verifyEq(lib.specs.isImmutable, true)
      verifyEq(lib.spec("Bad", false), null)
      verifyErr(UnknownSpecErr#) { lib.spec("Bad") }
@@ -57,9 +64,16 @@ class GlobalTest : AbstractXetoTest
 
      // global
      verifyFlavorLookup(ns, g, SpecFlavor.global)
-//     verifyEq(lib.globals, Spec[g])
+     verifyEq(lib.globals, Spec[g])
      verifyEq(g.base, marker)
      verifyEq(g.type, marker)
+
+     // func
+     verifyFlavorLookup(ns, f, SpecFlavor.func)
+     verifyEq(lib.funcs, Spec[f])
+     verifyEq(f.base, func)
+     verifyEq(f.type, func)
+     verifyEq(f.func.returns.type.name, "Int")
 
      // meta
      verifyFlavorLookup(ns, x, SpecFlavor.meta)
@@ -71,15 +85,24 @@ class GlobalTest : AbstractXetoTest
      verifyFlavorLookup(ns, t, SpecFlavor.type)
 
      // verify Person.person is derived from global person
+     verifySame(slotm.flavor, SpecFlavor.slot)
      verifySame(slotm.base, g)
      verifySame(slotm.type, marker)
      verifyEq(slotm.meta["doc"], "Person global slot marker")
      verifyEq(slotm.meta["xTest"], Marker.val)
 
      // verify Person.xMeta is **not** derived from global meta xTest
+     verifySame(slotx.flavor, SpecFlavor.slot)
      verifySame(slotx.base, str)
      verifySame(slotx.type, str)
      verifyEq(slotx.meta["doc"], "Unicode string of characters")
+
+     // verify Person.method
+     verifySame(slotf.base, func)
+     verifySame(slotf.type, func)
+     verifySame(slotf.flavor, SpecFlavor.slot)
+     verifyEq(slotf.isFunc, true)
+     verifyEq(slotf.func.returns.type.name, "Str")
   }
 
 //////////////////////////////////////////////////////////////////////////

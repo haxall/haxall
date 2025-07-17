@@ -8,6 +8,7 @@
 //
 
 using util
+using xeto
 using xetom
 
 **
@@ -182,6 +183,9 @@ internal class InheritSlots : Step
       x.flags = computeFlagsSysComp(x)
     else
       x.flags = computeFlagsNonSys(x)
+
+    if (x.flags.and(MSpecFlags.func) != 0 && x.flavor.isGlobal)
+      x.flavor = SpecFlavor.func
   }
 
   private Int computeFlagsNonSys(ASpec x)

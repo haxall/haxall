@@ -603,9 +603,8 @@ abstract const class MNamespace : LibNamespace, CNamespace
     entriesList.each |entry|
     {
       if (!entry.status.isOk) return
-      entry.get.globals.each |spec|
+      entry.get.funcs.each |spec|
       {
-        if (!spec.isFunc) return
         name := spec.name
         dup := acc[name]
         if (dup == null)
