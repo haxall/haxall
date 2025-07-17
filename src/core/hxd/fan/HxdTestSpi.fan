@@ -34,7 +34,8 @@ if (!projMeta.isEmpty) throw Err("TODO")
       it.bootLibs.remove("http")
       it.log.level = LogLevel.warn
     }
-    return boot.create.load.start
+    boot.create
+    return boot.load.start
   }
 
   override Proj start(Dict projMeta)

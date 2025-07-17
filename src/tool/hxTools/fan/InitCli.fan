@@ -169,50 +169,49 @@ internal class InitCli : HxCli
 
   private Void createDatabase()
   {
-    /*
     boot := HxdBoot()
     {
       it.dir = this.dir
-      it.create = true
       it.log = Log.get("init")
     }
 
-    rt := boot.init
-    initHttpPort(rt)
-    initSu(rt)
-    rt.db.close
-    */
-throw Err("TODO")
+    db := boot.create(false)
+    initHttpPort(db)
+    initSu(db)
+    db.close
   }
 
-  private Void initHttpPort(HxProj proj)
+  private Void initHttpPort(Folio db)
   {
-    rec := proj.db.read(Filter(Str<|ext=="http"|>))
+    /*
+    rec := db.read(Filter(Str<|ext=="http"|>))
     port := Number(httpPort)
     if (rec["httpPort"] != port)
     {
-      proj.log.info("Update httpPort [$port]")
-      proj.db.commit(Diff(rec, ["httpPort":port]))
+      log.info("Update httpPort [$port]")
+      db.commit(Diff(rec, ["httpPort":port]))
     }
     if (httpsDisable && rec["httpsEnabled"] == true)
     {
-      proj.log.info("Disable https")
-      proj.db.commit(Diff(rec, ["httpsEnabled":Remove.val]))
+      log.info("Disable https")
+      db.commit(Diff(rec, ["httpsEnabled":Remove.val]))
     }
+    */
+    log.info("TODO: http port settings...")
   }
 
-  private Void initSu(HxProj proj)
+  private Void initSu(Folio db)
   {
-    rec := proj.db.read(Filter("username==$suUser.toCode"), false)
+    rec := db.read(Filter("username==$suUser.toCode"), false)
     if (rec == null)
     {
-      proj.log.info("Create su [$suUser.toCode]")
-      HxUserUtil.addUser(proj.db, suUser, suPass, ["userRole":"su"])
+      log.info("Create su [$suUser.toCode]")
+      HxUserUtil.addUser(db, suUser, suPass, ["userRole":"su"])
     }
     else
     {
-      proj.log.info("Update su $suUser.toCode")
-      HxUserUtil.updatePassword(proj.db, rec, suPass)
+      log.info("Update su $suUser.toCode")
+      HxUserUtil.updatePassword(db, rec, suPass)
     }
   }
 

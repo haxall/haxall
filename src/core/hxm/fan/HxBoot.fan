@@ -91,15 +91,18 @@ abstract class HxBoot
 // Create
 //////////////////////////////////////////////////////////////////////////
 
-  ** Create a new project
-  This create()
+  ** Create a new project. If close is true then close the database
+  ** after create and return null. Otherwise leave db open and return it.
+  Folio? create(Bool close := true)
   {
     isCreate = true
     check
     this.nsfb = initNamespaceFileBase
     createNamespace(this.nsfb)
-    createFolio
-    return this
+    this.db = createFolio
+    initMeta
+    if (close) { db.close; return null }
+    else return db
   }
 
   ** Create namespace directory
@@ -109,12 +112,10 @@ abstract class HxBoot
     fb.write("libs.txt", libsTxt.toBuf)
   }
 
-  ** Create folio
-  virtual Void createFolio()
+  ** Create folio, routes to initFolio by default
+  virtual Folio createFolio()
   {
-    this.db = initFolio
-    initMeta
-    db.close
+    initFolio
   }
 
 //////////////////////////////////////////////////////////////////////////
