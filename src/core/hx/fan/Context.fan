@@ -125,11 +125,15 @@ virtual Proj rt() { proj }
   @NoDoc override Dict toDict()
   {
     tags := Str:Obj[:]
-    tags["locale"] = Locale.cur.toStr
+    tags.ordered = true
+    tags["projName"] = proj.name
+    tags["projDis"]  = proj.dis
     tags["username"] = user.username
-    tags["userRef"] = user.id
-    if (timeout != null) tags["timeout"] = Number(timeout, Number.mins)
-    return Etc.dictMerge(super.toDict, tags)
+    tags["userRef"]  = user.id
+    tags["locale"]   = Locale.cur.toStr
+    tags.addNotNull("nodeId", sys.cluster(false)?.nodeId)
+    tags.addNotNull("timeout", timeout == null ? null : Number(timeout, Number.mins))
+    return Etc.dictFromMap(tags)
   }
 
 //////////////////////////////////////////////////////////////////////////

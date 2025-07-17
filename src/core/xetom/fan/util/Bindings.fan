@@ -314,7 +314,12 @@ const class PodBindingLoader : SpecBindingLoader
 
     // method name is same as func; special cases handled with _name
     funcName := spec.name
-    method := type.method(funcName, false) ?: type.method("_" + funcName, false)
+    if (lib.name == "axon")
+    {
+      if (funcName == "as" || funcName == "toStr" || funcName == "equals" || funcName == "trap")
+        funcName = "_" + funcName
+    }
+    method := type.method(funcName, false)
     if (method == null) return null
 
     // verify method has facet
