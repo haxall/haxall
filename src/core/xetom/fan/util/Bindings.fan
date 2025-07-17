@@ -305,8 +305,7 @@ const class PodBindingLoader : SpecBindingLoader
     // resolve fantom type BaseFuncs where base is spec name
     // of the libExt otherwise the last name of the dotted lib name
     lib := spec.lib
-    libExt := lib.meta["libExt"]?.toStr
-    base := libExt != null ? XetoUtil.qnameToName(libExt) : XetoUtil.lastDottedName(lib.name).capitalize
+    base := thunkFantomBaseName(lib)
     typeName := base + "Funcs"
     type := pod.type(typeName, false)
     // echo("~~> $spec.lib base=$base -> $typeName -> $type")
@@ -325,6 +324,23 @@ const class PodBindingLoader : SpecBindingLoader
     // verify method has facet
     if (!method.hasFacet(Api#)) throw Err("Method missing @Api facet: $method.qname")
     return StaticMethodThunk(method)
+  }
+
+  private Str thunkFantomBaseName(Lib lib)
+  {
+    // resolve fantom type BaseFuncs where base is spec name
+    // of the libExt otherwise the last name of the dotted lib name
+    libExt := lib.meta["libExt"]?.toStr
+    if (libExt != null)
+    {
+       name := XetoUtil.qnameToName(libExt)
+       if (name.endsWith("Ext")) name = name[0..-4]
+       return name
+    }
+    else
+    {
+      return XetoUtil.lastDottedName(lib.name).capitalize
+    }
   }
 }
 

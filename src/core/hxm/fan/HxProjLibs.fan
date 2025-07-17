@@ -102,6 +102,7 @@ const class HxProjLibs : ProjLibs
 
     // build grid
     gb := GridBuilder()
+    gb.setMeta(Etc.dict1("projName", proj.name))
     gb.addCol("name").addCol("libStatus").addCol("boot").addCol("version").addCol("doc").addCol("err")
 
     // add row for proj lib

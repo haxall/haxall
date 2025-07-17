@@ -73,6 +73,7 @@ const class HxProjExts : Actor, ProjExts
   override Grid status()
   {
     gb := GridBuilder()
+    gb.setMeta(Etc.dict1("projName", proj.name))
     gb.addCol("qname").addCol("libStatus").addCol("fantomType").addCol("statusMsg")
     list.each |ext|
     {
