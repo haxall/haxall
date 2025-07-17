@@ -122,7 +122,8 @@ const class HxUserExt : ExtObj, IUserExt
   override Void onStart()
   {
     // set cookie name so its unique per http port
-    cookieNameRef.val = "hx-session-" + (sys.http.siteUri.port ?: 80)
+    http := sys.exts.getByType(IHttpExt#, false) as IHttpExt
+    cookieNameRef.val = "hx-session-" + (http?.siteUri?.port ?: 80)
   }
 
   ** Run house keeping couple times a minute
