@@ -254,6 +254,8 @@ internal class Fitter
   {
     global := ns.global(name, false)
     if (global == null) return true
+// TODO: take funcs out of globals
+if (global.isFunc) return true
 
     return valFits(val, global)
   }
