@@ -18,6 +18,9 @@ abstract const class ExtWeb : WebMod
   ** Subclass constructor
   protected new make(Ext ext) { this.extRef = ext }
 
+  ** System for parent extension
+  virtual Sys sys() { extRef.sys }
+
   ** Project for parent extension
   virtual Proj proj() { extRef.proj }
 
