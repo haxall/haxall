@@ -180,7 +180,7 @@ virtual Proj rt() { proj }
   ** Find top-level function by qname or name
   @NoDoc override Fn? findTop(Str name, Bool checked := true)
   {
-    spec := ns.func(name, false)
+    spec := ns.unqualifiedFunc(name, false)
     if (spec != null) return XetoFn(spec)
     if (checked) throw UnknownFuncErr(name)
     return null

@@ -207,10 +207,12 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownTypeErr#) { ns.unqualifiedType("FooBarBazBad", true) }
 
     // global
-    verifySame(ns.global("site"), ns.spec("ph::site"))
-    verifySame(ns.global("badOne", false), null)
-    verifyErr(UnknownSpecErr#) { ns.global("badOne") }
-    verifyErr(UnknownSpecErr#) { ns.global("badOne", true) }
+    verifySame(ns.unqualifiedGlobal("site"), ns.spec("ph::site"))
+    verifyEq(ns.unqualifiedGlobals("site"), [ns.spec("ph::site")])
+    verifySame(ns.unqualifiedGlobal("badOne", false), null)
+    verifyEq(ns.unqualifiedGlobals("badOne"), Spec[,])
+    verifyErr(UnknownSpecErr#) { ns.unqualifiedGlobal("badOne") }
+    verifyErr(UnknownSpecErr#) { ns.unqualifiedGlobal("badOne", true) }
 
     // files
     verifyEq(ph.files.isSupported, !ns.isRemote)

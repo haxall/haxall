@@ -193,7 +193,7 @@ const mixin LibNamespace
 
   ** Get or load spec by the given qualified name:
   **   - type: "foo.bar::Baz"
-  **   - global: "foo.bar::baz"
+  **   - global/meta/func: "foo.bar::baz"
   **   - slot: "foo.bar::Baz.qux"
    ** See `lib` for behavior if the spec's lib is not loaded.
   abstract Spec? spec(Str qname, Bool checked := true)
@@ -207,21 +207,6 @@ const mixin LibNamespace
 
   ** Lookup an instance async in the case the lib is not loaded yet.
   abstract Void instanceAsync(Str qname, |Err?, Dict?| f)
-
-  ** Resolve unqualified type name against all loaded libs.  Raise exception if not
-  ** fully loaded.  Raise exception if ambiguous types regardless of checked flag.
-  @NoDoc abstract Spec? unqualifiedType(Str name, Bool checked := true)
-
-  ** Resolve unqualified function name against loaded libs.  Raise exception if not
-  ** fully loaded.  Raise exception if ambiguous funcs regardless of checked flag.
-  @NoDoc abstract Spec? func(Str name, Bool checked := true)
-
-  ** Resolve unqualified global spec name against all loaded libs.
-  ** If ambiguous globals then select the first one ordered by lib depend order.
-  @NoDoc abstract Spec? global(Str name, Bool checked := true)
-
-  ** Map HTTP API operation name such as "sys.ping" to "sys.api::ping"
-  @NoDoc abstract Spec? api(Str opName, Bool checked := true)
 
   ** Lookup the extended meta for the given spec qname.  This is a merge
   ** of the spec's own meta along with any instance dicts in the namespace
@@ -260,6 +245,37 @@ const mixin LibNamespace
   ** Iterate instances that are nominally typed by given spec.
   ** The callback function includes the resolve spec for the instance.
   @NoDoc abstract Void eachInstanceThatIs(Spec type, |Dict, Spec| f)
+
+//////////////////////////////////////////////////////////////////////////
+// Unqualified Lookups
+//////////////////////////////////////////////////////////////////////////
+
+  ** Resolve unqualified type name against all loaded libs:
+  **   - one match return it
+  **   - zero return null or raise exception based on checked flag
+  **   - two or more raise exception regardless of checked flag
+  @NoDoc abstract Spec? unqualifiedType(Str name, Bool checked := true)
+
+  ** List all unqualified types against loaded libs.
+  @NoDoc abstract Spec[] unqualifiedTypes(Str name)
+
+  ** Resolve unqualified function name against loaded libs:
+  **   - one match return it
+  **   - zero return null or raise exception based on checked flag
+  **   - two or more raise exception regardless of checked flag
+  @NoDoc abstract Spec? unqualifiedFunc(Str name, Bool checked := true)
+
+  ** List all unqualified function names against loaded libs.
+  @NoDoc abstract Spec[] unqualifiedFuncs(Str namee)
+
+  ** Resolve unqualified global spec name against all loaded libs.
+  **   - one match return it
+  **   - zero return null or raise exception based on checked flag
+  **   - two or more raise exception regardless of checked flag
+  @NoDoc abstract Spec? unqualifiedGlobal(Str name, Bool checked := true)
+
+  ** List all unqualified global specs name against all loaded libs.
+  @NoDoc abstract Spec[] unqualifiedGlobals(Str name)
 
 //////////////////////////////////////////////////////////////////////////
 // Reflection

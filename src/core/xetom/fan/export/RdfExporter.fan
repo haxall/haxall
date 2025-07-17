@@ -356,7 +356,7 @@ class RdfExporter : Exporter
       if (n == "id") return
       if (n == "dis" || n == "disMacro") return
 
-      slot := spec.slot(n, false) ?: ns.global(n, false)
+      slot := spec.slot(n, false) ?: ns.unqualifiedGlobal(n, false)
       if (slot == null) return
       if (slot.isChoice) return // handled below
 

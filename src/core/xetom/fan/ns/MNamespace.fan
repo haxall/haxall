@@ -434,111 +434,6 @@ abstract const class MNamespace : LibNamespace, CNamespace
     }
   }
 
-  override Spec? unqualifiedType(Str name, Bool checked := true)
-  {
-    if (!isRemote) loadAllSync
-    acc := Spec[,]
-    entriesList.each |entry|
-    {
-      if (entry.status.isOk) acc.addNotNull(entry.get.type(name, false))
-    }
-    if (acc.size == 1) return acc[0]
-    if (acc.size > 1) throw AmbiguousSpecErr("Ambiguous types for '$name' $acc")
-    if (checked) throw UnknownTypeErr(name)
-    return null
-  }
-
-  override Spec? func(Str name, Bool checked := true)
-  {
-    map := funcMapRef.val as Str:Obj
-    if (map == null) funcMapRef.val = map = loadFuncMap
-    entry := map[name]
-    if (entry != null)
-      return entry as Spec ?:throw AmbiguousSpecErr("Ambiguous func for '$name' $entry")
-    if (checked) throw UnknownSpecErr(name)
-    return null
-  }
-
-  private Str:Obj loadFuncMap()
-  {
-    // we build cache of funcs by name since they are hot path
-    acc := Str:Obj[:]
-    if (!isRemote) loadAllSync
-    entriesList.each |entry|
-    {
-      if (!entry.status.isOk) return
-      entry.get.globals.each |spec|
-      {
-        if (!spec.isFunc) return
-        name := spec.name
-        dup := acc[name]
-        if (dup == null)
-        {
-          acc[name] = spec
-        }
-        else
-        {
-          list := dup as Spec[] ?: Spec[dup]
-          list.add(spec)
-          acc[name] = list
-        }
-      }
-    }
-    return acc.toImmutable
-  }
-  private const AtomicRef funcMapRef := AtomicRef()
-
-  override Spec? global(Str name, Bool checked := true)
-  {
-    if (!isRemote) loadAllSync
-    match := entriesList.eachWhile |entry|
-    {
-      entry.status.isOk ? entry.get.global(name, false) : null
-    }
-    if (match != null) return match
-    if (checked) throw UnknownSpecErr(name)
-    return null
-  }
-
-  override Spec? api(Str opName, Bool checked := true)
-  {
-    // try cache
-    func := apiCache.get(opName)
-    if (func != null) return func
-
-    // parse to "lib.func" and try "lib.api::func" and "lib::func"
-    func = findApi(opName)
-    if (func != null)
-    {
-      apiCache[opName] = func
-      return func
-    }
-
-    // no joy
-    if (checked) throw UnknownSpecErr("API $opName.toCode")
-    return null
-  }
-
-  private Spec? findApi(Str op)
-  {
-    dot := op.indexr(".")
-    if (dot == null || dot == 0 || dot == op.size-1) return null
-
-    libName  := op[0..<dot]
-    funcName := op[dot+1..-1]
-
-    lib := this.lib(libName+".api", false)
-    if (lib == null) lib = this.lib(libName, false)
-    if (lib == null) return null
-
-    func := lib.global(funcName, false)
-    if (func == null) return null
-    if (!func.isFunc) return null
-    return func
-  }
-
-  private const ConcurrentMap apiCache := ConcurrentMap()
-
   override Dict? xmeta(Str qname, Bool checked := true)
   {
     XMeta(this).xmeta(qname, checked)
@@ -634,6 +529,100 @@ abstract const class MNamespace : LibNamespace, CNamespace
       }
     }
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Unqualified Lookups
+//////////////////////////////////////////////////////////////////////////
+
+  override Spec? unqualifiedType(Str name, Bool checked := true)
+  {
+    acc := unqualifiedTypes(name)
+    if (acc.size == 1) return acc[0]
+    if (acc.size > 1) throw AmbiguousSpecErr("Ambiguous type for '$name' $acc")
+    if (checked) throw UnknownTypeErr(name)
+    return null
+  }
+
+  override Spec[] unqualifiedTypes(Str name)
+  {
+    if (!isRemote) loadAllSync
+    acc := Spec[,]
+    entriesList.each |entry|
+    {
+      if (entry.status.isOk) acc.addNotNull(entry.get.type(name, false))
+    }
+    return acc
+  }
+
+  override Spec? unqualifiedGlobal(Str name, Bool checked := true)
+  {
+    acc := unqualifiedGlobals(name)
+    if (acc.size == 1) return acc[0]
+    if (acc.size > 1) throw AmbiguousSpecErr("Ambiguous global for '$name' $acc")
+    if (checked) throw UnknownTypeErr(name)
+    return null
+  }
+
+  override Spec[] unqualifiedGlobals(Str name)
+  {
+    if (!isRemote) loadAllSync
+    acc := Spec[,]
+    entriesList.each |entry|
+    {
+      if (entry.status.isOk) acc.addNotNull(entry.get.global(name, false))
+    }
+    return acc
+  }
+
+  override Spec? unqualifiedFunc(Str name, Bool checked := true)
+  {
+    map := funcMapRef.val as Str:Obj
+    if (map == null) funcMapRef.val = map = loadFuncMap
+    entry := map[name]
+    if (entry != null)
+      return entry as Spec ?:throw AmbiguousSpecErr("Ambiguous func for '$name' $entry")
+    if (checked) throw UnknownSpecErr(name)
+    return null
+  }
+
+  override Spec[] unqualifiedFuncs(Str name)
+  {
+    map := funcMapRef.val as Str:Obj
+    if (map == null) funcMapRef.val = map = loadFuncMap
+    entry := map[name]
+    if (entry is Spec) return Spec[entry]
+    if (entry == null) return Spec#.emptyList
+    return entry
+  }
+
+  private Str:Obj loadFuncMap()
+  {
+    // we build cache of funcs by name, values are Spec of Spec[]
+    acc := Str:Obj[:]
+    if (!isRemote) loadAllSync
+    entriesList.each |entry|
+    {
+      if (!entry.status.isOk) return
+      entry.get.globals.each |spec|
+      {
+        if (!spec.isFunc) return
+        name := spec.name
+        dup := acc[name]
+        if (dup == null)
+        {
+          acc[name] = spec
+        }
+        else
+        {
+          list := dup as Spec[] ?: Spec[dup]
+          list.add(spec)
+          acc[name] = list
+        }
+      }
+    }
+    return acc.toImmutable
+  }
+  private const AtomicRef funcMapRef := AtomicRef()
 
 //////////////////////////////////////////////////////////////////////////
 // Reflection
