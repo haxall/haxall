@@ -159,7 +159,10 @@ internal class ConvertExtCmd : ConvertCmd
   {
     doc = doc.trimToNull
     if (doc == null) return ""
-    doc.eachLine |line| { s.add("// ").add(line).add("\n") }
+    doc.eachLine |line|
+    {
+      s.add(("// " + line).trimEnd).add("\n")
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

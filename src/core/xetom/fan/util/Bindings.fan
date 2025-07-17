@@ -315,7 +315,8 @@ const class PodBindingLoader : SpecBindingLoader
     funcName := spec.name
     if (lib.name == "axon")
     {
-      if (funcName == "as" || funcName == "toStr" || funcName == "equals" || funcName == "trap")
+      if (funcName == "toStr" || funcName == "as" || funcName == "is" ||
+          funcName == "equals" || funcName == "trap")
         funcName = "_" + funcName
     }
     method := type.method(funcName, false)

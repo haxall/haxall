@@ -27,10 +27,10 @@ size: Func { val: Obj?, returns: Number }
 //   - dict(key): get item with given key or return null
 //   - grid(num): get row at given index
 //   - grid(range): `haystack::Grid.getRange`
-// 
+//
 // The get function maybe be accessed using the '[]' shortcut operator:
 //    list[3]  >>  list.get(3)
-// 
+//
 // See `docHaxall::AxonLang#getAndTrap`.
 get: Func { val: Obj?, key: Obj?, returns: Obj? }
 
@@ -139,29 +139,29 @@ limit: Func { stream: Obj?, limit: Number, returns: Obj }
 skip: Func { stream: Obj?, count: Number, returns: Obj }
 
 // Sort a list or grid.
-// 
+//
 // If sorting a list, the sorter should be a function
 // that takes two list items and returns -1, 0, or 1 (typicaly
 // done with the '<=>' operator.  If no sorter is passed, then
 // the list is sorted by its natural ordering.
-// 
+//
 // If sorting a grid, the sorter can be a column name
 // or a function.  If a function, it should take two rows
 // and return -1, 0, or 1.
-// 
+//
 // Examples:
 //   // sort string list
 //   ["bear", "cat", "apple"].sort
-// 
+//
 //   // sort string list by string size
 //   ["bear", "cat", "apple"].sort((a,b) => a.size <=> b.size)
-// 
+//
 //   // sort sites by area
 //   readAll(site).sort((a, b) => a->area <=> b->area)
 sort: Func { val: Obj, sorter: Obj?, returns: Obj? }
 
 // Sort a grid by row display name - see `haystack::Grid.sortDis`
-// 
+//
 // Examples:
 //   // read all sites and sort by display name
 //   readAll(site).sortDis
@@ -193,57 +193,57 @@ each: Func { val: Obj, fn: Func, returns: Obj? }
 eachWhile: Func { val: Obj, fn: Func, returns: Obj? }
 
 // Map list, dict, or grid by applying the given mapping function.
-// 
+//
 // If mapping a list, the mapping should be a function
 // that takes '(val)' or '(val, index)'.  It should return
 // the new value for that index.
-// 
+//
 // If mapping a dict, the mapping should be a function
 // that takes '(val)' or '(val, name)'.  It should return
 // the new value for that name.
-// 
+//
 // If mapping a grid, the mapping function takes '(row)' or '(row,index)'
 // and returns a new dictionary to use for the row.  The resulting
 // grid shares the original's grid level meta.  Columns
 // left intact share the old meta-data, new columns have no
 // meta-data.  If the mapping function returns null, then that row
 // is removed from the resulting grid (not mapped).
-// 
+//
 // If mapping a range, then the mapping function takes '(integer)', and
 // returns a list for each mapped integer inte the range.
-// 
+//
 // If mapping a stream, the mapping functions takes '(val)'.
 // See `docHaxall::Streams#map`.
-// 
+//
 //  Examples:
 //    // create list adding ten to each number
 //    [1, 2, 3].map(v => v+10)   >>   [11, 12, 13]
-// 
+//
 //    // create new list that turns strings into uppercase
 //    ["ape", "bee", "cat"].map(upper)    // ["APE, "BEE", "CAT"]
-// 
+//
 //    // create dict adding ten to each value
 //    {a:1, b:2, c:3}.map(v => v+10)   >>   {a:11, b:12, c:13}
-// 
+//
 //    // create grid with just dis, area column
 //    readAll(site).map(s => {dis:s->dis, area:s->area})
 map: Func { val: Obj, fn: Func, returns: Obj? }
 
 // Map each item in a list or grid to zero or more new items
 // as a flattened result.
-// 
+//
 // If mapping a list, the mapping should be a function
 // that takes '(val)' or '(val, index)'.  It should return
 // the a list of zero or more new values.
 // See `sys::List.flatMap`.
-// 
+//
 // If mapping a grid, the mapping function takes '(row)' or '(row,index)'
 // and returns a list of zero or more new Dict rows.
 // See `haystack::Grid.flatMap`.
-// 
+//
 // If mapping a stream, the mapping functions takes '(val)'.
 // See `docHaxall::Streams#flatMap`.
-// 
+//
 // Examples:
 //   [1, 2, 3].flatMap(v => [v, v+10])   >>  [1, 11, 2, 12, 3, 13]
 flatMap: Func { val: Obj, fn: Func, returns: Obj? }
@@ -251,54 +251,54 @@ flatMap: Func { val: Obj, fn: Func, returns: Obj? }
 // Find the first matching item in a list or grid by
 // applying the given filter function.  If no match
 // is found return null.
-// 
+//
 // If working with a list, the filter should be a function
 // that takes '(val)' or '(val, index)'.  It should return
 // true to match and return the item.
-// 
+//
 // If working with a dict, the filter should be a function
 // that takes '(val)' or '(val, name)'.  It should return
 // true to match and return the item.
-// 
+//
 // If working with a grid, the filter function takes '(row)'
 // or '(row, index)' and returns true to match and return the row.
-// 
+//
 // If working with a stream, the filter takes '(val)' and returns
 // true to match.  See `docHaxall::Streams#find`.
-// 
+//
 // Examples:
 //   // find first string longer than 3 chars
 //   ["ape", "bat", "charlie", "dingo"].find(x => x.size > 3)
-// 
+//
 //   // find first odd number
 //   [10, 4, 3, 7].find(isOdd)
 find: Func { val: Obj, fn: Func, returns: Obj? }
 
 // Find all the items in a list, dict, or grid by applying
 // the given filter function.  Also see `find`.
-// 
+//
 // If working with a list, the filter should be a function
 // that takes '(val)' or '(val, index)'.  It should return
 // true to keep the item.
-// 
+//
 // If working with a dict, the filter should be a function
 // that takes '(val)' or '(val, name)'.  It should return
 // the true to keep the name/value pair.
-// 
+//
 // If working with a grid, the filter function takes '(row)'
 // or '(row, index)' and returns true to keep the row.  The
 // resulting grid shares the original's grid meta and columns.
-// 
+//
 // If working with a stream, the filter takes '(val)' and returns
 // true to match.  See `docHaxall::Streams#findAll`.
-// 
+//
 // Examples:
 //   // find all the strings longer than 3 chars
 //   ["ape", "bat", "charlie", "dingo"].findAll(x => x.size > 3)
-// 
+//
 //   // find even numbers
 //   [0, 1, 2, 3, 4].findAll(isEven)
-// 
+//
 //   // find all the sites greater than 10,000ft from grid
 //   readAll(site).findAll(s => s->area > 10_000ft²)
 findAll: Func { val: Obj, fn: Func, returns: Obj? }
@@ -309,25 +309,25 @@ findAll: Func { val: Obj, fn: Func, returns: Obj? }
 //  - Dict[]: returns list of filtered dicts (nulls are filtered out)
 //  - Col[]: returns list of columns filtered by their meta
 //  - Stream: filters stream of Dicts - see `docHaxall::Streams#filter`
-// 
+//
 // The filter parameter may one fo the following:
 //   - Axon expression which maps to a filter
 //   - Filter from `parseFilter()`
 //   - Filter from `parseSearch()`
-// 
+//
 // Examples:
 //   // apply to a list of dicts
 //   [{v:1}, {v:2}, {v:3}, {v:4}].filter(v >= 3)
-// 
+//
 //   // apply to a grid and return new grid with matching rows
 //   readAll(equip).filter(meter)
-// 
+//
 //   // apply to a list of columns
 //   read(ahu).toPoints.hisRead(yesterday).cols.filter(kind=="Bool")
-// 
+//
 //   // apply to a stream of dicts
 //   readAllStream(equip).filter(siteMeter and elec and meter).collect
-// 
+//
 //   // apply search filter
 //   readAll(equip).filter(parseSearch("RTU-1"))
 filter: Func { val: Obj?, filter: Filter, returns: Obj }
@@ -335,22 +335,22 @@ filter: Func { val: Obj?, filter: Filter, returns: Obj }
 // Return if all the items in a list, dict, or grid match the
 // given test function.  If the collection is empty, then return
 // true.
-// 
+//
 // If working with a list, the function takes '(val)'
 // or '(val, index)' and returns true or false.
-// 
+//
 // If working with a dict, the function takes '(val)'
 // or '(val, name)' and returns true or false.
-// 
+//
 // If working with a grid, the function takes '(row)'
 // or '(row, index)' and returns true or false.
-// 
+//
 // If working with a string, the function takes '(char)'
 // or '(char, index)' and returns true or false.
-// 
+//
 // If working with a stream, then function takes '(val)'
 // and returns true or false.  See `docHaxall::Streams#all`.
-// 
+//
 // Examples:
 //   [1, 3, 5].all v => v.isOdd  >>  true
 //   [1, 3, 6].all(isOdd)        >>  false
@@ -359,22 +359,22 @@ all: Func { val: Obj, fn: Func, returns: Obj? }
 // Return if any the items in a list, dict, or grid match the
 // given test function.  If the collection is empty, then return
 // false.
-// 
+//
 // If working with a list, the function takes '(val)'
 // or '(val, index)' and returns true or false.
-// 
+//
 // If working with a dict, the function takes '(val)'
 // or '(val, name)' and returns true or false.
-// 
+//
 // If working with a grid, the function takes '(row)'
 // or '(row, index)' and returns true or false.
-// 
+//
 // If working with a string, the function takes '(char)'
 // or '(char, index)' and returns true or false.
-// 
+//
 // If working with a stream, then function takes '(val)'
 // and returns true or false.  See `docHaxall::Streams#any`.
-// 
+//
 // Examples:
 //   [1, 3, 5].any v => v.isOdd  >>  true
 //   [2, 4, 6].any(isOdd)        >>  false
@@ -387,16 +387,16 @@ any: Func { val: Obj, fn: Func, returns: Obj? }
 // subsequent item it is the result of the previous item.  Return
 // the final accumulation value.  Also see `fold` which is preferred
 // if doing standard rollup such as sum or average.
-// 
+//
 // If working with a list, the function takes '(acc, val, index)'
 // and returns accumulation value
-// 
+//
 // If working with a grid, the function takes '(acc, row, index)'
 // and returns accumulation value
-// 
+//
 // If working with a stream, then function takes '(acc, val)'
 // and returns accumulation value  See `docHaxall::Streams#reduce`.
-// 
+//
 // Examples:
 //   [2, 5, 3].reduce(0, (acc, val)=>acc+val)  >> 10
 //   [2, 5, 3].reduce(1, (acc, val)=>acc*val)  >> 30
@@ -406,7 +406,7 @@ reduce: Func { val: Obj, init: Obj?, fn: Func, returns: Obj? }
 // the other items are shifted accordingly.  Negative indexes may
 // used to access an index from the end of the list.  If the item is
 // not found then this is a no op.  Return new list.
-// 
+//
 // Examples:
 //   [10, 11, 12].moveTo(11, 0)  >>  [11, 10, 12]
 //   [10, 11, 12].moveTo(11, -1) >>  [10, 12, 11]
@@ -416,7 +416,7 @@ moveTo: Func { list: List, item: Obj?, toIndex: Number, returns: List }
 // then return `sys::List.unique`.  If val is a Grid then
 // return `haystack::Grid.unique` where key must be a column
 // name or list of column names.
-// 
+//
 // Examples:
 //   [1, 1, 2, 2].unique                 >> [1, 2]
 //   grid.unique("geoState")             >> unique states
@@ -426,11 +426,11 @@ unique: Func { val: Obj, key: Obj?, returns: Obj? }
 // Flatten a list to a single level.  If given a list of
 // grids, then flatten rows to a single grid.  Also see
 // `sys::List.flatten` and `haystack::Etc.gridFlatten`.
-// 
+//
 // Examples:
 //   // flatten a list of numbers
 //   [1, [2, 3], [4, [5, 6]]].flatten  >>  [1, 2, 3, 4, 5, 6]
-// 
+//
 //   // flatten a list of grids
 //   ["Carytown", "Gaithersburg"].map(n=>readAll(siteRef->dis==n)).flatten
 flatten: Func { list: List, returns: Obj }
@@ -438,7 +438,7 @@ flatten: Func { list: List, returns: Obj }
 // Convert grid rows into a dict of name/val pairs.  The name/value
 // pairs are derived from each row using the given functions.  The
 // functions take '(row, index)'
-// 
+//
 // Example:
 //   // create dict of sites with dis:area pairs
 //   readAll(site).gridRowsToDict(s=>s.dis.toTagName, s=>s->area)
@@ -447,7 +447,7 @@ gridRowsToDict: Func { grid: Grid, rowToKey: Func, rowToVal: Func, returns: Dict
 // Convert grid columns into a dict of name/val pairs.  The name/val
 // paris are derived from each column using the given functions.  The
 // functions take '(col, index)'
-// 
+//
 // Example:
 //   // create dict of column name to column dis
 //   read(temp).hisRead(today).gridColsToDict(c=>c.name, c=>c.meta.dis)
@@ -459,7 +459,7 @@ gridColsToDict: Func { grid: Grid, colToKey: Func, colToVal: Func, returns: Dict
 //   - 'kind': all the different value kinds in the column separated by "|"
 //   - 'count': total number of rows with column with a non-null value
 // Also see `readAllTagNames`.
-// 
+//
 // Example:
 //   readAll(site).gridColKinds
 gridColKinds: Func { grid: Grid, returns: Grid }
@@ -471,14 +471,14 @@ gridColKinds: Func { grid: Grid, returns: Grid }
 //   1. Call 'fn(foldStart, null)', return initial accumulator state
 //   2. Call 'fn(item, acc)' for every item, return new accumulator state
 //   3. Call 'fn(foldEnd, acc)' return final result
-// 
+//
 // See `docHaxall::Streams#fold` for streaming details.
-// 
+//
 // The fold will short-circuit and halt immediately if the folding
 // function returns `na()` for the accumulator state. The result of
 // the fold is `na()` in this case.  A folding function should document
 // its behavior when a collection contains `na()`.
-// 
+//
 // Built-in folding functions include:
 //   - `count()`
 //   - `sum()`
@@ -490,12 +490,12 @@ gridColKinds: Func { grid: Grid, returns: Grid }
 //   - `rootMeanSquareErr()`
 //   - `meanBiasErr()`
 //   - `standardDeviation()`
-// 
+//
 // Examples:
 //   [1, 2, 3, 4].fold(max)  // fold list into its max value
 //   [1, 2, 3, 4].fold(avg)  // fold list into its average value
 //   [1, 2, na(), 3].fold(sum) // => na()
-// 
+//
 // Example of writing your own custom fold function that
 // used start/end values and has support for na():
 //    average: (val, acc) => do
@@ -510,7 +510,7 @@ fold: Func { val: Obj?, fn: Func, returns: Obj? }
 
 // Fold the values of the given column into a single value.
 // The folding function uses the same semantics as `fold`.
-// 
+//
 // Example:
 //   readAll(site).foldCol("area", sum)
 foldCol: Func { grid: Grid, colName: Str, fn: Func, returns: Obj? }
@@ -521,24 +521,24 @@ foldCol: Func { grid: Grid, colName: Str, fn: Func, returns: Obj? }
 // may be a list of string names or a function which takes a Col
 // and returns true to select it.  The folding function uses same
 // semantics as `fold`.
-// 
-// 
+//
+//
 // Example:
 //   // consider grid 'g' with the following structure:
 //   a    b    c
 //   ---  ---  ---
 //   1    10   100
 //   2    20   200
-// 
+//
 //   // foldCols, add b and c together to create new bc column
 //   g.foldCols(["b", "c"], "bc", sum)
-// 
+//
 //   // yields this grid:
 //   a    bc
 //   ---  ---
 //   1    110
 //   2    220
-// 
+//
 //   // we could also replace list of col names with a function
 //   colSel: col => col.name == "b" or col.name == "c"
 //   g.foldCols(colSel, "bc", sum)
@@ -562,7 +562,7 @@ sum: Func <foldOn:"Number"> { val: Obj?, acc: Obj?, returns: Obj? }
 // may also be used with `fold` to return the smallest number (or
 // null if no values).  Note number units are **not** checked nor
 // considered for this comparison.
-// 
+//
 // Examples:
 //   min(7, 4)            >>  4
 //   [7, 2, 4].fold(min)  >>  2
@@ -572,7 +572,7 @@ min: Func <foldOn:"Number"> { val: Obj?, acc: Obj?, returns: Obj? }
 // may also be used with `fold` to return the largest number (or
 // null if no values).  Note number units are **not** checked nor
 // considered for the comparison.
-// 
+//
 // Examples:
 //   max(7, 4)            >>  7
 //   [7, 2, 4].fold(max)  >>  7
@@ -581,14 +581,14 @@ max: Func <foldOn:"Number"> { val: Obj?, acc: Obj?, returns: Obj? }
 // Fold multiple values into their standard average or arithmetic
 // mean.  This function is the same as [math::mean]`mean`.  Null
 // values are ignored.  Return null if no values.
-// 
+//
 // Example:
 //   [7, 2, 3].fold(avg)  >>  4
 avg: Func <foldOn:"Number"> { val: Obj?, acc: Obj?, returns: Obj? }
 
 // Fold multiple values to compute the difference between
 // the max and min value. Return null if no values.
-// 
+//
 // Example:
 //   [7, 2, 3].fold(spread)  >>  5
 spread: Func <foldOn:"Number"> { val: Obj?, acc: Obj?, returns: Obj? }
@@ -620,22 +620,22 @@ vals: Func { dict: Dict, returns: Obj? }
 // then get a value by name, or throw UnknownNameErr if name not mapped.
 // If the value is a Ref, then perform a checked 'readById', then perform
 // the name lookup.
-// 
+//
 // The trap function maybe be accessed using the '->' shortcut operator:
 //    dict->foo  >>>  dict.trap("foo")
-// 
+//
 // See `docHaxall::AxonLang#getAndTrap`.
 trap: Func { val: Obj?, name: Str, returns: Obj? }
 
 // Get the meta-data from a grid or col as a dict.
-// 
+//
 // Examples:
 //   read(temp).hisRead(today).meta             // grid meta
 //   read(temp).hisRead(today).col("ts").meta   // column meta
 meta: Func { val: Obj?, returns: Dict }
 
 // Get the columns from a grid as a list.
-// 
+//
 // Example:
 //   // get name of first column
 //   readAll(site).cols.first.name
@@ -643,20 +643,20 @@ cols: Func { grid: Grid, returns: List }
 
 // Get a column by its name.  If not resolved then
 // return null or throw UnknownNameErr based on checked flag.
-// 
+//
 // Example:
 //   // get meta data for given columm
 //   read(temp).hisRead(today).col("ts").meta
 col: Func { grid: Grid, name: Str, checked: Bool, returns: Obj? }
 
 // Get the column names a list of strings.
-// 
+//
 // Example:
 //   readAll(site).colNames
 colNames: Func { grid: Grid, returns: List }
 
 // If val is a Col, get the column name.
-// 
+//
 // Example:
 //   // get name of first column
 //   readAll(site).cols.first.name
@@ -664,7 +664,7 @@ name: Func { val: Obj?, returns: Str }
 
 // Return new grid with grid level meta-data replaced by given
 // meta Dict.  Also see `addMeta` and `docHaxall::Streams#setMeta`.
-// 
+//
 // Example:
 //   read(temp).hisRead(today).setMeta({view:"table"})
 setMeta: Func { grid: Obj, meta: Dict, returns: Obj }
@@ -672,7 +672,7 @@ setMeta: Func { grid: Obj, meta: Dict, returns: Obj }
 // Return new grid with additional grid level meta-data tags.
 // Tags are added using `merge` conventions.  Also see `setMeta`
 // and `docHaxall::Streams#addMeta`.
-// 
+//
 // Example:
 //   read(temp).hisRead(today).addMeta({view:"table"})
 addMeta: Func { grid: Obj, meta: Dict, returns: Obj }
@@ -692,11 +692,11 @@ joinAll: Func { grids: List, joinColName: Str, returns: Grid }
 // dictionary which must have a "name" tag (any other
 // tags become column meta-data).  The mapping function takes
 // '(row)' and returns the new cell values for the column.
-// 
+//
 // Examples:
 //   // add new column named areaMeter
 //   readAll(site).addCol("areaMeters") s => s->area.to(1m²)
-// 
+//
 //   // add new column named areaMeter with dis meta
 //   readAll(site).addCol({name:"areaMeters", dis:"Area Meters"}) s => s->area.to(1m²)
 addCol: Func { grid: Grid, col: Obj?, fn: Func, returns: Grid }
@@ -705,14 +705,14 @@ addCol: Func { grid: Grid, col: Obj?, fn: Func, returns: Grid }
 // duplicate column names, then they are given auto-generated
 // unique names.  If b contains fewer rows then a, then the missing
 // cells are filled with null.
-// 
+//
 // Examples:
 //   [{a:0, b:2}, {a:1, b:3}].toGrid.addCols({c:4}.toGrid)
 //   readAll(rtu).addCols(readAll(meter))
 addCols: Func { a: Grid, b: Grid, returns: Grid }
 
 // Return a new grid with the given column renamed.
-// 
+//
 // Example:
 //   readAll(site).renameCol("dis", "title")
 renameCol: Func { grid: Grid, oldName: Str, newName: Str, returns: Grid }
@@ -720,7 +720,7 @@ renameCol: Func { grid: Grid, oldName: Str, newName: Str, returns: Grid }
 // Return a new grid with multiple columns renamed.
 // Mapping must be a dict of old to new names.  Old column names
 // not found are ignored.
-// 
+//
 // Example:
 //   readAll(site).renameCols({dis:"title", geoAddr:"subtitle"})
 renameCols: Func { grid: Grid, mapping: Dict, returns: Grid }
@@ -729,7 +729,7 @@ renameCols: Func { grid: Grid, mapping: Dict, returns: Grid }
 // of names represents the new order and must contain the same current
 // column names.  Any columns not specified are removed.  Also
 // see `colNames`, `moveTo`, and `docHaxall::Streams#reorderCols`.
-// 
+//
 // Example:
 //   // move name to first col, and foo to last col
 //   cols: grid.colNames.moveTo("name", 0).moveTo("foo", -1)
@@ -760,34 +760,34 @@ removeCols: Func { grid: Obj, cols: List, returns: Obj }
 // Return a new grid with keeps the given columns, but removes
 // all the others.  Columns can be Str names or Col instances.
 // Also see `docHaxall::Streams#keepCols`.
-// 
+//
 // Example:
 //   readAll(site).keepCols(["id", "area"])
 keepCols: Func { grid: Obj, cols: List, returns: Obj }
 
 // Add an additional Dict row to the end of a grid.
-// 
+//
 // Example:
 //   readAll(site).addRow({dis:"New Row"})
 addRow: Func { grid: Grid, newRow: Dict, returns: Grid }
 
 // Add an list of rows to the end of a grid.
 // The newRows may be expressed as list of Dict or a Grid.
-// 
+//
 // Example:
 //   readAll(site).addRows(readAll(equip))
 addRows: Func { grid: Grid, newRows: Obj, returns: Grid }
 
 // Get a grid row as a list of cells.  Sparse cells are included as null.
 // Also see `colToList()`.
-// 
+//
 // Example:
 //   readAll(equip).first.rowToList
 rowToList: Func { row: Obj, returns: List }
 
 // Get a column as a list of the cell values ordered by row.
 // Also see `rowToList()`.
-// 
+//
 // Example:
 //   readAll(site).colToList("dis")
 colToList: Func { grid: Grid, col: Obj, returns: List }
@@ -795,7 +795,7 @@ colToList: Func { grid: Grid, col: Obj, returns: List }
 // Perform a matrix transpose on the grid.  The cells of the
 // first column because the display names for the new columns.
 // Columns 1..n become the new rows.
-// 
+//
 // Example:
 //   readAll(site).transpose
 transpose: Func { grid: Grid, returns: Grid }
@@ -811,7 +811,7 @@ swizzleRefs: Func { grid: Grid, returns: Grid }
 // The resulting grid has the same grid and col meta.  Replacement comparison
 // is by via equality via '==' operator, so it will only replace
 // scalar values or null.
-// 
+//
 // Example:
 //   grid.gridReplace(null, 0)   // replace all null cells with zero
 //   grid.gridReplace(na(), 0)   // replace all NA cells with zero
@@ -846,7 +846,7 @@ negInf: Func { returns: Number }
 // then return min, if its greater than max return max, otherwise return
 // val itself.  The min and max must have matching units or be unitless.
 // The result is always in the same unit as val.
-// 
+//
 // Examples:
 //   14.clamp(10, 20)     >>   14    // is between 10 and 20
 //   3.clamp(10, 20)      >>   10    // clamps to min 10
@@ -879,7 +879,7 @@ nowTicks: Func { returns: Number }
 // Return if a timestamp is contained within a Date range.
 // Range may be any value supported by `toDateSpan`.  Timestamp
 // may be either a Date or a DateTime.  Also see `contains`.
-// 
+//
 // Examples:
 //   ts.occurred(thisWeek)
 //   ts.occurred(pastMonth())
@@ -927,14 +927,14 @@ lastYear: Func { returns: Obj }
 
 // Get the first day of given date's month.
 // Also see `lastOfMonth()`.
-// 
+//
 // Example:
 //   2009-10-28.firstOfMonth  >>  2009-10-01
 firstOfMonth: Func { date: Date, returns: Date }
 
 // Get the last day of the date's month.
 // Also see `firstOfMonth()`.
-// 
+//
 // Example:
 //   2009-10-28.lastOfMonth  >>  2009-10-31
 lastOfMonth: Func { date: Date, returns: Date }
@@ -951,7 +951,7 @@ lastOfMonth: Func { date: Date, returns: Date }
 //     then use previous date
 //   - 'Number': convert as year
 //   - null: use projMeta dateSpanDefault or default to today (deprecated)
-// 
+//
 // Examples:
 //   toDateSpan(2010-07-01..2010-07-03)  >>  01-Jul-2010..03-Jul-2010
 //   toDateSpan(2010-07-01..60day)       >>  01-Jul-2010..29-Aug-2010
@@ -982,7 +982,7 @@ numDays: Func { span: Obj?, returns: Number }
 // Iterate the days of a span.  The 'dates' argument may be any object
 // converted into a date range by `toDateSpan`.  The given function is
 // called with a 'Date' argument for each iterated day.
-// 
+//
 // Example:
 //   f: day => echo(day)
 //   eachDay(2010-07-01..2010-07-03, f) >> iterate Jul 1st, 2nd, 3rd
@@ -993,11 +993,11 @@ eachDay: Func { dates: Obj, fn: Func, returns: Obj? }
 // Iterate the months of a span.  The 'dates' argument may be any object
 // converted into a date range by `toDateSpan`.  The given function is
 // called with a 'DateSpan' argument for each interated month.
-// 
+//
 // Examples:
 //   // iterate each month in 2010, and echo data range
 //   eachMonth(2010) d => echo(d)
-// 
+//
 //   // call f once for current method
 //   eachMonth(today(), f)
 eachMonth: Func { dates: Obj, fn: Func, returns: Obj? }
@@ -1040,7 +1040,7 @@ dateTime: Func { d: Date, t: Time, tz: Str?, returns: Obj? }
 
 // If val is a DateTime: get date portion of the timestamp.
 // If val is a Number: construct a date instance from year, month, day
-// 
+//
 // Examples:
 //   now().date         // same as today()
 //   date(2010, 12, 1)  // same as 2010-12-01
@@ -1049,7 +1049,7 @@ date: Func { val: Obj, month: Number?, day: Number?, returns: Obj? }
 // If val is a DateTime: get time portion of the timestamp.
 // If val is a Number: construct a time instance from hour, minutes,
 // secs (truncated to nearest second).
-// 
+//
 // Examples:
 //   now().time      // current time
 //   time(20, 45)    // same as 20:45
@@ -1064,7 +1064,7 @@ toTimeZone: Func { val: Obj, tz: Str, returns: Obj? }
 //   - Date: returns number of days in given month (uses month/year, ignores day)
 //   - Number 1-12: returns days in month for current year
 //   - null: returns day in current month
-// 
+//
 // Examples:
 //   numDaysInMonth()            >>>  days in current month
 //   numDaysInMonth(1)           >>>  31day (days in January)
@@ -1116,7 +1116,7 @@ fromJavaMillis: Func { millis: Number, tz: Str?, returns: DateTime }
 //     customary unit return false (right now we only check
 //     for °F and Δ°F)
 //   - fallback to locale of hosting server, see `sys::Locale`
-// 
+//
 // Examples:
 //    isMetric({geoCountry:"US"})  >>  false
 //    isMetric({geoCountry:"FR"})  >>  true
@@ -1139,7 +1139,7 @@ unitsEq: Func { a: Number?, b: Number?, returns: Bool }
 // is a Number, then the scalar value is ignored, but by
 // convention should be 1.  Also see `as()` function to set a
 // unit without conversion.
-// 
+//
 // Examples:
 //    10kWh.to(1BTU)
 //    10kWh.to("BTU")
@@ -1151,7 +1151,7 @@ to: Func { val: Number?, unit: Obj?, returns: Number? }
 // the scalar of the number is performed.  The target unit can be a
 // unit string or a number in which case the scalar value of the
 // unit parameter is ignored (by convention should be 1).
-// 
+//
 // Examples:
 //   75°F.as(1°C)
 //   75°F.as("°C")
@@ -1217,7 +1217,7 @@ protos: Func <nodoc> { parent: Dict, returns: List }
 nsTimestamp: Func <nodoc> { returns: DateTime }
 
 // Given a function name reflect its parameters as rows
-// 
+//
 // Examples:
 //   params(hisRead)
 //   toRadix.params
@@ -1225,7 +1225,7 @@ params: Func <nodoc> { fn: Func, returns: Grid }
 
 // Find a top-level function by name or by reference and return its tags.
 // If not found throw exception or return null based on checked flag.
-// 
+//
 // Example:
 //   func("readAll")
 //   func(readAll)
@@ -1235,7 +1235,7 @@ func: Func { name: Obj, checked: Bool, returns: Dict? }
 // which match the given filter. If the filter is omitted then
 // return all the functions declared in the current project.
 // The function tags are returned.
-// 
+//
 // Examples:
 //   funcs()              // all functions
 //   funcs(sparkRule)     // match filter
@@ -1244,13 +1244,28 @@ funcs: Func { filter: Filter, returns: Grid }
 // Return component definition.  The result is a grid where each row
 // corresponds to a cell and its associated meta data.  The grid
 // meta is the function level meta data.
-// 
+//
 // Example:
 //   compDef("compName")
 compDef: Func { name: Obj, checked: Bool, returns: Grid? }
 
 // Get the current top-level function's tags.
 curFunc: Func { returns: Dict }
+
+// Return if the given instance inherits from the spec via nominal
+// typing.  Use `specIs()` to check nominal typing between two types.
+// Also see `fits()` and `specFits()` to check via structural typing.
+//
+// Note that dict values will only match the generic 'sys.Dict'
+// type.  Use `fits()` for structural type matching.
+//
+// Examples:
+//   is("hi", Str)       >>  true
+//   is("hi", Dict)      >>  false
+//   is({}, Dict)        >>  true
+//   is({equip}, Equip)  >>  false
+//   is(Str, Spec)       >>  true
+is: Func { val: Obj?, spec: Spec, returns: Bool }
 
 // Return a string of the given value's type.  No guarantee is made
 // for the string's format.  Applications must **not** assume any
@@ -1317,7 +1332,7 @@ toHex: Func { val: Number, returns: Obj? }
 // Convert a number to its string representation in the given radix (base).
 // If width is non-null, then leading zeroes are prepended to ensure the
 // specified width.
-// 
+//
 // Example:
 //   6.toRadix(2) => "110"
 //   255.toRadix(16, 4) => "00ff"
@@ -1337,7 +1352,7 @@ toList: Func { val: Obj?, returns: List }
 //   - if dict return grid where dict is only
 //   - if list of dict return grid where each dict is row
 //   - if list of non-dicts, return one col grid with rows for each item
-// 
+//
 // Example:
 //   // create simple grid with dis,age cols and 3 rows:
 //   [{dis:"Bob", age:30},
@@ -1358,11 +1373,11 @@ toLocale: Func { key: Str, returns: Str }
 // Evaluate an expression within a specific locale.  This enables
 // formatting and parsing of localized text using a locale other than
 // the default for the current context.
-// 
+//
 // Examples:
 //   // format Date in German
 //   localeUse("de", today().format)
-// 
+//
 //   // parse Date in German
 //   localeUse("de", parseDate("01 Mär 2021", "DD MMM YYYY"))
 localeUse: Func { locale: Str, expr: Obj?, returns: Obj? }
@@ -1387,7 +1402,7 @@ relDis: Func { parent: Obj, child: Obj, returns: Str }
 //   - `sys::Time.toLocale`
 //   - `sys::DateTime.toLocale`
 // If 'toLocale' method is found, then return 'val.toStr'
-// 
+//
 // Examples:
 //    123.456kW.format                 >>  123kW
 //    123.456kW.format("#.0")          >>  123.5kW
@@ -1399,7 +1414,7 @@ format: Func { val: Obj?, pattern: Str?, returns: Str }
 
 // Parse a Str into a Bool, legal formats are "true" or "false.  If invalid
 // format and checked is false return null, otherwise throw ParseErr.
-// 
+//
 // Examples:
 //   parseBool("true")
 //   parseBool("bad", false)
@@ -1409,7 +1424,7 @@ parseBool: Func { val: Str, checked: Bool, returns: Bool? }
 // If invalid format and checked is false return null, otherwise
 // throw ParseErr. This string value *cannot* include a unit (see
 // parseNumber).
-// 
+//
 // Examples:
 //   parseInt("123")
 //   parseInt("afe8", 16)
@@ -1420,7 +1435,7 @@ parseInt: Func { val: Str, radix: Number, checked: Bool, returns: Number? }
 // not-a-number are "-INF", "INF", "NaN".  If invalid format
 // and checked is false return null, otherwise throw ParseErr.
 // This string value *cannot* include a unit (see parseNumber).
-// 
+//
 // Examples:
 //   parseFloat("123.456").format("0.000")
 //   parseFloat("NaN")
@@ -1431,7 +1446,7 @@ parseFloat: Func { val: Str, checked: Bool, returns: Number? }
 // format and checked is false return null, otherwise throw ParseErr.
 // Also see `parseInt` and `parseFloat` to parse basic integers and
 // floating point numbers without a unit.
-// 
+//
 // Examples:
 //    parseNumber("123")
 //    parseNumber("123kW")
@@ -1443,7 +1458,7 @@ parseNumber: Func { val: Str, checked: Bool, returns: Number? }
 // throw ParseErr.  This function converts an URI from *standard form*.
 // Use `uriDecode` to convert a string from *escaped form*.  See `sys::Uri`
 // for a detailed discussion on standard and escaped forms.
-// 
+//
 // Examples:
 //   "foo bar".parseUri     >>  `foo bar`
 //   "foo%20bar".uriDecode  >>  `foo bar`
@@ -1452,7 +1467,7 @@ parseUri: Func { val: Str, checked: Bool, returns: Uri? }
 // Parse a Str into a Date.  If the string cannot be parsed into a valid
 // Date and checked is false then return null, otherwise throw ParseErr.
 // See `sys::Date.toLocale` for pattern.
-// 
+//
 // Examples:
 //   parseDate("7-Feb-23", "D-MMM-YY")
 //   parseDate("07/02/23", "DD/MM/YY")
@@ -1463,7 +1478,7 @@ parseDate: Func { val: Str, pattern: Str, checked: Bool, returns: Date? }
 // Parse a Str into a Time.  If the string cannot be parsed into a valid
 // Time and checked is false then return null, otherwise throw ParseErr.
 // See `sys::Time.toLocale` for pattern.
-// 
+//
 // Examples:
 //   parseTime("14:30", "h:mm")
 //   parseTime("2:30pm", "k:mma")
@@ -1473,7 +1488,7 @@ parseTime: Func { val: Str, pattern: Str, checked: Bool, returns: Time? }
 // Parse a Str into a DateTime.  If the string cannot be parsed into a valid
 // DateTime and checked is false then return null, otherwise throw ParseErr.
 // See `sys::DateTime.toLocale` for pattern:
-// 
+//
 //   YY     Two digit year             07
 //   YYYY   Four digit year            2007
 //   M      One/two digit month        6, 11
@@ -1508,7 +1523,7 @@ parseTime: Func { val: Str, pattern: Str, checked: Bool, returns: Time? }
 //   zzzz   Time zone name             New_York
 //   'xyz'  Literal characters
 //   ''     Single quote literal
-// 
+//
 // Examples:
 //   parseDateTime("2023-02-07 14:30", "YYYY-MM-DD hh:mm")
 //   parseDateTime("2023-02-07 14:30", "YYYY-MM-DD hh:mm", "Paris")
@@ -1519,7 +1534,7 @@ parseDateTime: Func { val: Str, pattern: Str, tz: Str, checked: Bool, returns: D
 // Parse a Str into a Ref.  If the string is not a valid Ref identifier
 // then raise ParseErr or return null based on checked flag.  If the
 // string has a leading "@", then it is stripped off before parsing.
-// 
+//
 // Examples:
 //   parseRef("abc-123")
 //   parseRef("@abc-123")
@@ -1528,7 +1543,7 @@ parseRef: Func { val: Str, dis: Obj?, checked: Bool, returns: Ref? }
 // Parse a Str into a Symbol.  If the string is not a valid Symbol
 // identifier then raise ParseErr or return null based on checked flag.
 // The string must *not* include a leading "^".
-// 
+//
 // Examples:
 //   parseSymbol("func:now")
 parseSymbol: Func { val: Str, checked: Bool, returns: Obj? }
@@ -1536,7 +1551,7 @@ parseSymbol: Func { val: Str, checked: Bool, returns: Obj? }
 // Parse a filter string into a [Filter]`haystack::Filter` instance.
 // The resulting filter can then be used with `read()`, `readAll()`,
 // `filter()`, or `filterToFunc()`.
-// 
+//
 // Example:
 //   str: "point and kw"
 //   readAll(parseFilter(str))
@@ -1545,14 +1560,14 @@ parseFilter: Func { val: Str, checked: Bool, returns: Obj? }
 // Parse a search string into a [Filter]`haystack::Filter` instance.
 // The resulting filter can then be used with `read()`, `readAll()`,
 // `filter()`, or `filterToFunc()`.
-// 
+//
 // The search string is one of the following free patterns:
 //  - '*<glob>*' case insensitive glob with ? and * wildcards (default)
 //  - 're:<regex>' regular expression
 //  - 'f:<filter>' haystack filter
-// 
+//
 // See `docFresco::Nav#searching` for additional details on search syntax.
-// 
+//
 // Examples:
 //   readAll(parseSearch("RTU-1"))
 //   readAll(point).filter(parseSearch("RTU* Fan"))
@@ -1562,11 +1577,11 @@ parseSearch: Func { val: Str, returns: Filter }
 // which maybe used with `findAll` or `find`.  The returned function
 // accepts one Dict parameter and returns true/false if the
 // Dict is matched by the filter.  Also see `filter()` and `parseFilter()`.
-// 
+//
 // Examples:
 //   // filter for dicts with 'equip' tag
 //   list.findAll(filterToFunc(equip))
-// 
+//
 //   // filter rows with an 'area' tag over 10,000
 //   grid.findAll(filterToFunc(area > 10_000))
 filterToFunc: Func { filter: Filter, returns: Func }
@@ -1574,7 +1589,7 @@ filterToFunc: Func { filter: Filter, returns: Func }
 // Parse a Str into a standardized unit name.  If the val is not
 // a valid unit name from the standard database then return null
 // or raise exception based on checked flag.
-// 
+//
 // Examples:
 //   parseUnit("%")
 //   parseUnit("percent")
@@ -1585,7 +1600,7 @@ xstr: Func { type: Str, val: Str, returns: Obj }
 
 // Convert a char number or str to ASCII upper case.
 // Also see `lower()` and `capitalize()`.
-// 
+//
 // Examples:
 //   upper("cat")      >> "CAT"
 //   upper("Cat")      >> "CAT"
@@ -1594,7 +1609,7 @@ upper: Func { val: Obj, returns: Obj? }
 
 // Convert a char number or str to ASCII lower case.
 // Also see `upper()` and `decapitalize()`.
-// 
+//
 // Examples:
 //   lower("CAT")      >>  "cat"
 //   lower("Cat")      >>  "cat"
@@ -1602,7 +1617,7 @@ upper: Func { val: Obj, returns: Obj? }
 lower: Func { val: Obj, returns: Obj? }
 
 // Is number is whitespace char: space \t \n \r \f
-// 
+//
 // Examples:
 //   isSpace("x".get(0))   >>  false
 //   isSpace(" ".get(0))   >>  true
@@ -1610,7 +1625,7 @@ lower: Func { val: Obj, returns: Obj? }
 isSpace: Func { num: Number, returns: Bool }
 
 // Is number an ASCII alpha char: isUpper||isLower
-// 
+//
 // Examples:
 //   isAlpha("A".get(0))  >>  true
 //   isAlpha("a".get(0))  >>  true
@@ -1620,7 +1635,7 @@ isSpace: Func { num: Number, returns: Bool }
 isAlpha: Func { num: Number, returns: Bool }
 
 // Is number an ASCII alpha-numeric char: isAlpha||isDigit
-// 
+//
 // Examples:
 //   isAlphaNum("A".get(0))  >>  true
 //   isAlphaNum("a".get(0))  >>  true
@@ -1630,7 +1645,7 @@ isAlpha: Func { num: Number, returns: Bool }
 isAlphaNum: Func { num: Number, returns: Bool }
 
 // Is number an ASCII uppercase alphabetic char: A-Z
-// 
+//
 // Examples:
 //   isUpper("A".get(0))  >>  true
 //   isUpper("a".get(0))  >>  false
@@ -1638,7 +1653,7 @@ isAlphaNum: Func { num: Number, returns: Bool }
 isUpper: Func { num: Number, returns: Bool }
 
 // Is number an ASCII lowercase alphabetic char: a-z
-// 
+//
 // Examples:
 //   isUpper("a".get(0))  >>  true
 //   isUpper("A".get(0))  >>  false
@@ -1648,7 +1663,7 @@ isLower: Func { num: Number, returns: Bool }
 // Is number a digit in the specified radix.  A decimal radix of
 // ten returns true for 0-9.  A radix of 16 also returns true
 // for a-f and A-F.
-// 
+//
 // Examples:
 //   isDigit("5".get(0))      >>  true
 //   isDigit("A".get(0))      >>  false
@@ -1656,7 +1671,7 @@ isLower: Func { num: Number, returns: Bool }
 isDigit: Func { num: Number, radix: Number, returns: Bool }
 
 // Convert a unicode char number into a single char string
-// 
+//
 // Examples:
 //   toChar(65)   >>  "A"
 toChar: Func { num: Number, returns: Str }
@@ -1665,10 +1680,10 @@ toChar: Func { num: Number, returns: Str }
 // If 'sep' is null then split by any whitespace char; otherwise
 // it must be exactly one char long.  See `sys::Str.split` for detailed
 // behavior.
-// 
+//
 // Options:
 //   - noTrim: disable auto-trim of whitespace from start and end of tokens
-// 
+//
 // Examples:
 //   "a b c".split                   >>  ["a", "b", "c"]
 //   "a,b,c".split(",")              >>  ["a", "b", "c"]
@@ -1679,7 +1694,7 @@ split: Func { val: Str, sep: Str?, opts: Dict?, returns: Obj? }
 // Return this string with the first character converted to
 // uppercase.  The case conversion is for ASCII only.
 // Also see `decapitalize()` and `upper()`.
-// 
+//
 // Examples:
 //   capitalize("apple")  >>  "Apple"
 capitalize: Func { val: Str, returns: Str }
@@ -1687,7 +1702,7 @@ capitalize: Func { val: Str, returns: Str }
 // Return this string with the first character converted to
 // lowercase.  The case conversion is for ASCII only.
 // Also see `capitalize()` and `lower()`.
-// 
+//
 // Examples:
 //   decapitalize("Apple") >> "apple"
 decapitalize: Func { val: Str, returns: Str }
@@ -1695,7 +1710,7 @@ decapitalize: Func { val: Str, returns: Str }
 // Trim whitespace from the beginning and end of the string.  For the purposes
 // of this function, whitespace is defined as any character equal to or less
 // than the 0x20 space character (including ' ', '\r', '\n', and '\t').
-// 
+//
 // Examples:
 //   " abc ".trim   >>  "abc"
 //   "abc".trim     >>  "abc"
@@ -1703,7 +1718,7 @@ trim: Func { val: Str, returns: Str }
 
 // Trim whitespace only from the beginning of the string.
 // See `trim` for definition of whitespace.
-// 
+//
 // Examples:
 //   " abc ".trimStart  >>  "abc "
 //   "abc".trimStart    >>  "abc"
@@ -1711,21 +1726,21 @@ trimStart: Func { val: Str, returns: Str }
 
 // Trim whitespace only from the end of the string.
 // See `trim` for definition of whitespace.
-// 
+//
 // Examples:
 //   " abc ".trimEnd  >>  " abc"
 //   "abc".trimEnd    >>  "abc"
 trimEnd: Func { val: Str, returns: Str }
 
 // Return if Str starts with the specified Str.
-// 
+//
 // Examples:
 //   "hi there".startsWith("hi")   >>  true
 //   "hi there".startsWith("foo")  >>  false
 startsWith: Func { val: Str, sub: Str, returns: Bool }
 
 // Return if Str ends with the specified Str.
-// 
+//
 // Examples:
 //   "hi there".endsWith("there")   >>  true
 //   "hi there".endsWith("hi")      >>  false
@@ -1733,7 +1748,7 @@ endsWith: Func { val: Str, sub: Str, returns: Bool }
 
 // String replace of all occurrences of 'from' with 'to'.
 // All three parameters must be strings.
-// 
+//
 // Examples:
 //   "hello".replace("hell", "t")  >>  "to"
 //   "aababa".replace("ab", "-")   >>  "a--a"
@@ -1741,7 +1756,7 @@ replace: Func { val: Str, from: Str, to: Str, returns: Str }
 
 // Pad string to the left.  If size is less than width, then
 // add the given char to the left to achieve the specified width.
-// 
+//
 // Examples:
 //   "3".padl(3, "0")    >>  "003"
 //   "123".padl(2, "0")  >>  "123"
@@ -1749,14 +1764,14 @@ padl: Func { val: Str, width: Number, char: Str, returns: Str }
 
 // Pad string to the right.  If size is less than width, then add
 // the given char to the left to acheive the specified with.
-// 
+//
 // Examples:
 //   "xyz".padr(2, ".")  >>  "xyz"
 //   "xyz".padr(5, "-")  >>  "xyz--"
 padr: Func { val: Str, width: Number, char: Str, returns: Str }
 
 // Concatenate a list of items into a string.
-// 
+//
 // Examples:
 //   [1, 2, 3].concat       >>  "123"
 //   [1, 2, 3].concat(",")  >>  "1,2,3"
@@ -1764,7 +1779,7 @@ concat: Func { list: List, sep: Str, returns: Str }
 
 // Return if regular expression matches entire region of 's'.
 // See [AxonUsage]`docHaxall::AxonUsage#regex`.
-// 
+//
 // Examples:
 //   reMatches(r"\d+", "x123y")  >>  false
 //   reMatches(r"\d+", "123")    >>  true
@@ -1773,7 +1788,7 @@ reMatches: Func { regex: Obj, s: Str, returns: Bool }
 // Find the first match of regular expression in 's'
 // or return null if no matches.
 // See [AxonUsage]`docHaxall::AxonUsage#regex`.
-// 
+//
 // Examples:
 //   reFind(r"\d+", "x123y")  >>  "123"
 //   reFind(r"\d+", "xyz")    >>  null
@@ -1781,7 +1796,7 @@ reFind: Func { regex: Obj, s: Str, returns: Str? }
 
 // Find all matches of the regular expression in 's'.
 // Returns an empty list of there are no matches.
-// 
+//
 // Examples:
 //   reFindAll(r"-?\d+\.?\d*", "foo, 123, bar, 456.78, -9, baz")
 //     >> ["123", "456.78", "-9"]
@@ -1794,7 +1809,7 @@ reFindAll: Func { regex: Obj, s: Str, returns: List }
 // first item in the list is the entire match, and each additional
 // item is matched to '()' arguments in the regex pattern.
 // See [AxonUsage]`docHaxall::AxonUsage#regex`.
-// 
+//
 // Examples:
 //   re: r"(RTU|AHU)-(\d+)"
 //   reGroups(re, "AHU")    >> null
@@ -1841,7 +1856,7 @@ uriPlusSlash: Func { val: Uri, returns: Uri }
 // Each section of the Uri is UTF-8 encoded into octects and then percent
 // encoded according to its valid character set. Spaces in the query
 // section are encoded as '+'.
-// 
+//
 // Examples:
 //   `foo bar`.uriEncode  >>  "foo%20bar"
 uriEncode: Func { val: Uri, returns: Str }
@@ -1853,7 +1868,7 @@ uriEncode: Func { val: Uri, returns: Str }
 // string is a malformed URI or if not encoded correctly, otherwise return
 // null.  Use `parseUri` to parse from standard form.  See `sys::Uri` for
 // a detailed discussion on standard and encoded forms.
-// 
+//
 // Examples:
 //   "foo bar".parseUri     >>  `foo bar`
 //   "foo%20bar".uriDecode  >>  `foo bar`
@@ -1868,7 +1883,7 @@ refDis: Func { ref: Ref, returns: Str }
 // Given an absolute ref, return its project name.  If the ref
 // is not formatted as "p:proj:r:xxx", then raise an exception or
 // return null based on the checked flag:
-// 
+//
 // Examples:
 //    refProjName(@p:demo:r:xxx)   >>  "demo"
 //    refProjName(@r:xxx)          >>  raises exception
@@ -1900,7 +1915,7 @@ dump: Func <nodoc, admin> { x: Obj?, returns: Obj? }
 // Evaluate an Axon string expression.  The evaluation happens in a new
 // scope and does not have access to the current scope of local variables.
 // Also see `call()` and `toAxonCode()`.
-// 
+//
 // Examples:
 //   eval("2 + 2")
 //   eval("now()")
@@ -1912,7 +1927,7 @@ eval: Func { expr: Str, returns: Obj? }
 // does not evaluate to a function. Note this call does evalute the
 // given expression in the runtime, so it must be used with caution - never
 // use it with a string from a non-trusted origin.
-// 
+//
 // Examples:
 //   evalToFunc("now").call
 //   evalToFunc("(x, y)=>x+y").call([3, 4])
@@ -1926,7 +1941,7 @@ evalOrReadAll: Func <nodoc> { expr: Str, returns: Obj? }
 // Reflectively call a function with the given arguments.  The func
 // may be a Str name or an expression that evaluates to a function.
 // Args is a positional list for each argument.  Examples:
-// 
+//
 //   call("today")
 //   call("replace", ["hi there", "hi", "hello"])
 //   call("parseDate", ["2021-03-15"])
@@ -1937,7 +1952,7 @@ call: Func { func: Obj, args: List?, returns: Obj? }
 
 // Convert a scalar, list, or dict value to its Axon code representation.
 // Examples:
-// 
+//
 //   toAxonCode(123)        =>   "123"
 //   toAxonCode([1, 2, 3])  =>   "[1, 2, 3]"
 //   toAxonCode({x:123})    =>   "{x:123}"
@@ -1946,12 +1961,12 @@ toAxonCode: Func { val: Obj?, returns: Obj? }
 // Parse Axon source code into an abstract syntax tree modeled as a
 // tree of dicts.  Each node has a 'type' tag which specified the node type.
 // Common AST shapes:
-// 
+//
 //    123    =>  {type:"literal", val:123}
 //    a      =>  {type:"var", name:"a"}
 //    not a  =>  {type:"not", operand:{type:"var", name:"a"}}
 //    a + b  =>  {type:"add", lhs:{type:"var", name:"a"}, rhs:{type:"var", name:"b"}}
-// 
+//
 // NOTE: the keys and structure of the AST is subject to change over time.
 parseAst: Func { src: Str, returns: Dict }
 
@@ -1966,3 +1981,4 @@ traceToGrid: Func <nodoc, admin> { opts: Dict?, returns: Grid }
 // then return an empty grid.  If there are errors then return a grid
 // with the "err" tag and a "line" and "dis" column for each error found.
 checkSyntax: Func <nodoc> { src: Str, returns: Grid }
+

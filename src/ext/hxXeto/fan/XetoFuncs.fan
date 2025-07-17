@@ -477,26 +477,6 @@ const class XetoFuncs
   }
 
   **
-  ** Return if the given instance inherits from the spec via nominal
-  ** typing.  Use `specIs()` to check nominal typing between two types.
-  ** Also see `fits()` and `specFits()` to check via structural typing.
-  **
-  ** Note that dict values will only match the generic 'sys.Dict'
-  ** type.  Use `fits()` for structural type matching.
-  **
-  ** Examples:
-  **   is("hi", Str)       >>  true
-  **   is("hi", Dict)      >>  false
-  **   is({}, Dict)        >>  true
-  **   is({equip}, Equip)  >>  false
-  **   is(Str, Spec)       >>  true
-  **
-  @Api @Axon static Bool _is(Obj? val, Spec spec)
-  {
-    curContext.ns.specOf(val).isa(spec)
-  }
-
-  **
   ** Given a choice spec, return the most specific choice subtype
   ** implemented by the instance.  If the instance implements zero or more
   ** than one subtype of the choice, then return null or raise an exception

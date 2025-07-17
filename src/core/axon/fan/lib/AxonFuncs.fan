@@ -1975,6 +1975,26 @@ const class AxonFuncs
 // Defs
 //////////////////////////////////////////////////////////////////////////
 
+  **
+  ** Return if the given instance inherits from the spec via nominal
+  ** typing.  Also see `fits()` and `specFits()` to check via structural
+  ** typing.
+  **
+  ** Note that dict values will only match the generic 'sys.Dict'
+  ** type.  Use `fits()` for structural type matching.
+  **
+  ** Examples:
+  **   is("hi", Str)       >>  true
+  **   is("hi", Dict)      >>  false
+  **   is({}, Dict)        >>  true
+  **   is({equip}, Equip)  >>  false
+  **   is(Str, Spec)       >>  true
+  **
+  @Api @Axon static Bool _is(Obj? val, Spec spec)
+  {
+    AxonContext.curAxon.ns.specOf(val).isa(spec)
+  }
+
   ** Lookup a def by its symbol name (Str or Symbol).  If not
   ** found return null or raise UnknownDefErr based on checked flag.
   ** The result is returned as the definition's normalized dict
