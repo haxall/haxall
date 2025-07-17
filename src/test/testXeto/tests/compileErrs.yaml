@@ -133,19 +133,19 @@ verifyErrs: |
 ---
 name: "reservedInstanceNames"
 compileLib: |
-  @index: {}
+  @toc: {}
   @pragma: {}
   @doc-overview: {}
 verifyErrs: |
-  Instance name 'index' is reserved
+  Instance name 'toc' is reserved
   Instance name 'pragma' is reserved
   Instance name 'doc-overview' is reserved
 ---
 name: "reservedSpecNames"
 compileLib: |
-  index: Dict
+  toc: Dict
 verifyErrs: |
-  Spec name 'index' is reserved
+  Spec name 'toc' is reserved
 ---
 name: "dupTops"
 compileLib: |
