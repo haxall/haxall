@@ -19,10 +19,16 @@ using hx
 **
 internal const class HttpRootMod : WebMod
 {
-  new make(HttpExt ext) { this.sys = ext.sys; this.ext = ext }
+  new make(HttpExt ext)
+  {
+    this.sys = ext.sys
+    this.ext = ext
+    this.indexRedirectUri = sys.config.get("httpIndexRedirectUri") as Uri ?: `/shell`
+  }
 
   const Sys sys
   const HttpExt ext
+  const Uri indexRedirectUri
 
   override Void onService()
   {
@@ -35,8 +41,8 @@ internal const class HttpRootMod : WebMod
     // if name is empty, redirect
     if (routeName.isEmpty)
     {
-      // redirect to shell as the built-in UI
-      return res.redirect(`/shell`)
+      // redirect configured index redirect
+      return res.redirect(indexRedirectUri)
     }
 
     // TODO
