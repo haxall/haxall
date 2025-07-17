@@ -34,7 +34,7 @@ const class HxFuncs
   **   read(chiller)              // raise exception if no recs with chiller tag
   **   read(chiller, false)       // return null if no recs with chiller tag
   **
-  @Axon
+  @Api @Axon
   static Dict? read(Expr filterExpr, Expr checked := Literal.trueVal)
   {
     cx := curContext
@@ -56,7 +56,7 @@ const class HxFuncs
   **    readById(id)                          // read using variable
   **    readById(equip->siteRef)              // read from ref tag
   **
-  @Axon
+  @Api @Axon
   static Dict? readById(Ref? id, Bool checked := true)
   {
     curContext.db.readById(id ?: Ref.nullRef, checked)
@@ -64,7 +64,7 @@ const class HxFuncs
 
   ** Given record id, read only the persistent tags from Folio.
   ** Also see `readByIdTransientTags` and `readById`.
-  @Axon
+  @Api @Axon
   static Dict? readByIdPersistentTags(Ref id, Bool checked := true)
   {
     curContext.db.readByIdPersistentTags(id, checked)
@@ -72,7 +72,7 @@ const class HxFuncs
 
   ** Given record id, read only the transient tags from Folio.
   ** Also see `readByIdPersistentTags` and `readById`.
-  @Axon
+  @Api @Axon
   static Dict? readByIdTransientTags(Ref id, Bool checked := true)
   {
     curContext.db.readByIdTransientTags(id, checked)
@@ -81,7 +81,7 @@ const class HxFuncs
   ** Read a record Dict by its id for hyperlinking in a UI.  Unlike other
   ** reads which return a Dict, this read returns the columns ordered in
   ** the same order as reads which return a Grid.
-  @Axon
+  @Api @Axon
   static Dict? readLink(Ref? id)
   {
     cx := curContext
@@ -113,7 +113,7 @@ const class HxFuncs
   **   // return null for a given id if it does not exist
   **   readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a], false)
   **
-  @Axon
+  @Api @Axon
   static Grid readByIds(Ref[] ids, Bool checked := true)
   {
     curContext.db.readByIds(ids, checked)
@@ -134,7 +134,7 @@ const class HxFuncs
   **   readAll(equip, {limit:10})         // read up to ten equips
   **   readAll(equip, {sort})             // read all equip sorted by dis
   **
-  @Axon
+  @Api @Axon
   static Grid readAll(Expr filterExpr, Expr? optsExpr := null)
   {
     cx := curContext
@@ -146,7 +146,7 @@ const class HxFuncs
   ** Read a list of ids as a stream of Dict records.
   ** If checked if false, then records not found are skipped.
   ** See `docHaxall::Streams#readByIdsStream`.
-  @Axon
+  @Api @Axon
   static Obj readByIdsStream(Ref[] ids, Bool checked := true)
   {
     ReadByIdsStream(ids, checked)
@@ -154,7 +154,7 @@ const class HxFuncs
 
   ** Reall all records which match filter as stream of Dict records.
   ** See `docHaxall::Streams#readAllStream`.
-  @Axon
+  @Api @Axon
   static Obj readAllStream(Expr filterExpr)
   {
     cx := curContext
@@ -175,7 +175,7 @@ const class HxFuncs
   **   // read statistics on all tags used by equip recs
   **   readAllTagNames(equip)
   **
-  @Axon
+  @Api @Axon
   static Grid readAllTagNames(Expr filterExpr)
   {
     cx := curContext
@@ -194,7 +194,7 @@ const class HxFuncs
   **   // read grid of all unique point unit tags
   **   readAllTagVals(point, "unit")
   **
-  @Axon
+  @Api @Axon
   static Grid readAllTagVals(Expr filterExpr, Expr tagName)
   {
     cx := curContext
@@ -210,7 +210,7 @@ const class HxFuncs
   ** Examples:
   **   readCount(point)    // return number of recs with point tag
   **
-  @Axon
+  @Api @Axon
   static Number readCount(Expr filterExpr)
   {
     cx := curContext
@@ -222,7 +222,7 @@ const class HxFuncs
   **   - Ref returns itself
   **   - Row or Dict, return 'id' tag
   **   - Grid return first row id
-  @Axon
+  @Api @Axon
   static Ref toRecId(Obj? val) { Etc.toId(val) }
 
   ** Coerce a value to a list of Ref identifiers:
@@ -231,7 +231,7 @@ const class HxFuncs
   **   - Dict return 'id' tag
   **   - Dict[] return 'id' tags
   **   - Grid return 'id' column
-  @Axon
+  @Api @Axon
   static Ref[] toRecIdList(Obj? val) { Etc.toIds(val) }
 
   ** Coerce a value to a record Dict:
@@ -239,7 +239,7 @@ const class HxFuncs
   **   - Grid returns first row
   **   - List returns first row (can be either Ref or Dict)
   **   - Ref will make a call to read database
-  @Axon
+  @Api @Axon
   static Dict toRec(Obj? val) { Etc.toRec(val) }
 
   ** Coerce a value to a list of record Dicts:
@@ -248,7 +248,7 @@ const class HxFuncs
   **   - Row or Row[] returns itself
   **   - Dict or Dict[] returns itself
   **   - Grid is mapped to list of rows
-  @Axon
+  @Api @Axon
   static Dict[] toRecList(Obj? val) { Etc.toRecs(val) }
 
 //////////////////////////////////////////////////////////////////////////
@@ -284,7 +284,7 @@ const class HxFuncs
   **    // set/add val tag transiently
   **    diff(orig, {val:123}, {transient})
   **
-  @Axon
+  @Api @Axon
   static Diff diff(Dict? orig, Dict? changes, Dict? flags := null)
   {
     // strip null values (occurs when grid rows are used)
@@ -334,7 +334,7 @@ const class HxFuncs
   **   // add someTag to some group of records
   **   readAll(filter).toRecList.map(r => diff(r, {someTag})).commit
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? commit(Obj diffs)
   {
     if (diffs is MStream) return CommitStream(diffs).run
@@ -364,7 +364,7 @@ const class HxFuncs
   ** passwordSet(@abc-123, "password")
   ** passwordSet(@abc-123, null)
   ** <pre
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Void passwordSet(Obj key, Str? val)
   {
     // extra security check just to be sure!
@@ -392,7 +392,7 @@ const class HxFuncs
   **
   **   // strip uncommittable tags, but keep id and mod
   **   toCommit: rec.stripUncommittable({mod})
-  @Axon
+  @Api @Axon
   static Obj stripUncommittable(Obj val, Obj? opts := null)
   {
     opts = Etc.makeDict(opts)
@@ -407,7 +407,7 @@ const class HxFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Return `hx::Proj.isSteadyState`
-  @Axon
+  @Api @Axon
   static Bool isSteadyState()
   {
     curContext.rt.isSteadyState
@@ -418,7 +418,7 @@ const class HxFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Reload all the xeto libraries in project
-  @Axon { su = true }
+  @Api @Axon { su = true }
   static Obj? libReload()
   {
     cx := Context.cur
@@ -434,7 +434,7 @@ const class HxFuncs
   **  - name: library name string
   **  - libStatus: status enumeration string
   **  - other cols subject to change
-  @Axon
+  @Api @Axon
   static Grid libStatus(Dict? opts := null)
   {
     curContext.proj.libs.status(opts)
@@ -443,7 +443,7 @@ const class HxFuncs
   ** Enable one or more Xeto libs by name:
   **   libAdd("ph.points")
   **   libAdd(["ph.points", "ph.equips"])
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj libAdd(Obj names)
   {
     if (names is Str) names = Str[names]
@@ -455,7 +455,7 @@ const class HxFuncs
   ** Disable or more Xeto libs by name:
   **   libRemove("ph.points")
   **   libRemove(["ph.points", "ph.equips"])
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj libRemove(Obj names)
   {
     if (names is Str) names = Str[names]
@@ -473,14 +473,14 @@ const class HxFuncs
   **  - name: library name of extension
   **  - extStatus: status enumeration string
   **  - other cols subject to change
-  @Axon
+  @Api @Axon
   static Grid extStatus()
   {
     curContext.proj.exts.status
   }
 
   ** Report installed web routes as grid
-  @NoDoc @Axon
+  @NoDoc @Api @Axon
   static Grid extWebRoutes()
   {
     routes := curContext.proj.exts.webRoutes
@@ -496,7 +496,7 @@ const class HxFuncs
 
   ** Read source code for a project level spec by name:
   **   projSpecRead("MySpec")
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Str? projSpecRead(Str name, Bool checked := true)
   {
     curContext.rt.specs.read(name, checked)
@@ -504,7 +504,7 @@ const class HxFuncs
 
   ** Add a project level spec by name and update namespace:
   **   projSpecAdd("MySpec", "Dict { dis: Str }")
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj projSpecAdd(Str name, Str body)
   {
     curContext.rt.specs.add(name, body)
@@ -512,7 +512,7 @@ const class HxFuncs
 
   ** Update a project level spec by name and update namespace:
   **   projSpecUpdate("MySpec", "Dict { dis: Str }")
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj projSpecUpdate(Str name, Str body)
   {
     curContext.rt.specs.update(name, body)
@@ -520,7 +520,7 @@ const class HxFuncs
 
   ** Rename a project level spec and update namespace:
   **   projSpecRename("OldName", "NewName")
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj projSpecRename(Str oldName, Str newName)
   {
     curContext.rt.specs.rename(oldName, newName)
@@ -528,7 +528,7 @@ const class HxFuncs
 
   ** Remove a project level spec by name and update namespace:
   **   projSpecRemove("MySpec")
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj projSpecRemove(Str name)
   {
     curContext.rt.specs.remove(name)
@@ -540,7 +540,7 @@ const class HxFuncs
 //////////////////////////////////////////////////////////////////////////
 
   // Return grid of observables registered in current project
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Grid observables()
   {
     cx := curContext
@@ -555,7 +555,7 @@ const class HxFuncs
   }
 
   // Return grid of observable subscriptions in current project
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Grid subscriptions()
   {
     cx := curContext
@@ -577,7 +577,7 @@ const class HxFuncs
 
   ** Return if given record is under at least one watch.
   ** The rec argument can be any value accepted by `toRecId()`.
-  @Axon static Bool isWatched(Obj rec)
+  @Api @Axon static Bool isWatched(Obj rec)
   {
     curContext.rt.watch.isWatched(Etc.toId(rec))
   }
@@ -589,7 +589,7 @@ const class HxFuncs
   **
   ** Example:
   **   readAll(myPoints).watchOpen("MyApp|Points")
-  @Axon
+  @Api @Axon
   static Grid watchOpen(Grid grid, Str dis)
   {
     cx := curContext
@@ -601,7 +601,7 @@ const class HxFuncs
   ** Poll an open watch and return all the records which have changed
   ** since the last poll.  Raise exception if watchId doesn't exist
   ** or has expired.  Also see `hx::HxWatch.poll` and `docHaxall::Watches#axon`.
-  @Axon
+  @Api @Axon
   static Grid watchPoll(Obj watchId)
   {
     // if Haystack API, extract args
@@ -621,7 +621,7 @@ const class HxFuncs
   }
 
   ** Add a grid of recs to an existing watch and return the grid passed in.
-  @Axon
+  @Api @Axon
   static Grid watchAdd(Str watchId, Grid grid)
   {
     cx := curContext
@@ -631,7 +631,7 @@ const class HxFuncs
   }
 
   ** Remove a grid of recs from an existing watch and return grid passed in.
-  @Axon
+  @Api @Axon
   static Grid watchRemove(Str watchId, Grid grid)
   {
     cx := curContext
@@ -643,7 +643,7 @@ const class HxFuncs
   ** Close an open watch by id.  If the watch does not exist or
   ** has expired then this is a no op.  Also see `hx::HxWatch.close`
   ** and `docHaxall::Watches#axon`.
-  @Axon
+  @Api @Axon
   static Obj? watchClose(Str watchId)
   {
     curContext.rt.watch.get(watchId, false)?.close
@@ -655,7 +655,7 @@ const class HxFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Return [about]`op:about` dict
-  @Axon
+  @Api @Axon
   static Dict about() { curContext.about }
 
   ** Get the current context as a Dict with the following tags:
@@ -668,30 +668,30 @@ const class HxFuncs
   **   - 'nodeId' local cluster node id
   **   - 'ruleRef' if evaluating in context of a rule engine
   **   - 'ruleTuning' if evaluating in context of rule engine
-  @Axon
+  @Api @Axon
   static Dict context() { curContext.toDict }
 
   ** Return list of installed Fantom pods
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid pods() { HxUtil.pods }
 
   ** Return the installed timezone database as Grid with following columns:
   **   - name: name of the timezone
   **   - fullName: qualified name used by Olson database
-  @Axon
+  @Api @Axon
   static Grid tzdb() { HxUtil.tzdb }
 
   ** Return the installed unit database as Grid with following columns:
   **   - quantity: dimension of the unit
   **   - name: full name of the unit
   **   - symbol: the abbreviated Unicode name of the unit
-  @Axon
+  @Api @Axon
   static Grid unitdb() { HxUtil.unitdb }
 
-  //@Axon Str diagnostics() { ((Int)Env.cur.diagnostics["mem.heap"]).toLocale("B") }
+  //@Api @Axon Str diagnostics() { ((Int)Env.cur.diagnostics["mem.heap"]).toLocale("B") }
 
   ** Debug dump of all threads
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Str threadDump() { HxUtil.threadDumpAll }
 
   ** Get current context

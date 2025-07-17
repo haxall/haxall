@@ -318,12 +318,9 @@ const class PodBindingLoader : SpecBindingLoader
     if (method == null) return null
 
     // verify method has facet
-    if (!method.hasFacet(axonFacetType)) throw Err("Method missing @Api facet: $method.qname")
+    if (!method.hasFacet(Api#)) throw Err("Method missing @Api facet: $method.qname")
     return StaticMethodThunk(method)
   }
-
-// TODO: facet for check
-once Type axonFacetType() { Type.find("axon::Axon") }
 }
 
 **************************************************************************
