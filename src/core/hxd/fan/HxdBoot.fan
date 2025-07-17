@@ -42,6 +42,7 @@ class HxdBoot : HxBoot
       "hxd.proj",
       "hx.http",
       "hx.user",
+      "hx.xeto",
     ]
   }
 

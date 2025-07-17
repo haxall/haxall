@@ -98,6 +98,7 @@ class AFunc
       else if (name == "val") type = Obj?#
       else if (name == "locale") type = Str#
       else if (name == "expr") type = Obj?#
+      else if (name == "scope") type = Obj?#
       else echo("WARN: unhandled lazy param: $method $name")
     }
 
