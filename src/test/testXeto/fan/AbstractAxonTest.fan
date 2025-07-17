@@ -52,22 +52,6 @@ abstract class AbstractAxonTest : HxTest
     verifySame(x, xns.type(qname))
   }
 
-  Void verifyEvalErr(Str expr, Type? errType)
-  {
-    EvalErr? err := null
-    try { eval(expr) } catch (EvalErr e) { err = e }
-    if (err == null) fail("EvalErr not thrown: $expr")
-    if (errType == null)
-    {
-      verifyNull(err.cause)
-    }
-    else
-    {
-      if (err.cause == null) fail("EvalErr.cause is null: $expr")
-      verifyErr(errType) { throw err.cause }
-    }
-  }
-
   Obj? toHay(Obj? x)
   {
     XetoUtil.toHaystack(x)

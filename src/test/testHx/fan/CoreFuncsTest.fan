@@ -773,24 +773,6 @@ throw Err("TODO")
     return actual
   }
 
-  Void verifyEvalErr(Str axon, Type? errType)
-  {
-    expr := Parser(Loc.eval, axon.in).parse
-    cx := makeContext
-    EvalErr? err := null
-    try { expr.eval(cx) } catch (EvalErr e) { err = e }
-    if (err == null) fail("EvalErr not thrown: $axon")
-    if (errType == null)
-    {
-      verifyNull(err.cause)
-    }
-    else
-    {
-      if (err.cause == null) fail("EvalErr.cause is null: $axon")
-      ((Test)this).verifyErr(errType) { throw err.cause }
-    }
-  }
-
   Void verifyDiffEq(Diff a, Diff b)
   {
     a.typeof.fields.each |f|

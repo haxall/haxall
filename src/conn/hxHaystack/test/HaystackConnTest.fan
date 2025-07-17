@@ -662,24 +662,5 @@ class HaystackConnTest : HxTest
   {
     DateTime(y, Month.vals[m-1], d, h, min, 0, 0, tz)
   }
-
-  Void verifyEvalErr(Str axon, Type? errType)
-  {
-    expr := Parser(Loc.eval, axon.in).parse
-    scope := makeContext
-    EvalErr? err := null
-    try { expr.eval(scope) } catch (EvalErr e) { err = e }
-    if (err == null) fail("EvalErr not thrown: $axon")
-    if (errType == null)
-    {
-      verifyNull(err.cause)
-    }
-    else
-    {
-      if (err.cause == null) fail("EvalErr.cause is null: $axon")
-      ((Test)this).verifyErr(errType) { throw err.cause }
-    }
-  }
-
 }
 

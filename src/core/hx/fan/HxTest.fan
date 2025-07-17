@@ -10,6 +10,7 @@ using concurrent
 using xeto
 using haystack
 using folio
+using axon
 
 **
 ** HxTest is a base class for writing Haxall tests which provide
@@ -44,6 +45,13 @@ abstract class HxTest : HaystackTest
     Actor.locals.remove(ActorContext.actorLocalsKey)
     if (projRef != null) projStop
     tempDir.delete
+  }
+
+
+  ** Setup actor local for context
+  @NoDoc Void setupContext(Context? cx := null)
+  {
+    Actor.locals[Context.actorLocalsKey] = cx ?: makeContext
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -201,6 +209,25 @@ abstract class HxTest : HaystackTest
 
   ** Evaluate axon expression to a Grid
   @NoDoc Grid evalToGrid(Str axon) { eval(axon) }
+
+  ** Verfiy evaluation raises given error type (wrapped by EvalErr)
+  @NoDoc Void verifyEvalErr(Str axon, Type? errType)
+  {
+    expr := Parser(Loc.eval, axon.in).parse
+    cx := makeContext
+    EvalErr? err := null
+    try { expr.eval(cx) } catch (EvalErr e) { err = e }
+    if (err == null) fail("EvalErr not thrown: $axon")
+    if (errType == null)
+    {
+      verifyNull(err.cause)
+    }
+    else
+    {
+      if (err.cause == null) fail("EvalErr.cause is null: $axon")
+      ((Test)this).verifyErr(errType) { throw err.cause }
+    }
+  }
 }
 
 **************************************************************************

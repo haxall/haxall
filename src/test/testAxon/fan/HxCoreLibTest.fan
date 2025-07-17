@@ -206,25 +206,6 @@ class HxCoreLibTest : HxTest
     return actual
   }
 
-
-  @NoDoc Void verifyEvalErr(Str axon, Type? errType)
-  {
-    expr := Parser(Loc.eval, axon.in).parse
-    scope := makeContext
-    EvalErr? err := null
-    try { expr.eval(scope) } catch (EvalErr e) { err = e }
-    if (err == null) fail("EvalErr not thrown: $axon")
-    if (errType == null)
-    {
-      verifyNull(err.cause)
-    }
-    else
-    {
-      if (err.cause == null) fail("EvalErr.cause is null: $axon")
-      ((Test)this).verifyErr(errType) { throw err.cause }
-    }
-  }
-
   Dict addFuncRec(Str name, Str src, Str:Obj? tags := Str:Obj?[:])
   {
     tags["def"] = Symbol("func:$name")
