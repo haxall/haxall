@@ -559,7 +559,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
     acc := unqualifiedGlobals(name)
     if (acc.size == 1) return acc[0]
     if (acc.size > 1) throw AmbiguousSpecErr("Ambiguous global for '$name' $acc")
-    if (checked) throw UnknownTypeErr(name)
+    if (checked) throw UnknownSpecErr(name)
     return null
   }
 
@@ -581,7 +581,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
     entry := map[name]
     if (entry != null)
       return entry as Spec ?:throw AmbiguousSpecErr("Ambiguous func for '$name' $entry")
-    if (checked) throw UnknownSpecErr(name)
+    if (checked) throw UnknownFuncErr(name)
     return null
   }
 

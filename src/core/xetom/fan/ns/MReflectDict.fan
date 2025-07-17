@@ -54,7 +54,7 @@ const class MReflectDict : ReflectDict
     tags.each |v, n|
     {
       slotSpec := recSpec.slot(n, false)
-      if (slotSpec == null) slotSpec = ns.global(n, false)
+      if (slotSpec == null) slotSpec = ns.unqualifiedGlobal(n, false)
       if (slotSpec == null) slotSpec = ns.specOf(v, false)
       if (slotSpec == null) slotSpec = ns.spec("sys::Obj")
       acc[n] = MReflectSlot(n, slotSpec, v)

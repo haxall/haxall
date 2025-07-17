@@ -96,6 +96,19 @@ const final class MLib
     return null
   }
 
+  once Spec[] funcs()
+  {
+    specs.findAll |x| { x.isFunc }.toImmutable
+  }
+
+  Spec? func(Str name, Bool checked := true)
+  {
+    top := spec(name, checked)
+    if (top != null && top.isFunc) return top
+    if (checked) throw UnknownSpecErr(this.name + "::" + name)
+    return null
+  }
+
   once Spec[] metaSpecs()
   {
     specs.findAll |x| { x.isMeta }.toImmutable
@@ -249,6 +262,10 @@ const final class XetoLib : Lib, Dict
   override Spec[] globals() { m.globals }
 
   override Spec? global(Str name, Bool checked := true) { m.global(name, checked) }
+
+  override Spec[] funcs() { m.funcs }
+
+  override Spec? func(Str name, Bool checked := true) { m.func(name, checked) }
 
   override Spec[] metaSpecs() { m.metaSpecs }
 

@@ -18,6 +18,9 @@ enum class SpecFlavor
   ** Top level global slot spec
   global,
 
+  ** Top level function spec
+  func,
+
   ** Top level meta spec
   meta,
 
@@ -29,6 +32,9 @@ enum class SpecFlavor
 
   ** Is this the global flavor
   Bool isGlobal() { this === global }
+
+  ** Is this the func flavor
+  Bool isFunc() { this === func }
 
   ** Is this the meta flavor
   Bool isMeta() { this === meta }
