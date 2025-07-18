@@ -36,9 +36,9 @@ const class HxProjLibs : ProjLibs
     this.specsRef = HxProjSpecs(this)
   }
 
-  internal Void init()
+  internal HxNamespace init()
   {
-    doReload(readProjLibNames)
+    return doReload(readProjLibNames)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ const class HxProjLibs : ProjLibs
   {
     lib := map[name]
     if (lib != null) return lib
-    if (checked) throw UnknownExtErr(name)
+    if (checked) throw UnknownLibErr(name)
     return null
   }
   internal Str:HxProjLib map() { mapRef.val }
@@ -119,7 +119,6 @@ const class HxProjLibs : ProjLibs
       pxName,
       ProjLibBasis.projBoot.name,
       ns.libStatus(pxName)?.toStr ?: "err",
-      null,
       pxVer?.version?.toStr,
       pxVer?.doc,
       specs.libErrMsg,
@@ -215,7 +214,7 @@ const class HxProjLibs : ProjLibs
     }
 
     // check depends, reload ns, save libs.txt
-    reloadNewProjLibs(allVers, newProjLibs)
+    updateProjLibs(allVers, newProjLibs)
   }
 
   private Void doRemove(Str[] names)
@@ -244,10 +243,10 @@ const class HxProjLibs : ProjLibs
     }
 
     // check depends, reload ns, save libs.txt
-    reloadNewProjLibs(allVers, newProjLibs)
+    updateProjLibs(allVers, newProjLibs)
   }
 
-  private Void reloadNewProjLibs(Str:LibVersion allVers, Str:Str newProjLibNameMap)
+  private Void updateProjLibs(Str:LibVersion allVers, Str:Str newProjLibNameMap)
   {
     // verify that the new all LibVersions have met depends
     vers := allVers.vals
@@ -255,10 +254,13 @@ const class HxProjLibs : ProjLibs
 
     // now we are ready, rebuild our projLibNames list
     newProjLibNames := newProjLibNameMap.vals.sort
-    doReload(newProjLibNames)
+    ns := doReload(newProjLibNames)
 
     // update our libs.txt file
     writeProjLibNames(newProjLibNames)
+
+    // notify project
+    this.proj.onLibsModified(ns)
   }
 
   private Str:Str checkDupNames(Str[] names)
@@ -301,7 +303,7 @@ const class HxProjLibs : ProjLibs
 // Reload
 //////////////////////////////////////////////////////////////////////////
 
-  private Void doReload(Str[] projLibNames)
+  private HxNamespace doReload(Str[] projLibNames)
   {
     // first find an installed LibVersion for each lib
     vers := Str:LibVersion[:]
@@ -370,9 +372,7 @@ const class HxProjLibs : ProjLibs
     this.nsRef.val = ns
     this.mapRef.val = acc.toImmutable
     this.projLibNamesRef.val = projLibNames.toImmutable
-
-    // notify project
-    this.proj.onLibsModified
+    return ns
   }
 
   // updated by reload

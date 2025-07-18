@@ -15,7 +15,7 @@ using hx
 **
 ** HxBackgroundMgr
 **
-internal const class HxBackgroundMgr : Actor
+const class HxBackgroundMgr : Actor
 {
 
   new make(HxProj proj) : super(proj.hxdActorPool)

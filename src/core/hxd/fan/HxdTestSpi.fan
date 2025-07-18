@@ -76,8 +76,7 @@ throw Err("TODO")
 
   override Void forceSteadyState(Proj rt)
   {
-throw Err("TODO")
-//    ((HxProj)test.rt).backgroundMgr.forceSteadyState
+    ((HxProj)test.proj).backgroundMgr.forceSteadyState
   }
 }
 

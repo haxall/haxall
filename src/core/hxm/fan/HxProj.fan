@@ -54,8 +54,8 @@ abstract const class HxProj : Proj
     inited.val = true
 
     // initialize
-    libsRef.init
-    extsRef.init
+    ns := libsRef.init
+    extsRef.init(ns)
     obsRef.init
     return this
   }
@@ -135,7 +135,7 @@ abstract const class HxProj : Proj
     }
     return overlay
   }
-  internal Void nsBaseRecompile() { this.nsBaseRef.val = null; this.nsOverlayRef.val = null }
+  internal Void defsRecompile() { this.nsBaseRef.val = null; this.nsOverlayRef.val = null }
   internal Void nsOverlayRecompile() { this.nsOverlayRef.val = null }
   private const AtomicRef nsBaseRef := AtomicRef()    // base from installed libs
   private const AtomicRef nsOverlayRef := AtomicRef() // rec overlay
@@ -159,7 +159,7 @@ abstract const class HxProj : Proj
   }
 
   ** Background tasks
-  internal const HxBackgroundMgr backgroundMgr
+  const HxBackgroundMgr backgroundMgr
 
   ** Logging
   override const Log log
@@ -266,10 +266,10 @@ abstract const class HxProj : Proj
 //////////////////////////////////////////////////////////////////////////
 
   ** Called when the libs are modified
-  virtual Void onLibsModified()
+  virtual Void onLibsModified(HxNamespace ns)
   {
-log.info("TODO: libs are modified!")
-    nsBaseRecompile
+    extsRef.onLibsModified(ns)
+    defsRecompile
   }
 
   ** Cache for ion project cache

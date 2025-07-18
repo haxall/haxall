@@ -163,6 +163,43 @@ echo("#")
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Meta
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj { meta =
+    Str<|dis: "My Test"
+         steadyState: 100ms
+         fooBar|> }
+  Void testMeta()
+  {
+    // verify test setup with meta data correctly
+    rec := rt.db.read(Filter("projMeta"))
+    meta := rt.meta
+    verifySame(rt.meta, meta)
+    verifyEq(meta.id, rec.id)
+    verifyEq(meta->dis, "My Test")
+    verifyEq(meta->steadyState, n(100, "ms"))
+    verifyEq(meta->fooBar, m)
+
+    // verify changes to meta
+    rec = commit(rec, ["dis":"New Dis", "newTag":"!"])
+    verifyNotSame(rt.meta, meta)
+    meta = rt.meta
+    verifyEq(meta->dis, "New Dis")
+    verifyEq(meta->newTag, "!")
+
+    // verify cannot remove/trash/add
+    verifyErr(DiffErr#) { addRec(["dis":"Another one", "projMeta":m]) }
+    verifyErr(DiffErr#) { commit(rec, ["projMeta":Remove.val]) }
+    verifyErr(CommitErr#) { commit(rec, null, Diff.remove) }
+    verifyErr(CommitErr#) { commit(rec, ["trash":m]) }
+
+    // verify steady state timer
+    verifyEq(rt.isSteadyState, false)
+    Actor.sleep(150ms)
+    verifyEq(rt.isSteadyState, true)
+  }
+//////////////////////////////////////////////////////////////////////////
 // Axon
 //////////////////////////////////////////////////////////////////////////
 

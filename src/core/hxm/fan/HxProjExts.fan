@@ -90,25 +90,83 @@ const class HxProjExts : Actor, ProjExts
     return get(name)
   }
 
-  Void init()
+  Void init(HxNamespace ns)
   {
     map := Str:Ext[:]
 
-    // walk all the namespace libs
-    ns := proj.ns
-    ns.libs.each |lib|
+    extLibs(ns).each |lib|
     {
-// TODO: skip sys libs that are system exts
-if (!proj.isSys)
-{
-  x := proj.sys.ns.lib(lib.name, false)
-  if (x != null) return
-}
       ext := HxExtSpi.instantiate(this, lib)
       if (ext != null) map.add(ext.name, ext)
     }
 
     update(map)
+  }
+
+  ** called when libs add/removed while holding HxProjLibs.locks
+  internal Void onLibsModified(HxNamespace ns)
+  {
+    oldMap   := map
+    newMap   := Str:Ext[:]
+    toRemove := oldMap.dup
+    toAdd    := Lib[,]
+
+    // walk thru new list of exts to keep/add/remove
+    extLibs(ns).each |lib|
+    {
+      name := lib.name
+      cur  := oldMap[name]
+      if (cur != null)
+      {
+        toRemove.remove(name)
+        newMap[name] = cur
+      }
+      else
+      {
+        toAdd.add(lib)
+      }
+    }
+
+    // add new ones
+    toAdd.each |lib| { newMap.addNotNull(lib.name, onAdded(lib)) }
+
+    // remove any left over
+    toRemove.each |ext| { onRemoved(ext) }
+
+    // update lookup tables
+    update(newMap)
+  }
+
+  private Ext? onAdded(Lib lib)
+  {
+    ext := HxExtSpi.instantiate(this, lib)
+    if (ext == null) return null
+    spi := (HxExtSpi)ext.spi
+    if (proj.isRunning)
+    {
+      spi.start
+      spi.ready
+      if (proj.isSteadyState) spi.steadyState
+    }
+    return ext
+  }
+
+  private Void onRemoved(Ext ext)
+  {
+    spi := (HxExtSpi)ext.spi
+    spi.unready
+    spi.stop
+  }
+
+  private Lib[] extLibs(HxNamespace ns)
+  {
+    // build map of libs that have ext defs I should use
+    ns.libs.findAll |lib|
+    {
+      if (lib.meta.missing("libExt")) return false
+      if (!proj.isSys && proj.sys.ns.hasLib(lib.name)) return false
+      return true
+    }
   }
 
   private Void update(Str:Ext map)
