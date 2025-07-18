@@ -24,7 +24,7 @@ const class MathFuncs
 //////////////////////////////////////////////////////////////////////////
 
   *** Return constant for pi: 3.141592653589793
-  @Axon static Number pi() { piVal }
+  @Api @Axon static Number pi() { piVal }
   private static const Number piVal := Number(Float.pi)
 
 //////////////////////////////////////////////////////////////////////////
@@ -33,34 +33,34 @@ const class MathFuncs
 
   ** Return the remainder or modulo of division: 'a % b'.
   ** Result has same unit as 'a'.
-  @Axon static Number remainder(Number a, Number b) { Number(a.toFloat % b.toFloat, a.unit) }
+  @Api @Axon static Number remainder(Number a, Number b) { Number(a.toFloat % b.toFloat, a.unit) }
 
   ** Return the smallest whole number greater than or equal to val.
   ** Result has same unit as 'val'.
-  @Axon static Number ceil(Number val) { Number(val.toFloat.ceil, val.unit) }
+  @Api @Axon static Number ceil(Number val) { Number(val.toFloat.ceil, val.unit) }
 
   ** Return the largest whole number less than or equal to val.
   ** Result has same unit as 'val'.
-  @Axon static Number floor(Number val) { Number(val.toFloat.floor, val.unit) }
+  @Api @Axon static Number floor(Number val) { Number(val.toFloat.floor, val.unit) }
 
   ** Returns the nearest whole number to val.
   ** Result has same unit as 'val'.
-  @Axon static Number round(Number val) { Number(val.toFloat.round, val.unit) }
+  @Api @Axon static Number round(Number val) { Number(val.toFloat.round, val.unit) }
 
   ** Return e raised to val.
-  @Axon static Number exp(Number val) { Number(val.toFloat.exp) }
+  @Api @Axon static Number exp(Number val) { Number(val.toFloat.exp) }
 
   ** Return natural logarithm to the base e of val.
-  @Axon static Number logE(Number val) { Number(val.toFloat.log) }
+  @Api @Axon static Number logE(Number val) { Number(val.toFloat.log) }
 
   ** Return base 10 logarithm of val.
-  @Axon static Number log10(Number val) { Number(val.toFloat.log10) }
+  @Api @Axon static Number log10(Number val) { Number(val.toFloat.log10) }
 
   ** Return val raised to the specified power.
-  @Axon static Number pow(Number val, Number exp) { Number(val.toFloat.pow(exp.toFloat)) }
+  @Api @Axon static Number pow(Number val, Number exp) { Number(val.toFloat.pow(exp.toFloat)) }
 
   ** Return square root of val.
-  @Axon static Number sqrt(Number val) { Number(val.toFloat.sqrt) }
+  @Api @Axon static Number sqrt(Number val) { Number(val.toFloat.sqrt) }
 
   ** Return random integer within given inclusive range.
   ** If range is null, then full range of representative
@@ -69,7 +69,7 @@ const class MathFuncs
   ** Examples:
   **    random()       // random num with no range
   **    random(0..100) // random num between 0 and 100
-  @Axon static Number random(Obj? range := null)
+  @Api @Axon static Number random(Obj? range := null)
   {
     r := range == null ?
          -2251799813685248..2251799813685248 :
@@ -82,62 +82,62 @@ const class MathFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** Bitwise not: '~a'
-  @Axon static Number bitNot(Number a) { Number.makeInt(a.toInt.not) }
+  @Api @Axon static Number bitNot(Number a) { Number.makeInt(a.toInt.not) }
 
   ** Bitwise and: 'a & b'
-  @Axon static Number bitAnd(Number a, Number b) { Number.makeInt(a.toInt.and(b.toInt)) }
+  @Api @Axon static Number bitAnd(Number a, Number b) { Number.makeInt(a.toInt.and(b.toInt)) }
 
   ** Bitwise or: 'a | b'
-  @Axon static Number bitOr(Number a, Number b) { Number.makeInt(a.toInt.or(b.toInt)) }
+  @Api @Axon static Number bitOr(Number a, Number b) { Number.makeInt(a.toInt.or(b.toInt)) }
 
   ** Bitwise xor: 'a ^ b'
-  @Axon static Number bitXor(Number a, Number b) { Number.makeInt(a.toInt.xor(b.toInt)) }
+  @Api @Axon static Number bitXor(Number a, Number b) { Number.makeInt(a.toInt.xor(b.toInt)) }
 
   ** Bitwise right shift: 'a >> b'
-  @Axon static Number bitShiftr(Number a, Number b) { Number.makeInt(a.toInt.shiftr(b.toInt)) }
+  @Api @Axon static Number bitShiftr(Number a, Number b) { Number.makeInt(a.toInt.shiftr(b.toInt)) }
 
   ** Bitwise left shift: 'a << b'
-  @Axon static Number bitShiftl(Number a, Number b) { Number.makeInt(a.toInt.shiftl(b.toInt)) }
+  @Api @Axon static Number bitShiftl(Number a, Number b) { Number.makeInt(a.toInt.shiftl(b.toInt)) }
 
 //////////////////////////////////////////////////////////////////////////
 // Trig
 //////////////////////////////////////////////////////////////////////////
 
   ** Return the arc cosine.
-  @Axon static Number acos(Number val) { Number(val.toFloat.acos) }
+  @Api @Axon static Number acos(Number val) { Number(val.toFloat.acos) }
 
   ** Return the arc sine.
-  @Axon static Number asin(Number val) { Number(val.toFloat.asin) }
+  @Api @Axon static Number asin(Number val) { Number(val.toFloat.asin) }
 
   ** Return the arc tangent.
-  @Axon static Number atan(Number val) { Number(val.toFloat.atan) }
+  @Api @Axon static Number atan(Number val) { Number(val.toFloat.atan) }
 
   ** Converts rectangular coordinates (x, y) to polar (r, theta).
-  @Axon static Number atan2(Number y, Number x) { Number(Float.atan2(y.toFloat, x.toFloat)) }
+  @Api @Axon static Number atan2(Number y, Number x) { Number(Float.atan2(y.toFloat, x.toFloat)) }
 
   ** Return the cosine of angle in radians.
-  @Axon static Number cos(Number val) { Number(val.toFloat.cos) }
+  @Api @Axon static Number cos(Number val) { Number(val.toFloat.cos) }
 
   ** Return the hyperbolic cosine.
-  @Axon static Number cosh(Number val) { Number(val.toFloat.cosh) }
+  @Api @Axon static Number cosh(Number val) { Number(val.toFloat.cosh) }
 
   ** Return sine of angle in radians.
-  @Axon static Number sin(Number val) { Number(val.toFloat.sin) }
+  @Api @Axon static Number sin(Number val) { Number(val.toFloat.sin) }
 
   ** Return hyperbolic sine.
-  @Axon static Number sinh(Number val) { Number(val.toFloat.sinh) }
+  @Api @Axon static Number sinh(Number val) { Number(val.toFloat.sinh) }
 
   ** Return tangent of angle in radians.
-  @Axon static Number tan(Number val) { Number(val.toFloat.tan) }
+  @Api @Axon static Number tan(Number val) { Number(val.toFloat.tan) }
 
   ** Return hyperbolic tangent.
-  @Axon static Number tanh(Number val) { Number(val.toFloat.tanh) }
+  @Api @Axon static Number tanh(Number val) { Number(val.toFloat.tanh) }
 
   ** Convert angle in radians to an angle in degrees.
-  @Axon static Number toDegrees(Number val) { Number(val.toFloat.toDegrees) }
+  @Api @Axon static Number toDegrees(Number val) { Number(val.toFloat.toDegrees) }
 
   ** Convert angle in degrees to an angle in radians.
-  @Axon static Number toRadians(Number val) { Number(val.toFloat.toRadians) }
+  @Api @Axon static Number toRadians(Number val) { Number(val.toFloat.toRadians) }
 
 //////////////////////////////////////////////////////////////////////////
 // Folding Functions
@@ -151,7 +151,7 @@ const class MathFuncs
   ** Example:
   **   [2, 4, 5, 3].fold(mean)
   **
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::mean"] }
+  @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::mean"] }
   static Obj? mean(Obj? val, Obj? acc)
   {
     AxonFuncs.avg(val, acc)
@@ -166,7 +166,7 @@ const class MathFuncs
   ** Example:
   **   [2, 4, 5, 3, 1].fold(median)
   **
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::median"] }
+  @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::median"] }
   static Obj? median(Obj? val, Obj? acc)
   {
     if (val === NA.val || acc === NA.val) return NA.val
@@ -188,7 +188,7 @@ const class MathFuncs
   **   samples.fold(rootMeanSquareErr)         // unbiased zero degrees of freedom
   **   samples.fold(rootMeanSquareErr(_,_,1))  // 1 degree of freedom
   **
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::rootMeanSquareErr"] }
+  @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::rootMeanSquareErr"] }
   static Obj? rootMeanSquareErr(Obj? val, Obj? acc, Number nDegrees := Number.zero)
   {
     if (val === NA.val || acc === NA.val) return NA.val
@@ -231,7 +231,7 @@ const class MathFuncs
   **   samples.fold(meanBiasErr)         // unbiased zero degrees of freedom
   **   samples.fold(meanBiasErr(_,_,1))  // 1 degree of freedom
   **
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::meanBiasErr"] }
+  @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::meanBiasErr"] }
   static Obj? meanBiasErr(Obj? val, Obj? acc, Number nDegrees := Number.zero)
   {
     if (val === NA.val || acc === NA.val) return NA.val
@@ -270,7 +270,7 @@ const class MathFuncs
   ** Example:
   **   [4, 2, 5, 8, 6].fold(standardDeviation)
   **
-  @Axon { meta = ["foldOn":"Number", "disKey":"ui::standardDeviation"] }
+  @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::standardDeviation"] }
   static Obj? standardDeviation(Obj? val, Obj? acc)
   {
     if (val === NA.val || acc === NA.val) return NA.val
@@ -341,7 +341,7 @@ const class MathFuncs
   **      //takes the 2 closest indices and calculates weighted average
   **      linear =   (0.2 * 10) + (0.8 * 25) // => 22
   **
-  @Axon
+  @Api @Axon
   static Obj? quantile(Number percent, Str method := "linear")
   {
     //check boundaries
@@ -354,7 +354,7 @@ const class MathFuncs
 
   //the above func is a wrapper which takes a number percent and calls
   //this which does the calcs
-  @NoDoc @Axon
+  @NoDoc @Api @Axon
   static Obj? quantileFold(Obj? val, Obj? acc, Number perc, Str method)
   {
     if (val === NA.val || acc === NA.val) return NA.val
@@ -389,7 +389,7 @@ const class MathFuncs
   ** the following tags (all required)
   **   toMatrix({rows:10, cols: 1000, init: 0})
   **
-  @Axon static MatrixGrid toMatrix(Obj obj, Dict opts := Etc.emptyDict)
+  @Api @Axon static MatrixGrid toMatrix(Obj obj, Dict opts := Etc.emptyDict)
   {
     if (obj is MatrixGrid) return obj
     if (obj is Grid) return MatrixGrid.makeGrid(obj, opts)
@@ -407,7 +407,7 @@ const class MathFuncs
   **
   ** Transpose the given matrix which is any value accepted by `toMatrix`.
   **
-  @Axon static MatrixGrid matrixTranspose(Obj m)
+  @Api @Axon static MatrixGrid matrixTranspose(Obj m)
   {
     toMatrix(m).transpose
   }
@@ -416,7 +416,7 @@ const class MathFuncs
   ** Return the determinant as a unitless Number for the given matrix which
   ** is any value accepted by `toMatrix`.  The matrix must be square.
   **
-  @Axon static Number matrixDeterminant(Obj m)
+  @Api @Axon static Number matrixDeterminant(Obj m)
   {
     Number(toMatrix(m).determinant)
   }
@@ -424,7 +424,7 @@ const class MathFuncs
   **
   ** Return the inverse of the given matrix which is any value accepted by `toMatrix`.
   **
-  @Axon static MatrixGrid matrixInverse(Obj m)
+  @Api @Axon static MatrixGrid matrixInverse(Obj m)
   {
     toMatrix(m).inverse
   }
@@ -433,7 +433,7 @@ const class MathFuncs
   ** Add two matrices together and return new matrix.  The parameters may
   ** be any value supported `toMatrix`.  Matrices must have the same dimensions.
   **
-  @Axon static MatrixGrid matrixAdd(Obj a, Obj b)
+  @Api @Axon static MatrixGrid matrixAdd(Obj a, Obj b)
   {
     toMatrix(a) + toMatrix(b)
   }
@@ -442,7 +442,7 @@ const class MathFuncs
   ** Subtract two matrices and return new matrix.  The parameters may
   ** be any value supported `toMatrix`.  Matrices must have the same dimensions.
   **
-  @Axon static MatrixGrid matrixSub(Obj a, Obj b)
+  @Api @Axon static MatrixGrid matrixSub(Obj a, Obj b)
   {
     toMatrix(a) - toMatrix(b)
   }
@@ -452,7 +452,7 @@ const class MathFuncs
   ** be any value supported `toMatrix`.  Matrix 'a' column count must match
   ** matrix 'b' row count.
   **
-  @Axon static MatrixGrid matrixMult(Obj a, Obj b)
+  @Api @Axon static MatrixGrid matrixMult(Obj a, Obj b)
   {
     toMatrix(a) * toMatrix(b)
   }
@@ -475,7 +475,7 @@ const class MathFuncs
   ** For each X factor there is a row with the following tags:
   **   - 'b': the correlation coefficient for the given X factor
   **
-  @Axon static Grid matrixFitLinearRegression(Obj y, Obj x)
+  @Api @Axon static Grid matrixFitLinearRegression(Obj y, Obj x)
   {
     MatrixGrid.fitLinearRegression(toMatrix(y), toMatrix(x))
   }
@@ -521,7 +521,7 @@ const class MathFuncs
   **
   **    >>> {m:0.4915, b: 2.1525, r2: 0.7502}
   **
-  @Axon
+  @Api @Axon
   static Dict fitLinearRegression(Grid grid, Dict? opts := null)
   {
     // transform grid into point list, which calculates our x, y means

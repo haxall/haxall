@@ -18,7 +18,7 @@ class MathTest : HxTest
   @HxTestProj
   Void test()
   {
-    proj.libs.add("hx.math")
+    addLib("hx.math")
 
     // constants
     verifyEq(eval("pi()"), Number(Float.pi))
@@ -80,7 +80,7 @@ class MathTest : HxTest
   @HxTestProj
   Void testFolds()
   {
-    proj.libs.add("hx.math")
+    addLib("hx.math")
 
     // Test cases for RMSE and MBE provided by PNL
 
@@ -110,7 +110,7 @@ class MathTest : HxTest
   @HxTestProj
   Void testQuantileFolds()
   {
-    proj.libs.add("hx.math")
+    addLib("hx.math")
 
     // quantile folds                               quantile1_linear    quantile70_linear  quantile70_nearest  quantile70_lower    quantile70_higher    quantile70_midpoint
     //                                              ----------          -----------        -----------         ------------        ------------         ------------
@@ -128,12 +128,12 @@ class MathTest : HxTest
 
   Void verifyQuantileFolds(Str list, Obj? quantile1_linear, Obj? quantile70_linear, Obj? quantile70_nearest, Obj? quantile70_lower, Obj? quantile70_higher, Obj? quantile70_midpoint)
   {
-    verifyFoldEq("${list}.fold(quantile(${Number(0.01f)}) )",  quantile1_linear)
+    verifyFoldEq("${list}.fold(quantile(${Number(0.01f)}) )",              quantile1_linear)
     verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"linear\") )",   quantile70_linear )
-    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"lower\") )",   quantile70_lower )
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"lower\") )",    quantile70_lower )
     verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"higher\") )",   quantile70_higher )
-    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"midpoint\") )",   quantile70_midpoint )
-    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"nearest\") )",   quantile70_nearest )
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"midpoint\") )", quantile70_midpoint )
+    verifyFoldEq("${list}.fold(quantile(${Number(0.7f)}, \"nearest\") )",  quantile70_nearest )
 
     verifyErr(axon::EvalErr#) {x := eval("[10,10,10,25,100].fold(quantile(0.7, \"notafunc\"))" )}
     verifyErr(axon::EvalErr#) {x := eval("[10,10,10,25,100].fold(quantile)")}
@@ -142,6 +142,7 @@ class MathTest : HxTest
   Void verifyFoldEq(Str axon, Obj? expected)
   {
     Obj? actual := eval(axon)
+echo("~~~ verifyFoldEq $axon > $actual")
     if (expected == null) verifyNull(actual)
     else if (expected === NA.val) verifyEq(actual, expected)
     else if (!((Number)actual).toFloat.approx(expected))

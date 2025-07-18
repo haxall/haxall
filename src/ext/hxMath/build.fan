@@ -34,7 +34,7 @@ class Build : BuildPod
                 "hx @{hx.depend}"]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "math"]
+    index   = ["xeto.bindings":"hx.math", "ph.lib": "math"]
   }
 }
 
