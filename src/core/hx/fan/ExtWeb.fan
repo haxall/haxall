@@ -28,13 +28,16 @@ abstract const class ExtWeb : WebMod
   virtual Ext ext() { extRef }
   private const Ext extRef
 
-  ** Base uri for this library's endpoint such as "/myLib/"
-  Uri uri() { ext.spi.webUri }
-
   ** Get the route name for this web extension. By default its
   ** the last name in the dotted lib path.  This must be a valid
   ** path name (must not contain slashes).
   virtual Str routeName() { ext.name.split('.').last }
+
+  ** Base uri for this library's endpoint such as "/myLib/"
+  Uri uri()
+  {
+    proj.isSys ? `/${routeName}/` : `/ext/${proj.name}/${routeName}`
+  }
 
   ** Is the unsupported no-up default instance
   @NoDoc virtual Bool isUnsupported() { false }

@@ -79,8 +79,6 @@ const class HxExtSpi : Actor, ExtSpi
     this.log         = Log.get(name)
     this.fantomType  = type
     this.settingsRef = AtomicRef(typedRec(settings))
-// TODO
-this.webUri      = ("/" + (name.startsWith("hx") ? name[3..-1].decapitalize : name) + "/").toUri
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -104,8 +102,6 @@ this.webUri      = ("/" + (name.startsWith("hx") ? name[3..-1].decapitalize : na
   private const AtomicRef settingsRef
 
   override const Log log
-
-  override const Uri webUri
 
   override Actor actor() { this }
 

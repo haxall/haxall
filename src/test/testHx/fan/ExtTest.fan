@@ -29,6 +29,8 @@ class ExtTest : HxTest
   @HxTestProj
   Void testAddRemove()
   {
+    verifyExtDisabled("hx.test")
+
     // verify required sys ext
     crypto := verifyExtEnabled("hx.crypto")
 

@@ -154,9 +154,10 @@ class ProjTest : HxTest
     verifyProjSpecs(p, ["SpecAnotherA", "SpecB"])
 
     // add new ext
-    p.exts.add("hx.shell")
+    ext := p.exts.add("hx.shell")
     verifyProjLibs(p, bootLibs, projLibs.dup.add("hx.shell"), [,])
     verifyProjExts(p, baseExts.dup.add("hx.shell"))
+    verifyEq(ext.web.uri, `/shell/`)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -162,7 +162,6 @@ const mixin ExtSpi
   abstract Spec spec()
   abstract Dict rec()
   abstract Log log()
-  abstract Uri webUri()
   abstract Bool isRunning()
   abstract Actor actor()
   abstract Void sync(Duration? timeout := 30sec)
