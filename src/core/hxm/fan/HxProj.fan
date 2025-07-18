@@ -35,6 +35,7 @@ abstract const class HxProj : Proj
     this.log           = boot.log
     this.metaRef       = AtomicRef(boot.meta)
     this.actorPool     = ActorPool { it.name = "Proj-$this.name" }
+    this.settingsMgr   = HxSettingsMgr(this, boot)
     this.backgroundMgr = HxBackgroundMgr(this)
     this.libsRef       = HxProjLibs(this, boot)
     this.extsRef       = HxProjExts(this, actorPool)
@@ -153,6 +154,9 @@ abstract const class HxProj : Proj
     obsRef.sync(timeout)
     return this
   }
+
+  ** Project/ext settings
+  const HxSettingsMgr settingsMgr
 
   ** Background tasks
   const HxBackgroundMgr backgroundMgr

@@ -34,6 +34,7 @@ const class HxExtSpi : Actor, ExtSpi
 
     // try rest in try block...
     log  := exts.log
+    name := lib.name
     try
     {
       // lookup the spec
@@ -45,10 +46,10 @@ const class HxExtSpi : Actor, ExtSpi
       if (type.name == "Dict") { log.warn("Missing fantom type binding: $spec"); return null }
 
       // read settings
-      settings := Etc.dict0
+      settings := exts.proj.settingsMgr.readExt(name)
 
       // create spi instance
-      spi := HxExtSpi(exts.proj, spec, type, settings, exts.actorPool)
+      spi := HxExtSpi(exts.proj, name, spec, type, settings, exts.actorPool)
 
       // instantiate fantom type
       ExtObj? ext
@@ -71,10 +72,10 @@ const class HxExtSpi : Actor, ExtSpi
     }
   }
 
-  private new make(Proj proj, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
+  private new make(Proj proj, Str name, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
   {
     this.proj        = proj
-    this.name        = spec.lib.name
+    this.name        = name
     this.qname       = spec.qname
     this.log         = Log.get(name)
     this.fantomType  = type

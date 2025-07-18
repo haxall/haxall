@@ -25,7 +25,8 @@ const class FolioFlatFile : Folio
   ** The database is stored in a file named "folio.trio" under dir.
   static FolioFlatFile open(FolioConfig config)
   {
-    file := config.dir + `folio.trio`
+    fileName := config.opts["fileName"] as Str ?: "folio.trio"
+    file := config.dir + `$fileName`
     try
     {
       map := FolioFlatFileLoader(config, file).load

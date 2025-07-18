@@ -219,6 +219,20 @@ abstract class HxBoot
     return SysConfig(Etc.makeDict(config.findNotNull))
   }
 
+  ** Create settings database for project
+  virtual Folio initSettingsFolio()
+  {
+    config := FolioConfig
+    {
+      it.name     = "settings"
+      it.opts     = Etc.dict1("fileName", "settings.trio")
+      it.dir      = this.dir + `ns/`
+      it.log      = this.log
+      // it.pool     = // TODO
+    }
+    return FolioFlatFile.open(config)
+  }
+
   ** Create HxProj implementation
   abstract HxProj initProj()
 

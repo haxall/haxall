@@ -18,13 +18,13 @@ using hx
 **
 const class HxProjExts : Actor, ProjExts
 {
-  new make(Proj proj, ActorPool actorPool) : super(actorPool)
+  new make(HxProj proj, ActorPool actorPool) : super(actorPool)
   {
     this.proj      = proj
     this.actorPool = actorPool
   }
 
-  const Proj proj
+  const HxProj proj
 
   override const ActorPool actorPool
 
