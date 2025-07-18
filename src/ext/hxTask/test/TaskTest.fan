@@ -230,7 +230,7 @@ echo("####")
   @HxTestProj
   Void testCancel()
   {
-    ext := (TaskExt)addExt("task")
+    ext := (TaskExt)addExt("hx.task")
 
     // setup a task that loops with sleep call
     addFuncRec("testIt",
@@ -270,7 +270,7 @@ echo("####")
   @HxTestProj
   Void testAdjuncts()
   {
-    ext := (TaskExt)addExt("task")
+    ext := (TaskExt)addExt("hx.task")
 
     t := addTaskRec("T1",
       """ (msg) => do

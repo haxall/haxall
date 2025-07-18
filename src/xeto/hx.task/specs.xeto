@@ -1,0 +1,11 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   18 Jul 2025  Brian Frank  Creation
+//
+
+// Future represents the result of an asynchronous computation.
+Future: Interface
+
