@@ -144,7 +144,7 @@ const mixin Proj
 //////////////////////////////////////////////////////////////////////////
 
   ** Cache for ion project data
-  @NoDoc abstract Obj ion()
+  @NoDoc abstract Obj ionData()
 
 }
 

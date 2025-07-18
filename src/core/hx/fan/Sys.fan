@@ -36,7 +36,10 @@ const mixin Sys : Proj
   ** Crypto system extension (required)
   @NoDoc abstract ICryptoExt crypto()
 
-  ** HTTP system extension (required)
+  ** Ion user interface system extension (optional)
+  @NoDoc abstract IIonExt? ion(Bool checked := true)
+
+  ** HTTP system extension (required, but not in tests)
   abstract IHttpExt http()
 
   ** Project management (required)

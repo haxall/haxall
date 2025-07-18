@@ -39,6 +39,7 @@ const class HxSys : HxProj, Sys
   override IHttpExt http()     { exts.getByType(IHttpExt#) }
   override IProjExt proj()     { exts.getByType(IProjExt#) }
   override IUserExt user()     { exts.getByType(IUserExt#) }
+  override IIonExt? ion(Bool checked := true)         { exts.getByType(IIonExt#, checked) }
   override IClusterExt? cluster(Bool checked := true) { exts.getByType(IClusterExt#, checked) }
 
 }

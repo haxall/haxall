@@ -269,9 +269,9 @@ log.info("TODO: libs are modified!")
   }
 
   ** Cache for ion project cache
-  override once Obj ion()
+  override once Obj ionData()
   {
-    Type.find("ionExt::IonProj").make([this])
+    Type.find("ionExt::IonProjData").make([this])
   }
 
 }

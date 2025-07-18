@@ -59,7 +59,7 @@ typeName:"hx::HxEvalOp"
 doc: "Evaluate an Axon expression"
 --------------------------------------------------------------------------
 def: ^op:ion
-typeName:"ionServer::IonOp"
+typeName:"ionExt::IonOp"
 nodoc
 doc: "Ion UI support"
 --------------------------------------------------------------------------
