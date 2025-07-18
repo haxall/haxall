@@ -48,18 +48,21 @@ if (!projMeta.isEmpty) throw Err("TODO")
     ((HxProj)rt).stop
   }
 
-  override Ext addLib(Str libName, Str:Obj? tags)
+  override Void addLib(Str libName)
   {
-echo("XXXX TEST $libName")
-throw Err("TODO")
-/*
-    rt := (HxProj)test.rt
-    x := rt.libsOld.get(libName, false)
-    if (x != null) return x
-    lib := rt.installed.lib(libName)
-    lib.depends.each |d| { addLib(d, Str:Obj[:]) }
-    return rt.libsOld.add(libName, Etc.makeDict(tags))
-*/
+    libNames := Str:Str[:]
+    libNames.add(libName, libName)
+    // TODO depends
+    proj.libs.addAll(libNames.vals)
+  }
+
+  override Ext addExt(Str libName, Str:Obj? tags)
+  {
+    addLib(libName)
+    ext := proj.ext(libName)
+    if (tags.isEmpty) echo("TODO: addExt update settings $tags")
+    ext.spi.sync
+    return ext
   }
 
   override HxUser addUser(Str user, Str pass, Str:Obj? tags)
@@ -74,9 +77,11 @@ throw Err("TODO")
     return Context(test.proj, user)
   }
 
-  override Void forceSteadyState(Proj rt)
+  override Void forceSteadyState()
   {
-    ((HxProj)test.proj).backgroundMgr.forceSteadyState
+    ((HxProj)proj).backgroundMgr.forceSteadyState
   }
+
+  Proj proj() { test.proj }
 }
 

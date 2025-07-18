@@ -20,7 +20,7 @@ class HisCollectTest : HxTest
   @HxTestProj
   Void testConfig()
   {
-    PointExt ext := addLib("point")
+    PointExt ext := addExt("hx.point")
 
     verifyConfig(ext, ["hisCollectInterval":n(20, "min"), "kind":"Number"],
       "20min (0hr, 20min, 0sec)", "null", "1min", "null")

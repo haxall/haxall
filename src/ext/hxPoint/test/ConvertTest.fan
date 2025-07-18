@@ -22,7 +22,7 @@ class ConvertTest : HxTest
   @HxTestProj
   Void test()
   {
-    this.ext = addLib("point")
+    this.ext = addExt("hx.point")
     doCache
     doEnums
     doParse

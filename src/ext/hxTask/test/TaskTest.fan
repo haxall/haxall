@@ -27,10 +27,10 @@ class TaskTest : HxTest
   @HxTestProj
   Void testSettings()
   {
-    lib := (TaskExt)addLib("task")
-    verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
-    verifyEq(lib.rec.maxThreads, 50)
-    verifyEq(lib.rec["maxThreads"], null)
+    ext := (TaskExt)addExt("hx.task")
+    verifyEq(ext.rec.typeof.qname, "hxTask::TaskSettings")
+    verifyEq(ext.rec.maxThreads, 50)
+    verifyEq(ext.rec["maxThreads"], null)
 
     proj.libs.remove("task")
 
@@ -42,22 +42,22 @@ echo("####")
 
 /*
     lib = (TaskExt)proj.libsOld.add("task", Etc.dict1("maxThreads", n(123)))
-    verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
-    verifyEq(lib.rec.maxThreads, 123)
-    verifyEq(lib.rec->maxThreads, n(123))
+    verifyEq(ext.rec.typeof.qname, "hxTask::TaskSettings")
+    verifyEq(ext.rec.maxThreads, 123)
+    verifyEq(ext.rec->maxThreads, n(123))
 
-    commit(lib.rec, ["maxThreads":n(987)])
+    commit(ext.rec, ["maxThreads":n(987)])
     proj.sync
-    verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
-    verifyEq(lib.rec.maxThreads, 987)
-    verifyEq(lib.rec->maxThreads, n(987))
+    verifyEq(ext.rec.typeof.qname, "hxTask::TaskSettings")
+    verifyEq(ext.rec.maxThreads, 987)
+    verifyEq(ext.rec->maxThreads, n(987))
 
-    lib.log.level = LogLevel.err
-    commit(lib.rec, ["maxThreads":"bad"])
+    ext.log.level = LogLevel.err
+    commit(ext.rec, ["maxThreads":"bad"])
     proj.sync
-    verifyEq(lib.rec.typeof.qname, "hxTask::TaskSettings")
-    verifyEq(lib.rec.maxThreads, 50)
-    verifyEq(lib.rec->maxThreads,"bad")
+    verifyEq(ext.rec.typeof.qname, "hxTask::TaskSettings")
+    verifyEq(ext.rec.maxThreads, 50)
+    verifyEq(ext.rec->maxThreads,"bad")
 */
   }
 
@@ -68,9 +68,9 @@ echo("####")
   @HxTestProj
   Void testBasics()
   {
-    lib := (TaskExt)addLib("task")
+    ext := (TaskExt)addExt("hx.task")
     sync
-    lib.spi.sync
+    ext.spi.sync
 
     func := addFuncRec("topFunc", """(msg) => "top " + msg""")
 
@@ -87,15 +87,15 @@ echo("####")
     sync
 
     // verify initial type/status
-    aTask := verifyTask(lib.task(a.id), "rec", "idle")
-    bTask := verifyTask(lib.task(b.id), "rec", "idle")
-    cTask := verifyTask(lib.task(c.id), "rec", "idle")
-    dTask := verifyTask(lib.task(d.id), "rec", "idle")
-    eTask := verifyTask(lib.task(e.id), "rec", "idle")
-    fTask := verifyTask(lib.task(f.id), "rec", "idle")
-    bad1Task := verifyTask(lib.task(bad1.id), "disabled", "disabled", "Task is disabled")
-    bad2Task := verifyTask(lib.task(bad2.id), "fault",    "fault", "Missing 'taskExpr' tag")
-    bad3Task := verifyTask(lib.task(bad3.id), "fault",    "fault", "Invalid expr: axon::SyntaxErr: Unexpected symbol: # (0x23) [taskExpr:1]")
+    aTask := verifyTask(ext.task(a.id), "rec", "idle")
+    bTask := verifyTask(ext.task(b.id), "rec", "idle")
+    cTask := verifyTask(ext.task(c.id), "rec", "idle")
+    dTask := verifyTask(ext.task(d.id), "rec", "idle")
+    eTask := verifyTask(ext.task(e.id), "rec", "idle")
+    fTask := verifyTask(ext.task(f.id), "rec", "idle")
+    bad1Task := verifyTask(ext.task(bad1.id), "disabled", "disabled", "Task is disabled")
+    bad2Task := verifyTask(ext.task(bad2.id), "fault",    "fault", "Missing 'taskExpr' tag")
+    bad3Task := verifyTask(ext.task(bad3.id), "fault",    "fault", "Invalid expr: axon::SyntaxErr: Unexpected symbol: # (0x23) [taskExpr:1]")
 
     // verify subscriptions
     forceSteadyState
@@ -111,10 +111,10 @@ echo("####")
     verifySubscribed(sched, fTask)
 
     // change task rec for a
-    aOld := lib.task(a.id)
+    aOld := ext.task(a.id)
     a = commit(a, ["foo":m])
     sync
-    aTask = lib.task(a.id)
+    aTask = ext.task(a.id)
     verifyNotSame(aTask, aOld)
     verifyEq(aOld.ticks < aTask.ticks, true)
     verifyKilled(aOld)
@@ -127,14 +127,14 @@ echo("####")
     verifyEq(fTask.isAlive, true)
     commit(f, null, Diff.remove)
     sync
-    verifyEq(lib.task(f.id, false), null)
+    verifyEq(ext.task(f.id, false), null)
     verifyKilled(fTask)
     20.times { fTask.send("never") }
     verifyUnsubscribed(sched, fTask)
     verifyEq(sched.subscriptions.size, 5)
 
     // verify task() func
-    verifySame(eval("task($a.id.toCode)"), lib.task(a.id))
+    verifySame(eval("task($a.id.toCode)"), ext.task(a.id))
     verifySame(eval("task($f.id.toCode, false)"), null)
 
     // verify taskSend() func
@@ -174,7 +174,7 @@ echo("####")
     // stop lib and verify everything is cleaned up
     proj.libs.remove("hx.task")
     proj.sync
-    verifyEq(lib.pool.isStopped, true)
+    verifyEq(ext.pool.isStopped, true)
     verifyKilled(aTask); verifyUnsubscribed(sched, aTask)
     verifyKilled(bTask); verifyUnsubscribed(sched, bTask)
     verifyKilled(cTask); verifyUnsubscribed(sched, cTask)
@@ -197,7 +197,7 @@ echo("####")
   @HxTestProj
   Void testLocals()
   {
-    lib := (TaskExt)addLib("task")
+    ext := (TaskExt)addExt("hx.task")
 
     t := addTaskRec("T",
       """ (msg) => do
@@ -213,7 +213,7 @@ echo("####")
           """)
 
      sync
-     //echo(lib.task(t.id).details)
+     //echo(ext.task(t.id).details)
 
      verifySend(t, "get foo ???", "???")
      verifySend(t, "set foo one", "one")
@@ -230,7 +230,7 @@ echo("####")
   @HxTestProj
   Void testCancel()
   {
-    lib := (TaskExt)addLib("task")
+    ext := (TaskExt)addExt("task")
 
     // setup a task that loops with sleep call
     addFuncRec("testIt",
@@ -270,7 +270,7 @@ echo("####")
   @HxTestProj
   Void testAdjuncts()
   {
-    lib := (TaskExt)addLib("task")
+    ext := (TaskExt)addExt("task")
 
     t := addTaskRec("T1",
       """ (msg) => do
@@ -280,14 +280,14 @@ echo("####")
 
     // verify adjunct initialization
     verifyEq(eval("taskSend($t.id.toCode, null).futureGet"), n(1))
-    TestTaskAdjunct a := lib.task(t.id).adjunct |->HxTaskAdjunct| { throw Err() }
+    TestTaskAdjunct a := ext.task(t.id).adjunct |->HxTaskAdjunct| { throw Err() }
     verifyEq(a.counter.val, 1)
     verifyEq(a.onKillFlag.val, false)
 
     // verify adjunct is reused on subsequent calls to task
     verifyEq(eval("taskSend($t.id.toCode, null).futureGet"), n(2))
     verifyEq(eval("taskSend($t.id.toCode, null).futureGet"), n(3))
-    verifySame(a, lib.task(t.id).adjunct |->HxTaskAdjunct| { throw Err() })
+    verifySame(a, ext.task(t.id).adjunct |->HxTaskAdjunct| { throw Err() })
     verifyEq(a.counter.val, 3)
     verifyEq(a.onKillFlag.val, false)
 
@@ -295,7 +295,7 @@ echo("####")
     commit(t, ["foo":m])
     sync
     verifyEq(eval("taskSend($t.id.toCode, null).futureGet"), n(1))
-    verifyNotSame(a, lib.task(t.id).adjunct |->HxTaskAdjunct| { throw Err() })
+    verifyNotSame(a, ext.task(t.id).adjunct |->HxTaskAdjunct| { throw Err() })
     verifyEq(a.counter.val, 3)
     verifyEq(a.onKillFlag.val, true)
   }
@@ -317,7 +317,7 @@ echo("####")
       return
     }
 
-    lib := (TaskExt)addLib("task")
+    ext := (TaskExt)addExt("task")
 
     a := addRec(["dis":"A", "site":m, "foo":m])
     b := addRec(["dis":"B", "site":m])
@@ -342,8 +342,8 @@ echo("####")
     // synthetic default user
     ///////////////////////////////////////////////////////
 
-    verifySame(lib.user, lib.userFallback)
-    verifyEq(lib.user.meta["projAccessFilter"], "name==$proj.name.toCode")
+    verifySame(ext.user, ext.userFallback)
+    verifyEq(ext.user.meta["projAccessFilter"], "name==$proj.name.toCode")
 
     // synthetic can read both sites
     sites := (Grid)eval("taskSend($id1.toCode, {}).futureWaitFor.futureGet.sortDis")
@@ -359,8 +359,8 @@ echo("####")
     ///////////////////////////////////////////////////////
 
     u := addUser("task", "pass", ["siteAccessFilter":"foo"])
-    lib.refreshUser
-    verifyEq(lib.user.id, u.id)
+    ext.refreshUser
+    verifyEq(ext.user.id, u.id)
 
     // can read only a
     sites = (Grid)eval("taskSend($id1.toCode, {}).futureWaitFor.futureGet.sortDis")
@@ -376,8 +376,8 @@ echo("####")
     ///////////////////////////////////////////////////////
 
     u2 := addUser("task-${proj.name}", "pass", ["userRole":"admin"])
-    lib.refreshUser
-    verifyEq(lib.user.id, u2.id)
+    ext.refreshUser
+    verifyEq(ext.user.id, u2.id)
 
     // can read both sites
     sites = (Grid)eval("taskSend($id1.toCode, {}).futureWaitFor.futureGet.sortDis")
@@ -399,8 +399,8 @@ echo("####")
     ///////////////////////////////////////////////////////
 
     u2 = addUser("task-${proj.name}", "pass", ["userRole":"su"])
-    lib.refreshUser
-    verifySame(lib.user, lib.userFallback)
+    ext.refreshUser
+    verifySame(ext.user, ext.userFallback)
 
     // synthetic can read both sites
     sites = (Grid)eval("taskSend($id1.toCode, {}).futureWaitFor.futureGet.sortDis")

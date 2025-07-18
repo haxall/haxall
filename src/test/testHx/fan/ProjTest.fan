@@ -154,9 +154,6 @@ class ProjTest : HxTest
     verifyProjSpecs(p, ["SpecAnotherA", "SpecB"])
 
     // add new ext
-echo("#")
-echo("# TODO Ext updates not working yet...")
-echo("#")
     p.exts.add("hx.shell")
     verifyProjLibs(p, bootLibs, projLibs.dup.add("hx.shell"), [,])
     verifyProjExts(p, baseExts.dup.add("hx.shell"))
@@ -321,6 +318,8 @@ class TestSysBoot : HxdBoot
     this.version = Version("1.2.3")
     this.bootLibs.remove("hx.shell")
     this.bootLibs.add("bad.boot")
+    this.platform["productName"] = "Test Product"
+    this.config["testConfig"] = "foo"
   }
 
   override Folio initFolio()
@@ -332,16 +331,6 @@ class TestSysBoot : HxdBoot
       it.pool = ActorPool { it.name = "HxTest-Folio" }
     }
     return HxFolio.open(config)
-  }
-
-  override Platform initPlatform()
-  {
-    Platform(Etc.makeDict(["productName":"Test Product"]))
-  }
-
-  override SysConfig initConfig()
-  {
-    SysConfig(Etc.makeDict(["testConfig":"foo"]))
   }
 
 }

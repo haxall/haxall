@@ -22,7 +22,7 @@ class WriteTest : HxTest
   @HxTestProj
   Void testWrites()
   {
-    PointExt ext := addLib("point")
+    PointExt ext := addExt("hx.point")
     ext.spi.sync
 
     pt := addRec(["dis":"P", "point":m, "writable":m, "kind":"Number"])
@@ -130,7 +130,7 @@ class WriteTest : HxTest
   @HxTestProj { meta = "steadyState: 500ms" }
   Void testObservable()
   {
-    PointExt ext := addLib("point")
+    PointExt ext := addExt("hx.point")
 
     x := addRec(["dis":"X", "point":m, "writable":m, "kind":"Number"])
     y := addRec(["dis":"Y", "point":m, "writable":m, "kind":"Number"])

@@ -59,7 +59,8 @@ abstract class HxTest : HaystackTest
 //////////////////////////////////////////////////////////////////////////
 
   ** TODO
-  /*@Deprecated */Proj? rt(Bool checked := true) { proj(checked) }
+  //@Deprecated
+  Proj? rt(Bool checked := true) { proj(checked) }
 
   ** Get system if '@HxTestProj' configured on test method
   Sys? sys(Bool checked := true)
@@ -124,25 +125,25 @@ abstract class HxTest : HaystackTest
 // Folio Conveniences
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience for 'read' on `rt`
+  ** Convenience for 'read' on `proj`
   Dict? read(Str filter, Bool checked := true)
   {
-    proj.db.read(Filter(filter), checked)
+    proj.read(filter, checked)
   }
 
-  ** Convenience for 'readById' on `rt`
+  ** Convenience for 'readById' on `proj`
   Dict? readById(Ref id, Bool checked := true)
   {
     proj.db.readById(id, checked)
   }
 
-  ** Convenience for commit to `rt`
+  ** Convenience for commit to `proj`
   Dict? commit(Dict rec, Obj? changes, Int flags := 0)
   {
-    proj.db.commit(Diff.make(rec, changes, flags)).newRec
+    proj.commit(Diff.make(rec, changes, flags)).newRec
   }
 
-  ** Add a record to `rt` using the given map of tags.
+  ** Add a record to `proj` using the given map of tags.
   Dict addRec(Str:Obj? tags := Str:Obj?[:])
   {
     // strip out null
@@ -158,16 +159,19 @@ abstract class HxTest : HaystackTest
     {
       id = Ref.gen
     }
-    return proj.db.commit(Diff.makeAdd(tags, id)).newRec
+    return proj.commit(Diff.makeAdd(tags, id)).newRec
   }
 
   ** Add a library and all its depdenencies to the project.
-  Ext addLib(Str libName, Str:Obj? tags := Str:Obj?[:])
+  Void addLib(Str libName)
   {
-    lib := spi.addLib(libName, tags)
-    proj.sync
-    lib.spi.sync
-    return lib
+    spi.addLib(libName)
+  }
+
+  ** Convenience to add extension lib with optional setting and return it
+  Ext addExt(Str libName, Str:Obj? tags := Str:Obj?[:])
+  {
+    spi.addExt(libName, tags)
   }
 
   ** Add user record to the user database.  If the user
@@ -187,7 +191,7 @@ abstract class HxTest : HaystackTest
   ** Force transition to steady state
   @NoDoc Void forceSteadyState()
   {
-    spi.forceSteadyState(proj)
+    spi.forceSteadyState
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -256,10 +260,11 @@ abstract class HxTestSpi
   new make(HxTest test) { this.test = test }
   HxTest test { private set }
   abstract Proj start(Dict projMeta)
-  abstract Void stop(Proj rt)
+  abstract Void stop(Proj proj)
   abstract User addUser(Str user, Str pass, Str:Obj? tags)
-  abstract Ext addLib(Str libName, Str:Obj? tags)
+  abstract Void addLib(Str libName)
+  abstract Ext addExt(Str libName, Str:Obj? tags)
   abstract Context makeContext(User? user)
-  abstract Void forceSteadyState(Proj rt)
+  abstract Void forceSteadyState()
 }
 

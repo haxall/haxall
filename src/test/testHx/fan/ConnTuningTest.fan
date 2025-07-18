@@ -60,8 +60,8 @@ class ConnTuningTest : HxTest
     t3  := addRec(["connTuning":m, "dis":"T-3", "staleTime":n(3, "sec")])
     c   := addRec(["dis":"C", "haystackConn":m])
     pt  := addRec(["dis":"Pt", "point":m, "haystackConnRef":c.id, "kind":"Number"])
-    fw  := (ConnFwExt)addLib("conn")
-    lib := (ConnExt)addLib("haystack")
+    fw  := (ConnFwExt)addExt("hx.conn")
+    lib := (ConnExt)addExt("hx.haystack")
 
     // verify tuning registry in ConnFwExt
     verifyTunings(fw, [t1, t2, t3])
@@ -116,8 +116,8 @@ class ConnTuningTest : HxTest
     // restart and verify everything gets wired up correctly
     rt.libs.remove("hx.haystack")
     rt.libs.remove("hx.conn")
-    fw = addLib("hx.conn")
-    lib = addLib("hx.haystack", ["connTuningRef":t1.id])
+    fw = addExt("hx.conn")
+    lib = addExt("hx.haystack", ["connTuningRef":t1.id])
     sync(c)
     verifyEq(lib.tuning.id, t1.id)
     verifyEq(lib.conn(c.id).tuning.id, t2.id)
@@ -174,7 +174,7 @@ class ConnTuningTest : HxTest
   @HxTestProj
   Void testTimes()
   {
-    lib := (ConnTestExt)addLib("connTest")
+    lib := (ConnTestExt)addExt("hx.conntest")
     t := addRec(["connTuning":m, "dis":"T"])
     cr := addRec(["dis":"C1", "connTestConn":m])
     pt := addRec(["dis":"Pt", "point":m, "writable":m, "connTestWrite":"a", "connTestConnRef":cr.id, "connTuningRef":t.id, "kind":"Number", "writeConvert":"*10"])

@@ -58,11 +58,11 @@ class ObixTest : HxTest
   Void buildProj()
   {
     if (sys.platform.rt.isSkySpark)
-      addLib("his")
+      addLib("hx.his")
     else
-      addLib("http")
+      addLib("hx.http")
     addLib("task")
-    lib = addLib("obix")
+    lib = addExt("hx.obix")
 
     // some recs
     m := Marker.val
