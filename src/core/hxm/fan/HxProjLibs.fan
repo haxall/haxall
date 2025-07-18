@@ -27,6 +27,7 @@ const class HxProjLibs : ProjLibs
   new make(HxProj proj, HxBoot boot)
   {
     this.proj = proj
+    this.isSys = proj.isSys
     this.fb = boot.nsfb
     this.bootLibNames = boot.bootLibs
     this.repo = boot.repo
@@ -41,6 +42,8 @@ const class HxProjLibs : ProjLibs
 //////////////////////////////////////////////////////////////////////////
 
   const HxProj proj
+
+  const Bool isSys
 
   const DiskFileBase fb
 
@@ -91,10 +94,10 @@ const class HxProjLibs : ProjLibs
     if (opts == null) opts = Etc.dict0
     libs := opts.has("installed") ? installed : list
 
-    // sort based on boot, then status, then name
+    // sort based basis, then status, then name
     libs.sort |a, b|
     {
-      if (a.isBoot != b.isBoot) return a.isBoot ? -1 : +1
+      if (a.basis != b.basis) return a.basis <=> b.basis
       cmp := a.status <=> b.status
       if (cmp != 0) return cmp
       return a.name <=> b.name
@@ -103,13 +106,14 @@ const class HxProjLibs : ProjLibs
     // build grid
     gb := GridBuilder()
     gb.setMeta(Etc.dict1("projName", proj.name))
-    gb.addCol("name").addCol("libStatus").addCol("boot").addCol("version").addCol("doc").addCol("err")
+    gb.addCol("name").addCol("libBasis").addCol("libStatus").addCol("version").addCol("doc").addCol("err")
 
     // add row for proj lib
     pxName := XetoUtil.projLibName
     pxVer:= ns.version(pxName, false)
     if (pxVer != null) gb.addRow([
       pxName,
+      ProjLibBasis.projBoot.name,
       ns.libStatus(pxName)?.toStr ?: "err",
       null,
       pxVer?.version?.toStr,
@@ -122,8 +126,8 @@ const class HxProjLibs : ProjLibs
     {
       gb.addRow([
         x.name,
+        x.basis.name,
         x.status.name,
-        Marker.fromBool(x.isBoot),
         x.version?.toStr,
         x.doc,
         x.err?.toStr,
@@ -196,7 +200,7 @@ const class HxProjLibs : ProjLibs
     map.each |x|
     {
       n := x.name
-      if (!x.isBoot) newProjLibs[n] = n
+      if (!x.basis.isBoot) newProjLibs[n] = n
       if (x.status.isOk) allVers[n] = repo.version(n, x.version)
     }
     toAddVers.each |x|
@@ -226,12 +230,12 @@ const class HxProjLibs : ProjLibs
       isRemove := nameMap.containsKey(n)
       if (isRemove)
       {
-        if (x.isBoot) throw CannotRemoveBootLibErr(n)
+        if (x.basis.isBoot) throw CannotRemoveBootLibErr(n)
         return
       }
 
       // update our lists
-      if (!x.isBoot) newProjLibs[n] = n
+      if (!x.basis.isBoot) newProjLibs[n] = n
       if (x.status.isOk) allVers[n] = repo.version(n, x.version)
     }
 
@@ -297,9 +301,11 @@ const class HxProjLibs : ProjLibs
   {
     // first find an installed LibVersion for each lib
     vers := Str:LibVersion[:]
-    nameToIsBoot := Str:Bool[:]
-    projLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToIsBoot[n] = false }
-    bootLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToIsBoot[n] = true }
+    basisBoot    := isSys ? ProjLibBasis.sysBoot : ProjLibBasis.projBoot
+    basisNonBoot := isSys ? ProjLibBasis.sys : ProjLibBasis.proj
+    nameToBasis := Str:ProjLibBasis[:]
+    projLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisNonBoot }
+    bootLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisBoot }
 
     // check depends and remove libs with a dependency error
     versToUse := vers.dup
@@ -325,13 +331,13 @@ const class HxProjLibs : ProjLibs
 
     // now update HxProjLibs map of HxProjLib
     acc := Str:HxProjLib[:]
-    nameToIsBoot.each |isBoot, n|
+    nameToBasis.each |basis, n|
     {
       // check if we have lib installed
       ver := vers[n]
       if (ver == null)
       {
-        acc[n] = HxProjLib.makeErr(n, isBoot, ProjLibStatus.notFound, UnknownLibErr("Lib is not installed"))
+        acc[n] = HxProjLib.makeErr(n, basis, ProjLibStatus.notFound, UnknownLibErr("Lib is not installed"))
         return
       }
 
@@ -339,7 +345,7 @@ const class HxProjLibs : ProjLibs
       dependErr := dependErrs[n]
       if (dependErr != null)
       {
-        acc[n] = HxProjLib.makeErr(n, isBoot, ProjLibStatus.err, dependErr)
+        acc[n] = HxProjLib.makeErr(n, basis, ProjLibStatus.err, dependErr)
         return
       }
 
@@ -347,12 +353,12 @@ const class HxProjLibs : ProjLibs
       libStatus := ns.libStatus(n)
       if (!libStatus.isOk)
       {
-        acc[n] = HxProjLib.makeErr(n, isBoot, ProjLibStatus.err, ns.libErr(n) ?: Err("Lib status not ok: $libStatus"))
+        acc[n] = HxProjLib.makeErr(n, basis, ProjLibStatus.err, ns.libErr(n) ?: Err("Lib status not ok: $libStatus"))
         return
       }
 
       // this lib is ok and loaded
-      acc[n] = HxProjLib.makeOk(n, isBoot, ver)
+      acc[n] = HxProjLib.makeOk(n, basis, ver)
     }
 
     // update my libs and ns
@@ -377,10 +383,10 @@ const class HxProjLibs : ProjLibs
 
 const class HxProjLib : ProjLib
 {
-  internal new makeOk(Str name, Bool isBoot, LibVersion v)
+  internal new makeOk(Str name, ProjLibBasis basis, LibVersion v)
   {
     this.name    = name
-    this.isBoot  = isBoot
+    this.basis   = basis
     this.status  = ProjLibStatus.ok
     this.version = v.version
     this.doc     = v.doc
@@ -389,22 +395,22 @@ const class HxProjLib : ProjLib
   internal new makeDisabled(LibVersion v)
   {
     this.name    = v.name
-    this.isBoot  = false
+    this.basis   = ProjLibBasis.disabledProj
     this.status  = ProjLibStatus.disabled
     this.version = v.version
     this.doc     = v.doc
   }
 
-  internal new makeErr(Str name, Bool isBoot, ProjLibStatus status, Err err)
+  internal new makeErr(Str name, ProjLibBasis basis, ProjLibStatus status, Err err)
   {
     this.name   = name
-    this.isBoot = isBoot
+    this.basis  = basis
     this.status = status
     this.err    = err
   }
 
   override const Str name
-  override const Bool isBoot
+  override const ProjLibBasis basis
   override const ProjLibStatus status
   override const Version? version
   override const Str? doc

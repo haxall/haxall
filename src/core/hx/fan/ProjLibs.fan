@@ -63,8 +63,8 @@ const mixin ProjLib
   ** Dotted library name
   abstract Str name()
 
-  ** Is this a boot lib that cannot be uninstalled
-  abstract Bool isBoot()
+  ** Basis is the source origin of the library
+  abstract ProjLibBasis basis()
 
   ** Status of the lib
   abstract ProjLibStatus status()
@@ -77,6 +77,43 @@ const mixin ProjLib
 
   ** Summary documentation
   @NoDoc abstract Str? doc()
+}
+
+**************************************************************************
+** ProjLibStatus
+**************************************************************************
+
+**
+** ProjLibBasis defines source origin
+**
+enum class ProjLibBasis
+{
+  ** System level boot library
+  sysBoot,
+
+  ** System level enabled library
+  sys,
+
+  ** Project boot library
+  projBoot,
+
+  ** Project level enabled library
+  proj,
+
+  ** System level library installed, but not being used
+  disabledSys,
+
+  ** Project level library installed, but not being used
+  disabledProj
+
+  ** Is this a boot lib
+  @NoDoc Bool isBoot() { this === sysBoot || this === projBoot }
+
+  ** Is this a system level lib
+  @NoDoc Bool isSys() { this === sysBoot || this === sys || this === disabledSys }
+
+  ** Is this a project level lib
+  @NoDoc Bool isProj() { this === projBoot || this === proj || this === disabledProj }
 }
 
 **************************************************************************
