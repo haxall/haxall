@@ -269,7 +269,10 @@ log.info("TODO: libs are modified!")
   }
 
   ** Cache for ion project cache
-  const override AtomicRef ion := AtomicRef()
+  override once Obj ion()
+  {
+    Type.find("ionExt::IonProj").make([this])
+  }
 
 }
 

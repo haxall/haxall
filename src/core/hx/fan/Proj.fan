@@ -143,8 +143,8 @@ const mixin Proj
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  ** Cache for ion project cache
-  @NoDoc abstract AtomicRef ion()
+  ** Cache for ion project data
+  @NoDoc abstract Obj ion()
 
 }
 
