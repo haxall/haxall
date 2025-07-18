@@ -852,6 +852,9 @@ const class AxonFuncs
   {
     if (val is MStream) return FoldStream(val, fn).run
 
+// TODO
+if (fn is XetoFn) fn = ((XetoFn)fn).reflect
+
     list := val as List ?: throw argErr("fold", val)
     cx := AxonContext.curAxon
     args := Obj?[foldStartVal, null]

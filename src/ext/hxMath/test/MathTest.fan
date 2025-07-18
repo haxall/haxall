@@ -142,7 +142,7 @@ class MathTest : HxTest
   Void verifyFoldEq(Str axon, Obj? expected)
   {
     Obj? actual := eval(axon)
-echo("~~~ verifyFoldEq $axon > $actual")
+    // echo("~~~ verifyFoldEq $axon > $actual")
     if (expected == null) verifyNull(actual)
     else if (expected === NA.val) verifyEq(actual, expected)
     else if (!((Number)actual).toFloat.approx(expected))

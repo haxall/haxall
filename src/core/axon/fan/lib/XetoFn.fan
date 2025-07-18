@@ -12,6 +12,7 @@ using xeto
 **
 ** XetoFn is an Axon function backed by a xeto function thunk
 **
+@Js
 const class XetoFn : TopFn
 {
 
@@ -29,11 +30,15 @@ const class XetoFn : TopFn
   override Obj? callLazy(AxonContext cx, Expr[] args, Loc loc)
   {
 // TODO: total hack to get over lazy args
+    reflect.callLazy(cx, args, loc)
+  }
+
+  once FantomFn reflect()
+  {
     thunk := xeto.func.thunk
     if (thunk is StaticMethodThunk)
     {
-      fn := FantomFn.reflectMethod(((StaticMethodThunk)thunk).method, xeto.name, xeto.meta, null)
-      return fn.callLazy(cx, args, loc)
+      return FantomFn.reflectMethod(((StaticMethodThunk)thunk).method, xeto.name, xeto.meta, null)
     }
     else
     {
