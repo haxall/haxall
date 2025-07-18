@@ -25,7 +25,7 @@ const class HxProjObservables : Actor, ProjObservables
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxProj rt) : super(rt.hxdActorPool)
+  new make(HxProj rt) : super(rt.actorPool)
   {
     this.rt  = rt
     this.log = rt.db.log

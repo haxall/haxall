@@ -34,11 +34,10 @@ abstract const class HxProj : Proj
     this.db.hooks      = HxFolioHooks(this)
     this.log           = boot.log
     this.metaRef       = AtomicRef(boot.meta)
-    this.libsActorPool = ActorPool { it.name = "Hx-Exts" }
-    this.hxdActorPool  = ActorPool { it.name = "Hx-Runtime" }
+    this.actorPool     = ActorPool { it.name = "Proj-$this.name" }
     this.backgroundMgr = HxBackgroundMgr(this)
     this.libsRef       = HxProjLibs(this, boot)
-    this.extsRef       = HxProjExts(this, libsActorPool)
+    this.extsRef       = HxProjExts(this, actorPool)
     this.watchRef      = HxProjWatches(this)
     this.obsRef        = HxProjObservables(this)
   }
@@ -144,11 +143,8 @@ abstract const class HxProj : Proj
   override Bool isSteadyState() { stateStateRef.val }
   internal const AtomicBool stateStateRef := AtomicBool(false)
 
-  ** Actor pool to use for HxRuntimeLibs.actorPool
-  const ActorPool libsActorPool
-
-  ** Actor pool to use for core daemon functionality
-  const ActorPool hxdActorPool
+  ** Actor pool for the project
+  const ActorPool actorPool
 
   ** Block until currently queued background processing completes
   override This sync(Duration? timeout := 30sec)
@@ -244,8 +240,7 @@ abstract const class HxProj : Proj
     Future.waitForAll(futures)
 
     // kill actor pools
-    libsActorPool.kill
-    hxdActorPool.kill
+    actorPool.kill
   }
 
   ** Callback for systems to open/start projects
