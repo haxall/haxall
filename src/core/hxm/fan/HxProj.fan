@@ -76,6 +76,9 @@ abstract const class HxProj : Proj
   ** Project display name
   override Str dis() { meta["dis"] ?: name }
 
+  ** Project name
+  override Str toStr() { name }
+
   ** Project directory.  It the root directory of all project
   ** oriented operational files.  The folio database is stored under
   ** this directory in a sub-directory named 'db/'.

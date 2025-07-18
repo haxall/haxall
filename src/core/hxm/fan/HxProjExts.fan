@@ -98,6 +98,12 @@ const class HxProjExts : Actor, ProjExts
     ns := proj.ns
     ns.libs.each |lib|
     {
+// TODO: skip sys libs that are system exts
+if (!proj.isSys)
+{
+  x := proj.sys.ns.lib(lib.name, false)
+  if (x != null) return
+}
       ext := HxExtSpi.instantiate(this, lib)
       if (ext != null) map.add(ext.name, ext)
     }
