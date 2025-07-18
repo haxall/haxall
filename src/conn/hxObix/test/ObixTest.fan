@@ -57,7 +57,7 @@ class ObixTest : HxTest
 
   Void buildProj()
   {
-    if (sys.platform.isSkySpark)
+    if (sys.platform.rt.isSkySpark)
       addLib("his")
     else
       addLib("http")

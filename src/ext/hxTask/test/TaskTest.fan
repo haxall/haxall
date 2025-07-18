@@ -309,7 +309,7 @@ echo("####")
   {
     // this test is only run in SkySpark right now because
     // hxd doesn't support user access filters
-    if (!sys.platform.isSkySpark)
+    if (!sys.platform.rt.isSkySpark)
     {
       echo("   ##")
       echo("   ## Skip until hxd supports access filters")
@@ -386,7 +386,7 @@ echo("####")
     verifyDictEq(sites[1], b)
 
     // xquery has full access
-    if (sys.platform.isSkySpark)
+    if (sys.platform.rt.isSkySpark)
     {
       sites = (Grid)eval("taskSend($id2.toCode, {}).futureWaitFor.futureGet.sortDis")
       verifyEq(sites.size, 2)

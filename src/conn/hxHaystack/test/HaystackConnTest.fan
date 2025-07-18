@@ -53,7 +53,7 @@ class HaystackConnTest : HxTest
   Void init()
   {
     // libs
-    if (sys.platform.isSkySpark)
+    if (sys.platform.rt.isSkySpark)
       addLib("his")
     else
       addLib("http")
@@ -604,7 +604,7 @@ class HaystackConnTest : HxTest
   Void verifyInvokeAction()
   {
     // we don't have invokeAction in Haxall right now
-    if (!sys.platform.isSkySpark) return
+    if (!sys.platform.rt.isSkySpark) return
 
     // create rec with action
     r := addRec(["dis":"Action", "count":n(1), "msg1": "", "msg2":"", "actions":

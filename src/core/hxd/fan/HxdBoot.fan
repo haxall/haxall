@@ -30,6 +30,9 @@ class HxdBoot : HxBoot
   new make()
   {
     this.log = Log.get("hxd")
+
+    this.platform["runtime"] = PlatformRuntime.hxd.name
+
     this.bootLibs = [
       "sys",
       "sys.api",

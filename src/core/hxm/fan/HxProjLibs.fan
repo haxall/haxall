@@ -34,6 +34,10 @@ const class HxProjLibs : ProjLibs
     this.log = boot.log
     this.version = boot.version
     this.specsRef = HxProjSpecs(this)
+  }
+
+  internal Void init()
+  {
     doReload(readProjLibNames)
   }
 
@@ -325,7 +329,8 @@ const class HxProjLibs : ProjLibs
 
     // at this point should we should have a safe versions list to create namespace
     nsVers := versToUse.vals
-//    nsVers.add(FileLibVersion.makeProj(fb.dir, version))
+    if (proj.sys.platform.rt.isHxd)
+      nsVers.add(FileLibVersion.makeProj(fb.dir, version))
     ns := HxNamespace(LocalNamespaceInit(repo, nsVers, null, repo.names))
     ns.libs // force sync load
 

@@ -217,6 +217,7 @@ class EtcTest : HaystackTest
     else
       verifyEq(dict.typeof.qname, "haystack::MapDict")
 
+    /* deprecated
     switch (size)
     {
       case 1:   verifyFixedDict(1, Etc.makeDict1("a", n(0)), dict)
@@ -227,6 +228,7 @@ class EtcTest : HaystackTest
       case 6:   verifyFixedDict(6, Etc.makeDict6("a", n(0), "b", n(1), "c", n(2), "d", n(3), "e", n(4), "f", n(5)), dict)
       default:  verifyEq(dict.typeof.qname, "haystack::MapDict")
     }
+    */
 
     // test non-null versions of dictFromMap, dictX
 
@@ -842,8 +844,8 @@ class EtcTest : HaystackTest
 
     verifyDictHashKey(d, Etc.makeDict(["b":"x", "null": null]), true)
 
-    Dict x := Etc.makeDict3("a", Number(1), "b", Number(2), "c", Number(3))
-    Dict y := Etc.makeDict3("c", Number(3), "b", Number(2), "a", Number(1))
+    Dict x := Etc.dict3("a", Number(1), "b", Number(2), "c", Number(3))
+    Dict y := Etc.dict3("c", Number(3), "b", Number(2), "a", Number(1))
     verifyDictHashKey(x, y, true)
 
     /*

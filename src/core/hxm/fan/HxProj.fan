@@ -54,6 +54,7 @@ abstract const class HxProj : Proj
     inited.val = true
 
     // initialize
+    libsRef.init
     extsRef.init
     obsRef.init
     return this

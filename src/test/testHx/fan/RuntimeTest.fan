@@ -194,7 +194,7 @@ class RuntimeTest : HxTest
   {
     // makeSyntheticUser
     u := rt.sys.user.makeSyntheticUser("FooBar", ["bar":"baz"])
-    if (sys.platform.isSkySpark)
+    if (sys.platform.rt.isSkySpark)
       verifyEq(u.id, Ref("u:FooBar"))
     else
       verifyEq(u.id, Ref("FooBar"))

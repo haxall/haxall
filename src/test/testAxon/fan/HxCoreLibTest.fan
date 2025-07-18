@@ -178,7 +178,7 @@ class HxCoreLibTest : HxTest
 
   Symbol projLib()
   {
-    sys.platform.isSkySpark ? Symbol("lib:proj_test") : Symbol("lib:hx_db")
+    sys.platform.rt.isSkySpark ? Symbol("lib:proj_test") : Symbol("lib:hx_db")
   }
 
   Void verifyParam(Grid grid, Int i, Str name, Obj? def)

@@ -21,6 +21,7 @@ const class Platform
   new make(Dict meta)
   {
     this.metaRef = meta
+    this.rt = PlatformRuntime.fromStr(meta->runtime)
   }
 
   ** Meta data
@@ -33,14 +34,8 @@ const class Platform
   ** Microprocessor architecture - see `sys::Env.arch`
   virtual Str arch() { Env.cur.arch }
 
-  ** Is this the full SkySpark runtime
-  virtual Bool isSkySpark() { false }
-
-  ** Is this the axon shell
-  @NoDoc virtual Bool isAxonShell() { false }
-
-  ** Is this cloud SaaS
-  @NoDoc virtual Bool isXetoBase() { false }
+  ** Platform runtime type
+  @NoDoc const PlatformRuntime rt
 
   ** Relative URI to the SVG logo
   virtual Uri logoUri() { meta["logoUri"] as Uri ?: `/user/logo.svg` }
@@ -78,5 +73,23 @@ const class Platform
         con.info("$m.name: " + m.callOn(this, null))
     }
   }
+}
+
+**************************************************************************
+** PlatformRuntime
+**************************************************************************
+
+@NoDoc
+enum class PlatformRuntime
+{
+  hxd,
+  axonsh,
+  skyspark,
+  xb
+
+  Bool isHxd()      { this === hxd }
+  Bool isAxonsh()   { this === axonsh }
+  Bool isSkySpark() { this === skyspark }
+  Bool isXb()       { this === xb }
 }
 
