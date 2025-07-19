@@ -28,10 +28,10 @@ const class ObixWebMod : ObixMod
   new make(ObixExt ext) : super.make
     ([
       "serverName":     ext.proj.name,
-      "vendorName":     ext.sys.platform.vendorName,
-      "vendorUrl":      ext.sys.platform.vendorUri,
-      "productName":    ext.sys.platform.productName,
-      "productUrl":     ext.sys.platform.productUri,
+      "vendorName":     ext.sys.info.vendorName,
+      "vendorUrl":      ext.sys.info.vendorUri,
+      "productName":    ext.sys.info.productName,
+      "productUrl":     ext.sys.info.productUri,
       "productVersion": ext.typeof.pod.version.toStr,
     ])
   {

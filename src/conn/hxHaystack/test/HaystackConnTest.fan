@@ -53,7 +53,7 @@ class HaystackConnTest : HxTest
   Void init()
   {
     // libs
-    if (sys.platform.rt.isSkySpark)
+    if (sys.info.rt.isSkySpark)
       addLib("his")
     else
       addLib("http")
@@ -124,12 +124,12 @@ class HaystackConnTest : HxTest
     // verify ping (returns rec)
     r := eval("read(haystackConn).haystackPing.futureGet") as Dict
     verifyEq(r.id, conn.id)
-    verifyEq(r->productName, sys.platform.productName)
+    verifyEq(r->productName, sys.info.productName)
     conn = readById(conn.id)
     verifyEq(conn->connStatus,     "ok")
-    verifyEq(conn->productName,    sys.platform.productName)
-    verifyEq(conn->productVersion, sys.version.toStr)
-    verifyEq(conn->vendorName,     sys.platform.vendorName)
+    verifyEq(conn->productName,    sys.info.productName)
+    verifyEq(conn->productVersion, sys.info.version.toStr)
+    verifyEq(conn->vendorName,     sys.info.vendorName)
     verifyEq(conn->tz,             TimeZone.cur.name)
 
     // with conn id
@@ -604,7 +604,7 @@ class HaystackConnTest : HxTest
   Void verifyInvokeAction()
   {
     // we don't have invokeAction in Haxall right now
-    if (!sys.platform.rt.isSkySpark) return
+    if (!sys.info.rt.isSkySpark) return
 
     // create rec with action
     r := addRec(["dis":"Action", "count":n(1), "msg1": "", "msg2":"", "actions":

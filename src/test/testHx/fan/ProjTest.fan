@@ -45,7 +45,7 @@ class ProjTest : HxTest
     verifyEq(p.dir, dir)
     verifySame(p.sys, p)
     verifyEq(p.isSys, true)
-    verifyEq(p.sys.platform.productName, "Test Product")
+    verifyEq(p.sys.info.productName, "Test Product")
     verifyEq(p.sys.config.get("testConfig"), "foo")
     verifyEq(p.isRunning, false)
     verifyEq(p.meta->projMeta, Marker.val)
@@ -319,8 +319,8 @@ class TestSysBoot : HxdBoot
     this.version = Version("1.2.3")
     this.bootLibs.remove("hx.shell")
     this.bootLibs.add("bad.boot")
-    this.platform["productName"] = "Test Product"
-    this.config["testConfig"] = "foo"
+    this.sysMeta["productName"] = "Test Product"
+    this.sysConfig["testConfig"] = "foo"
   }
 
   override Folio initFolio()

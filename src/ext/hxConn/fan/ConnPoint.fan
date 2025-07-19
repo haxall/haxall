@@ -385,7 +385,7 @@ const final class ConnPoint : HxConnPoint
     s := StrBuf()
     s.add("""id:             $id
              dis:            $dis
-             rt:             $ext.sys.platform.hostModel [$ext.sys.version]
+             rt:             $ext.sys.info.hostModel [$ext.sys.info.version]
              ext:            $ext.typeof [$ext.typeof.pod.version]
              conn:           $conn.dis [$conn.id] $conn.status
              kind:           $kind

@@ -29,8 +29,8 @@ if (!projMeta.isEmpty) throw Err("TODO")
       it.name = "test"
       it.dir = dir
 //      it.projMeta = projMeta
-      it.config["test"] = Marker.val
-      it.config["platformSerialSpi"] = "hxPlatformSerial::TestSerialSpi"
+      it.sysConfig["test"] = Marker.val
+      it.sysConfig["platformSerialSpi"] = "hxPlatformSerial::TestSerialSpi"
       it.bootLibs.remove("hx.http")
       it.log.level = LogLevel.warn
     }

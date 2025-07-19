@@ -56,7 +56,7 @@ abstract class ApiTest : HxTest
 
   private Void initData()
   {
-    if (sys.platform.rt.isSkySpark) addLib("his")
+    if (sys.info.rt.isSkySpark) addLib("his")
     addLib("point")
 
     try { sys.libs.add("hx.http") } catch (Err e) {}
@@ -88,7 +88,7 @@ fail
 
   Void initSettings()
   {
-    if (sys.platform.rt.isSkySpark) return
+    if (sys.info.rt.isSkySpark) return
 
     rec := rt.db.read(Filter("ext==\"http\""))
     host := IpAddr.local.hostname

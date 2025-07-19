@@ -17,13 +17,10 @@ const mixin Sys : Proj
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** Platform hosting the runtime
-  abstract Platform platform()
+  ** System metadata
+  abstract SysInfo info()
 
-  ** System version
-  abstract Version version()
-
- ** Configuration options defined at bootstrap
+  ** System configuration
   @NoDoc abstract SysConfig config()
 
 //////////////////////////////////////////////////////////////////////////

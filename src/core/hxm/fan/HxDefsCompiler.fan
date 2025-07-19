@@ -301,7 +301,7 @@ const class ProjOverlayLib
     acc := Str:Obj[:]
     acc["def"] = libSymbol
     acc["baseUri"] = sys.http.siteUri + `def/hx_db/`
-    acc["version"] = sys.version.toStr
+    acc["version"] = sys.info.version.toStr
     meta := Etc.makeDict(acc)
 
     b := BOverlayLib(base, meta)

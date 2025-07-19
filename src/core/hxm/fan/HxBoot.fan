@@ -65,18 +65,17 @@ abstract class HxBoot
   ]
 
   **
-  ** Platform meta:
-  **   - logoUri: URI to an SVG logo image
-  **   - productName: Str name for about op
-  **   - productVersion: Str version for about op
-  **   - productUri: Uri to product home page
-  **   - vendorName: Str name for about op
-  **   - vendorUri: Uri to vendor home page
+  ** SysInfo metadata
+  **   - sysVersion (required)
+  **   - runtime (required)
+  **   - hostOs, hostModel
+  **   - productName, productVersion, productUri
+  **   - vendorName, vendorUri
   **
-  Str:Obj? platform := [:]
+  Str:Obj? sysMeta := [:]
 
   **
-  ** Misc configuration tags used to customize the system.
+  ** SysInfo config tags used to customize the system.
   ** This dict is available via Proj.config.
   ** Standard keys:
   **   - noAuth: Marker to disable authentication and use superuser
@@ -85,7 +84,7 @@ abstract class HxBoot
   **   - platformSerialSpi: Str qname for hxPlatformSerial::PlatformSerialSpi class
   **   - hxLic: license Str or load from lic/xxx.trio
   **
-  Str:Obj? config := [:]
+  Str:Obj? sysConfig := [:]
 
 //////////////////////////////////////////////////////////////////////////
 // Create
@@ -202,21 +201,27 @@ abstract class HxBoot
   }
 
   ** Create Platform for HxSys
-  virtual Platform initPlatform()
+  virtual SysInfo initSysInfo()
   {
-    Platform(Etc.makeDict(platform.findNotNull))
+    if (sysMeta["version"] == null)
+      sysMeta["version"] = version.toStr
+
+    meta := Etc.dictFromMap(sysMeta.findNotNull)
+    return SysInfo(meta)
   }
 
   ** Create SysConfig for HxSys
-  virtual SysConfig initConfig()
+  virtual SysConfig initSysConfig()
   {
-    if (config.containsKey("noAuth"))
+    if (sysConfig.containsKey("noAuth"))
     {
       echo("##")
       echo("## NO AUTH - authentication is disabled!!!!")
       echo("##")
     }
-    return SysConfig(Etc.makeDict(config.findNotNull))
+
+    meta := Etc.dictFromMap(sysConfig.findNotNull)
+    return SysConfig(meta)
   }
 
   ** Create settings database for project

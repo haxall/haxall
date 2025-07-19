@@ -31,7 +31,7 @@ class HxdBoot : HxBoot
   {
     this.log = Log.get("hxd")
 
-    this.platform["runtime"] = PlatformRuntime.hxd.name
+    this.sysMeta["runtime"] = SysInfoRuntime.hxd.name
 
     this.bootLibs = [
       "sys",
@@ -70,18 +70,18 @@ class HxdBoot : HxBoot
     return HxFolio.open(config)
   }
 
-  override SysConfig initConfig()
+  override SysInfo initSysInfo()
   {
     initConfigLic
-    return super.initConfig
+    return super.initSysInfo
   }
 
   private Void initConfigLic()
   {
     // try to load license file from lic/ if not explicitly configured
-    if (config["hxLic"] != null) return
+    if (sysConfig["hxLic"] != null) return
     file := dir.plus(`lic/`).listFiles.find |x| { x.ext == "trio" }
-    if (file != null) config["hxLic"] = file.readAllStr
+    if (file != null) sysConfig["hxLic"] = file.readAllStr
   }
 
   override HxProj initProj()
@@ -129,7 +129,7 @@ internal class RunCli : HxCli
   override Int run()
   {
     boot := HxdBoot { it.dir = this.dir }
-    if (noAuth) boot.config["noAuth"] = Marker.val
+    if (noAuth) boot.sysConfig["noAuth"] = Marker.val
     return boot.run
   }
 }

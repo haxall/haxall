@@ -23,9 +23,9 @@ const class HxShellWeb : ExtWeb
 
   override const Ext ext
 
-  Str title() { ext.sys.platform.productName + " Shell" }
+  Str title() { ext.sys.info.productName + " Shell" }
 
-  Uri favicon() { ext.sys.platform.faviconUri }
+  Uri favicon() { ext.sys.info.faviconUri }
 
   override Void onService()
   {

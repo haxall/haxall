@@ -20,18 +20,15 @@ const class HxSys : HxProj, Sys
 {
   new make(HxBoot boot) : super(boot)
   {
-    this.version  = boot.version
-    this.platform = boot.initPlatform
-    this.config   = boot.initConfig
+    this.info   = boot.initSysInfo
+    this.config = boot.initSysConfig
   }
-
-  override const Version version
 
   override Sys sys() { this }
 
   override Bool isSys() { true }
 
-  override const Platform platform
+  override const SysInfo info
 
   override const SysConfig config
 

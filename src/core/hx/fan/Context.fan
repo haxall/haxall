@@ -109,12 +109,12 @@ virtual Proj rt() { proj }
     tags["serverName"]      = Env.cur.host
     tags["serverBootTime"]  = DateTime.boot
     tags["serverTime"]      = DateTime.now
-    tags["productName"]     = sys.platform.productName
-    tags["productUri"]      = sys.platform.productUri
-    tags["productVersion"]  = sys.platform.productVersion
+    tags["productName"]     = sys.info.productName
+    tags["productUri"]      = sys.info.productUri
+    tags["productVersion"]  = sys.info.productVersion
     tags["tz"]              = TimeZone.cur.name
-    tags["vendorName"]      = sys.platform.vendorName
-    tags["vendorUri"]       = sys.platform.vendorUri
+    tags["vendorName"]      = sys.info.vendorName
+    tags["vendorUri"]       = sys.info.vendorUri
     tags["whoami"]          = user.username
     return Etc.makeDict(tags)
   }

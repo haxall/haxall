@@ -97,7 +97,7 @@ fail
     f := verifyFileResolve(`io/`, true)
     verifyEq(f.isDir, true)
     verifyEq(f.list, File[,])
-    if (sys.platform.rt.isSkySpark)
+    if (sys.info.rt.isSkySpark)
       verifyEq(f.parent.uri, `/proj/${rt.name}/`)
     else
       verifyEq(f.parent, null)
@@ -147,7 +147,7 @@ fail
   {
     if (uri.toStr.startsWith("io/"))
     {
-      return sys.platform.rt.isSkySpark ? "/proj/${rt.name}/${uri}".toUri : uri
+      return sys.info.rt.isSkySpark ? "/proj/${rt.name}/${uri}".toUri : uri
     }
     return uri
   }

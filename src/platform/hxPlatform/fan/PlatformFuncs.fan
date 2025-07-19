@@ -58,8 +58,8 @@ const class PlatformFuncs
     env := Env.cur.vars
     now := DateTime.now
     return [
-      pi("sw",     "Name",     sys.platform.productName),
-      pi("sw",     "Version",  sys.platform.productVersion),
+      pi("sw",     "Name",     sys.info.productName),
+      pi("sw",     "Version",  sys.info.productVersion),
       pi("sw",     "Time",     now.time.toLocale + " " + now.date.toLocale + now.tz.name),
       pi("sw",     "Uptime",   Duration.uptime.toLocale),
       pi("os",     "Name",     env["os.name"] + " " + env["os.arch"]),
