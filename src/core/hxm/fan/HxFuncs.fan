@@ -654,6 +654,14 @@ const class HxFuncs
 // Misc
 //////////////////////////////////////////////////////////////////////////
 
+  ** Return sys info grid
+  @NoDoc @Api @Axon
+  static Grid sysInfo() { curContext.sys.info.debug }
+
+  ** Return sys config grid
+  @NoDoc @Api @Axon
+  static Grid sysConfig() { curContext.sys.config.debug }
+
   ** Return [about]`op:about` dict
   @Api @Axon
   static Dict about() { curContext.about }

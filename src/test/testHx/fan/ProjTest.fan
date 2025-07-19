@@ -46,10 +46,11 @@ class ProjTest : HxTest
     verifySame(p.sys, p)
     verifyEq(p.isSys, true)
     verifyEq(p.sys.info.productName, "Test Product")
+    verifyEq(p.sys.info.version, Version("1.2.3"))
+    verifyEq(p.sys.info.meta["extra"], "summertime")
     verifyEq(p.sys.config.get("testConfig"), "foo")
     verifyEq(p.isRunning, false)
     verifyEq(p.meta->projMeta, Marker.val)
-    verifyEq(p.meta->version, boot.version.toStr)
     verifySame(p.meta, p.readById(p.meta.id))
     verifySame(p.meta, p.read("projMeta"))
     verifyProjLibs(p, bootLibs, projLibs, ["ashrae.g36"])
@@ -316,7 +317,8 @@ class TestSysBoot : HxdBoot
     this.name = "test"
     this.dir = dir
     this.log = Log.get("test")
-    this.version = Version("1.2.3")
+    this.sysMeta["version"] = "1.2.3"
+    this.sysMeta["extra"] = "summertime"
     this.bootLibs.remove("hx.shell")
     this.bootLibs.add("bad.boot")
     this.sysMeta["productName"] = "Test Product"

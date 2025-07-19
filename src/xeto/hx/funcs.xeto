@@ -10,7 +10,7 @@
 // If no matches found throw UnknownRecErr or null based on checked
 // flag.  If there are multiple matches it is indeterminate which one is
 // returned.  See `readAll` for how filter works.
-// 
+//
 // Examples:
 //   read(site)                 // read any site rec
 //   read(site and dis=="HQ")   // read site rec with specific dis tag
@@ -23,7 +23,7 @@ read: Func { filter: Filter, checked: Bool, returns: Dict? }
 // In Haxall all refs are relative, but in SkySpark refs may
 // be prefixed with something like "p:projName:r:".  This function
 // will accept both relative and absolute refs.
-// 
+//
 // Examples:
 //    readById(@2b00f9dc-82690ed6)          // relative ref literal
 //    readById(@:demo:r:2b00f9dc-82690ed6)  // project absolute literal
@@ -51,14 +51,14 @@ readLink: Func { id: Ref?, returns: Dict? }
 // returned as a row with every column set to null (including
 // the 'id' tag).  Either relative or project absolute refs may
 // be used.
-// 
+//
 // Examples:
 //   // read two relative refs
 //   readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a])
-// 
+//
 //   // read two project absolute refs
 //   readByIds([@p:demo:r:2af6f9ce-6ddc5075, @p:demo:r:2af6f9ce-2d56b43a])
-// 
+//
 //   // return null for a given id if it does not exist
 //   readByIds([@2af6f9ce-6ddc5075, @2af6f9ce-2d56b43a], false)
 readByIds: Func { ids: List, checked: Bool, returns: Grid }
@@ -66,11 +66,11 @@ readByIds: Func { ids: List, checked: Bool, returns: Grid }
 // Reall all records from the database which match the [filter]`docHaystack::Filters`.
 // The filter must an expression which matches the filter structure.
 // String values may parsed into a filter using `parseFilter` function.
-// 
+//
 // Options:
 //   - 'limit': max number of recs to return
 //   - 'sort': sort by display name
-// 
+//
 // Examples:
 //   readAll(site)                      // read all site recs
 //   readAll(equip and siteRef==@xyz)   // read all equip in a given site
@@ -94,7 +94,7 @@ readAllStream: Func { filter: Filter, returns: Obj }
 //   - 'kind': all the different value kinds separated by "|"
 //   - 'count': total number of recs with the tag
 // Also see `readAllTagVals` and `gridColKinds`.
-// 
+//
 // Examples:
 //   // read statistics on all tags used by equip recs
 //   readAllTagNames(equip)
@@ -105,14 +105,14 @@ readAllTagNames: Func { filter: Filter, returns: Grid }
 // This method is capped to 200 results.  The results are
 // returned as a grid with a single 'val' column.
 // Also see `readAllTagNames`.
-// 
+//
 // Examples:
 //   // read grid of all unique point unit tags
 //   readAllTagVals(point, "unit")
 readAllTagVals: Func { filter: Filter, tagName: Str, returns: Grid }
 
 // Return the number of records which match the given filter expression.
-// 
+//
 // Examples:
 //   readCount(point)    // return number of recs with point tag
 readCount: Func { filter: Filter, returns: Number }
@@ -150,7 +150,7 @@ toRecList: Func { val: Obj?, returns: List }
 // be the instance which was read from the database, or it may be null
 // only if the add flag is passed.  Any tags to add/set/remove should
 // be included in the changes dict.
-// 
+//
 // The following flags are supported:
 //   - 'add': indicates diff is adding new record
 //   - 'remove': indicates diff is removing record (in general you
@@ -160,17 +160,17 @@ toRecList: Func { val: Obj?, returns: List }
 //   - 'force': indicating that changes should be applied regardless
 //     of other concurrent changes which may be been applied after
 //     the orig version was read (use with caution!)
-// 
+//
 // Examples:
 //    // create new record
 //    diff(null, {dis:"New Rec", someMarker}, {add})
-// 
+//
 //    // create new record with explicit id like Diff.makeAdd
 //    diff(null, {id:151bd3c5-6ce3cb21, dis:"New Rec"}, {add})
-// 
+//
 //    // set/add dis tag and remove oldTag
 //    diff(orig, {dis:"New Dis", -oldTag})
-// 
+//
 //    // set/add val tag transiently
 //    diff(orig, {val:123}, {transient})
 diff: Func { orig: Dict?, changes: Dict?, flags: Dict?, returns: Obj }
@@ -180,17 +180,17 @@ diff: Func { orig: Dict?, changes: Dict?, flags: Dict?, returns: Obj }
 //   - result of `diff()`
 //   - list of `diff()` to commit multiple diffs at once
 //   - stream of `diff()`; see `docHaxall::Streams#commit`.
-// 
+//
 // If one diff is passed, return the new record.  If a list
 // of diffs is passed return a list of new records.
-// 
+//
 // This is a synchronous blocking call which will return
 // the new record or records as the result.
-// 
+//
 // Examples:
 //   // add new record
 //   newRec: commit(diff(null, {dis:"New Rec!"}, {add}))
-// 
+//
 //   // add someTag to some group of records
 //   readAll(filter).toRecList.map(r => diff(r, {someTag})).commit
 commit: Func <admin> { diffs: Obj, returns: Obj? }
@@ -199,7 +199,7 @@ commit: Func <admin> { diffs: Obj, returns: Obj? }
 // store.  The key is typically a Ref of the associated record.
 // If the 'val' is null, then the password will be removed.
 // See `docHaxall::Folio#passwords`.
-// 
+//
 // pre>
 // passwordSet(@abc-123, "password")
 // passwordSet(@abc-123, null)
@@ -213,14 +213,14 @@ passwordSet: Func <admin> { key: Obj, val: Str?, returns: Obj? }
 // The 'mod' tag is stripped unless the '{mod}' option is specified.
 // The 'id' tag is not stripped for cases when adding records with
 // swizzled ids; pass '{-id}' in options to strip the 'id' tag also.
-// 
+//
 // Examples:
 //   // strip uncommittable tags and keep id
 //   toCommit: rec.stripUncommittable
-// 
+//
 //   // strip uncommittable tags and the id tag
 //   toCommit: rec.stripUncommittable({-id})
-// 
+//
 //   // strip uncommittable tags, but keep id and mod
 //   toCommit: rec.stripUncommittable({mod})
 stripUncommittable: Func { val: Obj, opts: Obj?, returns: Obj }
@@ -290,7 +290,7 @@ isWatched: Func { rec: Obj, returns: Bool }
 // is used for the watch's debug display string.  Update and return
 // the grid with a meta 'watchId' tag.  Also see `hx::HxWatchService.open`
 // and `docHaxall::Watches#axon`.
-// 
+//
 // Example:
 //   readAll(myPoints).watchOpen("MyApp|Points")
 watchOpen: Func { grid: Grid, dis: Str, returns: Grid }
@@ -312,13 +312,19 @@ watchRemove: Func { watchId: Str, grid: Grid, returns: Grid }
 watchClose: Func { watchId: Str, returns: Obj? }
 
 // Return [about]`op:about` dict
-about: Func { returns: Dict }
+about: Func <nodoc>  { returns: Dict }
+
+// Return SysInfo debug
+sysInfo: Func <nodoc> { returns: Grid }
+
+// Return SysConfig debug
+sysConfig: Func <nodoc> { returns: Grid }
 
 // Get the current context as a Dict with the following tags:
 //   - 'username' for current user
 //   - 'userRef' id for current user
 //   - 'locale' current locale
-// 
+//
 // SkySpark tags:
 //   - 'projName' if evaluating in context of a project
 //   - 'nodeId' local cluster node id
@@ -345,3 +351,4 @@ threadDump: Func <nodoc, su> { returns: Str }
 
 // Debug dump of all threads
 foo: Func <nodoc, su> { returns: Obj? }
+

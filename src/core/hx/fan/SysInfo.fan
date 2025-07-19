@@ -6,8 +6,9 @@
 //   14 Jun 2021  Brian Frank  Creation
 //
 
-using xeto
 using util
+using xeto
+using haystack
 
 **
 ** SysInfo models the meta data of the system running Haxall.
@@ -20,21 +21,26 @@ const class SysInfo
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Construct with meta/config
-  ** Meta:
-  **   - version (required)
-  **   - runtime (required)
-  **   - hostOs, hostModel
+  ** Construct with meta:
+  **   - version
+  **   - runtime
+  **   - hostOs, hostModel, hostId?
   **   - productName, productVersion, productUri
   **   - vendorName, vendorUri
-  ** Config:
-  **   - test
   **
   @NoDoc new make(Dict meta)
   {
-    this.metaRef    = meta
-    this.versionRef = Version.fromStr(meta->version)
-    this.rtRef      = SysInfoRuntime.fromStr(meta->runtime)
+    this.meta           = meta
+    this.version        = Version.fromStr(meta->version)
+    this.hostOs         = meta->hostOs
+    this.hostModel      = meta->hostModel
+    this.hostId         = meta["hostId"]
+    this.rt             = SysInfoRuntime.fromStr(meta->runtime)
+    this.productName    = meta->productName
+    this.productVersion = meta->productVersion
+    this.productUri     = meta->productUri
+    this.vendorName     = meta->vendorName
+    this.vendorUri      = meta->vendorUri
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,72 +48,91 @@ const class SysInfo
 //////////////////////////////////////////////////////////////////////////
 
   ** System info metadata
-  Dict meta() { metaRef }
-  private const Dict metaRef
+  const Dict meta
 
   ** System version
-  Version version() { versionRef }
-  private const Version versionRef
-
-  ** Operating system name - see `sys::Env.os`
-  virtual Str os() { Env.cur.os }
-
-  ** Microprocessor architecture - see `sys::Env.arch`
-  virtual Str arch() { Env.cur.arch }
-
-  ** Host operating system platform and version
-  virtual Str hostOs() { meta["hostOs"] as Str ?: "$os $arch " + Env.cur.vars["os.version"] }
-
-  ** Host model
-  virtual Str hostModel() { meta["hostModel"] as Str ?: productName + " (" + Env.cur.vars["os.name"] + ")" }
-
-  ** Host hardware identifier or null if not available.
-  @NoDoc Str? hostId() { null }
+  const Version version
 
   ** System runtime type
-  @NoDoc SysInfoRuntime rt() { rtRef }
-  private const SysInfoRuntime rtRef
+  @NoDoc const SysInfoRuntime rt
+
+  ** Host operating system platform and version
+  const Str hostOs
+
+  ** Host model
+  const Str hostModel
+
+  ** Host hardware identifier or null if not available.
+  @NoDoc const Str? hostId
 
 //////////////////////////////////////////////////////////////////////////
 // Branding
 //////////////////////////////////////////////////////////////////////////
 
   ** Product name
-  virtual Str productName() { meta["productName"] as Str ?: "Haxall" }
+  const Str productName
 
   ** Product version
-  virtual Str productVersion() { meta["productVersion"] as Str ?: typeof.pod.version.toStr }
+  const Str productVersion
 
   ** Product home page
-  virtual Uri productUri() { meta["productUri"] as Uri ?: `https://haxall.io/` }
+  const Uri productUri
 
   ** Vendor name
-  virtual Str vendorName() { meta["vendorName"] as Str ?: "SkyFoundry" }
+  const Str vendorName
 
   ** Vendor home page
-  virtual Uri vendorUri() { meta["vendorUri"] as Uri ?: `https://skyfoundry.com/` }
+  const Uri vendorUri
 
-  ** Relative URI to the SVG logo
+  ** File resource for SVG logo
   @NoDoc virtual Uri logoUri() { `/user/logo.svg` }
 
-  ** Relative URI to the #555555 monochrome SVG logo
+  ** File resource for #555555 monochrome SVG logo
   @NoDoc virtual Uri logoMonoUri() { `/user/logo.svg` }
 
-  ** Relative URI to favicon.png image
+  ** File resource favicon.png image
   @NoDoc virtual Uri faviconUri() { `/user/favicon.png` }
 
 //////////////////////////////////////////////////////////////////////////
 // Debug
 //////////////////////////////////////////////////////////////////////////
 
+  ** Debug grid
+  @NoDoc Grid debug()
+  {
+    gb := GridBuilder().addCol("name").addCol("val")
+    debugEach |v, n|
+    {
+      if (v != null && Kind.fromVal(v, false) == null) v = v.toStr
+      gb.addRow2(n, v)
+    }
+    return gb.toGrid
+  }
+
+  ** Debug iterate properties
+  @NoDoc Void debugEach(|Obj?,Str| cb)
+  {
+    typeof.fields.each |f|
+    {
+      if (!f.isStatic && f.name != "meta")
+        cb(f.get(this), f.name)
+    }
+    typeof.methods.each |m|
+    {
+      if (m.name == "debug") return
+      if (m.parent != Obj# && !m.isStatic && !m.isCtor && m.params.isEmpty)
+        cb(m.callOn(this, null), m.name)
+    }
+    meta.each |v, n|
+    {
+      if (typeof.slot(n, false) == null) cb(v, n)
+    }
+  }
+
   ** Debug dump
   @NoDoc Void dump(Console con := Console.cur)
   {
-    typeof.methods.each |m|
-    {
-      if (m.parent != Obj# && !m.isStatic && !m.isCtor && m.params.isEmpty)
-        con.info("$m.name: " + m.callOn(this, null))
-    }
+    debugEach |v, n| { con.info("$n: $v") }
   }
 }
 

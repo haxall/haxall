@@ -37,9 +37,6 @@ abstract class HxBoot
   ** Logger to use for bootstrap (required)
   Log? log
 
-  ** System version
-  Version version := typeof.pod.version
-
   ** Xeto repo to use
   FileRepo repo := XetoEnv.cur.repo
 
@@ -66,13 +63,22 @@ abstract class HxBoot
 
   **
   ** SysInfo metadata
-  **   - sysVersion (required)
-  **   - runtime (required)
-  **   - hostOs, hostModel
+  **   - version
+  **   - runtime
+  **   - hostOs, hostModel, hostId?
   **   - productName, productVersion, productUri
   **   - vendorName, vendorUri
   **
-  Str:Obj? sysMeta := [:]
+  Str:Obj? sysMeta := [
+    "version":        typeof.pod.version.toStr,
+    "hostOs":         hostOs,
+    "hostModel":      "Haxall (${Env.cur.os})",
+    "productName":    "Haxall",
+    "productVersion": typeof.pod.version.toStr,
+    "productUri":     `https://haxall.io/`,
+    "vendorName":     "SkyFoundry",
+    "vendorUri":      `https://skyfoundry.com/`,
+  ]
 
   **
   ** SysInfo config tags used to customize the system.
@@ -194,7 +200,7 @@ abstract class HxBoot
   virtual Dict initMeta()
   {
     // setup the tags we want for projMeta
-    tags := ["projMeta": Marker.val, "version": version.toStr]
+    tags := ["projMeta": Marker.val, "version": sysMeta.getChecked("version")]
 
     // update rec and and return it
     return initRec("projMeta", db.read(Filter.has("projMeta"), false), tags)
@@ -203,9 +209,6 @@ abstract class HxBoot
   ** Create Platform for HxSys
   virtual SysInfo initSysInfo()
   {
-    if (sysMeta["version"] == null)
-      sysMeta["version"] = version.toStr
-
     meta := Etc.dictFromMap(sysMeta.findNotNull)
     return SysInfo(meta)
   }
@@ -244,6 +247,13 @@ abstract class HxBoot
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  ** Default hostOS sysMeta
+  static Str hostOs()
+  {
+    env := Env.cur.vars
+    return env["os.name"] + " " + env["os.arch"] + " " + env["os.version"]
+  }
 
   ** Ensure given record exists and has given tags
   Dict initRec(Str summary, Dict? rec, Str:Obj changes := [:])

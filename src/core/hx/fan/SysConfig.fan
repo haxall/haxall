@@ -7,6 +7,7 @@
 //
 
 using xeto
+using haystack
 using util
 
 **
@@ -39,6 +40,14 @@ const class SysConfig
 
   ** Is this a test system?
   virtual Bool isTest() { meta.has("test") }
+
+  ** Debug grid
+  @NoDoc Grid debug()
+  {
+    gb := GridBuilder().addCol("name").addCol("val")
+    meta.each |v, n| { gb.addRow2(n, v) }
+    return gb.toGrid
+  }
 
   ** Debug dump
   @NoDoc Void dump(Console con := Console.cur)
