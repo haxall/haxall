@@ -114,11 +114,34 @@ const class ServerEnv : MEnv
     return acc.toImmutable
   }
 
-  override once LibRepo repo()
+  override once FileRepo repo()
   {
     // lazily create after construction
     FileRepo(this)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Namespace
+//////////////////////////////////////////////////////////////////////////
+
+  override LibNamespace createNamespace(LibVersion[] libs)
+  {
+    repo.createNamespace(libs)
+  }
+
+  override LibNamespace createNamespaceFromNames(Str[] names)
+  {
+    repo.createFromNames(names)
+  }
+
+  override LibNamespace createNamespaceFromData(Dict[] recs)
+  {
+    repo.createFromData(recs)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Compile
+//////////////////////////////////////////////////////////////////////////
 
   override XetoLib compile(LibNamespace ns, LibVersion v)
   {

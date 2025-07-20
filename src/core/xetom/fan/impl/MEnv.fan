@@ -80,6 +80,12 @@ const class BrowserEnv : MEnv
 
   override Str:Str buildVars() { throw unavailErr() }
 
+  override LibNamespace createNamespace(LibVersion[] libs) { throw unavailErr() }
+
+  override LibNamespace createNamespaceFromNames(Str[] names) { throw unavailErr() }
+
+  override LibNamespace createNamespaceFromData(Dict[] recs) { throw unavailErr() }
+
   override Str mode() { "browser" }
 
   override Str:Str debugProps() { Str:Obj[:] }
