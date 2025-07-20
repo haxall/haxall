@@ -18,16 +18,16 @@ using xeto
 const class RemoteNamespace : MNamespace
 {
   ** Boot a RemoteEnv from the given boot message input stream
-  static RemoteNamespace boot(InStream in, MNamespace? base, RemoteLibLoader? libLoader)
+  static RemoteNamespace boot(XetoEnv env, InStream in, MNamespace? base, RemoteLibLoader? libLoader)
   {
     if (base == null)
-      return XetoBinaryReader(in).readBootBase(libLoader)
+      return XetoBinaryReader(in).readBootBase(env, libLoader)
     else
-      return XetoBinaryReader(in).readBootOverlay(base, libLoader)
+      return XetoBinaryReader(in).readBootOverlay(env, base, libLoader)
   }
 
-  internal new make(MNamespace? base, LibCache libCache, LibVersion[] versions, RemoteLibLoader? libLoader, |This->XetoLib| loadSys)
-    : super(base, libCache, versions, loadSys)
+  internal new make(MEnv env, MNamespace? base, LibVersion[] versions, RemoteLibLoader? libLoader, |This->XetoLib| loadSys)
+    : super(env, base, versions, loadSys)
   {
     this.libLoader = libLoader
   }

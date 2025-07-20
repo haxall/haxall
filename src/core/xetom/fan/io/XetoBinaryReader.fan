@@ -35,13 +35,13 @@ class XetoBinaryReader : XetoBinaryConst
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  internal RemoteNamespace readBootBase(RemoteLibLoader? libLoader)
+  internal RemoteNamespace readBootBase(XetoEnv env, RemoteLibLoader? libLoader)
   {
     verifyU4(magic, "magic")
     verifyU4(version, "version")
     libVersions := readLibVersions
     numNonSysLibs := readVarInt - 1
-    ns := RemoteNamespace(null, LibCache(), libVersions, libLoader) |ns->XetoLib|
+    ns := RemoteNamespace(env, null, libVersions, libLoader) |ns->XetoLib|
     {
       readLib(ns) // read sys inside MNamespace constructor
     }
@@ -59,13 +59,13 @@ class XetoBinaryReader : XetoBinaryConst
     return ns
   }
 
-  internal RemoteNamespace readBootOverlay(MNamespace base, RemoteLibLoader? libLoader)
+  internal RemoteNamespace readBootOverlay(XetoEnv env, MNamespace base, RemoteLibLoader? libLoader)
   {
     if (!base.isAllLoaded) throw Err("Base must be fully loaded")
     verifyU4(magicOverlay, "magic")
     verifyU4(version, "version")
     libVersions := readLibVersions
-    ns := RemoteNamespace(base, base.libCache, libVersions, libLoader) |ns->XetoLib|
+    ns := RemoteNamespace(env, base, libVersions, libLoader) |ns->XetoLib|
     {
       base.sysLib
     }

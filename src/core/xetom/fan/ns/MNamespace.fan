@@ -17,10 +17,11 @@ using haystack
 @Js
 abstract const class MNamespace : LibNamespace, CNamespace
 {
-  new make(MNamespace? base, LibCache libCache, LibVersion[] versions, |This->XetoLib|? loadSys)
+  new make(MEnv env, MNamespace? base, LibVersion[] versions, |This->XetoLib|? loadSys)
   {
+    this.envRef = env
+
     this.base = base
-    this.libCache = libCache
     if (base != null)
     {
       // build unified list of versions and check overlay doesn't dup one
@@ -75,9 +76,10 @@ abstract const class MNamespace : LibNamespace, CNamespace
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  const override LibNamespace? base
+  override XetoEnv env() { envRef }
+  const MEnv envRef
 
-  const LibCache libCache
+  const override LibNamespace? base
 
   override Bool isOverlay() { base != null }
 
@@ -348,7 +350,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   ** Load given version synchronously.  If the libary can not be
   ** loaed then raise exception to the caller of this method.
-  XetoLib doLoadSync(LibVersion v) { libCache.getOrCompile(this, v) }
+  XetoLib doLoadSync(LibVersion v) { envRef.getOrCompile(this, v) }
 
   ** Load a list of versions asynchronously and return result
   ** of either a XetoLib or Err (is error on server)

@@ -116,7 +116,7 @@ internal class XetoCompiler
 
   ** Parse only the lib.xeto file into version, doc, and depends.
   ** Must setup libName and input to the "lib.xeto" file
-  FileLibVersion parseLibVersion()
+  LibVersion parseLibVersion()
   {
     run([
       InitLibVersion(),

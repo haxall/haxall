@@ -38,7 +38,7 @@ abstract class HxBoot
   Log? log
 
   ** Xeto repo to use
-  FileRepo repo := XetoEnv.cur.repo
+  XetoEnv xetoEnv := XetoEnv.cur
 
   ** List of xeto lib names which are implicitly enabled as boot libs
   Str[] bootLibs := [,]

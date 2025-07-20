@@ -26,13 +26,13 @@ const class HxProjLibs : ProjLibs
 
   new make(HxProj proj, HxBoot boot)
   {
-    this.proj = proj
-    this.isSys = proj.isSys
-    this.fb = boot.nsfb
+    this.proj         = proj
+    this.isSys        = proj.isSys
+    this.env          = boot.xetoEnv
+    this.fb           = boot.nsfb
+    this.log          = boot.log
     this.bootLibNames = boot.bootLibs
-    this.repo = boot.repo
-    this.log = boot.log
-    this.specsRef = HxProjSpecs(this)
+    this.specsRef     = HxProjSpecs(this)
   }
 
   internal HxNamespace init()
@@ -48,11 +48,13 @@ const class HxProjLibs : ProjLibs
 
   const Bool isSys
 
+  const XetoEnv env
+
+  LibRepo repo() { env.repo }
+
   const DiskFileBase fb
 
   const Log log
-
-  const FileRepo repo
 
   const Str[] bootLibNames
 
@@ -80,7 +82,7 @@ const class HxProjLibs : ProjLibs
   override ProjLib[] installed()
   {
     acc := this.map.dup
-    repo.libs.each |n|
+    env.repo.libs.each |n|
     {
       if (acc[n] != null) return
       v := repo.latest(n)
@@ -330,7 +332,7 @@ const class HxProjLibs : ProjLibs
     nsVers := versToUse.vals
     if (proj.sys.info.rt.isHxd)
       nsVers.add(FileLibVersion.makeProj(fb.dir, proj.sys.info.version))
-    ns := HxNamespace(LocalNamespaceInit(repo, nsVers, null))
+    ns := HxNamespace(LocalNamespaceInit(env, repo, nsVers, null))
     ns.libs // force sync load
 
     // now update HxProjLibs map of HxProjLib

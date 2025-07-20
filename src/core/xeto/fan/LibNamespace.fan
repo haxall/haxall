@@ -108,6 +108,9 @@ const mixin LibNamespace
   ** Return true if this an overlay namespace overlaid on `base`.
   abstract Bool isOverlay()
 
+  ** Environment used to create this namespace
+  abstract XetoEnv env()
+
   ** Base64 digest for this namespace based on its lib versions
   abstract Str digest()
 
