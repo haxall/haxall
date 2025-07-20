@@ -26,8 +26,8 @@ const class RemoteNamespace : MNamespace
       return XetoBinaryReader(in).readBootOverlay(base, libLoader)
   }
 
-  internal new make(MNamespace? base, LibVersion[] versions, RemoteLibLoader? libLoader, |This->XetoLib| loadSys)
-    : super(base, versions, loadSys)
+  internal new make(MNamespace? base, LibCache libCache, LibVersion[] versions, RemoteLibLoader? libLoader, |This->XetoLib| loadSys)
+    : super(base, libCache, versions, loadSys)
   {
     this.libLoader = libLoader
   }
@@ -44,11 +44,6 @@ const class RemoteNamespace : MNamespace
   override Obj? compileData(Str src, Dict? opts := null)
   {
     throw UnsupportedErr()
-  }
-
-  override XetoLib doLoadSync(LibVersion v)
-  {
-    throw UnsupportedErr("Must use libAsync [$v]")
   }
 
   override Void doLoadAsync(LibVersion v, |Err?, Obj?| f)

@@ -41,7 +41,7 @@ class XetoBinaryReader : XetoBinaryConst
     verifyU4(version, "version")
     libVersions := readLibVersions
     numNonSysLibs := readVarInt - 1
-    ns := RemoteNamespace(null, libVersions, libLoader) |ns->XetoLib|
+    ns := RemoteNamespace(null, LibCache(), libVersions, libLoader) |ns->XetoLib|
     {
       readLib(ns) // read sys inside MNamespace constructor
     }
@@ -65,7 +65,7 @@ class XetoBinaryReader : XetoBinaryConst
     verifyU4(magicOverlay, "magic")
     verifyU4(version, "version")
     libVersions := readLibVersions
-    ns := RemoteNamespace(base, libVersions, libLoader) |ns->XetoLib|
+    ns := RemoteNamespace(base, base.libCache, libVersions, libLoader) |ns->XetoLib|
     {
       base.sysLib
     }

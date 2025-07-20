@@ -18,7 +18,7 @@ using haystack
 const class LocalNamespace : MNamespace
 {
   new make(LocalNamespaceInit init)
-    : super(init.base, init.versions, null)
+    : super(init.base, init.libCache, init.versions, null)
   {
     this.repo  = init.repo
     this.build = init.build
@@ -34,17 +34,6 @@ const class LocalNamespace : MNamespace
 // Loading
 //////////////////////////////////////////////////////////////////////////
 
-  override XetoLib doLoadSync(LibVersion v)
-  {
-    c := XetoCompiler
-    {
-      it.ns      = this
-      it.libName = v.name
-      it.input   = v.file
-      it.build   = this.build?.get(v.name)
-    }
-    return c.compileLib
-  }
 
   override Void doLoadAsync(LibVersion version, |Err?, Obj?| f)
   {
@@ -106,12 +95,14 @@ const class LocalNamespaceInit
   new make(LibRepo repo, LibVersion[] versions, MNamespace? base := null, [Str:File]? build := null)
   {
     this.repo     = repo
+    this.libCache = FileRepoCache(repo)
     this.versions = versions
     this.base     = base
     this.build    = build
   }
 
   const LibRepo repo
+  const LibCache libCache
   const LibVersion[] versions
   const MNamespace? base
   const [Str:File]? build
