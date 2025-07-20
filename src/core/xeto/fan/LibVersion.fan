@@ -33,6 +33,9 @@ const mixin LibVersion
     return a.version <=> b.version
   }
 
+  ** Return "name-version"
+  override abstract Str toStr()
+
   ** Get this exact version as LibDepend instance
   @NoDoc LibDepend asDepend()
   {

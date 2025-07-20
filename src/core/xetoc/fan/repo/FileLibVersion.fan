@@ -20,6 +20,7 @@ const class FileLibVersion : LibVersion
   {
     this.name       = name
     this.version    = version
+    this.toStr      = "$name-$version"
     this.fileRef    = file
     this.docRef     = doc
     this.dependsRef = depends?.toImmutable
@@ -31,6 +32,7 @@ const class FileLibVersion : LibVersion
     dash := n.index("-") ?: throw Err(n)
     this.name = n[0..<dash]
     this.version = Version(n[dash+1..-1])
+    this.toStr      = "$name-$version"
     this.fileRef = file
   }
 
@@ -38,6 +40,7 @@ const class FileLibVersion : LibVersion
   {
     this.name       = XetoUtil.projLibName
     this.version    = version
+    this.toStr      = "$name-$version"
     this.fileRef    = dir
     this.docRef     = "Project library"
     this.dependsRef = LibDepend#.emptyList
@@ -46,6 +49,8 @@ const class FileLibVersion : LibVersion
   override const Str name
 
   override const Version version
+
+  override const Str toStr
 
   override Str doc()
   {
@@ -74,8 +79,6 @@ const class FileLibVersion : LibVersion
         zip.close
     }
   }
-
-  override Str toStr() { "$name-$version" }
 
   override LibDepend[] depends()
   {

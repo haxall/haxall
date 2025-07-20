@@ -14,13 +14,14 @@ using xeto
 ** RemoteLibVersion
 **
 @Js
-internal const class RemoteLibVersion : LibVersion
+const class RemoteLibVersion : LibVersion
 {
   new make(Str name, Version version, LibDepend[] depends)
   {
     this.name    = name
     this.version = version
     this.depends = depends
+    this.toStr   = "$name-$version"
   }
 
   override const Str name
@@ -39,7 +40,7 @@ internal const class RemoteLibVersion : LibVersion
 
   override Void eachSrcFile(|File| f) {}
 
-  override Str toStr() { "$name-$version" }
+  override const Str toStr
 
   override const LibDepend[] depends
 
