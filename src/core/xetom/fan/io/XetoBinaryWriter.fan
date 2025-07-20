@@ -34,6 +34,7 @@ class XetoBinaryWriter : XetoBinaryConst
     this.names = io.names
     this.maxNameCode = io.maxNameCode
     this.out = out
+    this.cp = BrioConsts.cur
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -71,7 +72,7 @@ class XetoBinaryWriter : XetoBinaryConst
     max := maxNameCode
     writeVarInt(max)
     for (i := NameTable.initSize+1; i<=max; ++i)
-      out.writeUtf(names.toName(i))
+      writeStr(names.toName(i))
   }
 
   private Void writeLibVersions(LibVersion[] vers)
@@ -86,10 +87,10 @@ class XetoBinaryWriter : XetoBinaryConst
   private Void writeLibVersion(LibVersion v)
   {
     writeI4(magicLibVer)
-    writeName(v.name)
+    writeStr(v.name)
     writeVersion(v.version)
     writeVarInt(v.depends.size)
-    v.depends.each |d| { writeName(d.name) }
+    v.depends.each |d| { writeStr(d.name) }
   }
 
   private Void writeBootLibs(MNamespace ns, Str[] list)
@@ -113,7 +114,7 @@ class XetoBinaryWriter : XetoBinaryConst
   Void writeLib(XetoLib lib)
   {
     writeI4(magicLib)
-    writeName(lib.name)
+    writeStr(lib.name)
     writeNameDict(lib.m.meta.wrapped)
     writeVarInt(lib.m.flags)
     writeSpecs(lib)
@@ -131,7 +132,7 @@ class XetoBinaryWriter : XetoBinaryConst
   private Void writeSpec(XetoSpec x)
   {
     m := x.m
-    writeName(m.name)
+    writeStr(m.name)
     write(m.flavor.ordinal)
     writeSpecRef(m.base)
     writeSpecRef(m.isType ? null : m.type)
@@ -185,15 +186,15 @@ class XetoBinaryWriter : XetoBinaryConst
     if (spec.parent == null)
     {
       write(1)
-      writeName(spec.lib.name)
-      writeName(spec.name)
+      writeStr(spec.lib.name)
+      writeStr(spec.name)
     }
     else if (spec.parent.parent == null)
     {
       write(2)
-      writeName(spec.lib.name)
-      writeName(spec.parent.name)
-      writeName(spec.name)
+      writeStr(spec.lib.name)
+      writeStr(spec.parent.name)
+      writeStr(spec.name)
     }
     else
     {
@@ -202,8 +203,8 @@ class XetoBinaryWriter : XetoBinaryConst
         path.add(x.name)
       path.reverse
       write(path.size + 1)
-      writeName(spec.m.lib.name)
-      path.each |n| { writeName(n) }
+      writeStr(spec.m.lib.name)
+      path.each |n| { writeStr(n) }
     }
   }
 
@@ -276,23 +277,6 @@ class XetoBinaryWriter : XetoBinaryConst
     write(val ? ctrlTrue : ctrlFalse)
   }
 
-  private Void writeStr(Str s)
-  {
-    /* TODO-NAMETABLE
-    nameCode := names.toCode(s)
-    if (nameCode > 0 && nameCode <= maxNameCode)
-    {
-      write(ctrlName)
-      writeVarInt(nameCode)
-    }
-    else
-    {
-    */
-      write(ctrlStr)
-      writeUtf(s)
-    //}
-  }
-
   private This writeNumber(Number val)
   {
     unit := val.unit?.symbol
@@ -305,7 +289,7 @@ class XetoBinaryWriter : XetoBinaryConst
     {
       write(ctrlNumberUnit)
       writeF8(val.toFloat)
-      writeUtf(unit)
+      writeStr(unit)
     }
     return this
   }
@@ -339,14 +323,14 @@ class XetoBinaryWriter : XetoBinaryConst
   private Void writeUri(Uri uri)
   {
     write(ctrlUri)
-    writeUtf(uri.toStr)
+    writeStr(uri.toStr)
   }
 
   private Void writeRef(Ref ref)
   {
     write(ctrlRef)
-    writeUtf(ref.id)
-    writeUtf(ref.disVal ?: "")
+    writeStr(ref.id)
+    writeStr(ref.disVal ?: "")
   }
 
   private This writeDate(Date val)
@@ -383,7 +367,7 @@ class XetoBinaryWriter : XetoBinaryConst
   private This writeSpan(Span span)
   {
     out.write(ctrlSpan)
-    out.writeUtf(span.toStr)
+    writeStr(span.toStr)
     return this
   }
 
@@ -399,23 +383,23 @@ class XetoBinaryWriter : XetoBinaryConst
   private This writeCoord(Coord val)
   {
     write(ctrlCoord)
-    writeUtf(val.toStr)
+    writeStr(val.toStr)
     return this
   }
 
   private This writeGenericScalar(Scalar val)
   {
     out.write(ctrlGenericScalar)
-    out.writeUtf(val.qname)
-    out.writeUtf(val.val)
+    writeStr(val.qname)
+    writeStr(val.val)
     return this
   }
 
   private This writeTypedScalar(Obj val)
   {
     out.write(ctrlTypedScalar)
-    out.writeUtf(val.typeof.qname)
-    out.writeUtf(val.toStr)
+    writeStr(val.typeof.qname)
+    writeStr(val.toStr)
     return this
   }
 
@@ -449,7 +433,7 @@ class XetoBinaryWriter : XetoBinaryConst
     writeVarInt(size)
     for (i := 0; i<size; ++i)
     {
-      writeName(names.toName(dict.nameAt(i)))
+      writeStr(names.toName(dict.nameAt(i)))
       writeVal(dict.valAt(i))
     }
   }
@@ -463,7 +447,7 @@ class XetoBinaryWriter : XetoBinaryConst
   private Void writeTypedDict(Dict dict)
   {
     write(ctrlTypedDict)
-    out.writeUtf(dict.typeof.qname)
+    writeStr(dict.typeof.qname)
     writeDictTags(dict)
   }
 
@@ -507,22 +491,37 @@ class XetoBinaryWriter : XetoBinaryConst
     }
   }
 
-  private Void writeName(Str name)
+//////////////////////////////////////////////////////////////////////////
+// Strings
+//////////////////////////////////////////////////////////////////////////
+
+  Void writeStr(Str val)
   {
-    /* TODO-NAMETABLE
-    nameCode := names.toCode(name)
-    if (nameCode <= maxNameCode && nameCode != 0)
+    // check brio string constant pool
+    code := cp.encode(val, constMaxCode)
+    if (code != null)
     {
-      writeVarInt(nameCode)
+      write(ctrlStrConst)
+      writeVarInt(code)
+      return
     }
-    else
+
+    // string we havea already encoded in this string
+    index := strs[val]
+    if (index != null)
     {
-      out.write(0)
-      writeVarInt(nameCode)
-      out.writeUtf(name)
+      write(ctrlStrPrev)
+      writeVarInt(index)
+      return
     }
-    */
-    out.writeUtf(name)
+
+    // new string from stream
+    //BrioConstTrace.trace(val)
+    strs[val] = strs.size
+    write(ctrlStrNew)
+    size := val.size
+    writeVarInt(size)
+    val.each |char| { out.writeChar(char) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -554,15 +553,10 @@ class XetoBinaryWriter : XetoBinaryConst
     out.writeF8(f)
   }
 
-  Void writeUtf(Str s)
-  {
-    out.writeUtf(s)
-  }
-
   Void writeRawRefList(Ref[] ids)
   {
     writeVarInt(ids.size)
-    ids.each |id| { writeUtf(id.id) }
+    ids.each |id| { writeStr(id.id) }
   }
 
   Void writeRawDictList(Dict[] dicts)
@@ -585,8 +579,12 @@ class XetoBinaryWriter : XetoBinaryConst
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
+  private static const Int constMaxCode := 1000
+
   private const NameTable names
   private const Int maxNameCode
   private OutStream out
+  private BrioConsts cp
+  private Str:Int strs := Str:Int[:]
 }
 

@@ -30,6 +30,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     this.io = io
     this.names = io.names
     this.in = in
+    this.cp = BrioConsts.cur
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -79,7 +80,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     max := readVarInt
     for (i := NameTable.initSize+1; i<=max; ++i)
     {
-      names.add(in.readUtf)
+      names.add(readStr)
     }
     return max
   }
@@ -260,8 +261,9 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlRemove:        return Remove.val
       case ctrlTrue:          return true
       case ctrlFalse:         return false
-      case ctrlName:          return names.toName(readName)
-      case ctrlStr:           return readUtf
+      case ctrlStrConst:      return readStrConst
+      case ctrlStrNew:        return readStrNew
+      case ctrlStrPrev:       return readStrPrev
       case ctrlNumberNoUnit:  return readNumberNoUnit
       case ctrlNumberUnit:    return readNumberUnit
       case ctrlInt2:          return in.readS2
@@ -297,17 +299,17 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Number readNumberUnit()
   {
-    Number(readF8, Number.loadUnit(readUtf))
+    Number(readF8, Number.loadUnit(readStr))
   }
 
   private Uri readUri()
   {
-    Uri.fromStr(readUtf)
+    Uri.fromStr(readStr)
   }
 
   private Ref readRef()
   {
-    Ref.make(readUtf, readUtf.trimToNull)
+    Ref.make(readStr, readStr.trimToNull)
   }
 
   private Date readDate()
@@ -342,20 +344,20 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Coord readCoord()
   {
-    Coord.fromStr(readUtf)
+    Coord.fromStr(readStr)
   }
 
   private Scalar readGenericScalar()
   {
-    qname := readUtf
-    val   := readUtf
+    qname := readStr
+    val   := readStr
     return Scalar(qname, val)
   }
 
   private Obj readTypedScalar()
   {
-    qname := readUtf
-    str   := readUtf
+    qname := readStr
+    str   := readStr
     type := Type.find(qname)
     fromStr := toTypedScalarDecoder(type)
     return fromStr.call(str)
@@ -384,7 +386,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Dict readTypedDict()
   {
-    qname := readUtf
+    qname := readStr
     tags := readDictTags
     type := Type.find(qname, false)
     if (type == null) return tags
@@ -437,7 +439,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Span readSpan()
   {
-    Span(readUtf)
+    Span(readStr)
   }
 
   private Version readVersion()
@@ -448,6 +450,10 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     for (i:=0; i<size; ++i) segs.add(readVarInt)
     return Version(segs)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Strs
+//////////////////////////////////////////////////////////////////////////
 
   override Int readName()
   {
@@ -460,8 +466,42 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     names.set(code, name) // is now sparse
     return code
     */
-    name := readUtf
+    name := readStr
     return names.add(name)
+  }
+
+  Str readStr()
+  {
+    ctrl := in.readU1
+    switch (ctrl)
+    {
+      case ctrlStrConst: return readStrConst
+      case ctrlStrNew:   return readStrNew
+      case ctrlStrPrev:  return readStrPrev
+      default:           throw IOErr("Unsupported str code: 0x$ctrl.toHex")
+    }
+  }
+
+  private Str readStrConst()
+  {
+    cp.decode(readVarInt)
+  }
+
+  private Str readStrNew()
+  {
+    size := readVarInt
+    s := StrBuf()
+    s.capacity = size
+    for (i := 0; i<size; ++i)
+      s.addChar(in.readChar)
+    str := s.toStr
+    strs.add(str)
+    return str
+  }
+
+  private Str readStrPrev()
+  {
+    strs.get(readVarInt)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -488,17 +528,12 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     in.readF8
   }
 
-  Str readUtf()
-  {
-    in.readUtf
-  }
-
   Ref[] readRawRefList()
   {
     size := readVarInt
     acc := Ref[,]
     acc.capacity = size
-    size.times { acc.add(Ref(readUtf)) }
+    size.times { acc.add(Ref(readStr)) }
     return acc
   }
 
@@ -546,5 +581,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   private const XetoBinaryIO io
   private const NameTable names
   private InStream in
+  private BrioConsts cp
+  private Str[] strs := Str[,]
 }
 
