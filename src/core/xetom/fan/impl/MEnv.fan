@@ -55,6 +55,29 @@ abstract const class MEnv : XetoEnv
     throw UnsupportedErr("Lib cannot be compiled, must be preloaded: $v")
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Serialization
+//////////////////////////////////////////////////////////////////////////
+
+  override Void saveLibs(OutStream out, Lib[] libs)
+  {
+    XetoBinaryWriter(out).writeLibs(libs)
+  }
+
+  override Void loadLibs(InStream in)
+  {
+    libs := XetoBinaryReader(in).readLibs(this)
+    libs.each |lib|
+    {
+      key := lib.version.toStr
+      map.getOrAdd(key, lib)
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
+
   private const ConcurrentMap map := ConcurrentMap()
 }
 

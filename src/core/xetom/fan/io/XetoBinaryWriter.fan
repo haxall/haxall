@@ -100,6 +100,12 @@ class XetoBinaryWriter : XetoBinaryConst
 // Lib
 //////////////////////////////////////////////////////////////////////////
 
+  Void writeLibs(XetoLib[] libs)
+  {
+    writeVarInt(libs.size)
+    libs.each |lib| { writeLib(lib) }
+  }
+
   Void writeLib(XetoLib lib)
   {
     writeI4(magicLib)

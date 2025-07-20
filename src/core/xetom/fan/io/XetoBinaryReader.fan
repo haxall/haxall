@@ -103,6 +103,19 @@ class XetoBinaryReader : XetoBinaryConst
 // Lib
 //////////////////////////////////////////////////////////////////////////
 
+  XetoLib[] readLibs(XetoEnv env)
+  {
+    size := readVarInt
+    acc := XetoLib[,]
+    acc.capacity = size
+    size.times
+    {
+      //acc.add(readLib(env))
+throw Err("TODO")
+    }
+    return acc
+  }
+
   XetoLib readLib(MNamespace ns)
   {
     lib := XetoLib()

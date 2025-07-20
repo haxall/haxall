@@ -19,6 +19,11 @@ using hx
 **
 class EnvTest : AbstractXetoTest
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Cache
+//////////////////////////////////////////////////////////////////////////
+
   Void testCache()
   {
     env1 := ServerEnv.initPath
@@ -63,6 +68,36 @@ class EnvTest : AbstractXetoTest
       if (blib == null) return
       verifyNotSame(alib, blib)
     }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Serialization
+//////////////////////////////////////////////////////////////////////////
+
+  Void testSerialization()
+  {
+    senv := ServerEnv.initPath
+    benv := BrowserEnv()
+
+    // serialize all libs
+    sns := senv.createNamespaceFromNames(["ph", "ph.points"])
+    buf := Buf()
+    senv.saveLibs(buf.out, sns.libs)
+echo("~~~ wrote $buf.size")
+
+    // now load into browser env
+    benv.loadLibs(buf.flip.in)
+    bns := benv.createNamespaceFromNames(["ph", "ph.points"])
+    verifySerialization(sns, bns)
+  }
+
+  Void verifySerialization(LibNamespace s, LibNamespace b)
+  {
+echo("--- server")
+s.dump
+echo("--- browser")
+b.dump
+    verifyEq(s.libs.join(","), b.libs.join(","))
   }
 }
 
