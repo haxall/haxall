@@ -49,13 +49,13 @@ internal class Assemble : Step
     switch (x.flavor)
     {
       case SpecFlavor.type:
-        m = MType(x.loc, x.lib.asm, x.qname, x.nameCode, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args, x.binding)
+        m = MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args, x.binding)
       case SpecFlavor.func:
-        m = MTopFunc(x.loc, x.lib.asm, x.qname, x.nameCode, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+        m = MTopFunc(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
       case SpecFlavor.global:
-        m = MGlobal(x.loc, x.lib.asm, x.qname, x.nameCode, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+        m = MGlobal(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
       case SpecFlavor.meta:
-        m = MMetaSpec(x.loc, x.lib.asm, x.qname, x.nameCode, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+        m = MMetaSpec(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
       default:
         throw Err(x.flavor.name)
     }
@@ -65,7 +65,7 @@ internal class Assemble : Step
 
   private Void asmSpec(ASpec x)
   {
-    m := MSpec(x.loc, x.parent.asm, x.nameCode, x.name, x.base.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+    m := MSpec(x.loc, x.parent.asm, x.name, x.base.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }

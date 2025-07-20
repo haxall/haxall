@@ -140,24 +140,24 @@ internal class RemoteLoader
     if (x.flavor.isType)
     {
       x.bindingRef = assignBinding(x)
-      m = MType(loc, lib, qname(x), x.nameCode, x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, x.binding)
+      m = MType(loc, lib, qname(x), x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, x.binding)
     }
     else if (x.flavor.isGlobal)
     {
-      m = MGlobal(loc, lib, qname(x), x.nameCode, x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      m = MGlobal(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
     else if (x.flavor.isFunc)
     {
-      m = MTopFunc(loc, lib, qname(x), x.nameCode, x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      m = MTopFunc(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
     else if (x.flavor.isMeta)
     {
-      m = MMetaSpec(loc, lib, qname(x), x.nameCode, x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      m = MMetaSpec(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
     else
     {
       x.type = resolve(x.typeIn).asm
-      m = MSpec(loc, x.parent.asm, x.nameCode, x.name, x.base.asm, x.type, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      m = MSpec(loc, x.parent.asm, x.name, x.base.asm, x.type, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
     XetoSpec#m->setConst(x.asm, m)
     return x

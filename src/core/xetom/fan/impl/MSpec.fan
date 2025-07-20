@@ -17,10 +17,9 @@ using xeto
 @Js
 const class MSpec
 {
-  new make(FileLoc loc, XetoSpec? parent, Int nameCode, Str name, XetoSpec? base, XetoSpec type, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
+  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoSpec type, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
   {
     this.loc      = loc
-    this.nameCode = nameCode
     this.name     = name
     this.parent   = parent
     this.base     = base
@@ -36,8 +35,6 @@ const class MSpec
   virtual XetoLib lib() { parent.lib }
 
   const FileLoc loc
-
-  const Int nameCode
 
   const Str name
 
