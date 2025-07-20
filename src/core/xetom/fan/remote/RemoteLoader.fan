@@ -193,8 +193,9 @@ internal class RemoteLoader
     slots.each |slot| { loadSpec(slot) }
 
     // RSpec is a NameDictReader to iterate slots as NameDict
-    dict := names.readDict(slots.size, x)
-    return MSlots(dict)
+    map := Str:XetoSpec[:]
+    slots.each |slot| { map.add(slot.name, slot.asm) }
+    return MSlots(map)
   }
 
   private MNameDict inheritMeta(RSpec x)
@@ -257,7 +258,7 @@ internal class RemoteLoader
       if (XetoUtil.isAutoName(name)) name = XetoUtil.autoName(autoCount++)
       acc[name] = slot
     }
-    return MSlots(names.dictMap(acc))
+    return MSlots(acc)
   }
 
   private MSlots inheritSlotsFromRefs(RSpec x)
@@ -274,7 +275,7 @@ internal class RemoteLoader
     {
       acc[slot.name] = slot
     }
-    return MSlots(names.dictMap(acc))
+    return MSlots(acc)
   }
 
   private MSpecArgs loadArgs(RSpec x)
@@ -295,7 +296,7 @@ internal class RemoteLoader
     colons := ref.id.index("::")
     libName := ref.id[0..<colons]
     specName := ref.id[colons+2..-1]
-    rref := RSpecRef(names.toCode(libName), names.toCode(specName), 0, null)
+    rref := RSpecRef(libName, specName, "", null)
     return resolve(rref).asm
   }
 
@@ -318,7 +319,7 @@ internal class RemoteLoader
   private CSpec? resolve(RSpecRef? ref)
   {
     if (ref == null) return null
-    if (ref.lib == libNameCode)
+    if (ref.lib == libName)
       return resolveInternal(ref)
     else
       return resolveExternal(ref)
@@ -326,16 +327,16 @@ internal class RemoteLoader
 
   private CSpec resolveInternal(RSpecRef ref)
   {
-    type := tops.getChecked(names.toName(ref.type))
-    if (ref.slot == 0) return type
+    type := tops.getChecked(ref.type)
+    if (ref.slot.isEmpty) return type
 
-    slot := type.slotsOwnIn.find |s| { s.nameCode == ref.slot } ?: throw UnresolvedErr(ref.toStr)
+    slot := type.slotsOwnIn.find |s| { s.name == ref.slot } ?: throw UnresolvedErr(ref.toStr)
     if (ref.more == null) return slot
 
     x := slot
-    ref.more.each |moreCode|
+    ref.more.each |more|
     {
-      x = x.slotsOwnIn.find |s| { s.nameCode == moreCode } ?: throw UnresolvedErr(ref.toStr)
+      x = x.slotsOwnIn.find |s| { s.name == more } ?: throw UnresolvedErr(ref.toStr)
     }
     return x
   }
@@ -343,11 +344,11 @@ internal class RemoteLoader
   private XetoSpec resolveExternal(RSpecRef ref)
   {
     // should already be loaded
-    lib := ns.lib(names.toName(ref.lib))
-    type := (XetoSpec)lib.spec(names.toName(ref.type))
-    if (ref.slot == 0) return type
+    lib := ns.lib(ref.lib)
+    type := (XetoSpec)lib.spec(ref.type)
+    if (ref.slot.isEmpty) return type
 
-    slot := type.m.slots.map.getByCode(ref.slot) ?: throw UnresolvedErr(ref.toStr)
+    slot := type.m.slots.map.get(ref.slot) ?: throw UnresolvedErr(ref.toStr)
     if (ref.more == null) return slot
 
     throw Err("TODO: $type $ref")

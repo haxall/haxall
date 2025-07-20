@@ -210,19 +210,19 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     depth := read
     if (depth == 0) return null
 
-    lib  := readName
-    type := readName
-    slot := 0
-    Int[]? more := null
+    lib  := readStr
+    type := readStr
+    slot := ""
+    Str[]? more := null
     if (depth > 1)
     {
-      slot = readName
+      slot = readStr
       if (depth > 2)
       {
         moreSize := depth - 3
-        more = Int[,]
+        more = Str[,]
         more.capacity = moreSize
-        moreSize.times { more.add(readName) }
+        moreSize.times { more.add(readStr) }
       }
     }
 

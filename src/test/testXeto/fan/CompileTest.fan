@@ -373,7 +373,7 @@ class CompileTest : AbstractXetoTest
     if (expected.isEmpty && type == "sys::Dict")
     {
       verifyEq(actual.isEmpty, true)
-      verifySame(actual, nameDictEmpty)
+      verifySame(actual, Etc.dict0)
       return
     }
     verifyDictEq(actual, expected)

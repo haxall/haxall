@@ -114,7 +114,7 @@ internal class RSpec : CSpec, NameDictReader
 @Js
 internal const class RSpecRef
 {
-  new make(Int lib, Int type, Int slot, Int[]? more)
+  new make(Str lib, Str type, Str slot, Str[]? more)
   {
     this.lib  = lib
     this.type = type
@@ -122,10 +122,10 @@ internal const class RSpecRef
     this.more = more
   }
 
-  const Int lib       // lib name
-  const Int type      // top-level type name code
-  const Int slot      // first level slot or zero if type only
-  const Int[]? more   // slot path below first slot (uncommon)
+  const Str lib       // lib name
+  const Str type      // top-level type name code
+  const Str slot      // first level slot or zero if type only
+  const Str[]? more   // slot path below first slot (uncommon)
 
   override Str toStr() { "$lib $type $slot $more" }
 }

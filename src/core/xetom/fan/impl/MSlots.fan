@@ -7,6 +7,7 @@
 //
 
 using xeto
+using haystack
 
 **
 ** Implementation of SpecSlots
@@ -14,11 +15,11 @@ using xeto
 @Js
 const final class MSlots : SpecSlots
 {
-  static const MSlots empty := MSlots(NameDict.empty)
+  static const MSlots empty := MSlots(Str:XetoSpec[:])
 
-  new make(NameDict map) { this.map = map }
+  new make(Str:XetoSpec map) { this.map = map }
 
-  const NameDict map
+  const Str:XetoSpec map
 
   Int size() { map.size }
 
@@ -29,12 +30,12 @@ const final class MSlots : SpecSlots
 
   override Bool has(Str name)
   {
-    map.has(name)
+    map.containsKey(name)
   }
 
   override Bool missing(Str name)
   {
-    map.missing(name)
+    !map.containsKey(name)
   }
 
   override XetoSpec? get(Str name, Bool checked := true)

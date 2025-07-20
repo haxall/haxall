@@ -166,8 +166,7 @@ class XetoBinaryWriter : XetoBinaryConst
     map := x.m.slotsOwn.map
     size := map.size
     writeVarInt(size)
-    for (i := 0; i<size; ++i)
-      writeSpec(map.valAt(i))
+    map.each |slot| { writeSpec(slot) }
   }
 
   private Void writeInheritedSlotRefs(XetoSpec x)

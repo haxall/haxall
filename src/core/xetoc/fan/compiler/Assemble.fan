@@ -82,8 +82,7 @@ internal class Assemble : Step
     map := Str:XetoSpec[:]
     map.ordered = true
     x.slots.each |kid, name| { map.add(name, kid.asm) }
-    dict := names.dictMap(map)
-    return MSlots(dict)
+    return MSlots(map)
   }
 
   private MSlots asmSlots(ASpec x)
@@ -92,8 +91,7 @@ internal class Assemble : Step
     map := Str:XetoSpec[:]
     map.ordered = true
     x.cslots |s, n| { map[n] = s.asm }
-    dict := names.dictMap(map)
-    return MSlots(dict)
+    return MSlots(map)
   }
 
   static const Str:Spec noSpecs := [:]
