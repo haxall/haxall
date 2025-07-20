@@ -330,7 +330,7 @@ const class HxProjLibs : ProjLibs
     nsVers := versToUse.vals
     if (proj.sys.info.rt.isHxd)
       nsVers.add(FileLibVersion.makeProj(fb.dir, proj.sys.info.version))
-    ns := HxNamespace(LocalNamespaceInit(repo, nsVers, null, repo.names))
+    ns := HxNamespace(LocalNamespaceInit(repo, nsVers, null))
     ns.libs // force sync load
 
     // now update HxProjLibs map of HxProjLib

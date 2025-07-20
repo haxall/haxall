@@ -14,21 +14,19 @@ using xeto
 ** RSpec is the remote loader AST of a spec during decoding phase
 **
 @Js
-internal class RSpec : CSpec, NameDictReader
+internal class RSpec : CSpec
 {
-  new make(Str libName, RSpec? parent, Int nameCode, Str name)
+  new make(Str libName, RSpec? parent, Str name)
   {
     this.libName  = libName
     this.asm      = XetoSpec()
     this.parent   = parent
     this.name     = name
-    this.nameCode = nameCode
   }
 
   const Str libName
   const override XetoSpec asm
   const override Str name
-  const Int nameCode
   RSpec? parent { private set }
 
   // decoded by XetoBinaryReader
@@ -99,12 +97,6 @@ internal class RSpec : CSpec, NameDictReader
   override Bool isAnd()       { hasFlag(MSpecFlags.and) }
   override Bool isOr()        { hasFlag(MSpecFlags.or) }
   Bool hasFlag(Int mask) { flags.and(mask) != 0 }
-
-  // NameDictReader to iterate slotsOwnIn
-  override Int readName() { slotsOwnIn[readIndex].nameCode }
-  override Obj? readVal() { slotsOwnIn[readIndex++].asm }
-  private Int readIndex
-
 }
 
 **************************************************************************

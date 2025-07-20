@@ -6,6 +6,7 @@
 //   1 Aug 2023  Brian Frank  Creation
 //
 
+/*
 **
 ** NameDict implements name/value pairs backed by a NameTable
 **
@@ -75,4 +76,5 @@ mixin NameDictReader
   ** Read value
   abstract Obj? readVal()
 }
+*/
 

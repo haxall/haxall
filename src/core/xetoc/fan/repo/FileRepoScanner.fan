@@ -17,10 +17,9 @@ using xetom
 **
 internal class FileRepoScanner
 {
-  new make(Log log, NameTable names, File[] path)
+  new make(Log log, File[] path)
   {
     this.log   = log
-    this.names = names
     this.path  = path
   }
 
@@ -104,7 +103,6 @@ internal class FileRepoScanner
     {
       c := XetoCompiler
       {
-        it.names   = this.names
         it.libName = name
         it.input   = lib
       }
@@ -148,7 +146,6 @@ internal class FileRepoScanner
   }
 
   private Log log
-  private NameTable names
   private File[] path
   private Str:FileLibVersion[] acc := [:]
 }

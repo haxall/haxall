@@ -6,6 +6,7 @@
 //   26 Mar 2023  Brian Frank  Creation
 //
 
+/*
 **
 ** Name table maps interned string names to/from integer codes.
 ** Zero is reserved for unmapped and empty string is mapped to one.
@@ -77,3 +78,5 @@ native final const class NameTable
   ** Decode name dict from binary encoding
   NameDict readDict(Int size, NameDictReader r)
 }
+*/
+

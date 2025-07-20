@@ -33,8 +33,6 @@ class AbstractXetoTest : HaystackTest
 
   Dict dict(Str:Obj map) { Etc.dictFromMap(map) }
 
-  static Dict nameDictEmpty() { MNameDict.empty }
-
   Void verifyLocalAndRemote(Str[] libs, |LibNamespace ns| f)
   {
     // first test local server

@@ -24,8 +24,6 @@ abstract internal class Step
 
   ANamespace cns() { compiler.cns }
 
-  NameTable names() { compiler.names }
-
   Bool isLib() { compiler.isLib }
 
   Bool isData() { !compiler.isLib }

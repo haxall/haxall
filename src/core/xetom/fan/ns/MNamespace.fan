@@ -17,14 +17,11 @@ using haystack
 @Js
 abstract const class MNamespace : LibNamespace, CNamespace
 {
-  new make(MNamespace? base, NameTable names, LibVersion[] versions, |This->XetoLib|? loadSys)
+  new make(MNamespace? base, LibVersion[] versions, |This->XetoLib|? loadSys)
   {
     this.base = base
     if (base != null)
     {
-      // must reuse same name table
-      if (base.names !== names) throw Err("base.names != names")
-
       // build unified list of versions and check overlay doesn't dup one
       acc := Str:LibVersion[:]
       base.versions.each |v| { acc[v.name] = v }
@@ -50,7 +47,6 @@ abstract const class MNamespace : LibNamespace, CNamespace
       list.add(entry)
       map.add(x.name, entry)
     }
-    this.names       = names
     this.entriesList = list
     this.entriesMap  = map
 
@@ -77,8 +73,6 @@ abstract const class MNamespace : LibNamespace, CNamespace
 //////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
-
-  const override NameTable names
 
   const override LibNamespace? base
 

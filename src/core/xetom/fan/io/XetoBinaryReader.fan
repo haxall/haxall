@@ -18,7 +18,7 @@ using haystack
 ** with XetoBinaryReader of the same version; do not use for persistent data
 **
 @Js
-class XetoBinaryReader : XetoBinaryConst, NameDictReader
+class XetoBinaryReader : XetoBinaryConst
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,6 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   internal new make(XetoBinaryIO io, InStream in)
   {
     this.io = io
-    this.names = io.names
     this.in = in
     this.cp = BrioConsts.cur
   }
@@ -41,10 +40,9 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   {
     verifyU4(magic, "magic")
     verifyU4(version, "version")
-    maxNameCode := readNameTable
     libVersions := readLibVersions
     numNonSysLibs := readVarInt - 1
-    ns := RemoteNamespace(XetoBinaryIO.makeClientEnd(io.names, maxNameCode), null, names, libVersions, libLoader) |ns->XetoLib|
+    ns := RemoteNamespace(XetoBinaryIO.makeClientEnd, null, libVersions, libLoader) |ns->XetoLib|
     {
       readLib(ns) // read sys inside MNamespace constructor
     }
@@ -68,21 +66,11 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     verifyU4(magicOverlay, "magic")
     verifyU4(version, "version")
     libVersions := readLibVersions
-    ns := RemoteNamespace(io, base, names, libVersions, libLoader) |ns->XetoLib|
+    ns := RemoteNamespace(io, base, libVersions, libLoader) |ns->XetoLib|
     {
       base.sysLib
     }
     return ns
-  }
-
-  private Int readNameTable()
-  {
-    max := readVarInt
-    for (i := NameTable.initSize+1; i<=max; ++i)
-    {
-      names.add(readStr)
-    }
-    return max
   }
 
   private LibVersion[] readLibVersions()
@@ -98,7 +86,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
   {
     verifyU4(magicLibVer, "magic lib version")
 
-    name := names.toName(readName)
+    name := readStr
     version := (Version)readVal
 
     dependsSize := readVarInt
@@ -106,7 +94,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     depends.capacity = dependsSize
     dependsSize.times
     {
-      depends.add(MLibDepend(names.toName(readName)))
+      depends.add(MLibDepend(readStr))
     }
 
     return RemoteLibVersion(name, version, depends)
@@ -121,10 +109,10 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     lib := XetoLib()
 
     verifyU4(magicLib, "magicLib")
-    nameCode  := readName
+    name      := readStr
     meta      := readMeta
     flags     := readVarInt
-    loader    := RemoteLoader(ns, nameCode, meta, flags)
+    loader    := RemoteLoader(ns, name, meta, flags)
     readSpecs(loader)
     readInstances(loader)
     verifyU4(magicLibEnd, "magicLibEnd")
@@ -137,7 +125,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     count := readVarInt
     count.times
     {
-      name := readName
+      name := readStr
       x := loader.addTop(name)
       readSpec(loader, x)
     }
@@ -154,7 +142,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     x.flags           = readVarInt
     if (read == XetoBinaryConst.specInherited)
     {
-      x.metaIn = ((MNameDict)readMeta).wrapped
+      x.metaIn = readMeta
       x.slotsInheritedIn = readInheritedSlotRefs
     }
   }
@@ -179,7 +167,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     acc.capacity = size
     size.times
     {
-      name := readName
+      name := readStr
       x := loader.makeSlot(parent, name)
       readSpec(loader, x)
       acc.add(x)
@@ -250,7 +238,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     throw IOErr("Expecting dict, not $val.typeof")
   }
 
-  override Obj? readVal()
+  Obj? readVal()
   {
     ctrl := in.readU1
     switch (ctrl)
@@ -279,7 +267,6 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
       case ctrlGenericScalar: return readGenericScalar
       case ctrlTypedScalar:   return readTypedScalar
       case ctrlEmptyDict:     return Etc.dict0
-      case ctrlNameDict:      return readNameDict
       case ctrlGenericDict:   return readGenericDict
       case ctrlTypedDict:     return readTypedDict
       case ctrlSpecRef:       return readSpecRef // resolve to Spec later
@@ -373,12 +360,6 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     throw Err("Scalar type missing fromStr method: $type.qname")
   }
 
-  private MNameDict readNameDict()
-  {
-    size := readVarInt
-    return MNameDict(names.readDict(size, this))
-  }
-
   private Dict readGenericDict()
   {
     readDictTags
@@ -454,21 +435,6 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 //////////////////////////////////////////////////////////////////////////
 // Strs
 //////////////////////////////////////////////////////////////////////////
-
-  override Int readName()
-  {
-    /* TODO-NAMETABLE
-    code := readVarInt
-    if (code != 0) return code
-
-    code = readVarInt
-    name := readUtf
-    names.set(code, name) // is now sparse
-    return code
-    */
-    name := readStr
-    return names.add(name)
-  }
 
   Str readStr()
   {
@@ -578,7 +544,6 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 //////////////////////////////////////////////////////////////////////////
 
   private const XetoBinaryIO io
-  private const NameTable names
   private InStream in
   private BrioConsts cp
   private Str[] strs := Str[,]

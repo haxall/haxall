@@ -23,8 +23,6 @@ const class FileRepo : LibRepo
     rescan
   }
 
-  const NameTable names := NameTable()
-
   const Log log := Log.get("xeto")
 
   const XetoEnv env
@@ -36,7 +34,7 @@ const class FileRepo : LibRepo
 
   override This rescan()
   {
-    scanRef.val = FileRepoScanner(log, names, env.path).scan
+    scanRef.val = FileRepoScanner(log, env.path).scan
     return this
   }
 
@@ -145,7 +143,7 @@ const class FileRepo : LibRepo
 
   private LibNamespace makeNamespace(LibVersion[] versions, MNamespace? base, [Str:File]? build)
   {
-    init := LocalNamespaceInit(this, versions, base, names, build)
+    init := LocalNamespaceInit(this, versions, base, build)
     return LocalNamespace(init)
   }
 

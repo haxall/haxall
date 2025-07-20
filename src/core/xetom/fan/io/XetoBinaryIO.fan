@@ -20,24 +20,18 @@ using xeto
 const class XetoBinaryIO
 {
   ** Constructor to wrap given local namespace
-  new makeServer(MNamespace ns, Int maxNameCode := ns.names.maxCode)
+  new makeServer(MNamespace ns)
   {
-    this.names = ns.names
-    this.maxNameCode = maxNameCode
   }
 
   ** Constructor for booting client used by RemotNamespace.boot
   internal new makeClientStart()
   {
-    this.names = NameTable()       // start off with empty name table
-    this.maxNameCode = Int.maxVal  // can safely use every name mapped from server
   }
 
   ** Constructor before making RemoteNamespace to lock down maxNameCode
-  internal new makeClientEnd(NameTable names, Int maxNameCoce)
+  internal new makeClientEnd()
   {
-    this.names = names
-    this.maxNameCode = maxNameCoce
   }
 
   ** Create a new writer
@@ -51,9 +45,6 @@ const class XetoBinaryIO
   {
     XetoBinaryReader(this, in)
   }
-
-  ** Shared name table up to maxNameCode
-  const NameTable names
 
   ** Max name code (inclusive) that safe to use
   const Int maxNameCode

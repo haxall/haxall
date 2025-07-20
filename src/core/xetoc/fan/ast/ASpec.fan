@@ -25,14 +25,11 @@ internal class ASpec : ANode, CSpec
    ** Constructor
   new make(FileLoc loc, ALib lib, ASpec? parent, Str name) : super(loc)
   {
-    names := lib.compiler.names
-
     this.lib      = lib
     this.parent   = parent
     this.qname    = parent == null ? "${lib.name}::$name" : "${parent.qname}.$name"
     this.flavor   = toFlavor(parent, name)
-    this.nameCode = names.add(name)
-    this.name     = names.toName(nameCode) // intern
+    this.name     = name
   }
 
   private static SpecFlavor toFlavor(ASpec? parent, Str name)
@@ -81,9 +78,6 @@ internal class ASpec : ANode, CSpec
 
   ** Is this a slot spec
   Bool isSlot() { parent != null }
-
-  ** Name code in names table
-  const Int nameCode
 
   ** Name within lib or parent
   const override Str name
@@ -286,8 +280,8 @@ internal class ASpec : ANode, CSpec
   Dict? metaOwnRef
 
   ** Effective meta (set in InheritMeta)
-  override MNameDict cmeta() { cmetaRef ?: throw NotReadyErr(qname) }
-  MNameDict? cmetaRef
+  override Dict cmeta() { cmetaRef ?: throw NotReadyErr(qname) }
+  Dict? cmetaRef
 
   ** Effective meta has
   override Bool cmetaHas(Str name)

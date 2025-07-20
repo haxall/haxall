@@ -15,10 +15,6 @@ internal abstract class Init : Step
 {
   override Void run()
   {
-    // check names
-    if (compiler.ns != null) compiler.names = compiler.ns.names
-    if (compiler.names == null) throw err("Compiler names not configured", FileLoc.inputs)
-
     // check namespace
     if (compiler.ns == null && nsRequired) throw err("Compiler ns not configured", FileLoc.inputs)
 

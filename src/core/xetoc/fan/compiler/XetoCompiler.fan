@@ -36,9 +36,6 @@ internal class XetoCompiler
   ** Namespace used for depends resolution
   MNamespace? ns
 
-  ** Names table to use
-  NameTable? names
-
   ** Environment
   XetoEnv env := XetoEnv.cur
 

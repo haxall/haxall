@@ -18,7 +18,7 @@ using haystack
 const class LocalNamespace : MNamespace
 {
   new make(LocalNamespaceInit init)
-    : super(init.base, init.names, init.versions, null)
+    : super(init.base, init.versions, null)
   {
     this.repo  = init.repo
     this.build = init.build
@@ -103,19 +103,17 @@ const class LocalNamespace : MNamespace
 
 const class LocalNamespaceInit
 {
-  new make(LibRepo repo, LibVersion[] versions, MNamespace? base := null, NameTable names := NameTable(), [Str:File]? build := null)
+  new make(LibRepo repo, LibVersion[] versions, MNamespace? base := null, [Str:File]? build := null)
   {
     this.repo     = repo
     this.versions = versions
     this.base     = base
-    this.names    = names
     this.build    = build
   }
 
   const LibRepo repo
   const LibVersion[] versions
   const MNamespace? base
-  const NameTable names
   const [Str:File]? build
 }
 

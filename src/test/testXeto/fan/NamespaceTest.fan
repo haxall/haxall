@@ -344,6 +344,7 @@ class NamespaceTest : AbstractXetoTest
 // NameTable
 //////////////////////////////////////////////////////////////////////////
 
+  /*
   Void testNameTable()
   {
     ns  := createNamespace(["sys", "ph"])
@@ -375,6 +376,7 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(meta.typeof.qname, "xetom::MNameDict")
     meta.each |v, n| { verifyNameTable(ns, n) }
   }
+  */
 
 //////////////////////////////////////////////////////////////////////////
 // Factories
@@ -728,7 +730,6 @@ class NamespaceTest : AbstractXetoTest
       verifyEq(lib.meta["depends"], null)
     else
       verifySame(lib.meta->depends, lib.depends)
-    verifySame(lib.name, ns.names.toName(ns.names.toCode(name)))
 
     verifyEq(lib.hasXMeta, name == "hx.test.xeto")
     verifyEq(lib.hasMarkdown, false)
@@ -770,7 +771,6 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(type.name, name)
     verifyEq(type.qname, lib.name + "::" + name)
     verifySame(type.qname, type.qname)
-    verifySame(type.name, ns.names.toName(ns.names.toCode(name)))
 
     // id
     verifyRefEq(((Dict)type).id, Ref(type.qname))

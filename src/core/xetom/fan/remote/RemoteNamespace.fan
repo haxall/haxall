@@ -26,8 +26,8 @@ const class RemoteNamespace : MNamespace
       return XetoBinaryIO(base).reader(in).readBootOverlay(base, libLoader)
   }
 
-  internal new make(XetoBinaryIO io, MNamespace? base, NameTable names, LibVersion[] versions, RemoteLibLoader? libLoader, |This->XetoLib| loadSys)
-    : super(base, names, versions, loadSys)
+  internal new make(XetoBinaryIO io, MNamespace? base, LibVersion[] versions, RemoteLibLoader? libLoader, |This->XetoLib| loadSys)
+    : super(base, versions, loadSys)
   {
     this.io = io
     this.libLoader = libLoader

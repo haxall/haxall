@@ -187,6 +187,7 @@ class UtilTest : AbstractXetoTest
 // NameTable
 //////////////////////////////////////////////////////////////////////////
 
+  /*
   Void testNameTable()
   {
     t := NameTable();
@@ -428,6 +429,7 @@ class UtilTest : AbstractXetoTest
     verifyEq(x.fixedSize, fixed)
     x.each |v, n| { verifyEq(v, n.upper) }
   }
+  */
 
 //////////////////////////////////////////////////////////////////////////
 // DependLibVersions
@@ -1447,6 +1449,7 @@ class UtilTest : AbstractXetoTest
 ** TestNameDictReader
 **************************************************************************
 
+/*
 @Js
 internal class TestNameDictReader : NameDictReader
 {
@@ -1464,4 +1467,5 @@ internal class TestNameDictReader : NameDictReader
   Obj[] vals
   Int i
 }
+*/
 

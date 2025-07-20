@@ -9,6 +9,7 @@
 using util
 using xeto
 using xetom
+using haystack
 
 **
 ** Reify creates concrete Fantom object for all the AData objects
@@ -44,7 +45,7 @@ internal abstract class Reify : Step
     if (x.meta != null)
       x.metaOwnRef = x.meta.asm
     else
-      x.metaOwnRef = MNameDict.empty
+      x.metaOwnRef = Etc.dict0
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -103,7 +104,7 @@ internal abstract class Reify : Step
       acc["spec"] = compiler.makeRef(type.qname, null)
 
     // create as Dict
-    return MNameDict(names.dictMap(acc))
+    return Etc.dictFromMap(acc)
   }
 
   private Obj[] reifyRawList(ADict x, CSpec type)

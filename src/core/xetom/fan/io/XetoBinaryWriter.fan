@@ -31,8 +31,6 @@ class XetoBinaryWriter : XetoBinaryConst
 
   internal new make(XetoBinaryIO io, OutStream out)
   {
-    this.names = io.names
-    this.maxNameCode = io.maxNameCode
     this.out = out
     this.cp = BrioConsts.cur
   }
@@ -48,7 +46,6 @@ class XetoBinaryWriter : XetoBinaryConst
   {
     writeI4(magic)
     writeI4(version)
-    writeNameTable
     writeLibVersions(ns.versions)
     writeBootLibs(ns, bootLibs ?: Str[,])
     out.writeI4(magicEnd)
@@ -65,14 +62,6 @@ class XetoBinaryWriter : XetoBinaryConst
     writeI4(version)
     writeLibVersions(ns.versions.findAll |x| { !base.hasLib(x.name) })
     out.writeI4(magicEnd)
-  }
-
-  private Void writeNameTable()
-  {
-    max := maxNameCode
-    writeVarInt(max)
-    for (i := NameTable.initSize+1; i<=max; ++i)
-      writeStr(names.toName(i))
   }
 
   private Void writeLibVersions(LibVersion[] vers)
@@ -405,8 +394,6 @@ class XetoBinaryWriter : XetoBinaryConst
   Void writeDict(Dict d)
   {
     if (d.isEmpty)        return write(ctrlEmptyDict)
-    if (d is NameDict)    return writeNameDict(d)
-    if (d is MNameDict)   return writeNameDict(((MNameDict)d).wrapped)
     if (d is XetoSpec)    return writeSpecRefVal(d)
     if (isGenericDict(d)) return writeGenericDict(d)
     return writeTypedDict(d)
@@ -423,18 +410,6 @@ class XetoBinaryWriter : XetoBinaryConst
   {
     write(ctrlSpecRef)
     writeSpecRef(spec)
-  }
-
-  private Void writeNameDict(NameDict dict)
-  {
-    write(ctrlNameDict)
-    size := dict.size
-    writeVarInt(size)
-    for (i := 0; i<size; ++i)
-    {
-      writeStr(names.toName(dict.nameAt(i)))
-      writeVal(dict.valAt(i))
-    }
   }
 
   private Void writeGenericDict(Dict dict)
@@ -580,8 +555,6 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private static const Int constMaxCode := 1000
 
-  private const NameTable names
-  private const Int maxNameCode
   private OutStream out
   private BrioConsts cp
   private Str:Int strs := Str:Int[:]

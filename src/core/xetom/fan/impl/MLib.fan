@@ -16,10 +16,9 @@ using haystack
 @Js
 const final class MLib
 {
-  new make(FileLoc loc, Int nameCode, Str name, Dict meta, Int flags, Version version, MLibDepend[] depends, Str:Spec specsMap, Str:Dict instancesMap, MLibFiles files)
+  new make(FileLoc loc, Str name, Dict meta, Int flags, Version version, MLibDepend[] depends, Str:Spec specsMap, Str:Dict instancesMap, MLibFiles files)
   {
     this.loc          = loc
-    this.nameCode     = nameCode
     this.name         = name
     this.id           = Ref(StrBuf(4+name.size).add("lib:").add(name).toStr, null)
     this.isSys        = name == "sys"
@@ -35,8 +34,6 @@ const final class MLib
   const FileLoc loc
 
   const Ref id
-
-  const Int nameCode
 
   const Str name
 

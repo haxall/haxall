@@ -31,7 +31,8 @@ class Build : BuildPod
                "concurrent @{fan.depend}",
                "util @{fan.depend}"]
     srcDirs  = [`fan/`, `fan/util/`]
-    javaDirs = [`java/`]
-    jsDirs   = [`js/`]
+    //javaDirs = [`java/`]
+    //jsDirs   = [`js/`]
   }
 }
+

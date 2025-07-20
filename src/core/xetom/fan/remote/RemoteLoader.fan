@@ -21,12 +21,10 @@ internal class RemoteLoader
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(MNamespace ns, Int libNameCode, Dict libMeta, Int flags)
+  new make(MNamespace ns, Str libName, Dict libMeta, Int flags)
   {
     this.ns          = ns
-    this.names       = ns.names
-    this.libName     = names.toName(libNameCode)
-    this.libNameCode = libNameCode
+    this.libName     = libName
     this.libMeta     = libMeta
     this.libVersion  = libMeta->version
     this.flags       = flags
@@ -43,23 +41,21 @@ internal class RemoteLoader
     depends := libMeta["depends"] ?: MLibDepend#.emptyList
     tops    := loadTops
 
-    m := MLib(loc, libNameCode, libName, libMeta, flags, libVersion, depends, tops, instances, UnsupportedLibFiles.val)
+    m := MLib(loc, libName, libMeta, flags, libVersion, depends, tops, instances, UnsupportedLibFiles.val)
     XetoLib#m->setConst(lib, m)
     return lib
   }
 
-  RSpec addTop(Int nameCode)
+  RSpec addTop(Str name)
   {
-    name := names.toName(nameCode)
-    x := RSpec(libName, null, nameCode, name)
+    x := RSpec(libName, null, name)
     tops.add(name, x)
     return x
   }
 
-  RSpec makeSlot(RSpec parent, Int nameCode)
+  RSpec makeSlot(RSpec parent, Str name)
   {
-    name := names.toName(nameCode)
-    x := RSpec(libName, parent, nameCode, name)
+    x := RSpec(libName, parent, name)
     return x
   }
 
@@ -353,11 +349,9 @@ internal class RemoteLoader
 //////////////////////////////////////////////////////////////////////////
 
   const MNamespace ns
-  const NameTable names
   const FileLoc loc := FileLoc("remote")
   const XetoLib lib := XetoLib()
   const Str libName
-  const Int libNameCode
   const Dict libMeta
   const Version libVersion
   const Int flags
