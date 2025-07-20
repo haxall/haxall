@@ -29,7 +29,7 @@ class XetoBinaryWriter : XetoBinaryConst
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  internal new make(XetoBinaryIO io, OutStream out)
+  new make(OutStream out)
   {
     this.out = out
     this.cp = BrioConsts.cur

@@ -21,19 +21,16 @@ const class RemoteNamespace : MNamespace
   static RemoteNamespace boot(InStream in, MNamespace? base, RemoteLibLoader? libLoader)
   {
     if (base == null)
-      return XetoBinaryIO.makeClientStart.reader(in).readBootBase(libLoader)
+      return XetoBinaryReader(in).readBootBase(libLoader)
     else
-      return XetoBinaryIO(base).reader(in).readBootOverlay(base, libLoader)
+      return XetoBinaryReader(in).readBootOverlay(base, libLoader)
   }
 
-  internal new make(XetoBinaryIO io, MNamespace? base, LibVersion[] versions, RemoteLibLoader? libLoader, |This->XetoLib| loadSys)
+  internal new make(MNamespace? base, LibVersion[] versions, RemoteLibLoader? libLoader, |This->XetoLib| loadSys)
     : super(base, versions, loadSys)
   {
-    this.io = io
     this.libLoader = libLoader
   }
-
-  const XetoBinaryIO io
 
   const RemoteLibLoader? libLoader
 

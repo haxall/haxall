@@ -25,9 +25,8 @@ class XetoBinaryReader : XetoBinaryConst
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  internal new make(XetoBinaryIO io, InStream in)
+  new make(InStream in)
   {
-    this.io = io
     this.in = in
     this.cp = BrioConsts.cur
   }
@@ -42,7 +41,7 @@ class XetoBinaryReader : XetoBinaryConst
     verifyU4(version, "version")
     libVersions := readLibVersions
     numNonSysLibs := readVarInt - 1
-    ns := RemoteNamespace(XetoBinaryIO.makeClientEnd, null, libVersions, libLoader) |ns->XetoLib|
+    ns := RemoteNamespace(null, libVersions, libLoader) |ns->XetoLib|
     {
       readLib(ns) // read sys inside MNamespace constructor
     }
@@ -66,7 +65,7 @@ class XetoBinaryReader : XetoBinaryConst
     verifyU4(magicOverlay, "magic")
     verifyU4(version, "version")
     libVersions := readLibVersions
-    ns := RemoteNamespace(io, base, libVersions, libLoader) |ns->XetoLib|
+    ns := RemoteNamespace(base, libVersions, libLoader) |ns->XetoLib|
     {
       base.sysLib
     }
@@ -543,7 +542,6 @@ class XetoBinaryReader : XetoBinaryConst
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const XetoBinaryIO io
   private InStream in
   private BrioConsts cp
   private Str[] strs := Str[,]

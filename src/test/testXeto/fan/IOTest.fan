@@ -110,9 +110,9 @@ class IOTest : AbstractXetoTest
   {
     // binary format
     buf := Buf()
-    server.io.writer(buf.out).writeVal(val)
+    XetoBinaryWriter(buf.out).writeVal(val)
     // echo("--> $val [$buf.size bytes]")
-    binary := client.io.reader(buf.flip.in).readVal
+    binary := XetoBinaryReader(buf.flip.in).readVal
     // echo("  > $binary | ${binary?.typeof}")
     verifyValEq(val, binary)
 

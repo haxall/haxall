@@ -282,11 +282,9 @@ const class TestServer
   new make(LibNamespace ns)
   {
     this.ns = ns
-    this.io = XetoBinaryIO.makeServer(ns)
   }
 
   const LibNamespace ns
-  const XetoBinaryIO io
 }
 
 **************************************************************************
@@ -303,14 +301,12 @@ const class TestClient : RemoteLibLoader
   RemoteNamespace? ns() { nsRef.val }
   const AtomicRef nsRef := AtomicRef()
 
-  XetoBinaryIO io() { ns.io }
-
   const Bool debug := false
 
   This boot()
   {
     buf := Buf()
-    server.io.writer(buf.out).writeBoot(server.ns)
+    XetoBinaryWriter(buf.out).writeBoot(server.ns)
     if (debug) echo("   ~~~ init remote bootstrap size = $buf.size bytes ~~~")
 
     ns := RemoteNamespace.boot(buf.flip.in, null, this)
@@ -324,10 +320,10 @@ const class TestClient : RemoteLibLoader
     if (serverLib == null) { f(UnknownLibErr(name), null); return }
 
     buf := Buf()
-    server.io.writer(buf.out).writeLib(serverLib)
+    XetoBinaryWriter(buf.out).writeLib(serverLib)
     if (debug) echo("   ~~~ load lib $name size = $buf.size bytes ~~~")
 
-    clientLib := io.reader(buf.flip.in).readLib(ns)
+    clientLib := XetoBinaryReader(buf.flip.in).readLib(ns)
     f(null, clientLib)
   }
 }
