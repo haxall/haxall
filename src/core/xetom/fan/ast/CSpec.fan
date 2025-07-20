@@ -44,7 +44,7 @@ mixin CSpec : CNode
   abstract CSpec? cbase()
 
   ** Effective meta
-  abstract MNameDict cmeta()
+  abstract Dict cmeta()
 
   ** Return if effective meta has given slot name
   abstract Bool cmetaHas(Str name)

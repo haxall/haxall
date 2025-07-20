@@ -115,7 +115,7 @@ class XetoBinaryWriter : XetoBinaryConst
   {
     writeI4(magicLib)
     writeStr(lib.name)
-    writeNameDict(lib.m.meta.wrapped)
+    writeDict(lib.m.meta)
     writeVarInt(lib.m.flags)
     writeSpecs(lib)
     writeInstances(lib)
@@ -136,7 +136,7 @@ class XetoBinaryWriter : XetoBinaryConst
     write(m.flavor.ordinal)
     writeSpecRef(m.base)
     writeSpecRef(m.isType ? null : m.type)
-    writeNameDict(m.metaOwn.wrapped)
+    writeDict(m.metaOwn)
     writeInheritedMetaNames(x)
     writeOwnSlots(x)
     writeVarInt(m.flags)
@@ -146,7 +146,7 @@ class XetoBinaryWriter : XetoBinaryConst
       // for and/or types we encoded inherited meta/slots to
       // avoid duplicating that complicated logic in the client
       write(XetoBinaryConst.specInherited)
-      writeNameDict(m.meta.wrapped)
+      writeDict(m.meta)
       writeInheritedSlotRefs(x)
     }
   }

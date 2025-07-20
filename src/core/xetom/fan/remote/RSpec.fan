@@ -35,8 +35,8 @@ internal class RSpec : CSpec, NameDictReader
   override SpecFlavor flavor := SpecFlavor.slot
   RSpecRef? baseIn
   RSpecRef? typeIn
-  NameDict? metaOwnIn
-  NameDict? metaIn
+  Dict? metaOwnIn
+  Dict? metaIn
   Str[]? metaInheritedIn
   RSpec[]? slotsOwnIn
   RSpecRef[]? slotsInheritedIn
@@ -45,8 +45,8 @@ internal class RSpec : CSpec, NameDictReader
   Bool isLoaded
   CSpec? type
   CSpec? base
-  MNameDict? metaOwn
-  MNameDict? meta
+  Dict? metaOwn
+  Dict? meta
   MSlots? slotsOwn
   MSlots? slots
   SpecBinding? bindingRef
@@ -65,7 +65,7 @@ internal class RSpec : CSpec, NameDictReader
   override CSpec ctype() { type }
   override CSpec? cbase() { base }
   override CSpec? cparent() { parent }
-  override MNameDict cmeta() { meta ?: throw Err(name) }
+  override Dict cmeta() { meta ?: throw Err(name) }
   override Bool cmetaHas(Str name) { cmeta.has(name) }
   override CSpec? cslot(Str name, Bool checked := true) { throw UnsupportedErr() }
   override Void cslots(|CSpec, Str| f) { slots.each |s| { f((CSpec)s, s.name) } }

@@ -17,7 +17,7 @@ using xeto
 @Js
 const class MSpec
 {
-  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoSpec type, MNameDict meta, MNameDict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
+  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoSpec type, Dict meta, Dict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
   {
     this.loc      = loc
     this.name     = name
@@ -48,9 +48,9 @@ const class MSpec
 
   const XetoSpec? base
 
-  const MNameDict meta
+  const Dict meta
 
-  const MNameDict metaOwn
+  const Dict metaOwn
 
   const MSlots slots
 
@@ -288,7 +288,7 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final CSpec? cparent() { m.parent }
 
-  override final MNameDict cmeta() { m.meta }
+  override final Dict cmeta() { m.meta }
 
   override final Bool cmetaHas(Str name) { m.meta.has(name) }
 

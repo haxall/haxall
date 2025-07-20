@@ -21,7 +21,7 @@ internal class RemoteLoader
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(MNamespace ns, Int libNameCode, MNameDict libMeta, Int flags)
+  new make(MNamespace ns, Int libNameCode, Dict libMeta, Int flags)
   {
     this.ns          = ns
     this.names       = ns.names
@@ -168,19 +168,13 @@ internal class RemoteLoader
     StrBuf(libName.size + 2 + x.name.size).add(libName).addChar(':').addChar(':').add(x.name).toStr
   }
 
-  private MNameDict resolveMeta(NameDict m)
+  private Dict resolveMeta(Dict m)
   {
-    // if emtpy
-    if (m.isEmpty) return MNameDict.empty
-
     // resolve spec ref values
-    m = m.map |v, n|
+    return m.map |v, n|
     {
       v is RSpecRef ? resolve(v).asm : v
     }
-
-    // wrap
-    return MNameDict(m)
   }
 
   private MSlots loadSlotsOwn(RSpec x)
@@ -192,13 +186,13 @@ internal class RemoteLoader
     // recursively load slot specs
     slots.each |slot| { loadSpec(slot) }
 
-    // RSpec is a NameDictReader to iterate slots as NameDict
+    // buid assembled map
     map := Str:XetoSpec[:]
     slots.each |slot| { map.add(slot.name, slot.asm) }
     return MSlots(map)
   }
 
-  private MNameDict inheritMeta(RSpec x)
+  private Dict inheritMeta(RSpec x)
   {
     // if we included effective meta from compound types use it
     if (x.metaIn != null) return resolveMeta(x.metaIn)
@@ -220,7 +214,7 @@ internal class RemoteLoader
     inherit.each |n| { acc[n] = base.trap(n) }
     XetoUtil.addOwnMeta(acc, own)
 
-    return MNameDict(names.dictMap(acc))
+    return Etc.dictFromMap(acc)
   }
 
   private MSlots inheritSlots(RSpec x)
@@ -364,7 +358,7 @@ internal class RemoteLoader
   const XetoLib lib := XetoLib()
   const Str libName
   const Int libNameCode
-  const MNameDict libMeta
+  const Dict libMeta
   const Version libVersion
   const Int flags
   private Str:RSpec tops := [:]              // addTops

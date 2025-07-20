@@ -148,7 +148,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
     x.flavor          = SpecFlavor.vals[read]
     x.baseIn          = readSpecRef
     x.typeIn          = readSpecRef
-    x.metaOwnIn       = ((MNameDict)readMeta).wrapped
+    x.metaOwnIn       = readMeta
     x.metaInheritedIn = readInheritedMetaNames(loader, x)
     x.slotsOwnIn      = readOwnSlots(loader, x)
     x.flags           = readVarInt
@@ -548,8 +548,7 @@ class XetoBinaryReader : XetoBinaryConst, NameDictReader
 
   private Dict readMeta()
   {
-    verifyU1(ctrlNameDict, "ctrlNameDict for meta")  // readMeta is **with** the ctrl code
-    return readNameDict
+    return readDict
   }
 
   private Void verifyU1(Int expect, Str msg)
