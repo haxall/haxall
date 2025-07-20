@@ -21,13 +21,13 @@ internal class RemoteLoader
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(MNamespace ns, Str libName, Dict libMeta, Int flags)
+  new make(MEnv env, Str libName, Dict libMeta, Int flags)
   {
-    this.ns          = ns
-    this.libName     = libName
-    this.libMeta     = libMeta
-    this.libVersion  = libMeta->version
-    this.flags       = flags
+    this.env        = env
+    this.libName    = libName
+    this.libMeta    = libMeta
+    this.libVersion = libMeta->version
+    this.flags      = flags
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -294,15 +294,15 @@ internal class RemoteLoader
 // Resolve
 //////////////////////////////////////////////////////////////////////////
 
-  private CSpec? resolveStr(Str qname, Bool checked := true)
+  private CSpec? resolveStr(Str qname)
   {
     if (qname.startsWith(libName) && qname[libName.size] == ':')
     {
-      return tops.getChecked(qname[libName.size+2..-1], checked)
+      return tops.getChecked(qname[libName.size+2..-1], true)
     }
     else
     {
-      return ns.spec(qname, checked) as CSpec
+      return env.cachedSpec(qname) as CSpec
     }
   }
 
@@ -334,7 +334,7 @@ internal class RemoteLoader
   private XetoSpec resolveExternal(RSpecRef ref)
   {
     // should already be loaded
-    lib := ns.lib(ref.lib)
+    lib := env.cachedLib(ref.lib)
     type := (XetoSpec)lib.spec(ref.type)
     if (ref.slot.isEmpty) return type
 
@@ -348,7 +348,7 @@ internal class RemoteLoader
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const MNamespace ns
+  const MEnv env
   const FileLoc loc := FileLoc("remote")
   const XetoLib lib := XetoLib()
   const Str libName

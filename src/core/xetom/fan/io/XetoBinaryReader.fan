@@ -35,7 +35,7 @@ class XetoBinaryReader : XetoBinaryConst
 // Remote Env Bootstrap
 //////////////////////////////////////////////////////////////////////////
 
-  internal RemoteNamespace readBootBase(XetoEnv env, RemoteLibLoader? libLoader)
+  internal RemoteNamespace readBootBase(MEnv env, RemoteLibLoader? libLoader)
   {
     verifyU4(magic, "magic")
     verifyU4(version, "version")
@@ -43,14 +43,17 @@ class XetoBinaryReader : XetoBinaryConst
     numNonSysLibs := readVarInt - 1
     ns := RemoteNamespace(env, null, libVersions, libLoader) |ns->XetoLib|
     {
-      readLib(ns) // read sys inside MNamespace constructor
+      lib := readLib(env) // read sys inside MNamespace constructor
+lib = env.libsByName.getOrAdd(lib.name, lib)
+return lib
     }
     if (numNonSysLibs > 0)
     {
       // read non-sys boot libs
       numNonSysLibs.times |->|
       {
-        lib := readLib(ns)
+        lib := readLib(env)
+lib = env.libsByName.getOrAdd(lib.name, lib)
         ns.entry(lib.name).setOk(lib)
       }
       ns.checkAllLoaded
@@ -103,20 +106,13 @@ class XetoBinaryReader : XetoBinaryConst
 // Lib
 //////////////////////////////////////////////////////////////////////////
 
-  XetoLib[] readLibs(XetoEnv env)
+  Void readLibs(MEnv env, |XetoLib| cb)
   {
     size := readVarInt
-    acc := XetoLib[,]
-    acc.capacity = size
-    size.times
-    {
-      //acc.add(readLib(env))
-throw Err("TODO")
-    }
-    return acc
+    size.times { cb(readLib(env)) }
   }
 
-  XetoLib readLib(MNamespace ns)
+  XetoLib readLib(MEnv env)
   {
     lib := XetoLib()
 
@@ -124,7 +120,7 @@ throw Err("TODO")
     name      := readStr
     meta      := readMeta
     flags     := readVarInt
-    loader    := RemoteLoader(ns, name, meta, flags)
+    loader    := RemoteLoader(env, name, meta, flags)
     readSpecs(loader)
     readInstances(loader)
     verifyU4(magicLibEnd, "magicLibEnd")

@@ -43,18 +43,6 @@ abstract const class MEnv : XetoEnv
     return Etc.dictFromMap(acc)
   }
 
-  ** Get the lib in the cache or try to comile it
-  XetoLib getOrCompile(LibNamespace ns, LibVersion v)
-  {
-    map.get(v.toStr) ?: map.getOrAdd(v.toStr, compile(ns, v))
-  }
-
-  ** Hook to to compile
-  protected virtual XetoLib compile(LibNamespace ns, LibVersion v)
-  {
-    throw UnsupportedErr("Lib cannot be compiled, must be preloaded: $v")
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Serialization
 //////////////////////////////////////////////////////////////////////////
@@ -66,19 +54,56 @@ abstract const class MEnv : XetoEnv
 
   override Void loadLibs(InStream in)
   {
-    libs := XetoBinaryReader(in).readLibs(this)
-    libs.each |lib|
+    XetoBinaryReader(in).readLibs(this) |lib|
     {
-      key := lib.version.toStr
-      map.getOrAdd(key, lib)
+      libsByName.getOrAdd(lib.name, lib)
     }
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Fields
+// Cache
 //////////////////////////////////////////////////////////////////////////
 
-  private const ConcurrentMap map := ConcurrentMap()
+  ** Get the lib in the cache or try to comile it.
+  ** Note: we only support one version of a lib right now!
+  XetoLib getOrCompile(LibNamespace ns, LibVersion x)
+  {
+    name := x.name
+    lib := libsByName.get(name) as Lib
+    if (lib != null)
+    {
+      if (lib.version != x.version) throw Err("Matched lib versions $name.toCode: $lib.version != $x.version")
+      return lib
+    }
+
+    return libsByName.getOrAdd(name, compile(ns, x))
+  }
+
+  ** Hook to to compile
+  protected virtual XetoLib compile(LibNamespace ns, LibVersion v)
+  {
+    throw UnsupportedErr("Lib cannot be compiled, must be preloaded: $v")
+  }
+
+  ** Lookup cached lib by name
+  Lib cachedLib(Str name)
+  {
+    libsByName.get(name) ?: throw UnknownLibErr(name)
+  }
+
+  ** Lookup cached spec by qname
+  internal Spec cachedSpec(Str qname)
+  {
+    colons := qname.index("::")
+    libName := qname[0..<colons]
+    specName := qname[colons+1..-1]
+echo("cachedSpec libName.toCode | $specName.toCode")
+    return cachedLib(libName).spec(specName)
+  }
+
+  ** Lib cache keyed by lib name
+  // TODO private
+  const ConcurrentMap libsByName := ConcurrentMap()
 }
 
 **************************************************************************

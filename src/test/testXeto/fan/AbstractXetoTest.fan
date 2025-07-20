@@ -298,6 +298,8 @@ const class TestClient : RemoteLibLoader
 
   const TestServer server
 
+  const MEnv remoteEnv := BrowserEnv()
+
   RemoteNamespace? ns() { nsRef.val }
   const AtomicRef nsRef := AtomicRef()
 
@@ -309,7 +311,7 @@ const class TestClient : RemoteLibLoader
     XetoBinaryWriter(buf.out).writeBoot(server.ns)
     if (debug) echo("   ~~~ init remote bootstrap size = $buf.size bytes ~~~")
 
-    ns := RemoteNamespace.boot(XetoEnv.cur, buf.flip.in, null, this)
+    ns := RemoteNamespace.boot(remoteEnv, buf.flip.in, null, this)
     nsRef.val = ns
     return this
   }
@@ -320,11 +322,11 @@ const class TestClient : RemoteLibLoader
     if (serverLib == null) { f(UnknownLibErr(name), null); return }
 
     buf := Buf()
-    XetoBinaryWriter(buf.out).writeLib(serverLib)
+    XetoBinaryWriter(buf.out).writeLibs([serverLib])
     if (debug) echo("   ~~~ load lib $name size = $buf.size bytes ~~~")
 
-    clientLib := XetoBinaryReader(buf.flip.in).readLib(ns)
-    f(null, clientLib)
+    remoteEnv.loadLibs(buf.flip.in)
+    f(null, remoteEnv.cachedLib(name))
   }
 }
 
