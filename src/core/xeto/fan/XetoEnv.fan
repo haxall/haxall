@@ -86,8 +86,9 @@ abstract const class XetoEnv
   @NoDoc abstract Void saveLibs(OutStream out, Lib[] libs)
 
   ** Deserialize a set of libs using xeto binary I/O into my cache.
-  ** Ignore any libs I already have cached.
-  @NoDoc abstract Void loadLibs(InStream in)
+  ** Ignore any libs I already have cached.  Return list of libs
+  ** which we read (including those which were already loaded)
+  @NoDoc abstract LibVersion[] loadLibs(InStream in)
 
 //////////////////////////////////////////////////////////////////////////
 // Hooks

@@ -52,12 +52,15 @@ abstract const class MEnv : XetoEnv
     XetoBinaryWriter(out).writeLibs(libs)
   }
 
-  override Void loadLibs(InStream in)
+  override LibVersion[] loadLibs(InStream in)
   {
+    acc := LibVersion[,]
     XetoBinaryReader(in).readLibs(this) |lib|
     {
+      acc.add(RemoteLibVersion(lib.name, lib.version, lib.depends))
       libsByName.getOrAdd(lib.name, lib)
     }
+    return acc
   }
 
 //////////////////////////////////////////////////////////////////////////
