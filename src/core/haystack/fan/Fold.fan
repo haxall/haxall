@@ -33,7 +33,7 @@ abstract class Fold
   ** fold is not found, throw an `UnknownNameErr` if checked; otherwise return null.
   static Fold? createPivot(Str name, Dict meta := Etc.emptyDict, Bool checked := true)
   {
-    createFold(name, true, meta, checked)
+    createFold(name, false, meta, checked)
   }
 
   ** Common implementation for creating a fold
