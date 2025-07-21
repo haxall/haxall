@@ -48,7 +48,7 @@ const class HxProjLibs : ProjLibs
 
   const Bool isSys
 
-  const XetoEnv env
+  const override XetoEnv env
 
   LibRepo repo() { env.repo }
 
@@ -186,7 +186,7 @@ const class HxProjLibs : ProjLibs
     // remove names already installed or check they exists
     map := this.map
     toAddVers := Str:LibVersion[:]
-    repo := XetoEnv.cur.repo
+    repo := env.repo
     names.each |n|
     {
       cur := map[n]

@@ -14,6 +14,9 @@ using haystack
 **
 const mixin ProjLibs
 {
+  ** Xeto environment used to manage/cache Xeto libraries
+  abstract XetoEnv env()
+
   ** List of Xeto libraries installed in the project
   abstract ProjLib[] list()
 
