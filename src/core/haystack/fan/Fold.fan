@@ -20,16 +20,31 @@ abstract class Fold
 // Registry
 //////////////////////////////////////////////////////////////////////////
 
-  ** Find a fold by its name and instantiate it by passing the meta as the first
-  ** parameter to the fold's 'make' method. If the fold isn't found and checked is
-  ** true then throw an `UnknownNameErr`; otherwise return null.
-  static Fold? instantiate(Str name, Dict meta := Etc.emptyDict, Bool checked := true)
+  ** Lookup a fold by name and create an instance with the given meta.
+  ** The implementation of the fold will adhere to Axon semantics. If the
+  ** fold is not found, throw an `UnknownNameErr` if checked; otherwise return null.
+  static Fold? createAxon(Str name, Dict meta := Etc.emptyDict, Bool checked := true)
+  {
+    createFold(name, true, meta, checked)
+  }
+
+  ** Lookup a fold by name and create an instance with the given meta.
+  ** The implementation of the fold will adhere to Pivot table semantics. If the
+  ** fold is not found, throw an `UnknownNameErr` if checked; otherwise return null.
+  static Fold? createPivot(Str name, Dict meta := Etc.emptyDict, Bool checked := true)
+  {
+    createFold(name, true, meta, checked)
+  }
+
+  ** Common implementation for creating a fold
+  private static Fold? createFold(Str name, Bool axon, Dict meta, Bool checked)
   {
     t := byName[name]
-    if (t != null) return t.method("make").call(meta)
+    if (t != null) return t.make([axon, meta])
     if (checked) throw UnknownNameErr("Folding func: ${name}")
     return null
   }
+
   private static const Str:Type byName
 
   static
@@ -74,8 +89,24 @@ abstract class Fold
 // Fold
 //////////////////////////////////////////////////////////////////////////
 
+  new make(Bool axon, Dict meta)
+  {
+    this.axon = axon
+    this.meta = meta
+  }
+
+  ** If true, the fold should execute with Axon semantics. If false, it will
+  ** execute with pivot table semantics.
+  const Bool axon
+
+  ** Configuration metadata for the fold.
+  const Dict meta
+
+  ** Convenience for '!axon'
+  Bool pivot() { !axon }
+
   ** The name of this fold
-  once Str name() { typeof.name["Fold".size..-1].decapitalize }
+  once Str name() { meta.get("name") ?: typeof.name["Fold".size..-1].decapitalize }
 
   ** Fold the accumulation into its final value
   abstract Obj? finish()
@@ -98,6 +129,7 @@ abstract class Fold
 @Js
 internal class FoldCount : Fold
 {
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
   override Obj? finish() { Number(count) }
   override Void add(Obj val) { count++ }
   override Obj? batch() { finish }
@@ -112,6 +144,8 @@ internal class FoldCount : Fold
 @Js
 internal class FoldList : Fold
 {
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
+
   override Obj? finish()
   {
     items := this.items.vals.sortr |a, b| { a.count <=> b.count }
@@ -160,6 +194,8 @@ internal class FoldCountItem
 @Js
 internal abstract class FoldNum : Fold
 {
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
+
   override Obj? finish()
   {
     if (mode === FoldNumMode.first) return null
@@ -218,6 +254,7 @@ internal abstract class FoldNum : Fold
 @Js
 internal class FoldSum : FoldNum
 {
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
   override Float finishNum() { sum }
   override Void addNum(Float f) { sum += f }
   private Float sum
@@ -230,6 +267,7 @@ internal class FoldSum : FoldNum
 @Js
 internal class FoldMin : FoldNum
 {
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
   override Float finishNum() { min  }
   override Void addNum(Float f) { min = min.min(f) }
   private Float min := Float.posInf
@@ -242,6 +280,7 @@ internal class FoldMin : FoldNum
 @Js
 internal class FoldMax : FoldNum
 {
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
   override Float finishNum() { max  }
   override Void addNum(Float f) { max = max.max(f) }
   private Float max := Float.negInf
@@ -254,6 +293,8 @@ internal class FoldMax : FoldNum
 @Js
 internal class FoldAvg : FoldNum
 {
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
+
   override Float finishNum() { sum / count.toFloat }
 
   override Void addNum(Float f) { sum += f; count++ }
