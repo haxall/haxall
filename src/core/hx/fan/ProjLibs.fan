@@ -47,6 +47,9 @@ const mixin ProjLibs
   ** Remove all project libs; just for testing
   @NoDoc abstract Void clear()
 
+  ** List of the project-only libs excluding the special "proj" lib
+  @NoDoc abstract Lib[] projLibs()
+
   ** Hash of all the project-only libs excluding the special "proj" lib
   @NoDoc abstract Str projLibsDigest()
 

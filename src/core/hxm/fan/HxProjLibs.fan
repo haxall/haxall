@@ -64,6 +64,8 @@ const class HxProjLibs : ProjLibs
 
   HxNamespace ns() { nsRef.val }
 
+  override Lib[] projLibs() { projLibsRef.val }
+
   override Str projLibsDigest() { projLibsDigestRef.val }
 
   override ProjLib[] list() { map.vals }
@@ -368,9 +370,18 @@ const class HxProjLibs : ProjLibs
       acc[n] = HxProjLib.makeOk(n, basis, ver)
     }
 
+    // TODO: mess
+    projLibs := ns.libs.findAll |x|
+    {
+      if (x.name == XetoUtil.projLibName) return false
+      if (sysns != null && sysns.hasLib(x.name)) return false
+      return true
+    }
+
     // update my libs and ns
     this.nsRef.val = ns
     this.mapRef.val = acc.toImmutable
+    this.projLibsRef.val = projLibs.toImmutable
     this.projLibsDigestRef.val = genProjLibsDigest(sysns, ns)
     return ns
   }
@@ -396,6 +407,7 @@ const class HxProjLibs : ProjLibs
   // updated by reload
   private const AtomicRef nsRef := AtomicRef()
   private const AtomicRef mapRef := AtomicRef()
+  private const AtomicRef projLibsRef := AtomicRef()
   private const AtomicRef projLibsDigestRef := AtomicRef()
 
 }
