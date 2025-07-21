@@ -98,7 +98,6 @@ abstract const class MEnv : XetoEnv
   }
 
   ** Lib cache keyed by lib name
-  // TODO private
-  const ConcurrentMap libsByName := ConcurrentMap()
+  private const ConcurrentMap libsByName := ConcurrentMap()
 }
 

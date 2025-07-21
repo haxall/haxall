@@ -12,26 +12,11 @@ using xeto
 
 **
 ** Remote namespace that loads libs over a network transport layer.
-** Create a new remote env via `XetoBinaryReader.readBoot`.
+** Create a new remote namespace via XetoEnv.createNamespace
 **
 @Js
 const class RemoteNamespace : MNamespace
 {
-  ** Boot a RemoteEnv from the given boot message input stream
-  static RemoteNamespace boot(XetoEnv env, InStream in, MNamespace? base, RemoteLibLoader? libLoader)
-  {
-    if (base == null)
-      return XetoBinaryReader(in).readBootBase(env, libLoader)
-    else
-      return XetoBinaryReader(in).readBootOverlay(env, base, libLoader)
-  }
-
-  internal new make(MEnv env, MNamespace? base, LibVersion[] versions, RemoteLibLoader? libLoader, |This->XetoLib| loadSys)
-    : super(env, base, versions, loadSys)
-  {
-    this.libLoader = libLoader
-  }
-
   internal new makeCache(MEnv env, LibVersion[] versions)
     : super.make(env, null, versions)
   {

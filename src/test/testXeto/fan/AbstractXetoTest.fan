@@ -308,10 +308,12 @@ const class TestClient : RemoteLibLoader
   This boot()
   {
     buf := Buf()
-    XetoBinaryWriter(buf.out).writeBoot(server.ns)
+    XetoBinaryWriter(buf.out).writeLibs(server.ns.libs)
     if (debug) echo("   ~~~ init remote bootstrap size = $buf.size bytes ~~~")
 
-    ns := RemoteNamespace.boot(remoteEnv, buf.flip.in, null, this)
+    remoteEnv := RemoteEnv()
+    vers := remoteEnv.loadLibs(buf.flip.in)
+    ns := remoteEnv.createNamespace(vers)
     nsRef.val = ns
     return this
   }

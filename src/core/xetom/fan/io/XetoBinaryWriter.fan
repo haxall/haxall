@@ -36,67 +36,6 @@ class XetoBinaryWriter : XetoBinaryConst
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Remote Namespace Bootstrap
-//////////////////////////////////////////////////////////////////////////
-
-  ** Write boot message that can be serialized over the network and then
-  ** passed to RemoteNamespace.boot.  The bootLibs are all the libs to
-  ** synchronously load from the boot up front (sys is always implicitly loaded)
-  Void writeBoot(MNamespace ns, Str[]? bootLibs := null)
-  {
-    writeI4(magic)
-    writeI4(version)
-    writeLibVersions(ns.versions)
-    writeBootLibs(ns, bootLibs ?: Str[,])
-    out.writeI4(magicEnd)
-    return this
-  }
-
-  ** Write boot message that can be serialized over the network to
-  ** call RemoteNamespace.boot as an overlay namespace
-  Void writeBootOverlay(MNamespace ns)
-  {
-    if (!ns.isOverlay) throw Err("not an overlay ns")
-    base := ns.base
-    writeI4(magicOverlay)
-    writeI4(version)
-    writeLibVersions(ns.versions.findAll |x| { !base.hasLib(x.name) })
-    out.writeI4(magicEnd)
-  }
-
-  private Void writeLibVersions(LibVersion[] vers)
-  {
-    writeVarInt(vers.size)
-    vers.each |ver|
-    {
-      writeLibVersion(ver)
-    }
-  }
-
-  private Void writeLibVersion(LibVersion v)
-  {
-    writeI4(magicLibVer)
-    writeStr(v.name)
-    writeVersion(v.version)
-    writeVarInt(v.depends.size)
-    v.depends.each |d| { writeStr(d.name) }
-  }
-
-  private Void writeBootLibs(MNamespace ns, Str[] list)
-  {
-    // build map of libs to include in boot message
-    map := Str:Str[:].addList(list)
-    map["sys"] = "sys"
-
-    // load the libs in version depend order
-    writeVarInt(map.size)
-    ns.versions.each |v|
-    {
-      if (map[v.name] != null) writeLib(ns.lib(v.name))
-    }
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Lib
 //////////////////////////////////////////////////////////////////////////
 
@@ -352,7 +291,7 @@ class XetoBinaryWriter : XetoBinaryConst
     write(ctrlDateTime)
     out.writeI2(val.year).write(val.month.ordinal+1).write(val.day)
     out.write(val.hour).write(val.min).write(val.sec).writeI2(val.nanoSec / 1ms.ticks)
-    writeStr(val.tz.name) // TODO
+    writeStr(val.tz.name)
     return this
   }
 
