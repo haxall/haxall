@@ -50,13 +50,10 @@ class AbstractXetoTest : HaystackTest
     libs.each |n|
     {
       if (n == "sys") return
-      verifyEq(cns.libStatus(n), LibStatus.notLoaded)
       verifyEq(cns.hasLib(n), true)
-      verifyEq(cns.lib(n, false), null)
-      verifyErr(UnsupportedErr #) { cns.lib(n) }
-      verifyErr(UnsupportedErr #) { cns.lib(n, true) }
-      verifyEq(cns.libStatus(n), LibStatus.notLoaded)
-      if (n == "ph") verifyEq(client.ns.spec("ph::Site", false), null)
+      verifyEq(cns.libStatus(n), LibStatus.ok)
+      verifyEq(cns.lib(n).name, n)
+      if (n == "ph") verifyEq(client.ns.spec("ph::Site").name, "Site")
     }
 
     // load all and invoke callback

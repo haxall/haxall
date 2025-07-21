@@ -9,6 +9,7 @@
 using util
 using xeto
 using xetom
+using xetoc
 using haystack
 
 **
@@ -190,10 +191,12 @@ class RepoTest : AbstractXetoTest
 
   Void testNamespace()
   {
+    // need fresh ns
+    repo := ServerEnv.initPath.repo
+
     //
     // sys only
     //
-    repo := XetoEnv.cur.repo
     LibVersion sysVer := repo.latest("sys")
     ns := repo.createNamespace([sysVer])
     sysNs := ns
@@ -232,8 +235,6 @@ class RepoTest : AbstractXetoTest
     verifyEq(ns.libStatus("sys"), LibStatus.ok)
     verifySame(ns.version("ph"), phVer)
     verifyEq(ns.isAllLoaded, false)
-    verifyNotSame(ns.sysLib, sys)  // new compile of sys
-    verifyNotSame(ns.lib("sys"), sys)
     verifyEq(ns.hasLib("sys"), true)
     verifyEq(ns.hasLib("ph"), true)
     verifyEq(ns.hasLib("foo.bad.one"), false)
@@ -267,7 +268,7 @@ class RepoTest : AbstractXetoTest
 
     // specAsync
     ns = repo.createNamespace([phVer, sysVer])
-    verifyEq(ns.libStatus("ph"), LibStatus.notLoaded)
+    verifyEq(ns.libStatus("ph"), LibStatus.ok) // from cache
     Err? err
     Spec? spec
     ns.specAsync("ph::Equip") |e, s| { err = e; spec = s }
@@ -283,7 +284,7 @@ class RepoTest : AbstractXetoTest
 
     // instanceAsync
     ns = repo.createNamespace([phVer, sysVer])
-    verifyEq(ns.libStatus("ph"), LibStatus.notLoaded)
+    verifyEq(ns.libStatus("ph"), LibStatus.ok) // from cache
     Dict? inst
     ns.instanceAsync("ph::filetype:csv") |e, x| { err = e; inst = x }
     verifyEq(ns.libStatus("ph"), LibStatus.ok)
@@ -358,7 +359,9 @@ class RepoTest : AbstractXetoTest
 
   LibNamespace initAllLoaded()
   {
-    repo := XetoEnv.cur.repo
+    // need fresh env
+    repo := ServerEnv.initPath.repo
+
     LibVersion sysVer      := repo.latest("sys")
     LibVersion phVer       := repo.latest("ph")
     LibVersion phPointsVer := repo.latest("ph.points")

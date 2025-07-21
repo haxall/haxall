@@ -157,8 +157,6 @@ class NamespaceTest : AbstractXetoTest
 
   private Void doTestPhLib(LibNamespace ns)
   {
-    verifyEq(ns.isAllLoaded, ns.isRemote)
-
     // lib basics
     ph := verifyLibBasics(ns, "ph", phVersion, ["ph"])
     verifyEq(ph.depends.size, 1)
@@ -442,9 +440,8 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { ns.type("sys::Foo", true) }
 
     // instances
-    verifyEq(ns.libStatus("hx.test.xeto"), LibStatus.notLoaded)
-    verifyDictEq(ns.instance("hx.test.xeto::test-a"), ["id":Ref("hx.test.xeto::test-a"), "alpha":m])
     verifyEq(ns.libStatus("hx.test.xeto"), LibStatus.ok)
+    verifyDictEq(ns.instance("hx.test.xeto::test-a"), ["id":Ref("hx.test.xeto::test-a"), "alpha":m])
     verifyEq(ns.instance("hx.test.xeto::badOne", false), null)
     verifyEq(ns.instance("hx.test.xeto::badOne", false), null)
     verifyErr(UnknownRecErr#) { ns.instance("hx.test.xeto::badOne") }
