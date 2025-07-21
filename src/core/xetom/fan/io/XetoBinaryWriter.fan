@@ -102,6 +102,12 @@ class XetoBinaryWriter : XetoBinaryConst
 
   Void writeLibs(XetoLib[] libs)
   {
+    // write debug first line in plain text
+    out.print("libpack:")
+    libs.each |lib| { out.print(lib.name).print(";") }
+    out.printLine
+
+    // binary encoding
     writeVarInt(libs.size)
     libs.each |lib| { writeLib(lib) }
   }

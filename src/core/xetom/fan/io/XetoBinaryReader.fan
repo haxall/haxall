@@ -108,6 +108,11 @@ lib = env.libsByName.getOrAdd(lib.name, lib)
 
   Void readLibs(MEnv env, |XetoLib| cb)
   {
+    // plain text header line
+    line := in.readLine
+    if (!line.startsWith("libpack:")) throw IOErr("Invalid libpack header $line.toCode")
+
+    // decode binary
     size := readVarInt
     size.times { cb(readLib(env)) }
   }
