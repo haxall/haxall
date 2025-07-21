@@ -64,7 +64,7 @@ const class HxProjLibs : ProjLibs
 
   HxNamespace ns() { nsRef.val }
 
-  Str[] projLibNames() { projLibNamesRef.val }
+  override Str projLibsDigest() { projLibsDigestRef.val }
 
   override ProjLib[] list() { map.vals }
 
@@ -171,7 +171,7 @@ const class HxProjLibs : ProjLibs
     doReload(Str[,])
   }
 
-  override Void reload()
+  Void reload()
   {
     doReload(readProjLibNames)
   }
@@ -308,6 +308,7 @@ const class HxProjLibs : ProjLibs
     vers := Str:LibVersion[:]
     basisBoot    := isSys ? ProjLibBasis.sysBoot : ProjLibBasis.projBoot
     basisNonBoot := isSys ? ProjLibBasis.sys : ProjLibBasis.proj
+    sysns := proj.isSys ? null : proj.sys.ns
     nameToBasis := Str:ProjLibBasis[:]
     projLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisNonBoot }
     bootLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisBoot }
@@ -370,14 +371,32 @@ const class HxProjLibs : ProjLibs
     // update my libs and ns
     this.nsRef.val = ns
     this.mapRef.val = acc.toImmutable
-    this.projLibNamesRef.val = projLibNames.toImmutable
+    this.projLibsDigestRef.val = genProjLibsDigest(sysns, ns)
     return ns
+  }
+
+  ** TODO: need to cleanup sys vs proj ns
+  private Str genProjLibsDigest(Namespace? sys, Namespace proj)
+  {
+    acc := LibVersion[,]
+    proj.versions.each |x|
+    {
+      if (sys != null && sys.hasLib(x.name)) return
+      if (x.name == XetoUtil.projLibName) return
+      acc.add(x)
+    }
+    acc.sort
+
+    buf := Buf()
+    buf.capacity = acc.size * 32
+    acc.each |x| { buf.print(x.name).write('-').print(x.version.toStr).write(';') }
+    return buf.toDigest("SHA-1").toBase64Uri
   }
 
   // updated by reload
   private const AtomicRef nsRef := AtomicRef()
   private const AtomicRef mapRef := AtomicRef()
-  private const AtomicRef projLibNamesRef := AtomicRef()
+  private const AtomicRef projLibsDigestRef := AtomicRef()
 
 }
 

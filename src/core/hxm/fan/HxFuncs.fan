@@ -425,7 +425,8 @@ const class HxFuncs
     isShell := cx.sys.info.rt.isAxonsh
     log := isShell ? Log.get("xeto") : cx.rt.ext("hx.xeto").log
     log.info("libReload [$cx.user.username]")
-    cx.rt.libs.reload
+    //cx.rt.libs.reload
+throw Err("TODO")
     return isShell ? "_no_echo_" : "reloaded"
   }
 

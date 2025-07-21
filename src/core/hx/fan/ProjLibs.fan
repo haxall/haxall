@@ -47,8 +47,8 @@ const mixin ProjLibs
   ** Remove all project libs; just for testing
   @NoDoc abstract Void clear()
 
-  ** Reload all libs from disk
-  abstract Void reload()
+  ** Hash of all the project-only libs excluding the special "proj" lib
+  @NoDoc abstract Str projLibsDigest()
 
   ** Return status grid of project libs
   @NoDoc abstract Grid status(Dict? opts := null)
