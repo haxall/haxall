@@ -77,27 +77,59 @@ class EnvTest : AbstractXetoTest
   Void testSerialization()
   {
     senv := ServerEnv.initPath
-    benv := BrowserEnv()
+    benv := RemoteEnv()
 
     // serialize all libs
     sns := senv.createNamespaceFromNames(["ph", "ph.points"])
     buf := Buf()
     senv.saveLibs(buf.out, sns.libs)
-echo("~~~ wrote $buf.size")
 
     // now load into browser env
     benv.loadLibs(buf.flip.in)
-    bns := benv.createNamespaceFromNames(["ph", "ph.points"])
+    bns := benv.createNamespace(sns.versions)
     verifySerialization(sns, bns)
+
+    // create new ns with more libs, but overlaps too
+    sns2 := senv.createNamespaceFromNames(["ph", "ph.points", "ph.attrs", "ph.equips"])
+    senv.saveLibs(buf.clear.out, sns2.libs)
+    verifySame(sns.lib("sys"),       sns2.lib("sys"))
+    verifySame(sns.lib("ph"),        sns2.lib("ph"))
+    verifySame(sns.lib("ph.points"), sns2.lib("ph.points"))
+
+    // load into same brower env
+    benv.loadLibs(buf.flip.in)
+    bns2 := benv.createNamespace(sns2.versions)
+    verifySerialization(sns2, bns2)
+    verifySame(bns.lib("sys"),       bns2.lib("sys"))
+    verifySame(bns.lib("ph"),        bns2.lib("ph"))
+    verifySame(bns.lib("ph.points"), bns2.lib("ph.points"))
   }
 
-  Void verifySerialization(LibNamespace s, LibNamespace b)
+  Void verifySerialization(LibNamespace a, LibNamespace b)
   {
-echo("--- server")
-s.dump
-echo("--- browser")
-b.dump
-    verifyEq(s.libs.join(","), b.libs.join(","))
+     // echo("--- server"); a.dump
+     // echo("--- browser"); b.dump
+    verifyEq(a.libs.join(","), b.libs.join(","))
+    a.libs.each |alib|
+    {
+      blib := b.lib(alib.name)
+      verifySerializationMeta(alib.meta, blib.meta)
+      alib.specs.each |aspec|
+      {
+        bspec := blib.spec(aspec.name)
+        verifyEq(aspec.qname,       bspec.qname)
+        verifySerializationMeta(aspec.meta,    bspec.meta)
+        verifySerializationMeta(aspec.metaOwn, bspec.metaOwn)
+      }
+    }
+  }
+
+  Void verifySerializationMeta(Dict a, Dict b)
+  {
+    // note for now lists might not be same type
+    a = a.map |v| { v is List ? Obj?[,].addAll(v) : v }
+    b = b.map |v| { v is List ? Obj?[,].addAll(v) : v }
+    verifyDictEq(a, b)
   }
 }
 

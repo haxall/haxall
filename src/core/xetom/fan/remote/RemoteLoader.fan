@@ -294,18 +294,6 @@ internal class RemoteLoader
 // Resolve
 //////////////////////////////////////////////////////////////////////////
 
-  private CSpec? resolveStr(Str qname)
-  {
-    if (qname.startsWith(libName) && qname[libName.size] == ':')
-    {
-      return tops.getChecked(qname[libName.size+2..-1], true)
-    }
-    else
-    {
-      return env.cachedSpec(qname) as CSpec
-    }
-  }
-
   private CSpec? resolve(RSpecRef? ref)
   {
     if (ref == null) return null
@@ -334,7 +322,7 @@ internal class RemoteLoader
   private XetoSpec resolveExternal(RSpecRef ref)
   {
     // should already be loaded
-    lib := env.cachedLib(ref.lib)
+    lib := env.get(ref.lib)
     type := (XetoSpec)lib.spec(ref.type)
     if (ref.slot.isEmpty) return type
 

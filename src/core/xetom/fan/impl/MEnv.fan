@@ -21,7 +21,7 @@ abstract const class MEnv : XetoEnv
   static XetoEnv init()
   {
     if (Env.cur.isBrowser)
-      return BrowserEnv()
+      return RemoteEnv()
     else
       return Slot.findMethod("xetoc::ServerEnv.initPath").call
   }
@@ -79,67 +79,23 @@ abstract const class MEnv : XetoEnv
     return libsByName.getOrAdd(name, compile(ns, x))
   }
 
+  ** Lookup cached lib by name
+  Lib? get(Str name, Bool checked := true)
+  {
+    lib := libsByName.get(name)
+    if (lib != null) return lib
+    if (checked) throw UnknownLibErr(name)
+    return null
+  }
+
   ** Hook to to compile
   protected virtual XetoLib compile(LibNamespace ns, LibVersion v)
   {
     throw UnsupportedErr("Lib cannot be compiled, must be preloaded: $v")
   }
 
-  ** Lookup cached lib by name
-  Lib cachedLib(Str name)
-  {
-    libsByName.get(name) ?: throw UnknownLibErr(name)
-  }
-
-  ** Lookup cached spec by qname
-  internal Spec cachedSpec(Str qname)
-  {
-    colons := qname.index("::")
-    libName := qname[0..<colons]
-    specName := qname[colons+1..-1]
-echo("cachedSpec libName.toCode | $specName.toCode")
-    return cachedLib(libName).spec(specName)
-  }
-
   ** Lib cache keyed by lib name
   // TODO private
   const ConcurrentMap libsByName := ConcurrentMap()
-}
-
-**************************************************************************
-** JsEnv
-**************************************************************************
-
-**
-** Browser client based environment
-**
-@Js
-const class BrowserEnv : MEnv
-{
-  override LibRepo repo() { throw unavailErr() }
-
-  override File homeDir() { throw unavailErr() }
-
-  override File workDir() { throw unavailErr() }
-
-  override File installDir() { throw unavailErr() }
-
-  override File[] path() { throw unavailErr() }
-
-  override Str:Str buildVars() { throw unavailErr() }
-
-  override LibNamespace createNamespace(LibVersion[] libs) { throw unavailErr() }
-
-  override LibNamespace createNamespaceFromNames(Str[] names) { throw unavailErr() }
-
-  override LibNamespace createNamespaceFromData(Dict[] recs) { throw unavailErr() }
-
-  override Str mode() { "browser" }
-
-  override Str:Str debugProps() { Str:Obj[:] }
-
-  override Void dump(OutStream out := Env.cur.out) {}
-
-  static Err unavailErr() { Err("Not available in browser") }
 }
 

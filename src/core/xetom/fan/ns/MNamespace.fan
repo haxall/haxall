@@ -17,7 +17,7 @@ using haystack
 @Js
 abstract const class MNamespace : LibNamespace, CNamespace
 {
-  new make(MEnv env, MNamespace? base, LibVersion[] versions, |This->XetoLib|? loadSys)
+  new make(MEnv env, MNamespace? base, LibVersion[] versions, |This->XetoLib|? loadSys := null)
   {
     this.envRef = env
 
@@ -46,6 +46,8 @@ abstract const class MNamespace : LibNamespace, CNamespace
     versions.each |x|
     {
       entry := base?.entriesMap?.get(x.name) ?: MLibEntry(x)
+      cached := env.get(x.name, false)
+      if (cached != null) entry.setOk(cached)
       list.add(entry)
       map.add(x.name, entry)
     }

@@ -298,7 +298,7 @@ const class TestClient : RemoteLibLoader
 
   const TestServer server
 
-  const MEnv remoteEnv := BrowserEnv()
+  const MEnv remoteEnv := RemoteEnv()
 
   RemoteNamespace? ns() { nsRef.val }
   const AtomicRef nsRef := AtomicRef()
@@ -326,7 +326,7 @@ const class TestClient : RemoteLibLoader
     if (debug) echo("   ~~~ load lib $name size = $buf.size bytes ~~~")
 
     remoteEnv.loadLibs(buf.flip.in)
-    f(null, remoteEnv.cachedLib(name))
+    f(null, remoteEnv.get(name))
   }
 }
 

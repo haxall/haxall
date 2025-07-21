@@ -32,6 +32,11 @@ const class RemoteNamespace : MNamespace
     this.libLoader = libLoader
   }
 
+  internal new makeCache(MEnv env, LibVersion[] versions)
+    : super.make(env, null, versions)
+  {
+  }
+
   const RemoteLibLoader? libLoader
 
   override Bool isRemote() { true }
