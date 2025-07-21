@@ -200,7 +200,7 @@ const class SpecBindings
     }
     catch (Err e)
     {
-      warn("SpecBindings cannot load xeto lib '$libName': $e")
+      if (!Env.cur.isBrowser) warn("SpecBindings cannot load xeto lib '$libName': $e")
       return SpecBindingLoader()
     }
 
