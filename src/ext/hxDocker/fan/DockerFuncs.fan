@@ -18,19 +18,19 @@ const class DockerFuncs
 {
 
   ** Lookup DockerExt for context
-  private static DockerExt ext(Context cx := Context.cur) { cx.proj.ext("docker") }
+  private static DockerExt ext(Context cx := Context.cur) { cx.proj.ext("hx.docker") }
 
 //////////////////////////////////////////////////////////////////////////
 // Views
 //////////////////////////////////////////////////////////////////////////
 
-  @Axon { admin=true }
+  @Api @Axon { admin=true }
   static Grid dockerListImages()
   {
     ext.mgr.listImages
   }
 
-  @Axon { admin=true }
+  @Api @Axon { admin=true }
   static Grid dockerListContainers()
   {
     meta := Str:Obj?[:]
@@ -39,7 +39,7 @@ const class DockerFuncs
     return ext.mgr.listContainers.setMeta(meta)
   }
 
-  // @Axon { admin=true }
+  // @Api @Axon { admin=true }
   // static Grid dockerStopContainers(Obj arg)
   // {
   //   Ref[] ids := [,]
@@ -87,7 +87,7 @@ const class DockerFuncs
   // }
 
   ** Kill and remove a container.
-  @Axon { admin=true }
+  @Api @Axon { admin=true }
   static Dict dockerDeleteContainer(Obj id)
   {
     ext.mgr.deleteContainer(toRef(id).id)
@@ -97,7 +97,7 @@ const class DockerFuncs
 // Service Funcs
 //////////////////////////////////////////////////////////////////////////
 
-  @Axon { admin=true }
+  @Api @Axon { admin=true }
   static Str dockerRun(Str image, Obj config := Etc.emptyDict)
   {
     ext.mgr.run(image, config).id

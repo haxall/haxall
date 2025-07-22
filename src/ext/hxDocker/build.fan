@@ -38,7 +38,7 @@ class Build : BuildPod
                ]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "docker"]
+    index   = ["xeto.bindings":"hx.docker", "ph.lib": "docker"]
   }
 }
 

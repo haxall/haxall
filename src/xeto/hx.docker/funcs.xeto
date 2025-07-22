@@ -1,0 +1,16 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   22 Jul 2025  Brian Frank  Creation
+//
+
+dockerListImages: Func <admin> { returns: Grid }
+
+dockerListContainers: Func <admin> { returns: Grid }
+
+// Kill and remove a container.
+dockerDeleteContainer: Func <admin> { id: Obj, returns: Dict }
+
+dockerRun: Func <admin> { image: Str, config: Obj, returns: Str }
