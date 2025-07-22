@@ -57,7 +57,7 @@ class TokenizerTest : Test
     verifyToks(Str<|""|>,  Obj?[Token.val, ""])
     verifyToks(Str<|"x y"|>,  Obj?[Token.val, "x y"])
     verifyToks(Str<|"x\"y"|>,  Obj?[Token.val, "x\"y"])
-    verifyToks(Str<|"_\u012f \n \t \\_ \u{1f973}"|>,  Obj?[Token.val, "_\u012f \n \t \\_ \\u{1f973}"])
+    verifyToks(Str<|"_\u012f \n \t \\_ \u{1f973}"|>,  Obj?[Token.val, "_\u012f \n \t \\_ \u{1f973}"])
 
     // triple quoted strings
     verifyToks(Str<|""""""|>,  Obj?[Token.val, ""])
