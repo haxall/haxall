@@ -63,7 +63,7 @@ abstract class Fold
     }
 
     // these are explicitly allowed in all environments
-    ["list", "sum", "min", "max", "avg"].each |n| { add("haystack", n) }
+    ["count", "list", "sum", "min", "max", "avg", "spread"].each |n| { add("haystack", n) }
     accByName.setNotNull("delta", accByName["avg"])
 
     // only use index when not in the browser
@@ -200,7 +200,8 @@ internal abstract class FoldNum : Fold
   {
     if (mode === FoldNumMode.first) return null
     if (mode === FoldNumMode.na) return NA.val
-    return Number.make(finishNum, unit)
+    num := finishNum
+    return num.isNaN ? Number.nan : Number.make(num, unit)
   }
 
   override Void add(Obj val)
@@ -214,7 +215,7 @@ internal abstract class FoldNum : Fold
     if (n == null) return
 
     // check unit
-    addUnit(n.unit)
+    if (pivot || !n.isNaN) addUnit(n.unit)
 
     // accumulate the floating point value
     addNum(n.toFloat)
@@ -231,18 +232,20 @@ internal abstract class FoldNum : Fold
 
   Void addUnit(Unit? u)
   {
-    if (mode === FoldNumMode.first)
+    if (unit == undefined_unit)
     {
       unit = u
     }
     else if (unit != u)
     {
+      if (axon) throw UnitErr("${unit} + ${u}")
       unit = null
     }
   }
 
+  private static const Unit undefined_unit := Unit.define("_fold_undef_")
   internal FoldNumMode mode := FoldNumMode.first
-  internal Unit? unit
+  internal Unit? unit := undefined_unit
 }
 
 @Js internal enum class FoldNumMode { first, na, ok }
@@ -258,32 +261,6 @@ internal class FoldSum : FoldNum
   override Float finishNum() { sum }
   override Void addNum(Float f) { sum += f }
   private Float sum
-}
-
-**************************************************************************
-** FoldMin
-**************************************************************************
-
-@Js
-internal class FoldMin : FoldNum
-{
-  new make(Bool axon, Dict meta) : super(axon, meta) { }
-  override Float finishNum() { min  }
-  override Void addNum(Float f) { min = min.min(f) }
-  private Float min := Float.posInf
-}
-
-**************************************************************************
-** FoldMax
-**************************************************************************
-
-@Js
-internal class FoldMax : FoldNum
-{
-  new make(Bool axon, Dict meta) : super(axon, meta) { }
-  override Float finishNum() { max  }
-  override Void addNum(Float f) { max = max.max(f) }
-  private Float max := Float.negInf
 }
 
 **************************************************************************
@@ -317,4 +294,91 @@ internal class FoldAvg : FoldNum
 
   private Float sum
   private Int count
+}
+
+**************************************************************************
+** FoldExtreme
+**************************************************************************
+
+@Js
+internal abstract class FoldExtreme : Fold
+{
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
+  override Obj? finish()
+  {
+    if (mode === FoldNumMode.first) return null
+    if (mode === FoldNumMode.na) return NA.val
+    return onFinish
+  }
+  abstract protected Number onFinish()
+  override Void add(Obj val)
+  {
+    // check NA
+    if (mode === FoldNumMode.na) return
+    if (val === NA.val) { mode = FoldNumMode.na; return }
+
+    // skip anything else not a Number
+    n := val as Number
+    if (n == null) return
+
+    if (min == null && max == null) { min = n; max = n }
+    else
+    {
+      tempMin := n.min(min)
+      tempMax := n.max(max)
+      if (pivot && tempMin.unit != min.unit)
+      {
+        // unit changed; strip units
+        tempMin = Number.make(tempMin.toFloat)
+        tempMax = Number.make(tempMax.toFloat)
+      }
+      min = tempMin
+      max = tempMax
+    }
+    mode = FoldNumMode.ok
+  }
+  override Obj? batch() { [min, max] }
+  override Void addBatch(Obj v)
+  {
+    state := (List)v
+    add(state[0])
+    add(state[1])
+  }
+
+  private FoldNumMode mode := FoldNumMode.first
+  protected Number? min { private set }
+  protected Number? max { private set }
+}
+
+**************************************************************************
+** FoldMin
+**************************************************************************
+
+@Js
+internal class FoldMin : FoldExtreme
+{
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
+  override protected Number onFinish() { this.min }
+}
+
+**************************************************************************
+** FoldMax
+**************************************************************************
+
+@Js
+internal class FoldMax : FoldExtreme
+{
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
+  override protected Number onFinish() { this.max }
+}
+
+**************************************************************************
+** FoldSpread
+**************************************************************************
+
+@Js
+internal class FoldSpread : FoldExtreme
+{
+  new make(Bool axon, Dict meta) : super(axon, meta) { }
+  override protected Number onFinish() { this.max - this.min }
 }

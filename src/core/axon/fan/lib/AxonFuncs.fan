@@ -964,9 +964,10 @@ if (fn is XetoFn) fn = ((XetoFn)fn).reflect
   @Api @Axon { meta = ["foldOn":"Obj"] }
   static Obj? count(Obj val, Obj? acc)
   {
-    if (val === foldStartVal) return Number.zero
-    if (val === foldEndVal) return acc
-    return ((Number)acc).increment
+    if (val === foldStartVal) return Fold.createAxon("count")
+    if (val === foldEndVal) return acc->finish
+    ((Fold)acc).add(val)
+    return acc
   }
 
   ** Fold multiple values into their numeric sum.
@@ -974,13 +975,10 @@ if (fn is XetoFn) fn = ((XetoFn)fn).reflect
   @Api @Axon { meta = ["foldOn":"Number"] }
   static Obj? sum(Obj? val, Obj? acc)
   {
-    if (val === foldStartVal) return null
-    if (val === foldEndVal) return acc
-    if (val === NA.val || acc === NA.val) return NA.val
-    if (val == null) return acc
-
-    if (val is Number) return ((Number)val) + (acc ?: Number.zero)
-    throw argErr("Cannot sum", val)
+    if (val === foldStartVal) return Fold.createAxon("sum")
+    if (val === foldEndVal) return acc->finish
+    if (val != null) ((Fold)acc).add(val)
+    return acc
   }
 
   ** Compare two numbers and return the smaller one.  This function
@@ -994,12 +992,21 @@ if (fn is XetoFn) fn = ((XetoFn)fn).reflect
   @Api @Axon { meta = ["foldOn":"Number"] }
   static Obj? min(Obj? val, Obj? acc)
   {
-    if (val === foldStartVal) return Number.posInf
-    if (val === foldEndVal) return acc == Number.posInf ? null : acc
-    if (val === NA.val || acc === NA.val) return NA.val
-    if (val == null) return acc
-    if (acc == null) return val
-    return ((Number)val).min(acc)
+    if (val === foldStartVal) return Fold.createAxon("min")
+    if (val === foldEndVal) return acc->finish
+    if (acc is Fold)
+    {
+      // fold
+      if (val != null) ((Fold)acc).add(val)
+      return acc
+    }
+    else
+    {
+      // min(val, acc)
+      if (val == null) return acc
+      if (acc == null) return val
+      return ((Number)val).min(acc)
+    }
   }
 
   ** Compare two numbers and return the larger one.  This function
@@ -1013,13 +1020,21 @@ if (fn is XetoFn) fn = ((XetoFn)fn).reflect
   @Api @Axon { meta = ["foldOn":"Number"] }
   static Obj? max(Obj? val, Obj? acc)
   {
-    if (val === foldStartVal) return foldStartVal
-    if (val === foldEndVal)   return acc == foldStartVal ? null : acc
-    if (acc === foldStartVal) return val
-    if (val === NA.val || acc === NA.val) return NA.val
-    if (val == null) return acc
-    if (acc == null) return val
-    return ((Number)val).max(acc)
+    if (val === foldStartVal) return Fold.createAxon("max")
+    if (val === foldEndVal) return acc->finish
+    if (acc is Fold)
+    {
+      // fold
+      if (val != null) ((Fold)acc).add(val)
+      return acc
+    }
+    else
+    {
+      // max(val, acc)
+      if (val == null) return acc
+      if (acc == null) return val
+      return ((Number)val).max(acc)
+    }
   }
 
   ** Fold multiple values into their standard average or arithmetic
@@ -1031,16 +1046,10 @@ if (fn is XetoFn) fn = ((XetoFn)fn).reflect
   @Api @Axon { meta = ["foldOn":"Number"] }
   static Obj? avg(Obj? val, Obj? acc)
   {
-    if (val === foldStartVal) return [Number.zero, Number.zero]
-    if (val === NA.val || acc === NA.val) return NA.val
-    state := toFoldNumAcc("avg", acc)
-    count := state[0]
-    total := state[1]
-    if (val === foldEndVal) return count.toFloat == 0f ? null : total / count
-    if (val == null) return acc
-    state[0] = count.increment
-    state[1] = total + val
-    return state
+    if (val === foldStartVal) return Fold.createAxon("avg")
+    if (val === foldEndVal) return acc->finish
+    if (val != null) ((Fold)acc).add(val)
+    return acc
   }
 
   ** Fold multiple values to compute the difference between
@@ -1051,16 +1060,10 @@ if (fn is XetoFn) fn = ((XetoFn)fn).reflect
   @Api @Axon { meta = ["foldOn":"Number"] }
   static Obj? spread(Obj? val, Obj? acc)
   {
-    // store state in acc as [min, max]
-    if (val === foldStartVal) return [Number.posInf, Number.negInf]
-    if (val === NA.val || acc === NA.val) return NA.val
-    state := toFoldNumAcc("spread", acc)
-    if (val === foldEndVal) return state[0] == Number.posInf ? null : state[1] - state[0]
-    if (val == null) return state
-    num := (Number)val
-    state[0] = num.min(state[0])
-    state[1] = num.max(state[1])
-    return state
+    if (val === foldStartVal) return Fold.createAxon("spread")
+    if (val === foldEndVal) return acc->finish
+    if (val != null) ((Fold)acc).add(val)
+    return acc
   }
 
   private static Number[] toFoldNumAcc(Str name, Obj? acc)

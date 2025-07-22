@@ -936,66 +936,98 @@ class CoreLibTest : HaystackTest
 // Fold
 //////////////////////////////////////////////////////////////////////////
 
-   Void testFold()
-   {
-     verifyFold([,], null, null, null, null)
-     verifyFold([-9], -9f, -9f, -9f, -9f)
-     verifyFold([-2, 2], 0f, 0f, -2f, 2f)
-     verifyFold([-2f, 2f], 0f, 0f, -2f, 2f)
-     verifyFold([2, 1, 3, 5, 4], 15f, 3f, 1f, 5f)
+  Void testFold()
+  {
+    verifyFold([,], null, null, null, null)
+    verifyFold([-9], -9f, -9f, -9f, -9f)
+    verifyFold([-2, 2], 0f, 0f, -2f, 2f)
+    verifyFold([-2f, 2f], 0f, 0f, -2f, 2f)
+    verifyFold([2, 1, 3, 5, 4], 15f, 3f, 1f, 5f)
 
-     verifyEval("[3m, 4m, 5m].fold(count)", n(3))
-     verifyEval("[3m, 4m, 5m].fold(min)", n(3, "m"))
-     verifyEval("[3m, 4m, 5m].fold(max)", n(5, "m"))
-     verifyEval("[3m, 4m, 5m].fold(avg)", n(4, "m"))
-     verifyEval("[nan(), nan(), nan()].fold(min)", Number.nan)
-     verifyEval("[nan(), nan(), 1].fold(min)", Number.nan)
-     verifyEval("[nan(), nan(), nan()].fold(max)", Number.nan)
-     verifyEval("[nan(), nan(), 1].fold(max)", n(1))
-   }
+    verifyEval("[3m, 4m, 5m].fold(count)", n(3))
+    verifyEval("[nan(), 4m, null, 5m].fold(count)", n(4))
 
-   Void verifyFold(Num[] list, Float? sum, Float? avg, Float? min, Float? max)
-   {
-     src := "[" + list.join(",") + "]"
-     verifyEval("${src}.fold(count)", n(list.size))
-     verifyEval("${src}.fold(sum)", n(sum))
-     verifyEval("${src}.fold(avg)", n(avg))
-     verifyEval("${src}.fold(max)", n(max))
-     verifyEval("${src}.fold(min)", n(min))
-     verifyEval("${src}.fold(spread)", max == null ? null : n(max - min))
-     if (list.first == null) return
-     v := list.first
-     verifyEval("max($v, null)", n(v))
-     verifyEval("max(null, $v)", n(v))
-     verifyEval("min($v, null)", n(v))
-     verifyEval("min(null, $v)", n(v))
-   }
+    verifyEval("[3m, 4m, 5m].fold(sum)", n(12, "m"))
+    verifyEval("[nan(), nan(), nan()].fold(sum)", Number.nan)
+    verifyEval("[nan(), 1m, nan(), 2m].fold(sum)", Number.nan)
+    verifyEvalErr("[1m, 2ft].fold(sum)", UnitErr#)
+    verifyEvalErr("[nan(), 1, nan(), 2m].fold(sum)", UnitErr#)
 
-   Void testFoldNA()
-   {
-      verifyEval(Str<|format(na())|>, "NA")
-     verifyEval("[1,2,null,na(),3].fold(count)", n(5))
-     verifyEval("[1,2,null,na(),3].fold(sum)", NA.val)
-     verifyEval("[1,2,null,na(),3].fold(min)", NA.val)
-     verifyEval("[1,2,null,na(),3].fold(max)", NA.val)
-     verifyEval("[1,2,null,na(),3].fold(avg)", NA.val)
-     verifyEval("[1,2,null,na(),3].fold(spread)", NA.val)
-   }
+    verifyEval("[].fold(min)", null)
+    verifyEval("[2m].fold(min)", n(2, "m"))
+    verifyEval("[nan()].fold(min)", Number.nan)
+    verifyEval("[3m, 4m, 5m].fold(min)", n(3, "m"))
+    verifyEval("[3m, 4m, 5ft].fold(min)", n(3, "m"))
+    verifyEval("[nan(), nan(), nan()].fold(min)", Number.nan)
+    verifyEval("[nan(), nan(), 1].fold(min)", Number.nan)
+    verifyEval("[1, nan(), nan()].fold(min)", Number.nan)
 
-   Void testFoldCustom()
-   {
-     verifyEval(
-       Str<|do
-              average: (val, acc) => do
-                if (val == foldStart()) return {sum:0, count:0}
-                if (val == foldEnd()) return acc->sum / acc->count
-                return {sum: acc->sum + val, count: acc->count + 1}
-              end
-              [3, 4, 1, 2, 2, 8, 1].fold(average)
-            end
-            |>,
-            n(3))
-   }
+    verifyEval("[].fold(max)", null)
+    verifyEval("[2m].fold(max)", n(2, "m"))
+    verifyEval("[nan()].fold(max)", Number.nan)
+    verifyEval("[3m, 4m, 5m].fold(max)", n(5, "m"))
+    verifyEval("[3m, 4m, 5ft].fold(max)", n(5, "ft"))
+    verifyEval("[nan(), nan(), nan()].fold(max)", Number.nan)
+    verifyEval("[nan(), nan(), 1].fold(max)", n(1))
+    verifyEval("[1, nan(), nan()].fold(max)", n(1))
+
+    verifyEval("[3m, 4m, 5m].fold(avg)", n(4, "m"))
+    verifyEval("[nan(), 3m].fold(avg)", Number.nan)
+    verifyEvalErr("[3m, 4m, 5ft].fold(avg)", UnitErr#)
+
+    verifyEval("[3m, 4m, 5m].fold(spread)", n(2, "m"))
+    // this one is weird but is same behavior as previous Axon implementation
+    verifyEval("[nan(), 4m, 5m].fold(spread)", n(Float.nan, "m"))
+    verifyEvalErr("[3m, 4m, 5ft].fold(spread)", UnitErr#)
+  }
+
+  Void testFoldSpread()
+  {
+    verifyEval("[nan(), 4m, 5m].fold(spread)", Number.nan)
+  }
+
+  Void verifyFold(Num[] list, Float? sum, Float? avg, Float? min, Float? max)
+  {
+    src := "[" + list.join(",") + "]"
+    verifyEval("${src}.fold(count)", n(list.size))
+    verifyEval("${src}.fold(sum)", n(sum))
+    verifyEval("${src}.fold(avg)", n(avg))
+    verifyEval("${src}.fold(max)", n(max))
+    verifyEval("${src}.fold(min)", n(min))
+    verifyEval("${src}.fold(spread)", max == null ? null : n(max - min))
+    if (list.first == null) return
+    v := list.first
+    verifyEval("max($v, null)", n(v))
+    verifyEval("max(null, $v)", n(v))
+    verifyEval("min($v, null)", n(v))
+    verifyEval("min(null, $v)", n(v))
+  }
+
+  Void testFoldNA()
+  {
+    verifyEval(Str<|format(na())|>, "NA")
+    verifyEval("[1,2,null,na(),3].fold(count)", n(5))
+    verifyEval("[1,2,null,na(),3].fold(sum)", NA.val)
+    verifyEval("[1,2,null,na(),3].fold(min)", NA.val)
+    verifyEval("[1,2,null,na(),3].fold(max)", NA.val)
+    verifyEval("[1,2,null,na(),3].fold(avg)", NA.val)
+    verifyEval("[1,2,null,na(),3].fold(spread)", NA.val)
+  }
+
+  Void testFoldCustom()
+  {
+    verifyEval(
+      Str<|do
+             average: (val, acc) => do
+               if (val == foldStart()) return {sum:0, count:0}
+               if (val == foldEnd()) return acc->sum / acc->count
+               return {sum: acc->sum + val, count: acc->count + 1}
+             end
+             [3, 4, 1, 2, 2, 8, 1].fold(average)
+           end
+           |>,
+           n(3))
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Dict
