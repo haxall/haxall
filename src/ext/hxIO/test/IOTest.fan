@@ -20,7 +20,7 @@ class IOTest : HxTest
   @HxTestProj
   Void test()
   {
-    addLib("io")
+    addLib("hx.io")
     projDir := proj.dir
 
     // bad handles

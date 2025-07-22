@@ -117,13 +117,11 @@ class ExtTest : HxTest
   @HxTestProj
   Void testAxon()
   {
-    // verify via Axon eval
+    // axon lib
     cx := makeContext
-    verifyEq(cx.defs.def("func:today").lib.name, "axon")
-    verifyEq(cx.defs.def("func:commit").lib.name, "hx")
     verifyEq(cx.eval("today()"), Date.today)
 
-    // sysmod functions
+    // hx.foo libs
     verifyEq(cx.eval("cryptoReadAllKeys().col(\"alias\").name"), "alias")
 
     // add library

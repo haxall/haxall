@@ -28,7 +28,7 @@ const class IOFuncs
   **
   ** Generate randomized series of bytes which can be used as an input I/O handle.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj ioRandom(Number size)
   {
     Buf.random(size.toInt)
@@ -51,7 +51,7 @@ const class IOFuncs
   **   // read CSV file in ISO-8859-1
   **   ioCharset(`io/foo.csv`, "ISO-8859-1").ioReadCsv
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioCharset(Obj? handle, Str charset)
   {
     CharsetHandle(toHandle(handle), Charset.fromStr(charset))
@@ -65,7 +65,7 @@ const class IOFuncs
   ** Example:
   **   ioWriteStr("append a line\n", ioAppend(`io/foo.txt`))
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioAppend(Obj? handle)
   {
     toHandle(handle).toAppend
@@ -90,7 +90,7 @@ const class IOFuncs
   **   ioDir(`io/`)             // read files in project's io/ directory
   **   ioDir(`fan://haystack`)  // read files in pod
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid ioDir(Obj? handle)
   {
     h := toHandle(handle)
@@ -107,7 +107,7 @@ const class IOFuncs
   **   ioInfo(`io/`)            // read file info for the project's io/ directory
   **   ioInfo(`io/sites.trio`)  // read file info for the io/sites.trio file
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Dict ioInfo(Obj? handle)
   {
     h := toHandle(handle)
@@ -138,7 +138,7 @@ const class IOFuncs
   **   ioCreate(`io/new-dir/`)        // create new empty directory
   **   ioCreate(`io/new-file.txt`)    // create new empty file
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioCreate(Obj? handle)
   {
     h := toHandle(handle)
@@ -152,7 +152,7 @@ const class IOFuncs
   ** I/O handle does map to a file system then raise exception.  If the
   ** file does not exist then no action is taken.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioDelete(Obj? handle)
   {
     if (handle is List)
@@ -181,7 +181,7 @@ const class IOFuncs
   **   ioCopy(`io/file.txt`, `io/file-copy.txt`, {overwrite})
   **   ioCopy(`io/file.txt`, `io/file-copy.txt`, {overwrite:false})
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioCopy(Obj? from, Obj? to, Dict opts := Etc.emptyDict)
   {
     fromFile := toHandle(from).toFile("ioCopy")
@@ -196,7 +196,7 @@ const class IOFuncs
   ** a local file or directory on the file system.  If the target file
   ** already exists then raise an IOErr.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioMove(Obj? from, Obj? to)
   {
     fromFile := toHandle(from).toFile("ioMove")
@@ -213,7 +213,7 @@ const class IOFuncs
   ** Read an I/O handle into memory as a string.
   ** Newlines are always normalized into "\n" characters.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Str ioReadStr(Obj? handle)
   {
     toHandle(handle).withIn |in| { in.readAllStr }
@@ -222,7 +222,7 @@ const class IOFuncs
   **
   ** Write a string to an I/O handle.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteStr(Str str, Obj? handle)
   {
     toHandle(handle).withOut |out| { out.print(str) }
@@ -244,7 +244,7 @@ const class IOFuncs
   **   ioReadLines(`io/file.txt`)
   **   ioReadLines(`io/file.txt`, {limit: 10_000})
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Str[] ioReadLines(Obj? handle, Dict? opts := null)
   {
     io := toHandle(handle)
@@ -272,7 +272,7 @@ const class IOFuncs
   ** For each line of the given source stream call the given function
   ** with two parameters: Str line and zero based Number line number.
   ** Lines are processed according to `sys::InStream.eachLine`.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioEachLine(Obj? handle, Fn fn)
   {
     return toHandle(handle).withIn |in|
@@ -291,7 +291,7 @@ const class IOFuncs
 
   ** Read a stream of lines.  Lines are processed according to
   ** `sys::InStream.eachLine`.  See `docHaxall::Streams#ioStreamLines`.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj ioStreamLines(Obj? handle)
   {
     IOStreamLinesStream(toHandle(handle))
@@ -300,7 +300,7 @@ const class IOFuncs
   **
   ** Write a list of string lines separated with "\n" character.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteLines(Str[] lines, Obj? handle)
   {
     toHandle(handle).withOut |out|
@@ -316,7 +316,7 @@ const class IOFuncs
   **
   ** Read a [Trio]`docHaystack::Trio` file into memory as a list of Dicts.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Dict[] ioReadTrio(Obj? handle)
   {
     toHandle(handle).withIn |in|
@@ -332,7 +332,7 @@ const class IOFuncs
   ** Following options are supported
   **   - noSort: marker to prevent tags from being sorted by name
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteTrio(Obj? val, Obj? handle, Dict? opts := null)
   {
     dicts := Etc.toRecs(val)
@@ -349,7 +349,7 @@ const class IOFuncs
   **
   ** Read a [Zinc]`docHaystack::Zinc` file into memory as a Haystack data type.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid ioReadZinc(Obj? handle)
   {
     toHandle(handle).withIn |in|
@@ -361,7 +361,7 @@ const class IOFuncs
   **
   ** Write a Grid to the [Zinc]`docHaystack::Zinc` format.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteZinc(Obj? val, Obj? handle)
   {
     grid := toDataGrid(val)
@@ -379,7 +379,7 @@ const class IOFuncs
   ** Read a Xeto data file into memory as a Haystack data type.
   ** See `xeto::LibNamespace.compileData` for details and options.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioReadXeto(Obj? handle, Obj? opts := null)
   {
     toHandle(handle).withIn |in|
@@ -392,7 +392,7 @@ const class IOFuncs
   ** Write value to a Xeto text format file.
   ** See `xeto::LibNamespace.writeData` for details and options.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteXeto(Obj? val, Obj? handle, Obj? opts := null)
   {
     return toHandle(handle).withOut |out|
@@ -421,7 +421,7 @@ const class IOFuncs
   **
   ** Also see `ioStreamCsv`, `ioEachCsv`, `ioWriteCsv`, and `docHaystack::Csv`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid ioReadCsv(Obj? handle, Dict? opts := null)
   {
     IOCsvReader(curContext, handle, opts).read
@@ -433,7 +433,7 @@ const class IOFuncs
   ** it streams the rows as dicts instead of reading to an in-memory grid.
   ** See `docHaxall::Streams#ioStreamCsv`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioStreamCsv(Obj? handle, Dict? opts := null)
   {
     IOStreamCsvStream(handle, opts)
@@ -449,7 +449,7 @@ const class IOFuncs
   **
   ** Also `ioReadCsv`, `ioWriteCsv`, and `docHaystack::Csv`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioEachCsv(Obj? handle, Dict? opts, Fn fn)
   {
     IOCsvReader(curContext, handle, opts).each(fn)
@@ -473,7 +473,7 @@ const class IOFuncs
   **
   ** Also `ioReadCsv`, `ioEachCsv`, and `docHaystack::Csv`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteCsv(Obj? val, Obj? handle, Dict? opts := null)
   {
     // parse options
@@ -506,7 +506,7 @@ const class IOFuncs
   ** Example:
   **   readAll(site).ioWriteExcel(`io/sites.xls`)
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteExcel(Obj? val, Obj? handle)
   {
     // if Grid[], then write each grid as a worksheet
@@ -548,7 +548,7 @@ const class IOFuncs
   **   - v4: explicitly request Haystack 4 decoding (default)
   **   - safeNames: convert object keys to safe tag names
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioReadJson(Obj? handle, Dict? opts := null)
   {
     toHandle(handle).withIn |in|
@@ -571,7 +571,7 @@ const class IOFuncs
   ** Read a JSON file formatted as a standardized Haystack grid
   ** into memory. See `ioReadJson` to read arbitrary JSON structured data.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid ioReadJsonGrid(Obj? handle, Dict? opts := null)
   {
     toHandle(handle).withIn |in|
@@ -591,7 +591,7 @@ const class IOFuncs
   **   - v3: Encode JSON using Haystack 3 encoding
   **   - v4: Explicitly encode with Haystack 4 encoding (default)
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteJson(Obj? val, Obj? handle, Dict? opts := null)
   {
     toHandle(handle).withOut |out|
@@ -609,7 +609,7 @@ const class IOFuncs
 
   ** Write an Axon data structure to HTML. The 'val' must be an
   ** Axon type that can be converted to a Grid.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteHtml(Obj? val, Obj? handle, Dict opts := Etc.emptyDict)
   {
     toHandle(handle).withOut |out|
@@ -626,7 +626,7 @@ const class IOFuncs
   **
   ** Write a grid to an [XML]`docHaxall::Xml` file.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteXml(Obj? val, Obj? handle)
   {
     grid := toDataGrid(val)
@@ -642,7 +642,7 @@ const class IOFuncs
 
   ** Write an Axon data structure to RDF [Turtle]`docHaystack::Rdf` format.
   ** The 'val' must be an Axon type that can be converted to a Grid.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteTurtle(Obj? val, Obj? handle)
   {
     grid := toDataGrid(val)
@@ -654,7 +654,7 @@ const class IOFuncs
 
   ** Write an Axon data structure to RDF [JSON-LD]`docHaystack::Rdf` format.
   ** The 'val' must be an Axon type that can be converted to a Grid.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteJsonLd(Obj? val, Obj? handle)
   {
     grid := toDataGrid(val)
@@ -681,7 +681,7 @@ const class IOFuncs
   ** Example:
   **   ioZipDir(`io/batch.zip`)
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid ioZipDir(Obj? handle)
   {
     cx := curContext
@@ -717,7 +717,7 @@ const class IOFuncs
   **   // read CSV file from within a zip
   **   ioZipEntry(`io/batch.zip`, `/zone-temp.csv`).ioReadCsv
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioZipEntry(Obj? handle, Uri path)
   {
     // check handle
@@ -738,7 +738,7 @@ const class IOFuncs
   **   // read GZIP CSV file
   **   ioGzip(`io/sites.gz`).ioReadCsv
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioGzip(Obj? handle)
   {
     GZipEntryHandle(toHandle(handle))
@@ -756,7 +756,7 @@ const class IOFuncs
   **   // decode base64 to a string
   **   ioFromBase64("c2t5c3Bhcms").ioReadStr
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioFromBase64(Str s)
   {
     BufHandle(Buf.fromBase64(s))
@@ -775,7 +775,7 @@ const class IOFuncs
   **   // encode string to base64 without padding using URI safe chars
   **   ioToBase64("myusername:mysecret", {uri})
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Str ioToBase64(Obj? handle, Dict? opts := null)
   {
     if (opts == null) opts = Etc.emptyDict
@@ -786,7 +786,7 @@ const class IOFuncs
   **
   ** Encode an I/O handle into hexidecimal string.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Str ioToHex(Obj? handle)
   {
     toHandle(handle).inToBuf.toHex
@@ -799,7 +799,7 @@ const class IOFuncs
   ** Example:
   **   ioCrc("foo", "CRC-32").toHex
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Number ioCrc(Obj? handle, Str algorithm)
   {
     Number(toHandle(handle).inToBuf.crc(algorithm))
@@ -812,7 +812,7 @@ const class IOFuncs
   ** Example:
   **   ioDigest("foo", "SHA-1").ioToBase64
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioDigest(Obj? handle, Str algorithm)
   {
     toHandle(handle).inToBuf.toDigest(algorithm)
@@ -825,7 +825,7 @@ const class IOFuncs
   ** Example:
   **   ioHmac("foo", "SHA-1", "secret").ioToBase64
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioHmac(Obj? handle, Str algorithm, Obj? key)
   {
     toHandle(handle).inToBuf.hmac(algorithm, toHandle(key).inToBuf)
@@ -837,7 +837,7 @@ const class IOFuncs
   ** Example:
   **   ioPbk("PBKDF2WithHmacSHA1", "secret", ioRandom(64), 1000, 20).ioToBase64
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioPbk(Str algorithm, Str password, Obj? salt, Number iterations, Number keyLen)
   {
     Buf.pbk(
@@ -871,7 +871,7 @@ const class IOFuncs
   **   // skip byte order mark
   **   ioSkip(`io/foo.csv`, {bom}).ioReadCsv
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioSkip(Obj? handle, Dict opts)
   {
     SkipHandle(toHandle(handle), opts)
@@ -904,7 +904,7 @@ const class IOFuncs
   **
   ** Note: this feature is available in SkySpark only
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWritePdf(Obj? val, Obj? handle, Dict opts := Etc.emptyDict)
   {
     toHandle(handle).withOut |out|
@@ -935,7 +935,7 @@ const class IOFuncs
   **
   ** Note: this feature is available in SkySpark only
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? ioWriteSvg(Obj? val, Obj? handle, Dict opts := Etc.emptyDict)
   {
     toHandle(handle).withOut |out|
@@ -951,7 +951,7 @@ const class IOFuncs
   **
   ** Note: this feature is available in SkySpark only
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj ioExport(Dict req, Obj? handle)
   {
     toHandle(handle).withOut |out|
