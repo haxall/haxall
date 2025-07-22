@@ -69,6 +69,7 @@ class AFunc
       meta[n] = v
     }
     if (method.hasFacet(NoDoc#)) meta["nodoc"] = Marker.val
+    if (method.hasFacet(Deprecated#)) meta["deprecated"] = Marker.val
 
     // params
     params := method.params.map |p->AParam| { reflectParam(method, p) }
