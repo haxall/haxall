@@ -192,13 +192,14 @@ class RepoTest : AbstractXetoTest
   Void testNamespace()
   {
     // need fresh ns
-    repo := ServerEnv.initPath.repo
+    env := ServerEnv.initPath
+    repo := env.repo
 
     //
     // sys only
     //
     LibVersion sysVer := repo.latest("sys")
-    ns := repo.createNamespace([sysVer])
+    ns := env.createNamespace([sysVer])
     sysNs := ns
     verifyEq(ns.versions, [sysVer])
     verifySame(ns.version("sys"), sysVer)
@@ -227,7 +228,7 @@ class RepoTest : AbstractXetoTest
     // sys and ph
     //
     LibVersion phVer := repo.latest("ph")
-    ns = repo.createNamespace([phVer, sysVer])
+    ns = env.createNamespace([phVer, sysVer])
     verifySame(ns.digest, ns.digest)
     verifyNotEq(sysNs.digest, ns.digest)
     verifyEq(ns.versions, [sysVer, phVer])
@@ -267,7 +268,7 @@ class RepoTest : AbstractXetoTest
     verifySame(ns.spec("ph::Point.point").lib, ph)
 
     // specAsync
-    ns = repo.createNamespace([phVer, sysVer])
+    ns = env.createNamespace([phVer, sysVer])
     verifyEq(ns.libStatus("ph"), LibStatus.ok) // from cache
     Err? err
     Spec? spec
@@ -283,7 +284,7 @@ class RepoTest : AbstractXetoTest
     verifyEq(spec, null)
 
     // instanceAsync
-    ns = repo.createNamespace([phVer, sysVer])
+    ns = env.createNamespace([phVer, sysVer])
     verifyEq(ns.libStatus("ph"), LibStatus.ok) // from cache
     Dict? inst
     ns.instanceAsync("ph::filetype:csv") |e, x| { err = e; inst = x }
@@ -360,14 +361,15 @@ class RepoTest : AbstractXetoTest
   LibNamespace initAllLoaded()
   {
     // need fresh env
-    repo := ServerEnv.initPath.repo
+    env := ServerEnv.initPath
+    repo := env.repo
 
     LibVersion sysVer      := repo.latest("sys")
     LibVersion phVer       := repo.latest("ph")
     LibVersion phPointsVer := repo.latest("ph.points")
     LibVersion phEquipsVer := repo.latest("ph.equips")
 
-    ns := repo.createNamespace([sysVer, phVer, phPointsVer, phEquipsVer])
+    ns := env.createNamespace([sysVer, phVer, phPointsVer, phEquipsVer])
 
     verifyEq(ns.versions, [sysVer, phVer, phEquipsVer, phPointsVer])
 
@@ -521,22 +523,7 @@ internal const class TestRepo : LibRepo
     DependSolver(this, libs).solve
   }
 
-  override LibNamespace createNamespace(LibVersion[] libs)
-  {
-    throw UnsupportedErr()
-  }
-
   override LibNamespace build(LibVersion[] libs)
-  {
-    throw UnsupportedErr()
-  }
-
-  override LibNamespace createFromNames(Str[] names)
-  {
-    throw UnsupportedErr()
-  }
-
-  override LibNamespace createFromData(xeto::Dict[] recs)
   {
     throw UnsupportedErr()
   }

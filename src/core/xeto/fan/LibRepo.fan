@@ -41,12 +41,6 @@ const mixin LibRepo
   ** based on the installed lib versions.
   abstract LibVersion[] solveDepends(LibDepend[] libs)
 
-  ** Construct a namespace for the given set of lib versions in this repo.
-  ** This method does not solve the dependency graph.  The list of lib
-  ** versions passed must be a complete dependency tree that satisifies
-  ** all version constraints.  Also see `solveDepends`.
-  abstract LibNamespace createNamespace(LibVersion[] libs)
-
   ** Given a set of specific source lib versions, solve their dependency
   ** graph and compile a namespace.  For each source lib generate the xetolib
   ** zip in the appropriate "lib/xeto/" directory.  Report errors to stdout
@@ -54,14 +48,6 @@ const mixin LibRepo
 
   ** Rescan file system if this is a local repo
   @NoDoc abstract This rescan()
-
-  ** Given a list of library names, map to latest versions, solve
-  ** their dependency graph and create a namespace.
-  @NoDoc abstract LibNamespace createFromNames(Str[] names)
-
-  ** Given a set of a records with a 'spec' tag, determine which libs
-  ** are used and resolve them to libs and build a namespace.
-  @NoDoc abstract LibNamespace createFromData(Dict[] recs)
 
 
 }

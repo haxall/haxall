@@ -28,12 +28,12 @@ internal class DocCmd : SrcLibCmd
   @Opt { help = "Output directory" }
   File? outDir
 
-  override Int process(LibRepo repo, LibVersion[] vers)
+  override Int process(XetoEnv env, LibVersion[] vers)
   {
     // flatten and build namespace
     depends := vers.map |x->LibDepend| { x.asDepend }
-    flatten := repo.solveDepends(depends)
-    ns := repo.createNamespace(flatten)
+    flatten := env.repo.solveDepends(depends)
+    ns := env.createNamespace(flatten)
 
     // get libs to compile
     libs := vers.map |v->Lib| { ns.lib(v.name) }

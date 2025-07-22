@@ -33,7 +33,7 @@ abstract class SrcLibCmd : XetoCmd
 
   override Int run()
   {
-    repo := XetoEnv.cur.repo
+    env := XetoEnv.cur
 
     // no flags defaults to allWork
     if (libs == null && allIn == null)
@@ -46,9 +46,9 @@ abstract class SrcLibCmd : XetoCmd
     {
       vers := LibVersion[,]
       inOsPath := allIn?.normalize?.pathStr
-      repo.libs.each |libName|
+      env.repo.libs.each |libName|
       {
-        ver := repo.latest(libName, false)
+        ver := env.repo.latest(libName, false)
         if (ver == null) return null
 
         f := ver.file(false)
@@ -65,7 +65,7 @@ abstract class SrcLibCmd : XetoCmd
         return 0
       }
 
-      return process(repo, vers)
+      return process(env, vers)
     }
 
     // sanity check that libNames specified
@@ -78,14 +78,14 @@ abstract class SrcLibCmd : XetoCmd
     // explicit list of lib names
     vers := libs.map |x->LibVersion|
     {
-      ver := repo.latest(x, false)
+      ver := env.repo.latest(x, false)
       if (ver == null || !ver.isSrc) throw Err("Lib src not available: $x")
       return ver
     }
-    return process(repo, vers)
+    return process(env, vers)
   }
 
-  abstract Int process(LibRepo repo, LibVersion[] vers)
+  abstract Int process(XetoEnv env, LibVersion[] vers)
 }
 
 **************************************************************************
@@ -103,9 +103,9 @@ internal class BuildCmd : SrcLibCmd
 
   override Str summary() { "Compile xeto source to xetolib" }
 
-  override Int process(LibRepo repo, LibVersion[] vers)
+  override Int process(XetoEnv env, LibVersion[] vers)
   {
-    repo.build(vers)
+    env.repo.build(vers)
     return 0
   }
 }
@@ -123,7 +123,7 @@ internal class CleanCmd : SrcLibCmd
 
   override Str summary() { "Delete all xetolib versions for source libs" }
 
-  override Int process(LibRepo repo, LibVersion[] vers)
+  override Int process(XetoEnv env, LibVersion[] vers)
   {
     vers.each |ver|
     {

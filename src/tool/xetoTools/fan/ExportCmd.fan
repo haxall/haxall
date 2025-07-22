@@ -58,8 +58,8 @@ internal abstract class ExportCmd : XetoCmd
     if (!checkArgs) return 1
 
     // find targets
-    repo := XetoEnv.cur.repo
-    targets := findTargets(repo)
+    env := XetoEnv.cur
+    targets := findTargets(env.repo)
     if (verbose)
     {
       printLine("\nFind Targets:")
@@ -67,7 +67,7 @@ internal abstract class ExportCmd : XetoCmd
     }
 
     // create namespace for targets
-    ns := createNamespace(repo, targets)
+    ns := createNamespace(env, targets)
     if (verbose)
     {
       printLine("\nCreate Namespace:")
@@ -150,7 +150,7 @@ internal abstract class ExportCmd : XetoCmd
 // Namespace
 //////////////////////////////////////////////////////////////////////////
 
-  private LibNamespace createNamespace(LibRepo repo, ExportTarget[] targets)
+  private LibNamespace createNamespace(XetoEnv env, ExportTarget[] targets)
   {
     // map targets to a list of dependencies
     depends := Str:LibDepend[:]
@@ -160,10 +160,10 @@ internal abstract class ExportCmd : XetoCmd
     }
 
     // solve dependencies
-    versions := repo.solveDepends(depends.vals)
+    versions := env.repo.solveDepends(depends.vals)
 
     // create namespace from our dependency solution
-    return repo.createNamespace(versions)
+    return env.createNamespace(versions)
   }
 
 //////////////////////////////////////////////////////////////////////////
