@@ -63,7 +63,8 @@ internal class Resolve : Step
     // if we could not compile dependency
     if (libStatus.isErr)
     {
-      err("Depend lib '$d.name' could not be compiled", d.loc)
+      msg := ns.libErr(d.name)
+      err("Depend lib '$d.name' could not be compiled: $msg", d.loc)
       return null
     }
 

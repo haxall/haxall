@@ -36,7 +36,6 @@ class IOTest : HxTest
     verifyEq(f.readAllStr, "hi")
 
     f = proj.dir + `io/foo.txt`
-    echo(">>> $f.osPath")
     verifyEq(f.readAllStr, "hi")
   }
 

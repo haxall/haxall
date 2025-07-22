@@ -78,6 +78,7 @@ abstract const class MEnv : XetoEnv
   ** Note: we only support one version of a lib right now!
   XetoLib getOrCompile(LibNamespace ns, LibVersion x)
   {
+    // check cache
     name := x.name
     lib := libsByName.get(name) as Lib
     if (lib != null)
@@ -86,7 +87,11 @@ abstract const class MEnv : XetoEnv
       return lib
     }
 
-    return libsByName.getOrAdd(name, compile(ns, x))
+    // don't ever cache the special proj lib
+    lib = compile(ns, x)
+    if (name == XetoUtil.projLibName) return lib
+
+    return libsByName.getOrAdd(name, lib)
   }
 
   ** Lookup cached lib by name
