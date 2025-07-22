@@ -1,0 +1,46 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   22 Jul 2025  Brian Frank  Garden City Beach
+//
+
+// Deprecated - use `connPing()`
+modbusPing: Func <admin, deprecated> { conn: Obj, returns: Future }
+
+// Deprecated - use `connLearn()`
+modbusLearn: Func <admin, deprecated> { conn: Obj, arg: Obj?, returns: Grid }
+
+// Deprecated - use `connSyncCur()`
+modbusSyncCur: Func <admin, deprecated> { points: Obj, returns: Obj? }
+
+// Read a point value for given register name on connector instance.
+// The 'regs' argument may be a single 'Str' name, or a 'Str[]' for a
+// block read. The grid returned will contain a row for each register
+// requested and two columns: 'name' and 'val'.
+modbusRead: Func <admin> { conn: Obj, regs: Obj, returns: Grid }
+
+// Write a value to given register name on connecter instance.
+modbusWrite: Func <admin> { conn: Obj, reg: Str, val: Obj, returns: Obj? }
+
+// Return given register map contents. Do not include the file extension in the name.
+//
+//  modbusRegMap("myRegisterMap")
+modbusRegMap: Func { name: Str, returns: Grid }
+
+// List installed register maps including source.
+modbusRegMaps: Func { returns: Grid }
+
+// List installed register maps.
+modbusRegMapList: Func <nodoc, admin> { returns: Grid }
+
+// Save a regiser map.
+modbusRegMapSave: Func <nodoc, admin> { name: Str, src: Str, returns: Obj? }
+
+// Rename a register map.
+modbusRegMapMove: Func <nodoc, admin> { oldName: Str, newName: Str, returns: Obj? }
+
+// Delete a register map.
+modbusRegMapDelete: Func <nodoc, admin> { names: Obj, returns: Obj? }
+

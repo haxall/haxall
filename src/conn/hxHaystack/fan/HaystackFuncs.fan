@@ -20,28 +20,28 @@ using hxConn
 const class HaystackFuncs
 {
   ** Deprecated - use `connPing()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Future haystackPing(Obj conn)
   {
     ConnFwFuncs.connPing(conn)
   }
 
   ** Deprecated - use `connLearn()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Grid haystackLearn(Obj conn, Obj? arg := null)
   {
     ConnFwFuncs.connLearn(conn, arg).get(1min)
   }
 
   ** Deprecated - use `connSyncCur()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Future[] haystackSyncCur(Obj points)
   {
     ConnFwFuncs.connSyncCur(points)
   }
 
   ** Deprecated - use `connSyncHis()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Obj? haystackSyncHis(Obj points, Obj? span := null)
   {
     ConnFwFuncs.connSyncHis(points, span)
@@ -52,7 +52,7 @@ const class HaystackFuncs
   ** the checked flag is true and server returns an error grid, then
   ** raise `haystack::CallErr`, otherwise return the grid itself.
   ** Result is returned as Grid.  Also see `haystack::Client.call`.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid haystackCall(Obj conn, Str op, Obj? req := null, Bool checked := true)
   {
     dispatch(curContext, conn, HxMsg("call", op, Etc.toGrid(req).toConst, checked))
@@ -62,7 +62,7 @@ const class HaystackFuncs
   ** identifier.  Return result as dict.  If the record is not found, then
   ** return null or raise UnknownRecErr based on checked flag.  Also
   ** see `haystack::Client.readById`.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Dict? haystackReadById(Obj conn, Obj id, Bool checked := true)
   {
     dispatch(curContext, conn, HxMsg("readById", id, checked))
@@ -74,7 +74,7 @@ const class HaystackFuncs
   ** of the ids cannot be resolved then raise UnknownRecErr for first id not
   ** resolved.  If checked is false, then each id not found has a row
   ** where every cell is null.  Also see `haystack::Client.readByIds`.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid haystackReadByIds(Obj conn, Obj[] ids, Bool checked := true)
   {
     dispatch(curContext, conn, HxMsg("readByIds", ids, checked))
@@ -84,7 +84,7 @@ const class HaystackFuncs
   ** The filter is an expression like `readAll`.  Return result as dict.
   ** If the record is not found, then return null or raise UnknownRecErr
   ** based on checked flag.  Also see `haystack::Client.read`.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Dict? haystackRead(Expr conn, Expr filterExpr, Expr checked := Literal.trueVal)
   {
     cx     := curContext
@@ -97,7 +97,7 @@ const class HaystackFuncs
   ** Perform Haystack REST API call to read all entities with filter.
   ** The filter is an expression like `readAll`.  Return results
   ** as grid.  Also see `haystack::Client.readAll`.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid haystackReadAll(Expr conn, Expr filterExpr)
   {
     cx := curContext
@@ -111,7 +111,7 @@ const class HaystackFuncs
   ** The range is any string encoding supported by the REST API
   ** or any value supported by `toDateSpan`.  Return results
   ** as grid with "ts" and "val" column.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid haystackHisRead(Obj conn, Obj id, Obj? range)
   {
     dispatch(curContext, conn, HxMsg("hisRead", Etc.toId(id), toHisRange(range)))
@@ -122,7 +122,7 @@ const class HaystackFuncs
   ** identifier and action is a Str action name.  If args are
   ** specified, then they should be a Dict keyed by parameter
   ** name.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? haystackInvokeAction(Obj conn, Obj id, Str action, Dict? args := null)
   {
     dispatch(curContext, conn, HxMsg("invokeAction", id, action, args ?: Etc.emptyDict))
@@ -152,7 +152,7 @@ const class HaystackFuncs
   **   read(haystackConn).haystackEval(readAll(site))
   **   read(haystackConn).haystackEval(readAll(kw).hisRead(yesterday))
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? haystackEval(Expr conn, Expr expr, Expr opts := Literal.nullVal)
   {
     // evaluate arguments options

@@ -37,7 +37,7 @@ class Build : BuildPod
                 ]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "haystack"]
+    index   = ["xeto.bindings":"hx.haystack", "ph.lib": "haystack"]
   }
 }
 

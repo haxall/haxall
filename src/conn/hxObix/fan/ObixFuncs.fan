@@ -10,6 +10,7 @@
 using concurrent
 using xml
 using obix
+using xeto
 using haystack
 using axon
 using hx
@@ -21,28 +22,28 @@ using hxConn
 const class ObixFuncs
 {
   ** Deprecated - use `connPing()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Future obixPing(Obj conn)
   {
     ConnFwFuncs.connPing(conn)
   }
 
   ** Deprecated - use `connSyncCur()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Future[] obixSyncCur(Obj points)
   {
     ConnFwFuncs.connSyncCur(points)
   }
 
   ** Deprecated - use `connSyncHis()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Obj? obixSyncHis(Obj points, Obj? span := null)
   {
     ConnFwFuncs.connSyncHis(points, span)
   }
 
   ** Deprecated - use `connLearn()`
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Grid obixLearn(Obj conn, Obj? arg := null)
   {
     ConnFwFuncs.connLearn(conn, arg).get(1min)
@@ -68,7 +69,7 @@ const class ObixFuncs
   ** Side effects:
   **   - performs blocking network IO
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid obixReadObj(Obj conn, Uri uri)
   {
     dispatch(curContext, conn, HxMsg("readObj", uri))
@@ -76,7 +77,7 @@ const class ObixFuncs
 
   ** Synchronously query a 'obix::History' for its timestamp/value pairs.
   ** Range may be any valid object used with 'his' queries.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid obixReadHis(Obj conn, Uri uri, Obj? span)
   {
     // map to Span based on timezone of connector
@@ -109,7 +110,7 @@ const class ObixFuncs
   **
   ** Result object is transformed using same rules as `obixReadObj`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid obixWriteObj(Obj conn, Obj uri, Obj? arg)
   {
     dispatch(curContext, conn, HxMsg("writeObj", uri, arg))
@@ -120,14 +121,14 @@ const class ObixFuncs
   ** See `obixWriteObj` for supported arg values and `obixReadObj`
   ** for result object.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid obixInvoke(Obj conn, Obj uri, Obj? arg)
   {
     dispatch(curContext, conn, HxMsg("invoke", uri, arg))
   }
 
   ** Ancient function left around just in case anybody ever used it
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Obj? obixSyncHisGroup(Str group, Obj? range := null)
   {
     ConnFwFuncs.connSyncHis(curContext.db.readAllList(Filter.eq("obixSyncHisGroup", group.toCode)), range)
@@ -137,7 +138,7 @@ const class ObixFuncs
   ** Hook to read point list of obix::History tree
   **
 /*
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Grid obixPointList(Obj conn, Uri uri)
   {
     // get connector

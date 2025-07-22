@@ -47,10 +47,7 @@ class Build : BuildPod
               ]
     resDirs = [`lib/`,]
 
-    index =
-    [
-      "ph.lib": "modbus",
-    ]
+    index = ["xeto.bindings":"hx.modbus", "ph.lib": "modbus"]
   }
 }
 

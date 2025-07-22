@@ -9,6 +9,7 @@
 
 using concurrent
 using util
+using xeto
 using haystack
 using axon
 using hx
@@ -23,21 +24,21 @@ const class ModbusFuncs
   private static Context cx() { Context.cur }
 
   ** Deprecated - use `connPing()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Future modbusPing(Obj conn)
   {
     ConnFwFuncs.connPing(conn)
   }
 
   ** Deprecated - use `connLearn()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Grid modbusLearn(Obj conn, Obj? arg := null)
   {
     ConnFwFuncs.connLearn(conn, arg).get(1min)
   }
 
   ** Deprecated - use `connSyncCur()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Obj? modbusSyncCur(Obj points)
   {
     ConnFwFuncs.connSyncCur(points)
@@ -49,7 +50,7 @@ const class ModbusFuncs
   ** block read. The grid returned will contain a row for each register
   ** requested and two columns: 'name' and 'val'.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid modbusRead(Obj conn, Obj regs)
   {
     list := regs as Str[] ?: Str[regs]
@@ -59,7 +60,7 @@ const class ModbusFuncs
   **
   ** Write a value to given register name on connecter instance.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Void modbusWrite(Obj conn, Str reg, Obj val)
   {
     ModbusExt.cur.write(conn, reg, val)
@@ -69,7 +70,7 @@ const class ModbusFuncs
   ** Return given register map contents. Do not include the file extension in the name.
   **
   **  modbusRegMap("myRegisterMap")
-  @Axon
+  @Api @Axon
   static Grid modbusRegMap(Str name)
   {
     f := regMapDir(cx) + `${name}.csv`
@@ -86,7 +87,7 @@ const class ModbusFuncs
   }
 
   ** List installed register maps including source.
-  @Axon
+  @Api @Axon
   static Grid modbusRegMaps()
   {
     gb := GridBuilder()
@@ -111,7 +112,7 @@ const class ModbusFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** List installed register maps.
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Grid modbusRegMapList() { modbusRegMaps() }
   /* OLD IMPLEMENTATION - looks like maybe it was going to try and do something with templates
    * Leaving for reference
@@ -142,7 +143,7 @@ const class ModbusFuncs
   */
 
   ** Save a regiser map.
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Void modbusRegMapSave(Str name, Str src)
   {
     file := regMapDir(cx) + `${name}.csv`
@@ -150,7 +151,7 @@ const class ModbusFuncs
   }
 
   ** Rename a register map.
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Void modbusRegMapMove(Str oldName, Str newName)
   {
     file := regMapDir(cx) + `${oldName}.csv`
@@ -158,7 +159,7 @@ const class ModbusFuncs
   }
 
   ** Delete a register map.
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Void modbusRegMapDelete(Obj names)
   {
     list := names as Str[] ?: [names.toStr]

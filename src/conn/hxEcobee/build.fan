@@ -44,7 +44,7 @@ class Build : BuildPod
                `fan/task/`,
               ]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "ecobee"]
+    index   = ["xeto.bindings":"hx.ecobee", "ph.lib": "ecobee"]
   }
 }
 

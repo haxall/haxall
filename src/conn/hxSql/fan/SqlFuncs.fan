@@ -22,21 +22,21 @@ using hxConn
 const class SqlFuncs
 {
   ** Deprecated - use `connPing()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Future sqlPing(Obj conn)
   {
     ConnFwFuncs.connPing(conn)
   }
 
   ** Deprecated - use `connSyncHis()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Obj? sqlSyncHis(Obj points, Obj? span := null)
   {
     ConnFwFuncs.connSyncHis(points, span)
   }
 
   ** Return plain text report on JDBC drivers installed.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Str sqlDebugDrivers()
   {
     sql::SqlConnImpl.debugDrivers
@@ -50,7 +50,7 @@ const class SqlFuncs
   **   read(sqlConn).sqlTables
   **   sqlTables(sqlConnId)
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid sqlTables(Obj conn)
   {
     withConn(conn) |db|
@@ -73,7 +73,7 @@ const class SqlFuncs
   ** WARNING: any admin user will have full access to query the
   ** database based on the user account configured by the sqlConn.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid sqlQuery(Obj conn, Str sql)
   {
     withConn(conn) |db|
@@ -91,7 +91,7 @@ const class SqlFuncs
   ** WARNING: any admin user will have full access to update the
   ** database based on the user account configured by the sqlConn.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? sqlExecute(Obj conn, Str sql)
   {
     withConn(conn) |db|
@@ -110,7 +110,7 @@ const class SqlFuncs
   ** WARNING: any admin user will have full access to update the
   ** database based on the user account configured by the sqlConn.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? sqlInsert(Obj? data, Obj conn, Str table)
   {
     withConn(conn) |db|

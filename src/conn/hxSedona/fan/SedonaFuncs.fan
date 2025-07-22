@@ -21,21 +21,21 @@ using hxConn
 const class SedonaFuncs
 {
   ** Deprecated - use `connPing()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Future sedonaPing(Obj conn)
   {
     ConnFwFuncs.connPing(conn)
   }
 
   ** Deprecated - use `connSyncCur()`
-  @Deprecated @Axon { admin = true }
+  @Deprecated @Api @Axon { admin = true }
   static Future[] sedonaSyncCur(Obj points)
   {
     ConnFwFuncs.connSyncCur(points)
   }
 
   ** Deprecated - use `connLearn()`
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Grid sedonaLearn(Obj conn, Obj? arg := null)
   {
     ConnFwFuncs.connLearn(conn, arg).get(1min)
@@ -43,14 +43,14 @@ const class SedonaFuncs
 
   ** Synchronously read the current state of the component
   ** identified by the given component identifier.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? sedonaReadComp(Obj conn, Number compId)
   {
     dispatch(curContext, conn, HxMsg("readComp", compId))
   }
 
   ** Synchronously write a property
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? sedonaWrite(Obj conn, Str addr, Obj? val)
   {
     dispatch(curContext, conn, HxMsg("writeCompProperty", addr, val))
@@ -58,7 +58,7 @@ const class SedonaFuncs
   }
 
   ** Discover function for sedona.
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Grid sedonaDiscover()
   {
     dicts := Dict[,]
@@ -75,7 +75,7 @@ const class SedonaFuncs
 //////////////////////////////////////////////////////////////////////////
 
   ** List installed kit manifests
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Grid sedonaKitManifests()
   {
     ext := curContext.rt.ext("hx.sedona")
@@ -123,7 +123,7 @@ const class SedonaFuncs
   }
 
   ** Upload kit manifests as list of URIs to io/upload/ directory
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Void sedonaKitManifestUpload(Uri[] uris)
   {
     uris.each |uri|
@@ -157,7 +157,7 @@ const class SedonaFuncs
   }
 
   ** Display kit manifest file
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Grid sedonaKitManifestView(Obj id)
   {
     xml := idToFile(id).readAllStr
@@ -165,7 +165,7 @@ const class SedonaFuncs
   }
 
   ** Delete given kit manifests.
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Void sedonaDeleteKitManifests(Obj[] ids)
   {
     ids.each |id| { idToFile(id).delete }

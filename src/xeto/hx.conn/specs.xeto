@@ -10,3 +10,6 @@
 // See `docHaxall::Conns`
 Conn: Entity <abstract>
 
+// Connector extension base type
+ConnExt: Ext <abstract>
+

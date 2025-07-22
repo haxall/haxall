@@ -10,8 +10,11 @@ pragma: Lib <
   doc: "Sedona Sox connector"
   version: BuildVar "hx.version"
   depends: {
-    { lib: "sys", versions: BuildVar "ph.depend" }
-    { lib: "hx", versions: BuildVar "hx.depend" }
+    { lib: "sys",     versions: BuildVar "ph.depend" }
+    { lib: "axon",    versions: BuildVar "hx.depend" }
+    { lib: "hx",      versions: BuildVar "hx.depend" }
+    { lib: "hx.conn", versions: BuildVar "hx.depend" }
+    { lib: "hx.task", versions: BuildVar "hx.depend" }
   }
   categories: {"haxall"}
   license: BuildVar "hx.license"
@@ -23,5 +26,9 @@ pragma: Lib <
     type: BuildVar "hx.vcs.type"
     uri:  BuildVar "hx.vcs.uri"
   }
+  libExt: SedonaExt
 >
+
+// Sedona Sox connector
+SedonaExt: ConnExt
 

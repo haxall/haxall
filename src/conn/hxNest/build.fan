@@ -44,7 +44,7 @@ class Build : BuildPod
                `fan/task/`,
               ]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "nest"]
+    index   = ["xeto.bindings":"hx.nest", "ph.lib": "nest"]
   }
 }
 

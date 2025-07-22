@@ -49,6 +49,12 @@ class ExtTest : HxTest
     t.spi.sync
     verifyEq(t.traces.val, "onUnready[false]\nonStop[false]\n")
     verifyEq(t.isRunning, false)
+
+    // add docker
+    addExt("hx.docker")
+    addExt("hx.py")
+    g := eval("py()")
+    echo(">>> $g")
   }
 
   private Ext verifyExtEnabled(Str name)

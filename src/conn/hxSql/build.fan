@@ -36,7 +36,7 @@ class Build : BuildPod
                 "hxConn @{hx.depend}"]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "sql"]
+    index   = ["xeto.bindings":"hx.sql", "ph.lib": "sql"]
   }
 }
 

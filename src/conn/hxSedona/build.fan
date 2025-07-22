@@ -42,7 +42,7 @@ class Build : BuildPod
                ]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "sedona", "hxSedona.scheme": "hxSedona::DefaultSedonaScheme"]
+    index   = ["xeto.bindings":"hx.sedona", "ph.lib": "sedona", "hxSedona.scheme": "hxSedona::DefaultSedonaScheme"]
   }
 }
 

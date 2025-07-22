@@ -15,6 +15,9 @@ axonComp: Str <meta>
 // Requires admin permission
 admin: Str <meta>
 
+// Deprecated feature slated for removal in future version
+deprecated: Marker <meta>
+
 // Requires superuser permission
 su: Str <meta>
 

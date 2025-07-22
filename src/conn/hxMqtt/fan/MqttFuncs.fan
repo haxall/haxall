@@ -34,7 +34,7 @@ const class MqttFuncs
   ** pre>
   ** read(@mqttConn).mqttPublish("/test", "{a: a JSON object}", {mqttQos: 2, mqttExpiryInterval: 30min, mqttUserProps: {key: "value"}})
   ** <pre
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? mqttPublish(Obj conn, Str topic, Obj payload, Dict cfg := Etc.emptyDict)
   {
     payload = (payload as Str)?.toBuf ?: throw Err("TODO payload: $payload.typeof")

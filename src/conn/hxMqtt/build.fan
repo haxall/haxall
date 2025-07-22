@@ -42,7 +42,7 @@ class Build : BuildPod
                ]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "mqtt"]
+    index   = ["xeto.bindings":"hx.mqtt", "ph.lib": "mqtt"]
   }
 }
 

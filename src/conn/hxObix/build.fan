@@ -42,7 +42,7 @@ class Build : BuildPod
                ]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "obix"]
+    index   = ["xeto.bindings":"hx.obix", "ph.lib": "obix"]
   }
 }
 
