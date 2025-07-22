@@ -14,9 +14,9 @@ using folio
 using hx
 
 **
-** CoreFuncsTest
+** HxFuncsTest
 **
-class CoreFuncsTest : HxTest
+class HxFuncsTest : HxTest
 {
 
 //////////////////////////////////////////////////////////////////////////
