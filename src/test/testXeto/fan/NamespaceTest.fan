@@ -478,39 +478,6 @@ class NamespaceTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Overlay
-//////////////////////////////////////////////////////////////////////////
-
-  Void testOverlay()
-  {
-    a := createNamespace(["ph"])
-    verifyEq(a.isOverlay, false)
-    verifyEq(a.base, null)
-    verifyEq(a.versions.size, 2)
-    verifyEq(a.versions[0].name, "sys")
-    verifyEq(a.versions[1].name, "ph")
-
-    // no duplicates
-    repo := XetoEnv.cur.repo
-    a.versions.each |v|
-    {
-      verifyErr(Err#) { repo.createOverlayNamespace(a, [v]) }
-    }
-    verifyErr(Err#) { repo.createOverlayNamespace(a, a.versions) }
-
-    // missing depend
-    verifyErr(DependErr#) { repo.createOverlayNamespace(a, [repo.latest("ashrae.g36")]) }
-
-    // now create overlay
-    b := repo.createOverlayNamespace(a, [repo.latest("ph.points"), repo.latest("ashrae.g36")])
-    verifyEq(b.isOverlay, true)
-    verifyEq(b.base, a)
-    a.versions.each |v| { verifySame(v, b.version(v.name)) }
-    verifySame(a.sysLib, b.sysLib)
-    a.libs.each |lib| { verifySame(lib, b.lib(lib.name)) }
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Dicts
 //////////////////////////////////////////////////////////////////////////
 

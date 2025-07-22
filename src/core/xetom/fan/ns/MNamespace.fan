@@ -17,24 +17,9 @@ using haystack
 @Js
 abstract const class MNamespace : LibNamespace, CNamespace
 {
-  new make(MEnv env, MNamespace? base, LibVersion[] versions, |This->XetoLib|? loadSys := null)
+  new make(MEnv env, LibVersion[] versions, |This->XetoLib|? loadSys := null)
   {
     this.envRef = env
-
-    this.base = base
-    if (base != null)
-    {
-      // build unified list of versions and check overlay doesn't dup one
-      acc := Str:LibVersion[:]
-      base.versions.each |v| { acc[v.name] = v }
-      versions.each |v|
-      {
-        if (acc[v.name] != null) throw Err("Base already defines $v")
-        acc[v.name] = v
-      }
-      versions = acc.vals
-      base.loadAllSync // force all to be loaded
-    }
 
     // order versions by depends - also checks all internal constraints
     versions = LibVersion.orderByDepends(versions)
@@ -45,7 +30,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
     map := Str:MLibEntry[:]
     versions.each |x|
     {
-      entry := base?.entriesMap?.get(x.name) ?: MLibEntry(x)
+      entry := MLibEntry(x)
       cached := env.get(x.name, false)
       if (cached != null) entry.setOk(cached)
       list.add(entry)
@@ -71,7 +56,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
     checkAllLoaded
 
     // now we can initialize sys for fast lookups
-    this.sys = base?.sys ?: MSys(sysLib)
+    this.sys = MSys(sysLib)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -80,10 +65,6 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   override XetoEnv env() { envRef }
   const MEnv envRef
-
-  const override LibNamespace? base
-
-  override Bool isOverlay() { base != null }
 
   override once Str digest()
   {

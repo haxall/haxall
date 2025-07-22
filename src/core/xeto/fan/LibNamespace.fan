@@ -75,24 +75,6 @@ const mixin LibNamespace
       "ion.ux"]
   }
 
-  ** Standard pattern to create project based overlay over the
-  ** system namespace from the project's using records.
-  @NoDoc static LibNamespace createSystemOverlay(Dict[] usings, Log log)
-  {
-    repo := XetoEnv.cur.repo
-    system := LibNamespace.system
-    acc := Str:LibVersion[:]
-    usings.each |rec|
-    {
-      name := rec["using"] as Str
-      if (name == null) return
-      if (system.hasLib(name)) return
-      if (acc[name] != null) log.warn("Duplicate using [$name]")
-      else acc.addNotNull(name, repo.latest(name, false))
-    }
-    return repo.createOverlayNamespace(system, acc.vals)
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
@@ -101,12 +83,6 @@ const mixin LibNamespace
   ** Remote environments must load libraries asynchronously and do
   ** not support the full feature set.
   @NoDoc abstract Bool isRemote()
-
-  ** Return base namespace if this namespace is an overlay.
-  abstract LibNamespace? base()
-
-  ** Return true if this an overlay namespace overlaid on `base`.
-  abstract Bool isOverlay()
 
   ** Environment used to create this namespace
   abstract XetoEnv env()

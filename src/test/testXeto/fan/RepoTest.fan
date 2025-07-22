@@ -526,11 +526,6 @@ internal const class TestRepo : LibRepo
     throw UnsupportedErr()
   }
 
-  override LibNamespace createOverlayNamespace(LibNamespace base, LibVersion[] libs)
-  {
-    throw UnsupportedErr()
-  }
-
   override LibNamespace build(LibVersion[] libs)
   {
     throw UnsupportedErr()

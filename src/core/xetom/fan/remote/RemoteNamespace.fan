@@ -18,7 +18,7 @@ using xeto
 const class RemoteNamespace : MNamespace
 {
   internal new makeCache(MEnv env, LibVersion[] versions)
-    : super.make(env, null, versions)
+    : super.make(env, versions)
   {
   }
 
