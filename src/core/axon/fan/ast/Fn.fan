@@ -176,7 +176,7 @@ const class Fn : Expr, HaystackFunc
 ** Top level function in the namespace
 **
 @Js
-const class TopFn : Fn
+const class TopFn : Fn, Thunk
 {
   new make(Loc loc, Str name, Dict meta, FnParam[] params, Expr body := Literal.nullVal)
     : super(loc, name, params, body)
@@ -207,6 +207,12 @@ const class TopFn : Fn
 
   ** Return only name
   override Str toStr() { name }
+
+  ** Thunk.call implementation
+  override Obj? callList(Obj?[]? args := null)
+  {
+    call(AxonContext.curAxon, args ?: noArgs)
+  }
 
   ** Add check call
   @NoDoc override Obj? callx(AxonContext cx, Obj?[] args, Loc callLoc)

@@ -21,17 +21,26 @@ const class AxonThunkFactory : ThunkFactory
   override Thunk create(Spec spec, Pod? pod)
   {
     // check for fantom method thunk
-    thunk := loadThunkFantom(spec, pod)
-    if (thunk != null) return thunk
+    fn := loadThunkFantom(spec, pod)
+    if (fn != null) return fn
 
-    // check for axon
-    axon := spec.meta["axon"] as Str
-    if (axon != null) throw Err("Axon parse")
+    // check axon source
+    meta := spec.meta
+    code := meta["axon"] as Str
+    if (code  != null) return parseAxon(spec, meta, code)
 
-    throw UnsupportedErr("No funcs registered for pod: $pod.name")
+    // try axonComp xeto source
+    comp := meta["axonComp"] as Str
+    if (comp != null) return parseComp(spec, meta, comp)
+
+    throw UnsupportedErr("Cannot resolve thunk: $spec [pod:$pod]")
   }
 
-  private Thunk? loadThunkFantom(Spec spec, Pod? pod)
+//////////////////////////////////////////////////////////////////////////
+// Fantom
+//////////////////////////////////////////////////////////////////////////
+
+  private TopFn? loadThunkFantom(Spec spec, Pod? pod)
   {
     if (pod == null) return null
 
@@ -77,27 +86,11 @@ const class AxonThunkFactory : ThunkFactory
     }
   }
 
-/*
-  override Fn? parse(Spec spec)
-  {
-    // first try axon source
-    meta := spec.meta
-    code := meta["axon"] as Str
-    if (code  != null) return parseAxon(spec, meta, code)
+//////////////////////////////////////////////////////////////////////////
+// Axon
+//////////////////////////////////////////////////////////////////////////
 
-    // second try axonComp xeto source
-    comp := meta["axonComp"] as Str
-    if (comp != null) return parseComp(spec, meta, comp)
-
-    // next try to Fantom reflection
-    fantom := bindings[spec.lib.name]
-    if (fantom != null) return reflectFantom(spec, meta, fantom)
-
-    // no joy
-    return null
-  }
-
-  private Fn? parseAxon(Spec spec, Dict meta, Str src)
+  private TopFn? parseAxon(Spec spec, Dict meta, Str src)
   {
     // wrap src with parameterized list
     s := StrBuf(src.size + 256)
@@ -114,26 +107,9 @@ const class AxonThunkFactory : ThunkFactory
     return Parser(Loc(spec.qname), s.toStr.in).parseTop(spec.name, meta)
   }
 
-  private Fn? parseComp(Spec spec, Dict meta, Str src)
+  private TopFn? parseComp(Spec spec, Dict meta, Str src)
   {
     return CompFn(spec.name, meta, toParams(spec), src)
-  }
-
-  private Fn? reflectFantom(Spec spec, Dict meta, Str qname)
-  {
-    // resolve type from bindings
-    type := Type.find(qname)
-
-    // lookup method
-    name := spec.name
-    method := type.method(name, false)
-    if (method == null) method = type.method("_" + name, false)
-    if (method == null) return null
-
-    // verify method is static and has axon facet
-    if (!method.hasFacet(Axon#)) return null
-
-    return FantomFn.reflectMethod(method, name, meta, null)
   }
 
   private FnParam[] toParams(Spec spec)
@@ -141,6 +117,5 @@ const class AxonThunkFactory : ThunkFactory
     spec.func.params.map |p->FnParam| { FnParam(p.name) }
   }
 
-*/
 }
 

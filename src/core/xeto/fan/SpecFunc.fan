@@ -45,14 +45,8 @@ const mixin SpecFunc
 @Js
 const mixin Thunk
 {
-  ** Call the function with given args
+  ** Call the function with given args. Must be called within context
   abstract Obj? callList(Obj?[]? args := null)
-
-  ** Call function with up to 8 params
-  /*
-  abstract Obj? call(Obj? a := null, Obj? b := null, Obj? c := null, Obj? d := null,
-                     Obj? e := null, Obj? f := null, Obj? g := null, Obj? h := null)
-  */
 }
 
 **************************************************************************

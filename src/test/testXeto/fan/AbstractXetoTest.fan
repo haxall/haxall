@@ -321,6 +321,11 @@ internal const class TestBindingLoader : SpecBindingLoader
     acc.add(CompBinding    ("$libName::TestFoo",     TestFoo#))
     acc.add(CompBinding    ("$libName::TestNumberAdd", TestNumberAdd#))
   }
+
+  override Thunk loadThunk(Spec spec)
+  {
+    ThunkFactory.cur.create(spec, typeof.pod)
+  }
 }
 
 @Js

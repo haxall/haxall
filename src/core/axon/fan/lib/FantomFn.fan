@@ -14,7 +14,7 @@ using concurrent
 ** FantomFn is an Axon function backed by a Fantom method
 **
 @Js @NoDoc
-const class FantomFn : TopFn, Thunk
+const class FantomFn : TopFn
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -95,15 +95,6 @@ const class FantomFn : TopFn, Thunk
 
   ** Instance to call method on if not static
   const AtomicRef? instanceRef
-
-//////////////////////////////////////////////////////////////////////////
-// Thunk
-//////////////////////////////////////////////////////////////////////////
-
-  override Obj? callList(Obj?[]? args := null)
-  {
-    call(AxonContext.curAxon, args ?: noArgs)
-  }
 
 //////////////////////////////////////////////////////////////////////////
 // Fn

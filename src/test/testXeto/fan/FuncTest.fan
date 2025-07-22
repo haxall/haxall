@@ -43,25 +43,30 @@ class FuncTest : AbstractXetoTest
     if (!ns.isRemote) verifyAdd(ns, lib.spec("add4"), true) // Xeto component graph
   }
 
-  private Void verifyAdd(LibNamespace ns, Spec f, Bool canCall)
+  private Void verifyAdd(LibNamespace ns, Spec f, Bool valid)
   {
     num := ns.spec("sys::Number")
 
-echo(">>> verifyAdd $f")
-
     verifyFunc(ns, f, ["a: sys::Number", "b: sys::Number"], "sys::Number")
 
-    x := f.func.thunk
-    /*
-    verifySame(f.func.axon, a)
+    if (!valid)
+    {
+      verifyErr(Err#) { f.func.thunk }
+      return
+    }
+
+    a := (TopFn)f.func.thunk
     verifyEq(a.params.size, 2)
     verifyEq(a.params[0].name, "a")
     verifyEq(a.params[1].name, "b")
     TestAxonContext(ns).asCur |cx|
     {
+      // Thunk.callList
+      verifyEq(a.callList([n(4), n(5)]), n(9))
+
+      // Fn.call
       verifyEq(a.call(cx, [n(3), n(5)]), n(8))
     }
-    */
   }
 
   Void verifyFunc(LibNamespace ns, Spec f, Str[] params, Str ret)
@@ -120,28 +125,22 @@ class FuncApiTest : AbstractXetoTest
 }
 
 **************************************************************************
-** TextAxon
+** XetoFuncs
 **************************************************************************
 
 @Js
-class TestAxon
+class XetoFuncs
 {
-  @Axon static Number add2(Number a, Number b) { a + b }
+  // avail
+  @Api static Date ping1() { Date.today }
+
+  // not available
+  static Date ping2() { Date.today }
+
+  @Api static Number add2(Number a, Number b) { a + b }
 
   // not available
   static Number add3(Number a, Number b) { a + b }
-}
-
-**************************************************************************
-** TextApi
-**************************************************************************
-
-class TestApi
-{
-  @HxApi static Date ping1(HxApiReq? req) { Date.today }
-
-  // not available
-  static Date ping2(HxApiReq? req) { Date.today }
 }
 
 **************************************************************************
