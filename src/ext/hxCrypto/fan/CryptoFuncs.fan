@@ -32,7 +32,7 @@ const class CryptoFuncs
   **   - 'notAfter' (Date): the end date for the certificate validity period (default=today+365day)
   **
   ** This func will throw an error if an entry with the given alias already exists.
-  @Axon { su = true }
+  @Api @Axon { su = true }
   static Obj? cryptoGenSelfSignedCert(Str alias, Str subjectDn, Dict opts := Etc.emptyDict)
   {
     if (ks.containsAlias(alias)) throw ArgErr("An entry already exists with alias ${alias.toCode}")
@@ -57,7 +57,7 @@ const class CryptoFuncs
 // Internal
 //////////////////////////////////////////////////////////////////////////
 
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Grid cryptoLocal(Str? type)
   {
     //cx := Context.cur
@@ -73,7 +73,7 @@ const class CryptoFuncs
     return cryptoReadAllKeys.filter(Filter.fromStr(f))
   }
 
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Grid cryptoCheckAction(Obj dict)
   {
     Uri uri := ``
@@ -87,7 +87,7 @@ const class CryptoFuncs
   }
 
   ** Read keystore as a grid
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Grid cryptoReadAllKeys()
   {
     aliases := ks.aliases.sort
@@ -106,7 +106,7 @@ const class CryptoFuncs
 
   ** Add certificate chain for a URI to the trust store.
   ** Dict must define 'alias' Str and 'uri' URI.
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Grid cryptoTrustUri(Obj dict)
   {
     rec   := Etc.toRec(dict)
@@ -144,7 +144,7 @@ const class CryptoFuncs
   }
 
   ** Retrieve certificate chain for a URI without adding to trust store.
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Grid cryptoCheckUri(Uri uri)
   {
     opts := Etc.dict3("alias", "check",
@@ -228,7 +228,7 @@ const class CryptoFuncs
   }
 
   ** Delete a list of entries
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Obj? cryptoEntryDelete(Obj? aliases)
   {
     toAliases(aliases).each |alias| { ks.remove(alias) }
@@ -236,7 +236,7 @@ const class CryptoFuncs
   }
 
   ** Rename a key
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Obj? cryptoEntryRename(Obj dict)
   {
     rec   := Etc.toRec(dict)
@@ -249,7 +249,7 @@ const class CryptoFuncs
     return alias
   }
 
-  @NoDoc @Axon
+  @NoDoc @Api @Axon
   static Grid  cryptoShowPub(Obj obj)
   {
     alias := toAlias(obj)
@@ -267,7 +267,7 @@ const class CryptoFuncs
 
   ** Add a private key and cert chain entry.
   ** Can also trust a single certificate if no priv key is supplied.
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Obj? cryptoAddCert(Str alias, Str pem, Bool force := false)
   {
     alias = toAlias(alias)
