@@ -38,14 +38,14 @@ const class PyFuncs
   **
   ** Sessions created in the context of a task are persistent, meaning they will
   ** not be closed until the task is killed.
-  @Axon{ admin=true }
+  @Api @Axon { admin=true }
   static PySession py(Dict? opts := null)
   {
     ext.openSession(opts)
   }
 
   ** Set the timeout for `pyEval()`.
-  @Axon{ admin=true }
+  @Api @Axon { admin=true }
   static PySession pyTimeout(PySession py, Number? val) { py.timeout(val?.toDuration) }
 
   ** Initialize the python session by calling the given func to do any one-time
@@ -59,19 +59,19 @@ const class PyFuncs
   static PySession pyInit(PySession py, Fn fn) { py.init(fn.toFunc) }
 
   ** Define a variable to be available to python code running in the session.
-  @Axon{ admin=true }
+  @Api @Axon { admin=true }
   static PySession pyDefine(PySession py, Str name, Obj? val) { py.define(name, val) }
 
   ** Execute the given python code in the session and return the python session.
   ** Note: python 'exec()' does not return a value, so use `pyEval()` if you need
   ** the result of running a python statement. This method is primarily useful
   ** for declaring functions that you want available when using `pyEval()`.
-  @Axon{ admin=true }
+  @Api @Axon { admin=true }
   static PySession pyExec(PySession py, Str code) { py.exec(code) }
 
   ** Evalue the given python statement in the session, and return the result.
   ** The session will be closed unless it is running in a task.
-  @Axon{ admin=true }
+  @Api @Axon { admin=true }
   static Obj? pyEval(PySession py, Str stmt)
   {
     try
