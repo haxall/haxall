@@ -27,12 +27,14 @@ class Build : BuildPod
                "vcs.uri":      "https://github.com/haxall/haxall"]
     depends  = ["sys @{fan.depend}",
                 "xml @{fan.depend}",
+                "xeto @{hx.depend}",
                 "axon @{hx.depend}",
                 "haystack @{hx.depend}",
                 "hx @{hx.depend}",
                ]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "xml"]
+    index   = ["xeto.bindings":"hx.xml", "ph.lib": "xml"]
   }
 }
+

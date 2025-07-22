@@ -1,0 +1,93 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   22 Jul 2025  Brian Frank  Creation
+//
+
+// XML element
+XElem: Interface
+
+// XML attribute
+XAttr: Interface
+
+// Parse an XML document from an I/O handle and return root element.
+//
+// Examples:
+//   xmlRead("<foo/>")
+//   xmlRead(`io/test.xml`)
+xmlRead: Func <admin> { handle: Obj?, returns: XElem }
+
+// Get the unqualified local name of an element or attribute:
+//   <foo>    >>  "foo"
+//   <x:foo>  >>  "foo"
+xmlName: Func { node: Obj, returns: Str }
+
+// Get the qualified local name of an element or attribute
+// which includes both its prefix and unqualified name:
+//   <foo>    >>  "foo"
+//   <x:foo>  >>  "x:foo"
+xmlQname: Func { node: Obj, returns: Str }
+
+// Get the namespace prefix of an element or attribute.
+// If node is an element in the default namespace then
+// return "".  If no namespace is specified return null.
+//
+// Examples:
+//   <foo>               >>  null
+//   <x:foo>             >>  "x"
+//   <foo xmlns='...'/>  >>  ""
+xmlPrefix: Func { node: Obj, returns: Str? }
+
+// Get the namespace URI of an element or attribute.
+// If no namespace was specified return null.
+//
+// Example:
+//   xmlRead("<foo xmlns='bar'/>").xmlNs  >>  `bar`
+xmlNs: Func { node: Obj, returns: Uri? }
+
+// If node is an attribute, then return its value string.
+// If node is an element return its first text child
+// node, otherwise null.  If node is null, then return null.
+//
+// Examples:
+//   xmlRead("<x/>").xmlVal                      >>  null
+//   xmlRead("<x>hi</x>").xmlVal                 >>  "hi"
+//   xmlRead("<x a='v'/>").xmlAttr("a").xmlVal   >>  "v"
+//   xmlRead("<x/>").xmlAttr("a", false).xmlVal  >>  null
+xmlVal: Func { node: Obj?, returns: Str? }
+
+// Get an attribute from an element by its non-qualified local name.
+// If the attribute is not found and checked is false then
+// return null otherwise throw XErr.
+//
+// Examples:
+//   xmlRead("<x a='v'/>").xmlAttr("a").xmlVal   >>  "v"
+//   xmlRead("<x/>").xmlAttr("a", false).xmlVal  >>  null
+xmlAttr: Func { elem: XElem, name: Str, checked: Bool, returns: XAttr? }
+
+// Get list of all an elements attributes.
+//
+// Example:
+//   attrs: xmlRead("<x a='' b=''/>").xmlAttrs
+//   attrs.map(xmlName)  >>  ["a", "b"]
+xmlAttrs: Func { elem: XElem, returns: List }
+
+// Find an element by its non-qualified local name. If there are
+// multiple child elements with the name, then the first one is
+// returned. If the element is not found and checked is false
+// then return null otherwise throw XErr.
+//
+// Example:
+//   xmlRead("<d><a/></d>").xmlElem("a")
+xmlElem: Func { elem: XElem, name: Str, checked: Bool, returns: XElem? }
+
+// Get the children elements. If this element contains
+// text or PI nodes, then they are excluded in the result.
+//
+// Example:
+//   elems: xmlRead("<d><a/><b/></d>").xmlElems
+//   elems.map(xmlName)  >>  ["a", "b"]
+xmlElems: Func { elem: XElem, returns: List }
+

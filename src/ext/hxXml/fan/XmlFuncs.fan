@@ -7,6 +7,7 @@
 //
 
 using xml
+using xeto
 using axon
 using hx
 
@@ -23,7 +24,7 @@ const class XmlFuncs
   **   xmlRead("<foo/>")
   **   xmlRead(`io/test.xml`)
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static XElem xmlRead(Obj? handle)
   {
     Context.cur.proj.exts.io.read(handle) |in| { XParser(in).parseDoc.root }
@@ -34,7 +35,7 @@ const class XmlFuncs
   **   <foo>    >>  "foo"
   **   <x:foo>  >>  "foo"
   **
-  @Axon
+  @Api @Axon
   static Str xmlName(Obj node)
   {
     if (node is XElem) return ((XElem)node).name
@@ -48,7 +49,7 @@ const class XmlFuncs
   **   <foo>    >>  "foo"
   **   <x:foo>  >>  "x:foo"
   **
-  @Axon
+  @Api @Axon
   static Str xmlQname(Obj node)
   {
     if (node is XElem) return ((XElem)node).qname
@@ -66,7 +67,7 @@ const class XmlFuncs
   **   <x:foo>             >>  "x"
   **   <foo xmlns='...'/>  >>  ""
   **
-  @Axon
+  @Api @Axon
   static Str? xmlPrefix(Obj node)
   {
     if (node is XElem) return ((XElem)node).prefix
@@ -81,7 +82,7 @@ const class XmlFuncs
   ** Example:
   **   xmlRead("<foo xmlns='bar'/>").xmlNs  >>  `bar`
   **
-  @Axon
+  @Api @Axon
   static Uri? xmlNs(Obj node)
   {
     if (node is XElem) return ((XElem)node).ns?.uri
@@ -100,7 +101,7 @@ const class XmlFuncs
   **   xmlRead("<x a='v'/>").xmlAttr("a").xmlVal   >>  "v"
   **   xmlRead("<x/>").xmlAttr("a", false).xmlVal  >>  null
   **
-  @Axon
+  @Api @Axon
   static Str? xmlVal(Obj? node)
   {
     if (node == null) return null
@@ -118,7 +119,7 @@ const class XmlFuncs
   **   xmlRead("<x a='v'/>").xmlAttr("a").xmlVal   >>  "v"
   **   xmlRead("<x/>").xmlAttr("a", false).xmlVal  >>  null
   **
-  @Axon
+  @Api @Axon
   static XAttr? xmlAttr(XElem elem, Str name, Bool checked := true)
   {
     elem.attr(name, checked)
@@ -131,7 +132,7 @@ const class XmlFuncs
   **   attrs: xmlRead("<x a='' b=''/>").xmlAttrs
   **   attrs.map(xmlName)  >>  ["a", "b"]
   **
-  @Axon
+  @Api @Axon
   static XAttr[] xmlAttrs(XElem elem) { elem.attrs }
 
   **
@@ -143,7 +144,7 @@ const class XmlFuncs
   ** Example:
   **   xmlRead("<d><a/></d>").xmlElem("a")
   **
-  @Axon
+  @Api @Axon
   static XElem? xmlElem(XElem elem, Str name, Bool checked := true)
   {
     elem.elem(name, checked)
@@ -157,7 +158,7 @@ const class XmlFuncs
   **   elems: xmlRead("<d><a/><b/></d>").xmlElems
   **   elems.map(xmlName)  >>  ["a", "b"]
   **
-  @Axon
+  @Api @Axon
   static XElem[] xmlElems(XElem elem) { elem.elems }
 
 }

@@ -19,7 +19,8 @@ class XmlTest : HxTest
   @HxTestProj
   Void test()
   {
-    addLib("xml")
+    addLib("hx.io")
+    addLib("hx.xml")
 
     xml := "<foo/>"
     verifyXml(xml, "xmlName",   "foo")
