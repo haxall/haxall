@@ -120,7 +120,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
   ** Write error response
   private Grid toErrGrid(Err err, Obj? meta := null)
   {
-    if (ext.rec.has("disableErrTrace"))
+    if (ext.settings.has("disableErrTrace"))
     {
       meta = Etc.makeDict(meta)
       meta = Etc.dictSet(meta, "errTrace", "${err}\n  Trace disabled")

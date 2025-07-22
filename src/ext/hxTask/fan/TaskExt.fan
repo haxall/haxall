@@ -21,12 +21,12 @@ const class TaskExt : ExtObj, ITaskExt
   ** Construction
   new make()
   {
-    this.pool = ActorPool { it.name = "${proj.name}-Task"; it.maxThreads = rec.maxThreads }
+    this.pool = ActorPool { it.name = "${proj.name}-Task"; it.maxThreads = settings.maxThreads }
     this.tasksById = ConcurrentMap()
   }
 
   ** Settings record
-  override TaskSettings rec() { super.rec }
+  override TaskSettings settings() { super.settings }
 
   ** Lookup a task by its id
   internal Task? task(Ref id, Bool checked := true)
@@ -185,7 +185,7 @@ const class TaskExt : ExtObj, ITaskExt
   private Void cleanupEphemerals()
   {
     now := Duration.nowTicks
-    linger := rec.ephemeralLinger.ticks
+    linger := settings.ephemeralLinger.ticks
     tasks.each |task|
     {
       if (task.isEphemeralDone && now - task.evalLastTime > linger)

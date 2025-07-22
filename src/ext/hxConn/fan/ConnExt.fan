@@ -26,13 +26,13 @@ abstract const class ConnExt : ExtObj, HxConnExt
     this.connActorPool = ActorPool
     {
       it.name = "$proj.name-$this.name.capitalize"
-      it.maxThreads = rec.effectiveMaxThreads
+      it.maxThreads = settings.effectiveMaxThreads
     }
     this.poller = ConnPoller(this)
   }
 
   ** Settings record
-  override ConnSettings rec() { super.rec }
+  override ConnSettings settings() { super.settings }
 
   ** ConnFwExt instance
   @NoDoc ConnFwExt fw() { fwRef.val }
@@ -136,8 +136,8 @@ abstract const class ConnExt : ExtObj, HxConnExt
     connActorPool.kill
   }
 
-  ** Record update - if overridden you *must* call super
-  override Void onRecUpdate()
+  ** Settings update - if overridden you *must* call super
+  override Void onSettings()
   {
     tuningRef.val = tunings.forLib(this)
   }

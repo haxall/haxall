@@ -140,10 +140,10 @@ final const class DockerMgr : Actor
 
     // force single bind for io/ directory
     ioDir := ext.proj.dir.plus(`io/`)
-    if (ext.rec.ioDirMount?.trimToNull != null)
+    if (ext.settings.ioDirMount?.trimToNull != null)
     {
       // handle custom configuration
-      ioDir = ext.rec.ioDirMount.toUri.plusSlash.toFile
+      ioDir = ext.settings.ioDirMount.toUri.plusSlash.toFile
     }
     // overwrite any binds (noughty-noughty) and only expose io/
     cmd.hostConfig.withBinds([
@@ -342,7 +342,7 @@ final const class DockerMgr : Actor
     if (!running.val) throw Err("The Docker service is stopped")
 
     // check if docker daemon is specified in the settings
-    host := ext.rec.dockerDaemon?.trimToNull
+    host := ext.settings.dockerDaemon?.trimToNull
 
     return DockerConfig
     {

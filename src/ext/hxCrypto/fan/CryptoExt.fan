@@ -32,7 +32,7 @@ const class CryptoExt : ExtObj, ICryptoExt
 
   private Duration actorTimeout()
   {
-    val := rec.get("actorTimeout") as Number
+    val := settings.get("actorTimeout") as Number
     if (val != null && val.isDuration) return val.toDuration
     return 1min
   }

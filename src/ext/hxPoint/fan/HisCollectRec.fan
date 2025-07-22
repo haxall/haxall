@@ -227,7 +227,7 @@ internal class HisCollectRec
   {
     try
     {
-      settings := mgr.ext.rec
+      settings := mgr.ext.settings
 
       // save current state of record
       this.rec = rec

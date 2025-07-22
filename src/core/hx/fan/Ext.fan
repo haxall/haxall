@@ -35,9 +35,6 @@ const mixin Ext
   ** Xeto spec for this extension
   Spec spec() { spi.spec }
 
-  ** TODO: remove in favor of settings
-  virtual Dict rec() { spi.settings }
-
   ** Settings for the extension
   virtual Dict settings() { spi.settings }
 
@@ -107,9 +104,6 @@ const mixin Ext
   ** Callback when extension reaches steady state.
   ** This is called on dedicated background actor.
   virtual Void onSteadyState() {}
-
-** TODO
-@Deprecated virtual Void onRecUpdate() {}
 
   ** Callback when associated settings are modified.
   ** This is called on dedicated background actor.

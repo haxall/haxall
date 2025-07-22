@@ -28,7 +28,7 @@ const class HxUserExt : ExtObj, IUserExt
   const HxUserSessions sessions := HxUserSessions(this)
 
   ** Settings record
-  override HxUserSettings rec() { super.rec }
+  override HxUserSettings settings() { super.settings }
 
   ** Auto login a configured superuser account for testing
   const Bool noAuth := sys.config.has("noAuth")
@@ -82,7 +82,7 @@ const class HxUserExt : ExtObj, IUserExt
   }
 
   ** Configured max sessions
-  override Int maxSessions() { rec.maxSessions }
+  override Int maxSessions() { settings.maxSessions }
 
 //////////////////////////////////////////////////////////////////////////
 // Session
@@ -132,7 +132,7 @@ const class HxUserExt : ExtObj, IUserExt
   ** Cleanup expired sessions
   override Void onHouseKeeping()
   {
-    lease := (rec["sessionTimeout"] as Number)?.toDuration(false) ?: 1hr
+    lease := (settings["sessionTimeout"] as Number)?.toDuration(false) ?: 1hr
     sessions.onHouseKeeping(lease)
   }
 

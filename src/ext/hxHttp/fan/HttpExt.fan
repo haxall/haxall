@@ -23,7 +23,7 @@ const class HttpExt : ExtObj, IHttpExt
   private const AtomicRef wispRef := AtomicRef(null)
 
   ** Settings record
-  override HttpSettings rec() { super.rec }
+  override HttpSettings settings() { super.settings }
 
   ** Root WebMod instance
   override WebMod? root(Bool checked := true) { rootRef.val }
@@ -35,7 +35,7 @@ const class HttpExt : ExtObj, IHttpExt
   ** an absolute URI such 'https://acme.com/'
   override Uri siteUri()
   {
-    settings := this.rec
+    settings := this.settings
     if (settings.siteUri != null && !settings.siteUri.toStr.isEmpty)
       return settings.siteUri.plusSlash
 
@@ -53,7 +53,7 @@ const class HttpExt : ExtObj, IHttpExt
   ** Ready callback
   override Void onReady()
   {
-    settings      := this.rec
+    settings      := this.settings
     addr          := settings.addr?.trimToNull == null ? null : IpAddr(settings.addr)
     httpsEnabled  := settings.httpsEnabled
     httpsKeyStore := sys.crypto.httpsKey(false)

@@ -36,7 +36,7 @@ const class PointExt : ExtObj, IPointExt
   override const Observable[] observables
 
   ** Should we collect bad data as NA or just omit it
-  Bool hisCollectNA() { rec.has("hisCollectNA") }
+  Bool hisCollectNA() { settings.has("hisCollectNA") }
 
   ** Start callback
   override Void onStart()
@@ -66,9 +66,9 @@ const class PointExt : ExtObj, IPointExt
       ]), #onEnumMetaEvent)
 
     // start up manager checks
-    if (rec.missing("disableWritables"))  writeMgr.start
-    if (rec.missing("disableHisCollect")) hisCollectMgr.start
-    if (rec.has("demoMode")) demoMgr.start
+    if (settings.missing("disableWritables"))  writeMgr.start
+    if (settings.missing("disableHisCollect")) hisCollectMgr.start
+    if (settings.has("demoMode")) demoMgr.start
   }
 
   ** Stop callback

@@ -28,9 +28,9 @@ class TaskTest : HxTest
   Void testSettings()
   {
     ext := (TaskExt)addExt("hx.task")
-    verifyEq(ext.rec.typeof.qname, "hxTask::TaskSettings")
-    verifyEq(ext.rec.maxThreads, 50)
-    verifyEq(ext.rec["maxThreads"], null)
+    verifyEq(ext.settings.typeof.qname, "hxTask::TaskSettings")
+    verifyEq(ext.settings.maxThreads, 50)
+    verifyEq(ext.settings["maxThreads"], null)
 
     proj.libs.remove("task")
 

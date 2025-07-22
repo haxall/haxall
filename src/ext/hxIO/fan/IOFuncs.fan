@@ -563,7 +563,7 @@ const class IOFuncs
     if (arg == null) arg = Etc.emptyDict
     if (cx.sys.info.rt.isAxonsh) return Etc.emptyDict
     filetype := cx.defs.filetype("json")
-    settings := cx.rt.ext("hx.io").rec
+    settings := cx.rt.ext("hx.io").settings
     return filetype.ioOpts(cx.defs, null, arg, settings)
   }
 

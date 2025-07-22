@@ -26,7 +26,7 @@ internal const class HttpErrMod : WebMod
   override Void onService()
   {
     err := (Err)req.stash["err"]
-    errTrace := ext.rec.disableErrTrace ? err.toStr : err.traceToStr
+    errTrace := ext.settings.disableErrTrace ? err.toStr : err.traceToStr
 
     res.headers["Content-Type"] = "text/html; charset=utf-8"
     res.out.html

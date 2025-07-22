@@ -21,7 +21,7 @@ const class DockerExt : ExtObj
   }
 
   ** Settings record
-  override DockerSettings rec() { super.rec }
+  override DockerSettings settings() { super.settings }
 
   ** Docker manager
   const DockerMgr mgr
