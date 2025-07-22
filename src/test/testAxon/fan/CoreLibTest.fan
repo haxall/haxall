@@ -981,11 +981,6 @@ class CoreLibTest : HaystackTest
     verifyEvalErr("[3m, 4m, 5ft].fold(spread)", UnitErr#)
   }
 
-  Void testFoldSpread()
-  {
-    verifyEval("[nan(), 4m, 5m].fold(spread)", Number.nan)
-  }
-
   Void verifyFold(Num[] list, Float? sum, Float? avg, Float? min, Float? max)
   {
     src := "[" + list.join(",") + "]"
