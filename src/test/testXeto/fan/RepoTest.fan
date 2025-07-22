@@ -523,11 +523,6 @@ internal const class TestRepo : LibRepo
     DependSolver(this, libs).solve
   }
 
-  override LibNamespace build(LibVersion[] libs)
-  {
-    throw UnsupportedErr()
-  }
-
   Void dump()
   {
     libs.each |lib|

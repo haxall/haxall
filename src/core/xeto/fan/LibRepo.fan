@@ -41,11 +41,6 @@ const mixin LibRepo
   ** based on the installed lib versions.
   abstract LibVersion[] solveDepends(LibDepend[] libs)
 
-  ** Given a set of specific source lib versions, solve their dependency
-  ** graph and compile a namespace.  For each source lib generate the xetolib
-  ** zip in the appropriate "lib/xeto/" directory.  Report errors to stdout
-  @NoDoc abstract LibNamespace build(LibVersion[] libs)
-
   ** Rescan file system if this is a local repo
   @NoDoc abstract This rescan()
 

@@ -140,8 +140,39 @@ const class ServerEnv : MEnv
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Compile
+// Build & Compile
 //////////////////////////////////////////////////////////////////////////
+
+  ** Run build thru this env (not really thread safe)
+  override LibNamespace build(LibVersion[] build)
+  {
+    // turn verions to lib depends
+    buildAsDepends := build.map |v->LibDepend|
+    {
+      if (!v.isSrc) throw ArgErr("Not source lib: $v")
+      return MLibDepend(v.name, LibDependVersions(v.version))
+    }
+
+    // solve dependency graph for full list of libs
+    libs := repo.solveDepends(buildAsDepends)
+
+    // build map of lib name to
+    buildFiles := Str:File[:]
+    build.each |v| { buildFiles[v.name] = XetoUtil.srcToLibZip(v) }
+
+    // create namespace and force all libs to be compiled
+    libCacheClear
+    ns := LocalNamespace(LocalNamespaceInit(this, repo, libs, buildFiles))
+    ns.libs
+
+    // report which libs could not be compiled
+    ns.versions.each |v|
+    {
+      if (ns.libStatus(v.name).isErr) echo("ERROR: could not compile $v.name.toCode")
+    }
+
+    return ns
+  }
 
   override XetoLib compile(LibNamespace ns, LibVersion v)
   {
@@ -150,6 +181,7 @@ const class ServerEnv : MEnv
       it.ns      = ns
       it.libName = v.name
       it.input   = v.file
+      it.build   = ((LocalNamespace)ns).build?.get(v.name)
     }
     return c.compileLib
   }

@@ -88,35 +88,6 @@ const class FileRepo : LibRepo
     DependSolver(this, libs).solve
   }
 
-  override LibNamespace build(LibVersion[] build)
-  {
-    // turn verions to lib depends
-    buildAsDepends := build.map |v->LibDepend|
-    {
-      if (!v.isSrc) throw ArgErr("Not source lib: $v")
-      return MLibDepend(v.name, LibDependVersions(v.version))
-    }
-
-    // solve dependency graph for full list of libs
-    libs := solveDepends(buildAsDepends)
-
-    // build map of lib name to
-    buildFiles := Str:File[:]
-    build.each |v| { buildFiles[v.name] = XetoUtil.srcToLibZip(v) }
-
-    // create namespace and force all libs to be compiled
-    ns := makeNamespace(libs, buildFiles)
-    ns.libs
-
-    // report which libs could not be compiled
-    ns.versions.each |v|
-    {
-      if (ns.libStatus(v.name).isErr) echo("ERROR: could not compile $v.name.toCode")
-    }
-
-    return ns
-  }
-
   LibNamespace createNamespace(LibVersion[] libs)
   {
     makeNamespace(libs, null)
@@ -132,8 +103,8 @@ const class FileRepo : LibRepo
   LibNamespace createFromData(Dict[] recs)
   {
     libNames := XetoUtil.dataToLibs(recs)
-    versions := libNames.map |libName->LibVersion| { latest(libName) }
-    return build(versions)
+    vers := libNames.map |libName->LibVersion| { latest(libName) }
+    return createNamespace(vers)
   }
 
   private LibNamespace makeNamespace(LibVersion[] versions, [Str:File]? build)

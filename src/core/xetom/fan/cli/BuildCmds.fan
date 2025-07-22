@@ -105,7 +105,7 @@ internal class BuildCmd : SrcLibCmd
 
   override Int process(XetoEnv env, LibVersion[] vers)
   {
-    env.repo.build(vers)
+    ((MEnv)env).build(vers)
     return 0
   }
 }

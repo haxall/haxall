@@ -26,6 +26,10 @@ abstract const class MEnv : XetoEnv
       return Slot.findMethod("xetoc::ServerEnv.initPath").call
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Hooks
+//////////////////////////////////////////////////////////////////////////
+
   override Str dictDis(Dict x)
   {
     Etc.dictToDis(x, null) ?: x.toStr
@@ -100,7 +104,18 @@ abstract const class MEnv : XetoEnv
     throw UnsupportedErr("Lib cannot be compiled, must be preloaded: $v")
   }
 
+  ** Clear the lib cache
+  protected Void libCacheClear() { libsByName.clear }
+
   ** Lib cache keyed by lib name
   private const ConcurrentMap libsByName := ConcurrentMap()
+
+//////////////////////////////////////////////////////////////////////////
+// Build
+//////////////////////////////////////////////////////////////////////////
+
+  ** Run build thru this env
+  virtual LibNamespace build(LibVersion[] build) { throw UnsupportedErr() }
+
 }
 
