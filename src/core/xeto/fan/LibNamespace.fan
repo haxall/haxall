@@ -61,7 +61,7 @@ const mixin LibNamespace
   ** loaded (successfully or unsuccessfully).  This method returns false
   ** is any libs have a load status of 'notLoaded'.  Many operations
   ** require a namespace to be fully loaded.
-  abstract Bool isAllLoaded()
+  @NoDoc abstract Bool isAllLoaded()
 
   ** Get the given library by name synchronously.  If this is a Java
   ** environment, then the library will be compiled on its first access.
@@ -84,19 +84,19 @@ const mixin LibNamespace
   ** error is reported only if the entire load failed.  Individual libs
   ** which cannot be loaded will logged on server, and be excluded from
   ** the final libs list.
-  abstract Void libsAllAsync(|Err?, Lib[]?| f)
+  @NoDoc abstract Void libsAllAsync(|Err?, Lib[]?| f)
 
   ** Get or load library asynchronously by the given dotted name.
   ** This method automatically also loads the dependency chain.
   ** Once loaded then invoke callback with library or err.
-  abstract Void libAsync(Str name, |Err?, Lib?| f)
+  @NoDoc abstract Void libAsync(Str name, |Err?, Lib?| f)
 
   ** Get or load list of libraries asynchronously by the given dotted names.
   ** This method automatically also loads the dependency chain.
   ** Once loaded then invoke callback with libraries or err.  If a lib
   ** cannot be loaded then it is excluded from the callback list (so its
   ** possible the results list is not the same size as the names list).
-  abstract Void libListAsync(Str[] names, |Err?, Lib[]?| f)
+  @NoDoc abstract Void libListAsync(Str[] names, |Err?, Lib[]?| f)
 
   ** Get the 'sys' library
   @NoDoc abstract Lib sysLib()
@@ -117,14 +117,14 @@ const mixin LibNamespace
   abstract Spec? spec(Str qname, Bool checked := true)
 
   ** Lookup a spec async in the case the lib is not loaded yet.
-  abstract Void specAsync(Str qname, |Err?, Spec?| f)
+  @NoDoc abstract Void specAsync(Str qname, |Err?, Spec?| f)
 
   ** Get or load instance by the given qualified name
    ** See `lib` for behavior if the instances's lib is not loaded.
   abstract Dict? instance(Str qname, Bool checked := true)
 
   ** Lookup an instance async in the case the lib is not loaded yet.
-  abstract Void instanceAsync(Str qname, |Err?, Dict?| f)
+  @NoDoc abstract Void instanceAsync(Str qname, |Err?, Dict?| f)
 
   ** Lookup the extended meta for the given spec qname.  This is a merge
   ** of the spec's own meta along with any instance dicts in the namespace
