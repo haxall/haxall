@@ -12,21 +12,19 @@
 //////////////////////////////////////////////////////////////////////////
 
 // ping API
-ping1: Api { returns: Date }
+ping1: Func { returns: Date }
 
 // ping API (not bound with facet)
-ping2: Api { returns: Date }
+ping2: Func { returns: Date }
 
 //////////////////////////////////////////////////////////////////////////
 // Axon
 //////////////////////////////////////////////////////////////////////////
 
 // add in Axon
-/*
-add1: Func { a: Number, b: Number, returns: Number }
-  --- axon
-  a + b
-  ---
+add1: Func { a: Number, b: Number, returns: Number
+  <axon:"a + b">
+}
 
 // add in Fantom
 add2: Func { a: Number, b: Number, returns: Number }
@@ -35,25 +33,25 @@ add2: Func { a: Number, b: Number, returns: Number }
 add3: Func { a: Number, b: Number, returns: Number }
 
 // add in comp blocks
-add4: Func { a: Number, b: Number, returns: Number }
-  --- axonComp
-  @root: Comp {
-    a @a: Var {}
-    b @b: Var {}
-    returns: Var {
-      links: {
-        val: Link { fromRef: @add, fromSlot: "out"  }
+add4: Func { a: Number, b: Number, returns: Number
+  <axonComp:---
+    @root: Comp {
+      a @a: Var {}
+      b @b: Var {}
+      returns: Var {
+        links: {
+          val: Link { fromRef: @add, fromSlot: "out"  }
+        }
+      }
+      @add: TestNumberAdd {
+        links: {
+          in1: Link { fromRef: @a, fromSlot: "val" }
+          in2: Link { fromRef: @b, fromSlot: "val" }
+        }
       }
     }
-    @add: TestNumberAdd {
-      links: {
-        in1: Link { fromRef: @a, fromSlot: "val" }
-        in2: Link { fromRef: @b, fromSlot: "val" }
-      }
-    }
-  }
-  ---
-*/
+    --->
+}
 
 //////////////////////////////////////////////////////////////////////////
 // Interfaces

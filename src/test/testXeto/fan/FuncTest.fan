@@ -29,11 +29,6 @@ class FuncTest : AbstractXetoTest
   {
     lib := ns.lib("hx.test.xeto")
 
-echo("##")
-echo("## TODO $ns.typeof")
-echo("##")
-
-/*
     // non-func
     num := ns.spec("sys::Number")
     verifyEq(num.isGlobal, false)
@@ -46,23 +41,18 @@ echo("##")
     verifyAdd(ns, lib.spec("add2"), true)  // Fantom
     verifyAdd(ns, lib.spec("add3"), false) // not allowed
     if (!ns.isRemote) verifyAdd(ns, lib.spec("add4"), true) // Xeto component graph
-    */
   }
 
-  private Void verifyAdd(LibNamespace ns, Spec f, Bool hasAxon)
+  private Void verifyAdd(LibNamespace ns, Spec f, Bool canCall)
   {
-  /*
     num := ns.spec("sys::Number")
 
-    verifyGlobalFunc(ns, f, ["a: sys::Number", "b: sys::Number"], "sys::Number")
+echo(">>> verifyAdd $f")
 
-    if (!hasAxon)
-    {
-      verifyErr(UnsupportedErr#) { f.func.axon }
-      return
-    }
+    verifyFunc(ns, f, ["a: sys::Number", "b: sys::Number"], "sys::Number")
 
-    Fn a := f.func.axon
+    x := f.func.thunk
+    /*
     verifySame(f.func.axon, a)
     verifyEq(a.params.size, 2)
     verifyEq(a.params[0].name, "a")
@@ -74,6 +64,25 @@ echo("##")
     */
   }
 
+  Void verifyFunc(LibNamespace ns, Spec f, Str[] params, Str ret)
+  {
+    verifyEq(f.isFunc,   true)
+    verifyEq(f.isType,   false)
+    verifyEq(f.isGlobal, false)
+
+    verifySame(f.lib.func(f.name), f)
+    verifySame(f.lib.type(f.name, false), null)
+    verifySame(f.lib.global(f.name, false), null)
+
+    verifyEq(f.func.arity, params.size)
+    verifyEq(f.func.params.size, params.size)
+    f.func.params.each |p, i|
+    {
+      verifyEq("$p.name: $p.type", params[i])
+      verifySame(p.type, ns.spec(p.type.qname))
+    }
+    verifyEq(f.func.returns.type.qname, ret)
+  }
 }
 
 **************************************************************************

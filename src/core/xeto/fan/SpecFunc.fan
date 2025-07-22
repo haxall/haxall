@@ -86,3 +86,18 @@ const class StaticMethodThunk : Thunk
   }
 }
 
+**************************************************************************
+** AxonThunkParser
+**************************************************************************
+
+**
+** StaticMethodThunk
+**
+@NoDoc @Js
+abstract const class AxonThunkParser
+{
+  static once AxonThunkParser cur() { Type.find("axon::ThunkParser").make }
+
+  abstract Thunk parse(Str src)
+}
+

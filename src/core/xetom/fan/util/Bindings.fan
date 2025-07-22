@@ -267,7 +267,12 @@ const class SpecBindingLoader
   }
 
   ** Resolve thunk for given spec
-  virtual Thunk loadThunk(Spec spec) { throw UnsupportedErr("Thunks not supported") }
+  virtual Thunk loadThunk(Spec spec)
+  {
+    axon := spec.meta["axon"] as Str
+    if (axon != null) return AxonThunkParser.cur.parse(axon)
+    throw UnsupportedErr("Thunks not supported: $spec.qname")
+  }
 }
 
 **************************************************************************
@@ -296,6 +301,10 @@ const class PodBindingLoader : SpecBindingLoader
     // check for fantom method thunk
     thunk := loadThunkFantom(spec)
     if (thunk != null) return thunk
+
+    // check for axon
+    axon := spec.meta["axon"] as Str
+    if (axon != null) return AxonThunkParser.cur.parse(axon)
 
     throw UnsupportedErr("No funcs registered for pod: $pod.name")
   }
