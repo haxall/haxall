@@ -976,9 +976,10 @@ if (fn is XetoFn) fn = ((XetoFn)fn).reflect
   static Obj? sum(Obj? val, Obj? acc)
   {
     if (val === foldStartVal) return Fold.createAxon("sum")
-    if (val === foldEndVal) return acc->finish
-    if (val != null) ((Fold)acc).add(val)
-    return acc
+    fold := (Fold)acc
+    if (val === foldEndVal) return fold.finish
+    if (val != null) fold.add(val)
+    return fold
   }
 
   ** Compare two numbers and return the smaller one.  This function
@@ -993,7 +994,7 @@ if (fn is XetoFn) fn = ((XetoFn)fn).reflect
   static Obj? min(Obj? val, Obj? acc)
   {
     if (val === foldStartVal) return Fold.createAxon("min")
-    if (val === foldEndVal) return acc->finish
+    if (val === foldEndVal) return ((Fold)acc).finish
     if (acc is Fold)
     {
       // fold
@@ -1021,7 +1022,7 @@ if (fn is XetoFn) fn = ((XetoFn)fn).reflect
   static Obj? max(Obj? val, Obj? acc)
   {
     if (val === foldStartVal) return Fold.createAxon("max")
-    if (val === foldEndVal) return acc->finish
+    if (val === foldEndVal) return ((Fold)acc).finish
     if (acc is Fold)
     {
       // fold
@@ -1047,9 +1048,10 @@ if (fn is XetoFn) fn = ((XetoFn)fn).reflect
   static Obj? avg(Obj? val, Obj? acc)
   {
     if (val === foldStartVal) return Fold.createAxon("avg")
-    if (val === foldEndVal) return acc->finish
-    if (val != null) ((Fold)acc).add(val)
-    return acc
+    fold := (Fold)acc
+    if (val === foldEndVal) return fold.finish
+    if (val != null) fold.add(val)
+    return fold
   }
 
   ** Fold multiple values to compute the difference between
@@ -1061,16 +1063,10 @@ if (fn is XetoFn) fn = ((XetoFn)fn).reflect
   static Obj? spread(Obj? val, Obj? acc)
   {
     if (val === foldStartVal) return Fold.createAxon("spread")
-    if (val === foldEndVal) return acc->finish
-    if (val != null) ((Fold)acc).add(val)
-    return acc
-  }
-
-  private static Number[] toFoldNumAcc(Str name, Obj? acc)
-  {
-    list := acc as List
-    if (list != null && list.size == 2) return list
-    throw Err("Invalid accumulator; try using fold($name)")
+    fold := (Fold)acc
+    if (val === foldEndVal) return fold.finish
+    if (val != null) fold.add(val)
+    return fold
   }
 
 //////////////////////////////////////////////////////////////////////////
