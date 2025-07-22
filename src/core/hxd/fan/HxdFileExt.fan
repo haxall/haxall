@@ -4,6 +4,7 @@
 //
 // History:
 //   13 Aug 2021  Brian Frank  Creation
+//   22 Aug 2025  Brian Frank  Garden City (refactor for 4.0)
 //
 
 using concurrent
@@ -15,17 +16,10 @@ using hxFolio
 using util
 
 **
-** HxdHisService provides simple wrapper around Folio as the
-** implementation of the HxHisService.  Unlike SkySpark is does
-** not currently support totalization, computed histories, etc.
+** Haxall daemon simple implementation for required file extension
 **
-/* TODO
-internal const class HxdFileService : HxFileService
+internal const class HxdFileExt : ExtObj, IFileExt
 {
-  new make(HxProj rt) { this.rt = rt }
-
-  const HxProj rt
-
   override File resolve(Uri uri)
   {
     // pathing check
@@ -37,9 +31,9 @@ internal const class HxdFileService : HxFileService
       throw UnsupportedErr("Only io/ paths supportted")
 
     // extra directory check to ensure we don't escape out of safe io/ directory
-    file := rt.dir + uri
-    if (!file.normalize.pathStr.startsWith(rt.dir.normalize.pathStr))
-      throw UnsupportedErr("Uri not under ${rt.dir} dir: $uri")
+    file := proj.dir + uri
+    if (!file.normalize.pathStr.startsWith(proj.dir.normalize.pathStr))
+      throw UnsupportedErr("Uri not under ${proj.dir} dir: $uri")
 
     // use a wrapper which routes everything back to here for security checks
     return HxdFile(this, uri, file)
@@ -52,13 +46,13 @@ internal const class HxdFileService : HxFileService
 
 internal const class HxdFile : SyntheticFile
 {
-  new makeNew(HxdFileService service, Uri uri, File file) : super.make(uri)
+  new makeNew(HxdFileExt service, Uri uri, File file) : super.make(uri)
   {
     this.service = service
     this.file = file
   }
 
-  const HxdFileService service
+  const HxdFileExt service
 
   const File file
 
@@ -143,5 +137,4 @@ internal const class HxdFile : SyntheticFile
 
   override OutStream out(Bool append := false, Int? bufferSize := 4096) { file.out(append, bufferSize) }
 }
-*/
 

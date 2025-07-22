@@ -1,0 +1,31 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   22 Jul 2025  Brian Frank  Garden City
+//
+
+pragma: Lib <
+  doc: "Haxall daemon file extension"
+  version: BuildVar "hx.version"
+  depends: {
+    { lib: "sys", versions: BuildVar "ph.depend" }
+    { lib: "hx", versions: BuildVar "hx.depend" }
+  }
+  categories: {"haxall"}
+  license: BuildVar "hx.license"
+  org: {
+   dis: BuildVar "hx.org.dis"
+   uri: BuildVar "hx.org.uri"
+  }
+  vcs: {
+    type: BuildVar "hx.vcs.type"
+    uri:  BuildVar "hx.vcs.uri"
+  }
+  libExt: HxdFileExt
+>
+
+// Haxall daemon file management extension
+HxdFileExt: SysExt
+

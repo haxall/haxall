@@ -18,6 +18,29 @@ class IOTest : HxTest
 {
 
   @HxTestProj
+  Void testFileExt()
+  {
+    ext := proj.exts.file
+
+    f := ext.resolve(`io/`)
+    verifyEq(f.uri, `io/`)
+
+    f = ext.resolve(`io/foo.txt`)
+    verifyEq(f.uri, `io/foo.txt`)
+    verifyEq(f.exists, false)
+    f.out.print("hi").close
+
+    f = ext.resolve(`io/foo.txt`)
+    verifyEq(f.uri, `io/foo.txt`)
+    verifyEq(f.exists, true)
+    verifyEq(f.readAllStr, "hi")
+
+    f = proj.dir + `io/foo.txt`
+    echo(">>> $f.osPath")
+    verifyEq(f.readAllStr, "hi")
+  }
+
+  @HxTestProj
   Void test()
   {
     addLib("hx.io")

@@ -15,6 +15,9 @@ using folio
 using hx
 using hxm
 
+**
+** Haxall daemon simple implementation for required project extension
+**
 const class HxdProjExt : ExtObj, IProjExt
 {
 
