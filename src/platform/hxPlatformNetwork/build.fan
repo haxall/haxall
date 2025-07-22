@@ -35,7 +35,7 @@ class Build : BuildPod
               ]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "platformNetwork"]
+    index   = ["xeto.bindings":"hx.platform.network", "ph.lib": "platformNetwork"]
   }
 }
 

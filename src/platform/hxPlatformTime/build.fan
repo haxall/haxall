@@ -35,7 +35,7 @@ class Build : BuildPod
               ]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "platformTime"]
+    index   = ["xeto.bindings":"hx.platform.time", "ph.lib": "platformTime"]
   }
 }
 

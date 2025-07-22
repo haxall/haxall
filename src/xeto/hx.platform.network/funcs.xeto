@@ -1,0 +1,21 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   22 Jul 2025  Brian Frank  Garden City Beach
+//
+
+// Get the status and configuration for a given IP interface by name.
+// Return results a Dict.  See SPI class docs for modeling details.
+platformNetworkInterfaceGet: Func <su> { name: Str, returns: Dict }
+
+// Write the configure of an IP interface.  The config must
+// be a dict that defines the 'name' tag for an existing interface.
+// See SPI class docs for modeling details.
+platformNetworkInterfaceSet: Func <su> { config: Dict, returns: Obj? }
+
+// Return grid of summary information used to populate UI.
+// This is a nodoc method subject to change
+platformNetworkInfo: Func <nodoc, su> { returns: Grid }
+

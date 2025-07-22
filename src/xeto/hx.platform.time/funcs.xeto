@@ -1,0 +1,23 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   22 Jul 2025  Brian Frank  Garden City Beach
+//
+
+// Set the system clock time.  It is recommended to restart after.
+platformTimeSet: Func <su> { ts: DateTime, returns: Obj? }
+
+// Get the list of network time protocol server addresses as
+// list of strings.  If NTP is not supported, then return null.
+platformTimeNtpServersGet: Func <su> { returns: List? }
+
+// Set the list of network time protocol server addresses as
+// list of strings.
+platformTimeNtpServersSet: Func <su> { addresses: List, returns: Obj? }
+
+// Return grid of summary information used to populate UI.
+// This is a nodoc method subject to change
+platformTimeInfo: Func <nodoc, su> { returns: Grid }
+

@@ -35,7 +35,7 @@ class Build : BuildPod
               ]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "platform"]
+    index   = ["xeto.bindings":"hx.platform", "ph.lib": "platform"]
   }
 }
 

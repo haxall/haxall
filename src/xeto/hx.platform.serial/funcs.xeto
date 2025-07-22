@@ -1,0 +1,11 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   22 Jul 2025  Brian Frank  Garden City Beach
+//
+
+// List serial ports available and current status
+platformSerialPorts: Func <admin> { returns: Grid }
+

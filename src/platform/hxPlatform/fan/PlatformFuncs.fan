@@ -18,20 +18,20 @@ using hx
 const class PlatformFuncs
 {
   ** Reboot the operating system and runtime process
-  @Axon { su = true }
+  @Api @Axon { su = true }
   static Void platformReboot() { ext.platformSpi.reboot }
 
   ** Restart runtime process, but do not reboot operating system
-  @Axon { su = true }
+  @Api @Axon { su = true }
   static Void platformRestart() { ext.platformSpi.restart }
 
   ** Shutdown operating system and runtime process
-  @Axon { su = true }
+  @Api @Axon { su = true }
   static Void platformShutdown() { ext.platformSpi.shutdown }
 
   ** Return grid of summary information used to populate UI.
   ** This is a nodoc method subject to change
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Grid platformInfo()
   {
     cx := curContext

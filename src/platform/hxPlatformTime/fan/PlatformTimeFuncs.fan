@@ -18,7 +18,7 @@ using hx
 const class PlatformTimeFuncs
 {
   ** Set the system clock time.  It is recommended to restart after.
-  @Axon { su = true }
+  @Api @Axon { su = true }
   static Void platformTimeSet(DateTime ts)
   {
     ext.platformSpi.timeSet(ts)
@@ -26,7 +26,7 @@ const class PlatformTimeFuncs
 
   ** Get the list of network time protocol server addresses as
   ** list of strings.  If NTP is not supported, then return null.
-  @Axon { su = true }
+  @Api @Axon { su = true }
   static Str[]? platformTimeNtpServersGet()
   {
     ext.platformSpi.ntpServersGet
@@ -34,7 +34,7 @@ const class PlatformTimeFuncs
 
   ** Set the list of network time protocol server addresses as
   ** list of strings.
-  @Axon { su = true }
+  @Api @Axon { su = true }
   static Void platformTimeNtpServersSet(Str[] addresses)
   {
     ext.platformSpi.ntpServersSet(addresses)
@@ -42,7 +42,7 @@ const class PlatformTimeFuncs
 
   ** Return grid of summary information used to populate UI.
   ** This is a nodoc method subject to change
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Grid platformTimeInfo()
   {
     cx  := curContext

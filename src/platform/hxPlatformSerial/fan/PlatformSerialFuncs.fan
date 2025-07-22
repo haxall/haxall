@@ -8,6 +8,7 @@
 //
 
 using axon
+using xeto
 using haystack
 using hx
 
@@ -18,7 +19,7 @@ using hx
 const class PlatformSerialFuncs
 {
   ** List serial ports available and current status
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid platformSerialPorts()
   {
     gb := GridBuilder()

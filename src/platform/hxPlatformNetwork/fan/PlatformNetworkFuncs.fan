@@ -19,7 +19,7 @@ const class PlatformNetworkFuncs
 {
   ** Get the status and configuration for a given IP interface by name.
   ** Return results a Dict.  See SPI class docs for modeling details.
-  @Axon { su = true }
+  @Api @Axon { su = true }
   static Dict platformNetworkInterfaceGet(Str name)
   {
     ext.platformSpi.interfaces.find { it->name == name } ?: throw Err("Unknown interface: $name")
@@ -28,7 +28,7 @@ const class PlatformNetworkFuncs
   ** Write the configure of an IP interface.  The config must
   ** be a dict that defines the 'name' tag for an existing interface.
   ** See SPI class docs for modeling details.
-  @Axon { su = true }
+  @Api @Axon { su = true }
   static Obj? platformNetworkInterfaceSet(Dict config)
   {
     ext.platformSpi.interfaceSet(config)
@@ -37,7 +37,7 @@ const class PlatformNetworkFuncs
 
   ** Return grid of summary information used to populate UI.
   ** This is a nodoc method subject to change
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Grid platformNetworkInfo()
   {
     cx  := curContext
