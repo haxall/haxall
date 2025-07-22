@@ -116,7 +116,7 @@ internal class FoldRootMeanSquareErr : FoldMath
     // value which seems hokey
 
     // if sample size is smaller than degrees of freedom return null
-    nDegrees := ((Number)meta.get("n")).toInt
+    nDegrees := (meta.get("n") as Number)?.toInt ?: 0
     if (size <= nDegrees) return null
 
     // compute median
@@ -150,7 +150,7 @@ internal class FoldMeanBiasErr : FoldMath
     // value which seems hokey
 
     // if sample size smaller than degrees of freedom return null
-    nDegrees := ((Number)meta.get("n")).toInt
+    nDegrees := (meta.get("n") as Number)?.toInt ?: 0
     if (size <= nDegrees) return null
 
     // compute median
@@ -206,7 +206,8 @@ internal class FoldQuantile : FoldMath
     if (size == 1) { return array[0] }
     array.sort(0..<size)
 
-    perc := ((Number)meta.get("percent")).toFloat
+    // get percent
+    perc := (meta.get("percent") as Number)?.toFloat ?: throw ArgErr("Quantile 'percent' not configured")
 
     // get rank (index of quantile)
     i := perc * (size - 1).toFloat
