@@ -160,7 +160,7 @@ class EnumTest : AbstractXetoTest
 
   Void testUnitQuantity()
   {
-    ns := LibNamespace.system
+    ns := createNamespace
 
     fan  := UnitQuantity.vals.map |x->Str| { x.name }
     verifyEq(fan[0], "dimensionless")

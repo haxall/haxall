@@ -483,7 +483,7 @@ class NamespaceTest : AbstractXetoTest
 
   Void testDicts()
   {
-    ns := LibNamespace.system
+    ns := createNamespace
     verifyDict(ns, Str:Obj[:])
     verifyDict(ns, ["str":"hi there!"])
     verifyDict(ns, ["str":"hi", "int":123])

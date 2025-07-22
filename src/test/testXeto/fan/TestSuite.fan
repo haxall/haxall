@@ -181,7 +181,7 @@ class DataTestCase
 
   Void compileData(Str src)
   {
-    ns := LibNamespace.system
+    ns := XetoEnv.cur.repo.createFromNames(["sys"])
     this.dataRef = compile |opts| { ns.compileData(src, opts) }
   }
 

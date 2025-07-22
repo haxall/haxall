@@ -72,27 +72,19 @@ class AbstractXetoTest : HaystackTest
     }
   }
 
-  LibNamespace sysNamespace()
+  LibNamespace createNamespace(Str[] libs := ["sys"])
   {
-    LibNamespace.system
-  }
-
-  LibNamespace createNamespace(Str[] libs)
-  {
-    if (libs.size == 1 && libs[0] == "sys")
-      return sysNamespace
-
-    return XetoEnv.cur.repo.createFromNames(libs)
+    XetoEnv.cur.repo.createFromNames(libs)
   }
 
   Obj? compileData(Str s, Dict? opts := null)
   {
-    sysNamespace.compileData(s, opts)
+    createNamespace.compileData(s, opts)
   }
 
   Dict[] compileDicts(Str s, Dict? opts := null)
   {
-    sysNamespace.compileDicts(s, opts)
+    createNamespace.compileDicts(s, opts)
   }
 
   Void verifyFlavor(Spec spec, SpecFlavor expect)

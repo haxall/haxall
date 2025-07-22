@@ -18,64 +18,6 @@ const mixin LibNamespace
 {
 
 //////////////////////////////////////////////////////////////////////////
-// System
-//////////////////////////////////////////////////////////////////////////
-
-  ** System namespace that all application namespaces overlay
-  @NoDoc static LibNamespace system()
-  {
-    ns := systemRef.val
-    if (ns == null) systemRef.val = ns = createSystem
-    return ns
-  }
-
-  private const static AtomicRef systemRef := AtomicRef()
-
-  ** Install system namespace only if not installed yet.
-  ** Return true if installed and false if already available.
-  ** This should only be used in a browser to install remote namespace.
-  @NoDoc static Bool installSystem(LibNamespace ns)
-  {
-    systemRef.compareAndSet(null, ns)
-  }
-
-  ** Default system namesapce used across all Haxall based platforms
-  private static LibNamespace createSystem()
-  {
-    repo := XetoEnv.cur.repo
-    libs := defaultSystemLibNames
-    vers := LibVersion[,]
-    libs.each |libName|
-    {
-      vers.addNotNull(repo.latest(libName, false))
-    }
-    return repo.createNamespace(vers)
-  }
-
-  ** List of default lib names for system namesapce
-  @NoDoc static Str[] defaultSystemLibNames()
-  {
-    ["sys",
-      "sys.api",
-      "sys.comp",
-      "sys.files",
-      "axon",
-      "hx",
-      "hx.api",
-      "hx.crypto",
-      "hx.http",
-      "hx.user",
-      "ion",
-      "ion.actions",
-      "ion.card",
-      "ion.inputs",
-      "ion.form",
-      "ion.misc",
-      "ion.table",
-      "ion.ux"]
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Identity
 //////////////////////////////////////////////////////////////////////////
 

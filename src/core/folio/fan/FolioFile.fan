@@ -86,7 +86,7 @@ const abstract class MFolioFile : FolioFile
   }
 
   ** Get the xeto namespace
-  LibNamespace xeto() { LibNamespace.system }
+  LibNamespace xeto() { folio.hooks.ns }
 
   ** Sub-class hook to make a file instance for the rec with this id.
   protected abstract File toFile(Ref id)
@@ -153,7 +153,7 @@ const abstract class RecFile : SyntheticFile
     try
     {
       specRef  := rec.get("spec") as Ref
-      fileSpec := LibNamespace.system.spec(specRef.id)
+      fileSpec := folio.hooks.ns.spec(specRef.id)
       return MimeType(fileSpec.meta["mimeType"] ?: "", false)
     }
     catch (Err err) return null

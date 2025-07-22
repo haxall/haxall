@@ -53,7 +53,7 @@ class CheckTest : AbstractXetoTest
          }
          """
 
-    ns := sysNamespace
+    ns := createNamespace
     lib := ns.compileLib(src)
     spec := lib.type("Foo").slot("x")
 
@@ -91,7 +91,7 @@ class CheckTest : AbstractXetoTest
 
   Void verifyPattern(Str qname, Str s, Bool expect)
   {
-    ns := sysNamespace
+    ns := createNamespace
     re := Regex(ns.spec(qname).meta->pattern)
     actual := re.matches(s)
     // echo(">> $re $s | $actual ?= $expect")

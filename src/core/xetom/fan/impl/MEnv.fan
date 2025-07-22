@@ -54,12 +54,15 @@ abstract const class MEnv : XetoEnv
 
   override LibVersion[] loadLibs(InStream in)
   {
+    t1 := Duration.now
     acc := LibVersion[,]
     XetoBinaryReader(in).readLibs(this) |lib|
     {
       acc.add(RemoteLibVersion(lib.name, lib.version, lib.depends))
       libsByName.getOrAdd(lib.name, lib)
     }
+    t2 := Duration.now
+    Console.cur.info("Loaded $acc.size libs [" + (t2-t1).toLocale + "]")
     return acc
   }
 
