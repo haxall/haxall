@@ -49,55 +49,26 @@ const mixin Thunk
   abstract Obj? callList(Obj?[]? args := null)
 
   ** Call function with up to 8 params
+  /*
   abstract Obj? call(Obj? a := null, Obj? b := null, Obj? c := null, Obj? d := null,
                      Obj? e := null, Obj? f := null, Obj? g := null, Obj? h := null)
-
-  ** Empty arg list
-  @NoDoc static const Obj?[] noArgs := Obj?[,]
+  */
 }
 
 **************************************************************************
-** StaticMethodThunk
+** ThunkFactory
 **************************************************************************
 
 **
-** StaticMethodThunk
+** ThunkFactory
 **
 @NoDoc @Js
-const class StaticMethodThunk : Thunk
+const abstract class ThunkFactory
 {
-  new make(Method m)
-  {
-    if (!m.isStatic) throw ArgErr()
-    this.method = m
-  }
+  ** Factory for the VM - implementation lives in Axon
+  static once ThunkFactory cur() { Type.find("axon::AxonThunkFactory").make }
 
-  const Method method
-
-  override Obj? callList(Obj?[]? args := null)
-  {
-    method.callList(args ?: noArgs)
-  }
-
-  override Obj? call(Obj? a := null, Obj? b := null, Obj? c := null, Obj? d := null,
-                     Obj? e := null, Obj? f := null, Obj? g := null, Obj? h := null)
-  {
-    method.call(a, b, c, d, e, f, g, h)
-  }
-}
-
-**************************************************************************
-** AxonThunkParser
-**************************************************************************
-
-**
-** StaticMethodThunk
-**
-@NoDoc @Js
-abstract const class AxonThunkParser
-{
-  static once AxonThunkParser cur() { Type.find("axon::ThunkParser").make }
-
-  abstract Thunk parse(Str src)
+  ** Factory hook
+  abstract Thunk create(Spec spec, Pod? pod)
 }
 

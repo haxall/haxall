@@ -197,7 +197,7 @@ virtual Proj rt() { proj }
   @NoDoc override Fn? findTop(Str name, Bool checked := true)
   {
     spec := ns.unqualifiedFunc(name, false)
-    if (spec != null) return XetoFn(spec)
+    if (spec != null) return (Fn)spec.func.thunk // all thunks are axon fns too
     if (checked) throw UnknownFuncErr(name)
     return null
   }

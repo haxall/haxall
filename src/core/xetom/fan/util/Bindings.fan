@@ -269,9 +269,7 @@ const class SpecBindingLoader
   ** Resolve thunk for given spec
   virtual Thunk loadThunk(Spec spec)
   {
-    axon := spec.meta["axon"] as Str
-    if (axon != null) return AxonThunkParser.cur.parse(axon)
-    throw UnsupportedErr("Thunks not supported: $spec.qname")
+    ThunkFactory.cur.create(spec, null)
   }
 }
 
@@ -298,59 +296,7 @@ const class PodBindingLoader : SpecBindingLoader
 
   override Thunk loadThunk(Spec spec)
   {
-    // check for fantom method thunk
-    thunk := loadThunkFantom(spec)
-    if (thunk != null) return thunk
-
-    // check for axon
-    axon := spec.meta["axon"] as Str
-    if (axon != null) return AxonThunkParser.cur.parse(axon)
-
-    throw UnsupportedErr("No funcs registered for pod: $pod.name")
-  }
-
-  private Thunk? loadThunkFantom(Spec spec)
-  {
-    // resolve fantom type BaseFuncs where base is spec name
-    // of the libExt otherwise the last name of the dotted lib name
-    lib := spec.lib
-    base := thunkFantomBaseName(lib)
-    typeName := base + "Funcs"
-    type := pod.type(typeName, false)
-    // echo("~~> $spec.lib base=$base -> $typeName -> $type")
-    if (type == null) return null
-
-    // method name is same as func; special cases handled with _name
-    funcName := spec.name
-    if (lib.name == "axon")
-    {
-      if (funcName == "toStr" || funcName == "as" || funcName == "is" ||
-          funcName == "equals" || funcName == "trap")
-        funcName = "_" + funcName
-    }
-    method := type.method(funcName, false)
-    if (method == null) return null
-
-    // verify method has facet
-    if (!method.hasFacet(Api#)) throw Err("Method missing @Api facet: $method.qname")
-    return StaticMethodThunk(method)
-  }
-
-  private Str thunkFantomBaseName(Lib lib)
-  {
-    // resolve fantom type BaseFuncs where base is spec name
-    // of the libExt otherwise the last name of the dotted lib name
-    libExt := lib.meta["libExt"]?.toStr
-    if (libExt != null)
-    {
-       name := XetoUtil.qnameToName(libExt)
-       if (name.endsWith("Ext")) name = name[0..-4]
-       return name
-    }
-    else
-    {
-      return XetoUtil.lastDottedName(lib.name).capitalize
-    }
+    ThunkFactory.cur.create(spec, pod)
   }
 }
 

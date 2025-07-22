@@ -214,6 +214,8 @@ const class TopFn : Fn
     cx.checkCall(this)
     return super.callx(cx, args, callLoc)
   }
+
+  internal static const Obj?[] noArgs := Obj?[,]
 }
 
 **************************************************************************
