@@ -169,12 +169,11 @@ const class MathFuncs
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::median"] }
   static Obj? median(Obj? val, Obj? acc)
   {
-    if (val === NA.val || acc === NA.val) return NA.val
-    fold := acc as NumberFold
-    if (val === AxonFuncs.foldStart) return NumberFold()
-    if (val !== AxonFuncs.foldEnd)  return fold.add(val)
-    if (fold.isEmpty) return null
-    return Number(fold.median, fold.unit)
+    if (val === AxonFuncs.foldStart) return Fold.createAxon("median")
+    fold := (Fold)acc
+    if (val === AxonFuncs.foldEnd) return fold.finish
+    if (val != null) fold.add(val)
+    return fold
   }
 
   **
@@ -191,33 +190,11 @@ const class MathFuncs
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::rootMeanSquareErr"] }
   static Obj? rootMeanSquareErr(Obj? val, Obj? acc, Number nDegrees := Number.zero)
   {
-    if (val === NA.val || acc === NA.val) return NA.val
-    fold := acc as NumberFold
-    if (val === AxonFuncs.foldStart) return NumberFold()
-    if (val !== AxonFuncs.foldEnd)  return fold.add(val)
-
-    // this function came from PNL, but I'm not sure its
-    // quite correct because it uses median as the "truth"
-    // value which seems hokey
-
-    // compute median
-    if (fold.isEmpty) return null
-    median := fold.median
-
-    // is sample size smaller than degrees of freedom return null
-    if (fold.size <= nDegrees.toInt) return null
-
-    // compute Σ(xᵢ - median)²
-    sumsq := 0f
-    for (i:=0; i<fold.size; ++i)
-    {
-      diff := fold[i] - median
-      sumsq += diff * diff
-    }
-
-    // put it together
-    rmse := 1f / (fold.size - nDegrees.toInt) * sumsq.sqrt;
-    return Number(rmse, fold.unit)
+    if (val === AxonFuncs.foldStart) return Fold.createAxon("rootMeanSquareErr", Etc.dict1("n", nDegrees))
+    fold := (Fold)acc
+    if (val === AxonFuncs.foldEnd) return fold.finish
+    if (val != null) fold.add(val)
+    return fold
   }
 
   **
@@ -234,32 +211,11 @@ const class MathFuncs
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::meanBiasErr"] }
   static Obj? meanBiasErr(Obj? val, Obj? acc, Number nDegrees := Number.zero)
   {
-    if (val === NA.val || acc === NA.val) return NA.val
-    fold := acc as NumberFold
-    if (val === AxonFuncs.foldStart) return NumberFold()
-    if (val !== AxonFuncs.foldEnd)  return fold.add(val)
-
-    // this function came from PNL, but I'm not sure its
-    // quite correct because it uses median as the "truth"
-    // value which seems hokey
-
-    // compute median
-    if (fold.isEmpty) return null
-    median := fold.median
-
-    // is sample size smaller than degrees of freedom return null
-    if (fold.size <= nDegrees.toInt) return null
-
-    // compute Σ(xᵢ - median)
-    sum := 0f
-    for (i:=0; i<fold.size; ++i)
-    {
-      sum += fold[i] - median
-    }
-
-    // put it together
-    mbe := 1f / (fold.size - nDegrees.toInt) * sum;
-    return Number(mbe, fold.unit)
+    if (val === AxonFuncs.foldStart) return Fold.createAxon("meanBiasErr", Etc.dict1("n", nDegrees))
+    fold := (Fold)acc
+    if (val === AxonFuncs.foldEnd) return fold.finish
+    if (val != null) fold.add(val)
+    return fold
   }
 
   **
@@ -273,27 +229,12 @@ const class MathFuncs
   @Api @Axon { meta = ["foldOn":"Number", "disKey":"ui::standardDeviation"] }
   static Obj? standardDeviation(Obj? val, Obj? acc)
   {
-    if (val === NA.val || acc === NA.val) return NA.val
-    fold := acc as NumberFold
-    if (val === AxonFuncs.foldStart) return NumberFold()
-    if (val !== AxonFuncs.foldEnd)  return fold.add(val)
-
-    // compute mean
-    if (fold.isEmpty) return null
-    mean := fold.mean
-
-    sumsq := 0f
-    for (i:=0; i<fold.size; ++i)
-    {
-      diff := fold[i] - mean
-      sumsq += diff * diff
-    }
-
-    // put it together
-    stdDev := (sumsq / (fold.size - 1)).sqrt
-    return Number(stdDev, fold.unit)
+    if (val === AxonFuncs.foldStart) return Fold.createAxon("standardDeviation")
+    fold := (Fold)acc
+    if (val === AxonFuncs.foldEnd) return fold.finish
+    if (val != null) fold.add(val)
+    return fold
   }
-
 
   **
   ** Computes the p*th* quantile of a list of numbers, according to the specified interpolation method.
@@ -357,14 +298,11 @@ const class MathFuncs
   @NoDoc @Api @Axon
   static Obj? quantileFold(Obj? val, Obj? acc, Number perc, Str method)
   {
-    if (val === NA.val || acc === NA.val) return NA.val
-    fold := acc as NumberFold
-    if (val === AxonFuncs.foldStart) return NumberFold()
-    if (val !== AxonFuncs.foldEnd)   return fold.add(val)
-    if (fold.isEmpty)              return null
-
-    Number? out := Number(fold.quantile(perc.toFloat, method), fold.unit)
-    return out
+    if (val === AxonFuncs.foldStart) return Fold.createAxon("quantile", Etc.dict2("percent", perc, "method", method))
+    fold := (Fold)acc
+    if (val === AxonFuncs.foldEnd) return fold.finish
+    if (val != null) fold.add(val)
+    return fold
   }
 
 //////////////////////////////////////////////////////////////////////////

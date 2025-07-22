@@ -248,7 +248,7 @@ internal abstract class FoldNum : Fold
   internal Unit? unit := undefined_unit
 }
 
-@Js internal enum class FoldNumMode { first, na, ok }
+@NoDoc @Js enum class FoldNumMode { first, na, ok }
 
 **************************************************************************
 ** FoldSum

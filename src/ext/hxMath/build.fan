@@ -34,7 +34,17 @@ class Build : BuildPod
                 "hx @{hx.depend}"]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`]
-    index   = ["xeto.bindings":"hx.math", "ph.lib": "math"]
+    index   = [
+      "xeto.bindings":"hx.math",
+      "ph.lib": "math",
+      "haystack.fold": [
+        "median",
+        "rootMeanSquareErr",
+        "meanBiasErr",
+        "standardDeviation",
+        "quantile",
+      ]
+    ]
   }
 }
 
