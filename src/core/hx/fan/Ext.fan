@@ -11,6 +11,7 @@ using concurrent
 using xeto
 using haystack
 using obs
+using folio
 
 **
 ** Extension
@@ -34,8 +35,14 @@ const mixin Ext
   ** Xeto spec for this extension
   Spec spec() { spi.spec }
 
+  ** TODO: remove in favor of settings
+  virtual Dict rec() { spi.settings }
+
   ** Settings for the extension
-  virtual Dict rec() { spi.rec }
+  virtual Dict settings() { spi.settings }
+
+  ** Asynchronously update extension settings
+  Void settingsUpdate(Diff diff) { spi.settingsUpdate(diff) }
 
   ** Logger to use for this extension
   Log log() { spi.log }
@@ -101,9 +108,12 @@ const mixin Ext
   ** This is called on dedicated background actor.
   virtual Void onSteadyState() {}
 
-  ** Callback when associated database `rec` is modified.
+** TODO
+@Deprecated virtual Void onRecUpdate() {}
+
+  ** Callback when associated settings are modified.
   ** This is called on dedicated background actor.
-  virtual Void onRecUpdate() {}
+  virtual Void onSettings() {}
 
   ** Callback made periodically to perform background tasks.
   ** Override `houseKeepingFreq` to enable the frequency of this callback.
@@ -160,7 +170,8 @@ const mixin ExtSpi
   abstract Proj proj()
   abstract Str name()
   abstract Spec spec()
-  abstract Dict rec()
+  abstract Dict settings()
+  abstract Void settingsUpdate(Diff diff)
   abstract Log log()
   abstract Bool isRunning()
   abstract Actor actor()

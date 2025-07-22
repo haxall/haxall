@@ -46,7 +46,7 @@ const class HxExtSpi : Actor, ExtSpi
       if (type.name == "Dict") { log.warn("Missing fantom type binding: $spec"); return null }
 
       // read settings
-      settings := exts.proj.settingsMgr.readExt(name)
+      settings := exts.proj.settingsMgr.extRead(name)
 
       // create spi instance
       spi := HxExtSpi(exts.proj, name, spec, type, settings, exts.actorPool)
@@ -72,9 +72,9 @@ const class HxExtSpi : Actor, ExtSpi
     }
   }
 
-  private new make(Proj proj, Str name, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
+  private new make(HxProj proj, Str name, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
   {
-    this.proj        = proj
+    this.projRef     = proj
     this.name        = name
     this.qname       = spec.qname
     this.log         = Log.get(name)
@@ -89,7 +89,8 @@ const class HxExtSpi : Actor, ExtSpi
   ExtObj ext() { extRef.val }
   private const AtomicRef extRef := AtomicRef()
 
-  override const Proj proj
+  override Proj proj() { projRef }
+  const HxProj projRef
 
   override const Str name
 
@@ -99,8 +100,13 @@ const class HxExtSpi : Actor, ExtSpi
 
   override Spec spec() { proj.ns.spec(qname) }
 
-  override Dict rec() { settingsRef.val }
+  override Dict settings() { settingsRef.val }
   private const AtomicRef settingsRef
+
+  override Void settingsUpdate(Diff diff)
+  {
+    projRef.settingsMgr.extUpdate(this, diff)
+  }
 
   override const Log log
 
@@ -156,7 +162,7 @@ const class HxExtSpi : Actor, ExtSpi
   Void update(Dict settings)
   {
     settingsRef.val = typedRec(settings)
-    send(HxMsg("recUpdate", null))
+    send(HxMsg("settings"))
   }
 
   Dict typedRec(Dict dict)
@@ -184,7 +190,7 @@ const class HxExtSpi : Actor, ExtSpi
     {
       if (msg.id === "obs")         return onObs(msg)
       if (msg.id === "sync")        return "synced"
-      if (msg.id === "recUpdate")   return onRecUpdate
+      if (msg.id === "settings")    return onSettings
       if (msg.id === "start")       return onStart
       if (msg.id === "ready")       return onReady
       if (msg.id === "steadyState") return onSteadyState
@@ -245,9 +251,9 @@ const class HxExtSpi : Actor, ExtSpi
     return null
   }
 
-  private Obj? onRecUpdate()
+  private Obj? onSettings()
   {
-    ext.onRecUpdate
+    ext.onSettings
     return null
   }
 

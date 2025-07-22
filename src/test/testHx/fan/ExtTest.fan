@@ -93,6 +93,51 @@ class ExtTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Settings
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testSettings()
+  {
+    HxTestExt ext := addExt("hx.test")
+    verifySettings(ext, Etc.dict0)
+
+    // make some invalid updates
+    ext.traces.val = ""
+    verifyErr(UnknownNameErr#) { ext.settingsUpdate(Diff(Etc.dict0, null)) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff.makeAdd(["foo":m])) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, null, Diff.remove)) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["id":Remove.val])) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["mod":Remove.val])) }
+    verifyEq(ext.traces.val, "")
+
+    // make update
+    ext.settingsUpdate(Diff(ext.settings, ["foo":"bar"]))
+    ext.spi.sync
+    verifySettings(ext, Etc.dict1("foo", "bar"))
+    verifyEq(ext.traces.val, "onSettings[$ext.settings]\n")
+
+    // make another update
+    ext.traces.val = ""
+    ext.settingsUpdate(Diff(ext.settings, ["foo":Remove.val, "timeout":n(123)]))
+    ext.spi.sync
+    verifySettings(ext, Etc.dict1("timeout", n(123)))
+    verifyEq(ext.traces.val, "onSettings[$ext.settings]\n")
+
+    // now remove, re-add ext with predefined settings
+    proj.libs.remove(ext.name)
+    ext = addExt("hx.test", ["init":"abc", "beach":m])
+    verifySettings(ext, Etc.dict2("init", "abc", "beach", m))
+  }
+
+  Void verifySettings(Ext ext, Dict expect)
+  {
+    actual := ext.settings
+    expect = Etc.dictMerge(expect, ["id":Ref("ext.$ext.name"), "mod":actual->mod])
+    verifyDictEq(actual, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Services
 //////////////////////////////////////////////////////////////////////////
 
@@ -155,5 +200,6 @@ const class HxTestExt : ExtObj
   override Void onSteadyState() { trace("onSteadyState") }
   override Void onUnready() { trace("onUnready[$isRunning]") }
   override Void onStop() { trace("onStop[$isRunning]") }
+  override Void onSettings() { trace("onSettings[$settings]") }
 }
 

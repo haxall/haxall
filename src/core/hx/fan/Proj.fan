@@ -51,7 +51,7 @@ const mixin Proj
   ** in a sub-directory named 'db/', and namespace support in 'ns/'
   abstract File dir()
 
-  ** Project metadata stored in the `projMeta` database record
+  ** Project metadata
   abstract Dict meta()
 
   ** Folio database for this project
