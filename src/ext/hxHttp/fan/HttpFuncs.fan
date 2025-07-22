@@ -7,6 +7,7 @@
 //   22 Sep 2021  Brian Frank  Port to Haxall
 //
 
+using xeto
 using axon
 using haystack
 using hx
@@ -17,7 +18,7 @@ using hx
 const class HttpFuncs
 {
   ** Primary HTTP or HTTPS Uri - see `hx::HxHttpService.siteUri`
-  @Axon
+  @Api @Axon
   static Uri httpSiteUri() { curContext.sys.http.siteUri }
 
   ** Current context
