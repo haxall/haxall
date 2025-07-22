@@ -222,7 +222,7 @@ internal class Parser
     return spec
   }
 
- ** Parse type for a spec including maybe/compound types
+  ** Parse type for a spec including maybe/compound types
   private Void parseSpecType(ASpec spec, ASpecRef? typeRef := null)
   {
     if (typeRef == null)
@@ -309,6 +309,9 @@ internal class Parser
 
       if (cur === Token.rbrace) break
 
+      // embedded meta
+      if (cur=== Token.lt) { parseEmeddedMeta(parent); continue }
+
       // name: spec | marker | unnamed-spec
       ASpec? slot
       if (cur === Token.id && peek == Token.colon)
@@ -346,6 +349,25 @@ internal class Parser
     if (peek === Token.doubleColon) return false
 
     return true
+  }
+
+  private Void parseEmeddedMeta(ASpec parent)
+  {
+    consume(Token.lt)
+    loc := curToLoc
+    name := consumeName("Expecting embedded meta tag name")
+    val := null
+    if (cur !== Token.colon)
+    {
+      val = sys.markerScalar(loc)
+    }
+    else
+    {
+      consume
+      val = parseData
+    }
+    consume(Token.gt)
+    add("meta", parent.metaInit.map, name, val)
   }
 
 //////////////////////////////////////////////////////////////////////////

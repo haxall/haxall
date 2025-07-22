@@ -27,3 +27,12 @@ MetaInheritB: MetaInheritA <metaNum:"123"> {
   y: Str
 }
 
+MetaInheritAltA: Dict {
+  <metaQ>
+  <metaR>
+}
+
+MetaInheritAltB: MetaInheritAltA {
+  <metaNum:"123">
+}
+

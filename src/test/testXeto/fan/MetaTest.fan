@@ -27,12 +27,13 @@ class MetaTest : AbstractXetoTest
     ns.libs
     lib := ns.lib("hx.test.xeto")
 
-    q := lib.metaSpec("metaQ")
-    r := lib.metaSpec("metaR")  // noInherit
-    n := lib.metaSpec("metaNum")
-    a := lib.type("MetaInheritA")
-    b := lib.type("MetaInheritB")
-    s := lib.type("MetaInheritB")
+    q  := lib.metaSpec("metaQ")
+    r  := lib.metaSpec("metaR")  // noInherit
+    n  := lib.metaSpec("metaNum")
+    a  := lib.type("MetaInheritA")
+    b  := lib.type("MetaInheritB")
+    a2 := lib.type("MetaInheritAltA")
+    b2 := lib.type("MetaInheritAltB")
     ax := a.slot("x")
     ay := a.slot("y")
     bx := b.slot("x")
@@ -45,6 +46,10 @@ class MetaTest : AbstractXetoTest
     verifyHasMeta(b,  b.meta,  ["metaNum":Number(123), "metaQ":m])
     verifyHasMeta(bx, bx.meta, ["metaQ":m, "metaR":m])
     verifyHasMeta(by, by.meta, ["metaQ":m])
+
+    // alts use embedded meta
+    verifyHasMeta(a2, a.meta,  ["metaQ":m, "metaR":m])
+    verifyHasMeta(b2, b.meta,  ["metaNum":Number(123), "metaQ":m])
 
     // verify xmeta is inferred from meta defs
     alpha := ns.spec("hx.test.xeto::Alpha")
