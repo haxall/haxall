@@ -226,109 +226,101 @@ class CompileTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
+    // first test with triple quotes
     lib := ns.compileLib(
-       Str<|Foo: {}
-              --- bar
+       Str<|Foo: {
+              bar: """
               line 1
                 line 2
 
               line 4
-              ---
-
-            bar: Str <meta>
+              """
+              }
            |>)
     foo := lib.type("Foo")
-
-    verifyHeredoc(foo, "bar",
+    verifyHeredoc(foo.slot("bar").meta["val"],
       Str<|line 1
              line 2
 
-           line 4|>)
+           line 4
+           |>)
 
+    // same with heredoc
     lib = ns.compileLib(
-       """Foo: {}
-          \t--- bar
-          \tline 1
-          \t line 2
-          \t---
-          bar: Str <meta>
-          """)
-
-    foo = lib.type("Foo")
-
-    verifyHeredoc(foo, "bar",
-      """line 1
-          line 2""")
-
-    lib = ns.compileLib(
-       Str<|Foo: {}
-              --- bar
+       Str<|Foo: {
+              bar: ---
               line 1
                 line 2
 
               line 4
-              --- baz
-                line a
-              line b
-                line c
               ---
-
-              bar: Str <meta>
-              baz: Str <meta>
-              |>)
+              }
+           |>)
     foo = lib.type("Foo")
-
-    verifyHeredoc(foo, "bar",
+    verifyHeredoc(foo.slot("bar").meta["val"],
       Str<|line 1
              line 2
 
-           line 4|>)
-    verifyHeredoc(foo, "baz",
-      Str<|  line a
-           line b
-             line c|>)
+           line 4
+           |>)
 
-   // instance data
-   lib = ns.compileLib(
-       Str<|@a: {
-              bar
-              --- baz
-              line 1
-                line 2
+    // tabs
+    lib = ns.compileLib(
+       """Foo: {
+            \tbar: ---
+            \t line 1
+            \t   line 2
+
+            \tline 4
               ---
               }
+           """)
+    foo = lib.type("Foo")
+    verifyHeredoc(foo.slot("bar").meta["val"],
+      Str<| line 1
+              line 2
 
-            @b: {
-              bar
-              --- baz
-              line 1
-                line 2
-              --- qux
-              some--
-              --code
+           line 4
+           |>)
+
+    // heredoc don't use escape sequences
+    lib = ns.compileLib(
+       Str<|Foo: {
+              bar: ---
+              line1: "foo"
+              line2: $foo
+              line3: """foo"""
               ---
               }
-            @c: {
-              tag1
-              --- tag2
-              line 1
-                line 2
-              --- empty
-              ---
-              tag3
-              }|>)
-    a := lib.instance("a")
-    b := lib.instance("b")
-    c := lib.instance("c")
+           |>)
+    foo = lib.type("Foo")
+    verifyHeredoc(foo.slot("bar").meta["val"],
+      Str<|line1: "foo"
+           line2: $foo
+           line3: """foo"""
+           |>)
 
-    verifyDictEq(a, ["id":a->id, "bar":m, "baz":"line 1\n  line 2"])
-    verifyDictEq(b, ["id":b->id, "bar":m, "baz":"line 1\n  line 2", "qux":"some--\n--code"])
-    verifyDictEq(c, ["id":c->id, "tag1":m, "tag2":"line 1\n  line 2", "empty":"", "tag3":m])
+    // heredoc with multiple -
+    lib = ns.compileLib(
+       Str<|Foo: {
+              bar: -----
+              line1
+              ---- // ok
+              line3
+              -----
+              }
+           |>)
+    foo = lib.type("Foo")
+    verifyHeredoc(foo.slot("bar").meta["val"],
+      Str<|line1
+           ---- // ok
+           line3
+           |>)
   }
 
-  Void verifyHeredoc(Spec spec, Str metaName, Str expect)
+  Void verifyHeredoc(Str actual, Str expect)
   {
-    actual := spec.meta[metaName]
+    // echo("verify heredoc"); echo("---"); echo(actual); echo("---")
     verifyEq(actual, expect)
   }
 

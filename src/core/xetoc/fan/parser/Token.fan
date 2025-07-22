@@ -30,7 +30,6 @@ internal enum class Token
   question    ("?"),
   amp         ("&"),
   pipe        ("|"),
-  heredoc     ("---"),
   nl          ("newline"),
   comment     ("comment"),
   eof         ("eof");
@@ -44,17 +43,5 @@ internal enum class Token
   const Str dis
   const Str symbol
   override Str toStr() { dis }
-}
-
-**************************************************************************
-** Heredoc
-**************************************************************************
-
-internal const class Heredoc
-{
-  new make(Str n, Str v) { name = n; val = v }
-  const Str name
-  const Str val
-  override Str toStr() { "Heredoc $name" }
 }
 

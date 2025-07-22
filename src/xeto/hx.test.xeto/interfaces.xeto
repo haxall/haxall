@@ -22,6 +22,7 @@ ping2: Api { returns: Date }
 //////////////////////////////////////////////////////////////////////////
 
 // add in Axon
+/*
 add1: Func { a: Number, b: Number, returns: Number }
   --- axon
   a + b
@@ -52,6 +53,7 @@ add4: Func { a: Number, b: Number, returns: Number }
     }
   }
   ---
+*/
 
 //////////////////////////////////////////////////////////////////////////
 // Interfaces

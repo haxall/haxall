@@ -33,9 +33,8 @@ internal class Tokenizer
 
   ** Current token value based on type:
   **  - id: identifier string
-  **  - literals: the literal value
+  **  - scalar: the literal value
   **  - comment: comment line if keepComments set
-  **  - heredoc: Heredoc
   **  - ParseErr: the error message
   Obj? val
 
@@ -191,7 +190,7 @@ internal class Tokenizer
     if (isTriple)
     {
       lines.add(s.toStr)
-      this.val = normTripleQuotedStr(lines)
+      this.val = normMultiLineStr(lines)
     }
     else
     {
@@ -200,7 +199,60 @@ internal class Tokenizer
     return Token.scalar
   }
 
-  private Str normTripleQuotedStr(Str[] lines)
+  private Token heredoc()
+  {
+    // consume "---"
+    consume
+    consume
+    consume
+    numDashes := 3
+    while (cur == '-') { numDashes++; consume }
+    skipSpaces
+
+    // expect newline
+    if (cur != '\n') throw err("Must have newline after heredoc ---")
+
+    // now read all lines up until "---"
+    lines := Str[,]
+    s := StrBuf()
+    while (true)
+    {
+      if (cur == 0) throw err("Unexpected end of heredoc")
+
+      // after newline must have whitespace up to startCol
+      if (cur == '\n')
+      {
+        lines.add(s.toStr)
+        s = StrBuf()
+      }
+
+      // check if end of heredoc
+      if (isHeredocEnd(numDashes))
+      {
+        numDashes.times { consume }
+        break
+      }
+
+      s.addChar(cur)
+      consume
+    }
+    lines.add(s.toStr)
+
+    this.val = normMultiLineStr(lines)
+    return Token.scalar
+  }
+
+  private Bool isHeredocEnd(Int numDashes)
+  {
+    if (cur != '-') return false
+    for (i := 0; i<numDashes; ++i)
+    {
+      if (buf[pos+i-2] != '-') return false
+    }
+    return true
+  }
+
+  private Str normMultiLineStr(Str[] lines)
   {
     if (lines.isEmpty) return ""
     if (lines.size == 1) return lines[0]
@@ -416,76 +468,6 @@ internal class Tokenizer
     if (c == 0) return Token.eof
 
     throw err("Unexpected symbol: " + c.toChar.toCode('\'') + " (0x" + c.toHex + ")")
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Heredoc
-//////////////////////////////////////////////////////////////////////////
-
-  private Token heredoc()
-  {
-    // consume "---"
-    startCol := curCol
-    consume
-    consume
-    consume
-    skipSpaces
-
-    // name
-    if (!cur.isAlpha) throw err("Expecting heredoc name")
-    id
-    Str name := val
-    skipSpaces
-
-    // expect newline
-    if (cur != '\n') throw err("Expecting newline after heredoc name")
-
-    // now read all lines up until "---"
-    s := StrBuf()
-    firstNewline := true
-    while (true)
-    {
-      if (cur == 0) throw err("Unexpected end of heredoc")
-
-      // after newline must have whitespace up to startCol
-      if (cur == '\n')
-      {
-        if (firstNewline) firstNewline = false
-        else s.add("\n")
-        consume
-        skipSpaces
-        if  (cur == '\n') continue
-        if (curCol < startCol) throw err("Heredoc must be aligned with column ${startCol}")
-        if (curCol > startCol) s.add(Str.spaces(curCol - startCol))
-      }
-
-      // check if end of heredoc; if the "---" is proceeded by another name
-      // then we have chained heredocs so we don't consume the "---", otherwise
-      // this is the end of the heredocs so consume the "---"
-      if (cur == '-' && peek == '-' && peekPeek == '-')
-      {
-        if (isHeredocEnd) { consume; consume; consume }
-        break
-      }
-
-      s.addChar(cur)
-      consume
-    }
-    if (s.size > 0 && s[-1] == '\n') s.remove(-1)
-    val := s.toStr
-
-    this.val = Heredoc(name, val)
-    return Token.heredoc
-  }
-
-  private Bool isHeredocEnd()
-  {
-    // skip spaces after "---"
-    i := pos+1
-    while (i<buf.size && isSpace(buf[i])) ++i
-
-    // we are at end of chain if eof or newline
-    return i >= buf.size || buf[i] == '\n'
   }
 
 //////////////////////////////////////////////////////////////////////////
