@@ -36,6 +36,8 @@ internal const class HxProjWatches : ProjWatches
   const HxProj proj          // parent project
   const ConcurrentMap byId   // Str:HxWatch
 
+  Folio db() { proj.db }
+
   override HxWatch[] list()
   {
     byId.vals(HxWatch#)
@@ -68,9 +70,8 @@ internal const class HxProjWatches : ProjWatches
 
   override Bool isWatched(Ref id)
   {
-//    rec := proj.db.rec(id, false)
-//    return rec != null && rec.numWatches.val > 0
-throw Err("TODO")
+    rec := proj.db.readRecById(id, false)
+    return rec != null && rec.watchCount > 0
   }
 
   override Void checkExpires()
@@ -160,13 +161,11 @@ internal const class HxWatch : Watch
     refs.each |HxWatchRef r|
     {
       if (!r.ok) return
-/*
-      rec := service.db.rec(r.id, false)
+      rec := service.db.readRecById(r.id, false)
       if (rec != null && rec.ticks > t.ticks)
       {
         acc.add(rec.dict)
       }
-*/
     }
     return acc
   }
@@ -188,26 +187,22 @@ internal const class HxWatch : Watch
       if (refs[id] != null) return
 
       // lookup rec and verify ok = found and canRead
-/*
-      rec := service.db.rec(id, false)
-      ok := rec != null && (cx == null || cx.canRead(rec.dict))
+      rec := service.db.readRecById(id, false)
+      ok := rec != null
       refs[id] = HxWatchRef(id, ok)
 
       // if ok, then see if this is a first watch
       if (ok)
       {
-        firstWatch := rec.numWatches.getAndIncrement == 0
-        if (firstWatch)
+        newCount := rec.watchIncrement
+        if (newCount == 1)
         {
           if (firstRecs == null) firstRecs = Dict[,]
           firstRecs.add(rec.dict)
         }
       }
-*/
     }
-// TODO
-//obs := (HxObsService)proj.obs
-//    if (firstRecs != null) obs.watches.fireWatch(firstRecs)
+    if (firstRecs != null) proj.obsRef.watches.fireWatch(firstRecs)
   }
 
   override Void removeAll(Ref[] ids)
@@ -216,24 +211,20 @@ internal const class HxWatch : Watch
     Dict[]? lastRecs
     ids.each |id|
     {
-/* TODO
       wr := refs.remove(id) as HxWatchRef
       if (wr == null || !wr.ok) return
-      rec := service.db.rec(id, false)
+      rec := service.db.readRecById(id, false)
       if (rec != null)
       {
-        lastWatch := rec.numWatches.decrementAndGet == 0
-        if (lastWatch)
+        newCount := rec.watchDecrement
+        if (newCount == 0)
         {
           if (lastRecs == null) lastRecs = Dict[,]
           lastRecs.add(rec.dict)
         }
       }
-*/
     }
-// TODO
-//obs := (HxObsService)rt.obs
-//    if (lastRecs != null) obs.watches.fireUnwatch(lastRecs)
+    if (lastRecs != null) proj.obsRef.watches.fireUnwatch(lastRecs)
   }
 
   override Void set(Ref[] ids)
