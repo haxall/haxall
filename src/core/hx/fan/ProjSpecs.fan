@@ -7,6 +7,7 @@
 //
 
 using xeto
+using haystack
 
 **
 ** Manage Xeto specs in the project library
@@ -36,5 +37,10 @@ const mixin ProjSpecs
 
   ** Remove given project spec and reload namespace
   abstract Void remove(Str name)
+
+  ** Add an axon function.  This parses the axon param signature
+  ** and generates the correct xeto spec.  Raise exception if axon
+  ** cannot be parsed.  Return new func spec.
+  abstract Spec addFunc(Str name, Str src, Dict meta := Etc.dict0)
 }
 

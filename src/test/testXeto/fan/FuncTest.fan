@@ -20,12 +20,12 @@ using hx
 @Js
 class FuncTest : AbstractXetoTest
 {
-  Void testNamespace()
+  Void testBasics()
   {
-    verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestNamespace(ns) }
+    verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestBasics(ns) }
   }
 
-  private Void doTestNamespace(LibNamespace ns)
+  private Void doTestBasics(LibNamespace ns)
   {
     lib := ns.lib("hx.test.xeto")
 
@@ -36,7 +36,24 @@ class FuncTest : AbstractXetoTest
     verifyEq(num.isFunc, false)
     verifyErr(UnsupportedErr#) { num.func }
 
-    // Axon
+    // ping1
+    f := lib.spec("ping1")
+    verifyFunc(ns, f, [,], "sys::Date")
+    TestAxonContext(ns).asCur |cx|
+    {
+      verifyEq(f.func.thunk.callList, Date.today)
+    }
+
+    // ping2 (missing facet)
+    f = lib.spec("ping2")
+    verifyFunc(ns, f, [,], "sys::Date")
+    TestAxonContext(ns).asCur |cx|
+    {
+      msg := "Method missing @Api facet: testXeto::XetoFuncs.ping2"
+      verifyErrMsg(Err#, msg) { f.func.thunk.callList }
+    }
+
+    // add
     verifyAdd(ns, lib.spec("add1"), true)  // Axon
     verifyAdd(ns, lib.spec("add2"), true)  // Fantom
     verifyAdd(ns, lib.spec("add3"), false) // not allowed
@@ -88,40 +105,6 @@ class FuncTest : AbstractXetoTest
     }
     verifyEq(f.func.returns.type.qname, ret)
   }
-}
-
-**************************************************************************
-** FuncApiTest
-**************************************************************************
-
-**
-** FuncApiTest
-**
-class FuncApiTest : AbstractXetoTest
-{
-  /* TODO
-  Void testNamespace()
-  {
-    verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestNamespace(ns) }
-  }
-
-  private Void doTestNamespace(LibNamespace ns)
-  {
-    lib := ns.lib("hx.test.xeto")
-
-    // Api - ping1
-    f := lib.spec("ping1")
-    verifyGlobalFunc(ns, f, [,], "sys::Date")
-    verifyEq(f.func.api is Method, true)
-    verifyEq(f.func.api->call(null), Date.today)
-
-    // Api - ping2 (missing facet)
-    f = lib.spec("ping2")
-    verifyGlobalFunc(ns, f, [,], "sys::Date")
-    verifyEq(f.func.api(false), null)
-    verifyErr(UnsupportedErr#) { f.func.api }
-  }
-    */
 }
 
 **************************************************************************

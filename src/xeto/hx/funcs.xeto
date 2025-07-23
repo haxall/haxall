@@ -349,6 +349,3 @@ unitdb: Func { returns: Grid }
 // Debug dump of all threads
 threadDump: Func <nodoc, su> { returns: Str }
 
-// Debug dump of all threads
-foo: Func <nodoc, su> { returns: Obj? }
-

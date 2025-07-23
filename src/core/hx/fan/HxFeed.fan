@@ -9,7 +9,6 @@
 using concurrent
 using xeto
 using haystack
-using axon
 
 **
 ** HxFeed manages a data stream subscription for one client side view

@@ -212,14 +212,31 @@ class ProjTest : HxTest
     verifyEq(p.ns.libStatus("hx"),   LibStatus.ok)
 
     // now simple one
-    cx := makeContext
-    verifyEq(cx.eval("today()"), Date.today)
+    verifyEq(eval("today()"), Date.today)
 
     // as maps to _as
-    verifyEq(cx.eval("as(3, 1ft)"), n(3, "ft"))
+    verifyEq(eval("as(3, 1ft)"), n(3, "ft"))
 
     // read is lazy
-    verifyDictEq(cx.eval("read(projMeta)"), p.meta)
+    verifyDictEq(eval("read(projMeta)"), p.meta)
+
+    // create axon func in proj
+    f := addFunc("foo1", "() => today()")
+    verifyEq(eval("foo1()"), Date.today)
+    verifyDictEq(f.metaOwn, Etc.dict1("axon", "() => today()\n"))
+    verifyEq(f.func.params.size, 0)
+    verifyEq(f.func.returns.type.qname, "sys::Obj")
+
+    // create axon func in proj with meta + params
+    f = addFunc("foo2", "(a, b) => a + b", ["admin":m, "maxSize":n(123)])
+    verifyEq(eval("foo2(3, 4)"), n(7))
+    verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a, b) => a + b\n", "admin", m, "maxSize", 123))
+    verifyEq(f.func.params.size, 2)
+    verifyEq(f.func.params[0].name, "a")
+    verifyEq(f.func.params[1].name, "b")
+    verifyEq(f.func.params[0].type.qname, "sys::Obj")
+    verifyEq(f.func.params[1].type.qname, "sys::Obj")
+    verifyEq(f.func.returns.type.qname, "sys::Obj")
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -11,6 +11,7 @@ using xeto
 using xetom
 using haystack
 using xetoc
+using axon
 using hx
 
 **
@@ -98,6 +99,55 @@ const class HxProjSpecs : ProjSpecs
   {
     buf := writeFormat(name, body)
     fb.write("${name}.xeto", buf)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Axon
+//////////////////////////////////////////////////////////////////////////
+
+  override Spec addFunc(Str name, Str src, Dict meta := Etc.dict0)
+  {
+    // parse axon
+    fn := Parser(Loc(name), src.in).parseTop(name, meta)
+
+    // write xeto spec for func
+    s := StrBuf()
+    s.capacity = 100 + src.size
+    s.add("Func")
+    if (!meta.isEmpty)
+    {
+      s.add(" <")
+      first := true
+      meta.each |v, n|
+      {
+        if (first) first = false
+        else s.add(", ")
+        s.add(n)
+        if (v != Marker.val) s.add(":").add(v.toStr.toCode)
+      }
+      s.add(">")
+    }
+    s.add(" { ")
+    first := true
+    fn.params.each |p, i|
+    {
+      if (first) first = false
+      else s.add(", ")
+      s.add(p.name).add(": Obj?")
+    }
+    if (!first) s.add(", ")
+    s.add("returns: Obj?\n")
+    s.add("<axon:---\n")
+    linenum := 0
+    src.eachLine |line|
+    {
+      linenum++
+      if (line.contains("---")) throw Err("Axon cannot contain --- [line $linenum]")
+      s.add(line).add("\n")
+    }
+    s.add("--->}\n")
+
+    return add(name, s.toStr)
   }
 
 //////////////////////////////////////////////////////////////////////////

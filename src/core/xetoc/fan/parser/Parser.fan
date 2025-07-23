@@ -143,7 +143,7 @@ internal class Parser
   private Void parseLibObjEnd(Str obj)
   {
     if (cur === Token.eof) return
-    if (cur !== Token.nl) throw err("Expecting newline after lib $obj, not $curToStr")
+    if (cur !== Token.nl) throw err("Expecting newline after $obj, not $curToStr")
     skipNewlines
   }
 

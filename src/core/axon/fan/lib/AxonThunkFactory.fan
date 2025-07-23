@@ -92,6 +92,7 @@ const class AxonThunkFactory : ThunkFactory
 
   private TopFn? parseAxon(Spec spec, Dict meta, Str src)
   {
+    /*
     // wrap src with parameterized list
     s := StrBuf(src.size + 256)
     s.addChar('(')
@@ -103,8 +104,9 @@ const class AxonThunkFactory : ThunkFactory
     s.add(")=>do\n")
     s.add(src)
     s.add("\nend")
+    */
 
-    return Parser(Loc(spec.qname), s.toStr.in).parseTop(spec.name, meta)
+    return Parser(Loc(spec.qname), src.in).parseTop(spec.name, meta)
   }
 
   private TopFn? parseComp(Spec spec, Dict meta, Str src)

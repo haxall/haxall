@@ -9,8 +9,8 @@
 using concurrent
 using xeto
 using haystack
-using folio
 using axon
+using folio
 
 **
 ** HxTest is a base class for writing Haxall tests which provide
@@ -172,6 +172,12 @@ abstract class HxTest : HaystackTest
   Ext addExt(Str libName, Str:Obj? tags := Str:Obj?[:])
   {
     spi.addExt(libName, tags)
+  }
+
+  ** Convenience for 'proj.specs.addFunc'
+  Spec addFunc(Str name, Str src, Obj? meta := null)
+  {
+    proj.specs.addFunc(name, src, Etc.makeDict(meta))
   }
 
   ** Add user record to the user database.  If the user
