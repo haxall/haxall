@@ -39,8 +39,8 @@ class ConnTest : HxTest
   Void verifyModel(Str prefix, Str flags)
   {
     libName := "hx." + prefix
-    rt.libs.add(libName)
-    lib := (ConnExt)rt.ext(libName)
+    proj.libs.add(libName)
+    lib := (ConnExt)proj.ext(libName)
     lib.spi.sync
 
     m := lib.model
@@ -123,21 +123,21 @@ class ConnTest : HxTest
       [p1, p2, p4])
 
     // remove sql lib
-    rt.libs.remove("hx.sql")
+    proj.libs.remove("hx.sql")
     verifyService(
       ["haystack"],
       [c1, c2],
       [p1, p2])
 
     // remove haystack lib
-    rt.libs.remove("hx.haystack")
+    proj.libs.remove("hx.haystack")
     verifyService(
       Str[,],
       [,],
       [,])
 
     // verify bad
-    c := rt.conn
+    c := proj.conn
     verifyEq(c.ext("bad", false), null)
     verifyErr(UnknownConnExtErr#) { c.ext("bad") }
     verifyErr(UnknownConnExtErr#) { c.ext("bad", true) }
@@ -151,7 +151,7 @@ class ConnTest : HxTest
 
   private Void verifyService(Str[] libs, Dict[] conns, Dict[] points)
   {
-    c := rt.sync.conn
+    c := proj.sync.conn
     /*
     echo("--- Service ---")
     echo("  libs:   " + c.libs.join(","))
@@ -180,7 +180,7 @@ class ConnTest : HxTest
     p4 := addRec(["dis":"P4", "haystackConnRef":c2.id, "point":m])
     p5 := addRec(["dis":"P5", "haystackConnRef":c3.id, "point":m])
     p6 := addRec(["dis":"P6", "haystackConnRef":c3.id, "point":m])
-    rt.sync
+    proj.sync
 
     verifyPointsToConn([,], Str[,])
     verifyPointsToConn([p2], ["C1: P2"])
@@ -193,7 +193,7 @@ class ConnTest : HxTest
   Void verifyPointsToConn(Dict[] pointRecs, Str[] expected)
   {
     actual := Str[,]
-    points := pointRecs.map |rec->ConnPoint| { rt.conn.point(rec.id) }
+    points := pointRecs.map |rec->ConnPoint| { proj.conn.point(rec.id) }
     ConnUtil.eachConnInPointIds(rt, points) |c, pts|
     {
       actual.add("$c.dis: " + pts.join(",") { it.dis })
@@ -212,7 +212,7 @@ class ConnTest : HxTest
     // empty roster
     lib := (ConnExt)addLib("haystack")
     rec := addRec(["dis":"Test Conn", "haystackConn":m])
-    rt.sync
+    proj.sync
     c := lib.conn(rec.id)
 
     // start off empty
@@ -318,7 +318,7 @@ class ConnTest : HxTest
 
     // add connector
     c1 := addRec(["dis":"C1", "haystackConn":m])
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1],
@@ -327,7 +327,7 @@ class ConnTest : HxTest
     // add two more
     c2 := addRec(["dis":"C2", "haystackConn":m])
     c3 := addRec(["dis":"C3", "haystackConn":m])
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1],
@@ -343,7 +343,7 @@ class ConnTest : HxTest
 
     // modify c2
     c2 = commit(c2, ["change":m, "dis":"C2x"])
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1],
@@ -359,7 +359,7 @@ class ConnTest : HxTest
     p1b := addRec(["dis":"1B", "point":m, "haystackConnRef":c1.id, "haystackCur":"2", "kind":"Number"])
     p1c := addRec(["dis":"1C", "point":m, "haystackConnRef":c1.id, "haystackCur":"3", "kind":"Number"])
     p2a := addRec(["dis":"2A", "point":m, "haystackConnRef":c2.id, "haystackCur":"4", "kind":"Number"])
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1, p1a, p1b, p1c],
@@ -375,7 +375,7 @@ class ConnTest : HxTest
     // update pt
     conn1.trace.clear
     p1b = commit(p1b, ["dis":"1Bx", "change":"it"])
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1, p1a, p1b, p1c],
@@ -387,7 +387,7 @@ class ConnTest : HxTest
       ])
 
     // setup points in watch
-    watch := rt.watch.open("test")
+    watch := proj.watch.open("test")
     watch.addAll([p1a.id, p1b.id, p1c.id])
     verifyWatched(conn1, [p1a, p1b, p1c])
     watch.remove(p1c.id)
@@ -398,7 +398,7 @@ class ConnTest : HxTest
     conn3.trace.clear
     p1bOld := conn1.point(p1b.id)
     p1b = commit(p1b, ["dis":"3A", "haystackConnRef":c3.id])
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1, p1a, p1c],
@@ -419,7 +419,7 @@ class ConnTest : HxTest
     p4a := addRec(["dis":"4A", "point":m, "haystackConnRef":c4id, "haystackCur":"4a", "kind":"Number"])
     p4b := addRec(["dis":"4B", "point":m, "haystackConnRef":"bad ref", "haystackCur":"4b", "kind":"Number"])
     watch.addAll([p4a.id, p4b.id])
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1, p1a, p1c],
@@ -430,7 +430,7 @@ class ConnTest : HxTest
     // now add c4
     c4 := addRec(["id":c4id, "dis":"C4", "haystackConn":m])
     verifyEq(c4.id, c4id)
-    rt.sync
+    proj.sync
     conn4 := lib.conn(c4.id)
     conn4.trace.enable
     verifyRoster(lib,
@@ -446,7 +446,7 @@ class ConnTest : HxTest
 
     // fix p4b which had bad ref
     p4b = commit(p4b, ["haystackConnRef":c4.id])
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1, p1a, p1c],
@@ -465,7 +465,7 @@ class ConnTest : HxTest
     conn4.trace.clear
     p4a = commit(p4a, ["point":Remove.val])
     p4b = commit(p4b, ["trash":m])
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1, p1a, p1c],
@@ -483,7 +483,7 @@ class ConnTest : HxTest
     conn4.trace.clear
     p4a = commit(p4a, ["point":m])
     p4b = commit(p4b, ["trash":Remove.val])
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1, p1a, p1c],
@@ -504,7 +504,7 @@ class ConnTest : HxTest
     verifyEq(c3Old.isAlive, true)
     c2 = commit(c2, ["haystackConn":Remove.val])
     c3 = commit(c3, ["trash":m])
-    rt.sync
+    proj.sync
     verifyErr(UnknownConnErr#) { lib.conn(c2.id) }
     verifyErr(UnknownConnErr#) { lib.conn(c3.id, true) }
     verifyEq(c2Old.isAlive, false)
@@ -518,7 +518,7 @@ class ConnTest : HxTest
     // add back c2 and c3
     c2 = commit(c2, ["haystackConn":m])
     c3 = commit(c3, ["trash":Remove.val])
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1, p1a, p1c],
@@ -531,9 +531,9 @@ class ConnTest : HxTest
     verifyWatched(conn4, [p4a, p4b])
 
     // now restart lib
-    rt.libs.remove(lib.name)
+    proj.libs.remove(lib.name)
     lib = addLib("hx.haystack")
-    rt.sync
+    proj.sync
     verifyRoster(lib,
       [
        [c1, p1a, p1c],
@@ -579,20 +579,20 @@ class ConnTest : HxTest
       verifyEq(c.id, exRec.id)
       verifyEq(c.dis, exRec.dis)
       verifySame(lib.conn(exRec.id), c)
-      verifySame(rt.conn.conn(c.id), c)
+      verifySame(proj.conn.conn(c.id), c)
 
       // points
       verifyPoints(lib, c.points, exPts, false)
       c.points.each |pt|
       {
         verifySame(pt.conn, c)
-        verifySame(rt.conn.point(pt.id), pt)
+        verifySame(proj.conn.point(pt.id), pt)
       }
 
       // connPoints axon func
       Dict[] ptRecs := eval("connPoints($c.id.toCode)")
       verifyEq(ptRecs.size, c.points.size)
-      verifyDictsEq(ptRecs, rt.db.readByIdsList(c.pointIds))
+      verifyDictsEq(ptRecs, proj.db.readByIdsList(c.pointIds))
 
       // bad points
       verifyEq(c.point(Ref.gen, false), null)
@@ -625,7 +625,7 @@ class ConnTest : HxTest
       verifyEq(a.dis, e.dis)
       verifySame(lib.point(id), a)
       verifySame(a.conn.point(id), a)
-      verifySame(rt.conn.point(id), a)
+      verifySame(proj.conn.point(id), a)
 
       // verify Conn.point wrong connector
       lib.conns.each |c|
@@ -648,7 +648,7 @@ class ConnTest : HxTest
 
   Void verifyWatched(Conn c, Dict[] points, Dict[]? expectedInWatch := points)
   {
-    rt.sync
+    proj.sync
     c.sync
     //echo("-- verifyWatched $c.dis " + points.join(",") { it.dis })
 
@@ -679,7 +679,7 @@ class ConnTest : HxTest
 
     // conn with defaults
     cr := addRec(["dis":"TestConn", "haystackConn":m])
-    rt.sync
+    proj.sync
     c := lib.conn(cr.id)
     verifyEq(c.id, cr.id)
     verifyEq(c.dis, "TestConn")
@@ -754,7 +754,7 @@ class ConnTest : HxTest
   Void verifyPtFault(ConnPoint p, Str tag, Obj? val, Str msg)
   {
     rec := commit(readById(p.id), [tag: val ?: Remove.val])
-    rt.sync
+    proj.sync
     p.conn.sync
     //echo("-- $tag = $val $p.fault")
     verifyEq(p.id, rec.id)
@@ -783,7 +783,7 @@ class ConnTest : HxTest
     // setup connectors
     c1rec := addRec(["dis":"C1", connTag:m])
     c2rec := addRec(["dis":"C2", connTag:m])
-    rt.sync
+    proj.sync
     c1 := lib.conn(c1rec.id)
     c2 := lib.conn(c2rec.id)
     c1b := verifyBuckets(c1, null, [,])
@@ -803,7 +803,7 @@ class ConnTest : HxTest
     // add tuning rec
     tx := addRec(["dis":"TX", "connTuning":m, "pollTime":n(30, "sec")])
     p4 := addRec(["dis":"P4", "point":m, connTagRef:c1.id, "connTuningRef":tx.id, "kind":"Number"])
-    rt.sync
+    proj.sync
     lib.fw.spi.sync
     verifyEq(lib.fw.tunings.get(tx.id).dis, "TX")
     verifyEq(lib.fw.tunings.get(tx.id).pollTime, 30sec)
@@ -886,9 +886,9 @@ class ConnTest : HxTest
       ])
 
     // restart
-    rt.libs.remove(name)
+    proj.libs.remove(name)
     lib = addLib(name)
-    rt.sync
+    proj.sync
     c1 = lib.conn(c1rec.id)
     c2 = lib.conn(c2rec.id)
     c1b = verifyBuckets(c1, null, [
@@ -902,7 +902,7 @@ class ConnTest : HxTest
 
   ConnPollBucket[] verifyBuckets(Conn c, ConnPollBucket[]? old, Obj[][] expected)
   {
-    rt.sync
+    proj.sync
     c.ext.spi.sync
     c.sync
 
@@ -947,7 +947,7 @@ class ConnTest : HxTest
     c1rec := addRec(["dis":"C1", "connTestConn":m])
     c2rec := addRec(["dis":"C2", "connTestConn":m, "disabled":m])
     forceSteadyState
-    rt.sync
+    proj.sync
     c1 := lib.conn(c1rec.id)
     c2 := lib.conn(c2rec.id)
 

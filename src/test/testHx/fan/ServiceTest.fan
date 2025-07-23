@@ -91,14 +91,14 @@ fail
   @HxTestProj
   Void testFile()
   {
-    rt.dir.plus(`io/`).create
+    proj.dir.plus(`io/`).create
 
     // "io/"
     f := verifyFileResolve(`io/`, true)
     verifyEq(f.isDir, true)
     verifyEq(f.list, File[,])
     if (sys.info.rt.isSkySpark)
-      verifyEq(f.parent.uri, `/proj/${rt.name}/`)
+      verifyEq(f.parent.uri, `/proj/${proj.name}/`)
     else
       verifyEq(f.parent, null)
 
@@ -136,7 +136,7 @@ fail
 
   File verifyFileResolve(Uri uri, Bool exists)
   {
-    f := rt.exts.file.resolve(uri)
+    f := proj.exts.file.resolve(uri)
     verifyEq(f.uri, normUri(uri))
     verifyEq(f.isDir, uri.isDir)
     verifyEq(f.exists, exists)
@@ -147,7 +147,7 @@ fail
   {
     if (uri.toStr.startsWith("io/"))
     {
-      return sys.info.rt.isSkySpark ? "/proj/${rt.name}/${uri}".toUri : uri
+      return sys.info.rt.isSkySpark ? "/proj/${proj.name}/${uri}".toUri : uri
     }
     return uri
   }
@@ -156,7 +156,7 @@ fail
   {
     try
     {
-      f := rt.exts.file.resolve(uri)
+      f := proj.exts.file.resolve(uri)
       verify(!f.exists)
     }
     catch (UnsupportedErr e)

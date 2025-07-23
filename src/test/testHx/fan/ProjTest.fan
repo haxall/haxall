@@ -172,9 +172,9 @@ class ProjTest : HxTest
   Void testMeta()
   {
     // verify test setup with meta data correctly
-    rec := rt.db.read(Filter("projMeta"))
-    meta := rt.meta
-    verifySame(rt.meta, meta)
+    rec := proj.read("projMeta")
+    meta := proj.meta
+    verifySame(proj.meta, meta)
     verifyEq(meta.id, rec.id)
     verifyEq(meta->dis, "My Test")
     verifyEq(meta->steadyState, n(100, "ms"))
@@ -182,8 +182,8 @@ class ProjTest : HxTest
 
     // verify changes to meta
     rec = commit(rec, ["dis":"New Dis", "newTag":"!"])
-    verifyNotSame(rt.meta, meta)
-    meta = rt.meta
+    verifyNotSame(proj.meta, meta)
+    meta = proj.meta
     verifyEq(meta->dis, "New Dis")
     verifyEq(meta->newTag, "!")
 
@@ -194,9 +194,9 @@ class ProjTest : HxTest
     verifyErr(CommitErr#) { commit(rec, ["trash":m]) }
 
     // verify steady state timer
-    verifyEq(rt.isSteadyState, false)
+    verifyEq(proj.isSteadyState, false)
     Actor.sleep(150ms)
-    verifyEq(rt.isSteadyState, true)
+    verifyEq(proj.isSteadyState, true)
   }
 //////////////////////////////////////////////////////////////////////////
 // Axon

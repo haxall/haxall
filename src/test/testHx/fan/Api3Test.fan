@@ -48,7 +48,7 @@ class Api3Test : ApiTest
   private Void verifyAbout(Client c)
   {
     about := c.about
-    verifyEq(about->haystackVersion,      rt.defs.lib("ph").version.toStr)
+    verifyEq(about->haystackVersion,      proj.defs.lib("ph").version.toStr)
     verifyEq(about->whoami,               c.auth->user)
     verifyEq(about->tz,                   TimeZone.cur.name)
     verifyEq(about->productName,          sys.info.productName)
@@ -137,7 +137,7 @@ class Api3Test : ApiTest
   private Void verifyCommit(Client c)
   {
     // add
-    db := rt.db
+    db := proj.db
     verifyEq(db.readCount(Filter("foo")), 0)
     Grid g := c.call("commit", Etc.makeMapGrid(["commit":"add"], ["dis":"Commit Test", "foo":m]))
     r := g.first as Dict
@@ -230,7 +230,7 @@ class Api3Test : ApiTest
   private Void doWatches()
   {
     // haystack: watchSub
-    w := rt.watch
+    w := proj.watch
     verifyEq(w.isWatched(siteA.id), false)
     verifyEq(w.isWatched(eqA1.id), false)
     res := c.call("watchSub", Etc.makeListGrid(["watchDis":"test", "lease":n(17, "min")], "id", null, [siteA.id, eqA1.id]))
@@ -299,9 +299,9 @@ class Api3Test : ApiTest
     res = c.call("hisWrite", gb.toGrid)
 
     // verify ptA got written
-    rt.sync
-    ptA = rt.db.readById(ptA.id)
-    ptB = rt.db.readById(ptB.id)
+    proj.sync
+    ptA = proj.readById(ptA.id)
+    ptB = proj.readById(ptB.id)
     verifyEq(ptA["hisSize"], n(9))
     verifyEq(ptB["hisSize"], n(3))
 

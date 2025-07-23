@@ -32,7 +32,7 @@ class ObserveTest : HxTest
     verifyNotObservable("obsFoo")
 
     // add lib
-    rt.libs.add("hx.hxTestA")
+    proj.libs.add("hx.hxTestA")
     os := verifyObservable("obsSchedule")
     oc := verifyObservable("obsCommits")
     ox := verifyObservable("obsTest")
@@ -43,7 +43,7 @@ class ObserveTest : HxTest
     sx:= subscribe(ox, null)
 
     // remove lib
-    rt.libs.remove("hx.hxTestA")
+    proj.libs.remove("hx.hxTestA")
     verifyObservable("obsCommits")
     verifyObservable("obsSchedule")
     verifyNotObservable("obsTest")
@@ -56,18 +56,18 @@ class ObserveTest : HxTest
 
   private Observable verifyObservable(Str name)
   {
-    o := rt.obs.get(name)
+    o := proj.obs.get(name)
     verifyEq(o.name, name)
-    verifyEq(rt.obs.list.containsSame(o), true)
+    verifyEq(proj.obs.list.containsSame(o), true)
     return o
   }
 
   private Void verifyNotObservable(Str name)
   {
-    verifyEq(rt.obs.get(name, false), null)
-    verifyErr(UnknownObservableErr#) { rt.obs.get(name) }
-    verifyErr(UnknownObservableErr#) { rt.obs.get(name, true) }
-    verifyEq(rt.obs.list.find |o| { o.name == name }, null)
+    verifyEq(proj.obs.get(name, false), null)
+    verifyErr(UnknownObservableErr#) { proj.obs.get(name) }
+    verifyErr(UnknownObservableErr#) { proj.obs.get(name, true) }
+    verifyEq(proj.obs.list.find |o| { o.name == name }, null)
   }
 
   private Subscription subscribe(Observable o, Obj? configObj)
@@ -252,10 +252,10 @@ class ObserveTest : HxTest
     b1 := addRec(["dis":"B1", "bar":Marker.val])
     b2 := addRec(["dis":"B2", "bar":Marker.val])
     b3 := addRec(["dis":"B3", "bar":Marker.val])
-    rt.sync
+    proj.sync
     bar := TestObserver()
     commits(bar, ["obsAdds":m, "obsUpdates":m, "obsRemoves":m, "obsFilter":"bar", "obsAddOnInit":m])
-    rt.sync
+    proj.sync
     bar.sync
     msgs := (Dict[])bar.msgs.dup.sort |Dict a, Dict b->Int| { a.dis <=> b.dis }
     verifyEq(msgs.size, 3)
@@ -275,7 +275,7 @@ class ObserveTest : HxTest
 
   private Void verifyCommit(TestObserver o, Obj? expected)
   {
-    rt.sync
+    proj.sync
     actual := o.sync
     // echo("-- verifyCommit"); if (actual != null) Etc.dictDump(actual)
     if (expected == null)
@@ -322,7 +322,7 @@ class ObserveTest : HxTest
 
   private Subscription commits(TestObserver o, Obj? config)
   {
-    rt.obs.get("obsCommits").subscribe(o, Etc.makeDict(config))
+    proj.obs.get("obsCommits").subscribe(o, Etc.makeDict(config))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -339,17 +339,17 @@ class ObserveTest : HxTest
     e := addRec(["dis":"E", "bar":m])
     f := addRec(["dis":"F", "bar":m])
 
-    x := TestObserver(); xs := rt.obs.get("obsWatches").subscribe(x, Etc.dict0)
-    y := TestObserver(); ys := rt.obs.get("obsWatches").subscribe(y, Etc.dict1("obsFilter", "foo"))
-    z := TestObserver(); zs := rt.obs.get("obsWatches").subscribe(z, Etc.dict1("obsFilter", "bar"))
+    x := TestObserver(); xs := proj.obs.get("obsWatches").subscribe(x, Etc.dict0)
+    y := TestObserver(); ys := proj.obs.get("obsWatches").subscribe(y, Etc.dict1("obsFilter", "foo"))
+    z := TestObserver(); zs := proj.obs.get("obsWatches").subscribe(z, Etc.dict1("obsFilter", "bar"))
     clear := |->| { x.clear; y.clear; z.clear }
 
     verifyWatch(x, null, null)
     verifyWatch(y, null, null)
     verifyWatch(z, null, null)
 
-    w1 := rt.watch.open("w1")
-    w2 := rt.watch.open("w2")
+    w1 := proj.watch.open("w1")
+    w2 := proj.watch.open("w2")
 
     // b, c, d, e into watch
     w1.addAll([b.id, c.id, d.id, e.id])
@@ -394,7 +394,7 @@ class ObserveTest : HxTest
 
   private Void verifyWatch(TestObserver o, Str? subType, Dict[]? expected)
   {
-    rt.sync
+    proj.sync
     Dict? actual := o.sync
     // echo("\n-- verifyWatch")
     // if (actual != null) { Etc.dictDump(actual); echo(((Dict[])actual->recs).map |r| { r.dis }) }
@@ -419,8 +419,8 @@ class ObserveTest : HxTest
     a1 := addRec(["dis":"A", "foo":m])
     b1 := addRec(["dis":"B", "bar":m])
 
-    x := TestObserver(); xs := rt.obs.get("obsCurVals").subscribe(x, Etc.dict0)
-    y := TestObserver(); ys := rt.obs.get("obsCurVals").subscribe(y, Etc.dict1("obsFilter", "foo"))
+    x := TestObserver(); xs := proj.obs.get("obsCurVals").subscribe(x, Etc.dict0)
+    y := TestObserver(); ys := proj.obs.get("obsCurVals").subscribe(y, Etc.dict1("obsFilter", "foo"))
     verifyEq(xs.observable.name, "obsCurVals")
     clear := |->| { x.clear; y.clear }
 
@@ -453,7 +453,7 @@ class ObserveTest : HxTest
 
   private Void verifyCurVals(TestObserver o, Dict oldRec, Dict? newRec)
   {
-    rt.sync
+    proj.sync
     Dict? actual := o.sync
     // echo("\n-- verifyCurVals")
     // if (actual != null) Etc.dictDump(actual)
@@ -481,8 +481,8 @@ class ObserveTest : HxTest
     a := addRec(["dis":"A", "foo":m, "point":m, "his":m, "kind":"Number", "tz":tz.name])
     b := addRec(["dis":"B", "bar":m, "point":m, "his":m, "kind":"Number", "tz":tz.name])
 
-    x := TestObserver(); xs := rt.obs.get("obsHisWrites").subscribe(x, Etc.dict0)
-    y := TestObserver(); ys := rt.obs.get("obsHisWrites").subscribe(y, Etc.dict1("obsFilter", "foo"))
+    x := TestObserver(); xs := proj.obs.get("obsHisWrites").subscribe(x, Etc.dict0)
+    y := TestObserver(); ys := proj.obs.get("obsHisWrites").subscribe(y, Etc.dict1("obsFilter", "foo"))
     verifyEq(xs.observable.name, "obsHisWrites")
     clear := |->| { x.clear; y.clear }
 
@@ -492,7 +492,7 @@ class ObserveTest : HxTest
     date := Date("2021-08-30")
     ts1 := date.toDateTime(Time("00:01:00"), tz)
     items := [HisItem(ts1, n(1))]
-    rt.db.his.write(a.id, items)
+    proj.db.his.write(a.id, items)
 
     verifyHisWrites(x, a, 1, ts1, ts1)
     verifyHisWrites(y, a, 1, ts1, ts1)
@@ -501,7 +501,7 @@ class ObserveTest : HxTest
     ts2 := date.toDateTime(Time("00:02:00"), tz)
     ts3 := date.toDateTime(Time("00:03:00"), tz)
     items = [HisItem(ts1, n(1)), HisItem(ts2, n(2)), HisItem(ts3, n(3)), HisItem(ts3, n(4))] // dup ts3
-    rt.db.his.write(b.id, items)
+    proj.db.his.write(b.id, items)
 
     verifyHisWrites(x, b, 3, ts1, ts3)
     verifyHisWrites(y, b, -1, null, null)
@@ -509,9 +509,9 @@ class ObserveTest : HxTest
 
   private Void verifyHisWrites(TestObserver o, Dict rec, Int count, DateTime? start, DateTime? end)
   {
-    rt.sync
+    proj.sync
     Dict? actual := o.sync
-    rec = rt.db.readById(rec.id)
+    rec = proj.readById(rec.id)
     // echo("\n-- verifyHisWrites")
     // if (actual != null) Etc.dictDump(actual->rec)
     if (start == null)

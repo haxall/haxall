@@ -387,7 +387,7 @@ class HxFuncsTest : HxTest
   @HxTestProj
   Void testDiff()
   {
-    db := rt.db
+    db := proj.db
 
     // diff only - add
     Diff? d
@@ -438,7 +438,7 @@ class HxFuncsTest : HxTest
   @HxTestProj
   Void testCommit()
   {
-    db := rt.db
+    db := proj.db
 
     Dict a := eval("""commit(diff(null, {dis:"A", foo, count:10}, {add}))""")
     verifyDictEq(db.readById(a.id), ["dis":"A", "foo":m, "count":n(10), "id":a.id, "mod":a->mod])
@@ -462,24 +462,24 @@ class HxFuncsTest : HxTest
   @HxTestProj
   Void testLibs()
   {
-  /*
+  /* TODO
     // initial state
-    verifyEq(rt.libsOld.get("math", false), null)
+    verifyEq(proj.libsOld.get("math", false), null)
 
     // add
     rec := eval("libAddOld(\"math\")")
-    verifyEq(rt.libsOld.get("math").rec, rec)
+    verifyEq(proj.libsOld.get("math").rec, rec)
 
     Grid status := eval("libStatusOld()")
     verifyDictEq(status.find { it->name == "math" }, ["name":"math", "libStatus":"ok"])
 
     // remove
     eval("libRemoveOld(\"math\")")
-    verifyEq(rt.libsOld.get("math", false), null)
+    verifyEq(proj.libsOld.get("math", false), null)
 
     // add again
     rec = eval("libAddOld(\"math\", {foo})")
-    verifyEq(rt.libsOld.get("math").rec, rec)
+    verifyEq(proj.libsOld.get("math").rec, rec)
     verifyEq(rec->foo, Marker.val)
 */
 throw Err("TODO")
@@ -494,18 +494,18 @@ throw Err("TODO")
   {
     // add
     Spec spec := eval("""projSpecAdd("Foo", "Dict{}")""")
-    verifySame(spec, rt.ns.spec("proj::Foo"))
-    verifySame(spec.base, rt.ns.spec("sys::Dict"))
+    verifySame(spec, proj.ns.spec("proj::Foo"))
+    verifySame(spec.base, proj.ns.spec("sys::Dict"))
 
     // update
     spec = eval("""projSpecUpdate("Foo", "Scalar")""")
-    verifySame(spec, rt.ns.spec("proj::Foo"))
-    verifySame(spec.base, rt.ns.spec("sys::Scalar"))
+    verifySame(spec, proj.ns.spec("proj::Foo"))
+    verifySame(spec.base, proj.ns.spec("sys::Scalar"))
 
     // rename
     spec = eval("""projSpecRename("Foo", "Bar")""")
-    verifySame(spec, rt.ns.spec("proj::Bar"))
-    verifySame(spec.base, rt.ns.spec("sys::Scalar"))
+    verifySame(spec, proj.ns.spec("proj::Bar"))
+    verifySame(spec.base, proj.ns.spec("sys::Scalar"))
 
     // read
     src := eval("""projSpecRead("Bar")""")
@@ -516,7 +516,7 @@ throw Err("TODO")
 
     // remove
     eval("""projSpecRemove("Bar")""")
-    verifyEq(rt.ns.spec("proj::Foo", false), null)
+    verifyEq(proj.ns.spec("proj::Foo", false), null)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -591,7 +591,7 @@ throw Err("TODO")
   @HxTestProj
   Void testStripUncommittable()
   {
-    db := rt.db
+    db := proj.db
 
     r := addRec(["dis":"Test", "foo":m])
     db.commit(Diff(r, ["bar":"what"], Diff.transient))
@@ -622,7 +622,7 @@ throw Err("TODO")
   @HxTestProj
   Void testStreams()
   {
-    db := rt.db
+    db := proj.db
 
     // create test database
     a := addRec(["dis":"andy",    "age":n(10), "young":m])
@@ -688,12 +688,12 @@ throw Err("TODO")
     c := addRec(["dis":"c", "test":m, "bar":m])
 
     // open watch
-    verifyEq(rt.watch.list.size, 0)
+    verifyEq(proj.watch.list.size, 0)
     Grid grid := eval("""readAll(test).watchOpen("!").sort("dis")""")
     Str watchId := grid.meta->watchId
-    watch := rt.watch.get(watchId)
+    watch := proj.watch.get(watchId)
     watch.poll
-    verifyEq(rt.watch.list.size, 1)
+    verifyEq(proj.watch.list.size, 1)
     verifyEq(watch.dis, "!")
     verifyEq(watch.list.size, 3)
     verifyEq(grid.size, 3)
@@ -722,18 +722,18 @@ throw Err("TODO")
     grid = eval("""watchPoll($watchId.toCode).sort("dis")""")
     verifyEq(grid.size, 1)
     verifyEq(grid[0]->dis, "a")
-    watch = rt.watch.get(watchId)
+    watch = proj.watch.get(watchId)
     verifyEq(watch.list, [a.id])
 
     // watchAdd
     grid = eval("""watchAdd($watchId.toCode, readAll(dis=="c"))""")
     verifyEq(grid.size, 1)
-    watch = rt.watch.get(watchId)
+    watch = proj.watch.get(watchId)
     verifyEq(watch.list.sort, [a.id, c.id].sort)
 
     // close watch
     eval("""watchClose($watchId.toCode)""")
-    verifyEq(rt.watch.list.size, 0)
+    verifyEq(proj.watch.list.size, 0)
     verifyEq(watch.isClosed, true)
   }
 
@@ -758,7 +758,7 @@ throw Err("TODO")
     verifyEq(d->username, cx.user.username)
     verifyEq(d->locale, Locale.cur.toStr)
 
-    verifyEq(cx.eval("isSteadyState()"), rt.isSteadyState)
+    verifyEq(cx.eval("isSteadyState()"), proj.isSteadyState)
   }
 
 //////////////////////////////////////////////////////////////////////////

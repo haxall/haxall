@@ -84,7 +84,7 @@ class ConnTuningTest : HxTest
 
     // add tuning for library
     ext.settingsUpdate(Diff(ext.settings, ["connTuningRef":t1.id]))
-    rt.sync
+    proj.sync
     verifyEq(ext.tuning.id, t1.id)
     verifyEq(ext.conn(c.id).tuning.id, t1.id)
     verifyEq(ext.point(pt.id).tuning.id, t1.id)
@@ -114,8 +114,8 @@ class ConnTuningTest : HxTest
     verifyTuning(fw, ext, pt, t3, 3sec)
 
     // restart and verify everything gets wired up correctly
-    rt.libs.remove("hx.haystack")
-    rt.libs.remove("hx.conn")
+    proj.libs.remove("hx.haystack")
+    proj.libs.remove("hx.conn")
     fw = addExt("hx.conn")
     ext = addExt("hx.haystack", ["connTuningRef":t1.id])
     sync(c)
@@ -145,7 +145,7 @@ class ConnTuningTest : HxTest
 
   Void verifyTunings(ConnFwExt fw, Dict[] expected)
   {
-    rt.sync
+    proj.sync
     actual := fw.tunings.list.dup.sort |a, b| { a.dis <=> b.dis }
     verifyEq(actual.size, expected.size)
     actual.each |a, i|
@@ -179,7 +179,7 @@ class ConnTuningTest : HxTest
     cr := addRec(["dis":"C1", "connTestConn":m])
     pt := addRec(["dis":"Pt", "point":m, "writable":m, "connTestWrite":"a", "connTestConnRef":cr.id, "connTuningRef":t.id, "kind":"Number", "writeConvert":"*10"])
 
-    rt.sync
+    proj.sync
     c  := lib.conn(cr.id)
 
     verifyWriteOnStartAndOnOpen(c)
@@ -206,7 +206,7 @@ class ConnTuningTest : HxTest
     verifyEq(c.point(q.id).tuning.writeOnStart, false)
 
     // initial state
-    verifyEq(rt.isSteadyState, false)
+    verifyEq(proj.isSteadyState, false)
     verifyWrite(y, "unknown", null, 17, null, null)
     verifyWrite(x, "unknown", null, 17, null, null)
     verifyWrite(d, "unknown", null, 17, null, null)
@@ -216,7 +216,7 @@ class ConnTuningTest : HxTest
     write(c, y, n(10), 16)
     write(c, x, n(20), 16)
     write(c, d, n(30), 16)
-    verifyEq(rt.isSteadyState, false)
+    verifyEq(proj.isSteadyState, false)
     verifyWrite(y, "unknown", n(10), 16, null, null)
     verifyWrite(x, "unknown", n(20), 16, null, null)
     verifyWrite(d, "unknown", n(30), 16, null, null)
@@ -225,9 +225,8 @@ class ConnTuningTest : HxTest
     // now wait for steady state, then give time for hxPoint
     // msgs to propogate thru to the connector framework
     forceSteadyState
-    verifyEq(rt.isSteadyState, true)
-    rt.sync
-    rt.sync
+    verifyEq(proj.isSteadyState, true)
+    proj.sync
     c.sync
 
     // we should have seen the isFirst applied for yes, but not no/default
@@ -397,10 +396,10 @@ class ConnTuningTest : HxTest
     verify(Duration.now - lastCurTime(pt) > 100ms)
 
     // put into a watch and verify read
-    w := rt.watch.open("verifyStaleTime")
+    w := proj.watch.open("verifyStaleTime")
     w.add(pt.id)
     sync(c)
-    verifyEq(rt.watch.isWatched(pt.id), true)
+    verifyEq(proj.watch.isWatched(pt.id), true)
     verifyEq(c.point(pt.id).isWatched, true)
     verifyCurVal(pt, n(1977), "ok")
     verify(Duration.now - lastCurTime(pt) < 30ms)
@@ -413,7 +412,7 @@ class ConnTuningTest : HxTest
 
     // now unwatch the point
     w.remove(pt.id)
-    verifyEq(rt.watch.isWatched(pt.id), false)
+    verifyEq(proj.watch.isWatched(pt.id), false)
 
     // next house keeping should transition to stale
     wait(60ms)
@@ -434,7 +433,7 @@ class ConnTuningTest : HxTest
 
   Dict verifyWrite(Dict rec, Str status, Obj? tagVal, Int? tagLevel, Obj? lastVal, Int? lastLevel)
   {
-    Conn c := rt.exts.conn.point(rec.id).conn
+    Conn c := proj.exts.conn.point(rec.id).conn
     rec = readById(rec.id)
     last := c.send(HxMsg("lastWrite", rec.id)).get(1sec)
     // echo("-- $rec.dis " + rec["writeStatus"] + " " + rec["writeVal"] + " @ " + rec["writeLevel"] + " | last=$last | " + rec["writeErr"])
@@ -450,7 +449,7 @@ class ConnTuningTest : HxTest
 
   Void verifyWriteDebug(Dict rec, Bool writePending, Str writeLastInfo)
   {
-    lines       := rt.exts.conn.point(rec.id).details.splitLines
+    lines       := proj.exts.conn.point(rec.id).details.splitLines
     linePending := lines.find |x| { x.contains("writePending:") }
     lineLastInfo:= lines.find |x| { x.contains("writeLastInfo:") }
     // echo("-- $rec.dis $linePending | $lineLastInfo")
@@ -460,7 +459,7 @@ class ConnTuningTest : HxTest
 
   Dict verifyCurVal(Dict rec, Obj? val, Str status)
   {
-    Conn c := rt.exts.conn.point(rec.id).conn
+    Conn c := proj.exts.conn.point(rec.id).conn
     c.sync
 
     rec = readById(rec.id)
@@ -476,12 +475,12 @@ class ConnTuningTest : HxTest
 
   Duration lastCurTime(Dict pt)
   {
-    Duration.make(rt.exts.conn.point(pt.id)->curState->lastUpdate)
+    Duration.make(proj.exts.conn.point(pt.id)->curState->lastUpdate)
   }
 
   Duration lastWriteTime(Dict pt)
   {
-    Duration.make(rt.exts.conn.point(pt.id)->writeState->lastUpdate)
+    Duration.make(proj.exts.conn.point(pt.id)->writeState->lastUpdate)
   }
 
   Int numWrites(Conn c)
@@ -491,7 +490,7 @@ class ConnTuningTest : HxTest
 
   Void write(Conn c, Dict rec, Obj? val, Int level)
   {
-    rt.exts.point.pointWrite(rec, val, level, "test").get
+    proj.exts.point.pointWrite(rec, val, level, "test").get
     sync(c)
   }
 
@@ -503,18 +502,18 @@ class ConnTuningTest : HxTest
 
   Void sync(Obj? c)
   {
-    rt.sync
+    proj.sync
     if (c == null) return
     if (c is Conn)
       ((Conn)c).sync
     else
-      ((Conn)rt.exts.conn.conn(Etc.toId(c))).sync
+      ((Conn)proj.exts.conn.conn(Etc.toId(c))).sync
   }
 
   Void forceHouseKeeping(Conn c)
   {
     c.forceHouseKeeping.get(1sec)
-    rt.sync
+    proj.sync
   }
 }
 

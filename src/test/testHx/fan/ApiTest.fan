@@ -90,7 +90,7 @@ fail
   {
     if (sys.info.rt.isSkySpark) return
 
-    rec := rt.db.read(Filter("ext==\"http\""))
+    rec := proj.read("ext==\"http\"")
     host := IpAddr.local.hostname
     port := rec.has("httpPort") ? ((Number)rec->httpPort).toInt : 8080
     defSiteUri := `http://${host}:${port}/`
@@ -109,7 +109,7 @@ fail
 
   Void verifySiteUri(Uri expected)
   {
-    verifyEq(rt.sys.http.siteUri, expected)
+    verifyEq(proj.sys.http.siteUri, expected)
     verifyEq(eval("httpSiteUri()"), expected)
   }
 
