@@ -10,6 +10,7 @@
 using concurrent
 using xeto
 using xetom
+using haystack
 
 **
 ** AxonThunkFactory creates xeto func thunks which are also Axon functions
@@ -20,17 +21,19 @@ const class AxonThunkFactory : ThunkFactory
 
   override Thunk create(Spec spec, Pod? pod)
   {
+    // convert spec meta to TopFn meta we use for reflection in func()
+    meta := specToFnMeta(spec)
+
     // check for fantom method thunk
-    fn := loadThunkFantom(spec, pod)
+    fn := loadThunkFantom(spec, meta, pod)
     if (fn != null) return fn
 
     // check axon source
-    meta := spec.meta
-    code := meta["axon"] as Str
+    code := spec.meta["axon"] as Str
     if (code  != null) return parseAxon(spec, meta, code)
 
     // try axonComp xeto source
-    comp := meta["axonComp"] as Str
+    comp := spec.meta["axonComp"] as Str
     if (comp != null) return parseComp(spec, meta, comp)
 
     throw UnsupportedErr("Cannot resolve thunk: $spec [pod:$pod]")
@@ -40,7 +43,7 @@ const class AxonThunkFactory : ThunkFactory
 // Fantom
 //////////////////////////////////////////////////////////////////////////
 
-  private TopFn? loadThunkFantom(Spec spec, Pod? pod)
+  private TopFn? loadThunkFantom(Spec spec, Dict meta, Pod? pod)
   {
     if (pod == null) return null
 
@@ -54,19 +57,19 @@ const class AxonThunkFactory : ThunkFactory
     if (type == null) return null
 
     // method name is same as func; special cases handled with _name
-    funcName := spec.name
+    methodName := spec.name
     if (lib.name == "axon")
     {
-      if (funcName == "toStr" || funcName == "as" || funcName == "is" ||
-          funcName == "equals" || funcName == "trap")
-        funcName = "_" + funcName
+      n := methodName
+      if (n == "toStr" || n == "as" || n == "is" || n == "equals" || n == "trap" || n == "echo")
+        methodName = "_" + n
     }
-    method := type.method(funcName, false)
+    method := type.method(methodName, false)
     if (method == null) return null
 
     // verify method has facet
     if (!method.hasFacet(Api#)) throw Err("Method missing @Api facet: $method.qname")
-    return FantomFn.reflectMethod(method, funcName, spec.meta, null)
+    return FantomFn.reflectMethod(method, spec.name, meta, null)
   }
 
   private Str thunkFantomBaseName(Lib lib)
@@ -119,5 +122,20 @@ const class AxonThunkFactory : ThunkFactory
     spec.func.params.map |p->FnParam| { FnParam(p.name) }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Meta
+//////////////////////////////////////////////////////////////////////////
+
+  private static Dict specToFnMeta(Spec spec)
+  {
+    acc := Str:Obj[:]
+    acc["qname"] = spec.qname
+    spec.meta.each |v, n|
+    {
+      if (n == "axon" || n == "axonComp") return
+      acc[n] = v
+    }
+    return Etc.dictFromMap(acc)
+  }
 }
 

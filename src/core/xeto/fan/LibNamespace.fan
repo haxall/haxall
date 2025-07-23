@@ -141,23 +141,18 @@ const mixin LibNamespace
   abstract SpecEnum? xmetaEnum(Str qname, Bool checked := true)
 
   ** Iterate all the top-level types in libs.
-  ** In remote namespace this only iterates loaded libs.
   abstract Void eachType(|Spec| f)
 
   ** Iterate all top-level types in libs until callback returns non-null.
-  ** In remote namespace this only iterates loaded libs.
   abstract Obj? eachTypeWhile(|Spec->Obj?| f)
 
   ** Iterate all the instances in libs
-  ** In remote namespace this only iterates loaded libs.
   abstract Void eachInstance(|Dict| f)
 
   ** Iterate all the direct subtypes of given type
-  ** In remote namespace this only iterates loaded libs.
   abstract Void eachSubtype(Spec base, |Spec| f)
 
   ** Return if given type has at least one direct subtype.
-  ** In remote namespace this only iterates loaded libs.
   abstract Bool hasSubtypes(Spec base)
 
   ** Iterate instances that are nominally typed by given spec.

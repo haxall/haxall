@@ -69,16 +69,22 @@ internal const class AxonFuncsUtil
 
     // iterate the namespace: skip nodoc and filter mismatches
     acc := Dict[,]
-    cx.defs.feature("func").eachDef |def|
+    cx.ns.libs.each |lib|
     {
-      if (def.has("nodoc")) return
-      if (filter != null && !filter.matches(def, cx)) return
-      acc.add(def)
+      lib.funcs.each |func|
+      {
+        meta := func.meta
+        if (meta.has("nodoc")) return
+        meta = Etc.dictSet(meta, "qname", func.qname)
+        if (filter != null && !filter.matches(meta, cx)) return
+        acc.add(meta)
+      }
     }
 
     // strip src for security
     names := Etc.dictsNames(acc)
-    names.remove("src")
+    names.remove("axon")
+    names.moveTo("qname", 0)
     return GridBuilder().addColNames(names).addDictRows(acc).toGrid
   }
 
@@ -160,14 +166,10 @@ internal const class AxonFuncsUtil
     throw ArgErr("Invalid func name argument [$x.typeof]")
   }
 
-  ** Remove 'src' tag whenever returning funcs for security
-  ** NOTE: for reflected Fantom funcs, the TopFn.meta is the
-  ** declared meta and does not contain lib
+  ** We create appropiate meta for TopFn when we parse as thunk
   private static Dict fnToDict(AxonContext cx, TopFn fn)
   {
-    dict := fn.meta
-    if (dict.missing("lib")) dict = cx.defs.def("func:${fn.name}")
-    return Etc.dictRemove(dict, "src")
+    fn.meta
   }
 }
 

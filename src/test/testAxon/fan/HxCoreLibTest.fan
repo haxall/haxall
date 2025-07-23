@@ -76,27 +76,25 @@ class HxCoreLibTest : HxTest
   @HxTestProj
   Void testFunc()
   {
-    x := addFuncRec("x", "(a, b: true) => a + b", ["foo":Marker.val, "doc":"x hi!"])
-    y := addFuncRec("y", "(a: 1, b: 1+2) => a + b", ["doc":"y hi!"])
+    x := addFunc("x", "(a, b: true) => a + b", ["admin":Marker.val, "doc":"x hi!"])
+    y := addFunc("y", "(a: 1, b: 1+2) => a + b", ["doc":"y hi!"])
 
     // func
     verifyEval("""func("y")""", normRecFunc(y))
     verifyEval("""func(y)""", normRecFunc(y))
-    verifyEval("""func($y.id.toCode)""", normRecFunc(y))
-    verifyEval("""readById($y.id.toCode).func""", normRecFunc(y))
-    verifyEval("""func("map")->def""", Symbol("func:map"))
-    verifyEval("""func("map")->lib""", Symbol("lib:axon"))
+    verifyEval("""func("map")->qname""", "axon::map")
     verifyEval("""func("badFuncNotFound", false)""", null)
     verifyEvalErr("""func("badFuncNotFound")""", UnknownFuncErr#)
 
     // funcs
-    verifyEval("""funcs().findAll(x => x.has("foo")).first""", normRecFunc(x))
-    verifyEval("""funcs().findAll(x => x->def == ^func:now).size""", n(1))
-    verifyEval("""funcs(lib == ^${projLib}).sort(\"name\")""", Etc.makeDictsGrid(null, [normRecFunc(x), normRecFunc(y)]))
+    verifyEval("""funcs(admin).find(x => x->qname == "proj::x")""", normRecFunc(x))
+    verifyEval("""funcs(not admin).find(x => x->qname == "proj::x")""", null)
+    verifyEval("""funcs().findAll(x => x->qname == "axon::now").size""", n(1))
+    verifyEval("""funcs(qname == "proj::x").first""", normRecFunc(x))
 
     // verify funcs() doesn't include nodoc
-    verifyEval("""funcs().find(x=>x->def==^func:checkSyntax)""", null)
-    verifyEval("""funcs(def).find(x=>x->def==^func:checkSyntax)""", null)
+    verifyEval("""funcs().find(x => x->qname=="axon::dump")""", null)
+    verifyEval("""funcs(admin).find(x => x->qname=="axon::dump")""", null)
 
     // isFunc
     verifyEval("isFunc(x)",     true)
@@ -107,8 +105,8 @@ class HxCoreLibTest : HxTest
   @HxTestProj
   Void testCurFunc()
   {
-    x := addFuncRec("x", "() => curFunc()")
-    y := addFuncRec("y", "() => do f: () => curFunc(); f(); end")
+    x := addFunc("x", "() => curFunc()")
+    y := addFunc("y", "() => do f: () => curFunc(); f(); end")
 
     verifyEval("x()", normRecFunc(x))
     verifyEval("x()->id", x.id)
@@ -133,7 +131,7 @@ class HxCoreLibTest : HxTest
              c = a + b
            end
          end|>
-    x := addFuncRec("x", src, ["doc":"x hi!"])
+    x := addFunc("x", src, ["doc":"x hi!"])
 
     g := (Grid)eval("""compDef("x")""")
     verifyDictEq(g.meta, normRecFunc(x))
@@ -150,8 +148,8 @@ class HxCoreLibTest : HxTest
   @HxTestProj
   Void testParams()
   {
-    addFuncRec("foo", "(a, b: true) => a + b")
-    addFuncRec("bar", "(a: 1, b: 1 + 2) => a + b")
+    addFunc("foo", "(a, b: true) => a + b")
+    addFunc("bar", "(a: 1, b: 1 + 2) => a + b")
 
     Grid grid := eval("params(commit)")
     verifyEq(grid.size, 1)
@@ -168,11 +166,11 @@ class HxCoreLibTest : HxTest
     verifyParam(grid, 1, "b", n(3))
   }
 
-  Dict normRecFunc(Dict d)
+  Dict normRecFunc(Spec f)
   {
-    acc := Etc.dictToMap(d)
-    acc["lib"] = projLib
-    acc.remove("src")
+    acc := Etc.dictToMap(f.meta)
+    acc.add("qname", f.qname)
+    acc.remove("axon")
     return Etc.makeDict(acc)
   }
 
@@ -193,7 +191,7 @@ class HxCoreLibTest : HxTest
     verifyEval("100.toHex", "64")
 
     // cannot override core functions
-    addFuncRec("toHex", Str<|(i) => "hex override"|>)
+    addFunc("toHex", Str<|(i) => "hex override"|>)
     verifyEval("100.toHex", "64")
   }
 
@@ -204,16 +202,6 @@ class HxCoreLibTest : HxTest
     //echo; echo("-- $src"); if (actual is Grid) ((Grid)actual).dump; else echo(actual)
     verifyValEq(actual, expected)
     return actual
-  }
-
-  Dict addFuncRec(Str name, Str src, Str:Obj? tags := Str:Obj?[:])
-  {
-    tags["def"] = Symbol("func:$name")
-    tags["name"] = name
-    tags["src"]  = src
-    r := addRec(tags)
-    proj.sync
-    return r
   }
 }
 
