@@ -19,7 +19,7 @@ using hxStore
 **   - Dict current value of the record (merge of persistent and transient)
 **   - Reference to Blob for persistent storage
 **
-const class Rec
+const class Rec : FolioRec
 {
   new make(Blob blob, Dict persistent)
   {
@@ -48,7 +48,7 @@ const class Rec
   Str dis() { dict.dis }
 
   ** Current dict value [owned by IndexMgr]
-  Dict dict() { dictRef.val }
+  override Dict dict() { dictRef.val }
   private const AtomicRef dictRef := AtomicRef()
 
   ** Persistent tags [owned by IndexMgr]
@@ -64,7 +64,7 @@ const class Rec
   private const AtomicBool isTrashRef := AtomicBool()
 
   ** Ticks for last persistent or transient change [owned by IndexMgr]
-  Int ticks() { ticksRef.val }
+  override Int ticks() { ticksRef.val }
   private const AtomicInt ticksRef := AtomicInt(1)
 
   ** Update dict, transient, persistent [IndexMgr only]
@@ -81,8 +81,17 @@ const class Rec
   Int numWrites() { numWritesRef.val }
   internal const AtomicInt numWritesRef := AtomicInt()
 
-  ** Used to do watch reference counting
-  const AtomicInt numWatches := AtomicInt()
+
+  ** Watch counter for this record
+  override Int watchCount() { numWatches.val }
+
+  ** Increment watch count, return new count
+  override Int watchesIncrement() { numWatches.incrementAndGet }
+
+  ** Decrement watch count, return new count
+  override Int watchesDecrement() { numWatches.decrementAndGet }
+
+  private const AtomicInt numWatches := AtomicInt()
 
   ** History data as HisItem[]
   HisItem[] hisItems() { hisItemsRef.val }

@@ -153,6 +153,13 @@ const class HxFolio : Folio
     return f
   }
 
+  override protected FolioRec? doReadRecById(Ref id)
+  {
+    rec := index.rec(id, false)
+    if (rec != null && !rec.isTrash) return rec
+    return null
+  }
+
   override protected FolioFuture doReadByIds(Ref[] ids)
   {
     cx := FolioContext.curFolio(false)
@@ -166,7 +173,7 @@ const class HxFolio : Folio
       {
         dict := rec.dict
         if (cx != null && !cx.canRead(dict))
-          errMsg = "No read permission: $id.toStr"
+          errMsg = "Cannot read: $id.toZinc"
         else
           dicts[i] = dict
       }
@@ -229,7 +236,7 @@ const class HxFolio : Folio
     id := diff.id
     rec := index.dict(id, false)
     if (rec == null) return
-    if (!cx.canWrite(rec)) throw PermissionErr("Cannot write: $id.toCode")
+    if (!cx.canWrite(rec)) throw PermissionErr("Cannot write: $id.toZinc")
   }
 
   override Dict? readByIdPersistentTags(Ref id, Bool checked := true)

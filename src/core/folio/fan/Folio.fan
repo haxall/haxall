@@ -132,10 +132,27 @@ abstract const class Folio
 // Reads
 //////////////////////////////////////////////////////////////////////////
 
-  ** Convenience for `readByIds` with single id.
-  Dict? readById(Ref? id, Bool checked := true)
+  ** Read underlying record used for additional rec based features like watches
+  @NoDoc FolioRec? readRecById(Ref id, Bool checked := true)
   {
-    checkRead.doReadByIds([id]).dict(checked)
+    rec := checkRead.doReadRecById(id)
+    if (rec != null)
+    {
+      cx := FolioContext.curFolio(false)
+      if (cx == null || cx.canRead(rec.dict)) return rec
+      if (checked) throw UnknownRecErr("Cannot read: $id.toZinc")
+    }
+    if (checked) throw UnknownRecErr(id.toZinc)
+    return null
+  }
+
+  ** Read underlying record (return null for trash, do _not_ check permissions)
+  @NoDoc protected abstract FolioRec? doReadRecById(Ref id)
+
+  ** Convenience for `readByIds` with single id.
+  Dict? readById(Ref id, Bool checked := true)
+  {
+    readRecById(id, checked)?.dict
   }
 
   ** Read a list of records by ids into a grid.  The rows in the
@@ -215,7 +232,7 @@ abstract const class Folio
     checkRead.doReadAllEachWhile(filter, opts, f)
   }
 
-  ** Subclass implementation of readByIds; return as sync future
+  ** Subclass implementation of readByIds (must check trash & permissions); return as sync future
   @NoDoc protected abstract FolioFuture doReadByIds(Ref[] ids)
 
   ** Subclass implementation of readAll; return as sync future

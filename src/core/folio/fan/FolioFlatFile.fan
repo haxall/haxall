@@ -72,6 +72,17 @@ const class FolioFlatFile : Folio
     FolioFuture(CountFolioRes(0))
   }
 
+  @NoDoc override FolioRec? doReadRecById(Ref id)
+  {
+    rec := map.get(id) as Dict
+    if (rec == null && id.isRel && idPrefix != null)
+      rec = map.get(id.toAbs(idPrefix))
+    if (rec != null && rec.missing("trash"))
+      return FolioFlatFileRec(rec)
+    else
+      return null
+  }
+
   @NoDoc override FolioFuture doReadByIds(Ref[] ids)
   {
     map := this.map
@@ -434,6 +445,20 @@ internal class FolioFlatFileCommit
     if (id.disVal != null) id = Ref(id.id, null)
     return id
   }
+}
+
+**************************************************************************
+** FolioFlatRec
+**************************************************************************
+
+internal const class FolioFlatFileRec : FolioRec
+{
+  new make(Dict dict) { this.dict = dict }
+  const override Dict dict
+  override Int ticks() { throw UnsupportedErr() }
+  override Int watchCount() { throw UnsupportedErr() }
+  override Int watchesIncrement() { throw UnsupportedErr() }
+  override Int watchesDecrement() { throw UnsupportedErr() }
 }
 
 **************************************************************************
