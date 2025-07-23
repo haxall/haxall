@@ -32,7 +32,7 @@ class ObserveTest : HxTest
     verifyNotObservable("obsFoo")
 
     // add lib
-    proj.libs.add("hx.hxTestA")
+    proj.libs.add("hx.test")
     os := verifyObservable("obsSchedule")
     oc := verifyObservable("obsCommits")
     ox := verifyObservable("obsTest")
@@ -43,7 +43,7 @@ class ObserveTest : HxTest
     sx:= subscribe(ox, null)
 
     // remove lib
-    proj.libs.remove("hx.hxTestA")
+    proj.libs.remove("hx.test")
     verifyObservable("obsCommits")
     verifyObservable("obsSchedule")
     verifyNotObservable("obsTest")

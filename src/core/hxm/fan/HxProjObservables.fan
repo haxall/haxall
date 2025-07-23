@@ -47,7 +47,7 @@ const class HxProjObservables : Actor, ProjObservables
   internal Void init()
   {
     // runtine lib observables
-    rt.exts.list.each |lib| { addLib(lib) }
+    rt.exts.list.each |ext| { addExt(ext) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -68,31 +68,31 @@ const class HxProjObservables : Actor, ProjObservables
     return null
   }
 
-  internal Void addLib(Ext lib)
+  internal Void addExt(Ext ext)
   {
     try
     {
-      list := lib.observables
+      list := ext.observables
       if (list.isEmpty) return
-      if (lib.typeof.slot("observables") is Method) throw Err("${lib.typeof}.observables must be const field")
+      if (ext.typeof.slot("observables") is Method) throw Err("${ext.typeof}.observables must be const field")
       list.each |o| { byName.add(o.name, o) }
       updateList
     }
-    catch (Err e) log.err("${lib.typeof}.observables", e)
+    catch (Err e) log.err("${ext.typeof}.observables", e)
   }
 
-  internal Void removeLib(Ext lib)
+  internal Void removeExt(Ext ext)
   {
     try
     {
-      lib.observables.each |o|
+      ext.observables.each |o|
       {
         o.unsubscribeAll
         byName.remove(o.name)
       }
       updateList
     }
-    catch (Err e) log.err("${lib.typeof}.observables", e)
+    catch (Err e) log.err("${ext.typeof}.observables", e)
   }
 
   private Void updateList()

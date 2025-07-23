@@ -148,11 +148,13 @@ const class HxProjExts : Actor, ProjExts
       spi.ready
       if (proj.isSteadyState) spi.steadyState
     }
+    proj.obsRef.addExt(ext)
     return ext
   }
 
   private Void onRemoved(Ext ext)
   {
+    proj.obsRef.removeExt(ext)
     spi := (HxExtSpi)ext.spi
     spi.unready
     spi.stop
