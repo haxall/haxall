@@ -454,27 +454,26 @@ class HxFuncsTest : HxTest
   @HxTestProj
   Void testLibs()
   {
-  /* TODO
     // initial state
-    verifyEq(proj.libsOld.get("math", false), null)
+    verifyEq(proj.libs.get("hx.math", false), null)
 
     // add
-    rec := eval("libAddOld(\"math\")")
-    verifyEq(proj.libsOld.get("math").rec, rec)
+    rec := eval("libAdd(\"hx.math\")")
+    verifyEq(proj.libs.get("hx.math").name, "hx.math")
 
-    Grid status := eval("libStatusOld()")
-    verifyDictEq(status.find { it->name == "math" }, ["name":"math", "libStatus":"ok"])
+    Grid status := eval("libStatus()")
+    row := status.find { it->name == "hx.math" } ?: throw Err()
+    verifyEq(row["name"],      "hx.math")
+    verifyEq(row["libStatus"], "ok")
+    verifyEq(row["libBasis"],  proj.sys.info.rt.isHxd ? "sys" : "proj")
 
     // remove
-    eval("libRemoveOld(\"math\")")
-    verifyEq(proj.libsOld.get("math", false), null)
+    eval("libRemove(\"hx.math\")")
+    verifyEq(proj.libs.get("math", false), null)
 
     // add again
-    rec = eval("libAddOld(\"math\", {foo})")
-    verifyEq(proj.libsOld.get("math").rec, rec)
-    verifyEq(rec->foo, Marker.val)
-*/
-throw Err("TODO")
+    rec = eval("libAdd(\"hx.math\")")
+    verifyEq(proj.libs.get("hx.math").name, "hx.math")
   }
 
 //////////////////////////////////////////////////////////////////////////
