@@ -59,9 +59,14 @@ const class HxProjExts : Actor, ProjExts
 
   override Ext[] getAllByType(Type type)
   {
-// TODO: optimize this
-    list.findAll { it.typeof.fits(type) }
+    cached := byTypeRef.get(type)
+    if (cached != null) return cached
+
+    res := list.findAll { it.typeof.fits(type) }.toImmutable
+    if (!res.isEmpty) byTypeRef.set(type, res)
+    return res
   }
+  private const ConcurrentMap byTypeRef := ConcurrentMap()
 
   override Str:ExtWeb webRoutes() { webRoutesRef.val }
   private const AtomicRef webRoutesRef := AtomicRef()
@@ -192,6 +197,7 @@ const class HxProjExts : Actor, ProjExts
     this.listRef.val = list.toImmutable
     this.mapRef.val = map.toImmutable
     this.webRoutesRef.val = webRoutes.toImmutable
+    this.byTypeRef.clear // lazily rebuild
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -23,7 +23,7 @@ class ExtTest : HxTest
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Basics
+// Add/Remove
 //////////////////////////////////////////////////////////////////////////
 
   @HxTestProj
@@ -49,12 +49,6 @@ class ExtTest : HxTest
     t.spi.sync
     verifyEq(t.traces.val, "onUnready[false]\nonStop[false]\n")
     verifyEq(t.isRunning, false)
-
-    // add docker
-    addExt("hx.docker")
-    addExt("hx.py")
-    g := eval("py()")
-    echo(">>> $g")
   }
 
   private Ext verifyExtEnabled(Str name)
@@ -96,6 +90,50 @@ class ExtTest : HxTest
     verifyEq(proj.ns.lib(name, false), null)
     verifyErr(UnknownLibErr#) { proj.ns.lib(name) }
     verifyErr(UnknownLibErr#) { proj.ns.lib(name, true) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// GetByType
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testGetByType()
+  {
+    // not found stuff
+    verifyGetByTypeNotFound(Str#)
+
+    // verify system services
+    sys := proj.sys
+    verifySame(verifyGetByType(ICryptoExt#), sys.crypto)
+    verifySame(verifyGetByType(IProjExt#),   sys.proj)
+    verifySame(verifyGetByType(IUserExt#),   sys.user)
+
+    // add hx.io
+    verifyGetByTypeNotFound(IIOExt#)
+    proj.libs.add("hx.io")
+    verifySame(verifyGetByType(IIOExt#), proj.exts.io)
+
+    // remove hx.io
+    proj.libs.remove("hx.io")
+    verifyGetByTypeNotFound(IIOExt#)
+  }
+
+  Ext verifyGetByType(Type t)
+  {
+    ext := proj.exts.getByType(t)
+    verifyEq(proj.exts.getAllByType(t).containsSame(ext), true)
+    verifyEq(proj.exts.list.containsSame(ext), true)
+    verifySame(proj.exts.getAllByType(t), proj.exts.getAllByType(t))
+    return ext
+  }
+
+  Void verifyGetByTypeNotFound(Type t)
+  {
+    verifyEq(proj.exts.getByType(t, false), null)
+    verifyEq(proj.exts.getAllByType(t), Ext[,])
+    verifyNotSame(proj.exts.getAllByType(t), proj.exts.getAllByType(t)) // don't cache misses
+    verifyErr(UnknownExtErr#) { proj.exts.getByType(t) }
+    verifyErr(UnknownExtErr#) { proj.exts.getByType(t, true) }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -144,24 +182,6 @@ class ExtTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Services
-//////////////////////////////////////////////////////////////////////////
-
-  @HxTestProj
-  Void testServices()
-  {
-    // makeSyntheticUser
-    u := proj.sys.user.makeSyntheticUser("FooBar", ["bar":"baz"])
-    if (sys.info.rt.isSkySpark)
-      verifyEq(u.id, Ref("u:FooBar"))
-    else
-      verifyEq(u.id, Ref("FooBar"))
-    verifyEq(u.username, "FooBar")
-    verifyEq(u.meta["bar"], "baz")
-    verifyErr(ParseErr#) { proj.sys.user.makeSyntheticUser("Foo Bar", ["bar":"baz"]) }
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Axon
 //////////////////////////////////////////////////////////////////////////
 
@@ -186,6 +206,105 @@ class ExtTest : HxTest
     verifySame(HxFuncs.readById(rec.id), rec)
     HxFuncs.commit(Diff(rec, ["foo":m]))
     verifyEq(HxFuncs.readById(rec.id)->foo, m)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// IUserExt
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testUserExt()
+  {
+    // makeSyntheticUser
+    u := proj.sys.user.makeSyntheticUser("FooBar", ["bar":"baz"])
+    if (sys.info.rt.isSkySpark)
+      verifyEq(u.id, Ref("u:FooBar"))
+    else
+      verifyEq(u.id, Ref("FooBar"))
+    verifyEq(u.username, "FooBar")
+    verifyEq(u.meta["bar"], "baz")
+    verifyErr(ParseErr#) { proj.sys.user.makeSyntheticUser("Foo Bar", ["bar":"baz"]) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// IFileExt
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testFileExt()
+  {
+    proj.dir.plus(`io/`).create
+
+    // "io/"
+    f := verifyFileResolve(`io/`, true)
+    verifyEq(f.isDir, true)
+    verifyEq(f.list, File[,])
+    if (sys.info.rt.isSkySpark)
+      verifyEq(f.parent.uri, `/proj/${proj.name}/`)
+    else
+      verifyEq(f.parent, null)
+
+    // "io/a.txt"
+    f = verifyFileResolve(`io/a.txt`, false)
+    verifyEq(f.exists, false)
+    f.create
+    verifyEq(f.exists, true)
+    verifyEq(f.size, 0)
+    verifyEq(f.parent.uri, normUri(`io/`))
+    verifyEq(f.readAllStr, "")
+    f.out.print("hi").close
+    verifyEq(f.size, 2)
+    verifyEq(f.readAllStr, "hi")
+    verifyFileResolve(`io/a.txt`, true)
+
+    // "io/sub"
+    f = verifyFileResolve(`io/sub/`, false)
+    f.create
+    verifyEq(f.exists, true)
+    verifyEq(f.size, null)
+    verifyEq(f.isDir, true)
+
+    // "io/" listing
+    f = verifyFileResolve(`io/`, true)
+    list := f.list.dup.sort |a, b| { a.name <=> b.name }
+    verifyEq(list.size, 2)
+    verifyEq(list[0].uri, normUri(`io/a.txt`))
+    verifyEq(list[1].uri, normUri(`io/sub/`))
+
+    // various bad URIs
+    verifyFileUnsupported(`bad.txt`)
+    verifyFileUnsupported(`io/../bad.txt`)
+  }
+
+  File verifyFileResolve(Uri uri, Bool exists)
+  {
+    f := proj.exts.file.resolve(uri)
+    verifyEq(f.uri, normUri(uri))
+    verifyEq(f.isDir, uri.isDir)
+    verifyEq(f.exists, exists)
+    return f
+  }
+
+  Uri normUri(Uri uri)
+  {
+    if (uri.toStr.startsWith("io/"))
+    {
+      return sys.info.rt.isSkySpark ? "/proj/${proj.name}/${uri}".toUri : uri
+    }
+    return uri
+  }
+
+  Void verifyFileUnsupported(Uri uri)
+  {
+    try
+    {
+      f := proj.exts.file.resolve(uri)
+      verify(!f.exists)
+    }
+    catch (UnsupportedErr e)
+    {
+      verify(true)
+    }
   }
 }
 
