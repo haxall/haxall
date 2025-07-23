@@ -35,11 +35,11 @@ class HxFuncsTest : HxTest
     badId := Ref.gen
 
     // create test funcs
-    five     := addFuncRec("five", "()=>5")
-    addem    := addFuncRec("addem", "(a, b) => do x: a; y: b; x + y; end")
-    findFive := addFuncRec("findFive", "() => read(def==^func:five)")
-    findDan  := addFuncRec("findDan",  "() => read(smart)")
-    allOld   := addFuncRec("allOld",   "() => readAll(old).sort(\"dis\")")
+    five     := addFunc("five", "()=>5")
+    addem    := addFunc("addem", "(a, b) => do x: a; y: b; x + y; end")
+    findFive := addFunc("findFive", "() => func(five)")
+    findDan  := addFunc("findDan",  "() => read(smart)")
+    allOld   := addFunc("allOld",   "() => readAll(old).sort(\"dis\")")
 
     // readById
     verifyEval("readById($c.id.toCode)", c)
@@ -98,7 +98,7 @@ class HxFuncsTest : HxTest
     verifyEval(Str<|readAll(("else" and "return") or "do")|>, toGrid([k]))
 
     // get all tags/vals
-    verifyGridList("readAllTagNames(def).keepCols([\"name\"])", "name", ["def", "id", "mod", "src"])
+    verifyGridList("readAllTagNames(age).keepCols([\"name\"])", "name", ["age", "dis", "id", "mod", "old", "smart", "young"])
     verifyGridList("readAllTagVals(age < 20, \"id\")", "val", [a.id])
 
     dict := (Dict)eval("readLink($d.id.toCode)")
@@ -108,7 +108,7 @@ class HxFuncsTest : HxTest
     verifyEval("five()", n(5))
     verifyEval("addem(3, 6)", n(9))
     verifyEval("addem(3, 6)", n(9))
-    verifyEval("findFive()", read("def==^func:five"))
+    verifyEval("findFive()->qname", "proj::five")
     verifyEval("findDan()", d)
     verifyEval("allOld()", toGrid([c, d]))
   }
@@ -118,14 +118,6 @@ class HxFuncsTest : HxTest
     tags := Str:Obj?["dis":name, "age":n(age)]
     markers.each |marker| { tags.add(marker, Marker.val) }
     return addRec(tags)
-  }
-
-  Dict addFuncRec(Str name, Str src, Str:Obj? tags := Str:Obj?[:])
-  {
-    tags["def"] = Symbol("func:$name")
-    tags["src"]  = src
-    r := addRec(tags)
-    return r
   }
 
   Void verifyReadAll(Str filter, Dict[] expected)

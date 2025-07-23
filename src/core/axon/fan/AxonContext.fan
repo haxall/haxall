@@ -57,9 +57,6 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Find top-level function by qname or name
   @NoDoc abstract Fn? findTop(Str name, Bool checked := true)
 
-  ** Resolve dict by id - used by trap on Ref
-  @NoDoc virtual Dict? trapRef(Ref ref, Bool checked := true) { throw UnsupportedErr() }
-
   ** Resolve dict by local or remote id
   @NoDoc virtual Dict? xqReadById(Ref ref, Bool checked := true) { throw UnsupportedErr() }
 
