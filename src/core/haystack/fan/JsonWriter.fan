@@ -46,7 +46,7 @@ class JsonWriter : GridWriter
   new make(OutStream out, Dict? opts := null)
   {
     this.out  = JsonOutStream(out)
-    this.opts = opts ?: Etc.emptyDict
+    this.opts = opts ?: Etc.dict0
   }
 
   @NoDoc JsonOutStream out

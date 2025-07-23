@@ -43,7 +43,7 @@ const class FolioConfig
   const ActorPool pool
 
   ** Additional options
-  const Dict opts := Etc.emptyDict
+  const Dict opts := Etc.dict0
 
   ** Is the replica flag configured
   @NoDoc const Bool isReplica

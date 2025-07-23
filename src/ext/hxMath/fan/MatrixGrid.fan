@@ -19,7 +19,7 @@ const class MatrixGrid : Grid
 {
   ** Construct from a grid of Numbers.  Columns are named
   ** "v0", "v1", etc.  We maintain grid meta, but not column meta.
-  new makeGrid(Grid grid, Dict opts := Etc.emptyDict)
+  new makeGrid(Grid grid, Dict opts := Etc.dict0)
   {
     this.meta = grid.meta
 
@@ -260,7 +260,7 @@ internal const class MatrixCol : Col
   new make(Int index) { this.name = "v"+index; this.index = index }
 
   override const Str name
-  override Dict meta() { Etc.emptyDict }
+  override Dict meta() { Etc.dict0 }
   const Int index // col index
 }
 

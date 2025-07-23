@@ -115,11 +115,11 @@ const class FolioUtil
   ** tags the record has defined.
   static Dict stripUncommittable(Folio folio, Dict d, Dict? opts := null)
   {
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
 
-    transients := Etc.emptyDict
+    transients := Etc.dict0
     if (d.has("id"))
-      transients = folio.readByIdTransientTags(d.id, false) ?: Etc.emptyDict
+      transients = folio.readByIdTransientTags(d.id, false) ?: Etc.dict0
 
     acc := Str:Obj[:]
     d.each |v, n|
@@ -300,7 +300,7 @@ const class FolioUtil
   ** Duplicate normalized timestamps are removed - for pre-sorted items then the
   ** one latest in the list is used, for unsorted items then its indetermine
   ** which one is kept.
-  static HisItem[] hisWriteCheck(Dict rec, HisItem[] items, Dict opts := Etc.emptyDict)
+  static HisItem[] hisWriteCheck(Dict rec, HisItem[] items, Dict opts := Etc.dict0)
   {
     // options
     forecast := opts.has("forecast")

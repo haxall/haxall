@@ -350,7 +350,7 @@ class ConvertTest : HxTest
   Void verifyParse(Str s, Obj? in, Obj? out, Type type, Obj? x := null)
   {
     c := PointConvert.fromStr(s)
-    rec := Etc.emptyDict
+    rec := Etc.dict0
     verifyEq(c.typeof, type)
     if (in is Float && out is Float)
     {
@@ -373,7 +373,7 @@ class ConvertTest : HxTest
     // echo("### $s | falseStrs=[" + c.falseStrs.join(","){it.toCode} + "] trueStrs=[" + c.trueStrs.join(","){it.toCode} + "]")
     verifyEq(c.falseStrs, fs)
     verifyEq(c.trueStrs, ts)
-    rec := Etc.emptyDict
+    rec := Etc.dict0
     fs.each |x| { verifyConvert(c, rec, x, false) }
     ts.each |x| { verifyConvert(c, rec, x, true) }
     if (fs.size > 0 && ts.size > 0) verifyConvert(c, rec, "none", null)
@@ -393,7 +393,7 @@ class ConvertTest : HxTest
     verifyUnit("J/m²  =>  kWh/m²", 600000f,  0.16666667f)
 
     // as
-    rec := Etc.emptyDict
+    rec := Etc.dict0
     verifyConvert(PointConvert("as(°F)"), rec, null, null)
     verifyConvert(PointConvert("as(°F)"), rec, n(55, "°F"), n(55, "°F"))
     verifyConvert(PointConvert("as(°C)"), rec, n(55, "°F"), n(55, "°C"))
@@ -418,7 +418,7 @@ class ConvertTest : HxTest
   Void verifyUnit(Str s, Float from, Float expected)
   {
     UnitConvert c := PointConvert.fromStr(s)
-    rec := Etc.emptyDict
+    rec := Etc.dict0
     verifyConvert(c, rec, null, null)
     Number to := c.convert(ext, rec, n(from))
     // echo("$c | $from => $to")
@@ -436,7 +436,7 @@ class ConvertTest : HxTest
   Void doBool()
   {
     c := PointConvert("invert()")
-    rec := Etc.emptyDict
+    rec := Etc.dict0
     verifyConvert(c, rec, null, null)
     verifyConvert(c, rec, true, false)
     verifyConvert(c, rec, false, true)
@@ -448,7 +448,7 @@ class ConvertTest : HxTest
 
   Void doTypeConverts()
   {
-    rec := Etc.emptyDict
+    rec := Etc.dict0
     c := PointConvert("strToNumber()")
     verifyEq(c.toStr, "strToNumber(true)")
     verifyConvert(c, rec, null, null)
@@ -541,7 +541,7 @@ class ConvertTest : HxTest
 
   Void verifyThermistor(PointConvert c, Float ohms, Float degF)
   {
-    rec := Etc.emptyDict
+    rec := Etc.dict0
     degC := Number.F.convertTo(degF, Number.C)
     verifyConvert(c, rec, n(ohms), n(degF, Number.F))
     rec = Etc.makeDict(["unit": "°C"])
@@ -561,7 +561,7 @@ class ConvertTest : HxTest
 
     // pointConvert
     verifyFuncConvert(null, "+3", n(3), n(6))
-    verifyFuncConvert(Etc.emptyDict, "*3", n(3), n(9))
+    verifyFuncConvert(Etc.dict0, "*3", n(3), n(9))
     verifyFuncConvert(pt, "*3 -1", n(3), n(8))
     verifyFuncConvert(pt.id, "numberToStr()", n(3), "3")
 

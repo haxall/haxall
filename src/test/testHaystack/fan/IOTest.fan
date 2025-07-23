@@ -263,7 +263,7 @@ class IOTest : HaystackTest
 
   Void testDict()
   {
-    verifyIO(Etc.emptyDict,
+    verifyIO(Etc.dict0,
       Str<|{}|>,
       null)
 

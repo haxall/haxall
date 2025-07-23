@@ -48,7 +48,7 @@ internal const class NilContext : HaystackContext
 {
   override Dict? deref(Ref id) { null }
   override FilterInference inference() { FilterInference.nil }
-  override Dict toDict() { Etc.emptyDict }
+  override Dict toDict() { Etc.dict0 }
 }
 
 **************************************************************************
@@ -63,7 +63,7 @@ class PatherContext : HaystackContext
   override Dict? deref(Ref id) { pather(id) }
   private |Ref->Dict?| pather
   override FilterInference inference() { FilterInference.nil }
-  override Dict toDict() { Etc.emptyDict }
+  override Dict toDict() { Etc.dict0 }
 }
 
 **************************************************************************

@@ -54,7 +54,7 @@ class BrioReader : GridReader, BrioCtrl
       case ctrlCoord:      return consumeCoord
       case ctrlXStr:       return consumeXStr
       case ctrlBuf:        return consumeBuf
-      case ctrlDictEmpty:  return Etc.emptyDict
+      case ctrlDictEmpty:  return Etc.dict0
       case ctrlDict:       return consumeDict
       case ctrlListEmpty:  return Obj?#.emptyList
       case ctrlList:       return consumeList

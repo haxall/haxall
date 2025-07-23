@@ -289,7 +289,7 @@ class BasicTest : AbstractFolioTest
     verifyErr(UnknownRecErr#) { r.grid }
     verifyEq(r.grid(false).size, 3)
     verifyDictEq(r.grid(false)[0], a)
-    verifyDictEq(r.grid(false)[1], Etc.emptyDict)
+    verifyDictEq(r.grid(false)[1], Etc.dict0)
     verifyDictEq(r.grid(false)[2], b)
 
     // read bad

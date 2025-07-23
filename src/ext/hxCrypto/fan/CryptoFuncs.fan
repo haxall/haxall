@@ -33,7 +33,7 @@ const class CryptoFuncs
   **
   ** This func will throw an error if an entry with the given alias already exists.
   @Api @Axon { su = true }
-  static Obj? cryptoGenSelfSignedCert(Str alias, Str subjectDn, Dict opts := Etc.emptyDict)
+  static Obj? cryptoGenSelfSignedCert(Str alias, Str subjectDn, Dict opts := Etc.dict0)
   {
     if (ks.containsAlias(alias)) throw ArgErr("An entry already exists with alias ${alias.toCode}")
 

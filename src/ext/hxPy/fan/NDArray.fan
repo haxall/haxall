@@ -52,7 +52,7 @@ using hxMath
         matrix.set(i, j, in.readF8)
       }
     }
-    return Type.find("hxMath::MatrixGrid").method("makeMatrix").call(Etc.emptyDict, matrix)
+    return Type.find("hxMath::MatrixGrid").method("makeMatrix").call(Etc.dict0, matrix)
   }
 }
 

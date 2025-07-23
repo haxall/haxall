@@ -33,7 +33,7 @@ const class ScheduleObservable : Observable
     subs := subscriptions
     if (subs.isEmpty) return
     nowTicks := Duration.nowTicks
-    msg := MObservation(this, nowTime, Etc.emptyDict)
+    msg := MObservation(this, nowTime, Etc.dict0)
     subs.each |sub| { checkSubscription(sub, nowTime, nowTicks, msg) }
   }
 

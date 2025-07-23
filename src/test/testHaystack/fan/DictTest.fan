@@ -37,7 +37,7 @@ class DictTest : HaystackTest
 
   Void testTypedDict()
   {
-    x := TypedDictTest(Etc.emptyDict)
+    x := TypedDictTest(Etc.dict0)
     verifyEq(x.int, 99)
     verifyEq(x.num, n(99))
     verifyEq(x.dur, 99sec)

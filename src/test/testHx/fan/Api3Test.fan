@@ -104,7 +104,7 @@ class Api3Test : ApiTest
     // readByIds bad
     g = c.readByIds([siteA.id, siteB.id, siteC.id, Ref.gen], false)
     verifyDictsEq(g.toRows[0..2], [siteA, siteB, siteC], true)
-    verifyDictEq(g[-1], Etc.emptyDict)
+    verifyDictEq(g[-1], Etc.dict0)
     verifyErr(UnknownRecErr#) { c.readByIds([siteA.id, Ref.gen]) }
 
     // raw read by filter
@@ -117,9 +117,9 @@ class Api3Test : ApiTest
 
     // raw read by id
     g = c.call("read", Etc.makeListGrid(null, "id", null, [Ref.gen, siteB.id, Ref.gen, siteC.id]))
-    verifyDictEq(g[0], Etc.emptyDict)
+    verifyDictEq(g[0], Etc.dict0)
     verifyDictEq(g[1], siteB)
-    verifyDictEq(g[2], Etc.emptyDict)
+    verifyDictEq(g[2], Etc.dict0)
     verifyDictEq(g[3], siteC)
   }
 

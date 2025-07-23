@@ -139,7 +139,7 @@ const class HxFuncs
   {
     cx := curContext
     filter := filterExpr.evalToFilter(cx)
-    opts := optsExpr == null ? Etc.emptyDict : (Dict?)optsExpr.eval(cx)
+    opts := optsExpr == null ? Etc.dict0 : (Dict?)optsExpr.eval(cx)
     return cx.db.readAll(filter, opts)
   }
 
@@ -288,7 +288,7 @@ const class HxFuncs
   static Diff diff(Dict? orig, Dict? changes, Dict? flags := null)
   {
     // strip null values (occurs when grid rows are used)
-    if (changes == null) changes = Etc.emptyDict
+    if (changes == null) changes = Etc.dict0
     changes = Etc.dictRemoveNulls(changes)
 
     // flags
@@ -722,7 +722,7 @@ internal class ReadAllStream : SourceStream
   override Void onStart(Signal sig)
   {
     cx := (Context)this.cx
-    cx.db.readAllEachWhile(filter, Etc.emptyDict) |rec->Obj?|
+    cx.db.readAllEachWhile(filter, Etc.dict0) |rec->Obj?|
     {
       submit(rec)
       return isComplete ? "break" : null

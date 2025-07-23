@@ -28,7 +28,7 @@ class JsonReader : GridReader
   new make(InStream in, Dict? opts := null)
   {
     this.in = JsonInStream(in)
-    this.opts = opts ?: Etc.emptyDict
+    this.opts = opts ?: Etc.dict0
   }
 
   ** Read a value and auto close stream
@@ -182,7 +182,7 @@ class HaysonParser : JsonParser
 
   private Dict parseDict(Str:Obj? json)
   {
-    if (json.isEmpty) return Etc.emptyDict
+    if (json.isEmpty) return Etc.dict0
     acc := Str:Obj?[:]
     json.each |v, n|
     {
@@ -313,7 +313,7 @@ class JsonV3Parser : JsonParser
 
   private Dict parseDict(Str:Obj? json)
   {
-    if (json.isEmpty) return Etc.emptyDict
+    if (json.isEmpty) return Etc.dict0
     acc := Str:Obj?[:]
     json.each |v, n|
     {

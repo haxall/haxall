@@ -387,7 +387,7 @@ class NamespaceTest : AbstractXetoTest
     verifySame(none, Remove.val)
     verifyEq(ref("foo"), Ref("foo", null))
     verifyValEq(ref("foo", "Foo"), Ref("foo", "Foo"))
-    verifySame(dict0, Etc.emptyDict)
+    verifySame(dict0, Etc.dict0)
     verifyDictEq(dict1("a", "A"), ["a":"A"])
   }
 

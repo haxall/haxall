@@ -27,7 +27,7 @@ const class HisMgr : HxFolioMgr, FolioHis
   {
     // read checks
     folio.checkRead
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
 
     // read current version of rec and do check security
     rec := folio.index.rec(id)

@@ -182,7 +182,7 @@ const class IOFuncs
   **   ioCopy(`io/file.txt`, `io/file-copy.txt`, {overwrite:false})
   **
   @Api @Axon { admin = true }
-  static Obj? ioCopy(Obj? from, Obj? to, Dict opts := Etc.emptyDict)
+  static Obj? ioCopy(Obj? from, Obj? to, Dict opts := Etc.dict0)
   {
     fromFile := toHandle(from).toFile("ioCopy")
     toFile   := toHandle(to).toFile("ioCopy")
@@ -477,7 +477,7 @@ const class IOFuncs
   static Obj? ioWriteCsv(Obj? val, Obj? handle, Dict? opts := null)
   {
     // parse options
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
     delimiter  := opts["delimiter"] as Str ?: ","
     newline    := opts["newline"] as Str ?: "\n"
     header     := opts["noHeader"] == null
@@ -560,8 +560,8 @@ const class IOFuncs
   private static Dict toJsonOpts(Dict? arg)
   {
     cx := curContext
-    if (arg == null) arg = Etc.emptyDict
-    if (cx.sys.info.rt.isAxonsh) return Etc.emptyDict
+    if (arg == null) arg = Etc.dict0
+    if (cx.sys.info.rt.isAxonsh) return Etc.dict0
     filetype := cx.defs.filetype("json")
     settings := cx.rt.ext("hx.io").settings
     return filetype.ioOpts(cx.defs, null, arg, settings)
@@ -610,7 +610,7 @@ const class IOFuncs
   ** Write an Axon data structure to HTML. The 'val' must be an
   ** Axon type that can be converted to a Grid.
   @Api @Axon { admin = true }
-  static Obj? ioWriteHtml(Obj? val, Obj? handle, Dict opts := Etc.emptyDict)
+  static Obj? ioWriteHtml(Obj? val, Obj? handle, Dict opts := Etc.dict0)
   {
     toHandle(handle).withOut |out|
     {
@@ -778,7 +778,7 @@ const class IOFuncs
   @Api @Axon { admin = true }
   static Str ioToBase64(Obj? handle, Dict? opts := null)
   {
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
     buf := toHandle(handle).inToBuf
     return opts.has("uri") ? buf.toBase64Uri : buf.toBase64
   }
@@ -905,7 +905,7 @@ const class IOFuncs
   ** Note: this feature is available in SkySpark only
   **
   @Api @Axon { admin = true }
-  static Obj? ioWritePdf(Obj? val, Obj? handle, Dict opts := Etc.emptyDict)
+  static Obj? ioWritePdf(Obj? val, Obj? handle, Dict opts := Etc.dict0)
   {
     toHandle(handle).withOut |out|
     {
@@ -936,7 +936,7 @@ const class IOFuncs
   ** Note: this feature is available in SkySpark only
   **
   @Api @Axon { admin = true }
-  static Obj? ioWriteSvg(Obj? val, Obj? handle, Dict opts := Etc.emptyDict)
+  static Obj? ioWriteSvg(Obj? val, Obj? handle, Dict opts := Etc.dict0)
   {
     toHandle(handle).withOut |out|
     {

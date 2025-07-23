@@ -54,7 +54,7 @@ const mixin Filetype : Def
     type := writerType ?: throw Err("No writer defined for filetype $name")
     ctor := type.method("make")
     if (ctor.params.size == 1) return ctor.call(out)
-    if (ctor.params.size == 2) return ctor.call(out, opts ?: Etc.emptyDict)
+    if (ctor.params.size == 2) return ctor.call(out, opts ?: Etc.dict0)
     throw Err("Invalid GridWriter.make signature: $ctor")
   }
 
@@ -64,7 +64,7 @@ const mixin Filetype : Def
     type := readerType ?: throw Err("No reader defined for filetype $name")
     ctor := type.method("make")
     if (ctor.params.size == 1) return ctor.call(in)
-    if (ctor.params.size == 2) return ctor.call(in, opts ?: Etc.emptyDict)
+    if (ctor.params.size == 2) return ctor.call(in, opts ?: Etc.dict0)
     throw Err("Invalid GridReader.make signature: $ctor")
   }
 

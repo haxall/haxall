@@ -48,6 +48,7 @@ class {{typePrefix}}Dispatch : ConnDispatch
   override Dict onPing()
   {
     // ping the device and return a Dict with meta data for the conn rec
-    return Etc.emptyDict
+    return Etc.dict0
   }
 }
+

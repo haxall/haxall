@@ -69,7 +69,7 @@ internal const class PyMgr : Actor
 
   private PyMgrSession createSession(Dict? opts)
   {
-    send(HxMsg("open", PyMgrSession(this, opts ?: Etc.emptyDict).open)).get(timeout)
+    send(HxMsg("open", PyMgrSession(this, opts ?: Etc.dict0).open)).get(timeout)
   }
 
 //////////////////////////////////////////////////////////////////////////

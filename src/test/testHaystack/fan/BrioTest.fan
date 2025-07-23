@@ -174,7 +174,7 @@ class BrioTest : HaystackTest
     verifyIO(DateTime("1950-06-07T01:02:00-04:00 New_York"), 6)
     verifyIO(DateTime("1950-06-07T01:02:00.123-04:00 New_York"), 10)
     verifyIO("foo!".toBuf, 6)
-    verifyIO(Etc.emptyDict, 1)
+    verifyIO(Etc.dict0, 1)
     verifyIO(Obj?[,], 1)
     verifyIO(Coord(37.54f, 77.43f), 9)
     verifyIO(Coord(-17.535f, -149.569f), 9)

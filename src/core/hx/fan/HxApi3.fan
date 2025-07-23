@@ -109,7 +109,7 @@ internal class HxDefsOp : HxApiOp
 {
   override Grid onRequest(Grid req, Context cx)
   {
-    opts := req.first as Dict ?: Etc.emptyDict
+    opts := req.first as Dict ?: Etc.dict0
     limit := (opts["limit"] as Number)?.toInt ?: Int.maxVal
     filter := Filter.fromStr(opts["filter"] as Str ?: "", false)
     acc := Def[,]
@@ -120,7 +120,7 @@ internal class HxDefsOp : HxApiOp
       if (acc.size >= limit) { incomplete = true; return }
       acc.add(def)
     }
-    meta := incomplete ? Etc.dict2("incomplete", Marker.val, "limit", Number(limit)) : Etc.emptyDict
+    meta := incomplete ? Etc.dict2("incomplete", Marker.val, "limit", Number(limit)) : Etc.dict0
     return Etc.makeDictsGrid(meta, acc)
   }
 

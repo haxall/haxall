@@ -23,7 +23,7 @@ abstract class Fold
   ** Lookup a fold by name and create an instance with the given meta.
   ** The implementation of the fold will adhere to Axon semantics. If the
   ** fold is not found, throw an `UnknownNameErr` if checked; otherwise return null.
-  static Fold? createAxon(Str name, Dict meta := Etc.emptyDict, Bool checked := true)
+  static Fold? createAxon(Str name, Dict meta := Etc.dict0, Bool checked := true)
   {
     createFold(name, true, meta, checked)
   }
@@ -31,7 +31,7 @@ abstract class Fold
   ** Lookup a fold by name and create an instance with the given meta.
   ** The implementation of the fold will adhere to Pivot table semantics. If the
   ** fold is not found, throw an `UnknownNameErr` if checked; otherwise return null.
-  static Fold? createPivot(Str name, Dict meta := Etc.emptyDict, Bool checked := true)
+  static Fold? createPivot(Str name, Dict meta := Etc.dict0, Bool checked := true)
   {
     createFold(name, false, meta, checked)
   }
@@ -382,3 +382,4 @@ internal class FoldSpread : FoldExtreme
   new make(Bool axon, Dict meta) : super(axon, meta) { }
   override protected Number onFinish() { this.max - this.min }
 }
+

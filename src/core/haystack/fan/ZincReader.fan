@@ -255,7 +255,7 @@ class ZincReader : GridReader
     while (cur === HaystackToken.id)
     {
       name := consumeTagName
-      meta := Etc.emptyDict
+      meta := Etc.dict0
       if (cur === HaystackToken.id)
         meta = parseDict(false)
       gb.addCol(name, meta)

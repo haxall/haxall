@@ -98,7 +98,7 @@ const class DockerFuncs
 //////////////////////////////////////////////////////////////////////////
 
   @Api @Axon { admin=true }
-  static Str dockerRun(Str image, Obj config := Etc.emptyDict)
+  static Str dockerRun(Str image, Obj config := Etc.dict0)
   {
     ext.mgr.run(image, config).id
   }

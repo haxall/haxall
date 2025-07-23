@@ -181,7 +181,7 @@ const class HxFolio : Folio
 
   override protected FolioFuture doReadAll(Filter filter, Dict? opts)
   {
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
     cx := FolioContext.curFolio(false)
     dicts := Query(this, filter, opts).collect(cx)
     return FolioFuture(ReadFolioRes(filter, false, dicts))
@@ -189,14 +189,14 @@ const class HxFolio : Folio
 
   override protected Obj? doReadAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
   {
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
     cx := FolioContext.curFolio(false)
     return Query(this, filter, opts).eachWhile(cx, f)
   }
 
   override protected Int doReadCount(Filter filter, Dict? opts)
   {
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
     cx := FolioContext.curFolio(false)
     return Query(this, filter, opts).count(cx)
   }

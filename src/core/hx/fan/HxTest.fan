@@ -82,7 +82,7 @@ abstract class HxTest : HaystackTest
   @NoDoc virtual Void projStart()
   {
     if (projRef != null) throw Err("Proj already started!")
-    projMeta := Etc.emptyDict
+    projMeta := Etc.dict0
     facet := curTestMethod.facet(HxTestProj#, false) as HxTestProj
     if (facet != null && facet.meta != null)
     {

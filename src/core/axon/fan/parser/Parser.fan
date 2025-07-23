@@ -37,12 +37,12 @@ class Parser
 
   Expr parse()
   {
-    r := cur === Token.defcompKeyword ? defcomp("top", Etc.emptyDict) : expr
+    r := cur === Token.defcompKeyword ? defcomp("top", Etc.dict0) : expr
     if (cur !== Token.eof) throw err("Expecting end of file, not $cur ($curVal)")
     return r
   }
 
-  TopFn parseTop(Str name, Dict meta := Etc.emptyDict)
+  TopFn parseTop(Str name, Dict meta := Etc.dict0)
   {
     loc := curLoc
     curName = name

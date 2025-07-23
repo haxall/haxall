@@ -31,7 +31,7 @@ const class Fn : Expr, HaystackFunc
   ** Top-level name or debug name if closure
   const Str name
 
-  virtual Dict meta() { Etc.emptyDict }
+  virtual Dict meta() { Etc.dict0 }
 
   virtual Bool isTop() { false }
 

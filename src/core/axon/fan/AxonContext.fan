@@ -140,7 +140,7 @@ abstract class AxonContext : HaystackContext, CompContext
   ** Convert to Dict for use by `context()` Axon function
   @NoDoc override Dict toDict()
   {
-    toDictExtra == null ? Etc.emptyDict : Etc.makeDict(toDictExtra)
+    toDictExtra == null ? Etc.dict0 : Etc.makeDict(toDictExtra)
   }
 
   ** Add/remove a tag to use for `toDict` and `context()` Axon function

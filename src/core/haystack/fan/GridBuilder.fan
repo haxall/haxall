@@ -361,7 +361,7 @@ class GridBuilder
   }
 
   private AtomicRef gridRef := AtomicRef()
-  private Dict meta := Etc.emptyDict
+  private Dict meta := Etc.dict0
   private GbCol[] cols := [,]
   private [Str:GbCol]? colsByName
   private GbRow[] rows := [,]

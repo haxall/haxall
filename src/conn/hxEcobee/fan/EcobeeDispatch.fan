@@ -62,7 +62,7 @@ class EcobeeDispatch : ConnDispatch
 
   override Dict onPing()
   {
-    return Etc.emptyDict()
+    return Etc.dict0
   }
 
 //////////////////////////////////////////////////////////////////////////

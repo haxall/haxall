@@ -203,7 +203,7 @@ class ObserveTest : HxTest
 
   private Void doTestCommits()
   {
-    empty := Etc.emptyDict
+    empty := Etc.dict0
 
     // all records
     all := TestObserver()
@@ -339,7 +339,7 @@ class ObserveTest : HxTest
     e := addRec(["dis":"E", "bar":m])
     f := addRec(["dis":"F", "bar":m])
 
-    x := TestObserver(); xs := rt.obs.get("obsWatches").subscribe(x, Etc.emptyDict)
+    x := TestObserver(); xs := rt.obs.get("obsWatches").subscribe(x, Etc.dict0)
     y := TestObserver(); ys := rt.obs.get("obsWatches").subscribe(y, Etc.dict1("obsFilter", "foo"))
     z := TestObserver(); zs := rt.obs.get("obsWatches").subscribe(z, Etc.dict1("obsFilter", "bar"))
     clear := |->| { x.clear; y.clear; z.clear }
@@ -419,7 +419,7 @@ class ObserveTest : HxTest
     a1 := addRec(["dis":"A", "foo":m])
     b1 := addRec(["dis":"B", "bar":m])
 
-    x := TestObserver(); xs := rt.obs.get("obsCurVals").subscribe(x, Etc.emptyDict)
+    x := TestObserver(); xs := rt.obs.get("obsCurVals").subscribe(x, Etc.dict0)
     y := TestObserver(); ys := rt.obs.get("obsCurVals").subscribe(y, Etc.dict1("obsFilter", "foo"))
     verifyEq(xs.observable.name, "obsCurVals")
     clear := |->| { x.clear; y.clear }
@@ -481,7 +481,7 @@ class ObserveTest : HxTest
     a := addRec(["dis":"A", "foo":m, "point":m, "his":m, "kind":"Number", "tz":tz.name])
     b := addRec(["dis":"B", "bar":m, "point":m, "his":m, "kind":"Number", "tz":tz.name])
 
-    x := TestObserver(); xs := rt.obs.get("obsHisWrites").subscribe(x, Etc.emptyDict)
+    x := TestObserver(); xs := rt.obs.get("obsHisWrites").subscribe(x, Etc.dict0)
     y := TestObserver(); ys := rt.obs.get("obsHisWrites").subscribe(y, Etc.dict1("obsFilter", "foo"))
     verifyEq(xs.observable.name, "obsHisWrites")
     clear := |->| { x.clear; y.clear }
@@ -544,7 +544,7 @@ internal const class TestObservable : Observable
 internal const class TestObserver : Actor, Observer
 {
   new make() : super(ActorPool()) {}
-  override Dict meta() { Etc.emptyDict }
+  override Dict meta() { Etc.dict0 }
   override Actor actor() { this }
   override Obj? receive(Obj? msg)
   {

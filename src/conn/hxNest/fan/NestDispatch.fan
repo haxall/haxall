@@ -52,7 +52,7 @@ class NestDispatch : ConnDispatch
   override Dict onPing()
   {
     structures := client.structures.list
-    return Etc.emptyDict()
+    return Etc.dict0
   }
 
 //////////////////////////////////////////////////////////////////////////

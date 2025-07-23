@@ -35,7 +35,7 @@ const class TaskFuncs
   @Api @Axon { admin = true }
   static Grid tasks(Dict? opts := null)
   {
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
     cx := curContext
     lib := lib(cx)
     meta := Str:Obj?[:]
@@ -342,7 +342,7 @@ const class TaskFuncs
   @NoDoc @Api @Axon { admin = true }
   static Obj? taskDoSendAction(Obj taskIds, Str msg)
   {
-    msgDict := TrioReader(msg.in).readDict(false) ?: Etc.emptyDict
+    msgDict := TrioReader(msg.in).readDict(false) ?: Etc.dict0
     tasks := (Task[])Etc.toIds(taskIds).map |id->Task| { toTask(id) }
     futures := (Future[])tasks.map |task| { taskSend(task, msgDict) }
     return "Sent to $tasks.size tasks"

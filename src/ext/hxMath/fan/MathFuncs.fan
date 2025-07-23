@@ -327,7 +327,7 @@ const class MathFuncs
   ** the following tags (all required)
   **   toMatrix({rows:10, cols: 1000, init: 0})
   **
-  @Api @Axon static MatrixGrid toMatrix(Obj obj, Dict opts := Etc.emptyDict)
+  @Api @Axon static MatrixGrid toMatrix(Obj obj, Dict opts := Etc.dict0)
   {
     if (obj is MatrixGrid) return obj
     if (obj is Grid) return MatrixGrid.makeGrid(obj, opts)
@@ -337,7 +337,7 @@ const class MathFuncs
       ncols  := (((Dict)obj)["cols"] as Number)?.toInt ?: throw ArgErr("Invalid cols: $obj")
       init   := (((Dict)obj)["init"] as Number)?.toFloat ?: throw ArgErr("Invalid init: $obj")
       matrix := Math.matrix(nrows, ncols).fill(init)
-      return MatrixGrid(Etc.emptyDict, matrix)
+      return MatrixGrid(Etc.dict0, matrix)
     }
     throw Err("Unsupported toMatrix type: $obj.typeof")
   }

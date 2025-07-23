@@ -40,7 +40,7 @@ const class HxUtil
   @NoDoc  static Grid readAllTagNames(Folio db, Filter filter)
   {
     acc := Str:TagNameUsage[:]
-    db.readAllEachWhile(filter, Etc.emptyDict) |rec|
+    db.readAllEachWhile(filter, Etc.dict0) |rec|
     {
       rec.each |v, n|
       {
@@ -63,7 +63,7 @@ const class HxUtil
   @NoDoc static Obj[] readAllTagVals(Folio db, Filter filter, Str tagName)
   {
     acc := Obj:Obj[:]
-    db.readAllEachWhile(filter, Etc.emptyDict) |rec|
+    db.readAllEachWhile(filter, Etc.dict0) |rec|
     {
       val := rec[tagName]
       if (val != null) acc[val] = val

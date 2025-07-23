@@ -1109,7 +1109,7 @@ class CoreLibTest : HaystackTest
     dict := Etc.makeDict(["foo":"bar"])
     verifySame(Etc.dictMerge(dict, null), dict)
     verifySame(Etc.dictMerge(dict, [:]), dict)
-    verifySame(Etc.dictMerge(dict, Etc.emptyDict), dict)
+    verifySame(Etc.dictMerge(dict, Etc.dict0), dict)
     verifyEval("""{x:3}.merge(null)""", Str:Obj?["x":n(3)])
     verifyEval("""{x:3}.merge({})""", Str:Obj?["x":n(3)])
     verifyEval("""{x:3}.merge({y,z:9})""", Str:Obj?["x":n(3), "y":Marker.val, "z":n(9)])
@@ -1149,7 +1149,7 @@ class CoreLibTest : HaystackTest
     verifyEval(x + """.meta->title""", "grids!")
     verifyEval(x + """.cols.map(c => c.name).sort""", Obj?["age", "bar", "foo", "name"])
     verifyEval(x + """.col("age").name""", "age")
-    verifyEval(x + """.col("age").meta""", Etc.emptyDict)
+    verifyEval(x + """.col("age").meta""", Etc.dict0)
     verifyEval(x + """.col("bad", false)""", null)
     verifyEvalErr(x + """.col("bad")""", UnknownNameErr#)
     verifyEvalErr(x + """.col("bad", true)""", UnknownNameErr#)
@@ -1512,7 +1512,7 @@ class CoreLibTest : HaystackTest
     gb.addCol("a", ["am":m]).addCol("b", ["bm":m])
     grid := gb.toGrid
 
-    verifyGridEq(AxonFuncs.addRows(grid, [Etc.emptyDict]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict0]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm
              N,    N
@@ -1532,14 +1532,14 @@ class CoreLibTest : HaystackTest
     gb.addRow([null, "b0"])
     grid = gb.toGrid
 
-    verifyGridEq(AxonFuncs.addRows(grid, [Etc.emptyDict]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict0]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm
              N,     "b0"
              N,     N
              |>))
 
-    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict2("a", "x", "b", "y"), Etc.emptyDict, Etc.dict1("c", "z")]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict2("a", "x", "b", "y"), Etc.dict0, Etc.dict1("c", "z")]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm,  c
              N,     "b0",  N
@@ -1555,14 +1555,14 @@ class CoreLibTest : HaystackTest
     gb.addRow(["a0", "b0"])
     grid = gb.toGrid
 
-    verifyGridEq(AxonFuncs.addRows(grid, [Etc.emptyDict]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict0]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm
              "a0", "b0"
              N,    N
              |>))
 
-    verifyGridEq(AxonFuncs.addRows(grid, [Etc.emptyDict, Etc.dict1("a", "x")]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict0, Etc.dict1("a", "x")]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm
              "a0", "b0"
@@ -1570,7 +1570,7 @@ class CoreLibTest : HaystackTest
              "x",  N
              |>))
 
-    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict2("b", "x", "c", "y"), Etc.emptyDict, Etc.dict1("a", "z")]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict2("b", "x", "c", "y"), Etc.dict0, Etc.dict1("a", "z")]),
       g(Str<|ver:"3.0" foo:"bar"
              a am,  b bm, c
              "a0", "b0", N
@@ -1582,7 +1582,7 @@ class CoreLibTest : HaystackTest
     // start off with empty grid to ensure 'empty' col is stripped
     grid = Etc.makeEmptyGrid(["foo":"bar"])
 
-    verifyGridEq(AxonFuncs.addRows(grid, [Etc.emptyDict]),
+    verifyGridEq(AxonFuncs.addRows(grid, [Etc.dict0]),
       g(Str<|ver:"3.0" foo:"bar"
              empty
              N
@@ -1594,7 +1594,7 @@ class CoreLibTest : HaystackTest
              "x"
              |>))
 
-    verifyGridEq(AxonFuncs.addRows(AxonFuncs.addRows(grid, [Etc.emptyDict]), [Etc.dict1("a", "x")]),
+    verifyGridEq(AxonFuncs.addRows(AxonFuncs.addRows(grid, [Etc.dict0]), [Etc.dict1("a", "x")]),
       g(Str<|ver:"3.0" foo:"bar"
              a
              N
@@ -1665,7 +1665,7 @@ class CoreLibTest : HaystackTest
     verifyToAxonCode(Coord(12f, -34f))
     verifyToAxonCode([,])
     verifyToAxonCode(["a", n(4)])
-    verifyToAxonCode(Etc.emptyDict)
+    verifyToAxonCode(Etc.dict0)
     verifyToAxonCode(Etc.makeDict(["a":m]))
     verifyToAxonCode(Etc.makeDict(["a":m, "b":"str"]))
     verifyToAxonCode(Etc.makeDict(["a b":m, "x y": Coord(1f, 2f), "b":[true, null, "x"]]))

@@ -22,7 +22,7 @@ using haystack
     f(this)
     if (!Etc.isTagName(name)) throw Err("Invalid register name: $name")
     if (dis == null || dis.isEmpty) dis = name
-    if (tags == null) tags = Etc.emptyDict
+    if (tags == null) tags = Etc.dict0
   }
 
   ** Programatic name of the register

@@ -44,7 +44,7 @@ const class HxFolioHooks : FolioHooks
     else if (diff.isRemove)
     {
       // TODO: should not need this anymore...
-      rec := proj.readById(diff.id, false) ?: Etc.emptyDict
+      rec := proj.readById(diff.id, false) ?: Etc.dict0
 
       // cannot directly remove a library
       if (rec.has("ext") && !diff.isBypassRestricted) throw CommitErr("Must use libRemove to remove lib rec")

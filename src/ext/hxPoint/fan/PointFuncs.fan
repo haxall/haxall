@@ -224,7 +224,7 @@ const class PointFuncs
     cx := curContext
     if (level == null) throw ArgErr("level arg is null")
     if (who == null) who = cx.user.dis
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
     return ext(cx).writeMgr.write(Etc.toRec(point), val, level.toInt, who, opts).get(timeout)
   }
 
@@ -250,7 +250,7 @@ const class PointFuncs
     if (level.toInt == 8 && val != null && duration != null)
       val = Etc.dict2("val", val, "duration", duration.toDuration)
 
-    return ext.writeMgr.write(rec, val, level.toInt, cx.user.dis, Etc.emptyDict).get(timeout)
+    return ext.writeMgr.write(rec, val, level.toInt, cx.user.dis, Etc.dict0).get(timeout)
   }
 
   **
@@ -287,7 +287,7 @@ const class PointFuncs
   {
     cx := curContext
     ext := ext(cx)
-    rec := pt == null ? Etc.emptyDict : Etc.toRec(pt)
+    rec := pt == null ? Etc.dict0 : Etc.toRec(pt)
     return PointConvert.fromStr(convert).convert(ext, rec, val)
   }
 

@@ -21,9 +21,9 @@ const class Etc
 //////////////////////////////////////////////////////////////////////////
 
   **
-  ** Get the emtpy Dict instance.
+  ** Get the emtpy Dict instance, prefer dict0 now
   **
-  static Dict emptyDict() { EmptyDict.val }
+  @NoDoc static Dict emptyDict() { EmptyDict.val }
 
   **
   ** Empty Str:Obj map
@@ -578,7 +578,7 @@ const class Etc
   **
   static Dict dictSet(Dict? d, Str name, Obj? val)
   {
-    if (val == null) return d ?: Etc.emptyDict
+    if (val == null) return d ?: Etc.dict0
     if (d == null || d.isEmpty) return dict1(name, val)
     map := Str:Obj[:]
     if (d != null)
@@ -981,7 +981,7 @@ const class Etc
   static Str[] macroVars(Str pattern)
   {
     try
-      return Macro(pattern, Etc.emptyDict).vars
+      return Macro(pattern, Etc.dict0).vars
     catch (Err e)
       return Str#.emptyList
   }
@@ -1006,7 +1006,7 @@ const class Etc
     kind := Kind.fromVal(val, false)
     str := kind == null || kind === Kind.str ?
            val.toStr :
-           kind.valToDis(val, meta ?: Etc.emptyDict)
+           kind.valToDis(val, meta ?: Etc.dict0)
     if (clip && str.size > 55 && kind !== Kind.ref) str = str[0..55] + "..."
     return str
   }
@@ -1543,7 +1543,7 @@ const class Etc
     if (grids.isEmpty) return emptyGrid
     if (grids.size == 1) return grids[0]
 
-    meta := Etc.emptyDict
+    meta := Etc.dict0
     cols := Str:Dict[:] { ordered = true }
     grids.each |g|
     {

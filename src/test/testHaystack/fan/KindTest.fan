@@ -28,7 +28,7 @@ class KindTest : HaystackTest
     verifyBasics(Kind.coord,    "Coord",    Coord.defVal)
     verifyBasics(Kind.date,     "Date",     Date.today )
     verifyBasics(Kind.dateTime, "DateTime", DateTime.defVal)
-    verifyBasics(Kind.dict,     "Dict",     Etc.emptyDict, true)
+    verifyBasics(Kind.dict,     "Dict",     Etc.dict0, true)
     verifyBasics(Kind.grid,     "Grid",     Etc.makeEmptyGrid, true)
     verifyBasics(Kind.list,     "List",     Obj?[,], true)
     verifyBasics(Kind.marker,   "Marker",   Marker.val)
@@ -133,7 +133,7 @@ class KindTest : HaystackTest
     verifyFromVal(true,                      "Bool")
     verifyFromVal(Coord(0f, 0f),             "Coord")
     verifyFromVal(Date.today,                "Date")
-    verifyFromVal(Etc.emptyDict,             "Dict")
+    verifyFromVal(Etc.dict0,             "Dict")
     verifyFromVal(Etc.makeDict(["a":"!"]),   "Dict")
     verifyFromVal(Etc.makeEmptyGrid,         "Grid")
     verifyFromVal([,],                       "Obj[]")
@@ -191,7 +191,7 @@ class KindTest : HaystackTest
 
   Void testInferredList()
   {
-    dict0 := Etc.emptyDict
+    dict0 := Etc.dict0
     dict1 := Etc.makeDict(["a":"A"])
     dict2 := Etc.makeDict(["a":"A", "b":"B"])
     dict3 := Etc.makeDict(["a":"A", "b":"B", "c":"C"])

@@ -201,7 +201,7 @@ internal class HisCollectRec
     // write to historian; checks are sync, write to disk is async
     try
     {
-      mgr.ext.proj.exts.his.write(rec, toWrite, Etc.emptyDict)
+      mgr.ext.proj.exts.his.write(rec, toWrite, Etc.dict0)
       writeErr = null
     }
     catch (Err e)

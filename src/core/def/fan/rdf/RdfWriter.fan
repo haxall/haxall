@@ -22,7 +22,7 @@ using haystack
 
   new make(RdfOutStream out, Dict? opts := null)
   {
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
     this.out = out
     this.ns  = opts["ns"] as DefNamespace ?: throw ArgErr("Opts must include ns")
     out.setNs("owl", "http://www.w3.org/2002/07/owl#")

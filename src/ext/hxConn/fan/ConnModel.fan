@@ -28,7 +28,7 @@ const final class ConnModel
 // TODO
 libDef := ext.proj.defs.lib(name)
     connDef := def(ns, ext, "${prefix}Conn")
-    features := connDef["connFeatures"] as Dict ?: Etc.emptyDict
+    features := connDef["connFeatures"] as Dict ?: Etc.dict0
 
     // check tag/func defs
     this.connTag    = connDef.name

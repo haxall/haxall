@@ -32,7 +32,7 @@ const class FantomFn : TopFn
       facet := m.facet(Axon#, false)
       if (facet == null) return
       name := FantomFn.toName(m)
-      meta := Etc.emptyDict
+      meta := Etc.dict0
       fn := reflectMethod(m, name, meta, null)
       acc[fn.name] = fn
     }

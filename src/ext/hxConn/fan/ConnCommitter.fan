@@ -20,7 +20,7 @@ internal const final class ConnCommitter
 {
   ** Last representation of all tags we are managing on the rec
   Dict managed() { managedRef.val }
-  private const AtomicRef managedRef := AtomicRef(Etc.emptyDict)
+  private const AtomicRef managedRef := AtomicRef(Etc.dict0)
 
   ** Make a forced transient commit for one tag
   Void commit1(ConnExt ext, Dict rec, Str n0, Obj? v0)

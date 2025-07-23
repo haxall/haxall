@@ -57,7 +57,7 @@ const class Rec
 
   ** Transient tags [owned by IndexMgr]
   Dict transient() { transientRef.val }
-  private const AtomicRef transientRef := AtomicRef(Etc.emptyDict)
+  private const AtomicRef transientRef := AtomicRef(Etc.dict0)
 
   ** Is this record marked for trash
   Bool isTrash() { isTrashRef.val }

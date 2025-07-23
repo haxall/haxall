@@ -284,7 +284,7 @@ internal const class ExtActorObserver : Observer
   {
     this.ext   = ext
     this.actor = actor
-    this.meta  = Etc.emptyDict
+    this.meta  = Etc.dict0
   }
 
   const Ext ext
@@ -304,7 +304,7 @@ internal const class ExtMethodObserver : Observer
     this.ext    = ext
     this.actor  = (HxExtSpi)ext.spi
     this.method = method
-    this.meta   = Etc.emptyDict
+    this.meta   = Etc.dict0
   }
 
   const Ext ext

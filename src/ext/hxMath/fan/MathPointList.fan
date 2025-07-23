@@ -24,7 +24,7 @@ internal class MathPointList
     ycol := grid.cols[1]
 
     // check options
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
     if (opts.has("x")) xcol = grid.col(opts->x)
     if (opts.has("y")) ycol = grid.col(opts->y)
 

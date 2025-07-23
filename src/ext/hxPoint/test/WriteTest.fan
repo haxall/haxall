@@ -313,7 +313,7 @@ class WriteTest : HxTest
 internal const class TestObserver : Actor, Observer
 {
   new make() : super(ActorPool()) {}
-  override Dict meta() { Etc.emptyDict }
+  override Dict meta() { Etc.dict0 }
   override Actor actor() { this }
   override Obj? receive(Obj? msg)
   {

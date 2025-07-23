@@ -92,7 +92,7 @@ internal class Query : HaystackContext
     return FilterInference.nil
   }
 
-  override Dict toDict() { Etc.emptyDict }
+  override Dict toDict() { Etc.dict0 }
 
   static QueryPlan? doMakePlan(IndexMgr index, Filter filter, Bool inCompound)
   {
@@ -154,7 +154,7 @@ internal const class QueryOpts
 
   new makeLimit(Int limit)
   {
-    this.opts  = Etc.emptyDict
+    this.opts  = Etc.dict0
     this.limit = limit
   }
 

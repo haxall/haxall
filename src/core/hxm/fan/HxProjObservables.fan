@@ -178,7 +178,7 @@ const class HxProjObservables : Actor, ProjObservables
   private static Dict toDiffRec(Dict? r)
   {
     if (r == null || r.has("trash"))
-      return Etc.emptyDict
+      return Etc.dict0
     else
       return r
   }
@@ -205,9 +205,9 @@ const class HxProjObservables : Actor, ProjObservables
 
   internal Void sendAddOnInit(CommitsSubscription sub)
   {
-    rt.db.readAllEach(sub.filter, Etc.emptyDict) |rec|
+    rt.db.readAllEach(sub.filter, Etc.dict0) |rec|
     {
-      event := CommitObservation(commits, CommitObservationAction.added, rt.now, rec.id, Etc.emptyDict, rec, null)
+      event := CommitObservation(commits, CommitObservationAction.added, rt.now, rec.id, Etc.dict0, rec, null)
       sub.send(event)
     }
   }

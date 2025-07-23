@@ -93,7 +93,7 @@ const mixin Grid
     val := meta["incomplete"]
     if (val == null && meta.has("more"))
     {
-      val = Etc.emptyDict
+      val = Etc.dict0
       if (meta.has("limit")) val = Etc.dict1("dis", "Limit exceeded: " + this.meta["limit"])
     }
     if (val == null)
@@ -101,7 +101,7 @@ const mixin Grid
       if (checked) throw UnknownNameErr("incomplete")
       return null
     }
-    return val as Dict ?: Etc.emptyDict
+    return val as Dict ?: Etc.dict0
   }
 
   **

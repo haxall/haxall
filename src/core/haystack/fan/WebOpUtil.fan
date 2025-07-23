@@ -32,7 +32,7 @@ using xeto
   ** Get reader/writer options
   virtual Dict ioOpts(Filetype filetype, MimeType mime)
   {
-    filetype.ioOpts(defs, mime, Etc.emptyDict, Etc.emptyDict)
+    filetype.ioOpts(defs, mime, Etc.dict0, Etc.dict0)
   }
 
 //////////////////////////////////////////////////////////////////////////

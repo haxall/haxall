@@ -125,7 +125,7 @@ const class HaystackFuncs
   @Api @Axon { admin = true }
   static Obj? haystackInvokeAction(Obj conn, Obj id, Str action, Dict? args := null)
   {
-    dispatch(curContext, conn, HxMsg("invokeAction", id, action, args ?: Etc.emptyDict))
+    dispatch(curContext, conn, HxMsg("invokeAction", id, action, args ?: Etc.dict0))
   }
 
   **
@@ -158,7 +158,7 @@ const class HaystackFuncs
     // evaluate arguments options
     cx := curContext
     c := conn.eval(cx)
-    options := opts.eval(cx) as Dict ?: Etc.emptyDict
+    options := opts.eval(cx) as Dict ?: Etc.dict0
 
     // build do block with serialized vars in scope and expr itself
     exprStr := expr.toStr

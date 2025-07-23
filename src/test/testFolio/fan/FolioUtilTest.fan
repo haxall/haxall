@@ -71,7 +71,7 @@ class FolioUtilTest : HaystackTest
     // old/new handling
     verifyErr(DiffErr#) { x := Diff.makeAdd(["id":Ref.gen]) }
     verifyErr(DiffErr#) { x := Diff(null, ["id":Ref.gen], Diff.add) }
-    verifyErr(DiffErr#) { x := Diff(Etc.emptyDict, ["foo":m], Diff.add) }
+    verifyErr(DiffErr#) { x := Diff(Etc.dict0, ["foo":m], Diff.add) }
     verifyErr(DiffErr#) { x := Diff(null, ["id":Ref.gen]) }
 
     // diff flags

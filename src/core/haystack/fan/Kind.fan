@@ -338,7 +338,7 @@ const abstract class Kind
   @NoDoc virtual Str valToAxon(Obj val) { valToStr(val) }
 
   ** Convert value to display string
-  @NoDoc virtual Str valToDis(Obj val, Dict meta := Etc.emptyDict) { val.toStr }
+  @NoDoc virtual Str valToDis(Obj val, Dict meta := Etc.dict0) { val.toStr }
 
 }
 
@@ -361,7 +361,7 @@ internal const final class MarkerKind : Kind
   override Bool isSingleton() { true }
   override Str valToZinc(Obj val) { "M" }
   override Str valToJson(Obj val) { "m:" }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { "\u2713" }
+  override Str valToDis(Obj val, Dict meta := Etc.dict0) { "\u2713" }
   override Str valToAxon(Obj val) { "marker()" }
   override Obj defVal() { Marker.val }
 }
@@ -373,7 +373,7 @@ internal const final class NAKind : Kind
   override Bool isSingleton() { true }
   override Str valToZinc(Obj val) { "NA" }
   override Str valToJson(Obj val) { "z:" }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { "NA" }
+  override Str valToDis(Obj val, Dict meta := Etc.dict0) { "NA" }
   override Str valToAxon(Obj val) { "na()" }
   override Obj defVal() { NA.val }
   override Bool canStore() { false }
@@ -386,7 +386,7 @@ internal const final class RemoveKind : Kind
   override Bool isSingleton() { true }
   override Str valToZinc(Obj val) { "R" }
   override Str valToJson(Obj val) { "-:" }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { "\u2716" }
+  override Str valToDis(Obj val, Dict meta := Etc.dict0) { "\u2716" }
   override Str valToAxon(Obj val) { "removeMarker()" }
   override Obj defVal() { Remove.val }
 }
@@ -397,7 +397,7 @@ internal const final class BoolKind : Kind
   new make() : super("Bool", Bool#) {}
   override Str valToZinc(Obj val) { val ? "T" : "F" }
   override Str valToJson(Obj val) { throw UnsupportedErr() }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict)
+  override Str valToDis(Obj val, Dict meta := Etc.dict0)
   {
     bool := (Bool)val
     enum := meta["enum"] as Str
@@ -415,7 +415,7 @@ internal const final class NumberKind : Kind
 {
   new make() : super("Number", Number#) {}
   override Bool isNumber() { true }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { ((Number)val).toLocale(meta["format"]) }
+  override Str valToDis(Obj val, Dict meta := Etc.dict0) { ((Number)val).toLocale(meta["format"]) }
   override Str valToJson(Obj val) { ((Number)val).toJson }
   override Str valToAxon(Obj val)
   {
@@ -438,7 +438,7 @@ internal const final class RefKind : Kind
   override Bool isRef() { true }
 
   override Str valToStr(Obj val) { ((Ref)val).toCode }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { ((Ref)val).dis }
+  override Str valToDis(Obj val, Dict meta := Etc.dict0) { ((Ref)val).dis }
   override Str valToZinc(Obj val) { ((Ref)val).toZinc }
   override Str valToJson(Obj val) { ((Ref)val).toJson }
   override Str valToAxon(Obj val) { ((Ref)val).toCode }
@@ -461,7 +461,7 @@ internal const final class StrKind : Kind
 {
   new make() : super("Str", Str#) {}
   override Str valToStr(Obj val) { ((Str)val).toCode }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict)
+  override Str valToDis(Obj val, Dict meta := Etc.dict0)
   {
     s := (Str)val
     if (s.size < 62) return s
@@ -478,7 +478,7 @@ internal const final class UriKind : Kind
   override Str valToStr(Obj val) { ((Uri)val).toCode }
   override Str valToJson(Obj val) { "u:" + val }
   override Str valToAxon(Obj val) { ((Uri)val).toCode }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict)
+  override Str valToDis(Obj val, Dict meta := Etc.dict0)
   {
     format := meta["format"] as Str
     if (format != null) return format
@@ -498,7 +498,7 @@ internal const final class DateTimeKind : Kind
     else
       return dt.toStr
   }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { ((DateTime)val).toLocale(meta["format"]) }
+  override Str valToDis(Obj val, Dict meta := Etc.dict0) { ((DateTime)val).toLocale(meta["format"]) }
   override Str valToJson(Obj val) { "t:" + val }
   override Str valToAxon(Obj val) { "parseDateTime($val.toStr.toCode)" }
 }
@@ -508,7 +508,7 @@ internal const final class DateKind : Kind
 {
   new make() : super("Date", Date#) {}
   override Obj defVal() { Date.today }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { ((Date)val).toLocale(meta["format"]) }
+  override Str valToDis(Obj val, Dict meta := Etc.dict0) { ((Date)val).toLocale(meta["format"]) }
   override Str valToJson(Obj val) { "d:" + val }
 }
 
@@ -516,7 +516,7 @@ internal const final class DateKind : Kind
 internal const final class TimeKind : Kind
 {
   new make() : super("Time", Time#) {}
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { ((Time)val).toLocale(meta["format"]) }
+  override Str valToDis(Obj val, Dict meta := Etc.dict0) { ((Time)val).toLocale(meta["format"]) }
   override Str valToJson(Obj val) { "h:" + val }
 }
 
@@ -559,7 +559,7 @@ internal const final class SpanKind : Kind
   override Str valToZinc(Obj val) { "Span($val.toStr.toCode)" }
   override Str valToJson(Obj val) { "x:Span:$val" }
   override Str valToAxon(Obj val) { ((Span)val).toCode }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict)  { ((Span)val).dis }
+  override Str valToDis(Obj val, Dict meta := Etc.dict0)  { ((Span)val).dis }
 }
 
 **************************************************************************
@@ -583,7 +583,7 @@ internal const final class ListKind : Kind
   override Obj defVal() { Obj?[,] }
   override Str valToAxon(Obj v) { "[" + ((List)v).join(", ") |x| { Etc.toAxon(x) }  + "]" }
   override Str valToZinc(Obj v) { "[" + ((List)v).join(", ") |x| { ZincWriter.valToStr(x) }  + "]" }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict)
+  override Str valToDis(Obj val, Dict meta := Etc.dict0)
   {
     list := (List)val
     if (list.isEmpty) return ""
@@ -618,7 +618,7 @@ internal const final class DictKind : Kind
   override Kind toTagOf(Str tag) { makeTag(tag) }
   override Bool isCollection() { true }
   override Bool isDict() { true }
-  override Obj defVal() { Etc.emptyDict }
+  override Obj defVal() { Etc.dict0 }
   override Str valToAxon(Obj val)
   {
     s := StrBuf().add("{")
@@ -642,7 +642,7 @@ internal const final class GridKind : Kind
   override Bool isCollection() { true }
   override Bool isGrid() { true }
   override Obj defVal() { Etc.makeEmptyGrid }
-  override Str valToDis(Obj val, Dict meta := Etc.emptyDict) { "<<Nested Grid>>" }
+  override Str valToDis(Obj val, Dict meta := Etc.dict0) { "<<Nested Grid>>" }
   override Str valToAxon(Obj val) { throw UnsupportedErr("Cannot format grid to Axon") }
 }
 

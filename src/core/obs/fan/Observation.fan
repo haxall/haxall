@@ -35,7 +35,7 @@ const mixin Observation : Dict
 **
 internal const class MObservation : Observation
 {
-  new make(Observable observable, DateTime ts, Dict more := Etc.emptyDict)
+  new make(Observable observable, DateTime ts, Dict more := Etc.dict0)
   {
     this.type = observable.name
     this.ts = ts

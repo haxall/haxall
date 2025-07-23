@@ -171,8 +171,8 @@ class EtcTest : HaystackTest
   Void testDict()
   {
     // empty dict
-    verifySame(Etc.emptyDict, Etc.emptyDict)
-    verifySame(Etc.emptyDict, Etc.makeDict(Str:Obj?[:]))
+    verifySame(Etc.dict0, Etc.dict0)
+    verifySame(Etc.dict0, Etc.makeDict(Str:Obj?[:]))
     verifyDict(Str:Obj?[:])
     verifyEq(Etc.makeDict(null).typeof.qname, "haystack::EmptyDict")
 
@@ -374,7 +374,7 @@ class EtcTest : HaystackTest
     if (d is HisItem) return
 
     if (expected.size == 0)
-      verifySame(d, Etc.emptyDict)
+      verifySame(d, Etc.dict0)
     else if (expected.size <= 6 && fixed)
       verifyEq(d.typeof.qname, "haystack::Dict${expected.size}")
     else
@@ -423,7 +423,7 @@ class EtcTest : HaystackTest
     verifySame(d, Etc.dictRemoveAllWithVal(d, n(3)))
     verifyDictEq(Etc.dictRemoveAllWithVal(d, n(4)), ["y":n(5)])
 
-    d = Etc.emptyDict
+    d = Etc.dict0
     verifySame(d, Etc.dictRemoveNulls(d))
     d = Etc.makeDict(["a":n(1), "b":n(2)])
     verifySame(d, Etc.dictRemoveNulls(d))
@@ -443,7 +443,7 @@ class EtcTest : HaystackTest
 
   Void testMerge()
   {
-    empty := Etc.emptyDict
+    empty := Etc.dict0
     x := Etc.makeDict(["x":n(123)])
     verifySame(Etc.dictMerge(empty, empty), empty)
     verifySame(Etc.dictMerge(empty, x), x)
@@ -549,11 +549,11 @@ class EtcTest : HaystackTest
    verifySame(Etc.emptyGrid, Etc.emptyGrid)
    verifySame(Etc.makeEmptyGrid(null), Etc.emptyGrid)
 
-   verifySame(Etc.makeEmptyGrid(Etc.emptyDict), Etc.emptyGrid)
+   verifySame(Etc.makeEmptyGrid(Etc.dict0), Etc.emptyGrid)
    verifyNotSame(Etc.makeEmptyGrid(["foo":"bar"]), Etc.emptyGrid)
    verifyDictEq(Etc.makeEmptyGrid(["foo":"bar"]).meta, ["foo":"bar"])
 
-   verifySame(Etc.makeDictsGrid(Etc.emptyDict, Dict[,]), Etc.emptyGrid)
+   verifySame(Etc.makeDictsGrid(Etc.dict0, Dict[,]), Etc.emptyGrid)
    verifyNotSame(Etc.makeDictsGrid(["foo":"bar"], Dict[,]), Etc.emptyGrid)
    verifyDictEq(Etc.makeDictsGrid(["foo":"bar"], Dict[,]).meta, ["foo":"bar"])
  }
@@ -658,7 +658,7 @@ class EtcTest : HaystackTest
   {
     id := Ref.gen
 
-    verifyEq(Etc.emptyDict.dis, "{}")
+    verifyEq(Etc.dict0.dis, "{}")
 
     verifyToDis(["disMacro":Str<|$equipRef $navName|>, "equipRef":Ref("e", "RTU"),
                  "navName":"Fan"], "RTU Fan")

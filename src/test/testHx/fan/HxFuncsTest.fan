@@ -56,7 +56,7 @@ class HxFuncsTest : HxTest
     verifyDictEq(eval("readByIds([$a.id.toCode, $b.id.toCode, $d.id.toCode])")->get(1), b)
     verifyDictEq(eval("readByIds([$a.id.toCode, $b.id.toCode, $d.id.toCode])")->get(2), d)
     verifyDictEq(eval("readByIds([$a.id.toCode, @badId], false)")->get(0), a)
-    verifyDictEq(eval("readByIds([$a.id.toCode, @badId], false)")->get(1), Etc.emptyDict)
+    verifyDictEq(eval("readByIds([$a.id.toCode, @badId], false)")->get(1), Etc.dict0)
 
     // trap on id
     verifyEq(eval("(${a.id.toCode})->dis"), "andy")

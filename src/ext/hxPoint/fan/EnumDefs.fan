@@ -68,7 +68,7 @@ const class EnumDefs
     return null
   }
 
-  private const AtomicRef metaRef := AtomicRef(Etc.emptyDict)
+  private const AtomicRef metaRef := AtomicRef(Etc.dict0)
   private const AtomicRef byName := AtomicRef(Str:EnumDef[:].toImmutable)
 
 }

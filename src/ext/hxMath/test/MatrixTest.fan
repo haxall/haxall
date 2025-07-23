@@ -264,7 +264,7 @@ class MatrixTest : HaystackTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  MatrixGrid toMatrix(Str zinc, Dict opts := Etc.emptyDict)
+  MatrixGrid toMatrix(Str zinc, Dict opts := Etc.dict0)
   {
     grid := ZincReader(zinc.in).readGrid
     return MatrixGrid(grid, opts)

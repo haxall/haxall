@@ -54,7 +54,7 @@ internal abstract class EcobeeConnTask
     return EcobeePropId.fromStr(val)
   }
 
-  Dict pointData(ConnPoint pt) { pt.data as Dict ?: Etc.emptyDict }
+  Dict pointData(ConnPoint pt) { pt.data as Dict ?: Etc.dict0 }
 }
 
 **************************************************************************

@@ -181,7 +181,7 @@ const class ConnWriteInfo
     this.level   = obs.level.toInt
     this.isFirst = obs.isFirst
     this.who     = obs.who
-    this.opts    = obs.opts ?: Etc.emptyDict
+    this.opts    = obs.opts ?: Etc.dict0
     this.extra   = ""
   }
 

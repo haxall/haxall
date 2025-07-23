@@ -92,7 +92,7 @@ const class PointExt : ExtObj, IPointExt
     if (e == null) return
 
     newRec := e.newRec
-    if (newRec.has("trash")) newRec = Etc.emptyDict
+    if (newRec.has("trash")) newRec = Etc.dict0
     enums.updateMeta(newRec, log)
   }
 

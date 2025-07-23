@@ -94,7 +94,7 @@ internal class TestContext : AxonContext
 
   override FilterInference inference() { FilterInference.nil }
 
-  override Dict toDict() { Etc.emptyDict }
+  override Dict toDict() { Etc.dict0 }
 
   override LibNamespace ns() { throw UnsupportedErr() }
 

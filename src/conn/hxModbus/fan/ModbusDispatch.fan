@@ -65,7 +65,7 @@ class ModbusDispatch : ConnDispatch
   {
     try { link.ping(dev) }
     catch (Err err) { close(err); throw err }
-    return Etc.emptyDict
+    return Etc.dict0
   }
 
 //////////////////////////////////////////////////////////////////////////

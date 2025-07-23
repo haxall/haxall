@@ -43,7 +43,7 @@ internal class IOCsvReader
   {
     this.cx        = cx
     this.handle    = handle
-    this.opts      = opts ?: Etc.emptyDict
+    this.opts      = opts ?: Etc.dict0
     this.delimiter = this.opts["delimiter"] as Str ?: ","
     this.noHeader  = this.opts.has("noHeader")
   }

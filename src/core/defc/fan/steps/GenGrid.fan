@@ -62,7 +62,7 @@ internal abstract class GenGrid : DefCompilerStep
   private Void writeGrid(Grid grid, Filetype filetype, OutStream out)
   {
     c := compiler
-    opts := filetype.ioOpts(c.ns, null, Etc.emptyDict, Etc.emptyDict)
+    opts := filetype.ioOpts(c.ns, null, Etc.dict0, Etc.dict0)
     writer := filetype.writer(out, opts)
     writer.writeGrid(grid)
     out.close

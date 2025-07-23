@@ -86,7 +86,7 @@ const class Task : Actor, Observer, HxTask
   {
     this.ext  = ext
     this.id   = Ref("ephemeral-$ephemeralCounter.getAndIncrement", expr.toStr)
-    this.rec  = Etc.emptyDict
+    this.rec  = Etc.dict0
     this.type = TaskType.ephemeral
     this.expr = expr
   }
@@ -119,7 +119,7 @@ const class Task : Actor, Observer, HxTask
 //////////////////////////////////////////////////////////////////////////
 
   ** Observer meta
-  override Dict meta() { Etc.emptyDict }
+  override Dict meta() { Etc.dict0 }
 
   ** Actor is self
   override Actor actor() { this }
@@ -436,7 +436,7 @@ const class Task : Actor, Observer, HxTask
   private const AtomicRef errLastRef            := AtomicRef() // Err
   private const AtomicRef subscriptionRef       := AtomicRef() // Err or Subscription
   private const AtomicRef adjunctRef            := AtomicRef() // HxTaskAdjunct
-  private const AtomicRef progressRef           := AtomicRef(Etc.emptyDict) // Dict
+  private const AtomicRef progressRef           := AtomicRef(Etc.dict0) // Dict
 }
 
 **************************************************************************

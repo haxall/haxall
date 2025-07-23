@@ -79,7 +79,7 @@ const class MqttObservation : Observation
   {
     m := [Str:Str][:]
     props.each |prop| { m[prop.name] = prop.val }
-    return m.isEmpty ? Etc.emptyDict : Etc.makeDict(m)
+    return m.isEmpty ? Etc.dict0 : Etc.makeDict(m)
   }
 }
 

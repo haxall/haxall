@@ -935,7 +935,7 @@ const class AxonFuncs
     // add new column
     origRows := (Row[])grid->toRows
     removed  := grid.removeCols(cols.map |c->Str| { c.name })
-    added    := removed.addCol(newColName, Etc.emptyDict) |ignore, i|
+    added    := removed.addCol(newColName, Etc.dict0) |ignore, i|
     {
       // fold row cols into new col
       row := origRows[i]
@@ -1216,7 +1216,7 @@ const class AxonFuncs
   @Api @Axon static Grid addCol(Grid grid, Obj? col, Fn fn)
   {
     Str? name := col as Str
-    Dict meta := Etc.emptyDict
+    Dict meta := Etc.dict0
     if (col is Dict)
     {
       meta = col
@@ -1364,7 +1364,7 @@ const class AxonFuncs
     grid.cols.each |col| { cols[col.name] = col.meta }
     rows.each |r|
     {
-      Etc.dictEach(r) |v, n| { if (cols[n] == null) cols[n] = Etc.emptyDict }
+      Etc.dictEach(r) |v, n| { if (cols[n] == null) cols[n] = Etc.dict0 }
     }
 
     // if we have a column called empty with all nulls, then strip it;
@@ -2718,7 +2718,7 @@ const class AxonFuncs
   {
     if (sep == null) return val.split
     if (sep.size != 1) throw ArgErr("Split string must be one char: $sep.toCode")
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
     trim := opts.missing("noTrim")
     return val.split(sep[0], trim)
   }

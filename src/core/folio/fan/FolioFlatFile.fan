@@ -112,7 +112,7 @@ const class FolioFlatFile : Folio
 
   @NoDoc override Obj? doReadAllEachWhile(Filter filter, Dict? opts, |Dict->Obj?| f)
   {
-    if (opts == null) opts = Etc.emptyDict
+    if (opts == null) opts = Etc.dict0
     limit := (opts["limit"] as Number)?.toInt ?: 10_000
     skipTrash := opts.missing("trash")
 
