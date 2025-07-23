@@ -116,7 +116,7 @@ class HaystackConnTest : HxTest
   Void verifyConn()
   {
     // create connector
-    uri := sys.http.siteUri + sys.http.apiUri
+    uri := sys.http.siteUri + `/api/{$proj.name}/`
     conn = addRec(["haystackConn":Marker.val, "uri":uri, "username":"hay", "haystackPollFreq":n(10, "ms")])
     proj.db.passwords.set(conn.id.toStr, "foo")
     proj.sync

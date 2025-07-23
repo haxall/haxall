@@ -11,6 +11,7 @@ using concurrent
 using inet
 using xeto
 using haystack
+using folio
 using auth
 using axon
 using hx
@@ -56,13 +57,11 @@ abstract class ApiTest : HxTest
 
   private Void initData()
   {
-    if (sys.info.rt.isSkySpark) addLib("his")
-    addLib("point")
+    if (sys.info.rt.isSkySpark) addLib("hx.his")
+    addLib("hx.point")
 
     try { sys.libs.add("hx.http") } catch (Err e) {}
-    this.uri = sys.http.siteUri + sys.http.apiUri
-//    verifyNotEq(rt.http.typeof, NilHttpService#)
-fail
+    this.uri = sys.http.siteUri + `/api/sys/`
 
     // setup user accounts
     addUser("alice",   "a-secret", ["userRole":"op"])
@@ -90,7 +89,8 @@ fail
   {
     if (sys.info.rt.isSkySpark) return
 
-    rec := proj.read("ext==\"http\"")
+    ext := proj.ext("hx.http")
+    rec := ext.settings
     host := IpAddr.local.hostname
     port := rec.has("httpPort") ? ((Number)rec->httpPort).toInt : 8080
     defSiteUri := `http://${host}:${port}/`
@@ -99,11 +99,11 @@ fail
     verifySiteUri(defSiteUri)
 
     // set siteUri in settings
-    rec = commit(rec, ["siteUri":`http://test-it/`])
+    ext.settingsUpdate(Diff(ext.settings, ["siteUri":`http://test-it/`]))
     verifySiteUri(`http://test-it/`)
 
     // clear siteUri in settings, fallback to default
-    rec = commit(rec, ["siteUri":Remove.val])
+    ext.settingsUpdate(Diff(ext.settings, ["siteUri":Remove.val]))
     verifySiteUri(defSiteUri)
   }
 
@@ -141,7 +141,8 @@ fail
 
   private Client auth(Str user, Str pass)
   {
-    Client.open(uri, user, pass)
+echo(">>>>> open $uri")
+    return Client.open(uri, user, pass)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -46,10 +46,6 @@ const class HttpExt : ExtObj, IHttpExt
       return `http://${host}:${settings.httpPort}/`
   }
 
-  ** URI on this host to the Haystack HTTP API.  This is always
-  ** a host relative URI which end withs a slash such '/api/'.
-  override Uri apiUri() { `/api/` }
-
   ** Ready callback
   override Void onReady()
   {

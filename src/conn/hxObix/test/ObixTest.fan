@@ -106,7 +106,7 @@ class ObixTest : HxTest
   Void verifyLobby()
   {
     lib := (ObixExt)proj.ext("hx.obix")
-    projApiUri := proj.sys.http.siteUri + proj.sys.http.apiUri
+    projApiUri := proj.sys.http.siteUri + `/api/{$proj.name}/`
     lobbyUri = projApiUri + lib.web.uri
 
     // first use a haystack client to authenticate

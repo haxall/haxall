@@ -180,11 +180,6 @@ class TestAxonContext : AxonContext
     throw unsupported
   }
 
-  override Dict? trapRef(Ref id, Bool checked := true)
-  {
-    throw unsupported
-  }
-
   ** Evaluate an expression or if a filter then readAll convenience
   /*
   @NoDoc override Obj? evalOrReadAll(Str src)

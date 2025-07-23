@@ -34,9 +34,6 @@ const mixin IHttpExt : SysExt
   ** an absolute URI such 'https://acme.com/'
   abstract Uri siteUri()
 
-  ** TODO: bad!
-  abstract Uri apiUri()
-
   ** Root web module
   @NoDoc abstract WebMod? root(Bool checked := true)
 }
