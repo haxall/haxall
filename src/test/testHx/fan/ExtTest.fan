@@ -172,6 +172,11 @@ class ExtTest : HxTest
     proj.libs.remove(ext.name)
     ext = addExt("hx.test", ["init":"abc", "beach":m])
     verifySettings(ext, Etc.dict2("init", "abc", "beach", m))
+
+    // restart project and verify persisted
+    projRestart
+    ext = proj.exts.get("hx.test")
+    verifySettings(ext, Etc.dict2("init", "abc", "beach", m))
   }
 
   Void verifySettings(Ext ext, Dict expect)

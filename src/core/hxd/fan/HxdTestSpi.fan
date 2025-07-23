@@ -20,10 +20,9 @@ class HxdTestSpi : HxTestSpi
 {
   new make(HxTest test) : super(test) {}
 
-  static Proj boot(File dir, Dict projMeta := Etc.dict0)
+  static Proj boot(File dir, Bool create, Dict projMeta := Etc.dict0)
   {
 if (!projMeta.isEmpty) throw Err("TODO")
-    dir.delete
     boot := HxdBoot
     {
       it.name = "test"
@@ -34,18 +33,24 @@ if (!projMeta.isEmpty) throw Err("TODO")
       it.bootLibs.remove("hx.http")
       it.log.level = LogLevel.warn
     }
-    boot.create
+    if (create) { dir.delete; boot.create }
     return boot.load.start
   }
 
   override Proj start(Dict projMeta)
   {
-    boot(test.tempDir, projMeta)
+    boot(test.tempDir, true, projMeta)
   }
 
-  override Void stop(Proj rt)
+  override Void stop(Proj proj)
   {
-    ((HxProj)rt).stop
+    ((HxProj)proj).stop
+  }
+
+  override Void restart(Proj proj)
+  {
+    stop(proj)
+    boot(proj.dir, false)
   }
 
   override Void addLib(Str libName)

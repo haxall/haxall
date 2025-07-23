@@ -243,6 +243,9 @@ abstract const class HxProj : Proj
     futures = exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).stop }
     Future.waitForAll(futures)
 
+    // close database
+    db.close
+
     // kill actor pools
     actorPool.kill
   }

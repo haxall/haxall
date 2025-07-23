@@ -101,8 +101,8 @@ abstract class HxTest : HaystackTest
   ** Stop, then restart test project
   @NoDoc virtual Void projRestart()
   {
-    projStop
-    projStart
+    if (projRef == null) throw Err("Proj not started!")
+    spi.restart(projRef)
   }
 
   ** Service provider interface
@@ -263,6 +263,7 @@ abstract class HxTestSpi
   HxTest test { private set }
   abstract Proj start(Dict projMeta)
   abstract Void stop(Proj proj)
+  abstract Void restart(Proj proj)
   abstract User addUser(Str user, Str pass, Str:Obj? tags)
   abstract Void addLib(Str libName)
   abstract Ext addExt(Str libName, Str:Obj? tags)
