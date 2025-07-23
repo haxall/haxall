@@ -114,6 +114,10 @@ abstract class Fold
   ** Accumulate another value
   abstract Void add(Obj val)
 
+  ** Accumulate a value associated with a timestamp. The default
+  ** implementation ignores the timestamp and calls 'add(val)'.
+  virtual Void addHis(DateTime ts, Obj val) { add(val) }
+
   ** Batch the accumalation into an object for serialization
   abstract Obj? batch()
 
