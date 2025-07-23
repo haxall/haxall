@@ -109,14 +109,10 @@ class HxCoreLibTest : HxTest
     y := addFunc("y", "() => do f: () => curFunc(); f(); end")
 
     verifyEval("x()", normRecFunc(x))
-    verifyEval("x()->id", x.id)
-    verifyEval("x()->name", "x")
-    verifyEval("x()->lib", projLib)
+    verifyEval("x()->qname", "proj::x")
 
     verifyEval("y()", normRecFunc(y))
-    verifyEval("y()->id", y.id)
-    verifyEval("y()->name", "y")
-    verifyEval("y()->lib", projLib)
+    verifyEval("y()->qname", "proj::y")
   }
 
   @HxTestProj
@@ -141,8 +137,6 @@ class HxCoreLibTest : HxTest
     verifyDictEq(g[2], ["name":"c", "output":m, "awesome":n(2)])
 
     verifyGridEq(g, eval("""compDef(x)"""))
-    verifyGridEq(g, eval("""compDef($x.id.toCode)"""))
-    verifyGridEq(g, eval("""readById($x.id.toCode).compDef"""))
   }
 
   @HxTestProj
@@ -192,9 +186,8 @@ class HxCoreLibTest : HxTest
 
     // cannot override core functions
     addFunc("toHex", Str<|(i) => "hex override"|>)
-    verifyEval("100.toHex", "64")
+    verifyErr(AmbiguousSpecErr#) { eval("100.toHex") }
   }
-
 
   Obj? verifyEval(Str src, Obj? expected)
   {
