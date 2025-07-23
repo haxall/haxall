@@ -213,12 +213,17 @@ class ProjTest : HxTest
 
     // now simple one
     verifyEq(eval("today()"), Date.today)
+    verifyEq(eval("cryptoReadAllKeys()") is Grid, true)
 
     // as maps to _as
     verifyEq(eval("as(3, 1ft)"), n(3, "ft"))
 
     // read is lazy
     verifyDictEq(eval("read(projMeta)"), p.meta)
+
+    // qualified names
+    verifyEq(eval("axon::today()"), Date.today)
+    verifyEq(eval("hx.crypto::cryptoReadAllKeys()") is Grid, true)
 
     // create axon func in proj
     f := addFunc("foo1", "() => today()")
