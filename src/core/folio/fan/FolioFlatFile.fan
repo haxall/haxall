@@ -457,8 +457,8 @@ internal const class FolioFlatFileRec : FolioRec
   const override Dict dict
   override Int ticks() { throw UnsupportedErr() }
   override Int watchCount() { throw UnsupportedErr() }
-  override Int watchesIncrement() { throw UnsupportedErr() }
-  override Int watchesDecrement() { throw UnsupportedErr() }
+  override Int watchIncrement() { throw UnsupportedErr() }
+  override Int watchDecrement() { throw UnsupportedErr() }
 }
 
 **************************************************************************

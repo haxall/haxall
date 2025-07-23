@@ -26,9 +26,9 @@ const mixin FolioRec
   abstract Int watchCount()
 
   ** Increment watch count, return new count
-  abstract Int watchesIncrement()
+  abstract Int watchIncrement()
 
   ** Decrement watch count, return new count
-  abstract Int watchesDecrement()
+  abstract Int watchDecrement()
 }
 

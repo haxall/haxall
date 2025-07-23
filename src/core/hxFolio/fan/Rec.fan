@@ -86,10 +86,10 @@ const class Rec : FolioRec
   override Int watchCount() { numWatches.val }
 
   ** Increment watch count, return new count
-  override Int watchesIncrement() { numWatches.incrementAndGet }
+  override Int watchIncrement() { numWatches.incrementAndGet }
 
   ** Decrement watch count, return new count
-  override Int watchesDecrement() { numWatches.decrementAndGet }
+  override Int watchDecrement() { numWatches.decrementAndGet }
 
   private const AtomicInt numWatches := AtomicInt()
 
