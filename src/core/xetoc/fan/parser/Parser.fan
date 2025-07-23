@@ -309,8 +309,8 @@ internal class Parser
 
       if (cur === Token.rbrace) break
 
-      // embedded meta
-      if (cur=== Token.lt) { parseEmeddedMeta(parent); continue }
+      // inline meta
+      if (cur=== Token.lt) { parseInlineMeta(parent); continue }
 
       // name: spec | marker | unnamed-spec
       ASpec? slot
@@ -351,11 +351,11 @@ internal class Parser
     return true
   }
 
-  private Void parseEmeddedMeta(ASpec parent)
+  private Void parseInlineMeta(ASpec parent)
   {
     consume(Token.lt)
     loc := curToLoc
-    name := consumeName("Expecting embedded meta tag name")
+    name := consumeName("Expecting inline meta tag name")
     val := null
     if (cur !== Token.colon)
     {
