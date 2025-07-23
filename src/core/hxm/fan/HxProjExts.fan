@@ -90,8 +90,9 @@ const class HxProjExts : Actor, ProjExts
 
   override Ext add(Str name, Dict? settings := null)
   {
+    if (settings != null && !settings.isEmpty)
+      proj.settingsMgr.extInit(name, settings)
     proj.libs.add(name)
-    // TODO settings
     return get(name)
   }
 

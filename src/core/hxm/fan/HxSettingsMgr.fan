@@ -31,6 +31,15 @@ const class HxSettingsMgr
     read(extId(name))
   }
 
+  ** Initialize settings before we create ExtSpi
+  Void extInit(Str name, Dict settings)
+  {
+    id := extId(name)
+    old := db.readById(id, false)
+    diff := old == null ? Diff.makeAdd(settings, id) : Diff(old, settings)
+    write(diff)
+  }
+
   ** Update settings for given ext
   Void extUpdate(HxExtSpi spi, Diff diff)
   {
@@ -42,7 +51,6 @@ const class HxSettingsMgr
 
   ** Map ext to setting rec id
   Ref extId(Str name) { Ref("ext.$name") }
-
 
   ** Only standard update diffs can be used with settings manager
   private Diff checkDiff(Diff d)
@@ -59,6 +67,12 @@ const class HxSettingsMgr
     rec := db.readById(id, false)
     if (rec != null) return rec
     return Etc.dict2("id", id, "mod", DateTime.defVal)
+  }
+
+  ** Write
+  private Void write(Diff diff)
+  {
+    db.commit(diff)
   }
 
 }

@@ -58,9 +58,7 @@ if (!projMeta.isEmpty) throw Err("TODO")
 
   override Ext addExt(Str libName, Str:Obj? tags)
   {
-    addLib(libName)
-    ext := proj.ext(libName)
-    if (tags.isEmpty) echo("TODO: addExt update settings $tags")
+    ext := proj.exts.add(libName, Etc.makeDict(tags))
     ext.spi.sync
     return ext
   }
