@@ -155,20 +155,38 @@ class ExtTest : HxTest
     verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["mod":Remove.val])) }
     verifyEq(ext.traces.val, "")
 
-    // make update
+    // make update - Diff
     ext.settingsUpdate(Diff(ext.settings, ["foo":"bar"]))
-    ext.spi.sync
     verifySettings(ext, Etc.dict1("foo", "bar"))
+    verifyEq(ext.traces.val, "onSettings[$ext.settings]\n")
+
+    // make update - Dict
+    ext.traces.val = ""
+    ext.settingsUpdate(Etc.dict2("foo", "bar2", "port", n(123)))
+    verifySettings(ext, Etc.dict2("foo", "bar2", "port", n(123)))
+    verifyEq(ext.traces.val, "onSettings[$ext.settings]\n")
+
+    // make update - Str:Obj
+    ext.traces.val = ""
+    ext.settingsUpdate(["foo":"bar3", "port":Remove.val])
+    verifySettings(ext, Etc.dict1("foo", "bar3"))
     verifyEq(ext.traces.val, "onSettings[$ext.settings]\n")
 
     // make another update
     ext.traces.val = ""
-    ext.settingsUpdate(Diff(ext.settings, ["foo":Remove.val, "timeout":n(123)]))
+    ext.settingsUpdate(Diff(ext.settings, ["foo":Remove.val, "timeout":n(123), "qux":m]))
     ext.spi.sync
-    verifySettings(ext, Etc.dict1("timeout", n(123)))
+    verifySettings(ext, Etc.dict2("timeout", n(123), "qux", m))
     verifyEq(ext.traces.val, "onSettings[$ext.settings]\n")
 
-    // now remove, re-add ext with predefined settings
+    // restart project and verify persisted
+    oldProj := this.proj
+    projRestart
+    verifyNotSame(proj, oldProj)
+    ext = proj.exts.get("hx.test")
+    verifySettings(ext, Etc.dict2("timeout", n(123), "qux", m))
+
+    // now remove, re-add ext with predefined settings (clears existing ones)
     proj.libs.remove(ext.name)
     ext = addExt("hx.test", ["init":"abc", "beach":m])
     verifySettings(ext, Etc.dict2("init", "abc", "beach", m))
@@ -181,7 +199,9 @@ class ExtTest : HxTest
 
   Void verifySettings(Ext ext, Dict expect)
   {
+    ext.spi.sync
     actual := ext.settings
+    // echo("--> verify $ext $actual")
     expect = Etc.dictMerge(expect, ["id":Ref("ext.$ext.name"), "mod":actual->mod])
     verifyDictEq(actual, expect)
   }

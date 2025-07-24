@@ -54,6 +54,9 @@ const mixin Proj
   ** Project metadata
   abstract Dict meta()
 
+  ** Update proj metadata with Str:Obj, Dict, or Diff.
+  @NoDoc abstract Void metaUpdate(Obj changes)
+
   ** Folio database for this project
   abstract Folio db()
 

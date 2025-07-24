@@ -47,10 +47,10 @@ if (!projMeta.isEmpty) throw Err("TODO")
     ((HxProj)proj).stop
   }
 
-  override Void restart(Proj proj)
+  override Proj restart(Proj proj)
   {
     stop(proj)
-    boot(proj.dir, false)
+    return boot(proj.dir, false)
   }
 
   override Void addLib(Str libName)

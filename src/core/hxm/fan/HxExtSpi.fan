@@ -103,9 +103,9 @@ const class HxExtSpi : Actor, ExtSpi
   override Dict settings() { settingsRef.val }
   private const AtomicRef settingsRef
 
-  override Void settingsUpdate(Diff diff)
+  override Void settingsUpdate(Obj changes)
   {
-    projRef.settingsMgr.extUpdate(this, diff)
+    projRef.settingsMgr.extUpdate(this, changes)
   }
 
   override const Log log

@@ -25,41 +25,53 @@ const class HxSettingsMgr
   const HxProj proj
   const Folio db
 
+//////////////////////////////////////////////////////////////////////////
+// Proj meta
+//////////////////////////////////////////////////////////////////////////
+
+  ** Setting id for projMeta
+  static const Ref projMetaId := Ref("projMeta")
+
+  ** Read projMeta
+  Dict projMetaRead()
+  {
+    read(projMetaId)
+  }
+
+  ** Update projMeta
+  Void projMetaUpdate(Obj changes)
+  {
+    proj.metaRef.val = update(projMetaId, changes)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Exts
+//////////////////////////////////////////////////////////////////////////
+
+  ** Map ext to setting rec id
+  Ref extId(Str name) { Ref("ext.$name") }
+
   ** Read settings for given ext library name or return empty dict
   Dict extRead(Str name)
   {
     read(extId(name))
   }
 
+  ** Update settings for given ext
+  Void extUpdate(HxExtSpi spi, Obj changes)
+  {
+    spi.update(update(extId(spi.name), changes))
+  }
+
   ** Initialize settings before we create ExtSpi
   Void extInit(Str name, Dict settings)
   {
-    id := extId(name)
-    old := db.readById(id, false)
-    diff := old == null ? Diff.makeAdd(settings, id) : Diff(old, settings)
-    write(diff)
+    init(extId(name), settings)
   }
 
-  ** Update settings for given ext
-  Void extUpdate(HxExtSpi spi, Diff diff)
-  {
-    // TODO: this is not persisting yet...
-    oldDict := spi.settings
-    newDict := Etc.dictMerge(oldDict, checkDiff(diff).changes)
-    spi.update(newDict)
-  }
-
-  ** Map ext to setting rec id
-  Ref extId(Str name) { Ref("ext.$name") }
-
-  ** Only standard update diffs can be used with settings manager
-  private Diff checkDiff(Diff d)
-  {
-    if (d.isAdd)       throw DiffErr("Cannot use add diff")
-    if (d.isRemove)    throw DiffErr("Cannot use remove diff")
-    if (d.isTransient) throw DiffErr("Cannot use transient diff")
-    return d
-  }
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
 
   ** Read and if not found synthetize
   private Dict read(Ref id)
@@ -69,10 +81,45 @@ const class HxSettingsMgr
     return Etc.dict2("id", id, "mod", DateTime.defVal)
   }
 
-  ** Write
-  private Void write(Diff diff)
+  ** Update settings and return new dict
+  private Dict update(Ref id, Obj changes)
   {
-    db.commit(diff)
+    cur  := db.readById(id, false)
+    diff := toUpdateDiff(id, cur, changes)
+    return write(diff)
+  }
+
+  ** Only standard update diffs can be used with settings manager
+  private Diff toUpdateDiff(Ref id, Dict? cur, Obj changes)
+  {
+    diff := changes as Diff
+    if (diff != null)
+    {
+      if (diff.isAdd)       throw DiffErr("Cannot use add diff")
+      if (diff.isRemove)    throw DiffErr("Cannot use remove diff")
+      if (diff.isTransient) throw DiffErr("Cannot use transient diff")
+      return cur == null ? Diff.makeAdd(diff.changes, id) : diff
+    }
+
+    dict := changes as Dict
+    if (dict == null && changes is Map) dict = Etc.dictFromMap(changes)
+    if (dict == null) throw ArgErr("Invalid changes type [$changes.typeof]")
+
+    return cur == null ? Diff.makeAdd(dict, id) : Diff.make(cur, changes)
+  }
+
+  ** Initialize settings
+  private Dict init(Ref id, Dict settings)
+  {
+    old := db.readById(id, false)
+    if (old != null) write(Diff(old, null, Diff.remove))
+    return write(Diff.makeAdd(settings, id))
+  }
+
+  ** Write
+  private Dict write(Diff diff)
+  {
+    db.commit(diff).newRec
   }
 
 }

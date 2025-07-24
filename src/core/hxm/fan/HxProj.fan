@@ -89,6 +89,9 @@ abstract const class HxProj : Proj
   override Dict meta() { metaRef.val }
   internal const AtomicRef metaRef
 
+  ** Update proj metadata with Str:Obj, Dict, or Diff.
+  override Void metaUpdate(Obj changes) { settingsMgr.projMetaUpdate(changes) }
+
   ** Database for this runtime
   override const Folio db
 
