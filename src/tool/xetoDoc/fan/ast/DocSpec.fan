@@ -213,13 +213,17 @@ const class DocGlobal : DocSpecPage
 const class DocFunc : DocSpecPage
 {
   ** Constructor
-  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef type) : super(lib, qname, srcLoc, doc, meta)
+  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef type, Str:DocSlot slots) : super(lib, qname, srcLoc, doc, meta)
   {
     this.type = type
+    this.slots = slots
   }
 
   ** Type of this function
   const DocTypeRef type
+
+  ** Function parameter and return slots
+  const Str:DocSlot slots
 
   ** Page type
   override DocPageType pageType() { DocPageType.func }
@@ -232,6 +236,7 @@ const class DocFunc : DocSpecPage
   {
     obj := super.encode
     obj["type"] = type.encode
+    obj.addNotNull("slots", DocSlot.encodeMap(slots))
     return obj
   }
 
@@ -244,7 +249,8 @@ const class DocFunc : DocSpecPage
     doc    := DocMarkdown.decode(obj.get("doc"))
     meta   := DocDict.decode(obj.get("meta"))
     type   := DocTypeRef.decode(obj.getChecked("type"))
-    return DocFunc(lib, qname, srcLoc, doc, meta, type)
+    slots  := DocSlot.decodeMap(obj.get("slots"))
+    return DocFunc(lib, qname, srcLoc, doc, meta, type, slots)
  }
 }
 

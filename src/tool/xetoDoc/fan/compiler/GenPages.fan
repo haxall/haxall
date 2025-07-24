@@ -159,7 +159,8 @@ internal class GenPages: Step
     doc    := genSpecDoc(x)
     meta   := genDict(x.meta)
     type   := genTypeRef(x.type)
-    return DocFunc(entry.libRef, x.qname, srcLoc, doc, meta, type)
+    slots  := genSlots(x)
+    return DocFunc(entry.libRef, x.qname, srcLoc, doc, meta, type, slots)
   }
 
   DocInstance genInstance(PageEntry entry, Dict x)
@@ -173,7 +174,8 @@ internal class GenPages: Step
   {
     // only gen effective slots for top type slots
     // or a query such as points
-    effective := spec.isType || spec.isQuery
+    // for functions, we want all slots (parameters and returns)
+    effective := spec.isType || spec.isQuery || spec.isFunc
     slots := effective ? spec.slots : spec.slotsOwn
     if (slots.isEmpty) return DocSlot.empty
 
