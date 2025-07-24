@@ -16,7 +16,7 @@ using haystack
 abstract const class AxonFFI
 {
   ** Static call on type
-  abstract Obj? callStatic(AxonContext cx, TypeRef type, Str name, Expr[] args)
+  abstract Obj? callStatic(AxonContext cx, TopName type, Str name, Expr[] args)
 
   ** Instance call on this object
   abstract Obj? callDot(AxonContext cx, Obj? target, Str name, Expr[] args)
@@ -35,9 +35,9 @@ const class FantomAxonFFI : AxonFFI
     this.types = ConcurrentMap()
   }
 
-  override Obj? callStatic(AxonContext cx, TypeRef type, Str name, Expr[] args)
+  override Obj? callStatic(AxonContext cx, TopName target, Str name, Expr[] args)
   {
-    slot := resolve(type).slot(name)
+    slot := resolve(target).slot(name)
     if (slot.isField)
     {
       return get(slot, null)
@@ -123,7 +123,7 @@ const class FantomAxonFFI : AxonFFI
     return x
   }
 
-  private Type resolve(TypeRef ref)
+  private Type resolve(TopName ref)
   {
     name := ref.name
 

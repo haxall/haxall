@@ -34,6 +34,7 @@ class FantomTest : HaystackTest
     // instance Fantom method
     verifyEval(Str<|FantomEx.make.bar|>, "bar!")
     verifyEval(Str<|FantomEx.make.add1(4, 5)|>, n(9))
+    verifyEval(Str<|FantomEx().bar|>, "bar!")
 
     // instance fields
     verifyEval(Str<|FantomEx.make.foo|>, "foo!")

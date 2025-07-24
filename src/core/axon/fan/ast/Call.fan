@@ -130,29 +130,29 @@ internal const class DotCall : Call
 @Js
 internal const class StaticCall : Call
 {
-  new make(TypeRef typeRef, Str funcName, Expr[] args)
-    : super(typeRef, args)
+  new make(TopName target, Str funcName, Expr[] args)
+    : super(target, args)
   {
-    this.typeRef = typeRef
+    this.target = target
     this.funcName= funcName
   }
 
   override ExprType type() { ExprType.staticCall }
 
-  const TypeRef typeRef
+  const TopName target
 
   override const Str? funcName
 
   override Obj? eval(AxonContext cx)
   {
     // static calls route to FFI if installed
-    ffi := cx.ffi ?: throw UnsupportedErr("Static call: ${typeRef}.$funcName")
-    return ffi.callStatic(cx, typeRef, funcName, args)
+    ffi := cx.ffi ?: throw UnsupportedErr("Static call: ${target}.$funcName")
+    return ffi.callStatic(cx, target, funcName, args)
   }
 
   override Printer print(Printer out)
   {
-    out.atomicStart.atomic(typeRef).wc('.').w(funcName).wc('(')
+    out.atomicStart.atomic(target).wc('.').w(funcName).wc('(')
     args.each |arg, i|
     {
       if (i > 1) out.comma

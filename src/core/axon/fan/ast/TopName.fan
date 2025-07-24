@@ -4,6 +4,7 @@
 //
 // History:
 //   10 Mar 2023  Brian Frank  Creation
+//   24 Jul 2025  Brian Frank  Garden City (redesign from TypeRef)
 //
 
 using concurrent
@@ -11,10 +12,10 @@ using xeto
 using haystack
 
 **
-** TypeRef is a spec type lookup either by qualified or unqualified name
+** TopName either an unqualified or qualified top-level name for type or func
 **
 @NoDoc @Js
-const class TypeRef : Expr
+const class TopName : Expr
 {
   new make(Loc loc, Str? lib, Str name)
   {
@@ -23,13 +24,15 @@ const class TypeRef : Expr
     this.name = name
   }
 
-  override ExprType type() { ExprType.typeRef }
+  override ExprType type() { ExprType.topName }
 
   override const Loc loc
 
   const Str? lib
 
   const Str name
+
+  override Bool isTopNameType() { name[0].isUpper }
 
   override Spec? eval(AxonContext cx)
   {
@@ -51,7 +54,7 @@ const class TypeRef : Expr
 
   override Void walk(|Str key, Obj? val| f)
   {
-    f("specRef", nameToStr)
+    f("topName", nameToStr)
   }
 
   Str nameToStr()

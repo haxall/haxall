@@ -603,11 +603,9 @@ class Parser
   ** Map TypeRef() call to Type.make
   private Call toCall(Expr target, Expr[] args)
   {
-    if (target.type === ExprType.typeRef)
+    if (target.isTopNameType)
     {
-      // "Foo()" maps to factory named "axonMakeFoo"
-      typeName := ((TypeRef)target).name
-      return StaticCall(target, "axonMake" + typeName, args)
+      return StaticCall(target, "make", args)
     }
     else
     {
@@ -618,7 +616,7 @@ class Parser
   ** Create DotCall vs StaticCall based on first arg
   private Call toDotCall(Str methodName, Expr[] args)
   {
-    if (args.first.type === ExprType.typeRef)
+    if (args.first.isTopNameType)
       return StaticCall(args[0], methodName, args[1..-1])
     else
       return DotCall(methodName, args)
@@ -755,7 +753,7 @@ class Parser
   ** <typeRef>     :=  [<typeLibName> "::"] <typename>
   ** <typeLibName> :=  <id> ("." <id>)*
   **
-  private TypeRef typeRef(Str? lib)
+  private TopName typeRef(Str? lib)
   {
     loc := curLoc
 
@@ -776,7 +774,7 @@ class Parser
 
     typename := curVal
     consume
-    return TypeRef(loc, lib, typename)
+    return TopName(loc, lib, typename)
   }
 
   **

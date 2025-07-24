@@ -36,7 +36,7 @@ enum class ExprType
   returnExpr,
   throwExpr,
   tryExpr,
-  typeRef,
+  topName,
 
   // assignment
   assign("="),

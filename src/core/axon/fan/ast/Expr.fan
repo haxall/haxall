@@ -184,6 +184,9 @@ const abstract class Expr
   ** Is this the marker literal
   @NoDoc Bool isMarker() { type === ExprType.literal && ((Literal)this).val === Marker.val }
 
+  ** Is this expr a TopName that represents a type
+  @NoDoc virtual Bool isTopNameType() { false }
+
   ** If this expr is a call return the unqualified func name being called, otherwise null
   @NoDoc Str? asCallFuncName()
   {
