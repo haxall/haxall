@@ -27,15 +27,19 @@ class ResolveTest : HxTest
 
     // axon
     verifyResolve("today()", Date.today)
+    verifyResolve("axon::today()", Date.today)
 
     // hx.test
     verifyResolve("testIncrement(3)", n(4))
+    verifyResolve("hx.test::testIncrement(3)", n(4))
 
     // hx.test.xeto
     verifyResolve("add2(2, 5)", n(7))
+    verifyResolve("hx.test.xeto::add2(2, 5)", n(7))
 
     // hx.test.xeto.deep
     verifyResolve("testDeepAdd(6, 3)", n(9))
+    verifyResolve("hx.test.xeto.deep::testDeepAdd(6, 3)", n(9))
 
     // sys
     verifyResolve("Str", proj.ns.spec("sys::Str"))
@@ -52,9 +56,10 @@ class ResolveTest : HxTest
 
   Void verifyResolve(Str expr, Obj expect)
   {
-    echo("--> $expr")
+echo
+echo("--> $expr")
     actual := eval(expr)
-    echo("  > $actual ?= $expect")
+echo("  > $actual ?= $expect")
     verifyEq(actual, expect)
   }
 

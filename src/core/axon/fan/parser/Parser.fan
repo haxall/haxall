@@ -551,11 +551,7 @@ class Parser
 
       if (cur === Token.doubleColon)
       {
-        consume
-        if (cur === Token.typename)
-          return specFromDottedPath(target, methodName)
-        else
-          methodName = methodName + "::" + consumeIdOrKeyword("func qname")
+        return qnameFromDottedPath(target, methodName)
       }
 
       if (cur !== Token.lparen)
@@ -746,7 +742,7 @@ class Parser
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Types
+// Types and Qnames
 //////////////////////////////////////////////////////////////////////////
 
   **
@@ -778,41 +774,51 @@ class Parser
   }
 
   **
-  ** Convert dotted calls followed by "::" Typename back into a qualified
-  ** spec reference.  This method is called when we encounter a "::Foo"
-  ** capitalized type name after a string of dotted calls such as "a.b.c::Foo".
-  ** We have to unroll the series of DotCall with a root Var into a library
-  ** qname.
+  ** Convert dotted calls followed by "::" back into a qualified TopName.
+  ** This method is called when we encounter a "::" after a string of dotted
+  ** calls such as "a.b.c::foo".  We have to unroll the series of DotCall
+  ** with a root Var into a library qname. This method is called when cur
+  ** is doubleColon.
   **
-  private Expr specFromDottedPath(Expr base, Str lastName)
+  private Expr qnameFromDottedPath(Expr base, Str lastLibName)
   {
-    // build up list of names from end back to start
-    names := Str[,]
-    names.add(lastName)
-    flag := true
-    while (flag)
+    // consume :: name
+    consume(Token.doubleColon)
+    Str? name
+    if (cur === Token.typename)
     {
-      if (base.type === ExprType.var)
-      {
-        // var will be the first name in the lib path
-        var := (Var)base
-        names.add(var.name)
-        return typeRef(names.reverse.join("."))
-      }
-      if (base.type ===  ExprType.dotCall)
+      name = curVal
+      consume
+    }
+    else
+    {
+      name = consumeIdOrKeyword("qname")
+    }
+
+    // build up list of names from end back to start
+    libNames := Str[,]
+    libNames.add(lastLibName)
+    while (base.type !== ExprType.var)
+    {
+      if (base.type === ExprType.dotCall)
       {
         // dotted call such as "foo.bar.baz"
         dot := (DotCall)base
         if (dot.args.size == 1)
         {
-          names.add(dot.funcName)
+          libNames.add(dot.funcName)
           base = dot.args[0]
           continue
         }
       }
-      throw err("Invalid spec qname: $base", base.loc)
+      throw err("Invalid qname lib name: $base", base.loc)
     }
-    throw err("illegal state")
+
+    // var will be the first name in the lib path
+    var := (Var)base
+    libNames.add(var.name)
+    libName := libNames.reverse.join(".")
+    return TopName(base.loc, libName, name)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -34,17 +34,20 @@ const class TopName : Expr
 
   override Bool isTopNameType() { name[0].isUpper }
 
-  override Spec? eval(AxonContext cx)
+  override Obj? eval(AxonContext cx)
   {
+if (isTopNameType)
+{
     // qualified type
     if (lib != null) return cx.ns.lib(lib).type(name)
 
-    // try local varaible definition
-    local := cx.getVar(name) as Spec
-    if (local != null) return local
-
     // resolve from usings
     return cx.ns.unqualifiedType(name)
+}
+else
+{
+  return cx.findTop(nameToStr)
+}
   }
 
   override Printer print(Printer out)

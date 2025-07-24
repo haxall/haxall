@@ -192,7 +192,7 @@ class CoreLibTest : HaystackTest
     verifyEval("107.toRadix(16, 4)", "006b")
     verifyEval("107.toRadix(2)", "1101011")
     verifyEval("107.toRadix(2,8)", "01101011")
-    verifyEval("98.core::upper", n('B'))
+    verifyEval("98.upper", n('B'))
     verifyEval("66.lower", n('b'))
     verifyEval("107.toHex.upper", "6B")
     verifyEval("toHex(16)", "10")

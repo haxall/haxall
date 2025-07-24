@@ -429,8 +429,7 @@ class EvalTest : AxonTest
   {
     verifyEval("(2..3).start", n(2))
     verifyEval("(2..3).end", n(3)) // end is keyword
-    verifyEval("(2..3).core::end", n(3))
-    verifyEval("core::end(2..3)", n(3))
+    verifyEval("axon::end(2..3)", n(3))
     verifyEval("(2..3).toStr", "2..3")
     verifyEval("2..3", ObjRange(n(2), n(3)))
     verifyEval("2 + 3.. 10 + 2", ObjRange(n(5), n(12)))
