@@ -79,7 +79,7 @@ Productions [#productions]
   <multExpr>     :=  <unaryExpr> (("*" | "/") <unaryExpr>)*
   <unaryExpr>    :=  ("-" | "not") <termExpr>
   <termExpr>     :=  <termBase> <termChain>*
-  <termBase>     :=  <var> | <groupedExpr> | <literal> | <typeRef>
+  <termBase>     :=  <var> | <typename> | <qname> | <groupedExpr> | <literal>
   <groupedExpr>  :=  "(" <expr> ")"
 
   <termChain>    :=  <call> | <dotCall> | <index> | <trapCall>
@@ -89,8 +89,9 @@ Productions [#productions]
   <index>        :=  "[" <expr> "]"
   <trapCall>     :=  "->" <id>
 
-  <typeRef>      :=  [<typeLibName> "::"] <typename>
-  <typeLibName>  :=  <id> ("." <id>)*
+  <qname>        :=  [<qnameLib> "::"] <qnameName>
+  <qnameLib>     :=  <id> ("." <id>)*
+  <qnameName>    :=  <idOrKeyword> | <typename>
 
   <literal>      :=  <null> | <bool> | <number> | <str> | <date> |
                      <time> | <month> | <recId>

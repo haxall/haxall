@@ -505,7 +505,7 @@ class Parser
     if (cur === Token.lparen) return parenExpr
     if (cur === Token.val)    return Literal(consumeVal)
     if (cur === Token.id)     return termId
-    if (cur === Token.typename) return typeRef(null)
+    if (cur === Token.typename) return termTypename
     if (cur === Token.trueKeyword)  { consume; return Literal.trueVal }
     if (cur === Token.falseKeyword) { consume; return Literal.falseVal }
     if (cur === Token.nullKeyword)  { consume; return Literal.nullVal }
@@ -513,10 +513,7 @@ class Parser
   }
 
   **
-  ** Variable or qname:
-  **   <var>          :=  <qname> | <id>
-  **   <qname>        :=  <qnameLibName> "::" <id>
-  **   <qnameLibName> :=  <id> ("." <id>)*
+  ** When <termBase> is id, could be <var> or <qname>
   **
   private Expr termId()
   {
@@ -527,6 +524,69 @@ class Parser
     if (cur === Token.doubleColon) return qname(var, null)
 
     return var
+  }
+
+  **
+  ** When <termBase> is <typename>
+  **
+  private Expr termTypename()
+  {
+    loc := curLoc
+    name := curVal
+    consume(Token.typename)
+    return TopName(loc, null, name)
+  }
+
+  **
+  ** Convert dotted calls followed by "::" back into a qualified TopName.
+  ** This method is called when we encounter a "::" after a string of dotted
+  ** calls such as "a.b.c::foo".  We have to unroll the series of DotCall
+  ** with a root Var into a library qname. This method is called when cur
+  ** is doubleColon.
+  **
+  **  <qname>     :=  [<qnameLib> "::"] <qnameName>
+  **  <qnameLib>  :=  <id> ("." <id>)*
+  **  <qnameName> :=  <idOrKeyword> | <typename>
+  **
+  private Expr qname(Expr base, Str? lastLibName)
+  {
+    // consume :: name
+    consume(Token.doubleColon)
+    Str? name
+    if (cur === Token.typename)
+    {
+      name = curVal
+      consume
+    }
+    else
+    {
+      name = consumeIdOrKeyword("qname")
+    }
+
+    // build up list of names from end back to start
+    libNames := Str[,]
+    libNames.addNotNull(lastLibName)
+    while (base.type !== ExprType.var)
+    {
+      if (base.type === ExprType.dotCall)
+      {
+        // dotted call such as "foo.bar.baz"
+        dot := (DotCall)base
+        if (dot.args.size == 1)
+        {
+          libNames.add(dot.funcName)
+          base = dot.args[0]
+          continue
+        }
+      }
+      throw err("Invalid qname lib name: $base", base.loc)
+    }
+
+    // var will be the first name in the lib path
+    var := (Var)base
+    libNames.add(var.name)
+    libName := libNames.reverse.join(".")
+    return TopName(base.loc, libName, name)
   }
 
   **
@@ -590,7 +650,7 @@ class Parser
       return call
   }
 
-  ** Map TypeRef() call to Type.make
+  ** Map target to decide is static call
   private Call toCall(Expr target, Expr[] args)
   {
     if (target.isTopNameType)
@@ -733,86 +793,6 @@ class Parser
     if (cur !== Token.colon) return FnParam(name)
     consume
     return FnParam(name, expr)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Types and Qnames
-//////////////////////////////////////////////////////////////////////////
-
-  **
-  ** <typeRef>     :=  [<typeLibName> "::"] <typename>
-  ** <typeLibName> :=  <id> ("." <id>)*
-  **
-  private TopName typeRef(Str? lib)
-  {
-    loc := curLoc
-
-    // lib qname
-    if (lib == null && (cur === Token.id || cur.keyword))
-    {
-      lib = consumeIdOrKeyword("spec lib name")
-      while (cur === Token.dot)
-      {
-        consume
-        lib = lib + "." + consumeIdOrKeyword("spec lib name")
-      }
-      if (cur !== Token.doubleColon) throw err("Expecting :: for spec qname")
-      consume
-    }
-
-    if (cur !== Token.typename) throw err("Expecting spec typename")
-
-    typename := curVal
-    consume
-    return TopName(loc, lib, typename)
-  }
-
-  **
-  ** Convert dotted calls followed by "::" back into a qualified TopName.
-  ** This method is called when we encounter a "::" after a string of dotted
-  ** calls such as "a.b.c::foo".  We have to unroll the series of DotCall
-  ** with a root Var into a library qname. This method is called when cur
-  ** is doubleColon.
-  **
-  private Expr qname(Expr base, Str? lastLibName)
-  {
-    // consume :: name
-    consume(Token.doubleColon)
-    Str? name
-    if (cur === Token.typename)
-    {
-      name = curVal
-      consume
-    }
-    else
-    {
-      name = consumeIdOrKeyword("qname")
-    }
-
-    // build up list of names from end back to start
-    libNames := Str[,]
-    libNames.addNotNull(lastLibName)
-    while (base.type !== ExprType.var)
-    {
-      if (base.type === ExprType.dotCall)
-      {
-        // dotted call such as "foo.bar.baz"
-        dot := (DotCall)base
-        if (dot.args.size == 1)
-        {
-          libNames.add(dot.funcName)
-          base = dot.args[0]
-          continue
-        }
-      }
-      throw err("Invalid qname lib name: $base", base.loc)
-    }
-
-    // var will be the first name in the lib path
-    var := (Var)base
-    libNames.add(var.name)
-    libName := libNames.reverse.join(".")
-    return TopName(base.loc, libName, name)
   }
 
 //////////////////////////////////////////////////////////////////////////
