@@ -28,8 +28,9 @@ abstract class DocIndexer
       case DocPageType.index:    return
       case DocPageType.lib:      addLib(page)
       case DocPageType.type:     addType(page)
-      case DocPageType.global:   addGlobal(page)
-      case DocPageType.func:     addFunc(page)
+      case DocPageType.global:   addSimpleSpec(page)
+      case DocPageType.func:     addSimpleSpec(page)
+      case DocPageType.meta:     addSimpleSpec(page)
       case DocPageType.instance: addInstance(page)
       case DocPageType.chapter:  addChapter(page)
       case DocPageType.search:   return
@@ -58,16 +59,35 @@ abstract class DocIndexer
     doAdd(uri, parent.lib, DocIndexerSectionType.slot, [qname, slot.name], qname, slot.doc)
   }
 
-  ** Add DocGlobal page to index
-  virtual Void addGlobal(DocGlobal x)
+  ** Add simple spec (global/func/meta) page to index
+  virtual Void addSimpleSpec(DocSimpleSpec x)
   {
-    doAdd(x.uri, x.lib, DocIndexerSectionType.global, [x.qname, x.name], x.qname, x.doc)
+    sectionType := toSectionType(x.pageType)
+    doAdd(x.uri, x.lib, sectionType, [x.qname, x.name], x.qname, x.doc)
   }
 
-  ** Add DocFunc page to index
+  ** Convert page type to section type
+  private DocIndexerSectionType toSectionType(DocPageType pageType)
+  {
+    switch (pageType)
+    {
+      case DocPageType.global: return DocIndexerSectionType.global
+      case DocPageType.func:   return DocIndexerSectionType.func
+      case DocPageType.meta:   return DocIndexerSectionType.meta
+      default: throw Err("Unsupported page type: $pageType")
+    }
+  }
+
+  ** Add DocGlobal page to index (backward compatibility)
+  virtual Void addGlobal(DocGlobal x)
+  {
+    addSimpleSpec(x)
+  }
+
+  ** Add DocFunc page to index (backward compatibility)
   virtual Void addFunc(DocFunc x)
   {
-    doAdd(x.uri, x.lib, DocIndexerSectionType.func, [x.qname, x.name], x.qname, x.doc)
+    addSimpleSpec(x)
   }
 
   ** Add DocInstance page to index
@@ -169,6 +189,7 @@ enum class DocIndexerSectionType
   type     (0.7f),
   global   (0.6f),
   func     (0.65f),
+  meta     (0.62f),
   slot     (0.1f),
   instance (0.0f),
   chapter  (1.0f),

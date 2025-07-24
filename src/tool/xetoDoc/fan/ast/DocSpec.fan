@@ -157,79 +157,44 @@ const class DocType : DocSpecPage
 }
 
 **************************************************************************
-** DocGlobal
+** DocSimpleSpec
 **************************************************************************
 
 **
-** DocGlobal is the documentation for a Xeto top-level global
+** DocSimpleSpec is the documentation for simple Xeto top-level specs: globals, functions, and meta specs
 **
 @Js
-const class DocGlobal : DocSpecPage
+const class DocSimpleSpec : DocSpecPage
 {
   ** Constructor
-  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef type) : super(lib, qname, srcLoc, doc, meta)
+  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef type, DocPageType pageType, Str:DocSlot slots := DocSlot.empty) : super(lib, qname, srcLoc, doc, meta)
   {
     this.type = type
-  }
-
-  ** Type of this global
-  const DocTypeRef type
-
-  ** Page type
-  override DocPageType pageType() { DocPageType.global }
-
-  ** URI relative to base dir to page
-  override Uri uri() { DocUtil.globalToUri(qname) }
-
-  ** Encode to a JSON object tree
-  override Str:Obj encode()
-  {
-    obj := super.encode
-    obj["type"] = type.encode
-    return obj
-  }
-
-  ** Decode from a JSON object tree
-  static DocGlobal doDecode(Str:Obj obj)
-  {
-    lib    := DocLibRef.decode(obj.getChecked("lib"))
-    qname  := obj.getChecked("qname")
-    srcLoc := DocUtil.srcLocDecode(obj)
-    doc    := DocMarkdown.decode(obj.get("doc"))
-    meta   := DocDict.decode(obj.get("meta"))
-    type   := DocTypeRef.decode(obj.getChecked("type"))
-    return DocGlobal(lib, qname, srcLoc, doc, meta, type)
- }
-}
-
-**************************************************************************
-** DocFunc
-**************************************************************************
-
-**
-** DocFunc is the documentation for a Xeto top-level function
-**
-@Js
-const class DocFunc : DocSpecPage
-{
-  ** Constructor
-  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef type, Str:DocSlot slots) : super(lib, qname, srcLoc, doc, meta)
-  {
-    this.type = type
+    this.pageTypeVal = pageType
     this.slots = slots
   }
 
-  ** Type of this function
+  ** Type of this spec
   const DocTypeRef type
 
-  ** Function parameter and return slots
+  ** Page type
+  override DocPageType pageType() { pageTypeVal }
+  private const DocPageType pageTypeVal
+
+  ** Slots for functions, empty for globals and metas
   const Str:DocSlot slots
 
-  ** Page type
-  override DocPageType pageType() { DocPageType.func }
-
   ** URI relative to base dir to page
-  override Uri uri() { DocUtil.funcToUri(qname) }
+  override Uri uri() 
+  { 
+    switch (pageTypeVal)
+    {
+      case DocPageType.global: return DocUtil.globalToUri(qname)
+      case DocPageType.func:   return DocUtil.funcToUri(qname)
+      case DocPageType.meta:   return DocUtil.globalToUri(qname).plusName("m_" + name)
+      default: throw Err("Unsupported page type: $pageTypeVal")
+    }
+  }
 
   ** Encode to a JSON object tree
   override Str:Obj encode()
@@ -241,17 +206,39 @@ const class DocFunc : DocSpecPage
   }
 
   ** Decode from a JSON object tree
-  static DocFunc doDecode(Str:Obj obj)
+  static DocSimpleSpec doDecode(Str:Obj obj)
   {
-    lib    := DocLibRef.decode(obj.getChecked("lib"))
-    qname  := obj.getChecked("qname")
-    srcLoc := DocUtil.srcLocDecode(obj)
-    doc    := DocMarkdown.decode(obj.get("doc"))
-    meta   := DocDict.decode(obj.get("meta"))
-    type   := DocTypeRef.decode(obj.getChecked("type"))
-    slots  := DocSlot.decodeMap(obj.get("slots"))
-    return DocFunc(lib, qname, srcLoc, doc, meta, type, slots)
- }
+    lib      := DocLibRef.decode(obj.getChecked("lib"))
+    qname    := obj.getChecked("qname")
+    srcLoc   := DocUtil.srcLocDecode(obj)
+    doc      := DocMarkdown.decode(obj.get("doc"))
+    meta     := DocDict.decode(obj.get("meta"))
+    type     := DocTypeRef.decode(obj.getChecked("type"))
+    pageType := DocPageType.fromStr(obj.getChecked("page"))
+    slots    := DocSlot.decodeMap(obj.get("slots"))
+    return DocSimpleSpec(lib, qname, srcLoc, doc, meta, type, pageType, slots)
+  }
+}
+
+** Alias for backward compatibility
+@Js
+const class DocGlobal : DocSimpleSpec
+{
+  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef type) : super(lib, qname, srcLoc, doc, meta, type, DocPageType.global) {}
+}
+
+** Alias for backward compatibility  
+@Js
+const class DocFunc : DocSimpleSpec
+{
+  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef type, Str:DocSlot slots) : super(lib, qname, srcLoc, doc, meta, type, DocPageType.func, slots) {}
+}
+
+** Meta spec documentation
+@Js
+const class DocMeta : DocSimpleSpec
+{
+  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef type) : super(lib, qname, srcLoc, doc, meta, type, DocPageType.meta) {}
 }
 
 **************************************************************************

@@ -42,7 +42,7 @@ class PageEntry
     this.link     = DocLink(uri, dis)
   }
 
-  ** Constructor for type/global/func
+  ** Constructor for type/global/func/meta
   new makeSpec(Spec x, DocPageType pageType)
   {
     this.key      = DocCompiler.key(x)
@@ -58,12 +58,14 @@ class PageEntry
   ** Generate URI based on spec and page type
   private static Uri makeSpecUri(Spec x, DocPageType pageType)
   {
+    // Generate URI based on the specific page type to avoid collisions
     switch (pageType)
     {
       case DocPageType.type:   return DocUtil.typeToUri(x.qname)
       case DocPageType.global: return DocUtil.globalToUri(x.qname)
       case DocPageType.func:   return DocUtil.funcToUri(x.qname)
-      default:                 return DocUtil.specToUri(x)
+      case DocPageType.meta:   return DocUtil.metaToUri(x.qname)
+      default: throw Err("Unsupported page type for spec: $pageType")
     }
   }
 

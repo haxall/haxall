@@ -35,25 +35,29 @@ internal class StubPages: Step
       add(PageEntry.makeSpec(x, DocPageType.type))
     }
 
-    // globals and functions - process all globals but separate functions
+    // globals (excluding functions)
     lib.globals.each |x|
     {
-      // Skip if this is a function - it will be processed in lib.funcs
-      if (x.type.qname == "sys::Func") return
-      
-      entry := PageEntry.makeSpec(x, DocPageType.global)
-      entry.summaryType = genTypeRef(x.type)
-      add(entry)
+      if (x.type.qname != "sys::Func")
+      {
+        entry := PageEntry.makeSpec(x, DocPageType.global)
+        entry.summaryType = genTypeRef(x.type)
+        add(entry)
+      }
     }
 
     // functions
     lib.funcs.each |x|
     {
-      // Skip if this spec is already processed as a type
-      // This handles cases where a spec appears in both types and funcs collections
-      if (byKey.containsKey(x.qname)) return
-      
       entry := PageEntry.makeSpec(x, DocPageType.func)
+      entry.summaryType = genTypeRef(x.type)
+      add(entry)
+    }
+
+    // meta specs
+    lib.metaSpecs.each |x|
+    {
+      entry := PageEntry.makeSpec(x, DocPageType.meta)
       entry.summaryType = genTypeRef(x.type)
       add(entry)
     }
@@ -105,11 +109,6 @@ internal class StubPages: Step
     if (entry.pageType === DocPageType.lib) libEntries.add(entry)
   }
 
-  ** Check if a spec is a function by examining its type
-  Bool isFuncSpec(Spec spec)
-  {
-    return spec.type.qname == "sys::Func"
-  }
 
   Str:PageEntry byKey := [:]
   Uri:PageEntry byUri := [:]

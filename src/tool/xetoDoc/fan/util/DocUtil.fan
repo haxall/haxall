@@ -84,9 +84,11 @@ const class DocUtil
   {
     if (!spec.isGlobal) return typeToUri(spec.qname)
     
-    // Check if this global is a function by checking type qname
+    // Check spec type to determine URI format
     if (spec.type.qname == "sys::Func")
-      return funcToUri(spec.qname)
+      return qnameToUri(spec.qname, false, "f_")
+    if (spec.isMeta)
+      return qnameToUri(spec.qname, true, "m_")
     
     return globalToUri(spec.qname)
   }
@@ -109,6 +111,12 @@ const class DocUtil
     qnameToUri(qname, false, "f_")
   }
 
+  ** Convert meta spec qualified name to its normalized URI
+  static Uri metaToUri(Str qname)
+  {
+    qnameToUri(qname, true, "m_")
+  }
+
   ** Convert instance qualified name to its normalized URI
   static Uri instanceToUri(Str qname)
   {
@@ -129,6 +137,7 @@ const class DocUtil
     n := uri.path[1]
     if (n.size >= 2 && n.startsWith("_") && !n[1].isDigit) n = n[1..-1]
     if (n.size >= 2 && n.startsWith("f_")) n = n[2..-1]
+    if (n.size >= 2 && n.startsWith("m_")) n = n[2..-1]
     return "$l::$n"
   }
 

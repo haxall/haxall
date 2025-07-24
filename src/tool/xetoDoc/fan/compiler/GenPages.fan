@@ -36,8 +36,9 @@ internal class GenPages: Step
     {
       case DocPageType.lib:      return genLib(entry, entry.def)
       case DocPageType.type:     return genType(entry, entry.def)
-      case DocPageType.global:   return genGlobal(entry, entry.def)
-      case DocPageType.func:     return genFunc(entry, entry.def)
+      case DocPageType.global:   return genSimpleSpec(entry, entry.def, DocPageType.global)
+      case DocPageType.func:     return genSimpleSpec(entry, entry.def, DocPageType.func)
+      case DocPageType.meta:     return genSimpleSpec(entry, entry.def, DocPageType.meta)
       case DocPageType.instance: return genInstance(entry, entry.def)
       case DocPageType.chapter:  return genChapter(entry, entry.def)
       default: throw Err(entry.pageType.name)
@@ -62,6 +63,7 @@ internal class GenPages: Step
       it.types     = summaries(typesToDoc(x))
       it.globals   = summaries(x.globals)
       it.funcs     = summaries(x.funcs)
+      it.metas     = summaries(x.metaSpecs)
       it.instances = summaries(x.instances)
       it.chapters  = chapterSummaries(x)
       it.readme    = entry.readme ?: DocMarkdown.empty
@@ -144,23 +146,14 @@ internal class GenPages: Step
     return DocTypeGraph(types, null)
   }
 
-  DocGlobal genGlobal(PageEntry entry, Spec x)
+  DocSimpleSpec genSimpleSpec(PageEntry entry, Spec x, DocPageType pageType)
   {
     srcLoc := DocUtil.srcLoc(x)
     doc    := genSpecDoc(x)
     meta   := genDict(x.meta)
     type   := genTypeRef(x.type)
-    return DocGlobal(entry.libRef, x.qname, srcLoc, doc, meta, type)
-  }
-
-  DocFunc genFunc(PageEntry entry, Spec x)
-  {
-    srcLoc := DocUtil.srcLoc(x)
-    doc    := genSpecDoc(x)
-    meta   := genDict(x.meta)
-    type   := genTypeRef(x.type)
-    slots  := genSlots(x)
-    return DocFunc(entry.libRef, x.qname, srcLoc, doc, meta, type, slots)
+    slots  := pageType == DocPageType.func ? genSlots(x) : DocSlot.empty
+    return DocSimpleSpec(entry.libRef, x.qname, srcLoc, doc, meta, type, pageType, slots)
   }
 
   DocInstance genInstance(PageEntry entry, Dict x)

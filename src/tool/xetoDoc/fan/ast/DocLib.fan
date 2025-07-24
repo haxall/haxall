@@ -60,6 +60,7 @@ const class DocLib : DocPage
     obj.addNotNull("types",     DocSummary.encodeList(types))
     obj.addNotNull("globals",   DocSummary.encodeList(globals))
     obj.addNotNull("funcs",     DocSummary.encodeList(funcs))
+    obj.addNotNull("metas",     DocSummary.encodeList(metas))
     obj.addNotNull("instances", DocSummary.encodeList(instances))
     obj.addNotNull("chapters",  DocSummary.encodeList(chapters))
     if (!readme.isEmpty) obj["readme"] = readme.encode
@@ -80,6 +81,7 @@ const class DocLib : DocPage
       it.types     = DocSummary.decodeList(obj["types"])
       it.globals   = DocSummary.decodeList(obj["globals"])
       it.funcs     = DocSummary.decodeList(obj["funcs"])
+      it.metas     = DocSummary.decodeList(obj["metas"])
       it.instances = DocSummary.decodeList(obj["instances"])
       it.chapters  = DocSummary.decodeList(obj["chapters"])
       it.readme    = DocMarkdown.decode(obj["readme"])
@@ -97,6 +99,9 @@ const class DocLib : DocPage
 
   ** Top-level function specs defined in this library
   const DocSummary[] funcs
+
+  ** Top-level meta specs defined in this library
+  const DocSummary[] metas
 
   ** Instances defined in this library
   const DocSummary[] instances
