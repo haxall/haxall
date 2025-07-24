@@ -55,14 +55,20 @@ if (!projMeta.isEmpty) throw Err("TODO")
 
   override Void addLib(Str libName)
   {
-    libNames := Str:Str[:]
-    libNames.add(libName, libName)
-    // TODO depends
-    proj.libs.addAll(libNames.vals)
+    // solve depends we need to enable too
+    depends := proj.ns.env.repo.solveDepends([LibDepend(libName)])
+    libNames := depends.map |d->Str| { d.name }
+    proj.libs.addAll(libNames)
   }
 
   override Ext addExt(Str libName, Str:Obj? tags)
   {
+    // solve depends we need to enable too (but not the ext itself)
+    depends := proj.ns.env.repo.solveDepends([LibDepend(libName)])
+    libNames := depends.map |d->Str| { d.name }
+    libNames.remove(libName)
+
+    // then add ext
     ext := proj.exts.add(libName, Etc.makeDict(tags))
     ext.spi.sync
     return ext
