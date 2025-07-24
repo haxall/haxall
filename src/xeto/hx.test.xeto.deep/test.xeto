@@ -20,3 +20,5 @@ Beta : Dict {
   metaNum: "456"
 }
 
+testDeepAdd: Func <axon:"(a,b)=>a+b"> { a: Number, b: Number, returns: Number }
+

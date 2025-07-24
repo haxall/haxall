@@ -168,11 +168,6 @@ class HxCoreLibTest : HxTest
     return Etc.makeDict(acc)
   }
 
-  Symbol projLib()
-  {
-    sys.info.rt.isSkySpark ? Symbol("lib:proj_test") : Symbol("lib:hx_db")
-  }
-
   Void verifyParam(Grid grid, Int i, Str name, Obj? def)
   {
     verifyEq(grid[i]->name, name)
