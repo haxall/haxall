@@ -572,7 +572,7 @@ class Parser
       {
         // dotted call such as "foo.bar.baz"
         dot := (DotCall)base
-        if (dot.args.size == 1)
+        if (dot.bareName)
         {
           libNames.add(dot.funcName)
           base = dot.args[0]
@@ -610,9 +610,13 @@ class Parser
 
       if (cur !== Token.lparen)
       {
+        bareName := true
         if (cur === Token.id && peek === Token.fnEq)
+        {
+          bareName = false
           args.add(lambda1)
-        return toDotCall(methodName, args)
+        }
+        return toDotCall(methodName, args, bareName)
       }
     }
 
@@ -643,7 +647,7 @@ class Parser
     if (!isEos && (cur === Token.id || cur === Token.lparen))
       args.add(lamdba)
 
-    call := isMethod ? toDotCall(methodName, args) : toCall(target, args)
+    call := isMethod ? toDotCall(methodName, args, false) : toCall(target, args)
     if (numPartials > 0)
       return PartialCall(call.func, call.args, numPartials)
     else
@@ -664,12 +668,12 @@ class Parser
   }
 
   ** Create DotCall vs StaticCall based on first arg
-  private Call toDotCall(Str methodName, Expr[] args)
+  private Call toDotCall(Str methodName, Expr[] args, Bool bareName)
   {
     if (args.first.isTopNameType)
       return StaticCall(args[0], methodName, args[1..-1])
     else
-      return DotCall(methodName, args)
+      return DotCall(methodName, args, bareName)
   }
 
   **
@@ -682,7 +686,7 @@ class Parser
     consume(Token.lbracket)
     arg := expr
     consume(Token.rbracket)
-    return DotCall("get", [target, arg])
+    return DotCall("get", [target, arg], false)
   }
 
   **

@@ -18,8 +18,12 @@ using hx
 class ResolveTest : HxTest
 {
 
+//////////////////////////////////////////////////////////////////////////
+// Eval with unqualified/qualified type/func names
+//////////////////////////////////////////////////////////////////////////
+
   @HxTestProj
-  Void test()
+  Void testEvals()
   {
     addLib("hx.test")
     addLib("hx.test.xeto")
@@ -52,15 +56,96 @@ class ResolveTest : HxTest
     // ph.points
     verifyResolve("RunCmd", proj.ns.spec("ph.points::RunCmd"))
     verifyResolve("ph.points::RunCmd", proj.ns.spec("ph.points::RunCmd"))
+
+    // parsing error one level
+    verifyErr(SyntaxErr#) { eval("axon()::now()") }
+    verifyErr(SyntaxErr#) { eval("axon(123)::now()") }
+
+    // parsing error two levels
+    verifyErr(SyntaxErr#) { eval("hx().test::testIncrement(3)") }
+    verifyErr(SyntaxErr#) { eval("hx(3).test::testIncrement(3)") }
+    verifyErr(SyntaxErr#) { eval("hx.test()::testIncrement(3)") }
+    verifyErr(SyntaxErr#) { eval("hx.test(3)::testIncrement(3)") }
+
+    // parsing error two+ level
+    verifyErr(SyntaxErr#) { eval("hx().test.xeto.deep::testDeepAdd(6, 3)") }
+    verifyErr(SyntaxErr#) { eval("hx(2).test.xeto.deep::testDeepAdd(6, 3)") }
+    verifyErr(SyntaxErr#) { eval("hx(2, 3).test.xeto.deep::testDeepAdd(6, 3)") }
+    verifyErr(SyntaxErr#) { eval("hx.test().xeto.deep::testDeepAdd(6, 3)") }
+    verifyErr(SyntaxErr#) { eval("hx.test(2).xeto.deep::testDeepAdd(6, 3)") }
+    verifyErr(SyntaxErr#) { eval("hx.test(2, 3).xeto.deep::testDeepAdd(6, 3)") }
+    verifyErr(SyntaxErr#) { eval("hx.test.xeto().deep::testDeepAdd(6, 3)") }
+    verifyErr(SyntaxErr#) { eval("hx.test.xeto(3).deep::testDeepAdd(6, 3)") }
+    verifyErr(SyntaxErr#) { eval("hx.test.xeto.deep()::testDeepAdd(6, 3)") }
+    verifyErr(SyntaxErr#) { eval("hx.test.xeto.deep(3)::testDeepAdd(6, 3)") }
   }
 
   Void verifyResolve(Str expr, Obj expect)
   {
-echo
-echo("--> $expr")
     actual := eval(expr)
-echo("  > $actual ?= $expect")
     verifyEq(actual, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Context resolveTop, resolveTopFn
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testContext()
+  {
+    addLib("ph")
+    addLib("hx.test")
+
+    cx := makeContext
+    ns := cx.ns
+    loc := Loc.synthetic
+
+    now := ns.spec("axon::now").func.thunk
+    verifyContext(cx.resolveTop(TopName(loc, null, "now")), now)
+    verifyContext(cx.resolveTop(TopName(loc, "axon", "now")), now)
+    verifyContext(cx.resolveTopFn("now"), now)
+    verifyContext(cx.resolveTopFn("axon::now"), now)
+
+    incr := ns.spec("hx.test::testIncrement").func.thunk
+    verifyContext(cx.resolveTop(TopName(loc, null, "testIncrement")), incr)
+    verifyContext(cx.resolveTop(TopName(loc, "hx.test", "testIncrement")), incr)
+    verifyContext(cx.resolveTopFn("testIncrement"), incr)
+    verifyContext(cx.resolveTopFn("hx.test::testIncrement"), incr)
+
+    site := ns.spec("ph::Site")
+    verifyContext(cx.resolveTop(TopName(loc, null, "Site")), site)
+    verifyContext(cx.resolveTop(TopName(loc, "ph", "Site")), site)
+
+    verifyBadResolveTop(TopName(loc, "badLib", "badName"), UnknownLibErr#)
+    verifyBadResolveTop(TopName(loc, "axon", "badName"),   UnknownSpecErr#)
+    verifyBadResolveTop(TopName(loc, "sys", "BadName"),    UnknownSpecErr#)
+
+    verifyBadResolveTopFn("bad",             UnknownFuncErr#)
+    verifyBadResolveTopFn("badLib::badName", UnknownLibErr#)
+    verifyBadResolveTopFn("axon::badName",   UnknownSpecErr#)
+    verifyBadResolveTopFn("Site",            UnknownFuncErr#)
+    verifyBadResolveTopFn("ph::Site",        UnknownFuncErr#)
+  }
+
+  Void verifyContext(Obj a, Obj b)
+  {
+    verifySame(a, b)
+  }
+
+  Void verifyBadResolveTop(TopName name, Type errType)
+  {
+    cx := makeContext
+    verifyEq(cx.resolveTop(name, false), null)
+    verifyErr(errType) { cx.resolveTop(name) }
+    verifyErr(errType) { cx.resolveTop(name, true) }
+  }
+
+  Void verifyBadResolveTopFn(Str name, Type errType)
+  {
+    cx := makeContext
+    verifyEq(cx.resolveTopFn(name, false), null)
+    verifyErr(errType) { cx.resolveTopFn(name) }
+    verifyErr(errType) { cx.resolveTopFn(name, true) }
   }
 
 }

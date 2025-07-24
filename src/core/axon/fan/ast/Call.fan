@@ -77,15 +77,18 @@ internal const class Call : Expr
 @Js
 internal const class DotCall : Call
 {
-  new make(Str funcName, Expr[] args)
+  new make(Str funcName, Expr[] args, Bool bareName)
     : super(Var(args.first.loc, funcName), args)
   {
     this.funcName= funcName
+    this.bareName = bareName
   }
 
   override ExprType type() { ExprType.dotCall }
 
   override const Str? funcName
+
+  const Bool bareName  // no parens
 
   override Obj? eval(AxonContext cx)
   {
@@ -174,7 +177,7 @@ internal const class StaticCall : Call
 internal const class TrapCall : DotCall
 {
   new make(Expr target, Str tagName)
-    : super("trap", [target, Literal(tagName)])
+    : super("trap", [target, Literal(tagName)], false)
   {
     this.tagName = tagName
   }
