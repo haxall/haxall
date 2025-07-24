@@ -26,7 +26,7 @@ class HxFuncsTest : HxTest
   @HxTestProj
   Void testFolio()
   {
-    // create test database
+    // create test databaseb
     a := makeRec("andy",    10, ["young"])
     b := makeRec("brian",   20, ["young"])
     c := makeRec("charlie", 30, ["old"])
@@ -198,8 +198,8 @@ class HxFuncsTest : HxTest
     verifyToRecs(Etc.makeDictsGrid(null, [r, d1]),  [r, d1])
 
     // Etc.toDateSpan (each one also is tested as toSpan)
-    verifyToDateSpan(makeContext.findTop("today"), DateSpan.today)
-    verifyToDateSpan(makeContext.findTop("lastWeek"), DateSpan.lastWeek)
+    verifyToDateSpan(makeContext.resolveTopFn("today"), DateSpan.today)
+    verifyToDateSpan(makeContext.resolveTopFn("lastWeek"), DateSpan.lastWeek)
     verifyToDateSpan(DateSpan.thisMonth, DateSpan.thisMonth)
     verifyToDateSpan(Date("2022-02-04"), DateSpan("2022-02-04,day"))
     verifyToDateSpan(Span(SpanMode.thisYear), DateSpan.thisYear)
@@ -231,7 +231,7 @@ class HxFuncsTest : HxTest
     verifyToSpan(ObjRange(s2.start, s2.end.date-1day), london, s2.toDateSpan.toSpan(london))
     verifyToSpan(now, null, Span(now, now))
     verifyToSpan(now, london, Span(now, now))
-    verifyToSpan(makeContext.findTop("today"), null, Span.today)
+    verifyToSpan(makeContext.resolveTopFn("today"), null, Span.today)
     verifyToSpan(Date.today, null, Span.today)
     verifyToSpan(Date.today, london, Span.today(london))
   }

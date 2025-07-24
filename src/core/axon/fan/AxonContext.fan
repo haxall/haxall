@@ -51,12 +51,6 @@ abstract class AxonContext : HaystackContext, CompContext
   ** CompContext current time
   override once DateTime now() { DateTime.now(null) }
 
-  ** Resolve global variable/top-level function
-  @NoDoc virtual Obj? global(Str name, Bool checked := true) { findTop(name, checked) }
-
-  ** Find top-level function by qname or name
-  @NoDoc abstract Fn? findTop(Str name, Bool checked := true)
-
   ** Resolve dict by local or remote id
   @NoDoc virtual Dict? xqReadById(Ref ref, Bool checked := true) { throw UnsupportedErr() }
 
@@ -68,6 +62,34 @@ abstract class AxonContext : HaystackContext, CompContext
 
   ** Foreign function interface plugin to map Axon to Fantom or other languages
   @NoDoc virtual AxonFFI? ffi() { null }
+
+  ** Find top-level function by qname or name
+  @NoDoc Fn? resolveTopFn(Str name, Bool checked := true)
+  {
+    resolveTop(TopName.parse(name), checked)
+  }
+
+  ** Resolve top level qualified/unqualifed name to type/func
+  @NoDoc virtual Obj? resolveTop(TopName x, Bool checked := true)
+  {
+    // qualified
+    lib := x.lib == null ? null : ns.lib(x.lib, checked)
+
+    // type or func
+    if (x.isTopNameType)
+    {
+      return lib == null ?
+             ns.unqualifiedType(x.name, checked) :
+             lib.type(x.name, checked)
+    }
+    else
+    {
+      spec := lib == null ?
+              ns.unqualifiedFunc(x.name, checked) :
+              lib.func(x.name, checked)
+      return spec != null ? spec.func.thunk : null
+    }
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 // Eval
@@ -240,9 +262,9 @@ abstract class AxonContext : HaystackContext, CompContext
     frame := varFrame(name)
     if (frame != null) return frame.get(name)
 
-    // resolve to global variable/top-level function
-    global := global(name, false)
-    if (global != null) return global
+    // resolve as unqualified top-level name
+    top := resolveTop(TopName(loc, null, name), false)
+    if (top != null) return top
 
     throw EvalErr("Unknown symbol '$name'", this, loc)
   }

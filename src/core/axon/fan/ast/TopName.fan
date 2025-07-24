@@ -17,6 +17,14 @@ using haystack
 @NoDoc @Js
 const class TopName : Expr
 {
+  static TopName parse(Str s)
+  {
+    colon := s.index(":")
+    if (colon == null) return make(Loc.synthetic, null, s)
+    if (s[colon+1] != ':') throw ArgErr("Invalid qname: $s")
+    return make(Loc.synthetic, s[0..<colon], s[colon+2..-1])
+  }
+
   new make(Loc loc, Str? lib, Str name)
   {
     this.loc  = loc
@@ -36,18 +44,7 @@ const class TopName : Expr
 
   override Obj? eval(AxonContext cx)
   {
-if (isTopNameType)
-{
-    // qualified type
-    if (lib != null) return cx.ns.lib(lib).type(name)
-
-    // resolve from usings
-    return cx.ns.unqualifiedType(name)
-}
-else
-{
-  return cx.findTop(nameToStr)
-}
+    cx.resolveTop(this, true)
   }
 
   override Printer print(Printer out)

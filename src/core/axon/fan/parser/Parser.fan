@@ -513,23 +513,20 @@ class Parser
   }
 
   **
-  ** Variable or spec qname:
-  **   <var>          :=  <qname>
-  **   <typeRef>      :=  [<typeLibName> "::"] <typename>
-  **   <typeLibName>  :=  <id> ("." <id>)*
+  ** Variable or qname:
+  **   <var>          :=  <qname> | <id>
+  **   <qname>        :=  <qnameLibName> "::" <id>
+  **   <qnameLibName> :=  <id> ("." <id>)*
   **
   private Expr termId()
   {
     loc := curLoc
     name := consumeId("name")
+    var := Var(loc, name)
 
-    if (cur !== Token.doubleColon) return Var(loc, name)
-    consume
+    if (cur === Token.doubleColon) return qname(var, null)
 
-    if (cur === Token.typename)
-      return typeRef(name)
-    else
-      return Var(loc, name + "::" + consumeIdOrKeyword("func qname"))
+    return var
   }
 
   **
@@ -549,10 +546,7 @@ class Parser
 
       methodName = consumeIdOrKeyword("func name")
 
-      if (cur === Token.doubleColon)
-      {
-        return qnameFromDottedPath(target, methodName)
-      }
+      if (cur === Token.doubleColon) return qname(target, methodName)
 
       if (cur !== Token.lparen)
       {
@@ -780,7 +774,7 @@ class Parser
   ** with a root Var into a library qname. This method is called when cur
   ** is doubleColon.
   **
-  private Expr qnameFromDottedPath(Expr base, Str lastLibName)
+  private Expr qname(Expr base, Str? lastLibName)
   {
     // consume :: name
     consume(Token.doubleColon)
@@ -797,7 +791,7 @@ class Parser
 
     // build up list of names from end back to start
     libNames := Str[,]
-    libNames.add(lastLibName)
+    libNames.addNotNull(lastLibName)
     while (base.type !== ExprType.var)
     {
       if (base.type === ExprType.dotCall)

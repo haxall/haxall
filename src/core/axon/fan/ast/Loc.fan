@@ -18,6 +18,9 @@ const class Loc
   ** Generic eval location
   static const Loc eval := Loc("eval", 0)
 
+  ** Synthetic
+  static const Loc synthetic := Loc("synthetic", 0)
+
   ** Constructor
   new make(Str file, Int line := 0)
   {
@@ -41,3 +44,4 @@ const class Loc
   ** Line number (one based)
   const Int line
 }
+

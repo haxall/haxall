@@ -275,7 +275,7 @@ internal class HxNavOp : HxApiOp
   override Grid onRequest(Grid req, Context cx)
   {
     // check if we have nav function defined and if so use it
-    func := cx.findTop("nav", false)
+    func := cx.resolveTopFn("nav", false)
     if (func != null) return func.call(cx, [req])
 
     // use simple site/equip/point navigation

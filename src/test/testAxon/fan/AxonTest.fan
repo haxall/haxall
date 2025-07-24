@@ -100,10 +100,9 @@ internal class TestContext : AxonContext
 
   override DefNamespace defs() { test.defs }
 
-  override Fn? findTop(Str name, Bool checked := true)
+  override Obj? resolveTop(TopName x, Bool checked := true)
   {
-    if (name.contains("::")) name = name[name.indexr(":")+1..-1]
-    return core.getChecked(name, checked)
+    core.getChecked(x.name, checked)
   }
 }
 

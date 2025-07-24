@@ -193,15 +193,6 @@ virtual Proj rt() { proj }
 // AxonContext
 //////////////////////////////////////////////////////////////////////////
 
-  ** Find top-level function by qname or name
-  @NoDoc override Fn? findTop(Str name, Bool checked := true)
-  {
-    spec := ns.unqualifiedFunc(name, false)
-    if (spec != null) return (Fn)spec.func.thunk // all thunks are axon fns too
-    if (checked) throw UnknownFuncErr(name)
-    return null
-  }
-
   ** Evaluate an expression or if a filter then readAll convenience
   @NoDoc override Obj? evalOrReadAll(Str src)
   {

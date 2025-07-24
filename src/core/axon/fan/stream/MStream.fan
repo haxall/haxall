@@ -202,7 +202,7 @@ abstract class MStream
     MStream? stream := null
     grid.each |row|
     {
-      func := cx.findTop(row.val(nameCol))
+      func := cx.resolveTopFn(row.val(nameCol))
       args := Obj?[,]
       args.capacity = 1 + argsCols.size
       if (stream != null) args.add(streamToArg(func, stream))
@@ -237,3 +237,4 @@ abstract class MStream
   AxonContext cx { private set }
   private Bool complete
 }
+

@@ -175,19 +175,6 @@ class TestAxonContext : AxonContext
 
   override LibNamespace ns
 
-  override Fn? findTop(Str name, Bool checked := true)
-  {
-    throw unsupported
-  }
-
-  ** Evaluate an expression or if a filter then readAll convenience
-  /*
-  @NoDoc override Obj? evalOrReadAll(Str src)
-  {
-    throw unsupported
-  }
-  */
-
   Err unsupported() { UnsupportedErr("TestAxonContext") }
 }
 

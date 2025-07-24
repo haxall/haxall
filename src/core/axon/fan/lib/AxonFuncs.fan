@@ -3051,7 +3051,7 @@ const class AxonFuncs
   static Obj? call(Obj func, Obj?[]? args := null)
   {
     cx := AxonContext.curAxon
-    fn := func is Str ? cx.findTop(func) : (Fn)func
+    fn := func is Str ? cx.resolveTopFn(func) : (Fn)func
     if (args == null) args = Obj#.emptyList
     return fn.callx(cx, args, Loc("call"))
   }

@@ -142,16 +142,17 @@ internal const class AxonFuncsUtil
   ** Coerce object to Fn instance
   private static TopFn? coerceToFn(AxonContext cx, Obj x, Bool checked)
   {
-    if (x is Str) return cx.findTop(x, checked)
+    if (x is Str) return cx.resolveTopFn(x, checked)
     if (x is Fn)
     {
       // if closure then its named {top}.{closure}
       name := ((Fn)x).name
       dot := name.index(".")
       if (dot != null) name = name[0..<dot]
-      return cx.findTop(name, checked)
+      return cx.resolveTopFn(name, checked)
     }
     if (x is Dict && ((Dict)x).has("id")) x = x->id
+    /* old 3.1 behavior
     if (x is Ref)
     {
       rec := cx.deref(x)
@@ -163,6 +164,7 @@ internal const class AxonFuncsUtil
       name := rec["name"] as Str ?: ((Symbol)rec->def).name
       return cx.findTop(name)
     }
+    */
     throw ArgErr("Invalid func name argument [$x.typeof]")
   }
 

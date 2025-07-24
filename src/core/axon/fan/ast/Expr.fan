@@ -62,28 +62,30 @@ const abstract class Expr
   {
     t := eval(cx)
     fn := t as Fn
-    if (fn == null)
-    {
-      // if t is a func record in database, get as func
-      if (t is Dict)
+
+    /* old 3.1 behavior
+    // if t is a func record in database, get as func
+    if (t is Dict)
       {
         dict := (Dict)t
         name := dict["name"] as Str
         if (dict.has("func") && name != null)
           fn = cx.findTop(name, false)
-      }
-      if (fn == null)
-      {
-        var := this as Var
-        if (var != null)
-        {
-          fn = cx.findTop(var.name, false)
-          if (fn != null) throw err("Local variable $var.name.toCode is hiding function", cx)
-          else throw err("Local variable $var.name.toCode is not assigned to a function: " + summary(t), cx)
-        }
-        throw err("Target does not eval to func: " + summary(t), cx)
-      }
     }
+    */
+
+    if (fn == null)
+    {
+      var := this as Var
+      if (var != null)
+      {
+        fn = cx.resolveTopFn(var.name, false)
+        if (fn != null) throw err("Local variable $var.name.toCode is hiding function", cx)
+        else throw err("Local variable $var.name.toCode is not assigned to a function: " + summary(t), cx)
+      }
+      throw err("Target does not eval to func: " + summary(t), cx)
+    }
+
     return fn
   }
 

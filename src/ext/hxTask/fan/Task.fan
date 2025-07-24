@@ -349,7 +349,7 @@ const class Task : Actor, Observer, HxTask
 
   private Obj? doEval(Expr expr, Context cx, Obj? msg)
   {
-    if (expr.type === ExprType.var) expr = cx.findTop(expr.toStr)
+    if (expr.type === ExprType.var) expr = cx.resolveTopFn(expr.toStr)
     if (expr is Fn) return ((Fn)expr).call(cx, [msg])
     return expr.eval(cx)
   }
