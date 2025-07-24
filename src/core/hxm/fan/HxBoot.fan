@@ -43,6 +43,9 @@ abstract class HxBoot
   ** List of xeto lib names which are implicitly enabled as boot libs
   Str[] bootLibs := [,]
 
+  ** Initial values projMeta (create only)
+  Str:Obj? createProjMeta := [:]
+
   ** Initial libs for create
   Str[] createLibs := [
      "hx.xeto"
@@ -69,7 +72,7 @@ abstract class HxBoot
   **   - productName, productVersion, productUri
   **   - vendorName, vendorUri
   **
-  Str:Obj? sysMeta := [
+  Str:Obj? sysInfo := [
     "version":        typeof.pod.version.toStr,
     "hostOs":         hostOs,
     "hostModel":      "Haxall (${Env.cur.os})",
@@ -79,6 +82,9 @@ abstract class HxBoot
     "vendorName":     "SkyFoundry",
     "vendorUri":      `https://skyfoundry.com/`,
   ]
+
+  ** Lookup sys version
+  Version sysInfoVersion() { Version.fromStr(sysInfo.getChecked("version")) }
 
   **
   ** SysInfo config tags used to customize the system.
@@ -105,7 +111,6 @@ abstract class HxBoot
     this.nsfb = initNamespaceFileBase
     createNamespace(this.nsfb)
     this.db = createFolio
-    initMeta
     if (close) { db.close; return null }
     else return db
   }
@@ -134,7 +139,6 @@ abstract class HxBoot
     check
     this.nsfb = initNamespaceFileBase
     this.db   = initFolio
-    this.meta = initMeta
     return initProj.init(this)
   }
 
@@ -196,20 +200,10 @@ abstract class HxBoot
   ** Open project folio database
   abstract Folio initFolio()
 
-  ** Ensure projMeta exists and has current version
-  virtual Dict initMeta()
-  {
-    // setup the tags we want for projMeta
-    tags := ["projMeta": Marker.val, "version": sysMeta.getChecked("version")]
-
-    // update rec and and return it
-    return initRec("projMeta", db.read(Filter.has("projMeta"), false), tags)
-  }
-
   ** Create Platform for HxSys
   virtual SysInfo initSysInfo()
   {
-    meta := Etc.dictFromMap(sysMeta.findNotNull)
+    meta := Etc.dictFromMap(sysInfo.findNotNull)
     return SysInfo(meta)
   }
 
@@ -253,23 +247,6 @@ abstract class HxBoot
   {
     env := Env.cur.vars
     return env["os.name"] + " " + env["os.arch"] + " " + env["os.version"]
-  }
-
-  ** Ensure given record exists and has given tags
-  Dict initRec(Str summary, Dict? rec, Str:Obj changes := [:])
-  {
-    if (rec == null)
-    {
-      log.info("Create $summary")
-      return db.commit(Diff(null, changes, Diff.add.or(Diff.bypassRestricted))).newRec
-    }
-    else
-    {
-      changes = changes.findAll |v, n| { rec[n] != v }
-      if (changes.isEmpty) return rec
-      log.info("Update $summary")
-      return db.commit(Diff(rec, changes)).newRec
-    }
   }
 
   ** Check lock ensures that key fields cannot be changed after validation

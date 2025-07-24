@@ -32,10 +32,25 @@ const class HxSettingsMgr
   ** Setting id for projMeta
   static const Ref projMetaId := Ref("projMeta")
 
-  ** Read projMeta
-  Dict projMetaRead()
+  ** Initialize projMeta
+  Dict projMetaInit(HxBoot boot)
   {
-    read(projMetaId)
+    init(projMetaId, Etc.dictFromMap(boot.createProjMeta))
+
+    cur := db.readById(projMetaId, false)
+
+    // make sure we init/update cur version and projMeta marker
+    version := boot.sysInfoVersion.toStr
+    required := Etc.dict2("projMeta", Marker.val, "version", version)
+    if (cur == null)
+    {
+      cur = db.commit(Diff(null, required)).newRec
+    }
+    else if (cur["version"] != version || cur["projMeta"] != Marker.val)
+    {
+      cur = db.commit(Diff(cur, required, Diff.bypassRestricted)).newRec
+    }
+    return cur
   }
 
   ** Update projMeta

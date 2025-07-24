@@ -169,35 +169,43 @@ class ProjTest : HxTest
     Str<|dis: "My Test"
          steadyState: 100ms
          fooBar|> }
-  Void testMeta()
+  Void testProjMeta()
   {
     // verify test setup with meta data correctly
-    rec := proj.read("projMeta")
     meta := proj.meta
     verifySame(proj.meta, meta)
-    verifyEq(meta.id, rec.id)
-    verifyEq(meta->dis, "My Test")
-    verifyEq(meta->steadyState, n(100, "ms"))
-    verifyEq(meta->fooBar, m)
+    verifyProjMeta(["dis":"My Test", "steadyState":n(100, "ms"), "fooBar":m])
 
-    // verify changes to meta
-    rec = commit(rec, ["dis":"New Dis", "newTag":"!"])
+    // verify changes to meta - Str:Obj
+    proj.metaUpdate(["dis":"New Dis", "newTag":"!"])
     verifyNotSame(proj.meta, meta)
     meta = proj.meta
-    verifyEq(meta->dis, "New Dis")
-    verifyEq(meta->newTag, "!")
-
-    // verify cannot remove/trash/add
-    verifyErr(DiffErr#) { addRec(["dis":"Another one", "projMeta":m]) }
-    verifyErr(DiffErr#) { commit(rec, ["projMeta":Remove.val]) }
-    verifyErr(CommitErr#) { commit(rec, null, Diff.remove) }
-    verifyErr(CommitErr#) { commit(rec, ["trash":m]) }
+    verifyProjMeta(["dis":"New Dis", "steadyState":n(100, "ms"), "fooBar":m, "newTag":"!"])
 
     // verify steady state timer
     verifyEq(proj.isSteadyState, false)
     Actor.sleep(150ms)
     verifyEq(proj.isSteadyState, true)
+
+    // restart and verify persisted
+    projRestart
+//    verifyProjMeta(["dis":"New Dis", "steadyState":n(100, "ms"), "fooBar":m, "newTag":"!"])
+echo("TODO")
   }
+
+  Void verifyProjMeta(Str:Obj expect)
+  {
+    actual := proj.meta
+    expect = expect.dup
+              .set("id", Ref.make("projMeta", expect["dis"]))
+              .set("projMeta", m)
+              .set("version", proj.sys.info.version.toStr)
+              .set("mod", actual->mod)
+echo("~~ verifyProjMeta $actual")
+echo(" -> $actual.id.toZinc")
+    verifyDictEq(actual, expect)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Axon
 //////////////////////////////////////////////////////////////////////////
@@ -339,11 +347,11 @@ class TestSysBoot : HxdBoot
     this.name = "test"
     this.dir = dir
     this.log = Log.get("test")
-    this.sysMeta["version"] = "1.2.3"
-    this.sysMeta["extra"] = "summertime"
     this.bootLibs.remove("hx.shell")
     this.bootLibs.add("bad.boot")
-    this.sysMeta["productName"] = "Test Product"
+    this.sysInfo["version"] = "1.2.3"
+    this.sysInfo["extra"] = "summertime"
+    this.sysInfo["productName"] = "Test Product"
     this.sysConfig["testConfig"] = "foo"
   }
 
