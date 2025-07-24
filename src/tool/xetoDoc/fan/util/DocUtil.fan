@@ -82,7 +82,13 @@ const class DocUtil
   ** Convert spec name to its normalized URI
   static Uri specToUri(Spec spec)
   {
-    spec.isGlobal ? globalToUri(spec.qname) : typeToUri(spec.qname)
+    if (!spec.isGlobal) return typeToUri(spec.qname)
+    
+    // Check if this global is a function by checking type qname
+    if (spec.type.qname == "sys::Func")
+      return funcToUri(spec.qname)
+    
+    return globalToUri(spec.qname)
   }
 
   ** Convert type spec qualified name to its normalized URI
@@ -95,6 +101,12 @@ const class DocUtil
   static Uri globalToUri(Str qname)
   {
     qnameToUri(qname, true)
+  }
+
+  ** Convert function spec qualified name to its normalized URI
+  static Uri funcToUri(Str qname)
+  {
+    qnameToUri(qname, false, "f_")
   }
 
   ** Convert instance qualified name to its normalized URI
@@ -116,19 +128,20 @@ const class DocUtil
     l := uri.path[0]
     n := uri.path[1]
     if (n.size >= 2 && n.startsWith("_") && !n[1].isDigit) n = n[1..-1]
+    if (n.size >= 2 && n.startsWith("f_")) n = n[2..-1]
     return "$l::$n"
   }
 
   ** Convert spec or instance qualified name to its normalized URI
-  private static Uri qnameToUri(Str qname, Bool isGlobal)
+  private static Uri qnameToUri(Str qname, Bool isGlobal, Str prefix := "")
   {
     // have to deal with lower vs upper case names on file systems
     colons := qname.index("::") ?: throw Err("Not qname: $qname")
-    s := StrBuf(qname.size + 3)
+    s := StrBuf(qname.size + 5)
     return s.addChar('/')
             .addRange(qname, 0..<colons)
             .addChar('/')
-            .add(isGlobal ? "_" : "")
+            .add(isGlobal ? "_" : prefix)
             .addRange(qname, colons+2..-1)
             .toStr.toUri
   }
@@ -184,6 +197,7 @@ const class DocUtil
     // overall defs
     if (lib.specs.size     > 0) acc.add(DocTag("specs",     lib.specs.size))
     if (lib.globals.size   > 0) acc.add(DocTag("globals",   lib.globals.size))
+    if (lib.funcs.size     > 0) acc.add(DocTag("funcs",     lib.funcs.size))
     if (lib.metaSpecs.size > 0) acc.add(DocTag("metas",     lib.metaSpecs.size))
     if (lib.instances.size > 0) acc.add(DocTag("instances", lib.instances.size))
 
@@ -223,6 +237,7 @@ const class DocUtil
     {
       case "specs":     return typeIcon
       case "globals":   return globalIcon
+      case "funcs":     return funcIcon
       case "metas":     return globalIcon
       case "instances": return instanceIcon
       case "chapters":  return chapterIcon
@@ -239,6 +254,7 @@ const class DocUtil
   static const Str libIcon      := "package"
   static const Str typeIcon     := "spec"
   static const Str globalIcon   := "tag"
+  static const Str funcIcon     := "zap"
   static const Str instanceIcon := "at-sign"
   static const Str chapterIcon  := "sticky-note"
   static const Str compIcon     := "component"
@@ -248,4 +264,3 @@ const class DocUtil
   static const Str elecIcon     := "zap"
   static const Str tagIcon      := "tag"
 }
-

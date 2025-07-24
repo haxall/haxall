@@ -203,6 +203,52 @@ const class DocGlobal : DocSpecPage
 }
 
 **************************************************************************
+** DocFunc
+**************************************************************************
+
+**
+** DocFunc is the documentation for a Xeto top-level function
+**
+@Js
+const class DocFunc : DocSpecPage
+{
+  ** Constructor
+  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef type) : super(lib, qname, srcLoc, doc, meta)
+  {
+    this.type = type
+  }
+
+  ** Type of this function
+  const DocTypeRef type
+
+  ** Page type
+  override DocPageType pageType() { DocPageType.func }
+
+  ** URI relative to base dir to page
+  override Uri uri() { DocUtil.funcToUri(qname) }
+
+  ** Encode to a JSON object tree
+  override Str:Obj encode()
+  {
+    obj := super.encode
+    obj["type"] = type.encode
+    return obj
+  }
+
+  ** Decode from a JSON object tree
+  static DocFunc doDecode(Str:Obj obj)
+  {
+    lib    := DocLibRef.decode(obj.getChecked("lib"))
+    qname  := obj.getChecked("qname")
+    srcLoc := DocUtil.srcLocDecode(obj)
+    doc    := DocMarkdown.decode(obj.get("doc"))
+    meta   := DocDict.decode(obj.get("meta"))
+    type   := DocTypeRef.decode(obj.getChecked("type"))
+    return DocFunc(lib, qname, srcLoc, doc, meta, type)
+ }
+}
+
+**************************************************************************
 ** DocSlot
 **************************************************************************
 
@@ -307,4 +353,3 @@ const class DocSlot : DocSpec
     return obj.map |x, n| { DocSlot.decode(n, x) }
   }
 }
-

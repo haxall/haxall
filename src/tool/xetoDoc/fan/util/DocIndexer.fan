@@ -29,6 +29,7 @@ abstract class DocIndexer
       case DocPageType.lib:      addLib(page)
       case DocPageType.type:     addType(page)
       case DocPageType.global:   addGlobal(page)
+      case DocPageType.func:     addFunc(page)
       case DocPageType.instance: addInstance(page)
       case DocPageType.chapter:  addChapter(page)
       case DocPageType.search:   return
@@ -61,6 +62,12 @@ abstract class DocIndexer
   virtual Void addGlobal(DocGlobal x)
   {
     doAdd(x.uri, x.lib, DocIndexerSectionType.global, [x.qname, x.name], x.qname, x.doc)
+  }
+
+  ** Add DocFunc page to index
+  virtual Void addFunc(DocFunc x)
+  {
+    doAdd(x.uri, x.lib, DocIndexerSectionType.func, [x.qname, x.name], x.qname, x.doc)
   }
 
   ** Add DocInstance page to index
@@ -161,6 +168,7 @@ enum class DocIndexerSectionType
   lib      (0.8f),
   type     (0.7f),
   global   (0.6f),
+  func     (0.65f),
   slot     (0.1f),
   instance (0.0f),
   chapter  (1.0f),
@@ -188,4 +196,3 @@ enum class DocIndexerSectionType
   }
 
 }
-

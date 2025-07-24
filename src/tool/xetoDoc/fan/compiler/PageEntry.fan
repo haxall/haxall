@@ -42,17 +42,29 @@ class PageEntry
     this.link     = DocLink(uri, dis)
   }
 
-  ** Constructor for type/global
+  ** Constructor for type/global/func
   new makeSpec(Spec x, DocPageType pageType)
   {
     this.key      = DocCompiler.key(x)
     this.def      = x
-    this.uri      = DocUtil.specToUri(x)
+    this.uri      = makeSpecUri(x, pageType)
     this.lib      = x.lib
     this.dis      = x.name
     this.pageType = pageType
     this.meta     = x.meta
     this.link     = DocLink(uri, dis)
+  }
+  
+  ** Generate URI based on spec and page type
+  private static Uri makeSpecUri(Spec x, DocPageType pageType)
+  {
+    switch (pageType)
+    {
+      case DocPageType.type:   return DocUtil.typeToUri(x.qname)
+      case DocPageType.global: return DocUtil.globalToUri(x.qname)
+      case DocPageType.func:   return DocUtil.funcToUri(x.qname)
+      default:                 return DocUtil.specToUri(x)
+    }
   }
 
   ** Constructor for instance
@@ -142,4 +154,3 @@ class PageEntry
   override Str toStr() { "$uri.toCode $dis [$pageType]" }
 
 }
-

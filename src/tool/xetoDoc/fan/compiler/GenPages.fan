@@ -37,6 +37,7 @@ internal class GenPages: Step
       case DocPageType.lib:      return genLib(entry, entry.def)
       case DocPageType.type:     return genType(entry, entry.def)
       case DocPageType.global:   return genGlobal(entry, entry.def)
+      case DocPageType.func:     return genFunc(entry, entry.def)
       case DocPageType.instance: return genInstance(entry, entry.def)
       case DocPageType.chapter:  return genChapter(entry, entry.def)
       default: throw Err(entry.pageType.name)
@@ -50,7 +51,7 @@ internal class GenPages: Step
 
   DocLib genLib(PageEntry entry, Lib x)
   {
-    DocLib
+    return DocLib
     {
       it.name      = x.name
       it.version   = x.version
@@ -60,6 +61,7 @@ internal class GenPages: Step
       it.tags      = DocUtil.genTags(ns, x)
       it.types     = summaries(typesToDoc(x))
       it.globals   = summaries(x.globals)
+      it.funcs     = summaries(x.funcs)
       it.instances = summaries(x.instances)
       it.chapters  = chapterSummaries(x)
       it.readme    = entry.readme ?: DocMarkdown.empty
@@ -149,6 +151,15 @@ internal class GenPages: Step
     meta   := genDict(x.meta)
     type   := genTypeRef(x.type)
     return DocGlobal(entry.libRef, x.qname, srcLoc, doc, meta, type)
+  }
+
+  DocFunc genFunc(PageEntry entry, Spec x)
+  {
+    srcLoc := DocUtil.srcLoc(x)
+    doc    := genSpecDoc(x)
+    meta   := genDict(x.meta)
+    type   := genTypeRef(x.type)
+    return DocFunc(entry.libRef, x.qname, srcLoc, doc, meta, type)
   }
 
   DocInstance genInstance(PageEntry entry, Dict x)
@@ -241,7 +252,7 @@ internal class GenPages: Step
 
   DocMarkdown genSpecDoc(Spec x)
   {
-    genDoc(x.meta["doc"])
+    return genDoc(x.meta["doc"])
   }
 
   DocMarkdown genDoc(Obj? doc)
@@ -252,4 +263,3 @@ internal class GenPages: Step
   }
 
 }
-
