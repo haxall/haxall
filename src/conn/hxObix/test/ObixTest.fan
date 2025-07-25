@@ -58,10 +58,10 @@ class ObixTest : HxTest
   Void buildProj()
   {
     if (sys.info.rt.isSkySpark)
-      addLib("hx.his")
+      addExt("hx.his")
     else
-      addLib("hx.http")
-    addLib("task")
+      addExt("hx.http")
+    addExt("hx.task")
     lib = addExt("hx.obix")
 
     // some recs
@@ -106,8 +106,8 @@ class ObixTest : HxTest
   Void verifyLobby()
   {
     lib := (ObixExt)proj.ext("hx.obix")
-    projApiUri := proj.sys.http.siteUri + `/api/{$proj.name}/`
-    lobbyUri = projApiUri + lib.web.uri
+    projApiUri := proj.sys.http.siteUri + `/api/${proj.name}/`
+    lobbyUri = projApiUri + `ext/obix/`
 
     // first use a haystack client to authenticate
     addUser("alice", "secret")
