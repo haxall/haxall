@@ -154,6 +154,30 @@ internal class HxOpsOp : HxDefsOp
 }
 
 **************************************************************************
+** HxExtOp
+**************************************************************************
+
+internal class HxExtOp : HxApiOp
+{
+  override Void onService(WebReq req, WebRes res, Context cx)
+  {
+    // TODO: rel paths not working great
+    routeName := req.modRel.path.getSafe(2)
+    modBase := `/api/${cx.proj}/ext/${routeName}/`
+
+    mod := cx.proj.exts.webRoutes.get(routeName)
+    if (mod == null) return res.sendErr(404)
+
+    // dispatch to web mod
+    req.mod = mod
+    req.modBase = modBase
+    mod.onService
+  }
+
+  override Grid onRequest(Grid req, Context cx) { throw UnsupportedErr() }
+}
+
+**************************************************************************
 ** HxReadOp
 **************************************************************************
 

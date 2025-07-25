@@ -50,6 +50,10 @@ typeName:"hx::HxNavOp"
 //////////////////////////////////////////////////////////////////////////
 
 --------------------------------------------------------------------------
+def: ^op:ext
+typeName:"hx::HxExtOp"
+doc: "Route to an extension"
+--------------------------------------------------------------------------
 def: ^op:commit
 typeName:"hx::HxCommitOp"
 doc: "Commit one or more diffs to the Folio database"
