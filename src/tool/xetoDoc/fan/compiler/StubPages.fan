@@ -29,17 +29,11 @@ internal class StubPages: Step
     libDoc := PageEntry.makeLib(lib)
     add(libDoc)
 
-    // type ids
-    typesToDoc(lib).each |x|
+    // specs ids
+    specsToDoc(lib).each |x|
     {
-      add(PageEntry.makeSpec(x, DocPageType.type))
-    }
-
-    // globals
-    lib.globals.each |x|
-    {
-      entry := PageEntry.makeSpec(x, DocPageType.global)
-      entry.summaryType = genTypeRef(x.type)
+      entry := PageEntry.makeSpec(x, DocPageType.spec)
+      if (!x.isType) entry.summaryType = genTypeRef(x.type)
       add(entry)
     }
 

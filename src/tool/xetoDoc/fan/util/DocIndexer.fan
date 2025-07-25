@@ -27,8 +27,7 @@ abstract class DocIndexer
     {
       case DocPageType.index:    return
       case DocPageType.lib:      addLib(page)
-      case DocPageType.type:     addType(page)
-      case DocPageType.global:   addGlobal(page)
+      case DocPageType.spec:     addSpec(page)
       case DocPageType.instance: addInstance(page)
       case DocPageType.chapter:  addChapter(page)
       case DocPageType.search:   return
@@ -43,24 +42,18 @@ abstract class DocIndexer
   }
 
   ** Add DocType page to index
-  virtual Void addType(DocType x)
+  virtual Void addSpec(DocSpec x)
   {
     doAdd(x.uri, x.lib, DocIndexerSectionType.type, [x.qname, x.name], x.qname, x.doc)
     x.eachSlotOwn |slot| { addSlot(x, slot) }
   }
 
   ** Add DocSlot section to index
-  virtual Void addSlot(DocType parent, DocSlot slot)
+  virtual Void addSlot(DocSpec parent, DocSlot slot)
   {
     uri   := parent.uri + `#${slot.name}`
     qname := parent.qname + "." + slot.name
     doAdd(uri, parent.lib, DocIndexerSectionType.slot, [qname, slot.name], qname, slot.doc)
-  }
-
-  ** Add DocGlobal page to index
-  virtual Void addGlobal(DocGlobal x)
-  {
-    doAdd(x.uri, x.lib, DocIndexerSectionType.global, [x.qname, x.name], x.qname, x.doc)
   }
 
   ** Add DocInstance page to index

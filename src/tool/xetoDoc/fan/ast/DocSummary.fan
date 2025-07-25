@@ -6,6 +6,8 @@
 //   22 Sep 2024  Brian Frank  Creation
 //
 
+using xeto
+
 **
 ** DocSummary is a hyperlink to a node with a formatted summary sentence.
 **
@@ -15,10 +17,11 @@ const class DocSummary
   ** Constructor
   new make(DocLink link, DocMarkdown text, DocTag[]? tags := null, DocTypeRef? type := null)
   {
-    this.link = link
-    this.text = text
-    this.tags = tags ?: DocTag.emptyList
-    this.type = type
+    this.link   = link
+    this.text   = text
+    this.tags   = tags ?: DocTag.emptyList
+    this.flavor = SpecFlavor.fromStr(this.tags.first?.name ?: "", false)
+    this.type   = type
   }
 
   ** Title and hyperlink
@@ -32,6 +35,9 @@ const class DocSummary
 
   ** Optional type ref used for some summaries (such as globals)
   const DocTypeRef? type
+
+  ** If associated with a flavor
+  const SpecFlavor? flavor
 
   ** Debug string
   override Str toStr() { "$link.dis: $text" }

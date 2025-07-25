@@ -52,8 +52,20 @@ class DocTest : AbstractXetoTest
     // global
     spec = lib.spec("globalTag")
     entry = compiler.entries.getChecked(spec.qname)
-    verifyGlobal(entry, spec, entry.page)
-    verifyGlobal(entry, spec, roundtrip(entry))
+    verifySpec(entry, spec, entry.page)
+    verifySpec(entry, spec, roundtrip(entry))
+
+    // meta
+    spec = lib.spec("q")
+    entry = compiler.entries.getChecked(spec.qname)
+    verifySpec(entry, spec, entry.page)
+    verifySpec(entry, spec, roundtrip(entry))
+
+    // func
+    spec = lib.spec("add2")
+    entry = compiler.entries.getChecked(spec.qname)
+    verifySpec(entry, spec, entry.page)
+    verifySpec(entry, spec, roundtrip(entry))
 
     // instance
     Dict inst := lib.instance("test-a")
@@ -151,10 +163,14 @@ class DocTest : AbstractXetoTest
   {
     verifyLib(entry, lib, n)
 
-    // verify global summary has type
-    g := n.globals.find { it.link.dis == "globalTag" } ?: throw Err()
-    verifyEq(g.link.dis, "globalTag")
-    verifyEq(g.type.qname, "sys::Str")
+    // walk thru all the lib specs
+    lib.specs.each |a|
+    {
+      if (XetoUtil.isAutoName(a.name)) return
+      b := n.specs.find { it.link.dis == a.name } ?: throw Err("$a.name $a.flavor")
+      verifyEq(a.flavor, b.flavor)
+      if (!a.isType) verifyEq(a.type.qname, b.type.qname)
+    }
 
     // DocLib.depends
     verifyEq(n.depends.size, lib.depends.size)
@@ -168,20 +184,22 @@ class DocTest : AbstractXetoTest
     verifyLib(entry, lib, n)
   }
 
-  Void verifySpec(PageEntry entry, Spec spec, DocSpecPage n)
+  Void verifySpec(PageEntry entry, Spec spec, DocSpec n)
   {
     verifyPage(entry, n)
+    verifyEq(n.pageType, DocPageType.spec)
     verifyEq(n.qname,    spec.qname)
     verifyEq(n.name,     spec.name)
     verifyEq(n.libName,  spec.lib.name)
     verifyEq(n.lib.name, spec.lib.name)
     verifyEq(n.lib.uri,  "/${spec.lib.name}/index".toUri)
+    verifyEq(n.flavor,   spec.flavor)
   }
 
-  Void verifyTypeSpec(PageEntry entry, Spec spec, DocType n)
+  Void verifyTypeSpec(PageEntry entry, Spec spec, DocSpec n)
   {
     verifySpec(entry, spec, n)
-    verifyEq(n.pageType, DocPageType.type)
+    verifyEq(n.pageType, DocPageType.spec)
 
     siteRef := n.slots.getChecked("siteRef")
     verifyEq(siteRef.parent.qname, "ph::Equip")
@@ -191,12 +209,6 @@ class DocTest : AbstractXetoTest
 
     verifyEq(n.doc.text, "Equip with *points*")
     verifyEq(n.doc.html.trim, "<p>Equip with <em>points</em></p>")
-  }
-
-  Void verifyGlobal(PageEntry entry, Spec spec, DocGlobal n)
-  {
-    verifySpec(entry, spec, n)
-    verifyEq(n.pageType, DocPageType.global)
   }
 
   Void verifyInstance(PageEntry entry, Dict inst, DocInstance n)
@@ -233,7 +245,7 @@ class DocTest : AbstractXetoTest
     verify(doc.startsWith(n.text))
   }
 
-  Void verifyTypeRefs(Spec spec, DocType n)
+  Void verifyTypeRefs(Spec spec, DocSpec n)
   {
     /*
       a: Str
@@ -314,7 +326,7 @@ class DocTest : AbstractXetoTest
 
   }
 
-  Void verifySupertypes(Spec spec, DocType n)
+  Void verifySupertypes(Spec spec, DocSpec n)
   {
     /*
        A: Dict
@@ -333,7 +345,7 @@ class DocTest : AbstractXetoTest
     verifyEq(x.types[e0b].name, "B")
   }
 
-  Void verifySubtypes(Spec spec, DocType n)
+  Void verifySubtypes(Spec spec, DocSpec n)
   {
     /*
        A: Dict
@@ -354,7 +366,7 @@ class DocTest : AbstractXetoTest
     verifyEq(n.scalar, s)
   }
 
-  Void verifyPoints(Spec spec, DocType n)
+  Void verifyPoints(Spec spec, DocSpec n)
   {
     /*
     EqA: Equip {

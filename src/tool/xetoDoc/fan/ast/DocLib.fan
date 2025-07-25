@@ -57,8 +57,7 @@ const class DocLib : DocPage
     obj["depends"] = DocLibDepend.encodeList(depends)
     obj["meta"]    = meta.encode
     obj.addNotNull("tags",      DocTag.encodeList(tags))
-    obj.addNotNull("types",     DocSummary.encodeList(types))
-    obj.addNotNull("globals",   DocSummary.encodeList(globals))
+    obj.addNotNull("specs",     DocSummary.encodeList(specs))
     obj.addNotNull("instances", DocSummary.encodeList(instances))
     obj.addNotNull("chapters",  DocSummary.encodeList(chapters))
     if (!readme.isEmpty) obj["readme"] = readme.encode
@@ -76,8 +75,7 @@ const class DocLib : DocPage
       it.depends   = DocLibDepend.decodeList(obj["depends"])
       it.tags      = DocTag.decodeList(obj.get("tags"))
       it.meta      = DocDict.decode(obj.get("meta"))
-      it.types     = DocSummary.decodeList(obj["types"])
-      it.globals   = DocSummary.decodeList(obj["globals"])
+      it.specs     = DocSummary.decodeList(obj["specs"])
       it.instances = DocSummary.decodeList(obj["instances"])
       it.chapters  = DocSummary.decodeList(obj["chapters"])
       it.readme    = DocMarkdown.decode(obj["readme"])
@@ -88,10 +86,22 @@ const class DocLib : DocPage
   const DocTag[] tags
 
   ** Top-level type specs defined in this library
-  const DocSummary[] types
+  const DocSummary[] specs
 
-  ** Top-level global specs defined in this library
-  const DocSummary[] globals
+  ** Top-level specs that types
+  once DocSummary[] types() { flavor(SpecFlavor.type).toImmutable }
+
+  ** Top-level specs that globals
+  once DocSummary[] globals() { flavor(SpecFlavor.global).toImmutable }
+
+  ** Top-level specs that meta specs
+  once DocSummary[] metaSpecs() { flavor(SpecFlavor.meta).toImmutable }
+
+  ** Top-level specs that funcs
+  once DocSummary[] funcs() { flavor(SpecFlavor.func).toImmutable }
+
+  ** Find top-level specs of given flavor
+  DocSummary[] flavor(SpecFlavor f) { specs.findAll { it.flavor === f } }
 
   ** Instances defined in this library
   const DocSummary[] instances

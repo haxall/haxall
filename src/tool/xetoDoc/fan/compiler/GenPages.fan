@@ -35,8 +35,7 @@ internal class GenPages: Step
     switch (entry.pageType)
     {
       case DocPageType.lib:      return genLib(entry, entry.def)
-      case DocPageType.type:     return genType(entry, entry.def)
-      case DocPageType.global:   return genGlobal(entry, entry.def)
+      case DocPageType.spec:     return genSpec(entry, entry.def)
       case DocPageType.instance: return genInstance(entry, entry.def)
       case DocPageType.chapter:  return genChapter(entry, entry.def)
       default: throw Err(entry.pageType.name)
@@ -58,8 +57,7 @@ internal class GenPages: Step
       it.meta      = genDict(x.meta)
       it.depends   = genDepends(x)
       it.tags      = DocUtil.genTags(ns, x)
-      it.types     = summaries(typesToDoc(x))
-      it.globals   = summaries(x.globals)
+      it.specs     = summaries(specsToDoc(x))
       it.instances = summaries(x.instances)
       it.chapters  = chapterSummaries(x)
       it.readme    = entry.readme ?: DocMarkdown.empty
@@ -71,7 +69,7 @@ internal class GenPages: Step
     lib.depends.map |x| { DocLibDepend(DocLibRef(x.name, null), x.versions) }
   }
 
-  DocType genType(PageEntry entry, Spec x)
+  DocSpec genSpec(PageEntry entry, Spec x)
   {
     srcLoc     := DocUtil.srcLoc(x)
     doc        := genSpecDoc(x)
@@ -80,7 +78,7 @@ internal class GenPages: Step
     slots      := genSlots(x)
     supertypes := genSupertypes(x)
     subtypes   := genSubtypes(x)
-    return DocType(entry.libRef, x.qname, srcLoc, doc, meta, base, supertypes, subtypes, slots)
+    return DocSpec(entry.libRef, x.qname, x.flavor, srcLoc, doc, meta, base, supertypes, subtypes, slots)
   }
 
   DocTypeGraph genSupertypes(Spec x)
@@ -130,7 +128,7 @@ internal class GenPages: Step
 
   DocTypeGraph genSubtypes(Spec x)
   {
-    acc := typesToDoc(x.lib).findAll |t|
+    acc := specsToDoc(x.lib).findAll |t|
     {
       if (t.isCompound)
         return t.ofs.any { it === x }
@@ -140,15 +138,6 @@ internal class GenPages: Step
     if (acc.isEmpty) return DocTypeGraph.empty
     types := acc.map |s| { DocSimpleTypeRef(s.qname) }
     return DocTypeGraph(types, null)
-  }
-
-  DocGlobal genGlobal(PageEntry entry, Spec x)
-  {
-    srcLoc := DocUtil.srcLoc(x)
-    doc    := genSpecDoc(x)
-    meta   := genDict(x.meta)
-    type   := genTypeRef(x.type)
-    return DocGlobal(entry.libRef, x.qname, srcLoc, doc, meta, type)
   }
 
   DocInstance genInstance(PageEntry entry, Dict x)

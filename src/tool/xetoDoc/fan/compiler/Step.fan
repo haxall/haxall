@@ -39,9 +39,9 @@ abstract internal class Step
     compiler.libEntries.each(f)
   }
 
-  Spec[] typesToDoc(Lib lib)
+  Spec[] specsToDoc(Lib lib)
   {
-    lib.types.findAll |t| { !XetoUtil.isAutoName(t.name) }
+    lib.specs.findAll |t| { !XetoUtil.isAutoName(t.name) }
   }
 
   PageEntry[] chapters(Lib lib)

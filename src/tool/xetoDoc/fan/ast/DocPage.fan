@@ -40,8 +40,7 @@ const mixin DocPage
     {
       case DocPageType.index:    return DocIndex.doDecode(obj)
       case DocPageType.lib:      return DocLib.doDecode(obj)
-      case DocPageType.type:     return DocType.doDecode(obj)
-      case DocPageType.global:   return DocGlobal.doDecode(obj)
+      case DocPageType.spec:     return DocSpec.doDecode(obj)
       case DocPageType.instance: return DocInstance.doDecode(obj)
       case DocPageType.chapter:  return DocChapter.doDecode(obj)
       case DocPageType.search:   return DocSearch.doDecode(obj)
@@ -88,8 +87,7 @@ enum class DocPageType
 {
   index,
   lib,
-  type,
-  global,
+  spec,
   instance,
   chapter,
   search

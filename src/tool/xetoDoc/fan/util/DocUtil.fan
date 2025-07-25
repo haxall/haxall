@@ -82,31 +82,25 @@ const class DocUtil
   ** Convert spec name to its normalized URI
   static Uri specToUri(Spec spec)
   {
-    spec.isGlobal ? globalToUri(spec.qname) : typeToUri(spec.qname)
+    qnameToUri(spec.qname, spec.flavor)
   }
 
-  ** Convert type spec qualified name to its normalized URI
+  ** Convert spec name to its normalized URI
   static Uri typeToUri(Str qname)
   {
-    qnameToUri(qname, false)
-  }
-
-  ** Convert global spec qualified name to its normalized URI
-  static Uri globalToUri(Str qname)
-  {
-    qnameToUri(qname, true)
+    qnameToUri(qname, SpecFlavor.type)
   }
 
   ** Convert instance qualified name to its normalized URI
   static Uri instanceToUri(Str qname)
   {
-    qnameToUri(qname, false)
+    qnameToUri(qname, null)
   }
 
   ** Convert chaoter qualified name to its normalized URI
   static Uri chapterToUri(Str qname)
   {
-    qnameToUri(qname, false)
+    qnameToUri(qname, null)
   }
 
   ** Convert normalized URI back to qname or null if not a spec/instance
@@ -120,7 +114,7 @@ const class DocUtil
   }
 
   ** Convert spec or instance qualified name to its normalized URI
-  private static Uri qnameToUri(Str qname, Bool isGlobal)
+  internal static Uri qnameToUri(Str qname, SpecFlavor? flavor)
   {
     // have to deal with lower vs upper case names on file systems
     colons := qname.index("::") ?: throw Err("Not qname: $qname")
@@ -128,7 +122,7 @@ const class DocUtil
     return s.addChar('/')
             .addRange(qname, 0..<colons)
             .addChar('/')
-            .add(isGlobal ? "_" : "")
+            .add((flavor == null || flavor.isType) ? "" : "_")
             .addRange(qname, colons+2..-1)
             .toStr.toUri
   }
@@ -224,6 +218,7 @@ const class DocUtil
       case "specs":     return typeIcon
       case "globals":   return globalIcon
       case "metas":     return globalIcon
+      case "funcs":     return funcIcon
       case "instances": return instanceIcon
       case "chapters":  return chapterIcon
       case "sys":       return sysIcon
@@ -239,6 +234,7 @@ const class DocUtil
   static const Str libIcon      := "package"
   static const Str typeIcon     := "spec"
   static const Str globalIcon   := "tag"
+  static const Str funcIcon     := "func"
   static const Str instanceIcon := "at-sign"
   static const Str chapterIcon  := "sticky-note"
   static const Str compIcon     := "component"

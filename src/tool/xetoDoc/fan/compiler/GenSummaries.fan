@@ -34,7 +34,12 @@ internal class GenSummaries : Step
   {
     link := entry.link
     text := parse(entry.meta["doc"] as Str ?: "")
-    return DocSummary(link, text, null, entry.summaryType)
+
+    tags := null
+    spec := entry.def as Spec
+    if (spec != null) tags = [DocTags.byName.getChecked(spec.flavor.name)]
+
+    return DocSummary(link, text, tags, entry.summaryType)
   }
 
   private DocMarkdown parse(Obj? doc)

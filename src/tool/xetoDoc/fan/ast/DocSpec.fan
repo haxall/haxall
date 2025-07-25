@@ -12,10 +12,10 @@ using haystack
 using xetom
 
 **
-** DocSpec is the base class documentation all specs: types, globals, and slots
+** AbstractDocSpec is the base class documentation type level specs and slots
 **
 @Js
-abstract const class DocSpec
+abstract const class AbstractDocSpec
 {
   ** Simple name of this instance
   abstract Str name()
@@ -25,30 +25,47 @@ abstract const class DocSpec
 
   ** Effective metadata
   abstract DocDict meta()
+
+  ** Spec flavor
+  abstract SpecFlavor flavor()
 }
 
 **************************************************************************
-** DocSpecPage
+** DocSpec
 **************************************************************************
 
 @Js
-abstract const class DocSpecPage : DocSpec, DocPage
+const class DocSpec : AbstractDocSpec, DocPage
 {
   ** Constructor
-  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta)
+  new make(DocLibRef lib, Str qname, SpecFlavor flavor, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef? base, DocTypeGraph supertypes, DocTypeGraph subtypes, Str:DocSlot slots)
   {
     this.lib    = lib
     this.qname  = qname
+    this.flavor = flavor
     this.srcLoc = srcLoc
     this.doc    = doc
     this.meta   = meta
+    this.base = base
+    this.supertypes = supertypes
+    this.subtypes = subtypes
+    this.slots = slots
   }
+
+  ** Page type
+  override DocPageType pageType() { DocPageType.spec }
+
+  ** URI relative to base dir to page
+  override Uri uri() { DocUtil.qnameToUri(qname, flavor) }
 
   ** Title
   override Str title() { qname }
 
   ** Qualified name of this spec
   const Str qname
+
+  ** Spec flavor
+  const override SpecFlavor flavor
 
   ** Library name for this instance
   once Str libName() { XetoUtil.qnameToLib(qname) }
@@ -67,46 +84,6 @@ abstract const class DocSpecPage : DocSpec, DocPage
 
   ** Effective meta data
   const override DocDict meta
-
-  ** Encode to a JSON object tree
-  override Str:Obj encode()
-  {
-    obj := Str:Obj[:]
-    obj.ordered   = true
-    obj["page"]   = pageType.name
-    obj["lib"]    = lib.encode
-    obj["qname"]  = qname
-    obj.addNotNull("srcLoc", srcLoc?.toStr)
-    obj["doc"]    = doc.encode
-    obj.addNotNull("meta", meta.encode)
-    return obj
-  }
-}
-
-**************************************************************************
-** DocType
-**************************************************************************
-
-**
-** DocType is the documentation for a Xeto top-level type
-**
-@Js
-const class DocType : DocSpecPage
-{
-  ** Constructor
-  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef? base, DocTypeGraph supertypes, DocTypeGraph subtypes, Str:DocSlot slots) : super(lib, qname, srcLoc, doc, meta)
-  {
-    this.base = base
-    this.supertypes = supertypes
-    this.subtypes = subtypes
-    this.slots = slots
-  }
-
-  ** Page type
-  override DocPageType pageType() { DocPageType.type }
-
-  ** URI relative to base dir to page
-  override Uri uri() { DocUtil.typeToUri(qname) }
 
   ** Super type or null if this is 'sys::Obj'
   const DocTypeRef? base
@@ -132,7 +109,15 @@ const class DocType : DocSpecPage
   ** Encode to a JSON object tree
   override Str:Obj encode()
   {
-    obj := super.encode
+    obj := Str:Obj[:]
+    obj.ordered   = true
+    obj["page"]   = pageType.name
+    obj["lib"]    = lib.encode
+    obj["qname"]  = qname
+    obj["flavor"] = flavor.name
+    obj.addNotNull("srcLoc", srcLoc?.toStr)
+    obj["doc"]    = doc.encode
+    obj.addNotNull("meta", meta.encode)
     obj.addNotNull("base", base?.encode)
     obj.addNotNull("supertypes", supertypes.encode)
     obj.addNotNull("subtypes", subtypes.encode)
@@ -141,10 +126,11 @@ const class DocType : DocSpecPage
   }
 
   ** Decode from a JSON object tree
-  static DocType doDecode(Str:Obj obj)
+  static DocSpec doDecode(Str:Obj obj)
   {
     lib        := DocLibRef.decode(obj.getChecked("lib"))
     qname      := obj.getChecked("qname")
+    flavor     := SpecFlavor.fromStr(obj.getChecked("flavor"))
     srcLoc     := DocUtil.srcLocDecode(obj)
     doc        := DocMarkdown.decode(obj.get("doc"))
     meta       := DocDict.decode(obj.get("meta"))
@@ -152,54 +138,8 @@ const class DocType : DocSpecPage
     supertypes := DocTypeGraph.decode(obj.get("supertypes"))
     subtypes   := DocTypeGraph.decode(obj.get("subtypes"))
     slots      := DocSlot.decodeMap(obj.get("slots"))
-    return DocType(lib, qname, srcLoc, doc, meta, base, supertypes, subtypes, slots)
+    return make(lib, qname, flavor, srcLoc, doc, meta, base, supertypes, subtypes, slots)
   }
-}
-
-**************************************************************************
-** DocGlobal
-**************************************************************************
-
-**
-** DocGlobal is the documentation for a Xeto top-level global
-**
-@Js
-const class DocGlobal : DocSpecPage
-{
-  ** Constructor
-  new make(DocLibRef lib, Str qname, FileLoc? srcLoc, DocMarkdown doc, DocDict meta, DocTypeRef type) : super(lib, qname, srcLoc, doc, meta)
-  {
-    this.type = type
-  }
-
-  ** Type of this global
-  const DocTypeRef type
-
-  ** Page type
-  override DocPageType pageType() { DocPageType.global }
-
-  ** URI relative to base dir to page
-  override Uri uri() { DocUtil.globalToUri(qname) }
-
-  ** Encode to a JSON object tree
-  override Str:Obj encode()
-  {
-    obj := super.encode
-    obj["type"] = type.encode
-    return obj
-  }
-
-  ** Decode from a JSON object tree
-  static DocGlobal doDecode(Str:Obj obj)
-  {
-    lib    := DocLibRef.decode(obj.getChecked("lib"))
-    qname  := obj.getChecked("qname")
-    srcLoc := DocUtil.srcLocDecode(obj)
-    doc    := DocMarkdown.decode(obj.get("doc"))
-    meta   := DocDict.decode(obj.get("meta"))
-    type   := DocTypeRef.decode(obj.getChecked("type"))
-    return DocGlobal(lib, qname, srcLoc, doc, meta, type)
- }
 }
 
 **************************************************************************
@@ -210,7 +150,7 @@ const class DocGlobal : DocSpecPage
 ** DocSlot is the documentation for a type slot
 **
 @Js
-const class DocSlot : DocSpec
+const class DocSlot : AbstractDocSpec
 {
   ** Empty map of slots
   static const Str:DocSlot empty := Str:DocSlot[:]
@@ -235,6 +175,9 @@ const class DocSlot : DocSpec
 
   ** Declared own meta
   override const DocDict meta
+
+  ** Spec flavor
+  override SpecFlavor flavor() { SpecFlavor.slot }
 
   ** Type for this slot
   const DocTypeRef type

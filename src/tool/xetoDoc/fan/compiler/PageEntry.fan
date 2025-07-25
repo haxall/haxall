@@ -42,7 +42,7 @@ class PageEntry
     this.link     = DocLink(uri, dis)
   }
 
-  ** Constructor for type/global
+  ** Constructor for top level spec
   new makeSpec(Spec x, DocPageType pageType)
   {
     this.key      = DocCompiler.key(x)
@@ -112,7 +112,7 @@ class PageEntry
   ** Link to this page
   const DocLink link
 
-  ** If we want to add type into lib summary (globals)
+  ** If we want to add type into lib summary
   DocTypeRef? summaryType
 
   ** Meta for the page (lib meta, spec meta, instance itself)
