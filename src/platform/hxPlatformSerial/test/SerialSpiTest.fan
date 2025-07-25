@@ -81,10 +81,10 @@ class SerialSpiTest : HxTest
     // verify serialPorts()
     grid := (Grid)eval("platformSerialPorts()")
     verifyEq(grid.size, 1)
-    verifyEq(grid[0]["name"],   "test")
-    verifyEq(grid[0]["device"], "/test")
-    verifyEq(grid[0]["status"], "open")
-    verifyEq(grid[0]["owner"],  conn.id)
+    verifyEq(grid[0]["name"],      "test")
+    verifyEq(grid[0]["device"],    "/test")
+    verifyEq(grid[0]["connState"], "open")
+    verifyEq(grid[0]["owner"],     conn.id)
 
     // close the port
     p.close
@@ -107,9 +107,9 @@ class SerialSpiTest : HxTest
     verifyEq(grid.size, ext.ports.size)
     row := grid.find |r| { r->name == n }
     verifyEq(row["device"], d)
-    verifyEq(row["status"], owner == null ? "closed" : "open")
-    verifyEq(row["proj"],   owner == null ? null : proj.name)
-    verifyEq(row["owner"],  owner == null ? null : owner.id)
+    verifyEq(row["connState"], owner == null ? "closed" : "open")
+    verifyEq(row["proj"],      owner == null ? null : proj.name)
+    verifyEq(row["owner"],     owner == null ? null : owner.id)
   }
 
   Void verifyPort(SerialSocket p, SerialConfig c, Bool isClosed)
