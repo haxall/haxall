@@ -43,6 +43,7 @@ class HxdBoot : HxBoot
       "hx.api",
       "hx.crypto",
       "hxd.file",
+      "hxd.his",
       "hxd.proj",
       "hx.http",
       "hx.user",

@@ -61,7 +61,7 @@ abstract class ApiTest : HxTest
     addLib("hx.point")
 
     try { sys.libs.add("hx.http") } catch (Err e) {}
-    this.uri = sys.http.siteUri + `/api/sys/`
+    this.uri = sys.http.siteUri + `/api/${proj.name}/`
 
     // setup user accounts
     addUser("alice",   "a-secret", ["userRole":"op"])
@@ -141,8 +141,7 @@ abstract class ApiTest : HxTest
 
   private Client auth(Str user, Str pass)
   {
-echo(">>>>> open $uri")
-    return Client.open(uri, user, pass)
+    Client.open(uri, user, pass)
   }
 
 //////////////////////////////////////////////////////////////////////////

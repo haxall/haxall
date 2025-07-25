@@ -4,6 +4,7 @@
 //
 // History:
 //   10 Aug 2021  Brian Frank  Creation
+//   25 Jul 2025  Brian Frank  Garden City (rework for 4.0)
 //
 
 using concurrent
@@ -15,27 +16,22 @@ using hxm
 using hxFolio
 
 **
-** HxdHisService provides simple wrapper around Folio as the
+** HxdHisExt provides simple wrapper around Folio as the
 ** implementation of the HxHisService.  Unlike SkySpark is does
 ** not currently support totalization, computed histories, etc.
 **
-/* TODO
-internal const class HxdHisService : HxHisService
+internal const class HxdHisExt : ExtObj, IHisExt
 {
-  new make(HxProj rt) { this.rt = rt }
-
-  const HxProj rt
 
   override Void read(Dict pt, Span? span, Dict? opts, |HisItem| f)
   {
-    rt.db.his.read(pt.id, span, opts, f)
+    proj.db.his.read(pt.id, span, opts, f)
   }
 
   override Future write(Dict pt, HisItem[] items, Dict? opts := null)
   {
-    rt.db.his.write(pt.id, items, opts)
+    proj.db.his.write(pt.id, items, opts)
   }
 
 }
-*/
 

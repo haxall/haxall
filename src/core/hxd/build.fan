@@ -47,7 +47,7 @@ class Build : BuildPod
 
     index = [
       "hx.cli": "hxd::RunCli",
-      "xeto.bindings": ["hxd.file", "hxd.proj"]
+      "xeto.bindings": ["hxd.file", "hxd.his", "hxd.proj"]
     ]
   }
 }
