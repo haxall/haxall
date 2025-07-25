@@ -110,16 +110,31 @@ abstract class HxBoot
     check
     this.nsfb = initNamespaceFileBase
     createNamespace(this.nsfb)
+    createProjMetaFile(this.nsfb)
     this.db = createFolio
     if (close) { db.close; return null }
     else return db
   }
 
   ** Create namespace directory
-  virtual Void createNamespace(FileBase fb)
+  virtual Void createNamespace(DiskFileBase fb)
   {
     libsTxt := "# Created $DateTime.now.toLocale\n" +  createLibs.join("\n")
     fb.write("libs.txt", libsTxt.toBuf)
+  }
+
+  ** Create projMeta in settings.trio
+  virtual Void createProjMetaFile(DiskFileBase fb)
+  {
+    acc := createProjMeta.dup
+    acc["id"] = HxSettingsMgr.projMetaId
+    acc["projMeta"] = Marker.val
+    acc["version"] = sysInfoVersion.toStr
+    acc["mod"] = DateTime.nowUtc
+    dict := Etc.dictFromMap(acc)
+
+    file := fb.dir + `settings.trio`
+    TrioWriter(file.out).writeDict(dict).close
   }
 
   ** Create folio, routes to initFolio by default

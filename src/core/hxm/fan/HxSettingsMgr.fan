@@ -35,21 +35,23 @@ const class HxSettingsMgr
   ** Initialize projMeta
   Dict projMetaInit(HxBoot boot)
   {
-    init(projMetaId, Etc.dictFromMap(boot.createProjMeta))
-
-    cur := db.readById(projMetaId, false)
+    // read current
+    id := projMetaId
+    cur := db.readById(id, false)
 
     // make sure we init/update cur version and projMeta marker
     version := boot.sysInfoVersion.toStr
     required := Etc.dict2("projMeta", Marker.val, "version", version)
     if (cur == null)
     {
-      cur = db.commit(Diff(null, required)).newRec
+      cur = db.commit(Diff.makex(id, DateTime.nowUtc, required, Diff.add.or(Diff.bypassRestricted))).newRec
     }
     else if (cur["version"] != version || cur["projMeta"] != Marker.val)
     {
       cur = db.commit(Diff(cur, required, Diff.bypassRestricted)).newRec
     }
+
+    cur.id.disVal = cur.dis
     return cur
   }
 

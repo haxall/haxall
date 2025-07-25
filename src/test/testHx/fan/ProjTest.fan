@@ -37,7 +37,7 @@ class ProjTest : HxTest
     boot := TestSysBoot(tempDir)
     bootLibs := boot.bootLibs
     p := boot.load
-    baseExts := ["hx.api", "hx.crypto", "hx.http", "hx.user", "hxd.proj"]
+    baseExts := ["hx.api", "hx.crypto", "hxd.file", "hx.http", "hx.user", "hxd.proj"]
 
     // verify initial state
     verifyEq(p.name, boot.name)
@@ -51,8 +51,7 @@ class ProjTest : HxTest
     verifyEq(p.sys.config.get("testConfig"), "foo")
     verifyEq(p.isRunning, false)
     verifyEq(p.meta->projMeta, Marker.val)
-    verifySame(p.meta, p.readById(p.meta.id))
-    verifySame(p.meta, p.read("projMeta"))
+    verifyEq(p.meta->version, "1.2.3")
     verifyProjLibs(p, bootLibs, projLibs, ["ashrae.g36"])
     verifyProjExts(p, baseExts)
 
@@ -189,20 +188,17 @@ class ProjTest : HxTest
 
     // restart and verify persisted
     projRestart
-//    verifyProjMeta(["dis":"New Dis", "steadyState":n(100, "ms"), "fooBar":m, "newTag":"!"])
-echo("TODO")
+    verifyProjMeta(["dis":"New Dis", "steadyState":n(100, "ms"), "fooBar":m, "newTag":"!"])
   }
 
   Void verifyProjMeta(Str:Obj expect)
   {
     actual := proj.meta
     expect = expect.dup
-              .set("id", Ref.make("projMeta", expect["dis"]))
+              .set("id", Ref("projMeta", proj.meta.dis))
               .set("projMeta", m)
               .set("version", proj.sys.info.version.toStr)
               .set("mod", actual->mod)
-echo("~~ verifyProjMeta $actual")
-echo(" -> $actual.id.toZinc")
     verifyDictEq(actual, expect)
   }
 
@@ -227,7 +223,8 @@ echo(" -> $actual.id.toZinc")
     verifyEq(eval("as(3, 1ft)"), n(3, "ft"))
 
     // read is lazy
-    verifyDictEq(eval("read(projMeta)"), p.meta)
+    rec := addRec(["dis":"Test", "foo":m])
+    verifyDictEq(eval("read(foo)"), rec)
 
     // qualified names
     verifyEq(eval("axon::today()"), Date.today)
