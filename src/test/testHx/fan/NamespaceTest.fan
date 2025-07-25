@@ -22,18 +22,19 @@ class NamespaceTest : HxTest
   Void testBasics()
   {
     // project haystack
-    ph := verifyLib("ph",     Pod.find("ph"),    `https://project-haystack.org/def/ph/`)
-    verifyLib("phIoT",  Pod.find("phIoT"), `https://project-haystack.org/def/phIoT/`)
-    verifyLib("hx",     Pod.find("hx"),    `https://haxall.io/def/hx/`)
+    ph := verifyLib("ph", Pod.find("ph"),    `https://project-haystack.org/def/ph/`)
+    verifyLib("phIoT",    Pod.find("phIoT"), `https://project-haystack.org/def/phIoT/`)
+    verifyLib("hx",       Pod.find("hx"),    `/def/hx/`)
 
     // haxall libs
-    hx   := verifyLib("hx",   Pod.find("hx"),    `https://haxall.io/def/hx/`)
-    axon := verifyLib("axon", Pod.find("axon"),  `https://haxall.io/def/axon/`)
+    hx   := verifyLib("hx",   Pod.find("hx"),    `/def/hx/`)
+    axon := verifyLib("axon", Pod.find("axon"),  `/def/axon/`)
 
     // overlay lib
     ns1 := proj.defs
-    overlayName := ns1.libsList.find { it.name.contains("_") }.name // proj_{name} or hx_db
-    overlay1 := verifyLibDef(overlayName, sys.info.version, sys.http.siteUri+`/def/$overlayName/`)
+    overlayLib := ns1.libsList.find { it.name == "proj" }
+    overlayName := overlayLib.name
+    overlay1 := verifyLibDef(overlayName, sys.info.version, `/def/$overlayName/`)
 
     // add def rec
     verifyEq(proj.defs.def("customTag", false), null)
@@ -42,7 +43,7 @@ class NamespaceTest : HxTest
 
     // verify base stayed the same, but overlayout updated
     ns2 := proj.defs
-    overlay2 := verifyLibDef(overlayName, sys.info.version, proj.sys.http.siteUri+`/def/$overlayName/`)
+    overlay2 := verifyLibDef(overlayName, sys.info.version, `/def/$overlayName/`)
     verifyNotSame(ns1, ns2)
     verifyNotSame(overlay1, overlay2)
     verifySame(ns1->base, ns2->base)
@@ -60,10 +61,8 @@ class NamespaceTest : HxTest
   DefLib verifyLib(Str name, Pod pod, Uri baseUri)
   {
     def := verifyLibDef(name, pod.version, baseUri)
-// TODO
-//    lib := proj.libsOld.get(name)
-//    verifySame(lib.def, def)
-throw Err("TODO")
+    lib := proj.defs.lib(name)
+    verifySame(lib, def)
     return def
   }
 

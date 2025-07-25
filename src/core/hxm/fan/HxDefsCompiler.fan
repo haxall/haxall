@@ -21,14 +21,14 @@ using defc
 **
 class HxDefCompiler : DefCompiler
 {
-  new make(Proj rt)
+  new make(Proj proj)
   {
-    this.log     = rt.log
+    this.log     = proj.log
     this.factory = ProjDefFactory()
-    this.inputs  = buildInputs(rt)
+    this.inputs  = buildInputs(proj)
   }
 
-  internal ProjLibInput[] buildInputs(Proj rt)
+  internal ProjLibInput[] buildInputs(Proj proj)
   {
     acc := Str:ProjLibInput[:]
 
@@ -41,10 +41,10 @@ class HxDefCompiler : DefCompiler
     }
 
     // map xeto libs to def pods
-    rt.ns.libs.each |lib|
+    proj.ns.libs.each |lib|
     {
       if (acc[lib.name] != null) return
-      input := xetoToInput(rt, lib)
+      input := xetoToInput(proj, lib)
       if (input != null && acc[input.name] == null)
         acc[input.name] = input
     }
@@ -52,7 +52,7 @@ class HxDefCompiler : DefCompiler
     return acc.vals
   }
 
-  internal ProjLibInput? xetoToInput(Proj rt, Lib lib)
+  internal ProjLibInput? xetoToInput(Proj proj, Lib lib)
   {
     try
     {
@@ -95,10 +95,91 @@ class HxDefCompiler : DefCompiler
     meta := CompilerInput.parseLibMetaFile(this, libFile) as Dict
     if (meta != null)
     {
+      symbol := (Symbol)meta->def
       if (meta.missing("version")) meta = Etc.dictSet(meta, "version", pod.version.toStr)
-      if (meta.missing("baseUri")) meta = Etc.dictSet(meta, "baseUri", `/def/${meta->def}`)
+      if (meta.missing("baseUri")) meta = Etc.dictSet(meta, "baseUri", `/def/$symbol.name`)
     }
     return meta
+  }
+}
+
+**************************************************************************
+** HxDefOverlayCompiler
+**************************************************************************
+
+const class HxDefOverlayCompiler
+{
+  new make(HxProj proj, DefNamespace base)
+  {
+    this.proj = proj
+    this.base = base
+    this.log  = proj.log
+    this.libSymbol = Symbol("lib:proj")
+  }
+
+  const HxProj proj
+  const DefNamespace base
+  const Log log
+  const Symbol libSymbol
+
+  DefNamespace compileNamespace()
+  {
+    acc := Str:Obj[:]
+    acc["def"] = libSymbol
+    acc["baseUri"] = `/def/$libSymbol.name/`
+    acc["version"] = proj.sys.info.version.toStr
+    meta := Etc.makeDict(acc)
+
+    b := BOverlayLib(base, meta)
+    proj.db.readAll(Filter.has("def")).each |rec| { addRecDef(b, rec) }
+
+    return MOverlayNamespace(base, MOverlayLib(b), |DefLib lib->Bool| { true })
+  }
+
+  private Void addRecDef(BOverlayLib b, Dict rec)
+  {
+    // parse symbol from def tag
+    symbol := rec["def"] as Symbol
+    if (symbol == null) return err("Invalid def symbol '${rec->def}'", rec)
+    try
+    {
+
+      // verif dups
+      if (b.isDup(symbol.toStr)) return err("Duplicate defs '$symbol.toCode'", rec)
+
+      // normalize rec with implied def tags
+      acc := Str:Obj?[:]
+      rec.each |v, n| { acc[n] = v }
+      acc["def"] = symbol
+      acc["lib"] = libSymbol
+      norm := Etc.makeDict(acc)
+
+      // check override
+      if (checkOverrideErr(symbol.toStr, rec)) return
+
+      // add to overlay lib
+      b.addDef(norm)
+    }
+    catch (Err e) err("Invalid proj rec def '$symbol'", rec, e)
+  }
+
+  private Bool checkOverrideErr(Str symbol, Dict rec)
+  {
+    // lookup func from installed
+    x := base.def(symbol, false)
+    if (x == null) return false
+
+    // if function explicitly marked overridable its ok
+    if (x.has("overridable")) return false
+
+    // this is an error!
+    err("Cannot override ${symbol} from ${x.lib}", rec)
+    return true
+  }
+
+  private Void err(Str msg, Dict rec, Err? err := null)
+  {
+    log.err("$msg [$rec.id.toCode]", err)
   }
 }
 

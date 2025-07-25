@@ -133,8 +133,7 @@ abstract const class HxProj : Proj
         nsBaseRef.val = base = HxDefCompiler(this).compileNamespace
 
       // compile overlay
-// TODO
-      nsOverlayRef.val = overlay = base // TODO ProjOverlayCompiler(this, base).compileNamespace
+      nsOverlayRef.val = overlay = HxDefOverlayCompiler(this, base).compileNamespace
     }
     return overlay
   }
