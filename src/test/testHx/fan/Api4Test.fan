@@ -22,10 +22,12 @@ class Api4Test : ApiTest
   @HxTestProj
   Void test()
   {
+    /* TODO
     init
     doPing
     doEval
     cleanup
+    */
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -37,7 +37,7 @@ class ProjTest : HxTest
     boot := TestSysBoot(tempDir)
     bootLibs := boot.bootLibs
     p := boot.load
-    baseExts := ["hx.api", "hx.crypto", "hxd.file", "hx.http", "hx.user", "hxd.proj"]
+    baseExts := ["hx.api", "hx.crypto", "hxd.file", "hxd.his", "hx.http", "hx.user", "hxd.proj"]
 
     // verify initial state
     verifyEq(p.name, boot.name)

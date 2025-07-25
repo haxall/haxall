@@ -58,8 +58,9 @@ const class ApiWeb : ExtWeb, WebOpUtil
       // if opName has dot then its Haxall 4.x xeto style
       if (opName.contains("."))
       {
-        HxApiReq.service(req, res, opName, cx)
-        return
+        return res.sendErr(406, "New API design not supported")
+        //HxApiReq.service(req, res, opName, cx)
+        //return
       }
 
       // otherwise map to op def for Haxall 3.x legacy style
