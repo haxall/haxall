@@ -607,12 +607,12 @@ class ObixTest : HxTest
 
     // make some changes
     pt1 = commit(this.pt1, ["curVal":true], Diff.transient)
-    pt2 = commit(this.pt2, ["curVal":n(345, "ft")], Diff.transient)
+    pt2 = commit(this.pt2, ["curVal":n(345)], Diff.transient)
     Actor.sleep(200ms)
 
     // verify proxies get changes
     p1 = readById(p1.id); verifyEq(p1["curStatus"], "ok"); verifyEq(p1["curVal"], true)
-    p2 = readById(p2.id); verifyEq(p2["curStatus"], "ok"); verifyEq(p2["curVal"], n(345, "ft"))
+    p2 = readById(p2.id); verifyEq(p2["curStatus"], "ok"); verifyEq(p2["curVal"], n(345))
     px = readById(px.id); verifyEq(px["curStatus"], "fault"); verifyEq(px["curVal"], null)
 
     // put local points into curStatus errror
@@ -643,12 +643,12 @@ class ObixTest : HxTest
 
     // reopen watch
     pt1 = commit(pt1, ["curVal":false, "curStatus":"ok"], Diff.transient)
-    pt2 = commit(pt2, ["curVal":n(987, "m"), "curStatus":"ok"], Diff.transient)
+    pt2 = commit(pt2, ["curVal":n(987), "curStatus":"ok"], Diff.transient)
     w = proj.watch.open("test 2")
     w.addAll([p1.id, p2.id])
     sync
     p1 = readById(p1.id); verifyEq(p1["curStatus"], "ok"); verifyEq(p1["curVal"], false)
-    p2 = readById(p2.id); verifyEq(p2["curStatus"], "ok"); verifyEq(p2["curVal"], n(987, "m"))
+    p2 = readById(p2.id); verifyEq(p2["curStatus"], "ok"); verifyEq(p2["curVal"], n(987))
 
     // find server side watch and force a close to simulate lease expired
     serverWatch := proj.watch.list.find |x| { x !== w }
@@ -658,12 +658,12 @@ class ObixTest : HxTest
     // now make some changes
     Actor.sleep(200ms)
     pt1 = commit(pt1, ["curVal":true], Diff.transient)
-    pt2 = commit(pt2, ["curVal":n(339, "kW")], Diff.transient)
+    pt2 = commit(pt2, ["curVal":n(339)], Diff.transient)
     Actor.sleep(200ms)
 
     // verify connector re-opens the watch to recover
     p1 = readById(p1.id); verifyEq(p1["curStatus"], "ok"); verifyEq(p1["curVal"], true)
-    p2 = readById(p2.id); verifyEq(p2["curStatus"], "ok"); verifyEq(p2["curVal"], n(339, "kW"))
+    p2 = readById(p2.id); verifyEq(p2["curStatus"], "ok"); verifyEq(p2["curVal"], n(339))
   }
 
   Void verifyWritables()
