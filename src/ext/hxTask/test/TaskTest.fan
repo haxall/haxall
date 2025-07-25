@@ -32,33 +32,25 @@ class TaskTest : HxTest
     verifyEq(ext.settings.maxThreads, 50)
     verifyEq(ext.settings["maxThreads"], null)
 
-    proj.libs.remove("task")
+    proj.libs.remove("hx.task")
 
-echo("####")
-echo("####")
-echo("#### TODO: add lib with settings?")
-echo("####")
-echo("####")
+    ext = (TaskExt)proj.exts.add("hx.task", Etc.dict1("maxThreads", n(123)))
+    verifyEq(ext.settings.typeof.qname, "hxTask::TaskSettings")
+    verifyEq(ext.settings.maxThreads, 123)
+    verifyEq(ext.settings->maxThreads, n(123))
 
-/*
-    lib = (TaskExt)proj.libsOld.add("task", Etc.dict1("maxThreads", n(123)))
-    verifyEq(ext.rec.typeof.qname, "hxTask::TaskSettings")
-    verifyEq(ext.rec.maxThreads, 123)
-    verifyEq(ext.rec->maxThreads, n(123))
-
-    commit(ext.rec, ["maxThreads":n(987)])
+    ext.settingsUpdate(["maxThreads":n(987)])
     proj.sync
-    verifyEq(ext.rec.typeof.qname, "hxTask::TaskSettings")
-    verifyEq(ext.rec.maxThreads, 987)
-    verifyEq(ext.rec->maxThreads, n(987))
+    verifyEq(ext.settings.typeof.qname, "hxTask::TaskSettings")
+    verifyEq(ext.settings.maxThreads, 987)
+    verifyEq(ext.settings->maxThreads, n(987))
 
     ext.log.level = LogLevel.err
-    commit(ext.rec, ["maxThreads":"bad"])
+    ext.settingsUpdate(["maxThreads":"bad"])
     proj.sync
-    verifyEq(ext.rec.typeof.qname, "hxTask::TaskSettings")
-    verifyEq(ext.rec.maxThreads, 50)
-    verifyEq(ext.rec->maxThreads,"bad")
-*/
+    verifyEq(ext.settings.typeof.qname, "hxTask::TaskSettings")
+    verifyEq(ext.settings.maxThreads, 50)
+    verifyEq(ext.settings->maxThreads,"bad")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -72,7 +64,7 @@ echo("####")
     sync
     ext.spi.sync
 
-    func := addFuncRec("topFunc", """(msg) => "top " + msg""")
+    func := addFunc("topFunc", """(msg) => "top " + msg""")
 
     // create some tasks
     a    := addTaskRec("A", "topFunc")
@@ -187,7 +179,7 @@ echo("####")
     verifyEq(sched.subscriptions.size, 0)
 
     // test service
-    verifyErr(UnknownServiceErr#) { proj.exts.task }
+    verifyErr(UnknownExtErr#) { proj.exts.task }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -233,7 +225,7 @@ echo("####")
     ext := (TaskExt)addExt("hx.task")
 
     // setup a task that loops with sleep call
-    addFuncRec("testIt",
+    addFunc("testIt",
       """(msg) => do
            100.times(() => do
               taskSleep(100ms)
@@ -418,15 +410,6 @@ echo("####")
 //////////////////////////////////////////////////////////////////////////
 
   Void sync() { proj.sync }
-
-  Dict addFuncRec(Str name, Str src, Str:Obj? tags := Str:Obj?[:])
-  {
-    tags["def"] = Symbol("func:$name")
-    tags["src"]  = src
-    r := addRec(tags)
-    proj.sync
-    return r
-  }
 
   Dict addTaskRec(Str dis, Str expr)
   {
