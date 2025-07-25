@@ -134,13 +134,31 @@ const class HxProjExts : Actor, ProjExts
     }
 
     // add new ones
-    toAdd.each |lib| { newMap.addNotNull(lib.name, onAdded(lib)) }
+    toStart := Ext[,]
+    toAdd.each |lib|
+    {
+      ext := onAdded(lib)
+      toStart.add(ext)
+      newMap.addNotNull(lib.name, ext)
+    }
 
     // remove any left over
     toRemove.each |ext| { onRemoved(ext) }
 
     // update lookup tables
     update(newMap)
+
+    // after update now call start/ready
+    if (proj.isRunning)
+    {
+      toStart.each |ext|
+      {
+        spi := (HxExtSpi)ext.spi
+        spi.start
+        spi.ready
+        if (proj.isSteadyState) spi.steadyState
+      }
+    }
   }
 
   private Ext? onAdded(Lib lib)
@@ -148,12 +166,6 @@ const class HxProjExts : Actor, ProjExts
     ext := HxExtSpi.instantiate(this, lib)
     if (ext == null) return null
     spi := (HxExtSpi)ext.spi
-    if (proj.isRunning)
-    {
-      spi.start
-      spi.ready
-      if (proj.isSteadyState) spi.steadyState
-    }
     proj.obsRef.addExt(ext)
     return ext
   }
