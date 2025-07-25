@@ -27,7 +27,7 @@ const class ConnFwFuncs
   ** Examples:
   **   read(haystackConn).connPoints
   **   connPoints(@my-conn-id)
-  @Axon
+  @Api @Axon
   static Dict[] connPoints(Obj conn, Bool checked := true)
   {
     cx := curContext
@@ -51,7 +51,7 @@ const class ConnFwFuncs
   **   read(conn).connPing
   **   connPing(connId)
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Future connPing(Obj conn)
   {
     toHxConn(conn).ping
@@ -66,7 +66,7 @@ const class ConnFwFuncs
   **   read(conn).connClose
   **   connClose(connId)
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Future connClose(Obj conn)
   {
     toHxConn(conn).close
@@ -82,7 +82,7 @@ const class ConnFwFuncs
   ** Examples:
   **   connLearn(connId, learnArg)
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Future connLearn(Obj conn, Obj? arg := null)
   {
     toHxConn(conn).learnAsync(arg)
@@ -97,7 +97,7 @@ const class ConnFwFuncs
   ** Examples:
   **   readAll(bacnetCur).connSyncCur
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Future[] connSyncCur(Obj points)
   {
     cx := curContext
@@ -122,7 +122,7 @@ const class ConnFwFuncs
   ** Examples:
   **   readAll(haystackHis).connSyncHis(null)
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? connSyncHis(Obj points, Obj? span := null)
   {
     cx := curContext
@@ -135,7 +135,7 @@ const class ConnFwFuncs
   ** The argument is anything acceptable by `toRecId()`.  The result
   ** is returned as a plain text string.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj connDetails(Obj obj)
   {
     if (obj is List) return connDetails(((List)obj)[0])
@@ -159,7 +159,7 @@ const class ConnFwFuncs
   **    // get debug details for specific connector
   **    connPointsVia(pt, pt->bacnetConnRef).connDetails
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj connPointsVia(Obj points, Obj libOrConn)
   {
     cx := curContext
@@ -203,7 +203,7 @@ const class ConnFwFuncs
   ** Return true or false if given connector has its tracing enabled.
   ** The 'conn' parameter can be anything acceptable by `toRecId()`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Bool connTraceIsEnabled(Obj conn)
   {
     toConn(conn).trace.isEnabled
@@ -213,7 +213,7 @@ const class ConnFwFuncs
   ** Enable tracing on the given connector.
   ** The 'conn' parameter can be anything acceptable by `toRecId()`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Void connTraceEnable(Obj conn)
   {
     toConn(conn).trace.enable
@@ -223,7 +223,7 @@ const class ConnFwFuncs
   ** Disable tracing on the given connector.
   ** The 'conn' parameter can be anything acceptable by `toRecId()`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Void connTraceDisable(Obj conn)
   {
     toConn(conn).trace.disable
@@ -233,7 +233,7 @@ const class ConnFwFuncs
   ** Clear the trace log for the given connector.
   ** The 'conn' parameter can be anything acceptable by `toRecId()`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Void connTraceClear(Obj conn)
   {
     toConn(conn).trace.clear
@@ -242,7 +242,7 @@ const class ConnFwFuncs
   **
   ** Disable tracing on every connector in the database.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Void connTraceDisableAll()
   {
     curContext.rt.exts.conn.conns.each |hx|
@@ -261,7 +261,7 @@ const class ConnFwFuncs
   **   read(conn).connTrace
   **   connTrace(connId)
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Grid connTrace(Obj conn, Dict? opts := null)
   {
     // map arg to connector
@@ -289,7 +289,7 @@ const class ConnFwFuncs
   }
 
   ** Get the internal list of pointsInWatch for debugging
-  @NoDoc @Axon { admin = true }
+  @NoDoc @Api @Axon { admin = true }
   static Dict[] connPointsInWatch(Obj conn)
   {
     ((ConnPoint[])toConn(conn).send(HxMsg("inWatch")).get(null)).map |pt->Dict| { pt.rec }

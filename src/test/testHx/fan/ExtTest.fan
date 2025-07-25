@@ -39,6 +39,7 @@ class ExtTest : HxTest
     verifyEq(proj.isSteadyState, true)
     proj.libs.add("hx.test")
     HxTestExt t := verifyExtEnabled("hx.test")
+    t.spi.sync
     verifyEq(t.traces.val, "onStart[true]\nonReady[true]\nonSteadyState\n")
     verifyEq(t.isRunning, true)
 

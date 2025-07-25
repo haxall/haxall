@@ -45,8 +45,14 @@ internal class Resolve : DefCompilerStep
     lib.depends.each |symbol|
     {
       depend := compiler.libs[symbol]
-      if (depend == null) err("Depend not found: $symbol", lib.loc)
-      else acc.add(depend)
+      if (depend == null)
+      {
+        if (symbol.name != "skyarc") err("Depend not found: $symbol", lib.loc)
+      }
+      else
+      {
+        acc.add(depend)
+      }
     }
     return acc
   }
