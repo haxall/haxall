@@ -20,7 +20,10 @@ class FileMgrTest : WhiteboxTest
 
   Void test()
   {
+    ns := XetoEnv.cur.createNamespaceFromNames(["sys", "sys.files"])
+
     open
+    folio.hooks = FileTestHooks(ns)
 
     id := Ref("test-file")
     rec := addRec([
@@ -65,5 +68,18 @@ class FileMgrTest : WhiteboxTest
     verifyEq(text, file.withIn |in| { in.readAllStr })
     return file
   }
+}
+
+const class FileTestHooks : FolioHooks
+{
+  new make(LibNamespace ns) { nsRef = ns }
+
+  override LibNamespace? ns(Bool checked := true) { nsRef }
+  const LibNamespace nsRef
+
+  override DefNamespace? defs(Bool checked := true) { if (checked) throw UnsupportedErr("Namespace not availble"); return null }
+  override Void preCommit(FolioCommitEvent event) {}
+  override Void postCommit(FolioCommitEvent event) {}
+  override Void postHisWrite(FolioHisEvent event) {}
 }
 

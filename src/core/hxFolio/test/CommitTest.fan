@@ -60,6 +60,7 @@ class CommitTest : WhiteboxTest
 
     // reopen and verify transient's gone
     reopen
+    Actor.sleep(100ms)
     a = verifyCommit(a, [:], 0,
           ["dis":"A", "newP":m], [:])
 
@@ -84,7 +85,7 @@ class CommitTest : WhiteboxTest
     newMod := (DateTime)rec->mod
     newTicks := r.ticks
     verify(newTicks > oldTicks)
-    if (!isTransient) verify(newMod > oldMod)
+    if (!isTransient) verify(newMod > oldMod, "$rec | $newMod / $oldMod")
 
     // persistent and transient
     verifyDictEq(r.persistent, persistent.dup.add("id", id).add("mod", newMod))
@@ -164,20 +165,21 @@ class CommitTest : WhiteboxTest
 
   Void verifyTrash(Dict r, Bool isTrash)
   {
-    r = folio.readById(r.id)
-    verifyEq(r.has("trash"), isTrash)
     verifyEq(folio.index.rec(r.id).isTrash, isTrash)
 
     // non-option reads
     f :=  Filter("foo==${r->foo}")
     if (isTrash)
     {
+      verifyEq(folio.readById(r.id, false), null)
       verifyEq(folio.readAll(f).size, 0)
       verifyEq(folio.readCount(f), 0)
       verifyEq(folio.read(f, false), null)
     }
     else
     {
+      r = folio.readById(r.id)
+      verifyEq(r.has("trash"), false)
       verifyEq(folio.readAll(f).size, 1)
       verifyEq(folio.readAll(f)[0]->id, r.id)
       verifyEq(folio.readCount(f), 1)
