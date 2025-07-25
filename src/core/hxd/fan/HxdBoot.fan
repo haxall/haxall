@@ -47,6 +47,7 @@ class HxdBoot : HxBoot
       "hx.http",
       "hx.user",
       "hx.xeto",
+      "hx.shell",
     ]
   }
 

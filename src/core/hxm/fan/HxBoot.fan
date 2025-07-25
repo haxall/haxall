@@ -102,9 +102,8 @@ abstract class HxBoot
 // Create
 //////////////////////////////////////////////////////////////////////////
 
-  ** Create a new project. If close is true then close the database
-  ** after create and return null. Otherwise leave db open and return it.
-  Folio? create(Bool close := true)
+  ** Create a new project on disk that can be loaded.
+  Void create()
   {
     isCreate = true
     check
@@ -112,14 +111,13 @@ abstract class HxBoot
     createNamespace(this.nsfb)
     createProjMetaFile(this.nsfb)
     this.db = createFolio
-    if (close) { db.close; return null }
-    else return db
+    db.close
   }
 
   ** Create namespace directory
   virtual Void createNamespace(DiskFileBase fb)
   {
-    libsTxt := "# Created $DateTime.now.toLocale\n" +  createLibs.join("\n")
+    libsTxt := "// Created $DateTime.now.toLocale\n" +  createLibs.join("\n")
     fb.write("libs.txt", libsTxt.toBuf)
   }
 

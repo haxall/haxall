@@ -86,30 +86,6 @@ internal class InitCli : HxCli
     printLine
   }
 
-  private Folio open()
-  {
-    dbDir := this.dir + `db/`
-
-    if (dbDir.plus(`folio.index`).exists)
-      printLine("Open database [$dbDir]")
-    else
-      printLine("Create database [$dbDir]")
-
-    config := FolioConfig
-    {
-      it.name = "haxall"
-      it.dir  = dbDir
-      it.pool = ActorPool()
-    }
-    return HxFolio.open(config)
-  }
-
-  Void close(Folio db)
-  {
-    db.close
-    printLine("Close database")
-  }
-
   private Void gatherInputs()
   {
     if (headless) return
@@ -175,43 +151,48 @@ internal class InitCli : HxCli
       it.log = Log.get("init")
     }
 
-    db := boot.create(false)
-    initHttpPort(db)
-    initSu(db)
-    db.close
+    if (!boot.dir.plus(`db/folio.index`).exists)
+    {
+      log.info("Creating new database [$boot.dir]")
+      boot.create
+    }
+
+    // now load it
+    proj := boot.load
+    initHttpPort(proj)
+    initSu(proj)
+    proj.db.close
   }
 
-  private Void initHttpPort(Folio db)
+  private Void initHttpPort(Proj proj)
   {
-    /*
-    rec := db.read(Filter(Str<|ext=="http"|>))
+    ext := proj.ext("hx.http")
+    settings := ext.settings
     port := Number(httpPort)
-    if (rec["httpPort"] != port)
+    if (settings["httpPort"] != port)
     {
       log.info("Update httpPort [$port]")
-      db.commit(Diff(rec, ["httpPort":port]))
+      ext.settingsUpdate(["httpPort":port])
     }
-    if (httpsDisable && rec["httpsEnabled"] == true)
+    if (httpsDisable && settings["httpsEnabled"] == true)
     {
       log.info("Disable https")
-      db.commit(Diff(rec, ["httpsEnabled":Remove.val]))
+      ext.settingsUpdate(["httpsEnabled":Remove.val])
     }
-    */
-    log.info("TODO: http port settings...")
   }
 
-  private Void initSu(Folio db)
+  private Void initSu(Proj proj)
   {
-    rec := db.read(Filter("username==$suUser.toCode"), false)
+    rec := proj.read("username==$suUser.toCode", false)
     if (rec == null)
     {
       log.info("Create su [$suUser.toCode]")
-      HxUserUtil.addUser(db, suUser, suPass, ["userRole":"su"])
+      HxUserUtil.addUser(proj.db, suUser, suPass, ["userRole":"su"])
     }
     else
     {
       log.info("Update su $suUser.toCode")
-      HxUserUtil.updatePassword(db, rec, suPass)
+      HxUserUtil.updatePassword(proj.db, rec, suPass)
     }
   }
 
