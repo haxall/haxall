@@ -21,12 +21,13 @@ const final class ConnModel
   ** Construct for given lib
   @NoDoc new make(ConnExt ext)
   {
-    this.name = ext.name
+    // simplify the hx.foo name to just foo
+    this.name = ConnUtil.modelName(ext)
     prefix := name
 
+    // TODO: still using defs to build model
     ns := ext.proj.defs
-// TODO
-libDef := ext.proj.defs.lib(name)
+    libDef := ext.proj.defs.lib(name)
     connDef := def(ns, ext, "${prefix}Conn")
     features := connDef["connFeatures"] as Dict ?: Etc.dict0
 

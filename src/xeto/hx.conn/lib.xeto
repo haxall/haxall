@@ -10,8 +10,10 @@ pragma: Lib <
   doc: "Connector framework"
   version: BuildVar "hx.version"
   depends: {
-    { lib: "sys", versions: BuildVar "ph.depend" }
-    { lib: "hx", versions: BuildVar "hx.depend" }
+    { lib: "sys",      versions: BuildVar "ph.depend" }
+    { lib: "axon",     versions: BuildVar "hx.depend" }
+    { lib: "hx",       versions: BuildVar "hx.depend" }
+    { lib: "hx.point", versions: BuildVar "hx.depend" }
   }
   categories: {"haxall"}
   license: BuildVar "hx.license"
@@ -23,5 +25,9 @@ pragma: Lib <
     type: BuildVar "hx.vcs.type"
     uri:  BuildVar "hx.vcs.uri"
   }
+  libExt: ConnFwExt
 >
+
+// Connector framework extension
+ConnFwExt: Ext
 

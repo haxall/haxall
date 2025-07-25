@@ -21,6 +21,7 @@ class AFunc
     // look for Fantom class
     path := ext.oldName.capitalize + "Funcs.fan"
     if (ext.oldName == "axon") path = "lib/CoreLib.fan"
+    if (ext.oldName == "conn") path = "ConnFwFuncs.fan"
     if (ext.oldName == "hx")   path = "HxCoreFuncs.fan"
     if (ext.oldName == "io")   path = "IOFuncs.fan"
     typeFile := ext.pod.dir + `fan/${path}`

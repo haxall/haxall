@@ -40,7 +40,7 @@ class Build : BuildPod
                 "hxPoint @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`]
-    index   = ["ph.lib": "conn"]
+    index   = ["xeto.bindings":"hx.conn", "ph.lib": "conn"]
   }
 }
 

@@ -171,7 +171,7 @@ abstract const class ConnExt : ExtObj, HxConnExt
 //////////////////////////////////////////////////////////////////////////
 
   ** Create default point tuning configuration for this library
-  virtual ConnTuning tuningDefault() { ConnTuning(Etc.dict1("id", Ref("${name}-default"))) }
+  virtual ConnTuning tuningDefault() { ConnTuning(Etc.dict1("id", Ref(ConnUtil.modelName(this)+"-default"))) }
 
   ** Library level callback to process a connector learn.  The default
   ** operation dispatches to the connector actor, performs an open,

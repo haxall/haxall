@@ -66,6 +66,7 @@ class HxdTestSpi : HxTestSpi
     depends := proj.ns.env.repo.solveDepends([LibDepend(libName)])
     libNames := depends.map |d->Str| { d.name }
     libNames.remove(libName)
+    proj.libs.addAll(libNames)
 
     // then add ext
     ext := proj.exts.add(libName, Etc.makeDict(tags))

@@ -1,0 +1,116 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   25 Jul 2025  Brian Frank  Creation
+//
+
+// Return the points for a connector as list of dicts.  The 'conn'
+// parameter may be anything accepted by `toRecId()`.  If 'conn' cannot be
+// be mapped to an active connector then raise an exception or return an
+// empty list based on checked flag.
+//
+// Examples:
+//   read(haystackConn).connPoints
+//   connPoints(@my-conn-id)
+connPoints: Func { conn: Obj, checked: Bool, returns: List }
+
+// Perform a ping on the given connector and return a future.
+// The future result is the connector rec dict.  The 'conn' parameter
+// may be anything accepted by `toRecId()`.
+//
+// Examples:
+//   read(conn).connPing
+//   connPing(connId)
+connPing: Func <admin> { conn: Obj, returns: Future }
+
+// Force the given connector closed and return a future.
+// The future result is the connector rec dict.  The 'conn'
+// parameter may be anything accepted by `toRecId()`.
+//
+// Examples:
+//   read(conn).connClose
+//   connClose(connId)
+connClose: Func <admin> { conn: Obj, returns: Future }
+
+// Perform a learn on the given connector and return a future.
+// The future result is the learn grid.  The 'conn' parameter may
+// be anything acceptable by `toRecId()`.  The 'arg' is an opaque
+// identifier used to walk the learn tree via the 'learn' column.
+// Pass null for 'arg' to return the root of the learn tree.
+//
+// Examples:
+//   connLearn(connId, learnArg)
+connLearn: Func <admin> { conn: Obj, arg: Obj?, returns: Future }
+
+// Perform a remote sync of current values for the given points.
+// The 'points' parameter may be anything acceptable by `toRecIdList()`.
+// Return a list of futures for each unique connector.  The result
+// of each future is unspecified.  Also see `docHaxall::Conns#cur`.
+//
+// Examples:
+//   readAll(bacnetCur).connSyncCur
+connSyncCur: Func <admin> { points: Obj, returns: List }
+
+// Perform a remote sync of history data for the given points.
+// The 'points' parameter may be anything acceptable by `toRecIdList()`.
+// The 'span' parameter is anything acceptable by `toSpan()`.  Or pass
+// null for span to perform a sync for items after the point's `hisEnd`.
+// This blocks the calling thread until each point is synchronized one
+// by one.  Normally it should only be called within a task.  The result
+// from this function is undefined.  Also see `docHaxall::Conns#hisSync`.
+//
+// Examples:
+//   readAll(haystackHis).connSyncHis(null)
+connSyncHis: Func <admin> { points: Obj, span: Obj?, returns: Obj? }
+
+// Return debug details for a connector or a connector point.
+// The argument is anything acceptable by `toRecId()`.  The result
+// is returned as a plain text string.
+connDetails: Func <admin> { obj: Obj, returns: Obj }
+
+// Select a group of points explicitly via specific connector library
+// or connector.  This function is required when points are associated
+// with multiple connectors.  Pass a connector library name to select
+// for a protocol.  Or pass a connector id/rec to select via a specific
+// connector.  Also see `docHaxall::Conns#multipleConns`.
+//
+// Examples:
+//    // explicitly sync via the SQL connector library
+//    readAll(sqlConnRef).connPointsVia("sql").connSyncHis
+//
+//    // get debug details for specific connector
+//    connPointsVia(pt, pt->bacnetConnRef).connDetails
+connPointsVia: Func <admin> { points: Obj, libOrConn: Obj, returns: Obj }
+
+// Return true or false if given connector has its tracing enabled.
+// The 'conn' parameter can be anything acceptable by `toRecId()`.
+connTraceIsEnabled: Func <admin> { conn: Obj, returns: Bool }
+
+// Enable tracing on the given connector.
+// The 'conn' parameter can be anything acceptable by `toRecId()`.
+connTraceEnable: Func <admin> { conn: Obj, returns: Obj? }
+
+// Disable tracing on the given connector.
+// The 'conn' parameter can be anything acceptable by `toRecId()`.
+connTraceDisable: Func <admin> { conn: Obj, returns: Obj? }
+
+// Clear the trace log for the given connector.
+// The 'conn' parameter can be anything acceptable by `toRecId()`.
+connTraceClear: Func <admin> { conn: Obj, returns: Obj? }
+
+// Disable tracing on every connector in the database.
+connTraceDisableAll: Func <admin> { returns: Obj? }
+
+// Read a connector trace log as a grid.  If tracing is not enabled
+// for the given connector, then an empty grid is returned.  The 'conn'
+// parameter may be anything acceptable by `toRecId()`.
+//
+// Examples:
+//   read(conn).connTrace
+//   connTrace(connId)
+connTrace: Func <admin> { conn: Obj, opts: Dict?, returns: Grid }
+
+// Get the internal list of pointsInWatch for debugging
+connPointsInWatch: Func <nodoc, admin> { conn: Obj, returns: List }

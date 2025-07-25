@@ -17,7 +17,7 @@ using hx
 ** Connector framework library
 **
 @NoDoc
-const class ConnFwExt : ExtObj
+const class ConnFwExt : ExtObj, IConnExt
 {
 
   ** Lookup tables for all conn libs, connectors, and points
@@ -46,5 +46,24 @@ const class ConnFwExt : ExtObj
     tunings.onEvent(e)
   }
 
+//////////////////////////////////////////////////////////////////////////
+// IConnExt
+//////////////////////////////////////////////////////////////////////////
+
+  override HxConnExt[] exts() { service.exts }
+
+  override HxConnExt? ext(Str name, Bool checked := true) { service.ext(name, checked) }
+
+  override HxConn[] conns() { service.conns }
+
+  override HxConn? conn(Ref id, Bool checked := true) { service.conn(id, checked) }
+
+  override Bool isConn(Ref id) { service.isConn(id) }
+
+  override HxConnPoint[] points() { service.points }
+
+  override HxConnPoint? point(Ref id, Bool checked := true) { service.point(id, checked) }
+
+  override Bool isPoint(Ref id) { service.isPoint(id) }
 }
 
