@@ -17,7 +17,11 @@ using hx
 const final class ConnUtil
 {
   ** Convert ext name such as "hx.haystack" to model name "haystack"
-  static Str modelName(Ext ext) { ext.name.split('.').last }
+  static Str modelName(Ext ext)
+  {
+    if (ext.name == "hx.test.conn") return "connTest"
+    return ext.name.split('.').last
+  }
 
   ** Fast intern level integer to number
   static Number levelToNumber(Int level) { levels[level] }

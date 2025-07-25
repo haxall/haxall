@@ -7,18 +7,6 @@
 //
 
 --------------------------------------------------------------------------
-def: ^lib:hxTestA
-depends: [^lib:ph, ^lib:hx]
-typeName:"testHx::HxTestAExt"
-nodoc
-doc: "Testing lib"
---------------------------------------------------------------------------
-def: ^lib:hxTestB
-depends: [^lib:ph, ^lib:hx, ^lib:hxTestA]
-typeName:"testHx::HxTestBExt"
-nodoc
-doc: "Testing lib"
---------------------------------------------------------------------------
 def: ^lib:connTest
 depends: [^lib:ph, ^lib:hx, ^lib:conn]
 typeName:"testHx::ConnTestExt"

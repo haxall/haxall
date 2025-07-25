@@ -174,7 +174,7 @@ class ConnTuningTest : HxTest
   @HxTestProj
   Void testTimes()
   {
-    lib := (ConnTestExt)addExt("hx.conntest")
+    lib := (ConnTestExt)addExt("hx.test.conn")
     t := addRec(["connTuning":m, "dis":"T"])
     cr := addRec(["dis":"C1", "connTestConn":m])
     pt := addRec(["dis":"Pt", "point":m, "writable":m, "connTestWrite":"a", "connTestConnRef":cr.id, "connTuningRef":t.id, "kind":"Number", "writeConvert":"*10"])

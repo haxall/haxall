@@ -41,7 +41,7 @@ class Build : BuildPod
                "hxConn @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/`, `lib/connTest/`]
-    index =   ["xeto.bindings":"hx.test", "ph.lib":"connTest" ]
+    index =   ["xeto.bindings":["hx.test", "hx.test.conn"], "ph.lib":"connTest" ]
   }
 }
 

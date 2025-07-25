@@ -57,7 +57,14 @@ class HxDefCompiler : DefCompiler
     try
     {
       pod := xetoToPod(lib.name)
-      if (pod == null) return null
+      if (pod == null)
+      {
+        // kind of hacky, but need to wire up defs until conn fw reworked
+        if (lib.name == "hx.test.conn")
+           pod = Pod.find("testHx")
+        else
+          return null
+      }
 
       meta := podToMeta(pod)
       def := meta->def.toStr["lib:".size..-1]
@@ -65,7 +72,7 @@ class HxDefCompiler : DefCompiler
     }
     catch (Err e)
     {
-      log.err("Cannot map xeto libto defs [$lib]", e)
+      log.err("Cannot map xeto lib to defs [$lib]", e)
       return null
     }
   }
