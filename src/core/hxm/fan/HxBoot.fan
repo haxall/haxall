@@ -6,6 +6,7 @@
 //    8 Jul 2025  Brian Frank  Creation
 //
 
+using concurrent
 using xeto
 using haystack
 using folio
@@ -33,6 +34,9 @@ abstract class HxBoot
 
   ** Project directory (required)
   File? dir { set { checkLock; &dir = it } }
+
+  ** Actor pool for project threads (folio uses its own)
+  ActorPool? actorPool { set { checkLock; &actorPool = it } }
 
   ** Logger to use for bootstrap (required)
   Log? log
@@ -166,6 +170,7 @@ abstract class HxBoot
     checkName
     checkDir
     checkLog
+    checkActorPool
     checked = true
   }
 
@@ -196,6 +201,12 @@ abstract class HxBoot
   virtual Void checkLog()
   {
     if (log == null) throw Err("Must set log")
+  }
+
+  ** Initialize actorPool
+  virtual Void checkActorPool()
+  {
+    if (actorPool == null) actorPool = ActorPool { it.name = "Proj-$this.name" }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -243,7 +254,7 @@ abstract class HxBoot
       it.opts     = Etc.dict1("fileName", "settings.trio")
       it.dir      = this.dir + `ns/`
       it.log      = this.log
-      // it.pool     = // TODO
+      it.pool     = this.actorPool
     }
     return FolioFlatFile.open(config)
   }

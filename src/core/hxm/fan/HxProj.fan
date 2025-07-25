@@ -33,7 +33,7 @@ abstract const class HxProj : Proj
     this.db            = boot.db
     this.db.hooks      = HxFolioHooks(this)
     this.log           = boot.log
-    this.actorPool     = ActorPool { it.name = "Proj-$this.name" }
+    this.actorPool     = boot.actorPool
     this.settingsMgr   = HxSettingsMgr(this, boot)
     this.metaRef       = AtomicRef(settingsMgr.projMetaInit(boot))
     this.backgroundMgr = HxBackgroundMgr(this)

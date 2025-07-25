@@ -37,8 +37,8 @@ class HxApiReq
   ** Service an API endpoint call
   static Void service(WebReq req, WebRes res, Str op, Context cx)
   {
-throw Err("TODO")
-/*
+    throw Err("TODO")
+/* TODO: disable 4.0 API stuff until we revisit
     // resolve to api function
     spec := cx.ns.api(op, false)
     if (spec == null) return res.sendErr(404)
