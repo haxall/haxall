@@ -14,7 +14,6 @@ pragma: Lib <
     { lib: "axon",    versions: BuildVar "hx.depend" }
     { lib: "hx",      versions: BuildVar "hx.depend" }
     { lib: "hx.conn", versions: BuildVar "hx.depend" }
-    { lib: "hx.task", versions: BuildVar "hx.depend" }
   }
   categories: {"haxall"}
   license: BuildVar "hx.license"
