@@ -35,10 +35,29 @@ internal class StubPages: Step
       add(PageEntry.makeSpec(x, DocPageType.type))
     }
 
-    // globals
+    // globals (excluding functions)
     lib.globals.each |x|
     {
-      entry := PageEntry.makeSpec(x, DocPageType.global)
+      if (x.type.qname != "sys::Func")
+      {
+        entry := PageEntry.makeSpec(x, DocPageType.global)
+        entry.summaryType = genTypeRef(x.type)
+        add(entry)
+      }
+    }
+
+    // functions
+    lib.funcs.each |x|
+    {
+      entry := PageEntry.makeSpec(x, DocPageType.func)
+      entry.summaryType = genTypeRef(x.type)
+      add(entry)
+    }
+
+    // meta specs
+    lib.metaSpecs.each |x|
+    {
+      entry := PageEntry.makeSpec(x, DocPageType.meta)
       entry.summaryType = genTypeRef(x.type)
       add(entry)
     }
@@ -71,13 +90,27 @@ internal class StubPages: Step
   Void add(PageEntry entry)
   {
     // verify no duplicates by key nor by uri
+    existing := byKey[entry.key]
+    if (existing != null)
+    {
+      // Provide detailed error information for debugging
+      throw Err("Duplicate key '${entry.key}': existing=${existing.pageType} at ${existing.uri}, new=${entry.pageType} at ${entry.uri}")
+    }
+    
+    existingUri := byUri[entry.uri]
+    if (existingUri != null)
+    {
+      // Provide detailed error information for URI collisions
+      throw Err("Duplicate URI '${entry.uri}': existing key='${existingUri.key}' (${existingUri.pageType}), new key='${entry.key}' (${entry.pageType})")
+    }
+    
     byKey.add(entry.key, entry)
     byUri.add(entry.uri, entry)
     if (entry.pageType === DocPageType.lib) libEntries.add(entry)
   }
 
+
   Str:PageEntry byKey := [:]
   Uri:PageEntry byUri := [:]
   PageEntry[] libEntries := [,]
 }
-
