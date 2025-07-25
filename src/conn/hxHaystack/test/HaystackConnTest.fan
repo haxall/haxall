@@ -54,11 +54,11 @@ class HaystackConnTest : HxTest
   {
     // libs
     if (sys.info.rt.isSkySpark)
-      addLib("his")
+      addExt("hx.his")
     else
-      addLib("http")
-    addLib("task")
-    addLib("haystack")
+      addExt("hx.http")
+    addExt("hx.task")
+    addExt("hx.haystack")
 
     // user
     addUser("hay", "foo", ["userRole":"admin"])
@@ -116,7 +116,7 @@ class HaystackConnTest : HxTest
   Void verifyConn()
   {
     // create connector
-    uri := sys.http.siteUri + `/api/{$proj.name}/`
+    uri := sys.http.siteUri + `/api/${proj.name}/`
     conn = addRec(["haystackConn":Marker.val, "uri":uri, "username":"hay", "haystackPollFreq":n(10, "ms")])
     proj.db.passwords.set(conn.id.toStr, "foo")
     proj.sync
@@ -427,7 +427,7 @@ class HaystackConnTest : HxTest
      // bad4: haystackWrite bad address
      bad4 = readById(bad4.id)
      verifyEq(bad4["writeStatus"], "fault")
-     verifyEq(bad4["writeErr"], "haystack::CallErr: haystack::UnknownRecErr: ${bad4->haystackWrite}")
+     verifyEq(bad4["writeErr"], "haystack::CallErr: haystack::UnknownRecErr: @${bad4->haystackWrite}")
 
      // proxy
      proxy = readById(proxy.id)
