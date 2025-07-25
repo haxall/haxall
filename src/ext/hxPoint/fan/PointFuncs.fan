@@ -29,7 +29,7 @@ const class PointFuncs
   **   read(equip).toSites    // return equip's parent site
   **   read(point).toSites    // return point's parent site
   **
-  @Axon
+  @Api @Axon
   static Grid toSites(Obj? recs)
   {
     PointRecSet(recs).toSites
@@ -49,7 +49,7 @@ const class PointFuncs
   **   read(point).toSpaces     // return point's parent space
   **   read(space).toSpaces     // return space itself
   **
-  @Axon
+  @Api @Axon
   static Grid toSpaces(Obj? recs)
   {
     PointRecSet(recs, curContext).toSpaces
@@ -70,7 +70,7 @@ const class PointFuncs
   **   read(equip).toEquips     // return equip itself
   **   read(point).toEquips     // return point's parent equip
   **
-  @Axon
+  @Api @Axon
   static Grid toEquips(Obj? recs)
   {
     PointRecSet(recs, curContext).toEquips
@@ -92,7 +92,7 @@ const class PointFuncs
   **   read(equip).toDevices     // return children devices within equip
   **   read(point).toDevices     // return point's parent device
   **
-  @Axon
+  @Api @Axon
   static Grid toDevices(Obj? recs)
   {
     PointRecSet(recs, curContext).toDevices
@@ -114,7 +114,7 @@ const class PointFuncs
   **   read(equip).toPoints     // return children points within equip
   **   read(device).toPoints    // return children points within device
   **
-  @Axon
+  @Api @Axon
   static Grid toPoints(Obj? recs)
   {
     PointRecSet(recs, curContext).toPoints
@@ -130,7 +130,7 @@ const class PointFuncs
   ** If there are no matches or multiple ambiguous matches, then return
   ** null or raise an exception based on checked flag.
   **
-  @Axon
+  @Api @Axon
   static Dict? toOccupied(Obj? rec, Bool checked := true)
   {
     PointUtil.toOccupied(Etc.toRec(rec), checked, curContext)
@@ -141,7 +141,7 @@ const class PointFuncs
   ** If this function is overridden you MUST NOT use an XQuery to
   ** resolve points; this function must return local only points.
   **
-  @Axon { meta = ["overridable":Marker("")] }
+  @Api @Axon { meta = ["overridable":Marker("")] }
   static Grid equipToPoints(Obj equip)
   {
     cx := curContext
@@ -159,7 +159,7 @@ const class PointFuncs
   ** User level-1 manual override of writable point.
   ** See `pointWrite`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? pointEmergencyOverride(Obj point, Obj? val)
   {
     pointWrite(point, val, level1, null)
@@ -169,7 +169,7 @@ const class PointFuncs
   ** User level-1 manual auto (override release) of writable point.
   ** See `pointWrite`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? pointEmergencyAuto(Obj point)
   {
     pointWrite(point, null, level1, null)
@@ -182,7 +182,7 @@ const class PointFuncs
   ** the duration expires, the point is set back to auto (null).
   ** See `pointWrite`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? pointOverride(Obj point, Obj? val, Number? duration := null)
   {
     if (val != null && duration != null)
@@ -194,7 +194,7 @@ const class PointFuncs
   ** User level-8 manual auto (override release) of writable point.
   ** See `pointWrite`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? pointAuto(Obj point)
   {
     pointWrite(point, null, level8, null)
@@ -204,7 +204,7 @@ const class PointFuncs
   ** Set the relinquish default value (level-17) of writable point.
   ** See `pointWrite`.
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? pointSetDef(Obj point, Obj? val)
   {
     pointWrite(point, val, levelDef, null)
@@ -218,7 +218,7 @@ const class PointFuncs
   ** user or application is writing to this priorirty array level.
   ** If who is omitted, then the current user's display string is used
   **
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? pointWrite(Obj point, Obj? val, Number? level, Obj? who := null, Dict? opts := null)
   {
     cx := curContext
@@ -232,7 +232,7 @@ const class PointFuncs
   ** Issue a point override command based on current user's access
   ** control permissions
   **
-  @Axon
+  @Api @Axon
   static Obj? pointOverrideCommand(Obj point, Obj? val, Number level, Number? duration := null)
   {
     // echo("--  pointOverrideCommand $point = $val @ $level [$duration]")
@@ -262,7 +262,7 @@ const class PointFuncs
   **   - val: current value at level or null
   **   - who: who last controlled the value at this level
   **
-  @Axon
+  @Api @Axon
   static Grid pointWriteArray(Obj point)
   {
     ext(curContext).writeMgr.arrayById(Etc.toId(point))
@@ -282,7 +282,7 @@ const class PointFuncs
   **   pointConvert(null, "hexToNumber()", "ff")
   **   pointConvert(null, "°C => °F", 20°C)
   **
-  @Axon
+  @Api @Axon
   static Obj? pointConvert(Obj? pt, Str convert, Obj? val)
   {
     cx := curContext
@@ -300,7 +300,7 @@ const class PointFuncs
   **   read(dis=="My Point").pointDetails
   **   pointDetails(@2b80f96a-820a4f1a)
   **
-  @Axon
+  @Api @Axon
   static Str pointDetails(Obj point)
   {
     cx  := curContext
@@ -309,7 +309,7 @@ const class PointFuncs
   }
 
   ** Return grid of thermistor table names as grid with one 'name' column
-  @Axon
+  @Api @Axon
   static Grid pointThermistorTables()
   {
     Etc.makeListGrid(null, "name", null, ThermistorConvert.listTables)
@@ -317,7 +317,7 @@ const class PointFuncs
 
   ** Return grid of current enum defs defined by `enumMeta`.
   ** This call forces a refresh of the definitions.
-  @Axon static Grid enumDefs()
+  @Api @Axon static Grid enumDefs()
   {
     ext := ext(curContext)
     ext.proj.sync
@@ -331,7 +331,7 @@ const class PointFuncs
 
   ** Return definition of given enum def defined by `enumMeta`
   ** This call forces a refresh of the definitions.
-  @Axon static Grid? enumDef(Str id, Bool checked := true)
+  @Api @Axon static Grid? enumDef(Str id, Bool checked := true)
   {
     ext := ext(curContext)
     ext.proj.sync
@@ -355,7 +355,7 @@ const class PointFuncs
   **   matchPointVal(90, 0..40)        >>  false
   **   matchPointVal(4) x => x.isEven  >>  true
   **
-  @Axon static Bool matchPointVal(Obj? val, Obj? match)
+  @Api @Axon static Bool matchPointVal(Obj? val, Obj? match)
   {
     // exact match
     if (val == match) return true
@@ -399,21 +399,21 @@ const class PointFuncs
 
   ** Write all hisCollect items buffered in memory to the historian.
   ** Block until complete or until timeout exceeded.
-  @Axon { admin = true }
+  @Api @Axon { admin = true }
   static Obj? hisCollectWriteAll(Number? timeout := null)
   {
     ext(curContext).hisCollectMgr.writeAll.get(timeout?.toDuration)
   }
 
   ** Force history collector to recreate its watch
-  @NoDoc @Axon { su = true }
+  @NoDoc @Api @Axon { su = true }
   static Obj? hisCollectReset(Number? timeout := null)
   {
     ext(curContext).hisCollectMgr.reset.get(timeout?.toDuration)
   }
 
   ** Legacy support
-  @Deprecated @NoDoc @Axon { admin = true }
+  @Deprecated @NoDoc @Api @Axon { admin = true }
   static Obj? pointExtSync() { curContext.rt.sync; return null }
 
   ** Current context

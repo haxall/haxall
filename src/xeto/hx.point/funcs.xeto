@@ -1,0 +1,198 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   25 Jul 2025  Brian Frank  Garden City Beach
+//
+
+// Map a set of recs to to a grid of [sites]`site`.  The 'recs'
+// parameter may be any value accepted by `toRecList()`.  Return empty
+// grid if no mapping is found.  The following mappings are supported:
+//  - recs with 'site' tag are mapped as themselves
+//  - recs with 'siteRef' tag are mapped to their parent site
+//
+// Examples:
+//   read(site).toSites     // return site itself
+//   read(space).toSites    // return space's parent site
+//   read(equip).toSites    // return equip's parent site
+//   read(point).toSites    // return point's parent site
+toSites: Func { recs: Obj?, returns: Grid }
+
+// Map a set of recs to to a grid of [spaces]`space`.  The 'recs'
+// parameter may be any value accepted by `toRecList()`.  Return empty
+// grid if no mapping is found.  The following mappings are supported:
+//  - recs with 'space' tag are mapped as themselves
+//  - recs with 'spaceRef' tag are mapped to their parent space
+//  - recs with 'site' are mapped to spaces with parent 'siteRef'
+//
+// Examples:
+//   read(site).toSpaces      // return children spaces within site
+//   read(equip).toSpaces     // return equip's parent space
+//   read(point).toSpaces     // return point's parent space
+//   read(space).toSpaces     // return space itself
+toSpaces: Func { recs: Obj?, returns: Grid }
+
+// Map a set of recs to to a grid of [equips]`equip`.  The 'recs'
+// parameter may be any value accepted by `toRecList()`.  Return empty
+// grid if no mapping is found.  The following mappings are supported:
+//  - recs with 'equip' tag are mapped as themselves
+//  - recs with 'equipRef' tag are mapped to their parent equip
+//  - recs with 'site' are mapped to equip with parent 'siteRef'
+//  - recs with 'space' are mapped to equip with parent 'spaceRef'
+//
+// Examples:
+//   read(site).toEquips      // return children equip within site
+//   read(space).toEquips     // return children equip within space
+//   read(equip).toEquips     // return equip itself
+//   read(point).toEquips     // return point's parent equip
+toEquips: Func { recs: Obj?, returns: Grid }
+
+// Map a set of recs to to a grid of [devices]`device`.  The 'recs'
+// parameter may be any value accepted by `toRecList()`.  Return empty
+// grid if no mapping is found.  The following mappings are supported:
+//  - recs with 'device' tag are mapped as themselves
+//  - recs with 'deviceRef' tag are mapped to their parent device
+//  - recs with 'site' are mapped to devices with parent 'siteRef'
+//  - recs with 'space' are mapped to devices with parent 'spaceRef'
+//  - recs with 'equip' are mapped to devices with parent 'equipRef'
+//
+// Examples:
+//   read(site).toDevices      // return children devices within site
+//   read(space).toDevices     // return children devices within space
+//   read(equip).toDevices     // return children devices within equip
+//   read(point).toDevices     // return point's parent device
+toDevices: Func { recs: Obj?, returns: Grid }
+
+// Map a set of recs to to a grid of [points]`point`.  The 'recs'
+// parameter may be any value accepted by `toRecList()`.  Return empty
+// grid if no mapping is found.  The following mappings are supported:
+//  - recs with 'point' tag are mapped as themselves
+//  - recs with 'site' are mapped to points with parent 'siteRef'
+//  - recs with 'space' are mapped to points with parent 'spaceRef'
+//  - recs with 'equip' are mapped to points with parent 'equipRef'
+//  - recs with 'device' are mapped to points with parent 'deviceRef'
+//
+// Examples:
+//   read(site).toPoints      // return children points within site
+//   read(space).toPoints     // return children points within space
+//   read(equip).toPoints     // return children points within equip
+//   read(device).toPoints    // return children points within device
+toPoints: Func { recs: Obj?, returns: Grid }
+
+// Given a `site`, `space`, `equip`, or `point` rec, get its `occupied`
+// point.  The following algorithm is used to lookup the occupied point:
+//   1. Try to find in equip or parent of nested equip
+//   2. Try to find in space or parent of nested spaces
+//   3. Try to find in site if site if tagged as `sitePoint`
+//
+// If there are no matches or multiple ambiguous matches, then return
+// null or raise an exception based on checked flag.
+toOccupied: Func { rec: Obj?, checked: Bool, returns: Dict? }
+
+// Given a 'equip' record Dict, return a grid of its points.
+// If this function is overridden you MUST NOT use an XQuery to
+// resolve points; this function must return local only points.
+equipToPoints: Func <overridable> { equip: Obj, returns: Grid }
+
+// User level-1 manual override of writable point.
+// See `pointWrite`.
+pointEmergencyOverride: Func <admin> { point: Obj, val: Obj?, returns: Obj? }
+
+// User level-1 manual auto (override release) of writable point.
+// See `pointWrite`.
+pointEmergencyAuto: Func <admin> { point: Obj, returns: Obj? }
+
+// User level-8 manual override of writable point.
+// If duration is specified it must be a number with unit of time
+// that indicates how long to put the point into override.  After
+// the duration expires, the point is set back to auto (null).
+// See `pointWrite`.
+pointOverride: Func <admin> { point: Obj, val: Obj?, duration: Number?, returns: Obj? }
+
+// User level-8 manual auto (override release) of writable point.
+// See `pointWrite`.
+pointAuto: Func <admin> { point: Obj, returns: Obj? }
+
+// Set the relinquish default value (level-17) of writable point.
+// See `pointWrite`.
+pointSetDef: Func <admin> { point: Obj, val: Obj?, returns: Obj? }
+
+// Set a writable point's priority array value at the given level.
+// The point may be any value accepted by `toRec`.  Level must
+// be 1 to 17 (where 17 represents def value).  The who parameter
+// is a string which represent debugging information about which
+// user or application is writing to this priorirty array level.
+// If who is omitted, then the current user's display string is used
+pointWrite: Func <admin> { point: Obj, val: Obj?, level: Number?, who: Obj?, opts: Dict?, returns: Obj? }
+
+// Issue a point override command based on current user's access
+// control permissions
+pointOverrideCommand: Func { point: Obj, val: Obj?, level: Number, duration: Number?, returns: Obj? }
+
+// Return the current priority array state of a writable point.
+// The point may be any value accepted by `toRec`.  The result is
+// returned grid with following columns:
+//   - level: number from 1 - 17 (17 is default)
+//   - levelDis: human description of level
+//   - val: current value at level or null
+//   - who: who last controlled the value at this level
+pointWriteArray: Func { point: Obj, returns: Grid }
+
+// Evaluate a [point conversion]`ext-point::doc#convert`. First
+// parameter is point to test (anything accepted by `toRec`) or null
+// to use empty dict.
+//
+// Examples:
+//   pointConvert(null, "+ 2 * 10", 3)
+//   pointConvert(null, "hexToNumber()", "ff")
+//   pointConvert(null, "°C => °F", 20°C)
+pointConvert: Func { pt: Obj?, convert: Str, val: Obj?, returns: Obj? }
+
+// Get debug string for point including writables and his collection.
+// The argument is anything acceptable by `toRec()`.
+// The result is returned as a plain text string.
+//
+// Examples:
+//   read(dis=="My Point").pointDetails
+//   pointDetails(@2b80f96a-820a4f1a)
+pointDetails: Func { point: Obj, returns: Str }
+
+// Return grid of thermistor table names as grid with one 'name' column
+pointThermistorTables: Func { returns: Grid }
+
+// Return grid of current enum defs defined by `enumMeta`.
+// This call forces a refresh of the definitions.
+enumDefs: Func { returns: Grid }
+
+// Return definition of given enum def defined by `enumMeta`
+// This call forces a refresh of the definitions.
+enumDef: Func { id: Str, checked: Bool, returns: Grid? }
+
+// Return if a point value matches a given critera:
+//   - match any values which are equal via '==' operator
+//   - zero matches false (0% ==> false)
+//   - non-zero matches true (not 0% ==> true)
+//   - numerics can be matches with range
+//   - match can be a function which takes the value
+//
+// Examples:
+//   matchPointVal(false, false)     >>  true
+//   matchPointVal(0, false)         >>  true
+//   matchPointVal(33, false)        >>  false
+//   matchPointVal(33, true)         >>  true
+//   matchPointVal(33, 0..40)        >>  true
+//   matchPointVal(90, 0..40)        >>  false
+//   matchPointVal(4) x => x.isEven  >>  true
+matchPointVal: Func { val: Obj?, match: Obj?, returns: Bool }
+
+// Write all hisCollect items buffered in memory to the historian.
+// Block until complete or until timeout exceeded.
+hisCollectWriteAll: Func <admin> { timeout: Number?, returns: Obj? }
+
+// Force history collector to recreate its watch
+hisCollectReset: Func <nodoc, su> { timeout: Number?, returns: Obj? }
+
+// Legacy support
+pointExtSync: Func <nodoc, admin, deprecated> { returns: Obj? }
+

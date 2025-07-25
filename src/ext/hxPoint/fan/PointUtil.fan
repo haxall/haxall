@@ -49,7 +49,7 @@ class PointUtil
     {
       // for 3.1.0 we are using old connector framework so a result
       // from this will include the summary, his collect, and write info
-      cp := ext.proj.exts.conn.point(pt.id, false)
+      cp := ext.proj.exts.conn(false)?.point(pt.id, false)
       if (cp != null) return cp.details
     }
 

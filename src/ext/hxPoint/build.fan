@@ -38,7 +38,7 @@ class Build : BuildPod
                ]
     srcDirs = [`fan/`, `test/`]
     resDirs = [`lib/`, `thermistor/`]
-    index   = ["ph.lib": "point"]
+    index   = ["xeto.bindings":"hx.point", "ph.lib": "point"]
   }
 }
 

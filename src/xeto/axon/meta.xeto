@@ -18,9 +18,13 @@ admin: Str <meta>
 // Deprecated feature slated for removal in future version
 deprecated: Marker <meta>
 
-// Requires superuser permission
-su: Str <meta>
+//  Applied to an ext function to enable [override]`docHaxall::Axon#overrides`
+//  by project level functions.
+overridable: Marker <meta>
 
 // Registers a function as folding a given value type
 foldOn: Str <meta, nodoc>
+
+// Requires superuser permission
+su: Str <meta>
 

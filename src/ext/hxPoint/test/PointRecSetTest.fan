@@ -23,7 +23,7 @@ class PointRecSetTest : HxTest
   Void testSets()
   {
     // ext
-    addLib("point")
+    addLib("hx.point")
 
     // sites
     siteA := addRec(["dis":"Site A", "site":m, "geoCity":"Richmond"])
@@ -154,7 +154,7 @@ class PointRecSetTest : HxTest
   @HxTestProj
   virtual Void testToOccupied()
   {
-    addLib("point")
+    addLib("hx.point")
 
     s := addRec(["dis":"S","site":m])
 
@@ -269,7 +269,7 @@ class PointRecSetTest : HxTest
   @HxTestProj
   Void testMatchPointVal()
   {
-    addLib("point")
+    addLib("hx.point")
 
     verifyMatchPointVal("(true, true)",   true)
     verifyMatchPointVal("(true, false)",  false)
