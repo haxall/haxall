@@ -72,5 +72,8 @@ const mixin UserAccess
 {
   ** Can the given user override level 1, 8, or 17 (relinquish default)
   abstract Bool canPointWriteAtLevel(Int level)
+
+  ** Allow action/func name for given user
+  abstract Bool allow(Str action)
 }
 

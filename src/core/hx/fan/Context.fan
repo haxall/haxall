@@ -165,16 +165,16 @@ virtual Proj rt() { proj }
 //////////////////////////////////////////////////////////////////////////
 
   ** If missing superuser permission, throw PermissionErr
-  virtual Void checkSu(Str action)
+  Void checkSu(Str action)
   {
-    if (!user.isSu)
+    if (!user.isSu && !user.access.allow(action))
       throw PermissionErr("Missing 'su' permission: $action")
   }
 
   ** If missing admin permission, throw PermissionErr
-  virtual Void checkAdmin(Str action)
+  Void checkAdmin(Str action)
   {
-    if (!user.isAdmin)
+    if (!user.isAdmin && !user.access.allow(action))
       throw PermissionErr("Missing 'admin' permission: $action")
   }
 

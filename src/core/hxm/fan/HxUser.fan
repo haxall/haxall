@@ -24,7 +24,6 @@ const class HxUser : User
     this.dis      = meta["dis"] ?: username
     this.email    = meta["email"] as Str
     this.mod      = meta->mod
-    this.access   = HxUserAccess(this)
 
     switch (meta["userRole"])
     {
@@ -41,9 +40,11 @@ const class HxUser : User
   override const Bool isAdmin
   override const Str? email
   override const DateTime mod
-  override const HxUserAccess access
 
   override Str toStr() { username }
+
+  override once HxUserAccess access() { HxUserAccess(this) }
+
 }
 
 **************************************************************************
@@ -52,8 +53,42 @@ const class HxUser : User
 
 const class HxUserAccess : UserAccess
 {
-  new make(HxUser user) { this.user = user }
+  new make(HxUser user)
+  {
+    this.user   = user
+    this.allows = HxUserAllows(user)
+  }
+
   const HxUser user
+
+  const HxUserAllows allows
+
   override Bool canPointWriteAtLevel(Int level) { user.isAdmin }
+
+  override Bool allow(Str action) { allows.contains(action) }
+}
+
+**************************************************************************
+** HxUserAllows
+**************************************************************************
+
+@Js @NoDoc
+const class HxUserAllows
+{
+  static const HxUserAllows empty := make(Str:Str[:])
+
+  static new makeUser(User user)
+  {
+    list := user.meta["userAllow"] as List
+    if (list == null || list.isEmpty) return empty
+    acc := Str:Str[:].setList(list) { it.toStr }
+    return make(acc)
+  }
+
+  Bool contains(Str name) { names.containsKey(name) }
+
+  private new make(Str:Str names) { this.names = names }
+
+  private const Str:Str names
 }
 
