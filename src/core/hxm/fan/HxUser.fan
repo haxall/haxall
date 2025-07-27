@@ -24,6 +24,7 @@ const class HxUser : User
     this.dis      = meta["dis"] ?: username
     this.email    = meta["email"] as Str
     this.mod      = meta->mod
+    this.tz       = TimeZone.fromStr(meta["tz"] as Str ?: "", false) ?: TimeZone.cur
 
     switch (meta["userRole"])
     {
@@ -39,6 +40,7 @@ const class HxUser : User
   override const Bool isSu
   override const Bool isAdmin
   override const Str? email
+  override const TimeZone tz
   override const DateTime mod
 
   override Str toStr() { username }

@@ -36,6 +36,9 @@ const mixin User
   ** Email address if configured
   abstract Str? email()
 
+  ** User timezone
+  @NoDoc abstract TimeZone tz()
+
   ** User record modified time
   @NoDoc abstract DateTime mod()
 
