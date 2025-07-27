@@ -237,8 +237,75 @@ internal class GenPages: Step
   {
     str := doc as Str ?: ""
     if (str.isEmpty) return DocMarkdown.empty
-    return DocMarkdown(str)
+    
+    // Process backticks to normalize spec references
+    normalizedStr := normalizeBackticks(str)
+    
+    return DocMarkdown(normalizedStr)
+  }
+
+  ** Normalize backticks from `name` to `qname | SpecFlavor::flavor`
+  private Str normalizeBackticks(Str text)
+  {
+    result := text
+    
+    // Find and replace backtick patterns
+    i := 0
+    while (i < result.size)
+    {
+      start := result.index("`", i)
+      if (start == null) break
+      
+      end := result.index("`", start + 1)
+      if (end == null) break
+      
+      content := result[start+1..<end]
+      replacement := processBacktick(content)
+      
+      if (replacement != null)
+      {
+        result = result[0..<start] + "`${replacement}`" + result[end+1..-1]
+        i = start + replacement.size + 2
+      }
+      else
+      {
+        i = end + 1
+      }
+    }
+    
+    return result
+  }
+
+  ** Process single backtick content and return normalized format if resolvable
+  private Str? processBacktick(Str content)
+  {
+    // Skip if already qualified (contains ::)
+    if (content.contains("::")) return null
+    
+    // Skip URLs and other non-identifier content
+    if (content.contains("/") || content.contains(".") || content.contains("@")) 
+      return null
+    
+    // Try to resolve as spec in namespace by searching through all libraries
+    try
+    {
+      // Search through all libraries for a spec with this simple name
+      for (i := 0; i < ns.libs.size; i++)
+      {
+        lib := ns.libs[i]
+        spec := lib.spec(content, false)
+        if (spec != null) 
+        {
+          // Return new format: qname | SpecFlavor::flavor
+          flavorStr := spec.flavor.toStr
+          return "${spec.qname} | SpecFlavor::${flavorStr}"
+        }
+      }
+    }
+    catch (Err e) { /* ignore resolution errors */ }
+    
+    // Return null if not found (stays unchanged)
+    return null
   }
 
 }
-
