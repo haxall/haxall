@@ -97,7 +97,7 @@ const class ModbusFuncs
     regMapDir(cx).listFiles.each |f|
     {
       if (f.ext != "csv") return
-      uri := f.uri.relTo(cx.rt.dir.uri)
+      uri := f.uri.relTo(cx.proj.dir.uri)
       gb.addRow([f.basename, uri, f.readAllStr])
     }
 
@@ -173,7 +173,7 @@ const class ModbusFuncs
   ** Get the register map storage directory
   private static File regMapDir(Context cx)
   {
-    dir := cx.rt.dir + `data/modbus/`
+    dir := cx.proj.dir + `data/modbus/`
     if (!dir.exists) dir.create
     return dir
   }

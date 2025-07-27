@@ -78,7 +78,7 @@ const class SedonaFuncs
   @NoDoc @Api @Axon { admin = true }
   static Grid sedonaKitManifests()
   {
-    ext := curContext.rt.ext("hx.sedona")
+    ext := curContext.proj.ext("hx.sedona")
 
     cols := [
       "hasNatives", "doc", "version",
@@ -217,7 +217,7 @@ const class SedonaFuncs
   ** Dispatch a message to the given connector and return result
   private static Obj? dispatch(Context cx, Obj conn, HxMsg msg)
   {
-    ext := (SedonaExt)cx.rt.ext("hx.sedona")
+    ext := (SedonaExt)cx.proj.ext("hx.sedona")
     r := ext.conn(Etc.toId(conn)).sendSync(msg)
     return r
   }

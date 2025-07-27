@@ -24,7 +24,7 @@ using folio
   new make(Context cx, Obj[] points, Obj? span)
   {
     this.cxRef     = cx
-    this.task      = cx.rt.exts.task(false)
+    this.task      = cx.proj.exts.task(false)
     this.num       = points.size
     this.pointsRef = points
     this.span      = span

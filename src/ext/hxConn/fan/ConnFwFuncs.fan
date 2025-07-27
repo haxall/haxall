@@ -32,7 +32,7 @@ const class ConnFwFuncs
   {
     cx := curContext
     id := Etc.toId(conn)
-    c := cx.rt.exts.conn.conn(id, false)
+    c := cx.proj.exts.conn.conn(id, false)
     if (c isnot Conn)
     {
       if (!checked) return Dict#.emptyList
@@ -103,7 +103,7 @@ const class ConnFwFuncs
     cx := curContext
     futures := Future[,]
     connPoints := toPoints(points, cx)
-    ConnUtil.eachConnInPointIds(cx.rt, connPoints) |c, pts|
+    ConnUtil.eachConnInPointIds(cx.proj, connPoints) |c, pts|
     {
       futures.add(c.syncCur(pts))
     }
@@ -142,7 +142,7 @@ const class ConnFwFuncs
     if (obj is ConnPoint) return ((ConnPoint)obj).details
     cx := curContext
     id := Etc.toId(obj)
-    return cx.rt.exts.conn.point(id, false)?.details ?: cx.rt.exts.conn.conn(id).details
+    return cx.proj.exts.conn.point(id, false)?.details ?: cx.proj.exts.conn.conn(id).details
   }
 
   **
@@ -168,7 +168,7 @@ const class ConnFwFuncs
     // string is library name
     if (libOrConn is Str)
     {
-      ext := (ConnExt)cx.rt.exts.get(libOrConn)
+      ext := (ConnExt)cx.proj.exts.get(libOrConn)
       return pointIds.map |id->ConnPoint| { ext.point(id) }
     }
 
@@ -186,12 +186,12 @@ const class ConnFwFuncs
       return ((List)points).map |x->ConnPoint|
       {
         if (x is ConnPoint) return x
-        return cx.rt.exts.conn.point(Etc.toId(x))
+        return cx.proj.exts.conn.point(Etc.toId(x))
       }
     }
     return Etc.toIds(points).map |id->ConnPoint|
     {
-      return cx.rt.exts.conn.point(id)
+      return cx.proj.exts.conn.point(id)
     }
   }
 
@@ -245,7 +245,7 @@ const class ConnFwFuncs
   @Api @Axon { admin = true }
   static Void connTraceDisableAll()
   {
-    curContext.rt.exts.conn.conns.each |hx|
+    curContext.proj.exts.conn.conns.each |hx|
     {
       c := hx as Conn
       if (c != null) c.trace.disable
@@ -301,7 +301,7 @@ const class ConnFwFuncs
   ** Coerce conn to a HxConn instance (new or old framework)
   private static HxConn toHxConn(Obj conn)
   {
-    curContext.rt.exts.conn.conn(Etc.toId(conn), true)
+    curContext.proj.exts.conn.conn(Etc.toId(conn), true)
   }
 
   ** Coerce conn to a Conn instance (new framework only)

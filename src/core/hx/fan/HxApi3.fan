@@ -351,8 +351,8 @@ internal class HxNavOp : HxApiOp
     // lookup or create watch
     watchId := req.meta["watchId"] as Str
     watch := watchId == null ?
-             cx.rt.watch.open(req.meta->watchDis) :
-             cx.rt.watch.get(watchId)
+             cx.proj.watch.open(req.meta->watchDis) :
+             cx.proj.watch.get(watchId)
 
     // map rows to Refs
     ids := req.ids
@@ -366,7 +366,7 @@ internal class HxNavOp : HxApiOp
 
     // return recs - must return row for each requested id (so don't use Etc)
     resMeta := Etc.dict2("watchId", watch.id, "lease", Number.makeDuration(watch.lease, null))
-    recs := cx.rt.db.readByIdsList(ids, false)
+    recs := cx.proj.db.readByIdsList(ids, false)
     colNames := Etc.dictsNames(recs)
     gb := GridBuilder()
     gb.setMeta(resMeta)
@@ -399,7 +399,7 @@ internal class HxNavOp : HxApiOp
     close := req.meta.has("close")
 
     // lookup watch
-    watch := cx.rt.watch.get(watchId, false)
+    watch := cx.proj.watch.get(watchId, false)
     if (watch == null) return Etc.emptyGrid
 
     // if no rows then close, otherwise remove
@@ -425,7 +425,7 @@ internal class HxWatchPollOp : HxApiOp
     curValSub := req.meta.has("curValSub")
 
     // poll as refresh or cov
-    watch := cx.rt.watch.get(watchId)
+    watch := cx.proj.watch.get(watchId)
     recs := refresh ? watch.poll(Duration.defVal) : watch.poll
     resMeta := Etc.dict1("watchId", watchId)
     if (curValSub)

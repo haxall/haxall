@@ -563,7 +563,7 @@ const class IOFuncs
     if (arg == null) arg = Etc.dict0
     if (cx.sys.info.rt.isAxonsh) return Etc.dict0
     filetype := cx.defs.filetype("json")
-    settings := cx.rt.ext("hx.io").settings
+    settings := cx.proj.ext("hx.io").settings
     return filetype.ioOpts(cx.defs, null, arg, settings)
   }
 
@@ -973,7 +973,7 @@ const class IOFuncs
   ** Coerce to IOHandle
   internal static IOHandle toHandle(Obj? handle)
   {
-    IOHandle.fromObj(curContext.rt, handle)
+    IOHandle.fromObj(curContext.proj, handle)
   }
 
   ** Current context

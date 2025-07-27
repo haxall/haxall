@@ -410,7 +410,7 @@ const class HxFuncs
   @Api @Axon
   static Bool isSteadyState()
   {
-    curContext.rt.isSteadyState
+    curContext.proj.isSteadyState
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -423,7 +423,7 @@ const class HxFuncs
   {
     cx := Context.cur
     isShell := cx.sys.info.rt.isAxonsh
-    log := isShell ? Log.get("xeto") : cx.rt.ext("hx.xeto").log
+    log := isShell ? Log.get("xeto") : cx.proj.ext("hx.xeto").log
     log.info("libReload [$cx.user.username]")
     //cx.rt.libs.reload
 throw Err("TODO")
@@ -500,7 +500,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Str? projSpecRead(Str name, Bool checked := true)
   {
-    curContext.rt.specs.read(name, checked)
+    curContext.proj.specs.read(name, checked)
   }
 
   ** Add a project level spec by name and update namespace:
@@ -508,7 +508,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecAdd(Str name, Str body)
   {
-    curContext.rt.specs.add(name, body)
+    curContext.proj.specs.add(name, body)
   }
 
   ** Update a project level spec by name and update namespace:
@@ -516,7 +516,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecUpdate(Str name, Str body)
   {
-    curContext.rt.specs.update(name, body)
+    curContext.proj.specs.update(name, body)
   }
 
   ** Rename a project level spec and update namespace:
@@ -524,7 +524,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecRename(Str oldName, Str newName)
   {
-    curContext.rt.specs.rename(oldName, newName)
+    curContext.proj.specs.rename(oldName, newName)
   }
 
   ** Remove a project level spec by name and update namespace:
@@ -532,7 +532,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecRemove(Str name)
   {
-    curContext.rt.specs.remove(name)
+    curContext.proj.specs.remove(name)
     return "removed"
   }
 
@@ -547,7 +547,7 @@ throw Err("TODO")
     cx := curContext
     gb := GridBuilder()
     gb.addCol("observable").addCol("subscriptions").addCol("doc")
-    cx.rt.obs.list.each |o|
+    cx.proj.obs.list.each |o|
     {
       doc := cx.defs.def(o.name, false)?.get("doc") ?: ""
       gb.addRow([o.name, Number(o.subscriptions.size), doc])
@@ -562,7 +562,7 @@ throw Err("TODO")
     cx := curContext
     gb := GridBuilder()
     gb.addCol("observable").addCol("observer").addCol("config")
-    cx.rt.obs.list.each |o|
+    cx.proj.obs.list.each |o|
     {
       o.subscriptions.each |s|
       {
@@ -580,7 +580,7 @@ throw Err("TODO")
   ** The rec argument can be any value accepted by `toRecId()`.
   @Api @Axon static Bool isWatched(Obj rec)
   {
-    curContext.rt.watch.isWatched(Etc.toId(rec))
+    curContext.proj.watch.isWatched(Etc.toId(rec))
   }
 
   ** Open a new watch on a grid of records.  The 'dis' parameter
@@ -594,7 +594,7 @@ throw Err("TODO")
   static Grid watchOpen(Grid grid, Str dis)
   {
     cx := curContext
-    watch := cx.rt.watch.open(dis)
+    watch := cx.proj.watch.open(dis)
     watch.addGrid(grid)
     return grid.addMeta(["watchId":watch.id])
   }
@@ -616,7 +616,7 @@ throw Err("TODO")
     }
 
     // poll refresh or cov
-    watch := cx.rt.watch.get(watchId)
+    watch := cx.proj.watch.get(watchId)
     recs := refresh ? watch.poll(Duration.defVal) : watch.poll
     return Etc.makeDictsGrid(["watchId":watchId], recs)
   }
@@ -626,7 +626,7 @@ throw Err("TODO")
   static Grid watchAdd(Str watchId, Grid grid)
   {
     cx := curContext
-    watch := cx.rt.watch.get(watchId)
+    watch := cx.proj.watch.get(watchId)
     watch.addGrid(grid)
     return grid
   }
@@ -636,7 +636,7 @@ throw Err("TODO")
   static Grid watchRemove(Str watchId, Grid grid)
   {
     cx := curContext
-    watch := cx.rt.watch.get(watchId)
+    watch := cx.proj.watch.get(watchId)
     watch.removeGrid(grid)
     return grid
   }
@@ -647,7 +647,7 @@ throw Err("TODO")
   @Api @Axon
   static Obj? watchClose(Str watchId)
   {
-    curContext.rt.watch.get(watchId, false)?.close
+    curContext.proj.watch.get(watchId, false)?.close
     return null
   }
 

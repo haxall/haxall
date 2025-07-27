@@ -414,7 +414,7 @@ const class PointFuncs
 
   ** Legacy support
   @Deprecated @NoDoc @Api @Axon { admin = true }
-  static Obj? pointExtSync() { curContext.rt.sync; return null }
+  static Obj? pointExtSync() { curContext.proj.sync; return null }
 
   ** Current context
   private static Context curContext() { Context.cur }

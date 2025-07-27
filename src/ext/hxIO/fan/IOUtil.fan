@@ -21,7 +21,7 @@ const class IOUtil
   ** Convert I/O handle to a file
   static File toFile(Context cx, Obj obj, Str debugAction)
   {
-    return IOHandle.fromObj(cx.rt, obj).toFile(debugAction)
+    return IOHandle.fromObj(cx.proj, obj).toFile(debugAction)
   }
 
   ** Open file as a Zip
@@ -153,7 +153,7 @@ internal class IOCsvReader
 
   private IOHandle toHandle(Obj val)
   {
-    IOHandle.fromObj(cx.rt, handle)
+    IOHandle.fromObj(cx.proj, handle)
   }
 
   private Context cx

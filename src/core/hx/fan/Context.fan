@@ -67,8 +67,6 @@ class Context : AxonContext, FolioContext
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-virtual Proj rt() { proj }
-
   ** System project
   virtual Sys sys() { projRef.sys }
 
@@ -198,7 +196,7 @@ virtual Proj rt() { proj }
   {
     expr := parse(src)
     filter := expr.evalToFilter(this, false)
-    if (filter != null) return rt.db.readAll(filter)
+    if (filter != null) return db.readAll(filter)
     return expr.eval(this)
   }
 
