@@ -37,10 +37,32 @@ const mixin User
   abstract Str? email()
 
   ** User record modified time
-   @NoDoc abstract DateTime mod()
+  @NoDoc abstract DateTime mod()
+
+  ** Is this user account disabled
+  @NoDoc Bool isDisabled()
+  {
+    // check disabled flag
+    if (meta.has("disabled")) return true
+
+    // check expired
+    expires := meta["expires"] as Date
+    if (expires == null) return false
+    return Date.today >= expires
+  }
 
   ** Access control APIs
   @NoDoc abstract UserAccess access()
+
+  ** Return if given `skyarcd::Proj` instance is accessible
+  ** by this user's configured `projAccessFilter`.
+  ** TODO: just shim for now
+  @NoDoc Bool isProjAccessible(Obj proj)
+  {
+    //meta := (Dict)proj.typeof.method("meta").callOn(proj, null)
+    //return access.proj.matches(meta)
+return true
+  }
 }
 
 **************************************************************************
@@ -61,6 +83,9 @@ const mixin UserSession
 
   ** Authenticated user associated with the sesssion
   abstract User user()
+
+  ** Authenticated username associated with the session
+  Str username() { user.username }
 }
 
 **************************************************************************
