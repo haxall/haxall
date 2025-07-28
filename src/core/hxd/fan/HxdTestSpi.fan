@@ -33,7 +33,7 @@ class HxdTestSpi : HxTestSpi
       it.log.level = LogLevel.warn
     }
     if (create) { dir.delete; boot.create }
-    return boot.load.start
+    return HxdSys(boot).init(boot).start
   }
 
   override Proj start(Dict projMeta)

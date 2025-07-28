@@ -29,7 +29,7 @@ const class HxProjLibs : ProjLibs
     this.proj         = proj
     this.isSys        = proj.isSys
     this.env          = boot.xetoEnv
-    this.fb           = boot.nsfb
+    this.fb           = boot.initNamespaceFileBase
     this.log          = boot.log
     this.bootLibNames = boot.bootLibs
     this.specsRef     = HxProjSpecs(this)

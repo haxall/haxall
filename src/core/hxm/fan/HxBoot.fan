@@ -27,7 +27,7 @@ abstract class HxBoot
   Bool isCreate { private set }
 
   ** Are we running create or load
-  Bool isLoad() { !isCreate }
+  Bool isSysLoad() { !isCreate }
 
   ** Project name (required)
   Str? name { set { checkLock; &name = it } }
@@ -103,67 +103,10 @@ abstract class HxBoot
   Str:Obj? sysConfig := [:]
 
 //////////////////////////////////////////////////////////////////////////
-// Create
-//////////////////////////////////////////////////////////////////////////
-
-  ** Create a new project on disk that can be loaded.
-  Void create()
-  {
-    isCreate = true
-    check
-    this.nsfb = initNamespaceFileBase
-    createNamespace(this.nsfb)
-    createProjMetaFile(this.nsfb)
-    this.db = createFolio
-    db.close
-  }
-
-  ** Create namespace directory
-  virtual Void createNamespace(DiskFileBase fb)
-  {
-    libsTxt := "// Created $DateTime.now.toLocale\n" +  createLibs.join("\n")
-    fb.write("libs.txt", libsTxt.toBuf)
-  }
-
-  ** Create projMeta in settings.trio
-  virtual Void createProjMetaFile(DiskFileBase fb)
-  {
-    acc := createProjMeta.dup
-    acc["id"] = HxSettingsMgr.projMetaId
-    acc["projMeta"] = Marker.val
-    acc["version"] = sysInfoVersion.toStr
-    acc["mod"] = DateTime.nowUtc
-    dict := Etc.dictFromMap(acc)
-
-    file := fb.dir + `settings.trio`
-    TrioWriter(file.out).writeDict(dict).close
-  }
-
-  ** Create folio, routes to initFolio by default
-  virtual Folio createFolio()
-  {
-    initFolio
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Load
-//////////////////////////////////////////////////////////////////////////
-
-  ** Load the project but do not start it
-  HxProj load()
-  {
-    isCreate = false
-    check
-    this.nsfb = initNamespaceFileBase
-    this.db   = initFolio
-    return initProj.init(this)
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Check
 //////////////////////////////////////////////////////////////////////////
 
-  ** Check inputs and raise exception
+  ** Check inputs and raise exception if problems
   virtual Void check()
   {
     if (checked) return
@@ -217,7 +160,6 @@ abstract class HxBoot
   virtual DiskFileBase initNamespaceFileBase()
   {
     nsDir := this.dir + `ns/`
-    if (isLoad && !nsDir.exists) throw Err("Lib ns dir not found: $nsDir.osPath")
     return DiskFileBase(nsDir)
   }
 
@@ -259,9 +201,6 @@ abstract class HxBoot
     return FolioFlatFile.open(config)
   }
 
-  ** Create HxProj implementation
-  abstract HxProj initProj()
-
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
@@ -284,8 +223,5 @@ abstract class HxBoot
 //////////////////////////////////////////////////////////////////////////
 
   private Bool checked   // check
-  FileBase? nsfb         // initNamespaceFileBase
-  Folio? db              // initFolio
-  Dict? meta             // initMeta
 }
 

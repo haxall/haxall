@@ -158,7 +158,7 @@ internal class InitCli : HxCli
     }
 
     // now load it
-    proj := boot.load
+    proj := HxdSys(boot).init(boot)
     initHttpPort(proj)
     initSu(proj)
     proj.db.close

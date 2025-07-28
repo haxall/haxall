@@ -87,9 +87,39 @@ class HxdBoot : HxBoot
     if (file != null) sysConfig["hxLic"] = file.readAllStr
   }
 
-  override HxProj initProj()
+//////////////////////////////////////////////////////////////////////////
+// Create
+//////////////////////////////////////////////////////////////////////////
+
+  ** Create a new project on disk that can be loaded.
+  Void create()
   {
-    HxdSys(this)
+    nsfb := initNamespaceFileBase
+    createNamespace(nsfb)
+    createProjMetaFile(nsfb)
+    db := initFolio
+    db.close
+  }
+
+  ** Create namespace directory
+  private Void createNamespace(DiskFileBase fb)
+  {
+    libsTxt := "// Created $DateTime.now.toLocale\n" +  createLibs.join("\n")
+    fb.write("libs.txt", libsTxt.toBuf)
+  }
+
+  ** Create projMeta in settings.trio
+  private Void createProjMetaFile(DiskFileBase fb)
+  {
+    acc := createProjMeta.dup
+    acc["id"] = HxSettingsMgr.projMetaId
+    acc["projMeta"] = Marker.val
+    acc["version"] = sysInfoVersion.toStr
+    acc["mod"] = DateTime.nowUtc
+    dict := Etc.dictFromMap(acc)
+
+    file := fb.dir + `settings.trio`
+    TrioWriter(file.out).writeDict(dict).close
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -100,7 +130,7 @@ class HxdBoot : HxBoot
   Int run()
   {
     // load project
-    proj := load
+    proj := HxdSys(this).init(this)
 
     // install shutdown handler
     Env.cur.addShutdownHook(proj.shutdownHook)

@@ -27,10 +27,11 @@ abstract const class HxProj : Proj
   ** Boot constructor
   new make(HxBoot boot)
   {
+    boot.check
     this.name          = boot.name
     this.id            = Ref("p:$name", name)
     this.dir           = boot.dir
-    this.db            = boot.db
+    this.db            = boot.initFolio
     this.db.hooks      = HxFolioHooks(this)
     this.log           = boot.log
     this.actorPool     = boot.actorPool
@@ -202,6 +203,9 @@ abstract const class HxProj : Proj
   ** Start runtime (blocks until all libs fully started)
   This start()
   {
+    // validate we are initialized
+    if (!inited.val) throw Err("Must call init")
+
     // this method can only be called once
     if (isStarted.getAndSet(true)) return this
 

@@ -24,9 +24,9 @@ const class HxSys : HxProj, Sys
     this.config = boot.initSysConfig
   }
 
-  override Sys sys() { this }
+  override final Sys sys() { this }
 
-  override Bool isSys() { true }
+  override final Bool isSys() { true }
 
   override const SysInfo info
 

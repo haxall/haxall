@@ -3,7 +3,12 @@
 // Licensed under the Academic Free License version 3.0
 //
 // History:
-//   25 May 2021  Brian Frank  Creation
+//    3 Oct 2009  Brian Frank        Creation
+//   22 Mar 2011  Brian Frank        Rename Permissions -> User
+//    3 Jan 2016  Brian Frank        Refactor for 3.0
+//    5 Feb 2020  Matthew Giannini   User is a Person
+//    8 Jan 2021  Matthew GIannini   User is *not* a Person (removed Person API)
+//   25 May 2021  Brian Frank        Haxall copy
 //
 
 using xeto
