@@ -53,6 +53,7 @@ class XetoBinaryWriter : XetoBinaryConst
 
   Void writeLib(XetoLib lib)
   {
+    inLib = true
     writeI4(magicLib)
     writeStr(lib.name)
     writeDict(lib.m.meta)
@@ -60,6 +61,7 @@ class XetoBinaryWriter : XetoBinaryConst
     writeSpecs(lib)
     writeInstances(lib)
     writeI4(magicLibEnd)
+    inLib = false
   }
 
   private Void writeSpecs(XetoLib lib)
@@ -344,9 +346,19 @@ class XetoBinaryWriter : XetoBinaryConst
 
   Void writeDict(Dict d)
   {
-    if (d.isEmpty)        return write(ctrlEmptyDict)
-    if (d is XetoSpec)    return writeSpecRefVal(d)
-    if (isGenericDict(d)) return writeGenericDict(d)
+    if (d.isEmpty) return write(ctrlEmptyDict)
+
+    if (d is XetoSpec)
+    {
+      if (inLib)
+        return writeSpecRefVal(d)
+      else
+        return writeGenericDict(d)
+    }
+
+    if (isGenericDict(d))
+      return writeGenericDict(d)
+
     return writeTypedDict(d)
   }
 
@@ -509,5 +521,6 @@ class XetoBinaryWriter : XetoBinaryConst
   private OutStream out
   private BrioConsts cp
   private Str:Int strs := Str:Int[:]
+  private Bool inLib
 }
 
