@@ -408,21 +408,6 @@ abstract class AxonContext : HaystackContext, CompContext
     catch (CastErr e) throw CastErr("regex must be Str, not $s.typeof")
   }
 
-  ** Create a snapshot of the call stack exactly as it is now.
-  ** This allows closure functions to be stored away for lazy evaluation
-  ** without loosing their scoping context.
-  ** DO NOT USE THIS METHOD ANYMORE!
-  ** TODO: this is only used in one spot: hisExt::Rollup
-  @NoDoc virtual This clone() { throw UnsupportedErr() }
-  @NoDoc protected This doClone(AxonContext that)
-  {
-    that.heartbeatFunc = this.heartbeatFunc
-    that.timeoutTicks  = this.timeoutTicks
-    that.stack         = this.stack.dup
-    that.regex         = this.regex
-    return that
-  }
-
 //////////////////////////////////////////////////////////////////////////
 // Private Fields
 //////////////////////////////////////////////////////////////////////////

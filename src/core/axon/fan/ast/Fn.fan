@@ -148,24 +148,24 @@ const class Fn : Expr, HaystackFunc
     return out.atomicEnd
   }
 
-  ** Convert to Fantom function
-  ** TODO: this is only used by hisExt/hisKitExt as part of its
-  ** lazily evaluation of Axon closures; eventually we want to get
-  ** rid of this, so don't use it anymore!!!
-  @NoDoc Func toFunc()
-  {
-    cx := AxonContext.curAxon.clone
-    switch (params.size)
-    {
-      case 0: return |->Obj?| { call(cx, [,]) }
-      case 1: return |Obj? a->Obj?| { call(cx, [a]) }
-      case 2: return |Obj? a, Obj? b->Obj?| { call(cx, [a, b]) }
-      case 3: return |Obj? a, Obj? b, Obj? c->Obj?| { call(cx, [a, b, c]) }
-      case 4: return |Obj? a, Obj? b, Obj? c, Obj? d->Obj?| { call(cx, [a, b, c, d]) }
-      case 5: return |Obj? a, Obj? b, Obj? c, Obj? d, Obj? e->Obj?| { call(cx, [a, b, c, d, e]) }
-      default: throw Err("Too many params to map to sys::Func $loc")
-    }
-  }
+  // ** Convert to Fantom function
+  // ** TODO: this is only used by hisExt/hisKitExt as part of its
+  // ** lazily evaluation of Axon closures; eventually we want to get
+  // ** rid of this, so don't use it anymore!!!
+  // @NoDoc Func toFunc()
+  // {
+  //   cx := AxonContext.curAxon.clone
+  //   switch (params.size)
+  //   {
+  //     case 0: return |->Obj?| { call(cx, [,]) }
+  //     case 1: return |Obj? a->Obj?| { call(cx, [a]) }
+  //     case 2: return |Obj? a, Obj? b->Obj?| { call(cx, [a, b]) }
+  //     case 3: return |Obj? a, Obj? b, Obj? c->Obj?| { call(cx, [a, b, c]) }
+  //     case 4: return |Obj? a, Obj? b, Obj? c, Obj? d->Obj?| { call(cx, [a, b, c, d]) }
+  //     case 5: return |Obj? a, Obj? b, Obj? c, Obj? d, Obj? e->Obj?| { call(cx, [a, b, c, d, e]) }
+  //     default: throw Err("Too many params to map to sys::Func $loc")
+  //   }
+  // }
 }
 
 **************************************************************************
