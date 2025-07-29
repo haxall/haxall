@@ -110,7 +110,7 @@ internal class DumpCmd : ConvertCmd
 
   override Int run()
   {
-    ast := Ast().scan(Env.cur.workDir)
+    ast := Ast().scanWorkDir
     if (all) { ast.dump; return 0 }
     if (pods)  ast.dumpPods
     if (exts)  ast.dumpExts

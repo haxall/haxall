@@ -27,7 +27,7 @@ class APod
     return pod
   }
 
-  new make(Ast ast, Str name, File dir, File buildFile)
+  new make(Ast ast, Str name, File? dir, File? buildFile)
   {
     this.ast       = ast
     this.name      = name
@@ -37,8 +37,8 @@ class APod
 
   Ast ast { private }
   const Str name
-  const File dir
-  const File buildFile
+  const File? dir
+  const File? buildFile
   AExt[] exts := [,]
 
   override Str toStr() { name }

@@ -31,7 +31,8 @@ class AExt
     if (def.lower.contains("test")) return
 
     oldName := def["lib:".size..-1]
-    ext := make(ast, pod, oldName, AExtType.hx, meta)
+    specName := oldName.capitalize + "Ext"
+    ext := make(ast, pod, oldName, specName, AExtType.hx, meta)
     pod.exts.add(ext)
 
     AFunc.scanExt(ast, ext)
@@ -48,7 +49,7 @@ class AExt
     return start + dotted
   }
 
-  new make(Ast ast, APod pod, Str oldName, AExtType type, Dict meta)
+  new make(Ast ast, APod pod, Str oldName, Str specName, AExtType type, Dict meta)
   {
     this.ast        = ast
     this.pod        = pod
@@ -57,6 +58,7 @@ class AExt
     this.type       = type
     this.meta       = meta
     this.xetoSrcDir = ast.xetoSrcDir + `${libName}/`
+    this.specName   = specName
   }
 
   Ast ast { private }
@@ -66,9 +68,20 @@ class AExt
   const AExtType type
   const Dict meta
   const File xetoSrcDir
+  const Str specName
+  Str specBase() { type == AExtType.mod ? "SysExt" : "Ext" }
 
   Str? fantomFuncType
   AFunc[] funcs := [,]
+
+  Bool dependOnIon()
+  {
+    funcs.any |f|
+    {
+      m := f.meta
+      return m.has("text") || m.has("selectMode") || m.has("confirm") || m.has("noFlash") || m.has("noUpdate")
+    }
+  }
 
   override Str toStr() { "$oldName [$type]" }
 }

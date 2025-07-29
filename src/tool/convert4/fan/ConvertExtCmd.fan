@@ -71,10 +71,13 @@ internal class ConvertExtCmd : ConvertCmd
 
   private Str? resolveLibXetoVar(AExt ext, Str name)
   {
+    doc := ext.meta["doc"] ?: "todo"
     switch (name)
     {
       case "doc":     return ext.meta["doc"] ?: "todo"
       case "depends": return resolveDepends(ext)
+      case "libExt":  return "libExt: $ext.specName"
+      case "extSpec": return "// $doc\n" + ext.specName + ": " + ext.specBase
       default:        return null
     }
   }
@@ -83,17 +86,20 @@ internal class ConvertExtCmd : ConvertCmd
   {
     s := StrBuf().add("{\n")
     addDepend(s, "sys")
+    if (!ext.funcs.isEmpty)  addDepend(s, "axon", "hx")
     if (ext.libName != "hx") addDepend(s, "hx")
+    if (ext.dependOnIon) addDepend(s, "ion")
     s.add("  }")
     return s.toStr
   }
 
-  private Void addDepend(StrBuf s, Str name)
+  private Void addDepend(StrBuf s, Str name, Str? prefix := null)
   {
-    prefix := name.split('.').first
+    if (prefix == null) prefix = name.split('.').first
     versions := ast.config.dependVersions[prefix]
-    s.add("    { lib: $name.toCode")
-    if (versions != null) s.add(", versions: $versions")
+    nameCode := name.toCode.plus(",").padr(7)
+    s.add("    { lib: $nameCode")
+    s.add(" versions: $versions")
     s.add(" }\n")
   }
 
@@ -144,15 +150,36 @@ internal class ConvertExtCmd : ConvertCmd
     keys.moveTo("su", 0)
     keys.moveTo("admin", 0)
     keys.moveTo("nodoc", 0)
+    keys.moveTo("confirm", -1)
     keys.each |k, i|
     {
       if (i > 0) s.add(", ")
-      s.add(k)
-      v := meta[k]
-      if (v == Marker.val) return
-      s.add(":").add(v.toStr.toCode)
+      genDictPair(s, k, meta[k])
     }
     s.add("> ")
+  }
+
+  Void genDictPair(StrBuf s, Str n, Obj v)
+  {
+    s.add(n)
+    if (v === Marker.val) return
+    s.add(":")
+    if (v is Dict)
+    {
+      s.add("{")
+      first := true
+      ((Dict)v).each |dv, dn|
+      {
+        if (first) first = false
+        else s.add(", ")
+        genDictPair(s, dn, dv)
+      }
+      s.add("}")
+    }
+    else
+    {
+      s.add(v.toStr.toCode.replace("\\\$", "\$"))
+    }
   }
 
   Void genDoc(StrBuf s, Str? doc)

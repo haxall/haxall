@@ -8,23 +8,76 @@
 
 using util
 using haystack
+using axon
 
 **
 ** AST root
 **
 class Ast
 {
+
   This scanWorkDir()
   {
-    scan(Env.cur.workDir)
+    scanFile(Env.cur.workDir)
   }
 
-  This scan(File f)
+  /* this code uses SkySpark SysNamespace
+  This scanSysDef()
+  {
+    boot := Boot()
+    sys := boot.init
+    libs := Lib[,]
+    sys.installed.libs.each |lib|
+    {
+      n := lib.name
+      if (lib.has("sysMod")) libs.add(lib)
+    }
+
+    libs.sort
+    pods := Str:APod[:]
+    libs.each |lib|
+    {
+      typeName := lib->typeName.toStr
+      podName := typeName[0..<typeName.index("::")]
+      specName := typeName[typeName.index("::") + 2 .. -1]
+      if (specName.startsWith("Std")) specName = specName[3..-1]
+      if (specName.endsWith("Lib")) specName = specName[0..-4] + "Ext"
+      if (specName.endsWith("Mod")) specName = specName[0..-4] + "Ext"
+
+      dict := Etc.dictRemoveAll(lib, ["depends", "doc"])
+
+      pod := pods[podName]
+      if (pod == null) pods[podName] = pod = APod(this, podName, null, null)
+
+      oldName := lib.name
+      newName := "hx." + oldName.lower
+      ext := AExt(this, pod, oldName, specName, AExtType.mod, (Dict)lib)
+      pod.exts.add(ext)
+
+      sys.installed.funcs.each |f|
+      {
+        if (f.name == "compTester") return
+        if (f.lib === lib)
+        {
+          ff := (FantomFn)f.expr
+          af := AFunc.reflectMethod(ff.method, f)
+          ext.funcs.add(af)
+        }
+      }
+
+    }
+    this.pods.addAll(pods.vals)
+
+    return this
+  }
+  */
+
+  private This scanFile(File f)
   {
     try
     {
       if (f.name == "build.fan") pods.addNotNull(APod.scan(this, f))
-      if (f.isDir) f.list.each |sub| { scan(sub) }
+      if (f.isDir) f.list.each |sub| { scanFile(sub) }
     }
     catch (Err e)
     {
