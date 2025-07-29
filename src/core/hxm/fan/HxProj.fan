@@ -44,10 +44,10 @@ abstract const class HxProj : Proj
     this.obsRef        = HxProjObservables(this)
   }
 
-  ** Called after constructor to init extensions.  This is
-  ** called automatically after boot, but can be called safely
+  ** Called after constructor to init extensions.  This must
+  ** be called after make before start. But it can be called safely
   ** by subclasses in their constructors if they need access to exts
-  This init(HxBoot boot)
+  virtual This init(HxBoot boot)
   {
     // use flag to make this re-entrant to give subclasses flexiblity
     // to finish their initialization before creating exts
