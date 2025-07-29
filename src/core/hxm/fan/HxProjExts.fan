@@ -37,6 +37,8 @@ const class HxProjExts : Actor, ProjExts
   override Ext[] list() { listRef.val }
   private const AtomicRef listRef := AtomicRef()
 
+  override Void each(|Ext| f) { list.each(f) }
+
   override Bool has(Str name) { map.containsKey(name) }
 
   override Ext? get(Str name, Bool checked := true)

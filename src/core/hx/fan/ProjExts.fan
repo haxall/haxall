@@ -25,6 +25,9 @@ const mixin ProjExts
   ** List of extensions currently enabled
   abstract Ext[] list()
 
+  ** Iterate the extensions currently enabled
+  abstract Void each(|Ext| f)
+
   ** Lookup an extension by lib name.  If not found then
   ** return null or raise UnknownExtErr based on checked flag.
   abstract Ext? get(Str name, Bool checked := true)

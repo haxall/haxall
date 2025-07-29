@@ -85,13 +85,13 @@ const class SysInfo
   const Uri vendorUri
 
   ** File resource for SVG logo
-  @NoDoc virtual Uri logoUri() { `/user/logo.svg` }
+  @NoDoc virtual Uri logoUri() { meta["logoUri"] as Uri ?: `/user/logo.svg` }
 
   ** File resource for #555555 monochrome SVG logo
-  @NoDoc virtual Uri logoMonoUri() { `/user/logo.svg` }
+  @NoDoc virtual Uri logoMonoUri() {meta["logoMonoUri"] as Uri ?:  `/user/logo.svg` }
 
   ** File resource favicon.png image
-  @NoDoc virtual Uri faviconUri() { `/user/favicon.png` }
+  @NoDoc virtual Uri faviconUri() { meta["faviconUri"] as Uri ?: `/user/favicon.png` }
 
 //////////////////////////////////////////////////////////////////////////
 // Debug
