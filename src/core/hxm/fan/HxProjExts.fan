@@ -96,13 +96,13 @@ const class HxProjExts : Actor, ProjExts
     return get(name)
   }
 
-  Void init(HxNamespace ns)
+  Void init(HxBoot boot, HxNamespace ns)
   {
     map := Str:Ext[:]
 
     extLibs(ns).each |lib|
     {
-      ext := HxExtSpi.instantiate(this, lib)
+      ext := HxExtSpi.instantiate(boot, this, lib)
       if (ext != null) map.add(ext.name, ext)
     }
 
@@ -163,7 +163,7 @@ const class HxProjExts : Actor, ProjExts
 
   private Ext? onAdded(Lib lib)
   {
-    ext := HxExtSpi.instantiate(this, lib)
+    ext := HxExtSpi.instantiate(null, this, lib)
     if (ext == null) return null
     spi := (HxExtSpi)ext.spi
     proj.obsRef.addExt(ext)

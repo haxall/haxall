@@ -168,6 +168,7 @@ const mixin ExtSpi
   abstract Void settingsUpdate(Obj changes)
   abstract Log log()
   abstract Bool isRunning()
+  abstract Future send(Obj? msg)
   abstract Actor actor()
   abstract Void sync(Duration? timeout := 30sec)
   abstract Subscription[] subscriptions()

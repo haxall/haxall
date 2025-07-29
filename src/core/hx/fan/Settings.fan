@@ -111,6 +111,9 @@ facet class Setting
   ** Is restart required before a change takes effect
   @NoDoc const Bool restart
 
+  ** Text field place holder string
+  @NoDoc const Str? placeholder
+
   ** Meta data for the def encoded as a Trio string
   const Str meta := ""
 
@@ -118,6 +121,7 @@ facet class Setting
   @NoDoc Void decode(|Str name, Obj val| f)
   {
     if (restart) f("restart", Marker.val)
+    if (placeholder != null) f("placeholder", placeholder)
     if (!meta.isEmpty) TrioReader(meta.in).readDict.each |v, n| { f(n, v) }
   }
 }

@@ -56,7 +56,7 @@ abstract const class HxProj : Proj
 
     // initialize
     ns := libsRef.init
-    extsRef.init(ns)
+    extsRef.init(boot, ns)
     obsRef.init
     return this
   }

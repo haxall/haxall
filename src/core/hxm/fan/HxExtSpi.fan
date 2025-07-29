@@ -26,7 +26,7 @@ const class HxExtSpi : Actor, ExtSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate the Ext for given lib if available
-  static ExtObj? instantiate(HxProjExts exts, Lib lib)
+  static ExtObj? instantiate(HxBoot? boot, HxProjExts exts, Lib lib)
   {
     // check for libExt meta
     ref := lib.meta["libExt"] as Ref
@@ -45,6 +45,12 @@ const class HxExtSpi : Actor, ExtSpi
       type := spec.fantomType
       if (type.name == "Dict") { log.warn("Missing fantom type binding: $spec"); return null }
 
+      // determine constructor to use
+      ctor := type.method("make")
+      ctorNeedBoot := !ctor.params.isEmpty
+      if (ctorNeedBoot && boot == null)  { log.warn("Ext type requires boot: $type"); return null }
+      ctorArgs := ctorNeedBoot ? [boot] : null
+
       // read settings
       settings := exts.proj.settingsMgr.extRead(name)
 
@@ -55,7 +61,9 @@ const class HxExtSpi : Actor, ExtSpi
       ExtObj? ext
       Actor.locals["hx.spi"] = spi
       try
-        ext = spi.fantomType.make
+      {
+        ext = ctor.callList(ctorArgs)
+      }
       finally
         Actor.locals.remove("hx.spi")
 
