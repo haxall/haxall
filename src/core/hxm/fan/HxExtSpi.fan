@@ -167,6 +167,8 @@ const class HxExtSpi : Actor, ExtSpi
 
   override Void sync(Duration? timeout := 30sec) { send((HxMsg("sync"))).get(timeout) }
 
+  Future sysReload() { send(HxMsg("sysReload")) }
+
   Void update(Dict settings)
   {
     settingsRef.val = typedRec(settings)
@@ -204,6 +206,7 @@ const class HxExtSpi : Actor, ExtSpi
       if (msg.id === "steadyState") return onSteadyState
       if (msg.id === "unready")     return onUnready
       if (msg.id === "stop")        return onStop
+      if (msg.id === "sysReload")   return onSysReload
     }
     catch (Err e)
     {
@@ -262,6 +265,12 @@ const class HxExtSpi : Actor, ExtSpi
   private Obj? onSettings()
   {
     ext.onSettings
+    return null
+  }
+
+  private Obj? onSysReload()
+  {
+    ext.onSysReload
     return null
   }
 

@@ -116,6 +116,10 @@ const mixin Ext
   ** Override to return non-null for onHouseKeeping callback
   virtual Duration? houseKeepingFreq() { null }
 
+  ** System reload of pods and xeto libs callback
+  ** This is called on dedicated background actor.
+  @NoDoc virtual Void onSysReload() {}
+
   ** Callback to handle a non-standard actor message to this library.
   @NoDoc virtual Obj? onReceive(HxMsg msg)
   {
