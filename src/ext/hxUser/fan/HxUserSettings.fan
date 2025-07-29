@@ -8,11 +8,12 @@
 
 using xeto
 using haystack
+using hx
 
 **
 ** Settings record
 **
-const class HxUserSettings : TypedDict
+const class HxUserSettings : Settings
 {
   ** Constructor
   new make(Dict d, |This| f) : super(d) { f(this) }
@@ -21,7 +22,7 @@ const class HxUserSettings : TypedDict
   ** alwayscreate new sessions beyond this threshold.  After this limit
   ** is reached any attempt to login a new non-superuser session will
   ** return a HTTP 503 error.
-  @TypedTag
+  @Setting
   const Int maxSessions := 250
 
 }

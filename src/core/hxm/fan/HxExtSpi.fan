@@ -167,9 +167,9 @@ const class HxExtSpi : Actor, ExtSpi
 
   Dict typedRec(Dict dict)
   {
-    recType := fantomType.method("settings").returns
-    if (recType.name == "Dict") return dict
-    return TypedDict.create(recType, dict) |warn| { log.warn(warn) }
+    methodType := fantomType.method("settings").returns
+    if (methodType.name == "Dict") return dict
+    return Settings.create(methodType, dict) |warn| { log.warn(warn) }
   }
 
   override Obj? receive(Obj? msgObj)

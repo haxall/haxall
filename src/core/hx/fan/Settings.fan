@@ -8,14 +8,14 @@
 
 using concurrent
 using xeto
+using haystack
 
 **
-** TypedDict wraps a dict that maps tags to statically typed fields.
-** To use this API:
-**   1. Create subclass of TypedDict
-**   2. Annotate const instance fields with [@TypedTag]`TypedTag`
+** Settings wraps a dict that maps tags to statically typed fields
+** for extension settings.  To use this API:
+**   1. Create subclass of Settings
+**   2. Annotate const instance fields with [@Setting]`Setting`
 **   3. Create constructor with Dict and it-block callback
-**   4. Optionally create convenience factory that calls `create`
 **
 ** The following coercions are supported:
 **   - Int field from Number tag
@@ -24,29 +24,29 @@ using xeto
 **
 ** Example:
 **
-**    const class ExampleRec : TypedDict
+**    const class ExampleSettings : Settings
 **    {
 **      static new wrap(Dict d, |Str|? onErr := null) { create(ExampleRec#, d, onErr) }
 **
 **      new make(Dict d, |This| f) : super(d) { f(this) }
 **
-**      @TypedTag const Int limit := 99
+**      @Setting const Int limit := 99
 **
-**      @TypedTag const Duration timeout := 3sec
+**      @Setting const Duration timeout := 3sec
 **    }
 **
 @Js
-const class TypedDict : Dict
+const class Settings : Dict
 {
   ** Factory to create for given type and dict to wrap.  Invalid
   ** tag values are logged to the given callback if provided.
-  static TypedDict create(Type type, Dict meta, |Str|? onErr := null)
+  static Settings create(Type type, Dict meta, |Str|? onErr := null)
   {
     sets := Field:Obj?[:]
     type.fields.each |field|
     {
       // skip if not annotated with facet
-      if (!field.hasFacet(TypedTag#)) return
+      if (!field.hasFacet(Setting#)) return
 
       // check if configured in wrapped dict
       val := meta[field.name]
@@ -99,14 +99,14 @@ const class TypedDict : Dict
 }
 
 **************************************************************************
-** TypedTag
+** Setting
 **************************************************************************
 
 **
-** Facet to annotate a `TypedDict` field.
+** Facet to annotate a `Settings` field.
 **
 @Js
-facet class TypedTag : Define
+facet class Setting
 {
   ** Is restart required before a change takes effect
   @NoDoc const Bool restart
@@ -115,7 +115,7 @@ facet class TypedTag : Define
   const Str meta := ""
 
   ** Decode into meta tag name/value pairs
-  @NoDoc override Void decode(|Str name, Obj val| f)
+  @NoDoc Void decode(|Str name, Obj val| f)
   {
     if (restart) f("restart", Marker.val)
     if (!meta.isEmpty) TrioReader(meta.in).readDict.each |v, n| { f(n, v) }

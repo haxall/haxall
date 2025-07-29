@@ -37,7 +37,7 @@ const class DockerExt : ExtObj
 ** DockerSettings
 **************************************************************************
 
-const class DockerSettings : TypedDict
+const class DockerSettings : Settings
 {
   ** Constructor
   new make(Dict d, |This|f) : super(d) { f(this) }
@@ -47,7 +47,7 @@ const class DockerSettings : TypedDict
   ** - 'npipe:////./pipe/docker_engine' (Windows named pipe)
   ** - 'unix:///var/run/docker.sock' (Unix domain socket)
   ** - 'tcp://localhost:2375' (TCP/HTTP access)
-  @TypedTag { meta =
+  @Setting { meta =
     Str<|placeholder: "<host default>"
         |>
   }
@@ -56,7 +56,7 @@ const class DockerSettings : TypedDict
   ** Experimental.
   **
   ** Explicitly indicate the io/ directory to mount for this project.
-  @NoDoc @TypedTag { meta =
+  @NoDoc @Setting { meta =
     Str<|placeholder: "<project default>"
         |>
   }

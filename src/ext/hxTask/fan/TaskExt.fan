@@ -201,17 +201,17 @@ const class TaskExt : ExtObj, ITaskExt
 ** TaskSettings
 **************************************************************************
 
-const class TaskSettings : TypedDict
+const class TaskSettings : Settings
 {
   ** Constructor
   new make(Dict d, |This| f) : super(d) { f(this) }
 
   ** Max threads for the task actor pool
-  @TypedTag { restart=true }
+  @Setting { restart=true }
   const Int maxThreads:= 50
 
   ** Linger time for an ephemeral task before it is removed from debug
-  @TypedTag
+  @Setting
   const Duration ephemeralLinger := 10min
 
 }

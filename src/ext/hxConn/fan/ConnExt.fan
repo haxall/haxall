@@ -208,14 +208,14 @@ abstract const class ConnExt : ExtObj, HxConnExt
 **
 ** ConnSettings is the base class for connector library settings.
 **
-const class ConnSettings : TypedDict
+const class ConnSettings : Settings
 {
   ** Constructor
   new make(Dict d, |This| f) : super(d) { f(this) }
 
   ** Default tuning to use when connTuningRef is not explicitly
   ** configured on the connector or point record.
-  @TypedTag
+  @Setting
   const Ref? connTuningRef
 
   ** Max threads for the connector's actor pool.  Adding more threads allows
@@ -223,7 +223,7 @@ const class ConnSettings : TypedDict
   ** more threads will incur additional memory usage. In general this value
   ** should be somewhere between 50% and 75% of the total number of connectors
   ** in the extension.  A restart is required for a change to take effect.
-  @TypedTag { restart=true
+  @Setting { restart=true
     meta= Str<|minVal: 1
                maxVal: 5000|> }
   const Int maxThreads:= 100
