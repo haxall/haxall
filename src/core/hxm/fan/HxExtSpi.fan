@@ -165,9 +165,11 @@ const class HxExtSpi : Actor, ExtSpi
 
   Future stop() { send(HxMsg("stop")) }
 
-  override Void sync(Duration? timeout := 30sec) { send((HxMsg("sync"))).get(timeout) }
+  Future forceHouseKeeping() { send(HxMsg("hkForce")) }
 
   Future sysReload() { send(HxMsg("sysReload")) }
+
+  override Void sync(Duration? timeout := 30sec) { send((HxMsg("sync"))).get(timeout) }
 
   Void update(Dict settings)
   {
@@ -188,7 +190,7 @@ const class HxExtSpi : Actor, ExtSpi
     {
       if (!isRunning) return null
       try
-        ext.onHouseKeeping
+        onHouseKeeping
       catch (Err e)
         log.err("Ext.onHouseKeeping", e)
       scheduleHouseKeeping
@@ -207,6 +209,7 @@ const class HxExtSpi : Actor, ExtSpi
       if (msg.id === "unready")     return onUnready
       if (msg.id === "stop")        return onStop
       if (msg.id === "sysReload")   return onSysReload
+      if (msg.id === "hkForce")     return onHouseKeeping
     }
     catch (Err e)
     {
@@ -259,6 +262,12 @@ const class HxExtSpi : Actor, ExtSpi
   private Obj? onStop()
   {
     ext.onStop
+    return null
+  }
+
+  private Obj? onHouseKeeping()
+  {
+    ext.onHouseKeeping
     return null
   }
 
