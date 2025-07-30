@@ -70,14 +70,14 @@ abstract class HxBoot
 
   **
   ** SysInfo metadata
-  **   - version
+  **   - version (without patch number)
   **   - runtime
   **   - hostOs, hostModel, hostId?
   **   - productName, productVersion, productUri
   **   - vendorName, vendorUri
   **
   Str:Obj? sysInfo := [
-    "version":        typeof.pod.version.toStr,
+    "version":        typeof.pod.version.segments[0..2].join("."),
     "hostOs":         hostOs,
     "hostModel":      "Haxall (${Env.cur.os})",
     "productName":    "Haxall",
@@ -94,13 +94,23 @@ abstract class HxBoot
   ** SysInfo config tags used to customize the system.
   ** This dict is available via Proj.config.
   ** Standard keys:
-  **   - noAuth: Marker to disable authentication and use superuser
   **   - test: Marker for HxTest runtime
+  **   - noAuth: Marker to disable authentication and use superuser
+  **   - safeMode: don't start exts (SkySpark only)
   **   - platformSpi: Str qname for hxPlatform::PlatformSpi class
   **   - platformSerialSpi: Str qname for hxPlatformSerial::PlatformSerialSpi class
   **   - hxLic: license Str or load from lic/xxx.trio
   **
   Str:Obj? sysConfig := [:]
+
+  ** Lookup sys config noAuth flag
+  Bool isNoAuth() { sysConfig["noAuth"] != null }
+
+  ** Lookup sys config safeMode flag
+  Bool isSafeMode() { sysConfig["safeMode"] != null }
+
+  ** Lookup syc config test flag
+  Bool isTest() { sysConfig["test"] != null }
 
 //////////////////////////////////////////////////////////////////////////
 // Check
@@ -176,10 +186,17 @@ abstract class HxBoot
   ** Create SysConfig for HxSys
   virtual SysConfig initSysConfig()
   {
-    if (sysConfig.containsKey("noAuth"))
+    if (isNoAuth)
     {
       echo("##")
       echo("## NO AUTH - authentication is disabled!!!!")
+      echo("##")
+    }
+
+    if (isSafeMode)
+    {
+      echo("##")
+      echo("## SAFE MODE - proj extensions disabled!!!!")
       echo("##")
     }
 
