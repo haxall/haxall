@@ -71,7 +71,7 @@ const mixin IUserExt : SysExt
 
   ** Authenticate a web request and return a session.  If request
   ** is not authenticated then redirect to login page and return null.
-  abstract UserSession? authenticate(WebReq req, WebRes res)
+  abstract UserSession? authenticate(WebReq req, WebRes res, Dict? opts := null)
 
   ** Close the given authentication session
   @NoDoc abstract Void closeSession(UserSession session)
