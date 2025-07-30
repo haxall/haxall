@@ -37,7 +37,7 @@ class ProjTest : HxTest
     boot := TestSysBoot(tempDir)
     bootLibs := boot.bootLibs
     p := HxdSys(boot).init(boot)
-    baseExts := ["hx.api", "hx.crypto", "hxd.file", "hxd.his", "hx.http", "hx.user", "hxd.proj"]
+    baseExts := ["hx.api", "hx.crypto", "hx.hxd.file", "hx.hxd.his", "hx.http", "hx.hxd.user", "hx.hxd.proj"]
 
     // verify initial state
     verifyEq(p.name, boot.name)
@@ -58,8 +58,8 @@ class ProjTest : HxTest
     // verify system required libs
     verifySame(p.sys.crypto.spec.lib, p.ns.lib("hx.crypto"))
     verifySame(p.sys.http.spec.lib,   p.ns.lib("hx.http"))
-    verifySame(p.sys.user.spec.lib,   p.ns.lib("hx.user"))
-    verifySame(p.sys.proj.spec.lib,   p.ns.lib("hxd.proj"))
+    verifySame(p.sys.user.spec.lib,   p.ns.lib("hx.hxd.user"))
+    verifySame(p.sys.proj.spec.lib,   p.ns.lib("hx.hxd.proj"))
     verifySame(p.sys.proj.get(p.name), p)
     verifySame(p.sys.proj.list, Proj#.emptyList)
 

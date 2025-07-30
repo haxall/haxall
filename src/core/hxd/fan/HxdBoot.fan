@@ -42,13 +42,13 @@ class HxdBoot : HxBoot
       "hx",
       "hx.api",
       "hx.crypto",
-      "hxd.file",
-      "hxd.his",
-      "hxd.proj",
       "hx.http",
-      "hx.user",
-      "hx.xeto",
       "hx.shell",
+      "hx.xeto",
+      "hx.hxd.file",
+      "hx.hxd.his",
+      "hx.hxd.proj",
+      "hx.hxd.user",
     ]
   }
 

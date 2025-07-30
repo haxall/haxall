@@ -41,7 +41,7 @@ class Build : BuildPod
     resDirs = [`lib/`, `locale/`, `res/`]
     docApi  = false
 
-    index = ["xeto.bindings": "hx.user", "ph.lib": "hxUser"]
+    index = ["xeto.bindings": "hx.hxd.user", "ph.lib": "hxUser"]
   }
 }
 
