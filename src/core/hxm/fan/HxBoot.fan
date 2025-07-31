@@ -97,6 +97,7 @@ abstract class HxBoot
   **   - test: Marker for HxTest runtime
   **   - noAuth: Marker to disable authentication and use superuser
   **   - safeMode: don't start exts (SkySpark only)
+  **   - apiExtWeb: fantom type qname for ApiExt ExtWeb
   **   - platformSpi: Str qname for hxPlatform::PlatformSpi class
   **   - platformSerialSpi: Str qname for hxPlatformSerial::PlatformSerialSpi class
   **   - hxLic: license Str or load from lic/xxx.trio

@@ -16,7 +16,9 @@ using hx
 **
 const class ApiWeb : ExtWeb, WebOpUtil
 {
-  new make(Ext ext) : super(ext) {}
+  new make(ApiExt ext) : super(ext) {}
+
+  override ApiExt ext() { super.ext }
 
   override DefNamespace defs() { ext.proj.defs }
 
