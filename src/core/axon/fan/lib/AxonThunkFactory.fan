@@ -69,7 +69,7 @@ const class AxonThunkFactory : ThunkFactory
 
     // verify method has facet
     if (!method.hasFacet(Api#)) throw Err("Method missing @Api facet: $method.qname")
-    return FantomFn.reflectMethod(method, spec.name, meta, null)
+    return FantomFn.reflectMethod(method, spec.name, meta)
   }
 
   private Str thunkFantomBaseName(Lib lib)

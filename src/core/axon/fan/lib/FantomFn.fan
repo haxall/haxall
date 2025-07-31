@@ -33,14 +33,14 @@ const class FantomFn : TopFn
       if (facet == null) return
       name := FantomFn.toName(m)
       meta := Etc.dict0
-      fn := reflectMethod(m, name, meta, null)
+      fn := reflectMethod(m, name, meta)
       acc[fn.name] = fn
     }
     return acc
   }
 
   ** Reflect the given method
-  static FantomFn? reflectFuncFromType(Type type, Str name, Dict meta, AtomicRef? instanceRef)
+  static FantomFn? reflectFuncFromType(Type type, Str name, Dict meta)
   {
     // lookup method by name or _name
     m := type.method("_" + name, false)
@@ -48,11 +48,11 @@ const class FantomFn : TopFn
     if (m == null) return null
 
     // route to method
-    return reflectMethod(m, name, meta, instanceRef)
+    return reflectMethod(m, name, meta)
   }
 
   ** Reflect the given method
-  static FantomFn reflectMethod(Method m, Str name, Dict meta, AtomicRef? instanceRef)
+  static FantomFn reflectMethod(Method m, Str name, Dict meta)
   {
     // map Param[] to FnParam[] name, and check if arg
     // requires an un-evaluated Expr (lazy func)
@@ -66,9 +66,9 @@ const class FantomFn : TopFn
     }
 
     if (lazy)
-      return LazyFantomFn(name, meta, params, m, instanceRef)
+      return LazyFantomFn(name, meta, params, m)
     else
-      return FantomFn(name, meta, params, m, instanceRef)
+      return FantomFn(name, meta, params, m)
   }
 
   ** Method to name
@@ -79,11 +79,10 @@ const class FantomFn : TopFn
     return name
   }
 
-  protected new make(Str name, Dict meta, FnParam[] params, Method method, AtomicRef? instanceRef)
+  protected new make(Str name, Dict meta, FnParam[] params, Method method)
     : super(Loc(name), name, meta, params, Literal.nullVal)
   {
     this.method       = method
-    this.instanceRef  = instanceRef
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -94,7 +93,10 @@ const class FantomFn : TopFn
   const Method method
 
   ** Instance to call method on if not static
-  const AtomicRef? instanceRef
+  const Obj? instanceRef
+
+  ** Set the instance for non-static methods
+  Void setInstanceRef(Obj i) { #instanceRef->setConst(this, i) }
 
 //////////////////////////////////////////////////////////////////////////
 // Fn
@@ -132,7 +134,7 @@ const class FantomFn : TopFn
     if (method.isStatic)
       return method.callList(args)
      else
-       return method.callOn(instanceRef.val, args)
+       return method.callOn(instanceRef, args)
   }
 
   override Obj? evalParamDef(AxonContext cx, FnParam param)
@@ -163,7 +165,7 @@ const class FantomFn : TopFn
 @Js @NoDoc
 internal const class LazyFantomFn : FantomFn
 {
-  new make(Str n, Dict d, FnParam[] p, Method m, Obj? i) : super(n, d, p, m, i) {}
+  new make(Str n, Dict d, FnParam[] p, Method m) : super(n, d, p, m) {}
 
   override Bool isLazy() { true }
 

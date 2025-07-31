@@ -312,12 +312,12 @@ internal const class ProjLibInput : LibInput
     {
       funcsType := Type.find(typeName[0..-4]+"Funcs", false)
       if (funcsType != null)
-        return [FuncMethodsReflectInput(funcsType, null)]
+        return [FuncMethodsReflectInput(funcsType)]
     }
 
     // specials
-    if (name == "axon") return [FuncMethodsReflectInput(AxonFuncs#, null)]
-    if (name == "hx") return [FuncMethodsReflectInput(HxFuncs#, null)]
+    if (name == "axon") return [FuncMethodsReflectInput(AxonFuncs#)]
+    if (name == "hx") return [FuncMethodsReflectInput(HxFuncs#)]
 
     // none
     return ReflectInput#.emptyList
@@ -330,15 +330,12 @@ internal const class ProjLibInput : LibInput
 
 internal abstract const class FuncReflectInput : ReflectInput
 {
-  new make(Type type, AtomicRef? instanceRef)
+  new make(Type type)
   {
     this.type = type
-    this.instanceRef = instanceRef
   }
 
   override const Type type
-
-  const AtomicRef? instanceRef
 
   override Str toStr() { "$typeof $type" }
 
@@ -352,7 +349,7 @@ internal abstract const class FuncReflectInput : ReflectInput
 ** FuncMethodsReflectInput reflects methods in FooFuncs class
 internal const class FuncMethodsReflectInput : FuncReflectInput
 {
-  new make(Type type, AtomicRef? instanceRef) : super(type, instanceRef) {}
+  new make(Type type) : super(type) {}
 
   override Type? methodFacet() { Axon# }
 
@@ -360,7 +357,7 @@ internal const class FuncMethodsReflectInput : FuncReflectInput
 
   override Void onDef(Slot? slot, CDef def)
   {
-    def.aux = FantomFn.reflectMethod(slot, def.name, def.declared, instanceRef)
+    def.aux = FantomFn.reflectMethod(slot, def.name, def.declared)
   }
 }
 
