@@ -11,7 +11,7 @@ using concurrent
 **
 ** Library namespace is a pinned manifest of specific library versions.
 ** Namespaces may lazily load their libs, in which case not all operations
-** are supported. Create a new namespace via `LibRepo.createNamespace`.
+** are supported. Create a new namespace via `XetoEnv.createNamespace`.
 **
 @Js
 const mixin LibNamespace
