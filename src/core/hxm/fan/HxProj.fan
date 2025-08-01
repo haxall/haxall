@@ -201,7 +201,7 @@ abstract const class HxProj : Proj
   override Bool isRunning() { isRunningRef.val }
 
   ** Start runtime (blocks until all libs fully started)
-  This start()
+  virtual This start()
   {
     // validate we are initialized
     if (!inited.val) throw Err("Must call init")
@@ -230,7 +230,7 @@ abstract const class HxProj : Proj
   }
 
   ** Shutdown the system (blocks until all modules stop)
-  Void stop()
+  virtual Void stop()
   {
     // this method can only be called once
     if (isStopped.getAndSet(true)) return this
