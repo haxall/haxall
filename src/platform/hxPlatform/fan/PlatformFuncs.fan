@@ -19,15 +19,15 @@ const class PlatformFuncs
 {
   ** Reboot the operating system and runtime process
   @Api @Axon { su = true }
-  static Void platformReboot() { ext.platformSpi.reboot }
+  static Void platformReboot() { ext.reboot }
 
   ** Restart runtime process, but do not reboot operating system
   @Api @Axon { su = true }
-  static Void platformRestart() { ext.platformSpi.restart }
+  static Void platformRestart() { ext.restart }
 
   ** Shutdown operating system and runtime process
   @Api @Axon { su = true }
-  static Void platformShutdown() { ext.platformSpi.shutdown }
+  static Void platformShutdown() { ext.shutdown }
 
   ** Return grid of summary information used to populate UI.
   ** This is a nodoc method subject to change
@@ -36,7 +36,7 @@ const class PlatformFuncs
   {
     cx := curContext
     info := platformInfoDefaults(cx.sys)
-            .addAll(ext(cx).platformSpi.info)
+            .addAll(ext(cx).info)
     gb := GridBuilder().addCol("dis").addCol("val").addCol("icon")
     platformInfoSection(gb, info, "sw",   "Software", "host")
     platformInfoSection(gb, info, "hw",   "Hardware", "cpu")

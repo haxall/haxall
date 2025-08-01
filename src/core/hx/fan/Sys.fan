@@ -37,13 +37,16 @@ const mixin Sys : Proj
   @NoDoc abstract IIonExt? ion(Bool checked := true)
 
   ** HTTP system extension (required, but not in tests)
-  abstract IHttpExt http()
+  @NoDoc abstract IHttpExt http()
+
+  ** Platform management system extension (optional)
+  @NoDoc abstract IPlatformExt? platform(Bool checked := true)
 
   ** Project management (required)
-  abstract IProjExt proj()
+  @NoDoc abstract IProjExt proj()
 
   ** User management system extension (required)
-  abstract IUserExt user()
+  @NoDoc abstract IUserExt user()
 
 
 }

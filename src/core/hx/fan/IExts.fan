@@ -134,6 +134,29 @@ const mixin IFileExt : Ext
 }
 
 **************************************************************************
+** IPlatformExt
+**************************************************************************
+
+**
+** Platform management system extension
+**
+@NoDoc
+const mixin IPlatformExt : SysExt
+{
+  ** Reboot the operating system and runtime process
+  abstract Void reboot()
+
+  ** Restart runtime process, but do not reboot operating system
+  abstract Void restart()
+
+  ** Shutdown operating system and runtime process
+  abstract Void shutdown()
+
+  ** Return additional platform summary information as a list of dicts.
+  abstract Dict[] info()
+}
+
+**************************************************************************
 ** IIonExt
 **************************************************************************
 

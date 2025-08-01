@@ -41,6 +41,7 @@ const class SysInfo
     this.productUri     = meta->productUri
     this.vendorName     = meta->vendorName
     this.vendorUri      = meta->vendorUri
+    this.licProduct     = meta["licProduct"]
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -83,6 +84,9 @@ const class SysInfo
 
   ** Vendor home page
   const Uri vendorUri
+
+  ** Product license required for this host
+  @NoDoc const Ref? licProduct
 
   ** File resource for SVG logo
   @NoDoc virtual Uri logoUri() { meta["logoUri"] as Uri ?: `/user/logo.svg` }

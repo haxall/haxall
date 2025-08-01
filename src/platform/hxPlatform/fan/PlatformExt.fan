@@ -6,20 +6,24 @@
 //   8 May 2023  Brian Frank  Creation
 //
 
-using concurrent
-using haystack
+using xeto
 using hx
 
 **
 ** Platform support for basic functionality
 **
-const class PlatformExt : ExtObj
+const class PlatformExt : ExtObj, IPlatformExt
 {
 
-  new make()
-  {
-    this.platformSpi = sys.config.makeSpi("platformSpi")
-  }
+  new make() { this.platformSpi = sys.config.makeSpi("platformSpi") }
+
+  override Void reboot() { platformSpi.info }
+
+  override Void restart() { platformSpi.restart }
+
+  override Void shutdown() { platformSpi.shutdown }
+
+  override Dict[] info() { platformSpi.info }
 
   internal const PlatformSpi platformSpi
 
