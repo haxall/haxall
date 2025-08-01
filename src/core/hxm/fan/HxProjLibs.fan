@@ -315,6 +315,17 @@ const class HxProjLibs : ProjLibs
     projLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisNonBoot }
     bootLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisBoot }
 
+    // TODO: just adding more mess
+    if (!isSys)
+    {
+      proj.sys.libs.list.each |x|
+      {
+        n := x.name
+        vers.setNotNull(n, repo.latest(n, false))
+        nameToBasis[n] = x.basis
+      }
+    }
+
     // check depends and remove libs with a dependency error
     versToUse := vers.dup
     dependErrs := Str:Err[:]
