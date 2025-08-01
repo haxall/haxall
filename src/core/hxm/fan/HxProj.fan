@@ -31,7 +31,7 @@ abstract const class HxProj : Proj
     this.name          = boot.name
     this.id            = Ref("p:$name", name)
     this.dir           = boot.dir
-    this.db            = boot.initFolio
+    this.dbRef         = boot.initFolio
     this.db.hooks      = HxFolioHooks(this)
     this.log           = boot.log
     this.actorPool     = boot.actorPool
@@ -94,7 +94,8 @@ abstract const class HxProj : Proj
   override Void metaUpdate(Obj changes) { settingsMgr.projMetaUpdate(changes) }
 
   ** Database for this runtime
-  override const Folio db
+  override Folio db() { dbRef }
+  const Folio dbRef
 
   ** Project xeto library management
   override ProjLibs libs() { libsRef }
@@ -230,7 +231,7 @@ abstract const class HxProj : Proj
   }
 
   ** Shutdown the system (blocks until all modules stop)
-  virtual Void stop()
+  virtual This stop()
   {
     // this method can only be called once
     if (isStopped.getAndSet(true)) return this
@@ -254,6 +255,7 @@ abstract const class HxProj : Proj
 
     // kill actor pools
     actorPool.kill
+    return this
   }
 
   ** Callback for systems to open/start projects
