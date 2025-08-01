@@ -14,6 +14,7 @@ using hx
 **
 ** Haxall default implementation of User
 **
+@Js
 const class HxUser : User
 {
   new make(Dict meta)
@@ -53,6 +54,7 @@ const class HxUser : User
 ** HxUserAccess
 **************************************************************************
 
+@Js
 const class HxUserAccess : UserAccess
 {
   new make(HxUser user)
@@ -74,7 +76,7 @@ const class HxUserAccess : UserAccess
 ** HxUserAllows
 **************************************************************************
 
-@Js @NoDoc
+@Js
 const class HxUserAllows
 {
   static const HxUserAllows empty := make(Str:Str[:])

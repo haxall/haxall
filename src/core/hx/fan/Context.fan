@@ -87,7 +87,7 @@ class Context : AxonContext, FolioContext
   Ext ext(Str name, Bool checked := true) { proj.exts.get(name, checked) }
 
   ** User account associated with this context
-  User user() { userRef }
+  virtual User user() { userRef }
   private const User userRef
 
   ** Authentication session associated with this context if applicable

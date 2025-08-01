@@ -61,16 +61,6 @@ const mixin User
 
   ** Access control APIs
   @NoDoc abstract UserAccess access()
-
-  ** Return if given `skyarcd::Proj` instance is accessible
-  ** by this user's configured `projAccessFilter`.
-  ** TODO: just shim for now
-  @NoDoc Bool isProjAccessible(Obj proj)
-  {
-    //meta := (Dict)proj.typeof.method("meta").callOn(proj, null)
-    //return access.proj.matches(meta)
-return true
-  }
 }
 
 **************************************************************************
