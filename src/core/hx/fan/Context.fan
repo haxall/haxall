@@ -210,12 +210,6 @@ class Context : AxonContext, FolioContext
     feedInitRef ?: throw Err("Feeds not supported")
   }
 
-  ** Feed key for ui3
-  once Str feedKey() { feedGenKey }
-  @NoDoc static Str feedGenKey() { "feed-$feedKeyRand-$feedKeyCounter.incrementAndGet.toHex" }
-  @NoDoc static const Str feedKeyRand := Buf.random(4).toHex
-  @NoDoc static const AtomicInt feedKeyCounter := AtomicInt(0)
-
   ** Install feed initialization
   @NoDoc virtual HxFeedInit? feedInitRef
 
