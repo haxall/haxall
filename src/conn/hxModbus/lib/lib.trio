@@ -10,7 +10,7 @@
 def: ^lib:modbus
 depends: [^lib:ph, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
 typeName:"hxModbus::ModbusExt"
-extTypeName: "modbusExt::ModbusExt"
+extTypeName: "hxModbus::ModbusExt"
 icon: "modbus"
 doc: "Modbus connector"
 --------------------------------------------------------------------------
