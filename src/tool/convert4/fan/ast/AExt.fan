@@ -32,7 +32,7 @@ class AExt
 
     oldName := def["lib:".size..-1]
     specName := oldName.capitalize + "Ext"
-    ext := make(ast, pod, oldName, specName, AExtType.hx, meta)
+    ext := make(ast, pod, oldName, specName, AExtType.ext, meta)
     pod.exts.add(ext)
 
     AFunc.scanExt(ast, ext)
@@ -40,11 +40,12 @@ class AExt
 
   static Str oldNameToLibName(Ast ast, Str oldName)
   {
-    if (oldName == "axon") return "axon"
     prefix  := ast.config.libPrefix
+    if (oldName == "axon") return "axon"
+    if (oldName.endsWith("Auth")) return prefix + ".auth." + oldName[0..-5].lower
     if (prefix == oldName) return oldName
     start := prefix + "."
-    dotted := XetoUtil.camelToDotted(oldName)
+    dotted := oldName.lower
     if (dotted.startsWith(start)) dotted = dotted[start.size..-1]
     return start + dotted
   }
@@ -87,5 +88,5 @@ class AExt
 }
 
 ** Haxall HxLib, SS Ext or SS SysMod
-enum class AExtType { hx, ext, mod }
+enum class AExtType { ext, mod }
 

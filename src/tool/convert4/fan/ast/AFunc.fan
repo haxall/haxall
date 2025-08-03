@@ -181,12 +181,17 @@ class AFunc
       if (name.endsWith("Expr")) name = name[0..-5]
       if (name == "filter") type = Filter#
       else if (name == "checked") type = Bool#
+      else if (name == "conn") type = Obj?#
       else if (name == "opts") type = Dict?#
       else if (name == "tagName") type = Str#
+      else if (name == "target") type = Obj?#
+      else if (name == "targets") type = Obj?#
       else if (name == "val") type = Obj?#
       else if (name == "locale") type = Str#
       else if (name == "expr") type = Obj?#
+      else if (name == "parent") type = Obj?#
       else if (name == "scope") type = Obj?#
+      else if (name == "span") type = Obj?#
       else if (name == "xq") type = Type.find("skyarcd::XQuery")
       else echo("WARN: unhandled lazy param: $method $name")
     }

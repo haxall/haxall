@@ -121,10 +121,10 @@ class Ast
   Str[][] extsTable()
   {
     rows := Str[][,]
-    rows.add(["oldName", "libName", "type"])
+    rows.add(["oldName", "libName", "type", "funcType", "numFuncs"])
     exts.each |ext|
     {
-      rows.add([ext.oldName, ext.libName, ext.type.name])
+      rows.add([ext.oldName, ext.libName, ext.type.name, ext.fantomFuncType, ext.funcs.size])
     }
     return rows
   }
