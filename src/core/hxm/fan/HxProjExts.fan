@@ -140,7 +140,7 @@ const class HxProjExts : Actor, ProjExts
     toAdd.each |lib|
     {
       ext := onAdded(lib)
-      toStart.add(ext)
+      toStart.addNotNull(ext)
       newMap.addNotNull(lib.name, ext)
     }
 
