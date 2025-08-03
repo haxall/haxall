@@ -136,10 +136,12 @@ internal class ConvertExtCmd : ConvertCmd
     }
     if (f.axon != null)
     {
+      heredoc := "---"
+      while (f.axon.contains(heredoc)) heredoc += "-"
       s.add("\n")
-      s.add("  <axon:---\n")
+      s.add("  <axon:").add(heredoc).add("\n")
       f.axon.splitLines.each |line| { s.add("  ").add(line).add("\n") }
-      s.add("  --->\n").add("}\n")
+      s.add("  ").add(heredoc).add(">\n").add("}\n")
     }
     else
     {
