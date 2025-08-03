@@ -154,6 +154,10 @@ class AFunc
       if (n.endsWith("_enum")) return
       if (n.startsWith("trio_")) return
 
+      // skip rule ready tags (for now at least)
+      if (n == "ruleOn" || n.endsWith("Rule")) return
+      if (n == "help") return
+
       // ui actions - handled below
       if (n == "select") return
       if (n == "multi") return
