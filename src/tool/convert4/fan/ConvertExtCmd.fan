@@ -76,8 +76,8 @@ internal class ConvertExtCmd : ConvertCmd
     {
       case "doc":     return ext.meta["doc"] ?: "todo"
       case "depends": return resolveDepends(ext)
-      case "libExt":  return "libExt: $ext.specName"
-      case "extSpec": return "// $doc\n" + ext.specName + ": " + ext.specBase
+      case "libExt":  return ext.hasExt ? "libExt: $ext.specName" : ""
+      case "extSpec": return ext.hasExt ? "// $doc\n" + ext.specName + ": " + ext.specBase : ""
       default:        return null
     }
   }

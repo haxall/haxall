@@ -31,7 +31,7 @@ class AExt
     if (def.lower.contains("test")) return
 
     oldName := def["lib:".size..-1]
-    specName := oldName.capitalize + "Ext"
+    specName := XetoUtil.qnameToName(meta.get("typeName") ?: "")
     ext := make(ast, pod, oldName, specName, AExtType.ext, meta)
     pod.exts.add(ext)
 
@@ -56,7 +56,7 @@ class AExt
     return start + dotted
   }
 
-  new make(Ast ast, APod pod, Str oldName, Str specName, AExtType type, Dict meta)
+  new make(Ast ast, APod pod, Str oldName, Str? specName, AExtType type, Dict meta)
   {
     this.ast        = ast
     this.pod        = pod
@@ -75,8 +75,10 @@ class AExt
   const AExtType type
   const Dict meta
   const File xetoSrcDir
-  const Str specName
+  const Str? specName
   Str specBase() { type == AExtType.mod ? "SysExt" : "Ext" }
+
+  Bool hasExt() { specName != null }
 
   Dict[] defs := [,]
 

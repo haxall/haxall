@@ -63,8 +63,6 @@ class AFunc
     }
     if (name == null) return
 
-    echo("~~~> $ext :: $name")
-
     doc := def["doc"] as Str ?: ""
     src := def["src"] as Str ?: throw Err("Missing axon src")
 
@@ -157,6 +155,7 @@ class AFunc
       // skip rule ready tags (for now at least)
       if (n == "ruleOn" || n.endsWith("Rule")) return
       if (n == "help") return
+      if (n == "hisFuncReady") return
 
       // ui actions - handled below
       if (n == "select") return
@@ -352,7 +351,9 @@ const class AType
       case "haystack::Def":      return "Obj"
       case "folio::Diff":        return "Obj"
       case "axon::MStream":      return "Obj"
+      case "math::Matrix":       return "Grid"
     }
+    if (qname.startsWith("mlExt::")) return "Obj"
     return null
   }
 
