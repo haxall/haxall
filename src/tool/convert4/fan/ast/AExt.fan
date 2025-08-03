@@ -35,6 +35,12 @@ class AExt
     ext := make(ast, pod, oldName, specName, AExtType.ext, meta)
     pod.exts.add(ext)
 
+    libFile.parent.list.each |file|
+    {
+      if (file.ext == "trio")
+        TrioReader(file.in).readAllDicts.each |x| { ext.defs.add(x) }
+    }
+
     AFunc.scanExt(ast, ext)
   }
 
@@ -71,6 +77,8 @@ class AExt
   const File xetoSrcDir
   const Str specName
   Str specBase() { type == AExtType.mod ? "SysExt" : "Ext" }
+
+  Dict[] defs := [,]
 
   Str? fantomFuncType
   AFunc[] funcs := [,]

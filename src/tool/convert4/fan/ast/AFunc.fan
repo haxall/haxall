@@ -18,6 +18,15 @@ class AFunc
 {
   static Void scanExt(Ast ast, AExt ext)
   {
+    // look for trio files
+    ext.defs.each |def|
+    {
+      try
+        scanDef(ast, ext, def)
+      catch (Err e)
+        Console.cur.err("Cannot scan def: $ext.oldName $def", e)
+    }
+
     // look for Fantom class
     path := ext.oldName.capitalize + "Funcs.fan"
     if (ext.oldName == "axon") path = "lib/CoreLib.fan"
@@ -32,6 +41,41 @@ class AFunc
       catch (Err e)
         Console.cur.err("ERROR: Cannot scan Fantom axon funcs [$typeFile.osPath]", e)
     }
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Defs
+//////////////////////////////////////////////////////////////////////////
+
+  static Void scanDef(Ast ast, AExt ext, Dict def)
+  {
+    Str? name
+    if (def.has("func"))
+    {
+      name = def->name
+
+    }
+    else
+    {
+      symbol := def["def"]?.toStr
+      if (symbol != null && symbol.startsWith("func:"))
+        name  = symbol[5..-1]
+    }
+    if (name == null) return
+
+    echo("~~~> $ext :: $name")
+
+    doc := def["doc"] as Str ?: ""
+    src := def["src"] as Str ?: throw Err("Missing axon src")
+
+    fn := Parser(Loc.eval, src.in).parseTop(name)
+    params := fn.params.map |x->AParam| { AParam(x.name, AType.obj, x.def?.toStr) }
+    returns := AParam("returns", AType.obj, null)
+
+    meta := Etc.dictFromMap(mapMeta(def))
+
+    func := make(name, doc, meta, params, returns, src)
+    ext.funcs.add(func)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -66,13 +110,37 @@ class AFunc
     name := method.name
     if (name[0] == '_') name = name[1..-1]
 
-    doc := method.doc
+    doc := metaDict["doc"] as Str ?: method.doc
 
     // meta
+    meta := mapMeta(metaDict)
+    if (method.hasFacet(NoDoc#)) meta["nodoc"] = Marker.val
+    if (method.hasFacet(Deprecated#)) meta["deprecated"] = Marker.val
+
+    // params
+    params := method.params.map |p->AParam| { reflectParam(method, p) }
+
+    // returns
+    returnType := method.returns
+    if (returnType.name == "Void") returnType = Obj?#
+    returns := AParam("returns", AType.map(returnType), null)
+
+    // function stub
+    return AFunc(name, doc, Etc.makeDict(meta), params, returns, null)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Meta
+//////////////////////////////////////////////////////////////////////////
+
+  static Str:Obj mapMeta(Dict orig)
+  {
+    // meta
     meta := Str:Obj[:]
-    metaDict.each |v, n|
+    orig.each |v, n|
     {
       // skip these
+      if (n == "id")  return
       if (n == "def")  return
       if (n == "lib")  return
       if (n == "is")   return
@@ -81,10 +149,10 @@ class AFunc
       if (n == "haystackApi") return
       if (n == "refresh") return
       if (n == "actionNew") return
+      if (n == "doc")  return
+      if (n == "src")  return
       if (n.endsWith("_enum")) return
       if (n.startsWith("trio_")) return
-
-      if (n == "doc")  { doc = v; return }
 
       // ui actions - handled below
       if (n == "select") return
@@ -112,26 +180,15 @@ class AFunc
 
       meta[n] = v
     }
-    if (method.hasFacet(NoDoc#)) meta["nodoc"] = Marker.val
-    if (method.hasFacet(Deprecated#)) meta["deprecated"] = Marker.val
 
-    if (metaDict.has("select"))
+    if (orig.has("select"))
     {
       mode := "single"
-      if (metaDict.has("multi")) mode = "multi"
+      if (orig.has("multi")) mode = "multi"
       meta["selectMode"] = mode
     }
 
-    // params
-    params := method.params.map |p->AParam| { reflectParam(method, p) }
-
-    // returns
-    returnType := method.returns
-    if (returnType.name == "Void") returnType = Obj?#
-    returns := AParam("returns", AType.map(returnType), null)
-
-    // function stub
-    return AFunc(name, doc, Etc.makeDict(meta), params, returns)
+    return meta
   }
 
   static Str mapMetaDisKey(Str v)
@@ -202,16 +259,17 @@ class AFunc
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Class
+// Func
 //////////////////////////////////////////////////////////////////////////
 
-  new makeFantom(Str name, Str doc, Dict meta, AParam[] params, AParam returns)
+  new make(Str name, Str doc, Dict meta, AParam[] params, AParam returns, Str? axon)
   {
     this.name    = name
     this.doc     = doc
     this.meta    = meta
     this.params  = params
     this.returns = returns
+    this.axon    = axon
   }
 
   const Str name
@@ -219,6 +277,7 @@ class AFunc
   const Dict meta
   const AParam[] params
   const AParam returns
+  const Str? axon
 
   Void eachSlot(|AParam, Bool needComma| f)
   {
@@ -237,7 +296,6 @@ class AFunc
   {
     "(" + params.join(", ") + "): " + returns.type
   }
-
 }
 
 **************************************************************************
@@ -266,6 +324,8 @@ const class AParam
 
 const class AType
 {
+  static const AType obj := AType("Obj?")
+
   static AType map(Type type)
   {
     // specials

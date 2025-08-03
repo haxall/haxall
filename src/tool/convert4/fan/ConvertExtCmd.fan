@@ -134,7 +134,17 @@ internal class ConvertExtCmd : ConvertCmd
       if (comma) s.add(", ")
       genParam(s, p)
     }
-    s.add(" }\n")
+    if (f.axon != null)
+    {
+      s.add("\n")
+      s.add("  <axon:---\n")
+      f.axon.splitLines.each |line| { s.add("  ").add(line).add("\n") }
+      s.add("  --->\n").add("}\n")
+    }
+    else
+    {
+      s.add(" }\n")
+    }
   }
 
   Void genParam(StrBuf s, AParam p)
