@@ -27,9 +27,10 @@ class HxdTestSpi : HxTestSpi
       it.name = "test"
       it.dir = dir
       it.createProjMeta = Etc.dictToMap(projMeta)
+      it.bootLibs.remove("hx.http")
+      it.bootLibs.add("hx.platform.serial")
       it.sysConfig["test"] = Marker.val
       it.sysConfig["platformSerialSpi"] = "hxPlatformSerial::TestSerialSpi"
-      it.bootLibs.remove("hx.http")
       it.log.level = LogLevel.warn
     }
     if (create) { dir.delete; boot.create }

@@ -29,7 +29,7 @@ const class SysConfig
   Bool has(Str name) { meta.has(name) }
 
   ** Convenience for 'meta.get'
-  Obj? get(Str name) { meta.get(name) }
+  @Operator Obj? get(Str name) { meta.get(name) }
 
   ** Construct an service provider interface instance from given key
   Obj makeSpi(Str key)
