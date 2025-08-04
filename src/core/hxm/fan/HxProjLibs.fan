@@ -282,7 +282,9 @@ const class HxProjLibs : ProjLibs
   Str[] readProjLibNames()
   {
     // proj libs are defined in "libs.txt"
-    return fb.read("libs.txt").readAllLines.findAll |line|
+    buf :=  fb.read("libs.txt", false)
+    if (buf == null) return Str#.emptyList
+    return buf.readAllLines.findAll |line|
     {
       line = line.trim
       return !line.isEmpty && !line.startsWith("//")
