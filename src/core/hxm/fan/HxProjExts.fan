@@ -193,6 +193,9 @@ const class HxProjExts : Actor, ProjExts
 
   private Void update(Str:Ext map)
   {
+    // if I am proj, then merge in sys exts
+    if (!proj.isSys) proj.sys.exts.list.each |sysExt| { map[sysExt.name] = sysExt }
+
     // build sorted list
     list := map.vals
     list.sort |a, b| { a.name <=> b.name }
