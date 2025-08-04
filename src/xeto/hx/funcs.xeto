@@ -315,10 +315,10 @@ watchClose: Func { watchId: Str, returns: Obj? }
 about: Func <nodoc>  { returns: Dict }
 
 // Return SysInfo debug
-sysInfo: Func <nodoc> { returns: Grid }
+sysInfo: Func <nodoc> { returns: Dict }
 
 // Return SysConfig debug
-sysConfig: Func <nodoc> { returns: Grid }
+sysConfig: Func <nodoc> { returns: Dict }
 
 // Get the current context as a Dict with the following tags:
 //   - 'username' for current user

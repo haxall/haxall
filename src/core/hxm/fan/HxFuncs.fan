@@ -655,13 +655,13 @@ throw Err("TODO")
 // Misc
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return sys info grid
+  ** Return sys info dict
   @NoDoc @Api @Axon
-  static Grid sysInfo() { curContext.sys.info.debug }
+  static Dict sysInfo() { curContext.sys.info.meta }
 
-  ** Return sys config grid
+  ** Return sys config dict
   @NoDoc @Api @Axon
-  static Grid sysConfig() { curContext.sys.config.debug }
+  static Dict sysConfig() { curContext.sys.config.meta }
 
   ** Return [about]`op:about` dict
   @Api @Axon
