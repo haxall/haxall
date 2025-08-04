@@ -22,29 +22,44 @@ const mixin ProjExts
 // Registry
 //////////////////////////////////////////////////////////////////////////
 
-  ** List of extensions currently enabled
+  ** List all extensions (including those inherited from sys)
   abstract Ext[] list()
 
-  ** Iterate the extensions currently enabled
+  ** List only my own exts (excluding those inherited from sys)
+  abstract Ext[] listOwn()
+
+  ** Iterate all extensions (including those inherited from sys)
   abstract Void each(|Ext| f)
 
-  ** Lookup an extension by lib name.  If not found then
-  ** return null or raise UnknownExtErr based on checked flag.
+  ** List only my own extensions (excluding those inherited from sys)
+  abstract Void eachOwn(|Ext| f)
+
+  ** Lookup an extension by lib name (including those inherited from sys).
+  ** If not found then return null or raise UnknownExtErr based on checked flag.
   abstract Ext? get(Str name, Bool checked := true)
 
-  ** Lookup an extension by a type it implements.  If multiple extensions
-  ** implement given type, then its indeterminate which is returned.  If
-  ** not found then return null or raise UnknownExtErr based on checked flag.
+  ** Lookup an extension by lib name (excluding those inherited from sys).
+  ** If not found then return null or raise UnknownExtErr based on checked flag.
+  abstract Ext? getOwn(Str name, Bool checked := true)
+
+  ** Return if extension is enabled (including those inherited from sys)
+  abstract Bool has(Str name)
+
+  ** Return if extension is enabled (excluding those inherited from sys)
+  abstract Bool hasOwn(Str name)
+
+  ** Lookup an extension by a type it implements (including those inherited from
+  ** sys).  If multiple extensions implement given type, then its indeterminate
+  ** which is returned.  If not found then return null or raise UnknownExtErr
+  ** based on checked flag.
   @NoDoc abstract Ext? getByType(Type type, Bool checked := true)
 
-  ** Lookup all extensions that implement given type.
+  ** Lookup all extensions that implement given type (including those
+  ** inherited from sys)
   @NoDoc abstract Ext[] getAllByType(Type type)
 
   ** Map of web route names to extension web modules
   @NoDoc abstract Str:ExtWeb webRoutes()
-
-  ** Check if there is an enabled extension with given lib name
-  abstract Bool has(Str name)
 
   ** Actor thread pool to use for extension background processing
   abstract ActorPool actorPool()

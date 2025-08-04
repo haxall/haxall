@@ -214,7 +214,7 @@ abstract const class HxProj : Proj
     isRunningRef.val = true
 
     // onStart callback
-    exts := extsRef.mine
+    exts := exts.listOwn
     futures := exts.map |lib->Future| { ((HxExtSpi)lib.spi).start }
     Future.waitForAll(futures)
 
@@ -241,7 +241,7 @@ abstract const class HxProj : Proj
     isRunningRef.val = false
 
     // onUnready callback
-    exts := extsRef.mine
+    exts := exts.listOwn
     futures := exts.map |lib->Future| { ((HxExtSpi)lib.spi).unready }
     Future.waitForAll(futures)
 

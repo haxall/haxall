@@ -37,11 +37,16 @@ const class HxProjExts : Actor, ProjExts
   override Ext[] list() { listRef.val }
   private const AtomicRef listRef := AtomicRef()
 
-  Ext[] mine() { list.findAll { it.proj === this.proj } }
+  override Ext[] listOwn() { listOwnRef.val }
+  private const AtomicRef listOwnRef := AtomicRef()
 
   override Void each(|Ext| f) { list.each(f) }
 
-  override Bool has(Str name) { map.containsKey(name) }
+  override Void eachOwn(|Ext| f) { listOwn.each(f) }
+
+  override Bool has(Str name) { get(name, false) != null }
+
+  override Bool hasOwn(Str name) { getOwn(name, false) != null  }
 
   override Ext? get(Str name, Bool checked := true)
   {
@@ -52,6 +57,14 @@ const class HxProjExts : Actor, ProjExts
   }
   internal Str:Ext map() { mapRef.val }
   private const AtomicRef mapRef := AtomicRef()
+
+  override Ext? getOwn(Str name, Bool checked := true)
+  {
+    ext := map[name]
+    if (ext != null && ext.proj === this.proj) return ext
+    if (checked) throw UnknownExtErr(name)
+    return null
+  }
 
   override Ext? getByType(Type type, Bool checked := true)
   {
@@ -113,7 +126,7 @@ const class HxProjExts : Actor, ProjExts
     update(map)
   }
 
-  ** called when libs add/removed while holding HxProjLibs.locks
+  ** called when libs add/removed while holding HxProjLibs.lock
   internal Void onLibsModified(HxNamespace ns)
   {
     oldMap   := map
@@ -201,6 +214,7 @@ const class HxProjExts : Actor, ProjExts
     // build sorted list
     list := map.vals
     list.sort |a, b| { a.name <=> b.name }
+    listOwn := list.findAll { it.proj === this.proj }
 
     // map web routes
     webRoutes := Str:ExtWeb[:]
@@ -215,6 +229,7 @@ const class HxProjExts : Actor, ProjExts
 
     // save lookup tables
     this.listRef.val = list.toImmutable
+    this.listOwnRef.val = listOwn.toImmutable
     this.mapRef.val = map.toImmutable
     this.webRoutesRef.val = webRoutes.toImmutable
     this.byTypeRef.clear // lazily rebuild
