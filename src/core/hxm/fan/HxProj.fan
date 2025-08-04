@@ -214,14 +214,15 @@ abstract const class HxProj : Proj
     isRunningRef.val = true
 
     // onStart callback
-    futures := exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).start }
+    exts := extsRef.mine
+    futures := exts.map |lib->Future| { ((HxExtSpi)lib.spi).start }
     Future.waitForAll(futures)
 
     // Synchronously startup all projects
     startProjs
 
     // onReady callback
-    futures = exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).ready }
+    futures = exts.map |lib->Future| { ((HxExtSpi)lib.spi).ready }
     Future.waitForAll(futures)
 
     // kick off background processing
@@ -240,14 +241,15 @@ abstract const class HxProj : Proj
     isRunningRef.val = false
 
     // onUnready callback
-    futures := exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).unready }
+    exts := extsRef.mine
+    futures := exts.map |lib->Future| { ((HxExtSpi)lib.spi).unready }
     Future.waitForAll(futures)
 
     // Synchronously shutdown all projects
     stopProjs
 
     // onStop callback
-    futures = exts.list.map |lib->Future| { ((HxExtSpi)lib.spi).stop }
+    futures = exts.map |lib->Future| { ((HxExtSpi)lib.spi).stop }
     Future.waitForAll(futures)
 
     // close database
