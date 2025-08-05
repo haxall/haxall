@@ -24,7 +24,7 @@ const class PyExt : ExtObj
   ** Convenience to get the PyExt instance from the current context.
   static PyExt? cur(Bool checked := true)
   {
-    Context.cur.proj.ext("hx.py", checked)
+    Context.cur.ext("hx.py", checked)
   }
 
   ** Process manager

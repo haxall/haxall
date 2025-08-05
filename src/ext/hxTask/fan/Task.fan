@@ -333,7 +333,7 @@ const class Task : Actor, Observer, HxTask
     isCancelled.val = false
 
     // create context which checks cancel flag during heartbeat callback
-    cx := Context(ext.proj, ext.user)
+    cx := ext.proj.newContext(ext.user)
     cx.heartbeatFunc = |->|
     {
       if (isCancelled.val || isKilled.val) throw CancelledErr()

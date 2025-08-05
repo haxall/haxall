@@ -414,13 +414,13 @@ const class PointFuncs
 
   ** Legacy support
   @Deprecated @NoDoc @Api @Axon { admin = true }
-  static Obj? pointExtSync() { curContext.proj.sync; return null }
+  static Obj? pointExtSync() { curContext.rt.sync; return null }
 
   ** Current context
   private static Context curContext() { Context.cur }
 
   ** Lookup PointExt for context
-  private static PointExt ext(Context cx) { cx.proj.ext("hx.point") }
+  private static PointExt ext(Context cx) { cx.rt.ext("hx.point") }
 
   internal static const Duration timeout := 30sec
   internal static const Number level1   := Number(1)

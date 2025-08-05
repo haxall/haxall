@@ -388,7 +388,7 @@ const class TaskFuncs
   @NoDoc @Api @Axon
   static Number taskTestAdjunct()
   {
-    TestTaskAdjunct a := curContext.proj.exts.task.adjunct |->TestTaskAdjunct| { TestTaskAdjunct() }
+    TestTaskAdjunct a := curContext.rt.exts.task.adjunct |->TestTaskAdjunct| { TestTaskAdjunct() }
     a.counter.increment
     return Number(a.counter.val)
   }
@@ -413,7 +413,7 @@ const class TaskFuncs
   private static Context curContext() { Context.cur }
 
   ** Lookup TaskExt for context
-  private static TaskExt lib(Context cx) { cx.proj.ext("hx.task") }
+  private static TaskExt lib(Context cx) { cx.ext("hx.task") }
 }
 
 **************************************************************************

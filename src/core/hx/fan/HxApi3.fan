@@ -163,9 +163,9 @@ internal class HxExtOp : HxApiOp
   {
     // TODO: rel paths not working great
     routeName := req.modRel.path.getSafe(2)
-    modBase := `/api/${cx.proj}/ext/${routeName}/`
+    modBase := `/api/${cx.rt.name}/ext/${routeName}/`
 
-    mod := cx.proj.exts.webRoutes.get(routeName)
+    mod := cx.rt.exts.webRoutes.get(routeName)
     if (mod == null) return res.sendErr(404)
 
     // dispatch to web mod
@@ -351,8 +351,8 @@ internal class HxNavOp : HxApiOp
     // lookup or create watch
     watchId := req.meta["watchId"] as Str
     watch := watchId == null ?
-             cx.proj.watch.open(req.meta->watchDis) :
-             cx.proj.watch.get(watchId)
+             cx.rt.watch.open(req.meta->watchDis) :
+             cx.rt.watch.get(watchId)
 
     // map rows to Refs
     ids := req.ids
@@ -366,7 +366,7 @@ internal class HxNavOp : HxApiOp
 
     // return recs - must return row for each requested id (so don't use Etc)
     resMeta := Etc.dict2("watchId", watch.id, "lease", Number.makeDuration(watch.lease, null))
-    recs := cx.proj.db.readByIdsList(ids, false)
+    recs := cx.db.readByIdsList(ids, false)
     colNames := Etc.dictsNames(recs)
     gb := GridBuilder()
     gb.setMeta(resMeta)
@@ -399,7 +399,7 @@ internal class HxNavOp : HxApiOp
     close := req.meta.has("close")
 
     // lookup watch
-    watch := cx.proj.watch.get(watchId, false)
+    watch := cx.rt.watch.get(watchId, false)
     if (watch == null) return Etc.emptyGrid
 
     // if no rows then close, otherwise remove
@@ -425,7 +425,7 @@ internal class HxWatchPollOp : HxApiOp
     curValSub := req.meta.has("curValSub")
 
     // poll as refresh or cov
-    watch := cx.proj.watch.get(watchId)
+    watch := cx.rt.watch.get(watchId)
     recs := refresh ? watch.poll(Duration.defVal) : watch.poll
     resMeta := Etc.dict1("watchId", watchId)
     if (curValSub)
@@ -473,7 +473,7 @@ internal class HxHisReadOp : HxApiOp
     ]
 
     gb := GridBuilder().setMeta(meta).addCol("ts").addCol("val")
-    cx.proj.exts.his.read(rec, span, req.meta) |item|
+    cx.rt.exts.his.read(rec, span, req.meta) |item|
     {
       if (item.ts < span.start) return
       if (item.ts >= span.end) return
@@ -539,7 +539,7 @@ internal class HxHisReadOp : HxApiOp
 
   private Void readBatch(Grid req, Context cx, Dict rec, Span span, |DateTime, Obj val| f)
   {
-    cx.proj.exts.his.read(rec, span, req.meta) |item|
+    cx.rt.exts.his.read(rec, span, req.meta) |item|
     {
       if (item.ts < span.start) return
       if (item.ts >= span.end) return
@@ -640,7 +640,7 @@ internal class HxHisWriteOp : HxApiOp
 
     // perform write
     opts := req.meta
-    cx.proj.exts.his.write(rec, items, opts)
+    cx.rt.exts.his.write(rec, items, opts)
   }
 }
 
@@ -659,7 +659,7 @@ internal class HxPointWriteOp : HxApiOp
 
     // if reading level will be null
     level := reqRow["level"] as Number
-    if (level == null) return cx.proj.exts.point.pointArray(rec)
+    if (level == null) return cx.rt.exts.point.pointArray(rec)
 
     // handlw write
     cx.checkAdmin("pointWrite op")
@@ -673,7 +673,7 @@ internal class HxPointWriteOp : HxApiOp
     if (val != null && level.toInt == 8 && dur != null)
       val = Etc.dict2("val", val, "duration", dur.toDuration)
 
-    cx.proj.exts.point.pointWrite(rec, val, level.toInt, who).get(30sec)
+    cx.rt.exts.point.pointWrite(rec, val, level.toInt, who).get(30sec)
     return Etc.makeEmptyGrid(Etc.dict1("ok", Marker.val))
   }
 }

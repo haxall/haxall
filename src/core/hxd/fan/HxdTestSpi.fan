@@ -84,7 +84,7 @@ class HxdTestSpi : HxTestSpi
   {
     if (user == null)
       user = test.proj.sys.user.makeSyntheticUser("test", ["userRole":"su"])
-    return Context(test.proj, user)
+    return test.proj.newContext(user)
   }
 
   override Void forceSteadyState()

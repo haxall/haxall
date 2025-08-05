@@ -16,6 +16,6 @@ using axon
 **
 const class EcobeeFuncs
 {
-  private static EcobeeExt ext(Context cx := Context.cur) { cx.proj.ext("hx.ecobee") }
+  private static EcobeeExt ext(Context cx := Context.cur) { cx.ext("hx.ecobee") }
 }
 

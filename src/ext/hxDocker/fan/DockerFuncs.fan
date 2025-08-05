@@ -18,7 +18,7 @@ const class DockerFuncs
 {
 
   ** Lookup DockerExt for context
-  private static DockerExt ext(Context cx := Context.cur) { cx.proj.ext("hx.docker") }
+  private static DockerExt ext(Context cx := Context.cur) { cx.ext("hx.docker") }
 
 //////////////////////////////////////////////////////////////////////////
 // Views

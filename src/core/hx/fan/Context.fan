@@ -43,21 +43,24 @@ class Context : AxonContext, FolioContext
       Actor.locals[actorLocalsKey] = old
   }
 
-
 //////////////////////////////////////////////////////////////////////////
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  ** Constructor for project and user
-  new make(Proj proj, User user)
+  ** Runtime.newContext constructor for sys, project, and user.
+  protected new make(Sys sys, Proj? proj, User user)
   {
-    this.projRef    = proj
-    this.userRef    = user
+    this.rtRef    = proj ?: sys
+    this.sysRef   = sys
+    this.projRef  = proj
+    this.userRef  = user
   }
 
   ** Constructor for session
-  new makeSession(Proj proj, UserSession session)
+  @NoDoc new makeSession(Sys sys, Proj? proj, UserSession session)
   {
+    this.rtRef      = proj ?: sys
+    this.sysRef     = sys
     this.projRef    = proj
     this.userRef    = session.user
     this.sessionRef = session
@@ -67,24 +70,34 @@ class Context : AxonContext, FolioContext
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** System project
-  virtual Sys sys() { projRef.sys }
+  ** Runtime is the project if available, or sys as fallback
+  virtual Runtime rt() { rtRef }
+  private const Runtime rtRef
+
+  ** System
+  virtual Sys sys() { sysRef.sys }
+  private const Sys sysRef
 
   ** Project associated with this context
-  virtual Proj proj() { projRef }
-  private const Proj projRef
+  virtual Proj? proj(Bool checked)
+  {
+    if (projRef != null) return projRef
+    if (checked) throw ProjUnavailableErr("No project associated with context")
+    return null
+  }
+  private const Proj? projRef
 
-  ** Folio database for the project
-  Folio db() { proj.db }
+  ** Folio database for the runtime
+  Folio db() { rt.db }
 
-  ** Project namespace
-  override Namespace ns() { proj.ns }
+  ** Runtime namespace
+  override Namespace ns() { rt.ns }
 
-  ** Project legacy defs
-  override DefNamespace defs() { proj.defs }
+  ** Runtime legacy defs (deprecated)
+  @NoDoc override DefNamespace defs() { rt.defs }
 
-  ** Convenience to lookup an extension in project
-  Ext ext(Str name, Bool checked := true) { proj.exts.get(name, checked) }
+  ** Convenience to lookup ext in runtime
+  Ext ext(Str name, Bool checked := true) { rt.exts.get(name, checked) }
 
   ** User account associated with this context
   virtual User user() { userRef }
@@ -148,8 +161,8 @@ class Context : AxonContext, FolioContext
   {
     tags := Str:Obj[:]
     tags.ordered = true
-    tags["projName"] = proj.name
-    tags["projDis"]  = proj.dis
+    tags["projName"] = rt.name
+    tags["projDis"]  = rt.dis
     tags["username"] = user.username
     tags["userRef"]  = user.id
     tags["locale"]   = Locale.cur.toStr

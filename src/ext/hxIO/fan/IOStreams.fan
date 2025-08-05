@@ -38,7 +38,7 @@ internal class IOStreamLinesStream : SourceStream
     }
   }
 
-  Proj proj() { ((Context)cx).proj }
+  Proj proj() { ((Context)cx).rt }
 
   private Obj? handle
 }

@@ -410,7 +410,7 @@ const class HxFuncs
   @Api @Axon
   static Bool isSteadyState()
   {
-    curContext.proj.isSteadyState
+    curContext.rt.isSteadyState
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -423,7 +423,7 @@ const class HxFuncs
   {
     cx := Context.cur
     isShell := cx.sys.info.rt.isAxonsh
-    log := isShell ? Log.get("xeto") : cx.proj.ext("hx.xeto").log
+    log := isShell ? Log.get("xeto") : cx.rt.ext("hx.xeto").log
     log.info("libReload [$cx.user.username]")
     //cx.rt.libs.reload
 throw Err("TODO")
@@ -438,7 +438,7 @@ throw Err("TODO")
   @Api @Axon
   static Grid libStatus(Dict? opts := null)
   {
-    curContext.proj.libs.status(opts)
+    curContext.rt.libs.status(opts)
   }
 
   ** Enable one or more Xeto libs by name:
@@ -449,7 +449,7 @@ throw Err("TODO")
   {
     if (names is Str) names = Str[names]
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
-    curContext.proj.libs.addAll(list)
+    curContext.rt.libs.addAll(list)
     return "added"
   }
 
@@ -461,7 +461,7 @@ throw Err("TODO")
   {
     if (names is Str) names = Str[names]
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
-    curContext.proj.libs.removeAll(list)
+    curContext.rt.libs.removeAll(list)
     return "removed"
   }
 
@@ -477,14 +477,14 @@ throw Err("TODO")
   @Api @Axon
   static Grid extStatus()
   {
-    curContext.proj.exts.status
+    curContext.rt.exts.status
   }
 
   ** Report installed web routes as grid
   @NoDoc @Api @Axon
   static Grid extWebRoutes()
   {
-    routes := curContext.proj.exts.webRoutes
+    routes := curContext.rt.exts.webRoutes
     gb := GridBuilder()
     gb.addCol("route").addCol("ext")
     routes.keys.sort.each |name| { gb.addRow2(`/$name`, routes[name].ext.name) }
@@ -500,7 +500,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Str? projSpecRead(Str name, Bool checked := true)
   {
-    curContext.proj.specs.read(name, checked)
+    curContext.rt.specs.read(name, checked)
   }
 
   ** Add a project level spec by name and update namespace:
@@ -508,7 +508,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecAdd(Str name, Str body)
   {
-    curContext.proj.specs.add(name, body)
+    curContext.rt.specs.add(name, body)
   }
 
   ** Update a project level spec by name and update namespace:
@@ -516,7 +516,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecUpdate(Str name, Str body)
   {
-    curContext.proj.specs.update(name, body)
+    curContext.rt.specs.update(name, body)
   }
 
   ** Rename a project level spec and update namespace:
@@ -524,7 +524,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecRename(Str oldName, Str newName)
   {
-    curContext.proj.specs.rename(oldName, newName)
+    curContext.rt.specs.rename(oldName, newName)
   }
 
   ** Remove a project level spec by name and update namespace:
@@ -532,7 +532,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecRemove(Str name)
   {
-    curContext.proj.specs.remove(name)
+    curContext.rt.specs.remove(name)
     return "removed"
   }
 
@@ -547,7 +547,7 @@ throw Err("TODO")
     cx := curContext
     gb := GridBuilder()
     gb.addCol("observable").addCol("subscriptions").addCol("doc")
-    cx.proj.obs.list.each |o|
+    cx.rt.obs.list.each |o|
     {
       doc := cx.defs.def(o.name, false)?.get("doc") ?: ""
       gb.addRow([o.name, Number(o.subscriptions.size), doc])
@@ -562,7 +562,7 @@ throw Err("TODO")
     cx := curContext
     gb := GridBuilder()
     gb.addCol("observable").addCol("observer").addCol("config")
-    cx.proj.obs.list.each |o|
+    cx.rt.obs.list.each |o|
     {
       o.subscriptions.each |s|
       {
@@ -580,7 +580,7 @@ throw Err("TODO")
   ** The rec argument can be any value accepted by `toRecId()`.
   @Api @Axon static Bool isWatched(Obj rec)
   {
-    curContext.proj.watch.isWatched(Etc.toId(rec))
+    curContext.rt.watch.isWatched(Etc.toId(rec))
   }
 
   ** Open a new watch on a grid of records.  The 'dis' parameter
@@ -594,7 +594,7 @@ throw Err("TODO")
   static Grid watchOpen(Grid grid, Str dis)
   {
     cx := curContext
-    watch := cx.proj.watch.open(dis)
+    watch := cx.rt.watch.open(dis)
     watch.addGrid(grid)
     return grid.addMeta(["watchId":watch.id])
   }
@@ -616,7 +616,7 @@ throw Err("TODO")
     }
 
     // poll refresh or cov
-    watch := cx.proj.watch.get(watchId)
+    watch := cx.rt.watch.get(watchId)
     recs := refresh ? watch.poll(Duration.defVal) : watch.poll
     return Etc.makeDictsGrid(["watchId":watchId], recs)
   }
@@ -626,7 +626,7 @@ throw Err("TODO")
   static Grid watchAdd(Str watchId, Grid grid)
   {
     cx := curContext
-    watch := cx.proj.watch.get(watchId)
+    watch := cx.rt.watch.get(watchId)
     watch.addGrid(grid)
     return grid
   }
@@ -636,7 +636,7 @@ throw Err("TODO")
   static Grid watchRemove(Str watchId, Grid grid)
   {
     cx := curContext
-    watch := cx.proj.watch.get(watchId)
+    watch := cx.rt.watch.get(watchId)
     watch.removeGrid(grid)
     return grid
   }
@@ -647,7 +647,7 @@ throw Err("TODO")
   @Api @Axon
   static Obj? watchClose(Str watchId)
   {
-    curContext.proj.watch.get(watchId, false)?.close
+    curContext.rt.watch.get(watchId, false)?.close
     return null
   }
 

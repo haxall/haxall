@@ -17,7 +17,7 @@ const class EcobeeExt : ConnExt
 {
   static EcobeeExt? cur(Bool checked := true)
   {
-    Context.cur.proj.ext("hx.ecobee", checked)
+    Context.cur.ext("hx.ecobee", checked)
   }
 }
 

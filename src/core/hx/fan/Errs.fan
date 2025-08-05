@@ -36,12 +36,17 @@
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
+** Thrown by Context.proj when not in a project context
+@NoDoc const class ProjUnavailableErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+
 ** Thrown by Context.session when not in a session
 @NoDoc const class SessionUnavailableErr : Err
 {
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
-
 
 ** Thrown when trying to uninstall a boot lib
 @NoDoc const class CannotRemoveBootLibErr : Err

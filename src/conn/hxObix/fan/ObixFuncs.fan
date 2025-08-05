@@ -193,7 +193,7 @@ const class ObixFuncs
 
   internal static Obj? dispatch(Context cx, Obj conn, HxMsg msg)
   {
-    ext := (ObixExt)cx.proj.ext("hx.obix")
+    ext := (ObixExt)cx.ext("hx.obix")
     return ext.conn(Etc.toId(conn)).sendSync(msg)
   }
 

@@ -34,8 +34,8 @@ const class ApiWeb : ExtWeb, WebOpUtil
       projName := path[0]
 
       // lookup project
-      proj := sys.proj.get(projName, false)
-      if (proj == null) return res.sendErr(404, "Proj not found")
+      rt := sys.proj.get(projName, false)
+      if (rt == null) return res.sendErr(404, "Proj not found")
 
       // handle web socket requests
       if (req.headers["Upgrade"] == "websocket")
@@ -49,7 +49,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
       // authenticate user
       session := sys.user.authenticate(req, res)
       if (session == null) return
-      cx := Context(proj, session)
+      cx := rt.newContextSession(session)
       cx.timeout = Context.timeoutDef
       Actor.locals[Context.actorLocalsKey] = cx
 

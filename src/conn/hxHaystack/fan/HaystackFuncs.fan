@@ -234,7 +234,7 @@ const class HaystackFuncs
   ** Dispatch a message to the given connector and return result
   private static Obj? dispatch(Context cx, Obj conn, HxMsg msg)
   {
-    ext := (HaystackExt)cx.proj.ext("hx.haystack")
+    ext := (HaystackExt)cx.ext("hx.haystack")
     r := ext.conn(Etc.toId(conn)).sendSync(msg)
     return r
   }

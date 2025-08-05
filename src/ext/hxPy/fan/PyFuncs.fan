@@ -18,7 +18,7 @@ using hx
 const class PyFuncs
 {
 
-  static private PyExt ext() { Context.cur.proj.ext("hx.py") }
+  static private PyExt ext() { Context.cur.ext("hx.py") }
 
 //////////////////////////////////////////////////////////////////////////
 // PySession

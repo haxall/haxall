@@ -20,7 +20,7 @@ const class ModbusExt : ConnExt
 {
   static ModbusExt? cur(Bool checked := true)
   {
-    Context.cur.proj.ext("hx.modbus", checked)
+    Context.cur.ext("hx.modbus", checked)
   }
 
   override Void onStart()

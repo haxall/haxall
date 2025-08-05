@@ -100,6 +100,18 @@ const mixin Runtime
   ** Watch observables
   abstract RuntimeObservables obs()
 
+  ** Construct new context with user
+  virtual Context newContext(User user)
+  {
+    Context(sys, this as Proj, user)
+  }
+
+  ** Construct new context with user
+  @NoDoc virtual Context newContextSession(UserSession session)
+  {
+    Context(sys, this as Proj, session)
+  }
+
 /////////////////////////////////////////////////////////////////////////
 // Folio Conveniences
 //////////////////////////////////////////////////////////////////////////

@@ -34,7 +34,7 @@ const class HxShellWeb : ExtWeb
 
     if (!session.user.isSu) return res.sendErr(403)
 
-    cx := Context(ext.proj, session)
+    cx := ext.proj.newContextSession(session)
 
     route := req.modRel.path.getSafe(0)
     switch (route)
@@ -52,7 +52,7 @@ const class HxShellWeb : ExtWeb
 
     env := Str:Str[:]
     env["main"]              = "hxShell::Shell.main"
-    env["hxShell.api"]       = "/api/${cx.proj.name}/"
+    env["hxShell.api"]       = "/api/${cx.rt.name}/"
     env["hxShell.attestKey"] = cx.session.attestKey
     env["hxShell.user"]      = ZincWriter.valToStr(cx.user.meta)
 
