@@ -16,7 +16,7 @@ using hx
 **
 ** ProjExts implementation
 **
-const class HxProjExts : Actor, ProjExts
+const class HxProjExts : Actor, RuntimeExts
 {
   new make(HxProj proj, ActorPool actorPool) : super(actorPool)
   {

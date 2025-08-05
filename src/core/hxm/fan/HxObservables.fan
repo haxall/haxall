@@ -18,7 +18,7 @@ using hx
 **
 ** Implementation for ProjWatches
 **
-const class HxProjObservables : Actor, ProjObservables
+const class HxProjObservables : Actor, RuntimeObservables
 {
 
 //////////////////////////////////////////////////////////////////////////

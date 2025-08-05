@@ -10,9 +10,9 @@ using xeto
 using haystack
 
 **
-** Project Xeto namespace library management
+** Runtime Xeto namespace library management
 **
-const mixin ProjLibs
+const mixin RuntimeLibs
 {
   ** Xeto environment used to manage/cache Xeto libraries
   abstract XetoEnv env()

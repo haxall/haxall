@@ -14,11 +14,11 @@ using xeto
 using haystack
 
 **
-** Project watch subscription APIs
+** Runtime watch subscription APIs
 **
-const mixin ProjWatches
+const mixin RuntimeWatches
 {
-  ** List the watches currently open for this project.
+  ** List the watches currently open for the runtime.
   ** Also see `docHaxall::Watches#fantom`.
   abstract Watch[] list()
 

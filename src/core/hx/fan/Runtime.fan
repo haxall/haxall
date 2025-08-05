@@ -71,7 +71,7 @@ const mixin Runtime
   abstract Namespace ns()
 
   ** Xeto library management
-  abstract ProjLibs libs()
+  abstract RuntimeLibs libs()
 
   ** Project spec management
   abstract ProjSpecs specs()
@@ -83,7 +83,7 @@ const mixin Runtime
   abstract Ext? ext(Str name, Bool checked := true)
 
   ** Extension lookup and management
-  abstract ProjExts exts()
+  abstract RuntimeExts exts()
 
   ** Block until currently queued background processing completes
   abstract This sync(Duration? timeout := 30sec)
@@ -95,10 +95,10 @@ const mixin Runtime
   abstract Bool isSteadyState()
 
   ** Watch subscriptions
-  abstract ProjWatches watch()
+  abstract RuntimeWatches watch()
 
   ** Watch observables
-  abstract ProjObservables obs()
+  abstract RuntimeObservables obs()
 
 /////////////////////////////////////////////////////////////////////////
 // Folio Conveniences

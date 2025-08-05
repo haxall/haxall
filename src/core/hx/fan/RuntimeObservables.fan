@@ -10,9 +10,9 @@
 using obs
 
 **
-** Project observable APIs
+** Runtime observable APIs
 **
-const mixin ProjObservables
+const mixin RuntimeObservables
 {
   ** List the published observables for the project
   abstract Observable[] list()

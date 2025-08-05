@@ -16,7 +16,7 @@ using hx
 **
 ** Implementation for ProjWatches
 **
-internal const class HxProjWatches : ProjWatches
+internal const class HxProjWatches : RuntimeWatches
 {
 
 //////////////////////////////////////////////////////////////////////////

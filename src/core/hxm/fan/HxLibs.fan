@@ -17,7 +17,7 @@ using hx
 **
 ** ProjLibs implementation
 **
-const class HxProjLibs : ProjLibs
+const class HxProjLibs : RuntimeLibs
 {
 
 //////////////////////////////////////////////////////////////////////////

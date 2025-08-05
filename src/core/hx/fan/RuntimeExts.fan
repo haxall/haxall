@@ -13,9 +13,9 @@ using haystack
 using folio
 
 **
-** Project extension management
+** Runtime extension management
 **
-const mixin ProjExts
+const mixin RuntimeExts
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ const mixin ProjExts
   ** Actor thread pool to use for extension background processing
   abstract ActorPool actorPool()
 
-  ** Convenience for `ProjLibs.add` lib with extension settings.
+  ** Convenience for `RuntimeLibs.add` lib with extension settings.
   ** If the library does not define an extension then the library is
   ** still added, but this method raises an exception.
   abstract Ext add(Str name, Dict? settings := null)

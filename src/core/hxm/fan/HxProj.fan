@@ -69,21 +69,19 @@ abstract const class HxProj : Proj
   ** Return false by default
   override Bool isSys() { false }
 
-  ** If formatted as "p:name"
+  ** Formatted as "p:name"
   override const Ref id
 
-  ** Project name
+  ** Runtime name
   override const Str name
 
-  ** Project display name
+  ** Runtime display name
   override Str dis() { meta["dis"] ?: name }
 
-  ** Project name
+  ** Runtime name
   override Str toStr() { name }
 
-  ** Project directory.  It the root directory of all project
-  ** oriented operational files.  The folio database is stored under
-  ** this directory in a sub-directory named 'db/'.
+  ** Runtime directory.
   override const File dir
 
   ** Runtime level meta data stored in the `projMeta` database record
@@ -97,8 +95,8 @@ abstract const class HxProj : Proj
   override Folio db() { dbRef }
   const Folio dbRef
 
-  ** Project xeto library management
-  override ProjLibs libs() { libsRef }
+  ** Runtime xeto library management
+  override RuntimeLibs libs() { libsRef }
   const HxProjLibs libsRef
 
   ** Xeto lib namespace
@@ -111,15 +109,15 @@ abstract const class HxProj : Proj
   override Ext? ext(Str name, Bool checked := true) { exts.get(name, checked) }
 
   ** Project extensions
-  override ProjExts exts() { extsRef }
+  override RuntimeExts exts() { extsRef }
   const HxProjExts extsRef
 
-  ** Project watch management
-  override ProjWatches watch() { watchRef }
+  ** Runtime watch management
+  override RuntimeWatches watch() { watchRef }
   internal const HxProjWatches watchRef
 
-  ** Project observable management
-  override ProjObservables obs() { obsRef }
+  ** Runtime observable management
+  override RuntimeObservables obs() { obsRef }
   const HxProjObservables obsRef
 
   ** Namespace of definitions
