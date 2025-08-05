@@ -27,8 +27,6 @@ internal class HxUserAuth
 
   const Runtime rt
 
-@Deprecated Runtime proj() { rt }
-
   const HxUserExt ext
 
   WebReq req { private set }
@@ -115,7 +113,7 @@ internal class HxUserAuth
 
     // auto login superuser for testing
     if (ext.noAuth)
-      return ext.login(req, res, HxUser(proj.db.read(Filter("user and userRole==\"su\""))))
+      return ext.login(req, res, HxUser(rt.db.read(Filter("user and userRole==\"su\""))))
 
     // redirect to login
     return null
@@ -173,8 +171,6 @@ internal class HxUserAuthServerContext : AuthServerContext
 
   const Runtime rt
 
-@Deprecated Proj proj() { rt }
-
   const HxUserExt ext
 
   override Log log() { ext.log }
@@ -197,7 +193,7 @@ internal class HxUserAuthServerContext : AuthServerContext
   {
     hxUser := ext.read(user.username, false)
     if (hxUser == null) return null
-    return proj.db.passwords.get(hxUser.id.id)
+    return rt.db.passwords.get(hxUser.id.id)
   }
 
   override Str login()
