@@ -10,7 +10,7 @@
 **
 ** System is the host level project in multi-tenant systems
 **
-const mixin Sys : Proj
+const mixin Sys : Runtime
 {
 
 //////////////////////////////////////////////////////////////////////////
