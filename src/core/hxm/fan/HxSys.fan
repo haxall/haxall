@@ -28,6 +28,8 @@ const class HxSys : HxProj, Sys
 
   override final Bool isSys() { true }
 
+  override final Bool isProj() { false }
+
   override const SysInfo info
 
   override const SysConfig config
