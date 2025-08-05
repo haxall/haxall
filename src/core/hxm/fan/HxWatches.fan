@@ -127,7 +127,7 @@ internal const class HxWatch : Watch
   const Int created
   const ConcurrentMap refs  // Ref:HxWatchRef
 
-  override HxRuntime proj() { service.rt }
+  override HxRuntime rt() { service.rt }
 
   override Ref[] list()
   {
@@ -202,7 +202,7 @@ internal const class HxWatch : Watch
         }
       }
     }
-    if (firstRecs != null) proj.obsRef.watches.fireWatch(firstRecs)
+    if (firstRecs != null) rt.obsRef.watches.fireWatch(firstRecs)
   }
 
   override Void removeAll(Ref[] ids)
@@ -224,7 +224,7 @@ internal const class HxWatch : Watch
         }
       }
     }
-    if (lastRecs != null) proj.obsRef.watches.fireUnwatch(lastRecs)
+    if (lastRecs != null) rt.obsRef.watches.fireUnwatch(lastRecs)
   }
 
   override Void set(Ref[] ids)

@@ -19,8 +19,8 @@ using haystack
 **
 const abstract class Watch
 {
-  ** Project associated with this watch
-  abstract Proj proj()
+  ** Runtime associated with this watch
+  abstract Runtime rt()
 
   ** Debug display string used during 'watchOpen'
   abstract Str dis()
@@ -121,7 +121,7 @@ const abstract class Watch
   override final Bool equals(Obj? that) { this === that }
 
   ** Debug string
-  override final Str toStr() { "Watch-$proj.name-$id" }
+  override final Str toStr() { "Watch-$rt.name-$id" }
 
 }
 

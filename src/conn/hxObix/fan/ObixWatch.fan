@@ -52,7 +52,7 @@ class ObixWatch : ObixModWatch
     watch.addAll(validIds)
 
     // read ids successfully added to watch to get recs as grid
-    recList := watch.proj.db.readByIdsList(watch.list, false)
+    recList := watch.rt.db.readByIdsList(watch.list, false)
 
     // map recs by id
     recsById := Ref:Dict?[:]
