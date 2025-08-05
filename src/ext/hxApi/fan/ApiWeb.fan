@@ -18,7 +18,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
 {
   new make(ApiExt ext) : super(ext) {}
 
-  Sys sys() { ext.sys }
+  virtual Sys sys() { ext.sys }
 
   override ApiExt ext() { super.ext }
 

@@ -79,7 +79,7 @@ class Context : AxonContext, FolioContext
   private const Sys sysRef
 
   ** Project associated with this context
-  virtual Proj? proj(Bool checked)
+  virtual Proj? proj(Bool checked := true)
   {
     if (projRef != null) return projRef
     if (checked) throw ProjUnavailableErr("No project associated with context")
