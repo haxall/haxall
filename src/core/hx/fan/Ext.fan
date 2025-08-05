@@ -29,8 +29,8 @@ const mixin Ext
   ** System
   virtual Sys sys() { spi.sys }
 
-  ** Project if not a system extension
-  virtual Proj? proj(Bool checked := true) { spi.proj(checked) }
+  ** Project if a project extension, otherwise raise exception
+  virtual Proj proj() { spi.proj(true) }
 
   ** Library dotted name that identifies the extension
   Str name() { spi.name }
