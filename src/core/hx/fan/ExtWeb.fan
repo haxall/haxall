@@ -18,12 +18,6 @@ abstract const class ExtWeb : WebMod
   ** Subclass constructor
   protected new make(Ext ext) { this.extRef = ext }
 
-  ** System for parent extension
-  virtual Sys sys() { extRef.sys }
-
-  ** Project for parent extension
-  virtual Proj proj() { extRef.proj }
-
   ** Parent library.  Subclasses can override this method to be covariant.
   virtual Ext ext() { extRef }
   private const Ext extRef
@@ -36,7 +30,7 @@ abstract const class ExtWeb : WebMod
   ** Base uri for this library's endpoint such as "/myLib/"
   Uri uri()
   {
-    proj.isSys ? `/${routeName}/` : `/ext/${proj.name}/${routeName}`
+    ext.rt.isSys ? `/${routeName}/` : `/ext/${ext.rt.name}/${routeName}`
   }
 
   ** Is the unsupported no-up default instance

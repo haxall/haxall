@@ -26,8 +26,8 @@ const class CryptoExt : ExtObj, ICryptoExt
 
   new make()
   {
-    this.dir      = proj.dir.plus(`crypto/`).create
-    this.keystore = CryptoKeyStore(proj.exts.actorPool, dir, log, actorTimeout)
+    this.dir      = rt.dir.plus(`crypto/`).create
+    this.keystore = CryptoKeyStore(rt.exts.actorPool, dir, log, actorTimeout)
   }
 
   private Duration actorTimeout()

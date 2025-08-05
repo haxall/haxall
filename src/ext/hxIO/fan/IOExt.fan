@@ -16,12 +16,12 @@ const class IOExt : ExtObj, IIOExt
 
   override Obj? read(Obj? handle, |InStream->Obj?| f)
   {
-    IOHandle.fromObj(proj, handle).withIn(f)
+    IOHandle.fromObj(rt, handle).withIn(f)
   }
 
   override Obj? write(Obj? handle, |OutStream| f)
   {
-    IOHandle.fromObj(proj, handle).withOut(f)
+    IOHandle.fromObj(rt, handle).withOut(f)
   }
 
 }

@@ -18,9 +18,11 @@ const class ApiWeb : ExtWeb, WebOpUtil
 {
   new make(ApiExt ext) : super(ext) {}
 
+  Sys sys() { ext.sys }
+
   override ApiExt ext() { super.ext }
 
-  override DefNamespace defs() { ext.proj.defs }
+  override DefNamespace defs() { ext.rt.defs }
 
   override Void onService()
   {
@@ -42,7 +44,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
       {
         if (path.size != 1) return res.sendErr(404)
         //return onWebSocket(req, res, proj)
-        ext.log.warn("onWebSocket upgrade [$proj]")
+        ext.log.warn("onWebSocket upgrade [$rt]")
         return res.sendErr(426)
       }
 

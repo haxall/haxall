@@ -25,12 +25,12 @@ internal const class HxdHisExt : ExtObj, IHisExt
 
   override Void read(Dict pt, Span? span, Dict? opts, |HisItem| f)
   {
-    proj.db.his.read(pt.id, span, opts, f)
+    rt.db.his.read(pt.id, span, opts, f)
   }
 
   override Future write(Dict pt, HisItem[] items, Dict? opts := null)
   {
-    proj.db.his.write(pt.id, items, opts)
+    rt.db.his.write(pt.id, items, opts)
   }
 
 }

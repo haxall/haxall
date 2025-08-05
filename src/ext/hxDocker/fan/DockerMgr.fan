@@ -24,7 +24,7 @@ final const class DockerMgr : Actor
 // Constructor
 //////////////////////////////////////////////////////////////////////////
 
-  new make(DockerExt ext) : super(ext.proj.exts.actorPool)
+  new make(DockerExt ext) : super(ext.rt.exts.actorPool)
   {
     this.ext = ext
   }
@@ -139,7 +139,7 @@ final const class DockerMgr : Actor
     CreateContainerCmd cmd := decodeCmd(config, CreateContainerCmd#)
 
     // force single bind for io/ directory
-    ioDir := ext.proj.dir.plus(`io/`)
+    ioDir := ext.rt.dir.plus(`io/`)
     if (ext.settings.ioDirMount?.trimToNull != null)
     {
       // handle custom configuration

@@ -80,7 +80,7 @@ const class PlatformTimeFuncs
 
   private static PlatformTimeExt ext(Context cx := curContext)
   {
-    cx.proj.ext("hx.platform.time")
+    cx.ext("hx.platform.time")
   }
 }
 

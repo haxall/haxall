@@ -61,7 +61,7 @@ const class HxExts : Actor, RuntimeExts
   override Ext? getOwn(Str name, Bool checked := true)
   {
     ext := map[name]
-    if (ext != null && ext.proj === this.rt) return ext
+    if (ext != null && ext.rt === this.rt) return ext
     if (checked) throw UnknownExtErr(name)
     return null
   }
@@ -214,7 +214,7 @@ const class HxExts : Actor, RuntimeExts
     // build sorted list
     list := map.vals
     list.sort |a, b| { a.name <=> b.name }
-    listOwn := list.findAll { it.proj === this.rt }
+    listOwn := list.findAll { it.rt === this.rt }
 
     // map web routes
     webRoutes := Str:ExtWeb[:]

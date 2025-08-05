@@ -52,8 +52,8 @@ const class HxUserExt : ExtObj, IUserExt
   override HxUser? read(Obj username, Bool checked := true)
   {
     rec := username is Ref ?
-           proj.db.readById(username, false) :
-           proj.db.read(Filter.eq("username", username.toStr).and(Filter.has("user")), false)
+           rt.db.readById(username, false) :
+           rt.db.read(Filter.eq("username", username.toStr).and(Filter.has("user")), false)
     if (rec != null) return HxUser(rec)
     if (checked) throw UnknownRecErr("User not found: $username")
     return null

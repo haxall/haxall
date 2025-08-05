@@ -23,11 +23,14 @@ const mixin Ext
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** System
-  virtual Sys sys() { spi.proj.sys }
+  ** Runtime which is proj if project ext or sys if system ext
+  virtual Runtime rt() { spi.rt }
 
-  ** Project
-  virtual Proj proj() { spi.proj }
+  ** System
+  virtual Sys sys() { spi.sys }
+
+  ** Project if not a system extension
+  virtual Proj? proj(Bool checked := true) { spi.proj(checked) }
 
   ** Library dotted name that identifies the extension
   Str name() { spi.name }
@@ -165,7 +168,9 @@ abstract const class ExtObj : Ext
 @NoDoc
 const mixin ExtSpi
 {
-  abstract Proj proj()
+  abstract Runtime rt()
+  abstract Sys sys()
+  abstract Proj? proj(Bool checked)
   abstract Str name()
   abstract Spec spec()
   abstract Dict settings()

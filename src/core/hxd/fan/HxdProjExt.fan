@@ -24,7 +24,7 @@ const class HxdProjExt : ExtObj, IProjExt
   override Proj? get(Obj id, Bool checked := true)
   {
     name := id as Str ?: HxUtil.projIdToName(id)
-    if (name == proj.name) return proj
+    if (name == rt.name) return rt
     if (checked) throw UnknownProjErr(name)
     return null
   }

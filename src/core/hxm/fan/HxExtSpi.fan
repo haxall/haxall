@@ -82,7 +82,9 @@ const class HxExtSpi : Actor, ExtSpi
 
   private new make(HxRuntime rt, Str name, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
   {
-    this.rtRef       = rt
+    this.rt          = rt
+    this.sys         = rt.sys
+    this.projRef     = rt as Proj
     this.name        = name
     this.qname       = spec.qname
     this.log         = Log.get(name)
@@ -97,8 +99,17 @@ const class HxExtSpi : Actor, ExtSpi
   ExtObj ext() { extRef.val }
   private const AtomicRef extRef := AtomicRef()
 
-  override Proj proj() { rtRef }
-  const HxRuntime rtRef
+  override const HxRuntime rt
+
+  override const Sys sys
+
+  override Proj? proj(Bool checked)
+  {
+    if (projRef != null) return projRef
+    if (checked) throw ProjUnavailableErr("System extension: $name")
+    return null
+  }
+  const Proj? projRef
 
   override const Str name
 
@@ -106,14 +117,14 @@ const class HxExtSpi : Actor, ExtSpi
 
   const Type fantomType
 
-  override Spec spec() { proj.ns.spec(qname) }
+  override Spec spec() { rt.ns.spec(qname) }
 
   override Dict settings() { settingsRef.val }
   private const AtomicRef settingsRef
 
   override Void settingsUpdate(Obj changes)
   {
-    rtRef.settingsMgr.extUpdate(this, changes)
+    rt.settingsMgr.extUpdate(this, changes)
   }
 
   override const Log log
@@ -146,7 +157,7 @@ const class HxExtSpi : Actor, ExtSpi
   override Subscription observe(Str name, Dict config, Obj callback)
   {
     observer := callback is Actor ? ExtActorObserver(ext, callback) : ExtMethodObserver(ext, callback)
-    sub := proj.obs.get(name).subscribe(observer, config)
+    sub := rt.obs.get(name).subscribe(observer, config)
     subscriptionsRef.val = subscriptions.dup.add(sub).toImmutable
     return sub
   }

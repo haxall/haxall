@@ -34,7 +34,7 @@ const class HxShellWeb : ExtWeb
 
     if (!session.user.isSu) return res.sendErr(403)
 
-    cx := ext.proj.newContextSession(session)
+    cx := ext.rt.newContextSession(session)
 
     route := req.modRel.path.getSafe(0)
     switch (route)

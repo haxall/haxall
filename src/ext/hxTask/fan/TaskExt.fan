@@ -21,7 +21,7 @@ const class TaskExt : ExtObj, ITaskExt
   ** Construction
   new make()
   {
-    this.pool = ActorPool { it.name = "${proj.name}-Task"; it.maxThreads = settings.maxThreads }
+    this.pool = ActorPool { it.name = "${rt.name}-Task"; it.maxThreads = settings.maxThreads }
     this.tasksById = ConcurrentMap()
   }
 
@@ -132,7 +132,7 @@ const class TaskExt : ExtObj, ITaskExt
   private Task spawn(Task task)
   {
     tasksById.add(task.id, task)
-    if (proj.isSteadyState) task.subscribe
+    if (rt.isSteadyState) task.subscribe
     return task
   }
 
@@ -166,7 +166,7 @@ const class TaskExt : ExtObj, ITaskExt
 
   internal Void refreshUser()
   {
-    user := sys.user.read("task-${proj.name}", false)
+    user := sys.user.read("task-${rt.name}", false)
     if (user == null) user = sys.user.read("task", false)
     if (user == null) user = userFallback
     if (user.isSu)
@@ -179,7 +179,7 @@ const class TaskExt : ExtObj, ITaskExt
 
   once User userFallback()
   {
-    sys.user.makeSyntheticUser("task", ["projAccessFilter":"name==${proj.name.toCode}"])
+    sys.user.makeSyntheticUser("task", ["projAccessFilter":"name==${rt.name.toCode}"])
   }
 
   private Void cleanupEphemerals()

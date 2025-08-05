@@ -31,9 +31,9 @@ internal const class HxdFileExt : ExtObj, IFileExt
       throw UnsupportedErr("Only io/ paths supportted")
 
     // extra directory check to ensure we don't escape out of safe io/ directory
-    file := proj.dir + uri
-    if (!file.normalize.pathStr.startsWith(proj.dir.normalize.pathStr))
-      throw UnsupportedErr("Uri not under ${proj.dir} dir: $uri")
+    file := rt.dir + uri
+    if (!file.normalize.pathStr.startsWith(rt.dir.normalize.pathStr))
+      throw UnsupportedErr("Uri not under ${rt.dir} dir: $uri")
 
     // use a wrapper which routes everything back to here for security checks
     return HxdFile(this, uri, file)

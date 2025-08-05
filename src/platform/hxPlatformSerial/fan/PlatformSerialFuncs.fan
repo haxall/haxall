@@ -33,6 +33,6 @@ const class PlatformSerialFuncs
 
   private static Context curContext() { Context.cur }
 
-  private static PlatformSerialExt ext() {  curContext.proj.ext("hx.platform.serial") }
+  private static PlatformSerialExt ext() {  curContext.ext("hx.platform.serial") }
 }
 

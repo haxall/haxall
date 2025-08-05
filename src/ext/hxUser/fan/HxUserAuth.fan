@@ -19,13 +19,15 @@ internal class HxUserAuth
 {
   new make(HxUserExt ext, WebReq req, WebRes res)
   {
-    this.proj = ext.proj
-    this.ext  = ext
-    this.req  = req
-    this.res  = res
+    this.rt  = ext.rt
+    this.ext = ext
+    this.req = req
+    this.res = res
   }
 
-  const Proj proj
+  const Runtime rt
+
+@Deprecated Runtime proj() { rt }
 
   const HxUserExt ext
 
@@ -167,9 +169,11 @@ internal class HxUserAuth
 
 internal class HxUserAuthServerContext : AuthServerContext
 {
-  new make(HxUserExt ext) { this.proj = ext.proj; this.ext = ext }
+  new make(HxUserExt ext) { this.rt = ext.rt; this.ext = ext }
 
-  const Proj proj
+  const Runtime rt
+
+@Deprecated Proj proj() { rt }
 
   const HxUserExt ext
 

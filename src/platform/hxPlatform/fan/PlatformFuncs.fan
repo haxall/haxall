@@ -81,7 +81,7 @@ const class PlatformFuncs
 
   private static PlatformExt ext(Context cx := curContext)
   {
-    cx.proj.ext("hx.platform")
+    cx.ext("hx.platform")
   }
 }
 
