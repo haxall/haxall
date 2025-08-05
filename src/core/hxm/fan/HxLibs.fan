@@ -349,7 +349,7 @@ Str projLibsDigest() { projLibsDigestRef.val }
 
     // at this point should we should have a safe versions list to create namespace
     nsVers := versToUse.vals
-    if (rt.sys.info.rt.isHxd)
+    if (rt.sys.info.type.isHxd)
       nsVers.add(FileLibVersion.makeProj(fb.dir, rt.sys.info.version))
     ns := HxNamespace(LocalNamespaceInit(env, repo, nsVers, null))
     ns.libs // force sync load

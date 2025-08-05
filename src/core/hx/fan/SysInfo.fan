@@ -32,10 +32,10 @@ const class SysInfo
   {
     this.meta           = meta
     this.version        = Version.fromStr(meta->version)
+    this.type           = SysInfoType.fromStr(meta->type)
     this.hostOs         = meta->hostOs
     this.hostModel      = meta->hostModel
     this.hostId         = meta["hostId"]
-    this.rt             = SysInfoRuntime.fromStr(meta->runtime)
     this.productName    = meta->productName
     this.productVersion = meta->productVersion
     this.productUri     = meta->productUri
@@ -55,7 +55,7 @@ const class SysInfo
   const Version version
 
   ** System runtime type
-  @NoDoc const SysInfoRuntime rt
+  @NoDoc const SysInfoType type
 
   ** Host operating system platform and version
   const Str hostOs
@@ -141,12 +141,12 @@ const class SysInfo
 }
 
 **************************************************************************
-** SysInfoRuntime
+** SysInfoType
 **************************************************************************
 
-** System runtime type
+** System type
 @NoDoc
-enum class SysInfoRuntime
+enum class SysInfoType
 {
   hxd,
   axonsh,

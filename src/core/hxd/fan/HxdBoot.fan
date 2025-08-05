@@ -31,7 +31,7 @@ class HxdBoot : HxBoot
   {
     this.log = Log.get("hxd")
 
-    this.sysInfo["runtime"] = SysInfoRuntime.hxd.name
+    this.sysInfo["type"] = SysInfoType.hxd.name
 
     this.bootLibs = [
       "sys",

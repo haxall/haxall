@@ -243,7 +243,7 @@ class ExtTest : HxTest
   {
     // makeSyntheticUser
     u := proj.sys.user.makeSyntheticUser("FooBar", ["bar":"baz"])
-    if (sys.info.rt.isSkySpark)
+    if (sys.info.type.isSkySpark)
       verifyEq(u.id, Ref("u:FooBar"))
     else
       verifyEq(u.id, Ref("FooBar"))
@@ -265,7 +265,7 @@ class ExtTest : HxTest
     f := verifyFileResolve(`io/`, true)
     verifyEq(f.isDir, true)
     verifyEq(f.list, File[,])
-    if (sys.info.rt.isSkySpark)
+    if (sys.info.type.isSkySpark)
       verifyEq(f.parent.uri, `/proj/${proj.name}/`)
     else
       verifyEq(f.parent, null)
@@ -315,7 +315,7 @@ class ExtTest : HxTest
   {
     if (uri.toStr.startsWith("io/"))
     {
-      return sys.info.rt.isSkySpark ? "/proj/${proj.name}/${uri}".toUri : uri
+      return sys.info.type.isSkySpark ? "/proj/${proj.name}/${uri}".toUri : uri
     }
     return uri
   }

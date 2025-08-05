@@ -71,7 +71,7 @@ abstract class HxBoot
   **
   ** SysInfo metadata
   **   - version (without patch number)
-  **   - runtime
+  **   - type
   **   - hostOs, hostModel, hostId?
   **   - productName, productVersion, productUri
   **   - vendorName, vendorUri

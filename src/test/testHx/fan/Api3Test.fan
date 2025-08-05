@@ -205,7 +205,7 @@ class Api3Test : ApiTest
 
   Void doNav()
   {
-    if (sys.info.rt.isSkySpark) return
+    if (sys.info.type.isSkySpark) return
 
     Grid g := c.call("nav", Etc.makeMapGrid(null, Str:Obj[:]))
     verifyEq(g.size, 3)

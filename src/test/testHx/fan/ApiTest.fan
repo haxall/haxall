@@ -57,7 +57,7 @@ abstract class ApiTest : HxTest
 
   private Void initData()
   {
-    if (sys.info.rt.isSkySpark) addLib("hx.his")
+    if (sys.info.type.isSkySpark) addLib("hx.his")
     addLib("hx.point")
 
     try { sys.libs.add("hx.http") } catch (Err e) {}
@@ -87,7 +87,7 @@ abstract class ApiTest : HxTest
 
   Void initSettings()
   {
-    if (sys.info.rt.isSkySpark) return
+    if (sys.info.type.isSkySpark) return
 
     ext := proj.ext("hx.http")
     rec := ext.settings

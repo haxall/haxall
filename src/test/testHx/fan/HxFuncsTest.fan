@@ -465,7 +465,7 @@ class HxFuncsTest : HxTest
     row := status.find { it->name == "hx.math" } ?: throw Err()
     verifyEq(row["name"],      "hx.math")
     verifyEq(row["libStatus"], "ok")
-    verifyEq(row["libBasis"],  proj.sys.info.rt.isHxd ? "sys" : "proj")
+    verifyEq(row["libBasis"],  proj.sys.info.type.isHxd ? "sys" : "proj")
 
     // remove
     eval("libRemove(\"hx.math\")")

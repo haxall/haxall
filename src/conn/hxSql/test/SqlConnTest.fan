@@ -27,7 +27,7 @@ class SqlConnTest : HxTest
   Dict? sqlTestInit()
   {
     addLib("sql")
-    if (sys.info.rt.isSkySpark) addLib("his")
+    if (sys.info.type.isSkySpark) addLib("hx.his")
 
     // configure one
     sqlPod := Pod.find("sql")

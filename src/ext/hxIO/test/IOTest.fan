@@ -423,7 +423,7 @@ class IOTest : HxTest
     verifyEq(text, "folio file test!")
 
     // bins (SkySpark only)
-    if (sys.info.rt.isSkySpark)
+    if (sys.info.type.isSkySpark)
     {
       f := addRec(["file": Bin("text/plain")])
       eval("""ioWriteStr("bin test!", readById($f.id.toCode))""")
