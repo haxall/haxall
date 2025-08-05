@@ -24,10 +24,10 @@ const class HxLibs : RuntimeLibs
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxProj proj, HxBoot boot)
+  new make(HxRuntime rt, HxBoot boot)
   {
-    this.proj         = proj
-    this.isSys        = proj.isSys
+    this.rt           = rt
+    this.isSys        = rt.isSys
     this.env          = boot.xetoEnv
     this.fb           = boot.initNamespaceFileBase
     this.log          = boot.log
@@ -44,7 +44,7 @@ const class HxLibs : RuntimeLibs
 // Lookup
 //////////////////////////////////////////////////////////////////////////
 
-  const HxProj proj
+  const HxRuntime rt
 
   const Bool isSys
 
@@ -110,7 +110,7 @@ const class HxLibs : RuntimeLibs
 
     // build grid
     gb := GridBuilder()
-    gb.setMeta(Etc.dict1("projName", proj.name))
+    gb.setMeta(Etc.dict1("projName", rt.name))
     gb.addCol("name").addCol("libBasis").addCol("libStatus").addCol("version").addCol("doc").addCol("err")
 
     // add row for proj lib
@@ -261,7 +261,7 @@ const class HxLibs : RuntimeLibs
     writeProjLibNames(newProjLibNames)
 
     // notify project
-    this.proj.onLibsModified(ns)
+    this.rt.onLibsModified(ns)
   }
 
   private Str:Str checkDupNames(Str[] names)
@@ -312,7 +312,7 @@ const class HxLibs : RuntimeLibs
     vers := Str:LibVersion[:]
     basisBoot    := isSys ? ProjLibBasis.sysBoot : ProjLibBasis.projBoot
     basisNonBoot := isSys ? ProjLibBasis.sys : ProjLibBasis.proj
-    sysns := proj.isSys ? null : proj.sys.ns
+    sysns := rt.isSys ? null : rt.sys.ns
     nameToBasis := Str:ProjLibBasis[:]
     projLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisNonBoot }
     bootLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisBoot }
@@ -320,7 +320,7 @@ const class HxLibs : RuntimeLibs
     // TODO: just adding more mess
     if (!isSys)
     {
-      proj.sys.libs.list.each |x|
+      rt.sys.libs.list.each |x|
       {
         n := x.name
         vers.setNotNull(n, repo.latest(n, false))
@@ -346,8 +346,8 @@ const class HxLibs : RuntimeLibs
 
     // at this point should we should have a safe versions list to create namespace
     nsVers := versToUse.vals
-    if (proj.sys.info.rt.isHxd)
-      nsVers.add(FileLibVersion.makeProj(fb.dir, proj.sys.info.version))
+    if (rt.sys.info.rt.isHxd)
+      nsVers.add(FileLibVersion.makeProj(fb.dir, rt.sys.info.version))
     ns := HxNamespace(LocalNamespaceInit(env, repo, nsVers, null))
     ns.libs // force sync load
 

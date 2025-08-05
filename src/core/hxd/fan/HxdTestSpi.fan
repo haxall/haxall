@@ -44,7 +44,7 @@ class HxdTestSpi : HxTestSpi
 
   override Void stop(Proj proj)
   {
-    ((HxProj)proj).stop
+    ((HxRuntime)proj).stop
   }
 
   override Proj restart(Proj proj)
@@ -89,7 +89,7 @@ class HxdTestSpi : HxTestSpi
 
   override Void forceSteadyState()
   {
-    ((HxProj)proj).backgroundMgr.forceSteadyState
+    ((HxRuntime)proj).backgroundMgr.forceSteadyState
   }
 
   Proj proj() { test.proj }

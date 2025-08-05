@@ -18,17 +18,17 @@ using hx
 **
 const class HxExts : Actor, RuntimeExts
 {
-  new make(HxProj proj, ActorPool actorPool) : super(actorPool)
+  new make(HxRuntime rt, ActorPool actorPool) : super(actorPool)
   {
-    this.proj      = proj
+    this.rt       = rt
     this.actorPool = actorPool
   }
 
-  const HxProj proj
+  const HxRuntime rt
 
   override const ActorPool actorPool
 
-  Log log() { proj.log }
+  Log log() { rt.log }
 
 //////////////////////////////////////////////////////////////////////////
 // Registry
@@ -61,7 +61,7 @@ const class HxExts : Actor, RuntimeExts
   override Ext? getOwn(Str name, Bool checked := true)
   {
     ext := map[name]
-    if (ext != null && ext.proj === this.proj) return ext
+    if (ext != null && ext.proj === this.rt) return ext
     if (checked) throw UnknownExtErr(name)
     return null
   }
@@ -95,7 +95,7 @@ const class HxExts : Actor, RuntimeExts
   override Grid status()
   {
     gb := GridBuilder()
-    gb.setMeta(Etc.dict1("projName", proj.name))
+    gb.setMeta(Etc.dict1("projName", rt.name))
     gb.addCol("qname").addCol("libStatus").addCol("fantomType").addCol("statusMsg")
     list.each |ext|
     {
@@ -108,8 +108,8 @@ const class HxExts : Actor, RuntimeExts
   override Ext add(Str name, Dict? settings := null)
   {
     if (settings != null && !settings.isEmpty)
-      proj.settingsMgr.extInit(name, settings)
-    proj.libs.add(name)
+      rt.settingsMgr.extInit(name, settings)
+    rt.libs.add(name)
     return get(name)
   }
 
@@ -166,14 +166,14 @@ const class HxExts : Actor, RuntimeExts
     update(newMap)
 
     // after update now call start/ready
-    if (proj.isRunning)
+    if (rt.isRunning)
     {
       toStart.each |ext|
       {
         spi := (HxExtSpi)ext.spi
         spi.start
         spi.ready
-        if (proj.isSteadyState) spi.steadyState
+        if (rt.isSteadyState) spi.steadyState
       }
     }
   }
@@ -183,13 +183,13 @@ const class HxExts : Actor, RuntimeExts
     ext := HxExtSpi.instantiate(null, this, lib)
     if (ext == null) return null
     spi := (HxExtSpi)ext.spi
-    proj.obsRef.addExt(ext)
+    rt.obsRef.addExt(ext)
     return ext
   }
 
   private Void onRemoved(Ext ext)
   {
-    proj.obsRef.removeExt(ext)
+    rt.obsRef.removeExt(ext)
     spi := (HxExtSpi)ext.spi
     spi.unready
     spi.stop
@@ -201,7 +201,7 @@ const class HxExts : Actor, RuntimeExts
     ns.libs.findAll |lib|
     {
       if (lib.meta.missing("libExt")) return false
-      if (!proj.isSys && proj.sys.ns.hasLib(lib.name)) return false
+      if (!rt.isSys && rt.sys.ns.hasLib(lib.name)) return false
       return true
     }
   }
@@ -209,12 +209,12 @@ const class HxExts : Actor, RuntimeExts
   private Void update(Str:Ext map)
   {
     // if I am proj, then merge in sys exts
-    if (!proj.isSys) proj.sys.exts.list.each |sysExt| { map[sysExt.name] = sysExt }
+    if (!rt.isSys) rt.sys.exts.list.each |sysExt| { map[sysExt.name] = sysExt }
 
     // build sorted list
     list := map.vals
     list.sort |a, b| { a.name <=> b.name }
-    listOwn := list.findAll { it.proj === this.proj }
+    listOwn := list.findAll { it.proj === this.rt }
 
     // map web routes
     webRoutes := Str:ExtWeb[:]

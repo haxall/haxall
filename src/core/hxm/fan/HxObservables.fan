@@ -25,7 +25,7 @@ const class HxObservables : Actor, RuntimeObservables
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxProj rt) : super(rt.actorPool)
+  new make(HxRuntime rt) : super(rt.actorPool)
   {
     this.rt  = rt
     this.log = rt.db.log
@@ -54,7 +54,7 @@ const class HxObservables : Actor, RuntimeObservables
 // Lookup Tables
 //////////////////////////////////////////////////////////////////////////
 
-  const HxProj rt
+  const HxRuntime rt
 
   const Log log
 
@@ -277,16 +277,16 @@ const class HxObservables : Actor, RuntimeObservables
 
 internal const class CommitsObservable : Observable
 {
-  new make(HxProj proj) { this.proj = proj }
+  new make(HxRuntime rt) { this.rt = rt }
 
-  const HxProj proj
+  const HxRuntime rt
 
   override Str name() { "obsCommits" }
 
   override Subscription onSubscribe(Observer observer, Dict config)
   {
     sub := CommitsSubscription(this, observer, config)
-    if (sub.addOnInit) proj.obsRef.sendAddOnInit(sub)
+    if (sub.addOnInit) rt.obsRef.sendAddOnInit(sub)
     return sub
   }
 }
@@ -321,9 +321,9 @@ internal const class CommitsSubscription : RecSubscription
 
 internal const class WatchesObservable : Observable
 {
-  new make(HxProj rt) { this.rt = rt }
+  new make(HxRuntime rt) { this.rt = rt }
 
-  const HxProj rt
+  const HxRuntime rt
 
   override Str name() { "obsWatches" }
 

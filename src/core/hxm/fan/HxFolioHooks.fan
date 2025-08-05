@@ -18,22 +18,21 @@ using hx
 const class HxFolioHooks : FolioHooks
 {
   ** Constructor
-  new make(HxProj proj) { this.proj = proj }
+  new make(HxRuntime rt) { this.rt = rt }
 
-  ** Parent project instance
-  const HxProj proj
+  ** Parent runtime instance
+  const HxRuntime rt
 
   ** Xeto namespace is available
-  override LibNamespace? ns(Bool checked := true) { proj.ns }
+  override LibNamespace? ns(Bool checked := true) { rt.ns }
 
   ** Def namespace is available
-  override DefNamespace? defs(Bool checked := true) { proj.defs }
+  override DefNamespace? defs(Bool checked := true) { rt.defs }
 
   ** Callback before diff is committed during verify
   ** phase. An exception will cancel entire commit.
   ** Pass through FolioContext.commitInfo if available.
   override Void preCommit(FolioCommitEvent e) {}
-
 
   ** Callback after diff has been committed.
   ** Pass through FolioContext.commitInfo if available.
@@ -46,22 +45,22 @@ const class HxFolioHooks : FolioHooks
     // observation; otherwise short circut all other code
     if (diff.isTransient)
     {
-      if (diff.isCurVal) proj.obsRef.curVal(diff)
+      if (diff.isCurVal) rt.obsRef.curVal(diff)
       return
     }
 
     if (diff.getOld("def") != null || diff.getNew("def") != null)
     {
-      proj.nsOverlayRecompile
+      rt.nsOverlayRecompile
     }
 
-    proj.obsRef.commit(diff, user)
+    rt.obsRef.commit(diff, user)
   }
 
   ** Callback after his write.  Result is same dict returned from future.
   override Void postHisWrite(FolioHisEvent e)
   {
-    proj.obsRef.hisWrite(e.rec, e.result, e.cxInfo as HxUser)
+    rt.obsRef.hisWrite(e.rec, e.result, e.cxInfo as HxUser)
   }
 }
 

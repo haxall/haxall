@@ -18,12 +18,12 @@ using hx
 const class HxBackgroundMgr : Actor
 {
 
-  new make(HxProj proj) : super(proj.actorPool)
+  new make(HxRuntime rt) : super(rt.actorPool)
   {
-    this.proj = proj
+    this.rt = rt
   }
 
-  const HxProj proj
+  const HxRuntime rt
 
   Void start()
   {
@@ -40,7 +40,7 @@ const class HxBackgroundMgr : Actor
   override Obj? receive(Obj? msg)
   {
     // if daemon shutdown we are all done
-    if (!proj.isRunning) return null
+    if (!rt.isRunning) return null
 
     // dispatch message
     if (msg === checkMsg) return onCheck
@@ -58,13 +58,13 @@ const class HxBackgroundMgr : Actor
 
     // update now cached DateTime
     now := DateTime.now(null)
-    proj.nowRef.val = now
+    rt.nowRef.val = now
 
     // check schedules
-    proj.obs.schedule.check(now)
+    rt.obs.schedule.check(now)
 
     // check watches
-    proj.watch.checkExpires
+    rt.watch.checkExpires
 
     return null
   }
@@ -77,7 +77,7 @@ const class HxBackgroundMgr : Actor
 
   private Void checkSteadyState()
   {
-    if (proj.isSteadyState) return
+    if (rt.isSteadyState) return
 
     config := steadyStateConfig
     elapsed := Duration.nowTicks - startTicks.val
@@ -87,16 +87,16 @@ const class HxBackgroundMgr : Actor
 
   private Void transitionToSteadyState()
   {
-    proj.log.info("Steady state")
-    proj.stateStateRef.val = true
-    proj.exts.list.each |ext| { ((HxExtSpi)ext.spi).steadyState }
+    rt.log.info("Steady state")
+    rt.stateStateRef.val = true
+    rt.exts.listOwn.each |ext| { ((HxExtSpi)ext.spi).steadyState }
   }
 
   private Duration steadyStateConfig()
   {
     Duration? x
     try
-      x = (proj.meta["steadyState"] as Number)?.toDuration
+      x = (rt.meta["steadyState"] as Number)?.toDuration
     catch (Err e)
       {}
     if (x == null) x = 10sec

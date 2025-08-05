@@ -17,7 +17,7 @@ using hx
 **
 ** Haxall base implementation of Proj
 **
-abstract const class HxProj : Proj
+abstract const class HxRuntime : Proj
 {
 
 //////////////////////////////////////////////////////////////////////////

@@ -16,7 +16,7 @@ using folio
 using hx
 using hxm
 
-const class HxdSys : HxProj, Sys
+const class HxdSys : HxRuntime, Sys, Proj
 {
   new make(HxdBoot boot) : super(boot)
   {

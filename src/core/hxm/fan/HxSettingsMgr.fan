@@ -16,13 +16,13 @@ using folio
 **
 const class HxSettingsMgr
 {
-  new make(HxProj proj, HxBoot boot)
+  new make(HxRuntime rt, HxBoot boot)
   {
-    this.proj = proj
-    this.db   = boot.initSettingsFolio
+    this.rt = rt
+    this.db = boot.initSettingsFolio
   }
 
-  const HxProj proj
+  const HxRuntime rt
   const Folio db
 
 //////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ const class HxSettingsMgr
   ** Update projMeta
   Void projMetaUpdate(Obj changes)
   {
-    proj.metaRef.val = update(projMetaId, changes)
+    rt.metaRef.val = update(projMetaId, changes)
   }
 
 //////////////////////////////////////////////////////////////////////////

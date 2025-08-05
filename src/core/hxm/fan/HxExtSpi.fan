@@ -38,7 +38,7 @@ const class HxExtSpi : Actor, ExtSpi
     try
     {
       // lookup the spec
-      spec := exts.proj.ns.spec(ref.id, false)
+      spec := exts.rt.ns.spec(ref.id, false)
       if (spec == null) { log.warn("Unknown lib ext spec: $ref"); return null }
 
       // verify type
@@ -52,10 +52,10 @@ const class HxExtSpi : Actor, ExtSpi
       ctorArgs := ctorNeedBoot ? [boot] : null
 
       // read settings
-      settings := exts.proj.settingsMgr.extRead(name)
+      settings := exts.rt.settingsMgr.extRead(name)
 
       // create spi instance
-      spi := HxExtSpi(exts.proj, name, spec, type, settings, exts.actorPool)
+      spi := HxExtSpi(exts.rt, name, spec, type, settings, exts.actorPool)
 
       // instantiate fantom type
       ExtObj? ext
@@ -80,9 +80,9 @@ const class HxExtSpi : Actor, ExtSpi
     }
   }
 
-  private new make(HxProj proj, Str name, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
+  private new make(HxRuntime rt, Str name, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
   {
-    this.projRef     = proj
+    this.rtRef       = rt
     this.name        = name
     this.qname       = spec.qname
     this.log         = Log.get(name)
@@ -97,8 +97,8 @@ const class HxExtSpi : Actor, ExtSpi
   ExtObj ext() { extRef.val }
   private const AtomicRef extRef := AtomicRef()
 
-  override Proj proj() { projRef }
-  const HxProj projRef
+  override Proj proj() { rtRef }
+  const HxRuntime rtRef
 
   override const Str name
 
@@ -113,7 +113,7 @@ const class HxExtSpi : Actor, ExtSpi
 
   override Void settingsUpdate(Obj changes)
   {
-    projRef.settingsMgr.extUpdate(this, changes)
+    rtRef.settingsMgr.extUpdate(this, changes)
   }
 
   override const Log log

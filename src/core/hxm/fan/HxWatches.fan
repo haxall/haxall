@@ -23,9 +23,9 @@ internal const class HxWatches : RuntimeWatches
 // Construction
 //////////////////////////////////////////////////////////////////////////
 
-  new make(HxProj proj)
+  new make(HxRuntime rt)
   {
-    this.proj = proj
+    this.rt   = rt
     this.byId = ConcurrentMap()
   }
 
@@ -33,10 +33,10 @@ internal const class HxWatches : RuntimeWatches
 // Lookup Tables
 //////////////////////////////////////////////////////////////////////////
 
-  const HxProj proj          // parent project
+  const HxRuntime rt         // parent runtime
   const ConcurrentMap byId   // Str:HxWatch
 
-  Folio db() { proj.db }
+  Folio db() { rt.db }
 
   override HxWatch[] list()
   {
@@ -70,7 +70,7 @@ internal const class HxWatches : RuntimeWatches
 
   override Bool isWatched(Ref id)
   {
-    rec := proj.db.readRecById(id, false)
+    rec := rt.db.readRecById(id, false)
     return rec != null && rec.watchCount > 0
   }
 
@@ -127,7 +127,7 @@ internal const class HxWatch : Watch
   const Int created
   const ConcurrentMap refs  // Ref:HxWatchRef
 
-  override HxProj proj() { service.proj }
+  override HxRuntime proj() { service.rt }
 
   override Ref[] list()
   {

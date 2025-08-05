@@ -116,15 +116,15 @@ class HxDefCompiler : DefCompiler
 
 const class HxDefOverlayCompiler
 {
-  new make(HxProj proj, DefNamespace base)
+  new make(HxRuntime rt, DefNamespace base)
   {
-    this.proj = proj
+    this.rt   = rt
     this.base = base
-    this.log  = proj.log
+    this.log  = rt.log
     this.libSymbol = Symbol("lib:proj")
   }
 
-  const HxProj proj
+  const HxRuntime rt
   const DefNamespace base
   const Log log
   const Symbol libSymbol
@@ -134,11 +134,11 @@ const class HxDefOverlayCompiler
     acc := Str:Obj[:]
     acc["def"] = libSymbol
     acc["baseUri"] = `/def/$libSymbol.name/`
-    acc["version"] = proj.sys.info.version.toStr
+    acc["version"] = rt.sys.info.version.toStr
     meta := Etc.makeDict(acc)
 
     b := BOverlayLib(base, meta)
-    proj.db.readAll(Filter.has("def")).each |rec| { addRecDef(b, rec) }
+    rt.db.readAll(Filter.has("def")).each |rec| { addRecDef(b, rec) }
 
     return MOverlayNamespace(base, MOverlayLib(b), |DefLib lib->Bool| { true })
   }
