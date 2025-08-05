@@ -304,7 +304,7 @@ class ExtTest : HxTest
 
   File verifyFileResolve(Uri uri, Bool exists)
   {
-    f := proj.exts.file.resolve(uri)
+    f := proj.sys.file.resolve(uri)
     verifyEq(f.uri, normUri(uri))
     verifyEq(f.isDir, uri.isDir)
     verifyEq(f.exists, exists)
@@ -324,7 +324,7 @@ class ExtTest : HxTest
   {
     try
     {
-      f := proj.exts.file.resolve(uri)
+      f := proj.sys.file.resolve(uri)
       verify(!f.exists)
     }
     catch (UnsupportedErr e)

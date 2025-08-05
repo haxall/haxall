@@ -20,7 +20,7 @@ class IOTest : HxTest
   @HxTestProj
   Void testFileExt()
   {
-    ext := proj.exts.file
+    ext := proj.sys.file
 
     f := ext.resolve(`io/`)
     verifyEq(f.uri, `io/`)

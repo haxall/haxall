@@ -28,26 +28,27 @@ const mixin Sys : Proj
 //////////////////////////////////////////////////////////////////////////
 
   ** Cluster system extension (optional)
-  @NoDoc abstract IClusterExt? cluster(Bool checked := true)
+  @NoDoc virtual IClusterExt? cluster(Bool checked := true) { exts.getByType(IClusterExt#, checked) }
 
   ** Crypto system extension (required)
-  @NoDoc abstract ICryptoExt crypto()
+  @NoDoc virtual ICryptoExt crypto() { exts.getByType(ICryptoExt#) }
+
+  ** File system extension (required)
+  @NoDoc virtual IFileExt file() { exts.getByType(IFileExt#) }
 
   ** Ion user interface system extension (optional)
-  @NoDoc abstract IIonExt? ion(Bool checked := true)
+  @NoDoc virtual IIonExt? ion(Bool checked := true) { exts.getByType(IIonExt#, checked) }
 
   ** HTTP system extension (required, but not in tests)
-  @NoDoc abstract IHttpExt http()
+  @NoDoc virtual IHttpExt http() { exts.getByType(IHttpExt#) }
 
   ** Platform management system extension (optional)
-  @NoDoc abstract IPlatformExt? platform(Bool checked := true)
+  @NoDoc virtual IPlatformExt? platform(Bool checked := true)  { exts.getByType(IPlatformExt#, checked) }
 
-  ** Project management (required)
-  @NoDoc abstract IProjExt proj()
+  ** Project management system extension (required)
+  @NoDoc virtual IProjExt proj() { exts.getByType(IProjExt#) }
 
   ** User management system extension (required)
-  @NoDoc abstract IUserExt user()
-
-
+  @NoDoc virtual IUserExt user()  { exts.getByType(IUserExt#) }
 }
 

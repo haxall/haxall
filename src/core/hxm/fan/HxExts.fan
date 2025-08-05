@@ -240,7 +240,6 @@ const class HxExts : Actor, RuntimeExts
 //////////////////////////////////////////////////////////////////////////
 
   override IConnExt? conn(Bool checked := true)   { getByType(IConnExt#,  checked) }
-  override IFileExt? file(Bool checked := true)   { getByType(IFileExt#,  checked) }
   override IHisExt? his(Bool checked := true)     { getByType(IHisExt#,   checked) }
   override IIOExt? io(Bool checked := true)       { getByType(IIOExt#,    checked) }
   override IPointExt? point(Bool checked := true) { getByType(IPointExt#, checked) }

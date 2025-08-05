@@ -121,7 +121,7 @@ const mixin ICryptoExt : SysExt
 ** File APIs
 **
 @NoDoc
-const mixin IFileExt : Ext
+const mixin IFileExt : SysExt
 {
   **
   ** Resolve a virtual file system URI.  If the uri does not resolve

@@ -16,10 +16,22 @@ using folio
 using hx
 using hxm
 
-const class HxdSys : HxSys
+const class HxdSys : HxProj, Sys
 {
   new make(HxdBoot boot) : super(boot)
   {
+    this.info   = boot.initSysInfo
+    this.config = boot.initSysConfig
   }
+
+  override final Sys sys() { this }
+
+  override final Bool isSys() { true }
+
+  override final Bool isProj() { true }
+
+  override const SysInfo info
+
+  override const SysConfig config
 }
 

@@ -79,9 +79,6 @@ const mixin RuntimeExts
   ** Lookup connector extension
   @NoDoc abstract IConnExt? conn(Bool checked := true)
 
-  ** Lookup file extension
-  @NoDoc abstract IFileExt? file(Bool checked := true)
-
   ** Lookup history extension
   @NoDoc abstract IHisExt? his(Bool checked := true)
 
