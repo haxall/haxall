@@ -21,30 +21,30 @@ using defc
 **
 class HxDefCompiler : DefCompiler
 {
-  new make(Proj proj)
+  new make(HxRuntime rt)
   {
-    this.log     = proj.log
-    this.factory = ProjDefFactory()
-    this.inputs  = buildInputs(proj)
+    this.log     = rt.log
+    this.factory = HxDefFactory()
+    this.inputs  = buildInputs(rt)
   }
 
-  internal ProjLibInput[] buildInputs(Proj proj)
+  internal HxLibInput[] buildInputs(HxRuntime rt)
   {
-    acc := Str:ProjLibInput[:]
+    acc := Str:HxLibInput[:]
 
     // include base def libs
     "ph,phScience,phIoT,phIct,hx,obs,axon".split(',').each |name|
     {
       pod  := Pod.find(name)
       meta := podToMeta(pod)
-      acc.add(name, ProjLibInput(name, pod, meta))
+      acc.add(name, HxLibInput(name, pod, meta))
     }
 
     // map xeto libs to def pods
-    proj.ns.libs.each |lib|
+    rt.ns.libs.each |lib|
     {
       if (acc[lib.name] != null) return
-      input := xetoToInput(proj, lib)
+      input := xetoToInput(rt, lib)
       if (input != null && acc[input.name] == null)
         acc[input.name] = input
     }
@@ -52,7 +52,7 @@ class HxDefCompiler : DefCompiler
     return acc.vals
   }
 
-  internal ProjLibInput? xetoToInput(Proj proj, Lib lib)
+  internal HxLibInput? xetoToInput(HxRuntime rt, Lib lib)
   {
     try
     {
@@ -68,7 +68,7 @@ class HxDefCompiler : DefCompiler
 
       meta := podToMeta(pod)
       def := meta->def.toStr["lib:".size..-1]
-      return ProjLibInput(def, pod, meta)
+      return HxLibInput(def, pod, meta)
     }
     catch (Err e)
     {
@@ -191,10 +191,10 @@ const class HxDefOverlayCompiler
 }
 
 **************************************************************************
-** ProjDefFactory
+** HxDefFactory
 **************************************************************************
 
-internal const class ProjDefFactory : DefFactory
+internal const class HxDefFactory : DefFactory
 {
   override MFeature createFeature(BFeature b)
   {
@@ -259,10 +259,10 @@ const class FuncDef : MDef
 }
 
 **************************************************************************
-** ProjLibInput
+** HxLibInput
 **************************************************************************
 
-internal const class ProjLibInput : LibInput
+internal const class HxLibInput : LibInput
 {
   new make(Str name, Pod pod, Dict meta)
   {
