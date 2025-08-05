@@ -15,9 +15,9 @@ using obs
 using hx
 
 **
-** Haxall base implementation of Proj
+** Haxall base implementation of Runtime
 **
-abstract const class HxRuntime : Proj
+abstract const class HxRuntime : Runtime
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -101,9 +101,6 @@ abstract const class HxRuntime : Proj
 
   ** Xeto lib namespace
   override Namespace ns() { libsRef.ns }
-
-  ** Project spec management
-  override ProjSpecs specs() { libsRef.specs }
 
   ** Convenience for 'exts.get' to lookup extension by lib dotted name
   override Ext? ext(Str name, Bool checked := true) { exts.get(name, checked) }

@@ -33,5 +33,7 @@ const class HxdSys : HxRuntime, Sys, Proj
   override const SysInfo info
 
   override const SysConfig config
+
+  override ProjSpecs specs() { libsRef.specs }
 }
 

@@ -73,9 +73,6 @@ const mixin Runtime
   ** Xeto library management
   abstract RuntimeLibs libs()
 
-  ** Project spec management
-  abstract ProjSpecs specs()
-
   ** Namespace of definitions (deprecated)
   @NoDoc abstract DefNamespace defs()
 

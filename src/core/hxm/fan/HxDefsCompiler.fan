@@ -365,6 +365,7 @@ internal const class FuncMethodsReflectInput : FuncReflectInput
 ** ProjOverlayLib
 **************************************************************************
 
+/* Don't support proj defs in hxd anymore in 4.0
 const class ProjOverlayLib
 {
   new make(Proj proj, DefNamespace base)
@@ -441,4 +442,5 @@ const class ProjOverlayLib
     log.err("$msg [$rec.id.toCode]", err)
   }
 }
+*/
 

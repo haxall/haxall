@@ -500,7 +500,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Str? projSpecRead(Str name, Bool checked := true)
   {
-    curContext.rt.specs.read(name, checked)
+    curContext.proj.specs.read(name, checked)
   }
 
   ** Add a project level spec by name and update namespace:
@@ -508,7 +508,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecAdd(Str name, Str body)
   {
-    curContext.rt.specs.add(name, body)
+    curContext.proj.specs.add(name, body)
   }
 
   ** Update a project level spec by name and update namespace:
@@ -516,7 +516,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecUpdate(Str name, Str body)
   {
-    curContext.rt.specs.update(name, body)
+    curContext.proj.specs.update(name, body)
   }
 
   ** Rename a project level spec and update namespace:
@@ -524,7 +524,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecRename(Str oldName, Str newName)
   {
-    curContext.rt.specs.rename(oldName, newName)
+    curContext.proj.specs.rename(oldName, newName)
   }
 
   ** Remove a project level spec by name and update namespace:
@@ -532,7 +532,7 @@ throw Err("TODO")
   @Api @Axon { admin = true }
   static Obj projSpecRemove(Str name)
   {
-    curContext.rt.specs.remove(name)
+    curContext.proj.specs.remove(name)
     return "removed"
   }
 

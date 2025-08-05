@@ -18,5 +18,7 @@ using folio
 **
 const mixin Proj : Runtime
 {
+  ** Project spec management
+  abstract ProjSpecs specs()
 }
 
