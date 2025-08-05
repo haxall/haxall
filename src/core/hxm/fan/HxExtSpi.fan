@@ -26,7 +26,7 @@ const class HxExtSpi : Actor, ExtSpi
 //////////////////////////////////////////////////////////////////////////
 
   ** Instantiate the Ext for given lib if available
-  static ExtObj? instantiate(HxBoot? boot, HxProjExts exts, Lib lib)
+  static ExtObj? instantiate(HxBoot? boot, HxExts exts, Lib lib)
   {
     // check for libExt meta
     ref := lib.meta["libExt"] as Ref

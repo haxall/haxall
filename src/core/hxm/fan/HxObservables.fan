@@ -16,9 +16,9 @@ using folio
 using hx
 
 **
-** Implementation for ProjWatches
+** Implementation for RuntimeWatches
 **
-const class HxProjObservables : Actor, RuntimeObservables
+const class HxObservables : Actor, RuntimeObservables
 {
 
 //////////////////////////////////////////////////////////////////////////

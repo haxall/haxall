@@ -15,9 +15,9 @@ using xetoc
 using hx
 
 **
-** ProjLibs implementation
+** RuntimeLibs implementation
 **
-const class HxProjLibs : RuntimeLibs
+const class HxLibs : RuntimeLibs
 {
 
 //////////////////////////////////////////////////////////////////////////

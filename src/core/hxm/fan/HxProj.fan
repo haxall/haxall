@@ -38,10 +38,10 @@ abstract const class HxProj : Proj
     this.settingsMgr   = HxSettingsMgr(this, boot)
     this.metaRef       = AtomicRef(settingsMgr.projMetaInit(boot))
     this.backgroundMgr = HxBackgroundMgr(this)
-    this.libsRef       = HxProjLibs(this, boot)
-    this.extsRef       = HxProjExts(this, actorPool)
-    this.watchRef      = HxProjWatches(this)
-    this.obsRef        = HxProjObservables(this)
+    this.libsRef       = HxLibs(this, boot)
+    this.extsRef       = HxExts(this, actorPool)
+    this.watchRef      = HxWatches(this)
+    this.obsRef        = HxObservables(this)
   }
 
   ** Called after constructor to init extensions.  This must
@@ -97,7 +97,7 @@ abstract const class HxProj : Proj
 
   ** Runtime xeto library management
   override RuntimeLibs libs() { libsRef }
-  const HxProjLibs libsRef
+  const HxLibs libsRef
 
   ** Xeto lib namespace
   override Namespace ns() { libsRef.ns }
@@ -110,15 +110,15 @@ abstract const class HxProj : Proj
 
   ** Project extensions
   override RuntimeExts exts() { extsRef }
-  const HxProjExts extsRef
+  const HxExts extsRef
 
   ** Runtime watch management
   override RuntimeWatches watch() { watchRef }
-  internal const HxProjWatches watchRef
+  internal const HxWatches watchRef
 
   ** Runtime observable management
   override RuntimeObservables obs() { obsRef }
-  const HxProjObservables obsRef
+  const HxObservables obsRef
 
   ** Namespace of definitions
   override DefNamespace defs()

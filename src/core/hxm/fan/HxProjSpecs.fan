@@ -20,13 +20,13 @@ using hx
 const class HxProjSpecs : ProjSpecs
 {
 
-  new make(HxProjLibs libs)
+  new make(HxLibs libs)
   {
     this.libs = libs
     this.fb   = libs.fb
   }
 
-  const HxProjLibs libs
+  const HxLibs libs
 
   const DiskFileBase fb
 

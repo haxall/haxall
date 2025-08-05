@@ -14,9 +14,9 @@ using folio
 using hx
 
 **
-** Implementation for ProjWatches
+** Implementation for RuntimeWatches
 **
-internal const class HxProjWatches : RuntimeWatches
+internal const class HxWatches : RuntimeWatches
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ internal const class HxProjWatches : RuntimeWatches
 
 internal const class HxWatch : Watch
 {
-  new make(HxProjWatches service, Str dis)
+  new make(HxWatches service, Str dis)
   {
     this.service = service
     this.dis     = dis
@@ -121,7 +121,7 @@ internal const class HxWatch : Watch
     this.refs    = ConcurrentMap()
   }
 
-  const HxProjWatches service
+  const HxWatches service
   const override Str dis
   const override Str id
   const Int created

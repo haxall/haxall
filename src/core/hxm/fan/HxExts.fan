@@ -14,9 +14,9 @@ using folio
 using hx
 
 **
-** ProjExts implementation
+** RuntimeExts implementation
 **
-const class HxProjExts : Actor, RuntimeExts
+const class HxExts : Actor, RuntimeExts
 {
   new make(HxProj proj, ActorPool actorPool) : super(actorPool)
   {
