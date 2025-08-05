@@ -64,31 +64,34 @@ const class HxLibs : RuntimeLibs
 
   HxNamespace ns() { nsRef.val }
 
-  override Lib[] projLibs() { projLibsRef.val }
+// TODO
+/*override*/
+ Lib[] projLibs() { projLibsRef.val }
 
-  override Str projLibsDigest() { projLibsDigestRef.val }
+/*override*/
+Str projLibsDigest() { projLibsDigestRef.val }
 
-  override ProjLib[] list() { map.vals }
+  override RuntimeLib[] list() { map.vals }
 
   override Bool has(Str name) { map.containsKey(name) }
 
-  override ProjLib? get(Str name, Bool checked := true)
+  override RuntimeLib? get(Str name, Bool checked := true)
   {
     lib := map[name]
     if (lib != null) return lib
     if (checked) throw UnknownLibErr(name)
     return null
   }
-  internal Str:HxProjLib map() { mapRef.val }
+  internal Str:HxLib map() { mapRef.val }
 
-  override ProjLib[] installed()
+  override RuntimeLib[] installed()
   {
     acc := this.map.dup
     env.repo.libs.each |n|
     {
       if (acc[n] != null) return
       v := repo.latest(n)
-      acc[n] = HxProjLib.makeDisabled(v)
+      acc[n] = HxLib.makeDisabled(v)
     }
     return acc.vals
   }
@@ -118,7 +121,7 @@ const class HxLibs : RuntimeLibs
     pxVer:= ns.version(pxName, false)
     if (pxVer != null) gb.addRow([
       pxName,
-      ProjLibBasis.projBoot.name,
+      RuntimeLibBasis.boot.name,
       ns.libStatus(pxName)?.toStr ?: "err",
       pxVer?.version?.toStr,
       pxVer?.doc,
@@ -310,10 +313,10 @@ const class HxLibs : RuntimeLibs
   {
     // first find an installed LibVersion for each lib
     vers := Str:LibVersion[:]
-    basisBoot    := isSys ? ProjLibBasis.sysBoot : ProjLibBasis.projBoot
-    basisNonBoot := isSys ? ProjLibBasis.sys : ProjLibBasis.proj
+    basisBoot    := isSys ? RuntimeLibBasis.boot : RuntimeLibBasis.boot
+    basisNonBoot := isSys ? RuntimeLibBasis.sys : RuntimeLibBasis.proj
     sysns := rt.isSys ? null : rt.sys.ns
-    nameToBasis := Str:ProjLibBasis[:]
+    nameToBasis := Str:RuntimeLibBasis[:]
     projLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisNonBoot }
     bootLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisBoot }
 
@@ -352,14 +355,14 @@ const class HxLibs : RuntimeLibs
     ns.libs // force sync load
 
     // now update HxProjLibs map of HxProjLib
-    acc := Str:HxProjLib[:]
+    acc := Str:HxLib[:]
     nameToBasis.each |basis, n|
     {
       // check if we have lib installed
       ver := vers[n]
       if (ver == null)
       {
-        acc[n] = HxProjLib.makeErr(n, basis, ProjLibStatus.notFound, UnknownLibErr("Lib is not installed"))
+        acc[n] = HxLib.makeErr(n, basis, RuntimeLibStatus.notFound, UnknownLibErr("Lib is not installed"))
         return
       }
 
@@ -367,7 +370,7 @@ const class HxLibs : RuntimeLibs
       dependErr := dependErrs[n]
       if (dependErr != null)
       {
-        acc[n] = HxProjLib.makeErr(n, basis, ProjLibStatus.err, dependErr)
+        acc[n] = HxLib.makeErr(n, basis, RuntimeLibStatus.err, dependErr)
         return
       }
 
@@ -375,12 +378,12 @@ const class HxLibs : RuntimeLibs
       libStatus := ns.libStatus(n)
       if (!libStatus.isOk)
       {
-        acc[n] = HxProjLib.makeErr(n, basis, ProjLibStatus.err, ns.libErr(n) ?: Err("Lib status not ok: $libStatus"))
+        acc[n] = HxLib.makeErr(n, basis, RuntimeLibStatus.err, ns.libErr(n) ?: Err("Lib status not ok: $libStatus"))
         return
       }
 
       // this lib is ok and loaded
-      acc[n] = HxProjLib.makeOk(n, basis, ver)
+      acc[n] = HxLib.makeOk(n, basis, ver)
     }
 
     // TODO: mess
@@ -426,16 +429,16 @@ const class HxLibs : RuntimeLibs
 }
 
 **************************************************************************
-** HxProjLib
+** HxLib
 **************************************************************************
 
-const class HxProjLib : ProjLib
+const class HxLib : RuntimeLib
 {
-  internal new makeOk(Str name, ProjLibBasis basis, LibVersion v)
+  internal new makeOk(Str name, RuntimeLibBasis basis, LibVersion v)
   {
     this.name    = name
     this.basis   = basis
-    this.status  = ProjLibStatus.ok
+    this.status  = RuntimeLibStatus.ok
     this.version = v.version
     this.doc     = v.doc
   }
@@ -443,13 +446,13 @@ const class HxProjLib : ProjLib
   internal new makeDisabled(LibVersion v)
   {
     this.name    = v.name
-    this.basis   = ProjLibBasis.disabledProj
-    this.status  = ProjLibStatus.disabled
+    this.basis   = RuntimeLibBasis.disabled
+    this.status  = RuntimeLibStatus.disabled
     this.version = v.version
     this.doc     = v.doc
   }
 
-  internal new makeErr(Str name, ProjLibBasis basis, ProjLibStatus status, Err err)
+  internal new makeErr(Str name, RuntimeLibBasis basis, RuntimeLibStatus status, Err err)
   {
     this.name   = name
     this.basis  = basis
@@ -458,8 +461,8 @@ const class HxProjLib : ProjLib
   }
 
   override const Str name
-  override const ProjLibBasis basis
-  override const ProjLibStatus status
+  override const RuntimeLibBasis basis
+  override const RuntimeLibStatus status
   override const Version? version
   override const Str? doc
   override const Err? err
@@ -469,7 +472,7 @@ const class HxProjLib : ProjLib
   override Int compare(Obj that)
   {
     a := this
-    b := (ProjLib)that
+    b := (HxLib)that
     cmp := a.status <=> b.status
     if (cmp != 0) return cmp
     return a.name <=> b.name

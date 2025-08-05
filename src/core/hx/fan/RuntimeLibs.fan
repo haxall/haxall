@@ -18,17 +18,14 @@ const mixin RuntimeLibs
   abstract XetoEnv env()
 
   ** List of Xeto libraries installed in the project
-  abstract ProjLib[] list()
+  abstract RuntimeLib[] list()
 
   ** Lookup an project library by name.  If not found then
   ** return null or raise UnknownLibErr based on checked flag.
-  abstract ProjLib? get(Str name, Bool checked := true)
+  abstract RuntimeLib? get(Str name, Bool checked := true)
 
   ** Check if there is an enabled library with given name
   abstract Bool has(Str name)
-
-  ** List all the libs installed
-  abstract ProjLib[] installed()
 
   ** Convenience to add one library
   abstract Void add(Str name)
@@ -47,11 +44,14 @@ const mixin RuntimeLibs
   ** Remove all project libs; just for testing
   @NoDoc abstract Void clear()
 
+  ** List all the libs installed
+  @NoDoc abstract RuntimeLib[] installed()
+
   ** List of the project-only libs excluding the special "proj" lib
-  @NoDoc abstract Lib[] projLibs()
+//  @NoDoc abstract Lib[] projLibs()
 
   ** Hash of all the project-only libs excluding the special "proj" lib
-  @NoDoc abstract Str projLibsDigest()
+//  @NoDoc abstract Str projLibsDigest()
 
   ** Return status grid of project libs
   @NoDoc abstract Grid status(Dict? opts := null)
@@ -62,18 +62,18 @@ const mixin RuntimeLibs
 **************************************************************************
 
 **
-** Project library and install state
+** Runtime library and install state
 **
-const mixin ProjLib
+const mixin RuntimeLib
 {
   ** Dotted library name
   abstract Str name()
 
   ** Basis is the source origin of the library
-  abstract ProjLibBasis basis()
+  abstract RuntimeLibBasis basis()
 
   ** Status of the lib
-  abstract ProjLibStatus status()
+  abstract RuntimeLibStatus status()
 
   ** Lastest version in use or installed
   @NoDoc abstract Version? version()
@@ -86,50 +86,13 @@ const mixin ProjLib
 }
 
 **************************************************************************
-** ProjLibStatus
+** RuntimeLibStatus
 **************************************************************************
 
 **
-** ProjLibBasis defines source origin
+** RuntimeLib status enum
 **
-enum class ProjLibBasis
-{
-  ** System level boot library
-  sysBoot,
-
-  ** System level enabled library
-  sys,
-
-  ** Project boot library
-  projBoot,
-
-  ** Project level enabled library
-  proj,
-
-  ** System level library installed, but not being used
-  disabledSys,
-
-  ** Project level library installed, but not being used
-  disabledProj
-
-  ** Is this a boot lib
-  @NoDoc Bool isBoot() { this === sysBoot || this === projBoot }
-
-  ** Is this a system level lib
-  @NoDoc Bool isSys() { this === sysBoot || this === sys || this === disabledSys }
-
-  ** Is this a project level lib
-  @NoDoc Bool isProj() { this === projBoot || this === proj || this === disabledProj }
-}
-
-**************************************************************************
-** ProjLibStatus
-**************************************************************************
-
-**
-** ProjLib status
-**
-enum class ProjLibStatus
+enum class RuntimeLibStatus
 {
   ok,
   err,
@@ -137,5 +100,31 @@ enum class ProjLibStatus
   disabled
 
   @NoDoc Bool isOk() { this === ok }
+}
+
+**************************************************************************
+** RuntimeLibBasis
+**************************************************************************
+
+**
+** RuntimeLibBasis defines owner of a given library
+**
+enum class RuntimeLibBasis
+{
+  ** System level boot library
+  boot,
+
+  ** System level library
+  sys,
+
+  ** Project level library
+  proj,
+
+  ** Library installed, but not enabled
+  disabled
+
+  @NoDoc Bool isBoot() { this === boot }
+  @NoDoc Bool isSys()  { this === sys }
+  @NoDoc Bool isProj() { this === proj }
 }
 

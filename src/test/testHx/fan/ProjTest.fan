@@ -288,7 +288,7 @@ class ProjTest : HxTest
     // echo("~~ $x.name [$x.status]  $x.err")
     verifySame(p.libs.list.find { it.name == n }, x)
     verifyEq(x.name, n)
-    verifyEq(x.basis, isBoot ? ProjLibBasis.sysBoot : ProjLibBasis.sys)
+    verifyEq(x.basis, isBoot ? RuntimeLibBasis.boot : RuntimeLibBasis.sys)
     verifyEq(x.status.name, status)
     if (status == "ok")
     {
