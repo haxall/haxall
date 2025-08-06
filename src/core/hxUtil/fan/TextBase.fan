@@ -16,7 +16,7 @@ using xeto
 ** It is designed for small datasets under 1MB such as configuration data
 ** where we want easy access for text editing.
 **
-class TextBase
+const class TextBase
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ class TextBase
   {
     modify(filename) |f|
     {
-      f.withOut |out| { out.print(val) }
+      f.withOut |out| { out.print(val).sync }
     }
   }
 

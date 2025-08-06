@@ -7,12 +7,17 @@
 //
 
 using xeto
+using haystack
 
 **
 ** TextBaseTest
 **
-class TextBaseTest : Test
+class TextBaseTest : HaystackTest
 {
+
+//////////////////////////////////////////////////////////////////////////
+// TextBase
+//////////////////////////////////////////////////////////////////////////
 
   Void test()
   {
@@ -148,6 +153,74 @@ class TextBaseTest : Test
     verifyErr(ArgErr#) { tb.delete(filename) }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// TextBaseRecs
+//////////////////////////////////////////////////////////////////////////
+
+  Void testRecs()
+  {
+    // init - empty
+    dir := tempDir + `tb/`
+    tb := TextBase(dir)
+    recs := TextBaseRecs(tb, "settings.trio")
+    expect := Dict[,]
+    verifyRecs(recs, expect)
+
+    // add record
+    a := recs.update(Ref("a"), Etc.makeDict(["dis":"Alpha"]))
+    verifyEq(a.id, Ref("a"))
+    expect.add(a)
+    verifyRecs(recs, expect)
+    verifyDictEq(a, ["id":Ref("a"), "dis":"Alpha", "mod":a->mod])
+    verifyEq(DateTime.now - (DateTime)a->mod < 1sec, true)
+
+    // add another
+    b := recs.update(Ref("b"), Etc.makeDict(["dis":"Beta", "foo":"bar"]))
+    expect.add(b)
+    verifyRecs(recs, expect)
+
+    // update b
+    b = recs.update(Ref("b"), Etc.makeDict(["foo":Remove.val, "qux":m]))
+    expect.set(1, b)
+    verifyRecs(recs, expect)
+    verifyDictEq(b, ["id":Ref("b"), "dis":"Beta", "qux":m, "mod":b->mod])
+    verifyEq(DateTime.now - (DateTime)b->mod < 1sec, true)
+
+    // update a
+    a = recs.update(Ref("a"), Etc.makeDict(["dis":"Alpha 2", "another":"wed"]))
+    expect.set(0, a)
+    verifyRecs(recs, expect)
+
+    // reload
+    recs = TextBaseRecs(tb, "settings.trio")
+    verifyRecs(recs, expect)
+
+    // remove
+    recs.remove(Ref("not-there")) // ok
+    recs.remove(Ref("a"))
+    expect.removeAt(0)
+    verifyRecs(recs, expect)
+
+    // bad reads
+    verifyEq(recs.readById(Ref.gen, false), null)
+    verifyErr(UnknownRecErr#) { recs.readById(Ref.gen) }
+    verifyErr(UnknownRecErr#) { recs.readById(Ref.gen, true) }
+
+    // bad updates
+    verifyErr(ArgErr#) { recs.update(Ref("bad"), Etc.makeDict(["id":Ref("no-go")])) }
+    verifyErr(ArgErr#) { recs.update(Ref("bad"), Etc.makeDict(["mod":"foo"])) }
+  }
+
+  Void verifyRecs(TextBaseRecs recs, Dict[] expect)
+  {
+    actual := recs.readAllList(Filter("id"))
+    // echo("\n" + recs.tb.read(recs.filename, false))
+    verifyDictsEq(actual, expect, false)
+    expect.each |x|
+    {
+      verifyDictEq(recs.readById(x.id), x)
+    }
+  }
 
 }
 
