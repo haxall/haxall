@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using crypto
 using xeto
 using haystack
 using xetom
@@ -27,6 +28,9 @@ const class HxLibs : RuntimeLibs
 
   new make(HxRuntime rt, HxBoot boot)
   {
+    if (!rt.isSys && !boot.bootLibs.isEmpty)
+      throw Err("Proj boot cannot specify boot libs")
+
     this.rt           = rt
     this.isSys        = rt.isSys
     this.env          = boot.xetoEnv
@@ -36,7 +40,7 @@ const class HxLibs : RuntimeLibs
 
   internal HxNamespace init()
   {
-    return doReload(readProjLibNames)
+    update(null, null, false)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -47,6 +51,7 @@ const class HxLibs : RuntimeLibs
 
   const Bool isSys
 
+  const Str[] bootLibNames  // always empty for proj
 
   const Log log
 
@@ -54,18 +59,9 @@ const class HxLibs : RuntimeLibs
 
   LibRepo repo() { env.repo }
 
-  const Str[] bootLibNames
-
   TextBase tb() { rt.tb }
 
   HxNamespace ns() { nsRef.val }
-
-// TODO
-/*override*/
- Lib[] projLibs() { projLibsRef.val }
-
-/*override*/
-Str projLibsDigest() { projLibsDigestRef.val }
 
   override RuntimeLib[] list() { map.vals }
 
@@ -78,7 +74,11 @@ Str projLibsDigest() { projLibsDigestRef.val }
     if (checked) throw UnknownLibErr(name)
     return null
   }
-  internal Str:HxLib map() { mapRef.val }
+  private Str:HxLib map() { mapRef.val }
+
+
+  override RuntimeLibPack pack() { packRef.val }
+  private const AtomicRef packRef := AtomicRef()
 
   override RuntimeLib[] installed()
   {
@@ -87,183 +87,87 @@ Str projLibsDigest() { projLibsDigestRef.val }
     {
       if (acc[n] != null) return
       v := repo.latest(n)
-      acc[n] = HxLib.makeDisabled(v)
+      acc[n] = HxLib(v, RuntimeLibBasis.disabled)
     }
     return acc.vals
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Debug
+//////////////////////////////////////////////////////////////////////////
 
   override Grid status(Dict? opts := null)
   {
     // use list or installed base on opts
     if (opts == null) opts = Etc.dict0
-    libs := opts.has("installed") ? installed : list
+    ns := this.ns
+    libs := opts.has("installed") ? installed : list.dup
 
-    // sort based basis, then status, then name
+    // sort based basis, then name (but move proj to top)
     libs.sort |a, b|
     {
       if (a.basis != b.basis) return a.basis <=> b.basis
-      cmp := a.status <=> b.status
-      if (cmp != 0) return cmp
       return a.name <=> b.name
     }
+    libs.moveTo(libs.find { it.name == "proj" }, 0)
 
     // build grid
     gb := GridBuilder()
     gb.setMeta(Etc.dict1("projName", rt.name))
     gb.addCol("name").addCol("libBasis").addCol("libStatus").addCol("version").addCol("doc").addCol("err")
 
-    // add row for proj lib
-    pxName := XetoUtil.projLibName
-    pxVer:= ns.version(pxName, false)
-    if (pxVer != null) gb.addRow([
-      pxName,
-      RuntimeLibBasis.boot.name,
-      ns.libStatus(pxName)?.toStr ?: "err",
-      pxVer?.version?.toStr,
-      pxVer?.doc,
-      "TODO", // specs.libErrMsg,
-    ])
-
     // add rest of the rows
-    libs.each |x|
+    libs.each |HxLib x|
     {
+      n := x.name
       gb.addRow([
-        x.name,
+        n,
         x.basis.name,
-        x.status.name,
-        x.version?.toStr,
-        x.doc,
-        x.err?.toStr,
+        ns.libStatus(n),
+        x.ver.isNotFound ? null : x.ver.version,
+        x.ver.doc,
+        ns.libErr(n)
       ])
     }
     return gb.toGrid
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Modification
+// Public Modification APIs
 //////////////////////////////////////////////////////////////////////////
 
-  override Void add(Str name) { addAll([name]) }
+  override Void add(Str name)
+  {
+    update([name], null, true)
+  }
 
   override Void addAll(Str[] names)
   {
-    if (names.isEmpty) return
-    lock.lock
-    try
-      doAdd(names)
-    finally
-      lock.unlock
+    update(checkDupNames(names), null, true)
   }
 
-  override Void remove(Str name) { removeAll([name]) }
+  override Void remove(Str name)
+  {
+    update(null, [name], true)
+  }
 
   override Void removeAll(Str[] names)
   {
-    if (names.isEmpty) return
-    lock.lock
-    try
-      doRemove(names)
-    finally
-      lock.unlock
+    update(null, checkDupNames(names), true)
   }
 
   override Void clear()
   {
-    doReload(Str[,])
+    writeLibNames(Str[,])
+    reload
   }
 
   Void reload()
   {
-    doReload(readProjLibNames)
+    update(null, null, false)
   }
 
-  private const Lock lock := Lock.makeReentrant
-
-  private Void doAdd(Str[] names)
-  {
-    // check dup names were not passed in to keep things clean
-    checkDupNames(names)
-
-    // remove names already installed or check they exists
-    map := this.map
-    toAddVers := Str:LibVersion[:]
-    repo := env.repo
-    names.each |n|
-    {
-      cur := map[n]
-      if (cur != null) return
-      ver := repo.latest(n)
-      toAddVers.add(n, ver)
-    }
-    if (toAddVers.isEmpty) return
-
-    // build list of all current plus to-add
-    newProjLibs := Str:Str[:]
-    allVers := Str:LibVersion[:]
-    map.each |x|
-    {
-      n := x.name
-      if (!x.basis.isBoot) newProjLibs[n] = n
-      if (x.status.isOk) allVers[n] = repo.version(n, x.version)
-    }
-    toAddVers.each |x|
-    {
-      n := x.name
-      newProjLibs[n] = n
-      allVers.add(n, x)
-    }
-
-    // check depends, reload ns, save libs.txt
-    updateProjLibs(allVers, newProjLibs)
-  }
-
-  private Void doRemove(Str[] names)
-  {
-    // check dup names were not passed in to keep things clean
-    nameMap := checkDupNames(names)
-
-    // build list of all current minus to-remove
-    newProjLibs := Str:Str[:]
-    allVers := Str:LibVersion[:]
-    map.each |x|
-    {
-      n := x.name
-
-      // check if a lib to remove
-      isRemove := nameMap.containsKey(n)
-      if (isRemove)
-      {
-        if (x.basis.isBoot) throw CannotRemoveBootLibErr(n)
-        return
-      }
-
-      // update our lists
-      if (!x.basis.isBoot) newProjLibs[n] = n
-      if (x.status.isOk) allVers[n] = repo.version(n, x.version)
-    }
-
-    // check depends, reload ns, save libs.txt
-    updateProjLibs(allVers, newProjLibs)
-  }
-
-  private Void updateProjLibs(Str:LibVersion allVers, Str:Str newProjLibNameMap)
-  {
-    // verify that the new all LibVersions have met depends
-    vers := allVers.vals
-    LibVersion.orderByDepends(vers)
-
-    // now we are ready, rebuild our projLibNames list
-    newProjLibNames := newProjLibNameMap.vals.sort
-    ns := doReload(newProjLibNames)
-
-    // update our libs.txt file
-    writeProjLibNames(newProjLibNames)
-
-    // notify project
-    this.rt.onLibsModified(ns)
-  }
-
-  private Str:Str checkDupNames(Str[] names)
+  private Str[] checkDupNames(Str[] names)
   {
     map := Str:Str[:]
     names.each |n|
@@ -271,14 +175,14 @@ Str projLibsDigest() { projLibsDigestRef.val }
       if (map[n] != null) throw DuplicateNameErr(n)
       else map[n] = n
     }
-    return map
+    return names
   }
 
 //////////////////////////////////////////////////////////////////////////
 // File I/O
 //////////////////////////////////////////////////////////////////////////
 
-  Str[] readProjLibNames()
+  Str[] readLibNames()
   {
     // proj libs are defined in "libs.txt"
     buf :=  tb.read("libs.txt", false)
@@ -290,7 +194,7 @@ Str projLibsDigest() { projLibsDigestRef.val }
     }
   }
 
-  Void writeProjLibNames(Str[] names)
+  Void writeLibNames(Str[] names)
   {
     buf := StrBuf()
     buf.capacity = names.size * 16
@@ -302,125 +206,138 @@ Str projLibsDigest() { projLibsDigestRef.val }
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Reload
+// Update
 //////////////////////////////////////////////////////////////////////////
 
-  private HxNamespace doReload(Str[] projLibNames)
+  private HxNamespace update(Str[]? add, Str[]? remove, Bool rewrite)
   {
-    // first find an installed LibVersion for each lib
-    vers := Str:LibVersion[:]
-    basisBoot    := isSys ? RuntimeLibBasis.boot : RuntimeLibBasis.boot
-    basisNonBoot := isSys ? RuntimeLibBasis.sys : RuntimeLibBasis.proj
-    sysns := rt.isSys ? null : rt.sys.ns
-    nameToBasis := Str:RuntimeLibBasis[:]
-    projLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisNonBoot }
-    bootLibNames.each |n | { vers.setNotNull(n, repo.latest(n, false)); nameToBasis[n] = basisBoot }
+    lock.lock
+    try
+      return doUpdate(add, remove, rewrite)
+    finally
+      lock.unlock
+  }
 
-    // TODO: just adding more mess
-    if (!isSys)
-    {
-      rt.sys.libs.list.each |x|
-      {
-        n := x.name
-        vers.setNotNull(n, repo.latest(n, false))
-        nameToBasis[n] = x.basis
-      }
-    }
+  private HxNamespace doUpdate(Str[]? adds, Str[]? removes, Bool rewrite)
+  {
+    // build list of all the libs that should be in my namespace
+    acc := Str:HxLib[:]
+    updateBootLibs(acc)
+    updateSysLibs(acc)
+    updateConfiguredLibs(acc)
+    updateProjLib(acc)
+    updateAdds(acc, adds)
+    updateRemoves(acc, removes)
 
-    // check depends and remove libs with a dependency error
-    versToUse := vers.dup
-    dependErrs := Str:Err[:]
-    while (true)
-    {
-      errs := LibVersion.checkDepends(versToUse.vals)
-      if (errs.isEmpty) break
-      errs.each |err|
-      {
-        n := err.name
-        dependErrs[n] = err
-        versToUse.remove(n)
-        log.warn("Cannot load: $n.toCode: $err")
-      }
-    }
-
-    // at this point should we should have a safe versions list to create namespace
-    nsVers := versToUse.vals
-    if (rt.sys.info.type.isHxd)
-      nsVers.add(FileLibVersion.makeProj(tb.dir, rt.sys.info.version))
-    ns := HxNamespace(LocalNamespaceInit(env, repo, nsVers, null))
+    // create namespace
+    nsVers := acc.vals.map |x->LibVersion| { x.ver }
+    nsOpts := Etc.dict1("uncheckedDepends", Marker.val)
+    ns := HxNamespace(LocalNamespaceInit(env, repo, nsVers, nsOpts, null))
     ns.libs // force sync load
 
-    // now update HxProjLibs map of HxProjLib
-    acc := Str:HxLib[:]
-    nameToBasis.each |basis, n|
-    {
-      // check if we have lib installed
-      ver := vers[n]
-      if (ver == null)
-      {
-        acc[n] = HxLib.makeErr(n, basis, RuntimeLibStatus.notFound, UnknownLibErr("Lib is not installed"))
-        return
-      }
-
-      // check if we had dependency error
-      dependErr := dependErrs[n]
-      if (dependErr != null)
-      {
-        acc[n] = HxLib.makeErr(n, basis, RuntimeLibStatus.err, dependErr)
-        return
-      }
-
-      // check status of lib in namespace itself
-      libStatus := ns.libStatus(n)
-      if (!libStatus.isOk)
-      {
-        acc[n] = HxLib.makeErr(n, basis, RuntimeLibStatus.err, ns.libErr(n) ?: Err("Lib status not ok: $libStatus"))
-        return
-      }
-
-      // this lib is ok and loaded
-      acc[n] = HxLib.makeOk(n, basis, ver)
-    }
-
-    // TODO: mess
-    projLibs := ns.libs.findAll |x|
-    {
-      if (x.name == XetoUtil.projLibName) return false
-      if (sysns != null && sysns.hasLib(x.name)) return false
-      return true
-    }
-
-    // update my libs and ns
+    // update in-memory lookup tables
     this.nsRef.val = ns
     this.mapRef.val = acc.toImmutable
-    this.projLibsRef.val = projLibs.toImmutable
-    this.projLibsDigestRef.val = genProjLibsDigest(sysns, ns)
+    this.packRef.val = updatePack(ns, acc)
+
+    // TODO rewrite
+
     return ns
   }
 
-  ** TODO: need to cleanup sys vs proj ns
-  private Str genProjLibsDigest(Namespace? sys, Namespace proj)
+  private Void updateBootLibs(Str:HxLib acc)
   {
-    acc := LibVersion[,]
-    proj.versions.each |x|
+    // add in boot libs (sys only)
+    bootLibNames.each |n|
     {
-      if (sys != null && sys.hasLib(x.name)) return
-      if (x.name == XetoUtil.projLibName) return
-      acc.add(x)
+      acc[n] = HxLib(updateVersion(n), RuntimeLibBasis.boot)
     }
-    acc.sort
-
-    buf := Buf()
-    buf.capacity = acc.size * 32
-    acc.each |x| { buf.print(x.name).write('-').print(x.version.toStr).write(';') }
-    return buf.toDigest("SHA-1").toBase64Uri
   }
 
-  // updated by reload
+  private Void updateSysLibs(Str:HxLib acc)
+  {
+    // add in system libs if I am not a sys
+    if (isSys) return
+    rt.sys.libs.list.each |lib|
+    {
+      acc[lib.name] = lib
+    }
+  }
+
+  private Void updateConfiguredLibs(Str:HxLib acc)
+  {
+    // add in my libs from ns/libs.txt
+    basis := isSys ? RuntimeLibBasis.sys : RuntimeLibBasis.proj
+    readLibNames.each |n|
+    {
+      if (acc[n] != null) return
+      acc[n] = HxLib(updateVersion(n), basis)
+    }
+  }
+
+  private Void updateProjLib(Str:HxLib acc)
+  {
+    // add in proj lib if I am a proj
+    if (rt.isProj)
+    {
+      ver := FileLibVersion.makeProj(tb.dir, rt.sys.info.version)
+      acc["proj"] = HxLib(ver, RuntimeLibBasis.boot)
+    }
+  }
+
+  private Void updateAdds(Str:HxLib acc, Str[]? names)
+  {
+    if (names == null || names.isEmpty) return
+throw Err("TODO")
+  }
+
+  private Void updateRemoves(Str:HxLib acc, Str[]? names)
+  {
+    if (names == null || names.isEmpty) return
+throw Err("TODO")
+  }
+
+  private LibVersion updateVersion(Str name)
+  {
+    repo.latest(name, false) ?: FileLibVersion.makeNotFound(name)
+  }
+
+  private RuntimeLibPack updatePack(Namespace ns, Str:HxLib allLibs)
+  {
+    // find my pack libs in namespace depend order
+    packLibs := Lib[,]
+    ns.libs.each |lib|
+    {
+      // always skip proj lib
+      if (lib.name == XetoUtil.projLibName) return
+
+      // only want my own
+      hx := allLibs[lib.name]
+      isPack := this.isSys || hx.basis.isProj
+      if (!isPack) return
+
+      // add to our pack
+      packLibs.add(lib)
+    }
+
+    // compute digest using sort order
+    digest := Crypto.cur.digest("SHA-1")
+    packLibs.dup.sort.each |x|
+    {
+      digest.updateAscii(x.name)
+      digest.updateAscii(x.version.toStr)
+    }
+
+    return RuntimeLibPack(digest.digest.toBase64Uri, packLibs)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
+
   private const AtomicRef nsRef := AtomicRef()
   private const AtomicRef mapRef := AtomicRef()
-  private const AtomicRef projLibsRef := AtomicRef()
-  private const AtomicRef projLibsDigestRef := AtomicRef()
+  private const Lock lock := Lock.makeReentrant
 
 }
 
@@ -430,49 +347,16 @@ Str projLibsDigest() { projLibsDigestRef.val }
 
 const class HxLib : RuntimeLib
 {
-  internal new makeOk(Str name, RuntimeLibBasis basis, LibVersion v)
+  internal new make(FileLibVersion ver, RuntimeLibBasis basis)
   {
-    this.name    = name
-    this.basis   = basis
-    this.status  = RuntimeLibStatus.ok
-    this.version = v.version
-    this.doc     = v.doc
+    this.ver   = ver
+    this.basis = basis
   }
 
-  internal new makeDisabled(LibVersion v)
-  {
-    this.name    = v.name
-    this.basis   = RuntimeLibBasis.disabled
-    this.status  = RuntimeLibStatus.disabled
-    this.version = v.version
-    this.doc     = v.doc
-  }
-
-  internal new makeErr(Str name, RuntimeLibBasis basis, RuntimeLibStatus status, Err err)
-  {
-    this.name   = name
-    this.basis  = basis
-    this.status = status
-    this.err    = err
-  }
-
-  override const Str name
+  override Str name() { ver.name }
   override const RuntimeLibBasis basis
-  override const RuntimeLibStatus status
-  override const Version? version
-  override const Str? doc
-  override const Err? err
+  const FileLibVersion ver
 
-  override Str toStr() { "$name [$status]" }
-
-  override Int compare(Obj that)
-  {
-    a := this
-    b := (HxLib)that
-    cmp := a.status <=> b.status
-    if (cmp != 0) return cmp
-    return a.name <=> b.name
-  }
-
+  override Str toStr() { "$name [$basis] $ver.version" }
 }
 

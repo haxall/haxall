@@ -44,21 +44,18 @@ const mixin RuntimeLibs
   ** Remove all project libs; just for testing
   @NoDoc abstract Void clear()
 
+  ** Libs for xeto pack of this runtime's libs
+  @NoDoc abstract RuntimeLibPack pack()
+
   ** List all the libs installed
   @NoDoc abstract RuntimeLib[] installed()
-
-  ** List of the project-only libs excluding the special "proj" lib
-//  @NoDoc abstract Lib[] projLibs()
-
-  ** Hash of all the project-only libs excluding the special "proj" lib
-//  @NoDoc abstract Str projLibsDigest()
 
   ** Return status grid of project libs
   @NoDoc abstract Grid status(Dict? opts := null)
 }
 
 **************************************************************************
-** ProjLib
+** RuntimeLib
 **************************************************************************
 
 **
@@ -71,35 +68,6 @@ const mixin RuntimeLib
 
   ** Basis is the source origin of the library
   abstract RuntimeLibBasis basis()
-
-  ** Status of the lib
-  abstract RuntimeLibStatus status()
-
-  ** Lastest version in use or installed
-  @NoDoc abstract Version? version()
-
-  ** Summary documentation
-  @NoDoc abstract Err? err()
-
-  ** Summary documentation
-  @NoDoc abstract Str? doc()
-}
-
-**************************************************************************
-** RuntimeLibStatus
-**************************************************************************
-
-**
-** RuntimeLib status enum
-**
-enum class RuntimeLibStatus
-{
-  ok,
-  err,
-  notFound,
-  disabled
-
-  @NoDoc Bool isOk() { this === ok }
 }
 
 **************************************************************************
@@ -126,5 +94,31 @@ enum class RuntimeLibBasis
   @NoDoc Bool isBoot() { this === boot }
   @NoDoc Bool isSys()  { this === sys }
   @NoDoc Bool isProj() { this === proj }
+}
+
+
+**************************************************************************
+** RuntimeLibPack
+**************************************************************************
+
+**
+** Runtime library pack is a digest list of libs to build a xeto
+** pack for browser serialization.  It includes my own libs, but for
+** project runtimes excludes sys libs and the special "proj" lib.
+**
+@NoDoc
+const class RuntimeLibPack
+{
+  new make(Str digest, Lib[] libs)
+  {
+    this.digest = digest
+    this.libs   = libs
+  }
+
+  ** Digest of the libs
+  const Str digest
+
+  ** Libs in dependency order
+  const Lib[] libs
 }
 
