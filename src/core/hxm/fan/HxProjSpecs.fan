@@ -13,6 +13,7 @@ using haystack
 using xetoc
 using axon
 using hx
+using hxUtil
 
 **
 ** ProjSpecs implementation
@@ -20,24 +21,25 @@ using hx
 const class HxProjSpecs : ProjSpecs
 {
 
-  new make(HxLibs libs)
+  new make(HxRuntime rt)
   {
-    this.libs = libs
-    this.fb   = libs.fb
+    this.rt = rt
   }
 
-  const HxLibs libs
+  const HxRuntime rt
 
-  const DiskFileBase fb
+  Namespace ns() { rt.ns }
+
+  TextBase tb() { rt.tb }
 
   override Lib lib()
   {
-    libs.ns.lib("proj")
+    ns.lib("proj")
   }
 
   override Str? libErrMsg()
   {
-    err := libs.ns.libErr("proj")
+    err := ns.libErr("proj")
     if (err == null) return null
     if (err is FileLocErr) return ((FileLocErr)err).loc.toFilenameOnly.toStr + ": " + err.msg
     return err.toStr
@@ -45,7 +47,7 @@ const class HxProjSpecs : ProjSpecs
 
   override Str[] list()
   {
-    fb.list.mapNotNull |n->Str?|
+    tb.list.mapNotNull |n->Str?|
     {
       n.endsWith(".xeto") ? n[0..-6] : null
     }
@@ -53,7 +55,7 @@ const class HxProjSpecs : ProjSpecs
 
   override Str? read(Str name, Bool checked := true)
   {
-    buf := fb.read("${name}.xeto", false)
+    buf := tb.read("${name}.xeto", false)
     if (buf != null) return readFormat(name, buf)
     if (checked) throw UnknownSpecErr("proj::$name")
     return null
@@ -84,21 +86,21 @@ const class HxProjSpecs : ProjSpecs
 
   override Void remove(Str name)
   {
-    fb.delete("${name}.xeto")
-    libs.reload
+    tb.delete("${name}.xeto")
+    rt.libsRef.reload
   }
 
   private Spec doUpdate(Str name, Str body)
   {
     write(name, body)
-    libs.reload
+    rt.libsRef.reload
     return lib.spec(name)
   }
 
   private Void write(Str name, Str body)
   {
     buf := writeFormat(name, body)
-    fb.write("${name}.xeto", buf)
+    tb.write("${name}.xeto", buf)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -161,7 +163,7 @@ const class HxProjSpecs : ProjSpecs
 
   private Void checkExists(Str name, Bool expect)
   {
-    actual := fb.exists("${name}.xeto")
+    actual := tb.exists("${name}.xeto")
     if (actual == expect) return
     if (actual)
       throw DuplicateNameErr("Spec already exists: $name")
@@ -173,7 +175,7 @@ const class HxProjSpecs : ProjSpecs
 // Formatting
 //////////////////////////////////////////////////////////////////////////
 
-  private Str readFormat(Str name, Buf buf)
+  private Str readFormat(Str name, Str buf)
   {
     sb := StrBuf()
     sb.capacity = buf.size
@@ -194,9 +196,9 @@ const class HxProjSpecs : ProjSpecs
     return sb.toStr
   }
 
-  private Buf writeFormat(Str name, Str body)
+  private Str writeFormat(Str name, Str body)
   {
-    buf := Buf()
+    buf := StrBuf()
     buf.capacity = name.size + 16 + body.size
     prelude := true
     body.splitLines.each |line|
@@ -208,14 +210,14 @@ const class HxProjSpecs : ProjSpecs
         if (line.isEmpty) return
         if (!line.startsWith("//"))
         {
-          buf.print(name).print(": ")
+          buf.add(name).add(": ")
           prelude = false
         }
       }
-      buf.printLine(line)
+      buf.add(line).addChar('\n')
     }
-    while (!buf.isEmpty && buf[-1] == '\n') buf.size = buf.size - 1
-    return buf
+    while (!buf.isEmpty && buf[-1] == '\n') buf.remove(-1)
+    return buf.toStr
   }
 }
 

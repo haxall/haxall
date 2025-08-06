@@ -9,6 +9,7 @@
 using xeto
 using haystack
 using hx
+using hxUtil
 using folio
 
 **
@@ -19,11 +20,11 @@ const class HxSettingsMgr
   new make(HxRuntime rt, HxBoot boot)
   {
     this.rt = rt
-    this.db = boot.initSettingsFolio
+    this.db = TextBaseRecs(rt.tb, "settings.trio")
   }
 
   const HxRuntime rt
-  const Folio db
+  const TextBaseRecs db
 
 //////////////////////////////////////////////////////////////////////////
 // Proj meta
@@ -41,14 +42,9 @@ const class HxSettingsMgr
 
     // make sure we init/update cur version and projMeta marker
     version := boot.sysInfoVersion.toStr
-    required := Etc.dict2("projMeta", Marker.val, "version", version)
-    if (cur == null)
+    if (cur == null || cur["projMeta"] != Marker.val || cur["version"] != version)
     {
-      cur = db.commit(Diff.makex(id, DateTime.nowUtc, required, Diff.add.or(Diff.bypassRestricted))).newRec
-    }
-    else if (cur["version"] != version || cur["projMeta"] != Marker.val)
-    {
-      cur = db.commit(Diff(cur, required, Diff.bypassRestricted)).newRec
+      cur = db.update(id, Etc.dict2("projMeta", Marker.val, "version", version))
     }
 
     cur.id.disVal = cur.dis
@@ -129,14 +125,14 @@ const class HxSettingsMgr
   private Dict init(Ref id, Dict settings)
   {
     old := db.readById(id, false)
-    if (old != null) write(Diff(old, null, Diff.remove))
+    if (old != null) db.remove(id)
     return write(Diff.makeAdd(settings, id))
   }
 
   ** Write
   private Dict write(Diff diff)
   {
-    db.commit(diff).newRec
+    db.update(diff.id, diff.changes)
   }
 
 }

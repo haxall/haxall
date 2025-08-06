@@ -41,7 +41,8 @@ class Build : BuildPod
                "folio @{hx.depend}",
                "hx @{hx.depend}",
                "hxm @{hx.depend}",
-               "hxFolio @{hx.depend}"]
+               "hxFolio @{hx.depend}",
+               "hxUtil @{hx.depend}"]
     srcDirs = [`fan/`]
     docApi  = false
 

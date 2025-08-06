@@ -22,6 +22,7 @@ const class HxdSys : HxRuntime, Sys, Proj
   {
     this.info   = boot.initSysInfo
     this.config = boot.initSysConfig
+    this.specs  = HxProjSpecs(this)
   }
 
   override final Sys sys() { this }
@@ -34,6 +35,6 @@ const class HxdSys : HxRuntime, Sys, Proj
 
   override const SysConfig config
 
-  override ProjSpecs specs() { libsRef.specs }
+  override const ProjSpecs specs
 }
 

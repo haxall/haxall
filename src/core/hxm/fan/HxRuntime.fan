@@ -13,6 +13,7 @@ using haystack
 using folio
 using obs
 using hx
+using hxUtil
 
 **
 ** Haxall base implementation of Runtime
@@ -31,6 +32,7 @@ abstract const class HxRuntime : Runtime
     this.name          = boot.name
     this.id            = Ref("p:$name", name)
     this.dir           = boot.dir
+    this.tb            = boot.initTextBase
     this.dbRef         = boot.initFolio
     this.db.hooks      = HxFolioHooks(this)
     this.log           = boot.log
@@ -90,6 +92,9 @@ abstract const class HxRuntime : Runtime
 
   ** Update proj metadata with Str:Obj, Dict, or Diff.
   override Void metaUpdate(Obj changes) { settingsMgr.projMetaUpdate(changes) }
+
+  ** TextBase for namespace settings and proj specs managed in plain text
+  const TextBase tb
 
   ** Database for this runtime
   override Folio db() { dbRef }

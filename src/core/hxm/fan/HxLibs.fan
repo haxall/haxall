@@ -13,6 +13,7 @@ using haystack
 using xetom
 using xetoc
 using hx
+using hxUtil
 
 **
 ** RuntimeLibs implementation
@@ -29,10 +30,8 @@ const class HxLibs : RuntimeLibs
     this.rt           = rt
     this.isSys        = rt.isSys
     this.env          = boot.xetoEnv
-    this.fb           = boot.initNamespaceFileBase
     this.log          = boot.log
     this.bootLibNames = boot.bootLibs
-    this.specsRef     = HxProjSpecs(this)
   }
 
   internal HxNamespace init()
@@ -48,19 +47,16 @@ const class HxLibs : RuntimeLibs
 
   const Bool isSys
 
+
+  const Log log
+
   const override XetoEnv env
 
   LibRepo repo() { env.repo }
 
-  const DiskFileBase fb
-
-  const Log log
-
   const Str[] bootLibNames
 
-  const HxProjSpecs specsRef
-
-  virtual ProjSpecs specs() { specsRef }
+  TextBase tb() { rt.tb }
 
   HxNamespace ns() { nsRef.val }
 
@@ -125,7 +121,7 @@ Str projLibsDigest() { projLibsDigestRef.val }
       ns.libStatus(pxName)?.toStr ?: "err",
       pxVer?.version?.toStr,
       pxVer?.doc,
-      specs.libErrMsg,
+      "TODO", // specs.libErrMsg,
     ])
 
     // add rest of the rows
@@ -285,9 +281,9 @@ Str projLibsDigest() { projLibsDigestRef.val }
   Str[] readProjLibNames()
   {
     // proj libs are defined in "libs.txt"
-    buf :=  fb.read("libs.txt", false)
+    buf :=  tb.read("libs.txt", false)
     if (buf == null) return Str#.emptyList
-    return buf.readAllLines.findAll |line|
+    return buf.splitLines.findAll |line|
     {
       line = line.trim
       return !line.isEmpty && !line.startsWith("//")
@@ -296,13 +292,13 @@ Str projLibsDigest() { projLibsDigestRef.val }
 
   Void writeProjLibNames(Str[] names)
   {
-    buf := Buf()
+    buf := StrBuf()
     buf.capacity = names.size * 16
-    buf.printLine("// " + DateTime.now.toLocale)
-    names.each |n| { buf.printLine(n) }
+    buf.add("// ").add(DateTime.now.toLocale).addChar('\n')
+    names.each |n| { buf.add(n).addChar('\n') }
 
     // proj libs are defined in "libs.txt"
-    fb.write("libs.txt", buf)
+    tb.write("libs.txt", buf.toStr)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -350,7 +346,7 @@ Str projLibsDigest() { projLibsDigestRef.val }
     // at this point should we should have a safe versions list to create namespace
     nsVers := versToUse.vals
     if (rt.sys.info.type.isHxd)
-      nsVers.add(FileLibVersion.makeProj(fb.dir, rt.sys.info.version))
+      nsVers.add(FileLibVersion.makeProj(tb.dir, rt.sys.info.version))
     ns := HxNamespace(LocalNamespaceInit(env, repo, nsVers, null))
     ns.libs // force sync load
 

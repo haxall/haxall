@@ -71,6 +71,10 @@ const class TextBaseRecs
       }
       acc["mod"] = DateTime.nowUtc
       rec :=  Etc.dictFromMap(acc)
+
+      dis := rec["dis"] as Str
+      if (dis != null) rec.id.disVal = dis
+
       byId.set(id, rec)
       return rec
     }

@@ -8,6 +8,7 @@
 
 using concurrent
 
+/* TODO
 **
 ** FileBase is a simple map of text files keyed by name stored to disk.
 **
@@ -88,4 +89,5 @@ const class DiskFileBase : FileBase
     f.delete
   }
 }
+*/
 

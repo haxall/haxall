@@ -11,6 +11,7 @@ using xeto
 using haystack
 using folio
 using hx
+using hxUtil
 using xetoc
 
 **
@@ -169,24 +170,23 @@ abstract class HxBoot
 // Steps
 //////////////////////////////////////////////////////////////////////////
 
-  ** Init file base used to manage the lib namespace
-  virtual DiskFileBase initNamespaceFileBase()
+  ** Create TextBase under "{dir}/ns/" to manage namespace settings via plain text
+  virtual TextBase initTextBase()
   {
-    nsDir := this.dir + `ns/`
-    return DiskFileBase(nsDir)
+    TextBase(this.dir + `ns/`)
   }
 
   ** Open project folio database
   abstract Folio initFolio()
 
-  ** Create Platform for HxSys
+  ** Create SysInfo instance from sysInfo (sys boot only)
   virtual SysInfo initSysInfo()
   {
     meta := Etc.dictFromMap(sysInfo.findNotNull)
     return SysInfo(meta)
   }
 
-  ** Create SysConfig for HxSys
+  ** Create SysConfig instance from sysConfig (sys boot only)
   virtual SysConfig initSysConfig()
   {
     if (isNoAuth)
@@ -205,20 +205,6 @@ abstract class HxBoot
 
     meta := Etc.dictFromMap(sysConfig.findNotNull)
     return SysConfig(meta)
-  }
-
-  ** Create settings database for project
-  virtual Folio initSettingsFolio()
-  {
-    config := FolioConfig
-    {
-      it.name     = "settings"
-      it.opts     = Etc.dict1("fileName", "settings.trio")
-      it.dir      = this.dir + `ns/`
-      it.log      = this.log
-      it.pool     = this.actorPool
-    }
-    return FolioFlatFile.open(config)
   }
 
 //////////////////////////////////////////////////////////////////////////

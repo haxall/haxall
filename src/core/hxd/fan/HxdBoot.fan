@@ -15,6 +15,7 @@ using folio
 using hx
 using hxm
 using hxFolio
+using hxUtil
 
 **
 ** Bootstrap loader for Haxall daemon
@@ -94,22 +95,22 @@ class HxdBoot : HxBoot
   ** Create a new project on disk that can be loaded.
   Void create()
   {
-    nsfb := initNamespaceFileBase
-    createNamespace(nsfb)
-    createProjMetaFile(nsfb)
+    tb := initTextBase
+    createNamespace(tb)
+    createProjMetaFile(tb)
     db := initFolio
     db.close
   }
 
   ** Create namespace directory
-  private Void createNamespace(DiskFileBase fb)
+  private Void createNamespace(TextBase tb)
   {
     libsTxt := "// Created $DateTime.now.toLocale\n" +  createLibs.join("\n")
-    fb.write("libs.txt", libsTxt.toBuf)
+    tb.write("libs.txt", libsTxt)
   }
 
   ** Create projMeta in settings.trio
-  private Void createProjMetaFile(DiskFileBase fb)
+  private Void createProjMetaFile(TextBase tb)
   {
     acc := createProjMeta.dup
     acc["id"] = HxSettingsMgr.projMetaId
@@ -118,7 +119,7 @@ class HxdBoot : HxBoot
     acc["mod"] = DateTime.nowUtc
     dict := Etc.dictFromMap(acc)
 
-    file := fb.dir + `settings.trio`
+    file := tb.dir + `settings.trio`
     TrioWriter(file.out).writeDict(dict).close
   }
 
