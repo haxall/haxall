@@ -86,6 +86,25 @@ class TextBaseTest : Test
         if (i != j) verifyNotEq(di, dj, "$i, $j")
       }
     }
+
+    // modify one byte and verify new digest
+    tb.write("foo.txt", "foo val\n")
+    d7 := tb.digest
+    verifyNotEq(d6, d7)
+    verifyTextBase(tb, ["foo.txt":"foo val\n", "bar.txt":"bar val"])
+
+    // modify one char in filename and verify new digest
+    tb.rename("foo.txt", "foox.txt")
+    d8 := tb.digest
+    verifyNotEq(d7, d8)
+    verifyTextBase(tb, ["foox.txt":"foo val\n", "bar.txt":"bar val"])
+
+    // try different leading/trailing whitespace and unicode chars
+    bar := "\n\t!\u2022\u{1F600} works \u{1F61B}?\n\n"
+    tb.write("bar.txt", bar)
+    // echo(tb.encode.readAllStr)
+    verifyTextBase(tb, ["foox.txt":"foo val\n", "bar.txt":bar])
+    verifyEq(tb.read("bar.txt"), bar)
   }
 
   Void verifyTextBase(TextBase tb, Str:Str expect)

@@ -123,13 +123,17 @@ class TextBase
 
     // compute new digest holding lock
     d := Crypto.cur.digest("SHA-1")
+    temp := Buf(1024)
     lock.lock
     try
     {
       list.sort.each |name|
       {
+        f := file(name)
+        f.withIn |in| { in.readBufFully(temp.clear, f.size) }
+
         d.update(name.toBuf)
-        d.update(file(name).readAllBuf)
+        d.update(temp)
       }
     }
     finally lock.unlock
