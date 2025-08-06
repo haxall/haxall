@@ -6,6 +6,7 @@
 //    9 Jul 2025  Brian Frank  Creation
 //
 
+using concurrent
 using crypto
 using util
 using xeto
@@ -72,19 +73,41 @@ class TextBase
   ** Write a filename
   Void write(Str filename, Str val)
   {
-    file(filename).withOut |out| { out.print(val) }
+    modify(filename) |f|
+    {
+      f.withOut |out| { out.print(val) }
+    }
   }
 
   ** Rename a filename
   Void rename(Str oldName, Str newName)
   {
-    file(oldName).moveTo(file(newName))
+    modify(oldName) |f|
+    {
+      f.moveTo(file(newName))
+    }
   }
 
   ** Delete a filename
   Void delete(Str filename)
   {
-    file(filename).delete
+    modify(filename) |f|
+    {
+      f.delete
+    }
+  }
+
+  ** Modify holding lock and clear digest
+  private Void modify(Str filename, |File| cb)
+  {
+    // modify holding lock
+    lock.lock
+    try
+    {
+      cb(file(filename))
+      digestRef.val = null
+    }
+    finally lock.unlock
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -94,13 +117,97 @@ class TextBase
   ** Create a SHA-1 digest for the files
   Str digest()
   {
+    // check cache only cleared on modify
+    cached := digestRef.val
+    if (cached != null) return cached
+
+    // compute new digest holding lock
     d := Crypto.cur.digest("SHA-1")
-    list.sort.each |name|
+    lock.lock
+    try
     {
-      d.update(name.toBuf)
-      d.update(file(name).readAllBuf)
+      list.sort.each |name|
+      {
+        d.update(name.toBuf)
+        d.update(file(name).readAllBuf)
+      }
     }
-    return d.digest.toBase64Uri
+    finally lock.unlock
+
+    // digest is base 64 of SHA-1
+    x := d.digest.toBase64Uri
+    digestRef.val = x
+    return x
+  }
+
+  **
+  ** Encode into an in-memory buffer.  Format looks like:
+  **
+  **   tb 1.0
+  **   <numFiles>
+  **   --- <file0> <size0>
+  **   <file0>
+  **   --- <file1> <size1>
+  **   <file1>
+  **
+  Buf encode()
+  {
+    // encode holding lock
+    lock.lock
+    try
+    {
+      // names sorted
+      names := list.sort
+
+      // allocate in-memory buffer
+      buf := Buf()
+      buf.capacity = names.size * 256
+
+      // first two lines are magic, then number of files
+      buf.printLine("tb 1.0")
+      buf.printLine(names.size)
+
+      // each file is "--- name size" + file + newline
+      names.each |name|
+      {
+        f := file(name)
+        size := f.size
+        buf.print("--- ").print(name).print(" ").printLine(size)
+        f.withIn |in| { in.readBufFully(buf, size) }
+        buf.seek(buf.size) // readBufFully seeks back to start
+        buf.printLine
+      }
+
+      return buf.seek(0)
+    }
+    finally lock.unlock
+  }
+
+  ** Decode to the given directory
+  static TextBase decode(File dir, Buf buf)
+  {
+    // start with normalized clean dir
+    tb := TextBase(dir)
+    tb.dir.delete
+
+    // read magic line
+    line := buf.seek(0).readLine
+    if (!line.startsWith("tb 1.0")) throw Err("Invalid text base: $line.toCode")
+
+    // read files
+    numFiles := buf.readLine.toInt
+    numFiles.times |i|
+    {
+      line = buf.readLine
+      sp  := line.index(" ", 5)
+      if (!line.startsWith("--- ") || sp == null) throw Err("Invalid name line: $line")
+      name := line[4..<sp]
+      size := line[sp+1..-1].toInt
+      tb.file(name).withOut |out| { out.writeBuf(buf, size) }
+      if (!buf.readLine.isEmpty) throw Err("Expecting empty line")
+    }
+
+    return tb
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -126,11 +233,20 @@ class TextBase
   private File file(Str filename)
   {
     if (filename[0] == '.') throw ArgErr("Filename cannot start with dot")
+    if (filename.contains(" ")) throw ArgErr("Filename cannot contain space")
     if (filename.contains("/")) throw ArgErr()
     file := File(dir.uri + filename.toUri, false)
     if (file.isDir) throw ArgErr()
     if (!file.normalize.pathStr.startsWith(dir.pathStr)) throw ArgErr()
     return file
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
+
+  private const Lock lock := Lock.makeReentrant
+  private const AtomicRef digestRef := AtomicRef()
+
 }
 

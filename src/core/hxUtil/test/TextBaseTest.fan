@@ -20,30 +20,33 @@ class TextBaseTest : Test
     dir := tempDir + `tb/`
     tb := TextBase(dir)
     d0 := tb.digest
-    verifyList(tb, Str[,])
+    verifyTextBase(tb, Str:Str[:])
+    verifySame(tb.digest, d0)
 
     // write a file
     tb.write("foo.txt", "foo val")
     d1 := tb.digest
-    verifyList(tb, ["foo.txt"])
-    verifyRead(tb, "foo.txt", "foo val")
+    verifyTextBase(tb, ["foo.txt":"foo val"])
+    verifyEq(tb.read("foo.txt"), "foo val")
     verifyNonexist(tb, "notthere.txt")
+    verifySame(tb.digest, d1)
+    verifyNotSame(tb.digest, d0)
 
     // bad updates
     verifyErr(ArgErr#) { tb.write(".foo.txt", "bad") }
+    verifyErr(ArgErr#) { tb.write("foo bar.txt", "bad") }
     verifyErr(ArgErr#) { tb.write("..foo.txt", "bad") }
     verifyErr(ArgErr#) { tb.write("/foo.txt", "bad") }
     verifyErr(ArgErr#) { tb.write("/foo/../bar.txt", "bad") }
     verifyErr(ArgErr#) { tb.rename("foo.txt", "/foo/../bar.txt") }
     verifyErr(ArgErr#) { tb.rename("foo.txt", ".bar") }
-    verifyList(tb, ["foo.txt"])
-    verifyRead(tb, "foo.txt", "foo val")
+    verifyTextBase(tb, ["foo.txt":"foo val"])
     verifyNonexist(tb, "notthere.txt")
 
     // create some files to ignore
     dir.plus(`.ignore`).out.print("ignore").close
     dir.plus(`sub/ignore.txt`).out.print("ignore").close
-    verifyList(tb, ["foo.txt"])
+    verifyTextBase(tb, ["foo.txt":"foo val"])
     verifyBadName(tb, ".ignore.txt")
     verifyBadName(tb, "sub/ignore.txt")
     verifyBadName(tb, "sub")
@@ -51,16 +54,13 @@ class TextBaseTest : Test
     // write another
     tb.write("bar.txt", "bar val")
     d2 := tb.digest
-    verifyList(tb, ["foo.txt", "bar.txt"])
-    verifyRead(tb, "foo.txt", "foo val")
-    verifyRead(tb, "bar.txt", "bar val")
+    verifyTextBase(tb, ["foo.txt":"foo val", "bar.txt":"bar val"])
 
     // now delete
     tb.delete("foo.txt")
     d3 := tb.digest
-    verifyList(tb, ["bar.txt"])
+    verifyTextBase(tb, ["bar.txt":"bar val"])
     verifyNonexist(tb, "foo.txt")
-    verifyRead(tb, "bar.txt", "bar val")
 
     // now rename bar.txt -> foo.txt
     tb.rename("bar.txt", "foo.txt")
@@ -73,9 +73,7 @@ class TextBaseTest : Test
     // recrete bar.txt
     tb.write("bar.txt", "bar val")
     d6 := tb.digest
-    verifyList(tb, ["foo.txt", "bar.txt"])
-    verifyRead(tb, "foo.txt", "foo val")
-    verifyRead(tb, "bar.txt", "bar val")
+    verifyTextBase(tb, ["foo.txt":"foo val", "bar.txt":"bar val"])
 
     // verify digests
     verifyEq(d1, d5)
@@ -85,21 +83,32 @@ class TextBaseTest : Test
     {
       restDigests.each |dj, j|
       {
-        if (i != j) verifyNotEq(di, dj)
+        if (i != j) verifyNotEq(di, dj, "$i, $j")
       }
     }
   }
 
-  Void verifyList(TextBase tb, Str[] expect)
+  Void verifyTextBase(TextBase tb, Str:Str expect)
   {
-    verifyEq(tb.list.sort, expect.sort)
-    tb.list.each |x| { verifyEq(tb.exists(x), true) }
+    // test
+    doVerifyTextBase(tb, expect)
+
+    // verify serialization
+    buf := tb.encode
+    unpackDir := tempDir + `unpack/`
+    unpacked := TextBase.decode(unpackDir, buf)
+    doVerifyTextBase(unpacked, expect)
   }
 
-  Void verifyRead(TextBase tb, Str filename, Str expect)
+  Void doVerifyTextBase(TextBase tb, Str:Str expect)
   {
-    verifyEq(tb.exists(filename), true)
-    verifyEq(tb.read(filename), expect)
+    names := expect.keys.sort
+    verifyEq(tb.list.sort, names)
+    tb.list.each |x|
+    {
+      verifyEq(tb.exists(x), true)
+      verifyEq(tb.read(x), expect[x])
+    }
   }
 
   Void verifyNonexist(TextBase tb, Str filename)
