@@ -33,6 +33,12 @@
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
+** Library could not be loaded
+@Js @NoDoc const class LibLoadErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+
 **
 ** DependErr indicates a missing dependency
 **

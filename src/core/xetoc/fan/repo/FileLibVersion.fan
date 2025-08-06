@@ -30,9 +30,9 @@ const class FileLibVersion : LibVersion
   {
     n := file.basename
     dash := n.index("-") ?: throw Err(n)
-    this.name = n[0..<dash]
+    this.name    = n[0..<dash]
     this.version = Version(n[dash+1..-1])
-    this.toStr      = "$name-$version"
+    this.toStr   = "$name-$version"
     this.fileRef = file
   }
 
@@ -45,6 +45,17 @@ const class FileLibVersion : LibVersion
     this.docRef     = "Project library"
     this.dependsRef = LibDepend#.emptyList
   }
+
+  new makeNotFound(Str name)
+  {
+    this.name       = name
+    this.version    = Version("0.0.0")
+    this.toStr      = "$name-$version"
+    this.fileRef    = notFoundFile
+    this.docRef     = "Not found"
+    this.dependsRef = LibDepend#.emptyList
+  }
+
 
   override const Str name
 
@@ -122,5 +133,9 @@ const class FileLibVersion : LibVersion
     v  := LibDependVersions(s[sp+1..-1])
     return MLibDepend(n, v)
   }
+
+  static const File notFoundFile := Buf().toFile(`not-found`)
+
+  Bool isNotFound() { file === notFoundFile }
 }
 

@@ -10,6 +10,7 @@ using concurrent
 using util
 using xeto
 using xetom
+using haystack
 
 **
 ** FileRepo is a file system based repo that uses the the Fantom path to
@@ -109,7 +110,7 @@ const class FileRepo : LibRepo
 
   private LibNamespace makeNamespace(LibVersion[] versions, [Str:File]? build)
   {
-    init := LocalNamespaceInit(env, this, versions, build)
+    init := LocalNamespaceInit(env, this, versions, Etc.dict0, build)
     return LocalNamespace(init)
   }
 

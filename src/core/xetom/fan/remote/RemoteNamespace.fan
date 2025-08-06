@@ -9,6 +9,7 @@
 using concurrent
 using util
 using xeto
+using haystack
 
 **
 ** Remote namespace that loads libs over a network transport layer.

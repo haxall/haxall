@@ -58,12 +58,12 @@ const mixin LibVersion
   ** Order a list of versions by their dependencies.  Raise exception if
   ** the given list does not satisify all the internal dependencies or
   ** has circular dependencies.
-  static LibVersion[] orderByDepends(LibVersion[] libs)
+  static LibVersion[] orderByDepends(LibVersion[] libs, Bool checked := true)
   {
     ordered := LibVersion[,]
     errs := DependErr[,]
     solveDepends(libs, ordered, errs)
-    if (!errs.isEmpty) throw errs.first
+    if (!errs.isEmpty && checked) throw errs.first
     return ordered
   }
 

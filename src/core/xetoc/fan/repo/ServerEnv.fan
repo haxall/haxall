@@ -10,6 +10,7 @@ using concurrent
 using util
 using xeto
 using xetom
+using haystack
 
 **
 ** Server side environment with a file system based repo
@@ -162,7 +163,7 @@ const class ServerEnv : MEnv
 
     // create namespace and force all libs to be compiled
     libCacheClear
-    ns := LocalNamespace(LocalNamespaceInit(this, repo, libs, buildFiles))
+    ns := LocalNamespace(LocalNamespaceInit(this, repo, libs, Etc.dict0, buildFiles))
     ns.libs
 
     // report which libs could not be compiled
@@ -176,6 +177,8 @@ const class ServerEnv : MEnv
 
   override XetoLib compile(LibNamespace ns, LibVersion v)
   {
+    if (v.file === FileLibVersion.notFoundFile) throw UnknownLibErr(v.name)
+
     c := XetoCompiler
     {
       it.ns      = ns

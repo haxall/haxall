@@ -17,12 +17,16 @@ using haystack
 @Js
 abstract const class MNamespace : LibNamespace, CNamespace
 {
-  new make(MEnv env, LibVersion[] versions, |This->XetoLib|? loadSys := null)
+  **
+  ** Constructor options:
+  **   - uncheckedDepends: load with unmet depends (libs just go into err)
+  **
+  new make(MEnv env, LibVersion[] versions, Dict opts := Etc.dict0)
   {
     this.envRef = env
 
     // order versions by depends - also checks all internal constraints
-    versions = LibVersion.orderByDepends(versions)
+    versions = LibVersion.orderByDepends(versions, opts.missing("uncheckedDepends"))
 
     // build list and map of entries
     list := MLibEntry[,]
@@ -40,17 +44,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
     this.entriesMap  = map
 
     // load sys library
-    if (loadSys == null)
-    {
-      // local ns does normal sync load
-      this.sysLib = lib("sys")
-    }
-    else
-    {
-      // remote ns uses callback to read from boot buffer
-      this.sysLib = loadSys(this)
-      entry("sys").setOk(this.sysLib)
-    }
+    this.sysLib = lib("sys")
 
     // check all loaded flag
     checkAllLoaded
@@ -134,7 +128,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
       }
     }
     if (e.status.isOk) return e.get
-    throw e.err ?: Err("$name [$e.status]")
+    throw LibLoadErr("Lib '$name' could not be loaded", e.err)
   }
 
   override Lib[] libs()
@@ -245,12 +239,28 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   private Void loadSyncWithDepends(MLibEntry entry)
   {
+    missing := LibDepend[,]
     entry.version.depends.each |depend|
     {
       if (entry.status.isNotLoaded)
-        loadSync(this.entry(depend.name))
+      {
+        dependEntry := this.entry(depend.name, false)
+        if (dependEntry == null)
+          missing.add(depend)
+        else
+          loadSync(this.entry(depend.name))
+      }
     }
-    loadSync(entry)
+
+    if (!missing.isEmpty)
+    {
+// TODO: move this into ctor
+      entry.setErr(DependErr("Missing depends: " + missing.join(", ") { it.name }))
+    }
+    else
+    {
+      loadSync(entry)
+    }
     checkAllLoaded
   }
 

@@ -18,7 +18,7 @@ using haystack
 const class LocalNamespace : MNamespace
 {
   new make(LocalNamespaceInit init)
-    : super(init.env, init.versions, null)
+    : super(init.env, init.versions, init.opts)
   {
     this.repo  = init.repo
     this.build = init.build
@@ -92,17 +92,19 @@ const class LocalNamespace : MNamespace
 
 const class LocalNamespaceInit
 {
-  new make(XetoEnv env, LibRepo repo, LibVersion[] versions, [Str:File]? build := null)
+  new make(XetoEnv env, LibRepo repo, LibVersion[] versions, Dict opts := Etc.dict0, [Str:File]? build := null)
   {
     this.env      = env
     this.repo     = repo
     this.versions = versions
+    this.opts     = opts
     this.build    = build
   }
 
   const MEnv env
   const LibRepo repo
   const LibVersion[] versions
+  const Dict opts
   const [Str:File]? build
 }
 
