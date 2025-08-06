@@ -24,37 +24,23 @@ abstract class HxBoot
 // Configuration
 //////////////////////////////////////////////////////////////////////////
 
-  ** Are we running create or load
-  Bool isCreate { private set }
-
-  ** Are we running create or load
-  Bool isSysLoad() { !isCreate }
-
   ** Project name (required)
   Str? name { set { checkLock; &name = it } }
 
   ** Project directory (required)
   File? dir { set { checkLock; &dir = it } }
 
-  ** Actor pool for project threads (folio uses its own)
+  ** Actor pool for runtime threads
   ActorPool? actorPool { set { checkLock; &actorPool = it } }
 
-  ** Logger to use for bootstrap (required)
+  ** Logger to use for bootstrap/runtime (required)
   Log? log
 
-  ** Xeto repo to use
+  ** Xeto repo to use for building namespace
   XetoEnv xetoEnv := XetoEnv.cur
 
-  ** List of xeto lib names which are implicitly enabled as boot libs
+  ** Xeto lib names implicitly enabled as boot libs (sys only)
   Str[] bootLibs := [,]
-
-  ** Initial values projMeta (create only)
-  Str:Obj? createProjMeta := [:]
-
-  ** Initial libs for create
-  Str[] createLibs := [
-     "hx.xeto"
-  ]
 
   ** List all the core libs required for basic Ion user interface
   Str[] ionLibs := [
@@ -70,9 +56,9 @@ abstract class HxBoot
   ]
 
   **
-  ** SysInfo metadata
+  ** SysInfo metadata to build Sys.info:
   **   - version (without patch number)
-  **   - type
+  **   - type (SysInfoType enum)
   **   - hostOs, hostModel, hostId?
   **   - productName, productVersion, productUri
   **   - vendorName, vendorUri
@@ -93,34 +79,33 @@ abstract class HxBoot
   Version sysInfoVersion() { Version.fromStr(sysInfo.getChecked("version")) }
 
   **
-  ** SysInfo config tags used to customize the system.
-  ** This dict is available via Proj.config.
-  ** Standard keys:
+  ** SysConfig meta to build Sys.config:
   **   - test: Marker for HxTest runtime
   **   - noAuth: Marker to disable authentication and use superuser
   **   - safeMode: don't start exts (SkySpark only)
-  **   - apiExtWeb: fantom type qname for ApiExt ExtWeb
-  **   - platformSpi: Str qname for hxPlatform::PlatformSpi class
-  **   - platformSerialSpi: Str qname for hxPlatformSerial::PlatformSerialSpi class
+  **   - apiExtWeb: qname for ApiExt ExtWeb class
+  **   - platformSpi: qname for hxPlatform::PlatformSpi class
+  **   - platformSerialSpi: qname for hxPlatformSerial::PlatformSerialSpi class
   **   - newProjExts: comma separated list of project exts
   **   - hxLic: license Str or load from lic/xxx.trio
   **
   Str:Obj? sysConfig := [:]
 
-  ** Lookup sys config noAuth flag
+  ** Lookup sysConfig noAuth flag
   Bool isNoAuth() { sysConfig["noAuth"] != null }
 
-  ** Lookup sys config safeMode flag
+  ** Lookup sysConfig safeMode flag
   Bool isSafeMode() { sysConfig["safeMode"] != null }
 
-  ** Lookup syc config test flag
+  ** Lookup sysConfig test flag
   Bool isTest() { sysConfig["test"] != null }
 
 //////////////////////////////////////////////////////////////////////////
 // Check
 //////////////////////////////////////////////////////////////////////////
 
-  ** Check inputs and raise exception if problems
+  ** Check inputs and raise exception if problems.
+  ** Lock down core fields like name, dir after this call.
   virtual Void check()
   {
     if (checked) return
@@ -144,14 +129,7 @@ abstract class HxBoot
     if (dir == null) throw Err("Must set dir")
     if (!dir.isDir) dir = dir.uri.plusSlash.toFile
     dir = dir.normalize
-    if (isCreate)
-    {
-      if (dir.exists) throw ArgErr("Dir already exists: $dir")
-    }
-    else
-    {
-      if (!dir.exists) throw ArgErr("Dir does not exist: $dir")
-    }
+    if (!dir.exists) throw ArgErr("Dir does not exist: $dir")
   }
 
   ** Check log is configured
@@ -167,7 +145,7 @@ abstract class HxBoot
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Steps
+// Hooks
 //////////////////////////////////////////////////////////////////////////
 
   ** Create TextBase under "{dir}/ns/" to manage namespace settings via plain text
@@ -176,7 +154,7 @@ abstract class HxBoot
     TextBase(this.dir + `ns/`)
   }
 
-  ** Open project folio database
+  ** Open folio database for runtime
   abstract Folio initFolio()
 
   ** Create SysInfo instance from sysInfo (sys boot only)
