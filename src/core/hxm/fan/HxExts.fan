@@ -96,11 +96,12 @@ const class HxExts : Actor, RuntimeExts
   {
     gb := GridBuilder()
     gb.setMeta(Etc.dict1("projName", rt.name))
-    gb.addCol("qname").addCol("libStatus").addCol("fantomType").addCol("statusMsg")
+    gb.addCol("qname").addCol("libBasis").addCol("fantomType").addCol("statusMsg")
     list.each |ext|
     {
       spi := (HxExtSpi)ext.spi
-      gb.addRow([ext.name, spi.status, ext.typeof.toStr, spi.statusMsg])
+      basis := rt.libs.get(ext.name, false)?.basis?.name
+      gb.addRow([ext.name, basis, ext.typeof.toStr, spi.statusMsg])
     }
     return gb.toGrid
   }
@@ -116,26 +117,27 @@ const class HxExts : Actor, RuntimeExts
   Void init(HxBoot boot, HxNamespace ns)
   {
     map := Str:Ext[:]
-
-    extLibs(ns).each |lib|
+    findExtLibs.each |lib|
     {
       ext := HxExtSpi.instantiate(boot, this, lib)
       if (ext != null) map.add(ext.name, ext)
     }
-
     update(map)
   }
 
   ** called when libs add/removed while holding HxProjLibs.lock
   internal Void onLibsModified(HxNamespace ns)
   {
-    oldMap   := map
+    oldMap   := Str:Ext[:]
     newMap   := Str:Ext[:]
     toRemove := oldMap.dup
     toAdd    := Lib[,]
 
+    // build map of my old extensions
+    listOwn.each |ext| { oldMap[ext.name] = ext }
+
     // walk thru new list of exts to keep/add/remove
-    extLibs(ns).each |lib|
+    findExtLibs.each |lib|
     {
       name := lib.name
       cur  := oldMap[name]
@@ -154,13 +156,14 @@ const class HxExts : Actor, RuntimeExts
     toStart := Ext[,]
     toAdd.each |lib|
     {
-      ext := onAdded(lib)
-      toStart.addNotNull(ext)
-      newMap.addNotNull(lib.name, ext)
+      ext := doAdd(lib)
+      if (ext == null) return
+      toStart.add(ext)
+      newMap.add(ext.name, ext)
     }
 
     // remove any left over
-    toRemove.each |ext| { onRemoved(ext) }
+    toRemove.each |ext| { doRemove(ext) }
 
     // update lookup tables
     update(newMap)
@@ -178,7 +181,7 @@ const class HxExts : Actor, RuntimeExts
     }
   }
 
-  private Ext? onAdded(Lib lib)
+  private Ext? doAdd(Lib lib)
   {
     ext := HxExtSpi.instantiate(null, this, lib)
     if (ext == null) return null
@@ -187,7 +190,7 @@ const class HxExts : Actor, RuntimeExts
     return ext
   }
 
-  private Void onRemoved(Ext ext)
+  private Void doRemove(Ext ext)
   {
     rt.obsRef.removeExt(ext)
     spi := (HxExtSpi)ext.spi
@@ -195,15 +198,26 @@ const class HxExts : Actor, RuntimeExts
     spi.stop
   }
 
-  private Lib[] extLibs(HxNamespace ns)
+  private Lib[] findExtLibs()
   {
-    // build map of libs that have ext defs I should use
-    ns.libs.findAll |lib|
+    // build map of my libs that have an ext
+    acc := Lib[,]
+    ns := rt.ns
+    rt.libs.list.each |rtLib|
     {
+      // skip non-proj basis libs if I am not sys
+      if (!rt.isSys && !rtLib.basis.isProj) return
+
+      // lookup lib, skip if in error state
+      lib := ns.lib(rtLib.name, false)
+      if (lib == null) return
+
+      // skip those without an extension
       if (lib.meta.missing("libExt")) return false
-      if (!rt.isSys && rt.sys.ns.hasLib(lib.name)) return false
-      return true
+
+      acc.add(lib)
     }
+    return acc
   }
 
   private Void update(Str:Ext map)
