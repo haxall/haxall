@@ -89,22 +89,26 @@ const class HxExts : Actor, RuntimeExts
   private const AtomicRef webRoutesRef := AtomicRef()
 
 //////////////////////////////////////////////////////////////////////////
-// Utils
+// Debug
 //////////////////////////////////////////////////////////////////////////
 
   override Grid status()
   {
     gb := GridBuilder()
     gb.setMeta(Etc.dict1("projName", rt.name))
-    gb.addCol("qname").addCol("libBasis").addCol("fantomType").addCol("statusMsg")
+    gb.addCol("qname").addCol("libBasis").addCol("extStatus").addCol("fantomType").addCol("statusMsg")
     list.each |ext|
     {
       spi := (HxExtSpi)ext.spi
       basis := rt.libs.get(ext.name, false)?.basis?.name
-      gb.addRow([ext.name, basis, ext.typeof.toStr, spi.statusMsg])
+      gb.addRow([ext.name, basis, spi.status, ext.typeof.toStr, spi.statusMsg])
     }
     return gb.toGrid
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Modifications
+//////////////////////////////////////////////////////////////////////////
 
   override Ext add(Str name, Dict? settings := null)
   {

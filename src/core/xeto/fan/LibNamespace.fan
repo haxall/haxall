@@ -54,8 +54,8 @@ const mixin LibNamespace
   abstract LibStatus? libStatus(Str name, Bool checked := true)
 
   ** Exception for a library with lib status of 'err', or null otherwise.
-  ** Raise exception if library not included in this namespace.
-  abstract Err? libErr(Str name)
+  ** Return null/exception if library not included
+  abstract Err? libErr(Str name, Bool checked := true)
 
   ** Return true if the every library in this namespace has been
   ** loaded (successfully or unsuccessfully).  This method returns false

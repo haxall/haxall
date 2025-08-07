@@ -1175,9 +1175,6 @@ terms: Func { returns: List }
 // List conjunct definitions in the context namespace as Def[].
 conjuncts: Func { returns: List }
 
-// List the lib definitions in the context namespace as Def[].
-libs: Func { returns: List }
-
 // Return declared supertypes of the given def.  The result
 // is effectively the resolved defs of the "is" meta tag.
 supertypes: Func <nodoc> { d: Obj, returns: List }

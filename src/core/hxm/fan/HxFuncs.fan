@@ -430,15 +430,26 @@ throw Err("TODO")
     return isShell ? "_no_echo_" : "reloaded"
   }
 
-  ** Return grid of enabled xeto libs and their current status.
-  ** Columns:
+  ** Return grid of the runtimes xeto libs and their status:
   **  - name: library name string
+  **  - libBasis: basis enumeration string
   **  - libStatus: status enumeration string
   **  - other cols subject to change
   @Api @Axon
-  static Grid libStatus(Dict? opts := null)
+  static Grid libs(Dict? opts := null)
   {
     curContext.rt.libs.status(opts)
+  }
+
+  ** Return grid of exts:
+  ** - name: library dotted name string
+  **  - libBasis: basis enumeration string
+  **  - extStatus: basis enumeration string
+  **  - other cols subject to change
+  @Api @Axon
+  static Grid exts()
+  {
+    curContext.rt.exts.status
   }
 
   ** Enable one or more Xeto libs by name:

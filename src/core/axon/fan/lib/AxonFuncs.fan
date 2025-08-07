@@ -2030,12 +2030,6 @@ const class AxonFuncs
     return defs.sort
   }
 
-  ** List the lib definitions in the context namespace as Def[].
-  @Api @Axon static Def[] libs()
-  {
-    AxonContext.curAxon.defs.feature("lib").defs.sort
-  }
-
   ** Return declared supertypes of the given def.  The result
   ** is effectively the resolved defs of the "is" meta tag.
   @NoDoc @Api @Axon static Def[] supertypes(Obj d)

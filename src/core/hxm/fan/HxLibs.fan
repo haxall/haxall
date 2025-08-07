@@ -126,10 +126,10 @@ const class HxLibs : RuntimeLibs
       gb.addRow([
         n,
         x.basis.name,
-        ns.libStatus(n).name,
-        x.ver.isNotFound ? null : x.ver.version,
+        ns.libStatus(n, false)?.name,
+        x.ver.isNotFound ? null : x.ver.version.toStr,
         x.ver.doc,
-        ns.libErr(n)
+        ns.libErr(n, false)?.toStr
       ])
     }
     return gb.toGrid

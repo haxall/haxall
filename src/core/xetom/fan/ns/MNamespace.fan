@@ -116,9 +116,9 @@ abstract const class MNamespace : LibNamespace, CNamespace
     entry(name, checked)?.status
   }
 
-  override Err? libErr(Str name)
+  override Err? libErr(Str name, Bool checked := true)
   {
-    entry(name).err
+    entry(name, checked)?.err
   }
 
   override Bool isAllLoaded()
