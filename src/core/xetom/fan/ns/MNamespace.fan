@@ -272,20 +272,13 @@ abstract const class MNamespace : LibNamespace, CNamespace
       }
     }
 
-    if (!missing.isEmpty)
-    {
-// TODO: move this into ctor
-      entry.setErr(DependErr("Missing depends: " + missing.join(", ") { it.name }))
-    }
-    else
-    {
-      loadSync(entry)
-    }
+    loadSync(entry)
     checkAllLoaded
   }
 
   private Void loadSync(MLibEntry entry)
   {
+    if (entry.status.isLoaded) return
     try
     {
       lib := doLoadSync(entry.version)
