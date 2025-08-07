@@ -147,7 +147,8 @@ abstract const class MNamespace : LibNamespace, CNamespace
       }
     }
     if (e.status.isOk) return e.get
-    throw LibLoadErr("Lib '$name' could not be loaded", e.err)
+    if (checked) throw LibLoadErr("Lib '$name' could not be loaded", e.err)
+    return null
   }
 
   override Lib[] libs()

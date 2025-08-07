@@ -54,7 +54,7 @@ const mixin LibNamespace
   abstract LibStatus? libStatus(Str name, Bool checked := true)
 
   ** Exception for a library with lib status of 'err', or null otherwise.
-  ** Raise exception is library not included in this namespace.
+  ** Raise exception if library not included in this namespace.
   abstract Err? libErr(Str name)
 
   ** Return true if the every library in this namespace has been
@@ -63,19 +63,15 @@ const mixin LibNamespace
   ** require a namespace to be fully loaded.
   @NoDoc abstract Bool isAllLoaded()
 
-  ** Get the given library by name synchronously.  If this is a Java
-  ** environment, then the library will be compiled on its first access.
-  ** If the library cannot be compiled then an exception is always raised
-  ** regardless of checked flag.  If this is a JS environment then the
-  ** library must already have been loaded, otherwise raise exception if
-  ** checked is true.  Use `libAsync` to load a library in JS environment.
+  ** Get the given library by name synchronously.  If the library is
+  ** not loaded, then it is compiled on first access (server only).
+  ** If the library is not included or cannot be comiled then raise
+  ** an exception unless checked is false.
   abstract Lib? lib(Str name, Bool checked := true)
 
   ** List all libraries.  On first call, this will force all libraries to
   ** be loaded synchronously.  Any libs which cannot be compiled will log
-  ** an error and be excluded from this list.  If `isAllLoaded` is true
-  ** then this call can also be in JS environments, otherwise you must use
-  ** the `libsAllAsync` call to fully load all libraries into memory.
+  ** an error and be excluded from this list.
   abstract Lib[] libs()
 
   ** Load all libraries asynchronosly.  Once this operation completes
