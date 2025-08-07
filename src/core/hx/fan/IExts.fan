@@ -52,7 +52,7 @@ const mixin IProjExt : SysExt
   ** formatted as "p:" then raise exception regardless of checked flag.
   abstract Proj? get(Obj id, Bool checked := true)
 
-  ** List all accessible projects (exclude sys)
+  ** List all accessible projects
   abstract Proj[] list()
 }
 
