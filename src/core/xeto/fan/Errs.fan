@@ -40,12 +40,11 @@
 }
 
 **
-** DependErr indicates a missing dependency
+** DependErr indicates a one or missing dependencies or circular depends
 **
 @Js @NoDoc const class DependErr : Err
 {
   ** Construct with message and optional cause.
-  new make(Str? msg, Err? cause := null, Str? name := null) : super(msg, cause) { this.name = name }
-  const Str? name
+  new make(Str? msg, Err? cause := null) : super(msg, cause) {}
 }
 

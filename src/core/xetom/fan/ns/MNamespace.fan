@@ -25,8 +25,13 @@ abstract const class MNamespace : LibNamespace, CNamespace
   {
     this.envRef = env
 
-    // order versions by depends - also checks all internal constraints
-    versions = LibVersion.orderByDepends(versions, opts.missing("uncheckedDepends"))
+    // order versions by depends and check all dependencies
+    errs := Str:Err[:]
+    versions = LibVersion.checkDepends(versions, errs)
+
+    // fail fast on error unless using options uncheckedDepends flag
+    if (!errs.isEmpty && opts.missing("uncheckedDepends"))
+      throw errs.vals.first
 
     // build list and map of entries
     list := MLibEntry[,]
@@ -34,9 +39,23 @@ abstract const class MNamespace : LibNamespace, CNamespace
     map := Str:MLibEntry[:]
     versions.each |x|
     {
+      // init entry for LibVersion
       entry := MLibEntry(x)
-      cached := env.get(x.name, false)
-      if (cached != null) entry.setOk(cached)
+
+      // if there was a depend error or env has cached version of the
+      // lib, then immediately set the entry into err/ok state
+      err := errs[x.name]
+      if (err != null)
+      {
+        entry.setErr(err)
+      }
+      else
+      {
+        cached := env.get(x.name, false)
+        if (cached != null) entry.setOk(cached)
+      }
+
+      // add to our lookup tables
       list.add(entry)
       map.add(x.name, entry)
     }

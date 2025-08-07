@@ -134,8 +134,8 @@ const class FileLibVersion : LibVersion
     return MLibDepend(n, v)
   }
 
-  static const File notFoundFile := Buf().toFile(`not-found`)
+  private static const File notFoundFile := Buf().toFile(`not-found`)
 
-  Bool isNotFound() { file === notFoundFile }
+  override Bool isNotFound() { file === notFoundFile }
 }
 

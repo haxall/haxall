@@ -177,8 +177,6 @@ const class ServerEnv : MEnv
 
   override XetoLib compile(LibNamespace ns, LibVersion v)
   {
-    if (v.file === FileLibVersion.notFoundFile) throw UnknownLibErr(v.name)
-
     c := XetoCompiler
     {
       it.ns      = ns

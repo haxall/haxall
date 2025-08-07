@@ -38,6 +38,8 @@ const class RemoteLibVersion : LibVersion
 
   override Bool isSrc() { false }
 
+  override Bool isNotFound() { false }
+
   override Void eachSrcFile(|File| f) {}
 
   override const Str toStr

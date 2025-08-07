@@ -71,50 +71,78 @@ class RepoTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Order Depends
+// Check Depends
 //////////////////////////////////////////////////////////////////////////
 
-  Void testOrderByDepends()
+  Void testCheckDepends()
   {
     repo := buildTestRepo
 
-    verifyOrderByDepends(repo, "sys")
-    verifyOrderByDepends(repo, "sys, ph")
-    verifyOrderByDepends(repo, "sys, ph, ph.points")
-    verifyOrderByDepends(repo, "sys, ph, ph.points, cc.vavs")
-    verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.vavs")
+    verifyCheckDepends(repo, "sys")
+    verifyCheckDepends(repo, "sys, ph")
+    verifyCheckDepends(repo, "sys, ph, ph.points")
+    verifyCheckDepends(repo, "sys, ph, ph.points, cc.vavs")
+    verifyCheckDepends(repo, "sys, ph, ph.points, cc.ahus, cc.vavs")
 
-    verifyErrMsg(DependErr#, "Circular depends")
-    {
-      verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.circular", ["cc.circular"])
-    }
+    verifyCheckDepends(repo, "sys, ph, ph.points, cc.ahus, cc.notfound", [
+      "cc.notfound":UnknownLibErr("Lib 'cc.notfound' not found")
+      ])
 
-    verifyErrMsg(DependErr#, "cc.noSolve-10.0.10 dependency: ph 9.x.x [ph-3.0.9]")
-    {
-      verifyOrderByDepends(repo, "sys, ph, ph.points, cc.ahus, cc.noSolve", ["cc.noSolve"])
-    }
+    verifyCheckDepends(repo, "sys, ph, ph.points, cc.ahus, cc.nosolve", [
+      "cc.nosolve":DependErr("Lib 'cc.nosolve' has missing depends: ph 9.x.x")
+      ])
+
+    verifyCheckDepends(repo, "sys, ph, ph.points, cc.ahus, cc.nosolven", [
+      "cc.nosolven":DependErr("Lib 'cc.nosolven' has missing depends: bar, foo, ph 9.x.x, qux")
+      ])
+
+    verifyCheckDepends(repo, "sys, ph, ph.points, cc.ahus, cc.circular", [
+        "cc.circular":DependErr("Lib 'cc.circular' has circular depends")
+      ])
+
+    verifyCheckDepends(repo, "sys, ph, ph.points, cc.ahus, cc.circular, cc.missing1, cc.missing2, cc.nosolve, cc.nosolven", [
+        "cc.circular": DependErr("Lib 'cc.circular' has circular depends"),
+        "cc.missing1": UnknownLibErr("Lib 'cc.missing1' not found"),
+        "cc.missing2": UnknownLibErr("Lib 'cc.missing2' not found"),
+        "cc.nosolve":  DependErr("Lib 'cc.nosolve' has missing depends: ph 9.x.x"),
+        "cc.nosolven": DependErr("Lib 'cc.nosolven' has missing depends: bar, foo, ph 9.x.x, qux"),
+      ])
   }
 
-  Void verifyOrderByDepends(LibRepo repo, Str names, Str[] expectErrs := [,])
+  Void verifyCheckDepends(LibRepo repo, Str names, Str:Err expectErrs := [:])
   {
-    LibVersion[] libs := names.split(',').map |x->LibVersion| { repo.latest(x) }
+    LibVersion[] libs := names.split(',').map |x->LibVersion|
+    {
+      repo.latest(x, false) ?: FileLibVersion.makeNotFound(x)
+    }
+
     (libs.size * 2).times
     {
       shuffled := libs.dup.shuffle
 
-      // -- LibVersion.checkDepends --
-      actualErrs := LibVersion.checkDepends(shuffled)
-      // echo("~~~ $names"); echo(actualErrs.join("\n") { "$it $it.name" })
-      verifyEq(actualErrs.size, expectErrs.size)
-      actualErrs.each |x, i| { verifyEq(x.name, expectErrs[i]) }
+      // LibVersion.checkDepends
+      errs := Str:Err[:]
+      ordered := LibVersion.checkDepends(shuffled, errs)
+      // echo("~~~ $names errs=$errs.size"); echo(errs.join("\n"))
+      verifyEq(ordered.join(", ") { it.name }, names)
+      verifyEq(errs.size, expectErrs.size)
+      expectErrs.each |expect, name|
+      {
+        actual := errs[name] ?: throw Err("checkDepend missing err: $name")
+        verifyEq(actual.toStr, expect.toStr)
+      }
 
-      // -- LibVersion.orderByDepends --
-      sorted := LibVersion.orderByDepends(shuffled)
-      sortedNames := sorted.join(", ") { it.name }
-      // echo("~~> " + shuffled.join(", ") { it.name })
-      // echo("  > $sortedNames")
-      verifyEq(sortedNames, names)
-
+      // LibVersion.orderByDepends returns same thing or raises exception
+      try
+      {
+        ordered = LibVersion.orderByDepends(shuffled)
+        verifyEq(ordered.join(", ") { it.name }, names)
+        if (!errs.isEmpty) fail
+      }
+      catch (Err e)
+      {
+        if (errs.isEmpty) fail
+      }
     }
   }
 
@@ -437,8 +465,11 @@ class RepoTest : AbstractXetoTest
     testLibName = "cc.circular"
     addVer("10.0.10", "sys x.x.x, ph x.x.x, cc.circular x.x.x")
 
-    testLibName = "cc.noSolve"
+    testLibName = "cc.nosolve"
     addVer("10.0.10", "sys x.x.x, ph 9.x.x")
+
+    testLibName = "cc.nosolven"
+    addVer("10.0.10", "sys x.x.x, ph 9.x.x, foo x.x.x, bar x.x.x, qux x.x.x")
 
     return TestRepo(testRepoMap)
   }
@@ -551,5 +582,6 @@ internal const class TestLibVersion : LibVersion
   override Void eachSrcFile(|File| f) {}
   override File? file(Bool checked := true) { throw UnsupportedErr() }
   override Str toStr() { "$name-$version" }
+  override Bool isNotFound() { false }
 }
 
