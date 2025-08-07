@@ -126,13 +126,30 @@ const class HxLibs : RuntimeLibs
       gb.addRow([
         n,
         x.basis.name,
-        ns.libStatus(n, false)?.name,
+        ns.libStatus(n, false)?.name ?: "disabled",
         x.ver.isNotFound ? null : x.ver.version.toStr,
         x.ver.doc,
         ns.libErr(n, false)?.toStr
       ])
     }
-    return gb.toGrid
+    grid := gb.toGrid
+
+    search := opts["search"] as Str
+    if (search != null)
+    {
+      search = search.lower
+      grid = grid.findAll |row|
+      {
+        res := row.eachWhile |v, n|
+        {
+          if (v is Str && v.toStr.lower.contains(search)) return "match"
+          return null
+        }
+        return res != null
+      }
+    }
+
+    return grid
   }
 
 //////////////////////////////////////////////////////////////////////////
