@@ -58,6 +58,7 @@ class HxdTestSpi : HxTestSpi
     // solve depends we need to enable too
     depends := proj.ns.env.repo.solveDepends([LibDepend(libName)])
     libNames := depends.map |d->Str| { d.name }
+    libNames = libNames.findAll |n| { !proj.libs.has(n) }
     proj.libs.addAll(libNames)
   }
 
@@ -66,6 +67,7 @@ class HxdTestSpi : HxTestSpi
     // solve depends we need to enable too (but not the ext itself)
     depends := proj.ns.env.repo.solveDepends([LibDepend(libName)])
     libNames := depends.map |d->Str| { d.name }
+    libNames = libNames.findAll |n| { !proj.libs.has(n) }
     libNames.remove(libName)
     proj.libs.addAll(libNames)
 

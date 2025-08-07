@@ -126,7 +126,7 @@ const class HxLibs : RuntimeLibs
       gb.addRow([
         n,
         x.basis.name,
-        ns.libStatus(n),
+        ns.libStatus(n).name,
         x.ver.isNotFound ? null : x.ver.version,
         x.ver.doc,
         ns.libErr(n)

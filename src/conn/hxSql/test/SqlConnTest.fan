@@ -26,7 +26,7 @@ class SqlConnTest : HxTest
   ** Setup and return connector based on etc/sql/config.props
   Dict? sqlTestInit()
   {
-    addLib("sql")
+    addLib("hx.sql")
     if (sys.info.type.isSkySpark) addLib("hx.his")
 
     // configure one
