@@ -74,10 +74,14 @@ internal class ProcessPragma : Step
 
   private MLibDepend[] nsToDepends()
   {
-    ns.versions.mapNotNull |lib->MLibDepend?|
+    // only use libs not in error
+    return ns.versions.mapNotNull |ver->MLibDepend?|
     {
-      if (compiler.libName == lib.name) return null
-      return MLibDepend(lib.name, LibDependVersions.wildcard, FileLoc.synthetic)
+      name := ver.name
+      if (compiler.libName == name) return null
+      status := ns.libStatus(name)
+      if (status.isErr) return null
+      return MLibDepend(name, LibDependVersions.wildcard, FileLoc.synthetic)
     }
   }
 
