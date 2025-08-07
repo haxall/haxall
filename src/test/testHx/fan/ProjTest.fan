@@ -313,7 +313,6 @@ class ProjTest : HxTest
     verifySame(p.specs.lib, p.ns.lib("proj"))
   }
 
-
   Void verifyProjSpecs(Proj p, Str[] names)
   {
     Str[] actualNames := p.specs.lib.specs.map |s->Str| { s.name }
@@ -349,10 +348,8 @@ class ProjTest : HxTest
 
 class TestSysBoot : HxdBoot
 {
-  new make(File dir)
+  new make(File dir) : super("test", dir)
   {
-    this.name = "test"
-    this.dir = dir
     this.log = Log.get("test")
     this.bootLibs.remove("hx.shell")
     this.bootLibs.add("bad.boot")

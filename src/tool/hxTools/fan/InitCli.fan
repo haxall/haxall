@@ -145,9 +145,8 @@ internal class InitCli : HxCli
 
   private Void createDatabase()
   {
-    boot := HxdBoot()
+    boot := HxdBoot("sys", this.dir)
     {
-      it.dir = this.dir
       it.log = Log.get("init")
     }
 

@@ -21,12 +21,12 @@ class UtilTest : HxTest
     badTag := "Project name not valid tag name"
     tooShort := "Project name too short"
     tooLong  := "Project name too long"
-    reserved := "Project name reserved"
 
     verifyProjName("",        tooShort)
     verifyProjName("a",       tooShort)
     verifyProjName("ab",      tooShort)
-    verifyProjName("abc",     tooShort)
+    verifyProjName("abc",     null)
+    verifyProjName("sys",     null)
     verifyProjName("abcd",    null)
     verifyProjName("fooBar4", null)
     verifyProjName("x"*62,    null)
@@ -41,9 +41,6 @@ class UtilTest : HxTest
     verifyProjName("a3b4", null)
     verifyProjName("ab d", badTag)
     verifyProjName("ab:d", badTag)
-
-    verifyProjName("folio", reserved)
-    verifyProjName("skyspark", reserved)
   }
 
   Void verifyProjName(Str n, Str? expect)

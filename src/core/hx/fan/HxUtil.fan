@@ -82,30 +82,11 @@ const class HxUtil
   ** Check project name and return error message or null
   @NoDoc static Str? checkProjNameErr(Str name)
   {
-    if (name.size <= 3) return "Project name too short"
+    if (name.size < 3) return "Project name too short"
     if (name.size > 62) return "Project name too long"
     if (!Etc.isTagName(name)) return "Project name not valid tag name"
-    lower := name.lower
-    isReserved := projNameReserved.any |r| { lower.startsWith(r) }
-    if (isReserved) return "Project name reserved"
     return null
   }
-
-  private static const Str[] projNameReserved :=
-  [
-    "axon",
-    "fan",
-    "fantom",
-    "haystack",
-    "host",
-    "folio",
-    "skyfoundry",
-    "skyspark",
-    "proj",
-    "spark",
-    "skyarc",
-    "sys",
-   ]
 
 //////////////////////////////////////////////////////////////////////////
 // Enum

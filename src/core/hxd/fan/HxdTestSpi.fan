@@ -22,10 +22,8 @@ class HxdTestSpi : HxTestSpi
 
   static Proj boot(File dir, Bool create, Dict projMeta := Etc.dict0)
   {
-    boot := HxdBoot
+    boot := HxdBoot("test", dir)
     {
-      it.name = "test"
-      it.dir = dir
       it.createProjMeta = Etc.dictToMap(projMeta)
       it.bootLibs.remove("hx.http")
       it.bootLibs.add("hx.platform.serial")

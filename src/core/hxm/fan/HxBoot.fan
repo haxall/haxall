@@ -21,20 +21,40 @@ abstract class HxBoot
 {
 
 //////////////////////////////////////////////////////////////////////////
+// Constructor
+//////////////////////////////////////////////////////////////////////////
+
+  ** Constructor
+  new make(Str name, File dir)
+  {
+    // check name
+    HxUtil.checkProjName(name)
+
+    // check dir
+    if (!dir.isDir) dir = dir.uri.plusSlash.toFile
+    dir = dir.normalize
+
+    // init fields
+    this.name = name
+    this.dir = dir
+    this.actorPool = ActorPool { it.name = "Rt-$this.name" }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Configuration
 //////////////////////////////////////////////////////////////////////////
 
-  ** Project name (required)
-  Str? name { set { checkLock; &name = it } }
+  ** Project name
+  const Str name
 
-  ** Project directory (required)
-  File? dir { set { checkLock; &dir = it } }
+  ** Runtime directory
+  const File dir
 
   ** Actor pool for runtime threads
-  ActorPool? actorPool { set { checkLock; &actorPool = it } }
+  ActorPool actorPool
 
-  ** Logger to use for bootstrap/runtime (required)
-  Log? log
+  ** Logger to use for bootstrap/runtime
+  Log log := Log.get("boot")
 
   ** Xeto repo to use for building namespace
   XetoEnv xetoEnv := XetoEnv.cur
@@ -101,50 +121,6 @@ abstract class HxBoot
   Bool isTest() { sysConfig["test"] != null }
 
 //////////////////////////////////////////////////////////////////////////
-// Check
-//////////////////////////////////////////////////////////////////////////
-
-  ** Check inputs and raise exception if problems.
-  ** Lock down core fields like name, dir after this call.
-  virtual Void check()
-  {
-    if (checked) return
-    checkName
-    checkDir
-    checkLog
-    checkActorPool
-    checked = true
-  }
-
-  ** Check name if valid project name
-  virtual Void checkName()
-  {
-    if (name == null) throw Err("Must set name")
-    HxUtil.checkProjName(name)
-  }
-
-  ** Check dir is configured and normalized
-  virtual Void checkDir()
-  {
-    if (dir == null) throw Err("Must set dir")
-    if (!dir.isDir) dir = dir.uri.plusSlash.toFile
-    dir = dir.normalize
-    if (!dir.exists) throw ArgErr("Dir does not exist: $dir")
-  }
-
-  ** Check log is configured
-  virtual Void checkLog()
-  {
-    if (log == null) throw Err("Must set log")
-  }
-
-  ** Initialize actorPool
-  virtual Void checkActorPool()
-  {
-    if (actorPool == null) actorPool = ActorPool { it.name = "Proj-$this.name" }
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Hooks
 //////////////////////////////////////////////////////////////////////////
 
@@ -196,16 +172,5 @@ abstract class HxBoot
     return env["os.name"] + " " + env["os.arch"] + " " + env["os.version"]
   }
 
-  ** Check lock ensures that key fields cannot be changed after validation
-  private Void checkLock()
-  {
-    if (checked) throw ArgErr("Cannot change field after validation")
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Internal Fields
-//////////////////////////////////////////////////////////////////////////
-
-  private Bool checked   // check
 }
 

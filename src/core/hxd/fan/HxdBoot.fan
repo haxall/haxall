@@ -28,7 +28,7 @@ class HxdBoot : HxBoot
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make()
+  new make(Str name, File dir) : super(name, dir)
   {
     this.log = Log.get("hxd")
 
@@ -57,12 +57,6 @@ class HxdBoot : HxBoot
 //////////////////////////////////////////////////////////////////////////
 // HxBoot Overrides
 //////////////////////////////////////////////////////////////////////////
-
-  override Void checkName()
-  {
-    if (name == null) this.name = "sys"
-    else super.checkName
-  }
 
   override Folio initFolio()
   {
@@ -171,7 +165,7 @@ internal class RunCli : HxCli
 
   override Int run()
   {
-    boot := HxdBoot { it.dir = this.dir }
+    boot := HxdBoot("sys", dir)
     if (noAuth) boot.sysConfig["noAuth"] = Marker.val
     return boot.run
   }
