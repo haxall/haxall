@@ -9,3 +9,6 @@
 // Define an extension spec for a library
 libExt: Spec <meta>
 
+// Marks a library as system level only
+sysOnly: Marker <meta>
+

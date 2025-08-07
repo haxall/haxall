@@ -24,5 +24,10 @@ pragma: Lib <
     type: BuildVar "hx.vcs.type"
     uri:  BuildVar "hx.vcs.uri"
   }
+  sysOnly
+  libExt: PlatformNetworkExt
 >
+
+// Platform support for IP network config
+PlatformNetworkExt: SysExt
 
