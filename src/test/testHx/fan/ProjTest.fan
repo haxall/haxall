@@ -29,21 +29,29 @@ class ProjTest : HxTest
   Void testBoot()
   {
     // setup
-    projLibs := ["ph", "ashrae.g36", "bad.proj"]
     dir := tempDir
+    projLibs := ["sys", "ph", "ashrae.g36", "bad.proj"]
     dir.plus(`ns/libs.txt`).out.print(projLibs.join("\n")).close
 
     // boot project
     boot := TestSysBoot(tempDir)
     bootLibs := boot.bootLibs
     p := HxdSys(boot).init(boot)
-    baseExts := ["hx.api", "hx.crypto", "hx.hxd.file", "hx.hxd.his", "hx.http", "hx.hxd.user", "hx.hxd.proj"]
 
-echo
-echo
-p.libs.status.dump
-echo
-echo
+    // build up expectLib map of "libName":"basis status"
+    expectLibs := Str:Str[:]
+    expectLibs["proj"] = "boot ok"
+    projLibs.each |n|
+    {
+      status := n.startsWith("bad") || n == "ashrae.g36" ? "err" : "ok"
+      expectLibs[n] = "sys $status"
+    }
+    boot.bootLibs.each |n|
+    {
+      status := n.startsWith("bad") ? "err" : "ok"
+      expectLibs[n] = "boot $status"
+    }
+    expectExts := ["hx.api", "hx.crypto", "hx.hxd.file", "hx.hxd.his", "hx.http", "hx.hxd.user", "hx.hxd.proj"]
 
     // verify initial state
     verifyEq(p.name, boot.name)
@@ -58,8 +66,8 @@ echo
     verifyEq(p.isRunning, false)
     verifyEq(p.meta->projMeta, Marker.val)
     verifyEq(p.meta->version, "1.2.3")
-    verifyProjLibs(p, bootLibs, projLibs, ["ashrae.g36"])
-    verifyProjExts(p, baseExts)
+    verifyProjLibs(p, expectLibs)
+    verifyProjExts(p, expectExts)
 
     // verify system required libs
     verifySame(p.sys.crypto.spec.lib, p.ns.lib("hx.crypto"))
@@ -69,21 +77,22 @@ echo
     verifySame(p.sys.proj.get(p.name), p)
     verifySame(p.sys.proj.list, Proj#.emptyList)
 
-    // add lib already there, add empty list
-    p.libs.add("ph")
+    // add empty list is ignored
     p.libs.addAll(Str[,])
-    verifyProjLibs(p, bootLibs, projLibs, ["ashrae.g36"])
-    verifyProjExts(p, baseExts)
+    verifyProjLibs(p, expectLibs)
+    verifyProjExts(p, expectExts)
 
     // add - verify errors
+    verifyErr(ArgErr#) { p.libs.add("ph") }
     verifyErr(DuplicateNameErr#) { p.libs.addAll(["ph.points", "ph.points"]) }
     verifyErr(UnknownLibErr#) { p.libs.add("bad.bad.bad") }
     verifyErr(DependErr#) { p.libs.add("hx.test.xeto") }
 
     // add new lib 'ph.points' which fills 'g36' depend
     p.libs.add("ph.points")
-    projLibs.add("ph.points")
-    verifyProjLibs(p, bootLibs, projLibs, [,])
+    expectLibs["ph.points"] = "sys ok"
+    expectLibs["ashrae.g36"] = "sys ok"
+    verifyProjLibs(p, expectLibs)
 
     // add spec
     specA := p.specs.add("SpecA", "Dict { dis: Str }")
@@ -110,9 +119,8 @@ echo
     // re-boot project and verify libs/specs were persisted
     p.db.close
     p = HxdSys(boot).init(boot)
-    verifyProjLibs(p, bootLibs, projLibs, [,])
+    verifyProjLibs(p, expectLibs)
     verifyProjSpecs(p, ["SpecA", "SpecB"])
-    //dumpLibs(p)
 
     // remove - errors
     verifyErr(DuplicateNameErr#) { p.libs.removeAll(["ph.points", "ph.points"]) }
@@ -121,7 +129,8 @@ echo
 
     // remove g36
     p.libs.remove("ashrae.g36")
-    projLibs.remove("ashrae.g36")
+    expectLibs.remove("ashrae.g36")
+    verifyProjLibs(p, expectLibs)
 
     // rename specs
     specA = p.specs.rename("SpecA", "NewSpecA")
@@ -143,7 +152,7 @@ echo
     // re-boot and verify libs were persisted
     p.db.close
     p = HxdSys(boot).init(boot)
-    verifyProjLibs(p, bootLibs, projLibs, [,])
+    verifyProjLibs(p, expectLibs)
     verifyProjSpecs(p, ["SpecB"])
 
     // test specs with comments
@@ -161,8 +170,10 @@ echo
 
     // add new ext
     ext := p.exts.add("hx.shell")
-    verifyProjLibs(p, bootLibs, projLibs.dup.add("hx.shell"), [,])
-    verifyProjExts(p, baseExts.dup.add("hx.shell"))
+    expectLibs["hx.shell"] = "sys ok"
+    expectExts.add("hx.shell")
+    verifyProjLibs(p, expectLibs)
+    verifyProjExts(p, expectExts)
     verifyEq(ext.web.uri, `/shell/`)
   }
 
@@ -268,49 +279,40 @@ echo
     p.exts.status.dump
   }
 
-  Void verifyProjLibs(Proj p, Str[] bootLibs, Str[] projLibs, Str[] errs)
+  Void verifyProjLibs(Proj p, Str:Str expect)
   {
-//    verifySame(p.specs.lib.name, "proj")
-//    verifySame(p.specs.lib, p.ns.lib("proj"))
+    // echo("\n-- verifyProjLibs"); p.libs.status.dump
 
-    bootLibs.each |n|
+    expect.each |e, n|
     {
-      s := n.startsWith("bad.") ? "notFound" : "ok"
-      if (errs.contains(n)) s = "err"
-      verifyProjLib(p, n, true, s)
+      ebasis  := e.split[0]
+      estatus := e.split[1]
+      abasis  := p.libs.get(n).basis.name
+      astatus := p.ns.libStatus(n).name
+      lib     := p.ns.lib(n, false)
+      // echo("  ~~> $n $abasis $astatus")
+      verifyEq(abasis,  ebasis)
+      verifyEq(astatus, estatus)
+      if (estatus=="ok")
+      {
+        verifyEq(lib.name, n)
+      }
+      else
+      {
+        verifyEq(lib, null)
+      }
     }
 
-    projLibs.each |n|
+    p.ns.versions.each |v|
     {
-      s := n.startsWith("bad.") ? "notFound" : "ok"
-      if (errs.contains(n)) s = "err"
-      verifyProjLib(p, n, false, s)
+      e := expect[v.name] ?: throw Err(v.toStr)
+      verifyNotNull(e)
     }
+
+    verifySame(p.specs.lib.name, "proj")
+    verifySame(p.specs.lib, p.ns.lib("proj"))
   }
 
-  Void verifyProjLib(Proj p, Str n, Bool isBoot, Str status)
-  {
-    x := p.libs.get(n)
-    // echo("~~ $x.name [$x.status]  $x.err")
-    verifySame(p.libs.list.find { it.name == n }, x)
-    verifyEq(x.name, n)
-    verifyEq(x.basis, isBoot ? RuntimeLibBasis.boot : RuntimeLibBasis.sys)
-//    verifyEq(x.status.name, status)
-    if (status == "ok")
-    {
-      lib := p.ns.lib(n)
-      verifyEq(p.ns.libStatus(n), LibStatus.ok)
-//      verifyEq(x.version, lib.version)
-//      verifyEq(x.doc, p.ns.version(n).doc)
-    }
-    else
-    {
-echo("%%% load lib $n")
-      verifyEq(p.ns.lib(n, false), null)
-//      verifyNotNull(x.err)
-echo("%%% loaded $n")
-    }
-  }
 
   Void verifyProjSpecs(Proj p, Str[] names)
   {

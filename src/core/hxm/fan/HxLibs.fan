@@ -341,12 +341,26 @@ const class HxLibs : RuntimeLibs
       // check basis
       if (x.basis != myBasis)
       {
-        if (x.basis.isBoot) throw ArgErr("Cannot remove boot lib: $name")
-        throw ArgErr("Proj cannot remove sys lib: $name")
+        if (x.basis.isBoot) throw CannotRemoveBootLibErr("Cannot remove boot lib: $name")
+        throw CannotRemoveSysLibErr("Proj cannot remove sys lib: $name")
       }
 
       // remove it
       acc.remove(name)
+    }
+
+    // check we are not removing libs that are required for remaining libs
+    unmet := LibDepend[,]
+    acc.each |remaining|
+    {
+      unmet.clear
+      remaining.ver.depends.each |d|
+      {
+        x := acc[d.name]
+        if (x == null || !d.versions.contains(x.ver.version)) unmet.add(d)
+      }
+      if (!unmet.isEmpty)
+        throw DependErr("Removing '$unmet.first.name' breaks depends for '$remaining.name'")
     }
   }
 

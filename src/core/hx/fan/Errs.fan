@@ -54,3 +54,9 @@
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
+** Thrown when trying to uninstall a sys lib from proj
+@NoDoc const class CannotRemoveSysLibErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+
