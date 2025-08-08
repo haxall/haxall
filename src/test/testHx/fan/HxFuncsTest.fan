@@ -461,7 +461,7 @@ class HxFuncsTest : HxTest
     rec := eval("libAdd(\"hx.math\")")
     verifyEq(proj.libs.get("hx.math").name, "hx.math")
 
-    Grid status := eval("libStatus()")
+    Grid status := eval("libs()")
     row := status.find { it->name == "hx.math" } ?: throw Err()
     verifyEq(row["name"],      "hx.math")
     verifyEq(row["libStatus"], "ok")

@@ -97,13 +97,11 @@ const class HxSettingsMgr
   ** Update settings and return new dict
   private Dict update(Ref id, Obj changes)
   {
-    cur  := db.readById(id, false)
-    diff := toUpdateDiff(id, cur, changes)
-    return write(diff)
+    write(id, toUpdateChanges(changes))
   }
 
   ** Only standard update diffs can be used with settings manager
-  private Diff toUpdateDiff(Ref id, Dict? cur, Obj changes)
+  private Dict toUpdateChanges(Obj changes)
   {
     diff := changes as Diff
     if (diff != null)
@@ -111,14 +109,13 @@ const class HxSettingsMgr
       if (diff.isAdd)       throw DiffErr("Cannot use add diff")
       if (diff.isRemove)    throw DiffErr("Cannot use remove diff")
       if (diff.isTransient) throw DiffErr("Cannot use transient diff")
-      return cur == null ? Diff.makeAdd(diff.changes, id) : diff
+      return diff.changes
     }
 
     dict := changes as Dict
     if (dict == null && changes is Map) dict = Etc.dictFromMap(changes)
     if (dict == null) throw ArgErr("Invalid changes type [$changes.typeof]")
-
-    return cur == null ? Diff.makeAdd(dict, id) : Diff.make(cur, changes)
+    return dict
   }
 
   ** Initialize settings
@@ -126,13 +123,13 @@ const class HxSettingsMgr
   {
     old := db.readById(id, false)
     if (old != null) db.remove(id)
-    return write(Diff.makeAdd(settings, id))
+    return write(id, settings)
   }
 
   ** Write
-  private Dict write(Diff diff)
+  private Dict write(Ref id, Dict changes)
   {
-    db.update(diff.id, diff.changes)
+    db.update(id, changes)
   }
 
 }
