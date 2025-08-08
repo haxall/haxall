@@ -161,6 +161,36 @@ abstract class HxBoot
     return SysConfig(meta)
   }
 
+  ** Create background manager
+  virtual HxBackgroundMgr initBackgroundMgr(HxRuntime rt)
+  {
+    HxBackgroundMgr(rt)
+  }
+
+  ** Create library manager
+  virtual HxLibs initLibs(HxRuntime rt)
+  {
+    HxLibs(rt, this)
+  }
+
+  ** Create library manager
+  virtual HxExts initExts(HxRuntime rt)
+  {
+    HxExts(rt)
+  }
+
+  ** Create watch manager
+  virtual HxWatches initWatches(HxRuntime rt)
+  {
+    HxWatches(rt)
+  }
+
+  ** Create observable manager
+  virtual HxObservables initObs(HxRuntime rt)
+  {
+    HxObservables(rt)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////

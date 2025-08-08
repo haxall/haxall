@@ -38,11 +38,11 @@ abstract const class HxRuntime : Runtime
     this.actorPool     = boot.actorPool
     this.settingsMgr   = HxSettingsMgr(this, boot)
     this.metaRef       = AtomicRef(settingsMgr.projMetaInit(boot))
-    this.backgroundMgr = HxBackgroundMgr(this)
-    this.libsRef       = HxLibs(this, boot)
-    this.extsRef       = HxExts(this, actorPool)
-    this.watchRef      = HxWatches(this)
-    this.obsRef        = HxObservables(this)
+    this.backgroundMgr = boot.initBackgroundMgr(this)
+    this.libsRef       = boot.initLibs(this)
+    this.extsRef       = boot.initExts(this)
+    this.watchRef      = boot.initWatches(this)
+    this.obsRef        = boot.initObs(this)
   }
 
   ** Called after constructor to init extensions.  This must

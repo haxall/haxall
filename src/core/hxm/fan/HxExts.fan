@@ -18,10 +18,10 @@ using hx
 **
 const class HxExts : Actor, RuntimeExts
 {
-  new make(HxRuntime rt, ActorPool actorPool) : super(actorPool)
+  new make(HxRuntime rt) : super(rt.actorPool)
   {
-    this.rt       = rt
-    this.actorPool = actorPool
+    this.rt        = rt
+    this.actorPool = rt.actorPool
   }
 
   const HxRuntime rt

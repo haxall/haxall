@@ -16,7 +16,7 @@ using hx
 **
 ** Implementation for RuntimeWatches
 **
-internal const class HxWatches : RuntimeWatches
+const class HxWatches : RuntimeWatches
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ internal const class HxWatches : RuntimeWatches
 ** HxWatch
 **************************************************************************
 
-internal const class HxWatch : Watch
+const class HxWatch : Watch
 {
   new make(HxWatches service, Str dis)
   {
