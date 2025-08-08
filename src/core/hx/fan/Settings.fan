@@ -96,6 +96,16 @@ const class Settings : Dict
 
   ** Trap on the wrapped dict
   override Obj? trap(Str n, Obj?[]? a := null) { meta.trap(n, a) }
+
+  ** Get the field from a dict (not dict value). The dict must be a Settings
+  ** instance and field must be annotated with Setting facet
+  @NoDoc static Obj getField(Dict dict, Str name)
+  {
+    if (dict isnot Settings) throw ArgErr("Dict is not Settings")
+    field := dict.typeof.field(name, false)
+    if (field == null || !field.hasFacet(Setting#)) throw ArgErr("Invalid setting field: $field")
+    return field.get(dict)
+  }
 }
 
 **************************************************************************

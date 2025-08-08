@@ -80,6 +80,12 @@ class UtilTest : HxTest
     verifyEq(x["int"], n(3))
     verifyEq(x->int, n(3))
     verifyEq(Etc.dictToMap(x), Str:Obj?["int":n(3), "num":n(4, "kW"), "dur":n(5, "hr"), "bool":m])
+    verifyEq(Settings.getField(x, "int"),  3)
+    verifyEq(Settings.getField(x, "dur"),  5hr)
+    verifyEq(Settings.getField(x, "bool"), true)
+    verifyErr(ArgErr#) { Settings.getField(Etc.dict1("int", n(12)), "int") }
+    verifyErr(ArgErr#) { Settings.getField(x, "invalidField") }
+    verifyErr(ArgErr#) { Settings.getField(x, "secret") }
 
     errs := Str[,]
     onErr := |Str e| { errs.add(e) }
@@ -107,5 +113,6 @@ internal const class TestSettings : Settings
   @Setting const Number num := Number(99)
   @Setting const Duration dur := 99sec
   @Setting const Bool bool
+  const Str secret := "shhh"
 }
 
