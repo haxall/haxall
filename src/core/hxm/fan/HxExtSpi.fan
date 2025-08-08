@@ -142,21 +142,19 @@ const class HxExtSpi : Actor, ExtSpi
 
   override Actor actor() { this }
 
-  override Bool isFault() { status == "fault" }
+//////////////////////////////////////////////////////////////////////////
+// Status
+//////////////////////////////////////////////////////////////////////////
 
-  override Void toStatus(Str status, Str msg)
-  {
-    if (status != "fault") throw ArgErr("unsupported status")
-    statusRef.val = "fault"
-    statusMsgRef.val = msg
-  }
+  override Bool isFault() { faultMsgRef.val != null }
 
-  Str status() { statusRef.val }
+  virtual Str status() { faultMsgRef.val == null ? "ok" : "fault" }
 
-  Str? statusMsg() { statusMsgRef.val }
+  virtual Str? statusMsg() { faultMsgRef.val }
 
-  private const AtomicRef statusRef := AtomicRef("ok")
-  private const AtomicRef statusMsgRef := AtomicRef(null)
+  Void toFault(Str msg) { faultMsgRef.val = msg }
+
+  private const AtomicRef faultMsgRef := AtomicRef(null)
 
 //////////////////////////////////////////////////////////////////////////
 // Observables
@@ -252,7 +250,7 @@ const class HxExtSpi : Actor, ExtSpi
     catch (Err e)
     {
       log.err("Ext.onStart", e)
-      toStatus("fault", e.toStr)
+      toFault(e.toStr)
     }
     return null
   }
