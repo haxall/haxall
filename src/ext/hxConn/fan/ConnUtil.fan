@@ -20,6 +20,7 @@ const final class ConnUtil
   static Str modelName(Ext ext)
   {
     if (ext.name == "hx.test.conn") return "connTest"
+    if (ext.name == "hx.energystar") return "energyStar"
     return ext.name.split('.').last
   }
 
