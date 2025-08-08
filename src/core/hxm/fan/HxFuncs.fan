@@ -456,11 +456,18 @@ throw Err("TODO")
   **   libAdd("ph.points")
   **   libAdd(["ph.points", "ph.equips"])
   @Api @Axon { admin = true }
-  static Obj libAdd(Obj names)
+  static Obj libAdd(Obj names, Dict? opts := null)
   {
+    cx := curContext
     if (names is Str) names = Str[names]
+    if (opts == null) opts = Etc.dict0
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
-    curContext.rt.libs.addAll(list)
+
+    rt := cx.rt
+    if (opts.has("sys")) rt = cx.sys
+    else if (opts.has("proj")) rt = cx.proj
+
+    rt.libs.addAll(list)
     return "added"
   }
 
@@ -468,11 +475,18 @@ throw Err("TODO")
   **   libRemove("ph.points")
   **   libRemove(["ph.points", "ph.equips"])
   @Api @Axon { admin = true }
-  static Obj libRemove(Obj names)
+  static Obj libRemove(Obj names, Dict? opts := null)
   {
+    cx := curContext
     if (names is Str) names = Str[names]
+    if (opts == null) opts = Etc.dict0
     list := names as Str[] ?: throw ArgErr("Expecting names to be Str or Str[]")
-    curContext.rt.libs.removeAll(list)
+
+    rt := cx.rt
+    if (opts.has("sys")) rt = cx.sys
+    else if (opts.has("proj")) rt = cx.proj
+
+    rt.libs.removeAll(list)
     return "removed"
   }
 

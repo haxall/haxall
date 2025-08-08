@@ -247,12 +247,12 @@ exts: Func { opts: Dict?, returns: Grid }
 // Enable one or more Xeto libs by name:
 //   libAdd("ph.points")
 //   libAdd(["ph.points", "ph.equips"])
-libAdd: Func <admin> { names: Obj, returns: Obj }
+libAdd: Func <admin> { names: Obj, opts: Dict?, returns: Obj }
 
 // Disable or more Xeto libs by name:
 //   libRemove("ph.points")
 //   libRemove(["ph.points", "ph.equips"])
-libRemove: Func <admin> { names: Obj, returns: Obj }
+libRemove: Func <admin> { names: Obj, opts: Dict?, returns: Obj }
 
 // Return grid of enabled extensions and their current status.
 // Columns:
