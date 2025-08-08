@@ -109,7 +109,8 @@ const class HxLibs : RuntimeLibs
     libs := opts.has("installed") ? installed : this.list.dup
 
     // check sysOnly/projOnly
-    if (opts.has("sysOnly"))
+    show := (opts["show"] as Str)?.lower ?: ""
+    if (opts.has("sysOnly") || show.contains("sys"))
     {
       libs = libs.findAll |x|
       {
@@ -117,7 +118,7 @@ const class HxLibs : RuntimeLibs
         return !x.basis.isProj
       }
     }
-    else if (opts.has("projOnly"))
+    else if (opts.has("projOnly") || show.contains("proj"))
     {
       libs = libs.findAll |x|
       {

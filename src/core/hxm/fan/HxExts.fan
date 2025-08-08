@@ -99,6 +99,18 @@ const class HxExts : Actor, RuntimeExts
   {
     if (opts == null) opts = Etc.dict0
 
+    list := this.list.dup
+
+    show := (opts["show"] as Str)?.lower ?: ""
+    if (opts.has("sysOnly") || show.contains("sys"))
+    {
+      list = list.findAll |x| { x.rt.isSys }
+    }
+    else if (opts.has("projOnly") || show.contains("proj"))
+    {
+      list = list.findAll |x| { x.rt.isProj }
+    }
+
     gb := GridBuilder()
     gb.setMeta(Etc.dict1("projName", rt.name))
     gb.addCol("qname").addCol("libBasis").addCol("extStatus").addCol("fantomType").addCol("statusMsg")
