@@ -423,10 +423,8 @@ const class HxFuncs
   {
     cx := Context.cur
     isShell := cx.sys.info.type.isAxonsh
-    log := isShell ? Log.get("xeto") : cx.rt.ext("hx.xeto").log
-    log.info("libReload [$cx.user.username]")
-    //cx.rt.libs.reload
-throw Err("TODO")
+    cx.sys.log.info("libReload [$cx.user.username]")
+    ((HxLibs)cx.rt.libs).reload
     return isShell ? "_no_echo_" : "reloaded"
   }
 
@@ -467,6 +465,8 @@ throw Err("TODO")
     if (opts.has("sys")) rt = cx.sys
     else if (opts.has("proj")) rt = cx.proj
 
+    if (rt.isSys) cx.checkSu("libAdd")
+
     rt.libs.addAll(list)
     return "added"
   }
@@ -485,6 +485,8 @@ throw Err("TODO")
     rt := cx.rt
     if (opts.has("sys")) rt = cx.sys
     else if (opts.has("proj")) rt = cx.proj
+
+    if (rt.isSys) cx.checkSu("libRemove")
 
     rt.libs.removeAll(list)
     return "removed"
