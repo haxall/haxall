@@ -76,7 +76,7 @@ doc: Settings for the task extension
 src:
   view:   {inherit:"form"}
   submit: {action:"extSettingsCommit"}
-  data:   {expr:"extSettings(\"task\")"}
+  data:   {expr:"extSettings(\"hx.task\")"}
 --------------------------------------------------------------------------
 
 

@@ -48,5 +48,6 @@ doc: Settings for the Docker extension
 src:
   view:   {inherit:"form"}
   submit: {action:"extSettingsCommit"}
-  data:   {expr:"extSettings(\"docker\")"}
+  data:   {expr:"extSettings(\"hx.docker\")"}
 --------------------------------------------------------------------------
+
