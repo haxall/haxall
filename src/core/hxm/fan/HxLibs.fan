@@ -438,7 +438,16 @@ const class HxLib : RuntimeLib
   {
     this.ver       = ver
     this.basis     = basis
-    this.isSysOnly = ver.isSysOnly || ver.name.startsWith("sys")
+    this.isSysOnly = ver.isSysOnly || isSysOnlyName(ver.name)
+  }
+
+  static Bool isSysOnlyName(Str n)
+  {
+    if (n == "hx")   return true
+    if (n == "axon") return true
+    if (n == "sys")  return true
+    if (n.startsWith("sys.")) return true
+    return false
   }
 
   override Str name() { ver.name }
