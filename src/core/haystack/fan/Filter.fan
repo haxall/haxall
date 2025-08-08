@@ -851,13 +851,13 @@ internal abstract const class SearchFilter : Filter
     id := r["id"] as Ref
     if (id != null && pattern.size >= 8 && includeVal(id.id))  return true
 
-    // check other key identifier tags
-    if (checkTag(r, "name")) return true
-    if (checkTag(r, "def"))  return true
-    if (checkTag(r, "view")) return true
-    if (checkTag(r, "app"))  return true
-
-    return false
+    // check other string tags
+    res := r.eachWhile |v, n|
+    {
+      if (v is Str && includeVal(v.toStr)) return "match"
+      return null
+    }
+    return res != null
   }
 
   private Bool checkTag(Dict r, Str name)
