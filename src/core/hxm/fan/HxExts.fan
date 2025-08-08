@@ -88,6 +88,9 @@ const class HxExts : Actor, RuntimeExts
   override Str:ExtWeb webRoutes() { webRoutesRef.val }
   private const AtomicRef webRoutesRef := AtomicRef()
 
+
+  virtual HxExtSpi makeSpi(HxExtSpiInit init) { HxExtSpi(init) }
+
 //////////////////////////////////////////////////////////////////////////
 // Debug
 //////////////////////////////////////////////////////////////////////////

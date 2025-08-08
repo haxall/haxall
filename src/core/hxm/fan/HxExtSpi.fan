@@ -54,8 +54,19 @@ const class HxExtSpi : Actor, ExtSpi
       // read settings
       settings := exts.rt.settingsMgr.extRead(name)
 
-      // create spi instance
-      spi := HxExtSpi(exts.rt, name, spec, type, settings, exts.actorPool)
+      // create init object
+      init := HxExtSpiInit
+      {
+        it.rt        = exts.rt
+        it.name      = name
+        it.spec      = spec
+        it.type      = type
+        it.settings  = settings
+        it.actorPool = exts.actorPool
+      }
+
+      // route to runtime to create spi as hook for customization
+      spi := exts.makeSpi(init)
 
       // instantiate fantom type
       ExtObj? ext
@@ -80,16 +91,16 @@ const class HxExtSpi : Actor, ExtSpi
     }
   }
 
-  private new make(HxRuntime rt, Str name, Spec spec, Type type, Dict settings, ActorPool pool) : super(pool)
+  protected new make(HxExtSpiInit init) : super(init.actorPool)
   {
-    this.rt          = rt
+    this.rt          = init.rt
     this.sys         = rt.sys
     this.projRef     = rt as Proj
-    this.name        = name
-    this.qname       = spec.qname
-    this.log         = Log.get(name)
-    this.fantomType  = type
-    this.settingsRef = AtomicRef(typedRec(settings))
+    this.name        = init.name
+    this.qname       = init.spec.qname
+    this.log         = init.log ?: Log.get(name)
+    this.fantomType  = init.type
+    this.settingsRef = AtomicRef(typedRec(init.settings))
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -309,6 +320,22 @@ const class HxExtSpi : Actor, ExtSpi
   }
 
   private static const HxMsg houseKeepingMsg := HxMsg("houseKeeping")
+}
+
+**************************************************************************
+** ExtSpiInit
+**************************************************************************
+
+class HxExtSpiInit
+{
+  new make(|This| f) { f(this) }
+  const HxRuntime rt
+  const Str name
+  const Spec spec
+  const Type type
+  const Dict settings
+  const ActorPool actorPool
+  Log? log
 }
 
 **************************************************************************
