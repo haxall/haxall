@@ -16,13 +16,14 @@ using xetom
 const class FileLibVersion : LibVersion
 {
 
-  new make(Str name, Version version, File file, Str? doc, LibDepend[]? depends)
+  new make(Str name, Version version, File file, Str? doc, Int flags, LibDepend[]? depends)
   {
     this.name       = name
     this.version    = version
     this.toStr      = "$name-$version"
     this.fileRef    = file
     this.docRef     = doc
+    this.flags      = flags
     this.dependsRef = depends?.toImmutable
   }
 
@@ -63,13 +64,6 @@ const class FileLibVersion : LibVersion
 
   override const Str toStr
 
-  override Str doc()
-  {
-    if (docRef == null) loadMeta
-    return docRef
-  }
-  private const Str? docRef
-
   override File? file(Bool checked := true) { fileRef }
   const File fileRef
 
@@ -91,16 +85,21 @@ const class FileLibVersion : LibVersion
     }
   }
 
-  override LibDepend[] depends()
-  {
-    if (dependsRef == null) loadMeta
-    return dependsRef
-  }
-
+  override LibDepend[] depends() { loadMeta.dependsRef }
   private const LibDepend[]? dependsRef
 
-  private Void loadMeta()
+  override Str doc() { loadMeta.docRef }
+  private const Str? docRef
+
+  override Bool isSysOnly() { loadMeta.flags.and(flagSysOnly) != 0 }
+  private const Int flags
+
+  static const Int flagSysOnly := 0x01
+
+  private This loadMeta()
   {
+    if (dependsRef != null) return this
+
     if (file.isDir) throw Err("src meta must be passed to make")
 
     zip := Zip.open(file)
@@ -108,6 +107,8 @@ const class FileLibVersion : LibVersion
       parseMeta(zip.contents.getChecked(`/meta.props`))
     finally
       zip.close
+
+    return this
   }
 
   private Void parseMeta(File f)
@@ -118,6 +119,11 @@ const class FileLibVersion : LibVersion
     // doc
     doc := props["doc"] ?: ""
     #docRef->setConst(this, doc)
+
+    // flags
+    flags := 0
+    if (props["sysOnly"] != null) flags = flags.or(flagSysOnly)
+    #flags->setConst(this, flags)
 
     // depends
     depends := LibDepend#.emptyList

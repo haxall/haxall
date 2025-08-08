@@ -51,8 +51,10 @@ class RepoTest : AbstractXetoTest
     echo("   doc:     $v.doc")
     echo("   depends: $v.depends")
     echo("   file:    $v.file")
+    echo("   sysOnly: $v.isSysOnly")
     echo
     */
+
     verifyEq(v.name, name)
     verifyEq(v.version.segments.size, 3)
 
@@ -61,12 +63,30 @@ class RepoTest : AbstractXetoTest
     {
       verifyEq(v.doc, "System library of built-in types")
       verifyEq(v.depends.size, 0)
+      verifyEq(v.isSysOnly, false)
     }
     else if (name == "ph")
     {
       verifyEq(v.doc, "Project haystack core library")
       verifyEq(v.depends.size, 1)
       verifyEq(v.depends[0].name, "sys")
+      verifyEq(v.isSysOnly, false)
+    }
+    else if (name == "hx.crypto")
+    {
+      verifyEq(v.isSysOnly, true)
+    }
+    else if (name == "hx.http")
+    {
+      verifyEq(v.isSysOnly, true)
+    }
+    else if (name == "hx.conn")
+    {
+      verifyEq(v.isSysOnly, false)
+    }
+    else if (name == "hx.task")
+    {
+      verifyEq(v.isSysOnly, false)
     }
   }
 
@@ -579,6 +599,7 @@ internal const class TestLibVersion : LibVersion
   override const LibDepend[] depends
   override Str doc() { "" }
   override Bool isSrc() { false }
+  override Bool isSysOnly() { false }
   override Void eachSrcFile(|File| f) {}
   override File? file(Bool checked := true) { throw UnsupportedErr() }
   override Str toStr() { "$name-$version" }

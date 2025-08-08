@@ -89,6 +89,7 @@ const class HxLibs : RuntimeLibs
     env.repo.libs.each |n|
     {
       if (acc[n] != null) return
+      if (n.startsWith("hx.hxd.")) return
       v := repo.latest(n)
       acc[n] = HxLib(v, RuntimeLibBasis.disabled)
     }
@@ -117,7 +118,8 @@ const class HxLibs : RuntimeLibs
     // build grid
     gb := GridBuilder()
     gb.setMeta(Etc.dict1("projName", rt.name))
-    gb.addCol("name").addCol("libBasis").addCol("libStatus").addCol("version").addCol("doc").addCol("err")
+    gb.addCol("name").addCol("libBasis").addCol("libStatus").addCol("sysOnly")
+      .addCol("version").addCol("doc").addCol("err")
 
     // add rest of the rows
     libs.each |HxLib x|
@@ -127,6 +129,7 @@ const class HxLibs : RuntimeLibs
         n,
         x.basis.name,
         ns.libStatus(n, false)?.name ?: "disabled",
+        Marker.fromBool(x.isSysOnly),
         x.ver.isNotFound ? null : x.ver.version.toStr,
         x.ver.doc,
         ns.libErr(n, false)?.toStr
@@ -433,12 +436,14 @@ const class HxLib : RuntimeLib
 {
   internal new make(FileLibVersion ver, RuntimeLibBasis basis)
   {
-    this.ver   = ver
-    this.basis = basis
+    this.ver       = ver
+    this.basis     = basis
+    this.isSysOnly = ver.isSysOnly || ver.name.startsWith("sys")
   }
 
   override Str name() { ver.name }
   override const RuntimeLibBasis basis
+  override const Bool isSysOnly
   const FileLibVersion ver
 
   override Str toStr() { "$name [$basis] $ver.version" }

@@ -126,7 +126,11 @@ internal class XetoCompiler
 
     doc := lib.meta.getStr("doc") ?: ""
     dir := input.parent
-    return FileLibVersion(libName, lib.version, dir, doc, depends.list)
+
+    flags := 0
+    if (lib.meta.has("sysOnly")) flags = flags.or(FileLibVersion.flagSysOnly)
+
+    return FileLibVersion(libName, lib.version, dir, doc, flags, depends.list)
   }
 
   ** Run the pipeline with the given steps

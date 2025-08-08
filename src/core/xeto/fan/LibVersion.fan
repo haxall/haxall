@@ -36,6 +36,9 @@ const mixin LibVersion
   ** Return "name-version"
   override abstract Str toStr()
 
+  ** Is this a sys only library
+  @NoDoc abstract Bool isSysOnly()
+
   ** Get this exact version as LibDepend instance
   @NoDoc LibDepend asDepend()
   {
