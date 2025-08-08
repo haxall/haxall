@@ -92,8 +92,10 @@ const class HxExts : Actor, RuntimeExts
 // Debug
 //////////////////////////////////////////////////////////////////////////
 
-  override Grid status()
+  override Grid status(Dict? opts := null)
   {
+    if (opts == null) opts = Etc.dict0
+
     gb := GridBuilder()
     gb.setMeta(Etc.dict1("projName", rt.name))
     gb.addCol("qname").addCol("libBasis").addCol("extStatus").addCol("fantomType").addCol("statusMsg")
@@ -103,7 +105,12 @@ const class HxExts : Actor, RuntimeExts
       basis := rt.libs.get(ext.name, false)?.basis?.name
       gb.addRow([ext.name, basis, spi.status, ext.typeof.toStr, spi.statusMsg])
     }
-    return gb.toGrid
+    grid := gb.toGrid
+
+    search := opts["search"] as Str
+    if (search != null) grid = grid.filter(Filter.search(search))
+
+    return grid
   }
 
 //////////////////////////////////////////////////////////////////////////

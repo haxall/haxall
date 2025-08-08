@@ -102,10 +102,29 @@ const class HxLibs : RuntimeLibs
 
   override Grid status(Dict? opts := null)
   {
-    // use list or installed base on opts
     if (opts == null) opts = Etc.dict0
+
+    // use list or installed based on opts
     ns := this.ns
-    libs := opts.has("installed") ? installed : list.dup
+    libs := opts.has("installed") ? installed : this.list.dup
+
+    // check sysOnly/projOnly
+    if (opts.has("sysOnly"))
+    {
+      libs = libs.findAll |x|
+      {
+        if (x.basis.isDisabled) return x.isSysOnly
+        return !x.basis.isProj
+      }
+    }
+    else if (opts.has("projOnly"))
+    {
+      libs = libs.findAll |x|
+      {
+        if (x.basis.isDisabled) return !x.isSysOnly
+        return x.basis.isProj
+      }
+    }
 
     // sort based basis, then name (but move proj to top)
     libs.sort |a, b|
@@ -138,19 +157,7 @@ const class HxLibs : RuntimeLibs
     grid := gb.toGrid
 
     search := opts["search"] as Str
-    if (search != null)
-    {
-      search = search.lower
-      grid = grid.findAll |row|
-      {
-        res := row.eachWhile |v, n|
-        {
-          if (v is Str && v.toStr.lower.contains(search)) return "match"
-          return null
-        }
-        return res != null
-      }
-    }
+    if (search != null) grid = grid.filter(Filter.search(search))
 
     return grid
   }

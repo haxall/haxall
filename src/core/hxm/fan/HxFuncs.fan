@@ -414,7 +414,7 @@ const class HxFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Projects Libs
+// Namnespace
 //////////////////////////////////////////////////////////////////////////
 
   ** Reload all the xeto libraries in project
@@ -447,9 +447,9 @@ throw Err("TODO")
   **  - extStatus: basis enumeration string
   **  - other cols subject to change
   @Api @Axon
-  static Grid exts()
+  static Grid exts(Dict? opts := null)
   {
-    curContext.rt.exts.status
+    curContext.rt.exts.status(opts)
   }
 
   ** Enable one or more Xeto libs by name:
@@ -475,6 +475,14 @@ throw Err("TODO")
     curContext.rt.libs.removeAll(list)
     return "removed"
   }
+
+  ** Return sys info dict
+  @NoDoc @Api @Axon
+  static Dict sysInfo() { curContext.sys.info.meta }
+
+  ** Return sys config dict
+  @NoDoc @Api @Axon
+  static Dict sysConfig() { curContext.sys.config.meta }
 
 //////////////////////////////////////////////////////////////////////////
 // Projects Exts
@@ -665,14 +673,6 @@ throw Err("TODO")
 //////////////////////////////////////////////////////////////////////////
 // Misc
 //////////////////////////////////////////////////////////////////////////
-
-  ** Return sys info dict
-  @NoDoc @Api @Axon
-  static Dict sysInfo() { curContext.sys.info.meta }
-
-  ** Return sys config dict
-  @NoDoc @Api @Axon
-  static Dict sysConfig() { curContext.sys.config.meta }
 
   ** Return [about]`op:about` dict
   @Api @Axon

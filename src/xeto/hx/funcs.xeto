@@ -242,7 +242,7 @@ libs: Func { opts: Dict?, returns: Grid }
 //  - name: library dotted name string
 //  - libBasis: basis enumeration string
 //  - other cols subject to change
-exts: Func { returns: Grid }
+exts: Func { opts: Dict?, returns: Grid }
 
 // Enable one or more Xeto libs by name:
 //   libAdd("ph.points")

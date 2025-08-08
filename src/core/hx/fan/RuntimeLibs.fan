@@ -94,9 +94,10 @@ enum class RuntimeLibBasis
   ** Library installed, but not enabled
   disabled
 
-  @NoDoc Bool isBoot() { this === boot }
-  @NoDoc Bool isSys()  { this === sys }
-  @NoDoc Bool isProj() { this === proj }
+  @NoDoc Bool isBoot()     { this === boot }
+  @NoDoc Bool isSys()      { this === sys }
+  @NoDoc Bool isProj()     { this === proj }
+  @NoDoc Bool isDisabled() { this === disabled }
 }
 
 

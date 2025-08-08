@@ -70,7 +70,7 @@ const mixin RuntimeExts
   abstract Ext add(Str name, Dict? settings := null)
 
   ** Return status grid of enabled extensions
-  @NoDoc abstract Grid status()
+  @NoDoc abstract Grid status(Dict? opts := null)
 
 //////////////////////////////////////////////////////////////////////////
 // IExts
