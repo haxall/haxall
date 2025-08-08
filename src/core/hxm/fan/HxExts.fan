@@ -156,11 +156,11 @@ const class HxExts : Actor, RuntimeExts
   {
     oldMap   := Str:Ext[:]
     newMap   := Str:Ext[:]
-    toRemove := oldMap.dup
     toAdd    := Lib[,]
 
     // build map of my old extensions
     listOwn.each |ext| { oldMap[ext.name] = ext }
+    toRemove := oldMap.dup
 
     // walk thru new list of exts to keep/add/remove
     findExtLibs.each |lib|

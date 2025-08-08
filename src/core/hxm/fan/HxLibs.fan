@@ -33,7 +33,7 @@ const class HxLibs : RuntimeLibs
 
     this.rt           = rt
     this.isSys        = rt.isSys
-    this.myBasis      =  isSys ? RuntimeLibBasis.sys : RuntimeLibBasis.proj
+    this.myBasis      = isSys ? RuntimeLibBasis.sys : RuntimeLibBasis.proj
     this.env          = boot.xetoEnv
     this.log          = boot.log
     this.bootLibNames = boot.bootLibs
