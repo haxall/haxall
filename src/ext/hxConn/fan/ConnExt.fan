@@ -44,7 +44,13 @@ abstract const class ConnExt : ExtObj, HxConnExt
 
   ** Model which defines tags and functions for this connector.
   ** The model is not available until after the library has started.
-  @NoDoc ConnModel model() { modelRef.val ?: throw Err("Not avail until after start") }
+  @NoDoc ConnModel? model(Bool checked := true)
+  {
+    m := modelRef.val
+    if (m != null) return m
+    if (checked) throw Err("Not avail until after start")
+    return null
+  }
   private const AtomicRef modelRef := AtomicRef()
 
   ** Get the conn model name which is used to map to tags:
@@ -57,13 +63,13 @@ abstract const class ConnExt : ExtObj, HxConnExt
 // HxConnExt
 //////////////////////////////////////////////////////////////////////////
 
-  @NoDoc override Str icon() { "conn" }
-
   @NoDoc override Str extDis() { modelName.capitalize }
 
   @NoDoc override const Str connTag := modelName + "Conn"
 
   @NoDoc override const Str connRefTag := modelName + "ConnRef"
+
+  @NoDoc override Str icon() { model(false)?.icon ?: "conn" }
 
   @NoDoc override Int numConns() { roster.numConns }
 

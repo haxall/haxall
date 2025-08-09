@@ -67,6 +67,7 @@ const final class ConnModel
     this.hasWrite  = writeTag != null
     this.hasHis    = hisTag != null
     this.pollMode  = ConnPollMode.fromStr(features["pollMode"] ?: "disabled")
+    this.icon       = libDef["icon"] as Str ?: "conn"
 
     // polling tags
     if (pollMode === ConnPollMode.manual)
@@ -165,6 +166,9 @@ const final class ConnModel
 
   ** Dict encoding for HxConn.connFeature
   const Dict features
+
+  ** Icon name
+  const Str icon
 
 //////////////////////////////////////////////////////////////////////////
 // Support
