@@ -30,7 +30,7 @@ const class SpecBindings
   ** Constructor
   new make()
   {
-    initLoaders
+    this.podToLibs = initLoaders
     initBindings
   }
 
@@ -44,8 +44,9 @@ const class SpecBindings
   **
   ** The loaderType is qname of SpecBindingLoader Fantom class
   ** or if is a pod name we load via PodBindingLoader
-  private Void initLoaders()
+  private Str:Str initLoaders()
   {
+    podToLibs := Str:Str[:]
     Env.cur.indexByPodName("xeto.bindings").each |list, podName|
     {
       list.each |str|
@@ -54,6 +55,7 @@ const class SpecBindings
         {
           toks := str.split
           libName := toks[0]
+          podToLibs[podName] = libName
           if (toks.size == 1)
           {
             // lib -> podName
@@ -68,6 +70,7 @@ const class SpecBindings
         catch (Err e) echo("ERR: Cannot init BindingLoader: $podName: $str\n  $e")
       }
     }
+    return podToLibs
   }
 
   ** Setup the builtin bindings for sys, sys.comp, and ph
@@ -121,6 +124,9 @@ const class SpecBindings
 
   ** Dict fallback
   const DictBinding dict := DictBinding("sys::Dict")
+
+  ** Map pod name to lib name (we do not handle multiple lib bindings)
+  Str? podToLib(Str podName)  { podToLibs.get(podName) }
 
   ** List all bindings installed
   SpecBinding[] list()
@@ -223,6 +229,7 @@ const class SpecBindings
     Console.cur.warn(msg)
   }
 
+  private const Str:Str podToLibs
   private const ConcurrentMap loaders := ConcurrentMap() // libName -> loader qname
   private const ConcurrentMap loaded  := ConcurrentMap() // "$libName $version"
   private const ConcurrentMap specMap := ConcurrentMap() // qname -> qname

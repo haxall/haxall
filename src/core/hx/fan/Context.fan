@@ -97,7 +97,7 @@ class Context : AxonContext, FolioContext
   @NoDoc override DefNamespace defs() { rt.defs }
 
   ** Convenience to lookup ext in runtime
-  Ext ext(Str name, Bool checked := true) { rt.exts.get(name, checked) }
+  Ext? ext(Str name, Bool checked := true) { rt.exts.get(name, checked) }
 
   ** User account associated with this context
   virtual User user() { userRef }
