@@ -22,7 +22,7 @@ const final class ConnModel
   @NoDoc new make(ConnExt ext)
   {
     // simplify the hx.foo name to just foo
-    this.name = ConnUtil.modelName(ext)
+    this.name = ext.modelName
     prefix := name
 
     // TODO: still using defs to build model

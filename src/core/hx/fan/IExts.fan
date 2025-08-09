@@ -357,8 +357,11 @@ const mixin IConnExt : Ext
 @NoDoc
 const mixin HxConnExt
 {
-  ** Library name
+  ** Library dotted name
   abstract Str name()
+
+  ** Model name
+  abstract Str modelName()
 
   ** Display name to use for connector library
   abstract Str extDis()
