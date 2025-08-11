@@ -152,18 +152,20 @@ const class HxProjSpecs : ProjSpecs
     }
     if (!first) s.add(", ")
     s.add("returns: Obj?\n")
-    s.add("<axon:---\n")
     linenum := 0
 
     lines := src.splitLines
+    sep := "---"
     while (lines.last.isEmpty) lines.removeAt(-1)
+    lines.each |line| { while(line.contains(sep)) sep += "-" }
+
+    s.add("<axon:").add(sep).add("\n")
     lines.each |line|
     {
       linenum++
-      if (line.contains("---")) throw Err("Axon cannot contain --- [line $linenum]")
       s.add(line).add("\n")
     }
-    s.add("--->}\n")
+    s.add(sep).add(">}\n")
     return s.toStr
   }
 

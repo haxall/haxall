@@ -281,6 +281,12 @@ class ProjTest : HxTest
     f = proj.specs.updateFunc("foo2", "(a)=>a+100", Etc.makeDict(["qux":"test 2!"]))
     verifyEq(eval("foo2(4)"), n(104))
     verifyDictEq(f.metaOwn, Etc.dict2("axon", "(a)=>a+100\n", "qux", "test 2!"))
+
+    // update with string containing "----"
+    src := "() => \"-----\""
+    f = proj.specs.updateFunc("foo2", src)
+    verifyEq(eval("foo2()"), "-----")
+    verifyDictEq(f.metaOwn, Etc.dict2("axon", src+"\n", "qux", "test 2!"))
   }
 
 //////////////////////////////////////////////////////////////////////////
