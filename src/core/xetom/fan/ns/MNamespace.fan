@@ -583,9 +583,12 @@ abstract const class MNamespace : LibNamespace, CNamespace
   {
     map := funcMapRef.val as Str:Obj
     if (map == null) funcMapRef.val = map = loadFuncMap
-    entry := map[name]
-    if (entry != null)
-      return entry as Spec ?:throw AmbiguousSpecErr("Ambiguous func for '$name' $entry")
+    list := map[name] as Spec[]
+    if (list != null)
+    {
+      if (list.size == 1) return list.first
+      throw AmbiguousSpecErr("Ambiguous func for '$name' $list")
+    }
     if (checked) throw UnknownFuncErr(name)
     return null
   }
@@ -594,15 +597,12 @@ abstract const class MNamespace : LibNamespace, CNamespace
   {
     map := funcMapRef.val as Str:Obj
     if (map == null) funcMapRef.val = map = loadFuncMap
-    entry := map[name]
-    if (entry is Spec) return Spec[entry]
-    if (entry == null) return Spec#.emptyList
-    return entry
+    return map[name] ?: Spec#.emptyList
   }
 
   private Str:Obj loadFuncMap()
   {
-    // we build cache of funcs by name, values are Spec of Spec[]
+    // we build cache of funcs by name, values are Spec[]
     acc := Str:Obj[:]
     if (!isRemote) loadAllSync
     entriesList.each |entry|
@@ -614,11 +614,11 @@ abstract const class MNamespace : LibNamespace, CNamespace
         dup := acc[name]
         if (dup == null)
         {
-          acc[name] = spec
+          acc[name] = Spec[spec]
         }
         else
         {
-          list := dup as Spec[] ?: Spec[dup]
+          list := dup as Spec[]
           list.add(spec)
           acc[name] = list
         }
