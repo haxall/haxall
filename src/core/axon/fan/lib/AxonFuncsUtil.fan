@@ -71,11 +71,12 @@ internal const class AxonFuncsUtil
     acc := Dict[,]
     cx.ns.libs.each |lib|
     {
+      if (lib.name == "sys") return
       lib.funcs.each |func|
       {
         meta := func.meta
         if (meta.has("nodoc")) return
-        meta = Etc.dictSet(meta, "qname", func.qname)
+        meta = Etc.dictMerge(meta, Etc.dict2("name", func.name, "qname", func.qname))
         if (filter != null && !filter.matches(meta, cx)) return
         acc.add(meta)
       }
@@ -85,6 +86,7 @@ internal const class AxonFuncsUtil
     names := Etc.dictsNames(acc)
     names.remove("axon")
     names.moveTo("qname", 0)
+    names.moveTo("name", 0)
     return GridBuilder().addColNames(names).addDictRows(acc).toGrid
   }
 
@@ -171,7 +173,7 @@ internal const class AxonFuncsUtil
   ** We create appropiate meta for TopFn when we parse as thunk
   private static Dict fnToDict(AxonContext cx, TopFn fn)
   {
-    fn.meta
+    Etc.dictSet(fn.meta, "name", fn.name)
   }
 }
 

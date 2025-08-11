@@ -162,6 +162,7 @@ class HxCoreLibTest : HxTest
   Dict normRecFunc(Spec f)
   {
     acc := Etc.dictToMap(f.meta)
+    acc.add("name", f.name)
     acc.add("qname", f.qname)
     acc.remove("axon")
     return Etc.makeDict(acc)
@@ -180,7 +181,7 @@ class HxCoreLibTest : HxTest
 
     // cannot override core functions
     addFunc("toHex", Str<|(i) => "hex override"|>)
-    verifyErr(AmbiguousSpecErr#) { eval("100.toHex") }
+    verifyErr(InvalidOverrideErr#) { eval("100.toHex") }
   }
 
   Obj? verifyEval(Str src, Obj? expected)

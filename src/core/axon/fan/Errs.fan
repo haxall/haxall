@@ -85,3 +85,13 @@ const class ThrowErr : EvalErr
   const Dict tags
 }
 
+
+**
+** InvalidOverrideErr used when overriding a non-overridable func
+**
+@Js @NoDoc
+const class InvalidOverrideErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+

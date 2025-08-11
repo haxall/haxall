@@ -118,7 +118,7 @@ abstract class AxonContext : HaystackContext, CompContext
         allOverridable = false
     }
     if (projIndex < 0) throw AmbiguousSpecErr(name)
-    if (!allOverridable) throw Err("Func '$name' is not overridable: $list")
+    if (!allOverridable) throw InvalidOverrideErr("Func '$name' is not overridable: $list")
     return list[projIndex]
   }
 
