@@ -9,6 +9,7 @@
 
 using concurrent
 using xeto
+using xetom
 using haystack
 
 **
@@ -88,10 +89,37 @@ abstract class AxonContext : HaystackContext, CompContext
     else
     {
       spec := lib == null ?
-              ns.unqualifiedFunc(x.name, checked) :
+              resolveUnqualifiedFunc(x.name, checked) :
               lib.func(x.name, checked)
       return spec != null ? spec.func.thunk : null
     }
+  }
+
+  private Spec? resolveUnqualifiedFunc(Str name, Bool checked)
+  {
+    // resolve func as list from namespace (cached in MNameespace)
+    list := ns.unqualifiedFuncs(name)
+    if (list.size == 1) return list.first
+    if (list.isEmpty)
+    {
+      if (checked) throw UnknownFuncErr(name)
+      return null
+    }
+
+    // check if override from proj lib
+    projIndex := -1
+    allOverridable := true
+    for (i := 0; i<list.size; ++i)
+    {
+      f := list[i]
+      if (f.lib.name === XetoUtil.projLibName)
+        projIndex = i
+      else if (f.meta.missing("overridable"))
+        allOverridable = false
+    }
+    if (projIndex < 0) throw AmbiguousSpecErr(name)
+    if (!allOverridable) throw Err("Func '$name' is not overridable: $list")
+    return list[projIndex]
   }
 
 /////////////////////////////////////////////////////////////////////////////
