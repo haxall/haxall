@@ -109,6 +109,19 @@ const class HxProjSpecs : ProjSpecs
 
   override Spec addFunc(Str name, Str src, Dict meta := Etc.dict0)
   {
+    add(name, funcToXeto(name, src, meta))
+  }
+
+  override Spec updateFunc(Str name, Str? src, Dict? meta := null)
+  {
+    cur     := lib.func(name)
+    curSrc  := cur.metaOwn["axon"] ?: throw ArgErr("Func spec missing axon tag: $name")
+    curMeta := Etc.dictRemove(cur.metaOwn, "axon")
+    return update(name, funcToXeto(name, src ?: curSrc, meta ?: curMeta))
+  }
+
+  static Str funcToXeto(Str name, Str src, Dict meta)
+  {
     // parse axon
     fn := Parser(Loc(name), src.in).parseTop(name, meta)
 
@@ -141,15 +154,17 @@ const class HxProjSpecs : ProjSpecs
     s.add("returns: Obj?\n")
     s.add("<axon:---\n")
     linenum := 0
-    src.eachLine |line|
+
+    lines := src.splitLines
+    while (lines.last.isEmpty) lines.removeAt(-1)
+    lines.each |line|
     {
       linenum++
       if (line.contains("---")) throw Err("Axon cannot contain --- [line $linenum]")
       s.add(line).add("\n")
     }
     s.add("--->}\n")
-
-    return add(name, s.toStr)
+    return s.toStr
   }
 
 //////////////////////////////////////////////////////////////////////////

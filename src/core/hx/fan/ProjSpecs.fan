@@ -42,5 +42,11 @@ const mixin ProjSpecs
   ** and generates the correct xeto spec.  Raise exception if axon
   ** cannot be parsed.  Return new func spec.
   abstract Spec addFunc(Str name, Str src, Dict meta := Etc.dict0)
+
+  ** Update an axon function source code and/or meta.  If src or meta
+  ** is null, then we leave the old value. This parses the axon param
+  ** signature and generates the correct xeto spec.  Raise exception if
+  ** axon cannot be parsed.  Return new func spec.
+  abstract Spec updateFunc(Str name, Str? src, Dict? meta := null)
 }
 

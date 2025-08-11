@@ -227,10 +227,12 @@ class ProjTest : HxTest
   Void testAxon()
   {
     p := proj
+    addLib("hx.test.xeto")
     verifyEq(p.name, "test")
     verifyEq(p.isRunning, true)
-    verifyEq(p.ns.libStatus("axon"), LibStatus.ok)
-    verifyEq(p.ns.libStatus("hx"),   LibStatus.ok)
+    verifyEq(p.ns.libStatus("axon"),         LibStatus.ok)
+    verifyEq(p.ns.libStatus("hx"),           LibStatus.ok)
+    verifyEq(p.ns.libStatus("hx.test.xeto"), LibStatus.ok)
 
     // now simple one
     verifyEq(eval("today()"), Date.today)
@@ -255,15 +257,30 @@ class ProjTest : HxTest
     verifyEq(f.func.returns.type.qname, "sys::Obj")
 
     // create axon func in proj with meta + params
-    f = addFunc("foo2", "(a, b) => a + b", ["admin":m, "maxSize":n(123)])
+    f = addFunc("foo2", "(a, b) => a + b", ["admin":m, "qux":"foo2"])
     verifyEq(eval("foo2(3, 4)"), n(7))
-    verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a, b) => a + b\n", "admin", m, "maxSize", 123))
+    verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a, b) => a + b\n", "admin", m, "qux", "foo2"))
     verifyEq(f.func.params.size, 2)
     verifyEq(f.func.params[0].name, "a")
     verifyEq(f.func.params[1].name, "b")
     verifyEq(f.func.params[0].type.qname, "sys::Obj")
     verifyEq(f.func.params[1].type.qname, "sys::Obj")
     verifyEq(f.func.returns.type.qname, "sys::Obj")
+
+    // update foo2 (src only)
+    f = proj.specs.updateFunc("foo2", "(a) => a * a")
+    verifyEq(eval("foo2(3)"), n(9))
+    verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a) => a * a\n", "admin", m, "qux", "foo2"))
+
+    // update foo2 (meta only)
+    f = proj.specs.updateFunc("foo2", null, Etc.makeDict(["su":m, "qux":"test 1!"]))
+    verifyEq(eval("foo2(4)"), n(16))
+    verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a) => a * a\n", "su", m, "qux", "test 1!"))
+
+    // update foo2 (src and meta)
+    f = proj.specs.updateFunc("foo2", "(a)=>a+100", Etc.makeDict(["qux":"test 2!"]))
+    verifyEq(eval("foo2(4)"), n(104))
+    verifyDictEq(f.metaOwn, Etc.dict2("axon", "(a)=>a+100\n", "qux", "test 2!"))
   }
 
 //////////////////////////////////////////////////////////////////////////
