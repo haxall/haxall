@@ -7,6 +7,7 @@
 //
 
 using util
+using xeto
 using haystack
 
 **
@@ -26,12 +27,16 @@ class AConfig
       if (n.startsWith("depend.")) dependVersions.set(n[7..-1], v)
     }
 
+    ns := XetoEnv.cur.createNamespaceFromNames(["axon", "hx"])
+
     return make {
       it.libPrefix       = props.get("libPrefix", "hx")
       it.templateHeader  = env.findFile(`etc/convert4/template-header.xeto`).readAllStr
       it.templateLibXeto = env.findFile(`etc/convert4/template-lib.xeto`).readAllStr
       it.dependVersions  = dependVersions
       it.ignore          = props.get("ignore", "").split(',').findAll { !it.isEmpty }
+      it.funcMeta        = props.get("funcMeta", "").split(',')
+      it.ns            = ns
     }
   }
 
@@ -46,5 +51,9 @@ class AConfig
   Str:Str dependVersions
 
   Str[] ignore
+
+  Str[] funcMeta
+
+  LibNamespace ns
 }
 

@@ -70,7 +70,7 @@ class AFunc
     params := fn.params.map |x->AParam| { AParam(x.name, AType.obj, x.def?.toStr) }
     returns := AParam("returns", AType.obj, null)
 
-    meta := Etc.dictFromMap(mapMeta(def))
+    meta := Etc.dictFromMap(mapMeta(ast, def))
 
     func := make(name, doc, meta, params, returns, src)
     ext.funcs.add(func)
@@ -98,11 +98,11 @@ class AFunc
       facet.decode |n, v| { meta[n] = v }
       metaDict := Etc.dictFromMap(meta)
 
-      ext.funcs.add(reflectMethod(m, metaDict))
+      ext.funcs.add(reflectMethod(ast, m, metaDict))
     }
   }
 
-  static AFunc reflectMethod(Method method, Dict metaDict)
+  static AFunc reflectMethod(Ast ast, Method method, Dict metaDict)
   {
     // lookup method by name or _name
     name := method.name
@@ -111,7 +111,7 @@ class AFunc
     doc := metaDict["doc"] as Str ?: method.doc
 
     // meta
-    meta := mapMeta(metaDict)
+    meta := mapMeta(ast, metaDict)
     if (method.hasFacet(NoDoc#)) meta["nodoc"] = Marker.val
     if (method.hasFacet(Deprecated#)) meta["deprecated"] = Marker.val
 
@@ -131,10 +131,16 @@ class AFunc
 // Meta
 //////////////////////////////////////////////////////////////////////////
 
-  static Str:Obj mapMeta(Dict orig)
+  static Bool isFuncMeta(Ast ast, Str n)
   {
-    // meta
+    ast.config.funcMeta.contains(n) || ast.config.ns.unqualifiedMetas(n).size > 0
+  }
+
+  static Str:Obj mapMeta(Ast ast, Dict orig)
+  {
     meta := Str:Obj[:]
+    defMeta := Str:Obj[:]
+
     orig.each |v, n|
     {
       // skip these
@@ -146,53 +152,22 @@ class AFunc
       if (n == "name") return
       if (n == "haystackApi") return
       if (n == "refresh") return
-      if (n == "actionNew") return
       if (n == "doc")  return
       if (n == "src")  return
-      if (n.endsWith("_enum")) return
-      if (n.startsWith("trio_")) return
 
-      // skip rule ready tags (for now at least)
-      if (n == "ruleOn" || n.endsWith("Rule")) return
-      if (n == "help") return
-      if (n == "hisFuncReady") return
-
-      // ui actions - handled below
-      if (n == "select") return
-      if (n == "multi") return
-
-      // special handling to map fro ui -> ion
-      if (n == "dis")
-      {
-        n = "text"
-      }
-      else if (n == "disKey")
-      {
-        // map disKey:"ui::x" -> text:"$<ion::x>"
-        n = "text"
-        v = mapMetaDisKey(v)
-      }
-      else if (n == "confirm")
-      {
-        v = mapMetaConfirm(v)
-      }
-      else if (n == "confirmation_placeholder")
-      {
-        n = "placeholder"
-      }
-
-      meta[n] = v
+      // if its defined in axon/config; otherwise stuff into defMeta
+      if (isFuncMeta(ast, n))
+        meta[n] = v
+      else
+        defMeta[n] = v
     }
 
-    if (orig.has("select"))
-    {
-      mode := "single"
-      if (orig.has("multi")) mode = "multi"
-      meta["selectMode"] = mode
-    }
+    if (!defMeta.isEmpty) meta["defMeta"] = Etc.dictFromMap(defMeta)
 
     return meta
   }
+
+  /*
 
   static Str mapMetaDisKey(Str v)
   {
@@ -229,6 +204,7 @@ class AFunc
     echo("WARNING: unhandled iconColor $v.toCode")
     return "red"
   }
+  */
 
   static AParam reflectParam(Method method, Param p)
   {

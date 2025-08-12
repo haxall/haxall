@@ -8,6 +8,9 @@ libPrefix=hx
 // ignore list of old ext names
 ignore=axon,hx
 
+// comma separated tags to include directly in func meta versus defMeta
+funcMeta=customMeta1, customMeta2
+
 // depend versions by lib prefix
 depend.sys=BuildVar "ph.depend"
 depend.ph=BuildVar "ph.depend"
