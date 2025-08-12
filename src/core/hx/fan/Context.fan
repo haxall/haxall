@@ -168,7 +168,7 @@ class Context : AxonContext, FolioContext
     tags["locale"]   = Locale.cur.toStr
     tags.addNotNull("nodeId", sys.cluster(false)?.nodeId)
     tags.addNotNull("timeout", timeout == null ? null : Number(timeout, Number.mins))
-    return Etc.dictFromMap(tags)
+    return Etc.dictMerge(super.toDict, Etc.dictFromMap(tags))
   }
 
 //////////////////////////////////////////////////////////////////////////

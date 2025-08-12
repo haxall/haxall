@@ -749,6 +749,10 @@ class HxFuncsTest : HxTest
     verifyEq(d->username, cx.user.username)
     verifyEq(d->locale, Locale.cur.toStr)
 
+    cx.toDictSet("foo", "bar")
+    d = (Dict)cx.eval("context()")
+    verifyEq(d->foo, "bar")
+
     verifyEq(cx.eval("isSteadyState()"), proj.isSteadyState)
   }
 
