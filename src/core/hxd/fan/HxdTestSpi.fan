@@ -53,23 +53,16 @@ class HxdTestSpi : HxTestSpi
 
   override Void addLib(Str libName)
   {
-    // solve depends we need to enable too
-    depends := proj.ns.env.repo.solveDepends([LibDepend(libName)])
-    libNames := depends.map |d->Str| { d.name }
-    libNames = libNames.findAll |n| { !proj.libs.has(n) }
-    proj.libs.addAll(libNames)
+    proj.libs.addDepends(libName, true)
   }
 
   override Ext addExt(Str libName, Str:Obj? tags)
   {
-    // solve depends we need to enable too (but not the ext itself)
-    depends := proj.ns.env.repo.solveDepends([LibDepend(libName)])
-    libNames := depends.map |d->Str| { d.name }
-    libNames = libNames.findAll |n| { !proj.libs.has(n) }
-    libNames.remove(libName)
-    proj.libs.addAll(libNames)
+    // add depends we need to enable too (but not the ext itself)
+    proj.libs.addDepends(libName, false)
 
     // then add ext
+    if (proj.libs.has(libName)) proj.libs.remove(libName)
     ext := proj.exts.add(libName, Etc.makeDict(tags))
     ext.spi.sync
     return ext

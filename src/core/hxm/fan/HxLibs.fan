@@ -209,6 +209,16 @@ const class HxLibs : RuntimeLibs
     return names
   }
 
+  override Void addDepends(Str name, Bool self)
+  {
+    // solve depends we need to enable too
+    depends := repo.solveDepends([LibDepend(name)])
+    names := depends.map |d->Str| { d.name }
+    names = names.findAll |n| { !has(n) }
+    if (!self) names.remove(name)
+    addAll(names)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // File I/O
 //////////////////////////////////////////////////////////////////////////

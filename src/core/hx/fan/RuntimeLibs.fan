@@ -34,6 +34,10 @@ const mixin RuntimeLibs
   ** Raise exception if a lib is not found or has a dependency error.
   abstract Void addAll(Str[] names)
 
+  ** Add all the depends on given name that are not enabled.
+  ** Add given name itself only if 'self' flag is true.
+  @NoDoc abstract Void addDepends(Str name, Bool self)
+
   ** Convenience to remove one library
   abstract Void remove(Str name)
 
