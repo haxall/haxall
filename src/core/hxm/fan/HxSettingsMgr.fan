@@ -71,9 +71,11 @@ const class HxSettingsMgr
   }
 
   ** Update settings for given ext
-  Void extUpdate(HxExtSpi spi, Obj changes)
+  Void extUpdate(HxExtSpi spi, Obj changes, Bool reset)
   {
-    spi.update(update(extId(spi.name), changes))
+    id := extId(spi.name)
+    newSettings :=  reset ? init(id, changes) : update(id, changes)
+    spi.update(newSettings)
   }
 
   ** Initialize settings before we create ExtSpi

@@ -61,9 +61,12 @@ class HxdTestSpi : HxTestSpi
     // add depends we need to enable too (but not the ext itself)
     proj.libs.addDepends(libName, false)
 
-    // then add ext
-    if (proj.libs.has(libName)) proj.libs.remove(libName)
-    ext := proj.exts.add(libName, Etc.makeDict(tags))
+    // then update/add ext
+    ext := proj.exts.get(libName, false)
+    if (ext == null)
+      ext = proj.exts.add(libName, Etc.makeDict(tags))
+    else
+      ext.spi.settingsUpdate(Etc.makeDict(tags), true)
     ext.spi.sync
     return ext
   }

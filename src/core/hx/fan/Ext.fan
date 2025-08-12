@@ -42,7 +42,7 @@ const mixin Ext
   virtual Dict settings() { spi.settings }
 
   ** Asynchronously update settings with Str:Obj, Dict, or Diff.
-  @NoDoc Void settingsUpdate(Obj changes) { spi.settingsUpdate(changes) }
+  @NoDoc Void settingsUpdate(Obj changes) { spi.settingsUpdate(changes, false) }
 
   ** Logger to use for this extension
   Log log() { spi.log }
@@ -174,7 +174,7 @@ const mixin ExtSpi
   abstract Str name()
   abstract Spec spec()
   abstract Dict settings()
-  abstract Void settingsUpdate(Obj changes)
+  abstract Void settingsUpdate(Obj changes, Bool reset)
   abstract Log log()
   abstract Bool isRunning()
   abstract Future send(Obj? msg)
