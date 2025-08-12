@@ -133,6 +133,12 @@ abstract class HxBoot
   ** Open folio database for runtime
   abstract Folio initFolio()
 
+  ** Init hooks for Folio database
+  virtual HxFolioHooks initFolioHooks(HxRuntime rt)
+  {
+    HxFolioHooks(rt)
+  }
+
   ** Create SysInfo instance from sysInfo (sys boot only)
   virtual SysInfo initSysInfo()
   {

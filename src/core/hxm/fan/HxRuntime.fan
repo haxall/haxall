@@ -33,7 +33,7 @@ abstract const class HxRuntime : Runtime
     this.dir           = boot.dir
     this.tb            = boot.initTextBase
     this.dbRef         = boot.initFolio
-    this.db.hooks      = HxFolioHooks(this)
+    this.db.hooks      = boot.initFolioHooks(this)
     this.log           = boot.log
     this.actorPool     = boot.actorPool
     this.settingsMgr   = HxSettingsMgr(this, boot)
