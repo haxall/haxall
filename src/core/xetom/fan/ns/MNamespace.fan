@@ -559,6 +559,26 @@ abstract const class MNamespace : LibNamespace, CNamespace
     return acc
   }
 
+  override Spec? unqualifiedMeta(Str name, Bool checked := true)
+  {
+    acc := unqualifiedMetas(name)
+    if (acc.size == 1) return acc[0]
+    if (acc.size > 1) throw AmbiguousSpecErr("Ambiguous meta for '$name' $acc")
+    if (checked) throw UnknownSpecErr(name)
+    return null
+  }
+
+  override Spec[] unqualifiedMetas(Str name)
+  {
+    if (!isRemote) loadAllSync
+    acc := Spec[,]
+    entriesList.each |entry|
+    {
+      if (entry.status.isOk) acc.addNotNull(entry.get.metaSpec(name, false))
+    }
+    return acc
+  }
+
   override Spec? unqualifiedGlobal(Str name, Bool checked := true)
   {
     acc := unqualifiedGlobals(name)

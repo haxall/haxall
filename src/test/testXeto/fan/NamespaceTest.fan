@@ -204,6 +204,14 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownTypeErr#) { ns.unqualifiedType("FooBarBazBad") }
     verifyErr(UnknownTypeErr#) { ns.unqualifiedType("FooBarBazBad", true) }
 
+    // meta
+    verifySame(ns.unqualifiedMeta("nodoc"), ns.spec("sys::nodoc"))
+    verifyEq(ns.unqualifiedMetas("nodoc"), Spec[ns.spec("sys::nodoc")])
+    verifySame(ns.unqualifiedMeta("badOne", false), null)
+    verifyEq(ns.unqualifiedMetas("badOne"), Spec[,])
+    verifyErr(UnknownSpecErr#) { ns.unqualifiedMeta("badOne") }
+    verifyErr(UnknownSpecErr#) { ns.unqualifiedMeta("badOne", true) }
+
     // global
     verifySame(ns.unqualifiedGlobal("site"), ns.spec("ph::site"))
     verifyEq(ns.unqualifiedGlobals("site"), Spec[ns.spec("ph::site")])

@@ -168,14 +168,14 @@ const mixin LibNamespace
   ** List all unqualified types against loaded libs.
   @NoDoc abstract Spec[] unqualifiedTypes(Str name)
 
-  ** Resolve unqualified function name against loaded libs:
+  ** Resolve unqualified meta spec name against all loaded libs.
   **   - one match return it
   **   - zero return null or raise exception based on checked flag
   **   - two or more raise exception regardless of checked flag
-  @NoDoc abstract Spec? unqualifiedFunc(Str name, Bool checked := true)
+  @NoDoc abstract Spec? unqualifiedMeta(Str name, Bool checked := true)
 
-  ** List all unqualified function names against loaded libs.
-  @NoDoc abstract Spec[] unqualifiedFuncs(Str namee)
+  ** List all unqualified meta specs name against all loaded libs.
+  @NoDoc abstract Spec[] unqualifiedMetas(Str name)
 
   ** Resolve unqualified global spec name against all loaded libs.
   **   - one match return it
@@ -185,6 +185,15 @@ const mixin LibNamespace
 
   ** List all unqualified global specs name against all loaded libs.
   @NoDoc abstract Spec[] unqualifiedGlobals(Str name)
+
+  ** Resolve unqualified function name against loaded libs:
+  **   - one match return it
+  **   - zero return null or raise exception based on checked flag
+  **   - two or more raise exception regardless of checked flag
+  @NoDoc abstract Spec? unqualifiedFunc(Str name, Bool checked := true)
+
+  ** List all unqualified function names against loaded libs.
+  @NoDoc abstract Spec[] unqualifiedFuncs(Str namee)
 
 //////////////////////////////////////////////////////////////////////////
 // Reflection
