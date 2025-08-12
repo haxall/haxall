@@ -128,21 +128,9 @@ const class HxProjSpecs : ProjSpecs
     // write xeto spec for func
     s := StrBuf()
     s.capacity = 100 + src.size
-    s.add("Func")
-    if (!meta.isEmpty)
-    {
-      s.add(" <")
-      first := true
-      meta.each |v, n|
-      {
-        if (first) first = false
-        else s.add(", ")
-        s.add(n)
-        if (v != Marker.val) s.add(":").add(v.toStr.toCode)
-      }
-      s.add(">")
-    }
-    s.add(" { ")
+    s.add("Func ")
+    encodeFuncMeta(s, meta)
+    s.add("{ ")
     first := true
     fn.params.each |p, i|
     {
@@ -167,6 +155,46 @@ const class HxProjSpecs : ProjSpecs
     }
     s.add(sep).add(">}\n")
     return s.toStr
+  }
+
+  static Void encodeFuncMeta(StrBuf s, Dict meta)
+  {
+    if (meta.isEmpty) return
+    s.add("<")
+    keys := Etc.dictNames(meta)
+    keys.moveTo("su", 0)
+    keys.moveTo("admin", 0)
+    keys.moveTo("nodoc", 0)
+    keys.moveTo("defMeta", -1)
+    keys.each |k, i|
+    {
+      if (i > 0) s.add(", ")
+      encodeDictPair(s, k, meta[k])
+    }
+    s.add("> ")
+  }
+
+  private static Void encodeDictPair(StrBuf s, Str n, Obj v)
+  {
+    s.add(n)
+    if (v === Marker.val) return
+    s.add(":")
+    if (v is Dict)
+    {
+      s.add("{")
+      first := true
+      ((Dict)v).each |dv, dn|
+      {
+        if (first) first = false
+        else s.add(", ")
+        encodeDictPair(s, dn, dv)
+      }
+      s.add("}")
+    }
+    else
+    {
+      s.add(v.toStr.toCode.replace("\\\$", "\$"))
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
