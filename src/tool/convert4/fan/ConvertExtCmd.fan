@@ -10,6 +10,7 @@ using util
 using xeto
 using haystack
 using haystack::Macro
+using hxm
 
 internal class ConvertExtCmd : ConvertCmd
 {
@@ -34,12 +35,23 @@ internal class ConvertExtCmd : ConvertCmd
 
   override Int run()
   {
-    ast = Ast().scanWorkDir
+    ast = Ast()
+    scanFuncType := exts.size == 1 && exts.first.contains("::")
+    if (scanFuncType)
+    {
+      // scan specific fantom qname for axon funcs
+      ast.scanFuncsType(exts[0])
+    }
+    else
+    {
+      ast.scanWorkDir
+    }
+
     ast.exts.each |ext|
     {
       // determe if we should run
       n := ext.oldName
-      run := exts.contains(ext.oldName)
+      run := exts.contains(ext.oldName) || scanFuncType
       if (!run && exts.isEmpty)  run = !ast.config.ignore.contains(n)
       if (!run) return
 
@@ -127,7 +139,7 @@ internal class ConvertExtCmd : ConvertCmd
   {
     genDoc(s, f.doc)
     s.add("$f.name: Func ")
-    genMeta(s, f.meta)
+    HxProjSpecs.encodeFuncMeta(s, f.meta)
     s.add("{ ")
     f.eachSlot |p, comma|
     {
@@ -152,46 +164,6 @@ internal class ConvertExtCmd : ConvertCmd
   Void genParam(StrBuf s, AParam p)
   {
     s.add(p.name).add(": ").add(p.type.sig)
-  }
-
-  Void genMeta(StrBuf s, Dict meta)
-  {
-    if (meta.isEmpty) return
-    s.add("<")
-    keys := Etc.dictNames(meta)
-    keys.moveTo("su", 0)
-    keys.moveTo("admin", 0)
-    keys.moveTo("nodoc", 0)
-    keys.moveTo("confirm", -1)
-    keys.each |k, i|
-    {
-      if (i > 0) s.add(", ")
-      genDictPair(s, k, meta[k])
-    }
-    s.add("> ")
-  }
-
-  Void genDictPair(StrBuf s, Str n, Obj v)
-  {
-    s.add(n)
-    if (v === Marker.val) return
-    s.add(":")
-    if (v is Dict)
-    {
-      s.add("{")
-      first := true
-      ((Dict)v).each |dv, dn|
-      {
-        if (first) first = false
-        else s.add(", ")
-        genDictPair(s, dn, dv)
-      }
-      s.add("}")
-    }
-    else
-    {
-      s.add(v.toStr.toCode.replace("\\\$", "\$"))
-    }
   }
 
   Void genDoc(StrBuf s, Str? doc)

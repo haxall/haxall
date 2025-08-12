@@ -85,8 +85,12 @@ class AFunc
     typeName := file.basename
     ext.fantomFuncType = typeName
     qname := ext.pod.name + "::" + typeName
-
     type := Type.find(qname)
+    scanType(ast, ext, type)
+  }
+
+  static Void scanType(Ast ast, AExt ext, Type type)
+  {
     type.methods.each |m|
     {
       if (!m.isPublic) return

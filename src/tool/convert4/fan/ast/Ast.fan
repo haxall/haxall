@@ -21,6 +21,18 @@ class Ast
     scanFile(Env.cur.workDir)
   }
 
+  AExt scanFuncsType(Str qname)
+  {
+    // shim to scan specific fantom types with axon funcs
+    type := Type.find(qname)
+    pod := APod(this, type.pod.name, null, null)
+    pods.add(pod)
+    ext := AExt(this, pod, type.pod.name, null, AExtType.mod, Etc.dict0)
+    pod.exts.add(ext)
+    AFunc.scanType(this, ext, type)
+    return ext
+  }
+
   /* this code uses SkySpark SysNamespace
   This scanSysDef()
   {
