@@ -91,7 +91,7 @@ const class FileRepo : LibRepo
 
   LibNamespace createNamespace(LibVersion[] libs)
   {
-    makeNamespace(libs, null)
+    makeNamespace(libs)
   }
 
   LibNamespace createFromNames(Str[] names)
@@ -108,9 +108,9 @@ const class FileRepo : LibRepo
     return createNamespace(vers)
   }
 
-  private LibNamespace makeNamespace(LibVersion[] versions, [Str:File]? build)
+  private LibNamespace makeNamespace(LibVersion[] versions)
   {
-    init := LocalNamespaceInit(env, this, versions, Etc.dict0, build)
+    init := LocalNamespaceInit(env, this, versions, Etc.dict0)
     return LocalNamespace(init)
   }
 

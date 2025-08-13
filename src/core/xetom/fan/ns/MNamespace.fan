@@ -24,6 +24,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
   new make(MEnv env, LibVersion[] versions, Dict opts := Etc.dict0)
   {
     this.envRef = env
+    this.opts = opts
 
     // order versions by depends and check all dependencies
     errs := Str:Err[:]
@@ -838,6 +839,7 @@ abstract const class MNamespace : LibNamespace, CNamespace
 //////////////////////////////////////////////////////////////////////////
 
   const MSys sys
+  const Dict opts
   internal const MLibEntry[] entriesList  // orderd by depends
   private const Str:MLibEntry entriesMap
   private const AtomicRef libsRef := AtomicRef()

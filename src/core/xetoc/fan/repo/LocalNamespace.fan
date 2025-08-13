@@ -21,14 +21,11 @@ const class LocalNamespace : MNamespace
     : super(init.env, init.versions, init.opts)
   {
     this.repo  = init.repo
-    this.build = init.build
   }
 
   const LibRepo repo
 
   override Bool isRemote() { false }
-
-  const [Str:File]? build
 
 //////////////////////////////////////////////////////////////////////////
 // Loading
@@ -92,19 +89,17 @@ const class LocalNamespace : MNamespace
 
 const class LocalNamespaceInit
 {
-  new make(XetoEnv env, LibRepo repo, LibVersion[] versions, Dict opts := Etc.dict0, [Str:File]? build := null)
+  new make(XetoEnv env, LibRepo repo, LibVersion[] versions, Dict opts := Etc.dict0)
   {
     this.env      = env
     this.repo     = repo
     this.versions = versions
     this.opts     = opts
-    this.build    = build
   }
 
   const MEnv env
   const LibRepo repo
   const LibVersion[] versions
   const Dict opts
-  const [Str:File]? build
 }
 

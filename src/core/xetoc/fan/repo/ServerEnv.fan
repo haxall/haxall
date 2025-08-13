@@ -163,7 +163,7 @@ const class ServerEnv : MEnv
 
     // create namespace and force all libs to be compiled
     libCacheClear
-    ns := LocalNamespace(LocalNamespaceInit(this, repo, libs, Etc.dict0, buildFiles))
+    ns := LocalNamespace(LocalNamespaceInit(this, repo, libs, Etc.dict1("build", buildFiles)))
     ns.libs
 
     // report which libs could not be compiled
@@ -177,12 +177,13 @@ const class ServerEnv : MEnv
 
   override XetoLib compile(LibNamespace ns, LibVersion v)
   {
+    build := ((LocalNamespace)ns).opts.get("build") as Str:File
     c := XetoCompiler
     {
       it.ns      = ns
       it.libName = v.name
       it.input   = v.file
-      it.build   = ((LocalNamespace)ns).build?.get(v.name)
+      it.build   = build?.get(v.name)
     }
     return c.compileLib
   }
