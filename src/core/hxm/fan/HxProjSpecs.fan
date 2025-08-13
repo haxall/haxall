@@ -122,12 +122,26 @@ const class HxProjSpecs : ProjSpecs
 
   static Str funcToXeto(Str name, Str src, Dict meta)
   {
-    // parse axon
-    fn := Parser(Loc(name), src.in).parseTop(name, meta)
-
-    // write xeto spec for func
     s := StrBuf()
     s.capacity = 100 + src.size
+
+    // parse axon to verify its correct
+    fn := Parser(Loc(name), src.in).parseTop(name, meta)
+
+    // pull docs out as xeto comment
+    doc := (meta["doc"] as Str)?.trimToNull
+    if (doc != null)
+    {
+      meta = Etc.dictRemove(meta, "doc")
+      doc.splitLines.each |line|
+      {
+        s.add("//")
+        if (!line.trim.isEmpty) s.add(" ").add(line)
+        s.add("\n")
+      }
+    }
+
+    // write xeto spec for func
     s.add("Func ")
     encodeFuncMeta(s, meta)
     s.add("{ ")
