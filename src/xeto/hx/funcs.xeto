@@ -254,6 +254,9 @@ libAdd: Func <admin> { names: Obj, opts: Dict?, returns: Obj }
 //   libRemove(["ph.points", "ph.equips"])
 libRemove: Func <admin> { names: Obj, opts: Dict?, returns: Obj }
 
+// Get the current project's lib namespace digest
+libDigest: Func <admin, nodoc> { returns: Str }
+
 // Return grid of enabled extensions and their current status.
 // Columns:
 //  - name: library name of extension

@@ -492,6 +492,10 @@ const class HxFuncs
     return "removed"
   }
 
+  ** Get the current project's lib namespace digest
+  @NoDoc @Api @Axon { admin = true }
+  static Str libDigest() { curContext.proj.ns.digest }
+
   ** Return sys info dict
   @NoDoc @Api @Axon
   static Dict sysInfo() { curContext.sys.info.meta }
