@@ -71,7 +71,7 @@ const class TextBase
   }
 
   ** Write a filename
-  Void write(Str filename, Str val)
+  virtual Void write(Str filename, Str val)
   {
     modify(filename) |f|
     {
@@ -80,7 +80,7 @@ const class TextBase
   }
 
   ** Rename a filename
-  Void rename(Str oldName, Str newName)
+  virtual Void rename(Str oldName, Str newName)
   {
     modify(oldName) |f|
     {
@@ -89,7 +89,7 @@ const class TextBase
   }
 
   ** Delete a filename
-  Void delete(Str filename)
+  virtual Void delete(Str filename)
   {
     modify(filename) |f|
     {
