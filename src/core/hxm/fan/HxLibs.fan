@@ -193,7 +193,7 @@ const class HxLibs : RuntimeLibs
     reload
   }
 
-  Void reload()
+  override Void reload()
   {
     update(null, null)
   }

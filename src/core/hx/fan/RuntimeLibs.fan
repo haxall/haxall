@@ -45,6 +45,9 @@ const mixin RuntimeLibs
   ** Raise exception if removing lib would cause a dependency error.
   abstract Void removeAll(Str[] names)
 
+  ** Reload all libs from disk
+  @NoDoc abstract Void reload()
+
   ** Remove all project libs; just for testing
   @NoDoc abstract Void clear()
 

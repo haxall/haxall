@@ -62,7 +62,7 @@ const class HxSettingsMgr
 //////////////////////////////////////////////////////////////////////////
 
   ** Map ext to setting rec id
-  Ref extId(Str name) { Ref("ext.$name") }
+  static Ref extId(Str name) { Ref("ext.$name") }
 
   ** Read settings for given ext library name or return empty dict
   Dict extRead(Str name)
