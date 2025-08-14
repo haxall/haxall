@@ -62,18 +62,23 @@ abstract class HxBoot
   ** Xeto lib names implicitly enabled as boot libs (sys only)
   Str[] bootLibs := [,]
 
-  ** List all the core libs required for basic Ion user interface
-  Str[] ionLibs := [
-    "hx.ion",
-    "ion",
-    "ion.actions",
-    "ion.card",
-    "ion.inputs",
-    "ion.form",
-    "ion.misc",
-    "ion.table",
-    "ion.ux",
-  ]
+  ** List all the core libs required for basic Ion user interface,
+  ** or empty list if ion is not installed
+  Str[] ionLibs()
+  {
+    if (Pod.find("ion", false) == null) return Str#.emptyList
+    return [
+      "hx.ion",
+      "ion",
+      "ion.actions",
+      "ion.card",
+      "ion.inputs",
+      "ion.form",
+      "ion.misc",
+      "ion.table",
+      "ion.ux",
+    ]
+  }
 
   **
   ** SysInfo metadata to build Sys.info:
