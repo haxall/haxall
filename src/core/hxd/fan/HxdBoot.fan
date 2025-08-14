@@ -63,7 +63,7 @@ class HxdBoot : HxBoot
     config := FolioConfig
     {
       it.name = "haxall"
-      it.dir  = this.dir + `db/`
+      it.dir  = this.dbDir
       it.pool = ActorPool { it.name = "Hxd-Folio" }
     }
     return HxFolio.open(config)

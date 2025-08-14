@@ -35,8 +35,10 @@ abstract class HxBoot
     dir = dir.normalize
 
     // init fields
-    this.name = name
-    this.dir = dir
+    this.name  = name
+    this.dir   = dir
+    this.dbDir = dir + `db/`
+    this.nsDir = dir + `ns/`
     this.actorPool = ActorPool { it.name = "Rt-$this.name" }
   }
 
@@ -49,6 +51,12 @@ abstract class HxBoot
 
   ** Runtime directory
   const File dir
+
+  ** Runtime db/ directory
+  const File dbDir
+
+  ** Runtime ns/ directory
+  const File nsDir
 
   ** Actor pool for runtime threads
   ActorPool actorPool
@@ -132,7 +140,7 @@ abstract class HxBoot
   ** Create TextBase under "{dir}/ns/" to manage namespace settings via plain text
   virtual TextBase initTextBase()
   {
-    TextBase(this.dir + `ns/`)
+    TextBase(this.nsDir)
   }
 
   ** Open folio database for runtime
