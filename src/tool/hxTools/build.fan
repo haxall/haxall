@@ -36,8 +36,7 @@ class Build : BuildPod
                "hx @{hx.depend}",
                "hxm @{hx.depend}",
                "hxd @{hx.depend}",
-               "hxFolio @{hx.depend}",
-               "hxUser @{hx.depend}"]
+               "hxFolio @{hx.depend}"]
     srcDirs = [`fan/`]
     resDirs = [`lib/stub/`]
     index =

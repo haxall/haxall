@@ -15,7 +15,6 @@ using hx
 using hxd
 using hxm
 using hxFolio
-using hxUser
 
 internal class InitCli : HxCli
 {
@@ -186,12 +185,12 @@ internal class InitCli : HxCli
     if (rec == null)
     {
       log.info("Create su [$suUser.toCode]")
-      HxUserUtil.addUser(proj.db, suUser, suPass, ["userRole":"su"])
+      HxdUserUtil.addUser(proj.db, suUser, suPass, ["userRole":"su"])
     }
     else
     {
       log.info("Update su $suUser.toCode")
-      HxUserUtil.updatePassword(proj.db, rec, suPass)
+      HxdUserUtil.updatePassword(proj.db, rec, suPass)
     }
   }
 

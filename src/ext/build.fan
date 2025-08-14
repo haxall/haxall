@@ -20,7 +20,6 @@ class Build : BuildGroup
       `hxApi/build.fan`,
       `hxCrypto/build.fan`,
       `hxHttp/build.fan`,
-      `hxUser/build.fan`,
       `hxMath/build.fan`,
       `hxIO/build.fan`,
       `hxTask/build.fan`,
