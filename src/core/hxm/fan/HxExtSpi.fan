@@ -45,12 +45,6 @@ const class HxExtSpi : Actor, ExtSpi
       type := spec.fantomType
       if (type.name == "Dict") { log.warn("Missing fantom type binding: $spec"); return null }
 
-      // determine constructor to use
-      ctor := type.method("make")
-      ctorNeedBoot := !ctor.params.isEmpty
-      if (ctorNeedBoot && boot == null)  { log.warn("Ext type requires boot: $type"); return null }
-      ctorArgs := ctorNeedBoot ? [boot] : null
-
       // read settings
       settings := exts.rt.settingsMgr.extRead(name)
 
@@ -67,6 +61,13 @@ const class HxExtSpi : Actor, ExtSpi
 
       // route to runtime to create spi as hook for customization
       spi := exts.makeSpi(init)
+
+      // determine constructor to use
+      type = init.type
+      ctor := type.method("make")
+      ctorNeedBoot := !ctor.params.isEmpty
+      if (ctorNeedBoot && boot == null)  { log.warn("Ext type requires boot: $type"); return null }
+      ctorArgs := ctorNeedBoot ? [boot] : null
 
       // instantiate fantom type
       ExtObj? ext
@@ -330,9 +331,9 @@ class HxExtSpiInit
   const HxRuntime rt
   const Str name
   const Spec spec
-  const Type type
   const Dict settings
-  const ActorPool actorPool
+  Type type
+  ActorPool actorPool
   Log? log
 }
 

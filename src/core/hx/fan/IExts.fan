@@ -77,6 +77,7 @@ const mixin IUserExt : SysExt
   @NoDoc abstract Void closeSession(UserSession session)
 
   ** Create a user instance.  The tags arg may be a dict or a map.
+  ** The user is given admin role if 'userRole' is not specified.
   @NoDoc abstract User makeUser(Str username, Obj? tags := null)
 
   ** Configured max sessions
