@@ -79,7 +79,7 @@ class HxdTestSpi : HxTestSpi
   override Context makeContext(User? user)
   {
     if (user == null)
-      user = test.proj.sys.user.makeSyntheticUser("test", ["userRole":"su"])
+      user = test.proj.sys.user.makeUser("test", ["userRole":"su"])
     return test.proj.newContext(user)
   }
 

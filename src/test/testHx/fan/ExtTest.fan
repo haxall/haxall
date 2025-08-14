@@ -241,15 +241,15 @@ class ExtTest : HxTest
   @HxTestProj
   Void testUserExt()
   {
-    // makeSyntheticUser
-    u := proj.sys.user.makeSyntheticUser("FooBar", ["bar":"baz"])
+    // makeUser
+    u := proj.sys.user.makeUser("FooBar", ["bar":"baz"])
     if (sys.info.type.isSkySpark)
       verifyEq(u.id, Ref("u:FooBar"))
     else
       verifyEq(u.id, Ref("FooBar"))
     verifyEq(u.username, "FooBar")
     verifyEq(u.meta["bar"], "baz")
-    verifyErr(ParseErr#) { proj.sys.user.makeSyntheticUser("Foo Bar", ["bar":"baz"]) }
+    verifyErr(ParseErr#) { proj.sys.user.makeUser("Foo Bar", ["bar":"baz"]) }
   }
 
 //////////////////////////////////////////////////////////////////////////

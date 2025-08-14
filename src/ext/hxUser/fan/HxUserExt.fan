@@ -73,11 +73,13 @@ const class HxUserExt : ExtObj, IUserExt
   }
 
   ** Create synthetic user.  The tags arg may be a dict or a map.
-  override HxUser makeSyntheticUser(Str username, Obj? extra := null)
+  override HxUser makeUser(Str username, Obj? extra := null)
   {
-    extraTags := Etc.makeDict(extra)
-    tags := ["id": Ref(username), "username":username, "userRole":"admin", "mod":DateTime.nowUtc, "synthetic":Marker.val]
-    extraTags.each |v, n| { tags[n] = v }
+    tags := Etc.dictToMap(Etc.makeDict(extra))
+    tags["id"] = Ref(username)
+    tags["username"] = username
+    if (tags["userRole"] == null) tags["userRole"] = "admin"
+    if (tags["mod"]      == null) tags["mod"]      = DateTime.nowUtc
     return HxUser(Etc.makeDict(tags))
   }
 

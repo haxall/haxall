@@ -76,8 +76,8 @@ const mixin IUserExt : SysExt
   ** Close the given authentication session
   @NoDoc abstract Void closeSession(UserSession session)
 
-  ** Create synthetic user.  The tags arg may be a dict or a map.
-  @NoDoc abstract User makeSyntheticUser(Str username, Obj? tags := null)
+  ** Create a user instance.  The tags arg may be a dict or a map.
+  @NoDoc abstract User makeUser(Str username, Obj? tags := null)
 
   ** Configured max sessions
   @NoDoc abstract Int maxSessions()

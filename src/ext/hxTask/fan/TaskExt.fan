@@ -179,7 +179,7 @@ const class TaskExt : ExtObj, ITaskExt
 
   once User userFallback()
   {
-    sys.user.makeSyntheticUser("task", ["projAccessFilter":"name==${rt.name.toCode}"])
+    sys.user.makeUser("task", ["projAccessFilter":"name==${rt.name.toCode}"])
   }
 
   private Void cleanupEphemerals()
