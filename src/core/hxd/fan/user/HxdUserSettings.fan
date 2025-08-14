@@ -13,7 +13,7 @@ using hx
 **
 ** Settings record
 **
-const class HxUserSettings : Settings
+const class HxdUserSettings : Settings
 {
   ** Constructor
   new make(Dict d, |This| f) : super(d) { f(this) }

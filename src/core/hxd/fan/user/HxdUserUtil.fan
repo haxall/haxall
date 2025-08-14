@@ -17,7 +17,7 @@ using hxm
 **
 ** User library utilities
 **
-const class HxUserUtil
+const class HxdUserUtil
 {
   ** Add a new user record and its password hash to database
   static HxUser addUser(Folio db, Str user, Str pass, Str:Obj tags)

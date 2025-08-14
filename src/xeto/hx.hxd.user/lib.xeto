@@ -23,9 +23,9 @@ pragma: Lib <
     type: BuildVar "hx.vcs.type"
     uri:  BuildVar "hx.vcs.uri"
   }
-  libExt: HxUserExt
+  libExt: HxdUserExt
 >
 
 // Authentication and user management
-HxUserExt: SysExt
+HxdUserExt: SysExt
 

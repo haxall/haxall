@@ -15,9 +15,9 @@ using hxm
 **
 ** User library authentication pipeline.
 **
-internal class HxUserAuth
+internal class HxdUserAuth
 {
-  new make(HxUserExt ext, WebReq req, WebRes res)
+  new make(HxdUserExt ext, WebReq req, WebRes res)
   {
     this.rt  = ext.rt
     this.ext = ext
@@ -27,7 +27,7 @@ internal class HxUserAuth
 
   const Runtime rt
 
-  const HxUserExt ext
+  const HxdUserExt ext
 
   WebReq req { private set }
 
@@ -59,7 +59,7 @@ internal class HxUserAuth
   }
 
   ** Called when request maps to an authenticated session
-  private UserSession authenticated(HxUserSession session)
+  private UserSession authenticated(HxdUserSession session)
   {
     // refresh session and construct context
     user := session.isCluster ? session.user : ext.read(session.user.id)
@@ -68,7 +68,7 @@ internal class HxUserAuth
   }
 
   ** Check if cookies provide an valid session token
-  private HxUserSession? checkCookie()
+  private HxdUserSession? checkCookie()
   {
     // check if session cookie was passed in request
     key := req.cookies[ext.cookieName]
@@ -105,11 +105,11 @@ internal class HxUserAuth
 
   ** Check if Authorization header provides an valid session token.
   ** Or if defined then peform standard Haystack auth pipeline.
-  private HxUserSession? checkAuthorization()
+  private HxdUserSession? checkAuthorization()
   {
     // if the Authorization header specified use standard auth pipeline
     if (req.headers.containsKey("Authorization"))
-      return HxUserAuthServerContext(ext).onService(req, res)
+      return HxdUserAuthServerContext(ext).onService(req, res)
 
     // auto login superuser for testing
     if (ext.noAuth)
@@ -119,7 +119,7 @@ internal class HxUserAuth
     return null
   }
 
-  private HxUserSession? checkCluster()
+  private HxdUserSession? checkCluster()
   {
     // if this is a cluster tunneled request then the stash defines
     // the node, username, session key, and attest key
@@ -162,16 +162,16 @@ internal class HxUserAuth
 }
 
 **************************************************************************
-** HxUserAuthServerContext
+** HxdUserAuthServerContext
 **************************************************************************
 
-internal class HxUserAuthServerContext : AuthServerContext
+internal class HxdUserAuthServerContext : AuthServerContext
 {
-  new make(HxUserExt ext) { this.rt = ext.rt; this.ext = ext }
+  new make(HxdUserExt ext) { this.rt = ext.rt; this.ext = ext }
 
   const Runtime rt
 
-  const HxUserExt ext
+  const HxdUserExt ext
 
   override Log log() { ext.log }
 
@@ -180,7 +180,7 @@ internal class HxUserAuthServerContext : AuthServerContext
     user := ext.read(username, false)
     if (user == null) return AuthUser.genFake(username)
 
-    msg := HxUserUtil.dictToAuthMsg(user.meta->userAuth)
+    msg := HxdUserUtil.dictToAuthMsg(user.meta->userAuth)
     return AuthUser(user.username, msg)
   }
 

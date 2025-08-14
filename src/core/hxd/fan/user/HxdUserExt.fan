@@ -19,16 +19,16 @@ using hxm
 **
 ** User athentication and session management
 **
-const class HxUserExt : ExtObj, IUserExt
+const class HxdUserExt : ExtObj, IUserExt
 {
   ** Web servicing
-  override const HxUserWeb web := HxUserWeb(this)
+  override const HxdUserWeb web := HxdUserWeb(this)
 
   ** Session management
-  const HxUserSessions sessions := HxUserSessions(this)
+  const HxdUserSessions sessions := HxdUserSessions(this)
 
   ** Settings record
-  override HxUserSettings settings() { super.settings }
+  override HxdUserSettings settings() { super.settings }
 
   ** Auto login a configured superuser account for testing
   const Bool noAuth := sys.config.has("noAuth")
@@ -44,7 +44,7 @@ const class HxUserExt : ExtObj, IUserExt
   private const AtomicRef cookieNameRef := AtomicRef()
 
 //////////////////////////////////////////////////////////////////////////
-// HxUserService
+// HxdUserService
 //////////////////////////////////////////////////////////////////////////
 
   ** Lookup a user by username.  If not found then raise
@@ -63,7 +63,7 @@ const class HxUserExt : ExtObj, IUserExt
   ** is not authenticated then redirect to login page and return null.
   override UserSession? authenticate(WebReq req, WebRes res, Dict? opts := null)
   {
-    HxUserAuth(this, req, res).authenticate
+    HxdUserAuth(this, req, res).authenticate
   }
 
   ** Close the given authentication session
@@ -91,14 +91,14 @@ const class HxUserExt : ExtObj, IUserExt
 //////////////////////////////////////////////////////////////////////////
 
   ** Open a new session for given user account
-  internal HxUserSession login(WebReq req, WebRes res, HxUser user)
+  internal HxdUserSession login(WebReq req, WebRes res, HxUser user)
   {
     session := sessions.open(req, user)
     addSessionCookie(req, res, session)
     return session
   }
 
-  private Void addSessionCookie(WebReq req, WebRes res, HxUserSession session)
+  private Void addSessionCookie(WebReq req, WebRes res, HxdUserSession session)
   {
     overrides := Field:Obj?[:]
 

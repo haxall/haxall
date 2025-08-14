@@ -73,7 +73,7 @@ class HxdTestSpi : HxTestSpi
 
   override HxUser addUser(Str user, Str pass, Str:Obj? tags)
   {
-    Slot.findMethod("hxUser::HxUserUtil.addUser").call(test.proj.db, user, pass, tags)
+    HxdUserUtil.addUser(test.proj.db, user, pass, tags)
   }
 
   override Context makeContext(User? user)

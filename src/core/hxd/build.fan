@@ -43,12 +43,12 @@ class Build : BuildPod
                "hxm @{hx.depend}",
                "hxFolio @{hx.depend}",
                "hxUtil @{hx.depend}"]
-    srcDirs = [`fan/`]
+    srcDirs = [`fan/`, `fan/user/`]
     docApi  = false
 
     index = [
       "hx.cli": "hxd::RunCli",
-      "xeto.bindings": ["hx.hxd.file", "hx.hxd.his", "hx.hxd.proj"]
+      "xeto.bindings": ["hx.hxd.file", "hx.hxd.his", "hx.hxd.proj", "hx.hxd.user"]
     ]
   }
 }

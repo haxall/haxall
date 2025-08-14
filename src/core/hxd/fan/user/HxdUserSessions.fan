@@ -19,7 +19,7 @@ using hxm
 **
 ** Authenticated user session management
 **
-const class HxUserSessions
+const class HxdUserSessions
 {
   new make(IUserExt ext) { this.ext = ext }
 
@@ -30,10 +30,10 @@ const class HxUserSessions
   Log log() { ext.log }
 
   ** List active sessions
-  HxUserSession[] list() { byKey.vals(HxUserSession#) }
+  HxdUserSession[] list() { byKey.vals(HxdUserSession#) }
 
   ** Lookup a session by its key
-  HxUserSession? get(Str key, Bool checked := true)
+  HxdUserSession? get(Str key, Bool checked := true)
   {
     s := byKey[key]
     if (s != null) return s
@@ -42,25 +42,25 @@ const class HxUserSessions
   }
 
   ** Open new session
-  HxUserSession open(WebReq req, HxUser user)
+  HxdUserSession open(WebReq req, HxUser user)
   {
     log.info("Login: $user.username")
-    key := HxUserSession.genKey("s-")
-    attestKey := HxUserSession.genKey("a-")
-    session := HxUserSession(req, key, attestKey, user)
+    key := HxdUserSession.genKey("s-")
+    attestKey := HxdUserSession.genKey("a-")
+    session := HxdUserSession(req, key, attestKey, user)
     return doOpen(session)
   }
 
   ** Open cluster session
-  HxUserSession openCluster(WebReq req, Str key, Str attestKey, HxUser user)
+  HxdUserSession openCluster(WebReq req, Str key, Str attestKey, HxUser user)
   {
     log.info("Login cluster: $user.username")
-    session := HxUserSession(req, key, attestKey, user) { it.isCluster = true }
+    session := HxdUserSession(req, key, attestKey, user) { it.isCluster = true }
     return doOpen(session)
   }
 
   ** Choke point for opening a session
-  private HxUserSession doOpen(HxUserSession session)
+  private HxdUserSession doOpen(HxdUserSession session)
   {
     if (byKey.size >= ext.maxSessions && !session.user.isSu)
       throw AuthErr("Max sessions exceeded", "Max sessions exceeded", 503)
@@ -69,7 +69,7 @@ const class HxUserSessions
   }
 
   ** Close session
-  Void close(HxUserSession session)
+  Void close(HxdUserSession session)
   {
     log.info("Logout: $session.user.username")
     byKey.remove(session.key)
@@ -89,13 +89,13 @@ const class HxUserSessions
 }
 
 **************************************************************************
-** HxUserSession
+** HxdUserSession
 **************************************************************************
 
 **
 ** Authenticated user session
 **
-const class HxUserSession : UserSession
+const class HxdUserSession : UserSession
 {
   ** Constructor
   internal new make(WebReq req, Str key, Str attestKey, HxUser user, |This|? f := null)

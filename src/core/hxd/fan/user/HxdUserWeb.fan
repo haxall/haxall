@@ -14,11 +14,11 @@ using hx
 **
 ** User library web servicing
 **
-const class HxUserWeb : ExtWeb
+const class HxdUserWeb : ExtWeb
 {
-  new make(HxUserExt ext) : super(ext) { this.ext = ext }
+  new make(HxdUserExt ext) : super(ext) { this.ext = ext }
 
-  const override HxUserExt ext
+  const override HxdUserExt ext
 
   override Void onService()
   {
@@ -103,7 +103,7 @@ const class HxUserWeb : ExtWeb
 
   private Void onAuth()
   {
-    HxUserAuthServerContext(ext).onService(req, res)
+    HxdUserAuthServerContext(ext).onService(req, res)
   }
 
 //////////////////////////////////////////////////////////////////////////
