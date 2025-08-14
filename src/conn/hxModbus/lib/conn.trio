@@ -13,7 +13,7 @@ is: ^conn
 icon: "modbus"
 connFeatures: {learn, pollMode:"buckets"}
 doc: "Modbus connector"
-linter: "modbusExt::LintModbus"
+linter: "LintModbus"
 --------------------------------------------------------------------------
 defx: ^uri
 tagOn: ^modbusConn
@@ -41,7 +41,7 @@ doc:
 def: ^modbusRegMapUri
 is: ^uri
 tagOn: ^modbusConn
-uiInput: "modbusExt::ModbusRegMapInput"
+uiInput: "uiBuilder::ModbusRegMapInput"
 doc:
   Applied to 'modbusConn' to define the register map CSV file.
   This URI must be a path relative to the project's home directory
@@ -66,3 +66,4 @@ tagOn: ^modbusConn
 doc:
   How long to wait before timing out on a modbus write.
 --------------------------------------------------------------------------
+

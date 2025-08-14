@@ -20,6 +20,7 @@ disKey: ui::regMap
 admin
 doc: "Manage Modbus register map files"
 src:
-  view: { uiType:"modbusExt::RegMapView" }
+  view: { uiType:"uiBuilder::RegMapView" }
   data: { expr:"modbusRegMapList()" }
 --------------------------------------------------------------------------
+
