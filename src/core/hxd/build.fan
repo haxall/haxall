@@ -44,6 +44,7 @@ class Build : BuildPod
                "hxFolio @{hx.depend}",
                "hxUtil @{hx.depend}"]
     srcDirs = [`fan/`, `fan/user/`]
+    resDirs = [`locale/`, `res/`]
     docApi  = false
 
     index = [
