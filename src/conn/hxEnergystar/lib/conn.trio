@@ -1,0 +1,51 @@
+//
+// Copyright (c) 2013, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   25 Jun 2013  Brian Frank  Creation
+//    4 Jul 2019  Brian Frank  Refactor for new def design
+//
+
+--------------------------------------------------------------------------
+def: ^energyStarConn
+is: ^conn
+icon: "energyStar"
+doc:
+  Energy Star connector to a portfolio manager account.
+  See `doc#conns`.
+--------------------------------------------------------------------------
+defx: ^uri
+tagOn: ^energyStarConn
+--------------------------------------------------------------------------
+defx: ^username
+tagOn: ^energyStarConn
+--------------------------------------------------------------------------
+defx: ^password
+tagOn: ^energyStarConn
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Point
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^energyStarPoint
+is: ^connPoint
+doc:
+  Point which synchronizes data via a EnergyStar connector.
+--------------------------------------------------------------------------
+
+//////////////////////////////////////////////////////////////////////////
+// Tags
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------------------------
+def: ^energyStarCustomerIds
+is: ^str
+tagOn: ^energyStarConn
+doc:
+  Comma separated list of customer account ids used for the connection.
+  See `doc#accounts`.
+--------------------------------------------------------------------------
+

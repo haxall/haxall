@@ -1,0 +1,16 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//  05 Aug 2025  Matthew Giannini Creation
+//
+
+--------------------------------------------------------------------------
+def: ^lib:energyStar
+depends: [^lib:ph, ^lib:phIoT, ^lib:axon, ^lib:hx, ^lib:conn, ^lib:skyarc]
+typeName:"hxEnergystar::EnergyStarExt"
+icon: "energyStar"
+doc: "Energy Star Portfolio Manager Connector"
+--------------------------------------------------------------------------
+

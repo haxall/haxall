@@ -1,0 +1,43 @@
+//
+// Copyright (c) 2019, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   18 Dec 2019  Matthew Giannini  Creation
+//
+
+--------------------------------------------------------------------------
+app:    energyStar
+disKey: ui::energyStar
+icon:   energyStar
+doc:    Views used for Energy Star Portfolio Manager integration
+--------------------------------------------------------------------------
+view: energyStarProperties
+appName: energyStar
+dis: Properties
+order: 50
+doc: "Manage Energy Star sites"
+src:
+  view:    {inherit:"table"}
+  details: {action:"energyStarAppPropertiesDetails" select}
+  push:    {action:"energyStarAppPropertyPush" select}
+  pull:    {action:"energyStarAppPropertyPull" select}
+  delete:  {action:"energyStarAppPropertyDelete" select confirm: {icon:"warn" detailsKey:"ui::energyStar.propDelete.confirm"}}
+  data:    {expr:"energyStarAppPropertiesList()"}
+--------------------------------------------------------------------------
+view: energyStarMeters
+appName: energyStar
+dis: Meters
+order: 51
+doc: "Manage Energy Star meters"
+src:
+  view:    {inherit:"table"}
+  site:    {input var disKey:"ui::site" kind:"Ref<site>" navAuxFilter:"energyStarSite"}
+  details: {action:"energyStarAppMeterDetails" select}
+  push:    {action:"energyStarAppMeterPush" select}
+  pull:    {action:"energyStarAppMeterPull" select}
+  assoc:   {action:"energyStarAppMeterAssoc" select disKey:"ui::energyStar.pushAssoc"}
+  delete:  {action:"energyStarAppMeterDelete" select}
+  data:    {expr:"energyStarAppMetersInSite({{site}})"}
+--------------------------------------------------------------------------
+

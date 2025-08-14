@@ -1,0 +1,33 @@
+//
+// Copyright (c) 2025, SkyFoundry LLC
+// All Rights Reserved
+//
+// History:
+//   5 Aug 2025  Brian Frank  Creation
+//
+
+pragma: Lib <
+  doc: "Energy Star Portfolio Manager Connector"
+  version: BuildVar "hx.version"
+  depends: {
+    { lib: "sys",     versions: BuildVar "ph.depend" }
+    { lib: "axon",    versions: BuildVar "hx.depend" }
+    { lib: "hx",      versions: BuildVar "hx.depend" }
+    { lib: "hx.conn", versions: BuildVar "hx.depend" }
+  }
+  categories: {"haxall"}
+  license: BuildVar "hx.license"
+  org: {
+   dis: BuildVar "hx.org.dis"
+   uri: BuildVar "hx.org.uri"
+  }
+  vcs: {
+    type: BuildVar "hx.vcs.type"
+    uri:  BuildVar "hx.vcs.uri"
+  }
+  libExt: EnergyStarExt
+>
+
+// Energy Star Portfolio Manager Connector
+EnergyStarExt: ConnExt
+

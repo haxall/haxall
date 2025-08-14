@@ -1,0 +1,181 @@
+**************************************************************************
+** title:      EnergyStarExt
+** author:     Brian Frank
+** created:    26 Jun 13
+** copyright:  Copyright (c) 2013, SkyFoundry LLC
+**************************************************************************
+
+Overview [#overview]
+********************
+The ENERGY STAR extension implements a client interface to the
+[Portfolio Manager]`http://portfoliomanager.energystar.gov/webservices/home`
+web service.  Features include:
+
+  - An ENERGY STAR connector maps to an account and is used to
+    manage your sites, meters, usage
+  - Ability to manage your ENERGY STAR properties and map them to
+    SkySpark sites
+  - Ability to manage your ENERGY STAR meters and map them to
+    SkySpark meter points
+  - Ability to manage your ENERGY STAR meter usage data
+  - Push history data from SkySpark to ENERGY STAR
+
+Accounts [#accounts]
+********************
+In order to use the ENERGY STAR connector your organization will need an account
+in the Portfolio Manager system. By default, Portfolio Manager accounts do not have
+access to web service API live environment.
+
+You can follow these steps to request live access:
+
+1. Click "Account Settings" from the ribbon on the top righthand side of
+   your Portfolio Manager account
+1. Click the "Software Development" tab
+1. The following question will appear on the software development tab:
+   "Will you be using the web services API to develop software to exchange data
+   with Portfolio Manager?" Select "Yes" to continue.
+1. Select all meter types you would like to permit your customers to share
+   with you (this includes energy, water, waste, and IT energy meter types)
+1. Specify terms of use (optional)
+1. Select "Register"
+
+The ENERGY STAR team is has approved SkySpark for use in the live environment,
+but may follow up with additional questions about your proposed implementation
+before approving the request. You should expect to see an email response to your
+registration request from 'WebServFAQs-Utility@icfi.com' within 5 business days.
+
+In the SkySpark integration, you will be integrating your Portfolio Manager
+account with your Skyspark account.  If your customers also already have an
+existing Portfolio Manager account used to manage their buildings, your
+customer first needs to send you a request to connect their Portfolio Manager
+account with your Portfolio Manager account.  Upon your acceptance of
+that account connection, your customer will then share their properties and
+meters with your Portfolio Manager account using the "Set Up Web Services/Data Exchange"
+option on the "Sharing" tab of the Portfolio Manager user interface.
+Details on the connection and sharing process can be found on the [Portfolio Manager
+web site]`https://portfoliomanager.energystar.gov/webservices/pdf/Connection_and_Sharing_for_Data_Exchange_en_US.pdf`
+
+Once this is done you can configure the `energyStarCustomerIds` tag on your connector
+record to determine which properties are being used by the project.
+
+Setup [#setup]
+**************
+
+1. Enable the EnergyStarExt in SettingsApp
+2. Use ConnApp to setup a connector for your account and ping to
+   verify connectivity
+3. Add necessary tags to your site and meter points recs to map them
+   correctly
+4. Use EnergyStarApp to map your sites to properties and setup
+   their `energyStarSite` tag
+5. Use EnergyStarApp to map your meter points to meters and setup
+   their `energyStarMeter` and `energyStarConnRef` tags
+6. Once a site has all its meters mapped, then use the "Push Associations"
+   command in Meters tab to setup the property and meters associations in
+   ENERGY STAR
+7. Manually or via jobs push data to ENERGY STAR using the `energyStarHisPush`
+   func (or you can use the lower level `energyStarUsageWrite` func).
+
+Connectors [#conns]
+*******************
+An EnergyStar connector supports the following tags:
+
+  - `energyStarConn`: required marker tag
+  - `username`: account username
+  - 'password': must have password stored in [password db]`docHaxall::Folio#passwords`
+    for connector's record id
+  - `uri`: optional URI to support switching between the live
+    production server versus the test server
+
+The following URIs are used to access EnergyStar Portfolio Manager:
+
+  live: https://portfoliomanager.energystar.gov/ws
+  test: https://portfoliomanager.energystar.gov/wstest/
+
+The live version is assumed, unless the 'uri' tag is configured on the
+connector rec.
+
+The web services TEST environment 'https://portfoliomanager.energystar.gov/wstest/' is
+designed to help you test web services only. EPA offers a test server, with which
+you can exchange data via all of our web services. It is important to note that
+the TEST environment does not include any user interface, as there is no test
+version of the Portfolio Manager graphical user interface. Additionally, data
+that exists in the TEST environment cannot be transferred over to the LIVE environment
+
+The expectation is that exactly one EnergyStar connector is defined
+for a project.  If multiple connectors are defined, then the UI will
+not work (all the functions support multiple connectors).
+
+Site Mapping [#siteMapping]
+***************************
+Site records in SkySpark are mapped to ENERGY STAR properties as follows:
+
+  EnergyStar              SkySpark
+  -----------------       ----------------------
+  name                    dis
+  id                      energyStarSite (Str)
+  primaryFunction         primaryFunction
+  numberOfBuildings       always 1
+  yearBuilt               yearBuilt
+  constructionStatus      constructionStatus (defaults to Existing)
+  address.address1        geoStreet
+  address.city            geoCity
+  address.state           geoState
+  address.country         geoCountry
+  address.postalCode      geoPostalCode
+  grossFloorArea          area
+  occupancyPercentage     occupancyPercentage (defaults to 100%)
+  isFederalProperty       isFederalProperty (marker or defaults to false)
+
+See `primaryFunction` tag for valid string values.
+
+Meter Mapping [#meterMapping]
+*****************************
+EnergyStar doesn't have the concept of meter equipment versus meter points.
+So we map EnergyStar meters directly to SkySpark meter point records.  The
+mapping is:
+
+  EnergyStar              SkySpark
+  -----------------       ----------------------
+  name                    dis
+  id                      energyStarMeter (Str)
+  type                    energyStarMeterType (see below)
+  firstBillDate           firstBillDate (Date)
+  unitOfMeasure           unit
+  inUse                   always true
+  metered                 always true
+
+If the point's unit tag is "kWh", then the meter type is assumed to be
+"Electric".  Otherwise the point must define the `energyStarMeterType`
+tag with one of the valid string values.
+
+If the meter is a "waste" meter you must set the `energyStarMeterType` tag on
+the meter. Further, if the waste meter is setup for disposal in the ENERGY STAR
+Portfolio Manager, then you must set one or more of these tags on the meter with
+the appropriate percentages:
+
+- 'energyStarLandfillPercentage'
+- 'energyStarIncinerationPercentage'
+- 'energyStarWasteToEnergyPercentage'
+- 'energyStarUnknownDestPercentage'
+
+Property-Meter Associations [#associations]
+*******************************************
+The EnergyStar model requires an extra step to create an association
+between properties and meters before the meter usage can be used for scoring.
+Once you have defined and mapped your sites and meter points, you
+may use the `energyStarPropertyAssociationsPush` function to create
+a "Whole Site" association for all the meter points under a site.  This
+function can also be accessed in the Meters tab of the EnergyStarApp.
+
+EnergyStarApp [#app]
+********************
+The EnergyStarApp may be used to manage and your sites and meters.
+It provides the ability to create/update/delete properties and
+meters in the ENERGY STAR Portfolio Manager by mapping a SkySpark site
+to an ENERGY STAR "Property", and by mapping a SkySpark point to an
+ENERGY STAR "Meter". These mappings are done manually, but you can use the
+Details button to compare the SkySpark and EnergyStar version side-by-side.
+
+Note that the app only works if one connector is defined.
+

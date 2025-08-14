@@ -1,0 +1,80 @@
+//
+// Copyright (c) 2013, SkyFoundry LLC
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   25 Jun 2013  Brian Frank  Creation
+//    4 Jul 2019  Brian Frank  Refactor for new def design
+//
+
+
+--------------------------------------------------------------------------
+def: ^energyStarConnRef
+is: ^ref
+of: ^energyStarConn
+tagOn: [^energyStarMeter, ^energyStarSite]
+doc: Used on a proxy object to reference its parent `energyStarConn`
+--------------------------------------------------------------------------
+def: ^energyStarMeter
+is: ^str
+doc:
+  Tag applied to a `point` record which marks the point as mapped to a
+  meter in Portfolio Manager.  The tag value is the meter identifier in
+  the Energy Star system.
+--------------------------------------------------------------------------
+def: ^energyStarMeterType
+is: ^str
+tagOn: ^energyStarMeter
+doc:
+  String enum for EnergyStar meter type applied to `energyStarMeter` points.
+enum:
+  Coal Anthracite
+  Coal Bituminous
+  Coke
+  Diesel
+  District Chilled Water - Absorption Chiller using Natural Gas
+  District Chilled Water - Electric-Driven Chiller
+  District Chilled Water - Engine-Driven Chiller using Natural Gas
+  District Chilled Water - Other
+  District Hot Water
+  District Steam
+  Electric
+  Electric on Site Solar
+  Electric on Site Wind
+  Fuel Oil No 1
+  Fuel Oil No 2
+  Fuel Oil No 4
+  Fuel Oil No 5 or 6
+  Kerosene
+  Liquid Propane
+  Natural Gas
+  Other (Energy)
+  Propane
+  Wood
+  IT Equipment Input Energy (meters on each piece of equipment)
+  Power Distribution Unit (PDU) Input Energy
+  Power Distribution Unit (PDU) Output Energy
+  Uninterruptible Power Supply (UPS) Output Energy
+  Municipally Supplied Potable Water - Mixed Indoor/Outdoor
+  Municipally Supplied Potable Water - Indoor
+  Municipally Supplied Potable Water - Outdoor
+  Municipally Supplied Reclaimed Water - Mixed Indoor/Outdoor
+  Municipally Supplied Reclaimed Water - Indoor
+  Municipally Supplied Reclaimed Water - Outdoor
+  Other - Mixed Indoor/Outdoor (Water)
+  Other - Outdoor
+  Other - Indoor
+  Average Influent Flow
+  Well Water - Mixed Indoor/Outdoor
+  Well Water - Indoor
+  Well Water - Outdoor
+--------------------------------------------------------------------------
+def: ^energyStarSite
+is: ^str
+tagOn: ^site
+doc:
+  Tag applied to a `site` record which marks a site as mapped into
+  Portfolio Manager.  The tag value is the property identifier in
+  the Energy Star system.
+--------------------------------------------------------------------------
+

@@ -27,7 +27,8 @@ class Build : BuildGroup
       `hxObix/build.fan`,
       `sedona/build.fan`,
       `hxSedona/build.fan`,
-    ]
+      `hxEnergystar/build.fan`,
+     ]
   }
 }
 
