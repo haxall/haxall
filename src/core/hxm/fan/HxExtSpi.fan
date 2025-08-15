@@ -51,6 +51,7 @@ const class HxExtSpi : Actor, ExtSpi
       // create init object
       init := HxExtSpiInit
       {
+        it.boot      = boot
         it.rt        = exts.rt
         it.name      = name
         it.spec      = spec
@@ -332,6 +333,7 @@ class HxExtSpiInit
   const Str name
   const Spec spec
   const Dict settings
+  HxBoot? boot
   Type type
   ActorPool actorPool
   Log? log
