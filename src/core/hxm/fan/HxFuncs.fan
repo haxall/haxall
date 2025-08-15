@@ -19,7 +19,7 @@ const class HxFuncs
 {
 
 //////////////////////////////////////////////////////////////////////////
-// Folio Reads
+// Database Reads
 //////////////////////////////////////////////////////////////////////////
 
   **
@@ -218,41 +218,8 @@ const class HxFuncs
     return Number(cx.db.readCount(filter))
   }
 
-  ** Coerce a value to a Ref identifier:
-  **   - Ref returns itself
-  **   - Row or Dict, return 'id' tag
-  **   - Grid return first row id
-  @Api @Axon
-  static Ref toRecId(Obj? val) { Etc.toId(val) }
-
-  ** Coerce a value to a list of Ref identifiers:
-  **   - Ref returns itself as list of one
-  **   - Ref[] returns itself
-  **   - Dict return 'id' tag
-  **   - Dict[] return 'id' tags
-  **   - Grid return 'id' column
-  @Api @Axon
-  static Ref[] toRecIdList(Obj? val) { Etc.toIds(val) }
-
-  ** Coerce a value to a record Dict:
-  **   - Row or Dict returns itself
-  **   - Grid returns first row
-  **   - List returns first row (can be either Ref or Dict)
-  **   - Ref will make a call to read database
-  @Api @Axon
-  static Dict toRec(Obj? val) { Etc.toRec(val) }
-
-  ** Coerce a value to a list of record Dicts:
-  **   - null return empty list
-  **   - Ref or Ref[] (will make a call to read database)
-  **   - Row or Row[] returns itself
-  **   - Dict or Dict[] returns itself
-  **   - Grid is mapped to list of rows
-  @Api @Axon
-  static Dict[] toRecList(Obj? val) { Etc.toRecs(val) }
-
 //////////////////////////////////////////////////////////////////////////
-// Folio Writes
+// Database Writes
 //////////////////////////////////////////////////////////////////////////
 
   **
@@ -403,18 +370,44 @@ const class HxFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Proj
+// Coercion
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return `hx::Proj.isSteadyState`
+  ** Coerce a value to a Ref identifier:
+  **   - Ref returns itself
+  **   - Row or Dict, return 'id' tag
+  **   - Grid return first row id
   @Api @Axon
-  static Bool isSteadyState()
-  {
-    curContext.rt.isSteadyState
-  }
+  static Ref toRecId(Obj? val) { Etc.toId(val) }
+
+  ** Coerce a value to a list of Ref identifiers:
+  **   - Ref returns itself as list of one
+  **   - Ref[] returns itself
+  **   - Dict return 'id' tag
+  **   - Dict[] return 'id' tags
+  **   - Grid return 'id' column
+  @Api @Axon
+  static Ref[] toRecIdList(Obj? val) { Etc.toIds(val) }
+
+  ** Coerce a value to a record Dict:
+  **   - Row or Dict returns itself
+  **   - Grid returns first row
+  **   - List returns first row (can be either Ref or Dict)
+  **   - Ref will make a call to read database
+  @Api @Axon
+  static Dict toRec(Obj? val) { Etc.toRec(val) }
+
+  ** Coerce a value to a list of record Dicts:
+  **   - null return empty list
+  **   - Ref or Ref[] (will make a call to read database)
+  **   - Row or Row[] returns itself
+  **   - Dict or Dict[] returns itself
+  **   - Grid is mapped to list of rows
+  @Api @Axon
+  static Dict[] toRecList(Obj? val) { Etc.toRecs(val) }
 
 //////////////////////////////////////////////////////////////////////////
-// Namnespace
+// Libs
 //////////////////////////////////////////////////////////////////////////
 
   ** Reload all the xeto libraries in project
@@ -437,17 +430,6 @@ const class HxFuncs
   static Grid libs(Dict? opts := null)
   {
     curContext.rt.libs.status(opts)
-  }
-
-  ** Return grid of exts:
-  ** - name: library dotted name string
-  **  - libBasis: basis enumeration string
-  **  - extStatus: basis enumeration string
-  **  - other cols subject to change
-  @Api @Axon
-  static Grid exts(Dict? opts := null)
-  {
-    curContext.rt.exts.status(opts)
   }
 
   ** Enable one or more Xeto libs by name:
@@ -496,27 +478,19 @@ const class HxFuncs
   @NoDoc @Api @Axon { admin = true }
   static Str libDigest() { curContext.proj.ns.digest }
 
-  ** Return sys info dict
-  @NoDoc @Api @Axon
-  static Dict sysInfo() { curContext.sys.info.meta }
-
-  ** Return sys config dict
-  @NoDoc @Api @Axon
-  static Dict sysConfig() { curContext.sys.config.meta }
-
 //////////////////////////////////////////////////////////////////////////
-// Projects Exts
+// Exts
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return grid of enabled extensions and their current status.
-  ** Columns:
-  **  - name: library name of extension
-  **  - extStatus: status enumeration string
+  ** Return grid of exts:
+  ** - name: library dotted name string
+  **  - libBasis: basis enumeration string
+  **  - extStatus: basis enumeration string
   **  - other cols subject to change
   @Api @Axon
-  static Grid extStatus()
+  static Grid exts(Dict? opts := null)
   {
-    curContext.rt.exts.status
+    curContext.rt.exts.status(opts)
   }
 
   ** Report installed web routes as grid
@@ -573,42 +547,6 @@ const class HxFuncs
   {
     curContext.proj.specs.remove(name)
     return "removed"
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Observables
-//////////////////////////////////////////////////////////////////////////
-
-  // Return grid of observables registered in current project
-  @NoDoc @Api @Axon { admin = true }
-  static Grid observables()
-  {
-    cx := curContext
-    gb := GridBuilder()
-    gb.addCol("observable").addCol("subscriptions").addCol("doc")
-    cx.rt.obs.list.each |o|
-    {
-      doc := cx.defs.def(o.name, false)?.get("doc") ?: ""
-      gb.addRow([o.name, Number(o.subscriptions.size), doc])
-    }
-    return gb.toGrid
-  }
-
-  // Return grid of observable subscriptions in current project
-  @NoDoc @Api @Axon { admin = true }
-  static Grid subscriptions()
-  {
-    cx := curContext
-    gb := GridBuilder()
-    gb.addCol("observable").addCol("observer").addCol("config")
-    cx.rt.obs.list.each |o|
-    {
-      o.subscriptions.each |s|
-      {
-        gb.addRow([o.name, s.observer.toStr, s.configDebug])
-      }
-    }
-    return gb.toGrid
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -691,8 +629,59 @@ const class HxFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Observables
+//////////////////////////////////////////////////////////////////////////
+
+  // Return grid of observables registered in current project
+  @NoDoc @Api @Axon { admin = true }
+  static Grid observables()
+  {
+    cx := curContext
+    gb := GridBuilder()
+    gb.addCol("observable").addCol("subscriptions").addCol("doc")
+    cx.rt.obs.list.each |o|
+    {
+      doc := cx.defs.def(o.name, false)?.get("doc") ?: ""
+      gb.addRow([o.name, Number(o.subscriptions.size), doc])
+    }
+    return gb.toGrid
+  }
+
+  // Return grid of observable subscriptions in current project
+  @NoDoc @Api @Axon { admin = true }
+  static Grid subscriptions()
+  {
+    cx := curContext
+    gb := GridBuilder()
+    gb.addCol("observable").addCol("observer").addCol("config")
+    cx.rt.obs.list.each |o|
+    {
+      o.subscriptions.each |s|
+      {
+        gb.addRow([o.name, s.observer.toStr, s.configDebug])
+      }
+    }
+    return gb.toGrid
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Misc
 //////////////////////////////////////////////////////////////////////////
+
+  ** Return `hx::Proj.isSteadyState`
+  @Api @Axon
+  static Bool isSteadyState()
+  {
+    curContext.rt.isSteadyState
+  }
+
+  ** Return sys info dict
+  @NoDoc @Api @Axon
+  static Dict sysInfo() { curContext.sys.info.meta }
+
+  ** Return sys config dict
+  @NoDoc @Api @Axon
+  static Dict sysConfig() { curContext.sys.config.meta }
 
   ** Return [about]`op:about` dict
   @Api @Axon
