@@ -47,7 +47,7 @@ admin
 doc: Settings for the Docker extension
 src:
   view:   {inherit:"form"}
-  submit: {action:"extSettingsCommit"}
-  data:   {expr:"extSettings(\"hx.docker\")"}
+  submit: {action:"extSettingsFormCommit"}
+  data:   {expr:"extSettingsForm(\"hx.docker\")"}
 --------------------------------------------------------------------------
 
