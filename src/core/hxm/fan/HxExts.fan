@@ -113,7 +113,7 @@ const class HxExts : Actor, RuntimeExts
 
     gb := GridBuilder()
     gb.setMeta(Etc.dict1("projName", rt.name))
-    gb.addCol("qname").addCol("libBasis").addCol("extStatus").addCol("fantomType").addCol("statusMsg")
+    gb.addCol("name").addCol("libBasis").addCol("extStatus").addCol("fantomType").addCol("statusMsg")
     list.each |ext|
     {
       spi := (HxExtSpi)ext.spi

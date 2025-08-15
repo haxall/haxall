@@ -271,11 +271,18 @@ libDigest: Func <admin, nodoc> { returns: Str }
 // Return grid of exts:
 //  - name: library dotted name string
 //  - libBasis: basis enumeration string
+//  - extStatus: status enumeration string
 //  - other cols subject to change
 exts: Func { opts: Dict?, returns: Grid }
 
 // Report installed web routes as grid
 extWebRoutes: Func <nodoc> { returns: Grid }
+
+// Return ext settings dict for given dotted lib name
+extSettings: Func { name: Str, checked: Bool, returns: Dict }
+
+// Update ext settings for given dotted lib name
+extSettingsUpdate: Func <admin> { name: Str, changes: Dict, returns: Dict }
 
 //////////////////////////////////////////////////////////////////////////
 // Proj Specs

@@ -477,6 +477,29 @@ class HxFuncsTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Exts
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testExts()
+  {
+    // exts
+    Grid status := eval("exts()")
+    row := status.find { it->name == "hx.api" } ?: throw Err()
+    verifyEq(row["name"],      "hx.api")
+    verifyEq(row["libBasis"],  "boot")
+    verifyEq(row["extStatus"], "ok")
+
+    // extSettingsUpdate
+    eval("""extSettingsUpdate("hx.api", {foo:"bar"})""")
+    verifyEq(sys.ext("hx.api").settings["foo"], "bar")
+
+    // extSettings
+    Dict dict := eval("""extSettings("hx.api")""")
+    verifyEq(dict["foo"], "bar")
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // ProjSpecs
 //////////////////////////////////////////////////////////////////////////
 
