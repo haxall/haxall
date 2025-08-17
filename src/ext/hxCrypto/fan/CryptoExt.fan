@@ -26,7 +26,7 @@ const class CryptoExt : ExtObj, ICryptoExt
 
   new make()
   {
-    this.dir      = rt.dir.plus(`crypto/`).create
+    this.dir      = sys.varDir.plus(`crypto/`).create
     this.keystore = CryptoKeyStore(rt.exts.actorPool, dir, log, actorTimeout)
   }
 

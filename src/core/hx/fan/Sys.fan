@@ -17,6 +17,9 @@ const mixin Sys : Runtime
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
+  ** Top variable directory
+  abstract File varDir()
+
   ** System metadata
   abstract SysInfo info()
 

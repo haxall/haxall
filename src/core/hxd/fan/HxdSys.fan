@@ -31,6 +31,8 @@ const class HxdSys : HxRuntime, Sys, Proj
 
   override final Bool isProj() { true }
 
+  override File varDir() { this.dir }
+
   override const SysInfo info
 
   override const SysConfig config
