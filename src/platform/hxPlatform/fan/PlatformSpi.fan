@@ -11,8 +11,12 @@ using xeto
 **
 ** Platform service provider interface for basic functionality
 **
-const mixin PlatformSpi
+abstract const class PlatformSpi
 {
+  ** Parent extension
+  PlatformExt ext() { extRef }
+  private const PlatformExt? extRef
+
   ** Reboot the operating system and runtime process
   abstract Void reboot()
 

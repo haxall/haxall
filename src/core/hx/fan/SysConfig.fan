@@ -31,11 +31,13 @@ const class SysConfig
   ** Convenience for 'meta.get'
   @Operator Obj? get(Str name) { meta.get(name) }
 
-  ** Construct an service provider interface instance from given key
-  Obj makeSpi(Str key)
+  ** Construct a platform service provider interface instance from given key
+  Obj makePlatformSpi(Ext ext, Str key)
   {
     qname := get(key) ?: throw Err("Boot config missing key: $key")
-    return Type.find(qname).make
+    spi := Type.find(qname).make
+    spi.typeof.field("extRef")->setConst(spi, ext)
+    return spi
   }
 
   ** Is this a test system?

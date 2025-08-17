@@ -11,8 +11,12 @@
 ** provides access to the serial ports of the host platform. Concurrent access
 ** to this SPI is managed by the `SerialLib`.
 **
-const mixin PlatformSerialSpi
+abstract const class PlatformSerialSpi
 {
+  ** Parent extension
+  PlatformSerialExt ext() { extRef }
+  private const PlatformSerialExt? extRef
+
   ** List available ports and their current status
   abstract SerialPort[] ports()
 
@@ -23,3 +27,4 @@ const mixin PlatformSerialSpi
   abstract Void close(SerialSocket socket)
 
 }
+

@@ -30,8 +30,12 @@ using xeto
 ** Wifi type interfaces support following tags:
 **   - TODO: not complete yet
 **
-const mixin PlatformNetworkSpi
+const abstract class PlatformNetworkSpi
 {
+  ** Parent extension
+  PlatformNetworkExt ext() { extRef }
+  private const PlatformNetworkExt? extRef
+
   ** List the installed IP interface.
   ** See class header for modeling details.
   abstract Dict[] interfaces()

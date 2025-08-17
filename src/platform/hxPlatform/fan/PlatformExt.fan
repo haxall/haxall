@@ -14,10 +14,12 @@ using hx
 **
 const class PlatformExt : ExtObj, IPlatformExt
 {
+  new make()
+  {
+    this.platformSpi = sys.config.makePlatformSpi(this, "platformSpi")
+  }
 
-  new make() { this.platformSpi = sys.config.makeSpi("platformSpi") }
-
-  override Void reboot() { platformSpi.info }
+  override Void reboot() { platformSpi.reboot }
 
   override Void restart() { platformSpi.restart }
 

@@ -118,7 +118,9 @@ abstract class HxBoot
   **   - safeMode: don't start exts (SkySpark only)
   **   - apiExtWeb: qname for ApiExt ExtWeb class
   **   - platformSpi: qname for hxPlatform::PlatformSpi class
+  **   - platformNetworkSpi: qname for hxPlatformNetwork::PlatformNetworkSpi class
   **   - platformSerialSpi: qname for hxPlatformSerial::PlatformSerialSpi class
+  **   - platformTimeSpi: qname for hxPlatformTime::PlatformTimeSpi class
   **   - newProjExts: comma separated list of project exts
   **   - hxLic: license Str or load from lic/xxx.trio
   **

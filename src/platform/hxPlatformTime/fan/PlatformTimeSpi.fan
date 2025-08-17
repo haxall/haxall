@@ -9,8 +9,12 @@
 **
 ** Platform service provider interface for date and time
 **
-const mixin PlatformTimeSpi
+abstract const class PlatformTimeSpi
 {
+  ** Parent extension
+  PlatformTimeExt ext() { extRef }
+  private const PlatformTimeExt? extRef
+
   ** Set the current date, time, and timezone from DateTime.
   ** A restart is required to bring JVM back into a consistent state.
   abstract Void timeSet(DateTime ts)
@@ -22,3 +26,4 @@ const mixin PlatformTimeSpi
   ** Set the list of network time protocol server addresses.
   abstract Void ntpServersSet(Str[] addresses)
 }
+
