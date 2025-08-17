@@ -31,6 +31,7 @@ abstract const class HxRuntime : Runtime
     this.name          = boot.name
     this.id            = Ref("p:$name", name)
     this.dir           = boot.dir
+    this.tempDir       = boot.dir + `temp/`
     this.tb            = boot.initTextBase
     this.dbRef         = boot.initFolio
     this.db.hooks      = boot.initFolioHooks(this)
@@ -84,6 +85,9 @@ abstract const class HxRuntime : Runtime
 
   ** Runtime directory.
   override const File dir
+
+  ** Temp directory
+  const File tempDir
 
   ** Runtime level meta data stored in the `projMeta` database record
   override Dict meta() { metaRef.val }
