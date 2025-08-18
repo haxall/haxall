@@ -16,12 +16,12 @@ using xetom
 @Js
 internal class ADepends
 {
-  new make(XetoCompiler compiler)
+  new make(MXetoCompiler compiler)
   {
     this.compiler = compiler
   }
 
-  XetoCompiler compiler                 // make
+  MXetoCompiler compiler                // make
   MLibDepend[]? list                    // ProcessPragma
   [Str:XetoLib]? libs                   // Resolve
   private Str:CSpec? globals := [:]     // resolveGlobals

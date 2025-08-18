@@ -17,13 +17,13 @@ using xetom
 internal abstract class ADoc : ANode
 {
    ** Constructor
-  new make(XetoCompiler c, FileLoc loc) : super(loc)
+  new make(MXetoCompiler c, FileLoc loc) : super(loc)
   {
     this.compiler = c
   }
 
   ** Compiler
-  XetoCompiler compiler { private set }
+  MXetoCompiler compiler { private set }
 
   ** Instance data
   Str:AInstance instances := [:] { ordered = true }
@@ -56,7 +56,7 @@ internal abstract class ADoc : ANode
 internal class ADataDoc : ADoc
 {
    ** Constructor
-  new make(XetoCompiler c, FileLoc loc) : super(c, loc) {}
+  new make(MXetoCompiler c, FileLoc loc) : super(c, loc) {}
 
   ** Root data object wrapped - set by Parser.parseDataFile
   AData? root

@@ -180,7 +180,7 @@ const class ServerEnv : MEnv
   override XetoLib compile(MNamespace ns, LibVersion v)
   {
     build := ns.opts.get("build") as Str:File
-    c := XetoCompiler
+    c := MXetoCompiler
     {
       it.ns      = ns
       it.libName = v.name
@@ -203,7 +203,7 @@ const class ServerEnv : MEnv
                 >
                 """ + src
 
-    c := XetoCompiler
+    c := MXetoCompiler
     {
       it.ns      = ns
       it.libName = libName
@@ -216,7 +216,7 @@ const class ServerEnv : MEnv
 
   override Obj? compileData(MNamespace ns, Str src, Dict? opts := null)
   {
-    c := XetoCompiler
+    c := MXetoCompiler
     {
       it.ns    = ns
       it.input = src.toBuf.toFile(`parse.xeto`)

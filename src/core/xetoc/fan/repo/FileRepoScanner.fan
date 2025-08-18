@@ -101,7 +101,7 @@ internal class FileRepoScanner
   {
     try
     {
-      c := XetoCompiler
+      c := MXetoCompiler
       {
         it.libName = name
         it.input   = lib

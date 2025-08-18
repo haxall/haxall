@@ -17,7 +17,7 @@ using xetom
 @Js
 abstract internal class Step
 {
-  XetoCompiler? compiler
+  MXetoCompiler? compiler
 
   abstract Void run()
 

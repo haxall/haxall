@@ -51,7 +51,7 @@ internal class ASpec : ANode, CSpec
   ALib lib { private set }
 
   ** Reference to compiler
-  XetoCompiler compiler() { lib.compiler }
+  MXetoCompiler compiler() { lib.compiler }
 
   ** Reference to system types
   ASys sys() { lib.compiler.sys }

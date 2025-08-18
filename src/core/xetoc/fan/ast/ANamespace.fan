@@ -109,7 +109,7 @@ internal class ANamespace : CNamespace
   }
 
   const MNamespace? ns
-  XetoCompiler compiler
+  MXetoCompiler compiler
   Str:Obj metaSpecs := [:]
   Str:Obj globals := [:]
 }

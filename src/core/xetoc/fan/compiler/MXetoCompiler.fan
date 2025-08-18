@@ -15,7 +15,7 @@ using xetom
 ** Xeto compiler
 **
 @Js
-internal class XetoCompiler
+internal class MXetoCompiler
 {
 
 //////////////////////////////////////////////////////////////////////////

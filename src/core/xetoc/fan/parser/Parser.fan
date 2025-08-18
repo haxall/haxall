@@ -773,7 +773,7 @@ internal class Parser
 //////////////////////////////////////////////////////////////////////////
 
   private Step step
-  private XetoCompiler compiler
+  private MXetoCompiler compiler
   private Str? libName
   private ASys sys
   private FileLoc fileLoc
