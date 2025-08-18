@@ -93,7 +93,11 @@ internal class RemoteLoader
       if (b != null) return b
     }
 
-    // fallback to dict/scalar factory
+    // try use base type's binding
+    b = x.base?.binding
+    if (b != null) return b
+
+    // last case fallback to dict/scalar factory
     isScalar := MSpecFlags.scalar.and(x.flags) != 0
     return isScalar ? GenericScalarBinding(x.qname) : bindings.dict
   }
