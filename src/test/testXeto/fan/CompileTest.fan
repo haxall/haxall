@@ -227,7 +227,7 @@ class CompileTest : AbstractXetoTest
     ns := createNamespace(["sys"])
 
     // first test with triple quotes
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
        Str<|Foo: {
               bar: """
               line 1
@@ -246,7 +246,7 @@ class CompileTest : AbstractXetoTest
            |>)
 
     // same with heredoc
-    lib = ns.compileLib(
+    lib = ns.compileTempLib(
        Str<|Foo: {
               bar: ---
               line 1
@@ -265,7 +265,7 @@ class CompileTest : AbstractXetoTest
            |>)
 
     // tabs
-    lib = ns.compileLib(
+    lib = ns.compileTempLib(
        """Foo: {
             \tbar: ---
             \t line 1
@@ -284,7 +284,7 @@ class CompileTest : AbstractXetoTest
            |>)
 
     // heredoc don't use escape sequences
-    lib = ns.compileLib(
+    lib = ns.compileTempLib(
        Str<|Foo: {
               bar: ---
               line1: "foo"
@@ -301,7 +301,7 @@ class CompileTest : AbstractXetoTest
            |>)
 
     // heredoc with multiple -
-    lib = ns.compileLib(
+    lib = ns.compileTempLib(
        Str<|Foo: {
               bar: -----
               line1
@@ -379,7 +379,7 @@ class CompileTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|A: {
             n: Number <minVal:0, maxVal:100>
             i: Int <minVal:0, maxVal:100>
@@ -407,7 +407,7 @@ class CompileTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|Person: Dict {
              person
              first: Str
@@ -525,7 +525,7 @@ class CompileTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|A: {
              foo: Number <a> 123  // a-doc
            }
@@ -632,7 +632,7 @@ class CompileTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
        Str<|A: Dict <baz, foo: NA "na"> {
               foo: Date <bar, qux> "2023-04-07"
             }
@@ -677,7 +677,7 @@ class CompileTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
        Str<|A: {
               enum: Str?    // nullable
               foo:  Str?    // nullable
@@ -749,7 +749,7 @@ class CompileTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
        Str<|Foo: {
               a: List<of:Foo>
               b: List<of:Spec>

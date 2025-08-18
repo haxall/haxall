@@ -188,6 +188,43 @@ const class ServerEnv : MEnv
     return c.compileLib
   }
 
+  override Lib compileTempLib(MNamespace ns, Str src, Dict? opts := null)
+  {
+    if (opts == null) opts = Etc.dict0
+
+    libName := "temp" + compileCount.getAndIncrement
+
+    if (!src.startsWith("pragma:"))
+      src = """pragma: Lib <
+                  version: "0.0.0"
+                  depends: { { lib: "sys" } }
+                >
+                """ + src
+
+    c := XetoCompiler
+    {
+      it.ns      = ns
+      it.libName = libName
+      it.input   = src.toBuf.toFile(`temp.xeto`)
+      it.applyOpts(opts)
+    }
+
+    return c.compileLib
+  }
+
+  override Obj? compileData(MNamespace ns, Str src, Dict? opts := null)
+  {
+    c := XetoCompiler
+    {
+      it.ns    = ns
+      it.input = src.toBuf.toFile(`parse.xeto`)
+      it.applyOpts(opts)
+    }
+    return c.compileData
+  }
+
+  private const AtomicInt compileCount := AtomicInt()
+
 //////////////////////////////////////////////////////////////////////////
 // Debug
 //////////////////////////////////////////////////////////////////////////

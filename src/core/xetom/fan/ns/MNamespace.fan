@@ -811,6 +811,16 @@ abstract const class MNamespace : LibNamespace, CNamespace
     Printer(this, out, opts ?: Etc.dict0).print(val)
   }
 
+  override final Obj? compileData(Str src, Dict? opts := null)
+  {
+    envRef.compileData(this, src, opts)
+  }
+
+  override final Lib compileTempLib(Str src, Dict? opts := null)
+  {
+    envRef.compileTempLib(this, src, opts)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // CNamespace
 //////////////////////////////////////////////////////////////////////////

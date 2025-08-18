@@ -103,11 +103,6 @@ abstract const class MEnv : XetoEnv
     return null
   }
 
-  ** Hook to to compile
-  protected virtual XetoLib compile(LibNamespace ns, LibVersion v)
-  {
-    throw UnsupportedErr("Lib cannot be compiled, must be preloaded: $v")
-  }
 
   ** Clear the lib cache
   protected Void libCacheClear() { libsByName.clear }
@@ -116,8 +111,20 @@ abstract const class MEnv : XetoEnv
   private const ConcurrentMap libsByName := ConcurrentMap()
 
 //////////////////////////////////////////////////////////////////////////
-// Build
+// Compile
 //////////////////////////////////////////////////////////////////////////
+
+  ** Hook to to compile specific lib version
+  virtual XetoLib compile(LibNamespace ns, LibVersion v)
+  {
+    throw UnsupportedErr("Lib cannot be compiled, must be preloaded: $v")
+  }
+
+  ** Compile temp lib from source for given namespace
+  virtual Lib compileTempLib(MNamespace ns, Str src, Dict? opts := null)  { throw UnsupportedErr() }
+
+  ** Compile data for given namespace
+  virtual Obj? compileData(MNamespace ns, Str src, Dict? opts := null)  { throw UnsupportedErr() }
 
   ** Run build thru this env
   virtual LibNamespace build(LibVersion[] build) { throw UnsupportedErr() }

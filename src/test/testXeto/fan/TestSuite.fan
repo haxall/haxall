@@ -174,7 +174,7 @@ class DataTestCase
 
   Void compileLib(Str src)
   {
-    this.libRef = compile |opts| { ns.compileLib(src, opts) }
+    this.libRef = compile |opts| { ns.compileTempLib(src, opts) }
     if (runner.verbose && libRef != null) echo(genAst(libRef))
     //env.print(libRef)
   }

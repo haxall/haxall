@@ -25,7 +25,7 @@ class GlobalTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|// Person global slot marker
            person: Marker <xTest>
 
@@ -113,7 +113,7 @@ class GlobalTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|a: Str <foo> "alpha"
            b: Date <bar> "2023-12-03"
            c: Marker <foo, bar>
@@ -186,7 +186,7 @@ class GlobalTest : AbstractXetoTest
   {
     ns := createNamespace(["sys", "ph"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" } } >
 
            Foo: Dict {
@@ -223,7 +223,7 @@ class GlobalTest : AbstractXetoTest
     // we want to verify that constrained query slots don't use global slots
 
     ns := createNamespace(["sys", "ph", "ph.points"])
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" }, { lib:"ph.points" } } >
 
            Foo: Equip {

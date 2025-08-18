@@ -25,7 +25,7 @@ class SpecTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|a: Str <meta>
            b: Str <meta>
            c: Str <meta>
@@ -289,7 +289,7 @@ class SpecTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|Foo: Dict {
              bar: Str?
              baz: Foo?
@@ -342,7 +342,7 @@ class SpecTest : AbstractXetoTest
   {
     ns := createNamespace(["sys"])
 
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|Foo: Dict
            Bar: Dict
            FooBar : Foo & Bar
@@ -460,7 +460,7 @@ class SpecTest : AbstractXetoTest
   Void testQueryInherit()
   {
     ns := createNamespace(["ph"])
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|pragma: Lib < version: "0.0.0", depends: { { lib:"sys" }, { lib:"ph" } } >
            AhuA: Equip {
              points: {

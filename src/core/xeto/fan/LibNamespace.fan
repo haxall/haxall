@@ -257,11 +257,6 @@ const mixin LibNamespace
 // Compile
 //////////////////////////////////////////////////////////////////////////
 
-  ** Compile Xeto source code into a temp library.  All dependencies are
-  ** resolved against this namespace.  Raise exception if there are any
-  ** syntax or semantic errors.
-  abstract Lib compileLib(Str src, Dict? opts := null)
-
   ** Compile a Xeto data file into an in-memory value. All dependencies are
   ** resolved against this namespace.  Raise exception if there are any
   ** syntax or semantic errors.  If the file contains a scalar value or
@@ -275,6 +270,11 @@ const mixin LibNamespace
   ** Convenience for `compileData` but always returns data as list of dicts.
   ** If the data is not a Dict nor list of Dicts, then raise an exception.
   abstract Dict[] compileDicts(Str src, Dict? opts := null)
+
+  ** Compile Xeto source code into a temp library.  All dependencies are
+  ** resolved against this namespace.  Raise exception if there are any
+  ** syntax or semantic errors.
+  @NoDoc abstract Lib compileTempLib(Str src, Dict? opts := null)
 
   ** Write instance data in Xeto text format to an output stream.  If the
   ** value is a Dict[], then it is flattened in the output.  Use `compileData`

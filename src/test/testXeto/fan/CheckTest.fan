@@ -54,7 +54,7 @@ class CheckTest : AbstractXetoTest
          """
 
     ns := createNamespace
-    lib := ns.compileLib(src)
+    lib := ns.compileTempLib(src)
     spec := lib.type("Foo").slot("x")
 
     actual := Str[,]

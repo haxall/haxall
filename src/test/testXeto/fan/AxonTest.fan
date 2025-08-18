@@ -482,7 +482,7 @@ class AxonTest : AbstractAxonTest
     verifyEvalErr("""query($drun.id.toCode, spec("ph::Equip.points"), true)""", UnknownRecErr#)
 
     // compile some types with query constraints
-    lib := ns.compileLib(
+    lib := ns.compileTempLib(
       Str<|pragma: Lib < version: 0.0.0, depends: { { lib:"sys" }, { lib:"ph" } } >
            Ahu1: ph::Equip {
              points: {

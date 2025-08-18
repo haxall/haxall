@@ -484,7 +484,7 @@ class ValidateTest : AbstractXetoTest
     opts := logOpts("log", errs)
     Lib? lib
     try
-      lib = nsTest.compileLib(src, opts)
+      lib = nsTest.compileTempLib(src, opts)
     catch (Err e)
       {}
 
@@ -496,7 +496,7 @@ class ValidateTest : AbstractXetoTest
   {
     src = srcAddPragma(src)
     instance = toInstance(instance)
-    lib  := nsTest.compileLib(src)
+    lib  := nsTest.compileTempLib(src)
     spec := lib.spec("Foo")
     errs := XetoLogRec[,]
     opts := logOpts("explain", errs)

@@ -40,46 +40,6 @@ const class LocalNamespace : MNamespace
       f(null, e)
   }
 
-//////////////////////////////////////////////////////////////////////////
-// Compiling
-//////////////////////////////////////////////////////////////////////////
-
-  override Lib compileLib(Str src, Dict? opts := null)
-  {
-    if (opts == null) opts = Etc.dict0
-
-    libName := "temp" + compileCount.getAndIncrement
-
-    if (!src.startsWith("pragma:"))
-      src = """pragma: Lib <
-                  version: "0.0.0"
-                  depends: { { lib: "sys" } }
-                >
-                """ + src
-
-    c := XetoCompiler
-    {
-      it.ns      = this
-      it.libName = libName
-      it.input   = src.toBuf.toFile(`temp.xeto`)
-      it.applyOpts(opts)
-    }
-
-    return c.compileLib
-  }
-
-  override Obj? compileData(Str src, Dict? opts := null)
-  {
-    c := XetoCompiler
-    {
-      it.ns    = this
-      it.input = src.toBuf.toFile(`parse.xeto`)
-      it.applyOpts(opts)
-    }
-    return c.compileData
-  }
-
-  private const AtomicInt compileCount := AtomicInt()
 }
 
 

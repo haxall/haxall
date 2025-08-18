@@ -27,16 +27,6 @@ const class RemoteNamespace : MNamespace
 
   override Bool isRemote() { true }
 
-  override Lib compileLib(Str src, Dict? opts := null)
-  {
-    throw UnsupportedErr()
-  }
-
-  override Obj? compileData(Str src, Dict? opts := null)
-  {
-    throw UnsupportedErr()
-  }
-
   override Void doLoadAsync(LibVersion v, |Err?, Obj?| f)
   {
     if (libLoader == null) throw UnsupportedErr("No RemoteLibLoader installed")
