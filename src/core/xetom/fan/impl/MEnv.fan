@@ -114,20 +114,91 @@ abstract const class MEnv : XetoEnv
 // Compile
 //////////////////////////////////////////////////////////////////////////
 
-  ** Hook to to compile specific lib version
-  virtual XetoLib compile(MNamespace ns, LibVersion v)
+  ** Compile specific lib
+  private XetoLib compile(MNamespace ns, LibVersion v)
   {
-    throw UnsupportedErr("Lib cannot be compiled, must be preloaded: $v")
+    build := ns.opts.get("build") as Str:File
+    c := XetoCompiler.init
+    {
+      it.ns      = ns
+      it.libName = v.name
+      it.input   = v.file
+      it.build   = build?.get(v.name)
+    }
+    return c.compileLib
   }
 
-  ** Compile temp lib from source for given namespace
-  virtual Lib compileTempLib(MNamespace ns, Str src, Dict? opts := null)  { throw UnsupportedErr() }
+  ** Compile temp lib from source
+  Lib compileTempLib(MNamespace ns, Str src, Dict opts)
+  {
+    libName := "temp" + tempCompileCount.getAndIncrement
 
-  ** Compile data for given namespace
-  virtual Obj? compileData(MNamespace ns, Str src, Dict? opts := null)  { throw UnsupportedErr() }
+    if (!src.startsWith("pragma:"))
+      src = """pragma: Lib <
+                  version: "0.0.0"
+                  depends: { { lib: "sys" } }
+                >
+                """ + src
 
-  ** Run build thru this env
-  virtual LibNamespace build(LibVersion[] build) { throw UnsupportedErr() }
+    c := XetoCompiler.init
+    {
+      it.ns      = ns
+      it.libName = libName
+      it.input   = src.toBuf.toFile(`temp.xeto`)
+      it.applyOpts(opts)
+    }
+
+    return c.compileLib
+  }
+
+  ** Compile data
+  Obj? compileData(MNamespace ns, Str src, Dict opts)
+  {
+    c := XetoCompiler.init
+    {
+      it.ns    = ns
+      it.input = src.toBuf.toFile(`parse.xeto`)
+      it.applyOpts(opts)
+    }
+    return c.compileData
+  }
+
+  private const AtomicInt tempCompileCount := AtomicInt()
+
+//////////////////////////////////////////////////////////////////////////
+// Build
+//////////////////////////////////////////////////////////////////////////
+
+  ** Run build thru this env (not really thread safe)
+  LibNamespace build(LibVersion[] build)
+  {
+    // turn verions to lib depends
+    buildAsDepends := build.map |v->LibDepend|
+    {
+      if (!v.isSrc) throw ArgErr("Not source lib: $v")
+      return MLibDepend(v.name, LibDependVersions(v.version))
+    }
+
+    // solve dependency graph for full list of libs
+    libs := repo.solveDepends(buildAsDepends)
+
+    // build map of lib name to
+    buildFiles := Str:File[:]
+    build.each |v| { buildFiles[v.name] = XetoUtil.srcToLibZip(v) }
+
+    // create namespace and force all libs to be compiled
+    libCacheClear
+    ns := MNamespace(this, libs, Etc.dict1("build", buildFiles))
+    ns.libs
+
+    // report which libs could not be compiled
+    ns.versions.each |v|
+    {
+      if (ns.libStatus(v.name).isErr) echo("ERROR: could not compile $v.name.toCode")
+    }
+
+    return ns
+  }
 
 }
 

@@ -823,12 +823,12 @@ const class MNamespace : LibNamespace, CNamespace
 
   override final Obj? compileData(Str src, Dict? opts := null)
   {
-    envRef.compileData(this, src, opts)
+    envRef.compileData(this, src, opts ?: Etc.dict0)
   }
 
   override final Lib compileTempLib(Str src, Dict? opts := null)
   {
-    envRef.compileTempLib(this, src, opts)
+    envRef.compileTempLib(this, src, opts ?: Etc.dict0)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -15,7 +15,7 @@ using xetom
 ** Xeto compiler
 **
 @Js
-internal class MXetoCompiler
+internal class MXetoCompiler : XetoCompiler
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -31,39 +31,11 @@ internal class MXetoCompiler
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Inputs
-//////////////////////////////////////////////////////////////////////////
-
-  ** Namespace used for depends resolution
-  MNamespace? ns
-
-  ** Environment
-  XetoEnv env := XetoEnv.cur
-
-  ** Logging
-  XetoLog log := XetoLog.makeOutStream
-
-  ** Input as in-memory file, zip file, or source directory
-  File? input
-
-  ** Dotted name of library to compile
-  Str? libName
-
-  ** If set, then build this libraries xetolib zip to this file
-  File? build
-
-  ** Are we building a xetolib zip
-  Bool isBuild() { build != null }
-
-  ** Build vars from source environment
-  Str:Str srcBuildVars() { env.buildVars }
-
-//////////////////////////////////////////////////////////////////////////
 // Options
 //////////////////////////////////////////////////////////////////////////
 
   ** Apply options
-  Void applyOpts(Dict? opts)
+  override Void applyOpts(Dict? opts)
   {
     if (opts == null) return
 
@@ -78,7 +50,7 @@ internal class MXetoCompiler
 //////////////////////////////////////////////////////////////////////////
 
   ** Compile input directory to library
-  Lib compileLib()
+  override Lib compileLib()
   {
     run([
       InitLib(),
@@ -101,7 +73,7 @@ internal class MXetoCompiler
   }
 
   ** Compile input to instance data
-  Obj? compileData()
+  override Obj? compileData()
   {
     run([
       InitData(),
@@ -117,7 +89,7 @@ internal class MXetoCompiler
 
   ** Parse only the lib.xeto file into version, doc, and depends.
   ** Must setup libName and input to the "lib.xeto" file
-  LibVersion parseLibVersion()
+  override LibVersion parseLibVersion()
   {
     run([
       InitLibVersion(),
