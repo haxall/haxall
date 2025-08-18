@@ -164,7 +164,7 @@ mixin Comp
 //////////////////////////////////////////////////////////////////////////
 
   ** Debug dump the component tree to the console
-  @NoDoc virtual Void dump(Console con := Console.cur, Obj? opts := null) { spi.dump(con, opts) }
+  @NoDoc virtual Void dump(Console? con := null, Obj? opts := null) { spi.dump(con, opts) }
 
 }
 
@@ -262,6 +262,6 @@ mixin CompSpi
   abstract Bool hasChild(Str name)
   abstract Comp? child(Str name, Bool checked)
   abstract Void eachChild(|Comp,Str| f)
-  abstract Void dump(Console con, Obj? opts)
+  abstract Void dump(Console? con, Obj? opts)
 }
 

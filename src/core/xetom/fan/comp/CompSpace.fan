@@ -108,13 +108,10 @@ class CompSpace : AbstractCompSpace
     return this
   }
 
-  ** Save tree to eto instances
+  ** Save tree to xeto instances
   Str save()
   {
-    rootDict := CompUtil.compSave(root)
-    buf := StrBuf()
-    ns.writeData(buf.out, rootDict)
-    return buf.toStr
+    CompUtil.compSaveToXeto(ns, root)
   }
 
   private Dict parse(Str xeto)

@@ -472,7 +472,7 @@ class Printer
       if (subId != null)
       {
         if (!autoName) w(" ")
-        w(" @").w(subId)
+        w("@").w(subId)
       }
       if (needColon) colon
       xeto(v).nl

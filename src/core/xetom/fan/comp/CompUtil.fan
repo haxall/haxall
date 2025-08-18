@@ -39,8 +39,16 @@ class CompUtil
       .toStr
   }
 
+  ** Encode a component into a xeto string
+  static Str compSaveToXeto(LibNamespace ns, Comp comp)
+  {
+    buf := StrBuf()
+    ns.writeData(buf.out, compSaveToDict(comp))
+    return buf.toStr
+  }
+
   ** Encode a component into a sys.comp::Comp dict representation (with children)
-  static Dict compSave(Comp comp)
+  static Dict compSaveToDict(Comp comp)
   {
     acc := Str:Obj[:]
     spec := comp.spec
@@ -49,6 +57,9 @@ class CompUtil
     {
       // must have spec tag
       if (n == "spec") { acc[n] = v; return }
+
+      // don't encode dis
+      if (n == "dis") return
 
       // skip transients
       slot := spec.slot(n, false)
@@ -61,7 +72,7 @@ class CompUtil
       if (links.isLinked(n)) return
 
       // recurse component sub-tree
-      if (v is Comp) v = compSave(v)
+      if (v is Comp) v = compSaveToDict(v)
 
       // save this name/value pair
       acc[n] = v

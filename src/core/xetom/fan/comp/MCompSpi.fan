@@ -357,9 +357,20 @@ class MCompSpi : CompSpi
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  override Void dump(Console con, Obj? opts)
+  override Void dump(Console? con, Obj? opts)
   {
-    doDump(con, comp, null, Etc.makeDict(opts))
+    if (con == null) con = Console.cur
+    if (opts is Str) opts = opts.toStr.split(',')
+    optsDict := Etc.makeDict(opts)
+
+    if (optsDict.has("xeto"))
+    {
+      xeto := CompUtil.compSaveToXeto(cs.ns, comp)
+      con.info(xeto)
+      return
+    }
+
+    doDump(con, comp, null, optsDict)
   }
 
   private static Void doDump(Console con, Comp c, Str? name, Dict opts)
