@@ -266,7 +266,7 @@ const class TestServer
 **************************************************************************
 
 @Js
-const class TestClient : RemoteLibLoader
+const class TestClient //: RemoteLibLoader
 {
   new make(TestServer server) { this.server = server }
 
@@ -292,6 +292,7 @@ const class TestClient : RemoteLibLoader
     return this
   }
 
+  /*
   override Void loadLib(Str name, |Err?, Obj?| f)
   {
     serverLib := server.ns.lib(name, false)
@@ -304,6 +305,7 @@ const class TestClient : RemoteLibLoader
     remoteEnv.loadLibs(buf.flip.in)
     f(null, remoteEnv.get(name))
   }
+  */
 }
 
 **************************************************************************

@@ -23,6 +23,7 @@ const class RemoteNamespace : MNamespace
   {
   }
 
+/*
   const RemoteLibLoader? libLoader
 
   override Void doLoadAsync(LibVersion v, |Err?, Obj?| f)
@@ -30,6 +31,7 @@ const class RemoteNamespace : MNamespace
     if (libLoader == null) throw UnsupportedErr("No RemoteLibLoader installed")
     libLoader.loadLib(v.name, f)
   }
+  */
 }
 
 **************************************************************************
@@ -37,9 +39,11 @@ const class RemoteNamespace : MNamespace
 **************************************************************************
 
 ** Handler to async load a remote lib
+/*
 @Js
 const mixin RemoteLibLoader
 {
   abstract Void loadLib(Str name, |Err?, Obj?| f)
 }
+*/
 

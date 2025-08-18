@@ -20,16 +20,16 @@ const class LocalNamespace : MNamespace
   new make(LocalNamespaceInit init)
     : super(init.env, init.versions, init.opts)
   {
-    this.repo  = init.repo
+//    this.repo  = init.repo
   }
 
-  const LibRepo repo
+//  const LibRepo repo
 
 //////////////////////////////////////////////////////////////////////////
 // Loading
 //////////////////////////////////////////////////////////////////////////
 
-
+/*
   override Void doLoadAsync(LibVersion version, |Err?, Obj?| f)
   {
     try
@@ -37,7 +37,7 @@ const class LocalNamespace : MNamespace
     catch (Err e)
       f(null, e)
   }
-
+*/
 }
 
 

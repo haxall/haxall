@@ -363,7 +363,15 @@ abstract const class MNamespace : LibNamespace, CNamespace
 
   ** Load a list of versions asynchronously and return result
   ** of either a XetoLib or Err (is error on server)
-  abstract Void doLoadAsync(LibVersion v, |Err?, Obj?| f)
+  Void doLoadAsync(LibVersion v, |Err?, Obj?| f)
+  {
+    // previously in remote ns we would route to a remote loader here;
+    // but in the current design just load sync which routes to env
+    try
+      f(null, doLoadSync(v))
+    catch (Err e)
+      f(null, e)
+  }
 
 //////////////////////////////////////////////////////////////////////////
 // Lookups
