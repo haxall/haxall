@@ -30,7 +30,7 @@ const class RemoteLibVersion : LibVersion
 
   override Str doc() { "" }
 
-  override Bool isSysOnly() { false }
+  override Int flags() { 0 } // not supported client side
 
   override File? file(Bool checked := true)
   {

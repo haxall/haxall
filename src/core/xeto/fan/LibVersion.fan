@@ -36,9 +36,6 @@ const mixin LibVersion
   ** Return "name-version"
   override abstract Str toStr()
 
-  ** Is this a sys only library
-  @NoDoc abstract Bool isSysOnly()
-
   ** Get this exact version as LibDepend instance
   @NoDoc LibDepend asDepend()
   {
@@ -140,5 +137,14 @@ const mixin LibVersion
   {
     x.depends.all |d| { left.all |q| { q.name != d.name } }
   }
+
+  ** Bitmask flags
+  @NoDoc abstract Int flags()
+
+  ** Is this a haxall sys only library
+  @NoDoc Bool isHxSysOnly() { flags.and(flagHxSysOnly) != 0 }
+
+  static const Int flagHxSysOnly := 0x01
+
 }
 

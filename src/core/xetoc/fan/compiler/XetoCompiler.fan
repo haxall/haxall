@@ -129,7 +129,7 @@ internal class XetoCompiler
     dir := input.parent
 
     flags := 0
-    if (lib.meta.has("sysOnly")) flags = flags.or(FileLibVersion.flagSysOnly)
+    if (lib.meta.has("hxSysOnly")) flags = flags.or(LibVersion.flagHxSysOnly)
 
     return FileLibVersion(libName, lib.version, dir, doc, flags, depends.list)
   }

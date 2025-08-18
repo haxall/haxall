@@ -456,7 +456,7 @@ const class HxLib : RuntimeLib
   {
     this.ver       = ver
     this.basis     = basis
-    this.isSysOnly = ver.isSysOnly || isSysOnlyName(ver.name)
+    this.isSysOnly = ver.isHxSysOnly || isSysOnlyName(ver.name)
   }
 
   static Bool isSysOnlyName(Str n)

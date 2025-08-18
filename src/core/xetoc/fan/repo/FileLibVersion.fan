@@ -23,7 +23,7 @@ const class FileLibVersion : LibVersion
     this.toStr      = "$name-$version"
     this.fileRef    = file
     this.docRef     = doc
-    this.flags      = flags
+    this.flagsRef   = flags
     this.dependsRef = depends?.toImmutable
   }
 
@@ -91,10 +91,8 @@ const class FileLibVersion : LibVersion
   override Str doc() { loadMeta.docRef }
   private const Str? docRef
 
-  override Bool isSysOnly() { loadMeta.flags.and(flagSysOnly) != 0 }
-  private const Int flags
-
-  static const Int flagSysOnly := 0x01
+  override Int flags() { loadMeta.flagsRef }
+  private const Int flagsRef
 
   private This loadMeta()
   {
@@ -122,8 +120,8 @@ const class FileLibVersion : LibVersion
 
     // flags
     flags := 0
-    if (props["sysOnly"] != null) flags = flags.or(flagSysOnly)
-    #flags->setConst(this, flags)
+    if (props["hxSysOnly"] != null) flags = flags.or(flagHxSysOnly)
+    #flagsRef->setConst(this, flags)
 
     // depends
     depends := LibDepend#.emptyList
