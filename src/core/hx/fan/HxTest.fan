@@ -33,13 +33,13 @@ abstract class HxTest : HaystackTest
 // Test Setup
 //////////////////////////////////////////////////////////////////////////
 
-  ** If '@HxTestProj' configured then open `rt`
+  ** If '@HxTestProj' configured then open `proj`
   override Void setup()
   {
     if (curTestMethod.hasFacet(HxTestProj#)) projStart
   }
 
-  ** If '@HxTestProj' configured then close down `rt`
+  ** If '@HxTestProj' configured then close down `proj`
   override Void teardown()
   {
     Actor.locals.remove(ActorContext.actorLocalsKey)

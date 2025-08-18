@@ -16,7 +16,7 @@ def: ^linter
 is: ^list
 of: ^str
 accumulate
-doc: "Fantom qname of `skyarcd::Linter` class."
+doc: "Fantom qname of Linter class; deprecated in favor of Xeto"
 --------------------------------------------------------------------------
 def: ^tagOnAny
 is: ^marker

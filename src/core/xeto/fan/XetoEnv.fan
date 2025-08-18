@@ -72,7 +72,7 @@ abstract const class XetoEnv
   ** Construct a namespace for the given set of lib versions for this env.
   ** This method does not solve the dependency graph.  The list of lib
   ** versions passed must be a complete dependency tree that satisifies
-  ** all version constraints.  Also see `solveDepends`.
+  ** all version constraints.
   abstract LibNamespace createNamespace(LibVersion[] libs)
 
   ** Given a list of library names, map to latest versions, solve

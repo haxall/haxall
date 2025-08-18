@@ -116,7 +116,7 @@ be formatted exactly as follows:
 
 Any attempt to use a URI which doesn't match that format exactly or
 is missing a trailing slash will result in a 'BadUriErr' for the
-subscription.  Obix server watches map directly to a `hx::HxWatch`.
+subscription.  Obix server watches map directly to a `hx::Watch`.
 
 On the initial poll, reference tags of type Ref will have their
 'display' attribute available for the record reference.  But all polls
@@ -191,5 +191,4 @@ your own customized synchronization scripts.  The general convention
 is to schedule history sync via [tasks]`ext-task::doc`.
 
 Also see `ext-point::doc#his`.
-
 
