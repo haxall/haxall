@@ -14,6 +14,7 @@ using xetom
 **
 ** Base class for XetoCompiler steps
 **
+@Js
 abstract internal class Step
 {
   XetoCompiler? compiler

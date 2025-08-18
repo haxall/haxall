@@ -15,6 +15,7 @@ using haystack
 **
 ** Base class for AST data instances
 **
+@Js
 internal abstract class AData : ANode
 {
    ** Constructor
@@ -44,6 +45,7 @@ internal abstract class AData : ANode
 **
 ** AST scalar data value
 **
+@Js
 internal class AScalar : AData
 {
   ** Constructor
@@ -100,6 +102,7 @@ internal class AScalar : AData
 **
 ** AST dict data value (also handles lists)
 **
+@Js
 internal class ADict : AData
 {
   ** Constructor
@@ -205,6 +208,7 @@ internal class ADict : AData
 **
 ** AST instance data dict
 **
+@Js
 internal class AInstance : ADict, CInstance
 {
   ** Constructor

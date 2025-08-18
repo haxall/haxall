@@ -18,6 +18,7 @@ using haystack
 **
 ** We run this in two passes: first to reify lib/spec meta; then for instances.
 **
+@Js
 internal abstract class Reify : Step
 {
   Void reify(ANode node)
@@ -179,6 +180,7 @@ internal abstract class Reify : Step
 ** ReifyMeta
 **************************************************************************
 
+@Js
 internal class ReifyMeta : Reify
 {
   override Void run()
@@ -191,6 +193,7 @@ internal class ReifyMeta : Reify
 ** ReifyInstances
 **************************************************************************
 
+@Js
 internal class ReifyInstances : Reify
 {
   override Void run()

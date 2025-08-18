@@ -9,6 +9,7 @@
 **
 ** Token type
 **
+@Js
 internal enum class Token
 {
 

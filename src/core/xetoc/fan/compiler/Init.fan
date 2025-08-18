@@ -11,6 +11,7 @@ using util
 **
 ** Initialize base class
 **
+@Js
 internal abstract class Init : Step
 {
   override Void run()
@@ -37,6 +38,7 @@ internal abstract class Init : Step
 **
 ** Initialize to compileLib
 **
+@Js
 internal class InitLib : Init
 {
   override Void run()
@@ -63,6 +65,7 @@ internal class InitLib : Init
 **
 ** Initialize to parseLibVersion
 **
+@Js
 internal class InitLibVersion : InitLib
 {
   override Bool nsRequired() { false }
@@ -75,6 +78,7 @@ internal class InitLibVersion : InitLib
 **
 ** Initialize for compileData
 **
+@Js
 internal class InitData : Init
 {
   override Void run()

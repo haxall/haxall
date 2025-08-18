@@ -14,6 +14,7 @@ using xetom
 **
 ** Xeto compiler
 **
+@Js
 internal class XetoCompiler
 {
 

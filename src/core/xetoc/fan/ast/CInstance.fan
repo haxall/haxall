@@ -13,6 +13,7 @@ using xetom
 **
 ** CInstance is implemented by AInstance and to wrap other lib instance dicts
 **
+@Js
 internal mixin CInstance : CNode
 {
   ** Return if this an AST ADict
@@ -26,6 +27,7 @@ internal mixin CInstance : CNode
 ** CInstanceWrap
 **************************************************************************
 
+@Js
 internal const class CInstanceWrap : CInstance
 {
   new make(Dict w, XetoSpec spec) { this.w = w; this.spec = spec }

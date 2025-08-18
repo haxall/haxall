@@ -13,6 +13,7 @@ using xetom
 **
 ** Document is top-level AST node - either a ALib or ADataDoc
 **
+@Js
 internal abstract class ADoc : ANode
 {
    ** Constructor
@@ -51,6 +52,7 @@ internal abstract class ADoc : ANode
 **
 ** Top-level node for a data file, it just wraps a root AData node
 **
+@Js
 internal class ADataDoc : ADoc
 {
    ** Constructor

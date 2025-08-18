@@ -13,6 +13,7 @@ using xeto
 **
 ** Parser for the Xeto data type language
 **
+@Js
 internal class Parser
 {
 

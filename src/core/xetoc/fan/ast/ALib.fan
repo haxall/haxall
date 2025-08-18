@@ -14,6 +14,7 @@ using xetom
 **
 ** AST library
 **
+@Js
 internal class ALib : ADoc
 {
    ** Constructor

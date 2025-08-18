@@ -16,7 +16,7 @@ using xetom
 **
 ** We run this in two passes: first to infer lib/spec meta; then for instances.
 **
-**
+@Js
 internal abstract class InferData : Step
 {
   Void infer(ANode node)
@@ -203,6 +203,7 @@ internal abstract class InferData : Step
 ** InferMeta
 **************************************************************************
 
+@Js
 internal class InferMeta : InferData
 {
   override Void run()
@@ -215,6 +216,7 @@ internal class InferMeta : InferData
 ** InferInstances
 **************************************************************************
 
+@Js
 internal class InferInstances : InferData
 {
   override Void run()

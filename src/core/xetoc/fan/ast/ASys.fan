@@ -12,6 +12,7 @@ using xeto
 **
 ** AST system type references
 **
+@Js
 internal class ASys
 {
   ASpecRef obj    := init("Obj")

@@ -15,6 +15,7 @@ using xetom
 **   - XetoCompiler.depends
 **   - ALib.version
 **
+@Js
 internal class ProcessPragma : Step
 {
   override Void run()

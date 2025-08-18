@@ -14,6 +14,7 @@ using xetom
 **
 ** CheckErrors is run late in the pipeline to perform AST validation
 **
+@Js
 internal class CheckErrors : Step
 {
   override Void run()

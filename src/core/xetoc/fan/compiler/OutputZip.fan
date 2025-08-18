@@ -12,6 +12,7 @@ using xeto
 **
 ** Output xetolib zip file
 **
+@Js
 internal class OutputZip : Step
 {
   override Void run()

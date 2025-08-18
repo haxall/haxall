@@ -15,6 +15,7 @@ using xetom
 **
 ** Load and assign a SpecBinding to each type in the AST
 **
+@Js
 internal class LoadBindings : Step
 {
   override Void run()

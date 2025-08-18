@@ -15,6 +15,7 @@ using haystack
 **
 ** AST spec
 **
+@Js
 internal class ASpec : ANode, CSpec
 {
 

@@ -13,6 +13,7 @@ using xetom
 **
 ** AST namesapce
 **
+@Js
 internal class ANamespace : CNamespace
 {
   new make(Init step)

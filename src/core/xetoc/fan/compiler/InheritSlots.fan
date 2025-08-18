@@ -28,6 +28,7 @@ using xetom
 ** We also use this step to create a list of types orderd by inheritance
 ** for subsequent steps to use in lib.types.
 **
+@Js
 internal class InheritSlots : Step
 {
   override Void run()

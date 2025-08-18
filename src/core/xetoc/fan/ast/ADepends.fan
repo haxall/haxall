@@ -13,6 +13,7 @@ using xetom
 **
 ** AST dependencies and imported namespace handling
 **
+@Js
 internal class ADepends
 {
   new make(XetoCompiler compiler)

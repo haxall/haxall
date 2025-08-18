@@ -13,6 +13,7 @@ using xetom
 **
 ** Assemble AST into implementation instances
 **
+@Js
 internal class Assemble : Step
 {
   override Void run()
