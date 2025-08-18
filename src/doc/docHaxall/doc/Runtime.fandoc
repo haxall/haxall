@@ -9,7 +9,7 @@
 Overview [#overview]
 ********************
 All system components are packaged into a single top-level object called
-the *runtime*.  The runtime is accessed via the `hx::HxRuntime` API.  It
+the *runtime*.  The runtime is accessed via the `hx::Runtime` API.  It
 is possible to run multiple runtimes within a single JVM.
 
 Daemon [#daemon]
@@ -24,8 +24,8 @@ Here is an example to illustrate using custom config and required libs:
   boot := HxdBoot
   {
     it.dir = myDatabaseDir
-    it.config["serialSpi"] = "myPod::SerialSpiImpl"
-    it.requiredLibs.add("myCustomLib")
+    it.sysConfig["platformSerialSpi"] = "myPod::SerialSpiImpl"
+    it.bootLibs.add("acme.customlib")
   }
   boot.run
 
@@ -39,15 +39,14 @@ Default behavior of the the daemon:
 SkySpark [#skyspark]
 ********************
 SkySpark is multi-tenant and supports multiple project runtimes.  SkySpark
-implements one runtime for the host via `skyarcd::Sys.rt`.  Each project is
-also a full runtime via `skyarcd::Proj.rt`.
+implements one runtime for the system via `hx::Sys`.  Each project is
+also a full runtime via `hx::Proj`.  Note Haxall daemon that the single
+runtime implements *both* of these APIs.s
 
-SkySpark runs some low-level libs at the host level as *SysMods*.  For
-example, there is only one instance of the 'http', 'api', and 'user' libs (shared
-by all projects as SysMods).  Then each run project runs its own instance
-of *Exts* which includes libs like 'point', 'task', 'conn', etc.  The Haxall
-documentation will often use the term library/lib and extension/ext
-interchangeability for this reason.
+SkySpark runs some low-level extensions at the system level .  For
+example, there is only one instance of the 'hx.http' and 'hx.api' (shared
+by all projects).  Then each run project runs its own instance of project
+extensions which includes libs like 'hx.point', 'hx.task', 'hx.conn', etc.
 
 Lifecycle [#lifecycle]
 **********************
@@ -67,7 +66,7 @@ Shutdown happens automatically when the runtime process is killed via
 `sys::Env.addShutdownHook`.
 
 See the [lib chapter]`Libs#lifecycle` for how these phases map to the
-`hx::HxLib` callbacks.
+`hx::Ext` callbacks.
 
 Steady State [#steadyState]
 ***************************
@@ -77,10 +76,10 @@ spin up before interacting with external systems. By default the steady
 state delay is 10sec.  It may be tuned by applying the `steadyState` tag
 to the `projMeta` record.
 
-The configured delay starts after the database is loaded and all libraries
-have completed their [onStart]`hx::HxLib.onStart` and [onReady]`hx::HxLib.onReady`
+The configured delay starts after the database is loaded and all extensions
+have completed their [onStart]`hx::Ext.onStart` and [onReady]`hx::Ext.onReady`
 callbacks.  Once the delay expires, the [steady state]`isSteadyState()`
-flag transitions to true and libraries receive the [onSteadyState]`hx::HxLib.onSteadyState`
+flag transitions to true and extensions receive the [onSteadyState]`hx::Ext.onSteadyState`
 callback.
 
 Activities which occur *before* steady state:
@@ -98,3 +97,4 @@ Activities which occur *after* steady state:
     may issue a remote write if the `writeOnStart` tuning policy is configured
   - Rule engine (SkySpark only) does not begin to compute rules until after
     steady state
+

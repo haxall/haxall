@@ -54,7 +54,7 @@ Example code:
 
 Fantom APIs [#fantom]
 *********************
-The following `hx::HxWatchService` and `hx::HxWatch` APIs are used to work
+The following `hx::RuntimeWatches` and `hx::Watch` APIs are used to work
 with watches in Fantom. The Fantom APIs for working with watches provide more
 flexiblity and performance than Axon since they operate at a lower level of
 abstraction.

@@ -32,7 +32,7 @@ The following are SkySpark only observables:
 
 There are two mechanisms to setup observers:
   - [Tasks]`#taskObserve`: Axon observers use the task extension
-  - [Fantom]`#fantomObserve`: Fantom observers use the `hx::HxLib.observe` method
+  - [Fantom]`#fantomObserve`: Fantom observers use the `hx::Ext.observe` method
 
 Observations [#observations]
 ****************************
@@ -52,7 +52,7 @@ configuration tags.
 
 Fantom Observe [#fantomObserve]
 *******************************
-HxLibs written in Fantom may use the `hx::HxLib.observe` method to subscribe
+HxLibs written in Fantom may use the `hx::Ext.observe` method to subscribe
 to an observable.  The subscription should happen in the 'onStart' callback.
 The system will automatically handle the unsubscribe if the lib is uninstalled.
 
@@ -306,7 +306,4 @@ Event observations include the following tags:
 
 These are the config tags:
   - `obsFilter`: filter string for events to observe or omit for all events
-
-
-
 

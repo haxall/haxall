@@ -16,7 +16,7 @@ create own custom connectors and enforces consistency across all connector
 types.
 
 Key classes in the API:
-  - `hxConn::ConnLib`: your HxLib subclass
+  - `hxConn::ConnExt`: your HxLib subclass
   - `hxConn::Conn`: models one connector as an actor
   - `hxConn::ConnPoint`: models one point under a connector
   - `hxConn::ConnDispatch`: base class for callback handling
@@ -27,7 +27,7 @@ Steps [#steps]
 To create a custom connector requires the following steps:
   1. Stub out a new Fantom [pod]`#pod`
   2. Create your tag [definitions]`#defs`
-  3. Create your [ConnLib]`#connLib` subclass
+  3. Create your [ConnExt]`#connExt` subclass
   4. Create your [ConnDispatch]`#connDispatch` subclass to handle callbacks
 
 Tip: Use the [hx stub tool]`Libs#stub` to stub out the code needed for a custom connector:
@@ -72,11 +72,11 @@ as a Haystack lib with the following line:
 
 Defs [#defs]
 ************
-All connectors are a subclass of [HxLib]`Libs#hxLib` which implement a Haystack
-library in Fantom.  Your connector must formally define all its tags for
+All connectors are a subclass of [Ext]`Libs#ext` which implement a Haystack
+extension in Fantom.  Your connector must formally define all its tags for
 connector and point records.
 
-The library definition should follow the standard HxLib [lib def]`Libs#defs`:
+The library definition should follow the standard Ext [lib def]`Libs#defs`:
 
   // lib.trio
   def: ^lib:foo
@@ -146,22 +146,22 @@ The address tags and their value type will be dependent on your
 specific protocol.  Most connectors use 'str' or 'uri' for the
 address type.
 
-ConnLib [#connLib]
+ConnExt [#connExt]
 ******************
-All connectors must create a subclass of `hxConn::ConnLib`.
+All connectors must create a subclass of `hxConn::ConnExt`.
 Here is an example:
 
   using hx
   using hxConn
 
-  const class FooLib : ConnLib
+  const class FooExt: ConnExt
   {
   }
 
 In most cases, this will just be empty stub code.  But there are some features
 which require overrides.  For example, if you want to add extra debugging into
-details, then you will override the [onConnDetails]`hxConn::ConnLib.onConnDetails`
-or [onPointDetails]`hxConn::ConnLib.onPointDetails` methods.
+details, then you will override the [onConnDetails]`hxConn::ConnExt.onConnDetails`
+or [onPointDetails]`hxConn::ConnExt.onPointDetails` methods.
 
 ConnDispatch [#connDispatch]
 ****************************
@@ -355,5 +355,4 @@ instances for dispatch.  Here is some example code:
       return p.conn.send(HxMsg("pointSometing", p))
     }
   }
-
 

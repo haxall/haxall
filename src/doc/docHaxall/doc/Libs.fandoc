@@ -15,14 +15,14 @@ packaged as Fantom [pods]`docLang::Pods`.
 Libs package one or more of the following features into a named, versioned module:
   - Haystack defs for tags
   - SkySpark defs for apps, views
-  - Fantom HxLib class to perform background processing
+  - Fantom Ext class to perform background processing
   - Axon functions
 
 Libs which only publish declarative data such as defs and functions are
 called *resource libs*.  Resource libs cannot contain any Fantom code, but
 have the ability to be hot reloaded at runtime.  Pods which contain one
 or more Fantom classes are called *fantom libs*.  All Fantom libs must
-define a `hx::HxLib` subclass.
+define a `hx::Ext` subclass.
 
 Pod [#pod]
 **********
@@ -117,16 +117,16 @@ You can package additional [defs]`docHaystack::Defs` under the "lib/" directory
 using whatever naming convention you prefer.  The special file "lib/skyarc.trio"
 is used to register SkySpark only defs - it is ignored in non-SkySpark runtimes.
 
-HxLib [#hxLib]
-**************
-Libs which use Fantom must create a subclass of `hx::HxLib`.  An instance
+Ext [#ext]
+***********
+Libs which use Fantom must create a subclass of `hx::Ext`.  An instance
 of this class is created by the runtime to receive [lifecycle]`#lifecycle`
 callbacks to perform background processing.
 
 Here is a simple example:
 
   using hx
-  const class AcmeFooLib : HxLib
+  const class AcmeFooExt : Ext
   {
     override Void onStart() { log.info("$typeof started!") }
 
@@ -137,21 +137,21 @@ Lifecycle [#lifecycle]
 **********************
 The lifecycle of a lib follows the overall [runtime lifecycle]`Runtime#lifecycle`:
   1. Instantiation (constructor)
-  2. `hx::HxLib.onStart`
-  3. `hx::HxLib.onReady`
-  4. `hx::HxLib.onSteadyState` (see `Runtime#steadyState`)
+  2. `hx::Ext.onStart`
+  3. `hx::Ext.onReady`
+  4. `hx::Ext.onSteadyState` (see `Runtime#steadyState`)
 
 The shutdown lib life cycle is:
-  1. `hx::HxLib.onUnready`
-  2. `hx::HxLib.onStop`
+  1. `hx::Ext.onUnready`
+  2. `hx::Ext.onStop`
 
 In the instantiation phase, only basic information from the runtime
 is available.  You must wait until onStart to access services and lookup
 other libs.
 
 While your lib is running, you can schedule periodic house keeping.
-To use this feature override the `hx::HxLib.houseKeepingFreq` which
-causes periodic callbacks to to `hx::HxLib.onHouseKeeping`.
+To use this feature override the `hx::Ext.houseKeepingFreq` which
+causes periodic callbacks to to `hx::Ext.onHouseKeeping`.
 
 Axon Funcs [#axonFuncs]
 *******************
@@ -192,31 +192,31 @@ unconstrained access to the underlying OS.
 Settings [#settings]
 ********************
 Libs are enabled in a runtime database with a record via the 'ext' tag.  This
-record can store settings data that is accessible via the `hx::HxLib.rec`
+record can store settings data that is accessible via the `hx::Ext.settings`
 method.  You can create a statically typed class for your setting that is
 also used by UI tools:
-  1. Create a subclass of `haystack::TypedDict`
-  2. Override `hx::HxLib.rec` to covariantly return your type
+  1. Create a subclass of `hx::Settings`
+  2. Override `hx::Ext.settings` to covariantly return your type
 
 Here is an example:
 
-  const class TaskLib : HxLib
+  const class TaskExt : Ext
   {
     ** Settings record
-    override TaskSettings rec() { super.rec }
+    override TaskSettings settings() { super.settings }
   }
 
-  const class TaskSettings : TypedDict
+  const class TaskSettings : Settings
   {
     ** Constructor
     new make(Dict d, |This| f) : super(d) { f(this) }
 
     ** Max threads for the task actor pool
-    @TypedTag { restart=true }
+    @Setting { restart=true }
     const Int maxThreads:= 50
   }
 
-The `hx::HxLib.onRecUpdate` callback is invoked whenever the settings rec
+The `hx::Ext.onSettings` callback is invoked whenever the settings rec
 is modified.
 
 Web [#web]
@@ -224,18 +224,18 @@ Web [#web]
 To add HTTP handling to your lib:
 
   1. Create a subclass of `hx::ExtWeb`
-  2. Override `hx::HxLib.web` with an instance of your subclass
+  2. Override `hx::Ext.web` with an instance of your subclass
 
 Here is a very simple example:
 
-  const class FooLib : HxLib
+  const class FooExt : Ext
   {
     override const FooWeb web := FooWeb(this)
   }
 
   const class FooWeb : ExtWeb
   {
-    new make(FooLib lib) : super(lib) {}
+    new make(FooExt ext) : super(ext) {}
 
     override Void onGet()
     {
@@ -255,11 +255,11 @@ as records in the runtime database with the 'ext' tag.  You cannot directly
 add nor remove an ext record, but rather must instead use dedicated APIs.
 
 Lib management in Fantom:
-  - `hx::HxRuntime.libsOld`: access to `hx::HxRuntimeLibs`
-  - `hx::HxRuntimeLibs.list`: list the enabled libs
-  - `hx::HxRuntimeLibs.get`: lookup a lib by name
-  - `hx::HxRuntimeLibs.add`: enable an lib by name
-  - `hx::HxRuntimeLibs.remove`: disable an lib
+  - `hx::Runtime.libs`: access to `hx::RuntimeLibs`
+  - `hx::RuntimeLibs.list`: list the enabled libs
+  - `hx::RuntimeLibs.get`: lookup a lib by name
+  - `hx::RuntimeLibs.add`: enable an lib by name
+  - `hx::RuntimeLibs.remove`: disable an lib
 
 Lib management in Axon:
   - `libs()`: list enabled libs in namespace

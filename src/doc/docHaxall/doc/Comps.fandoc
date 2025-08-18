@@ -48,7 +48,7 @@ The following APIs are used to work with Axon components in Fantom:
   - `axon::CellDef`: definition of component cell
   - `axon::AbstractComp`: base class for components implemented in Fantom
 
-You may implement custom components in Fantom in a [HxLib]`Libs#hxLib`.
+You may implement custom components in Fantom in a [Ext]`Libs#ext`.
 Your extension must advertise it contains Fantom components by putting
 the following line your pod's metadata in build.fan:
 
@@ -101,6 +101,4 @@ Note if you pass no Dict or omit cells then they will default to null
 or the value of the 'defVal' tag.
 
 NOTE: this calling syntax is subject to change
-
-
 

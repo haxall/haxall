@@ -33,7 +33,7 @@ const class Etc
   **
   ** Make a Dict instance where 'val' is one of the following:
   **   - Dict: return 'val'
-  **   - null: return `emptyDict`
+  **   - null: return `dict0`
   **   - Str:Obj?: wrap map as Dict
   **   - Str[]: dictionary of key/Marker value pairs
   **
