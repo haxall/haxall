@@ -21,11 +21,6 @@ const mixin LibNamespace
 // Identity
 //////////////////////////////////////////////////////////////////////////
 
-  ** Is this a remote namespace loaded over a network transport.
-  ** Remote environments must load libraries asynchronously and do
-  ** not support the full feature set.
-  @NoDoc abstract Bool isRemote()
-
   ** Environment used to create this namespace
   abstract XetoEnv env()
 

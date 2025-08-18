@@ -16,6 +16,8 @@ using xeto
 @Js
 const class RemoteEnv : MEnv
 {
+  override Bool isRemote() { true }
+
   override LibRepo repo() { throw unavailErr() }
 
   override File homeDir() { throw unavailErr() }

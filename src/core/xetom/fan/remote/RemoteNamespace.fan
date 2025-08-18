@@ -25,8 +25,6 @@ const class RemoteNamespace : MNamespace
 
   const RemoteLibLoader? libLoader
 
-  override Bool isRemote() { true }
-
   override Void doLoadAsync(LibVersion v, |Err?, Obj?| f)
   {
     if (libLoader == null) throw UnsupportedErr("No RemoteLibLoader installed")

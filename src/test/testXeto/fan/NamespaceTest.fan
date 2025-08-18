@@ -136,8 +136,8 @@ class NamespaceTest : AbstractXetoTest
     verifyMeta(ns, sys, "doc", str)
 
     // files
-    verifyEq(sys.files.isSupported, !ns.isRemote)
-    if (!ns.isRemote)
+    verifyEq(sys.files.isSupported, !ns.env.isRemote)
+    if (!ns.env.isRemote)
     {
       verifyEq(sys.files.list, Uri[,])
       verifyEq(sys.files.get(`bad`, false), null)
@@ -221,8 +221,8 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownSpecErr#) { ns.unqualifiedGlobal("badOne", true) }
 
     // files
-    verifyEq(ph.files.isSupported, !ns.isRemote)
-    if (!ns.isRemote)
+    verifyEq(ph.files.isSupported, !ns.env.isRemote)
+    if (!ns.env.isRemote)
     {
       verifyEq(ph.files.list, Uri[,])
       verifyEq(ph.files.get(`bad`, false), null)
@@ -302,8 +302,8 @@ class NamespaceTest : AbstractXetoTest
 
     // files
     files := lib.files
-    verifyEq(files.isSupported, !ns.isRemote)
-    if (!ns.isRemote)
+    verifyEq(files.isSupported, !ns.env.isRemote)
+    if (!ns.env.isRemote)
     {
       verifyEq(files.list, [`/res/a.txt`, `/res/subdir/b.txt`])
 

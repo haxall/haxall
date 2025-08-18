@@ -90,6 +90,8 @@ const class ServerEnv : MEnv
 // XetoEnv
 //////////////////////////////////////////////////////////////////////////
 
+  override Bool isRemote() { false }
+
   override File homeDir() { path.last }
 
   override File workDir() { path.first }

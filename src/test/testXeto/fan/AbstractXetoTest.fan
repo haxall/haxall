@@ -37,7 +37,7 @@ class AbstractXetoTest : HaystackTest
   {
     // first test local server
     server := TestServer(createNamespace(libs))
-    verifyEq(server.ns.isRemote, false)
+    verifyEq(server.ns.env.isRemote, false)
     f(server.ns)
 
     // setup remote client

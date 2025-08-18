@@ -80,6 +80,8 @@ abstract const class MNamespace : LibNamespace, CNamespace
   override XetoEnv env() { envRef }
   const MEnv envRef
 
+  Bool isRemote() { env.isRemote }
+
   override once Str digest()
   {
     buf := Buf()

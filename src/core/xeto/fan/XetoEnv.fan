@@ -35,6 +35,11 @@ abstract const class XetoEnv
 // API
 //////////////////////////////////////////////////////////////////////////
 
+  ** Is this a remote namespace loaded over a network transport.
+  ** Remote environments must load libraries asynchronously and do
+  ** not support the full feature set.
+  @NoDoc abstract Bool isRemote()
+
   ** Repository of all installed xeto libs.
   ** Not available in browser environemnts.
   abstract LibRepo repo()

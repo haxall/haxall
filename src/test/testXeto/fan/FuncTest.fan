@@ -57,7 +57,7 @@ class FuncTest : AbstractXetoTest
     verifyAdd(ns, lib.spec("add1"), true)  // Axon
     verifyAdd(ns, lib.spec("add2"), true)  // Fantom
     verifyAdd(ns, lib.spec("add3"), false) // not allowed
-    if (!ns.isRemote) verifyAdd(ns, lib.spec("add4"), true) // Xeto component graph
+    if (!ns.env.isRemote) verifyAdd(ns, lib.spec("add4"), true) // Xeto component graph
   }
 
   private Void verifyAdd(LibNamespace ns, Spec f, Bool valid)

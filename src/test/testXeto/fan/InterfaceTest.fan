@@ -24,7 +24,7 @@ class InterfaceTest : AbstractXetoTest
 
   private Void doTestNamespace(LibNamespace ns)
   {
-if (ns.isRemote) return
+if (ns.env.isRemote) return
     lib :=  ns.lib("hx.test.xeto")
 
     func := ns.spec("sys::Func")
