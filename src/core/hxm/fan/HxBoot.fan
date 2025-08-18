@@ -115,14 +115,18 @@ abstract class HxBoot
   ** SysConfig meta to build Sys.config:
   **   - test: Marker for HxTest runtime
   **   - noAuth: Marker to disable authentication and use superuser
-  **   - safeMode: don't start exts (SkySpark only)
   **   - apiExtWeb: qname for ApiExt ExtWeb class
   **   - platformSpi: qname for hxPlatform::PlatformSpi class
   **   - platformNetworkSpi: qname for hxPlatformNetwork::PlatformNetworkSpi class
   **   - platformSerialSpi: qname for hxPlatformSerial::PlatformSerialSpi class
   **   - platformTimeSpi: qname for hxPlatformTime::PlatformTimeSpi class
-  **   - newProjExts: comma separated list of project exts
   **   - hxLic: license Str or load from lic/xxx.trio
+  **
+  ** SkySpark options:
+  **   - safeMode: don't start exts (SkySpark only)
+  **   - newProjExts: comma separated list of project exts
+  **   - demogenMaxDays: Number of days to limit for smaller devices
+  **   - undefs: comma separated list of symbols to remove from ns
   **
   Str:Obj? sysConfig := [:]
 
