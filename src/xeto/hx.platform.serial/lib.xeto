@@ -24,7 +24,7 @@ pragma: Lib <
     type: BuildVar "hx.vcs.type"
     uri:  BuildVar "hx.vcs.uri"
   }
-  sysOnly
+  hxSysOnly
   libExt: PlatformSerialExt
 >
 

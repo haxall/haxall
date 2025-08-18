@@ -9,8 +9,8 @@
 // Define an extension spec for a library
 libExt: Spec <meta>
 
-// Marks a library as system level only
-sysOnly: Marker <meta>
+// Marks a library as Haxall system level only
+hxSysOnly: Marker <meta>
 
 // Tags used for 3.1 det meta including rule ready and action UI
 defMeta: Dict <meta>
