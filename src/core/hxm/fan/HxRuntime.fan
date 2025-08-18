@@ -302,7 +302,7 @@ abstract const class HxRuntime : Runtime
   ** Cache for ion project cache
   override once Obj ionData()
   {
-    Type.find("ionExt::IonProjData").make([this])
+    Type.find("hxIon::IonProjData").make([this])
   }
 
 }

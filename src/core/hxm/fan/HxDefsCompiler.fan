@@ -67,6 +67,8 @@ class HxDefCompiler : DefCompiler
       }
 
       meta := podToMeta(pod)
+      if (meta == null) return null
+
       def := meta->def.toStr["lib:".size..-1]
       return HxLibInput(def, pod, meta)
     }
@@ -95,7 +97,7 @@ class HxDefCompiler : DefCompiler
     libFile := pod.file(`/lib/lib.trio`, false)
     if (libFile == null)
     {
-      echo("WARN: no lib.trio found in pod [$pod.name]")
+      if (pod.name != "hxIon") echo("WARN: no lib.trio found in pod [$pod.name]")
       return null
     }
 
