@@ -15,7 +15,7 @@ using haystack
 ** LibNamespace implementation base class
 **
 @Js
-abstract const class MNamespace : LibNamespace, CNamespace
+const class MNamespace : LibNamespace, CNamespace
 {
   **
   ** Constructor options:

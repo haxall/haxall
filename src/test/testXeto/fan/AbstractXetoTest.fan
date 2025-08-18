@@ -43,7 +43,7 @@ class AbstractXetoTest : HaystackTest
     // setup remote client
     client := TestClient(server)
     client.boot
-    verifyEq(client.ns.isRemote, true)
+    verifyEq(client.ns.env.isRemote, true)
 
     // check lib lookup
     cns := client.ns
@@ -274,7 +274,7 @@ const class TestClient //: RemoteLibLoader
 
   const MEnv remoteEnv := RemoteEnv()
 
-  RemoteNamespace? ns() { nsRef.val }
+  LibNamespace? ns() { nsRef.val }
   const AtomicRef nsRef := AtomicRef()
 
   const Bool debug := false

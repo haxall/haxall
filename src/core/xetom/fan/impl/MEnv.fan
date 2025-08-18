@@ -115,7 +115,7 @@ abstract const class MEnv : XetoEnv
 //////////////////////////////////////////////////////////////////////////
 
   ** Hook to to compile specific lib version
-  virtual XetoLib compile(LibNamespace ns, LibVersion v)
+  virtual XetoLib compile(MNamespace ns, LibVersion v)
   {
     throw UnsupportedErr("Lib cannot be compiled, must be preloaded: $v")
   }

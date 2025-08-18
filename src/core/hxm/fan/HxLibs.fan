@@ -273,7 +273,7 @@ const class HxLibs : RuntimeLibs
     // create namespace
     nsVers := acc.vals.map |x->LibVersion| { x.ver }
     nsOpts := Etc.dict1("uncheckedDepends", Marker.val)
-    ns := HxNamespace(LocalNamespaceInit(env, repo, nsVers, nsOpts))
+    ns := HxNamespace(env, nsVers, nsOpts)
     ns.libs // force sync load
 
     // update in-memory lookup tables

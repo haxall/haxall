@@ -32,7 +32,7 @@ const class RemoteEnv : MEnv
 
   override LibNamespace createNamespace(LibVersion[] libs)
   {
-    RemoteNamespace(this, libs)
+    MNamespace(this, libs)
   }
 
   override LibNamespace createNamespaceFromNames(Str[] names) { throw unavailErr() }

@@ -110,8 +110,7 @@ const class FileRepo : LibRepo
 
   private LibNamespace makeNamespace(LibVersion[] versions)
   {
-    init := LocalNamespaceInit(env, this, versions, Etc.dict0)
-    return LocalNamespace(init)
+    MNamespace(env, versions)
   }
 
 }
