@@ -2080,7 +2080,7 @@ const class AxonFuncs
 
   ** Generate a child prototype for the given parent dict.  This call
   ** will automatically apply childrenFlatten tags and parent refs.
-  @NoDoc @Api @Axon Dict proto(Dict parent, Dict proto)
+  @NoDoc @Api @Axon static Dict proto(Dict parent, Dict proto)
   {
     AxonContext.curAxon.defs.proto(parent, proto)
   }

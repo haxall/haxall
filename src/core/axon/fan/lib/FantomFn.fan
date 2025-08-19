@@ -82,7 +82,8 @@ const class FantomFn : TopFn
   protected new make(Str name, Dict meta, FnParam[] params, Method method)
     : super(Loc(name), name, meta, params, Literal.nullVal)
   {
-    this.method       = method
+    if (!method.isStatic) throw Err("Method not static: $method")
+    this.method = method
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -91,12 +92,6 @@ const class FantomFn : TopFn
 
   ** Fantom method which backs the function
   const Method method
-
-  ** Instance to call method on if not static
-  const Obj? instanceRef
-
-  ** Set the instance for non-static methods
-  Void setInstanceRef(Obj i) { #instanceRef->setConst(this, i) }
 
 //////////////////////////////////////////////////////////////////////////
 // Fn
@@ -131,10 +126,7 @@ const class FantomFn : TopFn
 
   override Obj? doCall(AxonContext cx, Obj?[] args)
   {
-    if (method.isStatic)
-      return method.callList(args)
-     else
-       return method.callOn(instanceRef, args)
+    return method.callList(args)
   }
 
   override Obj? evalParamDef(AxonContext cx, FnParam param)
