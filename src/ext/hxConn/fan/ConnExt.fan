@@ -16,7 +16,7 @@ using hxPoint
 
 **
 ** Connector library base class.
-** See `docHaxall::CustomConns#connLib`.
+** See `docHaxall::CustomConns#connExt`.
 **
 abstract const class ConnExt : ExtObj, HxConnExt
 {
