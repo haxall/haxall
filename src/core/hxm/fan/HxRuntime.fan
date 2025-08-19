@@ -283,11 +283,11 @@ abstract const class HxRuntime : Runtime
   ** Called when the libs are modified
   virtual Void onLibsModified(HxNamespace ns)
   {
-    // update extensions
-    extsRef.onLibsModified(ns)
-
     // update defs
     defsRecompile
+
+    // update extensions
+    extsRef.onLibsModified(ns)
 
     // if I am the sys, then all the proj ns need reload too
     if (isSys)
