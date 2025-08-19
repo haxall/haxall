@@ -70,8 +70,8 @@ implementation must be:
  1. Axon source code defined in 'axon' meta
  2. Fantom binding
 
-Axon Funcs [#axonFunc]
-======================
+Axon Funcs [#axonFuncs]
+=======================
 Funcs defined in axon include their source via the func 'axon' meta tag.  Typically
 you include it using the heredoc syntax as follows:
 
@@ -84,8 +84,8 @@ you include it using the heredoc syntax as follows:
 Note that you need both the xeto spec signature, and to repeat the func params
 in your axon source. The names should match (but are not currently checked).
 
-Fantom Funcs [#fantomFunc]
-==========================
+Fantom Funcs [#fantomFuncs]
+===========================
 Fantom functions are defined as a static method in a class always called "FooFuncs"
 where "Foo" is derived:
   - from your extension type name
@@ -110,4 +110,10 @@ Example:
   {
     @Api static Number myAdd(Number a, Number) { a + b }
   }
+
+
+It is critical to consider security when implementing functions in Fantom.
+Fantom funcs run outside of the Axon security sandbox, so its up your code
+to enforce any security constraints.  Never create functions which would allow
+unconstrained access to the underlying OS.
 

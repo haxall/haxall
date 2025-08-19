@@ -8,125 +8,42 @@
 
 Overview [#overview]
 ********************
-Libraries or *libs* are the fundamental unit of modularity in the
-Haxall architecture.  All Haxall libs are proper [Haystack libs]`docHaystack::Namespaces`
-packaged as Fantom [pods]`docLang::Pods`.
+A xeto lib enabled into the `Namespace` can publish an *extension*.
+An extension is a Fantom class that enables background processing including:
+  - spawning background threads
+  - servicing HTTP requests
+  - managing runtime state outside of database
 
-Libs package one or more of the following features into a named, versioned module:
-  - Haystack defs for tags
-  - SkySpark defs for apps, views
-  - Fantom Ext class to perform background processing
-  - Axon functions
-
-Libs which only publish declarative data such as defs and functions are
-called *resource libs*.  Resource libs cannot contain any Fantom code, but
-have the ability to be hot reloaded at runtime.  Pods which contain one
-or more Fantom classes are called *fantom libs*.  All Fantom libs must
-define a `hx::Ext` subclass.
-
-Pod [#pod]
-**********
-All libs must be packaged into a Fantom [pod]`docLang::Pods`.  Pods are just a
-zip that contains a "meta.props" file for essential metadata.  Any zip
-file can be made a Fantom pod by adding the following "meta.props" file:
-
-  pod.name=acmeFoo
-  pod.version=1.0.9
-  pod.summary=Summary of pod
-  pod.depends=
-  pod.fcode=false
-
-There are dozens of standardized fields used by "meta.props", but the ones
-above are the required fields.
-
-Most of the time you will build your pod using Fantom's [build]`docTools::Build`
-system.  Your source directory will be structured as follows:
-
-  acmeFoo/
-    build.fan
-    pod.fandoc
-    fan/
-      AcmeFooLib.fan
-      AcmeFooFuncs.fan
-    lib/
-      lib.trio
-      other-defs.trio
-    test/
-      AcmeFooLibTest.fan
-
-Resource pods will only contain the "lib/" directory with the definitions.
-
-It is recommended to use the [stub]`#stub` tool to generate the source
-directory for a new library.
-
-Build File [#build]
-*******************
-The [build file]`docTools::Build#buildPod` is a Fantom script used to compile
-your source into a pod file.  Here is a sample build file:
-
-  #! /usr/bin/env fan
-  using build
-  class Build : BuildPod
-  {
-    new make()
-    {
-      podName = "acmeFoo"
-      summary = "Foo is something awesome"
-      meta    = ["org.name":     "Acme",
-                 "org.uri":      "https://acme.com/",
-                 "proj.name":    "Cool Libs",
-                 "proj.uri":     "https://acme.com/cool-libs",
-                 "license.name": "MIT",
-                 "vcs.name":     "Git",
-                 "vcs.uri":      "https://github.com/acme/cool-libs",
-                 ]
-      depends  = ["sys 1.0",
-                  "concurrent 1.0",
-                  "haystack 3.1",
-                  "axon 3.1",
-                  "hx 3.1"
-                  ]
-      srcDirs = [`fan/`, `test/`]
-      resDirs = [`lib/`]
-      index   = ["ph.lib": "acmeFoo"]
-    }
-  }
-
-Resource libs should omit the 'depends' and 'srcDirs' fields.
-
-Its important that all libs register the Haystack library name with
-the indexed prop "ph.lib".  By convention a library named "acmeFoo" is packaged
-into a pod named "acmeFoo".  Your library name should be globally unique - we
-recommend prefixing your library names with your company name.
-
-Defs [#defs]
+Code [#code]
 ************
-All libs must define a "lib/lib.trio" file that registers the library as
-a Haystack 4 lib:
+To create an extension follow these steps:
+  1. Create your Xeto lib
+  2. Define your extension type in lib meta via 'libExt'
+  3. Create Fantom type with the same name
+  4. Bind your pod via the indexed prop "xeto.bindings"
+  5. You can create funcs as described in [Namespace chapter]`Namespace#funcs`
 
-  // lib.trio
-  def: ^lib:acmeFoo
-  depends: [^lib:ph, ^lib:axon, ^lib:hx]
-  typeName:"acmeFoo::AcmeFooLib"
-  doc: "Foo is something awesome"
+Example code:
 
-Fantom libs must register the class qname using 'typeName'; resource libs
-should omit this line.
+  // acme.custom lib.xeto
+  pragma: Lib <
+    doc: "My custom extension"
+    version: "1.0.0"
+    depends: {
+      { lib: "sys",  versions: BuildVar "ph.depend" }
+      { lib: "axon", versions: BuildVar "hx.depend" }
+      { lib: "hx",   versions: BuildVar "hx.depend" }
+    }
+    libExt: MyCustomExt
+  >
+  MyCustomExt: Ext  // need to define spec
 
-You can package additional [defs]`docHaystack::Defs` under the "lib/" directory
-using whatever naming convention you prefer.  The special file "lib/skyarc.trio"
-is used to register SkySpark only defs - it is ignored in non-SkySpark runtimes.
+  // add this line into your build pod
+  index = ["xeto.bindings":"acme.custom"]
 
-Ext [#ext]
-***********
-Libs which use Fantom must create a subclass of `hx::Ext`.  An instance
-of this class is created by the runtime to receive [lifecycle]`#lifecycle`
-callbacks to perform background processing.
-
-Here is a simple example:
-
+  // create Fantom class that matches name from lib.xeto
   using hx
-  const class AcmeFooExt : Ext
+  const class MyCustomExt : ExtObj
   {
     override Void onStart() { log.info("$typeof started!") }
 
@@ -135,7 +52,7 @@ Here is a simple example:
 
 Lifecycle [#lifecycle]
 **********************
-The lifecycle of a lib follows the overall [runtime lifecycle]`Runtime#lifecycle`:
+The lifecycle of an ext follows the overall [runtime lifecycle]`Runtime#lifecycle`:
   1. Instantiation (constructor)
   2. `hx::Ext.onStart`
   3. `hx::Ext.onReady`
@@ -153,48 +70,10 @@ While your lib is running, you can schedule periodic house keeping.
 To use this feature override the `hx::Ext.houseKeepingFreq` which
 causes periodic callbacks to to `hx::Ext.onHouseKeeping`.
 
-Axon Funcs [#axonFuncs]
-*******************
-Axon functions may be bundled as a trio file under the "lib/" directory:
-
-  // funcs.trio
-  def: ^func:acmeFooAxon
-  src:
-    () => "hello world in Axon!"
-
-In Haxall, your function must use the 'def=^func:name' syntax shown above.
-The 'name' plus 'func' marker tag pattern used by SkySpark is not
-supported.
-
-Fantom Funcs [#fantomFuncs]
-***************************
-You can also implement your Axon functions in Fantom by creating a class
-named "<libName>Funcs".  Axon functions are implemented as public, static
-methods annotated with the `axon::Axon` facet:
-
-  using haystack
-  using axon
-  class AcmeFooFuncs
-  {
-    ** Fandoc is used for reference docs
-    @Axon
-    static Str fooAcmeFantom()
-    {
-      "hello world in Fantom!"
-    }
-  }
-
-It is critical to consider security when implementing functions in Fantom.
-Fantom funcs run outside of the Axon security sandbox, so its up your code
-to enforce any security constraints.  Never create functions which would allow
-unconstrained access to the underlying OS.
-
 Settings [#settings]
 ********************
-Libs are enabled in a runtime database with a record via the 'ext' tag.  This
-record can store settings data that is accessible via the `hx::Ext.settings`
-method.  You can create a statically typed class for your setting that is
-also used by UI tools:
+Every extensions can be configured with a dict we call *ext settings*.  You
+can create a statically typed class for your setting:
   1. Create a subclass of `hx::Settings`
   2. Override `hx::Ext.settings` to covariantly return your type
 
@@ -216,12 +95,15 @@ Here is an example:
     const Int maxThreads:= 50
   }
 
-The `hx::Ext.onSettings` callback is invoked whenever the settings rec
-is modified.
+The `hx::Ext.onSettings` callback is invoked whenever the settings are modified.
+
+You can manage settings via these Axon APIs:
+  - `extSettings()`
+  - `extSettingsUpdate()`
 
 Web [#web]
 **********
-To add HTTP handling to your lib:
+To add HTTP handling to your extension:
 
   1. Create a subclass of `hx::ExtWeb`
   2. Override `hx::Ext.web` with an instance of your subclass
@@ -245,29 +127,8 @@ Here is a very simple example:
   }
 
 Libs plug into the URI namespace as follows:
-  - Haxall: '/{libName}'
-  - SkySpark: '/api/{projName}/ext/{libName}'
-
-Management [#management]
-************************
-Libs can be enabled/disabled at runtime.  The enabled libs are stored
-as records in the runtime database with the 'ext' tag.  You cannot directly
-add nor remove an ext record, but rather must instead use dedicated APIs.
-
-Lib management in Fantom:
-  - `hx::Runtime.libs`: access to `hx::RuntimeLibs`
-  - `hx::RuntimeLibs.list`: list the enabled libs
-  - `hx::RuntimeLibs.get`: lookup a lib by name
-  - `hx::RuntimeLibs.add`: enable an lib by name
-  - `hx::RuntimeLibs.remove`: disable an lib
-
-Lib management in Axon:
-  - `libs()`: list enabled libs in namespace
-  - `libAdd()`: enable a lib by name
-  - `libRemove()`: disable a lib by name
-
-Note that adding/remove libs must be done in the correct order to ensure
-lib dependencies are met.
+  - Haxall: '/{extName}'
+  - SkySpark: '/api/{projName}/ext/{extName}'
 
 Stub [#stub]
 ************

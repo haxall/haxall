@@ -65,7 +65,7 @@ The shutdown phases are:
 Shutdown happens automatically when the runtime process is killed via
 `sys::Env.addShutdownHook`.
 
-See the [lib chapter]`Exts#lifecycle` for how these phases map to the
+See the [exts chapter]`Exts#lifecycle` for how these phases map to the
 `hx::Ext` callbacks.
 
 Steady State [#steadyState]

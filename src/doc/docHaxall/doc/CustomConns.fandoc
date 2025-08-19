@@ -65,18 +65,17 @@ typically have the following source level directory structure:
     test/
       FooConnTest.fan
 
-Make sure your [build file]`Exts#build` registers the connector
-as a Haystack lib with the following line:
+TODO: that conn still require you register a lib.trio for the defs:
 
   index = ["ph.lib": "foo"]
 
 Defs [#defs]
 ************
-All connectors are a subclass of [Ext]`Exts#ext` which implement a Haystack
+All connectors are a subclass of [Ext]`Exts` which implement a Haystack
 extension in Fantom.  Your connector must formally define all its tags for
 connector and point records.
 
-The library definition should follow the standard Ext [lib def]`Exts#defs`:
+The library definition should follow the standard liib defs:
 
   // lib.trio
   def: ^lib:foo
@@ -329,7 +328,7 @@ thread by the future.
 Axon Funcs [#funcs]
 *******************
 If you wish to provide Axon functions specific to your connector, then use
-the standard pattern of a [FooFuncs]`Exts#fantomFuncs` class.  The typical pattern
+the standard pattern of a [FooFuncs]`Namespace#fantomFuncs` class.  The typical pattern
 is to lookup your ConnLib and then use that to resolve the Conn and ConnPoint
 instances for dispatch.  Here is some example code:
 
