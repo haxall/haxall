@@ -52,7 +52,7 @@ internal class OutputZip : Step
     meta["version"] = lib.version.toStr
     meta["depends"] = depends.list.join(";")
     meta["doc"]     = lib.meta.getStr("doc") ?: ""
-    meta.addNotNull("sysOnly", lib.meta.has("sysOnly") ? "true" : null)
+    meta.addNotNull("hxSysOnly", lib.meta.has("hxSysOnly") ? "true" : null)
     zip.writeNext(path.toUri).writeProps(meta).close
   }
 
