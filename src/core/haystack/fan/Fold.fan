@@ -341,12 +341,17 @@ internal abstract class FoldExtreme : Fold
     }
     mode = FoldNumMode.ok
   }
-  override Obj? batch() { [min, max] }
+  override Obj? batch() { [mode, min, max] }
   override Void addBatch(Obj v)
   {
     state := (List)v
-    add(state[0])
-    add(state[1])
+    mode := state[0] as FoldNumMode
+    switch (mode)
+    {
+      case FoldNumMode.first: return
+      case FoldNumMode.na: add(NA.val)
+      default: add(state[1]); add(state[2])
+    }
   }
 
   private FoldNumMode mode := FoldNumMode.first
