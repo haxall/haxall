@@ -684,7 +684,7 @@ const class HxFuncs
 // Misc
 //////////////////////////////////////////////////////////////////////////
 
-  ** Return `hx::Proj.isSteadyState`
+  ** Return `hx::Runtime.isSteadyState`
   @Api @Axon
   static Bool isSteadyState()
   {
