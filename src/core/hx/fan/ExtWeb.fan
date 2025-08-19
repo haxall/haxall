@@ -11,7 +11,7 @@ using web
 
 **
 ** Ext plugin to add web servicing capability.
-** See `docHaxall::Libs#web`.
+** See `docHaxall::Exts#web`.
 **
 abstract const class ExtWeb : WebMod
 {

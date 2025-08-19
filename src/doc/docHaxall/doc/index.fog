@@ -15,7 +15,8 @@
   [`Runtime`,       "Runtime overview"],
   [`Folio`,         "Tag database"],
   [`Axon`,          "Axon scripting language"],
-  [`Libs`,          "Library modules"],
+  [`Namespace`,     "Xeto lib namespace"],
+  [`Exts`,          "Extensions"],
   [`Observables`,   "Observable subscription subsystem"],
   [`Watches`,       "Subscription to record changes"],
   [`Crypto`,        "Help on managing keys and trusted certificates"],
@@ -35,3 +36,4 @@
   [`AxonGrammar`,   "Formal BNF syntax grammar"],
   [`ChangeLog`,     "List of changes in each build"]
 ]
+

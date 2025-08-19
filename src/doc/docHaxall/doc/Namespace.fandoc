@@ -1,0 +1,113 @@
+**************************************************************************
+** title:      Namespace
+** author:     Brian Frank
+** created:    19 Aug 2025
+** copyright:  Copyright (c) 2025, SkyFoundry LLC
+** license:    Licensed under the Academic Free License version 3.0
+**************************************************************************
+
+Overview [#overview]
+********************
+Every `Runtime` defines a *namespace* which is its collection of Xeto
+libraries.  The namespace defines the scope for:
+  - what specs are available
+  - what Axon functions are available
+  - what extension to run
+
+Libraries are identified by their xeto lib dotted name. The first part
+of the name called the *prefix* is owned by specific organizations or
+project:
+  - "sys.*": core xeto system libs
+  - "ph.*": Project Haystack ontology libs
+  - "hx.*": all Haxall and SkySpark libs
+
+If you are creating your own extension then you should define a unique
+prefix your org and register it on `http://xeto.dev`.
+
+Basis [#basis]
+**************
+Every lib in a given runtime has one of three *basis* which determines
+how that lib was included into the namespace:
+
+  - **boot**: the system determined that the library at bootstrap time
+    as required by the system to run.  Boot libs cannot be modified.
+  - **sys**: the lib is enabled at the system level
+  - **proj**: the lib is enabled at the project level
+
+In the Haxall daemon, there is just one runtime and one namespace that
+serves as both the sys and the proj.  In a multi-tenant system like SkySpark
+each runtime defines its own unique namespace.  The sys namespace always
+includes boot libs and sys level libs.  The proj namepsace alwyas includes
+everything in the sys level namespace and its own enabled libs.  Plus every
+project has a special lib called "proj" for project level specs.
+
+Definition [#def]
+*****************
+See [TODO Xeto lib]`https://github.com/Project-Haystack/xeto/blob/master/src/xeto/doc.xeto/Libs.md`
+docs for how to create a standard library.
+
+Haxall supports the following extra lib meta:
+  - 'hxSysOnly': marks the lib to be used only at the boot/system level
+  - 'libExt': defines an extension to run when the lib is enabled
+
+Management [#management]
+************************
+Boot libs are managed in the 'hxm::HxBoot' class by vendors. All other libs
+are managed by a text file named "ns/libs.txt".  This file defines a lib name
+separated by newlines.
+
+You can also manage libs with these Axon functions:
+  - `libs()`: list the libs and their status in the runtime namespace
+  - `libAdd()`: add one or more libs to the runtime namespace
+  - `libRemove()`: add one or more libs to the runtime namespace
+
+In Fantom you manage the libs via the `hx::Runtime.libs` API.
+
+Funcs [#funcs]
+**************
+Any funcs defined in the lib are published into the Axon namespace. The
+implementation must be:
+ 1. Axon source code defined in 'axon' meta
+ 2. Fantom binding
+
+Axon Funcs [#axonFunc]
+======================
+Funcs defined in axon include their source via the func 'axon' meta tag.  Typically
+you include it using the heredoc syntax as follows:
+
+  myAdd: Func { a:Number, b:Number, returns: Number
+    <axon:---
+    (a, b) => a + b
+    --->
+  }
+
+Note that you need both the xeto spec signature, and to repeat the func params
+in your axon source. The names should match (but are not currently checked).
+
+Fantom Funcs [#fantomFunc]
+==========================
+Fantom functions are defined as a static method in a class always called "FooFuncs"
+where "Foo" is derived:
+  - from your extension type name
+  - form the last part of your library dotted name
+
+The funcs class must define a static method that matches the xeto spec signature.
+And the methods must be annotated with the `xeto::Api` facet.
+
+Register your Fantom pod as the implementation for the Xeto lib with the
+indexed prop "xeto.bindings".
+
+Example:
+
+  // xeto spec
+  myAdd: Func { a:Number, b:Number, returns: Number }
+
+  // build.fan register your pod as the implementation
+  index = ["xeto.bindings":"acme.mylib"]
+
+  // Fantom funcs as static method
+  class MylibFuncs
+  {
+    @Api static Number myAdd(Number a, Number) { a + b }
+  }
+

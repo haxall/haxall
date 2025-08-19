@@ -21,10 +21,11 @@ Haxall is composed of the following key concepts and subsystems:
   - [Ontology]`docHaystack::Ontology`: we standardize the modeling of the
     built environment using Project Haystack
   - [Folio]`Folio`: database optimized for the real-time nature of IoT data
+  - [Namespace]`Namespace`: xeto lib namespace of specs determine extensions, funcs, data modeling
   - [Axon]`Axon`: functional scripting language for onboarding and transforming IoT data
   - [HTTP API]`docHaystack::HttpApi`: all functionality is accessible over the Haystack HTTP API
   - [Connectors]`Conns`: framework for connectivity to IoT devices and protocols
-  - [Libs]`Libs`: pluggable modules for functionality
+  - [Exts]`Exts`: pluggable modules for functionality
   - [Runtime]`Runtime`: top-level API for working with a project
   - [Daemon]`Runtime#daemon`: complete runtime server with batteries included
 
@@ -54,9 +55,9 @@ that we have opened sourced to the community.  As such, the documentation
 contains many notes related to the features which work differently or are only
 available in SkySpark.
 
-Libraries developed for Haxall will run seamlessly in SkySpark.  For example
-if you develop a connector or Axon function library as a Haxall [lib]`Libs`,
-then you can drop that same pod into a SkySpark runtime and it will be available
+Extensions developed for Haxall will run seamlessly in SkySpark.  For example
+if you develop a connector or Axon function library as a Haxall [ext]`Exts`,
+then you can drop that same code into a SkySpark runtime and it will be available
 as a normal extension.
 
 Haxall databases are also binary compatible with SkySpark.  So you can open
