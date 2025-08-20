@@ -30,7 +30,7 @@ internal class XMeta
     ns.entriesList.each |entry|
     {
       // skip if not loaded
-      if (!entry.status.isLoaded) return
+      if (!entry.status.isOk) return
 
       // skip if we didn't mark it containing xmeta
       lib := entry.get
