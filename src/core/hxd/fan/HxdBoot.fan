@@ -46,6 +46,8 @@ class HxdBoot : HxBoot
       "hx.http",
       "hx.shell",
       "hx.xeto",
+      "hx.io",
+      "hx.task",
       "hx.hxd.file",
       "hx.hxd.his",
       "hx.hxd.proj",

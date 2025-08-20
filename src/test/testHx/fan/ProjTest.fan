@@ -51,7 +51,9 @@ class ProjTest : HxTest
       status := n.startsWith("bad") ? "err" : "ok"
       expectLibs[n] = "boot $status"
     }
-    expectExts := ["hx.api", "hx.crypto", "hx.hxd.file", "hx.hxd.his", "hx.http", "hx.hxd.user", "hx.hxd.proj"]
+    expectExts := ["hx.api", "hx.crypto", "hx.hxd.file",
+      "hx.hxd.his", "hx.http", "hx.hxd.user", "hx.hxd.proj",
+      "hx.io", "hx.task", ]
 
     // verify initial state
     verifyEq(p.name, boot.name)

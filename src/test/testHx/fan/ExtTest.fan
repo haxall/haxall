@@ -109,14 +109,15 @@ class ExtTest : HxTest
     verifySame(verifyGetByType(IProjExt#),   sys.proj)
     verifySame(verifyGetByType(IUserExt#),   sys.user)
 
-    // add hx.io
-    verifyGetByTypeNotFound(IIOExt#)
-    proj.libs.add("hx.io")
-    verifySame(verifyGetByType(IIOExt#), proj.exts.io)
+    // add hx.conn
+    verifyGetByTypeNotFound(IConnExt#)
+    proj.libs.add("hx.point")
+    proj.libs.add("hx.conn")
+    verifySame(verifyGetByType(IConnExt#), proj.exts.conn)
 
-    // remove hx.io
-    proj.libs.remove("hx.io")
-    verifyGetByTypeNotFound(IIOExt#)
+    // remove hx.conn
+    proj.libs.remove("hx.conn")
+    verifyGetByTypeNotFound(IConnExt#)
   }
 
   Ext verifyGetByType(Type t)
