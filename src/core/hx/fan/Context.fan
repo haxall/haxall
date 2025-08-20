@@ -117,16 +117,21 @@ class Context : AxonContext, FolioContext
   {
     tags := Str:Obj?[:] { ordered = true }
     tags["haystackVersion"] = defs.lib("ph").version.toStr
+    tags.addNotNull("projName", proj(false)?.name)
     tags["serverName"]      = Env.cur.host
     tags["serverBootTime"]  = DateTime.boot
     tags["serverTime"]      = DateTime.now
     tags["productName"]     = sys.info.productName
     tags["productUri"]      = sys.info.productUri
     tags["productVersion"]  = sys.info.productVersion
-    tags["tz"]              = TimeZone.cur.name
+    tags["moduleName"]      = sys.typeof.pod.name
+    tags["moduleVersion"]   = sys.typeof.pod.version.toStr
     tags["vendorName"]      = sys.info.vendorName
     tags["vendorUri"]       = sys.info.vendorUri
+    tags["tz"]              = TimeZone.cur.name
     tags["whoami"]          = user.username
+    tags["hostModel"]       = sys.info.hostModel
+    tags.addNotNull("hostId", sys.info.hostId)
     return Etc.makeDict(tags)
   }
 
