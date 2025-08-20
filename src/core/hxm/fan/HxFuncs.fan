@@ -332,14 +332,22 @@ const class HxFuncs
   ** passwordSet(@abc-123, null)
   ** <pre
   @Api @Axon { admin = true }
-  static Void passwordSet(Obj key, Str? val)
+  static Void passwordSet(Obj key, Str? val, Dict? opts := null)
   {
     // extra security check just to be sure!
     cx := curContext
-    if (!cx.user.isAdmin) throw PermissionErr("passwordSet")
+    cx.checkAdmin("passwordSet")
 
-    if (val == null) cx.db.passwords.remove(key.toStr)
-    else cx.db.passwords.set(key.toStr, val)
+    // check sys marker to set system db password
+    db := cx.db
+    if (opts != null && opts.has("sys"))
+    {
+      cx.checkSu("passwordSet")
+      db = cx.sys.db
+    }
+
+    if (val == null) db.passwords.remove(key.toStr)
+    else db.passwords.set(key.toStr, val)
   }
 
   ** Strip any tags which cannot be persistently committed to Folio.
