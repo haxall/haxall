@@ -95,7 +95,9 @@ The funcs class must define a static method that matches the xeto spec signature
 And the methods must be annotated with the `xeto::Api` facet.
 
 Register your Fantom pod as the implementation for the Xeto lib with the
-indexed prop "xeto.bindings".
+indexed prop "xeto.bindings". The convention is to name your Fantom pod to
+match the Xeto lib name by replacing dots with camel case.  For example the
+Xeto lib "acme.foo.bar" should use the Fantom pod name of "acmeFooBar".
 
 Example:
 

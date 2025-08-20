@@ -100,7 +100,7 @@ const class HxExtSpi : Actor, ExtSpi
     this.projRef     = rt as Proj
     this.name        = init.name
     this.qname       = init.spec.qname
-    this.log         = init.log ?: Log.get(name)
+    this.log         = init.initLog
     this.fantomType  = init.type
     this.settingsRef = AtomicRef(typedRec(init.settings))
   }
@@ -337,6 +337,13 @@ class HxExtSpiInit
   Type type
   ActorPool actorPool
   Log? log
+
+  Log initLog()
+  {
+    if (log != null) return log
+    if (rt.sys.info.type.isHxd) return Log.get(name)
+    return Log.get("${rt.name}-$name")
+  }
 }
 
 **************************************************************************
