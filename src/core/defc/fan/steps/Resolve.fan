@@ -168,6 +168,8 @@ internal class Resolve : DefCompilerStep
     if (name == "icon") return false
     if (name == "sysMod") return false
     if (name == "defVal") return false
+    if (name == "select") return false
+    if (name == "multi") return false
 
     return true
   }
