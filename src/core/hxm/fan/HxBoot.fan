@@ -80,9 +80,10 @@ abstract class HxBoot
       "ion",
       "ion.actions",
       "ion.card",
-      "ion.inputs",
       "ion.form",
+      "ion.inputs",
       "ion.misc",
+      "ion.styles",
       "ion.table",
       "ion.ux",
     ]
