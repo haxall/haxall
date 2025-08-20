@@ -339,8 +339,15 @@ const class TaskFuncs
   }
 
   ** Implementation for taskSendAction Axon wrapper
-  @NoDoc @Api @Axon { admin = true }
-  static Obj? taskDoSendAction(Obj taskIds, Str msg)
+  @NoDoc @Api @Axon { admin = true; meta=
+     Str<|multi
+          select
+          msg_multiLine
+          msg_defVal:
+             // trio dict
+             key: "val"
+          |> }
+  static Obj? taskSendAction(Obj taskIds, Str msg)
   {
     msgDict := TrioReader(msg.in).readDict(false) ?: Etc.dict0
     tasks := (Task[])Etc.toIds(taskIds).map |id->Task| { toTask(id) }

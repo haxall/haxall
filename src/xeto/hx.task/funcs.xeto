@@ -138,7 +138,7 @@ taskRunAction: Func <nodoc, admin> { taskIds: Obj, returns: Obj? }
 taskCancelAction: Func <nodoc, admin> { taskIds: Obj, returns: Obj? }
 
 // Implementation for taskSendAction Axon wrapper
-taskDoSendAction: Func <nodoc, admin> { taskIds: Obj, msg: Str, returns: Obj? }
+taskSendAction: Func <nodoc, admin> { taskIds: Obj, msg: Str, returns: Obj? }
 
 // Return plaintext grid for task's debug details
 taskDebugDetails: Func <nodoc, admin> { task: Obj, returns: Grid }
