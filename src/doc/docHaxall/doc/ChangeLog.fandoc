@@ -6,7 +6,29 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
-*Build 4.0.3 (working)*
+*Build 4.0.3 (21 Aug 2025)*
+- User, Sys, Proj, Context moved into hx
+- Ext now backed by xeto lib
+- Ext now keyed by xeto dotted lib name
+- Ext settings now managed in {proj}/ns
+- Funcs now managed in {proj}/ns
+- Rename hx::HxLib -> Ext
+- Rename hx::HxLibWeb -> ExtWeb (and associated methods)
+- Rename hxFoo::FooLib -> FooExt (and associated methods)
+- Exts now keyed by their xeto lib name "task" -> "hx.task"
+- Haxall libs.get("task") => exts.get("hx.task")
+- HxUser -> User
+- Remove Haxall services axon and Fantom APIs
+- Haxall API now uses /api/{proj}/{op} pattern like SkySpark
+- Move axon::CoreLib -> AxonFuncs
+- Move hx::HxCoreFuncs -> hxm::HxFuncs
+- Move axon is() function from xeto -> hx
+- Axon func/funcs uses qname instead of def/name/lib now
+- Axon cannot combine dot with qnames such as "123.axon::toStr"
+- Conn connDupRef and connPointsVia needs to be ext name
+- Folio readById with trash will return null
+- Remove Context.filterPather (deprecated)
+- EnergyStar connector is now open source
 
 *Build 4.0.2 (11 Jul 2025)*
 - Add AxonContext.ns
