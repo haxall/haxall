@@ -114,8 +114,9 @@ enum class RuntimeLibBasis
 
 **
 ** Runtime library pack is a digest list of libs to build a xeto
-** pack for browser serialization.  It includes my own libs, but for
-** project runtimes excludes sys libs and the special "proj" lib.
+** pack for browser serialization.  It includes my own libs that in an
+** ok status, but for project runtimes excludes sys libs and the
+** special "proj" lib.
 **
 @NoDoc
 const class RuntimeLibPack

@@ -37,6 +37,11 @@ const class HxProjSpecs : ProjSpecs
     ns.lib("proj")
   }
 
+  override Str? libDigest()
+  {
+    rt.libsRef.projLibDigest
+  }
+
   override Str? libErrMsg()
   {
     err := ns.libErr("proj")

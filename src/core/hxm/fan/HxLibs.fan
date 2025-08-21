@@ -83,6 +83,9 @@ const class HxLibs : RuntimeLibs
   override RuntimeLibPack pack() { packRef.val }
   private const AtomicRef packRef := AtomicRef()
 
+  Str? projLibDigest() { projLibDigestRef.val }
+  private const AtomicRef projLibDigestRef := AtomicRef()
+
   override RuntimeLib[] installed()
   {
     acc := this.map.dup
@@ -280,6 +283,7 @@ const class HxLibs : RuntimeLibs
     this.nsRef.val   = ns
     this.mapRef.val  = acc.toImmutable
     this.packRef.val = updatePack(ns, acc)
+    this.projLibDigestRef.val = Ref.gen.id
 
     // if this is initialization, then we are done
     if (init) return ns
@@ -443,7 +447,6 @@ const class HxLibs : RuntimeLibs
   private const AtomicRef nsRef := AtomicRef()
   private const AtomicRef mapRef := AtomicRef()
   private const Lock lock := Lock.makeReentrant
-
 }
 
 **************************************************************************

@@ -97,12 +97,13 @@ class ProjTest : HxTest
     verifyProjLibs(p, expectLibs)
 
     // add spec
+    pld := p.specs.libDigest
     specA := p.specs.add("SpecA", "Dict { dis: Str }")
     specB := p.specs.add("SpecB", "Dict { dis: Str }")
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Dict")
     verifyEq(p.specs.read("SpecA"), "Dict { dis: Str }")
-    verifyProjSpecs(p, ["SpecA", "SpecB"])
+    pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
 
     // add errors
     verifyErr(DuplicateNameErr#) { p.specs.add("SpecA", "Dict { foo: Str }") }
@@ -113,7 +114,7 @@ class ProjTest : HxTest
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Scalar")
     verifyEq(p.specs.read("SpecA"), "Scalar")
-    verifyProjSpecs(p, ["SpecA", "SpecB"])
+    pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
 
     // update errors
     verifyErr(UnknownSpecErr#) { p.specs.update("SpecX", "Dict { foo: Str }") }
@@ -122,12 +123,13 @@ class ProjTest : HxTest
     p.db.close
     p = HxdSys(boot).init(boot)
     verifyProjLibs(p, expectLibs)
-    verifyProjSpecs(p, ["SpecA", "SpecB"])
+    pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
 
     // remove - errors
     verifyErr(DuplicateNameErr#) { p.libs.removeAll(["ph.points", "ph.points"]) }
     verifyErr(DependErr#) { p.libs.remove("ph.points") }
     verifyErr(CannotRemoveBootLibErr#) { p.libs.removeAll(["ashrae.g36", "sys"]) }
+    verifyEq(pld, p.specs.libDigest)
 
     // remove g36
     p.libs.remove("ashrae.g36")
@@ -139,23 +141,23 @@ class ProjTest : HxTest
     verifyEq(specA.qname, "proj::NewSpecA")
     verifyEq(specA.base.qname, "sys::Scalar")
     verifyEq(p.specs.read("NewSpecA"), "Scalar")
-    verifyProjSpecs(p, ["NewSpecA", "SpecB"])
+    pld = verifyProjSpecs(p, ["NewSpecA", "SpecB"], pld)
 
     // rename errors
     verifyErr(UnknownSpecErr#) { p.specs.rename("Bad", "NewBad") }
     verifyErr(DuplicateNameErr#) { p.specs.rename("NewSpecA", "SpecB") }
     verifyErr(NameErr#) { p.specs.rename("NewSpecA", "Bad Name") }
-    verifyProjSpecs(p, ["NewSpecA", "SpecB"])
+    pld = verifyProjSpecs(p, ["NewSpecA", "SpecB"], pld)
 
     // remove specs
     p.specs.remove("NewSpecA")
-    verifyProjSpecs(p, ["SpecB"])
+    pld = verifyProjSpecs(p, ["SpecB"], pld)
 
     // re-boot and verify libs were persisted
     p.db.close
     p = HxdSys(boot).init(boot)
     verifyProjLibs(p, expectLibs)
-    verifyProjSpecs(p, ["SpecB"])
+    pld = verifyProjSpecs(p, ["SpecB"], pld)
 
     // test specs with comments
     src := """
@@ -168,7 +170,7 @@ class ProjTest : HxTest
     specA = p.specs.add("SpecAnotherA", src)
     verifyEq(specA.qname, "proj::SpecAnotherA")
     verifyEq(p.specs.read(specA.name), src.splitLines.findAll { !it.isEmpty }.join("\n").trim)
-    verifyProjSpecs(p, ["SpecAnotherA", "SpecB"])
+    pld = verifyProjSpecs(p, ["SpecAnotherA", "SpecB"], pld)
 
     // add new ext
     ext := p.exts.add("hx.shell")
@@ -336,10 +338,12 @@ class ProjTest : HxTest
 
     verifySame(p.specs.lib.name, "proj")
     verifySame(p.specs.lib, p.ns.lib("proj"))
+    verifyNotNull(p.specs.libDigest)
   }
 
-  Void verifyProjSpecs(Proj p, Str[] names)
+  Str verifyProjSpecs(Proj p, Str[] names, Str oldDigest)
   {
+    newDigest := p.specs.libDigest
     Str[] actualNames := p.specs.lib.specs.map |s->Str| { s.name }
     verifyEq(p.specs.list.dup.sort, names.sort)
     verifyEq(actualNames.sort, names.sort)
@@ -348,6 +352,7 @@ class ProjTest : HxTest
       spec := p.ns.spec("proj::$n")
       verifySame(spec.lib, p.specs.lib)
     }
+    return newDigest
   }
 
   Void verifyProjExts(Proj p, Str[] names)

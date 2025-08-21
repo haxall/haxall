@@ -17,6 +17,10 @@ const mixin ProjSpecs
   ** Get the project lib
   abstract Lib lib()
 
+  ** Get a unique digest for the current proj lib version.
+  ** Return null if the project lib is current in an error state.
+  @NoDoc abstract Str? libDigest()
+
   ** Get simple error message to use if project lib is in error
   @NoDoc abstract Str? libErrMsg()
 
