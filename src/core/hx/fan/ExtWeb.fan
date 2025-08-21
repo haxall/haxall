@@ -33,8 +33,11 @@ abstract const class ExtWeb : WebMod
     ext.rt.isSys ? `/${routeName}/` : `/ext/${ext.rt.name}/${routeName}`
   }
 
-  ** Is the unsupported no-up default instance
-  @NoDoc virtual Bool isUnsupported() { false }
+  ** Return true if this is not the UnsupportedExtWeb type
+  @NoDoc virtual Bool isSupported() { true }
+
+  ** Return true if this is the UnsupportedExtWeb type
+  @NoDoc Bool isUnsupported() { !isSupported }
 
 }
 
@@ -46,7 +49,7 @@ internal const class UnsupportedExtWeb : ExtWeb
 {
   new make(Ext lib) : super(lib) {}
   override Str routeName() { "" }
-  override Bool isUnsupported() { true }
+  override Bool isSupported() { false }
   override Void onService() { res.sendErr(404) }
 }
 
