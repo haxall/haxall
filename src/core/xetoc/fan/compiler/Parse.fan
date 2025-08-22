@@ -71,7 +71,7 @@ internal class Parse : Step
     pragma := lib.tops.remove("pragma")
 
     // for special "proj" lib we use libs.txt
-    if (pragma == null && lib.name == XetoUtil.projLibName)
+    if (pragma == null && lib.name == XetoUtil.companionLibName)
       pragma = synthetizeProjLibPragma(lib)
 
     // if not found

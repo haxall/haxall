@@ -89,7 +89,7 @@ abstract const class MEnv : XetoEnv
 
     // don't ever cache the special proj lib
     lib = compile(ns, x)
-    if (name == XetoUtil.projLibName) return lib
+    if (name == XetoUtil.companionLibName) return lib
 
     return libsByName.getOrAdd(name, lib)
   }

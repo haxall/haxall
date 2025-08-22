@@ -219,8 +219,8 @@ const class XetoUtil
     return n[dot+1..-1]
   }
 
-  ** Project lib name
-  static const Str projLibName := "proj"
+  ** Project companion lib name
+  static const Str companionLibName := "proj"
 
 //////////////////////////////////////////////////////////////////////////
 // Reserved Names

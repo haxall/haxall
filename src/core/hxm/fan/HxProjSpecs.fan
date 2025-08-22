@@ -39,7 +39,7 @@ const class HxProjSpecs : ProjSpecs
 
   override Str? libDigest()
   {
-    rt.libsRef.projLibDigest
+    rt.libsRef.companionLibDigest
   }
 
   override Str? libErrMsg()

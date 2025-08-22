@@ -10,18 +10,18 @@ using xeto
 using haystack
 
 **
-** Manage Xeto specs in the project library
+** Manage Xeto specs in the project companion library
 **
 const mixin ProjSpecs
 {
-  ** Get the project lib
+  ** Get the project companion lib
   abstract Lib lib()
 
-  ** Get a unique digest for the current proj lib version.
+  ** Get a unique digest for the current project companion lib version.
   ** Return null if the project lib is current in an error state.
   @NoDoc abstract Str? libDigest()
 
-  ** Get simple error message to use if project lib is in error
+  ** Get simple error message to use if project companion lib is in error
   @NoDoc abstract Str? libErrMsg()
 
   ** List the spec names defined

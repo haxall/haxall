@@ -112,7 +112,7 @@ abstract class AxonContext : HaystackContext, CompContext
     for (i := 0; i<list.size; ++i)
     {
       f := list[i]
-      if (f.lib.name === XetoUtil.projLibName)
+      if (f.lib.name === XetoUtil.companionLibName)
         projIndex = i
       else if (f.meta.missing("overridable"))
         allOverridable = false

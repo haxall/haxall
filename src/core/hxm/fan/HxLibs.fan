@@ -83,8 +83,8 @@ const class HxLibs : RuntimeLibs
   override RuntimeLibPack pack() { packRef.val }
   private const AtomicRef packRef := AtomicRef()
 
-  Str? projLibDigest() { projLibDigestRef.val }
-  private const AtomicRef projLibDigestRef := AtomicRef()
+  Str? companionLibDigest() { companionLibDigestRef.val }
+  private const AtomicRef companionLibDigestRef := AtomicRef()
 
   override RuntimeLib[] installed()
   {
@@ -283,7 +283,7 @@ const class HxLibs : RuntimeLibs
     this.nsRef.val   = ns
     this.mapRef.val  = acc.toImmutable
     this.packRef.val = updatePack(ns, acc)
-    this.projLibDigestRef.val = Ref.gen.id
+    this.companionLibDigestRef.val = "companion-${rt.name}-${Ref.gen.id}"
 
     // if this is initialization, then we are done
     if (init) return ns
@@ -417,8 +417,8 @@ const class HxLibs : RuntimeLibs
     packLibs := Lib[,]
     ns.libs.each |lib|
     {
-      // always skip proj lib
-      if (lib.name == XetoUtil.projLibName) return
+      // always skip proj companion lib
+      if (lib.name == XetoUtil.companionLibName) return
 
       // only want my own
       hx := allLibs[lib.name]

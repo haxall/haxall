@@ -39,7 +39,7 @@ const class FileLibVersion : LibVersion
 
   new makeProj(File dir, Version version)
   {
-    this.name       = XetoUtil.projLibName
+    this.name       = XetoUtil.companionLibName
     this.version    = version
     this.toStr      = "$name-$version"
     this.fileRef    = dir
