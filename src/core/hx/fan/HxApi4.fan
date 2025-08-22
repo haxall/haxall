@@ -19,14 +19,6 @@ using haystack
 @NoDoc
 facet class HxApi {}
 
-**
-** IonApi annotates a method available for ion::UiApi calls.  It must
-** be a static method that takes a Dict request and Context.  It is
-** registered via the "ion.api" indexed prop.
-**
-@NoDoc
-facet class IonApi {}
-
 **************************************************************************
 ** HxApiReq
 **************************************************************************
