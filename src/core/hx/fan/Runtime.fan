@@ -162,6 +162,9 @@ const mixin Runtime
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
+  ** Temp dir for files only kept for a short period after last modified
+  @NoDoc abstract File tempDir()
+
   ** Cache for ion data
   @NoDoc abstract Obj ionData()
 

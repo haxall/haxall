@@ -87,7 +87,7 @@ abstract const class HxRuntime : Runtime
   override const File dir
 
   ** Temp directory
-  const File tempDir
+  override const File tempDir
 
   ** Runtime level meta data stored in the `projMeta` database record
   override Dict meta() { metaRef.val }
