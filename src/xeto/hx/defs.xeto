@@ -7,7 +7,7 @@
 //
 
 // Extension definition
-Ext: Dict <abstract>
+Ext: Interface <abstract>
 
 // System level extension
 SysExt: Ext <abstract>

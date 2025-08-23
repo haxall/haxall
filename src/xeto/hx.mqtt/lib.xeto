@@ -29,5 +29,5 @@ pragma: Lib <
 >
 
 // MQTT connector
-MqttExt: Conn
+MqttExt: ConnExt
 

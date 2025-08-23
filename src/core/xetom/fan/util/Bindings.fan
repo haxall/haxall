@@ -266,8 +266,8 @@ const class SpecBindingLoader
     // enums are scalars
     if (type.fits(Enum#)) return acc.add(ScalarBinding(spec.qname, type))
 
-    // check for hx::Ext
-    if (type.name.endsWith("Ext")) return acc.add(ObjBinding(spec.qname, type))
+    // interfaces like hx::Ext use generic obj
+    if (spec.isInterface) return acc.add(makeInterfaceBinding(spec.qname, type))
 
     // no joy
     return null
@@ -277,6 +277,12 @@ const class SpecBindingLoader
   virtual Thunk loadThunk(Spec spec)
   {
     ThunkFactory.cur.create(spec, null)
+  }
+
+  ** Create interface binding
+  virtual SpecBinding makeInterfaceBinding(Str spec, Type type)
+  {
+    ObjBinding(spec, type)
   }
 }
 

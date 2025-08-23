@@ -27,6 +27,30 @@ class ExtTest : HxTest
 //////////////////////////////////////////////////////////////////////////
 
   @HxTestProj
+  Void testBindings()
+  {
+    ns := XetoEnv.cur.createNamespaceFromNames(["hx.mqtt", "hx.haystack", "hx.point", "hx.task"])
+    verifyBinding(ns, "hx.task::TaskExt", "hxTask::TaskExt")
+    verifyBinding(ns, "hx.point::PointExt", "hxPoint::PointExt")
+    verifyBinding(ns, "hx.haystack::HaystackExt", "hxHaystack::HaystackExt")
+    verifyBinding(ns, "hx.mqtt::MqttExt", "hxMqtt::MqttExt")
+  }
+
+  Void verifyBinding(LibNamespace ns, Str spec, Str fanType)
+  {
+    s := ns.spec(spec)
+    // echo(">>> $s.qname $s.isInterface $s.fantomType")
+    verifyEq(s.qname, spec)
+    verifyEq(s.isInterface, true)
+    verifyEq(s.isa(ns.spec("hx::Ext")), true)
+    verifyEq(s.fantomType.qname, fanType)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Add/Remove
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
   Void testAddRemove()
   {
     verifyExtDisabled("hx.test")
