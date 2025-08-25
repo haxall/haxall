@@ -287,19 +287,26 @@ class XetoBinaryReader : XetoBinaryConst
   {
     qname := readStr
     str   := readStr
-    type := Type.find(qname)
-    fromStr := toTypedScalarDecoder(type)
-    return fromStr.call(str)
+    type := Type.find(qname, false)
+    if (type != null)
+    {
+      fromStr := toTypedScalarDecoder(type)
+      if (fromStr != null)
+        return fromStr.call(str)
+      else
+        Console.cur.warn("XetoBinaryReader scalar type missing fromStr method: $type.qname")
+    }
+    return str
   }
 
-  private Method toTypedScalarDecoder(Type type)
+  private Method? toTypedScalarDecoder(Type type)
   {
     for (Type? x := type; x != null; x = x.base)
     {
       fromStr := x.method("fromStr", false)
       if (fromStr != null) return fromStr
     }
-    throw Err("Scalar type missing fromStr method: $type.qname")
+    return null
   }
 
   private Dict readGenericDict()
