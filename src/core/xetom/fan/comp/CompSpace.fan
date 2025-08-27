@@ -36,11 +36,12 @@ class CompSpace : AbstractCompSpace
     if (rootRef != null) throw Err("Root already initialized")
 
     // use callback to make root while this is installed as actor local
+    old := Actor.locals[actorKey]
     Actor.locals[actorKey] = this
     try
       this.rootRef = f(this)
     finally
-    Actor.locals.remove(actorKey)
+    Actor.locals.set(actorKey, old)
     mount(root)
 
     return this

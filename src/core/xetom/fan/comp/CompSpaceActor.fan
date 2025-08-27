@@ -106,9 +106,6 @@ const class CompSpaceActor : Actor
     }
     cs := state.cs
 
-// TODO: should not need this more than once
-Actor.locals[CompSpace.actorKey] = cs
-
     // dispatch message
     switch (msg.id)
     {
@@ -153,6 +150,7 @@ Actor.locals[CompSpace.actorKey] = cs
   private CompSpaceActorState onInit(Type csType, Obj?[] args)
   {
     CompSpace cs := csType.make(args)
+    Actor.locals[CompSpace.actorKey] = cs
     nsRef.val = cs.ns
     state := CompSpaceActorState(cs)
     cs.actorState = state
