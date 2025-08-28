@@ -574,13 +574,18 @@ const class Etc
   }
 
   **
-  ** Set a name/val pair in an existing dict or d is null then
+  ** Set a name/val pair in an existing dict or if dict is null then
   ** create a new dict with given name/val pair. If val is null
-  ** return d.
+  ** this is semantically equivalent to 'dictRemove(d, name)'.
   **
   static Dict dictSet(Dict? d, Str name, Obj? val)
   {
-    if (val == null) return d ?: Etc.dict0
+    if (val == null)
+    {
+      if (d == null || d.isEmpty) return Etc.dict0
+      return Etc.dictRemove(d, name)
+    }
+
     if (d == null || d.isEmpty) return dict1(name, val)
     map := Str:Obj[:]
     if (d != null)

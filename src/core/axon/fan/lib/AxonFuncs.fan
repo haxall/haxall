@@ -207,7 +207,7 @@ const class AxonFuncs
 
   ** Set a collection item and return a new collection.
   **  - List: set item by index key
-  **  - Dict: set item by key name
+  **  - Dict: set item by key name (if val is null, it is a remove)
   @Api @Axon static Obj? set(Obj? val, Obj? key, Obj? item)
   {
     if (val is List) return mutList(val).set(((Number)key).toInt, item)
