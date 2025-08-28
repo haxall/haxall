@@ -7,6 +7,7 @@
 **************************************************************************
 
 *Patches 3.1.12*
+- Tweak dictSet with null value to mean remove
 
 *Build 3.1.12 (26 Jun 2025)*
 - FolioFile API

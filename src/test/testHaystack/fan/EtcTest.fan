@@ -412,6 +412,19 @@ class EtcTest : HaystackTest
     verifyEq(d.typeof.qname, "haystack::Dict1")
     verifyDictEq(d, ["x":n(4)])
 
+    d = Etc.dictSet(d, "x", null)
+    verifySame(Etc.dict0, d)
+
+    d = Etc.dictSet(null, "x", null)
+    verifySame(Etc.dict0, d)
+
+    d = Etc.dictSet(d, "x", null)
+    verifySame(Etc.dict0, d)
+
+    d = Etc.dictSet(d, "x", n(4))
+    verifyEq(d.typeof.qname, "haystack::Dict1")
+    verifyDictEq(d, ["x":n(4)])
+
     d = Etc.dictSet(d, "y", n(5))
     verifyEq(d.typeof.qname, "haystack::Dict2")
     verifyDictEq(d, ["x":n(4), "y":n(5)])
@@ -433,6 +446,14 @@ class EtcTest : HaystackTest
     verifySame(Etc.dictRemoveAll(d, Str["foo"]), d)
     d = Etc.dictRemoveAll(d, Str["a", "c", "x"])
     verifyDictEq(d, ["b":n(2)])
+
+    d = Etc.dictSet(null, "a", n(1)); verifyDictEq(d, ["a":n(1)])
+    d = Etc.dictSet(d, "b", n(2));    verifyDictEq(d, ["a":n(1), "b":n(2)])
+    d = Etc.dictSet(d, "c", n(3));    verifyDictEq(d, ["a":n(1), "b":n(2), "c":n(3)])
+    verifySame(Etc.dictSet(d, "x", null), d)
+    d = Etc.dictSet(d, "b", null);    verifyDictEq(d, ["a":n(1), "c":n(3)])
+    d = Etc.dictSet(d, "a", null);    verifyDictEq(d, ["c":n(3)])
+    d = Etc.dictSet(d, "c", null);    verifySame(d, Etc.dict0)
   }
 
 //////////////////////////////////////////////////////////////////////////
