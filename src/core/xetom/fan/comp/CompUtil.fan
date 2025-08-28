@@ -103,11 +103,13 @@ class CompUtil
     dictToBrio(compToDict(comp))
   }
 
-  ** Dict to brio buf
+  ** Dict to brio buf for transport to browser!
   static Buf dictToBrio(Dict dict)
   {
     buf := Buf()
-    BrioWriter(buf.out).writeDict(dict)
+    out := BrioWriter(buf.out)
+    out.js = true // js requires can't handle 64-bit integers
+    out.writeDict(dict)
     return buf.toImmutable
   }
 

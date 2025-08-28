@@ -359,12 +359,13 @@ class BrioWriter : GridWriter, BrioCtrl
     return out.write(0xe0).writeI8(val)
   }
 
-  @NoDoc static const Bool js := Env.cur.runtime == "js"
+  @NoDoc static const Bool jsDefault := Env.cur.runtime == "js"
 
   @NoDoc Str? encodeRefToRel
   @NoDoc Bool encodeRefDis := true
   @NoDoc Int maxStrCode
   @NoDoc Bool encodeUnknownAsStr
+  @NoDoc Bool js := jsDefault
   private const BrioConsts cp
   private OutStream out
 }
