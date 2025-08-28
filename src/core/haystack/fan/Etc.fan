@@ -20,15 +20,17 @@ const class Etc
 // Dict
 //////////////////////////////////////////////////////////////////////////
 
-  **
   ** Get the emtpy Dict instance, prefer dict0 now
-  **
   @NoDoc static Dict emptyDict() { EmptyDict.val }
 
-  **
   ** Empty Str:Obj map
-  **
   @NoDoc static const Str:Obj emptyTags := [:]
+
+  ** Empty list of Ref[]
+  @NoDoc static const Ref[] emptyRefList := Ref[,]
+
+  ** Empty list of Dict[]
+  @NoDoc static const Dict[] emptyDictList := Dict[,]
 
   **
   ** Make a Dict instance where 'val' is one of the following:
