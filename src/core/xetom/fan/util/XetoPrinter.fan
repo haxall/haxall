@@ -71,7 +71,38 @@ class XetoPrinter
     return this
   }
 
-  ** Instance (must have id tag):
+//////////////////////////////////////////////////////////////////////////
+// Instances
+//////////////////////////////////////////////////////////////////////////
+
+  ** Top level for LibNamespace.writeData
+  This data(Obj top)
+  {
+    if (top is Grid)
+    {
+      ((Grid)top).each(dataIterator)
+    }
+    else if (XetoUtil.isDictList(top))
+    {
+      ((Dict[])top).each(dataIterator)
+    }
+    else if (top is Dict && ((Dict)top).has("id"))
+    {
+      instance(top)
+    }
+    else
+    {
+      val(top)
+    }
+    return this
+  }
+
+  private |Dict,Int| dataIterator()
+  {
+    |Dict x, Int i| { if (i > 0) nl; instance(x) }
+  }
+
+  ** Instance:
   **   @id: Spec {
   **     n0: v0
   **     ...
@@ -79,12 +110,14 @@ class XetoPrinter
   This instance(Dict x, Str[] skip := dictSkip)
   {
     // leading id
-    id := x.id.id
-    id = XetoUtil.qnameToName(id) ?: id
-    wc('@').w(id).wc(':').sp
+    id := x["id"] as Ref
+    if (id != null)
+    {
+      id = XetoUtil.qnameToName(id) ?: id
+      wc('@').w(id).wc(':').sp
+    }
 
-    spec := specOf(x)
-    dict(spec, x).nl
+    dict(specOf(x), x).nl
     return this
   }
 
@@ -143,26 +176,42 @@ class XetoPrinter
     return wc('}')
   }
 
-  ** Dict pair
-  This dictPair(Str n, Obj v)
-  {
-    w(n)
-    if (!isMarker(v)) wc(':').sp.val(v)
-    return this
-  }
-
   ** List value
   This list(Spec spec, List list)
   {
     type(spec).sp.wc('{')
-    first := true
+    num := 0
+    indentation++
     list.each |v|
     {
-      if (first) first = false
-      else wc(',').sp
-      val(v)
+      num++
+      nl.indent.dictPair("_0", v) // force use of fixed auto-name
     }
+    indentation--
+    if (num > 0) nl.indent
     return wc('}')
+  }
+
+  ** Dict pair
+  This dictPair(Str? n, Obj v)
+  {
+    // name only
+    if (isMarker(v)) return w(n)
+
+    // name @id: value
+    showName  := !XetoUtil.isAutoName(n)
+    id        := (v as Dict)?.get("id") as Ref
+    needColon := showName || id != null
+
+    if (showName) w(n)
+    if (id != null)
+    {
+      if (showName) sp
+      ref(id.noDis)
+    }
+    if (needColon) wc(':').sp
+
+    return val(v)
   }
 
 //////////////////////////////////////////////////////////////////////////

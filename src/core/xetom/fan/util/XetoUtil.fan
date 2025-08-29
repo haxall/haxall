@@ -549,6 +549,18 @@ const class XetoUtil
     return acc
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Misc
+//////////////////////////////////////////////////////////////////////////
+
+  static Bool isDictList(Obj x)
+  {
+    list := x as List
+    if (list == null || list.isEmpty) return false
+    if (list.of.fits(Dict#)) return true
+    return list.all { it is Dict }
+  }
+
 }
 
 **************************************************************************

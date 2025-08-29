@@ -121,6 +121,41 @@ class PrinterTest : AbstractXetoTest
              }
            }
            |>)
+
+    // instance with typed nested dicts and ids
+    out = newCase
+    out.instance(Etc.dictx("id",Ref("foo"),
+      "dict0",Etc.dict2("id",Ref("a"), "spec",Ref("ph::Site")),
+      "dict1",Etc.dict3("id",Ref("b"), "foo","bar", "spec",Ref("ph::Equip")),
+      "dict2",Etc.dict4("id",Ref("c", "ignore"), "foo","bar", "baz",m, "spec",Ref("ph::Point"))))
+    verifyInstance(
+      Str<|@foo: {
+             dict0 @a: ph::Site {}
+             dict1 @b: ph::Equip {
+               foo: "bar"
+             }
+             dict2 @c: ph::Point {
+               foo: "bar"
+               baz
+             }
+           }
+           |>)
+
+    // LibNamespace.writeData
+    out = newCase
+    out.data([Etc.dictx("id",Ref("foo"), "spec",Ref("ph::Site")),
+              Etc.dictx("id",Ref("bar"), "spec",Ref("ph::Site"), "site",m),
+              Etc.dictx("id",Ref("baz"), "spec",Ref("ph::Site")),
+              ])
+    verifyInstance(
+      Str<|@foo: ph::Site {}
+
+           @bar: ph::Site {
+             site
+           }
+
+           @baz: ph::Site {}
+           |>)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -137,7 +172,7 @@ class PrinterTest : AbstractXetoTest
   {
     actual := buf.toStr
 
-    if (true)
+    if (false)
     {
       echo
       echo("----")

@@ -488,6 +488,7 @@ class ValidateTest : AbstractXetoTest
     catch (Err e)
       {}
 
+
     verifyErrs("Compile Time", instance, null, errs, expect)
   }
 
@@ -611,7 +612,7 @@ class ValidateTest : AbstractXetoTest
     buf := StrBuf()
     buf.add(src).add("\n\n").add("@x: ")
     ns.writeData(buf.out, instance)
-    return buf.toStr.replace("@x: Dict", "@x: Foo")
+    return buf.toStr.replace("@x: {", "@x: Foo {")
   }
 
   ** Namespace to use

@@ -405,19 +405,11 @@ class Printer
   {
     if (x is Grid)
       ((Grid)x).each |dict| { xeto(dict, true).nl.nl }
-    else if (isDictList(x))
+    else if (XetoUtil.isDictList(x))
       ((Dict[])x).each |dict| { xeto(dict, true).nl.nl }
     else
       xeto(x, true)
     return this
-  }
-
-  private static Bool isDictList(Obj x)
-  {
-    list := x as List
-    if (list == null || list.isEmpty) return false
-    if (list.of.fits(Dict#)) return true
-    return list.all { it is Dict }
   }
 
   ** Pretty print instance data in Xeto text format

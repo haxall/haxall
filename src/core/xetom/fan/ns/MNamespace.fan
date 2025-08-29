@@ -813,7 +813,7 @@ const class MNamespace : LibNamespace, CNamespace
 
   override Void writeData(OutStream out, Obj val, Dict? opts := null)
   {
-    Printer(this, out, opts ?: Etc.dict0).xetoTop(val)
+    XetoPrinter(this, out, opts ?: Etc.dict0).data(val)
   }
 
   override Void print(Obj? val, OutStream out := Env.cur.out, Dict? opts := null)
