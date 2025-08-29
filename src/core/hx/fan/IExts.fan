@@ -115,6 +115,24 @@ const mixin ICryptoExt : SysExt
 }
 
 **************************************************************************
+** ISecretExt
+**************************************************************************
+
+**
+** Secrets manager system extension. Convention is that secrets
+** use a dotted naming convention such as "service.key".
+**
+@NoDoc
+const mixin ISecretsExt : SysExt
+{
+  ** Get secret as a string value.
+  abstract Str? get(Str key, Bool checked := true)
+
+  ** Get secret as key pair
+  abstract KeyPair? getKeyPair(Str key, Bool checked := true)
+}
+
+**************************************************************************
 ** IFileExt
 **************************************************************************
 

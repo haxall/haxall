@@ -51,6 +51,9 @@ const mixin Sys : Runtime
   ** Project management system extension (required)
   @NoDoc virtual IProjExt proj() { exts.getByType(IProjExt#) }
 
+  ** Secrets manager system extension (optional)
+  @NoDoc virtual ISecretsExt? secrets(Bool checked := true) { exts.getByType(ISecretsExt#, checked) }
+
   ** User management system extension (required)
   @NoDoc virtual IUserExt user()  { exts.getByType(IUserExt#) }
 }
