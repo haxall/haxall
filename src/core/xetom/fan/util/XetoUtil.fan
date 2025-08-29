@@ -223,6 +223,39 @@ const class XetoUtil
   static const Str companionLibName := "proj"
 
 //////////////////////////////////////////////////////////////////////////
+// Literals
+//////////////////////////////////////////////////////////////////////////
+
+  ** Xeto quoted string (we don't escape $ like Fantom Str.toCode)
+  static Str strToCode(Str s)
+  {
+    buf := StrBuf(2 + s.size)
+    buf.addChar('"')
+    s.each |ch|
+    {
+      esc := ch < 127 ? strEscapes.get(ch) : null
+      if (esc != null) buf.add(esc); else buf.addChar(ch)
+    }
+    return buf.addChar('"').toStr
+  }
+
+  ** Xeto quoted lookup table
+  const static Str?[] strEscapes
+  static
+  {
+    acc := Str?[,]
+    acc.size = 127
+    (0 ..< ' ').each |i| { acc[i] = "\\u{" + i.toHex + "}" }
+    acc['\n'] = Str<|\n|>
+    acc['\r'] = Str<|\r|>
+    acc['\f'] = Str<|\f|>
+    acc['\t'] = Str<|\t|>
+    acc['\\'] = Str<|\\|>
+    acc['"']  = Str<|\"|>
+    strEscapes = acc
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Reserved Names
 //////////////////////////////////////////////////////////////////////////
 

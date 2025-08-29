@@ -12,7 +12,7 @@ using xeto
 using haystack
 
 **
-** Pretty printer
+** Pretty printer with console themeing support
 **
 @Js
 class Printer
