@@ -143,11 +143,14 @@ class HxFuncsTest : HxTest
   @HxTestProj
   Void testCoercion()
   {
+    addLib("hx.test.xeto")
     d1 := Etc.dict1("id", Ref("d1"))
     d2 := Etc.dict1("id", Ref("d2"))
     g0 := Etc.emptyGrid
     g1 := Etc.makeDictGrid(null, d1)
     r  := addRec(["dis":"rec in db"])
+    s  := proj.ns.spec("hx.test.xeto::TestSite")
+    i  := proj.ns.instance("hx.test.xeto::test-a")
 
     // Etc.toId, toRecId
     verifyToId(null,        null)
@@ -157,6 +160,8 @@ class HxFuncsTest : HxTest
     verifyToId(Ref("a"),    Ref("a"))
     verifyToId(d1,          Ref("d1"))
     verifyToId(g1,          Ref("d1"))
+    verifyToId(s,           s.id)
+    verifyToId(i,           i.id)
 
     // Etc.toIds, toRecIdList
     verifyToIds(null,                 null)
@@ -168,6 +173,8 @@ class HxFuncsTest : HxTest
     verifyToIds([d1, d2],             Ref[Ref("d1"), Ref("d2")])
     verifyToIds([,],                  Ref[,])
     verifyToIds(g0,                   Ref[,])
+    verifyToIds([s],                  Ref[s.id])
+    verifyToIds([i],                  Ref[i.id])
 
     // Etc.toRec, toRec
     verifyToRec(null,    null)
@@ -183,6 +190,10 @@ class HxFuncsTest : HxTest
     verifyToRec([d1],    d1)
     verifyToRec([r],     r)
     verifyToRec(Etc.makeDictGrid(null, d1), d1)
+    verifyToRec(s, s, true)
+    verifyToRec(i, i, true)
+    verifyToRec(s.id, s, true)
+    verifyToRec(i.id, i, true)
 
     // Etc.toRecs, toRecList
     verifyToRecs(this,     null)
@@ -196,6 +207,7 @@ class HxFuncsTest : HxTest
     verifyToRecs([r.id],   [r])
     verifyToRecs([r.id, d1.id],  null)
     verifyToRecs(Etc.makeDictsGrid(null, [r, d1]),  [r, d1])
+    verifyToRecs([s.id, i.id],  [s, i])
 
     // Etc.toDateSpan (each one also is tested as toSpan)
     verifyToDateSpan(makeContext.resolveTopFn("today"), DateSpan.today)
@@ -286,7 +298,7 @@ class HxFuncsTest : HxTest
     }
   }
 
-  Void verifyToRec(Obj? val, Dict? expected)
+  Void verifyToRec(Obj? val, Dict? expected, Bool same := false)
   {
     cx := makeContext
     Actor.locals[ActorContext.actorLocalsKey] = cx
@@ -295,6 +307,7 @@ class HxFuncsTest : HxTest
       actual := Etc.toRec(val)
       verifyDictEq(actual, expected)
       verifyDictEq(cx.evalToFunc("toRec").call(cx, [val]), expected)
+      if (same) verifySame(actual, expected)
     }
     else
     {

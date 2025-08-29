@@ -156,7 +156,30 @@ class Context : AxonContext, FolioContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Dereference an id to an record dict or null if unresolved
-  @NoDoc override Dict? deref(Ref id) { db.readById(id, false) }
+  @NoDoc override final Dict? deref(Ref id)
+  {
+    derefRec(id) ?: derefNamespace(id)
+  }
+
+  ** Deref record from runtime database
+  @NoDoc virtual Dict? derefRec(Ref id)
+  {
+    db.readById(id, false)
+  }
+
+  ** Deref spec or instance from runtime namespace
+  @NoDoc virtual Dict? derefNamespace(Ref id)
+  {
+    if (!id.id.contains("::")) return null
+
+    spec := ns.spec(id.id, false)
+    if (spec != null) return spec
+
+    instance := ns.instance(id.id, false)
+    if (instance != null) return instance
+
+    return null
+  }
 
   ** Return inference engine used for def aware filter queries
   @NoDoc override once FilterInference inference() { throw UnsupportedErr() }
