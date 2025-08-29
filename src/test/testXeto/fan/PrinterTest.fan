@@ -19,10 +19,17 @@ class PrinterTest : AbstractXetoTest
   StrBuf buf := StrBuf()
   LibNamespace? ns
 
-  Void testInstances()
+  override Void setup()
   {
     ns = createNamespace(["hx.test.xeto"])
+  }
 
+//////////////////////////////////////////////////////////////////////////
+// Instances
+//////////////////////////////////////////////////////////////////////////
+
+  Void testInstances()
+  {
     // basic instance
     out := newCase
     out.instance(Etc.makeDict(["id":Ref("foo")]))
@@ -158,17 +165,81 @@ class PrinterTest : AbstractXetoTest
            |>)
   }
 
+  Void verifyInstance(Str expect)
+  {
+    actual := verifyOutput(expect)
+
+    // verify we can parse as instance
+    dict := ns.compileData(actual, Etc.dict1("externRefs", m))
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Specs
+//////////////////////////////////////////////////////////////////////////
+
+  Void testSpecs()
+  {
+    // bare bones spec no meta
+    out := newCase
+    out.specHeader("foobar", ns.spec("sys::Func"), Etc.dict0)
+    verifySpec(
+      Str<|foobar: sys::Func|>)
+
+    // spec with basic meta
+    out = newCase
+    out.specHeader("foobar", ns.spec("sys::Func"), Etc.dictx("admin", m))
+    verifySpec(
+      Str<|foobar: sys::Func <admin>|>)
+
+    // spec with basic meta
+    out = newCase
+    out.specHeader("foobar", ns.spec("sys::Func"), Etc.dictx("admin", m, "text",Str<|$<copy>|>))
+    verifySpec(
+      Str<|foobar: sys::Func <admin, text: "$<copy>">|>)
+
+    // verify doc, axon, nice marker order
+    out = newCase
+    out.specHeader("foobar", ns.spec("sys::Func"),
+      Etc.makeDict(["doc":"Line 1\n\nLine 2", "axon":"source code", "nodoc":m, "su":m, "text":Str<|$<copy>|>]))
+    verifySpec(
+      Str<|// Line 1
+           //
+           // Line 2
+           foobar: sys::Func <nodoc, su, text: "$<copy>">|>)
+
+    // verify doc, axon, nice marker order
+    out = newCase(Etc.dict1("omitSpecName", m))
+    out.specHeader("foobar", "Func", Etc.dict0).w(" {").nl
+       .indent
+       .tab.metaInline("axon", "My axon line 1\nline 2\n").nl
+       .unindent
+       .w("}").nl
+    verifySpec(
+      Str<|Func {
+             <axon: ---
+             My axon line 1
+             line 2
+             --->
+           }
+          |>)
+  }
+
+  Void verifySpec(Str expect)
+  {
+    verifyOutput(expect)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  XetoPrinter newCase()
+  XetoPrinter newCase(Dict? opts := null)
   {
     buf.clear
-    return XetoPrinter(ns, buf.out)
+    return XetoPrinter(ns, buf.out, opts)
   }
 
-  Void verifyInstance(Str expect)
+  Str verifyOutput(Str expect)
   {
     actual := buf.toStr
 
@@ -194,9 +265,7 @@ class PrinterTest : AbstractXetoTest
       verifyEq(actualLine, expectLine)
     }
     verifyEq(actual, expect)
-
-    // verify we can parse as instance
-    dict := ns.compileData(actual, Etc.dict1("externRefs", m))
+    return actual
   }
 }
 

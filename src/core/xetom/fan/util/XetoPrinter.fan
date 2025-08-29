@@ -25,9 +25,11 @@ class XetoPrinter
   ** Constructor
   new make(LibNamespace ns, OutStream out := Env.cur.out, Dict? opts := null)
   {
+    if (opts == null) opts = Etc.dict0
     this.ns   = ns
     this.out  = out
-    this.opts = opts ?: Etc.dict0
+    this.opts = opts
+    this.omitSpecName = opts.has("omitSpecName")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -37,42 +39,59 @@ class XetoPrinter
   ** Start new top-level spec or slot spec:
   **   // doc from meta
   **   name: type <meta>
-  This spec(Str name, Obj type, Dict meta := Etc.dict0)
+  This specHeader(Str name, Obj type, Dict meta := Etc.dict0)
   {
     doc := meta["doc"] as Str
     if (doc != null) this.doc(doc)
-    w(name).wc(':').sp.type(type).meta(meta)
-    indentation++
-    return this
-  }
-
-  ** End spec
-  This specEnd()
-  {
-    indentation--
+    if (!omitSpecName) w(name).wc(':').sp
+    this.type(type).meta(meta)
     return this
   }
 
   ** Always skip these which should be encoded outside of meta
-  static const Str[] metaSkip := ["axon", "axonComp", "doc", "maybe", "val"]
+  static const Str[] metaSkip := ["axon", "axonComp", "compTree", "doc", "maybe", "val"]
 
   ** Write meta data dict. We always skip the skipMeta tags by default
   This meta(Dict meta, Str[] skip := metaSkip)
   {
-    first := true
+    // get keys to print
+    keys := Str[,]
     meta.each |v, n|
     {
-      if (skip.contains(n)) return
-      if (first) { w('<'); first = false }
-      else { wc(',').sp }
-      dictPair(n, v)
+      if (!skip.contains(n)) keys.add(n)
     }
-    if (first) wc('>')
-    return this
+    if (keys.isEmpty) return this
+
+    // put keys in nice order
+    keys.sort
+    keys.moveTo("su", 0)
+    keys.moveTo("admin", 0)
+    keys.moveTo("nodoc", 0)
+    keys.moveTo("defMeta", -1)
+
+    sp.wc('<')
+    keys.each |k, i|
+    {
+      if (i > 0) wc(',').sp
+      dictPair(k, meta[k])
+    }
+    return wc('>')
+  }
+
+  ** Encode inline meta as heredoc using current indentation
+  This metaInline(Str name, Str val)
+  {
+    wc('<').w(name).wc(':').sp.heredoc(val).wc('>')
+  }
+
+  ** Write a slot spec out using current indentation
+  This slot(Spec slot)
+  {
+    tab.specHeader(slot.name, slot.type, slot.meta).nl
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Instances
+// Instance Data
 //////////////////////////////////////////////////////////////////////////
 
   ** Top level for LibNamespace.writeData
@@ -142,7 +161,7 @@ class XetoPrinter
     if (x isnot Str) type(spec).sp
 
     str := spec.binding.encodeScalar(x)
-    if (str.contains("\n")) heredoc(str)
+    if (str.contains("\n")) indent.heredoc(str).unindent
     else quoted(str)
     return this
   }
@@ -164,15 +183,15 @@ class XetoPrinter
     if (spec.qname != "sys::Dict") type(spec).sp
     wc('{')
     num := 0
-    indentation++
+    indent
     x.each |v, n|
     {
       if (skip.contains(n)) return
       num++
-      nl.indent.dictPair(n, v)
+      nl.tab.dictPair(n, v)
     }
-    indentation--
-    if (num > 0) nl.indent
+    unindent
+    if (num > 0) nl.tab
     return wc('}')
   }
 
@@ -181,14 +200,14 @@ class XetoPrinter
   {
     type(spec).sp.wc('{')
     num := 0
-    indentation++
+    indent
     list.each |v|
     {
       num++
-      nl.indent.dictPair("_0", v) // force use of fixed auto-name
+      nl.tab.dictPair("_0", v) // force use of fixed auto-name
     }
-    indentation--
-    if (num > 0) nl.indent
+    unindent
+    if (num > 0) nl.tab
     return wc('}')
   }
 
@@ -223,7 +242,12 @@ class XetoPrinter
   {
     str = str?.trimToNull
     if (str == null) return this
-    str.eachLine |line| { w("// ").w(line).nl }
+    str.eachLine |line|
+    {
+      w("//")
+      if (!line.trim.isEmpty) sp.w(line.trimEnd)
+      nl
+    }
     return this
   }
 
@@ -247,7 +271,7 @@ class XetoPrinter
     return wc('"')
   }
 
-  ** Write heredoc string literal
+  ** Write heredoc string literal (uses current indentation level)
   This heredoc(Str x)
   {
     lines := x.splitLines
@@ -257,13 +281,11 @@ class XetoPrinter
     lines.each |line| { while(line.contains(sep)) sep += "-" }
 
     w(sep).nl
-    indentation++
     lines.each |line|
     {
-      indent.w(line).nl
+      tab.w(line).nl
     }
-    indent.w(sep)
-    indentation--
+    tab.w(sep)
     return this
   }
 
@@ -293,21 +315,34 @@ class XetoPrinter
   ** Write newline
   This nl() { out.printLine; return this }
 
-  ** Write indentation
-  This indent() { w(Str.spaces(indentation*2)) }
+  ** Write start of line indentation spaces
+  This tab() { w(Str.spaces(indentation*2)) }
+
+  ** Increment indentation by one level
+  This indent() { ++indentation; return this }
+
+  ** Decrement indentation by one level
+  This unindent() { --indentation; return this }
 
   ** Flush underlying output stream
   This flush() { out.flush; return this }
 
-  ** Indentation level
-  Int indentation
+//////////////////////////////////////////////////////////////////////////
+// Options
+//////////////////////////////////////////////////////////////////////////
+
+  ** Options passed
+  const Dict opts
+
+  ** Omit spec name when using with ProjSpecs API
+  Bool omitSpecName
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
   const LibNamespace ns     // xeto namesapce
-  const Dict opts           // options
   private OutStream out     // output stream
+  private Int indentation   // indentation level
 }
 

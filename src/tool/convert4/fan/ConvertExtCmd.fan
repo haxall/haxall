@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetom
 using haystack
 using haystack::Macro
 using hxm
@@ -139,7 +140,7 @@ internal class ConvertExtCmd : ConvertCmd
   {
     genDoc(s, f.doc)
     s.add("$f.name: Func ")
-    HxProjSpecs.encodeFuncMeta(s, f.meta)
+    encodeFuncMeta(s, f.meta)
     s.add("{ ")
     f.eachSlot |p, comma|
     {
@@ -159,6 +160,11 @@ internal class ConvertExtCmd : ConvertCmd
     {
       s.add(" }\n")
     }
+  }
+
+  Void encodeFuncMeta(StrBuf buf, Dict meta)
+  {
+    XetoPrinter(ns, buf.out).meta(meta)
   }
 
   Void genParam(StrBuf s, AParam p)
@@ -226,5 +232,6 @@ internal class ConvertExtCmd : ConvertCmd
 
   private Ast? ast
   private Console con := Console.cur
+  private LibNamespace ns := XetoEnv.cur.createNamespaceFromNames(["sys"])
 }
 

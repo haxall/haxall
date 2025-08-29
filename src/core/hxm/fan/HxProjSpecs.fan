@@ -114,7 +114,7 @@ const class HxProjSpecs : ProjSpecs
 
   override Spec addFunc(Str name, Str src, Dict meta := Etc.dict0)
   {
-    add(name, funcToXeto(name, src, meta))
+    add(name, funcToXeto(ns, name, src, meta))
   }
 
   override Spec updateFunc(Str name, Str? src, Dict? meta := null)
@@ -122,98 +122,39 @@ const class HxProjSpecs : ProjSpecs
     cur     := lib.func(name)
     curSrc  := cur.metaOwn["axon"] ?: throw ArgErr("Func spec missing axon tag: $name")
     curMeta := Etc.dictRemove(cur.metaOwn, "axon")
-    return update(name, funcToXeto(name, src ?: curSrc, meta ?: curMeta))
+    return update(name, funcToXeto(ns, name, src ?: curSrc, meta ?: curMeta))
   }
 
-  static Str funcToXeto(Str name, Str src, Dict meta)
+  static Str funcToXeto(LibNamespace ns, Str name, Str src, Dict meta)
   {
-    s := StrBuf()
-    s.capacity = 100 + src.size
-
     // parse axon to verify its correct
     fn := Parser(Loc(name), src.in).parseTop(name, meta)
 
-    // pull docs out as xeto comment
-    doc := (meta["doc"] as Str)?.trimToNull
-    if (doc != null)
-    {
-      meta = Etc.dictRemove(meta, "doc")
-      doc.splitLines.each |line|
-      {
-        s.add("//")
-        if (!line.trim.isEmpty) s.add(" ").add(line)
-        s.add("\n")
-      }
-    }
+    // use XetoPrinter to write to in-memory buffer
+    buf := StrBuf()
+    buf.capacity = 100 + src.size
+    out := XetoPrinter(ns, buf.out)
+    out.omitSpecName = true
 
-    // write xeto spec for func
-    s.add("Func ")
-    encodeFuncMeta(s, meta)
-    s.add("{ ")
+    // foo: Func <meta>
+    out.specHeader(name, "Func", meta).w(" {")
+
+    // params + returns
     first := true
     fn.params.each |p, i|
     {
       if (first) first = false
-      else s.add(", ")
-      s.add(p.name).add(": Obj?")
+      else out.w(", ")
+      out.w(p.name).w(": Obj?")
     }
-    if (!first) s.add(", ")
-    s.add("returns: Obj?\n")
-    linenum := 0
+    if (!first) out.w(", ")
+    out.w("returns: Obj?\n")
 
-    lines := src.splitLines
-    sep := "---"
-    while (lines.last.isEmpty) lines.removeAt(-1)
-    lines.each |line| { while(line.contains(sep)) sep += "-" }
+    // axon source
+    out.metaInline("axon", src)
+    out.w("}")
 
-    s.add("<axon:").add(sep).add("\n")
-    lines.each |line|
-    {
-      linenum++
-      s.add(line).add("\n")
-    }
-    s.add(sep).add(">}\n")
-    return s.toStr
-  }
-
-  static Void encodeFuncMeta(StrBuf s, Dict meta)
-  {
-    if (meta.isEmpty) return
-    s.add("<")
-    keys := Etc.dictNames(meta)
-    keys.moveTo("su", 0)
-    keys.moveTo("admin", 0)
-    keys.moveTo("nodoc", 0)
-    keys.moveTo("defMeta", -1)
-    keys.each |k, i|
-    {
-      if (i > 0) s.add(", ")
-      encodeDictPair(s, k, meta[k])
-    }
-    s.add("> ")
-  }
-
-  private static Void encodeDictPair(StrBuf s, Str n, Obj v)
-  {
-    s.add(n)
-    if (v === Marker.val) return
-    s.add(":")
-    if (v is Dict)
-    {
-      s.add("{")
-      first := true
-      ((Dict)v).each |dv, dn|
-      {
-        if (first) first = false
-        else s.add(", ")
-        encodeDictPair(s, dn, dv)
-      }
-      s.add("}")
-    }
-    else
-    {
-      s.add(v.toStr.toCode.replace("\\\$", "\$"))
-    }
+    return buf.toStr
   }
 
 //////////////////////////////////////////////////////////////////////////
