@@ -25,7 +25,9 @@ internal class CompFactory
   ** Create new list of components from a dicts
   static Comp[] create(CompSpace cs, Dict[] dicts)
   {
-    process(cs, false) |cf| { cf.doCreate(dicts) }
+    Comp[] comps := process(cs, false) |cf| { cf.doCreate(dicts) }
+    comps.each |comp| { cs.onCreate(comp) }
+    return comps
   }
 
   ** Create the SPI for given component. This is called by
@@ -82,7 +84,6 @@ internal class CompFactory
       // reuse normal reifyComp code path
       spec := cs.ns.spec(dict->spec.toStr)
       comp := reifyComp(spec, dict)
-      cs.onCreate(comp)
       return comp
     }
   }

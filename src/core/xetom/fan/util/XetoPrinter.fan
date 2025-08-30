@@ -49,7 +49,7 @@ class XetoPrinter
   }
 
   ** Always skip these which should be encoded outside of meta
-  static const Str[] metaSkip := ["axon", "axonComp", "compTree", "doc", "maybe", "val"]
+  static const Str[] metaSkip := ["axon", "axonTree", "compTree", "compTree", "doc", "maybe", "val"]
 
   ** Write meta data dict. We always skip the skipMeta tags by default
   This meta(Dict meta, Str[] skip := metaSkip)
