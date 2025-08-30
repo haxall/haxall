@@ -87,7 +87,11 @@ class XetoPrinter
   ** Write a slot spec out using current indentation
   This slot(Spec slot)
   {
+    oldOmit := this.omitSpecName
+    this.omitSpecName = false
     tab.specHeader(slot.name, slot.type, slot.meta).nl
+    this.omitSpecName = oldOmit
+    return this
   }
 
 //////////////////////////////////////////////////////////////////////////
