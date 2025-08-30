@@ -32,9 +32,9 @@ const class HxProjSpecs : ProjSpecs
 
   TextBase tb() { rt.tb }
 
-  override Lib lib()
+  override Lib? lib(Bool checked := true)
   {
-    ns.lib("proj")
+    ns.lib("proj", checked)
   }
 
   override Str? libDigest()

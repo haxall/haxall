@@ -14,8 +14,9 @@ using haystack
 **
 const mixin ProjSpecs
 {
-  ** Get the project companion lib
-  abstract Lib lib()
+  ** Get the project companion lib. If the companion lib cannot be
+  ** compiled then return null or raise exception based on checked flag.
+  abstract Lib? lib(Bool checked := true)
 
   ** Get a unique digest for the current project companion lib version.
   ** Return null if the project lib is current in an error state.
