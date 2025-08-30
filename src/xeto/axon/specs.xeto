@@ -6,9 +6,6 @@
 //   21 Sep 2023  Brian Frank  Creation
 //
 
-// TODO: this is temp!
-AxonFunc: Dict
-
 // Future represents the result of an asynchronous computation.
 Future: Interface
 
