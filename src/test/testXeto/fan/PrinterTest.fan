@@ -195,7 +195,7 @@ class PrinterTest : AbstractXetoTest
     out = newCase
     out.specHeader("foobar", ns.spec("sys::Func"), Etc.dictx("admin", m, "text",Str<|$<copy>|>))
     verifySpec(
-      Str<|foobar: sys::Func <admin, text: "$<copy>">|>)
+      Str<|foobar: sys::Func <admin, text:"$<copy>">|>)
 
     // verify doc, axon, nice marker order
     out = newCase
@@ -205,7 +205,7 @@ class PrinterTest : AbstractXetoTest
       Str<|// Line 1
            //
            // Line 2
-           foobar: sys::Func <nodoc, su, text: "$<copy>">|>)
+           foobar: sys::Func <nodoc, su, text:"$<copy>">|>)
 
     // verify doc, axon, nice marker order
     out = newCase(Etc.dict1("omitSpecName", m))

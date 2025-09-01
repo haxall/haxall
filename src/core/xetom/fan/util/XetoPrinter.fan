@@ -36,23 +36,64 @@ class XetoPrinter
 // Specs
 //////////////////////////////////////////////////////////////////////////
 
+  ** Output a spec
+  This spec(Spec spec)
+  {
+    doSpec(spec, null, null)
+  }
+
+  ** Rewrite a spec with its original state, but update the
+  ** given inline meta tag (typiclaly axon/compTree).
+  This updateMetaInline(Spec spec, Str name, Str val)
+  {
+    doSpec(spec, name, val)
+  }
+
+  ** Common code for spec/updateMetaInline
+  private This doSpec(Spec spec, Str? metaName, Str? metaVal)
+  {
+    inlineMeta := toInlineMetaNames(spec.metaOwn).addNotNull(metaName).unique
+    metaSkip := metaSkipDef.dup.addAll(inlineMeta)
+    specHeader(spec.name, spec.base, spec.metaOwn, metaSkip)
+    if (spec.slots.isEmpty && inlineMeta.isEmpty) return nl
+
+    sp.w("{").nl
+    indent
+    spec.slotsOwn.each |x| { slot(x) }
+    unindent
+    inlineMeta.each |n|
+    {
+      v := n == metaName ? metaVal : spec.meta[n]
+      nl.metaInline(n, v).nl
+    }
+    w("}").nl
+    return this
+  }
+
   ** Start new top-level spec or slot spec:
   **   // doc from meta
   **   name: type <meta>
-  This specHeader(Str name, Obj type, Dict meta := Etc.dict0)
+  This specHeader(Str name, Obj type, Dict meta := Etc.dict0, Str[] metaSkip := metaSkipDef)
   {
     doc := meta["doc"] as Str
     if (doc != null) this.doc(doc)
     if (!omitSpecName) w(name).wc(':').sp
-    this.type(type).meta(meta)
+    this.type(type); if (meta.has("maybe")) wc('?')
+    this.meta(meta, metaSkip)
     return this
   }
 
   ** Always skip these which should be encoded outside of meta
-  static const Str[] metaSkip := ["axon", "axonTree", "compTree", "compTree", "doc", "maybe", "val"]
+  static const Str[] metaSkipDef := ["axon", "axonTree", "compTree", "compTree", "doc", "maybe", "val"]
+
+  ** Return tag names to encode as inline meta
+  @NoDoc static Str[] toInlineMetaNames(Dict meta)
+  {
+    Etc.dictNames(meta).findAll |n| { meta[n].toStr.contains("\n") }
+  }
 
   ** Write meta data dict. We always skip the skipMeta tags by default
-  This meta(Dict meta, Str[] skip := metaSkip)
+  This meta(Dict meta, Str[] skip := metaSkipDef)
   {
     // get keys to print
     keys := Str[,]
@@ -67,13 +108,14 @@ class XetoPrinter
     keys.moveTo("su", 0)
     keys.moveTo("admin", 0)
     keys.moveTo("nodoc", 0)
+    keys.moveTo("of", 0)
     keys.moveTo("defMeta", -1)
 
     sp.wc('<')
     keys.each |k, i|
     {
       if (i > 0) wc(',').sp
-      dictPair(k, meta[k])
+      dictPair(null, k, meta[k], true)
     }
     return wc('>')
   }
@@ -89,7 +131,26 @@ class XetoPrinter
   {
     oldOmit := this.omitSpecName
     this.omitSpecName = false
-    tab.specHeader(slot.name, slot.type, slot.meta).nl
+    tab.specHeader(slot.name, slot.type, slot.metaOwn)
+
+    // this isn't super great until we really nail down spec vs instance slots
+    subSlots := slot.slotsOwn
+    if (!subSlots.isEmpty)
+    {
+      sp.w("{").sp
+      first := true
+      subSlots.each |x|
+      {
+        v := x.metaOwn["val"]
+        if (v == null) return
+
+        if (first) first = false
+        else wc(',').sp
+        dictPair(null, x.name, v, true)
+      }
+      sp.w("}")
+    }
+    nl
     this.omitSpecName = oldOmit
     return this
   }
@@ -115,7 +176,7 @@ class XetoPrinter
     }
     else
     {
-      val(top)
+      val(top, null)
     }
     return this
   }
@@ -140,7 +201,7 @@ class XetoPrinter
       wc('@').w(id).wc(':').sp
     }
 
-    dict(specOf(x), x).nl
+    dict(x).nl
     return this
   }
 
@@ -149,21 +210,20 @@ class XetoPrinter
 //////////////////////////////////////////////////////////////////////////
 
   ** Literal value
-  This val(Obj x)
+  This val(Obj x, Spec? inferred)
   {
-    spec := specOf(x)
-    if (spec.isScalar) return scalar(spec, x)
-    if (x is Dict) return dict(spec, x)
-    if (x is List) return list(spec, x)
-    return scalar(strSpec, x.toStr)
+    if (x is Dict) return dict(x)
+    if (x is List) return list(x, inferred)
+    return scalar(x, inferred)
   }
 
   ** Scalar
-  This scalar(Spec spec, Obj x)
+  This scalar(Obj x, Spec? inferred)
   {
     if (x is Ref) return ref(x)
-    if (x isnot Str) type(spec).sp
 
+    spec := specOf(x)
+    if (x isnot Str && spec != inferred) type(spec).sp
     str := spec.binding.encodeScalar(x)
     if (str.contains("\n")) indent.heredoc(str).unindent
     else quoted(str)
@@ -173,7 +233,12 @@ class XetoPrinter
   ** Ref scalar
   This ref(Ref x)
   {
-    w("@").w(x.id)
+    // we don't use @foo::Bar for types
+    colons := x.id.index("::")
+    isType := colons != null && x.id[colons+2].isUpper
+
+    if (!isType) wc('@')
+    w(x.id)
     if (x.disVal != null) sp.quoted(x.disVal)
     return this
   }
@@ -182,8 +247,9 @@ class XetoPrinter
   static const Str[] dictSkip := ["id", "spec"]
 
   ** Dict value
-  This dict(Spec spec, Dict x, Str[] skip := dictSkip)
+  This dict(Dict x, Str[] skip := dictSkip)
   {
+    spec := specOf(x)
     if (spec.qname != "sys::Dict") type(spec).sp
     wc('{')
     num := 0
@@ -192,7 +258,7 @@ class XetoPrinter
     {
       if (skip.contains(n)) return
       num++
-      nl.tab.dictPair(n, v)
+      nl.tab.dictPair(spec, n, v, false)
     }
     unindent
     if (num > 0) nl.tab
@@ -200,26 +266,39 @@ class XetoPrinter
   }
 
   ** List value
-  This list(Spec spec, List list)
+  This list(List list, Spec? inferred)
   {
+    spec := inferred ?: specOf(list)
     type(spec).sp.wc('{')
     num := 0
     indent
     list.each |v|
     {
       num++
-      nl.tab.dictPair("_0", v) // force use of fixed auto-name
+      nl.tab.dictPair(spec, "_0", v, false) // force use of fixed auto-name
     }
     unindent
     if (num > 0) nl.tab
     return wc('}')
   }
 
-  ** Dict pair
-  This dictPair(Str? n, Obj v)
+  ** Dict pair, inferFrom is null if meta
+  This dictPair(Spec? inferFrom, Str? n, Obj v, Bool inline)
   {
     // name only
     if (isMarker(v)) return w(n)
+
+    // determine if we have an inferred type
+    Spec? infer
+    if (inferFrom == null)
+    {
+      metas := ns.unqualifiedMetas(n)
+      if (metas.size == 1) infer = metas.first.type
+    }
+    else
+    {
+      infer = inferFrom.slot(n, false)?.type
+    }
 
     // name @id: value
     showName  := !XetoUtil.isAutoName(n)
@@ -232,9 +311,9 @@ class XetoPrinter
       if (showName) sp
       ref(id.noDis)
     }
-    if (needColon) wc(':').sp
+    if (needColon) { wc(':'); if (!inline) sp }
 
-    return val(v)
+    return val(v, infer)
   }
 
 //////////////////////////////////////////////////////////////////////////
