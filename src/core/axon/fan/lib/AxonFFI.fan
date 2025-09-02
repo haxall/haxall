@@ -112,6 +112,9 @@ const class FantomAxonFFI : AxonFFI
       return x
     }
 
+    // if Axon func, make fantom func
+    if (x is Fn) return AxonFuncsUtil.toFantomFunc(x, cx)
+
     // return raw value
     return x
   }

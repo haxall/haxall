@@ -175,6 +175,26 @@ internal const class AxonFuncsUtil
   {
     Etc.dictSet(fn.meta, "name", fn.name)
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Axon Fn -> Fantom Func
+//////////////////////////////////////////////////////////////////////////
+
+  ** Coerce axon to
+  static Func toFantomFunc(Fn fn, AxonContext cx)
+  {
+    switch (fn.arity)
+    {
+      case 0: return |->Obj?| { fn.call(cx, Obj#.emptyList) }
+      case 1: return |a->Obj?| { fn.call(cx, [a]) }
+      case 2: return |a, b->Obj?| { fn.call(cx, [a, b]) }
+      case 3: return |a, b, c->Obj?| { fn.call(cx, [a, b, c]) }
+      case 4: return |a, b, c, d->Obj?| { fn.call(cx, [a, b, c, d]) }
+      case 5: return |a, b, c, d, e->Obj?| { fn.call(cx, [a, b, c, d, e]) }
+      case 6: return |a, b, c, d, e, f->Obj?| { fn.call(cx, [a, b, c, d, e, f]) }
+      default: throw UnsupportedErr("toFantomFunc arity: $fn.arity")
+    }
+  }
 }
 
 **************************************************************************
