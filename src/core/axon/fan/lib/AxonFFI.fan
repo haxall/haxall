@@ -90,7 +90,6 @@ const class FantomAxonFFI : AxonFFI
 
     // use Fantom type to lazily eval filters
     if (type == Filter#) return expr.evalToFilter(cx)
-    if (name == "filter") return expr.evalToFilter(cx).toStr
 
     // evaluate
     x := expr.eval(cx)

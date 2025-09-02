@@ -52,7 +52,6 @@ class FantomTest : HaystackTest
     verifyEval(Str<|FantomEx.filter1(Point)|>, Filter("Point"))
     verifyEval(Str<|FantomEx.filter1(foo==3)|>, Filter("foo==3"))
     verifyEval(Str<|FantomEx.filter1(FooBar and mark and foo==3)|>, Filter("FooBar and mark and foo==3"))
-    verifyEval(Str<|FantomEx.filter2(FooBar and mark and foo==3)|>, Filter("FooBar and mark and foo==3"))
 
     // functions
     verifyEval(Str<|FantomEx.fn0(()=>123)|>, n(123))
@@ -99,7 +98,6 @@ class FantomEx
   static const Str sx := "static field"
 
   static Filter filter1(Filter x) { x }
-  static Filter filter2(Str filter) { Filter(filter) }
 
   static Obj? fn0(|->Obj?| f) { f() }
   static Number[] fn1(Number[] list, |Number->Number| f) { list.map(f) }
