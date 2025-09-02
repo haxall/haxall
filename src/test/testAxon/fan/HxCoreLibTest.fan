@@ -83,7 +83,7 @@ class HxCoreLibTest : HxTest
     verifyEval("""func(y)""", normRecFunc(y))
     verifyEval("""func("map")->qname""", "axon::map")
     verifyEval("""func("badFuncNotFound", false)""", null)
-    verifyEvalErr("""func("badFuncNotFound")""", UnknownFuncErr#)
+    verifyEvalErr("""func("badFuncNotFound")""", null)
 
     // funcs
     verifyEval("""funcs(admin).find(x => x->qname == "proj::x")""", normRecFunc(x))

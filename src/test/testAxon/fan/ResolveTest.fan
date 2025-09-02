@@ -120,7 +120,7 @@ class ResolveTest : HxTest
     verifyBadResolveTop(TopName(loc, "axon", "badName"),   UnknownSpecErr#)
     verifyBadResolveTop(TopName(loc, "sys", "BadName"),    UnknownSpecErr#)
 
-    verifyBadResolveTopFn("bad",             UnknownFuncErr#)
+    verifyBadResolveTopFn("bad",             EvalErr#)
     verifyBadResolveTopFn("badLib::badName", UnknownLibErr#)
     verifyBadResolveTopFn("axon::badName",   UnknownSpecErr#)
     verifyBadResolveTopFn("Site",            UnknownFuncErr#)

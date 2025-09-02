@@ -89,20 +89,20 @@ abstract class AxonContext : HaystackContext, CompContext
     else
     {
       spec := lib == null ?
-              resolveUnqualifiedFunc(x.name, checked) :
+              resolveUnqualifiedFunc(x.name, x.loc, checked) :
               lib.func(x.name, checked)
       return spec != null ? spec.func.thunk : null
     }
   }
 
-  private Spec? resolveUnqualifiedFunc(Str name, Bool checked)
+  private Spec? resolveUnqualifiedFunc(Str name, Loc loc, Bool checked)
   {
     // resolve func as list from namespace (cached in MNameespace)
     list := ns.unqualifiedFuncs(name)
     if (list.size == 1) return list.first
     if (list.isEmpty)
     {
-      if (checked) throw UnknownFuncErr(name)
+      if (checked) throw EvalErr("Unknown symbol '$name'", this, loc)
       return null
     }
 
@@ -294,10 +294,7 @@ abstract class AxonContext : HaystackContext, CompContext
     if (frame != null) return frame.get(name)
 
     // resolve as unqualified top-level name
-    top := resolveTop(TopName(loc, null, name), false)
-    if (top != null) return top
-
-    throw EvalErr("Unknown symbol '$name'", this, loc)
+    return TopName(loc, null, name).eval(this)
   }
 
   ** Safely get just a variable or return null (don't check
