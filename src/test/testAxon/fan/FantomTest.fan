@@ -38,6 +38,7 @@ class FantomTest : HaystackTest
 
     // instance fields
     verifyEval(Str<|FantomEx.make.foo|>, "foo!")
+    verifyEval(Str<|do x: FantomEx(); x.foo = "set!"; x.foo; end|>, "set!")
 
     // coercion out of Fantom
     verifyEval(Str<|Float.posInf|>, Number.posInf)

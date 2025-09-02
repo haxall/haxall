@@ -20,6 +20,9 @@ abstract const class AxonFFI
 
   ** Instance call on this object
   abstract Obj? callDot(AxonContext cx, Obj? target, Str name, Expr[] args)
+
+  ** Field set
+  abstract Obj? fieldSet(AxonContext cx, Obj? target, Str name, Expr rhs)
 }
 
 **************************************************************************
@@ -65,6 +68,16 @@ const class FantomAxonFFI : AxonFFI
     }
   }
 
+  override Obj? fieldSet(AxonContext cx, Obj? target, Str name, Expr rhs)
+  {
+    if (target == null) throw NullErr("Field set on null target: $name")
+    field := target.typeof.slot(name) as Field ?: throw UnknownSlotErr("Field ${target.typeof}.$name")
+    if (field.isConst) throw Err("Field is const: $field")
+    val := coerceToFantom(cx, rhs, field.type)
+    field.set(target, val)
+    return val
+  }
+
   private Obj? get(Field f, Obj? target)
   {
     coerceFromFantom(f.get(target))
@@ -75,18 +88,16 @@ const class FantomAxonFFI : AxonFFI
     params := m.params
     args := argExprs.map |argExpr, i|
     {
-      coerceToFantom(cx, argExpr, params.getSafe(i))
+      coerceToFantom(cx, argExpr, params.getSafe(i)?.type)
     }
 
     return coerceFromFantom(m.callOn(target, args))
   }
 
-  private Obj? coerceToFantom(AxonContext cx, Expr expr, Param? p)
+  private Obj? coerceToFantom(AxonContext cx, Expr expr, Type? type)
   {
     // if no Fantom parameter, then no coercion
-    if (p == null) return expr.eval(cx)
-    name := p.name
-    type := p.type
+    if (type == null) return expr.eval(cx)
 
     // use Fantom type to lazily eval filters
     if (type == Filter#) return expr.evalToFilter(cx)

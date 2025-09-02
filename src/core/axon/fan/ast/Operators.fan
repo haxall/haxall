@@ -301,12 +301,25 @@ internal const class If : Expr
 internal const class Assign : BinaryOp
 {
   new make(Expr lhs, Expr rhs) : super(lhs, rhs) {}
+
   override ExprType type() { ExprType.assign }
+
   override Obj? doEval(AxonContext cx)
   {
-    var := lhs as Var ?: throw err("Not assignable: " + summary(lhs), cx)
-    return cx.assign(var.name, rhs.eval(cx), lhs.loc)
+    var := lhs as Var
+    if (var != null) return cx.assign(var.name, rhs.eval(cx), lhs.loc)
+
+    // treat FFI foo.bar = baz as field set
+    if (cx.ffi != null && lhs.type == ExprType.dotCall)
+    {
+      dotCall := (DotCall)lhs
+      target := dotCall.args.first.eval(cx)  // evaluate first arg as target object
+      return cx.ffi.fieldSet(cx, target, dotCall.funcName, rhs)
+    }
+
+    throw err("Not assignable: " + summary(lhs), cx)
   }
+
   override Printer print(Printer out)
   {
     out.atomicStart.expr(lhs).wc(' ').w(type.op).wc(' ').expr(rhs).atomicEnd
