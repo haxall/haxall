@@ -11,10 +11,10 @@ using xeto
 using haystack
 
 **
-** HxFeed manages a data stream subscription for one client side view
+** Feed manages a data stream subscription for one client side view
 **
 @NoDoc
-abstract const class HxFeed
+abstract const class Feed
 {
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,11 +86,11 @@ abstract const class HxFeed
 }
 
 **************************************************************************
-** HxFeedInit
+** FeedInit
 **************************************************************************
 
 @NoDoc
-const class HxFeedInit
+const class FeedInit
 {
   new make(|This| f) { f(this) }
   const Runtime rt

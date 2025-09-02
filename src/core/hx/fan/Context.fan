@@ -246,19 +246,19 @@ class Context : AxonContext, FolioContext
 //////////////////////////////////////////////////////////////////////////
 
   ** Feed initialization
-  @NoDoc virtual HxFeedInit feedInit()
+  @NoDoc virtual FeedInit feedInit()
   {
     feedInitRef ?: throw Err("Feeds not supported")
   }
 
   ** Install feed initialization
-  @NoDoc virtual HxFeedInit? feedInitRef
+  @NoDoc virtual FeedInit? feedInitRef
 
   ** In context a SkySpark feed
   @NoDoc virtual Bool feedIsEnabled() { false }
 
   ** Setup a feed (SkySpark only)
-  @NoDoc virtual Void feedAdd(HxFeed feed, [Str:Obj?]? meta := null) {}
+  @NoDoc virtual Void feedAdd(Feed feed, [Str:Obj?]? meta := null) {}
 
 //////////////////////////////////////////////////////////////////////////
 // SkySpark Context virtuals

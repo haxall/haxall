@@ -281,7 +281,7 @@ internal const class ConnTraceLog : Log
 ** ConnTraceFeed
 **************************************************************************
 
-internal const class ConnTraceFeed : HxFeed
+internal const class ConnTraceFeed : Feed
 {
   new make(Context cx, ConnTrace trace, DateTime ts, Dict? opts)
     : super(cx)

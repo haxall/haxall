@@ -438,7 +438,7 @@ internal const class TestTaskAdjunct : HxTaskAdjunct
 ** TasksFeed
 **************************************************************************
 
-@NoDoc const class TasksFeed : HxFeed
+@NoDoc const class TasksFeed : Feed
 {
   new make(Context cx, TaskExt ext, Filter? search) : super(cx)
   {

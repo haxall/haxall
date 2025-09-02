@@ -119,7 +119,7 @@ const class DockerFuncs
 ** DockerContainerFeed
 **************************************************************************
 
-internal const class DockerContainerFeed : HxFeed
+internal const class DockerContainerFeed : Feed
 {
   new make(Context cx) : super(cx) {}
   override Grid? poll(Context cx) { DockerFuncs.dockerListContainers }

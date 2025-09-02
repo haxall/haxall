@@ -51,7 +51,7 @@ const mixin Ext
   virtual ExtWeb web() { UnsupportedExtWeb(this) }
 
   ** Initialize a feed from a subscription request for this library
-  @NoDoc virtual HxFeed feedInit(Dict req, Context cx)
+  @NoDoc virtual Feed feedInit(Dict req, Context cx)
   {
     throw Err("Ext does not support feedInit: $name")
   }
