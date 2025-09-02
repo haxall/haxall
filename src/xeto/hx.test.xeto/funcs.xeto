@@ -34,7 +34,7 @@ add3: Func { a: Number, b: Number, returns: Number }
 
 // add in comp blocks
 add4: Func { a: Number, b: Number, returns: Number
-  <axonComp:---
+  <compTree:---
     @root: Comp {
       a @a: Var {}
       b @b: Var {}

@@ -132,7 +132,7 @@ const class AxonThunkFactory : ThunkFactory
     acc["qname"] = spec.qname
     spec.meta.each |v, n|
     {
-      if (n == "axon" || n == "axonComp") return
+      if (n == "axon" || n == "compTree") return
       acc[n] = v
     }
     return Etc.dictFromMap(acc)

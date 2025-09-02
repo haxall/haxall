@@ -9,9 +9,6 @@
 // Axon source code string
 axon: Str <meta>
 
-// Axon block component graph as Xeto source string
-axonComp: Str <meta>
-
 // Requires admin permission
 admin: Str <meta>
 
