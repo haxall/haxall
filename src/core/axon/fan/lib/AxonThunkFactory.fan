@@ -32,8 +32,8 @@ const class AxonThunkFactory : ThunkFactory
     code := spec.meta["axon"] as Str
     if (code  != null) return parseAxon(spec, meta, code)
 
-    // try axonComp xeto source
-    comp := spec.meta["axonComp"] as Str
+    // try compTree xeto source
+    comp := spec.meta["compTree"] as Str
     if (comp != null) return parseComp(spec, meta, comp)
 
     throw UnsupportedErr("Cannot resolve thunk: $spec [pod:$pod]")
