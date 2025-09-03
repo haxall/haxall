@@ -25,7 +25,7 @@ internal class CompFactory
   ** Create new list of components from a dicts
   static Comp[] create(CompSpace cs, Dict[] dicts)
   {
-    Comp[] comps := process(cs, false) |cf| { cf.doCreate(dicts) }
+    Comp[] comps := process(cs) |cf| { cf.doCreate(dicts) }
     comps.each |comp| { cs.onCreate(comp) }
     return comps
   }
@@ -34,19 +34,19 @@ internal class CompFactory
   ** the CompObj constructor thru CompSpace actor local
   static CompSpi initSpi(CompSpace cs, CompObj c, Spec? spec)
   {
-    process(cs, true) |cf| { cf.doInitSpi(c, spec) }
+    process(cs) |cf| { cf.doInitSpi(c, spec) }
   }
 
   ** Process a graph operation with single instance via actor local
-  private static Obj? process(CompSpace cs, Bool reentrant, |This->Obj?| f)
+  private static Obj? process(CompSpace cs, |This->Obj?| f)
   {
     actorKey := "xetom::cf"
 
     // if already inside a factory operation then resuse it
-    cur := Actor.locals.get(actorKey)
+    cur := Actor.locals.get(actorKey) as CompFactory
     if (cur != null)
     {
-      if (reentrant) return f(cur)
+      if (cur.cs === cs) return f(cur)
       throw Err("CompSpace.create is not reentrant; cannot call in from ctor")
     }
 
