@@ -40,6 +40,7 @@ const class CoreLib
   ** Return number of items in str, list, or grid
   @Axon static Number size(Obj? val)
   {
+    if (val is List) return Number(((List)val).size)
     if (val is Dict) throw argErr("size", val)
     size := (Int)val->size
     return Number(size.toFloat)
