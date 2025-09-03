@@ -10,6 +10,7 @@
 ** CircularBuf provides a list of items with a fixed size.  Once
 ** the fixed size is reached, newer elements replace the oldest items.
 **
+@Js
 class CircularBuf
 {
   ** Construct with max size
@@ -139,3 +140,4 @@ class CircularBuf
   private Obj?[] items := [,]
   private Int tail := -1
 }
+
