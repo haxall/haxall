@@ -182,6 +182,7 @@ class MCompSpi : CompSpi
 
   private Void doSet(Str name, Obj? oldVal, Obj newVal)
   {
+    if (oldVal === newVal) return // short circuit if same
     if (oldVal is Comp) removeChild(oldVal)
     if (newVal is Comp) addChild(name, newVal)
     else if (newVal isnot Function) newVal = newVal.toImmutable
