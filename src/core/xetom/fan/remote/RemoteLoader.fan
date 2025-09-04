@@ -188,6 +188,7 @@ internal class RemoteLoader
 
     // buid assembled map
     map := Str:XetoSpec[:]
+    map.ordered = true
     slots.each |slot| { map.add(slot.name, slot.asm) }
     return MSlots(map)
   }
