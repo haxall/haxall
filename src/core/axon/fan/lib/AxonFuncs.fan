@@ -39,6 +39,7 @@ const class AxonFuncs
   @Api @Axon static Number size(Obj? val)
   {
     if (val is List) return Number(((List)val).size)
+    if (val is Grid) return Number(((Grid)val).size)
     if (val is Dict) throw argErr("size", val)
     size := (Int)val->size
     return Number(size.toFloat)

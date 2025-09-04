@@ -207,7 +207,7 @@ const class CompSpaceActor : Actor
     dicts := Dict[,]
     feedEachChild(cs) |comp|
     {
-      dicts.add(CompUtil.compToDict(comp))
+      dicts.add(CompUtil.toFeedDict(comp))
     }
 
     // encode into a grid of brio dicts
@@ -236,7 +236,7 @@ const class CompSpaceActor : Actor
     dicts := Dict[,]
     feedEachChild(cs) |comp|
     {
-      if (comp.spi.ver > lastVer) dicts.add(CompUtil.compToDict(comp))
+      if (comp.spi.ver > lastVer) dicts.add(CompUtil.toFeedDict(comp))
     }
 
     // also find all the deleted ids
@@ -291,13 +291,13 @@ const class CompSpaceActor : Actor
     }
   }
 
-  private Buf onFeedCreate(CompSpace cs, Ref specRef, Number x, Number y)
+  private Dict onFeedCreate(CompSpace cs, Ref specRef, Number x, Number y)
   {
     spec := cs.ns.spec(specRef.id)
     comp := cs.createSpec(spec)
     comp.set("compLayout", CompLayout(x.toInt, y.toInt))
     cs.root.add(comp)
-    return CompUtil.compToBrio(comp)
+    return CompUtil.toFeedDict(comp)
   }
 
   private Obj? onFeedLayout(CompSpace cs, Ref compId, Number x, Number y, Number w)

@@ -81,36 +81,15 @@ class CompUtil
   }
 
   ** Encode a component into a sys.comp::Comp dict representation (no children)
-  static Dict compToDict(Comp comp)
+  static Dict toFeedDict(Comp comp)
   {
     acc := Str:Obj[:]
     comp.each |v, n|
     {
       if (v is Comp) return
-
-      // non-Haystack typed scalars encode to Str
-      kind := Kind.fromVal(v, false)
-      if (kind == null) v = v.toStr
-
       acc[n] = v
     }
     return Etc.dictFromMap(acc)
-  }
-
-  ** Encode a component into a sys.comp::Comp dict representation, then brio
-  static Buf compToBrio(Comp comp)
-  {
-    dictToBrio(compToDict(comp))
-  }
-
-  ** Dict to brio buf for transport to browser!
-  static Buf dictToBrio(Dict dict)
-  {
-    buf := Buf()
-    out := BrioWriter(buf.out)
-    out.js = true // js requires can't handle 64-bit integers
-    out.writeDict(dict)
-    return buf.toImmutable
   }
 
   ** Return grid format used for BlockView feed protocol
@@ -123,7 +102,7 @@ class CompUtil
     gb.addCol("id").addCol("comp")
     dicts.each |dict|
     {
-      gb.addRow2(dict.id, CompUtil.dictToBrio(dict))
+      gb.addRow2(dict.id, dict)
     }
     if (deleted != null)
     {
