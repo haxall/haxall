@@ -287,6 +287,7 @@ const class CompSpaceActor : Actor
       case "unlink":    return onFeedUnlink(state.cs, req->links)
       case "duplicate": return onFeedDuplicate(state.cs, req->ids)
       case "delete":    return onFeedDelete(state.cs, req->ids)
+      case "update":    return onFeedUpdate(state.cs, req->id, req->diff)
       default:          throw Err("Unknown feedCall: $req")
     }
   }
@@ -338,6 +339,26 @@ const class CompSpaceActor : Actor
       if (comp == null) return
       if (comp.parent == null) throw Err("Cannot delete root")
       comp.parent.remove(comp.name)
+    }
+    return null
+  }
+
+  private Obj? onFeedUpdate(CompSpace cs, Ref id, Dict diff)
+  {
+    comp  := cs.readById(id)
+    slots := comp.spec.slots
+    diff.each |v, n|
+    {
+      slotSpec := slots.get(n, false)
+      if (slotSpec == null) return
+      binding := slotSpec.binding
+      if (v.typeof.fits(binding.type)) comp.set(n, v)
+      else if (binding.isScalar)
+      {
+        scalar := binding.decodeScalar(v.toStr)
+        comp.set(n, scalar)
+      }
+      else throw Err("TODO???: non-scalar ${n} => ${v} binding=${binding}")
     }
     return null
   }
