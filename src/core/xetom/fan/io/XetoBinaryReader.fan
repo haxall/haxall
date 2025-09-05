@@ -217,6 +217,7 @@ class XetoBinaryReader : XetoBinaryConst
       case ctrlSpan:          return readSpan
       case ctrlVersion:       return readVersion
       case ctrlCoord:         return readCoord
+      case ctrlDurationF8:    return Duration(in.readF8.toInt)
       default:                throw IOErr("obj ctrl 0x$ctrl.toHex")
     }
   }

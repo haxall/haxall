@@ -55,5 +55,6 @@ mixin XetoBinaryConst
   static const Int ctrlSpan          := 31
   static const Int ctrlVersion       := 32
   static const Int ctrlCoord         := 33
+  static const Int ctrlDurationF8    := 34 // js only
 }
 

@@ -257,8 +257,17 @@ class XetoBinaryWriter : XetoBinaryConst
 
   private Void writeDuration(Duration val)
   {
-    write(ctrlDuration)
-    writeI8(val.ticks)
+    ticks := val.ticks
+    if (js)
+    {
+      write(ctrlDurationF8)
+      writeF8(ticks.toFloat)
+    }
+    else
+    {
+      write(ctrlDuration)
+      writeI8(ticks)
+    }
   }
 
   private Void writeUri(Uri uri)
@@ -517,10 +526,12 @@ class XetoBinaryWriter : XetoBinaryConst
 //////////////////////////////////////////////////////////////////////////
 
   private static const Int constMaxCode := 1000
+  @NoDoc static const Bool jsDefault := Env.cur.runtime == "js"
 
   private OutStream out
   private BrioConsts cp
   private Str:Int strs := Str:Int[:]
   private Bool inLib
+  @NoDoc Bool js := jsDefault
 }
 
