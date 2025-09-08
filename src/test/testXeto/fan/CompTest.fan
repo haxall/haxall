@@ -274,7 +274,7 @@ class CompTest: AbstractXetoTest
 // Methods
 //////////////////////////////////////////////////////////////////////////
 
-/* TODO: removed Jul-25, not 100% sure yet though
+/* TODO: removed 5-Jul-25, not 100% sure yet though
   Void testMethods()
   {
     c := TestFoo()
@@ -417,6 +417,39 @@ class CompTest: AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Reorder
+//////////////////////////////////////////////////////////////////////////
+
+  Void testReorder()
+  {
+    c := TestAdd()
+    fixed := ["id", "spec", "dis", "in1", "in2", "out"]
+    verifyOrder(c, fixed.join(", "))
+
+    c.set("a", n(1))
+    c.set("b", n(2))
+    cur := fixed.dup.add("a").add("b")
+    verifyOrder(c, cur.join(", "))
+
+    // must have exact match of names
+    verifyErr(ArgErr#) { c.reorder(cur.dup { it.removeAt(-1) }) }
+    verifyErr(ArgErr#) { c.reorder(cur.dup { it.set(-1, "x") }) }
+
+    // reorder
+    cur.swap(-1, -2)
+    c.reorder(cur)
+    verifyOrder(c, cur.join(", "))
+  }
+
+  Void verifyOrder(Comp c, Str expect)
+  {
+    s := StrBuf()
+    c.each |v, n| { s.join(n, ", ") }
+    // echo("~~ $s")
+    verifyEq(s.toStr, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Callbacks
 //////////////////////////////////////////////////////////////////////////
 
@@ -426,147 +459,26 @@ class CompTest: AbstractXetoTest
     verifyEq(c.get("a"), "alpha")
     verifyEq(c.get("b"), "beta")
 
-    debug := |s| {} //echo(s) }
-
-    // listener
+    // set
     c.set("a", "1")
     verifyEq(c.onChangeLast, "a = 1")
 
-/* TODO: removed Jul-25, not 100% sure yet though
-    // remove with wrong name
-    c.onChangeRemove("foo", acb1)
-    c.set("a", "2")
-    verifyEq(a1, "2")
+    // add
+    c.add("xyz!", "foo")
+    verifyEq(c.onChangeLast, "foo = xyz!")
 
-    // remove with correct name
-    c.onChangeRemove("a", acb1)
-    c.set("a", "3")
-    verifyEq(a1, "2")
+    // add
+    c.add("123!", "bar")
+    verifyEq(c.onChangeLast, "bar = 123!")
 
-    // now add a few
-    a2 := null; acb2 := |self, v| { a2 = v; debug("a2=$v") }
-    a3 := null; acb3 := |self, v| { a3 = v; debug("a3=$v") }
-    a4 := null; acb4 := |self, v| { a4 = v; debug("a4=$v") }
-    c.onChange("a", acb1)
-    c.onChange("a", acb2)
-    c.onChange("a", acb3)
-    c.onChange("a", acb4)
-    c.set("a", "4")
-    verifyEq(a1, "4")
-    verifyEq(a2, "4")
-    verifyEq(a3, "4")
-    verifyEq(a4, "4")
-
-    // remove head
-    c.onChangeRemove("a", acb1)
-    c.set("a", "5")
-    verifyEq(a1, "4")
-    verifyEq(a2, "5")
-    verifyEq(a3, "5")
-    verifyEq(a4, "5")
-
-    // remove middle
-    c.onChangeRemove("a", acb3)
-    c.set("a", "6")
-    verifyEq(a1, "4")
-    verifyEq(a2, "6")
-    verifyEq(a3, "5")
-    verifyEq(a4, "6")
-
-    // remove tail
-    c.onChangeRemove("a", acb4)
-    c.set("a", "7")
-    verifyEq(a1, "4")
-    verifyEq(a2, "7")
-    verifyEq(a3, "5")
-    verifyEq(a4, "6")
-    verifyEq(c.onChangeThisLast, "a = 7")
-
-    // remove last one
-    c.onChangeRemove("a", acb2)
-    c.set("a", "8")
-    verifyEq(a1, "4")
-    verifyEq(a2, "7")
-    verifyEq(a3, "5")
-    verifyEq(a4, "6")
-    verifyEq(c.onChangeThisLast, "a = 8")
-
-    // register onChange and onCall on method3
-    mx1 := null; mx1cb := |self, v| { mx1 = v; debug("mx1=$v") }
-    mc1 := null; mc1cb := |self, v| { mc1 = v; debug("mc1=$v") }
-    c.onChange("method3", mc1cb)
-    c.onCall("method3", mx1cb)
-    c.call("method3", "100")
-    verifyEq(mc1, null)
-    verifyEq(mx1, "100")
-    verifyEq(c.onCallThisLast, "method3 = 100")
-
-    // add some more onCall
-    mx2 := null; mx2cb := |self, v| { mx2 = v; debug("mx2=$v") }
-    mx3 := null; mx3cb := |self, v| { mx3 = v; debug("mx3=$v") }
-    c.onCall("method3", mx2cb)
-    c.onCall("method3", mx3cb)
-    c.call("method3", "200")
-    verifyEq(mc1, null)
-    verifyEq(mx1, "200")
-    verifyEq(mx2, "200")
-    verifyEq(mx3, "200")
-
-    // change method3
-    c.set("method3", SyncFunction() |arg| { "override=$arg" })
-    verifyEq(mc1 is SyncFunction, true)
-    verifyEq(mx1, "200")
-    verifyEq(mx2, "200")
-    verifyEq(mx3, "200")
-    c.call("method3", "300")
-    verifyEq(mc1 is SyncFunction, true)
-    verifyEq(mx1, "300")
-    verifyEq(mx2, "300")
-    verifyEq(mx3, "300")
-
-    // remove change method3
-    mc1 = null
-    c.onChangeRemove("method3", mc1cb)
-    c.set("method3", null)
-    c.call("method3", "400")
-    verifyEq(mc1, null)
-    verifyEq(mx1, "400")
-    verifyEq(mx2, "400")
-    verifyEq(mx3, "400")
-
-    // remove method3 onCalls...
-    c.onCallRemove("method3", mx2cb)
-    c.call("method3", "500")
-    verifyEq(mc1, null)
-    verifyEq(mx1, "500")
-    verifyEq(mx2, "400")
-    verifyEq(mx3, "500")
-    c.onCallRemove("method3", mx3cb)
-    c.call("method3", "600")
-    verifyEq(mc1, null)
-    verifyEq(mx1, "600")
-    verifyEq(mx2, "400")
-    verifyEq(mx3, "500")
-    c.onCallRemove("method3", mx1cb)
-    c.call("method3", "700")
-    verifyEq(mc1, null)
-    verifyEq(mx1, "600")
-    verifyEq(mx2, "400")
-    verifyEq(mx3, "500")
-
-    // register onChange for slot not added yet
-    n := null
-    c.onChange("newone") |self, v| { n = v }
-    c.set("newone", "1st")
-    verifyEq(n, "1st")
-    c.set("newone", null)
-    verifyEq(n, null)
-    c.add("2nd", "newone")
-    verifyEq(n, "2nd")
-    c.remove("newone")
-    verifyEq(n, null)
-*/
+    // reorder
+    names := Str[,]
+    c.each |v, n| { names.add(n) }
+    names.swap(-1, -2)
+    c.reorder(names)
+    verifyEq(c.onChangeLast, "reorder! = null")
   }
+
 
 //////////////////////////////////////////////////////////////////////////
 // Load/Save
@@ -643,13 +555,6 @@ class CompTest: AbstractXetoTest
     x := t.links.listOn(ts).first ?: throw Err("Failed to find link: $f $fs => $t")
     verifyEq(x.fromRef, f.id)
     verifyEq(x.fromSlot, fs)
-  }
-
-  Void verifyOrder(Comp c, Str expect)
-  {
-    s := StrBuf()
-    c.each |v, n| { s.join(n, ", ") }
-    verifyEq(s.toStr, expect)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -757,25 +662,6 @@ class TestFoo : CompObj
   private Void onMethod1(Str s)
   {
     set("last", s)
-  }
-
-  private Str onMethod2()
-  {
-    set("last", "_method2_")
-    return "method2 called"
-  }
-
-  private Str onMethod3(Str s)
-  {
-    set("last", s)
-    return "method3 called: $s"
-  }
-
-  private Str onMethodUnsafe(Str s)
-  {
-    // this method isn't in the spec, so can't be called via reflection
-    set("last", s)
-    return "methodUnsafe called: $s"
   }
 
   Str? onChangeLast
