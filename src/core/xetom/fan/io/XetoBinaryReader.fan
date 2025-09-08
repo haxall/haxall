@@ -197,9 +197,9 @@ class XetoBinaryReader : XetoBinaryConst
       case ctrlNumberNoUnit:  return readNumberNoUnit
       case ctrlNumberUnit:    return readNumberUnit
       case ctrlInt2:          return in.readS2
-      case ctrlInt8:          return in.readS8
+      case ctrlInt8:          return readF8.toInt
       case ctrlFloat8:        return readF8
-      case ctrlDuration:      return Duration(in.readS8)
+      case ctrlDuration:      return Duration(readF8.toInt)
       case ctrlUri:           return readUri
       case ctrlRef:           return readRef
       case ctrlDate:          return readDate
@@ -217,7 +217,6 @@ class XetoBinaryReader : XetoBinaryConst
       case ctrlSpan:          return readSpan
       case ctrlVersion:       return readVersion
       case ctrlCoord:         return readCoord
-      case ctrlDurationF8:    return Duration(in.readF8.toInt)
       default:                throw IOErr("obj ctrl 0x$ctrl.toHex")
     }
   }
