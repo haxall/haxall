@@ -214,14 +214,30 @@ class MCompSpi : CompSpi
     if (isMounted) cs.unmount(child)
   }
 
+  override Void reorder(Str[] newOrder)
+  {
+    oldSlots := this.slots
+    newSlots := Str:Obj[:]
+    newSlots.ordered = true
+    newOrder.each |n|
+    {
+      v := oldSlots[n] ?: throw ArgErr("Slot name not defined: $n")
+      newSlots[n] = v
+    }
+    if (oldSlots.size != newSlots.size)
+      throw ArgErr("Names size does not match current slots size: $newSlots.size != $oldSlots.size")
+    this.slots = newSlots
+    changed("reorder!", null)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Callbacks
 //////////////////////////////////////////////////////////////////////////
 
-  // choke point for all slot changes
+  // Choke point for all slot changes
+  // Reorder passes "reorder!" for name
   private Void changed(Str name, Obj? newVal)
   {
-    // invoke
     try
     {
       // special callback

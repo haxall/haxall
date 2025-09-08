@@ -384,30 +384,36 @@ class CompTest: AbstractXetoTest
     verifyEq(r.spi.ver, 3)
     verifyEq(x.spi.ver, 5)
 
+    // reorder
+    verifyOrder(x, "id, spec, dis, foo, baz")
+    x.reorder(["id", "spec", "dis", "baz", "foo"])
+    verifyOrder(x, "id, spec, dis, baz, foo")
+    verifyEq(x.spi.ver, 6)
+
     // remove x
     x.remove("baz")
-    verifyEq(cs.ver, 6)
+    verifyEq(cs.ver, 7)
     verifyEq(r.spi.ver, 3)
-    verifyEq(x.spi.ver, 6)
+    verifyEq(x.spi.ver, 7)
     verifyEq(y.spi.ver, 0)
     verifyEq(z.spi.ver, 0)
 
     // mount two comps
     y.set("z", z)
     x.add(y)
-    verifyEq(cs.ver, 9)
+    verifyEq(cs.ver, 10)
     verifyEq(r.spi.ver, 3)
-    verifyEq(x.spi.ver, 9)
-    verifyEq(y.spi.ver, 7)
-    verifyEq(z.spi.ver, 8)
+    verifyEq(x.spi.ver, 10)
+    verifyEq(y.spi.ver, 8)
+    verifyEq(z.spi.ver, 9)
 
     // unmount two comps
     x.set(y.name, "replaced")
-    verifyEq(cs.ver, 12)
+    verifyEq(cs.ver, 13)
     verifyEq(r.spi.ver, 3)
-    verifyEq(x.spi.ver, 12)
-    verifyEq(y.spi.ver, 10)
-    verifyEq(z.spi.ver, 11)
+    verifyEq(x.spi.ver, 13)
+    verifyEq(y.spi.ver, 11)
+    verifyEq(z.spi.ver, 12)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -637,6 +643,13 @@ class CompTest: AbstractXetoTest
     x := t.links.listOn(ts).first ?: throw Err("Failed to find link: $f $fs => $t")
     verifyEq(x.fromRef, f.id)
     verifyEq(x.fromSlot, fs)
+  }
+
+  Void verifyOrder(Comp c, Str expect)
+  {
+    s := StrBuf()
+    c.each |v, n| { s.join(n, ", ") }
+    verifyEq(s.toStr, expect)
   }
 
 //////////////////////////////////////////////////////////////////////////

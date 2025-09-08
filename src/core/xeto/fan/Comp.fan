@@ -101,6 +101,16 @@ mixin Comp
     return this
   }
 
+  ** Reorder the slots.  The given list of names must match the existing
+  ** slot names.  Slots defined statically by the spec cannot be reordered
+  ** and will have indetermine behavior if they are not included in the
+  ** their original order (in the future this may raise an exception).
+  This reorder(Str[] names)
+  {
+    spi.reorder(names)
+    return this
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Callbacks
 //////////////////////////////////////////////////////////////////////////
@@ -254,6 +264,7 @@ mixin CompSpi
   abstract Void set(Str name, Obj? val)
   abstract Void add(Obj val, Str? name)
   abstract Void remove(Str name)
+  abstract Void reorder(Str[] names)
   abstract Bool isMounted()
   abstract Comp? parent()
   abstract Str name()
