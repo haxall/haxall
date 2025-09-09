@@ -8,6 +8,7 @@
 //
 
 using concurrent
+using web
 using xeto
 using haystack
 using obs
@@ -49,6 +50,12 @@ const mixin Ext
 
   ** Web service handling for this extension
   virtual ExtWeb web() { UnsupportedExtWeb(this) }
+
+  ** Get an upload handler for this extenstion
+  @NoDoc virtual UploadHandler uploadHandler(WebReq req, WebRes res, Dict opts)
+  {
+    UploadHandler(req, res, opts)
+  }
 
   ** Initialize a feed from a subscription request for this library
   @NoDoc virtual Feed feedInit(Dict req, Context cx)
@@ -185,3 +192,72 @@ const mixin ExtSpi
   abstract Bool isFault()
 }
 
+**************************************************************************
+** UploadHandler
+**************************************************************************
+
+**
+** Ext support for uploading files
+**
+@NoDoc
+class UploadHandler
+{
+  new make(WebReq req, WebRes res, Dict opts)
+  {
+    this.req  = req
+    this.res  = res
+    this.opts = opts
+  }
+
+  Context cx() { Context.cur }
+  WebReq req { private set }
+  WebRes res { private set }
+  const Dict opts
+
+  ** Get the requested upload path for this ext
+  Uri? path() { opts["path"] }
+
+  ** Handle file upload.
+  **
+  ** Return a Haystack value that should be returned to the client, or you may commit
+  ** the response yourself, in which case the return value is ignored.
+  virtual Obj? upload()
+  {
+    res.sendErr(404)
+    return null
+  }
+
+  ** Send and commit an error response to the client.
+  protected Obj? sendErr(Int code, Str? msg := null)
+  {
+    res.sendErr(code, msg)
+    return null
+  }
+
+  ** If the file exists, should it be renamed so as to avoid overwriting the existing file
+  protected Bool isRename() { req.method == "POST" }
+
+  ** Create a unique file or directory
+  protected File uniquify(File file)
+  {
+    iter     := 0
+    isDir    := file.isDir
+    baseDir  := file.parent ?: throw ArgErr("Cannot create new root: $file")
+    nameUri  := file.name.toUri
+    basename := nameUri.basename
+    ext      := isDir ? "" : ".${nameUri.ext}"
+    testUri  := nameUri
+    while (iter < 1_000)
+    {
+      if (isDir) testUri = testUri.plusSlash
+
+      target := baseDir + testUri
+      if (!target.exists) return target
+
+      ++iter
+      suffix := iter.toLocale("0000")
+      testUri = `${basename}-${suffix}${ext}`
+    }
+    throw IOErr("Too many files prefixed with ${nameUri.toCode} in ${baseDir}")
+  }
+}
