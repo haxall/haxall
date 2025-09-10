@@ -237,6 +237,10 @@ class UploadHandler
   ** If the file exists, should it be renamed so as to avoid overwriting the existing file
   protected Bool isRename() { req.method == "POST" }
 
+//////////////////////////////////////////////////////////////////////////
+// File Utils
+//////////////////////////////////////////////////////////////////////////
+
   ** Create a unique file or directory
   protected File uniquify(File file)
   {
@@ -259,5 +263,103 @@ class UploadHandler
       testUri = `${basename}-${suffix}${ext}`
     }
     throw IOErr("Too many files prefixed with ${nameUri.toCode} in ${baseDir}")
+  }
+}
+
+**************************************************************************
+** FileUploadHandler
+**************************************************************************
+
+**
+** Upload handler with common functionality that can be shared by all
+** implementations of IFileExt
+**
+@NoDoc
+class FileUploadHandler : UploadHandler
+{
+  new make(WebReq req, WebRes res, Dict opts) : super(req, res, opts)
+  {
+  }
+
+  ** Use 8MB chunks for output
+  private static const Int mb8 := 1024 * 1024 * 8
+
+  ** Return true if this web req is attempting to create a new file
+  virtual Bool isCreate()
+  {
+    req.method == "POST" &&
+    (path == `/proj/${cx.rt.name}/rec/` || path == `/rec/`)
+  }
+
+  IFileExt ifileExt() { cx.sys.file }
+
+  override Obj? upload()
+  {
+    file := ifileExt.resolve(path)
+
+    // handle new file creation
+    if (file.isDir && isCreate) file = onCreate
+
+    file.withOut |out|
+    {
+      buf := Buf(mb8)
+      in  := req.in
+      while (in.readBuf(buf, mb8) != null)
+      {
+        out.writeBuf(buf.flip)
+        buf.clear
+      }
+    }
+
+    return Etc.makeDictGrid(["uri":file.uri], cx.db.readById(Ref(file.name)))
+  }
+
+  ** Create a file rec in the folio database for this upload and return
+  ** a File resolved against the IFileExt
+  virtual protected File onCreate()
+  {
+    name := toFilename
+    spec := toSpec(name)
+    if (name == null)
+    {
+      ext := spec.meta["fileExt"]
+      name = "upload-" + DateTime.now.toLocale("YYYYMMDD-hhmmss")
+      if (ext != null) name = "${name}.${ext}"
+    }
+    tags := Str:Obj?[
+      "dis": name,
+      "spec": spec.id,
+    ]
+    rec := cx.db.commit(Diff.makeAdd(tags)).newRec
+
+    // very important to return the FileExt uri
+    return ifileExt.resolve(path.plus(`${rec.id.toProjRel.id}`))
+  }
+
+  ** Try to figure out the filename from the web req
+  virtual protected Str? toFilename()
+  {
+    name := req.headers["X-Filename"] as Str
+    // TODO: Content-Disposition parsing???
+    return name
+  }
+
+  ** Get the File spec that best fits file being uploaded
+  protected Spec toSpec(Str? filename)
+  {
+    fileSpec := cx.ns.spec("sys::File")
+
+    mime := filename?.toUri?.mimeType
+    if (mime == null) mime = MimeType.fromStr(req.headers["Content-Type"] ?: "", false)
+    if (mime == null) return fileSpec
+
+    return cx.ns.eachTypeWhile |spec->Obj?|
+    {
+      if (spec.isa(fileSpec) && MimeType(spec.meta["mimeType"] ?: "", false) == mime)
+      {
+        return spec
+      }
+      return null
+    } ?: fileSpec
   }
 }
