@@ -43,6 +43,13 @@ const class CompSpaceActor : Actor
     send(ActorMsg("init", csType, args))
   }
 
+  ** Initialize the CompSpace with an already constructed component space.
+  ** Future evaluates to this.
+  Future initSpace(CompSpace cs)
+  {
+    send(ActorMsg("init", Unsafe(cs)))
+  }
+
   ** Load the CompSpace with the given Xeto string.
   ** Future evaluates to this.
   Future load(Str xeto)
@@ -100,7 +107,7 @@ const class CompSpaceActor : Actor
     if (state == null)
     {
       if (msg.id != "init") throw Err("Must call init first")
-      state = onInit(msg.a, msg.b)
+      state = onInit(msg)
       Actor.locals["csas"] = state
       return this
     }
@@ -147,9 +154,11 @@ const class CompSpaceActor : Actor
 // CompSpace Management
 //////////////////////////////////////////////////////////////////////////
 
-  private CompSpaceActorState onInit(Type csType, Obj?[] args)
+  private CompSpaceActorState onInit(ActorMsg msg)
   {
-    CompSpace cs := csType.make(args)
+    CompSpace cs := msg.a is Unsafe
+      ? ((Unsafe)msg.a).val
+      : ((Type)msg.a).make(msg.b)
     Actor.locals[CompSpace.actorKey] = cs
     nsRef.val = cs.ns
     state := CompSpaceActorState(cs)
