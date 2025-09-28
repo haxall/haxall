@@ -71,6 +71,7 @@ internal class Templater
         case "Bind":    return processBind(x)
         case "If":      return processIfElse(x, b, prev)
         case "Else":    return processIfElse(x, b, prev)
+        case "Switch":  return processSwitch(x, b)
         case "Foreach": return processForeach(x, b)
       }
     }
@@ -82,7 +83,7 @@ internal class Templater
   {
     b := TemplateObjBuilder()
     processBlock(x, b)
-    return b.finalize
+    return b.finalizeDict
   }
 
   private Obj? processBind(Spec x)
@@ -112,13 +113,44 @@ internal class Templater
     return null  // only used in obj builder
   }
 
-  private Obj? processForeach(Spec x, TemplateObjBuilder? b)
+  private Obj? processSwitch(Spec x, TemplateObjBuilder? b)
   {
-    coll := var(x)
-    if (coll == null) return null
-
     isTop := b == null
     if (b == null) b = TemplateObjBuilder()
+
+    cond := var(x)
+    if (cond == null) return null
+
+
+    Spec? match := null
+    Spec? def := null
+    x.slots.each |slot|
+    {
+      if (def != null) throw Err("Unexpected Switch block after Default")
+      switch (slot.type.qname)
+      {
+        case "sys.template::Case":
+           matchVal := slot.meta["match"] ?: throw Err("Case missing 'match' meta tag")
+           if (cond == matchVal && match == null) match = slot
+        case "sys.template::Default":
+          def = slot
+        default: throw Err("Unexpected Switch block: $slot.type")
+      }
+    }
+
+    if (match == null) match = def
+    if (match != null) processBlock(match, b)
+
+    return isTop ? b.finalizeObj : null
+  }
+
+  private Obj? processForeach(Spec x, TemplateObjBuilder? b)
+  {
+    isTop := b == null
+    if (b == null) b = TemplateObjBuilder()
+
+    coll := var(x)
+    if (coll == null) return null
 
     if (coll is List)
     {
@@ -129,7 +161,7 @@ internal class Templater
       ((Grid)coll).each |v| { processIt(x, b, v) }
     }
     else throw ArgErr("Expecting Foreach to be collection, not $coll.typeof")
-    return isTop ? b.finalize : null
+    return isTop ? b.finalizeObj : null
   }
 
   private Void processIt(Spec x, TemplateObjBuilder b, Obj? v)
@@ -185,7 +217,13 @@ internal class TemplateObjBuilder
     acc.add(name, val)
   }
 
-  Dict finalize()
+  Obj? finalizeObj()
+  {
+    if (acc.size == 1 && acc.keys.first == "_0") return acc["_0"]
+    return finalizeDict
+  }
+
+  Dict finalizeDict()
   {
     Etc.dictFromMap(acc)
   }

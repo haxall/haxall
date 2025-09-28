@@ -40,6 +40,16 @@ class TemplateTest : AbstractAxonTest
     dict = call("testTemplateIfB", [false])
     verifyDictEq(dict, ["dis":"cond is false", "nay":m])
 
+    // ### Switch ###
+
+    // testTemplateSwitchB
+    dict = call("testTemplateSwitchA", ["a"])
+    verifyDictEq(dict, ["dis":"case a"])
+    dict = call("testTemplateSwitchA", ["b"])
+    verifyDictEq(dict, ["dis":"case b"])
+    dict = call("testTemplateSwitchA", ["c"])
+    verifyDictEq(dict, ["dis":"case default"])
+
     // ### Foreach ###
 
     // testTemplateForeachA
