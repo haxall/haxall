@@ -518,8 +518,11 @@ internal class Parser
         val = parseData
       }
 
-      // add to map
-      add("name", x.map, name, val)
+      // add to map (special handling for Spec val meta)
+      if (name == "val" && x.metaParent is ASpec && val is AScalar)
+        ((ASpec)x.metaParent).val = val
+      else
+        add("name", x.map, name, val)
 
       // check for meta flavor
       if (name == "meta" && x.isSpecMeta)

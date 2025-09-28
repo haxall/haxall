@@ -560,6 +560,7 @@ class NamespaceTest : AbstractXetoTest
     instantiateA := ns.spec("hx.test.xeto::InstantiateA")
     instantiateB := ns.spec("hx.test.xeto::InstantiateB")
     instantiateC := ns.spec("hx.test.xeto::InstantiateC")
+    instantiateD := ns.spec("hx.test.xeto::InstantiateD")
     carA         := ns.spec("hx.test.xeto::CarA")
 
     Dict dict := ns.instantiate(instantiateA)
@@ -584,6 +585,11 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(dict["c"], "charlie-b")
     verifyEq(dict["d"], "delta-c")
     verifyEq(dict["icon"], Ref("hx.test.xeto::icon-b"))
+
+    dict = ns.instantiate(instantiateD)
+    // dict.each |v, n| { echo("$n = $v [$v.typeof]") }
+    verifyEq(dict["numA"], n(37))
+    verifyEq(dict["numB"], n(37))
 
     dict = ns.instantiate(carA)
     verifyEq(dict["color"], null)  // verif we skip choices, at least for now

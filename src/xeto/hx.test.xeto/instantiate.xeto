@@ -27,5 +27,10 @@ InstantiateC: InstantiateB {
   d: "delta-c"
 }
 
+InstantiateD: {
+  numA: Number 37
+  numB: Number <val:37>
+}
+
 @icon-b: Dict {}
 
