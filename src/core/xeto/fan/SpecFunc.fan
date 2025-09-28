@@ -26,6 +26,9 @@ const mixin SpecFunc
 
   ** Get the thunk used to call this function
   abstract Thunk thunk()
+
+  ** Is this a template function
+  @NoDoc abstract Bool isTemplate()
 }
 
 **************************************************************************

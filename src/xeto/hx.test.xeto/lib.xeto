@@ -13,6 +13,7 @@ pragma: Lib <
     { lib: "sys",          versions: BuildVar "ph.depend" }
     { lib: "sys.comp",     versions: BuildVar "ph.depend" }
     { lib: "sys.api",      versions: BuildVar "ph.depend" }
+    { lib: "sys.template", versions: BuildVar "ph.depend" }
     { lib: "ph",           versions: BuildVar "ph.depend" }
     { lib: "ph.attrs",     versions: BuildVar "ph.depend" }
     { lib: "ph.protocols", versions: BuildVar "ph.depend" }

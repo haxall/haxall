@@ -36,6 +36,9 @@ const class AxonThunkFactory : ThunkFactory
     comp := spec.meta["compTree"] as Str
     if (comp != null) return parseComp(spec, meta, comp)
 
+    // check for template
+    if (spec.func.isTemplate) return TemplateFn(spec, meta, toParams(spec))
+
     throw UnsupportedErr("Cannot resolve thunk: $spec [pod:$pod]")
   }
 

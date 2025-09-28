@@ -24,17 +24,15 @@ abstract class AbstractAxonTest : HxTest
     proj.libs.clear
 
     // add new using recs
-    proj.libs.addAll(libs)
+    libs.each |lib| { addLib(lib) }
 
     // sync
     proj.sync
     ns := proj.ns
-// TODO
-//    verifySame(ns.sysLib, LibNamespace.system.sysLib)
     return ns
   }
 
-  LibNamespace xns()
+  LibNamespace ns()
   {
     proj.ns
   }
@@ -49,7 +47,7 @@ abstract class AbstractAxonTest : HxTest
     cx := makeContext
     x := cx.eval(expr)
     // echo("::: $expr => $x [$x.typeof]")
-    verifySame(x, xns.type(qname))
+    verifySame(x, ns.type(qname))
   }
 
   Obj? toHay(Obj? x)

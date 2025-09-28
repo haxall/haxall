@@ -43,8 +43,8 @@ class AxonTest : AbstractAxonTest
     cx := makeContext
     Spec x := cx.eval(expr)
     // echo(":::REF:::: $expr => $x [$x.typeof]")
-    verifySame(cx.ns, xns)
-    verifySame(x, xns.spec(qname))
+    verifySame(cx.ns, ns)
+    verifySame(x, ns.spec(qname))
     return x
   }
 
@@ -65,7 +65,7 @@ class AxonTest : AbstractAxonTest
 
     // specLibs
     verifyDictsEq(eval("""specLibs()"""), ns.libs)
-    verifyDictsEq(eval("""specLibs(id==@lib:ph.points)"""), [xns.lib("ph.points")])
+    verifyDictsEq(eval("""specLibs(id==@lib:ph.points)"""), [ns.lib("ph.points")])
 
     // spec
     verifySame(eval("""spec("sys::Str")"""), ns.spec("sys::Str"))

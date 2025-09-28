@@ -77,6 +77,13 @@ const class MFunc : SpecFunc
   override Thunk thunk() { thunkRef ?: initThunk }
   private const Thunk? thunkRef
 
+  override Bool isTemplate()
+  {
+    for (Spec? p := spec; p != null; p = p.base)
+      if (p.qname == "sys.template::Template") return true
+    return false
+  }
+
   private Thunk initThunk()
   {
     thunk := SpecBindings.cur.thunk(spec)
