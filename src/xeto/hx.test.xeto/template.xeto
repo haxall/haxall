@@ -21,6 +21,21 @@ testTemplateBindA: Template {
   }
 }
 
+testTemplateBindB: Template {
+  data: Dict
+
+  returns: Dict {
+    a:  Bind <var:"data.a">
+    b1: Bind <var:"data.b">
+    b2: Bind <var:"data?.b">
+    c:  Bind <var:"data.c.nest">
+    d:  Bind <var:"data?.d">
+    e:  Bind <var:"data?.e">
+    en: Bind <var:"data?.e?.nest">
+    f:  Bind <var:"data?.f?.no">
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 // If
 //////////////////////////////////////////////////////////////////////////

@@ -184,10 +184,41 @@ internal class Templater
   private Obj? var(Spec spec)
   {
     path := spec.meta["var"]?.toStr ?: throw Err("$spec.type.name missing 'var'")
-    names := path.toStr.split('.')
-    first := names.first
+
+    // parse out first name
+    first := path
+    dot := path.index(".")
+    if (dot != null)
+    {
+      first = path[0..<dot]
+      if (first[-1] == '?') first = first[0..-2]
+    }
+
+    // get first name from arguments or current "it" variable
     val := first == "it" ? itStack.peek : args.getChecked(first)
-    if (names.size > 1) throw Err("Dotted path: $path")
+    if (dot == null) return val
+
+    // parse dotted path
+    names := path.split('.')
+    for (i := 1; i < names.size; ++i)
+    {
+      // get current name without trailing ?
+      n := names[i]
+      if (n[-1] == '?') n = n[0..-2]
+
+      // can only path into Dict
+      if (val isnot Dict) throw UnresolvedErr("Cannot path $path in value $val [$val.typeof]")
+      val = ((Dict)val).get(n)
+
+      // null handling
+      if (val == null)
+      {
+        nullSafe := names[i-1][-1] == '?' // prev ended in "?"
+        if (nullSafe) return null // okay
+        throw UnresolvedErr("Cannot get '$n' in path '$path'")
+      }
+    }
+
     return val
   }
 
