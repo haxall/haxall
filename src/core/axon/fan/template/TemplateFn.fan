@@ -89,6 +89,7 @@ internal class Templater
 
     // collection processing
     if (x.type.isDict) return processDict(x)
+    if (x.type.isComp) return processDict(x)
     if (x.type.isList) return processList(x)
     if (x.type.isa(gridSpec)) return processGrid(x)
 
