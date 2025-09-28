@@ -89,15 +89,19 @@ testTemplateIfC: Template {
 testTemplateSwitchA: Template {
   cond: Str
 
-  returns: Switch <var:"cond"> {
-    Case <match:"a"> {
-      Dict { dis:"case a" }
-    }
-    Case <match:"b"> {
-      Dict { dis:"case b" }
-    }
-    Default {
-      Dict { dis:"case default" }
+  returns: Dict {
+    Switch <var:"cond"> {
+      Case <match:"a"> {
+        dis:"case a"
+        alpha
+      }
+      Case <match:"b"> {
+        dis:"case b"
+        beta
+      }
+      Default {
+        dis:"case default"
+      }
     }
   }
 }
@@ -109,8 +113,10 @@ testTemplateSwitchA: Template {
 testTemplateForeachA: Template {
   list: List<of:Str>
 
-  returns: Foreach <var:"list"> {
-    Dict { dis: Bind <var:"it"> }
+  returns: List {
+    Foreach <var:"list"> {
+      Bind <var:"it">
+    }
   }
 }
 

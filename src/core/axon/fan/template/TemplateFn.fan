@@ -65,21 +65,34 @@ internal class Templater
 
   private Obj? process(Spec x, TemplateObjBuilder? b, Spec? prev)
   {
+    // template processing specs
     if (x.type.lib.name == "sys.template")
     {
+      // these can run in or out of a collection builder
       switch (x.type.name)
       {
         case "Bind":    return processBind(x)
-        case "If":      return processIfElse(x, b, prev)
-        case "Else":    return processIfElse(x, b, prev)
-        case "Switch":  return processSwitch(x, b)
-        case "Foreach": return processForeach(x, b)
       }
+
+      // rest of these can only be run inside a collection type
+      if (b == null) throw Err("Cannot run $x.type.name outside of a collection spec")
+      switch (x.type.name)
+      {
+        case "If":      processIfElse(x, b, prev)
+        case "Else":    processIfElse(x, b, prev)
+        case "Switch":  processSwitch(x, b)
+        case "Foreach": processForeach(x, b)
+        default:        throw Err("Unknown block type: $x.type.name")
+      }
+      return null
     }
 
+    // collection processing
     if (x.type.isDict) return processDict(x)
     if (x.type.isList) return processList(x)
     if (x.type.isa(gridSpec)) return processGrid(x)
+
+    // scalar
     return ns.instantiate(x)
   }
 
@@ -109,10 +122,8 @@ internal class Templater
     var(x)
   }
 
-  private Obj? processIfElse(Spec x, TemplateObjBuilder? b, Spec? prev)
+  private Void processIfElse(Spec x, TemplateObjBuilder b, Spec? prev)
   {
-    if (b == null) throw Err("Cannot use If/Else outside of container obj")
-
     ifClause := x
     isElse := false
     if (x.type.name == "Else")
@@ -127,15 +138,10 @@ internal class Templater
     if (isElse) cond = !cond
 
     if (cond) processBlock(x, b)
-
-    return null  // only used in obj builder
   }
 
-  private Obj? processSwitch(Spec x, TemplateObjBuilder? b)
+  private Void processSwitch(Spec x, TemplateObjBuilder b)
   {
-    isTop := b == null
-    if (b == null) b = TemplateObjBuilder()
-
     cond := var(x)
     if (cond == null) return null
 
@@ -158,15 +164,10 @@ internal class Templater
 
     if (match == null) match = def
     if (match != null) processBlock(match, b)
-
-    return isTop ? b.finalizeObj : null
   }
 
-  private Obj? processForeach(Spec x, TemplateObjBuilder? b)
+  private Void processForeach(Spec x, TemplateObjBuilder b)
   {
-    isTop := b == null
-    if (b == null) b = TemplateObjBuilder()
-
     coll := var(x)
     if (coll == null) return null
 
@@ -178,8 +179,10 @@ internal class Templater
     {
       ((Grid)coll).each |v| { processIt(x, b, v) }
     }
-    else throw ArgErr("Expecting Foreach to be collection, not $coll.typeof")
-    return isTop ? b.finalizeObj : null
+    else
+    {
+      throw ArgErr("Expecting Foreach to be collection, not $coll.typeof")
+    }
   }
 
   private Void processIt(Spec x, TemplateObjBuilder b, Obj? v)

@@ -56,21 +56,21 @@ class TemplateTest : AbstractAxonTest
 
     // testTemplateSwitchB
     dict = call("testTemplateSwitchA", ["a"])
-    verifyDictEq(dict, ["dis":"case a"])
+    verifyDictEq(dict, ["dis":"case a", "alpha":m])
     dict = call("testTemplateSwitchA", ["b"])
-    verifyDictEq(dict, ["dis":"case b"])
+    verifyDictEq(dict, ["dis":"case b", "beta":m])
     dict = call("testTemplateSwitchA", ["c"])
     verifyDictEq(dict, ["dis":"case default"])
 
     // ### Foreach ###
 
     // testTemplateForeachA
-    dict = call("testTemplateForeachA", [["a", "b", "c"]])
-    expect := ["_0":Etc.dict1("dis", "a"), "_1":Etc.dict1("dis", "b"), "_2":Etc.dict1("dis", "c") ]
-    verifyDictEq(dict, expect)
+    list := call("testTemplateForeachA", [["a", "b", "c"]])
+    verifyValEq(list, Obj?["a", "b", "c"])
 
     // testTemplateForeachB
     dict = call("testTemplateForeachB", [["a", "b", "c"]])
+    expect := ["_0":Etc.dict1("dis", "a"), "_1":Etc.dict1("dis", "b"), "_2":Etc.dict1("dis", "c") ]
     verifyDictEq(dict, expect)
 
     // testTemplateForeachC
