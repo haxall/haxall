@@ -7,6 +7,7 @@
 //
 
 using xeto
+using xetom
 using haystack
 using concurrent
 
@@ -67,7 +68,9 @@ internal class Templater
     {
       switch (x.type.name)
       {
-        case "Bind": return processBind(x)
+        case "Bind":    return processBind(x)
+        case "If":      return processIf(x)
+        case "Foreach": return processFor(x)
       }
     }
     if (x.type.isDict) return processDict(x)
@@ -78,22 +81,90 @@ internal class Templater
   {
     acc := Str:Obj[:]
     acc.ordered = true
+    autoIndex := 0
     x.slots.each |slot|
     {
-      acc.addNotNull(slot.name, process(slot))
+      // process slot
+      val := process(slot)
+      if (val == null) return null
+
+      // check for auto-name
+      name := slot.name
+      if (XetoUtil.isAutoName(name))
+      {
+        // if val is a list, then its a spread operation
+        if (val is List)
+        {
+          ((List)val).each |item|
+          {
+            if (item == null) return
+            acc.add(XetoUtil.autoName(autoIndex++), item)
+          }
+          return
+        }
+
+        // ensure serial auto-names
+        name = XetoUtil.autoName(autoIndex++)
+      }
+      acc.add(name, val)
     }
     return Etc.dictFromMap(acc)
   }
 
   private Obj? processBind(Spec x)
   {
-    resolve(x.meta["to"] ?: throw Err("Bind missing 'to' meta"))
+    var(x)
   }
 
-  Obj? resolve(Obj path)
+  private Obj? processIf(Spec x)
   {
+    cond := var(x)
+    if (cond isnot Bool) throw Err("If cond not Bool: $cond")
+    if (cond)
+    {
+      acc := Obj?[,]
+      processIt(acc, x, null)
+      return acc
+    }
+    else
+    {
+      return null
+    }
+  }
+
+  private Obj? processFor(Spec x)
+  {
+    coll := var(x)
+    if (coll == null) return null
+    acc := Obj?[,]
+    if (coll is List)
+    {
+      ((List)coll).each |v| { processIt(acc, x, v) }
+    }
+    else if (coll is Grid)
+    {
+      ((Grid)coll).each |v| { processIt(acc, x, v) }
+    }
+    else throw ArgErr("Expecting For-each to be collection, not $coll.typeof")
+    return acc
+  }
+
+  private Void processIt(Obj?[] acc, Spec x, Obj? v)
+  {
+    itStack.push(v)
+    x.slots.each |slot|
+    {
+      acc.add(process(slot))
+    }
+    itStack.pop
+  }
+
+  private Obj? var(Spec spec)
+  {
+    path := spec.meta["var"]?.toStr ?: throw Err("$spec.type.name missing 'var'")
     names := path.toStr.split('.')
-    val := args.getChecked(names.first)
+    first := names.first
+    val := first == "it" ? itStack.peek : args.getChecked(first)
     if (names.size > 1) throw Err("Dotted path: $path")
     return val
   }
@@ -102,5 +173,6 @@ internal class Templater
   private LibNamespace ns
   private AxonContext cx
   private Str:Obj? args
+  private Obj?[] itStack := [,]
 }
 

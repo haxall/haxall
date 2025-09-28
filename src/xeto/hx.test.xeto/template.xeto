@@ -6,13 +6,69 @@
 //   28 Sep 2025  Brian Frank  Creation
 //
 
-testTemplateA: Template {
+//////////////////////////////////////////////////////////////////////////
+// Bind
+//////////////////////////////////////////////////////////////////////////
+
+testTemplateBindA: Template {
   s: Str
+
   returns: Dict {
     dis: "Test"
     foo
-    x: Bind <to:"s">
+    x: Bind <var:"s">
     y: Number 123
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+// If
+//////////////////////////////////////////////////////////////////////////
+
+testTemplateIfA: Template {
+  cond: Bool
+
+  returns: Dict {
+    If <var:"cond"> {
+      dis: "cond is true"
+    }
+  }
+}
+
+testTemplateIfB: Template {
+  cond: Bool
+
+  returns: Dict {
+    If <var:"cond"> {
+      dis: "cond is true"
+      yea
+    }
+    Else {
+      dis: "cond is false"
+      nay
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Foreach
+//////////////////////////////////////////////////////////////////////////
+
+testTemplateForeachA: Template {
+  list: List<of:Str>
+
+  returns: Foreach <var:"list"> {
+    Dict { dis: Bind <var:"it"> }
+  }
+}
+
+testTemplateForeachB: Template {
+  list: List<of:Str>
+
+  returns: Dict {
+    Foreach <var:"list"> {
+      Dict { dis: Bind <var:"it"> }
+    }
   }
 }
 

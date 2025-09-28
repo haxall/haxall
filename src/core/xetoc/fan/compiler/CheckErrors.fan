@@ -198,12 +198,20 @@ internal class CheckErrors : Step
 
   Void errCovariant(ASpec x, Str msg1, Str msg2)
   {
+    // if the spec is a variable/macro/template construct then ignore
+    if (isMacro(x)) return
+
     if (x.isSlot && x.base.flavor.isGlobal)
       err("Slot '$x.name' $msg1 global slot '$x.base.qname' $msg2", x.loc)
     else if (x.isSlot)
       err("Slot '$x.name' $msg1 inherited slot '$x.base.qname' $msg2", x.loc)
     else
       err("Type '$x.name' $msg1 inherited type '$x.base.qname' $msg2", x.loc)
+  }
+
+  Bool isMacro(ASpec x)
+  {
+    x.ctype.qname.startsWith("sys.template::")
   }
 
   Void checkSlots(ASpec x)

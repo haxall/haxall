@@ -22,9 +22,35 @@ class TemplateTest : AbstractAxonTest
   {
     ns := initNamespace(["hx.test.xeto"])
 
-    a := ns.unqualifiedFunc("testTemplateA")
-    d := (Dict)call("testTemplateA", ["test str"])
-    verifyDictEq(d, ["dis":"Test", "foo":m, "x":"test str", "y":n(123)])
+    // testTemplateBindA
+    dict := (Dict)call("testTemplateBindA", ["test str"])
+    verifyDictEq(dict, ["dis":"Test", "foo":m, "x":"test str", "y":n(123)])
+
+    // ### If ###
+
+    // testTemplateIfA
+    /*
+    dict = call("testTemplateIfA", [true])
+    verifyDictEq(dict, ["dis":"cond is true"])
+    dict = call("testTemplateIfA", [false])
+    verifyDictEq(dict, [:])
+
+    // testTemplateIfB
+    dict = call("testTemplateIfB", [true])
+    verifyDictEq(dict, ["dis":"cond is true", "yea":m])
+    dict = call("testTemplateIfB", [false])
+    verifyDictEq(dict, ["dis":"cond is false", "nay":m])
+    */
+
+    // ### Foreach ###
+
+    // testTemplateForeachA
+    list := call("testTemplateForeachA", [["a", "b", "c"]])
+    verifyValEq(list, Obj?[ Etc.dict1("dis", "a"), Etc.dict1("dis", "b"), Etc.dict1("dis", "c") ])
+
+    // testTemplateForeachB
+    dict = call("testTemplateForeachB", [["a", "b", "c"]])
+    verifyDictEq(dict, ["_0":Etc.dict1("dis", "a"), "_1":Etc.dict1("dis", "b"), "_2":Etc.dict1("dis", "c") ])
   }
 
   Obj? call(Str name, Obj?[] args)
@@ -32,6 +58,7 @@ class TemplateTest : AbstractAxonTest
     makeContext.asCur |->Obj?|
     {
       res := ns.unqualifiedFunc(name).func.thunk.callList(args)
+echo("$name => $res [$res.typeof]")
       return res
     }
   }
