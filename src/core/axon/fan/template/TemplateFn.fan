@@ -59,18 +59,19 @@ internal class Templater
 
   Obj? call()
   {
-    process(fn.spec.slot("returns"))
+    process(fn.spec.slot("returns"), null, null)
   }
 
-  private Obj? process(Spec x)
+  private Obj? process(Spec x, TemplateObjBuilder? b, Spec? prev)
   {
     if (x.type.lib.name == "sys.template")
     {
       switch (x.type.name)
       {
         case "Bind":    return processBind(x)
-        case "If":      return processIf(x)
-        case "Foreach": return processFor(x)
+        case "If":      return processIfElse(x, b, prev)
+        case "Else":    return processIfElse(x, b, prev)
+        case "Foreach": return processForeach(x, b)
       }
     }
     if (x.type.isDict) return processDict(x)
@@ -79,36 +80,9 @@ internal class Templater
 
   private Dict processDict(Spec x)
   {
-    acc := Str:Obj[:]
-    acc.ordered = true
-    autoIndex := 0
-    x.slots.each |slot|
-    {
-      // process slot
-      val := process(slot)
-      if (val == null) return null
-
-      // check for auto-name
-      name := slot.name
-      if (XetoUtil.isAutoName(name))
-      {
-        // if val is a list, then its a spread operation
-        if (val is List)
-        {
-          ((List)val).each |item|
-          {
-            if (item == null) return
-            acc.add(XetoUtil.autoName(autoIndex++), item)
-          }
-          return
-        }
-
-        // ensure serial auto-names
-        name = XetoUtil.autoName(autoIndex++)
-      }
-      acc.add(name, val)
-    }
-    return Etc.dictFromMap(acc)
+    b := TemplateObjBuilder()
+    processBlock(x, b)
+    return b.finalize
   }
 
   private Obj? processBind(Spec x)
@@ -116,47 +90,63 @@ internal class Templater
     var(x)
   }
 
-  private Obj? processIf(Spec x)
+  private Obj? processIfElse(Spec x, TemplateObjBuilder? b, Spec? prev)
   {
-    cond := var(x)
+    if (b == null) throw Err("Cannot use If/Else outside of container obj")
+
+    ifClause := x
+    isElse := false
+    if (x.type.name == "Else")
+    {
+      if (prev == null || prev.type.name != "If") throw Err("Unexpected Else block")
+      ifClause = prev
+      isElse = true
+    }
+
+    cond := var(ifClause)
     if (cond isnot Bool) throw Err("If cond not Bool: $cond")
-    if (cond)
-    {
-      acc := Obj?[,]
-      processIt(acc, x, null)
-      return acc
-    }
-    else
-    {
-      return null
-    }
+    if (isElse) cond = !cond
+
+    if (cond) processBlock(x, b)
+
+    return null  // only used in obj builder
   }
 
-  private Obj? processFor(Spec x)
+  private Obj? processForeach(Spec x, TemplateObjBuilder? b)
   {
     coll := var(x)
     if (coll == null) return null
-    acc := Obj?[,]
+
+    isTop := b == null
+    if (b == null) b = TemplateObjBuilder()
+
     if (coll is List)
     {
-      ((List)coll).each |v| { processIt(acc, x, v) }
+      ((List)coll).each |v| { processIt(x, b, v) }
     }
     else if (coll is Grid)
     {
-      ((Grid)coll).each |v| { processIt(acc, x, v) }
+      ((Grid)coll).each |v| { processIt(x, b, v) }
     }
-    else throw ArgErr("Expecting For-each to be collection, not $coll.typeof")
-    return acc
+    else throw ArgErr("Expecting Foreach to be collection, not $coll.typeof")
+    return isTop ? b.finalize : null
   }
 
-  private Void processIt(Obj?[] acc, Spec x, Obj? v)
+  private Void processIt(Spec x, TemplateObjBuilder b, Obj? v)
   {
     itStack.push(v)
+    processBlock(x, b)
+    itStack.pop
+  }
+
+  private Void processBlock(Spec x, TemplateObjBuilder b)
+  {
+    Spec? prev := null
     x.slots.each |slot|
     {
-      acc.add(process(slot))
+      b.add(slot.name, process(slot, b, prev))
+      prev = slot
     }
-    itStack.pop
   }
 
   private Obj? var(Spec spec)
@@ -174,5 +164,30 @@ internal class Templater
   private AxonContext cx
   private Str:Obj? args
   private Obj?[] itStack := [,]
+}
+
+**************************************************************************
+** TemplateObjBuilder
+**************************************************************************
+
+@Js
+internal class TemplateObjBuilder
+{
+  Str:Obj acc := [:] { ordered = true }
+  Int autoIndex
+
+  Void add(Str name, Obj? val)
+  {
+    if (val == null) return
+
+    if (XetoUtil.isAutoName(name)) name = XetoUtil.autoName(autoIndex++)
+
+    acc.add(name, val)
+  }
+
+  Dict finalize()
+  {
+    Etc.dictFromMap(acc)
+  }
 }
 

@@ -29,7 +29,6 @@ class TemplateTest : AbstractAxonTest
     // ### If ###
 
     // testTemplateIfA
-    /*
     dict = call("testTemplateIfA", [true])
     verifyDictEq(dict, ["dis":"cond is true"])
     dict = call("testTemplateIfA", [false])
@@ -40,17 +39,17 @@ class TemplateTest : AbstractAxonTest
     verifyDictEq(dict, ["dis":"cond is true", "yea":m])
     dict = call("testTemplateIfB", [false])
     verifyDictEq(dict, ["dis":"cond is false", "nay":m])
-    */
 
     // ### Foreach ###
 
     // testTemplateForeachA
-    list := call("testTemplateForeachA", [["a", "b", "c"]])
-    verifyValEq(list, Obj?[ Etc.dict1("dis", "a"), Etc.dict1("dis", "b"), Etc.dict1("dis", "c") ])
+    dict = call("testTemplateForeachA", [["a", "b", "c"]])
+    expect := ["_0":Etc.dict1("dis", "a"), "_1":Etc.dict1("dis", "b"), "_2":Etc.dict1("dis", "c") ]
+    verifyDictEq(dict, expect)
 
     // testTemplateForeachB
     dict = call("testTemplateForeachB", [["a", "b", "c"]])
-    verifyDictEq(dict, ["_0":Etc.dict1("dis", "a"), "_1":Etc.dict1("dis", "b"), "_2":Etc.dict1("dis", "c") ])
+    verifyDictEq(dict, expect)
   }
 
   Obj? call(Str name, Obj?[] args)
