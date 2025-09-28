@@ -11,17 +11,17 @@ using xeto
 using haystack
 
 **
-** TemplateTest
+** EquipTest
 **
 @Js
-class TemplateTest : AbstractXetoTest
+class EquipTest : AbstractXetoTest
 {
 
   Void testBasics()
   {
     ns := createNamespace(["sys", "ph", "ph.attrs", "ph.points", "hx.test.xeto"])
 
-    specA   := ns.spec("hx.test.xeto::TemplateA")
+    specA   := ns.spec("hx.test.xeto::EquipA")
     zat     := ns.spec("ph.points::ZoneAirTempSensor")
     zah     := ns.spec("ph.points::ZoneAirHumiditySensor")
     qn0     := specA.slot("points").slot("_0").qname
@@ -33,7 +33,7 @@ class TemplateTest : AbstractXetoTest
     verifyEq(recs.size, 3)
     eqId := recs[0].id
     verifyTemplate(recs[0], [
-      "navName":"TemplateA",
+      "navName":"EquipA",
       "disMacro":"\$siteRef \$navName",
       "spec":specA.id],
       "ahu,equip")
@@ -58,7 +58,7 @@ class TemplateTest : AbstractXetoTest
     eqId = recs[0].id
     verifyEq(recs.size, 2)
     verifyTemplate(recs[0], [
-      "navName":"TemplateA",
+      "navName":"EquipA",
       "disMacro":"\$siteRef \$navName",
       "siteRef":s.id,
       "spec":specA.id],
@@ -79,7 +79,7 @@ class TemplateTest : AbstractXetoTest
     eqId = recs[0].id
     verifyEq(recs.size, 2)
     verifyTemplate(recs[0], [
-      "navName":"TemplateA",
+      "navName":"EquipA",
       "disMacro":"\$siteRef \$navName",
       "siteRef":s.id,
       "spaceRef":sp.id,
@@ -102,7 +102,7 @@ class TemplateTest : AbstractXetoTest
     eqId = recs[0].id
     verifyEq(recs.size, 2)
     verifyTemplate(recs[0], [
-      "navName":"TemplateA",
+      "navName":"EquipA",
       "disMacro":"\$siteRef \$navName",
       "siteRef":s.id,
       "spaceRef":sp.id,
@@ -127,7 +127,7 @@ class TemplateTest : AbstractXetoTest
     eqId = recs[0].id
     verifyEq(recs.size, 3)
     verifyTemplate(recs[0], [
-      "navName":"TemplateA",
+      "navName":"EquipA",
       "disMacro":"\$siteRef \$navName",
       "spec":specA.id],
       "ahu,equip")

@@ -326,13 +326,13 @@ class NamespaceTest : AbstractXetoTest
     // inherited using auto-naming; in the case of TemplateB the
     // first point is assigned name "_0", then in the inherited map
     // its actually "_2" becauase it inherits two slots from its parent
-    aPts := lib.spec("TemplateA").slot("points")
-    bPts := lib.spec("TemplateB").slot("points")
+    aPts := lib.spec("EquipA").slot("points")
+    bPts := lib.spec("EquipB").slot("points")
     verifySame(bPts.base, aPts)
     verifyEq(aPts.slots.names, ["_0", "_1"])
     verifyEq(bPts.slots.names, ["_0", "_1", "_2"])
     verifyEq(bPts.slot("_2").name, "_0")
-    verifyEq(bPts.slot("_2").qname, "hx.test.xeto::TemplateB.points._0")
+    verifyEq(bPts.slot("_2").qname, "hx.test.xeto::EquipB.points._0")
     ptSigs := Str[,]
     bPts.slots.each |x, n|
     {
@@ -341,9 +341,9 @@ class NamespaceTest : AbstractXetoTest
     }
     // echo(ptSigs.join("\n"))
     verifyEq(ptSigs, [
-      "_0 | hx.test.xeto::TemplateA.points._0 | _0: ZoneAirTempSensor",
-      "_1 | hx.test.xeto::TemplateA.points._1 | _1: ZoneAirHumiditySensor",
-      "_2 | hx.test.xeto::TemplateB.points._0 | _0: ZoneCo2Sensor"])  // not _2 key maps to name_0
+      "_0 | hx.test.xeto::EquipA.points._0 | _0: ZoneAirTempSensor",
+      "_1 | hx.test.xeto::EquipA.points._1 | _1: ZoneAirHumiditySensor",
+      "_2 | hx.test.xeto::EquipB.points._0 | _0: ZoneCo2Sensor"])  // not _2 key maps to name_0
  }
 
 //////////////////////////////////////////////////////////////////////////

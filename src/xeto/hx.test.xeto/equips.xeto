@@ -6,7 +6,7 @@
 //   26 Apr 2025  Brian Frank  Creation
 //
 
-TemplateA : Ahu {
+EquipA : Ahu {
   attrs: Query {
     ElecAcVoltAttr { val: 24V }
     ManufacturerAttr { val: "Test"}
@@ -23,7 +23,7 @@ TemplateA : Ahu {
   }
 }
 
-TemplateB : TemplateA {
+EquipB : EquipA {
   points: {
     ZoneCo2Sensor {
       ModbusAddr { addr: "16478" }
