@@ -65,6 +65,23 @@ testTemplateIfB: Template {
   }
 }
 
+testTemplateIfC: Template {
+  cond1: Bool
+  cond2: Bool
+
+  returns: Dict {
+    If <var:"cond1"> {
+      dis1: "true"
+    }
+    Else {
+      dis1: "false"
+    }
+    If <var:"cond2"> {
+      dis2: "true"
+    }
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Switch
 //////////////////////////////////////////////////////////////////////////
@@ -104,6 +121,17 @@ testTemplateForeachB: Template {
     Foreach <var:"list"> {
       Dict { dis: Bind <var:"it"> }
     }
+  }
+}
+
+testTemplateForeachC: Template {
+  data: List<of:Str>
+
+  returns: Dict {
+    nestDict: Dict { Foreach <var:"data"> { Bind <var:"it"> } }
+    nestList: List { Foreach <var:"data"> { Bind <var:"it"> } }
+    nestGrid: Grid { Foreach <var:"data"> { Dict {dis:Bind <var:"it"> } } }
+    Foreach <var:"data"> { Bind <var:"it"> }  // spread operator
   }
 }
 

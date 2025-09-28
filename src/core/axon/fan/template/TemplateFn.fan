@@ -44,6 +44,7 @@ internal class Templater
     this.cx   = cx
     this.ns   = cx.ns
     this.args = toArgMap(fn, args)
+    this.gridSpec = ns.sysLib.spec("Grid")
   }
 
   private static Str:Obj toArgMap(TemplateFn fn, Obj?[] args)
@@ -75,7 +76,10 @@ internal class Templater
         case "Foreach": return processForeach(x, b)
       }
     }
+
     if (x.type.isDict) return processDict(x)
+    if (x.type.isList) return processList(x)
+    if (x.type.isa(gridSpec)) return processGrid(x)
     return ns.instantiate(x)
   }
 
@@ -84,6 +88,20 @@ internal class Templater
     b := TemplateObjBuilder()
     processBlock(x, b)
     return b.finalizeDict
+  }
+
+  private Obj[] processList(Spec x)
+  {
+    b := TemplateObjBuilder()
+    processBlock(x, b)
+    return b.finalizeList
+  }
+
+  private Grid processGrid(Spec x)
+  {
+    b := TemplateObjBuilder()
+    processBlock(x, b)
+    return b.finalizeGrid
   }
 
   private Obj? processBind(Spec x)
@@ -227,6 +245,7 @@ internal class Templater
   private AxonContext cx
   private Str:Obj? args
   private Obj?[] itStack := [,]
+  private Spec gridSpec
 }
 
 **************************************************************************
@@ -257,6 +276,22 @@ internal class TemplateObjBuilder
   Dict finalizeDict()
   {
     Etc.dictFromMap(acc)
+  }
+
+  Obj[] finalizeList()
+  {
+    acc.vals
+  }
+
+  Grid finalizeGrid()
+  {
+    rows := Dict[,]
+    acc.each |v|
+    {
+      row := v as Dict ?: throw Err("Grid row must be dict [$v.typeof]")
+      rows.add(row)
+    }
+    return Etc.makeDictsGrid(null, rows)
   }
 }
 

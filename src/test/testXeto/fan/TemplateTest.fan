@@ -46,6 +46,12 @@ class TemplateTest : AbstractAxonTest
     dict = call("testTemplateIfB", [false])
     verifyDictEq(dict, ["dis":"cond is false", "nay":m])
 
+    // testTemplateIfC
+    dict = call("testTemplateIfC", [true, true])
+    verifyDictEq(dict, ["dis1":"true", "dis2":"true"])
+    dict = call("testTemplateIfC", [false, false])
+    verifyDictEq(dict, ["dis1":"false"])
+
     // ### Switch ###
 
     // testTemplateSwitchB
@@ -66,6 +72,16 @@ class TemplateTest : AbstractAxonTest
     // testTemplateForeachB
     dict = call("testTemplateForeachB", [["a", "b", "c"]])
     verifyDictEq(dict, expect)
+
+    // testTemplateForeachC
+    dict = call("testTemplateForeachC", [["a", "b"]])
+    verifyDictEq(dict, [
+      "nestDict": Etc.dictx("_0","a", "_1","b"),
+      "nestList": Obj?["a", "b"],
+      "nestGrid": Etc.makeMapsGrid(null, [ ["dis":"a"], ["dis":"b"] ]),
+      "_0": "a",
+      "_1": "b",
+    ])
   }
 
   Obj? call(Str name, Obj?[] args)
@@ -73,7 +89,7 @@ class TemplateTest : AbstractAxonTest
     makeContext.asCur |->Obj?|
     {
       res := ns.unqualifiedFunc(name).func.thunk.callList(args)
-echo("$name => $res [$res.typeof]")
+      // echo("$name => $res [$res.typeof]")
       return res
     }
   }
