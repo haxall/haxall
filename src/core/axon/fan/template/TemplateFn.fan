@@ -212,7 +212,7 @@ internal class Templater
     if (dot != null)
     {
       first = path[0..<dot]
-      if (first[-1] == '?') first = first[0..-2]
+      //if (first[-1] == '?') first = first[0..-2]
     }
 
     // get first name from arguments or current "it" variable
@@ -225,19 +225,21 @@ internal class Templater
     {
       // get current name without trailing ?
       n := names[i]
-      if (n[-1] == '?') n = n[0..-2]
+      //if (n[-1] == '?') n = n[0..-2]
 
       // can only path into Dict
       if (val isnot Dict) throw UnresolvedErr("Cannot path $path in value $val [$val.typeof]")
       val = ((Dict)val).get(n)
 
-      // null handling
-      if (val == null)
+      // null handling just short circuit
+      if (val == null) return null
+      /*
       {
         nullSafe := names[i-1][-1] == '?' // prev ended in "?"
         if (nullSafe) return null // okay
         throw UnresolvedErr("Cannot get '$n' in path '$path'")
       }
+      */
     }
 
     return val

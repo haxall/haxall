@@ -28,9 +28,9 @@ class TemplateTest : AbstractAxonTest
 
     // testTemplateBindB
     dict = (Dict)call("testTemplateBindB", [Etc.dictx("a","Alpha", "b",n(2), "c",Etc.dict1("nest", "!"), "d",Date.today)])
-    verifyDictEq(dict, ["a":"Alpha", "b1":n(2), "b2":n(2), "c":"!", "d":Date.today])
+    verifyDictEq(dict, ["a":"Alpha", "b":n(2), "c":"!", "d":Date.today])
     dict = (Dict)call("testTemplateBindB", [Etc.dictx("a","Alpha", "b",n(2), "c",Etc.dict1("nest", "!"), "d",Date.today, "e",Etc.dict1("nest", "^"))])
-    verifyDictEq(dict, ["a":"Alpha", "b1":n(2), "b2":n(2), "c":"!", "d":Date.today, "e":Etc.dict1("nest", "^"), "en":"^"])
+    verifyDictEq(dict, ["a":"Alpha", "b":n(2), "c":"!", "d":Date.today, "e":Etc.dict1("nest", "^"), "en":"^"])
 
     // ### If ###
 
