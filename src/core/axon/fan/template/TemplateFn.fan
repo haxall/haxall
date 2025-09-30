@@ -199,7 +199,12 @@ internal class Templater
     Spec? prev := null
     x.slots.each |slot|
     {
-      b.add(slot.name, process(slot, b, prev))
+      // do not process inherited maybe slots
+      if (slot.parent !== x && slot.isMaybe) return
+
+      // process slot
+      v := process(slot, b, prev)
+      b.add(slot.name, v)
       prev = slot
     }
   }

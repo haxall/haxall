@@ -34,6 +34,24 @@ testTemplateBindB: Template {
   }
 }
 
+testTemplateBindC: Template {
+  x: Str
+  returns: TestFolder {
+    nest: TemplateDictC {
+      a: Bind <var:"x">
+      e: Bind <var:"x">
+    }
+  }
+}
+
+TemplateDictC: {
+  a: Str
+  b: Str
+  c: Str "def-c"
+  e: Str?
+  f: Str?
+}
+
 //////////////////////////////////////////////////////////////////////////
 // If
 //////////////////////////////////////////////////////////////////////////

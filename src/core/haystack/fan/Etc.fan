@@ -663,7 +663,7 @@ const class Etc
   }
 
   **
-  ** Dump dict name/value pairs to output stream with dis values
+  ** Debug dump dict name/value pairs to output stream with dis values
   **
   @NoDoc
   static Void dictDump(Dict d, OutStream out := Env.cur.out)
@@ -673,22 +673,8 @@ const class Etc
     {
       v := d[n]
       out.print("  ").print(n)
-      if (v !== Marker.val) out.print(": ").print(Etc.valToDis(v))
+      if (v !== Marker.val) out.print(": ").print(v).print(" [$v.typeof]")
       out.printLine
-    }
-    out.flush
-  }
-
-
-  **
-  ** Debug dump dict name/value pairs to output stream
-  **
-  @NoDoc
-  static Void dictDumpDebug(Dict d, OutStream out := Env.cur.out)
-  {
-    d.each |v, n|
-    {
-      out.printLine("  $n: $v [$v.typeof]")
     }
     out.flush
   }
