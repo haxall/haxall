@@ -76,6 +76,7 @@ abstract class HxBoot
   {
     if (Pod.find("ion", false) == null) return Str#.emptyList
     return [
+      "sys.template",
       "hx.ion",
       "ion",
       "ion.actions",
