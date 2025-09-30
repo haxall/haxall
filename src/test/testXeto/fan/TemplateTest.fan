@@ -24,7 +24,7 @@ class TemplateTest : AbstractAxonTest
 
     // testTemplateBindA
     dict := (Dict)call("testTemplateBindA", ["test str"])
-    verifyDictEq(dict, ["dis":"Test", "foo":m, "x":"test str", "y":n(123)])
+    verifyDictEq(dict, ["dis":"Test", "foo":m, "x":"test str", "y":n(123), "spec":Ref("hx.test.xeto::TestFolder")])
 
     // testTemplateBindB
     dict = (Dict)call("testTemplateBindB", [Etc.dictx("a","Alpha", "b",n(2), "c",Etc.dict1("nest", "!"), "d",Date.today)])

@@ -100,6 +100,7 @@ internal class Templater
   private Dict processDict(Spec x)
   {
     b := TemplateObjBuilder()
+    if (x.type.qname != "sys::Dict") b.add("spec", x.type.id)
     processBlock(x, b)
     return b.finalizeDict
   }

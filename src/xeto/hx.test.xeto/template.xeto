@@ -13,7 +13,7 @@
 testTemplateBindA: Template {
   s: Str
 
-  returns: Dict {
+  returns: TestFolder {
     dis: "Test"
     foo
     x: Bind <var:"s">
