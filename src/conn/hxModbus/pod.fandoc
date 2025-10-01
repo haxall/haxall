@@ -116,12 +116,16 @@ Read and write permissions are configured using 'rw' column:
 Scale Factor [#scale]
 =====================
 An optional scale factor can be applied to registers using the 'scale' column.
-The scale format is '[op] [num]' where the factor is a numeric constant.
+The scale format is '([op] [num])+' where the factor is a numeric constant.
 
   add:    +1.5
   minus:  -0.25
   mult:   *10
   div:    /1000
+
+You can also chain multiple scaling factors together:
+
+  chained: +32768 /10
 
 Dis, Unit, Tags [#rest]
 =======================
