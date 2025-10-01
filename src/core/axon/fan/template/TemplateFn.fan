@@ -158,7 +158,7 @@ internal class Templater
         case "sys.template::Case":
            matchVal := slot.meta["match"] ?: throw Err("Case missing 'match' meta tag")
            if (cond == matchVal && match == null) match = slot
-        case "sys.template::Default":
+        case "sys.template::Else":
           def = slot
         default: throw Err("Unexpected Switch block: $slot.type")
       }

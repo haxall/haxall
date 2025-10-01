@@ -115,7 +115,7 @@ testTemplateSwitchA: Template {
         dis:"case b"
         beta
       }
-      Default {
+      Else {
         dis:"case default"
       }
     }
