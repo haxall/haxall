@@ -6,6 +6,9 @@
 ** license:    Licensed under the Academic Free License version 3.0
 **************************************************************************
 
+*Build 4.0.4 (working)*
+- Modbus connector supports multiple scaling operations
+
 *Build 4.0.3 (21 Aug 2025)*
 - User, Sys, Proj, Context moved into hx
 - Ext now backed by xeto lib

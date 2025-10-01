@@ -204,8 +204,7 @@ using hxPlatformSerial
       }
       else
       {
-        sf := reg.scale?.factor
-        if (sf != null) val = reg.scale.inverse(val, sf)
+        if (reg.scale != null) val = reg.scale.inverse(val)
         regs := reg.data.toRegs(val)
 
         if (reg.data is ModbusBitData)

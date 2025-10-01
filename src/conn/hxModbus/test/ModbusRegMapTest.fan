@@ -131,6 +131,9 @@ class ModbusRegMapTest : HxTest
     verifyScale(e, 92.1f, 92.1f / 18.42f)
     verifyScale(f, 25f,   -5)
 
+    verifyScale(ModbusScale("+ 100 / 10"), 20, (20 + 100) / 10)
+    verifyScale(ModbusScale("+ -10 * 2"), 15f, (15f -10f) * 2f)
+
     // verifyEq(ModbusScale("+foo").name,   "foo")
     // verifyEq(ModbusScale("-  bar").name, "bar")
     // verifyEq(ModbusScale("* ai0").name,  "ai0")
