@@ -88,13 +88,18 @@ class TemplateTest : AbstractAxonTest
     verifyDictEq(dict, ["dis":"case default"])
 
     // testTemplateSwitchC
-    dict = call("testTemplateSwitchC", [n(3), n(10)])
-    verifyDictEq(dict, ["dis":"odd"])
-    dict = call("testTemplateSwitchC", [n(8), n(10)])
-    verifyDictEq(dict, ["dis":"less than 10"])
-    dict = call("testTemplateSwitchC", [n(8), n(6)])
-    dict = call("testTemplateSwitchC", [n(9), n(6)])
-    verifyDictEq(dict, ["dis":"odd"])
+    dict = call("testTemplateSwitchC", [n(3), n(5), n(10)])
+    verifyDictEq(dict, ["dis1":"odd", "dis2":"odd"])
+    dict = call("testTemplateSwitchC", [n(8), n(5), n(10)])
+    verifyDictEq(dict, ["dis1":"less than 10", "dis2":"odd"])
+    dict = call("testTemplateSwitchC", [n(8), n(5), n(6)])
+    verifyDictEq(dict, ["dis1":"else >= 6", "dis2":"odd"])
+    dict = call("testTemplateSwitchC", [n(9), n(5), n(6)])
+    verifyDictEq(dict, ["dis1":"odd", "dis2":"odd"])
+    dict = call("testTemplateSwitchC", [n(9), n(12), n(6)])
+    verifyDictEq(dict, ["dis1":"odd", "dis2":"else >= 6"])
+    dict = call("testTemplateSwitchC", [n(9), n(4), n(6)])
+    verifyDictEq(dict, ["dis1":"odd", "dis2":"less than 6"])
 
     // ### Foreach ###
 
@@ -116,6 +121,10 @@ class TemplateTest : AbstractAxonTest
       "_0": "a",
       "_1": "b",
     ])
+
+    // testTemplateForeachD
+    dict = call("testTemplateForeachD", [[n(0), n(1), n(2), n(3), n(4)]])
+    verifyDictEq(dict, ["a":Obj?[n(101), n(103)]])
   }
 
   Obj? call(Str name, Obj?[] args)

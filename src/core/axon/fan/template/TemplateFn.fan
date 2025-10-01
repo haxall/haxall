@@ -147,7 +147,6 @@ internal class Templater
     cond := resolve(x)
     if (cond == null) return null
 
-
     Spec? match := null
     Spec? def := null
     x.slots.each |slot|
@@ -176,7 +175,9 @@ internal class Templater
     expr := caseBlock.meta["axon"]?.toStr
     if (expr != null)
     {
+      itStack.push(cond)
       res := eval(expr)
+      itStack.pop
       if (res isnot Bool) throw Err("Case must eval to Bool: $res")
       return (Bool)res
     }
@@ -284,7 +285,8 @@ internal class Templater
 
   private Obj? eval(Str expr)
   {
-    cx.eval(expr)
+    cx.defOrAssign("it", itStack.peek, Loc.synthetic)
+    return cx.eval(expr)
   }
 
 //////////////////////////////////////////////////////////////////////////

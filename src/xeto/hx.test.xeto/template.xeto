@@ -165,19 +165,31 @@ testTemplateSwitchB: Template {
 }
 
 testTemplateSwitchC: Template {
-  num: Number
+  num1: Number
+  num2: Number
   limit: Number
 
   returns: Dict {
-    Switch <var:"num"> {
-      Case <axon:"num.isOdd"> {
-        dis:"odd"
+    Switch <var:"num1"> {
+      Case <axon:"it.isOdd"> {
+        dis1:"odd"
       }
-      Case <axon:"num < limit"> {
-        dis: Bind <axon:"\"less than \" + limit">
+      Case <axon:"it < limit"> {
+        dis1: Bind <axon:"\"less than \" + limit">
       }
       Else {
-        dis: Bind <axon:"\"else >= \" + limit">
+        dis1: Bind <axon:"\"else >= \" + limit">
+      }
+    }
+    Switch <var:"num2"> {
+      Case <axon:"it.isOdd"> {
+        dis2:"odd"
+      }
+      Case <axon:"it < limit"> {
+        dis2: Bind <axon:"\"less than \" + limit">
+      }
+      Else {
+        dis2: Bind <axon:"\"else >= \" + limit">
       }
     }
   }
@@ -215,6 +227,15 @@ testTemplateForeachC: Template {
     nestList: List { Foreach <var:"data"> { Bind <var:"it"> } }
     nestGrid: Grid { Foreach <var:"data"> { Dict {dis:Bind <var:"it"> } } }
     Foreach <var:"data"> { Bind <var:"it"> }  // spread operator
+  }
+}
+
+
+testTemplateForeachD: Template {
+  data: List<of:Number>
+
+  returns: Dict {
+    a: List { Foreach <axon:"data.findAll(isOdd)"> { Bind<axon:"it + 100"> } }
   }
 }
 
