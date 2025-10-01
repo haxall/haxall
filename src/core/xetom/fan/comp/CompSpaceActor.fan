@@ -290,14 +290,15 @@ const class CompSpaceActor : Actor
   {
     switch (req->type)
     {
-      case "create":    return onFeedCreate(state.cs, req->compSpec, req->x, req->y)
-      case "layout":    return onFeedLayout(state.cs, req->id, req->x, req->y, req->w)
-      case "link":      return onFeedLink(state.cs, req->fromRef, req->fromSlot, req->toRef, req->toSlot)
-      case "unlink":    return onFeedUnlink(state.cs, req->links)
-      case "duplicate": return onFeedDuplicate(state.cs, req->ids)
-      case "delete":    return onFeedDelete(state.cs, req->ids)
-      case "update":    return onFeedUpdate(state.cs, req->id, req->diff)
-      default:          throw Err("Unknown feedCall: $req")
+      case "create":      return onFeedCreate(state.cs, req->compSpec, req->x, req->y)
+      case "layout":      return onFeedLayout(state.cs, req->id, req->x, req->y, req->w)
+      case "link":        return onFeedLink(state.cs, req->fromRef, req->fromSlot, req->toRef, req->toSlot)
+      case "unlink":      return onFeedUnlink(state.cs, req->links)
+      case "duplicate":   return onFeedDuplicate(state.cs, req->ids)
+      case "delete":      return onFeedDelete(state.cs, req->ids)
+      case "update":      return onFeedUpdate(state.cs, req->id, req->diff)
+      case "batchUpdate": return onFeedBatchUpdate(state.cs, req->diffs)
+      default:            throw Err("Unknown feedCall: $req")
     }
   }
 
@@ -372,6 +373,11 @@ const class CompSpaceActor : Actor
     return null
   }
 
+  private Obj? onFeedBatchUpdate(CompSpace cs, Dict[] diffs)
+  {
+    diffs.each |diff| { onFeedUpdate(cs, diff.id, diff) }
+    return null
+  }
 }
 
 **************************************************************************
