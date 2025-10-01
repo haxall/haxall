@@ -39,6 +39,9 @@ class TemplateTest : AbstractAxonTest
       "nest": Etc.makeDict(["a":"foo", "b":"", "c":"def-c", "e":"foo", "spec":Ref("hx.test.xeto::TemplateDictC")]),
     ])
 
+    // testTemplateBindD
+    dict = (Dict)call("testTemplateBindD", [n(7), "foo bar"])
+    verifyDictEq(dict, ["a":n(107), "b":"FOO BAR"])
 
     // ### If ###
 
@@ -60,15 +63,38 @@ class TemplateTest : AbstractAxonTest
     dict = call("testTemplateIfC", [false, false])
     verifyDictEq(dict, ["dis1":"false"])
 
+    // testTemplateIfD
+    dict = call("testTemplateIfD", [n(99)])
+    verifyDictEq(dict, ["dis":"less than 100"])
+    dict = call("testTemplateIfD", [n(101)])
+    verifyDictEq(dict, ["dis":"greater than 100"])
+
     // ### Switch ###
 
-    // testTemplateSwitchB
+    // testTemplateSwitchA
     dict = call("testTemplateSwitchA", ["a"])
     verifyDictEq(dict, ["dis":"case a", "alpha":m])
     dict = call("testTemplateSwitchA", ["b"])
     verifyDictEq(dict, ["dis":"case b", "beta":m])
     dict = call("testTemplateSwitchA", ["c"])
     verifyDictEq(dict, ["dis":"case default"])
+
+    // testTemplateSwitchB
+    dict = call("testTemplateSwitchB", ["alpha"])
+    verifyDictEq(dict, ["dis":"case a", "alpha":m])
+    dict = call("testTemplateSwitchB", ["Beta"])
+    verifyDictEq(dict, ["dis":"case b", "beta":m])
+    dict = call("testTemplateSwitchB", ["foo"])
+    verifyDictEq(dict, ["dis":"case default"])
+
+    // testTemplateSwitchC
+    dict = call("testTemplateSwitchC", [n(3), n(10)])
+    verifyDictEq(dict, ["dis":"odd"])
+    dict = call("testTemplateSwitchC", [n(8), n(10)])
+    verifyDictEq(dict, ["dis":"less than 10"])
+    dict = call("testTemplateSwitchC", [n(8), n(6)])
+    dict = call("testTemplateSwitchC", [n(9), n(6)])
+    verifyDictEq(dict, ["dis":"odd"])
 
     // ### Foreach ###
 

@@ -121,7 +121,7 @@ internal class Templater
 
   private Obj? processBind(Spec x)
   {
-    var(x)
+    resolve(x)
   }
 
   private Void processIfElse(Spec x, TemplateObjBuilder b, Spec? prev)
@@ -135,7 +135,7 @@ internal class Templater
       isElse = true
     }
 
-    cond := var(ifClause)
+    cond := resolve(ifClause)
     if (cond isnot Bool) throw Err("If cond not Bool: $cond")
     if (isElse) cond = !cond
 
@@ -144,7 +144,7 @@ internal class Templater
 
   private Void processSwitch(Spec x, TemplateObjBuilder b)
   {
-    cond := var(x)
+    cond := resolve(x)
     if (cond == null) return null
 
 
@@ -153,11 +153,11 @@ internal class Templater
     x.slots.each |slot|
     {
       if (def != null) throw Err("Unexpected Switch block after Default")
+      if (match != null) return
       switch (slot.type.qname)
       {
         case "sys.template::Case":
-           matchVal := slot.meta["match"] ?: throw Err("Case missing 'match' meta tag")
-           if (cond == matchVal && match == null) match = slot
+          if (isCaseMatch(cond, slot)) match = slot
         case "sys.template::Else":
           def = slot
         default: throw Err("Unexpected Switch block: $slot.type")
@@ -168,9 +168,25 @@ internal class Templater
     if (match != null) processBlock(match, b)
   }
 
+  private Bool isCaseMatch(Obj cond, Spec caseBlock)
+  {
+    val := caseBlock.meta["match"]
+    if (val != null) return cond == val
+
+    expr := caseBlock.meta["axon"]?.toStr
+    if (expr != null)
+    {
+      res := eval(expr)
+      if (res isnot Bool) throw Err("Case must eval to Bool: $res")
+      return (Bool)res
+    }
+
+    throw Err("Case missing 'match' or 'axon' meta tag: $caseBlock.qname")
+  }
+
   private Void processForeach(Spec x, TemplateObjBuilder b)
   {
-    coll := var(x)
+    coll := resolve(x)
     if (coll == null) return null
 
     if (coll is List)
@@ -209,10 +225,23 @@ internal class Templater
     }
   }
 
-  private Obj? var(Spec spec)
-  {
-    path := spec.meta["var"]?.toStr ?: throw Err("$spec.type.name missing 'var'")
+//////////////////////////////////////////////////////////////////////////
+// Resolve Var/Expr
+//////////////////////////////////////////////////////////////////////////
 
+  private Obj? resolve(Spec spec)
+  {
+    path := spec.meta["var"]?.toStr
+    if (path != null) return var(path)
+
+    expr := spec.meta["axon"]?.toStr
+    if (expr != null) return eval(expr)
+
+    throw Err("Missing missing 'var' or 'axon': $spec.qname")
+  }
+
+  private Obj? var(Str path)
+  {
     // parse out first name
     first := path
     dot := path.index(".")
@@ -251,6 +280,16 @@ internal class Templater
 
     return val
   }
+
+
+  private Obj? eval(Str expr)
+  {
+    cx.eval(expr)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
 
   private TemplateFn fn
   private LibNamespace ns

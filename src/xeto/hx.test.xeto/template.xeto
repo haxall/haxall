@@ -52,6 +52,15 @@ TemplateDictC: {
   f: Str?
 }
 
+testTemplateBindD: Template {
+  n: Number
+  s: Str
+  returns: Dict {
+    a: Bind <axon:"n + 100">
+    b: Bind <axon:"s.upper">
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 // If
 //////////////////////////////////////////////////////////////////////////
@@ -98,6 +107,19 @@ testTemplateIfC: Template {
   }
 }
 
+testTemplateIfD: Template {
+  in: Number
+
+  returns: Dict {
+    If <axon:"in > 100"> {
+      dis: "greater than 100"
+    }
+    Else {
+      dis: "less than 100"
+    }
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Switch
 //////////////////////////////////////////////////////////////////////////
@@ -117,6 +139,45 @@ testTemplateSwitchA: Template {
       }
       Else {
         dis:"case default"
+      }
+    }
+  }
+}
+
+testTemplateSwitchB: Template {
+  cond: Str
+
+  returns: Dict {
+    Switch <axon:"cond.upper"> {
+      Case <match:"ALPHA"> {
+        dis:"case a"
+        alpha
+      }
+      Case <match:"BETA"> {
+        dis:"case b"
+        beta
+      }
+      Else {
+        dis:"case default"
+      }
+    }
+  }
+}
+
+testTemplateSwitchC: Template {
+  num: Number
+  limit: Number
+
+  returns: Dict {
+    Switch <var:"num"> {
+      Case <axon:"num.isOdd"> {
+        dis:"odd"
+      }
+      Case <axon:"num < limit"> {
+        dis: Bind <axon:"\"less than \" + limit">
+      }
+      Else {
+        dis: Bind <axon:"\"else >= \" + limit">
       }
     }
   }

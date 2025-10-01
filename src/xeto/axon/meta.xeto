@@ -6,7 +6,7 @@
 //   21 Sep 2023  Brian Frank  Creation
 //
 
-// Axon source code string
+// Axon source code string for functions and expressions
 axon: Str <meta>
 
 // Requires admin permission
