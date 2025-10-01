@@ -430,65 +430,103 @@ using haystack
   {
     try
     {
-      op := s[0]
-      if (!ops.contains(op)) throw Err("Invalid op 'op.toChar'")
-      // val := s[1..-1].trim
-      // factor := Number.fromStr(val, false)
-      // name   := factor == null ? val : null
-      factor := Number.fromStr(s[1..-1].trim)
+      operators := Int[,]
+      factors   := Number[,]
+      pos       := 0
+      skipWs := |->| {
+        while(pos < s.size && s[pos].isSpace) ++pos
+      }
+      while (true)
+      {
+        // parse op
+        skipWs()
+        op := s[pos++]
+        if (!ops.contains(op)) throw Err("Invalid op '${op.toChar}'")
+
+        // check if we need to negate the factor
+        skipWs()
+        negate := false
+        if (s[pos] == '-') { negate = true; ++pos }
+
+        // parse the factor
+        start := pos
+        while (true)
+        {
+          ch := s.getSafe(pos)
+          if (ch == 0 || ops.contains(ch)) break
+          ++pos
+        }
+        factor := Number.fromStr(s[start..<pos].trim)
+        if (negate) factor = factor.negate
+
+        // save it
+        operators.add(op)
+        factors.add(factor)
+
+        // stop if at end of string
+        if (pos >= s.size) break
+      }
+
       return ModbusScale
       {
-        it.op = op
-        it.factor = factor
-        // it.name = name
+        it.operators = operators
+        it.factors = factors
       }
     }
     catch (Err err)
     {
       if (!checked) return null
-      throw ParseErr("Invalid scale '$s'")
+      throw ParseErr("Invalid scale '$s'", err)
     }
   }
 
   ** Constructor.
   new make(|This| f) { f(this) }
 
-  ** Scale operator
-  const Int op
+  ** Scale operators
+  const Int[] operators
 
-  ** Numeric scale factor
-  //const Number? factor
-  const Number factor
-
-  // ** Reference register name to query factor
-  // const Str? name
+  ** Numeric scale factors
+  const Number[] factors
 
   ** Compute the scaled value.
-  Number compute(Number in, Number? factor := null)
+  Number compute(Number in)
   {
-    f := factor ?: this.factor
-    switch (op)
+    result := in
+    operators.each |op, i|
     {
-      case '+': return in + f
-      case '-': return in - f
-      case '*': return in * f
-      case '/': return in / f
-      default: throw Err()
+      f := factors[i]
+      switch (op)
+      {
+        case '+': result = result + f
+        case '-': result = result - f
+        case '*': result = result * f
+        case '/': result = result / f
+        default: throw Err()
+      }
     }
+    return result
   }
 
   ** Compute inverse scale value.
   Number inverse(Number in, Number? factor := null)
   {
-    f := factor ?: this.factor
-    switch (op)
+    result := in
+    // do all operators in reverse
+    (operators.size-1..0).each |i|
     {
-      case '+': return in - f
-      case '-': return in + f
-      case '*': return in / f
-      case '/': return in * f
-      default: throw Err()
+      op := operators[i]
+      f  := factors[i]
+      switch (op)
+      {
+        case '+': result = result - f
+        case '-': result = result + f
+        case '*': result = result / f
+        case '/': result = result * f
+        default: throw Err()
+      }
     }
+    return result
   }
 
   private static const Int[] ops := ['+', '-', '*', '/']

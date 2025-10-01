@@ -124,8 +124,7 @@ using haystack
           off   := r.addr.num - start
           slice := raw[off..<(off+r.data.size)]
           num   := r.data.fromRegs(slice, r.unit)
-          sf    := r.scale?.factor
-          if (sf != null) num = r.scale.compute(num, sf)
+          if (r.scale != null) num = r.scale.compute(num)
           vals.add(num)
         }
         catch (Err err) { vals.add(err) }
