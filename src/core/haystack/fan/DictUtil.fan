@@ -463,16 +463,18 @@ abstract const class WrapWithSpecDict : WrapDict
   new make(Dict wrapped) : super(wrapped)
   {
     x := wrapped.get("spec")
-    if (x != null && x != getSpecRef) throw ArgErr("Mismatched spec: $x != $getSpecRef")
+    specVal = wrapped["spec"] ?: defaultSpecRef
   }
 
-  abstract Ref getSpecRef()
+  const Ref specVal
 
- override Bool isEmpty() {false }
+  abstract Ref defaultSpecRef()
+
+  override Bool isEmpty() {false }
 
   @Operator override Obj? get(Str n)
   {
-    n == "spec" ? getSpecRef : wrapped.get(n)
+    n == "spec" ? specVal : wrapped.get(n)
   }
 
   override Void each(|Obj, Str| f)
@@ -482,7 +484,7 @@ abstract const class WrapWithSpecDict : WrapDict
       if (n == "spec") return
       f(v, n)
     }
-    f(getSpecRef, "spec")
+    f(specVal, "spec")
   }
 
   override Obj? eachWhile(|Obj, Str->Obj?| f)
@@ -494,7 +496,7 @@ abstract const class WrapWithSpecDict : WrapDict
     }
     if  (r != null) return r
 
-    return f(getSpecRef, "spec")
+    return f(specVal, "spec")
   }
 }
 

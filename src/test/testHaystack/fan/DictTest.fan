@@ -270,7 +270,7 @@ class DictTest : HaystackTest
     verifyWrapWithSpec(Etc.dict2("a", "A", "b", "B"), ["a":"A", "b":"B", "spec":s])
     verifyWrapWithSpec(Etc.dict1("spec", s), ["spec":s])
     verifyWrapWithSpec(Etc.dict2("a", m, "spec", s), ["a":m, "spec":s])
-    verifyErr(ArgErr#) { x := TestWrapWithSpec(Etc.dict1("spec", Ref("different"))) }
+    verifyWrapWithSpec(Etc.dict2("a", m, "spec", Ref("Override")), ["a":m, "spec":Ref("Override")])
   }
 
   Void verifyWrapWithSpec(Dict d, Str:Obj expect)
@@ -290,6 +290,6 @@ internal const class TestWrapWithSpec : WrapWithSpecDict
   new make(Dict wrapped) : super(wrapped) {}
 
   static once Ref specRef() { Ref("hx.test.xeto::EquipA") }
-  override Ref getSpecRef() { specRef }
+  override Ref defaultSpecRef() { specRef }
 }
 
