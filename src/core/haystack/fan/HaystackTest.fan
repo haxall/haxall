@@ -67,7 +67,7 @@ abstract class HaystackTest : Test
   }
   private const static AtomicRef nsDefaultRef := AtomicRef()
 
-  ** Verify two Dictts have same name/val pairs
+  ** Verify two Dicts have same name/val pairs
   Void verifyDictEq(Dict a, Obj b, Str? msg := null)
   {
     if (b isnot Dict) b = Etc.makeDict(b)
@@ -81,6 +81,7 @@ abstract class HaystackTest : Test
       {
         nmsg := msg == null ? n : "$msg -> $n"
         verifyValEq(v, bd[n], nmsg)
+        verifyEq(a.has(n), true)
       }
       catch (TestErr e)
       {
@@ -93,6 +94,55 @@ abstract class HaystackTest : Test
     verifyEq(Etc.dictHashKey(a), Etc.dictHashKey(b))
   }
 
+  ** Extend verifyDictEq to fully test the implementation of given dict
+  Void verifyDictImpl(Dict d, Str:Obj expect)
+  {
+    // isEmpty
+    verifyEq(d.isEmpty, expect.isEmpty)
+
+    // get/has/missing
+    expect.each |v, n|
+    {
+      verifyValEq(d.get(n), v, n)
+      verifyEq(d.has(n), true)
+      verifyEq(d.missing(n), false)
+    }
+    verifyEq(d.get("noSuchName"), null)
+    verifyEq(d.has("noSuchName"), false)
+    verifyEq(d.missing("noSuchName"), true)
+
+    // each
+    acc := Str:Obj[:] { ordered = true }
+    d.each |v, n|
+    {
+      acc[n] = v
+      verifyValEq(v, expect[n])
+    }
+    verifyEq(acc.size, expect.size)
+
+    // each while
+    names := acc.keys
+    for (i := 0;  i<names.size; ++i)
+    {
+      breakOnIndex := i
+      breakOnName := names[breakOnIndex]
+      expectEachWhile := Str:Obj[:]
+      names.eachRange(0..<breakOnIndex) |n| { expectEachWhile[n] = expect[n] }
+      acc.clear
+      res := d.eachWhile |v, n|
+      {
+        if (n == breakOnName) return "break!"
+        acc[n] = v
+        return null
+      }
+      verifyEq(res, "break!")
+      verifyEq(acc, expectEachWhile)
+    }
+
+    // trap
+    names.each |n| { verifyValEq(d.trap(n), expect[n]) }
+    verifyErr(UnknownNameErr#) { d->noSuchName }
+  }
 
   ** Verify list of dicts are equal
   @NoDoc Void verifyDictsEq(Dict?[] a, Obj?[] b, Bool ordered := true)
