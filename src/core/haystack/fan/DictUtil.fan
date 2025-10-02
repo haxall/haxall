@@ -442,18 +442,60 @@ internal const class Dict6 : DictX
 **************************************************************************
 
 @NoDoc @Js
-abstract const class WrapDict : Dict
+abstract const class WrapDict : AbstractDict
 {
   new make(Dict wrapped) { this.wrapped = normalize(wrapped) }
   const Dict wrapped
   @Operator override Obj? get(Str n) { wrapped.get(n) }
   override Bool isEmpty() { wrapped.isEmpty }
-  override Bool has(Str n) { wrapped.has(n) }
-  override Bool missing(Str n) { wrapped.missing(n) }
   override Void each(|Obj, Str| f) { wrapped.each(f) }
   override Obj? eachWhile(|Obj, Str->Obj?| f) { wrapped.eachWhile(f) }
-  override Obj? trap(Str n, Obj?[]? a := null) { wrapped.trap(n, a) }
   virtual Dict normalize(Dict d) { d }
+}
+
+**************************************************************************
+** WrapWithSpecDict
+**************************************************************************
+
+@NoDoc @Js
+abstract const class WrapWithSpecDict : WrapDict
+{
+  new make(Dict wrapped) : super(wrapped)
+  {
+    x := wrapped.get("spec")
+    if (x != null && x != getSpecRef) throw ArgErr("Mismatched spec: $x != $getSpecRef")
+  }
+
+  abstract Ref getSpecRef()
+
+ override Bool isEmpty() {false }
+
+  @Operator override Obj? get(Str n)
+  {
+    n == "spec" ? getSpecRef : wrapped.get(n)
+  }
+
+  override Void each(|Obj, Str| f)
+  {
+    wrapped.each |v, n|
+    {
+      if (n == "spec") return
+      f(v, n)
+    }
+    f(getSpecRef, "spec")
+  }
+
+  override Obj? eachWhile(|Obj, Str->Obj?| f)
+  {
+    r := wrapped.eachWhile |v, n|
+    {
+      if (n == "spec") return null
+      return f(v, n)
+    }
+    if  (r != null) return r
+
+    return f(getSpecRef, "spec")
+  }
 }
 
 **************************************************************************

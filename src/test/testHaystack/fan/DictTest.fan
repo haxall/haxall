@@ -258,5 +258,38 @@ class DictTest : HaystackTest
     a.each |v, k| { verifyEq(b[k], (Number)v + n(100)) }
   }
 
+//////////////////////////////////////////////////////////////////////////
+// WrapWithSpec
+//////////////////////////////////////////////////////////////////////////
+
+  Void testWrapWithSpec()
+  {
+    s := TestWrapWithSpec.specRef
+    verifyWrapWithSpec(Etc.dict0, ["spec":s])
+    verifyWrapWithSpec(Etc.dict1("a", n(3)), ["a":n(3), "spec":s])
+    verifyWrapWithSpec(Etc.dict2("a", "A", "b", "B"), ["a":"A", "b":"B", "spec":s])
+    verifyWrapWithSpec(Etc.dict1("spec", s), ["spec":s])
+    verifyWrapWithSpec(Etc.dict2("a", m, "spec", s), ["a":m, "spec":s])
+    verifyErr(ArgErr#) { x := TestWrapWithSpec(Etc.dict1("spec", Ref("different"))) }
+  }
+
+  Void verifyWrapWithSpec(Dict d, Str:Obj expect)
+  {
+    w := TestWrapWithSpec(d)
+    verifyDictImpl(w, expect)
+  }
+}
+
+**************************************************************************
+** TestWrapWithSpec
+**************************************************************************
+
+@Js
+internal const class TestWrapWithSpec : WrapWithSpecDict
+{
+  new make(Dict wrapped) : super(wrapped) {}
+
+  static once Ref specRef() { Ref("hx.test.xeto::EquipA") }
+  override Ref getSpecRef() { specRef }
 }
 
