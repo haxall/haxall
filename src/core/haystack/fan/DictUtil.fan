@@ -28,18 +28,35 @@ internal const class EmptyDict : Dict
 }
 
 **************************************************************************
+** AbstractDict
+**************************************************************************
+
+@Js
+abstract const class AbstractDict : Dict
+{
+  override final Bool has(Str name) { get(name) != null }
+
+  override final Bool missing(Str name) { get(name) == null }
+
+  override final Obj? trap(Str name, Obj?[]? a := null)
+  {
+    v := get(name)
+    if (v != null) return v
+    throw UnknownNameErr(name)
+  }
+}
+
+**************************************************************************
 ** MapDict
 **************************************************************************
 
 @Js
-internal const class MapDict : Dict
+internal const class MapDict : AbstractDict
 {
   new make(Str:Obj? tags) { this.tags = tags }
   const Str:Obj? tags
   override Bool isEmpty() { tags.isEmpty }
   override Obj? get(Str n) { tags.get(n) }
-  override Bool has(Str n) { tags.get(n) != null }
-  override Bool missing(Str n) { tags.get(n) == null }
   override Void each(|Obj, Str| f)
   {
     tags.each |v, n|
@@ -54,12 +71,6 @@ internal const class MapDict : Dict
       v == null ? null : f(v, n)
     }
   }
-  override Obj? trap(Str n, Obj?[]? a := null)
-  {
-    v := tags[n]
-    if (v != null) return v
-    throw UnknownNameErr(n)
-  }
 }
 
 **************************************************************************
@@ -67,22 +78,14 @@ internal const class MapDict : Dict
 **************************************************************************
 
 @Js
-internal const class NotNullMapDict : Dict
+internal const class NotNullMapDict : AbstractDict
 {
   new make(Str:Obj tags) { this.tags = tags }
   const Str:Obj tags
   override Bool isEmpty() { tags.isEmpty }
   override Obj? get(Str n) { tags.get(n, null) }
-  override Bool has(Str n) { tags.get(n, null) != null }
-  override Bool missing(Str n) { tags.get(n, null) == null }
   override Void each(|Obj, Str| f) { tags.each(f) }
   override Obj? eachWhile(|Obj, Str->Obj?| f) { tags.eachWhile(f) }
-  override Obj? trap(Str n, Obj?[]? a := null)
-  {
-    v := tags[n]
-    if (v != null) return v
-    throw UnknownNameErr(n)
-  }
 }
 
 **************************************************************************
@@ -90,17 +93,9 @@ internal const class NotNullMapDict : Dict
 **************************************************************************
 
 @Js
-internal abstract const class DictX : Dict
+internal abstract const class DictX : AbstractDict
 {
   override final Bool isEmpty() { false }
-  override final Bool has(Str name) { get(name) != null }
-  override final Bool missing(Str name) { get(name) == null }
-  override final Obj? trap(Str name, Obj?[]? args := null)
-  {
-    val := get(name)
-    if (val != null) return val
-    throw UnknownNameErr(name)
-  }
 }
 
 **************************************************************************
@@ -469,13 +464,9 @@ abstract const class WrapDict : Dict
 ** Dict that defines its tags as fields via reflection
 **
 @NoDoc @Js
-abstract const class FieldDict : Dict
+abstract const class FieldDict : AbstractDict
 {
   override Bool isEmpty() { false }
-
-  override Bool has(Str n) { get(n) != null }
-
-  override Bool missing(Str n) { get(n) == null }
 
   override Obj? get(Str n)
   {
@@ -504,13 +495,6 @@ abstract const class FieldDict : Dict
       if (val == null) return null
       return f(val, field.name)
     }
-  }
-
-  override Obj? trap(Str n, Obj?[]? args := null)
-  {
-    v := get(n)
-    if (v != null) return v
-    throw UnknownNameErr(n)
   }
 }
 
