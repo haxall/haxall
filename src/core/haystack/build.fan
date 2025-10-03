@@ -49,9 +49,9 @@ class Build : BuildPod
     buf := StrBuf().add("\"")
     lines.each |line, i|
     {
-      toks := line.split
-      id   := toks[0]
-      val := toks[1]
+      sp  := line.index(" ")
+      id  := line[0..<sp]
+      val := line[sp+1..-1]
       if (id.toInt - 1 != i) throw Err("line $i = $id")
       if (val.contains("\"") || val.contains("|")) throw Err("val = $val.toCode")
       if (i > 0) buf.add("|")
