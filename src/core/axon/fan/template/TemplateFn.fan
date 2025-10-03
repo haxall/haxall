@@ -94,7 +94,9 @@ internal class Templater
     if (x.type.isa(gridSpec)) return processGrid(x)
 
     // scalar
-    return ns.instantiate(x)
+    val := ns.instantiate(x)
+    if (val is Str && x.isScalar) val = x.binding.decodeScalar(val.toStr)
+    return val
   }
 
   private Dict processDict(Spec x)
