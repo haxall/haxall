@@ -604,6 +604,7 @@ class CompileTest : AbstractXetoTest
       switch (n)
       {
         case "id":   verifyEq(v, s.id)
+        case "name": verifyEq(v, s.name)
         case "spec": verifyEq(v, ref("sys::Spec"))
         case "type": verifyEq(v, s.type.id)
         default:     verifyEq(meta[n], v, n)

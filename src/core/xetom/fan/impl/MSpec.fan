@@ -89,6 +89,7 @@ const class MSpec
   Obj? get(Str name)
   {
     if (name == "id")   return id
+    if (name == "name") return this.name
     if (name == "spec") return specSpecRef
     if (isType)
     {
@@ -104,6 +105,7 @@ const class MSpec
   Bool has(Str name)
   {
     if (name == "id")   return true
+    if (name == "name") return true
     if (name == "spec") return true
     if (name == "base") return isType && base != null
     if (name == "type") return !isType
@@ -113,6 +115,7 @@ const class MSpec
   Bool missing(Str name)
   {
     if (name == "id")   return false
+    if (name == "name") return false
     if (name == "spec") return false
     if (name == "base") return !isType || base == null
     if (name == "type") return isType
@@ -122,6 +125,7 @@ const class MSpec
   Void each(|Obj val, Str name| f)
   {
     f(id, "id")
+    f(name, "name")
     f(specSpecRef, "spec")
     if (isType)
     {
@@ -137,6 +141,7 @@ const class MSpec
   Obj? eachWhile(|Obj val, Str name->Obj?| f)
   {
     r := f(id, "id");            if (r != null) return r
+    r  = f(name, "name");        if (r != null) return r
     r  = f(specSpecRef, "spec"); if (r != null) return r
     if (isType)
     {

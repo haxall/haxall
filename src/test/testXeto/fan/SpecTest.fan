@@ -66,6 +66,7 @@ class SpecTest : AbstractXetoTest
     // spec itself is effective meta + built-in tags
     self := effective.dup
     self["id"] = s.id
+    self["name"] = s.name
     self["spec"] = ref("sys::Spec")
     if (s.isType)
       self.addNotNull("base", s.base?.id)
