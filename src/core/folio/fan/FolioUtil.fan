@@ -522,6 +522,7 @@ internal const class DiffTagRule
     transientOnly  := DiffTagRule(DiffTagRuleType.transientOnly, 0)
     curVal         := DiffTagRule(DiffTagRuleType.transientOnly, Diff.curVal)
     point          := DiffTagRule(DiffTagRuleType.persistentOnly, Diff.point)
+    tree           := DiffTagRule(DiffTagRuleType.persistentOnly, Diff.treeUpdate)
 
     rules = [
       "id":          never,
@@ -539,7 +540,7 @@ internal const class DiffTagRule
       "navName":     persistentOnly,
       "point":       point,
       "site":        persistentOnly,
-      "trash":       persistentOnly,
+      "trash":       tree,
 
       "connState":   transientOnly,
       "connStatus":  transientOnly,

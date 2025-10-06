@@ -117,8 +117,11 @@ class FolioUtilTest : HaystackTest
     verifyEq(Diff(old, ["ref":Ref("x")]).flags, Diff.treeUpdate)
     verifyEq(Diff(old, ["siteRef":Ref("new")]).flags, Diff.treeUpdate)
     verifyEq(Diff(old, ["siteRef":Remove.val]).flags, 0) // do not detect this
+    verifyEq(Diff(old, ["dis":"change"]).flags, 0)  // do not need this
     verifyEq(Diff(old, ["foo":n(123)]).flags, 0)
     verifyEq(Diff(old, ["foo":Remove.val]).flags, 0)
+    verifyEq(Diff(old, ["trash":Marker.val]).flags, Diff.treeUpdate)
+    verifyEq(Diff(old, ["trash":Remove.val]).flags, Diff.treeUpdate)
   }
 
   Void verifyDiffErr(Dict? rec, Obj? changes, Int flags := 0)

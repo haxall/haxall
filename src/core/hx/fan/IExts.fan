@@ -185,6 +185,8 @@ const mixin IPlatformExt : SysExt
 @NoDoc
 const mixin IIonExt : SysExt
 {
+  ** Called when records are add/removed in given runtime
+  abstract Void updateNavTree(Runtime rt)
 }
 
 **************************************************************************

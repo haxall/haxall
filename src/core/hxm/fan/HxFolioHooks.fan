@@ -49,11 +49,16 @@ const class HxFolioHooks : FolioHooks
       return
     }
 
+    // fire off tree updates to ion for nav tree rebuild
+    if (diff.isTreeUpdate) rt.sys.ion(false)?.updateNavTree(rt)
+
+    // old school def rebuild
     if (diff.getOld("def") != null || diff.getNew("def") != null)
     {
       rt.nsOverlayRecompile
     }
 
+    // fire to observables
     rt.obsRef.commit(diff, user)
   }
 

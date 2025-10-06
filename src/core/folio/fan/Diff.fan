@@ -178,7 +178,7 @@ const class Diff
   @NoDoc Bool isAddPoint() { isAdd && flags.and(point) != 0 }
 
   ** Flag indicating we modifying tree structure (add, remove, ref)
-  @NoDoc Bool isTreeUpdate() { isAdd && flags.and(treeUpdate) != 0 }
+  @NoDoc Bool isTreeUpdate() { flags.and(treeUpdate) != 0 }
 
 //////////////////////////////////////////////////////////////////////////
 // Methods
