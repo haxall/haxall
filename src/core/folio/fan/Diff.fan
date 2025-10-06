@@ -61,6 +61,8 @@ const class Diff
   ** Throw an exception such as InvalidTagValErr if the diff doesn't declare valid tags
   private Int check()
   {
+    newFlags := flags
+
     // check that add/remove aren't transient
     if (isTransient)
     {
@@ -69,15 +71,23 @@ const class Diff
     }
 
     // check for valid add id
-    if (isAdd) FolioUtil.checkRecId(id)
+    if (isAdd)
+    {
+      FolioUtil.checkRecId(id)
+      newFlags = newFlags.or(treeUpdate)
+    }
+    else if (isRemove)
+    {
+      newFlags = newFlags.or(treeUpdate)
+    }
 
     // check tag name and values to insert
-    newFlags := flags
     changes.each |Obj? val, Str name|
     {
       FolioUtil.checkTagName(name)
       kind := FolioUtil.checkTagVal(name, val)
       newFlags = newFlags.or(DiffTagRule.check(this, name, kind, val))
+      if (kind.isRef && !isTransient) newFlags = newFlags.or(treeUpdate)
     }
 
     return newFlags
@@ -133,6 +143,9 @@ const class Diff
   ** Flag bitmask indicating changes dict has point tag
   @NoDoc static const Int point := 0x40
 
+  ** Flag bitmask indicating an add/remove/ref change
+  @NoDoc static const Int treeUpdate := 0x80
+
   ** Flag bitmask for `force` and `transient`
   static const Int forceTransient := force.or(transient)
 
@@ -163,6 +176,9 @@ const class Diff
 
   ** Flag indicating we are adding new point
   @NoDoc Bool isAddPoint() { isAdd && flags.and(point) != 0 }
+
+  ** Flag indicating we modifying tree structure (add, remove, ref)
+  @NoDoc Bool isTreeUpdate() { isAdd && flags.and(treeUpdate) != 0 }
 
 //////////////////////////////////////////////////////////////////////////
 // Methods

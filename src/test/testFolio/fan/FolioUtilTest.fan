@@ -27,7 +27,6 @@ class FolioUtilTest : HaystackTest
     s1000 := ""; 1000.times { s1000 += "x" }
     s32K := ""; 0x7fff.times { s32K += "\u00ff" }
 
-
     // checkRecId
     verifyErr(ParseErr#) { FolioUtil.checkRecId(Ref("")) }
     verifyErr(ParseErr#) { FolioUtil.checkRecId(Ref("x y")) }
@@ -101,13 +100,25 @@ class FolioUtilTest : HaystackTest
     // diff with point
     verifyEq(Diff(rec1, ["point":m]).flags, Diff.point)
     verifyEq(Diff(rec1, ["point":m]).isAddPoint, false)
-    verifyEq(Diff.makeAdd(["point":m]).flags, Diff.add.or(Diff.point))
+    verifyEq(Diff.makeAdd(["point":m]).flags, Diff.add.or(Diff.point).or(Diff.treeUpdate))
     verifyEq(Diff.makeAdd(["point":m]).isAddPoint, true)
+    verifyEq(Diff.makeAdd(["point":m]).isTreeUpdate, true)
 
     // diff with curVal
     verifyEq(Diff(rec1, ["curVal":n(123)], Diff.transient).flags, Diff.transient.or(Diff.curVal))
     verifyEq(Diff(rec1, ["curStatus":"ok"], Diff.transient).flags, Diff.transient.or(Diff.curVal))
     verifyEq(Diff(rec1, ["curErr":"foo"], Diff.transient).flags, Diff.transient)
+
+    // tree updates
+    old := Etc.dict3("id", Ref.gen,"mod", DateTime.nowUtc, "siteRef", Ref.gen)
+    verifyEq(Diff.makeAdd(["dis":"X"]).flags, Diff.add.or(Diff.treeUpdate))
+    verifyEq(Diff(old, null, Diff.remove).flags, Diff.remove.or(Diff.treeUpdate))
+    verifyEq(Diff(old, ["curVal":n(123)], Diff.transient).flags, Diff.transient.or(Diff.curVal))
+    verifyEq(Diff(old, ["ref":Ref("x")]).flags, Diff.treeUpdate)
+    verifyEq(Diff(old, ["siteRef":Ref("new")]).flags, Diff.treeUpdate)
+    verifyEq(Diff(old, ["siteRef":Remove.val]).flags, 0) // do not detect this
+    verifyEq(Diff(old, ["foo":n(123)]).flags, 0)
+    verifyEq(Diff(old, ["foo":Remove.val]).flags, 0)
   }
 
   Void verifyDiffErr(Dict? rec, Obj? changes, Int flags := 0)
