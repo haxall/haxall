@@ -493,12 +493,12 @@ class CompTest: AbstractXetoTest
   {
      Str<|@root: TestFolder {
             a @a: TestCounter {
-              fooRef: @add
+              fooRef: @c
             }
             b @b: TestCounter {
              fooRef: @a
             }
-            c @add: TestAdd {
+            c @c: TestAdd {
               links: {
                 in1: Link { fromRef: @a, fromSlot:"out" }
                 in2: Link { fromRef: @b, fromSlot:"out" }

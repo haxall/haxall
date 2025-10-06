@@ -19,7 +19,7 @@ using xetom
 const class CompFn : TopFn
 {
 
-  protected new make(Str name, Dict meta, FnParam[] params, Str xeto)
+  protected new make(Str name, Dict meta, CompParam[] params, Str xeto)
     : super(Loc(name), name, meta, params, Literal.nullVal)
   {
     this.xeto = xeto
@@ -35,11 +35,11 @@ const class CompFn : TopFn
     ns := cx.ns
     cs := CompSpace(ns).load(xeto)
 
-    // map input args to Var components by parameter name
+    // map input args to Var components
     root := cs.root
-    params.each |p, i|
+    params.each |CompParam p, i|
     {
-      var := root.get(p.name) as Comp
+      var := cs.readById(p.compId, false)
       if (var == null) return var
       var.set("val", args.getSafe(i))
     }
@@ -48,9 +48,24 @@ const class CompFn : TopFn
     cs.execute
 
     // get returns
-    ret := root.get("returns") as Comp
+    ret := cs.readById(Ref("returns"))
     return ret?.get("val")
   }
 
+}
+
+**************************************************************************
+** CompParam
+**************************************************************************
+
+@Js @NoDoc
+const class CompParam : FnParam
+{
+  new make(Spec spec) : super(spec.name)
+  {
+    compId = spec.meta["compId"] as Ref ?: Ref(spec.name)
+  }
+
+  const Ref compId
 }
 
