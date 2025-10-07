@@ -171,6 +171,9 @@ const class TopFn : Fn, Thunk
   ** Func def metadata
   override const Dict meta
 
+  ** Qualified name if function was resolved against xeto namespace
+  const Str? qname
+
   ** Return true
   override Bool isTop() { true }
 

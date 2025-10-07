@@ -21,6 +21,13 @@ const class AxonThunkFactory : ThunkFactory
 
   override Thunk create(Spec spec, Pod? pod)
   {
+    fn := doCreate(spec, pod)
+    TopFn#qname->setConst(fn, spec.qname)
+    return fn
+  }
+
+  private TopFn doCreate(Spec spec, Pod? pod)
+  {
     // convert spec meta to TopFn meta we use for reflection in func()
     meta := specToFnMeta(spec)
 
