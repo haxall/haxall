@@ -84,7 +84,7 @@ class XetoPrinter
   }
 
   ** Always skip these which should be encoded outside of meta
-  static const Str[] metaSkipDef := ["axon", "axonTree", "compTree", "compTree", "doc", "maybe", "val"]
+  static const Str[] metaSkipDef := ["axon", "axonTree", "compTree", "doc", "maybe", "val"]
 
   ** Return tag names to encode as inline meta
   @NoDoc static Str[] toInlineMetaNames(Dict meta)
