@@ -273,6 +273,9 @@ const class SpecBindingLoader
     return null
   }
 
+  ** Pod name if mapped to pod
+  virtual Str? podName() { null }
+
   ** Resolve thunk for given spec
   virtual Thunk loadThunk(Spec spec)
   {
@@ -297,6 +300,8 @@ const class PodBindingLoader : SpecBindingLoader
   {
     this.pod = pod
   }
+
+  override Str? podName() { pod.name }
 
   const Pod pod
 
