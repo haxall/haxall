@@ -237,9 +237,16 @@ class XetoPrinter
     colons := x.id.index("::")
     isType := colons != null && x.id[colons+2].isUpper
 
-    if (!isType) wc('@')
-    w(x.id)
-    if (x.disVal != null) sp.quoted(x.disVal)
+    if (isType)
+    {
+      w("Ref ").quoted(x.id)
+    }
+    else
+    {
+      wc('@')
+      w(x.id)
+      if (x.disVal != null) sp.quoted(x.disVal)
+    }
     return this
   }
 

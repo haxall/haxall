@@ -189,7 +189,7 @@ internal class Parser
 
     // we are creating a nested synthetic spec
     loc := typeRef.loc
-    if (libRef == null) throw err("Cannot use nested spec in data file", loc)
+    if (libRef == null) throw err("Cannot use nested spec in data file: $typeRef", loc)
     spec := ASpec(loc, lib, null, lib.autoName)
     spec.parsedSyntheticRef = true
 
