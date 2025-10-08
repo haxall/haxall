@@ -1748,6 +1748,7 @@ const class Etc
 
       // otherwise just turn it into a 1 column grid
       gb := GridBuilder().addCol("val")
+      gb.setMeta(meta)
       list.each |v| { gb.addRow1(toCell(v)) }
       return gb.toGrid
     }
