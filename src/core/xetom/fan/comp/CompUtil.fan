@@ -40,16 +40,17 @@ class CompUtil
   }
 
   ** Encode a component into a xeto string
-  static Str compSaveToXeto(LibNamespace ns, Comp comp)
+  static Str compSaveToXeto(LibNamespace ns, Comp comp, Dict? opts := null)
   {
     buf := StrBuf()
-    ns.writeData(buf.out, compSaveToDict(comp))
+    ns.writeData(buf.out, compSaveToDict(comp, opts))
     return buf.toStr
   }
 
   ** Encode a component into a sys.comp::Comp dict representation (with children)
-  static Dict compSaveToDict(Comp comp)
+  static Dict compSaveToDict(Comp comp, Dict? opts := null)
   {
+    if (opts == null) opts = Etc.dict0
     acc := Str:Obj[:]
     spec := comp.spec
     links := comp.links
@@ -61,6 +62,9 @@ class CompUtil
       // don't encode dis
       if (n == "dis") return
 
+      // don't encode id if opts
+      if (n == "id" && opts.has("omitId")) return
+
       // skip transients
       slot := spec.slot(n, false)
       if (slot != null && slot.meta.has("transient")) return
@@ -68,13 +72,30 @@ class CompUtil
       // skip default scalar values if not maybe
       if (slot != null && !slot.isMaybe && v == slot.meta["val"]) return
 
+      // strip dict defaults
+      if (slot != null && v is Dict) v = compSaveDictStripDefaults(slot.type, v)
+
       // skip linked slots
       if (links.isLinked(n)) return
 
       // recurse component sub-tree
-      if (v is Comp) v = compSaveToDict(v)
+      if (v is Comp) v = compSaveToDict(v, opts)
 
       // save this name/value pair
+      acc[n] = v
+    }
+    return Etc.dictFromMap(acc)
+  }
+
+  ** Strip dict tags that are defaults
+  static Dict compSaveDictStripDefaults(Spec type, Dict dict)
+  {
+    acc := Str:Obj[:]
+    dict.each |v, n|
+    {
+      slot := type.slot(n, false)
+      if (n != "spec" && slot != null && !slot.isMaybe && v == slot.meta["val"]) return
+      if (n == "dis" && v == type.name) return
       acc[n] = v
     }
     return Etc.dictFromMap(acc)
