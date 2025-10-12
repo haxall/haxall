@@ -220,6 +220,7 @@ internal class Templater
     {
       // do not process inherited maybe slots
       if (slot.parent !== x && slot.isMaybe) return
+      if (slot.isQuery) return
 
       // process slot
       v := process(slot, b, prev)
