@@ -18,7 +18,7 @@ using hxUtil
 **
 ** ProjSpecs implementation
 **
-const class HxProjSpecs : ProjSpecs
+const class HxProjCompanion : ProjCompanion
 {
 
   new make(HxRuntime rt)

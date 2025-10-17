@@ -20,9 +20,9 @@ const class HxdSys : HxRuntime, Sys, Proj
 {
   new make(HxdBoot boot) : super(boot)
   {
-    this.info   = boot.initSysInfo
-    this.config = boot.initSysConfig
-    this.specs  = HxProjSpecs(this)
+    this.info      = boot.initSysInfo
+    this.config    = boot.initSysConfig
+    this.companion = HxProjCompanion(this)
   }
 
   override final Sys sys() { this }
@@ -37,6 +37,6 @@ const class HxdSys : HxRuntime, Sys, Proj
 
   override const SysConfig config
 
-  override const ProjSpecs specs
+  override const ProjCompanion companion
 }
 

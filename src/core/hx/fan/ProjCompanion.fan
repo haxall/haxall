@@ -10,9 +10,9 @@ using xeto
 using haystack
 
 **
-** Manage Xeto specs in the project companion library
+** Manage Xeto specs and instances in the project companion library
 **
-const mixin ProjSpecs
+const mixin ProjCompanion
 {
   ** Get the project companion lib. If the companion lib cannot be
   ** compiled then return null or raise exception based on checked flag.

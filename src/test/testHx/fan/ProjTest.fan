@@ -97,27 +97,27 @@ class ProjTest : HxTest
     verifyProjLibs(p, expectLibs)
 
     // add spec
-    pld := p.specs.libDigest
-    specA := p.specs.add("SpecA", "Dict { dis: Str }")
-    specB := p.specs.add("SpecB", "Dict { dis: Str }")
+    pld := p.companion.libDigest
+    specA := p.companion.add("SpecA", "Dict { dis: Str }")
+    specB := p.companion.add("SpecB", "Dict { dis: Str }")
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Dict")
-    verifyEq(p.specs.read("SpecA"), "Dict { dis: Str }")
+    verifyEq(p.companion.read("SpecA"), "Dict { dis: Str }")
     pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
 
     // add errors
-    verifyErr(DuplicateNameErr#) { p.specs.add("SpecA", "Dict { foo: Str }") }
-    verifyErr(NameErr#) { p.specs.add("Bad Name", "Dict { foo: Str }") }
+    verifyErr(DuplicateNameErr#) { p.companion.add("SpecA", "Dict { foo: Str }") }
+    verifyErr(NameErr#) { p.companion.add("Bad Name", "Dict { foo: Str }") }
 
     // update spec
-    specA = p.specs.update("SpecA", "Scalar")
+    specA = p.companion.update("SpecA", "Scalar")
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Scalar")
-    verifyEq(p.specs.read("SpecA"), "Scalar")
+    verifyEq(p.companion.read("SpecA"), "Scalar")
     pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
 
     // update errors
-    verifyErr(UnknownSpecErr#) { p.specs.update("SpecX", "Dict { foo: Str }") }
+    verifyErr(UnknownSpecErr#) { p.companion.update("SpecX", "Dict { foo: Str }") }
 
     // re-boot project and verify libs/specs were persisted
     p.db.close
@@ -129,7 +129,7 @@ class ProjTest : HxTest
     verifyErr(DuplicateNameErr#) { p.libs.removeAll(["ph.points", "ph.points"]) }
     verifyErr(DependErr#) { p.libs.remove("ph.points") }
     verifyErr(CannotRemoveBootLibErr#) { p.libs.removeAll(["ashrae.g36", "sys"]) }
-    verifyEq(pld, p.specs.libDigest)
+    verifyEq(pld, p.companion.libDigest)
 
     // remove g36
     p.libs.remove("ashrae.g36")
@@ -137,20 +137,20 @@ class ProjTest : HxTest
     verifyProjLibs(p, expectLibs)
 
     // rename specs
-    specA = p.specs.rename("SpecA", "NewSpecA")
+    specA = p.companion.rename("SpecA", "NewSpecA")
     verifyEq(specA.qname, "proj::NewSpecA")
     verifyEq(specA.base.qname, "sys::Scalar")
-    verifyEq(p.specs.read("NewSpecA"), "Scalar")
+    verifyEq(p.companion.read("NewSpecA"), "Scalar")
     pld = verifyProjSpecs(p, ["NewSpecA", "SpecB"], pld)
 
     // rename errors
-    verifyErr(UnknownSpecErr#) { p.specs.rename("Bad", "NewBad") }
-    verifyErr(DuplicateNameErr#) { p.specs.rename("NewSpecA", "SpecB") }
-    verifyErr(NameErr#) { p.specs.rename("NewSpecA", "Bad Name") }
+    verifyErr(UnknownSpecErr#) { p.companion.rename("Bad", "NewBad") }
+    verifyErr(DuplicateNameErr#) { p.companion.rename("NewSpecA", "SpecB") }
+    verifyErr(NameErr#) { p.companion.rename("NewSpecA", "Bad Name") }
     pld = verifyProjSpecs(p, ["NewSpecA", "SpecB"], pld)
 
     // remove specs
-    p.specs.remove("NewSpecA")
+    p.companion.remove("NewSpecA")
     pld = verifyProjSpecs(p, ["SpecB"], pld)
 
     // re-boot and verify libs were persisted
@@ -167,9 +167,9 @@ class ProjTest : HxTest
               Dict { newOne: Str }
 
               """
-    specA = p.specs.add("SpecAnotherA", src)
+    specA = p.companion.add("SpecAnotherA", src)
     verifyEq(specA.qname, "proj::SpecAnotherA")
-    verifyEq(p.specs.read(specA.name), src.splitLines.findAll { !it.isEmpty }.join("\n").trim)
+    verifyEq(p.companion.read(specA.name), src.splitLines.findAll { !it.isEmpty }.join("\n").trim)
     pld = verifyProjSpecs(p, ["SpecAnotherA", "SpecB"], pld)
 
     // add new ext
@@ -272,23 +272,23 @@ class ProjTest : HxTest
     verifyEq(f.func.returns.type.qname, "sys::Obj")
 
     // update foo2 (src only)
-    f = proj.specs.updateFunc("foo2", "(a) => a * a")
+    f = proj.companion.updateFunc("foo2", "(a) => a * a")
     verifyEq(eval("foo2(3)"), n(9))
     verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a) => a * a\n", "admin", m, "qux", "foo2"))
 
     // update foo2 (meta only)
-    f = proj.specs.updateFunc("foo2", null, Etc.makeDict(["su":m, "qux":"test 1!"]))
+    f = proj.companion.updateFunc("foo2", null, Etc.makeDict(["su":m, "qux":"test 1!"]))
     verifyEq(eval("foo2(4)"), n(16))
     verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a) => a * a\n", "su", m, "qux", "test 1!"))
 
     // update foo2 (src and meta)
-    f = proj.specs.updateFunc("foo2", "(a)=>a+100", Etc.makeDict(["qux":"test 2!"]))
+    f = proj.companion.updateFunc("foo2", "(a)=>a+100", Etc.makeDict(["qux":"test 2!"]))
     verifyEq(eval("foo2(4)"), n(104))
     verifyDictEq(f.metaOwn, Etc.dict2("axon", "(a)=>a+100\n", "qux", "test 2!"))
 
     // update with string containing "----"
     src := "() => \"-----\""
-    f = proj.specs.updateFunc("foo2", src)
+    f = proj.companion.updateFunc("foo2", src)
     verifyEq(eval("foo2()"), "-----")
     verifyDictEq(f.metaOwn, Etc.dict2("axon", src+"\n", "qux", "test 2!"))
   }
@@ -336,21 +336,21 @@ class ProjTest : HxTest
       verifyNotNull(e)
     }
 
-    verifySame(p.specs.lib.name, "proj")
-    verifySame(p.specs.lib, p.ns.lib("proj"))
-    verifyNotNull(p.specs.libDigest)
+    verifySame(p.companion.lib.name, "proj")
+    verifySame(p.companion.lib, p.ns.lib("proj"))
+    verifyNotNull(p.companion.libDigest)
   }
 
   Str verifyProjSpecs(Proj p, Str[] names, Str oldDigest)
   {
-    newDigest := p.specs.libDigest
-    Str[] actualNames := p.specs.lib.specs.map |s->Str| { s.name }
-    verifyEq(p.specs.list.dup.sort, names.sort)
+    newDigest := p.companion.libDigest
+    Str[] actualNames := p.companion.lib.specs.map |s->Str| { s.name }
+    verifyEq(p.companion.list.dup.sort, names.sort)
     verifyEq(actualNames.sort, names.sort)
     names.each |n|
     {
       spec := p.ns.spec("proj::$n")
-      verifySame(spec.lib, p.specs.lib)
+      verifySame(spec.lib, p.companion.lib)
     }
     return newDigest
   }

@@ -18,7 +18,7 @@ using folio
 **
 const mixin Proj : Runtime
 {
-  ** Project spec management
-  abstract ProjSpecs specs()
+  ** Project companion lib management
+  abstract ProjCompanion companion()
 }
 
