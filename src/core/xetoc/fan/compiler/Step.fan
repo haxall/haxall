@@ -25,9 +25,11 @@ abstract internal class Step
 
   ANamespace cns() { compiler.cns }
 
-  Bool isLib() { compiler.isLib }
+  CompileMode mode() { compiler.mode }
 
-  Bool isData() { !compiler.isLib }
+  Bool isLib() { compiler.mode.isLib }
+
+  Bool isData() { compiler.mode.isData }
 
   Bool isSys() { compiler.isSys }
 

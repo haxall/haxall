@@ -114,6 +114,17 @@ abstract const class MEnv : XetoEnv
 // Compile
 //////////////////////////////////////////////////////////////////////////
 
+  Dict[] parseToDicts(MNamespace ns, Str src, Dict opts)
+  {
+    c := XetoCompiler.init
+    {
+      it.ns      = ns
+      it.libName = "proj"
+      it.input   = src.toBuf.toFile(`input.xeto`)
+    }
+    return c.parseToDicts
+  }
+
   ** Compile specific lib
   private XetoLib compile(MNamespace ns, LibVersion v)
   {

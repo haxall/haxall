@@ -23,7 +23,7 @@ internal class Parse : Step
     if (!input.exists) throw err("Input file not found: $input", FileLoc.inputs)
 
     // parse lib of types or data value
-    if (isLib)
+    if (mode.isLibPragma)
       parseLib(input)
     else
       parseData(input)
@@ -83,7 +83,7 @@ internal class Parse : Step
     }
 
     // libs must type their pragma as Lib
-    if (isLib)
+    if (mode.isLibPragma)
     {
       if (pragma.typeRef == null || pragma.typeRef.name.name != "Lib") err("Pragma must have 'Lib' type", pragma.loc)
     }

@@ -821,6 +821,11 @@ const class MNamespace : LibNamespace, CNamespace
     Printer(this, out, opts ?: Etc.dict0).print(val)
   }
 
+  override Dict[] parseToDicts(Str src, Dict? opts := null)
+  {
+    envRef.parseToDicts(this, src, opts ?: Etc.dict0)
+  }
+
   override final Obj? compileData(Str src, Dict? opts := null)
   {
     envRef.compileData(this, src, opts ?: Etc.dict0)

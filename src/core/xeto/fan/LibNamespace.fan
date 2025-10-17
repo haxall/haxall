@@ -266,6 +266,9 @@ const mixin LibNamespace
   ** If the data is not a Dict nor list of Dicts, then raise an exception.
   abstract Dict[] compileDicts(Str src, Dict? opts := null)
 
+  ** Parse one or more specs/instances to their AST representation as dicts
+  abstract Dict[] parseToDicts(Str src, Dict? opts := null)
+
   ** Compile Xeto source code into a temp library.  All dependencies are
   ** resolved against this namespace.  Raise exception if there are any
   ** syntax or semantic errors.

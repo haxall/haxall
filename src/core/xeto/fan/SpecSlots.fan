@@ -33,7 +33,7 @@ const mixin SpecSlots
 
   ** Get the child slot spec as keyed by this slots map
   ** NOTE: the name key may not match slot name
-   abstract Spec? get(Str name, Bool checked := true)
+  abstract Spec? get(Str name, Bool checked := true)
 
   ** Convenience to list the slots names; prefer `each`.
   ** NOTE: the names may not match slots names

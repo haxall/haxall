@@ -14,8 +14,15 @@ using util
 @Js
 internal abstract class Init : Step
 {
+  new make(CompileMode mode) { this.initMode = mode }
+
+  const CompileMode initMode
+
   override Void run()
   {
+    // set mode
+    compiler.mode = initMode
+
     // check namespace
     if (compiler.ns == null && nsRequired) throw err("Compiler ns not configured", FileLoc.inputs)
 
@@ -41,6 +48,8 @@ internal abstract class Init : Step
 @Js
 internal class InitLib : Init
 {
+  new make(CompileMode mode := CompileMode.lib) : super(mode) {}
+
   override Void run()
   {
     // base class checks
@@ -51,24 +60,9 @@ internal class InitLib : Init
       compiler.libName = compiler.input.name
 
     // set flags
-    compiler.isLib = true
     compiler.isSys = compiler.libName == "sys"
     compiler.isSysComp = compiler.libName == "sys.comp"
   }
-}
-
-
-**************************************************************************
-** InitLibVersion
-**************************************************************************
-
-**
-** Initialize to parseLibVersion
-**
-@Js
-internal class InitLibVersion : InitLib
-{
-  override Bool nsRequired() { false }
 }
 
 **************************************************************************
@@ -81,14 +75,36 @@ internal class InitLibVersion : InitLib
 @Js
 internal class InitData : Init
 {
-  override Void run()
-  {
-    // base class checks
-    super.run
+  new make() : super(CompileMode.data) {}
+}
 
-    // set flags
-    compiler.isLib = false
-    compiler.isSys = false
-  }
+**************************************************************************
+** InitParseToDicts
+**************************************************************************
+
+**
+** Initialize to parseToDicts
+**
+@Js
+internal class InitParseDicts : InitLib
+{
+  new make() : super(CompileMode.parseDicts) {}
+
+  override Bool nsRequired() { false }
+}
+
+**************************************************************************
+** InitParseLibMeta
+**************************************************************************
+
+**
+** Initialize to parseLibMeta
+**
+@Js
+internal class InitParseLibMeta : InitLib
+{
+  new make() : super(CompileMode.parseLibMeta) {}
+
+  override Bool nsRequired() { false }
 }
 

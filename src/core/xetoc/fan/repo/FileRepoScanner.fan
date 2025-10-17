@@ -106,7 +106,7 @@ internal class FileRepoScanner
         it.libName = name
         it.input   = lib
       }
-      return c.parseLibVersion
+      return c.parseLibMeta
     }
     catch (Err e)
     {

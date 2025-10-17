@@ -20,7 +20,7 @@ internal class ProcessPragma : Step
 {
   override Void run()
   {
-    if (isLib)
+    if (mode.isLibPragma)
     {
       // for libs the pragma defines the depends
       lib.meta = compiler.pragma

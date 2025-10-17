@@ -87,12 +87,24 @@ internal class MXetoCompiler : XetoCompiler
     return ast.asm
   }
 
-  ** Parse only the lib.xeto file into version, doc, and depends.
-  ** Must setup libName and input to the "lib.xeto" file
-  override LibVersion parseLibVersion()
+  ** Parse input source to Dict AST representations
+  override Dict[] parseToDicts()
   {
     run([
-      InitLibVersion(),
+      InitParseDicts(),
+      Parse(),
+      Resolve(),
+      AstToDicts(),
+    ])
+    return dicts
+  }
+
+  ** Parse only the lib.xeto file into version, doc, and depends.
+  ** Must setup libName and input to the "lib.xeto" file
+  override LibVersion parseLibMeta()
+  {
+    run([
+      InitParseLibMeta(),
       Parse(),
       ProcessPragma(),
     ])
@@ -192,7 +204,7 @@ internal class MXetoCompiler : XetoCompiler
   internal ASys sys                    // make
   internal ADepends depends            // make
   internal Duration? duration          // run
-  internal Bool isLib                  // Init (false isData)
+  internal CompileMode? mode           // Init
   internal Bool isSys                  // Init
   internal Bool isSysComp              // Init
   internal ANamespace? cns             // Init
@@ -201,8 +213,27 @@ internal class MXetoCompiler : XetoCompiler
   internal ADataDoc? data              // Parse (compileData only)
   internal ADict? pragma               // Parse
   internal Str:Str usedBuildVars       // Parse (build vars used by lib)
-  internal Dict? json                  // JSON output
+  internal Dict[]? dicts               // AstToDicts output
   internal Bool externRefs             // allow unresolved refs to compile
   private Str:Ref internRefs := [:]    // makeRef
+}
+
+**************************************************************************
+** CompileMode
+**************************************************************************
+
+@Js
+enum class CompileMode
+{
+  lib,
+  data,
+  parseDicts,
+  parseLibMeta
+
+  Bool isLib() { this === lib }
+
+  Bool isData() { this === data }
+
+  Bool isLibPragma() { this === lib || this === parseLibMeta }
 }
 
