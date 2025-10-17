@@ -32,13 +32,25 @@ class ParseTest : AbstractXetoTest
       [
         ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec")]
       ])
+
+    verifyParse(ns,
+      Str<|Foo: Ahu|>,
+      [
+        ["name":"Foo", "base":Ref("ph::Ahu"), "spec":Ref("sys::Spec")]
+      ])
+
+    verifyParse(ns,
+      Str<|Foo: ph::Ahu <metaQ, metaR:"Marker", q:"2025-10-17">|>,
+      [
+        ["name":"Foo", "base":Ref("ph::Ahu"), "spec":Ref("sys::Spec"), "metaQ":m, "metaR":m, "q":Date("2025-10-17")]
+      ])
   }
 
   Void verifyParse(LibNamespace ns, Str src, Obj[] expect)
   {
-// echo; echo("########"); echo(src)
+    // echo; echo("########"); echo(src)
     actual := ns.parseToDicts(src)
-// actual.each |a, i| { if (i > 0) echo("---"); Etc.dictDump(a) }
+    // actual.each |a, i| { if (i > 0) echo("---"); Etc.dictDump(a) }
     actual.each |a, i|
     {
       e := expect[i]

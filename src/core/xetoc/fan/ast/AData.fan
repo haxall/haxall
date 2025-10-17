@@ -30,6 +30,9 @@ internal abstract class AData : ANode
   ** Resolved type
   ASpecRef? typeRef
 
+  ** Is typeRef non-null and resolved
+  Bool typeRefIsResolved() { typeRef != null && typeRef.isResolved }
+
   ** Is data value already assembled
   abstract Bool isAsm()
 

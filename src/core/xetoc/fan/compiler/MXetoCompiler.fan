@@ -95,6 +95,7 @@ internal class MXetoCompiler : XetoCompiler
       Parse(),
       ProcessPragma(),
       Resolve(),
+      InferMeta(),
       AstToDicts(),
     ])
     return dicts
