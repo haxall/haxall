@@ -25,6 +25,8 @@ internal class Parse : Step
     // parse lib of types or data value
     if (mode.isLibPragma)
       parseLib(input)
+    else if (mode.isParseDicts)
+      parseDicts(input)
     else
       parseData(input)
   }
@@ -47,11 +49,26 @@ internal class Parse : Step
     compiler.pragma = pragma
   }
 
+  private Void parseDicts(File input)
+  {
+    // stub lib doc
+    lib := ALib(compiler, FileLoc.synthetic, compiler.libName)
+
+    // use same logic as parseDicts
+    parseToDoc(lib, input)
+  }
+
   private Void parseData(File input)
   {
     // create ADataDoc as our root object
     doc := ADataDoc(compiler, FileLoc(input))
 
+    // use same logic as parseDicts
+    parseToDoc(doc, input)
+  }
+
+  private Void parseToDoc(ADoc doc, File input)
+  {
     // parse into root
     parseFile(input, doc, Str:Str[:])
     bombIfErr
@@ -60,9 +77,15 @@ internal class Parse : Step
     // set pragma to empty dict and use ns as depends
     pragma := ADict(doc.loc, sys.lib)
 
-    compiler.ast = doc
-    compiler.data = doc
+    compiler.ast    = doc
+    compiler.lib    = doc as ALib
+    compiler.data   = doc as ADataDoc
     compiler.pragma = pragma
+    if (compiler.lib != null)
+    {
+      compiler.lib.meta = pragma
+      compiler.lib.version = Version.defVal
+    }
   }
 
   private ADict? validateLibPragma(ALib lib)

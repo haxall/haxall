@@ -93,6 +93,7 @@ internal class MXetoCompiler : XetoCompiler
     run([
       InitParseDicts(),
       Parse(),
+      ProcessPragma(),
       Resolve(),
       AstToDicts(),
     ])
@@ -233,6 +234,8 @@ enum class CompileMode
   Bool isLib() { this === lib }
 
   Bool isData() { this === data }
+
+  Bool isParseDicts() { this === parseDicts }
 
   Bool isLibPragma() { this === lib || this === parseLibMeta }
 }

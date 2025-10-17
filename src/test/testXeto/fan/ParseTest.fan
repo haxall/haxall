@@ -1,0 +1,50 @@
+//
+// Copyright (c) 2025, Brian Frank
+// Licensed under the Academic Free License version 3.0
+//
+// History:
+//   17 Oct 2025  Brian Frank  Creation
+//
+
+using util
+using xeto
+using haystack
+
+**
+** ParseTest
+**
+@Js
+class ParseTest : AbstractXetoTest
+{
+
+  Void testScalars()
+  {
+    ns := createNamespace(["sys", "ph", "hx.test.xeto"])
+
+    verifyParse(ns,
+      Str<|Foo: Dict|>,
+      [
+        ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec")]
+      ])
+
+    verifyParse(ns,
+      Str<|Foo: {}|>,
+      [
+        ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec")]
+      ])
+  }
+
+  Void verifyParse(LibNamespace ns, Str src, Obj[] expect)
+  {
+// echo; echo("########"); echo(src)
+    actual := ns.parseToDicts(src)
+// actual.each |a, i| { if (i > 0) echo("---"); Etc.dictDump(a) }
+    actual.each |a, i|
+    {
+      e := expect[i]
+      verifyDictEq(a, e)
+    }
+    verifyEq(actual.size, expect.size)
+  }
+}
+
