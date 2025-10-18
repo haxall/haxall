@@ -122,6 +122,15 @@ internal class ADict : AData
   ** Is data value already assembled
   override Bool isAsm() { asmRef != null }
 
+  ** Do we have a resolved type that is known to be a list
+  Bool isList()
+  {
+    if (typeRef == null || !typeRef.isResolved) return false
+    type := typeRef.deref
+    if (type.isAst) return false // don't have flags yet
+    return type.isList
+  }
+
   ** Assembled scalar value
   override Obj asm() { asmRef ?: throw NotReadyErr() }
 

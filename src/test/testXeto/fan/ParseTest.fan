@@ -58,6 +58,7 @@ class ParseTest : AbstractXetoTest
              b: Str "hi"
              d: Date <metaQ> "2025-10-18"
              x: Foo
+             y: "just val"
            }|>,
       [
         ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "slots":Etc.dictFromMap([
@@ -66,7 +67,27 @@ class ParseTest : AbstractXetoTest
            "b": Etc.dictFromMap(["type":Ref("sys::Str"),  "val":"hi"]),
            "d": Etc.dictFromMap(["type":Ref("sys::Date"), "metaQ":m, "val":Date("2025-10-18")]),
            "x": Etc.dictFromMap(["type":Ref("proj::Foo") ]),
+           "y": Etc.dictFromMap(["val":"just val"]),
            ])
+        ]
+      ])
+
+    // nested slots
+    verifyParse(ns,
+      Str<|Foo: Dict {
+             Box {
+               Label { text:"a" }
+               Label { text:"b" }
+             }
+           }|>,
+      [
+        ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "slots":Etc.dictFromMap([
+           "_0": Etc.dictFromMap(["type":Ref("Box"), "slots":Etc.dictFromMap([
+             "_0": Etc.dictFromMap(["type":Ref("Label"), "slots":Etc.dict1("text", Etc.dictFromMap(["val":"a"])) ]),
+             "_1": Etc.dictFromMap(["type":Ref("Label"), "slots":Etc.dict1("text", Etc.dictFromMap(["val":"b"])) ])
+             ]),
+           ])
+         ])
         ]
       ])
 
@@ -88,12 +109,18 @@ class ParseTest : AbstractXetoTest
       ])
     opts = null
 
-    // instances
+    // instances, refs in instances not resolved to qnames
     verifyParse(ns,
       Str<|Foo: { n: Str }
            @x-a: Foo { n:"alpha" }
            @x.b: { n:"beta" }
            @x.c: Ahu { n:"charlie" }
+           @x.d: {
+             dict: {a:"nest", m}
+             list: List { "a", "b" }
+             ref1: Foo
+             ref2: Ahu
+           }
            |>,
       [
         ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "slots":Etc.dictFromMap([
@@ -103,6 +130,7 @@ class ParseTest : AbstractXetoTest
         ["name":"x-a", "spec":Ref("proj::Foo"), "n":"alpha"],
         ["name":"x.b", "n":"beta"],
         ["name":"x.c", "spec":Ref("ph::Ahu"),   "n":"charlie"],
+        ["name":"x.d", "dict":Etc.dict2("a","nest", "m",m), "list":Obj?["a", "b"], "ref1":Ref("Foo"), "ref2":Ref("Ahu")],
       ])
   }
 

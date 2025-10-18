@@ -50,7 +50,7 @@ internal class AstToDicts : Step
   {
     acc := Str:Obj[:]
     acc.ordered = true
-    acc["type"] = mapTypeRef(x.typeRef, ns.sys.obj.id)
+    acc.addNotNull("type", mapTypeRef(x.typeRef, null))
     mapMeta(acc, x.meta)
     acc.addNotNull("slots", mapSlots(x))
     return Etc.dictFromMap(acc)
@@ -75,16 +75,20 @@ internal class AstToDicts : Step
 
   Obj mapData(AData x)
   {
-    if (x.isAsm) return x.asm
     switch (x.nodeType)
     {
-      case ANodeType.scalar: return mapScalar(x)
-      default:               throw Err(data.nodeType.name)
+      case ANodeType.scalar:  return mapScalar(x)
+      case ANodeType.dict:    return mapDict(x, null)
+      case ANodeType.dataRef: return mapRef(x)
+      case ANodeType.specRef: return mapRef(x)
+      default:                throw Err(data.nodeType.name)
     }
   }
 
   Obj mapScalar(AScalar x)
   {
+    if (x.isAsm) return x.asm
+
     // map core xeto types to haystack types, otherwise use string
     str := x.str
     qname := x.typeRefIsResolved ? x.typeRef.deref.qname : null
@@ -106,8 +110,10 @@ internal class AstToDicts : Step
     return x.str
   }
 
-  Dict mapDict(ADict x, [Str:Obj]? acc)
+  Obj mapDict(ADict x, [Str:Obj]? acc)
   {
+    if (x.isList && acc == null) return mapList(x)
+
     if (acc == null)
     {
       acc = Str:Obj[:]
@@ -123,9 +129,21 @@ internal class AstToDicts : Step
     return Etc.dictFromMap(acc)
   }
 
-  Ref mapTypeRef(ASpecRef? x, Ref? def := null)
+  Obj?[] mapList(ADict x)
   {
-    if (x == null) return def ?: throw Err("typeRef null")
+    acc := Obj?[,]
+    x.each |v| { acc.add(mapData(v)) }
+    return acc
+  }
+
+  Obj mapRef(ARef x)
+  {
+    Ref(x.toStr)
+  }
+
+  Ref? mapTypeRef(ASpecRef? x, Ref? def := null)
+  {
+    if (x == null) return def
     if (x.isResolved) return x.deref.id
     return Ref(x.toStr)
   }
