@@ -119,7 +119,7 @@ abstract const class MEnv : XetoEnv
     c := XetoCompiler.init
     {
       it.ns      = ns
-      it.libName = "proj"
+      it.libName = opts["libName"] as Str ?: "proj"
       it.input   = src.toBuf.toFile(`input.xeto`)
     }
     return c.parseToDicts

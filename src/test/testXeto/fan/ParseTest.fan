@@ -22,52 +22,94 @@ class ParseTest : AbstractXetoTest
     ns := createNamespace(["sys", "ph", "hx.test.xeto"])
     s := Ref("sys::Spec")
 
+    // basics
     verifyParse(ns,
       Str<|Foo: Dict|>,
       [
         ["name":"Foo", "base":Ref("sys::Dict"), "spec":s]
       ])
 
+    // infer base type
     verifyParse(ns,
       Str<|Foo: {}|>,
       [
         ["name":"Foo", "base":Ref("sys::Dict"), "spec":s]
       ])
 
+    // base type in ph
     verifyParse(ns,
       Str<|Foo: Ahu|>,
       [
         ["name":"Foo", "base":Ref("ph::Ahu"), "spec":s]
       ])
 
+    // type slots
     verifyParse(ns,
       Str<|Foo: ph::Ahu <metaQ, metaR:"Marker", q:"2025-10-17">|>,
       [
         ["name":"Foo", "base":Ref("ph::Ahu"), "spec":s, "metaQ":m, "metaR":m, "q":Date("2025-10-17")]
       ])
 
+    // slots
     verifyParse(ns,
       Str<|Foo: Dict {
              m
-             a: Str
+             a: Str?
              b: Str "hi"
              d: Date <metaQ> "2025-10-18"
+             x: Foo
            }|>,
       [
         ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "slots":Etc.dictFromMap([
            "m": Etc.dictFromMap(["type":Ref("sys::Marker")]),
-           "a": Etc.dictFromMap(["type":Ref("sys::Str"),  ]),
+           "a": Etc.dictFromMap(["type":Ref("sys::Str"),  "maybe":m]),
            "b": Etc.dictFromMap(["type":Ref("sys::Str"),  "val":"hi"]),
            "d": Etc.dictFromMap(["type":Ref("sys::Date"), "metaQ":m, "val":Date("2025-10-18")]),
+           "x": Etc.dictFromMap(["type":Ref("proj::Foo") ]),
            ])
         ]
+      ])
+
+    // resolved types become non-qname refs
+    opts = Etc.makeDict(["libName":"foo.bar"])
+    verifyParse(ns,
+      Str<|Foo: TSwift {
+             a: Str
+             b: Foo
+             c: TooMuchJoy
+           }|>,
+      [
+        ["name":"Foo", "base":Ref("TSwift"), "spec":Ref("sys::Spec"), "slots":Etc.dictFromMap([
+           "a": Etc.dictFromMap(["type":Ref("sys::Str")]),
+           "b": Etc.dictFromMap(["type":Ref("foo.bar::Foo"),  ]),
+           "c": Etc.dictFromMap(["type":Ref("TooMuchJoy") ]),
+           ])
+        ]
+      ])
+    opts = null
+
+    // instances
+    verifyParse(ns,
+      Str<|Foo: { n: Str }
+           @x-a: Foo { n:"alpha" }
+           @x.b: { n:"beta" }
+           @x.c: Ahu { n:"charlie" }
+           |>,
+      [
+        ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "slots":Etc.dictFromMap([
+           "n": Etc.dictFromMap(["type":Ref("sys::Str")]),
+           ])
+        ],
+        ["name":"x-a", "spec":Ref("proj::Foo"), "n":"alpha"],
+        ["name":"x.b", "n":"beta"],
+        ["name":"x.c", "spec":Ref("ph::Ahu"),   "n":"charlie"],
       ])
   }
 
   Void verifyParse(LibNamespace ns, Str src, Obj[] expect)
   {
     // echo; echo("########"); echo(src)
-    actual := ns.parseToDicts(src)
+    actual := ns.parseToDicts(src, opts)
     // actual.each |a, i| { if (i > 0) echo("---"); Etc.dictDump(a) }
     actual.each |a, i|
     {
@@ -76,5 +118,7 @@ class ParseTest : AbstractXetoTest
     }
     verifyEq(actual.size, expect.size)
   }
+
+  Dict? opts
 }
 

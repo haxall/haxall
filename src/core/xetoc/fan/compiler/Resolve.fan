@@ -149,7 +149,7 @@ internal class Resolve : Step
     depends.libs.each |d| { matches.addNotNull(resolveInDepend(ref, n.name, d)) }
     if (matches.isEmpty)
     {
-      if (compiler.externRefs) return
+      if (allowUnresolved) return
       err("Unresolved $ref.what: $n", ref.loc)
     }
     else if (matches.size > 1)
@@ -188,7 +188,7 @@ internal class Resolve : Step
     x := resolveInDepend(ref, n.name, depend)
     if (x == null)
     {
-      if (compiler.externRefs) return
+      if (allowUnresolved) return
       return err("Unresolved $ref.what '$n' in lib", ref.loc)
     }
     ref.resolve(x)
@@ -215,6 +215,11 @@ internal class Resolve : Step
     return CInstanceWrap(dict, ns.specOf(dict))
   }
 
+  ** Allow unresolved refs
+  private Bool allowUnresolved()
+  {
+    compiler.externRefs || mode.isParseDicts
+  }
 
 }
 

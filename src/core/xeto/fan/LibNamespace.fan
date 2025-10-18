@@ -267,6 +267,8 @@ const mixin LibNamespace
   abstract Dict[] compileDicts(Str src, Dict? opts := null)
 
   ** Parse one or more specs/instances to their AST representation as dicts
+  ** Options:
+  **   - libName: for internal qnames (default to proj)
   abstract Dict[] parseToDicts(Str src, Dict? opts := null)
 
   ** Compile Xeto source code into a temp library.  All dependencies are
