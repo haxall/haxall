@@ -400,7 +400,7 @@ class HxFuncsTest : HxTest
     verifyEvalErr("""diff({}, {dis:"test", age:33}, {add})""", ArgErr#)
     d = eval("""diff(null, {dis:"test", age:33}, {add})""")
     verifyDictEq(d.changes, ["dis":"test", "age":n(33)])
-    verifyEq(d.flags, Diff.add)
+    verifyEq(d.flags, Diff.add.or(Diff.treeUpdate))
 
     // diff only - remove tag
     d = eval("""diff({id:@14754350-63a873e5, mod:now()}, {-age}, {transient, force})""")

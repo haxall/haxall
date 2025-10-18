@@ -50,7 +50,11 @@ const class HxProjCompanion : ProjCompanion
     return err.toStr
   }
 
-  override Str[] list()
+//////////////////////////////////////////////////////////////////////////
+// Old API
+//////////////////////////////////////////////////////////////////////////
+
+  override Str[] _list()
   {
     tb.list.mapNotNull |n->Str?|
     {
@@ -58,7 +62,7 @@ const class HxProjCompanion : ProjCompanion
     }
   }
 
-  override Str? read(Str name, Bool checked := true)
+  override Str? _read(Str name, Bool checked := true)
   {
     buf := tb.read("${name}.xeto", false)
     if (buf != null) return readFormat(name, buf)
@@ -66,30 +70,31 @@ const class HxProjCompanion : ProjCompanion
     return null
   }
 
-  override Spec add(Str name, Str body)
+  override Spec _add(Str name, Str body)
   {
     checkName(name)
     checkExists(name, false)
     return doUpdate(name, body)
   }
 
-  override Spec update(Str name, Str body)
+  override Spec _update(Str name, Str body)
   {
     checkExists(name, true)
     return doUpdate(name, body)
   }
 
-  override Spec rename(Str oldName, Str newName)
+  override Spec _rename(Str oldName, Str newName)
   {
     checkName(newName)
     checkExists(newName, false)
-    body := read(oldName)
+
+    body := _read(oldName)
     write(newName, body)
-    remove(oldName)
+    _remove(oldName)
     return lib.spec(newName)
   }
 
-  override Void remove(Str name)
+  override Void _remove(Str name)
   {
     tb.delete("${name}.xeto")
     rt.libsRef.reload
@@ -114,7 +119,7 @@ const class HxProjCompanion : ProjCompanion
 
   override Spec addFunc(Str name, Str src, Dict meta := Etc.dict0)
   {
-    add(name, funcToXeto(ns, name, src, meta))
+    _add(name, funcToXeto(ns, name, src, meta))
   }
 
   override Spec updateFunc(Str name, Str? src, Dict? meta := null)
@@ -122,7 +127,7 @@ const class HxProjCompanion : ProjCompanion
     cur     := lib.func(name)
     curSrc  := cur.metaOwn["axon"] ?: throw ArgErr("Func spec missing axon tag: $name")
     curMeta := Etc.dictRemove(cur.metaOwn, "axon")
-    return update(name, funcToXeto(ns, name, src ?: curSrc, meta ?: curMeta))
+    return _update(name, funcToXeto(ns, name, src ?: curSrc, meta ?: curMeta))
   }
 
   static Str funcToXeto(LibNamespace ns, Str name, Str src, Dict meta)

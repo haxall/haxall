@@ -98,26 +98,26 @@ class ProjTest : HxTest
 
     // add spec
     pld := p.companion.libDigest
-    specA := p.companion.add("SpecA", "Dict { dis: Str }")
-    specB := p.companion.add("SpecB", "Dict { dis: Str }")
+    specA := p.companion._add("SpecA", "Dict { dis: Str }")
+    specB := p.companion._add("SpecB", "Dict { dis: Str }")
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Dict")
-    verifyEq(p.companion.read("SpecA"), "Dict { dis: Str }")
+    verifyEq(p.companion._read("SpecA"), "Dict { dis: Str }")
     pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
 
     // add errors
-    verifyErr(DuplicateNameErr#) { p.companion.add("SpecA", "Dict { foo: Str }") }
-    verifyErr(NameErr#) { p.companion.add("Bad Name", "Dict { foo: Str }") }
+    verifyErr(DuplicateNameErr#) { p.companion._add("SpecA", "Dict { foo: Str }") }
+    verifyErr(NameErr#) { p.companion._add("Bad Name", "Dict { foo: Str }") }
 
     // update spec
-    specA = p.companion.update("SpecA", "Scalar")
+    specA = p.companion._update("SpecA", "Scalar")
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Scalar")
-    verifyEq(p.companion.read("SpecA"), "Scalar")
+    verifyEq(p.companion._read("SpecA"), "Scalar")
     pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
 
     // update errors
-    verifyErr(UnknownSpecErr#) { p.companion.update("SpecX", "Dict { foo: Str }") }
+    verifyErr(UnknownSpecErr#) { p.companion._update("SpecX", "Dict { foo: Str }") }
 
     // re-boot project and verify libs/specs were persisted
     p.db.close
@@ -137,20 +137,20 @@ class ProjTest : HxTest
     verifyProjLibs(p, expectLibs)
 
     // rename specs
-    specA = p.companion.rename("SpecA", "NewSpecA")
+    specA = p.companion._rename("SpecA", "NewSpecA")
     verifyEq(specA.qname, "proj::NewSpecA")
     verifyEq(specA.base.qname, "sys::Scalar")
-    verifyEq(p.companion.read("NewSpecA"), "Scalar")
+    verifyEq(p.companion._read("NewSpecA"), "Scalar")
     pld = verifyProjSpecs(p, ["NewSpecA", "SpecB"], pld)
 
     // rename errors
-    verifyErr(UnknownSpecErr#) { p.companion.rename("Bad", "NewBad") }
-    verifyErr(DuplicateNameErr#) { p.companion.rename("NewSpecA", "SpecB") }
-    verifyErr(NameErr#) { p.companion.rename("NewSpecA", "Bad Name") }
+    verifyErr(UnknownSpecErr#) { p.companion._rename("Bad", "NewBad") }
+    verifyErr(DuplicateNameErr#) { p.companion._rename("NewSpecA", "SpecB") }
+    verifyErr(NameErr#) { p.companion._rename("NewSpecA", "Bad Name") }
     pld = verifyProjSpecs(p, ["NewSpecA", "SpecB"], pld)
 
     // remove specs
-    p.companion.remove("NewSpecA")
+    p.companion._remove("NewSpecA")
     pld = verifyProjSpecs(p, ["SpecB"], pld)
 
     // re-boot and verify libs were persisted
@@ -167,9 +167,9 @@ class ProjTest : HxTest
               Dict { newOne: Str }
 
               """
-    specA = p.companion.add("SpecAnotherA", src)
+    specA = p.companion._add("SpecAnotherA", src)
     verifyEq(specA.qname, "proj::SpecAnotherA")
-    verifyEq(p.companion.read(specA.name), src.splitLines.findAll { !it.isEmpty }.join("\n").trim)
+    verifyEq(p.companion._read(specA.name), src.splitLines.findAll { !it.isEmpty }.join("\n").trim)
     pld = verifyProjSpecs(p, ["SpecAnotherA", "SpecB"], pld)
 
     // add new ext
@@ -345,7 +345,7 @@ class ProjTest : HxTest
   {
     newDigest := p.companion.libDigest
     Str[] actualNames := p.companion.lib.specs.map |s->Str| { s.name }
-    verifyEq(p.companion.list.dup.sort, names.sort)
+    verifyEq(p.companion._list.dup.sort, names.sort)
     verifyEq(actualNames.sort, names.sort)
     names.each |n|
     {

@@ -25,24 +25,6 @@ const mixin ProjCompanion
   ** Get simple error message to use if project companion lib is in error
   @NoDoc abstract Str? libErrMsg()
 
-  ** List the spec names defined
-  abstract Str[] list()
-
-  ** Read source code for given project spec
-  abstract Str? read(Str name, Bool checked := true)
-
-  ** Add new spec to project and reload namespace
-  abstract Spec add(Str name, Str body)
-
-  ** Update source for given project spec and reload namespace
-  abstract Spec update(Str name, Str body)
-
-  ** Rename project spec and reload namespace
-  abstract Spec rename(Str oldName, Str newName)
-
-  ** Remove given project spec and reload namespace
-  abstract Void remove(Str name)
-
   ** Add an axon function.  This parses the axon param signature
   ** and generates the correct xeto spec.  Raise exception if axon
   ** cannot be parsed.  Return new func spec.
@@ -53,5 +35,25 @@ const mixin ProjCompanion
   ** signature and generates the correct xeto spec.  Raise exception if
   ** axon cannot be parsed.  Return new func spec.
   abstract Spec updateFunc(Str name, Str? src, Dict? meta := null)
+
+// OLD API
+
+  ** List the spec names defined
+  abstract Str[] _list()
+
+  ** Read source code for given project spec
+  abstract Str? _read(Str name, Bool checked := true)
+
+  ** Add new spec to project and reload namespace
+  abstract Spec _add(Str name, Str body)
+
+  ** Update source for given project spec and reload namespace
+  abstract Spec _update(Str name, Str body)
+
+  ** Rename project spec and reload namespace
+  abstract Spec _rename(Str oldName, Str newName)
+
+  ** Remove given project spec and reload namespace
+  abstract Void _remove(Str name)
 }
 

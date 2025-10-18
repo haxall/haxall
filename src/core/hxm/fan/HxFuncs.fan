@@ -537,7 +537,7 @@ const class HxFuncs
   @Api @Axon { admin = true }
   static Str? projSpecRead(Str name, Bool checked := true)
   {
-    curContext.proj.companion.read(name, checked)
+    curContext.proj.companion._read(name, checked)
   }
 
   ** Add a project level spec by name and update namespace:
@@ -545,7 +545,7 @@ const class HxFuncs
   @Api @Axon { admin = true }
   static Obj projSpecAdd(Str name, Str body)
   {
-    curContext.proj.companion.add(name, body)
+    curContext.proj.companion._add(name, body)
   }
 
   ** Update a project level spec by name and update namespace:
@@ -553,7 +553,7 @@ const class HxFuncs
   @Api @Axon { admin = true }
   static Obj projSpecUpdate(Str name, Str body)
   {
-    curContext.proj.companion.update(name, body)
+    curContext.proj.companion._update(name, body)
   }
 
   ** Rename a project level spec and update namespace:
@@ -561,7 +561,7 @@ const class HxFuncs
   @Api @Axon { admin = true }
   static Obj projSpecRename(Str oldName, Str newName)
   {
-    curContext.proj.companion.rename(oldName, newName)
+    curContext.proj.companion._rename(oldName, newName)
   }
 
   ** Remove a project level spec by name and update namespace:
@@ -569,7 +569,7 @@ const class HxFuncs
   @Api @Axon { admin = true }
   static Obj projSpecRemove(Str name)
   {
-    curContext.proj.companion.remove(name)
+    curContext.proj.companion._remove(name)
     return "removed"
   }
 
