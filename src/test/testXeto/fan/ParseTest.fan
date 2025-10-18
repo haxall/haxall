@@ -8,6 +8,7 @@
 
 using util
 using xeto
+using xetom
 using haystack
 
 **
@@ -94,13 +95,14 @@ class ParseTest : AbstractXetoTest
     // resolved types become non-qname refs
     opts = Etc.makeDict(["libName":"foo.bar"])
     verifyParse(ns,
-      Str<|Foo: TSwift {
+      Str<|// Foo docs here
+           Foo: TSwift {
              a: Str
              b: Foo
              c: TooMuchJoy
            }|>,
       [
-        ["name":"Foo", "base":Ref("TSwift"), "spec":Ref("sys::Spec"), "slots":Etc.dictFromMap([
+        ["name":"Foo", "base":Ref("TSwift"), "spec":Ref("sys::Spec"), "doc":"Foo docs here", "slots":Etc.dictFromMap([
            "a": Etc.dictFromMap(["type":Ref("sys::Str")]),
            "b": Etc.dictFromMap(["type":Ref("foo.bar::Foo"),  ]),
            "c": Etc.dictFromMap(["type":Ref("TooMuchJoy") ]),
@@ -134,9 +136,9 @@ class ParseTest : AbstractXetoTest
       ])
   }
 
-  Void verifyParse(LibNamespace ns, Str src, Obj[] expect)
+  Void verifyParse(LibNamespace ns, Str src, Obj[] expect, Bool roundtrip := true)
   {
-    // echo; echo("########"); echo(src)
+    //if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
     actual := ns.parseToDicts(src, opts)
     // actual.each |a, i| { if (i > 0) echo("---"); Etc.dictDump(a) }
     actual.each |a, i|
@@ -145,6 +147,16 @@ class ParseTest : AbstractXetoTest
       verifyDictEq(a, e)
     }
     verifyEq(actual.size, expect.size)
+
+    if (roundtrip)
+    {
+      buf := StrBuf()
+      out := XetoPrinter(ns, buf.out)
+      actual.each |a| { out.ast(a).nl }
+      src2 := buf.toStr
+      verifyParse(ns, src2, expect, false)
+    }
+
   }
 
   Dict? opts

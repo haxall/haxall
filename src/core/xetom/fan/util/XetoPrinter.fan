@@ -206,6 +206,87 @@ class XetoPrinter
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Dict
+//////////////////////////////////////////////////////////////////////////
+
+  ** Print dict AST representation of spec or instance
+  This ast(Dict x)
+  {
+    if (x["spec"]?.toStr == "sys::Spec")
+      return astSpec(x)
+    else
+      return astInstance(x)
+  }
+
+  ** Print AST spec representation
+  This astSpec(Dict x)
+  {
+    name  := x["name"] as Str ?: throw Err("AST spec missing name: $x")
+    type  := x["base"]?.toStr ?: "Dict"
+    slots := x["slots"] as Dict
+    specHeader(name, type, x, metaSkipAst)
+    if (slots == null) nl
+    else
+    {
+      sp.w("{").nl
+      indent
+      slots.each |s, n| { astSlot(n, s) }
+      unindent
+      w("}").nl
+    }
+    return this
+  }
+
+  ** Print AST slot spec representation
+  This astSlot(Str name, Dict x)
+  {
+    type  := x["type"]?.toStr
+    slots := x["slots"] as Dict
+    val   := x["val"]
+    maybe := x["maybe"] == Marker.val
+    if (!XetoUtil.isAutoName(name)) tab.w(name).w(": ")
+    if (type != null)
+    {
+      w(type)
+      if (maybe) w("?")
+    }
+    meta(x, metaSkipAst)
+    if (val != null) sp.quoted(val.toStr)
+    if (slots == null) nl
+    else
+    {
+      sp.w("{").nl
+      indent
+      slots.each |s, n| { astSlot(n, s) }
+      unindent
+      w("}").nl
+    }
+    return this
+  }
+
+
+  ** Print AST instance representation
+  This astInstance(Dict x)
+  {
+    name := x["name"] as Str ?: throw Err("AST instance missing name: $x")
+    type := x["spec"]?.toStr
+    w("@").w(name).w(": ")
+    if (type != null) w(type).sp
+    w("{").nl
+    indent
+    x.each |v, n|
+    {
+      if (n == "id" || n == "name" || n == "spec") return
+      tab.dictPair(null, n, v, false).nl
+    }
+    unindent
+    return w("}").nl
+  }
+
+  ** Always skip these which should be encoded outside of meta
+  static const Str[] metaSkipAst := ["name", "base", "type", "slots", "spec", "doc", "maybe", "val"]
+
+//////////////////////////////////////////////////////////////////////////
 // Literals
 //////////////////////////////////////////////////////////////////////////
 
