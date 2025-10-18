@@ -28,17 +28,36 @@ internal class AstToDicts : Step
   Dict mapSpec(ASpec x)
   {
     acc := Str:Obj[:]
-    if (x.meta != null)
-    {
-      x.meta.each |v, n|
-      {
-        acc[n] = mapData(v)
-      }
-    }
+    mapMeta(acc, x.meta)
     acc["name"] = x.name
     acc["base"] = mapTypeRef(x.typeRef, ns.sys.dict.id)
     acc["spec"] = ns.sys.spec.id
+    acc.addNotNull("slots", mapSlots(x))
     return Etc.dictFromMap(acc)
+  }
+
+  Dict? mapSlots(ASpec x)
+  {
+    if (x.slots == null || x.slots.isEmpty) return null
+    acc := Str:Dict[:]
+    acc.ordered = true
+    x.slots.each |s, n| { acc[n] = mapSlot(s) }
+    return Etc.dictFromMap(acc)
+  }
+
+  Dict mapSlot(ASpec x)
+  {
+    acc := Str:Obj[:]
+    mapMeta(acc, x.meta)
+    acc["type"] = mapTypeRef(x.typeRef, ns.sys.obj.id)
+    acc.addNotNull("slots", mapSlots(x))
+    return Etc.dictFromMap(acc)
+  }
+
+  Void mapMeta(Str:Obj acc, ADict? meta)
+  {
+    if (meta == null) return
+    meta.each |v, n| { acc[n] = mapData(v) }
   }
 
   Dict mapInstance(AInstance x)
