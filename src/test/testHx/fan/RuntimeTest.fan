@@ -17,9 +17,9 @@ using hxd
 using hxFolio
 
 **
-** ProjTest
+** RuntimeTest
 **
-class ProjTest : HxTest
+class RuntimeTest : HxTest
 {
 
 //////////////////////////////////////////////////////////////////////////
