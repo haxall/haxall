@@ -24,7 +24,7 @@ class HxdTestSpi : HxTestSpi
   {
     boot := HxdBoot("test", dir)
     {
-      it.createProjMeta = Etc.dictToMap(projMeta)
+      it.createMeta = Etc.dictToMap(projMeta)
       it.bootLibs.remove("hx.http")
       it.bootLibs.add("hx.platform.serial")
       it.sysConfig["test"] = Marker.val

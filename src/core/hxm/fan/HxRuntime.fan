@@ -34,11 +34,11 @@ abstract const class HxRuntime : Runtime
     this.tempDir       = boot.dir + `temp/`
     this.tb            = boot.initTextBase
     this.dbRef         = boot.initFolio
+    this.metaRef       = AtomicRef(boot.initMeta(this))
     this.db.hooks      = boot.initFolioHooks(this)
     this.log           = boot.log
     this.actorPool     = boot.actorPool
     this.settingsMgr   = HxSettingsMgr(this, boot)
-    this.metaRef       = AtomicRef(settingsMgr.projMetaInit(boot))
     this.backgroundMgr = boot.initBackgroundMgr(this)
     this.libsRef       = boot.initLibs(this)
     this.extsRef       = boot.initExts(this)

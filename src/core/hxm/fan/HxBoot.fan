@@ -152,6 +152,32 @@ abstract class HxBoot
     TextBase(this.nsDir)
   }
 
+  ** Initalize runtime meta
+  virtual Dict initMeta(HxRuntime rt)
+  {
+    // define expected tags
+    expect := Str:Obj[:]
+    expect["version"] = sysInfoVersion.toStr
+    if (rt.isProj) expect["projMeta"] = Marker.val
+
+    // lookup current meta rec
+    db := rt.db
+    rec := db.read(Filter.eq("rt", "meta"), false)
+
+    // create or update if necessary
+    if (rec == null)
+    {
+      tags := expect.dup.set("rt", "meta")
+      rec = db.commit(Diff(null, tags, Diff.add.or(Diff.bypassRestricted))).newRec
+    }
+    else if (!expect.all |v, n| { rec[n] == v })
+    {
+      rec = db.commit(Diff(rec, expect, Diff.bypassRestricted)).newRec
+    }
+
+    return rec
+  }
+
   ** Open folio database for runtime
   abstract Folio initFolio()
 

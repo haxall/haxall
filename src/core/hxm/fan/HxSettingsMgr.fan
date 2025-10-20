@@ -30,6 +30,7 @@ const class HxSettingsMgr
 // Proj meta
 //////////////////////////////////////////////////////////////////////////
 
+/*
   ** Setting id for projMeta
   static const Ref projMetaId := Ref("projMeta")
 
@@ -50,11 +51,14 @@ const class HxSettingsMgr
     cur.id.disVal = cur.dis
     return cur
   }
+*/
 
   ** Update projMeta
   Void projMetaUpdate(Obj changes)
   {
-    rt.metaRef.val = update(projMetaId, changes)
+    diff := Diff(rt.meta, toUpdateChanges(changes), Diff.bypassRestricted)
+    newRec := rt.db.commit(diff).newRec
+    rt.metaRef.val = newRec
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -105,18 +109,20 @@ const class HxSettingsMgr
   ** Only standard update diffs can be used with settings manager
   private Dict toUpdateChanges(Obj changes)
   {
+    dict := changes as Dict
     diff := changes as Diff
     if (diff != null)
     {
       if (diff.isAdd)       throw DiffErr("Cannot use add diff")
       if (diff.isRemove)    throw DiffErr("Cannot use remove diff")
       if (diff.isTransient) throw DiffErr("Cannot use transient diff")
-      return diff.changes
+      dict = diff.changes
     }
 
-    dict := changes as Dict
     if (dict == null && changes is Map) dict = Etc.dictFromMap(changes)
     if (dict == null) throw ArgErr("Invalid changes type [$changes.typeof]")
+    if (dict.has("rt")) throw ArgErr("Cannot pass 'rt' tag")
+    if (dict.has("name")) throw ArgErr("Cannot pass 'name' tag")
     return dict
   }
 

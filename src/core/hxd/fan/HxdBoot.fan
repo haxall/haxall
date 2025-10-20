@@ -89,8 +89,8 @@ class HxdBoot : HxBoot
 // Create
 //////////////////////////////////////////////////////////////////////////
 
-  ** Initial values projMeta
-  Str:Obj? createProjMeta := [:]
+  ** Initial values runtime meta
+  Str:Obj? createMeta := [:]
 
   ** Initial libs for create
   Str[] createLibs := [
@@ -100,11 +100,9 @@ class HxdBoot : HxBoot
   ** Create a new project on disk that can be loaded.
   Void create()
   {
-    tb := initTextBase
     db := initFolio
     createManagedLibRecs(db)
-    //createManagedMetaRec(db)
-    createProjMetaFile(tb)
+    createManagedMetaRec(db)
     db.close
   }
 
@@ -115,31 +113,16 @@ class HxdBoot : HxBoot
     db.commitAll(diffs)
   }
 
-  ** Create projMeta in settings.trio
-  private Void createProjMetaFile(TextBase tb)
-  {
-    acc := createProjMeta.dup
-    acc["id"] = HxSettingsMgr.projMetaId
-    acc["projMeta"] = Marker.val
-    acc["version"] = sysInfoVersion.toStr
-    acc["mod"] = DateTime.nowUtc
-    dict := Etc.dictFromMap(acc)
-
-    file := tb.dir + `settings.trio`
-    TrioWriter(file.out).writeDict(dict).close
-  }
-
-/*
   ** Create managed meta rec
   private Void createManagedMetaRec(Folio db)
   {
-    acc := createProjMeta.dup
+    acc := createMeta.findNotNull
+    acc["rt"] = "meta"
     acc["projMeta"] = Marker.val
-    acc["version"] = sysInfoVersion.toStr
+    acc["version"]  = sysInfoVersion.toStr
     tags := Etc.dictFromMap(acc)
     db.commit(Diff(null, tags, Diff.add.or(Diff.bypassRestricted)))
   }
-*/
 
 //////////////////////////////////////////////////////////////////////////
 // Run

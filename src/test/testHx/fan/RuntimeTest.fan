@@ -212,6 +212,11 @@ class RuntimeTest : HxTest
     meta = proj.meta
     verifyProjMeta(["dis":"New Dis", "steadyState":n(100, "ms"), "fooBar":m, "newTag":"!"])
 
+    // verify some bad tags
+    verifyErr(ArgErr#)  { proj.metaUpdate(["rt":"foo"]) }
+    verifyErr(ArgErr#)  { proj.metaUpdate(Diff(proj.meta, ["rt":"foo"])) }
+    verifyErr(DiffErr#) { proj.metaUpdate(Diff(proj.meta, ["projMeta":Remove.val])) }
+
     // verify steady state timer
     verifyEq(proj.isSteadyState, false)
     Actor.sleep(150ms)
@@ -226,7 +231,8 @@ class RuntimeTest : HxTest
   {
     actual := proj.meta
     expect = expect.dup
-              .set("id", Ref("projMeta", proj.meta.dis))
+              .set("id", actual->id)
+              .set("rt", "meta")
               .set("projMeta", m)
               .set("version", proj.sys.info.version.toStr)
               .set("mod", actual->mod)
