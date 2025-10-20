@@ -169,6 +169,13 @@ class ExtTest : HxTest
   @HxTestProj
   Void testSettings()
   {
+    // built-in sys ext
+    crypto := sys.crypto
+    verifySettings(crypto, Etc.dict0)
+    crypto.settingsUpdate(Etc.dict1("hi", "I'm your Huckleberry"))
+    verifySettings(crypto, Etc.dict1("hi", "I'm your Huckleberry"))
+
+    // now add one
     HxTestExt ext := addExt("hx.test")
     verifySettings(ext, Etc.dict0)
 
@@ -179,6 +186,10 @@ class ExtTest : HxTest
     verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, null, Diff.remove)) }
     verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["id":Remove.val])) }
     verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["mod":Remove.val])) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["rt":Remove.val])) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["rt":"foo"])) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["name":Remove.val])) }
+    verifyErr(DiffErr#) { ext.settingsUpdate(Diff(ext.settings, ["name":"no.way"])) }
     verifyEq(ext.traces.val, "")
 
     // make update - Diff
@@ -227,8 +238,9 @@ class ExtTest : HxTest
   {
     ext.spi.sync
     actual := ext.settings
-    // echo("--> verify $ext $actual")
-    expect = Etc.dictMerge(expect, ["id":Ref("ext.$ext.name"), "mod":actual->mod])
+    rec := ext.rt.read("rt==\"lib\" and name==$ext.name.toCode", false)
+    if (rec != null)
+      expect = Etc.dictMerge(expect, ["id":rec.id, "mod":rec->mod, "rt":"lib", "name":ext.name])
     verifyDictEq(actual, expect)
   }
 

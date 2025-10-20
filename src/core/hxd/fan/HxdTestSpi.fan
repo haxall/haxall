@@ -66,7 +66,7 @@ class HxdTestSpi : HxTestSpi
     if (ext == null)
       ext = proj.exts.add(libName, Etc.makeDict(tags))
     else
-      ext.spi.settingsUpdate(Etc.makeDict(tags), true)
+      ext.spi.settingsUpdate(Etc.makeDict(tags))
     ext.spi.sync
     return ext
   }

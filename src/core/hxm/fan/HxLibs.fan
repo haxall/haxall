@@ -243,7 +243,7 @@ const class HxLibs : RuntimeLibs
     updateBootLibs(acc)
     updateSysLibs(acc)
     updateConfiguredLibs(acc)
-    updateProjLib(acc)
+    updateCompanionLib(acc)
     updateAdds(acc, adds)
     updateRemoves(acc, removes)
 
@@ -262,11 +262,11 @@ const class HxLibs : RuntimeLibs
     // if this is initialization, then we are done
     if (init) return ns
 
-    // notify runtime
-    this.rt.onLibsModified(ns)
-
     // persist to folio database
     commit(adds, removes)
+
+    // notify runtime
+    this.rt.onLibsModified(ns)
 
     return ns
   }
@@ -300,11 +300,12 @@ const class HxLibs : RuntimeLibs
     }
   }
 
-  private Void updateProjLib(Str:HxLib acc)
+  private Void updateCompanionLib(Str:HxLib acc)
   {
     // add in special "proj" lib if I am a proj
     if (rt.isProj)
     {
+rt.tb.dir.create
       ver := FileLibVersion.makeProj(rt.tb.dir, rt.sys.info.version)
       acc["proj"] = HxLib(ver, RuntimeLibBasis.boot)
     }

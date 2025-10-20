@@ -43,7 +43,7 @@ const mixin Ext
   virtual Dict settings() { spi.settings }
 
   ** Asynchronously update settings with Str:Obj, Dict, or Diff.
-  @NoDoc Void settingsUpdate(Obj changes) { spi.settingsUpdate(changes, false) }
+  @NoDoc Void settingsUpdate(Obj changes) { spi.settingsUpdate(changes) }
 
   ** Logger to use for this extension
   Log log() { spi.log }
@@ -181,7 +181,7 @@ const mixin ExtSpi
   abstract Str name()
   abstract Spec spec()
   abstract Dict settings()
-  abstract Void settingsUpdate(Obj changes, Bool reset)
+  abstract Void settingsUpdate(Obj changes)
   abstract Log log()
   abstract Bool isRunning()
   abstract Future send(Obj? msg)
@@ -363,3 +363,4 @@ class FileUploadHandler : UploadHandler
     } ?: fileSpec
   }
 }
+

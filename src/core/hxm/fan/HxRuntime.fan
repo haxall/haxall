@@ -38,7 +38,7 @@ abstract const class HxRuntime : Runtime
     this.db.hooks      = boot.initFolioHooks(this)
     this.log           = boot.log
     this.actorPool     = boot.actorPool
-    this.settingsMgr   = HxSettingsMgr(this, boot)
+    this.settingsMgr   = HxSettingsMgr(this)
     this.backgroundMgr = boot.initBackgroundMgr(this)
     this.libsRef       = boot.initLibs(this)
     this.extsRef       = boot.initExts(this)
@@ -94,7 +94,7 @@ abstract const class HxRuntime : Runtime
   internal const AtomicRef metaRef
 
   ** Update proj metadata with Str:Obj, Dict, or Diff.
-  override Void metaUpdate(Obj changes) { settingsMgr.projMetaUpdate(changes) }
+  override Void metaUpdate(Obj changes) { settingsMgr.metaUpdate(changes) }
 
   ** TextBase for namespace settings and proj specs managed in plain text
   const TextBase tb

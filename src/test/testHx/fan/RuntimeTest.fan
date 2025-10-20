@@ -213,8 +213,8 @@ class RuntimeTest : HxTest
     verifyProjMeta(["dis":"New Dis", "steadyState":n(100, "ms"), "fooBar":m, "newTag":"!"])
 
     // verify some bad tags
-    verifyErr(ArgErr#)  { proj.metaUpdate(["rt":"foo"]) }
-    verifyErr(ArgErr#)  { proj.metaUpdate(Diff(proj.meta, ["rt":"foo"])) }
+    verifyErr(DiffErr#) { proj.metaUpdate(["rt":"foo"]) }
+    verifyErr(DiffErr#) { proj.metaUpdate(Diff(proj.meta, ["rt":"foo"])) }
     verifyErr(DiffErr#) { proj.metaUpdate(Diff(proj.meta, ["projMeta":Remove.val])) }
 
     // verify steady state timer
@@ -344,7 +344,6 @@ class RuntimeTest : HxTest
   Void dump(Proj p)
   {
     echo("#### $p.name ####")
-    echo(p.dir.plus(`ns/libs.txt`).readAllStr)
     p.ns.dump
     p.libs.status.dump
     p.exts.status.dump

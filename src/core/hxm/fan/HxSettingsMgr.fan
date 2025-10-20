@@ -17,94 +17,61 @@ using folio
 **
 const class HxSettingsMgr
 {
-  new make(HxRuntime rt, HxBoot boot)
+  new make(HxRuntime rt)
   {
     this.rt = rt
-    this.db = TextBaseRecs(rt.tb, "settings.trio")
   }
 
   const HxRuntime rt
-  const TextBaseRecs db
+
+  Folio db() { rt.db }
 
 //////////////////////////////////////////////////////////////////////////
-// Proj meta
+// Runtime meta
 //////////////////////////////////////////////////////////////////////////
 
-/*
-  ** Setting id for projMeta
-  static const Ref projMetaId := Ref("projMeta")
-
-  ** Initialize projMeta
-  Dict projMetaInit(HxBoot boot)
-  {
-    // read current
-    id := projMetaId
-    cur := db.readById(id, false)
-
-    // make sure we init/update cur version and projMeta marker
-    version := boot.sysInfoVersion.toStr
-    if (cur == null || cur["projMeta"] != Marker.val || cur["version"] != version)
-    {
-      cur = db.update(id, Etc.dict2("projMeta", Marker.val, "version", version))
-    }
-
-    cur.id.disVal = cur.dis
-    return cur
-  }
-*/
-
-  ** Update projMeta
-  Void projMetaUpdate(Obj changes)
+  ** Update rntime meta
+  Void metaUpdate(Obj changes)
   {
     diff := Diff(rt.meta, toUpdateChanges(changes), Diff.bypassRestricted)
-    newRec := rt.db.commit(diff).newRec
+    newRec := db.commit(diff).newRec
     rt.metaRef.val = newRec
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Exts
+// Ext Settings
 //////////////////////////////////////////////////////////////////////////
 
-  ** Map ext to setting rec id
-  static Ref extId(Str name) { Ref("ext.$name") }
-
-  ** Read settings for given ext library name or return empty dict
+  ** Read lib record by name
   Dict extRead(Str name)
   {
-    read(extId(name))
+    db.read(Filter.eq("name", name).and(Filter.eq("rt", "lib")), false) ?: Etc.dict0
   }
 
   ** Update settings for given ext
-  Void extUpdate(HxExtSpi spi, Obj changes, Bool reset)
+  Void extUpdate(HxExtSpi spi, Obj changes)
   {
-    id := extId(spi.name)
-    newSettings :=  reset ? init(id, changes) : update(id, changes)
-    spi.update(newSettings)
-  }
-
-  ** Initialize settings before we create ExtSpi
-  Void extInit(Str name, Dict settings)
-  {
-    init(extId(name), settings)
+    name := spi.name
+    curRec := extRead(name)
+    dict := toUpdateChanges(changes)
+    Dict? newRec
+    if (curRec.missing("id"))
+    {
+      // in the case boot system exts we need to create the record
+      add := Etc.dictMerge(dict, ["rt":"lib", "name":name])
+      newRec = db.commit(Diff(null, add, Diff.add.or(Diff.bypassRestricted))).newRec
+    }
+    else
+    {
+      // update existing record
+      newRec = db.commit(Diff(curRec, dict, Diff.bypassRestricted)).newRec
+    }
+    spi.update(newRec)
   }
 
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
-
-  ** Read and if not found synthetize
-  private Dict read(Ref id)
-  {
-    rec := db.readById(id, false)
-    if (rec != null) return rec
-    return Etc.dict2("id", id, "mod", DateTime.defVal)
-  }
-
-  ** Update settings and return new dict
-  private Dict update(Ref id, Obj changes)
-  {
-    write(id, toUpdateChanges(changes))
-  }
 
   ** Only standard update diffs can be used with settings manager
   private Dict toUpdateChanges(Obj changes)
@@ -120,24 +87,10 @@ const class HxSettingsMgr
     }
 
     if (dict == null && changes is Map) dict = Etc.dictFromMap(changes)
-    if (dict == null) throw ArgErr("Invalid changes type [$changes.typeof]")
-    if (dict.has("rt")) throw ArgErr("Cannot pass 'rt' tag")
-    if (dict.has("name")) throw ArgErr("Cannot pass 'name' tag")
+    if (dict == null) throw DiffErr("Invalid changes type [$changes.typeof]")
+    if (dict.has("rt")) throw DiffErr("Cannot pass 'rt' tag")
+    if (dict.has("name")) throw DiffErr("Cannot pass 'name' tag")
     return dict
-  }
-
-  ** Initialize settings
-  private Dict init(Ref id, Dict settings)
-  {
-    old := db.readById(id, false)
-    if (old != null) db.remove(id)
-    return write(id, settings)
-  }
-
-  ** Write
-  private Dict write(Ref id, Dict changes)
-  {
-    db.update(id, changes)
   }
 
 }
