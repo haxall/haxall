@@ -28,29 +28,33 @@ class RuntimeTest : HxTest
 
   Void testBoot()
   {
-    // setup
     dir := tempDir
     projLibs := ["sys", "ph", "ashrae.g36", "bad.proj"]
-    dir.plus(`ns/libs.txt`).out.print(projLibs.join("\n")).close
 
     // boot project
     boot := TestSysBoot(tempDir)
+    boot.createLibs = projLibs
+    boot.create
     bootLibs := boot.bootLibs
     p := HxdSys(boot).init(boot)
 
     // build up expectLib map of "libName":"basis status"
     expectLibs := Str:Str[:]
-    expectLibs["proj"] = "boot ok"
     projLibs.each |n|
     {
       status := n.startsWith("bad") || n == "ashrae.g36" ? "err" : "ok"
       expectLibs[n] = "sys $status"
     }
-    boot.bootLibs.each |n|
+    initExpectFromBoot := |->|
     {
-      status := n.startsWith("bad") ? "err" : "ok"
-      expectLibs[n] = "boot $status"
+      expectLibs["proj"] = "boot ok"
+      boot.bootLibs.each |n|
+      {
+        status := n.startsWith("bad") ? "err" : "ok"
+        expectLibs[n] = "boot $status"
+      }
     }
+    initExpectFromBoot()
     expectExts := ["hx.api", "hx.crypto", "hx.hxd.file",
       "hx.hxd.his", "hx.http", "hx.hxd.user", "hx.hxd.proj",
       "hx.io", "hx.task", ]
@@ -179,6 +183,12 @@ class RuntimeTest : HxTest
     verifyProjLibs(p, expectLibs)
     verifyProjExts(p, expectExts)
     verifyEq(ext.web.uri, `/shell/`)
+
+    // clear
+    p.libs.clear
+    expectLibs.clear
+    initExpectFromBoot()
+    verifyProjLibs(p, expectLibs)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -301,16 +311,16 @@ class RuntimeTest : HxTest
   Void testManagedChecks()
   {
     norm    := proj.commit(Diff(null, ["dis":"ok"], Diff.add.or(Diff.bypassRestricted))).newRec
-    managed := proj.commit(Diff(null, ["dis":"ok", "managed":"foo"], Diff.add.or(Diff.bypassRestricted))).newRec
+    managed := proj.commit(Diff(null, ["dis":"ok", "rt":"foo"], Diff.add.or(Diff.bypassRestricted))).newRec
 
     // add
-    verifyManagedCheck |->| { proj.commit(Diff(null, ["managed":"foo"], Diff.add)) }
+    verifyManagedCheck |->| { proj.commit(Diff(null, ["rt":"foo"], Diff.add)) }
 
     // updates
     verifyManagedCheck |->| { proj.commit(Diff(managed, ["something":m])) }
-    verifyManagedCheck |->| { proj.commit(Diff(managed, ["managed":Remove.val])) }
+    verifyManagedCheck |->| { proj.commit(Diff(managed, ["rt":Remove.val])) }
     verifyManagedCheck |->| { proj.commit(Diff(managed, ["trash":m])) }
-    verifyManagedCheck |->| { proj.commit(Diff(norm, ["something":m, "managed":m])) }
+    verifyManagedCheck |->| { proj.commit(Diff(norm, ["something":m, "rt":m])) }
 
     // remove
     verifyManagedCheck |->| { proj.commit(Diff(managed, null, Diff.remove)) }
@@ -318,7 +328,7 @@ class RuntimeTest : HxTest
 
   Void verifyManagedCheck(|->| cb)
   {
-    verifyErrMsg(CommitErr#, "Cannot commit to managed rec", cb)
+    verifyErrMsg(CommitErr#, "Cannot commit to managed rt rec", cb)
   }
 
 //////////////////////////////////////////////////////////////////////////

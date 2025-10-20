@@ -13,6 +13,7 @@ using xeto
 using haystack
 using xetom
 using xetoc
+using folio
 using hx
 using hxUtil
 
@@ -62,7 +63,7 @@ const class HxLibs : RuntimeLibs
 
   LibRepo repo() { env.repo }
 
-  TextBase tb() { rt.tb }
+  Folio db() { rt.db }
 
   HxNamespace ns() { nsRef.val }
 
@@ -192,8 +193,8 @@ const class HxLibs : RuntimeLibs
 
   override Void clear()
   {
-    writeLibNames(Str[,])
-    reload
+    toRemove := list.findAll { it.basis == myBasis }.map { it.name }
+    update(null, toRemove)
   }
 
   override Void reload()
@@ -220,33 +221,6 @@ const class HxLibs : RuntimeLibs
     names = names.findAll |n| { !has(n) }
     if (!self) names.remove(name)
     addAll(names)
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// File I/O
-//////////////////////////////////////////////////////////////////////////
-
-  Str[] readLibNames()
-  {
-    // proj libs are defined in "libs.txt"
-    buf :=  tb.read("libs.txt", false)
-    if (buf == null) return Str#.emptyList
-    return buf.splitLines.findAll |line|
-    {
-      line = line.trim
-      return !line.isEmpty && !line.startsWith("//")
-    }
-  }
-
-  Void writeLibNames(Str[] names)
-  {
-    buf := StrBuf()
-    buf.capacity = names.size * 16
-    buf.add("// ").add(DateTime.now.toLocale).addChar('\n')
-    names.each |n| { buf.add(n).addChar('\n') }
-
-    // proj libs are defined in "libs.txt"
-    tb.write("libs.txt", buf.toStr)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -291,10 +265,8 @@ const class HxLibs : RuntimeLibs
     // notify runtime
     this.rt.onLibsModified(ns)
 
-    // rewrite the libs.txt file
-    toWrite := Str[,]
-    acc.each |x| { if (x.basis == myBasis) toWrite.add(x.name) }
-    writeLibNames(toWrite.sort)
+    // persist to folio database
+    commit(adds, removes)
 
     return ns
   }
@@ -320,7 +292,7 @@ const class HxLibs : RuntimeLibs
 
   private Void updateConfiguredLibs(Str:HxLib acc)
   {
-    // add in my libs from ns/libs.txt (always reload from disk)
+    // add in my libs defined by folio recs
     readLibNames.each |n|
     {
       if (acc[n] != null) return
@@ -333,7 +305,7 @@ const class HxLibs : RuntimeLibs
     // add in special "proj" lib if I am a proj
     if (rt.isProj)
     {
-      ver := FileLibVersion.makeProj(tb.dir, rt.sys.info.version)
+      ver := FileLibVersion.makeProj(rt.tb.dir, rt.sys.info.version)
       acc["proj"] = HxLib(ver, RuntimeLibBasis.boot)
     }
   }
@@ -438,6 +410,56 @@ const class HxLibs : RuntimeLibs
     }
 
     return RuntimeLibPack(digest.digest.toBase64Uri, packLibs)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Database
+//////////////////////////////////////////////////////////////////////////
+
+  private Str[] readLibNames()
+  {
+    acc := Str[,]
+    recs := db.readAllList(Filter.eq("rt", "lib"))
+    recs.each |rec|
+    {
+      acc.addNotNull(rec["name"] as Str)
+    }
+    return acc
+  }
+
+  private Void commit(Str[]? adds, Str[]? removes)
+  {
+    diffs := Diff[,]
+
+    // add diffs
+    if (adds != null)
+    {
+      adds.each |n| { diffs.add(addDiff(n)) }
+    }
+
+    // remove diffs
+    if (removes != null)
+    {
+      removes.each |n|
+      {
+        rec := db.read(Filter.eq("rt", "lib").and(Filter.eq("name", n)), false)
+        if (rec == null) log.warn("Remove unknown lib: $n")
+        else diffs.add(removeDiff(rec))
+      }
+    }
+
+    if (diffs.isEmpty) return
+    db.commitAll(diffs)
+  }
+
+  static Diff addDiff(Str n)
+  {
+    Diff(null, Etc.dict2("rt", "lib", "name", n), Diff.add.or(Diff.bypassRestricted))
+  }
+
+  static Diff removeDiff(Dict rec)
+  {
+    Diff(rec, Etc.dict0, Diff.remove.or(Diff.bypassRestricted))
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -101,17 +101,18 @@ class HxdBoot : HxBoot
   Void create()
   {
     tb := initTextBase
-    createNamespace(tb)
-    createProjMetaFile(tb)
     db := initFolio
+    createManagedLibRecs(db)
+    //createManagedMetaRec(db)
+    createProjMetaFile(tb)
     db.close
   }
 
-  ** Create namespace directory
-  private Void createNamespace(TextBase tb)
+  ** Create managed lib recs
+  private Void createManagedLibRecs(Folio db)
   {
-    libsTxt := "// Created $DateTime.now.toLocale\n" +  createLibs.join("\n")
-    tb.write("libs.txt", libsTxt)
+    diffs := createLibs.map |n->Diff| { HxLibs.addDiff(n) }
+    db.commitAll(diffs)
   }
 
   ** Create projMeta in settings.trio
@@ -127,6 +128,18 @@ class HxdBoot : HxBoot
     file := tb.dir + `settings.trio`
     TrioWriter(file.out).writeDict(dict).close
   }
+
+/*
+  ** Create managed meta rec
+  private Void createManagedMetaRec(Folio db)
+  {
+    acc := createProjMeta.dup
+    acc["projMeta"] = Marker.val
+    acc["version"] = sysInfoVersion.toStr
+    tags := Etc.dictFromMap(acc)
+    db.commit(Diff(null, tags, Diff.add.or(Diff.bypassRestricted)))
+  }
+*/
 
 //////////////////////////////////////////////////////////////////////////
 // Run

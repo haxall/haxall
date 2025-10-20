@@ -34,9 +34,9 @@ const class HxFolioHooks : FolioHooks
   ** Pass through FolioContext.commitInfo if available.
   override Void preCommit(FolioCommitEvent e)
   {
-    // if managed tag present and not bypassing restrictions, throw error
-    if (e.hasTag("managed") && !e.diff.isBypassRestricted)
-      throw CommitErr("Cannot commit to managed rec")
+    // if rt tag present and not bypassing restrictions, throw error
+    if (e.hasTag("rt") && !e.diff.isBypassRestricted)
+      throw CommitErr("Cannot commit to managed rt rec")
   }
 
   ** Callback after diff has been committed.
