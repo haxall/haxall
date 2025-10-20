@@ -434,6 +434,14 @@ class HxFuncsTest : HxTest
     verifyDictEq(r, ["id":r.id, "mod":r->mod, "dis":"g1", "a":n(10)])
     r = db.read(Filter(Str<|dis=="g2"|>))
     verifyDictEq(r, ["id":r.id, "mod":r->mod, "dis":"g2", "b":n(20)])
+
+    // flags
+    verifyEq( ((Diff)eval("""diff(null, {ignore}, {add})""")).flags, Diff.add.or(Diff.treeUpdate))
+    verifyEq( ((Diff)eval("""readById($r.id.toCode).diff({ignore}, {remove})""")).flags, Diff.remove.or(Diff.treeUpdate))
+    verifyEq( ((Diff)eval("""readById($r.id.toCode).diff({ignore}, {transient})""")).flags, Diff.transient)
+    verifyEq( ((Diff)eval("""readById($r.id.toCode).diff({ignore}, {force})""")).flags, Diff.force)
+    verifyEq( ((Diff)eval("""readById($r.id.toCode).diff({ignore}, {foo})""")).flags, 0)
+    verifyEq( ((Diff)eval("""readById($r.id.toCode).diff({ignore}, {bypassRestricted})""")).flags, 0)
   }
 
 //////////////////////////////////////////////////////////////////////////
