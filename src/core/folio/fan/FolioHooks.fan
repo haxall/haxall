@@ -59,6 +59,13 @@ abstract class FolioCommitEvent
 
   ** FolioContext.commitInfo if available
   abstract Obj? cxInfo()
+
+  ** Return if either the old record of diff includes given tag name
+  Bool hasTag(Str n)
+  {
+    if (diff.changes.has(n)) return true
+    return oldRec != null && oldRec.has(n)
+  }
 }
 
 **************************************************************************

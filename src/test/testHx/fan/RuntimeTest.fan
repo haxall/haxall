@@ -294,6 +294,34 @@ class RuntimeTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Managed Restrictions
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testManagedChecks()
+  {
+    norm    := proj.commit(Diff(null, ["dis":"ok"], Diff.add.or(Diff.bypassRestricted))).newRec
+    managed := proj.commit(Diff(null, ["dis":"ok", "managed":"foo"], Diff.add.or(Diff.bypassRestricted))).newRec
+
+    // add
+    verifyManagedCheck |->| { proj.commit(Diff(null, ["managed":"foo"], Diff.add)) }
+
+    // updates
+    verifyManagedCheck |->| { proj.commit(Diff(managed, ["something":m])) }
+    verifyManagedCheck |->| { proj.commit(Diff(managed, ["managed":Remove.val])) }
+    verifyManagedCheck |->| { proj.commit(Diff(managed, ["trash":m])) }
+    verifyManagedCheck |->| { proj.commit(Diff(norm, ["something":m, "managed":m])) }
+
+    // remove
+    verifyManagedCheck |->| { proj.commit(Diff(managed, null, Diff.remove)) }
+  }
+
+  Void verifyManagedCheck(|->| cb)
+  {
+    verifyErrMsg(CommitErr#, "Cannot commit to managed rec", cb)
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
 

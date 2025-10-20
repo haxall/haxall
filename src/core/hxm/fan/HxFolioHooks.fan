@@ -32,7 +32,12 @@ const class HxFolioHooks : FolioHooks
   ** Callback before diff is committed during verify
   ** phase. An exception will cancel entire commit.
   ** Pass through FolioContext.commitInfo if available.
-  override Void preCommit(FolioCommitEvent e) {}
+  override Void preCommit(FolioCommitEvent e)
+  {
+    // if managed tag present and not bypassing restrictions, throw error
+    if (e.hasTag("managed") && !e.diff.isBypassRestricted)
+      throw CommitErr("Cannot commit to managed rec")
+  }
 
   ** Callback after diff has been committed.
   ** Pass through FolioContext.commitInfo if available.
