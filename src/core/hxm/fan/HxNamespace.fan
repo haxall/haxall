@@ -18,6 +18,16 @@ using xetoc
 **
 const class HxNamespace : MNamespace, Namespace
 {
-  internal new make(MEnv env, LibVersion[] vers, Dict opts) : super(env, vers, opts) {}
+  internal new make(HxRuntime rt, MEnv env, LibVersion[] vers, Dict opts) : super(env, vers, opts)
+  {
+    this.rt = rt
+  }
+
+  const HxRuntime rt
+
+  override Dict[] readCompanionLibRecs()
+  {
+    rt.db.readAllList(Filter.eq("rt", "spec").or(Filter.eq("rt", "instance")))
+  }
 }
 

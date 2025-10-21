@@ -7,6 +7,7 @@
 //
 
 using util
+using xetom
 
 **
 ** Initialize base class
@@ -60,8 +61,9 @@ internal class InitLib : Init
       compiler.libName = compiler.input.name
 
     // set flags
-    compiler.isSys = compiler.libName == "sys"
-    compiler.isSysComp = compiler.libName == "sys.comp"
+    compiler.isSys       = compiler.libName == "sys"
+    compiler.isSysComp   = compiler.libName == "sys.comp"
+    compiler.isCompanion = compiler.libName == XetoUtil.companionLibName
   }
 }
 

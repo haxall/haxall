@@ -146,12 +146,6 @@ abstract class HxBoot
 // Hooks
 //////////////////////////////////////////////////////////////////////////
 
-  ** Create TextBase under "{dir}/ns/" to manage namespace settings via plain text
-  virtual TextBase initTextBase()
-  {
-    TextBase(this.nsDir)
-  }
-
   ** Initalize runtime meta
   virtual Dict initMeta(HxRuntime rt)
   {

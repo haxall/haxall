@@ -10,8 +10,8 @@ using util
 using xeto
 using xetom
 using haystack
-using xetoc
 using axon
+using folio
 using hx
 using hxUtil
 
@@ -30,7 +30,7 @@ const class HxProjCompanion : ProjCompanion
 
   Namespace ns() { rt.ns }
 
-  TextBase tb() { rt.tb }
+  Folio db() { rt.db }
 
   override Lib? lib(Bool checked := true)
   {
@@ -54,37 +54,104 @@ const class HxProjCompanion : ProjCompanion
 // Old API
 //////////////////////////////////////////////////////////////////////////
 
+// TODO: shim code for old API
+
   override Str[] _list()
   {
-    tb.list.mapNotNull |n->Str?|
-    {
-      n.endsWith(".xeto") ? n[0..-6] : null
-    }
+    db.readAllList(Filter.eq("rt", "spec")).map |d->Str| { d->name }
   }
 
   override Str? _read(Str name, Bool checked := true)
   {
+    // TODO: need spec or instance
+    rec := db.read(Filter.eq("name", name).and(Filter.eq("rt", "spec")))
+    s := StrBuf()
+    XetoPrinter(rt.ns, s.out, Etc.dict1("noInferMeta", Marker.val)).ast(rec)
+    x := s.toStr
+    return x
+
+/*
     buf := tb.read("${name}.xeto", false)
     if (buf != null) return readFormat(name, buf)
     if (checked) throw UnknownSpecErr("proj::$name")
     return null
+*/
   }
 
   override Spec _add(Str name, Str body)
   {
     checkName(name)
+    src := writeFormat(name, body)
+
+    recs := ns.parseToDicts(src)
+    if (recs.size != 1) throw ArgErr()
+
+    rec := Etc.dictMerge(recs.first, ["rt":"spec", "name":name])
+    if (db.read(Filter.eq("name", name), false) != null) throw DuplicateNameErr("Duplicate spec name: $name")
+    db.commit(Diff(null, rec, Diff.add.or(Diff.bypassRestricted)))
+
+    rt.libsRef.reload
+    return lib.spec(name)
+
+/*
+    checkName(name)
     checkExists(name, false)
     return doUpdate(name, body)
+*/
   }
 
   override Spec _update(Str name, Str body)
   {
+    rec := db.read(Filter.eq("name", name).and(Filter.eq("rt", "spec")))
+
+if (body.startsWith(name))
+{
+  colon := body.index(":")
+  body = body[colon+1..-1]
+}
+
+    src := writeFormat(name, body)
+
+    ast := ns.parseToDicts(src)
+    if (ast.size != 1) throw ArgErr()
+
+    // TODO: check removing meta, etc
+    changes := Str:Obj[:]
+    rec.each |v, n|
+    {
+      if (n == "id" || n == "mod" || n == "rt" || n == "name") return
+      changes[n] = Remove.val
+    }
+    ast.first.each |v, n|
+    {
+      if (n == "name" && v != name) throw NameErr("Cannot change spec name: $name => $v")
+      changes[n] = v
+    }
+
+    db.commit(Diff(rec, changes, Diff.bypassRestricted))
+    rt.libsRef.reload
+    return lib.spec(name)
+
+/*
     checkExists(name, true)
     return doUpdate(name, body)
+*/
   }
 
   override Spec _rename(Str oldName, Str newName)
   {
+    checkName(newName)
+    rec := db.read(Filter.eq("name", oldName).and(Filter.eq("rt", "spec")))
+
+    dup := db.read(Filter.eq("name", newName).and(Filter.eq("rt", "spec")), false)
+    if (dup != null) throw DuplicateNameErr("Duplicate spec name: $newName")
+
+    db.commit(Diff(rec, Etc.dict1("name", newName), Diff.bypassRestricted))
+
+    rt.libsRef.reload
+    return lib.spec(newName)
+
+/*
     checkName(newName)
     checkExists(newName, false)
 
@@ -92,25 +159,26 @@ const class HxProjCompanion : ProjCompanion
     write(newName, body)
     _remove(oldName)
     return lib.spec(newName)
+*/
   }
 
   override Void _remove(Str name)
   {
+    rec := db.read(Filter.eq("name", name).and(Filter.eq("rt", "spec")))
+    db.commit(Diff(rec, null, Diff.remove.or(Diff.bypassRestricted)))
+    rt.libsRef.reload
+
+/*
     tb.delete("${name}.xeto")
     rt.libsRef.reload
+*/
   }
 
   private Spec doUpdate(Str name, Str body)
   {
-    write(name, body)
+    //write(name, body)
     rt.libsRef.reload
     return lib.spec(name)
-  }
-
-  private Void write(Str name, Str body)
-  {
-    buf := writeFormat(name, body)
-    tb.write("${name}.xeto", buf)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -173,12 +241,14 @@ const class HxProjCompanion : ProjCompanion
 
   private Void checkExists(Str name, Bool expect)
   {
+/*
     actual := tb.exists("${name}.xeto")
     if (actual == expect) return
     if (actual)
       throw DuplicateNameErr("Spec already exists: $name")
     else
       throw UnknownSpecErr(name)
+*/
   }
 
 //////////////////////////////////////////////////////////////////////////

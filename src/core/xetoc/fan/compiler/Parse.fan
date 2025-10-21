@@ -7,7 +7,9 @@
 //
 
 using util
+using xeto
 using xetom
+using haystack
 
 **
 ** Parse all source files into AST nodes
@@ -36,8 +38,11 @@ internal class Parse : Step
     // create ALib as our root object
     lib := ALib(compiler, FileLoc(input), compiler.libName)
 
-    // parse directory into root lib
-    parseDir(input, lib)
+    // parse directory into lib
+    if (isCompanion)
+      parseCompanionLib(lib)
+    else
+      parseDir(input, lib)
     bombIfErr
 
     // remove pragma object from lib slots
@@ -93,10 +98,6 @@ internal class Parse : Step
     // remove object named "pragma" from root
     pragma := lib.tops.remove("pragma")
 
-    // for special "proj" lib we use libs.txt
-    if (pragma == null && lib.name == XetoUtil.companionLibName)
-      pragma = synthetizeProjLibPragma(lib)
-
     // if not found
     if (pragma == null)
     {
@@ -120,6 +121,10 @@ internal class Parse : Step
     return pragma.meta
   }
 
+//////////////////////////////////////////////////////////////////////////
+// File Parsing
+//////////////////////////////////////////////////////////////////////////
+
   private Void parseDir(File input, ALib lib)
   {
     hasMarkdown := false
@@ -129,7 +134,7 @@ internal class Parse : Step
     {
       zip := Zip.read(input.in)
       list := Uri[,]
-      buildVars :=  Str:Str[:]
+      buildVars := Str:Str[:]
       try
       {
         zip.readEach |f|
@@ -165,10 +170,14 @@ internal class Parse : Step
 
   private Void parseFile(File input, ADoc doc, Str:Str buildVars)
   {
-    loc := FileLoc(input)
+    parse(FileLoc(input), input.readAllStr, doc, buildVars)
+  }
+
+  private Void parse(FileLoc loc, Str fileStr, ADoc doc, Str:Str buildVars)
+  {
     try
     {
-      Parser(this, loc, input.readAllStr, doc, buildVars).parseFile
+      Parser(this, loc, fileStr, doc, buildVars).parse
     }
     catch (FileLocErr e)
     {
@@ -182,7 +191,34 @@ internal class Parse : Step
     }
   }
 
-  private ASpec? synthetizeProjLibPragma(ALib lib)
+//////////////////////////////////////////////////////////////////////////
+// Companion
+//////////////////////////////////////////////////////////////////////////
+
+  private Void parseCompanionLib(ALib lib)
+  {
+    // syntheize the pragma
+    lib.tops["pragma"] = synthetizeCompanionLibPragma(lib)
+
+    // no resource files
+    lib.files = EmptyLibFiles.val
+
+    // parse each record
+    recs := ns.readCompanionLibRecs
+    recs.each |rec| { parseCompanionRec(lib, rec) }
+  }
+
+  private Void parseCompanionRec(ALib lib, Dict rec)
+  {
+    // this is not very efficient, but for now just print each
+    // dict back to Xeto source code to parse
+    name := rec["name"] as Str ?: throw Err("Rec missing name: $rec.id.toZinc")
+    s := StrBuf()
+    XetoPrinter(ns, s.out, Etc.dict1("noInferMeta", Marker.val)).ast(rec)
+    parse(FileLoc(name), s.toStr, lib, compiler.srcBuildVars)
+  }
+
+  private ASpec? synthetizeCompanionLibPragma(ALib lib)
   {
     // generate stub pragma
     loc := FileLoc.synthetic

@@ -41,8 +41,8 @@ internal class Parser
 // Public
 //////////////////////////////////////////////////////////////////////////
 
-  ** Parse a file using given top-level AST document node
-  Void parseFile()
+  ** Parse input string using given top-level AST document node
+  Void parse()
   {
     try
     {

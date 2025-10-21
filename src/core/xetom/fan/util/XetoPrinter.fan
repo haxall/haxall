@@ -30,6 +30,7 @@ class XetoPrinter
     this.out  = out
     this.opts = opts
     this.omitSpecName = opts.has("omitSpecName")
+    this.noInferMeta  = opts.has("noInferMeta")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -284,7 +285,7 @@ class XetoPrinter
   }
 
   ** Always skip these which should be encoded outside of meta
-  static const Str[] metaSkipAst := ["name", "base", "type", "slots", "spec", "doc", "maybe", "val"]
+  static const Str[] metaSkipAst := ["id", "mod", "rt", "name", "base", "type", "slots", "spec", "doc", "maybe", "val"]
 
 //////////////////////////////////////////////////////////////////////////
 // Literals
@@ -380,8 +381,11 @@ class XetoPrinter
     Spec? infer
     if (inferFrom == null)
     {
-      metas := ns.unqualifiedMetas(n)
-      if (metas.size == 1) infer = metas.first.type
+      if (!noInferMeta)
+      {
+        metas := ns.unqualifiedMetas(n)
+        if (metas.size == 1) infer = metas.first.type
+      }
     }
     else
     {
@@ -507,6 +511,9 @@ class XetoPrinter
 
   ** Omit spec name when using with ProjSpecs API
   Bool omitSpecName
+
+  ** Don't try to infer meta from ns
+  Bool noInferMeta
 
 //////////////////////////////////////////////////////////////////////////
 // Fields

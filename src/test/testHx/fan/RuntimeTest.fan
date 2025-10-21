@@ -106,7 +106,11 @@ class RuntimeTest : HxTest
     specB := p.companion._add("SpecB", "Dict { dis: Str }")
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Dict")
-    verifyEq(p.companion._read("SpecA"), "Dict { dis: Str }")
+    verifyEq(p.companion._read("SpecA"),
+      """SpecA: sys::Dict {
+           dis: sys::Str
+         }
+         """)
     pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
 
     // add errors
@@ -117,11 +121,11 @@ class RuntimeTest : HxTest
     specA = p.companion._update("SpecA", "Scalar")
     verifyEq(specA.qname, "proj::SpecA")
     verifyEq(specA.base.qname, "sys::Scalar")
-    verifyEq(p.companion._read("SpecA"), "Scalar")
+    verifyEq(p.companion._read("SpecA").trim, "SpecA: sys::Scalar")
     pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
 
     // update errors
-    verifyErr(UnknownSpecErr#) { p.companion._update("SpecX", "Dict { foo: Str }") }
+    verifyErr(UnknownRecErr#) { p.companion._update("SpecX", "Dict { foo: Str }") }
 
     // re-boot project and verify libs/specs were persisted
     p.db.close
@@ -144,11 +148,11 @@ class RuntimeTest : HxTest
     specA = p.companion._rename("SpecA", "NewSpecA")
     verifyEq(specA.qname, "proj::NewSpecA")
     verifyEq(specA.base.qname, "sys::Scalar")
-    verifyEq(p.companion._read("NewSpecA"), "Scalar")
+    verifyEq(p.companion._read("NewSpecA").trim, "NewSpecA: sys::Scalar")
     pld = verifyProjSpecs(p, ["NewSpecA", "SpecB"], pld)
 
     // rename errors
-    verifyErr(UnknownSpecErr#) { p.companion._rename("Bad", "NewBad") }
+    verifyErr(UnknownRecErr#) { p.companion._rename("Bad", "NewBad") }
     verifyErr(DuplicateNameErr#) { p.companion._rename("NewSpecA", "SpecB") }
     verifyErr(NameErr#) { p.companion._rename("NewSpecA", "Bad Name") }
     pld = verifyProjSpecs(p, ["NewSpecA", "SpecB"], pld)
@@ -173,7 +177,13 @@ class RuntimeTest : HxTest
               """
     specA = p.companion._add("SpecAnotherA", src)
     verifyEq(specA.qname, "proj::SpecAnotherA")
-    verifyEq(p.companion._read(specA.name), src.splitLines.findAll { !it.isEmpty }.join("\n").trim)
+    verifyEq(p.companion._read(specA.name),
+       """// this is a comment
+          // and another line
+          SpecAnotherA: sys::Dict {
+            newOne: sys::Str
+          }
+          """)
     pld = verifyProjSpecs(p, ["SpecAnotherA", "SpecB"], pld)
 
     // add new ext

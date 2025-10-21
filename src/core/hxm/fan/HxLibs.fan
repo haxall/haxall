@@ -38,6 +38,7 @@ const class HxLibs : RuntimeLibs
     this.env          = boot.xetoEnv
     this.log          = boot.log
     this.bootLibNames = boot.bootLibs
+    if (rt.isProj) this.companionLib = HxLib.makeCompanion(boot.sysInfoVersion)
   }
 
   internal HxNamespace init()
@@ -250,7 +251,7 @@ const class HxLibs : RuntimeLibs
     // create namespace
     nsVers := acc.vals.map |x->LibVersion| { x.ver }
     nsOpts := Etc.dict1("uncheckedDepends", Marker.val)
-    ns := HxNamespace(env, nsVers, nsOpts)
+    ns := HxNamespace(rt, env, nsVers, nsOpts)
     ns.libs // force sync load
 
     // update in-memory lookup tables
@@ -302,13 +303,8 @@ const class HxLibs : RuntimeLibs
 
   private Void updateCompanionLib(Str:HxLib acc)
   {
-    // add in special "proj" lib if I am a proj
-    if (rt.isProj)
-    {
-rt.tb.dir.create
-      ver := FileLibVersion.makeProj(rt.tb.dir, rt.sys.info.version)
-      acc["proj"] = HxLib(ver, RuntimeLibBasis.boot)
-    }
+    // add in special "proj" companion lib if I am a proj
+    if (companionLib != null) acc[companionLib.name] = companionLib
   }
 
   private Void updateAdds(Str:HxLib acc, Str[]? names)
@@ -470,6 +466,7 @@ rt.tb.dir.create
   private const AtomicRef nsRef := AtomicRef()
   private const AtomicRef mapRef := AtomicRef()
   private const Lock lock := Lock.makeReentrant
+  private const HxLib? companionLib
 }
 
 **************************************************************************
@@ -483,6 +480,13 @@ const class HxLib : RuntimeLib
     this.ver       = ver
     this.basis     = basis
     this.isSysOnly = ver.isHxSysOnly || isSysOnlyName(ver.name)
+  }
+
+  internal new makeCompanion(Version version)
+  {
+    this.ver       = FileLibVersion.makeCompanion(version)
+    this.basis     = RuntimeLibBasis.boot
+    this.isSysOnly = false
   }
 
   static Bool isSysOnlyName(Str n)

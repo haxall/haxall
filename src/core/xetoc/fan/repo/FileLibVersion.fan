@@ -13,6 +13,7 @@ using xetom
 **
 ** LibVersion implementation for FileRepo
 **
+@Js
 const class FileLibVersion : LibVersion
 {
 
@@ -37,12 +38,12 @@ const class FileLibVersion : LibVersion
     this.fileRef = file
   }
 
-  new makeProj(File dir, Version version)
+  new makeCompanion(Version version)
   {
     this.name       = XetoUtil.companionLibName
     this.version    = version
     this.toStr      = "$name-$version"
-    this.fileRef    = dir
+    this.fileRef    = notUsedFile
     this.docRef     = "Project library"
     this.dependsRef = LibDepend#.emptyList
   }
@@ -56,7 +57,6 @@ const class FileLibVersion : LibVersion
     this.docRef     = "Not found"
     this.dependsRef = LibDepend#.emptyList
   }
-
 
   override const Str name
 
@@ -139,6 +139,7 @@ const class FileLibVersion : LibVersion
   }
 
   private static const File notFoundFile := Buf().toFile(`not-found`)
+  private static const File notUsedFile := Buf().toFile(`not-used`)
 
   override Bool isNotFound() { file === notFoundFile }
 }
