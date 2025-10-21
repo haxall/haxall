@@ -67,6 +67,12 @@ const class XetoUtil
     return n.all |c| { c.isAlphaNum || c == '_' }
   }
 
+  ** Return if valid instance id/name
+  static Bool isInstanceName(Str n)
+  {
+    Ref.isId(n)
+  }
+
   ** Return if name is "_" + digits
   static Bool isAutoName(Str n)
   {

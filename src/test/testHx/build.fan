@@ -29,6 +29,7 @@ class Build : BuildPod
                "concurrent @{fan.depend}",
                "inet @{fan.depend}",
                "xeto @{hx.depend}",
+               "xetom @{hx.depend}",
                "haystack @{hx.depend}",
                "auth @{hx.depend}",
                "axon @{hx.depend}",

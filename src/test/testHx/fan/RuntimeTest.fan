@@ -9,6 +9,7 @@
 
 using concurrent
 using xeto
+using xetom
 using haystack
 using folio
 using hx
@@ -100,91 +101,25 @@ class RuntimeTest : HxTest
     expectLibs["ashrae.g36"] = "sys ok"
     verifyProjLibs(p, expectLibs)
 
-    // add spec
-    pld := p.companion.libDigest
-    specA := p.companion._add("SpecA", "Dict { dis: Str }")
-    specB := p.companion._add("SpecB", "Dict { dis: Str }")
-    verifyEq(specA.qname, "proj::SpecA")
-    verifyEq(specA.base.qname, "sys::Dict")
-    verifyEq(p.companion._read("SpecA"),
-      """SpecA: sys::Dict {
-           dis: sys::Str
-         }
-         """)
-    pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
-
-    // add errors
-    verifyErr(DuplicateNameErr#) { p.companion._add("SpecA", "Dict { foo: Str }") }
-    verifyErr(NameErr#) { p.companion._add("Bad Name", "Dict { foo: Str }") }
-
-    // update spec
-    specA = p.companion._update("SpecA", "Scalar")
-    verifyEq(specA.qname, "proj::SpecA")
-    verifyEq(specA.base.qname, "sys::Scalar")
-    verifyEq(p.companion._read("SpecA").trim, "SpecA: sys::Scalar")
-    pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
-
-    // update errors
-    verifyErr(UnknownRecErr#) { p.companion._update("SpecX", "Dict { foo: Str }") }
-
-    // re-boot project and verify libs/specs were persisted
+    // re-boot project and verify libs were persisted
     p.db.close
     p = HxdSys(boot).init(boot)
     verifyProjLibs(p, expectLibs)
-    pld = verifyProjSpecs(p, ["SpecA", "SpecB"], pld)
 
     // remove - errors
     verifyErr(DuplicateNameErr#) { p.libs.removeAll(["ph.points", "ph.points"]) }
     verifyErr(DependErr#) { p.libs.remove("ph.points") }
     verifyErr(CannotRemoveBootLibErr#) { p.libs.removeAll(["ashrae.g36", "sys"]) }
-    verifyEq(pld, p.companion.libDigest)
 
     // remove g36
     p.libs.remove("ashrae.g36")
     expectLibs.remove("ashrae.g36")
     verifyProjLibs(p, expectLibs)
 
-    // rename specs
-    specA = p.companion._rename("SpecA", "NewSpecA")
-    verifyEq(specA.qname, "proj::NewSpecA")
-    verifyEq(specA.base.qname, "sys::Scalar")
-    verifyEq(p.companion._read("NewSpecA").trim, "NewSpecA: sys::Scalar")
-    pld = verifyProjSpecs(p, ["NewSpecA", "SpecB"], pld)
-
-    // rename errors
-    verifyErr(UnknownRecErr#) { p.companion._rename("Bad", "NewBad") }
-    verifyErr(DuplicateNameErr#) { p.companion._rename("NewSpecA", "SpecB") }
-    verifyErr(NameErr#) { p.companion._rename("NewSpecA", "Bad Name") }
-    pld = verifyProjSpecs(p, ["NewSpecA", "SpecB"], pld)
-
-    // remove specs
-    p.companion._remove("NewSpecA")
-    pld = verifyProjSpecs(p, ["SpecB"], pld)
-
     // re-boot and verify libs were persisted
     p.db.close
     p = HxdSys(boot).init(boot)
     verifyProjLibs(p, expectLibs)
-    pld = verifyProjSpecs(p, ["SpecB"], pld)
-
-    // test specs with comments
-    src := """
-              // this is a comment
-              // and another line
-
-              Dict { newOne: Str }
-
-              """
-    specA = p.companion._add("SpecAnotherA", src)
-    verifyEq(specA.qname, "proj::SpecAnotherA")
-    verifyEq(p.companion._read(specA.name),
-       """// this is a comment
-          // and another line
-          SpecAnotherA: sys::Dict {
-            newOne: sys::Str
-          }
-          """)
-    pld = verifyProjSpecs(p, ["SpecAnotherA", "SpecB"], pld)
 
     // add new ext
     ext := p.exts.add("hx.shell")
@@ -247,6 +182,177 @@ class RuntimeTest : HxTest
               .set("version", proj.sys.info.version.toStr)
               .set("mod", actual->mod)
     verifyDictEq(actual, expect)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Companion
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testCompanion()
+  {
+    addLib("hx.modbus")
+    verifyEq(proj.read("name==\"hx.modbus\"")->rt, "lib")
+
+    slotStr := d(["type":Ref("sys::Str")])
+    slots   := d(["dis":slotStr])
+    specRef := Ref("sys::Spec")
+
+    // fresh start
+    digest := proj.companion.libDigest
+    verifyCompanionRecs(Str[,], Str[,], null)
+
+    // add spec - SpecA
+    proj.companion.add(d(["rt":"spec", "name":"SpecA", "base":Ref("Dict"), "spec":specRef, "slots":slots, "doc":"testing", "admin":m]))
+    digest = verifyCompanionRecs(["SpecA"], Str[,], digest)
+    specA := proj.companion.lib.spec("SpecA")
+    verifyEq(specA.base.qname, "sys::Dict")
+    verifyEq(specA.metaOwn["doc"], "testing")
+    verifyEq(specA.meta["admin"], m)
+
+    // add spec - specB
+    proj.companion.add(d(["rt":"spec", "name":"specB", "base":Ref("Func"), "spec":specRef]))
+    specB := proj.companion.lib.spec("specB")
+    digest = verifyCompanionRecs(["SpecA", "specB"], Str[,], digest)
+    verifyEq(specB.base.qname, "sys::Func")
+
+    // add spec errors
+    companionMode = "add"
+    verifyInvalidErr(["rt":null,   "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":"foo",  "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"Bad Name", "base":null,        "spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":"BadStr",    "spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":null,    "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":Ref("bad"), "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":"bad"])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":slots, "qname":"proj::SpecB"])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":slots, "type":"Dict"])
+    verifyDuplicateErr(["rt":"spec", "name":"SpecA",  "base":Ref("Scalar"), "spec":specRef, "slots":slots])
+    digest = verifyCompanionRecs(["SpecA", "specB"], Str[,], null)
+
+    // add instance - inst-a
+    proj.companion.add(d(["rt":"instance", "name":"inst-a", "spec":Ref("proj::SpecA"), "dis":"Alpha"]))
+    digest = verifyCompanionRecs(["SpecA", "specB"], Str["inst-a"], digest)
+
+    // add instance errors
+    verifyInvalidErr(["rt":"instance", "name":"bad id", "spec":Ref("proj::SpecA")])
+    verifyInvalidErr(["rt":"instance", "name":"inst-b", "spec":Ref("sys::Spec")])
+    verifyDuplicateErr(["rt":"instance", "name":"inst-a"])
+    verifyDuplicateErr(["rt":"instance", "name":"SpecA"])
+
+    // add instance - hx.modbus (duplicate lib name)
+    proj.companion.add(d(["rt":"instance", "name":"hx.modbus", "spec":Ref("proj::SpecA"), "dis":"Lib Dup"]))
+    digest = verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], digest)
+
+    // update spec - SpecA
+    proj.companion.update(d(["rt":"spec", "name":"SpecA", "base":Ref("Func"), "spec":specRef, "slots":slots, "su":m]))
+    digest = verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], digest)
+    specA = proj.companion.lib.spec("SpecA")
+    verifyEq(specA.base.qname, "sys::Func")
+    verifyEq(specA.metaOwn["doc"], null)
+    verifyEq(specA.meta["admin"], null)
+    verifyEq(specA.meta["su"], m)
+
+    // update errors
+    companionMode = "update"
+    verifyInvalidErr(["rt":null,   "name":"SpecA", "base":Ref("Func"), "spec":specRef, "slots":slots, "su":m])
+    verifyInvalidErr(["rt":"bad",  "name":"SpecA", "base":Ref("Func"), "spec":specRef, "slots":slots, "su":m])
+    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":"bad",       "spec":specRef, "slots":slots, "su":m])
+    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":Ref("Func"), "spec":null,    "slots":slots, "su":m])
+    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":Ref("Func"), "spec":"Bad",   "slots":slots, "su":m])
+    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":Ref("Func"), "spec":specRef, "slots":"bad", "su":m])
+    verifyUnknownErr(["rt":"spec", "name":"SpecX", "base":Ref("Func"), "spec":specRef, "slots":slots, "su":m])
+    verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], null)
+
+// TODO: update spec -> instance and vise versa
+
+    // re-boot project and verify libs/specs were persisted
+    projRestart
+    digest = verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], digest)
+
+    // rename spec and instance
+    proj.companion.rename("specB", "specB2")
+    proj.companion.rename("hx.modbus", "hx.modbus2")
+    digest = verifyCompanionRecs(["SpecA", "specB2"], Str["hx.modbus2", "inst-a"], digest)
+
+    // rename errors
+    companionMode = "rename"
+    verifyUnknownErr("notFound", "newName")
+    verifyDuplicateErr("specB2", "SpecA")
+
+    // remove spec and instance
+    proj.companion.remove("specB2")
+    proj.companion.remove("hx.modbus2")
+    digest = verifyCompanionRecs(["SpecA"], Str["inst-a"], digest)
+
+    // remove errors
+    companionMode = "remove"
+    verifyUnknownErr("removeNotFound")
+    verifyUnknownErr("hx.modbus")
+
+    // re-boot project and verify libs/specs were persisted
+    projRestart
+    digest = verifyCompanionRecs(["SpecA"], Str["inst-a"], digest)
+  }
+
+  Str? companionMode
+
+  Void companionCall(Obj a, Obj? b)
+  {
+    switch (companionMode)
+    {
+      case "add":    proj.companion.add(d(a))
+      case "update": proj.companion.update(d(a))
+      case "rename": proj.companion.rename(a, b)
+      case "remove": proj.companion.remove(a)
+      default:       fail
+    }
+  }
+
+  Void verifyInvalidErr(Obj a, Obj? b := null)
+  {
+    verifyErr(InvalidCompanionRecErr#) { companionCall(a, b) }
+  }
+
+  Void verifyDuplicateErr(Obj a, Obj? b := null)
+  {
+    verifyErr(DuplicateNameErr#) { companionCall(a, b) }
+  }
+
+  Void verifyUnknownErr(Obj a, Obj? b := null)
+  {
+    verifyErr(UnknownRecErr#) { companionCall(a, b) }
+  }
+
+  Str verifyCompanionRecs(Str[] expectSpecs, Str[] expectInstances, Str? oldDigest)
+  {
+    // ns - spec
+    Str[] actualSpecs := proj.companion.lib.specs.map |s->Str| { s.name }
+    // echo("~~ $actualSpecs $proj.companion.libDigest")
+    verifyEq(actualSpecs.sort, expectSpecs)
+    expectSpecs.each |n|
+    {
+      spec := proj.ns.spec("proj::$n")
+      verifySame(spec.lib, proj.companion.lib)
+      rec := proj.companion.read(n)
+      verifyEq(rec["rt"], "spec")
+    }
+
+    // ns - instances
+    Str[] actualInstances := proj.companion.lib.instances.map |s->Str| { XetoUtil.qnameToName(s.id.toStr) }
+    // echo("~~ $actualInstances")
+    verifyEq(actualInstances.sort, expectInstances)
+    expectInstances.each |n|
+    {
+      inst := proj.ns.instance("proj::$n")
+      rec := proj.companion.read(n)
+      verifyEq(rec["rt"], "instance")
+    }
+
+    // check digest
+    newDigest := proj.companion.libDigest
+    if (oldDigest != null) verifyNotEq(newDigest, oldDigest)
+    return newDigest
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -394,20 +500,6 @@ class RuntimeTest : HxTest
     verifyNotNull(p.companion.libDigest)
   }
 
-  Str verifyProjSpecs(Proj p, Str[] names, Str oldDigest)
-  {
-    newDigest := p.companion.libDigest
-    Str[] actualNames := p.companion.lib.specs.map |s->Str| { s.name }
-    verifyEq(p.companion._list.dup.sort, names.sort)
-    verifyEq(actualNames.sort, names.sort)
-    names.each |n|
-    {
-      spec := p.ns.spec("proj::$n")
-      verifySame(spec.lib, p.companion.lib)
-    }
-    return newDigest
-  }
-
   Void verifyProjExts(Proj p, Str[] names)
   {
     list := p.exts.list
@@ -423,6 +515,8 @@ class RuntimeTest : HxTest
     verifyEq(p.exts.webRoutes.isImmutable, true)
     verifySame(p.exts.webRoutes, p.exts.webRoutes)
   }
+
+  Dict d(Obj x) { Etc.makeDict(x) }
 }
 
 **************************************************************************

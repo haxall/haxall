@@ -60,3 +60,9 @@
   new make(Str msg, Err? cause := null) : super(msg, cause) {}
 }
 
+** Thrown when trying to add/update a companion lib spec or instance
+@NoDoc const class InvalidCompanionRecErr : Err
+{
+  new make(Str msg, Err? cause := null) : super(msg, cause) {}
+}
+

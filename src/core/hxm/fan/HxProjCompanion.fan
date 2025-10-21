@@ -6,6 +6,7 @@
 //   10 Jul 2025  Brian Frank  Creation
 //
 
+using concurrent
 using util
 using xeto
 using xetom
@@ -51,6 +52,161 @@ const class HxProjCompanion : ProjCompanion
   }
 
 //////////////////////////////////////////////////////////////////////////
+// CRUD
+//////////////////////////////////////////////////////////////////////////
+
+  override Dict[] list()
+  {
+    acc := Dict[,]
+    acc.capacity = 64
+    db.readAllEach(Filter.has("name"), Etc.dict0) |rec|
+    {
+      if (isCompanionRec(rec)) acc.add(rec)
+    }
+    return acc
+  }
+
+  override Dict? read(Str name, Bool checked := true)
+  {
+    matches := db.readAllList(Filter.eq("name", name))
+    match := matches.find |rec| { isCompanionRec(rec) }
+    if (match != null) return match
+    if (checked) throw UnknownRecErr("No spec or instance for name: $name")
+    return null
+  }
+
+  override Void add(Dict rec)
+  {
+    name := validate(rec)
+    doUpdate |->|
+    {
+      if (read(name, false) != null) throw DuplicateNameErr(name)
+      db.commit(Diff(null, rec, Diff.add.or(Diff.bypassRestricted)))
+    }
+  }
+
+  override Void update(Dict rec)
+  {
+    name := validate(rec)
+    doUpdate |->|
+    {
+      cur := read(name)
+      changes := updateDiff(name, cur, rec)
+      db.commit(Diff(cur, changes, Diff.bypassRestricted))
+    }
+  }
+
+  override Void rename(Str oldName, Str newName)
+  {
+    doUpdate |->|
+    {
+      cur := read(oldName)
+      checkName(cur, newName)
+      if (read(newName, false) != null) throw DuplicateNameErr(newName)
+      db.commit(Diff(cur, Etc.dict1("name", newName), Diff.bypassRestricted))
+    }
+  }
+
+  override Void remove(Str name)
+  {
+    doUpdate |->|
+    {
+      cur := read(name)
+      db.commit(Diff(cur, null, Diff.remove.or(Diff.bypassRestricted)))
+    }
+  }
+
+  private Void doUpdate(|->| cb)
+  {
+    lock.lock
+    try
+      cb()
+    finally
+      lock.unlock
+    rt.libsRef.reload
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Utils
+//////////////////////////////////////////////////////////////////////////
+
+  private static Dict updateDiff(Str name, Dict oldRec, Dict newRec)
+  {
+    // first remove an existing spec/isntance tags
+    acc := Str:Obj[:]
+    oldRec.each |v, n|
+    {
+      if (n == "id" || n == "mod" || n == "rt" || n == "name") return
+      acc[n] = Remove.val
+    }
+
+    // add back in the update tag (check name is not modified)
+    newRec.each |v, n|
+    {
+      if (n == "name" && v != name) throw InvalidCompanionRecErr("Cannot change spec name: $name => $v")
+      acc[n] = v
+    }
+    return Etc.dictFromMap(acc)
+  }
+
+  private static Void checkName(Dict rec, Str name)
+  {
+    if (rec["rt"] == "instance")
+    {
+      if (!XetoUtil.isInstanceName(name)) throw InvalidCompanionRecErr("Invalid instance name: $name")
+    }
+    else
+    {
+      if (!XetoUtil.isSpecName(name)) throw InvalidCompanionRecErr("Invalid spec name: $name")
+    }
+  }
+
+  private static Bool isCompanionRec(Dict rec)
+  {
+    rt := rec["rt"] as Str
+    return rt == "spec" || rt == "instance"
+  }
+
+  private static Str validate(Dict rec)
+  {
+    name := rec["name"] as Str ?: throw InvalidCompanionRecErr("Missing 'name' tag")
+    checkName(rec, name)
+
+    rt := rec["rt"] as Str ?: throw InvalidCompanionRecErr("Missing 'rt' tag")
+    if (rt == "spec") return validateSpec(name, rec)
+    if (rt == "instance") return validateInstance(name, rec)
+    throw InvalidCompanionRecErr("Invalid 'rt' tag: $rt")
+  }
+
+  private static Str validateSpec(Str name, Dict rec)
+  {
+    // verify these tags are _not_ defined
+    if (rec.has("qname")) throw InvalidCompanionRecErr("Must not include 'qname' tag")
+    if (rec.has("type")) throw InvalidCompanionRecErr("Must not include 'type' tag")
+
+    // check base
+    baseRef := rec["base"] as Ref ?: throw InvalidCompanionRecErr("Missing 'base' ref tag")
+
+    // check spec
+    specRef := rec["spec"] as Ref ?: throw InvalidCompanionRecErr("Missing 'spec' ref tag")
+    if (specRef.id != "sys::Spec") throw InvalidCompanionRecErr("Invalid 'spec' tag - must be @sys::Spec, not @$specRef")
+
+    // check slots (don't recurse into them)
+    slots := rec["slots"]
+    if (slots != null && slots isnot Dict) throw InvalidCompanionRecErr("Invalid 'slots' tag - must be Dict, not $slots.typeof")
+
+    return name
+  }
+
+  private static Str validateInstance(Str name, Dict rec)
+  {
+    specRef := rec["spec"] as Ref
+    if (specRef?.id == "sys::Spec") throw InvalidCompanionRecErr("Invalid 'spec' tag - must not be @sys::Spec")
+
+    return name
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Old API
 //////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +236,7 @@ const class HxProjCompanion : ProjCompanion
 
   override Spec _add(Str name, Str body)
   {
-    checkName(name)
+    checkName(Etc.dict1("rt", "spec"), name)
     src := writeFormat(name, body)
 
     recs := ns.parseToDicts(src)
@@ -140,7 +296,7 @@ if (body.startsWith(name))
 
   override Spec _rename(Str oldName, Str newName)
   {
-    checkName(newName)
+    checkName(Etc.dict1("rt", "spec"), newName)
     rec := db.read(Filter.eq("name", oldName).and(Filter.eq("rt", "spec")))
 
     dup := db.read(Filter.eq("name", newName).and(Filter.eq("rt", "spec")), false)
@@ -174,15 +330,17 @@ if (body.startsWith(name))
 */
   }
 
-  private Spec doUpdate(Str name, Str body)
+/*
+  private Spec _doUpdate(Str name, Str body)
   {
     //write(name, body)
     rt.libsRef.reload
     return lib.spec(name)
   }
+*/
 
 //////////////////////////////////////////////////////////////////////////
-// Axon
+// Axon Functions
 //////////////////////////////////////////////////////////////////////////
 
   override Spec addFunc(Str name, Str src, Dict meta := Etc.dict0)
@@ -231,30 +389,10 @@ if (body.startsWith(name))
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Checks
-//////////////////////////////////////////////////////////////////////////
-
-  private Void checkName(Str name)
-  {
-    if (!XetoUtil.isSpecName(name)) throw NameErr("Invalid spec name $name.toCode")
-  }
-
-  private Void checkExists(Str name, Bool expect)
-  {
-/*
-    actual := tb.exists("${name}.xeto")
-    if (actual == expect) return
-    if (actual)
-      throw DuplicateNameErr("Spec already exists: $name")
-    else
-      throw UnknownSpecErr(name)
-*/
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Formatting
 //////////////////////////////////////////////////////////////////////////
 
+// TODO: scrap this...
   private Str readFormat(Str name, Str buf)
   {
     sb := StrBuf()
@@ -299,5 +437,12 @@ if (body.startsWith(name))
     while (!buf.isEmpty && buf[-1] == '\n') buf.remove(-1)
     return buf.toStr
   }
+
+//////////////////////////////////////////////////////////////////////////
+// Fields
+//////////////////////////////////////////////////////////////////////////
+
+  private const Lock lock := Lock.makeReentrant
+
 }
 
