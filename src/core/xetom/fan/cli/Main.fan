@@ -17,6 +17,10 @@ class Main
 
   static Int doMain(Str[] args)
   {
+    // set logs to warn (keep pinned so they don't GC)
+    logs := [Log.get("xeto"), Log.get("defc")]
+    logs.each |log| { log.level = LogLevel.warn }
+
     // special handling for help/version without cluttering up help listing
     if (args.isEmpty || args.first == "-?" || args.first == "-help" || args.first == "--help") args = ["help"]
     else if (args.first == "-version" || args.first == "--version") args = ["version"]
