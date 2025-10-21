@@ -66,7 +66,16 @@ const class HxLibs : RuntimeLibs
 
   Folio db() { rt.db }
 
-  HxNamespace ns() { nsRef.val }
+  HxNamespace ns()
+  {
+    ns := nsRef.val
+    while (ns == null)
+    {
+      update(null, null)
+      ns = nsRef.val
+    }
+    return ns
+  }
 
   override RuntimeLib[] list() { map.vals }
 
@@ -200,7 +209,7 @@ const class HxLibs : RuntimeLibs
 
   override Void reload()
   {
-    update(null, null)
+    nsRef.val = null
   }
 
   private Str[] checkDupNames(Str[] names)
