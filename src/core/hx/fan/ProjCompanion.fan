@@ -68,35 +68,14 @@ const mixin ProjCompanion
   ** is reloaded on next access.
   abstract Void remove(Str name)
 
-  ** Add an axon function.  This parses the axon param signature
-  ** and generates the correct xeto spec.  Raise exception if axon
-  ** cannot be parsed.  Return new func spec.
-  abstract Spec addFunc(Str name, Str src, Dict meta := Etc.dict0)
+  ** Parse the Xeto source representation into its dict AST representation.
+  abstract Dict parse(Str xeto)
 
-  ** Update an axon function source code and/or meta.  If src or meta
-  ** is null, then we leave the old value. This parses the axon param
-  ** signature and generates the correct xeto spec.  Raise exception if
-  ** axon cannot be parsed.  Return new func spec.
-  abstract Spec updateFunc(Str name, Str? src, Dict? meta := null)
+  ** Create dict AST respresentation for an Axon function
+  abstract Dict func(Str name, Str axon, Dict meta := Etc.dict0)
 
-// OLD API
+  ** Parse axon source to create dict slots representation
+  @NoDoc abstract Dict funcSlots(Str axon)
 
-  ** List the spec names defined
-  abstract Str[] _list()
-
-  ** Read source code for given project spec
-  abstract Str? _read(Str name, Bool checked := true)
-
-  ** Add new spec to project and reload namespace
-  abstract Spec _add(Str name, Str body)
-
-  ** Update source for given project spec and reload namespace
-  abstract Spec _update(Str name, Str body)
-
-  ** Rename project spec and reload namespace
-  abstract Spec _rename(Str oldName, Str newName)
-
-  ** Remove given project spec and reload namespace
-  abstract Void _remove(Str name)
 }
 

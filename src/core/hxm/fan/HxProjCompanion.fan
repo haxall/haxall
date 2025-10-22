@@ -207,159 +207,47 @@ const class HxProjCompanion : ProjCompanion
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Old API
+// Helper APIs
 //////////////////////////////////////////////////////////////////////////
 
-// TODO: shim code for old API
-
-  override Str[] _list()
+  override Dict parse(Str xeto)
   {
-    db.readAllList(Filter.eq("rt", "spec")).map |d->Str| { d->name }
+    recs := ns.parseToDicts(xeto, Etc.dict1("rtInclude", Marker.val))
+    if (recs.size == 1) return recs.first
+    if (recs.isEmpty) throw ArgErr("No xeto specs in source")
+    else throw ArgErr("Multiple xeto specs in source")
   }
 
-  override Str? _read(Str name, Bool checked := true)
+  override Dict func(Str name, Str axon, Dict meta := Etc.dict0)
   {
-    // TODO: need spec or instance
-    rec := db.read(Filter.eq("name", name).and(Filter.eq("rt", "spec")))
-    s := StrBuf()
-    XetoPrinter(rt.ns, s.out, Etc.dict1("noInferMeta", Marker.val)).ast(rec)
-    x := s.toStr
-    return x
-
-/*
-    buf := tb.read("${name}.xeto", false)
-    if (buf != null) return readFormat(name, buf)
-    if (checked) throw UnknownSpecErr("proj::$name")
-    return null
-*/
+    acc := Str:Obj[:]
+    meta.each |v, n| { acc[n] = v }
+    acc["rt"] = "spec"
+    acc["name"] = name
+    acc["spec"] = specRef
+    acc["base"] = funcRef
+    acc["axon"] = axon
+    acc["slots"] = funcSlots(axon)
+    return Etc.dictFromMap(acc)
   }
 
-  override Spec _add(Str name, Str body)
-  {
-    checkName(Etc.dict1("rt", "spec"), name)
-    src := writeFormat(name, body)
-
-    recs := ns.parseToDicts(src)
-    if (recs.size != 1) throw ArgErr()
-
-    rec := Etc.dictMerge(recs.first, ["rt":"spec", "name":name])
-    if (db.read(Filter.eq("name", name), false) != null) throw DuplicateNameErr("Duplicate spec name: $name")
-    db.commit(Diff(null, rec, Diff.add.or(Diff.bypassRestricted)))
-
-    rt.libsRef.reload
-    return lib.spec(name)
-
-/*
-    checkName(name)
-    checkExists(name, false)
-    return doUpdate(name, body)
-*/
-  }
-
-  override Spec _update(Str name, Str body)
-  {
-    rec := db.read(Filter.eq("name", name).and(Filter.eq("rt", "spec")))
-
-if (body.startsWith(name))
-{
-  colon := body.index(":")
-  body = body[colon+1..-1]
-}
-
-    src := writeFormat(name, body)
-
-    ast := ns.parseToDicts(src)
-    if (ast.size != 1) throw ArgErr()
-
-    // TODO: check removing meta, etc
-    changes := Str:Obj[:]
-    rec.each |v, n|
-    {
-      if (n == "id" || n == "mod" || n == "rt" || n == "name") return
-      changes[n] = Remove.val
-    }
-    ast.first.each |v, n|
-    {
-      if (n == "name" && v != name) throw NameErr("Cannot change spec name: $name => $v")
-      changes[n] = v
-    }
-
-    db.commit(Diff(rec, changes, Diff.bypassRestricted))
-    rt.libsRef.reload
-    return lib.spec(name)
-
-/*
-    checkExists(name, true)
-    return doUpdate(name, body)
-*/
-  }
-
-  override Spec _rename(Str oldName, Str newName)
-  {
-    checkName(Etc.dict1("rt", "spec"), newName)
-    rec := db.read(Filter.eq("name", oldName).and(Filter.eq("rt", "spec")))
-
-    dup := db.read(Filter.eq("name", newName).and(Filter.eq("rt", "spec")), false)
-    if (dup != null) throw DuplicateNameErr("Duplicate spec name: $newName")
-
-    db.commit(Diff(rec, Etc.dict1("name", newName), Diff.bypassRestricted))
-
-    rt.libsRef.reload
-    return lib.spec(newName)
-
-/*
-    checkName(newName)
-    checkExists(newName, false)
-
-    body := _read(oldName)
-    write(newName, body)
-    _remove(oldName)
-    return lib.spec(newName)
-*/
-  }
-
-  override Void _remove(Str name)
-  {
-    rec := db.read(Filter.eq("name", name).and(Filter.eq("rt", "spec")))
-    db.commit(Diff(rec, null, Diff.remove.or(Diff.bypassRestricted)))
-    rt.libsRef.reload
-
-/*
-    tb.delete("${name}.xeto")
-    rt.libsRef.reload
-*/
-  }
-
-/*
-  private Spec _doUpdate(Str name, Str body)
-  {
-    //write(name, body)
-    rt.libsRef.reload
-    return lib.spec(name)
-  }
-*/
-
-//////////////////////////////////////////////////////////////////////////
-// Axon Functions
-//////////////////////////////////////////////////////////////////////////
-
-  override Spec addFunc(Str name, Str src, Dict meta := Etc.dict0)
-  {
-    _add(name, funcToXeto(ns, name, src, meta))
-  }
-
-  override Spec updateFunc(Str name, Str? src, Dict? meta := null)
-  {
-    cur     := lib.func(name)
-    curSrc  := cur.metaOwn["axon"] ?: throw ArgErr("Func spec missing axon tag: $name")
-    curMeta := Etc.dictRemove(cur.metaOwn, "axon")
-    return _update(name, funcToXeto(ns, name, src ?: curSrc, meta ?: curMeta))
-  }
-
-  static Str funcToXeto(LibNamespace ns, Str name, Str src, Dict meta)
+  override Dict funcSlots(Str axon)
   {
     // parse axon to verify its correct
-    fn := Parser(Loc(name), src.in).parseTop(name, meta)
+    fn := Parser(Loc.synthetic, axon.in).parseTop("funcSlots", Etc.dict0)
+    acc := Str:Obj[:]
+    acc.ordered = true
+    fn.params.each |p|
+    {
+      acc[p.name] = objMaybeSlot
+    }
+    acc["returns"] = objMaybeSlot
+    return Etc.dictFromMap(acc)
+  }
+
+  /*
+  static Str funcToXeto(LibNamespace ns, Str name, Str src, Dict meta)
+  {
 
     // use XetoPrinter to write to in-memory buffer
     buf := StrBuf()
@@ -387,60 +275,16 @@ if (body.startsWith(name))
 
     return buf.toStr
   }
-
-//////////////////////////////////////////////////////////////////////////
-// Formatting
-//////////////////////////////////////////////////////////////////////////
-
-// TODO: scrap this...
-  private Str readFormat(Str name, Str buf)
-  {
-    sb := StrBuf()
-    sb.capacity = buf.size
-    prelude := true
-    buf.eachLine |line|
-    {
-      if (prelude && line.trim.isEmpty) return
-      if (!sb.isEmpty) sb.add("\n")
-      if (prelude)
-      {
-        if (line.startsWith("//")) { sb.add(line); return }
-        colon := line.index(":") ?: throw Err("Malformed proj spec: $line")
-        line = line[colon+1..-1].trim
-        prelude = false
-      }
-      sb.add(line)
-    }
-    return sb.toStr
-  }
-
-  private Str writeFormat(Str name, Str body)
-  {
-    buf := StrBuf()
-    buf.capacity = name.size + 16 + body.size
-    prelude := true
-    body.splitLines.each |line|
-    {
-      line = line.trimEnd
-      if (prelude)
-      {
-        line = line.trimStart
-        if (line.isEmpty) return
-        if (!line.startsWith("//"))
-        {
-          buf.add(name).add(": ")
-          prelude = false
-        }
-      }
-      buf.add(line).addChar('\n')
-    }
-    while (!buf.isEmpty && buf[-1] == '\n') buf.remove(-1)
-    return buf.toStr
-  }
+  */
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
+
+  static const Ref specRef := Ref("sys::Spec")
+  static const Ref funcRef := Ref("sys::Func")
+  static const Ref objRef  := Ref("sys::Obj")
+  static const Dict objMaybeSlot := Etc.dict2("type", objRef, "maybe", Marker.val)
 
   private const Lock lock := Lock.makeReentrant
 

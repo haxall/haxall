@@ -18,6 +18,7 @@ internal class AstToDicts : Step
 {
   override Void run()
   {
+    rtInclude = compiler.opts.has("rtInclude")
     acc :=  Dict[,]
     lib.tops.each |x| { acc.add(mapSpec(x)) }
     lib.instances.each |x| { acc.add(mapInstance(x)) }
@@ -29,6 +30,7 @@ internal class AstToDicts : Step
   {
     acc := Str:Obj[:]
     acc.ordered = true
+    if (rtInclude) acc["rt"] = "spec"
     acc["name"] = x.name
     acc["base"] = mapTypeRef(x.typeRef, ns.sys.dict.id)
     acc["spec"] = ns.sys.spec.id
@@ -69,6 +71,7 @@ internal class AstToDicts : Step
   {
     acc := Str:Obj[:]
     acc.ordered = true
+    if (rtInclude) acc["rt"] = "instance"
     acc["name"] = x.name.toStr
     return mapDict(x, acc)
   }
@@ -147,5 +150,7 @@ internal class AstToDicts : Step
     if (x.isResolved) return x.deref.id
     return Ref(x.toStr)
   }
+
+  Bool rtInclude
 }
 

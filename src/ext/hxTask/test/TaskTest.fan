@@ -64,7 +64,7 @@ class TaskTest : HxTest
     sync
     ext.spi.sync
 
-    func := addFunc("topFunc", """(msg) => "top " + msg""")
+    addFunc("topFunc", """(msg) => "top " + msg""")
 
     // create some tasks
     a    := addTaskRec("A", "topFunc")

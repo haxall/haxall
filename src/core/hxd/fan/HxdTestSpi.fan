@@ -27,6 +27,7 @@ class HxdTestSpi : HxTestSpi
       it.createMeta = Etc.dictToMap(projMeta)
       it.bootLibs.remove("hx.http")
       it.bootLibs.add("hx.platform.serial")
+      if (Pod.find("hxIon", false) != null) it.bootLibs.add("hx.ion")
       it.sysConfig["test"] = Marker.val
       it.sysConfig["platformSerialSpi"] = "hxPlatformSerial::TestSerialSpi"
       it.log.level = LogLevel.warn

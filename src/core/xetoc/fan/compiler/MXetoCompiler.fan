@@ -10,6 +10,7 @@
 using util
 using xeto
 using xetom
+using haystack
 
 **
 ** Xeto compiler
@@ -42,6 +43,7 @@ internal class MXetoCompiler : XetoCompiler
     log :=  XetoUtil.optLog(opts, "log")
     if (log != null) this.log = XetoCallbackLog(log)
 
+    this.opts = opts
     this.externRefs = opts.has("externRefs")
   }
 
@@ -203,6 +205,7 @@ internal class MXetoCompiler : XetoCompiler
 //////////////////////////////////////////////////////////////////////////
 
   XetoCompilerErr[] errs := [,]        // err
+  internal Dict opts := Etc.dict0      // applyOpts
   internal ASys sys                    // make
   internal ADepends depends            // make
   internal Duration? duration          // run

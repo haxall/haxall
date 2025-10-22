@@ -264,8 +264,6 @@ class RuntimeTest : HxTest
     verifyUnknownErr(["rt":"spec", "name":"SpecX", "base":Ref("Func"), "spec":specRef, "slots":slots, "su":m])
     verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], null)
 
-// TODO: update spec -> instance and vise versa
-
     // re-boot project and verify libs/specs were persisted
     projRestart
     digest = verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], digest)
@@ -293,6 +291,14 @@ class RuntimeTest : HxTest
     // re-boot project and verify libs/specs were persisted
     projRestart
     digest = verifyCompanionRecs(["SpecA"], Str["inst-a"], digest)
+
+    // update switch spec <-> instance
+    proj.companion.add(d(["rt":"spec",     "name":"a", "base":Ref("Dict"), "spec":specRef]))
+    proj.companion.add(d(["rt":"instance", "name":"b", "foo":m]))
+    digest = verifyCompanionRecs(["SpecA", "a"], ["b", "inst-a"], digest)
+    proj.companion.update(d(["rt":"spec",     "name":"b", "base":Ref("Dict"), "spec":specRef]))
+    proj.companion.update(d(["rt":"instance", "name":"a", "foo":m]))
+    digest = verifyCompanionRecs(["SpecA", "b"], ["a", "inst-a"], digest)
   }
 
   Str? companionMode
@@ -388,14 +394,14 @@ class RuntimeTest : HxTest
     // create axon func in proj
     f := addFunc("foo1", "() => today()")
     verifyEq(eval("foo1()"), Date.today)
-    verifyDictEq(f.metaOwn, Etc.dict1("axon", "() => today()\n"))
+    verifyDictEq(f.metaOwn, Etc.dict1("axon", "() => today()"))
     verifyEq(f.func.params.size, 0)
     verifyEq(f.func.returns.type.qname, "sys::Obj")
 
     // create axon func in proj with meta + params
     f = addFunc("foo2", "(a, b) => a + b", ["admin":m, "qux":"foo2"])
     verifyEq(eval("foo2(3, 4)"), n(7))
-    verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a, b) => a + b\n", "admin", m, "qux", "foo2"))
+    verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a, b) => a + b", "admin", m, "qux", "foo2"))
     verifyEq(f.func.params.size, 2)
     verifyEq(f.func.params[0].name, "a")
     verifyEq(f.func.params[1].name, "b")
@@ -403,26 +409,35 @@ class RuntimeTest : HxTest
     verifyEq(f.func.params[1].type.qname, "sys::Obj")
     verifyEq(f.func.returns.type.qname, "sys::Obj")
 
-    // update foo2 (src only)
-    f = proj.companion.updateFunc("foo2", "(a) => a * a")
+    // update foo2
+    frec :=  proj.companion.func("foo2", "(a) => a * a", Etc.makeDict(["su":m, "qux":"test!"]))
+    proj.companion.update(frec)
+    f = proj.ns.spec("proj::foo2")
     verifyEq(eval("foo2(3)"), n(9))
-    verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a) => a * a\n", "admin", m, "qux", "foo2"))
+    verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a) => a * a", "qux", "test!", "su", m))
 
-    // update foo2 (meta only)
-    f = proj.companion.updateFunc("foo2", null, Etc.makeDict(["su":m, "qux":"test 1!"]))
-    verifyEq(eval("foo2(4)"), n(16))
-    verifyDictEq(f.metaOwn, Etc.dict3("axon", "(a) => a * a\n", "su", m, "qux", "test 1!"))
+    // funcSlots
+    src := "(r, s, p, q) => null"
+    slots := proj.companion.funcSlots(src)
+    sigSlot := Etc.dict2("type", Ref("sys::Obj"), "maybe", m)
+    verifyDictEq(slots, ["p":sigSlot, "q":sigSlot, "r":sigSlot, "s":sigSlot, "returns":sigSlot])
+    order := Str[,]
+    slots.each |v, n| { order.add(n) }
+    verifyEq(order, ["r", "s", "p", "q", "returns"])
 
-    // update foo2 (src and meta)
-    f = proj.companion.updateFunc("foo2", "(a)=>a+100", Etc.makeDict(["qux":"test 2!"]))
-    verifyEq(eval("foo2(4)"), n(104))
-    verifyDictEq(f.metaOwn, Etc.dict2("axon", "(a)=>a+100\n", "qux", "test 2!"))
+    // func
+    rec = proj.companion.func("foo3", src, Etc.dict1("admin", m))
+    verifyDictEq(rec, ["rt":"spec", "name":"foo3", "admin":m, "axon":src,
+      "base":Ref("sys::Func"), "spec":Ref("sys::Spec"), "slots":slots])
 
-    // update with string containing "----"
-    src := "() => \"-----\""
-    f = proj.companion.updateFunc("foo2", src)
-    verifyEq(eval("foo2()"), "-----")
-    verifyDictEq(f.metaOwn, Etc.dict2("axon", src+"\n", "qux", "test 2!"))
+    // now as spec
+    proj.companion.add(rec)
+    f = proj.ns.spec("proj::foo3")
+    verifyEq(f.func.params.size, 4)
+    verifyEq(f.func.params[0].name, "r")
+    verifyEq(f.func.params[1].name, "s")
+    verifyEq(f.func.params[2].name, "p")
+    verifyEq(f.func.params[3].name, "q")
   }
 
 //////////////////////////////////////////////////////////////////////////

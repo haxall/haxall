@@ -529,48 +529,49 @@ const class HxFuncs
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Projects Specs
+// Companion Specs
 //////////////////////////////////////////////////////////////////////////
 
-  ** Read source code for a project level spec by name:
-  **   projSpecRead("MySpec")
-  @Api @Axon { admin = true }
-  static Str? projSpecRead(Str name, Bool checked := true)
+  ** Add new spec or instance to companion lib - see `hx::CompanionLib.add`.
+  @Api @Axon { admin=true }
+  static Void companionAdd(Dict rec)
   {
-    curContext.proj.companion._read(name, checked)
+    curContext.proj.companion.add(rec)
   }
 
-  ** Add a project level spec by name and update namespace:
-  **   projSpecAdd("MySpec", "Dict { dis: Str }")
-  @Api @Axon { admin = true }
-  static Obj projSpecAdd(Str name, Str body)
+  ** Update existing spec or instance in companion lib - see `hx::CompanionLib.update`.
+  @Api @Axon { admin=true }
+  static Void companionUpdate(Dict rec)
   {
-    curContext.proj.companion._add(name, body)
+    curContext.proj.companion.update(rec)
   }
 
-  ** Update a project level spec by name and update namespace:
-  **   projSpecUpdate("MySpec", "Dict { dis: Str }")
-  @Api @Axon { admin = true }
-  static Obj projSpecUpdate(Str name, Str body)
+  ** Rename spec or instance in companion lib - see `hx::CompanionLib.rename`.
+  @Api @Axon { admin=true }
+  static Void companionRename(Str oldName, Str newName)
   {
-    curContext.proj.companion._update(name, body)
+    curContext.proj.companion.rename(oldName, newName)
   }
 
-  ** Rename a project level spec and update namespace:
-  **   projSpecRename("OldName", "NewName")
-  @Api @Axon { admin = true }
-  static Obj projSpecRename(Str oldName, Str newName)
+  ** Rename spec or instance in companion lib - see `hx::CompanionLib.remove`.
+  @Api @Axon { admin=true }
+  static Void companionRemove(Str name)
   {
-    curContext.proj.companion._rename(oldName, newName)
+    curContext.proj.companion.remove(name)
   }
 
-  ** Remove a project level spec by name and update namespace:
-  **   projSpecRemove("MySpec")
-  @Api @Axon { admin = true }
-  static Obj projSpecRemove(Str name)
+  ** Parse xeto source to its companion lib AST representation - see `hx::CompanionLib.parse`.
+  @Api @Axon
+  static Dict companionParse(Str xeto)
   {
-    curContext.proj.companion._remove(name)
-    return "removed"
+    curContext.proj.companion.parse(xeto)
+  }
+
+  ** Create func companion lib AST representation - see `hx::CompanionLib.func`.
+  @Api @Axon
+  static Dict companionFunc(Str name, Str axon, Dict? meta := null)
+  {
+    curContext.proj.companion.func(name, axon, meta ?: Etc.dict0)
   }
 
 //////////////////////////////////////////////////////////////////////////

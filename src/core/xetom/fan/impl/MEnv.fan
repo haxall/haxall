@@ -121,6 +121,7 @@ abstract const class MEnv : XetoEnv
       it.ns      = ns
       it.libName = opts["libName"] as Str ?: "proj"
       it.input   = src.toBuf.toFile(`input.xeto`)
+      it.applyOpts(opts)
     }
     return c.parseToDicts
   }

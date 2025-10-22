@@ -521,37 +521,49 @@ class HxFuncsTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
-// ProjSpecs
+// Companion
 //////////////////////////////////////////////////////////////////////////
 
   @HxTestProj
-  Void testProjSpecs()
+  Void testCompanion()
   {
     // add
-    Spec spec := eval("""projSpecAdd("Foo", "Dict{}")""")
+    eval("""companionAdd({rt:"spec", name:"Foo", base:@sys::Dict, spec:@sys::Spec, doc:":-)"})""")
+    spec := proj.ns.spec("proj::Foo")
     verifySame(spec, proj.ns.spec("proj::Foo"))
     verifySame(spec.base, proj.ns.spec("sys::Dict"))
+    verifyEq(spec.meta["doc"], ":-)")
+
 
     // update
-    spec = eval("""projSpecUpdate("Foo", "Scalar")""")
+    eval("""companionUpdate({rt:"spec", name:"Foo", base:@sys::Scalar, spec:@sys::Spec, doc:":-("})""")
+    spec = proj.ns.spec("proj::Foo")
     verifySame(spec, proj.ns.spec("proj::Foo"))
     verifySame(spec.base, proj.ns.spec("sys::Scalar"))
+    verifyEq(spec.meta["doc"], ":-(")
 
     // rename
-    spec = eval("""projSpecRename("Foo", "Bar")""")
+    eval("""companionRename("Foo", "Bar")""")
+    spec = proj.ns.spec("proj::Bar")
     verifySame(spec, proj.ns.spec("proj::Bar"))
     verifySame(spec.base, proj.ns.spec("sys::Scalar"))
 
-    // read
-    src := eval("""projSpecRead("Bar")""")
-    verifyEq(src, "Scalar")
-    verifyEq(eval("""projSpecRead("Bad", false)"""), null)
-    verifyEvalErr("""projSpecRead("Bad")""", UnknownSpecErr#)
-    verifyEvalErr("""projSpecRead("Bad", true)""", UnknownSpecErr#)
-
     // remove
-    eval("""projSpecRemove("Bar")""")
-    verifyEq(proj.ns.spec("proj::Foo", false), null)
+    eval("""companionRemove("Bar")""")
+    verifyEq(proj.ns.spec("proj::Bar", false), null)
+
+    // func
+    x := eval("""companionFunc("foo", "(a, b)=>a+b", {admin})""")
+    sig := Etc.dict2("type", Ref("sys::Obj"), "maybe", m)
+    verifyDictEq(x,
+      ["rt":"spec", "name":"foo", "base":Ref("sys::Func"), "spec":Ref("sys::Spec"),
+        "axon":"(a, b)=>a+b", "admin":m, "slots":Etc.dict3("a", sig, "b", sig, "returns", sig)])
+
+    // parse
+    x = eval("""companionParse("Foo: Dict <abstract> { x: Obj? }")""")
+    verifyDictEq(x,
+      ["rt":"spec", "name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"),
+       "abstract":m, "slots":Etc.dict1("x", sig)])
   }
 
 //////////////////////////////////////////////////////////////////////////

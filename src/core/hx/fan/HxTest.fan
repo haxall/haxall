@@ -173,7 +173,9 @@ abstract class HxTest : HaystackTest
   ** Convenience for 'proj.specs.addFunc'
   Spec addFunc(Str name, Str src, Obj? meta := null)
   {
-    proj.companion.addFunc(name, src, Etc.makeDict(meta))
+    rec := proj.companion.func(name, src, Etc.makeDict(meta))
+    proj.companion.add(rec)
+    return proj.companion.lib.spec(name)
   }
 
   ** Add user record to the user database.  If the user
