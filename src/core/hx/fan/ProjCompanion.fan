@@ -55,7 +55,8 @@ const mixin ProjCompanion
   ** Update an existing spec or instance to the companion lib. The given
   ** dict must match the AST respresentation as described in class header.
   ** Raise exception if no existing definition for name.  The namespace is
-  ** reloaded on next access.
+  ** reloaded on next access.  If id/mod tags are passsed then they must
+  ** match the existing record in database.
   abstract Void update(Dict rec)
 
   ** Rename an existing spec or instance in the companion lib.
@@ -70,6 +71,9 @@ const mixin ProjCompanion
 
   ** Parse the Xeto source representation into its dict AST representation.
   abstract Dict parse(Str xeto)
+
+  ** Print the Xeto source representation from its dict AST representation.
+  abstract Str print(Dict dict)
 
   ** Create dict AST respresentation for an Axon function
   abstract Dict func(Str name, Str axon, Dict meta := Etc.dict0)

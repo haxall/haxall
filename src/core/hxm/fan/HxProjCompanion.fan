@@ -134,15 +134,21 @@ const class HxProjCompanion : ProjCompanion
   {
     // first remove an existing spec/isntance tags
     acc := Str:Obj[:]
+    Ref? id
+    DateTime? mod
     oldRec.each |v, n|
     {
-      if (n == "id" || n == "mod" || n == "rt" || n == "name") return
+      if (n == "id")   { id = v; return }
+      if (n == "mod")  { mod = v; return }
+      if (n == "rt" || n == "name") return
       acc[n] = Remove.val
     }
 
     // add back in the update tag (check name is not modified)
     newRec.each |v, n|
     {
+      if (n == "id")  { if (v != id) throw InvalidCompanionRecErr("Cannot change id"); return }
+      if (n == "mod") { if (v != mod) throw ConcurrentChangeErr("Rec has been modified"); return }
       if (n == "name" && v != name) throw InvalidCompanionRecErr("Cannot change spec name: $name => $v")
       acc[n] = v
     }
@@ -216,6 +222,13 @@ const class HxProjCompanion : ProjCompanion
     if (recs.size == 1) return recs.first
     if (recs.isEmpty) throw ArgErr("No xeto specs in source")
     else throw ArgErr("Multiple xeto specs in source")
+  }
+
+  override Str print(Dict rec)
+  {
+    s := StrBuf()
+    XetoPrinter(ns, s.out, Etc.dict0).ast(rec)
+    return s.toStr
   }
 
   override Dict func(Str name, Str axon, Dict meta := Etc.dict0)

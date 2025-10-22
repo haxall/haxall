@@ -299,6 +299,16 @@ class RuntimeTest : HxTest
     proj.companion.update(d(["rt":"spec",     "name":"b", "base":Ref("Dict"), "spec":specRef]))
     proj.companion.update(d(["rt":"instance", "name":"a", "foo":m]))
     digest = verifyCompanionRecs(["SpecA", "b"], ["a", "inst-a"], digest)
+
+    // updates with id/mod
+    companionMode = "update"
+    rec := proj.companion.read("SpecA")
+    proj.companion.update(Etc.dictSet(rec, "doc", "w/ id and mod"))
+    specA = proj.companion.lib.spec("SpecA")
+    verifyEq(specA.metaOwn["doc"], "w/ id and mod")
+    rec = proj.companion.read("SpecA")
+    verifyInvalidErr(Etc.dictSet(rec, "id", Ref.gen))
+    verifyConcurrentErr(Etc.dictSet(rec, "mod", DateTime.nowUtc - 1hr))
   }
 
   Str? companionMode
@@ -328,6 +338,11 @@ class RuntimeTest : HxTest
   Void verifyUnknownErr(Obj a, Obj? b := null)
   {
     verifyErr(UnknownRecErr#) { companionCall(a, b) }
+  }
+
+  Void verifyConcurrentErr(Obj a, Obj? b := null)
+  {
+    verifyErr(ConcurrentChangeErr#) { companionCall(a, b) }
   }
 
   Str verifyCompanionRecs(Str[] expectSpecs, Str[] expectInstances, Str? oldDigest)
