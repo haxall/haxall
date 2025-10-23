@@ -63,6 +63,7 @@ const class HxProjCompanion : ProjCompanion
     {
       if (isCompanionRec(rec)) acc.add(rec)
     }
+    acc.sort |a, b| { a["name"] <=> b["name"] }
     return acc
   }
 

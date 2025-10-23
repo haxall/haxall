@@ -277,7 +277,7 @@ class XetoPrinter
     indent
     x.each |v, n|
     {
-      if (n == "id" || n == "name" || n == "spec") return
+      if (n == "id" || n == "name" || n == "spec" || n == "rt" || n == "mod") return
       tab.dictPair(null, n, v, false).nl
     }
     unindent
