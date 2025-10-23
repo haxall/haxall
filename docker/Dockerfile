@@ -1,7 +1,7 @@
 # escape=`
 # syntax=docker/dockerfile:1
 
-#This Dockerfile installs fantom, haystack-defs, and xeto before running haxall init to create hx database named "haxall" 
+#This Dockerfile installs fantom, haystack-defs, and xeto before running haxall init to create hx database named "haxall"
 #To create it along with the compose file, use the following command for testing:
 #docker compose -f .\docker-compose.yml run --rm -it -p 8080:8080 haxall
 
@@ -13,14 +13,14 @@ RUN set -e; `
   export DEBIAN_FRONTEND=noninteractive `
   && apt-get -q update `
   && apt-get -q install -y git unzip curl sed `
-  && rm -rf /var/lib/apt/lists/* 
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 ARG FAN_REL_VER=1.0.80
 
 #FANTOM SOURCE START
-# This is building fantom from source. We need to start with downloading the latest release of 
-# fantom (zipfile) because fantom is required to build fantom. 
+# This is building fantom from source. We need to start with downloading the latest release of
+# fantom (zipfile) because fantom is required to build fantom.
 # huge help: https://gist.github.com/gvenzl/1386755861fb42db492276d3864a378c
 #set is a builtin shell command:https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_25
 RUN LATEST_ZIPURL=$(curl -s "https://api.github.com/repos/fantom-lang/fantom/releases/latest" | sed -Ene '/^[[:space:]]*"browser_download_url": *"(.+)"$/s//\1/p') `
@@ -29,13 +29,11 @@ RUN LATEST_ZIPURL=$(curl -s "https://api.github.com/repos/fantom-lang/fantom/rel
   && mv fantom/fantom-* rel `
   && chmod +x rel/bin/* `
   && chmod +x rel/adm/* `
-  && rm -rf fantom && rm -f fantom.zip 
+  && rm -rf fantom && rm -f fantom.zip
 
 ENV FAN_SUBSTITUTE=/app/rel
 
 #Get latest fantom release
-#theoretically, this will copy the current github files (latest release) for fantom 
-#into the build without keeping all the metadata from cloning?
 RUN git clone -b master --depth 1 --single-branch https://github.com/fantom-lang/fantom fan `
   && rm -rf fan/.git*
 
@@ -79,9 +77,7 @@ COPY --from=base /app/haystack-defs/ /app/haystack-defs/
 COPY --from=base /app/xeto/ /app/xeto/
 ENV PATH $PATH:/opt/fan/bin
 
-#This is the default database name. Can be changed during image build stage with build-args
-ARG DB_NAME=haxall
-ENV DB_NAME=${DB_NAME}
+ENV HAXALL_DB_NAME=${HAXALL_DB_NAME:-haxall}
 
 #This line is necessary for AWS container healthchecking
 RUN apt-get -q install -y curl
