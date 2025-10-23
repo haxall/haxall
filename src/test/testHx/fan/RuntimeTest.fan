@@ -281,6 +281,7 @@ class RuntimeTest : HxTest
     // remove spec and instance
     proj.companion.remove("specB2")
     proj.companion.remove("hx.modbus2")
+    proj.companion.remove("ignore-me-does-not-exist")
     digest = verifyCompanionRecs(["SpecA"], Str["inst-a"], digest)
 
     // remove errors

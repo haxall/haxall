@@ -112,7 +112,8 @@ const class HxProjCompanion : ProjCompanion
   {
     doUpdate |->|
     {
-      cur := read(name)
+      cur := read(name, false)
+      if (cur == null) return
       db.commit(Diff(cur, null, Diff.remove.or(Diff.bypassRestricted)))
     }
   }

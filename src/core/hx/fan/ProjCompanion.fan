@@ -65,7 +65,7 @@ const mixin ProjCompanion
   abstract Void rename(Str oldName, Str newName)
 
   ** Remove the spec or instance definition by name from companion lib.
-  ** Raise exception if no existing definition for name.  The namespace
+  ** Ignore this call if there is no definition for name.  The namespace
   ** is reloaded on next access.
   abstract Void remove(Str name)
 
