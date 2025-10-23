@@ -62,14 +62,14 @@ class ParseTest : AbstractXetoTest
              y: "just val"
            }|>,
       [
-        ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "slots":Etc.dictFromMap([
-           "m": Etc.dictFromMap(["type":Ref("sys::Marker")]),
-           "a": Etc.dictFromMap(["type":Ref("sys::Str"),  "maybe":m]),
-           "b": Etc.dictFromMap(["type":Ref("sys::Str"),  "val":"hi"]),
-           "d": Etc.dictFromMap(["type":Ref("sys::Date"), "metaQ":m, "val":Date("2025-10-18")]),
-           "x": Etc.dictFromMap(["type":Ref("proj::Foo") ]),
-           "y": Etc.dictFromMap(["val":"just val"]),
-           ])
+        ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "slots":Etc.makeMapsGrid(null, [
+           ["name":"m", "type":Ref("sys::Marker")],
+           ["name":"a", "type":Ref("sys::Str"),  "maybe":m],
+           ["name":"b", "type":Ref("sys::Str"),  "val":"hi"],
+           ["name":"d", "type":Ref("sys::Date"), "metaQ":m, "val":Date("2025-10-18")],
+           ["name":"x", "type":Ref("proj::Foo") ],
+           ["name":"y", "val":"just val"],
+           ]).reorderCols(["name", "type", "maybe", "val", "metaQ"])
         ]
       ])
 
@@ -82,14 +82,15 @@ class ParseTest : AbstractXetoTest
              }
            }|>,
       [
-        ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "slots":Etc.dictFromMap([
-           "_0": Etc.dictFromMap(["type":Ref("Box"), "slots":Etc.dictFromMap([
-             "_0": Etc.dictFromMap(["type":Ref("Label"), "slots":Etc.dict1("text", Etc.dictFromMap(["val":"a"])) ]),
-             "_1": Etc.dictFromMap(["type":Ref("Label"), "slots":Etc.dict1("text", Etc.dictFromMap(["val":"b"])) ])
-             ]),
-           ])
-         ])
-        ]
+        ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "slots":Etc.makeMapGrid(null, [
+           "name":"_0",
+           "type":Ref("Box"),
+           "slots":Etc.makeMapsGrid(null, [
+             ["name":"_0", "type":Ref("Label"), "slots":Etc.makeMapGrid(null, ["name":"text", "val":"a"]).reorderCols(["name", "val"]), ],
+             ["name":"_1", "type":Ref("Label"), "slots":Etc.makeMapGrid(null, ["name":"text", "val":"b"]).reorderCols(["name", "val"]), ]
+             ]).reorderCols(["name", "type", "slots"]),
+           ]).reorderCols(["name", "type", "slots"]),
+         ]
       ])
 
     // resolved types become non-qname refs
@@ -102,10 +103,10 @@ class ParseTest : AbstractXetoTest
              c: TooMuchJoy
            }|>,
       [
-        ["name":"Foo", "base":Ref("TSwift"), "spec":Ref("sys::Spec"), "doc":"Foo docs here", "slots":Etc.dictFromMap([
-           "a": Etc.dictFromMap(["type":Ref("sys::Str")]),
-           "b": Etc.dictFromMap(["type":Ref("foo.bar::Foo"),  ]),
-           "c": Etc.dictFromMap(["type":Ref("TooMuchJoy") ]),
+        ["name":"Foo", "base":Ref("TSwift"), "spec":Ref("sys::Spec"), "doc":"Foo docs here", "slots":Etc.makeMapsGrid(null, [
+           ["name":"a", "type":Ref("sys::Str")],
+           ["name":"b", "type":Ref("foo.bar::Foo"), ],
+           ["name":"c", "type":Ref("TooMuchJoy") ],
            ])
         ]
       ])
@@ -125,10 +126,8 @@ class ParseTest : AbstractXetoTest
            }
            |>,
       [
-        ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "slots":Etc.dictFromMap([
-           "n": Etc.dictFromMap(["type":Ref("sys::Str")]),
-           ])
-        ],
+        ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"),
+           "slots":Etc.makeMapGrid(null, ["name":"n", "type":Ref("sys::Str")])],
         ["name":"x-a", "spec":Ref("proj::Foo"), "n":"alpha"],
         ["name":"x.b", "n":"beta"],
         ["name":"x.c", "spec":Ref("ph::Ahu"),   "n":"charlie"],
