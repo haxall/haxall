@@ -22,7 +22,7 @@ const class HxdSys : HxRuntime, Sys, Proj
   {
     this.info      = boot.initSysInfo
     this.config    = boot.initSysConfig
-    this.companion = HxProjCompanion(this)
+    this.companion = HxCompanion(this)
   }
 
   override final Sys sys() { this }

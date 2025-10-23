@@ -17,9 +17,9 @@ using hx
 using hxUtil
 
 **
-** ProjSpecs implementation
+** ProjCompanion implementation
 **
-const class HxProjCompanion : ProjCompanion
+const class HxCompanion : ProjCompanion
 {
 
   new make(HxRuntime rt)
@@ -250,18 +250,28 @@ const class HxProjCompanion : ProjCompanion
 
   override Dict func(Str name, Str axon, Dict meta := Etc.dict0)
   {
-    acc := Str:Obj[:]
-    meta.each |v, n| { acc[n] = v }
-    acc["rt"] = "spec"
-    acc["name"] = name
-    acc["spec"] = specRef
-    acc["base"] = funcRef
-    acc["axon"] = axon
-    acc["slots"] = funcSlots(axon)
-    return Etc.dictFromMap(acc)
+    toFunc(name, axon, meta)
   }
 
   override Grid funcSlots(Str axon)
+  {
+    toFuncSlots(axon)
+  }
+
+  static Dict toFunc(Str name, Str axon, Dict meta := Etc.dict0)
+  {
+    acc := Str:Obj[:]
+    meta.each |v, n| { acc[n] = v }
+    acc["rt"]    = "spec"
+    acc["name"]  = name
+    acc["spec"]  = specRef
+    acc["base"]  = funcRef
+    acc["axon"]  = axon
+    acc["slots"] = toFuncSlots(axon)
+    return Etc.dictFromMap(acc)
+  }
+
+  static Grid toFuncSlots(Str axon)
   {
     // parse axon to verify its correct
     fn := Parser(Loc.synthetic, axon.in).parseTop("funcSlots", Etc.dict0)
