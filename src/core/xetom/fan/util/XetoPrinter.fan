@@ -122,9 +122,12 @@ class XetoPrinter
   }
 
   ** Encode inline meta as heredoc using current indentation
-  This metaInline(Str name, Str val)
+  This metaInline(Str name, Obj v)
   {
-    wc('<').w(name).wc(':').sp.heredoc(val).wc('>')
+    wc('<').w(name).wc(':').sp
+    if (v is Str) heredoc(v)
+    else val(v, null)
+    return wc('>')
   }
 
   ** Write a slot spec out using current indentation
@@ -225,7 +228,21 @@ class XetoPrinter
     name  := x["name"] as Str ?: throw Err("AST spec missing name: $x")
     type  := x["base"]?.toStr ?: "Dict"
     slots := x["slots"] as Grid
-    specHeader(name, type, x, metaSkipAst)
+
+    // pull multi-line meta out for inlines
+    metaInlines := Str[,]
+    x.each |v, n|
+    {
+      if (metaSkipAst.contains(n)) return
+      if (n == "defMeta" || n == "axon" || (v is Str && v.toStr.splitLines.size > 1))
+        metaInlines.add(n)
+    }
+    metaInlines.sort
+    metaInlines.moveTo("defMeta", 0)
+    metaInlines.moveTo("axon", -1)
+    metaInlines.moveTo("compTree", -1)
+
+    specHeader(name, type, x, metaSkipAst.dup.addAll(metaInlines))
     if (slots == null) nl
     else
     {
@@ -233,6 +250,10 @@ class XetoPrinter
       indent
       slots.each |s| { astSlot(s) }
       unindent
+      if (!metaInlines.isEmpty)
+      {
+        metaInlines.each |n| { nl.metaInline(n, x[n]).nl }
+      }
       w("}").nl
     }
     return this
