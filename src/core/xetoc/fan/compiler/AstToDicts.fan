@@ -39,23 +39,42 @@ internal class AstToDicts : Step
     return Etc.dictFromMap(acc)
   }
 
-  Dict? mapSlots(ASpec x)
+  Grid? mapSlots(ASpec x)
   {
     if (x.slots == null || x.slots.isEmpty) return null
-    acc := Str:Dict[:]
-    acc.ordered = true
-    x.slots.each |s, n| { acc[n] = mapSlot(s) }
-    return Etc.dictFromMap(acc)
+
+    acc := [Str:Obj][,]
+    x.slots.each |s, n| { acc.add(mapSlot(s)) }
+
+    cols := Str:Str[:]
+    cols.ordered = true
+    acc.each |row|
+    {
+      row.each |v, n| { if (cols[n] == null) cols[n] = n }
+    }
+    colNames := cols.keys
+
+    gb := GridBuilder()
+    colNames.each |n| { gb.addCol(n) }
+    acc.each |row|
+    {
+      cells := Obj?[,]
+      cells.capacity = colNames.size
+      colNames.each |n| { cells.add(row[n]) }
+      gb.addRow(cells)
+    }
+    return gb.toGrid
   }
 
-  Dict mapSlot(ASpec x)
+  Str:Obj mapSlot(ASpec x)
   {
     acc := Str:Obj[:]
     acc.ordered = true
+    acc["name"] = x.name
     acc.addNotNull("type", mapTypeRef(x.typeRef, null))
     mapMeta(acc, x.meta)
     acc.addNotNull("slots", mapSlots(x))
-    return Etc.dictFromMap(acc)
+    return acc
   }
 
   Void mapMeta(Str:Obj acc, ADict? meta)

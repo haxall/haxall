@@ -224,14 +224,14 @@ class XetoPrinter
   {
     name  := x["name"] as Str ?: throw Err("AST spec missing name: $x")
     type  := x["base"]?.toStr ?: "Dict"
-    slots := x["slots"] as Dict
+    slots := x["slots"] as Grid
     specHeader(name, type, x, metaSkipAst)
     if (slots == null) nl
     else
     {
       sp.w("{").nl
       indent
-      slots.each |s, n| { astSlot(n, s) }
+      slots.each |s| { astSlot(s) }
       unindent
       w("}").nl
     }
@@ -239,10 +239,11 @@ class XetoPrinter
   }
 
   ** Print AST slot spec representation
-  This astSlot(Str name, Dict x)
+  This astSlot(Dict x)
   {
+    name  := x["name"] as Str ?: "_0"
     type  := x["type"]?.toStr
-    slots := x["slots"] as Dict
+    slots := x["slots"] as Grid
     val   := x["val"]
     maybe := x["maybe"] == Marker.val
     if (!XetoUtil.isAutoName(name)) tab.w(name).w(": ")
@@ -258,7 +259,7 @@ class XetoPrinter
     {
       sp.w("{").nl
       indent
-      slots.each |s, n| { astSlot(n, s) }
+      slots.each |s| { astSlot(s) }
       unindent
       w("}").nl
     }

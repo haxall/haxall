@@ -201,7 +201,22 @@ const class HxProjCompanion : ProjCompanion
 
     // check slots (don't recurse into them)
     slots := rec["slots"]
-    if (slots != null && slots isnot Dict) throw InvalidCompanionRecErr("Invalid 'slots' tag - must be Dict, not $slots.typeof")
+    if (slots != null)
+    {
+      grid := slots as Grid ?: throw InvalidCompanionRecErr("Invalid 'slots' tag - must be Grid, not $slots.typeof")
+      if (!grid.isEmpty)
+      {
+        nameCol := grid.col("name", false) ?: throw InvalidCompanionRecErr("Slots grid missing 'name' col")
+        typeCol := grid.col("type", false) ?: throw InvalidCompanionRecErr("Slots grid missing 'type' col")
+        slotNames := Str:Str[:]
+        grid.each |row|
+        {
+          slotName := row.val(nameCol) as Str ?: throw InvalidCompanionRecErr("Slots grid row missing 'name'")
+          if (slotNames[slotName] != null) throw InvalidCompanionRecErr("Duplicate slot name: $slotName")
+          slotNames[slotName] = slotName
+        }
+      }
+    }
 
     return name
   }
@@ -246,51 +261,19 @@ const class HxProjCompanion : ProjCompanion
     return Etc.dictFromMap(acc)
   }
 
-  override Dict funcSlots(Str axon)
+  override Grid funcSlots(Str axon)
   {
     // parse axon to verify its correct
     fn := Parser(Loc.synthetic, axon.in).parseTop("funcSlots", Etc.dict0)
-    acc := Str:Obj[:]
-    acc.ordered = true
+    gb := GridBuilder()
+    gb.addCol("name").addCol("type").addCol("maybe")
     fn.params.each |p|
     {
-      acc[p.name] = objMaybeSlot
+      gb.addRow([p.name, objRef, Marker.val])
     }
-    acc["returns"] = objMaybeSlot
-    return Etc.dictFromMap(acc)
+    gb.addRow(["returns", objRef, Marker.val])
+    return gb.toGrid
   }
-
-  /*
-  static Str funcToXeto(LibNamespace ns, Str name, Str src, Dict meta)
-  {
-
-    // use XetoPrinter to write to in-memory buffer
-    buf := StrBuf()
-    buf.capacity = 100 + src.size
-    out := XetoPrinter(ns, buf.out)
-    out.omitSpecName = true
-
-    // foo: Func <meta>
-    out.specHeader(name, "Func", meta).w(" {")
-
-    // params + returns
-    first := true
-    fn.params.each |p, i|
-    {
-      if (first) first = false
-      else out.w(", ")
-      out.w(p.name).w(": Obj?")
-    }
-    if (!first) out.w(", ")
-    out.w("returns: Obj?\n")
-
-    // axon source
-    out.metaInline("axon", src)
-    out.w("}")
-
-    return buf.toStr
-  }
-  */
 
 //////////////////////////////////////////////////////////////////////////
 // Fields
@@ -299,7 +282,6 @@ const class HxProjCompanion : ProjCompanion
   static const Ref specRef := Ref("sys::Spec")
   static const Ref funcRef := Ref("sys::Func")
   static const Ref objRef  := Ref("sys::Obj")
-  static const Dict objMaybeSlot := Etc.dict2("type", objRef, "maybe", Marker.val)
 
   private const Lock lock := Lock.makeReentrant
 

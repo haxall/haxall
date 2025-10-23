@@ -17,9 +17,8 @@ using haystack
 **   - name: unique str name in companion lib
 **   - spec: must be @sys::Spec
 **   - base: ref for base type
-**   - slots: dict of slot AST representation
+**   - slots: grid with cols: name, type, plus col for each meta
 **   - any other tags are spec meta
-**   - each slot is dict {type, slots, meta tag...}
 **
 ** Instance record AST format:
 **   - rt: required to be "instance"
@@ -79,7 +78,7 @@ const mixin ProjCompanion
   abstract Dict func(Str name, Str axon, Dict meta := Etc.dict0)
 
   ** Parse axon source to create dict slots representation
-  @NoDoc abstract Dict funcSlots(Str axon)
+  @NoDoc abstract Grid funcSlots(Str axon)
 
 }
 

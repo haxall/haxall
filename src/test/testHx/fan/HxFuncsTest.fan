@@ -553,17 +553,23 @@ class HxFuncsTest : HxTest
     verifyEq(proj.ns.spec("proj::Bar", false), null)
 
     // func
-    x := eval("""companionFunc("foo", "(a, b)=>a+b", {admin})""")
-    sig := Etc.dict2("type", Ref("sys::Obj"), "maybe", m)
+    Dict x := eval("""companionFunc("foo", "(a, b)=>a+b", {admin})""")
+    objRef := Ref("sys::Obj")
+    slots := Etc.makeMapsGrid(null, [
+        ["name":"a",       "type":objRef, "maybe":m],
+        ["name":"b",       "type":objRef, "maybe":m],
+        ["name":"returns", "type":objRef, "maybe":m],
+      ]).reorderCols(["name", "type", "maybe"])
+    verifyGridEq(slots, x->slots)
     verifyDictEq(x,
       ["rt":"spec", "name":"foo", "base":Ref("sys::Func"), "spec":Ref("sys::Spec"),
-        "axon":"(a, b)=>a+b", "admin":m, "slots":Etc.dict3("a", sig, "b", sig, "returns", sig)])
+        "axon":"(a, b)=>a+b", "admin":m, "slots":slots])
 
     // parse
-    x = eval("""companionParse("Foo: Dict <abstract> { x: Obj? }")""")
+    x = eval("""companionParse("Foo: Dict <abstract> { a: Obj?, b: Obj?, returns: Obj? }")""")
     verifyDictEq(x,
       ["rt":"spec", "name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"),
-       "abstract":m, "slots":Etc.dict1("x", sig)])
+       "abstract":m, "slots":slots])
   }
 
 //////////////////////////////////////////////////////////////////////////

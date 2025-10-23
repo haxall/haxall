@@ -194,8 +194,7 @@ class RuntimeTest : HxTest
     addLib("hx.modbus")
     verifyEq(proj.read("name==\"hx.modbus\"")->rt, "lib")
 
-    slotStr := d(["type":Ref("sys::Str")])
-    slots   := d(["dis":slotStr])
+    slots   := Etc.makeMapGrid(null, ["name":"dis", "type":Ref("sys::Str")])
     specRef := Ref("sys::Spec")
 
     // fresh start
@@ -209,6 +208,7 @@ class RuntimeTest : HxTest
     verifyEq(specA.base.qname, "sys::Dict")
     verifyEq(specA.metaOwn["doc"], "testing")
     verifyEq(specA.meta["admin"], m)
+    verifyEq(specA.slot("dis").type.name, "Str")
 
     // add spec - specB
     proj.companion.add(d(["rt":"spec", "name":"specB", "base":Ref("Func"), "spec":specRef]))
@@ -227,6 +227,10 @@ class RuntimeTest : HxTest
     verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":"bad"])
     verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":slots, "qname":"proj::SpecB"])
     verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":slots, "type":"Dict"])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":"xxx"])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":Etc.makeMapGrid(null, ["foo":m])])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":Etc.makeMapGrid(null, ["foo":m])])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":Etc.makeMapsGrid(null, [["name":"x", "type":Ref("sys::Obj")], ["name":"x", "type":Ref("sys::Obj")]])])
     verifyDuplicateErr(["rt":"spec", "name":"SpecA",  "base":Ref("Scalar"), "spec":specRef, "slots":slots])
     digest = verifyCompanionRecs(["SpecA", "specB"], Str[,], null)
 
@@ -434,12 +438,13 @@ class RuntimeTest : HxTest
 
     // funcSlots
     src := "(r, s, p, q) => null"
+    objRef := Ref("sys::Obj")
     slots := proj.companion.funcSlots(src)
-    sigSlot := Etc.dict2("type", Ref("sys::Obj"), "maybe", m)
-    verifyDictEq(slots, ["p":sigSlot, "q":sigSlot, "r":sigSlot, "s":sigSlot, "returns":sigSlot])
-    order := Str[,]
-    slots.each |v, n| { order.add(n) }
-    verifyEq(order, ["r", "s", "p", "q", "returns"])
+    verifyDictEq(slots[0], ["name":"r", "type":objRef, "maybe":m])
+    verifyDictEq(slots[1], ["name":"s", "type":objRef, "maybe":m])
+    verifyDictEq(slots[2], ["name":"p", "type":objRef, "maybe":m])
+    verifyDictEq(slots[3], ["name":"q", "type":objRef, "maybe":m])
+    verifyDictEq(slots[4], ["name":"returns", "type":objRef, "maybe":m])
 
     // func
     rec = proj.companion.func("foo3", src, Etc.dict1("admin", m))
