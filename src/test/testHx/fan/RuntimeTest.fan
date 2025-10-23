@@ -286,8 +286,8 @@ class RuntimeTest : HxTest
 
     // remove errors
     companionMode = "remove"
-    verifyUnknownErr("removeNotFound")
-    verifyUnknownErr("hx.modbus")
+    proj.companion.remove("hx.modbus")
+    verifyNotNull(proj.libs.get("hx.modbus"))
 
     // re-boot project and verify libs/specs were persisted
     projRestart

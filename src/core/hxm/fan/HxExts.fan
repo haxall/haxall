@@ -134,9 +134,7 @@ const class HxExts : Actor, RuntimeExts
 
   override Ext add(Str name, Dict? settings := null)
   {
-    rt.libs.add(name)
-    ext := get(name)
-    if (settings != null && !settings.isEmpty) ext.settingsUpdate(settings)
+    rt.libsRef.addExt(name, settings)
     return get(name)
   }
 

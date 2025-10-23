@@ -43,7 +43,7 @@ const class HxLibs : RuntimeLibs
 
   internal HxNamespace init()
   {
-    doUpdate(null, null, true)
+    doUpdate(HxLibUpdate { it.init = true })
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ const class HxLibs : RuntimeLibs
     ns := nsRef.val
     while (ns == null)
     {
-      update(null, null)
+      update(HxLibUpdate {})
       ns = nsRef.val
     }
     return ns
@@ -183,28 +183,28 @@ const class HxLibs : RuntimeLibs
 
   override Void add(Str name)
   {
-    update([name], null)
+    addAll([name])
   }
 
   override Void addAll(Str[] names)
   {
-    update(checkDupNames(names), null)
+    update(HxLibUpdate { it.adds = checkDupNames(names) })
   }
 
   override Void remove(Str name)
   {
-    update(null, [name])
+    removeAll([name])
   }
 
   override Void removeAll(Str[] names)
   {
-    update(null, checkDupNames(names))
+    update(HxLibUpdate { it.removes = checkDupNames(names) })
   }
 
   override Void clear()
   {
     toRemove := list.findAll { it.basis == myBasis }.map { it.name }
-    update(null, toRemove)
+    removeAll(toRemove)
   }
 
   override Void reload()
@@ -237,16 +237,21 @@ const class HxLibs : RuntimeLibs
 // Update
 //////////////////////////////////////////////////////////////////////////
 
-  private HxNamespace update(Str[]? add, Str[]? remove)
+  internal Void addExt(Str name, Dict? settings)
+  {
+    update(HxLibUpdate { it.adds = [name]; it.settings = settings })
+  }
+
+  private HxNamespace update(HxLibUpdate u)
   {
     lock.lock
     try
-      return doUpdate(add, remove, false)
+      return doUpdate(u)
     finally
       lock.unlock
   }
 
-  private HxNamespace doUpdate(Str[]? adds, Str[]? removes, Bool init)
+  private HxNamespace doUpdate(HxLibUpdate u)
   {
     // build list of all the libs that should be in my namespace
     acc := Str:HxLib[:]
@@ -254,8 +259,8 @@ const class HxLibs : RuntimeLibs
     updateSysLibs(acc)
     updateConfiguredLibs(acc)
     updateCompanionLib(acc)
-    updateAdds(acc, adds)
-    updateRemoves(acc, removes)
+    updateAdds(acc, u.adds)
+    updateRemoves(acc, u.removes)
 
     // create namespace
     nsVers := acc.vals.map |x->LibVersion| { x.ver }
@@ -270,10 +275,10 @@ const class HxLibs : RuntimeLibs
     this.companionLibDigestRef.val = "companion-${rt.name}-${Ref.gen.id}"
 
     // if this is initialization, then we are done
-    if (init) return ns
+    if (u.init) return ns
 
     // persist to folio database
-    commit(adds, removes)
+    commit(u)
 
     // notify runtime
     this.rt.onLibsModified(ns)
@@ -433,34 +438,30 @@ const class HxLibs : RuntimeLibs
     return acc
   }
 
-  private Void commit(Str[]? adds, Str[]? removes)
+  private Void commit(HxLibUpdate u)
   {
     diffs := Diff[,]
 
     // add diffs
-    if (adds != null)
-    {
-      adds.each |n| { diffs.add(addDiff(n)) }
-    }
+    u.eachAdd |n, extra| { diffs.add(addDiff(n, extra)) }
 
     // remove diffs
-    if (removes != null)
+    u.eachRemove |n|
     {
-      removes.each |n|
-      {
-        rec := db.read(Filter.eq("rt", "lib").and(Filter.eq("name", n)), false)
-        if (rec == null) log.warn("Remove unknown lib: $n")
-        else diffs.add(removeDiff(rec))
-      }
+      rec := db.read(Filter.eq("rt", "lib").and(Filter.eq("name", n)), false)
+      if (rec == null) log.warn("Remove unknown lib: $n")
+      else diffs.add(removeDiff(rec))
     }
 
     if (diffs.isEmpty) return
     db.commitAll(diffs)
   }
 
-  static Diff addDiff(Str n)
+  static Diff addDiff(Str n, Dict? extra := null)
   {
-    Diff(null, Etc.dict2("rt", "lib", "name", n), Diff.add.or(Diff.bypassRestricted))
+    diff := Etc.dict2("rt", "lib", "name", n)
+    if (extra != null) diff = Etc.dictMerge(extra, diff)
+    return Diff(null, diff, Diff.add.or(Diff.bypassRestricted))
   }
 
   static Diff removeDiff(Dict rec)
@@ -476,6 +477,33 @@ const class HxLibs : RuntimeLibs
   private const AtomicRef mapRef := AtomicRef()
   private const Lock lock := Lock.makeReentrant
   private const HxLib? companionLib
+}
+
+**************************************************************************
+** HxLibUpdate
+**************************************************************************
+
+internal class HxLibUpdate
+{
+  Str[]? adds     // lib names to add
+  Str[]? removes  // lib names to remove
+  Bool init       // initialization
+  Dict? settings  // if adding extension
+
+  Void eachAdd(|Str n, Dict? extra| f)
+  {
+    if (adds == null) return
+    adds.each |n, i|
+    {
+      f(n, i == 0 ? settings : null)
+    }
+  }
+
+  Void eachRemove(|Str n| f)
+  {
+    if (removes == null) return
+    removes.each(f)
+  }
 }
 
 **************************************************************************
