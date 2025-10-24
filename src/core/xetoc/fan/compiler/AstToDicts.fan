@@ -19,6 +19,8 @@ internal class AstToDicts : Step
   override Void run()
   {
     rtInclude = compiler.opts.has("rtInclude")
+    unknownLibPrefix = compiler.libName + "::"
+
     acc :=  Dict[,]
     lib.tops.each |x| { acc.add(mapSpec(x)) }
     lib.instances.each |x| { acc.add(mapInstance(x)) }
@@ -167,9 +169,15 @@ internal class AstToDicts : Step
   {
     if (x == null) return def
     if (x.isResolved) return x.deref.id
-    return Ref(x.toStr)
+
+    // always return qname even if it not resolved;
+    // use libName from options if we need to make it a qname
+    str := x.toStr
+    if (!str.contains("::")) str = unknownLibPrefix + str
+    return Ref(str)
   }
 
   Bool rtInclude
+  Str? unknownLibPrefix
 }
 

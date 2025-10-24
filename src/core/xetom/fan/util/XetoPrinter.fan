@@ -29,8 +29,8 @@ class XetoPrinter
     this.ns   = ns
     this.out  = out
     this.opts = opts
-    this.omitSpecName = opts.has("omitSpecName")
-    this.noInferMeta  = opts.has("noInferMeta")
+    this.noInferMeta = opts.has("noInferMeta")
+    this.qnameForce  = opts.has("qnameForce")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ class XetoPrinter
   {
     doc := meta["doc"] as Str
     if (doc != null) this.doc(doc)
-    if (!omitSpecName) w(name).wc(':').sp
+    w(name).wc(':').sp
     this.type(type); if (meta.has("maybe")) wc('?')
     this.meta(meta, metaSkip)
     return this
@@ -133,8 +133,6 @@ class XetoPrinter
   ** Write a slot spec out using current indentation
   This slot(Spec slot)
   {
-    oldOmit := this.omitSpecName
-    this.omitSpecName = false
     tab.specHeader(slot.name, slot.type, slot.metaOwn)
 
     // this isn't super great until we really nail down spec vs instance slots
@@ -155,7 +153,6 @@ class XetoPrinter
       sp.w("}")
     }
     nl
-    this.omitSpecName = oldOmit
     return this
   }
 
@@ -267,10 +264,11 @@ class XetoPrinter
     slots := x["slots"] as Grid
     val   := x["val"]
     maybe := x["maybe"] == Marker.val
-    if (!XetoUtil.isAutoName(name)) tab.w(name).w(": ")
+    tab
+    if (!XetoUtil.isAutoName(name)) w(name).w(": ")
     if (type != null)
     {
-      w(type)
+      w(typeName(type))
       if (maybe) w("?")
     }
     meta(x, metaSkipAst)
@@ -282,7 +280,7 @@ class XetoPrinter
       indent
       slots.each |s| { astSlot(s) }
       unindent
-      w("}").nl
+      tab.w("}").nl
     }
     return this
   }
@@ -452,7 +450,29 @@ class XetoPrinter
   This type(Obj type)
   {
     name := type is Spec ? ((Spec)type).qname : type.toStr
-    return w(name)
+    return w(typeName(name))
+  }
+
+  ** Relative qnames unless qnameForce is set
+  Str typeName(Str n)
+  {
+    // if flag is set
+    if (qnameForce) return n
+
+    // if not a qname
+    colons := n.index("::")
+    if (colons == null) return n
+
+    // split
+    simple := n[colons+2..-1]
+
+    // if multiple matches stick with qname
+    // TODO: cannot do this during compile; need to refactor
+    // all the async loading first and simplify the MNamespace
+    // if (ns.unqualifiedTypes(simple).size > 1) return n
+
+    // use simple name
+    return simple
   }
 
   ** Quoted string literal (we use our own since we don't escape $ like Fantom)
@@ -531,8 +551,8 @@ class XetoPrinter
   ** Options passed
   const Dict opts
 
-  ** Omit spec name when using with ProjSpecs API
-  Bool omitSpecName
+  ** Force qnames
+  Bool qnameForce
 
   ** Don't try to infer meta from ns
   Bool noInferMeta

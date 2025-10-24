@@ -208,14 +208,14 @@ class PrinterTest : AbstractXetoTest
            foobar: sys::Func <nodoc, su, text:"$<copy>">|>)
 
     // verify doc, axon, nice marker order
-    out = newCase(Etc.dict1("omitSpecName", m))
+    out = newCase()
     out.specHeader("foobar", "Func", Etc.dict0).w(" {").nl
        .indent
        .tab.metaInline("axon", "My axon line 1\nline 2\n").nl
        .unindent
        .w("}").nl
     verifySpec(
-      Str<|Func {
+      Str<|foobar: Func {
              <axon: ---
              My axon line 1
              line 2
@@ -236,6 +236,7 @@ class PrinterTest : AbstractXetoTest
   XetoPrinter newCase(Dict? opts := null)
   {
     buf.clear
+    opts = Etc.dictMerge(Etc.dict1("qnameForce", m), opts)
     return XetoPrinter(ns, buf.out, opts)
   }
 

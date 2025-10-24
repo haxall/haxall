@@ -84,10 +84,10 @@ class ParseTest : AbstractXetoTest
       [
         ["name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"), "slots":Etc.makeMapGrid(null, [
            "name":"_0",
-           "type":Ref("Box"),
+           "type":Ref("proj::Box"),
            "slots":Etc.makeMapsGrid(null, [
-             ["name":"_0", "type":Ref("Label"), "slots":Etc.makeMapGrid(null, ["name":"text", "val":"a"]).reorderCols(["name", "val"]), ],
-             ["name":"_1", "type":Ref("Label"), "slots":Etc.makeMapGrid(null, ["name":"text", "val":"b"]).reorderCols(["name", "val"]), ]
+             ["name":"_0", "type":Ref("proj::Label"), "slots":Etc.makeMapGrid(null, ["name":"text", "val":"a"]).reorderCols(["name", "val"]), ],
+             ["name":"_1", "type":Ref("proj::Label"), "slots":Etc.makeMapGrid(null, ["name":"text", "val":"b"]).reorderCols(["name", "val"]), ]
              ]).reorderCols(["name", "type", "slots"]),
            ]).reorderCols(["name", "type", "slots"]),
          ]
@@ -103,10 +103,10 @@ class ParseTest : AbstractXetoTest
              c: TooMuchJoy
            }|>,
       [
-        ["name":"Foo", "base":Ref("TSwift"), "spec":Ref("sys::Spec"), "doc":"Foo docs here", "slots":Etc.makeMapsGrid(null, [
+        ["name":"Foo", "base":Ref("foo.bar::TSwift"), "spec":Ref("sys::Spec"), "doc":"Foo docs here", "slots":Etc.makeMapsGrid(null, [
            ["name":"a", "type":Ref("sys::Str")],
            ["name":"b", "type":Ref("foo.bar::Foo"), ],
-           ["name":"c", "type":Ref("TooMuchJoy") ],
+           ["name":"c", "type":Ref("foo.bar::TooMuchJoy") ],
            ])
         ]
       ])
@@ -150,7 +150,7 @@ class ParseTest : AbstractXetoTest
     if (roundtrip)
     {
       buf := StrBuf()
-      out := XetoPrinter(ns, buf.out)
+      out := XetoPrinter(ns, buf.out, opts)
       actual.each |a| { out.ast(a).nl }
       src2 := buf.toStr
       verifyParse(ns, src2, expect, false)
