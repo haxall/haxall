@@ -534,6 +534,10 @@ class HxFuncsTest : HxTest
     verifySame(spec.base, proj.ns.spec("sys::Dict"))
     verifyEq(spec.meta["doc"], ":-)")
 
+    // read
+    rec := eval("""companionRead("Foo")""")
+    verifySame(rec, proj.read("name==\"Foo\""))
+    verifyEq(eval("""companionRead("Bad", false)"""), null)
 
     // update
     eval("""companionUpdate({rt:"spec", name:"Foo", base:@sys::Scalar, spec:@sys::Spec, doc:":-("})""")

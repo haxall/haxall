@@ -288,22 +288,46 @@ extSettingsUpdate: Func <admin> { name: Str, changes: Dict, returns: Dict }
 // Companion
 //////////////////////////////////////////////////////////////////////////
 
-// Add new spec or instance to companion lib - see `hx::CompanionLib.add`.
+// Read a companion spec or instance by name - see `hx::ProjCompanion.read`.
+// Examples:
+//   companionRead("MySpec")
+//   companionRead("my-instance")
+companionRead: Func <admin> { name: Str, checked: Bool, returns: Obj? }
+
+// Add new spec or instance to companion lib - see `hx::ProjCompanion.add`.
+// Examples:
+//   companionAdd({rt:"spec", name:"MySpec", base:@sys::Dict, spec:@sys::Spec})
+//   companionParse("MySpec: Dict { dis: Str }").companionAdd
 companionAdd: Func <admin> { rec: Dict, returns: Obj? }
 
-// Update existing spec or instance in companion lib - see `hx::CompanionLib.update`.
+// Update existing spec or instance in companion lib - see `hx::ProjCompanion.update`.
+// Examples:
+//   companionRead("MySpec").merge({base:@sys::Scalar}).companionUpdate
+//   companionRead("myFunc").merge({axon:"(x)=>x"}).companionUpdate
 companionUpdate: Func <admin> { rec: Dict, returns: Obj? }
 
-// Rename spec or instance in companion lib - see `hx::CompanionLib.rename`.
+// Rename spec or instance in companion lib - see `hx::ProjCompanion.rename`.
+// Examples:
+//   companionRename("OldSpec", "NewSpec")
 companionRename: Func <admin> { oldName: Str, newName: Str, returns: Obj? }
 
-// Rename spec or instance in companion lib - see `hx::CompanionLib.remove`.
+// Remove a spec or instance from companion lib - see `hx::ProjCompanion.remove`.
+// Examples:
+//   companionRemove("MySpec")
 companionRemove: Func <admin> { name: Str, returns: Obj? }
 
-// Parse xeto source to its companion lib AST representation - see `hx::CompanionLib.parse`.
+// Parse xeto source to its companion lib AST representation - see `hx::ProjCompanion.parse`.
+// Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
+// Examples:
+//   companionParse("MySpec: Dict { dis: Str }")
+//   companionParse("@my-instance: Dict {}")
 companionParse: Func { xeto: Str, returns: Dict }
 
-// Create func companion lib AST representation - see `hx::CompanionLib.func`.
+// Create func companion lib AST representation - see `hx::ProjCompanion.func`.
+// Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
+// Examples:
+//   companionFunc("myFunc", "(a)=>a*2")
+//   companionFunc("myFunc", "(a)=>a*2", {admin})
 companionFunc: Func <admin> { name: Str, axon: Str, meta: Dict?, returns: Dict }
 
 //////////////////////////////////////////////////////////////////////////

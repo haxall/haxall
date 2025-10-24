@@ -532,42 +532,70 @@ const class HxFuncs
 // Companion Specs
 //////////////////////////////////////////////////////////////////////////
 
-  ** Add new spec or instance to companion lib - see `hx::CompanionLib.add`.
+  ** Read a companion spec or instance by name - see `hx::ProjCompanion.read`.
+  ** Examples:
+  **   companionRead("MySpec")
+  **   companionRead("my-instance")
+  @Api @Axon
+  static Dict? companionRead(Str name, Bool checked := true)
+  {
+    curContext.proj.companion.read(name, checked)
+  }
+
+  ** Add new spec or instance to companion lib - see `hx::ProjCompanion.add`.
+  ** Examples:
+  **   companionAdd({rt:"spec", name:"MySpec", base:@sys::Dict, spec:@sys::Spec})
+  **   companionParse("MySpec: Dict { dis: Str }").companionAdd
   @Api @Axon { admin=true }
   static Void companionAdd(Dict rec)
   {
     curContext.proj.companion.add(rec)
   }
 
-  ** Update existing spec or instance in companion lib - see `hx::CompanionLib.update`.
+  ** Update existing spec or instance in companion lib - see `hx::ProjCompanion.update`.
+  ** Examples:
+  **   companionRead("MySpec").merge({base:@sys::Scalar}).companionUpdate
+  **   companionRead("myFunc").merge({axon:"(x)=>x"}).companionUpdate
   @Api @Axon { admin=true }
   static Void companionUpdate(Dict rec)
   {
     curContext.proj.companion.update(rec)
   }
 
-  ** Rename spec or instance in companion lib - see `hx::CompanionLib.rename`.
+  ** Rename spec or instance in companion lib - see `hx::ProjCompanion.rename`.
+  ** Examples:
+  **   companionRename("OldSpec", "NewSpec")
   @Api @Axon { admin=true }
   static Void companionRename(Str oldName, Str newName)
   {
     curContext.proj.companion.rename(oldName, newName)
   }
 
-  ** Rename spec or instance in companion lib - see `hx::CompanionLib.remove`.
+  ** Remove a spec or instance from companion lib - see `hx::ProjCompanion.remove`.
+  ** Examples:
+  **   companionRemove("MySpec")
   @Api @Axon { admin=true }
   static Void companionRemove(Str name)
   {
     curContext.proj.companion.remove(name)
   }
 
-  ** Parse xeto source to its companion lib AST representation - see `hx::CompanionLib.parse`.
+  ** Parse xeto source to its companion lib AST representation - see `hx::ProjCompanion.parse`.
+  ** Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
+  ** Examples:
+  **   companionParse("MySpec: Dict { dis: Str }")
+  **   companionParse("@my-instance: Dict {}")
   @Api @Axon
   static Dict companionParse(Str xeto)
   {
     curContext.proj.companion.parse(xeto)
   }
 
-  ** Create func companion lib AST representation - see `hx::CompanionLib.func`.
+  ** Create func companion lib AST representation - see `hx::ProjCompanion.func`.
+  ** Pipe to `companionAdd()` or `companionUpdate()` to update from Xeto source.
+  ** Examples:
+  **   companionFunc("myFunc", "(a)=>a*2")
+  **   companionFunc("myFunc", "(a)=>a*2", {admin})
   @Api @Axon
   static Dict companionFunc(Str name, Str axon, Dict? meta := null)
   {
