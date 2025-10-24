@@ -240,12 +240,12 @@ class XetoPrinter
     metaInlines.moveTo("compTree", -1)
 
     specHeader(name, type, x, metaSkipAst.dup.addAll(metaInlines))
-    if (slots == null) nl
+    if (slots == null && metaInlines.isEmpty) nl
     else
     {
       sp.w("{").nl
       indent
-      slots.each |s| { astSlot(s) }
+      if (slots != null) slots.each |s| { astSlot(s) }
       unindent
       if (!metaInlines.isEmpty)
       {
