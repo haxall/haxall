@@ -1,9 +1,3 @@
-# Include any files or directories that you don't want to be copied to your
-# Docker container upon build (e.g., local build artifacts, temporary files, etc.).
-#
-# For more help, visit the .dockerignore file reference guide at
-# https://docs.docker.com/go/build-context-dockerignore/
-
 **/.git*
 **/.gitignore
 **/.github
@@ -14,3 +8,5 @@ readme.md
 **/.gitattributes
 **/venv
 **/.venv
+lib/
+dbs/

@@ -24,22 +24,19 @@ All the documentation is hosted on [haxall.io](https://haxall.io):
 # License
 Haxall is released under the [Academic Free License 3.0](https://opensource.org/licenses/AFL-3.0).
 
-
 # Running Docker Containers
 
-If you want to run the default haxall docker image on a container, rather than setting it up manually
-onto your local environment, you can do so in one of three ways. They all require that you download
-[Docker Desktop](https://www.docker.com/products/docker-desktop/) and have it running in the background.
+[Docker Desktop](https://www.docker.com/products/docker-desktop/) must be installed and running in the background to create Docker images and containers and to run Docker containers.  Docker images must be created using Docker Compose and the below instructions.
 
-If you follow the instructions, you will create a local bind-mount located somewhere on your filesystem.
-Any data will be persisted there, and can be changed on the local system to affect the container and vice versa.
-
-Once the container is running, go to <i><u>http://localhost:8080</i></u> to use haxall. Default suuser and supass
-should be printed in whatever terminal or logs you are using.
+Please note:
+ - Following the below instructions will result in a local bind-mount `dbs` folder being created on your filesystem for persisting data if it does not already exist
+ - A database is initialized only if a directory named according to the `HAXALL_DB_NAME` environment variable does not exist in the `dbs` folder
+ - When a non-default password is not specified and a new database is created, a default password is generated and displayed in the container's standard output
+ - Once the container is running, go to <i><u>http://localhost:8080</i></u> to use haxall with the configured username and password.  If the default port 8080 was not configured, then go to <i><u>http://localhost:<HAXALL_PORT></i></u> instead.
 
 ## 1. Build the image yourself with Docker Compose
-- Make sure you have downloaded and are running Docker Desktop.
-- Download the latest release of haxall <i>(any releases before <u>Jun 26, 2024</u> will not have this functionality)</i>, or clone the repository.
+- Verify Docker Desktop is installed and running.
+- Download the latest release of haxall <i>(any releases before <u>Oct 24, 2025</u> will not have this functionality)</i>, or clone the repository.
 - In the root folder of haxall create a file called `.env` that defines environment variables for the Docker container to be created.  An example template for this file is shown below.
 
 ```ini
