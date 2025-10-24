@@ -68,13 +68,8 @@ const class HxLibs : RuntimeLibs
 
   HxNamespace ns()
   {
-    ns := nsRef.val
-    while (ns == null)
-    {
-      update(HxLibUpdate {})
-      ns = nsRef.val
-    }
-    return ns
+    while (needReload.val) update(HxLibUpdate {})
+    return nsRef.val
   }
 
   override RuntimeLib[] list() { map.vals }
@@ -209,7 +204,7 @@ const class HxLibs : RuntimeLibs
 
   override Void reload()
   {
-    nsRef.val = null
+    needReload.val = true
   }
 
   private Str[] checkDupNames(Str[] names)
@@ -253,6 +248,9 @@ const class HxLibs : RuntimeLibs
 
   private HxNamespace doUpdate(HxLibUpdate u)
   {
+    // save old namespace for thunk reuse
+    oldNs := nsRef.val
+
     // build list of all the libs that should be in my namespace
     acc := Str:HxLib[:]
     updateBootLibs(acc)
@@ -273,6 +271,7 @@ const class HxLibs : RuntimeLibs
     this.mapRef.val  = acc.toImmutable
     this.packRef.val = updatePack(ns, acc)
     this.companionLibDigestRef.val = "companion-${rt.name}-${Ref.gen.id}"
+    this.needReload.val = false
 
     // if this is initialization, then we are done
     if (u.init) return ns
@@ -474,6 +473,7 @@ const class HxLibs : RuntimeLibs
 //////////////////////////////////////////////////////////////////////////
 
   private const AtomicRef nsRef := AtomicRef()
+  private const AtomicBool needReload := AtomicBool(true)
   private const AtomicRef mapRef := AtomicRef()
   private const Lock lock := Lock.makeReentrant
   private const HxLib? companionLib

@@ -276,7 +276,7 @@ abstract const class HxRuntime : Runtime
 // Overrides
 //////////////////////////////////////////////////////////////////////////
 
-  ** Called when the libs are modified
+  ** Called when the libs are modified (called while holding HxLibs lock)
   virtual Void onLibsModified(HxNamespace ns)
   {
     // update defs
