@@ -330,6 +330,11 @@ companionParse: Func { xeto: Str, returns: Dict }
 //   companionFunc("myFunc", "(a)=>a*2", {admin})
 companionFunc: Func <admin> { name: Str, axon: Str, meta: Dict?, returns: Dict }
 
+// Print companion AST rec representation back a Xeto string - see `hx::ProjCompanion.print`.
+// Examples:
+//   companionRead("MySpec").companionPrint
+companionPrint: Func { rec: Dict, returns: Str }
+
 //////////////////////////////////////////////////////////////////////////
 // Watches
 //////////////////////////////////////////////////////////////////////////

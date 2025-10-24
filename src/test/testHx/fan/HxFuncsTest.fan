@@ -574,6 +574,10 @@ class HxFuncsTest : HxTest
     verifyDictEq(x,
       ["rt":"spec", "name":"Foo", "base":Ref("sys::Dict"), "spec":Ref("sys::Spec"),
        "abstract":m, "slots":slots])
+
+    // print
+    s := eval("""companionParse("Foo: Dict <abstract>").companionPrint""")
+    verifyEq(s.toStr[0..3], "Foo:")
   }
 
 //////////////////////////////////////////////////////////////////////////

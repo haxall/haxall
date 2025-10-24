@@ -602,6 +602,15 @@ const class HxFuncs
     curContext.proj.companion.func(name, axon, meta ?: Etc.dict0)
   }
 
+  ** Print companion AST rec representation back a Xeto string - see `hx::ProjCompanion.print`.
+  ** Examples:
+  **   companionRead("MySpec").companionPrint
+  @Api @Axon
+  static Str companionPrint(Dict rec)
+  {
+    curContext.proj.companion.print(rec)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Watches
 //////////////////////////////////////////////////////////////////////////
