@@ -249,7 +249,7 @@ const class HxLibs : RuntimeLibs
   private HxNamespace doUpdate(HxLibUpdate u)
   {
     // save old namespace for thunk reuse
-    oldNs := nsRef.val
+    oldNs := nsRef.val as MNamespace
 
     // build list of all the libs that should be in my namespace
     acc := Str:HxLib[:]
@@ -259,10 +259,11 @@ const class HxLibs : RuntimeLibs
     updateCompanionLib(acc)
     updateAdds(acc, u.adds)
     updateRemoves(acc, u.removes)
+    companionRecs := updateCompanionRecs(oldNs)
 
     // create namespace
     nsVers := acc.vals.map |x->LibVersion| { x.ver }
-    nsOpts := Etc.dict1("uncheckedDepends", Marker.val)
+    nsOpts := Etc.dict2x("uncheckedDepends", Marker.val, "companionRecs", companionRecs)
     ns := HxNamespace(rt, env, nsVers, nsOpts)
     ns.libs // force sync load
 
@@ -391,6 +392,58 @@ const class HxLibs : RuntimeLibs
   private LibVersion updateVersion(Str name)
   {
     repo.latest(name, false) ?: FileLibVersion.makeNotFound(name)
+  }
+
+  private CompanionRecs? updateCompanionRecs(HxNamespace? oldNs)
+  {
+    if  (!rt.isProj) return null
+    recs := rt.db.readAllList(Filter.eq("rt", "spec").or(Filter.eq("rt", "instance")))
+    thunks := updateCompanionReuseThunks(recs, oldNs)
+    return CompanionRecs(recs, thunks)
+  }
+
+  private Str:Thunk updateCompanionReuseThunks(Dict[] newRecs, HxNamespace? oldNs)
+  {
+    // gotta have old namespace
+    acc := Str:Thunk[:]
+    if (oldNs == null) return acc
+
+    // build up map of old recs by name
+    oldCompanionRecs := oldNs.companionRecs
+    oldRecsByName := Str:Dict[:]
+    oldCompanionRecs.recs.each |oldRec|
+    {
+      name := oldRec["name"] as Str
+      if (name == null) return
+      oldRecsByName[name] = oldRec
+    }
+
+    // now walk thru new records and try to reuse thunk
+    oldLib := oldNs.lib(XetoUtil.companionLibName, false)
+    newRecs.each |newRec|
+    {
+      name := newRec["name"] as Str
+      if (name == null) return
+
+      // if old rec is not match, then do not reuse
+      oldRec := oldRecsByName[name]
+      if (newRec !== oldRec) return
+
+      // try to reuse from previous proj lib, but if it failed to
+      // compile then fallback to the previous companionRecs cache
+      if (oldLib != null)
+      {
+        spec := oldLib.spec(name, false)
+        if (spec != null && spec.isFunc && spec.func.hasThunk)
+          acc[name] = spec.func.thunk
+      }
+      else
+      {
+        acc.setNotNull(name, oldCompanionRecs.thunks.get(name))
+      }
+    }
+
+    return acc
   }
 
   private RuntimeLibPack updatePack(Namespace ns, Str:HxLib allLibs)

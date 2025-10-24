@@ -76,5 +76,51 @@ class NamespaceTest : HxTest
     return def
   }
 
+//////////////////////////////////////////////////////////////////////////
+// Thunk Reuse
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testThunkReuse()
+  {
+    addLib("hx.task")
+    addFunc("projA", "() => 1")
+    addFunc("projB", "() => 2")
+    verifyEq(eval("projA()"), n(1))
+    verifyEq(eval("projB()"), n(2))
+
+    ns1 := proj.ns
+    t1 := ns1.spec("hx.task::tasks").func.thunk
+    a1 := ns1.spec("proj::projA").func.thunk
+    b1 := ns1.spec("proj::projB").func.thunk
+    /*
+    echo("::: start")
+    echo("  : t = $t1 0x" + Env.cur.idHash(t1))
+    echo("  : a = $a1 0x" + Env.cur.idHash(a1))
+    echo("  : b = $b1 0x" + Env.cur.idHash(b1))
+    */
+
+    // change namespace
+    proj.companion.update(Etc.dictSet(proj.companion.read("projB"), "axon", "() => 20"))
+    ns2 := proj.ns
+    verifyNotSame(ns1, ns2)
+    verifyEq(eval("projA()"), n(1))
+    verifyEq(eval("projB()"), n(20))
+
+    // verify lib, a are same but that b is new thunk
+    t2 := ns2.spec("hx.task::tasks").func.thunk
+    a2 := ns2.spec("proj::projA").func.thunk
+    b2 := ns2.spec("proj::projB").func.thunk
+    /*
+    echo("::: change")
+    echo("  : t = $t2 0x" + Env.cur.idHash(t2))
+    echo("  : a = $a2 0x" + Env.cur.idHash(a2))
+    echo("  : b = $b2 0x" + Env.cur.idHash(b2))
+    */
+    verifySame(t1, t2)
+    verifySame(a1, a2)
+    verifyNotSame(b1, b2)
+  }
+
 }
 

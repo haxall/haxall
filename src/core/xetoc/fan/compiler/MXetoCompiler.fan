@@ -68,6 +68,7 @@ internal class MXetoCompiler : XetoCompiler
       ReifyInstances(),
       CheckErrors(),
       Assemble(),
+      ReuseThunks(),
       OutputZip()
     ])
     info("Compiled xetolib [${build?.osPath ?: libName}]")

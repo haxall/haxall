@@ -77,6 +77,8 @@ const class MFunc : SpecFunc
   override Thunk thunk() { thunkRef ?: initThunk }
   private const Thunk? thunkRef
 
+  override Bool hasThunk() { thunkRef != null }
+
   override Bool isTemplate()
   {
     for (Spec? p := spec; p != null; p = p.base)
@@ -84,10 +86,15 @@ const class MFunc : SpecFunc
     return false
   }
 
+  Void setThunk(Thunk thunk)
+  {
+    #thunkRef->setConst(this, thunk)
+  }
+
   private Thunk initThunk()
   {
     thunk := SpecBindings.cur.thunk(spec)
-    #thunkRef->setConst(this, thunk)
+    setThunk(thunk)
     return thunk
   }
 }

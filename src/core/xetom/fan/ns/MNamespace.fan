@@ -25,6 +25,7 @@ const class MNamespace : LibNamespace, CNamespace
   {
     this.envRef = env
     this.opts = opts
+    this.companionRecs = opts["companionRecs"]
 
     // order versions by depends and check all dependencies
     errs := Str:Err[:]
@@ -93,7 +94,7 @@ const class MNamespace : LibNamespace, CNamespace
     return buf.toDigest("SHA-1").toBase64Uri
   }
 
-  virtual Dict[] readCompanionLibRecs() { throw UnsupportedErr() }
+  const CompanionRecs? companionRecs
 
 //////////////////////////////////////////////////////////////////////////
 // Libs
@@ -870,6 +871,27 @@ const class MNamespace : LibNamespace, CNamespace
   internal const MLibEntry[] entriesList  // orderd by depends
   private const Str:MLibEntry entriesMap
   private const AtomicRef libsRef := AtomicRef()
+}
+
+**************************************************************************
+** CompanionRecs
+**************************************************************************
+
+@Js
+const class CompanionRecs
+{
+  ** Construct with list of recs and thunks to reuse
+  new make(Dict[] recs, Str:Thunk thunks)
+  {
+    this.recs   = recs
+    this.thunks = thunks
+  }
+
+  ** Companion recs from database
+  const Dict[] recs
+
+  ** Thunks to reuse by spec name
+  const Str:Thunk thunks
 }
 
 **************************************************************************

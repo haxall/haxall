@@ -25,9 +25,5 @@ const class HxNamespace : MNamespace, Namespace
 
   const HxRuntime rt
 
-  override Dict[] readCompanionLibRecs()
-  {
-    rt.db.readAllList(Filter.eq("rt", "spec").or(Filter.eq("rt", "instance")))
-  }
 }
 

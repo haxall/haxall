@@ -204,7 +204,7 @@ internal class Parse : Step
     lib.files = EmptyLibFiles.val
 
     // parse each record
-    recs := ns.readCompanionLibRecs
+    recs := ns.companionRecs?.recs ?: throw Err("No companion recs")
     recs.each |rec| { parseCompanionRec(lib, rec) }
   }
 
