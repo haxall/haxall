@@ -193,32 +193,39 @@ const class HxCompanion : ProjCompanion
     if (rec.has("type")) throw InvalidCompanionRecErr("Must not include 'type' tag")
 
     // check base
-    baseRef := rec["base"] as Ref ?: throw InvalidCompanionRecErr("Missing 'base' ref tag")
+    baseRef := validateTypeRef(rec, "base")
 
     // check spec
-    specRef := rec["spec"] as Ref ?: throw InvalidCompanionRecErr("Missing 'spec' ref tag")
+    specRef := validateTypeRef(rec, "spec")
     if (specRef.id != "sys::Spec") throw InvalidCompanionRecErr("Invalid 'spec' tag - must be @sys::Spec, not @$specRef")
 
     // check slots (don't recurse into them)
-    slots := rec["slots"]
-    if (slots != null)
-    {
-      grid := slots as Grid ?: throw InvalidCompanionRecErr("Invalid 'slots' tag - must be Grid, not $slots.typeof")
-      if (!grid.isEmpty)
-      {
-        nameCol := grid.col("name", false) ?: throw InvalidCompanionRecErr("Slots grid missing 'name' col")
-        typeCol := grid.col("type", false) ?: throw InvalidCompanionRecErr("Slots grid missing 'type' col")
-        slotNames := Str:Str[:]
-        grid.each |row|
-        {
-          slotName := row.val(nameCol) as Str ?: throw InvalidCompanionRecErr("Slots grid row missing 'name'")
-          if (slotNames[slotName] != null) throw InvalidCompanionRecErr("Duplicate slot name: $slotName")
-          slotNames[slotName] = slotName
-        }
-      }
-    }
+    validateSlots(rec["slots"])
 
     return name
+  }
+
+  private static Void validateSlots(Obj? slots)
+  {
+    if (slots == null) return
+
+    grid := slots as Grid ?: throw InvalidCompanionRecErr("Invalid 'slots' tag - must be Grid, not $slots.typeof")
+    if (grid.isEmpty) return
+
+    nameCol := grid.col("name", false) ?: throw InvalidCompanionRecErr("Slots grid missing 'name' col")
+    typeCol := grid.col("type", false) ?: throw InvalidCompanionRecErr("Slots grid missing 'type' col")
+    slotNames := Str:Str[:]
+
+    grid.each |row|
+    {
+      slotName := row.val(nameCol) as Str ?: throw InvalidCompanionRecErr("Slots grid row missing 'name'")
+      typeRef  := row.val(typeCol) as Ref ?: throw InvalidCompanionRecErr("Slots grid row missing 'type'")
+
+      if (slotNames[slotName] != null) throw InvalidCompanionRecErr("Duplicate slot name: $slotName")
+      slotNames[slotName] = slotName
+
+      if (!typeRef.id.contains("::")) throw InvalidCompanionRecErr("Slot '$slotName' type must be qname: $typeRef")
+    }
   }
 
   private static Str validateInstance(Str name, Dict rec)
@@ -227,6 +234,15 @@ const class HxCompanion : ProjCompanion
     if (specRef?.id == "sys::Spec") throw InvalidCompanionRecErr("Invalid 'spec' tag - must not be @sys::Spec")
 
     return name
+  }
+
+  private static Ref validateTypeRef(Dict rec, Str name)
+  {
+    val := rec[name]
+    if (val == null) throw InvalidCompanionRecErr("Type ref tag '$name' missing")
+    ref := val as Ref  ?: throw InvalidCompanionRecErr("Type ref tag '$name' must be Ref, not $val.typeof")
+    if (!ref.id.contains("::")) throw InvalidCompanionRecErr("Type ref tag '$name' must be qname: $val")
+    return ref
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -196,13 +196,15 @@ class RuntimeTest : HxTest
 
     slots   := Etc.makeMapGrid(null, ["name":"dis", "type":Ref("sys::Str")])
     specRef := Ref("sys::Spec")
+    dictRef  := Ref("sys::Dict")
+    funcRef  := Ref("sys::Func")
 
     // fresh start
     digest := proj.companion.libDigest
     verifyCompanionRecs(Str[,], Str[,], null)
 
     // add spec - SpecA
-    proj.companion.add(d(["rt":"spec", "name":"SpecA", "base":Ref("Dict"), "spec":specRef, "slots":slots, "doc":"testing", "admin":m]))
+    proj.companion.add(d(["rt":"spec", "name":"SpecA", "base":Ref("sys::Dict"), "spec":specRef, "slots":slots, "doc":"testing", "admin":m]))
     digest = verifyCompanionRecs(["SpecA"], Str[,], digest)
     specA := proj.companion.lib.spec("SpecA")
     verifyEq(specA.base.qname, "sys::Dict")
@@ -211,27 +213,31 @@ class RuntimeTest : HxTest
     verifyEq(specA.slot("dis").type.name, "Str")
 
     // add spec - specB
-    proj.companion.add(d(["rt":"spec", "name":"specB", "base":Ref("Func"), "spec":specRef]))
+    proj.companion.add(d(["rt":"spec", "name":"specB", "base":Ref("sys::Func"), "spec":specRef]))
     specB := proj.companion.lib.spec("specB")
     digest = verifyCompanionRecs(["SpecA", "specB"], Str[,], digest)
     verifyEq(specB.base.qname, "sys::Func")
 
     // add spec errors
     companionMode = "add"
-    verifyInvalidErr(["rt":null,   "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":slots])
-    verifyInvalidErr(["rt":"foo",  "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":slots])
-    verifyInvalidErr(["rt":"spec", "name":"Bad Name", "base":null,        "spec":specRef, "slots":slots])
-    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":"BadStr",    "spec":specRef, "slots":slots])
-    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":null,    "slots":slots])
-    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":Ref("bad"), "slots":slots])
-    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":"bad"])
-    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":slots, "qname":"proj::SpecB"])
-    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":slots, "type":"Dict"])
-    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":"xxx"])
-    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":Etc.makeMapGrid(null, ["foo":m])])
-    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":Etc.makeMapGrid(null, ["foo":m])])
-    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":Etc.makeMapsGrid(null, [["name":"x", "type":Ref("sys::Obj")], ["name":"x", "type":Ref("sys::Obj")]])])
-    verifyDuplicateErr(["rt":"spec", "name":"SpecA",  "base":Ref("Scalar"), "spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":null,   "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":"foo",  "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"Bad Name", "base":null,    "spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":"BadStr","spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":null,    "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":Ref("bad"), "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":null, "spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":"bad", "spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":Ref("Dict"), "spec":specRef, "slots":slots])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":"bad"])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":slots, "qname":"proj::SpecB"])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":slots, "type":"Dict"])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":"xxx"])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":Etc.makeMapGrid(null, ["foo":m])])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":Etc.makeMapGrid(null, ["name":m])])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":Etc.makeMapGrid(null, ["name":"x", "type":Ref("Obj")])])
+    verifyInvalidErr(["rt":"spec", "name":"SpecB",    "base":dictRef, "spec":specRef, "slots":Etc.makeMapsGrid(null, [["name":"x", "type":Ref("sys::Obj")], ["name":"x", "type":Ref("sys::Obj")]])])
+    verifyDuplicateErr(["rt":"spec", "name":"SpecA",  "base":Ref("sys::Scalar"), "spec":specRef, "slots":slots])
     digest = verifyCompanionRecs(["SpecA", "specB"], Str[,], null)
 
     // add instance - inst-a
@@ -249,7 +255,7 @@ class RuntimeTest : HxTest
     digest = verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], digest)
 
     // update spec - SpecA
-    proj.companion.update(d(["rt":"spec", "name":"SpecA", "base":Ref("Func"), "spec":specRef, "slots":slots, "su":m]))
+    proj.companion.update(d(["rt":"spec", "name":"SpecA", "base":funcRef, "spec":specRef, "slots":slots, "su":m]))
     digest = verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], digest)
     specA = proj.companion.lib.spec("SpecA")
     verifyEq(specA.base.qname, "sys::Func")
@@ -259,13 +265,13 @@ class RuntimeTest : HxTest
 
     // update errors
     companionMode = "update"
-    verifyInvalidErr(["rt":null,   "name":"SpecA", "base":Ref("Func"), "spec":specRef, "slots":slots, "su":m])
-    verifyInvalidErr(["rt":"bad",  "name":"SpecA", "base":Ref("Func"), "spec":specRef, "slots":slots, "su":m])
+    verifyInvalidErr(["rt":null,   "name":"SpecA", "base":funcRef, "spec":specRef, "slots":slots, "su":m])
+    verifyInvalidErr(["rt":"bad",  "name":"SpecA", "base":funcRef, "spec":specRef, "slots":slots, "su":m])
     verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":"bad",       "spec":specRef, "slots":slots, "su":m])
-    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":Ref("Func"), "spec":null,    "slots":slots, "su":m])
-    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":Ref("Func"), "spec":"Bad",   "slots":slots, "su":m])
-    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":Ref("Func"), "spec":specRef, "slots":"bad", "su":m])
-    verifyUnknownErr(["rt":"spec", "name":"SpecX", "base":Ref("Func"), "spec":specRef, "slots":slots, "su":m])
+    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":funcRef, "spec":null,    "slots":slots, "su":m])
+    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":funcRef, "spec":"Bad",   "slots":slots, "su":m])
+    verifyInvalidErr(["rt":"spec", "name":"SpecA", "base":funcRef, "spec":specRef, "slots":"bad", "su":m])
+    verifyUnknownErr(["rt":"spec", "name":"SpecX", "base":funcRef, "spec":specRef, "slots":slots, "su":m])
     verifyCompanionRecs(["SpecA", "specB"], Str["hx.modbus", "inst-a"], null)
 
     // re-boot project and verify libs/specs were persisted
@@ -298,10 +304,10 @@ class RuntimeTest : HxTest
     digest = verifyCompanionRecs(["SpecA"], Str["inst-a"], digest)
 
     // update switch spec <-> instance
-    proj.companion.add(d(["rt":"spec",     "name":"a", "base":Ref("Dict"), "spec":specRef]))
+    proj.companion.add(d(["rt":"spec",     "name":"a", "base":Ref("sys::Dict"), "spec":specRef]))
     proj.companion.add(d(["rt":"instance", "name":"b", "foo":m]))
     digest = verifyCompanionRecs(["SpecA", "a"], ["b", "inst-a"], digest)
-    proj.companion.update(d(["rt":"spec",     "name":"b", "base":Ref("Dict"), "spec":specRef]))
+    proj.companion.update(d(["rt":"spec",     "name":"b", "base":Ref("sys::Dict"), "spec":specRef]))
     proj.companion.update(d(["rt":"instance", "name":"a", "foo":m]))
     digest = verifyCompanionRecs(["SpecA", "b"], ["a", "inst-a"], digest)
 

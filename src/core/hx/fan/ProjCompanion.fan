@@ -16,15 +16,17 @@ using haystack
 **   - rt: required to be "spec"
 **   - name: unique str name in companion lib
 **   - spec: must be @sys::Spec
-**   - base: ref for base type
-**   - slots: grid with cols: name, type, plus col for each meta
+**   - base: ref qname for base type
+**   - slots: grid with cols: name, type ref,  plus col for each meta
 **   - any other tags are spec meta
+**   - all type references must be a qname ref
 **
 ** Instance record AST format:
 **   - rt: required to be "instance"
 **   - name: unique str name in companion lib
 **   - spec: must be anything other than @sys::Spec
 **   - any other tags for instance data
+**
 **
 const mixin ProjCompanion
 {
