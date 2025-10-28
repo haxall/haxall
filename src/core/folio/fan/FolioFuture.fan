@@ -86,6 +86,10 @@ abstract const class FolioFuture : Future
 
   ** Get FolioRes with current timeout
   internal abstract FolioRes getRes()
+
+  override Obj promise() { throw UnsupportedErr()  }
+
+  override Future then(|Obj?->Obj?| onOk, |Err->Obj|? onErr := null) { throw UnsupportedErr() }
 }
 
 **************************************************************************
