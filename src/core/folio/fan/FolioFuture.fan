@@ -100,6 +100,7 @@ internal const class SyncFolioFuture : FolioFuture
   override This waitFor(Duration? timeout := null) { this }
   override Void cancel() {}
   override const FolioRes getRes
+  override final Err? err() { null }
 }
 
 **************************************************************************
@@ -117,6 +118,7 @@ internal const class AsyncFolioFuture : FolioFuture
   override Void cancel() { future.cancel }
   override This waitFor(Duration? timeout := null) { future.waitFor(timeout); return this }
   override FolioRes getRes() { future.get(timeoutRef.val) }
+  override Err? err() { future.err }
 }
 
 **************************************************************************
