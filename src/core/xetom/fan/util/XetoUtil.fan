@@ -202,12 +202,10 @@ const class XetoUtil
   }
 
   ** Convert a list of dicts with "spec" tag to unique lib names
-  ** Always include "sys"
   static Str[] dataToLibs(Dict[] recs)
   {
     // get all unique lib names
     acc := Str:Str[:]
-    acc["sys"] = "sys"
     recs.each |row|
     {
       spec := row["spec"] as Ref

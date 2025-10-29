@@ -96,6 +96,7 @@ const class FileRepo : LibRepo
 
   LibNamespace createFromNames(Str[] names)
   {
+    if (names.isEmpty) names = ["sys"]
     depends := names.map |n->LibDepend| { LibDepend(n) }
     vers    := solveDepends(depends)
     return createNamespace(vers)
@@ -104,8 +105,7 @@ const class FileRepo : LibRepo
   LibNamespace createFromData(Dict[] recs)
   {
     libNames := XetoUtil.dataToLibs(recs)
-    vers := libNames.map |libName->LibVersion| { latest(libName) }
-    return createNamespace(vers)
+    return createFromNames(libNames)
   }
 
   private LibNamespace makeNamespace(LibVersion[] versions)
