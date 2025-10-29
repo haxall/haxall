@@ -9,29 +9,20 @@ ARG JDK_VERSION=17
 
 FROM eclipse-temurin:$JDK_VERSION AS base
 
-RUN set -e; `
-  export DEBIAN_FRONTEND=noninteractive `
-  && apt-get -q update `
-  && apt-get -q install -y git unzip curl sed `
-  && rm -rf /var/lib/apt/lists/*
+WORKDIR /app/
 
-WORKDIR /app
-ARG FAN_REL_VER=1.0.80
+ARG FAN_REL_VER=1.0.82
 
-#FANTOM SOURCE START
-# This is building fantom from source. We need to start with downloading the latest release of
-# fantom (zipfile) because fantom is required to build fantom.
-# huge help: https://gist.github.com/gvenzl/1386755861fb42db492276d3864a378c
-#set is a builtin shell command:https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_25
-RUN LATEST_ZIPURL=$(curl -s "https://api.github.com/repos/fantom-lang/fantom/releases/latest" | sed -Ene '/^[[:space:]]*"browser_download_url": *"(.+)"$/s//\1/p') `
-  && curl -fsSL "${LATEST_ZIPURL}" -o fantom.zip `
-  && unzip fantom.zip -d fantom `
-  && mv fantom/fantom-* rel `
-  && chmod +x rel/bin/* `
-  && chmod +x rel/adm/* `
-  && rm -rf fantom && rm -f fantom.zip
-
-ENV FAN_SUBSTITUTE=/app/rel
+# Build Fantom from source
+RUN <<EOF
+  apt-get -q update
+  apt-get -q install -y git curl unzip
+  curl -fsSL https://github.com/fantom-lang/fantom/releases/download/v${FAN_REL_VER}/fantom-${FAN_REL_VER}.zip -o fantom.zip
+  unzip fantom.zip
+  mv fantom-${FAN_REL_VER} rel
+  chmod +x rel/bin/*
+  chmod +x rel/adm/*
+EOF
 
 #Get latest fantom release
 RUN git clone -b master --depth 1 --single-branch https://github.com/fantom-lang/fantom fan `
@@ -41,14 +32,14 @@ RUN <<EOF
   echo "\n\njdkHome=${JAVA_HOME}/\ndevHome=/app/fan/\n" >> rel/etc/build/config.props
   echo "\n\njdkHome=${JAVA_HOME}/" >> fan/etc/build/config.props
   rel/bin/fan fan/src/buildall.fan superclean
-  rel/bin/fan fan/src/buildall.fan superclean
   rel/bin/fan fan/src/buildboot.fan compile
   fan/bin/fan fan/src/buildpods.fan compile
 EOF
 
-ENV PATH $PATH:/app/fan/bin
-#FANTOM SOURCE END
+ENV FAN_SUBSTITUTE=/app/rel/
+ENV PATH=$PATH:/app/fan/bin
 
+#FANTOM SOURCE END
 
 #XETO START
 # ADD git@github.com:Project-Haystack/xeto.git xeto
@@ -75,7 +66,7 @@ FROM eclipse-temurin:$JDK_VERSION AS devrun
 COPY --from=base /app/fan/ /opt/fan/
 COPY --from=base /app/haystack-defs/ /app/haystack-defs/
 COPY --from=base /app/xeto/ /app/xeto/
-ENV PATH $PATH:/opt/fan/bin
+ENV PATH=$PATH:/opt/fan/bin
 
 ENV HAXALL_DB_NAME=${HAXALL_DB_NAME:-haxall}
 
