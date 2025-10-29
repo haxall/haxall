@@ -62,13 +62,13 @@ internal class FitsCmd : XetoCmd
   {
     this.recs = readInputFile(input)
     this.recsById = Ref:Dict[:]
-    recs.each |rec|
+    recs.each |rec, i|
     {
       id := rec["id"] as Ref
-      if (id == null) echo("WARN: input rec missing id: $rec")
+      if (id == null) rec = Etc.dictSet(rec, "id", Ref(i.toStr))
       else recsById.add(id, rec)
     }
-    echo("Read Inputs [$recs.size recs]")
+    // echo("Read Inputs [$recs.size recs]")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ internal class FitsCmd : XetoCmd
   private Void loadNamespace()
   {
     this.ns = XetoEnv.cur.createNamespaceFromData(recs)
-    echo("Load Namespace [$ns.libs.size libs]")
+    //echo("Load Namespace [$ns.libs.size libs]")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -97,9 +97,9 @@ internal class FitsCmd : XetoCmd
     if (ignoreRefs) optsMap["ignoreRefs"] = Marker.val
     opts := Etc.makeDict(optsMap)
 
-    recs.each |rec, i|
+    recs.each |rec|
     {
-      id := rec["id"] as Ref ?: Ref(i.toStr)
+      id := rec.id
       startSize := hits.size
 
       specTag := rec["spec"] as Ref
