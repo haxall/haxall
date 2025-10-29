@@ -36,7 +36,7 @@
   ** Associate a prefix with a namespace. If the prefix is already mapped to a different
   ** namespace, then throw `ArgErr`.
   **
-  ** If an RDF export format doesn't support namesapce prefixes, this is a no-op. The
+  ** If an RDF export format doesn't support namespace prefixes, this is a no-op. The
   ** behavior of the RDF out stream is undefined if you call this method of you have
   ** called `writeStmt`, so you should set all your namespace prefixes prior to writing
   ** statements.
@@ -177,3 +177,4 @@
     }
   }
 }
+

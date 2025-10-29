@@ -561,7 +561,7 @@ class XetoPrinter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const LibNamespace ns     // xeto namesapce
+  const LibNamespace ns     // xeto namespace
   private OutStream out     // output stream
   private Int indentation   // indentation level
 }

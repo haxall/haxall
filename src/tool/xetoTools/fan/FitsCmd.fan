@@ -78,7 +78,7 @@ internal class FitsCmd : XetoCmd
   private Void loadNamespace()
   {
     this.ns = XetoEnv.cur.createNamespaceFromData(recs)
-    echo("Load Namesapce [$ns.libs.size libs]")
+    echo("Load Namespace [$ns.libs.size libs]")
   }
 
 //////////////////////////////////////////////////////////////////////////

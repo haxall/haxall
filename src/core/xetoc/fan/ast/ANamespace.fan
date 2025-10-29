@@ -11,7 +11,7 @@ using xeto
 using xetom
 
 **
-** AST namesapce
+** AST namespace
 **
 @Js
 internal class ANamespace : CNamespace
