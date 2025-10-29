@@ -114,8 +114,15 @@ abstract class XetoCmd : AbstractMain
     }
     str := buf.toStr
 
-    file.out.print(str).close
-    echo("Wrote Output [$file.osPath]")
+    if (file.basename == "stdout")
+    {
+      Env.cur.out.printLine(str)
+    }
+    else
+    {
+      file.out.print(str).close
+      echo("Wrote Output [$file.osPath]")
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

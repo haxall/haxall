@@ -24,7 +24,7 @@ internal class FitsCmd : XetoCmd
   @Opt { help = "Ignore if refs resolve to valid target in input data set" }
   Bool ignoreRefs
 
-  @Opt { help = "Output file or if stdout if omitted (must have zinc, trio, json extension)" }
+  @Opt { help = "Output to file, use 'stdout.zinc' for stdout (must have zinc, trio, json ext)" }
   File? outFile
 
   @Arg { help = "Input file (must have zinc, trio, json extension)" }
@@ -38,6 +38,7 @@ internal class FitsCmd : XetoCmd
     out.printLine("  xeto $name recs.json            // Validate Hayson input file")
     out.printLine("  xeto $name recs.trio            // Validate Trio input file")
     out.printLine("  xeto $name recs.trio -graph     // Validate graph queries")
+    out.printLine("  xeto $name recs.json -outFile stdout.zinc  // Output zinc to stdout")
     return 1
   }
 
@@ -64,11 +65,15 @@ internal class FitsCmd : XetoCmd
     readInputFile(input).each |rec, i|
     {
       id := rec["id"] as Ref
-      if (id == null) rec = Etc.dictSet(rec, "id", Ref(i.toStr))
-      else recsById.add(id, rec)
+      if (id == null)
+      {
+        id =  Ref(i.toStr)
+        rec = Etc.dictSet(rec, "id", id)
+      }
+      recsById.add(id, rec)
     }
     this.recs = recsById.vals
-    // echo("Read Inputs [$recs.size recs]")
+    if (outFile == null) echo("Read Inputs [$recs.size recs]")
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -78,7 +83,7 @@ internal class FitsCmd : XetoCmd
   private Void loadNamespace()
   {
     this.ns = XetoEnv.cur.createNamespaceFromData(recs)
-    //echo("Load Namespace [$ns.libs.size libs]")
+    if (outFile == null) echo("Load Namespace [$ns.libs.size libs]")
   }
 
 //////////////////////////////////////////////////////////////////////////
