@@ -98,14 +98,14 @@ abstract const class Folio
   ** Close the database synchronously (block until closed)
   Void close(Duration? timeout := null)
   {
-    closeAsync.timeout(timeout).getRes
+    closeAsync.getRes(timeout)
   }
 
   ** Close the database asynchronously and return future
   FolioFuture closeAsync()
   {
     if (closedRef.getAndSet(true))
-      return FolioFuture(CountFolioRes(0))
+      return FolioFuture.makeSync(CountFolioRes(0))
     else
       return doCloseAsync
   }

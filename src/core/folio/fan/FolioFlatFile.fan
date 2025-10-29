@@ -69,7 +69,7 @@ const class FolioFlatFile : Folio
 
   @NoDoc override FolioFuture doCloseAsync()
   {
-    FolioFuture(CountFolioRes(0))
+    FolioFuture.makeSync(CountFolioRes(0))
   }
 
   @NoDoc override FolioRec? doReadRecById(Ref id)
@@ -102,7 +102,7 @@ const class FolioFlatFile : Folio
         errMsg = id.toStr
     }
     errs := !errMsg.isEmpty
-    return FolioFuture(ReadFolioRes(errMsg, errs, dicts))
+    return FolioFuture.makeSync(ReadFolioRes(errMsg, errs, dicts))
   }
 
   @NoDoc override FolioFuture doReadAll(Filter filter, Dict? opts)
@@ -111,7 +111,7 @@ const class FolioFlatFile : Folio
     acc := Dict[,]
     doReadAllEachWhile(filter, opts) |rec| { acc.add(rec); return null }
     if (opts != null && opts.has("sort")) acc = Etc.sortDictsByDis(acc)
-    return FolioFuture(ReadFolioRes(errMsg, false, acc))
+    return FolioFuture.makeSync(ReadFolioRes(errMsg, false, acc))
   }
 
   @NoDoc override Int doReadCount(Filter filter, Dict? opts)

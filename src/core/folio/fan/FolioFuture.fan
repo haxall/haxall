@@ -13,24 +13,38 @@ using haystack
 **
 ** Response from a `Folio` database that provides access to eventual result
 **
-abstract const class FolioFuture : Future
+const class FolioFuture : Future
 {
-  ** Make synchronous response
-  @NoDoc static new makeSync(FolioRes res) { SyncFolioFuture(res) }
-
   ** Make asynchronous response
-  @NoDoc static new makeAsync(Future future) { AsyncFolioFuture(future) }
+  @NoDoc static FolioFuture makeAsync(Future wrap) { make(wrap) }
 
-  ** FolioFuture is not completable
-  @NoDoc override final This complete(Obj? val) { throw UnsupportedErr() }
+  ** Make synchronous response
+  @NoDoc static new makeSync(FolioRes res) { make(Future.makeCompletable.complete(res)) }
 
-  ** FolioFuture is not completable
-  @NoDoc override final This completeErr(Err err) { throw UnsupportedErr() }
+  ** Constructor always wraps future
+  @NoDoc new make(Future wrap) : super.make(wrap) {}
 
-  ** Block until result ready
+  ** Wrap future
+  @NoDoc override This wrap(Future w) { make(w) }
+
+  ** Default timeout to use
+  Duration timeout
+  {
+    get { timeoutRef.val }
+    set { timeoutRef.val = it }
+  }
+  private const AtomicRef timeoutRef := AtomicRef(30sec)
+
+  ** Get response value
   @NoDoc override final Obj? get(Duration? timeout := null)
   {
-    waitFor(timeout).getRes.val
+    getRes(timeout).val
+  }
+
+  ** Get FolioRes with given timeout or if null use default
+  @NoDoc FolioRes getRes(Duration? timeout := null)
+  {
+    wraps.get(timeout ?: this.timeout)
   }
 
   ** Get the result as one Dict.  If there is no results then
@@ -81,48 +95,6 @@ abstract const class FolioFuture : Future
     getRes.diffs
   }
 
-  ** Set the timeout to use before accessing the result.
-  @NoDoc abstract This timeout(Duration? timeout)
-
-  ** Get FolioRes with current timeout
-  internal abstract FolioRes getRes()
-
-  override Obj promise() { throw UnsupportedErr()  }
-
-  override Future then(|Obj?->Obj?| onOk, |Err->Obj|? onErr := null) { throw UnsupportedErr() }
-}
-
-**************************************************************************
-** SyncFolioFuture
-**************************************************************************
-
-internal const class SyncFolioFuture : FolioFuture
-{
-  new make(FolioRes res) { this.getRes = res }
-  override FutureStatus status() { FutureStatus.ok }
-  override This timeout(Duration? timeout) { this }
-  override This waitFor(Duration? timeout := null) { this }
-  override Void cancel() {}
-  override const FolioRes getRes
-  override final Err? err() { null }
-}
-
-**************************************************************************
-** AsyncFolioFuture
-**************************************************************************
-
-internal const class AsyncFolioFuture : FolioFuture
-{
-  new make(Future future) { this.future = future }
-  const Future future
-  const AtomicRef timeoutRef := AtomicRef(30sec)
-  override Future? wraps() { future }
-  override FutureStatus status() { future.status }
-  override This timeout(Duration? t) { timeoutRef.val = t; return this }
-  override Void cancel() { future.cancel }
-  override This waitFor(Duration? timeout := null) { future.waitFor(timeout); return this }
-  override FolioRes getRes() { future.get(timeoutRef.val) }
-  override Err? err() { future.err }
 }
 
 **************************************************************************

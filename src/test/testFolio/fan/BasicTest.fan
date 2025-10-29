@@ -679,7 +679,7 @@ class BasicTest : AbstractFolioTest
 
       t.clear
       verifyEq(t.hisWrites.size, 0)
-      Dict res := folio.his.write(pt.id, items).get
+      Dict res := folio.his.write(pt.id, items).getRes.val
       verifyEq(t.hisWrites.size, 1)
       verifyEq(res["count"], n(2))
       verifyEq(res["span"], Span(ts1, ts2))
