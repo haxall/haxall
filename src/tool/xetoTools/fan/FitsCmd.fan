@@ -60,14 +60,14 @@ internal class FitsCmd : XetoCmd
 
   private Void readInput()
   {
-    this.recs = readInputFile(input)
-    this.recsById = Ref:Dict[:]
-    recs.each |rec, i|
+    this.recsById = Ref:Dict[:] { ordered = true }
+    readInputFile(input).each |rec, i|
     {
       id := rec["id"] as Ref
       if (id == null) rec = Etc.dictSet(rec, "id", Ref(i.toStr))
       else recsById.add(id, rec)
     }
+    this.recs = recsById.vals
     // echo("Read Inputs [$recs.size recs]")
   }
 
