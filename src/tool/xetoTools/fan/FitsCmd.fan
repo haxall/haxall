@@ -97,9 +97,9 @@ internal class FitsCmd : XetoCmd
     if (ignoreRefs) optsMap["ignoreRefs"] = Marker.val
     opts := Etc.makeDict(optsMap)
 
-    recs.each |rec|
+    recs.each |rec, i|
     {
-      id := rec.id
+      id := rec["id"] as Ref ?: Ref(i.toStr)
       startSize := hits.size
 
       specTag := rec["spec"] as Ref
