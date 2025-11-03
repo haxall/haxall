@@ -209,14 +209,15 @@ class CompSpace : AbstractCompSpace
     timersNeedUpdate = true
   }
 
-  ** Recursively unmount component into this space
-  internal Void unmount(Comp c)
+  ** Recursively unmount component into this space.
+  ** 'target' is the original (root) component that was unmounted.
+  internal Void unmount(Comp c, Comp target := c)
   {
     // increment version
     updateVer(c.spi)
 
     // recurse children
-    c.eachChild |kid| { unmount(kid) }
+    c.eachChild |kid| { unmount(kid, target) }
 
     // invoke callback on component
     try
@@ -236,8 +237,38 @@ class CompSpace : AbstractCompSpace
     // remove from my lookup tables
     byId.remove(c.id)
 
+    // sanitize the component space, but only once after all kids unmounted
+    if (c === target) sanitize
+
     // set flag to indicate we need to update timers
     timersNeedUpdate = true
+  }
+
+  ** Cleanup unresolved links, and reset any unlinked slots back
+  ** to their default value.
+  internal Void sanitize()
+  {
+    each |comp|
+    {
+      if (!comp.has("links")) return
+
+      oldLinks := comp.links
+      newLinks := oldLinks
+      oldLinks.eachLink |toSlot, link|
+      {
+        if (newLinks.isEmpty) return
+
+        fromComp := readById(link.fromRef, false)
+        if (fromComp != null) return
+
+        newLinks = newLinks.remove(toSlot, link)
+
+        if (!newLinks.isLinked(toSlot))
+          comp.set(toSlot, slotDefVal(comp, toSlot))
+      }
+
+      if (oldLinks !== newLinks) comp.set("links", newLinks)
+    }
   }
 
   ** Increment space version and assign to comp
@@ -282,6 +313,14 @@ class CompSpace : AbstractCompSpace
     newSpec := ns.spec(c.spec.qname)
     if (commit) ((MCompSpi)c.spi).specRef = newSpec
     c.eachChild |kid| { updateCompSpec(kid, ns, commit) }
+  }
+
+  ** Get the default value a component's slot
+  private Obj? slotDefVal(Comp c, Str slotName)
+  {
+    slotSpec := c.spec.slot(slotName)
+    if (slotSpec.meta.has("maybe")) return null
+    return ns.instantiate(slotSpec)
   }
 
 //////////////////////////////////////////////////////////////////////////
