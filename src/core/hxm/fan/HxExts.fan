@@ -150,7 +150,7 @@ const class HxExts : Actor, RuntimeExts
   }
 
   ** called when libs add/removed while holding HxProjLibs.lock
-  internal Void onLibsModified(HxNamespace ns)
+  internal Void onNamespaceModified(HxNamespace ns)
   {
     oldMap   := Str:Ext[:]
     newMap   := Str:Ext[:]

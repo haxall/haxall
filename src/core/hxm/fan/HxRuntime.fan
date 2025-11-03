@@ -276,14 +276,14 @@ abstract const class HxRuntime : Runtime
 // Overrides
 //////////////////////////////////////////////////////////////////////////
 
-  ** Called when the libs are modified (called while holding HxLibs lock)
-  virtual Void onLibsModified(HxNamespace ns)
+  ** Called when the namespace is modified (called while holding HxLibs lock)
+  virtual Void onNamespaceModified(HxNamespace ns)
   {
     // update defs
     defsRecompile
 
     // update extensions
-    extsRef.onLibsModified(ns)
+    extsRef.onNamespaceModified(ns)
 
     // if I am the sys, then all the proj ns need reload too
     if (isSys)

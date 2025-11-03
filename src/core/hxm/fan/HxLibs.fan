@@ -281,7 +281,7 @@ const class HxLibs : RuntimeLibs
     commit(u)
 
     // notify runtime
-    this.rt.onLibsModified(ns)
+    this.rt.onNamespaceModified(ns)
 
     return ns
   }
