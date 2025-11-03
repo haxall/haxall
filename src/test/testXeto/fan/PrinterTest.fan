@@ -222,6 +222,20 @@ class PrinterTest : AbstractXetoTest
              --->
            }
           |>)
+
+    // verify compound (AND)
+    out = newCase()
+    ofs := ["ph::Ahu", "ph::Vav"]
+    out.specHeader("Foo", "sys::And", Etc.dict1("ofs", ofs))
+    verifySpec(
+      Str<|Foo: ph::Ahu & ph::Vav|>)
+
+    // verify compound (OR)
+    out = newCase()
+    ofs = ["ph::Ahu", "ph::Vav", "ph::Fcu"]
+    out.specHeader("Foo", "sys::Or", Etc.dict2("ofs", ofs, "admin", m))
+    verifySpec(
+      Str<|Foo: ph::Ahu | ph::Vav | ph::Fcu <admin>|>)
   }
 
   Void verifySpec(Str expect)

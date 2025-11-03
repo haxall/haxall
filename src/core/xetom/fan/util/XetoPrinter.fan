@@ -79,13 +79,13 @@ class XetoPrinter
     doc := meta["doc"] as Str
     if (doc != null) this.doc(doc)
     w(name).wc(':').sp
-    this.type(type); if (meta.has("maybe")) wc('?')
+    this.type(type, meta)
     this.meta(meta, metaSkip)
     return this
   }
 
   ** Always skip these which should be encoded outside of meta
-  static const Str[] metaSkipDef := ["axon", "axonTree", "compTree", "doc", "maybe", "val"]
+  static const Str[] metaSkipDef := ["ofs", "axon", "axonTree", "compTree", "doc", "maybe", "val"]
 
   ** Return tag names to encode as inline meta
   @NoDoc static Str[] toInlineMetaNames(Dict meta)
@@ -305,7 +305,7 @@ class XetoPrinter
   }
 
   ** Always skip these which should be encoded outside of meta
-  static const Str[] metaSkipAst := ["id", "mod", "rt", "name", "base", "type", "slots", "spec", "doc", "maybe", "val"]
+  static const Str[] metaSkipAst := ["id", "mod", "rt", "name", "ofs", "base", "type", "slots", "spec", "doc", "maybe", "val"]
 
 //////////////////////////////////////////////////////////////////////////
 // Literals
@@ -325,7 +325,7 @@ class XetoPrinter
     if (x is Ref) return ref(x)
 
     spec := specOf(x)
-    if (x isnot Str && spec != inferred) type(spec).sp
+    if (x isnot Str && spec != inferred) type(spec, Etc.dict0).sp
     str := spec.binding.encodeScalar(x)
     if (str.contains("\n")) indent.heredoc(str).unindent
     else quoted(str)
@@ -359,7 +359,7 @@ class XetoPrinter
   This dict(Dict x, Str[] skip := dictSkip)
   {
     spec := specOf(x)
-    if (spec.qname != "sys::Dict") type(spec).sp
+    if (spec.qname != "sys::Dict") type(spec, Etc.dict0).sp
     wc('{')
     num := 0
     indent
@@ -378,7 +378,7 @@ class XetoPrinter
   This list(List list, Spec? inferred)
   {
     spec := inferred ?: specOf(list)
-    type(spec).sp.wc('{')
+    type(spec, Etc.dict0).sp.wc('{')
     num := 0
     indent
     list.each |v|
@@ -446,11 +446,28 @@ class XetoPrinter
     return this
   }
 
-  ** Write type name where type can be string like "Str?" or a Spec
-  This type(Obj type)
+  ** Write type name where type can be string like "Str" or a Spec
+  This type(Obj type, Dict meta)
   {
     name := type is Spec ? ((Spec)type).qname : type.toStr
-    return w(typeName(name))
+    if (name == "sys::And" || name == "sys::Or")
+    {
+      ofs := meta["ofs"] as List
+      sep := name == "sys::And" ? '&' : '|'
+      if (ofs != null)
+      {
+        ofs.each |x, i|
+        {
+          if (i > 0) sp.wc(sep).sp
+          this.type(x, Etc.dict0)
+        }
+        return this
+      }
+    }
+
+    w(typeName(name))
+    if (meta.has("maybe")) wc('?')
+    return this
   }
 
   ** Relative qnames unless qnameForce is set
