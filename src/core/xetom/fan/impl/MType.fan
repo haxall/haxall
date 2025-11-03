@@ -6,6 +6,7 @@
 //   23 Feb 2023  Brian Frank  Creation
 //
 
+using crypto
 using util
 using xeto
 
@@ -45,5 +46,18 @@ const final class MType : MSpec
   private const MEnum? enumRef
 
   override Str toStr() { qname }
+
+  override Int inheritanceDigest(Spec self)
+  {
+    if (inheritanceDigestRef == 0)
+    {
+      d := ((MEnv)XetoEnv.cur).computeInheritanceDigest(self)
+      if (d == 0) d = 1
+      MType#inheritanceDigestRef->setConst(this, d)
+    }
+    return inheritanceDigestRef
+  }
+  private const Int inheritanceDigestRef
+
 }
 

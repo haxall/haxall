@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using crypto
 using util
 using xeto
 using xetom
@@ -121,6 +122,28 @@ const class ServerEnv : MEnv
   {
     // lazily create after construction
     FileRepo(this)
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Inheritance Digest
+//////////////////////////////////////////////////////////////////////////
+
+  override Int computeInheritanceDigest(Spec t)
+  {
+    d := Crypto.cur.digest("SHA-1")
+    updateInheritanceDigest(d, t)
+    return d.digest.readS8
+  }
+
+  private static Void updateInheritanceDigest(Digest d, Spec t)
+  {
+    d.updateAscii(t.qname)
+    if (t.base == null) return
+    updateInheritanceDigest(d, t.base)
+    if (t.isCompound)
+    {
+      t.ofs.each |of| { updateInheritanceDigest(d, of) }
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -80,6 +80,11 @@ const class MSpec
   }
   private const MFunc? funcRef
 
+  virtual Int inheritanceDigest(Spec spec)
+  {
+    throw UnsupportedErr(qname)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Dict Representation
 //////////////////////////////////////////////////////////////////////////
@@ -308,6 +313,8 @@ const class XetoSpec : Spec, Dict, CSpec
   override final XetoSpec[]? cofs()  { ofs(false) as Obj }
 
   override final Type fantomType() { m.fantomType }
+
+  override final Int inheritanceDigest() { m.inheritanceDigest(this) }
 
   const MSpec? m
 }
