@@ -377,7 +377,10 @@ const class CompBinding : DictBinding
 @Js
 const class ImplDictBinding : DictBinding
 {
-  new make(Str spec, Type type) : super(spec, type) { impl = type.pod.type("M" + type.name) }
+  new make(Str spec, Type type) : super(spec, type)
+  {
+    impl = type.pod.type("M" + type.name, false) ?: type.pod.type(type.name)
+  }
   const Type impl
   override Dict decodeDict(Dict xeto) { impl.make([xeto]) }
 }
