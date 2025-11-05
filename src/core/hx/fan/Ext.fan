@@ -311,7 +311,10 @@ class FileUploadHandler : UploadHandler
       }
     }
 
-    return Etc.makeDictGrid(["uri":file.uri], cx.db.readById(Ref(file.name)))
+    tags := Str:Obj?["uri":file.uri]
+    if (isCreate) tags["rec"] = cx.db.readById(Ref(file.name), false)
+
+    return Etc.makeDict(tags)
   }
 
   ** Create a file rec in the folio database for this upload and return
