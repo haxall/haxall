@@ -284,22 +284,46 @@ class FileUploadHandler : UploadHandler
   ** Use 8MB chunks for output
   private static const Int mb8 := 1024 * 1024 * 8
 
-  ** Return true if this web req is attempting to create a new file
-  virtual Bool isCreate()
+  ** Return true if this web req is attempting to create a new rec file
+  virtual Bool isCreateRec()
   {
-    req.method == "POST" &&
-    (path == `/proj/${cx.rt.name}/rec/` || path == `/rec/`)
+    path == `/proj/${cx.rt.name}/rec/` || path == `/rec/`
   }
 
   IFileExt ifileExt() { cx.sys.file }
 
   override Obj? upload()
   {
-    file := ifileExt.resolve(path)
+    file  := ifileExt.resolve(path)
 
-    // handle new file creation
-    if (file.isDir && isCreate) file = onCreate
+    // handle upload to a directory
+    if (file.isDir) file = toDirFile
+    // {
+    //   name := toFilename
+    //   spec := toSpec(name)
+    //   if (name == null)
+    //   {
+    //     name = "upload-" + DateTime.now.toLocale("YYYYMMDD-hhmmss")
+    //     ext := spec.meta["fileExt"]
+    //     if (ext != null) name = "${name}.${ext}"
+    //   }
+    //   if (isCreateRec)
+    //   {
+    //     tags := Str:Obj?[
+    //       "dis": name,
+    //       "spec": spec.id,
+    //     ]
+    //     rec := cx.db.commit(Diff.makeAdd(tags)).newRec
+    //     // very important to return the FileExt uri
+    //     file = ifileExt.resolve(path.plus(`${rec.id.toProjRel.id}`))
+    //   }
+    //   else
+    //   {
+    //     file = ifileExt.resolve(`${path}${name}`)
+    //   }
+    // }
 
+    // upload
     file.withOut |out|
     {
       buf := Buf(mb8)
@@ -311,40 +335,51 @@ class FileUploadHandler : UploadHandler
       }
     }
 
+    // result Dict
     tags := Str:Obj?["uri":file.uri]
-    if (isCreate) tags["rec"] = cx.db.readById(Ref(file.name), false)
+    if (isCreateRec) tags["rec"] = cx.db.readById(Ref(file.name), false)
 
     return Etc.makeDict(tags)
   }
 
-  ** Create a file rec in the folio database for this upload and return
-  ** a File resolved against the IFileExt
-  virtual protected File onCreate()
+  ** When uploading to a directory we need to figure out which file to write
+  protected File toDirFile()
   {
+    File? file
     name := toFilename
     spec := toSpec(name)
     if (name == null)
     {
-      ext := spec.meta["fileExt"]
       name = "upload-" + DateTime.now.toLocale("YYYYMMDD-hhmmss")
+      ext := spec.meta["fileExt"]
       if (ext != null) name = "${name}.${ext}"
     }
-    tags := Str:Obj?[
-      "dis": name,
-      "spec": spec.id,
-    ]
-    rec := cx.db.commit(Diff.makeAdd(tags)).newRec
-
-    // very important to return the FileExt uri
-    return ifileExt.resolve(path.plus(`${rec.id.toProjRel.id}`))
+    if (isCreateRec)
+    {
+      tags := Str:Obj?[
+        "dis": name,
+        "spec": spec.id,
+      ]
+      rec := cx.db.commit(Diff.makeAdd(tags)).newRec
+      // very important to return the FileExt uri
+      file = ifileExt.resolve(path.plus(`${rec.id.toProjRel.id}`))
+    }
+    else
+    {
+      file = ifileExt.resolve(`${path}${name}`)
+      if (isRename) file = uniquify(file)
+    }
+    return file
   }
 
-  ** Try to figure out the filename from the web req
+  ** Check if a filename was specified for this upload
   virtual protected Str? toFilename()
   {
-    name := req.headers["X-Filename"] as Str
-    // TODO: Content-Disposition parsing???
-    return name
+    // an explicit name in the upload path always takes precedence
+    if (!path.isDir) return path.name
+
+    // check header
+    return req.headers["X-Filename"]
   }
 
   ** Get the File spec that best fits file being uploaded
