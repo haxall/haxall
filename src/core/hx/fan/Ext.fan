@@ -287,8 +287,10 @@ class FileUploadHandler : UploadHandler
   ** Return true if this web req is attempting to create a new rec file
   virtual Bool isCreateRec()
   {
-    path == `/proj/${cx.rt.name}/rec/` || path == `/rec/`
+    path == projRecBase || path == `/rec/`
   }
+
+  private Uri projRecBase() { `/proj/${cx.rt.name}/rec/` }
 
   IFileExt ifileExt() { cx.sys.file }
 
@@ -296,32 +298,18 @@ class FileUploadHandler : UploadHandler
   {
     file  := ifileExt.resolve(path)
 
+    // canot POST to existing rec files
+    if (isRename && file.uri.relTo(projRecBase) == file.name.toUri)
+    {
+      res.sendErr(405, "Use 'PUT' to write to an existing rec file: ${file.uri}")
+      throw Err("Cannot POST to existing rec file")
+    }
+
     // handle upload to a directory
     if (file.isDir) file = toDirFile
-    // {
-    //   name := toFilename
-    //   spec := toSpec(name)
-    //   if (name == null)
-    //   {
-    //     name = "upload-" + DateTime.now.toLocale("YYYYMMDD-hhmmss")
-    //     ext := spec.meta["fileExt"]
-    //     if (ext != null) name = "${name}.${ext}"
-    //   }
-    //   if (isCreateRec)
-    //   {
-    //     tags := Str:Obj?[
-    //       "dis": name,
-    //       "spec": spec.id,
-    //     ]
-    //     rec := cx.db.commit(Diff.makeAdd(tags)).newRec
-    //     // very important to return the FileExt uri
-    //     file = ifileExt.resolve(path.plus(`${rec.id.toProjRel.id}`))
-    //   }
-    //   else
-    //   {
-    //     file = ifileExt.resolve(`${path}${name}`)
-    //   }
-    // }
+
+    // check if we need a rename
+    if (isRename) file = uniquify(file)
 
     // upload
     file.withOut |out|
@@ -367,7 +355,6 @@ class FileUploadHandler : UploadHandler
     else
     {
       file = ifileExt.resolve(`${path}${name}`)
-      if (isRename) file = uniquify(file)
     }
     return file
   }
