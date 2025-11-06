@@ -38,6 +38,11 @@ const mixin FolioFile
   **
   ** See `FolioFile` for more details about working with the backing file.
   abstract File? get(Ref id, Bool checked := true)
+
+  ** Forcefully delete the backing file for the rec with the given id. No checks
+  ** are done to see if this id corresponds to a File rec or not; it simply will
+  ** delete the backing file if it exists.
+  @NoDoc abstract Void delete(Ref id)
 }
 
 **************************************************************************
@@ -83,6 +88,11 @@ const abstract class MFolioFile : FolioFile
     if (!spec.isa(xeto.spec("sys::File"))) return onErr(id, checked, "Spec ${spec} is not a sys::File")
 
     return toFile(id)
+  }
+
+  override Void delete(Ref id)
+  {
+    toFile(norm(id)).delete
   }
 
   ** Get the xeto namespace

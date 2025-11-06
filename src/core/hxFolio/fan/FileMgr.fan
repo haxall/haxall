@@ -20,5 +20,7 @@ const class FileMgr : HxFolioMgr, FolioFile
   private const MFolioFile file
 
   override File? get(Ref id, Bool checked := true) { file.get(id, checked) }
+
+  override Void delete(Ref id) { file.delete(id) }
 }
 
