@@ -57,19 +57,7 @@ class AbstractXetoTest : HaystackTest
     }
 
     // load all and invoke callback
-    client.ns.libsAllAsync |e, x|
-    {
-      try
-      {
-        if (e != null) throw e
-        verifyEq(x.size, server.ns.versions.size)
-        f(client.ns)
-      }
-      catch (Err e2)
-      {
-        e2.trace
-      }
-    }
+    verifyEq(client.ns.libs.size, server.ns.versions.size)
   }
 
   LibNamespace createNamespace(Str[] libs := ["sys"])

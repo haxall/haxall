@@ -252,7 +252,6 @@ class RepoTest : AbstractXetoTest
     verifyEq(ns.versions, [sysVer])
     verifySame(ns.version("sys"), sysVer)
     verifyEq(ns.libStatus("sys"), LibStatus.ok)
-    verifyEq(ns.isAllLoaded, true)
     verifyEq(ns.hasLib("sys"), true)
     verifyEq(ns.hasLib("ph"), false)
     verifyEq(ns.hasLib("foo.bad.one"), false)
@@ -283,7 +282,6 @@ class RepoTest : AbstractXetoTest
     verifySame(ns.version("sys"), sysVer)
     verifyEq(ns.libStatus("sys"), LibStatus.ok)
     verifySame(ns.version("ph"), phVer)
-    verifyEq(ns.isAllLoaded, false)
     verifyEq(ns.hasLib("sys"), true)
     verifyEq(ns.hasLib("ph"), true)
     verifyEq(ns.hasLib("foo.bad.one"), false)
@@ -292,65 +290,26 @@ class RepoTest : AbstractXetoTest
     verifyEq(ns.lib("foo.bar.baz", false), null)
     verifyErr(UnknownLibErr#) { ns.lib("foo.bar.baz") }
     verifyErr(UnknownLibErr#) { ns.lib("foo.bar.baz", true) }
-    asyncErr := null; asyncLib := null
-    ns.libAsync("foo.bar.baz") |e,l| { asyncErr = e; asyncLib = l }
-    verifyEq(asyncErr.typeof, UnknownLibErr#)
-    verifyEq(asyncLib, null)
 
     verifyEq(ns.libStatus("ph"), LibStatus.notLoaded)
     ph := ns.lib("ph")
     verifyEq(ns.libStatus("ph"), LibStatus.ok)
-    verifyEq(ns.isAllLoaded, true)
     verifySame(ns.lib("ph"), ph)
     verifyEq(ph.name, "ph")
     verifyEq(ph.version, phVer.version)
     verifyEq(ns.libs, Lib[sys, ph])
     verifySame(ns.libs, ns.libs)
-    asyncErr = null; asyncLib = null
-    ns.libAsync("ph") |e,l| { asyncErr = e; asyncLib = l }
-    verifyEq(asyncErr, null)
-    verifySame(asyncLib, ph)
 
     verifySame(ns.spec("sys::Str").lib, ns.sysLib)
     verifySame(ns.type("ph::Point").lib, ph)
     verifySame(ns.spec("ph::Point.point").lib, ph)
-
-    // specAsync
-    ns = env.createNamespace([phVer, sysVer])
-    verifyEq(ns.libStatus("ph"), LibStatus.ok) // from cache
-    Err? err
-    Spec? spec
-    ns.specAsync("ph::Equip") |e, s| { err = e; spec = s }
-    verifyEq(ns.libStatus("ph"), LibStatus.ok)
-    verifyEq(err, null)
-    verifySame(spec, ns.spec("ph::Equip"))
-    ns.specAsync("bad.lib::Equip") |e, s| { err = e; spec = s }
-    verifyEq(err?.toStr, "xeto::UnknownLibErr: bad.lib")
-    verifyEq(spec, null)
-    ns.specAsync("ph::BadType") |e, s| { err = e; spec = s }
-    verifyEq(err?.toStr, "xeto::UnknownSpecErr: ph::BadType")
-    verifyEq(spec, null)
-
-    // instanceAsync
-    ns = env.createNamespace([phVer, sysVer])
-    verifyEq(ns.libStatus("ph"), LibStatus.ok) // from cache
-    Dict? inst
-    ns.instanceAsync("ph::filetype:csv") |e, x| { err = e; inst = x }
-    verifyEq(ns.libStatus("ph"), LibStatus.ok)
-    verifyEq(err, null)
-    verifySame(inst, ns.instance("ph::filetype:csv"))
-    ns.instanceAsync("bad.lib::foo") |e, x| { err = e; inst = x }
-    verifyEq(err?.toStr, "xeto::UnknownLibErr: bad.lib")
-    verifyEq(inst, null)
-    ns.instanceAsync("ph::bad-instance") |e, x| { err = e; inst = x }
-    verifyEq(err?.toStr, "haystack::UnknownRecErr: ph::bad-instance")
-    verifyEq(inst, null)
   }
 
 //////////////////////////////////////////////////////////////////////////
 // AllLoaded
 //////////////////////////////////////////////////////////////////////////
 
+  /* TODO: not needed anymore, async nuked
   Void testAllLoaded()
   {
     // sync all libs
@@ -445,6 +404,7 @@ class RepoTest : AbstractXetoTest
     verifySame(libs[3], ns.lib("ph.points"))
     verifySame(ns.libs, libs)
   }
+  */
 
 //////////////////////////////////////////////////////////////////////////
 // Test Repo

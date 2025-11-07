@@ -197,7 +197,6 @@ class NamespaceTest : AbstractXetoTest
     verifyEq(hotWater.slots.names.join(","), "water,hot")
 
     // unqualifiedType
-    verifyEq(ns.isAllLoaded, true)
     verifySame(ns.unqualifiedType("Str"), ns.spec("sys::Str"))
     verifySame(ns.unqualifiedType("Equip"), ns.spec("ph::Equip"))
     verifyEq(ns.unqualifiedType("FooBarBazBad", false), null)
@@ -418,29 +417,6 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(UnknownLibErr#) { ns.lib("bad.one", true) }
     verifyErr(UnknownSpecErr#) { ns.type("bad.one::Foo") }
     verifyErr(UnknownSpecErr#) { ns.type("bad.one::Foo", true) }
-
-    // libAsync
-    asyncErr := null
-    asyncLib := null
-    ns.libAsync("sys") |e, x| { asyncErr = e ; asyncLib = x }
-    verifyEq(asyncLib, sys)
-    verifyEq(asyncErr, null)
-    ns.libAsync("badLib") |e, x| { asyncErr = e; asyncLib = x }
-    verifyEq(asyncLib, null)
-    verifyEq(asyncErr?.typeof, UnknownLibErr#)
-
-    // libAsync
-    asyncErr = null
-    asyncLibs := null
-    ns.libListAsync(["sys", "ashrae.g36"]) |e, x| { asyncErr = e; asyncLibs = x }
-    verifyEq(asyncLibs, Lib[sys, ns.lib("ashrae.g36")])
-    verifyEq(asyncErr, null)
-    ns.libListAsync(["sys", "ashrae.g36"]) |e, x| { asyncErr = e; asyncLibs = x } // do it again for different code path
-    verifyEq(asyncLibs, Lib[sys, ns.lib("ashrae.g36")])
-    verifyEq(asyncErr, null)
-    ns.libListAsync(["sys", "bad", "ph"]) |e, x| { asyncErr = e; asyncLibs = x }
-    verifyEq(asyncLibs, null)
-    verifyEq(asyncErr?.toStr, UnknownLibErr#.toStr + ": bad")
 
     // good lib, bad type
     verifyEq(ns.type("sys::Foo", false), null)
@@ -725,10 +701,6 @@ class NamespaceTest : AbstractXetoTest
       "spec":Ref("sys::Lib"),
       "loaded":m])
     verifyDictEq((Dict)lib, asDict)
-
-    Lib? async := null
-    ns.libAsync(name) |e, x| { async = x }
-    verifySame(async, lib)
 
     verifyEq(lib.type("Bad", false), null)
     verifyErr(UnknownSpecErr#) { lib.type("Bad") }

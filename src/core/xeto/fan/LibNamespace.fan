@@ -44,7 +44,6 @@ const mixin LibNamespace
   abstract Bool hasLib(Str name)
 
   ** Return load status for the given library name:
-  **   - 'notLoaded': library is included but has not been loaded yet
   **   - 'ok': library is included and loaded successfully
   **   - 'err': library is included but could not be loaded
   **   - null/exception if library not included
@@ -54,78 +53,55 @@ const mixin LibNamespace
   ** Return null/exception if library not included
   abstract Err? libErr(Str name, Bool checked := true)
 
-  ** Return true if the every library in this namespace has been
-  ** loaded (successfully or unsuccessfully).  This method returns false
-  ** is any libs have a load status of 'notLoaded'.  Many operations
-  ** require a namespace to be fully loaded.
-  @NoDoc abstract Bool isAllLoaded()
-
-  ** Get the given library by name synchronously.  If the library is
-  ** not loaded, then it is compiled on first access (server only).
-  ** If the library is not included or cannot be comiled then raise
-  ** an exception unless checked is false.
+  ** Get the given library by name.  If the library is not in the namesapce
+  ** or could be compiled then raise an exception unless checked is false.
   abstract Lib? lib(Str name, Bool checked := true)
 
-  ** List all libraries.  On first call, this will force all libraries to
-  ** be loaded synchronously.  Any libs which cannot be compiled will log
-  ** an error and be excluded from this list.
+  ** List all libraries. Any libs which cannot be compiled are excluded.
   abstract Lib[] libs()
-
-  ** Load all libraries asynchronosly.  Once this operation completes
-  ** successfully the `isAllLoaded` method will return 'true' and the
-  ** `libs` method may be used even in JS environments.  Note that an
-  ** error is reported only if the entire load failed.  Individual libs
-  ** which cannot be loaded will logged on server, and be excluded from
-  ** the final libs list.
-  @NoDoc abstract Void libsAllAsync(|Err?, Lib[]?| f)
-
-  ** Get or load library asynchronously by the given dotted name.
-  ** This method automatically also loads the dependency chain.
-  ** Once loaded then invoke callback with library or err.
-  @NoDoc abstract Void libAsync(Str name, |Err?, Lib?| f)
-
-  ** Get or load list of libraries asynchronously by the given dotted names.
-  ** This method automatically also loads the dependency chain.
-  ** Once loaded then invoke callback with libraries or err.  If a lib
-  ** cannot be loaded then it is excluded from the callback list (so its
-  ** possible the results list is not the same size as the names list).
-  @NoDoc abstract Void libListAsync(Str[] names, |Err?, Lib[]?| f)
 
   ** Get the 'sys' library
   @NoDoc abstract Lib sysLib()
+
+//////////////////////////////////////////////////////////////////////////
+// TODO
+//////////////////////////////////////////////////////////////////////////
+
+  @Deprecated abstract Bool isAllLoaded()
+
+  @Deprecated abstract Void libsAllAsync(|Err?, Lib[]?| f)
+
+  @Deprecated abstract Void libAsync(Str name, |Err?, Lib?| f)
+
+  @Deprecated abstract Void libListAsync(Str[] names, |Err?, Lib[]?| f)
+
+  @Deprecated abstract Void specAsync(Str qname, |Err?, Spec?| f)
+
+  @Deprecated abstract Void instanceAsync(Str qname, |Err?, Dict?| f)
 
 //////////////////////////////////////////////////////////////////////////
 // Lookups
 //////////////////////////////////////////////////////////////////////////
 
   ** Get or load type by the given qualified name.
-  ** If the type's lib is not loaded, it is loaded synchronously.
   abstract Spec? type(Str qname, Bool checked := true)
 
   ** Get or load spec by the given qualified name:
   **   - type: "foo.bar::Baz"
   **   - global/meta/func: "foo.bar::baz"
   **   - slot: "foo.bar::Baz.qux"
-   ** See `lib` for behavior if the spec's lib is not loaded.
   abstract Spec? spec(Str qname, Bool checked := true)
 
-  ** Lookup a spec async in the case the lib is not loaded yet.
-  @NoDoc abstract Void specAsync(Str qname, |Err?, Spec?| f)
-
   ** Get or load instance by the given qualified name
-   ** See `lib` for behavior if the instances's lib is not loaded.
   abstract Dict? instance(Str qname, Bool checked := true)
 
-  ** Lookup an instance async in the case the lib is not loaded yet.
-  @NoDoc abstract Void instanceAsync(Str qname, |Err?, Dict?| f)
 
   ** Lookup the extended meta for the given spec qname.  This is a merge
   ** of the spec's own meta along with any instance dicts in the namespace
-  ** with a local id of "xmeta-{lib}-{spec}".  Only libs currently loaded are
-  ** considered for the result.  If the spec is not defined then return
-  ** null or raise an exception based on checked flag.  For example to register
-  ** extended meta data on the 'ph::Site' spec you would create an instance
-  ** dict with the local name of 'xmeta-ph-Site'.
+  ** with a local id of "xmeta-{lib}-{spec}".  If the spec is not defined then
+  ** return null or raise an exception based on checked flag.  For example to
+  ** register extended meta data on the 'ph::Site' spec you would create an
+  ** instance dict with the local name of 'xmeta-ph-Site'.
   abstract Dict? xmeta(Str qname, Bool checked := true)
 
   ** Lookup the extended meta for an enum spec.  This returns a SpecEnum
@@ -156,7 +132,7 @@ const mixin LibNamespace
 // Unqualified Lookups
 //////////////////////////////////////////////////////////////////////////
 
-  ** Resolve unqualified type name against all loaded libs:
+  ** Resolve unqualified type name against all libs:
   **   - one match return it
   **   - zero return null or raise exception based on checked flag
   **   - two or more raise exception regardless of checked flag
@@ -165,31 +141,31 @@ const mixin LibNamespace
   ** List all unqualified types against loaded libs.
   @NoDoc abstract Spec[] unqualifiedTypes(Str name)
 
-  ** Resolve unqualified meta spec name against all loaded libs.
+  ** Resolve unqualified meta spec name against all libs.
   **   - one match return it
   **   - zero return null or raise exception based on checked flag
   **   - two or more raise exception regardless of checked flag
   @NoDoc abstract Spec? unqualifiedMeta(Str name, Bool checked := true)
 
-  ** List all unqualified meta specs name against all loaded libs.
+  ** List all unqualified meta specs name against all libs.
   @NoDoc abstract Spec[] unqualifiedMetas(Str name)
 
-  ** Resolve unqualified global spec name against all loaded libs.
+  ** Resolve unqualified global spec name against all libs.
   **   - one match return it
   **   - zero return null or raise exception based on checked flag
   **   - two or more raise exception regardless of checked flag
   @NoDoc abstract Spec? unqualifiedGlobal(Str name, Bool checked := true)
 
-  ** List all unqualified global specs name against all loaded libs.
+  ** List all unqualified global specs name against all libs.
   @NoDoc abstract Spec[] unqualifiedGlobals(Str name)
 
-  ** Resolve unqualified function name against loaded libs:
+  ** Resolve unqualified function name against libs:
   **   - one match return it
   **   - zero return null or raise exception based on checked flag
   **   - two or more raise exception regardless of checked flag
   @NoDoc abstract Spec? unqualifiedFunc(Str name, Bool checked := true)
 
-  ** List all unqualified function names against loaded libs.
+  ** List all unqualified function names against libs.
   @NoDoc abstract Spec[] unqualifiedFuncs(Str namee)
 
 //////////////////////////////////////////////////////////////////////////
@@ -301,10 +277,9 @@ const mixin LibNamespace
 @Js
 enum class LibStatus
 {
-  ** The library has not been loaded into the namespace yet
-  notLoaded,
+  notLoaded,  // TODO
 
-   ** The library was successfully loaded into namespace
+  ** The library was successfully loaded into namespace
   ok,
 
   ** Load was attempted, but failed due to compiler error
@@ -312,7 +287,7 @@ enum class LibStatus
 
   @NoDoc Bool isOk() { this === ok }
   @NoDoc Bool isErr() { this === err }
-  @NoDoc Bool isNotLoaded() { this === notLoaded }
-  @NoDoc Bool isLoaded() { this !== notLoaded }
+  @Deprecated Bool isNotLoaded() { this === notLoaded }
+  @Deprecated Bool isLoaded() { this !== notLoaded }
 }
 

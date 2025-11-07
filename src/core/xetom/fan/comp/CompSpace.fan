@@ -62,7 +62,6 @@ class CompSpace : AbstractCompSpace
   {
     isRunningRef = true
     timersNeedUpdate = true
-    if (!ns.isAllLoaded) ns.libs // force all libs to load into memory
     onStart
   }
 
