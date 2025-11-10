@@ -136,6 +136,29 @@ class RuntimeTest : HxTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Basic
+//////////////////////////////////////////////////////////////////////////
+
+  @HxTestProj
+  Void testBasics()
+  {
+    // multi-tenant?
+    multiTenant := (Obj)sys !== (Obj)proj
+    verifyEq(sys.info.type.isHxd, !multiTenant)
+
+    // multi-tenant checks
+    if (multiTenant)
+    {
+      verifyNotSame(sys, proj)
+      verifySame(sys.user, sys.exts.getByType(IUserExt#))
+      verifySame(sys.user, proj.exts.getByType(IUserExt#))
+      verifySame(sys.crypto, sys.exts.getByType(ICryptoExt#))
+      verifySame(sys.crypto, proj.exts.getByType(ICryptoExt#))
+      verifySame(sys.obs, proj.obs)
+    }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Meta
 //////////////////////////////////////////////////////////////////////////
 
