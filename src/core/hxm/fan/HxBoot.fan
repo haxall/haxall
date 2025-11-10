@@ -255,7 +255,7 @@ abstract class HxBoot
   ** Sanity check runtime against this boot
   internal Void check(HxRuntime rt)
   {
-    if (rt.isProj)
+    if (rt.isProj && !rt.isSys)
     {
       if (projSys == null) throw Err("Must override HxBoot.projSys")
     }

@@ -514,12 +514,15 @@ const class XetoFuncs
   **    fits(123, Str)                 >>  false
   **    fits(equipRec, Equip)          >>  true
   **    fits(equipRec, Site)           >>  false
-  **    fits(vav, MyVavSpec)           >> validate tags only
-  **    fits(vav, MyVavSpec, {graph})  >> validate tags and required points
+  **    fits(vav, MyVavSpec)           >>  validate tags only
+  **    fits(vav, MyVavSpec, {graph})  >>  validate tags and required points
+  **    fits(vav, null)                >>  vlaidate agaist vav's spec tag
   **
-  @Api @Axon static Bool fits(Obj? val, Spec spec, Dict? opts := null)
+  @Api @Axon static Bool fits(Obj? val, Spec? spec, Dict? opts := null)
   {
-    curContext.ns.fits(val, spec, opts)
+    ns := curContext.ns
+    if (spec == null) spec = ns.specOf(val)
+    return ns.fits(val, spec, opts)
   }
 
   **

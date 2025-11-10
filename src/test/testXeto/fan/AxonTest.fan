@@ -333,6 +333,8 @@ class AxonTest : AbstractAxonTest
     verifyFits(Str<|fits({water}, HotWater)|>, false)
     verifyFits(Str<|fits({hot, water}, HotWater)|>, true)
     verifyFits(Str<|fits({hot, water}, ChilledWater)|>, false)
+    verifyFits(Str<|fits({spec:@sys::Dict}, Dict)|>, true)
+    verifyFits(Str<|fits({spec:@sys::Dict}, null)|>, true)
 
     ns = initNamespace(["ph", "ph.points"])
 
