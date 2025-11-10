@@ -154,7 +154,8 @@ class RuntimeTest : HxTest
       verifySame(sys.user, proj.exts.getByType(IUserExt#))
       verifySame(sys.crypto, sys.exts.getByType(ICryptoExt#))
       verifySame(sys.crypto, proj.exts.getByType(ICryptoExt#))
-      verifySame(sys.obs, proj.obs)
+      verifyNotSame(sys.obs, proj.obs)
+      verifyNotSame(sys.obs.schedule, proj.obs.schedule) // used to share on per sys
     }
   }
 

@@ -20,10 +20,9 @@ const class HxBackgroundMgr : Actor
 
   new make(HxRuntime rt, Bool isTest) : super(rt.actorPool)
   {
-    // check sys frequently for obsSchedule, but for projects
-    // put add some randomness to spread out CPU load
+    // put add some randomness to spread out CPU load for schedule obs
     this.rt = rt
-    this.checkFreq = rt.isSys || isTest ? 100ms : 1ms * (800..1200).random
+    this.checkFreq = isTest ? 50ms : 1ms * (100..200).random
   }
 
   const HxRuntime rt

@@ -95,7 +95,7 @@ const mixin Runtime
   ** Watch subscriptions
   abstract RuntimeWatches watch()
 
-  ** Watch observables
+  ** Observables
   abstract RuntimeObservables obs()
 
   ** Construct new context with user
