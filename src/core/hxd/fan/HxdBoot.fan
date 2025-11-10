@@ -44,10 +44,7 @@ class HxdBoot : HxBoot
       "hx.api",
       "hx.crypto",
       "hx.http",
-      "hx.shell",
       "hx.xeto",
-      "hx.io",
-      "hx.task",
       "hx.hxd.file",
       "hx.hxd.his",
       "hx.hxd.proj",
@@ -94,7 +91,9 @@ class HxdBoot : HxBoot
 
   ** Initial libs for create
   Str[] createLibs := [
-     "hx.xeto"
+    "hx.shell",
+    "hx.io",
+    "hx.task",
   ]
 
   ** Create a new project on disk that can be loaded.

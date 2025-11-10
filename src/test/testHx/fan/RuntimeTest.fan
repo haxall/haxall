@@ -57,8 +57,7 @@ class RuntimeTest : HxTest
     }
     initExpectFromBoot()
     expectExts := ["hx.api", "hx.crypto", "hx.hxd.file",
-      "hx.hxd.his", "hx.http", "hx.hxd.user", "hx.hxd.proj",
-      "hx.io", "hx.task", ]
+      "hx.hxd.his", "hx.http", "hx.hxd.user", "hx.hxd.proj"]
 
     // verify initial state
     verifyEq(p.name, boot.name)
