@@ -202,7 +202,8 @@ class XetoPrinter
       wc('@').w(id).wc(':').sp
     }
 
-    dict(x).nl
+    forceType := id == null
+    dict(x, skip, forceType).nl
     return this
   }
 
@@ -356,10 +357,10 @@ class XetoPrinter
   static const Str[] dictSkip := ["id", "spec"]
 
   ** Dict value
-  This dict(Dict x, Str[] skip := dictSkip)
+  This dict(Dict x, Str[] skip := dictSkip, Bool forceType := false)
   {
     spec := specOf(x)
-    if (spec.qname != "sys::Dict") type(spec, Etc.dict0).sp
+    if (spec.qname != "sys::Dict" || forceType) type(spec, Etc.dict0).sp
     wc('{')
     num := 0
     indent
