@@ -52,7 +52,7 @@ const class ApiWeb : ExtWeb, WebOpUtil
       session := sys.user.authenticate(req, res)
       if (session == null) return
       cx := rt.newContextSession(session)
-      cx.timeout = Context.timeoutDef
+      cx.timeout = rt.meta.evalTimeout
       Actor.locals[Context.actorLocalsKey] = cx
 
       // anything else must be /api/{projName}/{opName}/...

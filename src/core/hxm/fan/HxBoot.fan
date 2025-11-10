@@ -147,7 +147,7 @@ abstract class HxBoot
 //////////////////////////////////////////////////////////////////////////
 
   ** Initalize runtime meta
-  virtual Dict initMeta(HxRuntime rt)
+  virtual HxMeta initMeta(HxRuntime rt)
   {
     // define expected tags
     expect := Str:Obj[:]
@@ -169,7 +169,7 @@ abstract class HxBoot
       rec = db.commit(Diff(rec, expect, Diff.bypassRestricted)).newRec
     }
 
-    return rec
+    return HxMeta(rt, rec)
   }
 
   ** Open folio database for runtime

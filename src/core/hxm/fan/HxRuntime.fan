@@ -88,8 +88,8 @@ abstract const class HxRuntime : Runtime
   ** Temp directory
   override const File tempDir
 
-  ** Runtime level meta data stored in the `projMeta` database record
-  override Dict meta() { metaRef.val }
+  ** Runtime level meta data stored in the 'rt:meta' database record
+  override final RuntimeMeta meta() { metaRef.val }
   internal const AtomicRef metaRef
 
   ** Update proj metadata with Str:Obj, Dict, or Diff.

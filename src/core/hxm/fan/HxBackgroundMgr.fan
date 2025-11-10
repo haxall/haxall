@@ -108,17 +108,7 @@ const class HxBackgroundMgr : Actor
     rt.exts.listOwn.each |ext| { ((HxExtSpi)ext.spi).steadyState }
   }
 
-  private Duration steadyStateConfig()
-  {
-    Duration? x
-    try
-      x = (rt.meta["steadyState"] as Number)?.toDuration
-    catch (Err e)
-      {}
-    if (x == null) x = 10sec
-    if (x > 1hr)   x = 1hr
-    return x
-  }
+  private Duration steadyStateConfig() { rt.meta.steadyState }
 
 //////////////////////////////////////////////////////////////////////////
 // Temp Dir Cleanup

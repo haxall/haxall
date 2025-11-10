@@ -35,7 +35,7 @@ const class HxSettingsMgr
   {
     diff := Diff(rt.meta, toUpdateChanges(changes), Diff.bypassRestricted)
     newRec := db.commit(diff).newRec
-    rt.metaRef.val = newRec
+    rt.metaRef.val = HxMeta(rt, newRec)
   }
 
 //////////////////////////////////////////////////////////////////////////

@@ -58,8 +58,9 @@ const mixin Runtime
   ** in a sub-directory named 'db/', and namespace support in 'ns/'
   abstract File dir()
 
-  ** Metadata dict
-  abstract Dict meta()
+  ** Runtime level meta data stored in the 'rt:meta' database record.
+  ** This dict always includes a synthetic 'name' tag
+  abstract RuntimeMeta meta()
 
   ** Update metadata with Str:Obj, Dict, or Diff.
   @NoDoc abstract Void metaUpdate(Obj changes)

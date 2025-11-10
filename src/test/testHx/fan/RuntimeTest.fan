@@ -148,17 +148,23 @@ class RuntimeTest : HxTest
     // verify test setup with meta data correctly
     meta := proj.meta
     verifySame(proj.meta, meta)
+    verifyEq(meta.steadyState, 100ms)
+    verifyEq(meta.evalTimeout, 1min)
     verifyProjMeta(["dis":"My Test", "steadyState":n(100, "ms"), "fooBar":m])
 
     // verify changes to meta - Str:Obj
-    proj.metaUpdate(["dis":"New Dis", "newTag":"!"])
+    proj.metaUpdate(["dis":"New Dis", "newTag":"!", "evalTimeout":n(30, "sec")])
     verifyNotSame(proj.meta, meta)
     meta = proj.meta
-    verifyProjMeta(["dis":"New Dis", "steadyState":n(100, "ms"), "fooBar":m, "newTag":"!"])
+    verifyEq(meta.steadyState, 100ms)
+    verifyEq(meta.evalTimeout, 30sec)
+    verifyProjMeta(["dis":"New Dis", "steadyState":n(100, "ms"), "evalTimeout":n(30, "sec"), "fooBar":m, "newTag":"!"])
 
     // verify some bad tags
     verifyErr(DiffErr#) { proj.metaUpdate(["rt":"foo"]) }
+    verifyErr(DiffErr#) { proj.metaUpdate(["name":"badone"]) }
     verifyErr(DiffErr#) { proj.metaUpdate(Diff(proj.meta, ["rt":"foo"])) }
+    verifyErr(DiffErr#) { proj.metaUpdate(Diff(proj.meta, ["name":"badone"])) }
     verifyErr(DiffErr#) { proj.metaUpdate(Diff(proj.meta, ["projMeta":Remove.val])) }
 
     // verify steady state timer
@@ -168,7 +174,10 @@ class RuntimeTest : HxTest
 
     // restart and verify persisted
     projRestart
-    verifyProjMeta(["dis":"New Dis", "steadyState":n(100, "ms"), "fooBar":m, "newTag":"!"])
+    verifyProjMeta(["dis":"New Dis", "steadyState":n(100, "ms"), "evalTimeout":n(30, "sec"), "fooBar":m, "newTag":"!"])
+    meta = proj.meta
+    verifyEq(meta.steadyState, 100ms)
+    verifyEq(meta.evalTimeout, 30sec)
   }
 
   Void verifyProjMeta(Str:Obj expect)
@@ -176,6 +185,7 @@ class RuntimeTest : HxTest
     actual := proj.meta
     expect = expect.dup
               .set("id", actual->id)
+              .set("name", proj.name)
               .set("rt", "meta")
               .set("projMeta", m)
               .set("version", proj.sys.info.version.toStr)
