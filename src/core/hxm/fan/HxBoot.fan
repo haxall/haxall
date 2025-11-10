@@ -133,18 +133,27 @@ abstract class HxBoot
   **
   Str:Obj? sysConfig := [:]
 
+  ** Get tag from sysConfig if booting Sys or from projSys if booting Proj
+  Obj? sysConfigGet(Str name)
+  {
+    sysConfig.get(name) ?: projSys?.config?.get(name)
+  }
+
   ** Lookup sysConfig noAuth flag
-  Bool isNoAuth() { sysConfig["noAuth"] != null }
+  Bool isNoAuth() { sysConfigGet("noAuth") != null }
 
   ** Lookup sysConfig safeMode flag
-  Bool isSafeMode() { sysConfig["safeMode"] != null }
+  Bool isSafeMode() { sysConfigGet("safeMode") != null }
 
   ** Lookup sysConfig test flag
-  Bool isTest() { sysConfig["test"] != null }
+  Bool isTest() { sysConfigGet("test") != null }
 
 //////////////////////////////////////////////////////////////////////////
 // Hooks
 //////////////////////////////////////////////////////////////////////////
+
+  ** If booting a project, then the parent Sys instance
+  virtual Sys? projSys() { null }
 
   ** Initalize runtime meta
   virtual HxMeta initMeta(HxRuntime rt)
@@ -212,7 +221,7 @@ abstract class HxBoot
   ** Create background manager
   virtual HxBackgroundMgr initBackgroundMgr(HxRuntime rt)
   {
-    HxBackgroundMgr(rt)
+    HxBackgroundMgr(rt, isTest)
   }
 
   ** Create library manager
@@ -242,6 +251,15 @@ abstract class HxBoot
 //////////////////////////////////////////////////////////////////////////
 // Utils
 //////////////////////////////////////////////////////////////////////////
+
+  ** Sanity check runtime against this boot
+  internal Void check(HxRuntime rt)
+  {
+    if (rt.isProj)
+    {
+      if (projSys == null) throw Err("Must override HxBoot.projSys")
+    }
+  }
 
   ** Default hostOS sysMeta
   static Str hostOs()

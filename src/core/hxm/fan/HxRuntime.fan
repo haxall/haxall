@@ -28,6 +28,7 @@ abstract const class HxRuntime : Runtime
   ** Boot constructor
   new make(HxBoot boot)
   {
+    boot.check(this)
     this.name          = boot.name
     this.id            = Ref("p:$name", name)
     this.dir           = boot.dir
