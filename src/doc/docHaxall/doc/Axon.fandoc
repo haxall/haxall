@@ -119,9 +119,7 @@ it by declaring a function record with the same name.  Functions resolved
 as a project rec take priority over the function defined by the extension.
 
 Attempts to override an ext function not marked as `overridable` will report
-an error and your rec function will not be accessible.  For testing you can
-disable these checks on a per project basis by adding the marker tag
-`disableOverridableChecks` to the `projMeta` record.
+an error and your rec function will not be accessible.
 
 You can access the built-in function in your override using its qualified name:
 

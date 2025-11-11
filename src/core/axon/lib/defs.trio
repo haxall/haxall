@@ -12,10 +12,6 @@ is: ^marker
 tagOn: ^func
 doc: "Requires admin permission"
 --------------------------------------------------------------------------
-def: ^disableOverridableChecks
-is: ^marker
-doc: Disables function `overridable` checking.
---------------------------------------------------------------------------
 def: ^err
 is: ^marker
 doc:
