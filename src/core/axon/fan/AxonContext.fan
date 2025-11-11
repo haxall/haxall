@@ -65,9 +65,11 @@ abstract class AxonContext : HaystackContext, CompContext
   @NoDoc virtual AxonFFI? ffi() { null }
 
   ** Find top-level function by qname or name
-  @NoDoc Fn? resolveTopFn(Str name, Bool checked := true)
+  @NoDoc TopFn? resolveTopFn(Str name, Bool checked := true)
   {
-    fn := resolveTop(TopName.parse(name), checked) as Fn
+    topName := TopName.parse(name, checked)
+    if (topName == null) return null
+    fn := resolveTop(topName, checked) as TopFn
     if (fn != null) return fn
     if (checked) throw UnknownFuncErr(name)
     return null

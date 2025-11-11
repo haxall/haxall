@@ -17,11 +17,15 @@ using haystack
 @NoDoc @Js
 const class TopName : Expr
 {
-  static TopName parse(Str s)
+  static TopName? parse(Str s, Bool checked := true)
   {
     colon := s.index(":")
     if (colon == null) return make(Loc.synthetic, null, s)
-    if (s[colon+1] != ':') throw ArgErr("Invalid qname: $s")
+    if (colon+2 >= s.size || s[colon+1] != ':')
+    {
+      if (!checked) return null
+      throw ArgErr("Invalid qname: $s [$colon, $s.size]")
+    }
     return make(Loc.synthetic, s[0..<colon], s[colon+2..-1])
   }
 
@@ -40,7 +44,7 @@ const class TopName : Expr
 
   const Str name
 
-  override Bool isTopNameType() { name[0].isUpper }
+  override Bool isTopNameType() { !name.isEmpty && name[0].isUpper }
 
   override Obj? eval(AxonContext cx)
   {
