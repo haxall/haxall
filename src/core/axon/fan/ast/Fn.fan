@@ -205,6 +205,20 @@ const class TopFn : Fn, Thunk
     return super.callx(cx, args, callLoc)
   }
 
+  ** Display string taking into account old tags in defMeta
+  Str dis()
+  {
+    defMeta := meta["defMeta"] as Dict ?: Etc.dict0
+
+    disKey := meta["disKey"] ?: defMeta["disKey"]
+    if (disKey != null) return Etc.disKey(disKey.toStr)
+
+    dis := meta["dis"] ?: defMeta["dis"]
+    if (dis != null) return dis.toStr
+
+    return name
+  }
+
   internal static const Obj?[] noArgs := Obj?[,]
 }
 
