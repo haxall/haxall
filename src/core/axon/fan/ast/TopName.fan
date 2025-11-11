@@ -21,7 +21,7 @@ const class TopName : Expr
   {
     colon := s.index(":")
     if (colon == null) return make(Loc.synthetic, null, s)
-    if (colon+2 >= s.size || s[colon+1] != ':')
+    if (colon == 0 || colon+2 >= s.size || s[colon+1] != ':')
     {
       if (!checked) return null
       throw ArgErr("Invalid qname: $s [$colon, $s.size]")
