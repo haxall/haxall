@@ -18,17 +18,20 @@ using hx
 class NamespaceTest : HxTest
 {
 
+//////////////////////////////////////////////////////////////////////////
+// Defs (legacy)
+//////////////////////////////////////////////////////////////////////////
+
   @HxTestProj
-  Void testBasics()
+  Void testDefs()
   {
     // project haystack
-    ph := verifyLib("ph", Pod.find("ph"),    `https://project-haystack.org/def/ph/`)
-    verifyLib("phIoT",    Pod.find("phIoT"), `https://project-haystack.org/def/phIoT/`)
-    verifyLib("hx",       Pod.find("hx"),    `/def/hx/`)
+    ph := verifyDefLib("ph", Pod.find("ph"),    `https://project-haystack.org/def/ph/`)
+    verifyDefLib("phIoT",    Pod.find("phIoT"), `https://project-haystack.org/def/phIoT/`)
 
     // haxall libs
-    hx   := verifyLib("hx",   Pod.find("hx"),    `/def/hx/`)
-    axon := verifyLib("axon", Pod.find("axon"),  `/def/axon/`)
+    hx   := verifyDefLib("hx",   Pod.find("hx"),    `/def/hx/`)
+    axon := verifyDefLib("axon", Pod.find("axon"),  `/def/axon/`)
 
     // overlay lib
     ns1 := proj.defs
@@ -58,7 +61,7 @@ class NamespaceTest : HxTest
 
   }
 
-  DefLib verifyLib(Str name, Pod pod, Uri baseUri)
+  DefLib verifyDefLib(Str name, Pod pod, Uri baseUri)
   {
     def := verifyLibDef(name, pod.version, baseUri)
     lib := proj.defs.lib(name)
