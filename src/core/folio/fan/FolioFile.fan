@@ -305,7 +305,7 @@ class ChunkedOutStream : OutStream
   new make(OutStream? out, [Str:Obj?] opts := [:]) : super(null)
   {
     this.out       = out
-    this.chunkSize = opts["chunkSize"] ?: (5 * 1024 * 1024)
+    this.chunkSize = opts["chunkSize"] ?: (4 * 1024 * 1024)
     this.chunk     = Buf(chunkSize)
   }
 
@@ -336,9 +336,9 @@ class ChunkedOutStream : OutStream
   {
     while (n > 0)
     {
-      num := chunkRoom.min(n)
-      buf.readBufFully(chunk, num)
-      n -= num
+      desired := chunkRoom.min(n)
+      actual  := buf.readBuf(chunk, desired)
+      n -= actual
       flushIfNeeded
     }
     return this
