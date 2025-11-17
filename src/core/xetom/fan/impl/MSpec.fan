@@ -270,6 +270,7 @@ const class XetoSpec : Spec, Dict, CSpec
   override final Bool isNone()      { m.hasFlag(MSpecFlags.none) }
   override final Bool isSelf()      { m.hasFlag(MSpecFlags.self) }
   override final Bool isMaybe()     { m.hasFlag(MSpecFlags.maybe) }
+  override final Bool isWildcard()  { m.hasFlag(MSpecFlags.wildcard) }
   override final Bool isScalar()    { m.hasFlag(MSpecFlags.scalar) }
   override final Bool isMarker()    { m.hasFlag(MSpecFlags.marker) }
   override final Bool isRef()       { m.hasFlag(MSpecFlags.ref) }

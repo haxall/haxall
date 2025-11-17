@@ -76,8 +76,12 @@ const mixin Spec : Dict
   **   - if 'that' is 'Or' and 'this' matches any of 'that.ofs'
   abstract Bool isa(Spec that)
 
-  ** Does meta have maybe tag
+  ** Does meta have maybe tag.  Maybe slots are optional
   abstract Bool isMaybe()
+
+  ** Does meta have wildcard tag. Wildcard slots define a required type and
+  ** shape for a given slot name within a base type.
+  abstract Bool isWildcard()
 
   ** Is the base 'sys::Enum'
   abstract Bool isEnum()

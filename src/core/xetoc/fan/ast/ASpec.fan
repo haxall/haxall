@@ -379,6 +379,7 @@ internal class ASpec : ANode, CSpec
   override Bool isDict()      { hasFlag(MSpecFlags.dict) }
   override Bool isList()      { hasFlag(MSpecFlags.list) }
   override Bool isMaybe()     { hasFlag(MSpecFlags.maybe) }
+  override Bool isWildcard()  { hasFlag(MSpecFlags.wildcard) }
   override Bool isQuery()     { hasFlag(MSpecFlags.query) }
   override Bool isFunc()      { hasFlag(MSpecFlags.func) }
   override Bool isInterface() { hasFlag(MSpecFlags.interface) }

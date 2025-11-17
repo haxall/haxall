@@ -83,18 +83,17 @@ const mixin Namespace
 // Lookups
 //////////////////////////////////////////////////////////////////////////
 
-  ** Get or load type by the given qualified name.
+  ** Get a type spec by the given qualified name.
   abstract Spec? type(Str qname, Bool checked := true)
 
-  ** Get or load spec by the given qualified name:
+  ** Get a spec by the given qualified name:
   **   - type: "foo.bar::Baz"
   **   - global/meta/func: "foo.bar::baz"
   **   - slot: "foo.bar::Baz.qux"
   abstract Spec? spec(Str qname, Bool checked := true)
 
-  ** Get or load instance by the given qualified name
+  ** Get an instance by the given qualified name
   abstract Dict? instance(Str qname, Bool checked := true)
-
 
   ** Lookup the extended meta for the given spec qname.  This is a merge
   ** of the spec's own meta along with any instance dicts in the namespace
