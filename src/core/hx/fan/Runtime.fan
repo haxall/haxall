@@ -69,7 +69,7 @@ const mixin Runtime
   abstract Folio db()
 
   ** Xeto lib namespace for this runtime
-  abstract Namespace ns()
+  abstract LibNamespace ns()
 
   ** Xeto library management
   abstract RuntimeLibs libs()

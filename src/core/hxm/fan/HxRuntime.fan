@@ -105,7 +105,7 @@ abstract const class HxRuntime : Runtime
   const HxLibs libsRef
 
   ** Xeto lib namespace
-  override Namespace ns() { libsRef.ns }
+  override LibNamespace ns() { libsRef.ns }
 
   ** Convenience for 'exts.get' to lookup extension by lib dotted name
   override Ext? ext(Str name, Bool checked := true) { exts.get(name, checked) }

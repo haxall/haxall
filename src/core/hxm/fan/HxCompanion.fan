@@ -29,7 +29,7 @@ const class HxCompanion : ProjCompanion
 
   const HxRuntime rt
 
-  Namespace ns() { rt.ns }
+  LibNamespace ns() { rt.ns }
 
   Folio db() { rt.db }
 

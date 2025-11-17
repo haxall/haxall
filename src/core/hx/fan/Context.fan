@@ -91,7 +91,7 @@ class Context : AxonContext, FolioContext
   Folio db() { rt.db }
 
   ** Runtime namespace
-  override Namespace ns() { rt.ns }
+  override LibNamespace ns() { rt.ns }
 
   ** Runtime legacy defs (deprecated)
   @NoDoc override DefNamespace defs() { rt.defs }

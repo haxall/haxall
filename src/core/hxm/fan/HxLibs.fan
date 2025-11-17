@@ -446,7 +446,7 @@ const class HxLibs : RuntimeLibs
     return acc
   }
 
-  private RuntimeLibPack updatePack(Namespace ns, Str:HxLib allLibs)
+  private RuntimeLibPack updatePack(LibNamespace ns, Str:HxLib allLibs)
   {
     // find my pack libs in namespace depend order
     packLibs := Lib[,]
