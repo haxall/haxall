@@ -81,7 +81,7 @@ abstract const class MEnv : XetoEnv
 
   ** Get the lib in the cache or try to comile it.
   ** Note: we only support one version of a lib right now!
-  XetoLib getOrCompile(LibNamespace ns, LibVersion x)
+  XetoLib getOrCompile(Namespace ns, LibVersion x)
   {
     // check cache
     name := x.name
@@ -187,7 +187,7 @@ abstract const class MEnv : XetoEnv
 //////////////////////////////////////////////////////////////////////////
 
   ** Run build thru this env (not really thread safe)
-  LibNamespace build(LibVersion[] build)
+  Namespace build(LibVersion[] build)
   {
     // turn verions to lib depends
     buildAsDepends := build.map |v->LibDepend|

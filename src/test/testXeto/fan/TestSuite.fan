@@ -109,7 +109,7 @@ class DataTestRunner
     failed.add(testName)
   }
 
-  LibNamespace ns
+  Namespace ns
   Str[] args
   Bool runAll
   Bool verbose
@@ -632,7 +632,7 @@ class DataTestCase
 //////////////////////////////////////////////////////////////////////////
 
   DataTestRunner runner     // make
-  LibNamespace ns           // make
+  Namespace ns           // make
   Test test                 // make
   Str testName              // make
   Str:Obj? def              // make

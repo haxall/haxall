@@ -33,7 +33,7 @@ class AbstractXetoTest : HaystackTest
 
   Dict dict(Str:Obj map) { Etc.dictFromMap(map) }
 
-  Void verifyLocalAndRemote(Str[] libs, |LibNamespace ns| f)
+  Void verifyLocalAndRemote(Str[] libs, |Namespace ns| f)
   {
     // first test local server
     server := TestServer(createNamespace(libs))
@@ -60,7 +60,7 @@ class AbstractXetoTest : HaystackTest
     verifyEq(client.ns.libs.size, server.ns.versions.size)
   }
 
-  LibNamespace createNamespace(Str[] libs := ["sys"])
+  Namespace createNamespace(Str[] libs := ["sys"])
   {
     XetoEnv.cur.createNamespaceFromNames(libs)
   }
@@ -88,7 +88,7 @@ class AbstractXetoTest : HaystackTest
       verifyNull(spec.parent)
   }
 
-  Void verifyFlavorLookup(LibNamespace ns, Spec spec, SpecFlavor flavor)
+  Void verifyFlavorLookup(Namespace ns, Spec spec, SpecFlavor flavor)
   {
     lib := spec.lib
     name := spec.name
@@ -158,7 +158,7 @@ class AbstractXetoTest : HaystackTest
 
   }
 
-  Void verifyFitsExplain(LibNamespace ns, Obj? val, Spec spec, Str[] expected)
+  Void verifyFitsExplain(Namespace ns, Obj? val, Spec spec, Str[] expected)
   {
     hits := XetoLogRec[,]
     explain := |XetoLogRec rec| { hits.add(rec) }
@@ -241,12 +241,12 @@ class TestContext : XetoContext
 @Js
 const class TestServer
 {
-  new make(LibNamespace ns)
+  new make(Namespace ns)
   {
     this.ns = ns
   }
 
-  const LibNamespace ns
+  const Namespace ns
 }
 
 **************************************************************************
@@ -262,7 +262,7 @@ const class TestClient //: RemoteLibLoader
 
   const MEnv remoteEnv := RemoteEnv()
 
-  LibNamespace? ns() { nsRef.val }
+  Namespace? ns() { nsRef.val }
   const AtomicRef nsRef := AtomicRef()
 
   const Bool debug := false

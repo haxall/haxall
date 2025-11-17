@@ -22,7 +22,7 @@ class MetaTest : AbstractXetoTest
     verifyLocalAndRemote(["sys", "hx.test.xeto", "hx.test.xeto.deep"]) |ns| { doTestHxTestLib(ns) }
   }
 
-  private Void doTestHxTestLib(LibNamespace ns)
+  private Void doTestHxTestLib(Namespace ns)
   {
     ns.libs
     lib := ns.lib("hx.test.xeto")

@@ -25,7 +25,7 @@ class FuncTest : AbstractXetoTest
     verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestBasics(ns) }
   }
 
-  private Void doTestBasics(LibNamespace ns)
+  private Void doTestBasics(Namespace ns)
   {
     lib := ns.lib("hx.test.xeto")
 
@@ -60,7 +60,7 @@ class FuncTest : AbstractXetoTest
     if (!ns.env.isRemote) verifyAdd(ns, lib.spec("add4"), true) // Xeto component graph
   }
 
-  private Void verifyAdd(LibNamespace ns, Spec f, Bool valid)
+  private Void verifyAdd(Namespace ns, Spec f, Bool valid)
   {
     num := ns.spec("sys::Number")
 
@@ -86,7 +86,7 @@ class FuncTest : AbstractXetoTest
     }
   }
 
-  Void verifyFunc(LibNamespace ns, Spec f, Str[] params, Str ret)
+  Void verifyFunc(Namespace ns, Spec f, Str[] params, Str ret)
   {
     verifyEq(f.isFunc,   true)
     verifyEq(f.isType,   false)
@@ -157,7 +157,7 @@ class TestAxonContext : AxonContext
     Actor.locals.remove(actorLocalsKey)
   }
 
-  new make(LibNamespace ns) { this.ns = ns }
+  new make(Namespace ns) { this.ns = ns }
 
 //////////////////////////////////////////////////////////////////////////
 // XetoContext
@@ -189,7 +189,7 @@ class TestAxonContext : AxonContext
 
   override DefNamespace defs() { throw unsupported }
 
-  override LibNamespace ns
+  override Namespace ns
 
   Err unsupported() { UnsupportedErr("TestAxonContext") }
 }

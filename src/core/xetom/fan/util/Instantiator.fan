@@ -11,10 +11,10 @@ using xeto
 using haystack
 
 **
-** Instantiator implements LibNamespace.instantiate with support
+** Instantiator implements Namespace.instantiate with support
 ** for templating, graph instantiate, and pluggable options
 **
-** Options expanded from LibNamespace.instantiate for private use:
+** Options expanded from Namespace.instantiate for private use:
 **   - 'graph': Marker tag to instantiate graph of recs (will auto-generate ids)
 **   - 'abstract': marker to supress error if spec is abstract
 **   - 'id': Ref tag to include in new instance

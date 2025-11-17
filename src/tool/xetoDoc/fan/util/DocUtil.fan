@@ -153,7 +153,7 @@ const class DocUtil
 //////////////////////////////////////////////////////////////////////////
 
   ** Generate tags for given library
-  static DocTag[] genTags(LibNamespace ns, Lib lib)
+  static DocTag[] genTags(Namespace ns, Lib lib)
   {
     acc := DocTag[,]
 

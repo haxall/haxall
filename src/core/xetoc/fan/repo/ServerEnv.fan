@@ -150,17 +150,17 @@ const class ServerEnv : MEnv
 // Namespace
 //////////////////////////////////////////////////////////////////////////
 
-  override LibNamespace createNamespace(LibVersion[] libs)
+  override Namespace createNamespace(LibVersion[] libs)
   {
     repo.createNamespace(libs)
   }
 
-  override LibNamespace createNamespaceFromNames(Str[] names)
+  override Namespace createNamespaceFromNames(Str[] names)
   {
     repo.createFromNames(names)
   }
 
-  override LibNamespace createNamespaceFromData(Dict[] recs)
+  override Namespace createNamespaceFromData(Dict[] recs)
   {
     repo.createFromData(recs)
   }

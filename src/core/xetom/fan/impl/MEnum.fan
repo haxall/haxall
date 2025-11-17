@@ -60,7 +60,7 @@ const final class MEnum : SpecEnum
 
   override Dict? xmeta(Str? key := null, Bool checked :=true)
   {
-    throw UnsupportedErr("Must call LibNamespace.xmetaEnum")
+    throw UnsupportedErr("Must call Namespace.xmetaEnum")
   }
 
 }

@@ -22,7 +22,7 @@ const mixin FolioHooks
   abstract DefNamespace? defs(Bool checked := true)
 
   ** Xeto namespace if available
-  abstract LibNamespace? ns(Bool checked := true)
+  abstract Namespace? ns(Bool checked := true)
 
   ** Callback before diff is committed during verify
   ** phase. An exception will cancel entire commit.
@@ -97,7 +97,7 @@ abstract class FolioHisEvent
 **
 internal const class NilHooks : FolioHooks
 {
-  override LibNamespace? ns(Bool checked := true) { if (checked) throw UnsupportedErr("Namespace not availble"); return null }
+  override Namespace? ns(Bool checked := true) { if (checked) throw UnsupportedErr("Namespace not availble"); return null }
   override DefNamespace? defs(Bool checked := true) { if (checked) throw UnsupportedErr("Namespace not availble"); return null }
   override Void preCommit(FolioCommitEvent event) {}
   override Void postCommit(FolioCommitEvent event) {}

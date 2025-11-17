@@ -52,7 +52,7 @@ class FactoryTest : AbstractXetoTest
     verifyLocalAndRemote(["sys"]) |ns| { doTestSys(ns) }
   }
 
-  private Void doTestSys(LibNamespace ns)
+  private Void doTestSys(Namespace ns)
   {
     verifyScalar(ns, "sys::Str",     "hello")
     verifyScalar(ns, "sys::Bool",     true)
@@ -155,7 +155,7 @@ class FactoryTest : AbstractXetoTest
     verifyNotEq(b, Scalar("hx.test.xeto::ScalarB", "bad"))
   }
 
-  Void verifyScalar(LibNamespace ns, Str qname, Obj val, Type? type := val.typeof)
+  Void verifyScalar(Namespace ns, Str qname, Obj val, Type? type := val.typeof)
   {
     spec := ns.spec(qname)
     // echo("\n---> $spec | $spec.binding | $spec.fantomType")

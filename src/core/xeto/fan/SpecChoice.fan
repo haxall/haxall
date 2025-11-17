@@ -9,7 +9,7 @@
 using util
 
 **
-** Choice APIs for a specific choice spec via `LibNamespace.choice`.
+** Choice APIs for a specific choice spec via `Namespace.choice`.
 **
 @Js
 const mixin SpecChoice

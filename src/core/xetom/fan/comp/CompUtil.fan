@@ -40,7 +40,7 @@ class CompUtil
   }
 
   ** Encode a component into a xeto string
-  static Str compSaveToXeto(LibNamespace ns, Comp comp, Dict? opts := null)
+  static Str compSaveToXeto(Namespace ns, Comp comp, Dict? opts := null)
   {
     buf := StrBuf()
     ns.writeData(buf.out, compSaveToDict(comp, opts))

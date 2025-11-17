@@ -20,7 +20,7 @@ internal class DumpCmd : ExportCmd
   @Opt { aliases=["e"]; help = "Generate inherited effective meta/slots (default is own)" }
   Bool effective
 
-  override Exporter initExporter(LibNamespace ns, OutStream out)
+  override Exporter initExporter(Namespace ns, OutStream out)
   {
     opts := Str:Obj[:]
     if (effective) opts["effective"] = Marker.val

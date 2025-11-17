@@ -72,10 +72,10 @@ class FileMgrTest : WhiteboxTest
 
 const class FileTestHooks : FolioHooks
 {
-  new make(LibNamespace ns) { nsRef = ns }
+  new make(Namespace ns) { nsRef = ns }
 
-  override LibNamespace? ns(Bool checked := true) { nsRef }
-  const LibNamespace nsRef
+  override Namespace? ns(Bool checked := true) { nsRef }
+  const Namespace nsRef
 
   override DefNamespace? defs(Bool checked := true) { if (checked) throw UnsupportedErr("Namespace not availble"); return null }
   override Void preCommit(FolioCommitEvent event) {}

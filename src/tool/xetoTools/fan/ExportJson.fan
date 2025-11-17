@@ -28,7 +28,7 @@ internal class ExportJson : ExportCmd
     return 1
   }
 
-  override Exporter initExporter(LibNamespace ns, OutStream out)
+  override Exporter initExporter(Namespace ns, OutStream out)
   {
     opts := Str:Obj[:]
     if (effective) opts["effective"] = Marker.val

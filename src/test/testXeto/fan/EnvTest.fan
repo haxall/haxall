@@ -47,7 +47,7 @@ class EnvTest : AbstractXetoTest
     verifyLibsNotSame(c1, c2)
   }
 
-  Void verifyLibsSame(XetoEnv env, LibNamespace a, LibNamespace b)
+  Void verifyLibsSame(XetoEnv env, Namespace a, Namespace b)
   {
     verifySame(a.env, env)
     verifySame(b.env, env)
@@ -59,7 +59,7 @@ class EnvTest : AbstractXetoTest
     }
   }
 
-  Void verifyLibsNotSame(LibNamespace a, LibNamespace b)
+  Void verifyLibsNotSame(Namespace a, Namespace b)
   {
     verifyNotSame(a.env, b.env)
     a.libs.each |alib|
@@ -105,7 +105,7 @@ class EnvTest : AbstractXetoTest
     verifySame(bns.lib("ph.points"), bns2.lib("ph.points"))
   }
 
-  Void verifySerialization(LibNamespace a, LibNamespace b)
+  Void verifySerialization(Namespace a, Namespace b)
   {
      // echo("--- server"); a.dump
      // echo("--- browser"); b.dump

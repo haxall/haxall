@@ -151,13 +151,13 @@ class ExportTest : AbstractXetoTest
       ])
   }
 
-  Void verifyExport(LibNamespace ns, Dict opts, Str relId, Str:Obj expect)
+  Void verifyExport(Namespace ns, Dict opts, Str relId, Str:Obj expect)
   {
     verifyGridExport(ns, opts, relId, expect)
     verifyJsonExport(ns, opts, relId, expect)
   }
 
-  private Void verifyJsonExport(LibNamespace ns, Dict opts, Str relId, Str:Obj expect)
+  private Void verifyJsonExport(Namespace ns, Dict opts, Str relId, Str:Obj expect)
   {
     if (relId.startsWith("lib:"))
     {
@@ -215,7 +215,7 @@ class ExportTest : AbstractXetoTest
     return v.toStr
   }
 
-  private Void verifyGridExport(LibNamespace ns, Dict opts, Str relId, Str:Obj expect)
+  private Void verifyGridExport(Namespace ns, Dict opts, Str relId, Str:Obj expect)
   {
     grid := gridExport(ns, opts)
     id := Ref(relId.contains(":") ? relId : "hx.test.xeto::$relId")
@@ -226,7 +226,7 @@ class ExportTest : AbstractXetoTest
     return row
   }
 
-  private Str:Obj? jsonExport(LibNamespace ns, Dict opts)
+  private Str:Obj? jsonExport(Namespace ns, Dict opts)
   {
     buf := Buf()
     e := JsonExporter(ns, buf.out, opts)
@@ -236,7 +236,7 @@ class ExportTest : AbstractXetoTest
     return doc
   }
 
-  private Grid gridExport(LibNamespace ns, Dict opts)
+  private Grid gridExport(Namespace ns, Dict opts)
   {
     trio := defs.filetype("trio")
     e := GridExporter(ns, Buf().out, opts, trio)

@@ -15,7 +15,7 @@ using def
 using defc
 
 **
-** ShellNamespace wraps the xeto LibNamespace
+** ShellNamespace wraps the xeto Namespace
 **
 const class ShellNamespace : MBuiltNamespace
 {
@@ -38,7 +38,7 @@ const class ShellNamespace : MBuiltNamespace
 
   Void xetoReload() { xetoRef.val = createDefaultNamespace }
 
-  LibNamespace createDefaultNamespace() { repo.createNamespace([repo.latest("sys")]) }
+  Namespace createDefaultNamespace() { repo.createNamespace([repo.latest("sys")]) }
 
   Void addUsing(Str libName, OutStream out)
   {
@@ -88,7 +88,7 @@ internal const class ShellXetoGetter : XetoGetter
 
   const ShellRuntime rt
 
-  override LibNamespace get() { rt.defs.xetoRef.val }
+  override Namespace get() { rt.defs.xetoRef.val }
 }
 
 **************************************************************************

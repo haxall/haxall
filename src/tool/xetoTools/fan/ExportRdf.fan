@@ -17,7 +17,7 @@ internal class ExportRdf : ExportCmd
 
   override Str summary() { "Export Xeto to RDF" }
 
-  override Exporter initExporter(LibNamespace ns, OutStream out)
+  override Exporter initExporter(Namespace ns, OutStream out)
   {
     opts := Str:Obj[:]
     return RdfExporter(ns, out, Etc.makeDict(opts))

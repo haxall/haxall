@@ -14,7 +14,7 @@ using concurrent
 ** are supported. Create a new namespace via `XetoEnv.createNamespace`.
 **
 @Js
-const mixin LibNamespace
+const mixin Namespace
 {
 
 //////////////////////////////////////////////////////////////////////////

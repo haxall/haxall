@@ -22,7 +22,7 @@ class InterfaceTest : AbstractXetoTest
     verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestNamespace(ns) }
   }
 
-  private Void doTestNamespace(LibNamespace ns)
+  private Void doTestNamespace(Namespace ns)
   {
 if (ns.env.isRemote) return
     lib :=  ns.lib("hx.test.xeto")

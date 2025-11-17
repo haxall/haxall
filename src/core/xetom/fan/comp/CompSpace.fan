@@ -25,7 +25,7 @@ class CompSpace : AbstractCompSpace
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(LibNamespace ns)
+  new make(Namespace ns)
   {
     this.nsRef = ns
   }
@@ -83,8 +83,8 @@ class CompSpace : AbstractCompSpace
 //////////////////////////////////////////////////////////////////////////
 
   ** Xeto namespace for this space
-  LibNamespace ns() { nsRef }
-  private LibNamespace nsRef
+  Namespace ns() { nsRef }
+  private Namespace nsRef
 
   ** Root component
   virtual Comp root() { rootRef ?: throw Err("Must call initRoot") }
@@ -294,7 +294,7 @@ class CompSpace : AbstractCompSpace
   ** Modify the namespace on the fly.  Every component in the current tree
   ** must map to a spec in the new namespace or exception is raised.  This
   ** update does not check that components validate against the new specs.
-  Void updateNamespace(LibNamespace ns)
+  Void updateNamespace(Namespace ns)
   {
     // first check that we have spec for each component
     updateCompSpec(root, ns, false)
@@ -307,7 +307,7 @@ class CompSpace : AbstractCompSpace
   }
 
   ** Recursively walk the component tree to update specs
-  private Void updateCompSpec(Comp c, LibNamespace ns, Bool commit)
+  private Void updateCompSpec(Comp c, Namespace ns, Bool commit)
   {
     newSpec := ns.spec(c.spec.qname)
     if (commit) ((MCompSpi)c.spi).specRef = newSpec

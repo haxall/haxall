@@ -15,7 +15,7 @@ using xeto
 @Js
 const final class MChoice : SpecChoice
 {
-  internal new make(LibNamespace ns, XetoSpec spec)
+  internal new make(Namespace ns, XetoSpec spec)
   {
     if (!spec.isChoice) throw UnsupportedErr("Spec is not choice: $spec.qname")
     this.ns   = ns

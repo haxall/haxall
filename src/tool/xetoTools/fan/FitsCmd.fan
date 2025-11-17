@@ -181,7 +181,7 @@ internal class FitsCmd : XetoCmd
 
   internal Dict[]? recs             // readInput
   internal [Ref:Dict]? recsById     // readInput
-  internal LibNamespace? ns         // loadNamespace
+  internal Namespace? ns            // loadNamespace
   internal XetoLogRec[]? hits       // runFits
   private Int numOk                 // runFits
   private Int numErr                // runFits

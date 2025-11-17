@@ -30,14 +30,14 @@ const class RemoteEnv : MEnv
 
   override Str:Str buildVars() { throw unavailErr() }
 
-  override LibNamespace createNamespace(LibVersion[] libs)
+  override Namespace createNamespace(LibVersion[] libs)
   {
     MNamespace(this, libs)
   }
 
-  override LibNamespace createNamespaceFromNames(Str[] names) { throw unavailErr() }
+  override Namespace createNamespaceFromNames(Str[] names) { throw unavailErr() }
 
-  override LibNamespace createNamespaceFromData(Dict[] recs) { throw unavailErr() }
+  override Namespace createNamespaceFromData(Dict[] recs) { throw unavailErr() }
 
   override Str mode() { "browser" }
 

@@ -150,7 +150,7 @@ internal abstract class ExportCmd : XetoCmd
 // Namespace
 //////////////////////////////////////////////////////////////////////////
 
-  private LibNamespace createNamespace(XetoEnv env, ExportTarget[] targets)
+  private Namespace createNamespace(XetoEnv env, ExportTarget[] targets)
   {
     // map targets to a list of dependencies
     depends := Str:LibDepend[:]
@@ -170,7 +170,7 @@ internal abstract class ExportCmd : XetoCmd
 // Export
 //////////////////////////////////////////////////////////////////////////
 
-  private Void exportTargets(LibNamespace ns, ExportTarget[] targets)
+  private Void exportTargets(Namespace ns, ExportTarget[] targets)
   {
     if (outDir != null)
       exportToDir(ns, targets)
@@ -178,7 +178,7 @@ internal abstract class ExportCmd : XetoCmd
       exportToFile(ns, targets)
   }
 
-  private Void exportToDir(LibNamespace ns, ExportTarget[] targets)
+  private Void exportToDir(Namespace ns, ExportTarget[] targets)
   {
     targets.each |t|
     {
@@ -194,7 +194,7 @@ internal abstract class ExportCmd : XetoCmd
     }
   }
 
-  private Void exportToFile(LibNamespace ns, ExportTarget[] targets)
+  private Void exportToFile(Namespace ns, ExportTarget[] targets)
   {
     withOut(outFile) |out|
     {
@@ -205,7 +205,7 @@ internal abstract class ExportCmd : XetoCmd
     }
   }
 
-  private Void exportTarget(LibNamespace ns, Exporter ex, ExportTarget t)
+  private Void exportTarget(Namespace ns, Exporter ex, ExportTarget t)
   {
     lib := ns.lib(t.lib.name)
     if (t.specName == null)
@@ -231,7 +231,7 @@ internal abstract class ExportCmd : XetoCmd
     throw Err("Unknown spec/instance $lib.name::$t.specName")
   }
 
-  abstract Exporter initExporter(LibNamespace ns, OutStream out)
+  abstract Exporter initExporter(Namespace ns, OutStream out)
 
   abstract Str toFileName(ExportTarget t)
 }

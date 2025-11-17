@@ -29,7 +29,7 @@ class NamespaceTest : AbstractXetoTest
     verifyLocalAndRemote(["sys"]) |ns| { doTestSysLib(ns) }
   }
 
-  private Void doTestSysLib(LibNamespace ns)
+  private Void doTestSysLib(Namespace ns)
   {
     // lib basics
     sys := verifyLibBasics(ns, "sys", phVersion, ["sys"])
@@ -155,7 +155,7 @@ class NamespaceTest : AbstractXetoTest
     verifyLocalAndRemote(["sys", "ph"]) |ns| { doTestPhLib(ns) }
   }
 
-  private Void doTestPhLib(LibNamespace ns)
+  private Void doTestPhLib(Namespace ns)
   {
     // lib basics
     ph := verifyLibBasics(ns, "ph", phVersion, ["ph"])
@@ -244,7 +244,7 @@ class NamespaceTest : AbstractXetoTest
     verifyLocalAndRemote(["sys", "hx.test.xeto"]) |ns| { doTestHxTestLib(ns) }
   }
 
-  private Void doTestHxTestLib(LibNamespace ns)
+  private Void doTestHxTestLib(Namespace ns)
   {
     // lib basics
     lib := verifyLibBasics(ns, "hx.test.xeto", hxVersion, ["haxall"])
@@ -368,7 +368,7 @@ class NamespaceTest : AbstractXetoTest
     verifyNameDict(ns, ref.meta)
   }
 
-  Void verifyNameTable(LibNamespace ns, Str name)
+  Void verifyNameTable(Namespace ns, Str name)
   {
     code := ns.names.toCode(name)
     // echo("-- $name = $code")
@@ -376,7 +376,7 @@ class NamespaceTest : AbstractXetoTest
     verifySame(ns.names.toName(code), name)
   }
 
-  Void verifyNameDict(LibNamespace ns, Dict meta)
+  Void verifyNameDict(Namespace ns, Dict meta)
   {
     verifyEq(meta.typeof.qname, "xetom::MNameDict")
     meta.each |v, n| { verifyNameTable(ns, n) }
@@ -473,7 +473,7 @@ class NamespaceTest : AbstractXetoTest
     verifyDict(ns, ["str":"hi", "int":123])
   }
 
-  Void verifyDict(LibNamespace ns, Str:Obj map, Str qname := "sys::Dict")
+  Void verifyDict(Namespace ns, Str:Obj map, Str qname := "sys::Dict")
   {
     d := dict(map)
 
@@ -604,7 +604,7 @@ class NamespaceTest : AbstractXetoTest
     verifyErr(Err#) { ns.instantiate(ns.spec("sys::Scalar")) }
   }
 
-  Void verifyInstantiate(LibNamespace ns, Str qname, Obj? expect, Obj? opts := null)
+  Void verifyInstantiate(Namespace ns, Str qname, Obj? expect, Obj? opts := null)
   {
     spec := ns.spec(qname)
 
@@ -617,7 +617,7 @@ class NamespaceTest : AbstractXetoTest
       verifyValEq(actual, expect)
   }
 
-  Void verifyInstantiateGraph(LibNamespace ns, Str qname, [Str:Obj][] expect)
+  Void verifyInstantiateGraph(Namespace ns, Str qname, [Str:Obj][] expect)
   {
     // instantiate
     spec := ns.spec(qname)
@@ -651,7 +651,7 @@ class NamespaceTest : AbstractXetoTest
     }
   }
 
-  Void verifyInstantiateDictEq(LibNamespace ns, Dict actual, Str:Obj expect)
+  Void verifyInstantiateDictEq(Namespace ns, Dict actual, Str:Obj expect)
   {
     // swizzle point dis -> navName, disMacro
     spec    := ns.spec(actual->spec.toStr)
@@ -672,7 +672,7 @@ class NamespaceTest : AbstractXetoTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  Lib verifyLibBasics(LibNamespace ns, Str name, Version version, Str[] categories)
+  Lib verifyLibBasics(Namespace ns, Str name, Version version, Str[] categories)
   {
     lib := ns.lib(name)
 
@@ -709,7 +709,7 @@ class NamespaceTest : AbstractXetoTest
     return lib
   }
 
-  Spec verifyLibType(LibNamespace ns, Lib lib, Str name, Spec? base, Obj? val := null)
+  Spec verifyLibType(Namespace ns, Lib lib, Str name, Spec? base, Obj? val := null)
   {
     type := lib.type(name)
     verifySame(type, lib.type(name))
@@ -739,7 +739,7 @@ class NamespaceTest : AbstractXetoTest
     return type
   }
 
-  Spec verifyGlobal(LibNamespace ns, Lib lib, Str name, Spec type)
+  Spec verifyGlobal(Namespace ns, Lib lib, Str name, Spec type)
   {
     spec := lib.global(name)
     verifySame(ns.spec("$lib.name::$name"), spec)
@@ -751,7 +751,7 @@ class NamespaceTest : AbstractXetoTest
     return spec
   }
 
-  Spec verifyMeta(LibNamespace ns, Lib lib, Str name, Spec type)
+  Spec verifyMeta(Namespace ns, Lib lib, Str name, Spec type)
   {
     spec := lib.metaSpec(name)
     verifySame(ns.spec("$lib.name::$name"), spec)
@@ -763,7 +763,7 @@ class NamespaceTest : AbstractXetoTest
     return spec
   }
 
-  Spec verifySlot(LibNamespace ns, Spec parent, Str name, Spec type)
+  Spec verifySlot(Namespace ns, Spec parent, Str name, Spec type)
   {
     slot := parent.slotOwn(name)
     verifyEq(slot.typeof.qname, "xetom::XetoSpec") // not type

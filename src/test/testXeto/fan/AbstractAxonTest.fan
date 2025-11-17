@@ -18,7 +18,7 @@ using hx
 **
 abstract class AbstractAxonTest : HxTest
 {
-  LibNamespace initNamespace(Str[] libs)
+  Namespace initNamespace(Str[] libs)
   {
     // nuke existing using recs
     proj.libs.clear
@@ -32,7 +32,7 @@ abstract class AbstractAxonTest : HxTest
     return ns
   }
 
-  LibNamespace ns()
+  Namespace ns()
   {
     proj.ns
   }

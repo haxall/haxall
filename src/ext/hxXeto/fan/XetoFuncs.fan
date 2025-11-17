@@ -76,7 +76,7 @@ const class XetoFuncs
   ** the [dict]`xeto::Spec` representation.  If not found raise
   ** exception or return null based on checked flag.
   **
-  ** NOTE: returns the same Spec instance as returned by `xeto::LibNamespace`.
+  ** NOTE: returns the same Spec instance as returned by `xeto::Namespace`.
   ** The spec meta is modeled using full fidelity and *not* haystack fidelity.
   ** Use `specMeta` to normalize to haystack fidelity for use inside Axon.
   **
@@ -104,7 +104,7 @@ const class XetoFuncs
   ** with a Dict of the effective slots name.  This allows filtering slots
   ** using the syntax 'slots->someName'.
   **
-  ** NOTE: returns the same Spec instances as returned by `xeto::LibNamespace`.
+  ** NOTE: returns the same Spec instances as returned by `xeto::Namespace`.
   ** The spec meta is modeled using full fidelity and *not* haystack fidelity.
   ** Use `specMeta` to normalize to haystack fidelity for use inside Axon.
   **
@@ -282,7 +282,7 @@ const class XetoFuncs
   ** can be instantiated via the '{graph}' option in which case a Dict[] is
   ** returned.  In graph mode an 'id' is generated for recs for cross-linking.
   **
-  ** Also see `xeto::LibNamespace.instantiate`.
+  ** Also see `xeto::Namespace.instantiate`.
   **
   ** NOTE: this function forces the 'haystack' option to force all
   ** non-Haystack scalars to be simple strings.

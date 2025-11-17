@@ -33,7 +33,7 @@ const class CompSpaceActor : Actor
 //////////////////////////////////////////////////////////////////////////
 
   ** Namespace for the CompSpace - must have called init
-  LibNamespace ns() { nsRef.val ?: throw Err("Must call init first") }
+  Namespace ns() { nsRef.val ?: throw Err("Must call init first") }
   private const AtomicRef nsRef := AtomicRef()
 
   ** Initialize the CompSpace using given subtype and make args

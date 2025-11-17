@@ -56,7 +56,7 @@ class CompileTest : AbstractXetoTest
     verifyScalar(ns, "sys::DateTime", Str<|DateTime 2023-03-04T12:26:41.495Z|>, DateTime("2023-03-04T12:26:41.495Z UTC"))
   }
 
-  Void verifyScalar(LibNamespace ns, Str qname, Str src, Obj? expected)
+  Void verifyScalar(Namespace ns, Str qname, Str src, Obj? expected)
   {
     actual := ns.compileData(src)
     // echo("-- $src")

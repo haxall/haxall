@@ -25,7 +25,7 @@ const mixin SpecEnum
 
   ** Get the extended meta for the given enum item key.  If key is null
   ** then get the extended meta for the enum spec itself.  This method is
-  ** only available if the requested by the `LibNamespace.xmetaEnum`
+  ** only available if the requested by the `Namespace.xmetaEnum`
   ** otherwise an exception is raised.
   abstract Dict? xmeta(Str? key := null, Bool checked := true)
 }

@@ -17,7 +17,7 @@ using haystack
 class PrinterTest : AbstractXetoTest
 {
   StrBuf buf := StrBuf()
-  LibNamespace? ns
+  Namespace? ns
 
   override Void setup()
   {
@@ -148,7 +148,7 @@ class PrinterTest : AbstractXetoTest
            }
            |>)
 
-    // LibNamespace.writeData
+    // Namespace.writeData
     out = newCase
     out.data([Etc.dictx("id",Ref("foo"), "spec",Ref("ph::Site")),
               Etc.dictx("id",Ref("bar"), "spec",Ref("ph::Site"), "site",m),

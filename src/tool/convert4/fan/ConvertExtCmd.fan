@@ -232,6 +232,6 @@ internal class ConvertExtCmd : ConvertCmd
 
   private Ast? ast
   private Console con := Console.cur
-  private LibNamespace ns := XetoEnv.cur.createNamespaceFromNames(["sys"])
+  private Namespace ns := XetoEnv.cur.createNamespaceFromNames(["sys"])
 }
 

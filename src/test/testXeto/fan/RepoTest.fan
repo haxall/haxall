@@ -365,7 +365,7 @@ class RepoTest : AbstractXetoTest
     verifyAllLoaded(ns, ns.libs)
   }
 
-  LibNamespace initAllLoaded()
+  Namespace initAllLoaded()
   {
     // need fresh env
     env := ServerEnv.initPath
@@ -389,7 +389,7 @@ class RepoTest : AbstractXetoTest
     return ns
   }
 
-  Void verifyAllLoaded(LibNamespace ns, Lib[] libs)
+  Void verifyAllLoaded(Namespace ns, Lib[] libs)
   {
     verifyEq(ns.isAllLoaded, true)
     verifyEq(ns.libStatus("sys"), LibStatus.ok)

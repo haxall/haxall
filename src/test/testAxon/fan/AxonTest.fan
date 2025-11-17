@@ -96,7 +96,7 @@ internal class TestContext : AxonContext
 
   override Dict toDict() { Etc.dict0 }
 
-  override LibNamespace ns() { throw UnsupportedErr() }
+  override Namespace ns() { throw UnsupportedErr() }
 
   override DefNamespace defs() { test.defs }
 

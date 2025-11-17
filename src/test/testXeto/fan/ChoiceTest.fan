@@ -107,7 +107,7 @@ class ChoiceTest : AbstractXetoTest
     verifyEq(spec.isChoice, expect, spec.qname)
   }
 
-  Void verifyChoice(LibNamespace ns, Spec spec, Str flags)
+  Void verifyChoice(Namespace ns, Spec spec, Str flags)
   {
     c := ns.choice(spec)
     // echo("--> $c.spec | $c.type | $c.isMaybe/$c.isMultiChoice")
@@ -117,7 +117,7 @@ class ChoiceTest : AbstractXetoTest
     verifyEq(c.isMultiChoice, flags.contains("m"))
   }
 
-  Void verifySelections(LibNamespace ns, Spec spec, Str:Obj tags, Spec[] expect)
+  Void verifySelections(Namespace ns, Spec spec, Str:Obj tags, Spec[] expect)
   {
     c := ns.choice(spec)
     instance := Etc.makeDict(tags)
@@ -171,7 +171,7 @@ class ChoiceTest : AbstractXetoTest
     }
   }
 
-  Void verifyValidate(LibNamespace ns, Spec spec, Dict instance, Str[] errs)
+  Void verifyValidate(Namespace ns, Spec spec, Dict instance, Str[] errs)
   {
     type := spec.parent
     if (type == null) return
@@ -198,7 +198,7 @@ class ChoiceTest : AbstractXetoTest
     verifyPhenomenon(ns, ["water":m, "hot":m, "naturalGas":m], "ph::Fluid", ["ph::HotWater", "ph::NaturalGas"])
   }
 
-  Void verifyPhenomenon(LibNamespace ns, Str:Obj tags, Str qname, Obj? expect)
+  Void verifyPhenomenon(Namespace ns, Str:Obj tags, Str qname, Obj? expect)
   {
     spec := ns.spec(qname)
     c := ns.choice(spec)

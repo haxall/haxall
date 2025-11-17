@@ -758,7 +758,7 @@ class UtilTest : AbstractXetoTest
                            "ph.points::NumberPoint")
   }
 
-  Void verifyCommonSuper(LibNamespace ns, Str[] qnames, Str expect)
+  Void verifyCommonSuper(Namespace ns, Str[] qnames, Str expect)
   {
     specs := qnames.map |qname->Spec| { ns.spec(qname) }
     // echo("==> $specs")

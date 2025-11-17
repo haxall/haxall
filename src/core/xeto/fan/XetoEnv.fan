@@ -73,15 +73,15 @@ abstract const class XetoEnv
   ** This method does not solve the dependency graph.  The list of lib
   ** versions passed must be a complete dependency tree that satisifies
   ** all version constraints.
-  abstract LibNamespace createNamespace(LibVersion[] libs)
+  abstract Namespace createNamespace(LibVersion[] libs)
 
   ** Given a list of library names, map to latest versions, solve
   ** their dependency graph and create a namespace.
-  @NoDoc abstract LibNamespace createNamespaceFromNames(Str[] names)
+  @NoDoc abstract Namespace createNamespaceFromNames(Str[] names)
 
   ** Given a set of a records with a 'spec' tag, determine which libs
   ** are used and resolve them to libs and build a namespace.
-  @NoDoc abstract LibNamespace createNamespaceFromData(Dict[] recs)
+  @NoDoc abstract Namespace createNamespaceFromData(Dict[] recs)
 
 //////////////////////////////////////////////////////////////////////////
 // Serialization

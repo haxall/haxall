@@ -616,7 +616,7 @@ class ValidateTest : AbstractXetoTest
   }
 
   ** Namespace to use
-  once LibNamespace nsTest()
+  once Namespace nsTest()
   {
     createNamespace(["sys", "ph", "hx.test.xeto"])
   }

@@ -54,6 +54,6 @@ class AConfig
 
   Str[] funcMeta
 
-  LibNamespace ns
+  Namespace ns
 }
 

@@ -46,7 +46,7 @@ class FidelityTest : AbstractAxonTest
     verifyFidelity(ns, "numbers", Obj[2, 3f, n(4)], Obj[n(2), n(3), n(4)])
   }
 
-  Void verifyFidelity(LibNamespace ns, Str slot, Obj full, Obj hay, Obj json := hay) // not using json now
+  Void verifyFidelity(Namespace ns, Str slot, Obj full, Obj hay, Obj json := hay) // not using json now
   {
     spec := ns.spec("hx.test.xeto::Fidelity")
     a    := ns.instance("hx.test.xeto::fidelityA")

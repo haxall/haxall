@@ -307,7 +307,7 @@ internal class CompFactory
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private const LibNamespace ns
+  private const Namespace ns
   private CompSpace cs
   private CompSpiInit? curCompInit
   private [Ref:Ref]? swizzleMap

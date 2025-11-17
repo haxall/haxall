@@ -23,7 +23,7 @@ class XetoPrinter
 //////////////////////////////////////////////////////////////////////////
 
   ** Constructor
-  new make(LibNamespace ns, OutStream out := Env.cur.out, Dict? opts := null)
+  new make(Namespace ns, OutStream out := Env.cur.out, Dict? opts := null)
   {
     if (opts == null) opts = Etc.dict0
     this.ns   = ns
@@ -160,7 +160,7 @@ class XetoPrinter
 // Instance Data
 //////////////////////////////////////////////////////////////////////////
 
-  ** Top level for LibNamespace.writeData
+  ** Top level for Namespace.writeData
   This data(Obj top)
   {
     if (top is Grid)
@@ -579,7 +579,7 @@ class XetoPrinter
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  const LibNamespace ns     // xeto namespace
+  const Namespace ns     // xeto namespace
   private OutStream out     // output stream
   private Int indentation   // indentation level
 }

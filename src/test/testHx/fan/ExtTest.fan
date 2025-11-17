@@ -36,7 +36,7 @@ class ExtTest : HxTest
     verifyBinding(ns, "hx.mqtt::MqttExt", "hxMqtt::MqttExt")
   }
 
-  Void verifyBinding(LibNamespace ns, Str spec, Str fanType)
+  Void verifyBinding(Namespace ns, Str spec, Str fanType)
   {
     s := ns.spec(spec)
     // echo(">>> $s.qname $s.isInterface $s.fantomType")

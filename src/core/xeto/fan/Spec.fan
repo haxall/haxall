@@ -87,7 +87,7 @@ const mixin Spec : Dict
 
   ** Return if this is a spec that inherits from 'sys::Choice'.  If
   ** this spec inherits from a choice via a And/Or type then return
-  ** false.  See `LibNamespace.choice` to access `SpecChoice` API.
+  ** false.  See `Namespace.choice` to access `SpecChoice` API.
   abstract Bool isChoice()
 
   ** Return function specific APIs.  Raise exception if `isFunc` is false.

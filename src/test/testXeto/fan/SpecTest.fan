@@ -149,7 +149,7 @@ class SpecTest : AbstractXetoTest
       ["doc":doc, "qux":"Device"])
   }
 
-  Void verifyXMeta(LibNamespace ns, Spec spec, Str:Obj meta, Str:Obj xmeta)
+  Void verifyXMeta(Namespace ns, Spec spec, Str:Obj meta, Str:Obj xmeta)
   {
     actual := ns.xmeta(spec.qname)
     verifyDictEq(spec.meta, meta)
@@ -191,7 +191,7 @@ class SpecTest : AbstractXetoTest
     verifyLocalAndRemote(["ph.points"]) |ns| { doTestIsa(ns) }
   }
 
-  Void doTestIsa(LibNamespace ns)
+  Void doTestIsa(Namespace ns)
   {
     verifyIsa(ns, "sys::Obj", "sys::Obj", true)
     verifyIsa(ns, "sys::Obj", "sys::Str", false)
@@ -270,7 +270,7 @@ class SpecTest : AbstractXetoTest
     verifyIsa(ns, "ph::Water",         "ph::Fluid",      true)
   }
 
-  Spec verifyIsa(LibNamespace ns, Str an, Str bn, Bool expect, Bool expectMethod := expect)
+  Spec verifyIsa(Namespace ns, Str an, Str bn, Bool expect, Bool expectMethod := expect)
   {
     a := ns.type(an)
     b := ns.type(bn)
@@ -529,7 +529,7 @@ class SpecTest : AbstractXetoTest
     verifyEq(abPts.base, aPts)
   }
 
-  Void verifyQueryInherit(LibNamespace ns, Spec x, Str[] expectPoints)
+  Void verifyQueryInherit(Namespace ns, Spec x, Str[] expectPoints)
   {
     q := x.slot("points")
     actualPoints := Str[,]

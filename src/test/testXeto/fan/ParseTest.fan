@@ -135,7 +135,7 @@ class ParseTest : AbstractXetoTest
       ])
   }
 
-  Void verifyParse(LibNamespace ns, Str src, Obj[] expect, Bool roundtrip := true)
+  Void verifyParse(Namespace ns, Str src, Obj[] expect, Bool roundtrip := true)
   {
     //if (!roundtrip) echo("------"); else echo("\n######"); echo(src)
     actual := ns.parseToDicts(src, opts)

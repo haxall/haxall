@@ -96,7 +96,7 @@ const abstract class MFolioFile : FolioFile
   }
 
   ** Get the xeto namespace
-  LibNamespace xeto() { folio.hooks.ns }
+  Namespace xeto() { folio.hooks.ns }
 
   ** Sub-class hook to make a file instance for the rec with this id.
   protected abstract File toFile(Ref id)

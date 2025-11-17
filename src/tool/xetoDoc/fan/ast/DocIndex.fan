@@ -16,7 +16,7 @@ using haystack
 const class DocIndex : DocPage
 {
   ** Simple default implementation (at least for now)
-  static DocIndex makeForNamespace(LibNamespace ns)
+  static DocIndex makeForNamespace(Namespace ns)
   {
     // build doc summary for each lib and assign to a group name
     acc := Str:DocSummary[][:]

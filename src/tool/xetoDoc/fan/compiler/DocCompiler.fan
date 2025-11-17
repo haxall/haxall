@@ -21,7 +21,7 @@ class DocCompiler
 //////////////////////////////////////////////////////////////////////////
 
   ** Static utility which can be easily used for reflection
-  static Void runCompiler(LibNamespace ns, File outDir)
+  static Void runCompiler(Namespace ns, File outDir)
   {
     c := DocCompiler
     {
@@ -40,7 +40,7 @@ class DocCompiler
 //////////////////////////////////////////////////////////////////////////
 
   ** Namespace to generate
-  const LibNamespace ns
+  const Namespace ns
 
   ** Libs to generate
   const Lib[] libs

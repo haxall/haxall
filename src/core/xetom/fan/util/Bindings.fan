@@ -147,7 +147,7 @@ const class SpecBindings
   }
 
   ** Lookup a binding for a type and if found attempt to resolve to spec
-  Spec? forTypeToSpec(LibNamespace ns, Type type)
+  Spec? forTypeToSpec(Namespace ns, Type type)
   {
     binding := forType(type)
     if (binding == null) return null

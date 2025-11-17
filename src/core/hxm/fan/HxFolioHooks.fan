@@ -24,7 +24,7 @@ const class HxFolioHooks : FolioHooks
   const HxRuntime rt
 
   ** Xeto namespace is available
-  override LibNamespace? ns(Bool checked := true) { rt.ns }
+  override Namespace? ns(Bool checked := true) { rt.ns }
 
   ** Def namespace is available
   override DefNamespace? defs(Bool checked := true) { rt.defs }

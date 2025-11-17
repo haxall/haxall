@@ -19,7 +19,7 @@ abstract internal class Step
 
   abstract Void run()
 
-  LibNamespace ns() { compiler.ns }
+  Namespace ns() { compiler.ns }
 
   Void info(Str msg) { compiler.info(msg) }
 

@@ -297,7 +297,7 @@ internal class Templater
 //////////////////////////////////////////////////////////////////////////
 
   private TemplateFn fn
-  private LibNamespace ns
+  private Namespace ns
   private AxonContext cx
   private Str:Obj? args
   private Obj?[] itStack := [,]
