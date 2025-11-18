@@ -17,30 +17,33 @@ using haystack
 class MixinTest : AbstractXetoTest
 {
 
-//////////////////////////////////////////////////////////////////////////
-// Basics
-//////////////////////////////////////////////////////////////////////////
-
-  Void testReflect()
+  Void testBasics()
   {
-    ns := createNamespace(["hx.test.xeto"])
-    lib := ns.lib("hx.test.xeto")
-    t := ns.spec("ph::Site")
-    m := lib.spec("Site")
+    ns       := createNamespace(["hx.test.xeto"])
+    lib      := ns.lib("hx.test.xeto")
+    str     := ns.spec("sys::Str")
+    site     := ns.spec("ph::Site")
+    testSite := lib.spec("TestSite")
+    sitex    := lib.spec("Site")
 
-    verifyEq(m.isType, false)
-    verifyEq(m.isMixin, true)
-    verifyEq(m.flavor, SpecFlavor.mixIn)
-    verifyEq(m.meta["mixin"], Marker.val)
-    verifySame(m.base, t)
-    verifySame(m.type, t)
+    verifyEq(sitex.isType, false)
+    verifyEq(sitex.isMixin, true)
+    verifyEq(sitex.flavor, SpecFlavor.mixIn)
+    verifyEq(sitex.meta["mixin"], Marker.val)
+    verifySame(sitex.base, site)
+    verifySame(sitex.type, site)
 
-    verifyEq(lib.mixins, Spec[m])
-    verifySame(lib.mixinFor(t), m)
+    verifyEq(lib.mixins, Spec[sitex])
+    verifySame(lib.mixinFor(site), sitex)
     verifyEq(lib.mixinFor(ns.spec("sys::Str"), false), null)
     verifyEq(lib.mixinFor(lib.spec("EquipA"), false), null)
     verifyErr(UnknownSpecErr#) { lib.mixinFor(ns.spec("sys::Str")) }
     verifyErr(UnknownSpecErr#) { lib.mixinFor(ns.spec("sys::Str"), true) }
+
+    verifyDictEq(ns.meta(site), ["doc":site.metaOwn["doc"], "foo":"building"])
+    verifyDictEq(ns.meta(testSite), ["doc":testSite.metaOwn["doc"], "foo":"building"])
+    verifyDictEq(ns.meta(str), str.meta)
   }
+
 }
 

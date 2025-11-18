@@ -79,6 +79,9 @@ const mixin Namespace
   ** Get an instance by the given qualified name
   abstract Dict? instance(Str qname, Bool checked := true)
 
+  ** Compute the spec meta by merging inheriting and mixins
+  abstract Dict meta(Spec spec)
+
   ** Lookup the extended meta for the given spec qname.  This is a merge
   ** of the spec's own meta along with any instance dicts in the namespace
   ** with a local id of "xmeta-{lib}-{spec}".  If the spec is not defined then

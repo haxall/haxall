@@ -194,6 +194,11 @@ const class MNamespace : Namespace, CNamespace
     return null
   }
 
+  override Dict meta(Spec spec)
+  {
+    SpecMixer(this, spec).meta
+  }
+
   override Dict? xmeta(Str qname, Bool checked := true)
   {
     XMeta(this).xmeta(qname, checked)
