@@ -79,10 +79,6 @@ const mixin Spec : Dict
   ** Does meta have maybe tag.  Maybe slots are optional
   abstract Bool isMaybe()
 
-  ** Does meta have wildcard tag. Wildcard slots define a required type and
-  ** shape for a given slot name within a base type.
-  abstract Bool isWildcard()
-
   ** Is the base 'sys::Enum'
   abstract Bool isEnum()
 
@@ -104,7 +100,10 @@ const mixin Spec : Dict
   ** Is this a top level type spec
   abstract Bool isType()
 
-  ** Is this a top level global slot spec
+  ** Is this a type mixin spec
+  abstract Bool isMixin()
+
+  ** Is this a global slot that defines type and meta for a given slot name
   abstract Bool isGlobal()
 
   ** Return if this a function spec

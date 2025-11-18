@@ -15,6 +15,9 @@ enum class SpecFlavor
   ** Top level type
   type,
 
+  ** Type mixin
+  mixIn,
+
   ** Top level global slot spec
   global,
 
@@ -29,6 +32,9 @@ enum class SpecFlavor
 
   ** Is this the type flavor
   Bool isType() { this === type }
+
+  ** Is this the mixin flavor
+  Bool isMixIn() { this === mixIn }
 
   ** Is this the top-level global slot flavor
   Bool isGlobal() { this === global }

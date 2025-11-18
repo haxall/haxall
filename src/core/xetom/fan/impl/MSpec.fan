@@ -263,14 +263,14 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final SpecFlavor flavor() { m.flavor }
   override final Bool isType()       { flavor.isType }
-  override final Bool isGlobal()     { flavor.isGlobal }
+  override final Bool isMixin()      { flavor.isMixIn }
   override final Bool isMeta()       { flavor.isMeta }
   override final Bool isSlot()       { flavor.isSlot }
 
   override final Bool isNone()      { m.hasFlag(MSpecFlags.none) }
   override final Bool isSelf()      { m.hasFlag(MSpecFlags.self) }
   override final Bool isMaybe()     { m.hasFlag(MSpecFlags.maybe) }
-  override final Bool isWildcard()  { m.hasFlag(MSpecFlags.wildcard) }
+  override final Bool isGlobal()    { m.hasFlag(MSpecFlags.global) || flavor.isGlobal } // TODO
   override final Bool isScalar()    { m.hasFlag(MSpecFlags.scalar) }
   override final Bool isMarker()    { m.hasFlag(MSpecFlags.marker) }
   override final Bool isRef()       { m.hasFlag(MSpecFlags.ref) }

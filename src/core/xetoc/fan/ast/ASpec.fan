@@ -68,8 +68,11 @@ internal class ASpec : ANode, CSpec
   ** Is flavor type
   Bool isType() { flavor.isType }
 
+  ** Is flavor mixin
+  Bool isMixin() { flavor.isMixIn }
+
   ** Is flavor global
-  Bool isGlobal() { flavor.isGlobal }
+  override Bool isGlobal() { flavor.isGlobal || hasFlag(MSpecFlags.global) }
 
   ** Is flavor meta
   Bool isMeta() { flavor.isMeta }
@@ -379,7 +382,6 @@ internal class ASpec : ANode, CSpec
   override Bool isDict()      { hasFlag(MSpecFlags.dict) }
   override Bool isList()      { hasFlag(MSpecFlags.list) }
   override Bool isMaybe()     { hasFlag(MSpecFlags.maybe) }
-  override Bool isWildcard()  { hasFlag(MSpecFlags.wildcard) }
   override Bool isQuery()     { hasFlag(MSpecFlags.query) }
   override Bool isFunc()      { hasFlag(MSpecFlags.func) }
   override Bool isInterface() { hasFlag(MSpecFlags.interface) }
