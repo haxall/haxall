@@ -35,9 +35,9 @@
   fault: {color:"red"}
 }
 
-@xmeta-ph-ElecLine-enum: {
-  pL1: {foo:"Line 1"}
-  pL2: {foo:"Line 2"}
-  pL3: {foo:"Line 3"}
+@xmeta-ph-Phase-enum: {
+  l1: {foo:"Line 1"}
+  l2: {foo:"Line 2"}
+  l3: {foo:"Line 3"}
 }
 
