@@ -80,8 +80,8 @@ internal class ProcessPragma : Step
     {
       name := ver.name
       if (compiler.libName == name) return null
-      status := ns.libStatus(name)
-      if (status.isErr) return null
+      lib := ns.lib(name, false)
+      if (lib == null) return null
       return MLibDepend(name, LibDependVersions.wildcard, FileLoc.synthetic)
     }
   }
