@@ -52,8 +52,16 @@ internal class ALib : ADoc
   ** Top level specs
   Str:ASpec tops := [:] { ordered = true }
 
-  ** Lookup top level spec
+  ** TODO
   ASpec? top(Str name) { tops.get(name) }
+
+  ** Lookup type spec
+  ASpec? type(Str name)
+  {
+    x := tops.get(name)
+    if (x != null && x.isType) return x
+    return null
+  }
 
   ** List type specs ordered by inheritance (set in InheritSlots)
   ASpec[] types() { typesRef ?: throw NotReadyErr(name) }

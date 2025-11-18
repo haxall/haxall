@@ -20,6 +20,8 @@ internal enum class Token
   colon       (":"),
   doubleColon ("::"),
   comma       (","),
+  plus        ("+"),
+  asterisk    ("*"),
   lt          ("<"),
   gt          (">"),
   lbrace      ("{"),

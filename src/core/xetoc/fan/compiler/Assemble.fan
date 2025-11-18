@@ -55,6 +55,8 @@ internal class Assemble : Step
         m = MTopFunc(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
       case SpecFlavor.global:
         m = MGlobal(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+      case SpecFlavor.mixIn:
+        m = MMixin(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
       case SpecFlavor.meta:
         m = MMetaSpec(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
       default:

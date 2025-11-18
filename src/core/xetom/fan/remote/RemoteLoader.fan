@@ -10,6 +10,7 @@ using util
 using concurrent
 using xeto
 using haystack
+
 **
 ** RemoteLoader is used to load a library serialized over a network
 **
@@ -141,6 +142,10 @@ internal class RemoteLoader
     {
       x.bindingRef = assignBinding(x)
       m = MType(loc, lib, qname(x), x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, x.binding)
+    }
+    else if (x.flavor.isMixIn)
+    {
+      m = MMixin(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
     else if (x.flavor.isGlobal)
     {

@@ -167,6 +167,7 @@ class DocTest : AbstractXetoTest
     lib.specs.each |a|
     {
       if (XetoUtil.isAutoName(a.name)) return
+      if (a.isMixin) return
       b := n.specs.find { it.link.dis == a.name } ?: throw Err("$a.name $a.flavor")
       verifyEq(a.flavor, b.flavor)
       if (!a.isType) verifyEq(a.type.qname, b.type.qname)

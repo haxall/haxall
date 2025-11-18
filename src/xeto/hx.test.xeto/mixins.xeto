@@ -6,6 +6,10 @@
 //   3 Jul 2024  Brian Frank  Creation
 //
 
+// ignored
++ph::Site <foo:"building"> {
+}
+
 @xmeta-ph-Site: {
   foo: "building"
 }

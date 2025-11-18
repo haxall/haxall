@@ -111,18 +111,39 @@ internal class Parser
 
     if (cur === Token.eof) return false
 
-    if (cur === Token.id) return parseLibSpec(doc)
+    if (cur === Token.id) return parseLibType(doc)
+
+    if (cur === Token.plus) return parseLibMixin(doc)
 
     if (cur === Token.ref) return parseLibData
 
     throw err("Expecting instance data or spec, not $curToStr")
   }
 
-  ** Parse top level spec and add it to lib
-  private Bool parseLibSpec(Str? doc)
+  ** Parse top level type and add it to lib
+  private Bool parseLibType(Str? doc)
   {
     spec := parseNamedSpec(null, doc)
     parseLibObjEnd("spec")
+
+    // make sure name is unique
+    add("spec", lib.tops, spec.name, spec)
+
+    return true
+  }
+
+  ** Parse top level mixin and add it to lib
+  private Bool parseLibMixin(Str? doc)
+  {
+    consume(Token.plus)
+    base := parseTypeRef ?: throw err("Expecting mixin type name")
+    spec := ASpec(curToLoc, lib, null, base.name.name)
+    spec.flavor = SpecFlavor.mixIn
+    spec.typeRef = base
+    spec.metaInit.map.add("mixin", sys.markerScalar(spec.loc))
+
+    parseSpecMeta(spec)
+    if (cur === Token.lbrace) parseSpecSlots(spec)
 
     // make sure name is unique
     add("spec", lib.tops, spec.name, spec)

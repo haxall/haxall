@@ -463,6 +463,8 @@ internal class Tokenizer
       case '?':  return Token.question
       case '&':  return Token.amp
       case '|':  return Token.pipe
+      case '+':  return Token.plus
+      case '*':  return Token.asterisk
       case 0:    return Token.eof
     }
 
