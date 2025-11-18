@@ -88,9 +88,10 @@ internal class ANamespace : CNamespace
       typeSpec := (XetoSpec)type
       ns.versions.each |v|
       {
-        if (ns.libStatus(v.name).isOk)
+        lib := ns.lib(v.name, false)
+        if (lib != null)
         {
-          ns.lib(v.name).types.each |x|
+          lib.types.each |x|
           {
             if (x.isa(typeSpec)) f((CSpec)x)
           }

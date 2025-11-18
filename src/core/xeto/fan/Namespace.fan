@@ -64,22 +64,6 @@ const mixin Namespace
   @NoDoc abstract Lib sysLib()
 
 //////////////////////////////////////////////////////////////////////////
-// TODO
-//////////////////////////////////////////////////////////////////////////
-
-  @Deprecated abstract Bool isAllLoaded()
-
-  @Deprecated abstract Void libsAllAsync(|Err?, Lib[]?| f)
-
-  @Deprecated abstract Void libAsync(Str name, |Err?, Lib?| f)
-
-  @Deprecated abstract Void libListAsync(Str[] names, |Err?, Lib[]?| f)
-
-  @Deprecated abstract Void specAsync(Str qname, |Err?, Spec?| f)
-
-  @Deprecated abstract Void instanceAsync(Str qname, |Err?, Dict?| f)
-
-//////////////////////////////////////////////////////////////////////////
 // Lookups
 //////////////////////////////////////////////////////////////////////////
 
@@ -276,8 +260,6 @@ const mixin Namespace
 @Js
 enum class LibStatus
 {
-  notLoaded,  // TODO
-
   ** The library was successfully loaded into namespace
   ok,
 
@@ -286,7 +268,5 @@ enum class LibStatus
 
   @NoDoc Bool isOk() { this === ok }
   @NoDoc Bool isErr() { this === err }
-  @Deprecated Bool isNotLoaded() { this === notLoaded }
-  @Deprecated Bool isLoaded() { this !== notLoaded }
 }
 

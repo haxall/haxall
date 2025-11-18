@@ -73,15 +73,15 @@ class RuntimeTest : AbstractAxonTest
 
   Void verifyDigestEq(Int a, Int b)
   {
-    echo("== 0x$a.toHex")
-    echo("   0x$b.toHex")
+    //echo("== 0x$a.toHex")
+    //echo("   0x$b.toHex")
     verifyEq(a, b)
   }
 
   Void verifyDigestNotEq(Int a, Int b)
   {
-    echo("!= 0x$a.toHex")
-    echo("   0x$b.toHex")
+    //echo("!= 0x$a.toHex")
+    //echo("   0x$b.toHex")
     verifyNotEq(a, b)
   }
 }

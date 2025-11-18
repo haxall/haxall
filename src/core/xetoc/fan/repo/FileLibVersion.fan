@@ -142,5 +142,7 @@ const class FileLibVersion : LibVersion
   private static const File notUsedFile := Buf().toFile(`not-used`)
 
   override Bool isNotFound() { file === notFoundFile }
+
+  override Bool isCompanion() { name === XetoUtil.companionLibName }
 }
 

@@ -17,6 +17,11 @@ using haystack
 @Js
 const class MNamespace : Namespace, CNamespace
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Construction
+//////////////////////////////////////////////////////////////////////////
+
   **
   ** Constructor options:
   **   - uncheckedDepends: load with unmet depends (libs just go into err)
@@ -28,50 +33,47 @@ const class MNamespace : Namespace, CNamespace
     this.companionRecs = opts["companionRecs"]
 
     // order versions by depends and check all dependencies
-    errs := Str:Err[:]
-    versions = LibVersion.checkDepends(versions, errs)
+    dependErrs := Str:Err[:]
+    this.versions = LibVersion.checkDepends(versions, dependErrs)
 
-    // fail fast on error unless using options uncheckedDepends flag
-    if (!errs.isEmpty && opts.missing("uncheckedDepends"))
-      throw errs.vals.first
+    // fail fast on depend error unless options has uncheckedDepends flag
+    if (!dependErrs.isEmpty && opts.missing("uncheckedDepends"))
+      throw dependErrs.vals.first
 
-    // build list and map of entries
-    list := MLibEntry[,]
-    list.capacity = versions.size
-    map := Str:MLibEntry[:]
-    versions.each |x|
+    // build list/map of entries
+    libs := Lib[,]
+    libs.capacity = versions.size
+    this.versions.each |v|
     {
       // init entry for LibVersion
-      entry := MLibEntry(x)
-
-      // if there was a depend error or env has cached version of the
-      // lib, then immediately set the entry into err/ok state
-      err := errs[x.name]
-      if (err != null)
-      {
-        entry.setErr(err)
-      }
-      else
-      {
-        cached := env.get(x.name, false)
-        if (cached != null) entry.setOk(cached)
-      }
+      entry := initEntry(v, dependErrs[v.name])
 
       // add to our lookup tables
-      list.add(entry)
-      map.add(x.name, entry)
+      entriesMap.add(v.name, entry)
+      libs.addNotNull(entry.lib)
     }
-    this.entriesList = list
-    this.entriesMap  = map
 
-    // load sys library
+    // init fields
+    this.libs = libs
     this.sysLib = lib("sys")
-
-    // check all loaded flag
-    checkAllLoaded
-
-    // now we can initialize sys for fast lookups
     this.sys = MSys(sysLib)
+  }
+
+  private MLibEntry initEntry(LibVersion version, Err? dependErr)
+  {
+    // if depend error then immediately return error entry
+    if (dependErr != null) return MLibEntry(version, dependErr)
+
+    // get from cache or compile
+    try
+    {
+      lib := envRef.getOrCompile(this, version)
+      return MLibEntry(version, lib)
+    }
+    catch (Err err)
+    {
+     return MLibEntry(version, err)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -100,12 +102,11 @@ const class MNamespace : Namespace, CNamespace
 // Libs
 //////////////////////////////////////////////////////////////////////////
 
-  const override Lib sysLib
+  override const Lib sysLib
 
-  override LibVersion[] versions()
-  {
-    entriesList.map |x->LibVersion| { x.version }
-  }
+  override const Lib[] libs
+
+  override const LibVersion[] versions
 
   override LibVersion? version(Str name, Bool checked :=true)
   {
@@ -127,11 +128,6 @@ const class MNamespace : Namespace, CNamespace
     entry(name, checked)?.err
   }
 
-  override Bool isAllLoaded()
-  {
-    libsRef.val != null
-  }
-
   override Lib? lib(Str name, Bool checked := true)
   {
     e := entry(name, false)
@@ -140,89 +136,9 @@ const class MNamespace : Namespace, CNamespace
       if (checked) throw UnknownLibErr(name)
       return null
     }
-    if (e.status.isNotLoaded)
-    {
-      if (isRemote)
-      {
-        if (checked) throw UnsupportedErr("Must use libAsync [$e.version]")
-        return null
-      }
-      else
-      {
-        loadSyncWithDepends(e)
-      }
-    }
     if (e.status.isOk) return e.get
     if (checked) throw LibLoadErr("Lib '$name' could not be loaded", e.err)
     return null
-  }
-
-  override Lib[] libs()
-  {
-    libs := libsRef.val as Lib[]
-    if (libs != null) return libs
-    loadAllSync
-    return libsRef.val
-  }
-
-  override Void libsAllAsync(|Err?, Lib[]?| f)
-  {
-    libs := libsRef.val as Lib[]
-    if (libs != null) { f(null, libs); return }
-    loadAllAsync(f)
-  }
-
-  override Void libAsync(Str name, |Err?, Lib?| f)
-  {
-    e := entry(name, false)
-    if (e == null) { f(UnknownLibErr(name), null); return }
-    if (e.status.isOk) { f(null, e.get); return }
-    if (e.status.isErr) { f(e.err, null); return }
-
-    toLoadWithDepends := flattenUnloadedDepends([e])
-    loadListAsync(toLoadWithDepends) |err|
-    {
-      if (err != null) return f(err, null)
-      if (e.status.isErr)
-        f(e.err, null)
-      else
-        f(null, e.get)
-    }
-  }
-
-  override Void libListAsync(Str[] names, |Err?, Lib[]?| f)
-  {
-    // find all the libs already loaded and entries not loaded
-    loaded := Lib[,]
-    toLoad := MLibEntry[,]
-    for (i := 0; i<names.size; ++i)
-    {
-      name := names[i]
-      e := entry(name, false)
-      if (e == null) { f(UnknownLibErr(name), null); return }
-      if (e.status.isNotLoaded) toLoad.add(e)
-      else if (e.status.isOk) loaded.add(e.get)
-    }
-
-    // if we have loaded them all then complete synchronously
-    if (toLoad.isEmpty) return f(null, loaded)
-
-    // flatten dependency chain and load
-    toLoadWithDepends := flattenUnloadedDepends(toLoad)
-    loadListAsync(toLoadWithDepends) |err|
-    {
-      // complete callback with error
-      if (err != null) return f(err, null)
-
-      // otherwise build result lib list
-      result := Lib[,]
-      names.each |name|
-      {
-        e := entry(name, false)
-        if (e != null && e.status.isOk) result.add(e.get)
-      }
-      f(null, result)
-    }
   }
 
   internal MLibEntry? entry(Str name, Bool checked := true)
@@ -231,149 +147,6 @@ const class MNamespace : Namespace, CNamespace
     if (entry != null) return entry
     if (checked) throw UnknownLibErr(name)
     return null
-  }
-
-  private MLibEntry[] flattenUnloadedDepends(MLibEntry[] entries)
-  {
-    // flatten depends
-    toLoad := Str:MLibEntry[:]
-    entries.each |entry| { doFlattenUnloadedDepends(toLoad, entry) }
-
-    // now map them back in the correct dependency order
-    return entriesList.findAll |e| { toLoad.containsKey(e.name) }
-  }
-
-  private Void doFlattenUnloadedDepends(Str:MLibEntry acc, MLibEntry e)
-  {
-    if (e.status.isNotLoaded) acc[e.name] = e
-    e.version.depends.each |depend| { doFlattenUnloadedDepends(acc, entry(depend.name)) }
-  }
-
-//////////////////////////////////////////////////////////////////////////
-// Loading
-//////////////////////////////////////////////////////////////////////////
-
-  private Void loadAllSync()
-  {
-    if (isAllLoaded) return
-    entriesList.each |entry|
-    {
-      loadSync(entry)
-    }
-    checkAllLoaded
-  }
-
-  private Void loadSyncWithDepends(MLibEntry entry)
-  {
-    missing := LibDepend[,]
-    entry.version.depends.each |depend|
-    {
-      if (entry.status.isNotLoaded)
-      {
-        dependEntry := this.entry(depend.name, false)
-        if (dependEntry == null)
-          missing.add(depend)
-        else
-          loadSync(this.entry(depend.name))
-      }
-    }
-
-    loadSync(entry)
-    checkAllLoaded
-  }
-
-  private Void loadSync(MLibEntry entry)
-  {
-    if (entry.status.isLoaded) return
-    try
-    {
-      lib := doLoadSync(entry.version)
-      entry.setOk(lib)
-    }
-    catch (Err e)
-    {
-      entry.setErr(e)
-    }
-  }
-
-  internal Void checkAllLoaded()
-  {
-    allLoaded := entriesList.all |e| { e.status.isLoaded }
-    if (!allLoaded) return
-    acc := Lib[,]
-    acc.capacity = entriesList.size
-    entriesList.each |e| { if (e.status.isOk) acc.add(e.get) }
-    libsRef.val = acc.toImmutable
-  }
-
-  private Void loadAllAsync(|Err?, Lib[]?| f)
-  {
-    if (isAllLoaded) { f(null, libs); return }
-
-    // find all the libs not loaded yet
-    toLoad := entriesList.findAll |e| { e.status.isNotLoaded }
-
-    loadListAsync(toLoad) |err|
-    {
-      if (err != null) f(err, null)
-      else f(null, libsRef.val)
-    }
-  }
-
-  private Void loadListAsync(MLibEntry[] toLoad, |Err?| f)
-  {
-    doLoadListAsync(toLoad, 0, f)
-  }
-
-  private Void doLoadListAsync(MLibEntry[] toLoad, Int index, |Err?| f)
-  {
-    // load from pluggable loader
-    doLoadAsync(toLoad[index].version) |err, libOrErr|
-    {
-      // handle top-level error
-      if (err != null)
-      {
-        f(err)
-        return
-      }
-
-      // update entry
-      e := toLoad[index]
-      lib := libOrErr as XetoLib
-      if (lib != null)
-        e.setOk(lib)
-      else
-        e.setErr(libOrErr)
-
-      // recursively load next lib
-      index++
-      if (index < toLoad.size) return doLoadListAsync(toLoad, index, f)
-
-      // we loaded all of them, now finish and invoke final callback
-      checkAllLoaded
-
-      // do not raise exception from client callback
-      try
-        f(null)
-      catch(Err e2)
-        e2.trace
-    }
-  }
-
-  ** Load given version synchronously.  If the libary can not be
-  ** loaed then raise exception to the caller of this method.
-  XetoLib doLoadSync(LibVersion v) { envRef.getOrCompile(this, v) }
-
-  ** Load a list of versions asynchronously and return result
-  ** of either a XetoLib or Err (is error on server)
-  Void doLoadAsync(LibVersion v, |Err?, Obj?| f)
-  {
-    // previously in remote ns we would route to a remote loader here;
-    // but in the current design just load sync which routes to env
-    try
-      f(null, doLoadSync(v))
-    catch (Err e)
-      f(null, e)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -421,38 +194,6 @@ const class MNamespace : Namespace, CNamespace
     return null
   }
 
-  override Void specAsync(Str qname, |Err?, Spec?| f)
-  {
-    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
-
-    libName := qname[0..<colon]
-    name := qname[colon+2..-1]
-
-    libAsync(libName) |err, lib|
-    {
-      if (err != null) return f(err, null)
-      spec := lib.spec(name, false)
-      if (spec == null) return f(UnknownSpecErr(qname), null)
-      f(null, spec)
-    }
-  }
-
-  override Void instanceAsync(Str qname, |Err?, Dict?| f)
-  {
-    colon := qname.index("::") ?: throw ArgErr("Invalid qname: $qname")
-
-    libName := qname[0..<colon]
-    name := qname[colon+2..-1]
-
-    libAsync(libName) |err, lib|
-    {
-      if (err != null) return f(err, null)
-      instance := lib.instance(name, false)
-      if (instance == null) return f(UnknownRecErr(qname), null)
-      f(null, instance)
-    }
-  }
-
   override Dict? xmeta(Str qname, Bool checked := true)
   {
     XMeta(this).xmeta(qname, checked)
@@ -465,7 +206,7 @@ const class MNamespace : Namespace, CNamespace
 
   override Void eachType(|Spec| f)
   {
-    eachLibForIter |lib|
+    libs.each |lib|
     {
       lib.types.each |type| { f(type) }
     }
@@ -473,7 +214,7 @@ const class MNamespace : Namespace, CNamespace
 
   override Obj? eachTypeWhile(|Spec->Obj?| f)
   {
-    eachLibForIterWhile |lib|
+    libs.eachWhile |lib|
     {
       lib.types.eachWhile |type| { f(type) }
     }
@@ -498,7 +239,7 @@ const class MNamespace : Namespace, CNamespace
 
   override Void eachInstance(|Dict| f)
   {
-    eachLibForIter |lib|
+    libs.each |lib|
     {
       lib.eachInstance(f)
     }
@@ -513,39 +254,6 @@ const class MNamespace : Namespace, CNamespace
       xSpec := spec(xSpecRef.id, false)
       if (xSpec == null) return
       if (xSpec.isa(type)) f(x, xSpec)
-    }
-  }
-
-  Void eachLibForIter(|Lib| f)
-  {
-    if (!isRemote)
-    {
-      libs.each(f)
-    }
-    else
-    {
-      entriesList.each |entry|
-      {
-        if (entry.status.isOk) f(entry.get)
-      }
-    }
-  }
-
-  Obj? eachLibForIterWhile(|Lib->Obj?| f)
-  {
-    if (!isRemote)
-    {
-      return libs.eachWhile(f)
-    }
-    else
-    {
-      return entriesList.eachWhile |entry|
-      {
-        if (entry.status.isOk)
-          return f(entry.get)
-        else
-          return null
-      }
     }
   }
 
@@ -564,11 +272,10 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec[] unqualifiedTypes(Str name)
   {
-    if (!isRemote) loadAllSync
     acc := Spec[,]
-    entriesList.each |entry|
+    libs.each |lib|
     {
-      if (entry.status.isOk) acc.addNotNull(entry.get.type(name, false))
+      acc.addNotNull(lib.type(name, false))
     }
     return acc
   }
@@ -584,11 +291,10 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec[] unqualifiedMetas(Str name)
   {
-    if (!isRemote) loadAllSync
     acc := Spec[,]
-    entriesList.each |entry|
+    libs.each |lib|
     {
-      if (entry.status.isOk) acc.addNotNull(entry.get.metaSpec(name, false))
+      acc.addNotNull(lib.metaSpec(name, false))
     }
     return acc
   }
@@ -604,11 +310,10 @@ const class MNamespace : Namespace, CNamespace
 
   override Spec[] unqualifiedGlobals(Str name)
   {
-    if (!isRemote) loadAllSync
     acc := Spec[,]
-    entriesList.each |entry|
+    libs.each |lib|
     {
-      if (entry.status.isOk) acc.addNotNull(entry.get.global(name, false))
+      acc.addNotNull(lib.global(name, false))
     }
     return acc
   }
@@ -638,11 +343,9 @@ const class MNamespace : Namespace, CNamespace
   {
     // we build cache of funcs by name, values are Spec[]
     acc := Str:Obj[:]
-    if (!isRemote) loadAllSync
-    entriesList.each |entry|
+    libs.each |lib|
     {
-      if (!entry.status.isOk) return
-      entry.get.funcs.each |spec|
+      lib.funcs.each |spec|
       {
         name := spec.name
         dup := acc[name]
@@ -695,14 +398,6 @@ const class MNamespace : Namespace, CNamespace
     if (type.fits(List#)) return sys.list
     if (type.fits(Grid#)) return sys.grid
     if (type.fits(Function#)) return sys.func
-
-    // if we didn't find a match and we aren't fully
-    // loaded, then do a full load and try again
-    if (!isAllLoaded && !isRemote)
-    {
-      loadAllSync
-      if (isAllLoaded) return specOf(val, checked)
-    }
 
     // cannot map to spec
     if (checked) throw UnknownSpecErr("No spec mapped for '$type'")
@@ -858,7 +553,7 @@ const class MNamespace : Namespace, CNamespace
 
   override Void dump(OutStream out := Env.cur.out)
   {
-    out.printLine("--- $typeof [$versions.size libs, allLoaded=$isAllLoaded] ---")
+    out.printLine("--- $typeof [$versions.size libs, $digest] ---")
     versions.each |v| { out.printLine("  $v [" + libStatus(v.name) + "]") }
   }
 
@@ -868,8 +563,7 @@ const class MNamespace : Namespace, CNamespace
 
   const MSys sys
   const Dict opts
-  internal const MLibEntry[] entriesList  // orderd by depends
-  private const Str:MLibEntry entriesMap
+  private const ConcurrentMap entriesMap := ConcurrentMap()
   private const AtomicRef libsRef := AtomicRef()
 }
 
@@ -901,7 +595,9 @@ const class CompanionRecs
 @Js
 internal const class MLibEntry
 {
-  new make(LibVersion version) { this.version = version }
+  new makeOk(LibVersion version, Lib lib) { this.version = version; this.lib = lib }
+
+  new makeErr(LibVersion version, Err err) { this.version = version; this.err = err }
 
   Str name() { version.name }
 
@@ -909,27 +605,14 @@ internal const class MLibEntry
 
   override Int compare(Obj that) { this.name <=> ((MLibEntry)that).name }
 
-  LibStatus status() { statusRef.val }
+  LibStatus status() { lib != null ? LibStatus.ok : LibStatus.err }
 
-  Err? err() { loadRef.val as Err }
+  const Err? err
 
-  XetoLib get() { loadRef.val as XetoLib ?: throw Err("Not loaded: $name [$status]") }
+  const XetoLib? lib
 
-  Void setOk(XetoLib lib)
-  {
-    loadRef.compareAndSet(null, lib)
-    statusRef.val = LibStatus.ok
-  }
-
-  Void setErr(Err err)
-  {
-    loadRef.compareAndSet(null, err)
-    statusRef.val = LibStatus.err
-  }
+  XetoLib get() { lib ?: throw err }
 
   override Str toStr() { "MLibEntry $name [$status] $err" }
-
-  private const AtomicRef statusRef := AtomicRef(LibStatus.notLoaded)
-  private const AtomicRef loadRef := AtomicRef() // XetoLib or Err
 }
 

@@ -58,6 +58,9 @@ const mixin LibVersion
   ** Is this a shim lib version for a lib not found in the installation
   @NoDoc abstract Bool isNotFound()
 
+  ** Is this a the companion lib
+  @NoDoc abstract Bool isCompanion()
+
   ** Order a list of versions by their dependencies.  Raise exception if
   ** the given list does not satisify all the internal dependencies or
   ** has circular dependencies.
@@ -80,12 +83,20 @@ const mixin LibVersion
 
     // check internal version constraints
     unmet := LibDepend[,]
+    LibVersion? companion := null
     libs.each |x|
     {
       // handle not found shim
       if (x.isNotFound)
       {
         errs[x.name] = UnknownLibErr("Lib '$x.name' not found")
+        return
+      }
+
+      // companion always goes last
+      if (x.isCompanion)
+      {
+        companion = x
         return
       }
 
@@ -107,7 +118,7 @@ const mixin LibVersion
     }
 
     // sort those not in error by dependency order
-    left := libs.findAll { errs[it.name] == null }.sort
+    left := libs.findAll { errs[it.name] == null && it !== companion }.sort
     ordered := LibVersion[,]
     ordered.capacity = libs.size
     while (!left.isEmpty)
@@ -119,6 +130,9 @@ const mixin LibVersion
       else
         ordered.add(left.removeAt(i));
     }
+
+    // add companion lib last
+    ordered.addNotNull(companion)
 
     // mark those left as circular dependencies
     left.each |x|

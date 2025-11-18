@@ -265,7 +265,6 @@ const class HxLibs : RuntimeLibs
     nsVers := acc.vals.map |x->LibVersion| { x.ver }
     nsOpts := Etc.dict2x("uncheckedDepends", Marker.val, "companionRecs", companionRecs)
     ns := HxNamespace(rt, env, nsVers, nsOpts)
-    ns.libs // force sync load
 
     // update in-memory lookup tables
     this.nsRef.val   = ns

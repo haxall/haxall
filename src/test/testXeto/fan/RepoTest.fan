@@ -291,7 +291,6 @@ class RepoTest : AbstractXetoTest
     verifyErr(UnknownLibErr#) { ns.lib("foo.bar.baz") }
     verifyErr(UnknownLibErr#) { ns.lib("foo.bar.baz", true) }
 
-    verifyEq(ns.libStatus("ph"), LibStatus.notLoaded)
     ph := ns.lib("ph")
     verifyEq(ns.libStatus("ph"), LibStatus.ok)
     verifySame(ns.lib("ph"), ph)
@@ -564,5 +563,6 @@ internal const class TestLibVersion : LibVersion
   override File? file(Bool checked := true) { throw UnsupportedErr() }
   override Str toStr() { "$name-$version" }
   override Bool isNotFound() { false }
+  override Bool isCompanion() { name == XetoUtil.companionLibName }
 }
 

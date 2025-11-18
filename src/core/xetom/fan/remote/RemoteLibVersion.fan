@@ -42,6 +42,8 @@ const class RemoteLibVersion : LibVersion
 
   override Bool isNotFound() { false }
 
+  override Bool isCompanion() { name == XetoUtil.companionLibName }
+
   override Void eachSrcFile(|File| f) {}
 
   override const Str toStr

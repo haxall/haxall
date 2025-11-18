@@ -203,10 +203,9 @@ abstract const class MEnv : XetoEnv
     buildFiles := Str:File[:]
     build.each |v| { buildFiles[v.name] = XetoUtil.srcToLibZip(v) }
 
-    // create namespace and force all libs to be compiled
+    // create namespace
     libCacheClear
     ns := MNamespace(this, libs, Etc.dict1("build", buildFiles))
-    ns.libs
 
     // report which libs could not be compiled
     ns.versions.each |v|

@@ -25,20 +25,8 @@ internal class XMeta
   ** Walk each lib that is both loaded and has xmeta
   once Lib[] libs()
   {
-    // walk loaded libs
-    acc := Lib[,]
-    ns.entriesList.each |entry|
-    {
-      // skip if not loaded
-      if (!entry.status.isOk) return
-
-      // skip if we didn't mark it containing xmeta
-      lib := entry.get
-      if (!lib.hasXMeta) return
-
-      acc.add(lib)
-    }
-    return acc
+    // walk loaded libs that hasXMeta
+    ns.libs.findAll |lib| { lib.hasXMeta }
   }
 
   Dict? xmeta(Str qname, Bool checked := true)
