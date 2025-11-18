@@ -34,6 +34,13 @@ class MixinTest : AbstractXetoTest
     verifyEq(m.meta["mixin"], Marker.val)
     verifySame(m.base, t)
     verifySame(m.type, t)
+
+    verifyEq(lib.mixins, Spec[m])
+    verifySame(lib.mixinFor(t), m)
+    verifyEq(lib.mixinFor(ns.spec("sys::Str"), false), null)
+    verifyEq(lib.mixinFor(lib.spec("EquipA"), false), null)
+    verifyErr(UnknownSpecErr#) { lib.mixinFor(ns.spec("sys::Str")) }
+    verifyErr(UnknownSpecErr#) { lib.mixinFor(ns.spec("sys::Str"), true) }
   }
 }
 

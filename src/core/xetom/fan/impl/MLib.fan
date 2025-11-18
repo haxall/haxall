@@ -80,6 +80,19 @@ const final class MLib
     return null
   }
 
+  once Spec[] mixins()
+  {
+    specs.findAll |x| { x.isMixin }.toImmutable
+  }
+
+  Spec? mixinFor(Spec type, Bool checked := true)
+  {
+    x := specsMap[type.name]
+    if (x != null && x.isMixin && x.base === type) return x
+    if (checked) throw UnknownSpecErr("No mixin for $type.qname")
+    return null
+  }
+
   once Spec[] globals()
   {
     specs.findAll |x| { x.isGlobal }.toImmutable
@@ -255,6 +268,10 @@ const final class XetoLib : Lib, Dict
   override Spec[] types() { m.types }
 
   override Spec? type(Str name, Bool checked := true) { m.type(name, checked) }
+
+  override Spec[] mixins() { m.mixins }
+
+  override Spec? mixinFor(Spec type, Bool checked := true) { m.mixinFor(type, checked) }
 
   override Spec[] globals() { m.globals }
 

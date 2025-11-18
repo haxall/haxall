@@ -42,11 +42,17 @@ const mixin Lib : Dict
   ** Lookup a top level spec in this library by simple name (type or global slot)
   abstract Spec? spec(Str name, Bool checked := true)
 
-  ** List the top level types
+  ** List the type specs
   abstract Spec[] types()
 
-  ** Lookup a top level type spec in this library by simple name
+  ** Lookup a type spec in this library by simple name
   abstract Spec? type(Str name, Bool checked := true)
+
+  ** List the mixins in this library
+  abstract Spec[] mixins()
+
+  ** Lookup the mixin for the given type in this library
+  abstract Spec? mixinFor(Spec type, Bool checked := true)
 
   ** List the top level global slots
   abstract Spec[] globals()
@@ -78,7 +84,7 @@ const mixin Lib : Dict
   ** Is this the 'sys' library
   @NoDoc abstract Bool isSys()
 
-  ** Does this library contain extended meta instances
+  ** Does this library contain mixin specs
   @NoDoc abstract Bool hasXMeta()
 
   ** Does this library contain markdown resource files
