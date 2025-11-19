@@ -81,6 +81,7 @@ class XetoBinaryReader : XetoBinaryConst
     x.metaOwnIn       = readMeta
     x.metaInheritedIn = readInheritedMetaNames(loader, x)
     x.slotsOwnIn      = readOwnSlots(loader, x)
+    x.globalsOwnIn    = readOwnSlots(loader, x)
     x.flags           = readVarInt
     if (read == XetoBinaryConst.specInherited)
     {

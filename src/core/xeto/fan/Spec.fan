@@ -55,17 +55,29 @@ const mixin Spec : Dict
   ** Get my own declared meta-data
   abstract Dict metaOwn()
 
-  ** Get the declared children slots
+  ** Get the declared children slots.
+  ** Globals are excluded from this method.
   abstract SpecSlots slotsOwn()
 
-  ** Get the effective children slots including inherited
+  ** Get the effective children slots including inherited.
+  ** Globals are excluded from this method.
   abstract SpecSlots slots()
 
-  ** Convenience for 'slots.get'
+  ** Convenience for 'slots.get'.
+  ** Globals are excluded from this method.
   abstract Spec? slot(Str name, Bool checked := true)
 
-  ** Convenience for 'slotsOwn.get'
+  ** Convenience for 'slotsOwn.get'.
+  ** Globals are excluded from this method.
   abstract Spec? slotOwn(Str name, Bool checked := true)
+
+  ** All slots including both global and non-global declared by this spec.
+  abstract SpecSlots globalsOwn()
+
+  ** Get all the effective slots both global and non-global including
+  ** inherited. This call is computed and can be expensive; so cache and
+  ** reuse the value during your operation.
+  abstract SpecSlots globals()
 
   ** Return if 'this' spec inherits from 'that' from a nominal type perspective.
   ** Nonimal typing matches any of the following conditions:
@@ -93,7 +105,7 @@ const mixin Spec : Dict
   ** Return function specific APIs.  Raise exception if `isFunc` is false.
   abstract SpecFunc func()
 
-  ** Call the given the function on this spec and every spec that it
+  ** Call the given function on this spec and every spec that it
   ** inherits from up to 'sys::Obj'.  Any 'sys::And' compound types are
   ** iterated, but not 'sys::Or' types.  Note it is possible that the given
   ** function may be called on the same spec twice.

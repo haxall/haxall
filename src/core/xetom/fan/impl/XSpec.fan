@@ -59,6 +59,10 @@ const final class XSpec : Spec, CSpec
 
   override Spec? slotOwn(Str n, Bool c := true) { m.slotOwn(n, c) }
 
+  override SpecSlots globalsOwn() { m.globalsOwn }
+
+  override SpecSlots globals() { m.globals }
+
   override Bool isa(Spec x) { m.isa(x) }
 
   override Bool cisa(CSpec x) { m.cisa(x) }

@@ -108,20 +108,21 @@ internal class Assemble : Step
   {
     return MSpecInit
     {
-      it.loc      = x.loc
-      it.lib      = x.lib.asm
-      it.parent   = x.parent?.asm
-      it.qname    = x.qname
-      it.name     = x.name
-      it.base     = x.base?.asm
-      it.type     = x.isType ? x.asm : x.ctype.asm
-      it.meta     = x.cmeta
-      it.metaOwn  = x.metaOwn
-      it.slots    = asmSlots(x)
-      it.slotsOwn = asmSlotsOwn(x)
-      it.flags    = x.flags
-      it.args     = x.args
-      it.binding  = x.isType ? x.binding : null
+      it.loc        = x.loc
+      it.lib        = x.lib.asm
+      it.parent     = x.parent?.asm
+      it.qname      = x.qname
+      it.name       = x.name
+      it.base       = x.base?.asm
+      it.type       = x.isType ? x.asm : x.ctype.asm
+      it.meta       = x.cmeta
+      it.metaOwn    = x.metaOwn
+      it.slots      = asmSlots(x)
+      it.slotsOwn   = asmSlotsOwn(x)
+      it.globalsOwn = MSlots.empty
+      it.flags      = x.flags
+      it.args       = x.args
+      it.binding    = x.isType ? x.binding : null
     }
   }
 

@@ -37,6 +37,7 @@ internal class RSpec : CSpec
   Dict? metaIn
   Str[]? metaInheritedIn
   RSpec[]? slotsOwnIn
+  RSpec[]? globalsOwnIn
   RSpecRef[]? slotsInheritedIn
 
   // RemoteLoader.loadSpec
@@ -47,6 +48,7 @@ internal class RSpec : CSpec
   Dict? meta
   MSlots? slotsOwn
   MSlots? slots
+  MSlots? globalsOwn
   SpecBinding? bindingRef
 
   override Bool hasSlots() { !slots.isEmpty }

@@ -28,6 +28,7 @@ const class MSpec
     this.metaOwn    = init.metaOwn
     this.slots      = init.slots
     this.slotsOwn   = init.slotsOwn
+    this.globalsOwn = init.globalsOwn
     this.flags      = init.flags
     this.args       = init.args
   }
@@ -55,6 +56,8 @@ const class MSpec
   const MSlots slots
 
   const MSlots slotsOwn
+
+  const SpecSlots globalsOwn
 
   Bool hasSlots() { !slots.isEmpty }
 
@@ -200,6 +203,7 @@ const class MSpecInit
   const Dict metaOwn
   const MSlots slots
   const MSlots slotsOwn
+  const MSlots globalsOwn
   const Int flags
   const MSpecArgs args
   const SpecBinding? binding
@@ -246,6 +250,10 @@ const class XetoSpec : Spec, Dict, CSpec
   override final Spec? slot(Str n, Bool c := true) { m.slot(n, c) }
 
   override final Spec? slotOwn(Str n, Bool c := true) { m.slotOwn(n, c) }
+
+  override final SpecSlots globalsOwn() { m.globalsOwn }
+
+  override final SpecSlots globals() { XetoUtil.globals(this) }
 
   override final Bool isa(Spec x) { XetoUtil.isa(this, (CSpec)x) }
 

@@ -123,37 +123,40 @@ internal class RemoteLoader
     if (x.base == null)
     {
       // sys::Obj
-      x.meta  = x.metaOwn
-      x.slotsOwn = loadSlotsOwn(x)
-      x.slots = x.slotsOwn
+      x.meta       = x.metaOwn
+      x.slotsOwn   = loadSlotsOwn(x.slotsOwnIn)
+      x.globalsOwn = loadSlotsOwn(x.globalsOwnIn)
+      x.slots      = x.slotsOwn
     }
     else
     {
       // recursively load base and inherit
       if (x.base.isAst) loadSpec(x.base)
-      x.meta = inheritMeta(x)
-      x.slotsOwn = loadSlotsOwn(x)
-      x.slots = inheritSlots(x)
-      x.args  = loadArgs(x)
+      x.meta       = inheritMeta(x)
+      x.slotsOwn   = loadSlotsOwn(x.slotsOwnIn)
+      x.globalsOwn = loadSlotsOwn(x.globalsOwnIn)
+      x.slots      = inheritSlots(x)
+      x.args       = loadArgs(x)
     }
 
     if (x.flavor.isType) x.bindingRef = assignBinding(x)
 
     init := MSpecInit {
-      it.loc      = this.loc
-      it.lib      = this.lib
-      it.parent   = x.parent?.asm
-      it.qname    = this.qname(x)
-      it.type     = this.type(x)
-      it.name     = x.name
-      it.base     = x.base?.asm
-      it.meta     = x.meta
-      it.metaOwn  = x.metaOwn
-      it.slots    = x.slots
-      it.slotsOwn = x.slotsOwn
-      it.flags    = x.flags
-      it.args     = x.args
-      it.binding  = x.bindingRef
+      it.loc        = this.loc
+      it.lib        = this.lib
+      it.parent     = x.parent?.asm
+      it.qname      = this.qname(x)
+      it.type       = this.type(x)
+      it.name       = x.name
+      it.base       = x.base?.asm
+      it.meta       = x.meta
+      it.metaOwn    = x.metaOwn
+      it.slots      = x.slots
+      it.slotsOwn   = x.slotsOwn
+      it.globalsOwn = x.globalsOwn
+      it.flags      = x.flags
+      it.args       = x.args
+      it.binding    = x.bindingRef
     }
 
     MSpec? m
@@ -215,10 +218,9 @@ internal class RemoteLoader
     }
   }
 
-  private MSlots loadSlotsOwn(RSpec x)
+  private MSlots loadSlotsOwn(RSpec[]? slots)
   {
     // short circuit if no slots
-    slots := x.slotsOwnIn
     if (slots == null || slots.isEmpty) return MSlots.empty
 
     // recursively load slot specs

@@ -434,6 +434,19 @@ const class XetoUtil
       eachInherited(x.base, f)
   }
 
+  static SpecSlots globals(Spec base)
+  {
+    acc := Str:Spec[:]
+    eachInherited(base) |x|
+    {
+      x.globalsOwn.each |g|
+      {
+        if (acc[g.name] == null) acc[g.name] = g
+      }
+    }
+    return acc.isEmpty ? MSlots.empty : MSlots(acc)
+  }
+
 //////////////////////////////////////////////////////////////////////////
 // Is-A
 //////////////////////////////////////////////////////////////////////////
