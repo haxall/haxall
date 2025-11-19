@@ -374,6 +374,10 @@ class Printer
           spec(slot, mode)
         }
       }
+      else
+      {
+        meta(slot.metaOwn)
+      }
       nl
     }
     indentation--
