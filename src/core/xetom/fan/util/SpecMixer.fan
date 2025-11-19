@@ -26,7 +26,10 @@ internal class SpecMixer
   Dict meta()
   {
     acc := Etc.dictToMap(spec.meta)
-    metaFor(acc, spec)
+    spec.eachInherited |x|
+    {
+      metaFor(acc, x)
+    }
     return Etc.dictFromMap(acc)
   }
 
@@ -38,12 +41,6 @@ internal class SpecMixer
       m := lib.mixinFor(x, false)
       if (m != null) metaMerge(acc, m.metaOwn)
     }
-
-    // recurse inheritance
-    if (x.isCompound && x.isAnd)
-      x.ofs.each |of| { metaFor(acc, of) }
-    else if (x.base != null)
-      metaFor(acc, x.base)
   }
 
   private Void metaMerge(Str:Obj acc, Dict meta)

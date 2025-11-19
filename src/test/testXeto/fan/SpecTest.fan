@@ -115,6 +115,63 @@ class SpecTest : AbstractXetoTest
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Inheritance
+//////////////////////////////////////////////////////////////////////////
+
+  Void testInheritance()
+  {
+    ns := createNamespace(["ph.points"])
+
+    // AirTempPoint : NumberPoint <abstract> {
+    // AirTempSensor : AirTempPoint & SensorPoint <abstract>
+    // DischargeAirTempSensor : AirTempSensor { discharge }
+
+    and        := ns.spec("sys::And")
+    obj        := ns.spec("sys::Obj")
+    seq        := ns.spec("sys::Seq")
+    dict       := ns.spec("sys::Dict")
+    entity     := ns.spec("sys::Entity")
+    point      := ns.spec("ph::Point")
+    numPt      := ns.spec("ph.points::NumberPoint")
+    sensor     := ns.spec("ph.points::SensorPoint")
+    tempPt     := ns.spec("ph.points::AirTempPoint")
+    tempSensor := ns.spec("ph.points::AirTempSensor")
+    dat        := ns.spec("ph.points::DischargeAirTempSensor")
+
+    verifyEq(obj.base, null)
+    verifySame(seq.base, obj)
+    verifySame(dict.base, seq)
+    verifySame(entity.base, dict)
+    verifySame(point.base, entity)
+    verifySame(numPt.base, point)
+    verifySame(sensor.base, point)
+    verifySame(tempPt.base, numPt)
+    verifySame(tempSensor.base, and)
+    verifyEq(tempSensor.ofs, Spec[tempPt, sensor])
+    verifySame(dat.base, tempSensor)
+
+    verifyInheritance(obj,        [obj])
+    verifyInheritance(seq,        [obj, seq])
+    verifyInheritance(dict,       [obj, seq, dict])
+    verifyInheritance(entity,     [obj, seq, dict, entity])
+    verifyInheritance(point,      [obj, seq, dict, entity, point])
+    verifyInheritance(numPt,      [obj, seq, dict, entity, point, numPt])
+    verifyInheritance(sensor,     [obj, seq, dict, entity, point, sensor])
+    verifyInheritance(tempPt,     [obj, seq, dict, entity, point, numPt, tempPt])
+    verifyInheritance(tempSensor, [sensor, obj, seq, dict, entity, point, numPt, tempPt, tempSensor])
+    verifyInheritance(dat,        [sensor, obj, seq, dict, entity, point, numPt, tempPt, tempSensor, dat])
+  }
+
+  Void verifyInheritance(Spec spec, Spec[] expect)
+  {
+    acc := Str:Spec[:] { ordered = true }
+    spec.eachInherited |x| { acc[x.qname] = x }
+    verifyEq(acc.vals, Spec[,].addAll(expect.dup.reverse))
+
+    acc.each |x| { verifyEq(spec.isa(x), true) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // Is-A
 //////////////////////////////////////////////////////////////////////////
 

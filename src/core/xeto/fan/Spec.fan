@@ -93,6 +93,12 @@ const mixin Spec : Dict
   ** Return function specific APIs.  Raise exception if `isFunc` is false.
   abstract SpecFunc func()
 
+  ** Call the given the function on this spec and every spec that it
+  ** inherits from up to 'sys::Obj'.  Any 'sys::And' compound types are
+  ** iterated, but not 'sys::Or' types.  Note it is possible that the given
+  ** function may be called on the same spec twice.
+  abstract Void eachInherited(|Spec| f)
+
 //////////////////////////////////////////////////////////////////////////
 // Flavor
 //////////////////////////////////////////////////////////////////////////

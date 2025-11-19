@@ -261,6 +261,8 @@ const class XetoSpec : Spec, Dict, CSpec
 
   override final SpecFunc func() { m.func(this) }
 
+  override final Void eachInherited(|Spec| f) { XetoUtil.eachInherited(this, f) }
+
   override final SpecFlavor flavor() { m.flavor }
   override final Bool isType()       { flavor.isType }
   override final Bool isMixin()      { flavor.isMixIn }

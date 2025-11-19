@@ -97,6 +97,8 @@ const final class XSpec : Spec, CSpec
 
   override SpecFunc func() { m.func }
 
+  override Void eachInherited(|Spec| f) { XetoUtil.eachInherited(this, f) }
+
   override SpecFlavor flavor() { m.flavor }
   override Bool isType()       { m.isType }
   override Bool isMixin()      { m.isMixin }
