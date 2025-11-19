@@ -161,7 +161,7 @@ internal class RemoteLoader
     }
     else
     {
-      x.type = resolve(x.typeIn).asm
+      x.type = (XetoSpec)resolve(x.typeIn).asm
       m = MSpec(loc, x.parent.asm, x.name, x.base.asm, x.type, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
     }
     XetoSpec#m->setConst(x.asm, m)

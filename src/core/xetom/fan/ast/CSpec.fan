@@ -18,8 +18,8 @@ mixin CSpec : CNode
   ** Return if this an AST ASpec
   abstract Bool isAst()
 
-  ** Assembled XetoSpec (stub only in AST until Assemble step)
-  override abstract XetoSpec asm()
+  ** Assembled Spec (stub only in AST until Assemble step)
+  override abstract Spec asm()
 
   ** Simple name
   abstract Str name()

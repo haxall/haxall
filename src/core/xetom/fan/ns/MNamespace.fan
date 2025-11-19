@@ -194,9 +194,9 @@ const class MNamespace : Namespace, CNamespace
     return null
   }
 
-  override Dict meta(Spec spec)
+  override Spec specx(Spec spec)
   {
-    SpecMixer(this, spec).meta
+    XSpec(this, spec)
   }
 
   override Dict? xmeta(Str qname, Bool checked := true)
