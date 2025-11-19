@@ -80,7 +80,7 @@ const mixin Namespace
   abstract Dict? instance(Str qname, Bool checked := true)
 
   ** Compute the extended spec by merging all meta and slots from mixins.
-  ** This call can be quite expensive, so cache and reuse ths spec for
+  ** This call can be quite expensive; so cache and reuse ths spec for
   ** your operation.
   abstract Spec specx(Spec spec)
 

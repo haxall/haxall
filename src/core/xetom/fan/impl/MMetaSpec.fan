@@ -15,13 +15,11 @@ using xeto
 @Js
 const final class MMetaSpec : MSpec
 {
-  new make(FileLoc loc, XetoLib lib, Str qname, Str name, XetoSpec? base, XetoSpec self, Dict meta, Dict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
-    : super(loc, null, name, base, self, meta, metaOwn, slots, slotsOwn, flags, args)
+  new make(MSpecInit init) : super(init)
   {
-    this.lib   = lib
-    this.qname = qname
+    this.lib   = init.lib
+    this.qname = init.qname
     this.id    = Ref(qname, null)
-    this.type  = self
   }
 
   const override XetoLib lib

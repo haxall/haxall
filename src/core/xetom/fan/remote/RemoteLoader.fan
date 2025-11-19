@@ -137,40 +137,73 @@ internal class RemoteLoader
       x.args  = loadArgs(x)
     }
 
+    if (x.flavor.isType) x.bindingRef = assignBinding(x)
+
+    init := MSpecInit {
+      it.loc      = this.loc
+      it.lib      = this.lib
+      it.parent   = x.parent?.asm
+      it.qname    = this.qname(x)
+      it.type     = this.type(x)
+      it.name     = x.name
+      it.base     = x.base?.asm
+      it.meta     = x.meta
+      it.metaOwn  = x.metaOwn
+      it.slots    = x.slots
+      it.slotsOwn = x.slotsOwn
+      it.flags    = x.flags
+      it.args     = x.args
+      it.binding  = x.bindingRef
+    }
+
     MSpec? m
     if (x.flavor.isType)
     {
-      x.bindingRef = assignBinding(x)
-      m = MType(loc, lib, qname(x), x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, x.binding)
+      //x.bindingRef = assignBinding(x)
+      //m = MType(loc, lib, qname(x), x.name, x.base?.asm, x.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args, x.binding)
+      m = MType(init)
     }
     else if (x.flavor.isMixIn)
     {
-      m = MMixin(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      //m = MMixin(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      m = MMixin(init)
     }
     else if (x.flavor.isGlobal)
     {
-      m = MGlobal(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      //m = MGlobal(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      m = MGlobal(init)
     }
     else if (x.flavor.isFunc)
     {
-      m = MTopFunc(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      //m = MTopFunc(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      m = MTopFunc(init)
     }
     else if (x.flavor.isMeta)
     {
-      m = MMetaSpec(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      // m = MMetaSpec(loc, lib, qname(x), x.name, x.base.asm, x.base.asm, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      m = MMetaSpec(init)
     }
     else
     {
-      x.type = (XetoSpec)resolve(x.typeIn).asm
-      m = MSpec(loc, x.parent.asm, x.name, x.base.asm, x.type, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      //x.type = (XetoSpec)resolve(x.typeIn).asm
+      //m = MSpec(loc, x.parent.asm, x.name, x.base.asm, x.type, x.meta, x.metaOwn, x.slots, x.slotsOwn, x.flags, x.args)
+      m = MSpec(init)
     }
     XetoSpec#m->setConst(x.asm, m)
     return x
   }
 
-  private Str qname(RSpec x)
+  private Str? qname(RSpec x)
   {
-    StrBuf(libName.size + 2 + x.name.size).add(libName).addChar(':').addChar(':').add(x.name).toStr
+    if (x.flavor.isSlot) return null
+    return StrBuf(libName.size + 2 + x.name.size).add(libName).addChar(':').addChar(':').add(x.name).toStr
+  }
+
+  private XetoSpec type(RSpec x)
+  {
+    if (x.flavor.isType) return x.asm
+    if (x.typeIn != null) return resolve(x.typeIn).asm
+    return x.base.asm
   }
 
   private Dict resolveMeta(Dict m)

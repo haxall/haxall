@@ -46,19 +46,25 @@ internal class Assemble : Step
 
   private Void asmTop(ASpec x)
   {
+    init := toInit(x)
     MSpec? m
     switch (x.flavor)
     {
       case SpecFlavor.type:
-        m = MType(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args, x.binding)
+        //m = MType    (x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args, x.binding)
+        m = MType(init)
       case SpecFlavor.func:
-        m = MTopFunc(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+        //m = MTopFunc (x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+        m = MTopFunc(init)
       case SpecFlavor.global:
-        m = MGlobal(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+        //m = MGlobal  (x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+        m = MGlobal(init)
       case SpecFlavor.mixIn:
-        m = MMixin(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+        //m = MMixin   (x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+        m = MMixin(init)
       case SpecFlavor.meta:
-        m = MMetaSpec(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+        //m = MMetaSpec(x.loc, x.lib.asm, x.qname, x.name, x.base?.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+        m = MMetaSpec(init)
       default:
         throw Err(x.flavor.name)
     }
@@ -68,7 +74,8 @@ internal class Assemble : Step
 
   private Void asmSpec(ASpec x)
   {
-    m := MSpec(x.loc, x.parent.asm, x.name, x.base.asm, x.ctype.asm, x.cmeta, x.metaOwn, asmSlots(x), asmSlotsOwn(x), x.flags, x.args)
+    init := toInit(x)
+    m := MSpec(init)
     mField->setConst(x.asm, m)
     asmChildren(x)
   }
@@ -95,6 +102,27 @@ internal class Assemble : Step
     map.ordered = true
     x.cslots |s, n| { map[n] = s.asm }
     return MSlots(map)
+  }
+
+  private MSpecInit toInit(ASpec x)
+  {
+    return MSpecInit
+    {
+      it.loc      = x.loc
+      it.lib      = x.lib.asm
+      it.parent   = x.parent?.asm
+      it.qname    = x.qname
+      it.name     = x.name
+      it.base     = x.base?.asm
+      it.type     = x.isType ? x.asm : x.ctype.asm
+      it.meta     = x.cmeta
+      it.metaOwn  = x.metaOwn
+      it.slots    = asmSlots(x)
+      it.slotsOwn = asmSlotsOwn(x)
+      it.flags    = x.flags
+      it.args     = x.args
+      it.binding  = x.isType ? x.binding : null
+    }
   }
 
   static const Str:Spec noSpecs := [:]

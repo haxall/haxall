@@ -17,19 +17,19 @@ using xeto
 @Js
 const class MSpec
 {
-  new make(FileLoc loc, XetoSpec? parent, Str name, XetoSpec? base, XetoSpec type, Dict meta, Dict metaOwn, MSlots slots, MSlots slotsOwn, Int flags, MSpecArgs args)
+  new make(MSpecInit init)
   {
-    this.loc      = loc
-    this.name     = name
-    this.parent   = parent
-    this.base     = base
-    this.type     = type
-    this.meta     = meta
-    this.metaOwn  = metaOwn
-    this.slots    = slots
-    this.slotsOwn = slotsOwn
-    this.flags    = flags
-    this.args     = args
+    this.loc        = init.loc
+    this.name       = init.name
+    this.parent     = init.parent
+    this.base       = init.base
+    this.type       = init.type
+    this.meta       = init.meta
+    this.metaOwn    = init.metaOwn
+    this.slots      = init.slots
+    this.slotsOwn   = init.slotsOwn
+    this.flags      = init.flags
+    this.args       = init.args
   }
 
   virtual XetoLib lib() { parent.lib }
@@ -179,6 +179,30 @@ const class MSpec
   const Int flags
 
   Type fantomType() { binding.type }
+}
+
+**************************************************************************
+** MSpecInit
+**************************************************************************
+
+@Js
+const class MSpecInit
+{
+  new make(|This| f) { f(this) }
+  const FileLoc loc
+  const Lib? lib
+  const XetoSpec? parent
+  const Str name
+  const Str? qname
+  const XetoSpec? base
+  const XetoSpec type
+  const Dict meta
+  const Dict metaOwn
+  const MSlots slots
+  const MSlots slotsOwn
+  const Int flags
+  const MSpecArgs args
+  const SpecBinding? binding
 }
 
 **************************************************************************
