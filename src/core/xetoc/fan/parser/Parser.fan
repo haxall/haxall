@@ -9,6 +9,7 @@
 
 using util
 using xeto
+using xetom
 
 **
 ** Parser for the Xeto data type language
@@ -334,6 +335,10 @@ internal class Parser
       // inline meta
       if (cur=== Token.lt) { parseInlineMeta(parent); continue }
 
+      // global prefix
+      isGlobal := cur === Token.asterisk
+      if (isGlobal) consume
+
       // name: spec | marker | unnamed-spec
       ASpec? slot
       if (cur === Token.id && peek == Token.colon)
@@ -348,6 +353,12 @@ internal class Parser
       {
         name := autoName(acc)
         slot = parseSpec(parent, doc, name)
+      }
+
+      if (isGlobal)
+      {
+        if (XetoUtil.isAutoName(slot.name)) throw err("Cannot use '*' global on unnamed slot", slot.loc)
+        add("meta", slot.metaInit.map, "global", sys.markerScalar(slot.loc))
       }
 
       parseCommaOrNewline("Expecting end of slots", Token.rbrace)

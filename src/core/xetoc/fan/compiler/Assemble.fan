@@ -86,12 +86,15 @@ internal class Assemble : Step
     x.slots.each |kid| { asmSpec(kid) }
   }
 
-  private MSlots asmSlotsOwn(ASpec x)
+  private MSlots asmSlotsOwn(ASpec x, Bool isGlobal)
   {
     if (x.slots == null || x.slots.isEmpty) return MSlots.empty
     map := Str:XetoSpec[:]
     map.ordered = true
-    x.slots.each |kid, name| { map.add(name, kid.asm) }
+    x.slots.each |kid, name|
+    {
+      if (kid.isGlobal == isGlobal) map.add(name, kid.asm)
+    }
     return MSlots(map)
   }
 
@@ -100,7 +103,10 @@ internal class Assemble : Step
     if (x.cslotsRef.isEmpty) return MSlots.empty
     map := Str:XetoSpec[:]
     map.ordered = true
-    x.cslots |s, n| { map[n] = s.asm }
+    x.cslots |s, n|
+    {
+      if (!s.isGlobal) map[n] = s.asm
+    }
     return MSlots(map)
   }
 
@@ -118,8 +124,8 @@ internal class Assemble : Step
       it.meta       = x.cmeta
       it.metaOwn    = x.metaOwn
       it.slots      = asmSlots(x)
-      it.slotsOwn   = asmSlotsOwn(x)
-      it.globalsOwn = MSlots.empty
+      it.slotsOwn   = asmSlotsOwn(x, false)
+      it.globalsOwn = asmSlotsOwn(x, true)
       it.flags      = x.flags
       it.args       = x.args
       it.binding    = x.isType ? x.binding : null

@@ -55,28 +55,24 @@ const mixin Spec : Dict
   ** Get my own declared meta-data
   abstract Dict metaOwn()
 
-  ** Get the declared children slots.
-  ** Globals are excluded from this method.
+  ** Get the declared children slots (excludes globals).
   abstract SpecSlots slotsOwn()
 
-  ** Get the effective children slots including inherited.
-  ** Globals are excluded from this method.
+  ** Get the effective children slots including inherited (excludes globals).
   abstract SpecSlots slots()
 
-  ** Convenience for 'slots.get'.
-  ** Globals are excluded from this method.
+  ** Convenience for 'slots.get' (excludes globals).
   abstract Spec? slot(Str name, Bool checked := true)
 
-  ** Convenience for 'slotsOwn.get'.
-  ** Globals are excluded from this method.
+  ** Convenience for 'slotsOwn.get' (excludes globals).
   abstract Spec? slotOwn(Str name, Bool checked := true)
 
-  ** All slots including both global and non-global declared by this spec.
+  ** Globals declared by this spec (excludes non-global slots).
   abstract SpecSlots globalsOwn()
 
-  ** Get all the effective slots both global and non-global including
-  ** inherited. This call is computed and can be expensive; so cache and
-  ** reuse the value during your operation.
+  ** Get all the effective globals including inherited (excludes non-global
+  ** slots).  This call is computed and can be expensive; so cache and reuse
+  ** the value during your operation.
   abstract SpecSlots globals()
 
   ** Return if 'this' spec inherits from 'that' from a nominal type perspective.

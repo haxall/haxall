@@ -23,6 +23,54 @@ class GlobalTest : AbstractXetoTest
 
   Void testBasics()
   {
+    ns := createNamespace(["hx.test.xeto"])
+
+    marker := ns.spec("sys::Marker")
+    str    := ns.spec("sys::Str")
+    number := ns.spec("sys::Number")
+
+    ta := ns.spec("hx.test.xeto::TestGlobalsA")
+    tb := ns.spec("hx.test.xeto::TestGlobalsB")
+
+    a := verifyGlobal(ta, "globA", marker)
+    b := verifyGlobal(ta, "globB", str)
+    c := verifyGlobal(ta, "globC", number)
+    d := verifyGlobal(ta, "globD", marker)
+    e := verifyGlobal(ta, "globE", str)
+    f := verifyGlobal(tb, "globF", str)
+  }
+
+  Spec verifyGlobal(Spec parent, Str name, Spec type)
+  {
+    g := parent.globalsOwn.get(name)
+
+    // normal spec identity
+    verifyEq(g.name, name)
+    verifyEq(g.qname, "${parent.qname}.${name}")
+    verifySame(g.parent, parent)
+    verifySame(g.lib, parent.lib)
+    verifySame(g.base, type)
+    verifySame(g.type, type)
+
+    // global meta
+    verifyEq(g.meta["global"], Marker.val)
+// TODO?
+//    verifyEq(g.isSlot, false)
+    verifyEq(g.isGlobal, true)
+
+    // verify not in slots
+    verifyEq(parent.slot(name, false), null)
+    verifyEq(parent.slotOwn(name, false), null)
+
+    return g
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// Basics
+//////////////////////////////////////////////////////////////////////////
+
+  Void testBasicsOld()
+  {
     ns := createNamespace(["sys"])
 
     lib := ns.compileTempLib(
@@ -143,9 +191,9 @@ class GlobalTest : AbstractXetoTest
      date   := ns.spec("sys::Date")
      marker := ns.spec("sys::Marker")
 
-     a := verifyGlobal(lib.global("a"), str,    ["foo":m, "val":"alpha"])
-     b := verifyGlobal(lib.global("b"), date,   ["bar":m, "val":Date("2023-12-03")])
-     c := verifyGlobal(lib.global("c"), marker, ["foo":m, "bar":m])
+     a := verifyGlobalOld(lib.global("a"), str,    ["foo":m, "val":"alpha"])
+     b := verifyGlobalOld(lib.global("b"), date,   ["bar":m, "val":Date("2023-12-03")])
+     c := verifyGlobalOld(lib.global("c"), marker, ["foo":m, "bar":m])
 
      baz := lib.type("Baz")
      qux := lib.type("Qux")
@@ -201,9 +249,9 @@ class GlobalTest : AbstractXetoTest
      marker := ns.spec("sys::Marker")
      number := ns.spec("sys::Number")
 
-     zone  := verifyGlobal(ph.global("zone"),  marker, null)
-     space := verifyGlobal(ph.global("space"), marker, null)
-     area  := verifyGlobal(ph.global("area"),  number, null)
+     zone  := verifyGlobalOld(ph.global("zone"),  marker, null)
+     space := verifyGlobalOld(ph.global("space"), marker, null)
+     area  := verifyGlobalOld(ph.global("area"),  number, null)
 
      foo := lib.type("Foo")
      // env.print(foo)
@@ -252,7 +300,7 @@ class GlobalTest : AbstractXetoTest
 // Utils
 //////////////////////////////////////////////////////////////////////////
 
-  Spec verifyGlobal(Spec global, Spec type, [Str:Obj]? meta)
+  Spec verifyGlobalOld(Spec global, Spec type, [Str:Obj]? meta)
   {
     verifySame(global.type, type)
     verifySame(global.base, type)

@@ -206,6 +206,10 @@ internal class InheritSlots : Step
         else
           flags = flags.or(MSpecFlags.maybe)
       }
+
+      // if global is marker set flag
+      global := x.meta.get("global")
+      if (global != null) flags = flags.or(MSpecFlags.global)
     }
 
     // if my base is compound type
