@@ -31,38 +31,82 @@ class GlobalTest : AbstractXetoTest
 
     ta := ns.spec("hx.test.xeto::TestGlobalsA")
     tb := ns.spec("hx.test.xeto::TestGlobalsB")
+    tc := ns.spec("hx.test.xeto::TestGlobalsC")
+    td := ns.spec("hx.test.xeto::TestGlobalsD")
 
     a := verifyGlobal(ta, "globA", marker)
     b := verifyGlobal(ta, "globB", str)
     c := verifyGlobal(ta, "globC", number)
     d := verifyGlobal(ta, "globD", marker)
     e := verifyGlobal(ta, "globE", str)
+
     f := verifyGlobal(tb, "globF", str)
+    g := verifyGlobal(tb, "globG", str)
+    ao := verifyNotGlobal(tb, "globA", a)
+
+    h := verifyGlobal(tc, "globH", str)
+    i := verifyGlobal(tc, "globI", str)
+    bo := verifyNotGlobal(tc, "globB", b)
+
+    j := verifyGlobal(td, "globJ", str)
+    co := verifyNotGlobal(td, "globC", c)
+    io := verifyNotGlobal(td, "globI", i)
+    bo2 := verifyNotGlobal(td, "globB", b)
+
+    verifyGlobals(ta, [a, b, c, d, e])
+    verifyGlobals(tb, [f, g, b, c, d, e])
+    verifyGlobals(tc, [h, i, a, c, d, e])
+    verifyGlobals(td, [j, f, g, d, e, h])
   }
 
   Spec verifyGlobal(Spec parent, Str name, Spec type)
   {
-    g := parent.globalsOwn.get(name)
+    x := parent.globalsOwn.get(name)
 
     // normal spec identity
-    verifyEq(g.name, name)
-    verifyEq(g.qname, "${parent.qname}.${name}")
-    verifySame(g.parent, parent)
-    verifySame(g.lib, parent.lib)
-    verifySame(g.base, type)
-    verifySame(g.type, type)
+    verifyEq(x.name, name)
+    verifyEq(x.qname, "${parent.qname}.${name}")
+    verifySame(x.parent, parent)
+    verifySame(x.lib, parent.lib)
+    verifySame(x.base, type)
+    verifySame(x.type, type)
 
     // global meta
-    verifyEq(g.meta["global"], Marker.val)
+    verifyEq(x.meta["global"], Marker.val)
 // TODO?
-//    verifyEq(g.isSlot, false)
-    verifyEq(g.isGlobal, true)
+//    verifyEq(x.isSlot, false)
+    verifyEq(x.isGlobal, true)
 
     // verify not in slots
     verifyEq(parent.slot(name, false), null)
     verifyEq(parent.slotOwn(name, false), null)
 
-    return g
+    return x
+  }
+
+  Spec verifyNotGlobal(Spec parent, Str name, Spec base)
+  {
+    x := parent.slots.get(name)
+
+    verifyEq(x.isSlot, true)
+    verifyEq(x.isGlobal, false)
+    verifySame(x.base, base)
+
+    return x
+  }
+
+  Void verifyGlobals(Spec parent, Spec[] expect)
+  {
+    actual := Spec[,]
+    globs := parent.globals
+    verifyNotSame(parent.globals, globs)
+    globs.each |x| { actual.add(x) }
+    actualStr := actual.join(",") { it.name }
+    expectStr := expect.join(",") { it.name }
+    // echo(">> $parent")
+    // echo("   a: $actualStr")
+    // echo("   e: $expectStr")
+    verifyEq(actualStr, expectStr)
   }
 
 //////////////////////////////////////////////////////////////////////////

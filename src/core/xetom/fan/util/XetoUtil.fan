@@ -437,11 +437,13 @@ const class XetoUtil
   static SpecSlots globals(Spec base)
   {
     acc := Str:Spec[:]
+    acc.ordered = true
+    slots := base.slots
     eachInherited(base) |x|
     {
       x.globalsOwn.each |g|
       {
-        if (acc[g.name] == null) acc[g.name] = g
+        if (acc[g.name] == null && slots.missing(g.name)) acc[g.name] = g
       }
     }
     return acc.isEmpty ? MSlots.empty : MSlots(acc)

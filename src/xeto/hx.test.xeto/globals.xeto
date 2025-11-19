@@ -18,5 +18,21 @@ TestGlobalsA: {
 // Test B
 TestGlobalsB: TestGlobalsA {
   *globF: Str
+  *globG: Str
+  globA
+}
+
+// Test C
+TestGlobalsC: TestGlobalsA {
+  *globH: Str
+  *globI: Str
+  globB: Str
+}
+
+// Test D
+TestGlobalsD: TestGlobalsB & TestGlobalsC {
+  *globJ: Str
+  globC: Number
+  globI: Str
 }
 
