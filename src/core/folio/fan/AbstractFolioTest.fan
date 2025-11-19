@@ -97,6 +97,11 @@ class AbstractFolioTest : HaystackTest
 // Folio Utils
 //////////////////////////////////////////////////////////////////////////
 
+  Void verifyIdsSame(Ref a, Ref b)
+  {
+    impl.verifyIdsSame(a, b)
+  }
+
   Void verifyRecSame(Dict? a, Dict? b)
   {
     impl.verifyRecSame(a, b)
@@ -244,13 +249,13 @@ abstract class FolioTestImpl
   ** Does the implementation support spark index APIs
   virtual Bool supportsSparkIndex() { supportsFolioX }
 
+  ** Verify that two ids are normalized to the same instance
+  virtual Void verifyIdsSame(Ref a, Ref b) { verifySame(a, b) }
+
   ** Verify record a is the same b.  If the implementation supports
   ** an in-memory cache then they should be the same instance in memory,
   ** otherwise they should be the same by tag values
-  virtual Void verifyRecSame(Dict? a, Dict? b)
-  {
-    verifySame(a, b)
-  }
+  virtual Void verifyRecSame(Dict? a, Dict? b) { verifySame(a, b) }
 
   ** Verify the current version of Folio is greater than prev.
   ** Return new version

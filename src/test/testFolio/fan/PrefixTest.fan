@@ -69,8 +69,8 @@ class PrefixTest : AbstractFolioTest
       a = folio.readById(a.id)
       c = folio.readById(c.id)
       verifyRefEq(a.id, Ref("u:a", "Alpha"))
-      verifySame(a.id, c->aAbsRef)
-      verifySame(a.id, c->aRelRef)
+      verifyIdsSame(a.id, c->aAbsRef)
+      verifyIdsSame(a.id, c->aRelRef)
       verifyRefEq(c->aAbsRef, a.id)
       verifyRefEq(c->aRelRef, a.id)
       verifyRefEq(c->bAbsRef, b.id)
@@ -108,8 +108,8 @@ class PrefixTest : AbstractFolioTest
     c = folio.readById(c.id)
     verifyDictEq(c, diff.newRec)
     verifyRefEq(a.id, Ref("xyz:a", "Alpha"))
-    verifySame(a.id, c->aAbsRef)
-    verifySame(a.id, c->aRelRef)
+    verifyIdsSame(a.id, c->aAbsRef)
+    verifyIdsSame(a.id, c->aRelRef)
     verifyRefEq(c->nAbsRef, Ref("xyz:n"))
     verifyRefEq(c->nRelRef, Ref("xyz:n"))
     verifyRefEq(c->xRef, Ref("x:foo"))
@@ -121,8 +121,8 @@ class PrefixTest : AbstractFolioTest
     a = folio.readById(a.id)
     c = folio.readById(c.id)
     verifyRefEq(a.id, Ref("xyz:a", "Alpha x 2"))
-    verifySame(a.id, c->aAbsRef)
-    verifySame(a.id, c->aRelRef)
+    verifyIdsSame(a.id, c->aAbsRef)
+    verifyIdsSame(a.id, c->aRelRef)
   }
 
 }
