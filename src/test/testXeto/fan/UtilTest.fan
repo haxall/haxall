@@ -747,7 +747,7 @@ class UtilTest : AbstractXetoTest
     verifyCommonSuper(ns, ["ph::AcElecMeter", "ph::Meter"], "ph::Meter")
     verifyCommonSuper(ns, ["ph::AcElecMeter", "ph::Equip"], "ph::Equip")
     verifyCommonSuper(ns, ["ph::AcElecMeter", "ph::Ahu"], "ph::Equip")
-    verifyCommonSuper(ns, ["ph::AcElecMeter", "ph::Room"], "sys::Entity")
+    verifyCommonSuper(ns, ["ph::AcElecMeter", "ph::Room"], "ph::PhEntity")
 
     verifyCommonSuper(ns, ["ph.points::DischargeAirTempSensor",
                            "ph.points::ReturnAirTempSensor"],
