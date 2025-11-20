@@ -21,11 +21,11 @@ const mixin ReflectDict
   ** Spec type of dict used for reflection
   abstract Spec spec()
 
-  ** Reflected slots
-  abstract ReflectSlot[] slots()
+  ** Reflected slots and globals in the spec
+  abstract ReflectMember[] members()
 
-  ** Reflected slot by name
-  abstract ReflectSlot? slot(Str name, Bool checked := true)
+  ** Reflected member by name
+  abstract ReflectMember? member(Str name, Bool checked := true)
 
   ** Debug dump to the console
   @NoDoc abstract Void dump(Console con := Console.cur)
@@ -33,21 +33,21 @@ const mixin ReflectDict
 }
 
 **************************************************************************
-** ReflectSlot
+** ReflectMember
 **************************************************************************
 
 **
-** ReflectSlot models one name/value pair of a ReflectDict
+** ReflectMember models one name/value pair of a ReflectDict
 **
 @NoDoc @Js
-const mixin ReflectSlot
+const mixin ReflectMember
 {
-  ** Name of the slot in dict
+  ** Name of the tag in dict
   abstract Str name()
 
   ** Spec of the slot as one of the following:
   **   - slot spec of dict spec
-  **   - global spec if defined by namespace
+  **   - global spec of dict spec
   **   - fallback to spec of value type
   abstract Spec spec()
 

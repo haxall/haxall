@@ -23,7 +23,8 @@ const class MReflectDict : ReflectDict
 
     // merge in record spec slots that aren't defined
     choices := Str:SpecChoice[:]
-    recSpec.slots.each |slot|
+    members := recSpec.members
+    members.each |slot|
     {
       n := slot.name
       if (slot.isQuery) return
@@ -49,34 +50,33 @@ const class MReflectDict : ReflectDict
     }
 
     // now map to reflect slots
-    acc := Str:ReflectSlot[:]
+    acc := Str:ReflectMember[:]
     acc.ordered = true
     tags.each |v, n|
     {
-      slotSpec := recSpec.slot(n, false)
-      if (slotSpec == null) slotSpec = ns.unqualifiedGlobal(n, false)
-      if (slotSpec == null) slotSpec = ns.specOf(v, false)
-      if (slotSpec == null) slotSpec = ns.spec("sys::Obj")
-      acc[n] = MReflectSlot(n, slotSpec, v)
+      memberSpec := members.get(n, false)
+      if (memberSpec == null) memberSpec = ns.specOf(v, false)
+      if (memberSpec == null) memberSpec = ns.sys.obj
+      acc[n] = MReflectMember(n, memberSpec, v)
     }
 
-    this.subject     = subject
-    this.spec        = recSpec
-    this.slots       = acc.vals
-    this.slotsByName = acc
+    this.subject       = subject
+    this.spec          = recSpec
+    this.members       = acc.vals
+    this.membersByName = acc
   }
 
   override const Dict subject
 
   override const Spec spec
 
-  override const ReflectSlot[] slots
+  override const ReflectMember[] members
 
-  private const Str:ReflectSlot slotsByName
+  private const Str:ReflectMember membersByName
 
-  override ReflectSlot? slot(Str name, Bool checked := true)
+  override MReflectMember? member(Str name, Bool checked := true)
   {
-    slot := slotsByName[name]
+    slot := membersByName[name]
     if (slot != null) return slot
     if (checked) throw UnknownSlotErr(name)
     return null
@@ -85,21 +85,21 @@ const class MReflectDict : ReflectDict
   override Void dump(Console con := Console.cur)
   {
     con.group("ReflectDict $subject.dis.toCode [$spec]")
-    slots.each |slot| { con.info(slot.toStr) }
+    members.each |m| { con.info(m.toStr) }
     con.groupEnd
   }
 
 }
 
 **************************************************************************
-** MReflectSlot
+** MReflectMember
 **************************************************************************
 
 **
-** ReflectSlot implementation
+** ReflectMember implementation
 **
  @Js
-const class MReflectSlot : ReflectSlot
+const class MReflectMember : ReflectMember
 {
   new make(Str n, Spec s, Obj? v) { name = n; spec = s; val = v }
 

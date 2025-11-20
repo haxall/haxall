@@ -175,7 +175,7 @@ const class MNamespace : Namespace, CNamespace
 
     spec := lib(libName, false)?.spec(names.first, false)
     for (i:=1; spec != null && i<names.size; ++i)
-      spec = spec.slot(names[i], false)
+      spec = spec.member(names[i], false)
 
     if (spec != null) return spec
     if (checked) throw UnknownSpecErr(qname)
